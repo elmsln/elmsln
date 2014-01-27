@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Piwik &rsaquo; {{ 'CoreUpdater_UpdateTitle'|translate }}</title>
+    <meta http-equiv="X-UA-Compatible" content="IE=EDGE,chrome=1"/>
+    <meta name="viewport" content="initial-scale=1.0" />
+
+    <link rel="stylesheet" type="text/css" href="libs/jquery/themes/base/jquery-ui.css"/>
+    <link rel="stylesheet" type="text/css" href="index.php?module=Installation&action=getBaseCss"/>
+    <link rel="stylesheet" type="text/css" href="plugins/Zeitgeist/stylesheets/simple_structure.css"/>
+    <link rel="stylesheet" type="text/css" href="plugins/CoreHome/stylesheets/jquery.ui.autocomplete.css" />
+    <link rel="stylesheet" type="text/css" href="plugins/CoreUpdater/stylesheets/updateLayout.css" />
+
+    <script type="text/javascript" src="libs/jquery/jquery.js"></script>
+    <script type="text/javascript" src="libs/jquery/jquery-ui.js"></script>
+    <script type="text/javascript" src="plugins/CoreHome/javascripts/donate.js"></script>
+    <script type="text/javascript" src="plugins/CoreUpdater/javascripts/updateLayout.js"></script>
+    <script type="text/javascript">{{ getJavascriptTranslations()|raw }}</script>
+    {% if 'General_LayoutDirection'|translate =='rtl' %}
+        <link rel="stylesheet" type="text/css" href="plugins/Zeitgeist/stylesheets/rtl.css"/>
+    {% endif %}
+
+    <link rel="shortcut icon" href="plugins/CoreHome/images/favicon.ico"/>
+</head>
+<body id="simple">
+<div id="contentsimple">
+    <div id="title">
+        <img title='Piwik' alt="Piwik" src="plugins/Morpheus/images/logo-header.png" style="margin-left:10px;"/>
+        <span id="subh1"> # {{ 'General_OpenSourceWebAnalytics'|translate }}</span>
+    </div>
+    {% block content %}
+    {% endblock %}
+</div>
+</body>
+</html>

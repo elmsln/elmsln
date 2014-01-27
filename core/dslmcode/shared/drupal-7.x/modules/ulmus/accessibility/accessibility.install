@@ -1,0 +1,201 @@
+<?php
+
+/**
+ * Implements hook_install().
+ */
+function accessibility_install() {
+  $field = field_info_field('error_description');
+  $instance = field_info_instance('accessibility_test', 'error_description', 'accessibility_test');
+  if (empty($field)) {
+    $field = array(
+      'field_name' => 'error_description',
+      'type' => 'text_with_summary',
+      'entity_types' => array('accessibility_test'),
+    );
+    $field = field_create_field($field);
+  }
+  if (empty($instance)) {
+    $instance = array(
+      'field_name' => 'error_description',
+      'entity_type' => 'accessibility_test',
+      'bundle' => 'accessibility_test',
+      'label' => st('Error description'),
+      'widget' => array('type' => 'text_textarea_with_summary'),
+      'settings' => array('display_summary' => TRUE),
+      'display' => array(
+        'default' => array(
+          'label' => 'hidden',
+          'type' => 'text_default',
+        ),
+        'popup' => array(
+          'label' => 'hidden',
+          'type' => 'text_default',
+        ),
+        'teaser' => array(
+          'label' => 'hidden',
+          'type' => 'text_summary_or_trimmed',
+        ),
+      ),
+    );
+    $instance = field_create_instance($instance);
+  }
+  
+  $display_settings = array(
+    'view_modes' => array(
+      'popup' => array(
+        'custom_settings' => TRUE,
+      ),
+      'full' => array(
+        'custom_settings' => FALSE,
+      ),
+    ),
+    'extra_fields' => array(
+      'form' => array(),
+      'display' => array(
+        'quail_name' => array(
+          'default' => array(
+            'weight' => '3',
+            'visible' => FALSE,
+          ),
+          'popup' => array(
+            'weight' => '3',
+            'visible' => FALSE,
+          ),
+        ),
+        'severity' => array(
+          'default' => array(
+            'weight' => '2',
+            'visible' => FALSE,
+          ),
+          'popup' => array(
+            'weight' => '2',
+            'visible' => FALSE,
+          ),
+        ),
+        'status' => array(
+          'default' => array(
+            'weight' => '1',
+            'visible' => FALSE,
+          ),
+          'popup' => array(
+            'weight' => '1',
+            'visible' => FALSE,
+          ),
+        ),
+      ),
+    ),
+  );
+  field_bundle_settings('accessibility_test', 'accessibility_test', $display_settings);
+}
+
+/**
+ * Implements hook_requirements().
+ */
+function accessibility_requirements($phase) {
+  if (!module_exists('libraries')) {
+    return array();
+  }
+  $requirements = array('quail_installed' => array('title' => t('QUAIL library installed')));
+  $library_path = libraries_get_path('quail');
+  if ($library_path && file_exists($library_path . '/quail.json')) {
+    $version = json_decode(file_get_contents($library_path . '/quail.json'));
+    if(version_compare(ACCESSIBILITY_QUAIL_VERSION, $version->version) < 1) {
+      $requirements['quail_installed']['value'] = t('QUAIL version @version installed', array('@version' => $version->version));
+      $requirements['quail_installed']['severity'] = REQUIREMENT_OK;
+    }
+    else {
+      $requirements['quail_installed']['value'] = t('QUAIL should be at least version 2.0.3, installed version is @version', array('@version' => $version->version));
+      $requirements['quail_installed']['severity'] = REQUIREMENT_ERROR;
+      $requirements['quail_installed']['description'] = t('You must download the !link and install it in your libraries folder, and make sure the folder is re-named to "quail" without a version number.', array(
+        '!link' => l('QUAIL jQuery library', 'https://github.com/kevee/quail/releases'),
+          )
+        ); 
+    }
+  }
+  else {
+    $requirements['quail_installed']['value'] = t('QUAIL not installed');
+    $requirements['quail_installed']['severity'] = REQUIREMENT_ERROR;
+    $requirements['quail_installed']['description'] = t('You must download the !link version @version and install it in your libraries folder, and make sure the folder is re-named to "quail" without a version number.', array(
+      '@version' => ACCESSIBILITY_QUAIL_VERSION, 
+      '!link' => l('QUAIL jQuery library', 'https://github.com/kevee/quail/releases'),
+        )
+      ); 
+  }
+  return $requirements;
+}
+
+/**
+ * Implements hook_schema().
+ */
+function accessibility_schema() {
+  $schema = array();
+
+  $schema['accessibility_test'] = array(
+    'description' => 'Accessibility tests.',
+    'fields' => array(
+      'test_id' => array(
+        'description' => 'Primary Key: Identifier for an accessibility test.',
+        'type' => 'serial',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ),
+      'language' => array(
+        'description' => 'The language of the test.',
+        'type' => 'varchar',
+        'length' => 32,
+        'not null' => TRUE,
+        'default' => '',
+      ),
+      'name' => array(
+        'description' => 'The name of the test - a human-readable identifier.',
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => TRUE,
+        'default' => '',
+      ),
+      'quail_name' => array(
+        'description' => 'The name of the related QUAIL test label.',
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => TRUE,
+        'default' => '',
+      ),
+      'severity' => array(
+        'description' => 'The severity of the test.',
+        'type' => 'varchar',
+        'length' => 50,
+        'not null' => TRUE,
+        'default' => 'suggestion',
+      ),
+      'status' => array(
+        'description' => 'Whether the test is active or not.',
+        'type' => 'int',
+        'length' => 1,
+        'not null' => TRUE,
+        'default' => 1,
+      ),
+      'created' => array(
+        'description' => 'The Unix timestamp when the test was created.',
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'changed' => array(
+        'description' => 'The Unix timestamp when the test was most recently saved.',
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'data' => array(
+        'type' => 'blob',
+        'not null' => FALSE,
+        'size' => 'big',
+        'serialize' => TRUE,
+        'description' => 'A serialized array of additional data.',
+      ),
+    ),
+    'primary key' => array('test_id'),
+  );
+
+  return $schema;
+}

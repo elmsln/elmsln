@@ -1,0 +1,9 @@
+name = Plupload widget
+description = Provides multiple upload functionality.
+dependencies[] = libraries
+; Information added by drupal.org packaging script on 2012-07-04
+version = "7.x-1.0-alpha1+5-dev"
+core = "7.x"
+project = "plup"
+datestamp = "1341362315"
+

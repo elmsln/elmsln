@@ -1,0 +1,55 @@
+Menu Position 7.x-1.1, 2012-02-22
+---------------------------------
+- #1439948 by reglogge: form validation fails when adding many taxonomy terms to a rule
+- #1157564 by konordo, jwilson3 and JohnAlbin: Add user role based plugin
+- #1363392 by Les Lim: Fix PHP Notice on 404 pages
+- Add dependency on Drupal 7.12 or later
+- #1426482 by craigjones: Menu position module fails to provide correct active trail under Drupal 7.12
+- #1336338 by miro_dietiker and rvilar: Adding a new menu item fails
+
+Menu Position 7.x-1.0, 2011-11-01
+---------------------------------
+- by davereid and JohnAlbin: rowCount doesn't work when using sqlite
+- #1309050 by Les Lim and JohnAlbin: Add an option for altering the active item when a rule matches
+- API CHANGE! Change breadcrumb parameter of hook_menu_position_rule_alter()
+- #963856 by JohnAlbin and artis.bajars: Add taxonomy/vocabulary plug-in
+- Add user entity page to context
+- Add entity_type and bundle_name to context array
+- #979464: Use menu_tree_set_path() to set the active trail of menu trees
+- Add dependency on Drupal 7.9-dev or later
+
+Menu Position 7.x-1.0-beta4, 2011-10-14
+---------------------------------------
+- #1266816: PHP warning about unserialize during update to beta3
+- #1305546 by JohnAlbin and ewills: All rules are broken after upgrade to 7.x-1.0-beta3
+- Add serialize flag to conditions column
+
+Menu Position 7.x-1.0-beta3, 2011-10-10
+---------------------------------------
+- #1266816: Parent menu link of rule shows wrong expand/leaf icon
+- #1019342: Add current page's menu link at the end of the active trail
+- #1217484 by swentel and JohnAlbin: Let other modules alter the rule
+- #1248040 by inolen, Davidovich and JohnAlbin: Panels content isn't affected by menu position rules
+- #1295822 by JohnAlbin and vectoroc: Fatal error on custom 403 pages
+- #1116938 by akalata and JohnAlbin: button order is inconsistent with menu link edit form
+- #1070430 by Stalski: Add multi-language plugin
+- #1177606 by JohnAlbin and timmillwood: fatal error on 404 pages with an active menu position rule
+- #1152932 by JohnAlbin, Wolfgang Reszel, nowarninglabel, jhedstrom and aasarava: Strange "menu position rule" link added to breadcrumb
+- #1280986 by JohnAlbin and davereid: Show the parent menu link title for each rule on the admin form
+- #1163868 by mstrelan: Menu position doesn't get set for Views with contextual filters
+- #1117452: Not clear if conditions are ORed or ANDed
+- #1298832: Add proper page arguments to the router menu item
+- #1244130 by davereid and JohnAlbin: Menu items are untranslatable
+- #1071190: Warning: unserialize() expects parameter 1 to be string
+- #1001538: Provide/better document CRUD functions for menu position rule sets
+- #1000980: Editing rule causes corresponding menu link's weight to reset
+- #1000332: default values not properly set for some plugin properties
+
+Menu Position 7.x-1.0-beta2, 2010-12-17
+---------------------------------------
+- #993958: Wrong page titles displayed
+- Improve display of rules in menu overview form
+
+Menu Position 7.x-1.0-beta1, 2010-10-21
+---------------------------------------
+- Initial release

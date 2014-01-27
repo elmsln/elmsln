@@ -1,0 +1,14 @@
+<Files "*">
+<IfModule mod_access.c>
+Allow from all
+</IfModule>
+<IfModule !mod_access_compat>
+<IfModule mod_authz_host.c>
+Allow from all
+</IfModule>
+</IfModule>
+<IfModule mod_access_compat>
+Allow from all
+</IfModule>
+Satisfy any
+</Files>

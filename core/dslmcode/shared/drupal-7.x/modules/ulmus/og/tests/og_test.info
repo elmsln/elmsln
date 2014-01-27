@@ -1,0 +1,12 @@
+name = OG test module
+description = Functionality to assist OG testing.
+core = 7.x
+dependencies[] = og
+hidden = TRUE
+
+; Information added by  packaging script on 2013-11-20
+version = "7.x-2.4"
+core = "7.x"
+project = "og"
+datestamp = "1384971519"
+

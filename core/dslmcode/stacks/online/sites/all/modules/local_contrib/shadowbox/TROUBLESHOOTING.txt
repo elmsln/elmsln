@@ -1,0 +1,49 @@
+
+TROUBLESHOOTING
+===============
+
+Step 1
+
+  If you are experiencing any problems getting Shadowbox to work try clearing
+  the cache.
+
+Check for the rel attribute
+
+  Check that the link you expect to open in Shadowbox has the required rel
+  attribute with a value of 'shadowbox' or 'lightbox', for example:
+
+  <a href="/path/to/file.jpg" rel="shadowbox">
+
+Interface translation
+
+  Translations for the Shadowbox interface are currently handled by JS files in
+  the languages sub-directory of the downloaded Shadowbox distribution. If your
+  site uses a language that is not already catered for, you will need to copy, 
+  edit and rename one of the related language files to suit your site.
+
+  If a language file is not found for the current language (defined by the
+  value of $language->language) English will be used as a fallback.
+
+Check for JavaScript errors
+
+  Check the page in Firefox with Firebug's Console enabled. If there is a
+  JavaScript error it will be flagged up in the bottom right hand corner of the
+  Firefox window.
+  
+  It is helpful to provide the error message in any issue posts you might make.
+
+Check the issue queue
+
+  Check the issue queue to see if anyone has posted information about the same
+  issue you are experiencing. Don't forget to check the issue queue before
+  starting to create a patch for a module as someone might have already done
+  some, if not all, of the work for you.
+
+  http://drupal.org/project/issues/shadowbox
+
+Submit a new issue
+
+  Finally, once you have done all you can to try and fix the problem yourself,
+  you may post a new issue in the queue. Please include all the details you can
+  think of that might be relevant to the issue. It helps to use a meaningful
+  title that concisely expresses the scope of the issue.

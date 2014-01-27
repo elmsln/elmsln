@@ -1,0 +1,158 @@
+<?php
+
+/**
+ * @file
+ * Back To Top link using JQuery.
+ * Requires javascript as enabled
+ */
+ 
+ /**
+ * Implements hook_menu().
+ */
+function back_to_top_menu() {
+  $items = array();
+
+  $items['admin/config/user-interface/back_to_top'] = array(
+    'title' => 'Back To Top',
+    'description' => 'Administer Back To Top settings',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('back_to_top_settings'),
+    'access arguments' => array('access administration pages'),
+    'file' => 'back_to_top.admin.inc',
+    'type' => MENU_NORMAL_ITEM,
+  );
+
+  return $items;
+}
+
+/**
+ * Implementation of hook_init
+ * Add javascript & css but first check if prevent on mobile
+ */
+function back_to_top_init() {
+  $settings = array(
+    'back_to_top_prevent_on_mobile' => variable_get('back_to_top_prevent_on_mobile', TRUE),
+    'back_to_top_prevent_in_admin' => variable_get('back_to_top_prevent_in_admin', TRUE),
+    'back_to_top_button_type' => variable_get('back_to_top_button_type', 'image'),
+  );
+  if (variable_get('back_to_top_prevent_on_mobile', 'TRUE') && (is_mobile())) {
+    return FALSE;
+  }
+  if (variable_get('back_to_top_prevent_in_admin', 'TRUE') && (is_adminpage())) {
+    return FALSE;
+  }
+  drupal_add_library('system', 'effects');
+  drupal_add_js(drupal_get_path('module', 'back_to_top') . '/js/back_to_top.js', array('group' => JS_DEFAULT, 'every_page' => TRUE));
+  
+  drupal_add_js(array('back_to_top' => array('back_to_top_button_trigger' => variable_get('back_to_top_button_trigger', 100))), 'setting');
+  
+  // Add stylesheet for image or text/css button
+  if ((variable_get('back_to_top_button_type', 'image')) == "text" ) {
+    drupal_add_css(drupal_get_path('module', 'back_to_top') . '/css/back_to_top_text.css', array('group' => CSS_DEFAULT, 'every_page' => TRUE));
+  }
+  else {
+    drupal_add_css(drupal_get_path('module', 'back_to_top') . '/css/back_to_top.css', array('group' => CSS_DEFAULT, 'every_page' => TRUE));
+  }
+  
+  // Check variables and add placement
+  if ((variable_get('back_to_top_button_place', '1')) == 2 ) {
+    $css = "#backtotop { left: 10px; }";
+    drupal_add_css($css, 'inline');  
+  }
+  if ((variable_get('back_to_top_button_place', '1')) == 3 ) {
+    $css = "#backtotop { left: 50%; margin-left: -50px; }";
+    drupal_add_css($css, 'inline');  
+  }
+  if ((variable_get('back_to_top_button_place', '1')) == 4 ) {
+    $css = "#backtotop { top: 10px; }";
+    drupal_add_css($css, 'inline');  
+  }
+  if ((variable_get('back_to_top_button_place', '1')) == 5 ) {
+    $css = "#backtotop { top: 10px; left: 10px; }";
+    drupal_add_css($css, 'inline');  
+  }
+  if ((variable_get('back_to_top_button_place', '1')) == 6 ) {
+    $css = "#backtotop { top: 10px; left: 50%; margin-left: -50px; }";
+    drupal_add_css($css, 'inline');  
+  }
+  if ((variable_get('back_to_top_button_place', '1')) == 7 ) {
+    $css = "#backtotop { top: 50%; }";
+    drupal_add_css($css, 'inline');  
+  }
+  if ((variable_get('back_to_top_button_place', '1')) == 8 ) {
+    $css = "#backtotop { top: 50%; left: 10px; }";
+    drupal_add_css($css, 'inline');  
+  }
+  if ((variable_get('back_to_top_button_place', '1')) == 9 ) {
+    $css = "#backtotop { top: 50%; left: 50%; margin-left: -50px; }";
+    drupal_add_css($css, 'inline');  
+  }
+  // Check variables and add color from settings - this code could be done a bit nicer
+  if (((variable_get('back_to_top_button_type', 'image')) == "text" ) && ((variable_get('back_to_top_bg_color', '#F7F7F7')) !== '#F7F7F7' )) {
+    $setting = variable_get('back_to_top_bg_color', '#F7F7F7');
+    $css = "#backtotop { background: " . $setting . "; }";
+    drupal_add_css($css, 'inline');  
+  }
+  if (((variable_get('back_to_top_button_type', 'image')) == "text" ) && ((variable_get('back_to_top_border_color', '#CCCCCC')) !== '#CCCCCC' )) {
+    $setting = variable_get('back_to_top_bg_color', '#CCCCCC');
+    $css = "#backtotop { border-color: " . $setting . "; }";
+    drupal_add_css($css, 'inline');  
+  }
+  if (((variable_get('back_to_top_button_type', 'image')) == "text" ) && ((variable_get('back_to_top_hover_color', '#EEEEEE')) !== '#EEEEEE' )) {
+    $setting = variable_get('back_to_top_hover_color', '#EEEEEE');
+    $css = "#backtotop:hover { background: " . $setting . "; border-color: " . $setting . "; }";
+    drupal_add_css($css, 'inline');  
+  }
+  if (((variable_get('back_to_top_button_type', 'image')) == "text" ) && ((variable_get('back_to_top_text_color', '#333333')) !== '#333333' )) {
+    $setting = variable_get('back_to_top_text_color', '#333333');
+    $css = "#backtotop { color: " . $setting . "; }";
+    drupal_add_css($css, 'inline');  
+  }
+  // Add settings to js
+  drupal_add_js(array('back_to_top' => $settings), 'setting');
+}
+
+/**
+ * Check if mobile or touch device with PHP so javascript and css isn't included in that case 
+ */
+function is_mobile() {
+
+  // Check for mobile device using Browscap module if it is available.
+  if (module_exists('browscap')) {
+    $browser = browscap_get_browser();
+    if (isset($browser['ismobiledevice']) && $browser['ismobiledevice'] == 1) {
+      return TRUE;
+    }
+  }
+
+  if (isset($_SERVER["HTTP_X_WAP_PROFILE"]))
+  return TRUE;
+  if (isset($_SERVER["HTTP_ACCEPT"]) && preg_match("/wap\.|\.wap/i", $_SERVER["HTTP_ACCEPT"]))
+  return TRUE;
+    if (isset($_SERVER["HTTP_USER_AGENT"])) {
+      $user_agents = array(
+      "midp", "j2me", "iphone", "avantg", "docomo", "novarra", "palmos", 
+      "palmsource", "240x320", "opwv", "chtml", "pda", "windows\ ce", "mmp\/", 
+      "blackberry", "mib\/", "symbian", "wireless", "nokia", "hand", "mobi", 
+      "phone", "cdm", "up\.b", "audio", "sie\-", "sec\-", "samsung", "htc", 
+      "mot\-", "mitsu", "sagem", "sony", "alcatel", "lg", "erics", "vx", "^nec", 
+      "philips", "mmm", "xx", "panasonic", "sharp", "wap", "sch", "rover", 
+      "pocket", "benq", "java", "pt", "pg", "vox", "amoi", "bird", "compal", 
+      "kg", "voda", "sany", "kdd", "dbt", "sendo", "sgh", "gradi", "jb", "\d\d\di", "moto", 
+      "ipad", "android", "ipod", "webos");
+
+    foreach ($user_agents as $user_string) {
+      if (preg_match("/" . $user_string . "/i", strtolower($_SERVER["HTTP_USER_AGENT"]))) 
+      return TRUE;
+    }
+  }
+  return FALSE;
+}
+
+/**
+ * Check if page viewed is in admin section or a node/edit for possible option to not include javascript and css in that case 
+ */
+function is_adminpage() {
+  return path_is_admin(current_path());
+}
+

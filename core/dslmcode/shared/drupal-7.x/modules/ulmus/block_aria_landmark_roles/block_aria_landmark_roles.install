@@ -1,0 +1,65 @@
+<?php
+
+/**
+ * @file
+ * Install, update, and uninstall functions for the Blocks ARIA Landmark Roles 
+ * module.
+ */
+ 
+/**
+ * Implements hook_schema().
+ *
+ * Creates a new database table when the module is installed.
+ */
+function block_aria_landmark_roles_schema() {
+  $schema['block_aria_landmark_roles'] = array(
+    'description' => 'Stores ARIA landmark roles assigned to blocks',
+    'fields' => array(
+      'module' => array(
+        'description' => 'The name of the module that generates the block',
+        'type' => 'varchar',
+        'length' => '255',
+        'not null' => TRUE,
+        'default' => '',
+      ),
+      'delta' => array(
+        'description' => 'The delta value of the block',
+        'type' => 'varchar',
+        'length' => '255',
+        'not null' => TRUE,
+        'default' => '',
+      ),
+      'role' => array(
+        'description' => 'The assigned landmark role',
+        'type' => 'varchar',
+        'length' => '255',
+        'not null' => TRUE,
+        'default' => '',
+      ),
+    ),
+  );
+    
+  return $schema;
+}
+
+/**
+ * Remove the primary key from the table.
+ */
+function block_aria_landmark_roles_update_7100() {
+  db_drop_primary_key('block_aria_landmark_roles');
+}
+
+/**
+ * Rename the 'aria_role' column to 'role'.
+ */
+function block_aria_landmark_roles_update_7101() {
+  $spec = array(
+    'description' => 'The assigned landmark role',
+    'type' => 'varchar',
+    'length' => '255',
+    'not null' => TRUE,
+    'default' => '',
+  );
+  
+  db_change_field('block_aria_landmark_roles', 'aria_role', 'role', $spec);
+}

@@ -1,0 +1,91 @@
+<?php
+
+/**
+ * @file
+ * Tests for the Features Extra Block module.
+ */
+
+/**
+ * Tests the functionality of FE Block.
+ */
+class FeaturesExtraBlockTestCase extends FeaturesExtraTestCase {
+  // The installation profile that will be used to run the tests.
+  protected $profile = 'testing';
+
+  // Stores a test block.
+  protected $block;
+
+  public static function getInfo() {
+    return array(
+      'name' => 'FE Block',
+      'description' => 'Tests Features integration for blocks and block settings.',
+      'group' => 'Features Extra',
+    );
+  }
+
+  /**
+   * Check that all modules that are required for the test suite are available.
+   */
+  public function testRequiredModules() {
+    $required_modules = array(
+      'block',
+      'block_class',
+      'ctools',
+      'features',
+      'fe_block',
+      'features_extra_test',
+    );
+
+    foreach ($required_modules as $module) {
+      $this->assertTrue(module_exists($module), format_string('The required module @module exists.', array('@module' => $module)));
+    }
+  }
+
+  /**
+   * Test if custom blocks can be reverted and that overrides are detected.
+   */
+  public function testBlockRevert() {
+    // Ensure that the exported custom block is properly available.
+    $bid = fe_block_get_bid('features_extra_test_block');
+    $this->block = block_load('block', $bid);
+    $this->assertTrue(!empty($this->block), 'The reverted block is present.');
+
+    $components = array(
+      'fe_block_boxes',
+      'fe_block_settings',
+    );
+
+    $this->revertComponents($components);
+  }
+
+  /**
+   * Change the content of the test block so the component becomes overridden.
+   */
+  protected function override_fe_block_boxes() {
+    db_update('block_custom')
+      ->fields(array('body' => 'overridden'))
+      ->condition('bid', $this->block->bid)
+      ->execute();
+  }
+
+  /**
+   * Change a setting of the test block so the component becomes overridden.
+   */
+  protected function override_fe_block_settings() {
+    db_update('block')
+      ->fields(array('region' => 'footer'))
+      ->condition('bid', $this->block->bid)
+      ->condition('theme', 'bartik')
+      ->execute();
+  }
+
+  /**
+   * Tests the integration with the Block Class module.
+   *
+   * @see http://www.drupal.org/node/1342996
+   */
+  public function testBlockClass() {
+    $this->drupalGet('<front>');
+    $this->assertRaw('test-class', 'The class set by the Block Class module has been found.');
+  }
+}

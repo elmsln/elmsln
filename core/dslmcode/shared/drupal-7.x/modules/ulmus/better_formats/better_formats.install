@@ -1,0 +1,39 @@
+<?php
+
+/**
+ * @file
+ * Installs the better_formats module.
+ *
+ * Creates a database for use of multi-layered default formats and sets
+ * default settings.
+ */
+
+/**
+ * Implements of hook_install().
+ */
+function better_formats_install() {
+  // Increase module weight to prevent compatibility issues.
+  db_update('system')
+    ->fields(array('weight' => 100))
+    ->condition('name', 'better_formats')
+    ->execute();
+}
+
+/**
+ * Implements of hook_uninstall().
+ */
+function better_formats_uninstall() {
+  // Delete settings from varible table.
+  db_delete('variable')
+    ->condition('name', 'better_formats%', 'LIKE')
+    ->execute();
+}
+
+/**
+ * Update from 6.x-1.2 to 7.x-1.0.
+ */
+/*
+function better_formats_update_7000() {
+
+}
+*/

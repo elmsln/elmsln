@@ -1,0 +1,16 @@
+name = LTI Tool Provider
+description = An LTI Tool Provider module for LMS/Drupal integration.
+package = "Learning Tools Interoperability"
+core = 7.x
+files[] = LTIToolProviderOAuthDataStore.class.php
+files[] = LTIToolProviderConsumerEntityController.class.php
+dependencies[] = field
+dependencies[] = libraries
+configure = admin/config/lti-tool-provider
+
+; Information added by drupal.org packaging script on 2013-06-05
+version = "7.x-1.x-dev"
+core = "7.x"
+project = "lti_tool_provider"
+datestamp = "1370446594"
+

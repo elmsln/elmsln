@@ -1,0 +1,283 @@
+<?php
+
+/**
+ * @file
+ * Install, update and uninstall functions for the field_collection module.
+ */
+
+/**
+ * Implements hook_schema().
+ */
+function field_collection_schema() {
+
+  $schema['field_collection_item'] = array(
+    'description' => 'Stores information about field collection items.',
+    'fields' => array(
+      'item_id' => array(
+        'type' => 'serial',
+        'not null' => TRUE,
+        'description' => 'Primary Key: Unique field collection item ID.',
+      ),
+      'revision_id' => array(
+        'type' => 'int',
+        'not null' => TRUE,
+        'description' => 'Default revision ID.',
+      ),
+      'field_name' => array(
+        'description' => 'The name of the field on the host entity embedding this entity.',
+        'type' => 'varchar',
+        'length' => 32,
+        'not null' => TRUE,
+      ),
+      'archived' => array(
+        'description' => 'Boolean indicating whether the field collection item is archived.',
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+    ),
+    'primary key' => array('item_id'),
+  );
+  $schema['field_collection_item_revision'] = array(
+    'description' => 'Stores revision information about field collection items.',
+    'fields' => array(
+      'revision_id' => array(
+        'type' => 'serial',
+        'not null' => TRUE,
+        'description' => 'Primary Key: Unique revision ID.',
+      ),
+      'item_id' => array(
+        'type' => 'int',
+        'not null' => TRUE,
+        'description' => 'Field collection item ID.',
+      ),
+    ),
+    'primary key' => array('revision_id'),
+    'indexes' => array(
+      'item_id' => array('item_id'),
+    ),
+    'foreign keys' => array(
+      'versioned_field_collection_item' => array(
+        'table' => 'field_collection_item',
+        'columns' => array('item_id' => 'item_id'),
+      ),
+    ),
+  );
+  return $schema;
+}
+
+/**
+ * Implements hook_field_schema().
+ */
+function field_collection_field_schema($field) {
+  $columns = array(
+    'value' => array(
+      'type' => 'int',
+      'not null' => FALSE,
+      'description' => 'The field collection item id.',
+    ),
+    'revision_id' => array(
+      'type' => 'int',
+      'not null' => FALSE,
+      'description' => 'The field collection item revision id.',
+    ),
+  );
+  return array(
+    'columns' => $columns,
+    'indexes' => array(
+      'revision_id' => array('revision_id'),
+    ),
+  );
+}
+
+/**
+ * Update the administer field collection permission machine name.
+ */
+function field_collection_update_7000() {
+  db_update('role_permission')
+    ->fields(array('permission' => 'administer field collections'))
+    ->condition('permission', 'administer field-collections')
+    ->execute();
+}
+
+/**
+ * Add revision support.
+ */
+function field_collection_update_7001() {
+
+  // Add revision_id column to field_collection_item table.
+  $revision_id_spec = array(
+    'type' => 'int',
+    'not null' => TRUE,
+    'description' => 'Default revision ID.',
+    // Set default to 0 temporarily.
+    'initial' => 0,
+  );
+  // Field may already exist due to bug in 7.x-1.0-beta5.
+  if (!db_field_exists('field_collection_item', 'revision_id')) {
+    db_add_field('field_collection_item', 'revision_id', $revision_id_spec);
+  }
+
+  // Initialize the revision_id to be the same as the item_id.
+  db_update('field_collection_item')
+    ->expression('revision_id', 'item_id')
+    ->execute();
+
+  // Add the archived column
+  $archived_spec = array(
+    'description' => 'Boolean indicating whether the field collection item is archived.',
+    'type' => 'int',
+    'not null' => TRUE,
+    'default' => 0,
+  );
+  // Field may already exist due to bug in 7.x-1.0-beta5.
+  if (!db_field_exists('field_collection_item', 'archived')) {
+    db_add_field('field_collection_item', 'archived', $archived_spec);
+  }
+
+  // Create the new table. It is important to explicitly define the schema here
+  // rather than use the hook_schema definition: http://drupal.org/node/150220.
+  $schema['field_collection_item_revision'] = array(
+    'description' => 'Stores revision information about field collection items.',
+    'fields' => array(
+      'revision_id' => array(
+        'type' => 'serial',
+        'not null' => TRUE,
+        'description' => 'Primary Key: Unique revision ID.',
+      ),
+      'item_id' => array(
+        'type' => 'int',
+        'not null' => TRUE,
+        'description' => 'Field collection item ID.',
+      ),
+    ),
+    'primary key' => array('revision_id'),
+    'indexes' => array(
+      'item_id' => array('item_id'),
+    ),
+    'foreign keys' => array(
+      'versioned_field_collection_item' => array(
+        'table' => 'field_collection_item',
+        'columns' => array('item_id' => 'item_id'),
+      ),
+    ),
+  );
+  // Table may already exist due to bug in 7.x-1.0-beta5.
+  if (db_table_exists('field_collection_item_revision')) {
+    db_drop_table('field_collection_item_revision');
+  }
+  db_create_table('field_collection_item_revision', $schema['field_collection_item_revision']);
+
+  // Fill the new table with the correct data.
+  $items = db_select('field_collection_item', 'fci')
+    ->fields('fci')
+    ->execute();
+  foreach ($items as $item) {
+    // Update field_collection_item_revision table.
+    db_insert('field_collection_item_revision')
+      ->fields(array(
+        'revision_id' => $item->item_id,
+        'item_id' => $item->item_id,
+      ))
+      ->execute();
+  }
+
+  // Update the field_collection_field_schema columns for all tables.
+  // Add a revision_id column.
+  $revision_id_spec['description'] = 'The field collection item revision id.';
+  // Because $value_column below can be null, so must $revision_id_column.
+  $revision_id_spec['not null'] = FALSE;
+  foreach (field_read_fields(array('type' => 'field_collection')) as $field_name => $field) {
+    $table_prefixes = array('field_data', 'field_revision');
+    foreach ($table_prefixes as $table_prefix) {
+
+      $table = sprintf('%s_%s', $table_prefix, $field_name);
+      $value_column = sprintf('%s_value', $field_name);
+      $revision_id_column = sprintf('%s_revision_id', $field_name);
+
+      // Field may already exist due to bug in 7.x-1.0-beta5.
+      if (!db_field_exists($table, $revision_id_column)) {
+        db_add_field($table, $revision_id_column, $revision_id_spec);
+      }
+      else {
+        db_change_field($table, $revision_id_column, $revision_id_column, $revision_id_spec);
+      }
+
+      // Initialize the revision_id to be the same as the item_id.
+      db_update($table)
+        ->expression($revision_id_column, $value_column)
+        ->execute();
+    }
+  }
+
+  // Need to get the system up-to-date so drupal_schema_fields_sql() will work.
+  $schema = drupal_get_schema('field_collection_item_revision', TRUE);
+}
+
+/**
+ * Remove orphaned field collection item entities.
+ */
+function field_collection_update_7002() {
+  // Loop over all fields and delete any orphaned field collection items.
+  foreach (field_read_fields(array('type' => 'field_collection')) as $field_name => $field) {
+
+    $select = db_select('field_collection_item', 'fci')
+      ->fields('fci', array('item_id'))
+      ->condition('field_name', $field_name)
+      ->condition('archived', 0);
+    $select->leftJoin('field_data_' . $field_name, 'field', "field.{$field_name}_value = fci.item_id ");
+    $select->isNull('field.entity_id');
+    $ids = $select->execute()->fetchCol(0);
+
+    entity_delete_multiple('field_collection_item', $ids);
+    $count = count($ids);
+    drupal_set_message("Deleted $count orphaned field collection items.");
+  }
+}
+
+/**
+ * Update field_collection_field_schema columns for all tables.
+ */
+function field_collection_update_7003() {
+  // Revision_id column.
+  $revision_id_spec = array(
+    'type' => 'int',
+    'not null' => FALSE,
+    'description' => 'The field collection item revision id.',
+    'initial' => 0,
+  );
+
+  // Update the field_collection_field_schema columns for all tables,
+  // in case the buggy beta5 version of field_collection_update_7001()
+  // completed without complaint.
+  foreach (field_read_fields(array('type' => 'field_collection')) as $field_name => $field) {
+    $table_prefixes = array('field_data', 'field_revision');
+    foreach ($table_prefixes as $table_prefix) {
+      $table = sprintf('%s_%s', $table_prefix, $field_name);
+      $value_column = sprintf('%s_value', $field_name);
+      $revision_id_column = sprintf('%s_revision_id', $field_name);
+      db_change_field($table, $revision_id_column, $revision_id_column, $revision_id_spec);
+    }
+  }
+
+  // Need to get the system up-to-date so drupal_schema_fields_sql() will work.
+  $schema = drupal_get_schema('field_collection_item_revision', TRUE);
+}
+
+/**
+ * Add index on {$field_collection_field}_revision_id column for all tables.
+ */
+function field_collection_update_7004() {
+  // Update the field_collection_field_schema columns for all tables.
+  foreach (field_read_fields(array('type' => 'field_collection')) as $field_name => $field) {
+    $table_prefixes = array('field_data', 'field_revision');
+    foreach ($table_prefixes as $table_prefix) {
+
+      $table = sprintf('%s_%s', $table_prefix, $field_name);
+      $revision_id_column = sprintf('%s_revision_id', $field_name);
+
+      // Add index on revision_id column.
+      db_add_index($table, $revision_id_column, array($revision_id_column));
+    }
+  }
+}

@@ -1,0 +1,40 @@
+
+
+INSTALLATION
+============
+
+1. Follow the usual module installation procedure [1] or use Drush [2].
+
+   [1] http://drupal.org/node/70151
+   [2] http://drupal.org/project/drush
+
+2. Download Shadowbox 3.0 from http://www.shadowbox-js.com/download.html.
+   Simply customize it to your needs, jQuery is suggested as the adapter, since it is included in Drupal.
+
+3. Extract the download and place it in sites/all/libraries so you have, for
+   example: sites/all/libraries/shadowbox
+
+4. View the status report at admin/reports/status to check that Shadowbox is
+   installed correctly.
+
+5. Visit admin/settings/shadowbox to adjust the settings.
+
+
+COMMAND LINE INSTALLATION
+=========================
+
+drush dl shadowbox
+drush enable shadowbox
+mkdir sites/all/libraries
+cd sites/all/libraries
+wget http://freestylesystems.co.uk/sites/freestylesystems.co.uk/files/shadowbox-3.0.2.tgz
+tar xf shadowbox-3.0.2.tgz
+rm shadowbox-3.0.2.tgz
+mv shadowbox-3.0.2 shadowbox
+
+
+OPTIONAL
+========
+
+Install checkall and multicolumncheckboxesradios modules. They enhance the
+admin settings form only.

@@ -1,0 +1,39 @@
+<?php
+
+/**
+ * @file
+ * Install and uninstall hooks for theme developer
+ *
+ */
+function devel_themer_requirements($phase) {
+  // Ensure translations don't break at install time
+  $t = get_t();
+
+  if ($phase == 'install' || $phase == 'runtime') {
+    // we need the Optimizer check function
+    drupal_load('module', 'devel');
+
+    if (!devel_is_compatible_optimizer()) {
+      $requirements['optimizer'] = array(
+        'title' => $t('Zend Optimizer'),
+        'description' => $t('You must disable or upgrade the php Zend Optimizer extension in order to enable this feature. The minimum required version is 3.2.8. Earlier versions of Zend Optimizer are <a href="!url">horribly buggy and segfault your Apache.', array('!url' => url('http://drupal.org/node/126098'))),
+        'severity' => REQUIREMENT_ERROR,
+      );
+    }
+  }
+  return isset($requirements) ? $requirements : array();
+}
+
+function devel_themer_update_6000() {
+  $ret = array();
+  drupal_install_schema('devel_themer');
+  return $ret;
+}
+
+// We are now using a file based cache to avoid max_packet_size warning.
+function devel_themer_update_6001() {
+  $ret = array();
+  db_drop_table($ret, 'cache_devel_themer');
+  return $ret;
+}
+

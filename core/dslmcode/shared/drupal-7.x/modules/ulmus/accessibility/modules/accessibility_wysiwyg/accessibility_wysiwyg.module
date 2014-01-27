@@ -1,0 +1,168 @@
+<?php
+
+/**
+ * Implements hook_menu().
+ */
+function accessibility_wysiwyg_menu() {
+  $items = array();
+
+  $items['accessibility_wysiwyg/tinymce/view/%'] = array(
+    'title' => 'Accessibility',
+    'page callback' => 'accessibility_wysiwyg_tinymce_view_errors',
+    'page arguments' => array(3),
+    'access arguments' => array('view accessibility tests'),
+    'type' => MENU_CALLBACK
+  );
+
+  return $items;
+}
+
+/**
+ * Menu callback to render out accessibility errors.
+ */
+function accessibility_wysiwyg_tinymce_view_errors($tests) {
+  $tests = explode(',', $tests);
+  $output = '';
+  foreach($tests as $test) {
+    $test = accessibility_test_load($test);
+    $output .= '<h2>'. $test->name .'</h2>';
+    $output .= drupal_render(accessibility_test_page_view($test));
+  }
+  print $output;
+  drupal_exit();
+}
+
+/**
+ * Implements hook_wysiwyg_plugin().
+ */
+function accessibility_wysiwyg_wysiwyg_plugin($editor, $version) {
+  switch ($editor) {
+    case 'tinymce':
+      if ($version > 3) {
+        return array(
+          'drupal_accessibility' => array(
+            'url' => 'http://drupal.org/project/accessibility',
+            
+            'path' => drupal_get_path('module', 'accessibility_wysiwyg') . '/plugins/tinymce',
+            
+            'filename' => 'tinymce.js',
+            
+            'buttons' => array(
+              'drupal_accessibility' => t('Accessibility'),
+            ),
+            
+            'load' => TRUE,
+            'internal' => FALSE
+            ),
+        );
+      }
+      break;
+    case 'ckeditor':
+      if ($version >= 4) {
+        return array(
+          'drupal_accessibility' => array(
+            'url' => 'http://drupal.org/project/accessibility',
+            
+            'path' => drupal_get_path('module', 'accessibility_wysiwyg') . '/plugins/ckeditor4/drupal_accessibility',
+            
+            'filename' => 'plugin.js',
+            
+            'buttons' => array(
+              'drupal_accessibility' => t('Accessibility'),
+            ),
+            
+            'load' => TRUE,
+            'internal' => FALSE
+            ),
+        );
+      }
+      if ($version > 3) {
+        return array(
+          'drupal_accessibility' => array(
+            'url' => 'http://drupal.org/project/accessibility',
+            
+            'path' => drupal_get_path('module', 'accessibility_wysiwyg') . '/plugins/ckeditor3',
+            
+            'filename' => 'plugin.js',
+            
+            'buttons' => array(
+              'drupal_accessibility' => t('Accessibility'),
+            ),
+            
+            'load' => TRUE,
+            'internal' => FALSE
+            ),
+        );
+      }
+      break;
+  }
+}
+
+/**
+ * Helper function to load accessibility javascript.
+ */
+function accessibility_wysiwyg_load() {
+  accessibility_load();
+  drupal_add_css(drupal_get_path('module', 'accessibility_wysiwyg') . '/css/accessibility_wysiwyg.css');
+  drupal_add_js(array('accessibility_wysiwyg' => array(
+      'path' => drupal_get_path('module', 'accessibility_wysiwyg'),
+      'css'  => file_get_contents(drupal_get_path('module', 'accessibility') .'/css/accessibility.css'),
+      'accessibility_path' => drupal_get_path('module', 'accessibility'))),
+    'setting');
+}
+
+/**
+ * Implements hook_element_info_alter().
+ */
+function accessibility_wysiwyg_element_info_alter(&$types) {
+  $types['text_format']['#pre_render'][] = 'accessibility_wysiwyg_pre_render_text_format';
+}
+
+/**
+ * Alter callback to see if accessibility javascript should be loaded on the current page.
+ * @todo - This will turn on for every form whenever ckeditor is installed, should only
+ * turn on when the current page is included in the global profile.
+ */
+function accessibility_wysiwyg_pre_render_text_format($element) {
+  if (!isset($element['format']) || !empty($element['value']['#disabled'])) {
+    return $element;
+  }
+  if (module_exists('ckeditor')) {
+    accessibility_wysiwyg_load();
+    return $element;
+  }
+  if (module_exists('wysiwyg') && isset($element['#wysiwyg']) && !$element['#wysiwyg']) {
+    return $element;
+  }
+
+  $format_field = &$element['format'];
+  foreach ($format_field['format']['#options'] as $format_id => $format_name) {
+    if (module_exists('wysiwyg')) {
+      $profile = wysiwyg_get_profile($format_id);
+      if ($profile) {
+        accessibility_wysiwyg_load();
+        return $element;
+      }
+    }
+  }
+  return $element;
+}
+
+/**
+ * Implements hook_ckeditor_plugin().
+ */
+function accessibility_wysiwyg_ckeditor_plugin() {
+  return array(
+    'drupal_accessibility' => array(
+      'name' => 'drupal_accessibility',
+      'desc' => t('Plugin for giving authors feedback on accessibility issues.'),
+      'path' => drupal_get_path('module', 'accessibility_wysiwyg') . '/plugins/ckeditor4/drupal_accessibility/',
+      'buttons' => array(
+        'drupal_accessibility' => array(
+          'icon' => 'img/button.png',
+          'label' => t('Check accessibility'),
+        )
+      )
+    )
+  );
+}

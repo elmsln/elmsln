@@ -1,0 +1,14 @@
+name = LTI Tool Provider Memberships
+description = An LTI Tool Provider submodule for the memberships service.
+core = 7.x
+package = "Learning Tools Interoperability"
+dependencies[] = lti_tool_provider
+files[] = LTIToolProviderMembershipsContextEntityController.class.php
+files[] = LTIToolProviderMembershipsEntityController.class.php
+
+; Information added by drupal.org packaging script on 2013-06-05
+version = "7.x-1.x-dev"
+core = "7.x"
+project = "lti_tool_provider"
+datestamp = "1370446594"
+

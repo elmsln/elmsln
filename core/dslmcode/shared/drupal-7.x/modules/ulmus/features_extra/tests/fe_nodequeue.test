@@ -1,0 +1,67 @@
+<?php
+
+/**
+ * @file
+ * Tests for the Features Extra Nodequeue module.
+ */
+
+/**
+ * Tests the functionality of FE Nodequeue.
+ */
+class FeaturesExtraNodequeueTestCase extends FeaturesExtraTestCase {
+  // The installation profile that will be used to run the tests.
+  protected $profile = 'testing';
+
+  // Stores a test nodequeue.
+  protected $nodequeue;
+
+  public static function getInfo() {
+    return array(
+      'name' => 'FE Nodequeue',
+      'description' => 'Tests Features integration with the Nodequeue module.',
+      'group' => 'Features Extra',
+    );
+  }
+
+  /**
+   * Check that all modules that are required for the test suite are available.
+   */
+  public function testRequiredModules() {
+    $required_modules = array(
+      'nodequeue',
+      'ctools',
+      'features',
+      'fe_nodequeue',
+      'features_extra_test',
+    );
+
+    foreach ($required_modules as $module) {
+      $this->assertTrue(module_exists($module), format_string('The required module @module exists.', array('@module' => $module)));
+    }
+  }
+
+  /**
+   * Test if nodequeues can be reverted and that overrides are detected.
+   */
+  public function testNodequeueRevert() {
+    // Ensure that the exported nodequeue is properly available.
+    $this->nodequeue = _fe_nodequeue_load_queue_by_name('features_extra_test_nodequeue');
+    $this->assertTrue(!empty($this->nodequeue), 'The reverted nodequeue is present.');
+
+    $this->revertComponents(array('fe_nodequeue'));
+  }
+
+  /**
+   * Change the title of the test nodequeue so the component becomes overridden.
+   */
+  protected function override_fe_nodequeue() {
+    $this->nodequeue->title = $this->randomString();
+    nodequeue_save($this->nodequeue);
+
+    // Reset static caches.
+    // Note: we are using a variant of nodequeue_get_qid_map() that uses
+    // drupal_static() instead of a static variable to cache the results.
+    // @see http://drupal.org/node/1666556
+    drupal_static_reset('_fe_nodequeue_get_qid_map');
+  }
+}

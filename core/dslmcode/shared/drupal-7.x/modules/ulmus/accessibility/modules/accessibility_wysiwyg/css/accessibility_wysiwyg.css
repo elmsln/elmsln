@@ -1,0 +1,14 @@
+.accessibility-dialog-content {
+	max-width: 800px;
+	overflow: none scroll;
+}
+
+.accessibility-dialog-content * {
+	white-space: normal !important;
+}
+
+.accessibility-dialog-content h3.title {
+	font-size: 150%;
+	font-weight: bold;
+	margin: 10px 0;
+}

@@ -1,0 +1,10 @@
+name = Prepopulate
+description = Allows form elements to be prepopulated from the URL.
+core = 7.x
+
+; Information added by drupal.org packaging script on 2012-11-18
+version = "7.x-2.x-dev"
+core = "7.x"
+project = "prepopulate"
+datestamp = "1353203428"
+

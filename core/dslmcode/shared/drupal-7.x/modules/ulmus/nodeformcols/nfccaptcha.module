@@ -1,0 +1,27 @@
+<?php
+
+/**
+ * Implementation of hook_nodeformcols_base_form_alter().
+ *
+ * Implement this hook if you want to alter the node creation form that
+ * nodeformcols uses to construct the configuration interface before
+ * nodeformcols reads field information from it.
+ *
+ * @param array $form
+ *  The programatically created node creation form.
+ * @param string $variant
+ *  The variant of the form that's being configured.
+ * @return void
+ */
+function nodeformcols_nodeformcols_base_form_alter(&$form, $variant) {
+  $using_captcha = db_query("SELECT COUNT(module)
+    FROM {captcha_points} WHERE form_id = :form_id", array(':form_id' => array(
+      ':form_id' => $form['#node']->type . '_node_form',
+    )))->fetchField();
+  if ($using_captcha) {
+    $form['captcha'] = array(
+      '#title' => t('CAPTCHA'),
+      '#weight' => $form['buttons']['#weight'] - 1,
+    );
+  }
+}

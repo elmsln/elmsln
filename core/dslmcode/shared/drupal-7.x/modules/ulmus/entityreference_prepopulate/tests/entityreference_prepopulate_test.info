@@ -1,0 +1,13 @@
+name = Entity reference prepopulate test module
+description = Functionality to assist Entity reference prepopulate testing.
+core = 7.x
+dependencies[] = entityreference_prepopulate
+dependencies[] = og_context
+hidden = TRUE
+
+; Information added by drupal.org packaging script on 2013-04-22
+version = "7.x-1.3"
+core = "7.x"
+project = "entityreference_prepopulate"
+datestamp = "1366630855"
+

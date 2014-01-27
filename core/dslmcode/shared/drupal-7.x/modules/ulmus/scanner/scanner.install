@@ -1,0 +1,85 @@
+<?php
+
+/**
+ * @file
+ * Search and Replace Scanner install - creates necessary tables.
+ */
+
+
+/**
+ * Implements hook_schema().
+ */
+function scanner_schema() {
+  $schema['scanner'] = array(
+    'description' => 'Holds info on recent replacements in case undo is needed.',
+    'fields' => array(
+      'undo_id' => array(
+        'description' => 'Row identifier',
+        'type' => 'serial',
+        'not null' => TRUE,
+      ),
+      'undo_data' => array(
+        'description' => 'What was changed',
+        'type' => 'text',
+        'size' => 'big',
+        'not null' => TRUE,
+      ),
+      'undone' => array(
+        'description' => 'Whether the replacement has been undone',
+        'type' => 'int',
+        'size' => 'tiny',
+        'not null' => TRUE,
+      ),
+      'searched' => array(
+        'description' => 'Text that was searched for',
+        'type' => 'varchar',
+        'length' => 256,
+        'not null' => TRUE,
+      ),
+      'replaced' => array(
+        'description' => 'Text that was used as replacement',
+        'type' => 'varchar',
+        'length' => 256,
+        'not null' => TRUE,
+      ),
+      'count' => array(
+        'description' => 'How many fields were modified on replacement',
+        'type' => 'int',
+        'not null' => TRUE,
+      ),
+      'time' => array(
+        'description' => 'How long the replacement took',
+        'type' => 'int',
+        'not null' => TRUE,
+      ),
+    ),
+    'primary key' => array('undo_id'),
+  );
+
+  return $schema;
+}
+
+/**
+ * Implements hook_install().
+ */
+function scanner_install() {
+  // Create tables.
+  // TODO The drupal_(un)install_schema functions are called automatically in D7.
+  // drupal_install_schema('scanner')
+}
+
+/**
+ * Implements hook_uninstall().
+ */
+function scanner_uninstall() {
+  // Remove tables.
+  // TODO The drupal_(un)install_schema functions are called automatically in D7.
+  // drupal_uninstall_schema('scanner')
+
+  // TODO Please review the conversion of this statement to the D7 database API syntax.
+  /* db_query("DELETE FROM {variable} WHERE name LIKE 'scanner_%'") */
+  //db_delete('variable')
+  //->condition('name', 'scanner_%', 'LIKE')
+  //->execute();
+}
+

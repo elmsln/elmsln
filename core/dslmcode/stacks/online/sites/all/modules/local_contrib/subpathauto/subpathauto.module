@@ -1,0 +1,151 @@
+<?php
+
+/**
+ * Implements hook_menu().
+ */
+function subpathauto_menu() {
+  $items['admin/config/search/path/subpaths'] = array(
+    'title' => 'Sub-path settings',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('subpathauto_settings_form'),
+    'access arguments' => array('administer url aliases'),
+    'type' => MENU_LOCAL_TASK,
+    'weight' => 25,
+    'file' => 'subpathauto.admin.inc',
+  );
+  return $items;
+}
+
+/**
+ * Implements hook_url_inbound_alter().
+ */
+function subpathauto_url_inbound_alter(&$path, $original_path, $language) {
+  // If the current menu item exists at this path, then we should not continue
+  // processing.
+  $item = menu_get_item($path);
+  if (!empty($item) && $item['href'] == $path) {
+    return FALSE;
+  }
+
+  if ($source = subpathauto_lookup_subpath('source', $path, $original_path, $language)) {
+    $path = $source;
+  }
+}
+
+/**
+ * Implements hook_url_outbound_alter().
+ */
+function subpathauto_url_outbound_alter(&$path, $options, $original_path) {
+  // If the URL is indicated as external or to be left alone and not aliased,
+  // skip processing.
+  if (!empty($options['external']) || !empty($options['alias'])) {
+    return;
+  }
+
+  $language = !empty($options['language']->language) ? $options['language']->language : NULL;
+  if ($alias = subpathauto_lookup_subpath('alias', $path, $original_path, $language)) {
+    $path = $alias;
+  }
+}
+
+/**
+ * Given an alias, return its Drupal system URL if one exists. Given a Drupal
+ * system URL return one of its aliases if such a one exists. Otherwise,
+ * return FALSE.
+ *
+ * @param $action
+ *   One of the following values:
+ *   - wipe: delete the alias cache.
+ *   - alias: return an alias for a given Drupal system path (if one exists).
+ *   - source: return the Drupal system URL for a path alias (if one exists).
+ * @param $path
+ *   The path to investigate for corresponding aliases or system URLs.
+ * @param $path_language
+ *   Optional language code to search the path with. Defaults to the page
+ *   language. If there's no path defined for that language it will search\
+ *   paths without language.
+ *
+ * @return
+ *   Either a Drupal system path, an aliased path, or FALSE if no path was
+ *   found.
+ */
+function subpathauto_lookup_subpath($action, $path = '', $original_path, $path_language = NULL) {
+  global $language_url;
+
+  // Use the advanced drupal_static() pattern, since this is called very often.
+  static $drupal_static_fast;
+  if (!isset($drupal_static_fast)) {
+    $drupal_static_fast = &drupal_static(__FUNCTION__, array(
+      'max_depth' => NULL,
+    ));
+  }
+
+  if ($path == '' || strpos($path, '/') === FALSE) {
+    // If the path is empty or does not contain more than one part, then there
+    // is no sub-path processing to do.
+    return FALSE;
+  }
+  if ($path != $original_path) {
+    // If the $path variable doesn't match $original_path, this means it has
+    // already been matched against an source or alias directly. It should
+    // be skipped from sub-path processing.
+    return FALSE;
+  }
+  if (variable_get('subpathauto_ignore_admin', 1) && path_is_admin($path)) {
+    // Ignore administration paths by default.
+    return FALSE;
+  }
+  if (drupal_match_path($path, "<front>\njs/*")) {
+    return FALSE;
+  }
+
+  $max_depth = &$drupal_static_fast['max_depth'];
+  if (!isset($max_depth)) {
+    $max_depth = variable_get('subpathauto_depth', 1);
+  }
+  if (!$max_depth) {
+    return FALSE;
+  }
+
+  // If no language is explicitly specified we default to the current URL
+  // language. If we used a language different from the one conveyed by the
+  // requested URL, we might end up being unable to check if there is a path
+  // alias matching the URL path.
+  $path_language = $path_language ? $path_language : $language_url->language;
+
+  $base_path_parts = explode('/', $path);
+  $depth = min($max_depth, count($base_path_parts) - 1);
+
+  // Perform a search for each base path with the right-most segment removed.
+  $path_suffix = array();
+  for ($i = 1; $i <= $depth; $i++) {
+    array_unshift($path_suffix, array_pop($base_path_parts));
+    $base_path = implode('/', $base_path_parts);
+
+    if ($action == 'alias' && $aliased_base_path = drupal_lookup_path('alias', $base_path, $path_language)) {
+      if ($aliased_base_path != $base_path) {
+        $alias = $aliased_base_path . '/' . implode('/', $path_suffix);
+        //subpathauto_cache_subpath_alias($path, $alias, $path_language);
+        return $alias;
+      }
+    }
+    elseif ($action == 'source' && $sourced_base_path = drupal_lookup_path('source', $base_path, $path_language)) {
+      if ($sourced_base_path != $base_path) {
+        $source = $sourced_base_path . '/' . implode('/', $path_suffix);
+        //subpathauto_cache_subpath_alias($source, $path, $path_language);
+        return $source;
+      }
+    }
+  }
+
+  return FALSE;
+}
+
+/**
+ * Store sub-path aliases into the drupal_lookup_path() static cache.
+ */
+function subpathauto_cache_subpath_alias($source, $alias, $langcode) {
+  $cache = &drupal_static('drupal_lookup_path');
+  $cache['map'][$langcode][$source] = $alias;
+  unset($cache['no_source'][$langcode][$alias]);
+}

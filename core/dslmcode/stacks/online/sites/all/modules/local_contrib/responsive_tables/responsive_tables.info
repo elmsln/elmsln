@@ -1,0 +1,11 @@
+name = Responsive Tables
+description = Backports the responsive table functionality from Drupal 8.
+core = 7.x
+files[] = views_plugin_style_table_responsive.inc
+
+; Information added by drupal.org packaging script on 2013-04-27
+version = "7.x-2.x-dev"
+core = "7.x"
+project = "responsive_tables"
+datestamp = "1367069128"
+

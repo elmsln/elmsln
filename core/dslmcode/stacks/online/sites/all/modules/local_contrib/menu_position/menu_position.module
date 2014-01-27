@@ -1,0 +1,481 @@
+<?php
+/**
+ * @file
+ * Provides menu links for dynamic positioning of nodes based on configurable rules.
+ */
+
+/**
+ * Implements hook_panels_pane_content_alter().
+ *
+ * Panels are rendered before hook_page_delivery_callback_alter() is called, so
+ * for Panels pages, we evaluate our rules here instead.
+ */
+function menu_position_panels_pre_render($display) {
+  menu_position_page_delivery_callback_alter();
+}
+
+/**
+ * Implements hook_page_delivery_callback_alter().
+ *
+ * This is the only hook that occurs after the page callback, but before
+ * hook_page_build (when blocks are added). We're using this hook for its
+ * timing, not its data.
+ */
+function menu_position_page_delivery_callback_alter() {
+  // Don't evaluate the rules twice.
+  $evaluated = &drupal_static(__FUNCTION__, FALSE);
+  if ($evaluated) {
+    return;
+  }
+  $evaluated = TRUE;
+
+  // Build a small context.
+  $context = array(
+    'path' => $_GET['q'],
+    'entity_type' => NULL,
+    'bundle_name' => NULL,
+  );
+  // Determine what kind of entity page this is.
+  list($arg0, $arg1, ) = explode('/', $context['path'] . '//');
+  if ($arg0 == 'node' && is_numeric($arg1)) {
+    $context['node'] = node_load($arg1);
+    // Don't evaluate the rules on a 404 page.
+    if (!$context['node']) {
+      return;
+    }
+    $context['entity_type'] = 'node';
+    $context['bundle_name'] = $context['node']->type;
+  }
+  elseif ($arg0 == 'user' && is_numeric($arg1)) {
+    $context['user'] = user_load($arg1);
+    // Don't evaluate the rules on a 404 page.
+    if (!$context['user']) {
+      return;
+    }
+    $context['entity_type'] = 'user';
+    $context['bundle_name'] = 'user';
+  }
+
+  menu_position_evaluate_rules($context);
+}
+
+/**
+ * Implements hook_permission().
+ */
+function menu_position_permission() {
+  return array(
+    'administer menu positions' => array(
+      'title' => t('Administer menu position rules'),
+    ),
+  );
+}
+
+/**
+ * Implements hook_menu().
+ */
+function menu_position_menu() {
+  $items['admin/structure/menu-position'] = array(
+    'title' => 'Menu position rules',
+    'description' => 'Configure rules for menu positions.',
+    'access arguments' => array('administer menu positions'),
+    'page callback' => 'menu_position_rules_form_callback',
+    'type' => MENU_NORMAL_ITEM,
+    'file' => 'menu_position.admin.inc',
+  );
+  $items['admin/structure/menu-position/list'] = array(
+    'title' => 'List',
+    'type' => MENU_DEFAULT_LOCAL_TASK,
+    'weight' => -10,
+  );
+  $items['admin/structure/menu-position/settings'] = array(
+    'title' => 'Settings',
+    'description' => 'Configure settings for menu positions.',
+    'access arguments' => array('administer menu positions'),
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('menu_position_settings_form'),
+    'type' => MENU_LOCAL_TASK,
+    'file' => 'menu_position.admin.inc',
+    'weight' => 10,
+  );
+  $items['admin/structure/menu-position/add'] = array(
+    'title' => 'Add menu position rule',
+    'description' => 'Add a new menu position rule.',
+    'access arguments' => array('administer menu positions'),
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('menu_position_add_rule_form'),
+    'type' => MENU_LOCAL_ACTION,
+    'file' => 'menu_position.admin.inc',
+  );
+  $items['admin/structure/menu-position/edit'] = array(
+    'title' => 'Edit menu position rule',
+    'description' => 'Edit a menu position rule.',
+    'access arguments' => array('administer menu positions'),
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('menu_position_edit_rule_form'),
+    'type' => MENU_CALLBACK,
+    'file' => 'menu_position.admin.inc',
+  );
+  $items['admin/structure/menu-position/delete'] = array(
+    'title' => 'Delete menu position rule',
+    'description' => 'Delete a menu position rule.',
+    'access arguments' => array('administer menu positions'),
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('menu_position_delete_rule_form'),
+    'type' => MENU_CALLBACK,
+    'file' => 'menu_position.admin.inc',
+  );
+  $items['menu-position/%'] = array(
+    'title' => 'Menu position router',
+    'description' => 'Sets access to all menu position links.',
+    'access arguments' => array('access content'),
+    'page callback' => 'menu_position_router',
+    'page arguments' => array(1),
+    'type' => MENU_CALLBACK,
+    'file' => 'menu_position.admin.inc',
+  );
+  if (module_exists('taxonomy')) {
+    $items['menu-position/taxonomy/autocomplete'] = array(
+      'title' => 'Autocomplete taxonomy',
+      'page callback' => 'menu_position_taxonomy_autocomplete',
+      'page arguments' => array(3, 4),
+      'access arguments' => array('access content'),
+      'type' => MENU_CALLBACK,
+      'file' => 'plugins/menu_position.taxonomy.inc',
+    );
+  }
+  return $items;
+}
+
+/**
+ * Implements hook_theme().
+ */
+function menu_position_theme() {
+  return array(
+    'menu_position_rules_order' => array(
+      'render element' => 'element',
+      'file' => 'menu_position.admin.inc',
+    ),
+  );
+}
+
+/**
+ * Implements hook_menu_position_rule_plugins().
+ */
+function menu_position_menu_position_rule_plugins() {
+  $plugins = array(
+    'content_type' => array(
+      'file' => 'plugins/menu_position.content_type.inc',
+    ),
+    'pages' => array(
+      'file' => 'plugins/menu_position.pages.inc',
+    ),
+    'user_role' => array(
+      'file' => 'plugins/menu_position.user_roles.inc',
+    ),
+  );
+  if (module_exists('locale')) {
+    $plugins['language'] = array(
+      'file' => 'plugins/menu_position.language.inc',
+    );
+  }
+  if (module_exists('taxonomy')) {
+    $plugins['taxonomy'] = array(
+      'file' => 'plugins/menu_position.taxonomy.inc',
+    );
+  }
+  return $plugins;
+}
+
+/**
+ * Implements hook_form_FORM_ID_alter().
+ */
+function menu_position_form_menu_overview_form_alter(&$form, &$form_state) {
+  module_load_include('inc', 'menu_position', 'menu_position.admin');
+  _menu_position_form_menu_overview_form_alter($form, $form_state);
+}
+
+/**
+ * Implements hook_form_FORM_ID_alter().
+ */
+function menu_position_form_menu_edit_item_alter(&$form, &$form_state) {
+  module_load_include('inc', 'menu_position', 'menu_position.admin');
+  _menu_position_form_menu_edit_item_alter($form, $form_state);
+}
+
+/**
+ * Implements hook_menu_link_alter().
+ */
+function menu_position_menu_link_alter(&$item) {
+  if (isset($item['module']) && $item['module'] == 'menu_position') {
+    // Don't allow the link to be "enabled".
+    $item['hidden'] = 1;
+  }
+}
+
+/**
+ * Implements hook_menu_link_update().
+ */
+function menu_position_menu_link_update($link) {
+  module_load_include('inc', 'menu_position', 'menu_position.admin');
+  _menu_position_menu_link_update($link);
+}
+
+/**
+ * Evaluates all rules based on a given context.
+ *
+ * @param $context
+ *   A small context variable which contains:
+ *   - path: The path of the current page.
+ *   - entity_type: If the current page is an "entity" page, the type of entity.
+ *   - bundle_name: The bundle (entity type) of the current page's entity.
+ *   - [entity]: The page's entity object, such as "node", "user", etc.
+ */
+function menu_position_evaluate_rules($context = array()) {
+  // Sanity check: if there is no existing menu item, Drupal won't display any
+  // navigation menus anyway and will error out when we try methods below.
+  if (menu_get_item() === FALSE) {
+    return;
+  }
+
+  // Retrieve the rules from the database. For speed, we don't call
+  // menu_position_read_rules() and unserialize the conditions only if needed.
+  $rules = db_query('SELECT * FROM {menu_position_rules} WHERE enabled = :enabled ORDER BY weight, rid', array(':enabled' => 1));
+
+  // Retrieve the list of menus the path is already in.
+  $menu_names = db_query('SELECT menu_name FROM {menu_links} WHERE link_path = :path', array(':path' => $context['path']))->fetchCol();
+
+  // Flag that we still need to set the breadcrumb.
+  $set_breadcrumb = TRUE;
+
+  // Examine each rule and check its conditions.
+  foreach ($rules as $rule) {
+    if (in_array($rule->menu_name, $menu_names)) {
+      // If the page is already placed in the rule's menu, skip the rule.
+      $rule_matches = FALSE;
+      $set_breadcrumb = FALSE;
+    }
+    else {
+      // A rule with no conditions always matches.
+      $rule_matches = TRUE;
+      // Go through each condition, ANDing each result.
+      $rule->conditions = unserialize($rule->conditions);
+      foreach ($rule->conditions as $plugin => $variables) {
+        // Add the current rule and node to the callback's variables.
+        $variables['rule'] = $rule;
+        $variables['context'] = $context;
+        // Find the plugin's callback function.
+        $callback = menu_position_get_condition_callback($plugin);
+        if ($callback) {
+          // Check if this condition matches.
+          $rule_matches = $callback($variables);
+        }
+        else {
+          // If the callback cannot be found, the condition has failed.
+          $rule_matches = FALSE;
+        }
+        // No need to check other conditions if this condition failed.
+        if (!$rule_matches) {
+          break;
+        }
+      }
+    }
+
+    // Let other modules manipulate the rule.
+    drupal_alter('menu_position_rule', $rule, $context, $rule_matches, $set_breadcrumb);
+
+    // We've found a matching rule.
+    if ($rule_matches && menu_position_activate_rule($rule, $context, $set_breadcrumb)) {
+      // Don't let other rules set the breadcrumb.
+      $set_breadcrumb = FALSE;
+
+      // Don't let other rules match against this rule's menu.
+      $menu_names[] = $rule->menu_name;
+    }
+  }
+}
+
+/**
+ * Evaluates all rules based on the given path.
+ *
+ * @param $rule
+ *   The rule that should be activated.
+ * @param $context
+ *   A small context variable used by the menu_position module.
+ * @param $set_breadcrumb
+ *   Whether the breadcrumb still needs to be set or not.
+ */
+function menu_position_activate_rule($rule, $context, $set_breadcrumb) {
+  // Retrieve menu item specified in the rule.
+  $menu_item = menu_link_load($rule->mlid);
+
+  // Sanity check: if the menu link doesn't exist abort processing the rule.
+  if (!$menu_item) {
+    return FALSE;
+  }
+
+  // Reset the menu trail that views may have set.
+  $original_router_item = menu_get_item();
+  if ($original_router_item['page_callback'] == 'views_page') {
+    $preferred = &drupal_static('menu_link_get_preferred');
+    unset($preferred[$context['path']]);
+  }
+
+  // Set the active path for the rule's menu.
+  menu_tree_set_path($rule->menu_name, $menu_item['link_path']);
+
+  // Get the default preferred link and save it so that it can be used in
+  // place of the rule's menu link when menu trees are rendered.
+  menu_position_set_link($rule->rid, menu_link_get_preferred());
+
+  // Allow the rule's parent menu item to show "expanded" status.
+  menu_position_expand_parent_link($rule->plid);
+
+  // Alter the active trail if breadcrumbs still need to be set.
+  if ($set_breadcrumb) {
+    // Manually set the preferred link for this path so that
+    // menu_get_active_trail() returns the proper trail.
+    $preferred_links = &drupal_static('menu_link_get_preferred');
+    $preferred_links[$_GET['q']][MENU_PREFERRED_LINK] = menu_link_get_preferred($menu_item['link_path']);
+
+    // Remove the menu position router from the end of the trail.
+    $active_trail = menu_set_active_trail();
+    array_pop($active_trail);
+    menu_set_active_trail($active_trail);
+  }
+
+  return TRUE;
+}
+
+/**
+ * Dynamically expands the parent menu item for a rule.
+ *
+ * @param $plid
+ *   The parent menu item's mlid.
+ */
+function menu_position_expand_parent_link($plid = NULL) {
+  $link_id = &drupal_static(__FUNCTION__, NULL);
+
+  if (isset($plid)) {
+    $link_id = $plid;
+  }
+  return $link_id;
+}
+
+/**
+ * Dynamically sets the menu item for a specified rule.
+ *
+ * @param $rid
+ *   The rule ID.
+ * @param $link
+ *   The menu item that should be used for the rule.
+ */
+function menu_position_set_link($rid, $link) {
+  menu_position_get_link('menu-position/' . $rid, $link);
+}
+
+/**
+ * Returns the dynamically set menu item for a specified rule.
+ *
+ * @param $path
+ *   The path of the requested rule, e.g. menu-position/10.
+ * @return
+ *   The title that should be used for the rule's menu item.
+ */
+function menu_position_get_link($path, $link = NULL) {
+  $links = &drupal_static(__FUNCTION__, array());
+
+  // If a link is given, save it for later retrieval.
+  if ($link) {
+    $links[$path] = $link;
+  }
+  return isset($links[$path]) ? $links[$path] : NULL;
+}
+
+/**
+ * Implements hook_translated_menu_link_alter().
+ *
+ * All of the menu items of menu position rules have their "alter" option set
+ * which allows them to be altered with this hook. We "translate" the menu item
+ * to have the proper URL and title for the current page.
+ */
+function menu_position_translated_menu_link_alter(&$item, &$map) {
+  // Check if the rule's links are configured to be hidden.
+  switch (variable_get('menu_position_active_link_display', 'child')) {
+    case 'child':
+      if ($item['module'] == 'menu_position') {
+        $menu_item = menu_position_get_link($item['link_path']);
+        // We only alter the link after its replacement has been set.
+        if (!empty($menu_item['title'])) {
+          $item['title'] = $menu_item['title'];
+          $item['href'] = $menu_item['href'];
+          $item['hidden'] = 0;
+        }
+      }
+      elseif ($item['mlid'] == menu_position_expand_parent_link()) {
+        $item['has_children'] = 1;
+      }
+      break;
+    case 'parent':
+      if ($item['mlid'] == menu_position_expand_parent_link()) {
+        $item['localized_options']['attributes']['class'][] = 'active';
+      }
+      break;
+  }
+}
+
+/**
+ * Retrieves a list of information about every rule plugin.
+ */
+function menu_position_get_plugins() {
+  $plugins = &drupal_static(__FUNCTION__, array());
+
+  if (empty($plugins)) {
+    foreach (module_implements('menu_position_rule_plugins') as $module) {
+      $function = $module . '_menu_position_rule_plugins';
+      if (function_exists($function)) {
+        // Register each module's plugin while setting baseline defaults.
+        foreach ($function() as $name => $plugin) {
+          $plugins[$name] = $plugin + array(
+            'module' => $module,
+            'file' => '',
+            'form_callback' => $module . '_menu_position_rule_' . $name . '_form',
+            'condition_callback' => $module . '_menu_position_condition_' . $name,
+          );
+        }
+      }
+    }
+  }
+
+  return $plugins;
+}
+
+/**
+ * Loads the include file containing a condition's callback function definition.
+ *
+ * @param $plugin
+ *   The name of the plugin.
+ * @return
+ *   The name of the callback function, or FALSE if it could not be found.
+ */
+function menu_position_get_condition_callback($plugin) {
+  $plugins = menu_position_get_plugins();
+  $callback = !empty($plugins[$plugin]['condition_callback']) ? $plugins[$plugin]['condition_callback'] : FALSE;
+
+  if ($callback && !function_exists($callback)) {
+    // Load the specified include file.
+    if (!empty($plugins[$plugin]['file'])) {
+      $file = pathinfo($plugins[$plugin]['file']);
+      // Allow plugins to be in a sub-directory.
+      if ($file['dirname']) {
+        $file['filename'] = $file['dirname'] . '/' . $file['filename'];
+      }
+      module_load_include($file['extension'], $plugins[$plugin]['module'], $file['filename']);
+    }
+    // Note if the callback still cannot be found.
+    if (!function_exists($callback)) {
+      $callback = FALSE;
+    }
+  }
+
+  return $callback;
+}

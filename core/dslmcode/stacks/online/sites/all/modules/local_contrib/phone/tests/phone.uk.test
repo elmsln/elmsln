@@ -1,0 +1,41 @@
+<?php
+
+class UKPhoneNumberTestCase extends DrupalWebTestCase {
+  /**
+   * Implementation of getInfo()
+   *
+   */
+  public static function getInfo() {
+    return array(
+      'name' => t('UK Phone number test'),
+      'description' => t('Tests various valid and invalid UK phone numbers for validity'),
+      'group' => t('Phone')
+    );
+  }
+
+  public function testPhoneUKValid() {
+    $this->assertTrue(valid_phone_number('uk', '01905 23819'), t('Test valid - 01905 23819'));
+    $this->assertTrue(valid_phone_number('uk', '01222 555 555'), t('Test valid - 01222 555 555'));
+    $this->assertTrue(valid_phone_number('uk', '(010) 55555555 #2222'), t('Test valid - (010) 55555555 #2222'));
+    $this->assertTrue(valid_phone_number('uk', '0122 555 5555#222'), t('Test valid - 0122 555 5555#222'));
+    $this->assertTrue(valid_phone_number('uk', '+441970123456'), t('Test valid - +441970123456'));
+    $this->assertTrue(valid_phone_number('uk', '+44(0)1970123456'), t('Test valid - +44(0)1970123456'));
+    $this->assertTrue(valid_phone_number('uk', '+44 1970 123 4562'), t('Test valid - +44 1970 123 456'));
+    $this->assertTrue(valid_phone_number('uk', '+44 (0)1970 123 456'), t('Test valid - +44 (0)1970 123 456'));
+    $this->assertTrue(valid_phone_number('uk', '(01970) 123456 #0001'), t('Test valid - (01970) 123456 #0001')); 
+  }
+
+  public function testPhoneUKInvalid() {
+    $this->assertFalse(valid_phone_number('uk', '01222 555 5555'), t('Test invalid - 01222 555 5555'));
+    $this->assertFalse(valid_phone_number('uk', '(010) 55555555 #22'), t('Test invalid - (010) 55555555 #22'));
+    $this->assertFalse(valid_phone_number('uk', '0122 5555 5555#222'), t('Test invalid - 0122 5555 5555#222'));
+    $this->assertFalse(valid_phone_number('uk', '(+441970)123456'), t('Test invalid - (+441970)123456'));
+    $this->assertFalse(valid_phone_number('uk', '+44(1970)123456'), t('Test invalid - +44(1970)123456'));
+    $this->assertFalse(valid_phone_number('uk', '+44 01970 123 456'), t('Test invalid - +44 01970 123 456'));
+    $this->assertFalse(valid_phone_number('uk', '(0197) 0123456 #01'), t('Test invalid - (0197) 0123456 #01')); 
+  }
+
+  public function testPhoneUKFormatting() {
+    //$this->assertEqual(format_phone_number('uk', '+6421123456', null), '+64 21 123 456', t('Check international mobile format'));
+  }
+}

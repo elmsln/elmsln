@@ -1,0 +1,428 @@
+<?php
+/**
+ * @file
+ * Module file for the Content type groups module.
+ */
+
+/**
+ * Implements hook_help().
+ */
+function content_type_groups_help($path, $arg) {
+  if ($path == 'admin/help#content_type_groups') {
+    $output = '<h3>' . t('About') . '</h3>';
+    $output .= '<p>' . t("The Content type groups module allows you to create groups of content types for reference in forms and views") . '</p>';
+    $output .= '<p>' . t("The module provides a configuration screen allowing administrators to define an unlimited amount of content type groups") . '</p>';
+    return $output;
+  }
+}
+
+/**
+ * Implements hook_menu().
+ */
+function content_type_groups_menu() {
+
+  $items = array();
+
+  // Main list page
+  $items['admin/structure/types/groups'] = array(
+    'title'            => 'Content type groups',
+    'description'      => 'Manage content type groups',
+    'page callback'    => 'content_type_groups_admin',
+    'access arguments' => array('administer content types'), // This permission is good enough for now. Does it really need a separate permission, honestly?
+    'file'             => 'content_type_groups.admin.inc',
+    'type'             => MENU_LOCAL_ACTION,
+  );
+
+  // Add new group page
+  $items['admin/structure/types/groups/add'] = array(
+    'title'            => 'Add content type group',
+    'description'      => 'Add a new content type group',
+    'page callback'    => 'drupal_get_form',
+    'page arguments'   => array('content_type_groups_group_form'),
+    'access arguments' => array('administer content types'), // This permission is good enough for now. Does it really need a separate permission, honestly?
+    'file'             => 'content_type_groups.admin.inc',
+    'type'             => MENU_LOCAL_ACTION,
+  );
+
+  // Edit existing group page
+  $items['admin/structure/types/groups/manage/%'] = array(
+    'title'            => 'Edit content type group',
+    'page callback'    => 'drupal_get_form',
+    'page arguments'   => array('content_type_groups_group_form', 5),
+    'access arguments' => array('administer content types'),
+    'file'             => 'content_type_groups.admin.inc',
+  );
+  $items['admin/structure/types/groups/manage/%/edit'] = array(
+    'title' => 'Edit',
+    'type'  => MENU_DEFAULT_LOCAL_TASK,
+  );
+
+  // Delete existing group page
+  $items['admin/structure/types/groups/manage/%/delete'] = array(
+    'title'            => 'Delete',
+    'page arguments'   => array('content_type_groups_group_delete_confirm', 5),
+    'access arguments' => array('administer content types'),
+    'file'             => 'content_type_groups.admin.inc',
+  );
+
+  return $items;
+}
+
+
+/**
+ * Implements hook_node_type_update().
+ *
+ * Changes the node type references for content type groups.
+ */
+function content_type_groups_node_type_update($info) {
+  if (isset($info->old_type)) {
+    ContentTypeGroup::renameContentType($info->old_type, $info->type);
+  }
+}
+
+/**
+ * Implements hook_node_type_delete().
+ *
+ * Removes the references for the content type being deleted.
+ */
+function content_type_groups_node_type_delete($info) {
+  ContentTypeGroup::removeContentType($info->type);
+}
+
+/**
+ * Implements hook_theme().
+ */
+function content_type_groups_theme() {
+
+  return array(
+    'content_type_groups_group_form' => array(
+      'render element' => 'form',
+      'file'      => 'content_type_groups.theme.inc',
+    ),
+
+  );
+
+}
+
+/**
+ * Implements hook_views_api().
+ */
+function content_type_groups_views_api() {
+  return array(
+    'api' => 2,
+  );
+}
+
+/**
+ * Implements hook_features_api().
+ *
+ * This hook tells features this component is available for export.
+ */
+function content_type_groups_features_api() {
+  return array(
+    'content_type_groups' => array(
+      'name'         => t('Content type groups'),
+      'default_hook' => 'content_type_groups_features_default_settings',
+    ),
+  );
+}
+
+/**
+ * Utility class to handle content type groups
+ */
+class ContentTypeGroup {
+
+  protected $type; // Machine name
+  protected $name; // Display name
+  public $content_types = array(); // Content types belonging to this group.
+  // array(
+  //   $content_type => array(
+  //     'name'   => $name,     // Display name of the content type
+  //     'weight' => $weight,   // Weight of the content type in this group
+  //   )
+  // )
+
+  private static $table_groups = 'content_type_groups_groups';
+  private static $table_types  = 'content_type_groups_types';
+
+  public function __construct($type = NULL) {
+
+    $this->type = check_plain($type);
+
+    // If a type is passed in, we're assuming that there's a
+    // matching content type group, so go find it
+    if ($type) {
+
+      $result = db_select(self::$table_groups, 'g')
+        ->fields('g', array('name'))
+        ->condition('type', $type, '=')
+        ->execute()
+        ->fetchAssoc();
+      if ($result) {
+        $this->name = $result['name'];
+
+        // Get the content types in this group
+        $result = db_select(self::$table_types, 't')
+          ->fields('t', array('content_type', 'weight'))
+          ->condition('group_type', $type, '=')
+          ->orderBy('weight', 'ASC')
+          ->execute();
+        if ($result) {
+          $all_node_types = node_type_get_names();
+          foreach ($result as $row) {
+            $this->content_types[$row->content_type] = array(
+              'name'   => $all_node_types[$row->content_type],
+              'weight' => $row->weight,
+            );
+          }
+        }
+
+      }
+    }
+
+  }
+
+  /**
+   * Creates or updates the current content type group.
+   *
+   * @return ContentTypeGroup
+   *   Current ContentTypeGroup object (for chaining)
+   */
+  public function save() {
+
+    $transaction = db_transaction();
+
+    try {
+
+      // Add/update the group info
+      $result = db_merge(self::$table_groups)
+        ->key(array('type' => $this->type))
+        ->fields(array(
+            'name' => $this->name,
+          ))
+        ->execute();
+
+      if ($result) {
+
+        // Delete all types for this group
+        db_delete(self::$table_types)
+          ->condition('group_type', $this->type)
+          ->execute();
+
+        // Insert the new types for this group
+        foreach ($this->content_types as $content_type => $type_data) {
+          db_insert(self::$table_types)
+            ->fields(array(
+                'group_type'   => $this->type,
+                'content_type' => $content_type,
+                'weight'       => $type_data['weight'],
+              ))
+            ->execute();
+        }
+      }
+
+    }
+    catch (Exception $e) {
+      $transaction->rollback();
+      watchdog_exception('content type groups', $e);
+      throw $e;
+    }
+
+    return $this;
+
+  }
+
+  /**
+   * Deletes the current content type group.
+   *
+   * @return ContentTypeGroup
+   *   Empty ContentTypeGroup object (for chaining)
+   */
+  public function delete() {
+
+    $transaction = db_transaction();
+
+    try {
+
+      // Delete the content types for this group
+      db_delete(self::$table_types)
+        ->condition('group_type', $this->type)
+        ->execute();
+
+      // Delete the content type group
+      db_delete(self::$table_groups)
+        ->condition('type', $this->type)
+        ->execute();
+
+    }
+    catch (Exception $e) {
+      $transaction->rollback();
+      watchdog_exception('content type groups', $e);
+      throw $e;
+    }
+
+    // Clear the current content type group
+    $this->type = NULL;
+    $this->name = NULL;
+    $this->content_types = array();
+
+    return $this;
+  }
+
+  /**
+   * Adds a new content type to the current content type group.
+   *
+   * @param string $content_type
+   *   Machine name of the content type group to add
+   *
+   * @param int $weight
+   *
+   */
+  public function addContentType($content_type, $weight = 0) {
+    $this->content_types[$content_type] = array(
+      'name'   => NULL,
+      'weight' => $weight,
+    );
+  }
+
+  /**
+   * Removes the given content type from the current content type group.
+   *
+   * @param string $content_type
+   *   Machine name of the content type to remove
+   */
+  public function deleteContentType($content_type) {
+    if (isset($this->content_types[$content_type])) {
+      unset($this->content_types[$content_type]);
+    }
+  }
+
+
+  /**
+   * Returns a list of content types belonging to this group
+   * in a format made for easy looping.
+   *
+   * @param bool $fetch_as_full
+   *   If TRUE, returns the data as full type information
+   *
+   * @return array
+   *   $machine_name => $name
+   */
+  public function typeList($fetch_as_full = FALSE) {
+    if ($fetch_as_full) {
+      return $this->content_types;
+    }
+    else {
+      $types = array();
+      foreach ($this->content_types as $machine_name => $data) {
+        $types[$machine_name] = $data['name'];
+      }
+      return $types;
+    }
+  }
+
+  /**
+   * Renames the given content type across all content type groups.
+   * Use this when a content type's machine name is renamed.
+   *
+   * @param string $old_content_type
+   *   The content type's old machine name.
+   * @param string $new_content_type
+   *   The content type's new machine name.
+   */
+  public static function renameContentType($old_content_type, $new_content_type) {
+
+    $result = db_update(self::$table_types)
+      ->fields(array(
+          'content_type' => $new_content_type,
+        ))
+      ->condition('content_type', $old_content_type)
+      ->execute();
+
+    return $result;
+  }
+
+  /**
+   * Removes the given content type across all content type groups.
+   * Use this when a content type is deleted.
+   *
+   * @param string $old_content_type
+   *   The content type's old machine name.
+   */
+  public static function removeContentType($content_type) {
+
+    $result = db_delete(self::$table_types)
+      ->condition('content_type', $content_type)
+      ->execute();
+
+    return $result;
+  }
+
+  /**
+   * Returns a list of all content type groups.
+   *
+   * @return array
+   *   $machine_name => ContentTypeGroup($machine_name)
+   */
+  public static function fetch($fetch_as_objects = FALSE) {
+
+    if ($fetch_as_objects) {
+      $result = db_select(self::$table_groups, 'g')
+        ->fields('g', array('type'))
+        ->execute();
+
+      $data = array();
+      foreach ($result as $row) {
+        $data[$row->type] = new ContentTypeGroup($row->type);
+      }
+
+    }
+    else { // We only need to do $machine_name => $display_name
+
+      $result = db_select(self::$table_groups, 'g')
+        ->fields('g', array('type', 'name'))
+        ->execute();
+
+      $data = array();
+      foreach ($result as $row) {
+        $data[$row->type] = $row->name;
+      }
+
+    }
+
+    return $data;
+  }
+
+  /**
+   * Property setter
+   */
+  public function __set($property, $val) {
+
+    switch ($property) {
+
+      case 'type' :
+      case 'name' :
+        // Sanitize and trim input
+        $this->$property = trim(check_plain($val));
+    }
+
+  }
+
+  /**
+   * Property getter
+   */
+  public function __get($property) {
+
+    switch ($property) {
+
+      case 'type' :
+      case 'name' :
+        return $this->$property;
+
+      default:
+        return NULL;
+    }
+
+  }
+
+}

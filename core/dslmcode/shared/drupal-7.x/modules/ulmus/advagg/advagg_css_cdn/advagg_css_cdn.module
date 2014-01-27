@@ -1,0 +1,168 @@
+<?php
+
+/**
+ * @file
+ * Advanced aggregation js cdn module.
+ */
+
+/**
+ * Default value to see if jquery-ui should be grabbed from the Google CDN.
+ */
+define('ADVAGG_CSS_CDN_JQUERY_UI', TRUE);
+
+/**
+ * Default jquery ui version.
+ */
+define('ADVAGG_CSS_CDN_JQUERY_UI_VERSION', '1.8.7');
+
+/**
+ * Implement hook_css_alter.
+ */
+function advagg_css_cdn_css_alter(&$css) {
+  // Only modify if jquery_update is not enabled,
+  if (module_exists('jquery_update')) {
+    return;
+  }
+
+  // Setup variables.
+  // jquery ui.
+  $jquery_ui_version = variable_get('advagg_css_cdn_jquery_ui_version', ADVAGG_CSS_CDN_JQUERY_UI_VERSION);
+  $ui_mapping = advagg_css_cdn_get_ui_mapping();
+  $add_in_ui = FALSE;
+
+  foreach ($css as $name => $values) {
+    // Only modify if
+    //  advagg_css_cdn_jquery_ui is enabled,
+    //  name is in the $ui_mapping array.
+    //  and type is file.
+    if (   variable_get('advagg_css_cdn_jquery_ui', ADVAGG_CSS_CDN_JQUERY_UI)
+        && array_key_exists($name, $ui_mapping)
+        && $css[$name]['type'] == 'file'
+          ) {
+      $css[$name]['data'] = '//ajax.googleapis.com/ajax/libs/jqueryui/'. $jquery_ui_version . '/themes/base/jquery.' . $ui_mapping[$name] . '.css';
+      $css[$name]['type'] = 'external';
+
+      // Fallback can not work do to "SecurityError: The operation is insecure."
+    }
+  }
+}
+
+/**
+ * Return an array of jquery ui files.
+ */
+function advagg_css_cdn_get_ui_mapping() {
+  // Replace jQuery UI's CSS, beginning by defining the mapping.
+  $ui_mapping = array(
+    'misc/ui/jquery.ui.accordion.css' => 'ui.accordion',
+    'misc/ui/jquery.ui.autocomplete.css' => 'ui.autocomplete',
+    'misc/ui/jquery.ui.button.css' => 'ui.button',
+    'misc/ui/jquery.ui.core.css' => 'ui.core',
+    'misc/ui/jquery.ui.datepicker.css' => 'ui.datepicker',
+    'misc/ui/jquery.ui.dialog.css' => 'ui.dialog',
+    'misc/ui/jquery.ui.progressbar.css' => 'ui.progressbar',
+    'misc/ui/jquery.ui.resizable.css' => 'ui.resizable',
+    'misc/ui/jquery.ui.selectable.css' => 'ui.selectable',
+    'misc/ui/jquery.ui.slider.css' => 'ui.slider',
+    'misc/ui/jquery.ui.tabs.css' => 'ui.tabs',
+    'misc/ui/jquery.ui.theme.css' => 'ui.theme',
+  );
+  return $ui_mapping;
+}
+
+/**
+ * Implement hook_advagg_css_groups_alter.
+ */
+function advagg_css_cdn_advagg_css_groups_alter(&$css_groups, $preprocess_css) {
+  // Work around a bug with seven_css_alter.
+  // http://drupal.org/node/1937860
+  $theme_keys[] = $GLOBALS['theme'];
+  if (!empty($GLOBALS['base_theme_info'])) {
+    foreach ($GLOBALS['base_theme_info'] as $base) {
+      $theme_keys[] = $base->name;
+    }
+  }
+  $match = FALSE;
+  foreach ($theme_keys as $name) {
+    if ($name == 'seven') {
+      $match = TRUE;
+    }
+  }
+  if (empty($match)) {
+    return;
+  }
+
+  $target = FALSE;
+  $last_group = FALSE;
+  $last_key = FALSE;
+  $kill_key = FALSE;
+  $replaced = FALSE;
+  foreach ($css_groups as $key => $group) {
+    if (empty($target)) {
+      if ($group['type'] == 'external' && $group['preprocess'] && $preprocess_css) {
+        foreach ($group['items'] as $k => $value) {
+          if ($value['data'] == 'themes/seven/jquery.ui.theme.css') {
+            // Type should be file and not external (core bug).
+            $value['type'] = 'file';
+            $target = $value;
+            unset($css_groups[$key]['items'][$k]);
+            if (empty($css_groups[$key]['items'])) {
+              unset($css_groups[$key]);
+              $kill_key = $key;
+            }
+          }
+        }
+      }
+    }
+    else {
+      $diff = array_merge(array_diff($group['browsers'], $target['browsers']), array_diff($target['browsers'], $group['browsers']));
+      if (   $group['type'] != $target['type']
+          || $group['group'] != $target['group']
+          || $group['every_page'] != $target['every_page']
+          || $group['media'] != $target['media']
+          || $group['media'] != $target['media']
+          || $group['preprocess'] != $target['preprocess']
+          || !empty($diff)
+            ) {
+        if (!empty($last_group)) {
+          $diff = array_merge(array_diff($last_group['browsers'], $target['browsers']), array_diff($target['browsers'], $last_group['browsers']));
+          if (   $last_group['type'] != $target['type']
+              || $last_group['group'] != $target['group']
+              || $last_group['every_page'] != $target['every_page']
+              || $last_group['media'] != $target['media']
+              || $last_group['media'] != $target['media']
+              || $last_group['preprocess'] != $target['preprocess']
+              || !empty($diff)
+                ) {
+            // Insert New
+            $css_groups[$kill_key] = array(
+              'group' => $target['group'],
+              'type' => $target['type'],
+              'every_page' => $target['every_page'],
+              'media' => $target['media'],
+              'preprocess' => $target['preprocess'],
+              'browsers' => $target['browsers'],
+              'items' => array($target),
+            );
+            $replaced = TRUE;
+          }
+          else {
+            // Insert above.
+            $css_groups[$last_key]['items'][] = $target;
+            $replaced = TRUE;
+          }
+        }
+      }
+      else {
+        // Insert below.
+        array_unshift($css_groups[$key]['items'], $target);
+        $replaced = TRUE;
+      }
+    }
+    $last_group = $group;
+    $last_key = $key;
+    if ($replaced) {
+      break;
+    }
+  }
+  ksort($css_groups);
+}

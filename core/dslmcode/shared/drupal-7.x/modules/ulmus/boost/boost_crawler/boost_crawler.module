@@ -1,0 +1,70 @@
+<?php
+
+/**
+ * @file
+ * Minimal crawler to regenerate the cache as pages are expired.
+ */
+
+/**
+ * Implements hook_menu().
+ */
+function boost_crawler_menu() {
+  $items = array();
+
+  $items['admin/config/system/boost/crawler'] = array(
+    'title' => 'Crawler',
+    'description' => 'Configuration for the Boost crawler.',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('boost_crawler_admin_settings'),
+    'access arguments' => array('administer site configuration'),
+    'type' => MENU_LOCAL_TASK,
+    'file' => 'boost_crawler.admin.inc',
+  );
+
+  return $items;
+}
+
+/**
+ * Implements hook_cron_queue_info()
+ */
+function boost_crawler_cron_queue_info() {
+  $queues['boost_crawler'] = array(
+    'worker callback' => 'boost_crawler_run',
+    'time' => variable_get('boost_crawl_queue_seconds', 30), // max run time to claim per cron run (in seconds).
+  );
+
+  return $queues;
+}
+
+/**
+ * Implements hook_expire_cache (from the 'expire' module)
+ */
+function boost_crawler_expire_cache($urls) {
+  global $base_root;
+
+  if (variable_get('boost_crawl_on_cron', FALSE)) {
+    foreach ($urls as $url) {
+      // Put URLs in a queue for processing by cron
+      // http://drupal.org/node/1074080#comment-4590150
+      $queue = DrupalQueue::get('boost_crawler');
+ 
+      // Check if the URL to be flushed matches our base URL
+      if (strpos($base_root, $url) == 0) {
+        $queue->createItem($url);
+      }
+    }
+  }
+}
+
+/**
+ * Worker Callback for the boost_crawler cron queue.
+ */
+function boost_crawler_run($url) {
+  // Not doing async requests in order not to kill the server
+  // and also for the 'time' limit of the queue to make sense.
+  httprl_request($url);
+  $request = httprl_send_request();
+
+  boost_log('Crawler fetched !url', array('!url' => $url), WATCHDOG_DEBUG);
+}
+

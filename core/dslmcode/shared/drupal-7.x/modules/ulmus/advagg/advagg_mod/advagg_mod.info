@@ -1,0 +1,14 @@
+name = AdvAgg Modifier
+description = Allows one to alter the CSS and JS array.
+package = Advanced CSS/JS Aggregation
+core = 7.x
+dependencies[] = advagg
+
+configure = admin/config/development/performance/advagg/mod
+
+; Information added by  packaging script on 2013-11-17
+version = "7.x-2.3"
+core = "7.x"
+project = "advagg"
+datestamp = "1384667233"
+

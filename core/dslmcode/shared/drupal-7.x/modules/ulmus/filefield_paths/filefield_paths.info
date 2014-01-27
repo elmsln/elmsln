@@ -1,0 +1,29 @@
+name = File (Field) Paths
+description = Adds improved Token based file sorting and renaming functionalities.
+dependencies[] = token
+package = Fields
+core = 7.x
+
+; Core files.
+files[] = filefield_paths.install
+files[] = filefield_paths.module
+
+; Integration files.
+files[] = modules/features.inc
+files[] = modules/file.inc
+files[] = modules/filefield_paths.drush.inc
+files[] = modules/filefield_paths.inc
+files[] = modules/image.inc
+files[] = modules/token.inc
+files[] = modules/video.inc
+
+; Simpletest files.
+; files[] = tests/file.test
+; files[] = tests/filefield_paths.test
+
+; Information added by drupal.org packaging script on 2013-04-25
+version = "7.x-1.0-beta4"
+core = "7.x"
+project = "filefield_paths"
+datestamp = "1366871711"
+

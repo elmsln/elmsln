@@ -1,0 +1,155 @@
+<?php
+
+/**
+ * @file
+ * Remove configured form elements from forms.
+ */
+
+/**
+ * Implements hook_menu().
+ */
+function jammer_generic_menu() {
+  $items['admin/config/user-interface/jammer_generic'] = array(
+    'title' => 'Generic Jammer',
+    'description' => 'Remove any item from any form.',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('_jammer_generic_admin_settings'),
+    'access arguments' => array('administer site configuration'),
+  );
+  $items['admin/config/user-interface/jammer_generic/delete/%'] = array(
+    'title' => 'Delete generic jammer element',
+    'page callback' => '_jammer_generic_delete',
+    'page arguments' => array(5),
+    'access arguments' => array('administer site configuration'),
+    'type' => MENU_CALLBACK,
+  );
+  return $items;
+}
+
+/**
+ * Implementation of menu callback.
+ */
+function _jammer_generic_admin_settings() {
+  $form = array();
+  $form['jammer_generic_element_id_info'] = array(
+    '#type' => 'item',
+    '#value' => t('Before you use this module, please be sure you completely understand what you\'re doing. ' .
+    'Review the information available at !drupal_url. Generic Jammer will go through each ' .
+    'part of a form recursively setting !access_url, so make sure you have accounted for any side effects of ' .
+    'removing the form elements you plan to remove. This includes making sure there are default values for the ' .
+    'element if needed and removing any dependant javascript that may rely on the element being there. Always test ' .
+    'before releasing changes to a live production site.',
+      array(
+      '!drupal_url' => l('Form API Quickstart Guide', 'http://drupal.org/node/751826'),
+      '!access_url' => l('#access', 'http://api.drupal.org/api/drupal/developer--topics--forms_api_reference.html#access'),
+    )
+    ),
+  );
+  $form['jammer_generic_form_id'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Form id'),
+    '#required' => TRUE,
+    '#description' => t('The form id containing the element you want to remove. Node form ids are of format: nodetypename_node_form'),
+  );
+  $form['jammer_generic_element_id'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Element id'),
+    '#required' => TRUE,
+    '#description' => t('The element id of the element you want to remove.'),
+  );
+  $form['submit'] = array(
+    '#type' => 'submit',
+    '#value' => 'Jam element',
+  );
+  $current_settings = variable_get('jammer_generic_elements', array());
+  $headers = array(t('Form ID'), t('Element ID'), t('Delete'));
+  $data = array();
+  foreach ($current_settings as $key => $value) {
+    $data[] = array(
+      $value['jammer_generic_form_id'],
+      $value['jammer_generic_element_id'],
+      l(t('Delete'), 'admin/config/user-interface/jammer_generic/delete/' . $key),
+    );
+  }
+  if (!empty($data)) {
+    $form['configured'] = array(
+      '#type' => 'fieldset',
+      '#title' => 'Jammed form elements',
+      '#collapsible' => TRUE,
+      '#collapsed' => FALSE,
+    );
+    $form['configured']['table'] = array(
+      '#type' => 'item',
+      '#markup' => theme('table', array(
+          'header' => $headers,
+          'rows' => $data,
+        )),
+    );
+  }
+  return $form;
+}
+
+/**
+ * Implementation of submit for form.
+ */
+function _jammer_generic_admin_settings_submit($form, &$form_state) {
+  $form_values = $form_state['values'];
+  if ($form_values['jammer_generic_form_id'] == '-jammer-generic-admin-settings') {
+    drupal_set_message(t('You cannot jam elements of the generic jammer form.'));
+    return;
+  }
+  $current_settings = variable_get('jammer_generic_elements', array());
+  foreach ($current_settings as $key => $value) {
+    if ($value['jammer_generic_form_id'] == $form_values['jammer_generic_form_id'] && $value['jammer_generic_element_id'] == $form_values['jammer_generic_element_id']) {
+      drupal_set_message(t('Setting saved.')); // Setting was already set, not going to repeat it.
+      return;
+    }
+  }
+  $current_settings[] = array(
+    'jammer_generic_form_id' => $form_values['jammer_generic_form_id'],
+    'jammer_generic_element_id' => $form_values['jammer_generic_element_id'],
+  );
+  variable_set('jammer_generic_elements', $current_settings);
+  drupal_set_message(t('Setting saved.'));
+}
+
+/**
+ * Menu callback.
+ */
+function _jammer_generic_delete($key) {
+  $current_settings = variable_get('jammer_generic_elements', array());
+  unset($current_settings[$key]);
+  variable_set('jammer_generic_elements', $current_settings);
+  drupal_goto('admin/config/user-interface/jammer_generic');
+}
+
+/**
+ * Implements hook_form_alter().
+ */
+function jammer_generic_form_alter(&$form, &$form_state, $form_id) {
+  if ($form['#id'] != '-jammer-generic-admin-settings') {
+    $current_settings = variable_get('jammer_generic_elements', array());
+    foreach ($current_settings as $key => $value) {
+      if ($value['jammer_generic_form_id'] == $form_id) {
+        $element_id = $value['jammer_generic_element_id'];
+        // Crawl the form for this element to remove it.
+        foreach (element_children($form) as $key) {
+          $form[$key] = _jammer_generic_remove_element($form[$key], $key, $element_id); // Recursive.
+        }
+      }
+    }
+  }
+}
+
+/**
+ * Helper function, recursive.
+ */
+function _jammer_generic_remove_element($value_array, $key, $element_id) {
+  if ($key == $element_id) {
+    $value_array['#access'] = FALSE;
+  }
+  foreach (element_children($value_array) as $value_key) {
+    $value_array[$value_key] = _jammer_generic_remove_element($value_array[$value_key], $value_key, $element_id); // Recursive.
+  }
+  return $value_array;
+}

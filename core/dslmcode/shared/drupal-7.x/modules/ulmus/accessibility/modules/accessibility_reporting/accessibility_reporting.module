@@ -1,0 +1,127 @@
+<?php
+
+/**
+ * Implements hook_menu().
+ */
+function accessibility_reporting_menu() {
+	$items = array();
+
+	$items['accessibility/reporting/report'] = array(
+		'page callback'    => 'accessibility_reporting_report',
+		'access arguments' => array('report acessibility results'),
+	);
+
+	return $items;
+}
+
+/**
+ * Implements hook_permission().
+ */
+function accessibility_reporting_permission() {
+	return array('report acessibility results' => array(
+									'title' => t('User will report accessibility problems'),
+									'description' => t('When a user views a page, all accessibility problems are reported back.'),
+									),
+              'view acessibility reports' => array(
+                  'title' => t('User can view accessibility reports'),
+                  'description' => t('Users can read the results of accessibility reports.'),
+                  ),
+								);
+}
+
+/** 
+ * Implements hook_form_FORM_ID_alter().
+ */
+function accessibility_reporting_form_field_ui_field_edit_form_alter(&$form, $form_state) {
+  if (in_array($form['#field']['type'], array('text_with_summary'))) {
+    $form['instance']['accessibility_reporting'] = array(
+      '#type' => 'checkbox',
+      '#title' => t('Report on accessibility problems in this field.'),
+      '#description' => t('When checked, every time this field is viewed accessibility problems are reported back.'),
+      '#default_value' => (isset($form['#instance']['accessibility_reporting'])) ? 
+                                 $form['#instance']['accessibility_reporting'] :
+                                 FALSE,
+    );
+  }
+}
+
+
+/**
+ * Implements hook_field_attach_view_alter().
+ */
+function accessibility_reporting_field_attach_view_alter(&$output, $context) {
+  if (user_access('report accessibility results')) {
+    $js_set = drupal_static(__FUNCTION__);
+    foreach ($output as $field_key => $field) {
+      if (is_array($field) && isset($field['#field_name'])) {
+        $field = field_info_instance($field['#entity_type'], $field['#field_name'], $field['#bundle']);
+        if (isset($field['accessibility_reporting']) && $field['accessibility_reporting']) {
+          if(!$js_set) {
+          	drupal_add_js(drupal_get_path('module' , 'accessibility_reporting') . '/js/accessibility_reporting.js');
+          	accessibility_load();
+          	$js_set = TRUE;
+          }
+          $output[$field_key]['#pre_render'][] = '_accessibility_reporting_field_pre_render';
+        }
+      }
+    }
+  }
+}
+
+/**
+ * Pre-render callback to wrap fields in a span.
+ */
+function _accessibility_reporting_field_pre_render($element) {
+	$element['#prefix'] = (isset($element['#prefix'])) ? $element['#prefix'] : '';
+  $element['#suffix'] = (isset($element['#suffix'])) ? $element['#suffix'] : '';
+  $info = entity_get_info($element['#entity_type']);
+  $attributes = array('class' => array('accessibility-report-field'),
+  										'data-field' => $element['#field_name'],
+  										'data-entity-type' => $element['#entity_type'],
+                      'data-bundle' => $element['#bundle'],
+  										'data-entity-id' => $element['#object']->{$info['entity keys']['id']}
+  										);
+  $element['#prefix'] = '<span ' . drupal_attributes($attributes) . '>' . $element['#prefix'];
+  $element['#suffix'] .= '</span>';
+  return $element;
+}
+
+/**
+ * Report callback. Stores posted data to accessibility_reporting table.
+ */
+function accessibility_reporting_report() {
+	if(!isset($_POST['results'])) {
+		return;
+	}
+	foreach($_POST['results'] as $result) {
+		array_walk($result, 'check_plain');
+    db_delete('accessibility_reporting')
+			->condition('entity_type', $result['entity_type'])
+			->condition('entity_id', $result['entity_id'])
+			->execute();
+		if(isset($result['total']) && count($result['total'])) {
+			foreach($result['total'] as $test_id => $total) {
+				db_insert('accessibility_reporting')
+					->fields(array('test_id' => $test_id,
+												 'entity_type' => $result['entity_type'],
+                         'bundle'      => $result['bundle'],
+												 'entity_id' => $result['entity_id'],
+												 'field' => $result['field'],
+												 'total' => $total,
+												 ))
+					->execute();
+			}
+		}
+	}
+}
+
+/**
+ * Implements hook_views_api().
+ */
+function accessibility_reporting_views_api() {
+  return array(
+    'api' => 3,
+    'path' => drupal_get_path('module', 'accessibility_reporting') . '/views',
+  );
+}
+

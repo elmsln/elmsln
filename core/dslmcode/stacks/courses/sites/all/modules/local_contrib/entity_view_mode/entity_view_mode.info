@@ -1,0 +1,13 @@
+name = Entity view modes
+description = Allows administrators to define custom view modes for entities via the administration user interface.
+core = 7.x
+recommends[] = field_ui
+configure = admin/config/system/entity-view-modes
+files[] = entity_view_mode.test
+
+; Information added by drupal.org packaging script on 2013-05-11
+version = "7.x-1.0-rc1"
+core = "7.x"
+project = "entity_view_mode"
+datestamp = "1368242411"
+

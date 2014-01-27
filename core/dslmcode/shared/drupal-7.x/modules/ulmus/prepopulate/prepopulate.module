@@ -1,0 +1,81 @@
+<?php
+
+/**
+ * @file
+ * Fill form elements with data from GET or POST values.
+ *
+ * Originally written by ea. Farris <eafarris@gmail.com>
+ * Based on an idea from chx, from the conversation at
+ * http://www.drupal.org/node/27155.
+ */
+
+/**
+ * Implementation of hook_help().
+ */
+function prepopulate_help($path, $arg) {
+  switch ($path) {
+    case 'admin/modules#description':
+      return t('Pre-populates forms with HTTP GET or POST data');
+      break;
+  }
+}
+
+/**
+ * Implementation of hook_form_alter().
+ */
+function prepopulate_form_alter(&$form, $form_state, $form_id) {
+  // Provide for accepting base64 encoded fields.
+  if (isset($_REQUEST['pp'])) {
+    parse_str(base64_decode($_REQUEST['pp']), $_REQUEST);
+  }
+  if (isset($_REQUEST['edit'])) {
+    $form['#after_build'][] = 'prepopulate_after_build';
+  }
+}
+
+/**
+ * An #after_build function to set the values prepopulated in the request.
+ */
+function prepopulate_after_build($form, &$form_state) {
+  if (isset($_REQUEST['pp'])) {
+    parse_str(base64_decode($_REQUEST['pp']), $_REQUEST);
+  }
+  if (isset($_REQUEST['edit'])) {
+    $request = (array)$_REQUEST['edit'];
+    _prepopulate_request_walk($form, $request);
+  }
+  return $form;
+}
+
+/**
+ * Internal helper to set element values from the $_REQUEST variable.
+ *
+ * @param &$form
+ *   Array. A form element.
+ * @param &$requestslice
+ *   String or array. Value(s) to be applied to the element.
+ */
+function _prepopulate_request_walk(&$form, &$requestslice) {
+  $limited_types = array('value', 'hidden', 'button', 'image_button');
+  if (is_array($requestslice)) {
+    foreach (array_keys($requestslice) as $requestvar) {
+      if (element_child($requestvar) && !empty($form[$requestvar]) &&
+       (!isset($form[$requestvar]['#type']) || !in_array($form[$requestvar]['#type'], $limited_types))) {
+        if (!isset($form[$requestvar]['#access']) || $form[$requestvar]['#access'] != FALSE) {
+          _prepopulate_request_walk($form[$requestvar], $requestslice[$requestvar]);
+        }
+      }
+    }
+    if (!empty($form['#default_value']) && is_array($form['#default_value'])) {
+      $form['#default_value'] = array_merge($form['#default_value'], $requestslice);
+    }
+  }
+  else {
+    if ($form['#type'] == 'markup' || empty($form['#type']) ) {
+      $form['#value'] = check_plain($requestslice);
+    }
+    else {
+      $form['#value'] = $requestslice;
+    }
+  }
+}

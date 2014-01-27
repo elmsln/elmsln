@@ -1,0 +1,112 @@
+diff --git a/tablefield.module b/tablefield.module
+index ce108c2..e14905c 100644
+--- a/tablefield.module
++++ b/tablefield.module
+@@ -279,6 +279,7 @@ function tablefield_field_is_empty($item, $field) {
+   }
+ 
+   // Remove the preference fields to see if the table cells are all empty
++  unset($item['tablefield']['accessibility']);
+   unset($item['tablefield']['rebuild']);
+   unset($item['tablefield']['import']);
+   if (!empty($item['tablefield'])) {
+@@ -313,7 +314,12 @@ function tablefield_field_formatter_view($entity_type, $entity, $field, $instanc
+   $formatter = $display['type'];
+ 
+   foreach ($items as $delta => $table) {
+-
++    $raw = unserialize($table['value']);
++    // check for table accessibility array
++    if (isset($raw['accessibility'])) {
++      $caption = $raw['accessibility']['caption'];
++      $summary = $raw['accessibility']['summary'];
++    }
+     // Rationalize the stored data
+     if (!empty($table['tablefield'])) {
+       $tabledata = tablefield_rationalize_table($table['tablefield']);
+@@ -364,6 +370,8 @@ function tablefield_field_formatter_view($entity_type, $entity, $field, $instanc
+         'entity_id' => $entity_id,
+         'field_name' => $field['field_name'],
+         'langcode' => $langcode,
++        'caption' => $caption,
++        'summary' => $summary,
+       ));
+     }
+ 
+@@ -534,6 +542,35 @@ function tablefield_field_widget_form(&$form, &$form_state, $field, $instance, $
+   $element['tablefield']['t_break' . $i] = array(
+     '#markup' => '</table>',
+   );
++  
++  // table accessibility fields
++  $element['tablefield']['accessibility'] = array(
++    '#title' => t('Accessibility'),
++    '#description' => t('Fields to help improve table accessibility'),
++    '#attributes' => array('id' => 'form-tablefield-' . $field['field_name'] . '-' . $delta . '-accessibility', 'class' => array('form-tablefield-accessibility')),
++    '#type' => 'fieldset',
++    '#tree' => TRUE,
++    '#collapsible' => TRUE,
++    '#prefix' => '<div id="tablefield-' . $field['field_name'] . '-' . $delta . '-accessibility-wrapper">',
++    '#suffix' => '</div>',
++  );
++  if (isset($items[$delta]['value'])) {
++    $raw = unserialize($items[$delta]['value']);
++    $caption = $raw['accessibility']['caption'];
++    $summary = $raw['accessibility']['summary'];
++  }
++  $element['tablefield']['accessibility']['caption'] = array(
++    '#title' => t('Table Caption'),
++    '#description' => t('Improve description and accsessibility of this table with a caption'),
++    '#type' => 'textfield',
++    '#default_value' => isset($caption) ? $caption : '',
++  );
++  $element['tablefield']['accessibility']['summary'] = array(
++    '#title' => t('Summary'),
++    '#description' => t('Improve accsessibility of this table with a summary. This is useful for screen readers.'),
++    '#type' => 'textfield',
++    '#default_value' => isset($summary) ? $summary : '',
++  );
+ 
+   // If the user doesn't have rebuild perms, we pass along the data as a value.
+   // Otherwise, we will provide form elements to specify the size and ajax rebuild.
+@@ -783,6 +820,7 @@ function tablefield_rationalize_table($tablefield) {
+     // Remove exterraneous form data
+     $count_cols = $tablefield['rebuild']['count_cols'];
+     $count_rows = $tablefield['rebuild']['count_rows'];
++    unset($tablefield['accessibility']);
+     unset($tablefield['rebuild']);
+     unset($tablefield['import']);
+ 
+@@ -813,6 +851,8 @@ function tablefield_theme() {
+         'entity_id' => NULL,
+         'field_name' => NULL,
+         'langcode' => NULL,
++        'caption' => NULL,
++        'summary' => NULL,
+       ),
+     ),
+   );
+@@ -827,8 +867,14 @@ function theme_tablefield_view($variables) {
+     'class' => array(
+       'tablefield'
+     ),
++    'summary' => $variables['summary'],
+   );
+-
++  // apply scope property to headers for accessibility
++  foreach($variables['header'] as &$header) {
++    if (is_array($header)) {
++      $header['scope'] = 'col';
++    }
++  }
+   // If the user has access to the csv export option, display it now.
+   $export = '';
+   if ($variables['export'] && user_access('export tablefield')) {
+@@ -842,6 +888,7 @@ function theme_tablefield_view($variables) {
+         'header' => $variables['header'],
+         'rows' => $variables['rows'],
+         'attributes' => $attributes,
++        'caption' => $variables['caption'],
+       )
+     )
+     . $export

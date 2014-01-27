@@ -1,0 +1,135 @@
+<?php // -*- indent-tabs-mode:nil -*-
+
+define('FILECACHE_CRON_MAX_FILES', 100);
+
+function filecache_cron() {
+
+  if (!function_exists('filecache_directory')) {
+    // filecache.inc is not included
+    return;
+  }
+
+  $filecache_directory = filecache_directory();
+  if ($filecache_directory === FALSE) {
+    return;
+  }
+
+  // XXX just adapted from DrupalFileCache::delete_expired()
+
+  $cache_size = 0;
+  $cwd = getcwd();
+  chdir($filecache_directory);
+  $dh = opendir('.');
+  while (($filename = readdir($dh)) !== FALSE) {
+    // XXX this tries to read every file regardless if it's cache entry
+    // XXX reads all entries XXX
+    $content = @file_get_contents($filename);
+    if ($content === FALSE) {
+      continue; // some problem in reading but we don't care
+    }
+    $cache = @unserialize($content);
+    if ($content === FALSE || !is_object($cache)) {
+      continue; // broken file - don't remove it because it may not belong to us
+    }
+
+    // gather statistics
+    $stat = @stat($filename);
+    if ($stat === FALSE) {
+      continue;
+    }
+    $cache_size += $stat['blocks'] >= 0 ? $stat['blocks']*512 : $stat['size'];
+
+    if ($cache->expire == CACHE_PERMANENT) {
+      continue;
+    }
+    if ($cache->expire == CACHE_TEMPORARY ||
+        $cache->expire < REQUEST_TIME) {
+      @unlink($filename);
+    }
+  } // foreach $filename
+  closedir($dh);
+  chdir($cwd);
+
+  cache_set('filecache_space', array('cache_size' => $cache_size));
+}
+
+function filecache_requirements($phase) {
+
+  $t = get_t();
+  $requirements = array('title' => $t('File Cache'));
+  $requirements['severity'] = REQUIREMENT_ERROR; // Assume error first
+  $readme_hint = $t('Please follow instructions in %readme.',
+                    array('%readme' => dirname(__FILE__) . '/README.txt'));
+
+  if (!function_exists('filecache_directory')) {
+    // filecache.inc is not included
+    $requirements['value'] = $t('No File Cache setup in %settings.',
+                                array('%settings' => conf_path() . '/settings.php'));
+    $requirements['description'] = $readme_hint;
+    return array('filecache' => $requirements);
+  }
+
+  $filecache_directory = filecache_directory();
+
+  // Scan what cache bins we serve
+  $default_bin = (variable_get('cache_default_class','') == 'DrupalFileCache');
+  $filecache_bins = array();
+  $other_bins = array();
+  global $conf;
+  foreach ($conf as $key => $value) {
+    if (strpos($key, 'cache_class_') === 0) {
+      $bin = implode('_', array_slice(explode('_', $key), 2));
+      if ($value == 'DrupalFileCache') {
+        $filecache_bins[] = $bin;
+      } else {
+        $other_bins[] = $bin;
+      }
+    }
+  }
+  $filecache_bins = implode(', ', $filecache_bins);
+  $other_bins = implode(', ', $other_bins);
+
+  if (!$default_bin && empty($filecache_bins)) {
+    $requirements['severity'] = REQUIREMENT_WARNING;
+    $requirements['value'] = $t('No cache bins are served by File Cache.');
+    $requirements['description'] = $readme_hint;
+    return array('filecache' => $requirements);
+  }   
+
+  // Show what cache bins we serve (in $requirements['value'])
+  $requirements['severity'] = REQUIREMENT_OK;
+  if ($default_bin) {
+    if (empty($other_bins)) {
+      $requirements['value'] =
+        $t('All cache bins are served by File Cache.');
+    } else {
+      $requirements['value'] =
+        $t('All cache bins except %bins are served by File Cache.',
+           array('%bins' => $other_bins));
+    }
+  } else {
+    $requirements['value'] =
+      $t('File Cache serves the following cache bins: %bins.',
+         array('%bins' => $filecache_bins));
+  }
+
+  // Show filecache_directory and its size (in $requirements['description'])
+  $space = cache_get('filecache_space');
+  $cron_last = variable_get('cron_last');
+  if ($space) {
+    $requirements['description'] =
+      $t('File Cache directory %dir uses !size (!time ago)',
+         array('%dir' => $filecache_directory,
+               '!size' => format_size($space->data['cache_size']),
+               '!time' => format_interval(REQUEST_TIME - $cron_last),
+               )
+         );
+  } else {
+    $requirements['description'] =
+      $t('File Cache directory %dir uses unknown disk space. Run cron to update.',
+         array('%dir' => $filecache_directory));
+  }
+
+  return array('filecache' => $requirements);
+}
+

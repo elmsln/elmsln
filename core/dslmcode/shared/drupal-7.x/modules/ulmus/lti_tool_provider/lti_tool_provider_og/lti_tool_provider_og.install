@@ -1,0 +1,28 @@
+<?php
+
+/**
+ * @file
+ * Install, update, and uninstall functions for the LTI Tool Provider OG module.
+ */
+
+/**
+ * Implements hook_install().
+ */
+function lti_tool_provider_og_install() {
+  variable_set('lti_tool_provider_og_group_mapping_bundle', 'none:None');
+  variable_set('lti_tool_provider_og_group_role_array', '');
+  variable_set('lti_tool_provider_og_provision_groups', '0');
+  variable_set('lti_tool_provider_og_provision_groups_anon', '0');
+  variable_set('lti_tool_provider_og_group_mapping', '');
+}
+
+/**
+ * Implements hook_uninstall().
+ */
+function lti_tool_provider_og_uninstall() {
+  variable_del('lti_tool_provider_og_group_mapping_bundle');
+  variable_del('lti_tool_provider_og_group_role_array');
+  variable_del('lti_tool_provider_og_provision_groups');
+  variable_del('lti_tool_provider_og_provision_groups_anon');
+  variable_del('lti_tool_provider_og_group_mapping');
+}

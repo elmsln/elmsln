@@ -1,0 +1,133 @@
+<?php
+/**
+ * @file
+ * Provides install, update and un-install functions for menu_position.
+ */
+
+/**
+ * Implements hook_schema().
+ */
+function menu_position_schema() {
+  $schema['menu_position_rules'] = array(
+    'description' => 'Stores breadcrumb rules for nodes.',
+    'fields' => array(
+      'rid' => array(
+        'description' => 'The primary identifier for a rule.',
+        'type' => 'serial',
+        'not null' => TRUE,
+      ),
+      'admin_title' => array(
+        'description' => 'The administrative title of this rule.',
+        'type' => 'varchar',
+        'length' => 255,
+        'default' => NULL,
+      ),
+      'enabled' => array(
+        'description' => 'Whether the rule is enabled or not.',
+        'type' => 'int',
+        'size' => 'tiny',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 1,
+      ),
+      'conditions' => array(
+        'description' => 'The serialized conditions for this rule.',
+        'type' => 'text',
+        'serialize' => TRUE,
+      ),
+      'menu_name' => array(
+        'description' => 'The menu of the menu link for this rule.',
+        'type' => 'varchar',
+        'length' => '32',
+        'not null' => TRUE,
+        'default' => '',
+      ),
+      'plid' => array(
+        'description' => 'The parent menu link id for this rule.',
+        'type' => 'int',
+        'default' => NULL,
+      ),
+      'mlid' => array(
+        'description' => 'The menu link id for this rule.',
+        'type' => 'int',
+        'default' => NULL,
+      ),
+      'weight' => array(
+        'description' => 'The weight of this rule.',
+        'type' => 'int',
+        'size' => 'tiny',
+        'not null' => FALSE,
+        'default' => 0,
+      ),
+    ),
+    'indexes' => array(
+      'rule_enabled' => array('enabled', 'weight', 'rid'),
+      'rule_weight'  => array('weight', 'rid'),
+    ),
+    'primary key' => array('rid'),
+  );
+
+  return $schema;
+}
+
+/**
+ * Set the initial database schema ID.
+ */
+function menu_position_update_7100() {
+  // No-op.
+}
+
+/**
+ * Fix all menu position rules.
+ */
+function menu_position_update_7102() {
+  // Issue #1298832 did not include a proper upgrade path for existing rules'
+  // menu links which broke all the rules. So we first delete all the menu links.
+  db_query('DELETE FROM {menu_links} WHERE module = :module', array(':module' => 'menu_position'));
+  // And then let menu_position_enable_helper() fix all the rules.
+  $rules = db_query('SELECT rid, plid, admin_title FROM {menu_position_rules} WHERE enabled = :enabled', array(':enabled' => 1));
+  foreach ($rules as $rule) {
+    // If we were to attempt menu_position_add_menu_link() here it would fail
+    // because the module's new router item isn't in the system yet. Instead we
+    // flag the rule with a zero-value mlid and fix it in
+    // menu_position_rules_form_callback().
+    db_update('menu_position_rules')
+      ->fields(array('mlid' => 0))
+      ->condition('rid', $rule->rid)
+      ->execute();
+  }
+  if ($rules->rowCount()) {
+    return t('Due to a bug in Menu position 7.x-1.0-beta3, all menu position rules need to be fixed. All rules will be disabled until you visit the <a href="!url">menu position rules admin page</a>.', array('!url' => url('admin/structure/menu-position')));
+  }
+}
+
+/**
+ * Implements hook_enable().
+ *
+ * When the module is disabled, the menu links it owns are deleted. When
+ * re-enabling this module, we need to ensure that any menu links are re-created
+ * and to re-configure any old rules existing in the database.
+ */
+function menu_position_enable() {
+  $rules = db_query('SELECT rid, plid, admin_title FROM {menu_position_rules} WHERE enabled = :enabled', array(':enabled' => 1));
+  if ($rules->rowCount()) {
+    drupal_set_message(t('Existing menu position rules were discovered. They will be disabled until you visit the <a href="!url">menu position rules admin page</a>.', array('!url' => url('admin/structure/menu-position'))), 'error');
+  }
+  foreach ($rules as $rule) {
+    // If we were to attempt menu_position_add_menu_link() here it would fail
+    // because the module's router item isn't in the system yet. Instead we flag
+    // the rule with a zero-value mlid and fix it in
+    // menu_position_rules_form_callback().
+    db_update('menu_position_rules')
+      ->fields(array('mlid' => 0))
+      ->condition('rid', $rule->rid)
+      ->execute();
+  }
+}
+
+/**
+ * Implements hook_uninstall().
+ */
+function menu_position_uninstall() {
+  variable_del('menu_position_active_link_display');
+}

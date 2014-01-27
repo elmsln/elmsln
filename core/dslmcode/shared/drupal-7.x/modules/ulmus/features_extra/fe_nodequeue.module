@@ -1,0 +1,263 @@
+<?php
+
+/**
+ * @file
+ * Main functions and hook implementations of the FE Nodequeue module.
+ */
+
+/**
+ * Implements hook_features_api().
+ */
+function fe_nodequeue_features_api() {
+  return array(
+    'fe_nodequeue' => array(
+      'name' => t('Nodequeues'),
+      'feature_source' => TRUE,
+      'default_hook' => 'fe_nodequeue_export_fields',
+      'default_file' => FEATURES_DEFAULTS_INCLUDED_COMMON,
+    ),
+  );
+}
+
+/**
+ * Implements hook_features_export_options().
+ */
+function fe_nodequeue_features_export_options() {
+  $options = array();
+  $fields = db_query('SELECT * FROM {nodequeue_queue}');
+  while ($obj = $fields->fetchObject()) {
+    $options[$obj->name] = t('@name [@machine_name]', array('@name' => $obj->title, '@machine_name' => $obj->name));
+  }
+
+  return $options;
+}
+
+/**
+ * Implements hook_features_export().
+ */
+function fe_nodequeue_features_export($data, &$export, $module_name = '') {
+  $pipe = array();
+  $map = features_get_default_map('fe_nodequeue');
+  foreach ($data as $name) {
+    $export['dependencies']['fe_nodequeue'] = 'fe_nodequeue';
+    // If another module provides this style, add it as a dependency.
+    if (isset($map[$name]) && $map[$name] != $module_name) {
+      $module = $map[$name];
+      $export['dependencies'][$module] = $module;
+    }
+    // Otherwise, export the nodequeue.
+    elseif ($queue = _fe_nodequeue_load_queue_by_name($name, TRUE)) {
+      // Add dependencies for the roles that are associated with these queues.
+      if ($queue->roles) {
+        // Filter out roles that have the 'manipulate all queues' permission.
+        // @see http://drupal.org/node/213074
+        $manipulate_all_queues = array_keys(user_roles(FALSE, 'manipulate all queues'));
+        $queue->roles = array_diff($queue->roles, $manipulate_all_queues);
+        $roles = user_roles();
+        foreach ($queue->roles as $index => $rid) {
+          $export['features']['user_role'][$roles[$rid]] = $roles[$rid];
+          // Convert the role from a rid to a 'machine name' for saving. This
+          // will be converted back to a rid when the feature is reverted.
+          $queue->roles[$index] = $roles[$rid];
+        }
+      }
+      $export['features']['fe_nodequeue'][$name] = $name;
+    }
+  }
+  return $pipe;
+}
+
+/**
+ * Implements hook_features_export_render().
+ */
+function fe_nodequeue_features_export_render($module_name = '', $data) {
+  $code = array();
+  $code[] = '  $nodequeues = array();';
+  $code[] = '';
+
+  $roles = user_roles();
+
+  foreach ($data as $name) {
+    // Clone the nodequeue object so that our changes aren't statically cached.
+    $nodequeue_static = _fe_nodequeue_load_queue_by_name($name, TRUE);
+    if (!empty($nodequeue_static) && $nodequeue = clone $nodequeue_static) {
+      // Sort roles and types arrays into ascending order so that we can check
+      // for overridden db data without being affected by the order in which
+      // this array gets stored/loaded.
+      if (!empty($nodequeue->roles)) {
+        // Roles that have the 'Manipulate all queues' permission will not get
+        // saved and will throw override messages as a result.
+        $manipulate_all_queues = array_keys(user_roles(FALSE, 'manipulate all queues'));
+        $nodequeue->roles = array_diff($nodequeue->roles, $manipulate_all_queues);
+        foreach ($nodequeue->roles as $index => $rid) {
+          $nodequeue->roles[$index] = $roles[$rid];
+        }
+        sort($nodequeue->roles);
+      }
+      if (!empty($nodequeue->types)) {
+        sort($nodequeue->types);
+      }
+
+      // Remove the nodequeue id. This is specific to the current site and
+      // should not be exported.
+      unset($nodequeue->qid);
+
+      // We don't care how many subqueues are in here since they get created
+      // automatically.
+      if (module_exists('smartqueue')) {
+        unset($nodequeue->subqueues);
+      }
+
+      $nodequeue_export = features_var_export($nodequeue, '  ');
+
+      $code[] = "  // Exported nodequeues: {$nodequeue->name}";
+      $code[] = "  \$nodequeues['{$name}'] = {$nodequeue_export};";
+      $code[] = "";
+    }
+  }
+
+  $code[] = '  return $nodequeues;';
+  $code = implode("\n", $code);
+
+  return array('fe_nodequeue_export_fields' => $code);
+}
+
+/**
+ * Implements hook_features_revert().
+ */
+function fe_nodequeue_features_revert($module) {
+  $defaults = features_get_default('fe_nodequeue', $module);
+
+  // Revert.
+  foreach ($defaults as $object) {
+    if (empty($object['name'])) {
+      continue;
+    }
+
+    // Assign the existing qid if a nodequeue with the same name already exists.
+    $map = _fe_nodequeue_get_qid_map();
+    if (isset($map[$object['name']])) {
+      $object['qid'] = $map[$object['name']];
+    }
+    // Clear the qid if it is a new nodequeue.
+    else {
+      unset($object['qid']);
+    }
+    $result = _fe_nodequeue_save_queue((array) $object);
+  }
+
+  return TRUE;
+}
+
+/**
+ * Implements hook_features_revert().
+ */
+function fe_nodequeue_features_rebuild($module) {
+  fe_nodequeue_features_revert($module);
+}
+
+/**
+ * Implements hook_features_enable_feature().
+ */
+function fe_nodequeue_features_enable_feature($module) {
+  fe_nodequeue_features_revert($module);
+}
+
+/**
+ * Save a nodequeue queue.
+ *
+ * @param array $settings
+ *   A nodequeue settings array.
+ *
+ * @return array
+ *   The updated settings array.
+ */
+function _fe_nodequeue_save_queue(array $settings) {
+  // Convert roles from names to rids.
+  $roles = array_flip(user_roles());
+  foreach ((array) $settings['roles'] as $index => $role) {
+    // In case we are dealing with an old export with rids, don't do anything.
+    if (is_int($role)) {
+      continue;
+    }
+    $settings['roles'][$index] = $roles[$role];
+  }
+
+  // Simulate checkboxes.
+  $settings['roles'] = drupal_map_assoc($settings['roles']);
+  $settings['types'] = drupal_map_assoc($settings['types']);
+
+  // Simulate submitting.
+  $form_state = array();
+  $form_state['values'] = $settings;
+  module_load_include('inc', 'nodequeue', 'includes/nodequeue.admin');
+  nodequeue_edit_queue_form_submit(NULL, $form_state);
+
+  // Reset static caches.
+  // Note: we are currently using a variant of nodequeue_get_qid_map() that uses
+  // drupal_static() instead of a static variable to cache the results.
+  // @see http://drupal.org/node/1666556
+  drupal_static_reset('_fe_nodequeue_get_qid_map');
+
+  return $settings;
+}
+
+/**
+ * Return a map of queue name to qid values to aid in various lookups.
+ *
+ * This is based on nodequeue_get_qid_map() but uses drupal_static() instead of
+ * a static variable to cache the results.
+ *
+ * @see nodequeue_get_qid_map()
+ *
+ * @todo Add a link to the issue that converts this to drupal_static().
+ * @todo Create a followup issue to remove this once the above issue is fixed.
+ *   We will need to keep this in for a while to provide backwards compatibility
+ *   for people running old versions of Nodequeue.
+ *
+ * @return array
+ *   A array of qids, keyed by machine name.
+ */
+function _fe_nodequeue_get_qid_map() {
+  $map = &drupal_static(__FUNCTION__, array());
+  if (!$map) {
+    $result = db_query("SELECT qid, name FROM {nodequeue_queue}");
+    while ($get = $result->fetchObject()) {
+      $map[$get->name] = $get->qid;
+    }
+  }
+  return $map;
+}
+
+/**
+ * Return a queue by its machine name.
+ *
+ * This is obviously not ideal due to the extra queries, but probably preferable
+ * to changing current API calls.
+ *
+ * This is based on nodequeue_load_queue_by_name() but passes through the
+ * $bypass_cache flag.
+ *
+ * @see nodequeue_load_queue_by_name()
+ * @see http://drupal.org/node/1964144
+ *
+ * @param string $name
+ *   The queue machine name.
+ * @param bool $bypass_cache
+ *   Boolean value indicating whether to bypass the cache or not.
+ *
+ * @return array
+ *   The queue definition, or an empty array if no queue was found with the
+ *   given machine name.
+ */
+function _fe_nodequeue_load_queue_by_name($name, $bypass_cache = FALSE) {
+  $map = _fe_nodequeue_get_qid_map();
+  if (isset($map[$name])) {
+    $queues = nodequeue_load_queues(array($map[$name]), $bypass_cache);
+    if ($queues) {
+      return current($queues);
+    }
+  }
+
+  return array();
+}

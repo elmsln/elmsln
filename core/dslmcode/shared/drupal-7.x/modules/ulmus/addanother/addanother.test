@@ -1,0 +1,64 @@
+<?php
+
+/**
+ * @file
+ * Unit tests for Add another module.
+ */
+
+class AddanotherTestCase extends DrupalWebTestCase {
+  protected $privileged_user;
+
+  public static function getInfo() {
+    return array(
+      'name' => 'Add another',
+      'description' => 'Ensure that the Add another functionality works correctly.',
+      'group' => 'Add another',
+    );
+  }
+
+  public function setUp() {
+    parent::setUp('addanother');
+  }
+
+  public function testAddanother() {
+    $nodetype = $this->randomName(8);
+    variable_set("addanother_button_$nodetype", TRUE);
+    variable_set("addanother_message_$nodetype", TRUE);
+    variable_set("addanother_tab_$nodetype", TRUE);
+    variable_set("addanother_tab_edit_$nodetype", TRUE);
+    $settings = array(
+      'type' => $nodetype,
+      'name' => $nodetype,
+    );
+    $type = $this->drupalCreateContentType($settings);
+
+    $type_exists = db_query('SELECT 1 FROM {node_type} WHERE type = :type', array(':type' => $type->type))->fetchField();
+    $this->assertTrue($type_exists, 'The new content type has been created in the database.');
+
+    $web_user = $this->drupalCreateUser(array('bypass node access', 'administer content types', 'use add another', 'administer add another'));
+    $this->drupalLogin($web_user);
+
+    // Create a node.
+    $edit = array();
+    $langcode = LANGUAGE_NONE;
+    $edit["title"] = $this->randomName(8);
+    $edit["body[$langcode][0][value]"] = $this->randomName(16);
+    $this->drupalPost("node/add/$nodetype", $edit, t('Save'));
+
+    // Check that the node has been created
+    $this->assertRaw(t('!post %title has been created.', array('!post' => $nodetype, '%title' => $edit["title"])), t('Node created.'));
+    $this->assertText(t('You may add another !type.', array('!type' => $nodetype)), t('Addanother message was presented.'));
+    $this->assertLink('Add another');
+
+    // Create a node.
+    $edit = array();
+    $langcode = LANGUAGE_NONE;
+    $edit["title"] = $this->randomName(8);
+    $edit["body[$langcode][0][value]"] = $this->randomName(16);
+    $this->drupalPost("node/add/$nodetype", $edit, t('Save and add another'));
+
+    // Check that the node has been created
+    $this->assertUrl("node/add/$nodetype");
+  }
+
+}

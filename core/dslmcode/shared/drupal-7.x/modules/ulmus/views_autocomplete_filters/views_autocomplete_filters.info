@@ -1,0 +1,15 @@
+name = Views Autocomplete Filters
+description = Views Autocomplete Filters
+package = Views
+core = 7.x
+dependencies[] = views
+files[] = views_autocomplete_filters.module
+files[] = views_autocomplete_filters.views.inc
+files[] = views_autocomplete_filters_handler_filter_string.inc
+
+; Information added by drupal.org packaging script on 2013-07-27
+version = "7.x-1.0"
+core = "7.x"
+project = "views_autocomplete_filters"
+datestamp = "1374920487"
+

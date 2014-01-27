@@ -1,0 +1,35 @@
+<?php
+
+/**
+ * @file
+ * Placeholder install file.
+ */
+
+/**
+ * Implements hook_requirements().
+ */
+function placeholder_requirements($phase) {
+  $requirements = array();
+
+  switch ($phase) {
+    case 'runtime':
+      if (($library = libraries_detect('placeholder')) && !empty($library['installed'])) {
+        $requirements['placeholder'] = array(
+          'title' => t('Placeholder jQuery plugin'),
+          'value' => t('Installed'),
+          'severity' => REQUIREMENT_OK,
+        );
+      }
+      else {
+        $requirements['placeholder'] = array(
+          'title' => t('Placeholder jQuery plugin'),
+          'value' => t('Not installed'),
+          'description' => $library['error message'],
+          'severity' => REQUIREMENT_ERROR,
+        );
+      }
+      break;
+  }
+
+  return $requirements;
+}

@@ -1,0 +1,152 @@
+<?php
+
+/**
+ * @file
+ * Install, update, and uninstall functions for the
+ * LTI Tool Provider Memberships module.
+ */
+
+/**
+ * Implements hook_install().
+ */
+function lti_tool_provider_memberships_install() {
+  $subgroup_eid = $entities[$subgroup_entity];
+  if (module_exists('lti_tool_provider_og')) {
+    // Set the default permissions for all existing group bundles
+    foreach (og_get_all_group_bundle() as $entity => $bundles) {
+      foreach ($bundles as $key => $bundle) {
+        $roles = og_roles($entity, $bundle);
+        $rid = array_search(OG_ADMINISTRATOR_ROLE, $roles);
+        og_role_grant_permissions($rid, array('populate lti memberships'));
+      }
+    }
+    variable_set('lti_tool_provider_memberships_subgroups', 1);
+  }
+  else {
+    variable_set('lti_tool_provider_memberships_subgroups', 0);
+  }
+  variable_set('lti_tool_provider_memberships_subgroup_mapping_bundle', 'none:None');
+  variable_set('lti_tool_provider_memberships_subgroup_mapping', array());
+  variable_set('lti_tool_provider_memberships_subgroup_role_array', array());
+}
+
+/**
+ * Implements hook_schema().
+ */
+function lti_tool_provider_memberships_schema() {
+  $schema = array();
+  $schema['lti_tool_provider_memberships'] = array(
+    'description' => 'The base table for lti_tool_provider_memberships.',
+    'fields' => array(
+      'lti_tool_provider_memberships_id' => array(
+        'description' => 'Primary key.',
+        'type' => 'serial',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ),
+      'lti_tool_provider_memberships_context_id' => array(
+        'description' => 'Context Id.',
+        'type' => 'varchar',
+        'length' => 512,
+        'not null' => TRUE,
+      ),
+      'lti_tool_provider_memberships_uid' => array(
+        'description' => 'User Uid.',
+        'type' => 'int',
+        'length' => 512,
+        'not null' => TRUE,
+      ),
+      'lti_tool_provider_memberships_user_id' => array(
+        'description' => 'User Id.',
+        'type' => 'varchar',
+        'length' => 512,
+        'not null' => TRUE,
+      ),
+      'lti_tool_provider_memberships_role' => array(
+        'description' => 'Roles.',
+        'type' => 'varchar',
+        'length' => 512,
+        'not null' => TRUE,
+      ),
+      'lti_tool_provider_memberships_person_name_full' =>  array(
+        'description' => 'Name.',
+        'type' => 'varchar',
+        'length' => 512,
+        'not null' => TRUE,
+        'default' => '',
+      ),
+      'lti_tool_provider_memberships_status' => array(
+        'description' => 'Membership Status.',
+        'type' => 'varchar',
+        'length' => 512,
+        'not null' => TRUE,
+      ),
+      'date_added' => array(
+        'description' => 'Date Created.',
+        'type' => 'int',
+        'not null' => TRUE,
+      ),
+      'date_updated' => array(
+        'description' => 'Date Updated.',
+        'type' => 'int',
+        'not null' => TRUE,
+      ),
+      'date_dropped' => array(
+        'description' => 'Date Deleted.',
+        'type' => 'int',
+        'not null' => FALSE,
+      )
+    ),
+    'primary key' => array('lti_tool_provider_memberships_id'),
+  );
+  $schema['lti_tool_provider_memberships_context'] = array(
+    'description' => 'The base table for our lti_tool_provider_memberships_context.',
+    'fields' => array(
+      'lti_tool_provider_memberships_context_id' => array(
+        'description' => 'Primary key.',
+        'type' => 'serial',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ),
+      'lti_tool_provider_memberships_context_context_id' => array(
+        'description' => 'Context Id.',
+        'type' => 'varchar',
+        'length' => 512,
+        'not null' => TRUE,
+      ),
+      'lti_tool_provider_memberships_context_file_id' => array(
+        'description' => 'File Id.',
+        'type' => 'int',
+        'not null' => TRUE,
+      )
+    ),
+    'primary key' => array('lti_tool_provider_memberships_context_id'),
+  );
+  return $schema;
+}
+
+/**
+ * Implements hook_uninstall().
+ */
+function lti_tool_provider_memberships_uninstall() {
+  variable_del('lti_tool_provider_memberships_fid');
+  variable_del('lti_tool_provider_memberships_subgroups');
+  variable_del('lti_tool_provider_memberships_subgroup_mapping_bundle');
+  variable_del('lti_tool_provider_memberships_subgroup_mapping');
+  variable_del('lti_tool_provider_memberships_subgroup_role_array');
+}
+
+/**
+ * Add Name field to memberships.
+ */
+function lti_tool_provider_memberships_update_7100() {
+  db_add_field('lti_tool_provider_memberships',
+    'lti_tool_provider_memberships_person_name_full',
+    array( 'description' => 'Name.',
+      'type' => 'varchar',
+      'length' => 512,
+      'not null' => TRUE,
+      'default' => '',
+    )
+  );
+}

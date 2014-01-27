@@ -1,0 +1,94 @@
+/*
+ * CSS specific to Footnotes module.
+*
+* Thanks to binford2k@lug.wsu.edu for this tip and drinkypoo
+* for the question leading up to it. http://drupal.org/node/80538
+*/
+ 
+
+/* Add empty space before footnotes and a black line on top. */
+.footnotes {
+  clear: both;
+  margin-top: 4em;
+  margin-bottom: 2em;
+  border-top: 1px solid #000000;
+}
+
+/* Make footnotes appear in a smaller font */
+.footnotes {
+  font-size: 0.9em;
+}
+
+/* 
+  Make the footnote a supertext^1
+*/
+.see-footnote {
+  vertical-align: top;
+  position: relative;
+  top: -0.25em;
+  font-size: 0.9em;
+}
+
+/* Hide the bullet of the UL list of footnotes*/
+
+ul.footnotes {
+  list-style-type: none;
+  margin-left: 0;
+  padding-left: 0;
+}
+ul.footnotes li {
+  margin-left: 2.5em;
+  list-style-type: none;
+  background: none; /* Garland theme sets a bullet via background image, this must be unset! See bug 861634 */
+}
+
+
+/* Move the footnote number outside of the margin for footnote text (hanging indent) */
+ul.footnotes {
+  /* This is apparently very needed for the "position: absolute;" below to work correctly*/
+  position: relative; 
+}
+.footnotes .footnote-label {
+  position: absolute;
+  left: 0px;
+  z-index: 2;
+}
+
+/* Highlight the target footnote (or ref number, if a backlink was used) when user clicks a footnote. */
+.see-footnote:target,
+.footnotes .footnote:target {
+  background-color: #eeeeee;
+}
+.see-footnote:target {
+  border: solid 1px #aaaaaa;
+}
+
+
+/* Note: This CSS has a minor bug on all versions of IE in that the footnote numbers 
+are aligned with the absolute bottom of their space, thus being a couple of pixels 
+lower than their corresponding line of text. IE5.5 has a serious bug in that the numbers 
+are not shifted left at all, thus being garbled together with the start of their text. */
+
+/* 
+  Make the multiple backlinks a supertext^1
+*/
+.footnotes .footnote-multi {
+  vertical-align: top;
+  position: relative;
+  top: -0.25em;
+  font-size: 0.75em;
+}
+
+
+/*
+ * Textile Footnotes 
+ */
+ /* First footnote */
+ #fn1 {
+   border-top: 1px solid #000000;
+   margin-top: 3em;
+ }
+ .footnote {
+   font-size: 0.9em;
+ }
+ 

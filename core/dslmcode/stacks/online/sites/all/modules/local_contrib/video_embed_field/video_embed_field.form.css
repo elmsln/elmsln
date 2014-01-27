@@ -1,0 +1,4 @@
+/* Style to make sure the fields are the right way */
+table input.fluid.video_embed_url {
+	width:100%;
+}

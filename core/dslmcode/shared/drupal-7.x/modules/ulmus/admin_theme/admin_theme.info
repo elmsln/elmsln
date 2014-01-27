@@ -1,0 +1,14 @@
+; $Id: admin_theme.info,v 1.1.6.5 2010/03/27 06:39:43 davyvandenbremt Exp $
+name = Administration theme
+description = Enable the administration theme on more pages than possible with Drupal's default administration page.
+core = 7.x
+package = Administration
+files[] = admin_theme.module
+files[] = admin_theme.install
+configure = admin/appearance
+; Information added by drupal.org packaging script on 2010-12-06
+version = "7.x-1.0"
+core = "7.x"
+project = "admin_theme"
+datestamp = "1291630844"
+

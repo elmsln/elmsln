@@ -1,0 +1,32 @@
+<?php
+
+/**
+ * @file
+ * Jammer install file
+ */
+
+/**
+ * Implements hook_install().
+ */
+function jammer_install() {
+  // Set module value about default 0 to make sure menu and path options are picked up on form_alter before jammer runs.
+  db_update('system')->fields(array('weight' => 100))->condition('name', 'jammer', '=')->execute();
+}
+
+/**
+ * Implements hook_uninstall().
+ */
+function jammer_uninstall() {
+  variable_del('jammer_menu');
+  variable_del('jammer_author');
+  variable_del('jammer_path');
+  variable_del('jammer_revision_information');
+  variable_del('jammer_comment_settings');
+  variable_del('jammer_revision_log_textarea_unset_node_types');
+  variable_del('jammer_workflow_form_unset_node_types');
+  variable_del('jammer_preview_button_unset_node_types');
+  variable_del('jammer_submit_button_unset_node_types');
+  variable_del('jammer_delete_button_unset_node_types');
+  variable_del('jammer_user_delete_hide_button');
+}
+

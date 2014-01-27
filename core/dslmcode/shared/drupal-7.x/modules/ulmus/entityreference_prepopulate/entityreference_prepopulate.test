@@ -1,0 +1,67 @@
+<?php
+
+class EntityReferenceOgContextTestCase extends DrupalWebTestCase {
+
+  public static function getInfo() {
+    return array(
+      'name' => 'OG-context integration',
+      'description' => 'Test the OG-context integration, which allows prepopulating by the group context.',
+      'group' => 'Entity reference prepopulate',
+      'dependencies' => array('og'),
+    );
+  }
+
+  function setUp() {
+    parent::setUp('og_context', 'entityreference_prepopulate_test');
+
+    $this->user1 = $this->drupalCreateUser();
+    $this->user2 = $this->drupalCreateUser(array('bypass node access', 'administer group'));
+
+    $type = $this->drupalCreateContentType();
+    $this->group_type = $type->type;
+    og_create_field(OG_GROUP_FIELD, 'node', $this->group_type);
+
+    $type = $this->drupalCreateContentType();
+    $this->group_content_type = $type->type;
+
+    $og_field = og_fields_info(OG_AUDIENCE_FIELD);
+    // Enable the prepopulate behavior.
+    $og_field['instance']['settings']['behaviors']['prepopulate'] = array(
+      'status' => TRUE,
+      'action' => 'none',
+      'fallback' => 'none',
+      'skip_perm' => FALSE,
+      'og_context' => TRUE,
+    );
+    og_create_field(OG_AUDIENCE_FIELD, 'node', $this->group_content_type, $og_field);
+  }
+
+  /**
+   * Test the OG-context integration.
+   */
+  function testPrepopulate() {
+    $settings = array(
+      'type' => $this->group_type,
+      'uid' => $this->user1->uid,
+    );
+    $settings[OG_GROUP_FIELD][LANGUAGE_NONE][0]['value'] = 1;
+    $group1 = $this->drupalCreateNode($settings);
+
+    og_group('node', $group1, array('entity_type' => 'user', 'entity' => $this->user2));
+
+    $this->drupalLogin($this->user2);
+    $this->drupalGet('node/add/' . str_replace('_', '-', $this->group_content_type));
+    $this->assertNoOptionSelected('edit-og-group-ref-und-0-default', 1, 'Group-audience fields is not selected.');
+
+    // Set the OG-context();
+    // See entityreference_prepopulate_init().
+    $options = array(
+      'query' => array(
+        'gid' => $group1->nid,
+      ),
+    );
+
+    $this->drupalGet('node/add/' . str_replace('_', '-', $this->group_content_type), $options);
+    $this->assertOptionSelected('edit-og-group-ref-und-0-default', 1, 'Group-audience fields is selected.');
+  }
+}

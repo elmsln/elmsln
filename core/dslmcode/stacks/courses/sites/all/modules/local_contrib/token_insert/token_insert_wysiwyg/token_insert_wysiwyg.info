@@ -1,0 +1,17 @@
+name = "Token insert (wysiwyg)"
+description = "Allows you to insert tokens in a wysiwyg field. Tokens are inserted in the format Token Filter works with."
+core = 7.x
+package = Token insert
+dependencies[] = token
+dependencies[] = wysiwyg
+dependencies[] = token_insert
+files[] = plugins/token_insert_wysiwyg.inc
+files[] = plugins/token_insert_wysiwyg/token_insert_wysiwyg.js
+files[] = plugins/token_insert_wysiwyg/token_insert_wysiwyg.css
+
+; Information added by drupal.org packaging script on 2012-08-09
+version = "7.x-2.1"
+core = "7.x"
+project = "token_insert"
+datestamp = "1344501143"
+

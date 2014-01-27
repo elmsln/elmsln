@@ -1,0 +1,12 @@
+name = Accessibility WYSIWYG
+description = Integrates accessibility testing into most editors
+package = Accessibility
+core = 7.x
+
+dependencies[] = accessibility
+; Information added by drupal.org packaging script on 2013-10-28
+version = "7.x-1.x-dev"
+core = "7.x"
+project = "accessibility"
+datestamp = "1382984080"
+

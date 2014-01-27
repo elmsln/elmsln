@@ -1,0 +1,36 @@
+<?php
+
+class CNPhoneNumberTestCase extends DrupalWebTestCase {
+  /**
+   * Implementation of getInfo()
+   *
+   */
+  public static function getInfo() {
+    return array(
+      'name' => t('China People\'s Republic Phone number test'),
+      'description' => t('Tests various valid and invalid Chinese People\'s Republic phone numbers for validity'),
+      'group' => t('Phone')
+    );
+  }
+
+  public function testPhoneCNValid() {
+    $this->assertTrue(valid_phone_number('cn', '86-755-83998006'), t('Test valid - 86-755-83998006'));
+    $this->assertTrue(valid_phone_number('cn', '86-10-5851 6688'), t('Test valid - 86-10-5851 6688'));
+    $this->assertTrue(valid_phone_number('cn', '86-10-6512 4940'), t('Test valid - 86-10-6512 4940'));
+    $this->assertTrue(valid_phone_number('cn', '+86 21 6103 2200'), t('Test valid - +86 21 6103 2200'));
+    $this->assertTrue(valid_phone_number('cn', '+86 10.85.32.83.23'), t('Test valid - +86 10.85.32.83.23'));
+    $this->assertTrue(valid_phone_number('cn', '755-83998006'), t('Test valid - 755-83998006'));
+    $this->assertTrue(valid_phone_number('cn', '+86-10-5851 6688'), t('Test valid - +86-10-5851 6688'));
+    $this->assertTrue(valid_phone_number('cn', '10.85.32.83.23'), t('Test valid - 10.85.32.83.23'));
+    $this->assertTrue(valid_phone_number('cn', '13900000000'), t('Test valid - 13900000000'));
+    $this->assertTrue(valid_phone_number('cn', '10-5851 6688'), t('Test valid - 10-5851 6688'));
+  }
+
+  public function testPhoneCNInvalid() {
+    //$this->assertFalse(valid_phone_number('cn', '021 3012 3456'), t('Test invalid - 021 3012 3456'));
+  }
+
+  public function testPhoneCNFormatting() {
+    //$this->assertEqual(format_phone_number('cn', '+6421123456', null), '+64 21 123 456', t('Check international mobile format'));
+  }
+}

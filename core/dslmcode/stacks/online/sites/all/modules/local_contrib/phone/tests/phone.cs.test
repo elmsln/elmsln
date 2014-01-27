@@ -1,0 +1,27 @@
+<?php
+
+class CSPhoneNumberTestCase extends DrupalWebTestCase {
+  /**
+   * Implementation of getInfo()
+   *
+   */
+  public static function getInfo() {
+    return array(
+      'name' => t('Czech Republic Phone number test'),
+      'description' => t('Tests various valid and invalid Czech Republic phone numbers for validity'),
+      'group' => t('Phone')
+    );
+  }
+
+  public function testPhoneCSValid() {
+    $this->assertTrue(valid_phone_number('cs', '+420 999 999 999'), t('Test valid - +420 999 999 999'));
+  }
+
+  public function testPhoneCSInvalid() {
+    //$this->assertFalse(valid_phone_number('cs', '021 3012 3456'), t('Test invalid - 021 3012 3456'));
+  }
+
+  public function testPhoneCSFormatting() {
+    //$this->assertEqual(format_phone_number('cs', '+6421123456', null), '+64 21 123 456', t('Check international mobile format'));
+  }
+}

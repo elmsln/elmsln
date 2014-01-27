@@ -1,0 +1,266 @@
+<?php
+
+/**
+ * @file
+ * Functionality tests for Menu attributes.
+ *
+ * @ingroup menu_attributes
+ */
+
+/**
+ * Helper test class with some added functions for testing.
+ */
+class MenuAttributesTestHelper extends DrupalWebTestCase {
+  protected $admin_user;
+  protected $menu_attributes_new;
+  protected $menu_attributes_edit;
+
+  function setUp(array $modules = array()) {
+    $modules[] = 'menu';
+    $modules[] = 'menu_attributes';
+    parent::setUp($modules);
+
+    // Create and login user.
+    $this->admin_user = $this->drupalCreateUser(array(
+      'access administration pages',
+      'administer content types',
+      'administer menu',
+      'create page content',
+      'edit any page content',
+      'delete any page content',
+    ));
+
+    $this->menu_attributes_new = array(
+      'title' => $this->randomName(10),
+      'id' => $this->randomName(10),
+      'name' => $this->randomName(10),
+      'rel' => $this->randomName(10),
+      'class' => $this->randomName(10),
+      'style' => $this->randomName(10),
+      'target' => '_top',
+      'accesskey' => $this->randomName(1),
+    );
+
+    $this->menu_attributes_edit = array(
+      'title' => $this->randomName(10),
+      'id' => $this->randomName(10),
+      'name' => $this->randomName(10),
+      'rel' => $this->randomName(10),
+      'class' => $this->randomName(10),
+      'style' => $this->randomName(10),
+      'target' => '_self',
+      'accesskey' => $this->randomName(1),
+    );
+  }
+
+  /**
+   * Add or edit a menu link using the menu module UI.
+   *
+   * @param integer $plid Parent menu link id.
+   * @param string $link Link path.
+   * @param string $menu_name Menu name.
+   *
+   * @return array Menu link created.
+   */
+  function crudMenuLink($mlid = 0, $plid = 0, $link = '<front>', $menu_name = 'navigation') {
+    // View add/edit menu link page.
+    if (empty($mlid)) {
+      $this->drupalGet("admin/structure/menu/manage/$menu_name/add");
+      $menu_attributes = $this->menu_attributes_new;
+    }
+    else {
+      $this->drupalGet("admin/structure/menu/item/$mlid/edit");
+      $menu_attributes = $this->menu_attributes_edit;
+    }
+    $this->assertResponse(200);
+
+    $title = '!link_' . $this->randomName(16);
+    $edit = array(
+      'link_path' => $link,
+      'link_title' => $title,
+      'enabled' => TRUE, // Use this to disable the menu and test.
+      'expanded' => TRUE, // Setting this to true should test whether it works when we do the std_user tests.
+      'parent' =>  $menu_name . ':' . $plid,
+      'weight' => '0',
+      'options[attributes][title]' => $menu_attributes['title'],
+      'options[attributes][id]' => $menu_attributes['id'],
+      'options[attributes][name]' => $menu_attributes['name'],
+      'options[attributes][rel]' => $menu_attributes['rel'],
+      'options[attributes][class]' => $menu_attributes['class'],
+      'options[attributes][style]' => $menu_attributes['style'],
+      'options[attributes][target]' => $menu_attributes['target'],
+      'options[attributes][accesskey]' => $menu_attributes['accesskey'],
+    );
+
+    // Add menu link.
+    $this->drupalPost(NULL, $edit, t('Save'));
+
+    $item = db_query('SELECT * FROM {menu_links} WHERE link_title = :title', array(':title' => $title))->fetchAssoc();
+
+    return $item;
+  }
+
+  function assertMenuAttributes($form_parent, $action = 'new') {
+    if ($action == 'new') {
+      foreach ($this->menu_attributes_new as $attribute => $value) {
+        $this->assertFieldByName($form_parent . '[' . $attribute . ']', $value, t("'$attribute' attribute correct in edit form."));
+      }
+    }
+    else {
+      foreach ($this->menu_attributes_edit as $attribute => $value) {
+        $this->assertFieldByName($form_parent . '[' . $attribute . ']', $value, t("New '$attribute' attribute correct in edit form."));
+      }
+    }
+  }
+}
+
+/**
+ * Test basic functionality.
+ */
+class MenuAttributesTestCase extends MenuAttributesTestHelper {
+  public static function getInfo() {
+    return array(
+      'name' => 'Menu attributes',
+      'description' => 'Tests menu attributes functionality.',
+      'group' => 'Menu',
+    );
+  }
+
+  function setUp(array $modules = array()) {
+    parent::setUp($modules);
+  }
+
+  /**
+   * Tests menu attributes functionality.
+   */
+  function testMenuAttributes() {
+    // Login the user.
+    $this->drupalLogin($this->admin_user);
+
+    $menu_name = 'navigation';
+
+    // Add a node to be used as a link for menu links.
+    $node = $this->drupalCreateNode(array('type' => 'page'));
+
+    // Add a menu link.
+    $item = $this->crudMenuLink(0, 0, 'node/' . $node->nid, $menu_name);
+
+    $this->drupalGet('admin/structure/menu/item/' . $item['mlid'] . '/edit');
+    $this->assertMenuAttributes('options[attributes]', 'new');
+
+    // Edit the previously created menu link.
+    $item = $this->crudMenuLink($item['mlid'], 0, 'node/' . $node->nid, $menu_name);
+
+    $this->drupalGet('admin/structure/menu/item/' . $item['mlid'] . '/edit');
+    $this->assertMenuAttributes('options[attributes]', 'edit');
+  }
+}
+
+/**
+ * Test menu attributes settings for nodes.
+ */
+class MenuAttributesNodeTestCase extends MenuAttributesTestHelper {
+  public static function getInfo() {
+    return array(
+      'name' => 'Menu attributes settings for nodes',
+      'description' => 'Add, edit, and delete a node with menu link.',
+      'group' => 'Menu',
+    );
+  }
+
+  function setUp(array $modules = array()) {
+    parent::setUp($modules);
+    $this->drupalLogin($this->admin_user);
+  }
+
+  /**
+   * Test creating, editing, deleting menu links via node form widget.
+   */
+  function testMenuNodeFormWidget() {
+    // Enable Navigation menu as available menu.
+    $edit = array(
+      'menu_options[navigation]' => 1,
+    );
+    $this->drupalPost('admin/structure/types/manage/page', $edit, t('Save content type'));
+    // Change default parent item to Navigation menu, so we can assert more
+    // easily.
+    $edit = array(
+      'menu_parent' => 'navigation:0',
+    );
+    $this->drupalPost('admin/structure/types/manage/page', $edit, t('Save content type'));
+
+    // Create a node.
+    $node_title = $this->randomName();
+    $language = LANGUAGE_NONE;
+    $edit = array(
+      "title" => $node_title,
+      "body[$language][0][value]" => $this->randomString(),
+    );
+    $this->drupalPost('node/add/page', $edit, t('Save'));
+    $node = $this->drupalGetNodeByTitle($node_title);
+    // Assert that there is no link for the node.
+    $this->drupalGet('');
+    $this->assertNoLink($node_title);
+
+    // Edit the node, enable the menu link setting, but skip the link title.
+    $edit = array(
+      'menu[enabled]' => 1,
+    );
+    $this->drupalPost('node/' . $node->nid . '/edit', $edit, t('Save'));
+    // Assert that there is no link for the node.
+    $this->drupalGet('');
+    $this->assertNoLink($node_title);
+
+    // Edit the node and create a menu link with attributes.
+    $edit = array(
+      'menu[enabled]' => 1,
+      'menu[link_title]' => $node_title,
+      'menu[weight]' => 17,
+      'menu[options][attributes][title]' => $this->menu_attributes_new['title'],
+      'menu[options][attributes][id]' => $this->menu_attributes_new['id'],
+      'menu[options][attributes][name]' => $this->menu_attributes_new['name'],
+      'menu[options][attributes][rel]' => $this->menu_attributes_new['rel'],
+      'menu[options][attributes][class]' => $this->menu_attributes_new['class'],
+      'menu[options][attributes][style]' => $this->menu_attributes_new['style'],
+      'menu[options][attributes][target]' => $this->menu_attributes_new['target'],
+      'menu[options][attributes][accesskey]' => $this->menu_attributes_new['accesskey'],
+    );
+    $this->drupalPost('node/' . $node->nid . '/edit', $edit, t('Save'));
+    // Assert that the link exists.
+    $this->drupalGet('');
+    $this->assertLink($node_title);
+
+    // Assert that the link attributes exist.
+    $this->drupalGet('node/' . $node->nid . '/edit');
+    $this->assertMenuAttributes('menu[options][attributes]', 'new');
+
+    // Edit the node again and change the menu link attributes.
+    $edit = array(
+      'menu[enabled]' => 1,
+      'menu[link_title]' => $node_title,
+      'menu[weight]' => 17,
+      'menu[options][attributes][title]' => $this->menu_attributes_edit['title'],
+      'menu[options][attributes][id]' => $this->menu_attributes_edit['id'],
+      'menu[options][attributes][name]' => $this->menu_attributes_edit['name'],
+      'menu[options][attributes][rel]' => $this->menu_attributes_edit['rel'],
+      'menu[options][attributes][class]' => $this->menu_attributes_edit['class'],
+      'menu[options][attributes][style]' => $this->menu_attributes_edit['style'],
+      'menu[options][attributes][target]' => $this->menu_attributes_edit['target'],
+      'menu[options][attributes][accesskey]' => $this->menu_attributes_edit['accesskey'],
+    );
+    $this->drupalPost('node/' . $node->nid . '/edit', $edit, t('Save'));
+
+    // Assert that the link attributes exist.
+    $this->drupalGet('node/' . $node->nid . '/edit');
+    $this->assertMenuAttributes('menu[options][attributes]', 'edit');
+
+    // Edit the node and remove the menu link.
+    $edit = array(
+      'menu[enabled]' => FALSE,
+    );
+    $this->drupalPost('node/' . $node->nid . '/edit', $edit, t('Save'));
+    // Assert that there is no link for the node.
+    $this->drupalGet('');
+    $this->assertNoLink($node_title);
+  }
+}

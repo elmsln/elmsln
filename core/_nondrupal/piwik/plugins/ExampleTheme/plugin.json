@@ -1,0 +1,7 @@
+{
+    "name": "ExampleTheme",
+    "description": "ExampleDescription",
+    "version": "0.1.0",
+    "theme": true,
+    "stylesheet": "stylesheets/theme.less"
+}

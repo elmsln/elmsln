@@ -1,0 +1,10 @@
+name = Book Delete
+description = Adds ability to delete books to the book administration.
+core = 7.x
+dependencies[] = book
+; Information added by drupal.org packaging script on 2011-05-13
+version = "7.x-1.0"
+core = "7.x"
+project = "book_delete"
+datestamp = "1305249714"
+

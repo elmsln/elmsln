@@ -1,0 +1,22 @@
+Drupal 7 port
+
+Works
+  * Add a image with rel="lightbox"
+  * Add a image group with rel="lightbox[group]"
+  * Slideshow using rel="lightshow[group]"
+  * HTML content using rel="lightframe"
+  * Modal with rel="lightmodal", and with settings, show a blank screen if
+    the url address is invalid(404 error)
+ 
+Integration with external modules
+  * acidvideo - There is not a drupal 7 version
+
+Not tested
+  * Video using rel=lightshow
+
+To do
+  * Add a description in hook_permission
+  * This is many filters without any action, look if this is really necessaary,
+    if not, remove the ones without action
+
+  

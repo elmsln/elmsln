@@ -1,0 +1,64 @@
+
+Transliteration 7.x-3.x, xxxx-xx-xx
+-----------------------------------
+#1058064 by msti, smk-ka and amateescu: Transliterate search string and index.
+
+
+Transliteration 7.x-3.0, 2011-10-14
+-----------------------------------
+#881644 by amateescu: Added support for the Redirect module to redirect from old filenames.
+#909670 by jishan, smk-ka: Fixed Vietnamese input.
+#1243974 by cyborg_572: Supporting files uploaded as an array.
+#1256416 by mariogalan: Better Spanish transliteration.
+#1215872 by yannisc and rootatwc: Better Greek transliteration.
+#1033832 by joachim: hook_uninstall doesn't clean up variables.
+#1005960 by pillarsdotnet, smk-ka: file_directory_path() removed in D7.
+#992268 by smk-ka: Renamed transliteration_process() to avoid conflict with
+  hook_process().
+#813508 by smk-ka: Fixed SelectQuery::fields() syntax.
+#788530 by jurgenhaas: Fixed database table file is now called file_managed.
+by smk-ka: More accurate detection of file names requiring retroactive
+  transliteration. Removed support for MS SQL due to missing regexp support.
+by smk-ka: Added admin UI for settings and retroactive file name
+  transliteration.
+by smk-ka: New developer-friendly transliteration data file layout.
+by smk-ka: Lowered memory footprint of replacement function.
+#487550 by viadimezzo: Added sz ligature transliteration to German.
+#494234 by yngens: Added Kyrgyz transliteration.
+#586816 by smk-ka: Keep a copy of the unaltered file name in
+  $_FILES['files'][$name]['orig_name'].
+by smk-ka: Moved transliteration_clean_filename() to main module.
+by smk-ka: Reverted the behavior of transliteration_clean_filename() to only
+  accept file names without a path.
+by smk-ka: Updated documentation.
+
+
+Transliteration 6.x-2.1, 2009-06-09
+-----------------------------------
+#199660 by smk-ka: Added a constant to disallow converting pre-existing
+  filenames by default.
+#357254 by overall, Cynicus: Fixed transliteration of Russian letters.
+#364931 by PaV: Added Esperanto transliteration.
+by smk-ka: Rewrote retroactive transliteration to get rid of SUBSTRING_INDEX
+  function dependency.
+#312021 by pcorbett: Added SQL Server support.
+#257041 by Freso: More transliterations (x21??).
+
+
+Transliteration 6.x-2.0, 2008-06-12
+-----------------------------------
+#255646 by smk-ka: Added a language parameter to transliteration_get().
+#246875 by smk-ka: Added language-specific replacements for Danish letters.
+#253916 by Freso: Fixed typo in .info file.
+
+
+Transliteration 6.x-1.0, 2008-03-20
+-----------------------------------
+#199660 by smk-ka: Added retroactive transliteration of existing filenames
+  during installation or update. Original idea by colan.
+
+
+Transliteration 5.x-1.0, 2007-12-09
+-----------------------------------
+Initial release.
+

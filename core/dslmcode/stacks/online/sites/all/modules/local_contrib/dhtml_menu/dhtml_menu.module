@@ -1,0 +1,48 @@
+<?php
+// $Id: dhtml_menu.module,v 1.50 2010/08/16 10:39:57 arancaytar Exp $
+
+
+/**
+ * @file dhtml_menu.module
+ * Initialization and various hook implementations.
+ */
+
+/**
+ * Implementation of hook_help().
+ */
+function dhtml_menu_help($path) {
+  switch ($path) {
+    case 'admin/config/user-interface/dhtml_menu':
+      $text = '<p>' . t('DHTML Menu adds dynamic functionality to the menus of your site. Ordinarily, reaching the child elements below an item requires you to visit its page. With this module enabled, clicking on an item with child elements will expand it without leaving the page, saving you the time of waiting for the page to load.') . '</p>';
+      $text .= '<p>' . t('<strong>Note:</strong> Links that gain a dynamic Javascript effect naturally stop working as normal links. Since you will still need to visit a page that has sub-items (like the <a href="@url">main administration page</a>), this module provides several different options for static and dynamic navigation to coexist.', array('@url' => url('admin'))) . '</p>';
+      return $text;
+  }
+}
+
+/**
+ * Implementation of hook_init().
+ * Adds CSS, Javascript and settings to the page.
+ */
+function dhtml_menu_init() {
+  module_load_include('inc', 'dhtml_menu', 'dhtml_menu.theme');
+  drupal_add_css(drupal_get_path('module', 'dhtml_menu') . '/dhtml_menu.css');
+  drupal_add_js(drupal_get_path('module', 'dhtml_menu') . '/dhtml_menu.js');
+  drupal_add_js(array('dhtmlMenu' => variable_get('dhtml_menu_settings')), 'setting');
+}
+
+/**
+ * Implementation of hook_menu().
+ * Adds a settings page.
+ */
+function dhtml_menu_menu() {
+  $menu['admin/config/user-interface/dhtml_menu'] = array(
+    'title' => 'DHTML Menu',
+    'description' => 'Configure the behavior of DHTML Menu.',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('dhtml_menu_settings'),
+    'access arguments' => array('administer site configuration'),
+    'file' => 'dhtml_menu.admin.inc',
+  );
+  return $menu;
+}
+

@@ -1,0 +1,12 @@
+name = Lazyloader Filter
+description = This module marks up img tags occurring in textfields in a manner supported by http://drupal.org/project/lazyloader
+core = 7.x
+package = Lazyloader
+
+dependencies[] = lazyloader
+; Information added by drupal.org packaging script on 2012-12-11
+version = "7.x-1.3"
+core = "7.x"
+project = "lazyloader_filter"
+datestamp = "1355263957"
+

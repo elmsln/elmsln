@@ -1,0 +1,27 @@
+
+body.page-admin-help-field-hidden div.admin-help-module-field-hidden-pane-first,
+    body.page-admin-help-field-hidden div.admin-help-module-field-hidden-pane-second {
+  display: inline-block;
+  vertical-align: top;
+  padding-bottom: 20px;
+}
+body.page-admin-help-field-hidden div.admin-help-module-field-hidden-pane-first  {
+  min-width: 400px;
+  max-width: 550px;
+  padding-right: 5%;
+}
+body.page-admin-help-field-hidden div.admin-help-module-field-hidden-pane-second  {
+  max-width: 500px;
+}
+body.page-admin-help-field-hidden div.admin-help-module-field-hidden-pane-first p,
+body.page-admin-help-field-hidden div.admin-help-module-field-hidden-pane-second p  {
+  margin: 0.2em 0 0.5em;
+  line-height: 1.5em;
+}
+body.page-admin-config-development-field-hidden form#field-hidden-admin-form div.form-type-checkbox label.option {
+  font-size: 1em;
+  font-weight: bold;
+}
+body.page-admin-config-development-field-hidden form#field-hidden-admin-form div#edit-actions {
+  margin-top: 3em;
+}

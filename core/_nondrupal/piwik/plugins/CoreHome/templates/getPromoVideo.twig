@@ -1,0 +1,37 @@
+<div id="piwik-promo">
+    <div id="piwik-promo-video">
+        <div id="piwik-promo-thumbnail">
+            <img src="plugins/Zeitgeist/images/video_play.png"/>
+        </div>
+
+        <div id="piwik-promo-embed" style="display:none;">
+        </div>
+    </div>
+
+    <a id="piwik-promo-videos-link" href="http://piwik.org/blog/2012/12/piwik-how-to-videos/" target="_blank">
+        {{ 'CoreHome_ViewAllPiwikVideoTutorials'|translate }}
+    </a>
+
+    <div id="piwik-promo-share">
+        <span>{{ 'CoreHome_ShareThis'|translate }}:</span>
+
+        {# facebook #}
+        <a href="http://www.facebook.com/sharer.php?u={{ promoVideoUrl|url_encode }}" target="_blank">
+            <img src="plugins/Referrers/images/socials/facebook.com.png" />
+        </a>
+
+        {# twitter #}
+        <a href="http://twitter.com/share?text={{ shareText|url_encode }}&url={{ promoVideoUrl|url_encode }}" target="_blank">
+            <img src="plugins/Referrers/images/socials/twitter.com.png" />
+        </a>
+
+        {# email #}
+        <a href="mailto:?body={{ shareTextLong|url_encode(true) }}&subject={{ shareText|url_encode(true) }}" target="_blank">
+            <img src="plugins/Zeitgeist/images/email.png" />
+        </a>
+    </div>
+
+    <div style="clear:both;"></div>
+
+    <div id="piwik-widget-footer" style="color:#666;">{{ 'CoreHome_CloseWidgetDirections'|translate }}</div>
+</div>

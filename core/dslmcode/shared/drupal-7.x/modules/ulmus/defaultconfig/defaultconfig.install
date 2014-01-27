@@ -1,0 +1,66 @@
+<?php
+/**
+ * @file
+ * Installation-related things for defaultconfig.
+ */
+
+/**
+ * Implements hook_schema().
+ */
+function defaultconfig_schema() {
+  $schema = array();
+  $schema['defaultconfig_optionals'] = defaultconfig_optional_table_original();
+  return $schema;
+}
+
+/**
+ * Make sure the schema is installed.
+ */
+function defaultconfig_update_7101() {
+  db_create_table('defaultconfig_optionals', defaultconfig_optional_table_original());
+}
+
+/**
+ * Get the original table structure.
+ */
+function defaultconfig_optional_table_original() {
+  return array(
+    'description' => 'Table containing what optionals should be enabled.',
+    'export' => array(
+      'api' => array(
+        'owner' => 'defaultconfig',
+        'api' => 'defaultconfig_optionals_settings',
+        'minimum_version' => 1,
+        'current_version' => 1,
+      ),
+      'key' => 'name',
+      'key name' => 'Name',
+      'primary key' => 'oid',
+      'identifier' => 'preset',
+      'default hook' => 'defaultconfig_optionals_settings',
+      'load callback' => 'defaultconfig_optional_load',
+    ),
+    'fields' => array(
+      'oid' => array(
+        'description' => 'Serial id for this preset. Only used for internal lookups.',
+        'type' => 'serial',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'no export' => TRUE,
+      ),
+      'name' => array(
+        'description' => 'Machine-readable name for the exportable to be controlled.',
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => TRUE,
+      ),
+      'status' => array(
+        'description' => 'Indicates if this exporatble should be on or off.',
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+    ),
+    'primary key' => array('oid', 'name'),
+  );
+}

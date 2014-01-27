@@ -1,0 +1,27 @@
+<?php
+
+class NLPhoneNumberTestCase extends DrupalWebTestCase {
+  /**
+   * Implementation of getInfo()
+   *
+   */
+  public static function getInfo() {
+    return array(
+      'name' => t('Netherland Phone number test'),
+      'description' => t('Tests various valid and invalid Netherland phone numbers for validity'),
+      'group' => t('Phone')
+    );
+  }
+
+  public function testPhoneNLValid() {
+    //$this->assertTrue(valid_phone_number('nl', '04 476 0000'), t('Test valid'));
+  }
+
+  public function testPhoneNLInvalid() {
+    //$this->assertFalse(valid_phone_number('nl', '021 3012 3456'), t('Test invalid '));
+  }
+
+  public function testPhoneNLFormatting() {
+    //$this->assertEqual(format_phone_number('nl', '+6421123456', null), '+64 21 123 456', t('Check international mobile format'));
+  }
+}

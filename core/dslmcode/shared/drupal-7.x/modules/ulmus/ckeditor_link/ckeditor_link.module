@@ -1,0 +1,332 @@
+<?php
+
+/**
+ * @file
+ * Written by Henri MEDOT <henri.medot[AT]absyx[DOT]fr>
+ * http://www.absyx.fr
+ */
+
+/**
+ * Implementation of hook_permission().
+ */
+function ckeditor_link_permission() {
+  return array(
+    'access ckeditor link' => array('title' => t('Access <em>CKEditor Link</em>')),
+    'administer ckeditor link' => array('title' => t('Administer <em>CKEditor Link</em>')),
+  );
+}
+
+/**
+ * Implementation of hook_menu().
+ */
+function ckeditor_link_menu() {
+  $items['ckeditor_link/autocomplete'] = array(
+    'page callback' => 'ckeditor_link_autocomplete',
+    'access arguments' => array('access ckeditor link'),
+    'type' => MENU_CALLBACK,
+  );
+  $items['ckeditor_link/revert'] = array(
+    'page callback' => 'ckeditor_link_revert',
+    'access arguments' => array('access ckeditor link'),
+    'type' => MENU_CALLBACK,
+  );
+  $items['admin/config/content/ckeditor_link'] = array(
+    'title' => 'CKEditor Link',
+    'description' => 'Configure CKEditor Link.',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('ckeditor_link_settings_form'),
+    'access arguments' => array('administer ckeditor link'),
+    'file' => 'ckeditor_link.admin.inc',
+  );
+  return $items;
+}
+
+function ckeditor_link_autocomplete($string = '') {
+  $matches = array();
+
+  if ($string !== '') {
+    $types = ckeditor_link_get_types();
+    $limit = variable_get('ckeditor_link_limit', 10);
+    $results = array();
+    foreach ($types as $type) {
+      $func = $type['module'] .'_ckeditor_link_'. $type['type'] .'_autocomplete';
+      if (function_exists($func)) {
+        $results += $func($string, $limit);
+        if (count($results) > $limit) {
+          break;
+        }
+      }
+    }
+    drupal_alter('ckeditor_link_autocomplete', $results, $string);
+
+    array_splice($results, $limit);
+    foreach ($results as $path => $title) {
+      $matches[$title .' ('. $path .')'] = '<div class="reference-autocomplete">'. check_plain($title) .'</div>';
+    }
+  }
+
+  drupal_json_output($matches);
+}
+
+function ckeditor_link_revert() {
+  $output = NULL;
+
+  $args = func_get_args();
+  $path = trim(implode('/', $args), '/');
+  if ($path !== '') {
+    $langcode = LANGUAGE_NONE;
+    $path = ckeditor_link_path_strip_language($path, $langcode);
+    $path = drupal_get_normal_path($path, $langcode);
+    $types = ckeditor_link_get_types();
+    foreach ($types as $type) {
+      $func = $type['module'] .'_ckeditor_link_'. $type['type'] .'_revert';
+      if (function_exists($func)) {
+        $result = $func($path, $langcode);
+        if ($result !== NULL) {
+          $output = ($result !== FALSE) ? $result .' ('. ckeditor_link_path_prefix_language($path, $langcode) .')' : FALSE;
+          break;
+        }
+      }
+    }
+  }
+
+  drupal_add_http_header('Content-Type', 'text/javascript; charset=utf-8');
+  echo drupal_json_encode($output);
+}
+
+function ckeditor_link_get_types() {
+  static $types;
+
+  if (!isset($types)) {
+    $types = array();
+
+    $data = array();
+    foreach (module_implements('ckeditor_link_types') as $module) {
+      $func = $module .'_ckeditor_link_types';
+      $data[$module] = $func();
+    }
+
+    foreach ($data as $module => $_types) {
+      foreach ($_types as $type) {
+        if (!is_array($type)) {
+          $type = array('type' => $type);
+        }
+        $type['module'] = $module;
+        $types[$module .'.'. $type['type']] = $type;
+      }
+    }
+
+    drupal_alter('ckeditor_link_types', $types);
+    $types = array_values($types);
+
+    foreach ($types as $type) {
+      if (isset($type['file'])) {
+        require_once(drupal_get_path('module', $type['module']) .'/'. $type['file']);
+      }
+    }
+  }
+
+  return $types;
+}
+
+/**
+ * Implementation of hook_ckeditor_link_types().
+ */
+function ckeditor_link_ckeditor_link_types() {
+  $types[] = array('type' => 'node', 'file' => 'includes/ckeditor_link.node.inc');
+
+  if (module_exists('taxonomy')) {
+    $types[] = array('type' => 'taxonomy', 'file' => 'includes/ckeditor_link.taxonomy.inc');
+    if (module_exists('i18n_taxonomy')) {
+      $types[] = array('type' => 'i18n_taxonomy', 'file' => 'includes/ckeditor_link.i18n_taxonomy.inc');
+    }
+  }
+
+  $types[] = array('type' => 'menu', 'file' => 'includes/ckeditor_link.menu.inc');
+  if (module_exists('i18n_menu')) {
+    $types[] = array('type' => 'i18n_menu', 'file' => 'includes/ckeditor_link.i18n_menu.inc');
+  }
+
+  return $types;
+}
+
+/**
+ * Implementation of hook_element_info_alter().
+ */
+function ckeditor_link_element_info_alter(&$type) {
+  if (user_access('access ckeditor link')) {
+    $type['text_format']['#pre_render'][] = 'ckeditor_link_text_format_pre_render';
+    $type['form']['#post_render'][] = 'ckeditor_link_form_post_render';
+  }
+}
+
+function ckeditor_link_text_format_pre_render($element) {
+  _ckeditor_link_has_text_format(TRUE);
+  return $element;
+}
+
+function _ckeditor_link_has_text_format($set = FALSE) {
+  static $has = FALSE;
+  if (!$set) {
+    return $has;
+  }
+  $has = TRUE;
+}
+
+function ckeditor_link_form_post_render($content, $element) {
+  static $added;
+  if (!isset($added) && _ckeditor_link_has_text_format() && ($js = drupal_add_js()) && isset($js['settings']['data'])) {
+    $settings = call_user_func_array('array_merge_recursive', $js['settings']['data']);
+    if (isset($settings['ckeditor']) || isset($settings['wysiwyg']['configs']['ckeditor'])) {
+      $added = TRUE;
+      drupal_add_css(drupal_get_path('module', 'ckeditor_link') .'/ckeditor_link.css');
+      drupal_add_js('misc/autocomplete.js');
+      drupal_add_js(array('ckeditor_link' => array(
+        'module_path' => base_path() . drupal_get_path('module', 'ckeditor_link'),
+        'autocomplete_path' => url('ckeditor_link/autocomplete'),
+        'revert_path' => url('ckeditor_link/revert'),
+        'msg_invalid_path' => t('Link must be a valid internal path.'),
+        'type_name' => ckeditor_link_get_link_type_name(),
+        'type_selected' => (bool) variable_get('ckeditor_link_type_selected', 1),
+      )), 'setting');
+    }
+  }
+  return $content;
+}
+
+/**
+ * Implementation of hook_ckeditor_plugin().
+ */
+function ckeditor_link_ckeditor_plugin() {
+  return array('ckeditor_link' => array(
+    'name' => 'drupal_path',
+    'desc' => t('CKEditor Link - A plugin to easily create links to Drupal internal paths'),
+    'path' => drupal_get_path('module', 'ckeditor_link') .'/plugins/link/',
+  ));
+}
+
+/**
+ * Implementation of hook_wysiwyg_plugin().
+ */
+function ckeditor_link_wysiwyg_plugin($editor, $version) {
+  if ($editor == 'ckeditor') {
+    return array('drupal_path' => array(
+      'path' => drupal_get_path('module', 'ckeditor_link') .'/plugins/link/',
+      'load' => TRUE,
+      'extensions' => array('Link' => t('CKEditor Link')),
+    ));
+  }
+}
+
+/**
+ * Implementation of hook_filter_info().
+ */
+function ckeditor_link_filter_info() {
+  $filters['ckeditor_link_filter'] = array(
+    'title' => t('CKEditor Link Filter'),
+    'description' => t('Converts links added through <em>CKEditor Link</em> into aliased and language prefixed URLs.'),
+    'process callback' => 'ckeditor_link_filter_process',
+  );
+  return $filters;
+}
+
+function ckeditor_link_filter_process($text, $filter, $format, $langcode, $cache, $cache_id) {
+  _ckeditor_link_filter_process(NULL, $langcode);
+  return preg_replace_callback('`\bhref="'. preg_quote(base_path(), '`') .'([^?#"]+)`', '_ckeditor_link_filter_process', $text);
+}
+
+function _ckeditor_link_filter_process($matches, $langcode = NULL) {
+  static $stored_langcode = LANGUAGE_NONE;
+  if ($matches === NULL) {
+    $stored_langcode = $langcode;
+    return;
+  }
+
+  $path = urldecode($matches[1]);
+
+  $langcode = $stored_langcode;
+  $path = ckeditor_link_path_strip_language($path, $langcode);
+
+  $types = ckeditor_link_get_types();
+  foreach ($types as $type) {
+    $func = $type['module'] .'_ckeditor_link_'. $type['type'] .'_url';
+    if (function_exists($func)) {
+      $url = $func($path, $langcode);
+      if ($url) {
+        return 'href="'. $url;
+      }
+    }
+  }
+
+  return 'href="'. base_path() . $matches[1];
+}
+
+function ckeditor_link_get_link_type_name() {
+  return t(variable_get('ckeditor_link_type_name', 'Internal path'), array('!site_name' => variable_get('site_name', 'Drupal')));
+}
+
+function ckeditor_link_path_strip_language($path, &$langcode) {
+  $languages = ckeditor_link_get_languages();
+  if ($languages) {
+    $args = explode('/', $path);
+    $prefix = array_shift($args);
+    foreach ($languages as $language) {
+      if (!empty($language->prefix) && ($language->prefix == $prefix)) {
+        $langcode = $language->language;
+        $path = implode('/', $args);
+        break;
+      }
+    }
+  }
+
+  return $path;
+}
+
+function ckeditor_link_path_prefix_language($path, $langcode) {
+  if ($langcode != LANGUAGE_NONE) {
+    $languages = ckeditor_link_get_languages();
+    if ($languages && isset($languages[$langcode])) {
+      $language = $languages[$langcode];
+      if (!empty($language->prefix)) {
+        $path = (empty($path)) ? $language->prefix : $language->prefix .'/'. $path;
+      }
+    }
+  }
+
+  return $path;
+}
+
+function ckeditor_link_get_languages() {
+  static $languages;
+
+  if (!isset($languages)) {
+    $languages = FALSE;
+    if (drupal_multilingual() && language_negotiation_get_any(LOCALE_LANGUAGE_NEGOTIATION_URL)) {
+      $languages = language_list('enabled');
+      $languages = $languages[1];
+    }
+  }
+
+  return $languages;
+}
+
+function ckeditor_link_url($path = NULL, $langcode) {
+  $options = array();
+
+  if ($langcode != LANGUAGE_NONE) {
+    $languages = ckeditor_link_get_languages();
+    if ($languages && isset($languages[$langcode])) {
+      $options['language'] = $languages[$langcode];
+    }
+  }
+
+  if (!isset($options['language'])) {
+    $options['language'] = language_default();
+  }
+
+  return url($path, $options);
+}
+
+function _ckeditor_link_check_path($path) {
+  return preg_match('`^[a-z][\w\/\.-]*$`i', $path);
+}

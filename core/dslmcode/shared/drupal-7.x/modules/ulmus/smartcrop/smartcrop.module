@@ -1,0 +1,5 @@
+<?php
+// $Id: smartcrop.module,v 1.1.2.5.2.5 2010/09/16 17:39:01 grendzy Exp $
+
+require_once('image.gd.inc');
+require_once('smartcrop.effects.inc');

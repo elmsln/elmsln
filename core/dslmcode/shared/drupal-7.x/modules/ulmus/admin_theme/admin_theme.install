@@ -1,0 +1,43 @@
+<?php
+// $Id: admin_theme.install,v 1.1.2.2.4.4 2009/10/20 18:25:45 davyvandenbremt Exp $
+
+/**
+ * Implementation of hook_install().
+ */
+function admin_theme_install() {
+  // updating module weight to 10 to make it run after system (for user access checks etc)
+  db_query("UPDATE {system} SET weight = 10 WHERE name = 'admin_theme'");
+  
+  $link = array('!link' => l(t('Administer > Appearance > Administration theme'), 'admin/appearance'));
+  drupal_set_message(t("Administration theme module settings are available under !link", $link));
+}
+
+/**
+ * Implementation of hook_uninstall().
+ */
+function admin_theme_uninstall() {
+  // cleaning up general admin theme variables
+  variable_del('admin_theme_path');
+  variable_del('admin_theme_path_disallow');
+  
+  // cleaning up module defined admin theme variables
+  
+  // we need to add admin theme's explicitly because it's not in the list of modules anymore
+  $admin_theme_options = admin_theme_admin_theme_info();
+  $options = array();
+  foreach ($admin_theme_options as $option => $info) {
+    $info['option'] = $option;
+    $info['module'] = 'admin_theme';
+    $options[] = $info;
+  }
+  
+  // mergin admin theme's options with other module options
+  // @fixme does this work if other modules are also uninstalled at the same time?
+  $list = array_merge(admin_theme_list(), $options);
+  
+  // deleting the module defined variables
+  foreach ($list as $info) {
+    $var = admin_theme_variable_name($info['module'], $info['option']);
+    variable_del($var);
+  }
+}

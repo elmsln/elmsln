@@ -1,0 +1,23 @@
+<?php
+// $Id: smartcrop.install,v 1.1.2.1.2.2 2010/09/16 17:49:25 grendzy Exp $
+
+/**
+ * @file
+ * Install file for smartcrop module
+ */
+
+/**
+ * Implements hook_enable().
+ */
+function smartcrop_enable() {
+  cache_clear_all('image_styles', 'cache');
+  cache_clear_all('image_effects:', 'cache', TRUE);
+}
+
+/**
+ * Implements hook_disable().
+ */
+function smartcrop_disable() {
+  cache_clear_all('image_styles', 'cache');
+  cache_clear_all('image_effects:', 'cache', TRUE);
+}

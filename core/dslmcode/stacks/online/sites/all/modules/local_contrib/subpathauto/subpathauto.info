@@ -1,0 +1,12 @@
+name = Sub-pathauto
+description = Provides support for extending sub-paths of URL aliases.
+core = 7.x
+configure = admin/config/search/path/subpaths
+files[] = subpathauto.test
+
+; Information added by drupal.org packaging script on 2012-09-18
+version = "7.x-1.3"
+core = "7.x"
+project = "subpathauto"
+datestamp = "1347990612"
+

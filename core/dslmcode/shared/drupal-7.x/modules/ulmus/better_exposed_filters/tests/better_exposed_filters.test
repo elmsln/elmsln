@@ -1,0 +1,473 @@
+<?php
+// $Id$
+
+/**
+ * @file Tests for the Better Exposed Filters module
+ * @author mikeker
+ */
+
+/**
+ * Functional test for Better Exposed Filters
+ */
+class BEF_TestCase extends DrupalWebTestCase {
+  protected $view_name;
+  protected $privileged_user;
+  protected $views_version;
+  
+  public static function getInfo() {
+    return array(
+      'name' => 'BEF Basic functionality tests',
+      'description' => 'Basic tests for Better Exposed Filters.',
+      'group' => 'Better Exposed Filters',
+    );
+  }
+  
+  /**
+   * After setup() runs, the test suite will have access to:
+   *
+   *    - $this->privileged_user: User with 'administer views' privileges.
+   *    - $this->view_name: A view with:
+   *        - node->title, node->status and node->type exposed filters
+   *        - node->title as a displayed field
+   */
+  public function setUp() {
+    parent::setUp('views', 'views_ui', 'better_exposed_filters');  // Enable any modules required for the test
+    
+    // @TODO: Is there a better way?  Hopefully...
+    $this->views_version = substr(views_api_version(), 0, 1);
+      
+    // User with edit views perms
+    $this->privileged_user = $this->drupalCreateUser(array('access content', 'administer views'));
+    $this->drupalLogin($this->privileged_user);
+
+    // Build a basic view
+    $this->view_name = $this->randomName(8);
+    $this->drupalPost('admin/build/views/add', array('name' => $this->view_name), 'Next');
+    
+    // Add filters to the default display
+    $this->_befAddFilter('node.title');
+    $this->_befAddFilter('node.status');
+    $this->_befAddFilter('node.type');
+
+    // Add field to default display
+    $this->_befAddField('node.title');
+    
+    $this->_befSaveView();
+  }
+  
+  /**
+   * Verify BEF options display for binary and unlimited option fields
+   */
+  public function testsimpletest_befOptionsExist() {
+    // Check node->status (binary type)
+    $this->drupalGet("admin/build/views/nojs/config-item/$this->view_name/default/filter/status");
+    $this->assertText(
+      t('Display exposed filter as'),
+      'Verify BEF settings dropdown label displays',
+      'Better Exposed Filters'
+    );
+    $this->assertFieldById('edit-options-expose-bef-format');
+
+    // Check node->status (binary type)
+    $this->drupalGet("admin/build/views/nojs/config-item/$this->view_name/default/filter/type");
+    $this->assertText(
+      t('Display exposed filter as'),
+      'Verify BEF settings dropdown label displays',
+      'Better Exposed Filters'
+    );
+    $this->assertFieldById('edit-options-expose-bef-format');
+  }
+
+  /**
+   * Verify BEF options are saved and redisplayed properly
+   *
+   * @TODO: Need to extend this to cover filters in derived vs. default displays as well as editing
+   *        default filter options from derived displays
+   */
+  public function testsimpletest_befOptionsSave() {
+    $edit = array(
+      'options[expose][bef_format]' => 'bef',
+      'options[expose][bef_filter_description]' => $this->randomName(16),
+      'options[expose][bef_select_all_none]' => TRUE,
+      'options[expose][bef_collapsible]' => TRUE,
+    );
+    $this->drupalPost("admin/build/views/nojs/config-item/$this->view_name/default/filter/status", $edit, 'Update');
+    $this->drupalGet("admin/build/views/nojs/config-item/$this->view_name/default/filter/status");
+    foreach ($edit as $name => $expected) {
+      $this->assertFieldByName($name, $expected);
+    }
+  }
+
+  /**
+   * Verify BEF radio buttons are rendered correctly on a page view
+   */
+  public function testsimpletest_befPageDisplayRadios() {
+    $bef_settings = array(
+      'bef_format' => 'bef',
+      'bef_filter_description' => $this->randomName(16),
+      'bef_select_all_none' => TRUE,
+    );
+    $this->_befExposedFilterSettings('status', $bef_settings);
+
+    // Add a page view to the default view
+    $settings = array(
+      'path' => array('path' => $this->randomName(8)),
+    );
+    $this->_befCreateDisplay('page', $settings);
+    $this->_befSaveView();
+
+    $this->drupalGet($settings['path']['path']);
+    $this->assertText(t('Published'), 'Verify exposed filter label', 'Better Exposed Filters');
+    $this->assertFieldByXpath(
+      '//input[@name="status" and @type="radio"]',
+      NULL,
+      'Exposed filter is shown as radio buttons',
+      'Better Exposed Filters'
+    );
+  }
+
+  /**
+   * Verify BEF radio buttons are rendered correctly in a fieldset (collapsible == TRUE)
+   */
+  public function testsimpletest_befPageDisplayRadiosFieldset() {
+    $bef_settings = array(
+      'bef_format' => 'bef',
+      'bef_filter_description' => $this->randomName(16),
+      'bef_select_all_none' => TRUE,
+      'bef_collapsible' => TRUE,
+    );
+    $this->_befExposedFilterSettings('status', $bef_settings);
+
+    // Add a page view to the default view
+    $settings = array(
+      'path' => array('path' => $this->randomName(8)),
+    );
+    $this->_befCreateDisplay('page', $settings);
+    $this->_befSaveView();
+
+    $this->drupalGet($settings['path']['path']);
+    $this->assertText(t('Published'), 'Verify exposed filter label', 'Better Exposed Filters');
+    $this->assertFieldByXpath(
+      '//fieldset//input[@name="status" and @type="radio"]',
+      NULL,
+      'Radio buttons are enclosed by a fieldset',
+      'Better Exposed Filters'
+    );
+    $this->assertFieldByXpath(
+      '//fieldset/legend',
+      t('Published'),
+      'Filter label is used as the fieldset legend',
+      'Better Exposed Filters'
+    );
+  }
+
+/**
+   * Verify that checkboxes are rendered correctly on a page display
+   */
+  public function testsimpletest_befPageDisplayCheckboxes() {
+    // Exposed the type filter such that it allows multiple selections
+    $bef_settings = array(
+      'bef_format' => 'bef',
+      'bef_filter_description' => $this->randomName(16),
+      'bef_select_all_none' => TRUE,
+      'single' => FALSE,
+    );
+    $this->_befExposedFilterSettings('type', $bef_settings);
+
+    // Add a page view to the default view
+    $settings = array(
+      'path' => array('path' => $this->randomName(8)),
+    );
+    $this->_befCreateDisplay('page', $settings);
+    $this->_befSaveView();
+
+    $this->drupalGet($settings['path']['path']);
+    $this->assertText(t('Node: Type'), 'Verify exposed filter label', 'Better Exposed Filters');
+    $this->assertFieldByXpath(
+      '//input[@name="type[]" and @type="checkbox"]',
+      NULL,
+      'Exposed filter is shown as checkboxes',
+      'Better Exposed Filters'
+    );
+    $this->assertFieldByXpath(
+      '//div[contains(@class, "bef-select-all-none")]',
+      NULL,
+      'Class is set correctly for JS to build select all/none links',
+      'Beter Exposed Filters'
+    );
+  }
+
+/**
+  * Verify that checkboxes are rendered correctly on a page display
+  */
+  public function testsimpletest_befPageDisplayCheckboxesFieldset() {
+    // Exposed the type filter such that it allows multiple selections
+    $bef_settings = array(
+      'bef_format' => 'bef',
+      'bef_filter_description' => $this->randomName(16),
+      'bef_select_all_none' => TRUE,
+      'bef_collapsible' => TRUE,
+      'single' => FALSE,
+    );
+    $this->_befExposedFilterSettings('type', $bef_settings);
+
+    // Add a page view to the default view
+    $settings = array(
+      'path' => array('path' => $this->randomName(8)),
+    );
+    $this->_befCreateDisplay('page', $settings);
+    $this->_befSaveView();
+
+    $this->drupalGet($settings['path']['path']);
+    $this->assertText(t('Node: Type'), 'Verify exposed filter label', 'Better Exposed Filters');
+
+    $this->assertFieldByXpath(
+      '//fieldset//input[@name="type[]" and @type="checkbox"]',
+      NULL,
+      'Radio buttons are enclosed by a fieldset',
+      'Better Exposed Filters'
+    );
+    $this->assertFieldByXpath(
+      '//fieldset//div[contains(@class, "bef-select-all-none")]',
+      NULL,
+      'Class is set correctly for JS to build select all/none links',
+      'Beter Exposed Filters'
+    );
+    $this->assertFieldByXpath(
+      '//fieldset/legend',
+      t('Node: Type'),
+      'Filter label is used as the fieldset legend',
+      'Better Exposed Filters'
+    );
+  }
+
+  
+
+  /**
+   * Verify hidden exposed filters are rendered correctly on a page display
+   * @TODO: check the functionality of a multi-pass filter using hidden BEF settings.
+   */
+  public function testsimpletest_befPageDisplayHidden() {
+    $this->_befExposedFilterSettings('type', array('bef_format' => 'bef_hidden'));
+
+    // Add a page view to the default view
+    $settings = array(
+      'path' => array('path' => $this->randomName(8)),
+    );
+    $this->_befCreateDisplay('page', $settings);
+    $this->_befSaveView();
+
+    $this->drupalGet($settings['path']['path']);
+    $this->assertNoText(t('Node: Type'), 'Verify hidden label does not appear', 'Better Exposed Filters');
+  }
+
+  /**
+   * Verify taxonomy-based exposed filters display correctly as both radio buttons and checkboxes
+   */
+  public function testsimpletest_befTaxonomyFilters() {
+    $this->taxonomy_user = $this->drupalCreateUser(array('access content', 'administer views', 'administer taxonomy'));
+    $this->drupalLogin($this->taxonomy_user);
+
+    // Add a vocabulary and populate with a few terms
+    $edit = array(
+      'name' => 'BEF test vocab',
+      'nodes[page]' => TRUE,
+      'nodes[story]' => TRUE,
+    );
+    $this->drupalPost('admin/content/taxonomy/add/vocabulary', $edit, 'Save');
+    $terms = array('test1', 'test2', 'test3', 'test4');
+    foreach ($terms as $term) {
+      $this->drupalPost('admin/content/taxonomy/1/add/term', array('name' => $term), 'Save');
+    }
+
+    // Exposed the taxonomy filter
+    $addl = array(
+      'options[vid]' => TRUE,
+      'options[type]' => 'select',
+      'options[hierarchy]' => FALSE,
+    );
+    $this->_befAddFilter('term_node.tid', TRUE, 'default', $addl);
+
+    // Exposed filter settings
+    $bef_settings = array(
+      'bef_format' => 'bef',
+      'bef_filter_description' => $this->randomName(16),
+    );
+    $this->_befExposedFilterSettings('tid', $bef_settings);
+
+    // Add a page view to the default view
+    $settings = array(
+      'path' => array('path' => $this->randomName(8)),
+    );
+    $this->_befCreateDisplay('page', $settings);
+    $this->_befSaveView();
+
+    // Verify taxonomy filter as radio buttons
+    $this->drupalGet($settings['path']['path']);
+    $this->assertText(t('Taxonomy: Term'), 'Verify exposed filter label', 'Better Exposed Filters');
+    $this->assertFieldByXpath(
+      '//input[@name="tid" and @type="radio"]',
+      NULL,
+      'Exposed filter is shown as radio buttons',
+      'Better Exposed Filters'
+    );
+
+    // Set Force single to FALSE to display as checkboxes and set select all/none option
+    $bef_settings = array(
+      'bef_select_all_none' => TRUE,
+      'single' => FALSE,
+    );
+    $this->_befExposedFilterSettings('tid', $bef_settings);
+    $this->_befSaveView();
+
+    // Verify taxonomy filter as checkboxes
+    $this->drupalGet($settings['path']['path']);
+    $this->assertText(t('Taxonomy: Term'), 'Verify exposed filter label', 'Better Exposed Filters');
+    $this->assertFieldByXpath(
+      '//input[@name="tid[]" and @type="checkbox"]',
+      NULL,
+      'Exposed filter is shown as checkboxes',
+      'Better Exposed Filters'
+    );
+    $this->assertFieldByXpath(
+      '//div[contains(@class, "bef-select-all-none")]',
+      NULL,
+      'Class is set correctly for JS to build select all/none links',
+      'Beter Exposed Filters'
+    );
+  }
+  
+  
+  /*******************************************************************************
+   * Helper functions -- mostly to deal with differences between Views 2.x and 3.x
+   *******************************************************************************/
+  
+  /**
+   * Creates a display of $type.  Currently supports:
+   *    'page'
+   *
+   * Also, accepts an associative array of settings in the form of:
+   *
+   *      'setting_path' => array('form_element' => value, ...),
+   *      'setting_path' => array('form_element' => value, ...),
+   *      ...
+   *
+   * where 'link_name' is the name of the setting link and the array is settings for
+   * resulting form.
+   *
+   * For example, to create a new page and set the path to a random name:
+   *
+   *      $settings = array('path' => $this->randomName(16);
+   *      $this->_befCreateDisplay('page', $settings);
+   *
+   */
+  protected function _befCreateDisplay($type = 'page', $settings = NULL) {
+    $view_edit_url = "admin/build/views/edit/$this->view_name";
+    
+    // Add a display of $type to the view
+    $this->drupalPost($view_edit_url, array('display' => $type), 'Add display');
+
+    // Grab the name of the newly created view out of the URL anchor text
+    $url = $this->getUrl();
+    preg_match('/(.*)#(.*)/', $url, $matches);
+    $display_name = str_replace('views-tab-', '', $matches[2]);
+
+    $display_edit_url = "admin/build/views/nojs/display/$this->view_name/$display_name";
+    foreach ($settings as $path => $page_settings) {
+      $this->drupalPost("$display_edit_url/$path", $page_settings, 'Update');
+    }
+    
+    // Save the view
+    $this->drupalPost($view_edit_url, array(), 'Save');
+  }
+  
+  /**
+   * Adds a specified filter to the view.
+   *
+   * @param $field in the form of node.field or, for CCK fields ???.CCK_field_name
+   * @param $exposed
+   * @param $display
+   */
+  protected function _befAddFilter($field, $exposed = TRUE, $display = 'default', $additional = array()) {
+    $edit = array(
+      "name[$field]" => TRUE,
+    );
+    $field_name = preg_replace('/.*\./', '', $field);
+    $view = $this->view_name;
+    
+    $this->drupalPost("admin/build/views/nojs/add-item/$view/$display/filter", $edit, 'Add');
+    
+    // For taxonomy filters, use info in $additional to configure the filter.
+    if (0 === strpos($field, 'term_node.')) {
+      $this->drupalPost (
+        "admin/build/views/nojs/config-item-extra/$view/$display/filter/$field_name",
+        $additional,
+        'Update'
+      );
+    }
+    
+    if ($exposed) {
+      $this->drupalPost("admin/build/views/nojs/config-item/$view/$display/filter/$field_name", array(), 'Expose');
+    }
+    $this->drupalPost("admin/build/views/nojs/config-item/$view/$display/filter/$field_name", array(), 'Update');
+  }
+
+  protected function _befAddField($field, $settings = array(), $display = 'default') {
+    $edit = array(
+      "name[$field]" => TRUE,
+    );
+    $field_name = preg_replace('/.*\./', '', $field);
+    $view = $this->view_name;
+    
+    $this->drupalPost("admin/build/views/nojs/add-item/$view/$display/field", $edit, 'Add');
+    $this->drupalPost("admin/build/views/nojs/config-item/$view/$display/field/$field_name", $settings, 'Update');
+  }
+  
+  /**
+   * Specifies specific settings for an exposed filter for a given display
+   *
+   * NOTE: In Views 3.x, some of what used to be in the Configure Filteres dialog has moved to the
+   *       Configure Exposed Form dialog.
+   *
+   * @param string $filter - name of the filter
+   * @param array $settings - array of form elements => value entries
+   * @return $settings array merged with default values
+   */
+  protected function _befExposedFilterSettings($filter, $settings = array(), $display = 'default') {
+    $processed_settings = array();
+    foreach ($settings as $elem => $setting) {
+      $processed_settings["options[expose][$elem]"] = $setting;
+    }
+    
+    //DEBUG:
+//    foreach ($processed_settings as $item) {
+//      $this->verbose("processed_setting: $item");
+//    }
+    //END_DEBUG:
+    
+    if ($this->views_version == 2) {
+//      $this->drupalGet("admin/build/views/nojs/config-item/$this->view_name/$display/filter/$filter");
+      $this->drupalPost(
+        "admin/build/views/nojs/config-item/$this->view_name/$display/filter/$filter",
+        $processed_settings,
+        'Update'
+      );
+      $this->drupalGet("admin/build/views/nojs/config-item/$this->view_name/$display/filter/$filter");
+    }
+    else {
+      // All BEF settings are now in the Exposed Form dialog.
+      
+      //@TODO
+    }
+    return $settings;
+  }
+  
+  /**
+   * Saves the view
+   * @return unknown_type
+   */
+  protected function _befSaveView() {
+    $this->drupalPost("admin/build/views/edit/$this->view_name", array(), 'Save');
+  }
+}
+

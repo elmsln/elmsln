@@ -1,0 +1,36 @@
+
+#imce-cropper, #file-preview.crop-preview #imce-cropper {
+  position: absolute;
+  display: none;
+  border: 4px solid #f06;
+  font-size: 0.01px;
+  z-index: 3;
+  /*initial position*/
+  top: -4px;
+  left: -4px;
+  width: 1px;
+  height: 1px;
+}
+#file-preview.crop-preview {
+  text-align: left !important;
+}
+#file-preview.crop-preview a {
+  position: relative;
+  border: 6px solid #0c0;
+  display: block;
+  cursor: crosshair;
+}
+#file-preview.crop-preview #imce-cropper {
+  display: block;
+  cursor: move;
+}
+.ie-7 #preview-wrapper {
+  position: relative;
+}
+#op-content-crop .container-inline label {
+  display: inline-block;
+  width: 115px;
+}
+#op-item-crop a, #imce-content #edit-crop {
+  background-image: url(crop.png);
+}

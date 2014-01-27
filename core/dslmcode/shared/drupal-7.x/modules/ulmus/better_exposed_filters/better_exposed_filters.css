@@ -1,0 +1,15 @@
+/**
+ * @file better_exposed_filters.css
+ * 
+ * Basic styling for features added by Better Exposed Filters
+ */
+
+
+/*
+ * Prevents collapsed filters from disappearing completely
+ */
+fieldset.bef-select-as-radios-fieldset.collapsed legend,
+fieldset.bef-select-as-checkboxes-fieldset.collapsed legend
+{
+  position: relative;
+}

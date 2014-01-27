@@ -1,0 +1,865 @@
+<?php
+/**
+ * @file
+ * Drupal Field Hidden module
+ */
+
+/**
+ * Implements hook_permission().
+ *
+ * @return array
+ */
+function field_hidden_permission() {
+  return array(
+    'field hidden administer' => array(
+      'title' => t('Administer hidden fields'),
+      'restrict access' => TRUE,
+    ),
+  );
+}
+
+/**
+ * Declares configuration page.
+ *
+ * Implements hook_menu().
+ *
+ * @return array
+ */
+function field_hidden_menu() {
+  return array(
+    'admin/config/fields' => array(
+      'title' => 'Fields',
+      'description' => 'Field type settings and utilities',
+      'weight' => -15, // want to see it close to Content Authoring
+      'page callback' => 'system_admin_menu_block_page',
+      'access arguments' => array('access administration pages'),
+      'file' => 'system.admin.inc',
+      'file path' => drupal_get_path('module', 'system'),
+    ),
+    'admin/config/fields/field_hidden' => array(
+      'title' => 'Hidden Fields',
+      'description' => 'Configure Fields Hidden',
+      'page callback' => 'drupal_get_form', // hook to implement
+      'page arguments' => array('_field_hidden_admin_form'), // Name of implementing function.
+      'access arguments' => array('field hidden administer'), // Permission required.
+      'file' => 'field_hidden.admin.inc',
+      'type' => MENU_NORMAL_ITEM,
+    )
+  );
+}
+
+/**
+ * Implements hook_help().
+ *
+ * @param string $path
+ * @param unknown $arg
+ *   - default: NULL
+ * @return string|void
+ */
+function field_hidden_help($path, $arg = NULL) {
+  module_load_include('inc', 'field_hidden', 'field_hidden.admin');
+  return _field_hidden_help($path);
+}
+
+/**
+ * Declares field types and their settings.
+ *
+ * Types, and their database data types, widgets and default/optional formatters (aka display types):
+ *  - field_hidden_text:      varchar   field_hidden  hidden/field_hidden_text_plain
+ *  - field_hidden_text_long: text      field_hidden  hidden/field_hidden_text_plain
+ *  - field_hidden_integer:   integer   field_hidden  hidden/field_hidden_integer
+ *  - field_hidden_decimal:   decimal   field_hidden  hidden/field_hidden_decimal
+ *  - field_hidden_float:     float     field_hidden  hidden/field_hidden_decimal
+ *
+ * Field settings apply to all instances of a field - e.g. if field 'some_hidden' of type field_hidden_integer is being used
+ * by more than one content type, field settings apply to 'some_hidden' across all content types.
+ *
+ * Instance settings only apply to a single instance - e.g. to 'some_hidden' in the current content type - and instance settings
+ * may override field settings.
+ *
+ * Implements hook_field_info().
+ *
+ * @return array
+ */
+function field_hidden_field_info() {
+  return array(
+    //  text
+    'field_hidden_text' => array(
+      'label' => t('Hidden text'),
+      'description' => t('This field stores varchar text in the database.'),
+      'settings' => array(
+        'max_length' => 255,
+      ),
+      'instance_settings' => array(
+        'text_processing' => 0,
+      ),
+      'default_widget' => 'field_hidden',
+      'default_formatter' => 'hidden', // alternative: field_hidden_text_plain
+      'default_token_formatter' => 'field_hidden_text_plain', // Tokens integration.
+      'property_type' => 'text', // Entity API integration, required for Rules and more
+    ),
+    //  text long
+    'field_hidden_text_long' => array(
+      'label' => t('Hidden long text'),
+      'description' => t('This field stores long text text in the database.'),
+      'settings' => array(
+        'max_length' => 10000,
+      ),
+      'instance_settings' => array(
+        'text_processing' => 0,
+      ),
+      'default_widget' => 'field_hidden',
+      'default_formatter' => 'hidden', // alternative: field_hidden_text_plain ~ same as text (short)
+      'default_token_formatter' => 'field_hidden_text_plain', // Tokens integration.
+      'property_type' => 'text', // Entity API integration, required for Rules and more
+    ),
+    //  integer
+    'field_hidden_integer' => array(
+      'label' => t('Hidden integer'),
+      'description' => t('This field stores a number in the database as an integer.'),
+      'settings' => array(
+      ),
+      'instance_settings' => array(
+        'min' => '', 'max' => '', 'prefix' => '', 'suffix' => '',
+      ),
+      'default_widget' => 'field_hidden',
+      'default_formatter' => 'hidden', // alternative: field_hidden_integer
+      'default_token_formatter' => 'field_hidden_numeric_unformatted', // Tokens integration.
+      'property_type' => 'text', // Entity API integration, required for Rules and more
+    ),
+    //  decimal
+    'field_hidden_decimal' => array(
+      'label' => t('Hidden decimal'),
+      'description' => t('This field stores a number in the database in a fixed decimal format.'),
+      'settings' => array(
+        'precision' => ($v = @ini_get('precision')) ? $v : 10, // 10 ~ Number module's default.
+        'scale' => 2, 'decimal_separator' => '.',
+      ),
+      'instance_settings' => array(
+        'min' => '', 'max' => '', 'prefix' => '', 'suffix' => '',
+      ),
+      'default_widget' => 'field_hidden',
+      'default_formatter' => 'hidden', // alternative: field_hidden_decimal
+      'default_token_formatter' => 'field_hidden_numeric_unformatted', // Tokens integration.
+      'property_type' => 'text', // Entity API integration, required for Rules and more
+    ),
+    //  float
+    'field_hidden_float' => array(
+      'label' => t('Hidden float'),
+      'description' => t('This field stores a number in the database in a floating point format'),
+      'settings' => array(
+        'decimal_separator' => '.',
+      ),
+      'instance_settings' => array(
+        'min' => '', 'max' => '', 'prefix' => '', 'suffix' => '',
+      ),
+      'default_widget' => 'field_hidden',
+      'default_formatter' => 'hidden', // alternative: field_hidden_decimal (float uses same formatter as decimal)
+      'default_token_formatter' => 'field_hidden_numeric_unformatted', // Tokens integration.
+      'property_type' => 'text', // Entity API integration, required for Rules and more
+    ),
+  );
+}
+
+/**
+ * For editing settings that apply to all instances of the field (e.g. 'some_hidden' across all content types).
+ *
+ * Implements hook_field_settings_form().
+ *
+ * @param array $field
+ * @param array $instance
+ * @param boolean $has_data
+ * @return array
+ */
+function field_hidden_field_settings_form($field, $instance, $has_data) {
+  $fld_set = $field['settings'];
+  $form = array();
+  switch ($field['type']) {
+    case 'field_hidden_integer':
+    case 'field_hidden_decimal':
+    case 'field_hidden_float':
+      if ($field['type'] == 'field_hidden_decimal') {
+        $form['precision'] = array(
+          '#type' => 'select',
+          '#title' => t('Numeric precision'),
+          '#options' => drupal_map_assoc(range(10, 32)),
+          '#default_value' => $fld_set['precision'],
+          '#description' => t('The total number of digits to store in the database, including those to the right of the decimal.'),
+          '#disabled' => $has_data,
+        );
+        $form['scale'] = array(
+          '#type' => 'select',
+          '#title' => t('Numeric scale'),
+          '#options' => drupal_map_assoc(range(0, 10)),
+          '#default_value' => $fld_set['scale'],
+          '#description' => t('The number of digits to the right of the decimal.'),
+          '#disabled' => $has_data,
+        );
+      }
+      if ($field['type'] != 'field_hidden_integer') {
+        $form['decimal_separator'] = array(
+          '#type' => 'select',
+          '#title' => t('Decimal marker'),
+          '#options' => array('.' => t('Decimal point'), ',' => t('Comma')),
+          '#default_value' => $fld_set['decimal_separator'],
+          '#description' => t('The character users will input to mark the decimal point in forms.'),
+        );
+      }
+      break;
+    default:
+      $form['max_length'] = array(
+        '#type' => 'textfield',
+        '#size' => 5,
+        '#title' => t('Maximum length'),
+        '#default_value' => $fld_set['max_length'],
+        '#required' => TRUE,
+        '#description' => t('The maximum length of the field in characters.'),
+        '#element_validate' => array('_field_hidden_element_validate_integer_positive'),
+        '#disabled' => $has_data,
+      );
+  }
+  return $form;
+}
+
+/**
+ * For editing a particular instance of the field (e.g. 'some_hidden' in current content type).
+ *
+ * Implements hook_field_instance_settings_form().
+ *
+ * @param array $field
+ * @param array $instance
+ * @return array
+ */
+function field_hidden_field_instance_settings_form($field, $instance) {
+  $fld_set = $field['settings'];
+  $form = array();
+  switch ($field['type']) {
+    case 'field_hidden_integer':
+    case 'field_hidden_decimal':
+    case 'field_hidden_float':
+      $inst_set = $instance['settings'];
+      $form['min'] = array(
+        '#type' => 'textfield',
+        '#title' => t('Minimum'),
+        '#default_value' => $inst_set['min'],
+        '#description' => t('The minimum value that should be allowed in this field. Leave blank for no minimum.'),
+        '#element_validate' => array('_field_hidden_element_validate_number'),
+      );
+      $form['max'] = array(
+        '#type' => 'textfield',
+        '#title' => t('Maximum'),
+        '#default_value' => $inst_set['max'],
+        '#description' => t('The maximum value that should be allowed in this field. Leave blank for no maximum.'),
+        '#element_validate' => array('_field_hidden_element_validate_number'),
+      );
+      $form['display_notice'] = array(
+        '#type' => 'markup',
+        '#markup' => '<label>'
+          . t(
+            'The @prefix and @suffix settings are only relevant if the value of this field should be display in output',
+            array('@prefix' => t('Prefix'), '@suffix' => t('Suffix'))
+          )
+          . '</label><div>'
+          . t(
+            'See \'@format\' in the \'@manage_display\' section of this content type.',
+            array('@format' => t('Format'), '@manage_display' => t('Manage Display'))
+          )
+          . '</div>',
+      );
+      $form['prefix'] = array(
+        '#type' => 'textfield',
+        '#title' => t('Prefix'),
+        '#default_value' => $inst_set['prefix'],
+        '#size' => 60,
+        '#description' => t("Define a string that should be prefixed to the value, like '$ ' or '&euro; '. Leave blank for none. Separate singular and plural values with a pipe ('pound|pounds')."),
+      );
+      $form['suffix'] = array(
+        '#type' => 'textfield',
+        '#title' => t('Suffix'),
+        '#default_value' => $inst_set['suffix'],
+        '#size' => 60,
+        '#description' => t("Define a string that should be suffixed to the value, like ' m', ' kb/s'. Leave blank for none. Separate singular and plural values with a pipe ('pound|pounds')."),
+      );
+      break;
+  }
+  //  Turn the default value field into a text field (kind of easier to assess and edit).
+  if (!variable_get('field_hidden_instance_settings_hide_defval', FALSE)) {
+    $form['display_default_value'] = array(
+      '#type' => 'markup',
+      '#markup' => '<script type="text/javascript">
+(function($) {
+  $(document).ready(function() {
+    var elm, jq;
+    if ((elm = (jq = $("div#edit-' . str_replace('_', '-', $instance['field_name']) . '")).get(0))) {
+      jq.removeClass().addClass("form-item form-type-textfield text-full");
+      (elm = (jq = $("input", elm)).get(0)).setAttribute("type", "text");
+      elm.setAttribute("size", "60");
+      jq.addClass("text-full form-text");
+    }
+  } );
+})(jQuery);
+</script>',
+    );
+  }
+  return $form;
+}
+
+/**
+ * Validator copied from core form.inc.
+ *
+ * Somehow the original function isn't accessible here.
+ *
+ * @param array $element
+ * @param array &$form_state
+ * @return void
+ */
+function _field_hidden_element_validate_integer_positive($element, &$form_state) {
+  $value = $element['#value'];
+  if ($value !== '' && (!is_numeric($value) || intval($value) != $value || $value <= 0)) {
+    form_error($element, t('%name must be a positive integer.', array('%name' => $element['#title'])));
+  }
+}
+/**
+ * Validator copied from core form.inc.
+ *
+ * Somehow the original function isn't accessible here.
+ *
+ * @param array $element
+ * @param array &$form_state
+ * @return void
+ */
+function _field_hidden_element_validate_number($element, &$form_state) {
+  $value = $element['#value'];
+  if ($value != '' && !is_numeric($value)) {
+    form_error($element, t('%name must be a number.', array('%name' => $element['#title'])));
+  }
+}
+
+/**
+ * Validation of field items upon form submission.
+ *
+ * Text field error codes:
+ *  - 'text_utf8': Value not UTF-8
+ *  - 'text_plain': Value not plaintext
+ *
+ * Numeric field error codes:
+ *  - 'number_chars': The value contains illegal character(s).
+ *  - 'number_min': The value is less than the allowed minimum value.
+ *  - 'number_max': The value is greater than the allowed maximum value.
+ *
+ * All fields error codes:
+ *  - 'text_length': Value too long
+ *
+ * Integer and decimal types are being checked against absolute minimum/maximum as well as instance settings min/max.
+ *
+ * Implements hook_field_validate().
+ *
+ * @param string $entity_type
+ * @param string $entity
+ * @param array $field
+ * @param array $instance
+ * @param string $langcode
+ * @param array $items
+ * @param array &$errors
+ * @return void
+ */
+function field_hidden_field_validate($entity_type, $entity, $field, $instance, $langcode, $items, &$errors) {
+  //$fld_set = $field['settings'];
+  //$inst_set = $instance['settings']; // unhealthy to put here, because text and text_long have no instance settings
+  foreach ($items as $delta => $item) {
+    if ($item['value'] != '') {
+      $value = $item['value'];
+      switch ($field['type']) {
+        case 'field_hidden_text':
+        case 'field_hidden_text_long':
+          $fld_set = $field['settings'];
+          if (!drupal_validate_utf8($value)) {
+            $errors[$field['field_name']][$langcode][$delta][] = array(
+              'error' => 'text_utf8',
+              'message' => t('%name: the value is not valid UTF-8.',
+                array('%name' => $instance['label'])),
+            );
+          }
+          elseif (is_numeric($fld_set['max_length']) && drupal_strlen($value) > $fld_set['max_length']) {
+            $errors[$field['field_name']][$langcode][$delta][] = array(
+              'error' => 'text_length',
+              'message' => t('%name: the length (!n) cannot be more than %length.',
+                array('%name' => $instance['label'], '!n' => drupal_strlen($value), '%length' => $fld_set['max_length'])),
+            );
+          }
+          elseif (!_field_hidden_check_plaintext($value)) {
+            $errors[$field['field_name']][$langcode][$delta][] = array(
+              'error' => 'text_plain',
+              'message' => t('%name: the value is not plain text, appears to contain html markup.',
+                array('%name' => $instance['label'])),
+            );
+          }
+          break;
+        case 'field_hidden_integer':
+          $inst_set = $instance['settings'];
+          if (!_field_hidden_check_numeric($value)) {
+            $errors[$field['field_name']][$langcode][$delta][] = array(
+              'error' => 'number_chars',
+              'message' => t('%name: the value is not an integer.',
+                array('%name' => $instance['label'])),
+            );
+          }
+          else {
+            $float = (float)$value; // float can hold larger and smaller value than integer
+            $int = (int)$value;
+            if ($value != '-2147483648' && $float < -2147483648) { // absolute minimum
+              $errors[$field['field_name']][$langcode][$delta][] = array(
+                'error' => 'number_min',
+                'message' => t('%name: the value may be no less than -2147483648 (32-bit integer).',
+                  array('%name' => $instance['label'])),
+              );
+            }
+            elseif (is_numeric($inst_set['min']) && $int < $inst_set['min']) {
+              $errors[$field['field_name']][$langcode][$delta][] = array(
+                'error' => 'number_min',
+                'message' => t('%name: the value may be no less than %min.',
+                  array('%name' => $instance['label'], '%min' => $inst_set['min'])),
+              );
+            }
+            elseif ($value != '2147483647' && $float > 2147483647) { // absolute maximum
+              $errors[$field['field_name']][$langcode][$delta][] = array(
+                'error' => 'number_max',
+                'message' => t('%name: the value may be no greater than 2147483647 (32-bit integer).',
+                  array('%name' => $instance['label'])),
+              );
+            }
+            elseif (is_numeric($inst_set['max']) && $int > $inst_set['max']) {
+              $errors[$field['field_name']][$langcode][$delta][] = array(
+                'error' => 'number_max',
+                'message' => t('%name: the value may be no greater than %max.',
+                  array('%name' => $instance['label'], '%max' => $inst_set['max'])),
+              );
+            }
+          }
+          break;
+        case 'field_hidden_decimal':
+          $inst_set = $instance['settings'];
+          if (!_field_hidden_check_numeric($value, TRUE)) {
+            $errors[$field['field_name']][$langcode][$delta][] = array(
+              'error' => 'number_chars',
+              'message' => t('%name: the value is not a decimal number.',
+                array('%name' => $instance['label'])),
+            );
+          }
+          else {
+            $float = (float)$value;
+            $maxByPrecision = (pow(10, $field['settings']['precision']) - 1) / pow(10, $field['settings']['scale']);
+            if ($value != ('-' . $maxByPrecision) && $float < -$maxByPrecision) { // absolute minimum
+              $errors[$field['field_name']][$langcode][$delta][] = array(
+                'error' => 'number_min',
+                'message' => t('%name: the value may be no less than (precision/scale) -%min.',
+                  array('%name' => $instance['label'], '%min' => $maxByPrecision)),
+              );
+            }
+            elseif (is_numeric($inst_set['min']) && $float < $inst_set['min']) {
+              $errors[$field['field_name']][$langcode][$delta][] = array(
+                'error' => 'number_min',
+                'message' => t('%name: the value may be no less than %min.',
+                  array('%name' => $instance['label'], '%min' => $inst_set['min'])),
+              );
+            }
+            elseif ($value != ('' . $maxByPrecision) && $float > $maxByPrecision) { // absolute maximum
+              $errors[$field['field_name']][$langcode][$delta][] = array(
+                'error' => 'number_max',
+                'message' => t('%name: the value may be no greater than (precision/scale) %max.',
+                  array('%name' => $instance['label'], '%max' => $maxByPrecision)),
+              );
+            }
+            elseif (is_numeric($inst_set['max']) && $float > $inst_set['max']) {
+              $errors[$field['field_name']][$langcode][$delta][] = array(
+                'error' => 'number_max',
+                'message' => t('%name: the value may be no greater than %max.',
+                  array('%name' => $instance['label'], '%max' => $inst_set['max'])),
+              );
+            }
+          }
+          break;
+        case 'field_hidden_float':
+          //  Uncertain absolute min/max (for PHP as well as database), thus no check for that.
+          //  Using the float types isn't really recommendable, decimal is usually a much better choice.
+          $inst_set = $instance['settings'];
+          if (!_field_hidden_check_numeric($value, TRUE)) {
+            $errors[$field['field_name']][$langcode][$delta][] = array(
+              'error' => 'number_chars',
+              'message' => t('%name: the value is not a floating point number.',
+                array('%name' => $instance['label'])),
+            );
+          }
+          else {
+            $float = (float)$value;
+            if (is_numeric($inst_set['min']) && $float < $inst_set['min']) {
+              $errors[$field['field_name']][$langcode][$delta][] = array(
+                'error' => 'number_min',
+                'message' => t('%name: the value may be no less than %min.',
+                  array('%name' => $instance['label'], '%min' => $inst_set['min'])),
+              );
+            }
+            elseif (is_numeric($inst_set['max']) && $float > $inst_set['max']) {
+              $errors[$field['field_name']][$langcode][$delta][] = array(
+                'error' => 'number_max',
+                'message' => t('%name: the value may be no greater than %max.',
+                  array('%name' => $instance['label'], '%max' => $inst_set['max'])),
+              );
+            }
+          }
+          break;
+      }
+    }
+  }
+}
+/**
+ * Checks that arg $str doesnt seem to contain html markup.
+ *
+ * @param string $str
+ * @return bool
+ */
+function _field_hidden_check_plaintext($str) {
+  return ( ($le = strlen($str)) === strlen( preg_replace('/<[\/a-zA-Z][^<>]*>/', '', rawurldecode($str)) ) )
+    && $le === strlen( strip_tags($str) ); // strip_tags is not very strict when it comes to tags, but it checks for more stuff
+}
+/**
+ * Checks that arg $str only consists of digits, and if decimal optionally a single dot.
+ *
+ * Also allows leading hyphen (negative number).
+ *
+ * @param number|string $str
+ * @param boolean $decimal
+ * @return boolean
+ */
+function _field_hidden_check_numeric($str, $decimal = FALSE) {
+  return !$decimal ? preg_match('/^\-?\d+$/', $str) : preg_match('/^\-?\d+\.?\d*$/', $str);
+}
+
+/**
+ * Allows for item value transformations right before the item value (from a submitted for) is being saved in the database.
+ *
+ * Rounds decimal items.
+ *
+ * Implements hook_field_presave().
+ *
+ * @param string $entity_type
+ * @param string $entity
+ * @param array $field
+ * @param array $instance
+ * @param string $langcode
+ * @param array &$items
+ * @return void
+ */
+function field_hidden_field_presave($entity_type, $entity, $field, $instance, $langcode, &$items) {
+  if ($field['type'] == 'field_hidden_decimal') {
+    // Let PHP round the value to ensure consistent behavior across storage
+    // backends.
+    foreach ($items as $delta => $item) {
+      if (isset($item['value'])) {
+        $items[$delta]['value'] = round($item['value'], $field['settings']['scale']);
+      }
+    }
+  }
+}
+
+/**
+ * Assesses whether a field item is to be considered empty.
+ *
+ * Apparantly being called after validation.
+ *
+ * Implements hook_field_is_empty().
+ *
+ * @param array $item
+ * @param array $field
+ * @return boolean
+ */
+function field_hidden_field_is_empty($item, $field) {
+  if (!isset($item['value']) || !strlen($item['value']) ) {
+    return TRUE;
+  }
+  switch ($field['type']) {
+    case 'field_hidden_integer':
+    case 'field_hidden_decimal':
+    case 'field_hidden_float':
+      if (!$item['value'] && (string) $item['value'] !== '0') {
+        return TRUE;
+      }
+      break;
+  }
+  return FALSE;
+}
+
+/**
+ * Info about the formatting options in the Manage Display section.
+ *
+ * Implements hook_field_formatter_info().
+ *
+ * @return array
+ */
+function field_hidden_field_formatter_info() {
+  return array(
+    'field_hidden_text_plain' => array(
+      'label' => t('Display, as plain text'),
+      'field types' => array('field_hidden_text', 'field_hidden_text_long'),
+    ),
+    'field_hidden_text_plain_escaped' => array(
+      'label' => t('Display, as htmlspecialchars escaped plain text'),
+      'field types' => array('field_hidden_text', 'field_hidden_text_long'),
+    ),
+    'field_hidden_integer' => array(
+      'label' => t('Display, formatted'),
+      'field types' => array('field_hidden_integer'),
+      'settings' =>  array(
+        'thousand_separator' => ' ',
+        'prefix_suffix' => TRUE,
+      ),
+    ),
+    'field_hidden_decimal' => array( // also used by field_hidden_float
+      'label' => t('Display, formatted'),
+      'field types' => array('field_hidden_decimal', 'field_hidden_float'),
+      'settings' =>  array(
+        'thousand_separator' => ' ',
+        'decimal_separator' => '.',
+        'scale' => 2,
+        'prefix_suffix' => TRUE,
+      ),
+    ),
+    'field_hidden_numeric_unformatted' => array(
+      'label' => t('Display, unformatted'),
+      'field types' => array('field_hidden_integer', 'field_hidden_decimal', 'field_hidden_float'),
+    ),
+  );
+}
+
+/**
+ * Formatting options in the Manage Display section.
+ *
+ * Implements hook_field_formatter_settings_form().
+ *
+ * @param array $field
+ * @param array $instance
+ * @param string $view_mode
+ * @param array $form
+ * @param array &$form_state
+ * @return array
+ */
+function field_hidden_field_formatter_settings_form($field, $instance, $view_mode, $form, &$form_state) {
+  $display = $instance['display'][$view_mode];
+  $settings = $display['settings'];
+  $element = array();
+  switch ($display['type']) {
+    case 'field_hidden_integer':
+      $element['thousand_separator'] = array(
+        '#type' => 'select',
+        '#title' => t('Thousand marker'),
+        '#options' => array(
+          '' => t('<none>'),
+          '.' => t('Decimal point'),
+          ',' => t('Comma'),
+          ' ' => t('Space'),
+        ),
+        '#default_value' => $settings['thousand_separator'],
+      );
+      $element['prefix_suffix'] = array(
+        '#type' => 'checkbox',
+        '#title' => t('Display prefix and suffix.'),
+        '#default_value' => $settings['prefix_suffix'],
+      );
+      break;
+    case 'field_hidden_decimal':
+      $element['thousand_separator'] = array(
+        '#type' => 'select',
+        '#title' => t('Thousand marker'),
+        '#options' => array(
+          '' => t('<none>'),
+          '.' => t('Decimal point'),
+          ',' => t('Comma'),
+          ' ' => t('Space'),
+        ),
+        '#default_value' => $settings['thousand_separator'],
+      );
+      $element['decimal_separator'] = array(
+        '#type' => 'select',
+        '#title' => t('Decimal marker'),
+        '#options' => array('.' => t('Decimal point'), ',' => t('Comma')),
+        '#default_value' => $settings['decimal_separator'],
+      );
+      $element['scale'] = array(
+        '#type' => 'select',
+        '#title' => t('Scale'),
+        '#options' => drupal_map_assoc(range(0, $field['settings']['scale'])),
+        '#default_value' => $settings['scale'],
+        '#description' => t('The number of digits to the right of the decimal.'),
+      );
+      $element['prefix_suffix'] = array(
+        '#type' => 'checkbox',
+        '#title' => t('Display prefix and suffix.'),
+        '#default_value' => $settings['prefix_suffix'],
+      );
+      break;
+  }
+  return $element;
+}
+/**
+ * Displays button in Manage Display section.
+ *
+ * Implements hook_field_formatter_settings_summary().
+ *
+ * @param array $field
+ * @param array $instance
+ * @param string $view_mode
+ * @return string
+ */
+function field_hidden_field_formatter_settings_summary($field, $instance, $view_mode) {
+  $display = $instance['display'][$view_mode];
+  $settings = $display['settings'];
+  $summary = array();
+  switch ($display['type']) {
+    case 'field_hidden_integer':
+      $summary[] = number_format(1234.1234567890, 0, '', $settings['thousand_separator']);
+      if ($settings['prefix_suffix']) {
+        $summary[] = t('Display with prefix and suffix.');
+      }
+      break;
+    case 'field_hidden_decimal':
+      $summary[] = number_format(1234.1234567890, $settings['scale'], $settings['decimal_separator'], $settings['thousand_separator']);
+      if ($settings['prefix_suffix']) {
+        $summary[] = t('Display with prefix and suffix.');
+      }
+      break;
+    default: // field_hidden_text_plain
+      return '';
+  }
+  return implode('<br />', $summary);
+}
+
+/**
+ * Defines the display of a field's value; formats field value for display in a piece of content.
+ *
+ * Implements hook_field_formatter_view().
+ *
+ * @param string $entity_type
+ * @param string $entity
+ * @param array $field
+ * @param array $instance
+ * @param string $langcode
+ * @param array $items
+ * @param array $display
+ * @return array
+ */
+function field_hidden_field_formatter_view($entity_type, $entity, $field, $instance, $langcode, $items, $display) {
+  $settings = $display['settings'];
+  $element = array();
+  switch ($display['type']) {
+    case 'field_hidden_integer':
+      foreach ($items as $delta => $item) {
+        $output = number_format($item['value'], 0, '', $settings['thousand_separator']);
+        if ($settings['prefix_suffix']) {
+          $prefixes = isset($instance['settings']['prefix']) ? array_map('field_filter_xss', explode('|', $instance['settings']['prefix'])) : array('');
+          $suffixes = isset($instance['settings']['suffix']) ? array_map('field_filter_xss', explode('|', $instance['settings']['suffix'])) : array('');
+          $prefix = (count($prefixes) > 1) ? format_plural($item['value'], $prefixes[0], $prefixes[1]) : $prefixes[0];
+          $suffix = (count($suffixes) > 1) ? format_plural($item['value'], $suffixes[0], $suffixes[1]) : $suffixes[0];
+          $output = $prefix . $output . $suffix;
+        }
+        $element[$delta] = array('#markup' => $output);
+      }
+      break;
+    case 'field_hidden_decimal':
+      foreach ($items as $delta => $item) {
+        $output = number_format($item['value'], $settings['scale'], $settings['decimal_separator'], $settings['thousand_separator']);
+        if ($settings['prefix_suffix']) {
+          $prefixes = isset($instance['settings']['prefix']) ? array_map('field_filter_xss', explode('|', $instance['settings']['prefix'])) : array('');
+          $suffixes = isset($instance['settings']['suffix']) ? array_map('field_filter_xss', explode('|', $instance['settings']['suffix'])) : array('');
+          $prefix = (count($prefixes) > 1) ? format_plural($item['value'], $prefixes[0], $prefixes[1]) : $prefixes[0];
+          $suffix = (count($suffixes) > 1) ? format_plural($item['value'], $suffixes[0], $suffixes[1]) : $suffixes[0];
+          $output = $prefix . $output . $suffix;
+        }
+        $element[$delta] = array('#markup' => $output);
+      }
+      break;
+    case 'field_hidden_numeric_unformatted':
+      foreach ($items as $delta => $item) {
+        $element[$delta] = array('#markup' => $item['value']);
+      }
+      break;
+    case 'field_hidden_text_plain':
+      foreach ($items as $delta => $item) {
+        $element[$delta] = array('#markup' => strip_tags($item['value']));
+      }
+      break;
+    default: // field_hidden_text_plain_escaped
+      foreach ($items as $delta => $item) {
+        $element[$delta] = array('#markup' => htmlspecialchars( strip_tags($item['value']), ENT_QUOTES, 'UTF-8' ) );
+      }
+  }
+  return $element;
+}
+
+/**
+ * Defines which field types use this widget.
+ *
+ * Implements hook_field_widget_info().
+ *
+ * @return array
+ */
+function field_hidden_field_widget_info() {
+  return array(
+    'field_hidden' => array(
+      'label' => t('Hidden field'),
+      'field types' => array(
+        'field_hidden_text',
+        'field_hidden_text_long',
+        'field_hidden_integer',
+        'field_hidden_decimal',
+        'field_hidden_float',
+      ),
+    ),
+  );
+}
+
+/**
+ * Defines formatting of a field in a form.
+ *
+ * Implements hook_field_widget_form().
+ *
+ * @param array $form
+ * @param array &$form_state
+ * @param array $field
+ * @param array $instance
+ * @param string $langcode
+ * @param array $items
+ * @param integer $delta
+ * @param array $element
+ * @return array
+ */
+function field_hidden_field_widget_form(&$form, &$form_state, $field, $instance, $langcode, $items, $delta, $element) {
+  $element['#type'] = 'hidden';
+  $value = isset($items[$delta]['value']) ? $items[$delta]['value'] : '';
+  switch ($field['type']) {
+    case 'field_hidden_integer':
+    case 'field_hidden_decimal':
+    case 'field_hidden_float':
+      if ($field['type'] != 'field_hidden_integer') {
+        $value = strtr($value, '.', $field['settings']['decimal_separator']);
+      }
+      $element['#default_value'] = $value;
+      $element['#number_type'] = str_replace('field_hidden_', '', $field['type']);
+      break;
+    default:
+      $element['#default_value'] = $value;
+  }
+  return array('value' => $element);
+}
+
+/**
+ * Implements hook_field_widget_error().
+ *
+ * @param array $element
+ * @param array $error
+ * @param array $form
+ * @param array &$form_state
+ * @return void
+ */
+function field_hidden_field_widget_error($element, $error, $form, &$form_state) {
+  form_error($element, $error['message']);
+}

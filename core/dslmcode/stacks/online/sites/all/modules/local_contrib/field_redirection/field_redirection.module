@@ -1,0 +1,252 @@
+<?php
+/**
+ * @file
+ * Provides a field formatter to redirect to another path.
+ */
+
+/**
+ * Implements hook_permission().
+ */
+function field_redirection_permission() {
+  return array(
+    'bypass redirection' => array(
+      'title' => t('Bypass Redirection'),
+      'description' => t('Allow the user to see the page this field belongs to and <em>not</em> redirect to the given path; the user will instead be provided a link to the path.'),
+    ),
+  );
+}
+
+/**
+ * Implements hook_field_formatter_info().
+ */
+function field_redirection_field_formatter_info() {
+  return array(
+    'field_redirection' => array(
+      'label' => t('Redirect'),
+      // Default settings.
+      'settings' => array(
+        'code' => '301',
+        '404_if_empty' => FALSE,
+      ),
+      // The supported field types.
+      'field types' => array(
+        'entityreference',
+        'file',
+        'link_field',
+        'node_reference',
+        'taxonomy_term_reference',
+        'url',
+        'user_reference',
+      ),
+    ),
+  );
+}
+
+/*
+ * implementation of hook_field_formatter_settings_from().
+ */
+function field_redirection_field_formatter_settings_form($field, $instance, $view_mode, $form, &$form_state) {
+  // Load the current selection, default to "301".
+  $code = 301;
+  if (!empty($instance['display'][$view_mode]['settings']['code'])) {
+    $code = $instance['display'][$view_mode]['settings']['code'];
+  }
+  // Identify the 404-if-empty error.
+  $empty404 = FALSE;
+  if (!empty($instance['display'][$view_mode]['settings']['404_if_empty'])) {
+    $empty404 = TRUE;
+  }
+
+  // Build a new structure for this formatter settings form element.
+  $element = array();
+
+  // Choose the redirector.
+  $element['code'] = array(
+    '#title' => 'HTTP status code',
+    '#type' => 'select',
+    '#options' => field_redirection_http_codes(),
+    '#default_value' => $code,
+  );
+
+  // 404 if the field value is empty.
+  $element['404_if_empty'] = array(
+    '#type' => 'checkbox',
+    '#title' => t('404 if URL empty'),
+    '#default_value' => $empty404,
+    '#description' => t('Optionally display a 404 error page if the associated URL field is empty.'),
+  );
+
+  return $element;
+}
+
+/**
+ * Implements hook_field_formatter_settings_summary().
+ */
+function field_redirection_field_formatter_settings_summary($field, $instance, $view_mode) {
+  $output = '';
+  $codes = field_redirection_http_codes();
+
+  // Work out which redirection code was being used, default to "301".
+  $code = 301;
+  if (!empty($instance['display'][$view_mode]['settings']['code']) && isset($codes[$instance['display'][$view_mode]['settings']['code']])) {
+    $code = $instance['display'][$view_mode]['settings']['code'];
+  }
+  $output = $codes[$code];
+
+  // Indicate if the option is used.
+  if ($instance['display'][$view_mode]['settings']['404_if_empty']) {
+    $output .= ' (404 if empty)';
+  }
+
+  return $output;
+}
+
+/**
+ * The standard HTTP redirection codes that are supported.
+ *
+ * @return The supported HTTP codes.
+ */
+function field_redirection_http_codes() {
+  return array(
+    '300' => t('HTTP status code 300 - rarely used'),
+    '301' => t('HTTP status code 301 - permanently moved (default)'),
+    '302' => t('HTTP status code 302 - rarely used'),
+    '303' => t('HTTP status code 303 - rarely used'),
+    '304' => t('HTTP status code 304 - rarely used'),
+    '305' => t('HTTP status code 305 - rarely used'),
+    '307' => t('HTTP status code 307 - temporarily moved'),
+  );
+}
+
+/**
+ * Implements hook_field_formatter_view().
+ *
+ * If we have a node reference and we can redirect to it lets do it!
+ */
+function field_redirection_field_formatter_view($entity_type, $entity, $field, $instance, $langcode, $items, $display) {
+  // Don't execute if running via the CLI, e.g. Drush.
+  if (constant('PHP_SAPI') == 'cli') {
+    return;
+  }
+  // Don't execute if the current page is running the normal cron script; this
+  // also supports Elysia Cron.
+  elseif (strpos($_SERVER['PHP_SELF'], 'cron.php') !== FALSE) {
+    return;
+  }
+  // The cron script is being executed from the admin status page.
+  elseif ($_GET['q'] == 'admin/reports/status/run-cron') {
+    return;
+  }
+  // Don't do anything during any MAINTENANCE_MODE.
+  elseif (defined('MAINTENANCE_MODE') || variable_get('maintenance_mode', 0)) {
+    return;
+  }
+
+  // Make some of the rest of the code simpler.
+  $item = !empty($items[0]) ? $items[0] : array();
+  $response_code = !empty($display['settings']['code']) ? $display['settings']['code'] : 301;
+
+  // Work out the destination path to redirect to. Each field type is handled
+  // slightly differently, so identify that here.
+  $path = '';
+  $options = array();
+  if (!empty($field['type'])) {
+    switch ($field['type']) {
+      // Entity reference field from the EntityReference module.
+      case 'entityreference':
+        if (!empty($item['target_id'])) {
+          $path = drupal_get_path_alias($field['settings']['target_type'] . '/' . $item['target_id']);
+        }
+        break;
+
+      // File field from the core File module.
+      case 'file':
+        if (!empty($item['uri'])) {
+          $path = file_create_url($item['uri']);
+        }
+        break;
+
+      // Link field from the Link module.
+      case 'link_field':
+        if (!empty($item['url'])) {
+          // The path is the URL field itself.
+          $path = $item['url'];
+
+          // Cover for cases when a query string was provided.
+          if (!empty($item['query'])) {
+            $options['query'] = $item['query'];
+          }
+
+          // Optional fragment
+          if (!empty($item['fragment'])) {
+            $options['fragment'] = $item['fragment'];
+          }
+
+          // Special handling for the front page.
+          if ($path == '&lt;front&gt;') {
+            $path = '<front>';
+          }
+        }
+        break;
+
+      // Node reference field from the node_reference module, part of the
+      // References module.
+      case 'node_reference':
+      case 'node_reference_autocomplete':
+        if (!empty($item['nid'])) {
+          // Wrap the internal system path with its alias.
+          $path = drupal_get_path_alias('node/' . $item['nid']);
+        }
+        break;
+
+      // Term reference field from the core Taxonomy module.
+      case 'taxonomy_term_reference':
+      case 'taxonomy_term_reference_autocomplete':
+        if (!empty($item['tid'])) {
+          // Wrap the internal system path with its alias.
+          $path = drupal_get_path_alias('taxonomy/term/' . $item['tid']);
+        }
+        break;
+
+      // URL field from the URL module.
+      case 'url':
+        if (!empty($item['path'])) {
+          $path = $item['path'];
+          $options = $item['options'];
+        }
+        break;
+
+      // User reference field from the user_reference module, part of the
+      // References module.
+      case 'user_reference':
+      case 'user_reference_autocomplete':
+        if (!empty($item['uid'])) {
+          // Wrap the internal system path with its alias.
+          $path = drupal_get_path_alias('user/' . $item['uid']);
+        }
+        break;
+    }
+  }
+
+  // Only proceed if a path was identified.
+  if (!empty($path)) {
+    // If the user has permission to bypass the page redirection, return a
+    // message explaining where they would have been redirected to.
+    if (user_access('bypass redirection')) {
+      // "Listen very carefully, I shall say this only once." - 'Allo, 'Allo.
+      $message = t('This page is set to redirect to <a href="!path">another URL</a>, but you have permission to see the page and not be automatically redirected.', array('!path' => url($path, $options)));
+      if (empty($_SESSION['messages']['warning']) || !in_array($message, $_SESSION['messages']['warning'])) {
+        drupal_set_message($message, 'warning');
+      }
+    }
+    else {
+      drupal_goto($path, $options, $response_code);
+    }
+  }
+
+  // If no URL was provided, and the user does not have permission to bypass
+  // the redirection, display the 404 error page.
+  elseif (!user_access('bypass redirection') && $display['settings']['404_if_empty']) {
+    drupal_not_found();
+  }
+}

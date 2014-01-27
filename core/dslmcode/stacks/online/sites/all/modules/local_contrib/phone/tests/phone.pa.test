@@ -1,0 +1,63 @@
+<?php
+
+class PhonePanamanianTest extends DrupalWebTestCase {
+
+  public static function getInfo() {
+    return array(
+      'name' => t('Panamanian phone'),
+      'description' => t('Executes test suite for validating / formatting Panamanian phone number.'),
+      'group' => t('Phone'),
+    );
+  }
+
+  function testValidatingPanamenianPhoneNumber() {
+    $this->assertTrue(valid_phone_number('pa', '+507 260-4334'), '+507 260-4334 should be valid');
+    $this->assertTrue(valid_phone_number('pa', '+507 2604334'), '+507 2604334 should be valid');
+    $this->assertTrue(valid_phone_number('pa', '+507 260 4334'), '+507 260 4334 should be valid');
+    $this->assertTrue(valid_phone_number('pa', '00507 2603133'), '00507 2603133 should be valid');
+    $this->assertTrue(valid_phone_number('pa', '00507 260-3133'), '00507 260-3133 should be valid');
+    $this->assertTrue(valid_phone_number('pa', '00507 260 4334'), '00507 260 4334 should be valid');
+    $this->assertTrue(valid_phone_number('pa', '260 3133'), '260 3133 should be valid');
+    $this->assertTrue(valid_phone_number('pa', '260-3133'), '260-3133 should be valid');
+    $this->assertTrue(valid_phone_number('pa', '2603133'), '2603133 should be valid');
+
+    //Cellphones
+    $this->assertTrue(valid_phone_number('pa', '+507 6545-4345'), '+507 6545-4345 should be valid');
+    $this->assertTrue(valid_phone_number('pa', '+507 65454345'), '+507 65454345 should be valid');
+    $this->assertTrue(valid_phone_number('pa', '+507 6545 4345'), '+507 6545 4345 should be valid');
+    $this->assertTrue(valid_phone_number('pa', '00507 6545-4345'), '00507 6545-4345 should be valid');
+    $this->assertTrue(valid_phone_number('pa', '00507 6545 4345'), '00507 6545 4345 should be valid');
+    $this->assertTrue(valid_phone_number('pa', '00507 65454345'), '00507 65454345 should be valid');
+    $this->assertTrue(valid_phone_number('pa', '6545-4345'), '6545-4345 should be valid');
+    $this->assertTrue(valid_phone_number('pa', '6545 4345'), '6545 4345 should be valid');
+    $this->assertTrue(valid_phone_number('pa', '65454345'), '65454345 should be valid');
+
+    //Invalid
+    $this->assertFalse(valid_phone_number('pa', '35343'), '35343 should not be valid');
+    $this->assertFalse(valid_phone_number('pa', '320-43'), '320-43 should not be valid');
+    $this->assertTrue(valid_phone_number('pa', '(507) 435-3434'), '(507) 435-3434 should not be valid');
+  }
+
+  function testFormattingPanamenianPhoneNumber() {
+    $this->assertEqual(format_phone_number('pa', '+507 260-4334'), '+507 260-4334', '+507 260-4334 format');
+    $this->assertEqual(format_phone_number('pa', '+507 2604334'), '+507 260-4334', '+507 2604334 format');
+    $this->assertEqual(format_phone_number('pa', '+507 260 4334'), '+507 260-4334', '+507 260 4334 format');
+    $this->assertEqual(format_phone_number('pa', '00507 260-4334'), '+507 260-4334', '00507 260-4334 format');
+    $this->assertEqual(format_phone_number('pa', '00507 2604334'), '+507 260-4334', '00507 2604334 format');
+    $this->assertEqual(format_phone_number('pa', '00507 260 4334'), '+507 260-4334', '00507 260 4334 format');
+    $this->assertEqual(format_phone_number('pa', '260-4334'), '260-4334', '260-4334 format');
+    $this->assertEqual(format_phone_number('pa', '2604334'), '260-4334', '2604334 format');
+    $this->assertEqual(format_phone_number('pa', '260 4334'), '260-4334', '260 4334 format');
+
+    $this->assertEqual(format_phone_number('pa', '260 4334', array('phone_country_code' => 1)), '+507 260-4334', 'add +507 to 260 4334 format');
+
+    //Cellphones
+    $this->assertEqual(format_phone_number('pa', '00507 6464 4334'), '+507 6464-4334', '6464 4334 format');
+    $this->assertEqual(format_phone_number('pa', '00507 6464-4334'), '+507 6464-4334', '00507 6464-4334 format');
+    $this->assertEqual(format_phone_number('pa', '00507 64644334'), '+507 6464-4334', '00507 64644334 format');
+    $this->assertEqual(format_phone_number('pa', '+507 6464 4334'), '+507 6464-4334', '+507 6464 4334 format');
+    $this->assertEqual(format_phone_number('pa', '6464 4334'), '6464-4334', '6464 4334 format');
+    $this->assertEqual(format_phone_number('pa', '64644334'), '6464-4334', '6464-4334 format');
+    $this->assertEqual(format_phone_number('pa', '6464 4334', array('phone_country_code' => 1)), '+507 6464-4334', 'add +507 to 6464 4334 format');
+  }
+}

@@ -1,0 +1,22 @@
+name = Accessibility
+description = A developer tool for integrating accessibility tests with other modules.
+package = Accessibility
+core = 7.x
+
+dependencies[] = entity
+dependencies[] = libraries
+
+files[] = accessibility.admin.inc
+files[] = views/accessibility.views.inc
+files[] = views/accessibility_handler_link_field.inc
+files[] = views/accessibility_handler_edit_link_field.inc
+files[] = views/accessibility_handler_delete_link_field.inc
+files[] = views/accessibility_handler_status.inc
+
+files[] = tests/test_entities.test
+; Information added by drupal.org packaging script on 2013-10-28
+version = "7.x-1.x-dev"
+core = "7.x"
+project = "accessibility"
+datestamp = "1382984080"
+

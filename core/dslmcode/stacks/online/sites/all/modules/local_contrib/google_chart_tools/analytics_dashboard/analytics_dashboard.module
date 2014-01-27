@@ -1,0 +1,167 @@
+<?php
+/**
+ * Implements hook_menu().
+ */
+function analytics_dashboard_menu() {
+  $items = array();
+
+  $items['admin/reports/analytics-dashboard'] = array(
+    'title' => 'Analytics',
+    'access arguments' => array('view analytics dashboard'),
+    'page callback' => 'analytics_dashboard_page',
+  );
+
+  // Settings page
+  $items['admin/config/analytics-dashboard'] = array(
+    'title' => 'Analytics dashboard configuration',
+    'description' => 'Configure the Analytics dashboard page',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('analytics_dashboard_admin_settings'),
+    'access arguments' => array('administer analytics dashboard'),
+    'type' => MENU_NORMAL_ITEM,
+    'file' => 'analytics_dashboard.admin.inc',
+  );
+
+  return $items;
+}
+
+/**
+ * Implements hook_permission().
+ */
+function analytics_dashboard_permission() {
+  return array(
+    'administer analytics dashboard' => array(
+      'title' => t('Administer Analytics dashboard'),
+      'description' => t('Perform administration tasks for Analytics dashboard.'),
+    ),
+    'view analytics dashboard' => array(
+      'title' => t('View Analytics Dashboard'),
+      'description' => t('View analytics dashboard.'),
+    ),
+  );
+}
+
+/**
+ * Implements hook_theme().
+ */
+function analytics_dashboard_theme($existing, $type, $theme, $path) {
+  return array(
+    'analytics_dashboard_form' => array(
+    'render element' => 'form'
+    )
+  );
+}
+
+/**
+ * Page callback for report page.
+ */
+function analytics_dashboard_page() {
+  module_load_include('inc', 'analytics_dashboard', 'analytics_dashboard.charts');
+  module_load_include('inc', 'analytics_dashboard', 'analytics_dashboard.forms');
+  $form = drupal_get_form('analytics_dashboard_form');
+  $form = drupal_render($form);
+  $charts = analytics_dashboard_get_charts();
+  $visibles = variable_get('chart_visible', array());
+  $ret = $form;
+  $ret .= '<div id="charts">';
+  foreach ($charts as $chart) {
+    if (in_array($chart['id'], $visibles, TRUE)) {
+      $ret .= $chart['markup'];
+    }
+  }
+  $ret .= '</div>';
+  return $ret;
+}
+
+/**
+ * Retrieve the time period or interval from the URL
+ */
+function _get_time_from_url() {
+  // Get the option
+  if (isset($_GET['option'])) {
+    switch ($_GET['option']) {
+      case 'custom':
+        $from = strtotime($_GET['from']);
+        $to = strtotime($_GET['to']);
+        if (is_numeric($from) && is_numeric($to)) {
+          // Move the 'to' date to 1 second before midnight
+          return array($from, $to + 86399);
+        }
+        break;
+
+      case 'period':
+        $from = strtotime('-' . str_replace('_', ' ', filter_xss($_GET['period'])));
+        if (is_numeric($from)) {
+          return array($from, time());
+        }
+    }
+  }
+  else {
+    return array(strtotime('-1 month'), time());
+  }
+
+  return FALSE;
+}
+
+/**
+ * Fetch all available analytics_dashboard charts
+ */
+function analytics_dashboard_get_charts() {
+  $charts = module_invoke_all('analytics_dashboard');
+  usort($charts, "_charts_sort");
+  return $charts;
+}
+
+/**
+ * Utility function for usort in analytics_dashboard_get_charts();
+ */
+function _charts_sort($a, $b) {
+  if ($a['weight'] == $b['weight']) {
+    return 0;
+  }
+  return ($a['weight'] < $b['weight']) ? -1 : 1;
+}
+
+/**
+ * Implements hook_analytics_dashboard().
+ */
+function analytics_dashboard_analytics_dashboard() {
+  module_load_include('inc', 'analytics_dashboard', 'analytics_dashboard.charts');
+  return analytics_dashboard_charts();
+}
+
+/**
+ * Theme wrapper for analytics_dashboard_form()
+ */
+function theme_analytics_dashboard_form($variables) {
+  $form = $variables['form'];
+  $output = '';
+
+  $output .= '<div id="analytics-dashboard-page">';
+
+  $output .= '<div class="description">';
+  $output .= t('Select a timeframe and click Update to see what\'s happening on your site during that time, as well as a total for all the activity during that timeframe.');
+  $output .= '</div>';
+
+  $output .= '<div class="analytics-dashboard-option-row">';
+  $output .= drupal_render($form['option']['period']);
+  $output .= '<span class="description">From:</span>';
+  $output .= drupal_render($form['period']);
+  $output .= '<span class="description">ago.</span>';
+  $output .= '</div>';
+
+  $output .= '<div class="analytics-dashboard-option-row">';
+  $output .= drupal_render($form['option']['custom']);
+  $output .= '<span class="description">From:</span>';
+  $output .= drupal_render($form['custom_from']);
+  $output .= '<span class="description">To:</span>';
+  $output .= drupal_render($form['custom_to']);
+  $output .= '<span class="description"><i>Format DD.MM.YYYY</i></span>';
+  $output .= '</div>';
+
+  $output .= drupal_render_children($form);
+
+  $output .= '</div>';
+
+  return $output;
+}

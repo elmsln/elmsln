@@ -1,0 +1,13 @@
+name = "Video Embed Facebook"
+description = "Provides Facebook handler for Video Embed Fields.  This module also serves as an example of how to add handlers to video embed field."
+core = "7.x"
+package = Media
+configure = admin/config/media/vef_video_styles
+
+dependencies[] = "video_embed_field"
+; Information added by drupal.org packaging script on 2012-06-21
+version = "7.x-2.0-beta5"
+core = "7.x"
+project = "video_embed_field"
+datestamp = "1340317020"
+

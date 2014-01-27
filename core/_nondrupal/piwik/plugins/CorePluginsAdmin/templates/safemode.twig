@@ -1,0 +1,114 @@
+<html>
+    <head>
+        <style type="text/css">
+            html, body {
+                background-color: white;
+            }
+            td {
+                border: 1px solid #ccc;
+                border-collapse: collapse;
+                padding: 5px;
+            }
+            table {
+                border-collapse: collapse;
+                border: 0px;
+            }
+            a {
+                text-decoration: none;
+            }
+            a:hover {
+                text-decoration: underline;
+            }
+        </style>
+    </head>
+    <body>
+
+        <h1>A fatal error occurred</h1>
+
+        <div style="width: 640px">
+
+        {% if not isAnonymousUser %}
+            <p>
+                The following error just broke Piwik{% if showVersion %} (v{{ piwikVersion }}){%  endif %}:
+                <pre>{{ lastError.message }}</pre>
+                in
+                <pre>{{ lastError.file }} line {{ lastError.line }}</pre>
+            </p>
+        {% endif %}
+
+        {% if isSuperUser %}
+            <p>
+                If this error continues to happen, there is a good chance to fix this issue by disabling one or more of
+                the Third-Party plugins. You can enable them again in the
+                <a target="_blank" href="index.php?module=CorePluginsAdmin&action=plugins">Plugins</a> or <a target="_blank" href="index.php?module=CorePluginsAdmin&action=themes">Themes</a> page under
+                settings at any time.
+
+                {% if pluginCausesIssue %}
+                    Based on the error message, the issue is probably caused by the plugin <strong>{{ pluginCausesIssue }}</strong>.
+                {% endif %}
+            </p>
+
+            <table>
+                {% for pluginName, plugin in plugins if plugin.uninstallable and plugin.activated %}
+                    <tr {% if loop.index is divisibleby(2) %}style="background-color: #eeeeee"{% endif %}>
+                        <td style="min-width:200px;">
+                            {{ pluginName }}
+                        </td>
+                        <td>
+                            <a href="index.php?module=CorePluginsAdmin&action=deactivate&pluginName={{ pluginName }}&nonce={{ deactivateNonce }}"
+                               target="_blank">deactivate</a>
+                        </td>
+                    </tr>
+                {% endfor %}
+            </table>
+
+            {% set uninstalledPluginsFound = false %}
+            {% for pluginName, plugin in plugins if plugin.uninstallable and not plugin.activated %}
+                {% set uninstalledPluginsFound = true %}
+            {% endfor %}
+
+            {% if uninstalledPluginsFound %}
+
+                <p>
+                    If this error still occurs after disabling all plugins, you might want to consider uninstalling some
+                    plugins. Keep in mind: The plugin will be completely removed from your platform.
+                </p>
+
+                <table>
+                    {% for pluginName, plugin in plugins if plugin.uninstallable and not plugin.activated %}
+                        <tr {% if loop.index is divisibleby(2) %}style="background-color: #eeeeee"{% endif %}>
+                            <td style="min-width:200px;">
+                                {{ pluginName }}
+                            </td>
+                            <td>
+                                <a href="index.php?module=CorePluginsAdmin&action=uninstall&pluginName={{ pluginName }}&nonce={{ uninstallNonce }}"
+                                   target="_blank" onclick="return confirm('{{ 'CorePluginsAdmin_UninstallConfirm'|translate(pluginName)|e('js') }}')">uninstall</a>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </table>
+            {% endif %}
+
+            <p>
+                <br />
+                We appreciate if you send the
+                <a href="mailto:hello@piwik.org?subject={{ 'Fatal error in Piwik ' ~ piwikVersion|e('url') }}&body={{ lastError.message|e('url') }}%20in%20{{ lastError.file|e('url') }}%20{{ lastError.line|e('url') }}%20using%20PHP%20{{ constant('PHP_VERSION') }}">error report</a>
+                to the Piwik team.
+            </p>
+
+        {% elseif isAnonymousUser %}
+
+            <p>Please contact the system administrator.</p>
+
+        {% else %}
+            <p>
+                If this error continues to happen you may want to send an
+                <a href="mailto:{{ emailSuperUser }}?subject={{ 'Fatal error in Piwik ' ~ piwikVersion|e('url') }}&body={{ lastError.message|e('url') }}%20in%20{{ lastError.file|e('url') }}%20{{ lastError.line|e('url') }}%20using%20PHP%20{{ constant('PHP_VERSION') }}">error report</a>
+                to your system administrator.
+            </p>
+        {% endif %}
+
+        </div>
+
+    </body>
+</html>

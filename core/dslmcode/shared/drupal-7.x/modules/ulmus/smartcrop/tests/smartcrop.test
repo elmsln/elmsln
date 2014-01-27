@@ -1,0 +1,258 @@
+<?php
+// $Id: smartcrop.test,v 1.1.2.23.2.8 2010/09/17 04:32:35 grendzy Exp $
+
+/**
+ * @file
+ * Tests for the smartcrop module.
+ */
+
+class SmartcropTestCase extends ImageFieldTestCase {
+  protected $admin_user;
+
+  public static function getInfo() {
+    return array(
+      'name' => t('Smartcrop test'),
+      'description' => t('Test Smartcrop.'),
+      'group' => t('Image'),
+    );
+  }
+
+  function setUp() {
+    parent::setUp();
+    module_enable(array('smartcrop'));
+
+    // Create and login user
+    $this->admin_user = $this->drupalCreateUser(array('access content', 'access administration pages', 'administer site configuration', 'administer content types', 'administer nodes', 'create page content', 'edit any page content', 'delete any page content', 'administer image styles'));
+    $this->drupalLogin($this->admin_user);
+  }
+
+  /**
+   * Verify the entropy calculation with a known image.
+   */
+  function testEntropy() {
+    // Create a test image with 3 red, 3 green, and 3 blue pixels.
+    $image = imagecreatetruecolor(3, 3);
+    imagefilledrectangle($image, 0, 0, 2, 0, imagecolorallocate($image, 255, 0, 0));
+    imagefilledrectangle($image, 0, 1, 2, 1, imagecolorallocate($image, 0, 255, 0));
+    imagefilledrectangle($image, 0, 2, 2, 2, imagecolorallocate($image, 0, 0, 255));
+
+    // Calculate the expected values.
+    // There are 9 bins in the histogram, 3 colors * 3 channels.
+    $expected_entroy = (1/3 * log(1/9, 2) + 2/3 * log(2/9, 2)) * -1;
+    $image_entropy = _smartcrop_gd_entropy($image);
+
+    $this->assertTrue($image_entropy - $expected_entroy < .001, t('Entropy value is correct.'));
+  }
+
+  /**
+   * Test the ImageEqual assertions.
+   */
+  function testImageEqual() {
+    $image1 = $expected_image = imagecreatefrompng(dirname(__FILE__) . '/left.png');
+    $image2 = $expected_image = imagecreatefrompng(dirname(__FILE__) . '/right.png');
+    $this->assertImageNotEqual($image1, $image2);
+    $image2 = $expected_image = imagecreatefrompng(dirname(__FILE__) . '/left.png');
+    $this->assertImageEqual($image1, $image2);
+
+    // Clean up.
+    imagedestroy($image1);
+    imagedestroy($image2);
+  }
+
+  /**
+   * Test cropping of images with known properties.
+   */
+  function testScaleAndCrop() {
+    // Create a preset with entropy crop.
+    $this->drupalPost('admin/config/media/image-styles/add', array('name' => 'test'), t('Create new style'));
+    $this->drupalPost(NULL, array('new' => 'smartcrop_scale_and_crop'), t('Add'));
+    $edit = array(
+      'data[width]' => 10,
+      'data[height]' => 10,
+    );
+    $this->drupalPost(NULL, $edit, t('Add effect'));
+
+    // Create an image field that uses the new style.
+    $instance = $this->createImageField('smartcrop_image', 'page');
+    $instance['display']['default']['type'] = 'image';
+    $instance['display']['default']['settings']['image_style'] = 'test';
+    field_update_instance($instance);
+
+    // Test cropping with synthetic images.
+    $test_files = array('bottom.png', 'left.png', 'right.png', 'top.png');
+    $expected_image = imagecreatefrompng(dirname(__FILE__) . '/center.png');
+    foreach ($test_files as $file) {
+      // Upload a file
+      $edit = array(
+        'title' => $this->randomName(),
+        'files[smartcrop_image_und_0]' => realpath(dirname(__FILE__) . '/' . $file),
+      );
+      $this->drupalPost('node/add/page', $edit, t('Save'));
+      $node = $this->drupalGetNodeByTitle($edit['title']);
+      $image_uri = $node->smartcrop_image[LANGUAGE_NONE][0]['uri'];
+
+      $this->drupalGet(image_style_url('test', $image_uri));
+      $this->assertResponse(200, t('Retrieved cropped image.'));
+
+      $actual_image = imagecreatefrompng(image_style_url('test', $image_uri));
+      $this->assertImageEqual($actual_image, $expected_image, 1, t('@file was cropped correctly.', array('@file' => $file)));
+    }
+
+    // Test Upscaling.
+    $this->drupalGet('admin/config/media/image-styles/edit/test');
+    $this->clickLink('edit');
+    $edit = array(
+      'data[width]' => 100,
+      'data[height]' => 100,
+      'data[upscale]' => 1,
+    );
+    $this->drupalPost(NULL, $edit, t('Update effect'));
+
+    $file = 'center.png';
+    $edit = array(
+      'title' => $this->randomName(),
+      'files[smartcrop_image_und_0]' => realpath(dirname(__FILE__) . '/' . $file),
+    );
+    $this->drupalPost('node/add/page', $edit, t('Save'));
+    $node = $this->drupalGetNodeByTitle($edit['title']);
+    $image_uri = $node->smartcrop_image[LANGUAGE_NONE][0]['uri'];
+
+    $this->drupalGet(image_style_url('test', $image_uri));
+    $this->assertResponse(200, t('Retrieved cropped image.'));
+
+    $expected_image = imagecreatefrompng(dirname(__FILE__) . '/center_10X.png');
+    $actual_image = imagecreatefrompng(image_style_url('test', $image_uri));
+    $this->assertImageEqual($actual_image, $expected_image, 1, t('@file was upscaled correctly.', array('@file' => $file)));
+
+    // Clean up.
+    imagedestroy($expected_image);
+    imagedestroy($actual_image);
+  }
+
+  function testCrop() {
+    // Create a preset with entropy crop.
+    $this->drupalPost('admin/config/media/image-styles/add', array('name' => 'test2'), t('Create new style'));
+    $this->drupalPost(NULL, array('new' => 'smartcrop_crop'), t('Add'));
+
+    $edit = array(
+      'data[width]' => '10',
+      'data[height]' => '10',
+    );
+    $this->drupalPost(NULL, $edit, t('Add effect'));
+
+    // Create an image field that uses the new style.
+    $instance = $this->createImageField('smartcrop_image', 'page');
+    $instance['display']['default']['type'] = 'image';
+    $instance['display']['default']['settings']['image_style'] = 'test2';
+    field_update_instance($instance);
+
+    $file = 'quarter.png';
+    $edit = array(
+      'title' => $this->randomName(),
+      'files[smartcrop_image_und_0]' => realpath(dirname(__FILE__) . '/' . $file),
+    );
+
+    $this->drupalPost('node/add/page', $edit, t('Save'));
+    $node = $this->drupalGetNodeByTitle($edit['title']);
+    $image_uri = $node->smartcrop_image[LANGUAGE_NONE][0]['uri'];
+
+    $this->drupalGet(image_style_url('test2', $image_uri));
+    $this->assertResponse(200, t('Retrieved cropped image.'));
+
+    $expected_image = imagecreatefrompng(dirname(__FILE__) . '/center.png');
+    $actual_image = imagecreatefrompng(image_style_url('test2', $image_uri));
+    $this->assertImageEqual($actual_image, $expected_image, 1, t('@file was cropped correctly.', array('@file' => $file)));
+
+    // Clean up.
+    imagedestroy($expected_image);
+    imagedestroy($actual_image);
+  }
+
+  /**
+   * Assert that two images are the same, with some difference allowed to account for e.g. compression artifacts.
+   * @param $image1 A GD image resource.
+   * @param $image2 A GD image resource.
+   * @param $max_diff (optional) The maximum allowed difference, range from 0 to 255, defaults to 1.
+   * @param $message (optional) The message to display along with the assertion.
+   */
+  function assertImageEqual($image1, $image2, $max_diff = 1, $message = NULL) {
+    if (empty($message)) {
+      $message = t('Images are equal.');
+    }
+    $difference = $this->difference($image1, $image2);
+    $mean = $this->mean($difference);
+    $this->assertTrue($mean < $max_diff, $message);
+    imagedestroy($difference);
+  }
+
+  /**
+   * Assert that two images are not the same, with some difference allowed to account for e.g. compression artifacts.
+   * @param $image1 A GD image resource.
+   * @param $image2 A GD image resource.
+   * @param $min_diff (optional) The minimum allowed difference, range from 0 to 255, defaults to 1.
+   * @param $message (optional) The message to display along with the assertion.
+   */
+  function assertImageNotEqual($image1, $image2, $min_diff = 1, $message = NULL) {
+    if (empty($message)) {
+      $message = t('Images are not equal.');
+    }
+    $difference = $this->difference($image1, $image2);
+    $mean = $this->mean($difference);
+    $this->assertTrue($mean > $min_diff, $message);
+  }
+
+  /**
+   * Calculate the mean pixel intensity.
+   * @param $image GD image resource.
+   * @return The mean.
+   */
+  function mean($image) {
+    $mean = 0;
+    $size = imagesx($image) * imagesy($image) * 3;
+    for ($i = 0; $i < imagesx($image); $i++) {
+      for ($j = 0; $j < imagesy($image); $j++) {
+        $rgb = imagecolorat($image, $i, $j);
+        $r = ($rgb >> 16) & 0xFF;
+        $g = ($rgb >> 8) & 0xFF;
+        $b = $rgb & 0xFF;
+        $mean += $r / $size;
+        $mean += $g / $size;
+        $mean += $b / $size;
+      }
+    }
+    return $mean;
+  }
+
+  /**
+   * Calculate the difference of 2 images.
+   * @param $image1 A GD image resource.
+   * @param $image2 A GD image resource.
+   * @return A GD image resource, with the subtracted image.
+   */
+  function difference($image1, $image2) {
+    $this->assertEqual(imagesx($image1), imagesx($image2), t('Images have the same width.'));
+    $this->assertEqual(imagesy($image1), imagesy($image2), t('Images have the same height.'));
+    $difference = imagecreatetruecolor(imagesx($image1), imagesy($image1));
+    for ($i = 0; $i < imagesx($image1); $i++) {
+      for ($j = 0; $j < imagesy($image1); $j++) {
+        $rgb1 = imagecolorat($image1, $i, $j);
+        $r1 = ($rgb1 >> 16) & 0xFF;
+        $g1 = ($rgb1 >> 8) & 0xFF;
+        $b1 = $rgb1 & 0xFF;
+
+        $rgb2 = imagecolorat($image2, $i, $j);
+        $r2 = ($rgb2 >> 16) & 0xFF;
+        $g2 = ($rgb2 >> 8) & 0xFF;
+        $b2 = $rgb2 & 0xFF;
+
+        imagesetpixel($difference, $i, $j, imagecolorallocate(
+          $difference,
+          abs($r2 - $r1),
+          abs($g2 - $g1),
+          abs($b2 - $b1)
+        ));
+      }
+    }
+    return $difference;
+  }
+}

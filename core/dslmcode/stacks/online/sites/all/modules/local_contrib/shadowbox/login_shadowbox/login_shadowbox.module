@@ -1,0 +1,188 @@
+<?php
+
+/**
+ * Implementation of hook_init()
+ */
+function login_shadowbox_init() {
+
+  $enable = variable_get('login_shadowbox_enabled', FALSE) && variable_get('shadowbox_enabled', TRUE);
+  $path = drupal_get_path('module', 'login_shadowbox');
+
+  if ( $enable && (arg(0) != 'admin') ) {
+    drupal_add_js($path . '/scripts/login_shadowbox_check.js');
+  }
+
+  if(user_is_anonymous() && $enable) {
+
+    $login_path       = drupal_get_path_alias('user/login');
+    $register_path    = drupal_get_path_alias('user/register');
+    $password_path    = drupal_get_path_alias('user/password');
+    $login_content    = url(drupal_get_path_alias('user/login/shadowbox'));
+    $register_content = url(drupal_get_path_alias('user/register/shadowbox'));
+    $password_content = url(drupal_get_path_alias('user/password/shadowbox'));
+
+    // Shadowbox login settings
+    $shadowbox_login_settings = array (
+      'login_path'       => $login_path,
+      'register_path'    => $register_path,
+      'password_path'    => $password_path,
+      'login_content'    => $login_content,
+      'register_content' => $register_content,
+      'password_content' => $password_content,
+      'login_width'      => variable_get('login_shadowbox_width', 500),
+      'register_width'   => variable_get('login_shadowbox_register_width', 500),
+      'password_width'   => variable_get('login_shadowbox_password_width', 500),
+      'login_height'     => variable_get('login_shadowbox_height', 380),
+      'register_height'  => variable_get('login_shadowbox_register_height', 440),
+      'password_height'  => variable_get('login_shadowbox_password_height', 240),
+      'modal'            => variable_get('login_shadowbox_modal', TRUE),
+    );
+
+    // We have to be sure shadowbox is loaded in case it is not
+    drupal_add_library('shadowbox', 'shadowbox');
+
+    // Adding the neccessary javascript and css files needed by shadowbox login
+    drupal_add_js(array('shadowboxLogin' => $shadowbox_login_settings), 'setting');
+    drupal_add_js($path . '/scripts/login_shadowbox.js');
+    $css_path = variable_get('login_shadowbox_css', $path . '/css/login_shadowbox.css');
+    drupal_add_css($css_path, array('group' => 'CSS_DEFAULT'));
+
+  }
+}
+
+/**
+ * Implementation of hook_menu()
+ */
+function login_shadowbox_menu() {
+  $items = array();
+
+  $items['admin/config/media/shadowbox/login'] = array(
+    'title' => 'Login',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('login_shadowbox_settings'),
+    'access arguments' => array('administer shadowbox login'),
+    'description' => 'Configure the Shadowbox login settings.',
+    'type' => MENU_LOCAL_TASK,
+    'weight' => 2,
+    'file' => 'login_shadowbox.admin.inc',
+  );
+
+  $items['user/login/shadowbox'] = array(
+    'title' => 'Login',
+    'page callback' => 'login_shadowbox_login',
+    'access callback' => 'user_is_anonymous',
+    'type' => MENU_CALLBACK,
+    'file' => 'login_shadowbox.pages.inc',
+  );
+
+  $items['user/register/shadowbox'] = array(
+    'title' => 'Registration',
+    'page callback' => 'login_shadowbox_register',
+    'access callback' => 'user_is_anonymous',
+    'type' => MENU_CALLBACK,
+    'file' => 'login_shadowbox.pages.inc',
+  );
+
+  $items['user/password/shadowbox'] = array(
+    'title' => 'Reset Password',
+    'page callback' => 'login_shadowbox_password',
+    'access callback' => 'user_is_anonymous',
+    'type' => MENU_CALLBACK,
+    'file' => 'login_shadowbox.pages.inc',
+  );
+
+  return $items;
+
+}
+
+/**
+ * Implmentation of hook_permission()
+ */
+function login_shadowbox_permission() {
+  return array (
+    'administer shadowbox login' => array (
+      'title' => t('Administer shadowbox login'),
+      'description' => t('Allows users to change the settings for the Shadowbox Login module'),
+    )
+  );
+}
+
+/**
+ * Implementation of hook_block_info()
+ */
+function login_shadowbox_block_info() {
+  $blocks['login_shadowbox_login_block'] = array (
+    'info' => t('Shadowbox Login'),
+    'cache' => DRUPAL_NO_CACHE,
+    'visibility' => BLOCK_VISIBILITY_NOTLISTED,
+    'pages' => 'user/login',
+  );
+  return $blocks;
+}
+
+/**
+ * Implementation of hook_block_configure()
+ */
+function login_shadowbox_block_configure($delta = '') {
+  $form = array();
+  if ($delta == 'login_shadowbox_login_block') {
+    $form['login_shadowbox_login_block_visibility'] = array (
+      '#type' => 'checkbox',
+      '#title' => t('Show when logged'),
+      '#default_value' => variable_get('login_shadowbox_login_block_visibility', 0),
+      '#description' => t('Check this box if you want to show shadowbox login block with a logout link when user is logged.'),
+    );
+  }
+  return $form;
+}
+
+/**
+ * Implementation of hook_block_save()
+ */
+function login_shadowbox_block_save($delta = '', $edit = array()) {
+
+  if ($delta == 'login_shadowbox_login_block') {
+    variable_set('login_shadowbox_login_block_visibility', $edit['login_shadowbox_login_block_visibility']);
+  }
+  return;
+}
+
+/**
+ * Implementation of hook_block_view()
+ */
+function login_shadowbox_block_view($delta = '') {
+  $block = array();
+  $items = array();
+  if($delta == 'login_shadowbox_login_block' && !(arg(0) == 'user' && !is_numeric(arg(1)))) {
+    if (user_is_anonymous()) {
+      $block['subject'] = t('Login');
+      $items[] = l(t('Login'), 'user/login', array('attributes' => array('title' => t('Login'))));
+      if (variable_get('user_register', USER_REGISTER_VISITORS_ADMINISTRATIVE_APPROVAL)) {
+        $items[] = l(t('Create new account'), 'user/register', array('attributes' => array('title' => t('Create a new user account.'))));
+      }
+      $items[] = l(t('Request new password'), 'user/password', array('attributes' => array('title' => t('Request new password via e-mail.'))));
+      $block['content'] = theme('item_list', array('items' => $items));
+    } else if (variable_get('login_shadowbox_login_block_visibility', 0)) {
+      $block['subject'] = t('Login');
+      $items[] = l(t('My Account'), 'user', array('attributes' => array('title' => t('My Account'))));
+      $items[] = l(t('Log out'), 'user/logout', array('attributes' => array('title' => t('Log out'))));
+      $block['content'] = theme('item_list', array('items' => $items));
+    }
+    return $block;
+  }
+}
+
+/**
+ * Implementation of hook_theme()
+ */
+function login_shadowbox_theme() {
+  return array(
+    'login_shadowbox_page' => array(
+      'variables' => array(
+        'title'    => '',
+        'content'  => NULL,
+      ),
+      'template' => 'login_shadowbox_page',
+    ),
+  );
+}

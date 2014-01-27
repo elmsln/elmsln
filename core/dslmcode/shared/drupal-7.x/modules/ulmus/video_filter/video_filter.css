@@ -1,0 +1,15 @@
+/**
+ * Default alignment styles
+ */
+.video-left {
+  float: left;
+}
+
+.video-right {
+  float: right;
+}
+
+.video-center {
+  display: block;
+  margin: 0 auto;
+}

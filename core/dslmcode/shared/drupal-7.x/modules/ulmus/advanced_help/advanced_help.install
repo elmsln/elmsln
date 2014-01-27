@@ -1,0 +1,65 @@
+<?php
+/**
+ * @file
+ * Contains install and update functions for advanced_help.
+ */
+
+/**
+ * Implements hook_install().
+ */
+function advanced_help_install() {
+  // drupal_set_message('Installing advanced_help.');
+}
+
+/**
+ * Implements hook_uninstall().
+ */
+function advanced_help_uninstall() {
+  variable_del('advanced_help_last_cron');
+}
+
+/**
+ * Implements hook_schema().
+ */
+function advanced_help_schema() {
+  $schema['advanced_help_index'] = array(
+    'description' => 'Stores search index correlations for advanced help topics.',
+    'fields' => array(
+      'sid' => array(
+        'type' => 'serial',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'description' => 'The primary key to give to the search engine for this topic.',
+        'no export' => TRUE,
+      ),
+      'module' => array(
+        'type' => 'varchar',
+        'length' => '255',
+        'default' => '',
+        'not null' => TRUE,
+        'description' => 'The module that owns this topic.',
+      ),
+      'topic' => array(
+        'type' => 'varchar',
+        'length' => '255',
+        'default' => '',
+        'not null' => TRUE,
+        'description' => 'The topic id.',
+      ),
+      'language' => array(
+        'type' => 'varchar',
+        'length' => 12,
+        'not null' => TRUE,
+        'default' => '',
+        'description' => 'The language this search index relates to.',
+      ),
+    ),
+    'primary key' => array('sid'),
+    'indexes' => array('language' => array('language')),
+    'foreign keys' => array(
+      'module' => array('system' => 'name'),
+    ),
+  );
+
+  return $schema;
+}

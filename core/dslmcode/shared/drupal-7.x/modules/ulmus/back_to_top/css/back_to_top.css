@@ -1,0 +1,27 @@
+#backtotop {
+  background: url(../backtotop.png) no-repeat center center;
+  bottom: 20px;
+  cursor: pointer;
+  display: none;
+  height: 70px;
+  position: fixed;
+  right: 20px;
+  text-indent:-9999px;
+  width: 70px;
+  z-index: 1;
+}
+
+#backtotop:hover {
+  opacity: 0.8;
+}
+
+<!--[if lte IE 6]>
+html {
+  overflow-x: auto;
+  overflow-y: hidden;
+}
+
+* html #backtotop {
+  position:absolute;
+}
+<![endif]-->

@@ -1,0 +1,13 @@
+core = "7.x"
+description = "Replicate provide an API to replicate (duplicate) entities. This modules also provide hooks to control exactly how parts of an entity are duplicated."
+name = "Replicate"
+package = "Entity"
+
+dependencies[] = entity
+
+; Information added by drupal.org packaging script on 2013-02-04
+version = "7.x-1.0"
+core = "7.x"
+project = "replicate"
+datestamp = "1359974339"
+

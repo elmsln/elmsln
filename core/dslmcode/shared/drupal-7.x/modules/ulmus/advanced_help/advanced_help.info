@@ -1,0 +1,12 @@
+name = Advanced help
+description = Allow advanced help and documentation.
+core = 7.x
+files[] = advanced_help.module
+files[] = advanced_help.install
+
+; Information added by drupal.org packaging script on 2011-11-11
+version = "7.x-1.0"
+core = "7.x"
+project = "advanced_help"
+datestamp = "1321022730"
+

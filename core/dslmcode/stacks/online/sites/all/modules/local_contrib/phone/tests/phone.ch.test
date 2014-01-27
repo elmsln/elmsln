@@ -1,0 +1,30 @@
+<?php
+
+class CHPhoneNumberTestCase extends DrupalWebTestCase {
+  /**
+   * Implementation of getInfo()
+   *
+   */
+  public static function getInfo() {
+    return array(
+      'name' => t('Swiss Phone number test'),
+      'description' => t('Tests various valid and invalid Swiss phone numbers for validity'),
+      'group' => t('Phone')
+    );
+  }
+
+  public function testPhoneCHValid() {
+    //$this->assertTrue(valid_phone_number('ch', '04 476 0000'), t('Test valid'));
+
+
+  }
+
+  public function testPhoneCHInvalid() {
+    //$this->assertFalse(valid_phone_number('ch', '021 3012 3456'), t('Test invalid'));
+
+  }
+
+  public function testPhoneCHFormatting() {
+    //$this->assertEqual(format_phone_number('ch', '+6421123456', null), '+64 21 123 456', t('Check international mobile format'));
+  }
+}

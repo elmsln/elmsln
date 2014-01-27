@@ -1,0 +1,24 @@
+<?php
+/**
+ * @file
+ * Install, update and uninstall functions for the tipsy module.
+ *
+ */
+
+/**
+ * Implementation of hook_install()
+ */
+function tipsy_install() {
+  db_update('system')
+      ->fields(array('weight' => 999))
+      ->condition('name', 'tipsy')
+      ->execute();
+  drupal_set_message(t("Tipsy has been successfully installed. Visit the <a href=@href>settings page</a> for tooltips of your choice.", array('@href' => base_path() . 'admin/config/user-interface/tipsy')));
+}
+
+/**
+ * Implementation of hook_uninstall()
+ */
+function tipsy_uninstall() {
+  variable_del('tipsy');
+}

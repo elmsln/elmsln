@@ -1,0 +1,323 @@
+<?php
+
+/**
+ * @file
+ * Tests for editableviews.module.
+ *
+ * These tests rely on the accompanying feature module, which defines the node
+ * types and view, and thus also on Features module. While this adds a
+ * dependency on another contrib module, having the node types, fields, and
+ * views in Features greatly reduces developer work in creating the components
+ * to test, allows the test cases to focus on what's actually being tested, and
+ * hopefully reduces future maintenance.
+ */
+
+/**
+ * Defines a base class for testing the Editable Views module.
+ */
+class EditableViewsBaseWebTestCase extends DrupalWebTestCase {
+
+  function setUp() {
+    parent::setUp(array('editableviews', 'features', 'entityreference', 'editableviews_test_feature'));
+  }
+
+}
+
+/**
+ * Test simple editable views with no editable fields on relationships.
+ */
+class EditableViewsBasicWebTestCase extends EditableViewsBaseWebTestCase {
+
+  public static function getInfo() {
+    return array(
+      'name' => 'Test simple editable views',
+      'description' => 'Test basic views without relationships.',
+      'group' => 'Editable Views',
+    );
+  }
+
+  /**
+   * Test basic node view 'test_editable_views_node_title'.
+   */
+  function testNodeTitleView() {
+    $first_node_title = $this->randomName();
+    $first_node = $this->drupalCreateNode(array(
+      'title' => $first_node_title,
+      'type'  => 'editable_views_test_node',
+    ));
+    $second_node_title = $this->randomName();
+    $second_node = $this->drupalCreateNode(array(
+      'title' => $second_node_title,
+      'type'  => 'editable_views_test_node',
+    ));
+
+    // Look at the node title editable view.
+    $this->drupalGet('test-editable-views-node-title');
+
+    // Check both nodes are shown in the view form.
+    $first_node_title_element_name = "node[{$first_node->nid}][title]";
+    $this->assertFieldByName($first_node_title_element_name, $first_node_title, t("View shows an edit form for the first node's title."));
+
+    $second_node_title_element_name = "node[{$second_node->nid}][title]";
+    $this->assertFieldByName($second_node_title_element_name, $second_node_title, t("View shows an edit form for the second node's title."));
+
+    // Save the form with changes to both nodes.
+    $edit = array(
+      $first_node_title_element_name  => $this->randomName(),
+      $second_node_title_element_name => $this->randomName(),
+    );
+    $this->drupalPost('test-editable-views-node-title', $edit, t('Save'));
+
+    // Load the nodes again and check their titles have changed.
+    entity_get_controller('node')->resetCache();
+    $first_node   = node_load($first_node->nid);
+    $second_node  = node_load($second_node->nid);
+
+    $this->assertEqual($first_node->title, $edit[$first_node_title_element_name], t("The first node's title has been changed by saving the editable view."));
+    $this->assertEqual($second_node->title, $edit[$second_node_title_element_name], t("The second node's title has been changed by saving the editable view."));
+
+    // Save the form again, with changes to just one node.
+    $edit = array(
+      $first_node_title_element_name  => $this->randomName(),
+    );
+    $second_node_title_old = $second_node->title;
+    $this->drupalPost('test-editable-views-node-title', $edit, t('Save'));
+
+    // Load the nodes again and check their titles.
+    entity_get_controller('node')->resetCache();
+    $first_node   = node_load($first_node->nid);
+    $second_node  = node_load($second_node->nid);
+
+    $this->assertEqual($first_node->title, $edit[$first_node_title_element_name], t("The first node's title has been changed by saving the editable view."));
+    $this->assertEqual($second_node->title, $second_node_title_old, t("The second node's title was not changed when the editable view was saved with no value for it."));
+  }
+
+  /**
+   * Test basic node view 'editable_views_node_fields'.
+   */
+  function testNodeFieldsView() {
+    $first_node_title = $this->randomName();
+    $first_node = $this->drupalCreateNode(array(
+      'title' => $first_node_title,
+      'type'  => 'editable_views_test_node',
+    ));
+    $second_node_title = $this->randomName();
+    $second_node = $this->drupalCreateNode(array(
+      'title' => $second_node_title,
+      'type'  => 'editable_views_test_node',
+    ));
+
+    // The fields are defined in the feature module.
+    $field_names = array(
+      'field_test_editable_text',
+      'field_test_editable_options',
+    );
+    // An array of form element names, keyed first by node id, and then by
+    // field name.
+    $field_element_names = array(
+      $first_node->nid => array(
+        'field_test_editable_text'    => "node[{$first_node->nid}][field_test_editable_text][und][0][value]",
+        'field_test_editable_options' => "node[{$first_node->nid}][field_test_editable_options][und]",
+      ),
+      $second_node->nid => array(
+        'field_test_editable_text'    => "node[{$second_node->nid}][field_test_editable_text][und][0][value]",
+        'field_test_editable_options' => "node[{$second_node->nid}][field_test_editable_options][und]",
+      ),
+    );
+
+    // Look at the node title editable view.
+    $this->drupalGet('test-editable-views-node-fields');
+
+    // Check the field editable elements are shown in the view form.
+    foreach ($field_names as $field_name) {
+      $this->assertFieldByName($field_element_names[$first_node->nid][$field_name], '', t("View shows an edit form for the first node's $field_name field."));
+
+      $this->assertFieldByName($field_element_names[$second_node->nid][$field_name], '', t("View shows an edit form for the second node's $field_name field."));
+    }
+
+    // Save changes to the first node's fields.
+    $new_value_field_test_editable_text     = $this->randomString();
+    $new_value_field_test_editable_options  = 1;
+    $edit = array(
+      "node[{$first_node->nid}][field_test_editable_text][und][0][value]" => $new_value_field_test_editable_text,
+      "node[{$first_node->nid}][field_test_editable_options][und]"        => $new_value_field_test_editable_options,
+    );
+    $this->drupalPost('test-editable-views-node-fields', $edit, t('Save'));
+
+    entity_get_controller('node')->resetCache();
+    $first_node = node_load($first_node->nid);
+    $first_node_wrapper = entity_metadata_wrapper('node', $first_node);
+
+    $this->assertEqual($first_node_wrapper->field_test_editable_text->value(), $new_value_field_test_editable_text, t("The node's field value is set to the new value by saving the view."));
+    $this->assertEqual($first_node_wrapper->field_test_editable_options->value(), $new_value_field_test_editable_options, t("The node's field value is set to the new value by saving the view."));
+  }
+
+}
+
+/**
+ * Test editable views with editable fields on relationships.
+ */
+class EditableViewsEntityReferenceWebTestCase extends EditableViewsBaseWebTestCase {
+
+  public static function getInfo() {
+    return array(
+      'name' => 'Test editable views with relationships',
+      'description' => 'Test editable views with editable fields on relationships.',
+      'group' => 'Editable Views',
+    );
+  }
+
+  /**
+   * Test node view 'test_editable_views_node_referenced_backwards_title'.
+   *
+   * Contains a relationship to another node type via a backwards reference.
+   */
+  function testNodeTitleBackwardsRelationshipView() {
+    // We prefix the node titles to force the order of items in the View to be
+    // predictable. Otherwise, we can't reliably (easily!) test the presence of
+    // form elements for the empty nodes.
+    $first_node_title = 'a' . $this->randomName();
+    $first_node = $this->drupalCreateNode(array(
+      'title' => $first_node_title,
+      'type'  => 'editable_views_test_node',
+    ));
+    $second_node_title = 'z' . $this->randomName();
+    $second_node = $this->drupalCreateNode(array(
+      'title' => $second_node_title,
+      'type'  => 'editable_views_test_node',
+    ));
+    $first_pointer_node_title = $this->randomName();
+    $first_pointer_node = $this->drupalCreateNode(array(
+      'title' => $first_pointer_node_title,
+      'type'  => 'editable_views_test_referencing',
+      'field_test_node_reference' => array(LANGUAGE_NONE => array(array('target_id' => $first_node->nid))),
+    ));
+
+    // Look at the editable view.
+    $this->drupalGet('test_editable_views_node_referenced_backwards_title');
+
+    // Check there are form elements for all three nodes' titles as well as the
+    // empty node.
+    $first_node_title_element_name = "node[{$first_node->nid}][title]";
+    $this->assertFieldByName($first_node_title_element_name, $first_node_title, t("View shows an edit form for the first node's title."));
+
+    $second_node_title_element_name = "node[{$second_node->nid}][title]";
+    $this->assertFieldByName($second_node_title_element_name, $second_node_title, t("View shows an edit form for the second node's title."));
+
+    $first_pointer_node_title_element_name = "node[{$first_pointer_node->nid}][title]";
+    $this->assertFieldByName($first_pointer_node_title_element_name, $first_pointer_node_title, t("View shows an edit form for the first pointer node's title."));
+
+    // The empty node is forced to be in the second row, by the prefixes on the
+    // node titles.
+    $empty_node_title_element_name = "node[reverse_field_test_node_reference_node:1][title]";
+    $this->assertFieldByName($empty_node_title_element_name, '', t("View shows an edit form with an empty value for the empty node."));
+
+    // Change the titles of the referencing nodes, i.e., the second field in the
+    // view. This will create a new node.
+    $edit = array(
+      $first_pointer_node_title_element_name  => $this->randomName(),
+      $empty_node_title_element_name          => $this->randomName(),
+    );
+    $this->drupalPost('test_editable_views_node_referenced_backwards_title', $edit, t('Save'));
+
+    // Check the referencing node's title is changed.
+    entity_get_controller('node')->resetCache();
+    $first_pointer_node = node_load($first_pointer_node->nid);
+    $this->assertEqual($first_pointer_node->title, $edit[$first_pointer_node_title_element_name], t("The referencing node's title has been changed by saving the editable view."));
+
+    // Check a new node was created, referencing the second node.
+    $query = new EntityFieldQuery();
+    $entities = $query->entityCondition('entity_type', 'node')
+      ->propertyCondition('type', 'editable_views_test_referencing')
+      ->propertyCondition('title', $edit[$empty_node_title_element_name])
+      ->execute();
+
+    $this->assertFalse(empty($entities['node']), t("A new referencing node has been created."));
+
+    $second_pointer_node = node_load(array_shift(array_keys($entities['node'])));
+
+    $this->assertEqual($second_pointer_node->title, $edit[$empty_node_title_element_name], t("The second referencing node's title has been set by saving the editable view."));
+
+    // Check it points to the second node.
+    $second_pointer_node_wrapper = entity_metadata_wrapper('node', $second_pointer_node);
+    $this->assertEqual($second_pointer_node_wrapper->field_test_node_reference->raw(), $second_node->nid, t("The second referencing node points to the second node."));
+  }
+
+  /**
+   * Test node view 'test_editable_views_node_referenced_forwards_title'.
+   *
+   * Contains a relationship to another node type via a forwards reference.
+   */
+  function testNodeTitleForwardsRelationshipView() {
+    // We prefix the node titles to force the order of items in the View to be
+    // predictable. Otherwise, we can't reliably (easily!) test the presence of
+    // form elements for the empty nodes.
+    $first_pointed_node_title = $this->randomName();
+    $first_pointed_node = $this->drupalCreateNode(array(
+      'title' => $first_pointed_node_title,
+      'type'  => 'editable_views_test_node',
+    ));
+    $first_node_title = 'a' . $this->randomName();
+    $first_node = $this->drupalCreateNode(array(
+      'title' => $first_node_title,
+      'type'  => 'editable_views_test_referencing',
+      'field_test_node_reference' => array(LANGUAGE_NONE => array(array('target_id' => $first_pointed_node->nid))),
+    ));
+    $second_node_title = 'z' . $this->randomName();
+    $second_node = $this->drupalCreateNode(array(
+      'title' => $second_node_title,
+      'type'  => 'editable_views_test_referencing',
+    ));
+
+    // Look at the editable view.
+    $this->drupalGet('test_editable_views_node_referenced_forwards_title');
+
+    // Check there are form elements for all three nodes' titles as well as the
+    // empty node.
+    $first_node_title_element_name = "node[{$first_node->nid}][title]";
+    $this->assertFieldByName($first_node_title_element_name, $first_node_title, t("View shows an edit form for the first node's title."));
+
+    $second_node_title_element_name = "node[{$second_node->nid}][title]";
+    $this->assertFieldByName($second_node_title_element_name, $second_node_title, t("View shows an edit form for the second node's title."));
+
+    $first_pointed_node_title_element_name = "node[{$first_pointed_node->nid}][title]";
+    $this->assertFieldByName($first_pointed_node_title_element_name, $first_pointed_node_title, t("View shows an edit form for the first pointed node's title."));
+
+    // The empty node is forced to be in the second row, by the prefixes on the
+    // node titles.
+    $empty_node_title_element_name = "node[field_test_node_reference_target_id:1][title]";
+    $this->assertFieldByName($empty_node_title_element_name, '', t("View shows an edit form with an empty value for the empty node."));
+
+    // Change the titles of the referenced nodes, i.e., the second field in the
+    // view. This will create a new node.
+    $edit = array(
+      $first_pointed_node_title_element_name  => $this->randomName(),
+      $empty_node_title_element_name          => $this->randomName(),
+    );
+    $this->drupalPost('test_editable_views_node_referenced_forwards_title', $edit, t('Save'));
+
+    // Check the referenced node's title is changed.
+    entity_get_controller('node')->resetCache();
+    $first_pointed_node = node_load($first_pointed_node->nid);
+    $this->assertEqual($first_pointed_node->title, $edit[$first_pointed_node_title_element_name], t("The referenced node's title has been changed by saving the editable view."));
+
+    // Check a new node was created.
+    $query = new EntityFieldQuery();
+    $entities = $query->entityCondition('entity_type', 'node')
+      ->propertyCondition('type', 'editable_views_test_node')
+      ->propertyCondition('title', $edit[$empty_node_title_element_name])
+      ->execute();
+
+    $this->assertFalse(empty($entities['node']), t("A new referenced node has been created."));
+
+    $second_pointed_node = node_load(array_shift(array_keys($entities['node'])));
+
+    $this->assertEqual($second_pointed_node->title, $edit[$empty_node_title_element_name], t("The second referenced node's title has been set by saving the editable view."));
+
+    // Check the second node points to it.
+    $second_node = node_load($second_node->nid);
+    $second_node_wrapper = entity_metadata_wrapper('node', $second_node);
+    $this->assertEqual($second_node_wrapper->field_test_node_reference->raw(), $second_pointed_node->nid, t("The second node points to the new second referenced node."));
+  }
+
+}

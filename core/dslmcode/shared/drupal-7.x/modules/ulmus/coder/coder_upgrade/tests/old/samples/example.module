@@ -1,0 +1,2960 @@
+<?php
+// $\Id: example.module,v 1.9 2010/09/08 07:00:00 solotandem Exp $
+
+/*
+ * Module Info / Install
+ */
+
+// This function is missing a Doxygen style comment.
+function example_update_7000() {
+  $ret = array();
+  return $ret;
+  return /*smoke1*/ $ret /*smoke2*/;
+  if (TRUE) {
+    $ret = array();
+    return /*smoke1*/ $ret /*smoke2*/;
+  }
+}
+
+/* This function is missing a Doxygen style comment. */
+function example_update_7001() {
+  $ret = array();
+  return $ret;
+}
+
+/**
+ * This function has a Doxygen style comment.
+ */
+function example_update_7002() {
+  $ret = array();
+  return $ret;
+}
+
+/*
+ * System
+ */
+
+function example_absolute_includes() {
+  // Change require, require_once, include, and include_once.
+  // require './' . $path
+  // include() -- Change the next line but leave this alone
+  // include -- Change the next line but leave this alone
+  define('EVENT_PATH', drupal_get_path('module', 'event'));
+
+  include(EVENT_PATH .'/event.theme');
+  require(EVENT_PATH .'/ical.inc');
+
+  include EVENT_PATH .'/event.theme';
+  require EVENT_PATH .'/ical.inc';
+
+  include './' . $path;
+  require './' . $path;
+
+  include $path;
+  require $path;
+
+  if (variable_get('event_nodeapi_'. $form['type']['#value'], 'never') != 'never') {
+    include_once(EVENT_PATH .'/event_timezones.inc');
+    require_once(EVENT_PATH .'/event_timezones.inc');
+  }
+
+  // A different format to the include.
+  include_once './'. drupal_get_path('module', 'og_panels') .'/includes/groupcontext.inc';
+  include_once drupal_get_path('module', 'og_panels') .'/includes/groupcontext.inc';
+  echo './'. drupal_get_path('module', 'og_panels') .'/includes/groupcontext.inc';
+
+  // Ensure we are not serving a cached page.
+  if (function_exists('drupal_set_content')) {
+    if (module_exists('content')) {
+      include_once(drupal_get_path('module', 'fivestar') .'/fivestar_field.inc');
+    }
+  }
+  if (module_exists('comment')) {
+    include_once(drupal_get_path('module', 'fivestar') .'/fivestar_comment.inc');
+  }
+
+  include_once(drupal_get_path('module', 'fivestar') .'/fivestar_color.inc');
+  require_once(drupal_get_path('module', 'transactions').'/transactions.inc');
+}
+
+// Related to http://drupal.org/node/224333#registry
+function example_function_exists() {
+  // function_exists() -- Change the next line but leave this alone
+  if (function_exists('xx')) {
+  }
+  if (function_exists($xx['y'])) {
+  }
+}
+
+// TODO This was reverted!!!
+// http://drupal.org/files/issues/sessions_1.patch
+function example_set_session() {
+  // $_SESSION['site_offline'] = variable_get('site_offline', FALSE) -- Change the next line but leave this alone
+  $_SESSION['site_offline'] = variable_get('site_offline', FALSE);
+  if ($_SESSION['site_offline'] == FALSE) {
+    variable_set('site_offline', TRUE);
+  }
+  $_SESSION['update_results'] = $results;
+  $_SESSION['update_success'] = $success;
+  $_SESSION['updates_remaining'] = $operations;
+  $_SESSION['batch_form_state'] = $_batch['form_state'];
+  if ($message) {
+    if (!isset($_SESSION['messages'])) {
+      $_SESSION['messages'] = array();
+    }
+  }
+  if (!isset($_SESSION['messages'][$type])) {
+  }
+  $_SESSION['book_update_6000_orphans']['from'] = 0;
+  $_SESSION['book_update_6000'] = array();
+  // drupal_set_session('book_update_6000_orphans', array('from' => 0));
+  // drupal_set_session('book_update_6000', array());
+  $_SESSION['dblog_overview_filter'][$name] = $form_state['values'][$name];
+  // Unchanged?
+  $_SESSION['dblog_overview_filter'] = array();
+  // drupal_set_session('dblog_overview_filter', array());
+  $session = &$_SESSION['node_overview_filter'];
+  $_SESSION['node_overview_filter'][] = array($filter, $form_state['values'][$filter]);
+  // Unchanged?
+  $_SESSION['openid']['service'] = $services[0];
+  // Unchanged?
+}
+
+function example_request_time() {
+  // time() -- Change the next line but leave this alone
+  $nextWeek = time() + (7 * 24 * 60 * 60);
+  $nextWeek = 8*time() + (7 * 24 * 60 * 60); // Catch poor formatting.
+}
+
+function example_rebuild_functions() {
+  // drupal_rebuild_theme_registry() -- Change the next line but leave this alone
+  drupal_rebuild_theme_registry();
+  // drupal_rebuild_code_registry() -- Change the next line but leave this alone
+  drupal_rebuild_code_registry();
+}
+
+function example_uninstall_module() {
+  // drupal_uninstall_module() -- Change the next line but leave this alone
+  drupal_uninstall_module($module);
+}
+
+// use module_implements not module_list when calling hook implementations
+function example_module_list() {
+  foreach (module_list() as $module) {
+    // do something with a hook on each module
+  }
+}
+
+// Parameters for drupal_http_request() have changed
+function example_http_request() {
+  // drupal_http_request() -- Change the next line but leave this alone
+  drupal_http_request('http://example.com/', array('Header-Title' => 'value'), 'GET', NULL, 0);
+  /*
+   * Trying to produce this:
+   * drupal_http_request('http://example.com/', array('headers' => array('Header-Title' => 'value'), 'max_redirects' => 0));
+   */
+  drupal_http_request('http://example.com/', array('Header-Title' => 'value'), 'GET', 'Some data', 0);
+  drupal_http_request('http://example.com/', array('Header-Title' => 'value'), 'POST', 'Some data', 3);
+  drupal_http_request('http://example.com/', array('Header-Title' => 'value'), 'POST', 'Some data');
+  drupal_http_request('http://example.com/', array('Header-Title' => 'value'), 'POST');
+  drupal_http_request('http://example.com/');
+}
+
+function example_moved_statistics_settings() {
+  drupal_goto($path = 'admin/reports/settings');
+}
+
+function example_system_theme_data() {
+  // module_rebuild_cache() -- Change the next line but leave this alone
+  module_rebuild_cache();
+  // system_theme_data() -- Change the next line but leave this alone
+  system_theme_data();
+}
+
+function example_static_variable() {
+  static $menu1;
+  static $menu2 = 2;
+  static $menu3 = array();
+  static $menu4 = 'xx';
+}
+
+function example_html_head() {
+  // drupal_set_html_head() -- Change the next line but leave this alone
+  $data = 'my header';
+  drupal_set_html_head($data);
+  if (drupal_set_html_head($data)) {
+    //
+  }
+}
+
+function example_drupal_eval() {
+  // drupal_eval() -- Change the next line but leave this alone
+  drupal_eval('<?php print "Hello World"; ? >');
+  $text = drupal_eval('<?php print "Hello World"; ? >');
+  if ($text = drupal_eval('<?php print "Hello World"; ? >')) {
+    //
+  }
+  print_r(drupal_eval('<?php print "Hello World"; ? >'));
+  // drupal_eval() -- try this for nesting complexity
+  echo print_r(drupal_eval('<?php print "Hello World"; ? >'), 1);
+}
+
+function example_http_header_functions() {
+  // drupal_set_header() -- Change the next line but leave this alone
+  drupal_set_header($_SERVER['SERVER_PROTOCOL'] . ' 500 Internal server error');
+  drupal_set_header('HTTP/1.1 503 Service unavailable');
+  drupal_set_header('HTTP/1.1 403 Forbidden');
+  drupal_set_header('Content-Type: text/plain');
+  drupal_set_header('Content-Type: text/javascript; charset=utf-8');
+  drupal_set_header('Content-Type: octet/stream');
+  drupal_set_header('Content-Disposition: attachment; filename="'. $filename .'"');
+  drupal_set_header('Content-Length: '.filesize(file_directory_path().'/'.$filename));
+
+  // Double quotes.
+  drupal_set_header($_SERVER["SERVER_PROTOCOL"] . " 500 Internal server error");
+  drupal_set_header("HTTP/1.1 503 Service unavailable");
+  drupal_set_header("HTTP/1.1 403 Forbidden");
+  drupal_set_header("Content-Type: text/plain");
+  drupal_set_header("Content-Type: text/javascript; charset=utf-8");
+  drupal_set_header("Content-Type: octet/stream");
+  drupal_set_header("Content-Disposition: attachment; filename='". $filename ."'");
+  drupal_set_header("Content-Length: ".filesize(file_directory_path()."/".$filename));
+
+  // drupal_get_headers() -- Change the next line but leave this alone
+  $headers = drupal_get_headers();
+  foreach (drupal_get_headers() as $name => $value) {
+    //
+  }
+}
+
+function example_file_download() {
+  if (_mymodule_access($filepath)) {
+    return array(
+      'Content-Type: text/plain',
+    );
+  }
+}
+
+function example_set_content() {
+  // drupal_set_content() -- Change the next line but leave this alone
+  // Add our own text to the footer.
+  drupal_set_content('footer', 'Adding custom text to footer');
+  // Get the complete footer contents.
+  // drupal_get_content() -- Change the next line but leave this alone
+  $full_footer = drupal_get_content();
+  if ($full_footer = drupal_get_content()) {
+    //
+  }
+}
+
+function example_time_limit() {
+  // set_time_limit() -- Change the next line but leave this alone
+  $time_limit = 5;
+  set_time_limit($time_limit);
+  if (set_time_limit($time_limit) > 5) {
+    //
+  }
+}
+
+// http://drupal.org/node/224333#remove-drupal-urlencode
+function example_remove_drupal_urlencode() {
+  // drupal_urlencode() -- Change the next line but leave this alone
+  $string = drupal_urlencode('test');
+}
+
+/*
+function example_() {
+
+}
+
+function example_() {
+
+}
+*/
+
+
+/*
+ * Permissions and Access
+ */
+
+/**
+ * Implement hook_perm.
+ *
+ * Use case 1: returns array directly.
+ *
+ * http://drupal.org/node/224333#hook_permission
+ * http://drupal.org/node/224333#descriptions_permissions
+ */
+function example_perm() {
+  return array('administer my module', $perm_1['one'], 'permission two', $perm_2[1]['2']);
+}
+
+/**
+ * Implement hook_perm.
+ *
+ * Use case 2: makes one assignment to array variable; returns variable.
+ */
+function example_perm() {
+  $perm = array(
+    'administer my module',
+    $perm_1['one'],
+    'permission two',
+    $perm_2[1]['2'],
+  );
+  return $perm;
+}
+
+/**
+ * Implement hook_perm.
+ *
+ * Use case 3: makes multiple assignments to array variable; returns variable.
+ */
+function example_perm() {
+  // This use case does not apply as the permission strings do not have any values.
+  $perm = array();
+  $perm['administer my module'] = array();
+  $perm[$perm_1['one']] = array();
+  $perm['permission two'] = array();
+  $perm[$perm_2[1]['2']] = array();
+  return $perm;
+}
+
+/**
+ * Other permission items in http://drupal.org/files/issues/506976_0.patch.
+ */
+function example_perm_items() {
+  $options = array();
+  foreach (module_implements('perm') as $module) {
+    $function = $module . '_perm';
+    if ($permissions = $function('perm')) {
+      asort($permissions);
+      foreach ($permissions as $permission => $description) {
+        $options[t('@module module', array('@module' => $module))][$permission] = t($permission);
+      }
+    }
+  }
+
+  foreach ($modules as $module) {
+    $permissions = array_merge($permissions, array_keys(module_invoke($module, 'perm')));
+  }
+
+  // Check for permissions.
+  if (in_array($module, module_implements('perm')) && $admin_access) {
+    $admin_tasks[-1] = l(t('Configure permissions'), 'admin/user/permissions', array('fragment' => 'module-' . $module));
+  }
+}
+
+function example_php_permissions() {
+  // 'use PHP for block visibility' -- Change the next line but leave this alone
+  $access = user_access('use PHP for block visibility');
+  if ($access = user_access('use PHP for block visibility')) {
+    //
+  }
+}
+
+/**
+ * Implement hook_access.
+ *
+ * http://drupal.org/node/224333#hook_node_access
+ */
+function example_access($op, $node, $account) {
+  if ($op == 'create') {
+    return user_access('create stories', $account);
+  }
+
+  if ($op == 'update' || $op == 'delete') {
+    if (user_access('edit own stories', $account) && ($account->uid == $node->uid)) {
+      return TRUE;
+    }
+  }
+}
+
+/*
+ * Database
+ */
+
+// Do table renames along with the new dbtng format.
+function example_dbtng() {
+  // db_query() -- Change the next line but leave this alone
+  // Insert query.
+  db_query("INSERT INTO {mytable} (intvar, stringvar, floatvar) VALUES (%d, '%s', %f)", 5, 'hello world', 3.14);
+  $sql = "INSERT INTO {mytable} (intvar, stringvar, floatvar) VALUES (%d, '%s', %f)";
+  db_query($sql, 5, 'hello world', 3.14);
+  $values= array(5, 'hello world', 3.14);
+  db_query($sql, $values);
+  $id = db_last_insert_id();
+
+  // Update query.
+  db_query("UPDATE {node} SET title='%s', status=%d WHERE uid=%d", 'hello world', 1, 5);
+
+  // Delete query.
+  db_query("DELETE FROM {node} WHERE uid=%d AND created < %d", 5, time() - 3600);
+}
+
+// TODO Move these schema hooks to an install file!!!
+
+// Schema descriptions are no longer translated.
+// Function name needs to be the hook name not the html tag on the change.
+
+// Use case 1: returns array directly.
+function example_schema() {
+  return array(
+    'forum' => array(
+      'description' => t('Stores the relationship of nodes to forum terms.'),
+      'fields' => array(
+        'nid' => array(
+          'description' => t('The {node}.nid of the node.'),
+        ),
+      ),
+    ),
+    // This tests the #schema_html upgrade.
+    'foo_url' => array(
+      'description' => t('Stores URLs that appear in &lt;a href=....&gt; tags.'),
+      'fields' => array(
+        'url' => array(
+          'description' => t('The URL.'),
+        ),
+      ),
+    ),
+    // When did the description item come into play between above and below???
+    'example' => array(
+      'fields' => array(
+        'nid' => array('type' => 'int', 'unsigned' => TRUE, 'not null' => TRUE, 'default' => 0),
+      ),
+      'primary key' => array('nid'),
+    ),
+  );
+}
+
+// Use case 2: makes one assignment to array variable; returns variable.
+function example_schema() {
+  $schema = array(
+    'forum' => array(
+      'description' => t('Stores the relationship of nodes to forum terms.'),
+      'fields' => array(
+        'nid' => array(
+          'description' => t('The {node}.nid of the node.'),
+        ),
+      ),
+    ),
+    // This tests the #schema_html upgrade.
+    'foo_url' => array(
+      'description' => t('Stores URLs that appear in &lt;a href=....&gt; tags.'),
+      'fields' => array(
+        'url' => array(
+          'description' => t('The URL.'),
+        ),
+      ),
+    ),
+    // When did the description item come into play between above and below???
+    'example' => array(
+      'fields' => array(
+        'nid' => array('type' => 'int', 'unsigned' => TRUE, 'not null' => TRUE, 'default' => 0),
+      ),
+      'primary key' => array('nid'),
+    ),
+  );
+  return $schema;
+}
+
+// Use case 3: makes multiple assignments to array variable; returns variable.
+function example_schema() {
+  $schema['forum'] = array(
+    'description' => t('Stores the relationship of nodes to forum terms.'),
+    'fields' => array(
+      'nid' => array(
+        'description' => t('The {node}.nid of the node.'),
+      ),
+    ),
+  );
+  // This tests the #schema_html upgrade.
+  $schema['foo_url'] = array(
+    'description' => t('Stores URLs that appear in &lt;a href=....&gt; tags.'),
+    'fields' => array(
+      'url' => array(
+        'description' => t('The URL.'),
+      ),
+    ),
+  );
+  // When did the description item come into play between above and below???
+  $schema['example'] = array(
+    'fields' => array(
+      'nid' => array('type' => 'int', 'unsigned' => TRUE, 'not null' => TRUE, 'default' => 0),
+    ),
+    'primary key' => array('nid'),
+  );
+  return $schema;
+}
+
+// Database schema (un)installed automatically
+function example_install() {
+//   drupal_install_schema('example');
+  if ($results = drupal_install_schema('example')) {
+    // Do something.
+  }
+}
+
+function example_uninstall() {
+  $result = db_query("SELECT * FROM {example}");
+  while ($data = db_fetch_object($result)) {
+    db_query("DELETE FROM {variable} WHERE name = '%s'", 'example_'. $data->nid);
+  }
+  drupal_uninstall_schema('example');
+}
+
+function example_schema_ret() {
+  // db_add_field() -- Change the next line but leave this alone
+
+  // The parameters are not correct for each of these functions, but should
+  // allow the upgrade code to be tested.
+
+  // includes/database.pgsql.inc Add a new field to a table.
+  db_add_field($ret, $table, $new_name);
+  // includes/database.pgsql.inc Add an index.
+  db_add_index($ret, $table, $new_name);
+  // includes/database.pgsql.inc Add a primary key.
+  db_add_primary_key($ret, $table, $new_name);
+  // includes/database.pgsql.inc Add a unique key.
+  db_add_unique_key($ret, $table, $new_name);
+  // includes/database.pgsql.inc Change a field definition.
+  db_change_field($ret, $table, $new_name);
+  // includes/database.inc Create a new table from a Drupal table definition.
+  db_create_table($ret, $table, $new_name);
+  // includes/database.pgsql.inc Generate SQL to create a new table from a Drupal schema definition.
+  db_create_table_sql($ret, $table, $new_name);
+  // includes/database.pgsql.inc Drop a field.
+  db_drop_field($ret, $table, $new_name);
+  // includes/database.pgsql.inc Drop an index.
+  db_drop_index($ret, $table, $new_name);
+  // includes/database.pgsql.inc Drop the primary key.
+  db_drop_primary_key($ret, $table, $new_name);
+  // includes/database.pgsql.inc Drop a table.
+  db_drop_table($ret, $table, $new_name);
+  // includes/database.pgsql.inc Drop a unique key.
+  db_drop_unique_key($ret, $table, $new_name);
+  // includes/database.inc Return an array of field names from an array of key/index column specifiers.
+  db_field_names($ret, $table, $new_name);
+  // includes/database.pgsql.inc Set the default value for a field.
+  db_field_set_default($ret, $table, $new_name);
+  // includes/database.pgsql.inc Set a field to have no default value.
+  db_field_set_no_default($ret, $table, $new_name);
+  // includes/database.pgsql.inc Rename a table.
+  db_rename_table($ret, $table, $new_name);
+}
+
+// #db_result (not documented); see #741998
+function example_db_result() {
+  $val = db_result(db_query('SELECT nid FROM {node}'));
+  $val = db_result(
+    db_query('
+      SELECT nid FROM {node}
+      LIMIT 1
+    ')
+  );
+  $val = db_result(db_query('SELECT title FROM {node} WHERE nid = %d ', $nid));
+  $val = db_result(
+    db_query('
+      SELECT title FROM {node}
+      WHERE nid = %d
+    ', $nid)
+  );
+  $query = db_query('SELECT * FROM {node}');
+  $val = db_result($query);
+}
+
+// #db_column_exists (not documented)
+function example_db_column_exists() {
+  $ret = db_column_exists('table', 'field');
+  $ret = db_column_exists($table, $field);
+  if ($ret = db_column_exists('table', 'field')) {
+  }
+}
+
+// http://drupal.org/node/224333#db_is_active
+function example_db_is_active() {
+  // db_is_active() -- Change the next line but leave this alone
+  if (db_is_active()) {
+    // Database is active.
+  }
+  // function_exists() -- Change the next line but leave this alone
+  if (function_exists('db_is_active')) {
+    // Do something.
+  }
+}
+
+/*
+ * Menus
+ */
+
+function example_menu_link_alter(&$item, $menu) {
+  // Example 1 - make all new admin links hidden (a.k.a disabled).
+  if (strpos($item['link_path'], 'admin') === 0 && empty($item['mlid'])) {
+    $item['hidden'] = 1;
+  }
+}
+
+// http://drupal.org/node/224333#admin_path_changes
+function example_admin_path_changes() {
+  $menu['admin/reports/settings'] = array();
+  $menu['admin/build/modules/'] = array();
+  $menu['admin/build/modules/custom-module'] = array();
+  $menu['admin/build/themes'] = array();
+  $menu['admin/build/themes/custom-theme'] = array();
+  $menu['admin/build/path'] = array();
+  $menu['admin/build/path/path-setting'] = array();
+  $menu['admin/build/block'] = array();
+  $menu['admin/build/block/block-setting'] = array();
+  $menu['admin/build/menu'] = array();
+  $menu['admin/build/menu/menu-setting'] = array();
+  $menu['admin/content/types'] = array();
+  $menu['admin/content/taxonomy'] = array();
+  $menu['admin/content/forum'] = array();
+  $menu['admin/build/testing'] = array();
+  $menu['admin/settings/site-maintenance'] = array();
+  $menu['admin/settings/performance'] = array();
+  $menu['admin/settings/filters'] = array();
+  $menu['admin/settings/search'] = array();
+  $menu['admin/settings/clean-urls'] = array();
+}
+
+// Where is http://drupal.org/node/224333#menu-link-hooks?
+
+// http://drupal.org/node/224333#menu_tree_data
+function example_menu_tree_data() {
+  $sql = "menu_tree_data
+    SELECT m.load_functions, m.to_arg_functions, m.access_callback, m.access_arguments, m.page_callback, m.page_arguments, m.title, m.title_callback, m.title_arguments, m.type, m.description, ml.*
+    FROM {menu_links} ml LEFT JOIN {menu_router} m ON m.path = ml.router_path
+    WHERE ml.menu_name = '%s'
+    ORDER BY p1 ASC, p2 ASC, p3 ASC, p4 ASC, p5 ASC, p6 ASC, p7 ASC, p8 ASC, p9 ASC";
+  $result = db_query($sql, $menu['menu_name']);
+  $tree = menu_tree_data($result);
+
+  $sql = "
+    SELECT b.*, m.load_functions, m.to_arg_functions, m.access_callback, m.access_arguments, m.page_callback, m.page_arguments, m.title, m.title_callback, m.title_arguments, m.type, ml.*
+    FROM {menu_links} ml INNER JOIN {menu_router} m ON m.path = ml.router_path
+    INNER JOIN {book} b ON ml.mlid = b.mlid
+    WHERE ". implode(' AND ', $match) ."
+    ORDER BY p1 ASC, p2 ASC, p3 ASC, p4 ASC, p5 ASC, p6 ASC, p7 ASC, p8 ASC, p9 ASC";
+  $data['tree'] = menu_tree_data(db_query($sql, $args), array(), $item['depth']);
+}
+
+/*
+ * Blocks
+ */
+
+/**
+ * Implementation of hook_block().
+ *
+ * http://drupal.org/node/224333#remove_op
+ */
+function example_block($op, $delta, $edit) {
+  if ($op == 'configure') {
+    // Configuration form for the block.
+    if ($delta == 'exciting') {
+      $form['items'] = array(
+        '#type' => 'select',
+        '#title' => t('Number of items'),
+        '#default_value' => variable_get('mymodule_block_items', 0),
+        '#options' => array('1', '2', '3'),
+      );
+      return $form;
+    }
+  }
+  elseif ($op == 'list') {
+    // A list of all blocks defined by the module.
+    $blocks['exciting'] = array(
+      'info' => t('An exciting block provided by Mymodule.'),
+      'weight' => 0,
+      'status' => 1,
+      'region' => 'sidebar_first',
+      // DRUPAL_CACHE_PER_ROLE will be assumed for block 0.
+    );
+
+    $blocks['amazing'] = array(
+      'info' => t('An amazing block provided by Mymodule.'),
+      'cache' => DRUPAL_CACHE_PER_ROLE | DRUPAL_CACHE_PER_PAGE,
+    );
+
+    return $blocks;
+  }
+  elseif ($op == 'save') {
+    // Save the configuration options.
+    if ($delta == 'exciting') {
+      variable_set('mymodule_block_items', $edit['items']);
+    }
+  }
+  elseif ($op == 'view') {
+    // Process the block when enabled in a region in order to view its contents.
+    switch ($delta) {
+      case 'exciting':
+        $block = array(
+          'subject' => t('Default title of the exciting block'),
+          'content' => mymodule_display_block_exciting(),
+        );
+        break;
+
+      case 'amazing':
+        $block = array(
+          'subject' => t('Default title of the amazing block'),
+          'content' => mymodule_display_block_amazing(),
+        );
+        break;
+    }
+    return $block;
+  }
+
+  switch ($op) {
+    case 'configure':
+      // Configuration form for the block.
+      if ($delta == 'exciting') {
+        $form['items'] = array(
+          '#type' => 'select',
+          '#title' => t('Number of items'),
+          '#default_value' => variable_get('mymodule_block_items', 0),
+          '#options' => array('1', '2', '3'),
+        );
+        return $form;
+      }
+      break;
+    case 'list':
+      // A list of all blocks defined by the module.
+      $blocks['exciting'] = array(
+        'info' => t('An exciting block provided by Mymodule.'),
+        'weight' => 0,
+        'status' => 1,
+        'region' => 'sidebar_first',
+        // DRUPAL_CACHE_PER_ROLE will be assumed for block 0.
+      );
+
+      $blocks['amazing'] = array(
+        'info' => t('An amazing block provided by Mymodule.'),
+        'cache' => DRUPAL_CACHE_PER_ROLE | DRUPAL_CACHE_PER_PAGE,
+      );
+
+      return $blocks;
+      break;
+    case 'save':
+      // Save the configuration options.
+      if ($delta == 'exciting') {
+        variable_set('mymodule_block_items', $edit['items']);
+      }
+      break;
+    case 'view':
+      // Process the block when enabled in a region in order to view its contents.
+      switch ($delta) {
+        case 'exciting':
+          $block = array(
+            'subject' => t('Default title of the exciting block'),
+            'content' => mymodule_display_block_exciting(),
+          );
+          break;
+
+        case 'amazing':
+          $block = array(
+            'subject' => t('Default title of the amazing block'),
+            'content' => mymodule_display_block_amazing(),
+          );
+          break;
+      }
+      return $block;
+      break;
+  }
+
+  foreach (array('configure', 'list', 'view') as $op) {
+    // Do something.
+  }
+}
+
+/**
+ * Implementation of hook_block().
+ *
+ * http://drupal.org/node/224333#block_deltas_renamed
+ */
+function example_block($op, $delta = 0, $edit = array()) {
+  switch ($op) {
+    case 'list':
+      $blocks[0] = array(
+        'info' => t('Example block #1'),
+      );
+      $blocks[1] = array(
+        'info' => t('Example block #2'),
+      );
+      return $blocks;
+      break;
+
+    case 'configure':
+      if ($delta == 0) {
+        $form['block_example'] = array(
+          '#type' => 'textfield',
+          '#title' => t('Block Example Field'),
+          '#default_value' => variable_get('example_block_example_field', ''),
+        );
+      }
+      break;
+
+    case 'save':
+      if ($delta == 0) {
+        variable_set('example_block_example_field', $edit['block_example_string']);
+      }
+      break;
+
+    case 'view':
+      switch ($delta) {
+        case 0:
+          $block['subject'] = t('Example Block #1');
+          $block['content'] = variable_get('example_block_example_field', '');
+          break;
+        case 1:
+          $block['subject'] = t('Example Block #1');
+          $block['content'] = t('Example Block #2');
+          break;
+      }
+      return $block;
+      break;
+  }
+}
+
+// http://drupal.org/node/224333#block_tables_renamed
+function example_block_db_tables() {
+  $result = db_query("SELECT * FROM {blocks}");
+  $result = db_query("SELECT * FROM {blocks_roles}");
+  $result = db_query("SELECT * FROM {boxes}");
+}
+
+// http://drupal.org/node/224333#custom_block
+function example_custom_block() {
+  block_box_delete($form);
+  block_box_delete_submit();
+  block_box_form();
+  $box = block_box_get(1);
+  $box = block_box_get($id);
+  block_custom_block_save($edit, $delta);
+  db_query("SELECT * FROM {box}");
+  db_query("SELECT * FROM {BOX}");
+}
+
+/*
+ * Comments
+ */
+
+function example_comment_load() {
+  if ($value) {
+    // perform the update action, then refresh node statistics
+    db_query($query, $cid);
+    // _comment_load() -- Change the next line but leave this alone
+    $comment = _comment_load($cid);
+    _comment_update_node_statistics($comment->nid);
+    // Allow modules to respond to the updating of a comment.
+  }
+}
+
+/**
+ * Implementation of hook_menu().
+ *
+ * Example for comment_wildcard.
+ */
+function example_menu() {
+  global $user;
+  $items = array();
+  $access = user_access('administer all signups');
+
+  $items['node/%_comment/signup'] = array(
+    'title' => user_access('access administration pages') ? t('Signup') : t('Signup settings'),
+    'description' => 'Add a signup node.',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('signup_settings_page'),
+    'access callback' => $access,
+    'type' => MENU_LOCAL_TASK,
+  );
+
+  $items['admin/content/signup'] = array(
+    'title' => 'Signup overview',
+    'description' => t('View all signup-enabled posts, and open or close signups on them.'),
+    'page callback' => 'example_signup_admin_form',
+    'access callback' => $access,
+    'type' => MENU_LOCAL_TASK,
+  );
+}
+
+function example_comment_validate() {
+  // comment_validate() -- Change the next line but leave this alone
+  if ($x = comment_validate('xx')) {
+  }
+  $y = comment_validate($xx['y']);
+}
+
+function example_comment_node_url() {
+  // comment_node_url() -- Change the next line but leave this alone
+  $var = 'xx/' . comment_node_url() . 'yy';
+  if (comment_node_url() == '') {
+  }
+  return comment_node_url();
+}
+
+/**
+ * Implement hook_comment().
+ *
+ * This change is missing from the roadmaps!!!
+ */
+function example_comment(&$a1, $op) {
+  // TODO This is an example of multiple $op values in one condition.
+  if ($op == 'insert' || $op == 'update') {
+    $nid = $a1['nid'];
+  }
+
+  if ($op == "insert") {
+    // The comment is being inserted.
+  }
+  elseif ($op == "update") {
+    // The comment is being updated.
+  }
+  elseif ($op == "view") {
+    // The comment is being viewed. This hook can be used to add additional data to the comment before theming.
+  }
+  elseif ($op == "validate") {
+    // The user has just finished editing the comment and is trying to preview or submit it. This hook can be used to check or even modelseify the node. Errors should be set with form_set_error().
+  }
+  elseif ($op == "publish") {
+    // The comment is being published by the moderator.
+  }
+  elseif ($op == "unpublish") {
+    // The comment is being unpublished by the moderator.
+  }
+  elseif ($op == "delete") {
+    // The comment is being deleted by the moderator.
+  }
+
+  switch ($op) {
+    case "insert":
+      // The comment is being inserted.
+      break;
+    case "update":
+      // The comment is being updated.
+      break;
+    case "view":
+      // The comment is being viewed. This hook can be used to add additional data to the comment before theming.
+      break;
+    case "validate":
+      // The user has just finished editing the comment and is trying to preview or submit it. This hook can be used to check or even modify the node. Errors should be set with form_set_error().
+      break;
+    case "publish":
+      // The comment is being published by the moderator.
+      break;
+    case "unpublish":
+      // The comment is being unpublished by the moderator.
+      break;
+    case "delete":
+      // The comment is being deleted by the moderator.
+      break;
+  }
+
+  cache_clear_all_like(drupal_url(array('id' => $nid)));
+}
+
+/*
+ * Input Sanitization and Input Formats
+ */
+
+function example_check_markup() {
+  // check_markup() -- Change the next line but leave this alone
+  $node->body = check_markup($node->body, $node->format);
+  // $node->body = check_markup($node->body, $node->format, $node->language);
+  $content = check_markup($block->body, $block->format, FALSE);
+}
+
+function example_drupal_set_title() {
+  // drupal_set_title() -- Change the next line but leave this alone
+  drupal_set_title($node->title);
+  drupal_set_title(check_plain($node->title));
+  drupal_set_title(t("@name's blog", array('@name' => $account->name)));
+  drupal_set_title(t("@name's blog is %status", array('@name' => $account->name, '%status' => 'very popular')));
+  drupal_set_title(t("@name's blog is %status in !country", array('@name' => $account->name, '%status' => 'very popular', '!country' => 'my country')));
+  if (drupal_set_title(t("@name's blog", array('@name' => $account->name)))) {
+  }
+  drupal_set_title('check_plain' . ($node->title));
+  drupal_set_title(/* smoke screen */ 'check_plain' . check_plain($node->title/* smoke screen1 */ . 'xxx') . 'yyy' . check_plain($node->title2/* smoke screen2 */));
+}
+
+/**
+ * Implement hook_filter().
+ */
+function example_filter($op, $delta = 0, $format = -1, $text = '', $cache_id = 0) {
+  switch (/*smoke1*/ $op /*smoke2*/) {
+    case /*smoke1*/ 'list' /*smoke2*/:
+      return array(0 => t('Limit allowed HTML tags'), 1 => t('Convert line breaks'), 2 => t('Convert URLs into links'), 3 => t('Correct broken HTML'), 4 => t('Escape all HTML'));
+
+    case /*smoke1*/ 'description' /*smoke2*/:
+      switch ($delta) {
+        case 0:
+          return t('Allows you to restrict the HTML tags the user can use. It will also remove harmful content such as JavaScript events, JavaScript URLs and CSS styles from those tags that are not removed.');
+        case 1:
+          return t('Converts line breaks into HTML (i.e. &lt;br&gt; and &lt;p&gt;) tags.');
+        case 2:
+          return t('Turns web and e-mail addresses into clickable links.');
+        case 3:
+          return t('Corrects faulty and chopped off HTML in postings.');
+        case 4:
+          return t('Escapes all HTML tags, so they will be visible instead of being effective.');
+        default:
+          return;
+      }
+
+    case 'process':
+      switch ($delta) {
+        case 0:
+          return _filter_html($text, $format);
+        case 1:
+          return _filter_autop($text);
+        case 2:
+          return _filter_url($text, $format);
+        case 3:
+          return _filter_htmlcorrector($text);
+        case 4:
+          return trim(check_plain($text));
+        default:
+          return $text;
+      }
+
+    case 'settings':
+      switch ($delta) {
+        case 0:
+          return _filter_html_settings($format);
+        case 2:
+          return _filter_url_settings($format);
+        default:
+          return;
+      }
+
+    default:
+      return $text;
+  }
+}
+
+/**
+ * Implement hook_filter_tips().
+ */
+function example_filter_tips($delta, $format, $long = FALSE) {
+  switch ($delta) {
+    case 0:
+      if ($allowed_html = variable_get("allowed_html_$format", '<a> <em> <strong> <cite> <blockquote> <code> <ul> <ol> <li> <dl> <dt> <dd>')) {
+        switch ($long) {
+          case 0:
+            return t('Allowed HTML tags: @tags', array('@tags' => $allowed_html));
+          case 1:
+            $output = '<p>' . t('Allowed HTML tags: @tags', array('@tags' => $allowed_html)) . '</p>';
+            if (!variable_get("filter_html_help_$format", 1)) {
+              return $output;
+            }
+          }
+      }
+      break;
+
+    case 1:
+      switch ($long) {
+        case 0:
+          return t('Lines and paragraphs break automatically.');
+        case 1:
+          return t('Lines and paragraphs are automatically recognized. The &lt;br /&gt; line break, &lt;p&gt; paragraph and &lt;/p&gt; close paragraph tags are inserted automatically. If paragraphs are not recognized simply add a couple blank lines.');
+      }
+      break;
+
+    case 2:
+      return t('Web page addresses and e-mail addresses turn into links automatically.');
+      break;
+
+    case 4:
+      return t('No HTML tags allowed.');
+      break;
+  }
+}
+
+function example_hook_filter_urls() {
+  $form[$id]['roles'] = array('#markup' => $default ? t('All roles may use default format') : ($roles ? implode(', ', $roles) : t('No roles may use this format')));
+  $form[$id]['edit'] = array('#markup' => l(t('edit'), 'admin/settings/filters/' . $id));
+  $form[$id]['delete'] = array('#markup' => $default ? '' : l(t('delete'), 'admin/settings/filters/delete/' . $id));
+  if ($url = 'admin/settings/filters/delete/' . $id) {
+  }
+}
+
+function example_hook_filter_formats_parameters() {
+  // filter_formats() -- Change the next line but leave this alone
+  // Get a list of formats that the current user has access to.
+  $formats = filter_formats();
+  $formats = filter_formats($index);
+}
+
+/*
+ * Taxonomy
+ */
+
+// http://drupal.org/files/issues/taxonomy_get_tree-depth.patch
+function example_taxonomy_get_tree() {
+  // Do we need to change module_invoke???
+  if ($vocabularies) {
+    foreach ($vocabularies as $vocabulary) {
+      $terms = module_invoke('taxonomy', 'get_tree', $vocabulary->vid, 0, 2);
+      $terms = module_invoke('taxonomy', 'get_tree', $vocabulary->vid, 0, 2, NULL);
+      $terms = module_invoke('taxonomy', 'get_tree', $vocabulary->vid, 0, 2, $max_depth);
+      $terms = module_invoke('taxonomy', 'get_tree', $vocabulary->vid, 0, -1);
+      $terms = module_invoke('taxonomy', 'get_tree', $vocabulary->vid, 0, -1, NULL);
+      $terms = module_invoke('taxonomy', 'get_tree', $vocabulary->vid, 0, -1, $max_depth);
+      $terms = module_invoke('taxonomy', 'get_tree', $vocabulary->vid, 0);
+      foreach ($terms as $term) {
+        $term_name = $term->name;
+        foreach (module_invoke('taxonomy', 'get_parents', $term->tid, 'tid') as $parent) {
+        }
+      }
+    }
+  }
+  // taxonomy_get_tree() -- Change the next line but leave this alone
+  if (!empty($children[$vid][$child])) {
+    $tree = array_merge($tree, taxonomy_get_tree($vid, $child, $depth, $max_depth));
+    // $tree = array_merge($tree, taxonomy_get_tree($vid, $child, $max_depth, $depth));
+  }
+  // taxonomy_get_term_data() -- Change the next line but leave this alone
+  foreach ($tids as $index => $tid) {
+    $term = taxonomy_get_term_data($tid);
+    $tree = taxonomy_get_tree($term->vid, $tid, 2);
+    $tree = taxonomy_get_tree($term->vid, $tid, 2, NULL);
+    $tree = taxonomy_get_tree($term->vid, $tid, 2, $depth);
+    $tree = taxonomy_get_tree($term->vid, $tid, -1);
+    $tree = taxonomy_get_tree($term->vid, $tid, -1, NULL);
+    $tree = taxonomy_get_tree($term->vid, $tid, -1, $depth);
+    $tree = taxonomy_get_tree($term->vid, $tid);
+  }
+}
+
+function example_taxonomy_tables() {
+  // vocabulary_node_types() -- Change the next line but leave this alone
+  // term_node() -- Change the next line but leave this alone
+  /*
+   *   {menu}, {term_data} or {vocabulary}. However, in most cases the usual
+   *   {menu}, {term_data} or {vocabulary}. However, it is more common to use the
+   */
+  $result = db_query(db_rewrite_sql("SELECT t.tid, t.vid FROM {term_data} t INNER JOIN {vocabulary_node_types} n ON t.vid = n.vid WHERE t.tid IN (". db_placeholders($term_list) .") AND n.type = '%s'", 't', 'tid'), $params);
+  // Look up all the vocabularies for this node type.
+  $result2 = db_query(db_rewrite_sql("SELECT v.vid, v.name, v.required, v.multiple FROM {vocabulary} v INNER JOIN {vocabulary_node_types} n ON v.vid = n.vid WHERE n.type = '%s'", 'v', 'vid'), $node->type);
+  // Check each vocabulary associated with this node type.
+  while ($vocabulary = db_fetch_object($result2)) {
+    $row = array(
+      // Required vocabularies must have at least one term.
+      'description' => 'The {term_data}.tid of the forum term assigned to the node.',
+    );
+  }
+  $result = db_query(db_rewrite_sql('SELECT t.tid, t.vid, t.name, t.description, t.weight FROM {term_data} t WHERE t.tid = %d AND t.vid = %d', 't', 'tid'), $tid, variable_get('forum_nav_vocabulary', ''));
+  foreach ($node->taxonomy as $term) {
+    if (db_result(db_query('SELECT COUNT(*) FROM {term_data} WHERE tid = %d AND vid = %d', $term, $vocabulary))) {
+    }
+  }
+  $old_tid = db_result(db_query_range("SELECT t.tid FROM {term_node} t INNER JOIN {node} n ON t.vid = n.vid WHERE n.nid = %d ORDER BY t.vid DESC", $node->nid, 0, 1));
+  if ($op == 'delete' && $term['vid'] == variable_get('forum_nav_vocabulary', '')) {
+    switch ($type) {
+      case 'term':
+        $results = db_query('SELECT tn.nid FROM {term_node} tn WHERE tn.tid = %d', $term['tid']);
+        $tn_alias = $query->join('term_node', 'tn', 'tn.vid = n.vid');
+        $td_alias = $query->join('term_data', 'td', 'tn.tid = tn.tid');
+      case 'new':
+        $title = t('New forum topics');
+        $sql = db_rewrite_sql("SELECT n.nid, n.title, l.comment_count FROM {node} n INNER JOIN {term_node} tn ON tn.vid = n.vid INNER JOIN {term_data} td ON td.tid = tn.tid INNER JOIN {node_comment_statistics} l ON n.nid = l.nid WHERE n.status = 1 AND td.vid = %d ORDER BY n.nid DESC");
+        break;
+    }
+    $sql = "SELECT r.tid, COUNT(n.nid) AS topic_count, SUM(l.comment_count) AS comment_count FROM {node} n INNER JOIN {node_comment_statistics} l ON n.nid = l.nid INNER JOIN {term_node} r ON n.vid = r.vid WHERE n.status = 1 GROUP BY r.tid";
+    // This query does not use full ANSI syntax since MySQL 3.x does not support
+    // table1 INNER JOIN table2 INNER JOIN table3 ON table2_criteria ON table3_criteria
+    // used to join node_comment_statistics to users.
+    $sql = "SELECT ncs.last_comment_timestamp, IF (ncs.last_comment_uid != 0, u2.name, ncs.last_comment_name) AS last_comment_name, ncs.last_comment_uid FROM {node} n INNER JOIN {users} u1 ON n.uid = u1.uid INNER JOIN {term_node} tn ON n.vid = tn.vid INNER JOIN {node_comment_statistics} ncs ON n.nid = ncs.nid INNER JOIN {users} u2 ON ncs.last_comment_uid=u2.uid WHERE n.status = 1 AND tn.tid = %d ORDER BY ncs.last_comment_timestamp DESC";
+  }
+  $sql = "SELECT COUNT(n.nid) FROM {node} n INNER JOIN {term_node} tn ON n.vid = tn.vid AND tn.tid = %d LEFT JOIN {history} h ON n.nid = h.nid AND h.uid = %d WHERE n.status = 1 AND n.created > %d AND h.nid IS NULL";
+  $sql = db_rewrite_sql("SELECT n.nid, r.tid, n.title, n.type, n.sticky, u.name, u.uid, n.created AS timestamp, n.comment AS comment_mode, l.last_comment_timestamp, IF(l.last_comment_uid != 0, cu.name, l.last_comment_name) AS last_comment_name, l.last_comment_uid, l.comment_count AS num_comments, f.tid AS forum_tid FROM {node_comment_statistics} l INNER JOIN {node} n ON n.nid = l.nid INNER JOIN {users} cu ON l.last_comment_uid = cu.uid INNER JOIN {term_node} r ON n.vid = r.vid INNER JOIN {users} u ON n.uid = u.uid INNER JOIN {forum} f ON n.vid = f.vid WHERE n.status = 1 AND r.tid = %d");
+  $sql_count = db_rewrite_sql("SELECT COUNT(n.nid) FROM {node} n INNER JOIN {term_node} r ON n.vid = r.vid AND r.tid = %d WHERE n.status = 1");
+  $sql = "SELECT n.nid, n.title, n.sticky, l.comment_count, l.last_comment_timestamp FROM {node} n INNER JOIN {node_comment_statistics} l ON n.nid = l.nid INNER JOIN {term_node} r ON n.nid = r.nid AND r.tid = %d WHERE n.status = 1 ORDER BY n.sticky DESC, " . _forum_get_topic_order_sql(variable_get('forum_order', 1));
+  // Verify forum.
+  $term = db_fetch_array(db_query("SELECT * FROM {term_data} t WHERE t.vid = %d AND t.name = '%s' AND t.description = '%s'", variable_get('forum_nav_vocabulary', ''), $name, $description));
+  $parent_tid = db_result(db_query("SELECT t.parent FROM {term_hierarchy} t WHERE t.tid = %d", $tid));
+  /*
+   * @param array $forum Forum array (a row from term_data table).
+   * @param array $forum Forum array (a row from term_data table).
+   */
+  $join .= "INNER JOIN {term_node} $table ON n.nid = $table.nid ";
+  $join1 .= ' INNER JOIN {term_node} tn ON n.vid = tn.vid';
+  $join1 .= ' INNER JOIN {term_node} tn ON n.vid = tn.vid';
+  $row = array(
+    'description' => 'The {term_data}.tid of the term.',
+  );
+  $results = pager_query(db_rewrite_sql('SELECT t.*, h.parent FROM {term_data} t INNER JOIN {term_hierarchy} h ON t.tid = h.tid WHERE t.vid = %d ORDER BY weight, name', 't', 'tid'), $page_increment, 0, NULL, $vocabulary->vid);
+  $total_entries = db_query(db_rewrite_sql('SELECT count(*) FROM {term_data} t INNER JOIN {term_hierarchy} h ON t.tid = h.tid WHERE t.vid = :vid'), array(':vid' => $vocabulary->vid));
+  db_query('UPDATE {term_data} SET weight = 0 WHERE vid = %d', $form_state['values']['vid']);
+  db_insert('term_synonym');
+}
+
+function example_taxonomy_crud() {
+  // taxonomy_get_term() -- Change the next line but leave this alone
+  // taxonomy_save_term() -- Change the next line but leave this alone
+  // taxonomy_del_term() -- Change the next line but leave this alone
+  taxonomy_get_term($tid);            // taxonomy_term_load($tid)
+  taxonomy_save_term($form_values);  // taxonomy_term_save($term) (Old is ODD!!!)
+  taxonomy_del_term($tid);            // taxonomy_term_delete($tid)
+
+  // taxonomy_vocabulary_load() -- Change the next line but leave this alone
+  // taxonomy_save_vocabulary() -- Change the next line but leave this alone
+  // taxonomy_del_vocabulary() -- Change the next line but leave this alone
+  taxonomy_vocabulary_load($vid);
+  taxonomy_save_vocabulary($edit);   // taxonomy_vocabulary_save($vocabulary)
+  taxonomy_del_vocabulary($vid);      // taxonomy_vocabulary_delete($vid)
+}
+
+// http://drupal.org/node/224333#taxonomy_form_all
+function example_taxonomy_form_all() {
+  $form = array();
+
+  $form['term'] = array(
+    '#type' => 'select',
+    '#title' => t('Term'),
+    '#options' => taxonomy_form_all(),
+    '#description' => t('Select a term to apply to the node. Keep in mind that the selected product node type must have the selected vocabulary enabled.'),
+    '#default_value' => $settings['term'],
+  );
+
+  $terms = taxonomy_form_all();
+  if ($terms) {
+    $form['term'] = array(
+      '#type' => 'select',
+      '#title' => t('Term'),
+      '#options' => $terms,
+      '#description' => t('Select a term to apply to the node. Keep in mind that the selected product node type must have the selected vocabulary enabled.'),
+      '#default_value' => $settings['term'],
+    );
+  }
+  return $form;
+}
+
+// http://drupal.org/node/224333#no-synonyms-taxonomy
+function example_no_synonyms_taxonomy() {
+  $synonyms = taxonomy_get_synonyms($tid);
+  $synonyms = taxonomy_get_synonyms(0);
+  function_call(taxonomy_get_synonyms($tid));
+  $root = taxonomy_get_synonym_root($synonyms[0]);
+  $root = taxonomy_get_synonym_root(0);
+  $synonyms = db_query("SELECT * FROM {term_synonym} s WHERE s.name = '%s'", $synonym);
+}
+
+/*
+ * Javascript
+ */
+
+// http://drupal.org/node/224333#drupal_add_js_external
+function example_drupal_add_js_external() {
+  // Single quotes.
+  drupal_set_html_head('<script type="text/javascript" src="http://example.com/example.js" />');
+  drupal_set_html_head('<script src="http://example.com/example.js" type="text/javascript" />');
+  drupal_set_html_head('<SCRIPT SRC="http://example.com/example.js" TYPE="text/javascript" />');
+
+  // Double quotes.
+  drupal_set_html_head("<script type='text/javascript' src='http://example.com/example.js' />");
+  drupal_set_html_head("<script src='http://example.com/example.js' type='text/javascript' />");
+  drupal_set_html_head("<SCRIPT SRC='http://example.com/example.js' TYPE='text/javascript' />");
+}
+
+// http://drupal.org/node/224333#drupal_add_js_options
+// http://drupal.org/node/224333#drupal_add_js_weight
+// http://drupal.org/node/224333#drupal_add_css_weight
+function example_drupal_add_js_options() {
+  drupal_add_js('misc/collapse.js');
+  drupal_add_js('misc/collapse.js', 'module');
+  drupal_add_js('misc/collapse.js', 'module', 'footer');
+  drupal_add_js('misc/collapse.js', 'module', 'header', FALSE, TRUE, TRUE);
+  drupal_add_js('misc/collapse.js', 'module', 'header', FALSE, TRUE, FALSE);
+  drupal_add_js('misc/collapse.js', 'module', 'header', FALSE, FALSE, TRUE);
+  drupal_add_js('misc/collapse.js', 'module', 'header', TRUE, FALSE, TRUE);
+
+  drupal_add_js('misc/collapse.js', 'core');
+  drupal_add_js('misc/collapse.js', 'core', 'footer');
+  drupal_add_js('misc/collapse.js', 'core', 'footer', TRUE, FALSE, TRUE);
+
+  drupal_add_css('/modules/devel/devel.css');
+  drupal_add_css('/modules/devel/devel.css', 'module');
+  drupal_add_css('/modules/devel/devel.css', 'module', 'screen');
+  drupal_add_css('/modules/devel/devel.css', 'module', 'all', FALSE);
+
+  drupal_add_css('/modules/devel/devel.css', 'theme');
+  drupal_add_css('/modules/devel/devel.css', 'theme', 'screen');
+  drupal_add_css('/modules/devel/devel.css', 'theme', 'all', FALSE);
+}
+
+// http://drupal.org/node/224333#jquery_ui
+function example_jquery_ui() {
+  jquery_ui_add(array('ui.accordion', 'ui.dialog'));
+  jquery_ui_add('ui.accordion');
+  $files = array('ui.accordion', 'ui.dialog');
+  jquery_ui_add($files);
+  $file = 'ui.accordion';
+  jquery_ui_add($file);
+}
+
+/*
+ * CSS
+ */
+
+// http://drupal.org/node/224333#drupal_add_css_inline
+function example_drupal_add_css_inline() {
+  $color = variable_get('backgroundcolor', '#FFFFFF');
+  drupal_set_html_head("<style type='text/css'>body {background-color: $color}</style>");
+
+  drupal_set_html_head('<style type="text/css">div {background-url: url("images/test.png");}</style>');
+  drupal_set_html_head('
+    <style type="text/css">
+      div {
+        background-url: url("images/test.png");
+      }
+    </style>
+  ');
+}
+
+// http://drupal.org/node/224333#form_clean_id
+function example_form_clean_id() {
+  $class = form_clean_id('string');
+  $id = form_clean_id($id);
+  $class = form_clean_id(implode('-', $form['element']['#parents']));
+
+  $form['element']['#attributes']['class'] = form_clean_id(implode('-', $form['element']['#parents']));
+}
+
+/*
+ * Theming
+ */
+
+// http://drupal.org/node/224333#theme_changes
+/**
+ * Implementation of hook_theme().
+ *
+ * Use case 1: returns array directly.
+ */
+function example_theme() {
+  return array(
+    'example_node_list' => array(
+      'arguments' => array('items' => NULL, 'title' => NULL),
+    ),
+    'example_node_search_admin' => array(
+      'arguments' => array('form' => NULL),
+    ),
+    'example_user_list' => array(
+      'arguments' => array('users' => NULL, 'title' => NULL),
+    ),
+    'example_user_list_2' => array(
+      'arguments' => array('users1' => NULL, 'title1' => NULL, 'users2' => NULL, 'title2' => NULL),
+    ),
+    'example_coder_review_warning_msg' => array(
+      'arguments' => array(
+        'error' => NULL,
+      ),
+    ),
+    'example_coder_review_table_cols' => array(
+      'arguments' => array(
+        'form' => NULL,
+      ),
+    ),
+    'example_phpapi' => array(
+      'arguments' => array(
+        'function' => NULL,
+      ),
+    ),
+    // No arguments.
+    'example_missing' => array(
+    ),
+    // Why would you define this with empty arguments?
+    'example_empty' => array(
+      'arguments' => array(),
+    ),
+  );
+}
+
+/**
+ * Implementation of hook_theme().
+ *
+ * Use case 2: makes one assignment to array variable; returns variable.
+ */
+function example_theme() {
+  $theme = array(
+    'example_node_list' => array(
+      'arguments' => array('items' => NULL, 'title' => NULL),
+    ),
+    'example_node_search_admin' => array(
+      'arguments' => array('form' => NULL),
+    ),
+    'example_user_list' => array(
+      'arguments' => array('users' => NULL, 'title' => NULL),
+    ),
+    'example_user_list_2' => array(
+      'arguments' => array('users1' => NULL, 'title1' => NULL, 'users2' => NULL, 'title2' => NULL),
+    ),
+    'example_coder_review_warning_msg' => array(
+      'arguments' => array(
+        'error' => NULL,
+      ),
+    ),
+    'example_coder_review_table_cols' => array(
+      'arguments' => array(
+        'form' => NULL,
+      ),
+    ),
+    'example_phpapi' => array(
+      'arguments' => array(
+        'function' => NULL,
+      ),
+    ),
+  );
+  return $theme;
+}
+
+/*
+from: ('.*') => array\(
+to: $theme[\1] = array(
+*/
+
+/**
+ * Implementation of hook_theme().
+ *
+ * Use case 3: makes multiple assignments to array variable; returns variable.
+ */
+function example_theme() {
+  $theme = array();
+  $theme['example_node_list'] = array(
+    'arguments' => array('items' => NULL, 'title' => NULL),
+  );
+  $theme['example_node_search_admin'] = array(
+    'arguments' => array('form' => NULL),
+  );
+  $theme['example_user_list'] = array(
+    'arguments' => array('users' => NULL, 'title' => NULL),
+  );
+  $theme['example_user_list_2'] = array(
+    'arguments' => array('users1' => NULL, 'title1' => NULL, 'users2' => NULL, 'title2' => NULL),
+  );
+  $theme['example_coder_review_warning_msg'] = array(
+    'arguments' => array(
+      'error' => NULL,
+    ),
+  );
+  $theme['example_coder_review_table_cols'] = array(
+    'arguments' => array(
+      'form' => NULL,
+    ),
+  );
+  $theme['example_phpapi'] = array(
+    'arguments' => array(
+      'function' => NULL,
+    ),
+  );
+  return $theme;
+}
+
+function example_theme_changes() {
+  // Themes in uninstalled core modules.
+  theme('aggregator_summary_items',$summary_items, $source);
+  theme('book_export_html', $title, $contents, $depth);
+
+  // Themes in installed core modules.
+  // Single quotes.
+  theme('user_list', $users, $title);
+  // Next two add $width, $height after $path.
+  theme('image', $path, $alt, $title, $attributes, $getsize);
+  theme('image_style', $style_name, $path, $alt, $title, $attributes, $getsize);
+  theme('menu_admin_overview', $title, $name, $description);
+  theme('rdf_template_variable_wrapper', $content, $attributes, $context, $inline);
+
+  // Double quotes.
+  theme("user_list", $users, $title);
+
+  // Themes in this module.
+  // Single quotes.
+  theme('example_user_list', $users, $title);
+  theme('example_user_list_2', $users1, $title1, $users2, $title2);
+  // Double quotes.
+  theme("example_user_list", $users, $title);
+  theme("example_user_list_2", $users1, $title1, $users2, $title2);
+
+  // Missing themes.
+  theme('example_user_list_xx', $users, $title);
+  theme("example_user_list_xx", $users, $title);
+  theme('xxx', $users, $title);
+
+  // Find the hook assignment.
+  $hook = 'user_list';
+  theme($hook, $users, $title);
+
+  // Missing variables parameters.
+  theme('user_list');
+  theme('example_user_list');
+}
+
+// http://drupal.org/node/224333#drupal_render_children
+// http://drupal.org/node/224333#theme_changes
+function theme_example_node_list($items = NULL, $title = NULL) {
+  // Render one specific child of the current element.
+  $output = '<blink>' . drupal_render($element['child1']) . '</blink>';
+
+  // Render all the remaining children of the current element.
+  $output .= drupal_render($element);
+  return $output;
+}
+
+function theme_example_node_search_admin($form = NULL) {
+}
+
+function theme_example_user_list($users = NULL, $title = NULL) {
+}
+
+function theme_example_user_list_2($users1 = NULL, $title1 = NULL, $users2 = NULL, $title2 = NULL) {
+}
+
+function theme_example_coder_review_warning_msg($error = NULL) {
+}
+
+function theme_example_coder_review_table_cols($form = NULL) {
+}
+
+function theme_example_phpapi($function = NULL) {
+}
+
+function theme_example_missing() {}
+
+function theme_example_undefined($function = NULL) {
+}
+
+// http://drupal.org/node/224333#theme_page
+function example_theme_page() {
+  $form = array();
+  print theme('page', $form);
+  print theme("page", $form);
+  return theme('page', $output);
+}
+
+// http://drupal.org/node/224333#placeholder
+function example_placeholder() {
+  // theme('placeholder') -- Change the next line but leave this alone
+  $placeholder = theme('placeholder');
+  $placeholder = theme("placeholder");
+  $placeholder = theme('placeholder', array('text' => $format->name));
+  $placeholder = theme("placeholder", array("text" => $format->name));
+}
+
+// http://drupal.org/node/224333#theme_pager
+function example_theme_pager() {
+  $pager = theme('pager', $tags, $limit, $element, $parameters, $quantity);
+  $pager = theme('pager', $tags, $limit, $element, $parameters);
+  $pager = theme('pager', $tags, $limit, $element);
+  $pager = theme('pager', $tags, $limit);
+  $pager = theme('pager', $tags);
+  $pager = theme('pager', array(), 100, 0, array(), 200);
+  $pager = theme('pager');
+}
+
+// http://drupal.org/node/224333#theme_username
+function example_theme_username() {
+  $user = user_load(1);
+  print theme('username', $user);
+  print theme("username", $user_load(1));
+}
+
+/*
+ * Form API
+ */
+
+/**
+ * Implemenatation of hook_form_alter().
+ *
+ * http://drupal.org/node/224333#node_form
+ */
+function example_form_alter(&$form, &$form_state, $form_id) {
+  if (isset($form['type']) && isset($form['#node']) && $form['type']['#value'] .'_node_form' == $form_id) {
+    // Alter node form.
+  }
+  if (isset($form['type']) && isset($form['#node']) && $form['type']['#value'] .'_node_form' == $form_id && $form['type']['#value'] == 'page') {
+    // Alter page node form.
+  }
+  // Try to make it harder to detect.
+  if (isset($form['type']) &&
+      isset($form['#node']) &&
+      $form['type']['#value'] .'_node_form' == $form_id) {
+    // Alter node form.
+  }
+// Change the condition order (not handled by routine).
+  if (isset($form['#node']) &&
+      isset($form['type']) &&
+      $form['type']['#value'] .'_node_form' == $form_id) {
+    // Alter node form.
+  }
+}
+
+// http://drupal.org/node/224333#process_functions
+// http://drupal.org/files/issues/unify-process-callbacks_0.patch
+function example_process_functions() {
+  $form['element'] = array(
+    '#default_value' => $status,
+    '#options' => $options,
+    '#process' => array(
+      'expand_checkboxes',
+      'system_modules_disable',
+    )
+  );
+  $form['element'] = array(
+    '#process' => array('form_process_ahah'),
+  );
+  $form['element'] = array(
+    '#process' => array('form_process_weight', 'form_process_ahah'),
+  );
+  $type['image_button'] = array(
+    '#input' => TRUE,
+    '#button_type' => 'submit',
+    '#executes_submit_callback' => TRUE,
+    '#process' => array('form_expand_ahah'),
+    '#return_value' => TRUE,
+    '#has_garbage_value' => TRUE,
+    '#src' => NULL,
+    '#size' => 60,
+    '#maxlength' => 128,
+    '#autocomplete_path' => FALSE,
+    '#process' => array('form_expand_ahah'),
+  );
+  $type['radios'] = array(
+    '#input' => TRUE,
+    '#process' => array('expand_radios'),
+  );
+  $type['radio'] = array(
+    '#input' => TRUE,
+    '#default_value' => NULL,
+    '#process' => array('form_expand_ahah'),
+  );
+}
+
+// http://drupal.org/node/224333#drupal_execute_drupal_form_submit
+function example_drupal_execute() {
+  // drupal_execute() -- Change the next line but leave this alone
+  drupal_execute('story_node_form', $form_state, (object)$node);
+  if (drupal_execute('story_node_form', $form_state, (object)$node)) {
+  }
+}
+
+/**
+ * Implementation of hook_menu().
+ *
+ * Example for hook_forms_signature.
+ * http://drupal.org/node/224333#hook_forms_signature
+ */
+function example_menu() {
+  // Using drupal_get_form.
+  $items['admin/config/development/coder/upgrade'] = array(
+    'title' => 'Upgrade',
+    'description' => 'Convert module code from version 6.x to 7.x.',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('example_conversions_form'),
+    'access arguments' => array('administer code conversions'),
+    'type' => MENU_LOCAL_TASK,
+  );
+
+  // Not using drupal_get_form.
+  $items['admin/content/signup'] = array(
+    'title' => 'Signup overview',
+    'description' => 'View all signup-enabled posts, and open or close signups on them.',
+    'page callback' => 'example_signup_admin_form',
+    'access callback' => $access,
+    'type' => MENU_LOCAL_TASK,
+  );
+
+  // Items inside a loop.
+  $loop_items = example_items_get();
+  foreach ($loop_items as $key => $loop_item) {
+    if (!empty($loop_item['menu'])) {
+      foreach($loop_item['menu'] as $op => $menu_item) {
+        if ($menu_item != EXAMPLE_MENU_DISABLED) {
+          if ($menu_item == EXAMPLE_MENU_DEFAULT) {
+            $menu_item = !empty($info['default']['menu'][$op]) ? $info['default']['menu'][$op] : array();
+          }
+          // Set other items.
+          $items['admin/config/development/coder/upgrade2'] = array(
+            'title' => 'Upgrade',
+            'description' => 'Convert module code from version 6.x to 7.x.',
+            'page callback' => 'drupal_get_form',
+            'page arguments' => array('example_conversions_form2'),
+            'access arguments' => array('administer code conversions'),
+            'type' => MENU_LOCAL_TASK,
+          );
+          $items['admin/content/signup2'] = array(
+            'title' => $op,
+            'page callback' => 'example_user_form2',
+            'access callback' => 'example_user_access',
+            'type' => MENU_CALLBACK,
+            'file path' => drupal_get_path('module', $loop_item['module']),
+          );
+
+          // Set admin items.
+          $default_menu_fields = array(
+            'title' => $op,
+            'page callback' => 'drupal_get_form',
+            'access callback' => 'example_user_access',
+            'type' => MENU_CALLBACK,
+            'file path' => drupal_get_path('module', $loop_item['module']),
+          );
+          $admin_path = 'admin/%/'. $op .'/'. $loop_item['handler'];
+          $items[$admin_path] = array_merge($default_menu_fields, $menu_item);
+          $items[$admin_path]['page arguments'][] = 'example_admin_form3';
+          $items[$admin_path]['page arguments'][] = 1;
+
+          // Set user items.
+          $default_menu_fields = array(
+            'title' => $op,
+            'page callback' => 'example_user_form3',
+            'access callback' => 'example_user_access',
+            'type' => MENU_CALLBACK,
+            'file path' => drupal_get_path('module', $loop_item['module']),
+          );
+          $user_path = 'user/%user/example/%/'. $op .'/'. $loop_item['handler'];
+          $default_menu_fields['access arguments'] = array(1, 3, 4);
+          $items[$user_path] = array_merge($default_menu_fields, $menu_item);
+          $items[$user_path]['page arguments'][] = 1;
+          $items[$user_path]['page arguments'][] = 3;
+        }
+      }
+    }
+  }
+  return $items;
+}
+
+function example_conversions_form(&$form_state) {
+  $form = array();
+  return $form;
+}
+
+function example_signup_admin_form(&$form_state) {
+  $form = array();
+  return $form;
+}
+
+function example_conversions_form2(&$form_state) {
+  $form = array();
+  return $form;
+}
+
+function example_admin_form3(&$form_state, $p0) {
+  $form = array();
+  return $form;
+}
+
+function example_user_form2(&$form_state, $p0, $p1) {
+  $form = array();
+  return $form;
+}
+
+function example_drupal_get_form() {
+  $form = drupal_get_form('example_my_form', $p0);
+  return drupal_get_form($form_id);
+}
+
+function example_my_form(&$form_state, $p0) {
+  $form = array();
+  return $form;
+}
+
+/**
+ * Implementation of hook_elements().
+ *
+ * http://drupal.org/node/224333#hook_element_info
+ */
+function example_elements() {
+  $type['filter_format'] = array('#input' => TRUE);
+  return $type;
+}
+
+// http://drupal.org/node/224333#fapi_changes
+function example_fapi_changes() {
+  $form['#redirect'] = 'node/1';
+  $form["#redirect"] = $node;
+  $form_state['#redirect'] = 'node/1';
+
+  $_REQUEST['destination'] = 'node/1';
+  $_REQUEST["destination"] = $node;
+  $_GET['destination'] = 'node/1';
+}
+
+/*
+ * File API
+ */
+
+function example_file_scan_directory() {
+  // Start with l() since we can use this code to get arguments. Easier with parser.
+  $link = l($text, $path, $attributes = array(), $query = NULL, $fragment = NULL, $absolute = FALSE, $html = FALSE);
+  file_scan_directory($dir, $mask, $nomask = array('.', '..', 'CVS'), $callback = 0, $recurse = TRUE, $key = 'filename', $min_depth = 0, $depth = 0);
+  file_scan_directory($dir, $mask, $nomask, $callback, $recurse, $key, $min_depth, $depth);
+  file_scan_directory($dir, $mask, array('.', '..', 'CVS'), 0, TRUE, 'filename', 0, 0);
+  file_scan_directory($dir, $mask, array('.', '..', 'CVS'), 0, TRUE, 'filename', 0);
+
+  // Non-default values.
+  file_scan_directory($dir, $mask, array('.svn', '.cvs', 'xx'), 10, FALSE, 'basename', 5);
+
+  // Attempt to change $mask
+  $mask = '\.module$';
+  file_scan_directory($dir, $mask, array(".", "..", "CVS"), 0, TRUE, 'filename', 0, 0);
+
+  // Attempt to change $nomask
+  $mask = '\.module$';
+  $nomask = array(".", "..", "CVS");
+  file_scan_directory($dir, $mask, $nomask, $callback, $recurse, $key, $min_depth, $depth);
+  // file_scan_directory() -- Change the next line but leave this alone
+  file_scan_directory($dir, '\.module$', array('.', '..', 'CVS'), 0, TRUE, 'filename', 0, 0);
+
+  foreach (file_scan_directory(DRUPAL_ROOT . '/includes/database', '^[a-z/]*$', array('.', '..', 'CVS'), 0, FALSE) as $file) {
+    include_once "{$file->filename}/install.inc";
+    include_once "{$file->filename}/database.inc";
+    $drivers[$file->basename] = $file->filename;
+/*
+ This is the expected code.
+    include_once "{$file->filepath}/install.inc";
+    include_once "{$file->filepath}/database.inc";
+    $drivers[$file->filename] = $file->filepath;
+*/
+   }
+}
+
+function example_file_set_status() {
+  // file_set_status() -- Change the next line but leave this alone
+  file_set_status($file, FILE_STATUS_PERMANENT);
+  if (file_set_status($file, FILE_STATUS_PERMANENT)) {
+  }
+  // The following lines are the new code. Documentation example uses |= while patch has &=???
+  $file->status &= FILE_STATUS_PERMANENT;
+  $file = file_save($file);
+}
+
+// http://drupal.org/node/224333#remove_FILE_STATUS_TEMPORARY
+function example_remove_file_status_temporary() {
+  $file->status = FILE_STATUS_TEMPORARY;
+  $file = array(
+    'status' => FILE_STATUS_TEMPORARY,
+  );
+  function_call(FILE_STATUS_TEMPORARY);
+}
+
+function example_drupal_system_listing() {
+  // drupal_system_listing() -- Change the next line but leave this alone
+  // Get current list of modules
+  $files = drupal_system_listing('\.module$', 'modules', 'name', 0);
+  // Respect the quote type (single or double)
+  $files = drupal_system_listing("\.module$", 'modules', 'name', 0);
+  // Attempt to change $mask
+  $mask = '\.module$';
+  $files = drupal_system_listing($mask, 'modules', 'name', 0);
+}
+
+function example_file_prepare_directory() {
+  file_check_directory($full_path, FILE_CREATE_DIRECTORY);
+  file_check_directory('file/test', FILE_CREATE_DIRECTORY);
+}
+
+/*
+function example_() {
+  // () -- Change the next line but leave this alone
+
+}
+
+function example_() {
+  // () -- Change the next line but leave this alone
+
+}
+
+function example_() {
+  // () -- Change the next line but leave this alone
+
+}
+*/
+
+/*
+ * User API
+ */
+
+// http://drupal.org/node/224333#user_cancel
+function example_user_cancel($edit, $uid) {
+  // user_delete() -- Change the next line but leave this alone
+  user_delete($form_state['values'], $form_state['values']['_account']->uid);
+}
+
+/**
+ * Implementation of hook_user().
+ *
+ * The $user parameter was renamed to $account in 4.7.
+ * The "form" and "register" operations have been removed. Use hook_form_alter instead.
+ */
+function example_user($op, &$edit, &$user, $category = NULL) {
+  if ($op == 'delete') {
+    db_query('UPDATE {node} SET uid = 0 WHERE uid = %d', $user->uid);
+    db_query('UPDATE {node_revisions} SET uid = 0 WHERE uid = %d', $user->uid);
+  }
+  elseif ($op == 'form' && $category == 'account') {
+    $form['comment_settings'] = array(
+      '#type' => 'fieldset',
+      '#title' => t('Comment settings'),
+      '#collapsible' => TRUE,
+      '#weight' => 4);
+    $form['comment_settings']['signature'] = array(
+      '#type' => 'textarea',
+      '#title' => t('Signature'),
+      '#default_value' => $edit['signature'],
+      '#description' => t('Your signature will be publicly displayed at the end of your comments.'));
+    return $form;
+  }
+  else {
+    // Why would we have an ELSE in this situation?
+    db_query('UPDATE {node} SET uid = 0 WHERE uid = %d', $user->uid);
+    db_query('UPDATE {node_revisions} SET uid = 0 WHERE uid = %d', $user->uid);
+  }
+
+  switch ($op_test) {
+    case 'after_update':
+      // The user object has been updated and changed. Use this if (probably along with 'insert') if you want to reuse some information from the user object.
+      // This block becomes example_
+      break;
+  }
+  switch ($op) {
+    case 'after_update':
+      // The user object has been updated and changed. Use this if (probably along with 'insert') if you want to reuse some information from the user object.
+      // This block becomes example_
+      break;
+    case 'categories':
+      // A set of user information categories is requested.
+      // This block becomes example_
+      break;
+    case 'delete':
+      // The user account is being deleted. The module should remove its custom additions to the user object from the database.
+      // This block becomes example_
+      break;
+    case 'form':
+      // The user account edit form is about to be displayed. The module should present the form elements it wishes to inject into the form.
+      // This block becomes example_
+      break;
+    case 'insert':
+      // The user account is being added. The module should save its custom additions to the user object into the database and set the saved fields to NULL in $edit.
+      // This block becomes example_
+      break;
+    case 'load':
+      // The user account is being loaded. The module may respond to this and insert additional information into the user object.
+      // This block becomes example_
+      break;
+    case 'login':
+      // The user just logged in.
+      // This block becomes example_
+      break;
+    case 'logout':
+      // The user just logged out.
+      // This block becomes example_
+      break;
+    case 'register':
+      // The user account registration form is about to be displayed. The module should present the form elements it wishes to inject into the form.
+      // This block becomes example_
+      break;
+    case 'submit':
+      // Modify the account before it gets saved.
+      // This block becomes example_
+      break;
+    case 'update':
+      // The user account is being changed. The module should save its custom additions to the user object into the database and set the saved fields to NULL in $edit.
+      // This block becomes example_
+      break;
+    case 'validate':
+      // The user account is about to be modified. The module should validate its custom additions to the user object, registering errors as necessary.
+      // This block becomes example_
+      break;
+    case 'view':
+      // The user's account information is being displayed. The module should format its custom additions for display, and add them to the $account->content array.
+      // This block becomes example_
+      break;
+  }
+}
+
+// http://drupal.org/node/224333#user_load_multiple
+function example_user_load_multiple() {
+  // user_load() -- Change the next line but leave this alone
+  user_load();
+  user_load(100);
+  user_load('100');
+
+  $uid = 100;
+  user_load($uid);
+
+  $uid = '100';
+  user_load($uid);
+
+  $user_params = array('uid' => arg(1));
+  user_load($user_params);
+
+  $user_params = array('name' => $edit['author']);
+  user_load($user_params);
+
+  $user_params = array('uid' => arg(1), 'mail' => $name, 'status' => 1);
+  user_load($user_params);
+
+  if (isset($edit['author']) && !$account = user_load(array('name' => $edit['author']))) {
+    form_set_error('author', t('You have to specify a valid author.'));
+  }
+
+  $account = user_load(array('uid' => $node->uid));
+  if ($account = user_load(array('uid' => arg(1)))) {
+  }
+
+  if ($account = user_load(array('uid' => arg(1), 'mail' => $name, 'status' => 1))) {
+  }
+
+  $user = user_load(array('uid' => $array['uid']));
+  $account = user_load(array('uid' => (int)$uid));
+  $account = user_load(array('mail' => $name, 'status' => 1));
+}
+
+function example_2_user_load_multiple($parameter) {
+  // Add comment as we can not easily determine the nature of $parameter.
+  $user = user_load(/*x*/$parameter/*y*/);
+}
+
+function example_user_authenticate() {
+  // () -- Change the next line but leave this alone
+  global $user;
+
+  $user = user_authenticate($form_values);
+  $user = user_authenticate(array('name' => $username, 'pass' => $password));
+}
+
+/**
+ * Implementation of hook_profile_alter().
+ *
+ * Example for hook-user-changes.
+ */
+function example_profile_alter(&$account) {
+  foreach ($account->content as $key => $field) {
+    // do something
+  }
+}
+
+/*
+ * Node API
+ */
+
+// http://drupal.org/node/224333#node_load_multiple
+function example_node_load() {
+  $node = node_load(1);
+  $node = node_load($nid);
+  $node = node_load(array('nid' => 1));
+  $node = node_load(arg(1));
+  if ($node = node_load(1)) {
+  }
+
+  $node = node_load(1, 1);
+  $node = node_load($nid, $revision);
+  $node = node_load(array('nid' => 1), 1);
+  $node = node_load(1, 1, TRUE);
+  $node = node_load(array('nid' => 1), 1, TRUE);
+  $node = node_load($nid, $revision, $reset);
+
+  $node = node_load(array('title' => $title));
+  $node = node_load(array('title' => $title), 1);
+  $node = node_load(array('title' => $title), $vid);
+  $node = node_load(array('title' => $title), 1, TRUE);
+  if ($node = node_load(array('title' => $title))) {
+
+  }
+}
+
+// http://drupal.org/node/224333#node_type_base
+/**
+ * Implementation of hook_node_info().
+ *
+ * Use case 1: returns array directly.
+ */
+function example_node_info() {
+  return array(
+    'blog' => array(
+      'name' => t('Blog entry'),
+      'module' => 'blog',
+      'description' => t('A <em>blog entry</em> is a single post to an online journal.'),
+    ),
+    "example_item" => array(
+      "name" => t('Example item'),
+      "module" => 'node',
+      "description" => 'Test the node to node_content upgrade.',
+      "title_label" => t('Example item'),
+      "body_label" => t('Description'),
+    )
+  );
+}
+
+/**
+ * Implementation of hook_node_info().
+ *
+ * Use case 2: makes one assignment to array variable; returns variable.
+ */
+function example_node_info() {
+  $info = array(
+    'forum' => array(
+      'name' => t('Forum topic'),
+      'module' => 'forum',
+      'description' => t('A <em>forum topic</em> starts a new discussion thread within a forum.'),
+      'title_label' => t('Subject'),
+    ),
+    "example_item" => array(
+      "name" => t('Example item'),
+      "module" => 'node',
+      "description" => 'Test the node to node_content upgrade.',
+      "title_label" => t('Example item'),
+      "body_label" => t('Description'),
+    )
+  );
+  return $info;
+}
+
+/**
+ * Implementation of hook_node_info().
+ *
+ * Use case 3: makes multiple assignments to array variable; returns variable.
+ */
+function example_node_info() {
+  $info = array();
+  $info['deadwood_item'] = array(
+    'name' => t('Deadwood item'),
+    'module' => 'deadwood',
+    'description' => 'Item for a deadwood conversion category.',
+    'title_label' => t('Deadwood item'),
+    'body_label' => t('Description'),
+  );
+  $info['example_item'] = array(
+    "name" => t('Example item'),
+    "module" => 'node',
+    "description" => 'Test the node to node_content upgrade.',
+    "title_label" => t('Example item'),
+    "body_label" => t('Description'),
+  );
+  return $info;
+}
+
+/**
+ * Implementation of hook_node_info().
+ *
+ * Create node types for each product class and other product modules.
+ *
+ * Use case 4: makes multiple assignments to array variable; returns variable.
+ * (inside a while loop)
+ */
+function example_node_info($reset = FALSE) {
+  static $types = array();
+  $title_label = t('Name');
+  $body_label = t('Description');
+
+  if (empty($types) || $reset) {
+    $types = array();
+    $types['product'] = array(
+      'name' => t('Product'),
+      'module' => 'uc_product',
+      'description' => t('This node displays the representation of a product for sale on the website. It includes all the unique information that can be attributed to a specific model number.'),
+      'title_label' => $title_label,
+      'body_label' => $body_label,
+    );
+
+    $result = db_query("SELECT pcid, name, description FROM {uc_product_classes}");
+    while ($class = db_fetch_object($result)) {
+      $types[$class->pcid] = array(
+        'name' => $class->name,
+        'module' => 'uc_product',
+        'description' => $class->description,
+        'title_label' => $title_label,
+        'body_label' => $body_label,
+      );
+    }
+  }
+  return $types;
+}
+
+/**
+ * This is from default.profile.
+ */
+function default_profile_tasks(&$task, $url) {
+
+  // Insert default user-defined node types into the database. For a complete
+  // list of available node type attributes, refer to the node type API
+  // documentation at: http://api.drupal.org/api/HEAD/function/hook_node_info.
+  $types = array(
+    array(
+      'type' => 'page',
+      'name' => st('Page'),
+      'module' => 'node',
+      'description' => st("A <em>page</em>, similar in form to a <em>story</em>, is a simple method for creating and displaying information that rarely changes, such as an \"About us\" section of a website. By default, a <em>page</em> entry does not allow visitor comments and is not featured on the site's initial home page."),
+      'custom' => TRUE,
+      'modified' => TRUE,
+      'locked' => FALSE,
+      'help' => '',
+      'min_word_count' => '',
+    ),
+    array(
+      'type' => 'story',
+      'name' => st('Story'),
+      'module' => 'node',
+      'description' => st("A <em>story</em>, similar in form to a <em>page</em>, is ideal for creating and displaying content that informs or engages website visitors. Press releases, site announcements, and informal blog-like entries may all be created with a <em>story</em> entry. By default, a <em>story</em> entry is automatically featured on the site's initial home page, and provides the ability to post comments."),
+      'custom' => TRUE,
+      'modified' => TRUE,
+      'locked' => FALSE,
+      'help' => '',
+      'min_word_count' => '',
+    ),
+  );
+
+  foreach ($types as $type) {
+    $type = (object) _node_type_set_defaults($type);
+    node_type_save($type);
+  }
+}
+
+/**
+ * This would be in an .install file.
+ *
+ * The function name is not a hook. The function call to node_type_save is
+ * the only thing to rely on. Use the parser parent and container properties
+ * to find the function?
+ *
+ */
+function _book_install_type_create() {
+  // Create an additional node type
+  $book_node_type = array(
+    'type' => 'book',
+    'name' => t('Book page'),
+    'module' => 'node',
+    'description' => t('A <em>book page</em> is a page of content, organized into a collection of related entries collectively known as a <em>book</em>. A <em>book page</em> automatically displays links to adjacent pages, providing a simple navigation system for organizing and reviewing structured content.'),
+    'custom' => TRUE,
+    'modified' => TRUE,
+    'locked' => FALSE,
+  );
+
+  $book_node_type = (object)_node_type_set_defaults($book_node_type);
+  node_type_save($book_node_type);
+  // Default to not promoted.
+  variable_set('node_options_book', array('status'));
+  // Use this default type for adding content to books.
+  variable_set('book_allowed_types', array('book'));
+  variable_set('book_child_type', 'book');
+}
+
+/**
+ *
+ * The signature is hook_link($type, $object, $teaser = FALSE).
+ * We need to determine the variable name used in the second parameter
+ * and use this in the code to be inserted. If it is $object, then
+ * change to $node when moving to hook_node_view.
+ */
+function example_link($type, $node = NULL, $teaser = FALSE) {
+  $links = array();
+
+  if ($type == 'node' && $node->type == 'blog') {
+    if (arg(0) != 'blog' || arg(1) != $node->uid) {
+      $links['blog_usernames_blog'] = array(
+        'title' => t("!username's blog", array('!username' => $node->name)),
+        'href' => "blog/$node->uid",
+        'attributes' => array('title' => t("Read !username's latest blog entries.", array('!username' => $node->name))),
+      );
+    }
+  }
+  if ($type == 'comment' && $node->type == 'blog') {
+    if (arg(0) != 'blog' || arg(1) != $node->uid) {
+      $links['blog_usernames_blog'] = array(
+        'title' => t("!username's blog", array('!username' => $node->name)),
+        'href' => "blog/$node->uid",
+        'attributes' => array('title' => t("Read !username's latest blog entries.", array('!username' => $node->name))),
+      );
+    }
+  }
+
+  return $links;
+
+  /* Add this to the outer if block before moving it all to the hook_node_view code.
+      $node->content['links']['blog'] = array(
+        '#theme' => 'links',
+        '#links' => $links,
+      );
+  */
+}
+
+/**
+ * Builds a structured array representing the node's content.
+ *
+ * The content built for the node (field values, comments, file attachments or
+ * other node components) will vary depending on the $build_mode parameter.
+ *
+ * Drupal core defines the following build modes for nodes, with the following
+ * default use cases:
+ *   - full (default): node is being displayed on its own page (node/123)
+ *   - teaser: node is being displayed on the default home page listing, on
+ *     taxonomy listing pages, or on blog listing pages.
+ *   - rss: node displayed in an RSS feed.
+ *   If search.module is enabled:
+ *   - search_index: node is being indexed for search.
+ *   - search_result: node is being displayed as a search result.
+ *   If book.module is enabled:
+ *   - print: node is being displayed in print-friendly mode.
+ * Contributed modules might define additional build modes, or use existing
+ * build modes in additional contexts.
+ *
+ * @param $node
+ *   A node object.
+ * @param $build_mode
+ *   Build mode, e.g. 'full', 'teaser'...
+ */
+function node_build_content($node, $build_mode = 'full') {
+}
+// http://drupal.org/node/224333#node_build_rss
+// Should there be a $build_mode parameter?
+// See http://api.drupal.org/api/function/hook_node_view/7
+/**
+ * An implementation of hook_node_view().
+ */
+function taxonomy_node_view($node) {
+  if ($node->build_mode == NODE_BUILD_RSS) {
+    foreach ($node->taxonomy as $term) {
+      $node->rss_elements[] = array(
+        'key' => 'category',
+        'value' => $term->name,
+        'attributes' => array('domain' => url(taxonomy_term_path($term), array('absolute' => TRUE))),
+      );
+    }
+  }
+}
+
+/**
+ * Implement hook_nodeapi.
+ *
+ * Is there a diagram showing the order of node operations?
+ * Example: see comments in hook_node_build_alter.
+ * The "form" and "register" operations have been removed. Use hook_form_alter instead.
+ */
+function example_nodeapi(&$node, $op, $a3 = NULL, $a4 = NULL) {
+  if ($op == 'delete') {
+    $node->nid = 0;
+    // Do something.
+  }
+  elseif ($op == 'prepare translation' && $a3 == 'account') {
+    $node->title = 'Get rid of the deadwood.';
+    // Do something.
+  }
+  else {
+    // Why would we have an ELSE in this situation?
+    $node->body = 'Coder Upgrade is awesome.';
+    // Do something.
+  }
+
+  switch ($op) {
+    case 'alter':
+      // This block becomes example_node_build_alter
+      break;
+    case 'delete':
+      // This block becomes example_node_delete
+      break;
+    case 'delete revision':
+      // This block becomes example_node_revision_delete
+      break;
+    case 'insert':
+      // This block becomes example_node_insert
+      break;
+    case 'load':
+      // This block becomes example_node_load
+      break;
+    case 'prepare':
+      // This block becomes example_node_prepare
+      break;
+    case 'prepare translation':
+      // This block becomes example_node_prepare_translation
+      break;
+    case 'print':
+      // This block becomes example_node_view with $build_mode = 'print'
+      break;
+    case 'rss item':
+      // This block becomes example_node_view with $build_mode = 'rss'
+      break;
+    case 'search result':
+      // This block becomes example_node_search_result
+      break;
+    case 'presave':
+      // This block becomes example_node_presave
+      break;
+    case 'update':
+      // This block becomes example_node_update
+      break;
+    case 'update index':
+      // This block becomes example_node_update_index
+      break;
+    case 'validate':
+      // This block becomes example_node_validate
+      break;
+    case 'view':
+      // This block becomes example_node_view with $build_mode = 'full' by default
+      break;
+
+    case 'presave':
+      if ($node->nid && $node->moderate) {
+        // Reset votes when node is updated:
+        $node->score = 0;
+        $node->users = '';
+        $node->votes = 0;
+      }
+      break;
+    case 'insert':
+    case 'update':
+      if ($node->moderate && user_access('access submission queue')) {
+        drupal_set_message(t('The post is queued for approval'));
+      }
+      elseif ($node->moderate) {
+        drupal_set_message(t('The post is queued for approval. The editors will decide whether it should be published.'));
+      }
+      break;
+    case 'view':
+      $node->content['my_additional_field'] = array(
+        '#value' => theme('mymodule_my_additional_field', $additional_field),
+        '#weight' => 10,
+      );
+      break;
+  }
+}
+
+/**
+ * Implement hook_node_type.
+ */
+function example_node_type($op, $info) {
+  if ($op == 'delete') {
+    // This block becomes example_node_type_delete
+    variable_del('comment_'. $info->type);
+  }
+  elseif ($op == 'update' && $info->type == 'xxx' || $info->old_type == 3) {
+    // This block becomes example_node_type_update
+    if (!empty($info->old_type) && $info->old_type != $info->type) {
+      $setting = variable_get('comment_'. $info->old_type, COMMENT_NODE_READ_WRITE);
+      variable_del('comment_'. $info->old_type);
+      variable_set('comment_'. $info->type, $setting);
+    }
+  }
+
+  switch ($op){
+    case 'delete':
+    case 'insert':
+      // This block becomes example_node_type_delete
+      variable_del('comment_'. $info->type);
+      break;
+    case 'update':
+      // This block becomes example_node_type_update
+      if (!empty($info->old_type) && $info->old_type != $info->type) {
+        $setting = variable_get('comment_'. $info->old_type, COMMENT_NODE_READ_WRITE);
+        variable_del('comment_'. $info->old_type);
+        variable_set('comment_'. $info->type, $setting);
+      }
+      break;
+  }
+}
+
+// http://drupal.org/node/224333#node_invoke_nodeapi
+function example_node_invoke_nodeapi() {
+  node_invoke_nodeapi($node, 'alter');
+  node_invoke_nodeapi($node, 'delete');
+  node_invoke_nodeapi($node, 'delete revision');
+  node_invoke_nodeapi($node, 'insert');
+  node_invoke_nodeapi($node, 'load');
+  node_invoke_nodeapi($node, 'prepare');
+  node_invoke_nodeapi($node, 'prepare translation');
+  node_invoke_nodeapi($node, 'presave');
+  node_invoke_nodeapi($node, 'search result');
+  node_invoke_nodeapi($node, 'update index');
+  node_invoke_nodeapi($node, 'update');
+  node_invoke_nodeapi($node, 'print');
+  node_invoke_nodeapi($node, 'rss item');
+  node_invoke_nodeapi($node, 'view');
+  node_invoke_nodeapi($node, 'view', TRUE);
+  node_invoke_nodeapi($node, 'view', FALSE, TRUE);
+  node_invoke_nodeapi($node, 'view', NULL, TRUE);
+  node_invoke_nodeapi($node, 'validate', $form);
+  node_invoke_nodeapi($node, $op);
+  node_invoke_nodeapi($node, $op, $a3);
+  node_invoke_nodeapi($node, $op, $a3, $a4);
+}
+
+// http://drupal.org/node/224333#node_type_get_functions
+function example_node_type_get_functions() {
+  $types = node_get_types();
+
+  // Without a $node parameter, $op should be plural.
+  $type = node_get_types('type');
+  $base = node_get_types('module'); // 'module' becomes 'base'
+  $name = node_get_types('name');
+  $types = node_get_types('types');
+  $names = node_get_types('names');
+
+  // With a $node parameter, $op should be singular.
+  $type = node_get_types('type', $node);
+  $base = node_get_types('module', $node); // 'module' becomes 'base'
+  $name = node_get_types('name', $node);
+  $types = node_get_types('types', $node);
+  $names = node_get_types('names', $node);
+
+  // Reset cache.
+  $type = node_get_types('type', $node, TRUE);
+  $base = node_get_types('module', $node, TRUE); // 'module' becomes 'base'
+  $name = node_get_types('name', $node, TRUE);
+  $node_types = node_get_types('types', NULL, TRUE);
+  $node_types = node_get_types('types', $node, TRUE);
+  $node_names = node_get_types('names', NULL, TRUE);
+  $node_names = node_get_types('names', $node, TRUE);
+
+  // Remove default parameters. (Some combinations are invalid.)
+  $type = node_get_types('type', NULL, FALSE);
+  $base = node_get_types('module', NULL, FALSE); // 'module' becomes 'base'
+  $name = node_get_types('name', NULL, FALSE);
+  $node_types = node_get_types('types', NULL, FALSE);
+  $node_types = node_get_types('types', NULL, FALSE);
+  $node_names = node_get_types('names', NULL, FALSE);
+  $node_names = node_get_types('names', NULL, FALSE);
+
+  // Variable for $op parameter.
+  $op = 'type';
+  $type = node_get_types($op, NULL, FALSE);
+
+  // Embedded examples.
+  $node_types = array_map('check_plain', node_get_types('names'));
+  $node_types = array_keys(node_get_types());
+  $type_array = array (
+    'bundles' => node_get_types('names'),
+  );
+  $forum_types[$type] = array('title' => t('Post new @node_type', array('@node_type' => node_get_types('name', $type))), 'href' => 'node/add/' . str_replace('_', '-', $type) . '/' . $variables['tid']);
+  $form['name'][$node->nid] =  array('#markup' => check_plain(node_get_types('name', $node)));
+  $form['name'][$node->nid] =  array('#markup' => check_plain(node_get_types('name', $node, TRUE)));
+
+  $type = node_get_types('type', str_replace('-', '_', $arg[2]));
+  $function = node_get_types('base', $type) . '_load';
+
+  foreach (node_get_types() as $type => $name) {
+  }
+
+  foreach (node_get_types('types', NULL, TRUE) as $type) {
+  }
+
+  foreach (node_get_types('types', NULL, FALSE) as $type) {
+  }
+}
+
+// http://drupal.org/node/224333#hook_load_signature
+/**
+ * Implementation of hook_load().
+ *
+ * Use case 1: returns object directly.
+ */
+function example_load($node) {
+  return db_fetch_object(db_query('SELECT * FROM {mytable} WHERE vid = %d', $node->vid));
+}
+
+/**
+ * Implementation of hook_load().
+ *
+ * Use case 2: makes assignment to variable; returns variable.
+ */
+function example_load($node) {
+  $additions = db_fetch_object(db_query('SELECT * FROM {mytable} WHERE vid = %d', $node->vid));
+  return $additions;
+}
+
+/*
+ * Multi-lingual
+ */
+
+function example_locale_context() {
+  // () -- Change the next line but leave this alone
+  // Translate to German.
+  t('Welcome to our site', array(), 'de');
+  // Translate to German with replacement.
+  t('!user, welcome to our site', array('!user' => theme('username', $user)), 'de');
+  // Translate May in the long version to current page language.
+  t('!long-month-name May');
+  // Translate May in the short version to current page language.
+  t('May');
+  // Translate May in the long version to German.
+  t('!long-month-name May', array(), 'de');
+  // Translate May in the short version to German.
+  t('May', array(), 'de');
+
+  $output = format_plural($node->comment_count, '1 comment', '@count comments', array(), 'de');
+}
+
+/*
+ * Miscellaneous
+ */
+
+/**
+ * Implement hook_example().
+ *
+ * http://drupal.org/node/224333#implementation_hook_comment
+ */
+function example_example() {
+  // Do something.
+}
+
+/**
+ * Implementation of hook_example().
+ *
+ * http://drupal.org/node/224333#implementation_hook_comment
+ */
+function example_example() {
+  // Do something.
+}
+/**
+ * Implement hook_example.
+ *
+ * http://drupal.org/node/224333#implementation_hook_comment
+ */
+function example_example() {
+  // Do something.
+}
+
+/**
+ * Implementation of hook_example
+ *
+ * http://drupal.org/node/224333#implementation_hook_comment
+ */
+function example_example() {
+  // Do something.
+}
+
+function example_book_toc() {
+  $toc = book_toc($bid, array(), 9);
+  $toc = book_toc($bid, array('item'), 9);
+  $form = array(
+    '#type' => 'select',
+    '#title' => t('Parent item'),
+    '#default_value' => $book_link['plid'],
+    '#description' => t('The parent page in the book. The maximum depth for a book and all child pages is !maxdepth. Some pages in the selected book may not be available as parents if selecting them would exceed this limit.', array('!maxdepth' => MENU_MAX_DEPTH)),
+    '#options' => book_toc($book_link['bid'], array($book_link['mlid']), $book_link['parent_depth_limit']),
+    '#attributes' => array('class' => array('book-title-select')),
+  );
+}
+
+function example_referer_uri() {
+  // referer_uri() -- Change the next line but leave this alone
+  if (is_array(referer_uri(/* 'xx' */))) {
+  }
+  $y = referer_uri(/* $xx['y'] */);
+}
+
+function example_drupal_clone() {
+  // drupal_clone() -- Change the next line but leave this alone
+  if ($x = drupal_clone($xx['y'])) {
+  }
+  $y = drupal_clone($xx['y']);
+  $this->object1 = drupal_clone($this->object1);
+}
+
+function example_actions_synchronize() {
+  actions_synchronize($actions_in_code = array(), $delete_orphans = FALSE);
+}
+
+// TODO Add example for menu_path_is_external().
+function example_url_is_external() {
+}
+
+function example_drupal_valid_path() {
+  // Use case 1 - passes variable directly.
+  if (!menu_valid_path(array('link_path' => $form_state['values']['site_frontpage_1']))) { }
+
+  // Use case 2: makes one assignment to array variable; passes variable.
+  // menu_valid_path() -- Change the next line but leave this alone
+  $item = array('link_path' => $form_state['values']['site_frontpage_2A']);
+  if (!menu_valid_path($item)) {
+    // Throw an error.
+  }
+  // Use case 2: makes one assignment to array variable; passes variable.
+  $item = array(
+    'link_path' => $form_state['values']['site_frontpage_2B'],
+    'link_title' => $var,
+  );
+  if (!menu_valid_path($item)) {
+    // Throw an error.
+  }
+
+  // Use case 3: makes multiple assignments to array variable; passes variable.
+  $item['link_path'] = $form_state['values']['site_frontpage_3']; // A comment to mess up things.
+  $item['link_title'] = $var;
+  if (!menu_valid_path($item)) {
+    // Throw an error.
+  }
+
+  // Use case 4 - passes more complex variable directly. (NOT HANDLED)
+  if (!menu_valid_path($item->xx)) {
+    // Throw an error.
+  }
+  if (!menu_valid_path($item['xx'])) {
+    // Throw an error.
+  }
+}
+
+/**
+ * Implement hook_action_info().
+ *
+ * Use case 1 - returns array directly.
+ */
+function example_action_info() {
+  return array(
+    'comment_unpublish_action' => array(
+      'description' => t('Unpublish comment'),
+      'type' => 'comment',
+      'configurable' => FALSE,
+      'hooks' => array(
+        'comment' => array('insert', 'update'),
+      )
+    ),
+    'comment_unpublish_by_keyword_action' => array(
+      'description' => t('Unpublish comment containing keyword(s)'),
+      'type' => 'comment',
+      'configurable' => TRUE,
+      'hooks' => array(
+        'comment' => array('insert', 'update'),
+        "taxonomy" => array("insert", "update", "delete", "view"),
+      )
+    )
+  );
+}
+
+/**
+ * Implement hook_action_info().
+ *
+ * Use case 2 - makes one assignment to array variable; returns variable.
+ */
+function example_action_info() {
+  $info = array(
+    'comment_unpublish_action' => array(
+      'description' => t('Unpublish comment'),
+      'type' => 'comment',
+      'configurable' => FALSE,
+      'hooks' => array(
+        'comment' => array('insert', 'update'),
+      )
+    ),
+    'comment_unpublish_by_keyword_action' => array(
+      'description' => t('Unpublish comment containing keyword(s)'),
+      'type' => 'comment',
+      'configurable' => TRUE,
+      'hooks' => array(
+        'comment' => array('insert', 'update'),
+        "taxonomy" => array("insert", "update", "delete", "view"),
+      )
+    )
+  );
+  return $info;
+}
+
+/**
+ * Implement hook_action_info().
+ *
+ * Use case 3: makes multiple assignments to array variable; returns variable.
+ */
+function example_action_info() {
+  $info['comment_unpublish_action'] = array(
+    'description' => t('Unpublish comment'),
+    'type' => 'comment',
+    'configurable' => FALSE,
+    'hooks' => array(
+      'comment' => array('insert', 'update'),
+    )
+  );
+  $info['comment_unpublish_by_keyword_action'] = array(
+    'description' => t('Unpublish comment containing keyword(s)'),
+    'type' => 'comment',
+    'configurable' => TRUE,
+    'hooks' => array(
+      'comment' => array('insert', 'update'),
+      "taxonomy" => array("insert", "update", "delete", "view"),
+    )
+  );
+  return $info;
+}
+
+/**
+ * Implement hook_hook_info().
+ *
+ * Use case 1 - returns array directly.
+ */
+function example_hook_info() {
+  return array(
+    'node' => array(
+      'nodeapi' => array(
+        'presave' => array(
+          'runs when' => t('When either saving a new post or updating an existing post'),
+        ),
+        'insert' => array(
+          'runs when' => t('After saving a new post'),
+        ),
+        'update' => array(
+          'runs when' => t('After saving an updated post'),
+        ),
+        'delete' => array(
+          'runs when' => t('After deleting a post')
+        ),
+        'view' => array(
+          'runs when' => t('When content is viewed by an authenticated user')
+        ),
+      ),
+    ),
+    'taxonomy' => array(
+      'taxonomy' => array(
+        'insert' => array(
+          'runs when' => t('After saving a new term to the database'),
+        ),
+        'update' => array(
+          'runs when' => t('After saving an updated term to the database'),
+        ),
+        'delete' => array(
+          'runs when' => t('After deleting a term'),
+        ),
+      ),
+    ),
+  );
+}
+
+/**
+ * Implement hook_hook_info().
+ *
+ * Use case 2 - makes one assignment to array variable; returns variable.
+ */
+function example_hook_info() {
+  $info = array(
+    'node' => array(
+      'nodeapi' => array(
+        'presave' => array(
+          'runs when' => t('When either saving a new post or updating an existing post'),
+        ),
+        'insert' => array(
+          'runs when' => t('After saving a new post'),
+        ),
+        'update' => array(
+          'runs when' => t('After saving an updated post'),
+        ),
+        'delete' => array(
+          'runs when' => t('After deleting a post')
+        ),
+        'view' => array(
+          'runs when' => t('When content is viewed by an authenticated user')
+        ),
+      ),
+    ),
+    'taxonomy' => array(
+      'taxonomy' => array(
+        'insert' => array(
+          'runs when' => t('After saving a new term to the database'),
+        ),
+        'update' => array(
+          'runs when' => t('After saving an updated term to the database'),
+        ),
+        'delete' => array(
+          'runs when' => t('After deleting a term'),
+        ),
+      ),
+    ),
+  );
+  return $info;
+}
+
+/**
+ * Implementation of hook_hook_info().
+ *
+ * Use case 3: makes multiple assignments to array variable; returns variable.
+ */
+function example_hook_info() {
+  $info['node'] = array(
+    'nodeapi' => array(
+      'presave' => array(
+        'runs when' => t('When either saving a new post or updating an existing post'),
+      ),
+      'insert' => array(
+        'runs when' => t('After saving a new post'),
+      ),
+      'update' => array(
+        'runs when' => t('After saving an updated post'),
+      ),
+      'delete' => array(
+        'runs when' => t('After deleting a post')
+      ),
+      'view' => array(
+        'runs when' => t('When content is viewed by an authenticated user')
+      ),
+    ),
+  );
+  $info['taxonomy'] = array(
+    'taxonomy' => array(
+      'insert' => array(
+        'runs when' => t('After saving a new term to the database'),
+      ),
+      'update' => array(
+        'runs when' => t('After saving an updated term to the database'),
+      ),
+      'delete' => array(
+        'runs when' => t('After deleting a term'),
+      ),
+    ),
+  );
+  return $info;
+}
+
+// http://drupal.org/node/224333#drupal-goto-params
+function example_drupal_goto_params() {
+  drupal_goto('/node/1');
+  drupal_goto('/node/1', 'a=b&c=d');
+  drupal_goto('/node/1', 'a=b&c=d', $fragment);
+  drupal_goto('/node/1', $query, $fragment);
+  drupal_goto('/node/1', 'a=b&c=d', $fragment, 301);
+  drupal_goto('/node/1', NULL, $fragment);
+  drupal_goto('/node/1', NULL, NULL, 301);
+
+  drupal_goto('/node/1', '');
+  drupal_goto('/node/1', "");
+
+  $query = 'a=b&c=d';
+  drupal_goto($path);
+  drupal_goto($path, $query);
+  drupal_goto($path, $query, $fragment);
+  drupal_goto($path, $query, $fragment);
+  drupal_goto($path, $query, $fragment, 301);
+  drupal_goto($path, NULL, $fragment);
+  drupal_goto($path, NULL, NULL, 301);
+
+  drupal_goto($path, QUERY, FRAGMENT);
+}
+
+function example_date_format() {
+  $shortdate = format_date($log->timestamp, 'small');
+  $mediumdate = format_date($log->timestamp, 'medium');
+  $longdate = format_date($log->timestamp, 'large');
+}
+
+function example_url_query_parameter() {
+  // Nothing to change.
+  $url = url("node/1");
+  $url = url("node/1", array("absolute" => TRUE));
+  // Query parameter is a string.
+  $url = url("node/1", array("query" => "a=b&c=d%40e"));
+  $url = url("node/1", array("absolute" => TRUE, "query" => "a=b&c=d%40e"));
+  $url = url('node/1', array('absolute' => TRUE, 'query' => 'a=b&c[]=d&c[]=e'));
+  $url = url("node/1", array(
+    "alias" => TRUE,
+    "query" => "a=b&c=d%40e",
+    "fragment" => 'test',
+    )
+  );
+  // Query parameter is an array.
+  $url = url("node/1", array('query' => array('a' => 'b', 'c' => 'd%40e')));
+  $url = url('node/1', array('absolute' => TRUE, 'query' => array('a' => 'b', 'c' => array('d', 'e'))));
+  $url = url("node/1", array(
+    "alias" => TRUE,
+    "query" => array('a' => 'b', 'c' => 'd%40e'),
+    "fragment" => 'test',
+    )
+  );
+}
+
+// http://drupal.org/node/224333#watchdog_emerg
+function example_watchdog_emerg() {
+  watchdog('example', 'This is an example emergency message', WATCHDOG_EMERG);
+  $severity = WATCHDOG_EMERG;
+  watchdog('example', 'This is an example emergency message', $severity);
+}

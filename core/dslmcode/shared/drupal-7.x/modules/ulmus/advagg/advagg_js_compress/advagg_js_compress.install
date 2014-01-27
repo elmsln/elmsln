@@ -1,0 +1,43 @@
+<?php
+
+/**
+ * @file
+ * Handles AdvAgg JS compress installation and upgrade tasks.
+ */
+
+/**
+ * Upgrade AdvAgg JS Compress previous versions (6.x-1.x & 7.x-1.x) to 7.x-2.x.
+ *
+ * Implements hook_update_N().
+ */
+function advagg_js_compress_update_7200(&$sandbox) {
+  // Bail if old DB Table does not exist.
+  if (!db_table_exists('cache_advagg_js_compress_inline') && !db_table_exists('cache_advagg_js_compress_file')) {
+    return t('Nothing needed to happen in AdvAgg JS Compress.');
+  }
+
+  // Remove all old advagg css compress variables.
+  db_delete('variable')
+    ->condition('name', 'advagg_js%compress%', 'LIKE')
+    ->execute();
+
+  // Remove old schema.
+  if (db_table_exists('cache_advagg_js_compress_inline')) {
+    db_drop_table('cache_advagg_js_compress_inline');
+  }
+  if (db_table_exists('cache_advagg_js_compress_file')) {
+    db_drop_table('cache_advagg_js_compress_file');
+  }
+
+  return t('Upgraded AdvAgg JS Compress to 7.x-2.x.');
+}
+
+/**
+ * Clear the cache_advagg_info cache.
+ *
+ * Implements hook_update_N().
+ */
+function advagg_js_compress_update_7201(&$sandbox) {
+  cache_clear_all('advagg:js_compress:', 'cache_advagg_info', TRUE);
+  return t('Cleared the cache_advagg_info cache of js_compress entries.');
+}

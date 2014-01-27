@@ -1,0 +1,238 @@
+<?php 
+
+/**
+ * Install file for video_embed_field module
+ * @author jcaldwell
+ */
+ 
+/**
+ * Implements hook_field_schema().
+ */
+function video_embed_field_field_schema($field){
+  switch($field['type']){
+    case 'video_embed_field' :
+      $columns = array(
+        'video_url' => array(
+          'type' => 'varchar',
+          'length' => 512,
+          'default' => '',
+        ),
+        'thumbnail_path' => array(
+          'type' => 'varchar',
+          'length' => 512,
+          'default' => '',
+        ),
+        'video_data' => array(
+          'type' => 'blob',
+          'not null' => FALSE,
+          'size' => 'big',
+          'serialize' => TRUE,
+        ),
+        'embed_code' => array(
+          'type' => 'varchar',
+          'length' => 1024,
+          'default' => '',
+        ),
+        'description' => array(
+          'type' => 'text',
+          'not null' => FALSE,
+        ),
+      );
+      $indexes = array();
+    break;
+  }
+
+  return array(
+    'columns' => $columns,
+    'indexes' => $indexes
+  );
+}
+
+/**
+ * Implements hook_schema().
+ */
+function video_embed_field_schema(){
+  $schema['vef_video_styles'] = array(
+    'description' => 'Stores video embed styles.',
+    'export' => array(
+      'key' => 'name',
+      'primary key' => 'vsid',
+      'identifier' => 'video_embed_style',                // Exports will be as $video_style
+      'default hook' => 'default_video_embed_styles',  // Function hook name.
+      'api' => array(
+        'owner' => 'video_embed_field',
+        'api' => 'default_video_embed_styles',  // Base name for api include files.
+        'minimum_version' => 1,
+        'current_version' => 1,
+      ),
+    ),
+    'fields' => array(
+      'vsid' => array(
+        'description' => 'The primary identifier for a video style.',
+        'type' => 'serial',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'no export' => TRUE,
+      ),
+      'name' => array(
+        'description' => 'The style name.',
+        'type' => 'varchar',
+        'length' => '255',
+        'not null' => TRUE,
+      ),
+      'data' => array(
+        'description' => 'The configuration data for the style.',
+        'type' => 'blob',
+        'size' => 'big',
+        'not null' => TRUE,
+        'serialize' => TRUE,
+      ),
+    ),
+    'primary key' => array('vsid'),
+    'unique keys' => array(
+      'name' => array('name')
+    ),
+  );
+  return $schema;
+}
+
+/**
+ * Implements hook_uninstall().
+ */
+function video_embed_field_uninstall(){
+  //do nothing right now - should eventually remove all the variables
+}
+
+/**
+ * Update 7000
+ * Add an optional description form
+ */
+function video_embed_field_update_7000() {
+  // Get the list of fields of type 'video_embed_field'.
+  $video_embed_fields = array();
+  foreach (field_info_fields() as $field_name => $field_info) {
+    if ($field_info['type'] == 'video_embed_field') {
+      $video_embed_fields[$field_name] = field_read_field($field_name);
+    }
+  }
+  
+  foreach ($video_embed_fields as $field) {
+    if ($field['deleted']) {
+      $table = "field_deleted_data_{$field['id']}";
+      $revision_table = "field_deleted_revision_{$field['id']}";
+    }
+    else {
+      $table = "field_data_{$field['field_name']}";
+      $revision_table = "field_revision_{$field['field_name']}";
+    }
+    $column = $field['field_name'] . '_' . 'description';
+    db_add_field($table, $column, array('type' => 'text', 'not null' => FALSE));
+    db_add_field($revision_table, $column, array('type' => 'text', 'not null' => FALSE));
+  }
+  
+  return t('Additional columns added.');
+}
+
+/**
+ * Update 7001
+ * Add video style storage table
+ */
+function video_embed_field_update_7001() {
+  if (!db_table_exists('vef_video_styles')) {
+    $schema = video_embed_field_schema();
+    db_create_table('vef_video_styles', $schema['vef_video_styles']);
+  }
+  
+  return t('Video styles storage table created.');
+}
+/**  
+ *  Update 7002
+ *  Add field for storing the path to the video thumbnail
+ */
+function video_embed_field_update_7002() {
+  // Get the list of fields of type 'video_embed_field'.
+  $video_embed_fields = array();
+  foreach (field_info_fields() as $field_name => $field_info) {
+    if ($field_info['type'] == 'video_embed_field') {
+      $video_embed_fields[$field_name] = field_read_field($field_name);
+    }
+  }
+  
+  foreach ($video_embed_fields as $field) {
+    if ($field['deleted']) {
+      $table = "field_deleted_data_{$field['id']}";
+      $revision_table = "field_deleted_revision_{$field['id']}";
+    }
+    else {
+      $table = "field_data_{$field['field_name']}";
+      $revision_table = "field_revision_{$field['field_name']}";
+    }
+    $column = $field['field_name'] . '_' . 'thumbnail_path';
+    db_add_field($table, $column, array(
+      'type' => 'varchar',
+      'length' => 512,
+      'default' => ''
+    ));
+    db_add_field($revision_table, $column, array(
+      'type' => 'varchar',
+      'length' => 512,
+      'default' => ''
+    ));
+  }
+  
+  return t('Thumbnail column added.');
+}
+
+/**
+ *  Enable inline colorbox support if colorbox is installed [NO LONGER NEEDED - This update hook does nothing]
+ */
+function video_embed_field_update_7003() {
+  //this is no longer needed
+  //variable_set('colorbox_inline', 1);
+}
+
+/**
+ *  Enable colorbox load support if colorbox is installed, we no longer need inline support
+ */
+function video_embed_field_update_7004() {
+  variable_set('colorbox_load', 1);
+}
+
+/**
+ *  Add data column to field database.
+ */
+function video_embed_field_update_7005() {
+  // Get the list of fields of type 'video_embed_field'.
+  $video_embed_fields = array();
+  foreach (field_info_fields() as $field_name => $field_info) {
+    if ($field_info['type'] == 'video_embed_field') {
+      $video_embed_fields[$field_name] = field_read_field($field_name);
+    }
+  }
+
+  foreach ($video_embed_fields as $field) {
+    if ($field['deleted']) {
+      $table = "field_deleted_data_{$field['id']}";
+      $revision_table = "field_deleted_revision_{$field['id']}";
+    }
+    else {
+      $table = "field_data_{$field['field_name']}";
+      $revision_table = "field_revision_{$field['field_name']}";
+    }
+    $column = $field['field_name'] . '_' . 'video_data';
+    db_add_field($table, $column, array(
+      'type' => 'blob',
+      'not null' => FALSE,
+      'size' => 'big',
+      'serialize' => TRUE
+    ));
+    db_add_field($revision_table, $column, array(
+      'type' => 'blob',
+      'not null' => FALSE,
+      'size' => 'big',
+      'serialize' => TRUE
+    ));
+  }
+
+  return t('Data column added. Please clear cache.');
+}

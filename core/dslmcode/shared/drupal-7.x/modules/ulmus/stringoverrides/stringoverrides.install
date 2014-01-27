@@ -1,0 +1,37 @@
+<?php
+
+/**
+ * Implements hook_uninstall().
+ */
+function stringoverrides_uninstall() {
+  // Remove all stored string replacements.
+  $or = db_or()
+    ->condition('name', 'locale_custom_strings_%', 'LIKE')
+    ->condition('name', 'locale_custom_disabled_strings_%', 'LIKE');
+  db_delete('variable')->condition($or)->execute();
+}
+
+/**
+ * Update to Drupal 7. This will add the context support to custom strings.
+ */
+function stringoverrides_update_7000() {
+  $ret = array();
+
+  // Retrieve all existing overrides.
+  $or = db_or()
+    ->condition('name', 'locale_custom_strings_%', 'LIKE')
+    ->condition('name', 'locale_custom_disabled_strings_%', 'LIKE');
+  $result = db_select('variable', 'v')
+    ->fields('v')
+    ->condition($or)
+    ->execute();
+
+  // Push the overrides one level deeper for context support.
+  foreach ($result as $variable) {
+    // Retrieve the value using variable_get so that it's unserialized.
+    $overrides = variable_get($variable->name, array());
+    // Save the value back into the variables table with the context support.
+    variable_set($variable->name, array('' => $overrides));
+  }
+  return $ret;
+}

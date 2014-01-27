@@ -1,0 +1,113 @@
+<?php
+
+/**
+ * @file
+ * print module simpletest tests
+ *
+ * This file includes the defined tests for the print module.
+ *
+ * @ingroup print
+ */
+
+class PrintBasicTest extends DrupalWebTestCase {
+  protected $web_user;
+  protected $getq;
+
+  /**
+   * Implementation of getInfo().
+   */
+  function getInfo() {
+    return array(
+      'name' => t('Printer, email and PDF versions tests'),
+      'description' => t('Unit tests for the print, print_mail and print_pdf modules.'),
+      'group' => t('Printer, email and PDF versions'),
+    );
+  }
+
+  /**
+   * Implementation of setUp().
+   */
+  function setUp() {
+    parent::setUp();
+
+    // User to set up print.
+//    $this->web_user = $this->drupalCreateUserRolePerm(array('administer print'));
+
+//    $this->drupalGet('logout');
+//    $this->drupalLoginUser($this->web_user);
+
+    $this->getq = $_GET['q'];
+    $_GET['q'] = 'print/' . $_GET['q'];
+  }
+
+  /**
+   * Implementation of tearDown().
+   */
+  function tearDown() {
+    $_GET['q'] = $this->getq;
+
+    parent::tearDown();
+  }
+
+  function testPrintRewriteUrls() {
+    global $base_url, $base_root, $_print_urls;
+
+    // Must require it, since this function gets called via Drupal's dynamic loading
+    require_once(DRUPAL_ROOT . '/' . drupal_get_path('module', 'print') . '/print.pages.inc');
+
+    variable_set('print_urls_anchors', 1);
+
+    $_print_urls = TRUE;
+
+    $pattern = '!<(a\s[^>]*?)>(.*?)(</a>)!is';
+    $footnote = ' <span class="print-footnote">[1]</span>';
+    $part1 = '<a class=\'class1 class2\' target=_blank hreflang="en" id="some complicated \"href=lala.com\" text" href="';
+    $part2 = '">Example</a>';
+
+    $url[0] = 'http://www.example.com';
+    $url[1] = '#here';
+    $url[2] = '/relative/to/host';
+    $url[3] = 'relative/to/base';
+    $url[4] = 'index.php?q=sample/path';
+    $rel_url[0] = $url[0];
+    $rel_url[1] = base_path() . $_GET['q'] . $url[1];
+    $rel_url[2] = $base_root . $url[2];
+    $rel_url[3] = $base_url . '/' . $url[3];
+    $rel_url[4] = $base_url . '/' . $url[4];
+    $abs_url[0] = $url[0];
+    $abs_url[1] = $base_url . '/' . $this->getq . $url[1];
+    $abs_url[2] = $base_root . $url[2];
+    $abs_url[3] = $base_url . '/' . $url[3];
+    $abs_url[4] = $base_url . '/' . $url[4];
+
+    $url[5] = '#here with spaces';
+    $url[6] = '/relative/to/host with spaces';
+    $url[7] = 'relative/to/base with spaces';
+    $url[8] = 'index.php?q=sample/path with spaces';
+    $rel_url[5] = base_path() . $_GET['q'] . $url[5];
+    $rel_url[6] = $base_root . $url[6];
+    $rel_url[7] = $base_url . '/' . $url[7];
+    $rel_url[8] = $base_url . '/' . $url[8];
+    $abs_url[5] = $base_url . '/' . $this->getq . $url[5];
+    $abs_url[6] = $base_root . $url[6];
+    $abs_url[7] = $base_url . '/' . $url[7];
+    $abs_url[8] = $base_url . '/' . $url[8];
+
+    $url[9] = '&#109;&#97;&#x69;&#x6c;&#x74;&#111;&#58;&#115;&#x75;&#x70;p&#111;&#114;&#x74;&#x40;e&#120;&#97;&#x6d;&#x70;&#x6c;&#101;&#46;&#x63;&#x6f;&#x6d;';
+    $rel_url[9] = $url[9];
+    $abs_url[9] = $url[9];
+
+    $url[10] = '';
+    $rel_url[10] = '';
+    $abs_url[10] = $base_url . '/' . $this->getq;
+
+    $size = count($url);
+    for ($i = 0; $i < $size; $i++) {
+      preg_match($pattern, $part1 . $url[$i] . $part2, $matches);
+      $ret = _print_rewrite_urls($matches);
+      $urls = _print_friendly_urls();
+      $this->assertEqual($ret, $part1 . $rel_url[$i] . $part2 . $footnote, t('Original URL (!url)', array('!url' => $rel_url[$i])));
+      $this->assertEqual($urls[0], $abs_url[$i], t('Absolute URL (!url)', array('!url' => $abs_url[$i])));
+    }
+  }
+}

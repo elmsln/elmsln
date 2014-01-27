@@ -1,0 +1,238 @@
+<?php
+
+/**
+ * @file
+ * Functional tests for the Unique Field module with References field types.
+ */
+
+class UniqueFieldReferencesTestCase extends DrupalWebTestCase {
+  protected $privileged_user;
+
+  public static function getInfo() {
+    return array(
+      'name' => 'Unique Field: References module tests',
+      'description' => 'Ensure that the Unique Field module functions properly with References field types.',
+      'group' => 'Unique Field',
+    );
+  }
+
+  public function setUp() {
+    parent::setUp('field', 'field_ui', 'options', 'node_reference', 'user_reference', 'unique_field');
+
+    // Create and log in our privileged user.
+    $this->privileged_user = $this->drupalCreateUser(array(
+      'administer content types', 'administer nodes', 'bypass node access', 'unique_field_perm_admin', 'unique_field_perm_bypass',
+    ));
+    $this->drupalLogin($this->privileged_user);
+  }
+
+  /**
+   * Test the unique requirement on a node reference field in the content type
+   * scope.
+   */
+  public function testUniqueCtypeNode() {
+    // Create a content type with a node reference field that is set to be
+    // unique
+    $edit = array();
+    $edit['name'] = 'Unique Node';
+    $edit['type'] = 'uf_node';
+    $this->drupalPost('admin/structure/types/add', $edit, t('Save content type'));
+    $this->assertText('The content type Unique Node has been added.', 'Content type added.');
+    $edit = array();
+    $edit['fields[_add_new_field][label]'] = 'Unique Node Node';
+    $edit['fields[_add_new_field][field_name]'] = 'uf_node_node';
+    $edit['fields[_add_new_field][type]'] = 'node_reference';
+    $edit['fields[_add_new_field][widget_type]'] = 'options_select';
+    $this->drupalPost('admin/structure/types/manage/uf_node/fields', $edit, t('Save'));
+    $this->assertText('These settings apply to the Unique Node Node field everywhere it is used.', 'Field added to content type.');
+    $edit = array();
+    $edit['field[settings][referenceable_types][uf_node]'] = 'uf_node';
+    $this->drupalPost('admin/structure/types/manage/uf_node/fields/field_uf_node_node/field-settings', $edit, t('Save field settings'));
+    $this->assertText('Updated field Unique Node Node field settings.', 'Node reference field configured.');
+    $edit = array();
+    $edit['unique_field_fields[field_uf_node_node]'] = 'field_uf_node_node';
+    $this->drupalPost('admin/structure/types/manage/uf_node', $edit, t('Save content type'));
+    $this->assertText('The content type Unique Node has been updated.', 'Content type updated.');
+
+    // Create a node to be referenced
+    $edit = array();
+    $edit['title'] = $this->randomName(24);
+    $edit['body[und][0][value]'] = $this->randomName(48);
+    $this->drupalPost('node/add/uf-node', $edit, t('Save'));
+    $this->assertText($edit['body[und][0][value]'], 'Unique Node (uf_node) node has been created');
+
+    // Attempt to create 2 nodes that reference the same node
+    $ref_nid = 1;
+    $edit = array();
+    $edit['title'] = $this->randomName(24);
+    $edit['body[und][0][value]'] = $this->randomName(48);
+    $edit['field_uf_node_node[und]'] = $ref_nid;
+    $this->drupalPost('node/add/uf-node', $edit, t('Save'));
+    $this->assertText($edit['body[und][0][value]'], 'Unique Node (uf_node) node has been created');
+    $edit['body[und][0][value]'] = $this->randomName(48);
+    $this->drupalPost('node/add/uf-node', $edit, t('Save'));
+    $this->assertText('The Unique Node Node field requires a unique value, and the specified value is already used', 'Unique Node (uf_node) node with duplicate content could not be created');
+
+    // Check for false negative: Attempt to create a node with a unique text
+    $ref_nid = 2;
+    $edit = array();
+    $edit['title'] = $this->randomName(24);
+    $edit['body[und][0][value]'] = $this->randomName(48);
+    $edit['field_uf_node_node[und]'] = $ref_nid;
+    $this->drupalPost('node/add/uf-node', $edit, t('Save'));
+    $this->assertText($edit['body[und][0][value]'], 'Unique Node (uf_node) node has been created');
+  }
+
+  /**
+   * Test the unique requirement on a node reference field in the all scope.
+   */
+  public function testUniqueAllNode() {
+    // Create a content type with a node reference field that is set to be
+    // unique
+    $edit = array();
+    $edit['name'] = 'Unique Node';
+    $edit['type'] = 'uf_node';
+    $this->drupalPost('admin/structure/types/add', $edit, t('Save content type'));
+    $this->assertText('The content type Unique Node has been added.', 'Content type added.');
+    $edit = array();
+    $edit['fields[_add_new_field][label]'] = 'Unique Node Node';
+    $edit['fields[_add_new_field][field_name]'] = 'uf_node_node';
+    $edit['fields[_add_new_field][type]'] = 'node_reference';
+    $edit['fields[_add_new_field][widget_type]'] = 'options_select';
+    $this->drupalPost('admin/structure/types/manage/uf_node/fields', $edit, t('Save'));
+    $this->assertText('These settings apply to the Unique Node Node field everywhere it is used.', 'Field added to content type.');
+    $edit = array();
+    $edit['field[settings][referenceable_types][uf_node]'] = 'uf_node';
+    $this->drupalPost('admin/structure/types/manage/uf_node/fields/field_uf_node_node/field-settings', $edit, t('Save field settings'));
+    $this->assertText('Updated field Unique Node Node field settings.', 'Node reference field configured.');
+    $edit = array();
+    $edit['unique_field_fields[field_uf_node_node]'] = 'field_uf_node_node';
+    $edit['unique_field_scope'] = UNIQUE_FIELD_SCOPE_ALL;
+    $this->drupalPost('admin/structure/types/manage/uf_node', $edit, t('Save content type'));
+    $this->assertText('The content type Unique Node has been updated.', 'Content type updated.');
+
+    // Create another content type with the same text field and set it to unique
+    $edit = array();
+    $edit['name'] = 'Unique Node 2';
+    $edit['type'] = 'uf_node2';
+    $this->drupalPost('admin/structure/types/add', $edit, t('Save content type'));
+    $this->assertText('The content type Unique Node 2 has been added.', 'Content type added.');
+    $edit = array();
+    $edit['fields[_add_existing_field][label]'] = 'Unique Node 2 Node';
+    $edit['fields[_add_existing_field][field_name]'] = 'field_uf_node_node';
+    $edit['fields[_add_existing_field][widget_type]'] = 'options_select';
+    $this->drupalPost('admin/structure/types/manage/uf_node2/fields', $edit, t('Save'));
+    $this->assertText('These settings apply only to the Unique Node 2 Node field when used in the Unique Node 2 type.', 'Field added to content type.');
+    $edit = array();
+    $edit['field[settings][referenceable_types][uf_node]'] = 'uf_node';
+    $this->drupalPost('admin/structure/types/manage/uf_node2/fields/field_uf_node_node/field-settings', $edit, t('Save field settings'));
+    $this->assertText('Updated field Unique Node 2 Node field settings.', 'Node reference field configured.');
+    $edit = array();
+    $edit['unique_field_fields[field_uf_node_node]'] = 'field_uf_node_node';
+    $edit['unique_field_scope'] = UNIQUE_FIELD_SCOPE_ALL;
+    $this->drupalPost('admin/structure/types/manage/uf_node2', $edit, t('Save content type'));
+    $this->assertText('The content type Unique Node 2 has been updated.', 'Content type updated.');
+
+    // Create a node to be referenced
+    $edit = array();
+    $edit['title'] = $this->randomName(24);
+    $edit['body[und][0][value]'] = $this->randomName(48);
+    $this->drupalPost('node/add/uf-node', $edit, t('Save'));
+    $this->assertText($edit['body[und][0][value]'], 'Unique Node (uf_node) node has been created');
+
+    // Attempt to create 2 nodes that reference the same node in different
+    // content types
+    $ref_nid = 1;
+    $edit = array();
+    $edit['title'] = $this->randomName(24);
+    $edit['body[und][0][value]'] = $this->randomName(48);
+    $edit['field_uf_node_node[und]'] = $ref_nid;
+    $this->drupalPost('node/add/uf-node', $edit, t('Save'));
+    $this->assertText($edit['body[und][0][value]'], 'Unique Node (uf_node) node has been created');
+    $edit['body[und][0][value]'] = $this->randomName(48);
+    $this->drupalPost('node/add/uf-node2', $edit, t('Save'));
+    $this->assertText('The Unique Node 2 Node field requires a unique value, and the specified value is already used', 'Unique Node 2 (uf_node2) node with duplicate content could not be created');
+
+    // Check for false negative: Attempt to create a node with a unique text
+    $ref_nid = 2;
+    $edit = array();
+    $edit['title'] = $this->randomName(24);
+    $edit['body[und][0][value]'] = $this->randomName(48);
+    $edit['field_uf_node_node[und]'] = $ref_nid;
+    $this->drupalPost('node/add/uf-node2', $edit, t('Save'));
+    $this->assertText($edit['body[und][0][value]'], 'Unique Node 2 (uf_node2) node has been created');
+  }
+
+  /**
+   * Test the unique requirement on a node reference field in the single scope.
+   */
+  public function testUniqueSingleNode() {
+    // Create a content type with two node reference fields that are set to be
+    // unique
+    $edit = array();
+    $edit['name'] = 'Unique Node Single';
+    $edit['type'] = 'uf_node_single';
+    $this->drupalPost('admin/structure/types/add', $edit, t('Save content type'));
+    $this->assertText('The content type Unique Node Single has been added.', 'Content type added.');
+    $edit = array();
+    $edit['fields[_add_new_field][label]'] = 'Unique Node Single Node 1';
+    $edit['fields[_add_new_field][field_name]'] = 'uf_node_single_node_1';
+    $edit['fields[_add_new_field][type]'] = 'node_reference';
+    $edit['fields[_add_new_field][widget_type]'] = 'options_select';
+    $this->drupalPost('admin/structure/types/manage/uf_node_single/fields', $edit, t('Save'));
+    $this->assertText('These settings apply to the Unique Node Single Node 1 field everywhere it is used.', 'Field added to content type.');
+    $edit = array();
+    $edit['field[settings][referenceable_types][uf_node_single]'] = 'uf_node_single';
+    $this->drupalPost('admin/structure/types/manage/uf_node_single/fields/field_uf_node_single_node_1/field-settings', $edit, t('Save field settings'));
+    $this->assertText('Updated field Unique Node Single Node 1 field settings.', 'Node reference field configured.');
+    $edit = array();
+    $edit['fields[_add_new_field][label]'] = 'Unique Node Single Node 2';
+    $edit['fields[_add_new_field][field_name]'] = 'uf_node_single_node_2';
+    $edit['fields[_add_new_field][type]'] = 'node_reference';
+    $edit['fields[_add_new_field][widget_type]'] = 'options_select';
+    $this->drupalPost('admin/structure/types/manage/uf_node_single/fields', $edit, t('Save'));
+    $this->assertText('These settings apply to the Unique Node Single Node 2 field everywhere it is used.', 'Field added to content type.');
+    $edit = array();
+    $edit['field[settings][referenceable_types][uf_node_single]'] = 'uf_node_single';
+    $this->drupalPost('admin/structure/types/manage/uf_node_single/fields/field_uf_node_single_node_2/field-settings', $edit, t('Save field settings'));
+    $this->assertText('Updated field Unique Node Single Node 2 field settings.', 'Node reference field configured.');
+    $edit = array();
+    $edit['unique_field_scope'] = UNIQUE_FIELD_SCOPE_NODE;
+    $edit['unique_field_fields[field_uf_node_single_node_1]'] = 'field_uf_node_single_node_1';
+    $edit['unique_field_fields[field_uf_node_single_node_2]'] = 'field_uf_node_single_node_2';
+    $this->drupalPost('admin/structure/types/manage/uf_node_single', $edit, t('Save content type'));
+    $this->assertText('The content type Unique Node Single has been updated.', 'Content type updated.');
+
+    // Create a node to be referenced
+    $edit = array();
+    $edit['title'] = $this->randomName(24);
+    $edit['body[und][0][value]'] = $this->randomName(48);
+    $this->drupalPost('node/add/uf-node-single', $edit, t('Save'));
+    $this->assertText($edit['body[und][0][value]'], 'Unique Node Single (uf_node_single) node has been created');
+
+    // Attempt to create a node with the same text in both fields
+    $ref_nid = 1;
+    $edit = array();
+    $edit['title'] = $this->randomName(24);
+    $edit['body[und][0][value]'] = $this->randomName(48);
+    $edit['field_uf_node_single_node_1[und]'] = $ref_nid;
+    $edit['field_uf_node_single_node_2[und]'] = $ref_nid;
+    $this->drupalPost('node/add/uf-node-single', $edit, t('Save'));
+    $this->assertText('The Unique Node Single Node 2 fields must have unique values. The Unique Node Single Node 2 field has a value that is already used.', 'Unique Node Single (uf_node_single) node with duplicate content could not be created');
+
+    // Check for false negative: Attempt to create a node with unique text
+    $edit = array();
+    $edit['title'] = $this->randomName(24);
+    $edit['body[und][0][value]'] = $this->randomName(48);
+    $this->drupalPost('node/add/uf-node-single', $edit, t('Save'));
+    $this->assertText($edit['body[und][0][value]'], 'Unique Node Single (uf_node_single) node has been created');
+    $edit = array();
+    $edit['title'] = $this->randomName(24);
+    $edit['body[und][0][value]'] = $this->randomName(48);
+    $edit['field_uf_node_single_node_1[und]'] = 1;
+    $edit['field_uf_node_single_node_2[und]'] = 2;
+    $this->drupalPost('node/add/uf-node-single', $edit, t('Save'));
+    $this->assertText($edit['body[und][0][value]'], 'Unique Node Single (uf_node_single) node has been created');
+  }
+
+}

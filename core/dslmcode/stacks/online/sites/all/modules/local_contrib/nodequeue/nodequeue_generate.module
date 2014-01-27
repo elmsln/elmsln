@@ -1,0 +1,224 @@
+<?php
+
+/**
+ * Implements hook_menu().
+ */
+function nodequeue_generate_menu() {
+  $items['admin/structure/nodequeue/generate_nodequeue'] = array(
+    'title' => 'Generate queue assignments',
+    'description' => 'Bulk add nodes into queues',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('nodequeue_generate_form'),
+    'access callback' => 'user_access',
+    'access arguments' => array('manipulate all queues'),
+    'type' => MENU_LOCAL_TASK,
+  );
+  return $items;
+}
+
+/**
+ * Menu callback; Returns the nodequeue generate form.
+ */
+function nodequeue_generate_form() {
+  $form['help'] = array(
+    '#markup' => '<p>' . t('Select which queues shall be <strong>emptied</strong> and re-populated with new nodes.') . '</p>'
+  );
+
+  $queues = nodequeue_load_queues(nodequeue_get_all_qids(25));
+
+  // Tableselect header.
+  $header = array(
+    'name' => 'Queue name',
+    'max_nodes' => 'Max nodes',
+    'subqueues' => 'Subqueues',
+  );
+
+  // Tableselect data.
+  $data = array();
+  foreach ($queues as $queue) {
+    $data[$queue->qid]['name'] = check_plain($queue->title);
+    $data[$queue->qid]['max_nodes'] = $queue->size == 0 ? t('Infinite') : $queue->size;
+    $data[$queue->qid]['subqueues'] = $queue->subqueues;
+  }
+
+  // Table select element.
+  $form['nodequeues'] = array(
+    '#type' => 'tableselect',
+    '#header' => $header,
+    '#options' => $data,
+    '#empty' => t('There are no queues.'),
+  );
+
+  $form['nodequeue_generate_nodes_limit'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Nodes limit'),
+    '#description' => t('How many nodes to insert in a queue. This value is only taken into consideration for infinite queues.'),
+    '#size' => 3,
+    '#default_value' => 10,
+  );
+
+  $form['submit'] = array(
+    '#type' => 'submit',
+    '#value' => t('Generate'),
+  );
+
+  return $form;
+}
+
+/**
+ * Validate nodequeue generate form submission.
+ *
+ * Make sure that at least one queue was selected.
+ */
+function nodequeue_generate_form_validate($form, &$form_state) {
+  $qids = array_keys(array_filter($form_state['values']['nodequeues']));
+  if (count($qids) < 1) {
+    form_set_error('nodequeues', t('You must select a Queue.'));
+  }
+}
+
+function nodequeue_generate_form_submit($form, &$form_state) {
+  // Get qids of all nodequeues that need to be re-populated and repopulate them.
+  $qids = array_keys(array_filter($form_state['values']['nodequeues']));
+  $nodes_limit = $form_state['values']['nodequeue_generate_nodes_limit'];
+  nodequeue_generate_rehash();
+  nodequeue_generate_repopulate_queues($qids, $nodes_limit);
+}
+
+/**
+ * Re-populates nodequeues with nodes.
+ *
+ * @param $qids Array of queues, that need to be repopulated.
+ */
+function nodequeue_generate_repopulate_queues($qids, $nodes_limit = 10) {
+  // Remove existing nodes from queues.
+  db_query("DELETE FROM {nodequeue_nodes} WHERE qid IN (:qids)", array(':qids' => $qids));
+
+  // Load all queues and their subqueues.
+  $queues = nodequeue_load_queues($qids);
+  $subqueues = nodequeue_load_subqueues_by_queue($qids);
+
+  // Re-populate subqueues
+  foreach ($qids as $qid) {
+    $queue = nodequeue_load($qid);
+
+    // Skip nodequeues that do not belong to any node types.
+    if (!empty($queue->types)) {
+
+      $limit = $queue->size ? $queue->size : $nodes_limit;
+      $callback = $queue->owner . '_nodequeue_generate';
+
+      if (function_exists($callback)) {
+        $callback($queue, $limit);
+      }
+    }
+  }
+
+  drupal_set_message(format_plural(count($qids), '1 queue populated', '@count queues populated.'));
+}
+
+/**
+ * Rebuild all smartqueue_taxonomy queues. Useful after a data migration has wiped your terms.
+ * When more smartqueue modules arrive, revisit this function.
+ *
+ * @param vids
+ *   An array of vocabulary ids.
+ */
+function nodequeue_generate_rehash() {
+  // Delete existing smartqueue taxonomy subqueues
+  db_query("DELETE ns FROM {nodequeue_subqueue} ns INNER JOIN {nodequeue_queue} nq ON ns.qid = nq.qid WHERE nq.owner = 'smartqueue_taxonomy'");
+
+  // Get all queues, owned by Smartqueue taxonomy.
+  $qids = db_select('nodequeue_queue', 'nq')
+    ->fields('nq', array('qid'))
+    ->condition('owner', 'smartqueue_taxonomy')
+    ->execute()
+    ->fetchAll();
+
+  foreach ($qids as $qid) {
+    $queue = nodequeue_load($qid->qid);
+    $fields = explode('-', $queue->reference);
+
+    $tids = array();
+    foreach ($fields as $field) {
+      // Get all possible tids from this field.
+      $query = db_select('field_data_' . $field, 'f');
+
+      $query
+        ->condition('f.entity_type', 'node')
+        ->condition('f.bundle', $queue->types, 'IN')
+        ->condition('f.deleted', FALSE)
+        ->addField('f', $field . '_tid', 'tid');
+      $query = $query->distinct();
+      $query = $query->execute();
+
+      $tids += $query->fetchAll();
+    }
+
+    // Rehash for each tid.
+    $nids = array();
+    foreach ($tids as $tid) {
+      foreach ($fields as $field) {
+        $query = db_select('field_data_' . $field, 'f')
+          ->condition('f.entity_type', 'node')
+          ->condition('f.bundle', $queue->types, 'IN')
+          ->condition('f.deleted', FALSE)
+          ->condition('f.' . $field . '_tid', $tid->tid)
+          ->fields('f', array('entity_id'))
+          ->range(0, 1)
+          ->execute();
+
+        $nids += $query->fetchAll();
+      }
+
+      foreach ($nids as $nid) {
+        $node = node_load($nid->entity_id);
+        nodequeue_api_subqueues($queue, $node);
+      }
+    }
+  }
+}
+
+/**
+ * Implements hook_nodequeue_generate() for owner 'nodequeue'.
+ */
+function nodequeue_nodequeue_generate($queue, $limit) {
+  $subqueues = nodequeue_load_subqueues_by_queue($queue->qid);
+  foreach ($subqueues as $subqueue) {
+    $nodes = db_select('node', 'n')
+      ->condition('n.status', NODE_PUBLISHED)
+      ->condition('n.type', $queue->types, 'IN')
+      ->orderRandom()
+      ->fields('n', array('nid'))
+      ->range(0, $limit)
+      ->execute()
+      ->fetchAll();
+
+    foreach ($nodes as $node) {
+      nodequeue_subqueue_add($queue, $subqueue, $node->nid);
+    }
+  }
+}
+
+/**
+ * Implements hook_nodequeue_generate() for owner 'smartqueue_taxonomy'.
+ */
+function smartqueue_taxonomy_nodequeue_generate($queue, $limit) {
+  $subqueues = nodequeue_load_subqueues_by_queue($queue->qid);
+  foreach ($subqueues as $subqueue) {
+    $nodes = db_select('taxonomy_index', 'tn');
+    $nodes->join('node', 'n', 'n.nid=tn.nid');
+    $nodes->fields('n', array('nid'));
+    $nodes->condition('n.status', NODE_PUBLISHED);
+    $nodes->condition('n.type', $queue->types, 'IN');
+    $nodes->condition('tn.tid', $subqueue->reference);
+    $nodes->orderRandom();
+    $nodes->range(0, $limit);
+    $nodes = $nodes->execute();
+    $nodes = $nodes->fetchAll();
+
+    foreach ($nodes as $node) {
+      nodequeue_subqueue_add($queue, $subqueue, $node->nid);
+    }
+  }
+}

@@ -1,0 +1,12 @@
+name = Shadowbox: File formatter
+description = Allows file field content to be displayed in a JavaScript modal media viewer application.
+core = 7.x
+package = Shadowbox
+dependencies[] = shadowbox
+files[] = file_shadowbox.module
+; Information added by drupal.org packaging script on 2013-03-22
+version = "7.x-4.0-rc1"
+core = "7.x"
+project = "shadowbox"
+datestamp = "1363911317"
+

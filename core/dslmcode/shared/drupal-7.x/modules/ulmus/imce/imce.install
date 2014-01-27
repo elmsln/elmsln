@@ -1,0 +1,104 @@
+<?php
+
+/**
+ * @file
+ * Installs, updates, and uninstalls IMCE.
+ */
+
+/**
+ * Implements hook_install().
+ */
+function imce_install() {
+  module_load_include('inc', 'imce', 'inc/imce.core.profiles');
+  imce_install_profiles();
+}
+
+/**
+ * Implements hook_uninstall().
+ */
+function imce_uninstall() {
+  db_delete('file_usage')->condition('module', 'imce')->execute();
+  variable_del('imce_profiles');
+  variable_del('imce_roles_profiles');
+  variable_del('imce_settings_textarea');
+  variable_del('imce_settings_absurls');
+  variable_del('imce_settings_replace');
+  variable_del('imce_settings_thumb_method');
+  variable_del('imce_settings_disable_private');
+  variable_del('imce_custom_content');
+  variable_del('imce_custom_process');
+  variable_del('imce_custom_init');
+  variable_del('imce_custom_scan');
+  variable_del('imce_custom_response');
+}
+
+/**
+ * Updates from 6.x to 7.x.
+ */
+function imce_update_7000() {
+  // Update role-profile assignments
+  $roles_profiles = variable_get('imce_roles_profiles', array());
+  if (!empty($roles_profiles)) {
+    $scheme = variable_get('file_default_scheme', 'public');
+    foreach ($roles_profiles as $rid => &$role) {
+      $role[$scheme . '_pid'] = $role['pid'];
+      unset($role['pid']);
+    }
+    variable_set('imce_roles_profiles', $roles_profiles);
+  }
+  // Update textarea ids
+  $ids = str_replace(' ', '', variable_get('imce_settings_textarea', ''));
+  if ($ids != '') {
+    $ids = explode(',', $ids);
+    foreach ($ids as &$id) {
+      $id .= '*';
+    }
+    variable_set('imce_settings_textarea', implode(', ', $ids));
+  }
+}
+
+/**
+ * Migrates imce files from {files} to {file_managed}.
+ * Removes {imce_files} in favor of {file_usage}.
+ */
+function imce_update_7001(&$sandbox) {
+  if (!db_table_exists('imce_files') || !db_table_exists('files')) {
+    return;
+  }
+  // Initiate progress
+  if (!isset($sandbox['progress'])) {
+    $sandbox['progress'] = 0;
+    $sandbox['last_fid_processed'] = 0;
+    $sandbox['max'] = db_query("SELECT COUNT(*) FROM {imce_files} i INNER JOIN {files} f ON i.fid = f.fid")->fetchField();
+  }
+  // Prepare variables
+  $limit = 250;
+  $basedir = variable_get('file_directory_path', conf_path() . '/files') . '/';
+  $baselen = strlen($basedir);
+  $scheme = file_default_scheme() . '://';
+  $result = db_query_range('SELECT f.* FROM {imce_files} i INNER JOIN {files} f ON i.fid = f.fid WHERE i.fid > :fid ORDER BY i.fid', 0, $limit, array(':fid' => $sandbox['last_fid_processed']))->fetchAll();
+  // Migrate imce files from {files} to {file_managed}
+  foreach ($result as $file) {
+    $relpath = substr($file->filepath, 0, $baselen) == $basedir ? substr($file->filepath, $baselen) : $file->filepath;
+    $file->uri = file_stream_wrapper_uri_normalize($scheme . $relpath);
+    unset($file->filepath);
+    if (!db_query("SELECT 1 FROM {file_managed} WHERE fid = :fid", array(':fid' => $file->fid))->fetchField()) {
+      // Check duplicate uri
+      if ($fid = db_query("SELECT fid FROM {file_managed} WHERE uri = :uri", array(':uri' => $file->uri))->fetchField()) {
+        $file->fid = $fid;
+      }
+      else {
+        drupal_write_record('file_managed', $file);
+      }
+    }
+    file_usage_add($file, 'imce', 'file', $file->fid);
+    $sandbox['progress']++;
+    $sandbox['last_fid_processed'] = $file->fid;
+  }
+  // Drop {imce_files} if the progress is complete.
+  $sandbox['#finished'] = empty($sandbox['max']) ? 1 : $sandbox['progress'] / $sandbox['max'];
+  if ($sandbox['#finished'] >= 1) {
+    db_drop_table('imce_files');
+    return t('Migrated IMCE files.');
+  }
+}

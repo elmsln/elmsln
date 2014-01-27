@@ -1,0 +1,17 @@
+// Media query variables.
+@mobile:  ~"(max-width: 767px)";
+@tablet:  ~"(min-width: 768px) and (max-width: 979px)";
+@normal:  ~"(min-width: 980px) and (max-width: 1199px)";
+@wide:    ~"(min-width: 1200px)";
+
+// Bootstrap library.
+@import 'bootstrap.less';
+@import 'responsive.less';
+
+// Base-theme overrides.
+@import 'overrides.less';
+
+// Theme specific.
+@import 'header.less';
+@import 'content.less';
+@import 'footer.less';

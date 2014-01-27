@@ -1,0 +1,13 @@
+<?php
+
+/**
+ * @file
+ * Remove the default, core RSS feed.
+ */
+
+/**
+ * Implements hook_menu_alter().
+ */
+function jammer_menu_alter(&$items) {
+  unset($items['rss.xml']);
+}

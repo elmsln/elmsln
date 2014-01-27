@@ -1,0 +1,21 @@
+
+#shadowbox-settings-test {
+  margin-bottom: 20px;
+}
+
+#shadowbox-settings-test a {
+  padding: 1em;
+  text-align: center;
+  border: 1px solid #2F2F33;
+  background-color: #F0F0F0;
+  display: block;
+  color: #2F2F33;
+}
+
+#shadowbox-settings-test a:hover {
+  background-color: #D9E3FB;
+}
+
+#shadowbox-global-settings .multicolumncheckboxesradios-column {
+  width: 5em;
+}

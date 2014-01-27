@@ -1,0 +1,19 @@
+#form-builder-fields .block {
+  position: static !important;
+}
+
+#form-builder .form-builder-empty-form {
+  display: none;
+}
+
+#form-builder .form-builder-title + .form-builder-empty-form {
+  display: inherit;
+}
+
+#form-builder-field-palette ul li.field-image_styles {
+  background-image: url('../images/icon-image_styles.png');
+}
+
+#form-builder-field-palette ul li.field-token_tree {
+  background-image: url('../images/icon-token_tree.png');
+}

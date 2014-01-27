@@ -1,0 +1,47 @@
+<?php
+
+/**
+ * Implements hook_menu().
+ */
+function views_autocomplete_filters_menu() {
+  $items = array();
+  $items['autocomplete_filter/%/%/%'] = array(
+    'title' => 'Autocomplete Filters',
+    'page callback' => 'views_autocomplete_filter',
+    'page arguments' => array(1, 2, 3),
+    'access callback' => '_views_autocomplete_filters_access_callback',
+    'access arguments' => array(2, 3),
+    'file' => 'views_autocomplete_filters.inc',
+    'type' => MENU_CALLBACK,
+  );
+  return $items;
+}
+
+/**
+ * Access callback of autocomplete menu item.
+ *
+ * @param string $view_name
+ * @param string $display_name
+ *
+ * @return bool
+ */
+function _views_autocomplete_filters_access_callback($view_name, $display_name) {
+  $view = views_get_view($view_name);
+
+  if (empty($view) || !$view->set_display($display_name)) {
+    // No such view or something is wrong with display
+    // (no such display, broken handler, etc.)
+    return FALSE;
+  }
+
+  return $view->access(array($display_name));
+}
+
+/**
+ * Implements hook_views_api().
+ */
+function views_autocomplete_filters_views_api() {
+  return array(
+    'api' => 3.0,
+  );
+}

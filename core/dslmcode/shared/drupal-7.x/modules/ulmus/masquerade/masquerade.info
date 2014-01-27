@@ -1,0 +1,12 @@
+name = Masquerade
+description = "This module allows permitted users to masquerade as other users."
+core = 7.x
+files[] = masquerade.test
+configure = admin/config/people/masquerade
+
+; Information added by drupal.org packaging script on 2012-11-01
+version = "7.x-1.0-rc5"
+core = "7.x"
+project = "masquerade"
+datestamp = "1351786623"
+

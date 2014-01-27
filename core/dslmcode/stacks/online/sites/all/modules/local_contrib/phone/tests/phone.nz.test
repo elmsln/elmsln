@@ -1,0 +1,68 @@
+<?php
+
+class NZPhoneNumberTestCase extends DrupalWebTestCase {
+  /**
+   * Implementation of getInfo()
+   *
+   */
+  public static function getInfo() {
+    return array(
+      'name' => t('New Zealand Phone number test'),
+      'description' => t('Tests various valid and invalid New Zealand phone numbers for validity'),
+      'group' => t('Phone')
+    );
+  }
+
+  public function testPhoneNZValid() {
+    $this->assertTrue(valid_phone_number('nz', '04 476 0000'), t('Test standard regional number 04 476 0000'));
+    $this->assertTrue(valid_phone_number('nz', '+64 4 476 0000'), t('Test international variation of regional +64 4 476 0000'));
+    $this->assertTrue(valid_phone_number('nz', '+6444760000'), t('Test international variation of regional +6444760000'));
+    $this->assertTrue(valid_phone_number('nz', '+649302 0000'), t('Test slightly weird variation of international +649302 0000'));
+    $this->assertTrue(valid_phone_number('nz', '(04) 476 0000'), t('Test bracketed regional (04) 476 0000'));
+    $this->assertTrue(valid_phone_number('nz', '(04) 476-0000'), t('Test hyphenated regional (04) 476-0000'));
+    $this->assertTrue(valid_phone_number('nz', '03 903-1234'), t('Test valid South Island regional 03 903-1234'));
+    $this->assertTrue(valid_phone_number('nz', '021 123 456'), t('Test valid 8-digit Vodafone number 021 739 733'));
+    $this->assertTrue(valid_phone_number('nz', '(021) 123 456'), t('Test bracketed 8-digit Vodafone number (021) 739 733'));
+    $this->assertTrue(valid_phone_number('nz', '+6421123456'), t('Test international Vodafone +6421123456'));
+    $this->assertTrue(valid_phone_number('nz', '021 0101 2345'), t('Test 10-digit valid Vodafone number 021 2102 2345'));
+    $this->assertTrue(valid_phone_number('nz', '+642101012345'), t('Test international version 10-digit Vodafone +642121012345'));
+    $this->assertTrue(valid_phone_number('nz', '027 680 1234'), t('Test valid 9-digit Telecom Mobile number'));
+    $this->assertTrue(valid_phone_number('nz', '+64 27 680 1234'), t('Test valid international version of Telecom 9-digit +64 27 680 1234'));
+    $this->assertTrue(valid_phone_number('nz', '0800 83 83 83'), t('Test valid 0800 83 83 83 Pizza Hut'));
+    $this->assertTrue(valid_phone_number('nz', '0900 87687'), t('Test valid 0900 TROTS'));
+    $this->assertTrue(valid_phone_number('nz', '026 123 4567'), t('Test valid Telecom pager 026 123 4567'));
+    $this->assertTrue(valid_phone_number('nz', '022 123 4567'), t('Test valid NZ Comms mobile 022 123 4567'));
+    $this->assertTrue(valid_phone_number('nz', '22 123 4567'), t('Test slightly naughty lack of STD NZ Comms 22 123 4567'));
+    $this->assertTrue(valid_phone_number('nz', '020 123 4567'), t('Test valid Telecom Mobile Radio 020 123 4567'));
+    $this->assertTrue(valid_phone_number('nz', '029 123 4567'), t('Test valid TelstraClear Mobile Radio 029 123 4567'));
+    $this->assertTrue(valid_phone_number('nz', '+64 24 123 456'), t('Test valid Scott Base +64 24 123 456'));
+
+  }
+
+  public function testPhoneNZInvalid() {
+    $this->assertFalse(valid_phone_number('nz', '021 3012 3456'), t('Test invalid 10-digit Vodafone number in wrong range 021 3012 3456'));
+    $this->assertFalse(valid_phone_number('nz', '04 701 1234'), t('Test invalid Wellington regional number 04 701 1234'));
+    $this->assertFalse(valid_phone_number('nz', '(06) 412 3456'), t('Test invalid Manawatu regional number (06) 412 3456'));
+    $this->assertFalse(valid_phone_number('nz', '04 123 456'), t('Test too short Wellington regional number 04 123 456'));
+    $this->assertFalse(valid_phone_number('nz', '[04] 123 4567'), t('Test invalid character Wellington regional [04] 123 4567'));
+    $this->assertFalse(valid_phone_number('nz', '09 701 2345'), t('Test invalid Auckland regional 09 701 2345'));
+    $this->assertFalse(valid_phone_number('nz', '028 123 4567'), t('Test invalid mobile range 028 123 4567'));
+    $this->assertFalse(valid_phone_number('nz', '027 1234 5678'), t('Test invalid Telecom mobile length 027 1234 5678'));
+  }
+
+  public function testPhoneNZFormatting() {
+    $this->assertEqual(format_phone_number('nz', '+6421123456', null), '+64 21 123 456', t('Check international mobile format'));
+    $this->assertEqual(format_phone_number('nz', '021123456', null), '(021) 123 456', t('Check 6-digit domestic mobile format'));
+    $this->assertEqual(format_phone_number('nz', '0211234567', null), '(021) 123 4567', t('Check 7-digit domestic mobile format'));
+    $this->assertEqual(format_phone_number('nz', '+64211234567', null), '+64 21 123 4567', t('Check 7-digit international mobile format'));
+    $this->assertEqual(format_phone_number('nz', '02101234567', null), '(021) 0123 4567', t('Check 8-digit domestic mobile format'));
+    $this->assertEqual(format_phone_number('nz', '+642101234567', null), '+64 21 0123 4567', t('Check 8-digit international mobile format'));
+    $this->assertEqual(format_phone_number('nz', '041234567', null), '(04) 123 4567', t('Check regional number format (domestic)'));
+    $this->assertEqual(format_phone_number('nz', '+6441234567', null), '+64 4 123 4567', t('Check regional number format (international)'));
+    $this->assertEqual(format_phone_number('nz', '041234567x1234', null), '(04) 123 4567 x1234', t('Check regional number format with extension (domestic)'));
+    $this->assertEqual(format_phone_number('nz', '+6441234567x1234', null), '+64 4 123 4567 x1234', t('Check regional number format with extension (international)'));
+    $this->assertEqual(format_phone_number('nz', '0800 83 83 83', null), '0800 838383', t('Check 0800 number formatting (6 digit)'));
+    $this->assertEqual(format_phone_number('nz', '0800 123 4567', null), '0800 123 4567', t('Check 0800 number formatting (7 digit)'));
+    $this->assertEqual(format_phone_number('nz', '0800 12345', null), '0800 12345', t('Check 0800 number formatting (5 digit)'));
+  }
+}

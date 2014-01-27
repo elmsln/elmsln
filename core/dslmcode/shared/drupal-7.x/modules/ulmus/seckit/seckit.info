@@ -1,0 +1,16 @@
+name = Security Kit
+description = "Enhance security of your Drupal website."
+package = Security
+core = 7.x
+configure = admin/config/system/seckit
+files[] = seckit.install
+files[] = seckit.module
+files[] = seckit.test
+files[] = includes/seckit.form.inc
+
+; Information added by  packaging script on 2013-11-19
+version = "7.x-1.8"
+core = "7.x"
+project = "seckit"
+datestamp = "1384826305"
+

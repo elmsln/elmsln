@@ -1,0 +1,24 @@
+.accessibility-result {
+	padding: 3px; border-radius: 3px;
+}
+
+.accessibility-result.severe {
+	border: 3px dashed red;
+}
+
+.accessibility-result.moderate {
+	border: 3px dashed orange;
+}
+
+.accessibility-result.reccomendation {
+	border: 3px solid green;
+}
+
+.accessibility-message {
+	position: fixed;
+	background: #fff;
+	color: #000 !important;
+	text-decoration: none !important;
+	border: 1px solid black;
+	padding: 10px;
+}

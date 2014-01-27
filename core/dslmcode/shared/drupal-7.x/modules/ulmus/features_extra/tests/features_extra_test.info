@@ -1,0 +1,21 @@
+name = Features Extra test feature
+description = Test feature for Features Extra.
+core = 7.x
+package = Testing
+php = 5.2.4
+
+dependencies[] = block_class
+dependencies[] = fe_block
+dependencies[] = fe_nodequeue
+
+features[fe_block_boxes][] = features_extra_test_block
+features[fe_block_settings][] = block-features_extra_test_block
+features[fe_nodequeue][] = features_extra_test_nodequeue
+features[features_api][] = api:1
+
+; Information added by drupal.org packaging script on 2013-04-15
+version = "7.x-1.0-beta1"
+core = "7.x"
+project = "features_extra"
+datestamp = "1366049112"
+

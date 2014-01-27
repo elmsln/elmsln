@@ -1,0 +1,60 @@
+<?php
+
+/**
+ * @file
+ * Handles AdvAgg Validator installation and upgrade tasks.
+ */
+
+/**
+ * Implements hook_schema().
+ */
+function advagg_validator_schema() {
+  // Create database table.
+  $schema['advagg_validator'] = array(
+    'description' => 'CSS/JS files that have been ran through a validator, checking syntax etc.',
+    'fields' => array(
+      'filename' => array(
+        'description' => 'Path and filename of the file relative to Drupal webroot.',
+        'type' => 'text',
+        'size' => 'normal',
+        'not null' => TRUE,
+      ),
+      'filename_hash' => array(
+        'description' => 'Hash of path and filename. Used to join tables & for lookup.',
+        'type' => 'varchar',
+        'length' => 43,
+        'not null' => TRUE,
+        'default' => '',
+      ),
+      'content_hash' => array(
+        'description' => 'Hash of the file content. Used to see if the file has changed.',
+        'type' => 'varchar',
+        'length' => 43,
+        'not null' => TRUE,
+        'default' => '',
+      ),
+      'filetype' => array(
+        'description' => 'Filetype.',
+        'type' => 'varchar',
+        'length' => 8,
+        'not null' => TRUE,
+        'default' => '',
+      ),
+      'data' => array(
+        'description' => 'Validation data about this file.',
+        'type' => 'blob',
+        'not null' => TRUE,
+        'size' => 'big',
+        'translatable' => TRUE,
+        'serialize' => TRUE,
+      ),
+    ),
+    'indexes' => array(
+      'content_hash' => array('content_hash'),
+      'filetype' => array('filetype'),
+    ),
+    'primary key' => array('filename_hash'),
+  );
+
+  return $schema;
+}

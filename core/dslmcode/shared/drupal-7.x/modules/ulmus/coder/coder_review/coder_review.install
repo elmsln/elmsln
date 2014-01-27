@@ -1,0 +1,51 @@
+<?php
+
+/**
+ * @file
+ * Install, update and uninstall functions for the coder_review module.
+ */
+
+/**
+ * Implements hook_uninstall().
+ */
+function coder_review_uninstall() {
+  variable_del('coder_cache');
+  variable_del('coder_reviews');
+  variable_del('coder_severity');
+  variable_del('coder_active_modules');
+  variable_del('coder_core');
+  variable_del('coder_includes');
+  variable_del('coder_includes_exclusions');
+  variable_del('coder_modules');
+  variable_del('coder_themes');
+}
+
+/**
+ * Implements hook_schema().
+ */
+function coder_review_schema() {
+  // Use our own cache table because we can create lots of entries, that slow down and clutter the default cache.
+  $schema['cache_coder'] = drupal_get_schema_unprocessed('system', 'cache');
+  $schema['cache_coder']['description'] = "Coder cache table for improving display of result sets that haven't changed";
+  return $schema;
+}
+
+/**
+ * Implements hook_requirements().
+ */
+function coder_review_requirements($phase) {
+  // Load the primary PHP CodeSniffer class.
+  if (!@include_once 'PHP/CodeSniffer.php') {
+    $missing = TRUE;
+  }
+
+  $t = get_t();
+  $requirements['coder_review-sniffer'] = array(
+    'title' => t('Coder Review'),
+    'value' => empty($missing) ? $t('PHP_CodeSniffer installed.') : $t('PHP_CodeSniffer not installed.'),
+    'description' => $t('Coder review uses <a href="!php-url">PHP_CodeSniffer</a> to perform better code review checks; Code_Sniffer is not a requirement, but it is helpful. Use "<a href="!drush-url">drush</a> install-coder-sniffer" to help install.', array('!php-url' => 'http://pear.php.net/package/PHP_CodeSniffer', '!drush-url' => 'http://drupal.org/project/drush')),
+    'severity' => empty($missing) ? REQUIREMENT_OK : REQUIREMENT_WARNING,
+  );
+
+  return $requirements;
+}

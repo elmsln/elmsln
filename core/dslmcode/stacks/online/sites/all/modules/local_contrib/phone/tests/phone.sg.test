@@ -1,0 +1,40 @@
+<?php
+
+class SGPhoneNumberTestCase extends DrupalWebTestCase {
+  /**
+   * Implementation of getInfo()
+   *
+   */
+  public static function getInfo() {
+    return array(
+      'name' => t('Singapore Phone number test'),
+      'description' => t('Tests various valid and invalid Singapore phone numbers for validity'),
+      'group' => t('Phone')
+    );
+  }
+
+  public function testPhoneSGValid() {
+    $this->assertTrue(valid_phone_number('sg', '61234567'), "'61234567' should be valid");
+    $this->assertTrue(valid_phone_number('sg', '63829324'), "'63829324' should be valid");
+    $this->assertTrue(valid_phone_number('sg', '67654321'), "'67654321' should be valid");
+    $this->assertTrue(valid_phone_number('sg', '+6561234567'), "'+6561234567' should be valid");
+    $this->assertTrue(valid_phone_number('sg', '+6581234567'), "'+6581234567' should be valid");
+    $this->assertTrue(valid_phone_number('sg', '+6591234567'), "'+6591234567' should be valid");
+    $this->assertTrue(valid_phone_number('sg', '+65 61234567'), "'+65 61234567' should be valid");
+    $this->assertTrue(valid_phone_number('sg', '+65 81234567'), "'+65 81234567' should be valid");
+    $this->assertTrue(valid_phone_number('sg', '+65 91234567'), "'+65 91234567' should be valid");
+    $this->assertTrue(valid_phone_number('sg', '61234567'), "'61234567' should be valid");
+    $this->assertTrue(valid_phone_number('sg', '81234567'), "'81234567' should be valid");
+    $this->assertTrue(valid_phone_number('sg', '91234567'), "'91234567' should be valid");
+  }
+
+  public function testPhoneSGInvalid() {
+    $this->assertFalse(valid_phone_number('sg', '6123-4567'), t('Test invalid '));
+    $this->assertFalse(valid_phone_number('sg', '6-CALL-CPY'), t('Test invalid '));
+    $this->assertFalse(valid_phone_number('sg', '6123abcd'), t('Test invalid '));
+  }
+
+  public function testPhoneSGFormatting() {
+    //$this->assertEqual(format_phone_number('sg', '+6421123456', null), '+64 21 123 456', t('Check international mobile format'));
+  }
+}

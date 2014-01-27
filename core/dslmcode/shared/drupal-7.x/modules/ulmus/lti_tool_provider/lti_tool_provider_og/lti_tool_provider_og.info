@@ -1,0 +1,15 @@
+name = LTI Tool Provider OG
+description = An LTI Tool Provider add-on module which maps LTI context to organic groups
+core = 7.x
+package = "Learning Tools Interoperability"
+dependencies[] = lti_tool_provider
+dependencies[] = entity
+dependencies[] = og (2.x)
+configure = admin/config/lti-tool-provider/group-mapping
+
+; Information added by drupal.org packaging script on 2013-06-05
+version = "7.x-1.x-dev"
+core = "7.x"
+project = "lti_tool_provider"
+datestamp = "1370446594"
+

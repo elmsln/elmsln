@@ -1,0 +1,506 @@
+<?php
+
+/**
+ * @file
+ * Functional tests for the Unique Field module with Drupal core field types.
+ *
+ * The basic model for the tests:
+ *
+ * - Test each supported field type
+ * - Test each scope (by content type, language, all, or single node)
+ * - Test multiple fields individually and in combination
+ */
+
+class UniqueFieldCoreTestCase extends DrupalWebTestCase {
+  protected $privileged_user;
+
+  public static function getInfo() {
+    return array(
+      'name' => 'Unique Field: Core tests',
+      'description' => 'Ensure that the Unique Field module functions properly with Drupal core field types.',
+      'group' => 'Unique Field',
+    );
+  }
+
+  public function setUp() {
+    parent::setUp('field', 'field_ui', 'number', 'text', 'unique_field');
+
+    // TODO: add tests for other types of fields: date, file, link, number, node
+    // reference, user reference, etc.
+
+    // Create and log in our privileged user.
+    $this->privileged_user = $this->drupalCreateUser(array(
+      'administer content types', 'administer nodes', 'bypass node access', 'unique_field_perm_admin', 'unique_field_perm_bypass',
+    ));
+    $this->drupalLogin($this->privileged_user);
+  }
+
+  /**
+   * Test the unique requirement on the title field in the content type scope.
+   */
+  public function testUniqueCtypeTitle() {
+    // Create a content type with the title set to be unique
+    $edit = array();
+    $edit['name'] = 'Unique Title';
+    $edit['type'] = 'uf_title';
+    $edit['unique_field_fields[title]'] = 'title';
+    $this->drupalPost('admin/structure/types/add', $edit, t('Save content type'));
+    $this->assertText('The content type Unique Title has been added.', 'Content type added.');
+
+    // Attempt to create 2 nodes with the same title
+    $title = $this->randomName(24);
+    $edit = array();
+    $edit['title'] = $title;
+    $edit['body[und][0][value]'] = $this->randomName(48);
+    $this->drupalPost('node/add/uf-title', $edit, t('Save'));
+    $this->assertText($edit['body[und][0][value]'], 'Unique Title (uf_title) node has been created');
+    $edit['body[und][0][value]'] = $this->randomName(48);
+    $this->drupalPost('node/add/uf-title', $edit, t('Save'));
+    $this->assertText('The Title field requires a unique value, and the specified value is already used', 'Unique Title (uf_title) node with duplicate content could not be created');
+
+    // Check for false negative: Attempt to create a node with a unique title
+    $edit = array();
+    $edit['title'] = $this->randomName(24);
+    $edit['body[und][0][value]'] = $this->randomName(48);
+    $this->drupalPost('node/add/uf-title', $edit, t('Save'));
+    $this->assertText($edit['body[und][0][value]'], 'Unique Title (uf_title) node has been created');
+  }
+
+  /**
+   * Test the unique requirement on the title field in the all scope.
+   */
+  public function testUniqueAllTitle() {
+    // Create a content type with the title set to be unique
+    $edit = array();
+    $edit['name'] = 'Unique Title';
+    $edit['type'] = 'uf_title';
+    $edit['unique_field_fields[title]'] = 'title';
+    $edit['unique_field_scope'] = UNIQUE_FIELD_SCOPE_ALL;
+    $this->drupalPost('admin/structure/types/add', $edit, t('Save content type'));
+    $this->assertText('The content type Unique Title has been added.', 'Content type added.');
+
+    // Create another content type with the title set to be unique
+    $edit = array();
+    $edit['name'] = 'Unique Title 2';
+    $edit['type'] = 'uf_title2';
+    $edit['unique_field_fields[title]'] = 'title';
+    $edit['unique_field_scope'] = UNIQUE_FIELD_SCOPE_ALL;
+    $this->drupalPost('admin/structure/types/add', $edit, t('Save content type'));
+    $this->assertText('The content type Unique Title 2 has been added.', 'Content type added.');
+
+    // Attempt to create 2 nodes with the same title in different content types
+    $title = $this->randomName(24);
+    $edit = array();
+    $edit['title'] = $title;
+    $edit['body[und][0][value]'] = $this->randomName(48);
+    $this->drupalPost('node/add/uf-title', $edit, t('Save'));
+    $this->assertText($edit['body[und][0][value]'], 'Unique Title (uf_title) node has been created');
+    $edit['body[und][0][value]'] = $this->randomName(48);
+    $this->drupalPost('node/add/uf-title2', $edit, t('Save'));
+    $this->assertText('The Title field requires a unique value, and the specified value is already used', 'Unique Title (uf_title) node with duplicate content could not be created');
+
+    // Check for false negative: Attempt to create a node with a unique title
+    $edit = array();
+    $edit['title'] = $this->randomName(24);
+    $edit['body[und][0][value]'] = $this->randomName(48);
+    $this->drupalPost('node/add/uf-title2', $edit, t('Save'));
+    $this->assertText($edit['body[und][0][value]'], 'Unique Title 2 (uf_title2) node has been created');
+  }
+
+  /**
+   * Test the unique requirement on the node author in the content type scope.
+   */
+  public function testUniqueCtypeAuthor() {
+    // Create a content type with the author set to be unique
+    $edit = array();
+    $edit['name'] = 'Unique Author';
+    $edit['type'] = 'uf_author';
+    $edit['unique_field_fields[name]'] = 'name';
+    $this->drupalPost('admin/structure/types/add', $edit, t('Save content type'));
+    $this->assertText('The content type Unique Author has been added.', 'Content type added.');
+
+    // Attempt to create 2 nodes with the same author
+    $edit = array();
+    $edit['title'] = $this->randomName(24);
+    $edit['body[und][0][value]'] = $this->randomName(48);
+    $this->drupalPost('node/add/uf-author', $edit, t('Save'));
+    $this->assertText($edit['body[und][0][value]'], 'Unique Author (uf_author) node has been created');
+    $edit = array();
+    $edit['title'] = $this->randomName(24);
+    $edit['body[und][0][value]'] = $this->randomName(48);
+    $this->drupalPost('node/add/uf-author', $edit, t('Save'));
+    $this->assertText('The Author field requires a unique value, and the specified value is already used', 'Unique Author (uf_author) node with duplicate content could not be created');
+
+    // Check for false negative: Attempt to create a node with a unique author
+    $new_account = $this->drupalCreateUser(array('administer nodes', 'bypass node access'));
+    $this->drupalLogin($new_account);
+    $edit = array();
+    $edit['title'] = $this->randomName(24);
+    $edit['body[und][0][value]'] = $this->randomName(48);
+    $this->drupalPost('node/add/uf-author', $edit, t('Save'));
+    $this->assertText($edit['body[und][0][value]'], 'Unique Author (uf_author) node has been created');
+  }
+
+  /**
+   * Test the unique requirement on the node author in the all scope.
+   */
+  public function testUniqueAllAuthor() {
+    // Create a content type with the author set to be unique
+    $edit = array();
+    $edit['name'] = 'Unique Author';
+    $edit['type'] = 'uf_author';
+    $edit['unique_field_fields[name]'] = 'name';
+    $edit['unique_field_scope'] = UNIQUE_FIELD_SCOPE_ALL;
+    $this->drupalPost('admin/structure/types/add', $edit, t('Save content type'));
+    $this->assertText('The content type Unique Author has been added.', 'Content type added.');
+
+    // Create another content type with the author set to be unique
+    $edit = array();
+    $edit['name'] = 'Unique Author 2';
+    $edit['type'] = 'uf_author2';
+    $edit['unique_field_fields[name]'] = 'name';
+    $edit['unique_field_scope'] = UNIQUE_FIELD_SCOPE_ALL;
+    $this->drupalPost('admin/structure/types/add', $edit, t('Save content type'));
+    $this->assertText('The content type Unique Author 2 has been added.', 'Content type added.');
+
+    // Attempt to create 2 nodes with the same author in different content types
+    $edit = array();
+    $edit['title'] = $this->randomName(24);
+    $edit['body[und][0][value]'] = $this->randomName(48);
+    $this->drupalPost('node/add/uf-author', $edit, t('Save'));
+    $this->assertText($edit['body[und][0][value]'], 'Unique Author (uf_author) node has been created');
+    $edit = array();
+    $edit['title'] = $this->randomName(24);
+    $edit['body[und][0][value]'] = $this->randomName(48);
+    $this->drupalPost('node/add/uf-author2', $edit, t('Save'));
+    $this->assertText('The Author field requires a unique value, and the specified value is already used', 'Unique Author 2 (uf_author2) node with duplicate content could not be created');
+
+    // Check for false negative: Attempt to create a node with a unique title
+    $new_account = $this->drupalCreateUser(array('administer nodes', 'bypass node access'));
+    $this->drupalLogin($new_account);
+    $edit = array();
+    $edit['title'] = $this->randomName(24);
+    $edit['body[und][0][value]'] = $this->randomName(48);
+    $this->drupalPost('node/add/uf-author2', $edit, t('Save'));
+    $this->assertText($edit['body[und][0][value]'], 'Unique Author 2 (uf_author2) node has been created');
+  }
+
+  /**
+   * Test the unique requirement on a text field in the content type scope.
+   */
+  public function testUniqueCtypeText() {
+    // Create a content type with a text field that is set to be unique
+    $edit = array();
+    $edit['name'] = 'Unique Text';
+    $edit['type'] = 'uf_text';
+    $this->drupalPost('admin/structure/types/add', $edit, t('Save content type'));
+    $this->assertText('The content type Unique Text has been added.', 'Content type added.');
+    $edit = array();
+    $edit['fields[_add_new_field][label]'] = 'Unique Text Text';
+    $edit['fields[_add_new_field][field_name]'] = 'uf_text_text';
+    $edit['fields[_add_new_field][type]'] = 'text';
+    $edit['fields[_add_new_field][widget_type]'] = 'text_textfield';
+    $this->drupalPost('admin/structure/types/manage/uf_text/fields', $edit, t('Save'));
+    $this->assertText('These settings apply to the Unique Text Text field everywhere it is used.', 'Field added to content type.');
+    $edit = array();
+    $edit['unique_field_fields[field_uf_text_text]'] = 'field_uf_text_text';
+    $this->drupalPost('admin/structure/types/manage/uf_text', $edit, t('Save content type'));
+    $this->assertText('The content type Unique Text has been updated.', 'Content type updated.');
+
+    // Attempt to create 2 nodes with the same text field value
+    $text = $this->randomName(48);
+    $edit = array();
+    $edit['title'] = $this->randomName(24);
+    $edit['body[und][0][value]'] = $this->randomName(48);
+    $edit['field_uf_text_text[und][0][value]'] = $text;
+    $this->drupalPost('node/add/uf-text', $edit, t('Save'));
+    $this->assertText($edit['body[und][0][value]'], 'Unique Text (uf_text) node has been created');
+    $edit['body[und][0][value]'] = $this->randomName(48);
+    $this->drupalPost('node/add/uf-text', $edit, t('Save'));
+    $this->assertText('The Unique Text Text field requires a unique value, and the specified value is already used', 'Unique Text (uf_text) node with duplicate content could not be created');
+
+    // Check for false negative: Attempt to create a node with a unique text
+    $edit = array();
+    $edit['title'] = $this->randomName(24);
+    $edit['body[und][0][value]'] = $this->randomName(48);
+    $edit['field_uf_text_text[und][0][value]'] = $this->randomName(48);
+    $this->drupalPost('node/add/uf-text', $edit, t('Save'));
+    $this->assertText($edit['body[und][0][value]'], 'Unique Text (uf_text) node has been created');
+  }
+
+  /**
+   * Test the unique requirement on a text field in the all scope.
+   */
+  public function testUniqueAllText() {
+    // Create a content type with a text field that is set to be unique
+    $edit = array();
+    $edit['name'] = 'Unique Text';
+    $edit['type'] = 'uf_text';
+    $this->drupalPost('admin/structure/types/add', $edit, t('Save content type'));
+    $this->assertText('The content type Unique Text has been added.', 'Content type added.');
+    $edit = array();
+    $edit['fields[_add_new_field][label]'] = 'Unique Text Text';
+    $edit['fields[_add_new_field][field_name]'] = 'uf_text_text';
+    $edit['fields[_add_new_field][type]'] = 'text';
+    $edit['fields[_add_new_field][widget_type]'] = 'text_textfield';
+    $this->drupalPost('admin/structure/types/manage/uf_text/fields', $edit, t('Save'));
+    $this->assertText('These settings apply to the Unique Text Text field everywhere it is used.', 'Field added to content type.');
+    $edit = array();
+    $edit['unique_field_scope'] = UNIQUE_FIELD_SCOPE_ALL;
+    $edit['unique_field_fields[field_uf_text_text]'] = 'field_uf_text_text';
+    $this->drupalPost('admin/structure/types/manage/uf_text', $edit, t('Save content type'));
+    $this->assertText('The content type Unique Text has been updated.', 'Content type updated.');
+
+    // Create another content type with the same text field and set it to unique
+    $edit = array();
+    $edit['name'] = 'Unique Text 2';
+    $edit['type'] = 'uf_text2';
+    $this->drupalPost('admin/structure/types/add', $edit, t('Save content type'));
+    $this->assertText('The content type Unique Text 2 has been added.', 'Content type added.');
+    $edit = array();
+    $edit['fields[_add_existing_field][label]'] = 'Unique Text 2 Text';
+    $edit['fields[_add_existing_field][field_name]'] = 'field_uf_text_text';
+    $edit['fields[_add_existing_field][widget_type]'] = 'text_textfield';
+    $this->drupalPost('admin/structure/types/manage/uf_text2/fields', $edit, t('Save'));
+    $this->assertText('These settings apply only to the Unique Text 2 Text field when used in the Unique Text 2 type.', 'Field added to content type.');
+    $edit = array();
+    $edit['unique_field_scope'] = UNIQUE_FIELD_SCOPE_ALL;
+    $edit['unique_field_fields[field_uf_text_text]'] = 'field_uf_text_text';
+    $this->drupalPost('admin/structure/types/manage/uf_text2', $edit, t('Save content type'));
+    $this->assertText('The content type Unique Text 2 has been updated.', 'Content type updated.');
+
+    // Attempt to create 2 nodes with the same text in different content types
+    $text = $this->randomName(48);
+    $edit = array();
+    $edit['title'] = $this->randomName(24);
+    $edit['body[und][0][value]'] = $this->randomName(48);
+    $edit['field_uf_text_text[und][0][value]'] = $text;
+    $this->drupalPost('node/add/uf-text', $edit, t('Save'));
+    $this->assertText($edit['body[und][0][value]'], 'Unique Text (uf_text) node has been created');
+    $edit = array();
+    $edit['title'] = $this->randomName(24);
+    $edit['body[und][0][value]'] = $this->randomName(48);
+    $edit['field_uf_text_text[und][0][value]'] = $text;
+    $this->drupalPost('node/add/uf-text2', $edit, t('Save'));
+    $this->assertText('The Unique Text 2 Text field requires a unique value, and the specified value is already used', 'Unique Text 2 (uf_text2) node with duplicate content could not be created');
+
+    // Check for false negative: Attempt to create a node with a unique text
+    $edit = array();
+    $edit['title'] = $this->randomName(24);
+    $edit['body[und][0][value]'] = $this->randomName(48);
+    $edit['field_uf_text_text[und][0][value]'] = $this->randomName(48);
+    $this->drupalPost('node/add/uf-text2', $edit, t('Save'));
+    $this->assertText($edit['body[und][0][value]'], 'Unique Text 2 (uf_text2) node has been created');
+  }
+
+  /**
+   * Test the unique requirement on a text field in the single scope.
+   */
+  public function testUniqueSingleText() {
+    // Create a content type with two text fields that are set to be unique
+    $edit = array();
+    $edit['name'] = 'Unique Text Single';
+    $edit['type'] = 'uf_text_single';
+    $this->drupalPost('admin/structure/types/add', $edit, t('Save content type'));
+    $this->assertText('The content type Unique Text Single has been added.', 'Content type added.');
+    $edit = array();
+    $edit['fields[_add_new_field][label]'] = 'Unique Text Single Text 1';
+    $edit['fields[_add_new_field][field_name]'] = 'uf_text_single_text_1';
+    $edit['fields[_add_new_field][type]'] = 'text';
+    $edit['fields[_add_new_field][widget_type]'] = 'text_textfield';
+    $this->drupalPost('admin/structure/types/manage/uf_text_single/fields', $edit, t('Save'));
+    $this->assertText('These settings apply to the Unique Text Single Text 1 field everywhere it is used.', 'Field added to content type.');
+    $edit = array();
+    $edit['fields[_add_new_field][label]'] = 'Unique Text Single Text 2';
+    $edit['fields[_add_new_field][field_name]'] = 'uf_text_single_text_2';
+    $edit['fields[_add_new_field][type]'] = 'text';
+    $edit['fields[_add_new_field][widget_type]'] = 'text_textfield';
+    $this->drupalPost('admin/structure/types/manage/uf_text_single/fields', $edit, t('Save'));
+    $this->assertText('These settings apply to the Unique Text Single Text 2 field everywhere it is used.', 'Field added to content type.');
+    $edit = array();
+    $edit['unique_field_scope'] = UNIQUE_FIELD_SCOPE_NODE;
+    $edit['unique_field_fields[field_uf_text_single_text_1]'] = 'field_uf_text_single_text_1';
+    $edit['unique_field_fields[field_uf_text_single_text_2]'] = 'field_uf_text_single_text_2';
+    $this->drupalPost('admin/structure/types/manage/uf_text_single', $edit, t('Save content type'));
+    $this->assertText('The content type Unique Text Single has been updated.', 'Content type updated.');
+
+    // Attempt to create a node with the same text in both fields
+    $text = $this->randomName(48);
+    $edit = array();
+    $edit['title'] = $this->randomName(24);
+    $edit['body[und][0][value]'] = $this->randomName(48);
+    $edit['field_uf_text_single_text_1[und][0][value]'] = $text;
+    $edit['field_uf_text_single_text_2[und][0][value]'] = $text;
+    $this->drupalPost('node/add/uf-text-single', $edit, t('Save'));
+    $this->assertText('The Unique Text Single Text 2 fields must have unique values. The Unique Text Single Text 2 field has a value that is already used.', 'Unique Text Single (uf_text_single) node with duplicate content could not be created');
+
+    // Check for false negative: Attempt to create a node with unique text
+    $edit = array();
+    $edit['title'] = $this->randomName(24);
+    $edit['body[und][0][value]'] = $this->randomName(48);
+    $edit['field_uf_text_single_text_1[und][0][value]'] = $this->randomName(48);
+    $edit['field_uf_text_single_text_2[und][0][value]'] = $this->randomName(48);
+    $this->drupalPost('node/add/uf-text-single', $edit, t('Save'));
+    $this->assertText($edit['body[und][0][value]'], 'Unique Text Single (uf_text_single) node has been created');
+  }
+
+  /**
+   * Test the unique requirement on an integer field in the content type scope.
+   */
+  public function testUniqueCtypeInteger() {
+    // Create a content type with an integer field that is set to be unique
+    $edit = array();
+    $edit['name'] = 'Unique Integer';
+    $edit['type'] = 'uf_int';
+    $this->drupalPost('admin/structure/types/add', $edit, t('Save content type'));
+    $this->assertText('The content type Unique Integer has been added.', 'Content type added.');
+    $edit = array();
+    $edit['fields[_add_new_field][label]'] = 'Unique Integer Integer';
+    $edit['fields[_add_new_field][field_name]'] = 'uf_int_int';
+    $edit['fields[_add_new_field][type]'] = 'number_integer';
+    $edit['fields[_add_new_field][widget_type]'] = 'number';
+    $this->drupalPost('admin/structure/types/manage/uf_int/fields', $edit, t('Save'));
+    $this->assertText('These settings apply to the Unique Integer Integer field everywhere it is used.', 'Field added to content type.');
+    $edit = array();
+    $edit['unique_field_fields[field_uf_int_int]'] = 'field_uf_int_int';
+    $this->drupalPost('admin/structure/types/manage/uf_int', $edit, t('Save content type'));
+    $this->assertText('The content type Unique Integer has been updated.', 'Content type updated.');
+
+    // Attempt to create 2 nodes with the same integer value
+    $num = mt_rand();
+    $edit = array();
+    $edit['title'] = $this->randomName(24);
+    $edit['body[und][0][value]'] = $this->randomName(48);
+    $edit['field_uf_int_int[und][0][value]'] = $num;
+    $this->drupalPost('node/add/uf-int', $edit, t('Save'));
+    $this->assertText($edit['body[und][0][value]'], 'Unique Integer (uf_int) node has been created');
+    $edit['body[und][0][value]'] = $this->randomName(48);
+    $this->drupalPost('node/add/uf-int', $edit, t('Save'));
+    $this->assertText('The Unique Integer Integer field requires a unique value, and the specified value is already used', 'Unique Integer (uf_int) node with duplicate content could not be created');
+
+    // Check for false negative: Attempt to create a node with a unique integer
+    $edit = array();
+    $edit['title'] = $this->randomName(24);
+    $edit['body[und][0][value]'] = $this->randomName(48);
+    $edit['field_uf_int_int[und][0][value]'] = $num - 1;
+    $this->drupalPost('node/add/uf-int', $edit, t('Save'));
+    $this->assertText($edit['body[und][0][value]'], 'Unique Integer (uf_int) node has been created');
+  }
+
+  /**
+   * Test the unique requirement on an integer field in the all scope.
+   */
+  public function testUniqueAllInteger() {
+    // Create a content type with an integer field that is set to be unique
+    $edit = array();
+    $edit['name'] = 'Unique Integer';
+    $edit['type'] = 'uf_int';
+    $this->drupalPost('admin/structure/types/add', $edit, t('Save content type'));
+    $this->assertText('The content type Unique Integer has been added.', 'Content type added.');
+    $edit = array();
+    $edit['fields[_add_new_field][label]'] = 'Unique Integer Integer';
+    $edit['fields[_add_new_field][field_name]'] = 'uf_int_int';
+    $edit['fields[_add_new_field][type]'] = 'number_integer';
+    $edit['fields[_add_new_field][widget_type]'] = 'number';
+    $this->drupalPost('admin/structure/types/manage/uf_int/fields', $edit, t('Save'));
+    $this->assertText('These settings apply to the Unique Integer Integer field everywhere it is used.', 'Field added to content type.');
+    $edit = array();
+    $edit['unique_field_scope'] = UNIQUE_FIELD_SCOPE_ALL;
+    $edit['unique_field_fields[field_uf_int_int]'] = 'field_uf_int_int';
+    $this->drupalPost('admin/structure/types/manage/uf_int', $edit, t('Save content type'));
+    $this->assertText('The content type Unique Integer has been updated.', 'Content type updated.');
+
+    // Create another content type with the same integer field and set it to unique
+    $edit = array();
+    $edit['name'] = 'Unique Integer 2';
+    $edit['type'] = 'uf_int2';
+    $this->drupalPost('admin/structure/types/add', $edit, t('Save content type'));
+    $this->assertText('The content type Unique Integer 2 has been added.', 'Content type added.');
+    $edit = array();
+    $edit['fields[_add_existing_field][label]'] = 'Unique Integer 2 Integer';
+    $edit['fields[_add_existing_field][field_name]'] = 'field_uf_int_int';
+    $edit['fields[_add_existing_field][widget_type]'] = 'number';
+    $this->drupalPost('admin/structure/types/manage/uf_int2/fields', $edit, t('Save'));
+    $this->assertText('These settings apply only to the Unique Integer 2 Integer field when used in the Unique Integer 2 type.', 'Field added to content type.');
+    $edit = array();
+    $edit['unique_field_scope'] = UNIQUE_FIELD_SCOPE_ALL;
+    $edit['unique_field_fields[field_uf_int_int]'] = 'field_uf_int_int';
+    $this->drupalPost('admin/structure/types/manage/uf_int2', $edit, t('Save content type'));
+    $this->assertText('The content type Unique Integer 2 has been updated.', 'Content type updated.');
+
+    // Attempt to create 2 nodes with the same integer in different content types
+    $num = mt_rand();
+    $edit = array();
+    $edit['title'] = $this->randomName(24);
+    $edit['body[und][0][value]'] = $this->randomName(48);
+    $edit['field_uf_int_int[und][0][value]'] = $num;
+    $this->drupalPost('node/add/uf-int', $edit, t('Save'));
+    $this->assertText($edit['body[und][0][value]'], 'Unique Integer (uf_int) node has been created');
+    $edit = array();
+    $edit['title'] = $this->randomName(24);
+    $edit['body[und][0][value]'] = $this->randomName(48);
+    $edit['field_uf_int_int[und][0][value]'] = $num;
+    $this->drupalPost('node/add/uf-int2', $edit, t('Save'));
+    $this->assertText('The Unique Integer 2 Integer field requires a unique value, and the specified value is already used', 'Unique Integer 2 (uf_int2) node with duplicate content could not be created');
+
+    // Check for false negative: Attempt to create a node with a unique text
+    $edit = array();
+    $edit['title'] = $this->randomName(24);
+    $edit['body[und][0][value]'] = $this->randomName(48);
+    $edit['field_uf_int_int[und][0][value]'] = $num - 1;
+    $this->drupalPost('node/add/uf-int2', $edit, t('Save'));
+    $this->assertText($edit['body[und][0][value]'], 'Unique Integer 2 (uf_int2) node has been created');
+  }
+
+  /**
+   * Test the unique requirement on an integer field in the single scope.
+   */
+  public function testUniqueSingleInteger() {
+    // Create a content type with two integer fields that are set to be unique
+    $edit = array();
+    $edit['name'] = 'Unique Integer Single';
+    $edit['type'] = 'uf_int_single';
+    $this->drupalPost('admin/structure/types/add', $edit, t('Save content type'));
+    $this->assertText('The content type Unique Integer Single has been added.', 'Content type added.');
+    $edit = array();
+    $edit['fields[_add_new_field][label]'] = 'Unique Integer Single Integer 1';
+    $edit['fields[_add_new_field][field_name]'] = 'uf_int_single_int_1';
+    $edit['fields[_add_new_field][type]'] = 'number_integer';
+    $edit['fields[_add_new_field][widget_type]'] = 'number';
+    $this->drupalPost('admin/structure/types/manage/uf_int_single/fields', $edit, t('Save'));
+    $this->assertText('These settings apply to the Unique Integer Single Integer 1 field everywhere it is used.', 'Field added to content type.');
+    $edit = array();
+    $edit['fields[_add_new_field][label]'] = 'Unique Integer Single Integer 2';
+    $edit['fields[_add_new_field][field_name]'] = 'uf_int_single_int_2';
+    $edit['fields[_add_new_field][type]'] = 'number_integer';
+    $edit['fields[_add_new_field][widget_type]'] = 'number';
+    $this->drupalPost('admin/structure/types/manage/uf_int_single/fields', $edit, t('Save'));
+    $this->assertText('These settings apply to the Unique Integer Single Integer 2 field everywhere it is used.', 'Field added to content type.');
+    $edit = array();
+    $edit['unique_field_scope'] = UNIQUE_FIELD_SCOPE_NODE;
+    $edit['unique_field_fields[field_uf_int_single_int_1]'] = 'field_uf_int_single_int_1';
+    $edit['unique_field_fields[field_uf_int_single_int_2]'] = 'field_uf_int_single_int_2';
+    $this->drupalPost('admin/structure/types/manage/uf_int_single', $edit, t('Save content type'));
+    $this->assertText('The content type Unique Integer Single has been updated.', 'Content type updated.');
+
+    // Attempt to create a node with the same integer in both fields
+    $num = mt_rand();
+    $edit = array();
+    $edit['title'] = $this->randomName(24);
+    $edit['body[und][0][value]'] = $this->randomName(48);
+    $edit['field_uf_int_single_int_1[und][0][value]'] = $num;
+    $edit['field_uf_int_single_int_2[und][0][value]'] = $num;
+    $this->drupalPost('node/add/uf-int-single', $edit, t('Save'));
+    $this->assertText('The Unique Integer Single Integer 2 fields must have unique values. The Unique Integer Single Integer 2 field has a value that is already used.', 'Unique Integer Single (uf_int_single) node with duplicate content could not be created');
+
+    // Check for false negative: Attempt to create a node with unique numbers
+    $edit = array();
+    $edit['title'] = $this->randomName(24);
+    $edit['body[und][0][value]'] = $this->randomName(48);
+    $edit['field_uf_int_single_int_1[und][0][value]'] = $num;
+    $edit['field_uf_int_single_int_2[und][0][value]'] = $num - 1;
+    $this->drupalPost('node/add/uf-int-single', $edit, t('Save'));
+    $this->assertText($edit['body[und][0][value]'], 'Unique Integer Single (uf_int_single) node has been created');
+  }
+
+}

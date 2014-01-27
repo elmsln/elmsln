@@ -1,0 +1,12 @@
+name = Coder
+description = Developer Module that assists with code review and version upgrade
+package = Development
+core = 7.x
+files[] = coder.module
+
+; Information added by drupal.org packaging script on 2013-08-11
+version = "7.x-2.0"
+core = "7.x"
+project = "coder"
+datestamp = "1376244716"
+

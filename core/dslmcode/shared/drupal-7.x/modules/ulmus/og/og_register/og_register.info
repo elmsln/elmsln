@@ -1,0 +1,14 @@
+; $Id:$
+name = Organic groups register
+description = "Allow subscribing to groups during the user registration."
+package = "Organic groups"
+dependencies[] = og
+core = 7.x
+files[] = og_register.module
+files[] = og_register.install
+; Information added by  packaging script on 2013-11-20
+version = "7.x-2.4"
+core = "7.x"
+project = "og"
+datestamp = "1384971519"
+

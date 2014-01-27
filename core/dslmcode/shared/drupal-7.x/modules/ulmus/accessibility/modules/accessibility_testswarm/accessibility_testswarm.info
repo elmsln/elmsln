@@ -1,0 +1,13 @@
+name = Accessibility TestSwarm
+description = Accessibility integration with TestSwarm.
+package = Accessibility
+core = 7.x
+
+dependencies[] = accessibility
+dependencies[] = testswarm
+; Information added by drupal.org packaging script on 2013-10-28
+version = "7.x-1.x-dev"
+core = "7.x"
+project = "accessibility"
+datestamp = "1382984080"
+

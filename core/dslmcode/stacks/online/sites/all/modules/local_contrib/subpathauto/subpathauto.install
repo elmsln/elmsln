@@ -1,0 +1,14 @@
+<?php
+
+/**
+ * @file
+ * Install, update, and uninstall functions for the subpathauto module.
+ */
+
+/**
+ * Implements hook_uninstall().
+ */
+function subpathauto_uninstall() {
+  variable_del('subpathauto_ignore_admin');
+  variable_del('subpathauto_depth');
+}

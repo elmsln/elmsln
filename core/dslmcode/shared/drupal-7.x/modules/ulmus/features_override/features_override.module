@@ -1,0 +1,126 @@
+<?php
+
+/**
+ * @file
+ * Module file for features overrides.
+ * Includes core/contrib hook implementations.
+ */
+
+// Key to use when marking properties for recursion.
+define('FEATURES_OVERRIDE_RECURSION_MARKER', 'features_override_recursion_marker');
+
+/**
+ * Implements hook_features_api().
+ */
+function features_override_features_api() {
+  $path = drupal_get_path('module', 'features_override') . '/features_override.features.inc';
+  return array(
+    'features_override_items' => array(
+      'name' => t('Feature Overrides'),
+      'default_hook' => 'features_override_default_items',
+      'default_file' => FEATURES_DEFAULTS_INCLUDED,
+      'feature_source' => TRUE,
+      'file' => $path,
+    ),
+    'features_overrides' => array(
+      'name' => t('Feature Overrides (individual -- advanced)'),
+      'default_hook' => 'features_override_default_overrides',
+      'default_file' => FEATURES_DEFAULTS_INCLUDED,
+      'feature_source' => TRUE,
+      'file' => $path,
+    ),
+  );
+}
+
+/**
+ * Implements hook_menu().
+ */
+function features_override_menu() {
+  $items = array();
+
+  $items['admin/structure/features/features_override'] = array(
+    'title' => 'Review Overrides',
+    'description' => 'Show override details for a component and element.',
+    'page callback' => 'features_override_render_differences',
+    'access callback' => 'user_access',
+    'access arguments' => array('administer features'),
+    'type' => MENU_LOCAL_TASK,
+    'file' => "features_override.admin.inc",
+    'weight' => 8,
+  );
+
+  return $items;
+}
+
+/**
+ * Implements hook_menu_alter
+ */
+function features_override_menu_alter(&$items) {
+  // override the existing "Review Overrides" tab
+  // do it here instead of hook_menu to ensure we run after features
+  $items['admin/structure/features/%feature/diff'] = array(
+    'title' => 'Review overrides',
+    'description' => 'Compare default and current feature.',
+    'page callback' => 'features_override_feature_diff',
+    'page arguments' => array(3, 5),
+    'load arguments' => array(3, TRUE),
+    'access callback' => 'features_access_override_actions',
+    'access arguments' => array(3),
+    'type' => MENU_LOCAL_TASK,
+    'file' => 'features_override.admin.inc',
+    'module' => 'features_override',
+  );
+}
+
+/**
+ * Implements hook_features_override_ignore().
+ */
+function features_override_features_override_ignore($component) {
+  // Determine which keys need to be ignored for override diff for various components.
+  // value is shows how many levels deep the key is
+  $ignores = array();
+  switch ($component) {
+    case 'views_view':
+      $ignores['current_display'] = 0;
+      $ignores['display_handler'] = 0;
+      $ignores['handler'] = 2;
+      $ignores['query'] = 0;
+      $ignores['localization_plugin'] = 0;
+      // Views automatically adds these two on export to set values.
+      $ignores['api_version'] = 0;
+      $ignores['disabled'] = 0;
+      break;
+    case 'image':
+      $ignores['module'] = 0;
+      $ignores['name'] = 0;
+      $ignores['storage'] = 0;
+      // Various properities are loaded into the effect in image_styles.
+      $ignores['summary theme'] = 2;
+      $ignores['module'] = 2;
+      $ignores['label'] = 2;
+      $ignores['help'] = 2;
+      $ignores['form callback'] = 2;
+      $ignores['effect callback'] = 2;
+      $ignores['dimensions callback'] = 2;
+      break;
+    case 'field':
+      $ignores['locked'] = 1;
+      break;
+  }
+  return $ignores;
+}
+
+/**
+ * Implements hook_modules_enabled().
+ *
+ * Revert the parent settings when the override module is enabled.
+ */
+function features_override_modules_enabled($modules) {
+  module_load_include('inc', 'features_override', 'features_override.features');
+  module_load_include('inc', 'features', 'features.export');
+  foreach ($modules as $module) {
+    if (function_exists($module . '_features_override_default')) {
+      features_override_features_rebuild($module);
+    }
+  }
+}

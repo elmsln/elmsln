@@ -1,0 +1,46 @@
+<?php
+
+/**
+ * @file
+ * Install, uninstall and update hooks for the Masquarade module.
+ */
+
+/**
+ * Implements hook_schema().
+ */
+function jammer_messages_schema() {
+  $schema['jammer_messages'] = array(
+    'description' => '',
+    'fields' => array(
+      'mid' => array(
+        'description' => 'The primary identifier for suppression strings.',
+        'type' => 'serial',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ),
+      'message_string' => array(
+        'description' => 'Partial or full string to suppress.',
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => TRUE,
+        'default' => '',
+      ),
+    ),
+    'primary key' => array('mid', 'message_string'),
+  );
+  return $schema;
+}
+
+/**
+ * Implements hook_install().
+ */
+function jammer_messages_install() {
+//  drupal_install_schema('jammer_messages');
+}
+
+/**
+ * Implements hook_uninstall().
+ */
+function jammer_messages_uninstall() {
+//  drupal_uninstall_schema('jammer_messages');
+}

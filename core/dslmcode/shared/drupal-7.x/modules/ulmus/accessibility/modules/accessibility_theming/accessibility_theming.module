@@ -1,0 +1,23 @@
+<?php
+
+/**
+ * Implements hook_permission().
+ */
+function accessibility_theming_permission() {
+  return array('access accessibility theming' => array(
+    'title' => t('Access accessibility theming'),
+    'description' => t('Users can run accessibility tests on the entire page.'))
+  );
+}
+
+/**
+ * Implements hook_init().
+ */
+function accessibility_theming_page_build(&$page) {
+  if (!user_access('access accessibility theming')) {
+    return;
+  }
+  accessibility_load();
+  drupal_add_js(drupal_get_path('module', 'accessibility_theming') . '/js/accessibility_theming.js');
+  drupal_add_css(drupal_get_path('module', 'accessibility_theming') . '/css/accessibility_theming.css');
+}

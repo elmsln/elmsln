@@ -1,0 +1,193 @@
+<?php
+/**
+ * @file
+ * Install, update, and uninstall functions for the LTI Tool
+ * Provider Outcomes module.
+ */
+
+/**
+ * Implements hook_schema().
+ */
+function lti_tool_provider_outcomes_schema() {
+  $schema = array();
+  $schema['lti_tool_provider_outcomes'] = array(
+    'description' => 'The base table for our lti_tool_provider_outcomes.',
+    'fields' => array(
+      'lti_tool_provider_outcomes_id' => array(
+        'description' => 'Outcomes ID',
+        'type' => 'serial',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ),
+      'lti_tool_provider_outcomes_resource_entity_id_fk' => array(
+        'description' => 'Resource ID',
+        'type' => 'int',
+        'size' => 'normal',
+        'not null' => TRUE,
+      ),
+      'lti_tool_provider_outcomes_result_sourcedid' => array(
+        'description' => 'LIS result identifier',
+        'type' => 'varchar',
+        'length' => 1024,
+        'not null' => FALSE,
+      ),
+      'lti_tool_provider_outcomes_user_id' => array(
+        'description' => 'User ID',
+        'type' => 'int',
+        'size' => 'normal',
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'lti_tool_provider_outcomes_score' => array(
+        'description' => 'Score',
+        'type' => 'varchar',
+        'length' => 64,
+        'not null' => TRUE,
+      ),
+      'lti_tool_provider_outcomes_date_joined' => array(
+        'description' => 'Created',
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'lti_tool_provider_outcomes_timestamp' => array(
+        'description' => 'Time submitted to LMS.',
+        'type' => 'int',
+        'not null' => FALSE,
+      ),
+      'lti_tool_provider_outcomes_date_changed' => array(
+        'description' => 'Changed',
+        'type' => 'int',
+        'not null' => FALSE,
+      ),
+    ),
+    'primary key' => array('lti_tool_provider_outcomes_id'),
+    'foreign keys' => array(
+      'user_account' => array(
+        'table' => 'users',
+        'columns' => array('lti_tool_provider_outcomes_user_id' => 'uid'),
+      ),
+      'resource_mapping' => array(
+        'table' => 'lti_tool_provider_outcomes_resource',
+        'columns' => array('lti_tool_provider_outcomes_resource_entity_id_fk' => 'lti_tool_provider_outcomes_resource_id'),
+      ),
+    ),
+  );
+  $schema['lti_tool_provider_outcomes_resource'] = array(
+    'description' => 'The table for lti_tool_provider_outcomes_resource entity.',
+    'fields' => array(
+      'lti_tool_provider_outcomes_resource_id' => array(
+        'description' => 'Primary key of the lti_tool_provider_outcomes_resource.',
+        'type' => 'serial',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ),
+      'lti_tool_provider_outcomes_resource_consumer_id' => array(
+        'description' => 'ID of Tool Consumer.',
+        'type' => 'int',
+        'size' => 'normal',
+        'not null' => TRUE,
+      ),
+      'lti_tool_provider_outcomes_resource_context_id' => array(
+        'description' => 'Context identifier',
+        'type' => 'varchar',
+        'length' => 512,
+        'not null' => TRUE,
+      ),
+      'lti_tool_provider_outcomes_resource_resource_link_title' => array(
+        'description' => 'Resource Title.',
+        'type' => 'varchar',
+        'length' => 512,
+        'not null' => TRUE,
+      ),
+      'lti_tool_provider_outcomes_resource_resource_link_id' => array(
+        'description' => 'Unique resource identifier',
+        'type' => 'varchar',
+        'length' => 512,
+        'not null' => TRUE,
+      ),
+      'lti_tool_provider_outcomes_resource_resultvalue_sourcedids' => array(
+        'description' => 'Result value sourcedids which the LIS service provider is able to accept.',
+        'type' => 'varchar',
+        'length' => 512,
+        'not null' => TRUE,
+      ),
+      'lti_tool_provider_outcomes_resource_score_datatype' => array(
+        'description' => 'Score data type.',
+        'type' => 'varchar',
+        'length' => 64,
+        'not null' => FALSE,
+      ),
+      'lti_tool_provider_outcomes_resource_score_datatype_base_value' => array(
+        'description' => 'Base value for data type',
+        'type' => 'int',
+        'length' => 'normal',
+        'not null' => FALSE,
+      ),
+      'lti_tool_provider_outcomes_resource_timestamp_created' => array(
+        'description' => 'Time Created.',
+        'type' => 'int',
+        'not null' => FALSE,
+      ),
+      'lti_tool_provider_outcomes_resource_timestamp_last_updated' => array(
+        'description' => 'Last updated.',
+        'type' => 'int',
+        'not null' => FALSE,
+      ),
+    ),
+    'primary key' => array('lti_tool_provider_outcomes_resource_id'),
+    'foreign keys' => array(
+      'consumer' => array(
+        'table' => 'lti_tool_provider_consumer',
+        'columns' => array('lti_tool_provider_outcomes_resource_consumer_id' => 'lti_tool_provider_consumer_entity_id'),
+      ),
+    ),
+  );
+  return $schema;
+}
+
+/**
+ * Implements hook_schema_alter().
+ */
+function lti_tool_provider_outcomes_schema_alter(&$schema) {
+  $schema['lti_tool_provider_consumer']['fields']['lti_tool_provider_consumer_outcomes_url'] = array(
+    'description' => 'Outcomes URL',
+    'type' => 'varchar',
+    'length' => 512,
+  );
+  $schema['lti_tool_provider_consumer']['fields']['lti_tool_provider_consumer_ext'] = array(
+    'description' => 'Extension',
+    'type' => 'int',
+    'size' => 'tiny',
+    'not null' => TRUE,
+    'default' => 0,
+  );
+}
+
+/**
+ * Implements hook_install().
+ */
+function lti_tool_provider_outcomes_install() {
+  db_add_field('lti_tool_provider_consumer', 'lti_tool_provider_consumer_outcomes_url', array(
+  'description' => 'Outcomes URL',
+  'type' => 'varchar',
+  'length' => 512,
+  ));
+  db_add_field('lti_tool_provider_consumer', 'lti_tool_provider_consumer_ext', array(
+  'description' => 'Integer representive of which whether the consumer is an extension service of LTI',
+  'type' => 'int',
+  'size' => 'tiny',
+  'not null' => TRUE,
+  'default' => 0,
+  ));
+}
+
+/**
+ * Implements hook_uninstall().
+ */
+function lti_tool_provider_outcomes_uninstall() {
+  db_drop_field('lti_tool_provider_consumer', 'lti_tool_provider_consumer_outcomes_url');
+  db_drop_field('lti_tool_provider_consumer', 'lti_tool_provider_consumer_ext');
+  field_attach_delete_bundle('lti_tool_provider_outcomes', 'lti_tool_provider_outcomes');
+  field_attach_delete_bundle('lti_tool_provider_outcomes_resource', 'lti_tool_provider_outcomes_resource');
+}

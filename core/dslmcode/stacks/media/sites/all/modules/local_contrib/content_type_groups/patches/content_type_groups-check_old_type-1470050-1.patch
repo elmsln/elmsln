@@ -1,0 +1,15 @@
+diff --git a/content_type_groups.module b/content_type_groups.module
+index 0c0bd23..d3c7825 100644
+--- a/content_type_groups.module
++++ b/content_type_groups.module
+@@ -75,7 +75,9 @@ function content_type_groups_menu() {
+  * Changes the node type references for content type groups.
+  */
+ function content_type_groups_node_type_update($info) {
+-  ContentTypeGroup::renameContentType($info->old_type, $info->type);
++  if (isset($info->old_type)) {
++    ContentTypeGroup::renameContentType($info->old_type, $info->type);
++  }
+ }
+ 
+ /**

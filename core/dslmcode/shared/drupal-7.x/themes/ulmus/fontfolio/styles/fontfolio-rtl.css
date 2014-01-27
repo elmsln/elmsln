@@ -1,0 +1,136 @@
+/**
+ * @file
+ * Contains fliped RTL (Right to Left) Styles of
+ * original WP FontFolio theme css file (Version: 1.5)
+ * Seperate file contains Drupal RTL styles
+ */
+
+/*
+ * Global
+ */
+.left {
+  float: right;
+}
+
+.right {
+  float: left;
+}
+
+/*
+ * Header
+ */
+.header_top_border {
+  left: auto;
+  right: 0;
+}
+
+#header_top .search {
+  float: left;
+}
+
+#header_top .search img {
+  left: 10px;
+  right: auto;
+}
+
+#header_top .search .search_icon {
+  left: 10px;
+  right: auto;
+}
+
+#header_top .search input[type=text] {
+  border-left: none;
+  border-right: 1px solid #e4e4e2;
+  padding-left: 0;
+  padding-right: 10px;
+}
+
+#header_top .social {
+  float: right;
+}
+
+#header_top nav.menu_cont.open .social a {
+  float: right;
+}
+
+#header_top .menu_cont {
+  float: left;
+  margin-left: 15px;
+  margin-right: 0;
+}
+
+#header_top .menu_cont li {
+  float: right;
+}
+
+.logo {
+  float: right;
+}
+
+#header_menu {
+  float: left;
+}
+
+#header_menu ul li {
+  float: right;
+}
+
+#name-and-slogan {
+  float: right;
+}
+
+#langs {
+  float: left;
+  margin-right: auto;
+  margin-left: 12px;
+}
+
+#langs li {
+  float: right;
+}
+
+
+/*
+ * Content
+ */
+.big-post-box,
+.big_post_box {
+  float: right;
+}
+
+.post-box,
+.post_box {
+  float: right;
+}
+
+.load_more_cont {
+  float: right;
+}
+
+#single_left {
+  float: right;
+}
+
+/*
+ * Sidebar
+ */
+#sidebar {
+  float: left;
+}
+
+.side-box ul,
+.side_box ul {
+  margin-left: 0;
+  margin-right: 10px;
+}
+
+/*
+ * Drupal specific FontFolio styles
+ */
+
+/*
+ * Drupal Global
+ */
+.block ol {
+  margin: 0 2em 1.5em 0;
+}

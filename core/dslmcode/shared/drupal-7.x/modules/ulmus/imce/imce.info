@@ -1,0 +1,12 @@
+name = "IMCE"
+description = "An image/file uploader and browser supporting personal directories and user quota."
+core = "7.x"
+package = "Media"
+configure = "admin/config/media/imce"
+
+; Information added by drupal.org packaging script on 2013-01-29
+version = "7.x-1.7"
+core = "7.x"
+project = "imce"
+datestamp = "1359476607"
+

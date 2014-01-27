@@ -1,0 +1,88 @@
+<?php
+/**
+ * @file
+ * Install/update/uninstall actions for SecKit.
+ */
+
+/**
+ * Implements hook_uninstall().
+ */
+function seckit_uninstall() {
+  variable_del('seckit_xss');
+  variable_del('seckit_csrf');
+  variable_del('seckit_clickjacking');
+  variable_del('seckit_ssl');
+  variable_del('seckit_various');
+}
+
+/**
+ * Changes Content-Security-Policy "allow" directive to "default-src".
+ */
+function seckit_update_7101() {
+  // update CSP directives
+  // default-src is used instead of allow
+  $options = variable_get('seckit_xss');
+  if (isset($options['csp']['allow'])) {
+    $directive = $options['csp']['allow'];
+    if ($directive) {
+      // remove allow
+      unset($options['csp']['allow']);
+      // add default-src
+      $options['csp']['default-src'] = $directive;
+      // delete and set new version of variable
+      variable_del('seckit_xss');
+      variable_set('seckit_xss', $options);
+    }
+  }
+}
+
+/**
+ * Removes "Override style for frames" options.
+ *
+ * http://drupal.org/node/1243032
+ */
+function seckit_update_7102() {
+  // removes override style variable
+  $options = variable_get('seckit_clickjacking');
+  // remove override style
+  unset($options['override_style']);
+  // delete and set new version
+  variable_del('seckit_clickjacking');
+  variable_set('seckit_clickjacking', $options);
+}
+
+/**
+ * Changes Content-Security-Policy "xhr-src" directive to "connect-src".
+ *
+ * http://drupal.org/node/1241226#comment-5125336
+ */
+function seckit_update_7103() {
+  // update CSP directives
+  // connect-src is used instead of xhr-src
+  $options = variable_get('seckit_xss');
+  // add connect-src
+  $options['csp']['connect-src'] = $options['csp']['xhr-src'];;
+  // remove xhr-src
+  unset($options['csp']['xhr-src']);
+  // delete and set new version of variable
+  variable_del('seckit_xss');
+  variable_set('seckit_xss', $options);
+}
+
+
+/**
+ * Removes Content-Security-Policy "frame-ancestors" directive and "options".
+ *
+ * They are removed from stable version of specification http://www.w3.org/TR/CSP.
+ */
+function seckit_update_7104() {
+  // update CSP directives
+  $options = variable_get('seckit_xss');
+  // frame-ancestors is removed
+  unset($options['csp']['frame-ancestors']);
+  // options is removed
+  unset($options['csp']['options']);
+  // delete and set new version of variable
+  variable_del('seckit_xss');
+  variable_set('seckit_xss', $options);
+}

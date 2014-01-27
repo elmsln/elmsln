@@ -1,0 +1,156 @@
+.plup-list {
+height: auto;
+}
+
+.plup-list {
+margin: 0px;
+padding: 0px;
+background-color: #f7f7f7;
+}
+
+.plup-list li {
+margin: 3px 3px 3px 0;
+padding: 1px;
+float: left;
+font-size: 8pt;
+list-style: none;
+position: relative;
+}
+
+.plupload.has-title .plup-list li,
+.plupload.has-alt .plup-list li {
+padding-bottom: 2em;
+}
+
+.plupload.has-title.has-alt .plup-list li {
+padding-bottom: 4em;
+}
+
+.plup-thumb-wrapper {
+cursor: move;
+}
+
+.plup-list li input.form-text {
+width: 90%;
+height: 1.1em;
+bottom: 0px;
+position: absolute;
+}
+
+.plupload.has-title.has-alt .plup-list li input.form-text.plup-title {
+bottom: 1.7em;
+}
+
+.plup-bar {
+background-color: #EEEEEE;
+height: 20px;
+padding: 5px 10px;
+}
+
+.plup-progress {
+width: 60px;
+height: 10px;
+margin-right: 5px;
+margin-left: 40px;
+float: left;
+}
+
+.plup-file-progressbar {
+width: 50px;
+height: 12px;
+}
+
+.plup-select, .plup-upload, .plup-progress-value {
+display: block;
+width: 80px;
+float: left;
+}
+
+.plup-select, .plup-upload,
+.plup-remove-file, .plup-remove-item {
+cursor: pointer;
+}
+
+.plup-select > div, .plup-upload > div {
+width: 16px;
+height: 16px;
+background-repeat: no-repeat;
+display: inline-block;
+margin-right: 5px;
+}
+
+.plup-select > div {
+background-image: url('add.png');
+background-repeat: no-repeat;
+background-position: center center;
+margin-bottom: -2px;
+}
+
+.plup-upload > div {
+background-image: url('upload.png');
+background-repeat: no-repeat;
+background-position: center center;
+margin-bottom: -2px;
+}
+
+.plup-files-done {
+display: block;
+width: 50px;
+float: right;
+}
+
+.ui-progressbar-value {
+background-image: none;
+background-color: #78E567;
+}
+
+.plup-remove-file,
+.plup-remove-item {
+display: block;
+background-image: url('cancel.png');
+background-repeat: no-repeat;
+background-position: center center;
+width: 16px;
+height: 16px;
+float: right;
+}
+
+.plup-remove-item {
+opacity: 0.5;
+position: absolute;
+right: 5px;
+top: 5px;
+}
+
+.plup-remove-item:hover {
+opacity: 1;
+}
+
+.plup-filelist {
+background-color: #f7f7f7;
+min-height: 50px;
+border-top: 1px solid #bbb;
+max-height: 400px;
+overflow: auto;
+}
+
+.plup-filelist table {
+margin: 0px;
+}
+
+.plup-filelist table tbody {
+border-top: 0px;
+}
+
+.plup-filelist tr:hover td {
+background-color: #fafafa;
+}
+
+.plup-drag-info .drag-main {
+text-align: center;
+font-weight: bold;
+}
+
+.plup-drag-info .drag-more {
+font-size: 0.75em;
+}

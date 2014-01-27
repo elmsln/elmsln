@@ -1,0 +1,13 @@
+name = Advanced CSS/JS Aggregation
+description = Aggregates multiple CSS/JS files in a way that prevents 404 from happening when accessing a CSS or JS file.
+package = Advanced CSS/JS Aggregation
+core = 7.x
+
+configure = admin/config/development/performance/advagg
+
+; Information added by  packaging script on 2013-11-17
+version = "7.x-2.3"
+core = "7.x"
+project = "advagg"
+datestamp = "1384667233"
+

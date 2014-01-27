@@ -1,0 +1,42 @@
+<?php
+
+/**
+ * @file
+ * Written by Henri MEDOT <henri.medot[AT]absyx[DOT]fr>
+ * http://www.absyx.fr
+ */
+
+/**
+ * Implementation of hook_install().
+ */
+function ckeditor_link_install() {
+  db_update('system')
+    ->fields(array('weight' => 1))
+    ->condition('name', 'ckeditor_link')
+    ->execute();
+}
+
+/**
+ * Implementation of hook_uninstall().
+ */
+function ckeditor_link_uninstall() {
+  db_query("DELETE FROM {variable} WHERE name LIKE 'ckeditor_link_%%'");
+}
+
+/**
+ * Implementation of hook_requirements().
+ */
+function ckeditor_link_requirements($phase) {
+  $requirements = array();
+
+  if (($phase == 'runtime') && !variable_get('clean_url', 0)) {
+    $requirements['ckeditor_link_clean_url'] = array(
+      'title' => t('CKEditor Link'),
+      'value' => t('Clean URLs disabled'),
+      'description' => t('<em>CKEditor Link</em> requires <a href="!url">Clean URLs</a> to be enabled in order to function properly.', array('!url' => url('admin/config/search/clean-urls'))),
+      'severity' => REQUIREMENT_ERROR,
+    );
+  }
+
+  return $requirements;
+}

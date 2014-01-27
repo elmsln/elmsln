@@ -1,0 +1,21 @@
+/**
+ * @file
+ * Lazyloader default CSS
+ *
+ * @author: Daniel Honrade http://drupal.org/user/351112
+ *
+ */
+
+/* Lazyloader Render */ 
+img[data-src] {}
+.lazyloader-icon { position: absolute; z-index: 200; }
+
+/* Lazyloader Admin UI */
+#edit-lazyloader .lazy-columns {}
+#edit-lazyloader .lazy-column { width: 49%;}
+#edit-lazyloader .lazy-column-1 { float: left; }
+#edit-lazyloader .lazy-column-2 { float: right; }
+#edit-lazyloader-loader-icon { width: 100%; }
+#edit-lazyloader-loader-icon .form-item { position: relative; float: left; width: 50px; height: 32px; padding-left: 20px; }
+#edit-lazyloader-loader-icon .form-item input { position: absolute; left: 0; top: 5px; }
+#edit-lazyloader .description { clear: both; }

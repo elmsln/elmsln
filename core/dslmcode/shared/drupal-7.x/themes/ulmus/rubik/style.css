@@ -1,0 +1,393 @@
+body,
+input,
+textarea,
+select,
+.ui-widget,
+.ui-widget input,
+.ui-widget select,
+.ui-widget textarea,
+.ui-widget button { font-family:"Lucida","Lucida Grande","Trebuchet MS",Tahoma,Verdana,sans-serif; }
+
+html { overflow-y:scroll; }
+
+body.tao {
+  color:#333;
+  background:#fff;
+  }
+
+a {
+  color:#008eb1;
+  text-decoration:none;
+  }
+
+.limiter { margin:0px 30px; }
+
+/**
+ * Skip to content link ===============================================
+ */
+#skip-link {
+  width:200px;
+  height:0px;
+  left:50%;
+  margin-left:-100px;
+  }
+
+#skip-link a:hover,
+#skip-link a:active,
+#skip-link a:focus {
+  left:0px;
+  z-index:20;
+  text-align:center;
+  width:200px;
+  background:#333;
+  color:#fff;
+  opacity:.9;
+  padding:10px 0px;
+
+  border-radius:0px 0px 5px 5px;
+  -moz-border-radius:0px 0px 5px 5px;
+  -webkit-border-radius:0px 0px 5px 5px;
+  }
+
+/**
+ * "Rounded" elements =================================================
+ */
+.compact-link a,
+input.teaser-button,
+input.form-submit,
+a.button {
+  -moz-border-radius:3px;
+  -webkit-border-radius:3px;
+  }
+
+/**
+ * "Popped" elements ==================================================
+ */
+input.teaser-button,
+input.form-submit,
+a.button {
+  box-shadow:#ddd 0px 1px 1px;
+  -moz-box-shadow:#ddd 0px 1px 1px;
+  -webkit-box-shadow:#ddd 0px 1px 1px;
+  }
+
+/**
+ * "Embossed" elements ================================================
+ */
+table th {
+  text-shadow:#fff 0px 1px 0px;
+  }
+
+/**
+ * Branding ===========================================================
+ */
+#branding {
+  background:url(images/bleeds.png) 0px -30px repeat-x;
+  color:#ccc;
+  font-size:11px;
+  height:30px;
+  overflow:hidden;
+  }
+
+#branding ul.links { float:right; }
+
+#branding ul.links a {
+  background:url(images/bleeds.png) 0% -30px no-repeat;
+  color:#fff;
+  float:left;
+  padding:5px 10px;
+  }
+
+#branding ul.links a:hover { background-position:0% -90px; }
+
+#branding .breadcrumb {
+  padding:0px;
+  float:left;
+  text-transform:uppercase;
+  font-weight:normal;
+  }
+
+  #branding .breadcrumb-link {
+    float:left;
+    position:relative;
+    }
+
+  #branding .breadcrumb-depth-0 { z-index:10; }
+  #branding .breadcrumb-depth-1 { z-index:9; }
+  #branding .breadcrumb-depth-2 { z-index:8; }
+  #branding .breadcrumb-depth-3 { z-index:7; }
+  #branding .breadcrumb-depth-4 { z-index:6; }
+  #branding .breadcrumb-depth-5 { z-index:5; }
+  #branding .breadcrumb-depth-6 { z-index:4; }
+  #branding .breadcrumb-depth-7 { z-index:3; }
+  #branding .breadcrumb-depth-8 { z-index:2; }
+
+  #branding .breadcrumb-link > a,
+  #branding .breadcrumb-link > strong {
+    color:#fff;
+    font-weight:normal;
+    float:left;
+    margin-right:-10px;
+    padding:5px 20px;
+    background:url(images/bleeds.png) 100% -60px no-repeat;
+    }
+
+    #branding .breadcrumb-depth-0 a,
+    #branding .breadcrumb-depth-0 strong { padding-left:10px; }
+
+  #branding .breadcrumb a:hover { background-position:100% -90px; }
+
+/**
+ * Page title =========================================================
+ */
+#page-title { background:#fff url(images/bleeds.png) 0px -350px repeat-x; }
+#page-title .limiter { position:relative; }
+
+  #page-title .page-title {
+    float:left;
+    padding:15px 10px 15px 0px;
+    line-height:30px;
+    min-height:30px;
+
+    text-shadow:#fff 0px 1px 0px;
+    -webkit-text-shadow:#fff 0px 1px 0px;
+
+    letter-spacing:-1px;
+    font-weight:normal;
+    font-size:20px;
+    }
+
+  #page-title .page-title span.icon {
+    float:left;
+    margin-right:10px;
+    }
+
+  .add-or-remove-shortcuts,
+  .action-links {
+    float:left;
+    font-size:11px;
+    }
+
+    .add-or-remove-shortcuts { padding:20px 0px; }
+    .action-links { padding:20px 0px 20px 10px; }
+
+  .action-links a {
+    background-color:#7bc;
+    text-shadow:#38a 0px 1px 0px;
+    }
+
+  .add-or-remove-shortcuts a {
+    background-color:#999;
+    text-shadow:#666 0px 1px 0px;
+    }
+
+/**
+ * Tabs ===============================================================
+ */
+.tabs {
+  position:absolute;
+  right:0px;
+  }
+
+.primary-tabs {
+  float:left;
+  height:30px;
+  margin:15px 0px 0px;
+  border-radius:5px;
+  -moz-border-radius:5px;
+  -webkit-border-radius:5px;
+  }
+
+div.pager {
+  margin:10px 0px 0px;
+  height:30px;
+  }
+
+.pager li,
+.primary-tabs li {
+  height:30px;
+  position:relative;
+  background:#eee url(images/bleeds.png) 50% 0px no-repeat;
+  }
+
+.pager a,
+.pager span,
+.primary-tabs a {
+  float:left;
+  text-align:center;
+  min-width:70px;
+  padding:5px 10px;
+  color:#333;
+  text-shadow:#fff 0px 1px 0px;
+  }
+
+.pager a,
+.pager span {
+  min-width:10px;
+  padding:5px 15px;
+  }
+
+.pager li:hover,
+.primary-tabs li:hover { background-color:#f8f8f8; }
+
+.pager li:first-child,
+.primary-tabs li:first-child {
+  border-radius:5px 0px 0px 5px;
+  -moz-border-radius:5px 0px 0px 5px;
+  -webkit-border-radius:5px 0px 0px 5px;
+  background-position:0% 0px;
+  }
+
+.pager li:last-child,
+.primary-tabs li:last-child {
+  border-radius:0px 5px 5px 0px;
+  -moz-border-radius:0px 5px 5px 0px;
+  -webkit-border-radius:0px 5px 5px 0px;
+  background-position:100% 0px;
+  }
+
+.pager li.pager-current,
+.primary-tabs li.active { background-color:#7bc; }
+
+.pager li.pager-current span,
+.primary-tabs li.active a {
+  color:#fff;
+  text-shadow:#38a 0px 1px 0px;
+  }
+
+/* Secondary tabs, nested */
+.secondary-tabs {
+  min-width:100px;
+  float:left;
+  position:relative;
+  margin:5px 5px 5px 0px;
+  font-size:11px;
+  background:#59a url(images/buttons.png) -800px 50% no-repeat;
+  border-radius:3px;
+  -moz-border-radius:3px;
+  -webkit-border-radius:3px;
+  z-index: 1;
+  }
+
+.secondary-tabs:hover {
+  background:#59a;
+  opacity:.9;
+  }
+
+ul.secondary-tabs li,
+ul.secondary-tabs li a {
+  background:transparent;
+  float:none;
+  height:auto;
+  text-align:left;
+  }
+
+.secondary-tabs a {
+  color:#fff;
+  text-shadow:#38a 0px 1px 0px;
+  display:none;
+  padding:0px 10px 0px 25px;
+  }
+
+  .secondary-tabs:hover a,
+  .secondary-tabs .active a { display:block; }
+
+  .secondary-tabs li:hover,
+  .secondary-tabs li.active { background:transparent; }
+  .secondary-tabs a:hover { background:#389 url(images/buttons.png) -800px 50% no-repeat; }
+
+  .secondary-tabs li:last-child a:hover {
+    border-radius:0px 0px 3px 3px;
+    -moz-border-radius:0px 0px 3px 3px;
+    -webkit-border-radius:0px 0px 3px 3px;
+    }
+
+  .secondary-tabs li:first-child a:hover {
+    border-radius:3px 3px 0px 0px;
+    -moz-border-radius:3px 3px 0px 0px;
+    -webkit-border-radius:3px 3px 0px 0px;
+    }
+
+/**
+ * Content ============================================================
+ */
+.help-page,
+div.comment,
+div.node {
+  border-style:solid;
+  border-width:1px;
+  border-color:#ddd;
+
+  background:#fff url(images/vrule.png) 65% 0% repeat-y;
+  margin:0px 0px 10px;
+  }
+
+#help-text .column-main .column-wrapper,
+.help-page .column-main .column-wrapper,
+div.comment .column-main .column-wrapper,
+div.node .column-main .column-wrapper { padding:19px; }
+
+  #help-text .column-main .column-wrapper {
+    padding-left:59px;
+    position:relative;
+    }
+
+    #help-text .column-main .column-wrapper span.icon {
+      position:absolute;
+      top:15px;
+      left:15px;
+      }
+
+#help-text .column-side .column-wrapper,
+.help-page .column-side .column-wrapper,
+div.comment .column-side .column-wrapper,
+div.node .column-side .column-wrapper {
+  padding:9px;
+  font-size:11px;
+  }
+
+#help-text .column-side .help-links,
+.help-page .column-side .help-page-links,
+.node-submitted,
+.comment-submitted {
+  padding:10px;
+  background:#f8f8f8;
+  }
+
+.comment-links,
+.node-links { padding:10px 0px; }
+
+.help-page .help-page-links ul.links {
+  -moz-column-count:2;
+  -webkit-column-count:2;
+  }
+
+.column-side ul.links li,
+.column-side ul.links a,
+.column-side ul.links span {
+  display:block;
+  float:none;
+  }
+
+.column-side ul.links a,
+.column-side ul.links span {
+  padding:0px 10px;
+  display:block;
+  float:none;
+  }
+
+  .column-side ul.links span a {
+    padding:0px;
+    display:inline;
+    }
+
+  .column-side ul.links a.active,
+  .column-side ul.links a:hover { background:#fff; }
+  .comment-links ul.links a:hover { background:#f4f4f4; }
+
+.comment-title,
+.node-title {
+  margin:0px 0px 20px;
+  font-weight:normal;
+  font-size:16px;
+  }

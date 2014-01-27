@@ -1,0 +1,138 @@
+<?php
+
+/**
+ * @file
+ * Advanced aggregation js cdn module.
+ */
+
+/**
+ * Default value to see if jquery should be grabbed from the Google CDN.
+ */
+define('ADVAGG_JS_CDN_JQUERY', TRUE);
+
+/**
+ * Default value to see if jquery-ui should be grabbed from the Google CDN.
+ */
+define('ADVAGG_JS_CDN_JQUERY_UI', TRUE);
+
+/**
+ * Default jquery version.
+ */
+define('ADVAGG_JS_CDN_JQUERY_VERSION', '1.4.4');
+
+/**
+ * Default jquery ui version.
+ */
+define('ADVAGG_JS_CDN_JQUERY_UI_VERSION', '1.8.7');
+
+/**
+ * Default minification.
+ */
+define('ADVAGG_JS_CDN_COMPRESSION', TRUE);
+
+/**
+ * Implement hook_js_alter.
+ */
+function advagg_js_cdn_js_alter(&$javascript) {
+  // Only modify if jquery_update is not enabled,
+  if (module_exists('jquery_update')) {
+    return;
+  }
+
+  // Setup variables.
+  // jquery.
+  $jquery_version = variable_get('advagg_js_cdn_jquery_version', ADVAGG_JS_CDN_JQUERY_VERSION);
+  $min = variable_get('advagg_js_cdn_compression', ADVAGG_JS_CDN_COMPRESSION) ? '.min' : '';
+  // jquery ui.
+  $jquery_ui_version = variable_get('advagg_js_cdn_jquery_ui_version', ADVAGG_JS_CDN_JQUERY_UI_VERSION);
+  $ui_mapping = advagg_js_cdn_get_ui_mapping();
+  $add_in_ui = FALSE;
+
+  foreach ($javascript as $name => $values) {
+    // Only modify if
+    //  advagg_js_cdn_jquery is enabled,
+    //  name is misc/jquery.js,
+    //  and type is file.
+    if (   variable_get('advagg_js_cdn_jquery', ADVAGG_JS_CDN_JQUERY)
+        && $name == 'misc/jquery.js'
+        && $javascript[$name]['type'] == 'file'
+          ) {
+      // Add in backup.
+      $values['weight'] += 0.00001;
+      $values['data'] = 'window.jQuery || document.write("<script src=\'' . base_path() . $values['data'] . '\'>\x3C/script>")';
+      $values['type'] = 'inline';
+      $javascript[$name . 'backup.js'] = $values;
+
+      // Change core to external.
+      $javascript[$name]['data'] = '//ajax.googleapis.com/ajax/libs/jquery/'. $jquery_version . '/jquery' . $min . '.js';
+      $javascript[$name]['type'] = 'external';
+    }
+
+    // Only modify if
+    //  advagg_js_cdn_jquery_ui is enabled,
+    //  name is in the $ui_mapping array.
+    //  and type is file.
+    if (   variable_get('advagg_js_cdn_jquery_ui', ADVAGG_JS_CDN_JQUERY_UI)
+        && array_key_exists($name, $ui_mapping)
+        && $javascript[$name]['type'] == 'file'
+          ) {
+      // We only need one file
+      if (!$add_in_ui) {
+        // Add in backup.
+        $values['weight'] += 0.00001;
+        $values['data'] = 'window.jQuery.ui || document.write("<script src=\'' . base_path() .   drupal_get_path('module', 'advagg_js_cdn') . '/js/jquery-ui.js' . '\'>\x3C/script>")';
+        $values['type'] = 'inline';
+        $javascript[$name . 'backup.js'] = $values;
+
+        // Change core to external.
+        $add_in_ui = TRUE;
+        $javascript[$name]['data'] = '//ajax.googleapis.com/ajax/libs/jqueryui/'. $jquery_ui_version . '/jquery-ui' . $min . '.js';
+        $javascript[$name]['type'] = 'external';
+      }
+      else {
+        unset($javascript[$name]);
+      }
+    }
+  }
+}
+
+/**
+ * Return an array of jquery ui files.
+ */
+function advagg_js_cdn_get_ui_mapping() {
+  // Replace jQuery UI's JavaScript, beginning by defining the mapping.
+  $ui_mapping = array(
+    'misc/ui/jquery.effects.blind.min.js' => 'effects.blind',
+    'misc/ui/jquery.effects.bounce.min.js' => 'effects.bounce',
+    'misc/ui/jquery.effects.clip.min.js' => 'effects.clip',
+    'misc/ui/jquery.effects.core.min.js' => 'effects.core',
+    'misc/ui/jquery.effects.drop.min.js' => 'effects.drop',
+    'misc/ui/jquery.effects.explode.min.js' => 'effects.explode',
+    'misc/ui/jquery.effects.fade.min.js' => 'effects.fade',
+    'misc/ui/jquery.effects.fold.min.js' => 'effects.fold',
+    'misc/ui/jquery.effects.highlight.min.js' => 'effects.highlight',
+    'misc/ui/jquery.effects.pulsate.min.js' => 'effects.pulsate',
+    'misc/ui/jquery.effects.scale.min.js' => 'effects.scale',
+    'misc/ui/jquery.effects.shake.min.js' => 'effects.shake',
+    'misc/ui/jquery.effects.slide.min.js' => 'effects.slide',
+    'misc/ui/jquery.effects.transfer.min.js' => 'effects.transfer',
+    'misc/ui/jquery.ui.accordion.min.js' => 'ui.accordion',
+    'misc/ui/jquery.ui.autocomplete.min.js' => 'ui.autocomplete',
+    'misc/ui/jquery.ui.button.min.js' => 'ui.button',
+    'misc/ui/jquery.ui.core.min.js' => 'ui.core',
+    'misc/ui/jquery.ui.datepicker.min.js' => 'ui.datepicker',
+    'misc/ui/jquery.ui.dialog.min.js' => 'ui.dialog',
+    'misc/ui/jquery.ui.draggable.min.js' => 'ui.draggable',
+    'misc/ui/jquery.ui.droppable.min.js' => 'ui.droppable',
+    'misc/ui/jquery.ui.mouse.min.js' => 'ui.mouse',
+    'misc/ui/jquery.ui.position.min.js' => 'ui.position',
+    'misc/ui/jquery.ui.progressbar.min.js' => 'ui.progressbar',
+    'misc/ui/jquery.ui.resizable.min.js' => 'ui.resizable',
+    'misc/ui/jquery.ui.selectable.min.js' => 'ui.selectable',
+    'misc/ui/jquery.ui.slider.min.js' => 'ui.slider',
+    'misc/ui/jquery.ui.sortable.min.js' => 'ui.sortable',
+    'misc/ui/jquery.ui.tabs.min.js' => 'ui.tabs',
+    'misc/ui/jquery.ui.widget.min.js' => 'ui.widget',
+  );
+  return $ui_mapping;
+}

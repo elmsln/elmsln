@@ -1,0 +1,21 @@
+{
+    "DBStats": {
+        "DatabaseUsage": "Uso del Database",
+        "DataSize": "Dimensione dei dati",
+        "DBSize": "Grandezza database",
+        "EstimatedSize": "Grandezza stimata",
+        "IndexSize": "Dimensione degli indici",
+        "LearnMore": "Per apprendere i dettagli su come Piwik elabora i dati, e su come far funzionare bene Piwik per siti a medio e alto traffico, dai un'occhiata alla documentazione %s.",
+        "MainDescription": "Piwik sta salvando tutti i dati statistici nel Database MySQL. Attualmente, le tabelle di Piwik stanno usando %s.",
+        "MetricDataByYear": "Tabelle metriche per anno",
+        "MetricTables": "Tabelle metriche",
+        "OtherTables": "Altre tabelle",
+        "PluginDescription": "Questo plugin riporta l'uso di MySQL da parte delle tabelle di Piwik.",
+        "ReportDataByYear": "Report tabelle per anno",
+        "ReportTables": "Report tabelle",
+        "RowCount": "Conteggio delle righe",
+        "Table": "Tabella",
+        "TotalSize": "Dimensione totale",
+        "TrackerTables": "Tracker tabelle"
+    }
+}

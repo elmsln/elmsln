@@ -1,0 +1,111 @@
+diff --git a/tablefield.module b/tablefield.module
+index 8f88022..7beba9c 100644
+--- a/tablefield.module
++++ b/tablefield.module
+@@ -137,6 +137,7 @@ function tablefield_field_is_empty($item, $field) {
+   }
+ 
+   // Remove the preference fields to see if the table cells are all empty
++  unset($item['tablefield']['accessibility']);
+   unset($item['tablefield']['rebuild']);
+   unset($item['tablefield']['import']);
+   if (!empty($item['tablefield'])) {
+@@ -171,7 +172,12 @@ function tablefield_field_formatter_view($entity_type, $entity, $field, $instanc
+   $formatter = $display['type'];
+ 
+   foreach ($items as $delta => $table) {
+-
++    $raw = unserialize($table['value']);
++    // check for table accessibility array
++    if (isset($raw['accessibility'])) {
++      $caption = $raw['accessibility']['caption'];
++      $summary = $raw['accessibility']['summary'];
++    }
+     // Rationalize the stored data
+     if (!empty($table['tablefield'])) {
+       $tabledata = tablefield_rationalize_table($table['tablefield']);
+@@ -199,7 +205,7 @@ function tablefield_field_formatter_view($entity_type, $entity, $field, $instanc
+       $header = array_shift($tabledata);
+ 
+       // Theme the table for display
+-      $element[$delta]['#markup'] = theme('tablefield_view', array('header' => $header, 'rows' => $tabledata, 'delta' => $delta));
++      $element[$delta]['#markup'] = theme('tablefield_view', array('header' => $header, 'rows' => $tabledata, 'delta' => $delta, 'caption' => $caption, 'summary' => $summary));
+     }
+ 
+   }
+@@ -365,7 +371,34 @@ function tablefield_field_widget_form(&$form, &$form_state, $field, $instance, $
+   $element['tablefield']['t_break' . $i] = array(
+     '#markup' => '</table>',
+   );
+-
++  // table accessibility fields
++  $element['tablefield']['accessibility'] = array(
++    '#title' => t('Accessibility'),
++    '#description' => t('Fields to help improve table accessibility'),
++    '#attributes' => array('id' => 'form-tablefield-' . $field['field_name'] . '-' . $delta . '-accessibility', 'class' => array('form-tablefield-accessibility')),
++    '#type' => 'fieldset',
++    '#tree' => TRUE,
++    '#collapsible' => TRUE,
++    '#prefix' => '<div id="tablefield-' . $field['field_name'] . '-' . $delta . '-accessibility-wrapper">',
++    '#suffix' => '</div>',
++  );
++  if (isset($items[$delta]['value'])) {
++    $raw = unserialize($items[$delta]['value']);
++    $caption = $raw['accessibility']['caption'];
++    $summary = $raw['accessibility']['summary'];
++  }
++  $element['tablefield']['accessibility']['caption'] = array(
++    '#title' => t('Table Caption'),
++    '#description' => t('Improve description and accsessibility of this table with a caption'),
++    '#type' => 'textfield',
++    '#default_value' => isset($caption) ? $caption : '',
++  );
++  $element['tablefield']['accessibility']['summary'] = array(
++    '#title' => t('Summary'),
++    '#description' => t('Improve accsessibility of this table with a summary. This is useful for screen readers.'),
++    '#type' => 'textfield',
++    '#default_value' => isset($summary) ? $summary : '',
++  );
+   // Allow the user to add more rows/columns
+   $element['tablefield']['rebuild'] = array(
+     '#type' => 'fieldset',
+@@ -600,6 +633,7 @@ function tablefield_rationalize_table($tablefield) {
+   // Remove exterraneous form data
+   $count_cols = $tablefield['rebuild']['count_cols'];
+   $count_rows = $tablefield['rebuild']['count_rows'];
++  unset($tablefield['accessibility']);
+   unset($tablefield['rebuild']);
+   unset($tablefield['import']);
+   // Rationalize the table data
+@@ -626,6 +660,8 @@ function tablefield_theme() {
+         'header' => NULL,
+         'rows' => NULL,
+         'delta' => NULL,
++        'caption' => NULL,
++        'summary' => NULL,
+       ),
+     ),
+   );
+@@ -640,7 +676,14 @@ function theme_tablefield_view($variables) {
+     'class' => array(
+       'tablefield'
+     ),
++    'summary' => $variables['summary'],
+   );
++  // apply scope property to headers for accessibility
++  foreach($variables['header'] as &$header) {
++    if (is_array($header)) {
++      $header['scope'] = 'col';
++    }
++  }
+ 
+   return '<div id="tablefield-wrapper-' . $variables['delta'] . '" class="tablefield-wrapper">'
+     . theme('table',
+@@ -648,6 +691,7 @@ function theme_tablefield_view($variables) {
+         'header' => $variables['header'],
+         'rows' => $variables['rows'],
+         'attributes' => $attributes,
++        'caption' => $variables['caption'],
+       )
+     )
+     . '</div>';

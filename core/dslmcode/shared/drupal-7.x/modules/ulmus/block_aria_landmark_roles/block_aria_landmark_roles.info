@@ -1,0 +1,12 @@
+name = Block ARIA Landmark Roles
+description = Adds additional elements on block administration forms to add ARIA landmark roles.
+core = 7.x
+package = Accessibility
+dependencies[] = block
+
+; Information added by drupal.org packaging script on 2012-10-18
+version = "7.x-1.4"
+core = "7.x"
+project = "block_aria_landmark_roles"
+datestamp = "1350595869"
+

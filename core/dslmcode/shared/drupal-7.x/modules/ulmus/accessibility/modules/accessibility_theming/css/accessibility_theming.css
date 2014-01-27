@@ -1,0 +1,13 @@
+#accessibility-theming {
+  position: fixed;
+  bottom: 0;
+  right: 0;
+  background: rgba(0,0,0,0.6);
+  color: white;
+  padding: 10px;
+}
+
+#accessibility-theming label {
+  display: inline;
+  margin-left: 10px;
+}

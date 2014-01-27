@@ -1,0 +1,19 @@
+{% include "@Dashboard/_header.twig" %}
+<div class="top_controls">
+    {% include "@CoreHome/_periodSelect.twig" %}
+    {% include "@Dashboard/_dashboardSettings.twig" %}
+    <div id="Dashboard" class="js-autoLeftPanel">
+        <ul>
+            {% for dashboard in dashboards %}
+                <li class="dashboardMenuItem" id="Dashboard_embeddedIndex_{{ dashboard.iddashboard }}">
+                    <a href="javascript:$('#dashboardWidgetsArea').dashboard('loadDashboard', {{ dashboard.iddashboard }});">{{ dashboard.name|escape }}</a>
+                </li>
+            {% endfor %}
+        </ul>
+    </div>
+</div>
+{% import 'ajaxMacros.twig' as ajax %}
+{{ ajax.loadingDiv }}
+{% include "@Dashboard/embeddedIndex.twig" %}
+</body>
+</html>

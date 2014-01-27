@@ -1,0 +1,156 @@
+<?php
+
+/**
+ * @file
+ * Feeds Tamper UI - Defines the user interface for Feeds Tamper.
+ */
+
+/**
+ * Base url for feeds.
+ *
+ * Makes supporting 6.x and 7.x versions simpler.
+ */
+define('FEEDS_TAMPER_UI_FEEDS_BASE', 'admin/structure/feeds');
+
+/**
+ * Base url for feeds_tamper_ui.
+ */
+define('FEEDS_TAMPER_UI_BASE', FEEDS_TAMPER_UI_FEEDS_BASE . '/tamper');
+
+/**
+ * Implements hook_menu().
+ */
+function feeds_tamper_ui_menu() {
+  $defaults = array(
+    'page callback' => 'drupal_get_form',
+    'access callback' => 'feeds_tamper_access',
+    'access arguments' => array(5),
+    'title arguments' => array(5),
+    'file' => 'feeds_tamper_ui.admin.inc',
+    'type' => MENU_CALLBACK,
+  );
+
+  $items = array();
+  $items[FEEDS_TAMPER_UI_BASE . '/list/%feeds_importer'] = array(
+    'title callback' => 'feeds_tamper_ui_main_title',
+    'page arguments' => array('feeds_tamper_ui_list_form', 5),
+  ) + $defaults;
+
+  $items[FEEDS_TAMPER_UI_BASE . '/add/%feeds_importer/%'] = array(
+    'title callback' => 'feeds_tamper_ui_add_title',
+    'title arguments' => array(6),
+    'page arguments' => array('feeds_tamper_ui_add_plugin_form', 5, 6),
+  ) + $defaults;
+
+  $items[FEEDS_TAMPER_UI_BASE . '/edit/%feeds_tamper_plugin_instance'] = array(
+    'title callback' => 'feeds_tamper_ui_edit_title',
+    'page arguments' => array('feeds_tamper_ui_edit_plugin_form', 5),
+    'access arguments' => array(NULL, 5),
+  ) + $defaults;
+
+  $items[FEEDS_TAMPER_UI_BASE . '/delete/%feeds_tamper_plugin_instance'] = array(
+    'title callback' => 'feeds_tamper_ui_delete_title',
+    'page arguments' => array('feeds_tamper_ui_delete_form', 5),
+    'access arguments' => array(NULL, 5),
+  ) + $defaults;
+
+  return $items;
+}
+
+/**
+ * Implements hook_theme().
+ */
+function feeds_tamper_ui_theme($existing, $type, $theme, $path) {
+  return array(
+    'feeds_tamper_ui_list_form' => array(
+      'render element' => 'form',
+      'file' => 'feeds_tamper_ui.admin.inc',
+    ),
+  );
+}
+
+/**
+ * Menu loader callback for plugin instances.
+ */
+function feeds_tamper_plugin_instance_load($instance_id) {
+  return feeds_tamper_load_instance($instance_id);
+}
+
+/**
+ * Main page title callback.
+ */
+function feeds_tamper_ui_main_title($importer) {
+  return t('Tamper plugins: @name', array('@name' => $importer->config['name']));
+}
+
+/**
+ * Add plugin title callback.
+ */
+function feeds_tamper_ui_add_title($source) {
+  return t('Add plugin to: @source', array('@source' => $source));
+}
+
+/**
+ * Edit plugin title callback.
+ */
+function feeds_tamper_ui_edit_title($instance) {
+  if ($instance->export_type == EXPORT_IN_DATABASE) {
+    return t('Edit: @id', array('@id' => $instance->description));
+  }
+  return t('Override: @id', array('@id' => $instance->description));
+}
+
+/**
+ * Delete plugin title callback.
+ */
+function feeds_tamper_ui_delete_title($instance) {
+  if ($instance->export_type == EXPORT_IN_DATABASE) {
+    return t('Delete plugin: @id', array('@id', $instance->id));
+  }
+  return t('Revert plugin: @id', array('@id', $instance->id));
+}
+
+/**
+ * Implements hook_form_FORM_ID_alter().
+ *
+ * Modify feeds_ui_overview_form(), adding Tamper links if the user has access.
+ */
+function feeds_tamper_ui_form_feeds_ui_overview_form_alter(&$form, &$form_state) {
+  if (!empty($form['enabled'])) {
+    foreach ($form['enabled'] as $id => &$table) {
+      if (feeds_tamper_access($id)) {
+        $table['operations']['#markup'] .= ' | ' . l(t('Tamper'), FEEDS_TAMPER_UI_BASE . '/list/' . $id);
+      }
+    }
+  }
+}
+
+/**
+ * Implements hook_form_FORM_ID_alter().
+ *
+ * Modify feeds_ui_mapping_form(), adding a Configure Feeds Tamper links if the
+ * user has access.
+ */
+function feeds_tamper_ui_form_feeds_ui_mapping_form_alter(&$form, &$form_state) {
+  if (feeds_tamper_access($form['#importer'])) {
+    $form['help']['#markup'] .= l(t('Configure Feeds Tamper'), FEEDS_TAMPER_UI_BASE . '/list/' . $form['#importer']->id);
+  }
+}
+
+/**
+ * Calculate display name for source.
+ *
+ * @param string|stdClass $instance
+ *   Either the plugin instance id or a plugin instance object.
+ *
+ * @return string
+ *   The sanitized name to display for a Feeds source.
+ */
+function feeds_tamper_ui_source_name($instance) {
+  if (!is_object($instance)) {
+    $instance = feeds_tamper_get_plugin($instance);
+  }
+  $importer = feeds_importer($instance->importer);
+  $sources = $importer->parser->getMappingSources();
+  return !empty($sources[$instance->source]['name']) ? check_plain($sources[$instance->source]['name']) : check_plain($instance->source);
+}

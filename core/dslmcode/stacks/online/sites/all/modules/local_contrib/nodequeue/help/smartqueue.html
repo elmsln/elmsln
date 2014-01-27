@@ -1,0 +1,65 @@
+Smartqueues are a collection of subqueues wrapped up into a single queue; each subqueue within a smartqueue has some special attachment. For example, taxonomy smartqueues are attached to terms; nodes with a specific term can only be added to subqueues that match that term.
+
+What this means is that if you have a taxonomy vocabulary named 'fruit', and in that vocabulary you have the terms 'apple', 'orange' and 'banana that you can create a taxonomy smartqueue associated with this vocabulary. A node tagged 'apple' will only be eligible to be added to the 'apple' subqueue. You could call this queue "Top %subqueues" and each taxonomy term will have its own top ten list. Each node will still only have a manageable number of queues listed on its nodequeue tab or on the links page.
+
+Each kind of smartqueue will have its own rules; the form for creating that smartqueue should give you enough information to do so.
+
+Smartqueue modules can be implemented with a fairly small amount of code; they might have to define an extra table to store information.
+
+<h2>Smartqueue API</h2>
+
+These are the hooks that a smartqueue module can use to implement.
+
+Smartqueues should use the 'reference' field of the subqueue to determine what that particular subqueue is attached to, if at all possible.
+<dl>
+  <dt><strong>hook_nodequeue_info()</strong></dt>
+  <dd>Collect info about all of the possible nodequeue types from owning modules. Returns an array; the key is the name of the 'module' for hook calls. The value is another array, which contains a 'title' and a 'description' for administrative purposes.</dd>
+
+  <dt><strong>hook_nodequeue_form($queue, &$form)</strong></dt>	
+  <dd>Send the nodequeue edit form to the owning module for modification. This allows the smartqueue to modify the edit form to add additional fields or hide fields that are not appropriate.
+  
+    $queue: The queue being edited.
+    &$form: The form. This may be modified.
+    </dd>
+
+  <dt><strong>hook_nodequeue_form_validate($queue, &$form_state, &$form)</strong></dt>
+  <dd>Validate the nodequeue edit form.
+  
+    $queue: The queue being edited.
+    $form_state: The form state, which includes ['values'].
+    &$form: The actual form object. This may be modified.
+    </dd>
+
+  <dt><strong>hook_nodequeue_form_submit(&$queue, &$form_state)</strong></dt>
+  <dd>Send the nodequeue edit form to the owning module upon submit.
+  
+    &$queue: The queue being edited. This may be modified prior to being saved.
+    $form_state: The form state, including the values.
+    </dd>
+
+  <dt><strong>hook_nodequeue_form_submit_finish($queue, &$form_state)</strong></dt>
+  <dd>Send the nodequeue edit form to the owning module after the queue has been saved. This is the only form state where you can be assured that the queue being edited will have a qid.
+  
+    &$queue: The queue being edited. This may be modified prior to being saved.
+    $form_state: The form state, including the values that were submitted.
+    </dd>
+
+  <dt><strong>hook_nodequeue_subqueues(&$queue, $node)</strong></dt>
+  <dd>Fetch a list of subqueues that are valid for this node from the owning module. This is where the smartqueue module is likely to do the most work, since it has to determine which subqueues to display to a user here. This function is also responsible for creating smartqueues as they are needed.
+  
+    $queue: The queue to check.  
+    $node: The loaded node object being checked.
+    
+    return: An array of subqueues. This will be keyed by $sqid.
+    </dd>
+
+  <dt><strong>hook_nodequeue_autocomplete($queue, $subqueue, $string)</strong></dt>
+  <dd>Fetch a list of nodes available to a given subqueue for autocomplete used on the queue arrange page.
+  
+    $queue: The queue that owns the subqueue 
+    $subqueue: The subqueue to check
+    $string: The string being matched.
+    
+    return: An keyed array of nodes in the form $nid => $title, with a maximum of 10.
+    </dd>
+  </dl>

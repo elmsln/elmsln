@@ -1,0 +1,49 @@
+<?php
+
+/**
+ * @file
+ * This module provides wysiwyg support for token insert.
+ */
+function token_insert_wysiwyg_wysiwyg_include_directory($type) {
+  switch ($type) {
+    case 'plugins':
+      return $type;
+  }
+}
+
+function token_insert_wysiwyg_form_alter(&$form, $form_state, $form_id) {
+  if (strpos($form_id, 'node_form') !== FALSE || strpos($form_id, 'comment') !== FALSE) {
+    drupal_add_library('system', 'ui.dialog');
+    drupal_add_library('system', 'ui.draggable');
+    drupal_add_js(array('token_insert_wysiwyg' => array('current_form' => $form['form_build_id']['#value'])), 'setting');
+  }
+}
+
+function token_insert_wysiwyg_menu() {
+
+  $items = array();
+  $items['token_insert_wysiwyg/insert/%'] = array(
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('token_insert_wysiwyg_form', 3),
+    'access callback' => TRUE,
+    'type' => MENU_CALLBACK,
+  );
+
+  return $items;
+}
+
+function token_insert_wysiwyg_form($form_state, $form_id) {
+  module_load_include('inc', 'token_insert', 'token_insert');
+  drupal_set_title(t('Insert token'));
+  $options = token_insert_get_tokens();
+
+  $form = array();
+  $form['insert'] = array(
+    '#type' => 'select',
+    '#title' => t('Choose the token you want to insert.'),
+    '#options' => $options,
+    '#description' => t('This token will be inserted in your textfield')
+  );
+
+  return $form;
+}

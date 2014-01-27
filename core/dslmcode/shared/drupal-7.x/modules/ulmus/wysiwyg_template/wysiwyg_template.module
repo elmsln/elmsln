@@ -1,0 +1,363 @@
+<?php
+
+/**
+ * @file
+ * Makes TinyMCE Templates available as plugin for client-side editors integrated via
+ * Wysiwyg API.
+ */
+
+ 
+ /**
+ * Implementation of hook_menu().
+ */
+function wysiwyg_template_menu() {
+  $items = array();
+  
+  // template overview settings page
+  $items['admin/config/content/wysiwyg-templates'] = array(
+    'title' => 'Wysiwyg templates',
+    'description' => 'Create and modify Wysiwyg templates',
+    'page callback' => 'wysiwyg_template_overview',
+    'access arguments' => array('administer wysiwyg templates'),
+    'file' => 'wysiwyg_template.admin.inc',
+  );
+  //list template
+  $items['admin/config/content/wysiwyg-templates/list'] = array(
+    'title' => 'List Templates',
+    'type' => MENU_DEFAULT_LOCAL_TASK,
+    'weight' => -10,
+  );
+  // add template
+  $items['admin/config/content/wysiwyg-templates/add'] = array(
+    'title' => 'Add Template',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('wysiwyg_template_template_form'),
+    'access arguments' => array('administer wysiwyg templates'),
+    'type' => MENU_LOCAL_TASK,
+    'file' => 'wysiwyg_template.admin.inc',
+  );
+  // edit template
+  $items['admin/config/content/wysiwyg-templates/edit/%wysiwyg_template'] = array(
+    'title' => 'Edit Template',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('wysiwyg_template_template_form', 5),
+    'access arguments' => array('administer wysiwyg templates'),
+    'type' => MENU_CALLBACK,
+    'parent' => 'admin/config/content/wysiwyg-templates',
+    'file' => 'wysiwyg_template.admin.inc',
+  );
+  $items['admin/config/content/wysiwyg-templates/import'] = array(
+    'title' => 'Import Template',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('wysiwyg_template_import_form'),
+    'access arguments' => array('import wysiwyg templates'),
+    'type' => MENU_LOCAL_TASK,
+    'file' => 'wysiwyg_template.admin.inc',
+  );
+  $items['admin/config/content/wysiwyg-templates/export/%wysiwyg_template'] = array(
+    'title' => 'Export Template',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('wysiwyg_template_export_form', 5),
+    'access arguments' => array('administer wysiwyg templates'),
+    'type' => MENU_CALLBACK,
+    'parent' => 'admin/config/content/wysiwyg-templates',
+    'file' => 'wysiwyg_template.admin.inc',
+  );
+  //delete template
+  $items['admin/config/content/wysiwyg-templates/delete'] = array(
+    'title' => 'Delete Template',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('wysiwyg_template_delete_confirm'),
+    'access arguments' => array('administer wysiwyg templates'),
+    'file' => 'wysiwyg_template.admin.inc',
+    'type' => MENU_CALLBACK,
+  );
+  // javascript template list
+  $items['wysiwyg-templates/%/list'] = array(
+    'page callback' => 'wysiwyg_template_list_js',
+    'page arguments' => array(1),
+    'access arguments' => array('access content'),
+    'type' => MENU_CALLBACK,
+  );
+  // individual template html - referenced by javascript above
+  $items['wysiwyg-templates/%/load/%wysiwyg_template_html'] = array(
+    'page callback' => 'wysiwyg_template_html_print',
+    'page arguments' => array(3, 1),
+    'access arguments' => array('access content'),
+    'type' => MENU_CALLBACK,
+  );
+  return $items;
+}
+
+/**
+ * Implements hook_permission().
+ */
+function wysiwyg_template_permission() {
+  $perms = array();
+  $perms['administer wysiwyg templates'] = array(
+    'title' => t('Administer WYSIWYG Templates'),
+    'description' => t('Create, edit and delete WYSIWYG templates.'),
+  );
+  $perms['import wysiwyg templates'] = array(
+    'title' => t('Import WYSIWYG Templates'),
+    'description' => t('Import WYSIWYG templates from exported code.'),
+    'restrict access' => TRUE,
+  );
+  return $perms;
+}
+
+/**
+ * Wysiwyg template Wildcard menu loader - prepare item for the create/modify admin form
+ * 
+ * @param $name
+ *   Template machine name.
+ *
+ * @return
+ *   The loaded template from the db.
+ */
+function wysiwyg_template_load($name){
+  $template = wysiwyg_template_load_template($name);
+  return $template;
+} 
+
+/**
+ * Implementation of hook_wysiwyg_plugin().
+ */
+function wysiwyg_template_wysiwyg_plugin($editorName, $version) {
+  switch ($editorName) {
+    case 'tinymce':
+      return array(
+  'template' => array(
+    'buttons' => array('template' => t('Insert templates')),
+    'url' => 'http://drupal.org/project/wysiwyg_template',
+    'internal' => TRUE,
+    'options' => array(
+      'template_external_list_url' => url('wysiwyg-templates/' . $editorName . '/list'), //load the javascript template list
+      //'template_selected_content_classes' => variable_get('wysiwyg_template_selected_content_classes', ''),
+      //'template_replace_values' => array('caption' => 'Replace with this content')
+    ),
+    'extended_valid_elements' => array( //tinymce specific - allows additional elements to be used
+      'img[id|class|src|border=0|alt|title|width|height|align|name|style]',
+    ),
+    'load' => TRUE,
+  ),
+      );
+    break;
+    case 'ckeditor':
+      return array(
+  'templates' => array(
+    'buttons' => array('Templates' => t('Insert templates')),
+    'url' => 'http://drupal.org/project/wysiwyg_template',
+    'internal' => TRUE,
+    'options' => array(
+      'templates_files' => array(url('wysiwyg-templates/' . $editorName . '/list')), //load the javascript template list
+            'templates_replaceContent' => false,
+    ),
+    'load' => FALSE,
+  ),
+      );
+    break;
+    case 'fckeditor':
+      return array(
+  'templates' => array(
+    'buttons' => array('Templates' => t('Insert templates')),
+    'url' => 'http://drupal.org/project/wysiwyg_template',
+    'internal' => TRUE,
+    'options' => array(
+      'TemplatesXmlPath' => array(url('wysiwyg-templates/' . $editorName . '/list')), //load the javascript template list
+    ),
+    'load' => FALSE,
+  ),
+      );
+    break;
+  }
+}
+
+/**
+ * Implements hook_features_api().
+ */
+function wysiwyg_template_features_api() {
+  return array(
+    'wysiwyg_template' => array(
+      'name' => t('WYSIWYG Template'),
+      'default_hook' => 'wysiwyg_template_default_templates',
+      'default_file' => FEATURES_DEFAULTS_INCLUDED,
+      'feature_source' => TRUE,
+      'file' => drupal_get_path('module', 'wysiwyg_template') . '/wysiwyg_template.features.inc',
+    ),
+  );
+}
+
+/**
+ * Generate javascript for template loading
+ */
+function wysiwyg_template_list_js($editorName){
+  global $base_url;
+  //don't cache templates
+  drupal_add_http_header('CacheControl', 'no-cache');
+  drupal_add_http_header('Expires', '-1');
+  drupal_add_http_header('Content-Type', 'text/javascript; charset=UTF-8');
+  $templates = wysiwyg_template_load_all();
+  switch($editorName){
+    case 'tinymce':
+      print 'var tinyMCETemplateList = ';
+      $outArray = array();
+      foreach($templates as $template){
+  $outArray[] = array(
+    $template['title'],
+    url('wysiwyg-templates/' . $editorName . '/load/') . $template['name'],
+    $template['description'],
+  );
+      }
+      print json_encode($outArray) . ";";
+    break;
+    case 'ckeditor':
+      print "CKEDITOR.addTemplates( 'default', { imagesPath:'". $base_url ."', templates: ";
+      // load the templates into the json array structure
+      foreach($templates as &$template){
+        $template['html'] = $template['body'];
+        unset($template['body']);
+        unset($template['tid']);
+      }
+      print json_encode($templates);
+      print "});";
+    break;
+    case 'fckeditor':
+      print '<?xml version="1.0" encoding="utf-8" ?>';
+      print '<Templates imagesBasePath="">';
+      foreach($templates as $template){
+  print '<Template title="' . check_plain($template['title']) . '" image="">';
+  print '<Description>' . check_plain($template['description']) . '</Description>';
+  print '<Html><![CDATA[';
+  print $template['body'];
+  print ']]></Html></Template>';
+      }
+      print '</Templates>';
+    break;
+    case '':
+    break;
+  }
+}
+
+/**
+ * Menu callback to display the loaded template
+ */
+function wysiwyg_template_html_print($body, $editorName){
+  //don't cache templates
+  drupal_add_http_header('CacheControl', 'no-cache');
+  drupal_add_http_header('Expires', '-1');
+  drupal_add_http_header('Content-Type', 'text/javascript; charset=UTF-8');
+  switch($editorName){
+    case 'tinymce':
+      print $body;
+    break;
+  }
+}
+
+/**
+ * Load a specific template for viewing, as called through the menu wildcard
+ */
+function wysiwyg_template_html_load($name){
+  $template = wysiwyg_template_load_template($name);
+  return module_exists('token') ? token_replace($template['body']) : $template['body'];
+}
+
+/**
+ * Wysiwyg template database load function
+ */
+function wysiwyg_template_load_template($name){
+  $templateResults = db_query("SELECT * FROM {wysiwyg_templates} WHERE name = :name", array(':name' => $name));
+  $template = $templateResults->fetchObject();
+  $tItem = null;
+  if($template != null){
+    $tItem = array(
+      'title' => $template->title,
+      'description' => $template->description,
+      'fid' => $template->fid,
+      'body' => $template->body,
+      'name' => $name,
+    );
+  }
+  
+  return $tItem;
+}
+
+/**
+ * Wysiwyg load all templates from the database
+ */
+function wysiwyg_template_load_all(){
+  global $base_url;
+  $templateResults = db_query("SELECT * FROM {wysiwyg_templates}");
+  $templates = array();
+  foreach ($templateResults as $dbTemplate) {
+    //get the image
+    $image = file_load($dbTemplate->fid);
+    if ($image) {
+      $image_uri = str_replace($base_url, "", image_style_url('wysiwyg_template_thumbnail', $image->uri));
+    }
+    else {
+      $image_uri = "";
+    }
+    $template = array(
+      'title' => $dbTemplate->title,
+      'description' => $dbTemplate->description,
+      'image' => $image_uri,
+      'body' => token_replace($dbTemplate->body),
+      'name' => $dbTemplate->name,
+    );
+    // provide a hook to prepare the templates
+    drupal_alter('wysiwyg_templates_load', $templates);
+    $templates[] = $template;
+  }
+  return $templates;
+}
+
+/**
+ * Wysiwyg template database save function.
+ */
+function wysiwyg_template_save_template($template) {
+  $new_template = array(
+    'name' => $template['name'],
+    'title' => $template['title'],
+    'description' => $template['description'],
+    'fid' => $template['fid'],
+    'body' => (isset($template['body']['value']) && strlen($template['body']['value']) > 1) ? $template['body']['value'] : $template['body'],
+  );
+
+  $existing = wysiwyg_template_name_exists($template['name']);
+
+  // Save to database.
+  return drupal_write_record('wysiwyg_templates', $new_template, ($existing ? 'name' : array()));
+}
+
+/**
+ * Wysiwyg template database delete function
+ */
+function wysiwyg_template_delete_template($name){
+  db_query("DELETE FROM {wysiwyg_templates} WHERE name = :name", array(':name' => $name));
+}
+
+function wysiwyg_template_name_exists($name) {
+  return (bool) db_query('SELECT 1 FROM {wysiwyg_templates} WHERE name = :name', array(':name' => $name))->fetchField();
+}
+
+/**
+ * Implements hook_image_default_styles().
+ */
+function wysiwyg_template_image_default_styles() {
+  $styles = array();
+  // supply the default image thumbnail style
+  $styles['wysiwyg_template_thumbnail'] = array(
+    'effects' => array(
+      array(
+        'name' => 'image_resize',
+        'data' => array(
+          'width' => 100,
+          'height' => 70,
+        ),
+        'weight' => 0,
+      ),
+    ),
+  );
+  return $styles;
+}

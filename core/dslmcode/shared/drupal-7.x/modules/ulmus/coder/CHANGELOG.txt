@@ -1,0 +1,9 @@
+
+Coder 7.x-1.x, xxxx-xx-xx
+--------------------------
+- Changes (2010-06-10):
+  * coder.module, coder_review.module, coder_upgrade.module
+  * - #824320: eliminate warnings when only one of the Review or Upgrade modules is enabled
+
+#607592 (stella) :
+ - changed menu paths

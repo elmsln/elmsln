@@ -1,0 +1,20 @@
+name = FE Block
+description = Build blocks and block settings as features.
+core = 7.x
+package = Features extra
+
+dependencies[] = block
+dependencies[] = ctools
+dependencies[] = features
+
+test_dependencies[] = block_class
+
+files[] = tests/features_extra_test_case.test
+files[] = tests/fe_block.test
+
+; Information added by drupal.org packaging script on 2013-04-15
+version = "7.x-1.0-beta1"
+core = "7.x"
+project = "features_extra"
+datestamp = "1366049112"
+

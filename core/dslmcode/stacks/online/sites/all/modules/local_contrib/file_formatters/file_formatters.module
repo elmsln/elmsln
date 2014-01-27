@@ -1,0 +1,67 @@
+<?php
+/**
+ * @file
+ * Implemented hooks for the file_formatters module.
+ */
+
+
+/**
+ * Implements hook_field_formatter_info().
+ */
+function file_formatters_field_formatter_info() {
+  return array(
+    'file_custom_link' => array(
+      'label' => t('Link to file (with custom title)'),
+      'field types' => array('file'),
+      'settings' => array(
+      'format_custom_link_text' => t('Download file'),
+      )
+    ),
+  );
+}
+
+/**
+ * Implements hook_field_formatter_settings_form().
+ */
+function file_formatters_field_formatter_settings_form($field, $instance, $view_mode, $form, &$form_state) {
+  $display = $instance['display'][$view_mode];
+  $settings = $display['settings'];
+  
+  $element = array();
+  
+  $element['format_custom_link_text'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Custom link text'),
+    '#default_value' => $settings['format_custom_link_text'],
+  );
+  
+  return $element;
+}
+
+/**
+ * Implements hook_field_formatter_settings_summary().
+ */
+function file_formatters_field_formatter_settings_summary($field, $instance, $view_mode) {
+  $display = $instance['display'][$view_mode];
+  $settings = $display['settings'];
+  return t('Custom link text: @custom_link_text', array('@custom_link_text' => $settings['format_custom_link_text']));
+}
+
+/**
+ * Implements hook_field_formatter_view().
+ */
+function file_formatters_field_formatter_view($entity_type, $entity, $field, $instance, $langcode, $items, $display) {
+  $element = array();
+    
+  if ($display['type'] == 'file_custom_link') {
+    foreach ($items as $delta => $item) {
+      $element[$delta] = array(
+        '#markup' => empty($item['uri']) 
+          ? '' 
+          : l($display['settings']['format_custom_link_text'], file_create_url($item['uri']))
+      );
+    }
+  }
+
+  return $element;
+}

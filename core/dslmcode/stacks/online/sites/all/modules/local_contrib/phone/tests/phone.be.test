@@ -1,0 +1,31 @@
+<?php
+
+class BEPhoneNumberTestCase extends DrupalWebTestCase {
+  /**
+   * Implementation of getInfo()
+   *
+   */
+  public static function getInfo() {
+    return array(
+      'name' => t('Belgium Phone number test'),
+      'description' => t('Tests various valid and invalid Belgium phone numbers for validity'),
+      'group' => t('Phone')
+    );
+  }
+
+  public function testPhoneBEValid() {
+    $this->assertTrue(valid_phone_number('be', '023456789'), '"023456789" should be valid');
+    $this->assertTrue(valid_phone_number('be', '0478990011'), '"0478990011" should be  valid');
+    $this->assertTrue(valid_phone_number('be', '01 234 56 78'), '"01 234 56 78" should be  valid');
+    $this->assertTrue(valid_phone_number('be', '+32 12345678'), '"+32 12345678" should be  valid');    
+  }
+
+  public function testPhoneBEInvalid() {
+    $this->assertFalse(valid_phone_number('be', '+323456789'), t('Test invalid'));
+    $this->assertFalse(valid_phone_number('be', '02 345 67 89'), t('Test invalid'));
+  }
+
+  public function testPhoneBEFormatting() {
+    //$this->assertEqual(format_phone_number('be', '+6421123456', null), '+64 21 123 456', t('Check international mobile format'));
+  }
+}

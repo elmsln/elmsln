@@ -1,0 +1,207 @@
+# $Id: dhtml_menu.pot,v 1.7 2010/11/09 21:01:51 arancaytar Exp $
+#
+# LANGUAGE translation of DHTML Menu
+# Copyright YEAR NAME <EMAIL@ADDRESS>
+# Generated from files:
+#  dhtml_menu.admin.inc,v 1.19 2009/10/25 14:58:28 arancaytar
+#  dhtml_menu.module,v 1.48 2009/11/12 21:36:51 arancaytar
+#  dhtml_menu.info,v 1.9 2009/10/25 14:58:28 arancaytar
+#  dhtml_menu.install,v 1.16 2009/11/12 21:36:51 arancaytar
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: DHTML Menu 7.x-1.x\n"
+"POT-Creation-Date: 2010-11-09 21:57+0100\n"
+"PO-Revision-Date: YYYY-mm-DD HH:MM+ZZZZ\n"
+"Last-Translator: NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <EMAIL@ADDRESS>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=INTEGER; plural=EXPRESSION;\n"
+
+#: dhtml_menu.admin.inc:18
+msgid "Static navigation"
+msgstr ""
+
+#: dhtml_menu.admin.inc:20
+msgid "<strong>No Collapsing:</strong> Menu items cannot be collapsed dynamically. Instead, clicking on an already expanded item will take you to the page."
+msgstr ""
+
+#: dhtml_menu.admin.inc:21
+msgid "<strong>Expand on Bullet:</strong> All links will continue to function as static links. To expand an item, click the bullet icon next to the link."
+msgstr ""
+
+#: dhtml_menu.admin.inc:22
+msgid "<strong>Cloned Menu Link:</strong> At the top of each menu, an extra link will be generated that leads to the page of the parent item."
+msgstr ""
+
+#: dhtml_menu.admin.inc:23
+msgid "<strong>Expand on Hover:</strong> Items expand when the cursor hovers over them. Links function normally. <em>This is unfamiliar and causes accessibility problems!</em>"
+msgstr ""
+
+#: dhtml_menu.admin.inc:24
+msgid "<strong>Doubleclick:</strong> To expand an item, click the link once. To navigate to the page, click it twice. <em>This will be difficult to find for your users!</em>"
+msgstr ""
+
+#: dhtml_menu.admin.inc:25
+msgid "<strong>None:</strong> Clicking the link will expand the item. Navigating to the page is not possible at all. <em>This will make pages with sub-items very difficult to reach!</em>"
+msgstr ""
+
+#: dhtml_menu.admin.inc:28
+msgid "Dynamic expansion of menus competes with the static navigation of content. Choose how to resolve this conflict."
+msgstr ""
+
+#: dhtml_menu.admin.inc:33
+msgid "Animation"
+msgstr ""
+
+#: dhtml_menu.admin.inc:40
+msgid "Effects"
+msgstr ""
+
+#: dhtml_menu.admin.inc:42
+msgid "Slide in vertically"
+msgstr ""
+
+#: dhtml_menu.admin.inc:43
+msgid "Slide in horizontally"
+msgstr ""
+
+#: dhtml_menu.admin.inc:44
+msgid "Fade in"
+msgstr ""
+
+#: dhtml_menu.admin.inc:46
+msgid "You may pick any number of animation effects that will accompany the opening and closing of a menu."
+msgstr ""
+
+#: dhtml_menu.admin.inc:52
+msgid "Speed"
+msgstr ""
+
+#: dhtml_menu.admin.inc:54
+msgid "Very Fast (@seconds s)"
+msgstr ""
+
+#: dhtml_menu.admin.inc:55
+msgid "Fast (@seconds s)"
+msgstr ""
+
+#: dhtml_menu.admin.inc:56
+msgid "Medium (@seconds s)"
+msgstr ""
+
+#: dhtml_menu.admin.inc:57
+msgid "Slow (@seconds s)"
+msgstr ""
+
+#: dhtml_menu.admin.inc:58
+msgid "Very Slow (@seconds s)"
+msgstr ""
+
+#: dhtml_menu.admin.inc:61
+msgid "Choose how quickly the menus should expand and collapse."
+msgstr ""
+
+#: dhtml_menu.admin.inc:66
+msgid "Other effects"
+msgstr ""
+
+#: dhtml_menu.admin.inc:73
+msgid "When a menu opens"
+msgstr ""
+
+#: dhtml_menu.admin.inc:75
+msgid "Keep other menus open."
+msgstr ""
+
+#: dhtml_menu.admin.inc:76
+msgid "Close all other open menus on the page."
+msgstr ""
+
+#: dhtml_menu.admin.inc:77
+msgid "Close other open menus in the same tree."
+msgstr ""
+
+#: dhtml_menu.admin.inc:84
+msgid "When a menu closes"
+msgstr ""
+
+#: dhtml_menu.admin.inc:86
+msgid "Remember which sub-items were expanded when it next opens."
+msgstr ""
+
+#: dhtml_menu.admin.inc:87
+msgid "Close all its sub-items, too."
+msgstr ""
+
+#: dhtml_menu.admin.inc:94
+msgid "When a new page is loaded"
+msgstr ""
+
+#: dhtml_menu.admin.inc:96
+msgid "Remember which items were expanded on the last page."
+msgstr ""
+
+#: dhtml_menu.admin.inc:97
+msgid "Expand only the currently active path."
+msgstr ""
+
+#: dhtml_menu.admin.inc:104
+msgid "Disabling DHTML"
+msgstr ""
+
+#: dhtml_menu.admin.inc:111
+msgid "Filter type"
+msgstr ""
+
+#: dhtml_menu.admin.inc:113
+msgid "Disable DHTML on the menus checked below."
+msgstr ""
+
+#: dhtml_menu.admin.inc:114
+msgid "Enable DHTML on the menus checked below."
+msgstr ""
+
+#: dhtml_menu.admin.inc:121
+msgid "List"
+msgstr ""
+
+#: dhtml_menu.admin.inc:124
+msgid "DHTML will be used for all menus by default, but can be switched off for specific menus."
+msgstr ""
+
+#: dhtml_menu.admin.inc:151
+msgid "Book: %title"
+msgstr ""
+
+#: dhtml_menu.admin.inc:160
+msgid "Other menu: %menu"
+msgstr ""
+
+#: dhtml_menu.module:16
+msgid "DHTML Menu adds dynamic functionality to the menus of your site. Ordinarily, reaching the child elements below an item requires you to visit its page. With this module enabled, clicking on an item with child elements will expand it without leaving the page, saving you the time of waiting for the page to load."
+msgstr ""
+
+#: dhtml_menu.module:17
+msgid "<strong>Note:</strong> Links that gain a dynamic Javascript effect naturally stop working as normal links. Since you will occasionally need to visit a page that has sub-items (like the <a href=\"@url\">main administration page</a>), this module provides several different options for static and dynamic navigation to coexist."
+msgstr ""
+
+#: dhtml_menu.module:39 dhtml_menu.info:0
+msgid "DHTML Menu"
+msgstr ""
+
+#: dhtml_menu.module:40
+msgid "Configure the behavior of DHTML Menu."
+msgstr ""
+
+#: dhtml_menu.install:39
+msgid "<em>DHTML Menu</em> offers a wide range of customization options. If you wish to change them, please visit the <a href=\"@url\">configuration page</a>."
+msgstr ""
+
+#: dhtml_menu.info:0
+msgid "Opens menus dynamically to reduce page reloads."
+msgstr ""
+

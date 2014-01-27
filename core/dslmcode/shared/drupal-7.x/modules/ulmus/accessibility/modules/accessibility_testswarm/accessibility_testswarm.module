@@ -1,0 +1,49 @@
+<?php
+
+/**
+ * Implements hook_testswarm_tests();
+ */
+function accessibility_testswarm_testswarm_tests() {
+  $library_path = libraries_get_path('quail');
+  $paths = module_invoke_all('accessibility_testswarm_paths');
+  if (!$paths || !count($paths)) {
+    return;
+  }
+  $tests = array();
+  foreach ($paths as $path) {
+    $tests['accessibility_testswarm_tests_' . md5($path)] = array(
+      'js' => array(
+        $library_path . '/src/quail.js',
+        drupal_get_path('module', 'accessibility_testswarm') . '/js/accessibility_testswarm.test.js' => array()
+      ),
+      'path' => $path
+    );
+  }
+  return $tests;
+}
+
+/**
+ * Implements hook_accessibility_testswarm_paths()
+ */
+function accessibility_testswarm_accessibility_testswarm_paths() {
+  $paths = variable_get('accessibility_testswarm_paths', '');
+  return explode("\n", $paths);
+}
+
+/**
+ * Implements hook_menu();
+ */
+function accessibility_testswarm_menu() {
+  $items = array();
+  
+  $items['admin/config/accessibility/testing'] = array(
+    'title' => 'Automated testing',
+    'description' => 'Enable TestSwarm testing for accessibility.',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('accessibility_testswarm_admin_form'),
+    'access arguments' => array('administer site configuration'),
+    'file' => 'accessibility_testswarm.admin.inc'
+  );
+  
+  return $items;
+}

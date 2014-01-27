@@ -1,0 +1,24 @@
+<?php
+
+function login_shadowbox_install() {
+
+}
+
+/**
+ * Implementation of hook_uninstall()
+ */
+function login_shadowbox_uninstall() {
+  // variables used to configure shadowbox login
+  variable_del('login_shadowbox_enabled');
+  variable_del('login_shadowbox_width');
+  variable_del('login_shadowbox_register_width');
+  variable_del('login_shadowbox_password_width');
+  variable_del('login_shadowbox_height');
+  variable_del('login_shadowbox_register_height');
+  variable_del('login_shadowbox_password_height');
+  variable_del('login_shadowbox_modal');
+  variable_del('login_shadowbox_css');
+
+  // variables used to configure shadowbox login block
+  variable_del('login_shadowbox_login_block_visibility');
+}

@@ -1,0 +1,20 @@
+<?php
+
+/**
+ * @file
+ * Remove the feed icon from templates.
+ */
+
+/**
+ * Replace the feed icon function with our own.
+ */
+function jammer_feed_icon_theme_registry_alter(&$theme_registry) {
+  $theme_registry['feed_icon']['function'] = '_jammer_feed_icon_theme_render';
+}
+
+/**
+ * Output the empty feed icon.
+ */
+function _jammer_feed_icon_theme_render(){
+  return '';
+}

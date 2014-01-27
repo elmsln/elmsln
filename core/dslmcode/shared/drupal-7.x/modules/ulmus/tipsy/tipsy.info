@@ -1,0 +1,12 @@
+name = Tipsy tooltips
+description = Integrates <a href="http://onehackoranother.com/projects/jquery/tipsy/">Tipsy</a> jQuery plugin for creating a Facebook-like tooltips effect.
+core = 7.x
+
+configure = admin/config/user-interface/tipsy
+
+; Information added by drupal.org packaging script on 2011-06-06
+version = "7.x-1.0-rc1"
+core = "7.x"
+project = "tipsy"
+datestamp = "1307366519"
+

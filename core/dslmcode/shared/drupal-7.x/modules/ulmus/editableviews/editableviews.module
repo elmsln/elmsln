@@ -1,0 +1,362 @@
+<?php
+/**
+ * @file editableviews.module
+ * Contain module code.
+ * @todo:
+ *  - some way to mark cells for a NEW entity? at least put a class on them!
+ *  - ditto, put class on relationship cells.
+ */
+
+/**
+ * Implements hook_views_api().
+ */
+function editableviews_views_api() {
+  return array(
+    'api' => '3.0-alpha1',
+    'path' => drupal_get_path('module', 'editableviews'),
+  );
+}
+
+/**
+ * Implements hook_forms().
+ *
+ * Handle our dynamic form IDs.
+ *
+ * @see editableviews_plugin_style_row_edit_table::get_form()
+ */
+function editableviews_forms($form_id, $args) {
+  // We only care about the first piece of the form ID here. Everything after
+  // that is only for the benefit of hook_form_alter().
+  $length = strlen('editableviews_entity_form');
+  if (substr($form_id, 0, $length) == 'editableviews_entity_form') {
+    $forms[$form_id] = array(
+      'callback' => 'editableviews_entity_form',
+    );
+    return $forms;
+  }
+}
+
+/**
+ * Form builder for an editable view.
+ *
+ * @see editableviews_forms()
+ *
+ * @param $entities
+ *  An array of entities to get the form for, keyed first by entity type and
+ *  then by entity id. The ids may be fake in the case of new, unsaved entities.
+ *  Furthermore, new entities should have a property
+ *  'editableviews_exposed_fields'. This should be an array of field names
+ *  corresponding to editable field handlers on the view. A value in at least
+ *  one of these fields on the entity causes it to be saved by
+ *  editableviews_entity_form_submit_save(). This allows the user
+ *  to leave a blank part of the result empty. However, it does not account for
+ *  the fact that there may be default values in the field widgets!
+ *  TODO: consider this problem!
+ * @param $results_coordinates
+ *  An array containing coordinates lookups for getting entity type and entity
+ *  from row id and relationship, and the same the other way round. Contains:
+ *  - 'entities_to_results': A nested array keyed by entity type then entity
+ *    id. The final values are flat arrays of the relationship id and result
+ *    index.
+ *  - 'results_to_entities': A nested array keyed by relationship id then
+ *    result index. The final values are flat arrays of the entity type and
+ *    entity id.
+ *  Conceptually, the pair (relationship id, result index) can be visualized as
+ *  the coordinates that specify which cells in the table the entity occupies:
+ *  the index gives the row and the relationship id one or more columns.
+ * @param $field_handlers
+ *  An array of the editable Views field handlers to show the form elements for.
+ *  This should be grouped by relationship ID, with the base table for the
+ *  view's base.
+ * @param $view
+ *  The view object.
+ */
+function editableviews_entity_form($form, &$form_state, $entities, $results_coordinates, $field_handlers, $view) {
+  // Include this here as it's fairly likely we have handlers that need it;
+  // rather than let the handler class include it over and over again.
+  ctools_include('fields');
+
+  //dsm(func_get_args(), 'form builder params');
+  //dsm($entities);
+  //dsm($field_handlers);
+
+  $form['#tree'] = TRUE;
+
+  $form['#entity_ids'] = array();
+  //$form['#field_names'] = $fields;
+  $form['#field_handlers'] = $field_handlers;
+
+  // Put these in the form in case custom form handlers need to look at them.
+  $form['#results_coordinates'] = $results_coordinates;
+
+  // Put the view name and display name on the form, for hook_form_alter().
+  $form['#view_name'] = $view->name;
+  $form['#view_display_name'] = $view->current_display;
+
+  // Get the message option from the view style plugin.
+  $form['#save_messages'] = $view->style_plugin->options['save_messages'];
+
+  foreach (array_keys($entities) as $entity_type) {
+    foreach ($entities[$entity_type] as $entity_id => $entity) {
+      if (isset($entity->language)) {
+        $langcode = field_valid_language($entity->language);
+      }
+      else {
+        $langcode = field_valid_language(NULL);
+      }
+
+      // Note we have to explicitly use the array key for the entity id rather
+      // than extract it here, because it might not actually be a real id for
+      // the case of an entity being created on a relationship.
+      list(, , $bundle) = entity_extract_ids($entity_type, $entity);
+
+      // Stash the entity type and id.
+      $form['#entity_ids'][$entity_type][] = $entity_id;
+
+      // Get the relationship that this entity is on. We only want to get form
+      // elements from the field handlers that are on this relationship.
+      list($relationship, $index) = $results_coordinates['entities_to_results'][$entity_type][$entity_id];
+
+      // Build up the per-entity subform.
+      $form[$entity_type][$entity_id] = array(
+        // This allows FieldAPI to have multiple field form elements attached.
+        '#parents' => array($entity_type, $entity_id),
+        '#entity_type' => $entity_type,
+        '#entity' => $entity,
+        '#bundle' => $bundle,
+        // Stash the relationship this entity is on, so this form's validate and
+        // submit handlers can get the relevant field handler for it.
+        '#views_relationship' => $relationship,
+      );
+
+      foreach ($field_handlers[$relationship] as $field_handler) {
+        // Pass the form to each field handler for it to add its element.
+        $field_handler->edit_form($entity_type, $entity, $form[$entity_type][$entity_id], $form_state);
+      }
+    }
+  }
+
+  $form['actions'] = array('#type' => 'actions');
+  $form['actions']['submit'] = array(
+    '#type' => 'submit',
+    '#value' => t('Save'),
+  );
+
+  $form['#submit'] = array(
+    // We split the submit process up into the building of form values and the
+    // actual saving, to allow implementations of this to add extra processing
+    // steps in between, using hook_form_alter().
+    // For easier inserting of submit handlers, we key this array, which will
+    // not bother FormAPI at all (see form_execute_handlers()).
+    'build_values'  => 'editableviews_entity_form_submit_build_values',
+    'save'          => 'editableviews_entity_form_submit_save',
+  );
+
+  //dsm($form, 'end of form builder');
+  return $form;
+}
+
+/**
+ * Form validate handler.
+ *
+ * Adapted from fape_field_edit_field_form_validate().
+ */
+function editableviews_entity_form_validate($form, &$form_state) {
+  ctools_include('fields');
+
+  $field_handlers = $form['#field_handlers'];
+
+  // Act on each entity in turn.
+  foreach ($form['#entity_ids'] as $entity_type => $entity_ids) {
+    foreach ($entity_ids as $entity_id) {
+      $bundle = $form[$entity_type][$entity_id]['#bundle'];
+      $entity = $form[$entity_type][$entity_id]['#entity'];
+      $relationship = $form[$entity_type][$entity_id]['#views_relationship'];
+
+      // Invoke the field handlers on the relationship the entity is on.
+      foreach ($field_handlers[$relationship] as $field_handler) {
+        $field_handler->edit_form_validate($entity_type, $entity, $form[$entity_type][$entity_id], $form_state);
+      }
+    }
+  }
+}
+
+/**
+ * Form submit handler the first: build entities from field values.
+ *
+ * Entities are flagged as needing to be saved by our other submit handler,
+ * editableviews_entity_form_submit_save().
+ *
+ * Existing entities are flagged if they have editable fields on them.
+ *
+ * New entities are checked to see whether they need to be saved or not. This
+ * allows the user to leave a new entity's form elements empty to indicate they
+ * do not wish to create an entity in that space.
+ * Note however that this means if FieldAPI fields have default values, and
+ * these are left in the form, the entity will be created! There is no real
+ * way that I can envisage to account for this, short of adding a form element
+ * with a checkbox for the user to explicitly say a new entity should be saved.
+ * TODO: consider implementing this.
+ */
+function editableviews_entity_form_submit_build_values($form, &$form_state) {
+  ctools_include('fields');
+
+  //dsm($form);
+  //dsm($form_state, 'fs');
+
+  $field_handlers = $form['#field_handlers'];
+  // Act on each entity in turn.
+  foreach ($form['#entity_ids'] as $entity_type => $entity_ids) {
+    foreach ($entity_ids as $entity_id) {
+      $bundle = $form[$entity_type][$entity_id]['#bundle'];
+      $entity = $form[$entity_type][$entity_id]['#entity'];
+      $relationship = $form[$entity_type][$entity_id]['#views_relationship'];
+
+      // Invoke the field handlers on the relationship the entity is on, if any.
+      foreach ($field_handlers[$relationship] as $field_handler) {
+        $field_handler->edit_form_submit($entity_type, $entity, $form[$entity_type][$entity_id], $form_state);
+      }
+
+      // Set our flag on the entity if it needs to be saved.
+      if (is_numeric($entity_id)) {
+        // For existing entities, we save if the entity had editable fields
+        // in the view. This does mean that an entity could be saved needlessly,
+        // as we don't compare old values with incoming form values.
+        if (count($field_handlers[$relationship])) {
+          $entity->editableviews_needs_save = TRUE;
+        }
+      }
+      else {
+        // For new entities, check they have had values set on them by the user
+        // that justify saving them.
+        $wrapper = entity_metadata_wrapper($entity_type, $entity);
+        foreach ($entity->editableviews_exposed_fields as $expected_field_name) {
+          // We have to use the wrapper, as FieldAPI fields will contain a
+          // nested array with the langcode even if left empty.
+          $value = $wrapper->{$expected_field_name}->raw();
+          if (!empty($value)) {
+            // If there is a value, mark this entity as needing to be saved by
+            // editableviews_entity_form_submit_save(). Obviously, custom
+            // form submit handlers that come after us are free to remove or
+            // force this.
+            $entity->editableviews_needs_save = TRUE;
+            // No point going any further.
+            break;
+          }
+        }
+      }
+
+      // Put the entities in the form state for the subsequent submit handlers to
+      // find. Key by entity type to make it easy to get hold of that.
+      $form_state['entities'][$entity_type][$entity_id] = $entity;
+    }
+  }
+}
+
+/**
+ * Form submit handler the second: save entities.
+ *
+ * Saves all entities in $form_state['entities'], with the exception of new
+ * entities which have their 'editableviews_needs_save' set to FALSE.
+ */
+function editableviews_entity_form_submit_save($form, &$form_state) {
+  //dsm($form_state['entities'], 'entities to save');
+  $entity_info = entity_get_info();
+  foreach (array_keys($form_state['entities']) as $entity_type) {
+    foreach ($form_state['entities'][$entity_type] as $entity_id => $entity) {
+      // Check whether a save has been requested.
+      if (empty($entity->editableviews_needs_save)) {
+        continue;
+      }
+
+      // Save the entity using Entity API.
+      entity_save($entity_type, $entity);
+
+      // If the entity was a new one, and on a forward relationship, we need
+      // to set the referring entity to point to it. We can do this now that the
+      // new entity has been saved and has an id.
+      if (isset($entity->editableviews_future_reference)) {
+        list($new_entity_id, ) = entity_extract_ids($entity_type, $entity);
+
+        $referring_entity = $form_state['entities'][$entity->editableviews_future_reference['entity_type']][$entity->editableviews_future_reference['entity_id']];
+        $wrapper = entity_metadata_wrapper($entity->editableviews_future_reference['entity_type'], $referring_entity);
+
+        // Make the existing entity point to the new entity.
+        $relationship_field_name = $entity->editableviews_future_reference['field_name'];
+        $wrapper->{$relationship_field_name}->set($new_entity_id);
+
+        // This needs to be saved a second time, as there's no simple way we can
+        // guarantee the order we come to these in: they are in the order we
+        // encounter them going through the field handlers.
+        entity_save($entity->editableviews_future_reference['entity_type'], $referring_entity);
+      }
+
+      if ($form['#save_messages'] == 'individual') {
+        // Show a confirmation message. This could get pretty long on a big View!
+        drupal_set_message(t("Saved %entity-type entity %label.", array(
+          '%entity-type' => $entity_info[$entity_type]['label'],
+          '%label' => entity_label($entity_type, $entity),
+        )));
+      }
+      elseif ($form['#save_messages'] == 'summary') {
+        // Use drupal_placeholder() to format this the same as %label above.
+        $save_message_labels[] = drupal_placeholder(entity_label($entity_type, $entity));
+      }
+    }
+  }
+
+  if ($form['#save_messages'] == 'summary' && count($save_message_labels)) {
+    drupal_set_message(t("Saved entities !labels.", array(
+      // These have been sanitized already.
+      '!labels' => implode(', ', $save_message_labels),
+    )));
+  }
+}
+
+/**
+ * Implements hook_module_implements_alter().
+ */
+function editableviews_module_implements_alter(&$implementations, $hook) {
+  if ($hook == 'views_data_alter') {
+    // Move our hook_views_data_alter() to the end of the list, so we can
+    // doctor relationships provided by other modules.
+    $group = $implementations['editableviews'];
+    unset($implementations['editableviews']);
+    $implementations['editableviews'] = $group;
+  }
+}
+
+// ================================================= Sample form alteration.
+
+/**
+ * Implements hook_form_FORM_ID_alter(): editableviews_entity_form_test_vre_fields
+ */
+/*
+function editableviews_form_editableviews_entity_form_test_vre_fields_alter(&$form, &$form_state, $form_id) {
+  // Faffily insert our submit handler after the 'build_values' one.
+  $new_submit = array();
+  foreach ($form['#submit'] as $key => $submit) {
+    $new_submit[$key] = $submit;
+    if ($key == 'build_values') {
+      $new_submit['ours'] = 'mymodule_editableviews_form_submit';
+    }
+  }
+  $form['#submit'] = $new_submit;
+}
+*/
+
+/**
+ * Custom form submit handler.
+ */
+/*
+function mymodule_editableviews_form_submit($form, &$form_state) {
+  foreach (array_keys($form_state['entities']) as $entity_type) {
+    foreach ($form_state['entities'][$entity_type] as $entity_id => $entity) {
+      // Change something on the entity before it is saved.
+      $entity->uid = 1;
+      // Remove an entity from saving entirely.
+      unset($form_state['entities'][$entity_type][115]);
+    }
+  }
+}
+*/

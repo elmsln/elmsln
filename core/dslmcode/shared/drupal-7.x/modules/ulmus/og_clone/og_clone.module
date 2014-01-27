@@ -1,0 +1,199 @@
+<?php
+
+/**
+ * The idea is to use this module in conjunction with the Node Clone
+ * module. Set up the basic Node Clone settings at admin/config/content/clone.
+ * Do NOT try to have Node Clone copy the menu items, that's not
+ * working right, see http://drupal.org/node/1325028.
+ * Instead we'll handle cloning the menu items in this module.
+ * Configure Node Clone to ONLY display on group nodes, nothing
+ * else. Choose the option to use the content type in the link.
+ * That will give you a link that says 'Clone this group'.
+ * Choose the option to create a new node by prepopulating
+ * the node form. That way you can set the name of the new
+ * group before you clone content into it.
+ * When you save that node, this module will kick in to
+ * find and clone the content and copy the menu items.
+ *
+ * This will work only for groups that are nodes and content
+ * that is nodes. Could be expanded to work for other types of entities.
+ */
+
+/**
+ * Implements hook_clone_node_alter().
+ *
+ * This is called just before the new cloned group node is saved,
+ * so we have the id of the original group node, but not the new one.
+ */
+function og_clone_clone_node_alter($node, $context) {
+
+  $method = $context['method'];
+  $original_node = $context['original_node'];
+
+  // See if this is a group.
+  if (og_is_group('node', $original_node)) {
+    
+    // We don't actually have anything we want to do before the
+    // group node is saved, but if you did, this is where it would go.
+  }
+}
+
+/**
+ * Implements hook_entity_insert().
+ *
+ * This is called after the entity has been saved,
+ * so we have the id of the new group node.
+ */
+function og_clone_entity_insert($entity, $entity_type) {
+
+  if (og_is_group($entity_type, $entity)) {
+
+    // @TODO
+    // Do we want the id of the current group to clone its menu?
+    // Maybe we want to find the menu of a different group, a template group, instead.
+    if (!empty($entity->clone_from_original_nid) && $id = $entity->clone_from_original_nid) {
+
+      $old = node_load($id);
+      menu_node_prepare($old);
+
+      // If there's a menu link for the old group, create a menu link
+      // for the new group.
+      $menu_link = 0;
+      if (!empty($old->menu['link_title'])) {
+        $link = $old->menu;
+        $link['mlid'] = 0;
+        $link['link_title'] = $entity->title;
+        $link['link_path'] = 'node/' . $entity->nid;
+        menu_link_save($link);
+        $menu_link = $link['mlid'];
+      }
+
+      // If this is a new group, fire off a batch script to clone the content.
+      $batch = array(
+        // Identify the callback(s) and any values to be passed to them.
+        'operations' => array(array(
+          'og_clone_create_content_items', array($entity_type, $entity, $menu_link),
+        )),
+        // Identify a callback for what to do when the batch is finished.
+        'finished' => 'og_clone_batch_finished',
+        // Set up messages that the user will see.
+        'title' => t('Creating group content'),
+        'init_message' => t('Preparing to run create group content'),
+        'progress_message' => t('Processed @current of out @total.'),
+      );
+      batch_set($batch);
+  
+      // This next statment would not be needed if batch is executed a form submit.
+      //$batch =& batch_get();
+    }
+  }
+}
+
+/**
+ * The actual task to repeat until the batch has finished.
+ *
+ * @param $context
+ *   A place where we can store values that need to be passed from
+ *   one iteration of this batch script to the next.
+ */
+function og_clone_create_content_items($entity_type, $entity, $menu_link, &$context) {
+  
+  // The first time through, set up all the variables.
+  if (empty($context['sandbox']['max'])) {
+    $context['sandbox']['content_ids'] = og_clone_get_group_content_ids($entity_type, $entity);
+    $context['sandbox']['progress'] = 0;
+    $context['sandbox']['max'] = count($context['sandbox']['content_ids']);
+    // If we had an entity that wasn't a group, this would be different.
+    $context['sandbox']['gid'] = $entity->nid;
+    $context['results']['max'] = $context['sandbox']['max'];
+  }
+
+  // Get the next content entity.
+  $next_id = array_shift($context['sandbox']['content_ids']);
+
+  // Entity load takes an array of ids and returns an array, but we only want one.
+  $old  = array_pop(entity_load($next_id['entity_type'], array($next_id['etid'])));
+  $new  = clone($old);
+
+  // It's a new node so empty the ids. Note that if there is content other than nodes,
+  // this will have to be altered to change the right keys.
+  $new->nid = NULL;
+  $new->vid = NULL;
+
+  // Populate the group field with the right gid.
+  // If the group was not a node, the key would need to be fixed.
+  $new->og_group_ref[LANGUAGE_NONE][0]['target_id'] = $entity->nid;
+
+  // Save the content entity.
+  entity_save($next_id['entity_type'], $new);
+
+  // If there's a menu link on the original entity,
+  // create a corresponding menu item for the new one,
+  // using the new group menu link as the parent.
+  if ($next_id['entity_type'] == 'node') {
+    menu_node_prepare($old);
+    if (!empty($old->menu) && !empty($old->menu['link_title'])) {
+      $link = $old->menu;
+      $link['mlid'] = 0;
+      $link['plid'] = $menu_link;
+      $link['link_path'] = 'node/' . $new->nid;
+      menu_link_save($link);
+    }
+  }
+
+  // Bump the progress indicator.
+  $context['sandbox']['progress']++;
+
+  // Report progress if not finished and run again.
+  if ($context['sandbox']['progress'] < $context['sandbox']['max']) {
+    $context['finished'] = $context['sandbox']['progress'] / $context['sandbox']['max'];
+  }
+
+}
+
+/**
+ * Callback to set a message at the end of the batch.
+ */
+function og_clone_batch_finished($success, $results, $operations) {
+  if ($success) {
+    $message = t('Finished @num_ids entities created successfully.', array('@num_ids' => $results['max']));
+  }
+  else {
+    $message = t('Finished with an error.');
+  }
+  drupal_set_message($message);
+}
+
+/**
+ * Get an array of ids of group content.
+ * The content could include entities other than nodes.
+ * We don't want to find the group's users, just its content.
+ */
+function og_clone_get_group_content_ids($entity_type, $entity) {
+
+  $ids = array();
+
+  // @TODO
+  // Do we want the id of the current group to clone its content?
+  // Maybe we want to find the content of a different group, a template group, instead.
+  if (!empty($entity->clone_from_original_nid) && $id = $entity->clone_from_original_nid) {
+
+    // The og_membership table stores the ids of content that belongs to groups.
+    $query = db_select('og_membership', 'og')
+      // We only want entities other than users/members.
+      ->condition('entity_type', 'user', '<>')
+      ->condition('gid', $id)
+      ->fields('og', array('etid', 'entity_type', 'gid'));
+    $result = $query->execute();
+
+    // Since we might have entity types other than nodes, save the ids in a sub array,
+    // keyed by entity type. Necessary because different entity types might re-use
+    // the same id.
+    foreach ($result as $row) {
+      $ids[] = array('etid' => $row->etid, 'entity_type' => $row->entity_type, 'gid' => $row->gid);
+    }
+    // allow other modules to alter returned entity ids
+    drupal_alter('get_group_content_ids', $ids);
+  }
+  return $ids;
+}

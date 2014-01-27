@@ -1,0 +1,191 @@
+#themer-toggle {
+  background: #333;
+  border-right: 1px solid #000;
+  border-top: 1px solid #000;
+  bottom: 0;
+  color: #fff;
+  cursor: pointer;
+  font-size: 100%;
+  left: 0;
+  padding: .25em .5em;
+  position: fixed;
+  z-index: 10002;
+}
+
+#themer-toggle > input {
+  margin-right: .25em;
+}
+
+.devel-themer-wrapper {
+  display: inline;
+  margin: 0;
+  padding: 0;
+}
+
+#themer-fixeder {
+  position: fixed;
+  right: 10px;
+  top: 10px;
+  z-index: 100000;
+}
+
+#themer-relativer {
+  position: relative;
+}
+
+#themer-popup {
+  background-color: #333;
+  border: 1px solid #000;
+  color: #fff;
+  display: none;
+  font-family: 'Lucida Grande', 'Lucida Sans Unicode', 'Lucida Sans', Tahoma, Geneva, sans-serif;
+  font-size: 10px;
+  line-height: 1.5;
+  position: absolute;
+  right: 0;
+  text-align: left;
+  width: 400px;
+  z-index: 100001;
+}
+
+#themer-popup h2,
+#themer-popup h3,
+#themer-popup h4 {
+  font-family: 'Lucida Grande', 'Lucida Sans Unicode', 'Lucida Sans', Tahoma, Geneva, sans-serif;
+}
+
+#themer-popup a,
+#themer-popup a:visited,
+#themer-popup span.parent {
+  border-bottom: 1px dotted #aaa;
+  color: #fff;
+  cursor: pointer;
+  font-weight: bold;
+  margin-bottom: -4px;
+  text-decoration: none;
+}
+
+#themer-popup .topper {
+  background: #fff;
+  background-image: -moz-linear-gradient(top, #888 0%, #444 100%);
+  background-image: -ms-linear-gradient(top, #888 0%, #444 100%);
+  background-image: -o-linear-gradient(top, #888 0%, #444 100%);
+  background-image: -webkit-linear-gradient(top, #888 0%, #444 100%);
+  background-image: linear-gradient(top, #888 0%, #444 100%);
+  cursor: move;
+  height: 20px;
+  line-height: 20px;
+  padding: 0 5px;
+  text-align: center;
+}
+
+#themer-popup .close {
+  cursor: pointer;
+  float: right;
+  font-weight: bold;
+}
+
+#themer-popup .starter {
+  font-size: 150%;
+  line-height: 1.25;
+  padding: 0 .2em;
+}
+
+#themer-popup #parents {
+  background-color: #222;
+  padding: .5em;
+}
+
+#themer-popup .row {
+  border-top: 1px solid #777;
+  margin: 0;
+  padding: .5em;
+}
+
+#themer-popup dl {
+  margin: 0;
+  padding: 0;
+}
+
+#themer-popup dd {
+  display: block;
+  margin: 0 0 12px;
+  padding: 0 0 0 12px;
+}
+
+#themer-popup .info .key {
+  font-size: 150%;
+}
+
+#themer-popup .candidates,
+#themer-popup .preprocessors,
+#themer-popup .processors {
+  font-weight: bold;
+}
+
+#themer-popup .candidates > .delimiter,
+#themer-popup .preprocessors > .delimiter,
+#themer-popup .processors > .delimiter {
+  font-weight: normal;
+}
+
+#themer-popup img.throbber {
+  left: 3px;
+  position: absolute;
+  top: 2px;
+}
+
+#themer-popup .devel-obj-output,
+#themer-popup .krumo-root {
+  margin: 0;
+  max-height: 250px;
+  overflow: auto;
+}
+
+#themer-popup .devel-obj-output dt {
+  cursor: pointer;
+}
+
+#themer-popup .devel-obj-output dd {
+  display: none;
+}
+
+#themer-popup .krumo-element {
+  background: #444;
+}
+
+#themer-popup .krumo-expand {
+  background: #777;
+}
+
+#themer-popup .krumo-hover {
+  background: #000;
+}
+
+#themer-popup .krumo-preview {
+  background: #555;
+}
+
+#themer-popup li.krumo-footnote {
+  display: none;
+}
+
+#themer-popup h4 {
+  color: #999;
+  font-size: 10px;
+  font-weight: normal;
+  margin: 0;
+  text-align: center;
+}
+
+#themer-popup .item-list ul li {
+  background: none;
+  list-style: none;
+  margin: 0;
+  padding: 0 0 0 .5em;
+  text-indent: -.5em;
+}
+
+#themer-popup .item-list ul li:before {
+  content: "- ";
+}

@@ -1,0 +1,14 @@
+name = Field Hidden Migrate
+description = Provides support for importing into hidden fields with the Migrate module.
+package = Fields
+core = 7.x
+
+dependencies[] = migrate
+dependencies[] = field_hidden
+files[] = field_hidden.migrate.inc
+; Information added by  packaging script on 2013-11-23
+version = "7.x-1.5"
+core = "7.x"
+project = "field_hidden"
+datestamp = "1385200110"
+

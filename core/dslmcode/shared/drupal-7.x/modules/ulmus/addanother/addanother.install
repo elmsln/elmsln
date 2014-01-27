@@ -1,0 +1,66 @@
+<?php
+
+/**
+ * @file
+ * Install, update and uninstall functions for the Add another module.
+ *
+ */
+
+/**
+ * Implement hook_uninstall().
+ */
+function addanother_uninstall() {
+  $types = node_type_get_types();
+  foreach ($types as $type) {
+    $typeid = $type->type;
+    variable_del('addanother_message_' . $typeid);
+    variable_del('addanother_tab_' . $typeid);
+    variable_del('addanother_tab_edit_' . $typeid);
+    variable_del('addanother_button_' . $typeid);
+  }
+}
+
+function addanother_update_last_removed() {
+  // All 5.x update functions have been removed.
+  return 2;
+}
+
+/**
+ * Port over to the new variable storage system.
+ */
+function addanother_update_7001() {
+  $types = node_type_get_types();
+  $addanother_nodetypes = variable_get('addanother_nodetypes', array());
+  $tab = variable_get('addanother_tab', FALSE);
+  $tabedit = variable_get('addanother_tab_edit', FALSE);
+  $message = variable_get('addanother_message', FALSE);
+
+  foreach ($types as $type) {
+    $typeid = $type->type;
+    if (!empty($addanother_nodetypes[$typeid])) {
+      if ($message) {
+        variable_set('addanother_message_' . $typeid, TRUE);
+      }
+      if ($tab) {
+        variable_set('addanother_tab_' . $typeid, TRUE);
+      }
+      if ($tabedit) {
+        variable_set('addanother_tab_edit_' . $typeid, TRUE);
+      }
+    }
+
+  }
+  variable_del('addanother_nodetypes');
+  variable_del('addanother_tab');
+  variable_del('addanother_tab_edit');
+  variable_del('addanother_message');
+  return t('Existing Add another node options have been upgraded.  Please review the new Add another options for each node type.');
+}
+
+/**
+ * Clears site-wide menu cache as our callback and access arguments have changed.
+ */
+function addanother_update_7002() {
+  cache_clear_all(NULL, 'cache_menu');
+  menu_rebuild();
+}

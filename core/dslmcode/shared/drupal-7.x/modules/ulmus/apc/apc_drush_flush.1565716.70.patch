@@ -1,0 +1,50 @@
+diff --git a/apc.module b/apc.module
+index 31c5f2c..4b0390a 100644
+--- a/apc.module
++++ b/apc.module
+@@ -8,6 +8,18 @@
+ function apc_init() {
+   global $user;
+ 
++  // Clear out any caches that an external actor (i.e drush) would like cleared.
++  // Someday this queue could be popuplated externally to support propagating
++  // Cache clearing events across multiple web heads.
++  if (!function_exists('drush_main')) {
++    $queue = DrupalQueue::get('apc_cache_queue');
++
++    while ($item = $queue->claimItem()) {
++      cache_clear_all($item->data['cid'], $item->data['bin'], $item->data['wildcard']);
++      $queue->deleteItem($item);
++    }
++  }
++
+   if (($user->uid == 0) || !variable_get('apc_show_debug', FALSE)
+       || !user_access('access apc statistics') || strstr($_SERVER['PHP_SELF'], 'update.php')
+       || strstr($_GET['q'], 'autocomplete')) {
+diff --git a/drupal_apc_cache.inc b/drupal_apc_cache.inc
+index 2099c55..967a93e 100644
+--- a/drupal_apc_cache.inc
++++ b/drupal_apc_cache.inc
+@@ -255,9 +255,19 @@ class DrupalAPCCache implements DrupalCacheInterface {
+   }
+ 
+   function clear($cid = NULL, $wildcard = FALSE) {
+-    if (drupal_is_cli() && function_exists('drush_log')) {
+-      drush_log($this->bin . '(' . $cid . ') was not cleared. APC cli uses a different memory storage than the webserver. For more info see: http://drupal.org/node/1278232', 'warning');
+-      return;
++	
++    // If this is drush, propagate the cache clearing event to the
++    // next execution of the webserver.
++    if (function_exists('drush_main')) {
++      $queue = DrupalQueue::get('apc_cache_queue');
++
++      $cache_clear_event = array(
++        'bin' => $this->bin,
++        'cid' => $cid,
++        'wildcard' => $wildcard,
++      );
++
++      $queue->createItem($cache_clear_event);
+     }
+ 
+     // Add a get to our statistics.

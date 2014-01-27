@@ -1,0 +1,541 @@
+
+coder_upgrade 7.x-1.x, 2009-xx-xx (development version)
+---------------------------------
+- Changes (2011-01-31):
+  * various
+  * - #859314: minor cleanup to conform to Drupal coding standards
+
+- Changes (2011-01-29):
+  * various
+  * - #859314: rename global variables according to Drupal coding standards
+  * coder_upgrade.end.inc
+  * - ignore all hidden directories and exclude template files
+
+- Changes (2010-12-30):
+  * coder_upgrade.module
+  * - #1010762 by Placinta: fix inconsistent return value in coder_upgrade_conversions_apply()
+
+- Changes (2010-12-04):
+  * coder_upgrade.module, coder_upgrade.test, coder_upgrade.begin.inc, coder_upgrade.main.inc, coder_upgrade.run.php
+  * - replace calls to pgp_log_memory_use() with coder_upgrade_memory_print()
+  * coder_upgrade.module
+  * - #982380: correct coder_upgrade_parameters_save() to use module directory instead of files directory
+  * - enhance coder_upgrade_conversions_apply() to capture errors and return code
+  * coder_upgrade.main.inc
+  * - refactor coder_upgrade_debug_print() and coder_upgrade_log_print() to use coder_upgrade_path_print()
+  * - add coder_upgrade_path_clear() and coder_upgrade_memory_print()
+  * coder_upgrade.run.php
+  * - enhance documentation
+  * coder_upgrade.test
+  * - refactor the getInfo() routines
+  * tests/samples directory
+  * - update the input and expected test file: example.module
+
+- Changes (2010-11-19):
+  * coder_upgrade.main.inc
+  * - #245471 (comment #7): remove base directory path from patch file in coder_upgrade_make_patch_file()
+  * inc, install, help.inc, main.inc, module, test
+  * - refactor file_directory_path() references to coder_upgrade_directory_path()
+  * coder_upgrade.run.php
+  * - add php memory and time limits
+
+- Changes (2010-10-30):
+  * coder_upgrade.module
+  * - refactor form submission code to coder_upgrade_conversions_apply()
+
+- Changes (2010-10-29):
+  * coder_upgrade.inc, coder_upgrade.install, coder_upgrade.module, coder_upgrade.main.inc
+  * - refactor code to allow execution from a separate process outside of Drupal
+  * coder_upgrade.begin.inc
+  * - cache the core theme information in the persistent cache (includes disabled modules)
+  * coder_upgrade.main.inc
+  * - refactor coder_upgrade_debug_path() and coder_upgrade_log_path() into coder_upgrade_path()
+
+- Changes (2010-10-25):
+  * coder_upgrade.db.inc
+  * - enhance error handling by checking for conditions not being found in a select query
+  * coder_upgrade.call.inc
+  * - enhance #theme_changes: check for more parameters to theme_xxx() call than declared in hook_theme
+  * coder_upgrade.function.inc
+  * - enhance #theme_changes
+  *   - check for difference in number of parameters to theme_xxx() call and the hook_theme
+  *   - when setting theme key to 'render element,' also change value from an associative array to a string
+
+- Changes (2010-09-09):
+  * coder_upgrade.install
+  * - hook_uninstall(): delete recently added settings variables
+  * - hook_requirements(): use get_t()
+
+- Changes (2010-09-08):
+  * coder_upgrade.function.inc
+  * - refactor #hook_permission to hook_upgrade_hook_perm_alter()
+  * - refactor #descriptions_permissions to use the convert_return() pattern (use cases 1 and 2)
+  * - refactor doc_comment checking in coder_upgrade_convert_update_N() to revert to that in hook_upgrade_hook_alter()
+  * tests/samples directory
+  * - update the input and expected test file: example.module
+
+- Changes (2010-09-02):
+  * coder_upgrade.inc
+  * - define file_directory_path() in response to its removal from core
+  * coder_upgrade.db.inc, coder_upgrade.function.inc
+  * - coding style fixes
+
+- Changes (2010-08-27):
+  * coder_upgrade.function.inc
+  * - enhance #hook_filter_info
+  *   - update routine for parser API change for return statements from PGPAssignment to PGPFunctionCall
+  *     (the entire routine was broken because of this)
+  *   - grab the parameter variable from the switch operand
+  *   - clean the case operand
+  *   - handle variables and strings as names of function calls for callback items
+  *   - implement tips callback
+  * - enhance #install-schema to handle calls inside an expression
+  * - enhance #hook-user-changes to handle a parameter that has no variable
+  * - enhance #hook_load_signature to handle a parameter that has no variable
+  * - enhance #theme_changes
+  *   - omit $variables from new function signature when appropriate
+  *   - handle variables missing in the old function signature
+  * tests/samples directory
+  * - update the input and expected test file: example.module
+
+- Changes (2010-08-17):
+  * coder_upgrade.module
+  * - improve the menu integration when only Coder Upgrade is enabled
+  * - only allow the base files directory to be renamed
+  * - enable the submit handler for the settings form
+  * coder_upgrade.main.inc
+  * - refactor the coder_upgrade_xxx_path() routines to reflect the coder_upgrade_dir variable
+
+- Changes (2010-08-13):
+  * coder_upgrade.db.inc
+  * - enhance coder_upgrade_insert_dbtng_statement() to properly insert statements
+  * coder_upgrade.function.inc
+  * - enhance coder_upgrade_op_to_hook() to not use clone and to allow for more than one case statement with no body
+  * - this eliminates the 2 WARNING messages when the samples/test/example.module is upgraded
+  * tests/samples directory
+  * - update the input and expected test file: example.module
+
+- Changes (2010-08-11):
+  * coder_upgrade.call.inc
+  * - #878470: enhance #drupal_set_header_renamed to handle no parameters
+  * coder_upgrade.function.inc
+  * - enhance #hook_load_signature to clean the parameter variable
+  * coder_upgrade.list.inc
+  * - add routine entry for grammar parser
+  * coder_upgrade.main.inc, coder_upgrade.module
+  * - implement settings for preserving array format and debug output by coder upgrade and grammar parser
+
+- Changes (2010-07-29):
+  * coder_upgrade.db.inc
+  * - improve sql parsing and conversion to DBTNG syntax
+  * coder_upgrade.begin.inc
+  * - refactor call to coder_upgrade_convert_return() and associated callback
+  * coder_upgrade.function.inc
+  * - enhance coder_upgrade_convert_op() to use new getParameterVariable() API function
+  * - refactor the convert return pattern of routines: coder_upgrade_convert_return(), coder_upgrade_convert_return_loop(), and coder_upgrade_callback_return_caseN()
+  * tests/samples directory
+  * - update the input and expected test file: example.module
+
+- Changes (2010-07-12):
+  * coder_upgrade.api.php
+  * - update documentation to reflect the node being returned by getFunctionCalls()
+  * coder_upgrade.db.inc
+  * - improve sql parsing and conversion to DBTNG syntax
+
+- Changes (2010-07-09):
+  * coder_upgrade.call.inc, coder_upgrade.db.inc, and coder_upgrade.main.inc
+  * - revise code to reflect change to PGPReader::getFunctionCalls() which now returns a list of nodes
+  *   (NOTE: this change was made using an upgrade routine and this module)
+  * coder_upgrade.call.inc
+  * - enhance #comment_node_url, #taxonomy_form_all, and #update_sql to utilize the node now returned by getFunctionCalls()
+
+- Changes (2010-07-08):
+  * coder_upgrade.call.inc
+  * - #update_sql
+  * - #847914: drupal_get_form() upgrade routine fails when form callback has no parameters
+  * coder_upgrade.function.inc
+  * - #837258: add T_ELSE_IF to condition check in coder_upgrade_convert_op()
+  * - #update_sql: changes to hook_update_N()
+
+- Changes (2010-07-03):
+  * coder_upgrade.db.inc
+  * - improve sql parsing and conversion to DBTNG syntax (by duellj and adrian)
+  * coder_upgrade.call.inc
+  * - improve #drupal_set_title to only find calls to check_plain()
+  * - improve #user_load_multiple to handle inline comments in parameters
+  * coder_upgrade.function.inc
+  * - #833972: conform doc_comment to Drupal standards for inserted hook_op functions
+  * - add a doc_comment to each function missing one
+  * coder_upgrade.test
+  * - include function.inc needed by begin.inc
+  * tests/samples directory
+  * - update the input and expected test file: example.module
+
+- Changes (2010-06-29):
+  * coder_upgrade.call.inc
+  * - #db_is_active, #remove-drupal-urlencode
+  * - improve #user_load_multiple to not always change call to user_load_multiple()
+
+- Changes (2010-06-28): (part 2)
+  * coder_upgrade.call.inc
+  * - #taxonomy_form_all
+  * coder_upgrade.function.inc
+  * - #node_form, #drupal_render_children
+  * coder_upgrade.regex.inc
+  * - #block_tables_renamed, #fapi_changes
+
+- Changes (2010-06-28): (part 1)
+  * coder_upgrade.main.inc
+  * - enhance cdp() to allow for a description
+  * coder_upgrade.regex.inc
+  * - #taxonomy_tables
+  * tests/samples directory
+  * - update the input and expected test file: example.module
+  * - #db_result, #db_column_exists, #custom_block, #comment_wildcard, #no-synonyms-taxonomy,
+  * - #drupal_add_js_external, #drupal_add_js_weight, #jquery_ui, #theme_changes, #hook_forms_signature,
+  * - #remove_FILE_STATUS_TEMPORARY, #hook-user-changes, #node_load_multiple, #watchdog_emerg
+
+- Changes (2010-06-18):
+  * coder_upgrade.module
+  * - enable customization of the module conversion form steps (build, validate and submit)
+  * coder_upgrade.main.inc
+  * - include function reference in patch file (diff -up)
+
+- Changes (2010-06-10):
+  * coder_upgrade.test
+  * - #820140: undefined DEADWOOD_OLD
+  * coder.module, coder_review.module, coder_upgrade.module
+  * - #824320: eliminate warnings when only one of the Review or Upgrade modules is enabled
+
+- Changes (2010-04-26):
+  * coder_upgrade.call.inc
+  * - #db_column_exists (not documented), improve #file_set_status
+  * coder_upgrade.regex.inc
+  * - #clean_urls_search_paths, #logout_path (both were done with #admin_path_changes on 03-20)
+  * - the latter had its anchor replaced with http://drupal.org/node/719612
+  * - #watchdog_emerg
+
+- Changes (2010-04-21):
+  * coder_upgrade.begin.inc, coder_upgrade.call.inc
+  * - #hook_forms_signature
+  * coder_upgrade.function.inc
+  * - #hook_forms_signature, #hook_load_signature, #hook-user-changes
+
+- Changes (2010-04-17):
+  * coder_upgrade.call.inc
+  * - #db_result (not documented), #no-synonyms-taxonomy, #node_load_multiple (by duellj with modifications)
+  * coder_upgrade.function.inc
+  * - improve coder_upgrade_callback_theme() to handle empty array as arguments parameter
+  * coder_upgrade.regex.inc (by duellj)
+  * - #remove_FILE_STATUS_TEMPORARY
+
+- Changes (2010-04-07):
+  * coder_upgrade.begin.inc, coder_upgrade.call.inc
+  * - #765070: allow for a theme without variables
+  * coder_upgrade.function.inc
+  * - improve coder_upgrade_convert_op() to extract the $op variable from the parameter
+  * - improve coder_upgrade_callback_block to find quoted numeric deltas
+  * coder_upgrade.install.inc
+  * - 765070: fix regex in convert_install_file_comment()
+
+- Changes (2010-03-31):
+  * coder_upgrade.call.inc, coder_upgrade.regex.inc (by duellj with modifications)
+  * - implement #drupal_add_js_external, #jquery_ui, and #custom_block
+
+- Changes (2010-03-30):
+  * coder_upgrade.call.inc
+  * - restore missed calls to PGPArray::findValue() which now trims the quotes
+  * coder_upgrade.test
+  * - refactor setup method to run the theme caching before starting the test method
+  * tests directory
+  * - update the input and expected test file: example.module
+
+- Changes (2010-03-27):
+  * coder_upgrade.begin.inc
+  * - fix recursive calls in coder_upgrade_cache_hook_theme()
+  * coder_upgrade.call.inc
+  * - implement #form_clean_id and #file_prepare_directory
+  * - improve #http_header_functions to handle other header types and to add 'Status' as first parameter when no colon to delimit type and value
+  * coder_upgrade.end.inc
+  * - fix recursive calls in coder_upgrade_add_file_entries()
+  * coder_upgrade.function.inc
+  * - fix calls to PGPList::searchCallback
+  * - conform upgrade routines to Grammar Parser changes
+  *   - T_RETURN statements changed from PGPExpression to PGPFunctionCall
+  *   - missed in coder_upgrade_convert_schema() and coder_upgrade_convert_perm() when added coder_upgrade_convert_return pattern
+  * - utilize PGPReader::setPreserveArrayFormat() (with latest modification to ignore whitespace)
+
+- Changes (2010-03-20):
+  * coder_upgrade.call.inc
+  * - implement #drupal_goto_params, #drupal_add_css_inline, and #admin_path_changes
+  * - revise #url_query_parameter
+  * coder_upgrade.function.inc
+  * - implement #implementation_hook_comment and #hook_element_info
+  * coder_upgrade.regex.inc
+  * - implement #admin_path_changes
+
+- Changes (2010-03-11):
+  * coder_upgrade.db.inc
+  * - disable db_query routine until it is more robust
+  * coder_upgrade.call.inc
+  * - implement #user_load_multiple
+  * coder_upgrade.function.inc
+  * - refactor coder_upgrade_convert_return pattern to loop on conditional statements
+
+- Changes (2010-03-10):
+  * coder_upgrade.call.inc
+  * - implement #theme_page
+  * coder_upgrade.function.inc
+  * - refactor routines to use new coder_upgrade_convert_return pattern
+  *   - #trigger_overhaul: hook_action_info, hook_hook_info
+  *   - #node_type_base: hook_node_info
+
+- Changes (2010-03-08):
+  * coder_upgrade.begin.inc (also coder_upgrade.list.inc, coder_upgrade.info)
+  * - add this file to handle module preprocessing
+  * coder_upgrade.function.inc
+  * - restore hook_install_alter
+  * - implement new coder_upgrade_convert_return
+  *   - use with #hook_theme_render_changes
+  * coder_upgrade.module
+  * - enhance coder_upgrade_module_list to use with theme registry caching
+  * - enable help information
+  * coder_upgrade.help.inc
+  * - update documentation
+
+- Changes (2010-03-06):
+  * coder_upgrade.install.inc
+  * - #728252: Array error when checking for @file in install files
+  * coder_upgrade.api.php
+  * - update documentation
+
+- Changes (2010-03-05):
+  * coder_upgrade.call.inc (by duellj)
+  * - implement #format_date, #menu_tree_data, #url_query_parameter
+  * - implement #theme_pager, #theme_username
+  * coder_upgrade.function.inc (by duellj)
+  * - implement #block_deltas_renamed
+
+- Changes (2010-03-04):
+  * coder_upgrade.call.inc (by duellj)
+  * - implement #placeholder, #node_type_get_functions, #node_invoke_nodeapi
+  * coder_upgrade.function.inc
+  * - revise #remove_op: revert $build_mode to $view_mode in hook_nodeapi and hook_user
+
+- Changes (2010-03-01):
+  * coder_upgrade.info, coder_upgrade.main.inc
+  * - reflect the renamed grammar parser module
+  * coder_upgrade.install, coder_upgrade.module
+  * - minor cleanup
+  * coder_upgrade.test, tests directory
+  * - add these files
+
+- Changes (2010-02-27):
+  * coder_upgrade.call.inc
+  * - implement #drupal_set_header_renamed
+
+- Changes (2010-02-22):
+  * coder_upgrade.call.inc
+  * - implement hook_upgrade_call_alter for db_... function calls and #absolute_includes
+  * - #absolute_includes
+  * coder_upgrade.function.inc
+  * - replace new PGPEditor() with PGPEditor::getInstance()
+  * coder_upgrade.main.inc
+  * - refactor debug and log print to automatically call $object->print_r()
+  * - add calls to pgp_log_memory_use
+
+- Changes (2010-02-20):
+   * coder_upgrade.api.inc
+   * - update API documentation for new alter hooks
+   * coder_upgrade.main.inc
+   * - add hook_upgrade_hook_alter
+   * - use old directory name in hook_upgrade_end_alter if files are being replaced
+
+- Changes (2010-02-19):
+   * coder_upgrade.module
+   * - add setting to indicate whether to list core or contributed modules on run upgrade form
+   * - omit modules contained in subdirectory of a parent module also selected for upgrade
+   * coder_upgrade.module, coder_upgrade.main.inc
+   * - add setting to indicate whether to replace files
+   * coder_upgrade.list.inc, coder_upgrade.main.inc, coder_upgrade.module
+   * - refactor the routine names out of the upgrade sets
+   * - refactor hook_upgrades to hook_upgrade_info
+   * - refactor the API to be totally hook based using drupal_alter
+   * coder_upgrade.end.inc, coder_upgrade.install.inc, coder_upgrade.regex.inc
+   * - refactor the main upgrade routines to hooks
+   * coder_upgrade.call.inc, coder_upgrade.function.inc
+   * - remove first parameter from search function calls
+
+- Changes (2010-02-18):
+   * coder_upgrade.api.inc
+   * - update API documentation for new alter hooks
+   * other non-conversion files
+   * - update copyright years
+
+- Changes (2010-02-17):
+   * coder_upgrade.call.inc
+   * - #preg_match, #file_scan_directory_nomask, #file_scan_directory_property_names, #file_scan_directory_array_itize
+
+- Changes (2010-02-16):
+   * coder_upgrade.install.inc
+   * - add this file for install file changes
+   * - afile: Install files must include a Doxygen style file comment
+   * - info_core_7: Info file should specify core = 7.x
+   * coder_upgrade.list.inc
+   * - allow for array of files to be associated with a routine
+   * - add entries for install_file and info_file routines
+   * coder_upgrade.db.inc
+   * - add this file for database layer changes
+   * - start on dbtng for non-select queries
+
+- Changes (2010-02-15):
+   * coder_upgrade.list.inc
+   * - correct parameters in call to drupal_system_listing (filepath is now uri)
+   * - add 'file' parameter to upgrade routine array
+   * - include files from 'file' parameter
+   * coder_upgrade.main.inc
+   * - eliminate hard-coded include of conversion routine files
+   * - refactor convert_functions and convert_function_calls routines to this file from other.inc
+   * coder_upgrade.other.inc
+   * - refactor function and function call routines to use drupal_alter
+   * - refactor each case block in these two functions to a separate alter hook routine
+   * - use this module to make the above change
+   * - refactor function and function call routines to separate include files
+   * coder_upgrade.call.inc
+   * - add this file for function call changes
+   * - drupal_add_css, drupal_add_js, drupal_set_html_head, filter_formats: revised
+   * coder_upgrade.function.inc
+   * - add this file for function (or hook) changes
+   * coder_upgrade.regex.inc
+   * - add this file for regular expression changes
+
+- Changes (2010-02-03):
+  * list.inc
+  * - #703506: move static variable out of hook implementation into calling routine
+
+- Changes (2010-01-24):
+  * main.inc
+  * - call reader, writer::getInstance to avoid creating duplicate objects
+  * - call reader::reset to avoid excessive memory consumption
+
+- Changes (2010-01-20):
+  * #690518: api.php, help.inc, inc, install: use second person tense in document comments
+
+- Changes (2010-01-18):
+   * coder_upgrade.main.inc
+   * - replace require_once statements with call to module_load_include (that includes DRUPAL_ROOT)
+
+- Changes (2010-01-10):
+   * coder_upgrade.other.inc
+   * - function calls
+   *   - drupal_add_css_weight: included in drupal_add_js_options change
+   *   - drupal_valid_path: menu_valid_path becomes drupal_valid_path with a parameter change
+
+- Changes (2010-01-01):
+   * coder_upgrade.other.inc
+   * - conform upgrade routines to Grammar Parser changes
+   *   - T_RETURN statements changed from array to PGPExpression
+   *   - body statements changed from PGPList to PGPBody
+
+- Changes (2009-12-26):
+   * coder_upgrade.main.inc
+   * - move coder_upgrade_log_path and coder_upgrade_debug_path to this file
+
+- Changes (2009-12-20):
+   * coder_upgrade.main.inc
+   * - rename coder_upgrade_debug_print to coder_upgrade_log_print
+   * - rename coder_upgrade_debug_echo to coder_upgrade_debug_print
+   * - replace echo statements with print to file
+   * - add aliases for above two: clp and cdp
+   * coder_upgrade.other.inc:
+   * - add $reader as a parameter to coder_upgrade_callback_functions
+   * - function calls
+   *   - drupal_set_html_head: insert new required parameter when first parameter is set
+   *   - node_type_base
+   * - functions
+   *   - action_info, filter, hook_info, link, theme (NOT DONE)
+   *   - node_type_base
+
+- Changes (2009-12-09):
+   * coder_upgrade.module:
+   * - eliminate unconditional load of 'conversions/coder_upgrade.main'
+   * - this leads to all upgrade files always being loaded
+   * - module only needs the list of upgrade sets
+   * - move _coder_upgrade_upgrades and coder_upgrade_upgrades to coder_upgrade.list.inc
+   * coder_upgrade_conversions_form:
+   * - eliminate upgrade description column
+   * - correct directory path display
+   * - correct caption on modules tab
+   * coder_upgrade.main.inc:
+   * - convert opendir and readdir to scandir. (2 places)
+   * - improve on setting $_coder_upgrade_module_name
+   * coder_upgrade.other.inc:
+   * - add upgrades for hook_action_info() and hook_hook_info()
+   * all files: use second person tense in document comments
+
+- Changes (2009-12-05):
+   * #651844: coder_upgrade_module_name (no module file in directory).
+
+- Changes (2009-12-04):
+   * Turn off debug output:
+   * - comment out the echo statements
+   * - turn off coder_upgrade_debug_echo
+   * Add statement to load the other.inc file.
+   * Fix coder_upgrade_module_name function.
+   * Wrap patch file contents with check_plain.
+
+- Changes (2009-11-18):
+   * Changes made to conform to revised core api or standards:
+   * - use third person tense in hook_x comments
+   * - manually include files again
+   * Change settings menu path to 'admin/config/development/coder/upgrade/settings'.
+   * Disable upgrade functionality until grammar parser refactoring is complete.
+
+- Changes (2009-10-18):
+   * Changes made to conform to revised core api or standards:
+   * - add 'config' to menu paths
+   * - add $form to parameters of form builder functions
+   * Change settings menu path to 'admin/config/development/coder/configure/upgrade'.
+
+- Changes (2009-08-24):
+   * Change calls to file_check_directory to file_prepare_directory in light of core function rename.
+
+- Changes (2009-08-17):
+   * Group conversion routines by processing order (beginning, middle, or end).
+   * Separate middle conversion routines into two groups (regex and parser) to utilize the PGP API.
+   * Add handler specification (regex or parser) for the middle changes applied at the file level.
+   * Revise API documentation.
+   * Implement initial batch of conversion routines using the PGP API.
+
+- Changes (2009-08-04):
+   * Rename hook_perm and the permission.
+   * Revise API documentation.
+
+- Changes (2009-08-02):
+   * Create log file and patch files.
+   * Add links to log file and patch files in user interface.
+   * Revise help text.
+   * Revise api.php file.
+
+- Changes (2009-08-01):
+   * Revise user interface using new D7 form elements.
+   * Implement hook_upgrades.
+   * Revise help text.
+   * Change t() to st() in appropriate places of install file.
+   * Add api.php file.
+
+- Changes (2009-07-30):
+   * Apply D7 standards for naming forms and implement hook comments.
+   * Revise help text.
+
+- Changes (2009-07-07):
+   * Add module to coder project as coder_upgrade.
+   * Rename conversion directories to 'coder_upgrade/old' and '/new'.
+   * Change menu path to 'admin/development/coder/upgrade'.
+   * Change menu path to 'admin/settings/coder/upgrade'.
+   * Add directory called 'conversions' and move conversion .inc files there.
+   * Remove deadwood node type.
+   * Add upgrade path to .install file (require uninstall of Deadwood).
+   * Restructure process to always run all conversions.
+   * Revise help text.
+   * Add grammar parser (pgp) module as a dependency.

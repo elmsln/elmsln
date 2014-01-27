@@ -1,0 +1,32 @@
+
+
+USAGE
+=====
+
+The module is integrated with image field element so you can select from
+a number of different options for displaying images uploaded to nodes and shown
+in views. For any image field you can use shadowbox as the formatter of the field.
+
+Shadowbox by default is only used on image fields with shadowbox formatter but you
+can configure shadowbox auto handle features if you want to use it in other
+different ways:
+
+  - If you want to activate shadowbox automatically in all your links to images you
+can activate the "Enable for all image links" checkbox located in module config
+auto handling feature, /admin/config/media/shadowbox/automatic
+
+  - If you want all images in a page grouped in a gallery and automatically handle
+by shadowbox activate both "Enable for all image links" and "Group images as a
+shadowbox gallery" in /admin/config/media/shadowbox/automatic
+
+  - If you want to include shadowbox library in all your pages so you can decide which
+links you want opened in a shadowbox using the rel attribute then you must enable the
+auto handle feature, "Enable shadowbox globally" that you can locate in
+/admin/config/media/shadowbox/automatic.
+
+For instructions on manually crafting links, please see the official usage guide:
+
+  http://www.shadowbox-js.com/usage.html#markup
+
+If you need to integrate Shadowbox with some other Drupal module it is quite
+likely that you can do it on the theme layer.

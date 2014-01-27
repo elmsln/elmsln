@@ -1,0 +1,25 @@
+<?php
+
+/**
+ * @file
+ * Install/Update/Uninstall functions for phone module
+ */
+
+/**
+ * Implements hook_field_schema().
+ */
+function phone_field_schema($field) {
+  return array(
+    'columns' => array(
+      'value' => array(
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => FALSE,
+      ),
+    ),
+  );
+}
+
+
+// TODO: data migration from the old DB structure, could be tough..
+

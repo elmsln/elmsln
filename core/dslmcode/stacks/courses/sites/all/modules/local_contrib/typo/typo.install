@@ -1,0 +1,65 @@
+<?php
+/**
+ * @file
+ * Install functions for typo module
+ */
+
+/**
+ * Implements hook_uninstall().
+ */
+function typo_uninstall() {
+  variable_del('typo_reports_ttl');
+}
+
+/**
+ * Implements hook_schema().
+ */
+function typo_schema() {
+  $schema = array();
+  $schema['typo'] = array(
+    'description' => 'Table contains list of reported typos', 
+    'fields' => array(
+      'typo_id' => array(
+        'type' => 'serial',
+        'not null' => TRUE,
+      ),
+     'url' => array(
+        'type' => 'varchar',
+        'length' => '255',
+        'not null' => TRUE,
+      ),
+      'created' => array(
+        'type' => 'int',
+        'default' => '0',
+        'not null' => TRUE,
+      ),
+      'status' => array(
+        'type' => 'int',
+        'default' => '0',
+        'not null' => TRUE,
+      ),
+      'uid' => array(
+        'type' => 'int',
+        'default' => '0',
+        'not null' => TRUE,
+      ),
+      'moderator_uid' => array(
+        'type' => 'int',
+        'default' => '0',
+        'not null' => TRUE,
+      ),
+     'text' => array(
+        'type' => 'varchar',
+        'length' => '255',
+        'not null' => TRUE,
+      ),
+     'comment' => array(
+        'type' => 'varchar',
+        'length' => '255',
+        'not null' => TRUE,
+      ),
+    ),
+    'primary key' => array('typo_id'),
+  );
+  return $schema;
+}

@@ -1,0 +1,40 @@
+<?php
+
+/**
+ * @file
+ * Schema and install hooks for the Display Cache module.
+ */
+
+/**
+ * Implements hook_schema().
+ */
+function display_cache_schema() {
+  $schema['cache_display_cache'] = drupal_get_schema_unprocessed('system', 'cache');
+  return $schema;
+}
+
+/**
+ * Implements hook_install().
+ */
+function display_cache_install() {
+  // Increase the module weight, so display_cache catches any alterations made
+  // by other modules in hook_module_implements_alter().
+  db_update('system')
+    ->fields(array('weight' => 100))
+    ->condition('type', 'module')
+    ->condition('name', 'display_cache')
+    ->execute();
+}
+
+/**
+ * Implements hook_uninstall().
+ */
+function display_cache_uninstall() {
+  $display_cache_variables = variable_get('display_cache_variables', array());
+
+  foreach ($display_cache_variables as $variable_name) {
+    variable_del($variable_name);
+  }
+
+  variable_del('display_cache_variables');
+}

@@ -1,0 +1,35 @@
+<?php
+
+/**
+ * Implements hook_form_formID_alter().
+ */
+function imce_crop_form_imce_fileop_form_alter(&$form, &$form_state) {
+  $imce = &$form_state['build_info']['args'][0]['imce'];
+  if (imce_perm_exists($imce, 'crop')) {
+    include_once DRUPAL_ROOT . '/' . drupal_get_path('module', 'imce_crop') . '/imce_crop.inc';
+    return _imce_crop_form_imce_fileop_form_alter($form, $form_state, $imce);
+  }
+}
+
+/**
+ * Implements hook_form_formID_alter().
+ */
+function imce_crop_form_imce_profile_form_alter(&$form, &$form_state) {
+  foreach (element_children($form['profile']['directories']) as $key) {
+    $form['profile']['directories'][$key]['crop'] = array(
+      '#type' => 'checkbox',
+      '#title' => t('Crop'),
+      '#default_value' => isset($form_state['profile']['directories'][$key]['crop']) ? $form_state['profile']['directories'][$key]['crop'] : 0,
+    );
+  }
+}
+
+/**
+ * Ajax operation: crop
+ */
+function imce_js_crop(&$imce) {
+  if ($imce['perm']['crop']) {
+    $_POST['op'] = t('Crop');
+    return imce_process_fileop($imce);
+  }
+}

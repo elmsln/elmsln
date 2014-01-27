@@ -1,0 +1,218 @@
+<?php
+
+/**
+ * @file
+ * The Node access node reference install file.
+ */
+
+/**
+ * Implements hook_uninstall().
+ */
+function nodeaccess_nodereference_uninstall() {
+  // Remove variables.
+  variable_del('nodeaccess_nodereference');
+  variable_del('nodeaccess_nodereference_cache_needs_clear');
+  variable_del('nodeaccess_nodereference_cross_access');
+
+  // Old variables.
+  variable_del('nodeaccess_nodereference_priority');
+  variable_del('nodeaccess_nodereference_author_view');
+  variable_del('nodeaccess_nodereference_author_update');
+  variable_del('nodeaccess_nodereference_author_delete');
+}
+
+/**
+ * Implements hook_requirements().
+ */
+function nodeaccess_nodereference_requirements($phase) {
+  $requirements = array();
+  if (!module_exists('node_reference') && !module_exists('entityreference') && $phase == 'runtime') {
+    $t = get_t();
+    $requirements['node_reference'] = array(
+      'title' => $t('Node reference module'),
+      'severity' => REQUIREMENT_ERROR,
+      'description' => $t('You need a module to reference content.  Use either <em>Entity reference</em> or <em>References</em>.'),
+    );
+  }
+  return $requirements;
+}
+
+/**
+ * Unset author grants for updated installations.
+ */
+function nodeaccess_nodereference_update_6100() {
+  // Set author grants to 0, unless already set.
+  $view = variable_get('nodeaccess_nodereference_author_view', 0);
+  $update = variable_get('nodeaccess_nodereference_author_update', 0);
+  $delete = variable_get('nodeaccess_nodereference_author_delete', 0);
+  variable_set('nodeaccess_nodereference_author_view', $view);
+  variable_set('nodeaccess_nodereference_author_update', $update);
+  variable_set('nodeaccess_nodereference_author_delete', $delete);
+  drupal_set_message(
+    t(
+      'Node access node reference settings have changed.  Please check your Node reference field settings.'
+    ),
+    'warning'
+  );
+  return 'Updating author grants.';
+}
+
+/**
+ * Update settings storage.
+ */
+function nodeaccess_nodereference_update_6101() {
+  // Get all old settings and move them over to the new storage.
+  $data = array();
+  $result = db_query("SELECT * FROM {variable} WHERE name LIKE :naur", array(':naur' => 'nodeaccess_nodereference_%'));
+  foreach ($result as $row) {
+    $name = str_replace('nodeaccess_nodereference_', '', $row->name);
+    $type_field = explode('_', $name);
+    $type = $type_field[0];
+    $field = $type_field[1];
+    $old_data = unserialize($row->data);
+    variable_del($row->name);
+    nodeaccess_nodereference_field_settings($type, $field, $old_data);
+  }
+
+  // Move settings over and set passive defaults for upgraders.
+  $author_view = variable_get('nodeaccess_nodereference_author_view', 0);
+  $author_update = variable_get('nodeaccess_nodereference_author_update', 0);
+  $author_delete = variable_get('nodeaccess_nodereference_author_delete', 0);
+  $priority = variable_get('nodeaccess_nodereference_priority', 0);
+  $data = variable_get('nodeaccess_nodereference', NULL);
+  foreach ($data as $type => $type_data) {
+    foreach ($type_data as $field => $field_data) {
+      if ($author_view) {
+        $data[$type][$field]['author']['view'] = 'view';
+      }
+      if ($author_update) {
+        $data[$type][$field]['author']['update'] = 'update';
+      }
+      if ($author_delete) {
+        $data[$type][$field]['author']['delete'] = 'delete';
+     }
+      $data[$type][$field]['priority'] = $priority;
+      $view = $data[$type][$field]['view'];
+      $update = $data[$type][$field]['update'];
+      $delete = $data[$type][$field]['delete'];
+      unset($data[$type][$field]['view']);
+      unset($data[$type][$field]['update']);
+      unset($data[$type][$field]['delete']);
+      if ($view) {
+        $data[$type][$field]['referenced']['view'] = 'view';
+      }
+      if ($update) {
+        $data[$type][$field]['referenced']['update'] = 'update';
+      }
+      if ($delete) {
+        $data[$type][$field]['referenced']['delete'] = 'delete';
+      }
+      $data[$type][$field]['all'] = array();
+    }
+  }
+  variable_set('nodeaccess_nodereference', $data);
+  variable_del('nodeaccess_nodereference_author_view');
+  variable_del('nodeaccess_nodereference_author_update');
+  variable_del('nodeaccess_nodereference_author_delete');
+  variable_del('nodeaccess_nodereference_priority');
+
+  return 'Updating settings storage.';
+}
+
+/**
+ * Update settings.
+ */
+function nodeaccess_nodereference_update_7100() {
+  // Note this function is equivalent to nodeaccess_nodereference_update_6102
+  $data = variable_get('nodeaccess_nodereference', array());
+  foreach ($data as $type => &$type_data) {
+    foreach ($type_data as $field => &$field_data) {
+      $data[$type][$field]['referenced']['view'] = array('view' => $field_data['referenced']['view']);
+      $data[$type][$field]['referenced']['update'] = array('update' => $field_data['referenced']['update']);
+      $data[$type][$field]['referenced']['delete'] = array('delete' => $field_data['referenced']['delete']);
+    }
+  }
+  variable_set('nodeaccess_nodereference', $data);
+  nodeaccess_nodereference_check_cross_access();
+  node_access_needs_rebuild(TRUE);
+  return 'Updating settings.';
+}
+
+/**
+ * Removed settings for deleted fields.
+ */
+function nodeaccess_nodereference_update_7101() {
+  $info = field_info_instances('node');
+  $settings = variable_get('nodeaccess_nodereference', array());
+  foreach ($settings as $type => $fields) {
+    foreach ($fields as $field => $data) {
+       if (!isset($info[$type][$field])) {
+          unset($settings[$type][$field]);
+       }
+    }
+    if (empty($settings[$type])) {
+      unset($settings[$type]);
+    }
+  }
+  variable_set('nodeaccess_nodereference', $settings);
+
+  return 'Removed settings for deleted fields.';
+}
+
+/**
+ * Update settings to include the 'unused' setting.
+ */
+function nodeaccess_nodereference_update_7102() {
+  $data = variable_get('nodeaccess_nodereference', array());
+  foreach ($data as $type => $type_data) {
+    foreach ($type_data as $field => $field_data) {
+      if (!isset($data[$type][$field]['unused'])) {
+        $data[$type][$field]['unused'] = 0;
+      }
+    }
+  }
+  variable_set('nodeaccess_nodereference', $data);
+
+  return 'Updating settings.';
+}
+
+/**
+ * Remove settings that shouldn't exist.
+ */
+function nodeaccess_nodereference_update_7103() {
+  $data = variable_get('nodeaccess_nodereference', array());
+  foreach ($data as $type => $type_data) {
+    foreach ($type_data as $field => $field_data) {
+      if (!isset($data[$type][$field]['referenced'])) {
+        unset($data[$type][$field]);
+      }
+    }
+    if (empty($data[$type])) {
+      unset($data[$type]);
+    }
+  }
+  variable_set('nodeaccess_nodereference', $data);
+
+  return "Removed settings that shouldn't exist.";
+}
+
+/**
+ * Reduce settings to essentials.
+ */
+function nodeaccess_nodereference_update_7104() {
+  $new_data = array();
+  $data = variable_get('nodeaccess_nodereference', array());
+
+  variable_del('nodeaccess_nodereference');
+
+  foreach ($data as $type => $type_data) {
+    foreach ($type_data as $field => $field_data) {
+      if (!empty($field_data)) {
+        $new_settings = nodeaccess_nodereference_reduce_variable($field_data);
+        nodeaccess_nodereference_field_settings($type, $field, $new_settings);
+      }
+    }
+  }
+
+  return "Reduced settings to essentials.";
+}

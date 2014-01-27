@@ -1,0 +1,43 @@
+<?php
+
+class UAPhoneNumberTestCase extends DrupalWebTestCase {
+  /**
+   * Implementation of getInfo()
+   *
+   */
+  public static function getInfo() {
+    return array(
+      'name' => t('Ukraine Phone number test'),
+      'description' => t('Tests various valid and invalid Ukraine phone numbers for validity'),
+      'group' => t('Phone')
+    );
+  }
+
+  function setUp() {
+    parent::setUp();
+  }
+
+  public function testPhoneUAValid() {
+    $this->assertTrue(valid_phone_number('ua', '+38-044-283-93-57'), t('Kyiv landline test'));
+    $this->assertTrue(valid_phone_number('ua', '(044)2839357'), t('Kyiv landline test'));
+    $this->assertTrue(valid_phone_number('ua', '+380442839357'), t('Kyiv landline test'));
+    $this->assertTrue(valid_phone_number('ua', '+38 (044)537-28-07'), t('Kyiv landline test'));
+    $this->assertTrue(valid_phone_number('ua', '044 537-28-07'), t('Kyiv landline test'));
+    $this->assertTrue(valid_phone_number('ua', '+38 032 2724042 '), t('Lviv landline test'));
+    $this->assertTrue(valid_phone_number('ua', '+380623621047'), t('Yasinovata landline test'));
+  }
+
+  public function testPhoneUAInvalid() {
+    $this->assertFalse(valid_phone_number('ua', '+380117777777'), t('Test with noexist citycode 011'));
+    $this->assertFalse(valid_phone_number('ua', '+380711234567'), t('Test with noexist citycode 071'));
+    $this->assertFalse(valid_phone_number('ua', '+38044123456'), t('Test with short phone'));
+    $this->assertFalse(valid_phone_number('ua', '044123456'), t('Test with short phone'));
+    $this->assertFalse(valid_phone_number('ua', '+3804412345678'), t('Test with long phone'));
+    $this->assertFalse(valid_phone_number('ua', '04412345678'), t('Test with long phone'));
+    $this->assertFalse(valid_phone_number('ua', '8044223-95-26'), t('Test with obsolete leading 8 notation'));
+  }
+
+  public function testPhoneUAFormatting() {
+    //$this->assertEqual(format_phone_number('ua', '+6421123456', null), '+64 21 123 456', t('Check international mobile format'));
+  }
+}

@@ -1,0 +1,94 @@
+<?php
+
+//require_once drupal_get_path('module', 'phone') . 'includes/phone.int.inc';
+
+class PhoneIntTest extends DrupalWebTestCase {
+
+  public static function getInfo() {
+    return array(
+      'name'  => 'International phone number test',
+      'description'  => 'Tests international phone number validation.',
+      'group' => 'Phone',
+    );
+  }
+  public function setUp() {
+    // Enable the phone module.
+    parent::setUp(array('phone'));
+  }
+  
+  private function assertConversion($input, $expect = TRUE, $field = array(), $expect_error = FALSE) {
+    $error = FALSE;
+    if (!isset($field['phone_int_max_length'])) {
+      $field['phone_int_max_length'] = '15';
+    }
+    if (!isset($field['phone_default_country_code'])) {
+      $field['phone_default_country_code'] = '1';
+    }
+    if ($expect === FALSE) {
+      $this->assertFalse(valid_phone_number('int', $input, $field, $error));
+      $this->assertIdentical($error, $expect_error);
+      return;
+    }
+    elseif ($expect === TRUE) {
+      $expect = $input;
+    }
+    $this->assertTrue(valid_phone_number('int', $input, $field, $error));
+    $this->assertIdentical($error, FALSE);
+    $result = format_phone_number('int', $input, $field);
+    $this->assertIdentical($result, $expect);
+  }
+
+  public function testBasic() {
+    $this->assertConversion('+1 7329018493');
+  }
+
+  public function testBasicWithThreeCountryCode() {
+    $this->assertConversion('+672 565434');
+  }
+
+  public function testBasicWithFourCountryCode() {
+    $this->assertConversion('+6724 565434', FALSE, array(), array(
+      'Invalid international phone number: Country code "+%cc" is too long; valid country codes are three digits or less.',
+      array('%cc' => '6724')
+    ));
+  }
+
+  public function testBasicWithSpaces() {
+    $this->assertConversion('+1 732 901 8493');
+  }
+
+  public function testBasicNormalizeOtherCharacters() {
+    $this->assertConversion('+1 (732) 901-8493', '+1 732 901 8493');
+  }
+
+  public function testRemoveNDD() {
+    $this->assertConversion('+54 0435344', '+54 435344');
+  }
+
+  public function testRemoveNonStandardNDD() {
+    $this->assertConversion('+374 (8) 435344', '+374 435344');
+  }
+
+  public function testAddCountryCode() {
+    $this->assertConversion('732 343 2333', '+1 732 343 2333', array('phone_default_country_code' => '1'));
+  }
+
+  public function testOverlongNumber() {
+    $this->assertConversion('+123 456 789 012 3456', FALSE, array(),
+      'Invalid international phone number: Phone number is too long; international phone numbers are limited to 15 digits.'
+    );
+  }
+
+  public function testOverlongNumberWithoutCountryCode() {
+    $this->assertConversion('456 789 012 3456', FALSE, array('phone_default_country_code' => '123'),
+      'Invalid international phone number: Phone number is too long; international phone numbers are limited to 15 digits.'
+    );
+  }
+
+  public function testLetters() {
+    $this->assertConversion('+1 343 CALL US', FALSE, array(),
+      'Invalid international phone number: Phone number contains invalid characters; only allowed characters are numbers and punctuation.'
+    );
+  }
+
+}

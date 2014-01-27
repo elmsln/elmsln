@@ -1,0 +1,187 @@
+<?php
+/**
+ * @file
+ * Includes the FitVids.js jQuery plugin for fluid width video embeds.
+ */
+
+// Constants
+define("FITVIDS_DEFAULT_REGIONS", 'body');
+define("FITVIDS_PLUGIN_URL", 'https://github.com/davatron5000/FitVids.js');
+define("FITVIDS_PLUGIN_FILENAME", 'jquery.fitvids.js');
+
+/**
+ * Implements hook_help().
+ *
+ * Displays help and module information.
+ *
+ * @param path
+ *   Which path of the site we're using to display help
+ * @param arg
+ *   Array that holds the current path as returned from arg() function
+ */
+function fitvids_help($path, $arg) {
+  switch ($path) {
+    case "admin/help#fitvids":
+      $output = '';
+      $output .= '<h3>' . t('About') . '</h3>';
+      $output .= '<p>' . t("FitVids is a jQuery plugin for fluid width video embeds.") . '</p>';
+      $output .= '<p>' . t("It's useful if you are using a responsive theme (such as Omega), and want the videos to scale.") . '</p>';
+      $output .= '<p>' . t("By default it supports Vimeo, YouTube and Kickstarter.") . '</p>';
+      $output .= '<h3>' . t('jQuery plugin') . '</h3>';
+      $output .= '<p>' . t("Download the plugin from https://raw.github.com/davatron5000/FitVids.js/master/jquery.fitvids.js") . '</p>';
+      $output .= '<h3>' . t('Compatibility') . '</h3>';
+      $output .= '<p>' . t("Older versions of the media_youtube and media_vimeo modules wrap videos in HTML which may stop FitVids working properly. You can configure FitVids to remove the unneccesary markup.") . '</p>';
+      $output .= '<h3>' . t('Further info') . '</h3>';
+      $output .= '<p>' . t("There is an explanatory blog post at http://daverupert.com/2011/09/responsive-video-embeds-with-fitvids/") . '</p>';
+      $output .= '<p>' . t("See the code at https://github.com/davatron5000/FitVids.js/") . '</p>';
+      return $output;
+      break;
+  }
+}
+
+/**
+ * Implements hook_permission().
+ */
+function fitvids_permission() {
+  return array(
+    'administer fitvids' => array(
+      'title' => t('Administer the FitVids module'),
+    )
+  );
+}
+
+/**
+ * Implements hook_menu().
+ */
+function fitvids_menu() {
+  $items = array();
+
+  $items['admin/config/media/fitvids'] = array(
+    'title' => 'FitVids',
+    'description' => 'Configuration for FitVids module',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('fitvids_form'),
+    'access arguments' => array('administer fitvids'),
+    'type' => MENU_NORMAL_ITEM,
+  );
+
+  return $items;
+}
+
+/**
+ * Configuraton form, called by drupal_get_form()
+ * in current_posts_menu().
+ */
+function fitvids_form($form, &$form_state) {
+
+  // Is the library installed?
+  $path = libraries_get_path('fitvids') . '/jquery.fitvids.js';
+  $installed = file_exists($path);
+  if (!$installed) {
+    $message = t('You need to download the FitVids.js jQuery plugin to use this module. Download it from !fitvids-site, copy it to the !fitvids-library directory, and rename it to !fitvids-filename.', array(
+      '!fitvids-site' => l(t('here'), FITVIDS_PLUGIN_URL),
+      '!fitvids-library' => libraries_get_path('fitvids'),
+      '!fitvids-filename' => FITVIDS_PLUGIN_FILENAME,
+    ));
+    drupal_set_message(filter_xss_admin($message), $type = 'warning');
+  }
+
+  $form['fitvids_intro'] = array(
+    '#markup' => '<p>FitVids is a jQuery plugin for fluid width video embeds. By default, it supports YouTube, Vimeo and Kickstarter.</p>',
+  );
+
+  $form['fitvids_selectors'] = array(
+    '#type' => 'textarea',
+    '#title' => t('Video containers'),
+    '#default_value' => variable_get('fitvids_selectors', FITVIDS_DEFAULT_REGIONS),
+    '#rows' => 3,
+    '#description' => t('Enter some jQuery selectors for your video containers. Use a new line for each selector.'),
+    '#required' => TRUE,
+  );
+
+  $form['fitvids_customselectors'] = array(
+    '#type' => 'textarea',
+    '#title' => t('Custom iframe URLs'),
+    '#default_value' => variable_get('fitvids_customselectors', ''),
+    '#rows' => 3,
+    '#description' => t('Only YouTube, Vimeo and Kickstarter are supported by default, but you can tell FitVids about videos from other sites by adding the domain of the player. <br />E.g., "http://www.dailymotion.com". Use a new line for each URL. You don\'t need to add trailing slashes.'),
+  );
+
+  $form['fitvids_simplifymarkup'] = array(
+    '#type' => 'checkbox',
+    '#title' => t('Simplify media_youtube and media_vimeo markup'),
+    '#default_value' => variable_get('fitvids_simplifymarkup', TRUE),
+    '#description' => t('Older versions of the media_youtube and media_vimeo modules wrap videos in HTML which may stop FitVids working properly. Enable this to remove the unneccesary markup.'),
+  );
+
+  return system_settings_form($form);
+}
+
+/**
+ * Implements hook_page_build().
+ * 
+ * Include the FitVids.js script on every page
+ */
+function fitvids_page_build(&$page) {
+
+  // Is the library installed?
+  $path = libraries_get_path('fitvids') . '/jquery.fitvids.js';
+  $installed = file_exists($path);
+  if (!$installed) {
+    return;
+  }
+
+  // TODO User should be able to choose which paths this should/shouldn't run on
+
+  // Add the library reference
+  drupal_add_js($path, array(
+    'group' => JS_LIBRARY,
+    'every_page' => TRUE,
+  ));
+
+  // Generate the custom vendor selectors
+  $fitvids_customselectors = variable_get('fitvids_customselectors', '');
+  $fitvids_customselectors_array = array();
+  if ($fitvids_customselectors != '') {
+    $fitvids_customselectors_array = explode(PHP_EOL, $fitvids_customselectors);
+    $custom_selectors = '';
+    if (count($fitvids_customselectors_array) > 0) {
+      foreach ($fitvids_customselectors_array as $key => $value) {
+        $fitvids_customselectors_array[$key] = 'iframe[src^=\'' . trim($value) . '\']';
+      }
+      $custom_selectors = '{ customSelector: "' . implode(',', $fitvids_customselectors_array) . '" }';
+    }
+  }
+  else {
+    $custom_selectors = '';
+  }
+
+  // Get fitvids containers
+  $fitvids_selectors = variable_get('fitvids_selectors', FITVIDS_DEFAULT_REGIONS);
+  $fitvids_selectors_array = explode(PHP_EOL, $fitvids_selectors);
+  
+  // Simplify markup?
+  $simplifymarkup = variable_get('fitvids_simplifymarkup', TRUE);
+  
+  // Export the variables to Drupal.settings
+  drupal_add_js(array('fitvids' => array(
+    'custom_domains' => $fitvids_customselectors_array,
+    'selectors' => $fitvids_selectors_array,
+    'simplifymarkup' => $simplifymarkup,
+  )), 'setting');
+}
+
+/**
+ * Implements hook_library().
+ */
+function fitvids_library() {
+  $libraries['fitvids'] = array(
+    'title' => 'FitVids.js',
+    'website' => 'https://github.com/davatron5000/FitVids.js',
+    'version' => '1.0',
+    'js' => array(
+      'jquery.fitvids.js' => array(),
+    ),
+  );
+  return $libraries;
+}

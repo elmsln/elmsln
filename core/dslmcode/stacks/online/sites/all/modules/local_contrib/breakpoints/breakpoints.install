@@ -1,0 +1,185 @@
+<?php
+
+/**
+ * @file
+ * Breakpoints
+ */
+
+/**
+ * Implements hook_schema().
+ */
+function breakpoints_schema() {
+  $schema['breakpoints'] = array(
+    'description' => 'Breakpoints',
+    'fields' => array(
+      'id' => array(
+        'type' => 'serial',
+        'not null' => TRUE,
+        'description' => 'The internal identifier for a responsive images suffix',
+        'no export' => TRUE, // Do not export database-only keys.
+      ),
+      'machine_name' => array(
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => TRUE,
+        'description' => 'The machine name of the breakpoint.',
+      ),
+      'name' => array(
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => TRUE,
+        'description' => 'The name of the breakpoint.',
+      ),
+      'breakpoint' => array(
+        'type' => 'varchar',
+        'length' => 255,
+        'description' => 'media query',
+        'not null' => TRUE,
+        'default' => '',
+      ),
+      'source' => array(
+        'type' => 'varchar',
+        'length' => 255,
+        'description' => 'name of theme, module',
+        'not null' => TRUE,
+        'default' => '',
+      ),
+      'source_type' => array(
+        'type' => 'varchar',
+        'length' => 255,
+        'description' => 'is breakpoint defined by theme, module or custom',
+        'not null' => TRUE,
+        'default' => '',
+      ),
+      'status' => array(
+        'type' => 'int',
+        'description' => 'enabled or disabled',
+        'not null' => TRUE,
+        'default' => 1,
+      ),
+      'weight' => array(
+        'type' => 'int',
+        'description' => 'weight',
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'multipliers' => array(
+        'type' => 'blob',
+        'description' => 'all enabled multipliers',
+        'not null' => TRUE,
+        'serialize' => TRUE,
+      ),
+    ),
+    'primary key' => array('id'),
+    'unique keys' => array(
+      'machine_name' => array('machine_name'),
+    ),
+    // CTools exportable object definition
+    'export' => array(
+      'key' => 'machine_name',
+      'key name' => 'machine_name',
+      'primary key' => 'id',
+      'identifier' => 'breakpoint',
+      'admin_title' => 'label',
+      'default hook' => 'default_breakpoints',
+      'api' => array(
+        'owner' => 'breakpoints',
+        'api' => 'default_breakpoints',
+        'minimum_version' => 1,
+        'current_version' => 1,
+      ),
+    ),
+  );
+  $schema['breakpoint_group'] = array(
+    'description' => 'Breakpoint group',
+    'fields' => array(
+      'id' => array(
+        'type' => 'serial',
+        'not null' => TRUE,
+        'description' => 'The internal identifier for a responsive images suffix',
+        'no export' => TRUE, // Do not export database-only keys.
+      ),
+      'machine_name' => array(
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => TRUE,
+        'description' => 'The machine name of the breakpoint.',
+      ),
+      'name' => array(
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => TRUE,
+        'description' => 'The name of the breakpoint.',
+      ),
+      'breakpoints' => array(
+        'type' => 'blob',
+        'description' => 'breakpoints',
+        'not null' => TRUE,
+        'serialize' => TRUE,
+        // we do not export options saved in this column, we export the fully loaded objects.
+        'export callback' => 'breakpoint_group_export_breakpoints',
+      ),
+      'type' => array(
+        'type' => 'varchar',
+        'length' => 255,
+        'description' => 'theme, module or custom',
+        'not null' => TRUE,
+        'default' => '',
+      ),
+      'overridden' => array(
+        'type' => 'int',
+        'description' => 'Boolean indicating if this group is overriden',
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+    ),
+    'primary key' => array('id'),
+    'unique keys' => array(
+      'machine_name' => array('machine_name'),
+    ),
+    // CTools exportable object definition
+    'export' => array(
+      'key' => 'machine_name',
+      'key name' => 'breakpoint group machine_name',
+      'primary key' => 'id',
+      'identifier' => 'breakpoint_group',
+      'admin_title' => 'label',
+      'default hook' => 'default_breakpoint_group',
+      'export type string' => 'ctools_type',
+      'export callback' => 'breakpoints_breakpoint_group_export',
+      'api' => array(
+        'owner' => 'breakpoints',
+        'api' => 'default_breakpoint_group',
+        'minimum_version' => 1,
+        'current_version' => 1,
+      ),
+    ),
+  );
+  return $schema;
+}
+
+/**
+ * Add the 'overridden' column to the breakpoint_group table.
+ */
+function breakpoints_update_7101(&$sandbox) {
+  db_add_field(
+    'breakpoint_group',
+    'overridden',
+    array(
+      'type' => 'int',
+      'description' => 'Boolean indicating if this group is overriden',
+      'not null' => TRUE,
+      'default' => 0,
+    )
+  );
+}
+
+/**
+ * Add the '1x' multiplier to all breakpoints.
+ */
+function breakpoints_update_7102(&$sandbox) {
+  $breakpoints = breakpoints_breakpoint_load_all();
+  foreach ($breakpoints as $breakpoint) {
+    breakpoints_breakpoint_save($breakpoint);
+  }
+}

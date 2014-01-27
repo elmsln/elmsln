@@ -1,0 +1,14 @@
+name = Field Hidden
+description = Defines hidden field types.
+package = Fields
+core = 7.x
+
+stylesheets[all][] = field_hidden.css
+configure = admin/config/fields/field_hidden
+
+; Information added by  packaging script on 2013-11-23
+version = "7.x-1.5"
+core = "7.x"
+project = "field_hidden"
+datestamp = "1385200110"
+

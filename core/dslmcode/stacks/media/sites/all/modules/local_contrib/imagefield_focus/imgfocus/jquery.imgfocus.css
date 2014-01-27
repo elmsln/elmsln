@@ -1,0 +1,183 @@
+
+/**
+ * @file
+ * Written by Henri MEDOT <henri.medot[AT]absyx[DOT]fr>
+ * http://www.absyx.fr
+ */
+
+html.imgfocus-cursor *
+{
+  cursor: inherit !important;
+}
+
+div.imgfocus-wrapper
+{
+  position: relative;
+  background-color: #000;
+}
+
+img.imgfocus-img
+{
+  width: 100%;
+  height: 100%;
+  border: 0 none;
+  opacity: 0.5;
+  filter: alpha(opacity = 50);
+}
+
+div.imgfocus-clipbox
+{
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  left: 0;
+  top: 0;
+}
+
+div.imgfocus-clipbox img.imgfocus-img
+{
+  opacity: 1;
+  filter: alpha(opacity = 100);
+}
+
+div.imgfocus-box
+{
+  position: absolute;
+}
+
+div.imgfocus-border
+{
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  background-color: #fff;
+  background-image: url(jquery.imgfocus.gif);
+  opacity: 0.7;
+  filter: alpha(opacity = 70);
+}
+
+div.imgfocus-minbox div.imgfocus-border,
+div.imgfocus-maxbox div.imgfocus-border
+{
+  background-image: url(jquery.imgfocus.png);
+}
+
+div.imgfocus-border-0
+{
+  left: 0;
+  top: 0;
+  width: 100%;
+}
+
+div.imgfocus-border-1
+{
+  right: 0;
+  top: 0;
+  height: 100%;
+}
+
+div.imgfocus-border-2
+{
+  left: 0;
+  bottom: 0;
+  width: 100%;
+}
+
+div.imgfocus-border-3
+{
+  left: 0;
+  top: 0;
+  height: 100%;
+}
+
+div.imgfocus-move
+{
+  width: 100%;
+  height: 100%;
+  background-color: #fff;
+  opacity: 0;
+  filter: alpha(opacity = 0);
+  cursor: move;
+}
+
+div.imgfocus-resize
+{
+  position: absolute;
+  width: 10px;
+  height: 10px;
+  background-color: #fff;
+}
+
+div.imgfocus-resize-side
+{
+  opacity: 0;
+  filter: alpha(opacity = 0);
+}
+
+div.imgfocus-resize-corner
+{
+  z-index: 1;
+  opacity: 0.7;
+  filter: alpha(opacity = 70);
+}
+
+div.imgfocus-handle-0
+{
+  left: -5px;
+  top: -5px;
+  cursor: nw-resize;
+}
+
+div.imgfocus-handle-1
+{
+  left: 0;
+  top: -5px;
+  width: 100%;
+  cursor: n-resize;
+}
+
+div.imgfocus-handle-2
+{
+  right: -5px;
+  top: -5px;
+  cursor: ne-resize;
+}
+
+div.imgfocus-handle-3
+{
+  right: -5px;
+  top: 0;
+  height: 100%;
+  cursor: e-resize;
+}
+
+div.imgfocus-handle-4
+{
+  right: -5px;
+  bottom: -5px;
+  cursor: se-resize;
+  z-index: 2;
+}
+
+div.imgfocus-handle-5
+{
+  left: 0;
+  bottom: -5px;
+  width: 100%;
+  cursor: s-resize;
+}
+
+div.imgfocus-handle-6
+{
+  left: -5px;
+  bottom: -5px;
+  cursor: sw-resize;
+}
+
+div.imgfocus-handle-7
+{
+  left: -5px;
+  top: 0;
+  height: 100%;
+  cursor: w-resize;
+}

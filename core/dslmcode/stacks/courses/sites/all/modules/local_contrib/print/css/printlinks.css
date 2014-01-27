@@ -1,0 +1,38 @@
+
+.print-link {
+  /* Use these for links above the content */
+  display: block;
+  text-align: right;
+  padding-bottom: 0.5em;
+  /* Use these for links in a corner of the content */
+  /*
+  position:relative;
+  bottom: 0.5em;
+  float:right;
+  */
+}
+
+div#block-print-print-links span {
+  display: block;
+}
+
+.print_html, .print_mail, .print_pdf {
+  margin-left: 1em;
+}
+
+.print-syslink {
+  margin-right: 1em;
+}
+
+img.print-icon {
+  vertical-align: middle;
+}
+
+img.print-icon-margin {
+  padding-right: 4px;
+}
+
+label.printmail-label {
+  width: 175px;
+  float: left;
+}

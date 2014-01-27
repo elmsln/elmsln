@@ -1,0 +1,57 @@
+<?php
+
+/**
+ * @file
+ * Installs, uninstalls IMCE Mkdir.
+ */
+
+/**
+ * Implements hook_install()
+ */
+function imce_mkdir_install() {
+  // Update profiles. Add mkdir settings.
+  $profiles = variable_get('imce_profiles', array());
+  foreach ($profiles as $i => $profile) {
+    foreach ($profile['directories'] as $j => $directory) {
+      $profiles[$i]['directories'][$j]['mkdir'] = $i == 1 ? 1 : 0;
+      $profiles[$i]['directories'][$j]['rmdir'] = $i == 1 ? 1 : 0;
+    }
+    $profiles[$i]['mkdirnum'] = $i == 1 ? 0 : 2;
+  }
+  variable_set('imce_profiles', $profiles);
+
+  // Register custom content function
+  $funcs = variable_get('imce_custom_content', array());
+  $funcs['imce_mkdir_content'] = 1;
+  variable_set('imce_custom_content', $funcs);
+
+  // Register custom profile process
+  $funcs = variable_get('imce_custom_process', array());
+  $funcs['imce_mkdir_process_profile'] = 1;
+  variable_set('imce_custom_process', $funcs);
+}
+
+/**
+ * Implements hook_uninstall().
+ */
+function imce_mkdir_uninstall() {
+  // Update profiles. Delete mkdir settings.
+  $profiles = variable_get('imce_profiles', array());
+  foreach ($profiles as $i => $profile) {
+    foreach ($profile['directories'] as $j => $directory) {
+      unset($profiles[$i]['directories'][$j]['mkdir'], $profiles[$i]['directories'][$j]['rmdir']);
+    }
+    unset($profiles[$i]['mkdirnum']);
+  }
+  variable_set('imce_profiles', $profiles);
+
+  // Unregister custom content function
+  $funcs = variable_get('imce_custom_content', array());
+  unset($funcs['imce_mkdir_content']);
+  variable_set('imce_custom_content', $funcs);
+
+  // Unregister custom profile process
+  $funcs = variable_get('imce_custom_process', array());
+  unset($funcs['imce_mkdir_process_profile']);
+  variable_set('imce_custom_process', $funcs);
+}

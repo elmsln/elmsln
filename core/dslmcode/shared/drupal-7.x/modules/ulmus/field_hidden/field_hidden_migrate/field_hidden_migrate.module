@@ -1,0 +1,17 @@
+<?php
+/**
+ * @file
+ * Drupal Field Hidden module Migration integration
+ */
+
+/**
+ * Implements hook_migrate_api().
+ *
+ * @return array
+ */
+function field_hidden_migrate_migrate_api() {
+  $api = array(
+    'api' => 2,
+  );
+  return $api;
+}

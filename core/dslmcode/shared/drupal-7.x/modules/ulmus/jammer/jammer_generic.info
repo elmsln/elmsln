@@ -1,0 +1,13 @@
+name = Generic Jammer
+description = "Remove configured form elements from forms."
+package = Jammer
+core = 7.x
+files[] = jammer_generic.module
+
+
+; Information added by drupal.org packaging script on 2013-01-02
+version = "7.x-1.3"
+core = "7.x"
+project = "jammer"
+datestamp = "1357159949"
+

@@ -1,0 +1,66 @@
+@CHARSET "UTF-8";
+
+.field-collection-container {
+  border-bottom: 1px solid #D3D7D9;
+  margin-bottom: 1em;
+}
+
+.field-collection-container .field-items .field-item {
+  margin-bottom: 10px;
+}
+
+.field-collection-container .field-items .field-items .field-item {
+  margin-bottom: 0;
+}
+
+.field-collection-view {
+  padding: 1em 0 0.3em 0;
+  margin: 0 1em 0 1em;
+  border-bottom: 1px dotted #D3D7D9;
+}
+
+/* If there is no add link, don't show the final border. */
+.field-collection-view-final {
+  border-bottom: none;
+}
+
+.field-collection-view .entity-field-collection-item {
+  float: left;
+}
+
+.field-collection-view ul.field-collection-view-links {
+  float: right;
+  font-size: 0.821em;
+  list-style-type: none;
+  width: auto;
+  margin: 0 1em;
+  padding: 0;
+}
+
+.field-collection-view .field-label {
+  width: 25%;
+}
+
+.field-collection-view .content {
+  margin-top: 0;
+  width: 100%;
+}
+
+.field-collection-view .entity-field-collection-item {
+  width: 100%;
+}
+
+ul.field-collection-view-links li {
+  float: left;
+}
+
+ul.field-collection-view-links li a {
+  margin-right: 1em;
+}
+
+.field-collection-container ul.action-links-field-collection-add {
+  float: right;
+  padding: 0 0.5em 0 0;
+  margin: 0 0 1em 2em;
+  font-size: 0.821em;
+}

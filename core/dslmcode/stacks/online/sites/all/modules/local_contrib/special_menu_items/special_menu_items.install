@@ -1,0 +1,38 @@
+<?php
+
+/**
+ * Implementation of hook_uninstall().
+ */
+function special_menu_items_uninstall() {
+  variable_del('special_menu_items_nolink_tag');
+  variable_del('special_menu_items_seperator_tag');
+  variable_del('special_menu_items_seperator_value');
+  variable_del('special_menu_items_menu_item_link');
+}
+
+/**
+ * "nolink" to <nolink> and "separator" to <separator>
+ */
+function special_menu_items_update_7000(&$sandbox){
+
+  //change "nolink" to <nolink>
+  db_update('menu_links')
+    ->fields(array(
+      'link_path' => '<nolink>',
+      'router_path' => '<nolink>',
+    ))
+    ->condition('router_path', 'nolink', '=')
+    ->execute();
+
+  //change "separator" to <separator>
+  db_update('menu_links')
+  ->fields(array(
+    'link_path' => '<separator>',
+    'router_path' => '<separator>',
+  ))
+  ->condition('router_path', 'separator', '=')
+  ->execute();
+
+  //we don't need this variable anymore
+  variable_del('special_menu_items_menu_item_link');
+}

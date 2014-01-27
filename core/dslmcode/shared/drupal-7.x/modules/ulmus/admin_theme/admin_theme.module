@@ -1,0 +1,249 @@
+<?php
+// $Id: admin_theme.module,v 1.1.2.8.2.12 2010/12/06 10:10:22 davyvandenbremt Exp $
+
+/**
+ * @file
+ * Enable the administration theme on more pages then possible with Drupal's default administration page.
+ */
+
+/**
+ * Implementation of hook_perm().
+ */
+function admin_theme_permission() {
+  return array(
+    'access admin theme' => array(
+      'title' => t('Access administration theme'),
+      'description' => t('View pages using the administration theme'),
+    )
+  );
+}
+
+/**
+ * Get the variable name for a certain option.
+ *
+ * @param $module
+ *   String. Module that defines this option.
+ * @param $params
+ *   String. Name of the option.
+ * @return
+ *   String. Variable name for the option.
+ */
+function admin_theme_variable_name($module, $option) {
+  return 'admin_theme_'. $module .'_'. $option;
+}
+
+/**
+ * Get all module defined options.
+ *
+ * @return
+ *   Array. All options.
+ */
+function admin_theme_list() {
+  $options = array();
+  foreach (module_list() as $module) {
+    $module_options = module_invoke($module, 'admin_theme_info');
+    if (count($module_options) > 0) {
+      foreach ($module_options as $option => $info) {
+        $info['option'] = $option;
+        $info['module'] = $module;
+        $options[] = $info;
+      }
+    }
+  }
+  return $options;
+}
+
+/**
+ * Implementation of hook_form_alter().
+ */
+function admin_theme_form_system_themes_admin_form_alter(&$form, $form_state) {
+  // define a fieldset for the page selection
+  $form['admin_theme']['pages'] = array(
+    '#type' => 'fieldset',
+    '#title' => t('Pages'),
+    '#collapsible' => TRUE,
+    '#description' => t('Choose which pages should be displayed with the administration theme.')
+  );
+  
+  // add the content editing option to the pages fieldset and change the title
+  $form['admin_theme']['pages']['node_admin_theme'] = $form['admin_theme']['node_admin_theme'];
+  $form['admin_theme']['pages']['node_admin_theme']['#title'] = t('Content editing');
+  unset($form['admin_theme']['node_admin_theme']);
+
+  // add all options as checkboxes to the admin theme settings form
+  $list = admin_theme_list();
+  foreach ($list as $info) {
+    $var = admin_theme_variable_name($info['module'], $info['option']);
+    $form['admin_theme']['pages'][$var] = array(
+      '#type' => 'checkbox',
+      '#title' => array_key_exists('title', $info) ? $info['title'] : NULL,
+      '#description' => array_key_exists('description', $info) ? $info['description'] : NULL,
+      '#default_value' => variable_get($var, '0'),
+    );
+  }
+
+  // allow the user to define a set of pages where the admin theme should or should not be applied to
+  $form['admin_theme']['pages']['custom'] = array(
+    '#type' => 'fieldset',
+    '#title' => t('Custom'),
+    '#description' => t("Enter one page per line as Drupal paths. The '*' character is a wildcard. Example paths are %blog for the blog page and %blog-wildcard for every personal blog. %front is the front page.", array('%blog' => 'blog', '%blog-wildcard' => 'blog/*', '%front' => '<front>')),
+    '#collapsible' => TRUE,
+    '#collapsed' => TRUE,
+    '#weight' => 9,
+  );
+  $form['admin_theme']['pages']['custom']['admin_theme_path'] = array(
+    '#type' => 'textarea',
+    '#title' => t('Use administration theme on the following pages'),
+    '#default_value' => variable_get('admin_theme_path', ''),
+  );
+  $form['admin_theme']['pages']['custom']['admin_theme_path_disallow'] = array(
+    '#type' => 'textarea',
+    '#title' => t('Do not use administration theme on the following pages'),
+    '#description' => t('If a path appears here, the administration theme is not shown even if all above options apply.'),
+    '#default_value' => variable_get('admin_theme_path_disallow', ''),
+  );
+  
+  $form['#submit'][] = 'admin_theme_form_system_themes_form_alter_submit';
+  
+  $form['admin_theme']['actions']['#weight'] = 10;
+}
+
+/**
+ * Process system_themes_form additions submissions.
+ */
+function admin_theme_form_system_themes_form_alter_submit($form, &$form_state) {
+  // module options
+  $list = admin_theme_list();
+  foreach ($list as $info) {
+    $var = admin_theme_variable_name($info['module'], $info['option']);
+    if (isset($form_state['values'][$var])) {
+      variable_set($var, $form_state['values'][$var]);
+    }
+  }
+  
+  // custom page options
+  variable_set('admin_theme_path', $form_state['values']['admin_theme_path']);
+  variable_set('admin_theme_path_disallow', $form_state['values']['admin_theme_path_disallow']);
+}
+
+/**
+ * Implementation of hook_custom_theme().
+ */
+function admin_theme_custom_theme() {
+  $admin_theme_disallow = FALSE;
+  $admin_theme = FALSE;
+  
+  // check if some paths are disallow to get the theme
+  if (trim(variable_get('admin_theme_path_disallow', '')) != '') {
+    // pages that are defined by their normal path
+    $admin_theme_disallow = drupal_match_path($_GET['q'], variable_get('admin_theme_path_disallow', ''));
+    
+    // pages that are defined with their alias
+    $alias = drupal_get_path_alias($_GET['q']);
+    if ($alias != $_GET['q']) {
+      $admin_theme_disallow = $admin_theme || drupal_match_path($alias, variable_get('admin_theme_path_disallow', ''));
+    }
+  }
+
+  // we should not show the admin theme if the user has no access or the path is in the disallow list
+  if (!user_access('access admin theme') || $admin_theme_disallow) {
+    return;
+  }
+  
+  // check if an option is enabled and if it results to TRUE
+  $list = admin_theme_list();
+  foreach ($list as $info) {
+    $var = admin_theme_variable_name($info['module'], $info['option']);
+    if ((bool)variable_get($var, '0') && module_invoke($info['module'], 'admin_theme', 'check', $info['option'])) {
+      $admin_theme = TRUE;
+    }
+  }
+  
+  // some custom defined pages should get admin theme
+  if (trim(variable_get('admin_theme_path', '')) != '') {
+    // pages that are defined by their normal path
+    $admin_theme = $admin_theme || drupal_match_path($_GET['q'], variable_get('admin_theme_path', ''));
+    
+    // pages that are defined with their alias
+    $alias = drupal_get_path_alias($_GET['q']);
+    if ($alias != $_GET['q']) {
+      $admin_theme = $admin_theme || drupal_match_path($alias, variable_get('admin_theme_path', ''));
+    }
+  }
+  // Use the admin theme for the current request (if global admin theme setting is checked).
+  if ($admin_theme) {
+    return variable_get('admin_theme');
+  }
+  
+  return;
+}
+
+/**
+ * Implementation of hook_admin_theme_info().
+ */
+function admin_theme_admin_theme_info() {
+  $options = array();
+  $options['batch'] = array(
+    'title' => t('Batch processing'),
+    'description' => t('Use the administration theme when executing batch operations.'),
+  );  
+  if (module_exists('img_assist')) {
+    $options['img_assist'] = array(
+      'title' => t('Image assist'),
+      'description' => t('Use the administration theme when viewing the Image assist popup window.'),
+    );
+  }
+  if (module_exists('coder')) {
+    $options['coder'] = array(
+      'title' => t('Code reviews'),
+      'description' => t('Use the administration theme when viewing Coder code reviews.'),
+    );
+  }
+  if (module_exists('devel')) {
+    $options['devel'] = array(
+      'title' => t('Devel pages.'),
+      'description' => t('Use the administration theme when viewing pages of the devel module (hook_elements(), Dev render, Dev load, Session viewer, Theme registery, Variable editor, ...).'),
+    );
+  }
+  if (module_exists('service_attachments')) {
+    $options['service_attachments'] = array(
+      'title' => t('Service attachments form on nodes.'),
+      'description' => t('Use the administration theme when viewing service attachments on nodes.'),
+    );
+  }
+  if (module_exists('webform')) {
+    $options['webform_results'] = array(
+      'title' => t('Webform submissions.'),
+      'description' => t('Use the administration theme when viewing webform submissions.'),
+    );
+  }
+  if (module_exists('statistics')) {
+    $options['statistics'] = array(
+      'title' => t('Pages defined by the statistics module.'),
+      'description' => t('Use the administration theme when viewing pages of the statistics module.'),
+    );
+  }
+  return $options;
+}
+
+/**
+ * Implementation of hook_admin_theme_check().
+ */
+function admin_theme_admin_theme_check($option = NULL) {
+  switch ($option) {
+    case 'img_assist':
+      return arg(0) == 'img_assist';
+    case 'coder':
+      return arg(0) == 'coder';
+    case 'devel':
+      return arg(0) == 'devel' || (arg(0) == 'node' && arg(2) == 'devel');
+    case 'batch':
+      return arg(0) == 'batch';
+    case 'service_attachments':
+      return arg(0) == 'node' && arg(2) == 'service_attachments';
+    case 'webform_results':
+      return arg(0) == 'node' && arg(2) == 'webform-results';
+    case 'statistics':
+      return (arg(0) == 'node' || arg(0) == 'user') && arg(2) == 'track';
+  }
+}

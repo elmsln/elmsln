@@ -1,0 +1,355 @@
+<?php
+
+/**
+ * @file
+ * Modify forms.
+ */
+
+/**
+ * Implements hook_permission().
+ */
+function jammer_permission() {
+  return array(
+    'view body options' => array(
+      'title' => t('view body options'),
+      'description' => t('Override jammer to allow user to view body options.'),
+    ),
+    'view menu options' => array(
+      'title' => t('view menu options'),
+      'description' => t('Override jammer to allow user to view menu options.'),
+    ),
+    'view author options' => array(
+      'title' => t('view author options'),
+      'description' => t('Override jammer to allow user to view author options.'),
+    ),
+    'view path options' => array(
+      'title' => t('view path options'),
+      'description' => t('Override jammer to allow user to view path options.'),
+    ),
+    'view comment settings' => array(
+      'title' => t('view comment settings'),
+      'description' => t('Override jammer to allow user to view comment settings.'),
+    ),
+    'view revision information' => array(
+      'title' => t('view revision information'),
+      'description' => t('Override jammer to allow user to view revision information.'),
+    ),
+    'view revision log textarea' => array(
+      'title' => t('view revision log textarea'),
+      'description' => t('Override jammer to allow user to view revision log textarea.'),
+    ),
+    'view teaser controls' => array(
+      'title' => t('view teaser controls'),
+      'description' => t('Override jammer to allow user to view teaser controls.'),
+    ),
+// There is no current version of Workflow for D7.
+//    'view workflow tabs' => array(
+//      'title' => t('view workflow tabs'),
+//      'description' => t('Override jammer to allow user to view workflow tabs.'),
+//    ),
+    'view user delete button' => array(
+      'title' => t('view user delete button'),
+      'description' => t('Override jammer to allow user to view user delete button.'),
+    ),
+    'view preview button' => array(
+      'title' => t('view preview button'),
+      'description' => t('Override jammer to allow user to view preview button.'),
+    ),
+    'view comment preview button' => array(
+      'title' => t('view comment preview button'),
+      'description' => t('Override jammer to allow user to view comment preview button.'),
+    ),
+    'view submit button' => array(
+      'title' => t('view submit button'),
+      'description' => t('Override jammer to allow user to view submit button.'),
+    ),
+    'view delete button' => array(
+      'title' => t('view delete button'),
+      'description' => t('Override jammer to allow user to view delete button.'),
+    ),
+  );
+}
+
+/**
+ * Implements hook_help().
+ */
+function jammer_help($path, $arg) {
+  switch ($path) {
+    case 'admin/config/jammer':
+      return t('By default, no form items are removed until one or more content types are selected to act on. If you need to override a Jammed element, to allow a specific user role to view the option, you may do so under user permissions.');
+  }
+}
+
+/**
+ * Implements hook_menu().
+ */
+function jammer_menu() {
+  $items['admin/config/user-interface/jammer'] = array(
+    'title' => 'Jammer',
+    'description' => 'Remove items from node editing forms.',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('jammer_admin_settings'),
+    'access arguments' => array('administer site configuration'),
+  );
+  return $items;
+}
+
+/**
+ * Implements hook_form_alter().
+ */
+function jammer_form_alter(&$form, &$form_state, $form_id) {
+// There is no current version of Workflow for D7.
+//  if ($form['#id'] == 'workflow-tab-form'    && !user_access('view workflow tabs')) {
+//    if (in_array($form['node']['#value']->type, variable_get('jammer_workflow_form_unset_node_types', array()))) {
+//      $form = array();
+//      $form['jammer_markup'] = array(
+//        '#type' => 'markup',
+//        '#value' => t("In order to change this node's workflow state, please use the Edit tab."),
+//      );
+//    }
+//  }
+
+  if (strpos($form['#id'], 'node-form') !== FALSE) {
+    // jammer_publishing_options   
+    if (variable_get('jammer_node_promoted', 0) == 1) {
+      $form['options']['promote']['#access'] = FALSE;
+    }
+    if (variable_get('jammer_node_sticky', 0) == 1) {
+      $form['options']['sticky']['#access'] = FALSE;
+    }
+
+    if (isset($form['type']['#value'])) {
+      if (in_array($form['type']['#value'], variable_get('jammer_body_options', array())) && !user_access('view body options')) {
+        $form['body']['#access'] = FALSE;
+      }
+      if (in_array($form['type']['#value'], variable_get('jammer_menu_options', array())) && !user_access('view menu options')) {
+        $form['menu']['#access'] = FALSE;
+      }
+      if (in_array($form['type']['#value'], variable_get('jammer_author_options', array())) && !user_access('view author options')) {
+        $form['author']['#access'] = FALSE;
+      }
+      if (in_array($form['type']['#value'], variable_get('jammer_path_options', array())) && !user_access('view path options')) {
+        $form['path']['#access'] = FALSE;
+      }
+      if (in_array($form['type']['#value'], variable_get('jammer_comment_settings', array())) && !user_access('view comment settings')) {
+        $form['comment_settings']['#access'] = FALSE;
+      }
+      if (in_array($form['type']['#value'], variable_get('jammer_revision_information', array())) && !user_access('view revision information')) {
+        $form['revision_information']['#access'] = FALSE;
+      }
+      if (in_array($form['type']['#value'], variable_get('jammer_revision_log_textarea_unset_node_types', array()))
+          && isset($form['revision_information']['log']) && !user_access('view revision log textarea')) {
+        $form['revision_information']['log']['#access'] = FALSE;
+        if (isset($form['revision_information']['revision']['#access']) && $form['revision_information']['revision']['#access'] == FALSE
+            && !user_access('view revision information')) {
+          $form['revision_information']['#access'] = FALSE;
+        }
+      }
+      if (in_array($form['type']['#value'], variable_get('jammer_preview_button_unset_node_types', array())) && isset($form['actions']['preview'])
+          && !user_access('view preview button')) {
+        $form['actions']['preview']['#access'] = FALSE;
+      }
+      if (in_array($form['type']['#value'], variable_get('jammer_submit_button_unset_node_types', array())) && isset($form['actions']['submit'])
+          && !user_access('view submit button')) {
+        $form['actions']['submit']['#access'] = FALSE;
+      }
+      if (in_array($form['type']['#value'], variable_get('jammer_delete_button_unset_node_types', array())) && isset($form['actions']['delete'])
+          && !user_access('view delete button')) {
+        $form['actions']['delete']['#access'] = FALSE;
+      }
+      // We can only safely remove the 'teaser_js' textarea for a separate teaser, and the 'teaser_include' checkbox,
+      // IF the teaser is not in fact already different. Else we risk zapping the default value.
+      if (in_array($form['type']['#value'], variable_get('jammer_teaser_controls_unset_node_types', array())) && isset($form['body']['und'][0]['summary'])
+          && empty($form['body']['und'][0]['summary']['#default_value']) && !user_access('view teaser controls')) {
+        $form['body']['und'][0]['summary']['#access'] = FALSE;
+      }
+    }
+  }
+
+  if ( strpos($form_id, 'comment_node_') !== FALSE && !user_access('view comment preview button')) {
+    $form['actions']['preview']['#access'] = FALSE;
+  }
+
+  if ($form_id == 'user_profile_form' && !user_access('view user delete button')) {
+    if (variable_get('jammer_user_delete_hide_button', 0) == 1) {
+      $form['actions']['cancel']['#access'] = FALSE;
+    }
+  }
+}
+
+/**
+ * Administrative form for setting Jammer settings.
+ */
+function jammer_admin_settings($form, &$form_state) {
+  $options = array();
+  $types = node_type_get_types();
+  foreach ($types as $type) {
+    $options[$type->type] = $type->name;
+  }
+  asort($options);
+  array_unshift($options, "none");
+
+  $form = array();
+
+  // Remove the menu settings
+  $form['jammer_menu_options'] = array(
+    '#type' => 'select',
+    '#title' => t('Remove the menu options on content types'),
+    '#options' => $options,
+    '#size' => count($options) < 6 ? count($options) : 6,
+    '#multiple' => TRUE,
+    '#default_value' => variable_get('jammer_menu_options', array()),
+    '#description' => t('The selected node types will no longer have a menu options listed when creating or editing a node of that type.'),
+  );
+
+  // Remove the authoring settings
+  $form['jammer_author_options'] = array(
+    '#type' => 'select',
+    '#title' => t('Remove the author options on content types'),
+    '#options' => $options,
+    '#size' => count($options) < 6 ? count($options) : 6,
+    '#multiple' => TRUE,
+    '#default_value' => variable_get('jammer_author_options', array()),
+    '#description' => t('The selected node types will no longer have an author details options listed when creating or editing a node of that type.'),
+  );
+
+  // Remove the path settings.
+  $form['jammer_path_options'] = array(
+    '#type' => 'select',
+    '#title' => t('Remove the path options on content types'),
+    '#options' => $options,
+    '#size' => count($options) < 6 ? count($options) : 6,
+    '#multiple' => TRUE,
+    '#default_value' => variable_get('jammer_path_options', array()),
+    '#description' => t('The selected node types will no longer have the url options listed when creating or editing a node of that type.'),
+  );
+  
+  // Remove publishing settings
+  $form['jammer_publishing_options'] = array(
+    '#type' => 'fieldset',
+    '#title' => t('Publishing options'),
+    '#collapsible' => TRUE,
+    '#collapsed' => FALSE,
+  );
+  $form['jammer_publishing_options']['jammer_node_promoted'] = array(
+    '#type' => 'checkbox',
+    '#title' => t('Remove promoted checkbox on Publishing options'),
+    '#default_value' => variable_get('jammer_node_promoted', 0),
+    '#description' => t("Nodes won't have the option for publishing to the front page by enabling this option."),
+  );
+  $form['jammer_publishing_options']['jammer_node_sticky'] = array(
+    '#type' => 'checkbox',
+    '#title' => t('Remove sticky checkbox on Publishing options'),
+    '#default_value' => variable_get('jammer_node_sticky', 0),
+    '#description' => t("Nodes won't have the option for setting sticky at top of lists by enabling this option."),
+  );
+
+  // Remove the body settings.
+  $form['jammer_body_options'] = array(
+    '#type' => 'select',
+    '#title' => t('Remove the body options on content types'),
+    '#options' => $options,
+    '#size' => count($options) < 6 ? count($options) : 6,
+    '#multiple' => TRUE,
+    '#default_value' => variable_get('jammer_body_options', array()),
+    '#description' => t('The selected node types will no longer have the body field options listed when creating or editing a node of that type.'),
+  );
+
+  // Remove the comment settings.
+  $form['jammer_comment_settings'] = array(
+    '#type' => 'select',
+    '#title' => t('Remove the comment options on content types'),
+    '#options' => $options,
+    '#size' => count($options) < 6 ? count($options) : 6,
+    '#multiple' => TRUE,
+    '#default_value' => variable_get('jammer_comment_settings', array()),
+    '#description' => t('The selected node types will no longer have the comment options listed when creating or editing a node of that type.'),
+  );
+
+  // Remove the revision settings.
+  $form['jammer_revision_information'] = array(
+    '#type' => 'select',
+    '#title' => t('Remove the revision options on content types'),
+    '#options' => $options,
+    '#size' => count($options) < 6 ? count($options) : 6,
+    '#multiple' => TRUE,
+    '#default_value' => variable_get('jammer_revision_information', array()),
+    '#description' => t('The selected node types will no longer have the revision options listed when creating or editing a node of that type.'),
+  );
+
+  // Remove teaser controls.
+  $form['jammer_teaser_controls_unset_node_types'] = array(
+    '#type' => 'select',
+    '#title' => t('Remove teaser controls on content types'),
+    '#options' => $options,
+    '#size' => count($options) < 6 ? count($options) : 6,
+    '#multiple' => TRUE,
+    '#default_value' => variable_get('jammer_teaser_controls_unset_node_types', array()),
+    '#description' => t("The selected node types will no longer have the 'split summary at cursor' and/or 'include summary in full view' controls when creating or editing a node of that type - except for existing nodes that already have 'include summary in full view' turned off."),
+  );
+  $form['jammer_revision_log_textarea_unset_node_types'] = array(
+    '#type' => 'select',
+    '#title' => t('Remove revision log textarea on content types'),
+    '#options' => $options,
+    '#size' => count($options) < 6 ? count($options) : 6,
+    '#multiple' => TRUE,
+    '#default_value' => variable_get('jammer_revision_log_textarea_unset_node_types', array()),
+    '#description' => t('The selected node types will no longer have a log textarea listed when creating or editing a node of that type.'),
+  );
+// There is no current version of Workflow for D7.
+//  $form['jammer_workflow_form_unset_node_types'] = array(
+//    '#type' => 'select',
+//    '#title' => t('Remove workflow form from workflow tab on content types'),
+//    '#options' => $options,
+//    '#size' => count($options) < 6 ? count($options) : 6,
+//    '#multiple' => TRUE,
+//    '#default_value' => variable_get('jammer_workflow_form_unset_node_types', array()),
+//    '#description' => t('The selected node types will no longer have a workflow form on the workflow tab which will require workflow transitions to occur from the node edit screen.'),
+//  );
+  $form['user_buttons'] = array(
+    '#type' => 'fieldset',
+    '#title' => t('User buttons'),
+    '#collapsible' => TRUE,
+    '#collapsed' => FALSE,
+  );
+  $form['user_buttons']['jammer_user_delete_hide_button'] = array(
+    '#type' => 'checkbox',
+    '#title' => t('Remove delete button on user profile pages'),
+    '#description' => t('Selecting this will remove the delete button from all user profile pages'),
+    '#default_value' => variable_get('jammer_user_delete_hide_button', 0),
+  );
+  $form['content_buttons'] = array(
+    '#type' => 'fieldset',
+    '#title' => t('Content buttons'),
+    '#collapsed' => FALSE,
+    '#collapsible' => TRUE,
+  );
+  $form['content_buttons']['jammer_preview_button_unset_node_types'] = array(
+    '#type' => 'select',
+    '#title' => t('Remove preview button on content types'),
+    '#options' => $options,
+    '#size' => count($options) < 6 ? count($options) : 6,
+    '#multiple' => TRUE,
+    '#default_value' => variable_get('jammer_preview_button_unset_node_types', array()),
+    '#description' => t('The selected node types will no longer have a preview button listed when creating or editing a node of that type.'),
+  );
+  $form['content_buttons']['jammer_submit_button_unset_node_types'] = array(
+    '#type' => 'select',
+    '#title' => t('Remove submit button on content types'),
+    '#options' => $options,
+    '#size' => count($options) < 6 ? count($options) : 6,
+    '#multiple' => TRUE,
+    '#default_value' => variable_get('jammer_submit_button_unset_node_types', array()),
+    '#description' => t('The selected node types will no longer have a submit button listed when creating or editing a node of that type.'),
+  );
+  $form['content_buttons']['jammer_delete_button_unset_node_types'] = array(
+    '#type' => 'select',
+    '#title' => t('Remove delete button on content types'),
+    '#options' => $options,
+    '#size' => count($options) < 6 ? count($options) : 6,
+    '#multiple' => TRUE,
+    '#default_value' => variable_get('jammer_delete_button_unset_node_types', array()),
+    '#description' => t('The selected node types will no longer have a delete button listed when creating or editing a node of that type.'),
+  );
+  return system_settings_form($form);
+}

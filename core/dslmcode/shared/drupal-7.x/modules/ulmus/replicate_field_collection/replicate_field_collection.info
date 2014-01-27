@@ -1,0 +1,15 @@
+core = "7.x"
+description = "Extends Replicate module to manage the replication of field_collection fields."
+name = "Replicate Field Collection"
+package = "Entity"
+
+dependencies[] = replicate
+dependencies[] = field_collection
+dependencies[] = entity
+
+; Information added by drupal.org packaging script on 2013-04-26
+version = "7.x-1.0+2-dev"
+core = "7.x"
+project = "replicate_field_collection"
+datestamp = "1366983728"
+

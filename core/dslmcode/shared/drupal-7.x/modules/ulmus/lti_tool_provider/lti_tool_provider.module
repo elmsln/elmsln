@@ -1,0 +1,754 @@
+<?php
+
+/**
+ * @file
+ * lti_tool_provider hook implementations and support functions.
+ */
+
+/**
+ * Implements hook_library_info().
+ */
+function lti_tool_provider_libraries_info() {
+  $libraries['oauth'] = array(
+    'name' => 'OAuth library',
+    'vendor url' => 'http://oauth.googlecode.com',
+    'download url' => 'https://github.com/juampy72/OAuth-PHP',
+    'version' => '1.0',
+    // 'version callback' => '_lti_tool_provider_oauth_version',
+    'files' => array(
+      'php' => array('OAuth.php'),
+    ),
+  );
+  return $libraries;
+}
+
+/**
+ * Implements hook_registry_files_alter().
+ */
+function lti_tool_provider_registry_files_alter(&$files, $modules) {
+  drupal_load('module', 'libraries');
+  $path = libraries_get_path('oauth');
+  $path = ($path . '/OAuth.php');
+  $files[$path] = array(
+    'module' => 'lti_tool_provider',
+    'weight' => 0,
+  );
+}
+
+/**
+ * Implements hook_help().
+ */
+function lti_tool_provider_help($path, $arg) {
+  switch ($path) {
+    case 'admin/help#lti_tool_provider':
+      $module_path = drupal_get_path('module', 'lti_tool_provider');
+      $output  = '<p>' . t("Read the !url file in the LTI Tool Provider module directory.", array(
+        '!url' => l(t('README.txt'), $module_path . '/README.txt'),
+      )) . '</p>';
+      $output .= '<p>' . t("Information about LTI Tool Provider can also be found on the module's !docs.", array(
+        '!docs' => l(t('project page'), 'http://drupal.org/sandbox/jzornig/1809350'),
+      )) . '</p>';
+      return $output;
+  }
+}
+
+/**
+ * Implements hook_permission().
+ */
+function lti_tool_provider_permission() {
+  $permissions = array(
+    'administer lti_tool_provider module' => array(
+      'title' => t('Administer LTI Tool Provider module'),
+      'description' => t('Perform administration tasks for the LTI Tool Provider module.'),
+    ),
+    'view lti info' => array(
+      'title' => t('View LTI Context Variables'),
+    ),
+    'access lti_tool_provider_consumer entities' => array(
+      'title' => t('Access LTI Tool Provider Consumer entities'),
+      'description' => t('Read/View access for LTI Tool Provider Consumers.'),
+    ),
+  );
+  return $permissions;
+}
+
+/**
+ * Implements hook_menu().
+ */
+function lti_tool_provider_menu() {
+  $items = array();
+  $items['admin/config/lti-tool-provider'] = array(
+    'title' => 'LTI Tool Provider',
+    'description' => 'Administer the LTI Tool Provider module.',
+    'page callback' => 'system_admin_menu_block_page',
+    'access arguments' => array('administer lti_tool_provider module'),
+    'file' => 'system.admin.inc',
+    'file path' => drupal_get_path('module', 'system'),
+  );
+  $items['admin/config/lti-tool-provider/lti-tool-consumers'] = array(
+    'title' => 'LTI Tool Consumers',
+    'description' => 'Administer LTI Tool Consumers.',
+    'page callback' => 'lti_tool_provider_consumers_admin',
+    'page arguments' => array('lti_tool_provider_settings'),
+    'access arguments' => array('administer lti_tool_provider module'),
+    'file' => 'lti_tool_provider.admin.inc',
+    'weight' => -7,
+  );
+  $items['lti_tool_provider_consumer/%lti_tool_provider_consumer'] = array(
+    'title' => 'LTI Tool Consumer',
+    'description' => 'View/Edit/Delete an LTI Tool Consumer.',
+    'page callback' => 'lti_tool_provider_consumer_view',
+    'page arguments' => array(1, 'full'),
+    'access callback' => 'lti_tool_provider_consumer_access',
+    'access arguments' => array('view', 1),
+    'file' => 'lti_tool_provider.admin.inc',
+    'type' => MENU_CALLBACK,
+  );
+  $items['lti_tool_provider_consumer/%lti_tool_provider_consumer/view'] = array(
+    'title' => 'View',
+    'description' => 'View an LTI Tool Consumer.',
+    'type' => MENU_DEFAULT_LOCAL_TASK,
+    'weight' => -10,
+  );
+  $items['lti_tool_provider_consumer/%lti_tool_provider_consumer/edit'] = array(
+    'title' => 'Edit',
+    'description' => 'Edit an LTI Tool Consumer.',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('lti_tool_provider_consumer_form', 1),
+    'access arguments' => array('administer lti_tool_provider module'),
+    'type' => MENU_LOCAL_TASK,
+    'file' => 'lti_tool_provider.admin.inc',
+  );
+  $items['lti_tool_provider_consumer/%lti_tool_provider_consumer/delete'] = array(
+    'title' => 'Delete',
+    'description' => 'Delete an LTI Tool Consumer.',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('lti_tool_provider_consumer_confirm_delete_form', 1),
+    'access arguments' => array('administer lti_tool_provider module'),
+    'file' => 'lti_tool_provider.admin.inc',
+  );
+  $items['lti_tool_provider_consumer/add'] = array(
+    'title' => 'Add LTI Consumer',
+    'description' => 'Add an LTI Tool Consumer.',
+    'page callback' => 'lti_tool_provider_consumer_add',
+    'access arguments' => array('administer lti_tool_provider module'),
+    'file' => 'lti_tool_provider.admin.inc',
+    'type' => MENU_CALLBACK,
+  );
+  $items['admin/config/lti-tool-provider/user-attributes'] = array(
+    'title' => 'User Attributes',
+    'description' => 'Configure LTI context to user attribute mapping.',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('lti_tool_provider_user_attributes'),
+    'access arguments' => array('administer lti_tool_provider module'),
+    'file' => 'lti_tool_provider.admin.inc',
+    'weight' => -6,
+  );
+  $items['admin/config/lti-tool-provider/global-roles'] = array(
+    'title' => 'Global Roles',
+    'description' => 'Configure LTI context to global role mapping.',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('lti_tool_provider_global_roles'),
+    'access arguments' => array('administer lti_tool_provider module'),
+    'file' => 'lti_tool_provider.admin.inc',
+    'weight' => -5,
+  );
+  $items['admin/config/lti-tool-provider/info'] = array(
+    'title' => 'View LTI Information',
+    'description' => 'View all the LTI context variables.',
+    'page callback' => 'lti_tool_provider_info',
+    'access callback' => 'lti_tool_provider_context_access',
+    'access arguments' => array('view lti info'),
+    'file' => 'lti_tool_provider.operations.inc',
+    'weight' => -3,
+  );
+  $items['lti'] = array(
+    'title' => 'LTI',
+    'page callback' => 'lti_tool_provider_launch',
+    'access callback' => TRUE,
+    'file' => 'lti_tool_provider.operations.inc',
+    'type' => MENU_CALLBACK,
+  );
+  $items['lti-tool-provider/return'] = array(
+    'title' => 'Return to LMS',
+    'title callback' => 'lti_tool_provider_return_title',
+    'page callback' => 'lti_tool_provider_return',
+    'access callback' => 'lti_tool_provider_context_access',
+    'access arguments' => array('access content'),
+    'type' => MENU_NORMAL_ITEM,
+    'menu_name' => 'user-menu',
+    'file' => 'lti_tool_provider.operations.inc',
+  );
+  $items['lti-tool-provider/home'] = array(
+    'title' => 'Home',
+    'title callback' => 'lti_tool_provider_home_title',
+    'page callback' => 'lti_tool_provider_home',
+    'access callback' => 'lti_tool_provider_context_access',
+    'access arguments' => array('access content'),
+    'type' => MENU_NORMAL_ITEM,
+    'menu_name' => 'user-menu',
+    'file' => 'lti_tool_provider.operations.inc',
+  );
+  $items['lti-tool-provider/info'] = array(
+    'title' => 'LTI Info',
+    'description' => 'View all the LTI context variables.',
+    'page callback' => 'lti_tool_provider_info',
+    'access callback' => 'lti_tool_provider_context_access',
+    'access arguments' => array('view lti info'),
+    'type' => MENU_NORMAL_ITEM,
+    'menu_name' => 'navigation',
+    'file' => 'lti_tool_provider.operations.inc',
+  );
+  return $items;
+}
+
+/**
+ * Access callback that checks for LTI context as well as user access.
+ *
+ * @param string $access
+ *   The access permission requested.
+ *
+ * @return boolean
+ *   TRUE grants access.
+ */
+function lti_tool_provider_context_access($access) {
+  if (isset($_SESSION['lti_tool_provider_context_info']) && user_access($access)) {
+    return TRUE;
+  }
+  else {
+    return FALSE;
+  }
+}
+
+/**
+ * Menu title callback for the lti return menu item.
+ */
+function lti_tool_provider_return_title($title) {
+  if (isset($_SESSION['lti_tool_provider_context_info'])) {
+    if (key_exists('custom_return_label', $_SESSION['lti_tool_provider_context_info'])) {
+      return check_plain($_SESSION['lti_tool_provider_context_info']['custom_return_label']);
+    }
+    if (isset($_SESSION['lti_tool_provider_context_info']['tool_consumer_instance_name'])) {
+      return t('Return to @tool', array('@tool' => $_SESSION['lti_tool_provider_context_info']['tool_consumer_instance_name']));
+    }
+    else {
+      return t('Return to LMS');
+    }
+  }
+}
+
+/**
+ * Menu title callback for the LTI Home menu item.
+ *
+ * @return string
+ *   The title.
+ */
+function lti_tool_provider_home_title($title) {
+  if (key_exists('custom_destination_label', $_SESSION['lti_tool_provider_context_info'])) {
+    return check_plain($_SESSION['lti_tool_provider_context_info']['custom_destination_label']);
+  }
+  if (key_exists('resource_link_title', $_SESSION['lti_tool_provider_context_info'])) {
+    return check_plain($_SESSION['lti_tool_provider_context_info']['resource_link_title']);
+  }
+  return t('Home');
+}
+
+/**
+ * Map a user to a drupal Global role based on his/her role in the LTI context.
+ *
+ * @param string $lti_roles
+ *   The string representing the lti_roles.
+ * @param integer $uid
+ *   The id of the user to assign the role.
+ */
+function lti_tool_provider_assign_global_roles_to_user($lti_roles, $uid) {
+  $select_roles = user_roles(TRUE, NULL);
+  $global_role_array = variable_get('lti_tool_provider_global_role_array');
+  $roles = explode(',', $lti_roles);
+  foreach ($roles as $key => $raw_role) {
+    $tmp = explode(':', $raw_role);
+    $tmp2 = explode('/', end($tmp));
+    $lti_role = end($tmp2);
+    // Check if the mapped global role exists.
+    if (isset($global_role_array[$lti_role]) && isset($select_roles[$global_role_array[$lti_role]])) {
+      user_multiple_role_edit(array($uid), 'add_role', $global_role_array[$lti_role]);
+    }
+  }
+}
+
+/**
+ * Remove a user from drupal Global roles based on LTI roles.
+ *
+ * @param string $lti_roles
+ *   The string representing the lti_roles.
+ * @param integer $uid
+ *   The id of the user to assign the role.
+ */
+function lti_tool_provider_unassign_global_roles_from_user($lti_roles, $uid) {
+  $select_roles = user_roles(TRUE, NULL);
+  $global_role_array = variable_get('lti_tool_provider_global_role_array');
+  $roles = explode(',', $lti_roles);
+  foreach ($roles as $key => $raw_role) {
+    $tmp = explode(':', $raw_role);
+    $tmp2 = explode('/', end($tmp));
+    $lti_role = end($tmp2);
+    // Check if the mapped global role exists.
+    if (isset($global_role_array[$lti_role]) && isset($select_roles[$global_role_array[$lti_role]])) {
+      user_multiple_role_edit(array($uid), 'remove_role', $global_role_array[$lti_role]);
+    }
+  }
+}
+
+/**
+ * Determine if this is a valid LTI request.
+ *
+ * @return boolean
+ *   Returns TRUE if this is a Basic LTI message with minimum values
+ *   to meet the protocol.
+ */
+function lti_tool_provider_is_basic_lti_request() {
+  $good_message_type = array_key_exists('lti_message_type', $_REQUEST) ? $_REQUEST["lti_message_type"] : "basic-lti-launch-request";
+  $good_lti_version = array_key_exists('lti_version', $_REQUEST) ? $_REQUEST["lti_version"] : "LTI-1p0";
+  $resource_link_id = array_key_exists('resource_link_id', $_REQUEST) ? $_REQUEST["resource_link_id"] : NULL;
+  if ($good_message_type and $good_lti_version and isset($resource_link_id)) {
+    return TRUE;
+  }
+  return FALSE;
+}
+
+/**
+ * Get the LTI roles.
+ *
+ * @return array
+ *   An array containing the roles.
+ */
+function lti_tool_provider_get_lti_roles() {
+  return array(
+    'Learner',
+    'Instructor',
+    'ContentDeveloper',
+    'Member',
+    'Manager',
+    'Mentor',
+    'Administrator',
+    'TeachingAssistant',
+  );
+}
+
+/**
+ * Get the LTI variables relating to the user.
+ *
+ * @return array
+ *   An array containing the variable names.
+ */
+function lti_tool_provider_user_mapping_lis_details() {
+  return array(
+    'lis_person_name_given',
+    'lis_person_name_family',
+    'lis_person_name_full',
+  );
+}
+
+/**
+ * Get the LTI variables relating to the context.
+ *
+ * @return array
+ *   An array containing the variable names.
+ */
+function lti_tool_provider_context_mapping_details() {
+  return array(
+    'context_id',
+    'context_label',
+    'context_title',
+    'context_type',
+  );
+}
+
+
+/**
+ * Retrieve the field labels and types from the user entity.
+ *
+ * Return as an array suitable for a select list.
+ *
+ * @param string $filter
+ *   The string which represent the type of field to retrieve.
+ *
+ * @return array
+ *   An array containing all the retrieved fields.
+ *   The label is not display safe.
+ */
+function _lti_tool_provider_retrieve_user_field_types($filter = 'TEXT') {
+  $entites = field_info_instances('user');
+  $result = array('none' => 'None');
+  foreach ($entites['user'] as $field) {
+    if (strcasecmp($field['widget']['module'], $filter) == 0) {
+      $result[$field['field_name']] = $field['label'] . ' (' . $field['field_name'] . ')';
+    }
+  }
+  return $result;
+}
+
+/**
+ * Save a consumer.
+ *
+ * @param object $entity
+ *   The consumer to be saved.
+ */
+function lti_tool_provider_consumer_save(&$entity) {
+  return entity_get_controller('lti_tool_provider_consumer')->save($entity);
+}
+
+/**
+ * Delete a consumer.
+ *
+ * @param object $entity
+ *   The consumer to be deleted.
+ */
+function lti_tool_provider_consumer_delete($entity) {
+  entity_get_controller('lti_tool_provider_consumer')->delete($entity);
+}
+
+/**
+ * Retrieves the consumer entity via its consumer key.
+ *
+ * @param string $key
+ *   Consumer key.
+ *
+ * @return object
+ *   Consumer entity, null if record is unable to be retrieved.
+ */
+function lti_tool_provider_get_consumer_by_key($key) {
+  $entity_type = 'lti_tool_provider_consumer';
+  $query = new EntityFieldQuery();
+  $query
+  ->entityCondition('entity_type', $entity_type)
+  ->propertyCondition('lti_tool_provider_consumer_key', $key);
+  $result = $query->execute();
+  if (!empty($result[$entity_type])) {
+    $consumers = entity_load($entity_type, array_keys($result[$entity_type]));
+    return reset($consumers);
+  }
+  return NULL;
+}
+
+/**
+ * Load a consumer.
+ *
+ * @param integer $id
+ *   The id of the consumer entity to be loaded.
+ * @param boolean $reset
+ *   Wether to reset the cache.
+ *
+ * @return object
+ *   The consumer entity.
+ */
+function lti_tool_provider_consumer_load($id = NULL, $reset = FALSE) {
+  $ids = (isset($id) ? array($id) : array());
+  $obj = lti_tool_provider_consumer_load_multiple($ids, $reset);
+  return $obj ? reset($obj) : FALSE;
+}
+
+/**
+ * Load consumers from an array of ids.
+ *
+ * @param array $ids
+ *   An array of ids to load.
+ * @param array $conditions
+ *   An array of search conditions.
+ * @param boolean $reset
+ *   Wether to reset the cache.
+ *
+ * @return object
+ *   An array of consumer entity objects.
+ */
+function lti_tool_provider_consumer_load_multiple($ids = FALSE, $conditions = array(), $reset = FALSE) {
+  return entity_load('lti_tool_provider_consumer', $ids, $conditions, $reset);
+}
+
+/**
+ * Remove dummy account for a domain.
+ *
+ * @param string $domain
+ *   The domain.
+ *
+ * @return array
+ *   An array of the removed uids.
+ */
+function lti_tool_provider_remove_dummy_account($domain = '') {
+  $dummy_name = ($domain == '') ? 'lti_user' : 'lti_user@' . $domain;
+  $dummy_acc_arr = array();
+  $query = new EntityFieldQuery();
+  $query
+  ->entityCondition('entity_type', 'user')
+  ->propertyCondition('name', $dummy_name, '=');
+  $result = $query->execute();
+  if (isset($result['user'])) {
+    user_delete_multiple(array_keys($result['user']));
+    return array_keys($result['user']);
+  }
+  else {
+    return NULL;
+  }
+}
+
+/**
+ * Create a dummy account for a domain.
+ *
+ * @param string $domain
+ *   A consumer domain.
+ *
+ * @return integer
+ *   The account uid.
+ */
+function lti_tool_provider_create_dummy_account($domain) {
+  $dummy_name = ($domain == '') ? 'lti_user' : 'lti_user@' . $domain;
+  if ($account = user_load_by_name($dummy_name)) {
+    return $account->uid;
+  }
+  else {
+    $mail = ($domain == '') ? $dummy_name . '@invalid' : $dummy_name . '@' . $domain . '.invalid';
+    // Create user with the authenticated roles.
+    $userinfo = array(
+      'name' => $dummy_name,
+      'pass' => user_password(20),
+      'init' => $mail,
+      'mail' => $mail,
+      'status' => 1,
+      'access' => REQUEST_TIME,
+    );
+    $account = user_save(drupal_anonymous_user(), $userinfo);
+    // Add default (drupal authenticated role).
+    user_multiple_role_edit(array($account->uid), 'add_role', 2);
+    return $account->uid;
+  }
+}
+
+/**
+ * Translate boolean to On/Off.
+ *
+ * @param integer $bool
+ *   The integer.
+ *
+ * @return string
+ *   On or Off.
+ */
+function lti_tool_provider_trans_bool($bool) {
+  if ($bool == 1) {
+    return 'On';
+  }
+  else {
+    return 'Off';
+  }
+}
+
+/**
+ * List columns added by other modules to the consumer.
+ *
+ * @return array
+ *   An array of column names.
+ */
+function lti_tool_provider_get_extra_columns() {
+  $extra_col = array();
+  $schema = drupal_get_schema('lti_tool_provider_consumer');
+  $fields = $schema['fields'];
+  foreach ($fields as $field => $value) {
+    if ($field != 'lti_tool_provider_consumer_id' && $field != 'lti_tool_provider_consumer_key' && $field != 'lti_tool_provider_consumer_secret' && $field != 'lti_tool_provider_consumer_consumer' && $field != 'lti_tool_provider_consumer_domain' && $field != 'lti_tool_provider_consumer_dummy_pref' && $field != 'date_joined') {
+      $extra_col[] = $field;
+    }
+  }
+  return $extra_col;
+}
+
+/**
+ * Implements hook_entity_info().
+ */
+function lti_tool_provider_entity_info() {
+  $return = array(
+    'lti_tool_provider_consumer' => array(
+      'label' => t('LTI Tool Provider Consumer'),
+      'controller class' => 'LTIToolProviderConsumerEntityController',
+      'base table' => 'lti_tool_provider_consumer',
+      'fieldable' => TRUE,
+      'entity keys' => array(
+        'id' => 'lti_tool_provider_consumer_id',
+        'label' => 'lti_tool_provider_consumer_consumer',
+      ),
+      'static cache' => TRUE,
+      'view modes' => array(
+        'full' => array(
+          'label' => t('Default'),
+          'custom settings' => FALSE,
+        ),
+      ),
+      'uri callback' => 'lti_tool_provider_consumer_uri',
+      'module' => 'lti_tool_provider_consumer',
+      'bundles' => array(
+        'lti_tool_provider_consumer' => array(
+          'admin' => array(
+            'path' => 'admin/config/lti-tool-provider/lti-tool-provider-consumers',
+            'access arguments' => array('administer lti_tool_provider module'),
+          ),
+        ),
+      ),
+      'access callback' => 'lti_tool_provider_consumer_access',
+    ),
+  );
+  return $return;
+}
+
+/**
+ * Get the url to view a consumer.
+ *
+ * @param object $consumer
+ *   A consumer object.
+ *
+ * @return string
+ *   The url for the consumer view.
+ */
+function lti_tool_provider_consumer_uri($consumer) {
+  return array(
+    'path' => 'lti_tool_provider_consumer/' . $consumer->id,
+  );
+}
+
+/**
+ * Perform a drupal goto but avoid interfering with cron.php.
+ */
+function lti_tool_provider_goto($path) {
+  if (php_sapi_name() == 'cli') {
+    // This may mean cron via Drush.
+    drupal_exit();
+  }
+  if (preg_match('/\/cron.php$/', $_SERVER['SCRIPT_NAME'])) {
+    // Check for cron.php in the url.
+    // preg_match accommodates sites in sub-directories.
+    drupal_exit();
+  }
+  if (arg(0) == 'admin' && arg(1) == 'reports' && arg(2) == 'status' && arg(3) == 'run-cron') {
+    drupal_exit();
+  }
+  drupal_goto($path);
+}
+
+/**
+ * Provision a user account from the lti_info.
+ *
+ * @param string $lti_user
+ *   The lti user name.
+ * @param array $lti_info
+ *   The lti context info.
+ *
+ * @return object
+ *   The user account object or FALSE if the account creation failed.
+ */
+function lti_tool_provider_create_account($lti_user, $lti_info) {
+  // If a user image is supplied create a managed file,
+  // and attach it to the user account.
+  if (isset($context_info['user_image'])) {
+    $file = (object) array(
+      'uid' => 1,
+      'uri' => $context_info['user_image'],
+      'filename' => drupal_basename($lti_info['user_image']),
+      'filemime' => file_get_mimetype($filepath),
+      'status' => 1,
+    );
+    $file = file_save($file);
+    $picture = $file->fid;
+  }
+  else {
+    $picture = 0;
+  }
+  // Construct the userinfo to be used to create the account.
+  $user_attribute_settings = variable_get('lti_tool_provider_user_attribute_mapping', array());
+  $fields = _lti_tool_provider_retrieve_user_field_types('TEXT');
+  $userinfo = array(
+    'name' => $lti_user,
+    'pass' => user_password(20),
+    'init' => $lti_info['lis_person_contact_email_primary'],
+    'mail' => $lti_info['lis_person_contact_email_primary'],
+    'picture' => $picture,
+    'status' => 1,
+    'access' => REQUEST_TIME,
+  );
+  foreach ($user_attribute_settings as $variable => $field) {
+    if (($field != 'none') && isset($fields[$field]) && isset($lti_info[$variable])) {
+      $userinfo[$field] = array(LANGUAGE_NONE => array('0' => array('value' => $lti_info[$variable])));
+    }
+  }
+  $account = user_save(drupal_anonymous_user(), $userinfo);
+  // Allow other modules to alter the newly provisioned lti user account.
+  drupal_alter('lti_tool_provider_create_account', $account, $lti_info);
+  return $account;
+}
+
+/**
+ * Implements hook_entity_property_info().
+ */
+function lti_tool_provider_entity_property_info() {
+  $info = array();
+  // Add meta-data about the basic properties.
+  $properties = &$info['lti_tool_provider_consumer']['properties'];
+  $properties['lti_tool_provider_consumer_id'] = array(
+    'label' => t("Primary key"),
+    'type' => 'integer',
+    'description' => t("Primary key"),
+    'schema field' => 'lti_tool_provider_consumer_id',
+  );
+  $properties['lti_tool_provider_consumer_key'] = array(
+    'label' => t("Key"),
+    'type' => 'text',
+    'description' => t("Key of the consumer"),
+    'schema field' => 'lti_tool_provider_consumer_key',
+  );
+  $properties['lti_tool_provider_consumer_secret'] = array(
+    'label' => t("Secret"),
+    'type' => 'text',
+    'description' => t("Secret"),
+    'schema field' => 'lti_tool_provider_consumer_secret',
+  );
+  $properties['lti_tool_provider_consumer_consumer'] = array(
+    'label' => t("Consumer name"),
+    'type' => 'text',
+    'description' => t("Consumer name"),
+    'schema field' => 'lti_tool_provider_consumer_consumer',
+  );
+  $properties['lti_tool_provider_consumer_dummy_pref'] = array(
+    'label' => t("Dummy pref"),
+    'type' => 'integer',
+    'description' => t("Preference as to use as dummy account"),
+    'schema field' => 'lti_tool_provider_consumer_dummy_pref',
+  );
+  $properties['date_joined'] = array(
+    'label' => t("Date joined"),
+    'type' => 'date',
+    'description' => t("Date the consumer was added"),
+    'schema field' => 'date_joined',
+  );
+  return $info;
+}
+
+/**
+ * Determines whether the given user has access to view a tool provider consumer.
+ *
+ * @param $op
+ *   The operation being performed. One of 'view', 'update', 'create', 'delete'.
+ * @param $item
+ *   Optionally a field collection item. If nothing is given, access for all
+ *   items is determined.
+ * @param $account
+ *   The user to check for. Leave it to NULL to check for the global user.
+ * @return boolean
+ *   Whether access is allowed or not.
+ */
+function lti_tool_provider_consumer_access($op, $item = NULL, $account = NULL) {
+  // allow administer permission to trump all others
+  if (user_access('administer lti_tool_provider module', $account)) {
+    return TRUE;
+  }
+  // allow for access of the entity type
+  if ($op == 'view' && user_access('access lti_tool_provider_consumer entities', $account)) {
+    return TRUE;
+  }
+  // they didn't have viewer rights ignore this call
+  return FALSE;
+}

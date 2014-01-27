@@ -1,0 +1,12 @@
+name = Advanced help example
+description = A example help module to demonstrate the advanced help module.
+core = 7.x
+dependencies[] = advanced_help
+files[] = help_example.module
+
+; Information added by drupal.org packaging script on 2011-11-11
+version = "7.x-1.0"
+core = "7.x"
+project = "advanced_help"
+datestamp = "1321022730"
+

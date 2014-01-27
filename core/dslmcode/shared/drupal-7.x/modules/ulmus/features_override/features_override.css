@@ -1,0 +1,45 @@
+div.form-item.form-type-checkbox {
+	padding: 0;
+}
+table.features_override_table td {
+	padding: 4px 10px;
+}
+table.features_override_table td pre {
+	margin: 0 0;
+	line-height: 150%;
+}
+#edit-sources-features-overrides {
+	overflow-y: visible;
+	height: auto;
+	margin-bottom: 8px;
+}
+#edit-sources-features-overrides h4 {
+	background: #E1E2DC;
+	border: 1px solid #BEBFB9;
+	margin: 6px 0;
+	padding: 4px 5px;
+	font-weight: normal;
+}
+a.features_override_button {
+	color: #333;
+  background: #EEE;
+	padding: 0px 5px;
+	margin-right: 5px;
+	-moz-border-radius: 5px;
+  -webkit-border-radius: 5px;
+  float: right;
+}
+#edit-sources-features-overrides h4 a {
+	color: #333;
+  background: #CCC;
+	margin-right: 0;
+}
+a.features_override_button:hover {
+  background: #DEF;
+}
+#edit-sources-features-overrides h4 a.features_override_button:hover {
+  background: #DEF;
+}
+#edit-sources-features-overrides div.form-type-checkbox {
+	clear: right;
+}

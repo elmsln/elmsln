@@ -1,0 +1,5 @@
+This module was created by Matt Westgate <drupal at asitis dot org>
+Maintained up to version 4.6 by Karsten Mueller <kmue at mac dot com>
+Maintained up to version 4.7 by Peter John Hartman <peterjohnhartman at gmail.com>
+Some bug fixes by David Kent Norman on Dec 20, 2005 <deekayen at: deekayen {dot} net>
+and is currently maintained by Joao Ventura <joao at venturas dot org>.

@@ -1,0 +1,27 @@
+<?php
+
+class CRPhoneNumberTestCase extends DrupalWebTestCase {
+  /**
+   * Implementation of getInfo()
+   *
+   */
+  public static function getInfo() {
+    return array(
+      'name' => t('Costa Rica Phone number test'),
+      'description' => t('Tests various valid and invalid Costa Rica phone numbers for validity'),
+      'group' => t('Phone')
+    );
+  }
+
+  public function testPhoneCRValid() {
+    //$this->assertTrue(valid_phone_number('cr', '04 476 0000'), t('Test valid'));
+  }
+
+  public function testPhoneCRInvalid() {
+    //$this->assertFalse(valid_phone_number('cr', '021 3012 3456'), t('Test invalid '));
+  }
+
+  public function testPhoneCRFormatting() {
+    //$this->assertEqual(format_phone_number('cr', '+6421123456', null), '+64 21 123 456', t('Check international mobile format'));
+  }
+}

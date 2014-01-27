@@ -1,0 +1,12 @@
+name = OG Clone
+description = Allows a user to clone an Organic Group and all of its content.
+core = 7.x
+dependencies[] = og
+dependencies[] = entity
+package = "Organic groups"
+; Information added by drupal.org packaging script on 2012-11-16
+version = "7.x-1.x-dev"
+core = "7.x"
+project = "og_clone"
+datestamp = "1353028784"
+

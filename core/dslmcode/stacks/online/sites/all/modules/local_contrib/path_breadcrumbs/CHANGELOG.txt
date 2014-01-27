@@ -1,0 +1,47 @@
+Path Breadcrumbs 7.x-3.x, xxxx-xx-xx
+------------------------------
+
+
+Path Breadcrumbs 7.x-3.0-beta6, 2013-10-25
+------------------------------
+#2067579 by adamzimmermann, kalabro: Fixed External URLs don't work when using Path Breadcrumbs render function.
+#1975160 by kalabro: Added Breadcrumbs internal rendering settings per theme.
+#2118329 by kalabro, klim_: Added query symbols support (?&=).
+
+
+Path Breadcrumbs 7.x-3.0-beta5, 2013-09-29
+------------------------------
+#1976008 by klonos, Spleshka, kalabro: Renamed "Path breadcrumbs" to "Path Breadcrumbs".
+by kalabro: Converted ":parent:" token from list to single item in UI autocomplete.
+#2089979 by maximpodorov, kalabro: Fixed multiple PHP "Undefined property" Notices.
+#2095631 by oskar_calvo, kalabro: Fixed path breadcrumbs cache doesn't work with translation.
+#1954868 by kalabro | abautu, rosberg: Reimplemented and fixed %site context.
+by kalabro: Added new access plugins: "Taxonomy: term has children" and "Taxonomy: term depth".
+
+
+Path Breadcrumbs 7.x-3.0-beta4, 2013-08-06
+------------------------------
+#2021855 by kalabro | ergow: Fixed double url encoding when using Path breadcrumbs render function.
+#1893878 by kalabro | Anthony Goode: Fixed Duplicated path prefix in urls when using Path breadcrumbs render function.
+#2051905 by kalabro | operations: Fixed Refreshing i18n strings deletes translated strings.
+#2033169 by kalabro: Added new option "URL path cleaning method" with CTools and Pathauto support.
+#1929110 by samhassell, VasilyKraev, kalabro: Added new option "Maximum title length" for truncating long strings.
+#1959890 by rimen, grient, kalabro: Link/title fields maxlength increased to 256.
+By kalabro: Added new "bp-join" token for hierarchical taxonomy breadcrumbs.
+#2035365 by lecler, kalabro: Fixed Translations lost after reverting path breadcrumbs.
+#2018979 by mmikitka, kalabro: Sort breadcrumbs export by natural order for better file diffing.
+
+
+Path Breadcrumbs 7.x-3.0-beta3, 2013-06-19
+------------------------------
+#1958842 by kalabro | VasilyKraev, philsward, Spleshka, das-peter: Fixed Path Breadcrumbs doesn't work in Panels content type.
+#2021907 by kalabro: Show contextual links for Path Breadcrumbs variant.
+#1954002 by rimen, kalabro: Fixed arguments with underscore not work in tokens. Added raw arguments to autocomplete.
+#1954868 by kalabro | abautu, rosberg: Fixed %site context doesn't work.
+#1982528 by kalabro: Fixed PDOException because of ctools cache object conflicts.
+#1946760 by maximpodorov, Spleshka: Provide API for additional Path Breadcrumbs configuration on 4th step.
+
+
+Path Breadcrumbs 7.x-3.0-beta2, 2013-04-14
+------------------------------
+#1959052 by zhangx1a0, kalabro, Spleshka: Fixed Cannot change term page breadcrumbs

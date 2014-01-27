@@ -1,0 +1,129 @@
+<?php
+/**
+ * @file
+ * wysiwyg plugin hook.
+ */
+
+function token_insert_permission() {
+  return array(
+      'administer token insert settings' => array(
+          'title' => t('administer token insert settings'),
+          'description' => t('Administer token insert settings')),
+      'use token insert' => array(
+          'title' => t('use token insert'),
+          'description' => t('Allows user to use the token insert module')),
+      );
+}
+
+function token_insert_menu() {
+  
+  $items['admin/config/content/token_insert'] = array(
+    'title' => 'Token insert',
+    'description' => 'Change the token users can insert.',
+    'type' => MENU_NORMAL_ITEM,
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('token_insert_settings_form'),
+    'access arguments' => array('administer token insert settings'),
+  );
+  
+  return $items;
+}
+
+function token_insert_settings_form($form_state) {
+  $form = array();
+  $form['tokens'] = array(
+      '#type' => 'vertical_tabs',
+  );
+  $form['tokens_per_role'] = array(
+      '#type' => 'fieldset',
+      '#title' => t('Token Insert per role'),
+      '#description' => t('Configure available tokens per user role'),
+      '#collapsible' => FALSE,
+  );
+
+  $form['tokens_per_role']['token_insert_use_tokens_per_role'] = array(
+      '#type' => 'checkbox',
+      '#title' => t('Use tokens per role'),
+      '#default_value' => variable_get('token_insert_use_tokens_per_role', 0),
+  );
+
+  $roles ['global'] = 'global';
+  if(variable_get('token_insert_use_tokens_per_role', 0)){
+    $roles += user_roles(TRUE, 'use token insert');
+  }
+  $all_tokens = token_get_info();
+
+  foreach($roles as $rid => $role){
+    $title = t("Available tokens for $role");
+    $description = t("Available tokens for users with the '$role' role");
+    if($rid == 'global'){
+      $title = t('Globally available tokens');
+      $description = t('Tokens available for every user');
+    }
+    $form[$rid . '_available_tokens'] = array(
+      '#type' => 'fieldset',
+      '#title' => $title,
+      '#description' => $description,
+      '#collapsible' => TRUE,
+      '#collapsed' => TRUE,
+    );
+    foreach ($all_tokens['tokens'] as $category => $tokens) {
+
+      $form[$rid . '_available_tokens'][$category] = array(
+        '#type' => 'fieldset',
+        '#title' => t($category),
+        '#collapsible' => TRUE,
+        '#collapsed' => TRUE,
+      );
+
+      $options = array();
+      $defaults = array();
+
+      foreach ($tokens as $token => $description) {
+        $options[$token] = $category . ' : [' . $token . '] : ' . t($description['description']);
+        $defaults[$token] = 0;
+      }
+
+
+      $form[$rid . '_available_tokens'][$category]['token_insert_' . $rid . '_used_tokens_' . $category] = array(
+        '#type' => 'checkboxes',
+        '#title' => t('Select tokens'),
+        '#default_value' => variable_get('token_insert_' . $rid . '_used_tokens_' . $category, array()),
+        '#options' => $options,
+        '#description' => t('Select ' . $category . ' tokens available for insert.')
+      );
+    }
+  }
+  
+  return system_settings_form($form);
+}
+
+function token_insert_help($path, $arg){
+  if($path == 'admin/help#token_insert'){
+    $output = <<<EOT
+    <h3>Description</h3>
+    <p>This module allows you to insert tokens into a textarea. It supports both plain text and wysiwyg textareas. The format used for the insert is compatible with Token filter.</p>
+    <p>This module contains three modules:</p>
+    <ul>
+      <li>Token insert UI: Allows you to select which tokens are available for the insert, by default all tokens are shown. This module doesn't have to be enabled to use the others.</li>
+      <li>Token insert (text): Add a fieldset under each textarea, works for both plain text fields and wysiwyg fields.</li>
+      <li>Token insert (wysiwyg): Adds an extra button to wysiwyg editors and opens a popup to select the token to insert.</li>
+    </ul>
+    <h3>Dependencies</h3>
+    <ul>
+      <li>Token</li>
+    </ul>
+    <h3>Recommended</h3>
+    <ul>
+      <li>Token filter</li>
+    </ul>
+    <h3>Thanks to</h3>
+    <ul>
+      <li>Attiks</li>
+      <li>Jelle</li>
+    </ul>
+EOT;
+  return $output;
+  }
+
+}

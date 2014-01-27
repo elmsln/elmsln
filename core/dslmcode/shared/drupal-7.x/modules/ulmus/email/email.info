@@ -1,0 +1,13 @@
+name = Email
+description = Defines an email field type.
+core = 7.x
+package = Fields
+
+files[] = email.migrate.inc
+
+; Information added by drupal.org packaging script on 2012-08-29
+version = "7.x-1.2"
+core = "7.x"
+project = "email"
+datestamp = "1346254131"
+

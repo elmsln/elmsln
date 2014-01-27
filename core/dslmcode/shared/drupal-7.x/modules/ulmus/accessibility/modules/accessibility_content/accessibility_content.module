@@ -1,0 +1,104 @@
+<?php
+
+/**
+ * Implements hook_menu().
+ */
+function accessibility_content_menu() {
+  $items = array();
+  
+  $items['admin/config/accessibility/content'] = array(
+    'title' => 'Content',
+    'description' => 'Enable or disable toggle for users to view content alerts and manage language of content toggle.',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('accessibility_content_admin_form'),
+    'access arguments' => array('administer site configuration'),
+    'file' => 'accessibility_content.admin.inc',
+  );
+  
+  return $items;
+}
+
+/** 
+ * Implements hook_form_FORM_ID_alter().
+ */
+function accessibility_content_form_field_ui_field_edit_form_alter(&$form, $form_state) {
+  if (in_array($form['#field']['type'], array('text_with_summary'))) {
+    $form['instance']['accessibility_content'] = array(
+      '#type' => 'checkbox',
+      '#title' => t('Check this field for accessibility'),
+      '#description' => t('Allow appropriate users to check this field for accessibility'),
+      '#default_value' => (isset($form['#instance']['accessibility_content'])) ? 
+                                 $form['#instance']['accessibility_content'] :
+                                 FALSE,
+    );
+    
+    $form['instance']['accessibility_content_block_submit'] = array(
+      '#type' => 'checkboxes',
+      '#title' => t('Block saving content if there are any errors that are:'),
+      '#options' => array('severe' => t('Severe'),
+                          'moderate' => t('Moderate'),
+                          'suggestion' => t('Suggestion')
+                        ),  
+      '#default_value' => (isset($form['#instance']['accessibility_content_block_submit'])) ? 
+                                 $form['#instance']['accessibility_content_block_submit'] :
+                                  FALSE,
+    );
+  }
+}
+
+/**
+ * Implements hook_field_attach_view_alter().
+ */
+function accessibility_content_field_attach_view_alter(&$output, $context) {
+  if (user_access('check content for accessibility')) {
+    foreach ($output as $field_key => $field) {
+      if (is_array($field) && isset($field['#field_name'])) {
+        $field = field_info_instance($field['#entity_type'], $field['#field_name'], $field['#bundle']);
+        if (isset($field['accessibility_content']) && $field['accessibility_content']) {
+          module_load_include('inc', 'accessibility_content', 'accessibility_content');
+          accessibility_content_init();
+          $output[$field_key]['#pre_render'][] = '_accessibility_content_field_pre_render';
+        }
+      }
+    }
+  }
+}
+
+/**
+ * Implements field_widget_form_alter().
+ */
+function accessibility_content_field_widget_form_alter(&$element, &$form_state, $context) {
+  if (!isset($element['#type']) || !in_array($element['#type'], array('text_format'))) {
+    return;
+  }
+  $field = field_info_instance($element['#entity_type'], $element['#field_name'], $element['#bundle']);
+  $options = array();
+  if (isset($field['accessibility_content_block_submit'])) {
+    foreach ($field['accessibility_content_block_submit'] as $severity => $active) {
+      if ($active) {
+        $options[] = $severity;
+      }
+    }
+  }
+  if (!count($options)) {
+    return;
+  }
+  drupal_add_js(array('accessibility_content_form_message' => variable_get('accessibility_disabled_form_message', t('You have been prevented from submitting this form because of the following accessibility errors.'))), 'setting');
+  module_load_include('inc', 'accessibility_content');
+  accessibility_content_init(array('form' => TRUE));
+  $element['#attributes'] = (is_array($element['#attributes']['class'])) ? $element['#attributes']['class'] : array();
+  $element['#attributes']['class'][] = 'accessible-content-check-form';
+  $element['#attributes']['data-accessible-content-severity'] = implode(',', $options);
+}
+
+/**
+ * Implements hook_permission().
+ */
+function accessibility_content_permission() {
+  return array(
+    'check content for accessibility' =>  array(
+      'title' => t('Check content for accessibility'),
+      'description' => t('Show accessibility problems in content the user has access to view.')
+    ),
+  );
+}

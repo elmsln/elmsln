@@ -1,0 +1,53 @@
+<?php
+
+/**
+ * @file
+ * This module provides CKEditor module support for token insert.
+ */
+
+/**
+ * Implements hook_menu().
+ */
+function token_insert_ckeditor_menu() {
+  $items = array();
+  $items['token_insert_ckeditor/insert'] = array(
+    'page callback' => '_token_insert_ckeditor_tokens_output',
+    'access arguments' => array('access content'),
+    'type' => MENU_CALLBACK,
+  );
+
+  return $items;
+}
+
+/**
+ * Implements hook_ckeditor_plugin().
+ */
+function token_insert_ckeditor_ckeditor_plugin() {
+  return array(
+    'token_insert_ckeditor' => array(
+      'name' => 'token_insert_ckeditor',
+      'desc' => t('Token insert'),
+      'path' => drupal_get_path('module', 'token_insert_ckeditor') . '/plugins/token_insert_ckeditor/',
+      'buttons' => array('TokenInsert' => array(
+        'icon' => 'images/insert.png',
+        'label' => 'Token insert',
+      )),
+    )
+  );
+}
+
+/**
+ * Print out the tokens in a CKEditor-readable format.
+ */
+function _token_insert_ckeditor_tokens_output() {
+  module_load_include('inc', 'token_insert', 'token_insert');
+  $options = token_insert_get_tokens();
+
+  $tokens = array();
+
+  foreach ($options as $token_key => $description) {
+    $tokens[] = array($description, $token_key);
+  }
+
+  print json_encode($tokens);
+}

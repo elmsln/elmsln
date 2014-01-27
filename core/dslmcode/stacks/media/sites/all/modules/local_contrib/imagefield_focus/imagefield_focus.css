@@ -1,0 +1,14 @@
+.form-text.imagefield-focus
+{
+  max-width: 13em;
+}
+
+.form-text.imagefield-focus.active
+{
+  border: 2px solid #999;
+}
+
+.imagefield-focus.focus-box
+{
+  min-width: 500px;
+}

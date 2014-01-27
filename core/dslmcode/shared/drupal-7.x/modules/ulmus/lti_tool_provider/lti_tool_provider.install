@@ -1,0 +1,152 @@
+<?php
+
+/**
+ * @file
+ * Install, update, and uninstall functions for the LTI Tool Provider module.
+ */
+
+/**
+ * Implements hook_requirements().
+ */
+function lti_tool_provider_requirements($phase) {
+  $requirements = array();
+  // Ensure translations don't break at install time.
+  $t = get_t();
+  drupal_load('module', 'libraries');
+  $path = libraries_get_path('oauth');
+  if (!$path || !file_exists(DRUPAL_ROOT . '/' . $path . '/OAuth.php')) {
+    // Since Libraries 2.x, $path is FALSE if the library does not exist.
+    $path = 'sites/all/libraries/oauth';
+    $requirements['oauth'] = array(
+      'title' => $t('OAuth library'),
+      'severity' => REQUIREMENT_ERROR,
+      'description' => $t('Please download !url, extract the archive and copy the contents to the following location:<br /><code>@path</code>. Make sure the file, OAuth.php, is located at<br /><code>@class</code>.', array(
+        '!url' => l('OAuth.php', 'https://github.com/juampy72/OAuth-PHP'),
+        '@path' => $path,
+        '@class' => $path . '/OAuth.php',
+      )),
+    );
+    if ($phase != 'install') {
+      $requirements['oauth']['value'] = $t('Missing');
+    }
+  }
+  else {
+    $requirements['oauth'] = array(
+      'title' => $t('OAuth library'),
+      'severity' => REQUIREMENT_OK,
+    );
+    if ($phase != 'install') {
+      $requirements['oauth']['value'] = $t('Installed');
+    }
+  }
+  if (!drupal_is_cli() && empty($_SERVER['SERVER_NAME'])) {
+    $requirements['lti_tool_provider'] = array(
+      'title' => $t('LTI OAuth Server Configuration'),
+      'severity' => REQUIREMENT_ERROR,
+      'description' => $t('Your web server configuration is not providing a valid $_SERVER[\'SERVER_NAME\']. Without this value, OAuth signatures will not match.'),
+    );
+  }
+  elseif (!drupal_is_cli() && empty($_SERVER['SERVER_PORT'])) {
+    $requirements['lti_tool_provider'] = array(
+      'title' => $t('LTI OAuth Server Configuration'),
+      'severity' => REQUIREMENT_ERROR,
+      'description' => $t('Your web server configuration is not providing a valid $_SERVER[\'SERVER_PORT\']. Without this value, OAuth signatures will not match.'),
+    );
+  }
+  else {
+    $requirements['lti_tool_provider'] = array(
+      'title' => $t('LTI OAuth Server Configuration'),
+      'severity' => REQUIREMENT_OK,
+    );
+    if ($phase != 'install') {
+      $requirements['lti_tool_provider']['value'] = $t('Server name is') . ' ' . $_SERVER['SERVER_NAME'] . '. ' . $t('Port is') . ' ' . $_SERVER['SERVER_PORT'] . '.';
+    }
+  }
+  return $requirements;
+}
+
+/**
+ * Implements hook_install().
+ */
+function lti_tool_provider_install() {
+  variable_set('lti_tool_provider_global_role_array', array(
+  'Learner' => 1,
+  'Instructor' => 1,
+  'ContentDeveloper' => 1,
+  'Member' => 1,
+  'Manager' => 1,
+  'Mentor' => 1,
+  'Administrator' => 1,
+  'TeachingAssistant' => 1,
+  ));
+  variable_set('lti_tool_provider_user_attribute_mapping', array(
+  'lis_person_name_given' => 'none',
+  'lis_person_name_family' => 'none',
+  'lis_person_name_full' => 'none',
+  ));
+}
+
+/**
+ * Implements hook_schema().
+ */
+function lti_tool_provider_schema() {
+  $schema = array();
+  // The name of the table can be any name we choose. However, namespacing the
+  // table with the module name is best practice.
+  $schema['lti_tool_provider_consumer'] = array(
+    'description' => 'The base table for our lti_tool_provider_consumer.',
+    'fields' => array(
+      'lti_tool_provider_consumer_id' => array(
+        'description' => 'Primary key of the lti_tool_provider_consumer.',
+        'type' => 'serial',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ),
+      'lti_tool_provider_consumer_key' => array(
+        'description' => 'The key for LTITP Consumer',
+        'type' => 'varchar',
+        'length' => 512,
+        'not null' => TRUE,
+      ),
+      'lti_tool_provider_consumer_secret' => array(
+        'description' => 'The secret for LTITP Consumer',
+        'type' => 'varchar',
+        'length' => 512,
+        'not null' => TRUE,
+      ),
+      'lti_tool_provider_consumer_consumer' => array(
+        'description' => 'A representive name of LTITP Consumer',
+        'type' => 'varchar',
+        'length' => 512,
+        'not null' => TRUE,
+      ),
+      'lti_tool_provider_consumer_domain' => array(
+        'description' => 'A representive name of the domain',
+        'type' => 'varchar',
+        'length' => 512,
+        'not null' => TRUE,
+      ),
+      'lti_tool_provider_consumer_dummy_pref' => array(
+        'description' => 'A representive name of the domain',
+        'type' => 'int',
+        'size' => 'tiny',
+        'not null' => TRUE,
+      ),
+      'date_joined' => array(
+        'description' => 'The Unix timestamp of the entity creation time.',
+        'type' => 'int',
+        'not null' => TRUE,
+      ),
+    ),
+    'primary key' => array('lti_tool_provider_consumer_id'),
+  );
+  return $schema;
+}
+
+/**
+ * Implements hook_uninstall().
+ */
+function lti_tool_provider_uninstall() {
+  variable_del('lti_tool_provider_global_role_array');
+  variable_del('lti_tool_provider_user_attribute_mapping');
+}

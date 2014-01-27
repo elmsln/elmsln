@@ -1,0 +1,12 @@
+name = Scanner
+description = Do Search and Replace on the content of nodes.
+
+core = 7.x
+
+
+; Information added by drupal.org packaging script on 2012-06-29
+version = "7.x-1.x-dev"
+core = "7.x"
+project = "scanner"
+datestamp = "1340973781"
+

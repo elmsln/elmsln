@@ -1,0 +1,201 @@
+<?php
+
+/**
+ * @file
+ * Set of simpletests for the coding style standards review.
+ */
+
+require_once dirname(__FILE__) . '/coder_review_test_case.tinc';
+
+/**
+ * Class to test for the style of the required Drupal coding standards.
+ */
+class CoderReviewStyleTest extends CoderReviewTestCase {
+
+  /**
+   * Constructor that creates a CoderReviewStyleTest instance.
+   *
+   * @param string|null $id
+   *   (optional) The test identifier. Defaults to NULL.
+   */
+  function __construct($id = NULL) {
+    parent::__construct('style', $id);
+  }
+
+  public static function getInfo() {
+    return array(
+      'name' => 'Coder Review Style Tests',
+      'description' => 'Tests for the coder style review.',
+      'group' => 'CoderReview',
+    );
+  }
+
+  /**
+   * Tests for the correct formatting of an array index.
+   */
+  function testStyleArrayIndex() {
+    $this->assertCoderReviewPass('$some_array[FOO_BAR] = $baz;');
+    $this->assertCoderReviewFail('$some_array[foo_bar] = $baz;');
+    $this->assertCoderReviewFail('  $a[hello] = "hello";');
+    $this->assertCoderReviewPass('  $a[\'hello\'] = "hello";');
+  }
+
+  /**
+   * Tests for the correct formatting of tab character in code.
+   */
+  function testStyleTabs() {
+    $this->assertCoderReviewPass('// Tab in	comment');
+    $this->assertCoderReviewPass('$var = "tab in	double quote"');
+    $this->assertCoderReviewPass('$var = \'tab in	single quote\'');
+    $this->assertCoderReviewFail('	$var = "tab in line";');
+  }
+
+  /**
+   * Tests for the correct use of camelCase text.
+   */
+  function testStyleCamelCase() {
+    $this->assertCoderReviewPass('  $var = new stdClass();');
+    $this->assertCoderReviewPass('  $var = $obj->camelCase();');
+    $this->assertCoderReviewFail('  $camelCase = "1";');
+    $this->assertCoderReviewFail('  function camelCase() {');
+    $this->assertCoderReviewFail("  class myClass {\nfunction camelCase() {");
+    $this->assertCoderReviewFail("  interface myClass {\nfunction camelCase() {");
+    $this->assertCoderReviewPass("  class MyClass {\nfunction camelCase() {");
+    $this->assertCoderReviewPass("  interface MyClass {\nfunction camelCase() {");
+    $this->assertCoderReviewPass('  ?>This is embedded php and should Not trigger a camelCase error.<?php');
+    $this->assertCoderReviewPass("  ?>This second embedded php and should Not trigger\na camelCase error.<?php");
+    $this->assertCoderReviewPass('  $var = 0xFF;');
+  }
+
+  /**
+   * Tests for correct use of '<br>' HTML tag.
+   */
+  function testStyleBr() {
+    $this->assertCoderReviewFail('  print "<br>";');
+    $this->assertCoderReviewFail('  ?><br><?php');
+  }
+
+  /**
+   * Tests for correct use of TRUE/FALSE constants.
+   */
+  function testStyleConstants() {
+    $this->assertCoderReviewPass('  $a = TRUE;');
+    $this->assertCoderReviewPass('  $atrue = "true";');
+    $this->assertCoderReviewFail('  $a = true;');
+    $this->assertCoderReviewFail('  $a =true;');
+    $this->assertCoderReviewFail('  if ($a == true) {');
+    $this->assertCoderReviewFail('    return false;');
+  }
+
+  /**
+   * Tests for absence of closing '?>' text in php files.
+   */
+  function testStyleClosingPhp() {
+    $this->assertCoderReviewFail("  print 'hello';\n?>");
+  }
+
+  /**
+   * Tests for the presence of trailing space detection functionality.
+   */
+  function testStyleTrailingSpaces() {
+    $this->assertCoderReviewFail('  $left = "trailing spaces follow";   ');
+    $this->assertCoderReviewPass('  $left = "no trailing spaces";');
+  }
+
+  /**
+   * Tests for the correct use of control structures.
+   */
+  function testStyleControlStructures() {
+    $this->assertCoderReviewFail('  if ($a == 1) { }');
+    $this->assertCoderReviewPass('  if ($a == 1) {');
+    $this->assertCoderReviewFail('  }else {');
+    $this->assertCoderReviewFail('  if ($a == 1) { $b = 2;');
+    $this->assertCoderReviewFail('  if ($a == 1) {$b = 2;');
+    $this->assertCoderReviewFail('  else if ($a == 1) {');
+    $this->assertCoderReviewPass('  elseif ($a == 1) {');
+    $this->assertCoderReviewFail('  if($a == 1) {');
+  }
+
+  /**
+   * Tests for the detection of multi-byte characters in a code snippet.
+   */
+  function testMultibyte() {
+    $this->assertCoderReviewFail("  \$a = 'óóóóóóóóóóóóóóóóóóóóóóóóóóóóóóóóóóóóóóóóóóóóóóóóóóóóóóóóóóóóóóóóóóóóó';\n  if(\$a == 1) {\n");
+  }
+
+  /**
+   * Tests for the detection of correct style of string concatenation.
+   */
+  function testStyleStringConcatentation() {
+    $this->assertCoderReviewPass('  if ($file = file_check_upload($fieldname . "_upload")) {');
+    $this->assertCoderReviewFail('  if ($file = file_check_upload($fieldname ."_upload")) {');
+    $this->assertCoderReviewPass('  $v .= \'string\';');
+    $this->assertCoderReviewPass('  $a = $v . \'string\';');
+    $this->assertCoderReviewPass('  $a = $v . "string";');
+    $this->assertCoderReviewPass('  $a = "string" . $v;');
+    $this->assertCoderReviewPass('  $a = \'string\' . $v;');
+    $this->assertCoderReviewFail('  $a = "string". $v;');
+    $this->assertCoderReviewFail('  $a = \'string\'. $v;');
+    $this->assertCoderReviewFail('  $a = $v. \'string\';');
+    $this->assertCoderReviewFail('  $a = $v. "string";');
+    $this->assertCoderReviewFail('  $a = $v .\'string\';');
+    $this->assertCoderReviewFail('  $a = $v ."string";');
+    $this->assertCoderReviewFail('  $a = $v.\'string\';');
+    $this->assertCoderReviewFail('  $a = $v .  \'string\';');
+    $this->assertCoderReviewFail('  $a = $v .  "string";');
+    $this->assertCoderReviewFail('  $a = $v  . \'string\';');
+    $this->assertCoderReviewFail('  $a = $some_func(). \'string\';');
+    $this->assertCoderReviewPass('  $a = 1.0 * .1 * 1. * (0.1) * (1.) * (.1) * (1.0);');
+  }
+
+  /**
+   * Tests for the correct style use of Heredocs.
+   */
+  function testStyleHerdocStrings() {
+    $this->assertCoderReviewFail("  \$var = <<< __EOD__\n<br>\n__EOD__;");
+    $this->assertCoderReviewFail("  \$var = <<< __EOD__\n<B>\n__EOD__;");
+    $this->assertCoderReviewPass("  \$var = <<< __EOD__\n<br/>\n__EOD__;");
+  }
+
+  /**
+   * Tests for correct detection of camelCase function names.
+   */
+  function testFunctionName() {
+    $this->assertCoderReviewFail('function camelCase() {');
+    $this->assertCoderReviewFail('function any_Upper_case() {');
+    $this->assertCoderReviewPass("class CamelCase {\nfunction camelCase() {\n");
+  }
+
+  /**
+   * Tests for the correct detection of shell comments.
+   */
+  function testShellComment() {
+    $this->assertCoderReviewPass("# Shell Comment.\n");
+    $this->assertCoderReviewPass("\$a = '# Not a Shell Comment.'\n");
+  }
+
+  /**
+   * Tests the @ignore coder directive for ignoring errors.
+   */
+  function testIgnores() {
+    $bad = '  $a = $v. "string";';
+    $good = '  $a = $v . "string";';
+    $ignore = '// @ignore style_string_spacing';
+    $this->assertCoderReviewFail($bad);
+    $this->assertCoderReviewPass("$ignore:file\n$bad");
+    $this->assertCoderReviewFail("function bad() {\n$bad\n}\n");
+    $this->assertCoderReviewPass("$ignore:function\nfunction bad() {\n$bad\n}\n");
+    $this->assertCoderReviewFail("$ignore:function\nfunction good() {\n$good\n}\nfunction bad() {\n$bad;\n}\n");
+    $this->assertCoderReviewPass("$ignore:1\n$bad");
+    $this->assertCoderReviewPass("$ignore\n$bad");
+    $this->assertCoderReviewFail("$ignore\n\n$bad");
+    $this->assertCoderReviewPass("$ignore:2\n\n$bad");
+    $this->assertCoderReviewFail("class C {\n\nfunction bad() {\n$bad\n}\n};\n");
+    $this->assertCoderReviewPass("$ignore:class\nclass C {\n\n  protected function bad() {\n  $bad\n  }\n};\n");
+    $this->assertCoderReviewPass("class C {\n$ignore:class\n  protected function bad() {\n$bad\n}\n};\n");
+    $this->assertCoderReviewFail("class C {\n  protected function bad() {\n  $bad\n  }\n};$ignore:file\n");
+    $this->assertCoderReviewPass("class C {\n  protected function bad() {\n$ignore:function\n  $bad\n  }\n};\n");
+    $this->assertCoderReviewPass("class C {\n$ignore:class\n  protected function bad() {\n  $bad\n  }\n};\n");
+  }
+
+}

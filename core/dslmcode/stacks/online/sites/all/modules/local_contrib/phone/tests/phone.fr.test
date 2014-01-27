@@ -1,0 +1,115 @@
+<?php
+
+// Copyright 2009 Thierry GUEGAN http://www.arvoriad.com
+
+/**
+/**
+* Unit tests for Phone module.
+*/
+class PhoneFrenchTest extends DrupalWebTestCase {
+
+  public static function getInfo() {
+    return array(
+      'name' 		=> t('France Phone number test'),
+      'description' 	=> t('Executes test suite for validating / formatting France phone number.'),
+      'group' 		=> t('Phone')
+    );
+  }
+
+  function setUp() {
+    parent::setUp();
+
+    include_once('./'. drupal_get_path('module', 'phone') .'/phone.fr.inc');
+  }
+  
+
+  public function testPhoneFRValid() {
+    // test cleaning phone number
+    $this->assertTrue(valid_phone_number('fr', ' +33   123 45 - (67) 89'), "' +33   123 45 - (67) 89' should be valid");
+    
+    $this->assertTrue(valid_phone_number('fr', '+33123456789'), "'+33123456789' should be valid");
+    $this->assertTrue(valid_phone_number('fr', '0123456789'), "'0123456789' should be valid");
+
+    $this->assertTrue(valid_phone_number('fr', '+33223456789'), "'+33223456789' should be valid");
+    $this->assertTrue(valid_phone_number('fr', '0223456789'), "'0223456789' should be valid");
+
+    $this->assertTrue(valid_phone_number('fr', '+33323456789'), "'+33323456789' should be valid");
+    $this->assertTrue(valid_phone_number('fr', '0323456789'), "'0323456789' should be valid");
+
+    $this->assertTrue(valid_phone_number('fr', '+33423456789'), "'+33423456789' should be valid");
+    $this->assertTrue(valid_phone_number('fr', '0423456789'), "'0423456789' should be valid");
+
+    $this->assertTrue(valid_phone_number('fr', '+33523456789'), "'+33523456789' should be valid");
+    $this->assertTrue(valid_phone_number('fr', '0523456789'), "'0523456789' should be valid");
+
+
+    // 06... mobile
+    $this->assertTrue(valid_phone_number('fr', '+33623456789'), "'+33623456789' should be valid");
+    $this->assertTrue(valid_phone_number('fr', '0623456789'), "'0623456789' should be valid");
+
+    // 085... virtual private network
+    $this->assertTrue(valid_phone_number('fr', '+33853456789'), "'+33853456789' should be valid");
+    $this->assertTrue(valid_phone_number('fr', '0853456789'), "'0853456789' should be valid");
+
+    // 087...
+    // 870... 871... 872... 873... 874... 875... 877... 878... 879... assigned
+    foreach (array('870', '871', '872', '873', '874', '875', '877', '878', '879') as $za) {
+      $this->assertTrue(valid_phone_number('fr', '+33'. $za .'123456'), "'+33 $za 1234567' is be valid");
+      $this->assertTrue(valid_phone_number('fr', '0'. $za .'123456'), "'0 $za 1234567' is be valid");
+    }
+  }
+
+  public function testPhoneFRInvalid() {
+
+    $this->assertFalse(valid_phone_number('fr', '+33 123456789a'), "'+33 123456789a' should not be valid because wrong char");
+    $this->assertFalse(valid_phone_number('fr', '+33 1234567a89'), "'+33 1234567a89' should not be valid because wrong char");
+    $this->assertFalse(valid_phone_number('fr', '0 123456789a'), "'0 123456789a' should not be valid because wrong char");
+    $this->assertFalse(valid_phone_number('fr', '0 1234567a89'), "'0 1234567a89' should not be valid because wrong char");
+
+    $this->assertFalse(valid_phone_number('fr', '+33 1234567890'), "'+33 1234567890' should not be valid because too long");
+    $this->assertFalse(valid_phone_number('fr', '+33 12345678'), "'+33 12345678' should not be valid because too short");
+    $this->assertFalse(valid_phone_number('fr', '0 1234567890'), "'0 1234567890' should not be valid because too long");
+    $this->assertFalse(valid_phone_number('fr', '0 12345678'), "'0 12345678' should not be valid because too short");
+
+
+
+
+    // 07... not assigned
+    $this->assertFalse(valid_phone_number('fr', '+33723456789'), "'+33723456789' is unassigned so should not be valid");
+    $this->assertFalse(valid_phone_number('fr', '0723456789'), "'0723456789' is unassigned so should not be valid");
+
+
+
+    // except 0876... not assigned
+    $this->assertFalse(valid_phone_number('fr', '+33876456789'), "'+33873456789' is unassigned so should not be valid");
+    $this->assertFalse(valid_phone_number('fr', '0876456789'), "'0873456789' is unassigned so should not be valid");
+
+    // 80... 81... 82... 83... 84... 86... 88... 89... not assigned
+    foreach (array('80', '81', '82', '83', '84', '86', '88', '89') as $za) {
+      $this->assertFalse(valid_phone_number('fr', '+33'. $za .'1234567'), "'+33'. $za .'1234567' is unassigned so should not be valid");
+      $this->assertFalse(valid_phone_number('fr', '0'. $za .'1234567'), "'0'. $za .'1234567' is unassigned so should not be valid");
+    }
+
+    // 09... not assigned
+    $this->assertFalse(valid_phone_number('fr', '+33923456789'), "'+33923456789' is unassigned so should not be valid");
+    $this->assertFalse(valid_phone_number('fr', '0923456789'), "'0923456789' is unassigned so should not be valid");
+
+    // 00... not assigned
+    $this->assertFalse(valid_phone_number('fr', '+33023456789'), "'+33023456789' is unassigned so should not be valid");
+    $this->assertFalse(valid_phone_number('fr', '0023456789'), "'0023456789' is unassigned so should not be valid");
+  }
+
+  public function testPhoneFRFormatting() {
+    // test cleaning phone number
+
+    $this->assertEqual(format_fr_phone_number('+33 123456789a'), '+33 123456789a', "'+33 123456789a', not valid so just ouptut without formatting");
+    $this->assertEqual(format_fr_phone_number('01234567a8'), '01234567a8', "'01234567a8', not valid so just ouptut without formatting");
+
+    $this->assertEqual(format_fr_phone_number('+33 123456789'), '0123456789', "international --> national");
+    $this->assertEqual(format_fr_phone_number(' +33   123 45 - (67) 89'), '0123456789', "international --> national");
+
+    $add_country_code = array('phone_country_code'=> TRUE);
+    $this->assertEqual(format_fr_phone_number('+33 123456789', $add_country_code), '+33 123456789', "international --> international");
+    $this->assertEqual(format_fr_phone_number(' +33   123 45 - (67) 89', $add_country_code), '+33 123456789', "international --> international");
+  }
+}

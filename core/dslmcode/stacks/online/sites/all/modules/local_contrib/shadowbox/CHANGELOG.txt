@@ -1,0 +1,72 @@
+
+Shadowbox x.x-x.x, xxxx-xx-xx
+-----------------------------
+Fixed #5753682 by manfer: shadowbox media integration problem.
+Fixed #1480836 by manfer: disable keys on login modal.
+Fixed #1502123 by manfer: added gallery field node.
+Fixed #1502156 by manfer: caption better word than title.
+
+
+Shadowbox 7.x-4.0-beta4, 2012-01-03
+-----------------------------------
+Fixed #1392232 by manfer: doesn't work with views infinite scroll. 
+
+
+Shadowbox 7.x-4.0-beta3, 2012-12-16
+-----------------------------------
+Fixed #1373176 by manfer: unrendered thumbnails.
+
+
+Shadowbox 7.x-4.0-beta2, 2011-11-08
+-----------------------------------
+by manfer: Added new shadowbox login module.
+
+
+Shadowbox 7.x-4.0-beta1, 2011-11-03
+-----------------------------------
+by manfer: Changed shadowbox image formatter to a separate module.
+by manfer: Added new shadowbox file formatter module. 
+
+
+Shadowbox 7.x-3.0-beta8, 2012-01-03
+-----------------------------------
+Fixed #1392232 by manfer: doesn't work with views infinite scroll. 
+
+
+Shadowbox 7.x-3.0-beta7, 2011-11-03
+-----------------------------------
+by manfer: Enable shadowbox globally by default.
+
+
+Shadowbox 7.x-3.0-beta6, 2011-06-27
+-----------------------------------
+Issue #1187974 by szaszg: Fixed dont add rel attribute when it exists.
+Issue #1191716 by manfer: Fixed shadowbox settings not working.
+
+
+Shadowbox 7.x-3.0-beta5, 2011-03-28
+-----------------------------------
+by manfer: Added disable warning in settings page.
+Issue #1107162 by manfer: Added compact parameter.
+Issue #1093466 by manfer: Updated usage documentation.
+Issue #1083952 by manfer: Fixed shadowbox not working with views.
+
+
+Shadowbox 7.x-3.0-beta4, 2011-03-11
+-----------------------------------
+Issue #1089184 by manfer: Fixed init moved to header.
+
+
+Shadowbox 7.x-3.0-beta3, 2011-03-03
+-----------------------------------
+Issue #949392 by xatoo_,tunic: Fixed make file.
+
+
+Shadowbox 7.x-3.0-beta2, 2011-03-02
+-----------------------------------
+Issue #1077638 by bluehut: Fixed link to image style.
+
+
+Shadowbox 7.x-3.0-beta1, 2011-02-21
+-----------------------------------
+by manfer: initial commit for 7.x compatible version.

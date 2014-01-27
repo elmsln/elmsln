@@ -1,0 +1,77 @@
+<?php
+
+/**
+ * @file
+ * Shadowbox module install file.
+ */
+
+/**
+ * Implements hook_install().
+ */
+/*
+function shadowbox_install() {
+  module_invoke('content', 'clear_type_cache');
+}
+ */
+
+/**
+ * Implements hook_uninstall().
+ */
+function shadowbox_uninstall() {
+  db_query("DELETE FROM {variable} WHERE name LIKE 'shadowbox_%'");
+}
+
+/**
+ * Implements hook_requirements().
+ */
+function shadowbox_requirements($phase) {
+  $requirements = array();
+  $t = get_t();
+
+  $shadowbox_site = 'http://www.shadowbox-js.com/';
+
+  switch ($phase) {
+    case 'runtime':
+    $shadowbox_path = SHADOWBOX_DEFAULT_PATH;
+    $path = variable_get('shadowbox_location', $shadowbox_path);
+    if (!file_exists($path)) {
+      $requirements['shadowbox'] = array(
+        'title' => $t('Shadowbox'),
+        'description' => $t('In order for the Shadowbox module to work, the third party Shadowbox distribution should be downloaded and its location set. It is recommended to put the third party plugin in sites/all/libraries/shadowbox but the location can be changed in the !settings. Currently looking for shadowbox in %path', array('!settings' => l('settings', 'admin/config/media/shadowbox'), '%path' => $path)),
+        'severity' => $phase == 'install' ? REQUIREMENT_WARNING : REQUIREMENT_ERROR,
+        'value' => $t('Third party !shadowbox software missing', array('!shadowbox' => l('Shadowbox', $shadowbox_site))),
+      );
+    }
+    elseif (!file_exists("$path/shadowbox.js")) {
+      $requirements['shadowbox'] = array(
+        'title' => $t('Shadowbox'),
+        'description' => $t('The <code>%path</code> path exists but it appears that the directory structure underneath is incorrect. Please check that <code>%shadowbox</code> exists.',
+          array('%path' => $path,
+            '%shadowbox' => "$path/shadowbox.js",
+          )),
+        'severity' => $phase == 'install' ? REQUIREMENT_WARNING : REQUIREMENT_ERROR,
+        'value' => $t('3rd party Shadowbox software not properly installed'),
+      );
+    }
+    elseif ($phase == 'runtime') {
+      $requirements['shadowbox'] = array(
+        'title' => $t('Shadowbox'),
+        'severity' => REQUIREMENT_OK,
+        'value' => $t('Installed correctly'),
+      );
+    }
+  }
+  return $requirements;
+}
+
+/*
+ * Rebuild theme so the changes to shadowbox formatter are available
+ */
+function shadowbox_update_7001() {
+  drupal_theme_rebuild();
+}
+
+function shadowbox_update_7400() {
+  $module_list = array('image_shadowbox');
+  module_enable($module_list, TRUE);
+}

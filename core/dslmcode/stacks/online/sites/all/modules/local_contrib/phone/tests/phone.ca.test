@@ -1,0 +1,32 @@
+<?php
+
+class CAPhoneNumberTestCase extends DrupalWebTestCase {
+  /**
+   * Implementation of getInfo()
+   *
+   */
+  public static function getInfo() {
+    return array(
+      'name' => t('Canada & US Phone number test'),
+      'description' => t('Tests various valid and invalid Canada & US phone numbers for validity'),
+      'group' => t('Phone')
+    );
+  }
+
+  public function testPhoneCAValid() {
+    $this->assertTrue(valid_phone_number('ca', '1-800-555-1212'), t('Test valid - 1-800-555-1212'));
+    $this->assertTrue(valid_phone_number('ca', '800-555-1212'), t('Test valid - 800-555-1212'));
+    $this->assertTrue(valid_phone_number('ca', '(201)223-4567'), t('Test valid - (201)223-4567'));
+    $this->assertTrue(valid_phone_number('ca', '604 543 9245'), t('Test valid - British Columbia 604 543 9245'));
+    
+  }
+
+  public function testPhoneCAInvalid() {
+    //$this->assertFalse(valid_phone_number('ca', '021 3012 3456'), t('Test invalid '));
+  }
+
+  public function testPhoneCAFormatting() {
+    //$this->assertEqual(format_phone_number('ca', '+6421123456', null), '+64 21 123 456', t('Check international mobile format'));
+
+  }
+}

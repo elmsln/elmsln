@@ -1,0 +1,32 @@
+name = Coder Upgrade
+description = Modifies source code to assist with the upgrade of a module for changes to a relied upon API.
+package = Development
+core = 7.x
+
+dependencies[] = gplib (<2.0)
+
+; only list files with class declarations
+;files[] = coder_upgrade.help.inc
+;files[] = coder_upgrade.inc
+;files[] = coder_upgrade.install
+;files[] = coder_upgrade.module
+files[] = coder_upgrade.test
+;files[] = conversions/coder_upgrade.begin.inc
+;files[] = conversions/coder_upgrade.call.inc
+;files[] = conversions/coder_upgrade.db.inc
+;files[] = conversions/coder_upgrade.end.inc
+;files[] = conversions/coder_upgrade.function.inc
+;files[] = conversions/coder_upgrade.install.inc
+;files[] = conversions/coder_upgrade.list.inc
+;files[] = conversions/coder_upgrade.main.inc
+;files[] = conversions/coder_upgrade.other.inc ; Deprecated
+;files[] = conversions/coder_upgrade.regex.inc
+
+configure = admin/config/development/coder/upgrade/settings
+
+; Information added by drupal.org packaging script on 2013-08-11
+version = "7.x-2.0"
+core = "7.x"
+project = "coder"
+datestamp = "1376244716"
+

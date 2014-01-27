@@ -1,0 +1,133 @@
+<?php
+
+/**
+ * @file
+ * Contains install and update functions for jquery_colorpicker.
+ */
+
+/**
+ * Implements hook_requirements()
+ */
+function jquery_colorpicker_requirements($phase) {
+  $errors = array();
+  // Set the base path for the module, and use this to check the existence of files.
+  $path = drupal_get_path('module', 'jquery_colorpicker') . '/';
+  if ($phase == 'runtime') {
+    // If IE6 is to be supported, check if the required files exist. First we check to see if IE6 support has been enabled.
+    if (variable_get('jquery_colorpicker_ie6_support', 0)) {
+      // Next set a new folder path where the IE6 support files will be located.
+      $path .= 'twin_helix/';
+      // Check for the existence of the file blank.gif.
+      if (!is_file($path . 'blank.gif')) {
+        $errors['missing_blank_gif'] = array(
+          'title' => t('Missing blank.gif'),
+          'description' => t(
+            'You have enabled IE6 support for Jquery Colorpicker, but are missing the required file !blank.gif. This file can be downloaded from !twin_helix and should saved in !path',
+            array(
+              '!twin_helix' => l(
+                t('Twin Helix'),
+                'http://www.twinhelix.com/css/iepngfix/',
+                array(
+                  'html' => TRUE,
+                )
+              ),
+              '!path' => '<strong>' . $path . '</strong>',
+              '!blank.gif' => '<strong>blank.gif</strong>',
+            )
+          ),
+          'severity' => REQUIREMENT_ERROR,
+        );
+      }
+      // Next, check the file iepngfix.htc.
+      if (!is_file($path . 'iepngfix.htc')) {
+        $errors['missing_iepngfix.htc'] = array(
+          'title' => t('Missing iepngfix.htc'),
+          'description' => t(
+            'You have enabled IE6 support for Jquery Colorpicker, but are missing the required file !iepngfix.htc. This file can be downloaded from !twin_helix and should saved in !path',
+            array(
+              '!twin_helix' => l(
+                t('Twin Helix'),
+                'http://www.twinhelix.com/css/iepngfix/',
+                array(
+                  'html' => TRUE,
+                )
+              ),
+              '!path' => '<strong>' . $path . '</strong>',
+              '!iepngfix.htc' => '<strong>iepngfix.htc</strong>',
+            )
+          ),
+          'severity' => REQUIREMENT_ERROR,
+        );
+      }
+      // Finally check the existence of file iepngfix_tilebg.js.
+      if (!is_file($path . 'iepngfix_tilebg.js')) {
+        $errors['missing_iepngfix_tilebg_js'] = array(
+          'title' => t('Missing iepngfix_tilebg.js'),
+          'description' => t(
+            'You have enabled IE6 support for Jquery Colorpicker, but are missing the required file !iepngfix_tilebg.js. This file can be downloaded from !twin_helix and should saved in !path',
+            array(
+              '!twin_helix' => l(
+                t('Twin Helix'),
+                'http://www.twinhelix.com/css/iepngfix/',
+                array(
+                  'html' => TRUE,
+                )
+              ),
+              '!path' => '<strong>' . $path . '</strong>',
+              '!iepngfix_tilebg.js' => '<strong>iepngfix_tilebg.js</strong>',
+            )
+          ),
+          'severity' => REQUIREMENT_ERROR,
+        );
+      }
+    }
+  }
+  elseif ($phase == 'install') {
+    if (!function_exists('libraries_get_path')) {
+      module_load_include('module', 'libraries');
+    }
+    $path = libraries_get_path('colorpicker') ? libraries_get_path('colorpicker') : 'sites/all/libraries/colorpicker';
+    // The first file we check is the 3rd party integration. Without this file, the module will not work. Other.
+    // files are also required, but the assumption is made that if they got this file, they will have gotten all the other files.
+    // This is done to keep code relatively streamlined.
+    if (!is_file($path . '/js/colorpicker.js')) {
+      $t = get_t();
+      $errors['jquery_colorpicker_missing_files'] = array(
+        'title' => $t('Required files missing'),
+        'description' => $t(
+          '<h2>jQuery Colorpicker not installed</h2><br />You are missing the required files for the Jquery Colorpicker. Please download the colorpicker.zip from !eyecon and unzip the CSS, JS and IMAGES folders to !colorpicker_path. After doing this, confirm that the following path exists: !colorpicker_js_path.',
+          array(
+            '!eyecon' => l(
+              'http://www.eyecon.ro/colorpicker/',
+              'http://www.eyecon.ro/colorpicker/',
+              array(
+                'external' => TRUE,
+              )
+            ),
+            '!colorpicker_path' => '<strong>' . $path . '</strong>',
+            '!colorpicker_js_path' => '<strong>' . $path . '/js/colorpicker.js</strong>',
+          )
+        ),
+        'severity' => REQUIREMENT_ERROR,
+      );
+    }
+  }
+
+  return $errors;
+}
+
+/**
+ * Implements hook_field_schema()
+ */
+function jquery_colorpicker_field_schema($field) {
+  $columns = array(
+    'jquery_colorpicker' => array(
+      'type' => 'varchar',
+      'length' => 6,
+      'not null' => FALSE,
+    ),
+  );
+  return array(
+    'columns' => $columns,
+  );
+}

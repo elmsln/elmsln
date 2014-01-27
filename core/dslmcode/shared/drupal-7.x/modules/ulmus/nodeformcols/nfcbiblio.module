@@ -1,0 +1,85 @@
+<?php
+
+/**
+ * Implements hook_nodeformcols_variants_alter().
+ *
+ * Implement this hook to supply information about form variants that can be
+ * configured.
+ *
+ * @param array $variants
+ *  The current variants of the form
+ * @param string $type
+ *  The node type
+ * @return void
+ */
+function nfcbiblio_nodeformcols_variants_alter(&$variants, $type) {
+  if ($type == 'biblio') {
+    $res = db_query('SELECT tid, name
+      FROM {biblio_types}
+      WHERE tid >= :tid
+        AND visible = :visible
+      ORDER BY weight ASC', array(':tid' => 0, ':visible' => 1));
+    while ($option = db_fetch_object($res)) {
+      $variants[$option->tid] = $option->name;
+    }
+  }
+}
+
+/**
+ * Utility function to get a default biblio type
+ *
+ * @return int
+ *  The id of a default biblio type
+ */
+function _nfcbiblio_top_visible_type() {
+  return db_query_range("SELECT tid
+    FROM {biblio_types}
+    WHERE visible = :visible
+      AND tid> = :tid>
+    ORDER BY weight ASC", array(':visible' => 1, ':tid>' => 0))->fetchField();
+}
+
+/**
+ * Implements hook_nodeformcols_pre_form_alter().
+ *
+ * Implement this hook to tell nodeformcols what variant the form is before
+ * any alterations to the form is made.
+ *
+ * @param array $form
+ *  The form.
+ * @return void
+ */
+function nfcbiblio_nodeformcols_pre_form_alter(&$form) {
+  if ($form['#node']->type == 'biblio') {
+    if (!empty($form['biblio_type']['#value'])) {
+      $form['#nodeformcols_variant'] = $form['biblio_type']['#value'];
+    }
+  }
+}
+
+/**
+ * Implements hook_nodeformcols_base_form_alter().
+ *
+ * Implement this hook if you want to alter the node creation form that
+ * nodeformcols uses to construct the configuration interface before
+ * nodeformcols reads field information from it.
+ *
+ * @param array $form
+ *  The programatically created node creation form.
+ * @param string $variant
+ *  The variant of the form that's being configured.
+ * @return void
+ */
+function nfcbiblio_nodeformcols_base_form_alter(&$form, $variant) {
+  if ($form['#node']->type == 'biblio') {
+    if ($variant == 'default') {
+      $variant = _nfcbiblio_top_visible_type();
+    }
+
+    $biblio_form_state = array();
+    $biblio_form_state['post']['biblio_type'] = $variant;
+    foreach (biblio_form($form['#node'], $biblio_form_state) as $name => $def) {
+      $form[$name] = $def;
+    }
+  }
+}

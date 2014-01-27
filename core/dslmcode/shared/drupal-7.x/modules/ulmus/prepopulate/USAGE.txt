@@ -1,0 +1,176 @@
+
+See README.txt for a description of this module.
+See this documentation online at http://drupal.org/node/228167.
+
+USING PREPOPULATE MODULE
+========================
+
+Simple Usage
+------------
+
+Prepopulate the title field on a node creation form:
+  http://www.example.com/node/add/content?edit[title]=This is the title
+With 'non-clean' urls:
+  http://www.example.com?q=node/add/content&edit[title]=This is the title
+
+
+POST Requests
+-------------
+Since Prepopulate uses the $_REQUEST variable, you have access to prepopulate
+form values from either GET request in the URL, or the form POST requests. In
+the below example, we prepopulate a node form's title based on a POST Request:
+
+<html><body>
+  <form method="post" action="http://example.com/node/add/story">
+    Title: <input type="text" size="12" maxlength="12" name="edit[title]">
+    <input type="submit">
+  </form>
+</body></html>
+
+
+POST Requests
+-------------
+Since Prepopulate uses the $_REQUEST variable, you have access to prepopulate
+form values from either GET request in the URL, or the form POST requests. In
+the below example, we prepopulate a node form's title based on a POST Request:
+
+<html><body>
+  <form method="post" action="http://example.com/node/add/story">
+    Title: <input type="text" size="12" maxlength="12" name="edit[title]">
+    <input type="submit">
+  </form>
+</body></html>
+
+
+How to find what variable to set
+--------------------------------
+
+This can be tricky, but there are a few things to keep in mind that
+should help.
+
+Prepopulate.module is quite simple. It looks through the form, looking
+for a variable that matches the name given on the URL, and puts the
+value in when it finds a match. Drupal keeps HTML form entities in an
+edit[] array structure. All your variables will be contained within the
+edit[] array.
+
+A good starting point is to look at the HTML code of a rendered Drupal
+form. Once you find the appropriate <input /> (or <textarea>...</textarea>
+tag, use the value of the name attribute in your URL, contained in the
+edit array. For example, if the <input /> tag looks like this:
+
+  <input id="edit-title" class="form-text required" type="text" value=""
+  size="60" name="title" maxlength="128"/>
+
+then try this URL:
+
+  http://www.example.com/node/add/content?edit[title]=Automatic filled in title
+
+CCK fields are a bit more complicated:
+
+  <input id="edit-field-office-0-node-name" class="form-text
+  form-autocomplete" type="text" value="" size="60"
+  name="field_office[0][node_name]" maxlength="128" autocomplete="OFF"/>
+
+The key is to put this in the edit[] array nested, like this:
+
+  http://www.example.com/node/add/content?edit[field_office][0][node_name]=AL-235
+
+Another example:
+
+  <textarea id="edit-field-content-0-value" class="form-textarea
+  resizable processed" name="field_content[0][value]" rows="10"
+  cols="60"/>
+
+would be:
+
+  http://www.example.com/node/add/content?edit[field_content][0][value]=A long text string
+
+and, again, for non-clean URLs, it's:
+
+  http://www.example.com?q=node/add/content&edit[field_content][0][value]=A long text string
+
+
+CCK fields will vary a bit depending on how the input widgets are
+configured. Here are some examples.
+
+	Date fields with a separate time entry would look like:
+
+		edit[field_date][0][value][date]=11%20Aug%202010&edit[field_date][0][value][time]=12:00PM
+
+	Select Lists:
+	
+		edit[field_selectList][value]=1
+
+	Note that in this example "1" is the key value for the select field.
+		
+	Node Reference:
+	
+		edit[field_nodereference][0][nid][nid]=[nid: #]
+
+Some Non-CCK examples:
+
+	Taxomony Tags:
+	
+		edit[taxonomy][tags][1]=myTag
+
+
+Body fields
+-----------
+
+Body fields are different. Though their HTML entity looks like this:
+  <textarea id="edit-body" class="form-textarea resizable processed"
+  name="body" rows="20" cols="60"/>
+
+You can't just take the name "body," throw it into a edit[body] and
+expect it to work. Drupal wraps the body field into a "body_field"
+array when it gets processed. So, for body fields, a URL like:
+
+  http://www.example.com/node/add/content?edit[body_field][body]=This is the body
+
+ought to do the trick.
+
+
+Multiple fields
+---------------
+
+Prepopulate can handle pre-filling multiple fields from one URL. Just
+separate the edit variables with an ampersand:
+
+  http://www.example.com/node/add/content?edit[title]=The title&edit[body_field][body]=The body
+
+You're already using the ampersand with non-clean URLs:
+
+  http://www.example.com?q=node/add/content&edit[title]=The title&edit[body_field][body]=The body
+
+
+Escaping special characters
+---------------------------
+
+Some characters can't be put into URLs. Spaces, for example, work
+mostly, but occasionally they'll have to be replaced with the string %20.
+This is known as "percent encoding." Wikipedia has a partial list of
+percent codes at:
+  http://en.wikipedia.org/wiki/Percent-encoding
+
+If you're having trouble getting content into field names, or are
+getting 'page not found' errors from Drupal, you should check to ensure
+that illegal characters are properly encoded.
+
+
+Bookmarklets
+------------
+
+Prepopulate.module was created for bookmarklets. Here is a bookmarklet for
+posting web links to a site:
+
+javascript:u=document.location.href;t=document.title;s=window.getSelection();void(window.open(%22http://example.com/node/add/content-web-link?edit[title]=%22+escape(t)+'&edit[body_field][body]='+escape(s)+'&edit[field_url][0][value]='+escape(u),'_blank','width=1024,height=500,status=yes,resizable=yes,scrollbars=yes'));
+
+This turns into a URL like this:
+
+http://example.com/node/add/content-web-link?edit[title]=drupal.org%20%7C%20Community%20plumbing&edit[body_field][body]=&edit[field_url][0][value]=http%3A//drupal.org/
+
+Selecting some text on the page first would put that text into the
+body of the node.
+
+Happy prepopulating!

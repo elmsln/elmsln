@@ -1,0 +1,28 @@
+#skip-to-nav,
+#navigation,
+#toolbar,
+.region-sidebar-first,
+.region-sidebar-second,
+.footer-region,
+.breadcrumb,
+div.tabs,
+.action-links,
+.links,
+.book-navigation,
+.forum-topic-navigation,
+.pager,
+.feed-icons {
+  visibility: hidden;
+  display: none;
+}
+body {
+  padding-top: 0 !important;
+  margin: 20px;
+}
+table {
+  border: 1px solid #333;
+}
+.field-label-inline .field-label, .field-label-inline .field-items, .field-label-inline .field-items .field-item {
+  float: none;
+  display: inline;
+}

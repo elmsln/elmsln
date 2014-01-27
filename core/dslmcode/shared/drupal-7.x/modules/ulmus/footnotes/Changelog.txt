@@ -1,0 +1,75 @@
+2010-03-xx Footnotes 7.x-2.5
+
+ - First Drupal 7 release. No major feature changes over 6.x-2.5.
+
+2010-12-31 Footnotes 2.5
+
+Major features
+
+ - Add new addon module: Footnotes with Views by AlexisWilke. [#939738]
+
+Smaller fixes
+
+ - Remove "DEPRECATED" text from Better URL filter and instead have a small "Note" about it not being available in Footnotes 7.x-x.x. [#1002436]
+ - Correctly ignore also a tag containing linebreak between the &gt; and &lt;. Fixes bug [#1002434]
+ - Add textarea to ignored tags. Anything inside a textarea will be ignored. Bug [#974760]
+
+The intention is to branch a Drupal 7 version out of this release.
+
+2010-10-03 Footnotes 2.4
+
+Major features
+
+ - Add Footnotes Wysiwyg module with TinyMCE AND CKEditor support.
+   This deprecates Footnotes TinyMCE module, which is kept around for backward compatibility.
+   [#728642]
+ - Add i18n support via Drupal.t() also to TinyMCE module. [#672034]
+ - New feature (option): Collapse identical footnotes into one, as if using same 
+   value="". [#808214]
+ - Implement [#728658] Highlight footnote when clicking the link. Add mention in 
+   README.txt how to change the highlight color if needed (Footnotes cannot know 
+   what is an appropriate color, I picked #eeeeee as the safest choice).
+
+Smaller fixes
+
+ - Bug [#761390]
+   Two small improper CSS names
+   ...was fixed by changing underscores to dashes in css selectors/classes.
+ - Deprecate Better URL filter as it is committed to Drupal 7 now. [#296208]
+ - Bug [#761664] 
+   Footnotes are double numbered when CSS is not used, such as in RSS feeds. 
+   (Due to using OL list)
+   ...was fixed by migrating to UL list. This is also appropriate since after
+   introduction of the value="" parameter the footnotes needn't comprise an
+   ordered list.
+
+
+2010-02-25 Footnotes 2.3
+
+ - Reset $used_values in _footnotes_replace_callback() after use. [#723446]
+
+2010-01-17 Footnotes 2.2
+
+ - Add TinyMCE support as a separate plugin tinymce_footnotes (thanks elgreg #464066)
+ - Can have multiple references to same footnote in body by repeating value="" (#636808)
+Small fixes
+ - Move translations from "po" to "translations" subdirectory. #430656
+ - Rename footnotes-alternative_layout.css due to typo in filename.
+ - fix css: Use "ol.footnotes li" instead of "ol.footnotes" as selector for 
+   "list-style-type: none." Makes it stronger.
+ - fix html: columns="" should be cols="" bug: #687244
+
+2008-09-07 Footnotes 2.1
+
+ - Add "clear: both" to css of footnotes section. http://drupal.org/node/303828
+
+2008-07-30 Footnotes 2.0
+
+ - Add support for using [fn]square brackets[/fn] (268026)
+ - Change documentation to talk about [fn] by default, but <fn> is still supported
+ - Add support for specifying "value" attribute. (emfabric 282104)
+ - Mention http://drupal.org/node/279420 in known issues
+ - Adding Better URL filter (fork from core). http://drupal.org/node/161217
+ - There appears to also be a French translation now. Thanks Beginner! (Japanese already done earlier.)
+ - Fix bug where teaser might cut into the middle of a footnote: http://drupal.org/node/253326
+ - Start using the Drupal theme system, footnotes can now be themed by site admins (emfabric 221156)

@@ -1,0 +1,142 @@
+<?php
+/**
+ * @file
+ * Hook implementations for token_insert_entity module.
+ */
+
+/**
+ * Token key used for embedding content.
+ */
+define('TOKEN_INSERT_ENTITY_TYPE', 'embed');
+
+/**
+ * Implements hook_menu()
+ *
+ * Adds an autocomplete path to list entities.
+ */
+function token_insert_entity_menu() {
+  $items = array();
+
+  $items['token_insert_entity/insert'] = array(
+    'page callback' => 'token_insert_entity_form_data',
+    'access arguments' => array('administer content'),
+    'delivery callback' => 'token_insert_entity_deliver',
+    'file' => 'token_insert_entity.pages.inc',
+    'type' => MENU_CALLBACK,
+  );
+
+  $items['token_insert_entity/autocomplete'] = array(
+    'page callback' => '_token_insert_entity_autocomplete',
+    'access arguments' => array('administer content'),
+    'file' => 'token_insert_entity.pages.inc',
+    'type' => MENU_CALLBACK
+  );
+
+  return $items;
+}
+
+/**
+ * Adds the jQuery dialog library.
+ */
+function token_insert_entity_form_alter(&$form, $form_state, $form_id) {
+  if (strpos($form_id, 'node_form') !== FALSE || strpos($form_id, 'comment') !== FALSE) {
+    drupal_add_library('system', 'ui.dialog');
+  }
+}
+
+/**
+ * Simple delivery callback to return just HTML and javascript.
+ */
+function token_insert_entity_deliver($callback_result) {
+  print json_encode($callback_result);
+}
+
+/**
+ * Implements hook_token_info()
+ *
+ * Adds a custom token to render a full entity using a display mode.
+ */
+function token_insert_entity_token_info() {
+  return array(
+    'types' => array(
+      TOKEN_INSERT_ENTITY_TYPE => array(
+        'name' => t('Embed content'),
+        'description' => t('Inserts a fully rendered content using a view mode.'),
+      )
+    ),
+    'tokens' => array(
+      TOKEN_INSERT_ENTITY_TYPE => array(
+        'render' => array(
+          'name' => t('Render a piece of content'),
+          'description' => t('Render a piece of content using the pattern [@token:render:teaser:node:1].',
+            array('@token' => TOKEN_INSERT_ENTITY_TYPE)),
+        ),
+        'link' => array(
+          'name' => t('Link to related item'),
+          'description' => t('Link to the related item using the pattern [@token:link:node:1]. ' .
+            'Text overrides cannot contain spaces, use %% instead.', array('@token' => TOKEN_INSERT_ENTITY_TYPE)),
+        ),
+      ),
+    ),
+  );
+}
+
+/**
+ * Implements hook_tokens().
+ */
+function token_insert_entity_tokens($type, $tokens, array $data = array(), array $options = array()) {
+  $replacements = array();
+  $entity_titles = _token_insert_entity_entity_type_titles();
+
+  foreach ($tokens as $name => $original) {
+    // Since these tokens have extra metadata we need to match them instead of checking the $type.
+    if (preg_match('/^\[embed:(render|link)/', $original)) {
+      $parts = explode(':', preg_replace('/(\[|\])/', '', $original));
+      if (($parts[1] == 'render') && count($parts) == 5) {
+        list(, , $view_mode, $entity_type, $id) = $parts;
+        if (isset($entity_titles[$entity_type])) {
+          // Embed a rendered entity.
+          $entity = entity_load_single($entity_type, $id);
+          $rendered_entity = entity_view($entity_type, array($entity), $view_mode);
+          $replacements[$original] = drupal_render($rendered_entity);
+        }
+      }
+      elseif (($parts[1] == 'link') && count($parts) == 4) {
+        list(, , $entity_type, $id) = $parts;
+        if (isset($entity_titles[$entity_type])) {
+          // Link to an entity.
+          $entity = entity_load_single($entity_type, $id);
+          $entity_uri = entity_uri($entity_type, $entity);
+          $entity_type_titles = _token_insert_entity_entity_type_titles();
+          $replacements[$original] = l(t($entity->{$entity_type_titles[$entity_type]}), $entity_uri['path']);
+        }
+      }
+    }
+  }
+
+  return $replacements;
+}
+
+/**
+ * Implements hook_wysiwyg_include_directory()
+ *
+ * Register a directory containing Wysiwyg plugins.
+ * @see wysiwyg.api.php
+ */
+function token_insert_entity_wysiwyg_include_directory($type) {
+  switch ($type) {
+    case 'plugins':
+      return $type;
+  }
+}
+
+/**
+ * Returns an array of entity types and their property name which act as the title.
+ *
+ * @TODO: make this array alterable so other modules can add custom entity types.
+ */
+function _token_insert_entity_entity_type_titles() {
+  return array(
+    'node' => 'title',
+  );
+}

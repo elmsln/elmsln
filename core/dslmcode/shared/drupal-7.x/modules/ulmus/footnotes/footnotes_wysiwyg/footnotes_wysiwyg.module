@@ -1,0 +1,54 @@
+<?php
+
+/**
+ * @file
+ * WYSIWYG support for the footnotes module.
+ * Currently this supports TinyMCE and CKEditor via the WYSIWYG module and
+ * CKEditor via the CKEditor module.
+ */
+
+/**
+ * Implementation of hook_wysiwyg_plugin().
+ */
+function footnotes_wysiwyg_wysiwyg_plugin($editor, $version) {
+  $plugin = array(
+    'footnotes' => array(
+      'buttons' => array('footnotes' => t('Add Footnote')),
+      'basePath' => base_path(),
+      // This is required to auto-load the plugin.
+      'load' => TRUE,
+    ),
+  );
+  switch ($editor) {
+    case 'tinymce':
+      $plugin['footnotes']['filename'] = 'editor_plugin.js';
+      $plugin['footnotes']['path'] = drupal_get_path('module', 'footnotes_wysiwyg') . '/tinymce_plugin/';
+      $plugin['footnotes']['extended_valid_elements'] = array('fn');
+      return $plugin;
+    case 'ckeditor':
+      // For CKEditor, path is the directory and the .js file must be called 'plugin.js'.
+      $plugin['footnotes']['path'] = drupal_get_path('module', 'footnotes_wysiwyg') . '/ckeditor_plugin/';
+      return $plugin;
+  }
+}
+
+/**
+ * Implements hook_ckeditor_plugin().
+ *
+ * Register the CKEditor plugin for the CKEditor module.
+ */
+function footnotes_wysiwyg_ckeditor_plugin() {
+  return array(
+    'footnotes' => array(
+      'name' => 'footnotes',
+      'desc' => t('Add Footnotes'),
+      'path' => drupal_get_path('module', 'footnotes_wysiwyg') . '/ckeditor_plugin/',
+      'buttons' => array(
+        'footnotes' => array(
+          'icon' => 'images/footnotes.png',
+          'label' => 'Footnotes',
+        )
+      ),
+    )
+  );
+}

@@ -1,0 +1,185 @@
+<?php
+// $Id: dhtml_menu.install,v 1.17 2010/08/16 10:39:57 arancaytar Exp $
+
+
+/**
+ * @file dhtml_menu.install
+ * Installation and update functions for the DHTML Menu module.
+ */
+
+/**
+ * Default settings storage.
+ */
+function _dhtml_menu_defaults() {
+  return array(
+    'nav' => 'open',
+    'animation' => array(
+      'effects' => array(
+        'height' => 'height',
+        'opacity' => 'opacity',
+      ),
+      'speed' => 500,
+    ),
+    'effects' => array(
+      'siblings' => 'close-same-tree',
+      'children' => 'none',
+      'remember' => 0,
+    ),
+    'filter' => array(
+      'type' => 'blacklist',
+      'list' => array(),
+    ),
+  );
+}
+
+/**
+ * Implementation of hook_enable().
+ */
+function dhtml_menu_enable() {
+  drupal_set_message(t('<em>DHTML Menu</em> offers a wide range of customization options. If you wish to change them, please visit the <a href="@url">configuration page</a>.', array('@url' => url('admin/config/user-interface/dhtml_menu'))), 'warning');
+}
+
+/**
+ * Implementation of hook_install().
+ * This will create our system variable defaults.
+ * The benefit is that we do not need to pass defaults
+ * to variable_get(), which allows centralization of defaults.
+ */
+function dhtml_menu_install() {
+  variable_set('dhtml_menu_settings', _dhtml_menu_defaults());
+}
+
+/**
+ * Implementation of hook_uninstall().
+ * Only clears our variables, so a fresh installation can repopulate them.
+ */
+function dhtml_menu_uninstall() {
+  // Settings.
+  variable_del('dhtml_menu_settings');
+}
+
+/**
+ * #6000: 6.x-2.x upgrade. Custom blocks are gone, using preprocess instead.
+ * - Fixing a variable typo in dhtml_menus_menus.
+ * - Restore normal menu blocks.
+ * - Setting dhtml_menu_menus to its initial settings.
+ */
+function dhtml_menu_update_6000() {
+  variable_del('dhtml_menus_menus');
+
+  $res = db_query("SELECT delta, theme, weight, region, custom, throttle, visibility, pages, title FROM {blocks} WHERE status AND module = '%s'", 'dhtml_menu');
+  while ($row = db_fetch_array($res)) {
+    if ($row['delta'] == 1) {
+      $module = 'user';
+    }
+    else {
+      $module = 'menu';
+    }
+    db_query("UPDATE {blocks} SET status = 1, weight = %d, region = '%s', custom = %d, throttle = %d, visibility = %d, pages = '%s', title = '%s' WHERE module = '%s' AND delta = '%s' AND theme = '%s'", $row['weight'], $row['region'], $row['custom'], $row['throttle'], $row['visibility'], $row['pages'], $row['title'], $module, $row['delta'], $row['theme']);
+  }
+
+  variable_set('dhtml_menu_menus', array('navigation' => 1, 'primary-links' => 1, 'secondary-links' => 1));
+  return array();
+}
+
+/**
+ * #6001: 6.x-2.1 upgrade. A two-dimensional array is now used for these settings, indexing by module and block delta.
+ */
+function dhtml_menu_update_6001() {
+  variable_set('dhtml_menu_menus', array('user' => array(1 => TRUE), 'menu' => array('primary-links' => TRUE, 'secondary-links' => TRUE)));
+  return array();
+}
+
+/**
+ * #6002: 6.x-3.x upgrade. All existing variables are obsolete.
+ */
+function dhtml_menu_update_6002() {
+  $s['slide'] = variable_get('dhtml_menu_use_effects', FALSE);
+  $s['siblings'] = variable_get('dhtml_menu_hide_siblings', FALSE);
+  // don't confuse people by removing this functionality.
+  $s['doubleclick'] = TRUE;
+  // add this new functionality.
+  $s['clone'] = TRUE;
+
+  // These settings are no longer needed.
+  variable_del('dhtml_menu_use_effects');
+  variable_del('dhtml_menu_hide_siblings');
+  variable_del('dhtml_menu_duplicated');
+  variable_del('dhtml_menu_menus');
+
+  $var = array();
+  foreach ($s as $setting => $value) {
+    if ($value) {
+      $var[] = $setting;
+    }
+  }
+
+  // Store new settings.
+  variable_set('dhtml_menu_effects', $var);
+
+  // Rebuild theme registry now that our theme functions got added.
+  drupal_rebuild_theme_registry();
+  return array();
+}
+
+/**
+ * #7101: 7.x-1.x-dev upgrade (duplicated in 6.x-3.x). Remove two obsolete variables and rebuild all themes.
+ */
+function dhtml_menu_update_7101() {
+  variable_del('dhtml_menu_theme_menu_item');
+  variable_del('dhtml_menu_theme_menu_item_link');
+
+  drupal_theme_rebuild();
+  return array();
+}
+
+/**
+ * #7102: Consolidate variables into one settings array.
+ */
+function dhtml_menu_update_7102() {
+  $defaults = _dhtml_menu_defaults();
+
+  // As the settings have moved, read them individually.
+  $settings['nav'] = variable_get('dhtml_menu_nav', $defaults['nav']);
+  $settings['animation'] = array(
+    'effects' => variable_get('dhtml_menu_animations', $defaults['animation']['effects']),
+    'speed' => variable_get('dhtml_menu_speed', $defaults['animation']['speed']),
+  );
+  $settings['effects'] = array(
+    'siblings' => variable_get('dhtml_menu_siblings', $defaults['effects']['siblings']),
+    'children' => variable_get('dhtml_menu_children', $defaults['effects']['children']),
+    // Entirely new setting.
+    'remember' => $defaults['effects']['remember'],
+  );
+
+  $settings['filter']['list'] = variable_get('dhtml_menu_disabled', array());
+
+  // Write the consolidated settings.
+  variable_set("dhtml_menu_settings", $settings);
+
+  // Clear the old settings.
+  foreach (array('nav', 'siblings', 'children', 'animations', 'speed', 'disabled') as $key) {
+    variable_del("dhtml_menu_$key");
+  }
+  return array();
+}
+
+/**
+ * #7103: Rename "pseudo-child" to "clone".
+ */
+function dhtml_menu_update_7103() {
+  $settings = variable_get('dhtml_menu_settings');
+  if ($settings['nav'] == 'pseudo-child') {
+    $settings['nav'] = 'clone';
+    variable_set('dhtml_menu_settings', $settings);
+  }
+  return array();
+}
+
+/**
+ * #7104: Theme registry interceptor is dead.
+ */
+function dhtml_menu_update_7104() {
+  variable_del('dhtml_menu_theme');
+}
+

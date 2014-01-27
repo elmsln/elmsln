@@ -1,0 +1,37 @@
+<?php
+
+/**
+ * @file
+ * Handles Advanced Aggregation installation and upgrade tasks.
+ */
+
+/**
+ * Implements hook_requirements().
+ */
+function advagg_js_cdn_requirements($phase) {
+  $requirements = array();
+  // Ensure translations don't break at install time
+  $t = get_t();
+
+  if ($phase == 'runtime') {
+    if (module_exists('jquery_update')) {
+      $requirements['advagg_js_cdn_jquery_update'] = array(
+        'title' => $t('Adv JS CDN - jquery update'),
+        'severity' => REQUIREMENT_WARNING,
+        'value' => $t('Duplicate Functionality: Use jquery update instead of the advagg_js_cdn sub module.'),
+        'description' => $t('The jquery update module has support for CDNs. Go to the <a href="@settings">jquery update settings page</a> and select a CDN instead of using this module; disable the AdvAgg CDN JS module.', array('@settings' => url('admin/config/development/jquery_update'))),
+      );
+    }
+
+    if (empty($requirements)) {
+      $requirements['advagg_js_cdn'] = array(
+        'title' => $t('Adv JS CDN'),
+        'severity' => REQUIREMENT_OK,
+        'value' => $t('OK'),
+        'description' => $t('jQUery & jQuery UI JS should be coming from a CDN.'),
+      );
+    }
+  }
+
+  return $requirements;
+}

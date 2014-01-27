@@ -1,0 +1,638 @@
+<?php
+
+/**
+ * Implements hook_menu().
+ */
+function plup_menu() {
+  $items = array();
+
+  $items['plupload'] = array(
+    'title' => 'Plupload upload page',
+    'page callback' => 'plup_upload_page',
+    'access callback' => 'plup_upload_access',
+    'access arguments' => array('access content', 'allow plupload'),
+    'type' => MENU_CALLBACK
+  );
+
+  $items['plupload/%'] = array(
+    'title' => 'Plupload upload page',
+    'page callback' => 'plup_upload_page',
+    'access callback' => 'plup_upload_access',
+    'access arguments' => array('access content', 'allow plupload'),
+    'type' => MENU_CALLBACK
+  );
+
+  return $items;
+}
+
+
+/**
+ * Verifies the token for this request.
+ */
+function plup_upload_access() {
+  foreach(func_get_args() as $permission) {
+    if (!user_access($permission)) {
+      return FALSE;
+    }
+  }
+
+  return !empty($_REQUEST['plupload_token']) && drupal_valid_token($_REQUEST['plupload_token'], 'plupload-handle-uploads');
+}
+
+
+/**
+ * _permission
+ */
+function plup_permission() {
+  return array(
+    'allow plupload' => array(
+      'title' => t('Allow Plupload'),
+      'description' => t('Allow user to upload files via Plupload.'),
+    ),
+  );
+}
+
+
+/**
+ * _library
+ */
+function plup_library() {
+  $module = drupal_get_path('module', 'plup');
+  $plupload = libraries_get_path('plupload');
+
+  $lib['plupload'] = array(
+    'title' => 'Plupload',
+    'website' => 'http://www.plupload.com',
+    'version' => '1.5.1.1',
+    'js' => array(
+      "$plupload/js/plupload.full.js" => array(),
+      "$module/plup.js" => array(),
+    ),
+    'css' => array(
+      "$module/plup.css" => array(
+        'type' => 'file',
+        'media' => 'screen',
+      ),
+    ),
+    'dependencies' => array(
+      array('system', 'ui.progressbar'),
+      array('system', 'ui.sortable')
+    ),
+  );
+
+  return $lib;
+}
+
+
+/**
+ * _element_info
+ */
+function plup_element_info() {
+  $plupload = libraries_get_path('plupload');
+
+  $types['plupload_file'] = array(
+    '#input' => TRUE,
+    '#title' => NULL,
+    '#process' => array('plup_process_element'),
+    '#value_callback' => 'plup_value_element',
+    '#element_validate' => array('plup_validate_element'),
+    '#pre_render' => array('plup_pre_render_element'),
+    '#default_value' => NULL,
+    '#required' => FALSE,
+    '#autocomplete_path' => FALSE,
+    '#theme_wrappers' => array('form_element'),
+    '#theme' => 'plup_plupload',
+    '#upload_location' => NULL,
+    '#info' => array(),
+    '#attached' => array(
+      'library' => array(
+        array('plup', 'plupload')
+      )
+    ),
+    '#plup' => array(
+      'container' => NULL,
+      'browse_button' => NULL,
+      'upload' => NULL,
+      'runtimes' => 'html5,gears,flash,silverlight,browserplus,html4',
+      'max_file_size' => '512MB',
+      'url' => url('plupload', array('query' => array('plupload_token' => drupal_get_token('plupload-handle-uploads')))),
+      'filters' => array(),
+      'chunk_size' => '512K',
+      'unique_names' => TRUE,
+      'flash_swf_url' => base_path() ."$plupload/js/plupload.flash.swf",
+      'silverlight_xap_url' => base_path() ."$plupload/js/plupload.silverlight.xap",
+      'drop_element' => NULL,
+      'multipart' => FALSE,
+      'dragdrop' => TRUE,
+      'multiple_queues' => TRUE,
+      'urlstream_upload' => FALSE,
+      'image_style' => 'thumbnail',
+      'image_style_path' => '',
+      'max_files' => -1
+    ),
+    '#plup_override' => array()
+  );
+
+  return $types;
+}
+
+
+/**
+ * Value callback needed for removing all items.
+ */
+function plup_value_element(&$element, $input = FALSE, $form_state = NULL) {
+  // Default state - no new data
+  if ($input === FALSE) {
+    return NULL;
+  }
+  // Field was emptied - user deleted all files
+  if (is_null($input)) {
+    return array(array('fid' => 0));
+  }
+  // Field has new data
+  return $input;
+}
+
+
+/**
+ * Process callback to set JS settings before Plupload init.
+ */
+function plup_process_element($element, &$form_state, $form) {
+  $element['#default_value'] = isset($element['#value']) ? $element['#value'] : $element['#default_value'];
+
+  $element['#plup']['container'] = $element['#id'];
+  $element['#plup']['browse_button'] = $element['#id'] .'-plup-select';
+  $element['#plup']['upload'] = $element['#id'] .'-plup-upload';
+  $element['#plup']['drop_element'] = $element['#id'] .'-plup-filelist';
+
+  $element['#plup']['name'] = $element['#name'];
+  $element['#plup'] = array_merge($element['#plup'], $element['#plup_override']);
+  $files = variable_get('file_public_path', 'sites/default/files');
+  $element['#plup']['image_style_path'] = base_path() . $files .'/styles/'. $element['#plup']['image_style'] .'/temporary/';
+  $element['#attached']['js'][] = array(
+    'data' => array('plup' => array($element['#name'] => $element['#plup'])),
+    'type' => 'setting',
+  );
+
+  return $element;
+}
+
+
+/**
+ * Pre-render callback to load existing items.
+ */
+function plup_pre_render_element($element) {
+  if (isset($element['#default_value']) && !empty($element['#default_value'])) {
+    foreach ($element['#default_value'] AS $delta => $item) {
+      $element['#default_value'][$delta] = array_merge($item, (array) file_load($item['fid']));
+    }
+  }
+  return $element;
+}
+
+
+/**
+ * Element validation callback.
+ */
+function plup_validate_element($element, &$form_state, $form) {
+  $item = reset($element['#value']);
+  if ($element['#required'] == TRUE && $item['fid'] == 0 && count($element['#value']) == 1) {
+    form_error($element, t("@field field is required.", array('@field' => $element['#title'])));
+  }
+
+  $cardinality = isset($element['#plup_override']['max_files']) ? $element['#plup_override']['max_files'] : $element['#plup']['max_files'];
+  if ($cardinality > 0 && count($element['#value']) > $cardinality) {
+    form_error($element, t("Only !num items are allowed.", array('!num' => $cardinality)));
+  }
+}
+
+
+/**
+ * _theme
+ */
+function plup_theme() {
+  return array(
+    'plup_plupload' => array(
+      'render element' => 'element',
+    ),
+    'plup_items' => array(
+      'render element' => 'element'
+    )
+  );
+}
+
+
+/**
+ * Theme Plupload widget.
+ */
+function theme_plup_plupload($variables) {
+  $element = $variables['element'];
+
+  $attributes = array();
+  if (isset($element['#id'])) {
+    $attributes['id'] = $element['#id'];
+  }
+  if (!empty($element['#attributes']['class'])) {
+    $attributes['class'] = (array) $element['#attributes']['class'];
+  }
+  $attributes['class'][] = 'plupload';
+
+  $hasTitle = (bool) (isset($element['#plup_override']['title_field']) && $element['#plup_override']['title_field'] == 1);
+  $hasAlt = (bool) (isset($element['#plup_override']['alt_field']) && $element['#plup_override']['alt_field'] == 1);
+  if ($hasTitle) {
+    $attributes['class'][] = 'has-title';
+  }
+  if ($hasAlt) {
+    $attributes['class'][] = 'has-alt';
+  }
+
+  $output  = '<div' . drupal_attributes($attributes) . '>';
+  $output .= '<div id="'. $element['#id'] .'-plupload-container" class="plupload-container">';
+  $output .= '<div class="plup-list-wrapper"><ul class="plup-list clearfix">';
+  $output .= theme('plup_items', array('element' => $element));
+  $output .= '</ul></div>';
+  $output .= '<div id="'. $element['#id'] .'-plup-filelist" class="plup-filelist"><table><tr class="plup-drag-info"><td><div class="drag-main">'. t('Drag files here') .'</div><div class="drag-more">'. implode("\n", $element['#info']) .'</div></td></tr></table></div>';
+  $output .= '<div class="plup-bar clearfix">';
+  $output .= '<a id="'. $element['#id'] .'-plup-select" class="plup-select"><div></div>'. t('Add') .'</a>';
+  $output .= '<a id="'. $element['#id'] .'-plup-upload" class="plup-upload"><div></div>'. t('Upload') .'</a>';
+  $output .= '<div class="plup-progress"></div>';
+  $output .= '</div>';
+  $output .= '</div>';
+
+  $output .= '</div>';
+  return $output;
+}
+
+
+/**
+ * Theme Plupload items within widget.
+ */
+function theme_plup_items($vars) {
+  $element = &$vars['element'];
+  if (isset($element['#default_value']) && !empty($element['#default_value'])) {
+    $items = &$element['#default_value'];
+  } else {
+    return '';
+  }
+
+  $output = '';
+  foreach ($items AS $delta => $item) {
+    // If user deleted all items I'll get array('fid' => 0)
+    if ($item['fid'] > 0) {
+      $hasTitle = (bool) (isset($element['#plup_override']['title_field']) && $element['#plup_override']['title_field'] == 1);
+      $hasAlt = (bool) (isset($element['#plup_override']['alt_field']) && $element['#plup_override']['alt_field'] == 1);
+      $name = $element['#name'] .'['. $delta .']';
+      $output .= '<li class="ui-state-default">';
+      $output .= '<div class="plup-thumb-wrapper">'. theme('image_style', array('style_name' => $element['#plup']['image_style'], 'path' => $item['uri'], 'title' => $item['filename'])) .'</div>';
+      $output .= '<a class="plup-remove-item"></a>';
+      if ($hasTitle) {
+        $output .= '<input title="'. t('Title') .'" type="text" class="form-text plup-title" name="'. $name .'[title]" value="'. $item['title'] .'" />';
+      }
+      if ($hasAlt) {
+        $output .= '<input title="'. t('Alternative text') .'" type="text" class="form-text plup-alt" name="'. $name .'[alt]" value="'. $item['alt'] .'" />';
+      }
+      $output .= '<input type="hidden" name="'. $name .'[fid]" value="'. $item['fid'] .'" />';
+      $output .= '<input type="hidden" name="'. $name .'[weight]" value="'. $delta .'" />';
+      if (isset($item['rename'])) {
+        $output .= '<input type="hidden" name="'. $name .'[rename]" value="'. $item['rename'] .'" />';
+      }
+      $output .= '</li>';
+    }
+  }
+  return $output;
+}
+
+
+/**
+ * Plupload's upload function.
+ */
+function plup_upload_page() {
+  drupal_add_http_header('Expires', 'Mon, 26 Jul 1997 05:00:00 GMT', TRUE);
+  drupal_add_http_header('Last-Modified', gmdate("D, d M Y H:i:s") . ' GMT', TRUE);
+  drupal_add_http_header('Cache-Control', 'no-store, no-cache, must-revalidate post-check=0, pre-check=0', TRUE);
+  drupal_add_http_header('Pragma', 'no-cache', TRUE);
+
+  // Settings
+  $targetDir = $GLOBALS['conf']['file_temporary_path'] .'/';
+  // 5 minutes execution time
+  @set_time_limit(5 * 60);
+  // Uncomment this one to fake upload time
+  // usleep(5000);
+
+  // Get parameters
+  $chunk = isset($_REQUEST['chunk']) ? $_REQUEST['chunk'] : 0;
+  $chunks = isset($_REQUEST['chunks']) ? $_REQUEST['chunks'] : 0;
+  $filename = isset($_REQUEST['name']) ? $_REQUEST['name'] : '';
+
+  // Clean the fileName for security reasons
+  $extensions = 'jpg jpeg gif png txt doc xls pdf ppt pps odt ods odp';
+  $filename = file_munge_filename($filename, $extensions, FALSE);
+
+  // Make sure the fileName is unique but only if chunking is disabled
+  if ($chunks < 2 && file_exists($targetDir . DIRECTORY_SEPARATOR . $filename)) {
+    $ext = strrpos($filename, '.');
+    $filename_a = substr($filename, 0, $ext);
+    $filename_b = substr($filename, $ext);
+
+    $count = 1;
+    while (file_exists($targetDir . DIRECTORY_SEPARATOR . $filename_a . '_' . $count . $filename_b))
+      $count++;
+
+    $filename = $filename_a . '_' . $count . $filename_b;
+  }
+
+
+  // Look for the content type header
+  if (isset($_SERVER['HTTP_CONTENT_TYPE'])) {
+    $contentType = $_SERVER['HTTP_CONTENT_TYPE'];
+  }
+
+  if (isset($_SERVER['CONTENT_TYPE'])) {
+    $contentType = $_SERVER['CONTENT_TYPE'];
+  }
+
+  // Handle non multipart uploads older WebKit versions didn't support multipart in HTML5
+  if (strpos($contentType, 'multipart') !== false) {
+    if (isset($_FILES['file']['tmp_name']) && is_uploaded_file($_FILES['file']['tmp_name'])) {
+      // Open temp file
+      $out = fopen($targetDir . DIRECTORY_SEPARATOR . $filename, $chunk == 0 ? 'wb' : 'ab');
+      if ($out) {
+        // Read binary input stream and append it to temp file
+        $in = fopen($_FILES['file']['tmp_name'], 'rb');
+
+        if ($in) {
+          while ($buff = fread($in, 4096))
+            fwrite($out, $buff);
+        } else {
+          die('{"jsonrpc" : "2.0", "error" : {"code": 101, "message": "Failed to open input stream."}, "id" : "id"}');
+        }
+
+        fclose($in);
+        fclose($out);
+        @unlink($_FILES['file']['tmp_name']);
+      } else {
+        die('{"jsonrpc" : "2.0", "error" : {"code": 102, "message": "Failed to open output stream."}, "id" : "id"}');
+      }
+    } else {
+      die('{"jsonrpc" : "2.0", "error" : {"code": 103, "message": "Failed to move uploaded file."}, "id" : "id"}');
+    }
+  } else {
+    // Open temp file
+    $out = fopen($targetDir . DIRECTORY_SEPARATOR . $filename, $chunk == 0 ? 'wb' : 'ab');
+    if ($out) {
+      // Read binary input stream and append it to temp file
+      $in = fopen("php://input", 'rb');
+
+      if ($in) {
+        while ($buff = fread($in, 4096)) {
+          fwrite($out, $buff);
+        }
+      } else {
+        die('{"jsonrpc" : "2.0", "error" : {"code": 101, "message": "Failed to open input stream."}, "id" : "id"}');
+      }
+
+      fclose($in);
+      fclose($out);
+    } else {
+      die('{"jsonrpc" : "2.0", "error" : {"code": 102, "message": "Failed to open output stream."}, "id" : "id"}');
+    }
+  }
+
+  if ((isset($_GET['chunk']) && ($_GET['chunk'] + 1) == $_GET['chunks']) || (!isset($_GET['chunk']))) {
+    $source = 'temporary://'. $filename;
+    $file = new stdClass();
+    $file->uid      = $GLOBALS['user']->uid;
+    $file->status   = 0;
+    $file->filename = $filename;
+    $file->uri      = $source;
+    $file->filemime = file_get_mimetype($file->filename);
+    $file->filesize = filesize($source);
+    // Save url argument(instance_id) so we can validate file by instance settings
+    $file->arg = arg(1);
+
+    $e = FALSE;
+    // Here we validate file
+    drupal_alter('plup_file_validation', $file, $e);
+
+    if ($e === FALSE) {
+      $return = file_save($file);
+    } else {
+      file_unmanaged_delete($file->uri);
+      $return = (object) array('error_message' => $e);
+    }
+
+    drupal_json_output($return);
+  }
+}
+
+
+/**
+ * Default validation function.
+ * In most cases Pluplaod will be used for images so we use image-specific validation.
+ * Non-image files has no support right now.
+ */
+function plup_plup_file_validation_alter(&$file, &$e) {
+  if (!isset($file->arg) || (isset($file->arg) && is_numeric($file->arg))) {
+    $instance = db_select('field_config_instance','i')->fields('i', array('data'))->condition('id', $file->arg)->execute()->fetchField();
+    $instance = unserialize($instance);
+    $settings = $instance['settings'];
+
+    // Check if file is image
+    $passImage = file_validate_is_image($file);
+    if (!empty($passImage)) {
+      $e = reset($passImage);
+      return;
+    }
+
+    // Check if file has allowed extension
+    $passExt = file_validate_extensions($file, $settings['file_extensions']);
+    if (!empty($passExt)) {
+      $e = reset($passExt);
+      return;
+    }
+
+    // Check if file doesn't exceed the maximal allowed size
+    $passSize = file_validate_size($file, parse_size($settings['max_filesize']), 0);
+    if (!empty($passSize)) {
+      $e = reset($passSize);
+      return;
+    }
+
+    // Check if file name isn't too long
+    $passLength = file_validate_name_length($file);
+    if (!empty($passLength)) {
+      $e = reset($passLength);
+      return;
+    }
+
+    // Check if file meet the resolution restrictions
+    $passRes = file_validate_image_resolution($file, $settings['max_resolution'], $settings['min_resolution']);
+    if (!empty($passRes)) {
+      $e = reset($passRes);
+      return;
+    }
+    // Generate a secure version of file uri for temporary delivery
+    $file->secure_uri = image_style_url($instance['widget']['settings']['image_style'], $file->uri);
+    // we need to build it as a temp but deliver as a public
+    $file->secure_uri = str_replace('system/temporary', variable_get('file_public_path', 'sites/default/files'), $file->secure_uri);
+  }
+}
+
+
+/*********************************************
+ *            FIELD WIDGET
+ ********************************************/
+
+/**
+ *  _field_widget_info
+ */
+function plup_field_widget_info() {
+  return array(
+    'image_plupload' => array(
+      'label' => t('Plupload'),
+      'field types' => array('image'),
+      'behaviors' => array(
+        'multiple values' => FIELD_BEHAVIOR_CUSTOM,
+        'default value' => FIELD_BEHAVIOR_NONE,
+      ),
+    ),
+  );
+}
+
+
+/**
+ * _field_widget_settings_form
+ */
+function plup_field_widget_settings_form($field, $instance) {
+  $styles = array();
+  foreach (image_styles() as $name => $style) {
+    $styles[$name] = $style['name'];
+  }
+
+  $form['image_style'] = array(
+    '#type' => 'select',
+    '#title' => t('Image style'),
+    '#default_value' => isset($instance['widget']['settings']['image_style']) ? $instance['widget']['settings']['image_style'] : 'thumbnail',
+    '#options' => $styles
+  );
+
+  return $form;
+}
+
+
+/**
+ *  _field_widget_form
+ */
+function plup_field_widget_form(&$form, &$form_state, $field, $instance, $langcode, $items, $delta, $element) {
+  $parents = array_merge(array('values', $element['#field_name'], $element['#language']), $element['#field_parents']);
+  $state_data = drupal_array_get_nested_value($form_state, $parents);
+
+  if (isset($state_data)) {
+    $default_values = $state_data;
+  } else if (isset($items)) {
+    $default_values = $items;
+  } else {
+    $default_values = array();
+  }
+
+  // We inform user about restrictions
+  $info = array();
+  if ($field['cardinality'] > 0) {
+    $info[] = '<div>'. t("You can upload up to !num files.", array('!num' => '<strong>'. $field['cardinality'] .'</strong>')) .'</div>';
+  }
+  if (isset($instance['settings']['max_filesize']) && !empty($instance['settings']['max_filesize'])) {
+    $info[] = '<div>'. t("Maximal file size: !size", array('!size' => '<strong>'. $instance['settings']['max_filesize'] .'</strong>')) .'</div>';
+  }
+  $info[] = '<div>'. t("Allowed files types: !types.", array('!types' => '<strong>'. $instance['settings']['file_extensions'] .'</strong>')) .'</div>';
+  $max = $instance['settings']['max_resolution'];
+  $min = $instance['settings']['min_resolution'];
+  if ($min && $max && $min == $max) {
+    $info[] = '<div>'. t('Images must be exactly !size pixels.', array('!size' => '<strong>' . $max . '</strong>')) .'</div>';
+  }
+  elseif ($min && $max) {
+    $info[] = '<div>'. t('Images must be between !min and !max pixels.', array('!min' => '<strong>' . $min . '</strong>', '!max' => '<strong>' . $max . '</strong>')) .'</div>';
+  }
+  elseif ($min) {
+    $info[] = '<div>'. t('Images must be larger than !min pixels.', array('!min' => '<strong>' . $min . '</strong>')) .'</div>';
+  }
+  elseif ($max) {
+    $info[] = '<div>'. t('Images must be smaller than !max pixels.', array('!max' => '<strong>' . $max . '</strong>')) .'</div>';
+  }
+
+
+  $images = array(
+    '#type' => 'plupload_file',
+    '#default_value' => $default_values,
+    '#info' => $info
+  );
+
+  // Allowed file types(extensions) needs to be set here
+  $ext = new stdClass();
+  $ext->title = 'Allowed extensions'; // This won't show up anywhere so no t()
+  $ext->extensions = (isset($instance['settings']['file_extensions']) && !empty($instance['settings']['file_extensions'])) ? strtr($instance['settings']['file_extensions'], ' ', ',') : 'jpg,png,gif';
+  $images['#plup_override']['filters'] = array($ext);
+  // Maximal file size
+  if (isset($instance['settings']['max_filesize']) && !empty($instance['settings']['max_filesize'])) {
+    $images['#plup_override']['max_file_size'] = $instance['settings']['max_filesize'];
+  }
+  // URL callback for Plupload library has to be altered so we can get instance ID for later validation
+  $images['#plup_override']['url'] = url('plupload/'. $instance['id'], array('query' => array('plupload_token' => drupal_get_token('plupload-handle-uploads'))));
+  // We set image style to present uploaded images in Plupload widget
+  $images['#plup_override']['image_style'] = isset($instance['widget']['settings']['image_style']) ? $instance['widget']['settings']['image_style'] : 'thumbnail';
+  // We set if we want to enable title and alt fields for images
+  $images['#plup_override']['alt_field'] = (int) $instance['settings']['alt_field'];
+  $images['#plup_override']['title_field'] = (int) $instance['settings']['title_field'];
+  // We set the maximum files user can upload
+  $images['#plup_override']['max_files'] = (int) $field['cardinality'];
+
+  $element += $images;
+
+  return $element;
+}
+
+
+/**
+ * _field_attach_presave
+ * Somehow Drupal 7 doesn't have proper field hooks so we have to use
+ * this big global hook so we can move files to their desiganted folder
+ * because image module won't pick on #upload_location attribute(don't know why yet).
+ * We also rename files back to their original name.
+ */
+function plup_field_attach_presave($entity_type, $entity) {
+  $entityInfo = entity_get_info($entity_type);
+  $bundleKey = (isset($entityInfo['entity keys']['bundle']) && !empty($entityInfo['entity keys']['bundle'])) ? $entityInfo['entity keys']['bundle'] : $entity_type;
+  $bundle = isset($entity->{$bundleKey}) ? $entity->{$bundleKey} : $entity_type;
+  $instances = field_info_instances();
+  $entityFields = $instances[$entity_type][$bundle];
+
+  if (!is_array($entityFields) || empty($entityFields)) {
+    return;
+  }
+
+  foreach ($entityFields AS $field_name => $instance) {
+    if ($instance['widget']['type'] == 'image_plupload' && $instance['widget']['module'] == 'plup') {
+      $items = field_get_items($entity_type, $entity, $field_name);
+      if ($items && $items[0]['fid'] > 0) {
+        $field = field_info_field($instance['field_name']);
+        $destination = file_field_widget_uri($field, $instance);
+        foreach ($items AS $delta => $item) {
+          $file = file_load($item['fid']);
+          // Filefield paths integration
+          if (module_exists('filefield_paths') && isset($item['rename'])) {
+            $file->origname = $item['rename'];
+            file_save($file);
+          } else {
+            $fileName = isset($item['rename']) ? $item['rename'] : $file->filename;
+            $dir = isset($instance['settings']['file_directory']) ? $instance['settings']['file_directory'] .'/' : '';
+            $location = token_replace($field['settings']['uri_scheme'] .'://'. $dir);
+            $filePath = $location . $fileName;
+            if ($file->uri !== $filePath) {
+              file_prepare_directory($location, FILE_CREATE_DIRECTORY);
+              file_move($file, $filePath);
+            }
+          }
+        }
+      }
+    }
+  }
+}

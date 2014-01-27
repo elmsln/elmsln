@@ -1,0 +1,7 @@
+// $Id$
+
+Node form columns 7.x-1.x, xxxx-xx-xx
+------------------------------
+#801804 by yhahn, voxpelli: Port to drupal 7
+by voxpelli: No longer positions form fields that the access is denied to
+#664840 by swentel, voxpelli: Fixed PHP notices

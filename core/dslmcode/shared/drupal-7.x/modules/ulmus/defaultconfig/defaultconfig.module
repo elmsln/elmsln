@@ -1,0 +1,636 @@
+<?php
+
+/**
+ * @file
+ *   main module file.
+ */
+
+/**
+ * Implements hook_menu().
+ */
+function defaultconfig_menu() {
+  $items = array();
+  $items['admin/structure/defaultconfig'] = array(
+    'title' => 'Default config',
+    'description' => 'Manage Default config.',
+    'page callback' => 'defaultconfig_admin',
+    'type' => MENU_NORMAL_ITEM,
+    'file' => 'defaultconfig.admin.inc',
+    'access arguments' => array('administer default config'),
+  );
+  if (module_exists('ctools')) {
+    $items['admin/structure/extensions'] = array(
+      'title' => 'Extensions',
+      'description' => 'Manage extensions.',
+      'page callback' => 'drupal_get_form',
+      'page arguments' => array('defaultconfig_optional_admin'),
+      'type' => MENU_NORMAL_ITEM,
+      'file' => 'defaultconfig.admin.inc',
+      'access arguments' => array('administer default config'),
+    );
+  }
+  $items['admin/structure/defaultconfig/rebuild/%/%'] = array(
+    'title' => 'Rebuild defaults',
+    'description' => 'Rebuild default configuration.',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('defaultconfig_component_rebuild_form', 4, 5),
+    'type' => MENU_CALLBACK,
+    'file' => 'defaultconfig.admin.inc',
+    'access arguments' => array('administer default config'),
+  );
+  return $items;
+}
+
+/**
+ * Implements hook_permission().
+ */
+function defaultconfig_permission() {
+  return array(
+    'administer default config' => array(
+      'title' => t('Administer Default configuration'),
+      'description' => t('Perform administration tasks related to default configuration'),
+    ),
+  );
+}
+
+/**
+ * Provision a set of permissions in a way that won't harm any overrides
+ * that has been done. The database always comes before the code.
+ * This code is largely based on the code in features, with tweaks to not harm
+ * any data that might have been overridden.
+ * @see user_permission_features_rebuild()
+ */
+function defaultconfig_component_rebuild_permissions($info, $default_permissions, $module = FALSE) {
+  if (isset($default_permissions) && is_array($default_permissions)) {
+    features_include();
+    // Make sure we have all permissions by rebuilding filters and rebuild
+    // node types.
+    node_types_rebuild();
+    if (!empty($module)) {
+      module_load_include('inc', 'features', 'features.export');
+      filter_features_rebuild($module);
+    }
+    $roles = _user_features_get_roles();
+    $permissions_by_role = _user_features_get_permissions(FALSE);
+    foreach ($default_permissions as $permission) {
+      $perm = $permission['name'];
+      foreach ($roles as $role) {
+        if (isset($permission['module']) && module_exists($permission['module']) && in_array($role, $permission['roles'])) {
+          $permissions_by_role[$role][$perm] = TRUE;
+        }
+      }
+    }
+    // Write the updated permissions.
+    foreach ($roles as $rid => $role) {
+      if (isset($permissions_by_role[$role])) {
+        user_role_change_permissions($rid, $permissions_by_role[$role]);
+      }
+    }
+  }
+}
+
+/**
+ * Provision vocabularies.
+ */
+function defaultconfig_component_rebuild_vocabularies(array $info, $vocabularies, $module = NULL) {
+  $existing = taxonomy_get_vocabularies();
+  foreach ($vocabularies as $vocabulary) {
+    $vocabulary = (object) $vocabulary;
+    foreach ($existing as $existing_vocab) {
+      if ($existing_vocab->machine_name === $vocabulary->machine_name) {
+        $vocabulary->vid = $existing_vocab->vid;
+      }
+    }
+    taxonomy_vocabulary_save($vocabulary);
+  }
+}
+
+/**
+ * Provision roles that should exist by default.
+ */
+function defaultconfig_component_rebuild_roles(array $info, $defaults, $module = FALSE) {
+  if (isset($defaults) && is_array($defaults)) {
+    foreach ($defaults as $role) {
+      $role = (object) $role;
+      if ($existing = user_role_load_by_name($role->name)) {
+        $role->rid = $existing->rid;
+      }
+      user_role_save($role);
+    }
+  }
+}
+
+/**
+ * Rebuild CTools components.
+ */
+function defaultconfig_component_rebuild_ctools(array $info, $defaults, $module = FALSE) {
+  ctools_include('export');
+  foreach ($defaults as $name => $default) {
+    // Delete any old object if it exists.
+    $old_object = ctools_export_crud_load($info['features component'], $name);
+    if (!empty($old_object)) {
+      ctools_export_crud_delete($info['features component'], $old_object);
+    }
+    // Add a export_type variable, this isn't always included.
+    $default->export_type = EXPORT_IN_CODE;
+    ctools_export_crud_save($info['features component'], $default);
+  }
+}
+
+/**
+ * Variables that should exist by default
+ */
+function defaultconfig_component_rebuild_variables(array $info, $defaults, $module = FALSE) {
+  if (isset($defaults) && is_array($defaults)) {
+    foreach ($defaults as $name => $default) {
+      variable_set($name, $default->value);
+    }
+  }
+}
+
+function defaultconfig_component_rebuild_fields(array $info, $default_fields, $module = FALSE) {
+  field_info_cache_clear();
+  // We need to know what fields are defined by features.
+  module_load_include('inc', 'features', 'features.export');
+  features_include();
+  features_include_defaults(array('field'));
+  $features_fields = features_get_default('field');
+  if (isset($default_fields)) {
+    foreach ($default_fields as $name => $field) {
+      // Do not interfere with fields exported by features.
+      if (!isset($features_fields[$name])) {
+        // Create or update field.
+        $field_config = $field['field_config'];
+        if ($existing_field = field_read_field($field_config['field_name'], array('include_inactive' => TRUE))) {
+          // If this field is inactive, we need to activate it first.
+          if (!$existing_field['active']) {
+            db_update('field_config')
+              ->fields(array('active' => 1))
+              ->condition('field_name', $field_config['field_name'])
+              ->execute();
+          }
+          field_update_field($field_config);
+        }
+        else {
+          field_create_field($field_config);
+        }
+        // Create or update field instance.
+        $field_instance = $field['field_instance'];
+        $existing_instance = field_info_instance($field_instance['entity_type'], $field_instance['field_name'], $field_instance['bundle']);
+        if ($existing_instance) {
+          field_update_instance($field_instance);
+        }
+        else {
+          field_create_instance($field_instance);
+        }
+        variable_set('menu_rebuild_needed', TRUE);
+      }
+    }
+  }
+}
+
+function defaultconfig_disable_fields($component, $default_fields, $module = FALSE) {
+  field_info_cache_clear();
+  // We need to know what fields are defined by features.
+  module_load_include('inc', 'features', 'features.export');
+  features_include();
+  features_include_defaults(array('field'));
+  $features_fields = features_get_default('field');
+  if (isset($default_fields)) {
+    foreach ($default_fields as $name => $field) {
+      // Do not interfere with fields exported by features.
+      if (!isset($features_fields[$name])) {
+        // We only care about fields that are already created.
+        $field_config = $field['field_config'];
+        if ($existing_field = field_info_field($field_config['field_name'])) {
+          // Only a field can be marked as inactive, so we can't do anything
+          // about the instances unfortunately.
+          $field_config['active'] = 0;
+          field_update_field($field_config);
+        }
+        variable_set('menu_rebuild_needed', TRUE);
+      }
+    }
+  }
+}
+
+/**
+ * Implements hook_theme().
+ */
+function defaultconfig_theme() {
+  $theme = array();
+  $theme['defaultconfig_optional_admin'] = array(
+    'render element' => 'form',
+  );
+  return $theme;
+}
+
+/**
+ * Implements hook_modules_installed().
+ */
+function defaultconfig_modules_installed($modules) {
+  // We might not be able to install components while installing, so provide an option to disable
+  // this functionality during installation.
+  if (is_array($GLOBALS['install_state'])) {
+    $profile = drupal_get_profile();
+    $function = $profile . '_defaultconfig_site_install';
+    if (function_exists($function) && !$function()) {
+      return;
+    }
+  }
+  // Make sure the list of available node types is up to date, especially when
+  // installing multiple features at once, for example from an install profile
+  // or via drush.
+  node_types_rebuild();
+  defaultconfig_include();
+  drupal_static_reset();
+  $components = defaultconfig_get_components(TRUE);
+  foreach ($modules as $module) {
+    foreach ($components as $component) {
+      defaultconfig_component_include($component, $module);
+      if (module_hook($module, $component['hook'])) {
+        defaultconfig_component_rebuild($component, $module);
+      }
+    }
+  }
+}
+
+/**
+ * Implements hook_modules_disabled().
+ */
+function defaultconfig_modules_disabled($modules) {
+  $components = defaultconfig_get_components();
+  foreach ($modules as $module) {
+    foreach ($components as $hook => $component) {
+      if (module_hook($module, $component['hook'])) {
+        defaultconfig_component_include($component, $module);
+        defaultconfig_component_disable($component, $module);
+      }
+    }
+  }
+}
+
+/**
+ * Rebuild all default components.
+ */
+function defaultconfig_rebuild_all() {
+  features_include();
+  $components = module_invoke_all('defaultconfig_components');
+  foreach ($components as $name => $component) {
+    $component['name'] = $component;
+    defaultconfig_component_rebuild($component);
+  }
+}
+
+function defaultconfig_include() {
+  // Include all files for features using default config.
+  module_load_include('export.inc', 'features');
+  features_get_default('defaultconfig');
+}
+
+function defaultconfig_component_include($component, $module = FALSE) {
+  // Include file if necessary.
+  if (isset($component['group'])) {
+    if ($module) {
+      module_load_include($component['group'] . '.inc', $module);
+    }
+    else {
+      // Include all necessary files.
+      foreach (module_list() as $module) {
+        module_load_include($component['group'] . '.inc', $module);
+      }
+    }
+  }
+}
+
+/**
+ * Rebuild a particular component.
+ */
+function defaultconfig_component_rebuild($component, $module = FALSE) {
+  defaultconfig_include();
+  defaultconfig_component_include($component, $module);
+  // Fetch all components from defaultconfig-specific hooks.
+  if ($module) {
+    $defaults = module_invoke($module, $component['hook']);
+  }
+  else {
+    $defaults = module_invoke_all($component['hook']);
+  }
+  // Allow the possibility of altering the default components.
+  drupal_alter($component['hook'], $defaults, $module);
+  // Have a generic alter for all components.
+  drupal_alter('defaultconfig_component', $defaults, $component);
+  $component['rebuild callback']($component, $defaults, $module);
+}
+
+function defaultconfig_component_disable($component, $module = FALSE) {
+  defaultconfig_include();
+  defaultconfig_component_include($component, $module);
+  if (isset($component['disable callback'])) {
+    if ($module) {
+      $defaults = module_invoke($module, $component['hook']);
+    }
+    else {
+    $defaults = module_invoke_all($component['hook']);
+    }
+    $component['disable callback']($component, $defaults, $module);
+  }
+}
+
+/**
+ * Get all defaultconfig components.
+ * @return array
+ *   an array of components with the following keys:
+ *   - weight: the weight of the components
+ *   - rebuild callback: a string representing a callback to that rebuilds the
+ *  default configuration.
+ *   - group (optional) the hook group the hook resides in.
+ */
+function defaultconfig_get_components($reset = FALSE) {
+  $components = &drupal_static(__FUNCTION__);
+  if (!isset($components) || $reset) {
+    $components = module_invoke_all('defaultconfig_components');
+    foreach ($components as $name => &$component) {
+      $component['name'] = $name;
+      $component['hook'] = 'defaultconfig_' . $component['name'];
+    }
+    uasort($components, 'defaultconfig_components_sort');
+  }
+  return $components;
+}
+
+
+/**
+ * Sort callback for ordering components.
+ */
+function defaultconfig_components_sort($a, $b) {
+  $a = (array)$a + array('weight' => 0);
+  $b = (array)$b + array('weight' => 0);
+  return $a['weight'] < $b['weight'] ? -1 : 1;
+}
+
+
+/**
+ * Implements hook_defaultconfig_components().
+ */
+function defaultconfig_defaultconfig_components() {
+  $components = array(
+    'user_default_roles' => array(
+      'rebuild callback' => 'defaultconfig_component_rebuild_roles',
+      'label' => t('Roles'),
+      'features component' => 'user_role',
+      'group' => 'features.user_role',
+      'weight' => 0,
+    ),
+    'user_default_permissions' => array(
+      'rebuild callback' => 'defaultconfig_component_rebuild_permissions',
+      'label' => t('Permissions'),
+      'features component' => 'user_permission',
+      'group' => 'features.user_permission',
+      'weight' => 1,
+    ),
+    'field_default_fields' => array(
+      'rebuild callback' => 'defaultconfig_component_rebuild_fields',
+      'disable callback' => 'defaultconfig_disable_fields',
+      'label' => t('Fields'),
+      'features component' => 'field',
+      'group' => 'features.field',
+      'weight' => 1,
+    ),
+    'taxonomy_default_vocabularies' => array(
+      'rebuild callback' => 'defaultconfig_component_rebuild_vocabularies',
+      'label' => t('Vocabularies'),
+      'features component' => 'taxonomy',
+      'group' => 'features.taxonomy',
+      'weight' => 1,
+    ),
+  );
+  if (module_exists('ctools')) {
+    features_include(TRUE);
+    $features_info = _ctools_features_get_info(NULL, TRUE);
+    foreach ($features_info as $name => $info) {
+      $components[$info['default_hook']] = array(
+        'rebuild callback' => 'defaultconfig_component_rebuild_ctools',
+        'label' => $info['name'],
+        'features component' => $name,
+        // We can't register CTools files as groups,
+        // it causes a lot of things to fail.
+        'group' => $info['default_filename'],
+      );
+    }
+  }
+  // Override strongarm and use our own version to avoid CTools dependency.
+  $components['strongarm'] = array(
+    'rebuild callback' => 'defaultconfig_component_rebuild_variables',
+    'label' => t('Variables'),
+    'features component' => 'variable',
+    'group' => 'strongarm',
+    'weight' => 1,
+  );
+  return $components;
+}
+
+/**
+ * Return a batch definition for rebuilding all default configuration.
+ */
+function defaultconfig_rebuild_batch_defintion($title, $error, $finished = FALSE) {
+  features_include();
+  $components = module_invoke_all('defaultconfig_components');
+  $operations = array();
+  defaultconfig_include();
+  foreach ($components as $name => $component) {
+    defaultconfig_component_include($component);
+    $modules = module_implements('defaultconfig_' . $name);
+    foreach ($modules as $module) {
+      $operations[] = array('_defaultconfig_batch_operation',
+          array($module, $name));
+    }
+  }
+  $batch = array(
+    'operations' => $operations,
+    'title' => $title,
+    'error_message' => $error,
+  );
+  if ($finished) {
+    $batch['finished'] = $finished;
+  }
+  return $batch;
+}
+
+/**
+ * Rebuild default configuration in a batch.
+ */
+function _defaultconfig_batch_operation($module, $component, &$context) {
+  $components = defaultconfig_get_components();
+  defaultconfig_component_rebuild($components[$component], $module);
+  $context['results'][] = $module;
+  $context['message'] = st('Applied configuration for %module module.',
+          array('%module' => $module));
+}
+
+/**
+ * Implements hook_features_export_alter().
+ */
+function defaultconfig_features_export_alter(&$export, $module_name) {
+
+  // If this export is has some defaultconfig controlled exports, we don't want them to be
+  // overridden automaticly.
+  foreach (defaultconfig_get_components() as $component => $info) {
+    if (module_hook($module_name, 'defaultconfig_' . $component) && isset($export['features'][$info['features component']])) {
+      $default_config_export = module_invoke($module_name, 'defaultconfig_' . $component);
+      foreach($default_config_export as $component => $data){
+        if(isset($export['features'][$info['features component']][$component])){
+          unset($export['features'][$info['features component']][$component]);
+        }
+      }
+    }
+  }
+}
+
+/**
+ * Get all modules that uses default config in some way for a component.
+ * @return
+ *  An array of module names.
+ */
+function defaultconfig_modules($component) {
+  defaultconfig_component_include($component);
+  $defaultconfig_modules = module_implements($component['hook']);
+  module_load_include('export.inc', 'features');
+  $features_defaults = features_get_default('defaultconfig');
+  $features_modules = array();
+  foreach ($features_defaults as $features_module => $components) {
+    if (module_exists($features_module)) {
+      if (isset($components[$component['name']])) {
+        $features_modules[] = $features_module;
+      }
+    }
+  }
+  return array_merge($defaultconfig_modules, $features_modules);
+}
+
+/**
+ * Implements hook_defaultconfig_alter().
+ * Make sure we only install appropriate optional components.
+ */
+function defaultconfig_defaultconfig_component_alter(&$defaults, $component) {
+  $optionals = defaultconfig_optional_info();
+  if (isset($optionals[$component['name']])) {
+    foreach ($optionals[$component['name']] as $optional => $info) {
+      if (isset($defaults[$optional])) {
+        $optional_name = $component['name'] . ':' . $optional;
+        $optional_settings = defaultconfig_optional_load($optional_name);
+        if ((!$optional_settings && !$info['default']) || ($optional_settings && !$optional_settings->status)) {
+          unset($defaults[$optional]);
+        }
+      }
+    }
+  }
+}
+
+/**
+ * Implements defaultconfig_field_group_info_alter().
+ * We need to change the structure a bit to support field groups.
+ */
+function defaultconfig_defaultconfig_field_group_info_alter(&$defaults) {
+  ctools_include('export');
+  foreach ($defaults as $name => $default) {
+    // We need to put the everything in data directly
+    // on the object to avoid failures when importing.
+    // @see field_group_pack()
+    $default->label = $default->data['label'];
+    $default->weight = $default->data['weight'];
+    $default->children = $default->data['children'];
+    $default->collapsible = 0;
+    $default->collapsed = 0;
+    $default->format_type = !empty($default->data['format_type']) ? $default->data['format_type'] : 'fieldset';
+    $default->export_type = EXPORT_IN_CODE;
+    if (isset($default->data['format_settings'])) {
+      $default->format_settings = $default->data['format_settings'];
+    }
+  }
+}
+
+
+/**
+ * Load settings for an optional component.
+ */
+function defaultconfig_optional_load($name) {
+  if (module_exists('ctools')) {
+    ctools_include('export');
+    $optionals = ctools_export_load_object('defaultconfig_optionals', 'names', array($name));
+    if (isset($optionals[$name])) {
+      list($optionals[$name]->real_name, $optionals[$name]->component) = explode(':', $name);
+      return $optionals[$name];
+    }
+    return FALSE;
+  }
+  return FALSE;
+}
+
+/**
+ * Get all optionals.
+ */
+function defaultconfig_get_optionals() {
+  if (module_exists('ctools')) {
+    ctools_include('export');
+    $optionals = ctools_export_load_object('defaultconfig_optionals');
+    foreach ($optionals as &$optional) {
+      list($optional->real_name, $optional->component) = explode(':', $optional->name);
+    }
+    return $optionals;
+  }
+  return array();
+}
+
+/**
+ * Save an optional setting..
+ * @param $type
+ *   The component type.
+ * @param $component
+ *   The componennt name
+ * @param $status
+ *   If the component is active or not.
+ */
+function defaultconfig_optional_save($module, $type, $component, $status) {
+  $components = defaultconfig_get_components();
+  $optional = new stdClass();
+  $optional->export_type = 0;
+  $optional->name = $type . ':' . $component;
+  $optional->status = $status;
+  ctools_export_crud_save('defaultconfig_optionals', $optional);
+  defaultconfig_component_rebuild($components['field_default_fields'], $module);
+}
+
+
+function defaultconfig_optional_info() {
+  $type_optionals = module_invoke_all('defaultconfig_optionals');
+  foreach ($type_optionals as $type => &$optionals) {
+    foreach ($optionals as &$optional) {
+      // Let module disable optionals if they are not applicable at this time.
+      $optional['applicable'] = isset($optional['applicable']) ? $optional['applicable'] : TRUE;
+      // Default is always false if the optional is not applicable.
+      $optional['default'] = $optional['default'] && $optional['applicable'];
+    }
+  }
+  return $type_optionals;
+}
+
+/**
+ * Implements hook_features_api().
+ */
+function defaultconfig_features_api() {
+  $items = array(
+    'defaultconfig' => array(
+      'name' => t('Default config'),
+      'default_hook' => 'defaultconfig_features',
+      'default_file' => FEATURES_DEFAULTS_INCLUDED,
+      'feature_source' => TRUE,
+      'file' => drupal_get_path('module', 'defaultconfig') . '/defaultconfig.features.inc',
+    ),
+  );
+  if (module_exists('ctools') && module_exists('features')) {
+    module_load_include('inc', 'features', 'includes/features.ctools');
+    $items += ctools_component_features_api('defaultconfig');
+  }
+  return $items;
+}

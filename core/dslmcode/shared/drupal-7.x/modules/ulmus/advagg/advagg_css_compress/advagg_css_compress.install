@@ -1,0 +1,28 @@
+<?php
+
+/**
+ * @file
+ * Handles AdvAgg CSS compress installation and upgrade tasks.
+ */
+
+/**
+ * Upgrade AdvAgg CSS Compress previous versions (6.x-1.x & 7.x-1.x) to 7.x-2.x.
+ *
+ * Implements hook_update_N().
+ */
+function advagg_css_compress_update_7200(&$sandbox) {
+  // Bail if old DB Table does not exist.
+  if (!db_table_exists('cache_advagg_css_compress_inline')) {
+    return t('Nothing needed to happen in AdvAgg CSS Compress.');
+  }
+
+  // Remove all old advagg css compress variables.
+  db_delete('variable')
+    ->condition('name', 'advagg_css%compress%', 'LIKE')
+    ->execute();
+
+  // Remove old schema.
+  db_drop_table('cache_advagg_css_compress_inline');
+
+  return t('Upgraded AdvAgg CSS Compress to 7.x-2.x.');
+}

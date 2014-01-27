@@ -1,0 +1,422 @@
+<?php
+
+/**
+ * A responsive table class; hide table cell on narrow devices.
+ *
+ * Indicates that a column has medium priority and thus can be hidden on narrow
+ * width devices and shown on medium+ width devices (i.e. tablets and desktops).
+ */
+define('RESPONSIVE_PRIORITY_MEDIUM', 'priority-medium');
+
+/**
+ * A responsive table class; only show table cell on wide devices.
+ *
+ * Indicates that a column has low priority and thus can be hidden on narrow
+ * and medium viewports and shown on wide devices (i.e. desktops).
+ */
+define('RESPONSIVE_PRIORITY_LOW', 'priority-low');
+
+/**
+ * Implements hook_library().
+ */
+function responsive_tables_library() {
+  $libraries = array();
+
+  // Drupal's responsive table API.
+  $libraries['drupal.tableresponsive'] = array(
+    'title' => 'Drupal responsive table API',
+    'version' => VERSION,
+    'js' => array(
+      drupal_get_path('module', 'responsive_tables') . '/js/tableresponsive.js' => array('group' => JS_LIBRARY),
+    ),
+    'dependencies' => array(
+      array('system', 'jquery'),
+      array('system', 'drupal'),
+      array('system', 'jquery.once'),
+    ),
+  );
+
+  return $libraries;
+}
+
+/**
+ * Implements hook_theme_registry_alter().
+ */
+function responsive_tables_theme_registry_alter(&$info) {
+  $info['table']['function'] = 'responsive_tables_theme_table';
+  $info['table']['variables'] += array('responsive' => TRUE);
+  if (isset($info['views_ui_style_plugin_table'])) {
+    $info['views_ui_style_plugin_table']['function'] = 'responsive_tables_theme_views_ui_style_plugin_table';
+  }
+}
+
+/**
+ * Overrides theme_table() with responsive support.
+ */
+function responsive_tables_theme_table($variables) {
+  $header = $variables['header'];
+  $rows = $variables['rows'];
+  $attributes = $variables['attributes'];
+  $caption = $variables['caption'];
+  $colgroups = $variables['colgroups'];
+  $sticky = $variables['sticky'];
+  $responsive = $variables['responsive'];
+  $empty = $variables['empty'];
+
+  // Add sticky headers, if applicable.
+  if (count($header) && $sticky) {
+    drupal_add_library('system', 'drupal.tableheader');
+    // Add 'sticky-enabled' class to the table to identify it for JS.
+    // This is needed to target tables constructed by this function.
+    $attributes['class'][] = 'sticky-enabled';
+  }
+
+  $output = '<table' . drupal_attributes($attributes) . ">\n";
+
+  if (isset($caption)) {
+    $output .= '<caption>' . $caption . "</caption>\n";
+  }
+
+  // Format the table columns:
+  if (count($colgroups)) {
+    foreach ($colgroups as $number => $colgroup) {
+      $attributes = array();
+
+      // Check if we're dealing with a simple or complex column
+      if (isset($colgroup['data'])) {
+        foreach ($colgroup as $key => $value) {
+          if ($key == 'data') {
+            $cols = $value;
+          }
+          else {
+            $attributes[$key] = $value;
+          }
+        }
+      }
+      else {
+        $cols = $colgroup;
+      }
+
+      // Build colgroup
+      if (is_array($cols) && count($cols)) {
+        $output .= ' <colgroup' . drupal_attributes($attributes) . '>';
+        $i = 0;
+        foreach ($cols as $col) {
+          $output .= ' <col' . drupal_attributes($col) . ' />';
+        }
+        $output .= " </colgroup>\n";
+      }
+      else {
+        $output .= ' <colgroup' . drupal_attributes($attributes) . " />\n";
+      }
+    }
+  }
+
+  // Add the 'empty' row message if available.
+  if (!count($rows) && $empty) {
+    $header_count = 0;
+    foreach ($header as $header_cell) {
+      if (is_array($header_cell)) {
+        $header_count += isset($header_cell['colspan']) ? $header_cell['colspan'] : 1;
+      }
+      else {
+        $header_count++;
+      }
+    }
+    $rows[] = array(array(
+      'data' => $empty,
+      'colspan' => $header_count,
+      'class' => array('empty', 'message'),
+    ));
+  }
+
+  $responsive = array();
+  // Format the table header:
+  if (count($header)) {
+    $ts = tablesort_init($header);
+    // HTML requires that the thead tag has tr tags in it followed by tbody
+    // tags. Using ternary operator to check and see if we have any rows.
+    $output .= (count($rows) ? ' <thead><tr>' : ' <tr>');
+    $i = 0;
+    foreach ($header as $cell) {
+      $i++;
+      // Track responsive classes for each column as needed. Only the header
+      // cells for a column are marked up with the responsive classes by a
+      // module developer or themer. The responsive classes on the header cells
+      // must be transferred to the content cells.
+      if (!empty($cell['class']) && is_array($cell['class'])) {
+        if (in_array(RESPONSIVE_PRIORITY_MEDIUM, $cell['class'])) {
+          $responsive[$i] = RESPONSIVE_PRIORITY_MEDIUM;
+        }
+        elseif (in_array(RESPONSIVE_PRIORITY_LOW, $cell['class'])) {
+          $responsive[$i] = RESPONSIVE_PRIORITY_LOW;
+        }
+      }
+      $cell = tablesort_header($cell, $header, $ts);
+      $output .= _theme_table_cell($cell, TRUE);
+    }
+    // Using ternary operator to close the tags based on whether or not there are rows
+    $output .= (count($rows) ? " </tr></thead>\n" : "</tr>\n");
+  }
+  else {
+    $ts = array();
+  }
+
+  // If the table has headers and it should react responsively to columns hidden
+  // with the classes represented by the constants RESPONSIVE_PRIORITY_MEDIUM
+  // and RESPONSIVE_PRIORITY_LOW, add the tableresponsive behaviors.
+  if ($variables['responsive'] && !empty($responsive)) {
+    drupal_add_library('responsive_tables', 'drupal.tableresponsive');
+    // Add 'responsive-enabled' class to the table to identify it for JS.
+    // This is needed to target tables constructed by this function.
+    $attributes['class'][] = 'responsive-enabled';
+    // Add responsive CSS.
+    responsive_tables_add_css();
+  }
+
+  // Format the table rows:
+  if (count($rows)) {
+    $output .= "<tbody>\n";
+    $flip = array(
+      'even' => 'odd',
+      'odd' => 'even',
+    );
+    $class = 'even';
+    foreach ($rows as $number => $row) {
+      $attributes = array();
+
+      // Check if we're dealing with a simple or complex row
+      if (isset($row['data'])) {
+        foreach ($row as $key => $value) {
+          if ($key == 'data') {
+            $cells = $value;
+          }
+          else {
+            $attributes[$key] = $value;
+          }
+        }
+      }
+      else {
+        $cells = $row;
+      }
+      if (count($cells)) {
+        // Add odd/even class
+        if (empty($row['no_striping'])) {
+          $class = $flip[$class];
+          $attributes['class'][] = $class;
+        }
+
+        // Build row
+        $output .= ' <tr' . drupal_attributes($attributes) . '>';
+        $i = 0;
+        foreach ($cells as $cell) {
+          $i++;
+          // Add active class if needed for sortable tables.
+          $cell = tablesort_cell($cell, $header, $ts, $i);
+          // Copy RESPONSIVE_PRIORITY_LOW/RESPONSIVE_PRIORITY_MEDIUM
+          // class from header to cell as needed.
+          if (isset($responsive[$i])) {
+            if (is_array($cell)) {
+              $cell['class'][] = $responsive[$i];
+            }
+            else {
+              $cell = array(
+                'data' => $cell,
+                'class' => $responsive[$i],
+              );
+            }
+          }
+          $output .= _theme_table_cell($cell);
+        }
+        $output .= " </tr>\n";
+      }
+    }
+    $output .= "</tbody>\n";
+  }
+
+  $output .= "</table>\n";
+  return $output;
+}
+
+/**
+ * Overrides theme_views_ui_style_plugin_table() with responsive support.
+ */
+function responsive_tables_theme_views_ui_style_plugin_table($variables) {
+  $form = $variables['form'];
+
+  $output = drupal_render($form['description_markup']);
+
+  $header = array(
+    t('Field'),
+    t('Column'),
+    t('Align'),
+    t('Separator'),
+    array(
+      'data' => t('Sortable'),
+      'align' => 'center',
+    ),
+    array(
+      'data' => t('Default order'),
+      'align' => 'center',
+    ),
+    array(
+      'data' => t('Default sort'),
+      'align' => 'center',
+    ),
+    array(
+      'data' => t('Hide empty column'),
+      'align' => 'center',
+    ),
+    array(
+      'data' => t('Responsive'),
+      'align' => 'center',
+    ),
+  );
+  $rows = array();
+  foreach (element_children($form['columns']) as $id) {
+    $row = array();
+    $row[] = drupal_render($form['info'][$id]['name']);
+    $row[] = drupal_render($form['columns'][$id]);
+    $row[] = drupal_render($form['info'][$id]['align']);
+    $row[] = drupal_render($form['info'][$id]['separator']);
+    if (!empty($form['info'][$id]['sortable'])) {
+      $row[] = array(
+        'data' => drupal_render($form['info'][$id]['sortable']),
+        'align' => 'center',
+      );
+      $row[] = array(
+        'data' => drupal_render($form['info'][$id]['default_sort_order']),
+        'align' => 'center',
+      );
+      $row[] = array(
+        'data' => drupal_render($form['default'][$id]),
+        'align' => 'center',
+      );
+    }
+    else {
+      $row[] = '';
+      $row[] = '';
+      $row[] = '';
+    }
+    $row[] = array(
+      'data' => drupal_render($form['info'][$id]['empty_column']),
+      'align' => 'center',
+    );
+    $row[] = array(
+      'data' => drupal_render($form['info'][$id]['responsive']),
+      'align' => 'center',
+    );
+    $rows[] = $row;
+  }
+
+  // Add the special 'None' row.
+  $rows[] = array(t('None'), '', '', '', '', '', array('align' => 'center', 'data' => drupal_render($form['default'][-1])), '', '');
+
+  $output .= theme('table', array('header' => $header, 'rows' => $rows));
+  $output .= drupal_render_children($form);
+  return $output;
+}
+
+/**
+ * Implements hook_views_plugins_alter().
+ */
+function responsive_tables_views_plugins_alter(&$plugins) {
+  $plugins['style']['table']['handler'] = 'views_plugin_style_table_responsive';
+  $plugins['style']['table']['file'] = 'views_plugin_style_table_responsive.inc';
+  $plugins['style']['table']['path'] = drupal_get_path('module', 'responsive_tables');
+}
+
+function responsive_tables_preprocess_views_view_table(&$vars) {
+  // A boolean variable which stores whether the table has a responsive class.
+  $responsive = FALSE;
+
+  $view     = $vars['view'];
+  $options  = $view->style_plugin->options;
+  $handler  = $view->style_plugin;
+  $fields   = &$view->field;
+  $columns  = $handler->sanitize_columns($options['columns'], $fields);
+
+  // Add responsive header classes.
+  foreach ($vars['header_classes'] as $field => $classes) {
+    if (!empty($options['info'][$field]['responsive'])) {
+      $vars['header_classes'][$field] .= (!empty($classes) ? ' ' : '') . $options['info'][$field]['responsive'];
+      $responsive = TRUE;
+    }
+  }
+
+  // Add responsive field classes.
+  foreach ($vars['field_classes'] as $field => $rows) {
+    if (!empty($options['info'][$field]['responsive'])) {
+      foreach ($rows as $num => $classes) {
+        $vars['field_classes'][$field][$num] .= (!empty($classes) ? ' ' : '') . $options['info'][$field]['responsive'];
+      }
+    }
+  }
+
+  // If the table has headers and it should react responsively to columns hidden
+  // with the classes represented by the constants RESPONSIVE_PRIORITY_MEDIUM
+  // and RESPONSIVE_PRIORITY_LOW, add the tableresponsive behaviors.
+  if (count($vars['header']) && $responsive) {
+    drupal_add_library('responsive_tables', 'drupal.tableresponsive');
+    // Add 'responsive-enabled' class to the table to identify it for JS.
+    // This is needed to target tables constructed by this function.
+    $vars['attributes']['class'][] = 'responsive-enabled';
+    // Add responsive CSS.
+    responsive_tables_add_css();
+  }
+}
+
+/**
+ * Add the CSS necessary for responsive tables to actually work.
+ */
+function responsive_tables_add_css() {
+  $theme = $GLOBALS['theme'];
+
+  $medium = theme_get_setting('responsive_tables_medium_priority_max_width');
+  $low    = theme_get_setting('responsive_tables_low_priority_max_width');
+
+  if (!empty($medium) && !empty($low)) {
+    $css = <<<CSS
+@media (max-width:$low) {
+  th.priority-low, td.priority-low, th.priority-medium, td.priority-medium {
+    display: none;
+  }
+}
+@media (max-width:$medium) {
+  th.priority-low, td.priority-low {
+    display: none;
+  }
+}
+CSS;
+    drupal_add_css($css, array('type' => 'inline', 'media' => 'screen'));
+  }
+  else {
+    $css_file = $css = drupal_get_path('module', 'responsive_tables') . '/css/' . $GLOBALS['theme'] . '.css';
+    if (is_file($css)) {
+      drupal_add_css($css);
+    }
+  }
+}
+
+/**
+ * Implements hook_form_FORM_ID_alter().
+ */
+function responsive_tables_form_system_theme_settings_alter(&$form, &$form_state) {
+  $theme = isset($form_state['build_info']['args'][0]) ? $form_state['build_info']['args'][0] : '';
+  $form['responsive_tables'] = array(
+    '#type' => 'fieldset',
+    '#title' => t('Responsive table settings'),
+    '#collapsible' => TRUE,
+    '#collapsed' => TRUE,
+  );
+  $form['responsive_tables']['responsive_tables_medium_priority_max_width'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Minimum priority max-width CSS'),
+    '#default_value' => theme_get_setting('responsive_tables_medium_priority_max_width', $theme),
+  );
+  $form['responsive_tables']['responsive_tables_low_priority_max_width'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Low priority max-width CSS'),
+    '#default_value' => theme_get_setting('responsive_tables_low_priority_max_width', $theme),
+  );
+}

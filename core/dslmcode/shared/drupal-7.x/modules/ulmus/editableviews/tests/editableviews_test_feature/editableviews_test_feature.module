@@ -1,0 +1,7 @@
+<?php
+/**
+ * @file
+ * Code for the editableviews_test_feature feature.
+ */
+
+include_once 'editableviews_test_feature.features.inc';

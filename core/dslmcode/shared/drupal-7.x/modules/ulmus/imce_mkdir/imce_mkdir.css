@@ -1,0 +1,47 @@
+#op-item-mngdir a {
+  background-image: url(dirmanage.png);
+}
+#imce-content #edit-mkdir {
+  background-image: url(diradd.png);
+}
+#imce-content #edit-rmdir {
+  background-image: url(dirremove.png);
+}
+/* Subdirectory selector */
+#subdir-selector {
+  position: absolute;
+  max-height: 280px;
+  min-width: 108px;
+  overflow: auto;
+  z-index: 3;
+  border: 1px solid #ccc;
+}
+#subdir-selector a {
+  color: #444;
+  background-color: #eee;
+  padding: 0.2em 0.4em;
+  font-size: 0.9em;
+  text-decoration: none;
+  border-top: 1px dashed #ddd;
+  cursor: pointer;
+  display: block;
+  overflow: hidden;
+  white-space: nowrap;
+}
+#subdir-selector a:first-child {
+  border-top: none;
+}
+#subdir-selector a:focus {
+  background-color: #f5f5f5;
+  outline: none;
+}
+#subdir-selector a:hover {
+  background-color: #fff;
+}
+#subdir-selector-button {
+  background: url(down.png) no-repeat 50% 100%;
+  display: inline-block;
+  width: 14px;
+  height: 14px;
+  cursor: pointer;
+}

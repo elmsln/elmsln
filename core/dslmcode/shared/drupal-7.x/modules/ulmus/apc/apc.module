@@ -1,0 +1,151 @@
+<?php
+
+/**
+ * Implementation of hook_init().
+ *
+ * Used for displaying the APC stats for debug purposes.
+ */
+function apc_init() {
+  global $user;
+
+  // Clear out any caches that an external actor (i.e drush) would like cleared.
+  // Someday this queue could be popuplated externally to support propagating
+  // Cache clearing events across multiple web heads.
+  if (!function_exists('drush_main')) {
+    $queue = DrupalQueue::get('apc_cache_queue');
+
+    while ($item = $queue->claimItem()) {
+      cache_clear_all($item->data['cid'], $item->data['bin'], $item->data['wildcard']);
+      $queue->deleteItem($item);
+    }
+  }
+
+  if (($user->uid == 0) || !variable_get('apc_show_debug', FALSE)
+      || !user_access('access apc statistics') || strstr($_SERVER['PHP_SELF'], 'update.php')
+      || strstr($_GET['q'], 'autocomplete')) {
+    return;
+  }
+
+  register_shutdown_function('apc_shutdown');
+}
+
+/**
+ * @file
+ * This integrates the drupal APC cache module.
+ */
+
+/**
+ * Implementation of hook_permission().
+ */
+function apc_permission() {
+  return array(
+    'access apc statistics' =>  array(
+      'title' => t('Access apc statistics'),
+      'description' => t('Allows access to the statistics reports of APC.'),
+    ),
+  );
+}
+
+/**
+ * See apc_init() which registers this function as a shutdown function.
+ * Displays apc stats in the footer.
+ */
+function apc_shutdown() {
+  global $apc_statistics;
+
+  // Don't call theme() during shutdown if the registry has been rebuilt (such
+  // as when enabling/disabling modules on admin/build/modules) as things break.
+  // Instead, simply exit without displaying admin statistics for this page
+  // load.  See http://drupal.org/node/616282 for discussion.
+  if (!function_exists('theme_get_registry') || !theme_get_registry()) {
+    return;
+  }
+
+  // Try not to break non-HTML pages.
+  if (function_exists('drupal_get_http_header')) {
+    $header = drupal_get_http_header('content-type');
+    if ($header) {
+      $formats = array('xml', 'javascript', 'json', 'plain', 'image', 'application', 'csv', 'x-comma-separated-values');
+      foreach ($formats as $format) {
+        if (strstr($header, $format)) {
+          return;
+        }
+      }
+    }
+  }
+
+  if (isset($apc_statistics) && is_array($apc_statistics)) {
+    print '<div id="apc-devel"><h2>' . t('APC statistics') . '</h2>';
+    $rows = array();
+
+    foreach ($apc_statistics as $row) {
+      if (is_array($row[2])) {
+        $row[2] = implode(',<br />', $row[2]);
+      }
+      $rows[] = $row;
+    }
+    print theme('table', array(
+      'header' => array(('Type'), t('Bin'), t('Cid(s)')),
+      'rows' => $rows,
+    ));
+    print '</div>';
+  }
+}
+
+/**
+ * Implements hook_form_FORM_ID_alter().
+ */
+function apc_form_system_performance_settings_alter(&$form, $form_state) {
+  $form['clear_cache']['clear']['#submit'][] = 'apc_clear_user_cache';
+  $form['clear_cache']['clear']['#submit'][] = 'apc_clear_opcode_cache';
+
+  $form['clear_cache']['apc_user'] = array(
+    '#type' => 'submit',
+    '#value' => t('Clear APC user cache'),
+    '#submit' => array('apc_clear_user_cache'),
+  );
+  $form['clear_cache']['apc_opcode'] = array(
+    '#type' => 'submit',
+    '#value' => t('Clear APC opcode cache'),
+    '#submit' => array('apc_clear_opcode_cache'),
+  );
+}
+
+/**
+ * Helper function to clear user cache.
+ */
+function apc_clear_user_cache() {
+  if (apc_clear_cache('user')) {
+    drupal_set_message(t('Cleared APC user cache.'));
+  }
+  else {
+    drupal_set_message(t('Unable to clear APC user cache.'), 'error');
+  }
+}
+
+/**
+ * Helper function to clear opcode cache.
+ */
+function apc_clear_opcode_cache() {
+  if (apc_clear_cache()) {
+    drupal_set_message(t('Cleared APC opcode cache.'));
+  }
+  else {
+    drupal_set_message(t('Unable to clear APC opcode cache.'), 'error');
+  }
+}
+
+/**
+ * Implements hook_admin_menu_cache_info()
+ */
+function apc_admin_menu_cache_info() {
+  $caches['apc_opcode'] = array(
+    'title' => t('APC opcode cache'),
+    'callback' => 'apc_clear_opcode_cache',
+  );
+  $caches['apc_user'] = array(
+    'title' => t('APC user cache'),
+    'callback' => 'apc_clear_user_cache',
+  );
+  return $caches;
+}

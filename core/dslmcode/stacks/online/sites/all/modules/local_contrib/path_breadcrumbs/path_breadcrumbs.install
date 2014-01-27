@@ -1,0 +1,281 @@
+<?php
+
+/**
+ * @file
+ * Provides database structure for PATH BREADCRUMBS module.
+ */
+
+/**
+ * Implements hook_install().
+ */
+function path_breadcrumbs_install() {
+  db_update('system')
+    ->fields(array('weight' => 1000))
+    ->condition('name', 'path_breadcrumbs')
+    ->condition('type', 'module')
+    ->execute();
+}
+
+/**
+ * Implements hook_uninstall().
+ */
+function path_breadcrumbs_uninstall() {
+  variable_del('path_breadcrumbs_home_link_enabled');
+  variable_del('path_breadcrumbs_home_link_title');
+  variable_del('path_breadcrumbs_delimiter');
+  variable_del('path_breadcrumbs_rich_snippets');
+  variable_del('path_breadcrumbs_hide_single_breadcrumb');
+  variable_del('path_breadcrumbs_internal_render');
+  variable_del('path_breadcrumbs_cache_enabled');
+  variable_del('path_breadcrumbs_cache_lifetime');
+  variable_del('path_breadcrumbs_url_cleaning_method');
+  variable_del('path_breadcrumbs_truncate_title_length');
+  variable_del('path_breadcrumbs_internal_render_themes');
+}
+
+/**
+ * Implements hook_schema().
+ */
+function path_breadcrumbs_schema() {
+
+  // Create new cache table to store cached data from path_breadcrumbs.
+  $schema['cache_path_breadcrumbs'] = drupal_get_schema_unprocessed('system', 'cache');
+  $schema['cache_path_breadcrumbs']['description'] = 'Cache table used to store information about path breadcrumbs variants for every page.';
+
+  // Table stores exportable breadcrumbs variants.
+  $schema['path_breadcrumbs'] = array(
+    'description' => 'Stores path breadcrumbs.',
+    'export' => array(
+      'key' => 'machine_name',
+      'primary key' => 'path_id',
+      'identifier' => 'path_breadcrumb',
+      'default hook' => 'path_breadcrumbs_settings_info',
+      'can disable' => FALSE,
+      'load callback' => 'path_breadcrumbs_load_by_name',
+      'load multiple callback' => 'path_breadcrumbs_load_by_name_multiple',
+      'load all callback' => 'path_breadcrumbs_load_all',
+      'export callback' => 'path_breadcrumbs_export',
+      'list callback' => 'path_breadcrumbs_export_list',
+      'api' => array(
+        'owner' => 'path_breadcrumbs',
+        'api' => 'path_breadcrumbs',
+        'minimum_version' => 1,
+        'current_version' => 1,
+      ),
+    ),
+    'fields' => array(
+      'path_id' => array(
+        'description' => "Breadcrumb's variant unique identifier",
+        'type' => 'serial',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'no export' => TRUE,
+      ),
+      'machine_name' => array(
+        'description' => "Breadcrumb's variant machine name",
+        'type' => 'varchar',
+        'length' => 64,
+        'not null' => TRUE,
+      ),
+      'name' => array(
+        'description' => "Breadcrumb's variant human-readable name",
+        'type' => 'varchar',
+        'length' => 64,
+        'not null' => TRUE,
+      ),
+      'path' => array(
+        'description' => 'URL where breadcrumb should be shown',
+        'type' => 'varchar',
+        'length' => 256,
+        'not null' => TRUE,
+      ),
+      'data' => array(
+        'description' => 'Serialized data of breadcrumb',
+        'type' => 'blob',
+        'not null' => TRUE,
+        'size' => 'big',
+        'serialize' => TRUE,
+        'object default' => array(),
+      ),
+      'weight' => array(
+        'description' => 'Breadcrumb weight related to other breadcrumbs',
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+    ),
+    'primary key' => array('path_id'),
+    'unique keys' => array(
+      'machine_name' => array('machine_name'),
+    ),
+  );
+
+  return $schema;
+}
+
+/**
+ * Migrate data from 7.x-1.x to 7.x-2.x.
+ */
+function path_breadcrumbs_update_7200(&$sandbox) {
+
+  // Select all data from old table.
+  $variants = db_select('path_breadcrumbs', 'p')
+    ->fields('p')
+    ->execute();
+
+  $new_variants = array();
+  foreach ($variants as $variant) {
+
+    // Replace '*' in path on a new argument placeholder.
+    $path_arguments = explode('/', $variant->path);
+    $new_path = array();
+    $arguments = array();
+    $arg_counter = 0;
+    foreach ($path_arguments as $index => $arg) {
+      if ($arg == '*') {
+        $keyword = 'argument_' . ++$arg_counter;
+        $new_path[] = '%' . $keyword;
+        $arguments[$keyword] = array(
+          'position' => $index,
+        );
+      }
+      else {
+        $new_path[] = $arg;
+      }
+    }
+    $variant->path = implode('/', $new_path);
+
+    // Create machine name from variant name.
+    $variant->machine_name = 'path_breadcrumbs_' . $variant->path_id;
+
+    // Build data array.
+    $variant->data = serialize(array(
+      'titles'        => unserialize($variant->titles),
+      'paths'         => unserialize($variant->paths),
+      'home'          => $variant->home,
+      'translatable'  => 1,
+      'arguments'     => $arguments,
+      'access'        => array(),
+    ));
+
+    $new_variants[] = $variant;
+  }
+
+  // Drop old table.
+  db_drop_table('path_breadcrumbs');
+
+  // Create new table.
+  db_create_table('path_breadcrumbs', drupal_get_schema_unprocessed('path_breadcrumbs', 'path_breadcrumbs'));
+
+  // Insert old data into updated table.
+  foreach ($new_variants as $variant) {
+    db_insert('path_breadcrumbs')
+      ->fields(array(
+      'path_id' => $variant->path_id,
+      'name' => $variant->name,
+      'machine_name' => $variant->machine_name,
+      'path' => $variant->path,
+      'data' => $variant->data,
+      'weight' => $variant->path_id,
+      'disabled' => 0,
+    ))
+      ->execute();
+  }
+
+  // Enable module that is new for 7.x-2.x but was included in 7.x-1.x core.
+  module_enable(array('path_breadcrumbs_ui'));
+
+  return t('Path breadcrumbs successfully converted data from old table to a new one.');
+}
+
+/**
+ * Migrate variables for delimiter and for rich snippert to a new variables name storage.
+ */
+function path_breadcrumbs_update_7208() {
+
+  // Move delimiter value from old variable to a new one.
+  $delimiter = variable_get('path_breadcrumbs_delimited', '»');
+  variable_set('path_breadcrumbs_delimiter', $delimiter);
+  variable_del('path_breadcrumbs_delimited');
+
+  // Move RDFa support from old variable to a new one.
+  $rdfa_enabled = variable_get('path_breadcrumbs_rdfa_enabled', 0);
+  if ($rdfa_enabled) {
+    variable_set('path_breadcrumbs_rich_snippets', PATH_BREADCRUMBS_RICH_SNIPPETS_RDFA);
+  }
+  else {
+    variable_set('path_breadcrumbs_rich_snippets', PATH_BREADCRUMBS_RICH_SNIPPETS_DISABLED);
+  }
+  variable_del('path_breadcrumbs_rdfa_enabled');
+}
+
+/**
+ * Change storage behavior for path breadcrumbs data to prevent failures during export/import.
+ */
+function path_breadcrumbs_update_7213() {
+
+  $result = db_select('path_breadcrumbs', 'p')
+    ->fields('p')
+    ->execute();
+
+  foreach ($result as $path_breadcrumbs) {
+
+    $path_breadcrumbs->data = unserialize($path_breadcrumbs->data);
+    $path_breadcrumbs->data['titles'] = explode("\n", $path_breadcrumbs->data['titles']);
+    $path_breadcrumbs->data['paths']  = explode("\n", $path_breadcrumbs->data['paths']);
+
+    // Update every path breadcrumb to new data storage mechanism.
+    db_update('path_breadcrumbs')
+      ->fields( array('data' => serialize($path_breadcrumbs->data)) )
+      ->condition('path_id', $path_breadcrumbs->path_id)
+      ->execute();
+
+    // Clear UI caches.
+    ctools_include('object-cache');
+    ctools_object_cache_clear_all('path_breadcrumbs', $path_breadcrumbs->machine_name);
+  }
+}
+
+/**
+ * Add unique index to field 'machine_name'.
+ * Remove field 'disabled' from schema.
+ */
+function path_breadcrumbs_update_7214() {
+  db_add_unique_key('path_breadcrumbs', 'machine_name', array('machine_name'));
+  db_drop_field('path_breadcrumbs', 'disabled');
+}
+
+/**
+ * Migrate module from 7.x-2.x to 7.x-3.x.
+ * Add {cache_path_breadcrumbs} table.
+ */
+function path_breadcrumbs_update_7300() {
+
+  // Create new cache bin storage.
+  db_create_table('cache_path_breadcrumbs', drupal_get_schema_unprocessed('system', 'cache'));
+}
+
+/**
+ * Set module weight to 1000.
+ */
+function path_breadcrumbs_update_7301() {
+  db_update('system')
+    ->fields(array('weight' => 1000))
+    ->condition('name', 'path_breadcrumbs')
+    ->condition('type', 'module')
+    ->execute();
+}
+
+/**
+ * Clear Entity API cache to register new Path Breadcrumbs taxonomy token.
+ */
+function path_breadcrumbs_update_7302() {
+  entity_property_info_cache_clear();
+}
+
+/**
+ * Clear Path Breadcrumbs cache to use new Path Breadcrumbs cache object structure.
+ */
+function path_breadcrumbs_update_7303() {
+  cache_clear_all('*', PATH_BREADCRUMBS_CACHE_STORAGE, TRUE);
+}

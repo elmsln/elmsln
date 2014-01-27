@@ -1,0 +1,259 @@
+<?php
+
+/**
+ * @file
+ * Advanced aggregation bundler module.
+ *
+ */
+
+/**
+ * Default value of the maximum number of CSS bundles that can be generated in
+ * a single request.
+ */
+define('ADVAGG_BUNDLER_MAX_CSS', 4);
+
+/**
+ * Default value of the maximum number of JS bundles that can be generated in
+ * a single request.
+ */
+define('ADVAGG_BUNDLER_MAX_JS', 4);
+
+/**
+ * Default value of the last used time before the bundle is considered outdated.
+ * 2 weeks in seconds.
+ */
+define('ADVAGG_BUNDLER_OUTDATED', 1209600);
+
+/**
+ * Default value to see if the bundler should be active or passive. If it is
+ * passive, the bundler will only do analysis and not split up the aggregate.
+ */
+define('ADVAGG_BUNDLER_ACTIVE', TRUE);
+
+/**
+ * Implement hook_menu.
+ */
+function advagg_bundler_menu() {
+  $items = array();
+  $file_path = drupal_get_path('module', 'advagg_bundler');
+  $config_path = advagg_admin_config_root_path();
+
+  $items[$config_path . '/advagg/bundler'] = array(
+    'title' => 'Bundler',
+    'description' => 'Adjust Bundler settings.',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('advagg_bundler_admin_settings_form'),
+    'type' => MENU_LOCAL_TASK,
+    'access arguments' => array('administer site configuration'),
+    'file path' => $file_path,
+    'file' => 'advagg_bundler.admin.inc',
+    'weight' => 10,
+  );
+
+  return $items;
+}
+
+/**
+ * Implement hook_advagg_hooks_implemented_alter.
+ */
+function advagg_bundler_advagg_hooks_implemented_alter(&$hooks, $all) {
+  if ($all) {
+    $hooks['advagg_bundler_analysis_alter'] = array();
+  }
+}
+
+/**
+ * Implement hook_init.
+ */
+function advagg_bundler_init() {
+  if (advagg_bundler_enabled()) {
+    $GLOBALS['conf']['advagg_core_groups'] = FALSE;
+  }
+}
+
+/**
+ * Implement hook_form_FORM_ID_alter.
+ */
+function advagg_bundler_form_advagg_admin_settings_form_alter(&$form, $form_state) {
+  if (advagg_bundler_enabled()) {
+    $form['global']['advagg_core_groups']['#disabled'] = TRUE;
+    $form['global']['advagg_core_groups']['#description'] = t('The bundler submodule disables core grouping logic.');
+    $form['global']['advagg_core_groups']['#states'] = array();
+  }
+}
+
+/**
+ * Returns TRUE if the bundler will run.
+ */
+function advagg_bundler_enabled() {
+  if (variable_get('advagg_bundler_active', ADVAGG_BUNDLER_ACTIVE) && (variable_get('advagg_bundler_max_css', ADVAGG_BUNDLER_MAX_CSS) || variable_get('advagg_bundler_max_js', ADVAGG_BUNDLER_MAX_JS))) {
+    return TRUE;
+  }
+}
+
+/**
+ * Given a filename return a bundle key.
+ *
+ * @param $filename
+ *   filename
+ * @param $force
+ *   bypass the cache and get a fresh version of the analysis.
+ * @return
+ *   string to be used for the grouping key.
+ */
+function advagg_bundler_analysis($filename = '', $force = FALSE) {
+  // Cache query in a static.
+  static $analysis = array();
+  if (empty($analysis)) {
+    // See if we have a cached version of this. Generate cache ID.
+    $query = db_select('advagg_aggregates_versions', 'aav')
+      ->condition('aav.root', 1)
+      ->condition('aav.atime', REQUEST_TIME - ADVAGG_BUNDLER_OUTDATED, '>');
+    $query->addExpression('COUNT(aggregate_filenames_hash)', 'counter');
+    $count = $query->execute()->fetchField();
+    $ideal_cid = 'advagg:bundler_analysis:' . $count;
+
+    if (!$force) {
+      // Generate cache IDs.
+      $counts = range(max(0, $count-3), $count+3);
+      foreach ($counts as $count) {
+        $cache_ids[] = 'advagg:bundler_analysis:' . $count;
+      }
+
+      // Get a range of cached bundler_analysis data.
+      $cache_hits = cache_get_multiple($cache_ids, 'cache_advagg_aggregates');
+      if (!empty($cache_hits)) {
+        if (isset($cache_hits[$ideal_cid])) {
+          $cache = $cache_hits[$ideal_cid];
+        }
+        elseif (!$force && module_exists('httprl') && httprl_is_background_callback_capable()) {
+          // Setup callback options array.
+          $callback_options = array(
+            array(
+              'function' => 'advagg_bundler_analysis',
+            ),
+            $filename, TRUE,
+          );
+          // Queue up the request.
+          httprl_queue_background_callback($callback_options);
+          // Execute request.
+          httprl_send_request();
+
+          // Use most recent bundler_analysis data.
+          $max = 0;
+          foreach ($cache_hits as $cid => $data) {
+            if ($data->created > $max) {
+              $max = $data->created;
+              $cache = $data;
+            }
+          }
+        }
+      }
+    }
+
+    if ($force || empty($cache->data)) {
+      // "Magic Query"; only needs to run once.
+      // Return a count of how many root bundles all files are used in. Count is
+      // padded with eight zeros so the count can be key sorted as a string
+      // without worrying about it getting put in the wrong order.
+      // Return the bundle_md5's value; we need something more unique than count
+      // when grouping together.
+      // Return the filename. Used for lookup.
+      // We join the advagg bundles and files together making sure to only use
+      // root bundles that have been used in the last 2 weeks. This prevents an
+      // old site structure from influencing new bundles.
+      // Grouping by the filename gives us the count and makes it so we don't
+      // return a lot of rows;
+
+      // Create join query for the advagg_aggregates_versions table.
+      // 1209600 = 2 weeks.
+      $subquery_aggregates_versions = db_select('advagg_aggregates_versions', 'aav')
+        ->fields('aav')
+        ->condition('aav.root', 1)
+        ->condition('aav.atime', REQUEST_TIME - ADVAGG_BUNDLER_OUTDATED, '>');
+
+      // Create join query for the advagg_aggregates table.
+      $subquery_aggregates = db_select('advagg_aggregates', 'aa');
+      $subquery_aggregates->join($subquery_aggregates_versions, 'aav', 'aav.aggregate_filenames_hash=aa.aggregate_filenames_hash');
+      $subquery_aggregates->addExpression("LPAD(CAST(COUNT(aav.aggregate_filenames_hash) AS char(8)), 8, '0')", 'counter');
+
+      $fields = array('counter');
+      $db_type = Database::getConnection()->databaseType();
+      if ($db_type == 'mysql') {
+        db_query('SET SESSION group_concat_max_len = 65535');
+        $fields = array('counter', 'hashlist');
+        $subquery_aggregates->addExpression('GROUP_CONCAT(DISTINCT aa.aggregate_filenames_hash ORDER BY aa.aggregate_filenames_hash ASC)', 'hashlist');
+      }
+
+      $subquery_aggregates = $subquery_aggregates->fields('aa', array('filename_hash'))
+        ->groupBy('aa.filename_hash');
+
+      // Create main query for the advagg_files table.
+      $query = db_select('advagg_files', 'af');
+      $query->join($subquery_aggregates, 'aa', 'af.filename_hash=aa.filename_hash');
+      $query = $query->fields('af', array('filename', 'filesize', 'mtime', 'changes', 'linecount', 'filename_hash'))
+        ->fields('aa', $fields)
+        ->orderBy('aa.counter', 'DESC');
+      $query->comment('Query called from ' . __FUNCTION__ . '()');
+      $results = $query->execute();
+
+      $analysis = array();
+      foreach ($results as $row) {
+        // Implement slower GROUP_CONCAT functionality for non mysql databases.
+        if (empty($row->hashlist)) {
+          $subquery_aggregates_versions = db_select('advagg_aggregates_versions', 'aav')
+            ->fields('aav')
+            ->condition('aav.root', 1)
+            ->condition('aav.atime', REQUEST_TIME - ADVAGG_BUNDLER_OUTDATED, '>');
+
+          $subquery_aggregates = db_select('advagg_aggregates', 'aa');
+          $subquery_aggregates->join($subquery_aggregates_versions, 'aav', 'aav.aggregate_filenames_hash=aa.aggregate_filenames_hash');
+          $subquery_aggregates = $subquery_aggregates->fields('aa', array('aggregate_filenames_hash'))
+            ->condition('aa.filename_hash', $row->filename_hash)
+            ->groupBy('aa.aggregate_filenames_hash')
+            ->orderBy('aa.aggregate_filenames_hash', 'ASC');
+          $subquery_aggregates->comment('Query called from ' . __FUNCTION__ . '()');
+          $aa_results = $subquery_aggregates->execute();
+          $aa_rows = array();
+          foreach ($aa_results as $aa_row) {
+            $aa_rows[] = $aa_row->aggregate_filenames_hash;
+          }
+          $row->hashlist = implode(',', $aa_rows);
+        }
+
+        $analysis[$row->filename] = array(
+          'group_hash' => $row->counter . ' ' . drupal_hash_base64($row->hashlist),
+          'mtime' => $row->mtime,
+          'filesize' => $row->filesize,
+          'linecount' => $row->linecount,
+          'changes' => $row->changes,
+        );
+      }
+      arsort($analysis);
+
+      // Invoke hook_advagg_bundler_analysis_alter() to give installed modules a
+      // chance to alter the analysis array.
+      drupal_alter('advagg_bundler_analysis', $analysis);
+
+      // Save results to the cache.
+      cache_set($ideal_cid, $analysis, 'cache_advagg_aggregates', CACHE_TEMPORARY);
+    }
+    else {
+      $analysis = $cache->data;
+    }
+  }
+
+  // If no filename is given pass back then entire query results.
+  if (empty($filename)) {
+    return $analysis;
+  }
+
+  // Return a key to be used in groupings.
+  if (!empty($analysis[$filename])) {
+    return $analysis[$filename];
+  }
+
+  // We need to return a value that can be used as an array key if the query
+  // didn't give us anything.
+  return 0;
+}

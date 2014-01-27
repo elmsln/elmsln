@@ -1,0 +1,22 @@
+name = Coder Review
+description = "Developer module" which reviews your code identifying coding style problems and where updates to the API are required.
+package = Development
+core = 7.x
+dependencies[] = coder
+
+files[] = tests/coder_review_test_case.tinc
+files[] = tests/coder_review_6x.test
+files[] = tests/coder_review_7x.test
+files[] = tests/coder_review_comment.test
+files[] = tests/coder_review_i18n.test
+files[] = tests/coder_review_security.test
+files[] = tests/coder_review_sql.test
+files[] = tests/coder_review_style.test
+files[] = tests/coder_review_sniffer.test
+
+; Information added by drupal.org packaging script on 2013-08-11
+version = "7.x-2.0"
+core = "7.x"
+project = "coder"
+datestamp = "1376244716"
+

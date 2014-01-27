@@ -1,0 +1,98 @@
+<?php
+
+/**
+ * @file
+ * Install, update and uninstall functions for the menu_attributes module.
+ */
+
+/**
+ * Implements hook_install().
+ */
+function menu_attributes_install() {
+  db_update('system')
+    ->fields(array(
+      'weight' => 10,
+    ))
+    ->condition('type', 'module')
+    ->condition('name', 'menu_attributes')
+    ->execute();
+}
+
+/**
+ * Implements hook_uninstall().
+ */
+function menu_attributes_uninstall() {
+  drupal_load('module', 'menu_attributes');
+  $attributes = menu_attributes_menu_attribute_info();
+  foreach (array_keys($attributes) as $attribute) {
+    variable_del("menu_attributes_{$attribute}_enable");
+    variable_del("menu_attributes_{$attribute}_default");
+  }
+}
+
+/**
+ * Update the module weight.
+ */
+function menu_attributes_update_1() {
+  db_update('system')
+    ->fields(array(
+      'weight' => 10,
+    ))
+    ->condition('type', 'module')
+    ->condition('name', 'menu_attributes')
+    ->execute();
+}
+
+/**
+ * Fix any menu links that had the class attribute saved as an string.
+ */
+function menu_attributes_update_7000(&$sandbox) {
+  if (!isset($sandbox['progress'])) {
+    $sandbox['progress'] = 0;
+    $sandbox['current_mlid'] = 0;
+    // Only count links that possibly have a key class with a string value in
+    // its serialized options array.
+    $sandbox['max'] = db_query("SELECT COUNT(DISTINCT mlid) FROM {menu_links} WHERE options LIKE '%s:5:\"class\";s:%'")->fetchField();
+  }
+
+  // Process twenty links at a time.
+  $limit = 20;
+
+  $links = db_query_range("SELECT mlid, options FROM {menu_links} WHERE mlid > :mlid AND options LIKE '%s:5:\"class\";s:%' ORDER BY mlid", 0, $limit, array(':mlid' => $sandbox['current_mlid']))->fetchAllKeyed();
+  foreach ($links as $mlid => $options) {
+    $options = unserialize($options);
+
+    if (isset($options['attributes']['class']) && is_string($options['attributes']['class'])) {
+      // Convert classes to an array.
+      $options['attributes']['class'] = explode(' ', $options['attributes']['class']);
+      db_update('menu_links')
+        ->fields(array(
+          'options' => serialize($options),
+        ))
+        ->condition('mlid', $mlid)
+        ->execute();
+    }
+
+    $sandbox['progress']++;
+    $sandbox['current_mlid'] = $mlid;
+  }
+
+  $sandbox['#finished'] = empty($sandbox['max']) ? 1 : ($sandbox['progress'] / $sandbox['max']);
+
+  // To display a message to the user when the update is completed, return it.
+  // If you do not want to display a completion message, simply return nothing.
+  return t('All menu links with non-array value for class attribute have been fixed.');
+}
+
+/**
+ * Grant the 'administer menu attributes' permission to roles that currently
+ * have the 'administer menu' permission.
+ */
+function menu_attributes_update_7001() {
+  $roles = user_roles(FALSE, 'administer menu');
+  foreach ($roles as $rid => $role) {
+    user_role_grant_permissions($rid, array('administer menu attributes'));
+  }
+
+  return t("Every role with the 'administer menu' permission has also received the 'administer menu attributes' permission.");
+}

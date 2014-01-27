@@ -1,0 +1,69 @@
+<?php
+
+/**
+ * Tests whether entities are being created and imported correctly.
+ */
+class accessibilityEntitiesTest extends DrupalWebTestCase {
+  
+  protected $admin_user;
+  
+  protected $accessibility_test = 'imgHasAlt';
+
+  public static function getInfo() {
+
+    return array(
+      'name' => 'Accessibility test entities',
+      'description' => 'Ensure that test entites are being created and imported correctly.',
+      'group' => 'Accessibility',
+    );
+  }
+  
+  public function setUp() {
+
+    parent::setUp(array('entity', 'libraries', 'accessibility'));
+
+    $this->admin_user = $this->drupalCreateUser(array(
+      'administer site configuration',
+      'administer accessibility tests',
+      'view accessibility tests'
+      ));
+    $this->drupalLogin($this->admin_user);
+  }
+  
+  private function getTestTranslation() {
+    $strings = &drupal_static('_locale_import_one_string:strings', array());
+    if(!count($strings)) {
+      require_once('includes/locale.inc');
+      $file = new stdClass();
+      $file->uri = drupal_get_path('module', 'accessibility') . '/po/en.po';
+      _locale_import_read_po('mem-store', $file);
+    }
+    $strings = &drupal_static('_locale_import_one_string:strings', array());
+    return $strings[$this->accessibility_test][$this->accessibility_test];
+  }
+
+  public function testTestsCanBeViewed() {
+    $this->drupalGet('admin/config/accessibility/tests/import');
+    $test = $this->getTestTranslation();
+    $this->assertText(t('Section 508'));
+    $this->assertText(t('View all tests'));
+    $this->assertText(substr($test['title'], 0, 15));
+  }
+
+  public function testTestsCanBeImported() {
+    $tests = array();
+    $tests['tests[' . $this->accessibility_test . ']'] = $this->accessibility_test;
+    $this->drupalPost('admin/config/accessibility/tests/import', $tests, t('Import tests'));
+    $this->assertText(t('1 imported.'));
+
+    $test = $this->getTestTranslation();
+    $this->drupalGet('accessibility-test/1');
+    $this->assertText(substr($test['title'], 0, 15));
+
+    $this->drupalGet('js/accessibility/tests.json');
+    $this->assertText($this->accessibility_test);
+    $this->assertText('severe');
+    $this->assertText('"selector":"img:not(img[alt])"');
+  }
+  
+}

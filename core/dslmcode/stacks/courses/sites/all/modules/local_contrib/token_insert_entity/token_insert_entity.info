@@ -1,0 +1,15 @@
+name = Token Insert Entity
+description = Extends Token Insert in order to embed full nodes by choosing a display mode
+package = User interface
+core = 7.x
+
+dependencies[] = token
+dependencies[] = token_filter
+dependencies[] = wysiwyg
+
+; Information added by drupal.org packaging script on 2013-10-19
+version = "7.x-1.0+1-dev"
+core = "7.x"
+project = "token_insert_entity"
+datestamp = "1382147435"
+

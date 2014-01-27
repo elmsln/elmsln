@@ -1,0 +1,47 @@
+<?php
+
+/**
+ * @file
+ * masquerade.test
+ *
+ * Test the form permissions and switch ability of the Masquarade module.
+ */
+
+class MasqueradeTestCase extends DrupalWebTestCase {
+  public static function getInfo() {
+    return array(
+      'name' => 'Masquerade tests',
+      'description' => 'Tests user switching with the Masquerade module.',
+      'group' => 'Masquerade',
+    );
+  }
+
+  public function setUp() {
+    parent::setUp('masquerade');
+  }
+
+  public function testMasquerade() {
+    $admin_perms = array(
+      'administer site configuration',
+      'administer permissions',
+      'masquerade as user',
+    );
+    $admin = $this->drupalCreateUser($admin_perms);
+    $user = $this->drupalCreateUser();
+
+    $this->drupalLogin($admin);
+
+    //test admin form
+    $this->drupalGet('admin/config/development/masquerade');
+
+    //test switch
+    $this->drupalGet('masquerade/switch/' . $user->uid);
+    $this->assertText('Now masquerading as ' . $user->name);
+
+    //test unswitch
+    $this->drupalGet('masquerade/unswitch');
+    $this->assertText('No longer masquerading as ' . $user->name);
+  }
+
+}
+

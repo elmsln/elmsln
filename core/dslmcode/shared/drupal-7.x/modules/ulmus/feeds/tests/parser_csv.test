@@ -1,0 +1,85 @@
+<?php
+
+/**
+ * @file
+ * Tests for ParserCSV library.
+ */
+
+/**
+ * Test aggregating a feed as node items.
+ *
+ * Using DrupalWebTestCase as DrupalUnitTestCase is broken in SimpleTest 2.8.
+ * Not inheriting from Feeds base class as ParserCSV should be moved out of
+ * Feeds at some time.
+ */
+class ParserCSVTest extends DrupalWebTestCase  {
+  protected $profile = 'testing';
+
+  public static function getInfo() {
+    return array(
+      'name' => 'CSV Parser unit tests',
+      'description' => 'Base level test for Feeds\' built in CSV parser.',
+      'group' => 'Feeds',
+    );
+  }
+
+  /**
+   * Test method.
+   */
+  public function test() {
+    drupal_load('module', 'feeds');
+    feeds_include_library('ParserCSV.inc', 'ParserCSV');
+
+    $this->_testSimple();
+    $this->_testBatching();
+  }
+
+  /**
+   * Simple test of parsing functionality.
+   */
+  protected function _testSimple() {
+    $file =  $this->absolutePath() . '/tests/feeds/nodes.csv';
+    include $this->absolutePath() . '/tests/feeds/nodes.csv.php';
+
+    $iterator = new ParserCSVIterator($file);
+    $parser = new ParserCSV();
+    $parser->setDelimiter(',');
+    $rows = $parser->parse($iterator);
+    $this->assertFalse($parser->lastLinePos(), t('Parser reports all lines parsed'));
+    $this->assertEqual(md5(serialize($rows)), md5(serialize($control_result)), t('Parsed result matches control result.'));
+  }
+
+  /**
+   * Test batching.
+   */
+  protected function _testBatching() {
+    $file =  $this->absolutePath() . '/tests/feeds/nodes.csv';
+    include $this->absolutePath() . '/tests/feeds/nodes.csv.php';
+
+    // Set up parser with 2 lines to parse per call.
+    $iterator = new ParserCSVIterator($file);
+    $parser = new ParserCSV();
+    $parser->setDelimiter(',');
+    $parser->setLineLimit(2);
+    $rows = array();
+    $pos = 0;
+
+    // Call parser until all lines are parsed, then compare to control result.
+    do {
+      $parser->setStartByte($pos);
+      $rows = array_merge($rows, $parser->parse($iterator));
+      $pos = $parser->lastLinePos();
+      $this->assertTrue($parser->lastLinePos() || count($rows) == 10, t('Parser reports line limit correctly'));
+    }
+    while ($pos = $parser->lastLinePos());
+
+    $this->assertEqual(md5(serialize($rows)), md5(serialize($control_result)), t('Parsed result matches control result.'));
+  }
+
+  /**
+   * Absolute path to feeds.
+   */
+  public function absolutePath() {
+    return DRUPAL_ROOT . '/' . drupal_get_path('module', 'feeds');
+  }
+}

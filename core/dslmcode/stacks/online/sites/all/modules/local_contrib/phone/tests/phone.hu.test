@@ -1,0 +1,38 @@
+<?php
+
+class HUPhoneNumberTestCase extends DrupalWebTestCase {
+  /**
+   * Implementation of getInfo()
+   *
+   */
+  public static function getInfo() {
+    return array(
+      'name' => t('Hungary Phone number test'),
+      'description' => t('Tests various valid and invalid Hungary phone numbers for validity'),
+      'group' => t('Phone')
+    );
+  }
+
+  public function testPhoneHUValid() {
+    $this->assertTrue(valid_phone_number('hu', '+3611234567'), t('Test valid'));
+    $this->assertTrue(valid_phone_number('hu', '+3676123456'), t('Test valid'));
+    $this->assertTrue(valid_phone_number('hu', '+36301234567'), t('Test valid'));
+    $this->assertTrue(valid_phone_number('hu', '+36 1 1234567'), t('Test valid'));
+    $this->assertTrue(valid_phone_number('hu', '+36 76 123456'), t('Test valid'));
+    $this->assertTrue(valid_phone_number('hu', '+36 30 1234567'), t('Test valid'));
+    $this->assertTrue(valid_phone_number('hu', '+36(1)1234567'), t('Test valid'));
+    $this->assertTrue(valid_phone_number('hu', '+36(76)123456'), t('Test valid'));
+    $this->assertTrue(valid_phone_number('hu', '+36(30)1234567'), t('Test valid'));
+    $this->assertTrue(valid_phone_number('hu', '1/123-4567'), t('Test valid'));
+    $this->assertTrue(valid_phone_number('hu', '76/123-456'), t('Test valid'));
+    $this->assertTrue(valid_phone_number('hu', '30/123-45-67'), t('Test valid'));
+  }
+
+  public function testPhoneHUInvalid() {
+    $this->assertFalse(valid_phone_number('hu', '+0011234567'), t('Test invalid'));
+  }
+
+  public function testPhoneHUFormatting() {
+    //$this->assertEqual(format_phone_number('hu', '+6421123456', null), '+64 21 123 456', t('Check international mobile format'));
+  }
+}

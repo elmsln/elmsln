@@ -1,0 +1,121 @@
+field_hidden 7.x-1.5, 2013-11-23
+--------------------------------------------------------------------------------
+* Released.
+
+field_hidden 7.x-1.x, 2013-11-23
+--------------------------------
+* Fixed Migrate integration bug (typo in file include of .info; issue #1910314).
+* Use multibyte string function for checking value length in text type field validation.
+
+field_hidden 7.x-1.x, 2013-11-21
+--------------------------------
+* Prevent display of weights and 'add another' buttons, when field set to more than one instance (issue #2140871).
+
+field_hidden 7.x-1.4, 2013-07-29
+--------------------------------------------------------------------------------
+* Released.
+
+field_hidden 7.x-1.x, 2013-07-29
+--------------------------------
+* Code formatting (intendation).
+* Removed obsolete hook_uninstall() implementation.
+* Documentation (phpDoc).
+* Renamed formatter field_hidden_text_plain to field_hidden_text_plain_escaped (does htmlspecialchars() escape).
+* Added formatter field_hidden_text_plain, which only strip tags.
+* Added Tokens support.
+
+field_hidden 7.x-1.4.x, 2013-02-07
+----------------------------------
+* Created sub module providing Migrate support.
+
+field_hidden 7.x-1.4.x, 2012-09-16
+----------------------------------
+* Fixed various syntactic/code format issues (Code Review).
+
+field_hidden 7.x-1.4.x, 2012-09-13
+----------------------------------
+* Documentation; added return types.
+
+
+field_hidden 7.x-1.3, 2012-09-12
+-------------------------------------------------------------------------------
+Released 7.x-1.3.x as 7.x-1.3.
+
+
+field_hidden 7.x-1.3.x, 2012-09-12
+----------------------------------
+* Fixed wrong evaluation of emptyish values for numeric field types. A value of '0' or '0.00' should not count as an empty value.
+* FIxed view and form (widget) formatting comments.
+
+
+field_hidden 7.x-1.2, 2012-03-08
+-------------------------------------------------------------------------------
+Released 7.x-1.2.x as 7.x-1.2.
+
+
+field_hidden 7.x-1.2.x, 2012-03-08
+----------------------------------
+* Fixed missing Entity API integration (hook_field_info(); property_type:text).
+
+field_hidden 7.x-1.2.x, 2012-02-27
+----------------------------------
+* Fixed missing less/greater than escape in admin readme.txt parser.
+
+
+field_hidden 7.x-1.1, 2012-02-18
+-------------------------------------------------------------------------------
+Released 7.x-1.0.x as 7.x-1.1.
+
+
+field_hidden 7.x-1.0.x, 2012-02-17
+----------------------------------
+* Created readme text, and re-wrote the help page.
+
+field_hidden 7.x-1.0.x, 2012-02-15
+----------------------------------
+* Now defaults to turn default value field (in instance settings) into a text field.
+* Changed the previously mentioned option into something that can be turned off, instead of something that can be turned on.
+
+
+field_hidden 7.x-1.0, 2012-02-09
+-------------------------------------------------------------------------------
+Released 7.x-1.x as 7.x-1.0.
+
+
+field_hidden 7.x-1.x, 2012-02-09
+--------------------------------
+* Made decimal precision default to the value of PHP ini precision (fallback 10, same as the Number module).
+* Added administrative file.
+* Moved the body of the hook_help implementation to 'private' method in the admin file.
+* Added hook_permission implementation (permission 'field hidden administer').
+* Made the 'display default value field in field instance settings' feature optional.
+* Added admin page form; a means to controlling whether the '...default value...' feature should be on (default).
+* Added hook_menu implementation.
+* Added hook_uninstall implementation, which removes module defined persistent variables.
+* Fixed minor code formatting issues.
+* Added copyright notice in separate txt-file. See related discussion in groups.drupal, 'Copyright lines on source files' (http://groups.drupal.org/node/109699).
+
+field_hidden 7.x-1.x, 2012-02-08
+--------------------------------
+* Changed format labels (hook_field_formatter_info), from 'Default' to 'Display, ...'.
+
+field_hidden 7.x-1.x, 2012-02-07
+--------------------------------
+* Added secondary arguments to htmlspecialchars() filtering in the hook_field_formatter_view implementation.
+* Changed default formatter/display type to hidden, for all field types.
+* Re-wrote the module's help page.
+
+field_hidden 7.x-1.x, 2012-02-03
+--------------------------------
+* Validation of text_plain more in accordance with the text field module's validation.
+* Better escaping of text_plain for view (also in accordance with the text field module).
+
+field_hidden 7.x-1.x, 2012-02-01
+-----------------------------
+* Fixed non-existing setting prefix_suffix for non-numeric types in hook_field_formatter_settings_summary implementation.
+* Fixed wrong item keys (value, not dcml) in in hook_field_formatter_view implementation.
+* Added notice about format:hidden (Manage Display) in the instance settings form.
+
+field_hidden 7.x-1.x, 2012-01-31
+-----------------------------
+* Fixed bad args for number_format().

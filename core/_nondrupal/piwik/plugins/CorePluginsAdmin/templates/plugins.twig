@@ -1,0 +1,31 @@
+{% extends 'admin.twig' %}
+
+{% import '@CorePluginsAdmin/macros.twig' as plugins %}
+
+{% block content %}
+<div style="max-width:980px;">
+
+    {% if pluginsHavingUpdate|length %}
+        <h2>{{ pluginsHavingUpdate|length }} Update(s) available</h2>
+
+        <p>{{ 'CorePluginsAdmin_InfoPluginUpdateIsRecommended'|translate }}</p>
+
+        {{ plugins.tablePluginUpdates(pluginsHavingUpdate, updateNonce, activateNonce, 0) }}
+    {% endif %}
+
+    <h2>{{ 'CorePluginsAdmin_PluginsManagement'|translate }}</h2>
+
+    <p>{{ 'CorePluginsAdmin_MainDescription'|translate }}
+
+    {% if not isPluginsAdminEnabled %}
+        <br/>{{ 'CorePluginsAdmin_DoMoreContactPiwikAdmins'|translate }}
+    {% endif %}
+
+    </p>
+
+    {{ plugins.pluginsFilter(false, isMarketplaceEnabled) }}
+
+    {{ plugins.tablePlugins(pluginsInfo, pluginNamesHavingSettings, activateNonce, deactivateNonce, uninstallNonce, false, marketplacePluginNames, isPluginsAdminEnabled) }}
+
+</div>
+{% endblock %}

@@ -1,0 +1,369 @@
+<?php
+
+/**
+ * @file
+ * Test file for Piwik module.
+ */
+class PiwikBasicTest extends DrupalWebTestCase {
+
+  public static function getInfo() {
+    return array(
+      'name' => t('Piwik basic tests'),
+      'description' => t('Test basic functionality of Piwik module.'),
+      'group' => 'Piwik',
+    );
+  }
+
+  function setUp() {
+    parent::setUp('piwik');
+
+    $permissions = array(
+      'access administration pages',
+      'administer piwik',
+    );
+
+    // User to set up piwik.
+    $this->admin_user = $this->drupalCreateUser($permissions);
+    $this->drupalLogin($this->admin_user);
+  }
+
+  function testPiwikConfiguration() {
+    // Check for setting page's presence.
+    $this->drupalGet('admin/config/system/piwik');
+    $this->assertRaw(t('Piwik site ID'), '[testPiwikConfiguration]: Settings page displayed.');
+
+    // Check for account code validation.
+    $edit['piwik_site_id'] = $this->randomName(2);
+    $this->drupalPost('admin/config/system/piwik', $edit, 'Save configuration');
+    $this->assertRaw(t('A valid Piwik site ID is an integer only.'), '[testPiwikConfiguration]: Invalid Piwik site ID number validated.');
+  }
+
+  function testPiwikPageVisibility() {
+    $ua_code = '1';
+    variable_set('piwik_site_id', $ua_code);
+    variable_get('piwik_url_http', 'http://example.com/piwik/');
+    variable_get('piwik_url_https', 'https://example.com/piwik/');
+
+    // Show tracking on "every page except the listed pages".
+    variable_set('piwik_visibility_pages', 0);
+    // Disable tracking one "admin*" pages only.
+    variable_set('piwik_pages', "admin\nadmin/*");
+    // Enable tracking only for authenticated users only.
+    variable_set('piwik_roles', array(DRUPAL_AUTHENTICATED_RID => DRUPAL_AUTHENTICATED_RID));
+
+    // Check tracking code visibility.
+    $this->drupalGet('');
+    $this->assertRaw('u+"piwik.php"', '[testPiwikPageVisibility]: Tracking code is displayed for authenticated users.');
+
+    // Test whether tracking code is not included on pages to omit.
+    $this->drupalGet('admin');
+    $this->assertNoRaw('u+"piwik.php"', '[testPiwikPageVisibility]: Tracking code is not displayed on admin page.');
+    $this->drupalGet('admin/config/system/piwik');
+    // Checking for tracking code URI here, as $ua_code is displayed in the form.
+    $this->assertNoRaw('u+"piwik.php"', '[testPiwikPageVisibility]: Tracking code is not displayed on admin subpage.');
+
+    // Test whether tracking code display is properly flipped.
+    variable_set('piwik_visibility_pages', 1);
+    $this->drupalGet('admin');
+    $this->assertRaw('u+"piwik.php"', '[testPiwikPageVisibility]: Tracking code is displayed on admin page.');
+    $this->drupalGet('admin/config/system/piwik');
+    // Checking for tracking code URI here, as $ua_code is displayed in the form.
+    $this->assertRaw('u+"piwik.php"', '[testPiwikPageVisibility]: Tracking code is displayed on admin subpage.');
+    $this->drupalGet('');
+    $this->assertNoRaw('u+"piwik.php"', '[testPiwikPageVisibility]: Tracking code is NOT displayed on front page.');
+
+    // Test whether tracking code is not display for anonymous.
+    $this->drupalLogout();
+    $this->drupalGet('');
+    $this->assertNoRaw('u+"piwik.php"', '[testPiwikPageVisibility]: Tracking code is NOT displayed for anonymous.');
+
+    // Switch back to every page except the listed pages.
+    variable_set('piwik_visibility_pages', 0);
+    // Enable tracking code for all user roles.
+    variable_set('piwik_roles', array());
+
+    // Test whether 403 forbidden tracking code is shown if user has no access.
+    $this->drupalGet('admin');
+    $this->assertRaw('"403/URL = "', '[testPiwikPageVisibility]: 403 Forbidden tracking code shown if user has no access.');
+
+    // Test whether 404 not found tracking code is shown on non-existent pages.
+    $this->drupalGet($this->randomName(64));
+    $this->assertRaw('"404/URL = "', '[testPiwikPageVisibility]: 404 Not Found tracking code shown on non-existent page.');
+  }
+
+  function testPiwikTrackingCode() {
+    $ua_code = '2';
+    variable_set('piwik_site_id', $ua_code);
+    variable_get('piwik_url_http', 'http://example.com/piwik/');
+    variable_get('piwik_url_https', 'https://example.com/piwik/');
+
+    // Show tracking code on every page except the listed pages.
+    variable_set('piwik_visibility_pages', 0);
+    // Enable tracking code for all user roles.
+    variable_set('piwik_roles', array());
+
+    /* Sample JS code as added to page:
+    <script type="text/javascript">
+    var _paq = _paq || [];
+    (function(){
+        var u=(("https:" == document.location.protocol) ? "https://{$PIWIK_URL}" : "http://{$PIWIK_URL}");
+        _paq.push(['setSiteId', {$IDSITE}]);
+        _paq.push(['setTrackerUrl', u+'piwik.php']);
+        _paq.push(['trackPageView']);
+        var d=document,
+            g=d.createElement('script'),
+            s=d.getElementsByTagName('script')[0];
+            g.type='text/javascript';
+            g.defer=true;
+            g.async=true;
+            g.src=u+'piwik.js';
+            s.parentNode.insertBefore(g,s);
+    })();
+    </script>
+    */
+
+    // Test whether tracking code uses latest JS.
+    variable_set('piwik_cache', 0);
+    $this->drupalGet('');
+    $this->assertRaw('u+"piwik.php"', '[testPiwikTrackingCode]: Latest tracking code used.');
+
+    // Test whether single domain tracking is active.
+    $this->drupalGet('');
+    $this->assertNoRaw('_paq.push(["setCookieDomain"', '[testPiwikTrackingCode]: Single domain tracking is active.');
+
+    // Enable "One domain with multiple subdomains".
+    variable_set('piwik_domain_mode', 1);
+    $this->drupalGet('');
+
+    // Test may run on localhost, an ipaddress or real domain name.
+    // TODO: Workaround to run tests successfully. This feature cannot tested reliable.
+    global $cookie_domain;
+    if (count(explode('.', $cookie_domain)) > 2 && !is_numeric(str_replace('.', '', $cookie_domain))) {
+      $this->assertRaw('_paq.push(["setCookieDomain"', '[testPiwikTrackingCode]: One domain with multiple subdomains is active on real host.');
+    }
+    else {
+      // Special cases, Localhost and IP addresses don't show 'setCookieDomain'.
+      $this->assertNoRaw('_paq.push(["setCookieDomain"', '[testPiwikTrackingCode]: One domain with multiple subdomains may be active on localhost (test result is not reliable).');
+    }
+
+    // Test whether the BEFORE and AFTER code is added to the tracker.
+    variable_set('piwik_codesnippet_before', '_paq.push(["setLinkTrackingTimer", 250]);');
+    variable_set('piwik_codesnippet_after', '_paq.push(["t2.setSiteId", 2]);_gaq.push(["t2.trackPageView"]);');
+    $this->drupalGet('');
+    $this->assertRaw('setLinkTrackingTimer', '[testPiwikTrackingCode]: Before codesnippet has been found with "setLinkTrackingTimer" set.');
+    $this->assertRaw('t2.trackPageView', '[testPiwikTrackingCode]: After codesnippet with "t2" tracker has been found.');
+  }
+
+}
+
+class PiwikCustomVariablesTest extends DrupalWebTestCase {
+
+  public static function getInfo() {
+    return array(
+      'name' => t('Piwik Custom Variables tests'),
+      'description' => t('Test custom variables functionality of Piwik module.'),
+      'group' => 'Piwik',
+      'dependencies' => array('token'),
+    );
+  }
+
+  function setUp() {
+    parent::setUp('piwik', 'token');
+
+    $permissions = array(
+      'access administration pages',
+      'administer piwik',
+    );
+
+    // User to set up piwik.
+    $this->admin_user = $this->drupalCreateUser($permissions);
+  }
+
+  function testPiwikCustomVariables() {
+    $ua_code = '3';
+    variable_set('piwik_site_id', $ua_code);
+
+    // Basic test if the feature works.
+    $custom_vars = array(
+      'slots' => array(
+        1 => array(
+          'slot' => 1,
+          'name' => 'Foo 1',
+          'value' => 'Bar 1',
+          'scope' => 3,
+        ),
+        2 => array(
+          'slot' => 2,
+          'name' => 'Foo 2',
+          'value' => 'Bar 2',
+          'scope' => 2,
+        ),
+        3 => array(
+          'slot' => 3,
+          'name' => 'Foo 3',
+          'value' => 'Bar 3',
+          'scope' => 3,
+        ),
+        4 => array(
+          'slot' => 4,
+          'name' => 'Foo 4',
+          'value' => 'Bar 4',
+          'scope' => 2,
+        ),
+        5 => array(
+          'slot' => 5,
+          'name' => 'Foo 5',
+          'value' => 'Bar 5',
+          'scope' => 1,
+        ),
+      )
+    );
+    variable_set('piwik_custom_var', $custom_vars);
+    $this->drupalGet('');
+
+    foreach ($custom_vars['slots'] as $slot) {
+      $this->assertRaw("_paq.push(['setCustomVariable', " . $slot['slot'] . ", \"" . $slot['name'] . "\", \"" . $slot['value'] . "\", " . $slot['scope'] . "]);", '[testPiwikCustomVariables]: setCustomVariable ' . $slot['slot'] . ' is shown.');
+    }
+
+    // Test whether tokens are replaced in custom variable names.
+    $site_slogan = $this->randomName(16);
+    variable_set('site_slogan', $site_slogan);
+
+    $custom_vars = array(
+      'slots' => array(
+        1 => array(
+          'slot' => 1,
+          'name' => 'Name: [site:slogan]',
+          'value' => 'Value: [site:slogan]',
+          'scope' => 3,
+        ),
+        2 => array(
+          'slot' => 2,
+          'name' => '',
+          'value' => $this->randomName(16),
+          'scope' => 1,
+        ),
+        3 => array(
+          'slot' => 3,
+          'name' => $this->randomName(16),
+          'value' => '',
+          'scope' => 2,
+        ),
+        4 => array(
+          'slot' => 4,
+          'name' => '',
+          'value' => '',
+          'scope' => 3,
+        ),
+        5 => array(
+          'slot' => 5,
+          'name' => '',
+          'value' => '',
+          'scope' => 3,
+        ),
+      )
+    );
+    variable_set('piwik_custom_var', $custom_vars);
+    $this->verbose('<pre>' . print_r($custom_vars, TRUE) . '</pre>');
+
+    $this->drupalGet('');
+    $this->assertRaw("_paq.push(['setCustomVariable', 1, \"Name: $site_slogan\", \"Value: $site_slogan\", 3]", '[testPiwikCustomVariables]: Tokens have been replaced in custom variable.');
+    $this->assertNoRaw("_paq.push(['setCustomVariable', 2,", '[testPiwikCustomVariables]: Value with empty name is not shown.');
+    $this->assertNoRaw("_paq.push(['setCustomVariable', 3,", '[testPiwikCustomVariables]: Name with empty value is not shown.');
+    $this->assertNoRaw("_paq.push(['setCustomVariable', 4,", '[testPiwikCustomVariables]: Empty name and value is not shown.');
+    $this->assertNoRaw("_paq.push(['setCustomVariable', 5,", '[testPiwikCustomVariables]: Empty name and value is not shown.');
+  }
+}
+
+class PiwikRolesTest extends DrupalWebTestCase {
+
+  public static function getInfo() {
+    return array(
+      'name' => t('Piwik role tests'),
+      'description' => t('Test roles functionality of Piwik module.'),
+      'group' => 'Piwik',
+    );
+  }
+
+  function setUp() {
+    parent::setUp('piwik');
+
+    $permissions = array(
+      'access administration pages',
+      'administer piwik',
+    );
+
+    // User to set up piwik.
+    $this->admin_user = $this->drupalCreateUser($permissions);
+  }
+
+  function testPiwikRolesTracking() {
+    $ua_code = '1';
+    variable_set('piwik_site_id', $ua_code);
+    variable_get('piwik_url_http', 'http://example.com/piwik/');
+    variable_get('piwik_url_https', 'https://example.com/piwik/');
+
+    // Test if the default settings are working as expected.
+
+    // Add to the selected roles only.
+    variable_set('piwik_visibility_roles', 0);
+    // Enable tracking for all users.
+    variable_set('piwik_roles', array());
+
+    // Check tracking code visibility.
+    $this->drupalGet('');
+    $this->assertRaw('u+"piwik.php"', '[testPiwikRoleVisibility]: Tracking code is displayed for anonymous users on frontpage with default settings.');
+    $this->drupalGet('admin');
+    $this->assertRaw('"403/URL = "', '[testPiwikRoleVisibility]: 403 Forbidden tracking code is displayed for anonymous users in admin section with default settings.');
+
+    $this->drupalLogin($this->admin_user);
+
+    $this->drupalGet('');
+    $this->assertRaw('u+"piwik.php"', '[testPiwikRoleVisibility]: Tracking code is displayed for authenticated users on frontpage with default settings.');
+    $this->drupalGet('admin');
+    $this->assertNoRaw('u+"piwik.php"', '[testPiwikRoleVisibility]: Tracking code is NOT displayed for authenticated users in admin section with default settings.');
+
+    // Test if the non-default settings are working as expected.
+
+    // Enable tracking only for authenticated users.
+    variable_set('piwik_roles', array(DRUPAL_AUTHENTICATED_RID => DRUPAL_AUTHENTICATED_RID));
+
+    $this->drupalGet('');
+    $this->assertRaw('u+"piwik.php"', '[testPiwikRoleVisibility]: Tracking code is displayed for authenticated users only on frontpage.');
+
+    $this->drupalLogout();
+    $this->drupalGet('');
+    $this->assertNoRaw('u+"piwik.php"', '[testPiwikRoleVisibility]: Tracking code is NOT displayed for anonymous users on frontpage.');
+
+    // Add to every role except the selected ones.
+    variable_set('piwik_visibility_roles', 1);
+    // Enable tracking for all users.
+    variable_set('piwik_roles', array());
+
+    // Check tracking code visibility.
+    $this->drupalGet('');
+    $this->assertRaw('u+"piwik.php"', '[testPiwikRoleVisibility]: Tracking code is added to every role and displayed for anonymous users.');
+    $this->drupalGet('admin');
+    $this->assertRaw('"403/URL = "', '[testPiwikRoleVisibility]: 403 Forbidden tracking code is shown for anonymous users if every role except the selected ones is selected.');
+
+    $this->drupalLogin($this->admin_user);
+
+    $this->drupalGet('');
+    $this->assertRaw('u+"piwik.php"', '[testPiwikRoleVisibility]: Tracking code is added to every role and displayed on frontpage for authenticated users.');
+    $this->drupalGet('admin');
+    $this->assertNoRaw('u+"piwik.php"', '[testPiwikRoleVisibility]: Tracking code is added to every role and NOT displayed in admin section for authenticated users.');
+
+    // Disable tracking for authenticated users.
+    variable_set('piwik_roles', array(DRUPAL_AUTHENTICATED_RID => DRUPAL_AUTHENTICATED_RID));
+
+    $this->drupalGet('');
+    $this->assertNoRaw('u+"piwik.php"', '[testPiwikRoleVisibility]: Tracking code is NOT displayed on frontpage for excluded authenticated users.');
+    $this->drupalGet('admin');
+    $this->assertNoRaw('u+"piwik.php"', '[testPiwikRoleVisibility]: Tracking code is NOT displayed in admin section for excluded authenticated users.');
+
+    $this->drupalLogout();
+    $this->drupalGet('');
+    $this->assertRaw('u+"piwik.php"', '[testPiwikRoleVisibility]: Tracking code is displayed on frontpage for included anonymous users.');
+  }
+
+}

@@ -1,0 +1,52 @@
+<?php
+// $Id$
+/**
+ * @file
+ * @author Gabriel Ungureanu
+ * gabriel.ungreanu@ag-prime.com
+ */
+
+/**
+ * Implements hook_install().
+ */
+function exclude_node_title_install() {
+  // attach default permission to use exclude node title
+  $res = db_query("SELECT rid FROM {role}");
+  foreach ($res as $role) {
+    db_query("INSERT INTO {role_permission} (`rid`, `permission`, `module`)
+        VALUES (:rid, 'use exclude node title', 'exclude_node_title')",
+            array(':rid' => $role->rid));
+  }
+}
+
+/**
+ * Implements hook_uninstall().
+ */
+function exclude_node_title_uninstall() {
+  variable_del('exclude_node_title_nid_list');
+  variable_del('exclude_node_title_search');
+  foreach (_node_types_build()->names as $key => $val) {
+    variable_del('exclude_node_title_content_type_value_' . $key);
+    variable_del('exclude_node_title_content_type_modes_' . $key);
+  }
+}
+
+/*
+ * Hook update().
+ */
+function exclude_node_title_update_7100() {
+  $exclude_array = array(
+    'full' => 'full',
+  );
+  if (variable_get('exclude_node_title_remove_title', FALSE)) {
+    $exclude_array['teaser'] = 'teaser';
+  }
+  foreach (_node_types_build()->names as $key => $val) {
+    switch (variable_get('exclude_node_title_content_type_value_' . $key)) {
+      case 'all':
+      case 'user':
+        variable_set('exclude_node_title_content_type_modes_' . $key, $exclude_array);
+    }
+  }
+  variable_del('exclude_node_title_remove_title');
+}

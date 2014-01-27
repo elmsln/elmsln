@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Piwik &rsaquo; {{ 'Installation_Installation'|translate }}</title>
+    <link rel="stylesheet" type="text/css" href="libs/jquery/themes/base/jquery-ui.css"/>
+    <link rel="stylesheet" type="text/css" href="index.php?module=Installation&action=getBaseCss"/>
+    <link rel="shortcut icon" href="plugins/CoreHome/images/favicon.ico"/>
+    <script type="text/javascript" src="libs/jquery/jquery.js"></script>
+    <script type="text/javascript" src="libs/jquery/jquery-ui.js"></script>
+    <script type="text/javascript" src="plugins/Installation/javascripts/installation.js"></script>
+
+    <link rel="stylesheet" type="text/css" href="plugins/Installation/stylesheets/installation.css"/>
+    {% if 'General_LayoutDirection'|translate =='rtl' %}
+        <link rel="stylesheet" type="text/css" href="plugins/Zeitgeist/stylesheets/rtl.css"/>
+    {% endif %}
+</head>
+<body>
+<div id="installationPage">
+    <div id="content">
+        <div id="logo">
+            <img id="title" src="plugins/Morpheus/images/logo.png"/> &nbsp;&nbsp;&nbsp;<span
+                    id="subtitle"># {{ 'General_OpenSourceWebAnalytics'|translate }}</span>
+        </div>
+        <div style="float:right;" id="topRightBar">
+            <br/>
+            {{ postEvent('Template.topBar')|raw }}
+        </div>
+        <div class="both"></div>
+
+        <div id="generalInstall">
+            {% include "@Installation/_allSteps.twig" %}
+        </div>
+
+        <div id="detailInstall">
+            {% set nextButton %}
+            <p class="nextStep">
+                <a class="submit" href="{{ linkTo({'action':nextModuleName, 'token_auth':null, 'method':null }) }}">{{ 'General_Next'|translate }} &raquo;</a>
+            </p>
+            {%  endset %}
+            {% if showNextStepAtTop is defined and showNextStepAtTop %}
+                {{ nextButton }}
+            {% endif %}
+            {% block content %}{% endblock %}
+            {% if showNextStep %}
+                {{ nextButton }}
+            {% endif %}
+        </div>
+
+        <div class="both"></div>
+
+        <br/>
+        <br/>
+
+        <h3>{{ 'Installation_InstallationStatus'|translate }}</h3>
+
+        <div id="progressbar" data-progress="{{ percentDone }}"></div>
+        {{ 'Installation_PercentDone'|translate(percentDone) }}
+    </div>
+</div>
+</body>
+</html>

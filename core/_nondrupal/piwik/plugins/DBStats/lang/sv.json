@@ -1,0 +1,21 @@
+{
+    "DBStats": {
+        "DatabaseUsage": "Databasanvändning",
+        "DataSize": "Datastorlek",
+        "DBSize": "Databasstorlek",
+        "EstimatedSize": "Uppskattad storlek",
+        "IndexSize": "Indexstorlek",
+        "LearnMore": "Om du vill veta mer om hur Piwik behandlar uppgifter och hur man gör för att Piwik ska fungera bra för medelhög och hög trafik webbplatser, kolla dokumentationen %s.",
+        "MainDescription": "Piwik sparar all webbanalys data i MySQL databasen. För tillfället använder Piwik's tabeller %s.",
+        "MetricDataByYear": "Variabler per år",
+        "MetricTables": "Variabeltabeller",
+        "OtherTables": "Övriga tabeller",
+        "PluginDescription": "Denna plugin rapporterar Piwik's användning av tabeller i MySQL databasen.",
+        "ReportDataByYear": "Raporttabeller per år",
+        "ReportTables": "Rapporttabeller",
+        "RowCount": "Radantal",
+        "Table": "Tabell",
+        "TotalSize": "Total storlek",
+        "TrackerTables": "Spårningstabeller"
+    }
+}

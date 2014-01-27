@@ -1,0 +1,72 @@
+<?php
+
+/**
+ * Implements hook_schema().
+ */
+function accessibility_reporting_schema() {
+  $schema = array();
+
+  $schema['accessibility_reporting'] = array(
+    'description' => 'Accessibility reporting.',
+    'fields' => array(
+      'test_id' => array(
+        'description' => 'Entity of accessibility test.',
+        'type' => 'serial',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ),
+      'entity_type' => array(
+        'description' => 'The type of entity with the error.',
+        'type' => 'varchar',
+        'length' => 32,
+        'not null' => TRUE,
+        'default' => '',
+      ),
+      'bundle' => array(
+        'description' => 'The bundle of the entity type.',
+        'type' => 'varchar',
+        'length' => 32,
+        'not null' => TRUE,
+        'default' => '',
+      ),
+      'entity_id' => array(
+        'description' => 'The name of the test - a human-readable identifier.',
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ),
+      'field' => array(
+        'description' => 'The field with the error.',
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => TRUE,
+        'default' => '',
+      ),
+      'total' => array(
+        'description' => 'Total errors found.',
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ),
+      'data' => array(
+        'type' => 'blob',
+        'not null' => FALSE,
+        'size' => 'big',
+        'serialize' => TRUE,
+        'description' => 'A serialized array of additional data.',
+      ),
+    ),
+    'indexes' => array(
+      'test_id'        			=> array('test_id'),
+      'entity'        		  => array('entity_type', 'entity_id'),
+    ),
+    'foreign keys' => array(
+      'accessibility_test' => array(
+        'table' => 'accessibility_test',
+        'columns' => array('test_id' => 'test_id'),
+      ),
+    ),
+  );
+
+  return $schema;
+}

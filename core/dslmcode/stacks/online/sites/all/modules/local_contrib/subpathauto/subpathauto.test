@@ -1,0 +1,139 @@
+<?php
+
+/**
+ * @file
+ * Test integration for the subpathauto.module.
+ */
+
+class SubPathautoUnitTestCase extends DrupalWebTestCase {
+  public static function getInfo() {
+    return array(
+      'name' => 'Sub-pathauto unit tests',
+      'description' => 'Test basic functionality for Sub-pathauto.',
+      'group' => 'Sub-pathauto'
+    );
+  }
+
+  function setUp() {
+    parent::setUp(array('subpathauto'));
+
+    $this->addAlias('node/1', 'content/first-node');
+    $this->addAlias('node/1/test', 'content/first-node-test');
+    $this->addAlias('admin', 'malicious-path');
+  }
+
+  function testSubPathAliases() {
+    $this->assertAlias('node/1', 'content/first-node');
+    $this->assertAlias('node/1/a', 'content/first-node/a');
+    $this->assertNoAlias('node/1/a/b');
+    $this->assertAlias('node/1/test', 'content/first-node-test');
+    $this->assertAlias('node/1/test/a', 'content/first-node-test/a');
+    $this->assertNoAlias('node/1/test/a/b');
+
+    // Change the depth to two-levels deep.
+    variable_set('subpathauto_depth', 2);
+    drupal_static_reset();
+    $this->assertAlias('node/1', 'content/first-node');
+    $this->assertAlias('node/1/a', 'content/first-node/a');
+    $this->assertAlias('node/1/a/b', 'content/first-node/a/b');
+    $this->assertNoAlias('node/1/a/b/c');
+    $this->assertAlias('node/1/test', 'content/first-node-test');
+    $this->assertAlias('node/1/test/a/b', 'content/first-node-test/a/b');
+    $this->assertNoAlias('node/1/test/a/b/c');
+
+    // Test that admin paths should be excluded.
+    drupal_static_reset();
+    $this->assertNoAlias('node/1/edit');
+    $this->assertNoAlias('admin/modules');
+
+    // Test with $options['alias'] and $options['external'].
+    $this->assertNoAlias('node/1/a', array('alias' => TRUE));
+    $this->assertAlias('node/1/a', 'content/first-node/a', array('alias' => FALSE));
+    $this->assertNoAlias('node/1/a', array('external' => TRUE));
+    $this->assertAlias('node/1/a', 'content/first-node/a', array('external' => FALSE));
+
+    // Enable sub-path aliases for admin paths.
+    variable_set('subpathauto_ignore_admin', 0);
+    drupal_static_reset();
+    $this->assertAlias('node/1/edit', 'content/first-node/edit');
+    $this->assertAlias('admin/modules', 'malicious-path/modules');
+  }
+
+  function getPathAlias($path, $options = array()) {
+    // Merge in defaults.
+    $options += array(
+      'fragment' => '',
+      'query' => array(),
+      'absolute' => FALSE,
+      'alias' => FALSE,
+      'prefix' => '',
+    );
+
+    if (!isset($options['external'])) {
+      // Return an external link if $path contains an allowed absolute URL. Only
+      // call the slow drupal_strip_dangerous_protocols() if $path contains a ':'
+      // before any / ? or #. Note: we could use url_is_external($path) here, but
+      // that would require another function call, and performance inside url() is
+      // critical.
+      $colonpos = strpos($path, ':');
+      $options['external'] = ($colonpos !== FALSE && !preg_match('![/?#]!', substr($path, 0, $colonpos)) && drupal_strip_dangerous_protocols($path) == $path);
+    }
+
+    // Preserve the original path before altering or aliasing.
+    $original_path = $path;
+
+    // Allow other modules to alter the outbound URL and options.
+    drupal_alter('url_outbound', $path, $options, $original_path);
+
+    if (isset($options['fragment']) && $options['fragment'] !== '') {
+      $options['fragment'] = '#' . $options['fragment'];
+    }
+
+    if ($options['external']) {
+      return $path;
+    }
+
+    global $base_url, $base_secure_url, $base_insecure_url;
+
+    // The special path '<front>' links to the default front page.
+    if ($path == '<front>') {
+      $path = '';
+    }
+    elseif (!empty($path) && !$options['alias']) {
+      $language = isset($options['language']) && isset($options['language']->language) ? $options['language']->language : '';
+      $alias = drupal_get_path_alias($original_path, $language);
+      if ($alias != $original_path) {
+        $path = $alias;
+      }
+    }
+
+    return $path;
+  }
+
+  function assertAlias($source, $alias, array $options = array()) {
+    $actual_alias = $this->getPathAlias($source, $options);
+    $actual_source = drupal_get_normal_path($alias);
+    $args = array(
+      '@source' => $source,
+      '@alias' => $alias,
+      '@source-actual' => $actual_source,
+      '@alias-actual' => $actual_alias,
+    );
+    return $this->assertIdentical($alias, $actual_alias, t("drupal_get_path_alias('@source') was '@alias-actual' and expected '@alias'", $args))
+        || $this->assertIdentical($source, $actual_source, t("drupal_get_normal_path('@alias') was '@source-actual' and expected '@source'", $args));
+  }
+
+  function assertNoAlias($source, array $options = array()) {
+    return $this->assertAlias($source, $source, $options);
+  }
+
+  function addAlias($source, $alias, $langcode = LANGUAGE_NONE) {
+    $alias = array(
+      'source' => $source,
+      'alias' => $alias,
+      'language' => $langcode,
+    );
+    path_save($alias);
+    drupal_clear_path_cache();
+  }
+}

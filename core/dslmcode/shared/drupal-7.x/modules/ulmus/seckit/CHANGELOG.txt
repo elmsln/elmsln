@@ -1,0 +1,43 @@
+SecKit 1.7
+-------------
+#2091627: CSP report-uri directive is relative (Thanks @jweowu)
+#1909846: Undefined index in _seckit_csp_report() (Thanks @jweowu)
+
+SecKit 1.6
+-------------
+#2043283: X-XSS-Protection is disabled by default
+
+SecKit 1.5
+-------------
+#1893038: Support Allow-From in X-Frame-Options
+#1809020: Prevent Origin check for localhost
+#1890738: Revert to default CSP options if directives are empty
+
+SecKit 1.4
+-------------
+#1777704: Conflicts with D7 overlay
+#1765080: Typo in seckit description
+#1359292: First official CSP draft
+#1302576: Media Browser is not load when security kit is enabled
+
+SecKit 1.3
+-------------
+#1298742: Added option for setting custom noscript message
+#1243032: Override style for frames option is removed
+#1241226: Updated CSP to the new specification
+
+SecKit 1.2
+-------------
+#1242628: Implemented X-Content-Type-Options HTTP response header
+#1227544: Implemented From-Origin HTTP response header
+#1241224: When CSP policy-uri is filled, all directives greyes out
+#1241888: CSP default-src is no longer required
+
+SecKit 1.1
+-------------
+#1124380: Updated CSP to the new specification
+#1188984: Added Google Chrome CSP support
+
+SecKit 1.0
+-------------
+Initial release. Supports Drupal 7.x

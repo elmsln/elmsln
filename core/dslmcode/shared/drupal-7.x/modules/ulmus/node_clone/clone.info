@@ -1,0 +1,13 @@
+name = "Node clone"
+description = "Allows users to clone (copy then edit) an existing node."
+core = 7.x
+
+files[] = views/views_handler_field_node_link_clone.inc
+configure = admin/config/content/clone
+
+; Information added by drupal.org packaging script on 2012-08-05
+version = "7.x-1.0-rc1"
+core = "7.x"
+project = "node_clone"
+datestamp = "1344129444"
+

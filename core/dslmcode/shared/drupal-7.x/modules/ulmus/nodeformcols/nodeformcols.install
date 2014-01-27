@@ -1,0 +1,31 @@
+<?php
+
+/**
+ * @file
+ * Install and update hooks
+ */
+
+/**
+ * Implementation of hook_install().
+ */
+function nodeformcols_install() {
+  // We need our hook_theme() to run after node.module's hook_theme().
+  db_update('system')
+    ->fields(array('weight' => 1))
+    ->condition('name', 'nodeformcols')
+    ->condition('type', 'module')
+    ->execute();
+}
+
+/**
+ * Implementation of hook_uninstall().
+ */
+function nodeformcols_uninstall() {
+  $res = db_select('variable')
+    ->fields('variable', array('name'))
+    ->condition('name', 'nodeformscols_field_placements_%', 'LIKE')
+    ->execute();
+  foreach ($res as $v) {
+    variable_del($v->name);
+  }
+}

@@ -1,0 +1,315 @@
+/**
+ * @file
+ * Contains FontFolio media queries Styles, needed for responsive behavior.
+ */
+
+input[type="text"] {
+  max-width: 100%;
+}
+
+/*
+ * Landscape Tablets and smaller Screens in mosern browsers 
+ */
+@media screen and (max-width: 1024px) {
+  #main_container {
+    width: 90%;
+  }
+  
+  #header_top .search {
+    width: 15%;
+  }
+  
+  #header_top .menu_cont a {
+    padding: 19px 6px 0px;
+  }
+}
+
+/*
+ * All Devices up to tablet portrait. 
+ */
+@media screen and (max-width: 959px) {
+
+  #header_top .open {
+    display: block;
+    width: 100%;
+  }
+  
+  #header_top .search.open { 
+    display: block;
+    border: 1px solid #CCC;
+  }
+  
+  #header_top .search input[type="text"] {
+    border: none; width: 97%;
+  }
+  
+  .blog-box img,  
+  .blog_box img,
+  #single_left img {
+    height: inherit;
+    max-width: 100%;
+  }
+
+}
+
+
+/* Tablets (Portrait) */
+@media only screen and (min-width: 768px) and (max-width: 959px) {
+
+  #header_top .search.open { 
+    position: absolute;
+    top: 36px;
+  }
+  
+  #header.search-open {
+    padding-top: 89px;
+  }
+  
+  #header_top .menu_cont {
+    margin: 0;
+  }
+  
+  #header_top .menu_cont a {
+    padding: 19px 3px 0px;
+  }
+  
+  #langs li {
+    margin: 0;    
+  }
+  
+  #header_top .search {
+    display: none;
+  }
+  
+  #header_top a.toggle-search {
+    display: block;
+    float: right;
+    padding: 14px 12px 0 0;
+  }
+  
+  #header_top a.toggle img {
+    height: 17px; width: inherit;
+  }
+  
+  .big-post-box,
+  .big_post_box {
+    width: 66.666666%;
+  }
+
+  .big-post-box img,  
+  .big_post_box img {
+    height: inherit;
+    width: 100%;
+  }
+  
+  .post-box,
+  .post_box {
+    float: left;
+    width: 33.333333%;
+  }
+  
+  .post-box img,
+  .post_box img {
+    height: inherit;
+    width: 100%;
+  }
+
+  #single_left {
+    float: left;
+    width: 66%;
+  }
+
+  .single_content img {
+    height: inherit;
+    max-width: 519px;
+  }
+  
+  .blog-box,
+  .blog_box {
+    margin-bottom: 25px;
+    width: 100%
+  }
+
+  .blog-box img,
+  .blog_box img {
+    height: 209px;
+    width: 100%;
+  }
+
+  #sidebar {
+    width: 30%;
+  }
+
+}
+
+/* Landscape smartphones, narrow tablets and below */
+
+@media screen and (max-width: 767px) {
+
+  #header_top {
+    position: relative;
+    text-align: center;
+    border-bottom: none;
+    margin-top: 12px
+  }
+  
+  #header_top .header_top_border {
+    display: none;
+  }
+  
+  #header_top a.toggle {
+    display: inline;
+    margin: 4%;
+  }
+
+  #header_top .menu_cont a,
+  #header_top .menu_cont a:hover  {
+    border-top: 1px solid #ccc;
+    padding: 10px;
+    font-size: 14px;
+  }
+  
+  #langs,
+  #langs ul,
+  #langs li{
+    float: none;
+    display: inline;
+    margin: 0;
+  }
+
+  #langs .language-link {
+    background-color: transparent;
+    border-top: none;
+    bottom: 5px;
+    display: inline;
+    font-size: 17px;
+    padding: 0;
+    position: relative;
+  }
+  
+  #header_top .search,
+  .social,
+  #header_menu {
+    display: none;
+  }
+
+  #header_top nav.menu_cont{
+    height:0;
+    overflow:hidden;
+  }
+  
+  #header_top nav.menu_cont.open{
+    height:auto;
+    float:none;
+  }
+  
+  #header_top .open #sub-menu,
+  #header_top nav.menu_cont.open ul li,
+  #header_top nav.menu_cont.open ul {
+    background: #fff;
+    clear: both;
+    display:block;
+    float:none;
+  }
+  
+  #header_top nav.menu_cont.open .social  {
+    border-top: 1px solid #CCC;
+    display: block;
+    float: none
+  }
+  
+  #header_top nav.menu_cont.open .social a {
+    border-top: 0;
+    display: inline;
+    float: left;
+    padding-bottom: 4px;
+  }
+    
+  #header {
+    padding-top: 30px;
+  }
+
+  a.logo {
+    clear: both; 
+    float: none;
+    max-width: 300px; 
+    margin: 0 auto;
+  }
+
+  a.logo img{
+    max-height: 70px;
+  }
+  
+  #site-name {
+    font-size:35px
+  }
+  
+  #header .section {
+    text-align: center;
+  }
+  
+  #name-and-slogan {
+    float: none;
+  }
+  
+  .menu_cont #menu {
+    display: none;
+  }
+
+  .big-post-box,
+  .big_post_box {
+    height:auto;
+    width: 100%; 
+  }
+
+  .big-post-box img, 
+  .big_post_box img {
+    height: inherit;
+    width: 100%;
+  }
+
+  .post-box,
+  .post_box {
+    height: auto;
+    max-height: 45.01779359%;
+    overflow: hidden;
+    width: 50%;
+  }
+
+  .post-box img, 
+  .post_box img {
+    height: inherit;
+    width: 100%;
+  }
+  
+  #sidebar,
+  #single_left {
+    float: none;
+    width: 100%;
+  }
+
+
+
+  #commentform textarea {
+    width: 280px;
+  }
+  
+  .blog-box, 
+  .blog_box {
+    margin: 0 auto 25px;
+    width: 100%; 
+  }
+}
+
+@media screen and (max-width: 320px) {
+  .post-box,
+  .post_box {
+    float:none;
+    width:100%;
+  }
+  
+  .big-post-box,
+  .big_post_box {
+    float:none;
+  }
+}

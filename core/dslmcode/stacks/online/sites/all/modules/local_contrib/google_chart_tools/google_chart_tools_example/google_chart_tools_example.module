@@ -1,0 +1,88 @@
+<?php
+
+/**
+ * Implements hook_menu().
+ */
+function google_chart_tools_example_menu() {
+  $items = array();
+
+  $items['reports/site-analytics'] = array(
+    'title' => 'Site Analytics',
+    'access arguments' => array('access content'),
+    'page callback' => 'google_chart_tools_page',
+  );
+
+  return $items;
+}
+
+/**
+ *  Creating graphs for the last 10 days of node creating, comments and votes.
+ */
+function google_chart_tools_page() {
+  $header = $nodes = $comments = $votes = array();
+  $from = strtotime('-1 month');
+  $to   = time();
+  $i = 0;
+  while ($from <= $to) {
+    // Building the header - list of date from today backward.
+    $header[$i] = date('d.m.y', strtotime("-{$i} day"));
+    // The number of nodes created each day.
+    $nodes[$i] = db_query("SELECT COUNT(*) FROM {node} WHERE  FROM_UNIXTIME(created,'%d.%m.%y') = :dete", array(':dete' => $header[$i]))->fetchField();
+    // The number of comments created each day.
+    $comments[$i] = db_query("SELECT COUNT(*) FROM {comment} WHERE  FROM_UNIXTIME(created,'%d.%m.%y') = :dete", array(':dete' => $header[$i]))->fetchField();
+    // The number of voted placed each day.
+    $votes[$i] = module_exists('votingapi') ? db_query("SELECT COUNT(*) FROM {votingapi_vote} WHERE  FROM_UNIXTIME(timestamp,'%d.%m.%y') = :dete", array(':dete' => $header[$i]))->fetchField() : 0;
+    // The number of users join each day.
+    $users[$i] = db_query("SELECT COUNT(*) FROM {users} WHERE  FROM_UNIXTIME(created,'%d.%m.%y') = :dete", array(':dete' => $header[$i]))->fetchField();
+
+    $i++;
+    $from = strtotime("+1 day", $from);
+  }
+  // Building the rows, array of the data point arrays.
+  $rows = array($nodes, $comments, $votes, $users);
+  // The labels for the rows.
+  $columns = array('No. Of Nodes', 'No. Of Comments', 'No. Of Votes', 'No. Of Users');
+
+  // Put all the data into the settings array,
+  // which will be send to draw.
+  // Must empty the array first.
+  $settings = array();
+  $settings['chart']['chartOne'] = array(
+    'header' => $header,
+    'rows' => $rows,
+    'columns' => $columns,
+    'chartType' => GOOGLE_CHART_TOOLS_DEFAULT_CHART,
+    'containerId' =>  'line_chart',
+    'options' => array( // Optionals.
+      'curveType' => "function",
+      'forceIFrame' => FALSE,
+      'title' => 'Nodes / Comments / Votes / Users per day',
+      'width' => 800,
+      'height' => 400
+    )
+  );
+
+  $tree = array(
+    // array(Name, Display Name, Parent, Tooltip, Style, Selected Style)
+    array('Grandparent', '<font color="red">Grandparent</font>', '', 'Grandparent Tooltip', '', ''),
+    array('Parent', '', 'Grandparent', '', 'border-color:green', 'border-color:red'),
+    array('Child1', '', 'Parent', '', '', ''),
+    array('Child2', '', 'Parent', 'Child 2 Tooltip', '', ''),
+  );
+
+  $settings['chart']['chartTwo'] = array(
+    'header' => 'Header',
+    'containerId' => 'org_chart',
+    'chartType' => 'OrgChart',
+    'rows' => $tree,
+    'options' => array(
+      'title' => 'Org Chart',
+      'allowHtml' => 'true',
+      'allowCollapse' => 'true',
+    ),
+  );
+
+  // Draw it.
+  draw_chart($settings);
+  return '<p>Example line chart:</p><div id="line_chart"></div><p>Example org chart:</p><div id="org_chart" class="org_chart"></div>';
+}

@@ -1,0 +1,65 @@
+<?php
+
+/**
+ * @file
+ * Install, update and uninstall functions for the Drupal Field Hidden module.
+ */
+
+/**
+ * Implements hook_field_schema().
+ *
+ * @param array $field
+ * @return array
+ */
+function field_hidden_field_schema($field) {
+  $columns = array();
+  switch ($field['type']) {
+    case 'field_hidden_text':
+      $columns = array(
+        'value' => array(
+          'type' => 'varchar',
+          'length' => $field['settings']['max_length'],
+          'not null' => FALSE,
+        ),
+      );
+      break;
+    case 'field_hidden_text_long':
+      $columns = array(
+        'value' => array(
+          'type' => 'text',
+          'size' => 'big',
+          'not null' => FALSE,
+        ),
+      );
+      break;
+    case 'field_hidden_integer':
+      $columns = array(
+        'value' => array(
+          'type' => 'int',
+          'not null' => FALSE
+        ),
+      );
+      break;
+    case 'field_hidden_decimal':
+      $columns = array(
+        'value' => array(
+          'type' => 'numeric',
+          'precision' => $field['settings']['precision'],
+          'scale' => $field['settings']['scale'],
+          'not null' => FALSE
+        ),
+      );
+      break;
+    case 'field_hidden_float':
+      $columns = array(
+        'value' => array(
+          'type' => 'float',
+          'not null' => FALSE
+        ),
+      );
+      break;
+  }
+  return array(
+    'columns' => $columns,
+  );
+}

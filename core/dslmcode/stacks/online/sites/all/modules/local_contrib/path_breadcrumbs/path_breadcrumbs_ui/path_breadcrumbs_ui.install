@@ -1,0 +1,12 @@
+<?php
+/**
+ * @file
+ * Provides update path for Path breadcrumbs UI.
+ */
+
+/**
+ * Clear menu cache to enable Path Breadcrumbs contextual links.
+ */
+function path_breadcrumbs_ui_update_7302() {
+  menu_rebuild();
+}

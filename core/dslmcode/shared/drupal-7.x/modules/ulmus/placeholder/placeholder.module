@@ -1,0 +1,78 @@
+<?php
+
+/**
+ * @file
+ * Placeholder module file.
+ */
+
+/**
+ * Implements hook_element_info_alter().
+ */
+function placeholder_element_info_alter(&$types) {
+  foreach (array_keys($types) as $type) {
+    switch ($type) {
+      case 'textfield':
+      case 'textarea':
+        $types[$type]['#process'][] = 'placeholder_process_placeholder';
+        break;
+    }
+  }
+}
+
+/**
+ * Element process callback. Adds support for the HTML5 placeholder attribute.
+ *
+ * @param array $element
+ *   The render array element.
+ *
+ * @return
+ *   The processed element.
+ */
+function placeholder_process_placeholder($element) {
+  if (isset($element['#placeholder']) || isset($element['#attributes']['placeholder'])) {
+    // Set the placeholder attribute, if we need to.
+    if (!isset($element['#attributes']['placeholder'])) {
+      $element['#attributes']['placeholder'] = $element['#placeholder'];
+    }
+    // Add the library, if it's available.
+    if (($library = libraries_detect('placeholder')) && !empty($library['installed'])) {
+      // Attach the library files.
+      $element['#attached']['libraries_load'][] = array('placeholder', 'minified');
+      // Attach the module js file. This will actually invoke the library.
+      $element['#attached']['js'] = array(
+        drupal_get_path('module', 'placeholder') . '/placeholder.js',
+      );
+    }
+  }
+
+  return $element;
+}
+
+/**
+ * Implements hook_libraries_info().
+ */
+function placeholder_libraries_info() {
+  $libraries = array();
+
+  $libraries['placeholder'] = array(
+    'title' => 'jQuery-Placeholder',
+    'vendor url' => 'https://github.com/mathiasbynens/jquery-placeholder',
+    'version' => '1.0',
+    'files' => array(
+      'js' => array(
+        'jquery.placeholder.js',
+      ),
+    ),
+    'variants' => array(
+      'minified' => array(
+        'files' => array(
+          'js' => array(
+            'jquery.placeholder.min.js',
+          ),
+        ),
+      ),
+    ),
+  );
+
+  return $libraries;
+}

@@ -1,0 +1,145 @@
+# $Id: imagefield_crop-module.pot,v 1.1.2.1 2008/02/23 21:12:17 yhager Exp $
+#
+# LANGUAGE translation of Drupal (general)
+# Copyright YEAR NAME <EMAIL@ADDRESS>
+# Generated from files:
+#  imagefield_crop.module,v 1.1.2.5 2008/02/05 10:38:11 yhager
+#  imagefield_crop.info,v 1.1 2008/01/13 20:54:34 yhager
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PROJECT VERSION\n"
+"POT-Creation-Date: 2008-02-23 22:46+0200\n"
+"PO-Revision-Date: YYYY-mm-DD HH:MM+ZZZZ\n"
+"Last-Translator: NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <EMAIL@ADDRESS>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=INTEGER; plural=EXPRESSION;\n"
+
+#: imagefield_crop.module:80
+msgid "The resolution to crop the image onto"
+msgstr ""
+
+#: imagefield_crop.module:85
+msgid "The output resolution of the cropped image, expressed as WIDTHxHEIGHT (e.g. 640x480). Set to 0 not to rescale after cropping."
+msgstr ""
+
+#: imagefield_crop.module:89
+msgid "Enforce box crop box ratio"
+msgstr ""
+
+#: imagefield_crop.module:91
+msgid "Check this to force the ratio of the output on the crop box. NOTE: If you leave this unchecked, final images may be distorted"
+msgstr ""
+
+#: imagefield_crop.module:95
+msgid "The resolution of the cropping area"
+msgstr ""
+
+#: imagefield_crop.module:99
+msgid "The resolution of the area used for the cropping of the image. Image will be scaled down to this size before cropping. Use WIDTHxHEIGHT format"
+msgstr ""
+
+#: imagefield_crop.module:103
+msgid "Always show the cropping area"
+msgstr ""
+
+#: imagefield_crop.module:105
+msgid "Check this to show the cropping area even before the image is uploaded"
+msgstr ""
+
+#: imagefield_crop.module:109
+msgid "Use original (unscaled) image for cropping"
+msgstr ""
+
+#: imagefield_crop.module:111
+msgid "For better quality, use the original image for cropping, and not the one scaled for viewing"
+msgstr ""
+
+#: imagefield_crop.module:115
+msgid "Image path"
+msgstr ""
+
+#: imagefield_crop.module:117
+msgid "Optional subdirectory within the \"%dir\" directory where images will be stored. Do not include trailing slash."
+msgstr ""
+
+#: imagefield_crop.module:122
+msgid "Enable custom alternate text"
+msgstr ""
+
+#: imagefield_crop.module:124
+msgid "Enable custom alternate text for images. Filename will be used if not checked."
+msgstr ""
+
+#: imagefield_crop.module:128
+msgid "Enable custom title text"
+msgstr ""
+
+#: imagefield_crop.module:130
+msgid "Enable custom title text for images. Filename will be used if not checked."
+msgstr ""
+
+#: imagefield_crop.module:139
+msgid "Target resolution must be defined as WIDTHxHEIGHT if resolution is to be enforced"
+msgstr ""
+
+#: imagefield_crop.module:144
+msgid "Crop area resolution must be defined as WIDTHxHEIGHT"
+msgstr ""
+
+#: imagefield_crop.module:367
+msgid "Upload"
+msgstr ""
+
+#: imagefield_crop.module:395
+msgid "Delete"
+msgstr ""
+
+#: imagefield_crop.module:451
+msgid "Filename: "
+msgstr ""
+
+#: imagefield_crop.module:462
+msgid "Alternate text"
+msgstr ""
+
+#: imagefield_crop.module:464
+msgid "Alternate text to be displayed if the image cannot be displayed."
+msgstr ""
+
+#: imagefield_crop.module:478
+msgid "Title"
+msgstr ""
+
+#: imagefield_crop.module:480
+msgid "Text to be displayed on mouse overs."
+msgstr ""
+
+#: imagefield_crop.module:489
+msgid "If a new image is chosen, the current image will be replaced upon submitting the form."
+msgstr ""
+
+#: imagefield_crop.module:531
+msgid "Image cropping only works with %toolkit. Please select it at !url, or ask your system administrator to do so"
+msgstr ""
+
+#: imagefield_crop.module:0
+msgid "imagefield_crop"
+msgstr ""
+
+#: imagefield_crop.info:0
+msgid "Image crop"
+msgstr ""
+
+#: imagefield_crop.info:0
+msgid "Add cropping ability to images using javascript"
+msgstr ""
+
+#: imagefield_crop.info:0
+msgid "CCK"
+msgstr ""
+

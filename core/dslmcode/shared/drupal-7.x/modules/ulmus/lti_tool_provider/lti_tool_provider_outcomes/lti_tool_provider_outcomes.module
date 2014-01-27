@@ -1,0 +1,766 @@
+<?php
+/**
+ * @file
+ * lti_tool_provider_outcomes hook implementations and support functions.
+ */
+
+module_load_include('inc', 'lti_tool_provider_outcomes', 'lti_tool_provider_outcomes.misc');
+
+/**
+ * Implements hook_menu().
+*/
+function lti_tool_provider_outcomes_menu() {
+  $items = array();
+  $items['lti-tool-provider-outcomes/outcomes/send-results/user'] = array(
+    'title' => 'Send results for user',
+    'description' => 'Send results for this user and resource via LTI',
+    'page callback' => 'lti_tool_provider_outcomes_send_results',
+    'page arguments' => array(3, 'lti-tool-provider-outcomes/outcomes'),
+    'access callback' => 'lti_tool_provider_outcomes_alt_access',
+    'access arguments' => array(array('access content')),
+    'file' => 'lti_tool_provider_outcomes.sync.inc',
+    'weight' => -6,
+  );
+  $items['lti-tool-provider-outcomes/outcomes/send-results/resource'] = array(
+    'title' => 'Send results for resource',
+    'description' => 'Send results for all users for this resource via LTI',
+    'page callback' => 'lti_tool_provider_outcomes_send_results',
+    'page arguments' => array(3, 'lti-tool-provider-outcomes/outcomes'),
+    'access callback' => 'lti_tool_provider_outcomes_alt_access',
+    'access arguments' => array(array('administer outcomes in resource', 'administer outcomes in context')),
+    'file' => 'lti_tool_provider_outcomes.sync.inc',
+    'weight' => -5,
+  );
+  $items['lti-tool-provider-outcomes/outcomes/send-results/context'] = array(
+    'title' => 'Send results for context',
+    'description' => 'Send results for all users and resources in this context via LTI',
+    'page callback' => 'lti_tool_provider_outcomes_send_results',
+    'page arguments' => array(3, 'lti-tool-provider-outcomes/outcomes'),
+    'access callback' => 'lti_tool_provider_outcomes_alt_access',
+    'access arguments' => array(array('administer outcomes in context')),
+    'file' => 'lti_tool_provider_outcomes.sync.inc',
+    'weight' => -4,
+  );
+  $items['lti-tool-provider-outcomes/outcomes/pull-results/user'] = array(
+    'title' => 'Retrieve results for user',
+    'description' => 'Retrieve results for this user and resource via LTI',
+    'page callback' => 'lti_tool_provider_outcomes_pull_results',
+    'page arguments' => array(3, 'lti-tool-provider-outcomes/outcomes'),
+    'access callback' => 'lti_tool_provider_outcomes_alt_access',
+    'access arguments' => array(array('access content')),
+    'file' => 'lti_tool_provider_outcomes.sync.inc',
+    'weight' => -3,
+  );
+  $items['lti-tool-provider-outcomes/outcomes/pull-results/resource'] = array(
+    'title' => 'Retrieve results for resource',
+    'description' => 'Retrieve results for all users for this resource via LTI',
+    'page callback' => 'lti_tool_provider_outcomes_pull_results',
+    'page arguments' => array(3, 'lti-tool-provider-outcomes/outcomes'),
+    'access callback' => 'lti_tool_provider_outcomes_alt_access',
+    'access arguments' => array(array('administer outcomes in resource', 'administer outcomes in context')),
+    'file' => 'lti_tool_provider_outcomes.sync.inc',
+    'weight' => -2,
+  );
+  $items['lti-tool-provider-outcomes/outcomes/pull-results/context'] = array(
+    'title' => 'Retrieves results for context',
+    'description' => 'Retrieve results for all users and resources in this context via LTI',
+    'page callback' => 'lti_tool_provider_outcomes_pull_results',
+    'page arguments' => array(3, 'lti-tool-provider-outcomes/outcomes'),
+    'access callback' => 'lti_tool_provider_outcomes_alt_access',
+    'access arguments' => array(array('administer outcomes in context')),
+    'file' => 'lti_tool_provider_outcomes.sync.inc',
+    'weight' => -1,
+  );
+  // View all resource by context.
+  $items['lti-tool-provider-outcomes/resources'] = array(
+    'title' => 'LTI Resources',
+    'description' => 'View all resource related to the corresponding context',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('lti_tool_provider_outcomes_resource_manage_form'),
+    'access callback' => 'lti_tool_provider_outcomes_alt_access',
+    'access arguments' => array(array('administer outcomes in context')),
+    'file' => 'lti_tool_provider_outcomes.admin.inc',
+  );
+  // View all outcomes of current resource.
+  $items['lti-tool-provider-outcomes/outcomes'] = array(
+    'title' => 'LTI Outcomes',
+    'description' => 'View/edit all outcomes related to the current resource',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('lti_tool_provider_outcomes_outcomes_manage_form'),
+    'access callback' => 'lti_tool_provider_outcomes_alt_access',
+    'access arguments' => array(array('administer outcomes in resources', 'administer outcomes in context')),
+    'file' => 'lti_tool_provider_outcomes.admin.inc',
+  );
+  // View all outcomes by resource.
+  $items['lti-tool-provider-outcomes/outcomes/by-resource/%lti_tool_provider_outcomes_resource'] = array(
+    'title' => 'LTI Outcomes by Resource',
+    'description' => 'View all outcomes for a resource',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('lti_tool_provider_outcomes_outcomes_manage_form', 3),
+    'access callback' => 'lti_tool_provider_outcomes_alt_access',
+    'access arguments' => array(array('administer outcomes in context')),
+    'file' => 'lti_tool_provider_outcomes.admin.inc',
+  );
+  // Confirm form for resource deletion.
+  $items['lti-tool-provider-outcomes/resource/%lti_tool_provider_outcomes_resource/confirm_delete'] = array(
+    'title' => 'Delete LTI Resource',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('lti_tool_provider_outcomes_confirm_delete_form', 2),
+    'access callback' => 'lti_tool_provider_outcomes_alt_access',
+    'access arguments' => array(array('administer outcomes in context')),
+    'type' => MENU_CALLBACK,
+    'file' => 'lti_tool_provider_outcomes.admin.inc',
+  );
+  // Current Resource.
+  $items['lti-tool-provider-outcomes/resource'] = array(
+    'title' => 'Current LTI Resource',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('lti_tool_provider_outcomes_resource_manage_form', TRUE),
+    'access callback' => 'lti_tool_provider_outcomes_alt_access',
+    'access arguments' => array(array('administer outcomes in resources', 'administer outcomes in context')),
+    'file' => 'lti_tool_provider_outcomes.admin.inc',
+  );
+  // Confirm change for resource datatype.
+  $items['lti-tool-provider-outcomes/resource/grades-mapping/confirm_change'] = array(
+    'title' => 'Confirm Change',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('lti_tool_provider_outcomes_resource_confirm_change_form'),
+    'access callback' => 'lti_tool_provider_outcomes_alt_access',
+    'access arguments' => array(array('set resource datatype')),
+    'type' => MENU_CALLBACK,
+    'file' => 'lti_tool_provider_outcomes.admin.inc',
+  );
+  return $items;
+}
+
+/**
+ * Implements hook_permission().
+ */
+function lti_tool_provider_outcomes_permission() {
+  $permissions = array(
+    'administer outcomes in resources' => array(
+      'title' => t('Pull/edit/send outcomes for the resource'),
+    ),
+    'administer outcomes in context' => array(
+      'title' => t('Pull/edit/send outcomes for resources in the context'),
+    ),
+    'set resource datatype' => array(
+      'title' => t('Set the result datatype for a resource'),
+    ),
+  );
+  return $permissions;
+}
+
+/**
+ * This function returns the username based on the user ID.
+ *
+ * @param int $uid
+ *   User Entity UID.
+ *
+ * @return string
+ *   Username or default message if username is not found.
+ */
+function lti_tool_provider_outcomes_get_username($uid) {
+  if ($account = user_load($uid)) {
+    return $account->name;
+  }
+  else {
+    return 'Not Avaliable';
+  }
+}
+
+/**
+ * Create or update an Outcome.
+ *
+ * This function is invoked during LTI launch. If record exists,
+ * it updates the outcome.
+ * If record does not exist, a new record is created.
+ *
+ * @param string $result_sourcedid
+ *   Result source DID of the request.
+ * @param string $context_id
+ *   Context ID of the incoming request.
+ * @param string $resource_id
+ *   Resource Link ID of the request.
+ * @param int $user_id
+ *   User Entity UID.
+ */
+function lti_tool_provider_outcomes_create_outcome($result_sourcedid, $context_id, $resource_id, $user_id) {
+  $results_arr = array();
+  $query = new EntityFieldQuery();
+  $query
+  ->entityCondition('entity_type', 'lti_tool_provider_outcomes')
+  ->propertyCondition('lti_tool_provider_outcomes_user_id', $user_id)
+  ->propertyCondition('lti_tool_provider_outcomes_resource_entity_id_fk', $resource_id);
+  $result = $query->execute();
+  if (!empty($result)) {
+    // Outcome already exists.
+    $entities = entity_load('lti_tool_provider_outcomes', array_keys($result['lti_tool_provider_outcomes']));
+    foreach ($entities as $entity) {
+      $entity->lti_tool_provider_outcomes_result_sourcedid = $result_sourcedid;
+      entity_get_controller('lti_tool_provider_outcomes')->save($entity);
+    }
+  }
+  else {
+    $entity = new stdClass();
+    $entity->lti_tool_provider_outcomes_id = 0;
+    $entity->lti_tool_provider_outcomes_resource_entity_id_fk = $resource_id;
+    $entity->lti_tool_provider_outcomes_result_sourcedid = $result_sourcedid;
+    $entity->lti_tool_provider_outcomes_user_id = $user_id;
+    $entity->lti_tool_provider_outcomes_score = '0.0';
+    entity_get_controller('lti_tool_provider_outcomes')->save($entity);
+  }
+  drupal_set_message(t('Successfully updated outcome'));
+}
+
+/**
+ * Retrieve the corresponding resource record,
+ * and create if it does not exist.
+ *
+ * @param int $consumer_id
+ *   Consumer Entity ID.
+ * @param int $context_id
+ *   Context ID.
+ * @param string $resource_link_id
+ *   Resource Link ID of the request.
+ * @param string $resource_title
+ *   Resource Title of the request.
+ * @param string $result_value_sourcedids
+ *   Result value source dids.
+ *
+ * @return int
+ *   ID of the new resource record.
+ */
+function lti_tool_provider_outcomes_get_set_resource($consumer_id, $context_id, $resource_link_id, $resource_title, $result_value_sourcedids) {
+  $results_arr = array();
+  $query = new EntityFieldQuery();
+  $query
+  ->entityCondition('entity_type', 'lti_tool_provider_outcomes_resource')
+  ->propertyCondition('lti_tool_provider_outcomes_resource_consumer_id', $consumer_id)
+  ->propertyCondition('lti_tool_provider_outcomes_resource_context_id', $context_id)
+  ->propertyCondition('lti_tool_provider_outcomes_resource_resource_link_id', $resource_link_id);
+  $result = $query->execute();
+  if (count(lti_tool_provider_outcomes_datatype_array($result_value_sourcedids)) == 1) {
+    $result_value_sourcedids = lti_tool_provider_outcomes_default_resultvalue_sourcedids();
+  }
+  if (isset($result['lti_tool_provider_outcomes_resource'])) {
+    // Record exists.
+    $resources = array_keys($result['lti_tool_provider_outcomes_resource']);
+    return reset($resources);
+  }
+  else {
+    $entity = new stdClass();
+    $entity->lti_tool_provider_outcomes_resource_id = 0;
+    $entity->lti_tool_provider_outcomes_resource_consumer_id = $consumer_id;
+    $entity->lti_tool_provider_outcomes_resource_context_id = $context_id;
+    $entity->lti_tool_provider_outcomes_resource_resource_link_title = $resource_title;
+    $entity->lti_tool_provider_outcomes_resource_resource_link_id = $resource_link_id;
+    $entity->lti_tool_provider_outcomes_resource_score_datatype_base_value = NULL;
+    $entity->lti_tool_provider_outcomes_resource_resultvalue_sourcedids = $result_value_sourcedids;
+    $entity = entity_get_controller('lti_tool_provider_outcomes_resource')->save($entity);
+    return $entity->lti_tool_provider_outcomes_resource_id;
+  }
+} //TODO: update resultvalue sourcedids and link title.
+
+/**
+ * Retrieves the corressponding resource.
+ *
+ * Based on the consumer id context id and the incoming resource_link_id.
+ *
+ * @param int $consumer_id
+ *   Consumer entity ID.
+ * @param int $context_id
+ *   Context ID.
+ * @param string $resource_link_id
+ *   Resource Link ID of the request.
+ *
+ * @return object
+ *   Resource entity.
+ */
+function lti_tool_provider_outcomes_get_resource($consumer_id, $context_id, $resource_link_id) {
+  $results_arr = array();
+  $query = new EntityFieldQuery();
+  $query
+  ->entityCondition('entity_type', 'lti_tool_provider_outcomes_resource')
+  ->propertyCondition('lti_tool_provider_outcomes_resource_consumer_id', $consumer_id)
+  ->propertyCondition('lti_tool_provider_outcomes_resource_context_id', $context_id)
+  ->propertyCondition('lti_tool_provider_outcomes_resource_resource_link_id', $resource_link_id);
+  $result = $query->execute();
+  if (isset($result['lti_tool_provider_outcomes_resource'])) {
+    // Record exists.
+    $resources = entity_load('lti_tool_provider_outcomes_resource', array_keys($result['lti_tool_provider_outcomes_resource']));
+    return reset($resources);
+  }
+  return NULL;
+}
+
+/**
+ * Updates the timestamp of Outcome records.
+ *
+ * @param object $entity
+ *   Outcome Entity to be updateds.
+ */
+function lti_tool_provider_outcomes_update_timestamp($entity) {
+  $entity->lti_tool_provider_outcomes_timestamp = REQUEST_TIME;
+  entity_get_controller('lti_tool_provider_outcomes')->save($entity);
+}
+
+/**
+ * Set the outcomes score for a user.
+ *
+ * @param string $score
+ *   The new Score.
+ * @param $user_id
+ *   The user, defaults to current user if not specified.
+ *
+ * @return boolean
+ *   True if successful.
+ */
+function lti_tool_provider_outcomes_set_score($score = '0.0', $user_id = NULL) {
+  if (isset($_SESSION['lti_tool_provider_context_info'])) {
+    if ($user_id == NULL) {
+      global $user;
+      $user_id = $user->uid;
+    }
+    $entity_type = 'lti_tool_provider_outcomes';
+    $resource = lti_tool_provider_outcomes_get_resource($_SESSION['lti_tool_provider_context_info']['consumer_id'], $_SESSION['lti_tool_provider_context_info']['context_id'], $_SESSION['lti_tool_provider_context_info']['resource_link_id']);
+    if ($resource) {
+      $query = new EntityFieldQuery();
+      $query
+      ->entityCondition('entity_type', $entity_type)
+      ->propertyCondition('lti_tool_provider_outcomes_user_id', $user_id)
+      ->propertyCondition('lti_tool_provider_outcomes_resource_entity_id_fk', $resource->lti_tool_provider_outcomes_resource_id);
+      $result = $query->execute();
+      if (isset($result[$entity_type])) {
+        $outcome = reset(entity_load($entity_type, array_keys($result[$entity_type])));
+        $outcome->lti_tool_provider_outcomes_score = $score;
+        $outcome->lti_tool_provider_outcomes_last_updated = REQUEST_TIME;
+        entity_get_controller($entity_type)->save($outcome);
+        drupal_set_message(t('Score has been set.'));
+        return TRUE;
+      }
+      else {
+        drupal_set_message(t('Unable to set score: No outcome.'), 'error');
+      }
+    }
+    else {
+      drupal_set_message(t('Unable to set score: No resource.'), 'error');
+    }
+  }
+  else {
+    drupal_set_message(t('Unable to set score: No LTI session'), 'error');
+  }
+  return FALSE;
+}
+
+/**
+ * Get a users outcomes score.
+ *
+ * @param $user_id
+ *   The user, defaults to current user if not specified.
+ *
+ * @return string|NULL
+ *   Score of the current user based on the LTI session.
+ */
+function lti_tool_provider_outcomes_get_score($user_id = NULL) {
+  if (isset($_SESSION['lti_tool_provider_context_info'])) {
+    if ($user_id == NULL) {
+      global $user;
+      $user_id = $user->uid;
+    }
+    $entity_type = 'lti_tool_provider_outcomes';
+    $resource = lti_tool_provider_outcomes_get_resource($_SESSION['lti_tool_provider_context_info']['consumer_id'], $_SESSION['lti_tool_provider_context_info']['context_id'], $_SESSION['lti_tool_provider_context_info']['resource_link_id']);
+    if (isset($resource)) {
+      $query = new EntityFieldQuery();
+      $query
+      ->entityCondition('entity_type', $entity_type)
+      ->propertyCondition('lti_tool_provider_outcomes_user_id', $user_id)
+      ->propertyCondition('lti_tool_provider_outcomes_resource_entity_id_fk', $resource->lti_tool_provider_outcomes_resource_id);
+      $result = $query->execute();
+      if (!empty($result[$entity_type])) {
+        $outcomes = entity_load($entity_type, array_keys($result[$entity_type]));
+        foreach ($outcomes as $outcome) {
+          return $outcome->lti_tool_provider_outcomes_score;
+        };
+      }
+      else {
+        drupal_set_message(t('Unable to retrieve score, please contact your local adminstrator'));
+      }
+    }
+    else {
+      drupal_set_message(t('Unable to retrieve score, please contact your local adminstrator'));
+    }
+  }
+  else {
+    drupal_set_message(t('Unable to get score: No LTI session'), 'error');
+  }
+  return NULL;
+}
+
+/**
+ * Implements hook_entity_info().
+ */
+function lti_tool_provider_outcomes_entity_info() {
+  $return = array(
+    'lti_tool_provider_outcomes' => array(
+      'label' => t('LTITP Outcomes'),
+      'controller class' => 'LTIToolProviderOutcomesEntityController',
+      'base table' => 'lti_tool_provider_outcomes',
+      'fieldable' => TRUE,
+      'entity keys' => array(
+        'id' => 'lti_tool_provider_outcomes_id',
+      ),
+      'static cache' => TRUE,
+      'view modes' => array(
+        'full' => array(
+          'label' => t('Default'),
+          'custom settings' => FALSE,
+        ),
+      ),
+      'uri callback' => 'lti_tool_provider_outcomes_uri',
+      'access callback' => 'administer ltitp_outcomes_module',
+    ),
+    'lti_tool_provider_outcomes_resource' => array(
+      'label' => t('LTITP Outcomes Resources'),
+      'controller class' => 'LTIToolProviderOutcomesResourceEntityController',
+      'base table' => 'lti_tool_provider_outcomes_resource',
+      'fieldable' => TRUE,
+      'entity keys' => array(
+        'id' => 'lti_tool_provider_outcomes_resource_id',
+      ),
+      'static cache' => TRUE,
+      'view modes' => array(
+        'full' => array(
+          'label' => t('Default'),
+          'custom settings' => FALSE,
+        ),
+      ),
+      'uri callback' => 'lti_tool_provider_outcomes_resource_uri',
+      'access callback' => 'administer ltitp_outcomes_module',
+    ),
+  );
+  return $return;
+}
+
+/**
+ * This function breaks down the lis_result_sourcedids into an array.
+ *
+ * The array is used for the dropdown list.
+ *
+ * @param string $datatype
+ *   The result value source dids.
+ *
+ * @return array
+ *   Array for dropdown list in the Grades Mapping Form.
+ */
+function lti_tool_provider_outcomes_datatype_array($datatype) {
+  $data_arr = array();
+  $another_arr = explode(',', $datatype);
+  if (isset($datatype)) {
+    if (sizeof($another_arr) < 1) {
+      $data_arr[] = $datatype;
+    }
+    else {
+      foreach ($another_arr as $str) {
+        $data_arr[] = $str;
+      }
+    }
+  }
+  else {
+    $data_arr[] = 'decimal';
+  }
+  return $data_arr;
+}
+
+/**
+ * Implements hook_lti_tool_provider_launch_alter().
+ */
+function lti_tool_provider_outcomes_lti_tool_provider_launch_alter(&$launch_info, $account) {
+  if (isset($launch_info['context_id']) && isset($launch_info['resource_link_id']) && isset($launch_info['resource_link_title'])) {
+    // Set the resultvalue_sourcedids in the launch info.
+    $launch_info['resultvalue_sourcedids'] = isset($launch_info['ext_ims_lis_resultvalue_sourcedids']) ? $launch_info['ext_ims_lis_resultvalue_sourcedids'] : 'decimal';
+    // Create or update the resource.
+    $launch_info['resource_id'] = lti_tool_provider_outcomes_get_set_resource($launch_info['consumer_id'], $launch_info['context_id'], $launch_info['resource_link_id'], $launch_info['resource_link_title'], $launch_info['resultvalue_sourcedids']);
+    if (isset($launch_info['ext_ims_lis_basic_outcome_url']) || isset($launch_info['lis_outcome_service_url'])) {
+      // Update the consumer with the outcomes service url.
+      if (isset($launch_info['ext_ims_lis_basic_outcome_url'])) {
+        lti_tool_provider_outcomes_update_outcome_service_url($launch_info['consumer_id'], $launch_info['ext_ims_lis_basic_outcome_url'], TRUE);
+      }
+      else {
+        lti_tool_provider_outcomes_update_outcome_service_url($launch_info['consumer_id'], $launch_info['lis_outcome_service_url'], FALSE);
+      }
+      if (isset($launch_info['lis_result_sourcedid'])) {
+        // Create or update the outcome.
+        lti_tool_provider_outcomes_create_outcome($launch_info['lis_result_sourcedid'], $launch_info['context_id'], $launch_info['resource_id'], $account->uid);
+      }
+    }
+  }
+}
+
+/**
+ * Implements hook_lti_tool_provider_return().
+ */
+function lti_tool_provider_outcomes_lti_tool_provider_return() {
+  global $user;
+  module_load_include('inc', 'lti_tool_provider_outcomes', 'lti_tool_provider_outcomes.sync');
+  $consumer = lti_tool_provider_consumer_load($_SESSION['lti_tool_provider_context_info']['consumer_id']);
+  // Send outcome for user.
+  $resource = lti_tool_provider_outcomes_get_resource($consumer->lti_tool_provider_consumer_id, $_SESSION['lti_tool_provider_context_info']['context_id'], $_SESSION['lti_tool_provider_context_info']['resource_link_id']);
+  lti_tool_provider_outcomes_send_outcome_for_user($resource, $consumer, $user->uid);
+}
+
+/**
+ * Implements hook_user_delete().
+ */
+function lti_tool_provider_outcomes_user_delete($account) {
+  lti_tool_provider_outcomes_remove_all_outcomes_by_user($account->uid);
+}
+
+/**
+ * Removes all Outcomes for a user id.
+ *
+ * Invoked when hook_user_(delete|cancel) are called.
+ *
+ * @param int $uid
+ *   User entity uid
+ */
+function lti_tool_provider_outcomes_remove_all_outcomes_by_user($uid) {
+  $results_arr = array();
+  $query = new EntityFieldQuery();
+  $query
+  ->entityCondition('entity_type', 'lti_tool_provider_outcomes')
+  ->propertyCondition('lti_tool_provider_outcomes_user_id', $uid);
+  $result = $query->execute();
+  $entity_type = 'lti_tool_provider_outcomes';
+  if (!empty($result[$entity_type])) {
+    $outcomes = entity_load($entity_type, array_keys($result[$entity_type]));
+    entity_get_controller($entity_type)->deleteMultiple($outcomes);
+    drupal_set_message(check_plain(t('Outcomes for user: [@uid] removed.', array('@uid' => $uid))));
+  }
+}
+
+/**
+ * Save an Outcome.
+ *
+ * @param object $entity
+ *   Outcome entity.
+ */
+function lti_tool_provider_outcomes_save(&$entity) {
+  return entity_get_controller('lti_tool_provider_outcomes')->save($entity);
+}
+
+/**
+ * Delete an Outcome.
+ *
+ * @param object $entity
+ *   Outcome entity.
+ */
+function lti_tool_provider_outcomes_delete($entity) {
+  entity_get_controller('lti_tool_provider_outcomes')->delete($entity);
+}
+
+/**
+ * Get the url to view a Outcome record.
+ *
+ * @param object $outcome
+ *   Outcome entity.
+ *
+ * @return array
+ *   Uri array.
+ */
+function lti_tool_provider_outcomes_uri($outcome) {
+  return array(
+    'path' => 'ltitp-outcomes/view/' . $outcome->id,
+  );
+}
+
+/**
+ * Load Outcome Entities.
+ *
+ * @param int $id
+ *   Outcomes record ids.
+ * @param boolean $reset
+ *   Boolean option for reset.
+ *
+ * @return object
+ *   The outcomes object.
+ */
+function lti_tool_provider_outcomes_load($id = NULL, $reset = FALSE) {
+  $ids = (isset($id) ? array($id) : array());
+  $obj = lti_tool_provider_outcomes_load_multiple($ids, $reset);
+  return $obj ? reset($obj) : FALSE;
+}
+
+/**
+ * Load mutiple Outcomes Entities.
+ *
+ * @param int $ids
+ *   Outcomes entities ids.
+ * @param array $conditions
+ *   Array of conditions.
+ * @param boolean $reset
+ *   Boolean option for reset.
+ *
+ * @return array
+ *   An array of outcomes objects.
+ */
+function lti_tool_provider_outcomes_load_multiple($ids = FALSE, $conditions = array(), $reset = FALSE) {
+  return entity_load('lti_tool_provider_outcomes', $ids, $conditions, $reset);
+}
+
+/**
+ * Save a Resource.
+ *
+ * @param object $entity
+ *   Resource entity
+ */
+function lti_tool_provider_outcomes_resource_save(&$entity) {
+  return entity_get_controller('lti_tool_provider_outcomes_resource')->save($entity);
+}
+
+/**
+ * Delete A Resource.
+ *
+ * @param object $entity
+ *   Resource entity
+ */
+function lti_tool_provider_outcomes_resource_delete($entity) {
+  entity_get_controller('lti_tool_provider_outcomes_resource')->delete($entity);
+}
+
+/**
+ * Get the URL to view a Outcome record.
+ *
+ * @param object $resource
+ *   Resource entity.
+ *
+ * @return array
+ *   URI array
+ */
+function lti_tool_provider_outcomes_resource_uri($resource) {
+  return array(
+    'path' => 'admin/config/lti-tool-provider/outcomes-resource/view/' . $resource->id,
+  );
+}
+/**
+ * Load a Resource Entity.
+ *
+ * @param int $id
+ *   Resource entity id.
+ * @param boolean $reset
+ *   Boolean for reset option.
+ *
+ * @return object
+ *   Resource entity.
+ */
+function lti_tool_provider_outcomes_resource_load($id = NULL, $reset = FALSE) {
+  $ids = (isset($id) ? array($id) : array());
+  $obj = lti_tool_provider_outcomes_resource_load_multiple($ids, $reset);
+  return $obj ? reset($obj) : FALSE;
+}
+
+/**
+ * Load mutiple Resource Entities.
+ *
+ * @param int $ids
+ *   Array of ids
+ * @param array $conditions
+ *   Conditions for loading.
+ * @param boolean $reset
+ *   Boolean for reset option.
+ *
+ * @return array
+ *   Array of resource entities.
+ */
+function lti_tool_provider_outcomes_resource_load_multiple($ids = FALSE, $conditions = array(), $reset = FALSE) {
+  return entity_load('lti_tool_provider_outcomes_resource', $ids, $conditions, $reset);
+}
+
+/**
+ * Access callback for alternate access permissions.
+ *
+ * @param array $perm_arr
+ *   An array of the alternative permissions.
+ *
+ * @return boolean
+ *   TRUE if access is granted.
+ */
+function lti_tool_provider_outcomes_alt_access($perm_arr) {
+  if (isset($_SESSION['lti_tool_provider_context_info'])) {
+    foreach ($perm_arr as $perm) {
+      if (user_access($perm)) {
+        return TRUE;
+      }
+    }
+  }
+  return FALSE;
+}
+
+/**
+ * Implements hook_rules_action_info().
+ */
+function lti_tool_provider_outcomes_rules_action_info() {
+  $actions['outcomes_set_score'] = array(
+    'label' => t('Set user score'),
+    'named parameter' => TRUE,
+    'base' => 'lti_tool_provider_outcomes_set_score_action',
+    'group' => t('Outcomes'),
+    'parameter' => array(
+      'score' => array(
+        'type' => 'decimal',
+        'label' => t('Score'),
+        'description' => t('The score of the current user'),
+      ),
+    ),
+  );
+  $actions['outcomes_pull_score'] = array(
+    'label' => t('Retreives current user score'),
+    'base' => 'lti_tool_provider_outcomes_pull_score_action',
+    'group' => t('Outcomes'),
+  );
+  return $actions;
+}
+
+/**
+ * Action: Set the user's score.
+ *
+ * @param array $params
+ *   Array of parameters.
+ */
+function lti_tool_provider_outcomes_set_score_action($params) {
+  lti_tool_provider_outcomes_set_score($params['score']);
+}
+
+/**
+ * Action: Pull the user's score.
+ */
+function lti_tool_provider_outcomes_pull_score_action() {
+  module_load_include('inc', 'lti_tool_provider_outcomes', 'lti_tool_provider_outcomes.sync');
+  lti_tool_provider_outcomes_pull_results(1, '');
+}
+
+/**
+ * Implements hook_lti_tool_provider_create_account_alter().
+ */
+function lti_tool_provider_outcomes_lti_tool_provider_create_account_alter(&$account, &$lti_info) {
+  // Create an outcomes record for the user.
+  if (isset($lti_info['lis_result_sourcedid'])) {
+    if (!isset($lti_info['resource_id'])) {
+      // Set the resultvalue_sourcedids in the lti info.
+      $lti_info['resultvalue_sourcedids'] = isset($lti_info['ext_ims_lis_resultvalue_sourcedids']) ? $lti_info['ext_ims_lis_resultvalue_sourcedids'] : 'decimal';
+      // Create the resource.
+      $lti_info['resource_id'] = lti_tool_provider_outcomes_get_set_resource($lti_info['consumer_id'], $lti_info['context_id'], $lti_info['resource_link_id'], $lti_info['resource_link_title'], $lti_info['resultvalue_sourcedids']);
+    }
+    // Create or update the outcome.
+    lti_tool_provider_outcomes_create_outcome($lti_info['lis_result_sourcedid'], $lti_info['context_id'], $lti_info['resource_id'], $account->uid);
+  }
+}
+
+/**
+ * Implements hook_lti_tool_provider_memberships_get_alter().
+ */
+function lti_tool_provider_outcomes_lti_tool_provider_memberships_get_alter(&$member, &$member_data) {
+  if (isset($member_data->lis_result_sourcedid)) {
+    $member['lis_result_sourcedid'] = (string)$member_data->lis_result_sourcedid;
+  }
+}

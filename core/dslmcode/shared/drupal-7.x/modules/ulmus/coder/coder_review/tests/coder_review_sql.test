@@ -1,0 +1,90 @@
+<?php
+
+/**
+ * @file
+ * Set of simpletests for the sql standards review.
+ */
+
+require_once dirname(__FILE__) . '/coder_review_test_case.tinc';
+
+/**
+ * Tests the Coder_review dectection functionality related to SQL.
+ */
+class CoderReviewSQLTest extends CoderReviewTestCase {
+
+  /**
+   * Constructs a CoderReviewSQLTest instance.
+   *
+   * @param string|null $id
+   *   (optional) An identifier for this test run. Defaults to NULL.
+   */
+  function __construct($id = NULL) {
+    parent::__construct('sql', $id);
+  }
+
+  public static function getInfo() {
+    return array(
+      'name' => 'Coder Review SQL Tests',
+      'description' => 'Tests for the coder SQL review.',
+      'group' => 'CoderReview',
+    );
+  }
+
+  /**
+   * Tests functionality to detect SQL lower case words.
+   */
+  function testSQLLowerCaseKeywords() {
+    $this->assertCoderReviewFail('  $sql = "select * from {node}";');
+    $this->assertCoderReviewFail('  $sql = "insert into {node} (changed) VALUES (%d)";');
+    $this->assertCoderReviewFail('  $sql = "delete from {node}";');
+    $this->assertCoderReviewFail('  $sql = "update {node} set changed = now()";');
+    $this->assertCoderReviewPass('  $var = t("select something from this");');
+    $this->assertCoderReviewPass('  $var = t("update something");');
+    $this->assertCoderReviewPass('  $var = t("insert something");');
+    $this->assertCoderReviewPass('  $var = t("delete something");');
+    $this->assertCoderReviewPass("  \$notsql = t('Select a role from the list.');");
+  }
+
+  /**
+   * Tests functionality to detect SQL brackets exist around table names.
+   */
+  function testSQLBracketNode() {
+    $this->assertCoderReviewFail('  $sql = "INSERT INTO node (changed) VALUES (1)";');
+    $this->assertCoderReviewPass('  $sql = "INSERT INTO {node} (changed) VALUES (1)";');
+  }
+
+  /**
+   * Tests functionality to detect correct use of SQL LIMIT statement.
+   */
+  function testSQLLimit() {
+    $this->assertCoderReviewFail('  $sql = "SELECT * FROM {node} LIMIT 10";');
+  }
+
+  /**
+   * Tests functionality to detect correct use of SQL COUNT statement.
+   */
+  function testSelectCOUNT() {
+    $this->assertCoderReviewFail("  db_query('SELECT COUNT(*) FROM {users}')");
+  }
+
+  /**
+   * Tests functionality to detect correct use of backtick in SQL statements.
+   */
+  function testSQLBackTick() {
+    $this->assertCoderReviewFail('  $sql = "SELECT * FROM {node} WHERE title=`abc`";');
+    $this->assertCoderReviewFail('  $sql = "INSERT INTO {foo} (nid, title) VALUES (\'1\', `abc`)";');
+    $this->assertCoderReviewFail('  $sql = "INSERT INTO {foo} VALUES (\'1\', `abc`)";');
+    $this->assertCoderReviewFail('  $sql = "UPDATE {foo} SET nid=\'1\', title=`abc`";');
+    $this->assertCoderReviewFail('  $sql = "DELETE FROM {foo} WHERE nid=\'1\' AND title=`abc`";');
+  }
+
+  /**
+   * Tests functionality to detect correct use of NOT EQUAL in SQL statements.
+   */
+  function testSQLNotEquals() {
+    $this->assertCoderReviewFail('  $sql = "SELECT * FROM {node} WHERE nid != 10";');
+    $this->assertCoderReviewPass('  $sql = "SELECT * FROM {node} WHERE nid = 10";');
+    $this->assertCoderReviewPass('  $sql = "SELECT * FROM {node} WHERE nid <> 10";');
+  }
+
+}

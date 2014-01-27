@@ -1,0 +1,14 @@
+name = "Token insert (ckeditor)"
+description = "Provides a plugin for the CKEditor module to insert tokens. Tokens are inserted in the format Token Filter works with."
+core = 7.x
+package = Token insert
+dependencies[] = token
+dependencies[] = ckeditor
+dependencies[] = token_insert
+
+; Information added by drupal.org packaging script on 2012-08-09
+version = "7.x-2.1"
+core = "7.x"
+project = "token_insert"
+datestamp = "1344501143"
+

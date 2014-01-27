@@ -1,0 +1,90 @@
+Scanner Search and Replace
+--------------------------
+
+BEFORE YOU START:
+
+Backup your database!  Scanner Search and Replace is a very powerful tool, and 
+as such is very dangerous.  You can easily destroy your entire site with it.  Be 
+sure to backup your database before using it.  No, really.
+
+
+I. INSTALATION:
+
+1. Place the entire scanner folder in your modules directory.
+
+2. Go to [administer -> site building -> module] and enable the scanner module.
+
+3. Go to [administer -> user management -> access control] and apply your 
+preferred access settings to the scanner module.  You can set which roles can 
+administer the module -- e.g., determine which fields can be scanned and modify 
+defaults -- and which roles can use the module.  This is is handy if, say, you 
+only want the site admin to administer the module, but you want content 
+managers to be able to perform search and replace actions.
+
+4. Go to the Scanner administration panel and select which fields you want to 
+include in search and replace actions. More information on that is available 
+below in the Administration Options section.
+
+
+II. ADMINISTRATION OPTIONS:
+
+You can access the Scanner admin panel two ways:
+
+1. Go to [administer -> site configuration -> search and replace scanner].
+2. Go to [administer -> content management -> search and replace scanner] and 
+select the "Settings" tab.
+
+A. Fields that can be searched:
+
+The most important part of administering Scanner is making sure you select one 
+or more options in the "Fields that can be searched" section.  Fields are listed 
+in [nodetype: fieldname] format.  If you only want to allow  people with access 
+to search and replace on the Body field of the Page content type, 
+select [page: body].
+
+Teasers are a special case, because they are built off the body and other 
+fields.  Most Scanner admins will likely not select any teaser fields in 
+this section, and will use the "Rebuild Teasers on Replace" option (under the 
+"Scanner Options" section) instead.  This option automatically rebuilds teasers 
+to reflect any changes in other fields for a given node.
+
+However, some admins may want not want to update teasers or may want to limit teaser updates to specific content types.  In the latter case, you select one or more of the [nodetype: teaser] options in the "Fields that can be searched" section.
+
+B. Scanner Options:
+
+In this section, you can set the defaults for several search options that 
+Scanner users will see when they use the search and replace form.  Users will 
+still be able to change the options on their own, but the defaults can make 
+things easier for them if they're likely to only perform one kind of search most of the time.
+
+You can also select whether teasers for nodes should be rebuilt after a 
+replacement has been made to the body or other fields for that node.  Most 
+admins will select this option, because it ensures that teasers are in synch 
+with node content.  But see section II.A above for more info on why leaving 
+this option unselected might be helpful.
+
+If your site has categories set up in the Taxonomy module, you can restrict 
+search and replace actions to nodes that contain terms in a given category 
+(a.k.a "vocabulary").  Select the vocabularies that you want to allow 
+restricting by.  When users go to the search and replace form, they will have 
+the option of selecting one or more terms from those vocabularies for limiting 
+their searches.
+
+C. Custom Fields:
+
+Note: This feature has not been thoroughly tested in Scanner 2.  However, it 
+was designed to let admins specify additional fields for search and 
+replace that may not have shown up automatically in the "Fields that can be 
+searched" section.  Enter only one field per line, in the following format:
+
+  [fieldname] in [tablename] of type [nodetype] on [vid|nid]
+
+If you try this, please please please be sure to backup your database first 
+(as you should before you use this module anyway) -- and let us know your 
+feedback!
+
+
+amit [at] returncontrol.com
+jason [at] fivepaths.com
+tao [at] starbowconsulting.com
+

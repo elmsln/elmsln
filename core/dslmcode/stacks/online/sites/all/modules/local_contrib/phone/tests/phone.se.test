@@ -1,0 +1,43 @@
+<?php
+
+class SEPhoneNumberTestCase extends DrupalWebTestCase {
+  /**
+   * Implementation of getInfo()
+   *
+   */
+  public static function getInfo() {
+    return array(
+      'name' => t('Sweden Phone number test'),
+      'description' => t('Tests various valid and invalid Sweden phone numbers for validity'),
+      'group' => t('Phone')
+    );
+  }
+
+  public function testPhoneSEValid() {
+    $this->assertTrue(valid_phone_number('se', '+46 8 123 456 78'), t('Test valid'));
+    $this->assertTrue(valid_phone_number('se', '08-123 456 78'), t('Test valid'));
+    $this->assertTrue(valid_phone_number('se', '0123-456 78'), t('Test valid'));
+    $this->assertTrue(valid_phone_number('se', '031-3224562'), t('Test valid'));
+    $this->assertTrue(valid_phone_number('se', '0737234264'), t('Test valid'));
+    $this->assertTrue(valid_phone_number('se', '073-5647829'), t('Test valid'));
+    $this->assertTrue(valid_phone_number('se', '19740609-7845'), t('Test valid'));
+    $this->assertTrue(valid_phone_number('se', '19811116-7845'), t('Test valid'));
+    $this->assertTrue(valid_phone_number('se', '20010913-7598'), t('Test valid'));
+  }
+
+  public function testPhoneSEInvalid() {
+    $this->assertFalse(valid_phone_number('se', '46 08-123 456 78'), t('Test invalid'));
+    $this->assertFalse(valid_phone_number('se', '08 123 456 78'), t('Test invalid '));
+    $this->assertFalse(valid_phone_number('se', '0123 456 78'), t('Test invalid '));
+    $this->assertFalse(valid_phone_number('se', '34348abc'), t('Test invalid'));
+    $this->assertFalse(valid_phone_number('se', '452643242343432432435643623432'), t('Test invalid '));
+    $this->assertFalse(valid_phone_number('se', '532'), t('Test invalid '));
+    $this->assertFalse(valid_phone_number('se', '21003612-9999'), t('Test invalid '));
+    $this->assertFalse(valid_phone_number('se', '18790505-45458'), t('Test invalid '));
+    $this->assertFalse(valid_phone_number('se', '19740641-5559'), t('Test invalid '));
+  }
+
+  public function testPhoneSEFormatting() {
+    //$this->assertEqual(format_phone_number('se', '+6421123456', null), '+64 21 123 456', t('Check international mobile format'));
+  }
+}

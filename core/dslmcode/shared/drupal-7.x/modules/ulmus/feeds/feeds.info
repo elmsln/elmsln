@@ -1,0 +1,43 @@
+name = Feeds
+description = Aggregates RSS/Atom/RDF feeds, imports CSV files and more.
+package = Feeds
+core = 7.x
+dependencies[] = ctools
+dependencies[] = job_scheduler
+
+files[] = includes/FeedsConfigurable.inc
+files[] = includes/FeedsImporter.inc
+files[] = includes/FeedsSource.inc
+files[] = libraries/ParserCSV.inc
+files[] = libraries/http_request.inc
+files[] = libraries/PuSHSubscriber.inc
+files[] = tests/feeds.test
+files[] = tests/feeds_date_time.test
+files[] = tests/feeds_mapper_date.test
+files[] = tests/feeds_mapper_field.test
+files[] = tests/feeds_mapper_file.test
+files[] = tests/feeds_mapper_path.test
+files[] = tests/feeds_mapper_profile.test
+files[] = tests/feeds_mapper.test
+files[] = tests/feeds_mapper_config.test
+files[] = tests/feeds_fetcher_file.test
+files[] = tests/feeds_processor_node.test
+files[] = tests/feeds_processor_term.test
+files[] = tests/feeds_processor_user.test
+files[] = tests/feeds_scheduler.test
+files[] = tests/feeds_mapper_link.test
+files[] = tests/feeds_mapper_taxonomy.test
+files[] = tests/parser_csv.test
+files[] = views/feeds_views_handler_argument_importer_id.inc
+files[] = views/feeds_views_handler_field_importer_name.inc
+files[] = views/feeds_views_handler_field_log_message.inc
+files[] = views/feeds_views_handler_field_severity.inc
+files[] = views/feeds_views_handler_field_source.inc
+files[] = views/feeds_views_handler_filter_severity.inc
+
+; Information added by drupal.org packaging script on 2012-10-24
+version = "7.x-2.0-alpha7"
+core = "7.x"
+project = "feeds"
+datestamp = "1351111319"
+

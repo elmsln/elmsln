@@ -1,0 +1,11 @@
+name = Node access user reference
+description = Gives content access permissions to users for content that references the users with User reference or Entity reference.
+core = 7.x
+files[]=includes/nodeaccess_userreference_views_plugin_display.inc
+files[]=includes/nodeaccess_userreference_views_plugin_style.inc
+; Information added by drupal.org packaging script on 2013-05-29
+version = "7.x-3.10"
+core = "7.x"
+project = "nodeaccess_userreference"
+datestamp = "1369838762"
+

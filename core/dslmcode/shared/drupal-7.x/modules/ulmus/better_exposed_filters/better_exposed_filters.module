@@ -1,0 +1,89 @@
+<?php
+// $Id$
+
+/**
+ * @file
+ * Allows the use of checkboxes, radio buttons or hidden fields for exposed Views filters.
+ *
+ * Thanks to Ben Buckman (http://benbuckman.net/) for the original concept.
+ */
+
+/**
+ * Implements hook_theme().
+ */
+function better_exposed_filters_theme($existing, $type, $theme, $path) {
+  return array(
+    'select_as_checkboxes' => array(
+      'function' => 'theme_select_as_checkboxes',
+      'render element' => 'element',
+      'file' => 'better_exposed_filters.theme',
+    ),
+    'select_as_checkboxes_fieldset' => array(
+      'function' => 'theme_select_as_checkboxes_fieldset',
+      'render element' => 'element',
+      'file' => 'better_exposed_filters.theme',
+    ),
+    'select_as_radios' => array(
+      'function' => 'theme_select_as_radios',
+      'render element' => 'element',
+      'file' => 'better_exposed_filters.theme',
+    ),
+    'select_as_radios_fieldset' => array(
+      'function' => 'theme_select_as_radios_fieldset',
+      'render element' => 'element',
+      'file' => 'better_exposed_filters.theme',
+    ),
+    'select_as_hidden' => array(
+      'function' => 'theme_select_as_hidden',
+      'render element' => 'element',
+      'file' => 'better_exposed_filters.theme',
+    ),
+    'select_as_tree' => array(
+      'function' => 'theme_select_as_tree',
+      'render element' => 'element',
+      'file' => 'better_exposed_filters.theme',
+    ),
+    'select_as_links' => array(
+      'function' => 'theme_select_as_links',
+      'render element' => 'element',
+      'file' => 'better_exposed_filters.theme',
+    ),
+    'secondary_exposed_elements' => array(
+      'function' => 'theme_secondary_exposed_elements',
+      'render element' => 'element',
+      'file' => 'better_exposed_filters.theme',
+    ),
+  );
+}
+
+
+/*
+ * Views3 support
+ *
+ * Views3 adds the concept of exposed forms to the mix.  In addition, elements injected into a Views
+ * dialog is no longer saved along with the Views form information (see the unpack_options() and
+ * option_definition() methods of the views_object object).
+ */
+
+/**
+ * Implements hook_views_api().
+ */
+function better_exposed_filters_views_api() {
+  return array(
+    'api' => 3.0,
+  );
+}
+
+function bef_sort_combine_submit($form, &$form_state) {
+  // Unpack sort_by and sort_order from the sort_bef_combine element
+  if (empty($form_state['values']['sort_bef_combine'])) {
+    $form_state['values']['sort_by'] = $form_state['values']['sort_order'] = '';
+  }
+  else {
+    list($form_state['values']['sort_by'], $form_state['values']['sort_order']) =
+        explode(' ', $form_state['values']['sort_bef_combine']);
+  }
+
+  // And pass this along to Views
+  views_exposed_form_submit($form, $form_state);
+}

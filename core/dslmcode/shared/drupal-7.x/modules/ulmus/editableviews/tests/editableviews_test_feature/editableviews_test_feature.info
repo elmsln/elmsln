@@ -1,0 +1,34 @@
+name = Editable Views Test Feature
+description = Components required for tests for Editable Views.
+core = 7.x
+package = Features
+php = 5.2.4
+dependencies[] = ctools
+dependencies[] = entityreference
+dependencies[] = features
+dependencies[] = field_sql_storage
+dependencies[] = list
+dependencies[] = node
+dependencies[] = options
+dependencies[] = text
+dependencies[] = views
+features[ctools][] = views:views_default:3.0
+features[features_api][] = api:1
+features[field][] = node-editable_views_test_node-body
+features[field][] = node-editable_views_test_node-field_test_editable_options
+features[field][] = node-editable_views_test_node-field_test_editable_text
+features[field][] = node-editable_views_test_referencing-body
+features[field][] = node-editable_views_test_referencing-field_test_node_reference
+features[node][] = editable_views_test_node
+features[node][] = editable_views_test_referencing
+features[views_view][] = test_editable_views_node_fields
+features[views_view][] = test_editable_views_node_referenced_backwards_title
+features[views_view][] = test_editable_views_node_referenced_forwards_title
+features[views_view][] = test_editable_views_node_title
+
+; Information added by  packaging script on 2013-11-15
+version = "7.x-1.0-beta7"
+core = "7.x"
+project = "editableviews"
+datestamp = "1384514907"
+

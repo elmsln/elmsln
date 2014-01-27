@@ -1,0 +1,49 @@
+<?php
+
+/**
+ * @file
+ * Set of tests for the coder format script.
+ */
+
+// Load PEAR Text_Diff library.
+set_include_path(get_include_path() . PATH_SEPARATOR . drupal_get_path('module', 'coder') . '/scripts/coder_format/tests');
+
+// FIXME: Sloppy workaround for avoiding fatal errors; skip the rest of this
+// file if this folder doesn't exist.
+if (is_dir('Text/Diff')) {
+  include_once 'Text/Diff.php';
+  include_once 'Text/Diff/Renderer.php';
+
+  // Load coder_format test cases.
+  include_once 'CoderTestCase.php';
+  include_once 'CoderTestFile.php';
+
+/**
+ * Coder Format tests.
+ */
+class CoderFormatTest extends CoderReviewTestCase {
+  public static function getInfo() {
+    return array(
+      'name'  => 'Full coder_format tests',
+      'description'  => t('Tests all of the functionality of the coder_format script.'),
+      'group' => 'Coder Format Tests',
+    );
+  }
+
+  function test() {
+    $dir   = drupal_get_path('module', 'coder') . '/scripts/coder_format/tests/tests';
+    $files = array_keys(file_scan_directory($dir, '\.phpt$'));
+    // Order tests alphabetically, but use a weight > 0 to append them after
+    // overall test results.
+    $c = 10;
+    foreach ($files as $file) {
+      $expectation = new CoderReviewTestFile();
+      $result = $this->assert($expectation, $file, '%s');
+      if (!$result) {
+        $this->_reporter->writeContent($expectation->render(), $c++);
+      }
+    }
+  }
+}
+
+}

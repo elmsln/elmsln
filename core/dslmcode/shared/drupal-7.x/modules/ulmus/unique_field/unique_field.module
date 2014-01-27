@@ -1,0 +1,393 @@
+<?php
+
+/**
+ * @file
+ * Provides content validation requirement that a node's author,
+ * language, taxonomy terms, or other fields are unique.
+ *
+ * Unique Field module
+ * Compatible with Drupal 7.x
+ *
+ * By Joe Turgeon [http://arithmetric.com]
+ */
+
+// query scope definitions
+define('UNIQUE_FIELD_SCOPE_NODE', 'node');
+define('UNIQUE_FIELD_SCOPE_TYPE', 'type');
+define('UNIQUE_FIELD_SCOPE_LANGUAGE', 'language');
+define('UNIQUE_FIELD_SCOPE_ALL', 'all');
+
+// query comparison definitions
+define('UNIQUE_FIELD_COMP_EACH', 'each');
+define('UNIQUE_FIELD_COMP_ALL', 'all');
+
+// query field definitions
+define('UNIQUE_FIELD_FIELDS_TITLE', 'title');
+define('UNIQUE_FIELD_FIELDS_AUTHOR', 'name');
+define('UNIQUE_FIELD_FIELDS_LANGUAGE', 'language');
+
+// setting definition
+define('UNIQUE_FIELD_SHOW_MATCHES', 'show_matches');
+
+/**
+ * Implements hook_help().
+ */
+function unique_field_help($path, $arg) {
+  switch ($path) {
+    case 'admin/help#unique_field':
+      $output = '<p>' . t("The Unique Field module allows administrators to require that content supplied for specified fields is unique. For example, you may require that each node has a unique title or a different author. For configuration options, please see the <em>Unique Field restrictions</em> section of a content type's administration page.") . '</p>';
+      return $output;
+  }
+}
+
+/**
+ * Implements hook_permission().
+ */
+function unique_field_permission() {
+  return array(
+    'unique_field_perm_admin' => array(
+      'title' => t('Designate fields as unique'),
+      'description' => t('Configure whether any fields of a content type should be unique.'),
+    ),
+    'unique_field_perm_bypass' => array(
+      'title' => t('Bypass requirement that fields are unique'),
+      'description' => t('Allows users to ignore errors about duplicate content and submit it anyway.'),
+    ),
+  );
+}
+
+/**
+ * Implements hook_form_alter().
+ */
+function unique_field_form_alter(&$form, &$form_state, $form_id) {
+  if ($form_id === 'node_type_form' && user_access('unique_field_perm_admin') && isset($form['#node_type'])) {
+    unique_field_node_settings_form($form);
+  }
+  elseif (strpos($form_id, 'node_form') !== FALSE && user_access('unique_field_perm_bypass')) {
+    $form['unique_field_override'] = array(
+      '#type' => 'hidden',
+      '#default_value' => '0',
+    );
+  }
+}
+
+/**
+ * Implements hook_node_validate().
+ */
+function unique_field_node_validate($node, $form) {
+  // skip validation if deleting a node or if override value is set
+  if ((!empty($node->op) && !empty($node->delete) && $node->op === $node->delete) || (is_array($form) && isset($form['unique_field_override']) && is_array($form['unique_field_override']) && $form['unique_field_override']['#value'] && user_access('unique_field_perm_bypass'))) {
+    return;
+  }
+
+  // get list of unique fields for node type
+  $fields = variable_get('unique_field_fields_' . $node->type, array());
+
+  // check if there are unique fields for this node type
+  if (count($fields)) {
+
+    // get unique field settings for this node type
+    $scope = variable_get('unique_field_scope_' . $node->type, UNIQUE_FIELD_SCOPE_TYPE);
+    $comp = variable_get('unique_field_comp_' . $node->type, UNIQUE_FIELD_COMP_EACH);
+    $var_show_matches = variable_get('unique_field_show_matches_' . $node->type, array());
+    $show_matches = is_array($var_show_matches) && in_array(UNIQUE_FIELD_SHOW_MATCHES, $var_show_matches);
+
+    // initialization
+    $errmsg = NULL;
+    $errfld = array();
+    $matches = array();
+    $allmatch = NULL;
+
+    // check fields for node scope
+    if ($scope === UNIQUE_FIELD_SCOPE_NODE) {
+      $values = array();
+      foreach ($fields as $field) {
+        $new_values = array();
+        if ($field === UNIQUE_FIELD_FIELDS_TITLE) {
+          $new_values[] = $node->title;
+        }
+        else {
+          // Ensure that the field content exists. For example, if field
+          // permissions are enabled, the field may be missing for some users.
+          // Make sure to use the field API function, e.g. to respect language.
+          $fvalues = field_get_items('node', $node, $field);
+          if (empty($fvalues)) {
+            continue;
+          }
+          $field_info = field_info_field($field);
+          $field_keys = array_keys($field_info['columns']);
+          foreach ($fvalues as $index => $value) {
+            if (is_numeric($index)) {
+              $field_combined = array();
+              foreach ($field_keys as $key) {
+                if (isset($fvalues[$index][$key]) && !empty($fvalues[$index][$key])) {
+                  $field_combined[$key] = $fvalues[$index][$key];
+                }
+              }
+              if (!empty($field_combined)) {
+                $new_values[] = serialize($field_combined);
+              }
+            }
+          }
+        }
+        $new_values = array_merge($values, $new_values);
+        $values = array_unique($new_values);
+        if (serialize($values) !== serialize($new_values)) {
+          $errfld[] = $field;
+        }
+      }
+      if (count($errfld) > 0) {
+        $errmsg = t('The @labels fields must have unique values. The @label field has a value that is already used.');
+      }
+    }
+
+    // check fields for other scopes
+    else {
+      foreach ($fields as $field) {
+        $values = '';
+        if ($field === UNIQUE_FIELD_FIELDS_TITLE) {
+          $values = $node->title;
+        }
+        elseif ($field === UNIQUE_FIELD_FIELDS_AUTHOR) {
+          $values = $node->uid;
+        }
+        elseif ($field === UNIQUE_FIELD_FIELDS_LANGUAGE) {
+          $values = $node->language;
+        }
+        else {
+          // Ensure that the field content exists. For example, if field
+          // permissions are enabled, the field may be missing for some users.
+          // Make sure to use the field API function, e.g. to respect language.
+          $fvalues = field_get_items('node', $node, $field);
+          if (empty($fvalues)) {
+            continue;
+          }
+          foreach ($fvalues as $index => $value) {
+            if (!is_numeric($index) || !is_array($value)) {
+              unset($fvalues[$index]);
+            }
+          }
+          $field_info = field_info_field($field);
+          $values = _field_filter_items($field_info, $fvalues);
+        }
+        if (empty($values)) {
+          continue;
+        }
+        $match = unique_field_match_value($field, $values, $scope, $node->type, $node->language);
+        // remove matches of this node
+        if ($node->nid && is_array($match) && in_array($node->nid, $match)) {
+          $key = array_search($node->nid, $match);
+          unset($match[$key]);
+        }
+        if ($comp === UNIQUE_FIELD_COMP_EACH && is_array($match) && count($match)) {
+          $errfld[] = $field;
+          $errmsg = t('The @label field requires a unique value, and the specified value is already used.');
+        }
+        $matches[$field] = $match;
+        $allmatch = is_array($allmatch) ? array_intersect($allmatch, $match) : $match;
+      }
+
+      // check for fields in combination
+      if ($comp === UNIQUE_FIELD_COMP_ALL && is_array($allmatch) && count($allmatch)) {
+        foreach ($fields as $field) {
+          $errfld[] = $field;
+          $matches[$field] = $allmatch;
+        }
+        $errmsg = t('This form requires that the fields @labels are a unique combination. The specified values are already used.');
+      }
+    }
+
+    // common error messages
+    if ($errmsg && !empty($errmsg) && is_array($errfld) && count($errfld) > 0) {
+      $labels = array();
+      foreach ($errfld as $field) {
+        if ($field === UNIQUE_FIELD_FIELDS_TITLE) {
+          $nodetype = node_type_get_type($node->type);
+          $labels[$field] = $nodetype->title_label;
+        }
+        elseif ($field === UNIQUE_FIELD_FIELDS_AUTHOR) {
+          $labels[$field] = t('Author');
+        }
+        elseif ($field === UNIQUE_FIELD_FIELDS_LANGUAGE) {
+          $labels[$field] = t('Language');
+        }
+        else {
+          $fld = field_info_instance('node', $field, $node->type);
+          $labels[$field] = $fld['label'];
+        }
+      }
+      foreach ($errfld as $field) {
+        $msg = strtr($errmsg, array('@label' => check_plain($labels[$field]), '@labels' => check_plain(join(', ', $labels))));
+        if ($show_matches && isset($matches[$field]) && is_array($matches[$field]) && count($matches[$field])) {
+          $list_items = array();
+          foreach ($matches[$field] as $nid) {
+            $match_node = node_load($nid);
+            if (node_access('view', $match_node)) {
+              $list_items[] = l($match_node->title, 'node/' . $nid);
+            }
+          }
+          $list_html = theme('item_list', array('items' => $list_items));
+          $msg .= ' ' . t('Matches are found in the following content: !list-html', array('!list-html' => $list_html));
+        }
+        if (user_access('unique_field_perm_bypass')) {
+          $form_id = str_replace('_', '-', $form['#id']);
+          $msg .= '<p>' . t('Click !here to bypass this check and resubmit.', array('!here' => "<a href=\"#\" onclick=\"jQuery('form#" . $form_id . " input[name=\'unique_field_override\']').val(1);jQuery('form#" . $form_id . "').submit();return false;\">" . t('here') . '</a>')) . '</p>';
+        }
+        form_set_error($field, $msg);
+        // if checking the fields in combination, then one error message
+        // is enough for all of the fields
+        if ($comp === UNIQUE_FIELD_COMP_ALL) {
+          break;
+        }
+      }
+    }
+  }
+}
+
+/**
+ * Find nodes with a matching field value within a given scope.
+ */
+function unique_field_match_value($field, $values, $scope, $ntype = NULL, $nlanguage = NULL) {
+  // Initialize EntityFieldQuery
+  $entity_type = 'node';
+  $efq = new EntityFieldQuery();
+  $efq->entityCondition('entity_type', $entity_type);
+
+  // Add query conditions depending on the type of field
+  if ($field === UNIQUE_FIELD_FIELDS_TITLE) {
+    // Query condition for bundle title property
+    $efq->propertyCondition('title', $values);
+  }
+  elseif ($field === UNIQUE_FIELD_FIELDS_AUTHOR) {
+    // Query condition for bundle author property
+    $efq->propertyCondition('uid', $values);
+  }
+  elseif ($field === UNIQUE_FIELD_FIELDS_LANGUAGE) {
+    // Query condition for bundle language property
+    $efq->propertyCondition('language', $values);
+  }
+  else {
+    // Query condition for other fields
+    $field_info = field_info_field($field);
+    // Check all items/values
+    foreach ($values as $index => $value) {
+      // Check all columns
+      foreach ($value as $key => $val) {
+        // Skip values that are not stored in the database
+        if (!isset($field_info['columns'][$key]) || !is_array($field_info['columns'][$key])) {
+          continue;
+        }
+        // Skip if the value is an empty string or is not a scalar
+        if (!strlen($val) || !is_scalar($val)) {
+          continue;
+        }
+        $efq->fieldCondition($field, $key, $val);
+      }
+    }
+  }
+
+  // Add query conditions for the scope setting
+  if ($scope === UNIQUE_FIELD_SCOPE_TYPE && !empty($ntype)) {
+    // Query condition for the bundle (content type) scope
+    $efq->entityCondition('bundle', $ntype);
+  }
+  elseif ($scope === UNIQUE_FIELD_SCOPE_LANGUAGE && !empty($nlanguage)) {
+    // Query condition for the language scope
+    $efq->propertyCondition('language', $nlanguage);
+  }
+
+  // Execute query and collect results
+  $result = $efq->execute();
+  $nids = array();
+  if (isset($result[$entity_type]) && is_array($result[$entity_type])) {
+    foreach ($result[$entity_type] as $item) {
+      if (!empty($item->nid)) {
+        $nids[] = $item->nid;
+      }
+    }
+  }
+  return array_unique($nids);
+}
+
+/**
+ * Add the unique field settings form to content type forms (node_type_form).
+ */
+function unique_field_node_settings_form(&$form) {
+  // load fields for content type
+  $ntype = $form['#node_type']->type;
+  $nodetype = !empty($ntype) ? node_type_get_type($ntype) : FALSE;
+  $fieldopts = array();
+  $fieldopts[UNIQUE_FIELD_FIELDS_TITLE] = ($nodetype && !empty($nodetype->title_label)) ? check_plain($nodetype->title_label) . ' (' . t('title') . ')' : t('Title');
+  $fieldopts[UNIQUE_FIELD_FIELDS_AUTHOR] = t('Author');
+  if (module_exists('locale') && !empty($ntype) && variable_get('language_content_type_' . $ntype, 0)) {
+    $fieldopts[UNIQUE_FIELD_FIELDS_LANGUAGE] = t('Language');
+  }
+  if (!empty($ntype)) {
+    $fields = field_info_instances('node', $ntype);
+    foreach ($fields as $fieldname => $info) {
+      $fieldopts[$fieldname] = $info['label'] . ' (' . $fieldname . ')';
+    }
+  }
+
+  // build the form
+  $form['unique_field'] = array(
+    '#type' => 'fieldset',
+    '#title' => t('Unique Field restrictions'),
+    '#weight' => 1,
+    '#collapsible' => TRUE,
+    '#collapsed' => TRUE,
+    '#group' => 'additional_settings',
+  );
+  $form['unique_field']['unique_field_fields'] = array(
+    '#type' => 'checkboxes',
+    '#title' => t('Choose the fields that should be unique'),
+    '#options' => $fieldopts,
+    '#default_value' => !empty($ntype) ? variable_get('unique_field_fields_' . $ntype, array()) : array(),
+    '#description' => t('After designating that certain fields should be unique, users will not be able to submit the content form to create a new node or update an existing one if it contains values in the designated fields that duplicate others.'),
+  );
+  $form['unique_field']['unique_field_scope'] = array(
+    '#type' => 'radios',
+    '#title' => t('Choose the scope for the unique values'),
+    '#options' => array(
+      UNIQUE_FIELD_SCOPE_TYPE => t('Content type'),
+      UNIQUE_FIELD_SCOPE_LANGUAGE => t('Language'),
+      UNIQUE_FIELD_SCOPE_ALL => t('All nodes'),
+      UNIQUE_FIELD_SCOPE_NODE => t('Single node only'),
+    ),
+    '#default_value' => !empty($ntype) ? variable_get('unique_field_scope_' . $ntype, UNIQUE_FIELD_SCOPE_TYPE) : UNIQUE_FIELD_SCOPE_TYPE,
+    '#description' => t('Choose whether the values in the specified fields must be unique among nodes of this content type, among nodes of the same language, among all nodes, or only among the fields of the present node.'),
+  );
+  $form['unique_field']['unique_field_comp'] = array(
+    '#type' => 'radios',
+    '#title' => t('Choose whether values must be unique individually or in combination'),
+    '#options' => array(
+      UNIQUE_FIELD_COMP_EACH => t('Each of the specified fields must have a unique value'),
+      UNIQUE_FIELD_COMP_ALL => t('The combination of values from the specified fields must be unique'),
+    ),
+    '#default_value' => !empty($ntype) ? variable_get('unique_field_comp_' . $ntype, UNIQUE_FIELD_COMP_EACH) : UNIQUE_FIELD_COMP_EACH,
+    '#description' => t('For example, if you have fields for the parts of a street address (street number and name, city, and zip code) on a node, and want to allow only one node per complete address, but not only one node per city or per zip code, then you would want to choose that the fields must be unique in combination.'),
+  );
+  $form['unique_field']['unique_field_show_matches'] = array(
+    '#type' => 'checkboxes',
+    '#title' => t('Check this box to show which nodes match when duplicate values are found'),
+    '#options' => array(UNIQUE_FIELD_SHOW_MATCHES => t('Enabled')),
+    '#default_value' => !empty($ntype) ? variable_get('unique_field_show_matches_' . $ntype, array()) : array(),
+  );
+
+  // add validation function
+  $form['#validate'][] = 'unique_field_node_settings_form_validate';
+}
+
+/**
+ * Form validation callback for unique_field_node_settings_form.
+ */
+function unique_field_node_settings_form_validate($form, &$form_state) {
+  if ($form_state['values']['unique_field_scope'] === UNIQUE_FIELD_SCOPE_NODE) {
+    if ($form_state['values']['unique_field_comp'] === UNIQUE_FIELD_COMP_ALL) {
+      form_set_error('unique_field_comp', t('The scope of a single node requires that each field must be unique.'));
+    }
+    if (($form_state['values']['unique_field_fields'][UNIQUE_FIELD_FIELDS_AUTHOR] === UNIQUE_FIELD_FIELDS_AUTHOR) || (isset($form_state['values']['unique_field_fields'][UNIQUE_FIELD_FIELDS_LANGUAGE]) && $form_state['values']['unique_field_fields'][UNIQUE_FIELD_FIELDS_LANGUAGE] === UNIQUE_FIELD_FIELDS_LANGUAGE)) {
+      form_set_error('unique_field_fields', t('The author and language fields are not supported within the scope of a single node.'));
+    }
+  }
+}

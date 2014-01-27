@@ -1,0 +1,25 @@
+<?php
+
+/**
+ * Implements hook_feeds_plugins().
+ */
+function feeds_xpathparser_feeds_plugins() {
+  return array(
+    'FeedsXPathParserHTML' => array(
+      'name' => t('XPath HTML parser'),
+      'description' => t('Parse HTML using XPath.'),
+      'handler' => array(
+        'parent' => 'FeedsParser',
+        'class'  => 'FeedsXPathParserHTML',
+      ),
+    ),
+    'FeedsXPathParserXML' => array(
+      'name' => t('XPath XML parser'),
+      'description' => t('Parse XML using XPath.'),
+      'handler' => array(
+        'parent' => 'FeedsParser',
+        'class'  => 'FeedsXPathParserXML',
+      ),
+    ),
+  );
+}

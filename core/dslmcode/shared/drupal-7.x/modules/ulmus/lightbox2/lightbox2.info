@@ -1,0 +1,26 @@
+; $Id: lightbox2.info,v 1. 2011/01/17 11:51:34 snpower Exp $
+name = Lightbox2
+description = Enables Lightbox2 for Drupal
+core = 7.x
+package = User interface
+
+files[] = lightbox2.install
+files[] = lightbox2.module
+files[] = lightbox2.formatter.inc
+files[] = lightbox2.admin.inc
+
+configure = admin/config/user-interface/lightbox2
+
+; Information added by drupal.org packaging script on 2010-09-24
+version = "7.x-dev"
+core = "7.x"
+project = "lightbox2"
+
+
+
+; Information added by drupal.org packaging script on 2011-10-17
+version = "7.x-1.0-beta1"
+core = "7.x"
+project = "lightbox2"
+datestamp = "1318819001"
+

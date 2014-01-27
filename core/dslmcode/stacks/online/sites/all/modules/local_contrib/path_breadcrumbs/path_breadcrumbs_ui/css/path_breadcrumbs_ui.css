@@ -1,0 +1,130 @@
+/**
+ * Path breadcrumbs ui add form styles.
+ */
+.current-nav-item {
+  font-weight: bold;
+  font-size: 1.1em;
+}
+
+/**
+ * Path breadcrumbs ui edit form styles
+ */
+#path-breadcrumbs-ui-wrapper {
+  padding: 0 0 0 150px;
+}
+
+#path-breadcrumbs-ui-menu {
+  background: none repeat scroll 0 0 #F6F6F6;
+  float: left;
+  width: 150px;
+  margin-left: -150px;
+  height: 100%;
+}
+
+#path-breadcrumbs-ui-menu .item-list {
+  display: block;
+  border-top: 1px solid #AAAAAA;
+  border-left: 1px solid #AAAAAA;
+  border-bottom: 1px solid #AAAAAA;
+}
+
+#path-breadcrumbs-ui-menu .item-list ul {
+  padding: 0;
+  margin: 0;
+}
+
+#path-breadcrumbs-ui-menu .item-list ul li {
+  list-style: none;
+  padding: 0;
+  border-bottom: 1px solid #AAAAAA;
+  position: relative;
+}
+
+#path-breadcrumbs-ui-menu .item-list ul li.last {
+  border-bottom: none;
+}
+
+#path-breadcrumbs-ui-menu .item-list ul li a {
+  display: block;
+  padding: 0.2em 1em;
+  color: #494949;
+  font-size: 1.1em;
+}
+
+#path-breadcrumbs-ui-menu .item-list ul li a:hover {
+  text-decoration: none;
+  background: #FFFFFF;
+}
+
+#path-breadcrumbs-ui-menu .item-list ul a.active {
+  background: #ffe4c4;
+  font-weight: bold;
+}
+
+#path-breadcrumbs-ui-menu .item-list ul li .ajax-progress {
+  display: inline-block;
+  position: absolute;
+  right: 0;
+  top: 0.3em;
+}
+
+#path-breadcrumbs-ui-form-wrapper {
+
+}
+
+#path-breadcrumbs-ui-form-wrapper.edit-form {
+  float: left;
+  width: 100%;
+  border: 1px solid #AAAAAA;
+  height: 100%;
+  padding: 1em;
+}
+
+/**
+ * Path breadcrumbs ui list page styles
+ */
+#path-breadcrumbs-ui-breadcrumbs-list .disabled td {
+  color: #AAAAAA;
+}
+
+#breadcrumbs-table .path-weight {
+  width: 30px;
+}
+
+/**
+ * Autocomplete styles.
+ */
+
+.ui-button {
+  border: 1px solid #cccccc;
+  background: #e6e6e6;
+}
+
+.ui-state-hover,
+.ui-state-focus {
+  border: 1px solid #bbbbbb;
+}
+
+.ui-button.ui-state-active {
+  border: 1px solid #777777;
+  font-weight: bold;
+}
+
+.ui-autocomplete {
+  max-height: 200px;
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+.ui-autocomplete.ui-menu .ui-menu-item a {
+  padding: 0;
+}
+
+.ui-autocomplete .token-expandable,
+.ui-autocomplete .token-normal {
+  padding: 0.2em 0.4em;
+}
+
+.ui-autocomplete .token-expandable {
+  background: #EEEEEE;
+}

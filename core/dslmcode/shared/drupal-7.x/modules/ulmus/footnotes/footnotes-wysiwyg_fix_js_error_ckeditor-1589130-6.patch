@@ -1,0 +1,13 @@
+diff --git a/footnotes_wysiwyg/ckeditor_plugin/plugin.js b/footnotes_wysiwyg/ckeditor_plugin/plugin.js
+index a873f48..c38fb48 100644
+--- a/footnotes_wysiwyg/ckeditor_plugin/plugin.js
++++ b/footnotes_wysiwyg/ckeditor_plugin/plugin.js
+@@ -23,7 +23,7 @@ CKEDITOR.plugins.add( 'footnotes',
+     requires : [ 'fakeobjects', 'htmlwriter' ],
+     init: function( editor )
+     {
+-      editor.addCss(
++      CKEDITOR.addCss(
+       'img.cke_footnote' +
+       '{' +
+         'background-image: url(' + CKEDITOR.getUrl( this.path + 'images/fn_icon2.png' ) + ');' +

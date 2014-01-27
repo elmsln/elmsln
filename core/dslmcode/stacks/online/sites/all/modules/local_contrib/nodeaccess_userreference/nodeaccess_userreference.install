@@ -1,0 +1,247 @@
+<?php
+
+/**
+ * @file
+ * Install, update and uninstall functions for the Node access user reference
+ * module.
+ */
+
+/**
+ * Implements hook_uninstall().
+ */
+function nodeaccess_userreference_uninstall() {
+  variable_del('nodeaccess_userreference');
+  variable_del('nodeaccess_userreference_create');
+
+  // Old vars.
+  variable_del('nodeaccess_userreference_priority');
+  variable_del('nodeaccess_userreference_author_view');
+  variable_del('nodeaccess_userreference_author_update');
+  variable_del('nodeaccess_userreference_author_delete');
+}
+
+/**
+ * Implements hook_requirements().
+ */
+function nodeaccess_userreference_requirements($phase) {
+  $requirements = array();
+  if (!module_exists('user_reference') && !module_exists('entityreference') && $phase == 'runtime') {
+    $t = get_t();
+    $requirements['user_reference'] = array(
+      'title' => $t('User reference module'),
+      'severity' => REQUIREMENT_ERROR,
+      'description' => $t('You need a module to reference users.  Use either <em>Entity reference</em> or <em>References</em>.'),
+    );
+  }
+  return $requirements;
+}
+
+/**
+ * Unset author grants for updated installations.
+ */
+function nodeaccess_userreference_update_6300() {
+  // Set author grants to 0, unless already set.
+  $view = variable_get('nodeaccess_userreference_author_view', 0);
+  $update = variable_get('nodeaccess_userreference_author_update', 0);
+  $delete = variable_get('nodeaccess_userreference_author_delete', 0);
+  variable_set('nodeaccess_userreference_author_view', $view);
+  variable_set('nodeaccess_userreference_author_update', $update);
+  variable_set('nodeaccess_userreference_author_delete', $delete);
+  drupal_set_message(
+    t(
+      'Node access user reference settings have changed.  Please check your User reference field settings.'
+    ),
+    'warning'
+  );
+  $ret[] = array(
+    'success' => TRUE,
+    'query' => 'Updating author grants.',
+  );
+  return $ret;
+}
+
+/**
+ * Update settings storage.
+ */
+function nodeaccess_userreference_update_6301() {
+  // Get all old settings and move them over to the new storage.
+  $data = array();
+  $result = db_query("SELECT * FROM {variable} WHERE name LIKE :naur", array(':naur' => 'nodeaccess_userreference_%'));
+  foreach ($result as $row) {
+    $name = str_replace('nodeaccess_userreference_', '', $row->name);
+    $type_field = explode('_', $name);
+    $type = $type_field[0];
+    $field = $type_field[1];
+    $old_data = unserialize($row->data);
+    variable_del($row->name);
+    nodeaccess_userreference_field_settings($type, $field, $old_data);
+  }
+
+  // Move settings over and set passive defaults for upgraders.
+  $author_view = variable_get('nodeaccess_userreference_author_view', 0);
+  $author_update = variable_get('nodeaccess_userreference_author_update', 0);
+  $author_delete = variable_get('nodeaccess_userreference_author_delete', 0);
+  $priority = variable_get('nodeaccess_userreference_priority', 0);
+  $data = variable_get('nodeaccess_userreference', NULL);
+  foreach ($data as $type => $type_data) {
+    foreach ($type_data as $field => $field_data) {
+      if ($author_view) {
+        $data[$type][$field]['author']['view'] = 'view';
+      }
+      if ($author_update) {
+        $data[$type][$field]['author']['update'] = 'update';
+      }
+      if ($author_delete) {
+        $data[$type][$field]['author']['delete'] = 'delete';
+     }
+      $data[$type][$field]['priority'] = $priority;
+      $view = $data[$type][$field]['view'];
+      $update = $data[$type][$field]['update'];
+      $delete = $data[$type][$field]['delete'];
+      unset($data[$type][$field]['view']);
+      unset($data[$type][$field]['update']);
+      unset($data[$type][$field]['delete']);
+      if ($view) {
+        $data[$type][$field]['referenced']['view'] = 'view';
+      }
+      if ($update) {
+        $data[$type][$field]['referenced']['update'] = 'update';
+      }
+      if ($delete) {
+        $data[$type][$field]['referenced']['delete'] = 'delete';
+      }
+      $data[$type][$field]['all'] = array();
+    }
+  }
+  variable_set('nodeaccess_userreference', $data);
+  variable_del('nodeaccess_userreference_author_view');
+  variable_del('nodeaccess_userreference_author_update');
+  variable_del('nodeaccess_userreference_author_delete');
+  variable_del('nodeaccess_userreference_priority');
+
+  $ret[] = array(
+    'success' => TRUE,
+    'query' => 'Updating settings storage.',
+  );
+  return $ret;
+}
+
+/**
+ * Update settings to include the 'unused' setting.
+ */
+function nodeaccess_userreference_update_7301() {
+  $data = variable_get('nodeaccess_userreference', array());
+  foreach ($data as $type => $type_data) {
+    foreach ($type_data as $field => $field_data) {
+      if (!isset($data[$type][$field]['unused'])) {
+        $data[$type][$field]['unused'] = 0;
+      }
+    }
+  }
+  variable_set('nodeaccess_userreference', $data);
+
+  return 'Updating settings.';
+}
+
+/**
+ * Removed settings for deleted fields.
+ */
+function nodeaccess_userreference_update_7302() {
+  $info = field_info_instances('node');
+  $settings = variable_get('nodeaccess_userreference', array());
+  foreach ($settings as $type => $fields) {
+    foreach ($fields as $field => $data) {
+       if (!isset($info[$type][$field])) {
+          unset($settings[$type][$field]);
+       }
+    }
+    if (empty($settings[$type])) {
+      unset($settings[$type]);
+    }
+  }
+  variable_set('nodeaccess_userreference', $settings);
+
+  return 'Removed settings for deleted fields.';
+}
+
+/**
+ * Added integration for views module.
+ */
+function nodeaccess_userreference_update_7303() {
+  $settings = variable_get('nodeaccess_userreference', array());
+  foreach ($settings as $type => $fields) {
+    foreach ($fields as $field => $data) {
+      $settings[$type][$field]['views']['view'] =
+        isset($data['views']['view']) ? $data['views']['view'] : '';
+      $settings[$type][$field]['views']['view_args'] =
+        isset($data['views']['view']) ? $data['views']['view_args'] : '';
+    }
+  }
+  variable_set('nodeaccess_userreference', $settings);
+
+  return 'Added integration for views module.';
+}
+
+/**
+ * Added deny access options to settings.
+ */
+function nodeaccess_userreference_update_7304() {
+  $settings = variable_get('nodeaccess_userreference', array());
+  foreach ($settings as $type => $fields) {
+    foreach ($fields as $field => $data) {
+      $settings[$type][$field]['deny_view'] =
+        isset($settings[$type][$field]['deny_view']) ?
+        $settings[$type][$field]['deny_view'] : 0;
+      $settings[$type][$field]['deny_update'] =
+        isset($settings[$type][$field]['deny_update']) ?
+        $settings[$type][$field]['deny_update'] : 0;
+      $settings[$type][$field]['deny_delete'] =
+        isset($settings[$type][$field]['deny_delete']) ?
+        $settings[$type][$field]['deny_delete'] : 0;
+    }
+  }
+  variable_set('nodeaccess_userreference', $settings);
+
+  return 'Added deny access options to settings.';
+}
+
+/**
+ * Remove settings that shouldn't exist.
+ */
+function nodeaccess_userreference_update_7305() {
+  $data = variable_get('nodeaccess_userreference', array());
+  foreach ($data as $type => $type_data) {
+    foreach ($type_data as $field => $field_data) {
+      if (!isset($data[$type][$field]['referenced'])) {
+        unset($data[$type][$field]);
+      }
+    }
+    if (empty($data[$type])) {
+      unset($data[$type]);
+    }
+  }
+  variable_set('nodeaccess_userreference', $data);
+
+  return "Removed settings that shouldn't exist.";
+}
+
+/**
+ * Reduce settings to essentials.
+ */
+function nodeaccess_userreference_update_7306() {
+  $new_data = array();
+  $data = variable_get('nodeaccess_userreference', array());
+
+  variable_del('nodeaccess_userreference');
+
+  foreach ($data as $type => $type_data) {
+    foreach ($type_data as $field => $field_data) {
+      if (!empty($field_data)) {
+        $new_settings = nodeaccess_userreference_reduce_variable($field_data);
+        nodeaccess_userreference_field_settings($type, $field, $new_settings);
+      }
+    }
+  }
+
+  return "Reduced settings to essentials.";
+}

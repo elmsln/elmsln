@@ -1,0 +1,37 @@
+diff --git a/plup.js b/plup.js
+index 01c7adc..f94709d 100644
+--- a/plup.js
++++ b/plup.js
+@@ -145,7 +145,7 @@
+                     // Add image thumbnail into list of uploaded items
+                     $(id +' .plup-list').append(
+                       '<li class="ui-state-default">' +
+-                      '<div class="plup-thumb-wrapper"><img src="'+ plupInstance.image_style_path + file.target_name + '" title="'+ Drupal.checkPlain(file.target_name) +'" /></div>' +
++                      '<div class="plup-thumb-wrapper"><img src="'+ fileSaved.secure_uri + '" title="'+ Drupal.checkPlain(file.target_name) +'" /></div>' +
+                       '<a class="plup-remove-item"></a>' +
+                       title_field +
+                       alt_field +
+diff --git a/plup.module b/plup.module
+index 60e5e56..d1f7175 100644
+--- a/plup.module
++++ b/plup.module
+@@ -1,7 +1,7 @@
+ <?php
+ 
+ /**
+- * _menu
++ * Implements hook_menu().
+  */
+ function plup_menu() {
+   $items = array();
+@@ -471,6 +471,10 @@ function plup_plup_file_validation_alter(&$file, &$e) {
+       $e = reset($passRes);
+       return;
+     }
++    // Generate a secure version of file uri for temporary delivery
++    $file->secure_uri = image_style_url($instance['widget']['settings']['image_style'], $file->uri);
++    // we need to build it as a temp but deliver as a public
++    $file->secure_uri = str_replace('system/temporary', variable_get('file_public_path', 'sites/default/files'), $file->secure_uri);
+   }
+ }
+ 

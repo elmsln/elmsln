@@ -1,0 +1,14 @@
+name = LTI Tool Provider Outcomes
+description = An LTI Tool Provider add-on module for the outcomes service.
+core = 7.x
+package = "Learning Tools Interoperability"
+files[] = LTIToolProviderOutcomesEntityController.class.php
+files[] = LTIToolProviderOutcomesResourceEntityController.class.php
+dependencies[] = lti_tool_provider
+
+; Information added by drupal.org packaging script on 2013-06-05
+version = "7.x-1.x-dev"
+core = "7.x"
+project = "lti_tool_provider"
+datestamp = "1370446594"
+

@@ -1,0 +1,106 @@
+<?php
+
+/**
+ * @file
+ * Main functions and hook implementations for FE Profile.
+ */
+
+/**
+ * Implements hook_features_api().
+ */
+function fe_profile_features_api() {
+  return array(
+    'fe_profile' => array(
+      'name' => t('Profile fields'),
+      'feature_source' => TRUE,
+      'default_hook' => 'fe_profile_export_fields',
+      'default_file' => FEATURES_DEFAULTS_INCLUDED_COMMON,
+    ),
+  );
+}
+
+/**
+ * Implements hook_features_export_options().
+ */
+function fe_profile_features_export_options() {
+  $options = array();
+  $table    = 'profile_field';
+
+  $query = "SELECT * FROM {{$table}}";
+  $fields = db_query($query);
+  while ($row = $fields->fetchObject()) {
+    $options[$row->name] = $row->name;
+  }
+
+  return $options;
+}
+
+/**
+ * Implements hook_features_export().
+ */
+function fe_profile_features_export($data, &$export, $module_name = '') {
+  $export['dependencies']['profile'] = 'profile';
+
+  foreach ($data as $machine_name) {
+    $export['features']['fe_profile'][$machine_name] = $machine_name;
+  }
+  return array();
+}
+
+/**
+ * Implements hook_features_export_render().
+ */
+function fe_profile_features_export_render($module_name, $data) {
+  $items = array();
+  $table    = 'profile_field';
+
+  foreach ($data as $key) {
+    $field = db_query("SELECT * FROM {{$table}} WHERE name = :profile_field_name", array(':profile_field_name' => $key))->fetchObject();
+    $items[$key] = $field;
+  }
+  $code = "  \$items = " . features_var_export($items, '  ') . ";\n";
+  $code .= '  return $items;';
+  return array('fe_profile_export_fields' => $code);
+}
+
+/**
+ * Implements hook_features_revert().
+ */
+function fe_profile_features_revert($module) {
+  $table = 'profile_field';
+  $defaults = features_get_default('fe_profile', $module);
+
+  // Revert.
+  foreach ($defaults as $object) {
+    _fe_profile_save_field($object);
+  }
+}
+
+/**
+ * Saves a profile field to the database.
+ *
+ * @param array $field_data
+ *   The field data to save.
+ */
+function _fe_profile_save_field($field_data) {
+  if (!isset($field_data['options'])) {
+    $field_data['options'] = '';
+  }
+  if (!isset($field_data['page'])) {
+    $field_data['page'] = '';
+  }
+  if (!isset($field_data['fid'])) {
+    $field_data = (object) $field_data;
+    drupal_write_record('profile_field', $field_data);
+  }
+  else {
+    $field_data = (object) $field_data;
+
+    if (!db_query("SELECT * FROM {profile_field} WHERE fid = :fid", array(':fid' => $field_data->fid))->fetchObject()) {
+      drupal_write_record('profile_field', $field_data);
+    }
+    else {
+      drupal_write_record('profile_field', $field_data, array('fid'));
+    }
+  }
+}

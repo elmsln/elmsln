@@ -1,0 +1,308 @@
+<?php
+
+/**
+ * @file
+ * Module implementing a field-collection table formatter.
+ */
+
+/**
+ * Implements hook_field_formatter_info().
+ */
+function field_collection_table_field_formatter_info() {
+  return array(
+    'field_collection_table_view' => array(
+      'label' => t('Table of field collection items'),
+      'field types' => array('field_collection'),
+      'settings' =>  array(
+        'edit' => t('Edit'),
+        'delete' => t('Delete'),
+        'add' => t('Add'),
+        'description' => TRUE,
+        'view_mode' => 'full',
+        'empty' => TRUE,
+      ),
+    ),
+  );
+}
+
+/**
+ * Implements hook_field_formatter_view().
+ */
+function field_collection_table_field_formatter_view($entity_type, $entity, $field, $instance, $langcode, $items, $display) {
+  $element = array();
+  $settings = $display['settings'];
+
+  switch ($display['type']) {
+    case 'field_collection_table_view':
+      $header = array();
+      $field_names = array();
+      foreach (field_info_instances('field_collection_item', $field['field_name']) as $field_collection_item) {
+        $weight = $field_collection_item['display']['default']['weight'];
+        $field_names[$weight] = $field_collection_item['field_name'];
+        $header[$weight] = array(
+          'data' => $field_collection_item['label'],
+          'class' => $field_names[$weight],
+        );
+      }
+      ksort($header);
+      ksort($field_names);
+
+      $rows = array();
+      foreach ($items as $delta => $item) {
+        $field_collection = field_collection_field_get_entity($item);
+        if (empty($field_collection)) {
+          continue;
+        }
+        $view = $field_collection->view();
+        $content = $view['field_collection_item'][$field_collection->identifier()];
+        $column = array();
+        foreach ($field_names as $field_name) {
+          if (isset($content[$field_name])) {
+            $content[$field_name]['#label_display'] = 'hidden';
+          }
+          else {
+            $content[$field_name] = array(
+              '#markup' => '<span class="empty_field"></span>',
+              '#empty' => TRUE,
+            );
+          }
+          $column[] = array(
+            'data' => $content[$field_name],
+            'class' => $field_name,
+          );
+        }
+
+        $links = array(
+          '#theme' => 'links',
+          '#theme_wrapper' => 'item_list',
+          '#attributes' => array(
+            'class' => array(
+              'field-collection-view-links',
+            ),
+          ),
+        );
+
+        foreach (array('edit', 'delete') as $op) {
+          if (!empty($settings[$op]) && field_collection_item_access($op == 'edit' ? 'update' : $op, $field_collection)) {
+            $links['#links'][$op] = array(
+              'title' => $settings[$op],
+              'href' => $field_collection->path() . '/' . $op,
+              'query' => drupal_get_destination(),
+            );
+            $header['operations'] = t('Operations');
+          }
+        }
+
+        if (!empty($links['#links'])) {
+          $column[] = array(
+            'data' => $links,
+            'class' => "field_collection_item_operations",
+          );
+        }
+
+        $rows[] = array(
+          'data' => $column,
+          'class' => array('field_collection_item'),
+        );
+      }
+
+      $element[0] = array(
+        '#theme' => 'table',
+        '#header' => $header,
+        '#rows' => $rows,
+      );
+
+      if (!empty($settings['empty'])) {
+        $element[0]['#theme'] = 'table__field_collection_table';
+        $element[0]['#settings']['empty'] = TRUE;
+      }
+      break;
+  }
+
+  field_collection_field_formatter_links($element, $entity_type, $entity, $field, $instance, $langcode, $items, $display);
+
+  return $element;
+}
+
+/**
+ * Implements hook_field_formatter_settings_form().
+ */
+function field_collection_table_field_formatter_settings_form($field, $instance, $view_mode, $form, &$form_state) {
+  $display = $instance['display'][$view_mode];
+  $settings = $display['settings'];
+  $element = field_collection_field_formatter_settings_form($field, $instance, $view_mode, $form, $form_state);
+
+  if ($display['type'] == 'field_collection_table_view') {
+    $element['empty'] = array(
+      '#type' => 'checkbox',
+      '#title' => t('Hide empty columns'),
+      '#description' => t('If checked, hide empty Field Collection table columns.'),
+      '#default_value' => $settings['empty'],
+    );
+  }
+  return $element;
+}
+
+/**
+ * Implements hook_field_formatter_settings_summary().
+ */
+function field_collection_table_field_formatter_settings_summary($field, $instance, $view_mode) {
+  $display = $instance['display'][$view_mode];
+  $settings = $display['settings'];
+  $output = field_collection_field_formatter_settings_summary($field, $instance, $view_mode);
+  if ($display['type'] == 'field_collection_table_view') {
+    $output .= '<br>';
+    $output .= !empty($settings['empty']) ? t('Empty columns: Hidden') : t('Empty columns: Shown');
+  }
+  return $output;
+}
+
+/**
+ * Implements hook_theme().
+ */
+function field_collection_table_theme($existing, $type, $theme, $path) {
+  $base = array(
+    'file' => 'theme.inc',
+    'path' => $path . '/theme',
+  );
+  return array(
+    'field_collection_table_multiple_value_field' => $base + array(
+      'render element' => 'element',
+    ),
+    'field_collection_table_multiple_value_fields' => $base + array(
+      'render element' => 'element',
+    ),
+    'table__field_collection_table' => $base + array(
+      'variables' => array(
+        'header' => NULL,
+        'rows' => NULL,
+        'attributes' => array(),
+        'caption' => NULL,
+        'colgroups' => array(),
+        'sticky' => TRUE,
+        'empty' => '',
+        'settings' => array(),
+      ),
+    ),
+  );
+}
+
+/**
+ * Implements hook_form_alter().
+ */
+function field_collection_table_form_alter(&$form, &$form_state, $form_id) {
+  // Host entity edit.
+  if (isset($form['#entity_type']) && isset($form['#bundle'])) {
+    foreach (field_info_instances($form['#entity_type'], $form['#bundle']) as $field_name => $instance) {
+      if (isset($form[$field_name]) && $instance['widget']['type'] == 'field_collection_table') {
+        $language = $form[$field_name]['#language'];
+        $form[$field_name][$language]['#theme'] = 'field_collection_table_multiple_value_fields';
+        $form[$field_name][$language]['#pre_render'][] = 'field_collection_table_pre_render_multiple_fields';
+      }
+    }
+  }
+
+  // Individual field collection item edit.
+  if ($form_id == 'field_collection_item_form') {
+    $instance = $form_state['field_collection_item']->instanceInfo();
+    if ($instance['widget']['type'] == 'field_collection_table') {
+      $form['#theme'] = 'field_collection_table_multiple_value_field';
+      $form['#pre_render'][] = 'field_collection_table_pre_render_field';
+    }
+  }
+}
+
+/**
+ * Callback for #pre_render for a single row, hide the titles for each field.
+ */
+function field_collection_table_pre_render_field($element) {
+  foreach (field_info_instances($element['#entity_type'], $element['#bundle']) as $field_name => $instance) {
+    if (empty($element[$field_name])) {
+      continue;
+    }
+
+    $field = &$element[$field_name];
+    $field_info = field_info_field($field_name);
+    $language = $field['#language'];
+    if (isset($field[$language])) {
+      // Set the most common places for a title to display invisible.
+      $field['#title_display'] = 'invisible';
+      $field[$language]['#title_display'] = 'invisible';
+      foreach (element_children($field[$language]) as $child) {
+        $field[$language][$child]['#title_display'] = 'invisible';
+        // Check the individual columns. Most commonly 'value'.
+        foreach ($field_info['columns'] as $column => $column_info) {
+          $field[$language][$child][$column]['#title_display'] = 'invisible';
+
+          // The date module sometimes adds its own random titles inside value.
+          if (in_array($field_info['type'], array('date', 'datestamp', 'datetime'))) {
+            foreach (element_children($field[$language][$child][$column]) as $date_child) {
+              $field[$language][$child][$column][$date_child]['#title_display'] = 'invisible';
+            }
+          }
+        }
+      }
+    }
+    else {
+      $field['#label_display'] = 'hidden';
+    }
+  }
+  return $element;
+}
+
+/**
+ * Callback for #pre_render for multiple rows, hide the titles for each field.
+ */
+function field_collection_table_pre_render_multiple_fields($element) {
+  foreach (element_children($element) as $key) {
+    // Skip the 'add_more' element.
+    if (is_numeric($key)) {
+      $element[$key] = field_collection_table_pre_render_field($element[$key]);
+    }
+  }
+  return $element;
+}
+
+/**
+ * Implements hook_entity_view().
+ */
+function field_collection_table_entity_view($entity, $type, $view_mode, $langcode) {
+  if (get_class($entity) != 'FieldCollectionItemEntity') {
+    return;
+  }
+
+  $display = field_get_display($entity->instanceInfo(), $view_mode, $entity->hostEntity());
+  if ($display['type'] == 'field_collection_table_view') {
+    $entity->content['#theme'] = 'field_collection_table_multiple_value_field';
+    $entity->content['#pre_render'][] = 'field_collection_table_pre_render_field';
+  }
+}
+
+/**
+ * Implements hook_field_widget_info().
+ */
+function field_collection_table_field_widget_info() {
+  return array(
+    'field_collection_table' => array(
+      'label' => t('Table'),
+      'field types' => array('field_collection'),
+      'behaviors' => array(
+        'multiple values' => FIELD_BEHAVIOR_DEFAULT,
+        'default value' => FIELD_BEHAVIOR_DEFAULT,
+      ),
+    ),
+  );
+}
+
+/**
+ * Implements hook_field_widget_form().
+ */
+function field_collection_table_field_widget_form(&$form, &$form_state, $field, $instance, $langcode, $items, $delta, $element) {
+  switch ($instance['widget']['type']) {
+    case 'field_collection_table':
+      $instance['widget']['type'] = 'field_collection_embed';
+      $element = field_collection_field_widget_form($form, $form_state, $field, $instance, $langcode, $items, $delta, $element);
+      break;
+  }
+  return $element;
+}

@@ -1,0 +1,10 @@
+name = "File formatters"
+description = "Provides some formatters for file fields that are not in core"
+core = "7.x"
+dependencies[] = file
+; Information added by drupal.org packaging script on 2011-11-21
+version = "7.x-1.0"
+core = "7.x"
+project = "file_formatters"
+datestamp = "1321880140"
+

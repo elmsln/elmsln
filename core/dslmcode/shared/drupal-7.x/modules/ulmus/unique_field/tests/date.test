@@ -1,0 +1,227 @@
+<?php
+
+/**
+ * @file
+ * Functional tests for the Unique Field module with Date field types.
+ */
+
+class UniqueFieldDateTestCase extends DrupalWebTestCase {
+  protected $privileged_user;
+
+  public static function getInfo() {
+    return array(
+      'name' => 'Unique Field: Date module tests',
+      'description' => 'Ensure that the Unique Field module functions properly with Date field types.',
+      'group' => 'Unique Field',
+    );
+  }
+
+  public function setUp() {
+    parent::setUp('field', 'field_ui', 'options', 'date', 'unique_field');
+
+    // Create and log in our privileged user.
+    $this->privileged_user = $this->drupalCreateUser(array(
+      'administer content types', 'administer nodes', 'bypass node access', 'unique_field_perm_admin', 'unique_field_perm_bypass',
+    ));
+    $this->drupalLogin($this->privileged_user);
+  }
+
+  /**
+   * Test the unique requirement on a date field in the content type scope.
+   */
+  public function testUniqueCtypeNode() {
+    // Create a content type with a node reference field that is set to be
+    // unique
+    $edit = array();
+    $edit['name'] = 'Unique Node';
+    $edit['type'] = 'uf_node';
+    $this->drupalPost('admin/structure/types/add', $edit, t('Save content type'));
+    $this->assertText('The content type Unique Node has been added.', 'Content type added.');
+    $edit = array();
+    $edit['fields[_add_new_field][label]'] = 'Unique Node Date';
+    $edit['fields[_add_new_field][field_name]'] = 'uf_node_date';
+    $edit['fields[_add_new_field][type]'] = 'date';
+    $edit['fields[_add_new_field][widget_type]'] = 'date_select';
+    $this->drupalPost('admin/structure/types/manage/uf_node/fields', $edit, t('Save'));
+    $this->assertText('These settings apply to the Unique Node Date field everywhere it is used.', 'Field added to content type.');
+    $edit = array();
+    $edit['unique_field_fields[field_uf_node_date]'] = 'field_uf_node_date';
+    $this->drupalPost('admin/structure/types/manage/uf_node', $edit, t('Save content type'));
+    $this->assertText('The content type Unique Node has been updated.', 'Content type updated.');
+
+    // Attempt to create 2 nodes with the same date value
+    $date = new DateTime('2011-07-11 11:11:11');
+    $edit = array();
+    $edit['title'] = $this->randomName(24);
+    $edit['body[und][0][value]'] = $this->randomName(48);
+    $edit['field_uf_node_date[und][0][value][month]'] = $date->format('n');
+    $edit['field_uf_node_date[und][0][value][day]'] = $date->format('j');
+    $edit['field_uf_node_date[und][0][value][year]'] = $date->format('Y');
+    $edit['field_uf_node_date[und][0][value][hour]'] = $date->format('G');
+    $edit['field_uf_node_date[und][0][value][minute]'] = $date->format('i');
+    $this->drupalPost('node/add/uf-node', $edit, t('Save'));
+    $this->assertText($edit['body[und][0][value]'], 'Unique Node (uf_node) node has been created');
+    $edit['title'] = $this->randomName(24);
+    $edit['body[und][0][value]'] = $this->randomName(48);
+    $this->drupalPost('node/add/uf-node', $edit, t('Save'));
+    $this->assertText('The Unique Node Date field requires a unique value, and the specified value is already used', 'Unique Node (uf_node) node with duplicate content could not be created');
+
+    // Check for false negative: Attempt to create a node with a unique date
+    $date = new DateTime('2010-02-02 17:43:11');
+    $edit = array();
+    $edit['title'] = $this->randomName(24);
+    $edit['body[und][0][value]'] = $this->randomName(48);
+    $edit['field_uf_node_date[und][0][value][month]'] = $date->format('n');
+    $edit['field_uf_node_date[und][0][value][day]'] = $date->format('j');
+    $edit['field_uf_node_date[und][0][value][year]'] = $date->format('Y');
+    $edit['field_uf_node_date[und][0][value][hour]'] = $date->format('G');
+    $edit['field_uf_node_date[und][0][value][minute]'] = $date->format('i');
+    $this->drupalPost('node/add/uf-node', $edit, t('Save'));
+    $this->assertText($edit['body[und][0][value]'], 'Unique Node (uf_node) node has been created');
+  }
+
+  /**
+   * Test the unique requirement on a date field in the all scope.
+   */
+  public function testUniqueAllNode() {
+    // Create a content type with a node reference field that is set to be
+    // unique
+    $edit = array();
+    $edit['name'] = 'Unique Node';
+    $edit['type'] = 'uf_node';
+    $this->drupalPost('admin/structure/types/add', $edit, t('Save content type'));
+    $this->assertText('The content type Unique Node has been added.', 'Content type added.');
+    $edit = array();
+    $edit['fields[_add_new_field][label]'] = 'Unique Node Date';
+    $edit['fields[_add_new_field][field_name]'] = 'uf_node_date';
+    $edit['fields[_add_new_field][type]'] = 'date';
+    $edit['fields[_add_new_field][widget_type]'] = 'date_select';
+    $this->drupalPost('admin/structure/types/manage/uf_node/fields', $edit, t('Save'));
+    $this->assertText('These settings apply to the Unique Node Date field everywhere it is used.', 'Field added to content type.');
+    $edit = array();
+    $edit['unique_field_fields[field_uf_node_date]'] = 'field_uf_node_date';
+    $edit['unique_field_scope'] = UNIQUE_FIELD_SCOPE_ALL;
+    $this->drupalPost('admin/structure/types/manage/uf_node', $edit, t('Save content type'));
+    $this->assertText('The content type Unique Node has been updated.', 'Content type updated.');
+
+    // Create another content type with a node reference field that is set to be
+    // unique
+    $edit = array();
+    $edit['name'] = 'Unique Node 2';
+    $edit['type'] = 'uf_node2';
+    $this->drupalPost('admin/structure/types/add', $edit, t('Save content type'));
+    $this->assertText('The content type Unique Node 2 has been added.', 'Content type added.');
+    $edit = array();
+    $edit['fields[_add_existing_field][label]'] = 'Unique Node 2 Date';
+    $edit['fields[_add_existing_field][field_name]'] = 'field_uf_node_date';
+    $edit['fields[_add_existing_field][widget_type]'] = 'date_select';
+    $this->drupalPost('admin/structure/types/manage/uf_node2/fields', $edit, t('Save'));
+    $this->assertText('These settings apply only to the Unique Node 2 Date field when used in the Unique Node 2 type.', 'Field added to content type.');
+    $edit = array();
+    $edit['unique_field_fields[field_uf_node_date]'] = 'field_uf_node_date';
+    $edit['unique_field_scope'] = UNIQUE_FIELD_SCOPE_ALL;
+    $this->drupalPost('admin/structure/types/manage/uf_node2', $edit, t('Save content type'));
+    $this->assertText('The content type Unique Node 2 has been updated.', 'Content type updated.');
+
+    // Attempt to create 2 nodes with the same date value in different content
+    // types
+    $date = new DateTime('2011-03-28 04:27:33');
+    $edit = array();
+    $edit['title'] = $this->randomName(24);
+    $edit['body[und][0][value]'] = $this->randomName(48);
+    $edit['field_uf_node_date[und][0][value][month]'] = $date->format('n');
+    $edit['field_uf_node_date[und][0][value][day]'] = $date->format('j');
+    $edit['field_uf_node_date[und][0][value][year]'] = $date->format('Y');
+    $edit['field_uf_node_date[und][0][value][hour]'] = $date->format('G');
+    $edit['field_uf_node_date[und][0][value][minute]'] = $date->format('i');
+    $this->drupalPost('node/add/uf-node', $edit, t('Save'));
+    $this->assertText($edit['body[und][0][value]'], 'Unique Node (uf_node) node has been created');
+    $edit['title'] = $this->randomName(24);
+    $edit['body[und][0][value]'] = $this->randomName(48);
+    $this->drupalPost('node/add/uf-node2', $edit, t('Save'));
+    $this->assertText('The Unique Node 2 Date field requires a unique value, and the specified value is already used', 'Unique Node 2 (uf_node2) node with duplicate content could not be created');
+
+    // Check for false negative: Attempt to create a node with a unique date
+    $date = new DateTime('2010-11-19 13:23:31');
+    $edit = array();
+    $edit['title'] = $this->randomName(24);
+    $edit['body[und][0][value]'] = $this->randomName(48);
+    $edit['field_uf_node_date[und][0][value][month]'] = $date->format('n');
+    $edit['field_uf_node_date[und][0][value][day]'] = $date->format('j');
+    $edit['field_uf_node_date[und][0][value][year]'] = $date->format('Y');
+    $edit['field_uf_node_date[und][0][value][hour]'] = $date->format('G');
+    $edit['field_uf_node_date[und][0][value][minute]'] = $date->format('i');
+    $this->drupalPost('node/add/uf-node2', $edit, t('Save'));
+    $this->assertText($edit['body[und][0][value]'], 'Unique Node 2 (uf_node2) node has been created');
+  }
+
+  /**
+   * Test the unique requirement on a date field in the single scope.
+   */
+  public function testUniqueSingleNode() {
+    // Create a content type with two date fields that are set to be unique
+    $edit = array();
+    $edit['name'] = 'Unique Node Single';
+    $edit['type'] = 'uf_node_single';
+    $this->drupalPost('admin/structure/types/add', $edit, t('Save content type'));
+    $this->assertText('The content type Unique Node Single has been added.', 'Content type added.');
+    $edit = array();
+    $edit['fields[_add_new_field][label]'] = 'Unique Node Single Date 1';
+    $edit['fields[_add_new_field][field_name]'] = 'uf_node_single_date_1';
+    $edit['fields[_add_new_field][type]'] = 'date';
+    $edit['fields[_add_new_field][widget_type]'] = 'date_select';
+    $this->drupalPost('admin/structure/types/manage/uf_node_single/fields', $edit, t('Save'));
+    $this->assertText('These settings apply to the Unique Node Single Date 1 field everywhere it is used.', 'Field added to content type.');
+    $edit = array();
+    $edit['fields[_add_new_field][label]'] = 'Unique Node Single Date 2';
+    $edit['fields[_add_new_field][field_name]'] = 'uf_node_single_date_2';
+    $edit['fields[_add_new_field][type]'] = 'date';
+    $edit['fields[_add_new_field][widget_type]'] = 'date_select';
+    $this->drupalPost('admin/structure/types/manage/uf_node_single/fields', $edit, t('Save'));
+    $this->assertText('These settings apply to the Unique Node Single Date 2 field everywhere it is used.', 'Field added to content type.');
+    $edit = array();
+    $edit['unique_field_scope'] = UNIQUE_FIELD_SCOPE_NODE;
+    $edit['unique_field_fields[field_uf_node_single_date_1]'] = 'field_uf_node_single_date_1';
+    $edit['unique_field_fields[field_uf_node_single_date_2]'] = 'field_uf_node_single_date_2';
+    $this->drupalPost('admin/structure/types/manage/uf_node_single', $edit, t('Save content type'));
+    $this->assertText('The content type Unique Node Single has been updated.', 'Content type updated.');
+
+    // Attempt to create a node with the same date in both fields
+    $date = new DateTime('2011-06-12 19:08:22');
+    $edit = array();
+    $edit['title'] = $this->randomName(24);
+    $edit['body[und][0][value]'] = $this->randomName(48);
+    $edit['field_uf_node_single_date_1[und][0][value][month]'] = $date->format('n');
+    $edit['field_uf_node_single_date_1[und][0][value][day]'] = $date->format('j');
+    $edit['field_uf_node_single_date_1[und][0][value][year]'] = $date->format('Y');
+    $edit['field_uf_node_single_date_1[und][0][value][hour]'] = $date->format('G');
+    $edit['field_uf_node_single_date_1[und][0][value][minute]'] = $date->format('i');
+    $edit['field_uf_node_single_date_2[und][0][value][month]'] = $date->format('n');
+    $edit['field_uf_node_single_date_2[und][0][value][day]'] = $date->format('j');
+    $edit['field_uf_node_single_date_2[und][0][value][year]'] = $date->format('Y');
+    $edit['field_uf_node_single_date_2[und][0][value][hour]'] = $date->format('G');
+    $edit['field_uf_node_single_date_2[und][0][value][minute]'] = $date->format('i');
+    $this->drupalPost('node/add/uf-node-single', $edit, t('Save'));
+    $this->assertText('The Unique Node Single Date 2 fields must have unique values. The Unique Node Single Date 2 field has a value that is already used.', 'Unique Node Single (uf_node_single) node with duplicate content could not be created');
+
+    // Check for false negative: Attempt to create a node with unique text
+    $date1 = new DateTime('2011-01-12 19:08:22');
+    $date2 = new DateTime('2011-04-12 19:08:22');
+    $edit = array();
+    $edit['title'] = $this->randomName(24);
+    $edit['body[und][0][value]'] = $this->randomName(48);
+    $edit['field_uf_node_single_date_1[und][0][value][month]'] = $date1->format('n');
+    $edit['field_uf_node_single_date_1[und][0][value][day]'] = $date1->format('j');
+    $edit['field_uf_node_single_date_1[und][0][value][year]'] = $date1->format('Y');
+    $edit['field_uf_node_single_date_1[und][0][value][hour]'] = $date1->format('G');
+    $edit['field_uf_node_single_date_1[und][0][value][minute]'] = $date1->format('i');
+    $edit['field_uf_node_single_date_2[und][0][value][month]'] = $date2->format('n');
+    $edit['field_uf_node_single_date_2[und][0][value][day]'] = $date2->format('j');
+    $edit['field_uf_node_single_date_2[und][0][value][year]'] = $date2->format('Y');
+    $edit['field_uf_node_single_date_2[und][0][value][hour]'] = $date2->format('G');
+    $edit['field_uf_node_single_date_2[und][0][value][minute]'] = $date2->format('i');
+    $this->drupalPost('node/add/uf-node-single', $edit, t('Save'));
+    $this->assertText($edit['body[und][0][value]'], 'Unique Node Single (uf_node_single) node has been created');
+  }
+
+}

@@ -1,0 +1,32 @@
+<?php
+
+class ESPhoneNumberTestCase extends DrupalWebTestCase {
+  /**
+   * Implementation of getInfo()
+   *
+   */
+  public static function getInfo() {
+    return array(
+      'name' => t('Spain Phone number test'),
+      'description' => t('Tests various valid and invalid Spain phone numbers for validity'),
+      'group' => t('Phone')
+    );
+  }
+
+  public function testPhoneESValid() {
+    $this->assertTrue(valid_phone_number('es', '972367087'), t('Test valid - 972367087'));
+    $this->assertTrue(valid_phone_number('es', '97-3770866'), t('Test valid - 97-3770866'));
+    $this->assertTrue(valid_phone_number('es', '972-377086'), t('Test valid - 972-377086'));
+  }
+
+  public function testPhoneESInvalid() {
+    $this->assertFalse(valid_phone_number('es', '9988-989898'), t('Test invalid - 9988-989898'));
+    $this->assertFalse(valid_phone_number('es', '989898988989'), t('Test invalid - 989898988989'));
+    $this->assertFalse(valid_phone_number('es', '9 9898989898'), t('Test invalid - 9 9898989898'));  
+  }
+
+  public function testPhoneESFormatting() {
+    //$this->assertEqual(format_phone_number('es', '+6421123456', null), '+64 21 123 456', t('Check international mobile format'));
+  }
+}
+

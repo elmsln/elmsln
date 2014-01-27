@@ -1,0 +1,397 @@
+<?php
+
+/**
+ * @file
+ * File Shadowbox, a JavaScript media viewer application for displaying content in a
+ * modal dialogue for file field.
+ */
+
+define ('FILE_SHADOWBOX_ICOPATH', drupal_get_path('module', 'file_shadowbox') . "/images/icos/");
+
+/**
+ * Implements hook_field_formatter_info().
+ */
+function file_shadowbox_field_formatter_info() {
+  $formatters = array(
+    'file_shadowbox' => array(
+      'label' => t('Shadowbox'),
+      'field types' => array('file'),
+      'settings' => array(
+	    'icon' => '',
+	    'image_style' => '',
+	    'image_link' => '',
+	    'gallery' => '',
+	    'compact' => '',
+	    'title' => '',
+	    'video_width' => '640',
+	    'video_height' => '360',
+	    'video_thumb' => '128',
+	  ),
+    ),
+  );
+
+  return $formatters;
+}
+
+/**
+ * Implements hook_field_formatter_settings_form().
+ */
+function file_shadowbox_field_formatter_settings_form($field, $instance, $view_mode, $form, &$form_state) {
+  $display = $instance['display'][$view_mode];
+  $settings = $display['settings'];
+
+  $ico_options = array(
+    'ico' => 'always show icons',
+  );
+
+  $element['icon'] = array(
+    '#title' => t('Icon'),
+    '#type' => 'select',
+    '#default_value' => $settings['icon'],
+    '#empty_option' => t('None (thumbnail)'),
+    '#options' => $ico_options,
+  );
+
+  $image_styles = image_style_options(FALSE);
+  $element['image_style'] = array(
+    '#title' => t('Image style'),
+    '#type' => 'select',
+    '#default_value' => $settings['image_style'],
+    '#empty_option' => t('None (original image)'),
+    '#options' => $image_styles,
+  );
+
+  $element['image_link'] = array(
+    '#title' => t('Link image to'),
+    '#type' => 'select',
+    '#default_value' => $settings['image_link'],
+    '#empty_option' => t('None (original image)'),
+    '#options' => $image_styles,
+  );
+
+  $gallery_options = array(
+    'page'      => 'gallery page',
+    'field'     => 'gallery field page',
+    'nid'       => 'gallery entity',
+    'field_nid' => 'gallery field entity',
+  );
+
+  $element['gallery'] = array(
+    '#title' => t('gallery'),
+    '#type' => 'select',
+    '#default_value' => $settings['gallery'],
+    '#empty_option' => t('None (individual)'),
+    '#options' => $gallery_options,
+  );
+
+  $element['compact'] = array(
+    '#title' => t('compact'),
+    '#type' => 'checkbox',
+    '#default_value' => $settings['compact'],
+  );
+
+  $title_options = array(
+    'node'        => 'node title',
+    'description' => 'file description',
+  );
+
+  $element['title'] = array(
+    '#title' => t('caption'),
+    '#type' => 'select',
+    '#default_value' => $settings['title'],
+    '#empty_option' => t('None'),
+    '#options' => $title_options,
+  );
+
+
+  $element['video_width'] = array(
+    '#title' => t('Video width'),
+    '#type' => 'textfield',
+    '#default_value' => $settings['video_width'],
+    '#maxlength' => 4,
+    '#size' => 4,
+    '#field_suffix' => 'px',
+  );
+
+  $element['video_height'] = array(
+    '#title' => t('Video height'),
+    '#type' => 'textfield',
+    '#default_value' => $settings['video_height'],
+    '#maxlength' => 4,
+    '#size' => 4,
+    '#field_suffix' => 'px',
+  );
+
+  $element['video_thumb'] = array(
+    '#title' => t('Video thumbnail size'),
+    '#type' => 'textfield',
+    '#default_value' => $settings['video_thumb'],
+    '#maxlength' => 4,
+    '#size' => 4,
+    '#field_suffix' => 'px',
+  );
+
+  return $element;
+}
+
+/**
+ * Implements hook_field_formatter_settings_summary().
+ */
+function file_shadowbox_field_formatter_settings_summary($field, $instance, $view_mode) {
+  $display = $instance['display'][$view_mode];
+  $settings = $display['settings'];
+
+  $summary = array();
+
+  $image_styles = image_style_options(FALSE);
+
+  // Unset possible 'No defined styles' option.
+  unset($image_styles['']);
+  // Styles could be lost because of enabled/disabled modules that defines
+  // their styles in code.
+  if (isset($image_styles[$settings['image_style']])) {
+    $summary[] = t('Image style: @style', array('@style' => $image_styles[$settings['image_style']]));
+  }
+  else {
+    $summary[] = t('Original image');
+  }
+
+  if (isset($image_styles[$settings['image_link']])) {
+    $summary[] = t('Linked to: @style', array('@style' => $image_styles[$settings['image_link']]));
+  }
+  else {
+    $summary[] = t('Linked to: Original image');
+  }
+
+  $gallery_options = array(
+    'page'      => 'gallery page',
+    'field'     => 'gallery field page',
+    'nid'       => 'gallery entity',
+    'field_nid' => 'gallery field entity',
+  );
+
+  if (isset($gallery_options[$settings['gallery']])) {
+    $summary[] = t('as @gallery', array('@gallery' => (isset($settings['compact']) && $settings['compact'] ? 'compact ' : '') . $gallery_options[$settings['gallery']]));
+  }
+
+  $title_options = array(
+    'node'        => 'node title',
+    'description' => 'file description',
+  );
+
+  if (isset($title_options[$settings['title']])) {
+    $summary[] = t('with @title as caption', array('@title' => $title_options[$settings['title']]));
+  }
+
+  $summary[] = t('video width: @width px, video height: @height px', array('@width' => $settings['video_width'], '@height' => $settings['video_height']));
+
+  $summary[] = t('video thumbnail size: @size px', array('@size' => $settings['video_thumb']));
+
+  return implode('<br />', $summary);
+}
+
+/**
+ * Implements hook_field_formatter_view().
+ */
+function file_shadowbox_field_formatter_view($entity_type, $entity, $field, $instance, $langcode, $items, $display) {
+
+  $element = array();
+
+  // check if shadowbox is enabled on current node
+  $shadowbox_enabled_path = _shadowbox_activation() && variable_get('shadowbox_enabled', TRUE);
+
+  switch ($display['settings']['gallery']) {
+    case 'page':
+      $gallery_id = 'gallery';
+      break;
+    case 'field':
+      $gallery_id = $field['field_name'];
+      break;
+    case 'nid':
+      $info = entity_get_info($entity_type);
+      $id = $info['entity keys']['id'];
+      $gallery_id = "{$entity_type}-{$entity->$id}";
+      break;
+    case 'field_nid':
+      $info = entity_get_info($entity_type);
+      $id = $info['entity keys']['id'];
+      $gallery_id = "{$entity_type}-{$entity->$id}-{$field['field_name']}";
+      break;
+    default:
+      $gallery_id = "";
+      break;
+  }
+
+  $rel_gallery = ($gallery_id != '') ? "shadowbox[$gallery_id]" : 'shadowbox';
+  $width = $display['settings']['video_width'];
+  $height = $display['settings']['video_height'];
+  $compact = isset($display['settings']['compact']) && $display['settings']['compact'];
+
+  $node_title = '';
+  if (isset($entity->title)) {
+    $node_title = $entity->title;
+  } else if ($entity_type == 'node' && is_numeric(arg(1))) {
+    $node = node_load(arg(1));
+    $node_title = $node->title;
+  }
+
+  foreach ($items as $delta => $item) {
+
+    if ($display['settings']['title'] == 'node') {
+      $title = $node_title;
+    }
+    else if ($display['settings']['title'] == 'description') {
+      $title = (isset($item['description']) && $item['description']) ? $item['description'] : '';
+    }
+    else {
+      $title = '';
+    }
+
+    $autoplay = variable_get('shadowbox_autoplay_movies', 1);
+
+    switch ($item['filemime']) {
+      case 'video/youtube':
+        $youtube_id = substr($item['uri'], strrpos($item['uri'],"/") + 1);
+        $url = 'http://www.youtube.com/embed/' . $youtube_id;
+        $querystring = array();
+        if ($autoplay) { $querystring['autoplay'] = 1; }
+        $youtube_quality = variable_get('shadowbox_youtube_quality', 'auto');
+        if ($youtube_quality != 'auto') { $querystring['vq'] = $youtube_quality; } 
+        $url = !empty($querystring) ? $url . '?' . http_build_query($querystring) : $url;
+        $ico = 'youtube.png';
+        if (module_exists('media_youtube')) {
+          $path = file_stream_wrapper_get_instance_by_uri($item['uri'])->getLocalThumbnailPath();
+          $image_style = $display['settings']['image_style'];
+        } else {
+          $path = 'http://img.youtube.com/vi/' . $youtube_id . '/0.jpg';
+          $image_style = '';
+        }
+        $attributes = array(
+          'width' => $display['settings']['video_thumb'] . 'px',
+        );
+        $rel = $rel_gallery . '; width=' . $width . '; height=' . $height;
+        break;
+      case 'video/vimeo':
+        if (module_exists('media_vimeo')) {
+          $parts = file_stream_wrapper_get_instance_by_uri($item['uri'])->get_parameters();
+          $vimeo_id = intval($parts['v']);
+          $url = 'http://player.vimeo.com/video/' . $vimeo_id;
+          $path = file_stream_wrapper_get_instance_by_uri($item['uri'])->getLocalThumbnailPath();
+          $image_style = $display['settings']['image_style'];
+        } else {
+          $url = 'http://player.vimeo.com/video/' . $item['filename'];
+          $path = _get_vimeo_thumbnail($item['filename']);
+          $image_style = '';
+        }
+        $url = $autoplay ? $url . '?autoplay=1' : $url;
+        $ico = 'vimeo.png';
+        $attributes = array(
+          'width' => $display['settings']['video_thumb'] . 'px',
+        );
+        $rel = $rel_gallery . '; width=' . $width . '; height=' . $height;
+        break;
+      case 'video/quicktime':
+        $url = file_create_url($item['uri']);
+        $ico = 'mov.png';
+        $path = FILE_SHADOWBOX_ICOPATH . $ico;
+        $image_style = '';
+        $rel = $rel_gallery . '; width=' . $width . '; height=' . $height;
+        break;
+      case 'video/x-ms-wmv':
+        $url = file_create_url($item['uri']);
+        $ico = 'wmv.png';
+        $path = FILE_SHADOWBOX_ICOPATH . $ico;
+        $image_style = '';
+        $rel = $rel_gallery . '; width=' . $width . '; height=' . $height;
+        break;
+      case 'video/x-flv':
+        $url = file_create_url($item['uri']);
+        $ico = 'flv.png';
+        $path = FILE_SHADOWBOX_ICOPATH . $ico;
+        $image_style = '';
+        $rel = $rel_gallery . '; width=' . $width . '; height=' . $height;
+        break;
+      case 'application/x-shockwave-flash':
+        $url = file_create_url($item['uri']);
+        $ico = 'swf.png';
+        $path = FILE_SHADOWBOX_ICOPATH . $ico;
+        $image_style = '';
+        $rel = $rel_gallery . '; player=swf; width=' . $width . '; height=' . $height;
+        break;
+      case 'application/pdf':
+        $url = file_create_url($item['uri']);
+        $ico = 'pdf.png';
+        $path = FILE_SHADOWBOX_ICOPATH . $ico;
+        $image_style = '';
+        $rel = '';
+        break;
+      default:
+
+        if (strstr($item['filemime'], 'image/')) {
+
+          $linked_style = $display['settings']['image_link'];
+          if ($linked_style) {
+            $uri = image_style_path($linked_style, $item['uri']);
+            if (!file_exists($uri)) {
+              $uri = image_style_url($linked_style, $item['uri']);
+            }
+          }
+          else {
+            $uri = $item['uri'];
+          }
+
+          $url = file_create_url($uri);
+          $ico = 'image.png';
+          $path = $item['uri'];
+          $image_style = $display['settings']['image_style'];
+          $rel = $rel_gallery;
+
+        }
+        else {
+
+          $url = file_create_url($item['uri']);
+          $ico = 'generic.png';
+          $path = FILE_SHADOWBOX_ICOPATH . $ico;
+          $image_style = '';
+          $rel = '';
+
+        }
+        break;
+    }
+
+    $thumb = array(
+      'image_style' => $image_style,
+      'title' => $title,
+      'alt' => $title,
+      'attributes' => isset($attributes) ? $attributes : NULL,
+    );
+
+    if ($display['settings']['icon'] === 'ico') {
+      $thumb['path'] = FILE_SHADOWBOX_ICOPATH . $ico;
+    }
+    else {
+      $thumb['path'] = $path;
+    }
+
+    $element[$delta] = array(
+      '#theme' => 'shadowbox_formatter',
+      '#innerHTML' => ($delta == 0 || !$compact) ? theme('shadowbox_thumbnail', $thumb) : '',
+      '#title' => $title,
+      '#url' => $url,
+      '#rel' => $rel,
+      '#class' => ($gallery_id != '') ? "sb-image sb-gallery sb-gallery-$gallery_id" : 'sb-image sb-individual',
+    );
+
+    if ($shadowbox_enabled_path) {
+      $element[$delta]['#attached']['library'][] = array('shadowbox', 'shadowbox');
+    }
+
+  }
+
+  return $element;
+}
+
+function _get_vimeo_thumbnail ($id) {
+  $hash = unserialize(file_get_contents("http://vimeo.com/api/v2/video/$id.php"));
+  return $hash[0]['thumbnail_medium'];
+}

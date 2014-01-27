@@ -1,0 +1,14 @@
+name = APC - Alternative PHP Cache
+description = Enables the Alternative PHP Cache.
+package = Performance and scalability
+core = 7.x
+files[] = apc.module
+files[] = drupal_apc_cache.inc
+files[] = tests/apc.test
+
+; Information added by drupal.org packaging script on 2013-09-30
+version = "7.x-1.0-beta4+8-dev"
+core = "7.x"
+project = "apc"
+datestamp = "1380554153"
+

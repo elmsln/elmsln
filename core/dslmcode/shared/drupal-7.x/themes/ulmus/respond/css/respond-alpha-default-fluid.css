@@ -1,0 +1,78 @@
+
+.navigation ul.main-menu li {
+  width: 16.6666666666667%;
+}
+
+/* Reset mobile corners */
+.navigation ul.main-menu li:nth-child(1) a,
+.navigation ul.main-menu li:nth-child(3) a,
+.navigation ul.main-menu li:nth-child(4) a,
+.navigation ul.main-menu li:nth-child(6) a {
+  -webkit-border-radius: 0;
+  -moz-border-radius: 0;
+  -o-border-radius: 0;
+  border-radius: 0;
+}
+
+
+
+.navigation ul.main-menu li:nth-child(1) a {
+  -webkit-border-radius: 10px 0 0 10px;
+  -moz-border-radius: 10px 0 0 10px;
+  -o-border-radius: 10px 0 0 10px;
+  border-radius: 10px 0 0 10px;
+}
+
+.navigation ul.main-menu li:last-child a {
+  -webkit-border-radius: 0 10px 10px 0;
+  -moz-border-radius: 0 10px 10px 0;
+  -o-border-radius: 0 10px 10px 0;
+  border-radius: 0 10px 10px 0;
+}
+
+.navigation ul.main-menu li a.active,
+.navigation ul.main-menu li a.active-trail,
+.navigation ul.main-menu li a.active:hover,
+.navigation ul.main-menu li a.active-trail:hover
+.navigation ul.main-menu li a.active:focus,
+.navigation ul.main-menu li a.active-trail:focus,
+.navigation ul.main-menu li a:hover,
+.navigation ul.main-menu li a:focus {
+  -webkit-border-radius: 10px;
+  -moz-border-radius: 10px;
+  -o-border-radius: 10px;
+  border-radius: 10px;
+}
+
+
+
+.navigation ul li a.active,
+.navigation ul li a.active-trail,
+.navigation ul li a.active:hover,
+.navigation ul li a.active-trail:hover,
+.navigation ul li a.active:focus,
+.navigation ul li a.active-trail:focus {
+  padding-top: 2em;
+  padding-bottom: 2em;
+  
+}
+.navigation ul li a:hover,
+.navigation ul li a:focus {
+  padding-top: 1.75em;
+  padding-bottom: 1.75em; 
+}
+
+.navigation ul.secondary-menu li a:hover,
+.navigation ul.secondary-menu li a:focus {
+  padding-top: 0.5em;
+  padding-bottom: 0.5em; 
+}
+
+/* Default Overrides for install hawtness */
+
+.alpha-debug-block {
+  -webkit-border-radius: 5px;
+  -moz-border-radius: 5px;
+  -o-border-radius: 5px;
+  border-radius: 5px;
+}

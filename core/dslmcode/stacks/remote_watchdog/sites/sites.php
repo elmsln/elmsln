@@ -1,0 +1,1 @@
+../../../../../config/stacks/remote_watchdog/sites/sites.php

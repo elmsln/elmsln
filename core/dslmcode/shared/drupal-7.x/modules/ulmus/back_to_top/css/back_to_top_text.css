@@ -1,0 +1,34 @@
+#backtotop {
+  background: #F7F7F7;
+  border: 1px solid #CCCCCC;
+  border-radius: 5px 5px 5px 5px;
+  bottom: 10px;
+  color: #333333;
+  cursor: pointer;
+  display: none;
+  height: 30px;
+  line-height: 30px;
+  padding: 5px;
+  position: fixed;
+  right: 10px;
+  text-align: center;
+  width: 100px;
+  z-index: 1;
+  -moz-border-radius: 5px;
+  -webkit-border-radius: 5px;
+}
+
+#backtotop:hover {
+  background: #EEEEEE;
+}
+
+<!--[if lte IE 6]>
+html {
+  overflow-x: auto;
+  overflow-y: hidden;
+}
+
+* html #backtotop {
+  position:absolute;
+}
+<![endif]-->

@@ -1,0 +1,69 @@
+File (Field) Paths 7.x-1.0-beta4, 2013-04-25
+--------------------------------------------------------------------------------
+
+- #1945148: Fixed issue with File path cleanup process.
+- #1942720 by pp: Fixed issue with cleanup wehn token contains a '/'' character.
+- #1925298 by David_Rothstein: Fixed issue with Image derivatives.
+- #1866450: Fixed issue with foreign characters in Regex.
+- #1714596: Fixed issue with file_attach_update() introduced in Drupal 7.15.
+- #1705298: Fixed extra beggining slash.
+- #1601104 by tseven: Fixed notice when no extension present.
+- #1572206: Add ability to disable for certain fields.
+- #1549474: Fixed path replacement in summary text.
+- #1512466 by maximpodorov, perarnet: Fixed issue with multi-value updates.
+- #1499442 by hass: Improved translatable strings.
+- #1464404: Fixed issue with field_attach_update().
+- #1438290 by xtfer: Fixed D6 to D7 upgrade path.
+- #1432200: Fixed issue with missing langcode variable.
+- #1420700: Fixed issue with pass-by-reference issue.
+- #1364492 by j0rd, Deciphered: Improved require_once routine.
+- #1361884 by burningdog, dwkitchen, Deciphered: Fixed processing remote files.
+- #1262828 by Pablo Gosse: Fixed issue with regex.
+- #860848 by mostou: Fixed File name field length.
+- Fixed issue with malformed URIs.
+
+
+
+File (Field) Paths 7.x-1.0-beta3, 2012-02-08
+--------------------------------------------------------------------------------
+
+- #1429238 by ocanzillon: Fixed Drush command syntax error.
+- #1334448 by pianodavid, Deciphered: Fixed issue with revision flag.
+- Changed a large chunk of core functionality to simplify.
+
+
+
+File (Field) Paths 7.x-1.0-beta2, 2012-02-05
+--------------------------------------------------------------------------------
+
+- #1414090: Added Drush command for Retroactive updates.
+- #1335984: Removed debug code.
+- #1051736: Fixed issue with dirname().
+- Added support for URI Scheme changes via Updating.
+- Added support for Video module.
+
+
+
+File (Field) Paths 7.x-1.0-beta1, 2011-11-08
+--------------------------------------------------------------------------------
+
+- #1328064: Fixed/Re-enabled Retroactive updates.
+- #1326094: Fixed coder issues.
+- #1308532: Fixed issue with empty tokens not being cleared.
+- #1278004: Fixed issue with New flag.
+- #1253168: Added more space for 'type' and 'field' columns.
+- #1233004 by maximpodorov: Fixed Pathauto integration.
+- #1225764 by joelstein, h0tw1r3: Fixed references in text fields not being
+    updated.
+- #1225752 by joelstein: Removed packaging script information.
+- #1211038 by pillarsdotnet: Fixed issue with 'active_updating' field.
+- #1188074 by h0tw1r3: Fixed issue with schema change.
+- #1017830: Fixed issue with Transliteration support.
+- #578442 by szantog, mfb, deciphered: Added features support.
+- Added relevant tokens for Entity support.
+- Added Entity support.
+
+
+
+File (Field) Paths 7.x-1.0-alpha1, 2011-06-12
+--------------------------------------------------------------------------------

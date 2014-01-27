@@ -1,0 +1,385 @@
+<?php
+
+/**
+ * Function which holds an array of supported countries.
+ *
+ * @param string $countrycode
+ * @return boolean Returns the whole array of countries $countrycode isn't specified and a country name for when it is specified.
+ */
+function phone_countries($code = NULL) {
+  static $countries;
+
+  if (!isset($countries)) {
+   $countries = array(
+      'fr' => 'France',
+      'be' => 'Belgium',
+      'it' => 'Italy',
+      'el' => 'Greece',
+      'ch' => 'Switzerland',
+      'ca' => 'US & Canada',
+      'cr' => 'Costa Rica',
+      'pa' => 'Panama',
+      'gb' => 'Great Britain - United Kingdom',
+      'ru' => 'Russia',
+      'ua' => 'Ukraine',
+      'es' => 'Spain',
+      'au' => 'Australia',
+      'cs' => 'Czech Republic',
+      'hu' => 'Hungary',
+      'pl' => 'Poland - mobiles only',
+      'nl' => 'Netherland',
+      'se' => 'Sweden',
+      'za' => 'South Africa',
+      'il' => 'Israel',
+      'nz' => 'New Zealand',
+      'br' => 'Brazil',
+      'cl' => 'Chile',
+      'cn' => 'China',
+      'hk' => 'Hong-Kong',
+      'mo' => 'Macao',
+      'ph' => 'The Philippines',
+      'sg' => 'Singapore',
+      'jo' => 'Jordan',
+      'eg' => 'Egypt',
+      'pk' => 'Pakistan',
+      'int' => 'International Phone Numbers per E.123',
+    );
+  }
+  return ($code === NULL) ? $countries : (isset($countries[$code]) ? $countries[$code] : NULL);
+}
+
+/**
+ * @defgroup field_api_hooks Field API Hook Implementations
+ */
+
+/**
+ * Implementation of hook_field_info().
+ */
+function phone_field_info() {
+  return array(
+    'phone' => array(
+      'label' => t('Phone Number'),
+      'instance_settings' => array(
+        'phone_country_code' => 0,
+        'phone_default_country_code' => '1',
+        'phone_int_max_length' => 15,
+        'ca_phone_separator' => '-',
+        'ca_phone_parentheses' => 1,
+      ),
+      'default_formatter' => 'phone',
+      'default_widget' => 'phone_textfield',
+      'property_type' => 'text',
+    ),
+  );
+}
+
+/**
+ * Implements hook_field_is_empty().
+ */
+function phone_field_is_empty($item, $field) {
+  return empty($item['value']);
+}
+
+/**
+ * Implements hook_field_settings_form().
+ */
+function phone_field_settings_form($field, $instance, $has_data) {
+  $settings = $field['settings'];
+
+  $form = array();
+  $form['country'] = array(
+    '#type' => 'select',
+    '#title' => t('Country'),
+    '#options' => phone_countries(),
+    '#default_value' => isset ($settings['country']) ? $settings['country'] : NULL,
+    '#description' => t('Which country-specific rules should this field be validated against and formatted according to.'),
+    '#disabled' => $has_data,
+    '#required' => TRUE,
+  );
+
+  return $form;
+}
+
+/**
+ * Implements hook_field_instance_settings_form().
+ */
+function phone_field_instance_settings_form($field, $instance) {
+  $settings = $instance['settings'];
+
+  $form['phone_country_code'] = array(
+    '#type' => 'checkbox',
+    '#title' => t('Add the country code if not filled by the user'),
+    '#default_value' => $settings['phone_country_code'],
+  );
+
+  if ($field['settings']['country'] == 'int') {
+    $form['phone_int_help'] = array(
+      '#type' => 'markup',
+      '#value' => t('International phone numbers are in the form +XX YYYYYYY where XX is a country code and YYYYYYY is the local number. This field type is based off of the <a href="http://www.itu.int/rec/T-REC-E.123/en">E.123 specification</a>.'),
+    );
+    $form['phone_default_country_code'] = array(
+      '#type' => 'textfield',
+      '#title' => t('Default country code to add to international numbers without one (omit + sign)'),
+      '#default_value' => $settings['phone_default_country_code'],
+    );
+    $form['phone_int_max_length'] = array(
+      '#type' => 'textfield',
+      '#title' => t('Maximum length of international numbers, according to the ITU this is 15'),
+      '#default_value' => $settings['phone_int_max_length'],
+    );
+  }
+
+  if ($field['settings']['country'] == 'ca') {
+    $form['ca_phone_separator'] = array(
+      '#type' => 'textfield',
+      '#title' => t('Separator'),
+      '#default_value' => $settings['ca_phone_separator'],
+      '#size' => 2,
+    );
+    $form['ca_phone_parentheses'] = array(
+      '#type' => 'checkbox',
+      '#title' => t('Use parentheses around area code'),
+      '#default_value' => $settings['ca_phone_parentheses'],
+    );
+  }
+  return $form;
+}
+
+/**
+ * Implements hook_field_validate().
+ */
+function phone_field_validate($entity_type, $entity, $field, $instance, $langcode, $items, &$errors) {
+  foreach ($items as $delta => $item) {
+    if (isset($item['value']) && $item['value'] != '') {
+      $ccode = $field['settings']['country'];
+      $value = $item['value'];
+      if (!valid_phone_number($ccode, $value)) {
+        $country = phone_country_info($ccode);
+        $errors[$field['field_name']][$langcode][$delta][] = array(
+          'error' => 'phone_invalid_number',
+          'message' => t($country['error'], array('%value' => $value)),
+        );
+      }
+    }
+  }
+}
+
+/**
+ * Implements hook_field_presave().
+ */
+function phone_field_presave($entity_type, $entity, $field, $instance, $langcode, &$items) {
+  $ccode = $field['settings']['country'];
+  if (phone_countries($ccode) !== NULL) {
+    foreach ($items as $delta => $item) {
+      if (isset($item['value'])) {
+        $items[$delta]['value'] = format_phone_number($ccode, $item['value'], $instance['settings']);
+      }
+    }
+  }
+}
+
+/**
+ * Implements hook_field_formatter_info().
+ */
+function phone_field_formatter_info() {
+  return array(
+    'phone' => array(
+      'label' => t('Default'),
+      'field types' => array('phone'),
+    )
+  );
+}
+
+/**
+ * Implements hook_field_formatter_view().
+ */
+function phone_field_formatter_view($entity_type, $entity, $field, $instance, $langcode, $items, $display) {
+  $element = array();
+  foreach ($items as $delta => $item) {
+    $text = '';
+
+    if (isset($item['value'])) {
+      $text = check_plain($item['value']);
+      // iPhone Support
+      if (strpos($_SERVER['HTTP_USER_AGENT'], 'iPhone') !== FALSE) {
+         $text = '<a href="tel:' . $text . '">' . $text . '</a>';
+      }
+    }
+    $element[$delta]['#markup'] = $text;
+  }
+  return $element;
+}
+
+/**
+ * Implements hook_field_widget_info().
+ */
+function phone_field_widget_info() {
+  return array(
+    'phone_textfield' => array(
+      'label' => t('Text field'),
+      'field types' => array('phone'),
+    ),
+  );
+}
+
+/**
+ * Implements hook_field_widget_form().
+ */
+function phone_field_widget_form(&$form, &$form_state, $field, $instance, $langcode, $items, $delta, $element) {
+  $element += array(
+    '#type' => 'textfield',
+    '#title' => $element['#title'],
+    '#description' => $element['#description'],
+    '#default_value' => isset($items[$delta]['value']) ? $items[$delta]['value'] : '',
+    '#required' => $element['#required'],
+    '#size' => 17,
+    '#maxlength' => (
+      $field['settings']['country'] == 'int' ?
+        (isset($instance['settings']['phone_int_max_length']) ? $instance['settings']['phone_int_max_length'] : NULL)
+        : NULL
+    ),
+  );
+  return array('value' => $element);
+}
+
+/**
+ * @} End of "defgroup field_api_hooks".
+ */
+
+
+/**
+ * @defgroup other_hooks Other Hook Implementations
+ */
+
+/**
+ * Implements hook_content_migrate_field_alter().
+ *
+ * Use this to tweak the conversion of field settings
+ * from the D6 style to the D7 style for specific
+ * situations not handled by basic conversion,
+ * as when field types or settings are changed.
+ */
+function phone_content_migrate_field_alter(&$field_value, $instance_value) {
+  module_load_include('inc', 'phone', 'phone.migrate');
+  phone_field_alter($field_value, $instance_value);
+}
+
+/**
+* Implementation of hook token_list
+*/
+function phone_token_list($type = 'all') {
+  if ($type == 'field' || $type == 'all') {
+    $tokens['phone']['raw'] = t('Raw phone numbers');
+    $tokens['phone']['formatted'] = t('Formatted phone numbers');
+    return $tokens;
+  }
+}
+
+/**
+* Implementation of hook token_values
+*/
+function phone_token_values($type, $object = NULL, $options = array()) {
+  if ($type == 'field') {
+    $item = $object[0];
+    $tokens['raw'] = $item['value'];
+    $tokens['formatted'] = $item['view'];
+    return $tokens;
+  }
+}
+
+/**
+ * Implementation of hook_simpletest().
+ */
+function phone_simpletest() {
+  $dir = drupal_get_path('module', 'phone'). '/tests';
+  $tests = file_scan_directory($dir, '\.test$');
+  return array_keys($tests);
+}
+
+/**
+ * @} End of "defgroup field_api_hooks".
+ */
+
+
+/**
+ * Country supported or not by the module ?
+ *
+ * @param string $countrycode
+ * @return boolean Returns a boolean containting the answer to the question.
+ */
+function phone_supported_countrycode($countrycode) {
+  return (phone_country_info($countrycode) !== NULL ? TRUE : FALSE);
+}
+
+
+/**
+ * Get a country meta info
+ *
+ * @param string $countrycode
+ * @return array Returns a array containing country metadata
+ */
+function phone_country_info($countrycode = NULL) {
+  static $i;
+
+  $countrycode = trim($countrycode);
+
+  if (phone_countries($countrycode) !== FALSE) {
+    $phone_info_function = 'phone_'. $countrycode . '_metadata';
+    module_load_include('inc', 'phone', 'include/phone.'. $countrycode);
+
+    if (function_exists($phone_info_function)) {
+      return $phone_info_function();
+    }
+  }
+  //Country not taken into account yet
+  return FALSE;
+}
+
+/**
+ * Verification for Phone Numbers.
+ *
+ * @param string $countrycode
+ * @param string $phonenumber
+ * @return boolean Returns boolean FALSE if the phone number is not valid.
+ */
+function valid_phone_number($countrycode, $phonenumber) {
+
+  $countrycode = trim($countrycode);
+  $phonenumber = trim($phonenumber);
+
+  if (phone_supported_countrycode($countrycode)) {
+    $valid_phone_function = 'valid_'. $countrycode . '_phone_number';
+    module_load_include('inc', 'phone', 'include/phone.'. $countrycode);
+
+    if (function_exists($valid_phone_function)) {
+       return $valid_phone_function($phonenumber);
+    }
+  }
+  //Country not taken into account yet
+  return FALSE;
+}
+
+/**
+ * Formatting for Phone Numbers.
+ *
+ * @param string $countrycode
+ * @param string $phonenumber
+ * @return boolean Returns boolean FALSE if the phone number is not valid.
+ */
+function format_phone_number($countrycode, $phonenumber, $field) {
+
+  $countrycode = trim($countrycode);
+  $phonenumber = trim($phonenumber);
+
+  if (phone_supported_countrycode($countrycode)) {
+    $format_phone_function = 'format_'. $countrycode . '_phone_number';
+    module_load_include('inc', 'phone', 'include/phone.'. $countrycode);
+
+    if (function_exists($format_phone_function)) {
+      return $format_phone_function($phonenumber, $field);
+    }
+  }
+  //Country not taken into account yet
+  return FALSE;
+}
+

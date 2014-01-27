@@ -1,0 +1,16 @@
+#fields td.region {
+  font-weight: bold;
+}
+#fields tr.region-message {
+  font-weight: normal;
+  color: #999;
+}
+#fields tr.region-populated {
+  display: none;
+}
+.field-region {
+  background-color: #ff6;
+  margin-top: 4px;
+  margin-bottom: 4px;
+  padding: 3px;
+}

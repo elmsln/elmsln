@@ -1,0 +1,28 @@
+/**
+ * @file
+ * RTL version for normalize.css see git.io/normalize
+ */
+
+/*
+ * Addresses margins set differently in IE6/7.
+ */
+dd {
+	margin: 0 40px 0 0;
+}
+
+/*
+ * Addresses paddings set differently in IE6/7.
+ */
+menu,
+ol,
+ul {
+	padding: 0 40px 0 0;
+}
+
+
+/*
+ * Corrects alignment displayed oddly in IE6/7.
+ */
+legend {
+	*margin-right: -7px;
+}

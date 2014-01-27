@@ -1,0 +1,21 @@
+
+
+UPDATE
+======
+
+To update shadowbox module just proceed as for any other module. Run update.php.
+
+
+UPDATE FROM 7.x-3.x to 7.x-4.x
+==============================
+
+There is not available update path from 7.x-3.x version to 7.x-4.x version.
+To proceed to that upgrade you must do the following:
+
+1) Run update.php.
+2) Review any content type where you have an image field using shadowbox format and
+ select shadowbox again as the format because after the update the format is resetted
+ to the default image format. You just need to select shadowbox format and the config
+ options for the format should be remembered. Review the options too anyway and save.
+3) For any view where you have an image field using shadowbox format proceed as in 2.
+ Select shadowbox again as the format, check the config and save.

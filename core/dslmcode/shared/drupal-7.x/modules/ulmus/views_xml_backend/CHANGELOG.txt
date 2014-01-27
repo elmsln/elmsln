@@ -1,0 +1,59 @@
+Views XML Backend 7.x 1.0 Alpha 4, 2012-10-04
+---------------------------------------------
+
+- Update RSS example to use markup field, date sorting, and text filtering.
+- Issue #1508622 by sirtet: Added more feedback about the query settings.
+- Issue #1371590 by mitchell: Added a date field, sorting, and paging to the
+  default view .
+- Add date sorting.
+- Issue #1370704 by Darren Oh | mitchell: Added URL as an argument.
+- Issue #1429516 by Darren Oh | twistor: Added argument support.
+- Issue #1802776 by Darren Oh: Added choice of operator for combining filters.
+- Issue #1740292 by hussainweb: Fixed Fatal error (Unsupported Operand Types)
+  for Random Sort.
+- Issue #1429514 by kriboogh, Darren Oh | twistor: Fixed Make sorting work.
+- Issue #1621662 by kriboogh, Darren Oh | bailey86: Fixed Exposing the views
+  filter does not seem to work.
+- Issue #1707930 by Darren Oh | kriboogh: Fixed Missing fields in a row cause a
+  notification.
+- Issue #1650126 by akoepke: Fixed Special characters in XML file (eg &) get
+  printed as &#38;.
+- Issue #1621728 by jmrivero: Fixed Notice: Undefined variable: query in
+  views_xml_backend_plugin_query_xml()->parse().
+
+Views XML Backend 7.x 1.0 Alpha 3, 2012-05-23
+---------------------------------------------
+
+- Added date display field class.
+- Issue #1579790 by marcusx: Fixed Pager / Display a specified number of items
+  is broken if you have a nested result set.
+- Issue #1579796 by marcusx: Added numeric sorting support.
+- Issue #1429496 by twistor: Add error handling for xml parsing.
+- Issue #1509718 by sirtet: Fixed Typo in the description of the
+  'default namespace' field under 'query settings'.
+- Issue #1470098 by gdud: Fixed Views caching doesn't work properly.
+- Issue #1508542 by sirtet: Fixed Field for XML File URL too short (128 char).
+- Issue #1470244 by gdud: Fixed Better error handling.
+- Added html field handler.
+
+Views XML Backend 7.x 1.0 Alpha 2, 2012-02-02
+---------------------------------------------
+
+- Remove numeric field handler.
+
+Views XML Backend 7.x 1.0 Alpha 1, 2012-02-02
+---------------------------------------------
+
+- multi-valued support comming in.
+- Added: Support for paging.
+- Added some error handling for fetch_file() Click sort works. Sorting behaves
+  like filtering.
+- Fixed: Adding sort causes error.
+- Issue #1370698 by mitchell: Added HTTP request caching.
+- Issue #1366824 by mitchell: Provide default example view.
+- Issue #1370712 by mitchell: Added hook to modify raw download data.
+- Issue #1370718 by mitchell: Fixed AJAX HTTP Error.
+- Issue #1370732 by mitchell: Fixed Filters are broken?.
+- Issue #1366814 by mitchell: Fixed Function renaming.
+- Adding a default view for demonstration
+- Adding the XML Views module, which allows querying XML files with views

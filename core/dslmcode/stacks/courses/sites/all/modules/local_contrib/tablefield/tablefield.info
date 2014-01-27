@@ -1,0 +1,6 @@
+name = TableField
+description = Defines a generic tablular data field.
+core = 7.x
+files[] = tablefield.css
+files[] = tablefield.module
+files[] = tablefield.install

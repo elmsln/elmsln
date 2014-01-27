@@ -1,0 +1,98 @@
+<?php
+
+/**
+ * @file
+ * Handles Boost module installation and upgrade tasks.
+ */
+
+//////////////////////////////////////////////////////////////////////////////
+// Core API hooks
+
+/**
+ * Implements hook_enable().
+ */
+function boost_enable() {
+  boost_htaccess_cache_dir_put();
+}
+
+/**
+ * Implements hook_disable().
+ */
+function boost_disable() {
+  // Make sure that the static page cache is wiped when the module is disabled:
+  boost_flush_caches();
+  drupal_set_message(t('Static page cache cleared.'));
+}
+
+/**
+ * Implements hook_install().
+ */
+function boost_install() {
+}
+
+/**
+ * Implements hook_uninstall().
+ */
+function boost_uninstall() {
+  // Clear variables
+  $name = 'boost_';
+  db_delete('variable')
+    ->condition('name', db_like($name) . '%', 'LIKE')
+    ->execute();
+  cache_clear_all('variables', 'cache_bootstrap');
+}
+
+/**
+ * Implements hook_requirements().
+ */
+function boost_requirements($phase) {
+  $requirements = array();
+  $t = get_t();
+  // Check the server's ability to use boost
+  if ($phase == 'runtime') {
+    // Check if core cache is enabled
+    $core_cache = variable_get('cache', 0);
+    if ($core_cache) {
+      $requirements['boost_core_cache'] = array(
+        'title' => $t('Boost'),
+        'value' => $t('Core cache is enabled'),
+        'severity' => REQUIREMENT_WARNING,
+        'description' => $t('Boost will not function properly while Drupal core cache is enabled. Disable Boost or <a href="@settings">the core cache</a>.', array('@settings' => url('admin/config/development/performance'))),
+      );
+    }
+
+    // Check cache directories
+    $cache_directories = array(
+      boost_get_normal_cache_dir(),
+    );
+    foreach ($cache_directories as $cache_directory) {
+      if (boost_mkdir($cache_directory)) {
+//         $root_file = file_put_contents($cache_directory . '/' . variable_get('boost_root_file', '.boost'), $cache_directory);
+      }
+      if (!is_dir($cache_directory)) {
+        $requirements['boost_default'] = array(
+          'title'       => $t('Boost'),
+          'description' => $t('!cache_dir: does not exist.', array('!cache_dir' => $cache_directory)),
+          'severity'    => REQUIREMENT_ERROR,
+          'value'       => $t('Cache path'),
+        );
+      }
+      if (is_dir($cache_directory) && (!is_writable($cache_directory))) {
+        $requirements['boost_permissions'] = array(
+          'title'       => $t('Boost'),
+          'description' => $t('Directory %dir credentials - Permissions: %fp. Owner %fo. Group %fg.<br /> Your credentials - Group ID: %gid. User ID: %uid. Current script owner: %user.', array('%dir' => getcwd() . '/' . $cache_directory, '%gid' => getmygid(), '%uid' => getmyuid(), '%user' => get_current_user(), '%fp' => substr(sprintf('%o', fileperms($cache_directory)), -4), '%fo' => fileowner($cache_directory), '%fg' => filegroup($cache_directory) )),
+          'severity'    => REQUIREMENT_ERROR,
+          'value'       => $t('Can not write to file-system'),
+        );
+      }
+    }
+    if (empty($requirements)) {
+      $requirements['boost'] = array(
+        'title'       => $t('Boost'),
+        'severity'    => REQUIREMENT_OK,
+        'value'       => $t('Boost installed correctly, should be working if properly <a href="@settings">configured</a>.', array('@settings' => url('admin/config/system/boost'))),
+      );
+    }
+  }
+  return $requirements;
+}

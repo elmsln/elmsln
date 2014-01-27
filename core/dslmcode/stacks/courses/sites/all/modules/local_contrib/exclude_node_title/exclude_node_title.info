@@ -1,0 +1,15 @@
+name = 	Exclude node title
+description = Excludes a node title from display. It provides a checkbox on node-edit pages for easier exclusion. You can also exclude title display from teaser pages.
+core = 7.x
+package = Other
+configure = admin/config/content/exclude_node_title
+files[] = exclude_node_title.info
+files[] = exclude_node_title.module
+files[] = exclude_node_title.admin.inc
+
+; Information added by drupal.org packaging script on 2013-01-05
+version = "7.x-1.6"
+core = "7.x"
+project = "exclude_node_title"
+datestamp = "1357417950"
+

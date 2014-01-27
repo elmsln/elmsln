@@ -1,0 +1,43 @@
+<?php
+
+class ITPhoneNumberTestCase extends DrupalWebTestCase {
+  /**
+   * Implementation of getInfo()
+   *
+   */
+  public static function getInfo() {
+    return array(
+      'name' => t('Italia Phone number test'),
+      'description' => t('Tests various valid and invalid Italia phone numbers for validity'),
+      'group' => t('Phone')
+    );
+  }
+
+  public function testPhoneITValid() {
+    $this->assertTrue(valid_phone_number('it', '06/2034567'), t('Test valid - 06/2034567'));
+    $this->assertTrue(valid_phone_number('it', '+39 02/123456'), t('Test valid - +39 02/123456'));
+    $this->assertTrue(valid_phone_number('it', '02-343536'), t('Test valid - 02-343536'));
+    $this->assertTrue(valid_phone_number('it', '02/343536'), t('Test valid - 02/343536'));
+    $this->assertTrue(valid_phone_number('it', '02 343536'), t('Test valid - 02 343536'));
+    $this->assertTrue(valid_phone_number('it', '+393381234567'), t('Test valid - +393381234567'));
+    $this->assertTrue(valid_phone_number('it', '+39 3381234567'), t('Test valid - +39 3381234567'));
+    $this->assertTrue(valid_phone_number('it', '+39 338 1234567'), t('Test valid - +39 338 1234567'));
+    $this->assertTrue(valid_phone_number('it', '+39 338-1234567'), t('Test valid - +39 338-1234567'));
+    $this->assertTrue(valid_phone_number('it', '3381234567'), t('Test valid - 3381234567'));
+    $this->assertTrue(valid_phone_number('it', '3381234567'), t('Test valid - 3381234567'));
+    $this->assertTrue(valid_phone_number('it', '338 1234567'), t('Test valid - 338 1234567'));
+    $this->assertTrue(valid_phone_number('it', '338-1234567'), t('Test valid - 338-1234567'));
+  }
+
+  public function testPhoneITInvalid() {
+    $this->assertFalse(valid_phone_number('it', '02a343536'), t('Test invalid - 02a343536'));
+    $this->assertFalse(valid_phone_number('it', '02+343536'), t('Test invalid - 02+343536'));
+    $this->assertFalse(valid_phone_number('it', '0039 338 1234567'), t('Test invalid - 0039 338 1234567'));
+    $this->assertFalse(valid_phone_number('it', '(338)1234567'), t('Test invalid - (338)1234567'));    
+  }
+
+  public function testPhoneITFormatting() {
+    //$this->assertEqual(format_phone_number('it', '+6421123456', null), '+64 21 123 456', t('Check international mobile format'));
+  }
+}
+

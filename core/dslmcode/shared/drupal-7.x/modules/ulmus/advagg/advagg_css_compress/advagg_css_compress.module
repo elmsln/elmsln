@@ -1,0 +1,89 @@
+<?php
+
+/**
+ * @file
+ * Advanced aggregation css compression module.
+ *
+ */
+
+/**
+ * Default value for which css compression library to use. 0 is Disabled.
+ */
+define('ADVAGG_CSS_COMPRESSOR', 2);
+
+/**
+ * Default value to see what compressor to use. 0 is Disabled.
+ */
+define('ADVAGG_CSS_INLINE_COMPRESSOR', 0);
+
+/**
+ * Default value to if inline compression is used if page is not cacheable.
+ */
+define('ADVAGG_CSS_INLINE_COMPRESS_IF_NOT_CACHEABLE', FALSE);
+
+/**
+ * Default value for per file compression settings.
+ */
+define('ADVAGG_CSS_COMPRESSOR_FILE_SETTINGS', -1);
+
+/**
+ * Implementation of hook_menu
+ */
+function advagg_css_compress_menu() {
+  $items = array();
+  $file_path = drupal_get_path('module', 'advagg_css_compress');
+  $config_path = advagg_admin_config_root_path();
+
+  $items[$config_path . '/advagg/css-compress'] = array(
+    'title' => 'CSS Compression',
+    'description' => 'Adjust CSS Compression settings.',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('advagg_css_compress_admin_settings_form'),
+    'type' => MENU_LOCAL_TASK,
+    'access arguments' => array('administer site configuration'),
+    'file path' => $file_path,
+    'file' => 'advagg_css_compress.admin.inc',
+    'weight' => 10,
+  );
+
+  return $items;
+}
+
+/**
+ * Implement hook_advagg_current_hooks_hash_array_alter.
+ */
+function advagg_css_compress_advagg_current_hooks_hash_array_alter(&$aggregate_settings) {
+  $aggregate_settings['variables']['advagg_css_compressor'] = variable_get('advagg_css_compressor', ADVAGG_CSS_COMPRESSOR);
+  $aggregate_settings['variables']['advagg_css_compressor_file_settings'] = variable_get('advagg_css_compressor_file_settings', array());
+}
+
+/**
+ * Implement hook_advagg_modify_css_pre_render_alter().
+ *
+ * Used to compress inline css.
+ */
+function advagg_css_compress_advagg_modify_css_pre_render_alter(&$children, &$elements) {
+  // Get variables.
+  $compressor = variable_get('advagg_css_inline_compressor', ADVAGG_CSS_INLINE_COMPRESSOR);
+
+  // Do nothing if the compressor is disabled.
+  if (empty($compressor)) {
+    return;
+  }
+
+  // Do nothing if the page is not cacheable and inline compress if not
+  // cacheable is not checked.
+  if (!variable_get('advagg_css_inline_compress_if_not_cacheable', ADVAGG_CSS_INLINE_COMPRESS_IF_NOT_CACHEABLE) && !drupal_page_is_cacheable()) {
+    return;
+  }
+
+  module_load_include('inc', 'advagg_css_compress', 'advagg_css_compress.advagg');
+  if ($compressor == 2) {
+    // Compress any inline CSS with YUI.
+    foreach ($children as $key => &$values) {
+      if (!empty($values['#value'])) {
+        advagg_css_compress_yui_cssmin($values['#value']);
+      }
+    }
+  }
+}

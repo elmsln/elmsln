@@ -1,0 +1,27 @@
+<?php
+
+class JOPhoneNumberTestCase extends DrupalWebTestCase {
+  /**
+   * Implementation of getInfo()
+   *
+   */
+  public static function getInfo() {
+    return array(
+      'name' => t('Jordania Phone number test'),
+      'description' => t('Tests various valid and invalid Jordania phone numbers for validity'),
+      'group' => t('Phone')
+    );
+  }
+
+  public function testPhoneJOValid() {
+    //$this->assertTrue(valid_phone_number('jo', '04 476 0000'), t('Test valid'));
+  }
+
+  public function testPhoneJOInvalid() {
+    //$this->assertFalse(valid_phone_number('jo', '021 3012 3456'), t('Test invalid'));
+  }
+
+  public function testPhoneJOFormatting() {
+    //$this->assertEqual(format_phone_number('jo', '+6421123456', null), '+64 21 123 456', t('Check international mobile format'));
+  }
+}

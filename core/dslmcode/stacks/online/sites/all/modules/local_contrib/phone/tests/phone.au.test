@@ -1,0 +1,45 @@
+<?php
+
+class AUPhoneNumberTestCase extends DrupalWebTestCase {
+  /**
+   * Implementation of getInfo()
+   *
+   */
+  public static function getInfo() {
+    return array(
+      'name' => t('Australia Phone number test'),
+      'description' => t('Tests various valid and invalid Australia phone numbers for validity'),
+      'group' => t('Phone')
+    );
+  }
+
+  public function testPhoneAUValid() {
+    $this->assertTrue(valid_phone_number('au', '0200-0299'), t('ACT - 0200-0299'));
+    $this->assertTrue(valid_phone_number('au', '2600-2639'), t('ACT - 2600-2639'));
+    $this->assertTrue(valid_phone_number('au', '1000-1999'), t('NSW - 1000-1999'));
+    $this->assertTrue(valid_phone_number('au', '2000-2599'), t('NSW - 2000-2599'));
+    $this->assertTrue(valid_phone_number('au', '2640-2914'), t('NSW - 2640-2914'));
+    $this->assertTrue(valid_phone_number('au', '0900-0999'), t('NT - 0900-0999'));
+    $this->assertTrue(valid_phone_number('au', '0800-0899'), t('NT - 0800-0899'));
+    $this->assertTrue(valid_phone_number('au', '9000-9999'), t('QLD - 9000-9999'));
+    $this->assertTrue(valid_phone_number('au', '4000-4999'), t('QLD - 4000-4999'));
+    $this->assertTrue(valid_phone_number('au', '5000-5999'), t('SA - 5000-599'));
+    $this->assertTrue(valid_phone_number('au', '7800-7999'), t('TAS - 7800-7999'));
+    $this->assertTrue(valid_phone_number('au', '7000-7499'), t('TAS - 7000-7499'));
+    $this->assertTrue(valid_phone_number('au', '8000-8999'), t('VIC - 8000-8999'));
+    $this->assertTrue(valid_phone_number('au', '3000-3999'), t('VIC - 3000-3999'));
+    $this->assertTrue(valid_phone_number('au', '6800-6999'), t('WA - 6800-6999'));
+    $this->assertTrue(valid_phone_number('au', '6000-6799'), t('WA - 6000-6799'));
+  }
+
+  public function testPhoneAUInvalid() {
+    $this->assertFalse(valid_phone_number('au', '0300'), t('Test invalid - 0300'));
+    $this->assertFalse(valid_phone_number('au', '7612'), t('Test invalid - 7612'));
+    $this->assertFalse(valid_phone_number('au', '2915'), t('Test invalid - 2915'));
+    $this->assertFalse(valid_phone_number('au', '2415b'), t('Test invalid - 2415b'));
+  }
+
+  public function testPhoneAUFormatting() {
+    //$this->assertEqual(format_phone_number('au', '+6421123456', null), '+64 21 123 456', t('Check international mobile format'));
+  }
+}

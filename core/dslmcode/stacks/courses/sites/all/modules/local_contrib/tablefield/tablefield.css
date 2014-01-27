@@ -1,0 +1,30 @@
+
+.field-widget-tablefield .form-tablefield .form-text,
+.form-tablefield .form-text {
+  width: auto;
+  margin: 1px 1px 1px 1px;
+  padding: 1px 1px 1px 1px;
+}
+.field-widget-tablefield .form-tablefield table,
+.form-tablefield table {
+  width: 100%;
+}
+.form-tablefield .form-type-textfield {
+  width: 98%;
+}
+.field-widget-tablefield .form-tablefield table tr td,
+.form-tablefield table tr td {
+  margin: 0 0 0 0;
+  padding: 0 0 0 0;
+  text-align: center;
+}
+.form-tablefield input.tablefield-row-0 {
+  font-weight: bold;
+}
+.form-tablefield input {
+  background-color: transparent !important;
+}
+.form-tablefield table,
+.form-tablefield fieldset {
+  margin: 0.5em 0;
+}

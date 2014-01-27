@@ -1,0 +1,11 @@
+<?php
+
+/**
+ * Implements hook_views_api().
+ */
+function views_xml_backend_views_api() {
+  return array(
+    'api' => 3,
+    'path' => drupal_get_path('module', 'views_xml_backend'),
+  );
+}

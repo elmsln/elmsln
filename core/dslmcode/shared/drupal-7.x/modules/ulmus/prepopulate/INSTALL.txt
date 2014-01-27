@@ -1,0 +1,10 @@
+
+INSTALLING PREPOPULATE MODULE
+=============================
+
+1. Copy the prepopulate/ directory into your Drupal installation's
+modules directory (normally at sites/all/modules.)
+
+2. Enable the prepopulate module in admin/build/modules.
+
+3. Refer to the USAGE.txt file or the online handbook at http://drupal.org/node/228167 for URL examples.

@@ -1,0 +1,92 @@
+<?php
+
+/**
+ * @file
+ * Install, update and uninstall functions for the smartqueue module.
+ */
+
+/**
+ * Implements hook_schema().
+ */
+function smartqueue_schema() {
+  $schema['smartqueue'] = array(
+    'description' => 'Table for smartqueues, storing global information for each queue.',
+    'fields' => array(
+      'qid' => array(
+        'description' => 'The primary identifier for a queue.',
+        'type' => 'serial',
+        'unsigned' => TRUE,
+        'not null' => TRUE
+      ),
+      'use_parents' => array(
+        'description' => "Whether a queue is to use the terms' parents when displaying the queue selection.",
+        'type' => 'int',
+        'size' => 'tiny',
+        'default' => 0,
+      ),
+    ),
+    'primary key' => array('qid'),
+  );
+
+  return $schema;
+}
+
+/**
+ * Implements hook_update_N().
+ *
+ * Adds the smartqueue table.
+ */
+function smartqueue_update_6003() {
+  // Don't use hook_schema for database updates per http://drupal.org/node/150220.
+  // It's possible that users who installed the 2.7 or 2.8 versions of
+  // smartqueue will already have this table.
+  if (!db_table_exists('smartqueue')) {
+    $schema = array(
+      'description' => 'Table for smartqueues, storing global information for each queue.',
+      'fields' => array(
+        'qid' => array(
+          'description' => 'The primary identifier for a queue.',
+          'type' => 'serial',
+          'unsigned' => TRUE,
+          'not null' => TRUE
+        ),
+        'use_parents' => array(
+          'description' => "Whether a queue is to use the terms' parents when displaying the queue selection.",
+          'type' => 'int',
+          'size' => 'tiny',
+          'default' => 0,
+        ),
+      ),
+      'primary key' => array('qid'),
+    );
+    db_create_table('smartqueue', $schema);
+  }
+  $result = db_query('SELECT q.qid FROM {nodequeue_queue} q LEFT JOIN {smartqueue} s ON q.qid = s.qid WHERE s.qid IS NULL');
+  foreach ($result as $queue) {
+    db_insert('smartqueue')
+      ->fields(array('qid' => $queue->qid))
+      ->execute();
+  }
+}
+
+/**
+ * Change reference field to rely on field names intead of field-ids.
+ */
+function smartqueue_update_7001() {
+  $results = db_select('nodequeue_queue', 'nq')
+              ->fields('nq', array('qid','reference'))
+              ->condition('owner', 'smartqueue_taxonomy', '=')
+              ->execute();
+  foreach ($results as $result) {
+    $field_names = array();
+    $field_ids = explode('-', $result->reference);
+    foreach ($field_ids as $field_id) {
+      $field = field_info_field_by_id($field_id);
+      $field_names[] = $field['field_name'];
+    }
+    db_update('nodequeue_queue')
+      ->fields(array('reference' => implode('-', $field_names)))
+      ->condition('qid', $result->qid)
+      ->execute();
+  }
+}

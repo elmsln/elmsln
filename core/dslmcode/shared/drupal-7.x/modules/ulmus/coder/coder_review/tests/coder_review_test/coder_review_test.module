@@ -1,0 +1,16 @@
+<?php
+
+/**
+ * @file
+ * Test helper module for the Coder_review module.
+ */
+
+/**
+ * Fake callback.
+ *
+ * Test module calling block module functions without declaring a dependency.
+ * @see http://drupal.org/node/224333#block_optional
+ */
+function coder_review_test_page() {
+  block_list();
+}

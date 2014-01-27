@@ -1,0 +1,17 @@
+name = Shadowbox Login
+description = Allows login form to be displayed in a JavaScript modal media viewer application.
+core = 7.x
+package = Shadowbox
+dependencies[] = shadowbox
+files[] = login_shadowbox.module
+files[] = login_shadowbox.install
+files[] = login_shadowbox.admin.inc
+files[] = login_shadowbox_page.tpl.php
+files[] = login_shadowbox.pages.inc
+
+; Information added by drupal.org packaging script on 2013-03-22
+version = "7.x-4.0-rc1"
+core = "7.x"
+project = "shadowbox"
+datestamp = "1363911317"
+

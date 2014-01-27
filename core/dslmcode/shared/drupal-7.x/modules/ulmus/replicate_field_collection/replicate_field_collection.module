@@ -1,0 +1,68 @@
+<?php
+/**
+ * @file
+ * Main methods of Replicate field collection module.
+ */
+
+/**
+ * Implements hook_replicate_entity_ENTITY_TYPE().
+ */
+function replicate_field_collection_replicate_entity_field_collection_item(&$entity) {
+  $entity->item_id = NULL;
+  $entity->revision_id = NULL;
+}
+
+/**
+ * Implements hook_replicate_field_FIELD_TYPE().
+ */
+function replicate_field_collection_replicate_field_field_collection(&$entity, $entity_type, $field_name) {
+  foreach ($entity->$field_name as $language => $values) {
+    replicate_field_collection_clone_items($entity, $entity_type, $field_name, $language);
+  }
+}
+
+/**
+ *
+ * Implements hook_help().
+ */
+function replicate_field_collection_help($path, $arg) {
+  switch ($path) {
+    case 'admin/help#replicate_field_collection':
+      // Return a line-break version of the module README.txt.
+      return check_markup(file_get_contents(dirname(__FILE__) . "/README.txt"));
+  }
+}
+
+/**
+ * Replicate a field collection field.
+ *
+ * @param object $entity
+ *   Entity to be modified.
+ * @param string $entity_type
+ *   Entity type.
+ * @param string $field_name
+ *   Name of the field.
+ * @param string $language
+ *   Language of the field.
+ */
+function replicate_field_collection_clone_items(&$entity, $entity_type, $field_name, $language = LANGUAGE_NONE) {
+  $field = $entity->{$field_name}[$language];
+
+  if (is_array($field) && count($field) > 0) {
+    // Clean the previous entities from the field, so the new
+    // can be saved instead.
+    unset($entity->{$field_name}[$language]);
+
+    foreach ($field as $value) {
+      $old_item = entity_load('field_collection_item', array($value['value']));
+      if (!empty($old_item)) {
+        // Select the last found item.
+        $old_item = end($old_item);
+        $new_item = replicate_clone_entity('field_collection_item', $old_item);
+        $new_item->setHostEntity($entity_type, $entity);
+        // Don't save the new field collection,
+        // it will be saved along with the host entity.
+      }
+    }
+  }
+}

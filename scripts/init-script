@@ -1,0 +1,51 @@
+#!/bin/bash
+#poor attempt to daemonize drush-create-site
+#
+#chkconfig:234 90 35
+binpath="/usr/local/bin/drush-create-site/kickoff.sh"
+
+if [ ! -f $binpath ]; then 
+	echo "Missing excutable"
+	exit 1
+fi
+
+
+case "$1" in 
+	start)
+		echo "Starting dcs..."
+		daemonize -p /var/run/drush-create-site $binpath
+		if [ $? -ne 0 ]; then 
+			echo "There was an error"
+		else
+			echo "dcs Started"
+		fi
+	;;
+	stop)
+		if [ -f /var/run/drush-create-site ]; then 
+			echo "Stopping dcs..."
+			pid=`cat /var/run/drush-create-site`
+			kill $pid
+			rm /var/run/drush-create-site
+		else 
+			echo "$0 is not running"
+		fi
+	;;
+	reload|restart)
+		$0 stop
+		$0 start
+	;;
+	status)
+		if [ -f /var/run/drush-create-site ]; then 
+			pid=`cat /var/run/drush-create-site`
+			echo "Running as $pid"
+		else
+			echo "$0 Not Running"
+		fi
+	;;
+	*)
+		echo "Usage: $0 start|stop|restart|reload"
+		exit 1
+esac
+exit 0
+
+

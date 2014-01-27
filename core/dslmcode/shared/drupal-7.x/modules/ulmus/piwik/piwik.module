@@ -1,0 +1,626 @@
+<?php
+
+/**
+ * @file
+ * Drupal Module: Piwik
+ *
+ * Adds the required Javascript to all your Drupal pages to allow tracking by
+ * the Google Analytics statistics package.
+ *
+ * @author: Alexander Hass <http://drupal.org/user/85918>
+ */
+
+/**
+ * Define the default file extension list that should be tracked as download.
+ */
+define('PIWIK_TRACKFILES_EXTENSIONS', '7z|aac|arc|arj|asf|asx|avi|bin|csv|doc|exe|flv|gif|gz|gzip|hqx|jar|jpe?g|js|mp(2|3|4|e?g)|mov(ie)?|msi|msp|pdf|phps|png|ppt|qtm?|ra(m|r)?|sea|sit|tar|tgz|torrent|txt|wav|wma|wmv|wpd|xls|xml|z|zip');
+
+/**
+ * Define default path exclusion list to remove tracking from admin pages,
+ * see http://drupal.org/node/34970 for more information.
+ */
+define('PIWIK_PAGES', "admin\nadmin/*\nbatch\nnode/add*\nnode/*/*\nuser/*/*");
+
+/**
+ * Implements hook_help().
+ */
+function piwik_help($path, $arg) {
+  switch ($path) {
+    case 'admin/config/system/piwik':
+      return t('<a href="@pk_url">Piwik - Web analytics</a> is an open source (GPL license) web analytics software. It gives interesting reports on your website visitors, your popular pages, the search engines keywords they used, the language they speak... and so much more. Piwik aims to be an open source alternative to Google Analytics.', array('@pk_url' => 'http://www.piwik.org/'));
+  }
+}
+
+/**
+ * Implements hook_theme().
+ */
+function piwik_theme() {
+  return array(
+    'piwik_admin_custom_var_table' => array(
+      'render element' => 'form',
+    ),
+  );
+}
+
+/**
+ * Implements hook_permission().
+ */
+function piwik_permission() {
+  return array(
+    'administer piwik' => array(
+      'title' => t('Administer Piwik'),
+      'description' => t('Perform maintenance tasks for Piwik.'),
+    ),
+    'opt-in or out of tracking' => array(
+      'title' => t('Opt-in or out of tracking'),
+      'description' => t('Allow users to decide if tracking code will be added to pages or not.'),
+    ),
+    'use PHP for tracking visibility' => array(
+      'title' => t('Use PHP for tracking visibility'),
+      'description' => t('Enter PHP code in the field for tracking visibility settings.'),
+      'restrict access' => TRUE,
+    ),
+  );
+}
+
+/**
+ * Implements hook_menu().
+ */
+function piwik_menu() {
+  $items['admin/config/system/piwik'] = array(
+    'title' => 'Piwik',
+    'description' => 'Configure the settings used to generate your Piwik tracking code.',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('piwik_admin_settings_form'),
+    'access arguments' => array('administer piwik'),
+    'type' => MENU_NORMAL_ITEM,
+    'file' => 'piwik.admin.inc',
+  );
+
+  return $items;
+}
+
+/**
+ * Implements hook_page_alter() to insert JavaScript to the appropriate scope/region of the page.
+ */
+function piwik_page_alter(&$page) {
+  global $user;
+
+  $id = variable_get('piwik_site_id', '');
+
+  // Get page status code for visibility filtering.
+  $status = drupal_get_http_header('Status');
+  $trackable_status_codes = array(
+    '403 Forbidden',
+    '404 Not Found',
+  );
+
+  // 1. Check if the piwik account number has a value.
+  // 2. Track page views based on visibility value.
+  // 3. Check if we should track the currently active user's role.
+  if (!empty($id) && (_piwik_visibility_pages() || in_array($status, $trackable_status_codes)) && _piwik_visibility_user($user)) {
+
+    $url_http = variable_get('piwik_url_http', '');
+    $url_https = variable_get('piwik_url_https', '');
+    $scope = variable_get('piwik_js_scope', 'footer');
+
+    $set_custom_url = '';
+    $set_document_title = '';
+    $set_custom_data = array();
+
+    // Piwik can show a tree view of page titles that represents the site structure
+    // if setDocumentTitle() provides the page titles as a "/" delimited list.
+    // This may makes it easier to browse through the statistics of page titles
+    // on larger sites.
+    if (variable_get('piwik_page_title_hierarchy', FALSE) == TRUE) {
+      $titles = _piwik_get_hierarchy_titles();
+
+      if (variable_get('piwik_page_title_hierarchy_exclude_home', TRUE)) {
+        // Remove the "Home" item from the titles to flatten the tree view.
+        array_shift($titles);
+      }
+
+      if (!empty($titles)) {
+        // Encode title, at least to keep "/" intact.
+        $titles = array_map('urlencode', $titles);
+
+        $set_document_title = drupal_json_encode(implode('/', $titles));
+      }
+    }
+
+    // If this node is a translation of another node, pass the original
+    // node instead.
+    if (module_exists('translation') && variable_get('piwik_translation_set', 0)) {
+      // Check we have a node object, it supports translation, and its
+      // translated node ID (tnid) doesn't match its own node ID.
+      $node = menu_get_object();
+      if ($node && translation_supported_type($node->type) && !empty($node->tnid) && ($node->tnid != $node->nid)) {
+        $source_node = node_load($node->tnid);
+        $languages = language_list();
+        $set_custom_url = drupal_json_encode(url('node/' . $source_node->nid, array('language' => $languages[$source_node->language], 'absolute' => TRUE)));
+      }
+    }
+
+    // Track access denied (403) and file not found (404) pages.
+    if ($status == '403 Forbidden') {
+      $set_document_title = '"403/URL = " + String(document.location.pathname + document.location.search).replace(/\//g,"%2f") + "/From = " + String(document.referrer).replace(/\//g,"%2f")';
+    }
+    elseif ($status == '404 Not Found') {
+      $set_document_title = '"404/URL = " + String(document.location.pathname + document.location.search).replace(/\//g,"%2f") + "/From = " + String(document.referrer).replace(/\//g,"%2f")';
+    }
+
+    // Add custom variables.
+    $piwik_custom_vars = variable_get('piwik_custom_var', array());
+    $custom_variable = '';
+    for ($i = 1; $i < 6; $i++) {
+      $custom_var_name = !empty($piwik_custom_vars['slots'][$i]['name']) ? $piwik_custom_vars['slots'][$i]['name'] : '';
+
+      if (!empty($custom_var_name)) {
+        $custom_var_value = !empty($piwik_custom_vars['slots'][$i]['value']) ? $piwik_custom_vars['slots'][$i]['value'] : '';
+        $custom_var_scope = !empty($piwik_custom_vars['slots'][$i]['scope']) ? $piwik_custom_vars['slots'][$i]['scope'] : 'visit';
+
+        $types = array();
+        $node = menu_get_object();
+        if (is_object($node)) {
+          $types += array('node' => $node);
+        }
+        $custom_var_name = token_replace($custom_var_name, $types, array('clear' => TRUE));
+        $custom_var_value = token_replace($custom_var_value, $types, array('clear' => TRUE));
+
+        // Suppress empty custom names and/or variables.
+        if (!drupal_strlen(trim($custom_var_name)) || !drupal_strlen(trim($custom_var_value))) {
+          if ($user->uid == 1) {
+            print 'fail';
+          }
+          continue;
+        }
+        // Custom variables names and values are limited to 200 characters in
+        // length. It is recommended to store values that are as small as
+        // possible to ensure that the Piwik Tracking request URL doesn't go
+        // over the URL limit for the webserver or browser.
+        $custom_var_name = rtrim(substr($custom_var_name, 0, 200));
+        $custom_var_value = rtrim(substr($custom_var_value, 0, 200));
+
+        $custom_var_name = drupal_json_encode($custom_var_name);
+        $custom_var_value = drupal_json_encode($custom_var_value);
+        $custom_var_scope = drupal_json_encode($custom_var_scope);
+        $custom_variable .= "_paq.push(['setCustomVariable', $i, $custom_var_name, $custom_var_value, $custom_var_scope]);";
+      }
+    }
+    // Add any custom code snippets if specified.
+    $codesnippet_before = variable_get('piwik_codesnippet_before', '');
+    $codesnippet_after = variable_get('piwik_codesnippet_after', '');
+
+    // Build tracker code. See http://piwik.org/docs/javascript-tracking/#toc-asynchronous-tracking
+    $script = 'var _paq = _paq || [];';
+    $script .= '(function(){';
+    $script .= 'var u=(("https:" == document.location.protocol) ? "' . check_url($url_https) . '" : "' . check_url($url_http) . '");';
+    $script .= '_paq.push(["setSiteId", ' . drupal_json_encode(variable_get('piwik_site_id', '')) . ']);';
+    $script .= '_paq.push(["setTrackerUrl", u+"piwik.php"]);';
+
+    // Set custom data.
+    if (!empty($set_custom_data)) {
+      foreach ($set_custom_data as $custom_data) {
+        $script .= '_paq.push(["setCustomData", ' . $custom_data . ']);';
+      }
+    }
+    // Set custom url.
+    if (!empty($set_custom_url)) {
+      $script .= '_paq.push(["setCustomUrl", ' . $set_custom_url . ']);';
+    }
+    // Set custom document title.
+    if (!empty($set_document_title)) {
+      $script .= '_paq.push(["setDocumentTitle", ' . $set_document_title . ']);';
+    }
+
+    // Custom file download extensions.
+    if ((variable_get('piwik_track', 1)) && !(variable_get('piwik_trackfiles_extensions', PIWIK_TRACKFILES_EXTENSIONS) == PIWIK_TRACKFILES_EXTENSIONS)) {
+      $script .= '_paq.push(["setDownloadExtensions", ' . drupal_json_encode(variable_get('piwik_trackfiles_extensions', PIWIK_TRACKFILES_EXTENSIONS)) . ']);';
+    }
+
+    // Disable tracking for visitors who have opted out from tracking via DNT (Do-Not-Track) header.
+    if (variable_get('piwik_privacy_donottrack', 1)) {
+      $script .= '_paq.push(["setDoNotTrack", 1]);';
+    }
+
+    // Domain tracking type.
+    global $cookie_domain;
+    $domain_mode = variable_get('piwik_domain_mode', 0);
+
+    // Per RFC 2109, cookie domains must contain at least one dot other than the
+    // first. For hosts such as 'localhost' or IP Addresses we don't set a cookie domain.
+    if ($domain_mode == 1 && count(explode('.', $cookie_domain)) > 2 && !is_numeric(str_replace('.', '', $cookie_domain))) {
+      $script .= '_paq.push(["setCookieDomain", ' . drupal_json_encode($cookie_domain) . ']);';
+    }
+
+    // Ordering $custom_variable before $codesnippet_before allows users to add
+    // custom code snippets that may use deleteCustomVariable() and/or getCustomVariable().
+    if (!empty($custom_variable)) {
+      $script .= $custom_variable;
+    }
+    if (!empty($codesnippet_before)) {
+      $script .= $codesnippet_before;
+    }
+
+    // Site search tracking support.
+    // NOTE: It's recommended not to call trackPageView() on the Site Search Result page.
+    if (module_exists('search') && variable_get('piwik_site_search', FALSE) && arg(0) == 'search' && $keys = piwik_search_get_keys()) {
+      // Parameters:
+      // 1. Search keyword searched for. Example: "Banana"
+      // 2. Search category selected in your search engine. If you do not need
+      //    this, set to false. Example: "Organic Food"
+      // 3. Number of results on the Search results page. Zero indicates a
+      //    'No Result Search Keyword'. Set to false if you don't know.
+      //
+      // hook_preprocess_search_results() is not executed if search result is
+      // empty. Make sure the counter is set to 0 if there are no results.
+      $script .= '_paq.push(["trackSiteSearch", ' . drupal_json_encode($keys) . ', false, (window.piwik_search_results) ? window.piwik_search_results : 0]);';
+    }
+    else {
+      $script .= '_paq.push(["trackPageView"]);';
+    }
+
+    // Add link tracking.
+    if (variable_get('piwik_track', 1)) {
+      $script .= '_paq.push(["enableLinkTracking"]);';
+    }
+    if (!empty($codesnippet_after)) {
+      $script .= $codesnippet_after;
+    }
+
+    $script .= 'var d=document,';
+    $script .= 'g=d.createElement("script"),';
+    $script .= 's=d.getElementsByTagName("script")[0];';
+    $script .= 'g.type="text/javascript";';
+    $script .= 'g.defer=true;';
+    $script .= 'g.async=true;';
+
+    // Should a local cached copy of the tracking code be used?
+    if (variable_get('piwik_cache', 0) && $url = _piwik_cache($url_http . 'piwik.js')) {
+      // A dummy query-string is added to filenames, to gain control over
+      // browser-caching. The string changes on every update or full cache
+      // flush, forcing browsers to load a new copy of the files, as the
+      // URL changed.
+      $query_string = '?' . variable_get('css_js_query_string', '0');
+
+      $script .= 'g.src="' . $url . $query_string . '";';
+    }
+    else {
+      $script .= 'g.src=u+"piwik.js";';
+    }
+
+    $script .= 's.parentNode.insertBefore(g,s);';
+    $script .= '})();';
+
+    // Add tracker code to scope.
+    drupal_add_js($script, array('scope' => $scope, 'type' => 'inline'));
+  }
+}
+
+/**
+ * Implements hook_field_extra_fields().
+ */
+function piwik_field_extra_fields() {
+  $extra['user']['user']['form']['piwik'] = array(
+    'label' => t('Piwik configuration'),
+    'description' => t('Piwik module form element.'),
+    'weight' => 3,
+  );
+
+  return $extra;
+}
+
+/**
+ * Implement hook_form_FORM_ID_alter().
+ *
+ * Allow users to decide if tracking code will be added to pages or not.
+ */
+function piwik_form_user_profile_form_alter(&$form, &$form_state) {
+  $account = $form['#user'];
+  $category = $form['#user_category'];
+
+  if ($category == 'account' && user_access('opt-in or out of tracking') && ($custom = variable_get('piwik_custom', 0)) != 0 && _piwik_visibility_roles($account)) {
+    $form['piwik'] = array(
+      '#type' => 'fieldset',
+      '#title' => t('Piwik configuration'),
+      '#weight' => 3,
+      '#collapsible' => TRUE,
+      '#tree' => TRUE
+    );
+
+    switch ($custom) {
+      case 1:
+        $description = t('Users are tracked by default, but you are able to opt out.');
+        break;
+
+      case 2:
+        $description = t('Users are <em>not</em> tracked by default, but you are able to opt in.');
+        break;
+    }
+
+    $form['piwik']['custom'] = array(
+      '#type' => 'checkbox',
+      '#title' => t('Enable user tracking'),
+      '#description' => $description,
+      '#default_value' => isset($account->data['piwik']['custom']) ? $account->data['piwik']['custom'] : ($custom == 1),
+    );
+
+    return $form;
+  }
+}
+
+/**
+ * Implements hook_user_presave().
+ */
+function piwik_user_presave(&$edit, $account, $category) {
+  if (isset($edit['piwik']['custom'])) {
+    $edit['data']['piwik']['custom'] = $edit['piwik']['custom'];
+  }
+}
+
+/**
+ * Implements hook_cron().
+ */
+function piwik_cron() {
+  // Regenerate the piwik.js every day.
+  if (REQUEST_TIME - variable_get('piwik_last_cache', 0) >= 86400 && variable_get('piwik_cache', 0)) {
+    _piwik_cache(variable_get('piwik_url_http', '') . 'piwik.js', TRUE);
+    variable_set('piwik_last_cache', REQUEST_TIME);
+  }
+}
+
+/**
+ * Implements hook_preprocess_search_results().
+ *
+ * Collects and adds the number of search results to the head.
+ */
+function piwik_preprocess_search_results(&$variables) {
+  // There is no search result $variable available that hold the number of items
+  // found. But the pager item mumber can tell the number of search results.
+  global $pager_total_items;
+
+  drupal_add_js('window.piwik_search_results = ' . intval($pager_total_items[0]) . ';', array('type' => 'inline', 'group' => JS_LIBRARY-1));
+}
+
+/**
+ * Download/Synchronize/Cache tracking code file locally.
+ *
+ * @param $location
+ *   The full URL to the external javascript file.
+ * @param $sync_cached_file
+ *   Synchronize tracking code and update if remote file have changed.
+ * @return mixed
+ *   The path to the local javascript file on success, boolean FALSE on failure.
+ */
+function _piwik_cache($location, $sync_cached_file = FALSE) {
+  $path = 'public://piwik';
+  $file_destination = $path . '/' . basename($location);
+
+  if (!file_exists($file_destination) || $sync_cached_file) {
+    // Download the latest tracking code.
+    $result = drupal_http_request($location);
+
+    if ($result->code == 200) {
+      if (file_exists($file_destination)) {
+        // Synchronize tracking code and and replace local file if outdated.
+        $data_hash_local = drupal_hash_base64(file_get_contents($file_destination));
+        $data_hash_remote = drupal_hash_base64($result->data);
+        // Check that the files directory is writable.
+        if ($data_hash_local != $data_hash_remote && file_prepare_directory($path)) {
+          // Save updated tracking code file to disk.
+          file_unmanaged_save_data($result->data, $file_destination, FILE_EXISTS_REPLACE);
+          watchdog('piwik', 'Locally cached tracking code file has been updated.', array(), WATCHDOG_INFO);
+
+          // Change query-strings on css/js files to enforce reload for all users.
+          _drupal_flush_css_js();
+        }
+      }
+      else {
+        // Check that the files directory is writable.
+        if (file_prepare_directory($path, FILE_CREATE_DIRECTORY)) {
+          // There is no need to flush JS here as core refreshes JS caches
+          // automatically, if new files are added.
+          file_unmanaged_save_data($result->data, $file_destination, FILE_EXISTS_REPLACE);
+          watchdog('piwik', 'Locally cached tracking code file has been saved.', array(), WATCHDOG_INFO);
+
+          // Return the local JS file path.
+          return file_create_url($file_destination);
+        }
+      }
+    }
+  }
+  else {
+    // Return the local JS file path.
+    return file_create_url($file_destination);
+  }
+}
+
+/**
+ * Delete cached files and directory.
+ */
+function piwik_clear_js_cache() {
+  $path = 'public://piwik';
+  if (file_prepare_directory($path)) {
+    file_scan_directory($path, '/.*/', array('callback' => 'file_unmanaged_delete'));
+    drupal_rmdir($path);
+
+    // Change query-strings on css/js files to enforce reload for all users.
+    _drupal_flush_css_js();
+
+    watchdog('piwik', 'Local cache has been purged.', array(), WATCHDOG_INFO);
+  }
+}
+
+/**
+ * Helper function for grabbing search keys. Function is missing in D7.
+ *
+ * http://api.drupal.org/api/function/search_get_keys/6
+ */
+function piwik_search_get_keys() {
+  static $return;
+  if (!isset($return)) {
+    // Extract keys as remainder of path
+    // Note: support old GET format of searches for existing links.
+    $path = explode('/', $_GET['q'], 3);
+    $keys = empty($_REQUEST['keys']) ? '' : $_REQUEST['keys'];
+    $return = count($path) == 3 ? $path[2] : $keys;
+  }
+  return $return;
+}
+
+/**
+ * Tracking visibility check for an user object.
+ *
+ * @param $account
+ *   A user object containing an array of roles to check.
+ * @return boolean
+ *   A decision on if the current user is being tracked by Piwik.
+ */
+function _piwik_visibility_user($account) {
+
+  $enabled = FALSE;
+
+  // Is current user a member of a role that should be tracked?
+  if (_piwik_visibility_roles($account)) {
+
+    // Use the user's block visibility setting, if necessary.
+    if (($custom = variable_get('piwik_custom', 0)) != 0) {
+      if ($account->uid && isset($account->data['piwik']['custom'])) {
+        $enabled = $account->data['piwik']['custom'];
+      }
+      else {
+        $enabled = ($custom == 1);
+      }
+    }
+    else {
+      $enabled = TRUE;
+    }
+
+  }
+
+  return $enabled;
+}
+
+/**
+ * Based on visibility setting this function returns TRUE if GA code should
+ * be added for the current role and otherwise FALSE.
+ */
+function _piwik_visibility_roles($account) {
+
+  $visibility = variable_get('piwik_visibility_roles', 0);
+  $enabled = $visibility;
+  $roles = variable_get('piwik_roles', array());
+
+  if (array_sum($roles) > 0) {
+    // One or more roles are selected.
+    foreach (array_keys($account->roles) as $rid) {
+      // Is the current user a member of one of these roles?
+      if (isset($roles[$rid]) && $rid == $roles[$rid]) {
+        // Current user is a member of a role that should be tracked/excluded from tracking.
+        $enabled = !$visibility;
+        break;
+      }
+    }
+  }
+  else {
+    // No role is selected for tracking, therefore all roles should be tracked.
+    $enabled = TRUE;
+  }
+
+  return $enabled;
+}
+
+/**
+ * Based on visibility setting this function returns TRUE if GA code should
+ * be added to the current page and otherwise FALSE.
+ */
+function _piwik_visibility_pages() {
+  static $page_match;
+
+  // Cache visibility setting in hook_init for hook_footer.
+  if (!isset($page_match)) {
+
+    $visibility = variable_get('piwik_visibility_pages', 0);
+    $setting_pages = variable_get('piwik_pages', PIWIK_PAGES);
+
+    // Match path if necessary.
+    if (!empty($setting_pages)) {
+      // Convert path to lowercase. This allows comparison of the same path
+      // with different case. Ex: /Page, /page, /PAGE.
+      $pages = drupal_strtolower($setting_pages);
+      if ($visibility < 2) {
+        // Convert the Drupal path to lowercase
+        $path = drupal_strtolower(drupal_get_path_alias($_GET['q']));
+        // Compare the lowercase internal and lowercase path alias (if any).
+        $page_match = drupal_match_path($path, $pages);
+        if ($path != $_GET['q']) {
+          $page_match = $page_match || drupal_match_path($_GET['q'], $pages);
+        }
+        // When $visibility has a value of 0, the tracking code is displayed on
+        // all pages except those listed in $pages. When set to 1, it
+        // is displayed only on those pages listed in $pages.
+        $page_match = !($visibility xor $page_match);
+      }
+      elseif (module_exists('php')) {
+        $page_match = php_eval($setting_pages);
+      }
+      else {
+        $page_match = FALSE;
+      }
+    }
+    else {
+      $page_match = TRUE;
+    }
+
+  }
+  return $page_match;
+}
+
+/**
+ * Get the page titles trail for the current page.
+ *
+ * Based on menu_get_active_breadcrumb().
+ *
+ * @return array
+ *   All page titles, including current page.
+ */
+function _piwik_get_hierarchy_titles() {
+  $titles = array();
+
+  // No breadcrumb for the front page.
+  if (drupal_is_front_page()) {
+    return $titles;
+  }
+
+  $item = menu_get_item();
+  if (!empty($item['access'])) {
+    $active_trail = menu_get_active_trail();
+
+    // Allow modules to alter the breadcrumb, if possible, as that is much
+    // faster than rebuilding an entirely new active trail.
+    drupal_alter('menu_breadcrumb', $active_trail, $item);
+
+    // Remove the tab root (parent) if the current path links to its parent.
+    // Normally, the tab root link is included in the breadcrumb, as soon as we
+    // are on a local task or any other child link. However, if we are on a
+    // default local task (e.g., node/%/view), then we do not want the tab root
+    // link (e.g., node/%) to appear, as it would be identical to the current
+    // page. Since this behavior also needs to work recursively (i.e., on
+    // default local tasks of default local tasks), and since the last non-task
+    // link in the trail is used as page title (see menu_get_active_title()),
+    // this condition cannot be cleanly integrated into menu_get_active_trail().
+    // menu_get_active_trail() already skips all links that link to their parent
+    // (commonly MENU_DEFAULT_LOCAL_TASK). In order to also hide the parent link
+    // itself, we always remove the last link in the trail, if the current
+    // router item links to its parent.
+    if (($item['type'] & MENU_LINKS_TO_PARENT) == MENU_LINKS_TO_PARENT) {
+      array_pop($active_trail);
+    }
+
+    foreach ($active_trail as $parent) {
+      $titles[] = $parent['title'];
+    }
+  }
+
+  return $titles;
+}

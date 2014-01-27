@@ -1,0 +1,116 @@
+<?php
+// $Id$
+
+/**
+ * @file
+ * Filter status messages set by drupal_set_message().
+ */
+
+/**
+ * Implements hook_boot().
+ */
+function jammer_messages_boot() {
+  if (!empty($_SESSION['messages'])) {
+    $results = db_query("SELECT message_string FROM {jammer_messages}");
+    foreach ($results as $message_filter) {
+      $message_filter = $message_filter->message_string;
+      foreach ($_SESSION['messages'] as $type => $messages) {
+        $grep_results = preg_grep('/'. $message_filter .'/', $_SESSION['messages'][$type]);
+        foreach ($grep_results as $key => $match) {
+          unset($_SESSION['messages'][$type][$key]);
+        }
+        if (empty($_SESSION['messages'][$type])) {
+          unset($_SESSION['messages'][$type]);
+        }
+      }
+    }
+  }
+}
+
+/**
+ * Implements hook_menu().
+ *
+ * @return An array of menu items.
+ */
+function jammer_messages_menu() {
+  $items = array();
+
+  $items['admin/config/user-interface/jammer_messages'] = array(
+    'title' => 'Message Jammer',
+    'description' => 'Filter status messages.',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('_jammer_messages_settings'),
+    'access arguments' => array('administer site configuration')
+  );
+  $items['admin/config/user-interface/jammer_messages/delete/%'] = array(
+    'title' => 'Message jammer delete',
+    'description' => 'Delete filter on status messages.',
+    'page callback' => 'jammer_messages_settings_delete',
+    'page arguments' => array(5),
+    'access arguments' => array('administer site configuration'),
+    'type' => MENU_CALLBACK,
+  );
+  return $items;
+}
+
+function _jammer_messages_settings() {
+  $form = array();
+  $form['jammer_messages_string'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Message to jam'),
+    '#required' => TRUE,
+    '#description' => t('The message format is processed in regular expression form. Enter either an exact string to suppress, ' .
+    'or one which matches !PCRE formatting.', array('!PCRE' => l('PCRE', 'http://us3.php.net/manual/en/book.pcre.php', array('external' => TRUE)))),
+  );
+  $form['submit'] = array(
+    '#type' => 'submit',
+    '#value' => 'Jam message',
+  );
+  $current_settings = db_query("SELECT mid, message_string FROM {jammer_messages}");
+  $headers = array(t('Message Pattern ID'), t('Message Pattern'), t('Delete'));
+  $data = array();
+  foreach ($current_settings as $setting) {
+    $data[] = array(
+      $setting->mid,
+      $setting->message_string,
+      l(t('Delete'), 'admin/config/user-interface/jammer_messages/delete/' . $setting->mid),
+    );
+  }
+  if (!empty($data)) {
+    $form['configured'] = array(
+      '#type' => 'fieldset',
+      '#title' => 'Jammed messages',
+      '#collapsible' => TRUE,
+      '#collapsed' => FALSE,
+    );
+    $form['configured']['table'] = array(
+      '#type' => 'item',
+      '#markup' => theme('table', array(
+          'header' => $headers,
+          'rows' => $data,
+        )),
+    );
+  }
+  return $form;
+}
+
+function _jammer_messages_settings_submit($orm, &$form_state) {
+  $form_values = $form_state['values'];
+  if ($form_values['jammer_messages_string'] == '') {
+    drupal_set_message(t('Empty strings are not an accepted match string.'));
+    return;
+  }
+  $mid = db_insert('jammer_messages')
+    ->fields(array(
+    'message_string' => $form_values['jammer_messages_string'],
+  ))
+  ->execute();
+}
+
+function jammer_messages_settings_delete($mid) {
+  db_delete('jammer_messages')
+    ->condition('mid', $mid)
+    ->execute();
+  drupal_set_message(t('Jammer filter #@mid has been deleted.', array('@mid'=>$mid)));
+  drupal_goto('admin/config/user-interface/jammer_messages');
+}

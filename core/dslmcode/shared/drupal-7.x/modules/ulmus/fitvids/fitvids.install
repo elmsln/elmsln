@@ -1,0 +1,76 @@
+<?php
+/**
+ * @file
+ * Install, update and uninstall functions for the Fitvids module.
+ */
+
+// Constants - see fitvids.module
+
+/**
+ * If the plugin doesn't exist, show a warning on the status page
+ */
+function fitvids_requirements($phase) {
+  $requirements = array();
+  switch ($phase) {
+    case 'runtime':
+      $path = libraries_get_path('fitvids') . '/jquery.fitvids.js';
+      $installed = file_exists($path);
+      if (!$installed) {
+        $requirements[] = array(
+          'title' => t('FitVids jQuery plugin'),
+          'value' => t('Missing'),
+          'description' => t('The FitVids jQuery plugin is missing. Download it from !fitvids-site, copy it to the !fitvids-library directory, and rename it to !fitvids-filename.', array(
+            '!fitvids-site' => l(t('here'), FITVIDS_PLUGIN_URL),
+            '!fitvids-library' => libraries_get_path('fitvids'),
+            '!fitvids-filename' => FITVIDS_PLUGIN_FILENAME,
+          )),
+          'severity' => REQUIREMENT_ERROR,
+        );
+      }
+      else {
+        $requirements[] = array(
+          'title' => t('FitVids jQuery plugin'),
+          'value' => t('Installed'),
+          'description' => t('FitVids is available at !fitvids-library/!fitvids-filename.', array(
+            '!fitvids-library' => libraries_get_path('fitvids'),
+            '!fitvids-filename' => FITVIDS_PLUGIN_FILENAME,
+          )),
+          'severity' => REQUIREMENT_OK,
+        );
+      }
+      break;
+  }
+  return $requirements;
+}
+
+/**
+ * Enable the module
+ */
+function fitvids_enable() {
+  $path = libraries_get_path('fitvids') . '/jquery.fitvids.js';
+  $installed = file_exists($path);
+  if (!$installed) {
+    $message = t('You need to download the FitVids.js jQuery plugin to use this module. Download it from !fitvids-site, copy it to the !fitvids-library directory, and rename it to !fitvids-filename.', array(
+      '!fitvids-site' => l(t('here'), FITVIDS_PLUGIN_URL),
+      '!fitvids-library' => libraries_get_path('fitvids'),
+      '!fitvids-filename' => FITVIDS_PLUGIN_FILENAME,
+    ));
+    drupal_set_message(filter_xss_admin($message), $type = 'warning');
+  }
+  else {
+    $message = t('You already have the FitVids.js jQuery plugin installed. Configure the module !fitvids-configuration', array(
+      '!fitvids-configuration' => l(t('here'), 'admin/config/media/fitvids'),
+    ));
+    drupal_set_message(filter_xss_admin($message));
+  }
+}
+
+/**
+ * Uninstall the module
+ */
+function fitvids_uninstall() {
+  // Delete module variables
+  variable_del('fitvids_selectors');
+  variable_del('fitvids_customselectors');
+  variable_del('fitvids_simplifymarkup');
+}

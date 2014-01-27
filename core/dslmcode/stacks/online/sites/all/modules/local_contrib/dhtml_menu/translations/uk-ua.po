@@ -1,0 +1,129 @@
+# $Id: uk-ua.po,v 1.2 2009/05/25 13:32:25 podarok Exp $
+#
+# LANGUAGE translation of Drupal (dhtml_menu)
+# Copyright YEAR NAME <EMAIL@ADDRESS>
+# Generated from files:
+#  dhtml_menu.admin.inc,v 1.6 2008/11/05 12:14:43 arancaytar
+#  dhtml_menu.rebuild.inc: n/a
+#  dhtml_menu.module,v 1.31 2008/11/05 12:14:43 arancaytar
+#  dhtml_menu.info,v 1.6 2008/07/11 22:15:58 arancaytar
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: dhtml_menu HEAD Ukrainian Translation\n"
+"POT-Creation-Date: 2008-11-05 07:47-0800\n"
+"PO-Revision-Date: 2009-05-25 16:25+0200\n"
+"Last-Translator: podarok <podarok@ua.fm>\n"
+"Language-Team: uk <podarok@ua.fm>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=3; plural=((((n%10)==1)&&((n%100)!=11))?(0):(((((n%10)>=2)&&((n%10)<=4))&&(((n%100)<10)||((n%100)>=20)))?(1):2));\n"
+"X-Poedit-Language: Ukrainian\n"
+"X-Poedit-Country: UKRAINE\n"
+"X-Poedit-SourceCharset: utf-8\n"
+
+#: dhtml_menu.admin.inc:15
+msgid "Static navigation"
+msgstr "Статична навігація"
+
+#: dhtml_menu.admin.inc:17
+msgid "<strong>Fake child item:</strong> At the top of each submenu, an extra link will be generated that leads to the page of the parent item."
+msgstr "<strong>Додатковий дочірній елемент:</strong> Вгорі кожного підменю буде генеруватись додатковий пункт, що веде до батьківського елементу."
+
+#: dhtml_menu.admin.inc:18
+msgid "<strong>Link remains static:</strong> All menu links will continue to function as static links. To expand a menu, click the bullet icon next to the link."
+msgstr "<strong>Посилання залишається статичним:</strong> Всі посилання меню продовжуватимуть працювати як звичайні посилання. Для розгортання меню тисніть на іконку біля посилання"
+
+#: dhtml_menu.admin.inc:19
+msgid "<strong>Doubleclick:</strong> To expand a menu, click the link once. To navigate to the page, click it twice. <em>This may be difficult to find for your users!</em>"
+msgstr "<strong>Подвійний клік:</strong> Для розвертання меню, тисніть один раз на посилання. Для переходу до сторінки, - подвійний клік. <em>Це може бути складним для знаходження вашим користувачам </em>"
+
+#: dhtml_menu.admin.inc:20
+msgid "<strong>None:</strong> Clicking the link will expand the menu. Navigating to the page is not possible. <em>This will make pages with sub-items very difficult to reach!</em>"
+msgstr "<strong>Жодного:</strong> Натискання на посилання буде розгортати меню. Перехід до сторінкі неможливий. <em>Це зробить сторінки з піделементами дуже складними для доступу</em>"
+
+#: dhtml_menu.admin.inc:23
+msgid "Dynamic expansion of menus competes with the static navigation of content. Choose how to resolve this conflict."
+msgstr "Динамічне розкривання меню межує з статичною навігацією матеріалу. Зробіть вирішення конфлікту"
+
+#: dhtml_menu.admin.inc:28
+msgid "Animation"
+msgstr "Анімація"
+
+#: dhtml_menu.admin.inc:35
+msgid "Effects"
+msgstr "Ефекти"
+
+#: dhtml_menu.admin.inc:37
+msgid "Slide in vertically"
+msgstr "Слайд вертикально"
+
+#: dhtml_menu.admin.inc:38
+msgid "Slide in horizontally"
+msgstr "Слайд горизонтально"
+
+#: dhtml_menu.admin.inc:39
+msgid "Fade in"
+msgstr "Поява"
+
+#: dhtml_menu.admin.inc:41
+msgid "You may pick any number of animation effects that will accompany the opening and closing of a menu."
+msgstr "Ви можете обрати будь-яку конфігурацію ефектів анімації для відкривання або закривання меню"
+
+#: dhtml_menu.admin.inc:47
+msgid "Speed"
+msgstr "Швидкість"
+
+#: dhtml_menu.admin.inc:50
+msgid "Choose how quickly the menus should expand and collapse."
+msgstr "Вибір швидкості відкривання і звертання меню"
+
+#: dhtml_menu.admin.inc:55
+msgid "Other effects"
+msgstr "Інші ефекти"
+
+#: dhtml_menu.admin.inc:62
+msgid "When a menu opens"
+msgstr "Коли меню відкривається"
+
+#: dhtml_menu.admin.inc:64
+msgid "Do nothing."
+msgstr "Нічого не робити"
+
+#: dhtml_menu.admin.inc:65
+msgid "Close all other open menus on the page."
+msgstr "Закривати всі інші відкриті меню на сторінці"
+
+#: dhtml_menu.admin.inc:66
+msgid "Close other open submenus in the same menu tree."
+msgstr "Закривати інші відкриті підменю в тому ж дереві меню"
+
+#: dhtml_menu.admin.inc:73
+msgid "When a menu closes"
+msgstr "Коли меню закривається"
+
+#: dhtml_menu.admin.inc:75
+msgid "Remember which sub-items were expanded when it next opens."
+msgstr "Запам'ятовувати які підменю були розгорнуті при наступному відкриванні"
+
+#: dhtml_menu.admin.inc:76
+msgid "Close all its sub-items, too."
+msgstr "Закривати всі піделементи також"
+
+#: dhtml_menu.rebuild.inc:40
+msgid "<em>DHTML Menu</em> adds dynamic functionality to the menus of your site. Ordinarily, reaching the child elements below an item requires you to visit its page. With DHTML Menu, clicking on an item with child elements will expand it without leaving the page, saving time. You can reach the actual page of such an item either by double-clicking on it or visiting the small extra link that will be shown right below it when expanded."
+msgstr "<em>DHTML Menu</em> додає динамічну активність до меню Вашого сайту. Базово, натискання на дочірній елемент меню вимагає оновлення сторінки. З DHTML меню, натискання на елемент відкриває всі дочірні елементи без оновлень сторінок, зберігаючи час. Ви можете відкрити сторінку миттєво подвійним кліком, або кліком на зменшений елемент меню, що відображається одразу під розгорнутим батьківським елементом"
+
+#: dhtml_menu.module:0
+msgid "dhtml_menu"
+msgstr "dhtml_menu"
+
+#: dhtml_menu.info:0
+msgid "DHTML Menu"
+msgstr "DHTML Menu"
+
+#: dhtml_menu.info:0
+msgid "Opens menus dynamically to reduce page refreshes."
+msgstr "Відкриває меню динамічно для зменшення кількості оновлень сторінок"
+

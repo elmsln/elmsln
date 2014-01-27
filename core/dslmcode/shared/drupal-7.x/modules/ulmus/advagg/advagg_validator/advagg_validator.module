@@ -1,0 +1,52 @@
+<?php
+
+/**
+ * @file
+ * Advanced aggregation validation module.
+ */
+
+/**
+ * Implement hook_menu().
+ */
+function advagg_validator_menu() {
+  $items = array();
+  $file_path = drupal_get_path('module', 'advagg_validator');
+  $config_path = advagg_admin_config_root_path();
+
+
+  $items[$config_path . '/advagg/validate_css_w3'] = array(
+    'title' => 'Validate CSS via W3',
+    'description' => 'Validate CSS syntax using w3.',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('advagg_validator_admin_css_w3_form'),
+    'type' => MENU_LOCAL_TASK,
+    'access arguments' => array('administer site configuration'),
+    'file path' => $file_path,
+    'file' => 'advagg_validator.admin.inc',
+    'weight' => 10,
+  );
+  $items[$config_path . '/advagg/validate_css_lint'] = array(
+    'title' => 'Validate CSS via Lint',
+    'description' => 'Validate CSS syntax using CSS Lint.',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('advagg_validator_admin_css_lint_form'),
+    'type' => MENU_LOCAL_TASK,
+    'access arguments' => array('administer site configuration'),
+    'file path' => $file_path,
+    'file' => 'advagg_validator.admin.inc',
+    'weight' => 11,
+  );
+  $items[$config_path . '/advagg/validate_js_hint'] = array(
+    'title' => 'Validate JS via Hint',
+    'description' => 'Validate JavaScript syntax using JSHint.',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('advagg_validator_admin_js_hint_form'),
+    'type' => MENU_LOCAL_TASK,
+    'access arguments' => array('administer site configuration'),
+    'file path' => $file_path,
+    'file' => 'advagg_validator.admin.inc',
+    'weight' => 12,
+  );
+
+  return $items;
+}

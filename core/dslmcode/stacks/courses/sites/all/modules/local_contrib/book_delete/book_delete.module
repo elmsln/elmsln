@@ -1,0 +1,173 @@
+<?php
+
+/**
+ * @file
+ * Adds book deletion ability to the book administration page
+ * (admin/content/book).
+ */
+ 
+/**
+ * Implements hook_menu().
+ */
+function book_delete_menu() {
+  $items['admin/content/book/delete/%book_delete'] = array(
+    'title' => 'Delete Book',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('book_delete_delete_confirm', 4),
+    'access callback' => '_book_delete_access',
+    'access arguments' => array(4),
+    'type' => MENU_CALLBACK,
+  );
+  return $items;
+}
+
+ /**
+ * Load a book root node object from the database.
+ *
+ * @param $nid
+ *   The node ID of the book to load.
+ *
+ * @return
+ *   The fully loaded book node object.
+ */
+function book_delete_load($nid) {
+  $node = node_load($nid);
+  if (isset($node->nid) && isset($node->book) && ($node->nid == $node->book['bid'])) {
+    return $node;
+  }
+  return FALSE;
+}
+
+/**
+ * Menu access callback.
+ */
+function _book_delete_access() {
+  return user_access('administer book outlines') && user_access('bypass node access');
+}
+
+/**
+ * Implements hook_menu_alter().
+ */
+function book_delete_menu_alter(&$callbacks) {
+  // Override the book admin page with a custom version that includes book deletion links.
+  $callbacks['admin/content/book']['page callback'] = 'book_delete_book_admin_overview';
+}
+
+/**
+ * Menu callback.  Overrides the book_admin_overview at admin/content/book.
+ *
+ * @see book_delete_menu_alter()
+ * @see book_admin_overview()
+ */
+function book_delete_book_admin_overview() {
+  // Users must have access to delete all book nodes in order to safely delete a book.
+  if (user_access('bypass node access')) {
+    $rows = array();
+
+    foreach (book_get_books() as $book) {
+      $rows[] = array(l($book['title'], $book['href'], $book['options']), l(t('edit order and titles'), "admin/content/book/". $book['nid']), l(t('delete book'), 'admin/content/book/delete/'. $book['nid']));
+    }
+    $headers = array(t('Book'), t('Edit'), t('Delete'));
+
+    // If no books were found, let the user know.
+    if (empty($rows)) {
+      $rows[] = array(array('data' => t('No books available.'), 'colspan' => 3));
+    }
+
+    return theme('table', array('header' => $headers, 'rows' => $rows));
+  }
+  else { // The user may not have access to delete all book nodes.  Show them the generic book admin page.
+    include_once('./'. drupal_get_path('module', 'book') .'/book.admin.inc');
+    return book_admin_overview();
+  }
+}
+
+/**
+ * Menu callback.  Ask for confirmation of book deletion.
+ */
+function book_delete_delete_confirm($form, &$form_state, $node) {
+  $form['bid'] = array(
+    '#type' => 'value',
+    '#value' => $node->nid,
+  );
+  $form['book_title'] = array(
+    '#type' => 'value',
+    '#value' => $node->title,
+  );
+
+  return confirm_form($form,
+    t('Are you sure you want to delete the entire book %title?', array('%title' => $node->title)), 'admin/content/book',
+    t('This action cannot be undone.'),
+    t('Delete'),
+    t('Cancel')
+  );
+}
+
+/**
+ * Execute full book deletion using batch processing.
+ */
+function book_delete_delete_confirm_submit($form, &$form_state) {
+  if ($form_state['values']['confirm']) {
+    $bid = $form_state['values']['bid'];
+    $batch = array(
+     'title' => t('Deleting book %title', array('%title' => $form_state['values']['book_title'])),
+     'operations' => array(
+        array('book_delete_delete', array($bid)),
+      ),
+     'finished' => '_book_delete_delete_finished',
+    );
+    batch_set($batch);
+    batch_process();
+  }
+}
+
+/**
+ * Batch processing callback.  Delete an entire book 5 nodes at a time.
+ */
+function book_delete_delete($bid, &$context) {
+  if (!isset($context['sandbox']['progress'])) {
+    $context['sandbox']['max'] = db_query("SELECT COUNT(nid) FROM {book} WHERE bid = :bid", array(':bid' => $bid))->fetchField();
+    $context['sandbox']['progress'] = 0;
+    $context['sandbox']['highest_nid'] = 0;
+    $context['sandbox']['bid'] = $bid;
+  }
+
+  // Delete 5 nodes at a time.  This needs to be set fairly low as there may be 
+  // many search index deletions for each node.
+  $limit = 5;
+  $nids = db_query_range("SELECT nid FROM {book} WHERE bid = :bid AND nid > :nid AND nid <> bid ORDER BY nid ASC", 0, $limit, array(
+    ':bid' => $context['sandbox']['bid'],
+    ':nid' => $context['sandbox']['highest_nid'],
+    ))->fetchCol();
+  if (!empty($nids)) {
+    node_delete_multiple($nids);
+    // Update our progress information.
+    $context['sandbox']['progress'] += count($nids);
+    $context['sandbox']['highest_nid'] = array_pop($nids);
+  }
+
+  // Delete the top book node last.
+  if ($context['sandbox']['progress'] == $context['sandbox']['max'] - 1) {
+    node_delete($context['sandbox']['bid']);
+    $context['sandbox']['progress']++;
+  }
+
+  // Multistep processing : report progress.
+  $context['finished'] = $context['sandbox']['progress'] / $context['sandbox']['max'];
+}
+
+/**
+ * Book delete batch 'finished' callback.
+ */
+function _book_delete_delete_finished($success, $results, $operations) {
+  if ($success) {
+    drupal_set_message(t('The book has been deleted.'));
+  }
+  else {
+    drupal_set_message(t('An error occurred and processing did not complete.'), 'error');
+    $message = format_plural(count($results), '1 item successfully deleted:', '@count items successfully deleted:');
+    $message .= theme('item_list', $results);
+    drupal_set_message($message);
+  }
+  drupal_goto('admin/content/book');
+}

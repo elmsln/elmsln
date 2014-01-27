@@ -1,0 +1,18 @@
+
+name = "Menu Block Export"
+description = "Provides export interface for Menu block module."
+
+core = 7.x
+dependencies[] = menu_block
+
+files[] = menu_block_export.module
+files[] = menu_block_export.admin.inc
+
+configure = admin/config/user-interface/menu-block/export
+
+; Information added by drupal.org packaging script on 2012-02-03
+version = "7.x-2.3"
+core = "7.x"
+project = "menu_block"
+datestamp = "1328286646"
+

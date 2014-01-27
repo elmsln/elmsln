@@ -1,0 +1,144 @@
+<?php
+/**
+ * Implements hook_field_formatter_info().
+ */
+function field_collection_list_field_formatter_info() {
+  return array(
+    'field_collection_list' => array(
+      'label' => t('HTML List'),
+      'description' => t('Renders each field collection item as list element'),
+      'field types' => array(
+        'field_collection',
+      ),  
+      'settings' => array(
+        'list_type' => t('List type'),
+      ),
+    )
+  );
+}
+
+/**
+ * Implements hook_field_formatter_settings_form().
+ */
+function field_collection_list_field_formatter_settings_form($field, $instance, $view_mode, $form, &$form_state) {
+  $display = $instance['display'][$view_mode];
+  $settings = $display['settings'];  
+  $element = array();
+  $element['list_type'] = array(
+    '#type' => 'select',
+    '#title' => t('List type'),        
+    '#default_value' => 'ul',      
+    '#options' => array(
+      'ul' => t('An unordered list (<ul>)'),
+      'ol' => t('An ordered list (<ol>)'),      
+    ),
+  );  
+  return $element;
+}
+
+/**
+ * Implements hook_field_formatter_settings_summary().
+ */
+function field_collection_list_field_formatter_settings_summary($field, $instance, $view_mode) {
+  $display = $instance['display'][$view_mode];    
+  $settings = $display['settings'];  
+  if ($display['type'] == 'field_collection_list' && isset($settings['list_type'])) {    
+    if ($settings['list_type'] == 'ol') {
+      return check_plain('An ordered list (<ol>)');
+    } else {
+      return check_plain('An unordered list (<ul>)');
+    } 
+  } else {
+    return check_plain('An unordered list (<ul>)');
+  }  
+}
+
+/**
+ * Implements hook_field_formatter_view().
+ */
+function field_collection_list_field_formatter_view($entity_type, $entity, $field, $instance, $langcode, $items, $display) {
+  $element = array();  
+  switch ($display['type']) {    
+    // This formatter simply outputs the net_field/period wrapped in a div.
+    case 'field_collection_list':
+      $list_type = !empty($display['settings']['list_type']) ? $display['settings']['list_type'] : 'ul';        
+      $list = array();      
+      $view_mode = 'full';
+      // to implement li ul li view
+      $last_parent = 0;
+      $last_child  = 0;
+      $is_first = TRUE;
+      foreach ($items as $delta => $item) {        
+        if ($field_collection = field_collection_field_get_entity($item)) {          
+          $content = $field_collection->view($view_mode);                                        
+          // get first element of assoiative array (field container)
+          $field_key   = key($content['field_collection_item'][$field_collection->item_id]);
+          $field_type  = $content['field_collection_item'][$field_collection->item_id][$field_key]['#field_type'];
+          $current_field = $content['field_collection_item'][$field_collection->item_id][$field_key];
+          $output = '';          
+          $is_child = isset($field_collection->field_is_child['und']) ? $field_collection->field_is_child['und'][0]['value'] : 0;
+          $is_label = isset($field_collection->field_is_label['und']) ? $field_collection->field_is_label['und'][0]['value'] : 0;
+                    
+          // first cannot be child (no sence) - force as parent
+          if (!$is_child || ($is_child && $is_first)) {
+            ++$last_parent;
+          }
+          
+          if ($current_field['#field_type'] == 'file') {            
+            $output = l($current_field['#items'][0]['description'], file_create_url($current_field['#items'][0]['uri']), array('attributes' => array('target' => '_blank')));
+          } elseif ($current_field['#field_type'] == 'link_field') { 
+            $output = l($current_field['#items'][0]['title'], $current_field['#items'][0]['url'], array('html' => $current_field['#items'][0]['html'], array('attributes' => array('target' => '_blank'))));
+          } elseif ($current_field['#field_type'] == 'text') {
+            $output = $current_field['#items'][0]['value'];
+          } else {
+            $output = drupal_render($content['field_collection_item'][$field_collection->item_id]);
+          }            
+          $data['data'] = $output;
+          if ($is_label) {            
+            $data['class'] = array('label_leaf');
+          } 
+          
+          if ($is_child && !$is_first) {            
+            $list[$last_parent]['children'][$last_child++] = $data;                  
+          } else {
+            $list[$last_parent] = $data;                              
+            $last_child = 0;
+          }
+          $is_first = FALSE;
+          unset($data['class']);
+        }
+      }            
+      $element[] = array(
+        '#theme' => 'field_collection_list',        
+        '#elements_list' => $list,       
+        '#list_type' => $list_type,
+        '#prefix' => '<div class="field-collection-list">',
+        '#suffix' => '</div>',        
+      );                 
+      break;
+
+  }
+
+  return $element;
+}
+
+/**
+ * Implements hook_theme().
+ */
+function field_collection_list_theme() {
+  return array(
+    'field_collection_list' => array(
+      'variables' => array(        
+        'elements_list' => array(),  
+        'list_type' => 'ul',
+      )
+    ),   
+  );
+}
+
+/**
+ * Default implementation of theme_field_collection_list().
+ */
+function theme_field_collection_list($variables) {    
+  return theme('item_list', array('items' => $variables['elements_list'], 'type' => $variables['list_type']));
+}

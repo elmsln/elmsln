@@ -1,0 +1,204 @@
+#sb-wrapper-inner.shadowbox-login {
+	border: 2px dotted #69C;
+}
+
+#sb-wrapper-inner.shadowbox-login #sb-body {
+	background: url("login_shadowbox_bg.gif") repeat scroll left top #F4F4F4 !important;
+}
+
+.shadowbox_login_wrapper {
+	margin: 0 auto;
+	overflow: auto;
+	padding: 30px;
+	font-family: Georgia,"Times New Roman",Times,serif;
+	font-size: 14px;
+	line-height: 1.5;
+	word-wrap: break-word;
+}
+
+.shadowbox_login_close_button {
+	position: absolute;
+	top: 10px;
+	right: 10px;
+}
+
+.shadowbox_login_wrapper form {
+	margin: 0;
+	padding: 0;
+}
+
+.shadowbox_login_wrapper .form-item {
+	margin-bottom: 1em;
+	margin-top: 2px;
+}
+
+.shadowbox_login_wrapper .form-item,
+.shadowbox_login_wrapper .form-actions {
+	margin-bottom: 1em;
+	margin-top: 1em;
+}
+
+.shadowbox_login_wrapper .form-item label {
+	font-size: 0.929em;
+}
+
+.shadowbox_login_wrapper label {
+	display: block;
+	font-weight: bold;
+	text-transform: none;
+}
+
+.shadowbox_login_wrapper input {
+	"Lucida Grande","Lucida Sans Unicode",Verdana,sans-serif;
+}
+
+.shadowbox_login_wrapper input[type="text"],
+.shadowbox_login_wrapper input[type="password"] {
+	border: solid 2px #E5E5E5;
+	background: #FFFFFF;
+	color: #999999;
+	margin: 5px 0;
+	padding: 10px;
+	display: block;
+	font-size: 16px;
+	width: 90%;
+	background: -webkit-gradient(
+		linear,
+		left top,
+		left 25,
+		from(#FFFFFF),
+		color-stop(4%, #EEEEEE),
+		to(#FFFFFF)
+	);
+	background: -moz-linear-gradient(
+		top,
+		#FFFFFF,
+		#EEEEEE 1px,
+		#FFFFFF 25px
+	);
+}
+
+.shadowbox_login_wrapper input[type="text"]:focus,
+.shadowbox_login_wrapper input[type="password"]:focus {
+	color: #000000;
+	border: solid 2px #FFCC00;
+	background: #FEFFEF;
+}
+
+.shadowbox_login_wrapper input[type="text"].error,
+.shadowbox_login_wrapper input[type="password"].error {
+	color: #8C2E0B;
+	border: solid 2px red;
+	background: #FEF5F1;
+}
+
+.shadowbox_login_wrapper .form-item .description {
+	font-size: 0.85em;
+}
+
+.shadowbox_login_wrapper fieldset {
+	background: none repeat scroll 0 0 #FFFFFF;
+	border: 1px solid #CCCCCC;
+	-moz-border-radius: 4px;
+	-webkit-border-radius: 4px;
+	border-radius: 4px;
+	margin-bottom: 32px;
+	margin-top: 10px;
+	padding: 0 0 10px;
+	position: relative;
+	top: 12px;
+}
+
+.shadowbox_login_wrapper fieldset legend {
+	-moz-border-bottom-colors: none;
+	-moz-border-image: none;
+	-moz-border-left-colors: none;
+	-moz-border-right-colors: none;
+	-moz-border-top-colors: none;
+	background: none repeat scroll 0 0 #DBDBDB;
+	border-color: #CCCCCC #CCCCCC -moz-use-text-color;
+	border-style: solid solid none;
+	border-top-left-radius: 4px;
+	border-top-right-radius: 4px;
+	border-width: 1px 1px medium;
+	color: #3B3B3B;
+	display: block;
+	font-family: "Lucida Grande","Lucida Sans Unicode",Verdana,sans-serif;
+	height: 2em;
+	left: -1px;
+	line-height: 2;
+	padding: 0;
+	position: absolute;
+	text-indent: 10px;
+	text-shadow: 0 1px 0 #FFFFFF;
+	top: -12px;
+	width: 100%;
+}
+
+.shadowbox_login_wrapper fieldset .fieldset-wrapper {
+	padding: 0 10px;
+}
+
+.shadowbox_login_wrapper .fieldset-wrapper {
+	margin-top: 25px;
+}
+
+.shadowbox_login_wrapper fieldset .fieldset-description {
+	color: #3C3C3C;
+	font-style: italic;
+	line-height: 1.4;
+	margin-bottom: 1em;
+	margin-top: 5px;
+}
+
+.shadowbox_login_wrapper .form-actions {
+	padding-top: 10px;
+}
+
+.shadowbox_login_wrapper ul {
+	padding: 0;
+	margin: 0;
+}
+
+.shadowbox_login_wrapper .item-list ul li {
+	list-style: none;
+}
+
+.shadowbox_login_wrapper #edit-actions {
+	margin-right: 0.6em;
+}
+
+.shadowbox_login_wrapper #edit-actions,
+.shadowbox_login_wrapper input[type="submit"] {
+	float: right;
+}
+
+.shadowbox_login_wrapper input.form-submit,
+.shadowbox_login_wrapper a.button {
+	-moz-border-bottom-colors: none;
+	-moz-border-image: none;
+	-moz-border-left-colors: none;
+	-moz-border-right-colors: none;
+	-moz-border-top-colors: none;
+	background-color: #FFFFFF;
+	border-color: #E4E4E4 #D2D2D2 #B4B4B4;
+	border-radius: 15px 15px 15px 15px;
+	border-style: solid;
+	border-width: 1px;
+	color: #3A3A3A;
+	cursor: pointer;
+	font-size: 0.929em;
+	font-weight: normal;
+	margin-bottom: 1em;
+	margin-right: 0.6em;
+	padding: 4px 17px;
+	text-align: center;
+}
+
+body.shadowbox_login div.messages {
+	position: absolute;
+	top: 0;
+	left: 0;
+	margin: 0 !important;
+	z-index: 999;
+}

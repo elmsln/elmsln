@@ -1,0 +1,231 @@
+<?php
+
+/**
+ * @file
+ * lti_tool_provider_og hook implementations and support functions.
+ */
+
+/**
+ * Implements hook_menu().
+ */
+function lti_tool_provider_og_menu() {
+  $items = array();
+  $items['admin/config/lti-tool-provider/group-mapping'] = array(
+    'title' => 'Group Mapping',
+    'description' => 'Configure LTI context to Drupal group mapping.',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('lti_tool_provider_og_group_mapping'),
+    'access arguments' => array('administer lti_tool_provider module'),
+    'file' => 'lti_tool_provider_og.admin.inc',
+    'weight' => -4,
+  );
+  return $items;
+}
+
+/**
+ * Return an array of group roles that are mapped from a string of LTI roles.
+ *
+ * @param string $lti_roles_str
+ *   A string containing the lti roles from the lti launch parameters.
+ *
+ * @return array
+ *   The found roles.
+ */
+function lti_tool_provider_og_search_roles($lti_roles_str) {
+  $found_roles = array();
+  $group_role_array = variable_get('lti_tool_provider_og_group_role_array');
+  $lti_roles = explode(',', $lti_roles_str);
+  foreach ($lti_roles as $raw_lti_role) {
+    $lti_role_exploded = explode('/', $raw_lti_role);
+    if (count($lti_role_exploded) >= 3) {
+      $lti_role = $lti_role_exploded[2];
+    }
+    else {
+      $lti_role = $lti_role_exploded[0];
+    }
+    if (isset($group_role_array[$lti_role])) {
+      $found_roles[$lti_role] = $group_role_array[$lti_role];
+    }
+    else {
+      drupal_set_message(t('Role @lti_role, not found.', array('@lti_role' => $lti_role)), 'warning');
+    }
+  }
+  return $found_roles;
+}
+
+/**
+ * Create an options array for a select list of group bundles.
+ *
+ * @return array
+ *   An options array of group bundles.
+ */
+function lti_tool_provider_og_get_group_bundles() {
+  // Add none:None and set the entity types as the first key
+  // in the bundle array.
+  $bundles = og_get_all_group_bundle();
+  $new_bundles = array();
+  $new_bundles['none']['none:None'] = t('None');
+  foreach ($bundles as $entity => $bundle) {
+    foreach ($bundle as $key => $value) {
+      $new_bundles[$entity][$entity . ':' . $key] = $value;
+    }
+  }
+  return $new_bundles;
+}
+
+/**
+ * Retrieve the field labels and types from the entity.
+ *
+ * Return as an array suitable for a select list.
+ *
+ * @param string $group_bundle
+ *   The string of the form "entity:bundle".
+ *
+ * @return array
+ *   An array containing all the retrieved fields prepended with an entry
+ *   for none, and if the entity type is node, an entry for Title.
+ */
+function lti_tool_provider_og_retrieve_entity_field_types($group_bundle) {
+  list($entity, $bundle) = explode(':', $group_bundle);
+  $fields = field_info_instances($entity, $bundle);
+  $result = array('none' => t('None'));
+  if ($entity == 'node') {
+    $result['title'] = t('Title');
+  }
+  foreach ($fields as $field) {
+    $result[$field['field_name']] = $field['label'] . ' (' . $field['field_name'] . ')';
+  }
+  return $result;
+}
+
+/**
+ * Implements hook_lti_tool_provider_launch_alter().
+ *
+ * Perform group related actions on launch.
+ *
+ * - Find the matching group.
+ * - Add user to the group.
+ * - Map Group roles based on the user LTI role.
+ * - If needed, provision a group.
+ * - Set the destination path to the group page.
+ *
+ * @param array $launch_info
+ *   The launch info array, modified to add group entity:bundle and id.
+ * @param object $account
+ *   The drupal user account of the LTI user.
+ */
+function lti_tool_provider_og_lti_tool_provider_launch_alter(&$launch_info, $account) {
+  $selected_group_bundle = variable_get('lti_tool_provider_og_group_mapping_bundle');
+  if ($selected_group_bundle != 'none:None') {
+    // Grant Group Membership and Group Role.
+    $users_groups = og_get_entity_groups('user', $account->uid);
+    // Find the group that matches the lti context_label.
+    $course_found = FALSE;
+    list($group_entity, $group_bundle) = explode(':', $selected_group_bundle);
+    $saved_settings = variable_get('lti_tool_provider_og_group_mapping', array());
+    $mapping_field = $saved_settings['context_id'];
+    foreach (og_get_all_group($group_entity) as $key => $group_id) {
+      $group_wrapper = entity_metadata_wrapper($group_entity, $group_id);
+      $fields = $group_wrapper->getPropertyInfo();
+      if (isset($fields[$mapping_field]) && $group_wrapper->{$mapping_field}->value() == $launch_info['context_id']) {
+        // Found the group that matches the context_id.
+        $course_found = TRUE;
+        $launch_info['course_entity_type'] = $group_entity;
+        $launch_info['course_entity_eid'] = $group_id;
+        // Add the user to the group.
+        if (!array_key_exists($group_entity, $users_groups) || !in_array($group_id, $users_groups[$group_entity])) {
+          og_group($group_entity, $group_id, array(
+          'entity_type' => 'user',
+          'entity' => $account->uid,
+          'field_name' => FALSE,
+          'state' => OG_STATE_ACTIVE,
+          ));
+        }
+        // Grant the group roles.
+        if (isset($launch_info['roles'])) {
+          $found_roles = lti_tool_provider_og_search_roles($launch_info['roles']);
+          foreach ($found_roles as $lti_role => $found_role) {
+            og_role_grant($group_entity, $group_id, $account->uid, $found_role);
+          }
+        }
+      }
+    }
+    // Provision group.
+    // FIX THIS does not cope with non-node group bundles.
+    if (!$course_found && ($launch_info['context_id'] != NULL) &&
+      (variable_get('lti_tool_provider_og_provision_groups') == 1) &&
+      ((variable_get('lti_tool_provider_og_provision_groups_anon') == 1) || (user_access('create ' . $group_bundle . ' content', $account)))) {
+      $node = new stdClass();
+      $node->type = $group_bundle;
+      $node->language = LANGUAGE_NONE;
+      node_object_prepare($node);
+      if (variable_get('lti_tool_provider_og_provision_groups_anon') == 1) {
+        $node->uid = 0;
+      }
+      $saved_settings = variable_get('lti_tool_provider_og_group_mapping', array());
+      foreach ($saved_settings as $variable => $field) {
+        if (isset($launch_info[$variable])) {
+          if ($field != 'none') {
+            if ($field != 'title') {
+              foreach (field_info_instances($group_entity, $group_bundle) as $entity_field) {
+                if (($field == $entity_field['field_name']) && (strcasecmp($entity_field['widget']['module'], 'text') == 0)) {
+                  $node->{$field}[LANGUAGE_NONE][0]['value'] = $launch_info[$variable];
+                }
+              }
+            }
+            else {
+              $node->$field = isset($launch_info['custom_course_title']) ? $launch_info['custom_course_title'] : $launch_info[$variable];
+            }
+          }
+        }
+      }
+      node_save($node);
+      drupal_set_message(t('Group created for context.'), 'info');
+      $group_nid = $node->nid;
+      $launch_info['course_entity_type'] = $group_entity;
+      $launch_info['course_entity_eid'] = $group_nid;
+    }
+    if (isset($launch_info['course_entity_eid'])) {
+      $launch_info['destination'] = $launch_info['course_entity_type'] . '/' . $launch_info['course_entity_eid'];
+    }
+    else {
+      drupal_set_message(t('No course corresponding to @label exists.', array('@label' => $launch_info['context_label'])));
+    }
+  }
+}
+
+/**
+ *  Add context negotiation info.
+ *
+ * @return array
+ *   An array of context handler info
+ */
+function lti_tool_provider_og_og_context_negotiation_info() {
+  $providers = array();
+
+  $providers['lti-context'] = array(
+    'name' => t('LTI Context'),
+    'description' => t("Determine context from the LTI context."),
+    'callback' => 'lti_tool_provider_og_og_context_handler',
+  );
+
+  return $providers;
+}
+
+/**
+ * Evaluates and return group IDs to provide group context.
+ *
+ * Callback for hook_og_context_negotiation_info().
+ *
+ * @return array
+ *  A nested array of group IDs, grouped first by entity type. Each value is
+ *  a flat array of group IDs.
+ */
+function lti_tool_provider_og_og_context_handler() {
+  if (isset($_SESSION['lti_tool_provider_context_info']['course_entity_eid'])) {
+    return array(
+      $_SESSION['lti_tool_provider_context_info']['course_entity_type'] => array($_SESSION['lti_tool_provider_context_info']['course_entity_eid']),
+    );
+  }
+}
+

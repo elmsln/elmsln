@@ -1,0 +1,9 @@
+#themer-fixeder {
+  position: absolute !important;
+}
+
+#themer-toggle {
+  bottom: auto !important;
+  position: absolute !important;
+  top: 0 !important;
+}

@@ -1,0 +1,21 @@
+{
+    "DBStats": {
+        "DatabaseUsage": "Iskorišćenost baze",
+        "DataSize": "Veličina podatka",
+        "DBSize": "Veličina baze",
+        "EstimatedSize": "Procenjena veličina",
+        "IndexSize": "Veličina indeksa",
+        "LearnMore": "Ukoliko želite da naučite više o tome kako Piwik procesira podatke i kako da ga naterate da dobro radi sa srednjim i velikim sajtovima, proučite dokumentaciju %s.",
+        "MainDescription": "Piwik smešta sve vaše analitičke podatke u MySQL bazu. Trenutno Piwik tabele zauzimaju %s.",
+        "MetricDataByYear": "Metrika po godinama",
+        "MetricTables": "Metrika",
+        "OtherTables": "Ostalo",
+        "PluginDescription": "Ovaj dodatak prikazuje iskorišćenost MySQL baze od strane Piwik tabela.",
+        "ReportDataByYear": "Izveštaji po godinama",
+        "ReportTables": "Izveštaji",
+        "RowCount": "Broj redova",
+        "Table": "Tabela",
+        "TotalSize": "Ukupna veličina",
+        "TrackerTables": "Trekeri"
+    }
+}

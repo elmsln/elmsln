@@ -1,0 +1,89 @@
+.accessibility-hint {
+  position: fixed;
+  bottom: 0px;
+  right: 0px;
+  font-size: 14px;
+  background: #fff;
+  color: #000;
+  border-top: 2px solid black;
+  border-left: 2px solid black;
+  padding: 10px;
+  border-radius: 5px 0 0 0;
+}
+
+.accessibility-hint .close {
+  top: 10px;
+  float: right;
+  right: 10px;
+  border: none;
+  background: none;
+  font-weight: bold;
+  cursor: pointer;
+  color: #555;
+  font-size: 18px;
+}
+
+.accessibility-result {
+  border-radius: 5px;
+  border-style: dashed;
+  border-width: 2px;
+  cursor: pointer !important;
+}
+
+.accessibility-result.severe, .accessibility-link.severe img, .accessibility-result._severe {
+  border-color: #994141;
+}
+
+.accessibility-result.moderate, .accessibility-link.moderate img, .accessibility-result._moderate {
+  border-color: #2e71a0;
+}
+
+.accessibility-result.suggestion, .accessibility-link.suggestion img, .accessibility-result._suggestion {
+  border-color: #36af60;
+}
+
+.accessibility-result img {
+  padding: 3px;
+}
+
+.accessibility-icon img, .accessibility-icon-current {
+  width: 23px;
+  height: 23px;
+  margin-right: -23px;
+  display: inline-block;
+  z-index: 1000;
+  position: absolute;
+}
+
+.accessibility-icon-current {
+  margin-right: auto;
+  margin-left: -23px;
+}
+
+#accessibility-console {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  height: 190px;
+  width: 100%;
+  background: white;
+  box-shadow: inset 0px 4px 8px 0px rgba(99, 99, 99, .2);
+  border-top: 1px inset #737C70;
+  padding: 15px 10px;
+  z-index: 1001;
+}
+
+#accessibility-console .close-console {
+  position: absolute;
+  right: 40px;
+  top: 0px;
+  color: #595959;
+  font-weight: bold;
+  text-decoration: none;
+  display: block;
+  font-size: 2em;
+}
+
+#accessibility-console .accessibility-console-content {
+  overflow: scroll;
+}

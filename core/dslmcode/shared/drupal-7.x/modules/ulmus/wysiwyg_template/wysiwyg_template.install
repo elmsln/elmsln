@@ -1,0 +1,106 @@
+<?php
+
+/**
+ * Implementation of hook_schema().
+ */
+function wysiwyg_template_schema() {
+  $schema['wysiwyg_templates'] = array(
+    'fields' => array(
+      'name' => array(
+        'description' => 'The machine name for the template.',
+        'type' => 'varchar',
+        'length' => 128,
+      ),
+      'title' => array(
+        'description' => 'The title of the Wysiwyg template',
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => TRUE),
+      'description' => array(
+        'description' => 'The description of the Wysiwyg template',
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => TRUE),
+      'fid' => array(
+        'description' => 'The {file_managed}.fid of the image.',
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 0),
+      'body' => array(
+        'description' => 'The Wysiwyg template HTML',
+        'type' => 'text'),
+    ),
+    'primary key' => array('name'),
+  );
+  return $schema;
+}
+
+/**
+ * Provide machine names and auto-generation of machine names for existing
+ * templates. Drop tid field.
+ */
+function wysiwyg_template_update_7200() {
+  // Get an array map of tid/title values before deleting tid field.
+  $templates = db_select('wysiwyg_templates', 't')
+    ->fields('t', array('tid', 'title'))
+    ->execute()
+    ->fetchAllKeyed(0, 1);
+
+  // Change tid from serial to int first, otherwise removing the primary key
+  // isn't possible.
+  db_change_field('wysiwyg_templates', 'tid', 'tid', array(
+    'type' => 'int',
+    'unsigned' => TRUE,
+    'not null' => TRUE,
+  ));
+  db_drop_primary_key('wysiwyg_templates');
+
+  // Create name field and populate it.
+  db_add_field('wysiwyg_templates', 'name', array(
+    'description' => 'The machine name for the template.',
+    'type' => 'varchar',
+    'length' => 128,
+  ));
+
+  foreach ($templates as $tid => $title) {
+    // Basic formatting.
+    $new_name = strtolower(trim(substr($title, 0, 128)));
+
+    // Regex to strip out all unwanted characters.
+    $new_name = preg_replace('/[^a-z0-9_]+/', '_', $new_name);
+
+    // Check if this queue name already exists.
+    if (wysiwyg_template_name_exists($new_name)) {
+      $tmp_name = $new_name;
+      $i = 0;
+      do {
+        // Append an incrementing numeric suffix until we find a unique name.
+        $unique_suffix = '_' . $i;
+        $new_name = truncate_utf8($tmp_name, 128 - drupal_strlen($unique_suffix, TRUE)) . $unique_suffix;
+        $i++;
+      } while (wysiwyg_template_name_exists($new_name));
+    }
+
+    db_update('wysiwyg_templates')
+      ->fields(array('name' => $new_name))
+      ->condition('tid', $tid)
+      ->execute();
+  }
+  db_add_primary_key('wysiwyg_templates', array('name'));
+  db_drop_field('wysiwyg_templates', 'tid');
+}
+
+/**
+ * Add the fid table field
+ */
+function wysiwyg_template_update_7201() {
+  // Create name field and populate it.
+  db_add_field('wysiwyg_templates', 'fid', array(
+    'description' => 'The {file_managed}.fid of the image.',
+    'type' => 'int',
+    'unsigned' => TRUE,
+    'not null' => TRUE,
+    'default' => 0)
+  );
+}

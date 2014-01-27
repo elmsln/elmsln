@@ -1,0 +1,13 @@
+diff --git a/og_clone.module b/og_clone.module
+index 21f63bb..86ca284 100644
+--- a/og_clone.module
++++ b/og_clone.module
+@@ -59,7 +59,7 @@ function og_clone_entity_insert($entity, $entity_type) {
+       // If there's a menu link for the old group, create a menu link
+       // for the new group.
+       $menu_link = 0;
+-      if (!empty($old->menu)) {
++      if (!empty($old->menu['link_title'])) {
+         $link = $old->menu;
+         $link['mlid'] = 0;
+         $link['link_title'] = $entity->title;

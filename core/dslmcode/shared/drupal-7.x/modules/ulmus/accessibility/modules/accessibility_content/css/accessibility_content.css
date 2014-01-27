@@ -1,0 +1,15 @@
+.accessibility-content-toggle {
+  position: fixed;
+  bottom: 0px;
+  left: 20px;
+  font-size: 14px;
+  background: #737C70;
+  padding: 10px;
+  border-radius: 5px 5px 0 0;
+}
+
+.accessibility-content-toggle a, .accessibility-content-toggle a:hover, .accessibility-content-toggle a:visited {
+  color: #fff;
+  text-decoration: none;
+}
+

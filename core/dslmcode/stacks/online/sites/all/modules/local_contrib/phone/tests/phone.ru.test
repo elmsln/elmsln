@@ -1,0 +1,33 @@
+<?php
+
+class RUPhoneNumberTestCase extends DrupalWebTestCase {
+  /**
+   * Implementation of getInfo()
+   *
+   */
+  public static function getInfo() {
+    return array(
+      'name' => t('Russia Phone number test'),
+      'description' => t('Tests various valid and invalid Russia phone numbers for validity'),
+      'group' => t('Phone')
+    );
+  }
+
+  public function testPhoneRUValid() {
+    $this->assertTrue(valid_phone_number('ru', '+7(916)9985670'), t('Test valid'));
+    $this->assertTrue(valid_phone_number('ru', '8-912-268-5440'), t('Test valid'));
+    $this->assertTrue(valid_phone_number('ru', '8905148-3339'), t('Test valid'));
+    $this->assertTrue(valid_phone_number('ru', '8(913)448-51-90'), t('Test valid'));
+    $this->assertTrue(valid_phone_number('ru', '903-345-34-34'), t('Test valid'));
+    $this->assertTrue(valid_phone_number('ru', '903-34-334-34'), t('Test valid'));
+    $this->assertTrue(valid_phone_number('ru', '903-34-33434'), t('Test valid '));
+  }
+
+  public function testPhoneRUInvalid() {
+    $this->assertFalse(valid_phone_number('ru', '+33903-34-33434'), t('Test invalid '));
+  }
+
+  public function testPhoneRUFormatting() {
+    //$this->assertEqual(format_phone_number('ru', '+6421123456', null), '+64 21 123 456', t('Check international mobile format'));
+  }
+}

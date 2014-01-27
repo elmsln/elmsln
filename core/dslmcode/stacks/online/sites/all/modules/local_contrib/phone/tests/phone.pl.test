@@ -1,0 +1,32 @@
+<?php
+
+class PLPhoneNumberTestCase extends DrupalWebTestCase {
+  /**
+   * Implementation of getInfo()
+   *
+   */
+  public static function getInfo() {
+    return array(
+      'name' => t('Poland Phone number test'),
+      'description' => t('Tests various valid and invalid Poland phone numbers for validity'),
+      'group' => t('Phone')
+    );
+  }
+
+  public function testPhonePLValid() {
+    $this->assertTrue(valid_phone_number('pl', '+48 500-080-100'), t('Test valid'));
+    $this->assertTrue(valid_phone_number('pl', '500080100'), t('Test valid'));
+    $this->assertTrue(valid_phone_number('pl', '500 080 100'), t('Test valid'));
+  }
+
+  public function testPhonePLInvalid() {
+    $this->assertFalse(valid_phone_number('pl', '+47 100-100-100'), t('Test invalid '));
+    $this->assertFalse(valid_phone_number('pl', '1000-100-100'), t('Test invalid '));
+    $this->assertFalse(valid_phone_number('pl', '1000000000'), t('Test invalid '));
+  }
+
+  public function testPhonePLFormatting() {
+    //$this->assertEqual(format_phone_number('pl', '+6421123456', null), '+64 21 123 456', t('Check international mobile format'));
+
+  }
+}

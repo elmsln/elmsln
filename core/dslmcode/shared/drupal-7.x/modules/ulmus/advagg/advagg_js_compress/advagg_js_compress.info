@@ -1,0 +1,14 @@
+name = AdvAgg Compress Javascript
+description = Compress Javascript with a 3rd party compressor, JSMin+ currently.
+package = Advanced CSS/JS Aggregation
+core = 7.x
+dependencies[] = advagg
+
+configure = admin/config/development/performance/advagg/js-compress
+
+; Information added by  packaging script on 2013-11-17
+version = "7.x-2.3"
+core = "7.x"
+project = "advagg"
+datestamp = "1384667233"
+

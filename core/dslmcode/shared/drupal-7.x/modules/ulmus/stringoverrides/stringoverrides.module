@@ -1,0 +1,100 @@
+<?php
+
+/**
+ * @file
+ * Configuration interface to provide a quick and easy way of replacing text.
+ */
+
+/**
+ * Implements hook_help().
+ */
+function stringoverrides_help($path, $arg) {
+  switch ($path) {
+    case 'admin/help#stringoverrides':
+      $output = '<p>' . t('The <strong>String Overrides</strong> module provides a quick and easy way of replacing text.') . '</p>';
+      $output .= '<p>' . t('To replace a string, enter <strong>the complete string</strong> that is passed through the <a href="@t">t()</a> function. String Overrides cannot translate user-defined content, it can only replace strings wrapped in the t() function. To find the strings you can actually change, open up a module and look for t() function calls. Places where %, @, or ! are used means that the translation contains dynamic information (such as the node type or title in the above examples); these are not translated while the text around them is.', array('@t' => 'http://api.drupal.org/api/function/t')) . '</p>';
+      $output .= theme('item_list', array(
+        'title' => t('Examples'),
+        'items' => array(
+          '"The %post has been updated." &rarr; "You just updated the %post."',
+          '"Are you sure you want to delete %title?" &rarr; "Do you want to delete %title?"',
+        ),
+      ));
+      $output .= '<p>' . t('Remember, you must replace the entire string, not just a portion of it.') . '</p>';
+      return $output;
+  }
+
+  if ($path == 'admin/config/regional/stringoverrides' || strpos($path, 'admin/config/regional/stringoverrides/manage/') !== FALSE) {
+    $languages = language_list();
+    if (isset($arg[5]) && isset($languages[$arg[5]])) {
+        $lang = $languages[$arg[5]]->native;
+        return '<p>' . t('The following provides a quick and easy way of replacing text in @lang.', array('@lang' => $lang)) . '</p>';
+    }
+    return '<p>' . t('The following provides a quick and easy way of replacing text.') . '</p>';
+  }
+}
+
+/**
+ * Implements hook_permission().
+ */
+function stringoverrides_permission() {
+  return array(
+    'administer string overrides' => array(
+      'title' => t('Administer string overrides'),
+    ),
+  );
+}
+
+/**
+ * Implements hook_menu().
+ */
+function stringoverrides_menu() {
+  $items['admin/config/regional/stringoverrides'] = array(
+    'title' => 'String overrides',
+    'description' => 'Provides a quick and easy way of replacing text on the site.',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('stringoverrides_admin'),
+    'access arguments' => array('administer string overrides'),
+    'type' => MENU_NORMAL_ITEM,
+    'file' => 'stringoverrides.admin.inc',
+  );
+
+  // Add the language tabs if there are other languages
+  if (module_exists('locale')) {
+    global $language;
+    $languages = locale_language_list();
+    foreach ($languages as $code => $name) {
+      $items["admin/config/regional/stringoverrides/manage/$code"] = array(
+        'title' => '@lang',
+        'title arguments' => array('@lang' => $name),
+        'page arguments' => array('stringoverrides_admin', $code),
+        'access arguments' => array('administer string overrides'),
+        'type' => $language->language == $code ? MENU_DEFAULT_LOCAL_TASK : MENU_LOCAL_TASK,
+      );
+    }
+  }
+  else {
+    $items['admin/config/regional/stringoverrides/manage/en'] = array(
+      'title' => 'Overrides',
+      'page callback' => 'drupal_get_form',
+      'page arguments' => array('stringoverrides_admin', 'en'),
+      'access arguments' => array('administer string overrides'),
+      'type' => MENU_DEFAULT_LOCAL_TASK,
+      'file' => 'stringoverrides.admin.inc',
+    );
+  }
+
+  return $items;
+}
+
+/**
+ * Implements hook_theme().
+ */
+function stringoverrides_theme() {
+  return array(
+    'stringoverrides_strings' => array(
+      'render element' => 'form',
+      'file' => 'stringoverrides.admin.inc',
+    ),
+  );
+}

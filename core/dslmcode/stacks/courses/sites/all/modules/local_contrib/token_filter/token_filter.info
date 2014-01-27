@@ -1,0 +1,11 @@
+name = Token Filter
+description = Allows token values to be used as filters
+core = 7.x
+dependencies[] = token
+
+; Information added by drupal.org packaging script on 2013-10-19
+version = "7.x-1.1+1-dev"
+core = "7.x"
+project = "token_filter"
+datestamp = "1382147423"
+

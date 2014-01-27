@@ -1,0 +1,78 @@
+#container {
+  clear: left;
+}
+
+.Menu--admin {
+    padding: 0;
+    float: left;
+    width: 240px;
+}
+
+.Menu--admin > .Menu-tabList {
+    background-image: linear-gradient(top, #FECB00 0%, #FE9800 25%, #FE6702 50%, #CA0000 75%, #670002 100%);
+    background-image: -o-linear-gradient(top, #FECB00 0%, #FE9800 25%, #FE6702 50%, #CA0000 75%, #670002 100%);
+    background-image: -moz-linear-gradient(top, #FECB00 0%, #FE9800 25%, #FE6702 50%, #CA0000 75%, #670002 100%);
+    background-image: -webkit-linear-gradient(top, #FECB00 0%, #FE9800 25%, #FE6702 50%, #CA0000 75%, #670002 100%);
+    background-image: -ms-linear-gradient(top, #FECB00 0%, #FE9800 25%, #FE6702 50%, #CA0000 75%, #670002 100%);
+
+    background-image: -webkit-gradient(linear, left top, left bottom, color-stop(0, #FECB00), color-stop(0.25, #FE9800), color-stop(0.5, #FE6702), color-stop(0.75, #CA0000), color-stop(1, #670002));
+
+    -moz-background-size: 5px 100%;
+    background-size: 5px 100%;
+    background-position: 0 0, 100% 0;
+    background-repeat: no-repeat;
+}
+
+.Menu--admin > .Menu-tabList {
+    padding-left: 5px;
+    margin-bottom: 0;
+    margin-top: 0.1em;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+}
+
+.Menu--admin > .Menu-tabList li {
+    list-style: none;
+    margin: 0;
+}
+
+.Menu--admin > .Menu-tabList > li {
+    padding-bottom: 5px;
+}
+
+.Menu--admin > .Menu-tabList > li > a,
+.Menu--admin > .Menu-tabList > li > span {
+    text-decoration: none;
+    border-bottom: 1px dotted #778;
+    display: block;
+    padding: 5px 10px;
+    font-size: 18px;
+    color: #7E7363;
+}
+
+.Menu--admin > .Menu-tabList li li a {
+    text-decoration: none;
+    padding: 0.6em 0.9em;
+    font: 14px Arial, Helvetica, sans-serif;
+    display: block;
+}
+
+.Menu--admin > .Menu-tabList li li a:link,
+.Menu--admin > .Menu-tabList li li a:visited {
+    color: #000;
+}
+
+.Menu--admin > .Menu-tabList li li a:hover,
+.Menu--admin > .Menu-tabList li li a.active {
+    color: #e87500;
+    background: #f1f1f1;
+    border-color: #000;
+}
+
+.Menu--admin > .Menu-tabList li li a:hover {
+    text-decoration: underline;
+}
+
+.Menu--admin > .Menu-tabList li li a.current {
+    background: #defdbb;
+}

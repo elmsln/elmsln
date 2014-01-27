@@ -1,0 +1,34 @@
+#typo-report-wrapper {
+  display: none;
+}
+
+#typo-modal div.ctools-modal-content .modal-header {
+  background-color: #999;
+}
+
+#typo-modal {
+  background: url(../images/bg.png);
+  padding: 10px;
+}
+
+#typo-modal .ctools-modal-content {
+  background-color: #fff;
+  border: 0;
+  padding-bottom: 20px;
+}
+
+#typo-modal #typo-context-div {
+  margin: 5px 0;
+  background-color: #eee;
+  padding: 5px;
+}
+
+#typo-modal #typo-comment {
+  width: 100%;
+  border: 1px solid #777;
+  margin: 5px 0;
+}
+
+#typo-report-result {
+  display: none;
+}

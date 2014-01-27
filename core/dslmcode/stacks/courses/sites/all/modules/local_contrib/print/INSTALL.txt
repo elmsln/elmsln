@@ -1,0 +1,87 @@
+INSTALLATION
+------------
+
+Decompress the print-n.x-n.n.tar.gz file into your Drupal modules
+directory (usually sites/all/modules, see http://drupal.org/node/176044 for
+more information).
+
+Enable the print module: Administration > Modules (admin/modules)
+
+PDF TOOL
+--------
+
+The print_pdf module requires the use of an external PDF generation tool.
+The currently supported tools are dompdf, TCPDF and wkhtmltopdf.  Please
+note that any errors/bugs in those tools need to be reported and fixed by
+their maintainers.  DO NOT report bugs in those tools in the print module's
+issue queue at Drupal.org.
+
+supported paths:
+  * print module lib directory (usually sites/all/modules/print/lib)
+  * libraries directory (sites/all/libraries)
+
+dompdf support:
+  The dompdf tool produces results that are more faithful to the HTML
+  printer-friendly page. Good support of CSS 2.1 and partially CSS3.
+
+  1. Download dompdf from http://code.google.com/p/dompdf/downloads/list
+  2. Extract the contents of the downloaded package into one of the
+  supported paths.
+  3. Check if dompdf_config.inc.php fits your installation. In 99% of cases,
+  no changes are necessary, so just try to use it and only edit anything if
+  the PDF generation fails.
+  4. Grant write access to the lib/fonts directory to your webserver user.
+  5. If you're using dompdf-0.5.1, delete the dompdf.php file as it contains
+  a security vulnerability
+  6. If you're using dompdf-0.6 or later, you can try to enable the Unicode
+  support, but you'll need to add some Unicode fonts. See 
+  http://groups.google.com/group/dompdf/browse_thread/thread/9f7bc0162b04d5cf
+  for further info on this.
+  7. Check http://code.google.com/p/dompdf/ for further information.
+
+TCPDF support:
+  TCPDF's support for CSS is considerably worse than the other tools.
+  Unicode is supported (use of Unicode fonts result in HUGE files).  Page
+  header and footer are supported. This module requires TCPDF >= 5.9.012.
+
+  1. Download TCPDF from http://sourceforge.net/projects/tcpdf/
+  2. Extract the contents of the downloaded package into one of the
+  supported paths.  There is no need to modify the config/tcpdf_config.php
+  file, as the module self-configures TCPDF.
+  3. Grant write access to the cache and images directories to your
+  webserver user.
+  4. Check http://tcpdf.sourceforge.net/ for further information.
+
+wkhtmltopdf support:
+  wkhtmltopdf is a webkit-based tool that actually is a browser in order to
+  generate the PDF.  Resource hungry: expect to need some 30Mb+ of RAM and
+  some seconds of CPU power.  The static binaries may need additional
+  libraries in your site, which may present problems in shared hosting
+  environments.  The best, if you can run it.
+
+  1. Download wkhtmltopdf from
+  http://code.google.com/p/wkhtmltopdf/downloads/list. You can choose to
+  download the source and compile it or simply download the static binary,
+  which doesn't require you to compile anything. Note that the compiled
+  version may require a running X server (static uses patched libs that can
+  work without one).
+  2. Place the wkhtmltopdf executable into one of the supported paths. 
+  (usually sites/all/modules/print/lib).  You can also place a symbolic link
+  to the executable.
+  3. Check http://code.google.com/p/wkhtmltopdf/ for further information.
+
+UPDATE
+------
+
+When updating from a previous version, just remove the print directory and
+follow the instructions above. Make sure that you backup any costumization
+to the print.tpl.php and print.css files.
+
+ROBOTS
+------
+
+Even though it is possible to set per-page robots settings, the following
+can be placed in your robots.txt file after the User-agent line to prevent
+search engines from even asking for the page:
+
+Disallow: /print/

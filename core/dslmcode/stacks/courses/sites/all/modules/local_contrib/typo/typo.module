@@ -1,0 +1,262 @@
+<?php
+/**
+ * This module allows users to send a typo reports.
+ */
+
+/**
+ * Implemens hook_menu().
+ */
+function typo_menu() {
+  $items = array();
+
+  $items['ajax/typo-report'] = array(
+    'page callback' => '_typo_save_report',
+    'access arguments' => array('can send typo reports'),
+    'type' => MENU_CALLBACK,
+  );
+
+  $items['admin/config/user-interface/typo'] = array(
+    'title' => 'Typo reports settings', 
+    'page callback' => 'drupal_get_form', 
+    'page arguments' => array('typo_admin_settings'), 
+    'access arguments' => array('administer site configuration'),
+    'file' => 'typo.admin.inc',
+  );
+
+  return $items;
+}
+
+/**
+ * Implements hook_permission().
+ */
+function typo_permission() {
+  return array(
+    'access typo list' => array(
+      'title' => t('User may access typo reports list'),
+    ), 
+    'may send typo reports' => array(
+      'title' => t('User may send typo reports'),
+    ),
+  );
+}
+
+/**
+ * Implements hook_theme().
+ */
+function typo_theme() {
+  return array(
+    'typo_report' => array(
+      'template' => 'typo-report-form',
+    ),
+  );
+}
+
+/**
+ * Process variables for typo-report-form.tpl.php.
+ *
+ * @see typo-report-form.tpl.php
+ */
+function template_preprocess_typo_report(&$variables) {
+  $form = drupal_get_form('typo_report_form');
+  $variables['typo_report_form'] = drupal_render($form);
+}
+
+
+/**
+ * Implements hook_views_api().
+ */
+function typo_views_api() {
+  return array(
+    'api' => 3,
+    'path' => drupal_get_path('module', 'typo') . '/views',
+  );
+}
+
+/**
+ * Implements hook_page_build().
+ */
+function typo_page_build(&$page) {
+  if (user_access('may send typo reports')) {
+    ctools_include('ajax');
+    ctools_include('modal');
+
+    drupal_add_js(array('typo' => array('max_chars' => variable_get('typo_max_chars', 20))), 'setting');
+    drupal_add_js(drupal_get_path('module', 'typo') . '/js/typo.template.js'); // TODO: replace this line with data from module settings form
+    drupal_add_js(drupal_get_path('module', 'typo') . '/js/typo.selection.js');
+    drupal_add_js(drupal_get_path('module', 'typo') . '/js/typo.js');
+    drupal_add_css(drupal_get_path('module', 'typo') . '/css/typo.css'); // TODO: replace this line with data from module settings form
+
+    ctools_modal_add_js();
+
+    $settings = array(
+      'TypoModal' => array(
+        'loadingText' => t('Send typo report'),
+        'closeText' => t('close'),
+        'closeImage' => '',
+        'throbber' => theme('image', array(
+            'path' => ctools_image_path('throbber.gif'),
+            'title' => t('Loading...'),
+            'alt' => t('Loading'),
+        )),
+        'modalTheme' => 'TypoModalDialog',
+        'animation' => 'show',
+        'animationSpeed' => 'fast',
+        'modalSize' => array(
+          'type' => 'scale',
+          'width' => '560px',
+          'height' => '250px',
+          'addWidth' => 0,
+          'addHeight' => 0,
+          'contentRight' => 25,
+          'contentBottom' => 45,
+        ),
+        'modalOptions' => array(
+          'opacity' => 0.55,
+          'background' => '#000',
+        ),
+      ),
+    );
+
+    drupal_add_js($settings, 'setting');
+    $page['page_bottom']['typo']= array(
+      '#type' => 'markup',
+      '#markup' => '<div id="typo-report-wrapper">' . theme('typo_report') . '</div>', // #typo-report-wrapper hardcoded, because it obligatorily need for ajax callback
+    );
+  }
+}
+
+/**
+ * Implements hook_cron()
+ */
+function typo_cron() {
+  // Remove old reports.
+  $ttl = variable_get('typo_reports_ttl', 4320);
+  if ($ttl > 0) {
+    db_delete('typo')->condition('created', time() - $ttl * 60, '<')->execute();
+  }
+}
+
+/**
+ * Typo report form
+ */
+function typo_report_form($form, &$form_state) {
+  $form['typo_comment'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Typo comment'),
+    '#default_value' => '',
+    '#size' => 60,
+    '#maxlength' => 128,
+    '#required' => FALSE,
+    '#weight' => 1,
+  );
+
+  $ajax = array(
+    'callback' => '_typo_save_report',
+    'wrapper' => 'typo-report-result', // this div declared in typo-report-form.tpl.php
+    'method' => 'append',
+    'effect' => 'fade',
+  );
+
+  $form['typo_context'] = array(
+    '#type' => 'hidden',
+    '#default_value' => '',
+    '#maxlength' => 128,
+    '#required' => FALSE,
+    '#weight' => 1,
+    '#attributes' => array('id' => 'typo-context'),
+  );
+
+  $form['typo_url'] = array(
+    '#type' => 'hidden',
+    '#default_value' => '',
+    '#maxlength' => 256,
+    '#required' => FALSE,
+    '#weight' => 1,
+    '#attributes' => array('id' => 'typo-url'),
+  );
+
+  global $user;
+  $form['typo_uid'] = array(
+    '#type' => 'hidden',
+    '#default_value' => $user->uid,
+    '#maxlength' => 256,
+  );
+
+  $form['send_typo_report'] = array(
+    '#type' => 'button',
+    '#value' => t('Send typo report'),
+    '#weight' => 2,
+    '#ajax' => $ajax,
+  );
+
+  return $form;
+}
+
+function _typo_save_report($form, $form_state) {
+  $typo_id = db_insert('typo')->fields(array('url' => $form_state['values']['typo_url'], 'text' => $form_state['values']['typo_context'], 'comment' => $form_state['values']['typo_comment'], 'uid' => $form_state['values']['typo_uid'], 'created' => time()))->execute();
+
+  $commands = array();
+  //$commands[] = ajax_command_alert('debug: ' . $form_state['values']['typo_comment'] . ' => ' . $form_state['values']['typo_context']);
+  $commands[] = ajax_command_invoke(NULL, 'typo_js_callback', array($form_state['values']['typo_comment'] . ' => ' . $form_state['values']['typo_context'] . ' => ' . $form_state['values']['typo_url']));
+  $commands[] = ajax_command_append('#typo-report-wrapper', theme('typo_report'));
+
+  $typo = new stdClass();
+  $typo->typo_id = $typo_id;
+  $typo->url = $form_state['values']['typo_url'];
+  $typo->comment = $form_state['values']['typo_comment'];
+  $typo->text = $form_state['values']['typo_context'];
+
+  if (module_exists('rules')) {
+    rules_invoke_event('typo_report_added', $typo);
+  }
+
+  return array('#type' => 'ajax', '#commands' => $commands);
+}
+
+/**
+ * Implements hook_entity_info().
+ */
+function typo_entity_info() {
+  return array(
+    'typo' => array(
+      'label' => t('Typo'),
+      'base table' => 'typo',
+      'entity keys' => array(
+        'id' => 'typo_id',
+      ),
+      'label callback' => 'typo_vbo_label',
+    ),
+  );
+}
+
+/**
+ * Label callback for "typo" entity.
+ */
+function typo_vbo_label($typo) {
+  return '#' . $typo->typo_id . ': ' . $typo->text;
+}
+
+/**
+ * Implements hook_action_info().
+ */
+function typo_action_info() {
+  return array(
+    'typo_vbo_delete_item' => array(
+      'type' => 'typo',
+      'label' => t('Delete typo report'),
+      'configurable' => FALSE,
+    ),
+  );
+}
+
+/**
+ * VBO integration. Action for deleting typo report.
+ */
+function typo_vbo_delete_item($typo, $context) {
+  if (db_delete('typo')->condition('typo_id', $typo->typo_id)->execute()) {
+    drupal_set_message(t('Typo report %typo_id has been deleted', array('%typo_id' => $typo->typo_id)));
+  }
+  else {
+    drupal_set_message(t('Error deleting typo report %typo_id', array('%typo_id' => $typo->typo_id)));
+  }
+}

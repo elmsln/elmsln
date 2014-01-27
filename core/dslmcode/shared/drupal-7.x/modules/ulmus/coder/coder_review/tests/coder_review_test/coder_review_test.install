@@ -1,0 +1,30 @@
+<?php
+
+/**
+ * @file
+ * Test file for checking install and update hooks.
+ */
+
+/**
+ * Implements hook_update_X().
+ */
+function coder_review_test_update_7100() {
+  $ret = array();
+  $ret = update_sql("SELECT * FROM {node}");
+  return $ret;
+}
+
+/**
+ * Implements hook_install().
+ */
+function coder_review_test_install() {
+  drupal_install_schema('coder_review_test');
+}
+
+/**
+ * Implements hook_uninstall().
+ */
+function coder_review_test_uninstall() {
+  drupal_uninstall_schema('coder_review_test');
+}
+

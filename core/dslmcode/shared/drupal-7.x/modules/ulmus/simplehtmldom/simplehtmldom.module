@@ -1,0 +1,12 @@
+<?php
+
+// Include the only file of the library.
+// There are 5-6 funcs there and their names are not prefixed. But these names are quite unprobable to cause collisions...
+
+if (!function_exists('str_get_html')) {
+  require_once('simplehtmldom/simple_html_dom.php');
+}
+else {
+  drupal_set_message('The simplehtmldom API module found that you define its functions before it does itself! Somewhere in yor drupal files there must be a copy of the simplehtmldom PHP library that you do not need if you have this drupal module... Please remove the old library and live happily. The simplehtmldom module will include the necessary php files from the lib as soon as you remove the old ones.', 'error');
+}
+

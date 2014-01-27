@@ -1,0 +1,39 @@
+<?php
+
+class BRPhoneNumberTestCase extends DrupalWebTestCase {
+  /**
+   * Implementation of getInfo()
+   *
+   */
+  public static function getInfo() {
+    return array(
+      'name' => t('Brazil Phone number test'),
+      'description' => t('Tests various valid and invalid Brazil phone numbers for validity'),
+      'group' => t('Phone')
+    );
+  }
+
+  public function testPhoneBRValid() {
+    $this->assertTrue(valid_phone_number('br', '(11) 1234-5678'), t('Test valid - (11) 1234-5678'));
+    $this->assertTrue(valid_phone_number('br', '1234-5678 '), t('Test valid - 1234-5678'));
+    $this->assertTrue(valid_phone_number('br', '12345678'), t('Test valid - 12345678'));
+    $this->assertTrue(valid_phone_number('br', '+55 11 2222-3333'), t('Test valid - +55 11 2222-3333'));
+    
+    $this->assertTrue(valid_phone_number('br', '011 5555-1234'), t('Test valid - 011 5555-1234'));
+    $this->assertTrue(valid_phone_number('br', '(011) 5555 1234'), t('Test valid - (011) 5555 1234'));
+    $this->assertTrue(valid_phone_number('br', '(11) 5555.1234'), t('Test valid - (11) 5555.1234'));
+    $this->assertTrue(valid_phone_number('br', '1155551234'), t('Test valid - 1155551234'));
+  }
+
+  public function testPhoneBRInvalid() {
+    $this->assertFalse(valid_phone_number('br', '123-45678'), t('Test invalid - 123-45678'));
+
+    $this->assertFalse(valid_phone_number('br', '(01) 5555 1234'), t('Test invalid - (01) 5555 1234'));
+    $this->assertFalse(valid_phone_number('br', '(11) 0555.1234'), t('Test invalid - (11) 0555.1234'));
+    $this->assertFalse(valid_phone_number('br', '(11) 5555 abcd'), t('Test invalid - (11) 5555 abcd'));
+  }
+
+  public function testPhoneBRFormatting() {
+    $this->assertEqual(format_br_phone_number('+55 11 2222-3333', null), '+55 (11) 222-333', t('Brazil - +55 (11) 222-333'));     
+  }
+}

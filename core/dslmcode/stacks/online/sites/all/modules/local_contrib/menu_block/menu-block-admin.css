@@ -1,0 +1,71 @@
+.menu-block-parent-wrapper {
+  margin-top: 0.5em;
+  margin-bottom: 0.5em;
+}
+
+label#item-label {
+  font-weight: normal;
+}
+
+
+/* Proper buttonset styling is missing from Seven */
+.menu-block-processed {
+  padding: 0 15px 15px 15px;
+  border: 1px solid #ccc;
+}
+.form-type-radios.form-item-display-options {
+  display: none;
+  margin: 0 -15px;
+  padding: 5px 15px;
+  text-align: left;
+  background-color: #eee;
+}
+.form-type-radio.form-item-display-options {
+  float: left;
+}
+.form-item.form-type-radios.form-item-display-options label,
+.form-item.form-type-radio.form-item-display-options label {
+  font-size: 12px;
+  line-height: 18px;
+  font-weight: bold;
+}
+.form-item-display-options .ui-buttonset .form-item {
+  padding: 0; /* Seven adds padding */
+}
+.form-item-display-options .ui-buttonset label.ui-button {
+  display: inline-block;
+  padding: 2px 10px;
+  border: 1px solid #666;
+  color: #666;
+  font-weight: bold;
+  background-image: url(menu-block-background-display-options.png);
+  background-position: left top;
+  background-repeat: no-repeat;
+}
+.form-item-display-options .ui-buttonset label.ui-state-active {
+  color: #fff;
+  background-position: left -50px;
+}
+.form-item-display-options .ui-buttonset label.ui-button.ui-corner-right {
+  border-left: none;
+}
+.form-item-display-options .ui-button .ui-button-text {
+  display: inline;
+  padding: 0;
+}
+.ui-buttonset .ui-corner-left {
+  -moz-border-radius-topleft: 5px
+  -moz-border-radius-bottomleft: 5px;
+  -webkit-border-bottom-left-radius: 5px;
+  -webkit-border-top-left-radius: 5px;
+  border-bottom-left-radius: 5px;
+  border-top-left-radius: 5px;
+}
+.ui-buttonset .ui-corner-right {
+  -moz-border-radius-topright: 5px
+  -moz-border-radius-bottomright: 5px;
+  -webkit-border-bottom-right-radius: 5px;
+  -webkit-border-top-right-radius: 5px;
+  border-bottom-right-radius: 5px;
+  border-top-right-radius: 5px;
+}

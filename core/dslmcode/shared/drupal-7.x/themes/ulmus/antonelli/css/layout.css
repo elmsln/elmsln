@@ -1,0 +1,119 @@
+/* $Id: layout.css,v 1.1.2.1 2010/12/18 23:01:23 jmburnz Exp $ */
+
+/**
+ * Basic Layout Styles.
+ */
+
+#header div.section,
+#navigation div.section,
+#featured div.section,
+#messages,
+#main,
+#triptych,
+#footer-columns,
+#footer {
+  width: 98%;
+  min-width: 960px;
+  margin-left: auto;
+  margin-right: auto;
+  position: relative;
+}
+#content,
+.sidebar,
+.region-triptych-first,
+.region-triptych-middle,
+.region-triptych-last,
+.region-footer-firstcolumn,
+.region-footer-secondcolumn,
+.region-footer-thirdcolumn,
+.region-footer-fourthcolumn {
+  display: inline;
+  position: relative;
+  float: left;
+}
+#header div.section {
+  position: relative;
+}
+.region-header {
+  float: right; /* LTR */
+  margin: 0 0 10px;
+  width: 50%;
+  min-width: 640px;
+}
+.with-secondary-menu .region-header {
+  margin-top: 3em;
+}
+.without-secondary-menu .region-header {
+  margin-top: 15px;
+}
+#secondary-menu {
+  position: absolute;
+  right: 0; /* LTR */
+  top: 0;
+  width: 50%;
+}
+#content,
+.sidebar-second #sidebar-second {
+  right: -0.75%;
+}
+.one-sidebar #content {
+  width: 75%;
+}
+.two-sidebars #content {
+  width: 50%;
+}
+.no-sidebars #content {
+  width: 100%;
+  float: none;
+  right: 0;
+}
+.sidebar-second #content {
+  right: 0;
+}
+.sidebar {
+  width: 24.25%;
+}
+.two-sidebars #sidebar-second {
+  right: -1.5%;
+}
+#main-wrapper {
+  min-height: 300px;
+}
+#featured .block {
+  margin: 0 15px;
+}
+#messages div.section,
+#content .section,
+.sidebar .section {
+  padding: 0 15px;
+}
+#breadcrumb {
+  margin: 0 15px;
+}
+.region-triptych-first,
+.region-triptych-middle,
+.region-triptych-last {
+  width: 30%;
+  margin: 0 1.25%;
+}
+.region-footer-firstcolumn,
+.region-footer-secondcolumn,
+.region-footer-thirdcolumn,
+.region-footer-fourthcolumn {
+  width: 22%;
+  margin: 0 1.125%;
+}
+.region-triptych-middle,
+.region-footer-secondcolumn {
+  right: -1%;
+}
+.region-triptych-last,
+.region-footer-thirdcolumn {
+  right: -2%;
+}
+.region-footer-fourthcolumn  {
+  right: -3%;
+}
+#footer-wrapper {
+  padding: 35px 0 30px;
+}

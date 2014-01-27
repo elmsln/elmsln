@@ -1,0 +1,19 @@
+
+.advanced-help-link {
+  width: 12px;
+  height: 12px;
+  background: transparent url('help.png') no-repeat top left;
+  background-position: 0px 0px;
+  display: block;
+  float: left; /* this is cheesy, I know */
+  margin-top: 2px;
+  padding: 0px;
+}
+
+.advanced-help-link span {
+  display: none;
+}
+
+.advanced-help-link:hover {
+  background-position: 0px -12px;
+}

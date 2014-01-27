@@ -1,0 +1,15 @@
+<?php
+
+/**
+ * @file
+ * A stub test file informing of more tests in another directory.
+ *
+ * This is a stub file to let SimpleTest module know of coder_format tests
+ * residing in the directory scripts/coder_format/tests/.
+ */
+
+/**
+ * Loads coder_format unit tests.
+ */
+require_once drupal_get_path('module', 'coder') . '/scripts/coder_format/tests/all.test';
+

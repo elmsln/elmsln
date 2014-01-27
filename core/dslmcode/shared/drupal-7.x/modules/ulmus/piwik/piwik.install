@@ -1,0 +1,253 @@
+<?php
+
+/**
+ * @file
+ * Installation file for Piwik - Web analytics module.
+ */
+
+function piwik_install() {
+  // Remove tracking from all administrative pages, see http://drupal.org/node/34970.
+  variable_set('piwik_visibility_roles', 0);
+  variable_set('piwik_visibility_pages', 0);
+  $pages = array(
+    'admin',
+    'admin/*',
+    'batch',
+    'node/add*',
+    'node/*/*',
+    'user/*/*',
+  );
+  variable_set('piwik_pages', implode("\n", $pages));
+}
+
+function piwik_uninstall() {
+  variable_del('piwik_cache');
+  variable_del('piwik_codesnippet_before');
+  variable_del('piwik_codesnippet_after');
+  variable_del('piwik_custom');
+  variable_del('piwik_custom_var');
+  variable_del('piwik_domain_mode');
+  variable_del('piwik_js_scope');
+  variable_del('piwik_last_cache');
+  variable_del('piwik_page_title_hierarchy');
+  variable_del('piwik_page_title_hierarchy_exclude_home');
+  variable_del('piwik_pages');
+  variable_del('piwik_privacy_donottrack');
+  variable_del('piwik_roles');
+  variable_del('piwik_site_id');
+  variable_del('piwik_site_search');
+  variable_del('piwik_track'); // interrims solution
+  variable_del('piwik_trackfiles_extensions');
+  variable_del('piwik_translation_set');
+  variable_del('piwik_url_http');
+  variable_del('piwik_url_https');
+  variable_del('piwik_visibility_pages');
+  variable_del('piwik_visibility_roles');
+
+  // Remove backup variables if exits. Remove this code in D8.
+  variable_del('piwik_codesnippet_before_backup_7202');
+  variable_del('piwik_codesnippet_after_backup_7202');
+}
+
+/**
+ * Remove cache directory if module is disabled (or uninstalled).
+ */
+function piwik_disable() {
+  piwik_clear_js_cache();
+}
+
+/**
+ * Implementation of hook_requirements().
+ */
+function piwik_requirements($phase) {
+  $requirements = array();
+  $t = get_t();
+
+  switch ($phase) {
+    case 'runtime' :
+      // Module cannot validate piwik URL without external HTTP requests.
+      if (variable_get('drupal_http_request_fails', TRUE) && !system_check_http_request()) {
+        $requirements['http requests'] = array(
+          'title' => $t('HTTP request status'),
+          'value' => $t('Fails'),
+          'severity' => REQUIREMENT_ERROR,
+          'description' => $t('Your system or network configuration does not allow Drupal to access web pages, resulting in reduced functionality. This could be due to your webserver configuration or PHP settings, and should be resolved in order to download information about available updates, fetch aggregator feeds, sign in via OpenID, or use other network-dependent services.'),
+        );
+      }
+
+      // Raise warning if Piwik user account has not been set yet.
+      if (!preg_match('/^\d{1,}$/', variable_get('piwik_site_id', ''))) {
+        $requirements['piwik'] = array(
+          'title' => $t('Piwik module'),
+          'description' => $t('Piwik module has not been configured yet. Please configure its settings from the <a href="@url">Piwik settings page</a>.', array('@url' => url('admin/config/system/piwik'))),
+          'severity' => REQUIREMENT_WARNING,
+          'value' => $t('Not configured'),
+        );
+      }
+      break;
+  }
+  return $requirements;
+}
+
+
+/**
+ * Change visibility setting for paths.
+ */
+function piwik_update_6000() {
+  // Orginal pages setting.
+  $pages = array(
+    'admin*',
+    'user*',
+    'node/add*',
+    'node/*/*',
+  );
+
+  $diff = array_diff($pages, preg_split('/(\r\n?|\n)/', variable_get('piwik_pages', implode("\n", $pages))));
+  if (empty($diff)) {
+    // No diff to original settings found. Update with new settings.
+    $pages = array(
+      'admin',
+      'admin/*',
+      'user/*/*',
+      'node/add*',
+      'node/*/*',
+    );
+    variable_set('piwik_pages', implode("\n", $pages));
+    return t('Path visibility filter setting changed from "admin*" to "admin, admin/*" and "user*" changed to "user/*/*".');
+  }
+  else {
+    return t('Custom path visibility filter setting found. Update skipped!');
+  }
+}
+
+/**
+ * Upgrade custom javascript settings.
+ */
+function piwik_update_6001() {
+  variable_set('piwik_codesnippet_before', variable_get('piwik_codesnippet', ''));
+  variable_del('piwik_codesnippet');
+  return t('Upgraded custom javascript codesnippet setting.');
+}
+
+/**
+ * Remove obsolte token auth.
+ */
+function piwik_update_6002() {
+  variable_del('piwik_auth');
+  return t('The global token_auth setting has been deleted. Users need to configure their personal token_auth.');
+}
+
+/**
+ * Update list of default extensions
+ */
+function piwik_update_6003() {
+  if (variable_get('piwik_trackfiles_extensions', '') == '7z|aac|avi|csv|doc|exe|flv|gif|gz|jpe?g|js|mp(3|4|e?g)|mov|pdf|phps|png|ppt|rar|sit|tar|torrent|txt|wma|wmv|xls|xml|zip') {
+    variable_set('piwik_trackfiles_extensions', '7z|aac|arc|arj|asf|asx|avi|bin|csv|doc|exe|flv|gif|gz|gzip|hqx|jar|jpe?g|js|mp(2|3|4|e?g)|mov(ie)?|msi|msp|pdf|phps|png|ppt|qtm?|ra(m|r)?|sea|sit|tar|tgz|torrent|txt|wav|wma|wmv|wpd|xls|xml|z|zip');
+  }
+  return t('The default extensions for download tracking have been updated to piwik defaults.');
+}
+
+/**
+ * Add trailing slash to piwik URLs.
+ */
+function piwik_update_7200() {
+  $url_http = variable_get('piwik_url_http', '');
+  $url_https = variable_get('piwik_url_https', '');
+
+  if (!empty($url_http)) {
+    variable_set('piwik_url_http', $url_http . '/');
+  }
+  if (!empty($url_https)) {
+    variable_set('piwik_url_https', $url_https . '/');
+  }
+
+  return t('Added trailing slash to piwik URLs.');
+}
+
+/**
+ * Move async tracking code to header.
+ */
+function piwik_update_7201() {
+  variable_set('piwik_js_scope', 'header');
+
+  return t('Async tracking code has been moved to header.');
+}
+
+/**
+ * Backup synchronous code snippets.
+ */
+function piwik_update_7202() {
+  $messages = array();
+
+  // TODO: Backup synchronous code snippets. Remove variables in D8.
+  variable_set('piwik_codesnippet_before_backup_7202', variable_get('piwik_codesnippet_before', ''));
+  variable_set('piwik_codesnippet_after_backup_7202', variable_get('piwik_codesnippet_after', ''));
+
+  // Upgrade of BEFORE code snippet.
+  $code_before = variable_get('piwik_codesnippet_before', '');
+  if (!empty($code_before)) {
+    // No value, e.g. piwikTracker.enableLinkTracking()
+    $code_before = preg_replace('/(.*)piwikTracker\.(\w+)\(\);(.*)/i', '$1_paq.push(["$2"]);$3', $code_before);
+    // One value, e.g. piwikTracker.addDownloadExtensions("mp5|mp6"), piwikTracker.trackGoal(1)
+    $code_before = preg_replace('/(.*)piwikTracker\.(\w+)\(("|\'?)(\w+)("|\'?)\);(.*)/i', '$1_paq.push(["$2", $3$4$5]);$6', $code_before);
+    // Multiple values e.g. piwikTracker.trackLink('/store', 'addTransaction', trans)
+    $code_before = preg_replace('/(.*)piwikTracker\.(\w+)\((.*)\);(.*)/i', '$1_paq.push(["$2", $3]);$4', $code_before);
+
+    variable_set('piwik_codesnippet_before', $code_before);
+
+    drupal_set_message(Database::getConnection()->prefixTables("<strong>Attempted</strong> to upgrade Piwik custom 'before' code snippet. Backup of previous code snippet has been saved in database table '{variable}' as 'piwik_codesnippet_before_backup_7202'. Please consult Piwik's <a href='http://piwik.org/docs/javascript-tracking/#toc-asynchronous-tracking'>Asynchronous tracking Guide</a> if the upgrade was successfully."), 'warning');
+    $messages[] = t('Upgraded custom "before" code snippet.');
+  }
+
+  // Upgrade of AFTER code snippet.
+  // We cannot update this code snippet automatically. Show message that the upgrade has been skipped.
+  $code_after = variable_get('piwik_codesnippet_after', '');
+  if (!empty($code_after)) {
+    drupal_set_message(Database::getConnection()->prefixTables("Automatic upgrade of Google Analytics custom 'after' code snippet has been skipped. Backup of previous code snippet has been saved in database table '{variable}' as 'piwik_codesnippet_after_backup_7202'. You need to manually upgrade the custom 'after' code snippet."), 'error');
+    $messages[] = t('Skipped custom "after" code snippet.');
+  }
+
+  return empty($messages) ? t('No custom code snipped found. Nothing to do.') : implode(' ', $messages);
+}
+
+/**
+ * Path visibility filter setting should hide "batch" path.
+ */
+function piwik_update_7203() {
+  // Latest pages setting.
+  $pages = array(
+    'admin',
+    'admin/*',
+    'user/*/*',
+    'node/add*',
+    'node/*/*',
+  );
+
+  $diff = array_diff($pages, preg_split('/(\r\n?|\n)/', variable_get('piwik_pages', implode("\n", $pages))));
+  if (empty($diff)) {
+    // No diff to latest settings found. Update with new settings.
+    $pages = array(
+      'admin',
+      'admin/*',
+      'batch',
+      'node/add*',
+      'node/*/*',
+      'user/*/*',
+    );
+    variable_set('piwik_pages', implode("\n", $pages));
+    return t('Added "batch" to path visibility filter setting.');
+  }
+  else {
+    return t('Custom path visibility filter setting found. Update skipped!');
+  }
+}
+
+/**
+ * Rename piwik_visibility variable to piwik_visibility_pages for consistency.
+ */
+function piwik_update_7204() {
+  variable_set('piwik_visibility_pages', variable_get('piwik_visibility', 1));
+  variable_del('piwik_visibility');
+
+  return t('Renamed "piwik_visibility" settings variable to piwik_visibility_pages.');
+}

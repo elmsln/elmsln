@@ -1,0 +1,15 @@
+name = String Overrides
+description = Provides a quick and easy way of replacing text.
+core = 7.x
+files[] = stringoverrides.module
+files[] = stringoverrides.install
+files[] = stringoverrides.admin.inc
+
+configure = admin/config/regional/stringoverrides
+
+; Information added by drupal.org packaging script on 2011-05-03
+version = "7.x-1.8"
+core = "7.x"
+project = "stringoverrides"
+datestamp = "1304446316"
+

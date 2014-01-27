@@ -1,0 +1,127 @@
+<?php
+
+/**
+ * @file
+ * Internationalization (i18n) integration.
+ */
+
+/**
+ * Implements hook_i18n_string_info().
+ */
+function path_breadcrumbs_i18n_i18n_string_info() {
+
+  $groups['path_breadcrumbs'] = array(
+    'title' => t('Path Breadcrumbs'),
+    'description' => t('Translatable path breadcrumbs titles.'),
+    'format' => FALSE,
+    'list' => TRUE,
+  );
+
+  return $groups;
+}
+
+/**
+ * Implements hook_i18n_object_info().
+ */
+function path_breadcrumbs_i18n_i18n_object_info() {
+
+  // Generic object properties, title, etc.
+  $info['path_breadcrumbs'] = array(
+    'title' => t('Path Breadcrumbs'),
+    // Field to be used as key to index different path breadcrumbs.
+    'key' => 'machine_name',
+    'class' => 'i18n_path_breadcrumbs_object',
+    'load callback' => 'path_breadcrumbs_load_by_name',
+    'list callback' => 'path_breadcrumbs_i18n_load_all',
+    // Mapping object fields and menu place holders.
+    'placeholders' => array(
+      '%path_breadcrumbs_ui_cache' => 'machine_name',
+    ),
+    // Path for automatically generated translation tabs. Note placeholders above are used here.
+    'edit path' => 'admin/structure/path-breadcrumbs/edit/%path_breadcrumbs_ui_cache',
+    'translate tab' => 'admin/structure/path-breadcrumbs/edit/%path_breadcrumbs_ui_cache/translate',
+
+    // Metadata for string translation.
+    'string translation' => array(
+      'textgroup' => 'path_breadcrumbs',
+      'type' => 'path_breadcrumbs',
+      'properties' => array(),
+      'translate path' => 'admin/structure/path-breadcrumbs/edit/%path_breadcrumbs_ui_cache/translate/%i18n_language',
+    ),
+  );
+
+  return $info;
+}
+
+/**
+ * Implements hook_path_breadcrumbs_save().
+ */
+function path_breadcrumbs_i18n_path_breadcrumbs_save($path_breadcrumbs) {
+  if ($path_breadcrumbs->translatable) {
+    i18n_string_object_update('path_breadcrumbs', $path_breadcrumbs);
+  }
+  else {
+    i18n_string_object_remove('path_breadcrumbs', $path_breadcrumbs);
+  }
+}
+
+/**
+ * Implements hook_path_breadcrumbs_delete().
+ */
+function path_breadcrumbs_i18n_path_breadcrumbs_delete($path_breadcrumbs) {
+  // Don't delete translations for in-code path breadcrumbs.
+  if (!$path_breadcrumbs->is_overwritten) {
+    i18n_string_object_remove('path_breadcrumbs', $path_breadcrumbs);
+  }
+}
+
+/**
+ * Implements hook_path_breadcrumbs_view().
+ */
+function path_breadcrumbs_i18n_path_breadcrumbs_view($path_breadcrumbs, $contexts) {
+  // Alter path_breadcrumbs object with translated strings.
+  if ($path_breadcrumbs->translatable) {
+    foreach ($path_breadcrumbs->titles as $key => $title) {
+      $path_breadcrumbs->titles[$key] = i18n_string(array('path_breadcrumbs', 'path_breadcrumbs', $path_breadcrumbs->machine_name, 'titles:' . $key), $title);
+    }
+  }
+}
+
+/**
+ * Implements hook_form_FORM_ID_alter().
+ */
+function path_breadcrumbs_i18n_form_path_breadcrumbs_ui_breadcrumbs_list_alter(&$form, $form_state) {
+
+  // Do not process form if there are no breadcrumbs.
+  if (empty($form_state['storage']['objects'])) {
+    return;
+  }
+
+  foreach ($form_state['storage']['objects'] as $path_breadcrumbs) {
+    if ($path_breadcrumbs->translatable) {
+      $form[$path_breadcrumbs->machine_name]['actions']['#links'][] = array(
+        'title' => t('Translate'),
+        'href' => 'admin/structure/path-breadcrumbs/edit/' . $path_breadcrumbs->machine_name . '/translate',
+      );
+    }
+  }
+}
+
+/**
+ * Load all translatable path breadcrumbs from database and code.
+ *
+ * @return array
+ *   Array of path_breadcrumbs objects.
+ */
+function path_breadcrumbs_i18n_load_all() {
+  $path_breadcrumbs = path_breadcrumbs_load_all();
+  $path_breadcrumbs_translatable = array();
+
+  foreach ($path_breadcrumbs as $object) {
+    if ($object->translatable) {
+      $path_breadcrumbs_translatable[] = $object;
+    }
+  }
+
+  return $path_breadcrumbs_translatable;
+}

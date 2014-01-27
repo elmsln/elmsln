@@ -1,0 +1,31 @@
+<?php
+
+class PKPhoneNumberTestCase extends DrupalWebTestCase {
+  /**
+   * Implementation of getInfo()
+   *
+   */
+  public static function getInfo() {
+    return array(
+      'name' => t('Pakistan Phone number test'),
+      'description' => t('Tests various valid and invalid Pakistan phone numbers for validity'),
+      'group' => t('Phone')
+    );
+  }
+
+  public function testPhonePKValid() {
+    $this->assertTrue(valid_phone_number('pk', '+92 321 7469854'), t('Test valid'));
+    $this->assertTrue(valid_phone_number('pk', '923217469857'), t('Test valid'));
+    $this->assertTrue(valid_phone_number('pk', '041 2680226'), t('Test valid'));
+  }
+
+  public function testPhonePKInvalid() {
+    $this->assertFalse(valid_phone_number('pk', '00124566'), t('Test invalid'));
+    $this->assertFalse(valid_phone_number('pk', '01 922 745689'), t('Test invalid'));
+    $this->assertFalse(valid_phone_number('pk', '0000000000'), t('Test invalid'));
+  }
+
+  public function testPhonePKFormatting() {
+    //$this->assertEqual(format_phone_number('pk', '+6421123456', null), '+64 21 123 456', t('Check international mobile format'));
+  }
+}
