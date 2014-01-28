@@ -1,0 +1,5 @@
+name = Entity Iframe
+description = An example of a clean theme useful with entity iframe.
+package = Entity iframe
+core = 7.x
+stylesheets[all][] = layout.css

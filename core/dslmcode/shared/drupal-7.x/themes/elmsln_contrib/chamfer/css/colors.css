@@ -1,0 +1,80 @@
+/* bg_top bg_bottom */
+body {
+  background: #111111; /* old browsers */
+  background: -moz-linear-gradient(top, #111111 0%, #333333 100%); /* firefox */
+  background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#111111), color-stop(100%,#333333)); /* webkit */
+  filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#111111', endColorstr='#333333',GradientType=0 ); /* ie */
+}
+
+/* top left chamfer mark */
+#region-header-first {
+  width: 0px;
+  height: 0px;
+  border-top: 11px solid #111111; 
+  border-right: 21px solid transparent;
+  margin-left:0px;
+  margin-top:0px;
+  background:transparent;
+}
+/* Top left corner chamfer mark */
+#region-header-first .region-inner {
+  background-color: #111111;
+}
+/* ext_link: Exterior link */
+#user-container a,
+#region-user-second a,
+#region-footer-first a {
+  color: #00ffff;
+}
+/* ext_text: Exterior text */
+#region-footer-first,
+#section-header, 
+h6.site-slogan
+ {
+  color: #eeeeee;
+}
+/* content_header: Page headers */
+div[id=region-content] h1,
+div[id=region-content] h2,
+div[id=region-content] h3,
+div[id=region-content] h4,
+div[id=region-content] h5,
+div[id=region-content] h6 {
+  color: #555555;
+}
+/* page_links: Page links */
+#region-content a,
+#region-content a:link,
+#region-content a:visited {
+  color: #000000;
+}
+/* section_header: Section headers */
+.sidebar h2.block-title,
+.block h2.block-title {
+  color: #222222;
+}
+/*  section_links: Section links */
+#region-sidebar-first section .block-inner a,
+#region-sidebar-first section .block-inner a:link,
+#region-sidebar-first section .block-inner a:visited {
+  color: #6d6d6d;
+}
+/* section_links_active: Section a.active */
+#region-sidebar-first section .block-inner a:hover, #region-sidebar-first section .block-inner a.active, #region-sidebar-first section .block-inner a.active-trail {
+  color: #ee9999;
+}
+/* menu_link: Menu links */
+#zone-menu .region-menu ul a {
+  color: #cccccc;
+}
+/* menu_link_active: Menu a.active */
+#zone-menu .region-menu ul a:hover, #zone-menu .region-menu ul a.active, #zone-menu .region-menu ul a.active-trail {
+  color: #00f9f9;
+}
+/* menu_shadow: Menu shadow */
+#zone-menu .region-menu li:hover, #zone-menu .region-menu li.active, #zone-menu .region-menu li.active-trail {
+  box-shadow: 0px 0px 8px #111111;
+  -webkit-box-shadow: 0px 0px 8px #111111;
+  -moz-box-shadow: 0px 0px 8px #111111;
+  filter: progid:DXImageTransform.Microsoft.dropShadow(color=#111111, offX=0, offY=0, positive=true);
+}

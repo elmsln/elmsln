@@ -1,0 +1,1 @@
+In order to fully enjoy chamfer make sure to enable the tinynav module (http://drupal.org/project/tinynav).

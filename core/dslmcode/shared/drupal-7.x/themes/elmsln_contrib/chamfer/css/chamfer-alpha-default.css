@@ -1,0 +1,28 @@
+/* This file will hold styles for all layouts using the alpha grid (i.e. not the mobile layout). */
+.book-navigation div.page-links {
+  bottom:auto;
+  left:auto;
+  position:relative;
+  width:auto;
+  background-color:transparent;
+  z-index:auto;
+  padding:0px;
+}
+
+#zone-menu {
+  background-image:url('../images/crop.png'), url('../images/crop.png'), url('../images/border.png'), url('../images/border.png'), url('../images/header.jpg');
+  background-position:left bottom, left top, left, right;
+  background-repeat:no-repeat, no-repeat, repeat-y, repeat-y, no-repeat;
+}
+#region-header-first{
+ display:block;
+}
+#region-header-first .region-header-first-inner {
+ display:block;
+}
+#zone-menu .region-menu {
+  padding:0px;
+}
+#block-delta-blocks-page-title {
+  margin-bottom:0px;
+}
