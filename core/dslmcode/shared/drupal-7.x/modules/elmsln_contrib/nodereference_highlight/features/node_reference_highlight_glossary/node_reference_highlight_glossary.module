@@ -1,0 +1,32 @@
+<?php
+/**
+ * @file
+ * Code for the Node Reference Highlight Glossary feature.
+ */
+
+include_once 'node_reference_highlight_glossary.features.inc';
+
+/**
+ * Implementation of hook_define_highlight_relationship().
+ */
+function node_reference_highlight_glossary_define_highlight_relationship_alter(&$relationships) {
+  // define that terms can be highlighted in the content container
+  $relationships['content']['highlight_types']['nrhi_term'] = array(
+    'id' => 'nrhi_term',
+    'ref_field' => '-auto-detect-',
+    'text_field' => 'title',
+    'icon' => drupal_get_path('module', 'node_reference_highlight_glossary') .'/images/term.png',
+    'display_text' => t('Add this term to the glossary'),
+    'linktype' => 'inline',
+    'limit' => 1,
+  );
+}
+
+/**
+ * Implements hook_init().
+ */
+function node_reference_highlight_glossary_init() {
+  // js/css associated to right side opening
+  drupal_add_js(drupal_get_path('module', 'node_reference_highlight_glossary') .'/js/node_reference_highlight_glossary.js');
+  drupal_add_css(drupal_get_path('module', 'node_reference_highlight_glossary') .'/css/node_reference_highlight_glossary.css');
+}

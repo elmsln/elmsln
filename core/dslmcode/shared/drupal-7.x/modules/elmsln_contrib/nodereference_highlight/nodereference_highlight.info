@@ -1,0 +1,8 @@
+name = "Node Reference Highlight"
+description = "Adds the ability to highlight text in the body content of nodes and streamline the association of other node types"
+dependencies[] = "entityreference"
+dependencies[] = "entityreference_prepopulate"
+dependencies[] = "prepopulate"
+dependencies[] = "tipsy"
+package = "Entity"
+core = 7.x

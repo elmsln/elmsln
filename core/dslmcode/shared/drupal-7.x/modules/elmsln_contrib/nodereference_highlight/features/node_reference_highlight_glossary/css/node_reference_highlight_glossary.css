@@ -1,0 +1,26 @@
+.view-nrhi-term-glossary .nrhi-term-title {
+  font-size:2.0em;
+  color:#EEE;
+}
+.view-nrhi-term-glossary .nrhi-term-definition {
+  font-size:1.4em;
+}
+
+#regions_right_slideout .view-nrhi-term-glossary .nrhi-term-title a {
+  color:#EEE;
+}
+.view-nrhi-term-glossary .views-row {
+  padding:10px;
+}
+.view-nrhi-term-glossary .views-row:hover {
+  background-color:#333;
+}
+.view-nrhi-term-glossary .nrhi-active-term {
+  background-color:#444;
+}
+.view-nrhi-term-glossary .views-row-even {
+  border:#999 solid 2px;
+}
+.view-nrhi-term-glossary .views-row-odd {
+  border:#555 solid 2px;
+}

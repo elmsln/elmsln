@@ -1,0 +1,47 @@
+/* CSS Document */
+#nrhi_container {
+  background-color:#333;
+  border:2px solid #777;
+  display:none;
+  position:absolute;
+  float:left;
+  color:#DDD;
+  text-align:center;
+  -webkit-border-radius: 5px;
+  -moz-border-radius: 5px;
+  border-radius: 5px;
+  line-height:1em;
+}
+
+.nrhi_pre {
+  height:16px;
+  font-size:12px;
+}
+
+ul.nrhi_items {
+  list-style-position:inside;
+  list-style-type:none;
+  height:16px;
+  margin:0px;
+  padding:0px;
+}
+
+ul.nrhi_items li{
+  list-style-position:inside;
+  list-style-type:none;
+  display:inline;
+  padding:0px 2px;
+  margin:0px;
+  height:16px;
+  width:16px;
+}
+
+ul.nrhi_items li a, ul.nrhi_items li a img {
+  padding:0px;
+  height:16px;
+  width:16px;
+}
+
+div.nrhi_post {
+  height:2px;
+}

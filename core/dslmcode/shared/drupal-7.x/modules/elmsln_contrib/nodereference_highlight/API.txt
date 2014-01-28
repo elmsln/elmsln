@@ -1,0 +1,57 @@
+/**
+ * This hook allows you to define a relationship between content types for highlighting.
+ *These relationships then create permissions as to what roles have the ability to utilize the highlighter.
+ * This example shows how to tell the system that pages can be highlighted by timeline and poll content types.
+ * perm is the permission for this, highlight will be added to the front of it
+ * The ref_field is the field that will reference the page thats being highlighted. If ref_field is set to -auto-detect- then it will scan every page against nodes that are allowed to be displayed at that time.
+ * The text_field is the field that should be prepopulated with the text that has been highlighted.
+ * js_callback is an optional callback that will coopt the click to pop open a link handling that is normally in use.  There is a core example implementing this for the typo module.
+ * linktype is how to render the reference if its been found.  anchor is the default and will need to be processed by other modules to make sense of the relationship.  'link' is an additional option that will convert it into a direct link to the referenced item.
+ * limit will allow you to define how many time to highlight the text when it matches. 0 is unlimited, any other number will limit to only that many matches per page.
+ * classes is an array of classes that you want to have applied to links found in the content.
+ */
+function hook_define_highlight_relationship() {
+  $relationships['mymodule'] = array(
+    'name' => t('Display name'),
+    'types' => array('page'),
+    'perm' => 'display name for permission',
+    'highlight_types' => array(
+      'timeline_item' => array(
+        'id' => 'machinename',
+        'ref_field' => 'field_node_reference',
+        'text_field' => 'field_text_highlighted',
+        'icon' => 'path/to/icon/file.png',
+        'display_text' => t('Text to display in title info'),
+        'linktype' => 'link',
+        'limit' => 2,
+        'classes' => array('cool', 'stuff', 'things'),
+      ),
+      'poll' => array(
+        'ref_field' => '-auto-detect-',
+        'text_field' => 'field_text_highlighted',
+        'icon' => 'path/to/icon/file.png',
+        'display_text' => t('Text to display in title info'),
+        'linktype' => 'anchor',
+        'limit' => 0,
+        'classes' => array('cool', 'stuff', 'things'),
+      ),
+      'page' => array(
+        'id' => 'page_typo',
+        'ref_field' => '-auto-detect-',
+        'text_field' => 'field_title',
+        'icon' => drupal_get_path('module', 'typo') .'/images/typo.png',
+        'display_text' => t('Indicate this is a typo'),
+        'js_callback' => "jQuery.fn.typo_report_window();",
+      ),
+    ),
+  );
+  return $relationships;
+}
+/**
+ * This allows you to alter relationships defined by other projects
+ * This shows how to alter the type and icon values
+ */
+function hook_define_highlight_relationship_alter(&$relationships) {
+  $relationships['mymodule']['types'][] = 'folder'; //adds folder to types
+  $relationships['mymodule']['highlight_types']['poll']['icon'] = 'my/new/icon/location.png';
+}

@@ -1,0 +1,23 @@
+<?php
+/**
+ * @file
+ * Code for the Node Reference Highlight Entity example feature.
+ */
+
+include_once 'node_reference_highlight_entity_example.features.inc';
+
+/**
+ * Implementation of hook_define_highlight_relationship().
+ */
+function node_reference_highlight_entity_example_define_highlight_relationship_alter(&$relationships) {
+  // define that terms can be highlighted in the content container
+  $relationships['content']['highlight_types']['nrhi_person'] = array(
+    'id' => 'nrhi_person',
+    'ref_field' => 'field_referencing_page',
+    'text_field' => 'title',
+    'icon' => drupal_get_path('module', 'node_reference_highlight_entity_example') .'/images/person.png',
+    'display_text' => t('Associate this to a person'),
+    'linktype' => 'link',
+    'limit' => 1,
+  );
+}

@@ -1,0 +1,335 @@
+<?php
+
+define('NODEREFERENCE_HIGHLIGHT_DEFAULT_LINK', 'anchor');
+
+/**
+ * Implements hook_init().
+ */
+function nodereference_highlight_init() {
+  // only add highlighting to nodes
+  if (arg(0) == 'node' && is_numeric(arg(1)) && arg(2) == '') {
+    drupal_add_js(drupal_get_path('module', 'nodereference_highlight') . '/js/nodereference_highlight.js');
+    drupal_add_css(drupal_get_path('module', 'nodereference_highlight') . '/css/nodereference_highlight.css');
+    // optional tipsy support to make the UX cleaner
+    if (module_exists('tipsy')) {
+      drupal_add_js(drupal_get_path('module', 'nodereference_highlight') . '/js/nodereference_highlight_tipsy.js');
+    }
+  }
+}
+
+/**
+ * Implements hook_permission().
+ */
+function nodereference_highlight_permission() {
+  $relationships = nodereference_highlight_get_relationships(TRUE);
+  // Generate a list of highlighters and permissions.
+  $perms = array();
+  foreach ($relationships as $rel) {
+  $perms['highlight ' . $rel['perm']] = array(
+      'title' => $rel['name'],
+      'description' => t('Grant access to use the %name node reference highlighter', array('%name' => $rel['name'])),
+    );
+  }
+  return $perms;
+}
+
+/**
+ * Render the highlight list.
+ */
+function _nodereference_highlight_render_items($relationship) {
+  $output = '';
+  foreach ($relationship['highlight_types'] as $key => $val) {
+    // account for title field
+    if ($val['text_field'] == 'title') {
+      $text_prop = 'edit[' . $val['text_field'] . ']';
+    }
+    else {
+      $text_prop = 'edit[' . $val['text_field'] . '][0][value]';
+    }
+    // generate link path
+    $link_path = 'node/add/' . str_replace('_', '-', $key);
+    // references are not per node based if auto detected
+    if ($val['ref_field'] == '-auto-detect-') {
+      $props = array(
+        'attributes' => array('title' => $val['display_text'], 'class' => 'nrhi_'. $key .'_icon'),
+        'query' => array(
+          'destination' => $_GET['q'],
+          $text_prop => '',
+        ),
+        'html' => TRUE,
+      );
+    }
+    else {
+      $props = array(
+        'attributes' => array('title' => $val['display_text'], 'class' => 'nrhi_'. $val['id'] .'_icon'),
+        'query' => array(
+          'destination' => $_GET['q'],
+          $val['ref_field'] => arg(1),
+          $text_prop => '',
+        ),
+        'html' => TRUE,
+      );
+    }
+    // allow for custom js callbacks to be injected as click handlers
+    if (isset($val['js_callback'])) {
+      $props['attributes']['onclick'] = $val['js_callback'];
+      // append handler for on up event to remove context menu
+      $props['attributes']['onclick'] .= "jQuery('#nrhi_container').css('display', 'none');Drupal.nodereference_highlight.text = '';";
+      // override link path to process js
+      $link_path = '#';
+      $props['fragment'] = '';
+      $props['query'] = array();
+      $props['external'] = TRUE;
+    }
+    $output .= '<li>' . l('<img src="' . base_path() . $val['icon'] . '" alt="' . $val['display_text'] . '" class="nrhi_icon" />', $link_path, $props) . '</li>';
+  }
+  if (!empty($output)) {
+    return '<div id="nrhi_container"><div class="nrhi_pre">' . $relationship['name'] . '</div><ul class="nrhi_items">' . $output . '</ul><div class="nrhi_post"></div></div>';
+  }
+  return FALSE;
+}
+
+/**
+ * Pull together a list of relationships.
+ */
+function nodereference_highlight_get_relationships($display_all = FALSE) {
+  // define all relationships
+  $relationships = module_invoke_all('define_highlight_relationship');
+  // allow other projects to alter relationships
+  drupal_alter('define_highlight_relationship', $relationships);
+  // only return what the user has access to do
+  $send_rels = array();
+  foreach ($relationships as $key => $relationship) {
+    if (user_access('highlight ' . $relationship['perm']) || $display_all) {
+      $send_rels[$key] = $relationship;
+    }
+  }
+  return $send_rels;
+}
+
+/**
+ * Implements hook_filter_info().
+ */
+function nodereference_highlight_filter_info() {
+  $filters = array();
+  $filters['nrhi'] = array(
+    'title' => t('NRHI - highlight referenced entities'),
+    'description' => t('Allows for identification of nodereference_highlights in content'),
+    'prepare callback' => 'nodereference_highlight_filter_nrhi_prepare',
+    'process callback' => 'nodereference_highlight_filter_nrhi_process',
+    'tips callback' => 'nodereference_highlight_filter_nrhi_tips',
+    'weight' => -1,
+  );
+  return $filters;
+}
+
+/**
+ * Callback for prepare input filter.
+ */
+function nodereference_highlight_filter_nrhi_prepare($text, $filter, $format, $langcode, $cache, $cache_id) {
+  // get built definitions
+  $entities = array();
+  // currently active node id
+  $nid = arg(1);
+  if (is_numeric($nid)) {
+    // pull type from direct query as not to invoke full load
+    $tmp = db_select('node', 'n')
+    ->fields('n', array('type'))
+    ->condition('nid', $nid)
+    ->execute()
+    ->fetchObject();
+  }
+  // ensure we selected something
+  if (isset($tmp) && is_object($tmp) && isset($tmp->type)) {
+    $rels = nodereference_highlight_get_relationships(TRUE);
+    foreach ($rels as $relationship) {
+      // verify that the current item has this relationship
+      if (in_array($tmp->type, $relationship['types'])) {
+        foreach ($relationship['highlight_types'] as $key => $highlight_type) {
+          // convert relationships to query language, ignoring auto detect
+          if ($highlight_type['ref_field'] != '-auto-detect-') {
+            $result = db_select('field_data_'. $highlight_type['ref_field'], 'fd')
+            ->fields('fd', array('entity_id'))
+            ->condition('entity_type', 'node')
+            ->condition($highlight_type['ref_field'] .'_target_id', $nid)
+            ->execute();
+            $id = 'entity_id';
+          }
+          else {
+            $result = db_select('node', 'n')
+            ->fields('n', array('nid','title'))
+            ->condition('type', $key)
+            ->condition('status', '1')
+            ->execute();
+            $id = 'nid';
+          }
+          foreach ($result as $val) {
+            if (isset($val->entity_id)) {
+              $node = node_load($val->entity_id);
+              $ntitle = $node->title;
+              $nid = $val->entity_id;
+            }
+            else {
+              $ntitle = $val->title;
+              $nid = $val->nid;
+            }
+            // calculate the key to use
+            if ($highlight_type['text_field'] == 'title') {
+              $entity_title = $ntitle;
+            }
+            else {
+              $entity_title = $node->{$highlight_type['text_field']}['und'][0]['value'];
+            }
+            $link = NODEREFERENCE_HIGHLIGHT_DEFAULT_LINK;
+            // check for optional link type definition
+            if (isset($highlight_type['linktype'])) {
+              $link = $highlight_type['linktype'];
+            }
+            // determine if its a link or anchor
+            if ($link == 'link') {
+              $entities[$entity_title] = array(
+                'uri' => 'node/'. $nid,
+                'nrhi_id' => $highlight_type['id'] . '_' . $nid,
+              );
+            }
+            else {
+              $entities[$entity_title] = array(
+                'uri' =>  '#nrhi_' . $highlight_type['id'] . '_' . $nid . '_definition',
+                'nrhi_id' => $highlight_type['id'] . '_' . $nid,
+                'fragment' => '',
+              );
+            }
+            // account for optional limit property
+            if (isset($highlight_type['limit']) && $highlight_type['limit'] != 0 && is_numeric($highlight_type['limit'])) {
+              $entities[$entity_title]['limit'] = $highlight_type['limit'];
+            }
+            // account for optional classes property
+            if (isset($highlight_type['classes'])) {
+              $entities[$entity_title]['classes'] = ' '. implode(' ', $highlight_type['classes']);
+            }
+            else {
+              $entities[$entity_title]['classes'] = '';
+            }
+          }
+        }
+      }
+    }
+  }
+  // append entity array for processing
+  if (count($entities) > 0) {
+    // allow projects to modify entities
+    $text .= '---{entity_list}---'. drupal_json_encode($entities);
+  }
+  return $text;
+}
+
+/**
+ * Callback function to perform the content processing.
+ */
+function nodereference_highlight_filter_nrhi_process($text, $filter, $format, $langcode, $cache, $cache_id) {
+  // split off entity list if it exists
+  if (strpos($text, '---{entity_list}---')) {
+    $tmp = explode('---{entity_list}---', $text);
+    $text = $tmp[0];
+    $entity_list = drupal_json_decode($tmp[1]);
+    foreach ($entity_list as $title => $link) {
+      $props = array(
+        'attributes' => array(
+          'title' => $title,
+          'class' => 'nrhi_body_item nrhi_' . $link['nrhi_id'] .' '. $link['classes'],
+          'name' => 'nrhi_' . $link['nrhi_id'] . '_body_item',
+          ),
+      );
+      if (isset($link['fragment'])) {
+        $props['fragment'] = '';
+        $props['external'] = TRUE;
+      }
+      // allow for limiting the number of times its found
+      if (isset($link['limit'])) {
+        $text = preg_replace('/'. $title .'/', l($title, $link['uri'], $props), $text, $link['limit']);
+      }
+      else {
+        $text = preg_replace('/'. $title .'/', l($title, $link['uri'], $props), $text);
+      }
+    }
+  }
+  return $text;
+}
+
+/**
+ * Helper function to provide on screen tips for using the filter
+ */
+function nodereference_highlight_filter_nrhi_tips($filter, $format, $long = FALSE) {
+  return t('Allows for the highlighting and usage of contextual menu based on text selected in a document.');
+}
+
+/**
+ * Implements hook_page_build().
+ */
+function nodereference_highlight_page_build(&$page) {
+  // never apply this to node edit
+  if (arg(0) == 'node' && !(arg(2) == 'edit')) {
+    $page['page_bottom']['nodereference_highlight']= array(
+      '#type' => 'markup',
+      '#markup' => theme('nodereference_highlight_highlighter'),
+    );
+  }
+}
+
+/**
+ * Implementation of hook_theme().
+ */
+function nodereference_highlight_theme($existing, $type, $theme, $path) {
+  return array(
+    'nodereference_highlight_highlighter' => array(
+      'arguments' => array(
+      ),
+    ),
+  );
+}
+
+/**
+ * Themes node reference highlighter.
+ */
+function theme_nodereference_highlight_highlighter() {
+  $output = '';
+  // only apply this to nodes
+  $node = menu_get_object();
+  if (isset($node->nid)) {
+    // get all relationships to know what types to add
+    $rels = nodereference_highlight_get_relationships();
+    // loop through each as we might have access to multiple relationships
+    foreach ($rels as $relationship) {
+      // verify that this relationship can be used on this node type
+      if (isset($node->nid) && in_array($node->type, $relationship['types'])) {
+        $output .= _nodereference_highlight_render_items($relationship);
+      }
+    }
+  }
+  return $output;
+}
+
+/**
+ * Implementation of hook_define_highlight_relationship().
+ */
+function nodereference_highlight_define_highlight_relationship() {
+  // define the container though content provides no defintions, all are modular
+  $relationships['content'] = array(
+    'types' => array('page'),
+    'name' => t('Operations'),
+    'perm' => 'highlight content',
+    'highlight_types' => array(),
+  );
+  // if typo module exists
+  if (module_exists('typo')) {
+    $relationships['content']['highlight_types']['typo_type'] = array(
+      'id' => 'typo_type',
+      'ref_field' => '-auto-detect-',
+      'text_field' => 'field_title',
+      'icon' => drupal_get_path('module', 'nodereference_highlight') .'/images/typo.png',
+      'display_text' => t('Indicate this is a typo'),
+      'js_callback' => "jQuery.fn.typo_report_window();",
+    );
+  }
+  return $relationships;
+}
