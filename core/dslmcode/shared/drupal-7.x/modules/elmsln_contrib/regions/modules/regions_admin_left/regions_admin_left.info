@@ -1,0 +1,6 @@
+name = "Regions - Admin Left"
+project = "regions_admin_left"
+package = "Regions"
+description = "Provides a region to dump administrative blocks into on the left side of the screen"
+core = "7.x"
+dependencies[] = "regions"

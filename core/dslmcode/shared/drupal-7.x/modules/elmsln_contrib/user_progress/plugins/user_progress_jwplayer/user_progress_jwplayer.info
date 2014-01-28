@@ -1,0 +1,8 @@
+; $Id: user_progress_jwplayer
+name = "User Progress JWPlayer"
+description = "Integrates jwplayer js api with user progress api and ajax wrapper site wide"
+core = 7.x
+package = "User Progress"
+project = "user_progress_jwplayer"
+dependencies[] = user_progress
+

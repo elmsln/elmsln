@@ -1,0 +1,7 @@
+<?php
+/**
+ * @file
+ * Code for the MOOC Page feature.
+ */
+
+include_once 'mooc_page.features.inc';

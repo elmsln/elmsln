@@ -1,0 +1,7 @@
+<?php
+/**
+ * @file
+ * Code for the Textbook Editor feature.
+ */
+
+include_once 'textbook_editor.features.inc';

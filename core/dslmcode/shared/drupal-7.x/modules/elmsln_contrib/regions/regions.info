@@ -1,0 +1,5 @@
+; $Id: regions.info
+name = "Regions"
+description = "API and scaffolding to build regions that are cross theme compatible and can be used by Context."
+core = 7.x
+package = "Regions"

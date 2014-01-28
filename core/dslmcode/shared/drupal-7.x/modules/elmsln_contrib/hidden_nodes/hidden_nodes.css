@@ -1,0 +1,16 @@
+/* CSS Document */
+.node_is_hidden,
+.node_is_hidden *,
+a.node_is_hidden,
+a.node_is_hidden:link,
+a.node_is_hidden:active {
+  text-decoration: line-through;
+  /* Set opacity for good little browsers. */
+  opacity: 0.6; 
+  /* Trigger hasLayout in IE so that opacity can be set on inline elements. */
+  zoom: 1;
+  /* Set opacity in IE 8 */
+  -ms-filter: "progid:DXImageTransform.Microsoft.Alpha(Opacity=60)";
+  /* Set opacity in dinosaur IE (<= 7) */
+  filter: progid:DXImageTransform.Microsoft.Alpha(Opacity=60);
+}

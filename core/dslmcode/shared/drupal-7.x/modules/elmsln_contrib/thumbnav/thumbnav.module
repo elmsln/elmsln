@@ -1,0 +1,338 @@
+<?php
+/**
+ * @file
+ * Define the Thumbnav, mobile navigation style API.
+ */
+
+// thumbnav global variables
+define('THUMBNAV_RIGHT', TRUE);
+define('THUMBNAV_LEFT', TRUE);
+// default mode.
+define('THUMBNAV_ACTIVE_LIB', 'mobile_app');
+// used for visually rendering areas for touch interfaces.
+define('THUMBNAV_DEBUG', FALSE);
+
+/**
+ * Implements hook_init().
+ */
+function thumbnav_init() {
+  // verify a library was found
+  $lib = thumbnav_get_libs();
+  // verify that default was found
+  $active_lib = variable_get('thumbnav_active_lib', THUMBNAV_ACTIVE_LIB);
+  $widget_items = _thumbnav_get_widgets();
+  if (isset($lib[$active_lib]) && !empty($widget_items)) {
+    // add standard css style
+    drupal_add_css(drupal_get_path('module', 'thumbnav') . '/css/thumbnav.css');
+    // allow for optional css
+    if (isset($lib[$active_lib]['style'])) {
+      drupal_add_css($lib[$active_lib]['style']);
+    }
+    // allow for optional js
+    if (isset($lib[$active_lib]['location'])) {
+      drupal_add_js($lib[$active_lib]['location']);
+    }
+    // add default thumbnav library
+    drupal_add_js(drupal_get_path('module', 'thumbnav') . '/js/thumbnav.js');
+    // add included js files if they exist
+    foreach ($widget_items as $item) {
+      if (isset($item['inc'])) {
+        drupal_add_js($item['inc']);
+      }
+    }
+    // add settings to scope of js
+    $settings = array(
+      'thumbnav' => array(
+        'right' => variable_get('thumbnav_right', THUMBNAV_RIGHT),
+        'left' => variable_get('thumbnav_left', THUMBNAV_LEFT),
+        'active_lib' => variable_get('thumbnav_active_lib', THUMBNAV_ACTIVE_LIB),
+        'debug' => variable_get('thumbnav_debug', THUMBNAV_DEBUG),
+        'pointer' => array('x' => -1, 'y' => -1),
+      )
+    );
+    drupal_add_js($settings, 'setting');
+  }
+}
+
+/**
+ * Implements hook_menu().
+ */
+function thumbnav_menu() {
+  $items = array();
+  $items['admin/config/user-interface/thumbnav'] = array(
+    'title' => 'Thumbnav',
+    'description' => 'Thumbnav mobile mode settings to switch styles',
+    'type' => MENU_NORMAL_ITEM,
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('thumbnav_form'),
+    'access arguments' => array('administer site configuration'),
+  );
+  return $items;
+}
+
+/**
+ * Page callback for thumbnav.
+ */
+function thumbnav_form($form, $form_state) {
+  $form = array();
+  $libraries = thumbnav_get_libs();
+  $lib_options = array();
+  foreach ($libraries as $key => $lib) {
+    $lib_options[$key] = $lib['name'];
+  }
+  $form['thumbnav_active_lib'] = array(
+    '#default_value' => variable_get('thumbnav_active_lib', THUMBNAV_ACTIVE_LIB),
+    '#description' => t('Method of navigation to enable'),
+    '#type' => 'select',
+    '#options' => $lib_options,
+    '#title' => t('Thumbnav library'),
+  );
+  $form['thumbnav_right'] = array(
+    '#default_value' => variable_get('thumbnav_right', THUMBNAV_RIGHT),
+    '#description' => t('This creates a reactive zone for swiping to the right side of the interface'),
+    '#type' => 'checkbox',
+    '#title' => t('Add right page zone'),
+  );
+  $form['thumbnav_left'] = array(
+    '#default_value' => variable_get('thumbnav_left', THUMBNAV_LEFT),
+    '#description' => t('This creates a reactive zone for swiping to the left side of the interface'),
+    '#type' => 'checkbox',
+    '#title' => t('Add left page zone'),
+  );
+  $form['thumbnav_debug'] = array(
+    '#default_value' => variable_get('thumbnav_debug', THUMBNAV_DEBUG),
+    '#description' => t('Applies colors to the zones so they are easier to work into themes'),
+    '#type' => 'checkbox',
+    '#title' => t('Debug'),
+  );
+  return system_settings_form($form);
+}
+
+/**
+ * Helper function to return a touch capable library.
+ */
+function thumbnav_get_libs() {
+  $libraries = module_invoke_all('thumbnav_lib');
+  drupal_alter('thumbnav_lib', $libraries);
+  return $libraries;
+}
+
+/**
+ * Implements hook_thumbnav_lib().
+ */
+function thumbnav_thumbnav_lib() {
+  $touch_libs = array();
+  // account for quojs being installed
+  if (module_exists('quojs')) {
+    $touch_libs['quojs'] = array(
+      'name' => 'Quo.js',
+      'location' => drupal_get_path('module', 'thumbnav') . '/thumbnav_libs/quojs/thumbnav_quo.js',
+      'style' => drupal_get_path('module', 'thumbnav') . '/thumbnav_libs/quojs/thumbnav_quo.css',
+      'controls' => array('leftright'),
+    );
+  }
+  // default split keyboard style thumbnav
+  $touch_libs['split_thumbs'] = array(
+    'name' => t('Split thumbs'),
+    'location' => drupal_get_path('module', 'thumbnav') . '/thumbnav_libs/split_thumbs/thumbnav_split_thumbs.js',
+    'style' => drupal_get_path('module', 'thumbnav') . '/thumbnav_libs/split_thumbs/thumbnav_split_thumbs.css',
+    'controls' => array('left', 'right'),
+  );
+  // mobile app site branding style nav
+  $touch_libs['mobile_app'] = array(
+    'name' => t('Mobile app'),
+    'location' => drupal_get_path('module', 'thumbnav') . '/thumbnav_libs/mobile_app/thumbnav_mobile_app.js',
+    'style' => drupal_get_path('module', 'thumbnav') . '/thumbnav_libs/mobile_app/thumbnav_mobile_app.css',
+    'controls' => array('leftright', 'top'),
+  );
+  return $touch_libs;
+}
+
+/**
+ * Implements hook_page_build().
+ */
+function thumbnav_page_build(&$page) {
+  $output = '';
+  $class = 'thumbnav_zone';
+  $has_zone = FALSE;
+  if (variable_get('thumbnav_debug', THUMBNAV_DEBUG)) {
+    $class .= ' debug';
+  }
+  // add zones to be positioned if enabled
+  if (variable_get('thumbnav_right', THUMBNAV_RIGHT)) {
+    $output = '<div id="thumbnav_right" class="' . $class . '"></div>';
+    $has_zone = TRUE;
+  }
+  if (variable_get('thumbnav_left', THUMBNAV_LEFT)) {
+    $output .= '<div id="thumbnav_left" class="' . $class . '"></div>';
+    $has_zone = TRUE;
+  }
+  // print attach working widget if we have zones
+  if ($has_zone) {
+    // see how many controllers to add
+    $lib = thumbnav_get_libs();
+    // verify that selected library was found
+    $active_lib = variable_get('thumbnav_active_lib', THUMBNAV_ACTIVE_LIB);
+    foreach ($lib[$active_lib]['controls'] as $control) {
+      $output .= _thumbnav_render_controller($control);
+    }
+    // add modal capability
+    $output .= '<div id="thumbnav_modal_close">' . t('Close menu') . '</div><a id="thumbnav_anchor" name="thumbnav_anchor" href="#" class="element-invisible">Site navigation mobile menu</a><div id="thumbnav_modal"></div>';
+  }
+  // only print if zones are active
+  if (!empty($output)) {
+    $page['page_bottom']['thumbnav'] = array(
+      '#type' => 'markup',
+      '#markup' => $output,
+    );
+  }
+}
+
+/**
+ * Helper to build widget array
+ */
+function _thumbnav_get_widgets() {
+  $widget_items = module_invoke_all('thumbnav_widget');
+  drupal_alter('thumbnav_widget', $widget_items);
+  return $widget_items;
+}
+
+/**
+ * Helper function to build navigation widget.
+ */
+function _thumbnav_render_controller($side = 'leftright') {
+  // load available items from other modules
+  $widget_items = _thumbnav_get_widgets();
+  // load library to see hands definition
+  $tmp_output = array();
+  $output = "<div id='thumbnav_controller_$side' class='thumbnav_controller'>\n<ul>\n";
+  // build a clean menu-style listing
+  foreach ($widget_items as $key => $widget) {
+    // render all if side is leftright, or just a side
+    if (($side == 'leftright' && ($widget['side'] == 'right' || $widget['side'] == 'left')) || $side == $widget['side']) {
+      $options = array(
+        'attributes' => array('id' => $key, 'class' => array('thumbnav_widget', $key)),
+        'html' => TRUE,
+      );
+      // account for link being set
+      if (isset($widget['link'])) {
+        $link = $widget['link'];
+      }
+      else {
+        $link = $_GET['q'];
+        // allow for modified fragment location
+        if (isset($widget['fragment'])) {
+          $options['fragment'] = $widget['fragment'];
+        }
+        else {
+          $options['fragment'] = $key;
+        }
+      }
+      // account for textual items
+      if (empty($widget['icon'])) {
+        $item = l($widget['title'], $link, $options);
+      }
+      else {
+        $item = l('<img src="' . $widget['icon'] . '" alt="' . $widget['title'] . '" title="' . $widget['title'] . '" class="thumbnav_option ' . $key . '" />', $link, $options);
+      }
+      // place in an array based on weight
+      $tmp_output[($widget['weight'] + 5000)][] = $item;
+    }
+  }
+  // order by key value which is weight
+  ksort($tmp_output);
+  // loop through so that things are in weight order
+  foreach ($tmp_output as $links) {
+    foreach ($links as $link) {
+      $output .= "<li>\n";
+      $output .= $link . "\n";
+      $output .= "</li>\n";
+    }
+  }
+  // cap it off
+  $output .= "</ul>\n</div>\n";
+  return $output;
+}
+
+/**
+ * Implements hook_thumbnav_widget_alter().
+ */
+function thumbnav_thumbnav_widget_alter(&$widgets) {
+  // perform a special shift and substitution for mobile app
+  if (variable_get('thumbnav_active_lib', THUMBNAV_ACTIVE_LIB) == 'mobile_app') {
+    // shift next button to end if available
+    if (isset($widgets['book_touch_next'])) {
+      $widgets['book_touch_next']['weight'] = 100;
+    }
+    // add container that has site name in it
+    $site_name = variable_get('site_name', NULL);
+    if (!empty($site_name)) {
+      $widgets['mobile_app_name'] = array(
+        'title' => $site_name,
+        'weight' => 0,
+        'side' => 'top',
+        'link' => '<front>',
+      );
+      // add breadcrumb trail, based on menu_get_active_breadcrumb
+      $item = menu_get_item();
+      if (!empty($item['access'])) {
+        $active_trail = menu_get_active_trail();
+        drupal_alter('menu_breadcrumb', $active_trail, $item);
+        $end = end($active_trail);
+        if ($item['href'] == $end['href']) {
+          array_pop($active_trail);
+        }
+        if (($item['type'] & MENU_LINKS_TO_PARENT) == MENU_LINKS_TO_PARENT) {
+          array_pop($active_trail);
+        }
+
+        foreach ($active_trail as $key => $parent) {
+          $widgets['mobile_app_crumb_' . $key] = array(
+            'title' => '- ' . $parent['title'],
+            'weight' => ($key + 1),
+            'side' => 'top',
+            'link' => $parent['href'],
+          );
+        }
+      }
+    }
+  }
+}
+
+/**
+ * Implements hook_variable_info().
+ */
+function thumbnav_variable_info($options) {
+  $variables = array();
+  $variables['thumbnav_right'] = array(
+    'name' => 'thumbnav_right',
+    'title' => 'Right touch zone',
+    'type' => 'checkbox',
+    'default' => THUMBNAV_RIGHT,
+    'group' => 'thumbnav',
+    'module' => 'thumbnav',
+  );
+  $variables['thumbnav_left'] = array(
+    'name' => 'thumbnav_left',
+    'title' => 'Left touch zone',
+    'type' => 'checkbox',
+    'default' => THUMBNAV_LEFT,
+    'group' => 'thumbnav',
+    'module' => 'thumbnav',
+  );
+  return $variables;
+}
+
+/**
+ * Implements hook_variable_group_info().
+ */
+function thumbnav_variable_group_info() {
+  $groups = array();
+  $groups['thumbnav'] = array(
+    'title' => 'Thumbnav',
+    'description' => 'This project provides an way of implementing touch libraries for use with mobile navigation',
+    'path' => 'admin/config/user-interface/thumbnav',
+    'access' => 'administer site configuration',
+  );
+  return $groups;
+}

@@ -1,0 +1,62 @@
+#activation_code_form{
+  position:fixed;
+  text-align:left;
+  width: 268px;
+  left:10px;
+  bottom:0px;
+  background:transparent;
+  font-size:14px;
+  z-index:500;
+  color:#FFF;
+  line-height:1.4em;
+}
+#activation_code_form .mac_main h3{
+  font-size:24px;
+  margin:0px 0px;
+  line-height:1.4em;
+  padding:2px 0px 10px;
+  color:#FFCC00;
+  text-decoration:none;
+  text-align:center;
+}
+#activation_code_form .mac_top{
+  width:268px;
+  height:45px;
+  background:url(images/top_exp.png) no-repeat transparent top;
+}
+#activation_code_form .mac_bottom{
+  background:url(images/btm.png) no-repeat;
+  height:27px;
+  width:268px;
+}
+#activation_code_form .mac_main{
+  background:url(images/bg.png) repeat-y top left transparent;
+  padding:5px 14px;
+  color:white;
+  text-align:center;
+}
+#activation_code_form .mac_courselock{
+  background:url(images/bg.png) repeat-y top left transparent;
+  padding:0px 0px;
+}
+#activation_code_form .mac_main .content{
+   width:100%;
+}
+#activation_code_form .mac_main a{
+  color:#FFCC00;
+  text-decoration:none;
+}
+#activation_code_form .mac_courselocked {
+   background:url(images/courselocked.gif) no-repeat top center transparent;
+   width:268;
+   height:28px;
+}
+#activation_code_form form {
+   text-align:center;
+   padding:0px;
+}
+#activation_code_form input {
+   font-size:14px;
+   padding:2px;
+   margin:0px;
+}

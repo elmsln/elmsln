@@ -1,0 +1,438 @@
+<?php
+/**
+ * @file
+ * Book copy, copy book outlines
+ *
+ * This module allows for the copying of parts of entire book outlines in Drupal.
+ */
+define('BOOK_COPY_PROCESSING_LIMIT', 5);
+
+/**
+ * Implements hook_permission().
+ */
+function book_copy_permission() {
+  return array(
+    'copy books' => array(
+      'title' => t('Copy Books'),
+      'description' => t('Give user the ability to use the book copy functionality.'),
+    ),
+  );
+}
+
+/**
+ * Implements hook_menu().
+ */
+function book_copy_menu() {
+  $items['admin/content/book/copy/%node'] = array(
+    'title' => 'Copy book',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('book_copy_copy_confirm', 4),
+    'access callback' => 'book_copy_node_copy_access',
+    'access arguments' => array(4),
+  );
+  $items['node/%node/outline/copy'] = array(
+    'title' => 'Copy',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('book_copy_copy_confirm', 1),
+    'access callback' => 'book_copy_node_copy_access',
+    'access arguments' => array(1),
+    'type' => MENU_LOCAL_TASK,
+    'weight' => 100,
+  );
+  return $items;
+}
+
+/**
+ * Implements hook_module_implements_alter().
+ */
+function book_copy_module_implements_alter(&$implementations, $hook) {
+  // remove the book_delete hook_menu_alter as it conflicts
+  // both modules compete for book_delete_book_admin_overview
+  // so we will provide built in support for book_delete
+  // book_copy is moved to the end of the list for greater compatability
+  if ($hook == 'menu_alter' && isset($implementations['book_delete'])) {
+    unset($implementations['book_delete']);
+    unset($implementations['book_copy']);
+    $implementations['book_copy'] = FALSE;
+  }
+}
+
+/**
+ * Implements hook_menu_alter().
+ */
+function book_copy_menu_alter(&$items) {
+  // Override the book admin page with a custom version that includes book copy links.
+  $items['admin/content/book']['page callback'] = 'book_copy_book_admin_overview';
+  // replicate the outline tab so we can have sub-tabs
+  $items['node/%node/outline/outline'] = $items['node/%node/outline'];
+  $items['node/%node/outline/outline']['type'] = MENU_DEFAULT_LOCAL_TASK;
+}
+
+/**
+ * Implements hook_admin_paths().
+ */
+function book_copy_admin_paths() {
+  if (variable_get('node_admin_theme')) {
+    $paths = array(
+      'node/*/outline/copy' => TRUE,
+    );
+    return $paths;
+  }
+}
+
+/**
+ * Access check for ability to see Outline sub-tab on a node
+ */
+function book_copy_node_copy_access($node) {
+  // test for not being in a book, no one can access this then
+  if (!isset($node->book)) {
+    return FALSE;
+  }
+  // test for root regardless of location
+  if ($node->book['plid'] == 0 || arg(0) == 'admin') {
+    // need ability to create new books, and add to books, and update this item, and copy books
+    return (user_access('create new books') && user_access('add content to books') && user_access('copy books'));
+  }
+  // test for outline path when not root
+  if (arg(0) == 'node') {
+    // need ability to add to book, and update this item, and copy books
+    return (_book_outline_access($node) && user_access('add content to books') && user_access('copy books'));
+  }
+  // this access routine only authorizes these two use-cases at the moment
+  return FALSE;
+}
+
+/**
+ * Menu callback.  Overrides the book_admin_overview at admin/content/book.
+ *
+ * @see book_copy_menu_alter()
+ */
+function book_copy_book_admin_overview() {
+  // support for book_delete since it conflicts on this UI call
+  // Users must have access to delete all book nodes in order to safely delete a book.
+  if (module_exists('book_delete') && user_access('bypass node access')) {
+    $rows = array();
+    // account for having access to delete but not copy, tho that'd be weird
+    if (user_access('copy books')) {
+      $headers = array(t('Book'), t('Edit'), t('Copy'), t('Delete'));
+    }
+    else {
+      $headers = array(t('Book'), t('Edit'), t('Delete'));
+    }
+    // loop through books
+    foreach (book_get_books() as $book) {
+      $ary = array(l($book['title'], $book['href'], $book['options']), l(t('edit order and titles'), "admin/content/book/". $book['nid']));
+      // stupid but need to check agin
+      if (user_access('copy books')) {
+        $ary[] = l(t('copy book'), 'admin/content/book/copy/' . $book['nid']);
+        $ary[] = l(t('delete book'), 'admin/content/book/delete/'. $book['nid']);
+      }
+      else {
+        $ary[] = l(t('delete book'), 'admin/content/book/delete/'. $book['nid']);
+      }
+      $rows[] = $ary;
+    }
+
+    // If no books were found, let the user know.
+    if (empty($rows)) {
+      $rows[] = array(array('data' => t('No books available.'), 'colspan' => 3));
+    }
+
+    return theme('table', array('header' => $headers, 'rows' => $rows));
+  }
+  // same as above in reverse, account for people not having access to delete
+  elseif (user_access('copy books')) {
+    $rows = array();
+    $headers = array(t('Book'), t('Edit'), t('Copy'));
+    foreach (book_get_books() as $book) {
+      $rows[] = array(l($book['title'], $book['href'], $book['options']), l(t('edit order and titles'), 'admin/content/book/' . $book['nid']), l(t('copy book'), 'admin/content/book/copy/' . $book['nid']));
+    }
+  
+    // If no books were found, let the user know.
+    if (empty($rows)) {
+      $rows[] = array(array('data' => t('No books available.'), 'colspan' => 3));
+    }
+    return theme('table', array('header' => $headers, 'rows' => $rows));
+  }
+  else {
+    // The user may not have access to either above iteration, Show them the generic book admin page.
+    include_once('./' . drupal_get_path('module', 'book') . '/book.admin.inc');
+    return book_admin_overview();
+  }
+}
+
+/**
+ * Menu callback.  Ask for confirmation of book copy.
+ */
+function book_copy_copy_confirm($form, &$form_state, $node) {
+  // make sure we have a valid book or book item
+  if (isset($node->book['bid'])) {
+    $copytree = _book_copy_list($node->book);
+    $form['nid'] = array(
+      '#type' => 'value',
+      '#value' => $node->nid,
+    );
+    $form['new_title'] = array(
+      '#type' => 'textfield',
+      '#default_value' => $node->title,
+      '#description' => t('The new title for this book, this only applies to the top level book item being copied'),
+      '#title' => t('New Title'),
+    );
+    $form['book_title'] = array(
+      '#type' => 'value',
+      '#value' => $node->title,
+    );
+
+    return confirm_form($form,
+      t('Are you sure you want to copy the entire book %title? (this is %count nodes)', array('%title' => $node->title, '%count' => count($copytree))), 'admin/content/book',
+      t('This action cannot be undone.'),
+      t('Copy'),
+      t('Cancel')
+    );
+  }
+  return FALSE;
+}
+
+/**
+ * Submit handler to start a batch process
+ */
+function book_copy_copy_confirm_submit($form, &$form_state) {
+  if ($form_state['values']['confirm']) {
+    $path = arg(0) . '/' . arg(1) . '/' . arg(2);
+    book_copy_process_copy($form_state['values']['nid'], $form_state['values']['book_title'], $form_state['values']['new_title'], TRUE, $path);
+  }
+}
+
+/**
+ * Execute a batch process.
+ */
+function book_copy_process_copy($nid, $title, $new_title, $progressive = TRUE, $redirect = NULL) {
+  $batch = array(
+   'title' => t('Copying book %title', array('%title' => $title)),
+   'operations' => array(
+      array('book_copy_copy', array($nid, $new_title)),
+    ),
+   'finished' => '_book_copy_copy_finished',
+  );
+  batch_set($batch);
+  // there is a core glitch in D6/7 that requires progressive be defined this way
+  // http://drupal.org/node/638712#comment-2289138
+  $batch =& batch_get();
+  // set if this should be done in the background or not, if FALSE, redirect is ignored
+  $batch['progressive'] = $progressive;
+  batch_process($redirect);
+}
+/**
+ * Callback for replicating a book outline below a passed node.
+ */
+function book_copy_copy($initial_nid, $new_title, &$context) {
+  // batch job is starting
+  if (!isset($context['sandbox']['progress'])) {
+    $node = node_load($initial_nid);
+    $copy_list = _book_copy_list($node->book);
+    $context['sandbox']['max'] = count($copy_list);
+    $context['sandbox']['progress'] = 0;
+    $context['sandbox']['list_left'] = array_keys($copy_list);
+    $context['sandbox']['map'] = array();
+    $context['sandbox']['root'] = NULL;
+    $context['sandbox']['copy_list'] = $copy_list;
+  }
+  $limit = BOOK_COPY_PROCESSING_LIMIT;
+  $count = 0;
+  $list_left = $context['sandbox']['list_left'];
+  // Replicate limit nodes at a time.  This needs to be set fairly low for stability
+  foreach ($list_left as $nid) {
+    $count++;
+    array_shift($context['sandbox']['list_left']);
+    $entity = node_load($nid);
+    // clone the item so we can modify it prior to save
+    $clone = replicate_clone_entity('node', $entity);
+    // reset the owner to the author committing this action
+    if (!drupal_is_cli()) {
+      $clone->uid = $GLOBALS['user']->uid;
+    }
+    // test for initial item with title update
+    if ($nid == $initial_nid) {
+      $clone->title = $new_title;
+    }
+    // test for root
+    if ($clone->book['plid'] == 0) {
+      unset($clone->book['nid']);
+      $clone->book['mlid'] = NULL;
+      // this will trigger a new book to be created
+      $clone->book['bid'] = 'new';
+    }
+    else {
+      // unset this menu id
+      $clone->book['mlid'] = NULL;
+      if (is_object($context['sandbox']['root'])) {
+        $clone->book['bid'] = $context['sandbox']['root']->book['bid'];
+        $clone->book['menu_name'] = $context['sandbox']['root'] ->book['menu_name'];
+      }
+      // perform the mapping look up if   we have it
+      $parent = menu_link_load($clone->book['plid']);
+      $pnid = str_replace('node/', '', $parent['link_path']);
+      if (isset($context['sandbox']['map'][$pnid])) {
+        $clone->book['plid'] =$context['sandbox']['map'][$pnid];
+      }
+    }
+    // save the cloned item
+    node_save($clone);
+    $context['sandbox']['map'][$nid] = $clone->book['mlid'];
+    // capture new root nid for the case that we have a whole new book
+    if ($clone->book['plid'] == 0) {
+      $context['sandbox']['root'] = $clone;
+    }
+    $context['sandbox']['progress']++;
+    // exit early if we have reached execution limit
+    if ($count == $limit) {
+      break;
+    }
+  }
+  // max should equal progress but just to be safe, process til out of items
+  if (empty($context['sandbox']['list_left'])) {
+    // Update our progress information.
+    $context['sandbox']['progress'] = $context['sandbox']['max'];
+  }
+
+  // Multistep processing : report progress.
+  $context['finished'] = $context['sandbox']['progress'] / $context['sandbox']['max'];
+}
+
+/**
+ * Book delete batch 'finished' callback.
+ */
+function _book_copy_copy_finished($success, $results, $operations) {
+  if ($success) {
+    drupal_set_message(t('The outline has been copied successfully!'));
+  }
+  else {
+    drupal_set_message(t('An error occurred and processing did not complete.'), 'error');
+    $message = format_plural(count($results), '1 book item successfully copied.', '@count book items successfully copied.');
+    $message .= theme('item_list', $results);
+    drupal_set_message($message);
+  }
+}
+
+/**
+ * When passed a book link, assemble an array of nids => mlids
+ * based on _book_toc_recurse and book_toc
+ */
+function _book_copy_list($book_link) {
+  // assemble the full book based on bid
+  $tree = menu_tree_all_data(book_menu_name($book_link['bid']));
+  $copytree = array();
+  // start off recursive operation, not copying anything by default
+  _book_copy_list_recurse($tree, $book_link, $copytree, FALSE);
+  return $copytree;
+}
+
+/**
+ * Recursive function to build an ordered list of menu items for comparison
+ */
+function _book_copy_list_recurse($tree, $book_link, &$copytree, $copy_down) {
+  // loop through the tree
+  $just_set = FALSE;
+  foreach ($tree as $data) {
+    // once we have the book_link in question, start copying
+    if ($data['link']['mlid'] == $book_link['mlid']) {
+      // only copy items once we match the mlid in question
+      $copy_down = TRUE;
+      $just_set = TRUE;
+    }
+    // only store below the item we are targetting
+    if ($copy_down) {
+      // find the nid in link_path
+      $nid = str_replace('node/', '', $data['link']['link_path']);
+      // load the parent item
+      if ($data['link']['plid'] != 0) {
+        $parent = menu_link_load($data['link']['plid']);
+        $pnid = str_replace('node/', '', $parent['link_path']);
+      }
+      else {
+        $pnid = 0;
+      }
+      // save relationship of current node to parent id
+      $copytree[$nid] = $pnid;
+    }
+    // if this level has data below it, decend into it
+    if ($data['below']) {
+      _book_copy_list_recurse($data['below'], $book_link, $copytree, $copy_down);
+    }
+    // if copy down was just set, make sure this branch escapes early
+    if ($just_set) {
+      break;
+    }
+  }
+}
+
+/**
+ * Implements hook_outline_designer_form_overlay().
+ */
+function book_copy_outline_designer_form_overlay() {
+  $book_copy['od_book_copy_title'] = array(
+    '#title' => t('Title format'),
+    '#id' => 'od_book_copy_title',
+    '#type' => 'textfield',
+    '#required' => TRUE,
+    '#size' => 20,
+    '#description' => t('This title only applies to the first item you are duplicating.'),
+    '#weight' => 2,
+  );
+  $output = '<div id="od_book_copy" class="od_uiscreen">
+    ' . drupal_render($book_copy) . '
+  </div>';
+  return $output;
+}
+
+/**
+ * Implements hook_outline_designer_operations_alter().
+ */
+function book_copy_outline_designer_operations_alter(&$ops, $type) {
+  // seems silly but this way other hooked in actions are last
+  if (user_access('copy books')) {
+    switch ($type) {
+      case 'book':
+        $icon_path = drupal_get_path('module', 'book_copy') . '/images/';
+        $book_copy_ops = array(
+          'book_copy' => array(
+            'title' => t('Duplicate'),
+            'icon' => $icon_path . 'book_copy.png',
+            'callback' => 'book_copy_book_process_book_copy',
+          ),
+        );
+        $ops = array_merge($ops, $book_copy_ops);
+      break;
+    }
+  }
+}
+
+/**
+ * Callback for book_copy ajax call from outline designer.
+ */
+function book_copy_book_process_book_copy($nid, $new_title) {
+  // need to account for the 3 weird characters in URLs
+  $new_title = str_replace("@2@F@", '/', $new_title);
+  $new_title = str_replace("@2@3@", '#', $new_title);
+  $new_title = str_replace("@2@B@", '+', $new_title);
+  $new_title = str_replace("@2@6@", '&', $new_title);
+  $node = node_load($nid);
+  // verify that they can create / view the first item, administer outlines, add to books and copy books
+  // this is probably a bit overkill but outline designer is for those with lots and lots of permissions
+  if (node_access('create', $node) && _book_outline_access($node) && user_access('add content to books') && user_access('copy books')) {
+    // run the bulk job in the background
+    book_copy_process_copy($nid, '', $new_title, FALSE);
+    return 1;
+  }
+  else {
+    drupal_set_message(t('Outline copy denied because of permissions (need admin outline, create / view on the node, add to books and ability to copy).'));
+    return 0;
+  }
+}
+
+/**
+ * Implements hook_outline_designer_ops_js().
+ */
+function book_copy_outline_designer_ops_js($ajax_path, $nid = NULL) {
+  drupal_add_js(drupal_get_path('module', 'book_copy') . '/js/book_copy_ops.js', array('scope' => 'footer'));
+}

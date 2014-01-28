@@ -1,0 +1,127 @@
+/*
+  CSS Reset Style Guide
+  inspiration by http://www.blueprintcss.org/ reset.css and typography.css
+*/
+
+/* fonts from ELMS Style Guide */
+@import url(https://fonts.googleapis.com/css?family=Open+Sans:400,300);
+/*
+font-family: 'Open Sans', sans-serif;
+*/
+h1, h2, h3, h4, h5, h6 {
+  font-family: 'Open Sans', serif;
+}
+#region-content h1,
+#region-content h2,
+#region-content h3,
+#region-content h4,
+#region-content h5,
+#region-content h6  {
+  font-family: 'Open Sans', serif;
+  box-shadow: none;
+}
+
+/* better readability to node content area across screens */
+article.node, div.node {
+  margin-left:.5em;
+  margin-right:.5em;
+}
+@media screen and (min-width: 400px) {
+  article.node, div.node {
+    margin-left:2em;
+    margin-right:2em;
+  }
+}
+@media screen and (min-width: 740px) {
+  article.node, div.node {
+    margin-left:3em;
+    margin-right:3em;
+  }
+}
+@media screen and (min-width: 980px) {
+  article.node, div.node {
+    margin-left:5em;
+    margin-right:5em;
+  }
+}
+@media screen and (min-width: 1220px) {
+  article.node, div.node {
+    margin-left:6em;
+    margin-right:6em;
+  }
+}
+
+p, article.node li, article.node p, article.node p, div.node p {
+  font-family: 'Open Sans', serif;
+  font-size: 1.3em;
+  line-height: 1.7em;
+}
+
+/* highliter color */
+::selection {
+ background-color: #fff699;
+ color: #333;
+}
+
+/* Admin Toolbar to repair il-made themes */
+body {font-size:75%; font-family: 'Open Sans', serif !important;}
+/* GLOBAL */
+#skip-nav a, skip-nav a, #skip-nav a:hover,#skip-nav a:visited{position:absolute;left:-10000px;top:auto;width:1px;height:1px;overflow:hidden;}
+#skip-nav a:active,#skip-nav a:focus{position:static;width:auto;height:auto;left:0px;top:20px;overflow:visible;color:#222;background-color:#fff;}
+a:focus {outline:1px dotted;}
+a:focus * {outline:1px dotted;}
+/* Resets for content */
+/* Links */
+.node .content {line-height:1.5em;margin:0px;padding:5px;border:0;vertical-align:baseline;}
+.node .content a, div.node a:link, div.node a:visited{color:#26f;text-decoration:underline;}
+.node .content a:hover,div.node a:active{text-decoration:underline;}
+.node .content a img {border:none;}
+/* Headings */
+.node .content h2 {line-height:1em;text-decoration:none;}
+.node .content h3 {line-height:1em;text-decoration:none;}
+/* Paragraph */
+p, article.node p, div.node p {
+  margin: 0em 0em 1.25em 0em;
+  display: block;
+  -webkit-margin-before: 1em;
+  -webkit-margin-after: 1em;
+  -webkit-margin-start: 0em;
+  -webkit-margin-end: 0em;
+}
+article.node em, div.node em{font-style:italic;}
+article.node strong, div.node strong{font-weight:bold;}
+article.node sup, article.node sub, div.node sup, div.node sub {line-height:0;font-size:.5em;padding:1px;}
+/* Table elements */
+.node .content table{vertical-align:middle;width:98%;margin-bottom:1.4em;border-collapse:separate;border-spacing:0;}
+.node .content tr{border-left:1px solid #333;border-right:1px solid #333;}
+.node .content th{padding:4px 10px 4px 5px;vertical-align:middle;text-align:left;font-weight:bold;float:none !important;}
+.node .content thead th{background:#ccc;vertical-align:middle;text-align:left;font-weight:normal;float:none !important;padding:5px; border-bottom:1px solid #555;border-top:1px solid #555;}
+.node .content tbody th{background:#ccc;vertical-align:middle;text-align:left;font-weight:normal;float:none !important;padding:5px; border-bottom:1px solid #555;border-top:1px solid #555;}
+.node .content td{vertical-align:middle; border-bottom:1px solid #555;text-align:left;font-weight:normal;float:none !important;padding:4px 10px 4px 5px;}
+.node .content tbody tr:nth-child(even) {background:#eee;}
+.node .content tbody tr:nth-child(odd) {background:#ddd;}
+.node .content tbody tr:hover th{background:#cce !important;}
+.node .content tbody tr:hover{background:#cce !important;}
+.node .content caption {margin:0px;clear:both;padding:4px 10px 4px 5px;font-size:1.2em;font-weight:normal;width:auto;background:#eee;}
+/* List elements */
+.node .content ul, .node .content ol{margin:0 1.5em 1.0em 0;padding-left:4.0em;}
+.node .content ol li, div.node ul li{margin:0.25em 0}
+.node .content .book-navigation ol li, .node .content .book-navigation  ul li{margin:0px;}
+.node .content iframe{margin:1em}
+/* Abbreviation */
+.node .content abbr{border-bottom:1px dotted #666666;cursor:help;white-space:nowrap;}
+/* Blockquotes */
+.node .content blockquote{quotes:"" "";margin:1.5em;font-style:italic;}
+.node .content blockquote:before, blockquote:after{content:'';}
+/* Headings */
+.node .content h2{font-size:1.75em;font-weight:bold;} /* small */
+.node .content h3{font-size:1.5em;font-weight:bold;} /* vsmall */
+/* edit fixes for compat with some admin themes */
+ul.vertical-tabs-list, ul.primary-tabs, ul.secondary-tabs {
+  list-style-type:none;
+}
+/* tab style fix for omega default */
+.tabs.primary {
+  border-bottom: none;
+  height: auto;
+}

@@ -1,0 +1,222 @@
+<?php
+
+/**
+ * Implements hook_install().
+ *
+ * Perform actions to set up the site for this profile.
+ */
+function mooc_install() {
+  // Enable some mooc blocks.
+  $default_theme = 'chamfer';
+  $admin_theme = 'rubik';
+  // disable all themes
+  db_update('system')
+    ->fields(array('status' => 0))
+    ->condition('type', 'theme')
+    ->execute();
+  // enable $default_theme
+  db_update('system')
+    ->fields(array('status' => 1))
+    ->condition('type', 'theme')
+    ->condition('name', $default_theme)
+    ->execute();
+  variable_set('theme_default', $default_theme);
+  // enable $admin_theme
+  db_update('system')
+    ->fields(array('status' => 1))
+    ->condition('type', 'theme')
+    ->condition('name', $admin_theme)
+    ->execute();
+  variable_set('admin_theme', $admin_theme);
+
+  // activate admin theme when editing a node
+  variable_set('node_admin_theme', '1');
+  $blocks = array(
+    array(
+      'module' => 'system',
+      'delta' => 'main',
+      'theme' => $default_theme,
+      'status' => 1,
+      'weight' => 0,
+      'region' => 'content',
+      'pages' => '',
+      'cache' => -1,
+    ),
+    array(
+      'module' => 'system',
+      'delta' => 'help',
+      'theme' => $default_theme,
+      'status' => 1,
+      'weight' => -10,
+      'region' => 'content',
+      'pages' => '',
+      'cache' => -1,
+    ),
+    array(
+      'module' => 'system',
+      'delta' => 'main',
+      'theme' => $admin_theme,
+      'status' => 1,
+      'weight' => 0,
+      'region' => 'content',
+      'pages' => '',
+      'cache' => -1,
+    ),
+    array(
+      'module' => 'system',
+      'delta' => 'help',
+      'theme' => $admin_theme,
+      'status' => 1,
+      'weight' => 0,
+      'region' => 'help',
+      'pages' => '',
+      'cache' => -1,
+    ),
+  );
+  // drop system / user blocks to ensure correct building
+  db_delete('block')->condition('module', 'system')->execute();
+  db_delete('block')->condition('module', 'user')->execute();
+  // add in our blocks defined above
+  $query = db_insert('block')->fields(array('module', 'delta', 'theme', 'status', 'weight', 'region', 'pages', 'cache'));
+  foreach ($blocks as $block) {
+    $query->values($block);
+  }
+  $query->execute();
+
+  // Don't display date and author information for "Page" nodes by default.
+  variable_set('node_submitted_page', FALSE);
+
+  // Enable user picture defaults
+  variable_set('user_picture_dimensions', '1024x1024');
+  variable_set('user_picture_file_size', '800');
+  variable_set('user_picture_style', 'thumbnail');
+  // Allow visitor account creation with administrative approval.
+  variable_set('user_register', USER_REGISTER_VISITORS_ADMINISTRATIVE_APPROVAL);
+  // revert features to ensure they are all installed
+  $features = array(
+    'chamfer_defaults',
+    'cis_section',
+    'cis_service_connection_ux',
+    'cis_service_lti',
+    'cis_service_roles',
+    'feeds_node_helper_export',
+    'feeds_node_helper_import',
+    'textbook_editor',
+    'textbook_templates',
+    'node_reference_highlight_glossary',
+    'mooc_ux_defaults',
+    'mooc_cis_ux',
+    'mooc_textbook',
+    'mooc_helper',
+    'regions_admin_example',
+    'mooc_page',
+    'mooc_perms',
+  );
+  features_revert($features);
+  // drop the "book" content type as its confusing
+  node_type_delete('book');
+  // Create a default role for site administrators, with all available permissions assigned.
+  $admin_role = new stdClass();
+  $admin_role->name = 'administrator';
+  $admin_role->weight = 7;
+  user_role_save($admin_role);
+  user_role_grant_permissions($admin_role->rid, array_keys(module_invoke_all('permission')));
+  // Set this as the administrator role.
+  variable_set('user_admin_role', $admin_role->rid);
+
+  // clean up for regions conflict w/ install routine
+  // anonymous users
+  db_merge('role_permission')->key(array(
+    'rid' => 1,
+    'permission' => 'view regions_right_slideout region',
+  ))->fields(array(
+    'module' => 'regions',
+  ))->execute();
+  // auth users
+  db_merge('role_permission')->key(array(
+    'rid' => 2,
+    'permission' => 'view regions_right_slideout region',
+  ))->fields(array(
+    'module' => 'regions',
+  ))->execute();
+
+  // clean up for regions conflict w/ install routine
+  // anonymous users
+  db_merge('role_permission')->key(array(
+    'rid' => 1,
+    'permission' => 'view regions_admin_left region',
+  ))->fields(array(
+    'module' => 'regions',
+  ))->execute();
+  // auth users
+  db_merge('role_permission')->key(array(
+    'rid' => 2,
+    'permission' => 'view regions_admin_left region',
+  ))->fields(array(
+    'module' => 'regions',
+  ))->execute();
+  drupal_static_reset('user_access');
+  drupal_static_reset('user_role_permissions');
+
+  // set admin menu client side cache to off for performance reasons
+  variable_set('admin_menu_cache_client', FALSE);
+  // Assign user 1 the "administrator" role.
+  db_insert('users_roles')
+    ->fields(array('uid' => 1, 'rid' => $admin_role->rid))
+    ->execute();
+  // create basic content to drive system
+  if (!drupal_is_cli()) {
+    menu_rebuild();
+    $root = _mooc_default_content('page');
+    _mooc_default_content('page', $root->nid);
+    _mooc_default_content('section', $root->nid);
+    cache_clear_all();
+  }
+  else {
+    // if this is created via drush we don't need default contnet
+    // this provides usability to those testing it out
+    // without interfering with more complex setups
+    // we also make the assumption that node 2 will be
+    // the outline in question as this method will be called
+    // with a content outline import automatically after
+    // the distro finishes building
+    _mooc_default_content('section', 2);
+  }
+	// ignore any rebuild messages as we have minimal content
+	node_access_needs_rebuild(FALSE);
+	// ignore any other install messages
+	drupal_get_messages();
+}
+
+/**
+ * Callback to generate a node during install.
+ */
+function _mooc_default_content($type, $bid = NULL) {
+  $node = new stdClass();
+  $node->type = $type;
+  node_object_prepare($node);
+  $node->language = LANGUAGE_NONE;
+  $node->uid = 1;
+  $node->status = 1;
+  $node->promote = 0;
+  $node->revision = 1;
+  switch ($type) {
+    case 'page':
+      $node->title = empty($bid) ? t('Master Outline') : t('Lesson 1');
+      $node->book['bid'] = empty($bid) ? 'new' : $bid;
+    break;
+    case 'section':
+      $node->title = t('Master Section');
+      // make up a random section id to make things happy but fake
+      $node->field_section_id[LANGUAGE_NONE][0]['value'] = 'master_' . rand(1000, 5000);
+      // mark this as inactive so it can sync with systems
+      $node->field_cis_active[LANGUAGE_NONE][0]['value'] = 0;
+      $node->field_instructional_outlines[LANGUAGE_NONE][0]['target_id'] = $bid;
+    break;
+  }
+  // build out via submit then save
+  if($node = node_submit($node)) {
+    node_save($node);
+  }
+  return $node;
+}

@@ -1,0 +1,5 @@
+name = CIS Service Activation codes
+description = Provides integration between a CIS Service and the activation code entity type in CIS
+core = 7.x
+package = CIS
+dependencies[] = cis_connector

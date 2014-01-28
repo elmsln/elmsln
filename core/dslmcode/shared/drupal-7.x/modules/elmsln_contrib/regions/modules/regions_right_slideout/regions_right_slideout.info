@@ -1,0 +1,5 @@
+core = "7.x"
+dependencies[] = "regions"
+description = "A well made right area slide out"
+name = "Regions Right Slideout"
+package = "Regions"

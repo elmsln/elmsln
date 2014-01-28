@@ -1,0 +1,152 @@
+<?php
+//Poll Extras - adds additional permissions logic to viewing poll results
+
+/**
+ * Implements hook_permission().
+ */
+function poll_extras_permission() {
+  return array(
+    'view poll results' => array(
+      'title' => t('view poll results'),
+      'description' => t('TODO Add a description for \'view poll results\''),
+    ),
+    'view finished poll results' => array(
+      'title' => t('view finished poll results'),
+      'description' => t('TODO Add a description for \'view finished poll results\''),
+    ),
+  );
+}
+
+/**
+ * Implements hook_nodeapi().
+ */
+function poll_extras_nodeapi_OLD(&$node, $op, $a3 = NULL, $a4 = NULL) {
+  // TODO Remaining code in this function needs to be moved to the appropriate new hook function.
+  if ($node->type == 'poll') {
+    switch ($op) {
+      case 'insert':
+      case 'update':
+        $msg = check_plain($_POST['poll_view_msg']);
+        // TODO Please review the conversion of this statement to the D7 database API syntax.
+        /* db_query("UPDATE {poll} SET message='%s' WHERE nid=%d", $msg, $node->nid) */
+        db_update('poll')
+  ->fields(array(
+          'message' => $msg,
+        ))
+  ->condition('nid', $node->nid)
+  ->execute();
+        break;
+    }
+  }
+}
+
+function _poll_extras_load_msg($nid) {
+  $val = db_query("SELECT message FROM {poll} WHERE nid = :nid", array(':nid' => $nid))->fetchField();
+  if ($val != '') {
+    return $val;
+  }
+  else {
+    return variable_get('poll_default_message', 'Thank you for taking the poll!');
+  }
+}
+
+/**
+ * Implements hook_form_alter().
+ */
+function poll_extras_form_alter(&$form, &$form_state, $form_id) {
+  if ($form_id == 'poll_view_voting') {
+    $node = menu_get_object();
+    //see if the user is allowed to view the poll results
+    if (user_access('view poll results') || (user_access('view finished poll results') && !$node->active)) {
+      //render as usual
+    }
+    else {
+      if (!$node->allowvotes) {
+        //unset everything associated with the form or it will still render
+        $form = array();
+        $form['poll_view_voting']['#value'] = _poll_extras_load_msg($node->nid);
+      }
+    }
+  }
+  //alter the form as it's about to be output
+  if ($form_id == 'poll_cancel_form') {
+    $node = menu_get_object();
+    //see if the user is allowed to view the poll results
+    if (user_access('view poll results') || (user_access('view finished poll results') && !$node->active)) {
+      //render as usual
+    }
+    else {
+      if (!$node->allowvotes) {
+        $form = array();
+        $form['poll_extras_msg'] = _poll_extras_load_msg($node->nid);
+      }
+    }
+  }
+  if ($form_id == 'poll_node_form') {
+    //see if this poll has been submitted otherwise provide a default message
+    if (isset($form['nid']['#value'])) {
+      $default = _poll_extras_load_msg($form['nid']['#value']);
+    }
+    else {
+      $default = variable_get('poll_default_message', 'Thank you for taking the poll!');
+    }
+    $form['settings']['poll_view_msg'] = array(
+      '#title' => t('Message after submit'),
+      '#type' => 'textfield',
+      '#description' => t("Optional Message to display to users who don't have permission to view the poll results."),
+      '#default_value' => $default,
+    );
+  }
+}
+
+/**
+ * Implements hook_menu().
+ */
+function poll_extras_menu() {
+  $items['admin/config/poll_extras'] = array(
+    'title' => 'Poll Extras',
+    'description' => 'Configure the default values for the poll extras module.',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('poll_extras_admin_settings'),
+    'file' => 'poll_extras.admin.inc',
+    'type' => MENU_NORMAL_ITEM,
+    'access arguments' => array('administer site configuration'),
+  );
+  return $items;
+}
+
+/**
+ * Implements hook_menu_alter().
+ */
+function poll_extras_menu_alter(&$items) {
+  //allows for integration with the ajax poll module
+  if (isset($items['poll/ajax/vote/%node/%/%'])) {
+    $items['poll/ajax/vote/%node/%/%']['page callback'] = 'poll_extras_ajax_poll_callback';
+  }
+}
+
+/**
+ * Override callback for poll/ajax.
+ * This allows this module to be compatible with ajax poll
+ */
+function poll_extras_ajax_poll_callback($type, $node, $teaser, $block) {
+  // Call poll_view to trigger the current submit handlers.
+  poll_view($node);
+
+  // Reset POST and the $node so that we get fresh copies.
+  unset($_POST);
+  $node = node_load($node->nid, NULL, TRUE);
+
+  $poll = poll_view($node, $teaser, FALSE, $block);
+  $status = count(drupal_get_messages('error', FALSE)) == 0;
+  // TODO Please change this theme call to use an associative array for the $variables parameter.
+  $messages = theme('status_messages');
+  //this is where we need to do our permissions test
+  if (user_access('view poll results') || (user_access('view finished poll results') && !$node->active)) {
+    $output = drupal_render($poll->content);
+  }
+  else {
+    $output = _poll_extras_load_msg($node->nid);
+  }
+  drupal_json_output(array('status' => $status, 'messages' => $messages, 'output' => $output));
+}

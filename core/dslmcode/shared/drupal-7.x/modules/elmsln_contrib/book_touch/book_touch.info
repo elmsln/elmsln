@@ -1,0 +1,6 @@
+name = "Book Touch"
+description = "Adds book support to Thumbnav"
+core = 7.x
+package = "User Interface"
+dependencies[] = book
+dependencies[] = thumbnav

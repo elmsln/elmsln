@@ -1,0 +1,82 @@
+<?php
+
+/**
+ * Implements hook_page_build().
+ */
+function entity_iframe_provider_page_build(&$page) {
+  // ensure we are in iframe mode
+  if (_entity_iframe_mode_enabled()) {
+    $consumers = variable_get('entity_iframe_provider_consumers', array());
+    // make sure we have consumers
+    if (!empty($consumers)) {
+        // include the list of injectables
+      drupal_add_js(drupal_get_path('module', 'entity_iframe_provider') . '/js/provider_injection.js');
+      $data = explode('/', $_GET['entity_iframe']);
+      $page['content']['entity_iframe_provider'] = array(
+        '#markup' => '<iframe id="entity_iframe_consumer_backdoor" src="' . $consumers[$data[0]] . '/entity-iframe-consumer.html?iframeid=' . $data[1] . '" width="1" height="1"/>',
+      );
+      // css to hide it correctly
+      drupal_add_css(drupal_get_path('module', 'entity_iframe_provider') . '/css/provider.css');
+    }
+  }
+}
+
+/**
+ * Implements hook_form_alter().
+ */
+function entity_iframe_provider_form_alter(&$form, &$form_state, $form_id) {
+  if ($form_id == 'entity_iframe_admin_settings') {
+    $form['consumers'] = array(
+      '#type' => 'fieldset',
+      '#title' => t('Alllowed iframe Consumers'),
+      '#description' => t('Add exceptions to allow for cross-domain communication via iframes. Use the full domain name and copy the secret value for use in the consumer site running entity iframe consumer.'),
+      '#collapsed' => TRUE,
+      '#collapsible' => TRUE,
+    );
+    $consumers = variable_get('entity_iframe_provider_consumers', array());
+    foreach ($consumers as $key => $consumer) {
+      $form['consumers']['eip_consumer_' . $key] = array(
+        '#type' => 'textfield',
+        '#title' => t('Domain'),
+        '#default_value' => $consumer,
+      );
+      $form['consumers']['eip_secret_' . $key] = array(
+        '#type' => 'textfield',
+        '#title' => t('Secret'),
+        '#disabled' => TRUE,
+        '#default_value' => $key,
+      );
+    }
+    $form['consumers']['eip_new'] = array(
+      '#type' => 'textfield',
+      '#title' => t('New Domain'),
+      '#default_value' => '',
+    );
+    $form['#submit'][] = '_entity_iframe_provider_settings_submit';
+  }
+}
+
+/**
+ * Submit handler for the override to the entity iframe settings page.
+ */
+function _entity_iframe_provider_settings_submit($form, $form_state) {
+  $providers = variable_get('entity_iframe_provider_consumers', array());
+  $vals = array();
+  foreach ($providers as $key => $provider) {
+    $vals[$form_state['values']['eip_secret_' . $key]] = $form_state['values']['eip_consumer_' . $key];
+  }
+  // see if we have a new eip value to add in
+  if ($form_state['values']['eip_new'] != '') {
+    $vals[_entity_iframe_provider_generate_secret()] = $form_state['values']['eip_new'];
+  }
+  variable_set('entity_iframe_provider_consumers', $vals);
+  return 1;
+}
+
+/**
+ * Generate a random secret to associate to the domain'ed iframe to load
+ */
+function _entity_iframe_provider_generate_secret() {
+  // not a password but this method works well enough for this
+  return user_password(8);
+}

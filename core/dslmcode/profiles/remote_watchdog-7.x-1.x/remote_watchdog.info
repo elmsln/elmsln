@@ -1,0 +1,77 @@
+; Packaging information for remote_watchdog
+name = "Remote Watchdog"
+description = "Create a web service to centrally manage the watchdog for multiple sites in a network."
+core = "7.x"
+distribution_name = "remote_watchdog"
+project="remote_watchdog"
+; ----------
+; Dependencies
+; ----------
+; Administration
+dependencies[] = admin_menu
+dependencies[] = admin_menu_toolbar
+; Chaos tool suite
+dependencies[] = ctools
+; Core
+dependencies[] = dblog
+dependencies[] = field
+dependencies[] = field_sql_storage
+dependencies[] = file
+dependencies[] = filter
+dependencies[] = image
+dependencies[] = node
+dependencies[] = block
+dependencies[] = options
+dependencies[] = system
+dependencies[] = taxonomy
+dependencies[] = text
+dependencies[] = user
+; Other
+dependencies[] = entity
+dependencies[] = entity_watchdog
+dependencies[] = module_filter
+dependencies[] = restws
+dependencies[] = restws_basic_auth
+; Performance and scalability
+dependencies[] = entitycache
+; Security
+dependencies[] = seckit
+; User interface
+dependencies[] = jquery_update
+; Features
+dependencies[] = features
+dependencies[] = remote_watchdog_feature
+; ----------
+; Variables
+; ----------
+variables[admin_menu_components][admin_menu.icon] = true
+variables[admin_menu_components][admin_menu.menu] = true
+variables[admin_menu_components][admin_menu.account] = true
+variables[admin_menu_components][shortcut.links] = false
+variables[admin_menu_components][admin_menu.search] = false
+variables[admin_menu_components][admin_menu.users] = false
+variables[admin_menu_devel_modules_skip][admin_devel] = 0
+variables[admin_menu_devel_modules_skip][context_ui] = 0
+variables[admin_menu_devel_modules_skip][devel] = 0
+variables[admin_menu_devel_modules_skip][devel_node_access] = 0
+variables[admin_menu_devel_modules_skip][field_ui] = 0
+variables[admin_menu_devel_modules_skip][rules_admin] = 0
+variables[admin_menu_devel_modules_skip][views_ui] = 0
+variables[admin_menu_margin_top] = 1
+variables[admin_menu_position_fixed] = 1
+variables[admin_theme] = '0'
+variables[advanced__active_tab] = 'edit-plugins'
+variables[block_cache] = 1
+variables[default_nodes_main] = '1'
+variables[entitycache_enabled] = true
+variables[filter_fallback_format] = 'plain_text'
+variables[jquery_update_compression_type] = 'min'
+variables[jquery_update_jquery_admin_version] = '1.4'
+variables[jquery_update_jquery_cdn] = 'none'
+variables[jquery_update_jquery_version] = '1.7'
+variables[jquery_update_pages] = 'admin
+admin/*'
+variables[jquery_update_visibility] = '0'
+variables[node_options_page][0] = 'status'
+variables[theme_default] = 'bartik'
+variables[user_register] = '0'

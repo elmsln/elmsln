@@ -1,0 +1,203 @@
+<?php
+/**
+ * @file
+ * Activation code integration with CIS.
+ */
+define('CIS_SERVICE_ACTIVATION_CODES_WINDOW', 1209600);
+define('ACTIVATION_CODE_ACCESS_DENY', 0);
+define('ACTIVATION_CODE_ACCESS_GRANT', 1);
+
+/**
+ * Implements hook_init().
+ */
+function cis_service_activation_codes_init() {
+  // if we aren't verified, check the count down as to whether to block access
+  if (!in_array(arg(0), array('activation-blocked', 'syllabus')) && !_cis_service_activation_codes_verify()) {
+    // verify time remaining is positive, if 0 or negative, block access
+    if (_cis_service_activation_code_remaining_time() < 1) {
+      drupal_goto('activation-blocked');
+    }
+  }
+}
+
+/**
+ * Implements hook_menu().
+ */
+function cis_service_activation_codes_menu() {
+  $items = array();
+  $path = drupal_get_path('module', 'cis_service_activation_codes');
+  // admin settings for activation codes
+  $items['admin/config/system/cis-service-activation-codes'] = array(
+    'title' => 'CIS service activation codes',
+    'description' => 'Options for implementation of activation codes in this site',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('cis_service_activation_codes_admin_settings'),
+    'access arguments' => array('administer site configuration'),
+    'type' => MENU_NORMAL_ITEM,
+    'file' => 'cis_service_activation_codes.admin.inc',
+    'file path' => $path,
+  );
+  $items['activation-blocked'] = array(
+    'title' => 'Activation code required',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('cis_service_activation_codes_form'),
+    'access arguments' => array('access content'),
+    'type' => MENU_NORMAL_ITEM,
+  );
+  return $items;
+}
+
+/**
+ * Implements hook_page_build().
+ */
+function cis_service_activation_codes_page_build(&$page) {
+  // don't do this on admin pages
+  if (arg(0) != 'admin' && arg(0) != 'activation-blocked') {
+    // if they aren't verified, present activation code form
+    if (!_cis_service_activation_codes_verify()) {
+      drupal_add_css(drupal_get_path('module', 'cis_service_activation_codes') . '/cis_service_activation_codes.css');
+      drupal_add_js(drupal_get_path('module', 'cis_service_activation_codes') . '/cis_service_activation_codes.js');
+      $page['content']['cis_service_activation_codes'] = array(
+        '#markup' => drupal_render(drupal_get_form('cis_service_activation_codes_form')),
+        '#weight' => 100,
+      );
+    }
+  }
+}
+
+/**
+ * Return the time remaining for a given user before locking access.
+ */
+function _cis_service_activation_code_remaining_time($account = NULL) {
+  if (empty($account)) {
+    $account = $GLOBALS['user'];
+  }
+  // look up dates we care about
+  $dates = _cis_connector_transaction('section_dates');
+  // set the current access time to now
+  $access = REQUEST_TIME;
+  // pull the access window allowed
+  $window = variable_get('cis_service_activation_codes_window', CIS_SERVICE_ACTIVATION_CODES_WINDOW);
+  // class has started, begin timer relative to first login
+  // or start of class, which ever is last
+  if ($account->data['mac_start'] < $dates['class_begin']) {
+    $count_down = ($dates['class_begin'] + $window) - $access;
+  }
+  else {
+    $count_down = ($account->data['mac_start'] + $window) - $access;
+  }
+  return $count_down;
+}
+
+/**
+ * Activation code entry block / form.
+ */
+function cis_service_activation_codes_form() {
+  // convert timestamp into days remaining
+  $window = ceil(_cis_service_activation_code_remaining_time() / 60 / 60 / 24);
+  // format window day(s)
+  $win_text = format_plural($window, '1 day', '@count days');
+  // check if they've run out of time
+  if ($window < 1) {
+    $title = t('Access denied');
+    $text = t('An activation code is required to gain access to these materials. You will not be able to access materials until you enter a valid activation code.');
+  }
+  else {
+    $title = t('@win remaining', array('@win' => $win_text));
+    $text = t('An activation code is required to maintain access to these materials.  You have @window left until you will be required to enter a code.  At this time, you will not be able to access materials until you enter a valid activation code.', array('@window' => $win_text));
+  }
+  // apend the output to the form so it looks nice
+  $form['cis_service_activation_code_prefix'] = array(
+    '#prefix' => '<div id="activation_code_form">
+    <div class="mac_top"></div>
+    <div class="mac_courselock">
+    <div class="mac_courselocked"></div>
+    </div>
+    <div class="mac_main"><h3>' . $title . '</h3>
+    <div class="content">',
+    '#markup' => $text,
+    '#suffix' => '</div>',
+  );
+  // add the entry field
+  $form['cis_service_activation_code_entry'] = array(
+    '#type' => 'textfield',
+    '#size' => '30',
+    '#default_value' => '',
+    '#required' => TRUE,
+  );
+  // add submit button to send form data
+  $form['submit'] = array(
+    '#type' => 'submit',
+    '#value' => t('Activate'),
+    '#suffix' => '</div><div class="mac_bottom"></div></div>',
+  );
+  return $form;
+}
+
+/**
+ * Acitvation Code entry form validation.
+ */
+function cis_service_activation_codes_form_validate($form, &$form_state) {
+  // verify an entry was made
+  if ($form_state['values']['cis_service_activation_code_entry'] == '') {
+    form_set_error('cis_service_activation_code_entry', t('Please enter an activation code'));
+  }
+  else {
+    // attempt to validate code after filtering input
+    $code = check_plain($form_state['values']['cis_service_activation_code_entry']);
+    $code = filter_xss($code);
+    // make request
+    $response = _cis_connector_transaction('activation_code', 'default', array('code' => $code));
+    if ($response == ACTIVATION_CODE_ACCESS_DENY) {
+      form_set_error('cis_service_activation_code_entry', t('Please enter a valid activation code'));
+      drupal_set_message(t('Please enter a valid activation code'), 'error');
+    }
+  }
+}
+
+/**
+ * Activation code entry form submission.
+ */
+function cis_service_activation_codes_form_submit($form, &$form_state) {
+  // access checks passed, give the user the role
+  user_multiple_role_edit(array($GLOBALS['user']->uid), 'add_role', variable_get('cis_service_activation_codes_role_grant', 2));
+  drupal_set_message(t('Activation code accepted!'), 'status');
+}
+
+/**
+ * Implements hook_user_login().
+ */
+function cis_service_activation_codes_user_login(&$edit, $account) {
+  // first time access save when they first logged in to compare
+  if (isset($account->uid) && !isset($account->data['mac_start'])) {
+    $new_data = $account->data;
+    $new_data['mac_start'] = REQUEST_TIME;
+    $user = user_save($account, array('data' => $new_data));
+  }
+}
+
+/**
+ * Helper to determine if someone requires a code
+ *
+ * TRUE implies that the user has verified access
+ * FALSE implies the user requires an activation code still
+ */
+function _cis_service_activation_codes_verify($account = NULL) {
+  // allow for verification of other accounts
+  if (is_null($account)) {
+    $account = $GLOBALS['user'];
+  }
+  // verify they have a role which requires a code
+  $intersect = array_intersect_key(variable_get('cis_service_activation_codes_role_check', array(2)), $account->roles);
+  // if there was no intersection then we don't care
+  // this implies they don't need an activation code
+  if (empty($intersect)) {
+    return TRUE;
+  }
+  // they have a role we care about, now verify if they have the code role
+  // if they have the code role, we return TRUE, meaning they have access
+  if (array_key_exists(variable_get('cis_service_activation_codes_role_grant', 2), $account->roles)) {
+    return TRUE;
+  }
+  return FALSE;
+}

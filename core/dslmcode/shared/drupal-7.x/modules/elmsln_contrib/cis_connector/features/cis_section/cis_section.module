@@ -1,0 +1,462 @@
+<?php
+/**
+ * @file
+ * Code for the CIS Section feature.
+ */
+
+define('CIS_SECTION_STUDENT', 'student');
+define('CIS_SECTION_PAST_STUDENT', 'past student');
+
+include_once 'cis_section.features.inc';
+
+/**
+ * Implements hook_page_build().
+ */
+function cis_section_page_build(&$page) {
+  drupal_add_css(drupal_get_path('module', 'cis_section') . '/cis_section.css');
+}
+
+/**
+ * Implements hook_cron().
+ */
+function cis_section_cron() {
+  // the magic that keeps sections in sync with the cis
+  $query = array(
+    'type' => 'course',
+    'field_machine_name' => str_replace('/', '', base_path()),
+    'deep-load-refs' => 'field_collection_item', // special property that tells sections from course
+  );
+  // return a course
+  $return = _cis_connection_query($query, 'node', 'json', 'GET', 'cis', '', FALSE);
+  // look for 1 record
+  if (count($return['list']) == 1) {
+    $section_strings = array();
+    $course = $return['list'][0];
+    // loop through offerings
+    foreach ($course['field_offerings'] as $offering) {
+      // loop through sections if they exist
+      if (isset($offering['field_sections']['und']) && count($offering['field_sections']['und']) > 0) {
+        foreach ($offering['field_sections']['und'] as $section) {
+          // verify that this has the full object and has dates
+          if (isset($section['item_id']) && isset($section['field_access_dates']['und'])) {
+            $start = $section['field_access_dates']['und'][0]['value'];
+            // loop through access strings
+            // this is the magic that binds students to sections automatically
+            // and allows the entire network to work as an OG dark-net :)
+            if (isset($section['field_access_string']['und']) && count($section['field_access_string']['und']) > 0) {
+              foreach ($section['field_access_string']['und'] as $string) {
+                $section_strings[$string['safe_value']] = $string['safe_value'];
+              }
+            }
+          }
+        }
+      }
+    }
+    // loop through section strings to make sure we have a matching section node
+    foreach ($section_strings as $section_id) {
+      // if we don't know about this section, create it
+      if (!_cis_section_load_section_by_id($section_id)) {
+        $section = new stdClass();
+        $section->type = 'section';
+        node_object_prepare($section);
+        // currently both items are given the section id
+        $section->title = $section_id;
+        $section->field_section_id['und'][0]['value'] = $section_id;
+        // mark this as active so it can sync with systems
+        $section->field_cis_active['und'][0]['value'] = 1;
+        $section->language = LANGUAGE_NONE;
+        // default these to admin ownership for less chance of seeing it
+        $section->uid = 1;
+        // save section, cron job will then be able to check data source for roster
+        // if that functionality is enabled in local instance
+        node_save($section);
+      }
+    }
+  }
+  // test for if we should sync w/ our roster provider
+  $frequency = variable_get('cis_service_connection_sync_frequency', CIS_SERVICE_CONNECTION_SYNC_FREQUENCY);
+  $interval = 86400 * $frequency;
+  // always sync if this call just came from drush
+  // sync this course with LMS based on section data if time has passed
+  // sync if there's an argument asking to force sync
+  if (drupal_is_cli() || isset($_GET['force_roster_sync']) || (REQUEST_TIME - variable_get('cis_service_connection_last_sync', 0)) > $interval) {
+    // simple section pull based on those included locally
+    $sections = array_keys(cis_section_all_sections(TRUE));
+    // pull the roster together
+    $roster = cis_section_assemble_roster($sections);
+    // build the user accounts
+    watchdog('roster', 'Roster service synced with !roster sections', array('!roster' => count($roster)));
+    _cis_section_create_accounts($roster);
+  }
+}
+
+/**
+ * Implements hook_entity_presave().
+ */
+function cis_section_entity_presave($entity, $type) {
+  // our default handler for LTI section saves is anonymous
+  // this way we don't need to give users permission to build these
+  if ($type == 'node' && $entity->type == 'section' && $entity->uid == 0) {
+    // force this to be user 1's node, we don't want annonymous anything
+    // as this can create confusion with access control modules and ownership
+    // of content later on in the life cycle
+    $entity->uid = 1;
+  }
+  // optional ability to email someone standard language
+  // this happens if its a user, and we forced roster sync
+  // and it has the special cis_contact flag and the email
+  // in the address matches the email of this user account
+  // and they were created by the job which triggered this
+  // being created in the first place.  Edge case but very
+  // useful for alleviating workflow when a student is denied
+  // access to the course from an LMS vendor / data source
+  // and we need to alert IDs about it without forcing action.
+  if ($type == 'user' &&
+      isset($_GET['force_roster_sync']) &&
+      isset($_GET['cis_contact']) &&
+      $_GET['cis_contact'] == $entity->mail
+    ) {
+    $subject = t('You now have access to the @course course', array('@course' => variable_get('site_name', '')));
+    // request the standard language for this edge case
+    $query = array('type' => 'resource', 'field_machine_name' => 'lms_out_of_sync');
+    $resource = _cis_connection_query($query);
+    // render text applying the input filter requested
+    $message = check_markup($resource['list'][0]['body']['value'], $resource['list'][0]['body']['format']);
+    // allow for user in field
+    $message = str_replace('!name', $entity->name, $message);
+    // send an email about
+    watchdog('cis email', '@mail contacted about course being synced', array('@mail' => $entity->mail));
+    _cis_connector_simple_mail($entity->mail, $subject, $message, variable_get('site_mail', $entity->mail));
+  }
+}
+
+/**
+ * Return all found sections as these are valid for switching
+ *
+ * This is essentially a list of the current user's groups
+ *
+ * @param $active_only
+ *   (optional) Whether or not to return only the active sections
+ *   this user is a part of.
+ * @return $sections
+ *   array of section key paired as key => name
+ */
+function cis_section_all_sections($active_only = FALSE) {
+  $sections = array();
+  // select field section data
+  $query = new EntityFieldQuery();
+  // pull all nodes
+  $query->entityCondition('entity_type', 'node')
+  // that are sections
+  ->entityCondition('bundle', 'section')
+  // that are published
+  ->propertyCondition('status', 1);
+  // allow for filtering by active state
+  if ($active_only) {
+    $query->fieldCondition('field_cis_active', 'value', 1, '=');
+  }
+  // store results
+  $result = $query->execute();
+  // ensure we have results
+  if (isset($result['node'])) {
+    $nids = array_keys($result['node']);
+    $results = entity_load('node', $nids);
+    // convert to a readable array of options
+    foreach ($results as $val) {
+      $section = $val->field_section_id['und'][0]['safe_value'];
+      $sections[$section] = $val->title;
+    }
+    // useful for custom college / university integrations
+    drupal_alter('cis_section_list', $sections);
+  }
+  return $sections;
+}
+
+/**
+ * Assemble the roster
+ *
+ * We must have another module implement roster code to use this.
+ *
+ * @param $sections
+ *   An array of sections to assemble the roster for.
+ * @param $activated
+ *   (optional) Special case where a section was manually
+ *   told to be activated via save or the UI. In this case
+ *   we ignore semester boundaries and sync this roster regardless.
+ * @return $roster
+ *   an array of users keyed by section and their role.
+ *
+ * @see _cis_connector_transaction()
+ */
+function cis_section_assemble_roster($sections, $activated = FALSE) {
+  // build roster based on an array of sections
+  $roster = array();
+  foreach ($sections as $section) {
+    // ensure we only sync things that should be sycned
+    // this helps elminate purely developmental section spaces like masters
+    // as well as sections primed for setup but not active
+    // as the per the semester dates
+    $dates = _cis_connector_transaction('section_dates', 'default', array(), $section);
+    // only perform this if we have dates stored
+    if (isset($dates['end']) && isset($dates['start'])) {
+      if (($dates['start'] < REQUEST_TIME && $dates['end'] > REQUEST_TIME) || $activated) {
+        // build the roster for this section
+        $roster[$section] = module_invoke_all('cis_section_build_roster', $section);
+      }
+      // test for it being before or after date that this section should be active
+      // this helps allow for logistical setup of a section prior to the semester
+      // start while removing that section's ability to sync its roster.
+      // this reduces strain on APIs via needless calls
+      elseif ($dates['start'] > REQUEST_TIME || $dates['end'] < REQUEST_TIME) {
+        $nid = _cis_section_load_section_by_id($section);
+        $node = node_load($nid);
+        // mark this as inactive, this will trigger the cis_section clean up on node_update hook
+        $node->field_cis_active['und'][0]['value'] = 0;
+        node_save($node);
+      }
+    }
+  }
+  return $roster;
+}
+
+/**
+ * Implements hook_node_insert().
+ */
+function cis_section_node_insert($node) {
+  // account for newly created sections being activated so we can react immediately
+  if ($node->type == 'section' && $node->field_cis_active['und'][0]['value'] == 1) {
+    cis_section_state_change($node, 'activate');
+  }
+}
+
+/**
+ * Implements hook_node_update().
+ */
+function cis_section_node_update($node) {
+  // test for a section being deactivated
+  if ($node->type == 'section') {
+    if ($node->field_cis_active['und'][0]['value'] == 0) {
+      cis_section_state_change($node, 'deactivate');
+    }
+    else {
+      // allow other projects to perform actions based on this node being activated
+      cis_section_state_change($node, 'activate');
+    }
+  }
+}
+
+/**
+ * Implements hook_cis_section_activate().
+ */
+function cis_section_cis_section_activate() {
+  return array('_cis_section_activate_section');
+}
+
+/**
+ * Callback for hook_cis_section_activate().
+ */
+function _cis_section_activate_section($node) {
+  // check for a property telling us to ignore this sync
+  // this happens when updating the source node w/o
+  // need to sync such as when the title changes
+  if (!isset($node->_ignore_sync)) {
+    // grab section id
+    $section = array($node->field_section_id['und'][0]['value']);
+    // pull the roster together for this section
+    $roster = cis_section_assemble_roster($section, TRUE);
+    // build the user accounts
+    watchdog('roster', 'Roster synced for section @section', array('@section' => $node->field_section_id['und'][0]['value']));
+    _cis_section_create_accounts($roster);
+    drupal_set_message(t('Roster synced for section @section', array('@section' => $node->field_section_id['und'][0]['value'])));
+  }
+}
+
+/**
+ * Implements hook_cis_section_deactivate().
+ */
+function cis_section_cis_section_deactivate() {
+  return array('_cis_section_deactivate_section');
+}
+
+/**
+ * Implements hook_cis_section_deactivate().
+ */
+function _cis_section_deactivate_section($node) {
+  // standard conversion of student to past student roles
+  $student = user_role_load_by_name(CIS_SECTION_STUDENT);
+  $past = user_role_load_by_name(CIS_SECTION_PAST_STUDENT);
+  $current = _cis_section_load_users_by_gid($node->nid, $student->rid);
+  // find users that no longer came across
+  $diff = array_diff($current, array());
+  foreach ($diff as $uid) {
+    $account = user_load($uid);
+    // drop student role
+    unset($account->roles[$student->rid]);
+    // gain past student role
+    $account->roles[$past->rid] = $past->name;
+    user_save($account);
+  }
+}
+
+/**
+ * Run hooks for state of section.
+ */
+function cis_section_state_change($node, $state = 'activate') {
+  // activate / deactivate only two allowed states at this time
+  if (!in_array($state, array('activate', 'deactivate'))) {
+    return FALSE;
+  }
+  // easier calls for activate / deactivate in bulk
+  $calls = module_invoke_all('cis_section_' . $state);
+  // alter the call list
+  drupal_alter('cis_section_' . $state, $calls);
+  // run each call
+  foreach ($calls as $call) {
+    call_user_func($call, $node);
+  }
+}
+
+/**
+ * Create accounts, groups, and associate to groups.
+ */
+function _cis_section_create_accounts($roster) {
+  $actual = array();
+  // loop through sections in the overall access roster
+  foreach ($roster as $section => $members) {
+    // loop through the user / role combination
+    foreach ($members as $name => $role_name) {
+      // convert role name to object bc of stupid storage convention for account creation
+      $role = user_role_load_by_name($role_name);
+      // try and load the account first
+      // @ignore druplart_conditional_assignment
+      if (!$account = user_load_by_name($name)) {
+        $fields = array(
+          'name' => $name,
+          'pass' => user_password(20),
+          'status' => 1,
+          'roles' => array(
+            DRUPAL_AUTHENTICATED_RID => 'authenticated user',
+            $role->rid => $role->name,
+          ),
+        );
+        // allow other projects to update part of the user
+        drupal_alter('cis_section_user_insert', $fields);
+        // the first parameter is left blank so a new user is created
+        $account = user_save('', $fields);
+      }
+      else {
+        // only save role if it is new
+        if (!isset($account->roles[$role->rid])) {
+          $account->roles[$role->rid] = $role->name;
+          user_save($account);
+        }
+      }
+      // load group by section
+      $gid = _cis_section_load_section_by_id($section);
+      // false returned if this group doesn't exist
+      if (!$gid) {
+        // we need to create the group as this is a new one
+        // this can happen if we get a group not created via LTI
+        $group = new stdClass();
+        $group->type = 'section';
+        $group->status = 1;
+        $group->uid = 1;
+        $group->title = $section;
+        $group->promote = 0;
+        $group->revision = 1;
+        $group->field_section_id = array(
+          'und' => array(
+            0 => array(
+              'value' => $section,
+            ),
+          ),
+        );
+        node_save($group);
+        $gid = $group->nid;
+      }
+      // add group membership
+      $values = array(
+        'entity_type' => 'user',
+        'entity' => $account,
+      );
+      og_group('node', $gid, $values);
+      // rip membership names to uid array for comparison
+      $actual[] = $account->uid;
+    }
+    // compare members that just came across to members currently (that are students)
+    // anyone currently that didn't just come across, gets role dropped
+    // they gain past student
+    $student = user_role_load_by_name(CIS_SECTION_STUDENT);
+    $past = user_role_load_by_name(CIS_SECTION_PAST_STUDENT);
+    if (isset($gid)) {
+      $current = _cis_section_load_users_by_gid($gid, $student->rid);
+    }
+    else {
+      $current = array();
+    }
+    // find users that no longer came across
+    $diff = array_diff($current, $actual);
+    foreach ($diff as $uid) {
+      $account = user_load($uid);
+      // drop student role
+      unset($account->roles[$student->rid]);
+      // gain past student role
+      $account->roles[$past->rid] = $past->name;
+      user_save($account);
+    }
+  }
+}
+
+/**
+ * Load an organic group by unique section ID.
+ */
+function _cis_section_load_section_by_id($id) {
+  // entity field query to load a section by id
+  $query = new EntityFieldQuery();
+  $query
+  // pull group nodes
+  ->entityCondition('entity_type', 'node')
+  // of type section
+  ->entityCondition('bundle', 'section')
+  // that are published
+  ->propertyCondition('status', 1)
+  // only select based on the id we were passed
+  ->fieldCondition('field_section_id', 'value', $id, '=')
+  // execute this as user 1 to avoid object conflicts
+  ->addMetaData('account', user_load(1))
+  // only return 1 value
+  ->range(0, 1);
+  $result = $query->execute();
+  // flip the results if it found them
+  if (isset($result['node'])) {
+    // we know there's only 1 value in this array
+    return array_pop(array_keys($result['node']));
+  }
+  // no matches
+  return FALSE;
+}
+
+/**
+ * Load an organic group by unique section ID.
+ */
+function _cis_section_load_users_by_gid($gid, $rid = NULL) {
+  // select from membership
+  $query = db_select('og_membership', 'ogm');
+  // only entity id
+  $query->fields('ogm', array('etid'));
+  // join user table
+  $query->innerJoin('users', 'u', 'ogm.etid = u.uid');
+  // join role table
+  $query->innerJoin('users_roles', 'ur', 'u.uid = ur.uid');
+  // where entity type is user
+  $query->condition('ogm.entity_type', 'user');
+  // and group is the one requested
+  $query->condition('ogm.gid', $gid);
+  // limit to a certain role if set
+  if (!is_null($rid)) {
+    $query->condition('ur.rid', $rid);
+  }
+  $result = $query->execute();
+  // weird call but returns an array of the uids selected
+  return array_keys($result->fetchAllAssoc('etid'));
+}

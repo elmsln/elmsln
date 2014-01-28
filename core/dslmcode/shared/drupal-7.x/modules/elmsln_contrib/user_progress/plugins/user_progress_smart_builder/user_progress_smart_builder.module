@@ -1,0 +1,22 @@
+<?php
+/**
+ * @file
+ * Define data integration with smart builder applications.
+ */
+
+/**
+ * Implements hook_user_progress_define_types().
+ */
+function user_progress_smart_builder_user_progress_define_types() {
+  // this returns some example types for smart builder
+  return array(
+    'sb_jeopardy' => array(
+      'name' => t('Jeopardy'),
+      'default_handler' => 'int',
+    ),
+    'sb_selfcheck' => array(
+      'name' => t('Self check'),
+      'default_handler' => 'int',
+    ),
+  );
+}

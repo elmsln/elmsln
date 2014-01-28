@@ -1,0 +1,50 @@
+<?php
+/**
+ * @file
+ * Install routine for entity iframe, ensure default theme is enabled.
+ */
+ 
+/**
+ * Implements hook_install().
+ */
+function entity_iframe_install() {
+  $eit = 'entity_iframe_theme';
+  $themes = list_themes();
+  // if entity_iframe_theme is on the system, use that over stark
+  if (isset($themes[$eit])) {
+    variable_set('entity_iframe_theme', $eit);
+  }
+  $theme = _entity_iframe_theme();
+  if (!_entity_iframe_theme_exists($theme)) {
+    theme_enable(array($theme));
+  }
+}
+
+/**
+ * Implements hook_uninstall().
+ */
+function entity_iframe_uninstall() {
+  variable_del('entity_iframe_theme');
+  variable_del('entity_iframe_link');
+  variable_del('entity_iframe_embed');
+  variable_del('entity_iframe_width');
+  variable_del('entity_iframe_height');
+  variable_del('entity_iframe_types');
+  variable_del('entity_iframe_types');
+  // get type info to clean up enabled bundles
+  $types = entity_get_info();
+  foreach ($types as $key => $type) {
+    // only fieldable bundles are possible
+    if ($type['fieldable']) {
+      variable_del('entity_iframe_bundle_' . $key);
+    }
+  }
+}
+
+/**
+ * The access routine in menu router has been updated, clear caches to ensure this is reflected.
+ */
+function entity_iframe_update_7000() {
+  // This empty update is required such that all caches are cleared as
+  // necessary.
+}

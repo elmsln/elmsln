@@ -1,0 +1,13 @@
+<?php
+/**
+ * @file
+ * Increase priority of right side's alter hook.
+ */
+
+/**
+ * Implements hook_install().
+ */
+function regions_right_slideout_install() {
+  // change the weight so that alters fire after others
+  db_query("UPDATE {system} SET weight = 1 WHERE name = 'regions_right_slideout'");
+}

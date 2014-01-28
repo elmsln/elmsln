@@ -1,0 +1,7 @@
+name = "Outline Designer Book integration"
+description = "Usability improvements to the core-optional Book module that allows the rapid building of content outlines."
+dependencies[] = "book"
+dependencies[] = "outline_designer"
+package = "Outline Designer"
+project = "outline_designer_book"
+core = 7.x

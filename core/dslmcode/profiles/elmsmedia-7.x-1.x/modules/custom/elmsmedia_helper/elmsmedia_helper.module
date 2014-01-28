@@ -1,0 +1,286 @@
+<?php
+/**
+ * @file
+ * Media integration improvements for ELMS Media distro.
+ */
+
+/**
+ * Implements hook_field_formatter_info_alter().
+ */
+function elmsmedia_helper_field_formatter_info_alter(&$info) {
+  $info['mediaelement_video']['module'] = 'elmsmedia_helper';
+  $info['mediaelement_audio']['module'] = 'elmsmedia_helper';
+}
+
+/**
+ * Implements hook_init().
+ */
+function elmsmedia_helper_init() {
+  drupal_add_css(drupal_get_path('module', 'elmsmedia_helper') . '/elmsmedia_helper.css');
+}
+
+/**
+ * Implements hook_field_formatter_view().
+ */
+function elmsmedia_helper_field_formatter_view($entity_type, $entity, $field, $instance, $langcode, $items, $display) {
+  // A unique caller per page for the JS specific settings to use. This may be
+  // different for ever page view and should not be used for styling.
+  static $id = 0;
+  $element = array();
+  $path = drupal_get_path('module', 'mediaelement');
+  foreach ($items as $delta => $item) {
+    // Support the link field type which stores it's data in 'url'.
+    $src = ($field['type'] == 'link_field') ? $item['url'] : $item['uri'];
+
+    $settings = $display['settings'];
+    $js_settings = array();
+    $js_settings['opts'] = array();
+    $js_settings['controls'] = (bool)$settings['controls'];
+    if ($display['type'] == 'mediaelement_video') {
+      $js_settings['opts']['videoHeight'] = (int)$settings['height'];
+      $js_settings['opts']['videoWidth'] = $settings['width'];
+    }
+    elseif ($display['type'] == 'mediaelement_audio') {
+      $js_settings['opts']['audioHeight'] = (int)$settings['height'];
+      $js_settings['opts']['audioWidth'] = $settings['width'];
+    }
+
+    $class = 'mediaelement-formatter-identifier-' . time() . '-' . $id++;
+    $element[$delta] = array(
+      '#attributes' => array(
+        'src' => file_create_url($src),
+        'class' => $class,
+      ),
+      '#settings' => $settings,
+      '#attached' => array(
+        'library' => array(array('mediaelement', 'mediaelement')),
+        'js' => array(
+          $path . '/mediaelement.js' => array(),
+          0 => array('type' => 'setting', 'data' => array('mediaelement' => array('.' . $class => $js_settings))),
+        ),
+      ),
+    );
+    if ($settings['controls']) {
+      $element[$delta]['#attributes']['controls'] = 'controls';
+    }
+
+    if ($display['type'] == 'mediaelement_video') {
+      $element[$delta]['#theme'] = 'elmsmedia_helper_video';
+      $element[$delta]['#attributes']['height'] = $display['settings']['height'];
+      $element[$delta]['#attributes']['width'] = $display['settings']['width'];
+      // this is where we deviate from default mediaelement handler
+      // this adds the poster image we want that's been uploaded
+      if (isset($entity->field_poster['und'])) {
+        $element[$delta]['#attributes']['poster'] = file_create_url($entity->field_poster['und'][0]['uri']);
+      }
+      // helps to set the caption file correctly
+      if (isset($entity->field_caption['und'])) {
+        $element[$delta]['#settings']['caption'] = file_create_url($entity->field_caption['und'][0]['uri']);
+      }
+    }
+    elseif ($display['type'] == 'mediaelement_audio') {
+      $element[$delta]['#theme'] = 'elmsmedia_helper_audio';
+    }
+  }
+  return $element;
+}
+
+/**
+ * Implements hook_theme().
+ */
+function elmsmedia_helper_theme() {
+  return array(
+    'elmsmedia_helper_video' => array(
+      'variables' => array('attributes' => array(), 'settings' => array()),
+    ),
+    'elmsmedia_helper_audio' => array(
+      'variables' => array('attributes' => array(), 'settings' => array()),
+    ),
+  );
+}
+
+/**
+ * Callback for elmsmedia_helper_video()
+ */
+function theme_elmsmedia_helper_video($variables) {
+  $output = '<div class="mediaelement-video">';
+  $output .= '<video ' . drupal_attributes($variables['attributes']) . ' >';
+  if (isset($variables['settings']['caption'])) {
+    $output .= '<track kind="subtitles" src="' . $variables['settings']['caption'] . '" srclang="en" />';
+  }
+  $output .= '</video>';
+  if ($variables['settings']['download_link']) {
+    // @ignore coder_tough_love_13
+    $output .= '<div class="mediaelement-download-link"><a href="' . $variables['attributes']['src'] . '">' . filter_xss_admin($variables['settings']['download_text']) . '</a></div>';
+  }
+  $output .= '</div>';
+  return $output;
+}
+
+/**
+ * Callback for audio rendering.
+ */
+function theme_elmsmedia_helper_audio($variables) {
+  $output = '<div class="mediaelement-audio">';
+  $output .= '<audio ' . drupal_attributes($variables['attributes']) . ' ></audio>';
+  if ($variables['settings']['download_link']) {
+    // @ignore coder_tough_love_13
+    $output .= '<div class="mediaelement-download-link"><a href="' . $variables['attributes']['src'] . '">' . filter_xss_admin($variables['settings']['download_text']) . '</a></div>';
+  }
+  $output .= '</div>';
+  return $output;
+}
+
+/**
+ * Implements hook_field_formatter_settings_form().
+ */
+function elmsmedia_helper_field_formatter_settings_form($field, $instance, $view_mode, $form, &$form_state) {
+  $display = $instance['display'][$view_mode];
+  $settings = $display['settings'];
+  $element = array();
+
+  $element['controls'] = array(
+    '#title' => t('Controls'),
+    '#type' => 'checkbox',
+    '#default_value' => $settings['controls'],
+  );
+
+  $element['width'] = array(
+    '#title' => t('Width'),
+    '#type' => 'textfield',
+    '#default_value' => $settings['width'],
+  );
+
+  $element['height'] = array(
+    '#title' => t('Height'),
+    '#type' => 'textfield',
+    '#default_value' => $settings['height'],
+  );
+
+  $element['download_link'] = array(
+    '#title' => t('Download link'),
+    '#type' => 'checkbox',
+    '#default_value' => $settings['download_link'],
+  );
+
+  $element['download_text'] = array(
+    '#title' => t('Download link text'),
+    '#type' => 'textfield',
+    '#default_value' => $settings['download_text'],
+  );
+
+  return $element;
+}
+
+/**
+ * Implements hook_field_formatter_settings_summary().
+ */
+function elmsmedia_helper_field_formatter_settings_summary($field, $instance, $view_mode) {
+  $display = $instance['display'][$view_mode];
+  $settings = $display['settings'];
+  return t('Width: @width, Height: @height', array('@width' => $settings['width'], '@height' => $settings['height']));
+}
+
+/**
+ * Alter the outgoing response.
+ *
+ * Based on cis_helper_restws_response_alter
+ * though this has improvements beyond that cis specific one.
+ *
+ * related support issue https://drupal.org/node/2024603
+ *
+ * @param mixed $response
+ *   The response data being returned by the REST service (not yet serialized).
+ * @param string $function
+ *   The function being called on the REST service.
+ * @param string $format
+ *   The name of the format serializing the response.
+ * @see cis_helper_restws_response_alter()
+ */
+function elmsmedia_helper_restws_response_alter(&$response, $function, $format_name) {
+  // specific modifications based common request type
+  if (($function == 'viewResource' || $function == 'queryResource') && $format_name == 'json' && isset($_GET['deep-load-refs'])) {
+    // query response is nested, direct access is not
+    if ($function == 'queryResource') {
+      foreach ($response['list'] as &$object) {
+        _elmsmedia_helper_restws_deep_load($object);
+      }
+    }
+    else {
+      _elmsmedia_helper_restws_deep_load($response);
+    }
+  }
+}
+
+/**
+ * Callback to perform deep load on a base entity
+ */
+function _elmsmedia_helper_restws_deep_load(&$response) {
+  // build list of allowed entity types to deep pull down
+  $allowed = explode(',', $_GET['deep-load-refs']);
+  // allow for deep loading of resources
+  foreach ($response as $key => &$val) {
+    // check for a single resource verses many
+    if (is_array($val) && isset($val[0]['id'])) {
+      // loop through items loading them in
+      foreach ($val as &$item) {
+        if (in_array($item['resource'], $allowed)) {
+          // load the entity
+          $entity = entity_load_single($item['resource'], $item['id']);
+          // ensure they can view this specific item
+          if (entity_access('view', $item['resource'], $entity)) {
+            // create a meta wrapper to act on for entity
+            $wrapper = entity_metadata_wrapper($item['resource'], $entity);
+            // filter out these values
+            $wrap = restws_property_access_filter($wrapper);
+            $eary = (array) $entity;
+            foreach ($eary as $property => $value) {
+              // value needs to be removed as it didn't pass wrapper validation
+              if (!isset($wrap[$property])) {
+                unset($eary[$property]);
+              }
+            }
+            // add values based on wrapper passing correctly
+            $item = $eary;
+          }
+        }
+      }
+    }
+    elseif (is_array($val) && (isset($val['id']) || isset($val['file']))) {
+      // edge case for file entity type since it nests; weak
+      $is_file = FALSE;
+      if (isset($val['file']) && is_array($val['file'])) {
+        $val = $val['file'];
+        $is_file = TRUE;
+      }
+      if (in_array($val['resource'], $allowed)) {
+        // load the entity
+        $entity = entity_load_single($val['resource'], $val['id']);
+        // ensure they can view this specific item
+        if (entity_access('view', $val['resource'], $entity)) {
+          // create a meta wrapper to act on for entity
+          $wrapper = entity_metadata_wrapper($val['resource'], $entity);
+          // filter out fields
+          $wrap = restws_property_access_filter($wrapper);
+          // typecast entity as array for property evaluation
+          $eary = (array) $entity;
+          // files don't have a view mode for property filtering
+          if (!$is_file) {
+            foreach ($eary as $property => $value) {
+              // value needs to be removed as it didn't pass wrapper validation
+              if (!isset($wrap[$property])) {
+                unset($eary[$property]);
+              }
+            }
+          }
+          else {
+            // convert file uri to the full url
+            $eary['uri'] = file_create_url($eary['uri']);
+          }
+          // add values based on wrapper passing correctly
+          $val = $eary;
+        }
+      }
+    }
+  }
+}

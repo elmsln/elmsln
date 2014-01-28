@@ -1,0 +1,32 @@
+<?php
+/**
+ * @file
+ * QuickPost Bookmarklet Node
+ *
+ * Integrate QuickPost Bookmarklet directly into your node links output
+ */
+
+/**
+ * Implements hook_node_view().
+ */
+function quickpost_bookmarklet_node_node_view($node, $view_mode, $langcode) {
+  // make sure this has been marked as a content type to care about
+  if (in_array(str_replace('_', '-', $node->type), variable_get('quickpost_bookmarklet_types', array()))) {
+    $options = array(
+      'type' => str_replace('_', '-', $node->type),
+      'title' => variable_get('quickpost_bookmarklet_title', QUICKPOST_BOOKMARKLET_TITLE),
+      'label' => variable_get('quickpost_bookmarklet_label', QUICKPOST_BOOKMARKLET_LABEL),
+      'body' => variable_get('quickpost_bookmarklet_body', QUICKPOST_BOOKMARKLET_BODY),
+      'open_in' => variable_get('quickpost_bookmarklet_open_in', QUICKPOST_BOOKMARKLET_OPEN_IN),
+    );
+    $link = _quickpost_bookmarklet_generate($options);
+    // allow other projects to modify the link prior to rendering
+    drupal_alter('quickpost_bookmarklet_link', $link);
+    // render the link
+    $node->content['links']['quickpost_bookmarklet'] = array(
+      '#theme' => 'links__node__quickpost_bookmarklet',
+      '#links' => $link,
+      '#attributes' => array('class' => array('links', 'inline')),
+    );
+  }
+}

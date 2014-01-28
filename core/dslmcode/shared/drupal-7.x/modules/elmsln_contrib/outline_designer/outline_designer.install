@@ -1,0 +1,30 @@
+<?php
+/**
+ * @file
+ * Install, update and uninstall functions for the outline_designer module.
+ */
+
+/**
+ * Implements hook_install().
+ */
+function outline_designer_install() { }
+
+/**
+ * Implements hook_uninstall().
+ */
+function outline_designer_uninstall() {
+  // Delete variables
+  $variables = array(
+    'outline_designer_theme',
+    'outline_designer_collapse_toggle',
+    'outline_designer_context_menu_exclusion_matrix',
+  );
+
+  foreach (node_type_get_types() as $type_name => $type) {
+    $variables[] = 'outline_designer_' . $type_name . '_icon';
+  }
+
+  foreach ($variables as $variable) {
+    variable_del($variable);
+  }
+}

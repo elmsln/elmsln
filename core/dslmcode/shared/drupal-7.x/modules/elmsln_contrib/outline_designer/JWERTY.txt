@@ -1,0 +1,42 @@
+-- JWERTY Integration with Outline Designer --
+
+For more documentation and a video on what jwerty provides outline designer
+check out the outline designer project page -- drupal.org/project/outline_designer
+
+To enable jwerty integration you will need the following:
+Libraries module -- drupal.org/project/libraries
+Jwerty keystroke library -- http://keithcirkel.co.uk/jwerty/
+
+Once you have these two, turn on the libraries module then
+place the jwerty download in sites/all/libraries/jwerty so that
+jwerty.js is in sites/all/libraries/jwerty/jwerty.js
+
+You don't need the other files from that library though they aren't hurting anything
+
+Once activated, on any outline designer interface the following keyboard
+shortcuts will be activated:
+
+Navigation
+Shift + "Up arrow" : select row above the current row
+Shift + "Down arrow" : select row below the current row
+Shift + Control + "Right arrow" : select a row so it can be moved around in the outline
+*Esc : backs out of items, in the case of using it after a Right arrow call, it will
+       drop the item in place which will force an update of the outline. These two calls
+       can be used in conjunction to reorder an outline via the keyboard.
+
+Utility
+Shift + Control + "+" : Increase interface size
+Shift + Control + ":" : collapse all branches
+Shift + Control + " : expand all branches
+
+Functions
+Shift + Control + A : Add child page
+Shift + Control + R : Rename
+
+Contrib Functions
+Shift + Control + D : Duplicate (requires book_copy)
+Shift + Control + H : Hide (requires hidden nodes)
+
+It's not hard to add additional shortcuts but as btopro manages all the
+modules that provide outline designer integration, this is the easiest
+way of accomplishing this.

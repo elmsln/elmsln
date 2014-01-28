@@ -1,0 +1,172 @@
+/* right side blocks */
+
+#regions_admin_left {
+  width:200px;
+  top:0px;
+  z-index:10000;
+  left:-225px;
+  float:right;
+  position:absolute;
+  height:auto;
+  padding:0px 6px;
+  overflow:visible;
+  border-right: 4px solid #dbdee3;
+  border-left: 4px solid #dbdee3;
+  background-color: #dbdee3;
+  -webkit-box-shadow: 0px 0px 10px 0px #bbb;
+  box-shadow: 0px 0px 10px 0px #bbb;
+  border-radius: 0px 0px 10px 10px; 
+  -moz-border-radius: 0px 0px 10px 10px; 
+  -webkit-border-radius: 0px 0px 10px 10px;
+}
+#regions_admin_left a:hover{
+  color:#111;
+}
+/*-------------------------overrides-------------------------*/
+#regions_admin_left form {
+  margin: 0 0 40px;  
+}
+#regions_admin_left p {
+  padding:10px 15px;  
+}
+#regions_admin_left label {
+  font-weight:bold;
+  text-align:center;
+  color:#373b43;  
+}
+#regions_admin_left select {
+  width:100%;  
+}
+#regions_admin_left .help-block, .help-inline{
+  color:#373b43;
+}
+#regions_admin_left #block-menu-menu-cis-toolkit h2 {
+  background-color:transparent !important;
+  text-align:center;
+  color:#373b43;
+  font-size:1.5em;
+}
+#regions_admin_left #block-cis-service-connection-section-context-changer {
+  border-bottom:#373b43 dashed 1px;
+  border-top:#373b43 dashed 1px;
+}
+#regions_admin_left #block-masquerade-masquerade {
+  border-bottom:#373b43 dashed 1px;
+}
+#regions_admin_left #block-cis-service-connection-section-context-changer h2 {
+  font-size:1.5em;
+  text-align:center;
+  background-color:transparent !important;
+  color:#373b43;
+  margin-bottom:10px;
+}
+#regions_admin_left ul.menu {
+  border-radius: 10px; 
+  -moz-border-radius: 10px; 
+  -webkit-border-radius: 10px;  
+  background-color:#ffffff;
+  color: #373b43;
+  padding-top:10px;
+  padding-bottom:10px;
+  padding-left:10px;
+  padding-right:10px;
+}
+#regions_admin_left li{
+  padding-top:2px;
+  padding-bottom:2px;
+  list-style-image:none;
+  list-style-type:none;
+  list-style-position:inside;
+}
+#regions_admin_left a{
+  color:#373b43;
+  padding: 5px 5px 5px 10px;
+  font-size:1em;
+  border-radius: 5px; 
+  -moz-border-radius: 5px; 
+  -webkit-border-radius: 5px;
+  
+}
+#regions_admin_left #block-masquerade-masquerade h2{
+  color: #111;
+  font-size: 1.5em;
+  overflow: hidden;
+  padding: 0px;
+  margin: 20px 0px 0px 0px;
+  text-align:center;
+  background-color:transparent !important;
+  color:#373b43;
+  text-transform:uppercase;
+}
+/*-------------------------End overrides-------------------------*/
+
+#regions_admin_left #block-masquerade-masquerade .controls input {
+  margin:0px auto;
+  float:left;
+}
+#regions_admin_left #block-masquerade-masquerade .description {
+ color:#373b43;
+}
+#regions_admin_left h2.left-heading{
+  color: #373b43;
+  font-size: 2em;
+  overflow: hidden;
+  padding: 0px;
+  margin: 10px 0px 10px 0px;
+  background-color: transparent;
+  text-transform:uppercase;
+  text-align:center;
+}
+.regions_block_container {
+  z-index:1000;
+}
+#regions_admin_left .regions_pre_block_container{
+  padding: 5px;
+  margin: 75px 198px 0px;
+  height: 20px;
+  width: 44px;
+  -o-transform:  rotate(90deg); /* opera specific */
+  filter: progid:DXImageTransform.Microsoft.BasicImage(rotation=3); /* ie */
+  -webkit-transform: rotate(90deg);
+  -moz-transform: rotate(90deg);
+  -ms-transform: rotate(90deg);
+  -webkit-border-top-left-radius: 4px;
+  -webkit-border-top-right-radius: 4px;
+  -moz-border-radius-topleft: 4px;
+  -moz-border-radius-topright: 4px;
+  border-top-left-radius: 4px;
+  border-top-right-radius: 4px;
+  display:block;
+  text-align:center;
+  float:left;
+  cursor:pointer;
+  position:fixed;
+  font-size:14px;
+  font-weight:bold;
+  background-color:#dbdee3;
+  color:#373b43;
+}
+#regions_admin_left .regions_block_content {
+  padding:40px 10px 10px 10px;
+  margin:0px;
+  width:100%;
+  top:0px;
+  bottom:0px;
+  z-index:1001;
+}
+/* on smaller devices make this smaller */
+@media all and (max-width: 960px) {
+  #regions_admin_left .regions_pre_block_container {
+    margin:90px 210px 0px;
+    height: 16px;
+    width: 26px;
+    font-size:10px;
+    padding: 0px 0px 10px 0px;
+    color:transparent;
+    background:#dbdee3 right no-repeat url('images/admin.png');
+    -o-transform:  rotate(0deg); /* opera specific */
+    filter:auto;
+    -webkit-transform: rotate(0deg);
+    -moz-transform: rotate(0deg);
+  }
+}

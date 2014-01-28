@@ -1,0 +1,23 @@
+<?php
+/**
+ * @file
+ * Drupal needs this blank file.
+ */
+
+/**
+ * Implements hook_wysiwyg_templates_load_alter().
+ */
+function textbook_templates_wysiwyg_templates_load_alter(&$templates) {
+  $textbook = array(
+    'lorem_ipsum',
+    'table_of_terms',
+    'table_style_2',
+    'topic_reading'
+  );
+  foreach ($templates as $key => $template) {
+    // see if the template matches one in the textbook definition
+    if ($template['image'] == '' && in_array($template['name'], $textbook) === TRUE) {
+      $templates[$key]['image'] = '/' . drupal_get_path('module', 'textbook_templates') . '/images/' . $template['name'] . '.png';
+    }
+  }
+}

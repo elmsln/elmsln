@@ -1,0 +1,8 @@
+name = QuickPost Bookmarklet Node
+description = "Add a bookmarklet to the node links area for types you define"
+core = 7.x
+
+package = QuickPost
+; Module dependencies
+dependencies[] = prepopulate
+dependencies[] = quickpost_bookmarklet

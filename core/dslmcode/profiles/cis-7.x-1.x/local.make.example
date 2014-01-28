@@ -1,0 +1,41 @@
+; cis make file for local development
+core = "7.x"
+api = "2"
+
+projects[drupal][version] = "7.x"
+; include the d.o. profile base
+includes[] = "drupal-org.make"
+
+; shadowbox needs to fix issue before it can be included in correct make file
+projects[shadowbox][version] = "4.0-rc1"
+projects[shadowbox][subdir] = "contrib"
+
+; Patches
+; fix cross domain error if site is in an iframe
+projects[shadowbox][patch][] = "http://drupal.org/files/issues/shadowbox-iframe-sec-error-2154699-1.patch"
+
+; +++++ Libraries +++++
+
+; Profiler
+libraries[profiler][directory_name] = "profiler"
+libraries[profiler][type] = "library"
+libraries[profiler][destination] = "../../profiles/cis/libraries"
+libraries[profiler][download][type] = "get"
+libraries[profiler][download][url] = "http://ftp.drupal.org/files/projects/profiler-7.x-2.x-dev.tar.gz"
+
+; shadowbox
+libraries[shadowbox][download][type] = "post"
+libraries[shadowbox][download][post_data] = "format=tar&adapter=jquery&players[]=img&players[]=iframe&players[]=html&players[]=swf&players[]=flv&players[]=qt&players[]=wmp&language=en&css_support=on"
+libraries[shadowbox][download][file_type] = "tar.gz"
+libraries[shadowbox][download][url] = "http://www.shadowbox-js.com/download"
+libraries[shadowbox][directory_name] = "shadowbox"
+libraries[shadowbox][destination] = "libraries"
+
+
+; cis
+libraries[cis][directory_name] = "cis"
+libraries[cis][type] = "profile"
+libraries[cis][destination] = "../../profiles"
+libraries[cis][download][type] = "get"
+libraries[cis][download][url] = "http://ftp.drupal.org/files/projects/cis-7.x-1.x-dev.tar.gz"
+

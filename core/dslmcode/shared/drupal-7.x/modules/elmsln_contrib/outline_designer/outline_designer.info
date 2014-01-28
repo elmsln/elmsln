@@ -1,0 +1,5 @@
+name = "Outline Designer API"
+description = "API for usability improvements to tableDrag based forms in drupal"
+package = "Outline Designer"
+project = "outline_designer"
+core = 7.x

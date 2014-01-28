@@ -1,0 +1,122 @@
+<?php
+/**
+ * @file
+ * Install, update, and uninstall functions for the user_progress module.
+ */
+
+/**
+ * Implements hook_schema().
+ */
+function user_progress_schema() {
+  // create the records table for storage of all user progress actions
+  $schema['user_progress_records'] = array(
+    'description' => 'All records recorded from any number of applications',
+    'fields' => array(
+      'uprid'    => array(
+        'type' => 'serial',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'description' => 'Unique identifier for a user_progress record.',
+        ),
+      'upregid'     => array(
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 0,
+        'description' => 'The registry id for this record.',
+        ),
+      'uid'     => array(
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 0,
+        'description' => 'The user id associated to this action.',
+        ),
+      'nid'     => array(
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 0,
+        'description' => 'The nid associated to this action.',
+        ),
+      'created' => array(
+        'description' => 'The Unix timestamp when the record was created.',
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0,
+        ),
+      ),
+    'indexes' => array(
+      'uid' => array('uid'),
+      'nid' => array('nid'),
+      'upregid' => array('upregid'),
+      ),
+    'primary key' => array('uprid'),
+  );
+  // quickly define 16 datapoints that are all the same
+  for ($i=1; $i<17; $i++) {
+    $schema['user_progress_records']['fields']['data' . $i] = array(
+      'type' => 'text',
+      'not null' => FALSE,
+      'size' => 'big',
+      'description' => 'Data point to store, is text so it can be anything',
+    );
+  }
+  // define the registry that will implement types
+  $schema['user_progress_registry'] = array(
+    'description' => 'Registry of instances of all types of progress',
+    'fields' => array(
+      'upregid' => array(
+        'type' => 'serial',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'description' => 'Unique identifier for a user_progress registry item.',
+      ),
+      'title' => array(
+        'type' => 'varchar',
+        'length' => 256,
+        'not null' => TRUE,
+        'description' => 'Human readable title for this type instance',
+      ),
+      'upt_name' => array(
+        'type' => 'varchar',
+        'length' => 32,
+        'not null' => TRUE,
+        'description' => 'Machine readable name of this type',
+      ),
+      'nid' => array(
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => FALSE,
+        'default' => 0,
+        'description' => 'The group nid associated to this item.',
+      ),
+    ),
+    'indexes' => array(
+      'upt_name' => array('upt_name'),
+      'nid' => array('nid'),
+      'title' => array('title'),
+    ),
+    'primary key' => array('upregid'),
+  );
+  // define the types of progress
+  $schema['user_progress_types'] = array(
+    'description' => 'All types of progress that can be analyzed',
+    'fields' => array(
+      'upt_name' => array(
+        'type' => 'varchar',
+        'length' => 32,
+        'not null' => TRUE,
+        'description' => 'Machine readable name of this type',
+      ),
+      'name' => array(
+        'type' => 'varchar',
+        'length' => 256,
+        'not null' => TRUE,
+        'description' => 'Human readable name of this type',
+      ),
+    ),
+    'primary key' => array('upt_name'),
+  );
+  return $schema;
+}

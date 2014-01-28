@@ -1,0 +1,53 @@
+<?php
+/**
+ * @file
+ * Wrapper to help include quo.js library.
+ */
+
+// quojs global variables
+define('QUOJS_URL', 'http://quojs.tapquo.com/');
+/**
+ * Implements hook_init().
+ */
+function quojs_init() {
+  $lib = quojs_get_library();
+  if ($lib) {
+    // add library to all pages
+    drupal_add_js($lib);
+  }
+}
+
+/**
+ * Wrapper to get the library so it works with install profiles.
+ */
+function quojs_get_library() {
+  // account for libraries not being available on install
+  if (function_exists('libraries_get_libraries')) {
+    $libraries = libraries_get_libraries();
+    if (isset($libraries['quojs'])) {
+      return $libraries['quojs'] . '/quo.js';
+    }
+  }
+  else {
+    $directory = 'libraries';
+    $profile = drupal_get_profile();
+    $config = conf_path();
+    $lib = 'quojs/quo.js';
+    // look in install profile
+    if (file_exists("profiles/$profile/$directory/$lib")) {
+      return "profiles/$profile/$directory/$lib";
+    }
+    // look in sites all
+    // Always search sites/all/*.
+    $searchdir[] = 'sites/all/' . $directory ;
+    if (file_exists("sites/all/$directory/$lib")) {
+      return "sites/all/$directory/$lib";
+    }
+    // look in a local domain as last resort
+    // Also search sites/<domain>/*.
+    if (file_exists("$config/$directory/$lib")) {
+      return "$config/$directory/$lib";
+    }
+  }
+  return FALSE;
+}

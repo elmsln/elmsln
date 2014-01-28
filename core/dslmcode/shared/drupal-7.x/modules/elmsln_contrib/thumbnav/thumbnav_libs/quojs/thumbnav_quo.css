@@ -1,0 +1,21 @@
+/* CSS Document */
+.thumbnav_zone {
+  top:33%;
+  bottom:0;
+  z-index:500;
+  position:fixed;
+  width:6%;
+}
+.thumbnav_controller {
+  width:6%;
+  top:50%;
+}
+/* increase touch sensativity on phones */
+@media screen and (max-width: 400px) {
+  .thumbnav_zone {
+    width:8%;
+  }
+  .thumbnav_controller {
+      width:14%;
+  }
+}

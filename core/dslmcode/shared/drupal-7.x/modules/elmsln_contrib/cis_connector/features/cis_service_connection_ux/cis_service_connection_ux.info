@@ -1,0 +1,16 @@
+name = CIS Service Connection UX
+description = Position blocks that make CIS service connection real
+core = 7.x
+package = CIS Connector
+php = 5.2.4
+dependencies[] = context
+dependencies[] = ctools
+dependencies[] = features
+dependencies[] = menu
+features[context][] = cis_service_connection_ux-blocks
+features[ctools][] = context:context:3
+features[features_api][] = api:1
+features[menu_custom][] = menu-cis-toolkit
+features[menu_links][] = menu-cis-toolkit:admin/appearance
+features[menu_links][] = menu-cis-toolkit:admin/config/development/performance
+features[menu_links][] = menu-cis-toolkit:admin/config/system/course-settings

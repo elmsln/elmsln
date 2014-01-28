@@ -1,0 +1,8 @@
+; $Id: context_var
+name = "Context: Variable"
+description = "Context condition: Show when site variables equal a defined value"
+package = "Context"
+project = "context_var"
+dependencies[] = "context"
+core = 7.x
+files[] = plugins/context_var_context_condition.inc

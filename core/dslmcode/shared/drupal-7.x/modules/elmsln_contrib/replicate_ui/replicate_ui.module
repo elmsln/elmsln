@@ -1,0 +1,198 @@
+<?php
+/**
+ * @file
+ * Provide a user interface for the Replicate API.
+ */
+
+/**
+ * Implements hook_menu().
+ */
+function replicate_ui_menu() {
+  $items['replicate/%/%'] = array(
+    'title' => 'Replicate',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('replicate_ui_confirm', 1, 2),
+    'access callback' => 'replicate_ui_access',
+    'access arguments' => array(1, 2),
+  );
+  $items['node/%node/replicate'] = array(
+    'title' => 'Replicate',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('replicate_ui_confirm', 0, 1),
+    'access callback' => 'replicate_ui_access',
+    'access arguments' => array(0, 1),
+    'type' => MENU_LOCAL_TASK,
+  );
+  // only add ui element for field collection if replicate sub installed
+  if (module_exists('replicate_field_collection')) {
+    // Add menu paths for viewing/editing/deleting field collection items.
+    foreach (field_info_fields() as $field) {
+      if ($field['type'] == 'field_collection') {
+        $path = field_collection_field_get_path($field);
+        $items[$path . '/%field_collection_item/replicate'] = array(
+          'title' => 'Replicate',
+          'page callback' => 'drupal_get_form',
+          'page arguments' => array('replicate_ui_confirm', 'field_collection_item', 2),
+          'access callback' => 'replicate_ui_access',
+          'access arguments' => array('field_collection_item', 2),
+          'type' => MENU_LOCAL_TASK,
+          'context' => MENU_CONTEXT_PAGE | MENU_CONTEXT_INLINE,
+        );
+      }
+    }
+  }
+  return $items;
+}
+
+/**
+ * Access control for access to replicate.
+ */
+function replicate_ui_access($type, $etid) {
+  if (is_object($etid)) {
+    $info = entity_get_info($type);
+    $etid = $etid->{$info['entity keys']['id']};
+  }
+  // make sure they can create this item and access replicate
+  $entity = entity_load_single($type, $etid);
+  // ensure this exists, they have access to see and create the type and access the ui
+  if (!empty($entity) && entity_access('view', $type, $entity) && entity_access('create', $type, $entity) && user_access('replicate entities')) {
+    return TRUE;
+  }
+  return FALSE;
+}
+
+/**
+ * Menu callback.  Ask for confirmation of replication.
+ */
+function replicate_ui_confirm($form, &$form_state, $type, $entity_id) {
+  // convert from object to id if we got an object instead
+  if (is_object($entity_id)) {
+    $info = entity_get_info($type);
+    $entity_id = $entity_id->{$info['entity keys']['id']};
+  }
+  // write id / type into form to pass to the submit handler
+  $form['entity_id'] = array(
+    '#type' => 'value',
+    '#value' => $entity_id,
+  );
+  $form['entity_type'] = array(
+    '#type' => 'value',
+    '#value' => $type,
+  );
+  return confirm_form($form,
+    t('Are you sure you want to replicate %type entity id %id?', array('%type' => $type, '%id' => $entity_id)), '',
+    t('This action cannot be undone.'),
+    t('Replicate'),
+    t('Cancel')
+  );
+}
+
+/**
+ * Execute full book deletion using batch processing.
+ */
+function replicate_ui_confirm_submit($form, &$form_state) {
+  if ($form_state['values']['confirm']) {
+    $entity_type = $form_state['values']['entity_type'];
+    $entity_id = $form_state['values']['entity_id'];
+    // special case for field collection
+    if ($entity_type == 'field_collection_item') {
+      $entity = entity_load_single($entity_type, $entity_id);
+      $new = replicate_clone_entity('field_collection_item', $entity);
+      $new->setHostEntity($entity->hostEntityType(), $entity->hostEntity());
+      $new->save();
+      $path = 'field-collection/' . str_replace('_', '-', $new->field_name) . '/' . $new->item_id;
+      $id = $new->item_id;
+    }
+    else {
+      // load entity for replicate
+      $id = replicate_entity_by_id($entity_type, $entity_id);
+      $path = $entity_type . '/' . $id;
+    }
+    if ($id) {
+      // redirect to the new item
+      drupal_set_message(t('%type (%id) has been replicated to id %new!', array('%type' => $entity_type, '%id' => $entity_id, '%new' => $id)));
+      if (!isset($_GET['destination'])) {
+        drupal_goto($path);
+      }
+    }
+  }
+}
+
+/**
+ * Implements hook_permission().
+ */
+function replicate_ui_permission() {
+  return array(
+    'replicate entities' => array(
+      'title' => t('Replicate entities via UI'),
+      'description' => t('Makes the replicate / duplicate functionality available via the UI. Still requires Create permissions on an entity to display.'),
+    ),
+  );
+}
+
+/**
+ * Implements hook_views_api().
+ */
+function replicate_ui_views_api() {
+  return array(
+    'api' => 3,
+    'path' => drupal_get_path('module', 'replicate_ui') . '/views',
+  );
+}
+
+/**
+ * Implements hook_action_info().
+ *
+ * Registers custom replicate actions as Drupal actions.
+ */
+function replicate_ui_action_info() {
+  $actions = array();
+  $files = replicate_ui_load_action_includes();
+  foreach ($files as $filename) {
+    $action_info_fn = 'replicate_ui_' . str_replace('.', '_', basename($filename, '.inc')) . '_info';
+    $action_info = call_user_func($action_info_fn);
+    if (is_array($action_info)) {
+      $actions += $action_info;
+    }
+  }
+  return $actions;
+}
+
+/**
+ * Loads the replicate actions placed in their own include files
+ *
+ * @return
+ *   An array of containing filenames of the included actions.
+ */
+function replicate_ui_load_action_includes() {
+  static $loaded = FALSE;
+
+  // The list of replicate actions is fairly static, so it's hardcoded for better
+  // performance (hitting the filesystem with file_scan_directory(), and then
+  // caching the result has its cost).
+  $path = drupal_get_path('module', 'replicate_ui') . '/actions/';
+  $files = array(
+    'replicate.action.inc',
+  );
+
+  if (!$loaded) {
+    foreach ($files as $file) {
+      include_once $path . $file;
+    }
+    $loaded = TRUE;
+  }
+
+  return $files;
+}
+
+/**
+ * Implements hook_admin_paths().
+ */
+function replicate_ui_admin_paths() {
+  $paths = array(
+    'replicate/*/*' => TRUE,
+    'node/*/replicate' => TRUE,
+    'field-collection/*/*/replicate' => TRUE,
+  );
+  return $paths;
+}

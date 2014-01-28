@@ -1,0 +1,7 @@
+<?php
+/**
+ * @file
+ * Code for the MOOC Widget: Table feature.
+ */
+
+include_once 'mooc_widget_table.features.inc';

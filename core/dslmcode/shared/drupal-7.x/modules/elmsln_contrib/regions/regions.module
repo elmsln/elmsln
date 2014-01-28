@@ -1,0 +1,184 @@
+<?php
+/**
+ * @file
+ * Add regions to the screen that are cross-theme compliant
+ */
+
+/**
+ * Implements hook_help().
+ */
+function regions_help($path, $arg) {
+  if ($path == 'admin/help#regions') {
+    return '<p>' . t('Regions adds regions that are cross theme compliant.  This way you can add blocks to any number of areas of the screen without having to define them in your themes.') . '</p>';
+  }
+}
+
+/**
+ * Implements hook_permission().
+ */
+function regions_permission() {
+  $regions = _regions_list();
+  $perms = array();
+  // Generate a list of regions and permissions.
+  foreach (array_keys($regions) as $region_name) {
+    $perms['view ' . $region_name . ' region'] = array(
+      'title' => t('View @title region', array('@title' => $regions[$region_name]['title'])),
+      'description' => t('Allow users to see blocks added to this region'),
+    );
+  }
+  return $perms;
+}
+
+/**
+ * Implements hook_init().
+ */
+function regions_init() {
+  // Check for current theme.
+  global $theme_key;
+  $regions = _regions_list($theme_key);
+  foreach ($regions as $region_info) {
+    // Add optional js files if defined.
+    if (isset($region_info['js'])) {
+      drupal_add_js($region_info['js']);
+    }
+    // Add optional stylesheets if defined.
+    if (isset($region_info['css'])) {
+      drupal_add_css($region_info['css']);
+    }
+  }
+}
+
+/**
+ * Implements hook_page_alter().
+ */
+function regions_page_alter(&$page) {
+  // Check for current theme.
+  global $theme_key;
+  $regions = _regions_list($theme_key);
+  // Regions the user has access to are added to the end of site.
+  $output = '';
+  foreach ($regions as $region_name => $region_info) {
+    // Check for access to regions.
+    if (user_access('view ' . $region_name . ' region')) {
+      $region = array('start' => '', 'blocks' => '', 'end' => '');
+      // Get themed blocks string.
+      $blocks = _regions_blocks($region_name, $region_info);
+      if (!empty($blocks)) {
+        $region['start'] = '<div id="' . $region_name . '" class="regions">';
+        $region['blocks'] .= $blocks;
+        $region['end'] .= '</div>';
+      }
+      // Allow other modules to alter the region array before the each element
+      // is concatenated into a single HTML string.
+      drupal_alter('regions_region', $region, $region_name);
+      $output .= !empty($region) ? implode('', $region) : NULL;
+    }
+  }
+  // append output to page via normal page rendering
+  $page['page_bottom']['regions_module'] = array(
+    '#type' => 'markup',
+    '#markup' => $output,
+  );
+}
+
+/**
+ * Implements hook_system_info_alter().
+ */
+function regions_system_info_alter(&$info, $file, $type) {
+  if (isset($info['regions'])) {
+    $list = module_invoke_all('define_regions');
+    // Add the regions into the definition typically only provided by the theme
+    // layer.
+    if (count($list) > 0) {
+      $info['original_regions'] = $info['regions'];
+    }
+    foreach ($list as $machine_name => $region) {
+      $info['regions'] += array($machine_name => $region['title']);
+    }
+  }
+}
+
+/**
+ * Helper function lists defined regions against theme regions.
+ *
+ * @param $theme_key
+ *   A theme key to check against. Defaults to current theme.
+ *
+ * @return
+ *   An array keyed by region identifier, containing:
+ *   - title: the region title
+ *   - css: optional path to stylesheet for theming the new region, relative to
+ *     implementing module directory.
+ *   - js: optional path to javascript file, relative to implementing module
+ *     directory.
+ *   - render_callback: optional function to use in rendering blocks of this
+ *     region (will be passed 'block' and $block parameters).
+ *   Or an empty array.
+ */
+function _regions_list($theme_key = NULL) {
+  // statically cache future calls
+  $new_regions = &drupal_static(__FUNCTION__);
+  if (!isset($new_regions)) {
+    if (!isset($theme_key)) {
+      global $theme_key;
+    }
+    // Tap the stored info file for the original_regions variable.
+    $info = unserialize(db_query("SELECT info FROM {system} WHERE type = :type AND name = :name", array(':type' => 'theme', ':name' => $theme_key))->fetchField());
+    if (isset($info['original_regions'])) {
+      $theme_regions = array_map('t', $info['original_regions']);
+    }
+    else {
+      $theme_regions = array_map('t', $info['regions']);
+    }
+    // Allow modules to define new regions.
+    $defined_regions = module_invoke_all('define_regions');
+
+    // Build an array of new regions, if defined ones don't already exist.
+    $new_regions = array();
+    if (!empty($defined_regions)) {
+      foreach ($defined_regions as $key => $value) {
+        if (!in_array($key, array_keys($theme_regions))) {
+          $new_regions[$key] = $value;
+        }
+      }
+    }
+  }
+  return $new_regions;
+}
+
+/**
+ * Helper function to get a list of blocks per region.
+ *
+ * @param string $region_name
+ *   The region identifier.
+ * @param array $region_info
+ *   An individual element child of the array returned by _regions_list().
+ *
+ * @return
+ *   A string containing the rendered blocks for this region.
+ *
+ * @see _regions_list()
+ * @see regions_footer()
+ */
+function _regions_blocks($region_name, $region_info) {
+  // Update the {block} table with the blocks currently exported by modules.
+  $blocks = array();
+  if (module_exists('context') && function_exists('context_get_plugin')) {
+    $blocks = context_get_plugin('reaction', 'block')->block_list($region_name);
+  }
+  else {
+    $blocks = block_list($region_name);
+  }
+  // Allow other modules to alter the blocks array before the each block object
+  // is rendered by theme_block().
+  drupal_alter('regions_blocks', $blocks, $region_name);
+  // Render the array of blocks using either an optional module-provided
+  // callback, or the default theme('block', $block).
+  $render_callback = isset($region_info['render_callback']) && function_exists($region_info['render_callback']) ? $region_info['render_callback'] : 'theme';
+  $output = '';
+  foreach ($blocks as $block) {
+    $output .= call_user_func_array($render_callback, array('block', $block));
+  }
+
+  return $output;
+}

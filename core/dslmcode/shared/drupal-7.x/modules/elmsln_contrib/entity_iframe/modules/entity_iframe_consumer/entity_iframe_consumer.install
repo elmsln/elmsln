@@ -1,0 +1,28 @@
+<?php
+
+/**
+ * Implements hook_requirements().
+ */
+function entity_iframe_consumer_requirements($phase) {
+  $requirements = array();
+  $t = get_t();
+  // Check for entity-iframe-consumer.html file
+  $path = getcwd() . '/' . drupal_get_path('module', 'entity_iframe_consumer');
+  $newpath = getcwd() . '/entity-iframe-consumer.html';
+  if (!file_exists($newpath)) {
+    $requirements['entity_iframe_consumer'] = array(
+      'title'       => $t('Entity iframe consumer'),
+      'description' => $t('Copy !path to !newpath to install entity_iframe_consumer correctly', array('!path' => $path, '!newpath' => $newpath)),
+      'severity'    => REQUIREMENT_ERROR,
+      'value'       => $t('HTML file needs to be copied'),
+    );
+  }
+  else {
+    $requirements['entity_iframe_consumer'] = array(
+      'title'       => $t('Entity iframe consumer'),
+      'severity'    => REQUIREMENT_OK,
+      'value'       => $t('Entity iframe consumer is installed correctly.'),
+    );
+  }
+  return $requirements;
+}

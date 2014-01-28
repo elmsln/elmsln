@@ -1,0 +1,114 @@
+<?php
+/**
+ * @file
+ * Ship content hits off to user progress.
+ */
+
+/**
+ * Implements hook_init().
+ */
+function user_progress_content_init() {
+  global $user;
+  $regids = array();
+  $node = menu_get_object();
+  // have to be in a group currently AND have access AND be on a node
+  if (user_access('set up_content progress record') && isset($node->nid) && arg(2) == NULL) {
+    // more efficient way of verifying that og is enabled
+    if (module_exists('og')) {
+      $group = og_context();
+      // have to be in a group currently AND have access AND be on a node
+      if (isset($group->nid)) {
+        // calculate what the registry id is, simple as there should be only 1
+        $regids = _user_progress_get_registry_ids('up_content', $group->nid);
+      }
+    }
+    else {
+      $regids = _user_progress_get_registry_ids('up_content');
+    }
+  }
+
+  // verify we have at least 1 record
+  if (count($regids) > 0) {
+    // structure the request
+    $upregid = $regids[0]['upregid'];
+    $nid = $node->nid;
+    $uid = $user->uid;
+    $data['data1'] = 1;
+    // this is setting that the user has gone to this page at this time
+    _user_progress_set_record($upregid, $uid, $nid, $data);
+  }
+}
+
+/**
+ * Implements hook_dashboard_requirements().
+ */
+function user_progress_content_dashboard_requirements($provider) {
+  switch ($provider) {
+    case 'user_progress':
+      // count all the data associated to this node
+      $node = menu_get_object();
+      $params = array(':upt_name' => 'up_content', ':nid' => $node->nid);
+      $count = db_query("SELECT COUNT(uprid) as recordidcount FROM {user_progress_records} as tuprec JOIN {user_progress_registry} as tupreg ON tuprec.upregid=tupreg.upregid WHERE upt_name = :upt_name AND tuprec.nid = :nid", $params)->fetchField();
+      $requirements['up_content_page_count'] = array(
+        'title' => t('Page views'),
+        'value' => $count,
+        'severity' => REQUIREMENT_INFO,
+      );
+      $count = db_query("SELECT COUNT(uid) as recorduidcount FROM {user_progress_records} as tuprec JOIN {user_progress_registry} as tupreg ON tuprec.upregid=tupreg.upregid WHERE upt_name = :upt_name AND tuprec.nid = :nid GROUP BY uid", $params)->fetchField();
+      $requirements['up_content_unique_page_count'] = array(
+        'title' => t('Unique page visits'),
+        'value' => $count,
+        'severity' => REQUIREMENT_INFO,
+      );
+      break;
+    case 'og':
+      if (module_exists('og')) {
+        $group = og_context();
+        // count all the data associated to this node
+        $params = array(':upt_name' => 'up_content', ':nid' => $group->nid);
+        $count = db_query("SELECT COUNT(uprid) as recordidcount FROM {user_progress_records} as tuprec JOIN {user_progress_registry} as tupreg ON tuprec.upregid=tupreg.upregid WHERE upt_name = :upt_name AND tupreg.nid = :nid", $params)->fetchField();
+        $requirements['up_content_page_count'] = array(
+          'title' => t('Page views'),
+          'value' => $count,
+          'severity' => REQUIREMENT_INFO,
+        );
+        $count = db_query("SELECT COUNT(uid) as recorduidcount FROM {user_progress_records} as tuprec JOIN {user_progress_registry} as tupreg ON tuprec.upregid=tupreg.upregid WHERE upt_name = :upt_name AND tupreg.nid = :nid GROUP BY uid", $params)->fetchField();
+        $requirements['up_content_unique_page_count'] = array(
+          'title' => t('Unique page visits'),
+          'value' => $count,
+          'severity' => REQUIREMENT_INFO,
+        );
+      }
+    break;
+    case 'system':
+      // count all the data we have of type content
+      $params = array(':upt_name' => 'up_content');
+      $count = db_query("SELECT COUNT(uprid) as recordidcount FROM {user_progress_records} as tuprec JOIN {user_progress_registry} as tupreg ON tuprec.upregid=tupreg.upregid WHERE upt_name = :upt_name", $params)->fetchField();
+      $requirements['up_content_page_count'] = array(
+        'title' => t('Page views'),
+        'value' => $count,
+        'severity' => REQUIREMENT_INFO,
+      );
+      $count = db_query("SELECT COUNT(uid) as recorduidcount FROM {user_progress_records} as tuprec JOIN {user_progress_registry} as tupreg ON tuprec.upregid=tupreg.upregid WHERE upt_name = :upt_name GROUP BY uid", $params)->fetchField();
+      $requirements['up_content_unique_page_count'] = array(
+        'title' => t('Unique page visits'),
+        'value' => $count,
+        'severity' => REQUIREMENT_INFO,
+      );
+      break;
+  }
+  return $requirements;
+}
+
+/**
+ * Implements hook_user_progress_define_types().
+ */
+function user_progress_content_user_progress_define_types() {
+  return array(
+    'up_content' => array(
+      'name' => t('Content'),
+      'data1_handler' => 'bool',
+      'data2_handler' => 'time',
+    ),
+  );
+}

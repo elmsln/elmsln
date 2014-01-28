@@ -1,0 +1,13 @@
+<?php
+/**
+ * @file
+ * Increase priority of alter for top area.
+ */
+
+/**
+ * Implements hook_install().
+ */
+function regions_top_nav_install() {
+  // change the weight so that alters fire after others
+  db_query("UPDATE {system} SET weight = 3 WHERE name = 'regions_top_nav'");
+}

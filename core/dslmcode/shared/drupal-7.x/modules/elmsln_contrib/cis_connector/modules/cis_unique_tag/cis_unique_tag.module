@@ -1,0 +1,57 @@
+<?php
+/**
+ * @file
+ * Drupal needs this blank file.
+ */
+
+/**
+ * Implements hook_menu().
+ */
+function cis_unique_tag_menu() {
+  $items = array();
+  $items['cis-find-tag/%/%'] = array(
+    'page callback' => '_cis_unique_tag_lookup',
+    'page arguments' => array(1, 2),
+    'access arguments' => array('access content'),
+    'type' => MENU_CALLBACK,
+  );
+  return $items;
+}
+
+/**
+ * Callback to find a tagged resource and redirect.
+ *
+ * @param $type
+ *   The type of entity you are looking for
+ * @param $tag
+ *   Tag / word to search for within this entity type.
+ */
+function _cis_unique_tag_lookup($type, $tag) {
+  // need this to support multiple entity types
+  $type_info = entity_get_info($type);
+  $query = new EntityFieldQuery();
+  // pull all nodes
+  $query->entityCondition('entity_type', $type)
+    ->fieldCondition('field_cis_tag', 'value', $tag, '=');
+  // store results
+  $result = $query->execute();
+  // ensure we have results
+  if (isset($result[$type])) {
+    $ids = array_keys($result[$type]);
+    // only 1 result, load it and set location to uri resolver
+    if (count($ids) == 1) {
+      $entity = entity_load_single($type, $ids[0]);
+      $uri = entity_uri($type, $entity);
+      $path = $uri['path'];
+    }
+    else {
+      // @todo cross reference with current user context
+      // need to test for entity having reference or another method
+      // only other non-referenced method is in a book owned as in mooc
+    }
+  }
+  else {
+    $path = '<front>';
+  }
+  drupal_goto($path);
+}

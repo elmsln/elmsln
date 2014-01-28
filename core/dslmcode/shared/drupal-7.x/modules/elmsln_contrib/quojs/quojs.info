@@ -1,0 +1,5 @@
+name = "Quo JS"
+description = "Makes the quo.js library available to drupal"
+core = 7.x
+package = "User Interface"
+dependencies[] = libraries

@@ -1,0 +1,96 @@
+<?php
+// ELMS: User Progress Requirement Dashboard
+// Development Sponsored by The Pennsylvania State University
+// The ELMS project name is Copyright (C) 2008-2014  The Pennsylvania State University
+// Bryan Ollendyke
+// bto108@psu.edu
+//
+// 12 Borland
+// University Park,  PA 16802
+
+/**
+ * @file
+ * Provides requirement dashboards associated with the user progress project
+ */
+
+/**
+ * Implements hook_requirement_dashboard_provider().
+ */
+function user_progress_requirement_dashboard_requirement_dashboard_provider() {
+  $dashboards['user_progress'] = array(
+    'title' => t('User progress stats'),
+    'path' => 'node/%node/up_stats',
+  );
+  return $dashboards;
+}
+
+/**
+ * Implements hook_dashboard_requirements().
+ */
+function user_progress_requirement_dashboard_dashboard_requirements($provider) {
+  switch ($provider) {
+    case 'og':
+      if (module_exists('og')) {
+        $group = og_context();
+        $types = _user_progress_list_types();
+        $ary = array();
+        $output = '';
+        // build an array of available activities for this group
+        foreach ($types as $key => $type) {
+          $tmp = _user_progress_get_registry_ids($key, $group->nid);
+          if (is_array($tmp)) {
+            $ary = array_merge($ary, $tmp);
+          }
+        }
+        // convert that to output
+        foreach ($ary as $activity) {
+          $output .= $activity['title'] . ', ';
+        }
+        // render a list of the activities
+        $requirements['up_activites'] = array(
+          'title' => t('User progress activities'),
+          'value' => $output,
+          'severity' => REQUIREMENT_INFO,
+        );
+      }
+    break;
+    case 'system':
+      // generate a list of available types
+      $types = _user_progress_list_types();
+      // convert that to output
+      $type_names = array();
+      foreach ($types as $type) {
+        $type_names[] = $type->name;
+      }
+      $requirements['up_activites'] = array(
+        'title' => t('User progress activities'),
+        'value' => implode(', ', $type_names),
+        'severity' => REQUIREMENT_INFO,
+      );
+      break;
+  }
+  return $requirements;
+}
+
+/**
+ * Implements hook_menu_alter().
+ */
+function user_progress_requirement_dashboard_menu_alter(&$items) {
+  if (isset($items['node/%node/up_stats'])) {
+    $items['node/%node/up_stats']['access callback'] = 'user_progress_requirement_dashboard_status_access';
+    $items['node/%node/up_stats']['access arguments'] = array(1);
+  }
+}
+
+/**
+ * Callback to make sure this isnt the group type
+ */
+function user_progress_requirement_dashboard_status_access($node) {
+  // account for possible OG dashboard utilizing this as well
+  if (module_exists('og')) {
+    return !og_is_group_type($node->type) ? user_access('view user_progress requirements dashboard') : FALSE;
+  }
+  else {
+    return user_access('view user_progress requirements dashboard');
+  }
+}

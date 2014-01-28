@@ -1,0 +1,51 @@
+<?php
+/**
+ * @file
+ * Helps power documentation site and lists full network.
+ */
+
+/**
+ * Implements hook_drupalapi_add_projects().
+ */
+function elmslnapi_drupalapi_add_projects() {
+  $projects = array(
+    'cis' => array(
+      'name' => 'CIS',
+      'version' => '7',
+    ),
+    'ulmus' => array(
+      'name' => 'Ulmus',
+      'version' => '7',
+    ),
+    'mooc' => array(
+      'name' => 'MOOC',
+      'version' => '7',
+    ),
+    'elmsmedia' => array(
+      'name' => 'ELMS Media',
+      'version' => '7',
+    ),
+    'cle' => array(
+      'name' => 'CLE',
+      'version' => '7',
+    ),
+    'remote_watchdog' => array(
+      'name' => 'Remote Watchdog',
+      'version' => '7',
+    ),
+  );
+  foreach ($projects as $project => $details) {
+    $version = $details['version'];
+    $name = $details['name'];
+    $branch = new stdClass();
+    $branch->branch_name = "{$project}{$version}";
+    $branch->core_compatibility = "{$version}.x";
+    $branch->preferred = 0;
+    $branch->project = 'drupal';
+    $branch->data = array(
+      'directories' => realpath("./sites/all/libraries/{$project}-{$version}.x")
+    );
+    $branch->title = "{$name} {$version}";
+    api_save_branch($branch);
+  }
+}

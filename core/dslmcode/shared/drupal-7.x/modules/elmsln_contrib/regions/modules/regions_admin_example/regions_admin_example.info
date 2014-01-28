@@ -1,0 +1,12 @@
+name = Regions Admin Example
+description = An example feature for placing admin blocks in a region
+core = 7.x
+package = Regions
+php = 5.2.4
+project = regions_admin_example
+dependencies[] = context
+dependencies[] = ctools
+dependencies[] = masquerade
+features[context][] = regions_admin
+features[ctools][] = context:context:3
+features[features_api][] = api:2

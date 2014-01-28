@@ -1,0 +1,98 @@
+; Packaging information for elmsmedia
+name = "ELMSMedia"
+description = "ELMS Media distribution for asset management in CIS Network"
+exclusive = "1"
+core = "7.x"
+; ----------
+; Dependencies
+; ----------
+; Accessibility
+dependencies[] = accessibility
+dependencies[] = accessibility_wysiwyg
+; Administration
+dependencies[] = admin_devel
+dependencies[] = admin_menu
+dependencies[] = admin_menu_toolbar
+; Chaos tool suite
+dependencies[] = ctools
+; CIS
+dependencies[] = cis_connector
+; Context
+dependencies[] = context
+dependencies[] = context_ui
+; Core
+dependencies[] = block
+dependencies[] = contextual
+dependencies[] = dblog
+dependencies[] = field
+dependencies[] = field_sql_storage
+dependencies[] = field_ui
+dependencies[] = file
+dependencies[] = filter
+dependencies[] = image
+dependencies[] = list
+dependencies[] = node
+dependencies[] = options
+dependencies[] = overlay
+dependencies[] = path
+dependencies[] = system
+dependencies[] = taxonomy
+dependencies[] = text
+dependencies[] = update
+dependencies[] = user
+; Entity
+dependencies[] = entity_iframe
+dependencies[] = entity_iframe_mode
+; Fields
+dependencies[] = entityreference
+; Input filters
+dependencies[] = typogrify
+dependencies[] = video_filter
+; Media
+dependencies[] = imce
+; Organic groups
+dependencies[] = og
+dependencies[] = og_access
+dependencies[] = og_context
+dependencies[] = og_ui
+; Other
+dependencies[] = elmsmedia_helper
+dependencies[] = entity
+dependencies[] = entity_token
+dependencies[] = fitvids
+dependencies[] = imagefield_focus
+dependencies[] = libraries
+dependencies[] = masquerade
+dependencies[] = mediaelement
+dependencies[] = restws
+dependencies[] = restws_basic_auth
+dependencies[] = module_filter
+dependencies[] = pathauto
+dependencies[] = strongarm
+dependencies[] = token
+dependencies[] = transliteration
+; Performance and scalability
+dependencies[] = httprl
+; Regions
+dependencies[] = regions
+dependencies[] = regions_admin_left
+; Textbook
+dependencies[] = textbook
+; User interface
+dependencies[] = ckeditor_link
+dependencies[] = imce_wysiwyg
+dependencies[] = jquery_update
+dependencies[] = wysiwyg
+; Views
+dependencies[] = better_exposed_filters
+dependencies[] = views
+dependencies[] = views_autocomplete_filters
+dependencies[] = views_bulk_operations
+dependencies[] = views_fluid_grid
+dependencies[] = views_ui
+; Features
+dependencies[] = features
+dependencies[] = cis_service_roles
+dependencies[] = regions_admin_example
+dependencies[] = textbook_editor
+dependencies[] = elmsmedia_feature

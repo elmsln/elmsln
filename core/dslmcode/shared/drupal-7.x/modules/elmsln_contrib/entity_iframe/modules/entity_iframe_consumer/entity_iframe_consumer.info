@@ -1,0 +1,5 @@
+name = "Entity iframe consumer"
+description = "Securely consume entity iframe implementations on provider based domains."
+package = "Iframe"
+core = 7.x
+configure = admin/config/system/entity_iframe_consumer

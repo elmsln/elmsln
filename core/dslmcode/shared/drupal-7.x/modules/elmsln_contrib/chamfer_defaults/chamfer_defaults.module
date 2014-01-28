@@ -1,0 +1,7 @@
+<?php
+/**
+ * @file
+ * Code for the Chamfer settings feature.
+ */
+
+include_once 'chamfer_defaults.features.inc';

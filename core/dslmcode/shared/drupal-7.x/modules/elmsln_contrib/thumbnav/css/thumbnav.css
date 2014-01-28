@@ -1,0 +1,84 @@
+/* CSS Document */
+#thumbnav_left {
+  left:0;
+}
+#thumbnav_right {
+  right:0;
+}
+.thumbnav_zone.debug {
+  background-color:#FF0;
+  opacity:0.4;
+  filter:alpha(opacity=40); /* For IE8 and earlier */
+}
+/* widget / controller bar */
+.thumbnav_controller {
+  z-index:502;
+  position:fixed;
+  background:#eceff3;
+  width:6%;
+  display:none;
+}
+.thumbnav_controller ul {
+  margin:0px;
+  padding:0px;
+  list-style:none;
+}
+
+.thumbnav_controller ul li {
+  margin:0px;
+  padding:0px;
+  list-style:none;
+}
+.thumbnav_controller ul li img {
+  margin:0px;
+  padding:0px;
+  border:none;
+  width:100%;
+}
+.thumbnav_controller.thumbnav_controller_left {
+  display:block;
+  left:0;
+}
+.thumbnav_controller.thumbnav_controller_right {
+  display:block;
+  right:0;
+}
+#thumbnav_controller_leftright {
+  top:50%;
+}
+#thumbnav_controller_left {
+  bottom: 0;
+}
+#thumbnav_controller_right {
+  bottom: 0;
+}
+/* minor modal */
+#thumbnav_modal {
+  position:relative;
+  display: none;
+  z-index:501;
+  background-color: #eceff3;
+  color: #373b43;
+  padding: 10px;
+}
+#thumbnav_modal ul.tinyjs {
+  display:none;
+}
+#thumbnav_modal.display {
+  display:block;
+}
+#thumbnav_modal_close.display {
+  display:block;
+}
+
+#thumbnav_modal_close {
+  position:relative;
+  display: none;
+  z-index:501;
+  background-color: #eceff3;
+  color: #373b43;
+  padding: 10px;
+  text-align:center;
+  font-size:18px;
+  cursor:pointer;
+}

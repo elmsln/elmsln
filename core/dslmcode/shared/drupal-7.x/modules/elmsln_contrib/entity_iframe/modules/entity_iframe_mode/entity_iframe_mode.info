@@ -1,0 +1,5 @@
+name = "Entity iframe mode"
+description = Tries to keep links going to the entity_iframe selected theme.  Can cause issues with other url rewriters.
+package = "Iframe"
+core = 7.x
+dependencies[] = entity_iframe

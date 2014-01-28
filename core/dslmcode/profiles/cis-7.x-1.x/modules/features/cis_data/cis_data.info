@@ -1,0 +1,17 @@
+name = CIS data
+description = Data module integration for importing historical records for visualization
+core = 7.x
+package = CIS
+php = 5.2.4
+dependencies[] = data_ui
+dependencies[] = google_chart_tools_views
+dependencies[] = views
+dependencies[] = views_data_export
+features[ctools][] = data:data_default:1
+features[ctools][] = views:views_default:3.0
+features[data_tables][] = historical_course_data
+features[data_tables][] = historical_name_to_data
+features[features_api][] = api:2
+features[views_view][] = historical_college_data
+features_exclude[dependencies][ctools] = ctools
+features_exclude[dependencies][data] = data

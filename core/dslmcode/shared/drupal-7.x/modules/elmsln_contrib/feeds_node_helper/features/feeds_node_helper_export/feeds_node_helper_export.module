@@ -1,0 +1,35 @@
+<?php
+/**
+ * @file
+ * Code for the Book Outline Export feature.
+ */
+
+include_once 'feeds_node_helper_export.features.inc';
+
+/**
+ * Implements hook_field_formatter_info().
+ */
+function feeds_node_helper_export_field_formatter_info() {
+  return array(
+    'text_db_value' => array(
+      'label' => t('Raw database value'),
+      'field types' => array('text', 'text_long', 'text_with_summary'),
+    ),
+  );
+}
+
+/**
+ * Implements hook_field_formatter_view().
+ */
+function feeds_node_helper_export_field_formatter_view($entity_type, $entity, $field, $instance, $langcode, $items, $display) {
+  $element = array();
+  switch ($display['type']) {
+    case 'text_db_value':
+      foreach ($items as $delta => $item) {
+        $output = $item['value'];
+        $element[$delta] = array('#markup' => $output);
+      }
+    break;
+  }
+  return $element;
+}

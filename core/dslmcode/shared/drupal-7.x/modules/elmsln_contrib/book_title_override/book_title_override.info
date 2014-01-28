@@ -1,0 +1,6 @@
+core = 7.x
+description = "Simple module to allow you to change the title of a book so that presentation on the page is different from the menu."
+name = "Book Title Override"
+package = "Book"
+project = "book_title_override"
+dependencies[] = "book"

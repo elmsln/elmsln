@@ -1,0 +1,28 @@
+; elmsmedia make file for local development
+core = "7.x"
+api = "2"
+
+projects[drupal][version] = "7.x"
+; include the d.o. profile base
+includes[] = "drupal-org.make"
+
+
+projects[accessibility][version] = "1.x-dev"
+projects[accessibility][subdir] = "contrib"
+
+; +++++ Libraries +++++
+
+; mediaelement
+;libraries[mediaelement][directory_name] = "mediaelement"
+;libraries[mediaelement][type] = "library"
+;libraries[mediaelement][destination] = "libraries"
+;libraries[mediaelement][download][type] = "get"
+;libraries[mediaelement][download][url] = "" ; TODO add download URI
+
+; elmsmedia
+libraries[elmsmedia][directory_name] = "elmsmedia"
+libraries[elmsmedia][type] = "profile"
+libraries[elmsmedia][destination] = "../../profiles"
+libraries[elmsmedia][download][type] = "get"
+libraries[elmsmedia][download][url] = "http://ftp.drupal.org/files/projects/elmsmedia-7.x-1.x-dev.tar.gz"
+

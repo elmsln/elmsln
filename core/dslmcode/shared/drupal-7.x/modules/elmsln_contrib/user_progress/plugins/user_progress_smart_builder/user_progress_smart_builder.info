@@ -1,0 +1,8 @@
+; $Id: user_progress_smart_builder
+name = "User Progress Smart Builder"
+description = "Integrates smart builder with user progress api"
+core = 7.x
+package = "User Progress"
+project = "user_progress_smart_builder"
+dependencies[] = user_progress
+

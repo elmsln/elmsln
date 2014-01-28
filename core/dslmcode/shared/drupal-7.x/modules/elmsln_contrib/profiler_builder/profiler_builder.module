@@ -1,0 +1,613 @@
+<?php
+/**
+ * @file
+ * Convert finished sites into install profiles / distributions.
+ */
+// active version of drupal we are building off of
+define('PROIFLER_BUILDER_ACTIVE_CORE', '7');
+// active branch of profiler builder we are using
+define('PROIFLER_BUILDER_ACTIVE_BRANCH', '1');
+// active distribution branch to build towards
+define('PROIFLER_BUILDER_DISTRO_BRANCH', '1');
+// whether or not prefer -dev over actual dev "number"
+define('PROFILER_BUILDER_TRUE_DEV', TRUE);
+
+/**
+ * Implements hook_permission().
+ */
+function profiler_builder_permission() {
+    return array('administer profiler builder' => array(
+    'title' => 'Administer profiler builder',
+    'description' => 'Administer profiler builder',
+    ),
+  );
+}
+
+/**
+ * Implements hook_menu().
+ */
+function profiler_builder_menu() {
+  $items = array();
+  $items['admin/config/development/profiler_builder'] = array(
+    'title' => 'Profiler Builder',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('_profiler_builder_settings'),
+    'description' => 'Build distribution files from current settings',
+    'access arguments' => array('administer profiler builder'),
+    'file' => 'profiler_builder.admin.inc',
+  );
+  return $items;
+}
+
+/**
+ * Callback to build out list of features to be reverted.
+ */
+function _profiler_builder_list_features() {
+  $features = array();
+  if (module_exists('features')) {
+    // load all known features from system table
+    $system_features = features_get_features();
+    // only grab those features that are enabled
+    foreach ($system_features as $feature => $info) {
+      if ($info->status) {
+        $features[$feature] = $feature;
+      }
+    }
+  }
+  return $features;
+}
+
+/**
+ * Helper function to gather ignored values
+ */
+function _profiler_builder_ignore_list() {
+  $ignore_list = array(
+    'profiler_builder_codecache',
+    'drupal_css_cache_files',
+    'drupal_js_cache_files',
+    'preprocess_js',
+    'preprocess_css',
+    'views_block_hashes',
+    'drupal_private_key',
+    'cache_content_flush_cache_page',
+    'cache_content_flush_cache_block',
+    'cache_flush_cache_update',
+    'cron_key',
+    'cron_last',
+    'css_js_query_string',
+    'email__active_tab',
+    'install_profile',
+    'install_task',
+    'install_time',
+    'menu_masks',
+    'site_mail',
+    'update_last_check',
+    'wipe_rebuild',
+    'update_notify_emails',
+    'clean_url',
+    'file_temporary_path',
+    'ctools_last_cron',
+    'node_cron_last',
+    'user_admin_role',
+    'theme_settings',
+    'site_name',
+    'site_slogan',
+    'site_default_country',
+    'page_compression',
+    'cache',
+    'cache_lifetime',
+    'page_cache_maximum_age',
+    'cdn_farfuture_unique_identifier_mapping',
+    'cdn_basic_mapping',
+    'cdn_mode',
+    'isbn2node_isbndb_access_key',
+    'rebuild',
+    'recaptcha_private_key',
+    'recaptcha_public_key',
+    'recaptcha_theme',
+    'reset_accesslog',
+    'reset_counter',
+    'save_continue_photo',
+    'file_default_scheme',
+    'file_directory_path',
+    'file_public_path',
+    'form_build_id_blog',
+    'twitter_global_password',
+    'wipe',
+    'node_cron_views_scale',
+    'features_codecache',
+    'clear',
+    'cache_flush_cache',
+    'cache_flush_cache_block',
+    'cache_flush_cache_field',
+    'cache_flush_cache_filter',
+    'cache_flush_cache_form',
+    'cache_flush_cache_image',
+    'cache_flush_cache_libraries',
+    'cache_flush_cache_menu',
+    'cache_flush_cache_page',
+    'cache_flush_cache_path',
+    'cache_flush_cache_views',
+    'cache_flush_cache_views_data',
+    'ldap_authentication_conf',
+    'ldap_profile_conf',
+    'ldap_servers_encryption',
+    'ldap_servers_encrypt_key',
+    'user_mail_cancel_confirm_body',
+    'user_mail_cancel_confirm_subject',
+    'user_mail_password_reset_body',
+    'user_mail_password_reset_subject',
+    'user_mail_register_admin_created_body',
+    'user_mail_register_admin_created_subject',
+    'user_mail_register_no_approval_required_body',
+    'user_mail_register_no_approval_required_subject',
+    'user_mail_register_pending_approval_body',
+    'user_mail_register_pending_approval_subject',
+    'user_mail_status_activated_body',
+    'user_mail_status_activated_notify',
+    'user_mail_status_activated_subject',
+    'user_mail_status_blocked_body',
+    'user_mail_status_blocked_subject',
+    'user_mail_status_canceled_body',
+    'user_mail_status_canceled_subject',
+  );
+  // allow modification via profiler_builder_ignore_alter
+  drupal_alter('profiler_builder_ignore', $ignore_list);
+  return $ignore_list;
+}
+
+/**
+ * Implements hook_profiler_builder_modules_list_alter().
+ */
+function profiler_builder_profiler_builder_modules_list_alter(&$modules) {
+  // remove developer modules from output
+  foreach ($modules as $key => $project) {
+    if ($project['package'] == 'Development') {
+      unset($modules[$key]);
+    }
+  }
+  // disable boost if enabled
+  if (isset($modules['boost'])) {
+    unset($modules['boost']);
+  }
+  // disable cdn if enabled
+  if (isset($modules['cdn'])) {
+    unset($modules['cdn']);
+  }
+}
+
+/**
+ * Implements hook_profiler_builder_drush_modules_list_alter().
+ */
+function profiler_builder_profiler_builder_drush_modules_list_alter(&$project_data, $machine_name) {
+  // stop core modules from being added to the drush export file
+  unset($project_data['Core']);
+  // remove all modules listed as part of the distribution itself
+  // check both cases as they are common locations for these modules
+  unset($project_data[$machine_name]);
+  unset($project_data[drupal_strtoupper($machine_name)]);
+}
+/**
+ * Implements hook_profiler_builder_variables_alter().
+ */
+function profiler_builder_profiler_builder_variables_alter(&$variables) {
+  // variable values to change
+  $change = array(
+    'cdn_status' => 0,
+  );
+  // loop through and change only set values
+  foreach ($change as $var => $val) {
+    if (isset($variables[$var])) {
+      $variables[$var] = $val;
+    }
+  }
+}
+
+/**
+ * Helper for retrieving info from system table.
+ */
+function profiler_builder_get_info($name = 'standard') {
+  // check if name is current profile
+  if ($name == variable_get('install_profile', 'standard')) {
+    return FALSE;
+  }
+  // return info about a single module / profile
+  $result = db_select('system', 's')
+    ->fields('s', array('name'))
+    ->condition('s.status', 1, '=')
+    ->condition('s.type', 'module', '=')
+    ->condition('s.name', $name, '=')
+    ->execute()
+    ->fetchField();
+  // if a name was returned then TRUE
+  if (!empty($result)) {
+    return TRUE;
+  }
+  return FALSE;
+}
+
+/**
+ * Tar creation function from Features. Written by dmitrig01.
+ *
+ * @param $name
+ *   Filename of the file to be tarred.
+ * @param $contents
+ *   String contents of the file.
+ *
+ * @return
+ *   A string of the tar file contents.
+ */
+function profiler_builder_tar_create($name, $contents) {
+  $tar = '';
+  $binary_data_first = pack("a100a8a8a8a12A12",
+    $name,
+    '100644 ', // File permissions
+    '   765 ', // UID,
+    '   765 ', // GID,
+    sprintf("%11s ", decoct(drupal_strlen($contents))), // Filesize,
+    sprintf("%11s", decoct(REQUEST_TIME)) // Creation time
+  );
+  $binary_data_last = pack("a1a100a6a2a32a32a8a8a155a12", '', '', '', '', '', '', '', '', '', '');
+
+  $checksum = 0;
+  for ($i = 0; $i < 148; $i++) {
+    $checksum += ord(drupal_substr($binary_data_first, $i, 1));
+  }
+  for ($i = 148; $i < 156; $i++) {
+    $checksum += ord(' ');
+  }
+  for ($i = 156, $j = 0; $i < 512; $i++, $j++) {
+    $checksum += ord(drupal_substr($binary_data_last, $j, 1));
+  }
+
+  $tar .= $binary_data_first;
+  $tar .= pack("a8", sprintf("%6s ", decoct($checksum)));
+  $tar .= $binary_data_last;
+
+  $buffer = str_split($contents, 512);
+  foreach ($buffer as $item) {
+    $tar .= pack("a512", $item);
+  }
+  return $tar;
+}
+
+/**
+ * Callback to get a list of all special profiler includes.
+ */
+function _profiler_builder_get_includes() {
+  $includes = module_invoke_all('profiler_builder_info_include');
+  drupal_alter('profiler_builder_info_include', $includes);
+  return $includes;
+}
+
+/**
+ * Implements hook_profiler_builder_info_include().
+ */
+function profiler_builder_profiler_builder_info_include() {
+  $includes = array(
+    'modules' => array(
+      'name' => t('Dependencies'),
+      'callback' => '_profiler_builder_export_dependencies',
+    ),
+    'variables' => array(
+      'name' => t('Variables'),
+      'callback' => '_profiler_builder_export_variables',
+    ),
+  );
+  return $includes;
+}
+
+/**
+ * Callback to build out dependencies portion of .info file.
+ */
+function _profiler_builder_export_dependencies() {
+  $system = array();
+  $data = array();
+  $output = '';
+  // build the array we need
+  $result = db_select('system', 's')
+  ->fields('s', array('status', 'type', 'name', 'info'))
+  ->condition('s.status', 1, '=')
+  ->condition('s.type', 'module', '=')
+  ->execute();
+  foreach ($result as $val) {
+    $system[$val->name] = unserialize($val->info);
+  }
+  // remove install profile as it lists as a module
+  if (isset($system[variable_get('install_profile', 'standard')])) {
+    unset($system[variable_get('install_profile', 'standard')]);
+  }
+  // build the make file project data with everything
+  foreach ($system as $module => $info) {
+    // account for the other package in module listing
+    if (!isset($info['package'])) {
+      $info['package'] = 'Other';
+    }
+  }
+  // allow modification to module build list
+  drupal_alter('profiler_builder_modules_list', $system);
+  $feature_list = _profiler_builder_list_features();
+  // convert data
+  foreach ($system as $module => $info) {
+    // account for the other package in module listing
+    if (!isset($info['package'])) {
+      $info['package'] = 'Other';
+    }
+    // make sure non Features package items appear in Features package
+    if (in_array($module, $feature_list)) {
+      $info['package'] = 'Features';
+    }
+    $data[$info['package']][$module] = $info['version'];
+  }
+  // alphabetical order of modules / packages
+  ksort($data);
+  foreach ($data as $key => $package) {
+    ksort($data[$key]);
+  }
+  // move features to the end if set to avoid conflicts
+  if (isset($data['Features'])) {
+    $tmp = $data['Features'];
+    unset($data['Features']);
+    $data['Features'] = $tmp;
+    // move features module ahead of features themselves
+    $tmp = array('features' => $data['Features']['features']);
+    $data['Features'] = array_merge($tmp, $data['Features']);
+  }
+  // info file of required modules
+  foreach ($data as $package => $projects) {
+    $output .= "; $package\n";
+    foreach ($projects as $project => $version) {
+      $output .= "dependencies[] = $project\n";
+    }
+  }
+  return $output;
+}
+
+/**
+ * Callback to build out variables portion of .info file.
+ */
+function _profiler_builder_export_variables() {
+  $output = '';
+  // array of values we know to ignore automatically
+  $ignore_list = _profiler_builder_ignore_list();
+  // ignore list as well as all theme settings
+  $result = db_select('variable', 'v')
+  ->fields('v', array('name'))
+  ->condition('v.name', $ignore_list, 'NOT IN')
+  ->condition('v.name', 'theme_%_settings', 'NOT LIKE')
+  ->condition('v.name', 'color_%', 'NOT LIKE')
+  ->execute();
+  // loop through and build values array
+  foreach ($result as $value) {
+    // ignore NULL values
+    if (variable_get($value->name, '') != '') {
+      $vals[$value->name] = variable_get($value->name, '');
+    }
+  }
+  // allow for overriding of variable values
+  drupal_alter('profiler_builder_variables', $vals);
+  // loop through and rebuild array values
+  foreach ($vals as $var_name => $val) {
+    if (is_array($val)) {
+      foreach ($val as $key => $ary_val) {
+        if (is_array($ary_val)) {
+          foreach ($ary_val as $key2 => $ary_val2) {
+            if (is_array($ary_val2)) {
+              foreach ($ary_val2 as $key3 => $ary_val3) {
+                if (is_array($ary_val3)) {
+                  foreach ($ary_val3 as $key4 => $ary_val4) {
+                    $output .= 'variables[' . $var_name . '][' . $key . '][' . $key2 . '][' . $key3 . '][' . $key4 . '] = ' . var_export($ary_val4, TRUE) . "\n";
+                  }
+                }
+                else {
+                  $output .= 'variables[' . $var_name . '][' . $key . '][' . $key2 . '][' . $key3 . '] = ' . var_export($ary_val3, TRUE) . "\n";
+                }
+              }
+            }
+            else {
+              $output .= 'variables[' . $var_name . '][' . $key . '][' . $key2 . '] = ' . var_export($ary_val2, TRUE) . "\n";
+            }
+          }
+        }
+        else {
+          // ensure this isn't an object
+          if (is_object($ary_val)) {
+            drupal_set_message(t("The variable '@name' could not be evaluated. Please add it manually if it is needed.", array('@name' => $var_name . ' - ' . $key)), 'error');
+          }
+          else {
+            $output .= 'variables[' . $var_name . '][' . $key . '] = ' . var_export($ary_val, TRUE) . "\n";
+          }
+        }
+      }
+    }
+    else {
+      // ensure this isn't an object
+      if (is_object($val)) {
+        drupal_set_message(t("The variable '@name' could not be evaluated. Please add it manually if it is needed.", array('@name' => $var_name)), 'error');
+      }
+      else {
+        $output .= 'variables[' . $var_name . '] = ' . var_export($val, TRUE) . "\n";
+      }
+    }
+  }
+  return $output;
+}
+
+/**
+ * Implements hook_profiler_builder_patch_locations().
+ */
+function profiler_builder_profiler_builder_patch_locations() {
+  // find active site's configuration path
+  $conf = conf_path() . '/';
+  // define locations
+  $locations = array(
+    'includes',
+    'misc',
+    'modules',
+    'profiles',
+    'scripts',
+    'sites/all',
+    $conf . 'modules',
+    $conf . 'themes',
+    $conf . 'libraries',
+    'themes',
+  );
+  return $locations;
+}
+
+/**
+ * Helper function to convert version syntax.
+ */
+function _profiler_builder_get_version($version) {
+  // replace active core number
+  $version = str_replace(PROIFLER_BUILDER_ACTIVE_CORE . '.x-', '', $version);
+  // use true dev instead of specific build
+  if (PROFILER_BUILDER_TRUE_DEV && strpos($version, '-dev')) {
+    $version = drupal_substr($version, 0, (strpos($version, '.')+1)) . 'x-dev';
+  }
+  return $version;
+}
+
+/**
+ * Implements hook_profiler_builder_libraries_list_alter().
+ */
+function profiler_builder_profiler_builder_libraries_list_alter(&$libraries, $local, $machine_name) {
+  // define known ahead of time to simplify logic below
+  $defined_libs = module_invoke_all('profiler_builder_defined_libraries');
+  // allow other projects to do custom overriding of each other
+  drupal_alter('profiler_builder_defined_libraries', $defined_libs);
+  // local file build vs d.o. file pattern
+  switch ($local) {
+    // this is the case for the d.o. patterned file
+    case FALSE:
+      // loop through defined keys to match those passed to us for updating
+      foreach (array_keys($defined_libs) as $lib) {
+        // we only want to set the library in the original array if it was selected
+        if (isset($libraries[$lib])) {
+          // check for local only flag, this means it hasn't passed d.o. packaging white-list
+          if (!isset($defined_libs[$lib]['_local'])) {
+            $libraries[$lib] = $defined_libs[$lib];
+          }
+          else {
+            unset($libraries[$lib]);
+          }
+        }
+      }
+    break;
+    // this is the case for local development
+    case TRUE:
+      // loop through defined keys to match those passed to us for updating
+      foreach (array_keys($defined_libs) as $lib) {
+        // we only want to set the library in the original array if it was selected
+        if (isset($libraries[$lib])) {
+          // we only want to write local this time except profiler if available
+          if (isset($defined_libs[$lib]['_local'])) {
+            $libraries[$lib] = $defined_libs[$lib];
+          }
+          else {
+            // special case of profiler in local development
+            if ($lib == 'profiler') {
+              $libraries[$lib] = $defined_libs[$lib];
+              // this ensures profiler goes to the right place in local development
+              $libraries['profiler']['destination'] = "../../profiles/$machine_name/libraries";
+            }
+            else {
+              unset($libraries[$lib]);
+            }
+          }
+        }
+      }
+      // special case for local development of a d.o. hosted install profile
+      // test that it exists on d.o.
+      $request = drupal_http_request("http://drupal.org/project/$machine_name", array('timeout' => 10));
+      // if it is on d.o. and we are developing locally, add library
+      if (!isset($request->error)) {
+        $libraries[$machine_name]['directory_name'] = $machine_name;
+        $libraries[$machine_name]['type'] = "profile";
+        $libraries[$machine_name]['destination'] = "../../profiles";
+        // this assumes active core is defined in the globals above to match
+        // this is usually the case but eventually could not be
+        // you may need to implement your own download_url alter hook for local dev
+        // if your project has multiple branches
+        $libraries[$machine_name]['download_url'] = "http://ftp.drupal.org/files/projects/$machine_name-" . PROIFLER_BUILDER_ACTIVE_CORE . ".x-" . PROIFLER_BUILDER_DISTRO_BRANCH . ".x-dev.tar.gz";
+      }
+    break;
+  }
+}
+
+/**
+ * Implements hook_profiler_builder_defined_libraries().
+ */
+function profiler_builder_profiler_builder_defined_libraries() {
+  $defined_libs = array();
+  // ckeditor, popular wysiwyg engine
+  $defined_libs['ckeditor']['_name'] = t('CKEditor');
+  $defined_libs['ckeditor']['download_url'] = "http://download.cksource.com/CKEditor/CKEditor/CKEditor%203.6.6.1/ckeditor_3.6.6.1.tar.gz";
+  // used in jquery colorpicker widgets
+  $defined_libs['colorpicker']['_name'] = t('jQuery Colorpicker');
+  $defined_libs['colorpicker']['download_url'] = "http://www.eyecon.ro/colorpicker/colorpicker.zip";
+  // flexslider for jquery based image galleries
+  $defined_libs['flexslider']['_name'] = t('Flexslider');
+  $defined_libs['flexslider']['download_url'] = "https://github.com/woothemes/FlexSlider/archive/flexslider1.zip";
+  // profiler which profiler builder gets its name from
+  $defined_libs['profiler']['_name'] = t('Profiler');
+  $defined_libs['profiler']['download_url'] = "http://ftp.drupal.org/files/projects/profiler-" . PROIFLER_BUILDER_ACTIVE_CORE . ".x-2.x-dev.tar.gz";
+  // plupload multiple file drag and drop uploads
+  $defined_libs['plupload']['_name'] = t('Plupload');
+  $defined_libs['plupload']['download_type'] = "file";
+  $defined_libs['plupload']['download_url'] = "http://plupload.com/downloads/plupload_1_5_6.zip";
+  $defined_libs['plupload']['patch'][] = "http://drupal.org/files/plupload-1_5_6-rm_examples-1903850-5.patch";
+  // colorbox / lightbox style plugin
+  $defined_libs['colorbox']['_name'] = t('ColorBox');
+  $defined_libs['colorbox']['download_url'] = "https://github.com/jackmoore/colorbox/archive/master.zip";
+  // jquery superfish for menus
+  $defined_libs['superfish']['_name'] = t('jQuery Superfish');
+  $defined_libs['superfish']['download_url'] = "https://github.com/mehrpadin/Superfish-for-Drupal/archive/master.zip";
+  // masonry
+  $defined_libs['masonry']['_name'] = t('jQuery Masonry');
+  $defined_libs['masonry']['download_url'] = "http://masonry.desandro.com/jquery.masonry.min.js";
+  // oauth fork for drupal
+  $defined_libs['oauth']['_name'] = t('OAuth Drupal fork');
+  $defined_libs['oauth']['download_url'] = "https://github.com/juampy72/OAuth-PHP/archive/master.zip";
+  // joyride
+  $defined_libs['joyride']['_name'] = t('jQuery Joyride');
+  $defined_libs['joyride']['download_url'] = "https://github.com/zurb/joyride/archive/v2.0.3.tar.gz";
+  // fitvids
+  $defined_libs['fitvids']['_name'] = t('FitVids');
+  $defined_libs['fitvids']['download_url'] = "https://raw.github.com/davatron5000/FitVids.js/master/jquery.fitvids.js";
+
+  // libraries that aren't in the d.o. packaging white list yet
+
+  // twitter bootstrap jquery / css libraries
+  $defined_libs['bootstrap']['_name'] = t('Twitter Bootstrap');
+  $defined_libs['bootstrap']['_local'] = TRUE;
+  $defined_libs['bootstrap']['destination'] = "themes/contrib/bootstrap";
+  $defined_libs['bootstrap']['download_url'] = "http://twitter.github.com/bootstrap/assets/bootstrap.zip";
+
+  // btopro download location for pre-packaged bootswatch
+  $defined_libs['bootswatch']['_name'] = t('Bootswatch Twitter lib');
+  $defined_libs['bootswatch']['_local'] = TRUE;
+  $defined_libs['bootswatch']['destination'] = "themes/contrib/bootswatch";
+  $defined_libs['bootswatch']['download_url'] = "https://github.com/btopro/bootswatch_drupal/archive/master.zip";
+
+  // Shadowbox, popular lightbox2 alternative with difficult make routine
+  $defined_libs['shadowbox']['_name'] = t('ShadowBox');
+  $defined_libs['shadowbox']['_local'] = TRUE;
+  $defined_libs['shadowbox']['download_url'] = "http://www.shadowbox-js.com/download";
+  $defined_libs['shadowbox']['directory_name'] = "shadowbox";
+  $defined_libs['shadowbox']['destination'] = "libraries";
+  $defined_libs['shadowbox']['download_type'] = "post";
+  $defined_libs['shadowbox']['download_post_data'] = "format=tar&adapter=jquery&players[]=img&players[]=iframe&players[]=html&players[]=swf&players[]=flv&players[]=qt&players[]=wmp&language=en&css_support=on";
+  $defined_libs['shadowbox']['download_file_type'] = "tar.gz";
+  // jwerty, keystroke jquery plugin
+  $defined_libs['jwerty']['_name'] = t('JWerty');
+  $defined_libs['jwerty']['_local'] = TRUE;
+  $defined_libs['jwerty']['download_url'] = "http://github.com/keithamus/jwerty/tarball/master";
+  $defined_libs['jwerty']['directory_name'] = "jwerty";
+  $defined_libs['jwerty']['destination'] = "libraries";
+  // views_timelinejs
+  $defined_libs['timeline']['_name'] = t('Views TimelineJS');
+  $defined_libs['timeline']['_local'] = TRUE;
+  $defined_libs['timeline']['download_url'] = "https://github.com/VeriteCo/TimelineJS/archive/master.zip";
+  return $defined_libs;
+}

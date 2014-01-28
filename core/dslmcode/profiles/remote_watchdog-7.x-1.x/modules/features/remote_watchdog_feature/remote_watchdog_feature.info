@@ -1,0 +1,14 @@
+name = Remote Watchdog feature
+description = Feature to bundle the minor settings required
+core = 7.x
+package = Features
+php = 5.2.4
+dependencies[] = entity_watchdog
+dependencies[] = features
+dependencies[] = restws
+dependencies[] = system
+features[features_api][] = api:1
+features[user_permission][] = access resource watchdog
+features[user_permission][] = access site reports
+features[user_permission][] = delete entity_watchdog
+features[user_permission][] = view entity_watchdog

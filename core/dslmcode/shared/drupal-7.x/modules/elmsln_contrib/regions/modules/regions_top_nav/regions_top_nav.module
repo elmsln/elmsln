@@ -1,0 +1,217 @@
+<?php
+/**
+ * @file
+ * Add a top nav bar for dropping blocks into.
+ */
+/**
+ * Implements hook_define_region().
+ */
+function regions_top_nav_define_regions() {
+  $region['regions_top_nav'] = array(
+    'title' => 'Top nav region',
+    'js' => drupal_get_path('module', 'regions_top_nav') . '/regions_top_nav.js',
+    'css' => drupal_get_path('module', 'regions_top_nav') . '/regions_top_nav.css',
+    'render_callback' => '_regions_top_nav_render_region',
+  );
+  return $region;
+}
+
+/**
+ * Helper function for rendering the blocks in this region
+ */
+function _regions_top_nav_render_region($block_html, $block) {
+  // build a unique key for this block for theming
+  if (request_path() != 'system/ajax' && strpos(request_path(), 'autocomplete') === FALSE) {
+    $renderable_block = _block_get_renderable_array(array($block));
+    return drupal_render($renderable_block);
+  }
+}
+
+/**
+ * Implementation of hook_init().
+ */
+function regions_top_nav_init() {
+  $settings = array(
+    'regions_top_nav' => array(
+      'msg_count' => array(),
+      'icon_map' => _regions_top_nav_get_map(),
+    ),
+  );
+  drupal_add_js($settings, 'setting');
+}
+
+// helper function to display current system path
+function _regions_top_nav_system_path() {
+  $output = '';
+  // dig out current menu path based on whats active
+  $active_menu = menu_get_active_trail();
+  // pop off the top of the content structure
+  $active_menu[1] = $active_menu[0];
+  array_shift($active_menu);
+  // iterate each menu item and convert to valid breadcrumb
+  foreach ($active_menu as $menu) {
+    if (isset($menu['href'])) {
+      $item = array();
+      $item['element'] = array(
+        '#title' => $menu['title'],
+        '#href' => $menu['href'],
+        '#localized_options' => $menu['localized_options'],
+        '#attributes' => array(),
+        '#below' => FALSE,
+      );
+      $output .= theme('menu_link', $item);
+    }
+  }
+  return $output;
+}
+
+/**
+ * Implements hook_theme_registry_alter().
+ */
+function regions_top_nav_theme_registry_alter(&$theme_registry) {
+  $theme_registry['status_messages']['function'] = '_regions_top_nav_status_messages';
+}
+
+/**
+ * Helper function to retrieves system messages.
+ */
+function _regions_top_nav_status_messages($variables) {
+  global $user;
+  $output = '';
+  // get all messages and unset them for the session
+  $messages = drupal_get_messages();
+  // need a separater container for title mapping
+  $title_messages = $messages;
+  if (!empty($messages)) {    
+    $content = '';
+    // get a map of all known values
+    $map = _regions_top_nav_get_map();
+    // account for parent items which reduces redundancy in the UI
+    foreach ($title_messages as $key => $message_group) {
+      // if this item actually has a parent, move it's status messages in there
+      if (isset($map[$key]['parent'])) {
+        // test to see if this item came across itself to merge under, otherwise 
+        if (isset($title_messages[$map[$key]['parent']])) {
+          $title_messages[$map[$key]['parent']] = array_merge($title_messages[$map[$key]['parent']], $message_group);
+        }
+        else {
+          // this is basically just a push of the value into its parent
+          $title_messages[$map[$key]['parent']] = $message_group;
+        }
+        unset($title_messages[$key]);
+      }
+    }
+    // build out the title bar
+    $title = '';
+    foreach ($title_messages as $key => $message_group) {
+      // see if we have a map, if not use default
+      if (isset($map[$key])) {
+        $type = $key;
+      }
+      else {
+        $type = 'default';
+      }
+      // if there are multiple messages then place a count indicator
+      $msg_count = '';
+      if (count($message_group) > 1) {
+        $msg_count = '<div class="regions_top_nav_msg_bar_icon_count">'. count($message_group) .'</div>';
+      }
+      // block title as icons
+      $title .= '<div class="regions_top_nav_msg_bar_icon"><a href="#" title="'. $map[$type]['title'] .', click for more details"><img src="'. $map[$type]['bar_icon'] .'" title="'. $map[$type]['title'] .', click for more details" alt="'. $map[$type]['title'] .', click for more details" /></a>'. $msg_count .'</div>';
+    }
+    // build out the message array
+    foreach ($messages as $key => $message_group) {
+      // see if we have a map, if not use default
+      if (isset($map[$key])) {
+        $type = $key;
+      }
+      else {
+        $type = 'default';
+      }
+      // loop through as messages are grouped by type
+      foreach ($message_group as $message) {
+        // block content area
+        $content .= '<div class="regions_top_nav_row"><img src="'. $map[$type]['icon'] .'" title="'. $map[$type]['title'] .', click for more details" alt="'. $map[$type]['title'] .', click for more details" class="regions_top_nav_icon"/><div class="regions_top_nav_msg"><div class="regions_top_nav_msg_title">'. $map[$type]['title'] .'</div><div class="regions_top_nav_msg_text">'. $message .'</div></div></div>';
+      }
+    }
+    // add arrow to right side to indicate this can be opened
+    $title .= '<a href="#" title="Click to see notifications"><img src="'. base_path() . drupal_get_path('module', 'regions_top_nav') .'/images/notifications/arrow_down.png" alt="Click to see notifications" class="regions_top_nav_arrow"/></a>';
+    // construct the block for display
+    $output = '<div class="regions_block_title">'. $title .'</div><div class="regions_block_content">'. $content .'</div>';
+  }
+  return $output;
+}
+
+/**
+ * Implementation of hook_map_notification().
+ */
+function regions_top_nav_map_notification() {
+  // provide defaults for drupal
+  $map = array(
+    'default' => array(
+      'title' => 'Message',
+      'icon' => base_path() . drupal_get_path('module', 'regions_top_nav') .'/images/notifications/default.png',
+      'bar_icon' => base_path() . drupal_get_path('module', 'regions_top_nav') .'/images/notifications/default_bar.png',
+    ),
+    'status' => array(
+      'title' => 'Status',
+      'icon' => base_path() . drupal_get_path('module', 'regions_top_nav') .'/images/notifications/status.png',
+      'bar_icon' => base_path() . drupal_get_path('module', 'regions_top_nav') .'/images/notifications/status_bar.png',
+    ),
+    'warning' => array(
+      'title' => 'Warning',
+      'icon' => base_path() . drupal_get_path('module', 'regions_top_nav') .'/images/notifications/warning.png',
+      'bar_icon' => base_path() . drupal_get_path('module', 'regions_top_nav') .'/images/notifications/warning_bar.png',
+    ),
+    'error' => array(
+      'title' => 'Error',
+      'icon' => base_path() . drupal_get_path('module', 'regions_top_nav') .'/images/notifications/error.png',
+      'bar_icon' => base_path() . drupal_get_path('module', 'regions_top_nav') .'/images/notifications/error_bar.png',
+    ),
+  );
+  return $map;
+}
+
+// helper function that builds the notifications map
+function _regions_top_nav_get_map() {
+  $map = module_invoke_all('map_notification');
+  return $map;
+}
+
+/**
+ * Implements hook_regions_region_alter().
+ */
+function regions_top_nav_regions_region_alter(&$region, $region_name) {
+  // override this region regardless of blocks, its not for blocks
+  if ($region_name == 'regions_top_nav') {
+    $new_markup = array(
+      'start' => '<div id="' . $region_name . '" class="regions region">',
+      'inner' => '<div class="regions_pre_block_container"></div><div class="regions_block_container">',
+      'blocks' => _regions_top_nav_output(),
+      'inner_end' => '</div><div class="regions_post_block_container"></div>',
+      'end' => '</div>',
+    );
+    $region = $new_markup;
+  }
+}
+
+/**
+ * Helper function to position outut for top nav, a static area
+ */
+function _regions_top_nav_output() {
+  $output = '';
+  // build system path
+  $output .= '<div id="regions_top_nav_system_path" class="region_content">'. _regions_top_nav_system_path() .'</div>';
+  // if annonymous, display a login link
+  if (user_is_anonymous()) {
+    $output .= '<div id="regions_top_nav_user_menu" class="region_content">'. l(t('Login'), 'user/login') .'</div>';
+  }
+  else {
+    // wrap name to offset it from the piture
+    global $user;
+    $rendername = $user->name;
+    $output .= '<div id="regions_top_nav_user_menu" class="region_content"><span>'. $user->name .'</span><span>'. l(t('Logout'), 'user/logout') .'</span></div>';
+  }
+  $output .= '<div id="regions_top_nav_notifications" class="region_content">'. theme('status_messages') .'</div>';
+  return $output;
+}

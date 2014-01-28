@@ -1,0 +1,5 @@
+name = "Hidden Nodes"
+description = "Create the ability to hide nodes from users based on a checkbox setting without having to unpublish them."
+package = "Permissions"
+core = 7.x
+configure = admin/config/content/hidden_nodes

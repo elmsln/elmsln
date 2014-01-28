@@ -1,0 +1,5 @@
+name = "MOOC Thumbnav"
+description = "MOOC specific support for the thumbnav module"
+core = 7.x
+package = "MOOC"
+dependencies[] = thumbnav

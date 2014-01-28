@@ -1,0 +1,60 @@
+<?php
+// ELMS: Context Variable
+// Development Sponsored by The Pennsylvania State University
+// The ELMS project name is Copyright (C) 2008-2014  The Pennsylvania State University
+
+// Bryan Ollendyke
+// bto108@psu.edu
+
+// 12 Borland
+// University Park,  PA 16802
+
+/**
+ * Implements hook_context_registry().
+ */
+function context_var_context_registry() {
+  return array(
+    'conditions' => array(
+      'context_var' => array(
+        'title' => t('Variable match'),
+        'plugin' => 'context_var_context_condition',
+      ),
+    ),
+  );
+}
+
+/**
+ * Implements hook_ctools_plugin_api().
+ */
+function context_var_ctools_plugin_api($module, $api) {
+  if ($module == 'context' && $api == 'plugins') {
+    return array('version' => 3);
+  }
+}
+
+/**
+ * Implements hook_context_plugins().
+ */
+function context_var_context_plugins() {
+  $plugins = array();
+  $plugins['context_var_context_condition'] = array(
+    'handler' => array(
+      'path' => drupal_get_path('module', 'context_var') . '/plugins',
+      'file' => 'context_var_context_condition.inc',
+      'class' => 'context_var_context_condition',
+      'parent' => 'context_condition',
+    ),
+  );
+  return $plugins;
+}
+
+/**
+ * Implements hook_init().
+ */
+function context_var_init() {
+  // get the mapping of conditions and if they should execute
+  $map = context_condition_map();
+  if (!empty($map['context_var']) && $plugin = context_get_plugin('condition', 'context_var')) {
+    $plugin->execute();
+  }
+}

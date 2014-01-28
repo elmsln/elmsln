@@ -1,0 +1,14 @@
+name = MOOC Page
+description = Page content type for the MOOC platform with field defaults
+core = 7.x
+package = MOOC
+dependencies[] = ctools
+dependencies[] = features
+dependencies[] = mooc_ux_defaults
+dependencies[] = strongarm
+dependencies[] = text
+features[ctools][] = strongarm:strongarm:1
+features[features_api][] = api:2
+features[field_base][] = body
+features[field_instance][] = node-page-body
+features[node][] = page

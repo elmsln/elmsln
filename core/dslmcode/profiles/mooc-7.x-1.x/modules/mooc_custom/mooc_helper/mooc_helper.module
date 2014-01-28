@@ -1,0 +1,129 @@
+<?php
+/**
+ * @file
+ * Code for the MOOC Helper feature.
+ */
+
+include_once 'mooc_helper.features.inc';
+
+/**
+ * Implements hook_preprocess().
+ *
+ * Add a class to match our view-modes
+ */
+function mooc_helper_preprocess(&$variables, $hook) {
+  if ($hook == 'node') {
+    $variables['classes_array'][] = $hook . '-view-mode-' . $variables['view_mode'];
+  }
+}
+
+/**
+ * Implements hook_page_build().
+ */
+function mooc_helper_page_build($page) {
+  // add css related to mooc helper instance
+  drupal_add_css(drupal_get_path('module', 'mooc_helper') . '/css/mooc_helper.css');
+}
+
+/**
+ * Implements hook_menu().
+ */
+function mooc_helper_menu() {
+  $items = array();
+  // Callback to load correct instructional outline
+  $items['inst-outline'] = array(
+    'title' => 'Instructional outline',
+    'page callback' => '_cis_connector_transaction',
+    'page arguments' => array(0),
+    'type' => MENU_CALLBACK,
+    'access arguments' => array('access content'),
+  );
+  // fix for typo shortcut
+  $items['typo-shortcut'] = array(
+    'title' => 'Typo',
+    'page callback' => 'drupal_goto',
+    'page arguments' => array('typo-reports'),
+    'type' => MENU_CALLBACK,
+    'access arguments' => array('access typo list'),
+  );
+  return $items;
+}
+
+/**
+ * Return a list of all book roots as an array
+ *
+ * @param $property
+ *   property to use as the unique key, defaults to uuid.
+ * @param $title
+ *   (optional) property to use as the title field in array.
+ * @return $outlines
+ *   an array of outlines keyed as property => title
+ */
+function _mooc_helper_all_book_outlines($property = 'uuid', $title = '') {
+  $outlines = array();
+  // load all book outline etids
+  foreach (book_get_books() as $book_id => $book) {
+    // load book node fully
+    $node = node_load($book['nid']);
+    if ($title == '') {
+      $set_title = $node->book['link_title'];
+    }
+    else {
+      $set_title = $node->{$title};
+    }
+    // create an array
+    $outlines[$node->{$property}] = $set_title;
+  }
+  return $outlines;
+}
+
+/**
+ * Implements hook_node_presave().
+ */
+function mooc_helper_node_presave($node) {
+  // make sure there's an outline associated to this
+  // but only if we have at least 1 to do so with
+  if ($node->type == 'section') {
+    // ensure an outline is set, if not use default
+    if (empty($node->field_instructional_outlines['und'])) {
+      $default = variable_get('mooc_default_outline', '');
+      // edge case, default was never set
+      if ($default == '') {
+        // load all books
+        $books = _mooc_helper_all_book_outlines('nid', 'created');
+        // make sure we at least have some books in here
+        if (is_array($books)) {
+          // move to 1st array position in iterator
+          reset($books);
+          // sort maintaining index which is the nid
+          asort($books);
+          // set default to first key in array
+          $default = key($books);
+        }
+      }
+      // make sure we have something to set
+      if ($default != '') {
+        $node->field_instructional_outlines['und'][0]['target_id'] = $default;
+      }
+    }
+  }
+}
+
+/**
+ * Page callback for cis_service_connection_ux.
+ *
+ * This adds the default outline select box to course settings.
+ */
+function mooc_helper_form_alter(&$form, &$form_state, $form_id) {
+  if ($form_id == 'cis_service_connection_ux_form') {
+    $form['site_information']['mooc_default_outline'] = array(
+      '#description' => t('This is the default content outline for new sections that register.'),
+      '#default_value' => variable_get('mooc_default_outline', ''),
+      '#weight' => '0',
+      '#title' => t('Default outline'),
+      '#type' => 'select',
+      '#required' => '1',
+      '#options' => _mooc_helper_all_book_outlines('nid'),
+    );
+  }
+}

@@ -1,0 +1,124 @@
+<?php
+/**
+ * @file
+ * Code for the MOOC CIS UX feature.
+ */
+
+include_once 'mooc_cis_ux.features.inc';
+
+/**
+ * Implements hook_menu().
+ */
+function mooc_cis_ux_menu() {
+  $items = array();
+  // Guided tour off of the welcome page with example content
+  $items['welcome_page/guided_tour'] = array(
+    'title' => 'Guided tour',
+    'page callback' => '_cis_service_connection_page',
+    'page arguments' => array(1),
+    'menu_name' => 'main-menu',
+    'weight' => 10,
+    // @todo need to update access argument
+    'access arguments' => array('access typo list'),
+    'type' => MENU_LOCAL_TASK,
+  );
+  return $items;
+}
+
+/**
+ * Implements hook_page_build().
+ */
+function mooc_cis_ux_page_build(&$page) {
+  if (user_access('edit any page content')) {
+    // make area off to the right side to indicate outline
+    $node = menu_get_object();
+    if (isset($node->book['bid'])) {
+      $query = new EntityFieldQuery();
+      // pull all nodes
+      $query->entityCondition('entity_type', 'node')
+      // that are sections
+      ->entityCondition('bundle', 'section')
+      // that are published
+      ->propertyCondition('status', 1)
+      // only sections that are active
+      ->fieldCondition('field_cis_active', 'value', 1, '=')
+      // where field has reference to this book outline
+      ->fieldCondition('field_instructional_outlines', 'target_id', $node->book['bid'], '=');
+      // store results
+      $result = $query->execute();
+      // this means this page is in an outline referenced in sections
+      // list these by name to help notify people what they are working on
+      if (isset($result['node'])) {
+        $sections = array();
+        $groups = entity_load('node', array_keys($result['node']));
+        foreach ($groups as $group) {
+          $sections[$group->nid] = $group->field_section_id['und'][0]['safe_value'];
+          // useful for custom college / university integrations
+          drupal_alter('cis_section_list', $sections);
+        }
+        // see if we should print anything
+        if (!empty($sections)) {
+          // list sections out
+          $output = '<div id="mooc_active_outline_flag">';
+          foreach ($sections as $key => $section) {
+            $output .= l($section, 'node/' . $key) . ' ';
+          }
+          $output .= '</ul></div>';
+          // append output to screen to indicate section relation
+          drupal_add_css(drupal_get_path('module', 'mooc_cis_ux') . '/mooc_cis_ux.css');
+          $page['page_bottom']['mooc_cis_ux'] = array(
+            '#weight' => 100,
+            '#type' => 'markup',
+            '#markup' => $output,
+          );
+        }
+      }
+    }
+    else if (in_array(arg(0), array('welcome_page', 'syllabus','course-help','resources'))) {
+      // get section context if this isn't a book page
+      $output = '<div id="mooc_active_outline_flag">';
+      $output .= _cis_connector_section_context();
+      $output .= '</ul></div>';
+      // append output to screen to indicate section relation
+      drupal_add_css(drupal_get_path('module', 'mooc_cis_ux') . '/mooc_cis_ux.css');
+      $page['page_bottom']['mooc_cis_ux'] = array(
+        '#weight' => 100,
+        '#type' => 'markup',
+        '#markup' => $output,
+      );
+    }
+  }
+}
+
+/**
+ * Implements hook_cis_section_deactivate().
+ */
+function mooc_cis_ux_cis_section_deactivate() {
+  return array('_mooc_cis_ux_archive_outline');
+}
+
+/**
+ * Callback to send outline on section deactivation.
+ */
+function _mooc_cis_ux_archive_outline($node) {
+  // make sure this had an outline set first
+  if (isset($node->field_instructional_outlines['und'])) {
+    // pull section object from cis
+    $section = _cis_connector_transaction('section', 'default', array(), $node->field_section_id['und'][0]['value']);
+    // grab local outline in use
+    $bid = $node->field_instructional_outlines['und'][0]['target_id'];
+    // build out the data array
+    $call = array(
+      'op' => 'set',
+      'field' => 'field_course_archive',
+      'bucket' => 'mooc',
+      'url' => 'feeds_node_helper_export/' . $bid,
+    );
+    // set a job
+    $data = array(
+      'field_cis_ops' => serialize($call),
+    );
+    // Save info
+    _cis_connection_object($section['item_id'], 'field_collection_item', NULL, 'PUT', $data);
+  }
+}

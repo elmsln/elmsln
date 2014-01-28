@@ -1,0 +1,101 @@
+<?php
+// ELMS: Feeds RID Map
+// Development Sponsored by The Pennsylvania State University
+// The ELMS project name is Copyright (C) 2008-2014  The Pennsylvania State University
+//
+// Bryan Ollendyke
+// bto108@psu.edu
+//
+//
+// 12 Borland
+// University Park,  PA 16802
+/**
+ * @file
+ * Allow for mapping imported RID values directly to user roles in drupal
+ */
+
+/**
+ * Adds user target for role
+ */
+
+/**
+ * @todo Please document this function.
+ * @see http://drupal.org/node/1354
+ */
+function feeds_ridmap_feeds_processor_targets_alter(&$targets, $entity_type, $bundle_name) {
+  if ($entity_type == 'user') {
+    // add in the role ID map for associating to roles
+    $targets['roles'] = array(
+      'name' => t('Role ID'),
+      'description' => t('Set the user role system wide'),
+      'callback' => 'feeds_ridmap_feeds_set_roles_target',
+    );
+    // add in an organic groups map if it exists
+    if (module_exists('og')) {
+      $targets['og_roles'] = array(
+        'name' => t('OG Role ID'),
+        'description' => t('Set the Organic Group Role ID, only useful when within a Space / OG context already.'),
+        'callback' => 'feeds_ridmap_feeds_set_og_roles_target',
+      );
+    }
+  }
+}
+
+/**
+ * Set the user role target after import.
+ */
+function feeds_ridmap_feeds_set_roles_target($source, $entity, $target, $value, $mapping) {
+// $account, $target, $value
+  // get roles
+  $roles = user_roles(TRUE);
+
+  if (is_array($value)) {
+    // map roles supplied as an array
+    foreach ($value as $role) {
+      if (is_numeric($role)) {
+        // map numeric values
+        $entity->roles[$role] = $roles[$role];
+      } else if (is_string($role)) {
+        // or map strings
+        $entity->roles[array_search($role, $roles)] = $role;
+      }
+    }
+  } else {
+    // map role supplied as a single value
+    if (is_numeric($value)) {
+      // map numeric values
+      $entity->roles[$value] = $roles[$value];
+    } else if (is_string($value)) {
+      // or map strings
+      $entity->roles[array_search($value, $roles)] = $value;
+    }
+  }
+}
+
+
+/**
+ * Set the user within the context of the current group.
+ */
+function feeds_ridmap_feeds_set_og_roles_target($account, $target, $value) {
+  // get the active group context and map from there
+  $group = og_context();
+  // get the user id because it isn't set in the account object
+  $uid = db_query("SELECT uid FROM {users} WHERE name = :name", array(':name' => $account->name))->fetchField();
+  if ($uid != 0 && $uid != '') {
+    // add the user to the group
+    og_save_subscription($group->nid, $uid, array('is_active' => 1));
+    // add the contextual user role
+    og_user_roles_role_add($group->nid, $uid, $value);
+  }
+  return $account;
+}
+
+
+/**
+ * Implements hook_ctools_plugin_directory().
+ */
+function feeds_ridmap_ctools_plugin_directory($module, $plugin) {
+  if ($module == 'feeds_tamper') {
+    return 'plugins';
+  }
+}

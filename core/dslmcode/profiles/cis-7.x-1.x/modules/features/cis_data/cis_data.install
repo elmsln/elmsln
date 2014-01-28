@@ -1,0 +1,79 @@
+<?php
+/**
+ * @file
+ * Install, update and uninstall functions for the cis_data module.
+ */
+
+/**
+ * Implements hook_schema().
+ */
+function cis_data_schema() {
+  $schema['historical_course_data'] = array(
+    'description' => 'Stores the activation codes',
+    'fields' => array(
+      'schedule_id' => array(
+        'description' => 'Import table for historical course data',
+        'type' => 'int',
+        'not null' => TRUE,
+      ),
+      'course' => array(
+        'description' => 'Name of course that matches in CIS',
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => TRUE,
+      ),
+      'semester' => array(
+        'description' => 'Semester that this took place',
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => TRUE,
+      ),
+      'year'  => array(
+        'description' => 'Year that this record occured',
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => TRUE,
+      ),
+      'location' => array(
+        'description' => 'Campus location of this record',
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => TRUE,
+      ),
+      'section' => array(
+        'description' => 'Section name/number, currently not used',
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => FALSE,
+      ),
+      'limit' => array(
+        'description' => 'Course limit',
+        'type' => 'int',
+        'not null' => TRUE,
+      ),
+      'enrolled' => array(
+        'description' => 'Course enrollments',
+        'type' => 'int',
+        'not null' => TRUE,
+      ),
+    ),
+    'primary key' => array('schedule_id'),
+  );
+  $schema['historical_name_to_data'] = array(
+    'description' => 'Stores the activation codes',
+    'fields' => array(
+      'nid' => array(
+        'description' => 'Mapping to a node ID in the CIS so we can JOIN via data module',
+        'type' => 'int',
+        'not null' => FALSE,
+      ),
+      'name' => array(
+        'description' => 'Name of course that matches in CIS',
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => TRUE,
+      ),
+    ),
+  );
+  return $schema;
+}

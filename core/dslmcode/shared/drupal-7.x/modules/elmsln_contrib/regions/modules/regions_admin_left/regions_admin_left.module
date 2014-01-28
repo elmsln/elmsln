@@ -1,0 +1,45 @@
+<?php
+/**
+ * @file
+ * Add a left side widget for placing admin blocks in
+ */
+/**
+ * Implements hook_define_region().
+ */
+function regions_admin_left_define_regions() {
+  $region['regions_admin_left'] = array(
+    'title' => 'Left admin region',
+    'js' => drupal_get_path('module', 'regions_admin_left') . '/regions_admin_left.js',
+    'css' => drupal_get_path('module', 'regions_admin_left') . '/regions_admin_left.css',
+    'render_callback' => '_regions_admin_left_render_region',
+  );
+  return $region;
+}
+/**
+ * Implements hook_regions_region_alter().
+ */
+function regions_admin_left_regions_region_alter(&$region, $region_name) {
+  // Example to add an inner DIV to the region markup.
+  if (!empty($region['blocks'])) {
+    if ($region_name == 'regions_admin_left' && !empty($region['blocks'])) {
+      $new_markup = array(
+        'start' => $region['start'],
+        'inner' => '<div class="regions_pre_block_container">'. t('Admin') .'</div><div class="regions_block_container"><h2 class="left-heading">' . t('Admin') . '</h2>',
+        'blocks' => $region['blocks'],
+        'inner_end' => '</div><div class="regions_post_block_container"></div>',
+        'end' => $region['end'],
+      );
+      $region = $new_markup;
+    }
+  }
+}
+/**
+ * Helper function for rendering the blocks in this region
+ */
+function _regions_admin_left_render_region($block_html, $block) {
+  // build a unique key for this block for theming
+  if (!path_is_admin(request_path()) && request_path() != 'system/ajax' && strpos(request_path(), 'autocomplete') === FALSE && arg(2) != 'edit') {
+		$renderable_block = _block_get_renderable_array(array($block));
+    return drupal_render($renderable_block);
+  }
+}

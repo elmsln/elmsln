@@ -1,0 +1,6 @@
+; $Id: profiler_builder
+name = "Profiler Builder"
+description = "Turn this site into a profiler distribution fast!"
+package = "Development"
+core = "7.x"
+configure = admin/config/development/profiler_builder

@@ -1,0 +1,34 @@
+/*
+  Textbook Style Guide - base styles 
+*/
+
+/* Minor text positioning */
+div.textbook_right{text-align: right;}
+div.textbook_center{text-align: center;}
+
+/*Site Accepted text Colors*/
+span.textbook_color1{color:#900;}
+span.textbook_color2{color:#009;}
+span.textbook_color3{color:#090;}
+span.textbook_color4{color:#990;}
+span.textbook_color5{color:#099;}
+span.textbook_color6{color:#909;}
+
+/* Collapse fieldset/legend templates */
+.textbook_collapse {
+}
+
+.textbook_collapse-text {
+  font-weight:bold;
+  color:#333;
+  background-color:transparent;
+}
+div.node .textbook_collapse-text a,div.node .textbook_collapse-text a:link,div.node .textbook_collapse-text a:visited{
+  text-decoration:none;
+  background-color:transparent;
+  font-size:1.2em;
+  font-weight:bold;
+}
+.textbook_collapse-body {
+    color:#222;
+}

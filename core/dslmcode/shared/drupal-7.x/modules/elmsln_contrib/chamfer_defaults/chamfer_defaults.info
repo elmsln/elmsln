@@ -1,0 +1,15 @@
+name = Chamfer defaults
+description = Context and Boxes utilized to create chamfer's default layout
+core = 7.x
+package = Features
+php = 5.2.4
+dependencies[] = boxes
+dependencies[] = context
+dependencies[] = context_condition_theme
+dependencies[] = ctools
+dependencies[] = delta_blocks
+features[box][] = site_footer
+features[context][] = chamfer-block-positions
+features[ctools][] = boxes:box:1
+features[ctools][] = context:context:3
+features[features_api][] = api:1

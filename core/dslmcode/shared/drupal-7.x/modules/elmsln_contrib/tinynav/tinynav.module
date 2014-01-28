@@ -1,0 +1,199 @@
+<?php
+/**
+ * @file
+ * Integrate tinynav.js with drupal.
+ */
+
+// tiny nav global variables
+define('TINYNAV_URL', 'http://tinynav.viljamis.com/');
+// default css selector, matches omega default.
+define('TINYNAV_CSS_SELECTOR', '#zone-menu .region-menu ul.menu');
+// default media query to match which omega considers mobile.
+define('TINYNAV_MEDIA_QUERY', 'all and (max-width:780px)');
+// class to look for for the active item.
+define('TINYNAV_ACTIVE_CLASS', 'active-trail');
+define('TINYNAV_HEADER', FALSE);
+/**
+ * Implements hook_init().
+ */
+function tinynav_init() {
+  $lib = tinynav_get_library();
+  if ($lib) {
+    // add library
+    drupal_add_js($lib);
+    // add module script
+    drupal_add_js(drupal_get_path('module', 'tinynav') . '/tinynav-drupal.js');
+    // add css media query
+    $css_selector = variable_get('tinynav_css_selector', TINYNAV_CSS_SELECTOR);
+    // add default state
+    $css = ".tinynav { display: none; }
+      " . $css_selector . " { display: block; }";
+    drupal_add_css($css, array('type' => 'inline'));
+    $media_query = variable_get('tinynav_media_query',  TINYNAV_MEDIA_QUERY);
+    // add media query
+    $css = ".tinynav { display: block; }
+      " . $css_selector . " { display: none; }";
+    drupal_add_css($css, array('type' => 'inline', 'media' => $media_query));
+    // Add drupal settings
+    $header = variable_get('tinynav_header', TINYNAV_HEADER);
+    $active_class = variable_get('tinynav_active_class', TINYNAV_ACTIVE_CLASS);
+
+    drupal_add_js(array(
+      'tinynav' => array(
+        'selector' => $css_selector,
+        'media_query' => $media_query,
+        'header' => $header ? TRUE : FALSE,
+        'active' => $active_class,
+      )),
+      'setting');
+  }
+}
+
+/**
+ * Wrapper to get the library so it works with install profiles.
+ */
+function tinynav_get_library() {
+  if (function_exists('libraries_get_libraries')) {
+    $libraries = libraries_get_libraries();
+    if (isset($libraries['tinynav'])) {
+      return $libraries['tinynav'] . '/tinynav.js';
+    }
+  }
+  else {
+    $directory = 'libraries';
+    $profile = drupal_get_profile();
+    $config = conf_path();
+    $lib = 'tinynav/tinynav.js';
+    // look in install profile
+    if (file_exists("profiles/$profile/$directory/$lib")) {
+      return "profiles/$profile/$directory/$lib";
+    }
+    // look in sites all
+    // Always search sites/all/*.
+    $searchdir[] = 'sites/all/' . $directory ;
+    if (file_exists("sites/all/$directory/$lib")) {
+      return "sites/all/$directory/$lib";
+    }
+    // look in a local domain as last resort
+    // Also search sites/<domain>/*.
+    if (file_exists("$config/$directory/$lib")) {
+      return "$config/$directory/$lib";
+    }
+  }
+  // if library not in use, use the authorized fork
+  return drupal_get_path('module', 'tinynav') . '/tinynav-fork.js';
+}
+
+/**
+ * Implements hook_menu().
+ */
+function tinynav_menu() {
+  $items = array();
+  $items['admin/config/user-interface/tinynav'] = array(
+    'title' => 'tinynav.js',
+    'description' => 'Change tinynav selector and when to activate.',
+    'type' => MENU_NORMAL_ITEM,
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('tinynav_form'),
+    'access arguments' => array('administer site configuration'),
+  );
+  return $items;
+}
+
+/**
+ * Page callback for tinynav.
+ */
+function tinynav_form($form, $form_state) {
+  $form = array();
+  $form['tinynav_css_selector'] = array(
+    '#required' => FALSE,
+    '#default_value' => variable_get('tinynav_css_selector', TINYNAV_CSS_SELECTOR),
+    '#description' => t('CSS / jQuery selector to apply the tiny nav effect to.  Use a comma for multiple selectors.'),
+    '#weight' => 0,
+    '#type' => 'textfield',
+    '#title' => t('CSS / jQuery selector'),
+  );
+  $form['tinynav_active_class'] = array(
+    '#default_value' => variable_get('tinynav_active_class', TINYNAV_ACTIVE_CLASS),
+    '#description' => t('Set the "active" class'),
+    '#size' => '6',
+    '#required' => FALSE,
+    '#weight' => 1,
+    '#type' => 'textfield',
+    '#title' => t('Active class'),
+  );
+  $form['tinynav_header'] = array(
+    '#weight' => 2,
+    '#required' => FALSE,
+    '#key_type_toggled' => TRUE,
+    '#description' => t('Show header instead of the active item'),
+    '#type' => 'checkbox',
+    '#default_value' => variable_get('tinynav_header', TINYNAV_HEADER),
+    '#title' => t('Header'),
+  );
+  $form['tinynav_media_query'] = array(
+    '#required' => FALSE,
+    '#default_value' => variable_get('tinynav_media_query', TINYNAV_MEDIA_QUERY),
+    '#description' => t('Supply a media query for the criteria when it should switch between the normal menu and tiny nav.'),
+    '#weight' => 0,
+    '#type' => 'textfield',
+    '#title' => t('Media query'),
+  );
+  return system_settings_form($form);
+}
+
+/**
+ * Implements hook_variable_info().
+ */
+function tinynav_variable_info($options) {
+  $variables = array();
+  $variables['tinynav_header'] = array(
+    'name' => 'tinynav_header',
+    'title' => 'Header',
+    'type' => 'options',
+    'default' => TINYNAV_HEADER,
+    'group' => 'tinynav',
+    'module' => 'tinynav',
+  );
+  $variables['tinynav_active_class'] = array(
+    'name' => 'tinynav_active_class',
+    'title' => 'Active class',
+    'type' => 'string',
+    'default' => TINYNAV_ACTIVE_CLASS,
+    'group' => 'tinynav',
+    'module' => 'tinynav',
+  );
+  $variables['tinynav_css_selector'] = array(
+    'name' => 'tinynav_css_selector',
+    'title' => 'CSS selector',
+    'type' => 'string',
+    'default' => TINYNAV_CSS_SELECTOR,
+    'group' => 'tinynav',
+    'module' => 'tinynav',
+  );
+  $variables['tinynav_media_query'] = array(
+    'name' => 'tinynav_media_query',
+    'title' => 'Media query',
+    'type' => 'unknown',
+    'default' =>  TINYNAV_MEDIA_QUERY,
+    'group' => 'tinynav',
+    'module' => 'tinynav',
+  );
+  return $variables;
+}
+
+/**
+ * Implements hook_variable_group_info().
+ */
+function tinynav_variable_group_info() {
+  $groups = array();
+
+  $groups['tinynav'] = array(
+    'title' => 'tinynav',
+    'description' => 'This project provides an way of implementing tinynav.js (' . l(TINYNAV_URL, TINYNAV_URL) . ') as a library for use with any theme.',
+    'path' => 'admin/user-interface/tinynav',
+    'access' => 'administer site configuration',
+  );
+
+  return $groups;
+}

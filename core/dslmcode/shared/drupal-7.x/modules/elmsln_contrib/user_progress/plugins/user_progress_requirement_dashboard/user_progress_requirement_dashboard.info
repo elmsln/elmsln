@@ -1,0 +1,8 @@
+; $Id: user_progress_requirement_dashboard.info
+name = "User Progress Requirement Dashboard"
+description = "Provides requirement dashboards associated with the user progress project"
+package = "User Progress"
+core = 7.x
+dependencies[] = "user_progress"
+dependencies[] = "requirement_dashboard"
+

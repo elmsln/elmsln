@@ -1,0 +1,15 @@
+; See http://davehall.com.au/blog/dave/2011/05/17/drush-make-and-module-dependencies#comment-2261
+; as to why this file ends with .example rather than .make.
+core = "7.x"
+api = "2"
+projects[drupal][version] = "7.x"
+
+; quojs modules
+projects[quojs][version] = “1.x-dev"
+projects[quojs][subdir] = "contrib"
+
+; quo library location
+libraries[quojs][download][type] = "get"
+libraries[quojs][download][url] = "https://github.com/soyjavi/package-quojs/archive/2.3.6.zip"
+libraries[quojs][directory_name] = "quojs"
+libraries[quojs][destination] = "libraries"

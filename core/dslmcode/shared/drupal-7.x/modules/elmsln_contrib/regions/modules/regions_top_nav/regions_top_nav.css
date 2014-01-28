@@ -1,0 +1,253 @@
+/* right side blocks */
+body {
+  margin-top:20px !important;
+}
+html body.admin-menu {
+  padding-top:20px !important;
+}
+body.admin-menu #regions_top_nav{
+  top:30px !important;
+}
+body.admin-menu-with-shortcuts #regions_top_nav{
+  top:66px !important;
+}
+body.admin-menu #regions_top_nav_notifications .regions_block_content{
+  top:50px !important;
+}
+body.admin-menu-with-shortcuts #regions_top_nav_notifications .regions_block_content{
+  top:86px !important;
+}
+body.overlay #regions_top_nav {
+  display:none;
+}
+#regions_top_nav {
+  font:normal 12px "Lucida Grande",Verdana,sans-serif !important;
+  background-color:#000;
+  background:url(images/sprite.png) 0px -20px repeat-x;
+  top:0px;
+  left:0px;
+  right:0px;
+  height:20px;
+  width: 100%;
+  z-index:499;
+  float:left;
+  position:fixed;
+  padding:0px;
+  margin:0px;
+  color:#ccc;
+  line-height:20px;
+}
+
+#regions_top_nav_system_path .regions_block_content {
+ height:20px;    
+}
+
+#regions_top_nav_system_path {
+  float:left;
+  height:20px;
+}
+
+#regions_top_nav_user_menu {
+  float:right;
+  line-height:20px;
+  
+}
+
+#regions_top_nav_user_menu a {
+  padding: 0px 10px !important;
+}
+
+#regions_top_nav_notifications {
+  float:right;
+  padding:0px 10px;
+}
+
+/**
+ * Aggressive resets so we can achieve a consistent look in
+ * hostile CSS environments.
+ */
+#regions_top_nav,
+#regions_top_nav * {
+  margin:0px;
+  padding:0px;
+  vertical-align:top;
+  line-height:20px;
+  text-align:left;
+  color:#ccc;
+}
+
+#regions_top_nav div.regions_post_block_container {
+  position:fixed;
+  left:0px;
+  right:0px;
+  top:20px;
+  height:10px;
+  background:url(images/sprite.png) 0px -100px repeat-x;
+}
+
+#regions_top_nav a {
+  text-decoration:none;
+  color:#ccc !important;
+  height: 20px;
+  padding: 0px;
+  font-weight: normal;
+}
+
+#regions_top_nav li {
+ list-style-image:none;
+ list-style-type:none;
+ list-style-position:inside;
+}
+#regions_top_nav_notifications li a{
+ padding:0px;
+}
+
+#regions_top_nav a:hover {
+ background-color:#666;
+}
+
+#regions_top_nav li a.active {
+  text-shadow:#333 0px 1px 0px;
+}
+#regions_top_nav_system_path li a.active {
+background-color:#666;  
+}
+
+#regions_top_nav_notifications {
+  float:right;
+  margin-left:20px;
+  line-height:20px;
+  height:20px;
+}
+
+#regions_top_nav_notifications li {
+  list-style-image:none;
+  list-style-position:inside;
+  list-style-type:none;
+  display:inline;
+  margin:0px;
+  padding:0px 0px;
+  height:20px;
+  width:20px;
+  float:left;
+  background-position:right;
+  background-repeat:no-repeat;
+}
+#regions_top_nav_notifications a {
+  width:20px;
+  height:20px;
+}
+/* always hide the flag state change message when in the top bar */
+#regions_top_nav_notifications .flag-message {
+ display:none !important;  
+}
+#regions_top_nav_notifications a:hover {
+ background-color:transparent;
+}
+#regions_top_nav_notifications li:hover {
+ background-color:#666;
+}
+#regions_top_nav_system_path a {
+  height:20px;
+  float:left;
+  padding:0px 10px;
+  border-right:2px #666 solid;
+}
+
+#regions_top_nav_system_path li {
+  list-style-image:none;
+  list-style-position:inside;
+  list-style-type:none;
+  display:inline;
+  margin:0px;
+  height:20px;
+  float:left;
+}
+
+
+
+/* notifications area */
+#regions_top_nav_notifications {
+  float:right;
+  line-height:20px;
+}
+#regions_top_nav_notifications .regions_block_title {
+  float:right;
+  cursor:pointer;
+}
+#regions_top_nav_notifications .regions_block_title a{
+  float:right;
+  cursor:pointer;
+}
+#regions_top_nav_notifications .regions_block_title:hover {
+  background-color:#666;
+}
+.regions_top_nav_open {
+  background-color:#666;
+}
+#regions_top_nav_notifications .regions_block_content {
+  width:300px;
+  display:none;
+  top:20px;
+  border-left:solid 2px #444;
+  border-right:solid 1px #444;
+  background-color:#555;
+  z-index:499;
+  position:fixed;
+  right:100px;
+}
+.regions_top_nav_row {
+  border-bottom:solid 1px #444;
+  width:100%;
+  min-height:50px;
+  float:left;
+  padding:2px;
+}
+#regions_top_nav .regions_top_nav_msg_bar_icon {
+ width:20px;
+ height:20px;
+ float:right;
+ background-position:center;
+ background-repeat:no-repeat;
+}
+#regions_top_nav .regions_top_nav_msg_bar_icon_count {
+ width:20px;
+ height:20px;
+ color:#FFF;
+ position:fixed;
+ top:1px;
+ text-align:right;
+ padding:0px;
+ font-weight:bold;
+ font-size:15px;
+ text-shadow:
+   -1px -1px 0 #000,
+    1px -1px 0 #000,
+    -1px 1px 0 #000,
+     1px 1px 0 #000;
+}
+#regions_top_nav .regions_top_nav_icon {
+  float:left;
+  padding-top:10px;
+}
+#regions_top_nav .regions_top_nav_arrow {
+  float:right;
+  vertical-align:middle;
+  padding:2px;
+}
+
+#regions_top_nav .regions_top_nav_msg {
+  padding-left:5px;
+  float:left;
+  width:260px;
+}
+
+#regions_top_nav .regions_top_nav_msg_title{
+  font-weight: bold;
+  font-size: 12px;
+  color: white;
+}
+
+#regions_top_nav .regions_top_nav_msg_text{
+  font-size: 10px;
+}

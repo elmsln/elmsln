@@ -1,0 +1,7 @@
+name = Outline Child Pages
+description = "Allow user to outline their own books if they have the 'add content to books' permission without needing 'administer book outlines'"
+dependencies[] = outline_designer_book
+package = Outline Designer
+core = 7.x
+project = "outline_designer"
+

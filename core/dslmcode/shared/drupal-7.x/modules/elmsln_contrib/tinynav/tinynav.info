@@ -1,0 +1,6 @@
+name = "Tiny Nav js"
+description = "Implements the tinynav.js jQuery plugin"
+core = 7.x
+package = "User Interface"
+dependencies[] = libraries
+configure = admin/config/user-interface/tinynav

@@ -1,0 +1,6 @@
+name = "Entity iframe provider"
+description = "Support for secure js based communications with a parent running entity iframe consumer."
+package = "Iframe"
+core = 7.x
+dependencies[] = entity_iframe_mode
+configure = admin/config/system/entity_iframe

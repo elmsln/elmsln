@@ -1,0 +1,49 @@
+<?php
+/**
+ * @file
+ * Code for the CIS Helpdesk Issue feature.
+ */
+
+include_once 'cis_helpdesk_issue.features.inc';
+
+/**
+ * Implements hook_cis_connected_entity().
+ */
+function cis_helpdesk_issue_cis_connected_entity() {
+  $items = array(
+    'cis_helpdesk_issue' => array(
+      'type' => 'node',
+      'bundle' => 'cis_helpdesk_issue',
+      'buckets' => array('cis_helpdesk'),
+      'save' => CIS_CONNECTOR_ENTITY_REMOTE_ONLY,
+      'options' => array(),
+    ),
+  );
+  return $items;
+}
+
+/**
+ * Implements hook_form_alter().
+ */
+function cis_helpdesk_issue_form_alter(&$form, &$form_state, $form_id) {
+  // test that this isn't the root location for helpdesk calls
+  if ($form_id == 'cis_helpdesk_issue_node_form' && variable_get('install_profile', '') != 'cis_helpdesk') {
+    // populate default submitter as current user
+    $form['field_cis_hd_who']['und'][0]['value']['#default_value'] = $GLOBALS['user']->name;
+    // grab specs from user agent
+    $form['field_cis_hd_specs']['und'][0]['value']['#default_value'] = filter_xss($_SERVER['HTTP_USER_AGENT']);
+    // form connection settings for a clean address
+    $settings = _cis_connector_build_registry(variable_get('install_profile', ''));
+    // make sure we have settings
+    if ($settings) {
+      $form['field_cis_hd_where']['und'][0]['#default_value']['url'] = filter_xss($settings['protocol'] . '://' . $settings['address'] . request_uri());
+      // grab service from address
+      $addr = explode('.', $settings['address']);
+      $form['field_cis_hd_service']['und']['#default_value'] = $addr[0];
+    }
+    // apply section context info
+    $context = _cis_connector_section_context();
+    $form['field_cis_hd_section']['und']['#default_value'] = $context;
+    $form['field_cis_hd_course']['und']['#default_value'] = str_replace('/', '', base_path());
+  }
+}

@@ -1,0 +1,40 @@
+<?php
+/**
+ * @file
+ * Install file for the tinynav.js.
+ */
+
+/**
+ * Implements hook_uninstall().
+ */
+function tinynav_uninstall() {
+  variable_del('tinynav_header');
+  variable_del('tinynav_active_class');
+  variable_del('tinynav_css_selector');
+  variable_del('tinynav_media_query');
+}
+
+/**
+ * Implements hook_requirements().
+ */
+function tinynav_requirements($phase) {
+  module_load_include('module', 'tinynav');
+  $requirements = array();
+  $requirements['tinynav'] = array(
+    'title' => 'tinynav.js library',
+  );
+  switch ($phase) {
+    case 'install':
+    case 'runtime':
+      $lib = tinynav_get_library();
+      if (!$lib) {
+        $requirements['tinynav']['description'] = 'Tinynav: Could not locate the tinynav.min.js library. Please download the latest version of the library from ' . l(TINYNAV_URL, TINYNAV_URL) . ', unzip the package and place it in your libraries directory under the name tinynav.';
+        $requirements['tinynav']['severity'] = REQUIREMENT_ERROR;
+      }
+      else {
+        $requirements['tinynav']['value'] = 'Installed correctly';
+        $requirements['tinynav']['severity'] = REQUIREMENT_OK;
+      }
+  }
+  return $requirements;
+}

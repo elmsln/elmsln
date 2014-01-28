@@ -1,0 +1,144 @@
+<?php
+// Copyright (C) 2011-2014  The Pennsylvania State University
+//
+// Bryan Ollendyke
+// bto108@psu.edu
+//
+// 12 Borland
+// University Park,  PA 16802
+/**
+ * @file
+ * Allow for mapping imported RID values directly to user roles in drupal
+ */
+
+/**
+ * Adds user target for role
+ */
+
+/**
+ * @todo Please document this function.
+ * @see http://drupal.org/node/1354
+ */
+function feeds_node_helper_feeds_processor_targets_alter(&$target, $type, $bundle) {
+  $target['uuid_book_parent'] = array(
+    'name' => t('UUID Book Parent'),
+    'description' => t('Create a book parent relationship based on UUID'),
+    'callback' => 'feeds_node_helper_feeds_set_uuid_book_parent_target',
+  );
+  $target['type'] = array(
+    'name' => t('Node Type'),
+    'description' => t('Map value to a node type'),
+    'callback' => 'feeds_node_helper_feeds_set_type_target',
+  );
+  $target['uuid'] = array(
+    'name' => t('UUID'),
+    'description' => t('Map value to UUID field'),
+    'callback' => 'feeds_node_helper_feeds_set_uuid_target',
+  );
+  $target['book_weight'] = array(
+    'name' => t('Book Weight'),
+    'description' => t('Map value to book weight'),
+    'callback' => 'feeds_node_helper_feeds_set_weight_target',
+  );
+  $target['uuid_book_bid'] = array(
+    'name' => t('Book: bid'),
+    'description' => t('Book root id target, makes a new one if item has no parent defined'),
+    'callback' => 'feeds_node_helper_feeds_set_uuid_book_bid_target',
+  );
+}
+
+/**
+ * Set the node uuid from an external system.
+ */
+function feeds_node_helper_feeds_set_uuid_target($source, $entity, $target, $value) {
+  $entity->uuid = $value;
+}
+
+/**
+ * Set the node type.
+ */
+function feeds_node_helper_feeds_set_type_target($source, $entity, $target, $value) {
+  // default to page if nothing is provided
+  if ($value == '') {
+    $value = 'page';
+  }
+  $entity->type = $value;
+}
+
+/**
+ * Set the book weight.
+ */
+function feeds_node_helper_feeds_set_weight_target($source, $entity, $target, $value) {
+  // set the weight based on what it was previously
+  if ($value == '') {
+    $value = 0;
+  }
+  $entity->book['weight'] = $value;
+}
+
+/**
+ * Set the book to the group context
+ */
+function feeds_node_helper_feeds_set_uuid_book_bid_target($source, $entity, $target, $value) {
+  // load the parent from the UUID, it should have been created prior to creation
+  if ($value == '') {
+    $entity->book['bid'] = 'new';
+  }
+  else {
+    // load the parent from the UUID, it should have been created prior to creation
+    $pnids = entity_get_id_by_uuid('node', array($value));
+    if ($pnids[$value]) {
+      // load the full entity (node)
+      $node = node_load($pnids[$value]);
+      // associate the parent correctly now that we've loaded the node
+      $entity->book['bid'] = $node->book['bid'];
+      $entity->book['plid'] = $node->book['mlid'];
+      $entity->book['menu_name'] = $node->book['menu_name'];
+    }
+  }
+}
+
+/**
+ * Set the book parent, this assumes a UUID look up.
+ */
+function feeds_node_helper_feeds_set_uuid_book_parent_target($source, $entity, $target, $value) {
+  // load the parent from the UUID, it should have been created prior to creation
+  $pnids = entity_get_id_by_uuid('node', array($value));
+  if ($pnids[$value]) {
+    // load the full entity (node)
+    $node = node_load($pnids[$value]);
+    // associate the parent correctly now that we've loaded the node
+    $entity->book['bid'] = $node->book['bid'];
+    $entity->book['plid'] = $node->book['mlid'];
+    $entity->book['menu_name'] = $node->book['menu_name'];
+  }
+}
+
+/**
+ * Implements hook_ctools_plugin_directory().
+ */
+function feeds_node_helper_ctools_plugin_directory($module, $plugin) {
+  if ($module == 'feeds_tamper') {
+    return 'plugins';
+  }
+}
+
+/**
+ * Implements hook_form_alter().
+ */
+function feeds_node_helper_form_alter(&$form, &$form_state, $form_id) {
+  // only apply to feeds import form
+  if ($form_id == 'feeds_import_form') {
+    // clone current GET environment
+    $args = $_GET;
+    // iterate through and scrub input
+    foreach ($args as $key => $val) {
+      $args[$key] = filter_xss(check_plain($val));
+    }
+    // append current arguments to the form
+    $form['feeds']['FeedsHTTPFetcher']['feeds_node_helper_args'] = array(
+      '#type' => 'hidden',
+      '#value' => serialize($args),
+    );
+  }
+}

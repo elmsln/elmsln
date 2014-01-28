@@ -1,0 +1,76 @@
+<?php
+/**
+ * Implements hook_permission().
+ */
+function outline_child_pages_permission() {
+  return array(
+    'outline own pages' => array(
+      'title' => t('outline own pages'),
+      'description' => t('Grants access to use outline designer for content you own'),
+    ),
+  );
+}
+
+/**
+ * Implements hook_menu().
+ */
+function outline_child_pages_menu() {
+  $items['node/%node/outline/children'] = array(
+    'access callback' => '_outline_child_pages_access',
+    'access arguments' => array(1, 'tab'),
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('book_admin_edit', 1),
+    'title' => 'Child pages',
+    'file' => 'book.admin.inc',
+    'file path' => drupal_get_path('module', 'book'),
+    'weight' => 5,
+    'type' => MENU_LOCAL_TASK,
+  );
+  $items['outline_designer/ocp_ajax'] = array(
+    'access callback' => '_outline_child_pages_ajax_access',
+    'page callback' => '_outline_designer_ajax',
+    'page arguments' => array(2, 3, 4, 5, 6, 7),
+    'type' => MENU_CALLBACK,
+  );
+  return $items;
+}
+
+/**
+ * Implements hook_menu_alter().
+ */
+function outline_child_pages_menu_alter(&$items) {
+  if (!module_exists('book_copy')) {
+    // replicate the outline tab so we can have sub-tabs
+    $items['node/%node/outline/outline'] = $items['node/%node/outline'];
+    $items['node/%node/outline/outline']['type'] = MENU_DEFAULT_LOCAL_TASK;
+  }
+}
+
+/**
+ * Access Callback: check to make sure they can access the ajax path
+ */
+function _outline_child_pages_ajax_access() {
+  return (user_access('administer book outlines') || user_access('use outline designer') || (user_access('outline own pages') && user_access('add content to books')));
+}
+
+/**
+ * Access Callback: Check that node has child pages
+ */
+function _outline_child_pages_access($node, $type) {
+  // if admin access or if can outline, add to books, and update the current item
+  return (user_access('administer book outlines') || (user_access('outline own pages') && user_access('add content to books') && node_access('update', $node)));
+}
+
+/**
+ * Implements hook_form_alter().
+ */
+function outline_child_pages_form_alter(&$form, $form_state, $form_id) {
+  // add in the outline designer fun to our tab and link based outliners
+  if ($form_id == 'book_admin_edit' && arg(0) == "node" && arg(2) == 'outline' && arg(3) == 'children') {
+    _outline_designer_book_admin_form_alter($form, $form_state, $form_id, 'outline_designer/ocp_ajax/');
+  }
+  // add outline designer into the ajax callback or it'll break after first submission
+  elseif ($form_id == 'book_admin_edit' && arg(0) == 'outline_designer' && arg(1) == 'ocp_ajax') {
+    _outline_designer_book_admin_form_alter($form, $form_state, $form_id, 'outline_designer/ocp_ajax/');
+  }
+}

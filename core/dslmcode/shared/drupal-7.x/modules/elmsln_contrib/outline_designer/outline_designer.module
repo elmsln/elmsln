@@ -1,0 +1,367 @@
+<?php
+// ELMS: Outline Designer API - Usability improvements for outline creation
+// The ELMS project name is Copyright (C) 2008-2014  The Pennsylvania State University
+//
+// Bryan Ollendyke
+// bto108@psu.edu
+//
+// 12 Borland
+// University Park,  PA 16802
+
+/**
+ * @file
+ * API for implementation of the Outline Designer usability improvements.
+ */
+
+
+/**
+ * Implements hook_permission().
+ */
+function outline_designer_permission() {
+  return array(
+    'use outline designer' => array(
+      'title' => t('use outline designer'),
+      'description' => t('Grant basic access to use the outline designer'),
+    ),
+  );
+}
+
+/**
+ * Implements hook_menu().
+ */
+function outline_designer_menu() {
+  $items = array();
+  $items['outline_designer/ajax'] = array(
+    'access arguments' => array('use outline designer'),
+    'page callback' => '_outline_designer_ajax',
+    'page arguments' => array(2, 3, 4, 5, 6, 7),
+    'type' => MENU_CALLBACK,
+  );
+  $items['admin/config/content/outline_designer'] = array(
+    'title' => 'Outline Designer',
+    'description' => 'The Outline Designer settings allow you to associate icons to content types for use in structuring book content.',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('outline_designer_settings'),
+    'type' => MENU_NORMAL_ITEM,
+    'access arguments' => array('administer site configuration'),
+  );
+  return $items;
+}
+
+/**
+ * Helper function to generate scripts for a page.
+ */
+function _outline_designer_setup($ajax_path, $nid) {
+  drupal_add_css(drupal_get_path('module', 'outline_designer') . '/css/outline_designer.css');
+  drupal_add_js(drupal_get_path('module', 'outline_designer') . '/js/jquery.contextmenu.js');
+  drupal_add_js(drupal_get_path('module', 'outline_designer') . '/js/outline_designer.js', array('scope' => 'footer'));
+  // test for libraries / jwerty support
+  if (module_exists('libraries') && function_exists('libraries_detect')) {
+    if ($lib = libraries_detect('jwerty')) {
+      drupal_add_js($lib['library path'] .'/jwerty.js');
+      drupal_add_js(drupal_get_path('module', 'outline_designer') . '/js/jwerty/integration.js');
+      // check for submodules / those that can extend for easy activation
+      if (module_exists('book_copy')) {
+        drupal_add_js(drupal_get_path('module', 'outline_designer') . '/js/jwerty/book_copy.js');
+      }
+      if (module_exists('hidden_nodes')) {
+        drupal_add_js(drupal_get_path('module', 'outline_designer') . '/js/jwerty/hidden_nodes.js');
+      }
+      if (module_exists('outline_designer_book')) {
+        drupal_add_js(drupal_get_path('module', 'outline_designer') . '/js/jwerty/outline_designer_book.js');
+      }
+    }
+  }
+  // invoke implementation of ops javascript
+  module_invoke_all('outline_designer_ops_js', $ajax_path, $nid);
+}
+
+/**
+ * Implements hook_outline_designer_ops_js().
+ */
+function outline_designer_outline_designer_ops_js($ajax_path, $nid = NULL) {
+  $purl = '';
+  if (module_exists('purl')) {
+    $options = array();
+    // need to look for a group if it exists otherwise it should work fine
+    if (arg(0) == 'admin') {
+      $node = node_load($nid);
+      purl_url_outbound_alter($purl, $options, '');
+      $ajax_base_path = base_path() . $purl . $ajax_path;
+      $node = node_load($nid);
+      if (count($node->og_groups)) {
+        $group = node_load(array_pop($node->og_groups));
+        $ajax_base_path = base_path() . $group->purl . '/' . $ajax_path;
+      }
+      else {
+        $ajax_base_path = base_path() . $ajax_path;
+      }
+    }
+    else {
+      purl_url_outbound_alter($purl, $options, '');
+      $ajax_base_path = base_path() . $purl . $ajax_path;
+    }
+  }
+  else {
+    $ajax_base_path = base_path() . $ajax_path;
+  }
+  // pass variables to js
+  $js_variables = array(
+    'outline_designer' => array(
+      'path' => base_path() . drupal_get_path('module', 'outline_designer') . '/',
+      'theme' => variable_get('outline_designer_theme', 'vista'),
+      'collapseToggle' => variable_get('outline_designer_collapse_toggle', 1),
+      'collapseList' => array(),
+      'token' => drupal_get_token(),
+      'factor' => 1,
+      'ajaxPath' => $ajax_base_path,
+    ),
+  );
+  drupal_add_js($js_variables, "setting");
+}
+/**
+ * Theme Callback: render the top buttons for outline designer ui.
+ */
+function theme_outline_designer_ui_prefix($variables) {
+  $nid = $variables['nid'];
+  $icon_path = $variables['icon_path'];
+  $can_add = $variables['can_add'];
+  $output = '<fieldset class="collapsible"><div>';
+  // only append the add form if it is allowed
+  if ($can_add) {
+    $output .= '<div style="width:120px; float:left; height:30px; margin-right:6px;" class="context-menu context-menu-theme-' . variable_get('outline_designer_theme', 'vista') . '"><div title="Add Content" alt="Add Content" class="context-menu-item">
+          <div style="background-image: url(' . $icon_path . 'add_content.png);" class="context-menu-item-inner" onclick="Drupal.settings.outline_designer.activeNid=' . $nid . ';Drupal.outline_designer.form_render(' . "'add_content'" . ');">
+            ' . t('Add content') . '
+          </div>
+        </div>
+      </div>';
+  }
+  $output .= '<div style="height:30px; float:left;">
+        <a href="#" onclick="Drupal.outline_designer.scale(-1);" class="od-operation-icons od-decrease">
+          <img alt="' . t('Decrease interface') . '" title="' . t('Decrease interface') . '" src="' . $icon_path . 'text-decrease.png" />
+        </a>
+        <a href="#" onclick="Drupal.outline_designer.scale(1);" class="od-operation-icons od-increase">
+          <img alt="' . t('Increase interface') . '" title="' . t('Increase interface') . '" src="' . $icon_path . 'text-increase.png" />
+        </a>
+        <a href="#" onclick="Drupal.outline_designer.scale(0);" class="od-operation-icons od-reset">
+          <img alt="' . t('Reset interface') . '" title="' . t('Reset interface') . '" src="' . $icon_path . 'text-reset.png" />
+        </a>
+        <a href="#" onclick="Drupal.outline_designer.openAll();"  class="od-operation-icons od-open-all">
+          <img alt="' . t('Open all branches') . '" title="' . t('Open all branches') . '" src="' . $icon_path . 'open-all.png" />
+        </a>
+        <a href="#" onclick="Drupal.outline_designer.collapseAll();" class="od-operation-icons od-close-all">
+          <img alt="' . t('Close all branches') . '" title="' . t('Close all branches') . '" src="' . $icon_path . 'close-all.png" />
+        </a>
+      </div>
+    </div>
+  </fieldset>';
+  return $output;
+}
+
+/**
+ * Helper function to make outline designer settings more obvious.
+ */
+function outline_designer_settings($form, &$form_state) {
+  // collapse default state
+  $form["ui"] = array(
+    '#type' => 'fieldset',
+    '#title' => t('User interface'),
+    '#collapsed' => FALSE,
+    '#collapsible' => TRUE,
+  );
+  $form["ui"]["outline_designer_theme"] = array(
+    '#type' => 'select',
+    '#title' => t('Menu theme'),
+    '#default_value' => variable_get('outline_designer_theme', 'vista'),
+    '#options' => array(
+      'vista' => 'Vista',
+      'xp' => 'XP',
+      'human' => 'Human',
+      'osx' => 'OS X',
+    ),
+    '#description' => 'Theme for the outline designer menu system',
+    '#required' => TRUE,
+  );
+  // collapse default state
+  $form["ui"]["outline_designer_collapse_toggle"] = array(
+    '#type' => 'checkbox',
+    '#title' => t('Collapse nested content by default?'),
+    '#default_value' => variable_get('outline_designer_collapse_toggle', 1),
+    '#description' => 'This is helpful when working with large book structures.',
+    '#required' => FALSE,
+  );
+  return system_settings_form($form);
+}
+
+/**
+ * Implementation of the ajax menu hook
+ *
+ * @args
+ *  $token = user token to block CSF attack
+ *  $type = type of outline action
+ *  $action = action that's being performed
+ *  $var1 = typically nid being acted on
+ *  $var2 = additional data like title, ect.
+ *  $var3 = even more data like type
+ */
+function _outline_designer_ajax($token, $type, $action, $var1, $var2, $var3) {
+  global $user;
+  $token = check_plain($token);
+  $type = check_plain($type);
+  $action = check_plain($action);
+  $var1 = check_plain($var1);
+  $var2 = check_plain($var2);
+  $var3 = check_plain($var3);
+  if (drupal_valid_token($token)) {
+    $ops = _outline_designer_get_operations($type, TRUE);
+    foreach ($ops as $key => $op) {
+      if ($action == $key && isset($op['callback'])) {
+        print call_user_func_array($op['callback'], array($var1, $var2, $var3));
+      }
+    }
+  }
+  exit();
+}
+
+/**
+ * Suffix adds the info to tack on the end of the form
+ */
+function theme_outline_designer_overlay_suffix($variables) {
+  $render = $variables['render'];
+  return '
+    <div id="od_popup_overlay"></div>
+    <div id="od_popup" class="context-menu context-menu-theme-' . variable_get('outline_designer_theme', 'vista') . '">
+      <div class="popup-statusbar"></div>
+      <div class="popup-content"></div>
+      <div class="popup-buttons">
+        <input type="button" name="Save" value="Save" class="od_submit_button" />
+      </div>
+      <img src="' . base_path() . drupal_get_path('module', 'outline_designer') . '/images/close.png" class="od_cancel_button" />
+    </div>
+    <div id="od_popup_toolbox">' . $render . '</div>';
+}
+
+/**
+ * Implements hook_theme().
+ */
+function outline_designer_theme() {
+  $theme = array(
+    'outline_designer_context_menu_items_matrix' => array(
+      'render element' => 'form',
+    ),
+    'outline_designer_suffix' => array(
+      'variables' => array(
+        'nid' => NULL,
+        'icon_path' => NULL,
+      ),
+    ),
+    'outline_designer_prefix' => array(
+      'variables' => array(
+        'type' => NULL,
+        'nid' => NULL,
+        'icon_path' => NULL,
+      ),
+    ),
+    'outline_designer_overlay_suffix' => array(
+      'variables' => array('render' => NULL),
+    ),
+    'outline_designer_ui_prefix' => array(
+      'variables' => array(
+        'nid' => NULL,
+        'icon_path' => NULL,
+        'can_add' => NULL,
+      ),
+    ),
+  );
+  return $theme;
+}
+
+/**
+ * Theme Callback: Outline Designer page prefix
+ */
+function theme_outline_designer_prefix($variables) {
+  $type = $variables['type'];
+  $nid = $variables['nid'];
+  $icon_path = $variables['icon_path'];
+  return '<img alt="' . $type . '" id="node-' . $nid . '-icon" src="' . base_path() . variable_get("outline_designer_" . $type . "_icon", drupal_get_path('module', 'outline_designer') . "/images/page.png") . '"  alt="Nid: ' . $nid . '" title="Nid: ' . $nid . '" style="float:left; margin:2px;" /><img src="' . $icon_path . 'settings.png" alt="' . t('Content operations') . '" title="' . t('Content operations') . '" id="node-' . $nid . '" class="outline_designer_edit_button" />';
+}
+
+/**
+ * Theme Callback: Outline Designer page suffix
+ */
+function theme_outline_designer_suffix($variables) {
+  $nid = $variables['nid'];
+  $icon_path = $variables['icon_path'];
+  return '<img src="' . $icon_path . 'open.png"  alt="open" class="od-toggle-open" id="collapse-' . $nid . '" />';
+}
+
+/**
+ * Theme Callback: Display the Context menu items as a matrix
+ */
+function theme_outline_designer_context_menu_items_matrix($variables) {
+  $form = $variables['form'];
+  $roles = user_roles(TRUE);
+  foreach (element_children($form["checkboxes"]) as $item_name) {
+    $trow = array();
+    foreach ($roles as $rid => $role) {
+      $trow[] = drupal_render($form["checkboxes"][$item_name]["outline_designer_context_menu_" . $item_name . "_" . $rid]);
+    }
+    $rows[] = $trow;
+  }
+
+  $output = theme('table', array('header' => array_values($roles), 'rows' => $rows));
+  return $output;
+}
+/**
+ * Implements hook_outline_designer_operations().
+ */
+function outline_designer_outline_designer_operations($type) {
+  // stub to ensure that value list is an array
+  return array();
+}
+
+/**
+ * Helper function to invoke hook calls and build a list of operations.
+ */
+function _outline_designer_get_operations($type, $keep_callbacks = FALSE) {
+  // allow other modules to define the list of operations
+  $ops = module_invoke_all('outline_designer_operations', $type);
+  // allow for altering of this list
+  drupal_alter('outline_designer_operations', $ops, $type);
+  // hide callbacks unless told to keep them, this helps unclutter js side
+  if (!$keep_callbacks) {
+    foreach ($ops as $key => $op) {
+      // make sure its set so we dont throw an error
+      if (isset($op['callback'])) {
+        unset($ops[$key]['callback']);
+      }
+      // remove calls stating they are API only
+      // callback removal is for all UI based calls
+      if ($op['title'] == '<<OUTLINE_DESIGNER_API_ONLY>>') {
+        unset($ops[$key]);
+      }
+    }
+  }
+  return $ops;
+}
+
+
+/**
+ * hook_libraries_info().
+ */
+function outline_designer_libraries_info() {
+  $libraries['jwerty'] = array(
+    'name' => 'jwerty',
+    'vendor url' => 'https://github.com/keithamus/jwerty/',
+    'download url' => 'https://github.com/keithamus/jwerty/archive/master.zip',
+    'files' => array(
+      'js' => array('jwerty.js'),
+    ),
+    'version arguments' => array(
+      'file' => 'jwerty.js',
+      'pattern' => '/version: "([0-9]+\.[0-9]+)";/',
+      'lines' => 21,
+    ),
+  );
+  return $libraries;
+}

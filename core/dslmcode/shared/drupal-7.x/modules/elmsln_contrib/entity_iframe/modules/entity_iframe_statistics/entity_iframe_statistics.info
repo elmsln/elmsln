@@ -1,0 +1,6 @@
+name = "Entity iframe statistics"
+description = Count node views when in entity iframe mode.
+package = "Iframe"
+core = 7.x
+dependencies[] = entity_iframe
+dependencies[] = statistics

@@ -1,0 +1,14 @@
+name = MOOC Helper
+description = Helper functions and glue code for the MOOC code base
+core = 7.x
+package = MOOC
+dependencies[] = ctools
+dependencies[] = features
+dependencies[] = strongarm
+features[ctools][] = strongarm:strongarm:1
+features[features_api][] = api:2
+features[user_role][] = activation code holder
+features[variable][] = scanner_body_field_revision_body_nrhi_term
+features[variable][] = scanner_body_field_revision_body_page
+features[variable][] = scanner_title_node_revision_nrhi_term
+features[variable][] = scanner_title_node_revision_page

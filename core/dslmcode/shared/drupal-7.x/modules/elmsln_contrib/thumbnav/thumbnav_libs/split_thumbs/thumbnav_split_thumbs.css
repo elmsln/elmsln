@@ -1,0 +1,13 @@
+/* CSS Document */
+.thumbnav_zone {
+  display:none;
+}
+.thumbnav_controller {
+  width:8%;
+}
+/* increase touch size on phones */
+@media screen and (max-width: 500px) {
+  .thumbnav_controller {
+      width:12%;
+  }
+}

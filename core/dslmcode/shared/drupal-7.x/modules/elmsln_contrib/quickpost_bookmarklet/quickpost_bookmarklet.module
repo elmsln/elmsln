@@ -1,0 +1,212 @@
+<?php
+/**
+ * @file
+ * QuickPost Bookmarklet
+ *
+ * Build a bookmarklet to streamline posting outside articles to your site.
+ */
+// token to replace for title
+define('QUICKPOST_BOOKMARKLET_TITLE', '[title]');
+// token replacement for body format
+define('QUICKPOST_BOOKMARKLET_BODY', "<blockquote>[selection]</blockquote>\n\nFrom <a href='[url]'>[title]</a>");
+// label of the item by default
+define('QUICKPOST_BOOKMARKLET_LABEL', 'QuickPost');
+// default mode for opening
+define('QUICKPOST_BOOKMARKLET_OPEN_IN', 'popup');
+
+/**
+ * Implements hook_menu().
+ */
+function quickpost_bookmarklet_menu() {
+  $items['admin/config/content/quickpost_bookmarklet'] = array(
+    'title' => 'QuickPost bookmarklet',
+    'description' => 'Customize a QuickPost bookmarklet that can be dragged to your bookmarks toolbar.',
+    'page callback' => 'quickpost_bookmarklet_settings',
+    'access arguments' => array('administer content'),
+  );
+  return $items;
+}
+
+/**
+ * Helper function to add js to the settings form.
+ */
+function quickpost_bookmarklet_settings() {
+  drupal_add_js(drupal_get_path('module', 'quickpost_bookmarklet') . '/options.js');
+  drupal_add_js(array('bookmarklet_base_path' => url('node/add', array('absolute' => TRUE))), 'setting');
+  drupal_add_js(array('bookmarklet_clean_url' => variable_get('clean_url', FALSE)), 'setting');
+  return drupal_get_form('quickpost_bookmarklet_settings_form');
+}
+
+/**
+ * Bookmarklet settings form.
+ */
+function quickpost_bookmarklet_settings_form($form, &$form_state) {
+  $form['#attributes'] = array(
+    'class' => 'quickpost_bookmarklet_settings_form',
+  );
+  $node_types = array();
+  foreach (node_type_get_types() as $type) {
+    $type_url_str = str_replace('_', '-', $type->type);
+    $node_types[$type_url_str] = $type->name;
+  }
+  $form['#prefix'] = "<div class='admin'>";
+  $form['#suffix'] = "</div>";
+
+  $form['bookmarklet_options'] = array(
+    '#type' => 'fieldset',
+    '#title' => t('Bookmarklet options'),
+    '#collapsible' => FALSE,
+    '#prefix' => "<div class='left clearfix'>",
+    '#suffix' => "</div>",
+  );
+
+  $form['bookmarklet_options']['content_type'] = array(
+    '#type' => 'select',
+    '#title' => t('Content type'),
+    '#description' => t('Which content type should be created by this bookmarklet?'),
+    '#options' => $node_types,
+    '#multiple' => TRUE,
+    '#default_value' => variable_get('quickpost_bookmarklet_types', ''),
+  );
+
+  $form['bookmarklet_options']['available_tokens'] = array(
+    '#type' => 'fieldset',
+    '#title' => t('Available tokens'),
+    '#description' => t('The following tokens may be used in the title and body templates.'),
+    '#collapsible' => TRUE,
+    '#collapsed' => TRUE,
+  );
+
+  $table_options = array(
+    'header' => array(
+      t('Token'),
+      t('Description'),
+    ),
+    'rows' => array(
+      array(
+        '[title]',
+        t('Page title'),
+      ),
+      array(
+        '[url]',
+        t('Page url'),
+      ),
+      array(
+        '[selection]',
+        t('User-selected text on the page'),
+      ),
+    ),
+  );
+  $form['bookmarklet_options']['available_tokens']['tokens'] = array(
+    '#markup' => theme('table', $table_options),
+    '#prefix' => '<div>',
+    '#suffix' => '</div>',
+  );
+
+  $form['bookmarklet_options']['title_template'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Title template'),
+    '#description' => t('Template to use for the title on the new node.'),
+    '#default_value' => variable_get('quickpost_bookmarklet_title', QUICKPOST_BOOKMARKLET_TITLE),
+    '#size' => 40,
+    '#maxlength' => 255,
+  );
+  $form['bookmarklet_options']['body_template'] = array(
+    '#type' => 'textarea',
+    '#title' => t('Body template'),
+    '#description' => t('Template to use for the body on the new node.'),
+    '#default_value' => variable_get('quickpost_bookmarklet_body', QUICKPOST_BOOKMARKLET_BODY),
+    '#cols' => 60,
+    '#rows' => 5,
+  );
+
+  $form['bookmarklet_options']['additional_options'] = array(
+    '#type' => 'fieldset',
+    '#title' => t('Additional options'),
+    '#collapsible' => TRUE,
+    '#collapsed' => TRUE,
+  );
+  $form['bookmarklet_options']['additional_options']['open_in'] = array(
+    '#type' => 'radios',
+    '#title' => t('Open in'),
+    '#description' => t('Where should the node add page open?'),
+    '#options' => array(
+      'popup' => 'Pop-up window',
+      'window' => 'Full window/new tab (depends on browser settings)',
+    ),
+    '#default_value' => variable_get('quickpost_bookmarklet_open_in', QUICKPOST_BOOKMARKLET_OPEN_IN),
+  );
+  $form['bookmarklet_options']['additional_options']['bookmarklet_label'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Bookmarklet label'),
+    '#description' => t('Used as the default label for the bookmarklet.'),
+    '#size' => 40,
+    '#maxlength' => 255,
+    '#default_value' => variable_get('quickpost_bookmarklet_label', QUICKPOST_BOOKMARKLET_LABEL),
+  );
+
+  $form['bookmarklet_options']['generate_bookmarklet'] = array(
+    '#type' => 'button',
+    '#value' => t('Generate bookmarklet'),
+  );
+
+  $form['bookmarklet'] = array(
+    '#type' => 'fieldset',
+    '#title' => t('Bookmarklet'),
+    '#collapsible' => FALSE,
+    '#prefix' => "<div class='right clearfix'>",
+    '#suffix' => "</div>",
+  );
+  $form['bookmarklet']['bookmarklet_container'] = array(
+    '#markup' => t('(Your bookmarklet will appear here after you click Generate Bookmarklet above)'),
+    '#prefix' => '<div class="bookmarklet_container">',
+    '#suffix' => '</div>',
+  );
+  $form['#submit'][] = 'quickpost_bookmarklet_settings_form_submit';
+  return system_settings_form($form);
+}
+
+/**
+ * Implements hook_form_submit().
+ */
+function quickpost_bookmarklet_settings_form_submit($form, &$form_state) {
+  $value = $form_state['values'];
+  // capture form settings as variables for defaults
+  variable_set('quickpost_bookmarklet_types', $value['content_type']);
+  variable_set('quickpost_bookmarklet_title', $value['title_template']);
+  variable_set('quickpost_bookmarklet_body', $value['body_template']);
+  variable_set('quickpost_bookmarklet_open_in', $value['open_in']);
+  variable_set('quickpost_bookmarklet_label', $value['bookmarklet_label']);
+}
+
+/**
+ * Bookmarklet generator, this removes the need for the js calls.
+ *
+ * Disadvantage of this approach is that it currently has less flexibility
+ * Advantage is that it's very easy to modify.
+ */
+function _quickpost_bookmarklet_generate($options) {
+  $links = array();
+  // build the standard js
+  $js ='javascript:var nodeaddpath="';
+  // build base url
+  $js .= url('node/add/', array('absolute' => TRUE));
+  // add in the type that's getting populated
+  $js .= $options['type'];
+  // more standard js
+  $js .= '",d=document,w=window,e=w.getSelection,k=d.getSelection,x=d.selection,s=e?e():k?k():x?x.createRange().text:0,l=d.location,e=encodeURIComponent,';
+  // @todo Apply body
+  // @todo Apply open_in option
+  // @todo Apply utilize tokens like generator button does
+  $js .= 'title="' . $options['title'] . '"+d.title+"",body="<blockquote>"+s+\'</blockquote>\nFrom <a href="\'+d.location+\'">\'+d.title+"</a>",url=nodeaddpath+"' . (variable_get('clean_url', FALSE) ? '?' : '&') . 'edit[title]="+e(title)+"&edit[body][und][0][value]="+e(body);nourl=function(){w.location=nodeaddpath};a=function(){w.open(url,"quickpost","toolbar=0,resizable=1,scrollbars=1,status=1,width=1024,height=570")||(l.href=url)};/Firefox/.test(navigator.userAgent)?"about:blank"==l?setTimeout(nourl,0):setTimeout(a,0):"about:blank"==l?nourl():a();;void(0);';
+  $links['quickpost_bookmarklet'] = array(
+    'title' => $options['label'],
+    'href' => $js,
+    'absolute' => TRUE,
+    'external' => TRUE,
+    'attributes' => array(
+      'title' => t('Bookmark this link to quickly create content'),
+    ),
+  );
+  return $links;
+}

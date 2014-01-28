@@ -1,0 +1,9 @@
+/* CSS Document */
+#entity_iframe_consumer_backdoor{
+  top:-100px;
+  left:-10000px;
+  position:absolute;
+}
+
+html { height: 100%; }
+body { min-height: 100%; }

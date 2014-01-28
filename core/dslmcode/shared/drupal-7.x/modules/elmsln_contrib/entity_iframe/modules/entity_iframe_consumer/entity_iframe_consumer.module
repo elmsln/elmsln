@@ -1,0 +1,87 @@
+<?php
+
+/**
+ * Implements hook_page_build().
+ */
+function entity_iframe_consumer_page_build(&$page) {
+  $providers = variable_get('entity_iframe_consumer_providers', array());
+  // make sure we have providers
+  if (!empty($providers)) {
+    // include the allowed list of providers
+    drupal_add_js(array('entity_iframe' => array('providers' => $providers)), 'setting');
+    // include the list of injectables
+    drupal_add_js(drupal_get_path('module', 'entity_iframe_consumer') . '/js/consumer_injection.js');
+    
+    $page['content']['entity_iframe_response'] = array(
+      '#markup' => '<input id="entity_iframe_response" type="hidden" value=""/>',
+    );
+  }
+}
+
+/**
+ * Implements hook_menu().
+ */
+function entity_iframe_consumer_menu() {
+  $items['admin/config/system/entity_iframe_consumer'] = array(
+    'title' => 'Entity iframe consumer',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('entity_iframe_consumer_admin_settings'),
+    'access arguments' => array('administer site configuration'),
+  );
+  return $items;
+}
+
+/**
+ * Implements hook_form_alter().
+ */
+function entity_iframe_consumer_admin_settings() {
+  $form['providers'] = array(
+    '#type' => 'fieldset',
+    '#title' => t('Alllowed iframe Providers'),
+    '#description' => t("iframe providers who's entity_iframe implementations should be communicated with"),
+    '#collapsed' => FALSE,
+    '#collapsible' => TRUE,
+  );
+  $providers = variable_get('entity_iframe_consumer_providers', array());
+  foreach ($providers as $key => $provider) {
+    $form['providers']['eip_provider_' . $key] = array(
+      '#type' => 'textfield',
+      '#title' => t('Domain'),
+      '#default_value' => $provider,
+    );
+    $form['providers']['eip_secret_' . $key] = array(
+      '#type' => 'textfield',
+      '#title' => t('Secret'),
+      '#default_value' => $key,
+    );
+  }
+  $form['providers']['eip_new'] = array(
+    '#type' => 'textfield',
+    '#title' => t('New Domain'),
+    '#default_value' => '',
+  );
+  $form['providers']['eip_new_secret'] = array(
+    '#type' => 'textfield',
+    '#title' => t('New Secret'),
+    '#default_value' => '',
+  );
+  $form['#submit'][] = 'entity_iframe_consumer_admin_settings_submit';
+  return system_settings_form($form);
+}
+
+/**
+ * Submit handler for the override to the entity iframe settings page.
+ */
+function entity_iframe_consumer_admin_settings_submit($form, $form_state) {
+  $providers = variable_get('entity_iframe_consumer_providers', array());
+  $vals = array();
+  foreach ($providers as $key => $provider) {
+    $vals[$form_state['values']['eip_secret_' . $key]] = $form_state['values']['eip_provider_' . $key];
+  }
+  // see if we have a new eip value to add in
+  if ($form_state['values']['eip_new'] != '') {
+    $vals[$form_state['values']['eip_new_secret']] = $form_state['values']['eip_new'];
+  }
+  variable_set('entity_iframe_consumer_providers', $vals);
+  return 1;
+}

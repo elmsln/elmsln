@@ -1,0 +1,7 @@
+; $Id: user_progress
+name = "User Progress API"
+description = "Generalized analytics framework for tracking actions within drupal as well as allowing applications to securly add to the data bank"
+core = 7.x
+package = "User Progress"
+project = "user_progress"
+files[] = user_progress.features.inc

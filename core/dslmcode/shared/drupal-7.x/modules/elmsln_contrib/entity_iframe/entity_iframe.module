@@ -1,0 +1,296 @@
+<?php
+/**
+ * @file
+ * Provide an iframe display definition for common entity types.
+ */
+define('ENTITY_IFRAME_THEME', 'stark');
+define('ENTITY_IFRAME_LINK', TRUE);
+define('ENTITY_IFRAME_EMBED', TRUE);
+define('ENTITY_IFRAME_WIDTH', '100%');
+define('ENTITY_IFRAME_HEIGHT', '300');
+
+/**
+ * Implements hook_permission().
+ */
+function entity_iframe_permission() {
+  return array(
+    'view iframe embed code' => array(
+      'title' => t('View iframe embed code'),
+      'description' => t('Allow users to view the iframe embed / link code on this domain.'),
+    ),
+    'access iframe version' => array(
+      'title' => t('Access iframe version'),
+      'description' => t('Allow users to view the iframe version of an entity'),
+    ),
+  );
+}
+
+/**
+ * Implements hook_menu().
+ */
+function entity_iframe_menu() {
+  $items['entity_iframe/%/%'] = array(
+    'page callback' => 'entity_iframe_output',
+    'page arguments' => array(1, 2),
+    'access callback' => '_entity_iframe_view_iframe',
+    'access arguments' => array(1, 2),
+    'type' => MENU_CALLBACK,
+    'file' => 'entity_iframe.pages.inc',
+    'theme callback' => '_entity_iframe_theme',
+  );
+  $items['admin/config/system/entity_iframe'] = array(
+    'title' => 'Entity iframe',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('entity_iframe_admin_settings'),
+    'access arguments' => array('administer site configuration'),
+    'file' => 'entity_iframe.admin.inc',
+  );
+  return $items;
+}
+
+/**
+ * Implements hook_theme().
+ */
+function entity_iframe_theme() {
+  return array(
+    'entity_iframe' => array(
+      'variables' => array('title' => NULL, 'contents' => NULL),
+      'template' => 'entity-iframe',
+    ),
+  );
+}
+
+/**
+ * Processes variables for entity-iframe.tpl.php.
+ *
+ * The $variables array contains the following elements:
+ * - title
+ * - contents
+ *
+ * @see entity-iframe.tpl.php
+ */
+function template_preprocess_entity_iframe(&$variables) {
+  global $base_url, $language;
+
+  $variables['title'] = check_plain($variables['title']);
+  $variables['base_url'] = $base_url;
+  $variables['language'] = $language;
+  $variables['language_rtl'] = ($language->direction == LANGUAGE_RTL);
+  $variables['dir'] = $language->direction ? 'rtl' : 'ltr';
+}
+
+/**
+ * Implements hook_entity_info_alter().
+ */
+function entity_iframe_entity_info_alter(&$info) {
+  // Add the 'iframe' view mode for all entity types
+  foreach ($info as $type => $object) {
+    // only add display settings if fieldable
+    if ($object['fieldable']) {
+      $info[$type]['view modes'] += array(
+        'iframe' => array(
+          'label' => t('iframe'),
+          'custom settings' => FALSE,
+        ),
+      );
+    }
+  }
+}
+
+/**
+ * Implements hook_entity_view().
+ */
+function entity_iframe_entity_view($entity, $type, $view_mode, $langcode) {
+  $links = array();
+  // only add embed methods on full view with access
+  if ($view_mode == 'full' && user_access('view iframe embed code')) {
+    // load info so we know what the key id is
+    $type_info = entity_get_info($type);
+    if (_entity_iframe_view_iframe($type, $entity->{$type_info['entity keys']['id']})) {
+      $href = 'entity_iframe/' . $type . '/' . $entity->{$type_info['entity keys']['id']};
+      if (variable_get('entity_iframe_link', ENTITY_IFRAME_LINK)) {
+        $links['entity_iframe'] = array(
+          'title' => t('iframe version'),
+          'href' => $href,
+          'attributes' => array('title' => t('Show an iframe friendly version.')),
+        );
+        $entity->content['links']['entity_iframe'] = array(
+          '#theme' => 'links__' . $type . '__entity_iframe',
+          '#links' => $links,
+          '#attributes' => array('class' => array('links', 'inline')),
+        );
+      }
+      // test for embed / iframe dropdown
+      if (variable_get('entity_iframe_embed', ENTITY_IFRAME_EMBED)) {
+        // wrapper container
+        $field['entity_iframe'] = array(
+          '#title' => t('Embed code'),
+          '#type' => 'fieldset',
+          '#collapsed' => TRUE,
+          '#collapsible' => TRUE,
+        );
+        global $base_url;
+        // build properties array for rendering an iframe
+        $properties = array(
+          'width' => variable_get('entity_iframe_width', ENTITY_IFRAME_WIDTH),
+          'height' => variable_get('entity_iframe_height', ENTITY_IFRAME_HEIGHT),
+          'src' => $base_url . '/' . $href,
+          'frameborder' => '0',
+          'class' => 'entity_iframe entity_iframe_' . $type,
+          'id' => 'entity_iframe_' . $type . '_' . $entity->{$type_info['entity keys']['id']},
+        );
+        $field['entity_iframe']['entity_iframe_embed'] = array(
+          '#title' => t('Code'),
+          '#attributes' => array('class' => array('entity_iframe_embed')),
+          '#value' => _entity_iframe_build_iframe($properties),
+          '#type' => 'textarea',
+          '#rows' => 3,
+          '#cols' => 1,
+          '#pre_render' => array('_entity_iframe_embed_add_js'),
+        );
+        $entity->content['entity_iframe'] = array(
+          '#markup' => drupal_render($field),
+          '#weight' => 100,
+        );
+      }
+    }
+  }
+}
+
+/**
+ * Implements hook_custom_theme().
+ */
+function entity_iframe_custom_theme() {
+  // this probably isn't required but acts as a fallback
+  if (arg(0) == 'entity_iframe') {
+    return _entity_iframe_theme();
+  }
+}
+
+/**
+  * Implements hook_views_api.
+  */
+function entity_iframe_views_api() {
+  return array(
+    'api' => 3,
+    'path' => drupal_get_path('module', 'entity_iframe') .'/views',
+  );
+}
+
+/**
+ * Implements hook_cron().
+ */
+function entity_iframe_cron() {
+  // ensure entity iframe theme is enabled
+  $theme = _entity_iframe_theme();
+  if (!_entity_iframe_theme_exists($theme)) {
+    theme_enable(array($theme));
+  }
+}
+
+/**
+ * Callback for iframe path for iframe specific theme.
+ */
+function _entity_iframe_theme() {
+  if (module_exists('admin_menu')) {
+    admin_menu_suppress(TRUE);
+  }
+  return variable_get('entity_iframe_theme', ENTITY_IFRAME_THEME);
+}
+
+/**
+ * Helper function to test if a theme is enabled.
+ */
+function _entity_iframe_theme_exists($theme_name) {
+  $themes = list_themes();
+  return isset($themes[$theme_name]) && $themes[$theme_name]->status == 1;
+}
+
+/**
+ * Helper function to return all entity types as an array.
+ */
+function _entity_iframe_entity_types() {
+  $types = entity_get_info();
+  $options = array();
+  foreach ($types as $key => $type) {
+    if ($type['fieldable']) {
+      $options[$key] = $type['label'];
+    }
+  }
+  return $options;
+}
+
+/**
+ * Helper function to return all bundles for a type as an array.
+ */
+function _entity_iframe_entity_bundles($type) {
+  $bundles = field_info_bundles($type);
+  $bundle_options = array();
+  foreach ($bundles as $bundle_machine => $bundle) {
+    $label = $bundle_machine;
+    if (isset($bundle['label'])) {
+      $label = $bundle['label'];
+    }
+    $bundle_options[$bundle_machine] = $label;
+  }
+  return $bundle_options;
+}
+
+/**
+ * Helper function to return if a link show be displayed.
+ */
+function _entity_iframe_view_iframe($type, $etid) {
+  // ensure it is enabled and they can get to it
+  if (user_access('access iframe version')) {
+    // build types for the fallback
+    $types = _entity_iframe_entity_types();
+    $entity_info = entity_get_info();
+    // return allowed
+    $allowed_types = variable_get('entity_iframe_types', $types);
+    // shortcut, if type blocked then don't bother with additional processing
+    if (array_key_exists($type, $allowed_types) && $allowed_types[$type]) {
+      // check that this id's bundle is allowed
+      $bundles = _entity_iframe_entity_bundles($type);
+      // load current bundles
+      $allowed_bundles = variable_get('entity_iframe_bundle_' . $type, $bundles);
+      // fully load entity, entity_cache is recommended when using this module
+      $entity = entity_load_single($type, $etid);
+      // need to test for bundle key definition
+      if (!empty($entity_info[$type]['entity keys']['bundle'])) {
+        $bundle = $entity->{$entity_info[$type]['entity keys']['bundle']};
+      }
+      else {
+        // fallback case for entities that are 1 to 1 in bundle connotation
+        $bundle = $type;
+      }
+      // evaluation for bundle being allowed
+      $bundle_allowed = (array_key_exists($bundle, $allowed_bundles) && $allowed_bundles[$bundle]);
+      // type and bundle must be allowed to pass check
+      return $bundle_allowed;
+    }
+  }
+  return FALSE;
+}
+
+/**
+ * Helper to build an iframe embed code for rendering.
+ */
+function _entity_iframe_build_iframe($properties, $context = 'display') {
+  $output = '';
+  // allow other projects to modify the iframe default properties
+  drupal_alter('entity_iframe_properties', $properties, $context);
+  foreach ($properties as $key => $val) {
+    $output .= ' ' . $key .'="' . $val . '"';
+  }
+  $output = '<iframe' . $output .'></iframe>';
+  return $output;
+}
+
+/**
+ * Helper function to ensure js is added with form element.
+ */
+function _entity_iframe_embed_add_js($form) {
+  // add js as we know we'll have an iframe on the page
+  drupal_add_js(drupal_get_path('module', 'entity_iframe') .'/entity_iframe.js');
+  return $form;
+}

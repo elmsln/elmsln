@@ -1,0 +1,370 @@
+<?php
+/**
+ * @file
+ * Textbook Style Guide
+ */
+define('TEXTBOOK_RESET_DEFAULT', 1);
+define('TEXTBOOK_DEFAULT_SET', 'textbook_core');
+
+/**
+ * Implemens hook_menu().
+ */
+function textbook_menu() {
+  $items = array();
+  $items['admin/config/content/textbook'] = array(
+    'title' => 'Textbook style settings',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('textbook_admin_settings'),
+    'access arguments' => array('administer site configuration'),
+    'file' => 'textbook.admin.inc',
+  );
+  return $items;
+}
+
+/**
+ * Implementation of hook_page_alter().
+ */
+function textbook_page_alter() {
+  // include style guide sheets on everything not an admin path
+  if (!path_is_admin(current_path())) {
+    $reset = TRUE;
+    // only apply reset if we are on the node itself. this avoids conflicts
+    // with admin themes thanks to the aggressive reset that's included
+    if (arg(0) == 'node' && arg(2) == 'edit') {
+      $reset = FALSE;
+    }
+    // apply styles based on the default
+    _textbook_apply_style('node', $reset);
+  }
+}
+
+/**
+ * Implements hook_html_head_alter().
+ */
+function textbook_html_head_alter(&$head_elements) {
+  $args = arg();
+  // account for print module and book print out
+  if ($args[0] == 'book' && $args[1] = 'export' && $args[2] == 'html') {
+    // book module template ignores css styles added to print
+    $locations = _textbook_apply_style('print');
+    // parse returned locations array and manually add to html head
+    foreach ($locations as $key => $location) {
+      $head_elements['textbook_'. $key] = array(
+        '#type' => 'html_tag',
+        '#tag' => 'link',
+        '#attributes' => array(
+          'type' => 'text/css',
+          'rel' => 'stylesheet',
+          'href' => base_path() . $location,
+        ),
+      );
+    }
+  }
+  else if ($args[0] == 'print') {
+    // print module should respect drupal_add statements
+    _textbook_apply_style('print');
+  }
+}
+/**
+ * Callback to add in styles.
+ */
+function _textbook_apply_style($type = 'node', $reset = TRUE) {
+  $locations = array();
+  // load all styles from hook
+  $styles = _textbook_load_styles();
+  // load active style
+  $active_style = _textbook_active_style();
+  // load default style
+  $style = $styles[$active_style];
+  $api_items = array('css', 'js');
+  // include reset if site allows it
+  if (variable_get('textbook_reset', TEXTBOOK_RESET_DEFAULT) && $reset) {
+    $api_items[] = 'reset';
+  }
+  // loop through defined items
+  foreach ($api_items as $item) {
+    // verify the item is available
+    if (isset($style[$type][$item])) {
+      // loop through
+      foreach ($style[$type][$item] as $item_location) {
+        // assemble all found locations
+        $locations[] = $item_location;
+        switch ($item) {
+          case 'css':
+            // add these items as low as possible in page render
+            drupal_add_css($item_location, array('group' => CSS_THEME, 'weight' => 100));
+          break;
+          case 'reset':
+            drupal_add_css($item_location, array('group' => CSS_THEME, 'weight' => 99));
+          break;
+          case 'js':
+            drupal_add_js($item_location);
+          break;
+        }
+      }
+    }
+  }
+  return $locations;
+}
+
+/**
+ * Implements hook_textbook_style().
+ */
+function textbook_textbook_style() {
+  // default path for textbookcore
+  $tpath = drupal_get_path('module', 'textbook') .'/textbook_styles/textbook_core/';
+  $styles = array(
+    'textbook_core' => array(
+      'name' => t('Textbook core: Default style'),
+      'node' => array(
+        'css' => array(
+          $tpath .'node_tables.css',
+          $tpath .'node_lists.css',
+          $tpath .'node.css',
+        ),
+        'reset' => array(
+          $tpath .'reset.css',
+        ),
+      ),
+      'print' => array(
+        'css' => array(
+          $tpath .'print.css',
+        ),
+      ),
+    ),
+  );
+  return $styles;
+}
+
+/**
+ * Implements hook_ctools_plugin_api().
+ */
+function textbook_ctools_plugin_api($module, $api) {
+  if ($module == 'context' && $api == 'plugins') {
+    return array('version' => 3);
+  }
+}
+
+/**
+ * Implements hook_context_plugins().
+ */
+function textbook_context_plugins() {
+  $plugins = array();
+  $plugins['textbook_context_reaction'] = array(
+    'handler' => array(
+      'path' => drupal_get_path('module', 'textbook') . '/plugins',
+      'file' => 'textbook_context_reaction.inc',
+      'class' => 'textbook_context_reaction',
+      'parent' => 'context_reaction',
+    ),
+  );
+  return $plugins;
+}
+
+/**
+ * Implements hook_context_registry().
+ */
+function textbook_context_registry() {
+  $registry = array();
+  $registry['reactions'] = array(
+    'textbook' => array(
+      'title' => t('Textbook'),
+      'plugin' => 'textbook_context_reaction',
+    ),
+  );
+  return $registry;
+}
+
+/**
+ * Implements hook_context_page_reaction().
+ */
+function textbook_context_page_reaction() {
+  if ($plugin = context_get_plugin('reaction', 'textbook')) {
+    $plugin->execute();
+  }
+}
+
+/**
+ * Implementation of hook_wysiwyg_editor_settings_alter().
+ */
+function textbook_wysiwyg_editor_settings_alter(&$settings, $context) {
+  // settings known to be ok for CKEditor
+  if ($context['profile']->editor == 'ckeditor') {
+    // increase the undo history
+    $settings['undoStackSize'] = 40;
+    $settings['fillEmptyBlocks'] = FALSE;
+    // compatibility w/ 4.x of ckeditor and template style plugins
+    // see: https://drupal.org/node/1956778
+    $settings['allowedContent'] = TRUE;
+    // apply our custom textbook style list
+    $settings['stylesSet'] = _textbook_styles();
+    // Specify the custom config file that defines our font styles
+    $settings['customConfig'] = base_path() . drupal_get_path('module', 'textbook') . '/ckeditor_custom_config.js';
+    // We are also going to specify a custom body id and class
+    $settings['bodyId'] = 'ckeditor_custom_id';
+    $settings['bodyClass'] = 'ckeditor_custom_class';
+    // Make sure the toolbar is there
+    if (!empty($settings['toolbar'])) {
+      // These are our desired groupings. Buttons that aren't listed here will be
+      // Grouped in one big group at the end
+      $preferred_groupings[] = array('Source');
+      $preferred_groupings[] = array('Bold', 'Italic', 'Underline', 'Strike');
+      $preferred_groupings[] = array('JustifyLeft', 'JustifyCenter',
+                                     'JustifyRight', 'JustifyBlock');
+      $preferred_groupings[] = array('BulletedList', 'NumberedList', 'Outdent', 'Indent');
+      $preferred_groupings[] = array('Undo', 'Redo');
+      $preferred_groupings[] = array('Image', 'Link', 'Unlink', 'Anchor', '-');
+      $preferred_groupings[] = array('TextColor', 'BGColor');
+      $preferred_groupings[] = array('Superscript', 'Subscript', 'Blockquote');
+      $preferred_groupings[] = array('HorizontalRule', 'break');
+      $preferred_groupings[] = array('Cut', 'Copy', 'Paste', 'PasteText', 'PasteFromWord');
+      $preferred_groupings[] = array('ShowBlocks', 'RemoveFormat', 'SpecialChar', '/');
+      $preferred_groupings[] = array('Format', 'Font', 'FontSize', 'Styles', 'Table');
+      $preferred_groupings[] = array('SelectAll', 'Find', 'Replace');
+      $preferred_groupings[] = array('Flash', 'Smiley');
+      $preferred_groupings[] = array('CreateDiv', 'Maximize', 'SpellChecker', 'Scayt');
+      // An array to hold our newly grouped buttons
+      $new_grouped_toolbar = array();
+      // Compare each desired groupings to the configured buttons in the toolbar
+      // and add them if they are there
+      foreach($preferred_groupings as $button_group){
+        // array_intersect() compares two arrays and returns an array of values
+        // That are present in both arrays.
+        $matching_buttons = array_intersect($button_group, $settings['toolbar'][0]);
+        if (!empty($matching_buttons)) {
+          // If there are matching buttons, we add it as an array to our
+          // $new_grouped_toolbar. We run $matching_buttons through array_values()
+          // to reset the array keys back to starting from 0.
+          $new_grouped_toolbar[] = array_values($matching_buttons);
+        }
+
+      }
+      // For extra safety, we're going to find any remaining buttons that we
+      // missed. To do this we need to flatten our grouped buttons and compare
+      // that against the original toolbar to see if we missed anything
+      $new_flattened_toolbar = array();
+      // Flatten our grouped buttons
+      foreach ($new_grouped_toolbar as $key => $group) {
+        $new_flattened_toolbar = array_merge($new_flattened_toolbar, $group);
+      }
+      // Array diff returns the keys that are present in the first argument, but
+      // not not present in the second
+      $remaining_buttons = array_diff($settings['toolbar'][0], $new_flattened_toolbar);
+      if (!empty($remaining_buttons)) {
+        // reset the array keys and add it to the $new_grouped_toolbar
+        $new_grouped_toolbar[] = array_values($remaining_buttons);
+      }
+      // Replace the toolbar with our new, grouped toolbar.
+      $settings['toolbar'] = $new_grouped_toolbar;
+    }
+  }
+}
+
+/**
+ * Helper function to return active textbook style.
+ */
+function _textbook_active_style() {
+  global $active_textbook_style;
+  // check for global style to coopt default
+  if (isset($active_textbook_style)) {
+    $active = $active_textbook_style;
+  }
+  else {
+    $active = variable_get('textbook_active', TEXTBOOK_DEFAULT_SET);
+  }
+  // developer overide to allow hijacking of active
+  drupal_alter('textbook_active_style', $active);
+  return $active;
+}
+
+/**
+ * Helper to load list of all styles.
+ */
+function _textbook_load_styles() {
+  // hook in all styles
+  $styles = module_invoke_all('textbook_style');
+  // allow other projects to modify established styles
+  drupal_alter('textbook_style', $styles);
+  return $styles;
+}
+
+/**
+ * Helper function for defining styles
+ */
+function _textbook_styles() {
+  $styles = array(
+    array(
+      'name' => 'DIV Center',
+      'element' => 'div',
+      'attributes' => array(
+        'class' => 'textbook_center'
+      ),
+    ),
+    array(
+      'name' => 'DIV Right',
+      'element' => 'div',
+      'attributes' => array(
+        'class' => 'textbook_right'
+      ),
+    ),
+    array(
+      'name' => 'Emphasis (italic)',
+      'element' => 'em',
+    ),
+    array(
+      'name' => 'Strong (bold)',
+      'element' => 'strong',
+    ),
+    array(
+      'name' => 'Superscript',
+      'element' => 'sup',
+    ),
+    array(
+      'name' => 'Subscript',
+      'element' => 'sub',
+    ),
+    array(
+      'name' => 'Color 1',
+      'element' => 'span',
+      'attributes' => array(
+        'class' => 'textbook_color1',
+      )
+    ),
+    array(
+      'name' => 'Color 2',
+      'element' => 'span',
+      'attributes' => array(
+        'class' => 'textbook_color2',
+      )
+    ),
+    array(
+      'name' => 'Color 3',
+      'element' => 'span',
+      'attributes' => array(
+        'class' => 'textbook_color3',
+      )
+    ),
+    array(
+      'name' => 'Color 4',
+      'element' => 'span',
+      'attributes' => array(
+        'class' => 'textbook_color4',
+      )
+    ),
+    array(
+      'name' => 'Color 5',
+      'element' => 'span',
+      'attributes' => array(
+        'class' => 'textbook_color5',
+      )
+    ),
+    array(
+      'name' => 'Color 6',
+      'element' => 'span',
+      'attributes' => array(
+        'class' => 'textbook_color6',
+      )
+    ),
+  );
+  return $styles;
+}

@@ -1,0 +1,6 @@
+core = "7.x"
+description = "Replicate UI provides integration for Replicate with front-end site builder modules like VBO."
+name = "Replicate UI"
+package = "Entity"
+dependencies[] = replicate
+files[] = views/views_handler_field_replicate_ui_link.inc

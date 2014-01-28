@@ -1,0 +1,7 @@
+<?php
+/**
+ * @file
+ * Code for the Regions Admin Example feature.
+ */
+
+include_once 'regions_admin_example.features.inc';

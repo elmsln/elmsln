@@ -1,0 +1,19 @@
+/* hide these items when on a phone */
+@media screen and (max-width: 739px) {
+  #block-cis-service-connection-active-outline {
+    display:none;
+  }
+  #section-header {
+    display:none;
+  }
+  .book-navigation {
+    display:none;
+  }
+  #page {
+    margin-bottom:50px;
+    margin-top:30px;
+  }
+}
+#thumbnav_modal select.tinynav {
+  display:block !important;
+}

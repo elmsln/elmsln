@@ -1,0 +1,21 @@
+<?php
+/**
+ * @file
+ * Install, update, and uninstall functions for the feeds_node_helper_import module.
+ */
+
+/**
+ * Implements hook_install().
+ */
+function feeds_node_helper_import_install() {
+  // allow elms content to fire before the UUID project in case it has to repair an error
+  // TODO Please review the conversion of this statement to the D7 database API syntax.
+  /* db_query("UPDATE {system} SET weight = -10 WHERE name = 'feeds_node_helper_import' AND type = 'module'") */
+  db_update('system')
+  ->fields(array(
+    'weight' =>  -10,
+  ))
+  ->condition('name', 'feeds_node_helper_import')
+  ->condition('type', 'module')
+  ->execute();
+}

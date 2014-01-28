@@ -1,0 +1,67 @@
+<?php
+/**
+ * @file
+ * Add a right side region that slides out to augment material
+ */
+
+/**
+ * Implementation of hook_init().
+ */
+function regions_right_slideout_init() {
+  // optional quojs swipe support
+  if (module_exists('quojs')) {
+    drupal_add_js(drupal_get_path('module', 'regions_right_slideout') . '/js/regions_right_slideout_quo.js');
+  }
+}
+
+/**
+ * Implementation of hook_define_region().
+ */
+function regions_right_slideout_define_regions() {
+  $region['regions_right_slideout'] = array(
+    'title' => 'Right side slideout',
+    'js' => drupal_get_path('module', 'regions_right_slideout') .'/regions_right_slideout.js',
+    'css' => drupal_get_path('module', 'regions_right_slideout') .'/regions_right_slideout.css',
+    'render_callback' => '_regions_right_slideout_render_region',
+  );
+  return $region;
+}
+
+/**
+ * Implementation of hook_regions_region_alter().
+ */
+function regions_right_slideout_regions_region_alter(&$region, $region_name) {
+  // Example to add an inner DIV to the region markup.
+  if (!empty($region['blocks'])) {
+    if ($region_name == 'regions_right_slideout' && !empty($region['blocks'])) {
+      $new_markup = array(
+        'start' => $region['start'],
+        'inner' => '<div class="regions_pre_block_container"></div><div class="regions_block_container">',
+        'blocks' => $region['blocks'],
+        'inner_end' => '</div><div class="regions_post_block_container"></div>',
+        'end' => $region['end'],
+      );
+      $region = $new_markup;
+    }
+  }
+}
+
+/**
+ * Helper function for rendering the blocks in this region
+ */
+function _regions_right_slideout_render_region($block_html, $block) {
+  // build a unique key for this block for theming
+  static $count = 0;
+  $count++;
+  $key = $block->module .'_'. $block->delta;
+  $output = '<div class="regions_block regions_'. $count .'" id="regions_block_'. $key .'"><div class="regions_block_title">';
+  $output .= '<a id="nrhi_'. strtolower(str_replace(' ', '', $block->subject)) .'" name="nrhi_'. strtolower(str_replace(' ', '', $block->subject)) .'">'. $block->subject .'</a>';
+  // unset the subject since we rendered that custom
+  $block->subject = '<none>';
+  $renderable_block = _block_get_renderable_array(array($block));
+  $output .= '</div><div class="regions_block_content">'. drupal_render($renderable_block) .'</div></div>';
+  // if we returned blocks then render the region
+  if ($output != '') {
+    return $output;
+  }
+}

@@ -1,0 +1,5 @@
+name = "Poll Extras"
+description = "Adds additional flexibility to the core poll module"
+dependencies[] = "poll"
+core = 7.x
+project = "poll_extras"

@@ -1,0 +1,8 @@
+name = Entity iframe
+description = A simple iFrame style display mode for entities.
+package = "Iframe"
+core = 7.x
+dependencies[] = entity
+files[] = views/views_handler_field_entity_iframe_embed.inc
+files[] = views/views_handler_field_entity_iframe_link.inc
+configure = admin/config/system/entity_iframe

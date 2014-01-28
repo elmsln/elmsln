@@ -1,0 +1,6 @@
+; $Id: textbook.info
+name = "Textbook"
+description = "Provides reset style guide and classes for a standard approach to handling accessibility and content presentation with optional WYSIWYG API and Template support"
+package = "Textbook"
+core = "7.x"
+project = "textbook"

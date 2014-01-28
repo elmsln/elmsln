@@ -1,0 +1,5 @@
+name = "ELMS media helper"
+description = "ELMS Media enhancements to media integration"
+core = 7.x
+dependencies[] = mediaelement
+files[] = elmsmedia_helper.module

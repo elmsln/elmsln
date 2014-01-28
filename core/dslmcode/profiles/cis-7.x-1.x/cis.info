@@ -1,0 +1,180 @@
+; Packaging information for cis
+name = "CIS"
+description = "Online Course Information System"
+exclusive = "1"
+core = "7.x"
+; ----------
+; Dependencies
+; ----------
+; Administration
+dependencies[] = admin_menu
+dependencies[] = admin_menu_toolbar
+; Advanced CSS/JS Aggregation
+dependencies[] = advagg
+dependencies[] = advagg_bundler
+; CIS
+dependencies[] = cis_connector
+dependencies[] = cis_helper
+dependencies[] = cis_lti
+dependencies[] = cis_si_cleanup
+; Chaos tool suite
+dependencies[] = ctools
+; Charting
+dependencies[] = google_chart_tools
+dependencies[] = google_chart_tools_views
+; Content
+dependencies[] = field_redirection
+; Context
+dependencies[] = context
+dependencies[] = context_ui
+; Core
+dependencies[] = block
+dependencies[] = color
+dependencies[] = contextual
+dependencies[] = dashboard
+dependencies[] = dblog
+dependencies[] = field
+dependencies[] = field_sql_storage
+dependencies[] = field_ui
+dependencies[] = file
+dependencies[] = filter
+dependencies[] = image
+dependencies[] = list
+dependencies[] = menu
+dependencies[] = node
+dependencies[] = number
+dependencies[] = options
+dependencies[] = overlay
+dependencies[] = path
+dependencies[] = rdf
+dependencies[] = search
+dependencies[] = system
+dependencies[] = text
+dependencies[] = update
+dependencies[] = user
+; Data
+dependencies[] = data
+dependencies[] = data_node
+dependencies[] = data_search
+dependencies[] = data_ui
+; Database
+dependencies[] = schema
+; Date/Time
+dependencies[] = date
+dependencies[] = date_api
+dependencies[] = date_views
+; Entity
+dependencies[] = activation_code
+dependencies[] = replicate
+dependencies[] = replicate_field_collection
+dependencies[] = replicate_ui
+; Fields
+dependencies[] = email
+dependencies[] = entityreference
+dependencies[] = entityreference_prepopulate
+dependencies[] = field_collection
+dependencies[] = field_group
+dependencies[] = field_hidden
+dependencies[] = field_permissions
+dependencies[] = link
+dependencies[] = phone
+dependencies[] = select_or_other
+; Filter
+dependencies[] = simplehtmldom
+; Image
+dependencies[] = smartcrop
+; Input filters
+dependencies[] = typogrify
+dependencies[] = video_filter
+; Jammer
+dependencies[] = jammer
+; Learning Tools Interoperability
+dependencies[] = lti_tool_provider
+; Media
+dependencies[] = imce
+dependencies[] = video_embed_field
+; Node form columns
+dependencies[] = nodeformcols
+; Nodequeue
+dependencies[] = nodequeue
+; Other
+dependencies[] = auto_nodetitle
+dependencies[] = boxes
+dependencies[] = clone
+dependencies[] = dhtml_menu
+dependencies[] = diff
+dependencies[] = entity
+dependencies[] = entity_token
+dependencies[] = field_collection_table
+dependencies[] = file_formatters
+dependencies[] = fitvids
+dependencies[] = imagefield_focus
+dependencies[] = jquery_colorpicker
+dependencies[] = libraries
+dependencies[] = masquerade
+dependencies[] = menu_attributes
+dependencies[] = menu_block
+dependencies[] = menu_position
+dependencies[] = module_filter
+dependencies[] = nocurrent_pass
+dependencies[] = nodeaccess_nodereference
+dependencies[] = nodeaccess_userreference
+dependencies[] = pathauto
+dependencies[] = placeholder
+dependencies[] = responsive_tables
+dependencies[] = restws
+dependencies[] = restws_basic_auth
+dependencies[] = special_menu_items
+dependencies[] = strongarm
+dependencies[] = token
+dependencies[] = transliteration
+dependencies[] = unique_field
+; Path breadcrumbs
+dependencies[] = path_breadcrumbs
+; Performance and scalability
+dependencies[] = boost_crawler
+dependencies[] = entitycache
+dependencies[] = display_cache
+dependencies[] = httprl
+dependencies[] = subpathauto
+dependencies[] = imageinfo_cache
+; Regions
+dependencies[] = regions
+dependencies[] = regions_admin_left
+; Security
+dependencies[] = seckit
+; Shadowbox
+dependencies[] = file_shadowbox
+dependencies[] = image_shadowbox
+dependencies[] = shadowbox
+; Textbook
+dependencies[] = textbook
+; UUID
+dependencies[] = uuid
+; User interface
+dependencies[] = addanother
+dependencies[] = ckeditor_link
+dependencies[] = imce_wysiwyg
+dependencies[] = jquery_update
+dependencies[] = options_element
+dependencies[] = wysiwyg
+; Views
+dependencies[] = better_exposed_filters
+dependencies[] = editableviews
+dependencies[] = views
+dependencies[] = views_autocomplete_filters
+dependencies[] = views_bulk_operations
+dependencies[] = views_data_export
+dependencies[] = views_field_calc
+dependencies[] = views_fluid_grid
+dependencies[] = views_ui
+; Features
+dependencies[] = features
+dependencies[] = cis_data
+dependencies[] = cis_displays
+dependencies[] = cis_types
+dependencies[] = cis_ux
+dependencies[] = regions_admin_example
+dependencies[] = textbook_editor
+dependencies[] = cis_users
+dependencies[] = cis_roles

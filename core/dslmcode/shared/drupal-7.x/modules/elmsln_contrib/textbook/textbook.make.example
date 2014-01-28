@@ -1,0 +1,53 @@
+; Example Make file to demonstrate how to automatically fetch required textbook modules
+; See http://davehall.com.au/blog/dave/2011/05/17/drush-make-and-module-dependencies#comment-2261
+; as to why this file ends with .example rather than .make.
+core = "7.x"
+api = "2"
+projects[drupal][version] = "7.x"
+
+; Textbook modules
+; Provides clean styles, accessibility minded input formatter, default editor
+projects[textbook][version] = "4.x-dev"
+projects[textbook][subdir] = "contrib"
+; deployability of functionality
+projects[features][version] = "2.0-rc2"
+projects[features][subdir] = "contrib"
+; Accessibility module that implements quail api / wysiwyg
+projects[accessibility][version] = "1.x-dev"
+projects[accessibility][subdir] = "contrib"
+; Allow for implementing any text editor
+projects[wysiwyg][version] = "2.x-dev"
+projects[wysiwyg][subdir] = "contrib"
+; Provides reusable template support, also exportable
+projects[wysiwyg_template][version] = "2.x-dev"
+projects[wysiwyg_template][subdir] = "contrib"
+; Clean way of internally linking content
+projects[ckeditor_link][version] = "2.3"
+projects[ckeditor_link][subdir] = "contrib"
+; file manager for content authoring
+projects[imce][version] = "1.7"
+projects[imce][subdir] = "contrib"
+; Required bridge to integrate with WYSIWYG API
+projects[imce_wysiwyg][version] = "1.0"
+projects[imce_wysiwyg][subdir] = "contrib"
+; Provides a button for simple adding of external video embeds
+projects[video_filter][version] = "3.1"
+projects[video_filter][subdir] = "contrib"
+; Better looking rendered text, especially when responsive
+projects[typogrify][version] = "1.0-rc6"
+projects[typogrify][subdir] = "contrib"
+; Renames file names appropriately when working with wonky chars
+projects[transliteration][version] = "3.1"
+projects[transliteration][subdir] = "contrib"
+
+; Libraries
+; Quail API
+libraries[quail][download][type] = "get"
+libraries[quail][download][url] = "https://github.com/kevee/quail/archive/2.0.3.zip"
+libraries[quail][directory_name] = "quail"
+
+; ckeditor 4.2.1 + codemirror and table resize
+libraries[ckeditor][download][type] = "get"
+libraries[ckeditor][download][url] = "https://github.com/btopro/ckeditor4textbook/archive/2.1.zip"
+libraries[ckeditor][directory_name] = "ckeditor"
+libraries[ckeditor][destination] = "libraries"

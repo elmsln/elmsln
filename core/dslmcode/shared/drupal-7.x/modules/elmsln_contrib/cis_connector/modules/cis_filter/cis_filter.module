@@ -1,0 +1,185 @@
+<?php
+/**
+ * @file
+ * Input filter to process CIS style shortcodes.
+ */
+define('CIS_FILTER_INVALID', '-invalid call-');
+
+/**
+ * Implements hook_filter_info().
+ */
+function cis_filter_filter_info() {
+  $filters = array();
+  $filters['cis_filter'] = array(
+    'title' => t('CIS filter'),
+    'description' => t('Substitutes [cis] shortcodes with rendered output.'),
+    'process callback' => '_cis_filter_process',
+    'tips callback' => '_cis_filter_tips',
+    'weight' => 10,
+  );
+  return $filters;
+}
+
+/**
+ * Helper function to provide on screen tips for using the filter
+ */
+function _cis_filter_tips($filter, $format, $long = FALSE) {
+  return t('You may insert references to CIS resources, see cis_shortcodes.api.php for details.');
+}
+
+/**
+ * Callback function to perform the content processing.
+ */
+function _cis_filter_process($text, $filter, $format, $langcode, $cache, $cache_id) {
+  $regex = "/\[(\<br \/\>|\s)*ciscode(\<br \/\>|\s)*(\|([a-zA-Z0-9_.\s]+=[-a-zA-Z0-9+.:&@#\/\?<>\"%=~_\s]+))*(\<br \/\>|\s)*\]/";
+  if (preg_match_all($regex, $text, $matches)) {
+    $patterns = array();
+    $media = array();
+    // Have to process multiple matches since more than one player can be on a node.
+    foreach ($matches[0] as $key => $match) {
+      $tag = $match;
+      $config = "";
+      $vars = array();
+      $tag = preg_replace("/\[(\s)*ciscode(\s)*(\||\])/", "", $tag);
+      $tag = str_replace("]", "", $tag);
+      $args = preg_split("/\|/", $tag);
+      // For the current match, process each parameter.
+      foreach ($args as $fvar) {
+        $key_val = preg_split("/=/", $fvar, 2);
+        if ($key_val[0] != "") {
+          $vars[trim($key_val[0])] = trim($key_val[1]);
+        }
+      }
+      $patterns[] = $regex;
+      $media[] = theme('cis_filter_render', array('settings' => $vars));
+    }
+    $text = preg_replace($patterns, $media, $text, 1);
+  }
+  return $text;
+}
+
+/**
+ * Implements hook_theme().
+ */
+function cis_filter_theme() {
+  return array(
+    'cis_filter_render' => array(
+      'variables' => array(
+        'settings' => array(),
+      ),
+    ),
+  );
+}
+
+/**
+ * Theme callback to render media.
+ */
+function theme_cis_filter_render($vars) {
+  // NOTICE: allows for future rewrites to the API
+  if ($vars['settings']['rev'] == 1) {
+    $code = array_merge(array(
+      'render' => 'iframe',
+      'item_type' => 'id',
+      'entity_type' => 'node',
+      'entity_bundle' => NULL,
+    ), $vars['settings']);
+    // spec requires tool and item be set
+    if (isset($code['tool']) && isset($code['item'])) {
+      // @ignore druplart_conditional_assignment
+      if ($settings = _cis_connector_build_registry($code['tool'])) {
+        $instance = '/';
+        if (isset($settings['instance']) && $settings['instance']) {
+          $instance = base_path();
+        }
+        $link = _cis_connector_format_address($settings, $instance, 'front');
+        switch ($code['render']) {
+          case 'link':
+            // link based request requires RESTful webservice
+            $url = $code['entity_type'] . '/' . $code['item'] . '.json';
+            // uses property to allow for rapid load of a complex resource
+            $url .= '?deep-load-refs=file';
+            // fallback in case there was nothing to query
+            $link .= $code['entity_type'] . '/' . $code['item'];
+            $result = _cis_filter_link_render($url, $code, $link);
+          break;
+          case 'iframe':
+            $result = _cis_filter_iframe_render($link, $code);
+          break;
+        }
+        return $result;
+      }
+    }
+  }
+  // nothing picked up the call, render the invalid output fallback
+  return CIS_FILTER_INVALID;
+}
+
+/**
+ * Default callback for rendering a link to the item
+ */
+function _cis_filter_link_render($url, $code, $link = '') {
+  // request data
+  $response = _cis_connector_request($url, array(), $code['tool']);
+  $data = drupal_json_decode($response->data);
+  // if we have the field property set return a link
+  if (isset($code['field']) && isset($data[$code['field']]['uri'])) {
+    // field must have a uri associated with it
+    $path = $data[$code['field']]['uri'];
+    // special case for rendering images via direct embed
+    if (isset($code['item_type']) && $code['item_type'] == 'image') {
+      $width = '';
+      $height = '';
+      if (isset($code['width'])) {
+        $width = 'width="' . $code['width'] . '"';
+      }
+      if (isset($code['height'])) {
+        $height = 'height="' . $code['height'] . '"';
+      }
+      $alt = '';
+      $title = '';
+      // support custom title and alt text
+      if (isset($code['text'])) {
+        $alt = $code['text'];
+        $title = $code['text'];
+      }
+      if (isset($code['alt'])) {
+        $alt = $code['alt'];
+      }
+      // @todo investigate a theme function for this
+      $link = "<img src=\"$path\" $width $height alt=\"$alt\" title=\"$title\" />";
+    }
+    elseif (isset($code['text'])) {
+      // @todo investigate a theme function for this
+      $link = l(t('@t', array('@t' => $code['text'])), $path);
+    }
+    else {
+      // we have nothing to do because something was wrong
+    }
+  }
+  elseif (isset($code['text'])) {
+    // @todo investigate a theme function for this
+    $link = l(t('@t', array('@t' => $code['text'])), $link);
+  }
+  return $link;
+}
+
+/**
+ * Default callback for rendering a shortcode as an iframe
+ */
+function _cis_filter_iframe_render($link, $code) {
+  $width = '100%';
+  if (isset($code['width'])) {
+    $width = $code['width'];
+  }
+  $height = '300';
+  if (isset($code['height'])) {
+    $height = $code['height'];
+  }
+  // ids we render via entity iframe, otherwise fallback
+  if ($code['item_type'] == 'id') {
+    return '<iframe id="entity_iframe_' . $code['entity_type'] . '_' . $code['item'] . '" frameborder="0" class="entity_iframe entity_iframe_' . $code['entity_type'] . '" src="' . $link . 'entity_iframe/' . $code['entity_type'] . '/' . $code['item'] . '" width="' . $width . '" height="' . $height . '"></iframe>';
+  }
+  else {
+    return '<iframe src="' . $link . 'cis-find-tag/' . $code['entity_type'] . '/' . $code['item'] . '" width="' . $width . '" height="' . $height . '"></iframe>';
+  }
+}

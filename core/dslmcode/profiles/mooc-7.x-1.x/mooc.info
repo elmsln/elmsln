@@ -1,0 +1,162 @@
+; Packaging information for mooc
+name = "MOOC"
+description = "Massively Open Online Course is a set of tools for building an online course"
+exclusive = "1"
+core = "7.x"
+; ----------
+; Dependencies
+; ----------
+; Accessibility
+dependencies[] = accessibility
+dependencies[] = accessibility_wysiwyg
+dependencies[] = accessibility_content
+; Administration
+dependencies[] = admin_menu
+dependencies[] = admin_menu_toolbar
+dependencies[] = admin_theme
+; Advanced CSS/JS Aggregation
+dependencies[] = advagg
+dependencies[] = advagg_bundler
+; Book
+dependencies[] = book_title_override
+; CIS
+dependencies[] = cis_connector
+; Chaos tool suite
+dependencies[] = ctools
+; Context
+dependencies[] = context
+dependencies[] = context_condition_theme
+dependencies[] = joyride
+; Core
+dependencies[] = block
+dependencies[] = book
+dependencies[] = color
+dependencies[] = field
+dependencies[] = field_sql_storage
+dependencies[] = file
+dependencies[] = filter
+dependencies[] = list
+dependencies[] = menu
+dependencies[] = node
+dependencies[] = options
+dependencies[] = overlay
+dependencies[] = search
+dependencies[] = statistics
+dependencies[] = system
+dependencies[] = text
+dependencies[] = update
+dependencies[] = user
+; Entity
+dependencies[] = nodereference_highlight
+dependencies[] = replicate
+; Feeds
+dependencies[] = feeds
+dependencies[] = feeds_node_helper
+dependencies[] = feeds_tamper
+dependencies[] = feeds_xpathparser
+; Fields
+dependencies[] = entityreference
+dependencies[] = entityreference_prepopulate
+; Input filters
+dependencies[] = typogrify
+dependencies[] = video_filter
+; Jammer
+dependencies[] = jammer
+; Learning Tools Interoperability
+dependencies[] = lti_tool_provider
+dependencies[] = lti_tool_provider_og
+; MOOC
+dependencies[] = mooc_thumbnav
+dependencies[] = mooc_helper_book_nav
+; Media
+dependencies[] = imce
+dependencies[] = imce_crop
+dependencies[] = imce_mkdir
+; Node form columns
+dependencies[] = nodeformcols
+; Organic groups
+dependencies[] = og
+dependencies[] = og_clone
+dependencies[] = og_context
+dependencies[] = og_ui
+; Other
+dependencies[] = better_formats
+dependencies[] = book_copy
+dependencies[] = book_delete
+dependencies[] = boxes
+dependencies[] = clone
+dependencies[] = diff
+dependencies[] = defaultconfig
+dependencies[] = entity
+dependencies[] = fitvids
+dependencies[] = footnotes
+dependencies[] = footnotes_wysiwyg
+dependencies[] = job_scheduler
+dependencies[] = libraries
+dependencies[] = linkchecker
+dependencies[] = masquerade
+dependencies[] = module_filter
+dependencies[] = prepopulate
+dependencies[] = restws
+dependencies[] = restws_basic_auth
+dependencies[] = scanner
+dependencies[] = strongarm
+dependencies[] = tipsy
+dependencies[] = token
+dependencies[] = transliteration
+dependencies[] = typo
+; Outline Designer
+dependencies[] = outline_designer
+dependencies[] = outline_designer_book
+; Performance and scalability
+dependencies[] = entitycache
+dependencies[] = httprl
+; Permissions
+dependencies[] = hidden_nodes
+; Regions
+dependencies[] = regions
+dependencies[] = regions_admin_left
+dependencies[] = regions_right_slideout
+; Textbook
+dependencies[] = textbook
+; Theme Tools
+dependencies[] = delta
+dependencies[] = delta_blocks
+; UUID
+dependencies[] = uuid
+; User Interface
+dependencies[] = book_touch
+dependencies[] = thumbnav
+dependencies[] = tinynav
+; User interface
+dependencies[] = ckeditor_link
+dependencies[] = imce_wysiwyg
+dependencies[] = lightbox2
+dependencies[] = wysiwyg
+dependencies[] = wysiwyg_template
+dependencies[] = token_insert_entity
+dependencies[] = token_insert_wysiwyg
+; Views
+dependencies[] = views
+dependencies[] = views_bulk_operations
+dependencies[] = views_data_export
+dependencies[] = views_xml_backend
+; Features
+dependencies[] = features
+dependencies[] = chamfer_defaults
+dependencies[] = cis_section
+dependencies[] = cis_service_lti
+dependencies[] = cis_service_roles
+dependencies[] = features_override
+dependencies[] = feeds_node_helper_export
+dependencies[] = feeds_node_helper_import
+dependencies[] = mooc_cis_ux
+dependencies[] = mooc_helper
+dependencies[] = mooc_textbook
+dependencies[] = mooc_ux_defaults
+dependencies[] = node_reference_highlight_glossary
+dependencies[] = regions_admin_example
+dependencies[] = textbook_editor
+dependencies[] = textbook_templates
+dependencies[] = mooc_page
+dependencies[] = mooc_perms

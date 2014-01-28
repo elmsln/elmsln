@@ -1,0 +1,23 @@
+<?php
+/**
+ * @file
+ * Install routine to set the front page to a default.
+ */
+
+/**
+ * Implements hook_install().
+ */
+function cis_service_connection_install() {
+  // set front page to welcome-letter
+  variable_set('site_frontpage', CIS_SERVICE_CONNECTION_HOMEPAGE);
+}
+
+/**
+ * Implements hook_uninstall().
+ */
+function cis_service_connection_uninstall() {
+  // unset the front page if its the welcome-letter
+  if (variable_get('site_frontpage', 'welcome_letter') == 'welcome_letter') {
+    variable_set('site_frontpage', 'node');
+  }
+}

@@ -1,0 +1,12 @@
+<?php
+
+include_once 'feeds_node_helper_import.features.inc';
+
+/**
+ * Implements hook_node_update().
+ */
+function feeds_node_helper_import_node_update($node) {
+  if (TRUE && isset($node->revision_uuid) && $node->revision_uuid == '') {
+    $node->revision_uuid = uuid_uuid();
+  }
+}

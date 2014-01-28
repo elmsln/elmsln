@@ -1,0 +1,7 @@
+name = QuickPost Bookmarklet
+description = "Build a bookmarklet to streamline posting outside articles to your site."
+core = 7.x
+
+package = QuickPost
+; Module dependencies
+dependencies[] = prepopulate

@@ -1,0 +1,34 @@
+<?php
+/**
+ * @file
+ * Book navigation defaults and overrides.
+ */
+
+/**
+ * Implements hook_theme_registry_alter().
+ */
+function mooc_helper_book_nav_theme_registry_alter(&$theme_registry) {
+  // point to the mooc's way of handling book pagination
+  $theme_registry['book_navigation']['template'] = drupal_get_path('module', 'mooc_helper_book_nav') . '/templates/book-navigation';
+  $theme_registry['book_navigation']['theme path'] = drupal_get_path('module', 'mooc_helper_book_nav');
+  unset($theme_registry['book_navigation']['path']);
+}
+
+/**
+ * Implements hook_node_view().
+ */
+function mooc_helper_book_nav_node_view($node, $view_mode, $langcode) {
+  // ensure this only happens for node's viewed in books
+  if (arg(0) == 'node' && $view_mode == 'full' && isset($node->book) && isset($node->body) && empty($node->body['und'][0]['value'])) {
+    $next = book_next($node->book);
+    // ensure we have a next item and it's in this one
+    if ($next && $node->book['mlid'] == $next['plid']) {
+      if (entity_access('update', 'node', $node)) {
+        drupal_set_message(t('This page is empty, so students will automatically be taken to the next page. You have not been since you can edit this content.'));
+      }
+      else {
+        drupal_goto($next['link_path']);
+      }
+    }
+  }
+}

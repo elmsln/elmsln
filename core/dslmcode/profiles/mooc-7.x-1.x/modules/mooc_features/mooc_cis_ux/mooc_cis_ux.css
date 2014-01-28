@@ -1,0 +1,26 @@
+/* CSS Document */
+
+#mooc_active_outline_flag {
+  position:fixed;
+  bottom:0px;
+  left:25%;
+  z-index:100000;
+  padding:10px;
+  text-align:center;
+  background-color:#555;
+}
+#mooc_active_outline_flag a {
+  color:#fff;
+  font-size: 14px;
+}
+
+@media all and (max-width: 740px) {
+  #mooc_active_outline_flag {
+		bottom:50px;
+		width:100%;
+		left:0px;
+	}
+	#admin-menu {
+		display:none;
+	}
+}

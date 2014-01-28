@@ -1,0 +1,38 @@
+<?php
+/**
+ * Implements hook_thumbnav_widget().
+ */
+function book_touch_thumbnav_widget() {
+  $widgets = array();
+  // detect if we are in a book, this fires in hook init so we may not
+  if ($node = menu_get_object()) {
+    $current_bid = empty($node->book['bid']) ? 0 : $node->book['bid'];
+    // ensure we are part of a book, otherwise ignore everything
+    if ($current_bid) {
+      // see if we have a previous link
+      $prev_item = book_prev($node->book);
+      // make sure previous item exists before adding the arrow
+      if (isset($prev_item['href'])) {
+        $widgets['book_touch_prev'] = array(
+          'icon' => base_path() . drupal_get_path('module', 'book_touch') . '/images/prevpage.png',
+          'title' => t('Previous page'),
+          'weight' => -1,
+          'side' => 'left',
+          'link' => $prev_item['href'],
+        );
+      }
+      // do the same for the next link
+      $next_item = book_next($node->book);
+      if (isset($next_item['href'])) {
+        $widgets['book_touch_next'] = array(
+          'icon' => base_path() . drupal_get_path('module', 'book_touch') . '/images/nextpage.png',
+          'title' => t('Next page'),
+          'weight' => 0,
+          'side' => 'right',
+          'link' => $next_item['href'],
+        );
+      }
+    }
+  }
+  return $widgets;
+}
