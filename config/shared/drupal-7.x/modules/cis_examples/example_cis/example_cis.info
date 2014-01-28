@@ -1,0 +1,14 @@
+name = Example: ELMSLN CIS
+description = Example CIS modifications
+core = 7.x
+package = ELMSLN Examples
+project = example_elmsln_cis
+dependencies[] = cis_helper
+dependencies[] = ctools
+dependencies[] = strongarm
+features[ctools][] = strongarm:strongarm:1
+features[features_api][] = api:2
+features[variable][] = cis_build_authenticated
+features[variable][] = cis_build_code
+features[variable][] = cis_build_lms
+features[variable][] = cis_build_open

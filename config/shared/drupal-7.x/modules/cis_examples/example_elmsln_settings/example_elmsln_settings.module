@@ -1,0 +1,81 @@
+<?php
+
+// service module that makes our implementation specific
+
+/**
+ * Implements hook_cis_service_registry().
+ */
+function cis_example_elmsln_settings_cis_service_registry() {
+  //
+  // SERVICES -- implementation per course
+  //
+  $items = array(
+    // mooc distro instance called courses
+    'mooc' => array(
+      'protocol' => 'https',
+      'service_address' => 'data.courses.example.com',
+      'address' => 'courses.example.com',
+      'user' => 'SERVICE_MOOC',
+      'mail' => 'SERVICE_MOOC@example.com',
+      'pass' => '',
+      'instance' => TRUE,
+    ),
+    // cle distro instance called studio
+    'cle' => array(
+      'protocol' => 'https',
+      'service_address' => 'data.studio.example.com',
+      'address' => 'studio.example.com',
+      'user' => 'SERVICE_CLE',
+      'mail' => 'SERVICE_CLE@example.com',
+      'pass' => '',
+      'instance' => TRUE,
+    ),
+    // icor distro instance called interact
+    'icor' => array(
+      'protocol' => 'https',
+      'service_address' => 'data.interact.example.com',
+      'address' => 'interact.example.com',
+      'user' => 'SERVICE_ICOR',
+      'mail' => 'SERVICE_ICOR@example.com',
+      'pass' => '',
+      'instance' => TRUE,
+    ),
+    // cases distro
+    'elmscases' => array(
+      'protocol' => 'https',
+      'service_address' => 'data.cases.example.com',
+      'address' => 'cases.example.com',
+      'user' => 'SERVICE_CASES',
+      'mail' => 'SERVICE_CASES@example.com',
+      'pass' => '',
+      'instance' => TRUE,
+    ),
+  );
+  //
+  // Remote watchdogs, {service} is replaced for correct one
+  //
+  $items['remote_watchdog'] = array(
+    'protocol' => 'https',
+    'user' => 'SERVICE_WATCHDOG',
+    'mail' => 'SERVICE_WATCHDOG@example.com',
+    'pass' => '',
+    'instance' => FALSE,
+  );
+
+  //
+  // AUTHORITIES - single instances to help enable services to function
+  //
+
+  // cis distro, the hub everything asks for how to function
+  $items['cis'] = array(
+    'protocol' => 'https',
+    'service_address' => 'data.online.example.com',
+    'address' => 'online.example.com',
+    'user' => 'SERVICE_CIS',
+    'mail' => 'SERVICE_CIS@example.com',
+    'pass' => '',
+    'instance' => FALSE,
+  );
+
+  return $items;
+}

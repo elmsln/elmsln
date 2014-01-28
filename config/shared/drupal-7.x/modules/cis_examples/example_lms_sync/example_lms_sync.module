@@ -1,0 +1,89 @@
+<?php
+/**
+ * @file
+ * Code to work with cis_section to sync roster.
+ */
+
+/**
+ * Implements hook_cis_section_build_roster().
+ */
+function cis_example_lms_sync_cis_section_build_roster($section) {
+  $roster = array();
+  $users = _cis_example_lms_sync_connect(array('ID' => $section));
+  // make sure we successfully retrieved a list of users
+  if (isset($users->success)) {
+    // loop over resulting members and build into user array
+    foreach ($users->success->roster->member as $member) {
+      // typecast as an array from its weird xml object structure
+      $member = (array) $member;
+      // build as section => member => rights
+      $roster[lms_cis_example_utility_scrub_name($member['user_id'])] = _cis_example_utility_convert_lms_role($member['course_rights']);
+    }
+  }
+  return $roster;
+}
+
+/**
+ * Implements hook_cis_section_user_insert_alter().
+ */
+function cis_example_lms_sync_cis_section_user_insert_alter(&$fields) {
+  $fields['mail'] = _cis_example_utility_name_to_email($fields['name']);
+  $fields['init'] = $fields['mail'];
+}
+
+/**
+ * Connect to LMS Source and return XML
+ */
+function _cis_example_lms_sync_connect($data, $bucket = 'lms', $location = 'address', $api = 'exampleapi') {
+  $args = func_get_args();
+  $args[0] = implode('_', $args[0]);
+  // generate a unique call signature
+  $call = __FUNCTION__ . implode('_', $args);
+  // statically cache future calls
+  $response_data = &drupal_static($call);
+  // check for multiple calls for the exact same data
+  // this is possible when updating a section title
+  // and a roster sync happening at different points
+  // in the same transaction
+  if (!isset($response_data)) {
+    $settings = _cis_connector_build_registry($bucket);
+    // make sure we passed it a valid API
+    if (in_array($api, $settings['apis'])) {
+      $args = array(
+        'exampleuser' => $settings['user'],
+        'examplepassword' =>$settings['pass'],
+        'exampleapiaction' => $api,
+      ) + $data;
+      $address = $settings[$location] . '?' . http_build_query($args);
+      // queue request via httprl
+      httprl_request($address);
+      // send the request off
+      $tmp = httprl_send_request();
+      $response = array_pop($tmp);
+      // load this data feed as xml
+      $response_data = simplexml_load_string($response->data);
+      return $response_data;
+    }
+    return FALSE;
+  }
+  return $response_data;
+}
+
+/**
+ * Implements hook_entity_presave().
+ */
+function cis_example_lms_sync_entity_presave($entity, $type) {
+  if ($type == 'node' && $entity->type == 'section' && isset($entity->field_section_id['und'][0])) {
+    // grab the roster since it has the title stored in it
+    $response = _cis_example_lms_sync_connect(array('ID' => $entity->field_section_id['und'][0]['value']));
+    // grab the title from what came across
+    if (isset($response->success)) {
+      // convert to a string
+      $title = (string)$response->success->roster->course_title;
+      // refresh the title if different from currently set one
+      if ($title != '' && $title != $entity->title) {
+        $entity->title = $title;
+      }
+    }
+  }
+}

@@ -1,0 +1,76 @@
+<?php
+/**
+ * @file
+ * Code for the Example CIS Service.
+ */
+
+include_once 'cis_example_cis_service.features.inc';
+
+/**
+ * Implements hook_cis_section_list_alter().
+ */
+function cis_example_cis_service_cis_section_list_alter(&$sections) {
+  // convert section identifiers to something human readable
+  foreach ($sections as $key => $section) {
+    // this breaks section up into parts for reproduction
+    if ($parts = _cis_example_utility_section_parts($section)) {
+      // list of semesters
+      $semesters = _cis_example_utility_semester_list();
+      // convert to readable word
+      if (isset($semesters[strtolower($parts['semester'])])) {
+        $parts['semester'] = $semesters[strtolower($parts['semester'])];
+      }
+      $sections[$key] = implode(' ', $parts);
+    }
+  }
+  // should be in order already but to be safe
+  asort($sections);
+}
+
+/**
+ * Implements hook_set_cis_service_data().
+ */
+function cis_example_cis_service_set_cis_service_data($delta) {
+  // need to do clean up to ensure that staff members are part of master group
+  if ($delta == 'initial') {
+    $uids = array();
+    // select all users that are staff
+    $query = db_select('role', 'r');
+    $query->join('users_roles', 'ur', 'r.rid = ur.rid');
+    $query->join('users', 'u', 'ur.uid = u.uid');
+    $query->fields('u',array('uid'))
+          ->condition('r.name', 'staff');
+    $result = $query->execute();
+    $uids = $result->fetchCol();
+    // figure out the master section, most likely node 1
+    $query = new EntityFieldQuery();
+    // pull all nodes
+    $query->entityCondition('entity_type', 'node')
+    // that are sections
+    ->entityCondition('bundle', 'section')
+    // that are published
+    ->propertyCondition('status', 1)
+    // that have a section like master_
+    ->fieldCondition('field_section_id', 'value', 'master_%', 'like')
+    ->addMetaData('account', user_load(1));
+    // store results
+    $result = $query->execute();
+    // ensure we have results
+    if (isset($result['node'])) {
+      $nids = array_keys($result['node']);
+      $sections = entity_load('node', $nids);
+      $group = array_pop($sections);
+      foreach ($uids as $uid) {
+        // load account for saving to the group
+        $account = user_load($uid);
+        // add people to this group / default section
+        $values = array(
+          'entity_type' => 'user',
+          'entity' => $account,
+        );
+        og_group('node',$group->nid, $values);
+      }
+    }
+  }
+}
+

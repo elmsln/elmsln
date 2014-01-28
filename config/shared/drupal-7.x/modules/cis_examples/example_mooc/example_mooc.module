@@ -1,0 +1,21 @@
+<?php
+
+/**
+ * @file
+ * CIS modifications for the MOOC platform.
+ */
+
+/**
+ * Implements hook_node_view().
+ */
+function cis_example_mooc_node_view($node, $view_mode, $langcode) {
+	global $user;
+	// make sure this person only has past student role / auth
+	if ($view_mode == 'full' && $node->type == 'page' && isset($node->content['body']) && in_array('past student', array_values($user->roles)) && count($user->roles) == 2) {
+		$content = $node->content['body'][0]['#markup'];
+		$content = preg_replace("/<img[^>]+\>/i", '-- Image here --', $content);
+		$content = preg_replace('%<object.+?</object>%is', '-- Video here --', $content);
+		$content = preg_replace('%<iframe.+?</iframe>%is', '-- Video here --', $content);
+		$node->content['body'][0]['#markup'] = $content;
+	}
+}

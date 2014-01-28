@@ -1,0 +1,26 @@
+<?php
+define('CIS_EXAMPLE_ELMSLN_HELPDESK', 'helpdesk@example.com');
+/**
+ * Implements hook_init().
+ */
+function cis_example_elmsln_utility_init() {
+  // stub just so that drupal bootstraps this library
+}
+
+/**
+ * Return an array of users of a certain type.
+ */
+function _cis_example_elmsln_utility_user_list($type = 'staff') {
+  // these are the brave souls allowed to have the ultimate level of access
+  // to the worlds greatest system in the entire universe of systems.
+  // this is redundant says collins, and he is mostly correct
+  $list = array(
+     'staff' => array(
+			 'username', // add user names here
+    ),
+    'admins' => array(
+			'usename', // add user names here
+    ),
+  );
+  return $list[$type];
+}

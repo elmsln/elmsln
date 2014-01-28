@@ -1,0 +1,259 @@
+<?php
+/**
+ * Implements hook_init().
+ */
+function cis_example_utility_init() {
+  // stub just so that drupal bootstraps this library
+}
+
+/**
+ * Implements hook_cis_string_process_alter().
+ */
+function cis_example_utility_cis_string_process_alter(&$string, &$parts) {
+  $parts['semester'] = $string;
+  _cis_example_utility_lti_process_section($parts);
+}
+
+/**
+ * Helper function to retrieve standard start and
+ * end date in university calendar.
+ */
+function _cis_example_utility_university_dates($semester, $year) {
+  // big ol' array of all dates possible
+  $dates = array(
+    '201213' => array(
+      'sp' => array('2013-1-2', '2013-5-5', '2013-1-7'),
+      'su' => array('2013-5-5', '2013-8-10', '2013-5-6'),
+    ),
+    '201314' => array(
+      'fa' => array('2013-8-12', '2013-12-21', '2013-8-26'),
+      'sp' => array('2014-1-2', '2014-5-11', '2014-1-13'),
+      'su' => array('2014-5-11', '2014-8-16', '2014-5-12'),
+    ),
+    '201415' => array(
+      'fa' => array('2014-8-18', '2014-12-20', '2014-8-25'),
+      'sp' => array('2015-1-2', '2015-5-10', '2015-1-12'),
+      'su' => array('2015-5-10', '2015-8-15', '2015-5-11'),
+    ),
+    '201516' => array(
+      'fa' => array('2015-8-17', '2015-12-19', '2015-8-24'),
+      'sp' => array('2016-1-2', '2016-5-8', '2016-1-11'),
+      'su' => array('2016-5-8', '2016-8-13', '2016-5-9'),
+    ),
+    '201617' => array(
+      'fa' => array('2016-8-15', '2016-12-17', '2016-8-22'),
+      'sp' => array('2017-1-2', '2017-5-7', '2017-1-9'),
+      'su' => array('2017-5-7', '2017-8-12', '2017-5-8'),
+    ),
+    '201718' => array(
+      'fa' => array('2017-8-14', '2017-12-16', '2017-8-21'),
+      'sp' => array('2018-1-2', '2018-5-6', '2018-1-8'),
+    ),
+  );
+  // verify that we have this semester / year combo
+  if (isset($dates[$year]) && isset($dates[$year][$semester])) {
+    $start = $dates[$year][$semester][0] . ' 0:0:0';
+    $end = $dates[$year][$semester][1] . ' 0:0:0';
+    $class_begin = $dates[$year][$semester][2] . ' 0:0:0';
+    return array('start' => $start, 'class_begin' => $class_begin, 'end' => $end);
+  }
+  return FALSE;
+}
+
+/**
+ * Only return the values cis cares about, processed.
+ */
+function _cis_example_utility_lti_translation($lti_launch) {
+  $mapping = array(
+    'source' => array(
+      'name' => 'tool_consumer_info_product_family_code',
+    ),
+    'user' => array(
+      'name' => 'user_id',
+      'fname' => 'lis_person_name_given',
+      'lname' => 'lis_person_name_family',
+      'email' => 'lis_person_contact_email_primary',
+      'role' => 'roles',
+    ),
+    'course' => array(
+      'name' => 'context_title',
+      'machine_name' => 'context_title',
+      'title' => 'context_title',
+    ),
+    'section' => array(
+      'string' => 'context_id',
+      'year' => 'context_id',
+      'semester' => 'context_id',
+      'campus' => 'context_id',
+      'number' => 'context_id',
+    ),
+  );
+  // loop through map to create mapping
+  $lti = array();
+  foreach ($mapping as $key => $map) {
+    // set key to array
+    $lti[$key] = array();
+    // set each element in the map
+    foreach($map as $key2 => $map2) {
+      $lti[$key][$key2] = $lti_launch[$map2];
+    }
+    // formulate callback
+    $callback = '_cis_example_utility_lti_process_' . $key;
+    // call specific portion function processing
+    $callback($lti[$key]);
+  }
+  return $lti;
+}
+
+/**
+ * Process the source specific values of the lti launch.
+ */
+function _cis_example_utility_lti_process_source(&$source) {
+  // nothing to process at this time
+}
+
+/**
+ * Process the user specific values of the lti launch.
+ */
+function _cis_example_utility_lti_process_user(&$user) {
+  // convert first / last name to more readable form
+  $user['fname'] = ucfirst(strtolower($user['fname']));
+  $user['lname'] = ucfirst(strtolower($user['lname']));
+}
+
+/**
+ * Process the course specific values of the lti launch.
+ */
+function _cis_example_utility_lti_process_course(&$course) {
+  // convert to course name
+  $tmp = explode(',', $course['name']);
+  // account for multiple white spaces
+  $tmp = preg_replace('!\s+!', ' ', $tmp[0]);
+  // trim more white space and cap correctly
+  $course['name'] = ucwords(strtolower(trim($tmp)));
+  // convert to machine_name
+  $tmp = explode(',', $course['machine_name']);
+  $course['machine_name'] = str_replace(' ', '', strtolower($tmp[0]));
+  // convert to course title
+  $tmp = explode(':', $course['title']);
+  if (count($tmp) == 2) {
+    $course['title'] = ucwords(strtolower(trim($tmp[1])));
+  }
+}
+
+/**
+ * Process the section specific values of the lti launch.
+ * Section data is of the form 201213SPUP
+ */
+function _cis_example_utility_lti_process_section(&$section) {
+  // pull out semester from string
+  $parts = _cis_example_utility_section_parts($section['semester']);
+  // set all values from those calculated above
+  $section['year'] = $parts['year'];
+  $section['semester'] = strtolower($parts['semester']);
+  $section['campus'] = strtolower($parts['campus']);
+  $section['number'] = $parts['number'];
+}
+
+/**
+ * Convert an LMS section identifier into its parts
+ */
+function _cis_example_utility_section_parts($section) {
+  if ($section != '') {
+    $parts = array();
+    // pull out semester from string, replace invalid marker
+    $tmp = explode('_', str_replace('TC_', '', str_replace('MC_', '', $section)));
+    // year is the first 6 characters
+    $tmp = str_split($tmp[0], 6);
+    // pull out year
+    $year = $tmp[0];
+    if (isset($tmp[1])) {
+      // semester / campus are second split
+      $tmp = str_split($tmp[1], 2);
+      // pull out semester code
+      $semester = $tmp[0];
+      // pull out campus code
+      $campus = $tmp[1];
+      // set all values from those calculated above
+      $parts['year'] = $year;
+      $parts['semester'] = $semester;
+      $parts['campus'] = $campus;
+      // pull out section number
+      $tmp = explode('_', $section);
+      // last value in array will be section
+      $parts['number'] = array_pop($tmp);
+      return $parts;
+    }
+  }
+  return FALSE;
+}
+
+/**
+ * Return a list of all campus.
+ */
+function _cis_example_utility_campus_list() {
+  return array(
+    'c1' => 'Campus 1',
+    'c2' => 'Campus 2',
+  );
+}
+
+/**
+ * Return a list of semesters
+ */
+function _cis_example_utility_semester_list() {
+  return array(
+    'fa' => 'Fall',
+    'sp' => 'Spring',
+    'su' => 'Summer',
+  );
+}
+
+// semester conversion for lms request
+function _cis_example_utility_lms_semester_request($semester, $year) {
+  $semester = drupal_strtoupper($semester);
+  // convert su to s1
+  if ($semester == 'SU') {
+    $semester = 'S1';
+  }
+  return $year . $semester;
+}
+
+/**
+ * Convert lms course rights into a logical role name.
+ */
+function _cis_example_utility_convert_lms_role($id) {
+  $role = NULL;
+  switch($id) {
+    case 1:
+      $role = 'student';
+    break;
+    case 2:
+      $role = 'teaching assistant';
+    break;
+    case 3:
+      $role = 'instructor';
+    break;
+  }
+  return $role;
+}
+
+/**
+ * Scrub a name that may have come across incorrectly.
+ */
+function lms_cis_example_utility_scrub_name($name) {
+  // unicode wrappered drupal version of strtolower
+  $tmp = drupal_strtolower($name);
+  // drop whitespace if its in there
+  $tmp = str_replace(' ', '', $tmp);
+  // dump anything non-alphanumeric
+  $tmp = preg_replace('/[^\da-z]/i', '', $tmp);
+  return $tmp;
+}
+
+/**
+ * Convert a name to an email address.
+ */
+function _cis_example_utility_name_to_email($name, $org = '') {
+  return $name . '@' . $org . 'example.com';
+}

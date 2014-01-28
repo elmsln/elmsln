@@ -1,0 +1,4 @@
+name = CIS Example ELMSLN Settings
+description = This contains registry information for all Shared ELMSLN Connections
+core = 7.x
+package = Examples
