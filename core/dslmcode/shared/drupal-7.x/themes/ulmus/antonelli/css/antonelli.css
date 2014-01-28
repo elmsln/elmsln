@@ -1,0 +1,19 @@
+/* $Id */
+
+.region-header .block {
+  float: right; /* LTR */
+  font-size: 0.857em;
+  margin: 0 15px;
+  padding: 0;
+  width: 43.5%;
+}
+.region-header .block-menu {
+  width: 43.5%;
+}
+.region-header #block-user-login .item-list li {
+  padding: 3px 5px 1px 0; /* LTR */
+}
+#search-form input#edit-keys, 
+#block-search-form .form-item-search-block-form input {
+  width: 70%;
+}

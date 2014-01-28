@@ -1,0 +1,394 @@
+/**
+ * block/block.css ====================================================
+ */
+#blocks td.region { font-weight:bold; }
+
+#blocks tr.region-message {
+  font-weight:normal;
+  color:#999;
+  }
+
+#blocks tr.region-populated {
+  display:none;
+  }
+
+/**
+ * openid/openid.css ==================================================
+ */
+div#edit-openid-identifier-wrapper { display:block; }
+
+html.js #user-login-form div.form-item-openid-identifier,
+html.js #user-login div.form-item-openid-identifier { display:none; }
+
+html.js #user-login-form li.openid-link,
+html.js #user-login li.openid-link { display:block; }
+
+#user-login-form li.openid-link,
+#user-login-form li.user-link,
+#user-login li.openid-link,
+#user-login li.user-link { display:none; }
+
+/**
+ * system/system-behavior.css =========================================
+ */
+
+/**
+ * Password strength indicator
+ */
+.password-strength {
+  width:200px;
+  float:right;  /*LTR*/
+  }
+
+.password-strength-title { display:inline; }
+
+.password-strength-text {
+  float:right; /*LTR*/
+  font-weight:bold;
+  }
+
+.password-indicator {
+  background-color:#ccc;
+  height:5px;
+  width:100%;
+  }
+
+.password-indicator div {
+  height:100%;
+  width:0%;
+  background-color:#4c6;
+  }
+
+/**
+ * Password confirmation checker
+ */
+div.password-confirm { visibility: hidden; }
+
+.container-inline div,
+.container-inline label { display:inline; }
+
+.container-inline .fieldset-wrapper { display:block; }
+
+.nowrap { white-space:nowrap; }
+
+html.js .js-hide { display:none; }
+
+.element-hidden { display:none; }
+
+.element-invisible {
+  position:absolute !important;
+  clip:rect(1px 1px 1px 1px); /* IE6, IE7 */
+  clip:rect(1px, 1px, 1px, 1px);
+  }
+
+
+/**
+ * system/system.css ==================================================
+ */
+body.drag { cursor:move; }
+th.active img { display:inline; }
+
+td.active { background-color:#ddd; }
+
+td.checkbox,
+th.checkbox { text-align:center; }
+
+thead th { text-align:auto; }
+
+.error { color:#e55; }
+.warning { color:#e09010; }
+.ok { color:#008000; }
+
+div.error { border:1px solid #d77; }
+div.warning { border:1px solid #f0c020; }
+div.ok { border:1px solid #00aa00; }
+
+div.error,
+tr.error {
+  background:#fcc;
+  color:#200;
+  }
+
+div.warning,
+tr.warning {
+  background:#ffd;
+  color:#220;
+  }
+
+div.ok,
+tr.ok {
+  background:#dfd;
+  color:#020;
+  }
+
+.form-item input.error,
+.form-item textarea.error,
+.form-item select.error {
+  border-style:solid;
+  border-color:red;
+  }
+
+.form-item label {
+  display:block;
+  font-weight:bold;
+  }
+
+.form-item label.option {
+  display:inline;
+  font-weight:normal;
+  }
+
+.marker,
+.form-required { color:#f00; }
+
+.more-link,
+.more-help-link { text-align:right; }
+
+.nowrap { white-space:nowrap; }
+
+.item-list .pager {
+  clear:both;
+  text-align:center;
+  }
+
+.item-list .pager li { display:inline; }
+
+.pager-current { font-weight:bold; }
+
+dl.multiselect dt,
+dl.multiselect dd { float:left; }
+
+dl.multiselect dd.b,
+dl.multiselect dd.b .form-item,
+dl.multiselect dd.b select { width:14em; }
+
+dl.multiselect dd.a,
+dl.multiselect dd.a .form-item { width:8em; }
+
+.container-inline div,
+.container-inline label { display:inline; }
+
+/**
+ * Autocomplete styles
+ */
+#autocomplete {
+  position:absolute;
+  border:1px solid;
+  overflow:hidden;
+  z-index:100;
+  }
+
+#autocomplete li {
+  background:#fff;
+  color:#000;
+  white-space:pre;
+  cursor:default;
+  }
+
+#autocomplete li.selected {
+  background:#0072b9;
+  color:#fff;
+  }
+
+/**
+ * Animated throbber
+ */
+html.js input.throbbing { background:transparent url(drupal/throbber.gif) 100% 50% no-repeat; }
+
+/**
+ * Resizable text areas
+ */
+.form-textarea-wrapper textarea {
+  width: 100%;
+  display: block;
+  -webkit-box-sizing: border-box;
+  -moz-box-sizing: border-box;
+  box-sizing: border-box;
+  }
+
+.resizable textarea { resize:vertical; }
+
+/**
+ * Table drag and drop.
+ */
+.draggable a.tabledrag-handle {
+  cursor:move;
+  float:left;
+  margin-right:10px;
+  text-decoration:none;
+  }
+
+a.tabledrag-handle:hover { text-decoration:none; }
+
+a.tabledrag-handle .handle {
+  height:20px;
+  width:20px;
+  background:url(drupal/draggable.png) 0px 0px no-repeat;
+  }
+
+a.tabledrag-handle-hover .handle { background-position:0px -20px; }
+
+div.indentation {
+  width:20px;
+  height:20px;
+  float:left; /* LTR */
+  }
+
+div.tree-child { background:url(drupal/tree.png) no-repeat 10px 50%; }
+div.tree-child-last { background:url(drupal/tree-bottom.png) no-repeat 10px 50%; }
+div.tree-child-horizontal { background:url(drupal/tree.png) no-repeat -10px 50%; }
+
+/**
+ * Teaser splitter
+ */
+.joined + .grippie {
+  height:5px;
+  margin-bottom:-2px;
+  }
+
+/* Keeps inner content contained in Opera 9. */
+.teaser-checkbox { padding-top:1px; }
+
+div.teaser-button-wrapper {
+  float:right;
+  padding-right:5px;
+  }
+
+.teaser-checkbox div.form-item {
+  float:right;
+  margin-right:5px;
+  }
+
+textarea.teaser { display:none; }
+html.js .no-js { display:none; }
+
+/*
+** Progressbar styles
+*/
+.progress { font-weight:bold; }
+
+.progress .bar {
+  background:#fff url(drupal/progress.gif);
+  border:1px solid #035;
+  height:18px;
+  }
+
+.progress .filled {
+  background:#07b;
+  height:18px;
+  width:0%;
+  }
+
+.progress .percentage { float:right; }
+.progress-disabled { float:left; }
+.ahah-progress { float:left; }
+
+.ahah-progress .throbber {
+  width:20px;
+  height:20px;
+  background:transparent url(drupal/throbber.gif) 50% 50% no-repeat;
+  float:left;
+  }
+
+.ahah-progress-bar { width:16em; }
+
+/**
+ * Formatting for welcome page
+ */
+#first-time strong { display:block; }
+
+/**
+ * To be used with tableselect.js
+ */
+tr.selected td { background:#ffc; }
+
+/**
+ * Floating header for tableheader.js
+ */
+table.sticky-header {
+  margin-top:0px;
+  background:#fff;
+  }
+
+/**
+ * Installation clean URLs
+ */
+#clean-url.install { display:none; }
+
+/**
+ * For anything you want to hide on page load when JS is enabled, so
+ * that you can use the JS to control visibility and avoid flicker.
+ */
+html.js .js-hide { display:none; }
+
+/**
+ * Styles for the system modules page (admin/build/modules)
+ */
+#system-modules div.incompatible,
+#system-themes-form div.incompatible { font-weight:bold; }
+
+/**
+ * Markup free clearing
+ * Details: http://perishablepress.com/press/2009/12/06/new-clearfix-hack
+ */
+.clearfix:after {
+  content: ".";
+  display: block;
+  height: 0;
+  clear: both;
+  visibility: hidden;
+  }
+
+* html .clearfix { height: 1%; } /* IE6 */
+
+*:first-child + html .clearfix { min-height: 1%; } /* IE7 */
+
+/**
+ * update/update.css ==================================================
+ */
+.update .project,
+.update table.version-recommended-strong .version-title { font-weight:bold; }
+
+.update .version-status { float:right; }
+.update .version-status .icon { padding-left:10px; }
+.update .version-date { white-space:nowrap; }
+
+.update tr.error .version-recommended { background: #fdd; }
+.update tr.warning .version-recommended { background: #ffe; }
+
+.current-version,
+.new-version { direction: ltr; /* Note: version numbers should always be LTR. */ }
+
+.update tr.unknown { background: #ddd; }
+.update table.version-security .version-title { color: #910; }
+
+.update .security-error {
+  font-weight: bold;
+  color: #910;
+  }
+
+/**
+ * user/user.css ======================================================
+ */
+#permissions td.module { font-weight: bold; }
+#permissions td.permission { padding-left:20px; }
+
+/**
+ * misc/vertical-tabs.css =============================================
+ */
+.vertical-tabs { padding-left:200px; }
+
+.vertical-tabs .vertical-tabs-list {
+  float:left;
+  width:200px;
+  margin-left:-200px;
+  }
+
+.vertical-tabs .vertical-tabs-panes .vertical-tabs-pane {
+  margin:0px;
+  padding:0px;
+  border:0px;
+  }
+
+.vertical-tabs .vertical-tabs-panes .vertical-tabs-pane legend { display:none; }
+.vertical-tabs .vertical-tabs-list .summary { display:block; }

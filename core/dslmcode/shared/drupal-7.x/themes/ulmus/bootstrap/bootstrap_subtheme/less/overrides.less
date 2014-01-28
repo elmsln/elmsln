@@ -1,0 +1,338 @@
+// Bootstrap variables.
+@import 'variables.less';
+
+// Media query variables.
+@mobile:  ~"(max-width: 767px)";
+@tablet:  ~"(min-width: 768px) and (max-width: 979px)";
+@normal:  ~"(min-width: 980px) and (max-width: 1199px)";
+@wide:    ~"(min-width: 1200px)";
+
+// Border Radius
+.border-radius(@radius) {
+  -webkit-border-radius: @radius;
+     -moz-border-radius: @radius;
+          border-radius: @radius;
+}
+// Drop shadows.
+.box-shadow(@shadow) {
+  -webkit-box-shadow: @shadow;
+     -moz-box-shadow: @shadow;
+          box-shadow: @shadow;
+}
+// Box sizing.
+.box-sizing(@boxmodel) {
+  -webkit-box-sizing: @boxmodel;
+     -moz-box-sizing: @boxmodel;
+          box-sizing: @boxmodel;
+}
+
+html {
+  &.overlay-open .navbar-fixed-top {
+    z-index: 400;
+  }
+  &.js {
+    // Collapsible fieldsets.
+    fieldset.collapsed {
+     height: auto;
+    }
+    // Throbbers.
+    input.form-autocomplete {
+      background-position: 100% 8px; /* LTR */
+      background-repeat: no-repeat;
+    }
+    input.throbbing {
+      background-position: 100% -13px; /* LTR */
+    }
+  }
+}
+body {
+  // Bootstrap manually sets line heights, this should be relative (em) to the
+  // font size, not manually set.
+  &, h1, h2, h3, h4, h5, h6 {
+    line-height: 1.25em;
+  }
+  @media @mobile {
+    // Fix horizontal scrolling on iOS devices.
+    // http://drupal.org/node/1870076
+    position: relative;
+  }
+  @media @normal, @wide {
+    padding-top: 60px;
+  }
+  // Core admin toolbar.
+  &.toolbar .navbar-fixed-top {
+   top: 30px;
+  }
+  &.toolbar-drawer .navbar-fixed-top {
+   top: 65px;
+  }
+  &.admin-expanded.admin-vertical.admin-nw .navbar,
+  &.admin-expanded.admin-vertical.admin-sw .navbar {
+    margin-left: 260px;
+  }
+  div#admin-toolbar {
+    z-index: 500;
+  }
+  @media @normal, @wide {
+    &.toolbar {
+      padding-top: 94px !important;
+    }
+    &.toolbar-drawer {
+      padding-top: 129px !important;
+    }
+  }
+  // Admin_menu toolbar.
+  #admin-menu {
+    .box-shadow(none);
+    margin: 0;
+    padding: 0;
+    position: fixed;
+    z-index: 1100;
+    .dropdown li {
+      line-height: normal;
+    }
+  }
+  &.admin-menu {
+    html & {
+      margin-top: 28px !important;
+    }
+    .navbar-fixed-top {
+      top: 28px;
+    }
+  }
+}
+.footer {
+  margin-top: 45px;
+  padding: 35px 0 36px;
+  border-top: 1px solid #E5E5E5;
+}
+
+// Element invisible fix
+.element-invisible {
+  margin: 0;
+  padding: 0;
+  width: 1px;
+}
+
+// Branding.
+.navbar .logo {
+  margin-top: 5px;
+  margin-right: 10px;
+}
+#site-name {
+  line-height: 1;
+  margin: 0;
+}
+
+// Page header.
+.page-header {
+  margin-top: 0;
+}
+
+// Blocks
+.block {
+  h2.block-title {
+    margin-top: 0;
+  }
+}
+
+// Search form.
+form#search-block-form {
+  margin: 0;
+}
+.navbar #block-search-form {
+  float: right;
+  margin: 5px 0 5px 5px;
+  @media @mobile, @tablet {
+    float: none;
+  }
+}
+fieldset.search-advanced {
+  padding-bottom: 1.5em;
+  margin-top: 1em;
+}
+.navbar-search .control-group {
+  margin-bottom:0px;
+}
+
+// Action Links
+ul.action-links {
+  margin-bottom: 2em;
+  li {
+    display: inline;
+    padding-right: 1.5em;
+  }
+  [class^="icon-"], [class*=" icon-"] {
+    padding-right: 0.5em;
+  }
+}
+
+// Form elements.
+input, textarea, select, .uneditable-input {
+  max-width: 100%;
+  width: auto;
+}
+select, textarea, input[type="text"], input[type="password"], input[type="datetime"], input[type="datetime-local"], input[type="date"], input[type="month"], input[type="time"], input[type="week"], input[type="number"], input[type="email"], input[type="url"], input[type="search"], input[type="tel"], input[type="color"], .uneditable-input {
+  .box-sizing(border-box);
+  height: auto;
+}
+input.error {
+  color: @errorText;
+  border-color: @errorBorder;
+}
+.form-type-checkbox input, .form-type-radio input {
+  float: left;
+}
+.form-actions{
+  clear: both;
+}
+.resizable-textarea textarea {
+  .border-radius(~"4px 4px 0 0");
+}
+.help-block, .control-group .help-inline {
+  color: @placeholderText;
+  font-size: 12px;
+  margin: -8px 0 10px;
+  padding: 0 3px;
+  .description + &,
+  .checkbox + &,
+  .form-type-checkbox + &,
+  .form-type-radio + &,
+  .form-file + &,
+  .resizable-textarea + & {
+    margin-top: 0;
+  }
+}
+
+.input-append {
+  .box-sizing(border-box);
+  padding-right: 40px;
+  width: 100%;
+  input, textarea, select, .uneditable-input {
+    width: 100% !important;
+  }
+}
+
+// Inline containers.
+.container-inline div, .container-inline label {
+  display: block;
+}
+
+// Error containers.
+div.error,
+table tr.error {
+  background-color: @errorBackground;
+  color: @errorText;
+}
+.control-group.error {
+  background: none;
+  label, .control-label {
+    color: @errorText;
+    font-weight: 600;
+  }
+  input, textarea, select, .uneditable-input {
+    color: @errorText;
+    border: 1px solid @inputBorder;
+  }
+  .help-block, .help-inline {
+    color: @placeholderText;
+  }
+}
+
+// Lists
+ul li.collapsed,
+ul li.expanded,
+ul li.leaf {
+  list-style: none;
+  list-style-image: none;
+}
+
+// Vertical tabs.
+.vertical-tabs {
+  .form-type-textfield input {
+    .box-sizing(inherit);
+    width: auto;
+  }
+  .form-item{
+    margin: 1em 0;
+  }
+}
+
+// Submitted
+.submitted {
+  margin-bottom: 1em;
+  font-style: italic;
+  font-weight: normal;
+  color: #777;
+}
+
+// Password strength indicator.
+.password-strength {
+  width: 17em;
+  float: right;  /* LTR */
+  margin-top: 1.4em;
+}
+.password-strength-title {
+  display: inline;
+}
+.password-strength-text {
+  float: right; /* LTR */
+  font-weight: bold;
+}
+.password-indicator {
+  background-color: darken(@grayLighter, 2%);
+  height: 0.3em;
+  width: 100%;
+  div {
+    height: 100%;
+    width: 0%;
+    background-color: @green;
+  }
+}
+input.password-confirm,
+input.password-field {
+  width: 16em;
+  margin-bottom: 0.4em;
+}
+div.password-confirm {
+  float: right;  /* LTR */
+  margin-top: 1.5em;
+  visibility: hidden;
+  width: 17em;
+}
+div.form-item div.password-suggestions {
+  padding: 0.2em 0.5em;
+  margin: 0.7em 0;
+  width: 38.5em;
+  border: 1px solid #B4B4B4;
+}
+div.password-suggestions ul {
+  margin-bottom: 0;
+}
+.confirm-parent,
+.password-parent {
+  clear: left; /* LTR */
+  margin: 0;
+  width: 36.3em;
+}
+
+// Progress bar.
+.progress-wrapper .progress {
+  margin-bottom: 10px;
+  .bar {
+    border: 0 none;
+    margin: 0;
+  }
+}
+
+// Views AJAX pager.
+.pagination ul > li > a {
+  &.progress-disabled {
+    float: left;
+  }
+  .throbber {
+    margin: 0 -0.25em 0 0.5em;
+    position: relative;
+    top: 1px;
+  }
+}

@@ -1,0 +1,1127 @@
+/* Form Buttons */
+
+button,
+input[type="submit"],
+input[type="reset"],
+input[type="button"] {
+/* IE10 */ 
+background-image: -ms-linear-gradient(top, #FFFFFF 0%, #E3E3E3 100%);
+/* Mozilla Firefox */ 
+background-image: -moz-linear-gradient(top, #FFFFFF 0%, #E3E3E3 100%);
+/* Opera */ 
+background-image: -o-linear-gradient(top, #FFFFFF 0%, #E3E3E3 100%);
+/* Webkit (Safari/Chrome 10) */ 
+background-image: -webkit-gradient(linear, left top, left bottom, color-stop(0, #FFFFFF), color-stop(1, #E3E3E3));
+/* Webkit (Chrome 11+) */ 
+background-image: -webkit-linear-gradient(top, #FFFFFF 0%, #E3E3E3 100%);
+/* Proposed W3C Markup */ 
+background-image: linear-gradient(top, #FFFFFF 0%, #E3E3E3 100%);
+/* IE6-9 */ 
+filter:  progid:DXImageTransform.Microsoft.gradient(startColorstr='#FFFFFF', endColorstr='#E3E3E3');
+
+border: 1px solid #dbdbdb;
+-moz-border-radius: 6px; -webkit-border-radius: 6px; -o-border-radius: 6px; -ms-border-radius: 6px; -khtml-border-radius: 6px; border-radius: 6px;
+-moz-box-shadow: inset 0 1px 0 0 white; -webkit-box-shadow: inset 0 1px 0 0 white; -o-box-shadow: inset 0 1px 0 0 white; box-shadow: inset 0 1px 0 0 white;
+color: #333333; text-shadow: 0 1px 0 white; position: relative; font-weight:bold; padding: 8px 1em 9px 1em; }
+
+button:hover,
+input[type="submit"]:hover,
+input[type="reset"]:hover,
+input[type="button"]:hover {
+/* IE10 */ 
+background-image: -ms-linear-gradient(top, #DBDBDB 0%, #F2F2F2 100%);
+/* Mozilla Firefox */ 
+background-image: -moz-linear-gradient(top, #DBDBDB 0%, #F2F2F2 100%);
+/* Opera */ 
+background-image: -o-linear-gradient(top, #DBDBDB 0%, #F2F2F2 100%);
+/* Webkit (Safari/Chrome 10) */ 
+background-image: -webkit-gradient(linear, left top, left bottom, color-stop(0, #DBDBDB), color-stop(1, #F2F2F2));
+/* Webkit (Chrome 11+) */ 
+background-image: -webkit-linear-gradient(top, #DBDBDB 0%, #F2F2F2 100%);
+/* Proposed W3C Markup */ 
+background-image: linear-gradient(top, #DBDBDB 0%, #F2F2F2 100%);
+/* IE6-9 */ 
+filter:  progid:DXImageTransform.Microsoft.gradient(startColorstr='#DBDBDB', endColorstr='#F2F2F2');
+
+-moz-border-radius: 6px; -webkit-border-radius: 6px; -o-border-radius: 6px; -ms-border-radius: 6px; -khtml-border-radius: 6px; border-radius: 6px;
+-moz-box-shadow: inset 0 1px 0 0 white;
+-webkit-box-shadow: inset 0 1px 0 0 white;
+-o-box-shadow: inset 0 1px 0 0 white;
+box-shadow: inset 0 1px 0 0 white;
+cursor: pointer; }
+
+button.full-width,
+input[type="submit"].full-width,
+input[type="reset"].full-width,
+input[type="button"].full-width { 
+width: 100%; padding-left: 0 !important; padding-right: 0 !important; text-align: center; }
+
+a.button, #main a.button  { text-decoration:none; }
+
+.button-alt,
+.button,
+.button.small,
+.button.large,
+.button.medium { background-image: none; padding: 8px 1em 9px 1em; margin: 0; display: inline-block; font-stretch: narrower;
+font-weight: bolder; text-align: center; text-decoration: none; }
+
+.button.left { float: left; }
+
+.button.right { float: right; }
+
+.button.center,.button.middle { margin: 0px auto; text-align: center; display: inherit; }
+
+.button-alt a,.button a,.button.small a { font-size: .9em; line-height: 14px; text-decoration:none; }
+
+.button.medium a { font-size: 1.2em; line-height: 20px; }
+
+.button.large a { font-size: 1.5em; line-height: 24px; }
+
+/* Default (Blue)  */
+
+#bbp_reply_submit { padding: 10px 20px; font-size: 14px; }
+
+a.button, #bbp_reply_submit {
+/* IE10 */ 
+background-image: -ms-linear-gradient(top, #597db1 0%, #3a6198 100%);
+/* Mozilla Firefox */ 
+background-image: -moz-linear-gradient(top, #597db1 0%, #3a6198 100%);
+/* Opera */ 
+background-image: -o-linear-gradient(top, #597db1 0%, #3a6198 100%);
+/* Webkit (Safari/Chrome 10) */ 
+background-image: -webkit-gradient(linear, left top, left bottom, color-stop(0, #597db1), color-stop(1, #3a6198));
+/* Webkit (Chrome 11+) */ 
+background-image: -webkit-linear-gradient(top, #597db1 0%, #3a6198 100%);
+/* Proposed W3C Markup */ 
+background-image: linear-gradient(top, #597db1 0%, #3a6198 100%);
+/* IE6-9 */ 
+filter:  progid:DXImageTransform.Microsoft.gradient(startColorstr='#597db1', endColorstr='#3a6198');
+
+border: 1px solid #3b639b;
+-moz-border-radius: 6px;
+-webkit-border-radius: 6px;
+-o-border-radius: 6px;
+-ms-border-radius: 6px;
+-khtml-border-radius: 6px;
+border-radius: 6px;
+-moz-box-shadow: inset 0 1px 0 0 #7d99bf;
+-webkit-box-shadow: inset 0 1px 0 0 #7d99bf;
+-o-box-shadow: inset 0 1px 0 0 #7d99bf;
+box-shadow: inset 0 1px 0 0 #7d99bf;
+color: white;
+text-shadow: 0 1px 0 #2a4f83;
+position: relative;
+}
+a.button:hover,#bbp_reply_submit:hover {
+/* IE10 */ 
+background-image: -ms-linear-gradient(top, #365a8c 0%, #51719e 100%);
+/* Mozilla Firefox */ 
+background-image: -moz-linear-gradient(top, #365a8c 0%, #51719e 100%);
+/* Opera */ 
+background-image: -o-linear-gradient(top, #365a8c 0%, #51719e 100%);
+/* Webkit (Safari/Chrome 10) */ 
+background-image: -webkit-gradient(linear, left top, left bottom, color-stop(0, #365a8c), color-stop(1, #51719e));
+/* Webkit (Chrome 11+) */ 
+background-image: -webkit-linear-gradient(top, #365a8c 0%, #51719e 100%);
+/* Proposed W3C Markup */ 
+background-image: linear-gradient(top, #365a8c 0%, #51719e 100%);
+/* IE6-9 */ 
+filter:  progid:DXImageTransform.Microsoft.gradient(startColorstr='#365a8c', endColorstr='#51719e');
+
+-moz-box-shadow: inset 0 1px 0 0 #728cb1;
+-webkit-box-shadow: inset 0 1px 0 0 #728cb1;
+-o-box-shadow: inset 0 1px 0 0 #728cb1;
+box-shadow: inset 0 1px 0 0 #728cb1;
+cursor: pointer;
+}
+a.button:active {
+-moz-box-shadow: inset 0 0 8px 4px #335380, inset 0 0 8px 4px #335380, 0 1px 1px 0 #eeeeee;
+-webkit-box-shadow: inset 0 0 8px 4px #335380, inset 0 0 8px 4px #335380, 0 1px 1px 0 #eeeeee;
+-o-box-shadow: inset 0 0 8px 4px #335380, inset 0 0 8px 4px #335380, 0 1px 1px 0 #eeeeee;
+box-shadow: inset 0 0 8px 4px #335380, inset 0 0 8px 4px #335380, 0 1px 1px 0 #eeeeee;
+border: 1px solid #355a8d;
+}
+a.button span.btn_caption {
+color: #9ab5da;
+text-shadow: 0 1px 0 #2a4f83;
+}
+
+/* White Button */
+a.button.white {
+background:none;
+/* IE10 */ 
+background-image: -ms-linear-gradient(top, #FFFFFF 0%, #E3E3E3 100%);
+/* Mozilla Firefox */ 
+background-image: -moz-linear-gradient(top, #FFFFFF 0%, #E3E3E3 100%);
+/* Opera */ 
+background-image: -o-linear-gradient(top, #FFFFFF 0%, #E3E3E3 100%);
+/* Webkit (Safari/Chrome 10) */ 
+background-image: -webkit-gradient(linear, left top, left bottom, color-stop(0, #FFFFFF), color-stop(1, #E3E3E3));
+/* Webkit (Chrome 11+) */ 
+background-image: -webkit-linear-gradient(top, #FFFFFF 0%, #E3E3E3 100%);
+/* Proposed W3C Markup */ 
+background-image: linear-gradient(top, #FFFFFF 0%, #E3E3E3 100%);
+/* IE6-9 */ 
+filter:  progid:DXImageTransform.Microsoft.gradient(startColorstr='#FFFFFF', endColorstr='#E3E3E3');
+
+border: 1px solid #dbdbdb;
+-moz-border-radius: 6px; -webkit-border-radius: 6px; -o-border-radius: 6px; -ms-border-radius: 6px; -khtml-border-radius: 6px; border-radius: 6px;
+-moz-box-shadow: inset 0 1px 0 0 white; -webkit-box-shadow: inset 0 1px 0 0 white; -o-box-shadow: inset 0 1px 0 0 white; box-shadow: inset 0 1px 0 0 white;
+color: #333333; text-shadow: 0 1px 0 white; position: relative; }
+
+a.button.white:hover {
+/* IE10 */ 
+background-image: -ms-linear-gradient(top, #DBDBDB 0%, #F2F2F2 100%);
+/* Mozilla Firefox */ 
+background-image: -moz-linear-gradient(top, #DBDBDB 0%, #F2F2F2 100%);
+/* Opera */ 
+background-image: -o-linear-gradient(top, #DBDBDB 0%, #F2F2F2 100%);
+/* Webkit (Safari/Chrome 10) */ 
+background-image: -webkit-gradient(linear, left top, left bottom, color-stop(0, #DBDBDB), color-stop(1, #F2F2F2));
+/* Webkit (Chrome 11+) */ 
+background-image: -webkit-linear-gradient(top, #DBDBDB 0%, #F2F2F2 100%);
+/* Proposed W3C Markup */ 
+background-image: linear-gradient(top, #DBDBDB 0%, #F2F2F2 100%);
+/* IE6-9 */ 
+filter:  progid:DXImageTransform.Microsoft.gradient(startColorstr='#DBDBDB', endColorstr='#F2F2F2');
+
+-moz-border-radius: 6px; -webkit-border-radius: 6px; -o-border-radius: 6px; -ms-border-radius: 6px; -khtml-border-radius: 6px; border-radius: 6px;
+-moz-box-shadow: inset 0 1px 0 0 white;
+-webkit-box-shadow: inset 0 1px 0 0 white;
+-o-box-shadow: inset 0 1px 0 0 white;
+box-shadow: inset 0 1px 0 0 white;
+cursor: pointer;
+}
+a.button.white:active {
+-moz-box-shadow: inset 0 0 8px 4px #d4d4d4, inset 0 0 8px 4px #d4d4d4, 0 1px 1px 0 #eeeeee;
+-webkit-box-shadow: inset 0 0 8px 4px #d4d4d4, inset 0 0 8px 4px #d4d4d4, 0 1px 1px 0 #eeeeee;
+-o-box-shadow: inset 0 0 8px 4px #d4d4d4, inset 0 0 8px 4px #d4d4d4, 0 1px 1px 0 #eeeeee;
+box-shadow: inset 0 0 8px 4px #d4d4d4, inset 0 0 8px 4px #d4d4d4, 0 1px 1px 0 #eeeeee;
+border: 1px solid #c2c2c2;
+}
+
+/* Gray Button */
+a.button.gray {
+/* IE10 */ 
+background-image: -ms-linear-gradient(top, #e6e6e6 0%, #c9c9c9 100%);
+/* Mozilla Firefox */ 
+background-image: -moz-linear-gradient(top, #e6e6e6 0%, #c9c9c9 100%);
+/* Opera */ 
+background-image: -o-linear-gradient(top, #e6e6e6 0%, #c9c9c9 100%);
+/* Webkit (Safari/Chrome 10) */ 
+background-image: -webkit-gradient(linear, left top, left bottom, color-stop(0, #e6e6e6), color-stop(1, #c9c9c9));
+/* Webkit (Chrome 11+) */ 
+background-image: -webkit-linear-gradient(top, #e6e6e6 0%, #c9c9c9 100%);
+/* Proposed W3C Markup */ 
+background-image: linear-gradient(top, #e6e6e6 0%, #c9c9c9 100%);
+/* IE6-9 */ 
+filter:  progid:DXImageTransform.Microsoft.gradient(startColorstr='#e6e6e6', endColorstr='#c9c9c9');
+
+border: 1px solid #c2c2c2;
+-moz-border-radius: 6px;
+-webkit-border-radius: 6px;
+-o-border-radius: 6px;
+-ms-border-radius: 6px;
+-khtml-border-radius: 6px;
+border-radius: 6px;
+-moz-box-shadow: inset 0 1px 0 0 white;
+-webkit-box-shadow: inset 0 1px 0 0 white;
+-o-box-shadow: inset 0 1px 0 0 white;
+box-shadow: inset 0 1px 0 0 white;
+color: #333333;
+text-shadow: 0 1px 0 #f1eeee;
+position: relative;
+}
+a.button.gray:hover {
+/* IE10 */ 
+background-image: -ms-linear-gradient(top, #c2c2c2 0%, #d9d9d9 100%);
+/* Mozilla Firefox */ 
+background-image: -moz-linear-gradient(top, #c2c2c2 0%, #d9d9d9 100%);
+/* Opera */ 
+background-image: -o-linear-gradient(top, #c2c2c2 0%, #d9d9d9 100%);
+/* Webkit (Safari/Chrome 10) */ 
+background-image: -webkit-gradient(linear, left top, left bottom, color-stop(0, #c2c2c2), color-stop(1, #d9d9d9));
+/* Webkit (Chrome 11+) */ 
+background-image: -webkit-linear-gradient(top, #c2c2c2 0%, #d9d9d9 100%);
+/* Proposed W3C Markup */ 
+background-image: linear-gradient(top, #c2c2c2 0%, #d9d9d9 100%);
+/* IE6-9 */ 
+filter:  progid:DXImageTransform.Microsoft.gradient(startColorstr='#c2c2c2', endColorstr='#d9d9d9');
+
+-moz-box-shadow: inset 0 1px 0 0 #f2f2f2;
+-webkit-box-shadow: inset 0 1px 0 0 #f2f2f2;
+-o-box-shadow: inset 0 1px 0 0 #f2f2f2;
+box-shadow: inset 0 1px 0 0 #f2f2f2;
+cursor: pointer;
+}
+a.button.gray:active {
+-moz-box-shadow: inset 0 0 8px 4px #bababa, inset 0 0 8px 4px #bababa, 0 1px 1px 0 #eeeeee;
+-webkit-box-shadow: inset 0 0 8px 4px #bababa, inset 0 0 8px 4px #bababa, 0 1px 1px 0 #eeeeee;
+-o-box-shadow: inset 0 0 8px 4px #bababa, inset 0 0 8px 4px #bababa, 0 1px 1px 0 #eeeeee;
+box-shadow: inset 0 0 8px 4px #bababa, inset 0 0 8px 4px #bababa, 0 1px 1px 0 #eeeeee;
+border: 1px solid #a8a8a8;
+}
+a.button.gray span.btn_caption {
+color: #666666;
+text-shadow: 0 1px 0 #f1eeee;
+}
+
+/* Black Button  */
+a.button.black {
+/* IE10 */ 
+background-image: -ms-linear-gradient(top, #404040 0%, #242424 100%);
+/* Mozilla Firefox */ 
+background-image: -moz-linear-gradient(top, #404040 0%, #242424 100%);
+/* Opera */ 
+background-image: -o-linear-gradient(top, #404040 0%, #242424 100%);
+/* Webkit (Safari/Chrome 10) */ 
+background-image: -webkit-gradient(linear, left top, left bottom, color-stop(0, #404040), color-stop(1, #242424));
+/* Webkit (Chrome 11+) */ 
+background-image: -webkit-linear-gradient(top, #404040 0%, #242424 100%);
+/* Proposed W3C Markup */ 
+background-image: linear-gradient(top, #404040 0%, #242424 100%);
+/* IE6-9 */ 
+filter:  progid:DXImageTransform.Microsoft.gradient(startColorstr='#404040', endColorstr='#242424');
+
+border: 1px solid #1c1c1c;
+-moz-border-radius: 6px;
+-webkit-border-radius: 6px;
+-o-border-radius: 6px;
+-ms-border-radius: 6px;
+-khtml-border-radius: 6px;
+border-radius: 6px;
+-moz-box-shadow: inset 0 1px 0 0 #595959;
+-webkit-box-shadow: inset 0 1px 0 0 #595959;
+-o-box-shadow: inset 0 1px 0 0 #595959;
+box-shadow: inset 0 1px 0 0 #595959;
+color: white;
+text-shadow: 0 1px 0 #150f0f;
+position: relative;
+}
+a.button.black:hover {
+/* IE10 */ 
+background-image: -ms-linear-gradient(top, #1c1c1c 0%, #333333 100%);
+/* Mozilla Firefox */ 
+background-image: -moz-linear-gradient(top, #1c1c1c 0%, #333333 100%);
+/* Opera */ 
+background-image: -o-linear-gradient(top, #1c1c1c 0%, #333333 100%);
+/* Webkit (Safari/Chrome 10) */ 
+background-image: -webkit-gradient(linear, left top, left bottom, color-stop(0, #1c1c1c), color-stop(1, #333333));
+/* Webkit (Chrome 11+) */ 
+background-image: -webkit-linear-gradient(top, #1c1c1c 0%, #333333 100%);
+/* Proposed W3C Markup */ 
+background-image: linear-gradient(top, #1c1c1c 0%, #333333 100%);
+/* IE6-9 */ 
+filter:  progid:DXImageTransform.Microsoft.gradient(startColorstr='#1c1c1c', endColorstr='#333333');
+
+-moz-box-shadow: inset 0 1px 0 0 #4d4d4d;
+-webkit-box-shadow: inset 0 1px 0 0 #4d4d4d;
+-o-box-shadow: inset 0 1px 0 0 #4d4d4d;
+box-shadow: inset 0 1px 0 0 #4d4d4d;
+cursor: pointer;
+}
+a.button.black:active {
+-moz-box-shadow: inset 0 0 8px 4px #141414, inset 0 0 8px 4px #141414, 0 1px 1px 0 #eeeeee;
+-webkit-box-shadow: inset 0 0 8px 4px #141414, inset 0 0 8px 4px #141414, 0 1px 1px 0 #eeeeee;
+-o-box-shadow: inset 0 0 8px 4px #141414, inset 0 0 8px 4px #141414, 0 1px 1px 0 #eeeeee;
+box-shadow: inset 0 0 8px 4px #141414, inset 0 0 8px 4px #141414, 0 1px 1px 0 #eeeeee;
+border: 1px solid #030303;
+}
+a.button.black span.btn_caption {
+color: #bfbfbf;
+text-shadow: 0 1px 0 #150f0f;
+}
+
+/* Light Blue Button  */
+a.button-alt,a.button.lightblue {
+/* IE10 */ 
+background-image: -ms-linear-gradient(top, #5aa1d8 0%, #2489d6 100%);
+/* Mozilla Firefox */ 
+background-image: -moz-linear-gradient(top, #5aa1d8 0%, #2489d6 100%);
+/* Opera */ 
+background-image: -o-linear-gradient(top, #5aa1d8 0%, #2489d6 100%);
+/* Webkit (Safari/Chrome 10) */ 
+background-image: -webkit-gradient(linear, left top, left bottom, color-stop(0, #5aa1d8), color-stop(1, #2489d6));
+/* Webkit (Chrome 11+) */ 
+background-image: -webkit-linear-gradient(top, #5aa1d8 0%, #2489d6 100%);
+/* Proposed W3C Markup */ 
+background-image: linear-gradient(top, #5aa1d8 0%, #2489d6 100%);
+/* IE6-9 */ 
+filter:  progid:DXImageTransform.Microsoft.gradient(startColorstr='#5aa1d8', endColorstr='#2489d6');
+
+border: 1px solid #258cda;
+-moz-border-radius: 6px;
+-webkit-border-radius: 6px;
+-o-border-radius: 6px;
+-ms-border-radius: 6px;
+-khtml-border-radius: 6px;
+border-radius: 6px;
+-moz-box-shadow: inset 0 1px 0 0 #85b9e0;
+-webkit-box-shadow: inset 0 1px 0 0 #85b9e0;
+-o-box-shadow: inset 0 1px 0 0 #85b9e0;
+box-shadow: inset 0 1px 0 0 #85b9e0;
+color: white;
+text-shadow: 0 1px 0 #1976be;
+position: relative;
+}
+a.button-alt:hover,
+a.button.lightblue:hover {
+/* IE10 */ 
+background-image: -ms-linear-gradient(top, #2380c7 0%, #4a95cf 100%);
+/* Mozilla Firefox */ 
+background-image: -moz-linear-gradient(top, #2380c7 0%, #4a95cf 100%);
+/* Opera */ 
+background-image: -o-linear-gradient(top, #2380c7 0%, #4a95cf 100%);
+/* Webkit (Safari/Chrome 10) */ 
+background-image: -webkit-gradient(linear, left top, left bottom, color-stop(0, #2380c7), color-stop(1, #4a95cf));
+/* Webkit (Chrome 11+) */ 
+background-image: -webkit-linear-gradient(top, #2380c7 0%, #4a95cf 100%);
+/* Proposed W3C Markup */ 
+background-image: linear-gradient(top, #2380c7 0%, #4a95cf 100%);
+/* IE6-9 */ 
+filter:  progid:DXImageTransform.Microsoft.gradient(startColorstr='#2380c7', endColorstr='#4a95cf');
+
+-moz-box-shadow: inset 0 1px 0 0 #75acd7;
+-webkit-box-shadow: inset 0 1px 0 0 #75acd7;
+-o-box-shadow: inset 0 1px 0 0 #75acd7;
+box-shadow: inset 0 1px 0 0 #75acd7;
+cursor: pointer;
+}
+a.button-alt:active,
+a.button.lightblue:active {
+-moz-box-shadow: inset 0 0 8px 4px #2278b9, inset 0 0 8px 4px #2278b9, 0 1px 1px 0 #eeeeee;
+-webkit-box-shadow: inset 0 0 8px 4px #2278b9, inset 0 0 8px 4px #2278b9, 0 1px 1px 0 #eeeeee;
+-o-box-shadow: inset 0 0 8px 4px #2278b9, inset 0 0 8px 4px #2278b9, 0 1px 1px 0 #eeeeee;
+box-shadow: inset 0 0 8px 4px #2278b9, inset 0 0 8px 4px #2278b9, 0 1px 1px 0 #eeeeee;
+border: 1px solid #2280c9;
+}
+a.button.lightblue span.btn_caption {
+color: #acd3f1;
+text-shadow: 0 1px 0 #1976be;
+}
+
+/* Blue Button */
+a.button.blue {
+/* IE10 */ 
+background-image: -ms-linear-gradient(top, #597db1 0%, #3a6198 100%);
+/* Mozilla Firefox */ 
+background-image: -moz-linear-gradient(top, #597db1 0%, #3a6198 100%);
+/* Opera */ 
+background-image: -o-linear-gradient(top, #597db1 0%, #3a6198 100%);
+/* Webkit (Safari/Chrome 10) */ 
+background-image: -webkit-gradient(linear, left top, left bottom, color-stop(0, #597db1), color-stop(1, #3a6198));
+/* Webkit (Chrome 11+) */ 
+background-image: -webkit-linear-gradient(top, #597db1 0%, #3a6198 100%);
+/* Proposed W3C Markup */ 
+background-image: linear-gradient(top, #597db1 0%, #3a6198 100%);
+/* IE6-9 */ 
+filter:  progid:DXImageTransform.Microsoft.gradient(startColorstr='#597db1', endColorstr='#3a6198');
+
+border: 1px solid #3b639b;
+-moz-border-radius: 6px;
+-webkit-border-radius: 6px;
+-o-border-radius: 6px;
+-ms-border-radius: 6px;
+-khtml-border-radius: 6px;
+border-radius: 6px;
+-moz-box-shadow: inset 0 1px 0 0 #7d99bf;
+-webkit-box-shadow: inset 0 1px 0 0 #7d99bf;
+-o-box-shadow: inset 0 1px 0 0 #7d99bf;
+box-shadow: inset 0 1px 0 0 #7d99bf;
+color: white;
+text-shadow: 0 1px 0 #2a4f83;
+position: relative;
+}
+a.button.blue:hover {
+/* IE10 */ 
+background-image: -ms-linear-gradient(top, #365a8c 0%, #51719e 100%);
+/* Mozilla Firefox */ 
+background-image: -moz-linear-gradient(top, #365a8c 0%, #51719e 100%);
+/* Opera */ 
+background-image: -o-linear-gradient(top, #365a8c 0%, #51719e 100%);
+/* Webkit (Safari/Chrome 10) */ 
+background-image: -webkit-gradient(linear, left top, left bottom, color-stop(0, #365a8c), color-stop(1, #51719e));
+/* Webkit (Chrome 11+) */ 
+background-image: -webkit-linear-gradient(top, #365a8c 0%, #51719e 100%);
+/* Proposed W3C Markup */ 
+background-image: linear-gradient(top, #365a8c 0%, #51719e 100%);
+/* IE6-9 */ 
+filter:  progid:DXImageTransform.Microsoft.gradient(startColorstr='#365a8c', endColorstr='#51719e');
+
+-moz-box-shadow: inset 0 1px 0 0 #728cb1;
+-webkit-box-shadow: inset 0 1px 0 0 #728cb1;
+-o-box-shadow: inset 0 1px 0 0 #728cb1;
+box-shadow: inset 0 1px 0 0 #728cb1;
+cursor: pointer;
+}
+a.button.blue:active {
+-moz-box-shadow: inset 0 0 8px 4px #335380, inset 0 0 8px 4px #335380, 0 1px 1px 0 #eeeeee;
+-webkit-box-shadow: inset 0 0 8px 4px #335380, inset 0 0 8px 4px #335380, 0 1px 1px 0 #eeeeee;
+-o-box-shadow: inset 0 0 8px 4px #335380, inset 0 0 8px 4px #335380, 0 1px 1px 0 #eeeeee;
+box-shadow: inset 0 0 8px 4px #335380, inset 0 0 8px 4px #335380, 0 1px 1px 0 #eeeeee;
+border: 1px solid #355a8d;
+}
+a.button.blue span.btn_caption {
+color: #9ab5da;
+text-shadow: 0 1px 0 #2a4f83;
+}
+
+/* Dark Blue Button */
+a.button.darkblue {
+/* IE10 */ 
+background-image: -ms-linear-gradient(top, #3054a1 0%, #1c3b7d 100%);
+/* Mozilla Firefox */ 
+background-image: -moz-linear-gradient(top, #3054a1 0%, #1c3b7d 100%);
+/* Opera */ 
+background-image: -o-linear-gradient(top, #3054a1 0%, #1c3b7d 100%);
+/* Webkit (Safari/Chrome 10) */ 
+background-image: -webkit-gradient(linear, left top, left bottom, color-stop(0, #3054a1), color-stop(1, #1c3b7d));
+/* Webkit (Chrome 11+) */ 
+background-image: -webkit-linear-gradient(top, #3054a1 0%, #1c3b7d 100%);
+/* Proposed W3C Markup */ 
+background-image: linear-gradient(top, #3054a1 0%, #1c3b7d 100%);
+/* IE6-9 */ 
+filter:  progid:DXImageTransform.Microsoft.gradient(startColorstr='#3054a1', endColorstr='#1c3b7d');
+
+border: 1px solid #1d3d81;
+-moz-border-radius: 6px;
+-webkit-border-radius: 6px;
+-o-border-radius: 6px;
+-ms-border-radius: 6px;
+-khtml-border-radius: 6px;
+border-radius: 6px;
+-moz-box-shadow: inset 0 1px 0 0 #416ac3;
+-webkit-box-shadow: inset 0 1px 0 0 #416ac3;
+-o-box-shadow: inset 0 1px 0 0 #416ac3;
+box-shadow: inset 0 1px 0 0 #416ac3;
+color: white;
+text-shadow: 0 1px 0 #122c63;
+position: relative;
+}
+a.button.darkblue:hover {
+/* IE10 */ 
+background-image: -ms-linear-gradient(top, #1a3570 0%, #2e4b8a 100%);
+/* Mozilla Firefox */ 
+background-image: -moz-linear-gradient(top, #1a3570 0%, #2e4b8a 100%);
+/* Opera */ 
+background-image: -o-linear-gradient(top, #1a3570 0%, #2e4b8a 100%);
+/* Webkit (Safari/Chrome 10) */ 
+background-image: -webkit-gradient(linear, left top, left bottom, color-stop(0, #1a3570), color-stop(1, #2e4b8a));
+/* Webkit (Chrome 11+) */ 
+background-image: -webkit-linear-gradient(top, #1a3570 0%, #2e4b8a 100%);
+/* Proposed W3C Markup */ 
+background-image: linear-gradient(top, #1a3570 0%, #2e4b8a 100%);
+/* IE6-9 */ 
+filter:  progid:DXImageTransform.Microsoft.gradient(startColorstr='#1a3570', endColorstr='#2e4b8a');
+
+-moz-box-shadow: inset 0 1px 0 0 #3e61ac;
+-webkit-box-shadow: inset 0 1px 0 0 #3e61ac;
+-o-box-shadow: inset 0 1px 0 0 #3e61ac;
+box-shadow: inset 0 1px 0 0 #3e61ac;
+cursor: pointer;
+}
+a.button.darkblue:active {
+-moz-box-shadow: inset 0 0 8px 4px #183063, inset 0 0 8px 4px #183063, 0 1px 1px 0 #eeeeee;
+-webkit-box-shadow: inset 0 0 8px 4px #183063, inset 0 0 8px 4px #183063, 0 1px 1px 0 #eeeeee;
+-o-box-shadow: inset 0 0 8px 4px #183063, inset 0 0 8px 4px #183063, 0 1px 1px 0 #eeeeee;
+box-shadow: inset 0 0 8px 4px #183063, inset 0 0 8px 4px #183063, 0 1px 1px 0 #eeeeee;
+border: 1px solid #193570;
+}
+a.button.darkblue span.btn_caption {
+color: #6087dc;
+text-shadow: 0 1px 0 #122c63;
+}
+
+/* Light Green Button */
+a.button.lightgreen {
+/* IE10 */ 
+background-image: -ms-linear-gradient(top, #80bf4f 0%, #63a72f 100%);
+/* Mozilla Firefox */ 
+background-image: -moz-linear-gradient(top, #80bf4f 0%, #63a72f 100%);
+/* Opera */ 
+background-image: -o-linear-gradient(top, #80bf4f 0%, #63a72f 100%);
+/* Webkit (Safari/Chrome 10) */ 
+background-image: -webkit-gradient(linear, left top, left bottom, color-stop(0, #80bf4f), color-stop(1, #63a72f));
+/* Webkit (Chrome 11+) */ 
+background-image: -webkit-linear-gradient(top, #80bf4f 0%, #63a72f 100%);
+/* Proposed W3C Markup */ 
+background-image: linear-gradient(top, #80bf4f 0%, #63a72f 100%);
+/* IE6-9 */ 
+filter:  progid:DXImageTransform.Microsoft.gradient(startColorstr='#80bf4f', endColorstr='#63a72f');
+
+border: 1px solid #65ab30;
+-moz-border-radius: 6px;
+-webkit-border-radius: 6px;
+-o-border-radius: 6px;
+-ms-border-radius: 6px;
+-khtml-border-radius: 6px;
+border-radius: 6px;
+-moz-box-shadow: inset 0 1px 0 0 #9bcb76;
+-webkit-box-shadow: inset 0 1px 0 0 #9bcb76;
+-o-box-shadow: inset 0 1px 0 0 #9bcb76;
+box-shadow: inset 0 1px 0 0 #9bcb76;
+color: white;
+text-shadow: 0 1px 0 #529122;
+position: relative;
+}
+a.button.lightgreen:hover {
+/* IE10 */ 
+background-image: -ms-linear-gradient(top, #5c9a2d 0%, #73af46 100%);
+/* Mozilla Firefox */ 
+background-image: -moz-linear-gradient(top, #5c9a2d 0%, #73af46 100%);
+/* Opera */ 
+background-image: -o-linear-gradient(top, #5c9a2d 0%, #73af46 100%);
+/* Webkit (Safari/Chrome 10) */ 
+background-image: -webkit-gradient(linear, left top, left bottom, color-stop(0, #5c9a2d), color-stop(1, #73af46));
+/* Webkit (Chrome 11+) */ 
+background-image: -webkit-linear-gradient(top, #5c9a2d 0%, #73af46 100%);
+/* Proposed W3C Markup */ 
+background-image: linear-gradient(top, #5c9a2d 0%, #73af46 100%);
+/* IE6-9 */ 
+filter:  progid:DXImageTransform.Microsoft.gradient(startColorstr='#5c9a2d', endColorstr='#73af46');
+
+-moz-box-shadow: inset 0 1px 0 0 #8ebf69;
+-webkit-box-shadow: inset 0 1px 0 0 #8ebf69;
+-o-box-shadow: inset 0 1px 0 0 #8ebf69;
+box-shadow: inset 0 1px 0 0 #8ebf69;
+cursor: pointer;
+}
+a.button.lightgreen:active {
+-moz-box-shadow: inset 0 0 8px 4px #558d2a, inset 0 0 8px 4px #558d2a, 0 1px 1px 0 #eeeeee;
+-webkit-box-shadow: inset 0 0 8px 4px #558d2a, inset 0 0 8px 4px #558d2a, 0 1px 1px 0 #eeeeee;
+-o-box-shadow: inset 0 0 8px 4px #558d2a, inset 0 0 8px 4px #558d2a, 0 1px 1px 0 #eeeeee;
+box-shadow: inset 0 0 8px 4px #558d2a, inset 0 0 8px 4px #558d2a, 0 1px 1px 0 #eeeeee;
+border: 1px solid #5c9b2c;
+}
+a.button.lightgreen span.btn_caption {
+color: #b8e297;
+text-shadow: 0 1px 0 #529122;
+}
+
+/* Green Button */
+a.button.green {
+/* IE10 */ 
+background-image: -ms-linear-gradient(top, #668b46 0%, #4a6d2c 100%);
+/* Mozilla Firefox */ 
+background-image: -moz-linear-gradient(top, #668b46 0%, #4a6d2c 100%);
+/* Opera */ 
+background-image: -o-linear-gradient(top, #668b46 0%, #4a6d2c 100%);
+/* Webkit (Safari/Chrome 10) */ 
+background-image: -webkit-gradient(linear, left top, left bottom, color-stop(0, #668b46), color-stop(1, #4a6d2c));
+/* Webkit (Chrome 11+) */ 
+background-image: -webkit-linear-gradient(top, #668b46 0%, #4a6d2c 100%);
+/* Proposed W3C Markup */ 
+background-image: linear-gradient(top, #668b46 0%, #4a6d2c 100%);
+/* IE6-9 */ 
+filter:  progid:DXImageTransform.Microsoft.gradient(startColorstr='#668b46', endColorstr='#4a6d2c');
+
+border: 1px solid #4d702e;
+-moz-border-radius: 6px;
+-webkit-border-radius: 6px;
+-o-border-radius: 6px;
+-ms-border-radius: 6px;
+-khtml-border-radius: 6px;
+border-radius: 6px;
+-moz-box-shadow: inset 0 1px 0 0 #7fa95b;
+-webkit-box-shadow: inset 0 1px 0 0 #7fa95b;
+-o-box-shadow: inset 0 1px 0 0 #7fa95b;
+box-shadow: inset 0 1px 0 0 #7fa95b;
+color: white;
+text-shadow: 0 1px 0 #39571e;
+position: relative;
+}
+a.button.green:hover {
+/* IE10 */ 
+background-image: -ms-linear-gradient(top, #436129 0%, #5a7641 100%);
+/* Mozilla Firefox */ 
+background-image: -moz-linear-gradient(top, #436129 0%, #5a7641 100%);
+/* Opera */ 
+background-image: -o-linear-gradient(top, #436129 0%, #5a7641 100%);
+/* Webkit (Safari/Chrome 10) */ 
+background-image: -webkit-gradient(linear, left top, left bottom, color-stop(0, #436129), color-stop(1, #5a7641));
+/* Webkit (Chrome 11+) */ 
+background-image: -webkit-linear-gradient(top, #436129 0%, #5a7641 100%);
+/* Proposed W3C Markup */ 
+background-image: linear-gradient(top, #436129 0%, #5a7641 100%);
+/* IE6-9 */ 
+filter:  progid:DXImageTransform.Microsoft.gradient(startColorstr='#436129', endColorstr='#5a7641');
+
+-moz-box-shadow: inset 0 1px 0 0 #739457;
+-webkit-box-shadow: inset 0 1px 0 0 #739457;
+-o-box-shadow: inset 0 1px 0 0 #739457;
+box-shadow: inset 0 1px 0 0 #739457;
+cursor: pointer;
+}
+a.button.green:active {
+-moz-box-shadow: inset 0 0 8px 4px #3c5625, inset 0 0 8px 4px #3c5625, 0 1px 1px 0 #eeeeee;
+-webkit-box-shadow: inset 0 0 8px 4px #3c5625, inset 0 0 8px 4px #3c5625, 0 1px 1px 0 #eeeeee;
+-o-box-shadow: inset 0 0 8px 4px #3c5625, inset 0 0 8px 4px #3c5625, 0 1px 1px 0 #eeeeee;
+box-shadow: inset 0 0 8px 4px #3c5625, inset 0 0 8px 4px #3c5625, 0 1px 1px 0 #eeeeee;
+border: 1px solid #436228;
+}
+a.button.green span.btn_caption {
+color: #9bc874;
+text-shadow: 0 1px 0 #39571e;
+}
+
+/* Dark Green Button */
+a.button.darkgreen {
+/* IE10 */ 
+background-image: -ms-linear-gradient(top, #497c22 0%, #2f5511 100%);
+/* Mozilla Firefox */ 
+background-image: -moz-linear-gradient(top, #497c22 0%, #2f5511 100%);
+/* Opera */ 
+background-image: -o-linear-gradient(top, #497c22 0%, #2f5511 100%);
+/* Webkit (Safari/Chrome 10) */ 
+background-image: -webkit-gradient(linear, left top, left bottom, color-stop(0, #497c22), color-stop(1, #2f5511));
+/* Webkit (Chrome 11+) */ 
+background-image: -webkit-linear-gradient(top, #497c22 0%, #2f5511 100%);
+/* Proposed W3C Markup */ 
+background-image: linear-gradient(top, #497c22 0%, #2f5511 100%);
+/* IE6-9 */ 
+filter:  progid:DXImageTransform.Microsoft.gradient(startColorstr='#497c22', endColorstr='#2f5511');
+
+border: 1px solid #315912;
+-moz-border-radius: 6px;
+-webkit-border-radius: 6px;
+-o-border-radius: 6px;
+-ms-border-radius: 6px;
+-khtml-border-radius: 6px;
+border-radius: 6px;
+-moz-box-shadow: inset 0 1px 0 0 #61a22f;
+-webkit-box-shadow: inset 0 1px 0 0 #61a22f;
+-o-box-shadow: inset 0 1px 0 0 #61a22f;
+box-shadow: inset 0 1px 0 0 #61a22f;
+color: white;
+text-shadow: 0 1px 0 #1e3909;
+position: relative;
+}
+a.button.darkgreen:hover {
+/* IE10 */ 
+background-image: -ms-linear-gradient(top, #28480f 0%, #3e651f 100%);
+/* Mozilla Firefox */ 
+background-image: -moz-linear-gradient(top, #28480f 0%, #3e651f 100%);
+/* Opera */ 
+background-image: -o-linear-gradient(top, #28480f 0%, #3e651f 100%);
+/* Webkit (Safari/Chrome 10) */ 
+background-image: -webkit-gradient(linear, left top, left bottom, color-stop(0, #28480f), color-stop(1, #3e651f));
+/* Webkit (Chrome 11+) */ 
+background-image: -webkit-linear-gradient(top, #28480f 0%, #3e651f 100%);
+/* Proposed W3C Markup */ 
+background-image: linear-gradient(top, #28480f 0%, #3e651f 100%);
+/* IE6-9 */ 
+filter:  progid:DXImageTransform.Microsoft.gradient(startColorstr='#28480f', endColorstr='#3e651f');
+
+-moz-box-shadow: inset 0 1px 0 0 #568a2e;
+-webkit-box-shadow: inset 0 1px 0 0 #568a2e;
+-o-box-shadow: inset 0 1px 0 0 #568a2e;
+box-shadow: inset 0 1px 0 0 #568a2e;
+cursor: pointer;
+}
+a.button.darkgreen:active {
+-moz-box-shadow: inset 0 0 8px 4px #213b0d, inset 0 0 8px 4px #213b0d, 0 1px 1px 0 #eeeeee;
+-webkit-box-shadow: inset 0 0 8px 4px #213b0d, inset 0 0 8px 4px #213b0d, 0 1px 1px 0 #eeeeee;
+-o-box-shadow: inset 0 0 8px 4px #213b0d, inset 0 0 8px 4px #213b0d, 0 1px 1px 0 #eeeeee;
+box-shadow: inset 0 0 8px 4px #213b0d, inset 0 0 8px 4px #213b0d, 0 1px 1px 0 #eeeeee;
+border: 1px solid #28480f;
+}
+a.button.darkgreen span.btn_caption {
+color: #7ad733;
+text-shadow: 0 1px 0 #1e3909;
+}
+
+/* Light Red Button */
+a.button.lightred {
+/* IE10 */ 
+background-image: -ms-linear-gradient(top, #da5858 0%, #d82222 100%);
+/* Mozilla Firefox */ 
+background-image: -moz-linear-gradient(top, #da5858 0%, #d82222 100%);
+/* Opera */ 
+background-image: -o-linear-gradient(top, #da5858 0%, #d82222 100%);
+/* Webkit (Safari/Chrome 10) */ 
+background-image: -webkit-gradient(linear, left top, left bottom, color-stop(0, #da5858), color-stop(1, #d82222));
+/* Webkit (Chrome 11+) */ 
+background-image: -webkit-linear-gradient(top, #da5858 0%, #d82222 100%);
+/* Proposed W3C Markup */ 
+background-image: linear-gradient(top, #da5858 0%, #d82222 100%);
+/* IE6-9 */ 
+filter:  progid:DXImageTransform.Microsoft.gradient(startColorstr='#da5858', endColorstr='#d82222');
+
+border: 1px solid #dd2222;
+-moz-border-radius: 6px;
+-webkit-border-radius: 6px;
+-o-border-radius: 6px;
+-ms-border-radius: 6px;
+-khtml-border-radius: 6px;
+border-radius: 6px;
+-moz-box-shadow: inset 0 1px 0 0 #e28383;
+-webkit-box-shadow: inset 0 1px 0 0 #e28383;
+-o-box-shadow: inset 0 1px 0 0 #e28383;
+box-shadow: inset 0 1px 0 0 #e28383;
+color: white;
+text-shadow: 0 1px 0 #c01616;
+position: relative;
+}
+a.button.lightred:hover {
+/* IE10 */ 
+background-image: -ms-linear-gradient(top, #ca2121 0%, #d14747 100%);
+/* Mozilla Firefox */ 
+background-image: -moz-linear-gradient(top, #ca2121 0%, #d14747 100%);
+/* Opera */ 
+background-image: -o-linear-gradient(top, #ca2121 0%, #d14747 100%);
+/* Webkit (Safari/Chrome 10) */ 
+background-image: -webkit-gradient(linear, left top, left bottom, color-stop(0, #ca2121), color-stop(1, #d14747));
+/* Webkit (Chrome 11+) */ 
+background-image: -webkit-linear-gradient(top, #ca2121 0%, #d14747 100%);
+/* Proposed W3C Markup */ 
+background-image: linear-gradient(top, #ca2121 0%, #d14747 100%);
+/* IE6-9 */ 
+filter:  progid:DXImageTransform.Microsoft.gradient(startColorstr='#ca2121', endColorstr='#d14747');
+
+-moz-box-shadow: inset 0 1px 0 0 #d97373;
+-webkit-box-shadow: inset 0 1px 0 0 #d97373;
+-o-box-shadow: inset 0 1px 0 0 #d97373;
+box-shadow: inset 0 1px 0 0 #d97373;
+cursor: pointer;
+}
+a.button.lightred:active {
+-moz-box-shadow: inset 0 0 8px 4px #bc2020, inset 0 0 8px 4px #bc2020, 0 1px 1px 0 #eeeeee;
+-webkit-box-shadow: inset 0 0 8px 4px #bc2020, inset 0 0 8px 4px #bc2020, 0 1px 1px 0 #eeeeee;
+-o-box-shadow: inset 0 0 8px 4px #bc2020, inset 0 0 8px 4px #bc2020, 0 1px 1px 0 #eeeeee;
+box-shadow: inset 0 0 8px 4px #bc2020, inset 0 0 8px 4px #bc2020, 0 1px 1px 0 #eeeeee;
+border: 1px solid #cb2020;
+}
+a.button.lightred span.btn_caption {
+color: #f2abab;
+text-shadow: 0 1px 0 #c01616;
+}
+
+/* Red Button */
+a.button.red {
+/* IE10 */ 
+background-image: -ms-linear-gradient(top, #d81818 0%, #ae0a0a 100%);
+/* Mozilla Firefox */ 
+background-image: -moz-linear-gradient(top, #d81818 0%, #ae0a0a 100%);
+/* Opera */ 
+background-image: -o-linear-gradient(top, #d81818 0%, #ae0a0a 100%);
+/* Webkit (Safari/Chrome 10) */ 
+background-image: -webkit-gradient(linear, left top, left bottom, color-stop(0, #d81818), color-stop(1, #ae0a0a));
+/* Webkit (Chrome 11+) */ 
+background-image: -webkit-linear-gradient(top, #d81818 0%, #ae0a0a 100%);
+/* Proposed W3C Markup */ 
+background-image: linear-gradient(top, #d81818 0%, #ae0a0a 100%);
+/* IE6-9 */ 
+filter:  progid:DXImageTransform.Microsoft.gradient(startColorstr='#d81818', endColorstr='#ae0a0a');
+
+border: 1px solid #b20a0a;
+-moz-border-radius: 6px;
+-webkit-border-radius: 6px;
+-o-border-radius: 6px;
+-ms-border-radius: 6px;
+-khtml-border-radius: 6px;
+border-radius: 6px;
+-moz-box-shadow: inset 0 1px 0 0 #e73c3c;
+-webkit-box-shadow: inset 0 1px 0 0 #e73c3c;
+-o-box-shadow: inset 0 1px 0 0 #e73c3c;
+box-shadow: inset 0 1px 0 0 #e73c3c;
+color: white;
+text-shadow: 0 1px 0 #900404;
+position: relative;
+}
+a.button.red:hover {
+/* IE10 */ 
+background-image: -ms-linear-gradient(top, #9e0a0a 0%, #bc1a1a 100%);
+/* Mozilla Firefox */ 
+background-image: -moz-linear-gradient(top, #9e0a0a 0%, #bc1a1a 100%);
+/* Opera */ 
+background-image: -o-linear-gradient(top, #9e0a0a 0%, #bc1a1a 100%);
+/* Webkit (Safari/Chrome 10) */ 
+background-image: -webkit-gradient(linear, left top, left bottom, color-stop(0, #9e0a0a), color-stop(1, #bc1a1a));
+/* Webkit (Chrome 11+) */ 
+background-image: -webkit-linear-gradient(top, #9e0a0a 0%, #bc1a1a 100%);
+/* Proposed W3C Markup */ 
+background-image: linear-gradient(top, #9e0a0a 0%, #bc1a1a 100%);
+/* IE6-9 */ 
+filter:  progid:DXImageTransform.Microsoft.gradient(startColorstr='#9e0a0a', endColorstr='#bc1a1a');
+
+-moz-box-shadow: inset 0 1px 0 0 #de2b2b;
+-webkit-box-shadow: inset 0 1px 0 0 #de2b2b;
+-o-box-shadow: inset 0 1px 0 0 #de2b2b;
+box-shadow: inset 0 1px 0 0 #de2b2b;
+cursor: pointer;
+}
+a.button.red:active {
+-moz-box-shadow: inset 0 0 8px 4px #8f0a0a, inset 0 0 8px 4px #8f0a0a, 0 1px 1px 0 #eeeeee;
+-webkit-box-shadow: inset 0 0 8px 4px #8f0a0a, inset 0 0 8px 4px #8f0a0a, 0 1px 1px 0 #eeeeee;
+-o-box-shadow: inset 0 0 8px 4px #8f0a0a, inset 0 0 8px 4px #8f0a0a, 0 1px 1px 0 #eeeeee;
+box-shadow: inset 0 0 8px 4px #8f0a0a, inset 0 0 8px 4px #8f0a0a, 0 1px 1px 0 #eeeeee;
+border: 1px solid #9f0909;
+}
+a.button.red span.btn_caption {
+color: #f76464;
+text-shadow: 0 1px 0 #900404;
+}
+
+/* Dark Red Button */
+a.button.darkred {
+/* IE10 */ 
+background-image: -ms-linear-gradient(top, #981010 0%, #6b0606 100%);
+/* Mozilla Firefox */ 
+background-image: -moz-linear-gradient(top, #981010 0%, #6b0606 100%);
+/* Opera */ 
+background-image: -o-linear-gradient(top, #981010 0%, #6b0606 100%);
+/* Webkit (Safari/Chrome 10) */ 
+background-image: -webkit-gradient(linear, left top, left bottom, color-stop(0, #981010), color-stop(1, #6b0606));
+/* Webkit (Chrome 11+) */ 
+background-image: -webkit-linear-gradient(top, #981010 0%, #6b0606 100%);
+/* Proposed W3C Markup */ 
+background-image: linear-gradient(top, #981010 0%, #6b0606 100%);
+/* IE6-9 */ 
+filter:  progid:DXImageTransform.Microsoft.gradient(startColorstr='#981010', endColorstr='#6b0606');
+
+border: 1px solid #6f0606;
+-moz-border-radius: 6px;
+-webkit-border-radius: 6px;
+-o-border-radius: 6px;
+-ms-border-radius: 6px;
+-khtml-border-radius: 6px;
+border-radius: 6px;
+-moz-box-shadow: inset 0 1px 0 0 #c41717;
+-webkit-box-shadow: inset 0 1px 0 0 #c41717;
+-o-box-shadow: inset 0 1px 0 0 #c41717;
+box-shadow: inset 0 1px 0 0 #c41717;
+color: white;
+text-shadow: 0 1px 0 #4b0202;
+position: relative;
+}
+a.button.darkred:hover {
+/* IE10 */ 
+background-image: -ms-linear-gradient(top, #5c0505 0%, #7e1010 100%);
+/* Mozilla Firefox */ 
+background-image: -moz-linear-gradient(top, #5c0505 0%, #7e1010 100%);
+/* Opera */ 
+background-image: -o-linear-gradient(top, #5c0505 0%, #7e1010 100%);
+/* Webkit (Safari/Chrome 10) */ 
+background-image: -webkit-gradient(linear, left top, left bottom, color-stop(0, #5c0505), color-stop(1, #7e1010));
+/* Webkit (Chrome 11+) */ 
+background-image: -webkit-linear-gradient(top, #5c0505 0%, #7e1010 100%);
+/* Proposed W3C Markup */ 
+background-image: linear-gradient(top, #5c0505 0%, #7e1010 100%);
+/* IE6-9 */ 
+filter:  progid:DXImageTransform.Microsoft.gradient(startColorstr='#5c0505', endColorstr='#7e1010');
+
+-moz-box-shadow: inset 0 1px 0 0 #a91919;
+-webkit-box-shadow: inset 0 1px 0 0 #a91919;
+-o-box-shadow: inset 0 1px 0 0 #a91919;
+box-shadow: inset 0 1px 0 0 #a91919;
+cursor: pointer;
+}
+a.button.darkred:active {
+-moz-box-shadow: inset 0 0 8px 4px #4d0505, inset 0 0 8px 4px #4d0505, 0 1px 1px 0 #eeeeee;
+-webkit-box-shadow: inset 0 0 8px 4px #4d0505, inset 0 0 8px 4px #4d0505, 0 1px 1px 0 #eeeeee;
+-o-box-shadow: inset 0 0 8px 4px #4d0505, inset 0 0 8px 4px #4d0505, 0 1px 1px 0 #eeeeee;
+box-shadow: inset 0 0 8px 4px #4d0505, inset 0 0 8px 4px #4d0505, 0 1px 1px 0 #eeeeee;
+border: 1px solid #5c0505;
+}
+a.button.darkred span.btn_caption {
+color: #f41f1f;
+text-shadow: 0 1px 0 #4b0202;
+}
+
+/* Yellow Button */
+a.button.yellow {
+/* IE10 */ 
+background-image: -ms-linear-gradient(top, #d1c81a 0%, #a79f0c 100%);
+/* Mozilla Firefox */ 
+background-image: -moz-linear-gradient(top, #d1c81a 0%, #a79f0c 100%);
+/* Opera */ 
+background-image: -o-linear-gradient(top, #d1c81a 0%, #a79f0c 100%);
+/* Webkit (Safari/Chrome 10) */ 
+background-image: -webkit-gradient(linear, left top, left bottom, color-stop(0, #d1c81a), color-stop(1, #a79f0c));
+/* Webkit (Chrome 11+) */ 
+background-image: -webkit-linear-gradient(top, #d1c81a 0%, #a79f0c 100%);
+/* Proposed W3C Markup */ 
+background-image: linear-gradient(top, #d1c81a 0%, #a79f0c 100%);
+/* IE6-9 */ 
+filter:  progid:DXImageTransform.Microsoft.gradient(startColorstr='#d1c81a', endColorstr='#a79f0c');
+
+border: 1px solid #aca40c;
+-moz-border-radius: 6px;
+-webkit-border-radius: 6px;
+-o-border-radius: 6px;
+-ms-border-radius: 6px;
+-khtml-border-radius: 6px;
+border-radius: 6px;
+-moz-box-shadow: inset 0 1px 0 0 #e4dc3a;
+-webkit-box-shadow: inset 0 1px 0 0 #e4dc3a;
+-o-box-shadow: inset 0 1px 0 0 #e4dc3a;
+box-shadow: inset 0 1px 0 0 #e4dc3a;
+color: white;
+text-shadow: 0 1px 0 #8a8305;
+position: relative;
+}
+a.button.yellow:hover {
+/* IE10 */ 
+background-image: -ms-linear-gradient(top, #98910b 0%, #b6ae1b 100%);
+/* Mozilla Firefox */ 
+background-image: -moz-linear-gradient(top, #98910b 0%, #b6ae1b 100%);
+/* Opera */ 
+background-image: -o-linear-gradient(top, #98910b 0%, #b6ae1b 100%);
+/* Webkit (Safari/Chrome 10) */ 
+background-image: -webkit-gradient(linear, left top, left bottom, color-stop(0, #98910b), color-stop(1, #b6ae1b));
+/* Webkit (Chrome 11+) */ 
+background-image: -webkit-linear-gradient(top, #98910b 0%, #b6ae1b 100%);
+/* Proposed W3C Markup */ 
+background-image: linear-gradient(top, #98910b 0%, #b6ae1b 100%);
+/* IE6-9 */ 
+filter:  progid:DXImageTransform.Microsoft.gradient(startColorstr='#98910b', endColorstr='#b6ae1b');
+
+-moz-box-shadow: inset 0 1px 0 0 #dbd229;
+-webkit-box-shadow: inset 0 1px 0 0 #dbd229;
+-o-box-shadow: inset 0 1px 0 0 #dbd229;
+box-shadow: inset 0 1px 0 0 #dbd229;
+cursor: pointer;
+}
+a.button.yellow:active {
+-moz-box-shadow: inset 0 0 8px 4px #89830b, inset 0 0 8px 4px #89830b, 0 1px 1px 0 #eeeeee;
+-webkit-box-shadow: inset 0 0 8px 4px #89830b, inset 0 0 8px 4px #89830b, 0 1px 1px 0 #eeeeee;
+-o-box-shadow: inset 0 0 8px 4px #89830b, inset 0 0 8px 4px #89830b, 0 1px 1px 0 #eeeeee;
+box-shadow: inset 0 0 8px 4px #89830b, inset 0 0 8px 4px #89830b, 0 1px 1px 0 #eeeeee;
+border: 1px solid #99910b;
+}
+a.button.yellow span.btn_caption {
+color: #f5ed61;
+text-shadow: 0 1px 0 #8a8305;
+}
+
+/* Orange Button */
+a.button.orange {
+/* IE10 */ 
+background-image: -ms-linear-gradient(top, #d1911a 0%, #a7710c 100%);
+/* Mozilla Firefox */ 
+background-image: -moz-linear-gradient(top, #d1911a 0%, #a7710c 100%);
+/* Opera */ 
+background-image: -o-linear-gradient(top, #d1911a 0%, #a7710c 100%);
+/* Webkit (Safari/Chrome 10) */ 
+background-image: -webkit-gradient(linear, left top, left bottom, color-stop(0, #d1911a), color-stop(1, #a7710c));
+/* Webkit (Chrome 11+) */ 
+background-image: -webkit-linear-gradient(top, #d1911a 0%, #a7710c 100%);
+/* Proposed W3C Markup */ 
+background-image: linear-gradient(top, #d1911a 0%, #a7710c 100%);
+/* IE6-9 */ 
+filter:  progid:DXImageTransform.Microsoft.gradient(startColorstr='#d1911a', endColorstr='#a7710c');
+
+border: 1px solid #ac740c;
+-moz-border-radius: 6px;
+-webkit-border-radius: 6px;
+-o-border-radius: 6px;
+-ms-border-radius: 6px;
+-khtml-border-radius: 6px;
+border-radius: 6px;
+-moz-box-shadow: inset 0 1px 0 0 #e4a83a;
+-webkit-box-shadow: inset 0 1px 0 0 #e4a83a;
+-o-box-shadow: inset 0 1px 0 0 #e4a83a;
+box-shadow: inset 0 1px 0 0 #e4a83a;
+color: white;
+text-shadow: 0 1px 0 #8a5b05;
+position: relative;
+}
+a.button.orange:hover {
+/* IE10 */ 
+background-image: -ms-linear-gradient(top, #98670b 0%, #b6801b 100%);
+/* Mozilla Firefox */ 
+background-image: -moz-linear-gradient(top, #98670b 0%, #b6801b 100%);
+/* Opera */ 
+background-image: -o-linear-gradient(top, #98670b 0%, #b6801b 100%);
+/* Webkit (Safari/Chrome 10) */ 
+background-image: -webkit-gradient(linear, left top, left bottom, color-stop(0, #98670b), color-stop(1, #b6801b));
+/* Webkit (Chrome 11+) */ 
+background-image: -webkit-linear-gradient(top, #98670b 0%, #b6801b 100%);
+/* Proposed W3C Markup */ 
+background-image: linear-gradient(top, #98670b 0%, #b6801b 100%);
+/* IE6-9 */ 
+filter:  progid:DXImageTransform.Microsoft.gradient(startColorstr='#98670b', endColorstr='#b6801b');
+
+-moz-box-shadow: inset 0 1px 0 0 #db9d29;
+-webkit-box-shadow: inset 0 1px 0 0 #db9d29;
+-o-box-shadow: inset 0 1px 0 0 #db9d29;
+box-shadow: inset 0 1px 0 0 #db9d29;
+cursor: pointer;
+}
+a.button.orange:active {
+-moz-box-shadow: inset 0 0 8px 4px #895d0b, inset 0 0 8px 4px #895d0b, 0 1px 1px 0 #eeeeee;
+-webkit-box-shadow: inset 0 0 8px 4px #895d0b, inset 0 0 8px 4px #895d0b, 0 1px 1px 0 #eeeeee;
+-o-box-shadow: inset 0 0 8px 4px #895d0b, inset 0 0 8px 4px #895d0b, 0 1px 1px 0 #eeeeee;
+box-shadow: inset 0 0 8px 4px #895d0b, inset 0 0 8px 4px #895d0b, 0 1px 1px 0 #eeeeee;
+border: 1px solid #99670b;
+}
+a.button.orange span.btn_caption {
+color: #f5c161;
+text-shadow: 0 1px 0 #8a5b05;
+}
+
+/* Brown Button */
+a.button.brown {
+/* IE10 */ 
+background-image: -ms-linear-gradient(top, #775e28 0%, #513e15 100%);
+/* Mozilla Firefox */ 
+background-image: -moz-linear-gradient(top, #775e28 0%, #513e15 100%);
+/* Opera */ 
+background-image: -o-linear-gradient(top, #775e28 0%, #513e15 100%);
+/* Webkit (Safari/Chrome 10) */ 
+background-image: -webkit-gradient(linear, left top, left bottom, color-stop(0, #775e28), color-stop(1, #513e15));
+/* Webkit (Chrome 11+) */ 
+background-image: -webkit-linear-gradient(top, #775e28 0%, #513e15 100%);
+/* Proposed W3C Markup */ 
+background-image: linear-gradient(top, #775e28 0%, #513e15 100%);
+/* IE6-9 */ 
+filter:  progid:DXImageTransform.Microsoft.gradient(startColorstr='#775e28', endColorstr='#513e15');
+
+border: 1px solid #554116;
+-moz-border-radius: 6px;
+-webkit-border-radius: 6px;
+-o-border-radius: 6px;
+-ms-border-radius: 6px;
+-khtml-border-radius: 6px;
+border-radius: 6px;
+-moz-box-shadow: inset 0 1px 0 0 #9b7b36;
+-webkit-box-shadow: inset 0 1px 0 0 #9b7b36;
+-o-box-shadow: inset 0 1px 0 0 #9b7b36;
+box-shadow: inset 0 1px 0 0 #9b7b36;
+color: white;
+text-shadow: 0 1px 0 #37290c;
+position: relative;
+}
+a.button.brown:hover {
+/* IE10 */ 
+background-image: -ms-linear-gradient(top, #443512 0%, #614d24 100%);
+/* Mozilla Firefox */ 
+background-image: -moz-linear-gradient(top, #443512 0%, #614d24 100%);
+/* Opera */ 
+background-image: -o-linear-gradient(top, #443512 0%, #614d24 100%);
+/* Webkit (Safari/Chrome 10) */ 
+background-image: -webkit-gradient(linear, left top, left bottom, color-stop(0, #443512), color-stop(1, #614d24));
+/* Webkit (Chrome 11+) */ 
+background-image: -webkit-linear-gradient(top, #443512 0%, #614d24 100%);
+/* Proposed W3C Markup */ 
+background-image: linear-gradient(top, #443512 0%, #614d24 100%);
+/* IE6-9 */ 
+filter:  progid:DXImageTransform.Microsoft.gradient(startColorstr='#443512', endColorstr='#614d24');
+
+-moz-box-shadow: inset 0 1px 0 0 #836a34;
+-webkit-box-shadow: inset 0 1px 0 0 #836a34;
+-o-box-shadow: inset 0 1px 0 0 #836a34;
+box-shadow: inset 0 1px 0 0 #836a34;
+cursor: pointer;
+}
+a.button.brown:active {
+-moz-box-shadow: inset 0 0 8px 4px #382b0f, inset 0 0 8px 4px #382b0f, 0 1px 1px 0 #eeeeee;
+-webkit-box-shadow: inset 0 0 8px 4px #382b0f, inset 0 0 8px 4px #382b0f, 0 1px 1px 0 #eeeeee;
+-o-box-shadow: inset 0 0 8px 4px #382b0f, inset 0 0 8px 4px #382b0f, 0 1px 1px 0 #eeeeee;
+box-shadow: inset 0 0 8px 4px #382b0f, inset 0 0 8px 4px #382b0f, 0 1px 1px 0 #eeeeee;
+border: 1px solid #453512;
+}
+a.button.brown span.btn_caption {
+color: #cea03b;
+text-shadow: 0 1px 0 #37290c;
+}

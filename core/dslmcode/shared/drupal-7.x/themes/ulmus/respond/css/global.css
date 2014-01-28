@@ -1,0 +1,584 @@
+/* This file will hold the main styles for your website. */
+html,
+body,
+#page  {
+  height: 100%;
+}
+body {
+  font-size: 62.5%; /* 10px */
+  font-family: Geneva, "Helvetica Nueue", Helvetica, Verdana, Arial, sans-serif;
+  color: #696969;
+  background: #EEE;
+}
+.element-invisible {
+  position: absolute !important;
+  top: -9999em;
+  left: -9999em;
+}
+img {
+  max-width: 100%;
+}
+
+
+.item-list .pager {
+  margin-bottom: 10px;
+}
+/* Fonts */
+a, 
+a:link,
+a:visited {
+  text-decoration: none;
+  color: #006caf;
+  border-bottom: 1px dotted #006caf;
+}
+.vertical-tab-button a,
+.vertical-tab-button a:link
+.vertical-tab-button a:visited {
+  border: 0;
+}
+a:focus,
+a:hover {
+  
+  color: #0073ba;
+  border-bottom: 0;
+}
+.logo-img a,
+.contextual-links-wrapper a {
+  border: 0;
+}
+p, ul, ol, li, table {
+  
+}
+h1.site-name {
+  font-family: UbuntuBold, Geneva, "Helvetica Nueue", Helvetica, Verdana, Arial, sans-serif;
+  font-size: 4.8em; /* 48px */
+  margin-top: 10px;
+}
+h6.site-slogan {
+  font-size: 1.6em; /* 16px */
+}
+h1, h2, h3, h4, h5, h6 {
+  font-family: UbuntuRegular, Geneva, "Helvetica Nueue", Helvetica, Verdana, Arial, sans-serif;
+  font-weight: normal;
+  letter-spacing: normal;
+}
+.item-list ul li {
+  margin: 0;
+}
+
+/* Header */ 
+header.section-header {
+  background: #EEE;
+}
+section.section-content {
+  background: #EEE;
+}
+footer.section-footer {
+  background: #EEE;
+}
+
+.branding-data {
+  margin-top: 10px;
+  margin-bottom: 10px;
+}
+/* Primary Nav */
+.navigation {
+  margin-bottom: 20px;
+}
+
+.navigation ul {
+  margin: 0;
+  padding: 0;
+  display: block;
+}
+
+.navigation ul.secondary-menu {
+  text-align: right;
+  margin-top: 10px;
+}
+
+.navigation ul li {
+  margin: 0;
+  padding: 0;
+  display: inline-block;
+  width: 33.3333333333333%;
+}
+
+.navigation ul.secondary-menu li {
+  width: auto;
+}
+
+.navigation ul li a {
+  display: block;
+  text-align: center;
+  background: #ffffff; /* Old browsers */
+  
+  border-bottom: 0;
+  font-family: UbuntuRegular, Geneva, "Helvetica Nueue", Helvetica, Verdana, Arial, sans-serif;
+  
+  font-size: 1.5em; /* 15px */
+  padding: 1em 0;
+  color: #000;
+  text-transform: none;
+  font-weight: bold;
+  text-decoration: none;
+}
+
+.navigation ul.secondary-menu li a {
+  font-size: 1.2em;
+  padding: 0.5em 1em;
+  font-weight: normal;
+}
+
+.navigation ul li a:hover,
+.navigation ul li a:focus {
+  background: #93c5e4; /* Old browsers */
+  color: #FFF;
+}
+
+.navigation ul li a.active,
+.navigation ul li a.active-trail,
+.navigation ul li a.active:hover,
+.navigation ul li a.active-trail:hover
+.navigation ul li a.active:focus,
+.navigation ul li a.active-trail:focus {
+  background: #93c5e4; /* Old browsers */
+  color: #FFF;
+}
+
+.navigation ul.secondary-menu li:first-child a {
+  -webkit-border-radius: 10px 0 0 10px;
+  -moz-border-radius: 10px 0 0 10px;
+  -o-border-radius: 10px 0 0 10px;
+  border-radius: 10px 0 0 10px;
+}
+.navigation ul.secondary-menu li:last-child a {
+  -webkit-border-radius: 0 10px 10px 0;
+  -moz-border-radius: 0 10px 10px 0;
+  -o-border-radius: 0 10px 10px 0;
+  border-radius: 0 10px 10px 0;
+}
+
+/* Nav styles for mobile only giving rounded corners to the outer edges */
+.navigation ul.main-menu li:nth-child(1) a {
+  -webkit-border-radius: 10px 0 0 0;
+  -moz-border-radius: 10px 0 0 0;
+  -o-border-radius: 10px 0 0 0;
+  border-radius: 10px 0 0 0;
+}
+.navigation ul.main-menu li:nth-child(3) a {
+  -webkit-border-radius: 0 10px 0 0;
+  -moz-border-radius: 0 10px 0 0;
+  -o-border-radius: 0 10px 0 0;
+  border-radius: 0 10px 0 0;
+}
+.navigation ul.main-menu li:nth-child(4) a {
+  -webkit-border-radius: 0 0 0 10px;
+  -moz-border-radius: 0 0 0 10px;
+  -o-border-radius: 0 0 0 10px;
+  border-radius: 0 0 0 10px;
+}
+.navigation ul.main-menu li:last-child a {
+  -webkit-border-radius: 0 0 10px 0;
+  -moz-border-radius: 0 0 10px 0;
+  -o-border-radius: 0 0 10px 0;
+  border-radius: 0 0 10px 0;
+}
+/* Blocks */
+h2.block-title {
+  font-size: 1.5em; /* 15px */
+  padding: 0.5em 1em;
+  color: #FFF;
+}
+
+h2.block-title,
+h1#page-title,
+.comment header h3 {
+  -webkit-border-radius: 10px 10px 0 0;
+  -moz-border-radius: 10px 10px 0 0;
+  -o-border-radius: 10px 10px 0 0;
+  border-radius: 10px 10px 0 0;
+  background: #93c5e4; /* Old browsers */
+}
+
+/* Trying to get a transform on the node link headers */
+
+article header h2.node-title {
+  font-size: 2.0em; /* 20px */
+  margin-bottom: 0;
+  padding: 0;
+}
+
+
+article h2.node-title a {
+  display: block;
+  padding: 0.5em 1em;
+  color: #FFF;
+  margin-bottom: 0;
+  -webkit-border-radius: 10px 10px 0 0;
+  -moz-border-radius: 10px 10px 0 0;
+  -o-border-radius: 10px 10px 0 0;
+  border-radius: 10px 10px 0 0;
+  background: #93c5e4; /* Old browsers */
+}
+
+article:hover h2.node-title a,
+.comment:hover header h3 {
+  background: #93c5e4; /* Old browsers */
+}
+
+article.comment-by-node-author header h3 {
+  background: #93c5e4; /* Old browsers */
+  color: #FFF;
+}
+
+section.block .block-inner > div.content,
+div#first-time,
+dl.node-type-list,
+.page-node-add .block-system-main > .block-inner,
+.page-node-edit .block-system-main > .block-inner {
+  background: #FFF;
+  margin: 0;
+  margin-bottom: 20px;
+  padding: 10px;
+  -webkit-border-radius: 0 0 10px 10px;
+  -moz-border-radius: 0 0 10px 10px;
+  -o-border-radius: 0 0 10px 10px;
+  border-radius: 0 0 10px 10px;
+}
+
+h1#page-title,
+.comment header h3 {
+  font-size: 2.0em; /* 20px */
+  padding: 0.5em 1em;
+  color: #FFF;
+  margin-bottom: 0;
+}
+
+article header h2.node-title a,
+.comment header h3 a {
+  color: #FFF;
+  text-decoration: none;
+  display: block;
+  border-bottom: 0;
+}
+
+article .node-inner,
+article .comment-inner,
+.block-system-main {
+  background: #FFF;
+  margin: 0;
+  margin-bottom: 20px;
+  padding: 10px;
+  -webkit-border-radius: 0 0 10px 10px;
+  -moz-border-radius: 0 0 10px 10px;
+  -o-border-radius: 0 0 10px 10px;
+  border-radius: 0 0 10px 10px;
+  
+  
+}
+
+.comment-form > div {
+  background: #FFF;
+  margin: 0;
+  margin-bottom: 20px;
+  padding: 10px;
+  -webkit-border-radius: 10px;
+  -moz-border-radius: 10px;
+  -o-border-radius: 10px;
+  border-radius: 10px;
+}
+
+
+.page-node .block-system-main {
+  background: transparent;
+  padding: 0;
+  margin-bottom: 0;
+}
+
+.comment footer {
+  text-align: right;
+  margin-bottom: 10px;
+}
+.comment ul.links {
+  text-align: right;
+}
+
+li.node-readmore a {
+  font-weight: bold;
+}
+
+div.user-picture {
+  float: left;
+  margin: 0 10px 0 0;
+}
+.node .field-type-image {
+  margin-bottom: 10px;
+}
+div#breadcrumb {
+  margin-bottom: 10px;
+}
+/* menu blocks */
+
+section.block-menu .block-inner > div.content {
+  padding: 0;
+}
+
+section.block-menu ul.menu {
+  
+}
+section.block-menu ul.menu li,
+section.block-menu ul.menu li.leaf {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+section.block-menu ul.menu li a {
+  border: 0;
+  display: block;
+  font-size: 1.4em; /* 14px */
+  padding: 0;
+  border-bottom: 1px dotted #006caf;
+  padding: 0.25em 1em;
+  
+  background: #ffffff; /* Old browsers */
+}
+
+section.block-menu ul.menu li ul a {
+  padding-left: 2em;
+}
+section.block-menu ul.menu li ul ul a {
+  padding-left: 3em;
+}
+section.block-menu ul.menu li ul ul ul a {
+  padding-left: 4em;
+}
+
+section.block-menu ul.menu li a:hover,
+section.block-menu ul.menu li a.active {
+  color: #FFF;
+  padding-left: 2em;
+  background: #93c5e4; /* Old browsers */  
+}
+
+section.block-menu ul.menu li ul a:hover,
+section.block-menu ul.menu li ul a.active {
+  padding-left: 3em;
+}
+section.block-menu ul.menu li ul ul a:hover,
+section.block-menu ul.menu li ul ul a.active {
+  padding-left: 4em;
+}
+section.block-menu ul.menu li ul ul ul a:hover,
+section.block-menu ul.menu li ul ul ul a.active {
+  padding-left: 5em;
+}
+
+section.block-menu div.content > ul.menu {
+  padding-bottom: 10px;
+  border-bottom: 0;
+  -webkit-border-radius: 0 0 10px 10px;
+  -moz-border-radius: 0 0 10px 10px;
+  -o-border-radius: 0 0 10px 10px;
+  border-radius: 0 0 10px 10px;
+  background: #3a3a3a;
+}
+
+#user-login-form {
+
+}
+
+#user-login-form label {
+  display: none;
+}
+.form-item, .form-actions {
+    margin-bottom: 0;
+    margin-top: 0;
+}
+
+input,
+button,
+select,
+html.js input.form-autocomplete {
+  margin: 0;
+  outline: 0;
+  vertical-align: middle;
+  
+  -webkit-box-sizing: border-box;
+  -moz-box-sizing: border-box;
+  -o-box-sizing: border-box;
+  box-sizing: border-box;
+  
+  -moz-background-clip: padding;
+  -webkit-background-clip: padding;
+  -o-background-clip: padding;
+  background-clip: padding-box;
+  
+  background: #ffffff; /* Old browsers */
+  
+	-webkit-border-radius: 5px;
+  -moz-border-radius: 5px;
+  -o-border-radius: 5px;
+  border-radius: 5px;
+}
+
+textarea {
+  margin: 0;
+  outline: 0;
+  background: #f6f6f6; /* Old browsers */
+  margin-bottom: 10px;
+  padding: 4px 8px;
+	border: solid 1px #E5E5E5;
+	font: normal 1.8em/150% Verdana, Tahoma, sans-serif;
+	width: 100%;
+  
+  -webkit-border-radius: 5px 5px 0 0;
+  -moz-border-radius: 5px 5px 0 0;
+  -o-border-radius: 5px 5px 0 0;
+  border-radius: 5px 5px 0 0;
+}
+input[type="submit"] {
+  border: 0;
+	outline: 0;
+	padding: 0.25em 0.5em;
+	text-transform: lowercase;
+	cursor: pointer;
+	font: normal 1.4em/100% Verdana, Tahoma, sans-serif;
+	margin-right: 0.5em;
+	
+	background: #93c5e4; /* Old browsers */
+  color: #FFF;
+}
+input[type="submit"]:hover {
+  background: #93c5e4; /* Old browsers */
+}
+input.form-text {
+  margin-bottom: 10px;
+  padding: 4px 8px;
+	border: solid 1px #E5E5E5;
+	font: normal 1.8em/200% Verdana, Tahoma, sans-serif;
+	width: 100%;
+}
+
+
+
+/* Tabs */
+
+div.tabs {
+  background: #FFF;
+  font-size: 1em;
+  padding: 0;
+  text-transform: uppercase;
+}
+.tabs ul {
+  margin: 0;
+}
+
+.tabs ul li {
+  margin: 0;
+  display: inline-block;
+}
+.tabs ul li a {
+  border: 0;
+  padding: 0.5em 1em;
+  display: block;
+}
+.tabs ul li a:hover {
+  text-decoration: underline;
+}
+
+.tabs ul.primary {
+  font-size: 1.2em;
+  background: #ffffff; /* Old browsers */
+}
+
+.tabs ul.primary li a {
+  border-right: 1px solid #CCC;
+}
+
+.tabs ul.primary li a.active {
+  background: #93c5e4; /* Old browsers */
+  color: #FFF;
+}
+.tabs ul.secondary {
+  font-size: 1em;
+}
+
+.tabs ul.secondary li a {
+  color: #9a9a9a;
+  border-right: 1px solid #6a6a6a;
+}
+.tabs ul.secondary li a.active {
+  color: #FFF;
+}
+
+
+
+.tabs ul li:last-child a {
+  border: 0;
+}
+
+
+
+ul.links {
+  margin-bottom: 0;
+}
+
+
+
+.block-comment-recent li span {
+  font-size: 0.9em;
+  font-style: italic;
+  float: right;
+  display: none;
+}
+.block-comment-recent li:hover span {
+  display: block;
+}
+
+/* Tables */
+table, thead, tbody, th, tr, tr.even, tr.odd, td {
+  background: transparent;
+  border: 0;
+}
+table {
+  width: 100%;
+}
+
+
+
+/* Search Box */
+#search-block-form {
+  margin-bottom: 10px;
+}
+#search-block-form .container-inline {
+  position: relative;
+  
+}
+#search-block-form .form-text {
+  margin-bottom: 0;
+}
+#search-block-form .form-submit {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  right: 0;
+  margin: 0;
+  text-indent: -9999em;
+  width: 40px;
+  background: #CCC url('../i/search.png') no-repeat center center;
+  
+  -webkit-border-radius: 0 5px 5px 0;
+  -moz-border-radius: 0 5px 5px 0;
+  -o-border-radius: 0 5px 5px 0;
+  border-radius: 0 5px 5px 0;
+}
+
+
+
+
+/* Hidden Elements in Mobile */
+
+
+
+

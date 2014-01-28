@@ -1,0 +1,15 @@
+/* $Id */
+
+.region-header .block {
+  float: left;
+}
+.region-header #block-user-login .item-list li {
+  padding: 3px 0 1px 5px;
+}
+.link-wrapper {
+  margin: 0;
+  text-align: left;
+}
+#footer-columns .content li a {
+  text-indent: 0;
+}

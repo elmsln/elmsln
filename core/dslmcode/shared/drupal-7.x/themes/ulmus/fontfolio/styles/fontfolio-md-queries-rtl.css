@@ -1,0 +1,42 @@
+/**
+ * @file
+ * Contains RTL (Right to Left) Styles of
+ * FontFolio media queries, needed for responsive behavior.
+ */
+
+/*
+ * Media queries CSS rules. 
+ */
+
+/* Tablets (Portrait) */
+@media only screen and (min-width: 768px) and (max-width: 959px) {
+
+  #header_top a.toggle-search { 
+    float: left ;
+    padding: 14px 0 0 12px;
+  }
+  
+  #header_top a.toggle-social {
+    float: right;
+    padding: 14px 12px 0 0;
+  }
+
+  .post-box,
+  .post_box,
+  #single_left {
+    float: right;
+  }
+}
+
+@media screen and (max-width: 767px) {
+
+  #name-and-slogan {
+    float: none;
+  }
+  
+  #langs,
+  #langs ul,
+  #langs li{
+    float: none;
+  }
+}

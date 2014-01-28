@@ -1,0 +1,157 @@
+/* Custom CSS for making Views 3 play nice with Rubik */
+
+#views-ui-add-form.views-admin fieldset fieldset.container-inline > .fieldset-wrapper {
+  padding: 10px 9px 9px;
+}
+
+#views-ui-edit-form div div.views-displays div.views-display-top ul.tabs.secondary.views-ui-render-add-view-button-processed-processed {
+   position: relative;
+}
+
+#ctools-button-9 {
+   z-index: 1;
+}
+
+#views-ui-edit-form div#edit-actions.form-actions.form-wrapper {
+   float: right;
+}
+
+#views-ui-edit-form div h1.unit-title.clearfix {
+   clear: both;
+   float: left;
+}
+
+#edit-options .collapsible {
+  float: none;
+  width: 100%;
+}
+
+.views-displays {
+   clear: both;
+}
+
+.views-display-setting .label {
+  margin-right: 3pt; /* LTR */
+}
+
+.views-admin a:hover {
+   text-decoration: none;
+}
+
+.views-attachment .options-set label {
+  font-weight: bold;
+}
+
+.views-display-setting .views-ajax-link {
+  margin-left: 0.2083em;
+  margin-right: 0.2083em;
+}
+
+/* Hide 'remove' checkboxes. This might be scoped too widely. */
+.form-type-checkbox.remove {
+  display: none;
+}
+
+.views-ui-display-tab-bucket .views-display-setting {
+  color: #666666;
+  font-size: 12px;
+  padding-bottom: 2px;
+}
+
+.views-ui-display-tab-bucket h1,
+.views-ui-display-tab-bucket h2,
+.views-ui-display-tab-bucket h3,
+.views-ui-display-tab-bucket h4,
+.views-ui-display-tab-bucket h5 {
+  margin-bottom: 0;
+  margin-top: 0;
+}
+
+.views-ui-display-tab-bucket.pager {
+   height:auto;
+   margin:0;
+}
+
+.views-ui-display-tab-bucket.pager span,
+.views-ui-display-tab-bucket.pager a {
+   padding: 0;
+}
+
+.views-ui-display-tab-bucket.pager a,
+.views-ui-display-tab-bucket.pager a span {
+   color: #59A;
+}
+
+.ctools-button input {
+   box-shadow:none;
+}
+
+.views-displays .ctools-dropbutton-processed {
+   right:0;
+}
+
+.views-display-top .ctools-button {
+   z-index:1;
+}
+
+#edit-display-settings-main {
+  margin-top: 15px;
+}
+
+input.form-autocomplete,
+input.form-text,
+input.form-file,
+textarea.form-textarea,
+select.form-select {
+  padding: 2px;
+  border: 1px solid #ccc;
+  border-top-color: #999;
+  background: #fff;
+  color: #333;
+  width: auto;
+}
+
+input.form-text:focus,
+input.form-file:focus,
+textarea.form-textarea:focus,
+select.form-select:focus {
+  color: #000;
+  border-color: #ace;
+}
+
+#edit-display-preview-controls .form-type-textfield label {
+  display: inline-block;
+  font-weight: normal;
+  height: inherit;
+  margin-right: 0.75em;
+}
+
+#edit-display-preview-controls > .form-type-textfield {
+   margin-top: 6px;
+}
+
+#edit-display-preview-controls .arguments-preview,
+#edit-display-preview-controls .form-type-textfield {
+  margin-left: 14px;
+}
+
+#edit-display-preview-controls > div,
+#edit-display-preview-controls > input {
+  float: left;
+}
+
+#edit-display-preview-controls .form-item {
+  margin-bottom: 0;
+}
+#edit-options-exception.collapsible {
+    margin-top: 0;
+}
+.views-ui-dialog fieldset,
+.views-ui-dialog fieldset.collapsed,
+.views-ui-dialog fieldset.collapsible {
+    padding-top:0;
+}
+#edit-options-default-action {
+  float: none;
+  margin-bottom: 10px;
+}

@@ -1,0 +1,33 @@
+
+/* ---------- Color form ----------- */
+#color_scheme_form #palette .form-item {
+  width: 25em;
+}
+#color_scheme_form #palette .form-item label {
+  width: 15em;
+}
+
+/* ---------- Preview Styles ----------- */
+
+#wrapper { margin-top:20px; border-top:10px solid #375199; display:block; overflow:hidden;}
+
+#wrapper-inside { border-top:5px solid #4565be; }
+
+#preview {  margin:0 0 20px 0; padding:20px; color: #444444; outline:0 none; vertical-align:baseline; width:650px;  }
+
+#preview a { color:#2883DE; }
+
+#preview a:hover { color:#000000; }
+
+#preview h1 { color:#181818; }
+
+#preview #site-name a { color:#262626; font-size:240%; font-weight:bold; }
+
+#preview #site-name a:hover { color:#3253ad; }
+
+#preview #site-slogan { color:#7d7d7d; font-size:120%; }
+
+/* 
+* Layout 
+*/
+#preview-content { padding:10px 0 20px 0; overflow: hidden; }

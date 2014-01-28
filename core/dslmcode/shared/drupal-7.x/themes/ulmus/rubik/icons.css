@@ -1,0 +1,155 @@
+/**
+ * Icons
+ */
+.help-content span.icon,
+.page-title span.icon,
+.admin-toolbar-menu span.icon,
+.menu span.icon,
+.admin-panel span.icon,
+.admin-list span.icon,
+.links span.icon {
+  width:30px;
+  height:30px;
+  display:block;
+
+  background-color:transparent;
+  background-image:url(images/icons.png);
+  background-repeat:no-repeat;
+  }
+
+/**
+ * Create content
+ */
+.path-node-add span.icon                        { background-position:0px -240px; }
+.path-node-add-page span.icon                   { background-position:-30px -240px; }
+.path-node-add-forum span.icon                  { background-position:-60px -240px; }
+.path-node-add-blog span.icon                   { background-position:-90px -240px; }
+.path-node-add-story span.icon                  { background-position:-120px -240px; }
+.path-node-add-poll span.icon                   { background-position:-150px -240px; }
+
+/**
+ * Admin
+ */
+.path-admin span.icon                           { background-position:0px 0px; }
+.path-admin- span.icon                          { background-position:-60px -150px; }
+
+/**
+ * Appearance
+ */
+.path-admin-appearance- span.icon               { background-position:-120px -30px; }
+
+/**
+ * Modules
+ */
+.path-admin-modules- span.icon                  { background-position:-210px -30px; }
+
+/**
+ * Help
+ */
+.path-admin-help span.icon                      { background-position:-150px -120px; }
+
+/**
+ * Content
+ */
+.path-admin-content span.icon                   { background-position:-30px 0px; }
+.path-admin-content- span.icon                  { background-position:0px -30px; }
+.path-admin-content-forum span.icon             { background-position:-90px -120px; }
+.path-admin-content-book span.icon              { background-position:-90px -60px; }
+.path-admin-content-comment span.icon           { background-position:-90px -30px; }
+
+/**
+ * Building
+ */
+.path-admin-structure span.icon                 { background-position:-60px 0px; }
+.path-admin-structure- span.icon                { background-position:-30px -150px; }
+.path-admin-structure-menu span.icon            { background-position:-150px -30px; }
+.path-admin-structure-contact span.icon         { background-position:-60px -90px; }
+.path-admin-structure-block span.icon           { background-position:-180px -30px; }
+.path-admin-structure-types span.icon           { background-position:-30px -30px; }
+.path-admin-structure-taxonomy span.icon        { background-position:-60px -30px; }
+.path-admin-structure-trigger span.icon         { background-position:-180px -60px; }
+
+/**
+ * User
+ */
+.path-admin-people span.icon                    { background-position:-90px 0px; }
+.path-admin-people- span.icon                   { background-position:-210px -90px; }
+.path-admin-people-permissions span.icon        { background-position:-30px -90px; }
+.path-admin-people-permissions-roles span.icon  { background-position:-30px -120px; }
+
+/**
+ * Reports
+ */
+.path-admin-reports span.icon                   { background-position:-120px 0px; }
+.path-admin-reports- span.icon                  { background-position:0px -150px; }
+.path-admin-reports-dblog span.icon             { background-position:-210px -420px; }
+.path-admin-reports-hits span.icon              { background-position:-120px -420px; }
+.path-admin-reports-search span.icon            { background-position:0px -420px; }
+.path-admin-reports-access-denied span.icon     { background-position:-180px -420px; }
+.path-admin-reports-page-not-found span.icon    { background-position:-90px -420px; }
+.path-admin-reports-referrers span.icon         { background-position:-150px -420px; }
+.path-admin-reports-pages span.icon             { background-position:-30px -240px }
+.path-admin-reports-visitors span.icon          { background-position:-60px -420px; }
+.path-admin-reports-settings span.icon          { background-position:-90px -330px; }
+.path-admin-reports-updates span.icon           { background-position:-150px -60px; }
+.path-admin-reports-status span.icon            { background-position:-60px -60px; }
+
+/**
+ * Configuration
+ */
+.path-admin-config span.icon                    { background-position:-150px 0px; }
+.path-admin-config- span.icon                   { background-position:-210px -120px; }
+.path-admin-config-people- span.icon            { background-position:0px -180px; }
+.path-admin-config-people-accounts span.icon    { background-position:-60px -120px; }
+.path-admin-config-people-ip-blocking span.icon { background-position:0px -120px; }
+
+.path-admin-config-content- span.icon           { background-position:-60px -180px; }
+.path-admin-config-content-formats span.icon    { background-position:-210px -60px; }
+
+.path-admin-config-regional- span.icon          { background-position:-210px -180px; }
+.path-admin-config-regional-settings span.icon  { background-position:-60px -390px; }
+.path-admin-config-regional-date-time span.icon { background-position:-150px -360px; }
+.path-admin-config-regional-language span.icon  { background-position:-60px -330px; }
+.path-admin-config-regional-translate span.icon { background-position:0px -90px; }
+
+.path-admin-config-system- span.icon            { background-position:-30px -180px; }
+.path-admin-config-system-site-information span.icon { background-position:-120px -330px; }
+.path-admin-config-system-actions span.icon     { background-position:-180px -60px; }
+.path-admin-config-system-statistics span.icon  { background-position:-90px -330px; }
+.path-admin-config-system-cron span.icon        { background-position:-30px -390px; }
+
+.path-admin-config-search- span.icon            { background-position:-180px -180px; }
+.path-admin-config-search-path span.icon        { background-position:-120px -90px; }
+.path-admin-config-search-clean-urls span.icon  { background-position:-60px -360px; }
+.path-admin-config-search-settings span.icon    { background-position:-30px -60px; }
+
+.path-admin-config-services- span.icon          { background-position:0px -210px; }
+.path-admin-config-services-rss-publishing span.icon { background-position:-180px -330px; }
+.path-admin-config-services-aggregator span.icon { background-position:-120px -120px; }
+
+.path-admin-config-user-interface- span.icon    { background-position:-90px -180px; }
+.path-admin-config-user-interface-shortcut span.icon { background-position:-180px -120px; }
+
+.path-admin-config-media- span.icon             { background-position:-150px -180px; }
+.path-admin-config-media-file-system span.icon  { background-position:-180px -360px; }
+.path-admin-config-media-image-styles span.icon { background-position:0px -390px; }
+.path-admin-config-media-image-toolkit span.icon { background-position:-210px -330px; }
+
+.path-admin-config-development- span.icon       { background-position:-120px -180px; }
+.path-admin-config-development-performance span.icon { background-position:0px -60px; }
+.path-admin-config-development-maintenance span.icon { background-position:-180px -90px; }
+.path-admin-config-development-logging span.icon{ background-position:-120px -60px; }
+
+.path-admin-config-workflow- span.icon          { background-position:-30px -210px; }
+
+/* Contrib, @TODO */
+.path-admin-config-development-devel span.icon  { background-position:-30px -330px; }
+
+/* Deprecated, @TODO */
+.path-admin-settings-wysiwyg span.icon,
+.path-admin-settings-fckeditor span.icon,
+.path-admin-settings-tinymce span.icon          { background-position:-150px -330px; }
+.path-admin-settings-uploads span.icon          { background-position:-210px -360px; }
+.path-admin-settings-error-reporting span.icon  { background-position:-90px -360px; }
+.path-admin-settings-blogapi span.icon          { background-position:-30px -360px; }
+.path-admin-settings-throttle span.icon         { background-position:-150px -90px; }

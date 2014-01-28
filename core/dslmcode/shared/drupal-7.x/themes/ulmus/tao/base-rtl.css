@@ -1,0 +1,9 @@
+ul.links li,
+ul.links li a { float:right; }
+
+.prose pre,
+.prose blockquote,
+.prose div.codeblock { border-width:1px 5px 1px 1px; }
+
+.prose ol li,
+.prose ul li { margin:0px 20px 0px 0px; }
