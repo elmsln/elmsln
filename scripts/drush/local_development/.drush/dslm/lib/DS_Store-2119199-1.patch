@@ -1,0 +1,13 @@
+diff --git a/lib/dslm.class.php b/lib/dslm.class.php
+index f0b2c18..ac80645 100644
+--- a/lib/dslm.class.php
++++ b/lib/dslm.class.php
+@@ -46,7 +46,7 @@ class Dslm {
+    *
+    * @var array
+    */
+-  protected $ignore_core_file_patterns = array('/^.git/', '/(?<!^robots)\.txt$/', '/(.+).patch$/');
++  protected $ignore_core_file_patterns = array('/^.DS_Store/', '/^.git/', '/(?<!^robots)\.txt$/', '/(.+).patch$/');
+ 
+   /**
+    * DSLM constructor

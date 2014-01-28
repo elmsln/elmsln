@@ -1,0 +1,34 @@
+<?php
+require_once('bootstrap.php');
+
+/**
+  * Cores and Dists tests
+  */
+class TestCoresAndDists extends UnitTestCase {
+  /**
+   * Test that the DSLM getCores and getDists methods both return arrays
+   */
+  function testGetCoresAndDists() {
+    $dslm = new Dslm($_ENV['DSLM_BASE']);
+    $cores = $dslm->getCores();
+    $profiles = $dslm->getProfiles();
+    
+    $this->assertTrue(is_array($cores) && !empty($cores));
+    $this->assertTrue(is_array($profiles) && !empty($profiles));
+  }
+  
+  /**
+   * Core and Profile string validation tests
+   */
+  function testStringValidations() {
+    $dslm = new Dslm($_ENV['DSLM_BASE']);
+
+    // Core string tests
+    $this->assertTrue(is_array($dslm->isCoreString('drupal-7.8-dev')));
+    $this->assertFalse($dslm->isCoreString('1.1'));
+
+    // Profile String Tests
+    $this->assertTrue(is_array($dslm->isProfileString('cu_tempate-7.x-1.1-dev')));
+    $this->assertFalse($dslm->isProfileString('7.1-1.1'));
+  }
+}

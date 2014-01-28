@@ -1,0 +1,48 @@
+diff --git a/README.txt b/README.txt
+index 892ddb3..3b76f32 100644
+--- a/README.txt
++++ b/README.txt
+@@ -26,6 +26,11 @@ The first thing you'll want to do is set up your DSLM base folder. The DSLM base
+       -- modules
+       -- themes
+       -- libraries
++  -- shared
++    -- drupal-7.x
++      -- modules
++      -- themes
++      -- libraries
+ 
+ Once your base is set up as described above, you'll need to pass it to drush dslm in order to run commands. There are three ways to set the location of your base.
+ 
+diff --git a/lib/dslm.class.php b/lib/dslm.class.php
+index 0aea293..f0b2c18 100644
+--- a/lib/dslm.class.php
++++ b/lib/dslm.class.php
+@@ -418,6 +418,27 @@ class Dslm {
+       }
+     }
+ 
++    // Support for shared sites/all sub-directories
++    $core_version = explode('.', $core);
++    $core_version = $core_version[0] . '.x';
++    $shared_dir = "$base/shared/$core_version";
++    // ensure we have a shared folder worth looking for
++    if (file_exists($this->getBase() . '/shared/' . $core_version)) {
++      // Look for folders that we want to include
++      foreach($this->filesInDir("$shared_dir") as $df) {
++        // Look for folders that we want to include in sites/all/$df
++        foreach($this->filesInDir("$shared_dir/$df") as $f) {
++          if(is_link("$dest_dir/sites/all/$df/$f")) {
++            unlink("$dest_dir/sites/all/$df/$f");
++          }
++          if(!file_exists("$dest_dir/sites/all/$df/$f")) {
++            $relpath = $this->relpath("$shared_dir/$df", "$dest_dir/sites/all/$df");
++            symlink("$relpath/$f", "$dest_dir/sites/all/$df/$f");
++          }
++        }
++      }
++    }
++
+     // Return the core we just linked to
+     return $core;
+   }

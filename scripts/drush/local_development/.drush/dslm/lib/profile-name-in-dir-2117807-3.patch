@@ -1,0 +1,40 @@
+diff --git a/lib/dslm.class.php b/lib/dslm.class.php
+index ac80645..86d8d5b 100644
+--- a/lib/dslm.class.php
++++ b/lib/dslm.class.php
+@@ -474,28 +474,30 @@ class Dslm {
+     // Set some path variables to make things easier
+     $base = $this->base;
+     $dest_profiles_dir = "$dir/profiles";
++    // scrape off potential '-{version}.x' modifier
++    $dest_profile_name = $dest_profiles_dir . '/' . preg_replace('/(-)([0-9]*)(.x)/', '', $name);
+     $source_profile_dir = "$base/profiles/$name-$version";
+ 
+     if (!$upgrade) {
+-      if (file_exists("$dir/profiles/$name")) {
++      if (file_exists("$dest_profile_name")) {
+         $this->last_error = "The profile '$name' is already linked to this site.";
+         return FALSE;
+       }
+     }
+     else {
+-      if (!file_exists("$dir/profiles/$name")) {
++      if (!file_exists("$dest_profile_name")) {
+         $this->last_error = "Attempting to update profile that doesn't exist: $name.";
+         return FALSE;
+       }
+       // Remove the previous symlink.
+-      $this->removeSymlink("$dir/profiles/$name");
++      $this->removeSymlink("$dest_profile_name");
+     }
+ 
+     // Relative path between the two profiles folders
+-    $relpath = $this->relpath("$base/profiles", "$dir/profiles");
++    $relpath = $this->relpath("$base/profiles", "$dest_profiles_dir");
+ 
+     // Working symlink
+-    symlink("$relpath/$name-$version", "$dir/profiles/$name");
++    symlink("$relpath/$name-$version", "$dest_profile_name");
+ 
+     return "$name-$version";
+   }
