@@ -1,7 +1,3 @@
-ELMSLN Scripts
-
-These are automation scripts intended to help streamline the process of managing hundreds of drupal sites in your network.  These were created for use on a RHL 6 64bit distribution but should work on other linux based servers.
-
 ## drush-create-site ##
 
 This is a bash script that helps automate the creation of

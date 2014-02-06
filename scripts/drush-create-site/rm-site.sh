@@ -17,15 +17,8 @@ echo "Usage: $0 <webroot> <course name>"
 exit 1
 fi
 
-if [ -L $1/$2 ]; then
-echo "removing symlink"
-rm -rf $1/$2
-else
-echo "symlink not present"
-fi
-
 #remove sites directory
-for sitedata in `find $1/sites/ -name $2 | grep -v services` ; do
+for sitedata in `find $1/$2/sites/ -name $2 | grep -v services` ; do
 	echo "found sub-site $sitedata remove(y/n)"
 	read rmsitedata
 	if [ $rmsitedata == "y" ] || [ $rmsitedata == "yes" ]; then
@@ -51,7 +44,7 @@ for sitedata in `find $1/sites/ -name $2 | grep -v services` ; do
 				fi
 			fi
 		echo "removing site data"
-			servicestest=`find $1/sites/*/services -name $2`
+			servicestest=`find $1/$2/sites/*/services -name $2`
 			echo "services test"
 			echo $servicestest
 				if [[ $servicestest ]]; then
@@ -79,18 +72,18 @@ done
 #        fi
 #done
 
-sitesphp=`grep -nr $2 $1/sites/sites.php`
+sitesphp=`grep -nr $2 $1/$2/sites/sites.php`
 
 while [[ $sitesphp ]]; do
-        sitesphp=`grep -nr $2 $1/sites/sites.php`
-        grep -nr $2 $1/sites/sites.php
+        sitesphp=`grep -nr $2 $1/$2/sites/sites.php`
+        grep -nr $2 $1/$2/sites/sites.php
         echo "which line do you want to remove?(x to exit)"
         read rmnum
                 validrmnum=`echo $sitesphp | grep $rmnum:`
                 if [[ $validrmnum ]]; then
-                        cp $1/sites/sites.php $1/sites/sites.php.bak
-                        echo "sites.php backed up to $1/sites/sites.php.bak"
-                        sed -i ""$rmnum"d" $1/sites/sites.php
+                        cp $1/$2/sites/sites.php $1/$2/sites/sites.php.bak
+                        echo "sites.php backed up to $1/$2/sites/sites.php.bak"
+                        sed -i ""$rmnum"d" $1/$2/sites/sites.php
                 else
                         if [[ $rmnum == "x" ]]; then
                                 exit 0
@@ -116,5 +109,12 @@ done
 #		sed -i ""$rmnum"d" $1/sites/sites.php
 #		fi
 #fi
+
+if [ -L $1/$2 ]; then
+echo "removing symlink"
+rm -rf $1/$2
+else
+echo "symlink not present"
+fi
 
 
