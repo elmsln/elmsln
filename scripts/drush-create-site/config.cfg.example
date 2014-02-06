@@ -1,13 +1,26 @@
 #email that the site uses to send mail
 site_email=admin@example.com
 #administrator e-mail or alias
-admin=admin@example.com
-#.course .studio file loaction
+admin=admin_user@example.com
+#jobsfile location
 fileloc=/var/wwwjobs
-webdir=/var/www/
-#sets the hostname for each college
-hostfile=$fileloc/hosts
-
+#where is elmsln? 
+elmsln=/var/www/elmsln
 #database superuser credentials
-dbsu=dbadmin
+dbsu=root
 dbsupw=password
+#www user, what does apache run as?
+wwwuser=apache
+#webgroup, if sharing with other developers else leave root
+webgroup=root
+
+
+#comment out the following if you plan to use SSO
+send_requester_pw=yes
+
+#these vars shouldn't need changing if $elmsln is set properly
+webdir=$elmsln/www
+hostfile=$elmsln/config/scripts/drush-create-site/hosts
+#uncomment the line below for dslm 'stacks' install
+stacks=$elmsln/core/dslmcode/stacks
+drupal_priv=$elmsln/config/drupal_priv
