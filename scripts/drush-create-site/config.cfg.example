@@ -4,7 +4,7 @@ site_email=admin@example.com
 admin=admin_user@example.com
 #jobsfile location
 fileloc=/var/wwwjobs
-#where is elmsln? 
+#where is elmsln?
 elmsln=/var/www/elmsln
 #database superuser credentials
 dbsu=root
@@ -19,7 +19,7 @@ webgroup=root
 send_requester_pw=yes
 
 #these vars shouldn't need changing if $elmsln is set properly
-webdir=$elmsln/html
+webdir=$elmsln/domains
 hostfile=$elmsln/config/scripts/drush-create-site/hosts
 #uncomment the line below for dslm 'stacks' install
 stacks=$elmsln/core/dslmcode/stacks
