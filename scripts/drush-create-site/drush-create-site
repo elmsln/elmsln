@@ -1,5 +1,5 @@
 #!/bin/bash
-#if [ ! -f /var/www/elmsln/scripts/drush-create-site/config.cfg ]; then 
+#if [ ! -f /var/www/elmsln/scripts/drush-create-site/config.cfg ]; then
 #echo "Please copy config.cfg.example to config.cfg and fill out information for your site"
 #exit 1
 #fi
@@ -31,11 +31,11 @@ echo "please update your config.cfg file"
 exit 1
 fi
 
-#test mysql login 
+#test mysql login
 mysql -u$dbsu -p$dbsupw -e exit
 if [[ $? > 0 ]];then
 echo "mysql connection failed"
-exit 1 
+exit 1
 fi
 
 date=`date +%Y-%m-%d_%H:%M:%S`
@@ -55,9 +55,9 @@ hostnamesearch=`grep ^$college $hostfile | awk {'print $3'}`
 datahostname=`grep ^$college $hostfile | awk {'print $4'}`
 course=`sed -n '1p' $coursefile`
 service=${coursefile#*.}
-if [ -z $stacks ]; then 
+if [ -z $stacks ]; then
 drupalroot=$webdir/$service
-else 
+else
 drupalroot=$stacks/$service
 fi
 echo $drupalroot
@@ -241,9 +241,9 @@ arraytest=`/bin/grep -e "^\\$sites" $drupalroot/sites/sites.php`
                 echo ");" >> $drupalroot/sites/sites.php
         fi
 /bin/sed -i "/^\$sites = array/a \ \t \'$hostname.$course\' =\> \'$subdir\/$course\'\," $drupalroot/sites/sites.php
-	if [[ $datahostname ]]; then 
+	if [[ $datahostname ]]; then
 		/bin/sed -i "/^\$sites = array/a \ \t \'data.$service.$datahostname.$course\' =\> \'$service\/services\/$college\/$course\'\," $drupalroot/sites/sites.php
-	else 
+	else
 		/bin/sed -i "/^\$sites = array/a \ \t \'data.$hostname.$course\' =\> \'$service\/services\/$college\/$course\'\," $drupalroot/sites/sites.php
 	fi
 fi
@@ -272,9 +272,6 @@ fi
 
 ##set base_url
 sed -i "/\# \$base_url/a \ \t \$base_url= 'https://$hostname/$course';" $drupalroot/sites/$subdir/$course/settings.php
-
-#this is broekn at them moment 
-#curl http://online.aanda.psu.edu/sites/apckill.php?target=$drupalroot/sites/$subdir/$course/settings.php
 
 cd $drupalroot
 ###options
@@ -383,7 +380,7 @@ fi
   #/usr/bin/drush -y --uri=http://$hostname.$course $drushcommand
         #fi
 
-  /usr/bin/drush -y --uri=http://$hostname.$course $drushcommand 
+  /usr/bin/drush -y --uri=http://$hostname.$course $drushcommand
 
 done
 fi
@@ -412,6 +409,6 @@ if [[ -f  $coursefile.processing ]]; then
 fi
 
 if [[ -f $coursefile.progress ]]; then
-/bin/rm $coursefile.progress 
+/bin/rm $coursefile.progress
 fi
 rm /tmp/drush-lock
