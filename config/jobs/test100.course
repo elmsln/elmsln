@@ -1,0 +1,23 @@
+robots109
+aa
+Robots 109
+An introduction to taking over the world
+admin@example.com
+mooc
+drush en cis_service_lti cis_remote_watchdog cis_service_restws
+drush vset cron_safe_threshold 0
+drush vset user_register 1
+drush vset user_email_verification 0
+drush vset preprocess_css 1
+drush vset preprocess_js 1
+drush vset file_private_path /var/www/elmsln/config/private_files/robots109
+drush vdel update_notify_emails
+drush dis pathauto path
+drush urol staff admin
+drush urol administrator admin
+drush fr mooc_ux_defaults mooc_cis_ux cis_section cis_service_lti
+drush pm-uninstall pathauto path
+drush feeds-import feeds_node_helper_book_import --file=/var/www/elmsln/core/dslmcode/stacks/online/profiles/cis/modules/custom/cis_helper/instructional_models/lesson-based.xml
+drush cron
+drush ecl
+drush cron
