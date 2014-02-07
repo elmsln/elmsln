@@ -1,0 +1,24 @@
+skip-locking
+key_buffer = 16M
+#key_buffer = 256M
+#max_allowed_packet = 4M
+max_allowed_packet = 16M
+table_definition_cache = 4000
+table_cache = 512
+max_connections = 125
+sort_buffer_size = 2M
+read_buffer_size = 2M
+read_rnd_buffer_size = 8M
+#myisam_sort_buffer_size = 64M
+myisam_sort_buffer_size = 16M
+thread_cache_size = 8
+query_cache_type = 1
+#query_cache_size = 20M
+query_cache_size = 8M
+query_cache_limit = 4M
+# Try number of CPU's*2 for thread_concurrency
+thread_concurrency = 2
+
+tmp_table_size = 32M
+#max_heap_table_size = 32M
+max_heap_table_size = 16M
