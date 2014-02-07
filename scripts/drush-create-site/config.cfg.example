@@ -19,7 +19,7 @@ webgroup=root
 send_requester_pw=yes
 
 #these vars shouldn't need changing if $elmsln is set properly
-webdir=$elmsln/www
+webdir=$elmsln/html
 hostfile=$elmsln/config/scripts/drush-create-site/hosts
 #uncomment the line below for dslm 'stacks' install
 stacks=$elmsln/core/dslmcode/stacks
