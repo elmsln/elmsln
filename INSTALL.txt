@@ -5,7 +5,6 @@ These steps will help you setup ELMSLN on an Apache / Unix environment.
 Using git for version control is recommended due to the sheer volume of files.  Suggested .gitignores are included but generally all changes you make after deploying should happen inside the config directory.  All scripts, Drupal core files, and piwik files that need configuration changes are referenced to symlinks in the config directory.
 
 
-
 === DOWNLOAD ===
 First, get elmsln and put it in /var/www:
 
@@ -41,4 +40,4 @@ sudo vi /etc/my.cnf
 Apply the settings recommended in docs/crontab.txt
 sudo vi /etc/crontab
 
-At this point, ELMSLN should pick up files and start trying to 
+At this point, ELMSLN should pick up files and start trying to
