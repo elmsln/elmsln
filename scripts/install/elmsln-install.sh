@@ -85,7 +85,7 @@ printf "  );\n\n  return \$items;\n}" >> $modulefile
 # inital tests all passed, going to write all these into the jobs system
 
 # cis jobs file
-online=${fileloc}/default.online
+online=${fileloc}/online.online
 touch $online
 echo 'online' > $online
 echo $host >> $online
