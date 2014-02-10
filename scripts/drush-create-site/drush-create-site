@@ -240,7 +240,7 @@ arraytest=`/bin/grep -e "^\\$sites" $drupalroot/sites/sites.php`
         fi
 /bin/sed -i "/^\$sites = array/a \ \t \'$hostname.$course\' =\> \'$subdir\/$course\'\," $drupalroot/sites/sites.php
 	if [[ $datahostname ]]; then
-		/bin/sed -i "/^\$sites = array/a \ \t \'data.$service.$datahostname.$course\' =\> \'$service\/services\/$college\/$course\'\," $drupalroot/sites/sites.php
+		/bin/sed -i "/^\$sites = array/a \ \t \'$datahostname.$course\' =\> \'$service\/services\/$college\/$course\'\," $drupalroot/sites/sites.php
 	else
 		/bin/sed -i "/^\$sites = array/a \ \t \'data.$hostname.$course\' =\> \'$service\/services\/$college\/$course\'\," $drupalroot/sites/sites.php
 	fi
