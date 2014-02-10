@@ -1,13 +1,19 @@
+#university / institution deploying this instance
+#these values provide defaults for getting the system primed
+university='example'
+emailending='example.edu'
+address='example.edu'
+serviceaddress='dataexample.edu'
 #email that the site uses to send mail
-site_email=admin@example.com
+site_email=example@example.edu
 #administrator e-mail or alias
-admin=admin_user@example.com
+admin=example@example.edu
 
 #where is elmsln?
 elmsln=/var/www/elmsln
 #database superuser credentials
 dbsu=root
-dbsupw=password
+dbsupw=root
 #www user, what does apache run as?
 wwwuser=apache
 #webgroup, if sharing with other developers else leave root
