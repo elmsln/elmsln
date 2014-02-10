@@ -1,11 +1,9 @@
 #!/bin/bash
 #remove a site created by drush-create-site
-cd /usr/local/bin/drush-create-site
-if [ ! -f config.cfg ]; then
-echo "Please copy config.cfg.example to config.cfg and fill out information for your site"
-exit 1
-fi
-source config.cfg
+DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+cd $DIR
+
+source ../../config/scripts/drush-create-site/config.cfg
 
 if [ -z "$1" ]; then
 echo "Usage: $0 <webroot> <course name>"
