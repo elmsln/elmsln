@@ -40,7 +40,7 @@ fi
 # @todo Dann we need this to read from the hosts file somehow
 # also, why is the hosts file separate from the rest of the configuration?
 # seems like it could be consolidated
-host='ex'
+host='ou'
 core='7.x'
 distros=('cis' 'mooc' 'elmsmedia' 'remote_watchdog')
 stacklist=('online' 'courses' 'media' 'studio')
@@ -51,7 +51,7 @@ cissettings=${university}_${host}_settings
 # work on authoring the connector module automatically
 # make an area specific to the university
 mkdir $moduledir/${university}
-mkdir $moduledir/${university}/$cissettingsmodule
+mkdir $moduledir/${university}/${cissettingsmodule}
 infofile=$moduledir/${university}/${cissettings}/${cissettings}.info
 modulefile=$moduledir/${university}/${cissettings}/${cissettings}.module
 # write the .info file
