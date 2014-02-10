@@ -47,8 +47,8 @@ touch /tmp/drush-lock
 for coursefile in `find $fileloc ! -name *.swp ! -name '*progress'  ! -name '*processing*' ! -name '*error' ! -name '*processed' ! -name 'hosts' -type f`
 do
 college=`sed -n '2p' $coursefile`
-hostnamesearch=`grep ^$college $hostfile | awk {'print $3'}`
-datahostname=`grep ^$college $hostfile | awk {'print $4'}`
+#hostnamesearch=`grep ^$college $hostfile | awk {'print $3'}`
+#datahostname=`grep ^$college $hostfile | awk {'print $4'}`
 course=`sed -n '1p' $coursefile`
 service=${coursefile#*.}
 if [ -z $stacks ]; then
@@ -58,7 +58,9 @@ drupalroot=$stacks/$service
 fi
 echo $drupalroot
 coursedb=$service"_"$college"_"$course
-hostname=$service.$hostnamesearch
+#hostname=$service.$hostnamesearch
+hostname=`sed -n '3p' $coursefile`
+datahostname=`sed -n '3p' $coursefile`
 subdir=$service/$college
 collegetest=`grep ^$college $hostfile`
 dbpw=`</dev/urandom tr -dc A-Za-z0-9 | head -c14`
@@ -70,11 +72,11 @@ coursefilelen=${#coursefile}
 #coursedb="courses_"$college"_"$course
 courselen=${#course}
 error=0
-sitename=`sed -n '3p' $coursefile`
-slogan=`sed -n '4p' $coursefile`
-requester=`sed -n '5p' $coursefile`
-insprofile=`sed -n '6p' $coursefile`
-options=`sed -n '7p' $coursefile`
+sitename=`sed -n '5p' $coursefile`
+slogan=`sed -n '6p' $coursefile`
+requester=`sed -n '7p' $coursefile`
+insprofile=`sed -n '8p' $coursefile`
+options=`sed -n '9p' $coursefile`
 
 #makeshift progress indicator start
 echo "1" > $fileloc/$course.$service.progress
