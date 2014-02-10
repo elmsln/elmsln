@@ -40,7 +40,6 @@ fi
 # @todo Dann we need this to read from the hosts file somehow
 # also, why is the hosts file separate from the rest of the configuration?
 # seems like it could be consolidated
-host='ou'
 core='7.x'
 distros=('cis' 'mooc' 'elmsmedia' 'remote_watchdog')
 stacklist=('online' 'courses' 'media' 'studio')
@@ -90,6 +89,8 @@ online=${fileloc}/default.online
 touch $online
 echo 'online' > $online
 echo $host >> $online
+echo "online.${$address}" >> $online
+echo "data.online.${$serviceaddress}" >> $online
 echo 'Online' >> $online
 echo 'Welcome to ELMSLN' >> $online
 echo $admin >> $online
@@ -109,6 +110,8 @@ courseswd=${fileloc}/watchdog.courses
 touch $courseswd
 echo 'watchdog' > $courseswd
 echo $host >> $courseswd
+echo "courses.${$address}" >> $courseswd
+echo "data.courses.${$serviceaddress}" >> $courseswd
 echo 'Watchdog' >> $courseswd
 echo 'Courses logging service' >> $courseswd
 echo $admin >> $courseswd
@@ -127,6 +130,8 @@ mediawd=${fileloc}/watchdog.media
 touch $mediawd
 echo 'watchdog' > $mediawd
 echo $host >> $mediawd
+echo "media.${$address}" >> $mediawd
+echo "data.media.${$serviceaddress}" >> $mediawd
 echo 'Watchdog' >> $mediawd
 echo 'Media logging service' >> $mediawd
 echo $admin >> $mediawd
@@ -146,6 +151,8 @@ courses=${fileloc}/robots109.courses
 touch $courses
 echo 'robots109' > $courses
 echo $host >> $courses
+echo "courses.${$address}" >> $courses
+echo "data.courses.${$serviceaddress}" >> $courses
 echo 'Robots 109' >> $courses
 echo 'An introduction to taking over the world' >> $courses
 echo $admin >> $courses
@@ -171,6 +178,8 @@ media=${fileloc}/robots109.media
 touch $media
 echo 'robots109' >> $media
 echo $host >> $media
+echo "media.${$address}" >> $media
+echo "data.media.${$serviceaddress}" >> $media
 echo 'Robots 109' >> $media
 echo 'Robots 109 Asset management' >> $media
 echo $admin >> $media
