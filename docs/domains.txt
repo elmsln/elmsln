@@ -1,0 +1,46 @@
+#ELMSLN domains.conf recommendations
+NameVirtualHost example.com:80
+
+<VirtualHost example.com:80>
+    DocumentRoot /var/www/html
+    ServerName example.com
+    ServerAlias www.example.com
+</VirtualHost>
+<VirtualHost courses.example.com:80>
+    DocumentRoot /var/www/elmsln/domains/courses
+    ServerName courses.example.com
+</VirtualHost>
+<VirtualHost media.example.com:80>
+    DocumentRoot /var/www/elmsln/domains/media
+    ServerName media.example.com
+</VirtualHost>
+<VirtualHost analytics.example.com:80>
+    DocumentRoot /var/www/elmsln/domains/analytics
+    ServerName analytics.example.com
+</VirtualHost> 
+<VirtualHost online.example.com:80>
+    DocumentRoot /var/www/elmsln/domains/online
+    ServerName online.example.com
+</VirtualHost>
+
+<Directory /var/www/elmsln/domains/courses>
+    AllowOverride None
+    Order allow,deny
+    allow from all
+</Directory>
+<Directory /var/www/elmsln/domains/media>
+    AllowOverride None
+    Order allow,deny
+    allow from all
+</Directory>
+<Directory /var/www/elmsln/domains/online>
+    AllowOverride None
+    Order allow,deny
+    allow from all
+</Directory>
+<Directory /var/www/elmsln/domains/analytics>
+    AllowOverride None
+    Order allow,deny
+    allow from all
+</Directory>
+
