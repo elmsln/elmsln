@@ -4,6 +4,7 @@ university='example'
 emailending='example.edu'
 address='example.edu'
 serviceaddress='dataexample.edu'
+protocol="https"
 #email that the site uses to send mail
 site_email=example@example.edu
 #administrator e-mail or alias
