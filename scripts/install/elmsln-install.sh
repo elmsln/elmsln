@@ -50,10 +50,10 @@ moduledir=$elmsln/config/shared/drupal-${core}/modules
 cissettings=${university}_${host}_settings
 # work on authoring the connector module automatically
 # make an area specific to the university
-mkdir $moduledir/${university}
-mkdir $moduledir/${university}/${cissettingsmodule}
-infofile=$moduledir/${university}/${cissettings}/${cissettings}.info
-modulefile=$moduledir/${university}/${cissettings}/${cissettings}.module
+mkdir ${moduledir}/${university}
+mkdir ${moduledir}/${university}/${cissettingsmodule}
+infofile=${moduledir}/${university}/${cissettings}/${cissettings}.info
+modulefile=${moduledir}/${university}/${cissettings}/${cissettings}.module
 # write the .info file
 printf "name = ${university} ${host} Settings\ndescription = This contains registry information for all ${host} connection details\ncore = ${core}\npackage = ${university}" >> $infofile
 # write the .module file
