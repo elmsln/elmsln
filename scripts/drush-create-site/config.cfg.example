@@ -1,6 +1,7 @@
 #university / institution deploying this instance
 #these values provide defaults for getting the system primed
 university='example'
+host='ex'
 emailending='example.edu'
 address='example.edu'
 serviceaddress='dataexample.edu'
