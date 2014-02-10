@@ -1,3 +1,3 @@
-#this file belongs in the $fileloc
-aa = aanda.psu.edu
-ab = aandb.psu.edu
+#college = hostname <space> data hostname. only specify data hostname if you need it. data address is data.$datahostname
+aa = aa.example.com example.com
+ab = aandb.example.com
