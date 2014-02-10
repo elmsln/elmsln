@@ -54,8 +54,4 @@
  * @see http://drupal.org/documentation/install/multi-site
  */
 $sites = array(
- 	 'data.courses.courses.gti.sdi.psu.edu.robo1' => 'courses/services/aa/robo1',
- 	 'courses.gti.sdi.psu.edu.robo1' => 'courses/aa/robo1',
- 	 'data.courses.Robots 109.robots109' => 'courses/services/aa/robots109',
- 	 'Robots 109.robots109' => 'courses/aa/robots109',
 );
