@@ -51,7 +51,7 @@ cissettings=${university}_${host}_settings
 # work on authoring the connector module automatically
 # make an area specific to the university
 mkdir ${moduledir}/${university}
-mkdir ${moduledir}/${university}/${cissettingsmodule}
+mkdir ${moduledir}/${university}/${cissettings}
 infofile=${moduledir}/${university}/${cissettings}/${cissettings}.info
 modulefile=${moduledir}/${university}/${cissettings}/${cissettings}.module
 # write the .info file
