@@ -16,10 +16,6 @@ vi /var/www/elmsln/config/scripts/drush-create-site/config.cfg
 
 Modify these values to match your file system and implementation requirements. More often then not this is simply supplying default email addresses and mysql root user / pass.  There are additional options based on your configuration changes but those entered are recommended defaults.
 
-vi /var/www/elmsln/config/scripts/drush-create-site/hosts
-
-Modify these hosts to match different groupings and their associated domains.  Each tool will automatically be installed and looked for at a matching {tool}.{hostname}/{course} style address. At this time, to use this systems without sub domains involves manual modification.
-
 === SELINUX ===
 Next you need to modify selinux settings
 Then you need to move ABC files into directory XYZ and change write permissions
@@ -36,8 +32,32 @@ sudo vi /etc/php.ini
 Apply the settings recommended in docs/mysql.txt
 sudo vi /etc/my.cnf
 
+=== BIN ===
+issue the following commands to place these scripts in scope of bin which will allow the crontab to pick up the job and process it.  There’s also an optional drush remove site command that’s listed too. (good for clean up of things accidentally created)
+
+sudo ln -s /var/www/elmsln/scripts/drush-create-site /usr/local/bin/drush-create-site
+
+# add the following command for drush remove site shorthand
+sudo -i
+vi .bashrc
+alias drs='/usr/local/bin/drush-create-site/rm-site.sh'
+
 === CRONTAB ===
 Apply the settings recommended in docs/crontab.txt
 sudo vi /etc/crontab
 
-At this point, ELMSLN should pick up files and start trying to
+=== DOMAINS ===
+Apply similar settings to those recommended in docs/domains.txt
+sudo vi /etc/httpd/conf.d/domains.conf
+
+=== ELMSLN INSTALLER ===
+The last step is to invoke the elmsln-install.sh script to kick everything off.  This will automatically take your default settings defined in elmsln/config/scripts/drush-create-site/config.cfg and try and install all the drupal sites needed to get things started.  It will also automatically author a module with all of your private connection credentials using a randomly generated cis_connector keychain.
+
+You can find this module in elmsln/config/shared/drupal-7.x/modules and can modify it as you see fit but it’s a great starting point for all of the web service calls to work correctly between systems OOTB.  It’s also automatically enabled on all the jobs kicked off by the script so everything can talk to each other.
+
+the command is:
+bash /var/www/elmsln/scripts/install/elmsln-install.sh
+
+At this point, ELMSLN should pick up files and start trying to build them and hopefully you’ll get emails if it all worked!
+
+Stay thirsty my friends.
