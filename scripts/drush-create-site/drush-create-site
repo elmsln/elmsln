@@ -1,8 +1,4 @@
 #!/bin/bash
-#if [ ! -f /var/www/elmsln/scripts/drush-create-site/config.cfg ]; then
-#echo "Please copy config.cfg.example to config.cfg and fill out information for your site"
-#exit 1
-#fi
 #where am i? move to where I am. This ensures source is properly sourced
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 cd $DIR
