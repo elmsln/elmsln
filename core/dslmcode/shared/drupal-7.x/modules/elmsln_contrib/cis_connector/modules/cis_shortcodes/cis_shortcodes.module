@@ -159,7 +159,7 @@ function cis_shortcodes_entity_view($entity, $type, $view_mode, $langcode) {
       );
     }
     // only render if we actually have data to display
-    if (count($field['cis_shortcodes']) < 5) {
+    if (count($field['cis_shortcodes']) > 5) {
       $entity->content['cis_shortcodes'] = array(
         '#markup' => drupal_render($field),
         '#weight' => 100,
