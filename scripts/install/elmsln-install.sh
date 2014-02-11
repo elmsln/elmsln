@@ -156,7 +156,8 @@ echo 'Robots 109' >> $courses
 echo 'An introduction to taking over the world' >> $courses
 echo $admin >> $courses
 echo 'mooc' >> $courses
-echo "drush en cis_service_lti cis_remote_watchdog cis_service_restws ${cissettings}" >> $courses
+echo "drush en ${cissettings}" >> $media
+echo "drush en cis_service_lti cis_remote_watchdog cis_service_restws" >> $courses
 echo 'drush vset cron_safe_threshold 0' >> $courses
 echo 'drush vset user_register 1' >> $courses
 echo 'drush vset user_email_verification 0' >> $courses
@@ -183,7 +184,8 @@ echo 'Robots 109' >> $media
 echo 'Robots 109 Asset management' >> $media
 echo $admin >> $media
 echo 'elmsmedia' >> $media
-echo "drush en cis_remote_watchdog cis_service_restws ${cissettings}" >> $media
+echo "drush en ${cissettings}" >> $media
+echo "drush en cis_remote_watchdog cis_service_restws" >> $media
 echo 'drush vset cron_safe_threshold 0' >> $media
 echo 'drush vset user_register 1' >> $media
 echo 'drush vset user_email_verification 0' >> $media
