@@ -66,4 +66,7 @@ bash /var/www/elmsln/scripts/install/elmsln-install.sh
 
 At this point, ELMSLN should pick up files and start trying to build them and hopefully you’ll get emails if it all worked!
 
+To reset user passwords on the initial systems build. run
+drush @courses.robots109 upwd {username from config} —password=“{new password}”
+
 Stay thirsty my friends.
