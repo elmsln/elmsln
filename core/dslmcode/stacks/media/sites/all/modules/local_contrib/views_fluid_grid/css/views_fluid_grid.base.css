@@ -1,0 +1,62 @@
+
+/* Fluid grid container. */
+div.views-fluid-grid {
+}
+
+/* View title, label of grouping field. */
+div.views-fluid-grid h3 {
+  text-align: center;
+}
+
+/* Fluid grid is based on an HTML list. */
+ul.views-fluid-grid-list {
+  margin: 0;
+  padding: 0;
+}
+
+/* Default item style. */
+li.views-fluid-grid-item {
+  /* width and height properties are defined at views_fluid_grid.size.css. */
+  padding: 3px;
+  overflow: hidden; /* needed to clip content when explicit width/height is specified. */
+  list-style-type: none;
+  background-image: none;
+  vertical-align: top;
+  color: #444;
+  background-color: #f0f0f0;
+  border: 1px solid #aaa;
+}
+
+/**
+ * List items use inline block style.
+ *
+ * Works in all modern browsers (except IE7 and lower).
+ */
+li.views-fluid-grid-inline {
+  /* inline-block does not work when applied to block elements in IE7 and lower. */
+  display: inline-block;
+}
+
+/**
+ * Targeting IE7.
+ *
+ * 1) html > body selector hides declaration from IE6 and lower.
+ * 2) Asterisk Hack exploits a bug in IE7 and lower.
+ */
+html > body li.views-fluid-grid-inline {
+  *display: inline;
+  *zoom: 1;
+}
+
+/**
+ * Targeting IE4-6 (excluding MacIE5).
+ *
+ * 1) Commented Backslash Hack hides declaration from MacIE5.
+ * 2) * html selector exploits a bug in IE4-6.
+ * 3) Enforce hasLayout using display inline and zoom applied to block elements.
+ * \*/
+* html li.views-fluid-grid-inline {
+  display: inline;
+  zoom: 1;
+}
+/* Ends Commented Backslash Hack. */

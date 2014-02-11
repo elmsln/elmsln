@@ -1,0 +1,81 @@
+<?php
+/**
+ * @file
+ * Install, update and uninstall functions for the Custom Formatters module.
+ */
+
+/**
+ * Implements hook_schema().
+ */
+function custom_formatters_schema() {
+  $schema['formatters'] = array(
+    'export' => array(
+      'key' => 'name',
+      'key name' => 'Name',
+      'primary key' => 'name',
+      'identifier' => 'formatter',
+      'default hook' => 'custom_formatters_defaults',
+      'api' => array(
+        'owner' => 'custom_formatters',
+        'api' => 'custom_formatters',
+        'minimum_version' => 2,
+        'current_version' => 2,
+      ),
+    ),
+    'fields' => array(
+      'name' => array(
+        'type' => 'varchar',
+        'length' => 64,
+        'not null' => TRUE,
+        'default' => '',
+      ),
+      'label' => array(
+        'type' => 'varchar',
+        'length' => 64,
+        'not null' => TRUE,
+        'default' => '',
+      ),
+      'description' => array(
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => FALSE,
+        'default' => ''
+      ),
+      'mode' => array(
+        'type' => 'varchar',
+        'length' => 32,
+        'not null' => TRUE,
+        'default' => '',
+      ),
+      'field_types' => array(
+        'type' => 'text',
+        'size' => 'medium',
+        'not null' => TRUE,
+      ),
+      'code' => array(
+        'type' => 'blob'
+      ),
+      'fapi' => array(
+        'type' => 'blob'
+      ),
+    ),
+    'primary key' => array('name'),
+  );
+
+  return $schema;
+}
+
+/**
+ * Implements hook_uninstall().
+ */
+function custom_formatters_uninstall() {
+  variable_del('custom_formatters_settings');
+}
+
+/**
+ * Add FAPI column to Formatters table.
+ */
+function custom_formatters_update_7200() {
+  db_add_field('formatters', 'fapi', array('type' => 'blob'));
+  return t('New FAPI column added to Formatters table.');
+}

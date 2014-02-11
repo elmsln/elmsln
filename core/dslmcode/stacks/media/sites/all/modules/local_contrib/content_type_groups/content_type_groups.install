@@ -1,0 +1,62 @@
+<?php
+/**
+ * @file
+ * Install, update and uninstall functions for the Content type groups module.
+ */
+
+/**
+ * Implements hook_schema().
+ */
+function content_type_groups_schema() {
+
+  $schema['content_type_groups_groups'] = array(
+    'description' => 'Stores the general data for a content type group.',
+    'fields' => array(
+      'type' => array(
+        'description' => 'The machine name of this content type group.',
+        'type'        => 'varchar',
+        'length'      => 32,
+        'not null'    => TRUE,
+        'default'     => '',
+      ),
+      'name' => array(
+        'description' => 'The title of this content type group, always treated a non-markup plain text.',
+        'type'        => 'varchar',
+        'length'      => 255,
+        'not null'    => TRUE,
+        'default'     => '',
+      ),
+    ),
+    'primary key' => array('type'),
+    'unique keys' => array(
+      'name' => array('name'),
+    ),
+  );
+
+  $schema['content_type_groups_types'] = array(
+    'description' => 'Stores the content types belonging to a content type group.',
+    'fields' => array(
+      'group_type' => array(
+        'description' => 'The machine-readable name of the content type group.',
+        'type'        => 'varchar',
+        'length'      => 32,
+        'not null'    => TRUE,
+      ),
+      'content_type' => array(
+        'description' => 'The machine-readable name of the content type in this group.',
+        'type'        => 'varchar',
+        'length'      => 32,
+        'not null'    => TRUE,
+      ),
+      'weight' => array(
+        'description' => 'Weight of the element. Lighter weights are higher up, heavier weights go down.',
+        'type'        => 'int',
+        'not null'    => TRUE,
+        'default'     => 0,
+      ),
+    ),
+    'primary key' => array('group_type', 'content_type'),
+  );
+
+  return $schema;
+}

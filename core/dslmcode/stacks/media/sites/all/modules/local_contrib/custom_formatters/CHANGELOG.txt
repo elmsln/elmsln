@@ -1,0 +1,69 @@
+Custom Formatters 7.x-2.2, 2012-07-04
+--------------------------------------------------------------------------------
+
+- Fixed issue with Form builder.
+- Added support for the Entity token module.
+- Added Image styles and Token tree Form builder elements.
+- Added force wrap style to preview debug.
+- Added Formatter Settings column to export UI.
+- Added Coder Review integration.
+- Updated preview integration.
+- Updated render array/multifield support.
+- Updated example PHP formatter.
+- Updated raw HTML debug code.
+- Updated documentation.
+- Removed Token module dependency for HTML + Token formatter engine.
+- Removed obsolete token integration.
+
+
+Custom Formatters 7.x-2.1, 2012-06-17
+--------------------------------------------------------------------------------
+
+- #1562472: Fixed issue with menu on export page.
+- #1519918: Fixed issue with empty tokens.
+- #1498584: Fixed coder issues.
+- #1360388: Added support for Render arrays in PHP formatters.
+- #1350306: Fixed issue with preview.
+- #1324886: Fixed entity token support.
+- #1231096: Fixed Insert module integration.
+- #1198732: Fixed issue with preview when no entities exist.
+- #1184900 by mbopp: Fixed issue with CTools plugin decleration.
+- Added Form Builder integration.
+- Added support for the EditArea real-time syntax highlighter.
+- Added Entity Label in preview.
+- Added Devel Generate support to preview.
+- Added PHP engine DPM of raw HTML option.
+- Fixed issue with Javascript attachment method.
+- Updated CTools Export UI integration.
+- Removed Contextual links support from Insert support.
+
+
+Custom Formatters 7.x-2.0, 2011-07-01
+--------------------------------------------------------------------------------
+
+- #1188398: Added Contextual links integration settings.
+- Added documentation.
+- Added PHP engine DPM option to preview.
+
+
+Custom Formatters 7.x-2.0-beta3, 2011-06-15
+--------------------------------------------------------------------------------
+
+- Added HTML + Token engine Drupal API export.
+- Added PHP engine Drupal API export.
+- Added Insert module integration.
+- Fixed issue with 'Save & Edit' on new formatters.
+- Fixed issue with Fieldsets states being reverted on AJAX callback.
+
+
+Custom Formatters 7.x-2.0-beta2, 2011-06-02
+--------------------------------------------------------------------------------
+
+- Fixed critical install issue.
+- Removed support for non-fieldable entities.
+
+
+Custom Formatters 7.x-2.0-beta1, 2011-06-01
+--------------------------------------------------------------------------------
+
+- Initial 7.x release.
