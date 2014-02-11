@@ -226,7 +226,7 @@ arraytest=`/bin/grep -e "^\\$sites" $configsdir/stacks/$service/sites/sites.php`
 	fi
 fi
 
-# add in our cache bins - todo move to configsdir? 
+# add in our cache bins - todo move to configsdir?
   echo "\$conf['cache_prefix'] = '$coursedb';" >> $drupalroot/sites/$subdir/$course/settings.php
   echo "require_once DRUPAL_ROOT . '/../../shared/drupal-7.x/settings/shared_settings.php';" >> $drupalroot/sites/$subdir/$course/settings.php
 
@@ -244,7 +244,7 @@ fi
   fi
 
 ##set base_url
-sed -i "/\# \$base_url/a \ \t \$base_url= 'https://$hostname/$course';" $drupalroot/sites/$subdir/$course/settings.php
+sed -i "/\# \$base_url/a \ \t \$base_url= '$protocol://$hostname/$course';" $drupalroot/sites/$subdir/$course/settings.php
 
 cd $drupalroot
 ###options
@@ -258,9 +258,9 @@ if [[ $requester ]]; then
     #/usr/bin/drush -y --uri=http://$hostname.$course user-add-role administrator $requesterid
     /usr/bin/drush -y --uri=http://$hostname.$course user-password $requesterid --password="$requesterpw"
 	if [[ $send_requester_pw ]]; then
-     		echo " https://$hostname/$course has been created!  id: $requesterid  password: $requesterpw" | mail -s "$course has been added to $hostname" $requester
+     		echo " $protocol://$hostname/$course has been created!  id: $requesterid  password: $requesterpw" | mail -s "$course has been added to $hostname" $requester
 	else
-     		echo " https://$hostname/$course has been created!" | mail -s "$course has been added to $hostname" $requester
+     		echo " $protocol://$hostname/$course has been created!" | mail -s "$course has been added to $hostname" $requester
 	fi
   fi
 fi
