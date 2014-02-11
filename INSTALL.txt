@@ -56,6 +56,26 @@ sudo vi /etc/crontab
 Apply similar settings to those recommended in docs/domains.txt
 sudo vi /etc/httpd/conf.d/domains.conf
 
+=== DRUSH ===
+Install drush by following instructions at
+
+=== MBSTRING ===
+install mb_string package
+
+yum repolist
+subscription-manager repos --enable rhel-6-server-optional-rpms
+yum repolist
+yum update
+yum install php-mbstring
+touch /etc/php.d/mbstring.ini
+vi  /etc/php.d/mbstring.ini
+
+(add the following to that file)
+extension=mbstring.so
+
+=== RESTART APACHE ===
+sudo apachectl -k restart
+
 === ELMSLN INSTALLER ===
 The last step is to invoke the elmsln-install.sh script to kick everything off.  This will automatically take your default settings defined in elmsln/config/scripts/drush-create-site/config.cfg and try and install all the drupal sites needed to get things started.  It will also automatically author a module with all of your private connection credentials using a randomly generated cis_connector keychain.
 
