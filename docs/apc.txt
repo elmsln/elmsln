@@ -36,7 +36,7 @@ apc.write_lock=1
 ; Logs any scripts that were automatically excluded from being cached due to early/late binding issues.
 apc.report_autofilter=0
 ; RFC1867 File Upload Progress hook handler
-apc.rfc1867=0
+apc.rfc1867=1
 apc.rfc1867_prefix =upload_
 apc.rfc1867_name=APC_UPLOAD_PROGRESS
 apc.rfc1867_freq=0
