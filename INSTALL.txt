@@ -9,6 +9,8 @@ Using git for version control is recommended due to the sheer volume of files.  
 First, get elmsln and put it in /var/www:
 
 cd /var/www
+sudo mkdir elmsln
+sudo chown {you}:{group} elmsln
 git clone https://github.com/btopro/elmsln.git
 
 === MODIFY CONFIG ===
