@@ -43,7 +43,7 @@ function cis_shortcodes_entity_view($entity, $type, $view_mode, $langcode) {
       '#title' => t('Short Codes to embed'),
       '#weight' => -10,
     );
-    if (module_exists('entity_iframe')) {
+    if (module_exists('entity_iframe') && _entity_iframe_view_iframe($type, $entity->{$type_info['entity keys']['id']})) {
       $field['cis_shortcodes']['cis_shortcodes_embed'] = array(
         '#title' => t('Shortcode direct iframe'),
         '#attributes' => array('class' => array('cis_shortcodes_embed')),
@@ -54,49 +54,63 @@ function cis_shortcodes_entity_view($entity, $type, $view_mode, $langcode) {
       );
     }
     $properties['render'] = 'link';
-    $field_list = field_info_instances($type, $entity->{$type_info['bundle keys']['bundle']});
+    if (isset($type_info['bundle keys']['bundle']) && !empty($entity->{$type_info['bundle keys']['bundle']})) {
+      $field_list = field_info_instances($type, $entity->{$type_info['bundle keys']['bundle']});
+    }
+    else if (isset($type_info['entity keys']['bundle']) && !empty($entity->{$type_info['entity keys']['bundle']})){
+      $field_list = field_info_instances($type, $entity->{$type_info['entity keys']['bundle']});
+    }
+    else {
+      // skip this, we don't have info about this type
+      $field_list = array();
+    }
     foreach ($field_list as $fname => $fproperties) {
+      // check for things with uri's, if first item is, all are
       if (isset($entity->{$fname}) && isset($entity->{$fname}['und'][0]['uri'])) {
-        $properties['field'] = $fname;
-        if ($type == 'node') {
-          $properties['text'] = t('Download @title', array('@title' => $title));
-        }
-        else {
-          $properties['text'] = t('Download');
-        }
-        $field['cis_shortcodes']['cis_shortcodes_link_' . $fname] = array(
-          '#title' => t('@field field: direct link', array('@field' => $fproperties['label'])),
-          '#attributes' => array('class' => array('cis_shortcodes_embed')),
-          '#value' => _cis_shortcodes_build_code($properties),
-          '#type' => 'textfield',
-          '#weight' => 3,
-        );
-        // special case for uri's that are images
-        if (isset($entity->{$fname}['und'][0]['filemime']) && strpos($entity->{$fname}['und'][0]['filemime'], 'image') === 0) {
-          $properties['item_type'] = 'image';
-          // support custom title and alt text in the code
-          if (!empty($entity->{$fname}['und'][0]['title'])) {
-            $properties['text'] = $title;
+        foreach ($entity->{$fname}['und'] as $item_key => $item) {
+          $properties['field'] = $fname;
+          if ($type == 'node') {
+            $properties['text'] = t('Download @title', array('@title' => $title));
           }
           else {
-            $properties['text'] = $title;
+            $properties['text'] = t('Download');
           }
-          if (!empty($entity->{$fname}['und'][0]['alt'])) {
-            $properties['alt'] = $entity->{$fname}['und'][0]['alt'];
-          }
-          else {
-            $properties['alt'] =  $title;
-          }
-          // use image as it was uploaded for defaults
-          $properties['width'] = $entity->{$fname}['und'][0]['width'];
-          $properties['height'] = $entity->{$fname}['und'][0]['height'];
-          $field['cis_shortcodes']['cis_shortcodes_link_' . $fname] = array(
-            '#title' => t('@field field: Render image', array('@field' => $fproperties['label'])),
+          $properties['delta'] = $item_key;
+          $field['cis_shortcodes']['cis_shortcodes_link_' . $fname . '_' . $item_key] = array(
+            '#title' => t('@field field: direct link', array('@field' => $fproperties['label'])),
             '#attributes' => array('class' => array('cis_shortcodes_embed')),
             '#value' => _cis_shortcodes_build_code($properties),
             '#type' => 'textfield',
             '#weight' => 3,
           );
+          // special case for uri's that are images
+          if (isset($item['filemime']) && strpos($item['filemime'], 'image') === 0) {
+            $properties['item_type'] = 'image';
+            // support custom title and alt text in the code
+            if (!empty($item['title'])) {
+              $properties['text'] = $title;
+            }
+            else {
+              $properties['text'] = $title;
+            }
+            if (!empty($item['alt'])) {
+              $properties['alt'] = $item['alt'];
+            }
+            else {
+              $properties['alt'] =  $title;
+            }
+            // use image as it was uploaded for defaults
+            $properties['width'] = $item['width'];
+            $properties['height'] = $item['height'];
+            $properties['delta'] = $item_key;
+            $field['cis_shortcodes']['cis_shortcodes_link_' . $fname . '_' . $item_key] = array(
+              '#title' => t('@field field: Render image', array('@field' => $fproperties['label'])),
+              '#attributes' => array('class' => array('cis_shortcodes_embed')),
+              '#value' => _cis_shortcodes_build_code($properties),
+              '#type' => 'textfield',
+              '#weight' => 3,
+            );
+          }
         }
       }
     }
@@ -114,7 +128,7 @@ function cis_shortcodes_entity_view($entity, $type, $view_mode, $langcode) {
       }
       $properties['item'] = $entity->field_cis_tag['und'][0]['value'];
       $properties['item_type'] = 'tag';
-      if (module_exists('entity_iframe')) {
+      if (module_exists('entity_iframe') && _entity_iframe_view_iframe($type, $entity->{$type_info['entity keys']['id']})) {
         $field['cis_shortcodes']['cis_shortcodes_tag_iframe'] = array(
           '#title' => t('Shortcode tagged iframe'),
           '#attributes' => array('class' => array('cis_shortcodes_embed')),
@@ -132,10 +146,13 @@ function cis_shortcodes_entity_view($entity, $type, $view_mode, $langcode) {
         '#weight' => 4,
       );
     }
-    $entity->content['cis_shortcodes'] = array(
-      '#markup' => drupal_render($field),
-      '#weight' => 100,
-    );
+    // only render if we actually have data to display
+    if (count($field['cis_shortcodes']) < 5) {
+      $entity->content['cis_shortcodes'] = array(
+        '#markup' => drupal_render($field),
+        '#weight' => 100,
+      );
+    }
   }
 }
 

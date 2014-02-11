@@ -1,5 +1,10 @@
 name = "Poll Extras"
 description = "Adds additional flexibility to the core poll module"
 dependencies[] = "poll"
+
+; Information added by drupal.org packaging script on 2012-02-05
+version = "6.x-1.0-alpha2"
 core = 7.x
 project = "poll_extras"
+datestamp = "1328478045"
+

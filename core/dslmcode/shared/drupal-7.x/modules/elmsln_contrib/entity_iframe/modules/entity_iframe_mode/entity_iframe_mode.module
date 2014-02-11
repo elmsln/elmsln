@@ -20,8 +20,8 @@ function entity_iframe_mode_custom_theme() {
  */
 function entity_iframe_mode_url_outbound_alter(&$path, &$options, $original) {
   // test if we are in "iframe mode" by either path or query setting
-  if (_entity_iframe_mode_enabled()) {
-    $options['query']['entity_iframe'] = $_GET['entity_iframe'];
+  if ($mode = _entity_iframe_mode_enabled()) {
+    $options['query']['entity_iframe'] = $mode;
   }
 }
 

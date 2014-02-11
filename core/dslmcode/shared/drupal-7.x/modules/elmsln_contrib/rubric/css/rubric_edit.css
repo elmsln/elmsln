@@ -1,0 +1,8 @@
+.node-type-elms-rubric .ds-2col-stacked-fluid > .group-left,
+.page-node-add-elms-rubric .ds-2col-stacked-fluid > .group-left {
+  width:75%;
+}
+.node-type-elms-rubric .ds-2col-stacked-fluid > .group-right,
+.page-node-add-elms-rubric .ds-2col-stacked-fluid > .group-right {
+  width:25%;
+}

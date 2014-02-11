@@ -1,0 +1,524 @@
+<?php
+/**
+ * @file
+ * Provides formatter for rubric field collection style and additional logic.
+ *
+ * Field Collection rendering originally based off of field_collection_tabs
+ * module so thank you to that project for a great example of how to do this.
+ */
+
+/**
+ * Implements hook_field_formatter_info().
+ */
+function rubric_field_formatter_info() {
+  return array(
+    'rubric_level_range' => array(
+      'label' => t('Rubric level range'),
+      'description' => t('Renders two numbers as a range'),
+      'field types' => array(
+        'number_integer'
+      )
+    ),
+    'rubric_field_collection' => array(
+      'label' => t('Rubric row'),
+      'description' => t('Renders each field collection item as a rubric row'),
+      'field types' => array(
+        'field_collection'
+      ),
+      'settings' => array(
+        'title_field' => 0,
+        'points_field' => 0,
+        'range_field' => 0,
+        'level_content' => 1,
+        'view_mode' => 'full'
+      )
+    )
+  );
+}
+
+/**
+ * Implements hook_field_formatter_settings_form().
+ */
+function rubric_field_formatter_settings_form($field, $instance, $view_mode, $form, &$form_state) {
+  $display = $instance['display'][$view_mode];
+  $settings = $display['settings'];
+  $element = array();
+
+  if ($display['type'] == 'rubric_field_collection') {
+    $options = array(t('None'));
+    $fields = field_info_instances('field_collection_item', $field['field_name']);
+    foreach ($fields as $field_name => $field) {
+      $options[$field_name] = $field['label'];
+    }
+    $element['title_field'] = array(
+      '#type' => 'select',
+      '#title' => t('Title'),
+      '#description' => t('Select the field to use for level titles'),
+      '#default_value' => $settings['title_field'],
+      '#options' => $options
+    );
+    $element['points_field'] = array(
+      '#type' => 'select',
+      '#title' => t('Points'),
+      '#description' => t('Select the field to use for level points'),
+      '#default_value' => $settings['points_field'],
+      '#options' => $options
+    );
+    $element['range_field'] = array(
+      '#type' => 'select',
+      '#title' => t('Points range'),
+      '#description' => t('Select the field to use for level points range'),
+      '#default_value' => $settings['range_field'],
+      '#options' => $options
+    );
+    $element['level_content'] = array(
+      '#type' => 'checkbox',
+      '#title' => t('Display level content'),
+      '#description' => t('Select whether or not to render the view mode below'),
+      '#default_value' => $settings['level_content'],
+    );
+    $entity_type = entity_get_info('field_collection_item');
+    $options = array();
+    foreach ($entity_type['view modes'] as $mode => $info) {
+      $options[$mode] = $info['label'];
+    }
+
+    $element['view_mode'] = array(
+      '#type' => 'select',
+      '#title' => t('View mode'),
+      '#options' => $options,
+      '#default_value' => $settings['view_mode'],
+      '#description' => t('Select the view mode'),
+    );
+  }
+  return $element;
+}
+
+/**
+ * Implements hook_field_formatter_settings_summary().
+ */
+function rubric_field_formatter_settings_summary($field, $instance, $view_mode) {
+  $display = $instance['display'][$view_mode];
+  $settings = $display['settings'];
+  if ($display['type'] == 'rubric_field_collection') {
+    $fields = field_info_instances('field_collection_item', $field['field_name']);
+    $output = array();
+    $output[] = t('Title field: %title_field', array(
+      '%title_field' => !empty($fields[$settings['title_field']]) ? $fields[$settings['title_field']]['label'] : 'None'
+    ));
+    $output[] = t('Points field: %points_field', array(
+      '%points_field' => !empty($fields[$settings['points_field']]) ? $fields[$settings['points_field']]['label'] : 'None'
+    ));
+    $output[] = t('Range field: %range_field', array(
+      '%range_field' => !empty($fields[$settings['range_field']]) ? $fields[$settings['range_field']]['label'] : 'None'
+    ));
+    // display status of level content being rendered
+    $output[] = t('Display Level content: %level_content', array(
+      '%level_content' => $settings['level_content'] ? 'Yes': 'No',
+    ));
+
+    return implode("<br />\n", $output);
+  }
+}
+
+
+/**
+ * Implements hook_field_formatter_view().
+ */
+function rubric_field_formatter_view($entity_type, $entity, $field, $instance, $langcode, $items, $display) {
+  $element = array();
+
+  switch ($display['type']) {
+    case 'rubric_level_range':
+      $range = array();
+      foreach ($items as $delta => $item) {
+        $range[] = $item['value'];
+      }
+      $element[] = array(
+        '#theme' => 'rubric_level_range',
+        '#range' => $range,
+        '#field_name' => $field['field_name'],
+        '#prefix' => '<div class="rubric-level-range">',
+        '#suffix' => '</div>',
+      );
+    break;
+    case 'rubric_field_collection':
+      $titles = $points = $range = $levels = array();
+      $title_field = !empty($display['settings']['title_field']) ? $display['settings']['title_field'] : FALSE;
+      $points_field = !empty($display['settings']['points_field']) ? $display['settings']['points_field'] : FALSE;
+      $range_field = !empty($display['settings']['range_field']) ? $display['settings']['range_field'] : FALSE;
+      $level_content = $display['settings']['level_content'];
+      $view_mode = !empty($display['settings']['view_mode']) ? $display['settings']['view_mode'] : 'full';
+      foreach ($items as $delta => $item) {
+        if ($field_collection = field_collection_field_get_entity($item)) {
+          $content = $field_collection->view($view_mode);
+          $render_array = $content['field_collection_item'][$field_collection->item_id];
+          $delta_id = $field_collection->item_id;
+          if ($title_field && !empty($render_array)) {
+            $titles[$delta_id] = drupal_render($render_array[$title_field]);
+          }
+          // assemble points fields for display if selected as an output format
+          if ($points_field && !empty($render_array)) {
+            $points[$delta_id] = drupal_render($render_array[$points_field]);
+          }
+          // assemble range field for display if selected as an output format
+          if ($range_field && !empty($render_array)) {
+            $range[$delta_id] = drupal_render($render_array[$range_field]);
+          }
+          if ($level_content && !empty($render_array)) {
+            $levels[$delta_id] = drupal_render($render_array);
+          }
+        }
+      }
+      $element[] = array(
+        '#theme' => 'rubric_field_collection',
+        '#titles' => $titles,
+        '#points' => $points,
+        '#range' => $range,
+        '#levels' => $levels,
+        '#field_name' => $field['field_name'],
+        '#prefix' => '<div class="rubric-field-collection">',
+        '#suffix' => '</div>',
+        '#attached' => array(
+          'js' => array(
+            drupal_get_path('module', 'rubric') . '/js/rubric_view.js'
+          ),
+          'css' => array(drupal_get_path('module', 'rubric') . '/css/rubric_view.css'),
+        ),
+      );
+    break;
+  }
+
+  return $element;
+}
+
+/**
+ * Implements hook_theme().
+ */
+function rubric_theme() {
+  return array(
+    'rubric_field_collection' => array(
+      'variables' => array(
+        'titles' => array(),
+        'points' => array(),
+        'range' => array(),
+        'levels' => array(),
+        'field_name' => NULL
+      )
+    ),
+    'rubric_level_range' => array(
+      'variables' => array(
+        'range' => array(),
+        'field_name' => NULL
+      ),
+    ),
+    'rubric_field_collection_level_title' => array(
+      'variables' => array(
+        'title' => NULL,
+        'range' => NULL,
+        'rubric_level_id' => NULL
+      )
+    ),
+    'rubric_field_collection_level' => array(
+      'variables' => array(
+        'level' => NULL,
+        'title' => NULL,
+        'points' => NULL,
+        'rubric_level_id' => NULL,
+        'has_points' => FALSE
+      )
+    ),
+    'rubric_contextual_links' => array(
+      'render element' => 'element',
+      'template' => 'templates/rubric-contextual-links',
+    ),
+    'contextual_container' => array(
+      'render element' => 'element',
+      'template' => 'templates/contextual-container',
+    ),
+  );
+}
+
+/**
+ * Implements preprocess_rubric_contextual_links()
+ */
+function rubric_preprocess_rubric_contextual_links(&$variables) {
+  $variables['classes_array'][] = $variables['element']['class'];
+  $variables['title'] = $variables['element']['title'];
+  $variables['content'] = $variables['element']['#children'];
+  $variables['more'] = $variables['element']['more'];
+}
+
+/**
+ * Implements hook_preprocess_contextual_container()
+ */
+function rubric_preprocess_contextual_container(&$variables) {
+  $variables['content'] = $variables['element']['children'];
+}
+
+/**
+ *  Contextual links maker
+ */
+function _rubric_make_contextual_links($output, $type, $etid, $field) {
+  $render_array = array(
+    'children' => $output,
+    '#theme_wrappers' => array('contextual_container'),
+    '#contextual_links' => array(
+      'rubric' => array('field-collection/' . $field, array($etid)),
+    ),
+  );
+  return render($render_array);
+}
+
+/**
+ * Implements hook_node_prepare().
+ */
+function rubric_node_prepare($node) {
+  drupal_add_css(drupal_get_path('module', 'rubric') .'/css/rubric_edit.css');
+}
+
+/**
+ * Implements hook_field_widget_properties_ENTITY_TYPE_alter().
+ *
+ * Divert widget styling methods for field collections based on how they
+ * are being accessed.  tabs_widget doesn't work with nested field_collections
+ * so this is how we overcome that limitation by preventing it from rendering
+ * that way on the overall forms.
+ */
+function rubric_field_widget_properties_field_collection_item_alter(&$widget, $context) {
+  $alter = FALSE;
+  // apply this on the node entry form, this way everything except the top
+  // level tabs will be handled as collased fieldsets
+  if (arg(0) == 'node' && $widget['type'] == 'field_collection_tabs') {
+    $alter = TRUE;
+  }
+  // don't apply to levels when categories are loaded
+  if ((arg(2) == 'field-rubric-categories' || arg(1) == 'field-rubric-categories') &&
+    $widget['type'] == 'field_collection_tabs' &&
+    $context['instance']['field_name'] == 'field_rubric_levels'
+    ) {
+    $alter = TRUE;
+  }
+  // only modify these value if we get a usecase where we'd present nested tabs
+  if ($alter) {
+    $widget['type'] = 'field_collection_fieldset';
+    $widget['module'] = 'field_collection_fieldset';
+    $widget['settings'] = array(
+      'legend' => $widget['settings']['fctw_title_field'],
+      'collapsible' => TRUE,
+      'collapsed' => TRUE
+    );
+  }
+}
+
+/**
+ * Implements hook_menu().
+ */
+function rubric_menu() {
+  $items['rubric-create-item'] = array(
+    'title' => 'Add item',
+    'page callback' => '_rubric_create_item',
+    'page arguments' => array(3),
+    'access arguments' => array('access content'),
+    'type' => MENU_CALLBACK,
+    'file' => 'rubric.pages.inc',
+  );
+
+  return $items;
+}
+
+/**
+ * Implements hook_menu_contextual_links_alter().
+ */
+function rubric_menu_contextual_links_alter(&$links, $router_item, $root_path) {
+  // Add a link to all contextual links for nodes.
+  if (in_array($root_path, array('field-collection/field-rubric-criteria/%', 'field-collection/field-rubric-levels/%', 'field-collection/field-rubric-categories/%'))) {
+    $entity_id = array_pop(explode('/', $router_item['href']));
+    $fc = entity_load_single('field_collection_item', $entity_id);
+    if (is_object($fc->hostEntity())) {
+      if ($fc->hostEntityType() == 'node') {
+        $id = $fc->hostEntity()->nid;
+      }
+      else {
+        $id = $fc->hostEntity()->item_id;
+      }
+      //module_load_include('inc', 'field_collection', 'field_collection.pages');
+      $path = 'field-collection/' .  str_replace('_', '-', $fc->field_name) . '/';
+      $path .= 'add/' . $fc->hostEntityType() . '/' . $id;
+      // add items
+      $links['rubric-add'] = array(
+        'title' => t('Add here'),
+        'href' => $path,
+        'localized_options' => array(
+          'query' => array('render' => 'overlay')
+        ),
+      );
+    }
+    // shift to end
+    $tmp = $links['rubric-edit'];
+    unset($links['rubric-edit']);
+    $links['rubric-edit'] = $tmp;
+    $tmp = $links['rubric-delete'];
+    unset($links['rubric-delete']);
+    $links['rubric-delete'] = $tmp;
+  }
+}
+
+/**
+ * Implements hook_theme_registry_alter().
+ */
+function rubric_theme_registry_alter(&$theme_registry) {
+  // point field collection tabs to our function to wrap in contextual links
+  $theme_registry['field_collection_tabs_tab']['function'] = 'theme_rubric_field_collection_tabs_tab';
+  $theme_registry['field_collection_tabs_tab']['theme path'] = drupal_get_path('module', 'rubric');
+}
+
+/**
+ * Default implementation of theme_rubric_field_collection_tabs_tab().
+ */
+function theme_rubric_field_collection_tabs_tab($variables) {
+  $tab_id = $variables['tab_id'];
+  $pieces = explode('-tab-', $tab_id);
+  $tab = $variables['tab'];
+  $output = '<div id="' . $tab_id . '">' . $tab . '</div>';
+  // wrapper for custom contextual links
+  $output = _rubric_make_contextual_links($output, 'field_collection', $pieces[1], $pieces[0]);
+  return $output;
+}
+
+/**
+ * Default implementation of theme_rubric_field_collection().
+ */
+function theme_rubric_field_collection($variables) {
+  $titles = $level_item = array();
+  // needed in order to support rendering of items when you don't know what
+  // the user will select for output in terms of field count or configuration
+  $longest_key = 'titles';
+  $ranges = $variables['range'];
+  $points = $variables['points'];
+  $longest = $tmp = 0;
+  $has_points = FALSE;
+  foreach($variables as $key => $data) {
+    $tmp = count($data);
+    if ($tmp > $longest) {
+      $longest = $tmp;
+      $longest_key = $key;
+    }
+  }
+
+  foreach ($variables[$longest_key] as $delta => $tmp) {
+    $rubric_level_id = drupal_clean_css_identifier($variables['field_name'] . '-rubriclevel-' . $delta);
+    if (!empty($ranges[$delta])) {
+      $scrub1 = strip_tags($ranges[$delta]);
+    }
+    if (!empty($points[$delta])) {
+      $scrub2 = strip_tags($points[$delta]);
+      $has_points = TRUE;
+    }
+    // see if we should list a range at the top of a points value or neither
+    if (!empty($ranges[$delta]) && !empty($scrub1)) {
+      $range = $ranges[$delta];
+    }
+    else if (!empty($points[$delta]) && (!empty($scrub2) || $scrub2 == 0)) {
+      $range = $points[$delta];
+    }
+    else {
+      $range = NULL;
+    }
+    // theme the title w/ the range included
+    $title_themed = theme('rubric_field_collection_level_title', array(
+      'title' => isset($variables['titles'][$delta]) ? $variables['titles'][$delta] : NULL,
+      'range' => $range,
+      'rubric_level_id' => $rubric_level_id
+    ));
+    // build the entire level card with all areas styled
+    $level_item[$delta] = array(
+      'level' => isset($variables['levels'][$delta]) ? $variables['levels'][$delta] : NULL,
+      'title' => $title_themed,
+      'points' => isset($points[$delta]) ? $points[$delta] : NULL,
+      'rubric_level_id' => $rubric_level_id,
+    );
+  }
+  // see if we have any point values before hiding that row
+  foreach ($variables[$longest_key] as $delta => $tmp) {
+    // add has points property
+    $level_item[$delta]['has_points'] = $has_points;
+    // defer rendering of items to ensure point fields inclusion is accurate
+    $level_item[$delta] = theme('rubric_field_collection_level', $level_item[$delta]);
+  }
+  // wrap in a class that has the number of items included so it can be split
+  return '<div class="rubric-level-split rubric-level-split-' . $longest . '">' . implode('', $level_item) . '</div>';
+}
+
+/**
+ * Default implementation of theme_rubric_level_range().
+ */
+function theme_rubric_level_range($variables) {
+  $range = array();
+  foreach ($variables['range'] as $delta => $value) {
+    $range_class = drupal_clean_css_identifier($variables['field_name'] . '-range-' . $delta);
+    $range[] = '<span class="' . $range_class . '">' . $value . '</span>';
+  }
+  $range_split = '<span class="rubric-level-range-divider">&#8211;</span><span class="element-invisible">' . t(' and ') . '</span>';
+  return implode($range_split, $range);
+}
+
+/**
+ * Default implementation of theme_rubric_field_collection_level_title().
+ */
+function theme_rubric_field_collection_level_title($variables) {
+  $rubric_level_id = $variables['rubric_level_id'];
+  $title = $variables['title'];
+  $range = $variables['range'];
+  $arange = '';
+  $title_break = array('', '');
+  $access = array();
+  if (!empty($title)) {
+    $title_break = array(' (', ') ');
+  }
+  $scrub = strip_tags($range);
+  if (($title_break[0] . $scrub . $title_break[1]) != ($title_break[0] . $title_break[1])) {
+    $range = ' <span class="rubric-level-range">' . $title_break[0] . $range . $title_break[1] . '</span>';
+    // account for point value vs range of point values
+    if (strpos($range, 'field-level-points-range')) {
+      $arange = 'between ';
+    }
+  }
+  // customized descriptive message to improve accessibility of rubric
+  if (!empty($title) && !empty($scrub)) {
+    $access['pre'] = '<span class="element-invisible">' . t('For rubric level ') . '</span>';
+    $access['mid'] = '<span class="element-invisible">' . t(' you will be awarded @arange', array('@arange' => $arange)) . '</span>';
+    $access['post'] = '<span class="element-invisible">' . t(' points') . '</span>';
+  }
+  elseif (!empty($title) && empty($scrub)) {
+    $access['pre'] = '<span class="element-invisible">' . t('These are the requirements for ') . '</span> ';
+    $access['mid'] = '';
+    $access['post'] = '<span class="element-invisible">' . t(' work') . '</span>';
+  }
+  else {
+    $access['pre'] = '<span class="element-invisible">' . t('For the following requirements, you will be awarded @arange', array('@arange' => $arange)) . '</span> ';
+    $access['mid'] = '';
+    $access['post'] = '<span class="element-invisible">' . t(' points') . '</span>';
+  }
+  return '<a name="' . $rubric_level_id . '"></a><h4 class="rubric-level-title">' . $access['pre'] . $title . $access['mid'] . $range . $access['post'] . '</h4>';
+}
+
+/**
+ * Default implementation of theme_rubric_field_collection_level().
+ */
+function theme_rubric_field_collection_level($variables) {
+  $rubric_level_id = $variables['rubric_level_id'];
+  $pieces = explode('-rubriclevel-', $rubric_level_id);
+  $level = $variables['level'];
+  $points = $variables['points'];
+  $title = $variables['title'];
+  $output = '<div id="' . $rubric_level_id . '" class="rubric-level-wrapper">';
+  $output .= '<div class="rubric-title-wrapper">' . $title . '</div>';
+  $output .= '<div class="rubric-level-content-wrapper">' . $level . '</div>';
+  if ($variables['has_points']) {
+    $output .= '<div class="rubric-points-wrapper">' . $points . '</div>';
+  }
+  $output .= '</div>';
+  $output = _rubric_make_contextual_links($output, 'field_collection', $pieces[1], $pieces[0]);
+  return $output;
+}

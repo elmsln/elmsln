@@ -1,0 +1,197 @@
+.rubric-field-collection {
+  width:100%;
+  float:left;
+}
+.rubric-level-wrapper {
+  float:left;
+  padding:0;
+  margin:0;
+  font-size:.9em;
+  border-color: #222222;
+  border-right: 1px solid;
+  border-top: 1px solid;
+  border-bottom:1px solid;
+  -moz-box-sizing:border-box; /* Firefox */
+  -webkit-box-sizing:border-box; /* Safari */
+  box-sizing:border-box;
+}
+.rubric-level-wrapper .field-collection-item-field-rubric-levels {
+  padding:.25em;
+}
+.rubric-level-wrapper:first-child {
+  border-left: 1px solid;
+}
+
+.rubric-title-wrapper {
+  background-color:#dddddd;
+  text-align: center;
+  font-size: 1.25em;
+  padding:0;
+  margin:0;
+  color:#222222;
+  border-color: #222222;
+  border-bottom:2px solid;
+  -moz-box-sizing:border-box; /* Firefox */
+  -webkit-box-sizing:border-box; /* Safari */
+  box-sizing:border-box;
+}
+.rubric-level-title {
+  padding:.25em;
+  margin:0;
+}
+.rubric-level-range {
+  font-size:.9em;
+}
+.rubric-level-range span, .rubric-level-range div {
+  display:inline;
+}
+.rubric-level-range-divider {
+  margin:0 .2em;
+}
+
+.rubric-level-content-wrapper {
+  overflow-x:hidden;
+  overflow-y:auto;
+  min-height: 200px;
+}
+
+ul.rubric-level-rationale, ul.rubric-level-remediation {
+  margin:.5em .5em 1.5em 2.25em;
+  list-style-type: upper-roman;
+  list-style-image: none;
+  padding:0;
+}
+.rubric-level-rationale li, .rubric-level-remediation li {
+  font-size: .9em;
+}
+.rubric-points-wrapper {
+  text-align: center;
+  font-size: 1.5em;
+  border-color: #222222;
+  border-top: 1px solid;
+  display: block;
+  background-color:#eeeeee;
+  color:#222222;
+}
+.rubric-points-wrapper .field-name-field-level-points {
+  padding:.25em;
+}
+
+/**
+ * Correct positioning of contextual links on level items
+ */
+.rubric-level-split .contextual-links-region {
+  outline: none;
+  position: relative;
+  float: left;
+}
+
+/**
+ * These help define the width of the containers based on how many there are
+ * without the need for javascript, though it does cap the possible levels
+ * in a criteria to 10.  A good rubric shouldn't exceed about 5 though.
+ */
+
+/**
+ * If contextual links exist, spacing is set at the contextual links level
+ */
+.rubric-level-split-1 .contextual-links-region {
+  width:100%;
+}
+.rubric-level-split-2 .contextual-links-region {
+  width:50%;
+}
+.rubric-level-split-3 .contextual-links-region {
+  width:33.33%;
+}
+.rubric-level-split-4 .contextual-links-region {
+  width:25%;
+}
+.rubric-level-split-5 .contextual-links-region {
+  width:20%;
+}
+.rubric-level-split-6 .contextual-links-region {
+  width:16.66%;
+}
+.rubric-level-split-7 .contextual-links-region {
+  width:14.28%;
+}
+.rubric-level-split-8 .contextual-links-region {
+  width:12.5%;
+}
+.rubric-level-split-9 .contextual-links-region {
+  width:11.11%;
+}
+.rubric-level-split-10 .contextual-links-region {
+  width:10%;
+}
+
+/**
+ * These comes into play when the user can't view contextual links so spacing
+ * is still maintained without the wrapping container available.
+ */
+.rubric-level-split-1 .rubric-level-wrapper {
+  width:100%;
+}
+.rubric-level-split-2 .rubric-level-wrapper {
+  width:50%;
+}
+.rubric-level-split-3 .rubric-level-wrapper {
+  width:33.33%;
+}
+.rubric-level-split-4 .rubric-level-wrapper {
+  width:25%;
+}
+.rubric-level-split-5 .rubric-level-wrapper {
+  width:20%;
+}
+.rubric-level-split-6 .rubric-level-wrapper {
+  width:16.66%;
+}
+.rubric-level-split-7 .rubric-level-wrapper {
+  width:14.28%;
+}
+.rubric-level-split-8 .rubric-level-wrapper {
+  width:12.5%;
+}
+.rubric-level-split-9 .rubric-level-wrapper {
+  width:11.11%;
+}
+.rubric-level-split-10 .rubric-level-wrapper {
+  width:10%;
+}
+
+/**
+ * If we have contextual links we need to force the width of the smaller
+ * container wrapper to all be 100% as they are not setting the spacing.
+ */
+.rubric-level-split-1 .contextual-links-region .rubric-level-wrapper,
+.rubric-level-split-2 .contextual-links-region .rubric-level-wrapper,
+.rubric-level-split-3 .contextual-links-region .rubric-level-wrapper,
+.rubric-level-split-4 .contextual-links-region .rubric-level-wrapper,
+.rubric-level-split-5 .contextual-links-region .rubric-level-wrapper,
+.rubric-level-split-6 .contextual-links-region .rubric-level-wrapper,
+.rubric-level-split-7 .contextual-links-region .rubric-level-wrapper,
+.rubric-level-split-8 .contextual-links-region .rubric-level-wrapper,
+.rubric-level-split-9 .contextual-links-region .rubric-level-wrapper,
+.rubric-level-split-10 .contextual-links-region .rubric-level-wrapper {
+  width:100%;
+}
+
+/**
+ * Support for entity iframe to apply mobile styling by default
+ */
+.page-entity-iframe .rubric-level-split .contextual-container {
+  width:100%;
+  border:1px solid #222222;
+}
+/**
+ * @width  720 and below, so mobile screens
+ * @type all
+ */
+@media all and (max-width: 720px) {
+  .rubric-level-split .contextual-container {
+    width:100%;
+    border:1px solid #222222;
+  }
+}

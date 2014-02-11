@@ -86,7 +86,7 @@ function hook_cis_section_build_roster($section) {
  * This example shows how psu populates an email address automatically.
  */
 function hook_cis_section_user_insert_alter(&$fields) {
-  $fields['mail'] = _utility_module_name_to_email($fields['name']);
+  $fields['mail'] = _psu_utility_name_to_email($fields['name']);
   $fields['init'] = $fields['mail'];
 }
 

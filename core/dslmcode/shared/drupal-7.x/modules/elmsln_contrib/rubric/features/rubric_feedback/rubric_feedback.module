@@ -1,0 +1,18 @@
+<?php
+/**
+ * @file
+ * Code for the Rubric Feedback feature.
+ */
+
+include_once 'rubric_feedback.features.inc';
+
+/**
+ * Implements hook_form_alter().
+ */
+function rubric_feedback_form_alter(&$form, &$form_state, $form_id) {
+  // only apply to rubric submission form
+  if (isset($form['type']) && $form_id == 'rubric_submission_assessment_node_form') {
+    drupal_add_js(drupal_get_path('module', 'rubric') . '/js/rubric_feedback.js');
+    drupal_add_css(drupal_get_path('module', 'rubric') . '/css/rubric_feedback.css');
+  }
+}

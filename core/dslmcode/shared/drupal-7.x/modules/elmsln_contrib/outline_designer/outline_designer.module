@@ -1,9 +1,12 @@
 <?php
 // ELMS: Outline Designer API - Usability improvements for outline creation
-// The ELMS project name is Copyright (C) 2008-2014  The Pennsylvania State University
+// Copyright (C) 2008-2012  The Pennsylvania State University
 //
 // Bryan Ollendyke
 // bto108@psu.edu
+//
+// Keith D. Bailey
+// kdb163@psu.edu
 //
 // 12 Borland
 // University Park,  PA 16802
@@ -351,15 +354,15 @@ function _outline_designer_get_operations($type, $keep_callbacks = FALSE) {
  */
 function outline_designer_libraries_info() {
   $libraries['jwerty'] = array(
-    'name' => 'jwerty',
-    'vendor url' => 'https://github.com/keithamus/jwerty/',
-    'download url' => 'https://github.com/keithamus/jwerty/archive/master.zip',
+    'name' => 'jwerty', 
+    'vendor url' => 'https://github.com/keithamus/jwerty/', 
+    'download url' => 'https://github.com/keithamus/jwerty/archive/master.zip', 
     'files' => array(
       'js' => array('jwerty.js'),
     ),
     'version arguments' => array(
       'file' => 'jwerty.js',
-      'pattern' => '/version: "([0-9]+\.[0-9]+)";/',
+      'pattern' => '/version: "([0-9]+\.[0-9]+)";/', 
       'lines' => 21,
     ),
   );

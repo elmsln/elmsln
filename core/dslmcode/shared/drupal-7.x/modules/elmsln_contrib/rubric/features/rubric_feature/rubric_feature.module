@@ -1,0 +1,7 @@
+<?php
+/**
+ * @file
+ * Code for the Rubric Feature feature.
+ */
+
+include_once 'rubric_feature.features.inc';
