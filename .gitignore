@@ -6,3 +6,4 @@ _notes/
 .DS_Store
 config/stacks/*
 config/shared/*
+config/_nondrupal/piwik/*
