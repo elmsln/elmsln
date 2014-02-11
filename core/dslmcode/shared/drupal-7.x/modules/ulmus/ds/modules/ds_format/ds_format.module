@@ -1,0 +1,75 @@
+<?php
+
+/**
+ * @file
+ * Display Suite Format
+ */
+
+/**
+ * Implements hook_filter_info().
+ */
+function ds_format_filter_info() {
+  $filters['ds_code'] = array(
+    'title' => t('Display Suite evaluator'),
+    'description' => t('This filter will only work in the Display Suite text format, machine name is <em>ds_code</em>. No other filters can be enabled either.'),
+    'process callback' => 'ds_format_php_eval',
+    'tips callback' => 'ds_format_filter_tips',
+    'cache' => FALSE,
+  );
+  return $filters;
+}
+
+/**
+ * Tips callback for Display Suite php filter.
+ */
+function ds_format_filter_tips($filter, $format, $long = FALSE) {
+  global $base_url;
+  if ($long) {
+    $output = '<h4>' . t('Using custom code with Display Suite') . '</h4>';
+    $output .= t('Include &lt;?php ?&gt; tags when using PHP. The $entity object is available.');
+    return $output;
+  }
+  else {
+    return t('You may post Display Suite code. You should include &lt;?php ?&gt; tags when using PHP. The $entity object is available.');
+  }
+}
+
+/**
+ * Wrapper function around PHP eval(). We don't use php_eval from
+ * the PHP module because custom fields might need properties from
+ * the current entity.
+ *
+ * @param $code
+ *   The code to evaluate from the custom field.
+ * @param $object
+ *   An object to use for evaluation.
+ * @return $output
+ *   The output from eval.
+ */
+function ds_format_php_eval($code, $entity, $build = array()) {
+  global $theme_path, $theme_info, $conf;
+
+  // Store current theme path.
+  $old_theme_path = $theme_path;
+
+  // Restore theme_path to the theme, as long as ds_php_eval() executes,
+  // so code evaluted will not see the caller module as the current theme.
+  // If theme info is not initialized get the path from theme_default.
+  if (!isset($theme_info)) {
+    $theme_path = drupal_get_path('theme', $conf['theme_default']);
+  }
+  else {
+    $theme_path = dirname($theme_info->filename);
+  }
+
+  ob_start();
+  print eval('?>' . $code);
+  $output = ob_get_contents();
+  ob_end_clean();
+
+  // Recover original theme path.
+  $theme_path = $old_theme_path;
+
+  return $output;
+}
+

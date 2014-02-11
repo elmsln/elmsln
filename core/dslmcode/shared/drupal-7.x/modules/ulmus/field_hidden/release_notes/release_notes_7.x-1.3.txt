@@ -1,0 +1,12 @@
+Field Hidden 7.x-1.
+
+New features
+------------
+None.
+
+Bug fixes
+---------
+Fixed wrong evaluation of emptyish values for numeric field types. A value of '0' or '0.00' should not count as an empty value.
+The numeric types should accord with the Number module; and there was a discrepancy.
+If a value of '0' is considered empty; a value of zero effectively means that that instance of a field doesn't get stored to database, or does get deleted.
+Trivial in most cases, but may prove quite a nuisance - particularly if you used to use one of the built-in (visible) numeric types and then decide to use a hidden field instead.

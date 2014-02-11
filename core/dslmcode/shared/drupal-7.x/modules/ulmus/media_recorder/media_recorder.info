@@ -1,0 +1,20 @@
+name = Media Recorder
+description = "Adds a recording option to the Media module."
+package = "Media"
+core = 7.x
+
+dependencies[] = ctools
+dependencies[] = file_entity (>=2)
+dependencies[] = media (>=2)
+dependencies[] = libraries (>=2)
+
+files[] = includes/MediaRecorderBrowser.inc
+
+configure = admin/config/media/mediarecorder
+
+; Information added by  packaging script on 2013-11-21
+version = "7.x-1.0-alpha4+2-dev"
+core = "7.x"
+project = "media_recorder"
+datestamp = "1385054605"
+

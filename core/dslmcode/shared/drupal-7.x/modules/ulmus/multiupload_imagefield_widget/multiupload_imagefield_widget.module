@@ -1,0 +1,126 @@
+<?php
+/**
+ * @file
+ * Module creating a multiple image upload widget
+ */
+
+/**
+ * Implements hook_field_widget_info().
+ */
+function multiupload_imagefield_widget_field_widget_info() {
+  return array(
+    'image_miw' => array(
+      'label' => t('Multiupload'),
+      'field types' => array('image'),
+      'behaviors' => array(
+        'multiple values' => FIELD_BEHAVIOR_CUSTOM,
+        'default value' => FIELD_BEHAVIOR_NONE,
+      ),
+      'settings' => array(
+        'progress_indicator' => 'throbber',
+        'preview_image_style' => 'thumbnail',
+      ),
+    ),
+  );
+}
+
+ /**
+ * Implements hook_field_widget_form().
+ *
+ * Mostly copied from drupal core module /modules/image/image.field.inc
+ */
+function multiupload_imagefield_widget_field_widget_form(&$form, &$form_state, $field, $instance, $langcode, $items, $delta, $element ) {
+  // Add display_field setting to field because file_field_widget_form() assumes it is set.
+  $field['settings']['display_field'] = 0;
+
+  $elements = multiupload_filefield_widget_field_widget_form($form, $form_state, $field, $instance, $langcode, $items, $delta, $element);
+  $settings = $instance['settings'];
+
+  foreach (element_children($elements) as $delta) {
+    // Add upload resolution validation.
+    if ($settings['max_resolution'] || $settings['min_resolution']) {
+      $elements[$delta]['#upload_validators']['file_validate_image_resolution'] = array($settings['max_resolution'], $settings['min_resolution']);
+    }
+
+    // If not using custom extension validation, ensure this is an image.
+    $supported_extensions = array('png', 'gif', 'jpg', 'jpeg');
+    $extensions = isset($elements[$delta]['#upload_validators']['file_validate_extensions'][0]) ? $elements[$delta]['#upload_validators']['file_validate_extensions'][0] : implode(' ', $supported_extensions);
+    $extensions = array_intersect(explode(' ', $extensions), $supported_extensions);
+    $elements[$delta]['#upload_validators']['file_validate_extensions'][0] = implode(' ', $extensions);
+
+    // Add all extra functionality provided by the image widget.
+    $elements[$delta]['#process'][] = 'image_field_widget_process';
+  }
+
+  if ($field['cardinality'] == 1) {
+    // If there's only one field, return it as delta 0.
+    if (empty($elements[0]['#default_value']['fid'])) {
+      $elements[0]['#description'] = theme('file_upload_help', array('description' => $instance['description'], 'upload_validators' => $elements[0]['#upload_validators']));
+    }
+  }
+  else {
+    $elements['#file_upload_description'] = theme('file_upload_help', array('upload_validators' => $elements[0]['#upload_validators']));
+  }
+  return $elements;
+}
+
+/**
+ * Implements hook_field_widget_settings_form().
+ */
+function multiupload_imagefield_widget_field_widget_settings_form($field, $instance) {
+  $settings = $instance['widget']['settings'];
+
+  // Use the mfw file widget settings form.
+  $form = multiupload_filefield_widget_field_widget_settings_form($field, $instance);
+
+  $form['preview_image_style'] = array(
+    '#title' => t('Preview image style'),
+    '#type' => 'select',
+    '#options' => image_style_options(FALSE),
+    '#empty_option' => '<' . t('no preview') . '>',
+    '#default_value' => $settings['preview_image_style'],
+    '#description' => t('The preview image will be shown while editing the content.'),
+    '#weight' => 15,
+  );
+
+  return $form;
+}
+
+/**
+ * An element #process callback for the image_miw field type.
+ *
+ * Expands the image_miw type to include the description and display fields.
+ */
+function multiupload_imagefield_widget_field_widget_process($element, &$form_state, &$form) {
+  return image_field_widget_process($element, $form_state, $form);
+}
+
+/**
+ * Implements hook_insert_widgets() for compatibility with insert.module.
+ */
+function multiupload_imagefield_widget_insert_widgets() {
+  $items['image_miw'] = array(
+    'element_type' => 'mfw_managed_file',
+    'wrapper' => '.image-widget',
+    'fields' => array(
+      'alt' => 'input[name$="[alt]"], textarea[name$="[alt]"]',
+      'title' => 'input[name$="[title]"], textarea[name$="[title]"]',
+      'description' => 'input[name$="[description]"], textarea[name$="[description]"]',
+    ),
+  );
+  return $items;
+}
+
+/**
+ * Implementation of hook_insert_styles() for compatibility with insert.module.
+ */
+function multiupload_imagefield_widget_insert_styles() {
+  return image_insert_styles();
+}
+
+/**
+ * Implementation of hook_insert_content() for compatibility with insert.module.
+ */
+function multiupload_imagefield_widget_insert_content($item, $style, $widget) {
+  return image_insert_content($item, $style, $widget);
+}

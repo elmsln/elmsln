@@ -1,0 +1,15 @@
+Field Hidden 7.x-1.4
+
+New features
+------------
+* Tokens support
+* Migrate support
+* New format field_hidden_text_plain_escaped, which htmlspecialchars() escapes text/long text fields
+
+Bug fixes
+---------
+* Format field_hidden_text_plain no longer htmlspecialchars() escapes text/long text fields
+
+Update notes
+------------
+Clear cache

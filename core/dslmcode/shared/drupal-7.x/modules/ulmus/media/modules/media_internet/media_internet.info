@@ -1,0 +1,13 @@
+name = Media Internet Sources
+description = Provides an API for accessing media on various internet services
+package = Media
+core = 7.x
+dependencies[] = media
+files[] = includes/MediaBrowserInternet.inc
+
+; Information added by drupal.org packaging script on 2013-10-25
+version = "7.x-2.0-alpha3"
+core = "7.x"
+project = "media"
+datestamp = "1382744872"
+

@@ -1,0 +1,39 @@
+<?php
+/**
+ * @file
+ * Tests for Multiupload filefield widget
+ */
+
+class MFWTestCase extends DrupalWebTestCase {
+  public static function getInfo() {
+    return array(
+      'name' => 'MFW functionality',
+      'description' => 'Test stuff for Multiupload Filefield Widget.',
+      'group' => 'MFW',
+    );
+  }
+
+  public function setUp() {
+    parent::setUp('multiupload_filefield_widget');
+  }
+
+  public function testElementInfo() {
+    $info = module_invoke('multiupload_filefield_widget', 'element_info');
+
+    $this->assertEqual(1, count($info),
+      t('Module defines an element.'));
+
+    $this->assertTrue(isset($info['mfw_managed_file']),
+      t('mfw_manged_file element exists.'));
+  }
+
+  public function testWidgetInfo() {
+    $info = module_invoke('multiupload_filefield_widget', 'field_widget_info');
+
+    $this->assertEqual(1, count($info),
+      t('Module defines a widget.'));
+
+    $this->assertTrue(isset($info['file_mfw']),
+      t('file_mfw widget exists.'));
+  }
+}

@@ -1,0 +1,182 @@
+
+/**
+ * @file
+ * Administration CSS for Display Suite.
+ */
+.ds-extras-field-template {
+  margin-bottom: 1em;
+}
+
+#field-display-overview .field-formatter-settings-edit-form .ft-group .form-item {
+  margin: 0;
+}
+
+.ds-layout-preview-title {
+  font-weight: bold;
+}
+
+.ds-layout-preview-image {
+  float: left;
+  width: 150px;
+  padding-top: 10px;
+}
+
+.ds-layout-preview-image img {
+  width: 150px;
+}
+
+.ds-layout-preview-arrow {
+  float: left;
+  margin: 80px 10px 0 5px;
+}
+
+.ds-layout-preview-suggestion {
+  min-width: 150px;
+  overflow: hidden;
+  padding-left: 30px;
+}
+
+.ds-layout-regions {
+  float: left;
+  width: 210px;
+}
+
+.ft-group div.form-item {
+  float: left;
+  width: 130px;
+}
+
+.ds-select-layout {
+  clear: both;
+}
+
+.ds-layout-change-save {
+  clear: both;
+}
+
+/**
+ * Displays list
+ */
+table th.ds-display-list-options {
+  width: 300px;
+}
+
+/**
+ * Limit
+ */
+.limit-float {
+  float: left;
+  margin-right: 5px;
+}
+
+/**
+ * Modal
+ */
+#modalBackdrop {
+  position: fixed!important;
+  background-color: #000!important;
+}
+
+div.ctools-modal-content .modal-header {
+  padding: 5px;
+  background-color: #E1E2DC;
+}
+
+div.ctools-modal-content a.close {
+  color: #666;
+}
+
+div.ctools-modal-content .modal-title {
+  /*font-weight: normal;*/
+  color: #666;
+}
+
+div.ctools-modal-content .modal-header img {
+  display: none;
+}
+
+div.ctools-modal-content .form-item label {
+  width: 100%;
+  float: none;
+  clear: both;
+}
+
+div.ctools-modal-content .resizable-textarea {
+  width: 100%;
+  margin-left: 0;
+  margin-right: 0;
+}
+
+div.ctools-modal-content {
+  font-size: 12px;
+  border: solid 1px #ddd;
+  -webkit-border-radius: 0.5em;
+  -moz-border-radius: 0.5em;
+  -webkit-box-shadow: -1em 1em 1em rgba(0, 0, 0, 0.5);
+}
+
+a.section-link {
+  display: block;
+}
+
+#ctools-content-selection h2 {
+  color: #666;
+}
+
+.option-text-aligner .form-item {
+  float: left;
+  padding: .25em 1em .25em 0;
+  margin: 0;
+}
+
+.option-text-aligner {
+  clear: both;
+  width: 100%;
+  padding: 0;
+  margin: 0;
+}
+
+/**
+ * CTools content selection.
+ */
+#ctools-content-selection #ds-left {
+  float: left;
+  width: 30%;
+}
+
+#ctools-content-selection #ds-right {
+  float: left;
+  width: 70%;
+}
+
+#ctools-content-selection .selection-hide {
+  display: none;
+}
+
+#ctools-content-selection .content-item {
+  width: 50%;
+  float: left;
+}
+
+/**
+ * Fieldset in vertical tabs.
+ */
+.vertical-tabs fieldset#edit-additional-settings-ds-page-title-options-page-option-contexts {
+  margin: 1em 0;
+  padding: 2.5em 0 0;
+  border: 1px solid #CCCCCC;
+}
+
+#edit-additional-settings-ds-page-title-options-page-option-contexts legend {
+  display: block;
+}
+
+/**
+ * Change layout screen.
+ */
+ .change_ds_layout_info {
+   margin-bottom: 10px;
+ }
+ .change_ds_layout_old_region {
+   font-weight: bold;
+ }

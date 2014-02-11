@@ -1,0 +1,158 @@
+<?php
+
+/**
+ * @file
+ * Install, update and uninstall functions for the Media: YouTube module.
+ */
+
+/**
+ * Clear style and preset caches.
+ */
+function media_youtube_update_7001() {
+  // We don't do this if we're using version 1 of Styles.
+  if (function_exists('styles_style_flush')) {
+    styles_style_flush();
+  }
+
+  return array();
+}
+
+/**
+ * Add label to Media: YouTube file style.
+ */
+function media_youtube_update_7003() {
+  return array();
+}
+
+/**
+ * Rebuild themes.
+ */
+function media_youtube_update_7004() {
+  drupal_theme_rebuild();
+  return array();
+}
+
+/**
+ * Add a large video preset and medium thumbnail.
+ */
+function media_youtube_update_7005() {
+  return array();
+}
+
+/**
+ * Add a square thumbnail preset.
+ */
+function media_youtube_update_7006() {
+  return array();
+}
+
+/**
+ * Rebuild the registry to locate class files in new location.
+ */
+function media_youtube_update_7007() {
+  registry_rebuild();
+}
+
+/**
+ * Rebuild styles presets to use camelCase.
+ */
+function media_youtube_update_7008() {
+  return array();
+}
+
+/**
+ * Change default styles presets.
+ */
+function media_youtube_update_7009() {
+  return array();
+}
+
+/**
+ * Change default styles presets.
+ */
+function media_youtube_update_7010() {
+  return array();
+}
+
+/**
+ * Add video presets based on Image styles.
+ */
+function media_youtube_update_7011() {
+  return array();
+}
+
+/**
+ * Rebuild theme and formatters.
+ */
+function media_youtube_update_7012() {
+  return array();
+}
+
+/**
+ * Add new browser for media.
+ */
+function media_youtube_update_7200() {
+  return array();
+}
+
+/**
+ * Clean up file display formatters and migrate settings.
+ */
+function media_youtube_update_7201() {
+  // Required to run file_displays_load() in update.php.
+  module_load_include('inc', 'file_entity', 'file_entity.file_api');
+
+  // Get view modes.
+  $video_view_modes = field_view_mode_settings('file', "video");
+  $video_view_modes['default'] = array('custom_settings' => TRUE);
+  foreach ($video_view_modes as $view_mode => $custom_settings) {
+
+    $formatters = file_displays_load('video', $view_mode);
+    $formatter = 'video__' . $view_mode . '__media_youtube_video';
+
+    if (isset($formatters[$formatter])) {
+
+      // Migrate chromeless=1 or controls='0' to autohide=1, showinfo=0.
+      if (isset($formatters[$formatter]->settings['chromeless'])) {
+        if ($formatters[$formatter]->settings['chromeless'] == 1) {
+          $formatters[$formatter]->settings['autohide'] = 1;
+          $formatters[$formatter]->settings['showinfo'] = 0;
+        }
+      }
+      if (isset($formatters[$formatter]->settings['controls'])) {
+        if ($formatters[$formatter]->settings['controls'] == 0) {
+          $formatters[$formatter]->settings['autohide'] = 1;
+          $formatters[$formatter]->settings['showinfo'] = 0;
+        }
+      }
+
+      // Remove deprecated settings from the exportable array.
+      foreach (array('version', 'fullscreen', 'hd', 'showsearch', 'controls', 'chromeless') as $deprecated) {
+        if (isset($formatters[$formatter]->settings[$deprecated])) {
+          unset($formatters[$formatter]->settings[$deprecated]);
+        }
+      }
+
+      // Save the ctools objects
+      $display = $formatters[$formatter];
+      file_display_save((object) $display);
+    }
+  }
+  return array();
+}
+
+/**
+ * Empty update function.
+ */
+function media_youtube_update_7202() {
+  // Code removed in response to http://drupal.org/node/1911970.
+}
+
+/**
+ * Remove obsolete variables.
+ */
+function media_youtube_update_7203() {
+  foreach (array('width', 'height', 'autohide', 'autoplay', 'color', 'enablejsapi', 'loop', 'modestbranding', 'nocookie', 'origin', 'protocol', 'protocol_specify', 'rel', 'showinfo', 'theme') as $setting) {
+    variable_del("media_youtube__{$setting}");
+  }
+}

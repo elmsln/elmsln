@@ -1,0 +1,10 @@
+Field Hidden 7.x-1.1
+
+New features
+------------
+None, except for added readme.txt and better help page.
+
+Bug fixes
+---------
+The 'display default value in instance settings' feature is now something that can be turned off, instead of turned on.
+Getting default value displayed was hitherto practically impossible (thanks rhclayto, for creating issue http://drupal.org/node/1440574).

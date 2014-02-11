@@ -1,0 +1,13 @@
+name = Multiupload Imagefield Widget
+description = "Creates a widget for imagefield to upload multiple files at once using html5."
+package = Fields
+dependencies[] = multiupload_filefield_widget
+dependencies[] = image
+core = 7.x
+
+; Information added by Drupal.org packaging script on 2014-01-04
+version = "7.x-1.3"
+core = "7.x"
+project = "multiupload_imagefield_widget"
+datestamp = "1388874206"
+

@@ -1,0 +1,12 @@
+/**
+ * @file
+ * Display Suite example layout RTL stylesheet.
+ */
+
+.ds-left {
+  float: right;
+}
+
+.ds-right {
+  float: left;
+}

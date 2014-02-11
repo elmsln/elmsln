@@ -1,0 +1,31 @@
+name = Media
+description = Provides the core Media API
+package = Media
+core = 7.x
+
+dependencies[] = file_entity
+dependencies[] = image
+dependencies[] = views
+
+test_dependencies[] = token
+
+files[] = includes/MediaReadOnlyStreamWrapper.inc
+files[] = includes/MediaBrowserPluginInterface.inc
+files[] = includes/MediaBrowserPlugin.inc
+files[] = includes/MediaBrowserUpload.inc
+files[] = includes/MediaBrowserView.inc
+files[] = includes/MediaEntityTranslationHandler.inc
+files[] = includes/media_views_plugin_display_media_browser.inc
+files[] = includes/media_views_plugin_style_media_browser.inc
+files[] = tests/media.test
+files[] = tests/media.entity.test
+files[] = tests/media.file.usage.test
+
+configure = admin/config/media/browser
+
+; Information added by drupal.org packaging script on 2013-10-25
+version = "7.x-2.0-alpha3"
+core = "7.x"
+project = "media"
+datestamp = "1382744872"
+

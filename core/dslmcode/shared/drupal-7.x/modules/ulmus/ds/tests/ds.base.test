@@ -1,0 +1,874 @@
+<?php
+
+/**
+ * @file
+ * Base functions and tests for Display Suite.
+ */
+
+class dsBaseTest extends DrupalWebTestCase {
+
+  /**
+   * Implementation of setUp().
+   */
+  function setUp() {
+    parent::setUp('ctools', 'ds', 'ds_extras', 'search', 'ds_search', 'ds_format', 'ds_forms', 'ds_ui', 'ds_test', 'panels', 'views');
+
+    variable_set('search_active_modules', array('node' => '', 'user' => 'user', 'ds_search' => 'ds_search'));
+    menu_rebuild();
+
+    $this->admin_user = $this->drupalCreateUser(array('admin_classes', 'admin_view_modes', 'admin_fields', 'admin_display_suite', 'ds_switch article', 'use text format ds_code', 'access administration pages', 'administer content types', 'administer users', 'administer comments', 'administer nodes', 'bypass node access', 'administer blocks', 'search content', 'use advanced search', 'administer search', 'access user profiles', 'administer permissions'));
+    $this->drupalLogin($this->admin_user);
+  }
+
+  /**
+   * Select a layout.
+   */
+  function dsSelectLayout($edit = array(), $assert = array(), $url = 'admin/structure/types/manage/article/display', $options = array()) {
+
+    $edit += array(
+      'additional_settings[layout]' => 'ds_2col_stacked',
+    );
+
+    $this->drupalPost($url, $edit, t('Save'), $options);
+
+    $assert += array(
+      'regions' => array(
+        'header' => '<td colspan="8">' . t('Header') . '</td>',
+        'left' => '<td colspan="8">' . t('Left') . '</td>',
+        'right' => '<td colspan="8">' . t('Right') . '</td>',
+        'footer' => '<td colspan="8">' . t('Footer') . '</td>',
+      ),
+    );
+
+    foreach ($assert['regions'] as $region => $raw) {
+      $this->assertRaw($region, t('Region !region found', array('!region' => $region)));
+    }
+  }
+
+  /**
+   * Configure classes
+   */
+  function dsConfigureClasses($edit = array()) {
+
+    $edit += array(
+      'ds_classes_regions' => "class_name_1\nclass_name_2|Friendly name"
+    );
+
+    $this->drupalPost('admin/structure/ds/classes', $edit, t('Save configuration'));
+    $this->assertText(t('The configuration options have been saved.'), t('CSS classes configuration saved'));
+    $this->assertRaw('class_name_1', 'Class name 1 found');
+    $this->assertRaw('class_name_2', 'Class name 1 found');
+  }
+
+  /**
+   * Configure classes on a layout.
+   */
+  function dsSelectClasses($edit = array(), $url = 'admin/structure/types/manage/article/display') {
+
+    $edit += array(
+      "additional_settings[header][]" => 'class_name_1',
+      "additional_settings[footer][]" => 'class_name_2',
+    );
+
+    $this->drupalPost($url, $edit, t('Save'));
+  }
+
+  /**
+   * Configure Field UI.
+   */
+  function dsConfigureUI($edit, $url = 'admin/structure/types/manage/article/display') {
+    $this->drupalPost($url, $edit, t('Save'));
+  }
+
+  /**
+   * Edit field formatter settings
+   */
+  function dsEditFormatterSettings($edit, $url = 'admin/structure/types/manage/article/display', $element_value = 'edit body') {
+    $this->drupalPost($url, array(), $element_value);
+    $this->drupalPost(NULL, $edit, t('Update'));
+    $this->drupalPost(NULL, array(), t('Save'));
+  }
+
+  /**
+   * Create a view mode.
+   *
+   * @param $edit
+   *   An optional array of view mode properties.
+   */
+  function dsCreateViewMode($edit = array()) {
+
+    $edit += array(
+      'name' => 'Testing',
+      'view_mode' => 'testing',
+      'entities[node]' => '1'
+    );
+
+    $this->drupalPost('admin/structure/ds/view_modes/manage', $edit, t('Save'));
+    $this->assertText(t('The view mode ' . $edit['name'] . ' has been saved'), t('!name view mode has been saved', array('!name' => $edit['name'])));
+  }
+
+  /**
+   * Create a code field.
+   *
+   * @param $edit
+   *   An optional array of field properties.
+   */
+  function dsCreateCodeField($edit = array(), $url = 'admin/structure/ds/fields/manage_custom') {
+
+    $edit += array(
+      'name' => 'Test field',
+      'field' => 'test_field',
+      'entities[node]' => '1',
+      'code[value]' => 'Test field',
+      'use_token' => '0',
+    );
+
+    $this->drupalPost($url, $edit, t('Save'));
+    $this->assertText(t('The field ' . $edit['name'] . ' has been saved'), t('!name field has been saved', array('!name' => $edit['name'])));
+  }
+
+  /**
+   * Create a block field.
+   *
+   * @param $edit
+   *   An optional array of field properties.
+   */
+  function dsCreateBlockField($edit = array(), $url = 'admin/structure/ds/fields/manage_block', $first = TRUE) {
+
+    $edit += array(
+      'name' => 'Test block field',
+      'entities[node]' => '1',
+      'block' => 'node|recent',
+      'block_render' => DS_BLOCK_TEMPLATE,
+    );
+
+    if ($first) {
+      $edit += array('field' => 'test_block_field');
+    }
+
+    $this->drupalPost($url, $edit, t('Save'));
+    $this->assertText(t('The field ' . $edit['name'] . ' has been saved'), t('!name field has been saved', array('!name' => $edit['name'])));
+  }
+
+  /**
+   * Create a block field.
+   *
+   * @param $edit
+   *   An optional array of field properties.
+   */
+  function dsCreatePreprocessField($edit = array(), $url = 'admin/structure/ds/fields/manage_preprocess', $first = TRUE) {
+
+    $edit += array(
+      'name' => 'Submitted',
+      'entities[node]' => '1',
+    );
+
+    if ($first) {
+      $edit += array('field' => 'submitted');
+    }
+
+    $this->drupalPost($url, $edit, t('Save'));
+    $this->assertText(t('The field ' . $edit['name'] . ' has been saved'), t('!name field has been saved', array('!name' => $edit['name'])));
+  }
+
+  /**
+   * Create a dynamic field.
+   *
+   * @param $edit
+   *   An optional array of field properties.
+   */
+  function dsCreateDynamicField($edit = array(), $url = 'admin/structure/ds/fields/manage_ctools', $first = TRUE) {
+
+    $edit += array(
+      'name' => 'Dynamic',
+      'entities[node]' => '1',
+    );
+
+    if ($first) {
+      $edit += array('field' => 'dynamic');
+    }
+
+    $this->drupalPost($url, $edit, t('Save'));
+    $this->assertText(t('The field ' . $edit['name'] . ' has been saved'), t('!name field has been saved', array('!name' => $edit['name'])));
+  }
+}
+
+/**
+ * Test managing of custom fields.
+ */
+class dsFieldsTests extends dsBaseTest {
+
+  /**
+   * Implements getInfo().
+   */
+  public static function getInfo() {
+    return array(
+      'name' => t('Fields'),
+      'description' => t('Tests for managing custom code, dynamic, preprocess and block fields.'),
+      'group' => t('Display Suite'),
+    );
+  }
+
+  /**
+   * Test Display fields.
+   */
+  function testDSFields() {
+
+    $edit = array(
+      'name' => 'Test field',
+      'field' => 'test_field',
+      'entities[node]' => '1',
+      'code[value]' => 'Test field',
+      'use_token' => '0',
+    );
+
+    $this->dsCreateCodeField($edit);
+
+    // Create the same and assert it already exists.
+    $this->drupalPost('admin/structure/ds/fields/manage_custom', $edit, t('Save'));
+    $this->assertText(t('The machine-readable name is already in use. It must be unique.'), t('Field testing already exists.'));
+
+    $this->dsSelectLayout();
+
+    // Assert it's found on the Field UI for article.
+    $this->drupalGet('admin/structure/types/manage/article/display');
+    $this->assertRaw('fields[test_field][weight]', t('Test field found on node article.'));
+
+    // Assert it's not found on the Field UI for users.
+    $this->drupalGet('admin/config/people/accounts/display');
+    $this->assertNoRaw('fields[test_field][weight]', t('Test field not found on user.'));
+
+    // Update testing label
+    $edit = array(
+      'name' => 'Test field 2',
+    );
+    $this->drupalPost('admin/structure/ds/fields/manage_custom/test_field', $edit, t('Save'));
+    $this->assertText(t('The field Test field 2 has been saved'), t('Test field label updated'));
+
+    // Use the Field UI limit option.
+    $this->dsSelectLayout(array(), array(), 'admin/structure/types/manage/page/display');
+    $this->dsSelectLayout(array(), array(), 'admin/structure/types/manage/article/display/teaser');
+    $edit = array(
+      'ui_limit' => 'article|default',
+    );
+    $this->drupalPost('admin/structure/ds/fields/manage_custom/test_field', $edit, t('Save'));
+
+    $this->drupalGet('admin/structure/types/manage/article/display');
+    $this->assertRaw('fields[test_field][weight]', t('Test field field found on node article, default.'));
+    $this->drupalGet('admin/structure/types/manage/article/display/teaser');
+    $this->assertNoRaw('fields[test_field][weight]', t('Test field field not found on node article, teaser.'));
+    $this->drupalGet('admin/structure/types/manage/page/display');
+    $this->assertNoRaw('fields[test_field][weight]', t('Test field field not found on node page, default.'));
+    $edit = array(
+      'ui_limit' => 'article|*',
+    );
+    $this->drupalPost('admin/structure/ds/fields/manage_custom/test_field', $edit, t('Save'));
+    $this->drupalGet('admin/structure/types/manage/article/display');
+    $this->assertRaw('fields[test_field][weight]', t('Test field field found on node article, default.'));
+    $this->drupalGet('admin/structure/types/manage/article/display/teaser');
+    $this->assertRaw('fields[test_field][weight]', t('Test field field found on node article, teaser.'));
+
+
+
+    // Remove the field.
+    $this->drupalPost('admin/structure/ds/fields/delete/test_field', array(), t('Delete'));
+    $this->assertText(t('The field Test field 2 has been deleted'), t('Test field removed'));
+
+    // Assert the field is gone at the manage display screen.
+    $this->drupalGet('admin/structure/types/manage/article/display');
+    $this->assertNoRaw('fields[test_field][weight]', t('Test field field not found on node article.'));
+
+    // Block fields.
+    $edit = array(
+      'name' => 'Test block field',
+      'field' => 'test_block_field',
+      'entities[node]' => '1',
+      'block' => 'node|recent',
+      'block_render' => DS_BLOCK_TEMPLATE,
+    );
+
+    $this->dsCreateBlockField($edit);
+
+    // Create the same and assert it already exists.
+    $this->drupalPost('admin/structure/ds/fields/manage_block', $edit, t('Save'));
+    $this->assertText(t('The machine-readable name is already in use. It must be unique.'), t('Block test field already exists.'));
+
+    $this->dsSelectLayout();
+
+    // Assert it's found on the Field UI for article.
+    $this->drupalGet('admin/structure/types/manage/article/display');
+    $this->assertRaw('fields[test_block_field][weight]', t('Test block field found on node article.'));
+
+    // Assert it's not found on the Field UI for users.
+    $this->drupalGet('admin/config/people/accounts/display');
+    $this->assertNoRaw('fields[test_block_field][weight]', t('Test block field not found on user.'));
+
+    // Update testing label
+    $edit = array(
+      'name' => 'Test block field 2',
+    );
+    $this->drupalPost('admin/structure/ds/fields/manage_block/test_block_field', $edit, t('Save'));
+    $this->assertText(t('The field Test block field 2 has been saved'), t('Test field label updated'));
+
+    // Remove the block field.
+    $this->drupalPost('admin/structure/ds/fields/delete/test_block_field', array(), t('Delete'));
+    $this->assertText(t('The field Test block field 2 has been deleted'), t('Test field removed'));
+
+    // Assert the block field is gone at the manage display screen.
+    $this->drupalGet('admin/structure/types/manage/article/display');
+    $this->assertNoRaw('fields[test_block_field][weight]', t('Test block field not found on node article.'));
+
+    // Preprocess fields.
+    $edit = array(
+      'name' => 'Submitted',
+      'field' => 'submitted',
+      'entities[node]' => '1',
+    );
+
+    $this->dsCreatePreprocessField($edit);
+
+    // Create the same and assert it already exists.
+    $this->drupalPost('admin/structure/ds/fields/manage_custom', $edit, t('Save'));
+    $this->assertText(t('The machine-readable name is already in use. It must be unique.'), t('Submitted already exists.'));
+
+    $this->dsSelectLayout();
+
+    // Assert it's found on the Field UI for article.
+    $this->drupalGet('admin/structure/types/manage/article/display');
+    $this->assertRaw('fields[submitted][weight]', t('Submitted found on node article.'));
+
+    // Assert it's not found on the Field UI for users.
+    $this->drupalGet('admin/config/people/accounts/display');
+    $this->assertNoRaw('fields[submitted][weight]', t('Submitted not found on user.'));
+
+    // Update testing label
+    $edit = array(
+      'name' => 'Submitted by',
+    );
+    $this->drupalPost('admin/structure/ds/fields/manage_preprocess/submitted', $edit, t('Save'));
+    $this->assertText(t('The field Submitted by has been saved'), t('Submitted label updated'));
+
+    // Remove a field.
+    $this->drupalPost('admin/structure/ds/fields/delete/submitted', array(), t('Delete'));
+    $this->assertText(t('The field Submitted by has been deleted'), t('Submitted removed'));
+
+    // Assert the field is gone at the manage display screen.
+    $this->drupalGet('admin/structure/types/manage/article/display');
+    $this->assertNoRaw('fields[submitted][weight]', t('Submitted field not found on node article.'));
+
+    // Dynamic fields.
+    $edit = array(
+      'name' => 'Dynamic',
+      'field' => 'dynamic',
+      'entities[node]' => '1',
+    );
+
+    $this->dsCreateDynamicField($edit);
+
+    // Create the same and assert it already exists.
+    $this->drupalPost('admin/structure/ds/fields/manage_ctools', $edit, t('Save'));
+    $this->assertText(t('The machine-readable name is already in use. It must be unique.'), t('Dynamic already exists.'));
+
+    $this->dsSelectLayout();
+
+    // Assert it's found on the Field UI for article.
+    $this->drupalGet('admin/structure/types/manage/article/display');
+    $this->assertRaw('fields[dynamic][weight]', t('Dynamic found on node article.'));
+
+    // Assert it's not found on the Field UI for users.
+    $this->drupalGet('admin/config/people/accounts/display');
+    $this->assertNoRaw('fields[dynamic][weight]', t('Dynamic not found on user.'));
+
+    // Update testing label
+    $edit = array(
+      'name' => 'Uber dynamic',
+    );
+    $this->drupalPost('admin/structure/ds/fields/manage_ctools/dynamic', $edit, t('Save'));
+    $this->assertText(t('The field Uber dynamic has been saved'), t('Dynamic label updated'));
+
+    // Remove a field.
+    $this->drupalPost('admin/structure/ds/fields/delete/dynamic', array(), t('Delete'));
+    $this->assertText(t('The field Uber dynamic has been deleted'), t('Dynamic removed'));
+
+    // Assert the field is gone at the manage display screen.
+    $this->drupalGet('admin/structure/types/manage/article/display');
+    $this->assertNoRaw('fields[dynamic][weight]', t('Dynamic field not found on node article.'));
+  }
+}
+
+/**
+ * Test managing of view modes.
+ */
+class dsViewModesTests extends dsBaseTest {
+
+  /**
+   * Implements getInfo().
+   */
+  public static function getInfo() {
+    return array(
+      'name' => t('View modes'),
+      'description' => t('Tests for managing custom view modes.'),
+      'group' => t('Display Suite'),
+    );
+  }
+
+  /**
+   * Test managing view modes.
+   */
+  function testDSManageViewModes() {
+
+    $edit = array(
+      'name' => 'Testing',
+      'view_mode' => 'testing',
+      'entities[node]' => '1'
+    );
+
+    $this->dsCreateViewMode($edit);
+
+    // Create the same and assert it already exists.
+    $this->drupalPost('admin/structure/ds/view_modes/manage', $edit, t('Save'));
+    $this->assertText(t('The machine-readable name is already in use. It must be unique.'), t('View mode testing already exists.'));
+
+    // Assert it's found on the Field UI for article.
+    $this->drupalGet('admin/structure/types/manage/article/display');
+    $this->assertRaw('additional_settings[modes][view_modes_custom][testing]', t('Testing view mode found on node article.'));
+
+    // Assert it's not found on the Field UI for article.
+    $this->drupalGet('admin/config/people/accounts/display');
+    $this->assertNoRaw('additional_settings[modes][view_modes_custom][testing]', t('Testing view mode not found on user.'));
+
+    // Update testing label
+    $edit = array(
+      'name' => 'Testing 2',
+    );
+    $this->drupalPost('admin/structure/ds/view_modes/manage/testing', $edit, t('Save'));
+    $this->assertText(t('The view mode Testing 2 has been saved'), t('Testing label updated'));
+
+    // Remove a view mode.
+    $this->drupalPost('admin/structure/ds/view_modes/delete/testing', array(), t('Delete'));
+    $this->assertText(t('The view mode Testing 2 has been deleted'), t('Testing view mode removed'));
+
+    // Assert the view mode is gone at the manage display screen.
+    $this->drupalGet('admin/structure/types/manage/article/display');
+    $this->assertNoRaw('additional_settings[modes][view_modes_custom][testing]', t('Testing view mode found on node article.'));
+  }
+}
+
+/**
+ * Test managing of layouts and CSS classes
+ */
+class dsLayoutsClassesTests extends dsBaseTest {
+
+  /**
+   * Implements getInfo().
+   */
+  public static function getInfo() {
+    return array(
+      'name' => t('Layouts'),
+      'description' => t('Tests for managing layouts and classes on Field UI screen.'),
+      'group' => t('Display Suite'),
+    );
+  }
+
+  /**
+   * Test selecting layouts, classes, region to block and fields.
+   */
+  function testDStestLayouts() {
+
+    // Check that the ds_3col_equal_width layout is not available (through the alter).
+    $this->drupalGet('admin/structure/types/manage/article/display');
+    $this->assertNoRaw('ds_3col_stacked_equal_width', 'ds_3col_stacked_equal_width not available');
+
+    // Create code, dynamic, preprocess block field.
+    $this->dsCreateCodeField();
+    $this->dsCreateBlockField();
+    $this->dsCreateDynamicField();
+    $this->dsCreatePreprocessField();
+
+    $layout = array(
+      'additional_settings[layout]' => 'ds_2col_stacked',
+    );
+
+    $assert = array(
+      'regions' => array(
+        'header' => '<td colspan="8">' . t('Header') . '</td>',
+        'left' => '<td colspan="8">' . t('Left') . '</td>',
+        'right' => '<td colspan="8">' . t('Right') . '</td>',
+        'footer' => '<td colspan="8">' . t('Footer') . '</td>',
+      ),
+    );
+
+    $fields = array(
+      'fields[post_date][region]' => 'header',
+      'fields[author][region]' => 'left',
+      'fields[links][region]' => 'left',
+      'fields[body][region]' => 'right',
+      'fields[comments][region]' => 'footer',
+      'fields[test_field][region]' => 'left',
+      'fields[test_block_field][region]' => 'left',
+      'fields[submitted][region]' => 'left',
+      'fields[dynamic][region]' => 'left',
+      'fields[ds_extras_extra_test_field][region]' => 'header',
+    );
+
+    // Setup first layout.
+    $this->dsSelectLayout($layout, $assert);
+    $this->dsConfigureClasses();
+    $this->dsSelectClasses();
+    $this->dsConfigureUI($fields);
+
+    // Assert the two extra fields are found.
+    $this->drupalGet('admin/structure/types/manage/article/display');
+    $this->assertRaw('ds_extras_extra_test_field');
+    $this->assertRaw('ds_extras_second_field');
+
+    // Assert we have some configuration in our database.
+    $count = db_query("SELECT COUNT(settings) FROM {ds_layout_settings} WHERE entity_type = 'node' AND bundle = 'article' AND view_mode = 'default'")->fetchField();
+    $this->assertEqual($count, 1, t('1 record found for layout serttings for node article'));
+
+    // Lookup settings and verify.
+    $data = unserialize(db_query("SELECT settings FROM {ds_layout_settings} WHERE entity_type = 'node' AND bundle = 'article' AND view_mode = 'default'")->fetchField());
+    $this->assertTrue(in_array('ds_extras_extra_test_field', $data['regions']['header']), t('Extra field is in header'));
+    $this->assertTrue(in_array('post_date', $data['regions']['header']), t('Post date is in header'));
+    $this->assertTrue(in_array('test_field', $data['regions']['left']), t('Test field is in left'));
+    $this->assertTrue(in_array('author', $data['regions']['left']), t('Author is in left'));
+    $this->assertTrue(in_array('links', $data['regions']['left']), t('Links is in left'));
+    $this->assertTrue(in_array('test_block_field', $data['regions']['left']), t('Test block field is in left'));
+    $this->assertTrue(in_array('submitted', $data['regions']['left']), t('Submitted field is in left'));
+    $this->assertTrue(in_array('dynamic', $data['regions']['left']), t('Dynamic field is in left'));
+    $this->assertTrue(in_array('body', $data['regions']['right']), t('Body is in right'));
+    $this->assertTrue(in_array('comments', $data['regions']['footer']), t('Comments is in footer'));
+    $this->assertTrue(in_array('class_name_1', $data['classes']['header']), t('Class name 1 is in header'));
+    $this->assertTrue(empty($data['classes']['left']), t('Left has no classes'));
+    $this->assertTrue(empty($data['classes']['right']), t('Right has classes'));
+    $this->assertTrue(in_array('class_name_2', $data['classes']['footer']), t('Class name 2 is in header'));
+
+    // Extra save for the dynamic field.
+    $field_settings = ds_get_field_settings('node', 'article', 'default');
+    $formatter_settings = array(
+      'show_title' => 0,
+      'title_wrapper' => '',
+      'ctools' => 'a:3:{s:4:"conf";a:3:{s:7:"context";s:25:"argument_entity_id:node_1";s:14:"override_title";i:0;s:19:"override_title_text";s:0:"";}s:4:"type";s:14:"node_type_desc";s:7:"subtype";s:14:"node_type_desc";}',
+    );
+    $field_settings['dynamic']['formatter_settings'] = $formatter_settings;
+    $record = new stdClass();
+    $record->id = 'node|article|default';
+    $record->entity_type = 'node';
+    $record->bundle = 'article';
+    $record->view_mode = 'default';
+    $record->settings = $field_settings;
+    drupal_write_record('ds_field_settings', $record, array('id'));
+    cache_clear_all('ds_fields:', 'cache', TRUE);
+    cache_clear_all('ds_field_settings', 'cache');
+
+    // Create a article node and verify settings.
+    $settings = array(
+      'type' => 'article',
+    );
+    $node = $this->drupalCreateNode($settings);
+    $this->drupalGet('node/' . $node->nid);
+
+    // Assert regions.
+    $this->assertRaw('group-header', 'Template found (region header)');
+    $this->assertRaw('group-header class_name_1', 'Class found (class_name_1)');
+    $this->assertRaw('group-left', 'Template found (region left)');
+    $this->assertRaw('group-right', 'Template found (region right)');
+    $this->assertRaw('group-footer', 'Template found (region footer)');
+    $this->assertRaw('group-footer class_name_2', 'Class found (class_name_2)');
+
+    // Assert custom fields.
+    $this->assertRaw('field-name-test-field', t('Custom field found'));
+    $this->assertRaw('Test field', t('Custom field found'));
+    $this->assertRaw('field-name-test-block-field', t('Custom block field found'));
+    $this->assertRaw('<h2>Recent content</h2>', t('Custom block field found'));
+    $this->assertRaw('Submitted by', t('Submitted field found'));
+    $this->assertText('Use articles for time-sensitive content like news, press releases or blog posts.', t('Dynamic field found'));
+    $this->assertText('This is an extra field made available through "Extra fields" functionality.');
+
+    // Test disable sidebar regions.
+    $this->drupalGet('node/' . $node->nid);
+    $this->assertRaw('sidebar-first', 'Left sidebar found.');
+    $hide = array(
+      'additional_settings[hide_sidebars]' => '1',
+    );
+    $this->dsConfigureUI($hide);
+    $this->drupalGet('node/' . $node->nid);
+    $this->assertNoRaw('sidebar-first', 'Left sidebar not found.');
+
+    // Test HTML5 wrappers
+    $this->assertNoRaw('<header', 'Header not found.');
+    $this->assertNoRaw('<footer', 'Footer not found.');
+    $this->assertNoRaw('<article', 'Article not found.');
+    $wrappers = array(
+      'additional_settings[region_wrapper][header]' => 'header',
+      'additional_settings[region_wrapper][right]' => 'footer',
+      'additional_settings[region_wrapper][layout_wrapper]' => 'article',
+    );
+    $this->dsConfigureUI($wrappers);
+    $this->drupalGet('node/' . $node->nid);
+    $this->assertRaw('<header', 'Header found.');
+    $this->assertRaw('<footer', 'Footer found.');
+    $this->assertRaw('<article', 'Article found.');
+
+    // Let's create a block field, enable the full mode first.
+    $edit = array('additional_settings[modes][view_modes_custom][full]' => '1');
+    $this->drupalPost('admin/structure/types/manage/article/display', $edit, t('Save'));
+
+    // Select layout.
+    $layout = array(
+      'additional_settings[layout]' => 'ds_2col',
+    );
+
+    $assert = array(
+      'regions' => array(
+        'left' => '<td colspan="8">' . t('Left') . '</td>',
+        'right' => '<td colspan="8">' . t('Right') . '</td>',
+      ),
+    );
+    $this->dsSelectLayout($layout, $assert, 'admin/structure/types/manage/article/display/full');
+
+    // Create new block field.
+    $edit = array(
+      'additional_settings[region_to_block][new_block_region]' => 'Block region',
+      'additional_settings[region_to_block][new_block_region_key]' => 'block_region',
+    );
+    $this->drupalPost('admin/structure/types/manage/article/display/full', $edit, t('Save'));
+    $this->assertRaw('<td colspan="8">' . t('Block region') . '</td>', 'Block region found');
+
+    // Configure fields
+    $fields = array(
+      'fields[author][region]' => 'left',
+      'fields[links][region]' => 'left',
+      'fields[body][region]' => 'right',
+      'fields[ds_test_field][region]' => 'block_region',
+    );
+    $this->dsConfigureUI($fields, 'admin/structure/types/manage/article/display/full');
+
+    // Set block in sidebar
+    $edit = array(
+      'blocks[ds_extras_block_region][region]' => 'sidebar_first',
+    );
+    $this->drupalPost('admin/structure/block', $edit, t('Save blocks'));
+
+    // Assert the block is on the node page.
+    $this->drupalGet('node/' . $node->nid);
+    $this->assertRaw('<h2>Block region</h2>', 'Block region found');
+    $this->assertText('Test code field on node ' . $node->nid, 'Post date in block');
+
+    // Change layout via admin/structure/ds/layout-change.
+    // First verify that header and footer are not here.
+    $this->drupalGet('admin/structure/types/manage/article/display/full');
+    $this->assertNoRaw('<td colspan="8">' . t('Header') . '</td>', 'Header region not found');
+    $this->assertNoRaw('<td colspan="8">' . t('Footer') . '</td>', 'Footer region not found');
+
+    // Remap the regions.
+    $edit = array(
+      'ds_left' => 'header',
+      'ds_right' => 'footer',
+      'ds_block_region' => 'footer',
+    );
+    $this->drupalPost('admin/structure/ds/change-layout/node/article/full/ds_2col_stacked', $edit, t('Save'), array('query' => array('destination' => 'admin/structure/types/manage/article/display/full')));
+
+    // Verify new regions.
+    $this->assertRaw('<td colspan="8">' . t('Header') . '</td>', 'Header region found');
+    $this->assertRaw('<td colspan="8">' . t('Footer') . '</td>', 'Footer region found');
+    $this->assertRaw('<td colspan="8">' . t('Block region') . '</td>', 'Block region found');
+
+    // Verify settings.
+    $data = unserialize(db_query("SELECT settings FROM {ds_layout_settings} WHERE entity_type = 'node' AND bundle = 'article' AND view_mode = 'full'")->fetchField());
+    $this->assertTrue(in_array('author', $data['regions']['header']), t('Author is in header'));
+    $this->assertTrue(in_array('links', $data['regions']['header']), t('Links field is in header'));
+    $this->assertTrue(in_array('body', $data['regions']['footer']), t('Body field is in footer'));
+    $this->assertTrue(in_array('ds_test_field', $data['regions']['footer']), t('Test field is in footer'));
+
+    // Test that a default view mode with no layout is not affected by a disabled view mode.
+    $edit = array(
+      'additional_settings[layout]' => '',
+      'additional_settings[modes][view_modes_custom][full]' => FALSE,
+    );
+    $this->drupalPost('admin/structure/types/manage/article/display', $edit, t('Save'));
+    $this->drupalGet('node/' . $node->nid);
+    $this->assertNoText('Test code field on node 1', 'No ds field from full view mode layout');
+  }
+}
+
+/**
+ * Tests for Display Suite field permissions.
+ */
+class dsFieldPermissionTests extends dsBaseTest {
+
+  /**
+   * Implements getInfo().
+   */
+  public static function getInfo() {
+    return array(
+      'name' => t('Field permissions'),
+      'description' => t('Tests for testing field permissions.'),
+      'group' => t('Display Suite'),
+    );
+  }
+
+  function testFieldPermissions() {
+
+    $fields = array(
+      'fields[body][region]' => 'right',
+      'fields[ds_test_field][region]' => 'left',
+    );
+
+    variable_set('ds_extras_field_permissions', TRUE);
+    $this->refreshVariables();
+    module_implements(FALSE, FALSE, TRUE);
+
+    $this->dsSelectLayout();
+    $this->dsConfigureUI($fields);
+
+    // Create a node.
+    $settings = array('type' => 'article');
+    $node = $this->drupalCreateNode($settings);
+    $this->drupalGet('node/' . $node->nid);
+    $this->assertRaw('group-right', 'Template found (region right)');
+    $this->assertNoText('Test code field on node ' . $node->nid, 'Test code field not found');
+
+    // Give permissions.
+    $edit = array(
+      '2[view author on node]' => 1,
+      '2[view ds_test_field on node]' => 1,
+    );
+    $this->drupalPost('admin/people/permissions', $edit, t('Save permissions'));
+    $this->drupalGet('node/' . $node->nid);
+    $this->assertRaw('group-left', 'Template found (region left)');
+    $this->assertText('Test code field on node ' . $node->nid, 'Test code field found');
+  }
+}
+
+/**
+ * Tests for Display Suite hooks.
+ */
+class dsHooksTests extends dsBaseTest {
+
+  /**
+   * Implements getInfo().
+   */
+  public static function getInfo() {
+    return array(
+      'name' => t('Hooks'),
+      'description' => t('Tests for hooks: ds_fields, ds_fields_alter, ds_layouts.'),
+      'group' => t('Display Suite'),
+    );
+  }
+
+  /**
+   * Test fields hooks.
+   */
+  function testDSFields() {
+
+    $this->dsSelectLayout();
+
+    // Find the two extra fields from the test module on the node type.
+    $this->drupalGet('admin/structure/types/manage/article/display');
+    $this->assertText('Test code field from hook', 'Test field found on node.');
+    $this->assertText('Field altered', 'Test field altered found on node.');
+
+    $empty = array();
+    $edit = array('additional_settings[layout]' => 'ds_2col_stacked');
+    $this->dsSelectLayout($edit, $empty, 'admin/config/people/accounts/display');
+
+    // Fields can not be found on user.
+    $this->drupalGet('admin/config/people/accounts/display');
+    $this->assertNoText('Test code field from hook', 'Test field not found on user.');
+    $this->assertNoText('Field altered', 'Test field altered not found on user.');
+
+    // Select layout.
+    $this->dsSelectLayout();
+
+    $fields = array(
+      'fields[author][region]' => 'left',
+      'fields[links][region]' => 'left',
+      'fields[body][region]' => 'right',
+      'fields[ds_test_field][region]' => 'right',
+      'fields[ds_test_field_empty_string][region]' => 'right',
+      'fields[ds_test_field_empty_string][label]' => 'inline',
+      'fields[ds_test_field_false][region]' => 'right',
+      'fields[ds_test_field_false][label]' => 'inline',
+      'fields[ds_test_field_null][region]' => 'right',
+      'fields[ds_test_field_null][label]' => 'inline',
+      'fields[ds_test_field_nothing][region]' => 'right',
+      'fields[ds_test_field_nothing][label]' => 'inline',
+      'fields[ds_test_field_zero_int][region]' => 'right',
+      'fields[ds_test_field_zero_int][label]' => 'inline',
+      'fields[ds_test_field_zero_string][region]' => 'right',
+      'fields[ds_test_field_zero_string][label]' => 'inline',
+      'fields[ds_test_field_zero_float][region]' => 'right',
+      'fields[ds_test_field_zero_float][label]' => 'inline',
+    );
+
+    $this->dsSelectLayout();
+    $this->dsConfigureUI($fields);
+
+    // Create a node.
+    $settings = array('type' => 'article');
+    $node = $this->drupalCreateNode($settings);
+    $this->drupalGet('node/' . $node->nid);
+
+    $this->assertRaw('group-left', 'Template found (region left)');
+    $this->assertRaw('group-right', 'Template found (region right)');
+    $this->assertText('Test code field on node ' . $node->nid, 'Test code field found');
+    $this->assertNoText('Test code field that returns an empty string', 'Test code field that returns an empty string is not visible.');
+    $this->assertNoText('Test code field that returns FALSE', 'Test code field that returns FALSE is not visible.');
+    $this->assertNoText('Test code field that returns NULL', 'Test code field that returns NULL is not visible.');
+    $this->assertNoText('Test code field that returns nothing', 'Test code field that returns nothing is not visible.');
+    $this->assertNoText('Test code field that returns an empty array', 'Test code field that returns an empty array is not visible.');
+    $this->assertText('Test code field that returns zero as an integer', 'Test code field that returns zero as an integer is visible.');
+    $this->assertText('Test code field that returns zero as a string', 'Test code field that returns zero as a string is visible.');
+    $this->assertText('Test code field that returns zero as a floating point number', 'Test code field that returns zero as a floating point number is visible.');
+  }
+
+  /**
+   * Test layouts hook.
+   */
+  function testDSLayouts() {
+
+    // Assert our 2 tests layouts are found.
+    $this->drupalGet('admin/structure/types/manage/article/display');
+    $this->assertRaw('Test One column', 'Test One column layout found');
+    $this->assertRaw('Test Two column', 'Test Two column layout found');
+
+    $layout = array(
+      'additional_settings[layout]' => 'dstest_2col',
+    );
+
+    $assert = array(
+      'regions' => array(
+        'left' => '<td colspan="8">' . t('Left') . '</td>',
+        'right' => '<td colspan="8">' . t('Right') . '</td>',
+      ),
+    );
+
+    $fields = array(
+      'fields[author][region]' => 'left',
+      'fields[links][region]' => 'left',
+      'fields[body][region]' => 'right',
+    );
+
+    $this->dsSelectLayout($layout, $assert);
+    $this->dsConfigureUI($fields);
+
+    // Create a node.
+    $settings = array('type' => 'article');
+    $node = $this->drupalCreateNode($settings);
+
+    $this->drupalGet('node/' . $node->nid);
+    $this->assertRaw('group-left', 'Template found (region left)');
+    $this->assertRaw('group-right', 'Template found (region right)');
+    $this->assertRaw('dstest_2col.css', 'Css file included');
+
+    // Alter a region
+    $settings = array(
+      'type' => 'article',
+      'title' => 'Alter me!',
+    );
+    $node = $this->drupalCreateNode($settings);
+    $this->drupalGet('node/' . $node->nid);
+    $this->assertRaw('cool!', 'Region altered');
+  }
+}

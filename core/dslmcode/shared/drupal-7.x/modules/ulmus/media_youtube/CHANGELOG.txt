@@ -1,0 +1,49 @@
+
+Changelog for the Media: YouTube module.
+========================================
+
+by aaron: Add overlay to media browser library thumbnails.
+by aaron: Begin framework for pager support.
+by aaron: Add an empty message.
+by aaron: Remove old tab from browser.
+by aaron: Begin work on adding 'All/My Youtubes' vertical tabs.
+by aaron: Add 'YouTube Library' tab to browser w/ all youtube videos.
+by aaron: Allow parsing of url's like youtube.com/watch#v=...
+by aaron: Fix incorrect parse to youtube from flickr.
+by aaron: Implement hook_media_parse().
+by aaron: Remove link behavior for the moment.
+by aaron: Change tab behavior to new required format.
+by aaron: Allow w/h overrides.
+by aaron: Add wysiwyg tab for youtube url.
+by aaron: Add style presets for youtube.
+by aaron: Add action link to add youtube video from media content admin.
+by aaron: Add alt/title to embed thumbnails theme.
+by aaron: Refactor styles containers to match new API.
+by aaron: Add preview on parsing new youtube.
+by aaron: Add media_youtube.js.
+by aaron: Add a weight to style containers.
+by aaron: Add JS behavior to url text field.
+by aaron: Browse user + all youtube videos.
+by aaron: New themes for styles.
+by aaron: Begin browser forms for YouTube.
+by aaron: Embed themes & style callbacks.
+by aaron: Define filter callbacks.
+by aaron: Fix return value for hook_styles_presets().
+by aaron: Implement hook_styles_presets().
+by aaron: Add variables to preview theme.
+by aaron: Integrate with Styles.
+by aaron: Add preview theme.
+by aaron: Add test default media styles.
+by aaron: Parse URL correctly.
+by aaron: Register the stream wrapper.
+by aaron: Include stream wrapper w/ module load.
+by aaron: Rename stream wrapper implementation to MediaYouTubeStreamWrapper.
+by aaron: Upgrade module to DRUPAL-7.
+
+=============
+ DRUPAL-7--1
+=============
+
+by aaron: Create ResourceYouTubeStreamWrapper.inc.
+by RobW: Please read the Commit Log for further changes:
+  http://drupal.org/node/365186/commits

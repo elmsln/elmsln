@@ -1,0 +1,16 @@
+name = Media WYSIWYG View Mode
+description = Enables files inside of the WYSIWYG editor to be displayed using a separate view mode.
+package = Media
+core = 7.x
+
+dependencies[] = media
+dependencies[] = wysiwyg
+
+configure = admin/config/media/wysiwyg-view-mode
+
+; Information added by drupal.org packaging script on 2013-10-25
+version = "7.x-2.0-alpha3"
+core = "7.x"
+project = "media"
+datestamp = "1382744872"
+

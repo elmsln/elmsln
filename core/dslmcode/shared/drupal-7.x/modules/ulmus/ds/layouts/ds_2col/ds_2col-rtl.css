@@ -1,0 +1,12 @@
+/**
+ * @file
+ * RTL styling for the ds_2col template.
+ */
+
+.ds-2col > .group-left {
+  float: right;
+}
+
+.ds-2col > .group-right {
+  float: right;
+}

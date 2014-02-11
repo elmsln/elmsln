@@ -1,0 +1,240 @@
+<?php
+
+/**
+ * Implements hook_hook_info().
+ */
+function media_internet_hook_info() {
+  $hooks = array(
+    'media_internet_providers',
+  );
+
+  return array_fill_keys($hooks, array('group' => 'media'));
+}
+
+/**
+ * Implements hook_menu().
+ */
+function media_internet_menu() {
+  $items['file/add/web'] = array(
+    'title' => 'Web',
+    'description' => 'Add internet files to your media library.',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('media_internet_add'),
+    'access callback' => 'media_internet_access',
+    'type' => MENU_LOCAL_TASK,
+    'file' => 'media_internet.pages.inc',
+  );
+
+  return $items;
+}
+
+/**
+ * Access callback for the media_internet media browser plugin.
+ */
+function media_internet_access($account = NULL) {
+  return user_access('administer files', $account) || user_access('add media from remote sources', $account);
+}
+
+/**
+ * Implement hook_permission().
+ */
+function media_internet_permission() {
+  return array(
+    'add media from remote sources' => array(
+      'title' => t('Add media from remote services'),
+      'description' => t('Add media from remote sources such as other websites, YouTube, etc'),
+    ),
+  );
+}
+
+/**
+ * Gets the list of providers.
+ *
+ * A "Provider" is a bit of meta-data like a title and a logo and a class which
+ * can handle saving remote files.  Each provider is able to parse an embed code or URL
+ * and store it as a file object in file_managed.
+ */
+function media_internet_get_providers() {
+  $providers = &drupal_static(__FUNCTION__);
+
+  if (!isset($providers)) {
+    $cid = 'media:internet:providers';
+    if ($cache = cache_get($cid)) {
+      $providers = $cache->data;
+    }
+    else {
+      $providers = array();
+      foreach (module_implements('media_internet_providers') as $module) {
+        foreach (module_invoke($module, 'media_internet_providers') as $key => $provider) {
+          // Store the module here too for convinience.
+          $providers[$key] = $provider;
+          $providers[$key]['module'] = $module;
+          if (!isset($providers[$key]['weight'])) {
+            $providers[$key]['weight'] = 0;
+          }
+        }
+      }
+      uasort($providers, 'drupal_sort_weight');
+      cache_set($cid, $providers);
+    }
+  }
+
+  return $providers;
+}
+
+/**
+ * Finds the appropriate provider for a given URL or embed_string
+ *
+ * Each provider has a claim() method which it uses to tell media_internet
+ * that it should handle this input.  We cycle through all providers to find
+ * the right one.
+ *
+ * @todo: Make this into a normal hook or something because we have to instantiate
+ * each class to test and that's not right.
+ */
+function media_internet_get_provider($embed_string) {
+  foreach (media_internet_get_providers() as $class_name => $nothing) {
+    $p = new $class_name($embed_string);
+    if ($p->claim($embed_string)) {
+      return $p;
+    }
+  }
+  throw new MediaInternetNoHandlerException(t('Unable to handle the provided embed string or URL.'));
+}
+
+class MediaInternetFileHandler extends MediaInternetBaseHandler {
+
+  public $fileObject;
+
+  public function preSave(&$file_obj) {
+    // Coppies the remote file locally.
+    $remote_uri = $file_obj->uri;
+    //@TODO: we should follow redirection here an save the final filename, not just the basename.
+    $local_filename = basename($remote_uri);
+    $local_filename = file_munge_filename($local_filename, variable_get('file_entity_default_allowed_extensions', 'jpg jpeg gif png txt doc docx xls xlsx pdf ppt pptx pps ppsx odt ods odp mp3 mov mp4 m4a m4v mpeg avi ogg oga ogv weba webp webm'), FALSE);
+    $local_uri = file_stream_wrapper_uri_normalize('temporary://' . $local_filename);
+    if (!@copy($remote_uri, $local_uri)) {
+      throw new Exception('Unable to add file ' . $remote_uri);
+      return;
+    }
+    // Make the current fileObject point to the local_uri, not the remote one.
+    $file_obj = file_uri_to_object($local_uri);
+  }
+
+  public function postSave(&$file_obj) {
+    $scheme = variable_get('file_default_scheme', 'public') . '://';
+    module_load_include('inc', 'file_entity', 'file_entity.pages');
+    $destination_uri = file_entity_upload_destination_uri(array());
+    $uri = file_stream_wrapper_uri_normalize($destination_uri . '/' . $file_obj->filename);
+    // Now to its new home.
+    $file_obj = file_move($file_obj, $uri, FILE_EXISTS_RENAME);
+  }
+
+  public function getFileObject() {
+    if (!$this->fileObject) {
+      $this->fileObject = file_uri_to_object($this->embedCode);
+    }
+    return $this->fileObject;
+  }
+
+  public function claim($embedCode) {
+    // Claim only valid URLs using a supported scheme.
+    if (!valid_url($embedCode, TRUE) || !in_array(file_uri_scheme($embedCode), variable_get('media__fromurl_supported_schemes', array('http', 'https', 'ftp', 'smb', 'ftps')))) {
+      return FALSE;
+    }
+
+    // This handler is intended for regular files, so don't claim URLs
+    // containing query strings or fragments.
+    if (preg_match('/[\?\#]/', $embedCode)) {
+      return FALSE;
+    }
+
+    // Since this handler copies the remote file to the local web server, do not
+    // claim a URL with an extension disallowed for media uploads.
+    $regex = '/\.(' . preg_replace('/ +/', '|', preg_quote(variable_get('file_entity_default_allowed_extensions', 'jpg jpeg gif png txt doc docx xls xlsx pdf ppt pptx pps ppsx odt ods odp mp3 mov mp4 m4a m4v mpeg avi ogg oga ogv weba webp webm'))) . ')$/i';
+    if (!preg_match($regex, basename($embedCode))) {
+      return FALSE;
+    }
+
+    return TRUE;
+  }
+}
+
+/*
+ * Base MediaInternetBaseHandler class.
+ *
+ * Classes extending this class manage the addition of Internet media. To
+ * achieve this, the class should parse user-submitted embed code, claim it
+ * when appropriate and save it as a managed file.
+ */
+abstract class MediaInternetBaseHandler {
+
+  /**
+   * The constructor for the MediaInternetBaseHandler class. This method is also called
+   * from the classes that extend this class and override this method.
+   */
+  public function __construct($embedCode) {
+    $this->embedCode = $embedCode;
+  }
+
+  /**
+   * Determines if this handler should claim the item.
+   *
+   * @param string $embed_code
+   *   A string of user-submitted embed code.
+   *
+   * @return boolean
+   *   Pass TRUE to claim the item.
+   */
+  abstract public function claim($embed_code);
+
+  /**
+   * Returns a file object which can be used for validation.
+   *
+   * @return StdClass
+   */
+  abstract public function getFileObject();
+
+  /**
+   * If required, implementors can validate the embedCode.
+   */
+  public function validate() {
+  }
+
+  /**
+   * Before the file has been saved, implementors may do additional operations.
+   *
+   * @param object $file_obj
+   */
+  public function preSave(&$file_obj) {
+  }
+
+  /**
+   * Saves a file to the file_managed table (with file_save).
+   *
+   * @return StdClass
+   */
+  public function save() {
+    $file_obj = $this->getFileObject();
+    $this->preSave($file_obj);
+    file_save($file_obj);
+    $this->postSave($file_obj);
+    return $file_obj;
+  }
+
+  /**
+   * After the file has been saved, implementors may do additional operations.
+   *
+   * @param object $file_obj
+   */
+  public function postSave(&$file_obj) {
+  }
+}
+
+class MediaInternetValidationException extends Exception {
+
+}
+
+class MediaInternetNoHandlerException extends Exception {
+
+}

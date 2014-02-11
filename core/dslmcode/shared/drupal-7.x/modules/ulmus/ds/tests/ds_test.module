@@ -1,0 +1,279 @@
+<?php
+
+/**
+ * @file
+ * Display Suite test module.
+ */
+
+/**
+ * Implements hook_install().
+ */
+function ds_test_install() {
+  variable_set('ds_extras_region_to_block', TRUE);
+  variable_set('ds_extras_switch_view_mode', TRUE);
+  variable_set('ds_extras_hide_page_title', TRUE);
+  variable_set('ds_extras_field_template', TRUE);
+  variable_set('ds_extras_fields_extra', TRUE);
+  variable_set('ds_extras_hide_page_sidebars', TRUE);
+  variable_set('ds_extras_fields_extra_list', "node|article|ds_extras_extra_test_field\nnode|article|ds_extras_second_field");
+  variable_set('ds_extras_vd', TRUE);
+
+  db_update('system')
+    ->fields(array('weight' => 2))
+    ->condition('name', 'ds_test')
+    ->execute();
+}
+
+/**
+ * Implements hook_views_api().
+ */
+function ds_test_views_api($module, $api) {
+  if ($module == 'views' && $api == 'views_default') {
+    return array('version' => 3);
+  }
+}
+
+/**
+ * Helper function to return the tag name basid on tid.
+ */
+function ds_test_get_tag_name($raw_value, $object) {
+  $term = taxonomy_term_load($raw_value);
+  return $term->name;
+}
+
+/**
+ * Helper function to return advanced view mode.
+ */
+function ds_views_row_adv_ds_testing($entity, $view_mode, $load_comments) {
+  return 'Advanced display for id ' . $entity->nid;
+}
+
+/**
+ * Implements hook_field_extra_fields().
+ */
+function ds_test_field_extra_fields() {
+  $extra = array();
+
+  // Register a single field to test that
+  // extra fields in the hidden region are really hidden.
+  $extra['node']['article']['display']['heavy_field'] = array(
+   'label' => t('Heavy extra test field'),
+   'weight' => 10,
+  );
+
+  return $extra;
+}
+
+/**
+ * Implements hook_node_view().
+ */
+function ds_test_node_view($node, $view_mode, $langcode) {
+  $node->content['ds_extras_extra_test_field'] = array(
+    '#markup' => 'This is an extra field made available through "Extra fields" functionality.',
+    '#weight' => 10,
+  );
+
+  // Check whether the heavy extra field is rendered or not.
+  if ($node->type == 'article') {
+    $fields = field_extra_fields_get_display('node', 'article', $view_mode);
+    if (isset($fields['heavy_field']) && $fields['heavy_field']['visible']) {
+      $node->content['heavy_field'] = array(
+        '#markup' => 'Heavy field',
+        '#weight' => $fields['heavy_field']['weight'],
+      );
+    }
+  }
+}
+
+/**
+ * Implements hook_ds_layout_info_alter().
+ */
+function ds_test_ds_layout_info_alter(&$layouts) {
+  unset($layouts['ds_3col_stacked_equal_width']);
+}
+
+/**
+ * Implements hook_ds_fields_info().
+ */
+function ds_test_ds_fields_info($entity_type) {
+  if ($entity_type == 'node') {
+    $fields['node']['ds_test_field'] = array(
+      'title' => t('Test code field from hook'),
+      'field_type' => DS_FIELD_TYPE_FUNCTION,
+      'function' => 'dstest_render_test_field',
+    );
+    $fields['node']['ds_test_field_2'] = array(
+      'title' => t('Test code field from hook 2'),
+      'field_type' => DS_FIELD_TYPE_FUNCTION,
+      'function' => 'dstest_render_test_field',
+    );
+    $fields['node']['ds_test_field_empty_string'] = array(
+      'title' => t('Test code field that returns an empty string'),
+      'field_type' => DS_FIELD_TYPE_FUNCTION,
+      'function' => 'dstest_render_empty_string',
+    );
+    $fields['node']['ds_test_field_false'] = array(
+      'title' => t('Test code field that returns FALSE'),
+      'field_type' => DS_FIELD_TYPE_FUNCTION,
+      'function' => 'dstest_render_false',
+    );
+    $fields['node']['ds_test_field_null'] = array(
+      'title' => t('Test code field that returns NULL'),
+      'field_type' => DS_FIELD_TYPE_FUNCTION,
+      'function' => 'dstest_render_null',
+    );
+    $fields['node']['ds_test_field_nothing'] = array(
+      'title' => t('Test code field that returns nothing'),
+      'field_type' => DS_FIELD_TYPE_FUNCTION,
+      'function' => 'dstest_render_nothing',
+    );
+    $fields['node']['ds_test_field_zero_int'] = array(
+      'title' => t('Test code field that returns zero as an integer'),
+      'field_type' => DS_FIELD_TYPE_FUNCTION,
+      'function' => 'dstest_render_zero_int',
+    );
+    $fields['node']['ds_test_field_zero_string'] = array(
+      'title' => t('Test code field that returns zero as a string'),
+      'field_type' => DS_FIELD_TYPE_FUNCTION,
+      'function' => 'dstest_render_zero_string',
+    );
+    $fields['node']['ds_test_field_zero_float'] = array(
+      'title' => t('Test code field that returns zero as a floating point number'),
+      'field_type' => DS_FIELD_TYPE_FUNCTION,
+      'function' => 'dstest_render_zero_float',
+    );
+
+    return $fields;
+  }
+}
+
+/**
+ * Implements hook_ds_field_theme_functions_info().
+ */
+function ds_test_ds_field_theme_functions_info() {
+  return array('ds_test_theming_function' => t('Field test function'));
+}
+
+/**
+ * Theme field test function.
+ */
+function ds_test_theming_function($variables) {
+  return 'Testing field output through custom function';
+}
+
+/**
+ * Render the test code field.
+ */
+function dstest_render_test_field($field) {
+  return 'Test code field on node ' . $field['entity']->nid;
+}
+
+/**
+ * Test code field that returns an empty string.
+ */
+function dstest_render_empty_string() {
+  return '';
+}
+
+/**
+ * Test code field that returns FALSE.
+ */
+function dstest_render_false() {
+  return FALSE;
+}
+
+/**
+ * Test code field that returns NULL.
+ */
+function dstest_render_null() {
+  return NULL;
+}
+
+/**
+ * Test code field that returns nothing.
+ */
+function dstest_render_nothing() {
+  return;
+}
+
+/**
+ * Test code field that returns zero as an integer.
+ */
+function dstest_render_zero_int() {
+  return 0;
+}
+
+/**
+ * Test code field that returns zero as a string.
+ */
+function dstest_render_zero_string() {
+  return '0';
+}
+
+/**
+ * Test code field that returns zero as a floating point number.
+ */
+function dstest_render_zero_float() {
+  return 0.0;
+}
+
+/**
+ * Implements hook_ds_fields_info_alter().
+ */
+function ds_test_ds_fields_info_alter(&$fields, $entity_type) {
+  if (isset($fields['ds_test_field_2'])) {
+    $fields['ds_test_field_2']['title'] = 'Field altered';
+  }
+}
+
+/**
+ * Implements hook_ds_layouts_info().
+ */
+function ds_test_ds_layout_info() {
+  $path = drupal_get_path('module', 'ds_test');
+  $layouts = array(
+    'dstest_1col' => array(
+      'label' => t('Test One column'),
+      'path' => $path . '/dstest_1col',
+      'regions' => array(
+        'ds_content' => t('Content'),
+      ),
+    ),
+    'dstest_2col' => array(
+      'label' => t('Test Two column'),
+      'path' => $path . '/dstest_2col',
+      'regions' => array(
+        'left' => t('Left'),
+        'right' => t('Right')
+      ),
+      'css' => TRUE,
+    ),
+  );
+
+  return $layouts;
+}
+
+/**
+ * Implements hook_form_FORM_ID_alter().
+ */
+function ds_test_form_field_ui_display_overview_form_alter(&$form, &$form_state) {
+  foreach (element_children($form['fields']) as $key) {
+    if (isset($form['fields'][$key]['settings_edit'])) {
+      $settings = $form['fields'][$key]['settings_edit'];
+      if (!empty($settings)) {
+        $form['fields'][$key]['settings_edit']['#type'] = 'submit';
+        $form['fields'][$key]['settings_edit']['#value'] = 'edit ' . $key;
+      }
+    }
+  }
+}
+
+/**
+ * Implements hook_ds_pre_render_alter().
+ */
+function ds_test_ds_pre_render_alter(&$layout_render_array, $context) {
+  $entity = $context['entity'];
+  if (isset($entity->title) && $entity->title === 'Alter me!') {
+    $layout_render_array['left'][] = array('#markup' => 'cool!', '#weight' => 20);
+  }
+}

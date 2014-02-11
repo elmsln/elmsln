@@ -1,0 +1,158 @@
+<?php
+
+/**
+ * @file
+ * Search tests
+ */
+
+class dsSearchTests extends dsBaseTest {
+
+  /**
+   * Implements getInfo().
+   */
+  public static function getInfo() {
+    return array(
+      'name' => t('Search'),
+      'description' => t('Tests for display of search results for nodes and users.'),
+      'group' => t('Display Suite'),
+    );
+  }
+
+  function testDSSearch() {
+
+    // Create nodes.
+    $i = 15;
+    while ($i > 0) {
+      $settings = array(
+        'title' => 'title' . $i,
+        'type' => 'article',
+        'promote' => 1,
+      );
+      $this->drupalCreateNode($settings);
+      $i--;
+    }
+
+    // Set default search.
+    $edit = array(
+      'search_default_module' => 'ds_search',
+    );
+    $this->drupalPost('admin/config/search/settings', $edit, t('Save configuration'));
+
+    // Run cron.
+    $this->cronRun();
+    $this->drupalGet('admin/config/search/settings');
+    $this->assertText(t('100% of the site has been indexed. There are 0 items left to index.'), 'Site has been indexed');
+
+    // Configure search result view mode.
+    $svm = array('additional_settings[modes][view_modes_custom][search_result]' => 'search_result');
+    $this->dsConfigureUI($svm);
+    $layout = array(
+      'additional_settings[layout]' => 'ds_2col_stacked',
+    );
+    $assert = array(
+      'regions' => array(
+        'header' => '<td colspan="8">' . t('Header') . '</td>',
+        'left' => '<td colspan="8">' . t('Left') . '</td>',
+        'right' => '<td colspan="8">' . t('Right') . '</td>',
+        'footer' => '<td colspan="8">' . t('Footer') . '</td>',
+      ),
+    );
+    $this->dsSelectLayout($layout, $assert, 'admin/structure/types/manage/article/display/search_result');
+    $fields = array(
+      'fields[title][region]' => 'header',
+      'fields[post_date][region]' => 'header',
+      'fields[author][region]' => 'left',
+      'fields[body][region]' => 'right',
+      'fields[node_link][region]' => 'footer',
+    );
+    $this->dsConfigureUI($fields, 'admin/structure/types/manage/article/display/search_result');
+
+    // Configure ds search.
+    $edit = array('ds_user_override_search_page' => '1');
+    $this->drupalPost('admin/structure/ds/list/search', $edit, t('Save configuration'));
+
+    // Let's search.
+    $this->drupalGet('search/content/title1');
+    $this->assertNoRaw('/search/node/title1');
+    $this->assertRaw('view-mode-search_result', 'Search view mode found');
+    $this->assertRaw('group-left', 'Search template found');
+    $this->assertRaw('group-right', 'Search template found');
+    $this->assertNoText(t('Advanced search'), 'No advanced search found');
+
+
+    $edit = array('ds_search_node_form_alter' => '1');
+    $this->drupalPost('admin/structure/ds/list/search', $edit, t('Save configuration'));
+    $this->drupalGet('search/content/title1');
+    $this->assertText(t('Advanced search'), 'Advanced search found');
+
+    // Search on user.
+    // Configure user. We'll just do default.
+    $layout = array(
+      'additional_settings[layout]' => 'ds_2col_stacked',
+    );
+    $assert = array(
+      'regions' => array(
+        'header' => '<td colspan="8">' . t('Header') . '</td>',
+        'left' => '<td colspan="8">' . t('Left') . '</td>',
+        'right' => '<td colspan="8">' . t('Right') . '</td>',
+        'footer' => '<td colspan="8">' . t('Footer') . '</td>',
+      ),
+    );
+    $this->dsSelectLayout($layout, $assert, 'admin/config/people/accounts/display');
+    $fields = array(
+      'fields[name][region]' => 'left',
+      'fields[summary][region]' => 'right',
+    );
+    $this->dsConfigureUI($fields, 'admin/config/people/accounts/display');
+
+    $this->drupalGet('search/user/' . $this->admin_user->name);
+    $this->assertRaw('view-mode-search_result', 'Search view mode found');
+    $this->assertRaw('group-left', 'Search template found');
+    $this->assertRaw('group-right', 'Search template found');
+
+    // Test the group by settings.
+    $article = array(
+      'title' => 'group article 1',
+      'type' => 'article',
+      'promote' => 1,
+    );
+    $this->drupalCreateNode($article);
+
+    $page = array(
+      'title' => 'group page 1',
+      'type' => 'page',
+      'promote' => 1,
+    );
+    $this->drupalCreateNode($page);
+    $this->cronRun();
+
+    $edit = array(
+      'ds_search_group_by_type' => '1'
+    );
+    $this->drupalPost('admin/structure/ds/list/search', $edit, t('Save configuration'));
+
+    // Let's search.
+    $this->drupalGet('search/content/group');
+    $this->assertRaw('Results for article');
+    $this->assertRaw('Results for basic page');
+
+    $edit = array(
+      'ds_search_group_by_type_settings[article][label]' => 'Article results',
+    );
+    $this->drupalPost('admin/structure/ds/list/search', $edit, t('Save configuration'));
+    $this->drupalGet('search/content/group');
+    $this->assertNoRaw('Results for article');
+    $this->assertRaw('Article results');
+    $this->assertRaw('Results for basic page');
+
+    $edit = array(
+      'ds_search_group_by_type_settings[page][status]' => FALSE,
+      'ds_search_group_by_type_settings[article][label]' => '',
+    );
+    $this->drupalPost('admin/structure/ds/list/search', $edit, t('Save configuration'));
+    $this->drupalGet('search/content/group');
+    $this->assertNoRaw('Article results');
+    $this->assertNoRaw('Results for basic page');
+    $this->assertRaw('Other');
+  }
+}

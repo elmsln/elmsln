@@ -1,0 +1,16 @@
+Field Hidden 7.x-1.5
+
+
+Bug fixes
+---------
+* Prevent display of weights and 'add another' buttons, when field set to more than one instance (issue #2140871).
+* Fixed Migrate integration (issue #1910314).
+* Use multibyte string function for checking value length in text type field validation.
+
+Performance
+-----------
+* Module administration file is now only included when needed.
+
+Update notes
+------------
+Clear cache.

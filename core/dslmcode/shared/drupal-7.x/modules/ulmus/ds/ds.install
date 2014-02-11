@@ -1,0 +1,279 @@
+<?php
+
+/**
+ * @file
+ * Display Suite install file.
+ */
+
+/**
+ * Implements hook_install().
+ */
+function ds_install() {
+  db_update('system')
+    ->fields(array('weight' => 1))
+    ->condition('name', 'ds')
+    ->execute();
+}
+
+/**
+ * Implements hook_uninstall().
+ */
+function ds_uninstall() {
+  variable_del('ds_classes_regions');
+}
+
+/**
+ * Implements hook_schema().
+ */
+function ds_schema() {
+
+  $schema['ds_field_settings'] = array(
+    'description' => 'The table that holds Display Suite field settings per display.',
+
+    // CTools export definitions.
+    'export' => array(
+      'key' => 'id',
+      'identifier' => 'ds_fieldsetting',
+      'default hook' => 'ds_field_settings_info',
+      'can disable' => FALSE,
+      'api' => array(
+        'owner' => 'ds',
+        'api' => 'ds',
+        'minimum_version' => 1,
+        'current_version' => 1,
+      ),
+    ),
+
+    'fields' => array(
+      'id' => array(
+        'description' => 'The unique id this setting.',
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => TRUE,
+        'default' => '',
+      ),
+      'entity_type' => array(
+        'description' => 'The name of the entity.',
+        'type' => 'varchar',
+        'length' => 32,
+        'not null' => TRUE,
+        'default' => '',
+      ),
+      'bundle' => array(
+        'description' => 'The name of the entity.',
+        'type' => 'varchar',
+        'length' => 64,
+        'not null' => TRUE,
+        'default' => '',
+      ),
+      'view_mode' => array(
+        'description' => 'The name of the view_mode.',
+        'type' => 'varchar',
+        'length' => 32,
+        'not null' => TRUE,
+        'default' => '',
+      ),
+      'settings' => array(
+        'description' => 'The Display Suite field settings for this layout.',
+        'type' => 'blob',
+        'not null' => FALSE,
+        'size' => 'big',
+        'serialize' => TRUE,
+      ),
+    ),
+    'primary key' => array('id'),
+    'indexes' => array(
+      'ds_entity'       => array('entity_type'),
+      'ds_bundle'       => array('bundle'),
+      'ds_view_mode'    => array('view_mode'),
+    ),
+  );
+
+  $schema['ds_layout_settings'] = array(
+    'description' => 'The table that holds the layouts configuration.',
+
+    // CTools export definitions.
+    'export' => array(
+      'key' => 'id',
+      'identifier' => 'ds_layout',
+      'default hook' => 'ds_layout_settings_info',
+      'can disable' => FALSE,
+      'api' => array(
+        'owner' => 'ds',
+        'api' => 'ds',
+        'minimum_version' => 1,
+        'current_version' => 1,
+      ),
+    ),
+
+    'fields' => array(
+      'id' => array(
+        'description' => 'The unique id the layout.',
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => TRUE,
+        'default' => '',
+      ),
+      'entity_type' => array(
+        'description' => 'The name of the entity.',
+        'type' => 'varchar',
+        'length' => 32,
+        'not null' => TRUE,
+        'default' => '',
+      ),
+      'bundle' => array(
+        'description' => 'The name of the entity.',
+        'type' => 'varchar',
+        'length' => 64,
+        'not null' => TRUE,
+        'default' => '',
+      ),
+      'view_mode' => array(
+        'description' => 'The name of the view_mode.',
+        'type' => 'varchar',
+        'length' => 32,
+        'not null' => TRUE,
+        'default' => '',
+      ),
+      'layout' => array(
+        'description' => 'The name of the layout.',
+        'type' => 'varchar',
+        'length' => 64,
+        'not null' => TRUE,
+        'default' => '',
+      ),
+      'settings' => array(
+        'description' => 'The settings for this layout.',
+        'type' => 'blob',
+        'not null' => FALSE,
+        'size' => 'big',
+        'serialize' => TRUE,
+      ),
+    ),
+    'primary key' => array('id'),
+    'indexes' => array(
+      'ds_entity'       => array('entity_type'),
+      'ds_bundle'       => array('bundle'),
+      'ds_view_mode'    => array('view_mode'),
+    ),
+  );
+
+  $schema['ds_view_modes'] = array(
+    'description' => 'The table that holds custom view modes managed by Display Suite.',
+
+    // CTools export definitions.
+    'export' => array(
+      'key' => 'view_mode',
+      'identifier' => 'ds_view_mode',
+      'default hook' => 'ds_view_modes_info',
+      'can disable' => FALSE,
+      'api' => array(
+        'owner' => 'ds',
+        'api' => 'ds',
+        'minimum_version' => 1,
+        'current_version' => 1,
+      ),
+    ),
+
+    'fields' => array(
+      'view_mode' => array(
+        'description' => 'The machine name of the view mode.',
+        'type' => 'varchar',
+        'length' => 32,
+        'not null' => TRUE,
+        'default' => '',
+      ),
+      'label' => array(
+        'description' => 'The label of the view mode.',
+        'type' => 'varchar',
+        'length' => 32,
+        'not null' => TRUE,
+        'default' => '',
+      ),
+      'entities' => array(
+        'description' => 'The entities for this view mode.',
+        'type' => 'blob',
+        'not null' => FALSE,
+        'size' => 'big',
+        'serialize' => TRUE,
+      ),
+    ),
+    'primary key' => array('view_mode'),
+  );
+
+  $schema['ds_fields'] = array(
+    'description' => 'The table that holds custom fields managed by Display Suite.',
+
+    // CTools export definitions.
+    'export' => array(
+      'key' => 'field',
+      'identifier' => 'ds_field',
+      'default hook' => 'ds_custom_fields_info',
+      'can disable' => FALSE,
+      'api' => array(
+        'owner' => 'ds',
+        'api' => 'ds',
+        'minimum_version' => 1,
+        'current_version' => 1,
+      ),
+    ),
+
+    'fields' => array(
+      'field' => array(
+        'description' => 'The machine name of the field.',
+        'type' => 'varchar',
+        'length' => 32,
+        'not null' => TRUE,
+        'default' => '',
+      ),
+      'label' => array(
+        'description' => 'The label of the field.',
+        'type' => 'varchar',
+        'length' => 32,
+        'not null' => TRUE,
+        'default' => '',
+      ),
+      'field_type' => array(
+        'description' => 'The type of of the field',
+        'type' => 'int',
+        'size' => 'small',
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'entities' => array(
+        'description' => 'The entities for this field.',
+        'type' => 'blob',
+        'not null' => FALSE,
+        'size' => 'big',
+        'serialize' => TRUE,
+      ),
+      'ui_limit' => array(
+        'description' => 'The UI limit for this field.',
+        'type' => 'blob',
+        'not null' => FALSE,
+        'size' => 'big',
+        'serialize' => TRUE,
+      ),
+      'properties' => array(
+        'description' => 'The properties for this field.',
+        'type' => 'blob',
+        'not null' => FALSE,
+        'size' => 'big',
+        'serialize' => TRUE,
+      ),
+    ),
+    'primary key' => array('field'),
+  );
+
+  return $schema;
+}
+
+/**
+ * Add the ui_limit table to the fields table.
+ */
+function ds_update_7201() {
+  $schema = ds_schema();
+  if (!db_field_exists('ds_fields', 'ui_limit')) {
+    db_add_field('ds_fields', 'ui_limit', $schema['ds_fields']['fields']['ui_limit']);
+  }
+}

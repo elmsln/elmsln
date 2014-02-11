@@ -1,0 +1,211 @@
+<?php
+
+/**
+ * @file
+ * Display Suite forms integration.
+ */
+
+/**
+ * Implements hook_theme().
+ */
+function ds_forms_theme() {
+  $theme_functions = array();
+
+  $theme_functions['ds_forms_custom_form'] = array(
+    'render element' => 'form',
+  );
+
+  return $theme_functions;
+}
+
+/**
+ * Implements hook_form_FORM_ID_alter().
+ */
+function ds_forms_form_field_ui_field_overview_form_alter(&$form, &$form_state) {
+
+  // Determine if this entity type is supported
+  if (_ds_forms_is_entity_type_supported($form['#entity_type'])) {
+
+    // Add necessary variables for DS Field UI.
+    $form['#view_mode'] = 'form';
+    $form_state['no_panels'] = TRUE;
+    $form_state['no_view_mode_suggestions'] = TRUE;
+
+    // Make sure the refresh works.
+    if (!module_exists('field_group')) {
+      // This key is used to store the current updated field.
+      $form_state += array(
+        'formatter_settings_edit' => NULL,
+      );
+      // Add AJAX wrapper.
+      $form['fields']['#prefix'] = '<div id="field-display-overview-wrapper">';
+      $form['fields']['#suffix'] = '</div>';
+
+      // See field_ui.admin.inc for more details on refresh rows.
+      $form['refresh_rows'] = array('#type' => 'hidden');
+      $form['refresh'] = array(
+        '#type' => 'submit',
+        '#value' => t('Refresh'),
+        '#op' => 'refresh_table',
+        '#submit' => array('field_ui_display_overview_multistep_submit'),
+        '#ajax' => array(
+          'callback' => 'field_ui_display_overview_multistep_js',
+          'wrapper' => 'field-display-overview-wrapper',
+          'effect' => 'fade',
+          // The button stays hidden, so we hide the AJAX spinner too. Ad-hoc
+          // spinners will be added manually by the client-side script.
+          'progress' => 'none',
+        ),
+      );
+      $form['#attached']['css'][] = drupal_get_path('module', 'ds_forms') . '/css/ds_forms.admin.css';
+    }
+
+    // Attach js.
+    $form['#attached']['js'][] = drupal_get_path('module', 'ds_forms') . '/js/ds_forms.admin.js';
+
+    // Load Display Suite.
+    form_load_include($form_state, 'inc', 'ds', 'includes/ds.field_ui');
+    ds_field_ui_fields_layouts($form, $form_state);
+  }
+}
+
+/**
+ * Implements hook_form_alter().
+ */
+function ds_forms_form_alter(&$form, &$form_state, $form_id) {
+  if ($ds_form = ds_build_load($form, $form_id)) {
+    if ($layout = ds_get_layout($ds_form->entity_type, $ds_form->bundle, 'form', FALSE)) {
+      // Add the theming function and add the layout as a class.
+      $form['#theme'] = array('ds_forms_custom_form');
+      $class = strtr($layout['layout'], '_', '-');
+      if ((isset($form['#attributes']['class']) && is_array($form['#attributes']['class'])) || !(isset($form['#attributes']['class']))) {
+        $form['#attributes']['class'][] = $class;
+      }
+      elseif (isset($form['#attributes']['class']) && is_string($form['#attributes']['class'])) {
+        $form['#attributes']['class'] .= ' ' . $class . ' ';
+      }
+    }
+  }
+}
+
+/**
+ * Helper function to determine if this form can be loaded.
+ */
+function ds_build_load($form, $form_id) {
+  $ds_form = FALSE;
+
+  if (isset($form['#entity_type']) && isset($form['#bundle']) && $form_id != 'field_ui_field_overview_form' && $form_id != 'field_ui_display_overview_form'
+      && $form_id != 'field_ui_field_settings_form' && $form_id != 'field_ui_widget_type_form' && $form_id != 'field_ui_field_edit_form' && !preg_match('/^editablefields_form_/', $form_id)) {
+    $ds_form = new stdClass();
+    $ds_form->entity_type = $form['#entity_type'];
+    $ds_form->bundle = $form['#bundle'];
+  }
+
+  return $ds_form;
+}
+
+/**
+ * Implements hook_preprocess_ds_forms_custom_form().
+ */
+function ds_forms_preprocess_ds_forms_custom_form(&$vars) {
+
+  $form = ds_build_load($vars['form'], $vars['form']['#form_id']);
+  if (!$form) {
+    return;
+  }
+
+  $entity_type = $form->entity_type;
+  $bundle = $form->bundle;
+
+  if ($layout = ds_get_layout($entity_type, $bundle, 'form', FALSE)) {
+
+    // Theme hook suggestions.
+    $vars['theme_hook_suggestions'][] = $layout['layout'];
+    $vars['theme_hook_suggestions'][] = $layout['layout'] . '__' . $entity_type;
+    $vars['theme_hook_suggestions'][] = $layout['layout'] . '__' . $entity_type . '_' . $bundle;
+
+    $form = &$vars['form'];
+
+    // Add path to css file.
+    if (isset($layout['css'])) {
+      drupal_add_css($layout['path'] . '/' . $layout['layout'] . '.css');
+    }
+
+    // Add the hidden region.
+    $layout['regions']['hidden'] = 'Hidden';
+
+    // Create region variables based on the layout settings.
+    foreach ($layout['regions'] as $region_name => $region) {
+
+      // Create the region content.
+      if ($region_name == 'hidden') {
+        ds_forms_render_region($form, $region_name, $layout);
+      }
+      else {
+        $vars[$region_name] = ds_forms_render_region($form, $region_name, $layout);
+      }
+
+      // Add extras classes to the region.
+      $vars[$region_name . '_classes'] = !empty($layout['settings']['classes'][$region_name]) ? ' ' . implode(' ', $layout['settings']['classes'][$region_name]) : '';
+
+      // Add a wrapper to the region.
+      if (empty($layout['flexible'])) {
+        $vars[$region_name . '_wrapper'] = isset($layout['settings']['wrappers'][$region_name]) ? $layout['settings']['wrappers'][$region_name] : 'div';
+      }
+    }
+
+    // Add layout attributes if any
+    if (!empty($layout['settings']['layout_attributes'])) {
+      $vars['layout_attributes'] = ' ' . $layout['settings']['layout_attributes'];
+    }
+    else {
+      $vars['layout_attributes'] = '';
+    }
+
+    // Ensure there is a class
+    $vars['classes'] = 'ds-form';
+
+    // Add a layout wrapper
+    $vars['layout_wrapper'] = isset($layout['settings']['layout_wrapper']) ? $layout['settings']['layout_wrapper'] : 'div';
+
+    // Add the rest of the form elements
+    $vars['drupal_render_children'] = drupal_render_children($vars['form']);
+  }
+}
+
+/**
+ * Render a form region.
+ *
+ * @param $content
+ *   An array of content fields.
+ * @param $region
+ *   The name of region to render.
+ * @param $layout
+ *   The layout definition.
+ */
+function ds_forms_render_region(&$content, $region, $layout) {
+  $output = '';
+
+  if (isset($layout['settings']['regions'][$region])) {
+    foreach ($layout['settings']['regions'][$region] as $key => $field) {
+      if ($region == 'hidden') {
+        $content[$field]['#access'] = FALSE;
+      }
+      else {
+        $output .= drupal_render($content[$field]);
+      }
+    }
+  }
+  return $output;
+}
+
+/**
+ * Determines if this entity type is supported by ds_forms.
+ *
+ * Currently supports all fieldable entity types.
+ */
+function _ds_forms_is_entity_type_supported($entity_type) {
+  $info = entity_get_info($entity_type);
+  return !empty($info['fieldable']);
+}
+

@@ -1,0 +1,10 @@
+Field Hidden 7.x-1.2
+
+New features
+------------
+None.
+
+Bug fixes
+---------
+Fixed missing Entity API integration, which (among other things) made it impossible to use Field Hidden fields in conjunction with Rules.
+Thanks MI, for creating issue http://drupal.org/node/1472050.

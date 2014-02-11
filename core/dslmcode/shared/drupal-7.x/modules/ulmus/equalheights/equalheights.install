@@ -1,0 +1,77 @@
+<?php
+
+/**
+ * @file
+ */
+
+/**
+ * Implements hook_uninstall().
+ */
+function equalheights_uninstall() {
+  db_delete('variable')
+    ->condition('name', 'equalheights_%', 'LIKE')
+    ->execute();
+}
+
+/**
+ * Removes no longer used variables
+ */
+function equalheights_update_7000() {
+  // First save overflow setting.
+  $overflow = variable_get('equalheights_overflow', 'auto');
+  // We no longer use a separate variable for overflow, delete it now.
+  db_delete('variable')
+    ->condition('name', 'equalheights_overflow')
+    ->execute();
+
+  // Try to transform string(s) into arrays.
+  $equalheightsclasses = variable_get('equalheights_css_classes', '');
+  $classes = preg_split("/\R\s*/", $equalheightsclasses);
+  $settings = array();
+  foreach ($classes as $class) {
+    if (!empty($class)) {
+      if (strpos($class, ':') !== FALSE) {
+        list($class, $height) = explode(":", $class);
+      }
+      if (!empty($height)) {
+        if (strpos($height, ',') !== FALSE) {
+          list($minheight, $maxheight) = explode(",", $height);
+        }
+        else {
+          $minheight = $height;
+        }
+      }
+      $settings[] = array(
+        'class' => trim($class, '.'),
+        'minheight' => $minheight,
+        'maxheight' => $maxheight,
+        'overflow' => $overflow,
+      );
+      variable_set('equalheights_css_classes', $settings);
+    }
+  }
+}
+
+/**
+ * Transform classes into elClasses
+ */
+function equalheights_update_7001() {
+  $equalheightsclasses = variable_get('equalheights_css_classes', array());
+  foreach ($equalheightsclasses as $key => $settings) {
+    $equalheightsclasses[$key]['elClass'] = $settings['class'];
+    unset($equalheightsclasses[$key]['class']);
+  }
+  variable_set('equalheights_css_classes', $equalheightsclasses);
+}
+
+/**
+ * Convert previous class selectors into jQuery selectors
+ */
+function equalheights_update_7002() {
+  $equalheightsclasses = variable_get('equalheights_css_classes', array());
+  foreach ($equalheightsclasses as $key => $settings) {
+    $equalheightsclasses[$key]['selector'] = "." . $settings['elClass'];
+    unset($equalheightsclasses[$key]['elClass']);
+  }
+  variable_set('equalheights_css_classes', $equalheightsclasses);
+}

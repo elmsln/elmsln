@@ -47,7 +47,7 @@
           click = false;
           return (Drupal.t("You will lose all unsaved work."));
         }
-      }
+      };
     }
   };
 })(jQuery);

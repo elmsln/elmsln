@@ -1,0 +1,1073 @@
+<?php
+
+/**
+ * @file
+ * Install, update and uninstall functions for the file_entity module.
+ */
+
+/**
+ * Implements hook_schema().
+ */
+function file_entity_schema() {
+  $schema['file_type'] = array(
+    'description' => 'Stores the settings for file types.',
+    'fields' => array(
+      'type' => array(
+        'description' => 'The machine name of the file type.',
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => TRUE,
+        'default' => '',
+      ),
+      'label' => array(
+        'description' => 'The human readable name of the file type.',
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => TRUE,
+        'default' => '',
+        'translatable' => TRUE,
+      ),
+      'description' => array(
+        'description' => 'A brief description of this file type.',
+        'type' => 'text',
+        'not null' => TRUE,
+        'size' => 'medium',
+        'translatable' => TRUE,
+      ),
+      'mimetypes' => array(
+        'description' => 'Mimetypes mapped to this file type.',
+        'type' => 'blob',
+        'size' => 'big',
+        'not null' => FALSE,
+        'serialize' => TRUE,
+      ),
+    ),
+    'primary key' => array('type'),
+    'export' => array(
+      'key' => 'type',
+      'key name' => 'Type',
+      'primary key' => 'type',
+      'default hook' => 'file_default_types',
+      'identifier' => 'file_type',
+      'export type string' => 'ctools_type',
+      'save callback' => 'file_type_save',
+      'delete callback' => 'file_type_delete',
+      'api' => array(
+        'owner' => 'file_entity',
+        'api' => 'file_type',
+        'minimum_version' => 1,
+        'current_version' => 1,
+      ),
+    ),
+  );
+  $schema['file_display'] = array(
+    'description' => 'Stores configuration options for file displays.',
+    'fields' => array(
+      // @todo Can be refactored as a compond primary key after
+      //   http://drupal.org/node/924236 is implemented.
+      'name' => array(
+        'description' => 'A combined string (FILE_TYPE__VIEW_MODE__FILE_FORMATTER) identifying a file display configuration. For integration with CTools Exportables, stored as a single string rather than as a compound primary key.',
+        'type' => 'varchar',
+        'length' => '255',
+        'not null' => TRUE,
+      ),
+      'weight' => array(
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0,
+        'description' => 'Weight of formatter within the display chain for the associated file type and view mode. A file is rendered using the lowest weighted enabled display configuration that matches the file type and view mode and that is capable of displaying the file.',
+      ),
+      'status' => array(
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 0,
+        'size' => 'tiny',
+        'description' => 'The status of the display. (1 = enabled, 0 = disabled)',
+      ),
+      'settings' => array(
+        'type' => 'blob',
+        'not null' => FALSE,
+        'size' => 'big',
+        'serialize' => TRUE,
+        'description' => 'A serialized array of name value pairs that store the formatter settings for the display.',
+      ),
+    ),
+    'primary key' => array('name'),
+    // Exportable support via CTools.
+    'export' => array(
+      'key' => 'name',
+      'key name' => 'Name',
+      'primary key' => 'name',
+      // The {file_display}.status field is used to control whether the display
+      // is active in the display chain. CTools-level disabling is something
+      // different, and it's not yet clear how to interpret it for file
+      // displays. Until that's figured out, prevent CTools-level disabling.
+      'can disable' => FALSE,
+      'default hook' => 'file_default_displays',
+      'identifier' => 'file_display',
+      'api' => array(
+        'owner' => 'file_entity',
+        'api' => 'file_default_displays',
+        'minimum_version' => 1,
+        'current_version' => 1,
+      ),
+    ),
+  );
+  $schema['file_metadata'] = array(
+    'description' => 'Cache images dimensions.',
+    'fields' => array(
+      'fid' => array(
+        'description' => 'The {file_managed}.fid of the metadata.',
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'name' => array(
+        'description' => "The name of the metadata (e.g. 'width').",
+        'type' => 'varchar',
+        'length' => '255',
+        'not null' => TRUE,
+      ),
+      'value' => array(
+        'description' => "The value of the metadata (e.g. '200px').",
+        'type' => 'blob',
+        'not null' => FALSE,
+        'size' => 'big',
+        'serialize' => TRUE,
+      ),
+    ),
+    'primary key' => array('fid', 'name'),
+    'foreign keys' => array(
+      'file_managed' => array(
+        'table' => 'file_managed',
+        'columns' => array('fid' => 'fid'),
+      ),
+    ),
+  );
+  return $schema;
+}
+
+/**
+ * Implements hook_schema_alter().
+ */
+function file_entity_schema_alter(&$schema) {
+  $schema['file_managed']['fields']['type'] = array(
+    'description' => 'The type of this file.',
+    'type' => 'varchar',
+    'length' => 50,
+    'not null' => TRUE,
+    // If the FILE_TYPE_NONE constant ever changes, then change the value here
+    // too, and add an update function to deal with existing records. The
+    // constant isn't used here, because there may be cases where this function
+    // runs without the module file loaded.
+    'default' => 'undefined',
+  );
+  $schema['file_managed']['indexes']['file_type'] = array('type');
+}
+
+
+/**
+ * Implements hook_install().
+ */
+function file_entity_install() {
+  $schema = array();
+  file_entity_schema_alter($schema);
+  $spec = $schema['file_managed']['fields']['type'];
+  $indexes_new = array('indexes' => $schema['file_managed']['indexes']);
+
+  // If another module (e.g., Media) had added a {file_managed}.type field,
+  // then change it to the expected specification. Otherwise, add the field.
+  if (db_field_exists('file_managed', 'type')) {
+    // db_change_field() will fail if any records have type=NULL, so update
+    // them to the new default value.
+    db_update('file_managed')->fields(array('type' => $spec['default']))->isNull('type')->execute();
+
+    // Indexes using a field being changed must be dropped prior to calling
+    // db_change_field(). However, the database API doesn't provide a way to do
+    // this without knowing what the old indexes are. Therefore, it is the
+    // responsibility of the module that added them to drop them prior to
+    // allowing this module to be installed.
+    db_change_field('file_managed', 'type', 'type', $spec, $indexes_new);
+  }
+  else {
+    db_add_field('file_managed', 'type', $spec, $indexes_new);
+  }
+
+  // Set permissions.
+  $roles = user_roles();
+  foreach ($roles as $rid => $role) {
+    user_role_grant_permissions($rid, array('view files'));
+  }
+
+  // Create the title and alt text fields.
+  _file_entity_create_alt_title_fields();
+
+  // Configure default pathauto variables if it is currently installed.
+  if (module_exists('pathauto')) {
+    variable_set('pathauto_file_pattern', 'file/[file:name]');
+  }
+
+  // Classify existing files according to the currently defined file types.
+  // Queue all files to be classified during cron runs using the Queue API.
+  $queue = DrupalQueue::get('file_entity_type_determine');
+  $result = db_query('SELECT fid FROM {file_managed}');
+  foreach ($result as $record) {
+    $queue->createItem($record->fid);
+  }
+
+  // Warn users that existing files will not have a file type until the queue
+  // has been processed.
+  if ($queue->numberOfItems()) {
+    drupal_set_message(t('Existing files must be classified according to the currently defined file types. These files have been queued for processing and will have their file type determined during cron runs.'));
+  }
+}
+
+/**
+ * Implements hook_uninstall().
+ */
+function file_entity_uninstall() {
+  drupal_load('module', 'file_entity');
+  foreach (file_type_load_all(TRUE) as $type) {
+    file_type_delete($type);
+  }
+
+  // Remove the added column to the core {file_managed} table.
+  db_drop_field('file_managed', 'type');
+
+  // Remove variables.
+  variable_del('file_entity_max_filesize');
+  variable_del('file_entity_default_allowed_extensions');
+  variable_del('file_entity_alt');
+  variable_del('file_entity_title');
+  variable_del('file_entity_allow_insecure_download');
+  variable_del('file_entity_file_upload_wizard_skip_file_type');
+  variable_del('file_entity_file_upload_wizard_skip_scheme');
+  variable_del('file_entity_file_upload_wizard_skip_fields');
+}
+
+/**
+ * Create the {file_display} database table.
+ */
+function file_entity_update_7000() {
+  if (db_table_exists('file_display')) {
+    return t('The table {file_display} already exists.');
+  }
+
+  $schema['file_display'] = array(
+    'description' => 'Stores configuration options for file displays.',
+    'fields' => array(
+      'name' => array(
+        'description' => 'A combined string (FILE_TYPE__VIEW_MODE__FILE_FORMATTER) identifying a file display configuration. For integration with CTools Exportables, stored as a single string rather than as a compound primary key.',
+        'type' => 'varchar',
+        'length' => '255',
+        'not null' => TRUE,
+      ),
+      'weight' => array(
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0,
+        'description' => 'Weight of formatter within the display chain for the associated file type and view mode. A file is rendered using the lowest weighted enabled display configuration that matches the file type and view mode and that is capable of displaying the file.',
+      ),
+      'status' => array(
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 0,
+        'size' => 'tiny',
+        'description' => 'The status of the display. (1 = enabled, 0 = disabled)',
+      ),
+      'settings' => array(
+        'type' => 'blob',
+        'not null' => FALSE,
+        'size' => 'big',
+        'serialize' => TRUE,
+        'description' => 'A serialized array of name value pairs that store the formatter settings for the display.',
+      ),
+    ),
+    'primary key' => array('name'),
+  );
+  db_create_table('file_display', $schema['file_display']);
+}
+
+/**
+ * Move file display configurations.
+ *
+ * Move file display configurations from the 'file_displays' variable to the
+ * {file_display} database table.
+ */
+function file_entity_update_7001() {
+  $file_displays = variable_get('file_displays');
+  if (!empty($file_displays)) {
+    foreach ($file_displays as $file_type => $file_type_displays) {
+      if (!empty($file_type_displays)) {
+        foreach ($file_type_displays as $view_mode => $view_mode_displays) {
+          if (!empty($view_mode_displays)) {
+            foreach ($view_mode_displays as $formatter_name => $display) {
+              if (!empty($display)) {
+                db_merge('file_display')
+                  ->key(array(
+                    'name' => implode('__', array($file_type, $view_mode, $formatter_name)),
+                  ))
+                  ->fields(array(
+                    'status' => isset($display['status']) ? $display['status'] : 0,
+                    'weight' => isset($display['weight']) ? $display['weight'] : 0,
+                    'settings' => isset($display['settings']) ? serialize($display['settings']) : NULL,
+                  ))
+                  ->execute();
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+  variable_del('file_displays');
+}
+
+/**
+ * Empty update function to trigger a theme registry rebuild.
+ */
+function file_entity_update_7100() { }
+
+/**
+ * Update all files with empty types to use the first part of filemime.
+ *
+ * For example, an png image with filemime 'image/png' will be assigned a file
+ * type of 'image'.
+ */
+function file_entity_update_7101() {
+  db_update('file_managed')
+    ->expression('type', "SUBSTRING_INDEX(filemime, '/', 1)")
+    ->condition('type', '')
+    ->execute();
+}
+
+/**
+ * Empty update function to trigger an entity cache rebuild.
+ */
+function file_entity_update_7102() {
+}
+
+/**
+ * Empty update function.
+ */
+function file_entity_update_7103() {
+}
+
+/**
+ * Assign view file permission when updating without the Media module.
+ */
+function file_entity_update_7104() {
+  if (!module_exists('media')) {
+    $roles = user_roles(FALSE, 'view file');
+    if (empty($roles)) {
+      // Set permissions.
+      $roles = user_roles();
+      foreach ($roles as $rid => $role) {
+        // Do not use user_role_grant_permission() since it relies on
+        // hook_permission(), which will not run for file entity module if it
+        // is disabled or the permission is renamed or removed.
+        db_merge('role_permission')
+          ->fields(array(
+            'rid' => $rid,
+            'permission' => 'view file',
+            'module' => 'file_entity',
+          ))
+          ->execute();
+      }
+    }
+  }
+}
+
+/**
+ * Create the {image_dimensions} database table.
+ */
+function file_entity_update_7200() {
+  if (db_table_exists('image_dimensions')) {
+    return t('The table {image_dimensions} already exists.');
+  }
+
+  $schema['image_dimensions'] = array(
+    'description' => 'Cache images dimensions.',
+    'fields' => array(
+      'fid' => array(
+        'description' => 'File ID.',
+        'type' => 'serial',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ),
+      'height' => array(
+        'description' => 'The height of the image in pixels.',
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'width' => array(
+        'description' => 'The width of the image in pixels..',
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+    ),
+    'primary key' => array('fid'),
+    'foreign keys' => array(
+      'file_managed' => array(
+        'table' => 'file_managed',
+        'columns' => array('fid' => 'fid'),
+      ),
+    ),
+  );
+  db_create_table('image_dimensions', $schema['image_dimensions']);
+}
+
+/**
+ * Add the {file_type}, {file_type_mimetypes} tables.
+ */
+function file_entity_update_7201() {
+  $schema = array(
+    'description' => 'Stores the settings for file types.',
+    'fields' => array(
+      'type' => array(
+        'description' => 'The machine name of the file type.',
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => TRUE,
+        'default' => '',
+      ),
+      'label' => array(
+        'description' => 'The human readable name of the file type.',
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => TRUE,
+        'default' => '',
+        'translatable' => TRUE,
+      ),
+      'description' => array(
+        'description' => 'A brief description of this file type.',
+        'type' => 'text',
+        'not null' => TRUE,
+        'size' => 'medium',
+        'translatable' => TRUE,
+      ),
+    ),
+    'primary key' => array('type'),
+    'export' => array(
+      'key' => 'type',
+      'key name' => 'Type',
+      'primary key' => 'type',
+      'default hook' => 'file_default_types',
+      'identifier' => 'file_type',
+      'export type string' => 'ctools_type',
+      'subrecords callback' => 'file_type_load_subrecords',
+      'save callback' => 'file_type_save',
+      'delete callback' => 'file_type_delete',
+      'api' => array(
+        'owner' => 'file_entity',
+        'api' => 'file_type',
+        'minimum_version' => 1,
+        'current_version' => 1,
+      ),
+    ),
+  );
+  if (!db_table_exists('file_type')) {
+    db_create_table('file_type', $schema);
+  }
+
+  $schema = array(
+    'description' => 'Maps mimetypes to file types.',
+    'fields' => array(
+      'type' => array(
+        'description' => 'The machine name of the file type.',
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => TRUE,
+        'default' => '',
+      ),
+      'mimetype' => array(
+        'description' => 'Mimetypes mapped to this file type.',
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => TRUE,
+        'default' => '',
+      ),
+    ),
+    'indexes' => array(
+      'file_type' => array('type'),
+      'file_type_mimetype' => array('mimetype'),
+    ),
+  );
+  if (!db_table_exists('file_type_mimetypes')) {
+    db_create_table('file_type_mimetypes', $schema);
+  }
+}
+
+/**
+ * Update empty {file_managed}.type records to 'undefined'.
+ *
+ * Drupal 7.8 disallows empty string as the value for a bundle key, so update
+ * empty {file_managed}.type records to 'undefined' instead.
+ */
+function file_entity_update_7202() {
+  db_update('file_managed')
+    // Using 'undefined' instead of FILE_TYPE_NONE, because update functions can
+    // run for disabled modules.
+    ->fields(array('type' => 'undefined'))
+    ->condition('type', '')
+    ->execute();
+}
+
+/**
+ * Update permission names.
+ */
+function file_entity_update_7203() {
+  $permissions = array(
+    'view file' => 'view files',
+    'edit file' => 'edit any files',
+  );
+  foreach ($permissions as $old => $new) {
+    db_update('role_permission')
+      ->fields(array('permission' => $new))
+      ->condition('permission', $old)
+      ->execute();
+  }
+}
+
+
+/**
+ * Add title and alt text to image file types.
+ */
+function file_entity_update_7204() {
+  _file_entity_create_alt_title_fields();
+}
+
+/**
+ * Function to create the title and alt text fields and instances.
+ */
+function _file_entity_create_alt_title_fields() {
+  $t = get_t();
+  // Create the alt text field and instance.
+  // Define the alt text field.
+  $alt_text_field = array(
+    'active' => '1',
+    'cardinality' => '1',
+    'deleted' => '0',
+    'entity_types' => array(),
+    'field_name' => 'field_file_image_alt_text',
+    'foreign keys' => array(
+      'format' => array(
+        'columns' => array(
+          'format' => 'format',
+        ),
+        'table' => 'filter_format',
+      ),
+    ),
+    'indexes' => array(
+      'format' => array(
+        0 => 'format',
+      ),
+    ),
+    'module' => 'text',
+    'settings' => array(
+      'max_length' => '255',
+    ),
+    'translatable' => '0',
+    'type' => 'text',
+  );
+
+  // As long as the alt text field doesn't already exist create it.
+  if (!field_info_field($alt_text_field['field_name'])) {
+    field_create_field($alt_text_field);
+  }
+
+  // Define the alt text instance.
+  $alt_text_instance = array(
+    'bundle' => 'image',
+    'default_value' => NULL,
+    'deleted' => '0',
+    'description' => $t('Alternative text is used by screen readers, search engines, and when the image cannot be loaded. By adding alt text you improve accessibility and search engine optimization.'),
+    'display' => array(
+      'default' => array(
+        'label' => 'above',
+        'settings' => array(),
+        'type' => 'hidden',
+        'weight' => 0,
+      ),
+      'full' => array(
+        'label' => 'above',
+        'settings' => array(),
+        'type' => 'hidden',
+        'weight' => 0,
+      ),
+      'preview' => array(
+        'label' => 'above',
+        'settings' => array(),
+        'type' => 'hidden',
+        'weight' => 0,
+      ),
+      'teaser' => array(
+        'label' => 'above',
+        'settings' => array(),
+        'type' => 'hidden',
+        'weight' => 0,
+      ),
+    ),
+    'entity_type' => 'file',
+    'field_name' => 'field_file_image_alt_text',
+    'label' => 'Alt Text',
+    'required' => 0,
+    'settings' => array(
+      'text_processing' => '0',
+      'user_register_form' => FALSE,
+    ),
+    'widget' => array(
+      'active' => 1,
+      'module' => 'text',
+      'settings' => array(
+        'size' => '60',
+      ),
+      'type' => 'text_textfield',
+      'weight' => '-4',
+    ),
+  );
+
+  // For sites that updated from Media 1.x, continue to provide these deprecated
+  // view modes.
+  // @see http://drupal.org/node/1051090
+  if (variable_get('media__show_deprecated_view_modes')) {
+    $alt_text_instance['display'] += array(
+      'media_link' => array(
+        'label' => 'above',
+        'settings' => array(),
+        'type' => 'hidden',
+        'weight' => 0,
+      ),
+      'media_original' => array(
+        'label' => 'above',
+        'settings' => array(),
+        'type' => 'hidden',
+        'weight' => 0,
+      ),
+    );
+  }
+
+  // As long as the alt text instance doesn't already exist create it.
+  if (!field_info_instance($alt_text_instance['entity_type'], $alt_text_instance['field_name'], $alt_text_instance['bundle'])) {
+    field_create_instance($alt_text_instance);
+  }
+
+  // Create the title text field and instance.
+  // Define the title text field.
+  $title_text_field = array(
+    'active' => '1',
+    'cardinality' => '1',
+    'deleted' => '0',
+    'entity_types' => array(),
+    'field_name' => 'field_file_image_title_text',
+    'foreign keys' => array(
+      'format' => array(
+        'columns' => array(
+          'format' => 'format',
+        ),
+        'table' => 'filter_format',
+      ),
+    ),
+    'indexes' => array(
+      'format' => array(
+        0 => 'format',
+      ),
+    ),
+    'module' => 'text',
+    'settings' => array(
+      'max_length' => '255',
+    ),
+    'translatable' => '0',
+    'type' => 'text',
+  );
+
+  // As long as the title text field doesn't exist create it.
+  if (!field_info_field($title_text_field['field_name'])) {
+    field_create_field($title_text_field);
+  }
+
+  // Define the title text instance.
+  $title_text_instance = array(
+    'bundle' => 'image',
+    'default_value' => NULL,
+    'deleted' => '0',
+    'description' => $t('Title text is used in the tool tip when a user hovers their mouse over the image. Adding title text makes it easier to understand the context of an image and improves usability.'),
+    'display' => array(
+      'default' => array(
+        'label' => 'above',
+        'settings' => array(),
+        'type' => 'hidden',
+        'weight' => 1,
+      ),
+      'full' => array(
+        'label' => 'above',
+        'settings' => array(),
+        'type' => 'hidden',
+        'weight' => 0,
+      ),
+      'preview' => array(
+        'label' => 'above',
+        'settings' => array(),
+        'type' => 'hidden',
+        'weight' => 0,
+      ),
+      'teaser' => array(
+        'label' => 'above',
+        'settings' => array(),
+        'type' => 'hidden',
+        'weight' => 0,
+      ),
+    ),
+    'entity_type' => 'file',
+    'field_name' => 'field_file_image_title_text',
+    'label' => 'Title Text',
+    'required' => 0,
+    'settings' => array(
+      'text_processing' => '0',
+      'user_register_form' => FALSE,
+    ),
+    'widget' => array(
+      'active' => 1,
+      'module' => 'text',
+      'settings' => array(
+        'size' => '60',
+      ),
+      'type' => 'text_textfield',
+      'weight' => '-3',
+    ),
+  );
+
+  // For sites that updated from Media 1.x, continue to provide these deprecated
+  // view modes.
+  // @see http://drupal.org/node/1051090
+  if (variable_get('media__show_deprecated_view_modes')) {
+    $title_text_instance['display'] += array(
+      'media_link' => array(
+        'label' => 'above',
+        'settings' => array(),
+        'type' => 'hidden',
+        'weight' => 0,
+      ),
+      'media_original' => array(
+        'label' => 'above',
+        'settings' => array(),
+        'type' => 'hidden',
+        'weight' => 0,
+      ),
+    );
+  }
+
+  // As long as the title text instance doesn't already exist create it.
+  if (!field_info_instance($title_text_instance['entity_type'], $title_text_instance['field_name'], $title_text_instance['bundle'])) {
+    field_create_instance($title_text_instance);
+  }
+}
+
+/**
+ * Fix broken indexes caused by incorrect index definitions in update 7201.
+ */
+function file_entity_update_7205() {
+  // Drop broken file type indexes. These may not exist if the broken version
+  // of update 7201 was never run.
+  if (db_index_exists('file_type_mimetypes', 0)) {
+    db_drop_index('file_type_mimetypes', 0);
+  }
+  if (db_index_exists('file_type_mimetypes', 1)) {
+    db_drop_index('file_type_mimetypes', 1);
+  }
+
+  // Add file type indexes. These may already exist if the fixed version of
+  // update 7201 was run.
+  if (!db_index_exists('file_type_mimetypes', 'file_type')) {
+    db_add_index('file_type_mimetypes', 'file_type', array('type'));
+  }
+  if (!db_index_exists('file_type_mimetypes', 'file_type_mimetype')) {
+    db_add_index('file_type_mimetypes', 'file_type_mimetype', array('mimetype'));
+  }
+}
+
+/**
+ * Configure default pathauto variables if it is currently installed.
+ */
+function file_entity_update_7206() {
+  if (module_exists('pathauto')) {
+    variable_set('pathauto_file_pattern', 'file/[file:name]');
+  }
+}
+
+/**
+ * Remove the administration files limit variable.
+ */
+function file_entity_update_7207() {
+  variable_del('file_entity_admin_files_limit');
+}
+
+/**
+ * Add expanded file type permissions to roles with existing file permissions.
+ */
+function file_entity_update_7208() {
+  foreach (array('edit own files', 'edit any files', 'delete own files', 'delete any files', 'download own files', 'download any files') as $old_permission) {
+    $roles = user_roles(FALSE, $old_permission);
+
+    foreach ($roles as $rid => $name) {
+      $new_permissions = array();
+
+      foreach (file_type_get_enabled_types() as $type => $info) {
+        switch ($old_permission) {
+          case 'edit own files':
+            $new_permissions[] = 'edit own ' . $type . ' files';
+            break;
+
+          case 'edit any files':
+            $new_permissions[] = 'edit any ' . $type . ' files';
+            break;
+
+          case 'delete own files':
+            $new_permissions[] = 'delete own ' . $type . ' files';
+            break;
+
+          case 'delete any files':
+            $new_permissions[] = 'delete any ' . $type . ' files';
+            break;
+
+          case 'download own files':
+            $new_permissions[] = 'download own ' . $type . ' files';
+            break;
+
+          case 'download any files':
+            $new_permissions[] = 'download any ' . $type . ' files';
+            break;
+        }
+      }
+
+      if (!empty($new_permissions)) {
+        // Grant new permissions for the role.
+        foreach ($new_permissions as $name) {
+          db_merge('role_permission')
+            ->key(array(
+              'rid' => $rid,
+              'permission' => $name,
+            ))
+            ->fields(array(
+              'module' => 'file_entity',
+            ))
+            ->execute();
+        }
+      }
+
+      // Remove old permission from the role.
+      db_delete('role_permission')
+        ->condition('rid', $rid)
+        ->condition('permission', $old_permission)
+        ->condition('module', 'file_entity')
+        ->execute();
+    }
+  }
+}
+
+/**
+ * Remove the {file_type_streams} table if it exists.
+ */
+function file_entity_update_7209() {
+  if (db_table_exists('file_type_streams')) {
+    db_drop_table('file_type_streams');
+  }
+}
+
+/**
+ * Merge MIME types into the {file_type} table.
+ */
+function file_entity_update_7210() {
+  // Add the new mimetypes field if it doesn't already exist.
+  if (!db_field_exists('file_type', 'mimetypes')) {
+    $field = array(
+      'description' => 'Mimetypes mapped to this file type.',
+      'type' => 'blob',
+      'size' => 'big',
+      'not null' => FALSE,
+      'serialize' => TRUE,
+    );
+
+    db_add_field('file_type', 'mimetypes', $field);
+  }
+
+  // Migrate any existing MIME type information into {file_type}.
+  if (db_table_exists('file_type_mimetypes')) {
+    foreach (file_type_load_all(TRUE) as $type) {
+      $mimetypes = array();
+      $result = db_select('file_type_mimetypes', 'ftm')
+        ->fields('ftm', array('mimetype'))
+        ->condition('type', $type->type, '=')
+        ->execute();
+
+      foreach ($result as $record) {
+        $mimetypes[] = $record->mimetype;
+      }
+
+      if (!empty($mimetypes)) {
+        $type->mimetypes = $mimetypes;
+        file_type_save($type);
+      }
+    }
+
+    // Remove {file_type_mimetypes} after the information is migrated.
+    db_drop_table('file_type_mimetypes');
+  }
+}
+
+/**
+ * Create the {file_metadata} table.
+ */
+function file_entity_update_7211() {
+  $schema = array(
+    'description' => 'Stores file metadata in a key/value store.',
+    'fields' => array(
+      'fid' => array(
+        'description' => 'The {file_managed}.fid of the metadata.',
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'name' => array(
+        'description' => "The name of the metadata (e.g. 'width').",
+        'type' => 'varchar',
+        'length' => '255',
+        'not null' => TRUE,
+      ),
+      'value' => array(
+        'description' => "The value of the metadata (e.g. '200px').",
+        'type' => 'blob',
+        'not null' => FALSE,
+        'size' => 'big',
+        'serialize' => TRUE,
+      ),
+    ),
+    'primary key' => array('fid', 'name'),
+    'foreign keys' => array(
+      'file_managed' => array(
+        'table' => 'file_managed',
+        'columns' => array('fid' => 'fid'),
+      ),
+    ),
+  );
+  db_create_table('file_metadata', $schema);
+}
+
+/**
+ * Migrate the image_dimensions table to the new file_metadata table.
+ */
+function file_entity_update_7212(&$sandbox) {
+  if (!db_table_exists('image_dimensions')) {
+    return;
+  }
+
+  if (!isset($sandbox['progress'])) {
+    $sandbox['progress'] = 0;
+    $sandbox['current_fid'] = 0;
+    $sandbox['max'] = db_query('SELECT COUNT(DISTINCT fid) FROM {image_dimensions}')->fetchField();
+  }
+
+  $results = db_query_range("SELECT fid, width, height FROM {image_dimensions} WHERE fid > :fid ORDER BY fid ASC", 0, 20, array(':fid' => $sandbox['current_fid']))->fetchAllAssoc('fid');
+
+  // Clear any existing records in the metadata table in case they exist
+  // because we only want to do one insert.
+  if (!empty($results)) {
+    db_delete('file_metadata')
+      ->condition('fid', array_keys($results), 'IN')
+      ->condition(db_or()
+        ->condition('name', 'width')
+        ->condition('name', 'height')
+      )
+      ->execute();
+  }
+
+  $values = array();
+  foreach ($results as $result) {
+    foreach (array('width', 'height') as $key) {
+      $values[] = array(
+        'fid' => $result->fid,
+        'name' => $key,
+        'value' => serialize((int) $result->{$key}),
+      );
+    }
+    $sandbox['progress'] += count($results);
+    $sandbox['current_fid'] = $result->fid;
+  }
+
+  if (!empty($values)) {
+    $query = db_insert('file_metadata');
+    $query->fields(array('fid', 'name', 'value'));
+    foreach ($values as $value) {
+      $query->values($value);
+    }
+    $query->execute();
+  }
+
+  $sandbox['#finished'] = empty($sandbox['max']) ? 1 : ($sandbox['progress'] / $sandbox['max']);
+
+  if ($sandbox['#finished'] >= 1) {
+    db_drop_table('image_dimensions');
+  }
+}
+
+/**
+ * Update default alt text and title image field descriptions.
+ */
+function file_entity_update_7213() {
+  if ($title_text_instance = field_info_instance('file', 'field_file_image_title_text', 'image')) {
+    if ($title_text_instance['description'] == 'Title text attribute') {
+      $title_text_instance['description'] = t('Title text is used in the tool tip when a user hovers their mouse over the image. Adding title text makes it easier to understand the context of an image and improves usability.');
+      field_update_instance($title_text_instance);
+    }
+  }
+
+  if ($alt_text_instance = field_info_instance('file', 'field_file_image_alt_text', 'image')) {
+    if ($alt_text_instance['description'] == '') {
+      $alt_text_instance['description'] = t('Alternative text is used by screen readers, search engines, and when the image cannot be loaded. By adding alt text you improve accessibility and search engine optimization.');
+      field_update_instance($alt_text_instance);
+    }
+  }
+}
+
+/**
+ * Fix the default value in {file_managed}.type to match the field schema.
+ */
+function file_entity_update_7214() {
+  db_drop_index('file_managed', 'file_type');
+  db_change_field('file_managed', 'type', 'type', array(
+    'description' => 'The type of this file.',
+    'type' => 'varchar',
+    'length' => 50,
+    'not null' => TRUE,
+    'default' => 'undefined',
+  ));
+  db_add_index('file_managed', 'file_type', array('type'));
+}
+
+/**
+ * Fix the {file_metadata}.fid schema.
+ */
+function file_entity_update_7215() {
+  // When changing a primary key serial field to an int, we need to add a
+  // temporary index to make this update work.
+  // @see https://drupal.org/node/190027
+  db_add_index('file_metadata', 'temp', array('fid'));
+  db_drop_primary_key('file_metadata');
+  db_change_field('file_metadata', 'fid', 'fid', array(
+    'description' => 'The {file_managed}.fid of the metadata.',
+    'type' => 'int',
+    'unsigned' => TRUE,
+    'not null' => TRUE,
+    'default' => 0,
+  ));
+  db_add_primary_key('file_metadata', array('fid', 'name'));
+  db_drop_index('file_metadata', 'temp');
+}

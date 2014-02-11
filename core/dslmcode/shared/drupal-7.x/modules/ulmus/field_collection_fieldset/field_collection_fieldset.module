@@ -1,0 +1,359 @@
+<?php
+
+/**
+ * @file
+ * Module implementing a field-collection fieldset formatter.
+ */
+
+/**
+ * Implements hook_field_formatter_info().
+ */
+function field_collection_fieldset_field_formatter_info() {
+  return array(
+    'field_collection_fieldset_view' => array(
+      'label' => t('Fieldset of field collection items'),
+      'field types' => array('field_collection'),
+      'settings' => array(
+        'edit' => t('Edit'),
+        'delete' => t('Delete'),
+        'add' => t('Add'),
+        'description' => TRUE,
+        'view_mode' => 'full',
+        'legend' => '',
+        'collapsible' => TRUE,
+        'collapsed' => FALSE,
+      ),
+    ),
+  );
+}
+
+/**
+ * Implements hook_field_formatter_settings_form().
+ */
+function field_collection_fieldset_field_formatter_settings_form($field, $instance, $view_mode, $form, &$form_state) {
+  $display = $instance['display'][$view_mode];
+  $settings = $display['settings'];
+  $element = field_collection_field_formatter_settings_form($field, $instance, $view_mode, $form, $form_state);
+
+  if ($display['type'] == 'field_collection_fieldset_view') {
+    $fields_info = field_info_instances('field_collection_item', $field['field_name']);
+    $options = array(t('None'));
+    foreach ($fields_info as $field_info) {
+      $options[$field_info['field_name']] = $field_info['label'];
+    }
+
+    $element['legend'] = array(
+      '#type' => 'select',
+      '#title' => t('Legend'),
+      '#options' => $options,
+      '#default_value' => $settings['legend'],
+    );
+
+    $element['collapsible'] = array(
+      '#type' => 'checkbox',
+      '#title' => t('Collapsible'),
+      '#default_value' => $settings['collapsible'],
+    );
+
+    $element['collapsed'] = array(
+      '#type' => 'checkbox',
+      '#title' => t('Collapsed'),
+      '#default_value' => $settings['collapsed'],
+      '#states' => array(
+        'enabled' => array(
+          ':input[name="fields[' . $field['field_name'] . '][settings_edit_form][settings][collapsible]"]' => array(
+            'checked' => TRUE,
+          ),
+        ),
+      ),
+    );
+  }
+
+  return $element;
+}
+
+/**
+ * Implements hook_field_formatter_settings_summary().
+ */
+function field_collection_fieldset_field_formatter_settings_summary($field, $instance, $view_mode) {
+  $display = $instance['display'][$view_mode];
+  $settings = $display['settings'];
+  $output = field_collection_field_formatter_settings_summary($field, $instance, $view_mode);
+
+  if ($display['type'] == 'field_collection_fieldset_view') {
+    $output .= '<br />';
+    $output .= $settings['description'] ? t('Show the field description beside the add link: Yes') : t('Show the field description beside the add link: No');
+    $output .= '<br />';
+    $output .= t('Legend: @field', array('@field' => $settings['legend']));
+    $output .= '<br />';
+    $output .= $settings['collapsible'] ? t('Collapsible: Yes') : t('Collapsible: No');
+    $output .= '<br />';
+    $output .= $settings['collapsed'] ? t('Collapsed: Yes') : t('Collapsed: No');
+  }
+
+  return $output;
+}
+
+/**
+ * Implements hook_field_formatter_view().
+ */
+function field_collection_fieldset_field_formatter_view($entity_type, $entity, $field, $instance, $langcode, $items, $display) {
+  $element = array();
+  $settings = $display['settings'];
+
+  switch ($display['type']) {
+    case 'field_collection_fieldset_view':
+      $view_mode = !empty($display['settings']['view_mode']) ? $display['settings']['view_mode'] : 'full';
+      foreach ($items as $delta => $item) {
+        if ($field_collection = field_collection_field_get_entity($item)) {
+          $view = $field_collection->view($view_mode);
+          $content = $view['field_collection_item'][$field_collection->identifier()];
+
+          // Classes array used for fieldset.
+          $class = array();
+          if ($settings['legend'] && !empty($content[$settings['legend']])) {
+            if ($settings['collapsible']) {
+              $class[] = 'collapsible';
+              $class[] = $settings['collapsed'] ? 'collapsed' : '';
+            }
+
+            // Hide the field, which is used as a legend.
+            $view['field_collection_item'][$field_collection->identifier()][$settings['legend']]['#access'] = FALSE;
+          }
+
+          $element[$delta]['#theme_wrappers'] = array('field_collection_view');
+          $element[$delta]['#attributes']['class'][] = 'field-collection-view';
+          $element[$delta]['#attributes']['class'][] = 'clearfix';
+
+          $element[$delta]['entity'] = array(
+            '#theme' => 'fieldset',
+            '#title' => $settings['legend'] ? render($content[$settings['legend']]) : '',
+            '#value' => render($view),
+            '#collapsible' => $settings['collapsible'],
+            '#collapsed' => $settings['collapsed'],
+            '#attributes' => array(
+              'class' => $class,
+            ),
+          );
+
+          $links = array('#theme' => 'links__field_collection_view');
+          $links['#attributes']['class'][] = 'field-collection-view-links';
+          foreach (array('edit', 'delete') as $op) {
+            if ($settings[$op] && field_collection_item_access($op == 'edit' ? 'update' : $op, $field_collection)) {
+              $links['#links'][$op] = array(
+                'title' => entity_i18n_string("field:{$field['field_name']}:{$instance['bundle']}:setting_$op", $settings[$op]),
+                'href' => $field_collection->path() . '/' . $op,
+                'query' => drupal_get_destination(),
+              );
+            }
+          }
+          $element[$delta]['links'] = $links;
+        }
+      }
+
+      // Attach the js to work fieldset and css for fix legend's arrow.
+      if (!empty($element) && $settings['collapsible'] && $settings['legend']) {
+        $element['#attached'] = array(
+          'css' => array(
+            drupal_get_path('module', 'field_collection_fieldset') . '/css/field-collection-fieldset.css',
+          ),
+          'library' => array(
+            array('system', 'drupal.form'),
+            array('system', 'drupal.collapse'),
+          ),
+        );
+      }
+
+      // Attach a css for styling op links.
+      if (!empty($links['#links'])) {
+        $element['#attached']['css'][] = drupal_get_path('module', 'field_collection') . '/field_collection.theme.css';
+      }
+      field_collection_field_formatter_links($element, $entity_type, $entity, $field, $instance, $langcode, $items, $display);
+
+      break;
+  }
+
+  return $element;
+}
+
+/**
+ * Implements hook_field_widget_info().
+ */
+function field_collection_fieldset_field_widget_info() {
+  return array(
+    'field_collection_fieldset' => array(
+      'label' => t('Fieldset'),
+      'field types' => array('field_collection'),
+      'settings' => array('collapsed' => FALSE, 'last_item_collapsed' => FALSE),
+      'behaviors' => array(
+        'multiple values' => FIELD_BEHAVIOR_DEFAULT,
+        'default value' => FIELD_BEHAVIOR_NONE,
+      ),
+    ),
+  );
+}
+
+/**
+ * Implements hook_field_widget_settings_form().
+ */
+function field_collection_fieldset_field_widget_settings_form($field, $instance) {
+  $widget = $instance['widget'];
+  $settings = $widget['settings'];
+  $form = array();
+
+  if ($widget['type'] == 'field_collection_fieldset') {
+    $form['collapsed'] = array(
+      '#type' => 'checkbox',
+      '#title' => t('Collapsed'),
+      '#default_value' => $settings['collapsed'],
+      '#description' => t('If checked, items are collapsed by default.'),
+      '#weight' => 5,
+    );
+
+    $form['last_item_collapsed'] = array(
+      '#type' => 'checkbox',
+      '#title' => t('Last item collapsed'),
+      '#default_value' => $settings['last_item_collapsed'],
+      '#description' => t('If checked, last item is collapsed by default.'),
+      '#weight' => 6,
+      '#states' => array(
+        'enabled' => array(
+          ':input[name="instance[widget][settings][collapsed]"]' => array(
+            'checked' => TRUE,
+          ),
+        ),
+      ),
+    );
+  }
+
+  return $form;
+}
+
+/**
+ * Implements hook_field_widget_form().
+ */
+function field_collection_fieldset_field_widget_form(&$form, &$form_state, $field, $instance, $langcode, $items, $delta, $element) {
+  static $recursion = 0;
+
+  switch ($instance['widget']['type']) {
+    case 'field_collection_fieldset':
+      // If the field collection item form contains another field collection,
+      // we might ran into a recursive loop. Prevent that.
+      if ($recursion++ > 3) {
+        drupal_set_message(t('The field collection item form has not been embedded to avoid recursive loops.'), 'error');
+        return $element;
+      }
+      $field_parents = $element['#field_parents'];
+      $field_name = $element['#field_name'];
+      $language = $element['#language'];
+
+      // Nest the field collection item entity form in a dedicated parent space,
+      // by appending [field_name, langcode, delta] to the current parent space.
+      // That way the form values of the field collection item are separated.
+      $parents = array_merge($field_parents, array($field_name, $language, $delta));
+
+      $element += array(
+        '#element_validate' => array('field_collection_field_widget_embed_validate'),
+        '#parents' => $parents,
+      );
+
+      $element['#type'] = 'fieldset';
+      $element['#collapsible'] = TRUE;
+      $element['#collapsed'] = $instance['widget']['settings']['collapsed'];
+
+      $element['#title'] = t($instance['label'] . ' @delta', array('@delta' => $delta + 1));
+      if (function_exists('i18n_string_object_translate')) {
+        $translated = i18n_string_object_translate('field_instance', $instance);
+        $element['#title'] = format_string('@label @delta', array('@label' => $translated['label'], '@delta' => $delta + 1));
+      }
+
+      $field_state = field_form_get_state($field_parents, $field_name, $language, $form_state);
+
+      if (!empty($field['settings']['hide_blank_items']) && $delta == $field_state['items_count'] && $delta > 0
+        && $field['cardinality'] == FIELD_CARDINALITY_UNLIMITED) {
+
+        // Do not add a blank item. Also see
+        // field_collection_fieldset_field_attach_form() for correcting #max_delta.
+        $recursion--;
+        return FALSE;
+      }
+      elseif (!empty($field['settings']['hide_blank_items']) && $field_state['items_count'] == 0) {
+        // We show one item, so also specify that as item count. So when the
+        // add button is pressed the item count will be 2 and we show to items.
+        $field_state['items_count'] = 1;
+      }
+
+      if (isset($field_state['entity'][$delta])) {
+        $field_collection_item = $field_state['entity'][$delta];
+      }
+      else {
+        if (isset($items[$delta])) {
+          $field_collection_item = field_collection_field_get_entity($items[$delta], $field_name);
+        }
+        // Show an empty collection if we have no existing one or it does not
+        // load.
+        if (empty($field_collection_item)) {
+          $field_collection_item = entity_create('field_collection_item', array('field_name' => $field_name));
+        }
+
+        // Put our entity in the form state, so FAPI callbacks can access it.
+        $field_state['entity'][$delta] = $field_collection_item;
+      }
+
+      field_form_set_state($field_parents, $field_name, $language, $form_state, $field_state);
+      field_attach_form('field_collection_item', $field_collection_item, $element, $form_state, $language);
+
+      if (empty($element['#required'])) {
+        $element['#after_build'][] = 'field_collection_field_widget_embed_delay_required_validation';
+      }
+
+      if ($field['cardinality'] == FIELD_CARDINALITY_UNLIMITED) {
+        $element['remove_button'] = array(
+          '#delta' => $delta,
+          '#name' => implode('_', $parents) . '_remove_button',
+          '#type' => 'submit',
+          '#value' => t('Remove'),
+          '#validate' => array(),
+          '#submit' => array('field_collection_remove_submit'),
+          '#limit_validation_errors' => array(),
+          '#ajax' => array(
+            'path' => 'field_collection/ajax',
+            'effect' => 'fade',
+          ),
+          '#weight' => 1000,
+        );
+      }
+
+      $recursion--;
+      return $element;
+  }
+}
+
+/**
+ * Implements hook_field_attach_form().
+ *
+ * Corrects #max_delta when we hide the blank field collection item.
+ *
+ * @see field_add_more_js()
+ * @see field_collection_fieldset_field_widget_form()
+ */
+function field_collection_fieldset_field_attach_form($entity_type, $entity, &$form, &$form_state, $langcode) {
+  foreach (field_info_instances($entity_type, $form['#bundle']) as $field_name => $instance) {
+    $field = field_info_field($field_name);
+
+    if ($field['type'] == 'field_collection' && $field['settings']['hide_blank_items']
+      && field_access('edit', $field, $entity_type) && $instance['widget']['type'] == 'field_collection_fieldset') {
+
+      $element_langcode = $form[$field_name]['#language'];
+      if ($form[$field_name][$element_langcode]['#max_delta'] > 0) {
+        $form[$field_name][$element_langcode]['#max_delta']--;
+      }
+
+      // Do not collapsed last item.
+      if ($instance['widget']['settings']['collapsed'] && !$instance['widget']['settings']['last_item_collapsed']) {
+        $max_delta = $form[$field_name][$element_langcode]['#max_delta'];
+        $form[$field_name][$element_langcode][$max_delta]['#collapsed'] = FALSE;
+      }
+    }
+  }
+}

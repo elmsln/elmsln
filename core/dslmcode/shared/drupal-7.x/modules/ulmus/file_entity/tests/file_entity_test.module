@@ -1,0 +1,15 @@
+<?php
+
+/**
+ * @file
+ * File Entity Test
+ */
+
+/**
+ * Implements hook_menu().
+ */
+function file_entity_test_menu() {
+  $items = array();
+
+  return $items;
+}

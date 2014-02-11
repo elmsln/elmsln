@@ -1,0 +1,46 @@
+<?php
+
+/**
+ * @file
+ * Display Suite Format install file.
+ */
+
+/**
+ * Implements hook_enable().
+ */
+function ds_format_enable() {
+  $format_exists = (bool) db_query_range('SELECT 1 FROM {filter_format} WHERE format = :format', 0, 1, array(':format' => 'ds_code'))->fetchField();
+  // Add a Display Suite code text format, if it does not exist. Do this only for the
+  // first install (or if the format has been manually deleted) as there is no
+  // reliable method to identify the format in an uninstall hook or in
+  // subsequent clean installs.
+  if (!$format_exists) {
+    $ds_format = array(
+      'format' => 'ds_code',
+      'name' => 'Display Suite code',
+      // 'Plain text' format is installed with a weight of 10 by default. Use a
+      // higher weight here to ensure that this format will not be the default
+      // format for anyone.
+      'weight' => 12,
+      'filters' => array(
+        // Enable the DS evaluator filter.
+        'ds_code' => array(
+          'weight' => 0,
+          'status' => 1,
+        ),
+      ),
+    );
+    $ds_format = (object) $ds_format;
+    filter_format_save($ds_format);
+
+    drupal_set_message(t('A <a href="@ds-code">Display Suite code</a> text format has been created.', array('@ds-code' => url('admin/config/content/formats/' . $ds_format->format))));
+  }
+}
+
+/**
+ * Implements hook_disable().
+ */
+function ds_format_disable() {
+  drupal_set_message(t('The Display Suite Format module has been disabled. Any existing content that was using the Display Suite filter will now be visible in plain text. This might pose a security risk by exposing sensitive information, if any, used in the PHP code.'));
+}
+

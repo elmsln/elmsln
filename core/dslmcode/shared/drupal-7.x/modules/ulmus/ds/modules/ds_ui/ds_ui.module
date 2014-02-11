@@ -1,0 +1,173 @@
+<?php
+
+/**
+ * @file
+ * Display Suite UI.
+ */
+
+/**
+ * Implements hook_permission().
+ */
+function ds_ui_permission() {
+  return array(
+    'admin_view_modes' => array(
+      'title' => t('Administer view modes'),
+      'description' => t('Manage custom view modes for every entity.')
+    ),
+    'admin_fields' => array(
+      'title' => t('Administer fields'),
+      'description' => t('Manage fields for every entity.')
+    ),
+    'admin_classes' => array(
+      'title' => t('Administer classes'),
+      'description' => t('Manage classes.')
+    ),
+  );
+}
+
+/**
+ * Implements hook_menu().
+ */
+function ds_ui_menu() {
+  $items = array();
+
+  // Custom CSS classes.
+  $items['admin/structure/ds/classes'] = array(
+    'title' => 'CSS classes',
+    'description' => 'Define extra CSS class names for regions and fields.',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('ds_classes_form'),
+    'file' => 'includes/ds.classes.inc',
+    'access arguments' => array('admin_classes'),
+    'type' => MENU_LOCAL_TASK,
+  );
+
+  // View modes.
+  $items['admin/structure/ds/view_modes'] = array(
+    'title' => 'View modes',
+    'description' => 'Manage view modes for all content.',
+    'page callback' => 'ds_view_modes_list',
+    'file' => 'includes/ds.view_modes.inc',
+    'access arguments' => array('admin_view_modes'),
+    'weight' => -9,
+    'type' => MENU_LOCAL_TASK,
+  );
+  $items['admin/structure/ds/view_modes/manage'] = array(
+    'title' => 'Add a view mode',
+    'description' => 'Manage a view mode',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('ds_edit_view_mode_form'),
+    'file' => 'includes/ds.view_modes.inc',
+    'access arguments' => array('admin_view_modes'),
+    'type' => MENU_LOCAL_ACTION,
+  );
+  $items['admin/structure/ds/view_modes/delete'] = array(
+    'title' => 'Delete a view mode',
+    'description' => 'Delete a custom view mode.',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('ds_delete_view_mode_confirm'),
+    'file' => 'includes/ds.view_modes.inc',
+    'access arguments' => array('admin_view_modes'),
+    'type' => MENU_VISIBLE_IN_BREADCRUMB,
+  );
+  $items['admin/structure/ds/view_modes/revert'] = array(
+    'title' => 'Revert a view mode',
+    'description' => 'Revert a view mode.',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('ds_revert_view_mode_confirm'),
+    'file' => 'includes/ds.view_modes.inc',
+    'access arguments' => array('admin_view_modes'),
+    'type' => MENU_VISIBLE_IN_BREADCRUMB,
+  );
+
+  // Fields.
+  $items['admin/structure/ds/fields'] = array(
+    'title' => 'Fields',
+    'description' => 'Manage fields for all content.',
+    'page callback' => 'ds_custom_fields_list',
+    'file' => 'includes/ds.fields.inc',
+    'access arguments' => array('admin_fields'),
+    'weight' => -8,
+    'type' => MENU_LOCAL_TASK,
+  );
+  $items['admin/structure/ds/fields/manage'] = array(
+    'title' => 'Fields edit',
+    'page callback' => 'ds_custom_manage',
+    'file' => 'includes/ds.fields.inc',
+    'access arguments' => array('admin_fields'),
+    'type' => MENU_CALLBACK,
+  );
+  $items['admin/structure/ds/fields/manage_custom'] = array(
+    'title' => 'Add a code field',
+    'description' => 'Manage a field',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('ds_edit_custom_field_form'),
+    'file' => 'includes/ds.fields.inc',
+    'access arguments' => array('admin_fields'),
+    'type' => MENU_LOCAL_ACTION,
+    'weight' => 0,
+  );
+  $items['admin/structure/ds/fields/manage_ctools'] = array(
+    'title' => 'Add a dynamic field',
+    'description' => 'Manage a dynamic field',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('ds_edit_ctools_field_form'),
+    'file' => 'includes/ds.fields.inc',
+    'access arguments' => array('admin_fields'),
+    'type' => MENU_LOCAL_ACTION,
+    'weight' => 1,
+  );
+  $items['admin/structure/ds/fields/manage_preprocess'] = array(
+    'title' => 'Add a preprocess field',
+    'description' => 'Manage a preprocess field',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('ds_edit_preprocess_field_form'),
+    'file' => 'includes/ds.fields.inc',
+    'access arguments' => array('admin_fields'),
+    'type' => MENU_LOCAL_ACTION,
+    'weight' => 3,
+  );
+  $items['admin/structure/ds/fields/delete'] = array(
+    'title' => 'Delete a field',
+    'description' => 'Delete a field.',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('ds_delete_field_confirm'),
+    'file' => 'includes/ds.fields.inc',
+    'access arguments' => array('admin_fields'),
+    'type' => MENU_VISIBLE_IN_BREADCRUMB,
+  );
+  $items['admin/structure/ds/fields/revert'] = array(
+    'title' => 'Revert a custom field',
+    'description' => 'Revert a custom field.',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('ds_revert_field_confirm'),
+    'file' => 'includes/ds.fields.inc',
+    'access arguments' => array('admin_fields'),
+    'type' => MENU_VISIBLE_IN_BREADCRUMB,
+  );
+  // Block can be disabled.
+  if (module_exists('block')) {
+    $items['admin/structure/ds/fields/manage_block'] = array(
+      'title' => 'Add a block field',
+      'description' => 'Manage a block field',
+      'page callback' => 'drupal_get_form',
+      'page arguments' => array('ds_edit_block_field_form'),
+      'file' => 'includes/ds.fields.inc',
+      'access arguments' => array('admin_fields'),
+      'type' => MENU_LOCAL_ACTION,
+      'weight' => 2,
+    );
+  }
+
+  // CTools Modal add field.
+  $items['admin/structure/ds/%ctools_js/add_field/%'] = array(
+    'title' => 'Add field',
+    'page callback' => 'ds_ajax_add_field',
+    'page arguments' => array(3, 5),
+    'access arguments' => array('admin_fields'),
+    'file' => 'includes/ds.fields.inc',
+    'type' => MENU_CALLBACK,
+  );
+
+  return $items;
+}

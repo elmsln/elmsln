@@ -1,0 +1,135 @@
+<?php
+
+/**
+ * @file
+ * Install file.
+ */
+
+ /**
+ * Implements hook_install().
+ */
+function ds_extras_install() {
+  db_update('system')
+    ->fields(array('weight' => 2))
+    ->condition('name', 'ds_extras')
+    ->execute();
+
+  $schema['node_revision'] = array();
+  ds_extras_schema_alter($schema);
+  foreach ($schema['node_revision']['fields'] as $name => $spec) {
+    db_add_field('node_revision', $name, $spec);
+  }
+}
+
+/**
+ * Implements hook_schema().
+ */
+function ds_extras_schema() {
+
+  $schema['ds_vd'] = array(
+    'description' => 'The base table for views displays.',
+
+    // CTools export definitions.
+    'export' => array(
+      'key' => 'vd',
+      'identifier' => 'ds_vd',
+      'default hook' => 'ds_vd_info',
+      'can disable' => FALSE,
+      'api' => array(
+        'owner' => 'ds_extras',
+        'api' => 'ds_extras',
+        'minimum_version' => 1,
+        'current_version' => 1,
+      ),
+    ),
+
+    'fields' => array(
+      'vd' => array(
+        'description' => 'The primary identifier for the views display.',
+        'type' => 'varchar',
+        'length' => 128,
+        'not null' => TRUE,
+        'default' => '',
+      ),
+      'label' => array(
+        'description' => 'The label for the views display.',
+        'type' => 'varchar',
+        'length' => 132,
+        'not null' => TRUE,
+        'default' => '',
+      ),
+    ),
+    'primary key' => array('vd'),
+  );
+
+  return $schema;
+}
+
+
+/**
+ * Implements hook_schema_alter().
+ */
+function ds_extras_schema_alter(&$schema) {
+
+  // Add a field ds_switch to the node_revision table in order
+  // to store the name of view mode to switch to.
+  if (isset($schema['node_revision'])) {
+    $schema['node_revision']['fields']['ds_switch'] = array(
+      'type' => 'varchar',
+      'length' => 255,
+      'not null' => TRUE,
+      'default' => '',
+    );
+  }
+}
+
+/**
+ * Implements hook_uninstall().
+ */
+function ds_extras_uninstall() {
+  variable_del('ds_extras_region_to_block');
+  variable_del('ds_extras_region_blocks');
+  variable_del('ds_extras_switch_view_mode');
+  variable_del('ds_extras_vd');
+  variable_del('ds_extras_hide_page_title');
+  variable_del('ds_extras_field_template');
+  variable_del('ds_classes_fields');
+  variable_del('ds_extras_fields_extra');
+  variable_del('ds_extras_fields_extra_list');
+  variable_del('ds_extras_switch_field');
+  variable_del('ds_extras_editor_switch');
+  variable_del('ft-default');
+  variable_del('ft-kill-colon');
+  variable_del('ds_extras_flag');
+  variable_del('ds_extras_hidden_region');
+  variable_del('ds_extras_hide_page_sidebars');
+  db_drop_field('node_revision', 'ds_switch');
+}
+
+/**
+ * Fix storage of formatter settings in ds_field_settings table.
+ */
+function ds_extras_update_7200() {
+  ctools_include('export');
+  $ds_field_settings = ctools_export_crud_load_all('ds_field_settings');
+  db_truncate('ds_field_settings')->execute();
+  foreach ($ds_field_settings as $layout => $field_settings) {
+    $record = $field_settings;
+    foreach ($field_settings->settings as $field => $settings) {
+      // Move any field template settings to 'formatter_settings' key.
+      if (isset($settings['ft'])) {
+        $settings['formatter_settings']['ft'] = $settings['ft'];
+        unset($settings['ft']);
+      }
+
+      // Inspect the classes key, in case it's an array, something went
+      // wrong during saving, simply unset the array completely.
+      if (isset($settings['formatter_settings']['ft']['classes']) && is_array($settings['formatter_settings']['ft']['classes'])) {
+        unset($settings['formatter_settings']['ft']['classes']);
+      }
+
+      $record->settings[$field] = $settings;
+    }
+    drupal_write_record('ds_field_settings', $record);
+  }
+}

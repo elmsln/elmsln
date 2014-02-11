@@ -1,0 +1,21 @@
+name = "Display Suite"
+description = "Extend the display options for every entity type."
+core = "7.x"
+package = "Display Suite"
+dependencies[] = ctools
+files[] = views/views_plugin_ds_entity_view.inc
+files[] = views/views_plugin_ds_fields_view.inc
+files[] = tests/ds.base.test
+files[] = tests/ds.search.test
+files[] = tests/ds.entities.test
+files[] = tests/ds.exportables.test
+files[] = tests/ds.views.test
+files[] = tests/ds.forms.test
+configure = admin/structure/ds
+
+; Information added by drupal.org packaging script on 2013-09-04
+version = "7.x-2.6"
+core = "7.x"
+project = "ds"
+datestamp = "1378305390"
+

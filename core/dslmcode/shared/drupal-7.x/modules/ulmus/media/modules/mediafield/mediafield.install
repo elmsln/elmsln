@@ -1,0 +1,43 @@
+<?php
+
+/**
+ * @file
+ * Install and schema hooks for mediafield.
+ */
+
+/**
+ * Implements hook_field_schema().
+ */
+function mediafield_field_schema($field) {
+  return array(
+    'columns' => array(
+      'fid' => array(
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => FALSE,
+      ),
+      'title' => array(
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => FALSE,
+      ),
+      'data' => array(
+        'type' => 'text',
+        'not null' => FALSE,
+        'size' => 'big',
+        'serialize' => TRUE,
+        // 'description' => 'Used for storing additional information.
+        // Can be harnessed by widgets',
+      ),
+    ),
+    'indexes' => array(
+      'fid' => array('fid'),
+    ),
+    'foreign keys' => array(
+      'file_managed' => array(
+        'table' => 'file_managed',
+        'columns' => array('fid' => 'fid'),
+      ),
+    ),
+  );
+}

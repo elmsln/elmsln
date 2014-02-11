@@ -1,0 +1,16 @@
+/**
+ * @file
+ * RTL styling for the ds-3col-equal template.
+ */
+
+.ds-3col-equal > .group-left {
+  float: right;
+}
+
+.ds-3col-equal > .group-middle {
+  float: right;
+}
+
+.ds-3col-equal > .group-right {
+  float: left;
+}

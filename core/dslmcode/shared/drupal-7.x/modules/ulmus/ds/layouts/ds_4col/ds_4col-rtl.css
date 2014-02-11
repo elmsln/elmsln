@@ -1,0 +1,20 @@
+/**
+ * @file
+ * RTL styling for the ds-4col template.
+ */
+
+.ds-4col > .group-first {
+  float: right;
+}
+
+.ds-4col > .group-second {
+  float: right;
+}
+
+.ds-4col > .group-third {
+  float: right;
+}
+
+.ds-4col > .group-fourth {
+  float: right;
+}

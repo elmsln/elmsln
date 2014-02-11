@@ -1,0 +1,15 @@
+name = Media: YouTube
+description = Provides YouTube support for File Entity and the Media module.
+package = "Media"
+core = 7.x
+files[] = includes/MediaInternetYouTubeHandler.inc
+files[] = includes/MediaYouTubeStreamWrapper.inc
+files[] = includes/MediaYouTubeBrowser.inc
+dependencies[] = media_internet
+
+; Information added by drupal.org packaging script on 2013-10-26
+version = "7.x-2.0-rc4"
+core = "7.x"
+project = "media_youtube"
+datestamp = "1382761825"
+

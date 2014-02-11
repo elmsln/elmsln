@@ -1,0 +1,1283 @@
+<?php
+
+/**
+ * @file
+ * Display Suite core functions.
+ */
+
+/**
+ * Constants for field types.
+ */
+define('DS_FIELD_TYPE_THEME', 1);
+define('DS_FIELD_TYPE_FUNCTION', 2);
+define('DS_FIELD_TYPE_PREPROCESS', 3);
+define('DS_FIELD_TYPE_IGNORE', 4);
+define('DS_FIELD_TYPE_CODE', 5);
+define('DS_FIELD_TYPE_BLOCK', 6);
+define('DS_FIELD_TYPE_CTOOLS', 7);
+
+/**
+ * Constants for block fields rendering.
+ */
+define('DS_BLOCK_TEMPLATE', 1);
+define('DS_BLOCK_TITLE_CONTENT', 2);
+define('DS_BLOCK_CONTENT', 3);
+
+/**
+ * Implements hook_permission().
+ */
+function ds_permission() {
+  return array(
+    'admin_display_suite' => array(
+      'title' => t('Administer Display Suite'),
+      'description' => t('General permission for Display Suite settings pages.')
+    ),
+  );
+}
+
+/**
+ * Implements hook_hook_info().
+ */
+function ds_hook_info() {
+  $hooks['ds_fields_info'] = array(
+    'group' => 'ds_fields_info',
+  );
+  return $hooks;
+}
+
+/**
+ * Implements hook_menu().
+ */
+function ds_menu() {
+  module_load_include('inc', 'ds', 'includes/ds.registry');
+  return _ds_menu();
+}
+
+/**
+ * Implements hook_menu_alter().
+ */
+function ds_menu_alter(&$items) {
+  module_load_include('inc', 'ds', 'includes/ds.registry');
+  return _ds_menu_alter($items);
+}
+
+/**
+ * Implements hook_theme().
+ */
+function ds_theme() {
+  module_load_include('inc', 'ds', 'includes/ds.registry');
+  return _ds_theme();
+}
+
+/**
+ * Implements hook_ds_layout_info().
+ */
+function ds_ds_layout_info() {
+  module_load_include('inc', 'ds', 'includes/ds.registry');
+  return _ds_ds_layout_info();
+}
+
+/**
+ * Implements hook_ctools_plugin_api().
+ */
+function ds_ctools_plugin_api($owner, $api) {
+  if ($owner == 'ds' && ($api == 'ds' || $api == 'plugins')) {
+    return array('version' => 1);
+  }
+}
+
+/**
+ * Implements hook_ctools_plugin_directory().
+ */
+function ds_ctools_plugin_directory($owner, $plugin_type) {
+  if ($owner == 'ctools' && $plugin_type == 'content_types') {
+    return 'plugins/' . $plugin_type;
+  }
+}
+
+/**
+ * Implements hook_views_api().
+ */
+function ds_views_api() {
+  return array('api' => 3);
+}
+
+/**
+ * Implements hook_node_type_update().
+ */
+function ds_node_type_update($info) {
+  if (!empty($info->old_type) && $info->old_type != $info->type) {
+    module_load_include('inc', 'ds', 'includes/ds.registry');
+    _ds_entity_type_update('node', $info, 'update');
+  }
+}
+
+/**
+ * Implements hook_node_type_delete().
+ */
+function ds_node_type_delete($info) {
+  module_load_include('inc', 'ds', 'includes/ds.registry');
+  _ds_entity_type_update('node', $info, 'delete');
+}
+
+/**
+ * Implements hook_theme_registry_alter().
+ */
+function ds_theme_registry_alter(&$theme_registry) {
+  module_load_include('inc', 'ds', 'includes/ds.registry');
+  _ds_theme_registry_alter($theme_registry);
+}
+
+/**
+ * Implements hook_entity_info_alter().
+ */
+function ds_entity_info_alter(&$entity_info) {
+  module_load_include('inc', 'ds', 'includes/ds.registry');
+  _ds_entity_info_alter($entity_info);
+}
+
+/**
+ * Implements hook_form_FORM_ID_alter().
+ */
+function ds_form_field_ui_display_overview_form_alter(&$form, &$form_state) {
+  form_load_include($form_state, 'inc', 'ds', 'includes/ds.field_ui');
+  // Also load admin on behalf of DS extras when enabled.
+  if (module_exists('ds_extras')) {
+    form_load_include($form_state, 'inc', 'ds_extras', 'includes/ds_extras.admin');
+  }
+  ds_field_ui_fields_layouts($form, $form_state);
+}
+
+/**
+ * Implements hook_module_implements_alter().
+ */
+function ds_module_implements_alter(&$implementations, $hook) {
+  // node_field_display_module_alter() disables all labels on all fields
+  // when the view mode is 'search_index'. If you set display modes for
+  // this view mode by hand, then the hook isn't needed. Since this
+  // may be called hundreds of times on some pages, it's worth disabling it.
+  // See http://drupal.org/node/834278
+  // This code is also in Performance hacks module, but it's not bad to
+  // disable this too in Display Suite by default.
+  if ($hook == 'field_display_node_alter') {
+    unset($implementations['node']);
+  }
+}
+
+/**
+ * Implements hook_features_api().
+ */
+function ds_features_api() {
+  module_load_include('inc', 'ds', 'includes/ds.registry');
+  return _ds_features_api();
+}
+
+/**
+ * Function to check if we go on with Display Suite.
+ */
+function ds_kill_switch() {
+  if (variable_get('ds_disable', FALSE)) {
+    return TRUE;
+  }
+  return FALSE;
+}
+
+/**
+ * Get entity view modes.
+ *
+ * @param $entity_type
+ *   The name of the entity type.
+ */
+function ds_entity_view_modes($entity_type = NULL) {
+  if (!empty($entity_type)) {
+    switch ($entity_type) {
+      // For taxonomy terms the base table and the entity type are different
+      case 'taxonomy_term_data':
+        $entity_info = entity_get_info('taxonomy_term');
+        break;
+      default:
+        $entity_info = entity_get_info($entity_type);
+        break;
+    }
+    return $entity_info['view modes'];
+  }
+}
+
+/**
+ * Get Display Suite layouts.
+ */
+function ds_get_layout_info() {
+  static $layouts = FALSE;
+
+  if (!$layouts) {
+    $errors = array();
+
+    $layouts = module_invoke_all('ds_layout_info');
+
+    // Give modules a chance to alter the layouts information.
+    drupal_alter('ds_layout_info', $layouts);
+
+    // Check that there is no 'content' region, but ignore panel layouts.
+    // Because when entities are rendered, the field items are stored into a
+    // 'content' key so fields would be overwritten before they're all moved.
+    foreach ($layouts as $key => $info) {
+      if (isset($info['panels'])) {
+        continue;
+      }
+      if (isset($info['regions']['content'])) {
+        $errors[] = $key;
+      }
+    }
+    if (!empty($errors)) {
+      drupal_set_message(t('Following layouts have a "content" region key which is invalid: %layouts.', array('%layouts' => implode(', ', $errors))), 'error');
+    }
+  }
+
+  return $layouts;
+}
+
+/**
+ * Get a layout for a given entity.
+ *
+ * @param $entity_type
+ *   The name of the entity.
+ * @param $bundle
+ *   The name of the bundle.
+ * @param $view_mode
+ *   The name of the view mode.
+ * @param $fallback
+ *   Whether to fallback to default or not.
+ *
+ * @return $layout
+ *   Array of layout variables for the regions.
+ */
+function ds_get_layout($entity_type, $bundle, $view_mode, $fallback = TRUE) {
+
+  static $layouts = array();
+  $layout_key = $entity_type . '_' . $bundle . '_' . $view_mode;
+
+  if (!isset($layouts[$layout_key])) {
+
+    $entity_info = entity_get_info();
+
+    $overridden = TRUE;
+    if ($view_mode != 'form') {
+      $view_mode_settings = field_view_mode_settings($entity_type, $bundle);
+      $overridden = (!empty($view_mode_settings[$view_mode]['custom_settings']) ? TRUE : FALSE);
+    }
+    // Check if a layout is configured.
+    if (isset($entity_info[$entity_type]['bundles'][$bundle]['layouts'][$view_mode]) && ($overridden || $view_mode == 'default')) {
+      $layouts[$layout_key] = $entity_info[$entity_type]['bundles'][$bundle]['layouts'][$view_mode];
+      $layouts[$layout_key]['view_mode'] = $view_mode;
+    }
+
+    // In case $view_mode is not found, check if we have a default layout,
+    // but only if the view mode settings aren't overridden for this view mode.
+    if ($view_mode != 'default' && !$overridden && $fallback && isset($entity_info[$entity_type]['bundles'][$bundle]['layouts']['default'])) {
+      $layouts[$layout_key] = $entity_info[$entity_type]['bundles'][$bundle]['layouts']['default'];
+      $layouts[$layout_key]['view_mode'] = 'default';
+    }
+
+    // Register the false return value as well.
+    if (!isset($layouts[$layout_key])) {
+      $layouts[$layout_key] = FALSE;
+    }
+  }
+
+  return $layouts[$layout_key];
+}
+
+/**
+ * Get all fields.
+ *
+ * @param $entity_type
+ *   The name of the entity.
+ * @param $cache
+ *   Whether we need to get the fields from cache or not.
+ * @return
+ *   Collection of fields.
+ */
+function ds_get_fields($entity_type, $cache = TRUE) {
+  global $language;
+
+  static $static_fields, $fields_cached = array();
+  static $loaded = FALSE;
+
+  // Get fields from cache.
+  if (!$loaded) {
+    $loaded = TRUE;
+    if ($cache && $cached_fields = cache_get('ds_fields:' . $language->language)) {
+      $fields_cached = $static_fields = $cached_fields->data;
+    }
+  }
+
+  if (!isset($static_fields[$entity_type])) {
+
+    // Do we have them cached or not ?
+    if (!isset($fields_cached[$entity_type])) {
+
+      // Get all fields for this entity type.
+      $fields = array();
+      foreach (module_implements('ds_fields_info') as $module) {
+        $function = $module . '_ds_fields_info';
+        $all_fields = $function($entity_type);
+        if (!empty($all_fields)) {
+          foreach ($all_fields as $key => $field_results) {
+            if ($key === $entity_type) {
+              // Add module key to field definition.
+              foreach ($field_results as $f => $d) {
+                $field_results[$f]['module'] = $module;
+              }
+              $fields = array_merge($field_results, $fields);
+            }
+          }
+        }
+      }
+
+      // Give modules a change to alter fields.
+      drupal_alter('ds_fields_info', $fields, $entity_type);
+
+      $fields_cached[$entity_type] = $fields;
+
+      // Cache the fields.
+      if ($cache) {
+        cache_set('ds_fields:' . $language->language, $fields_cached, 'cache');
+      }
+    }
+    else {
+      $fields = $fields_cached[$entity_type];
+    }
+
+    // Store the fields statically.
+    $static_fields[$entity_type] = $fields;
+  }
+
+  return isset($static_fields[$entity_type]) ? $static_fields[$entity_type] : array();
+}
+
+/**
+ * Get the field settings.
+ *
+ * @param $entity_type
+ *   The name of the entity.
+ * @param $bundle
+ *   The name of bundle (ie, page or story for node types, profile for users)
+ * @param $view_mode
+ *   The name of view mode.
+ */
+function ds_get_field_settings($entity_type, $bundle, $view_mode, $default = TRUE) {
+  static $field_settings = NULL;
+
+  if (!isset($field_settings)) {
+    if ($cache = cache_get('ds_field_settings')) {
+      $field_settings = $cache->data;
+    }
+    else {
+      ctools_include('export');
+      $ds_field_settings = ctools_export_crud_load_all('ds_field_settings');
+      foreach ($ds_field_settings as $layout => $layout_settings) {
+        // Do not store configuration when the field settings is disabled.
+        if (!empty($layout_settings->disabled)) {
+          continue;
+        }
+        // Do not store configuration if settings key is not set.
+        if (!isset($layout_settings->settings)) {
+          continue;
+        }
+        foreach ($layout_settings->settings as $field => $settings) {
+          $field_settings[$layout_settings->entity_type][$layout_settings->bundle][$layout_settings->view_mode][$field] = $settings;
+        }
+      }
+      cache_set('ds_field_settings', $field_settings, 'cache');
+    }
+  }
+
+  return (isset($field_settings[$entity_type][$bundle][$view_mode])) ? $field_settings[$entity_type][$bundle][$view_mode] : (isset($field_settings[$entity_type][$bundle]['default']) && $default ? $field_settings[$entity_type][$bundle]['default'] : array());
+}
+
+/**
+ * Get the value for a Display Suite field.
+ *
+ * @param $key
+ *   The key of the field.
+ * @param $field
+ *   The configuration of a DS field.
+ * @param $entity
+ *   The current entity.
+ * @param $entity_type
+ *   The name of the entity.
+ * @param $bundle
+ *   The name of the bundle.
+ * @param $view_mode
+ *   The name of the view mode.
+ * @param $build
+ *   The current built of the entity.
+ * @return $markup
+ *   The markup of the field used for output.
+ */
+function ds_get_field_value($key, $field, $entity, $entity_type, $bundle, $view_mode, $build = array()) {
+
+  $field['field_name'] = $key;
+  $field['entity'] = $entity;
+  $field['entity_type'] = $entity_type;
+  $field['bundle'] = $bundle;
+  $field['view_mode'] = $view_mode;
+  $field['build'] = $build;
+
+  // Special case for ds_views which can handle custom fields now.
+  if ($field['field_type'] != DS_FIELD_TYPE_PREPROCESS && $entity_type == 'ds_views') {
+    $entity->preprocess_fields[] = $key;
+  }
+
+  switch ($field['field_type']) {
+
+    case DS_FIELD_TYPE_PREPROCESS:
+      $entity->preprocess_fields[] = $key;
+      break;
+
+    case DS_FIELD_TYPE_FUNCTION:
+      if (isset($field['file'])) {
+        include_once $field['file'];
+      }
+      return $field['function']($field);
+
+    case DS_FIELD_TYPE_THEME:
+      $format = (isset($field['formatter'])) ? $field['formatter'] : key($field['properties']['formatters']);
+      return theme($format, $field);
+
+    case DS_FIELD_TYPE_CODE:
+      return ds_render_code_field($field);
+
+    case DS_FIELD_TYPE_CTOOLS:
+      return ds_render_ctools_field($field);
+
+    case DS_FIELD_TYPE_BLOCK:
+      return ds_render_block_field($field);
+  }
+}
+
+/**
+ * Implements hook_field_attach_view_alter().
+ */
+function ds_field_attach_view_alter(&$build, $context) {
+  static $loaded_css = array();
+
+  // Global kill switch. In some edge cases, a view might
+  // be inserted into the view of an entity, in which the
+  // same entity is available as well. This is simply not
+  // possible, so you can temporarily disable DS completely
+  // by setting this variable, either from code or via
+  // the UI through admin/structure/ds/
+  if (ds_kill_switch()) {
+    return;
+  }
+
+  // If views and core doesn't send information along on the entity,
+  // Display Suite doesn't have a context to render the fields.
+  if (!isset($build['#entity_type']) && !isset($build['#bundle'])) {
+    return;
+  }
+
+  // If no layout is configured, stop as well.
+  if (!ds_get_layout($build['#entity_type'], $build['#bundle'], $context['view_mode'])) {
+    return;
+  }
+
+  $entity_type = $build['#entity_type'];
+  $bundle = $build['#bundle'];
+  $view_mode = $context['view_mode'];
+  $entity = $context['entity'];
+  $layout = ds_get_layout($entity_type, $bundle, $view_mode);
+
+  // Check on field/delta limit.
+  if (isset($layout['settings']['limit'])) {
+    foreach ($layout['settings']['limit'] as $field => $limit) {
+      if (isset($build[$field])) {
+        if ($limit === 'delta' && isset($entity->ds_delta) && isset($entity->ds_delta[$field])) {
+          $delta = $entity->ds_delta[$field];
+          foreach ($build[$field]['#items'] as $key => $item) {
+            if ($key != $delta) {
+              unset($build[$field][$key]);
+            }
+          }
+        }
+        else {
+          $count = count($build[$field]['#items']);
+          if ($count > $limit) {
+            $build[$field]['#items'] = array_slice($build[$field]['#items'], 0, $limit);
+          }
+        }
+      }
+    }
+  }
+
+  // Add Display Suite display fields.
+  $fields = ds_get_fields($entity_type);
+  $field_values = ds_get_field_settings($entity_type, $bundle, $layout['view_mode']);
+
+  foreach ($field_values as $key => $field) {
+
+    // Ignore if this field is not a DS field.
+    if (!isset($fields[$key])) {
+      continue;
+    }
+
+    $field = $fields[$key];
+    if (isset($field_values[$key]['format'])) {
+      $field['formatter'] = $field_values[$key]['format'];
+    }
+
+    if (isset($field_values[$key]['formatter_settings'])) {
+      $field['formatter_settings'] = $field_values[$key]['formatter_settings'];
+    }
+    $field_value = ds_get_field_value($key, $field, $entity, $entity_type, $bundle, $view_mode, $build);
+
+    // Title label.
+    if ($key == 'title' && $entity_type == 'node') {
+      $node_type = node_type_get_type($entity);
+      $field['title'] = function_exists('i18n_node_translate_type') ? i18n_node_translate_type($node_type->type, 'title_label', $node_type->title_label) : $node_type->title_label;
+    }
+
+    if (!empty($field_value) || (string) $field_value === '0') {
+
+      // Special case for views.
+      if (!empty($build['render_code_fields'])) {
+        $build[$key] = $field_value;
+      }
+      else {
+        $build[$key] = array(
+          '#theme' => 'field',
+          '#field_type' => 'ds',
+          '#skip_edit' => TRUE,
+          '#title' => $field['title'],
+          '#weight' => isset($field_values[$key]['weight']) ? $field_values[$key]['weight'] : 0,
+          '#label_display' => isset($field_values[$key]['label']) ? $field_values[$key]['label'] : 'inline',
+          '#field_name' => $key,
+          '#bundle' => $bundle,
+          '#object' => $entity,
+          '#entity_type' => $entity_type,
+          '#view_mode' => $view_mode,
+          '#access' => (variable_get('ds_extras_field_permissions', FALSE) && function_exists('ds_extras_ds_field_access')) ? ds_extras_ds_field_access($key, $entity_type) : TRUE,
+          '#items' => array(
+            0 => array(
+              'value' => $field_value,
+            ),
+          ),
+          0 => array(
+            '#markup' => $field_value,
+          ),
+        );
+      }
+    }
+  }
+
+  // Add path to css file for this layout and disable block regions if necessary.
+  if (isset($layout['css']) && !isset($loaded_css[$layout['path'] . '/' . $layout['layout'] . '.css'])) {
+    // Register css file.
+    $loaded_css[$layout['path'] . '/' . $layout['layout'] . '.css'] = TRUE;
+    // Add css file.
+    if (isset($layout['module']) && $layout['module'] == 'panels') {
+      $build['#attached']['css'][] = $layout['path'] . '/' . $layout['panels']['css'];
+    }
+    else {
+      $build['#attached']['css'][] = $layout['path'] . '/' . $layout['layout'] . '.css';
+    }
+  }
+}
+
+/**
+ * Add variables to an entity.
+ *
+ * This function is added in ds_theme_registry_alter().
+ */
+function ds_entity_variables(&$vars) {
+  if (isset($vars['elements']) && isset($vars['elements']['#bundle']) && $layout = ds_get_layout($vars['elements']['#entity_type'], $vars['elements']['#bundle'], $vars['elements']['#view_mode'])) {
+
+    $render_container = 'content';
+    // User uses user_profile as container.
+    if ($vars['elements']['#entity_type'] == 'user') {
+      $render_container = 'user_profile';
+    }
+
+    // Move any preprocess fields to render container.
+    // Inconsitency in taxonomy term naming.
+    $object = $vars['elements']['#entity_type'];
+    if ($vars['elements']['#entity_type'] == 'taxonomy_term') {
+      $object = 'term';
+    }
+    if (isset($vars[$object]->preprocess_fields)) {
+      foreach ($vars[$object]->preprocess_fields as $field) {
+
+        // Process RDF if the module is enabled before moving preprocess fields.
+        if (module_exists('rdf')) {
+          rdf_process($vars, $field);
+          // Remove it so we can unset the field later on.
+          unset($vars['rdf_template_variable_attributes_array'][$field]);
+        }
+
+        // Move the field to content so it renders, remove it
+        // because we don't need it anymore.
+        if (isset($vars[$field])) {
+          $vars[$render_container][$field] = array('#markup' => $vars[$field]);
+          if (!isset($vars['preprocess_keep'])) {
+            unset($vars[$field]);
+          }
+        }
+      }
+    }
+
+    // Check if this is a flexible panels layout.
+    if (!empty($layout['flexible'])) {
+      ctools_include('plugins', 'panels');
+      $vars['css_id'] = $vars['settings'] = $vars['display'] =  $vars['renderer'] = '';
+      $vars['layout'] = panels_get_layout($layout['panels']['name']);
+      $vars['theme_hook_suggestion'] = 'panels_flexible';
+    }
+    else {
+      // Template layout.
+      if (!isset($vars['classes_array'])) {
+        $vars['classes_array'] = array();
+      }
+
+      // Add view-mode-{name} to classes.
+      if (!in_array('view-mode-' . $vars['elements']['#view_mode'], $vars['classes_array'])) {
+        $vars['classes_array'][] = 'view-mode-' . $vars['elements']['#view_mode'];
+      }
+
+      // In case this is a panels layout, use panels info array.
+      if (isset($layout['module']) && $layout['module'] == 'panels') {
+        $layout['layout'] = $layout['panels']['theme'];
+      }
+
+      $vars['theme_hook_suggestions'][] = $layout['layout'];
+      $vars['theme_hook_suggestions'][] = $layout['layout'] . '__' . $vars['elements']['#entity_type'];
+      $vars['theme_hook_suggestions'][] = $layout['layout'] . '__' . $vars['elements']['#entity_type'] . '_' . $vars['elements']['#view_mode'];
+      $vars['theme_hook_suggestions'][] = $layout['layout'] . '__' . $vars['elements']['#entity_type'] . '_' . $vars['elements']['#bundle'];
+      $vars['theme_hook_suggestions'][] = $layout['layout'] . '__' . $vars['elements']['#entity_type'] . '_' . $vars['elements']['#bundle'] . '_' . $vars['elements']['#view_mode'];
+    }
+
+    // If the layout has wrapper class lets add it.
+    if (isset($layout['settings']['classes']['layout_class'])) {
+      foreach ($layout['settings']['classes']['layout_class'] as $layout_class) {
+        $vars['classes_array'][] = $layout_class;
+      }
+    }
+
+    // Create region variables based on the layout settings.
+    foreach ($layout['regions'] as $region_name => $region) {
+
+      // Create the region content.
+      $layout_render_array[$region_name] = array();
+      if (isset($layout['settings']['regions'][$region_name])) {
+        foreach ($layout['settings']['regions'][$region_name] as $key => $field) {
+          // Make sure the field exists.
+          if (!isset($vars[$render_container][$field])) {
+            continue;
+          }
+          if (!isset($vars[$render_container][$field]['#weight'])) {
+            $vars[$render_container][$field]['#weight'] = $key;
+          }
+          $layout_render_array[$region_name][$key] = $vars[$render_container][$field];
+        }
+      }
+
+      // Add extras classes to the region.
+      if (empty($layout['flexible'])) {
+        $vars[$region_name . '_classes'] = !empty($layout['settings']['classes'][$region_name]) ? ' ' . implode(' ', $layout['settings']['classes'][$region_name]) : '';
+      }
+      // Add a wrapper to the region.
+      if (empty($layout['flexible'])) {
+        $vars[$region_name . '_wrapper'] = isset($layout['settings']['wrappers'][$region_name]) ? $layout['settings']['wrappers'][$region_name] : 'div';
+      }
+    }
+
+    // Let other modules know we have rendered.
+    $vars['rendered_by_ds'] = TRUE;
+
+    // Add a layout wrapper.
+    $vars['layout_wrapper'] = isset($layout['settings']['layout_wrapper']) ? $layout['settings']['layout_wrapper'] : 'div';
+
+    // Add layout attributes if any.
+    $vars['layout_attributes'] = '';
+    if (!empty($layout['settings']['layout_attributes'])) {
+      $vars['layout_attributes'] .= ' ' . $layout['settings']['layout_attributes'];
+    }
+    // Merge in other attributes which were passed to the template.
+    if (!empty($layout['settings']['layout_attributes_merge'])) {
+      // Handle classes separately.
+      if (isset($vars['attributes_array']['class'])) {
+        $vars['classes_array'] += $vars['attributes_array']['class'];
+        unset($vars['attributes_array']['class']);
+      }
+      $vars['layout_attributes'] .= ' ' . drupal_attributes($vars['attributes_array']);
+    }
+
+    // Add an onclick attribute on the wrapper.
+    if (!empty($layout['settings']['layout_link_attribute'])) {
+      $url = '';
+      switch ($layout['settings']['layout_link_attribute']) {
+        case 'content':
+          $uri = entity_uri($vars['elements']['#entity_type'], $vars[$object]);
+          if (!empty($uri)) {
+            $url = $uri['path'];
+          }
+          break;
+        case 'custom':
+          $url = $layout['settings']['layout_link_custom'];
+          break;
+        case 'tokens':
+          $url = token_replace($layout['settings']['layout_link_custom'], array($vars['elements']['#entity_type'] => $vars[$object]));
+          break;
+      }
+
+      if (!empty($url)) {
+        $vars['layout_attributes'] .= ' onclick="location.href=\'' . url($url) . '\'"';
+      }
+    }
+
+    // Let other modules alter the ds array before creating the region variables.
+    $context = array('entity' => isset($vars[$object]) ? $vars[$object] : (isset($vars['elements']['#' . $object]) ? $vars['elements']['#' . $object] : ''), 'entity_type' => $vars['elements']['#entity_type'], 'bundle' => $vars['elements']['#bundle'], 'view_mode' => $vars['elements']['#view_mode']);
+    drupal_alter('ds_pre_render', $layout_render_array, $context);
+    foreach ($layout_render_array as $region_name => $content) {
+      // In case this is a panels layout, add the region to the $content variable.
+      if (isset($layout['module']) && $layout['module'] == 'panels') {
+        $vars['content'][$region_name] = drupal_render($content);
+      }
+      else {
+        $vars[$region_name] = drupal_render($content);
+      }
+    }
+  }
+}
+
+/**
+ * Create entity context.
+ */
+function ds_create_entity_context($entity_type, $entity, &$contexts, $context_arguments = array()) {
+  ctools_include('context');
+  if (empty($context_arguments)) {
+    $context_arguments = array(array(
+      'keyword' => $entity_type,
+      'identifier' => drupal_ucfirst($entity_type) . ' being viewed',
+      'id' => 1,
+      'name' => 'entity_id:' . $entity_type,
+      'settings' => array(),
+    ));
+  }
+  ctools_context_get_context_from_arguments($context_arguments, $contexts, array($entity));
+}
+
+/**
+ * Render a code field.
+ */
+function ds_render_code_field($field) {
+  if (isset($field['properties']['code'])) {
+    $format = (isset($field['properties']['code']['format'])) ? $field['properties']['code']['format'] : 'plain_text';
+    if ($format == 'ds_code' && module_exists('ds_format')) {
+      $value = ds_format_php_eval($field['properties']['code']['value'], $field['entity'], isset($field['build']) ? $field['build'] : array());
+    }
+    else {
+      $value = check_markup($field['properties']['code']['value'], $format);
+    }
+    // Token support - check on token property so we don't run every single field through token.
+    if (isset($field['properties']['use_token']) && $field['properties']['use_token'] == TRUE) {
+      $value = token_replace($value, array($field['entity_type'] => $field['entity']), array('clear' => TRUE));
+    }
+    return $value;
+  }
+}
+
+/**
+ * Render a CTools field.
+ */
+function ds_render_ctools_field($field) {
+  if (isset($field['formatter_settings']['ctools'])) {
+
+    // Extreme use case where a taxonomy_term object is not
+    // loaded on the entity and triggers notices if a view is embedded
+    // with taxonomy term fields from the same object.
+    // see http://drupal.org/node/1238132 - To reproduce:
+    // 1) add 2 taxonomy field instances on a bundle
+    // 2) configure a ds layout showing only one
+    // 3) embed a view with the 2 taxonomies as fields.
+    if (isset($field['formatter_settings']['load_terms']) && $field['formatter_settings']['load_terms']) {
+      static $terms_loaded = array();
+      $language = $field['entity']->language;
+      $instances = field_info_instances($field['entity_type'], $field['bundle']);
+      foreach ($instances as $key => $instance) {
+        $info = field_info_field($key);
+        if ($info['module'] == 'taxonomy') {
+          if (empty($field['entity']->{$key})) {
+            continue;
+          }
+          if (!isset($field['entity']->{$key}[$language])) {
+            $language = LANGUAGE_NONE;
+          }
+          foreach ($field['entity']->{$key}[$language] as $tkey => $item) {
+            if (isset($item['tid']) && !isset($item['taxonomy_term'])) {
+              if (!isset($terms_loaded[$item['tid']])) {
+                $terms_loaded[$item['tid']] = taxonomy_term_load($item['tid']);
+              }
+              $field['entity']->{$key}[$language][$tkey]['taxonomy_term'] = $terms_loaded[$item['tid']];
+            }
+          }
+        }
+      }
+    }
+
+    ctools_include('content');
+    ctools_include('context');
+
+    // Get variables.
+    $show_title = $field['formatter_settings']['show_title'];
+    $title_wrapper = trim($field['formatter_settings']['title_wrapper']);
+    $ctools = unserialize($field['formatter_settings']['ctools']);
+    $type = $ctools['type'];
+    $subtype = $ctools['subtype'];
+    $conf = $ctools['conf'];
+    $entity_type = $field['entity_type'];
+    $keywords = $arguments = $contexts = array();
+
+    // Create entity context.
+    ds_create_entity_context($entity_type, $field['entity'], $contexts);
+
+    // Build the content.
+    $data = ctools_content_render($type, $subtype, $conf, $keywords, $arguments, $contexts);
+    // Return content.
+    if (!empty($data->content)) {
+      $content = '';
+      if ($show_title) {
+        if (empty($title_wrapper)) $title_wrapper = 'div';
+        $content .= '<' . check_plain($title_wrapper) . '>' . $data->title . '</' . check_plain($title_wrapper) . '>';
+      }
+      if (is_array($data->content)) {
+        $content .= drupal_render($data->content);
+      }
+      else {
+        $content .= $data->content;
+      }
+      return $content;
+    }
+  }
+}
+
+/**
+ * Render a block field.
+ */
+function ds_render_block_field($field) {
+  // Invoke the block_view hook of the module.
+  list($module, $delta) = explode('|', $field['properties']['block']);
+  $block = module_invoke($module, 'block_view', $delta);
+
+  // Get contextual links.
+  $contextual_links = array();
+  $contextual = module_exists('contextual') && user_access('access contextual links');
+  if ($contextual) {
+    if (is_array($block['content']) && isset($block['content']['#contextual_links'])) {
+      $contextual_links = $block['content']['#contextual_links'];
+    }
+  }
+
+  // Render the block content.
+  if (isset($block['content']) && is_array($block['content'])) {
+    $block['content'] = drupal_render($block['content']);
+  }
+
+  // Go through in case we have actual content.
+  if (!empty($block['content'])) {
+
+    // Make sure subject is set.
+    if (!isset($block['subject'])) {
+      $block['subject'] = '';
+    }
+
+    global $theme_key;
+    $full_block = db_query("SELECT * FROM {block} WHERE module = :module AND delta = :delta AND theme = :theme", array(':module' => $module, ':delta' => $delta, ':theme' => $theme_key))->fetchObject();
+    if (!empty($full_block)) {
+      if ($full_block->title == '<none>') {
+        $block['subject'] = '';
+      }
+      elseif (!empty($full_block->title)) {
+        $block['subject'] = $full_block->title;
+      }
+    }
+
+    // i18n support.
+    if (function_exists('i18n_block_block_view_alter')) {
+
+      // Check language visibility.
+      global $language;
+      static $block_languages = FALSE;
+      if (!$block_languages) {
+        $block_languages = array();
+        $result = db_query('SELECT module, delta, language FROM {i18n_block_language}');
+        foreach ($result as $record) {
+          $block_languages[$record->module][$record->delta][$record->language] = TRUE;
+        }
+      }
+      if (isset($block_languages[$module][$delta]) && !isset($block_languages[$module][$delta][$language->language])) {
+        return;
+      }
+
+      // Translate.
+      if (!empty($full_block->i18n_mode)) {
+        i18n_block_block_view_alter($block, $full_block);
+        if (!empty($block['title'])) {
+          $block['subject'] = $block['title'];
+        }
+      }
+    }
+
+    $block = (object) $block;
+    switch ($field['properties']['block_render']) {
+      case DS_BLOCK_TEMPLATE:
+        $block->region = NULL;
+        $block->module = $module;
+        $block->delta = $delta;
+        $elements = array('elements' => array('#block' => $block, '#children' => $block->content));
+        // Add contextual links.
+        if ($contextual) {
+          $elements['elements'] += array('#contextual_links' => array_merge($contextual_links, array('block' => array('admin/structure/block/manage', array($block->module, $block->delta)))));
+        }
+        return theme('block', $elements);
+        break;
+      case DS_BLOCK_TITLE_CONTENT:
+        return '<h2 class="block-title">' . $block->subject . '</h2>' . $block->content;
+        break;
+      case DS_BLOCK_CONTENT:
+        return $block->content;
+        break;
+    }
+  }
+}
+
+/**
+ * Render a field.
+ */
+function ds_render_field($field) {
+
+  $title_field = FALSE;
+
+  $output = '';
+  $settings = isset($field['formatter_settings']) ? $field['formatter_settings'] : array();
+  $settings += $field['properties']['default'];
+
+  // Basic string.
+  if (isset($settings['link text'])) {
+    $output = t($settings['link text']);
+  }
+  elseif (isset($field['properties']['entity_render_key']) && isset($field['entity']->{$field['properties']['entity_render_key']})) {
+    if ($field['entity_type'] == 'user' && $field['properties']['entity_render_key'] == 'name') {
+      $output = format_username($field['entity']);
+    }
+    else {
+      $title_field = $field['properties']['entity_render_key'] == 'title' && $field['entity_type'] == 'node';
+      $output = $field['entity']->{$field['properties']['entity_render_key']};
+    }
+  }
+
+  if (empty($output)) {
+    return;
+  }
+
+  // Link.
+  if ($settings['link']) {
+    if (isset($field['entity']->uri['path'])) {
+      $path = $field['entity']->uri['path'];
+    }
+    else {
+      $uri_info = entity_uri($field['entity_type'], $field['entity']);
+      $path = $uri_info['path'];
+    }
+    $output = l($output, $path);
+    if ($title_field) {
+      $output = ds_edit_support('title', $output, $field);
+    }
+  }
+  else {
+    $output = check_plain($output);
+    if ($title_field) {
+      $output = ds_edit_support('title', $output, $field);
+    }
+  }
+
+  // Wrapper and class.
+  if (!empty($settings['wrapper'])) {
+    $wrapper = check_plain($settings['wrapper']);
+    $class = (!empty($settings['class'])) ? ' class="' . check_plain($settings['class']) . '"' : '';
+    $output = '<' . $wrapper . $class . '>' . $output . '</' . $wrapper . '>';
+  }
+
+  return $output;
+}
+
+/**
+ * Support for edit module.
+ *
+ * @param $field_name
+ *   The name of the field.
+ * @param $output
+ *   The output of the field.
+ * @param $field
+ *   The complete field array.
+ *
+ * @return
+ *   The field ready for edit module or the same value in case
+ *   the edit module is not enabled.
+ */
+function ds_edit_support($field_name, $output, $field) {
+
+  if (module_exists('edit')) {
+    $edit_id = "node/" . $field['entity']->nid . "/" . $field_name . "/" . $field['entity']->language . "/" . $field['view_mode'];
+    $output = edit_wrap_pseudofield($output, $edit_id);
+  }
+
+  return $output;
+}
+
+/**
+ * Render an author field.
+ */
+function ds_render_author_field($field) {
+
+  // Users without a user name are anonymous users. These are never linked.
+  if (empty($field['entity']->name)) {
+    $output = check_plain(variable_get('anonymous', t('Anonymous')));
+  }
+
+  if ($field['formatter'] == 'author') {
+    $output = format_username($field['entity']);
+  }
+
+  if ($field['formatter'] == 'author_linked') {
+    $output = theme('username', array('account' => $field['entity']));
+  }
+
+  return ds_edit_support('author', $output, $field);
+}
+
+/**
+ * Render a markup field.
+ */
+function ds_render_markup($field) {
+  if (isset($field['entity']->{$field['properties']['key']})) {
+    // Check for format, and let's take filtered_html as a sane default.
+    $format = isset($field['entity']->{$field['properties']['format']}) ? $field['entity']->{$field['properties']['format']} : 'filtered_html';
+    return check_markup($field['entity']->{$field['properties']['key']}, $format, '', TRUE);;
+  }
+}
+
+/**
+ * Return the picture.
+ */
+function ds_return_picture($entity) {
+
+  // Gravatar support.
+  if (module_exists('gravatar')) {
+    $entity = _gravatar_load_account($entity);
+    $entity->picture = _gravatar_get_account_user_picture($entity);
+  }
+
+  if (!empty($entity->picture)) {
+    if (is_numeric($entity->picture)) {
+      return file_load($entity->picture);
+    }
+    else {
+      return $entity->picture;
+    }
+  }
+  elseif (variable_get('user_picture_default', '')) {
+    return variable_get('user_picture_default', '');
+  }
+}
+
+/**
+ * Render a user picture.
+ */
+function ds_render_user_picture($field) {
+  $picture = ds_return_picture($field['entity']);
+
+  if (!empty($picture)) {
+    $vars = array();
+    $filepath = (isset($picture->uri)) ? $picture->uri : $picture;
+    $name = !empty($field['entity']->name) ? $field['entity']->name : variable_get('anonymous', t('Anonymous'));
+    $alt = t("@user's picture", array('@user' => $name));
+    $vars = array('path' => $filepath, 'alt' => $alt, 'title' => $alt);
+
+    // If the image does not have a valid Drupal scheme (for eg. HTTP),
+    // don't load image styles.
+    if (module_exists('image') && file_valid_uri($filepath)) {
+      $vars['style_name'] = str_replace('ds_picture_', '', $field['formatter']);
+      $image = theme('image_style', $vars);
+    }
+    else {
+      $image = theme('image', $vars);
+    }
+
+    if (!empty($field['entity']->uid) && user_access('access user profiles')) {
+      return l($image, 'user/' . $field['entity']->uid, array('html' => TRUE));
+    }
+    else {
+      return $image;
+    }
+  }
+}
+
+/**
+ * Render a date field.
+ */
+function ds_render_date_field($field) {
+  $date_format = str_replace('ds_post_date_', '', $field['formatter']);
+  return ds_edit_support($field['properties']['entity_render_key'], format_date($field['entity']->{$field['properties']['entity_render_key']}, $date_format), $field);
+}
+
+/**
+ * Render a "Submitted by"-line.
+ */
+function ds_render_submitted_by($field) {
+  $account = user_load($field['entity']->uid);
+  switch ($field['formatter']) {
+    case 'ds_time_ago':
+      $interval = REQUEST_TIME - $field['entity']->created;
+      return t('Submitted !interval ago by !user.', array('!interval' => format_interval($interval), '!user' => theme('username', array('account' => $account))));
+    default:
+      $date_format = str_replace('ds_post_date_', '', $field['formatter']);
+      return t('Submitted by !user on !date.', array('!user' => theme('username', array('account' => $account)), '!date' => format_date($field['entity']->created, $date_format)));
+  }
+}
+
+/**
+ * Implements hook_field_formatter_info().
+ */
+function ds_field_formatter_info() {
+
+  $formatters = array();
+  if (module_exists('taxonomy')) {
+    $formatters['ds_taxonomy_view_mode'] = array(
+      'label'       => t('Rendered taxonomy term'),
+      'description' => t('Display the referenced term in a specific view mode'),
+      'field types' => array('taxonomy_term_reference'),
+      'settings'    => array('taxonomy_term_reference_view_mode' => 'full'),
+    );
+    $formatters['ds_taxonomy_separator'] = array(
+      'label'       => t('Separated'),
+      'description' => t('Display the referenced term with a separator.'),
+      'field types' => array('taxonomy_term_reference'),
+      'settings'    => array(
+        'taxonomy_term_link' => TRUE,
+        'taxonomy_term_separator' => ', ',
+      ),
+    );
+
+    if (module_exists('i18n_taxonomy')) {
+      $formatters['ds_taxonomy_separator_localized'] = array(
+        'label'       => t('Separated (localized)'),
+        'description' => t('Display the referenced term with a separator. Use this with the "localize" translation mode for vocabularies.'),
+        'field types' => array('taxonomy_term_reference'),
+        'settings'    => array(
+          'taxonomy_term_link' => TRUE,
+          'taxonomy_term_separator' => ', ',
+        ),
+      );
+    }
+  }
+
+  return $formatters;
+}
+
+/**
+ * Implements hook_field_formatter_view().
+ */
+function ds_field_formatter_view($entity_type, $entity, $field, $instance, $langcode, $items, $display) {
+  global $language;
+  $element = array();
+
+  if ($display['type'] === 'ds_taxonomy_view_mode') {
+    $view_mode = $display['settings']['taxonomy_term_reference_view_mode'];
+    foreach ($items as $delta => $item) {
+      if ($item['tid'] == 'autocreate') {
+        // We don't necessarily have a link when this is
+        // an autocreated term, usually in preview.
+        // So just send the term as check plained markup.
+        $build['#markup'] = check_plain($item['name']);
+      }
+      else {
+        $term = taxonomy_term_load($item['tid']);
+        if (!empty($term)) {
+          $build = taxonomy_term_view($term, $view_mode, $langcode);
+        }
+        else {
+          $build['#markup'] = '';
+        }
+      }
+      $element[$delta] = $build;
+    }
+  }
+
+  if ($display['type'] === 'ds_taxonomy_separator' || $display['type'] == 'ds_taxonomy_separator_localized') {
+    $linked = $display['settings']['taxonomy_term_link'];
+
+    $terms = array();
+    foreach ($items as $delta => $item) {
+      if ($item['tid'] == 'autocreate') {
+        // We don't necessarily have a link when this is
+        // an autocreated term, usually in preview.
+        // So just send the term as check plained markup.
+        $item_display = check_plain($item['name']);
+      }
+      else {
+        $term = taxonomy_term_load($item['tid']);
+        if ($display['type'] == 'ds_taxonomy_separator_localized' && function_exists('i18n_taxonomy_term_name')) {
+          $term->name = i18n_taxonomy_term_name($term, $language->language);
+        }
+        $item_display = check_plain($term->name);
+        if ($linked) {
+          $uri = entity_uri('taxonomy_term', $term);
+          $item_display = l($term->name, $uri['path']);
+        }
+      }
+      $terms[] = $item_display;
+    }
+
+    if (!empty($terms)) {
+      $output = '';
+      $separator = $display['settings']['taxonomy_term_separator'];
+      $output = implode($separator, $terms);
+      $element[0] = array('#markup' => $output);
+    }
+  }
+
+  return $element;
+}
+
+/**
+ * Implements hook_contextual_links_view_alter().
+ */
+function ds_contextual_links_view_alter(&$element, $items) {
+
+  if (!empty($element['#element']['#entity_type']) && !empty($element['#element']['#bundle']) && module_exists('field_ui') && user_access('administer content types')) {
+    $entity_type = $element['#element']['#entity_type'];
+    $bundle = $element['#element']['#bundle'];
+    $view_mode = isset($element['#element']['#view_mode']) ? $element['#element']['#view_mode'] : 'default';
+
+    // Get the manage display URI.
+    $admin_path = _field_ui_bundle_admin_path($entity_type, $bundle);
+
+    // Check view mode settings.
+    $view_mode_settings = field_view_mode_settings($entity_type, $bundle);
+    $overridden = (!empty($view_mode_settings[$view_mode]['custom_settings']) ? TRUE : FALSE);
+
+    if (!$overridden) {
+      $admin_path .= '/display';
+    }
+    else {
+      $admin_path .= '/display/' . $view_mode;
+    }
+
+    $element['#links']['manage-display'] = array(
+      'title' => t('Manage display'),
+      'href' => $admin_path,
+      'query' => drupal_get_destination(),
+    );
+  }
+}

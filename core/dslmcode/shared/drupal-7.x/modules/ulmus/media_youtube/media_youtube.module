@@ -1,0 +1,397 @@
+<?php
+
+/**
+ * @file media_youtube/media_youtube.module
+ *
+ * Media: YouTube provides a stream wrapper and formatters for videos provided
+ * by YouTube, available at http://youtube.com/.
+ *
+ * @TODO:
+ * Get the YouTube tab working.
+ *  - Search by video name, user name, and channel.
+ *  - Default to user's channel videos.
+ * Review all code and remove cruft.
+ * Assess if M:YT 3.x could be formatters added on to the OEmbed module.
+ */
+
+/**
+ * This is the rest point for the YouTube api.
+ *
+ * Avoid using the gdata api url when possible. Too many calls will result in
+ * throttling and 403 errors.
+ */
+define('MEDIA_YOUTUBE_REST_API', 'https://gdata.youtube.com/feeds/api/videos');
+
+// Hooks and callbacks for integrating with File Entity module for display.
+require_once dirname(__FILE__) . '/includes/media_youtube.formatters.inc';
+
+/**
+ * Implements hook_media_internet_providers().
+ */
+function media_youtube_media_internet_providers() {
+  $info['MediaInternetYouTubeHandler'] = array(
+    'title' => t('YouTube'),
+  );
+
+  return $info;
+}
+
+/**
+ * Implements hook_stream_wrappers().
+ */
+function media_youtube_stream_wrappers() {
+  return array(
+    'youtube' => array(
+      'name' => t('YouTube videos'),
+      'class' => 'MediaYouTubeStreamWrapper',
+      'description' => t('Videos provided by YouTube.'),
+      'type' => STREAM_WRAPPERS_READ_VISIBLE,
+    ),
+  );
+}
+
+/**
+ * Implements hook_theme().
+ */
+function media_youtube_theme($existing, $type, $theme, $path) {
+  return array(
+    'media_youtube_video' => array(
+      'variables' => array('uri' => NULL, 'options' => array()),
+      'file' => 'media_youtube.theme.inc',
+      'path' => $path . '/themes',
+      'template' => 'media-youtube-video',
+    ),
+  );
+}
+
+/**
+ * Implements hook_media_parse().
+ *
+ * @todo This hook should be deprecated. Refactor Media module to not call it
+ * any more, since media_internet should be able to automatically route to the
+ * appropriate handler.
+ */
+function media_youtube_media_parse($embed_code) {
+  $handler = new MediaInternetYouTubeHandler($embed_code);
+  return $handler->parse($embed_code);
+}
+
+/**
+ * Implements hook_file_mimetype_mapping_alter().
+ *
+ * Register the video/youtube mimetype.
+ */
+function media_youtube_file_mimetype_mapping_alter(&$mapping) {
+  $mapping['mimetypes'][] = 'video/youtube';
+}
+
+/**
+ * YouTube search tab for the Media browser.
+ */
+
+/**
+ * Implements hook_media_browser_plugin_info().
+ *
+ * Commented out for release versions, active in dev versions. To enable the
+ * YouTube media browser tab, uncomment this function.
+ */
+function media_youtube_media_browser_plugin_info() {
+  $info['youtube'] = array(
+    'title' => t('YouTube'),
+    'class' => 'MediaYouTubeBrowser',
+  );
+
+  return $info;
+}
+
+/**
+ * Provides a form for adding media items from YouTube search.
+ */
+function media_youtube_add($form, &$form_state = array()) {
+  module_load_include('inc', 'media', 'includes/media.browser');
+
+  // Our search term can come from the form, or from the pager.
+  $term = isset($form_state['input']['search']) ? $form_state['input']['search'] : (isset($_GET['search']) ? $_GET['search'] : '');
+
+  $form['search'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Search'),
+    '#description' => t('Input a phrase or tags to search.'),
+    '#default_value' => $term,
+  );
+  $form['apply'] = array(
+    '#type' => 'button',
+    '#value' => t('Apply'),
+  );
+
+  // This is our half-assed pager.
+  $page = isset($_GET['page-yt']) ? $_GET['page-yt'] : 0;
+  if (isset($form_state['input']['search'])) {
+    // Reset the pager when we press apply.
+    $page = 0;
+  }
+  if (!empty($term)) {
+    $search = media_youtube_video_search(array('q' => $term, 'max-results' => 12, 'start-index' => $page * 12 + 1));
+  }
+  $form['videos']['#prefix'] = '<div id="container"><div id="scrollbox"><ul id="media-browser-library-list" class="media-list-thumbnails">';
+  $form['videos']['#suffix'] = '</ul><div id="status"></div></div></div>';
+
+  $empty = FALSE;
+  $files = array();
+  if (!isset($search['entry'])) {
+    $empty = TRUE;
+  }
+  else {
+    foreach ($search['entry'] as $video) {
+      try {
+        $uri = media_parse_to_uri($video['link'][0]['@attributes']['href']);
+      }
+      catch (Exception $e) {
+        // Ignore invalid videos.
+        continue;
+      }
+      // Create a temporary file object for our retrieved video.
+      $file = file_uri_to_object($uri);
+      $file->type = 'video';
+      if (!isset($file->fid)) {
+        $file->fid = 0;
+      }
+      media_browser_build_media_item($file);
+      $file->preview = l($file->preview, 'media/browser', array(
+        'html' => TRUE,
+        'attributes' => array(
+          'data-uri' => $uri,
+        ),
+        'query' => array('render' => 'media-popup', 'uri' => $uri),
+      ));
+      $form['videos'][$uri] = array(
+        '#markup' => $file->preview,
+        '#prefix' => '<li>',
+        '#suffix' => '</li>',
+      );
+      $files[$uri] = $file;
+    }
+  }
+
+  if (!count($files)) {
+    $empty= TRUE;
+  }
+  if ($empty) {
+    $form['empty'] = array(
+      '#markup' => '<div class="empty-message">' . t('No videos match your search criteria. Please try again.') . '</div>',
+    );
+  }
+
+  $query = $_GET;
+  if ($term !== '') {
+    $query['search'] = $term;
+  }
+
+  $dest = $query['q'];
+  unset($query['q']);
+  $prev = $next = '';
+  if ($page) {
+    $query['page-yt'] = $page - 1;
+    $prev = l(t('previous'), $dest, array('query' => $query));
+  }
+  $query['page-yt'] = $page + 1;
+  if (!$empty) {
+    $next = l(t('next'), $dest, array('query' => $query));
+  }
+
+  $form['pager']= array(
+    '#markup' => $prev . ' ' . $next,
+  );
+
+  $form['submitted-video'] = array(
+    '#type' => 'hidden',
+    '#default_value' => FALSE,
+  );
+
+  // Add the files to JS so that they are accessible inside the browser
+  drupal_add_js(array('media' => array('files' => $files)), 'setting');
+
+  // Add media browser javascript and CSS.
+  drupal_add_js(drupal_get_path('module', 'media_youtube') . '/js/media-youtube.browser.js');
+
+  // @TODO: Remove deprecated library js and css. They're removed in Media,
+  // so let's comment out for now.
+  // drupal_add_js(drupal_get_path('module', 'media') . '/js/plugins/media.library.js');
+  // drupal_add_css(drupal_get_path('module', 'media') . '/js/plugins/media.library.css');
+
+  $form['actions'] = array('#type' => 'actions');
+  $form['actions']['submit'] = array(
+    '#type' => 'submit',
+    '#value' => t('Submit'),
+  );
+  return $form;
+}
+
+/**
+ * Allow stream wrappers to have their chance at validation.
+ *
+ * Any module that implements hook_media_parse will have an
+ * opportunity to validate this.
+ *
+ * @see media_parse_to_uri()
+ */
+function media_youtube_add_validate($form, &$form_state) {
+  if ($form_state['values']['op'] == t('Apply')) {
+    return;
+  }
+  $uri = $form_state['values']['submitted-video'];
+  try {
+    $file = file_uri_to_object($uri, TRUE);
+  }
+  catch (Exception $e) {
+    form_set_error('url', $e->getMessage());
+    return;
+  }
+
+  if (!$file->uri) {
+    form_set_error('url', t('Please select a video.'));
+    return;
+  }
+
+  $validators = $form['#validators'];
+  if ($validators) {
+    // Check for errors. @see media_add_upload_validate calls file_save_upload().
+    // this code is ripped from file_save_upload because we just want the validation part.
+    // Call the validation functions specified by this function's caller.
+    $errors = file_validate($file, $validators);
+
+    if (!empty($errors)) {
+      $message = t('%uri could not be added.', array('%uri' => $uri));
+      if (count($errors) > 1) {
+        $message .= theme('item_list', array('items' => $errors));
+      }
+      else {
+        $message .= ' ' . array_pop($errors);
+      }
+      form_set_error('url', $message);
+      return FALSE;
+    }
+  }
+  // @TODO: Validate that if we have no $uri that this is a valid file to
+  // save. For instance, we may only be interested in images, and it would
+  // be helpful to let the user know they passed the HTML page containing
+  // the image accidentally. That would also save us from saving the file
+  // in the submit step.
+
+  // This is kinda a hack of the same.
+
+  // This should use the file_validate routines that the upload form users.
+  // We need to fix the media_parse_to_file routine to allow for a validation.
+}
+
+/**
+ * @TODO: Document this function.
+ */
+function media_youtube_add_submit($form, &$form_state) {
+  $uri = $form_state['values']['submitted-video'];
+  try {
+    // Save the remote file
+    $file = file_uri_to_object($uri, TRUE);
+    file_save($file);
+  }
+  catch (Exception $e) {
+    form_set_error('url', $e->getMessage());
+    return;
+  }
+
+  if (!$file->fid) {
+    form_set_error('url', t('The file %file could not be saved. An unknown error has occurred.', array('%file' => $uri)));
+    return;
+  }
+  else {
+    $form_state['file'] = $file;
+  }
+
+  // Redirect to the file edit page after submission.
+  // @TODO: media_access() is a wrapper for file_entity_access(). Switch to the
+  // new function when Media 1.x is deprecated.
+  if (media_access('update', $file)) {
+    $destination = array('destination' => 'admin/content/file');
+    if (isset($_GET['destination'])) {
+      $destination = drupal_get_destination();
+      unset($_GET['destination']);
+    }
+    $form_state['redirect'] = array('file/' . $file->fid . '/edit', array('query' => $destination));
+  }
+  else {
+    $form_state['redirect'] = 'admin/content/file';
+  }
+}
+
+/**
+ * @TODO: Document this function.
+ */
+function media_youtube_video_search($options = array()) {
+  $options['v'] = 2;
+
+  $request = drupal_http_request(url(MEDIA_YOUTUBE_REST_API, array('query' => $options)));
+  if (!isset($request->error)) {
+    $entry = simplexml_load_string($request->data);
+  }
+  else {
+    throw new Exception("Error Processing Request. (Error: {$request->code}, {$request->error})");
+
+    //if request wasn't successful, create object for return to avoid errors
+    $entry = new SimpleXMLElement();
+  }
+
+  return media_youtube_unserialize_xml($entry);
+}
+
+/**
+ * Recursively converts a SimpleXMLElement object into an array.
+ *
+ * @param object $xml
+ *   The original XML object.
+ */
+function media_youtube_unserialize_xml($xml) {
+  if ($xml instanceof SimpleXMLElement) {
+    $xml = (array) $xml;
+  }
+  if (is_array($xml)) {
+    foreach ($xml as $key => $item) {
+      $xml[$key] = media_youtube_unserialize_xml($item);
+    }
+  }
+  return $xml;
+}
+
+/**
+ * Check to ensure that a given id is valid.
+ *
+ * @param string $id
+ *   The YouTube video id.
+ * @param boolean $refresh
+ *   (Defaults to FALSE) If TRUE, then reset the value from the cache.
+ * @return boolean
+ *   Returns TRUE if the video is valid.
+ *
+ * @TODO: How does this compare to MediaInternetYouTubeHandler's validId
+ * method, and can we refactor the code to rely on only one of them?
+ */
+function media_youtube_valid_id($id, $refresh = FALSE) {
+  $ids = &drupal_static(__FUNCTION__, array());
+
+  // Return our cached id if allowed, and it exists.
+  if (!$refresh && isset($ids[$id])) {
+    return $ids[$id];
+  }
+  elseif (!$refresh && !isset($ids[$id])) {
+    return $id;
+  }
+  elseif (!$refresh && $cache = cache_get('media_youtube:id:' . $id, 'cache_media_xml')) {
+    $ids[$id] = $cache->data;
+    return $ids[$id];
+  }
+
+  $url = url(MEDIA_YOUTUBE_REST_API . '/' . $id);
+  $response = drupal_http_request($url, array('method' => 'HEAD'));
+  $ids[$id] = ($response->code == 200);
+  cache_set('media_youtube:id:' . $id, $ids[$id], 'cache_media_xml', media_variable_get('xml_cache_expire', 3600));
+  return $ids[$id];
+}

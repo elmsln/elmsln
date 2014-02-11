@@ -1,0 +1,70 @@
+<?php
+
+/**
+ * @file
+ * Install, update and uninstall functions for the Media Recorder module.
+ */
+
+/**
+ * Implements hook_requirements().
+ */
+function media_recorder_requirements($phase) {
+  $requirements = array();
+
+  // Check requirements during the runtime phase.
+  if ($phase == 'runtime') {
+    $t = get_t();
+
+    // Check that all libraries exist.
+    $required_libraries = array(
+      'swfobject',
+      'recorder.js',
+      'Recorderjs',
+    );
+    foreach ($required_libraries as $name) {
+      $library = libraries_detect($name);
+      if ($library['installed']) {
+        $requirements['media_recorder_' . $name] = array(
+          'title' => $t('Media Recorder: %library', array('%library' => $library['name'])),
+          'value' => $t('Installed %version', array('%version' => $library['version'])),
+          'severity' => REQUIREMENT_OK,
+        );
+      }
+      else {
+        $requirements['media_recorder_' . $name] = array(
+          'title' => $t('Media Recorder: %library', array('%library' => $library['name'])),
+          'value' => $t('Not installed'),
+          'description' => $library['error message'],
+          'severity' => REQUIREMENT_ERROR,
+        );
+      }
+    }
+  }
+
+  return $requirements;
+}
+
+/**
+ * Implements hook_enable().
+ */
+function media_recorder_enable() {
+  // Check that all libraries exist.
+  $required_libraries = array('swfobject', 'recorder.js', 'Recorderjs');
+  foreach ($required_libraries as $name) {
+    $library = libraries_detect($name);
+    if (!$library['installed']) {
+      $drush_msg = t('You can use the drush command "drush @site mrdl" to automatically install all required libraries.');
+      drupal_set_message($library['error message'] . ' ' . $drush_msg, 'error');
+    }
+  }
+}
+
+/**
+ * Implements hook_uninstall().
+ */
+function media_recorder_uninstall() {
+  variable_del('media_recorder_width');
+  variable_del('media_recorder_height');
+  variable_del('media_recorder_timelimit');
+  variable_del('media_recorder_upload_directory');
+}

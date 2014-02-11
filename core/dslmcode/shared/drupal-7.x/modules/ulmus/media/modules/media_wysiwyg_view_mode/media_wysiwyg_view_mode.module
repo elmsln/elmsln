@@ -1,0 +1,150 @@
+<?php
+
+/**
+ * @file
+ * Primarily Drupal hooks.
+ */
+
+/**
+ * Implements hook_permission().
+ */
+function media_wysiwyg_view_mode_permission() {
+  return array(
+    'administer media wysiwyg view mode' => array(
+      'title' => t('Administer Media WYSIWYG View Mode'),
+    ),
+  );
+}
+
+/**
+ * Implements hook_menu().
+ */
+function media_wysiwyg_view_mode_menu() {
+  $items['admin/config/media/wysiwyg-view-mode'] = array(
+    'title' => 'Media WYSIWYG View Mode',
+    'description' => 'Configure view mode settings for files embedded into and displayed inside of the WYSIWYG editor.',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('media_wysiwyg_view_mode_configuration_form'),
+    'access arguments' => array('administer media wysiwyg view mode'),
+    'file' => 'media_wysiwyg_view_mode.admin.inc',
+  );
+
+  return $items;
+}
+
+/**
+ * Implements hook_help().
+ */
+function media_wysiwyg_view_mode_help($path, $arg) {
+  switch ($path) {
+    case 'admin/config/media/wysiwyg-view-mode':
+      $output = '';
+      $output .= '<p>' . t('Configure view modes for files displayed inside of the WYSIWYG editor.') . '</p>';
+      $output .= '<p>' . t('View modes can be configured per file type. Only enabled view modes are selectable.') . '</p>';
+      return $output;
+  }
+}
+
+/**
+ * Implements hook_entity_info_alter().
+ */
+function media_wysiwyg_view_mode_entity_info_alter(&$entity_info) {
+  $entity_info['file']['view modes'] += array(
+    'wysiwyg' => array(
+      'label' => t('WYSIWYG'),
+      'custom settings' => TRUE,
+    ),
+  );
+}
+
+/**
+ * Implements hook_media_wysiwyg_allowed_view_modes_alter().
+ */
+function media_wysiwyg_view_mode_media_wysiwyg_allowed_view_modes_alter(&$view_modes, &$file) {
+  if (variable_get("media_wysiwyg_view_mode_{$file->type}_wysiwyg_restricted_view_modes_status", FALSE) == TRUE) {
+    $restricted_view_modes = variable_get("media_wysiwyg_view_mode_{$file->type}_wysiwyg_restricted_view_modes", array());
+
+    foreach ($restricted_view_modes as $restricted_view_mode) {
+      if (array_key_exists($restricted_view_mode, $view_modes)) {
+        unset($view_modes[$restricted_view_mode]);
+      }
+    }
+  }
+}
+
+/**
+ * Implements hook_media_token_to_markup_alter().
+ */
+function media_wysiwyg_view_mode_media_token_to_markup_alter(&$element, $tag_info, $settings) {
+  if (!empty($settings['wysiwyg'])) {
+    $file = $tag_info['file'];
+
+    if (variable_get("media_wysiwyg_view_mode_{$file->type}_file_wysiwyg_view_mode_status", FALSE) == TRUE) {
+      $element = media_get_file_without_label($file, variable_get("media_wysiwyg_view_mode_{$file->type}_file_wysiwyg_view_mode", 'wysiwyg'), $settings);
+    }
+    else {
+      $element = media_get_file_without_label($file, $tag_info['view_mode'], $settings);
+    }
+  }
+}
+
+/**
+ * Implements hook_form_alter().
+ */
+function media_wysiwyg_view_mode_form_alter(&$form, $form_state, $form_id)  {
+  switch ($form_id)  {
+    case 'media_format_form':
+      $file = $form['#media'];
+
+      $default_view_mode = variable_get('media__wysiwyg_default_view_mode', 'full');
+
+      $view_mode = !empty($form_state['values']['format']) ? $form_state['values']['format'] : $default_view_mode;
+
+      $form['preview'] = file_view_file($file, $view_mode);
+      $form['preview']['#prefix'] = '<div id="preview">';
+      $form['preview']['#suffix'] = '</div>';
+
+      if (!isset($form['options']['format']['#default_value'])) {
+        $form['options']['format']['#default_value'] = $view_mode;
+      }
+      $form['options']['format']['#ajax'] = array(
+        'callback' => 'media_format_form_preview',
+        'wrapper' => 'preview',
+      );
+
+      $view_modes = media_get_wysiwyg_allowed_view_modes($file);
+      $formats = $options = array();
+      foreach ($view_modes as $view_mode => $view_mode_info) {
+        //@TODO: Display more verbose information about which formatter and what it does.
+        $options[$view_mode] = $view_mode_info['label'];
+
+        if (variable_get("media_wysiwyg_view_mode_{$file->type}_file_wysiwyg_view_mode_status", FALSE) == TRUE) {
+          $element = media_get_file_without_label($file, variable_get("media_wysiwyg_view_mode_{$file->type}_file_wysiwyg_view_mode", 'wysiwyg'), array('wysiwyg' => TRUE));
+        }
+        else {
+          $element = media_get_file_without_label($file, $view_mode, array('wysiwyg' => TRUE));
+        }
+
+        // Make a pretty name out of this.
+        $formats[$view_mode] = drupal_render($element);
+      }
+
+      $form['#formats'] = $formats;
+      break;
+  }
+}
+
+/**
+ * AJAX callback to select the portion of the format form to be updated with a preview.
+ *
+ * @param array $form
+ *   An associative array containing the structure of the form.
+ * @param array $form_state
+ *   An associative array containing the current state of the form.
+ *
+ * @return array
+ *   The preview form item.
+ */
+function media_format_form_preview($form, $form_state) {
+  return $form['preview'];
+}

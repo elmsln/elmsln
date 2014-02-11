@@ -1,0 +1,14 @@
+/**
+ * @file
+ * Display Suite example layout stylesheet.
+ */
+
+.ds-left {
+  width: 20%;
+  float: left; /* LTR */
+}
+
+.ds-right {
+  width: 80%;
+  float: right; /* LTR */
+}

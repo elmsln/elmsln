@@ -1,0 +1,33 @@
+diff --git a/field_collection_tabs.module b/field_collection_tabs.module
+index b701ad6..78ba7c1 100644
+--- a/field_collection_tabs.module
++++ b/field_collection_tabs.module
+@@ -89,7 +89,6 @@ function field_collection_tabs_field_formatter_settings_summary($field, $instanc
+  */
+ function field_collection_tabs_field_formatter_view($entity_type, $entity, $field, $instance, $langcode, $items, $display) {
+   $element = array();
+-
+   switch ($display['type']) {
+     // This formatter simply outputs the net_field/period wrapped in a div.
+     case 'field_collection_tabs':
+@@ -100,16 +99,16 @@ function field_collection_tabs_field_formatter_view($entity_type, $entity, $fiel
+       foreach ($items as $delta => $item) {
+         if ($field_collection = field_collection_field_get_entity($item)) {
+           $content = $field_collection->view($view_mode);
+-          $tab_id = drupal_clean_css_identifier($field['field_name'] . '-tab-' . $delta);
++          $delta_id = $field_collection->item_id;
+           if ($title_field && ($render_array = $content['field_collection_item'][$field_collection->item_id])) {
+-            $titles[] = drupal_render($render_array[$title_field]);
++            $titles[$delta_id] = drupal_render($render_array[$title_field]);
+           }
+           else {
+-            $titles[] = t('Tab @delta', array(
++            $titles[$delta_id] = t('Tab @delta', array(
+               '@delta' => $delta
+             ));
+           }
+-          $tabs[] = drupal_render($render_array);
++          $tabs[$delta_id] = drupal_render($render_array);
+         }
+       }
+       $element[] = array(

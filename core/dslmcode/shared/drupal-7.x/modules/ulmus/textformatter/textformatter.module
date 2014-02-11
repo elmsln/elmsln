@@ -1,0 +1,538 @@
+<?php
+
+/**
+ * @file
+ * Provide a field formatter to render values as HTML or comma-separated lists.
+ */
+
+/**
+ * Implements hook_help().
+ */
+function textformatter_help($path, $arg) {
+  switch ($path) {
+    case 'admin/help#textformatter' :
+      $output =  '<p>' . t("The text formatter module provides a new display formatter that can 
+        be used on any text, number, list, or taxonomy fields.") . '</p>'; 
+      $output .= '<p>' . t("Go to 'Manage display' for your entity field display settings and 
+        select 'List' as the formatter. Various options will then be available to either format 
+        your field values as an html list or comma separated list.") . '</p>';
+      $output .= '<p>' . t("This would be mostly implemented with multi value fields. 
+        E.g. A text field could be created with unlimited values. Each value will then be added to 
+        the same html list. Taxonomy terms will work with comma separated auto complete lists too, 
+        to give the same result. The only exceptions are textarea field, lists can be created based 
+        on each line of the input.") . '</p>';
+
+    return $output;
+  }
+
+}
+
+/**
+ * Implements hook_field_formatter_info().
+ */
+function textformatter_field_formatter_info() {
+  return array(
+    'textformatter_list' => array(
+      'label' => t("List"),
+      'field types' => _textformatter_field_types(),
+      'settings' => array(
+        'textformatter_type' => 'ul',
+        'textformatter_class' => 'textformatter-list',
+        'textformatter_comma_full_stop' => 0,
+        'textformatter_comma_and' => 0,
+        'textformatter_comma_tag' => 'div',
+        'textformatter_term_plain' => 0,
+        'textformatter_comma_override' => 0,
+        'textformatter_separator_custom' => '',
+        'textformatter_separator_custom_tag' => 'span',
+        'textformatter_separator_custom_class' => 'textformatter-separator',
+        'textformatter_contrib' => array(),
+      ),
+    ),
+  );
+}
+
+/**
+ * Implements hook_field_formatter_Settings_form().
+ */
+function textformatter_field_formatter_settings_form($field, $instance, $view_mode, $form, &$form_state) {
+  $display = $instance['display'][$view_mode];
+  $settings = $display['settings'];
+  $form = array();
+
+  if ($display['type'] == 'textformatter_list') {
+    $form['textformatter_type'] = array(
+      '#title' => t("List type"),
+      '#type' => 'select',
+      '#options' => array(
+        'ul' => t("Unordered HTML list (ul)"),
+        'ol' => t("Ordered HTML list (ol)"),
+        'comma' => t("Comma separated list"),
+      ),
+      '#default_value' => $settings['textformatter_type'],
+      '#required' => TRUE,
+    );
+    $form['textformatter_comma_and'] = array(
+      '#type' => 'checkbox',
+      '#title' => t("Include 'and' before the last item"),
+      '#default_value' => $settings['textformatter_comma_and'],
+      '#states' => array(
+        'visible' => array(
+          ':input[name="fields[' . $field['field_name'] . '][settings_edit_form][settings][textformatter_type]"]' => array('value' => 'comma'),
+          ':input[name="fields[' . $field['field_name'] . '][settings_edit_form][settings][textformatter_comma_override]"]' => array('checked' => FALSE),
+        ),
+      ),
+    );
+    $form['textformatter_comma_full_stop'] = array(
+      '#type' => 'checkbox',
+      '#title' => t("Append comma separated list with '.'"),
+      '#default_value' => $settings['textformatter_comma_full_stop'],
+      '#states' => array(
+        'visible' => array(
+          ':input[name="fields[' . $field['field_name'] . '][settings_edit_form][settings][textformatter_type]"]' => array('value' => 'comma'),
+          ':input[name="fields[' . $field['field_name'] . '][settings_edit_form][settings][textformatter_comma_override]"]' => array('checked' => FALSE),
+        ),
+      ),
+    );
+
+    //Override Comma with custom separator.
+    $form['textformatter_comma_override'] = array(
+      '#type' => 'checkbox',
+      '#title' => t("Override comma separator"),
+      '#description' => t("Override the default comma separator with a custom separator string."),
+      '#default_value' => $settings['textformatter_comma_override'],
+      '#states' => array(
+        'visible' => array(
+          ':input[name="fields[' . $field['field_name'] . '][settings_edit_form][settings][textformatter_type]"]' => array('value' => 'comma'),
+        ),
+      ),
+    );
+    $form['textformatter_separator_custom'] = array(
+      '#type' => 'textfield',
+      '#title' => t("Custom separator"),
+      '#description' => t("Override default comma separator with a custom separator string. 
+        You must add your own spaces in this string if you want them. E.g. ' + ', or ' => '"),
+      '#size' => 40,
+      '#default_value' => $settings['textformatter_separator_custom'],
+      '#states' => array(
+        'visible' => array(
+          ':input[name="fields[' . $field['field_name'] . '][settings_edit_form][settings][textformatter_comma_override]"]' => array('checked' => TRUE),
+        ),
+      ),
+    );
+    $form['textformatter_separator_custom_tag'] = array(
+      '#type' => 'select',
+      '#title' => t("separator HTML wrapper"),
+      '#description' => t("An HTML tag to wrap the separator in."),
+      '#options' => _textformatter_wrapper_options(),
+      '#default_value' => $settings['textformatter_separator_custom_tag'],
+      '#states' => array(
+        'visible' => array(
+          ':input[name="fields[' . $field['field_name'] . '][settings_edit_form][settings][textformatter_comma_override]"]' => array('checked' => TRUE),
+        ),
+      ),
+    );
+    $form['textformatter_separator_custom_class'] = array(
+      '#title' => t("Separator classes"),
+      '#type' => 'textfield',
+      '#description' => t("A CSS class to use in the wrapper tag for the separator."),
+      '#default_value' => $settings['textformatter_separator_custom_class'],
+      '#element_validate' => array('_textformatter_validate_class'),
+      '#states' => array(
+        'visible' => array(
+          ':input[name="fields[' . $field['field_name'] . '][settings_edit_form][settings][textformatter_comma_override]"]' => array('checked' => TRUE),
+        ),
+      ),
+    );
+
+    $form['textformatter_comma_tag'] = array(
+      '#type' => 'select',
+      '#title' => t("HTML wrapper"),
+      '#description' => t("An HTML tag to wrap the list in. The CSS class below will be added to this tag."),
+      '#options' => _textformatter_wrapper_options(),
+      '#default_value' => $settings['textformatter_comma_tag'],
+      '#states' => array(
+        'visible' => array(
+          ':input[name="fields[' . $field['field_name'] . '][settings_edit_form][settings][textformatter_type]"]' => array('value' => 'comma'),
+        ),
+      ),
+    );
+    $form['textformatter_class'] = array(
+      '#title' => t("List classes"),
+      '#type' => 'textfield',
+      '#size' => 40,
+      '#description' => t("A CSS class to use in the markup for the field list."),
+      '#default_value' => $settings['textformatter_class'],
+      '#required' => FALSE,
+      '#element_validate' => array('_textformatter_validate_class'),
+    );
+  }
+  
+  // Taxonomy term ref fields only.
+  if ($field['type'] == 'taxonomy_term_reference') {
+    $form['textformatter_term_plain'] = array(
+      '#type' => 'checkbox',
+      '#title' => t("Display taxonomy terms as plain text (Not term links)."),
+      '#default_value' => $settings['textformatter_term_plain'],
+    );
+  }
+
+  $context = array(
+    'field' => $field,
+    'instance' => $instance,
+    'view_mode' => $view_mode
+  );
+  drupal_alter('textformatter_field_formatter_settings_form', $form, $form_state, $context);
+
+  return $form;
+}
+
+/**
+ * Validate that a space-separated list of values are lowercase and appropriate
+ * for use as HTML classes.
+ *
+ * @see textformatter_field_formatter_settings_form()
+ */
+function _textformatter_validate_class($element, &$form_state) {
+  $value = drupal_array_get_nested_value($form_state['values'], $element['#parents']);
+  $classes = explode(' ', $value);
+  foreach ($classes as $class) {
+    if ($class != drupal_html_class($class)) {
+      form_error($element, t('List classes contain illegal characters; classes should be lowercase and may contain letters, numbers, and dashes.'));
+      return;
+    }
+  }
+}
+
+/**
+ * Implements hook_field_formatter_settings_summary().
+ */
+function textformatter_field_formatter_settings_summary($field, $instance, $view_mode) {
+  $display = $instance['display'][$view_mode];
+  $settings = $display['settings'];
+
+  $summary = array();
+
+  if ($display['type'] == 'textformatter_list') {
+    switch ($settings['textformatter_type']) {
+      case 'ul':
+        $summary[] = t("Unordered HTML list");
+        break;
+      case 'ol':
+        $summary[] = t("Ordered HTML list");
+        break;
+      case 'comma':
+        $summary[] = t("Comma separated list");
+        break;
+    }
+
+    if ($settings['textformatter_class']) {
+      $summary[] = t("CSS Class") . ': <em>' . check_plain($settings['textformatter_class']) . '</em>';
+    }
+    if ($settings['textformatter_comma_override']) {
+      $summary[] = '<em>*' . t("Comma separator overridden") . '*</em>';
+    }
+    $summary = theme('item_list', array('type' => 'ul', 'items' => $summary));
+  }
+
+  return $summary;
+}
+
+/**
+ * Implements hook_field_formatter_view().
+ */
+function textformatter_field_formatter_view($entity_type, $entity, $field, $instance, $langcode, $items, $display) {
+  if ($display['type'] == 'textformatter_list') {
+    $textformatters = textformatter_field_list_info();
+    $settings = $display['settings'];
+    $module = $field['module'];
+    $element = $list_items = array();
+
+    if (isset($textformatters[$module]) && in_array($field['type'], $textformatters[$module]['fields'])) {
+      $function = $textformatters[$module]['callback'];
+      if (function_exists($function)) {
+        $list_items = $function($entity_type, $entity, $field, $instance, $langcode, $items, $display);
+      }
+    }
+    else {
+      foreach ($items as $delta => $item) {
+        $list_items = textformatter_default_field_create_list($entity_type, $entity, $field, $instance, $langcode, $items, $display);
+      }
+    }
+
+    // If there are no list items, return and render nothing.
+    if (empty($list_items)) {
+      return;
+    }
+
+    // CSS classes are checked for validity on submission. drupal_attributes()
+    // runs each attribute value through check_plain().
+    $classes = explode(' ', $settings['textformatter_class']);
+
+    switch ($settings['textformatter_type']) {
+      case 'ul':
+      case 'ol':
+        // Render elements as one piece of markup and theme as item list.
+        $element[0] = array(
+          '#theme' => 'item_list',
+          '#type' => $settings['textformatter_type'],
+          '#items' => $list_items,
+          '#attributes' => array(
+            'class' => $classes,
+          ),
+        );
+      break;
+      case 'comma':
+        // Render as one element as comma separated list.
+        $element[0] = array(
+          '#theme' => 'textformatter_comma',
+          '#items' => $list_items,
+          '#settings' => $settings,
+          '#attributes' => array(
+            'class' => $classes,
+          ),
+        );
+      break;
+    }
+  }
+
+  return $element;
+}
+
+/**
+ * Implements hook_theme().
+ */
+function textformatter_theme($existing, $type, $theme, $path) {
+  return array(
+    'textformatter_comma' => array(
+      'render element' => 'element',
+    ),
+  );
+}
+
+/**
+ * Theme function to render comma separated lists.
+ */
+function theme_textformatter_comma($variables) {
+  $items = $variables['element']['#items'];
+  $settings = $variables['element']['#settings'];
+  $attributes = drupal_attributes($variables['element']['#attributes']);
+
+  // Optionally prefix the last item with 'and'.
+  $last = '';
+  if ($settings['textformatter_comma_and'] && (count($items) > 1) && !$settings['textformatter_comma_override']) {
+    $last = ' ' . t('and') . ' ' . array_pop($items);
+  }
+  
+  // Default comma separator.
+  $separator = ', ';
+  //Override if we need to.
+  if ($settings['textformatter_comma_override']) {
+    $sep = check_plain($settings['textformatter_separator_custom']);
+    $tag = $settings['textformatter_separator_custom_tag'];
+    if ($tag) {
+      $class = $settings['textformatter_separator_custom_class'];
+      $separator = "<$tag class=\"$class\">$sep</$tag>";
+    }
+  }
+  // Generate a comma-separated list.
+  $output = implode($separator, $items) . $last;
+
+  // Optionally follow the list with a '.'.
+  if ($settings['textformatter_comma_full_stop']) {
+    $output .= '<span class="textformatter-fullstop">.</span>';
+  }
+
+  // Optionally wrap the list in an HTML tag.
+  $tag = $settings['textformatter_comma_tag'];
+  if ($tag) {
+    $output = "<$tag$attributes>$output</$tag>";
+  }
+
+  return $output;
+}
+
+/**
+ * Wrapper function for invoking hook_textformatter_field_list_info.
+ *
+ * Statically caches $info as this could get called multiple times
+ * for different fields using this formatter in a request.
+ */
+function textformatter_field_list_info() {
+  $info = &drupal_static(__FUNCTION__);
+
+  if (empty($info)) {
+    $info = module_invoke_all('textformatter_field_info');
+    drupal_alter('textformatter_field_info', $info);
+  }
+
+  return $info;
+}
+
+/**
+ * Implements hook_textformatter_field_info().
+ */
+function textformatter_textformatter_field_info() {
+  $info = array();
+
+  $info['text'] = array(
+    'fields' => array('text', 'text_long'),
+    'callback' => 'textformatter_text_field_create_list',
+  );
+  $info['number'] = array(
+    'fields' => array('number_integer', 'number_decimal', 'number_float'),
+    'callback' => 'textformatter_default_field_create_list',
+  );
+  $info['list'] = array(
+    'fields' => array('list_float', 'list_integer', 'list_text'),
+    'callback' => 'textformatter_list_field_create_list',
+  );
+  $info['taxonomy'] = array(
+    'fields' => array('taxonomy_term_reference'),
+    'callback' => 'textformatter_taxonomy_field_create_list',
+  );
+
+  return $info;
+}
+
+/**
+ * Default listing callback.
+ */
+function textformatter_default_field_create_list($entity_type, $entity, $field, $instance, $langcode, $items, $display) {
+  $list_items = array();
+
+  // Use our helper function to get the value key dynamically.
+  $value_key = _textformatter_get_field_value_key($field);
+
+  foreach ($items as $delta => $item) {
+    $list_items[$delta] = check_plain($item[$value_key]);
+  }
+
+  return $list_items;
+}
+
+/**
+ * Create list for text fields.
+ */
+function textformatter_text_field_create_list($entity_type, $entity, $field, $instance, $langcode, $items, $display) {
+  $settings = $display['settings'];
+  $list_items = array();
+
+  if ($field['type'] == 'text_long') {
+    foreach ($items as $delta => $item) {
+      // Explode on new line char, trim whitespace (if any), then array filter (So any empty lines will actually be removed).
+      $long_text_items = array_filter(array_map('trim', explode("\n", $item['value'])));
+      foreach ($long_text_items as $long_text_item) {
+        // @see _text_sanitize(), text.module
+        $list_items[] = ($instance['settings']['text_processing'] ? check_markup($long_text_item, $item['format'], $langcode) : field_filter_xss($long_text_item));
+      }
+    }
+  }
+  else {
+    foreach ($items as $delta => $item) {
+      $list_items[] = ($item['format'] ? check_markup($item['value'], $item['format'], $langcode) : field_filter_xss($item['value']));
+    }
+  }
+
+  return $list_items;
+}
+
+/**
+ * Create list for list fields.
+ */
+function textformatter_list_field_create_list($entity_type, $entity, $field, $instance, $langcode, $items, $display) {
+  $settings = $display['settings'];
+  $list_items = array();
+
+  // Get allowed values for the field.
+  $allowed_values = list_allowed_values($field);
+  foreach ($items as $delta => $item) {
+    if (isset($allowed_values[$item['value']])) {
+      $list_items[$delta] = field_filter_xss($allowed_values[$item['value']]);
+    }
+  }
+
+  return $list_items;
+}
+
+/**
+ * Create list for taxonomy reference fields.
+ */
+function textformatter_taxonomy_field_create_list($entity_type, $entity, $field, $instance, $langcode, $items, $display) {
+  $settings = $display['settings'];
+  $list_items = $tids = array();
+
+  // Get an array of tids only.
+  foreach ($items as $item) { 
+    $tids[] = $item['tid']; 
+  }
+
+  $terms = taxonomy_term_load_multiple($tids);
+
+  foreach ($items as $delta => $item) {
+    // Use the item name if autocreating, as there won't be a term object yet.
+    $term_name = ($item['tid'] === 'autocreate') ? $item['name'] : $terms[$item['tid']]->name;
+    // Check if we should display as term links or not.
+    if ($settings['textformatter_term_plain'] || ($item['tid'] === 'autocreate')) {
+      $list_items[$delta] = check_plain($term_name);
+    }
+    else {
+      $uri = entity_uri('taxonomy_term', $terms[$item['tid']]);
+      $list_items[$delta] = l($term_name, $uri['path']);
+    }
+  }
+
+  return $list_items;
+}
+
+/**
+ * Helper to return array of field types that textformatter display formatter can be used on.
+ */
+function _textformatter_field_types() {
+  // Invokes hook_textformatter_field_info
+  $textformatter_info = textformatter_field_list_info();
+  $fields = array();
+
+  // Create array of all field types.
+  foreach ($textformatter_info as $module => $info) {
+    foreach ($info['fields'] as $field) {
+      $fields[] = $field;
+    }
+  }
+
+  return $fields;
+}
+
+/**
+ * Helper to return the value key for a field instance.
+ *
+ * @param $field
+ *  The whole array of field instance info provided by the field api.
+ *
+ * @return
+ *  (string) value key for the field.
+ */
+function _textformatter_get_field_value_key(array $field) {
+  return (array_key_exists('columns', $field) && is_array($field['columns'])) ? key($field['columns']) : 'value';
+}
+
+/**
+ * Helper to return an array of html tags, formatted for a select list.
+ *
+ * @return
+ *   Array of available html tags.
+ */
+function _textformatter_wrapper_options() {
+  return array(
+    t("No HTML tag"),
+    'div' => t("Div"),
+    'span' => t("Span"),
+    'p' => t("Paragraph"),
+    'h1' => t("Header 1"),
+    'h2' => t("Header 2"),
+    'h3' => t("Header 3"),
+    'h4' => t("Header 4"),
+    'h5' => t("Header 5"),
+    'h6' => t("Header 6"),
+  );
+}

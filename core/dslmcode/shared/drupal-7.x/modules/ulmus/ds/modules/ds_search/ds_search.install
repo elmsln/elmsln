@@ -1,0 +1,32 @@
+<?php
+
+/**
+ * @file
+ * Display Suite search install file.
+ */
+
+/**
+ * Implements hook_uninstall().
+ */
+function ds_search_uninstall() {
+  variable_del('ds_search_type');
+  variable_del('ds_search_path');
+  variable_del('ds_search_view_mode');
+  variable_del('ds_search_file_render');
+  variable_del('ds_search_variables');
+  variable_del('ds_search_show_title');
+  variable_del('ds_search_language');
+  variable_del('ds_search_highlight');
+  variable_del('ds_search_highlight_selector');
+  variable_del('ds_search_group_by_type');
+  variable_del('ds_search_group_by_type_settings');
+  variable_del('ds_search_group_by_type_other');
+  variable_del('ds_search_group_by_type_other_wrapper');
+  variable_del('ds_search_node_form_alter');
+  variable_del('ds_search_apachesolr_hide_current_filters');
+  variable_del('ds_search_apachesolr_current_filters_default');
+  variable_del('ds_search_apachesolr_multisite');
+  variable_del('ds_search_apachesolr_multisite_sort');
+  variable_del('ds_search_apachesolr_multisite_group');
+  variable_del('ds_search_apachesolr_multisite_group_config');
+}
