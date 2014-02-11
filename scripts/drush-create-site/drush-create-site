@@ -178,7 +178,7 @@ echo "it appears this course has already been added. exiting"
 error=1
 fi
 
-#another test for guessing if the course has been added
+#another test for guessing if the course has been added -todo do we need this
 if [[ `grep $course $drupalroot/sites/sites.php` ]]; then
 echo "this course is in sites.php. exiting"
 error=1
@@ -194,7 +194,7 @@ rm /tmp/drush-lock
 exit 1
 fi
 
-#if sites file doesn't exist, create it and add empty array
+#if sites file doesn't exist, create it and add empty array- todo probably don't need this
 if [ ! -f $drupalroot/sites/sites.php ]; then
 #/bin/cp $drupalroot/sites/example.sites.php $drupalroot/sites/sites.php
 echo "<?php" > $drupalroot/sites/sites.php
@@ -226,22 +226,22 @@ mv  $drupalroot/sites/$course $drupalroot/sites/$subdir/$course
 mkdir $drupalroot/sites/$subdir/$course/files/feeds
 #add site to the sites array
 
-if [ -f $drupalroot/sites/sites.php ]; then
-arraytest=`/bin/grep -e "^\\$sites" $drupalroot/sites/sites.php`
+if [ -f $configsdir/stacks/$service/sites/sites.php ]; then
+arraytest=`/bin/grep -e "^\\$sites" $configsdir/stacks/$service/sites/sites.php`
         if [[ -z $arraytest ]]; then
-                echo "\$sites = array(" >> $drupalroot/sites/sites.php
-                echo "" >> $drupalroot/sites/sites.php
-                echo ");" >> $drupalroot/sites/sites.php
+                echo "\$sites = array(" >> $configsdir/stacks/$service/sites/sites.php
+                echo "" >> $configsdir/stacks/$service/sites/sites.php
+                echo ");" >> $configsdir/stacks/$service/sites/sites.php
         fi
-/bin/sed -i "/^\$sites = array/a \ \t \'$hostname.$course\' =\> \'$subdir\/$course\'\," $drupalroot/sites/sites.php
+/bin/sed -i "/^\$sites = array/a \ \t \'$hostname.$course\' =\> \'$subdir\/$course\'\," $configsdir/stacks/$service/sites/sites.php
 	if [[ $datahostname ]]; then
-		/bin/sed -i "/^\$sites = array/a \ \t \'$datahostname.$course\' =\> \'$service\/services\/$college\/$course\'\," $drupalroot/sites/sites.php
+		/bin/sed -i "/^\$sites = array/a \ \t \'$datahostname.$course\' =\> \'$service\/services\/$college\/$course\'\," $configsdir/stacks/$service/sites/sites.php
 	else
-		/bin/sed -i "/^\$sites = array/a \ \t \'data.$hostname.$course\' =\> \'$service\/services\/$college\/$course\'\," $drupalroot/sites/sites.php
+		/bin/sed -i "/^\$sites = array/a \ \t \'data.$hostname.$course\' =\> \'$service\/services\/$college\/$course\'\," $configsdir/stacks/$service/sites/sites.php
 	fi
 fi
 
-# add in our cache bins
+# add in our cache bins - todo move to configsdir? 
   echo "\$conf['cache_prefix'] = '$coursedb';" >> $drupalroot/sites/$subdir/$course/settings.php
   echo "require_once DRUPAL_ROOT . '/../../shared/drupal-7.x/settings/shared_settings.php';" >> $drupalroot/sites/$subdir/$course/settings.php
 
