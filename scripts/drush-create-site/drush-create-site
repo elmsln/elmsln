@@ -178,12 +178,6 @@ echo "it appears this course has already been added. exiting"
 error=1
 fi
 
-#another test for guessing if the course has been added -todo do we need this
-if [[ `grep $course $drupalroot/sites/sites.php` ]]; then
-echo "this course is in sites.php. exiting"
-error=1
-fi
-
 #if errors are found, back out
 if [ $error = 1 ]; then
 /bin/mv $coursefile $coursefile.$date.error
@@ -192,16 +186,6 @@ echo "there was an error processing site, please contact your admin" | mail -s "
 echo "error" > $fileloc/$course.$service.progress
 rm /tmp/drush-lock
 exit 1
-fi
-
-#if sites file doesn't exist, create it and add empty array- todo probably don't need this
-if [ ! -f $drupalroot/sites/sites.php ]; then
-#/bin/cp $drupalroot/sites/example.sites.php $drupalroot/sites/sites.php
-echo "<?php" > $drupalroot/sites/sites.php
-echo "\$sites = array(" >> $drupalroot/sites/sites.php
-echo "" >> $drupalroot/sites/sites.php
-echo ");" >> $drupalroot/sites/sites.php
-echo "?>" >> $drupalroot/sites/sites.php
 fi
 
 #start processing
@@ -225,6 +209,7 @@ mkdir -p $drupalroot/sites/$subdir
 mv  $drupalroot/sites/$course $drupalroot/sites/$subdir/$course
 mkdir $drupalroot/sites/$subdir/$course/files/feeds
 #add site to the sites array
+
 
 if [ -f $configsdir/stacks/$service/sites/sites.php ]; then
 arraytest=`/bin/grep -e "^\\$sites" $configsdir/stacks/$service/sites/sites.php`
@@ -257,11 +242,6 @@ fi
         echo "\$conf['restws_basic_auth_user_regex'] = '/^SERVICE_.*/';" >> $drupalroot/sites/$service/services/$college/$course/settings.php
         fi
   fi
-
-#if [ -f $drupalroot/sites/sites.php ]; then
-#/bin/sed -i "/^\$sites = array/a \ \t \'$hostname.$course\' =\> \'$subdir\/$course\'\," $drupalroot/sites/sites.php
-#else echo "site not added to sites.php"
-#fi
 
 ##set base_url
 sed -i "/\# \$base_url/a \ \t \$base_url= 'https://$hostname/$course';" $drupalroot/sites/$subdir/$course/settings.php
@@ -297,11 +277,6 @@ if [[ $options ]]; then
   /bin/grep ^drush $coursefile.processing | while read drush; do
 	#echo "things"
         drushcommand=`echo $drush | awk '{print $2}'`
-        #badchars=`sed 's/[a-z A-Z 0-9 _@.= \: \/ \-]//g' $drushcommand`
-        #        if [ $badchars ]; then
-        #        echo "bad characters in the drush command"
-        #        exit 1
-	#	fi
         case $drushcommand in
         en)
         drushcommand=`echo "$drush" | cut -f 2- -d ' '`
@@ -353,26 +328,6 @@ echo "$badcommand is not a supported drush command."
 rm /tmp/drush-lock
 exit 1
 fi
-        #drushoption=`echo $drush | awk '{print $3}'`
-        #drushoption1=`echo $drush | awk '{print $4}'`
-        #drushoption2=`echo $drush | awk '{print $5}'`
-
-        #if [[ $drushoption ]] && [[ $drushoption1 ]] && [[ $drushoption2 ]]; then
-  #/usr/bin/drush -y --uri=http://$hostname.$course $drushcommand $drushoption $drushoption1 $drushoption2
-        #fi
-
-        #if [[ $drushoption ]] && [[ $drushoption1 ]] && [[  -z $drushoption2 ]]; then
-  #/usr/bin/drush -y --uri=http://$hostname.$course $drushcommand $drushoption $drushoption1
-        #fi
-
-        #if [[ $drushoption ]] && [[ -z $drushoption1 ]] && [[  -z $drushoption2 ]]; then
-  #/usr/bin/drush -y --uri=http://$hostname.$course $drushcommand $drushoption
-        #fi
-
-        #if [[  -z $drushoption ]] && [[ -z $drushoption1 ]] && [[  -z $drushoption2 ]]; then
-  #/usr/bin/drush -y --uri=http://$hostname.$course $drushcommand
-        #fi
-
   /usr/bin/drush -y --uri=http://$hostname.$course $drushcommand
 
 done
