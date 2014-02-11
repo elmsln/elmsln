@@ -1,9 +1,9 @@
 <?php
   $aliases = array();
   // base address of all domains
-  $address = 'example.psu.edu';
+  $address = 'example.com';
   // your web root
-  $root = '/var/www/';
+  $root = '/var/www/elmsln/core/dslmcode/stacks/';
   // grouping item for your stack
   $group = 'ex';
   // stacks you have
@@ -11,7 +11,6 @@
     'online',
     'courses',
     'media',
-    'remote_watchdog',
   );
   // loop through known stacks
   foreach ($stacks as $stack) {
