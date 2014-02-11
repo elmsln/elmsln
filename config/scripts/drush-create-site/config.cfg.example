@@ -1,0 +1,40 @@
+#university / institution deploying this instance
+#these values provide defaults for getting the system primed
+courses_domain=courses.domain.com
+media_domain=media.domain.com
+online_domain=online.domain.com
+service_domain=data.domain.com
+university='youruni'
+host='yu'
+emailending='youruni.edu'
+address='youruni.edu'
+serviceaddress='datayouruni.edu'
+protocol="https"
+#email that the site uses to send mail
+site_email=admin@$emailending
+#administrator e-mail or alias
+admin=admin@$emailending
+
+#where is elmsln?
+elmsln=/var/www/elmsln
+#database superuser credentials
+dbsu=root
+dbsupw=password
+#www user, what does apache run as?
+wwwuser=apache
+#webgroup, if sharing with other developers else leave root
+webgroup=root
+
+#comment out the following if you plan to use SSO
+send_requester_pw=yes
+
+#these vars shouldn't need changing if $elmsln is set properly
+webdir=$elmsln/domains
+#jobs location where job files write to
+fileloc=$elmsln/config/jobs
+#hosts to allow split groups of elmsln based on college / group
+hostfile=$elmsln/config/scripts/drush-create-site/hosts
+#compiled drupal "stacks"
+stacks=$elmsln/core/dslmcode/stacks
+#location of drupal private files
+drupal_priv=$elmsln/config/private_files
