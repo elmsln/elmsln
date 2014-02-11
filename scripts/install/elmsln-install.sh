@@ -31,6 +31,7 @@ echo "please update your config.cfg file"
 exit 1
 fi
 
+
 #test mysql login
 #mysql -u$dbsu -p$dbsupw -e exit
 #if [[ $? > 0 ]];then
@@ -192,3 +193,20 @@ echo 'drush vdel update_notify_emails' >> $media
 echo 'drush cron' >> $media
 echo 'drush ecl' >> $media
 echo 'drush cron' >> $media
+
+
+#install default site for courses stack
+dbpw=`</dev/urandom tr -dc A-Za-z0-9 | head -c14`
+cd $stacks/courses
+drush site-install -y --db-url=mysql://default_courses:$dbpw@localhost/default_courses --db-su=$dbsu --db-su-pw=$dbsupw 
+
+#install default site for media stack
+dbpw=`</dev/urandom tr -dc A-Za-z0-9 | head -c14`
+cd $stacks/media
+drush site-install -y --db-url=mysql://default_media:$dbpw@localhost/default_media --db-su=$dbsu --db-su-pw=$dbsupw 
+
+#install default site for online stack
+dbpw=`</dev/urandom tr -dc A-Za-z0-9 | head -c14`
+cd $stacks/online
+drush site-install -y --db-url=mysql://default_onlin:$dbpw@localhost/default_online --db-su=$dbsu --db-su-pw=$dbsupw 
+
