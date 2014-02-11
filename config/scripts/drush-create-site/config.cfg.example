@@ -43,3 +43,5 @@ hostfile=$elmsln/config/scripts/drush-create-site/hosts
 stacks=$elmsln/core/dslmcode/stacks
 #location of drupal private files
 drupal_priv=$elmsln/config/private_files
+#configsdir
+configsdir=$elmsln/config
