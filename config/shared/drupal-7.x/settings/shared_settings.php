@@ -23,9 +23,9 @@ $conf['cache_class_cache_path'] = 'DrupalAPCCache';
 # Filecache for ones that are big and don't change much
 $conf['cache_backends'][] = 'sites/all/modules/ulmus/filecache/filecache.inc';
 # use this for file systems that don't have shared memory
-#$conf['filecache_directory'] = '/var/www/drupal_priv/_filecache/' . $conf['cache_prefix'];
+#$conf['filecache_directory'] = '/var/www/elmsln/config/private_files/_filecache/' . $conf['cache_prefix'];
 # hit file system in the shared memory portion for faster access
-$conf['filecache_directory'] = '/dev/shm/drupal_filecache/' . $conf['cache_prefix'];
+#$conf['filecache_directory'] = '/dev/shm/drupal_filecache/' . $conf['cache_prefix'];
 #$conf['cache_default_class'] = 'DrupalFileCache';
 $conf['cache_class_cache_entity_user'] = 'DrupalFileCache';
 $conf['cache_class_cache_advagg_aggregates'] = 'DrupalFileCache';
