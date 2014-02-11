@@ -22,10 +22,6 @@ if [ -z $webdir ]; then
 echo "please update your config.cfg file"
 exit 1
 fi
-if [ -z $hostfile ]; then
-echo "please update your config.cfg file"
-exit 1
-fi
 
 #test mysql login
 mysql -u$dbsu -p$dbsupw -e exit
@@ -47,8 +43,6 @@ touch /tmp/drush-lock
 for coursefile in `find $fileloc ! -name *.swp ! -name '*progress'  ! -name '*processing*' ! -name '*error' ! -name '*processed' ! -name '*example' ! -name '*.md' -type f`
 do
 college=`sed -n '2p' $coursefile`
-#hostnamesearch=`grep ^$college $hostfile | awk {'print $3'}`
-#datahostname=`grep ^$college $hostfile | awk {'print $4'}`
 course=`sed -n '1p' $coursefile`
 service=${coursefile#*.}
 if [ -z $stacks ]; then
