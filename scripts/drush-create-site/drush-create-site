@@ -62,7 +62,6 @@ coursedb=$service"_"$college"_"$course
 hostname=`sed -n '3p' $coursefile`
 datahostname=`sed -n '3p' $coursefile`
 subdir=$service/$college
-collegetest=`grep ^$college $hostfile`
 dbpw=`</dev/urandom tr -dc A-Za-z0-9 | head -c14`
 drupalpw=`</dev/urandom tr -dc A-Za-z0-9 | head -c14`
 #drupal user is first bit of admin e-mail
@@ -102,10 +101,6 @@ echo $date " Drupal doesn't exist in $drupalroot"
 error=1
 fi
 
-if [[ -z $collegetest ]]; then
-echo "$college is not a supported college" | mail -s "Unsupported College" $admin
-error=1
-fi
 
 if [[ -z $sitename ]]; then
 echo ""
