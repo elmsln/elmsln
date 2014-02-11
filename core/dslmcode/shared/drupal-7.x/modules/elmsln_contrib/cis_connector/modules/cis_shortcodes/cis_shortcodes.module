@@ -6,6 +6,18 @@
 define('CIS_SHORTCODES_API_REV', 1);
 
 /**
+ * Implements hook_permission().
+ */
+function cis_shortcodes_permission() {
+  return array(
+    'view cis shortcode' =>  array(
+      'title' => t('View CIS Shortcode'),
+      'description' => t('View shortcodes provided on entity displays'),
+    ),
+  );
+}
+
+/**
  * Implements hook_entity_view().
  */
 function cis_shortcodes_entity_view($entity, $type, $view_mode, $langcode) {
