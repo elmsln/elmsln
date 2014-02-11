@@ -90,6 +90,12 @@ function theme_cis_filter_render($vars) {
         $instance = '/';
         if (isset($settings['instance']) && $settings['instance']) {
           $instance = base_path();
+          //test for non-subdomain installation
+          $test = explode('/', $instance);
+          if (count($test) == 4) {
+            $instance = '/' . $test[2] . '/';
+          }
+        }
         }
         $link = _cis_connector_format_address($settings, $instance, 'front');
         switch ($code['render']) {
