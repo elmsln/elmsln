@@ -24,19 +24,19 @@ NameVirtualHost example.com:80
 </VirtualHost>
 
 <Directory /var/www/elmsln/domains/courses>
-    AllowOverride None
+    AllowOverride All
     Order allow,deny
     allow from all
     Include /var/www/elmsln/domains/courses/.htaccess
 </Directory>
 <Directory /var/www/elmsln/domains/media>
-    AllowOverride None
+    AllowOverride All
     Order allow,deny
     allow from all
     Include /var/www/elmsln/domains/media/.htaccess
 </Directory>
 <Directory /var/www/elmsln/domains/online>
-    AllowOverride None
+    AllowOverride All
     Order allow,deny
     allow from all
     Include /var/www/elmsln/domains/online/.htaccess
