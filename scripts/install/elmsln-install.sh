@@ -198,15 +198,15 @@ echo 'drush cron' >> $media
 #install default site for courses stack
 dbpw=`</dev/urandom tr -dc A-Za-z0-9 | head -c14`
 cd $stacks/courses
-drush site-install -y --db-url=mysql://default_courses:$dbpw@localhost/default_courses --db-su=$dbsu --db-su-pw=$dbsupw 
+drush site-install -y --db-url=mysql://default_courses:$dbpw@localhost/default_courses --db-su=$dbsu --db-su-pw=$dbsupw
 
 #install default site for media stack
 dbpw=`</dev/urandom tr -dc A-Za-z0-9 | head -c14`
 cd $stacks/media
-drush site-install -y --db-url=mysql://default_media:$dbpw@localhost/default_media --db-su=$dbsu --db-su-pw=$dbsupw 
+drush site-install -y --db-url=mysql://default_media:$dbpw@localhost/default_media --db-su=$dbsu --db-su-pw=$dbsupw
 
 #install default site for online stack
 dbpw=`</dev/urandom tr -dc A-Za-z0-9 | head -c14`
 cd $stacks/online
-drush site-install -y --db-url=mysql://default_onlin:$dbpw@localhost/default_online --db-su=$dbsu --db-su-pw=$dbsupw 
+drush site-install -y --db-url=mysql://default_online:$dbpw@localhost/default_online --db-su=$dbsu --db-su-pw=$dbsupw
 
