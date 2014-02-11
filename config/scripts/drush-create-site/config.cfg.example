@@ -1,9 +1,14 @@
 #university / institution deploying this instance
 #these values provide defaults for getting the system primed
+
+#domains used for elmsln. 
 courses_domain=courses.domain.com
-media_domain=media.domain.com
+courses_service_domain=data.courses.example.com
+media_domain=media.example.com
+media_service_domain=data.media.example.com
 online_domain=online.domain.com
-service_domain=data.domain.com
+online_service_domain=data.domain.com
+
 university='youruni'
 host='yu'
 emailending='youruni.edu'
