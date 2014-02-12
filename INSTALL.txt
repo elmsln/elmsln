@@ -20,7 +20,7 @@ vi config.cfg
 
 Modify these values to match your file system and implementation requirements. More often then not this is simply supplying default email addresses and mysql root user / pass.  There are additional options based on your configuration changes but those entered are recommended defaults.
 
-=== SELINUX ===
+=== SELINUX (recommended) ===
 Next you need to modify selinux settings
 sudo setsebool -P httpd_can_network connect
 sudo setsebool -P httpd_can_sendmail
