@@ -41,7 +41,7 @@ fi
 
 core='7.x'
 distros=('cis' 'mooc' 'elmsmedia' 'remote_watchdog')
-stacklist=('online' 'courses' 'media' 'studio')
+stacklist=('online' 'courses' 'media' 'remote_watchdog')
 # array of instance definitions for the distro type
 instances=('FALSE' 'TRUE' 'TRUE' 'FALSE')
 moduledir=$elmsln/config/shared/drupal-${core}/modules
