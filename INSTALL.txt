@@ -57,7 +57,15 @@ Apply similar settings to those recommended in docs/domains.txt
 sudo vi /etc/httpd/conf.d/domains.conf
 
 === DRUSH ===
-Install drush by following instructions at
+Install drush by following instructions at https://github.com/drush-ops/drush
+pear upgrade --force Console_Getopt
+pear upgrade --force pear
+pear upgrade-all
+pear channel-discover pear.drush.org
+pear install drush/drush
+
+# copy the included drush packages
+sudo cp /var/www/elmsln/scripts/drush/server/* ~/.drush/*
 
 === MBSTRING ===
 install mb_string package
