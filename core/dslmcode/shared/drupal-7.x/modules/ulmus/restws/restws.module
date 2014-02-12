@@ -527,7 +527,9 @@ function restws_entity_node_access($op, $node = NULL, $account = NULL) {
     }
     // If a non-default revision is given, incorporate revision access.
     $default_revision = node_load($node->nid);
-    if ($node->vid !== $default_revision->vid) {
+    $vnid = isset($node->vid) ? $node->vid : NULL;
+    $dvnid = isset($default_revision->vid) ? $default_revision->vid : NULL;
+    if ($vnid !== $dvnid) {
       return _node_revision_access($node, $op, $account);
     }
     else {
