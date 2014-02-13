@@ -84,7 +84,7 @@ extension=mbstring.so
 === RESTART APACHE ===
 sudo apachectl -k restart
 
-=== ELMSLN INSTALLER (last automated step) ===
+=== ELMSLN INSTALLER ===
 The last step is to invoke the elmsln-install.sh script to kick everything off.  This will automatically take your default settings defined in elmsln/config/scripts/drush-create-site/config.cfg and try and install all the drupal sites needed to get things started.  It will also automatically author a module with all of your private connection credentials using a randomly generated cis_connector keychain.
 
 You can find this module in elmsln/config/shared/drupal-7.x/modules and can modify it as you see fit but it’s a great starting point for all of the web service calls to work correctly between systems OOTB.  It’s also automatically enabled on all the jobs kicked off by the script so everything can talk to each other.
@@ -96,5 +96,8 @@ At this point, ELMSLN should pick up files and start trying to build them and ho
 
 To reset user passwords on the initial systems build. run
 drush @courses.robots109 upwd {username from config} —password=“{new password}”
+
+=== PIWIK (optional) ===
+Install the analytics package by pointing a domain to the elmsln/domains/analytics.  This is running piwik and has config and tmp files modified to point to the symlink directories in the config directory.
 
 Stay thirsty my friends.
