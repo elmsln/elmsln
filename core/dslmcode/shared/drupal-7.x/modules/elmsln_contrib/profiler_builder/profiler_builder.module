@@ -157,26 +157,6 @@ function _profiler_builder_ignore_list() {
 }
 
 /**
- * Implements hook_profiler_builder_modules_list_alter().
- */
-function profiler_builder_profiler_builder_modules_list_alter(&$modules) {
-  // remove developer modules from output
-  foreach ($modules as $key => $project) {
-    if ($project['package'] == 'Development') {
-      unset($modules[$key]);
-    }
-  }
-  // disable boost if enabled
-  if (isset($modules['boost'])) {
-    unset($modules['boost']);
-  }
-  // disable cdn if enabled
-  if (isset($modules['cdn'])) {
-    unset($modules['cdn']);
-  }
-}
-
-/**
  * Implements hook_profiler_builder_drush_modules_list_alter().
  */
 function profiler_builder_profiler_builder_drush_modules_list_alter(&$project_data, $machine_name) {
