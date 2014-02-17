@@ -1,0 +1,10 @@
+<?php
+/**
+ * Implements hook_views_api().
+ */
+function google_chart_tools_views_views_api() {
+  return array(
+    'api' => 3,
+    'path' => drupal_get_path('module', 'google_chart_tools_views') . '/views',
+  );
+}

@@ -1,0 +1,23 @@
+name = "Dynamic Select Test"
+description = "Support module for Dynamic Select tests."
+package = Testing
+version = VERSION
+core = 7.x
+hidden = TRUE
+
+dependencies[] = dynamic_select
+
+; Briandp: 02 Jul 2012
+version = "7.x"
+project = "dynamic_select_test"
+datestamp = "1335997555"
+
+
+
+
+; Information added by drupal.org packaging script on 2013-04-06
+version = "7.x-1.0"
+core = "7.x"
+project = "entityreference_dynamicselect_widget"
+datestamp = "1365259212"
+

@@ -1,0 +1,15 @@
+name = Rules translation
+description = Allows translating rules.
+dependencies[] = rules
+dependencies[] = i18n_string
+package = Multilingual - Internationalization
+core = 7.x
+files[] = rules_i18n.i18n.inc
+files[] = rules_i18n.rules.inc
+files[] = rules_i18n.test
+; Information added by drupal.org packaging script on 2013-10-29
+version = "7.x-2.6"
+core = "7.x"
+project = "rules"
+datestamp = "1383063052"
+

@@ -1,0 +1,173 @@
+<?php
+
+
+/*
+ * @file
+ * Unit tests for the short_answer Module.
+ *
+ */
+
+class ShortAnswerUnitTest extends DrupalWebTestCase {
+  // initialing attributes
+  var $question_node_type = 'short_answer';
+  var $title = '';
+  var $body = '';
+  var $node_id = NULL;
+
+  // To generate a string of random size
+  var $rand_min = 1;
+  var $rand_max = 127;
+
+  // member functions definition starts here
+
+  /*
+   * The getInfo() method provides information about the test.
+   * In order for the test to be run, the getInfo() method needs
+   * to be implemented.
+   */
+  public static function getInfo() {
+    return array(
+      'name' => t('Short Answer unit test'),
+      'description' => t('Unit test for Short answers question type.'),
+      'group' => t('Quiz'),
+    );
+  }
+
+  /*
+   * Implementing setUp() to enable short_answer module testing
+   */
+  function setUp() {
+    parent::setUp('taxonomy', 'quiz', 'views', 'autoload', 'multichoice',
+    'quiz_directions', 'quiz_question', 'querypath', 'questions_import',
+    'short_answer', 'truefalse', 'long_answer',  'matching', 'questions_export');
+
+    // array of drupal user permission
+    $permission = array('administer site configuration', 'access administration pages',
+    'administer quiz', 'access quiz', 'administer blocks', 'import questions', 'create quiz content',
+    'administer quiz configuration', 'use PHP for block visibility', 'administer blocks',
+    'create multichoice', 'edit any multichoice', 'administer taxonomy', 'allow multiple correct answers',
+    'allow any number of answers', 'export questions');
+
+    // Create and log in our test user. Should be cleaned up as I something
+    // was wrong with permissions and I basically kept adding potentially
+    // useful ones until it worked.
+    $user = $this->drupalCreateUser($permission);
+    $this->drupalLogin($user);
+
+    // create one quiz, which will be the default in the import form
+    $quiz_settings = array();
+    $quiz_settings['title'] = $this->randomName($this->getRandSize());
+    $quiz_settings['comment'] = $this->randomName($this->getRandSize());
+    $quiz_settings['type'] = 'quiz';
+    // create a test drupal quiz node.
+    //$this->drupalCreateNode($quiz_settings);
+  }
+
+  /*
+   * @function
+   *   generates a rand integer between the specified range
+   *
+   * @return
+   *   random Integer value
+   */
+  public function getRandSize() {
+    return mt_rand($this->min, $this->max);
+  }
+
+  /*
+   * checks whether hook_quiz_question for true/false questions type has been
+   * defined or not.
+   */
+  public function testShortAnswerQuizQuestionInfo() {
+    $info = short_answer_quiz_question_info();
+    $this->assertEqual(count($info), 1, t('Check that info was returned.'));
+    $this->assertTrue(isset($info['short_answer']), t('Check that short answer question type exists.'));
+  }
+
+  /*
+   * function to create true false type question node for testing.
+   */
+  public function createShortAnswerQuestion() {
+    // score range
+    $score_min = 1;
+    $score_max = 16;
+
+    // evaluation type
+    $evaluation = array(
+      0 => 'exact_match',
+      1 => 'case_insensitive_match',
+      2 => 'regular_expression',
+      3 => 'manual_score',
+    );
+
+    // short answer question node attributes
+    $this->title = $this->randomName($this->getRandSize());
+    $this->body = $this->randomName($this->getRandSize());
+    $this->correct_answer = $this->randomName($this->getRandSize());
+    $this->maximum_score = rand($score_min, $score_max);
+    $this->correct_answer_evaluation = array_rand($evaluation);
+
+    // array of node attributes to create a test node
+    $settings = array(
+      'type' => $this->question_node_type,
+      'title' => $this->title,
+      'body' => $this->body,
+      'correct_answer' => $this->correct_answer,
+      'maximum_score' => $this->maximum_score,
+      'correct_answer_evaluation' => $this->correct_answer_evaluation,
+      'revisions' => TRUE,
+    );
+
+    return $this->drupalCreateNode($settings);
+  }
+
+  /**
+   * Run a bundle of Node API tests.
+   *
+   * This tests CRUD and all the functionality on a single node.
+   */
+  public function testShortAnswerNodeOperations() {
+    $this->unitTestShortAnswerCreateQuestionNode();
+    $this->unitTestCheckShortAnswerNodeProperties();
+    $this->unitTestShortAnswerQuestionsList();
+  }
+
+  /*
+   * function to test short answer question node  creation.
+   */
+  public function unitTestShortAnswerCreateQuestionNode() {
+    $node = $this->createShortAnswerQuestion();
+
+    if (!$node) {
+      throw new Exception('Expected to have a node to work with.');
+    }
+    $this->node_id = $node->nid;
+
+    $this->assertEqual($node->title, $this->title, t('Title of stored node should equal the original title.'));
+    $this->assertEqual($node->body, $this->body, t('Body of stored node should be equal to original body.'));
+    $this->assertEqual($node->type, $this->question_node_type, t('Stored node type should be long_answer'));
+    $this->assertEqual($node->correct_answer, $this->correct_answer, t('Correct answer of stored node should be equal the original correct answer'));
+    $this->assertEqual($node->maximum_score, $this->maximum_score, t('Maximum Score of stored node should be equal the original maximum score'));
+    $this->assertEqual($node->correct_answer_evaluation, $this->correct_answer_evaluation, t('Correct answer evaluation method should be equal the correct answer'));
+  }
+
+  /*
+   * @function
+   * function tests whether node properties has been saved appropriately or not.
+   */
+  public function unitTestCheckShortAnswerNodeProperties() {
+    $sql = "SELECT maximum_score, correct_answer, correct_answer_evaluation FROM {quiz_short_answer_node_properties} WHERE nid = %d";
+    $node = db_fetch_object(db_query($sql, $this->node_id));
+    $this->assertEqual($node->maximum_score, $this->maximum_score, t('Test that maximum  score was appropriately stored in database.'));
+    $this->assertEqual($node->correct_answer, $this->correct_answer, t('Test that correct answer was appropriately stored in database'));
+    $this->assertEqual($node->correct_answer_evaluation, $this->correct_answer_evaluation, t('Test that correct answer evaluation was appropriately stored in database'));
+  }
+
+  /**
+   * Check that question exists in DB.
+   */
+  public function unitTestShortAnswerQuestionsList() {
+    $questions = short_answer_questions_list();
+    $this->assertEqual(count($questions), 1, t('Verify that the question exists.'));
+  }
+}

@@ -1,0 +1,17 @@
+name = Achievements Views
+description = Add Views integration for the Achievements module
+dependencies[] = achievements
+dependencies[] = views
+package = Achievements
+files[] = handlers/achievements_views_handler_field_achievements_image.inc
+files[] = handlers/achievements_views_handler_field_achievements_group.inc
+files[] = handlers/achievements_views_handler_filter_achievements_group.inc
+files[] = handlers/achievements_views_handler_field_achievements_title.inc
+core = 7.x
+
+; Information added by drupal.org packaging script on 2013-03-10
+version = "7.x-1.0-beta2"
+core = "7.x"
+project = "achievements_views"
+datestamp = "1362948314"
+

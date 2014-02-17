@@ -1,0 +1,157 @@
+<?php
+
+/**
+ * @file
+ * Makemeeting installation schemas
+ */
+
+/**
+ * Implements hook_field_schema().
+ */
+function makemeeting_field_schema($field) {
+  return array(
+    'columns' => array(
+      'closed' => array(
+        'type' => 'int',
+        'length' => 1,
+        'not null' => FALSE,
+        'default' => 0,
+      ),
+      'hidden' => array(
+        'type' => 'int',
+        'length' => 1,
+        'not null' => FALSE,
+        'default' => 0,
+      ),
+      'one_option' => array(
+        'type' => 'int',
+        'length' => 1,
+        'not null' => FALSE,
+        'default' => 0,
+      ),
+      'limit' => array(
+        'type' => 'int',
+        'not null' => FALSE,
+        'default' => 0,
+      ),
+      'yesnomaybe' => array(
+        'type' => 'int',
+        'length' => 1,
+        'not null' => FALSE,
+        'default' => 0,
+      ),
+      'choices' => array(
+        'type' => 'blob',
+        'not null' => FALSE,
+        'size' => 'big',
+        'serialize' => TRUE,
+      ),
+    ),
+  );
+}
+
+/**
+ * Implements hook_schema().
+ */
+function makemeeting_schema() {
+  $schema['makemeeting_answers'] = array(
+    'description' => 'The choices by the visitors.',
+    'fields' => array(
+      'answer_id' => array(
+        'type' => 'serial',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ),
+      'field_name' => array(
+        'type' => 'varchar',
+        'length' => 32,
+        'not null' => TRUE,
+        'description' => 'The name of the field this data is attached to',
+      ),
+      'entity_type' => array(
+        'type' => 'varchar',
+        'length' => 128,
+        'not null' => TRUE,
+        'default' => '',
+        'description' => 'The entity type this data is attached to',
+      ),
+      'deleted' => array(
+        'type' => 'int',
+        'size' => 'tiny',
+        'not null' => TRUE,
+        'default' => 0,
+        'description' => 'A boolean indicating whether this data item has been deleted'
+      ),
+      'entity_id' => array(
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'description' => 'The entity id this data is attached to',
+      ),
+      'language' => array(
+        'type' => 'varchar',
+        'length' => 32,
+        'not null' => TRUE,
+        'default' => '',
+        'description' => 'The language for this data item.',
+      ),
+      'delta' => array(
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'description' => 'The sequence number for this data item, used for multi-value fields',
+      ),
+      'value' => array(
+        'type' => 'text',
+        'serialize' => TRUE,
+      ),
+      'uid' => array(
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'name' => array(
+        'type' => 'varchar',
+        'length' => 255,
+      ),
+      'mail' => array(
+        'type' => 'varchar',
+        'length' => 255,
+      ),
+      'notification' => array(
+        'type' => 'int',
+        'not null' => TRUE,
+        'length' => 1,
+        'default' => 0,
+      ),
+    ),
+    'primary key' => array('answer_id'),
+  );
+  return $schema;
+}
+
+/**
+ * Add yesnomaybe column to field tables
+ */
+function makemeeting_update_7201() {
+  $results = db_select('field_config', 'fc')
+    ->fields('fc')
+    ->condition('type', 'makemeeting')
+    ->execute()->fetchAll();
+  foreach ($results as $field) {
+    foreach (array('data', 'revision') as $type) {
+      $table = "field_{$type}_{$field->field_name}";
+      $column = "{$field->field_name}_yesnomaybe";
+      // Data and revision tables need to be fixed
+      if (!db_field_exists($table, $column)) {
+        db_add_field($table, $column, array(
+          'type' => 'int',
+          'length' => 1,
+          'not null' => FALSE,
+          'default' => 0,
+        ));
+      }
+    }
+  }
+}

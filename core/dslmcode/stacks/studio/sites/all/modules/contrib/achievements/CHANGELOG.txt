@@ -1,0 +1,170 @@
+
+Achievements 7.x-1.6, 2012-XX-XX
+--------------------------------
+ * (todo) Add some links for good achievement design?
+ * (todo) We have an unindexed query in the two leaderboard functions.
+  * Solve with a new at.sort column, similar to comment.module threading.
+  * Store USER_TOTAL - 0.UNLOCK_YYMMDDHHSS. Sort on that, not at.timestamp.
+     100 points - 0.50 timestamp (really early in life)
+     100 points - 0.99 timestamp (later in life)
+      90 points - 0.10 (the earliest sap, but not a winner)
+
+ * #1820556: Don't show achievement popups if the overlay is active.
+
+
+Achievements 7.x-1.5, 2012-05-01
+--------------------------------
+ * API CHANGE! API CHANGE! API CHANGE! API CHANGE! API CHANGE! API CHANGE!
+  * If you have any 'hidden' type achievements, retype them to 'secret'.
+  * "secret achievement" is more commonly known than "hidden achievement".
+  * "secret" reads better with the newly available "invisible" type (below).
+  * IF YOU DON'T RETYPE, HIDDEN ACHIEVEMENTS WILL BE EXPOSED TO USERS.
+
+ * 'invisible' achievement types can now be created.
+  * These will NOT display on a user's Achievements tab (unless unlocked).
+  * They will display elsewhere as needed (leaderboards, per-page, etc.).
+  * Some possible uses of 'invisible' achievements include:
+   * Tenure-based achievements to thank long-time users, beta testers, etc.
+   * To "reveal" a user's achievements instead of defaulting to all locked.
+  * You can set an achievement to be both 'secret' and 'invisible'.
+   * Makes it invisible on the user's Achievements tab (unless unlocked).
+   * Shows the secret placeholder text when displayed elsewhere.
+ * New hook added: hook_achievements_access_earn().
+  * Allows you to programmatically determine if a user can earn achievements.
+  * See the new submodule, achievements_optout, for an example of its use.
+ * A new and optional submodule is added: achievements_optout.
+  * Adds a new setting to a user's profile to opt-out of achievements.
+  * If selected, all that user's unlocks and statistics are deleted.
+  * If selected, that user's Achievements tab shows them opted-out.
+  * An opted-out user can unselect the checkbox to start earning anew.
+ * A new and optional submodule is added: achievements_pointless.
+  * The module removes all the default competitive elements and display.
+  * With a non-competitive environment, it's about challenging yourself.
+  * All access to leaderboard pages and the default block is disabled.
+  * No ranking information or achievement points are displayed.
+  * user/#/achievements is the sole me-centric interface.
+ * Per-load unlocks cache is now updated after new achievement unlocks.
+ * Accept user IDs as well as names for manual achievement (un)?locking.
+ * If 'points' is left undefined for an achievement, default to 0.
+ * The achievements leaderboard block is no longer cached. Le sigh.
+ * #1230506: Hopefully fixing SQL error for unknown achievement IDs.
+ * #1341546: Mismatched leaderboard length defaults (thanks makononov).
+ * #1373078: Locked achievements leaderboard tweaks (thanks aaronwinborn).
+ * #1396776: Allow unlocked timestamp to be passed (thanks jhedstrom).
+ * #1508572: Check earn access before admin give (thanks Royce Kimmons).
+
+
+Achievements 7.x-1.4, 2011-11-10
+--------------------------------
+ * achievement-latest-unlock.tpl.php added and used in the leaderboard.
+ * All template files have been moved to templates/ subdirectory.
+ * Most .tpl.php $variables are now render arrays instead of strings.
+  * This allows for easier modifications in preprocess hooks.
+  * You WILL need to modify any overridden themes to support this.
+  * You should be able to just replace "print $a" with "print render($a)";
+ * "image_path" added to themes for the context-aware image path.
+ * "achievement_title" added to themes for easier linked title display.
+ * "achievement_points" added to themes as a renderable "$n points" string.
+ * Fixed double-encoding bug in titles of achievements/leaderboard/$AID.
+ * achievements_locked() added for programmatic taking away of an unlock.
+ * achievements_storage_del() added to complement the _set and _get ones.
+ * tabindex on achievement notification was rewritten into a CSS override.
+ * #theme => 'achievement' usage has gained contextual theme suggestions.
+ * Admins can no longer take away an achievement the user hasn't unlocked.
+ * An empty relative leaderboard table is no longer displayed in the HTML.
+ * "achievement-leaderboard-top-rank" CSS class added to top 3 rank rows.
+ * "achievement-leaderboard-top-rank-[123]" CSS class added to top 3 rank rows.
+ * theme_achievements_group_wrapper() added (wraps around user/#/achievements).
+ * theme_achievement_group_wrapper() added (wraps around an achievement group).
+ * Stats on user/#/achievements are themed with theme_achievement_user_stats().
+ * Achievement popups do not fade out if you hover over them (thanks Poetro).
+ * New hook added: hook_achievements_leaderboard_alter().
+  * Lets you add new table columns or heavily modify leaderboard display.
+  * Context (type of leaderboard, block, etc.) and raw data is passed.
+  * See achievements.api.php for full details about the new hook.
+
+
+Achievements 7.x-1.3, 2011-09-29
+--------------------------------
+ * The following hooks have been added. See achievements.api.php for details:
+  * hook_achievements_info_alter() - modify the achievement information.
+  * hook_achievements_unlocked() - respond to achievement unlocks.
+  * hook_achievements_locked() - respond to a user losing an achievement.
+ * Relative leaderboards have been added.
+  * The block and global leaderboard can now show user-specific stats.
+  * The current user's ranking can be displayed, along with "nearby" users.
+  * "Nearby" users are a number of ranks before and after the current user.
+  * The number of nearby ranks shown can be 0 through 10.
+  * The block and global leaderboard can be configured separately.
+ * The global leaderboard now shows a user's latest achievement.
+ * New leaderboard CSS class added: achievements-leaderboard-current-user.
+ * The global leaderboard is now a paged view instead of a set limit.
+  * Control number of ranks per page at admin/config/people/achievements/.
+ * achievements_totals() no longer exists; moved inline to leaderboard page.
+ * achievements_totals_user() has been rewritten with different parameters.
+ * We now load all of a user's unlocks in achievements_unlocked_already().
+  * This is then cached for all future lookups during that page load.
+  * a_u_a and a_u can be called a lot per page for heavy achievement sites.
+  * Loading all and caching is better, performance-wise, then lots of singles.
+ * The database tables have been tweaked to support latest-unlock lookups.
+ * Issue #1274350 by makononov: added query tags for the leaderboards.
+ * Fixed some warnings that appeared in a first-time installation.
+
+
+Achievements 7.x-1.2, 2011-09-07
+--------------------------------
+ * Achievement unlock notifications are now JS fadeins and offline-able.
+  * We no longer use drupal_set_message() to inform of an unlock.
+  * A new achievement-notification.tpl.php controls the appearance.
+  * Unlock notifications now fade in and out at the window's bottom right.
+  * We now track whether a user has seen an achievement unlock notification.
+  * If they haven't, they will the next time they login or access the site.
+ * Leaderboard top rank counts can now be tweaked in the relevant configs.
+  * This is in preparation for "relative leaderboards" planned for 7.x-1.3.
+ * Unlocked achievements on user/#/achievements can now be unsorted.
+  * That is, instead of "move to top" they can remain "as defined in code".
+  * Defaults to "move to top". Config at admin/config/people/achievements.
+ * Block 'achievements-leaderboard' renamed with underscores not dashes.
+  * If you're using this block, you'll need to place it again upon upgrade.
+ * Fixed a few PHP warnings when a user has yet to unlock any achievements.
+ * Achievement unlocks are now logged in watchdog.
+ * Variables are now properly deleted on uninstall.
+
+
+Achievements 7.x-1.1, 2011-07-18
+--------------------------------
+ * Achievements can now be categorized into groups.
+  * Grouped achievements will be displayed within jQuery UI tabs.
+  * If groups exist, ungrouped achievements "upgrade" automatically.
+  * See achievements.api.php for more on how to define achievement groups.
+ * Achievements can now have images.
+  * Three possible display states: locked, unlocked, and hidden.
+  * Admins may set the default images at admin/config/people/achievements.
+  * An 'images' array has been added to hook_achievements_info() definitions.
+  * Per-achievement images can override the default on a per-state basis.
+  * CSS tweaks were made for a more flexible achievement display.
+  * Default images have been provided for each of the three states.
+ * Administrators can now manually give and take achievements from users.
+  * It's problematic on progression-based achievements and internal statistics.
+  * hook_achievements_info() gets 'storage' to define where statistics are kept.
+  * If 'storage' is not specified, assume it exists under the achievement ID.
+  * See admin/config/people/achievements for the disclaimer text on usage.
+  * See achievements.api.php for more on 'storage' and a revised HOWTO.
+ * A new permission, "Earn achievements", has been added.
+  * It is REQUIRED and NECESSARY for all roles that can unlock achievements.
+  * Core functions check for it so you shouldn't need it in your own code.
+  * If you think you need to check, use achievements_user_is_achiever().
+  * Removing this permission from a role does NOT delete data or ranks.
+  * It does stop, however, the collection of new data, points, or unlocks.
+ * achievements/leaderboard/NONEXISTENT now returns a 404.
+ * Locked achievements are now displayed on a user's achievements tab.
+ * No more warnings when viewing a user with no achievement unlocks.
+ * 'id' is no longer duplicated in hook_achievements_info() definitions.
+ * achievements.tpl.php has had its PHP moved to template_preprocess_hook().
+  * New variables have been added to streamline the display code.
+
+
+Achievements 7.x-1.0, 2011-07-07
+--------------------------------
+ * First release for Drupal 7.x.
+

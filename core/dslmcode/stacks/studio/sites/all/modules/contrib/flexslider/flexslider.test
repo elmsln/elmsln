@@ -1,0 +1,138 @@
+<?php
+
+/**
+ * @file
+ * Test cases for Flex Slider
+ *
+ * @author Mathew Winstone <mwinstone@coldfrontlabs.ca>
+ */
+
+
+class FlexsliderTestCase extends DrupalWebTestCase {
+  protected $admin_user;
+  protected $any_user;
+  
+  public static function getInfo() {
+    return array(
+      'name' => t('Flex Slider tests'),
+      'description' => t('Test the Flex Slider presets, configuration options and permission controls.'),
+      'group' => t('Flex Slider'),
+    );
+  }
+
+  function setUp() {
+    parent::setUp('libraries', 'ctools', 'flexslider');
+    
+    // Create users
+    $this->admin_user = $this->drupalCreateUser(array('administer flexslider'));
+    $this->any_user = $this->drupalCreateuser(array('access administration pages'));
+  }
+
+  function testAdminAccess() {
+
+    // Login as the admin user
+    $this->drupalLogin($this->admin_user);
+    
+    // Load admin page
+    $this->drupalGet('admin/config/media/flexslider');
+    $this->assertResponse(200, t('Administrative permission allows access to administration page.'));
+    
+    // Logout as admin user
+    $this->drupalLogout();
+    
+    // Login as any user
+    $this->drupalLogin($this->any_user);
+
+    // Attempt to load admin page
+    $this->drupalGet('admin/config/media/flexslider');
+    $this->assertResponse(403, t('Regular users do not have access to administrative pages.'));
+  }
+  
+  function testOptionSet() {
+    
+    // Login with admin user
+    $this->drupalLogin($this->admin_user);
+
+    // ------------ Test Option Set Add ------------ //
+    // Load create form
+    $this->drupalGet('admin/config/media/flexslider/add');
+    $this->assertResponse(200, t('Administrative user can reach the "Add" form.'));
+    
+    // Save new optionset
+    $optionset = array();
+    $optionset['title'] = 'testset';
+    $optionset['name'] = 'testset';
+    $this->drupalPost('admin/config/media/flexslider/add', $optionset, t('Create new option set'));
+    $this->assertResponse(200);
+    $this->assertText('Option set testset was created.', t('Successfully saved the new optionset "testset"'));
+
+    // Attempt to save option set of the same name again
+    // @todo
+
+    // ------------ Test Option Set Edit ------------ //
+    // Attempt to save each option value
+    $options = _flexslider_test_options();
+    
+    foreach($options['valid'] as $testset) {
+      $this->drupalPost('admin/config/media/flexslider/edit/default', $testset, t('Save option set'));      
+      $thid->assertResponse(200);
+      
+      // Test saved values
+      // @todo
+    }
+
+
+    
+    // ------------ Test Option Set Delete ------------ //
+    // Attempt to delete an option set that exists
+    // Attemp to delete an option set that doesn't exist
+  }
+  
+}
+
+/**
+ * Test configuration options
+ *
+ * @return array
+ *  Returns an array of options to test saving.
+ */
+function _flexslider_test_options() {
+  // Valid option set data
+  $valid = array(
+    'set1' => array(
+      'animation' => 'slide',
+      'animationduration' => 500,
+      'slidedirection' => 'horizontal',
+      'slideshow' => TRUE,
+      'slideshowspeed' => 7000,
+      'directionnav' => TRUE,
+      'controlnav' => TRUE,
+      'keyboardnav' => TRUE,
+      'mousewheel' => FALSE,
+      'prevtext' => 'Previous',
+      'nexttext' => 'Next',
+      'pauseplay' => FALSE,
+      'pausetext' => 'Pause',
+      'playtext' => 'Play',
+      'randomize' => FALSE,
+      'slidetostart' => 0, // integer value, not boolean
+      'animationloop' => TRUE,
+      'pauseonaction' => TRUE,
+      'pauseonhover' => TRUE,
+      'controlscontainer' => '',
+      'manualcontrols' => '',
+
+    ),
+    'set2' => array(
+      'animation' => 'fade',
+    ),
+    'set3' => array(
+      'animation' => 'slide',
+    ),
+  );
+  
+  // Invalid edge cases
+  $error = array();
+  
+  return array('valid' => $valid, 'error' => $error);
+}

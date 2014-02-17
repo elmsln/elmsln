@@ -1,0 +1,51 @@
+<?php
+// default chart type
+define("GOOGLE_CHART_TOOLS_DEFAULT_CHART", "LineChart");
+
+/**
+ * Implements hook_init().
+ */
+function google_chart_tools_init() {
+  drupal_add_js('https://www.google.com/jsapi', 'external');
+}
+
+/**
+ * Draw the chart
+ */
+function draw_chart($settings) {
+  drupal_alter('draw_chart', $settings);
+  foreach ($settings['chart'] as $id => $chart) {
+    if (!isset($settings['chart'][$id]['containerId'])) {
+      $settings['chart'][$id]['containerId'] = drupal_strtolower(str_replace(" ", "-", $id));
+    }
+  }
+  drupal_add_css(drupal_get_path('module', 'google_chart_tools') . '/google_chart_tools.css');
+  drupal_add_js(drupal_get_path('module', 'google_chart_tools') . '/google_chart_tools.js');
+  drupal_add_js($settings, array('type' => 'setting'));
+  $ret = array(
+    'title' =>  $chart['options']['title'],
+    'id' =>  $id,
+    'weight' => isset($chart['weight']) ? $chart['weight'] : 0,
+    'markup' =>  "<div id='{$settings['chart'][$id]['containerId']}'></div>"
+  );
+  return $ret;
+}
+
+/**
+ * Return types of charts that google can render.
+ */
+function google_chart_tools_load_types() {
+  // define default types from API documentation
+  $types = array(
+    'LineChart' => t('Line Chart'),
+    'PieChart' => t('Pie Chart'),
+    'ColumnChart' => t('Column Chart'),
+    'AreaChart' => t('Area Chart'),
+    'Gauge' => t('Gauge'),
+    'BarChart' => t('Bar Chart'),
+    'OrgChart' => t('Organizational Chart')
+  );
+  // allow other projects to alter chart types
+  drupal_alter('gct_types', $types);
+  return $types;
+}

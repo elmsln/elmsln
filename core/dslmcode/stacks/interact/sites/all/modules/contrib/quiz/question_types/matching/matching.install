@@ -1,0 +1,114 @@
+<?php
+
+/**
+ * @file
+ * matching install file.
+ */
+
+/**
+ * Implements hook_install().
+ */
+function matching_install() {
+  // Add body field to matching node
+  quiz_question_add_body_field('matching');
+
+  // TODO The drupal_(un)install_schema functions are called automatically in D7.
+  // drupal_install_schema('matching')
+  variable_set('node_options_matching', array('status'));
+  cache_clear_all('autoload:', 'cache');
+}
+
+/**
+ * Implements hook_uninstall().
+ */
+function matching_uninstall() {
+
+  // Delete tables
+  // TODO The drupal_(un)install_schema functions are called automatically in D7.
+  // drupal_uninstall_schema('matching')
+
+  // Delete data from other tables
+
+  // Clear the cache.
+  cache_clear_all('variables', 'cache');
+  drupal_set_message(t('The Matching module has been uninstalled and related data has been deleted.'));
+}
+
+/**
+ * Implements hook_schema().
+ */
+function matching_schema() {
+  // Properties for a question nodes go in here:
+  $schema['quiz_matching_node'] = array(
+    'fields' => array(
+      'match_id' => array(
+        'type' => 'serial',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ),
+      'nid' => array(
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ),
+      'vid' => array(
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ),
+      'question' => array(
+        'type' => 'text',
+        'not null' => TRUE,
+      ),
+      'answer' => array(
+        'type' => 'text',
+        'not null' => TRUE,
+      ),
+      'feedback' => array(
+        'type' => 'text',
+        'not null' => TRUE,
+      ),
+    ),
+    'primary key' => array('match_id'),
+    'indexes' => array(
+      'question_id' => array('nid', 'vid'),
+    ),
+  );
+
+  // User answers go in here.
+  $schema['quiz_matching_user_answers'] = array(
+    'fields' => array(
+      'answer_id' => array(
+        'type' => 'serial',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ),
+
+      'match_id' => array(
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ),
+      'result_id' => array(
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ),
+      'score' => array(
+        'type' => 'int',
+        'size' => 'tiny',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'answer' => array(
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ),
+    ),
+    'primary key' => array('answer_id'),
+  );
+
+  return $schema;
+}

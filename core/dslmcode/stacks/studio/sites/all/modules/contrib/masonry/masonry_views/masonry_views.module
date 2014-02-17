@@ -1,0 +1,83 @@
+<?php
+/**
+ * @file
+ * Provides a Views style plugin to display content in a jQuery Masonry grid.
+ */
+
+/**
+ * Implements hook_views_api().
+ */
+function masonry_views_views_api() {
+  return array('api' => '3.0');
+}
+
+/**
+ * Preprocess function for views_view_masonry.tpl.php.
+ */
+function template_preprocess_views_view_masonry(&$vars) {
+  // Run preprocess function for unformatted style
+  template_preprocess_views_view_unformatted($vars);
+
+  if (($library = libraries_load('masonry')) && !empty($library['loaded'])) {
+    $view = $vars['view'];
+    $view_class = 'view-' . drupal_clean_css_identifier($view->name) . '.view-display-id-' . $view->current_display;
+    $settings = $vars['options'];
+
+    // Add default styling to make grids display properly out-of-the-box
+    $css_margin = ($settings['masonry_width_unit'] == 'px') ? '10px' : '2%';
+    $css_width = ($settings['masonry_width_unit'] == 'px') ? ($settings['masonry_width'] - 20) . 'px' : ($settings['masonry_width'] - 5) . '%';
+    $grid_styles = '
+      .' . $view_class . ' .masonry-item {
+        float: left;
+        margin: ' . $css_margin . ';
+        width: ' . $css_width . ';
+      }
+    ';
+    drupal_add_css($grid_styles, 'inline');
+    if ($settings['masonry_center']) {
+      $center_styles = '
+        .' . $view_class . ' .view-content {
+          margin: 0 auto;
+        }
+      ';
+      drupal_add_css($center_styles, 'inline');
+    }
+
+    // Get column width
+    if ($settings['masonry_width_unit'] == 'px') {
+      $column_width = (int) $settings['masonry_width'];
+    }
+    else {
+      $percentage = $settings['masonry_width'] / 100;
+      $column_width = 'function (containerWidth) {
+        return containerWidth * ' . $percentage . ';
+      }';
+    }
+
+		// Initialize Masonry
+    $script = '(function ($) {
+      var $container = $(".' . $view_class . ' .view-content");
+      $container.imagesLoaded(function () {
+        $container.masonry({
+          itemSelector: ".masonry-item",
+          columnWidth: ' . $column_width . ',
+          isAnimated: ' . (int) $settings['masonry_animated'] . ',
+          animationOptions: {
+            duration: ' . (int) $settings['masonry_animated_duration'] . '
+          },
+          isResizable: ' . (int) $settings['masonry_resizable'] . ',
+          isFitWidth: ' . (int) $settings['masonry_center'] . ',
+          gutterWidth: ' . (int) $settings['masonry_gutter'] . ',
+          isRTL: ' . (int) $settings['masonry_rtl'] . '
+        });
+      }).bind("views_infinite_scroll_updated", function () {
+        $container.masonry("reload");
+      });
+    })(jQuery);';
+    drupal_add_js($script, array(
+      'type' => 'inline',
+      'scope' => 'footer',
+    ));
+  }
+}
+

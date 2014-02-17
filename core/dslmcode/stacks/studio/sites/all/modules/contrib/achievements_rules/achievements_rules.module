@@ -1,0 +1,39 @@
+<?php
+
+/**
+ * Implements hook_achievements_unlocked().
+ */
+function achievements_rules_achievements_unlocked($achievement, $uid) {
+    $params = array(
+        'achievement' => (object)array(
+            'id' => $achievement['id'],
+            'name' => $achievement['title'],
+            'description' => $achievement['description'],
+            'points' => $achievement['points'],
+        ),
+        'achiever' => user_load($uid),
+    );
+
+    // Fire rules event
+    rules_invoke_event_by_args('achievements_rules_unlocked', $params);
+    rules_invoke_event_by_args('achievements_rules_' . $achievement['id'] . '_unlocked', $params);
+}
+
+/**
+ * Implements hook_achievements_locked().
+ */
+function achievements_rules_achievements_locked($achievement, $uid) {
+    $params = array(
+        'achievement' => (object)array(
+            'id' => $achievement['id'],
+            'name' => $achievement['title'],
+            'description' => $achievement['description'],
+            'points' => $achievement['points'],
+        ),
+        'achiever' => user_load($uid),
+    );
+
+    // Fire rules event
+    rules_invoke_event_by_args('achievements_rules_locked', $params);
+    rules_invoke_event_by_args('achievements_rules_' . $achievement['id'] . '_locked', $params);
+}

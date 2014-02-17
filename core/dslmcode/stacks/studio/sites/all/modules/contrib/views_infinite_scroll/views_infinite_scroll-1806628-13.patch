@@ -1,0 +1,38 @@
+diff --git a/js/views_infinite_scroll.js b/js/views_infinite_scroll.js
+index b1d1465..7cf0de8 100644
+--- a/js/views_infinite_scroll.js
++++ b/js/views_infinite_scroll.js
+@@ -41,6 +41,7 @@ Drupal.behaviors.views_infinite_scroll = {
+               load: function() {
+                 $('div#views_infinite_scroll-ajax-loader').remove();
+                 Drupal.attachBehaviors(this);
++                $(content_selector).trigger('views_infinite_scroll_updated');
+               }
+             });
+ 
+diff --git a/views_plugin_pager_infinite_scroll.inc b/views_plugin_pager_infinite_scroll.inc
+index 0c12eb9..7651bbd 100644
+--- a/views_plugin_pager_infinite_scroll.inc
++++ b/views_plugin_pager_infinite_scroll.inc
+@@ -25,10 +25,6 @@ class views_plugin_pager_infinite_scroll extends views_plugin_pager_full {
+     $items_selector = '';
+     $img_path = $base_url . '/' . drupal_get_path('module', 'views_infinite_scroll') . '/images/ajax-loader.gif';
+     switch ($this->view->plugin_name) {
+-      case 'default':
+-        $content_selector = 'div.view-content';
+-        $items_selector = '.views-row';
+-        break;
+       case 'grid':
+         $content_selector = 'div.view-content > table > tbody';
+         $items_selector = 'tr';
+@@ -46,6 +42,10 @@ class views_plugin_pager_infinite_scroll extends views_plugin_pager_full {
+         $content_selector = 'div.view-content > table > tbody';
+         $items_selector = 'tr';
+         break;
++      default:
++        $content_selector = 'div.view-content';
++        $items_selector = '.views-row';
++        break;
+     }
+     $pager_theme = views_theme_functions('views_infinite_scroll_pager', $this->view, $this->display);
+     return theme($pager_theme, array('tags' => $input, 'quantity' => $this->options['items_per_page'], 'view_name' => $this->view->name, 'current_display' => $this->view->current_display, 'content_selector' => $content_selector, 'items_selector' => $items_selector, 'img_path' => $img_path, 'element' => $this->options['id']));

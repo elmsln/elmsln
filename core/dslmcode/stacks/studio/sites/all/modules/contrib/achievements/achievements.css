@@ -1,0 +1,162 @@
+
+/**
+ * Single achievement full display.
+ */
+.achievement {
+  border: 1px solid #bbb;
+  height: 86px;
+  margin: 0.8em auto;
+}
+
+.achievement-secret,
+.achievement-locked {
+  filter: alpha(opacity=50);
+  opacity: 0.5;
+}
+
+.achievement-image {
+  float: left;
+  margin: 0.6em;
+}
+
+.achievement-body {
+  padding: 0.6em;
+}
+
+.achievement-title {
+  font-size: 17px;
+  font-weight: bold;
+}
+
+.achievement-points-box {
+  background-color: #ddd;
+  border-left: 1px solid #bbb;
+  font-family: Verdana, Arial, sans-serif;
+  float: right;
+  margin-left: 0.6em;
+  text-align: center;
+  height: 86px;
+  width: 86px;
+}
+
+.achievement-points-box .achievement-points {
+  font-size: 28px;
+  font-weight: bold;
+  margin-top: 2px;
+}
+
+.achievement-points-box .achievement-unlocked-stats {
+  font-size: 11px;
+}
+
+/**
+ * Single achievement notification display.
+ */
+.achievement-notification-dialog {
+  border-color: #00c325;
+  margin: 0.6em;
+  padding: 0;
+  position: fixed;
+}
+
+.achievement-notification-dialog .ui-dialog-titlebar {
+  display: none;
+}
+
+.achievement-notification-dialog .achievement-notification {
+  background: #b8ffa9;
+}
+
+.achievement-notification .achievement-body {
+  margin-top: 1em;
+}
+
+.achievement-notification img {
+  display: block;
+}
+
+.achievement-notification * a:focus {
+  outline: none;
+}
+
+.achievement-notification .achievement-points-box {
+  border: 1px solid #1CF608;
+  background: #79F66A;
+  margin-top: 0.6em;
+  height: 70px;
+  width: 70px;
+}
+
+.achievement-notification .achievement-body {
+  text-align: center;
+}
+
+/**
+ * Stats line on the user's achievement page.
+ */
+.achievement-user-stats {
+  margin: 1em;
+  text-align: center;
+}
+
+/**
+ * Columns on the achievement leaderboards.
+ */
+.achievement-leaderboard .achievement-leaderboard-rank {
+  width: 12px;
+}
+
+.achievement-leaderboard .achievement-leaderboard-points,
+.achievement-leaderboard .achievement-leaderboard-unlocks {
+  width: 50px;
+}
+
+.achievement-leaderboard .achievement-leaderboard-latest {
+  width: 275px;
+}
+
+.achievement-leaderboard-current-user {
+  font-weight: bold;
+}
+
+.achievement-leaderboard .achievement-latest-image img {
+  float: left;
+  height: 35px;
+  padding-right: 5px;
+  width: 35px;
+}
+
+.achievement-leaderboard .achievement-latest-title {
+  font-weight: bold;
+}
+
+.achievement-leaderboard .achievement-latest-points {
+  font-size: smaller;
+}
+
+#block-achievements-achievements-leaderboard .achievement-leaderboard-points {
+  width: 15px;
+}
+
+#block-achievements-achievements-leaderboard .achievement-see-more {
+  text-align: right;
+}
+
+/**
+ * Stats on the per-achievement leaderboards.
+ */
+.achievement-leaderboard-first {
+  float: left;
+  width: 49%;
+}
+
+.achievement-leaderboard-recent {
+  float: right;
+  width: 49%;
+}
+
+.achievement-leaderboard-first caption,
+.achievement-leaderboard-recent caption {
+  font-size: 150%;
+  margin-bottom: 0.6em;
+}

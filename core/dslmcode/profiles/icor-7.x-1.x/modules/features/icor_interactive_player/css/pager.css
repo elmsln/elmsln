@@ -1,0 +1,82 @@
+/* CSS Document */
+div.node ul li {
+	margin:0 !important;	
+}
+div.item-list {
+	width:100%;
+	margin:0px;
+	padding:0px;
+	float:left;
+}
+.item-list .pager {
+	text-align: center;
+	width: auto;
+	display: inline-block;
+	margin: 0 auto;
+	padding: 0;
+	float: none;	
+}
+.item-list .pager li {
+	padding: 0px !important;
+	margin: 10px 5px 10px 0 !important;
+}
+div.item-list ul.pager li.pager-next,
+div.item-list ul.pager li.pager-last,
+div.item-list ul.pager li.pager-first,
+div.item-list ul.pager li.pager-previous {
+	display:none;
+}
+
+/* Required list template */
+div.item-list {
+	display: block;
+	text-align:center;
+}
+div.item-list ul{
+	counter-reset: li; /* Initiate a counter */
+	list-style: none; /* Remove default numbering */
+	*list-style: decimal; /* Keep using default numbering for IE6/7 */
+	text-align:center;
+	float:left;
+	width:100%;
+}
+div.item-list ul li {
+	float:left;
+}
+div.item-list li a,
+div.item-list li a:link,
+div.item-list li a:visited,
+div.item-list li a:hover,
+div.item-list li.pager-current {
+	height: 40px;
+	width: 40px;
+	float:left;
+	background: #fff;
+	font: 24px 'trebuchet MS', 'lucida sans';
+	text-align: center;
+	color: #444 !important;
+	text-decoration:none !important;
+	text-shadow: 0 1px 0 rgba(255,255,255,.5);
+	font-weight: bold;
+	line-height: 40px;
+	border: 2px solid #fff;
+	padding: 0px;
+	margin:0px;
+	-moz-border-radius: 10px;
+	-webkit-border-radius: 10px;
+	border-radius: 10px; /* future proofing */
+	-khtml-border-radius: 10px; /* for old Konqueror browsers */
+	transition: all .3s ease-out;
+	
+}
+div.item-list li.pager-current {
+	background: #fff;
+	color: #39F !important;
+	cursor:pointer;
+	border: 2px solid #39F;
+}
+div.item-list li a:hover {	
+	border: 2px solid #39F;
+	background: #fff;
+}
+

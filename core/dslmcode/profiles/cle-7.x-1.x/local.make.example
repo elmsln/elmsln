@@ -1,0 +1,28 @@
+; CLE Local development file
+core = "7.x"
+api = "2"
+; include the d.o. profile base
+includes[] = "drupal-org.make"
+
+projects[drupal][version] = "7.x"
+
+; Libraries
+
+libraries[masonry][directory_name] = "masonry"
+libraries[masonry][type] = "library"
+libraries[masonry][destination] = "libraries"
+libraries[masonry][download][type] = "get"
+libraries[masonry][download][url] = "http://masonry.desandro.com/masonry.pkgd.min.js"
+
+libraries[bootstrap][directory_name] = "bootstrap"
+libraries[bootstrap][type] = "library"
+libraries[bootstrap][destination] = "themes/contrib/bootstrap"
+libraries[bootstrap][download][type] = "get"
+libraries[bootstrap][download][url] = "http://twitter.github.com/bootstrap/assets/bootstrap.zip"
+
+; setup install profile
+libraries[cle][directory_name] = "cle"
+libraries[cle][type] = "profile"
+libraries[cle][destination] = "../../profiles"
+libraries[cle][download][type] = "get"
+libraries[cle][download][url] = "http://ftp.drupal.org/files/projects/cle-7.x-1.x-dev.tar.gz"

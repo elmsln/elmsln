@@ -1,0 +1,28 @@
+name = Views TimelineJS Feature
+description = Content type and view
+core = 7.x
+package = Views
+php = 5.2.4
+dependencies[] = date
+dependencies[] = features
+dependencies[] = image
+dependencies[] = link
+dependencies[] = views
+dependencies[] = views_timelinejs
+features[ctools][] = views:views_default:3.0
+features[features_api][] = api:1
+features[field][] = node-timeline_date-body
+features[field][] = node-timeline_date-field_timeline_caption_text
+features[field][] = node-timeline_date-field_timeline_credit_text
+features[field][] = node-timeline_date-field_timeline_dates
+features[field][] = node-timeline_date-field_timeline_media_image
+features[field][] = node-timeline_date-field_timeline_media_link
+features[node][] = timeline_date
+features[views_view][] = timeline
+
+; Information added by drupal.org packaging script on 2013-04-04
+version = "7.x-1.x-dev"
+core = "7.x"
+project = "views_timelinejs"
+datestamp = "1365085028"
+

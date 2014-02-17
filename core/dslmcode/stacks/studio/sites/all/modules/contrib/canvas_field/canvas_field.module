@@ -1,0 +1,558 @@
+<?php
+
+define('DATA_URL_REGEX', '^data:(\/\/)?(?P<mime>\w*/\w*);(?P<encoding>base64*),(?P<data>[\w|\+|/|]*[=]*)$');
+define('CANVAS_FIELD_NEVER', -1);
+define('CANVAS_FIELD_FILEFIELD', 0);
+define('CANVAS_FIELD_CANVASFIELD', 1);
+define('CANVAS_FIELD_CANVASFIELD_ONLY', 2);
+
+/**
+ * Implements hook_element_info().
+ *
+ * @return array
+ */
+function canvas_field_element_info() {
+  $path = drupal_get_path('module', 'canvas_field');
+  $types['canvas_field'] = array(
+    '#input' => TRUE,
+    '#pre_render' => array('canvas_field_pre_render'),
+    '#element_validate' => array('canvas_field_validate'),
+    '#theme' => 'canvas_field',
+    '#existing_image' => NULL,
+    '#attributes' => array('class' => array('canvas-field')),
+    '#field_settings' => array('buttons' => array(), 'style' => array()),
+  );
+  return $types;
+}
+
+
+function canvas_field_library() {
+  $path = drupal_get_path('module', 'canvas_field');
+  $libraries['canvas_field'] = array(
+    'title' => t('Canvas Field'),
+    'version' => '.1',
+    'js' => array(
+      $path . '/js/canvas_field.js' => array(),
+      $path . '/js/canvas_field.tools.js' => array(),
+      $path . '/js/canvas_field.buttons.js' => array(),
+    ),
+    'css' => array(
+      $path . '/canvas_field.css' => array('type' => 'file', 'media' => 'screen'),
+    )
+  );
+
+  return $libraries;
+}
+
+
+/**
+ * Implements hook_theme().
+ *
+ * @return array
+ */
+function canvas_field_theme() {
+  return array(
+    'canvas_field' => array(
+      'render element' => 'element',
+    ),
+  );
+}
+
+
+/**
+ *  Pre_render callback for canvas field element.  Add javascript
+ * and javascript settings.
+ *
+ * @param array $element
+ * @return array
+ */
+function canvas_field_pre_render($element) {
+
+  $style = $element['#field_settings']['style'];
+  $buttons = $element['#field_settings']['buttons'];
+
+  if (!empty($element['#height'])) {
+    $style['height'] = $element['#height'];
+  }
+  if (!empty($element['#width'])) {
+    $style['width'] = $element['#width'];
+  }
+  if (empty($style)) {
+    //We need at least one CSS property in style for jQuery.extend
+    //to work properly  This is the least obnoxious one I could think of.
+    $style['background-color'] = 'transparent';
+  }
+  if (!empty($element['#value'])) {
+    $element['#value'] = canvas_field_file_dataurl($element['#value'], $style['image_style']);
+  }
+  $element['#field_settings'] = canvas_field_defaults($element['#field_settings']);
+  $element['#field_settings']['style'] = $style;
+  $element['#field_settings']['buttons'] = $buttons;
+  $element['#attached']['library'][] = array('canvas_field', 'canvas_field');
+  if (isset($element['#field_settings']['buttons']) && $element['#field_settings']['buttons']['color']) {
+    $element['#attached']['library'][] = array('system', 'ui.dialog');
+    $element['#attached']['library'][] = array('system', 'farbtastic');
+  }
+  drupal_add_js(array('canvas_field' => array($element['#id'] => $element['#field_settings'])), 'setting');
+
+  return $element;
+}
+
+
+/**
+ * Element validate callback.  Ensure we have a clean dataurl
+ * with the correct encoding.  Filenames may be used as a widget
+ * #default_value, so we allow those to pass through unchecked.
+ * @todo: Is this safe?
+ *
+ * @param array $element
+ * @return bool FALSE on failure.
+ */
+function canvas_field_validate(&$element) {
+
+  //File URI's should pass through
+  if ($element['#value'] && !file_valid_uri($element['#value'])) {
+
+    $matches = array();
+
+    //Check the syntax.
+    if (!$matches = canvas_field_get_info($element['#value'])) {
+      form_error($element, t('Invalid Data URL'));
+      return FALSE;
+    }
+
+    //Check that we have a valid declared mime type.
+    if (!canvas_field_mime_type_extension($matches['mime'])) {
+      form_error($element, t('Invalid Data URL: Disallowed file type.'));
+      return FALSE;
+    }
+
+    //Check that it is declared an image mime.
+    if (!(substr($matches['mime'], 0, 6) == 'image/')) {
+      form_error($element, t('Invalid file type'));
+      return FALSE;
+    }
+
+    //Last, check that the encoding is declared base64.
+    if (!$matches['encoding'] == 'base64') {
+      form_error($element, t('Invalid data encoding'));
+      FALSE;
+    }
+  }
+}
+
+
+function theme_canvas_field($render) {
+
+  $element = $render['element'];
+  $element['#attributes']['type'] = 'hidden';
+  element_set_attributes($element, array('id', 'name', 'value'));
+
+  return '<input ' . drupal_attributes($element['#attributes']) . ' />';
+}
+
+
+/* * ***************************** */
+/*   WIDGET FUNCTIONS    */
+/* * ***************************** */
+
+/**
+ * Implements hook_field_widget_info().
+ */
+function canvas_field_field_widget_info() {
+  return array(
+    'canvas_widget' => array(
+      'label' => t('Canvas Widget'),
+      'field types' => array('image'),
+      'settings' => array(
+        'progress_indicator' => 'throbber',
+        'preview_image_style' => 'thumbnail',
+        'style' => array(
+          'background-color' => NULL,
+          'border-color' => '#CCC',
+          'border-width' => '5',
+          'border-style' => 'solid',
+        ),
+        'buttons' => array(
+          'reset' => TRUE,
+          'pen' => TRUE,
+          'paint' => FALSE,
+          'color' => TRUE,
+        ),
+        'mode_start' => CANVAS_FIELD_CANVASFIELD,
+        'mode_edit' => CANVAS_FIELD_FILEFIELD,
+      ),
+      'behaviors' => array(
+        'multiple values' => FIELD_BEHAVIOR_CUSTOM,
+        'default value' => FIELD_BEHAVIOR_NONE,
+      ),
+    ),
+  );
+}
+
+
+/**
+ * Implements hook_field_widget_settings_form().
+ */
+function canvas_field_field_widget_settings_form($field, $instance) {
+  module_load_include('admin.inc', 'canvas_field');
+  return canvas_field_widget_settings_form_passthrough($field, $instance);
+}
+
+
+/**
+ * Implements hook_field_widget_form().
+ */
+function canvas_field_field_widget_form(&$form, &$form_state, $field, $instance, $langcode, $items, $delta, $element) {
+
+  $elements = image_field_widget_form($form, $form_state, $field, $instance, $langcode, $items, $delta, $element);
+
+  $start_mode = $instance['widget']['settings']['mode_start'];
+  $edit_mode = $instance['widget']['settings']['mode_edit'];
+
+  foreach (element_children($elements) as $delta) {
+    $element_name = $elements[$delta]['#field_name'] . '[' . $elements[$delta]['#language'] . '][' . $delta . ']';
+
+    if (isset($form_state['canvas_field']['edit'][$element_name])) {
+      $element_edit_mode = $form_state['canvas_field']['edit'][$element_name];
+      $element_start_mode = $form_state['canvas_field']['edit'][$element_name];
+    }
+    else {
+      $element_edit_mode = $edit_mode;
+      $element_start_mode = $start_mode;
+    }
+
+    if (!empty($elements[$delta]['#default_value']['fid'])) {
+      $elements[$delta]['#cf_state'] = $element_edit_mode;
+    }
+    else {
+      $elements[$delta]['#cf_state'] = $element_start_mode;
+    }
+
+    $elements[$delta]['#process'][] = 'canvas_field_field_widget_process';
+    $elements[$delta]['#file_value_callbacks'][] = 'canvas_field_widget_value';
+
+    //Hide the upload button if we are on the last item.
+    $elements[$delta]['#hide_upload'] = ($field['cardinality'] == $delta + 1);
+  }
+
+  return $elements;
+}
+
+
+/**
+ * Process function for widgets in non-edit state.
+ */
+function canvas_field_field_widget_process($element, &$form_state, $form) {
+  $instance = field_widget_instance($element, $form_state);
+  $field_settings = canvas_field_defaults(array('buttons' => $instance['widget']['settings']['buttons'], 'style' => $instance['widget']['settings']['style']));
+
+  $value = isset($element['#value']['dataurl']) ? $element['#value']['dataurl'] : FALSE;
+
+  if (!$value && $element['#file']) {
+    $value = $element['#file']->uri;
+  }
+  $ajax = array(
+    'wrapper' => $element['upload_button']['#ajax']['wrapper'],
+    'callback' => 'canvas_field_widget_edit_ajax',
+  );
+  $element['edit_button'] = array(
+    '#type' => 'submit',
+    '#value' => ($element['#file']) ? 'Edit' : 'Draw',
+    '#ajax' => $ajax,
+    '#name' => $element['#id'] . '-edit-button',
+    '#limit_validation_errors' => array(),
+    '#submit' => array('canvas_field_widget_submit'),
+    '#access' => ($element['#cf_state'] == CANVAS_FIELD_FILEFIELD),
+  );
+  $element['show_upload_button'] = $element['edit_button'];
+  $element['show_upload_button']['#value'] = 'Show Upload';
+  $element['show_upload_button']['#name'] = $element['#id'] . '-edit-button';
+  $element['show_upload_button']['#access'] = ($element['#cf_state'] == CANVAS_FIELD_CANVASFIELD && !$element['#file']);
+
+  if ($element['#weight'] > 0) {
+    //Because the file field does not use form_state the same way as
+    //other elements, it requires that our elements are actually validated
+    //and submitted in order to recognize that we have values at all.
+    //We sidestep this for the first item (delta 0) so that required
+    //fields aren't marked as invalid when we're not really trying to submit.
+    $element['edit_button']['#limit_validation_errors'] = array(array_slice($element['#parents'], 0, -1));
+    $element['show_upload_button']['#limit_validation_errors'] = array(array_slice($element['#parents'], 0, -1));
+  }
+
+  $element['dataurl'] = array(
+    '#type' => 'canvas_field',
+    '#title' => $element['#title'],
+    '#default_value' => $value,
+    '#field_settings' => $field_settings,
+    '#access' => ($element['#cf_state'] >= CANVAS_FIELD_CANVASFIELD),
+  );
+
+  if ($element['#cf_state'] >= CANVAS_FIELD_CANVASFIELD) {
+    $element['upload']['#access'] = FALSE;
+    $element['upload_button']['#value'] = 'Add another';
+
+    if ($element['#hide_upload']) {
+      //Hide the upload button if we are on the last item the
+      //user can enter.  This will be saved on form submit.
+      $element['upload_button']['#access'] = FALSE;
+    }
+  }
+  $element['upload_button']['#submit'][] = 'canvas_field_widget_submit';
+
+  return $element;
+}
+
+
+/**
+ * Value callback for canvas_field widget.
+ *
+ * Takes a dataurl and saves it to a file.  Duplicates much of the
+ * functionality provided in file.inc's file_save_upload(), which
+ * we can't use, since our file won't pass through is_uploaded_file().
+ */
+function canvas_field_widget_value($element, &$input, $form_state) {
+
+  if (!empty($input['dataurl']) && !$form_state['rebuild']) {
+
+    $filename = NULL;
+    if ($element['#default_value']['fid']) {
+      $old_file = file_load($element['#default_value']['fid']);
+      $filename = $old_file->uri;
+    }
+
+    if (!$filename) {
+      $filename = $element['#upload_location'];
+    }
+    $file = canvas_field_save_data($input['dataurl'], $filename);
+    //Status needs to be set to temporary to validate.
+    //@todo: Move into canvas_field_save_data().
+    if ($file) {
+      $file->status = 0;
+      file_save($file);
+
+      $input['fid'] = $file->fid;
+      $input['dataurl'] = NULL;
+    }
+  }
+  elseif (!isset($input['dataurl'])) {
+    $input['dataurl'] = NULL;
+  }
+
+  return $input;
+}
+
+
+/**
+ * Submit callback for when the edit button is pressed.
+ *
+ * @param array $form
+ * @param array $form_state
+ */
+function canvas_field_widget_submit(&$form, &$form_state) {
+  $parents = array_slice($form_state['triggering_element']['#parents'], 0, -1);
+  $edit_element = drupal_array_get_nested_value($form, $parents);
+  $button_name = end($form_state['triggering_element']['#parents']);
+
+  switch ($button_name) {
+    case 'edit_button':
+      $form_state['canvas_field']['edit'][$edit_element['#name']] = CANVAS_FIELD_CANVASFIELD;
+      $form_state['rebuild'] = TRUE;
+      break;
+    case 'show_upload_button':
+      $form_state['canvas_field']['edit'][$edit_element['#name']] = CANVAS_FIELD_FILEFIELD;
+      $form_state['rebuild'] = TRUE;
+      break;
+    default:
+      if (isset($form_state['canvas_field']['edit'][$edit_element['#name']])) {
+        unset($form_state['canvas_field']['edit'][$edit_element['#name']]);
+      }
+  }
+}
+
+
+/**
+ * Submit callback for when the upload/Add another button is pressed.
+ * Clears the "edit" state for the element.
+ *
+ * @param array $form
+ * @param array $form_state
+ */
+function canvas_field_widget_clear_edit($form, &$form_state) {
+  $parents = array_slice($form_state['triggering_element']['#parents'], 0, -1);
+  $edit_element = drupal_array_get_nested_value($form, $parents);
+
+  if (isset($form_state['canvas_field']['edit'][$edit_element['#name']])) {
+    unset($form_state['canvas_field']['edit'][$edit_element['#name']]);
+  }
+}
+
+
+/**
+ * Ajax form callback for canvas_field widget.  Called when
+ * the edit button is pressed. Returns the entire filefield grouping.
+ *
+ * @param array $form
+ * @param array $form_state
+ * @return array
+ */
+function canvas_field_widget_edit_ajax($form, &$form_state) {
+  $parents = array_slice($form_state['triggering_element']['#parents'], 0, -2);
+  return drupal_array_get_nested_value($form, $parents);
+}
+
+
+/* * ***************************** */
+/*          API HELPERS          */
+/* * ***************************** */
+
+/**
+ * API Helper to save a dataurl into a managed file.
+ * If $filename exists, it will be overwritten.
+ * Dataurl should be fully validated before passing
+ * to canvas_field_save_data().
+ *
+ * @param string $dataurl  No dataurl validation
+ * is done in this function, so be sure that the data is fully
+ * validated before passing it in.
+ *
+ * @param string $filename A valid filename.  May also
+ * be a directory, in which case the file will simply be named
+ * timestamp.extension and saved to the given directory.
+ *
+ * @return stdClass file record returned if save is
+ * successful, bool FALSE if not.
+ */
+function canvas_field_save_data($dataurl, $filename = NULL) {
+
+  if (!$filename || is_dir($filename)) {
+    $mime = canvas_field_get_info($dataurl, 'mime');
+    $extension = canvas_field_mime_type_extension($mime);
+
+    $base = $filename ? rtrim($filename, '/') : 'temporary://';
+
+    if (is_dir($filename)) {
+      $filename .= '/' . time() . '.' . $extension;
+    }
+  }
+
+  $data = canvas_field_get_info($dataurl, 'data');
+  $data = base64_decode($data);
+
+
+  if ($data && $filename && file_valid_uri($filename)) {
+    return file_save_data($data, $filename, FILE_EXISTS_RENAME);
+  }
+  return FALSE;
+}
+
+
+/**
+ * API helper to break a data url into composite parts.
+ * Passing in a key will return just that part of the return array.
+ * Possible keys: 'mime', 'encoding', 'data'
+ *
+ * @param string $dataurl
+ * @param string $key One of 'mime', 'encoding', 'data'
+ * @return mixed string if key is given, array if not.
+ *  bool FALSE if key not found or uri is not valid..
+ */
+function canvas_field_get_info($dataurl, $key = NULL) {
+  $matches = array();
+
+  preg_match('@' . DATA_URL_REGEX . '@', $dataurl, $matches);
+  $matches = array_map('trim', $matches);
+
+  if (isset($key)) {
+    return isset($matches[$key]) ? $matches[$key] : FALSE;
+  }
+  return empty($matches) ? FALSE : $matches;
+}
+
+
+/**
+ * API helper to get the default extension for a given mime type.
+ *
+ * @param string $mime - a mime type to get an extension for.
+ * @return string file extension
+ */
+function canvas_field_mime_type_extension($mime = NULL) {
+
+  include_once DRUPAL_ROOT . '/includes/file.mimetypes.inc';
+  $mapping = file_mimetype_mapping();
+  $mimes = array_flip($mapping['mimetypes']);
+  if (!isset($mimes[$mime])) {
+    return FALSE;
+  }
+  $extensions = array_flip($mapping['extensions']);
+
+  return isset($extensions[$mimes[$mime]]) ? $extensions[$mimes[$mime]] : FALSE;
+}
+
+
+/**
+ * API Helper to convert an  file into a valid base64 data url.
+ * Also allows daturl's to pass through and supports image styles.
+ *
+ * @param string $uri
+ * @param  string $style
+ * @return string $dataurl or FALSE if invalid.
+ */
+function canvas_field_file_dataurl($uri, $style = '') {
+  if (file_valid_uri($uri) && file_exists($uri) && empty($style)) {
+    $mime = file_get_mimetype($uri);
+    $data = base64_encode(file_get_contents($uri));
+    return 'data:' . $mime . ';base64,' . $data;
+  }
+  elseif (file_valid_uri($uri) && file_exists($uri) && !empty($style)) {
+    $file_path = file_build_uri($uri);
+    $mime = file_get_mimetype($uri);
+    $uri = image_style_path($style, $uri);
+    // check that this derivative has been made
+    if(!file_exists($uri)){
+      // create the styled derivative file
+      $loaded_style = image_style_load($style);
+      image_style_create_derivative($loaded_style, $file_path, $uri);
+    }
+    $data = base64_encode(file_get_contents($uri));
+    return 'data:' . $mime . ';base64,' . $data;
+  }
+  elseif (strstr($uri, 'data:')) {
+    return $uri;
+  }
+  return FALSE;
+}
+
+
+/**
+ * Returns the basic/required properties to build a canvas
+ * field element/widget.  Can be passed a settings array and
+ * only the unpopulated items will be filled.
+ *
+ * @return array
+ */
+function canvas_field_defaults($settings = array(), $form = FALSE) {
+  $defaults = array(
+    //@todo: move icons to CSS.
+    'icon_path' => drupal_get_path('module', 'canvas_field') . '/img/',
+    'style' => array(),
+  );
+  $settings += $defaults;
+  $style_defaults = array(
+    'height' => 300,
+    'width' => 300,
+    'image_style' => '',
+  );
+  $settings['style'] += $style_defaults;
+
+  if (!$form) {
+    $prepare_properties = array('border-width' => 'px');
+
+    foreach ($prepare_properties as $key => $suffix) {
+      if (!empty($settings['style'][$key])) {
+        $settings['style'][$key] .= $suffix;
+      }
+    }
+  }
+  return $settings;
+}

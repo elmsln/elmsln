@@ -1,0 +1,130 @@
+; Packaging information for icor
+name = "ICOR"
+description = "Interactive course object repository"
+exclusive = "1"
+core = "7.x"
+; ----------
+; Dependencies
+; ----------
+; Administration
+dependencies[] = admin_menu
+dependencies[] = admin_menu_toolbar
+; Chaos tool suite
+dependencies[] = ctools
+; Charting
+dependencies[] = google_chart_tools
+dependencies[] = google_chart_tools_views
+; Context
+dependencies[] = context
+dependencies[] = context_ui
+; Core
+dependencies[] = block
+dependencies[] = contextual
+dependencies[] = dblog
+dependencies[] = field
+dependencies[] = field_sql_storage
+dependencies[] = field_ui
+dependencies[] = file
+dependencies[] = filter
+dependencies[] = image
+dependencies[] = list
+dependencies[] = menu
+dependencies[] = node
+dependencies[] = number
+dependencies[] = options
+dependencies[] = overlay
+dependencies[] = poll
+dependencies[] = system
+dependencies[] = taxonomy
+dependencies[] = text
+dependencies[] = update
+dependencies[] = user
+; Date/Time
+dependencies[] = date
+dependencies[] = date_api
+; Entity
+dependencies[] = entity_iframe
+dependencies[] = entity_iframe_mode
+; Fields
+dependencies[] = entityreference
+dependencies[] = entityreference_dynamicselect_widget
+dependencies[] = link
+dependencies[] = makemeeting
+; ICOR
+dependencies[] = icor_helper
+; Input filters
+dependencies[] = typogrify
+dependencies[] = video_filter
+; Learning Tools Interoperability
+dependencies[] = lti_tool_provider
+dependencies[] = lti_tool_provider_og
+; Media
+dependencies[] = imce
+; Organic groups
+dependencies[] = og
+dependencies[] = og_clone
+dependencies[] = og_context
+dependencies[] = og_register
+dependencies[] = og_ui
+; Other
+dependencies[] = boxes
+dependencies[] = clone
+dependencies[] = dynamic_select
+dependencies[] = entity
+dependencies[] = libraries
+dependencies[] = masquerade
+dependencies[] = menu_breadcrumb
+dependencies[] = module_filter
+dependencies[] = restws
+dependencies[] = restws_basic_auth
+dependencies[] = strongarm
+dependencies[] = transliteration
+; Performance and scalability
+dependencies[] = entitycache
+; Quiz Core
+dependencies[] = quiz
+dependencies[] = quiz_question
+; Quiz Question
+dependencies[] = cloze
+dependencies[] = grouping_question
+dependencies[] = image_target_question
+dependencies[] = long_answer
+dependencies[] = matching
+dependencies[] = multichoice
+dependencies[] = quiz_ddlines
+dependencies[] = quiz_directions
+dependencies[] = scale
+dependencies[] = short_answer
+dependencies[] = truefalse
+; Regions
+dependencies[] = regions
+dependencies[] = regions_admin_left
+; Textbook
+dependencies[] = textbook
+; Theme Tools
+dependencies[] = delta_blocks
+; User interface
+dependencies[] = ckeditor_link
+dependencies[] = imce_wysiwyg
+dependencies[] = jquery_update
+dependencies[] = lightbox2
+dependencies[] = wysiwyg
+; Views
+dependencies[] = editableviews
+dependencies[] = eva
+dependencies[] = views
+dependencies[] = views_bulk_operations
+dependencies[] = views_simple_pager
+dependencies[] = views_timelinejs
+dependencies[] = views_ui
+dependencies[] = views_xml_backend
+; Features
+dependencies[] = features
+dependencies[] = features_override
+dependencies[] = textbook_editor
+dependencies[] = views_timelinejs_feature
+dependencies[] = cis_section
+dependencies[] = cis_service_roles
+dependencies[] = regions_admin_example
+dependencies[] = icor_interactive_player
+dependencies[] = icor_defaults

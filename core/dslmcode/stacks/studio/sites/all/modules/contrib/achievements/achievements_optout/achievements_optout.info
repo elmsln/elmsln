@@ -1,0 +1,14 @@
+name = Opt-out
+description = "Allows users to opt-out of achievements entirely."
+dependencies[] = achievements
+dependencies[] = field
+dependencies[] = options
+package = Achievements
+core = 7.x
+
+; Information added by drupal.org packaging script on 2012-10-23
+version = "7.x-1.5+4-dev"
+core = "7.x"
+project = "achievements"
+datestamp = "1350995486"
+

@@ -1,0 +1,25 @@
+diff --git a/canvas_field.admin.inc b/canvas_field.admin.inc
+index 213a1ef..3cebaa2 100644
+--- a/canvas_field.admin.inc
++++ b/canvas_field.admin.inc
+@@ -95,7 +95,7 @@ function canvas_field_widget_settings_form_passthrough($field, $instance) {
+   $form['color'] = array(
+     '#type' => 'checkbox',
+     '#title' => t('Allow Color Selection'),
+-    '#default_value' => $settings['color'],
++    '#default_value' => isset($settings['color']) ? $settings['color'] : TRUE,
+   );
+   $form['mode_start'] = array(
+     '#type' => 'select',
+diff --git a/canvas_field.module b/canvas_field.module
+index 1a5c3d7..5712930 100644
+--- a/canvas_field.module
++++ b/canvas_field.module
+@@ -527,7 +527,6 @@ function canvas_field_file_dataurl($uri, $style = '') {
+ function canvas_field_defaults($settings = array(), $form = FALSE) {
+ 
+   $defaults = array(
+-    'color' => TRUE,
+     //@todo: move icons to CSS.
+     'icon_path' => drupal_get_path('module', 'canvas_field') . '/img/',
+     'style' => array(),

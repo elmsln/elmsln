@@ -1,0 +1,300 @@
+<?php
+
+/**
+ * @file
+ * Example module for the dynamic_select.
+ */
+
+// Constants
+define('DYNAMIC_SELECT_DEFAULT_SELECT', 'User');
+define('DYNAMIC_SELECT_DEFAULT_SUBMIT', 'Search');
+define('DYNAMIC_SELECT_DEFAULT_FILTER', 'Keyword');
+define('DYNAMIC_SELECT_DEFAULT_DESCRIPTION', 'Description');
+define('DYNAMIC_SELECT_EMPTY_OPTION', 'Nothing selected');
+define('DYNAMIC_SELECT_EMPTY_VALUE', '0');
+
+/**
+ * Implements hook_menu().
+ */
+function dynamic_select_example_menu() {
+
+
+  $items['dynamicselect/example/settings'] = array(
+    'title' => 'Dynamic Select Example Settings',
+    'type' => MENU_CALLBACK,
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('dynamic_select_example_settings'),
+    'access arguments' => array(TRUE),
+  );
+
+  $items['dynamicselect/example/form/basic'] = array(
+    'title' => 'Dynamic Select Basic Example',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('dynamic_select_example_basic_form'),
+    'access arguments' => array(TRUE),
+    'type' => MENU_CALLBACK,
+  );
+
+  $items['dynamicselect/example/form/required'] = array(
+    'title' => 'Dynamic Select Example with required selection and tree',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('dynamic_select_example_required_form'),
+    'access arguments' => array(TRUE),
+    'type' => MENU_CALLBACK,
+  );
+
+  $items['dynamicselect/example/form/noselection'] = array(
+    'title' => 'Dynamic Select Example with no selection option',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('dynamic_select_example_noselection_form'),
+    'access arguments' => array(TRUE),
+    'type' => MENU_CALLBACK,
+  );
+
+  return $items;
+}
+
+/**
+ * user_relationships_manage settings page
+ */
+function dynamic_select_example_settings($form, &$form_state) {
+
+  // Get the list of applicable view-display
+  $view_options = dynamic_select_get_applicable_views();
+
+  $form['dynamic_select_example_view'] = array(
+    '#type' => 'select',
+    '#title' => t('User list view'),
+    '#description' => t('Select a view to build the list of users.'),
+    '#options' => $view_options,
+    '#default_value' => variable_get('dynamic_select_example_view', ''),
+    '#empty_value' => '',
+    '#required' => TRUE,
+    '#ajax' => array(
+      'callback' => 'ajax_dynamic_select_example_get_filters_callback',
+      'wrapper' => 'dynamic-select-filters-div',
+      //'method' defaults to replaceWith, but valid values also include
+      // append, prepend, before and after.
+      // 'method' => 'replaceWith',
+      // 'effect' defaults to none. Other valid values are 'fade' and 'slide'.
+      'progress' => array('type' => 'none'),
+    ),
+  );
+
+  $form['dynamic_select_example_filters'] = array(
+    '#type' => 'checkboxes',
+    '#title' => t('Search filters'),
+    '#prefix' => '<div id="dynamic-select-filters-div">',
+    '#suffix' => '</div>',
+    // Note: state does not work when the form is being rebuilt for an AJAX request
+  );
+
+  // An AJAX request calls the form builder function for every change.
+  // We can change how we build the form based on $form_state.
+  if (!isset($form_state['values']['dynamic_select_example_view'])) {
+
+    $filters = dynamic_select_get_filters(variable_get('dynamic_select_example_view', ''));
+
+    if ($filters === FALSE) {
+
+      // The save view or display no longer exist
+      unset($form['dynamic_select_example_view']['#default_value']);
+
+      $filters = array();
+
+      unset($form['dynamic_select_example_filters']['#default_value']);
+    }
+
+    $form['dynamic_select_example_filters']['#options'] = $filters;
+
+    // Keep the filters that were save if there are still valid ones
+    $allfilters = array_merge($filters, variable_get('dynamic_select_example_filters', array()));
+    $default_filters = array_intersect_key($allfilters, $filters);
+    $form['dynamic_select_example_filters']['#default_value'] = $default_filters;
+
+  }
+  else {
+
+    /** The variable $form_state['input'] is poorly documented. Found this thread which saved me. http://drupal.org/node/1024962
+     * Simply unsetting the form element '#default_value' as the input will overwrite it later on.
+     * Modifying the form_state['values'] does NOT work neither
+     */
+    // Make sure the 'old' selected filters which are posted do not set the filters after the view has been changed
+    unset($form_state['input']['dynamic_select_example_filters']);
+    unset($form['dynamic_select_example_filters']['#default_value']); // Reset filters
+
+    // If it has changed to another view, reset the selection
+    $form['dynamic_select_example_filters']['#options'] = dynamic_select_get_filters($form_state['values']['dynamic_select_example_view']);
+  }
+
+  if (empty($form['dynamic_select_example_filters']['#options'])) {
+
+    $form['dynamic_select_example_filters']['#description'] = t('No filter available');
+
+  }
+  else {
+
+    $form['dynamic_select_example_filters']['#description'] = t('Select filters to filter the options');
+  }
+  
+  $form['dynamic_select_example_description'] = array(
+    '#type' => 'textfield',
+    '#title' => t('User select description.'),
+    '#size' => 50,
+    '#maxlength' => 50,
+    '#default_value' => variable_get('dynamic_select_example_description', DYNAMIC_SELECT_DEFAULT_DESCRIPTION),
+    '#description' => t('Description of the widget to select a user.'),
+  );
+
+  $form['dynamic_select_example_select'] = array(
+    '#type' => 'textfield',
+    '#title' => t('User select label.'),
+    '#size' => 30,
+    '#maxlength' => 30,
+    '#default_value' => variable_get('dynamic_select_example_select', DYNAMIC_SELECT_DEFAULT_SELECT),
+    '#description' => t('Label of the widget to select a user.'),
+  );
+
+  $form['dynamic_select_example_submit'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Search button label.'),
+    '#size' => 30,
+    '#maxlength' => 30,
+    '#default_value' => variable_get('dynamic_select_example_submit', DYNAMIC_SELECT_DEFAULT_SUBMIT),
+    '#description' => t('Label of the button to search a user.'),
+  );
+
+  $form['dynamic_select_example_filter'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Text box label.'),
+    '#size' => 30,
+    '#maxlength' => 30,
+    '#default_value' => variable_get('dynamic_select_example_filter', DYNAMIC_SELECT_DEFAULT_FILTER),
+    '#description' => t('Label of the textbox to search a user.'),
+  );
+
+  return system_settings_form($form);
+}
+
+
+/**
+ * Callback for ajax submit in form element 'dynamic_select_example_view'.
+ * On an ajax submit, the form builder function is called again, then the $form
+ * and $form_state are passed to this callback function so it can select which
+ * portion of the form to send on to the client.
+ *
+ */
+function ajax_dynamic_select_example_get_filters_callback($form, &$form_state) {
+  // The form has already been submitted and updated. We can return the replaced
+  // item as it is.
+
+  return $form['dynamic_select_example_filters'];
+}
+
+/**
+ * basic form
+ */
+function dynamic_select_example_basic_form($form, &$form_state) {
+
+  $form['dynamic_select_example_element'] =  array(
+    '#type' => 'dynamic_select',
+    '#title' => variable_get('dynamic_select_example_select', DYNAMIC_SELECT_DEFAULT_SELECT),  
+    '#description' => 'Dynamic Select example description',
+    '#view_display' => variable_get('dynamic_select_example_view', ''),
+    '#filter_ids' => variable_get('dynamic_select_example_filters', array()),
+    '#submit_title' => variable_get('dynamic_select_example_submit', DYNAMIC_SELECT_DEFAULT_SUBMIT),
+    '#filter_title' => variable_get('dynamic_select_example_filter', DYNAMIC_SELECT_DEFAULT_FILTER),
+  );
+  
+ 
+  $form['dynamic_select_example_submit'] = array(
+    '#type' => 'submit',
+    '#value' => t('Submit'),
+  );
+
+  return $form;
+}
+
+/**
+ * Submit function for dynamic_select_example_basic_form
+ */
+function dynamic_select_example_basic_form_submit($form, &$form_state) {
+
+  $message = t('You selected the value @option', array('@option' => $form_state['values']['dynamic_select_example_element']));
+  
+  drupal_set_message($message);
+  
+}
+
+/**
+ * Form with required field and tree settings
+ */
+function dynamic_select_example_required_form($form, &$form_state) {
+
+  $form['dynamic_select_example_element'] =  array(
+    '#type' => 'dynamic_select',
+    '#title' => variable_get('dynamic_select_example_select', DYNAMIC_SELECT_DEFAULT_SELECT),  
+    '#description' => variable_get('dynamic_select_example_description', DYNAMIC_SELECT_DEFAULT_DESCRIPTION),
+    '#view_display' => variable_get('dynamic_select_example_view', ''),
+    '#filter_ids' => variable_get('dynamic_select_example_filters', array()),
+    '#submit_title' => variable_get('dynamic_select_example_submit', DYNAMIC_SELECT_DEFAULT_SUBMIT),
+    '#filter_title' => variable_get('dynamic_select_example_filter', DYNAMIC_SELECT_DEFAULT_FILTER),
+    '#required' => TRUE,
+  );
+  
+  $form['dynamic_select_example_submit'] = array(
+    '#type' => 'submit',
+    '#value' => t('Submit'),
+  );
+
+  return $form;
+}
+
+/**
+ * Submit function for dynamic_select_example_required_form
+ */
+function dynamic_select_example_required_form_submit($form, &$form_state) {
+
+  $select = $form_state['values']['dynamic_select_example_element'];
+
+  $message = t('You selected the required value @option', array('@option' => $form_state['values']['dynamic_select_example_element']));
+
+  drupal_set_message($message);
+}
+
+/**
+ * Form with no selection option
+ */
+function dynamic_select_example_noselection_form($form, &$form_state) {
+
+  $form['dynamic_select_example_element'] =  array(
+    '#type' => 'dynamic_select',
+    '#title' => variable_get('dynamic_select_example_select', DYNAMIC_SELECT_DEFAULT_SELECT),  
+    '#description' => variable_get('dynamic_select_example_description', DYNAMIC_SELECT_DEFAULT_DESCRIPTION),
+    '#view_display' => variable_get('dynamic_select_example_view', ''),
+    '#filter_ids' => variable_get('dynamic_select_example_filters', array()),
+    '#submit_title' => variable_get('dynamic_select_example_submit', DYNAMIC_SELECT_DEFAULT_SUBMIT),
+    '#filter_title' => variable_get('dynamic_select_example_filter', DYNAMIC_SELECT_DEFAULT_FILTER),
+    '#empty_option' => DYNAMIC_SELECT_EMPTY_OPTION,
+    '#empty_value' => DYNAMIC_SELECT_EMPTY_VALUE,
+  );
+
+  $form['dynamic_select_example_submit'] = array(
+    '#type' => 'submit',
+    '#value' => t('Submit'),
+  );
+
+  return $form;
+}
+
+/**
+ * Submit function for dynamic_select_example_noselection_form
+ */
+function dynamic_select_example_noselection_form_submit($form, &$form_state) {
+
+  $message = t('You selected the value @option', array('@option' => $form_state['values']['dynamic_select_example_element']));
+
+  drupal_set_message($message);
+}
+
+

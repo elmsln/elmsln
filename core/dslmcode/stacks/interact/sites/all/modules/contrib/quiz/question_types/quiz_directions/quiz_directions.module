@@ -1,0 +1,52 @@
+<?php
+
+/**
+ * The main file for quiz_directions.
+ *
+ * Directions are implemented as a question type. However, they do not affect the score.
+ * @file
+ */
+
+/**
+ * Implements hook_help().
+ */
+function quiz_directions_help($path, $args) {
+  if ($path == 'admin/help#quiz_directions') {
+    return t('Provides directions which can be inserted alongside questions in a quiz.');
+  }
+}
+
+/**
+ * Implements hook_quiz_question_info().
+ */
+function quiz_directions_quiz_question_info() {
+  return array(
+    'quiz_directions' => array(
+      'name' => t('Quiz directions'),
+      'description' => t('Quiz directions allow you to drop in directions anywhere in a quiz. You can also use them to insert a confirmation step at the end of the quiz.'),
+      'question provider' => 'QuizDirectionsQuestion',
+      'response provider' => 'QuizDirectionsResponse',
+      'module' => 'quiz_question', // All wrapper functions are in that module.
+    ),
+  );
+}
+
+/**
+ * Implements hook_config().
+ */
+function quiz_directions_config() {
+  return FALSE;
+}
+
+/**
+ * Implements hook_theme().
+ */
+function quiz_directions_theme() {
+  return array(
+    'quiz_directions_answering_form' => array(
+      'render element' => 'form',
+      'path' => drupal_get_path('module', 'quiz_directions') . '/theme',
+      'template' => 'quiz-directions-answering-form',
+    ),
+  );
+}

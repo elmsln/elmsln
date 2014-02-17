@@ -1,0 +1,25 @@
+name = Dynamic Select
+description = "This module provide an ajax form composite element based on a select element populated by a view"
+package = Other
+core = 7.x
+
+dependencies[] = views
+
+files[] = views/dynamic_select_plugin_display.inc
+files[] = views/dynamic_select_plugin_style.inc
+files[] = views/dynamic_select_plugin_row_fields.inc
+files[] = dynamic_select.test
+
+version = "7.x-1.0"
+core = "7.x"
+project = "dynamic_select"
+datestamp = "1273827310"
+
+
+
+; Information added by drupal.org packaging script on 2013-04-06
+version = "7.x-1.0"
+core = "7.x"
+project = "entityreference_dynamicselect_widget"
+datestamp = "1365259212"
+

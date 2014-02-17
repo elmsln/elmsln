@@ -1,0 +1,147 @@
+@CHARSET "UTF-8";
+
+/**
+* This container contains the img and svg "panel"
+* The ID is set by javascript.
+*/
+div.ddlines-container {
+	position: relative;
+	margin-top: 5px;
+	border: 3px solid #AAA;
+	padding: 0 !important;
+}
+div.ddlines-container > img {
+	display: none;
+	visibility: hidden;
+}
+ 
+/**
+* The feedback pane for the quiz taker
+*/
+#quiz-ddlines-feedback {
+	position: absolute;
+	top: 100px;
+	right: 0;
+	left: 0;
+	width: 200px;
+	background-color: white;
+	margin: 0px auto;
+	border: 8px double;
+	vertical-align: center;
+	padding: 10px;
+	z-index: 100000;
+}
+
+span#feedback-correct,
+span#feedback-wrong {
+	display: inline-block;
+	font-weight: normal;
+	font-size: 90%;
+	width: 160px;	
+	color: #777;
+	position: relative;
+	top: 3px;
+}
+
+span#feedback-wrong {
+	clear: both;
+}
+
+label#settings-for {
+	font-size: 110%;
+	max-width: 300px;
+	display: inline-block;
+	background-color: #EEE;
+	padding: 0px 5px;
+}
+
+/**
+* The editor toolpane
+*/
+#quiz-ddlines-toolpane {
+	background-color: white;
+	border-style: double;
+	border-width: 5px;
+	width: 400px;
+	margin: 0px auto;
+	position: relative;
+	bottom: 0px;
+	padding: 5px 10px 10px 10px;
+}
+
+#quiz-ddlines-feedback-pane > input.feedback {
+	margin-right: 5px;
+	width: 150px;
+}
+
+#quiz-ddlines-toolpane > #quiz-ddlines-buttonpane {
+	position: absolute;
+	right: 3px;
+	top: 11px;
+}
+
+#quiz-ddlines-buttonpane > input {
+	float: left;
+	clear: left;
+	width: 100%;
+	height: 20px;
+	margin-bottom: 3px;
+	font-size: 90%;
+	padding-top: 0px;
+}
+
+#quiz-ddlines-toolpane > #colorwheel-container {
+	background-color: white;
+	border: 5px double black;
+	position: absolute;
+	z-index: 1000;
+	display: none; /* Hide by default */
+	top: -165px;
+	right: 5px;
+	border-bottom: none;
+	padding: 5px;
+}
+#quiz-ddlines-feedback-pane > #feedback-disabled {
+	position: absolute;
+	top: 37px;
+	height: 42px;
+	background-color: #EEE;
+	text-align: center;
+	vertical-align: middle;
+	opacity: 0.8;
+	filter: alpha(opacity=80);
+	width: 318px;
+}
+#quiz-ddlines-feedback-pane > #feedback-disabled > p {
+	margin-top: 13px;
+	font-size: 150%;
+    font-weight: bold;
+}
+
+/**
+* The response
+*/
+.quiz-ddlines-icon-cell {
+  width: 32px;
+  padding: 0 5px;
+}
+.quiz-ddlines-icon {
+  display: inline-block;
+  width: 32px;
+  height: 32px;
+  background: url(images/icons.png) no-repeat;
+}
+.quiz-ddlines-icon.wrong {
+  background-position: -32px 0;
+}
+.quiz-ddlines-icon.no-answer {
+  background-position: -64px 0;
+}
+#quiz-report-form .icon-descriptions div {
+  margin-bottom: 5px;
+}
+#quiz-report-form .icon-descriptions img {
+  position: relative;
+  top: 3px;
+  margin-right: 5px;
+}

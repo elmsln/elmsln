@@ -1,0 +1,4 @@
+09 Spetembre 2012: Change API. Modify test accordingly
+30 September 2012: Replace array_replace with array_merge to ensure compatibility with PHP < 5.3
+14 October 2012: Make dynamic select a form elememt
+06 April 2012: Do not display button and textfield elements if no filters

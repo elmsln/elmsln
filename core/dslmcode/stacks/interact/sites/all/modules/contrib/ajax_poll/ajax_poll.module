@@ -1,0 +1,98 @@
+<?php
+// $Id: ajax_poll.module,v 1.4 2011/01/28 01:32:42 quicksketch Exp $
+
+/**
+ * @file
+ * Enables voting on polls without reloading the page.
+ */
+
+/**
+ * Implements hook_menu().
+ */
+function ajax_poll_menu() {
+  return array(
+    'poll/ajax/vote/%node/%/%' => array(
+      'type' => MENU_CALLBACK,
+      'page callback' => 'ajax_poll_callback',
+      'page arguments' => array(2, 3, 4, 5),
+      'access arguments' => array('vote on polls'),
+    ),
+    'poll/ajax/cancel/%node/%/%' => array(
+      'type' => MENU_CALLBACK,
+      'page callback' => 'ajax_poll_callback',
+      'page arguments' => array(2, 3, 4, 5),
+      'access arguments' => array('cancel own vote'),
+    ),
+  );
+}
+
+/**
+ * Implements hook_form_alter().
+ */
+function ajax_poll_form_alter(&$form, $form_state, $form_id) {
+  if (in_array($form_id, array('poll_view_voting', 'poll_cancel_form'))) {
+    $form['#attached']['js'][] = 'misc/jquery.form.js';
+    $form['#attached']['js'][] = drupal_get_path('module', 'ajax_poll') . '/ajax_poll.js';
+
+    $node = isset($form['#node']) ? $form['#node'] : node_load($form['#nid']);
+
+    $teaser = (int) isset($node->teaser);
+    $block = (int) !empty($form['#block']);
+    $action = ($form_id == 'poll_view_voting') ? 'vote' : 'cancel';
+
+    $form['ajax_url'] = array(
+      '#type' => 'hidden',
+      '#value' => url('poll/ajax/' . $action . '/' . $node->nid . '/' . $teaser . '/' . $block),
+    );
+    $form['ajax_text'] = array(
+      '#type' => 'hidden',
+      '#value' => ($action == 'vote') ? t('Voting...') : t('Canceling...'),
+    );
+
+    // Add the AJAX Poll class to the form.
+    if (empty($form['#attributes']['class'])) {
+      $form['#attributes']['class'] = array('ajax-poll');
+    }
+    else {
+      $form['#attributes']['class'][] = 'ajax-poll';
+    }
+    $form['#attributes']['class'][] = ' ajax-' . $action;
+
+    // Add submit handler to supress redirection on AJAX requests.
+    if ($action == 'vote') {
+      $form['vote']['#submit'][] = 'ajax_poll_submit';
+    }
+    else {
+      $form['actions']['submit']['#submit'][] = 'ajax_poll_submit';
+    }
+  }
+}
+
+/**
+ * Form API #submit handler. Disable redirects if doing an AJAX vote.
+ */
+function ajax_poll_submit(&$form, &$form_state) {
+  if (strpos($_GET['q'], 'poll/ajax') === 0) {
+    $form_state['redirect'] = FALSE;
+  }
+}
+
+/**
+ * Menu callback for poll/ajax.
+ */
+function ajax_poll_callback($type, $node, $teaser, $block) {
+  // Call poll_view to trigger the current submit handlers.
+  poll_view($node, 'full');
+
+  // Reset POST and the $node so that we get fresh copies.
+  unset($_POST);
+  $node = node_load($node->nid, NULL, TRUE);
+
+  $view_mode = $teaser ? 'teaser' : 'full';
+  $poll = $block ? poll_block_latest_poll_view($node) : poll_view($node, $view_mode);
+  $status = count(drupal_get_messages('error', FALSE)) == 0;
+  $messages = theme('status_messages');
+  $output = drupal_render($poll->content);
+
+  drupal_json_output(array('status' => $status, 'messages' => $messages, 'output' => $output));
+}

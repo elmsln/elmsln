@@ -1,0 +1,231 @@
+<?php
+
+/**
+ * Implement hook_field_schema().
+ */
+function radioactivity_field_schema($field) {
+  $columns = array();
+  $indexes = array();
+  if ($field['type'] == RADIOACTIVITY_FIELD_TYPE) {
+    $columns = array(
+      RADIOACTIVITY_FIELD_ENERGY => array(
+        'type' => 'float',
+        'not null' => FALSE,
+      ),
+      RADIOACTIVITY_FIELD_TIMESTAMP => array(
+        'type' => 'int',
+        'not null' => FALSE,
+      ),
+    );
+    $indexes = array('energy' => array(RADIOACTIVITY_FIELD_ENERGY));
+  }
+  return array('columns' => $columns, 'indexes' => $indexes);
+}
+
+/**
+ * Implements hook_install().
+ */
+function radioactivity_install() {}
+
+/**
+ * Implements hook_uninstall().
+ */
+function radioactivity_uninstall() {
+  $vars = array(
+    'radioactivity_checksum_salt',
+    'radioactivity_flood_protection',
+    'radioactivity_flood_timeout',
+    'radioactivity_memcached_host',
+    'radioactivity_memcached_port',
+    'radioactivity_drupal_root',
+    'radioactivity_last_cron_timestamp',
+  );
+
+  foreach ($vars as $v) {
+    variable_del($v);
+  }
+}
+
+/**
+ * Implements hook_schema.
+ */
+function radioactivity_schema() {
+  $schema = array();
+
+  $schema['radioactivity_deferred_incidents'] = array(
+    'description' => 'Deferred incident storage table for radioactivity',
+    'fields' => array(
+      'id' => array(
+        'type' => 'serial',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'description' => 'Row ID',
+      ),
+      'data' => array(
+        'type' => 'varchar',
+        'length' => 1000,
+        'not null' => TRUE,
+        'description' => 'Serialized data',
+      ),
+    ),
+    'primary key' => array('id'),
+  );
+
+
+  $schema['radioactivity_decay_profile'] = array(
+    'description' => 'Radioactivity decay profiles',
+    'export' => array(
+      'key' => 'machine_name',
+      'key name' => 'Name',
+      'primary key' => 'machine_name',
+      'identifier' => 'radioactivity_decay_profile',
+      // Function hook name.
+      'default hook' => 'default_radioactivity_decay_profile',
+      'api' => array(
+        'owner' => 'radioactivity',
+        // Base name for api include files.
+        'api' => 'radioactivity_decay_profile',
+        'minimum_version' => 1,
+        'current_version' => 1,
+      ),
+    ),
+    'fields' => array(
+      'machine_name' => array(
+        'type' => 'varchar',
+        'length' => 128,
+        'not null' => TRUE,
+        'description' => 'Machine name for the profile',
+      ),
+      'name' => array(
+        'type' => 'varchar',
+        'length' => 128,
+        'not null' => TRUE,
+        'description' => 'Name for the profile',
+      ),
+      'description' => array(
+        'type' => 'text',
+        'not null' => FALSE,
+        'description' => 'Description',
+      ),
+      'enable_decay' => array(
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => '1',
+        'description' => 'Is the energy decay active',
+      ),
+      'granularity' => array(
+        'type' => 'varchar',
+        'length' => 128,
+        'not null' => TRUE,
+        'default' => '60',
+        'description' => 'Accuracy of the modelling',
+      ),
+      'half_life' => array(
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => "21600",
+        'description' => 'Half life',
+      ),
+      'cut_off' => array(
+        'type' => 'float',
+        'size' => 'big',
+        'not null' => TRUE,
+        'default' => "0.1",
+        'description' => 'Cut off',
+      ),
+      'storage' => array(
+        'type' => 'varchar',
+        'length' => 128,
+        'not null' => TRUE,
+        'default' => 'live',
+        'description' => 'Storage type for the profile',
+      ),
+    ),
+    'primary key' => array('machine_name'),
+  );
+
+
+  $schema['radioactivity_flood_map'] = array(
+    'description' => 'Maps a source to a time - used to keep track of incidents from a source',
+    'fields' => array(
+      'source' => array(
+        'type' => 'char',
+        'length' => '32',
+        'not null' => TRUE,
+        'description' => 'Source',
+      ),
+      'time' => array(
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'description' => 'Unix timestamp',
+      ),
+    ),
+    'indexes' => array('main' => array('source')),
+  );
+
+
+  return $schema;
+}
+
+/**
+ * Add a new field for radioactivity_decay_profile, and drop some variables
+ */
+function radioactivity_update_7200() {
+
+  variable_set("radioactivity_checksum_salt", variable_get("radioactivity_ajax_salt", "undefined"));
+  variable_del("radioactivity_ajax_salt");
+  variable_del("radioactivity_ajax_callback_path");
+
+  db_add_field('radioactivity_decay_profile', 'enable_decay', array(
+      'type' => 'int',
+      'not null' => TRUE,
+      'default' => '1',
+      'description' => 'Is the energy decay active',
+    ));
+}
+
+/**
+ * Add a field for language in radioactivity_deferred_storage
+ */
+function radioactivity_update_7201() {
+
+  db_add_field('radioactivity_deferred_storage', 'language', array(
+      'type' => 'varchar',
+      'length' => 10,
+      'not null' => TRUE,
+      'default' => LANGUAGE_NONE,
+      'description' => 'Langauge of the field and',
+    ));
+}
+
+/**
+ * Drop old radioactivity_deferred_storage and add new one
+ */
+function radioactivity_update_7202() {
+  $table_name = 'radioactivity_deferred_incidents';
+  $table = drupal_get_schema_unprocessed('radioactivity', $table_name);
+  db_create_table($table_name, $table);
+  db_drop_table('radioactivity_deferred_storage');
+}
+
+/**
+ * Add a table for incident mapping (flood protection)
+ */
+function radioactivity_update_7203() {
+  $table_name = 'radioactivity_flood_map';
+  $table = drupal_get_schema_unprocessed('radioactivity', $table_name);
+  db_create_table($table_name, $table);
+}
+
+/**
+ * Update existing decay profiles which have decaying enabled to Advanced mode
+ */
+function radioactivity_update_7204() {
+  $table_name = 'radioactivity_decay_profile';
+  $update = db_update($table_name)
+    ->fields(array('enable_decay' => 2))
+    ->condition('enable_decay', 1, '=')
+    ->execute();
+}

@@ -1,0 +1,133 @@
+<?php
+/**
+ * @file
+ * Makes the 'jQuery Masonry' plugin available to Drupal as a library.
+ */
+
+/**
+ * Implements hook_libraries_info().
+ */
+function masonry_libraries_info() {
+  $libraries['masonry'] = array(
+    'name' => 'jQuery Masonry',
+    'vendor url' => 'http://masonry.desandro.com/',
+    'download url' => 'http://masonry.desandro.com/',
+    'version arguments' => array(
+      'file' => 'jquery.masonry.min.js',
+      // 2.x: jQuery Masonry v2.1.05
+      'pattern' => '/jQuery\s+Masonry\s+v?([0-9\.]+)/',
+      'lines' => 2,
+      'cols' => 30,
+    ),
+    'files' => array(
+      'js' => array(
+        'jquery.masonry.min.js',
+      ),
+    ),
+  );
+
+  return $libraries;
+}
+
+/**
+ * Get default Masonry options.
+ *
+ * @return
+ *   An associative array of default options for the jQuery Masonry plugin.
+ *   Contains:
+ *   - masonry_width_unit: The unit of measurement used for grid column widths
+ *     (pixels or percentages).
+ *   - masonry_width: The width of each grid column.
+ *   - masonry_animated: Whether or not animations are enabled for the grid.
+ *   - masonry_animated_duration: The duration of animations in milliseconds.
+ *   - masonry_resizable: Whether or not the grid is re-arranged when the
+ *     container is resized.
+ *   - masonry_center: Whether or not the grid is centered in the container.
+ *   - masonry_gutter: The amount of spacing between grid columns in pixels.
+ *   - masonry_rtl: Whether or not grid items are displayed from right-to-left.
+ */
+function masonry_default_options() {
+  return array(
+    'masonry_width_unit' => 'px',
+    'masonry_width' => '200',
+    'masonry_animated' => 1,
+    'masonry_animated_duration' => '500',
+    'masonry_resizable' => 1,
+    'masonry_center' => 0,
+    'masonry_gutter' => '0',
+    'masonry_rtl' => 0,
+  );
+}
+
+/**
+ * Add Masonry options to an existing form.
+ *
+ * @param $form
+ *   A form array to add Masonry options to.
+ * @param $default_values
+ *   An array from which default form values can be obtained. Generally the same
+ *   place form values are saved.
+ */
+function masonry_options_form(&$form, $default_values) {
+  $form['masonry_width_unit'] = array(
+    '#type' => 'radios',
+    '#title' => t('Column width unit'),
+    '#description' => t("The unit of measurement used for grid column widths."),
+    '#options' => array(
+      'px' => t('Pixels'),
+      '%' => t("Percentage (of the container's width)"),
+    ),
+    '#default_value' => $default_values['masonry_width_unit'],
+  );
+  $form['masonry_width'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Column width'),
+    '#description' => t("The width of each grid column."),
+    '#default_value' => $default_values['masonry_width'],
+    '#size' => 5,
+    '#maxlength' => 4,
+  );
+  $form['masonry_animated'] = array(
+    '#type' => 'checkbox',
+    '#title' => t('Enable animations'),
+    '#description' => t("When enabled, grid rearrangements are animated when the container is resized (see 'Make grid resizable' below)."),
+    '#default_value' => $default_values['masonry_animated'],
+  );
+  $form['masonry_animated_duration'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Duration'),
+    '#description' => t("The duration of the animation in milliseconds (1000 ms = 1 sec)."),
+    '#default_value' => $default_values['masonry_animated_duration'],
+    '#size' => 5,
+    '#maxlength' => 4,
+    '#field_suffix' => t('ms'),
+  );
+  $form['masonry_resizable'] = array(
+    '#type' => 'checkbox',
+    '#title' => t('Make grid resizable'),
+    '#description' => t("When enabled, the grid will automatically rearrange itself if the container is resized."),
+    '#default_value' => $default_values['masonry_resizable'],
+  );
+  $form['masonry_center'] = array(
+    '#type' => 'checkbox',
+    '#title' => t('Center grid'),
+    '#description' => t("Centers the grid in the container element."),
+    '#default_value' => $default_values['masonry_center'],
+  );
+  $form['masonry_gutter'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Gutter width'),
+    '#description' => t("The amount of spacing between each grid column in pixels."),
+    '#default_value' => $default_values['masonry_gutter'],
+    '#size' => 5,
+    '#maxlength' => 3,
+    '#field_suffix' => t('px'),
+  );
+  $form['masonry_rtl'] = array(
+    '#type' => 'checkbox',
+    '#title' => t('RTL layout'),
+    '#description' => t("Displays grid items from right-to-left (for supporting languages like Hebrew and Arabic)."),
+    '#default_value' => $default_values['masonry_rtl'],
+  );
+}
+

@@ -1,0 +1,423 @@
+<?php
+
+/**
+ * @file
+ * Add a widget and a formater to the entityreference field.
+ */
+
+// Character used for tokens in the drop down format set in settings
+define('ENTITY_REFERENCE_DYNAMICSELECT_WIDGET_SUFFIX', '_dynamicselect');
+define('ENTITY_REFERENCE_DYNAMICSELECT_WIDGET_SELECT', 'User');
+define('ENTITY_REFERENCE_DYNAMICSELECT_WIDGET_SUBMIT', 'Filter');
+define('ENTITY_REFERENCE_DYNAMICSELECT_WIDGET_FILTER', 'Keyword');
+// Any non numeric value is considered as empty in entity_reference. 
+// See entityreference_field_is_empty function in entityrefeence.module
+define('ENTITY_REFERENCE_DYNAMICSELECT_WIDGET_EMPTY_VALUE', 'empty');
+
+/**
+ * Implements hook_field_widget_info().
+ */
+function entityreference_dynamicselect_widget_field_widget_info() {
+  $widgets['entityreference_dynamicselect_widget'] = array(
+    'label' => t('Dynamic select'),
+    'description' => t('An advanced widget allowing to select an entity using a select populated from a view.'),
+    'field types' => array('entityreference'),
+    'settings' => array(
+      'view' => '',
+      'filters' => array(),
+      'select' => ENTITY_REFERENCE_DYNAMICSELECT_WIDGET_SELECT,
+      'submit' => ENTITY_REFERENCE_DYNAMICSELECT_WIDGET_SUBMIT,
+      'filter' => ENTITY_REFERENCE_DYNAMICSELECT_WIDGET_FILTER,
+    ),
+    'behaviors' => array(
+      'multiple values' => FIELD_BEHAVIOR_DEFAULT, // One widget, one value
+      'default value' => FIELD_BEHAVIOR_NONE,
+    ),
+  );
+
+  return $widgets;
+}
+
+/**
+ * Implements hook_field_widget_settings_form().
+ */
+function entityreference_dynamicselect_widget_field_widget_settings_form($field, $instance) {
+
+  $form = array();
+
+  $widget = $instance['widget'];
+  $settings = $widget['settings'];
+
+  $target_type = $field['settings']['target_type'];
+  $info = entity_get_info($target_type);
+  $target_base_table = $info['base table'];
+
+  if ($widget['type'] == 'entityreference_dynamicselect_widget') {
+
+    // Get the list of applicable views
+    $view_options = dynamic_select_get_applicable_views($target_base_table);
+
+    if (array_key_exists($settings['view'], $view_options)) {
+
+      $default_view = $settings['view'];
+
+      $filters = dynamic_select_get_filters($default_view);
+
+      if (empty($filters)) {
+
+        $default_filters = array();
+      }
+      else {
+
+        $allfilters = array_merge($filters, $settings['filters']);
+
+        $default_filters = array_intersect_key($allfilters, $filters);
+      }
+    }
+    else {
+
+      $default_view = '';
+      $filters = array();
+      $default_filters = array();
+    }
+
+    $form['view'] = array(
+      '#type' => 'select',
+      '#title' => t('Entity list view'),
+      '#description' => t('Select a view to build the list of entities.'),
+      '#options' => $view_options,
+      // Do not set the #default_value to '' as it prevent the automatic addition of -Select- option when required field 
+      '#default_value' => !empty($default_view) ? $default_view : NULL,
+      '#required' => TRUE,
+      '#empty_value' => '',
+      '#element_validate' => array('_entityreference_dynamicselect_widget_validate_settings'),
+      '#prefix' => '<div id="entityreference-dynamicselect-widget-view-div">',
+      '#suffix' => '</div>',
+      '#ajax' => array(
+        'callback' => 'ajax_entityreference_dynamicselect_widget_get_filters_callback',
+        'wrapper' => 'entityreference-dynamicselect-widget-div',
+        //'method' defaults to replaceWith, but valid values also include
+        // append, prepend, before and after.
+        // 'method' => 'replaceWith',
+        // 'effect' defaults to none. Other valid values are 'fade' and 'slide'.
+        'progress' => array('type' => 'throbber'),
+      ),
+      '#limit_validation_errors' => array(), // Setting this property clear the form_state['values'] in the form building function
+    );
+
+    $form['filters'] = array(
+      '#type' => 'checkboxes',
+      '#title' => t('View filters'),
+      '#options' => $filters,
+      '#default_value' => $default_filters,
+      '#prefix' => '<div id="entityreference-dynamicselect-widget-div">',
+      '#suffix' => '</div>',
+      // Note: state does not work when the form is being rebuilt for an AJAX request
+    );
+
+    $form['submit'] = array(
+      '#type' => 'textfield',
+      '#title' => t('Dynamic select button label.'),
+      '#size' => 30,
+      '#maxlength' => 30,
+      '#default_value' => $settings['submit'],
+      '#description' => t('Label of the button.'),
+    );
+
+    $form['filter'] = array(
+      '#type' => 'textfield',
+      '#title' => t('Text box label.'),
+      '#size' => 30,
+      '#maxlength' => 30,
+      '#default_value' => $settings['filter'],
+      '#description' => t('Label of the textbox.'),
+    );
+
+    $layouts = get_entityreference_dynamicselect_widget_layouts();
+
+    $layouts_options = array();
+
+    // Display only the file name
+    foreach ($layouts as $key => $name) {
+
+      $layouts_options[$key] = $key;
+    }
+
+    $form['layout'] = array(
+      '#type' => 'select',
+      '#title' => t('Layout of the widget'),
+      '#description' => t('Define the position of the form elements of the widget.'),
+      '#options' => $layouts_options,
+      '#empty_option' => t('Default'),
+      '#default_value' => isset($settings['layout']) ? $settings['layout'] : NULL,
+    );
+
+    if (module_exists('i18n_string')) {
+
+      $i18n_message = t('<br />In the source language <em>@stringslang</em>.<br />See <a href="@stringsconf">internationalization strings configuration</a>.',
+        array('@stringslang' => i18n_string_source_language(), '@stringsconf' => url('admin/config/regional/i18n/strings')));
+
+      $form['submit']['#description'] .= $i18n_message;
+      $form['filter']['#description'] .= $i18n_message;
+    }
+  }
+
+  return $form;
+}
+
+/**
+ * Implements hook_form_FORM_ID_alter(): field_ui_field_edit_form (field instance settings form) ().
+ * Add our options to field settings forms.
+ */
+function entityreference_dynamicselect_widget_form_field_ui_field_edit_form_alter(&$form, &$form_state, $form_id) {
+
+  $field = $form['#field'];
+
+  $instance = $form['#instance'];
+
+  if ( ($instance['widget']['type'] == 'entityreference_dynamicselect_widget') && ($field['type'] == 'entityreference') ) {
+
+    // The entire settings form for entityreference is generated through the process function. See entityreference_field_settings_form
+    // So add our own processing after it.
+    // The form alter function are called before the function specified by  #process
+    $form['field']['settings']['#process'][] = '_entityreference_dynamicselect_widget_alter_ajax';
+
+    /** Used to limit cardinality to 1 when multiple cardinality was not working
+     $form['field']['cardinality']['#default_value'] = 1;
+     $form['field']['cardinality']['#description'] = t('The selected widget only support a cardinality of 1');
+     $form['field']['cardinality']['#disabled'] = TRUE;
+     */
+    // Strangely for a AJAX POST from the target_type widget, $form_state['values'] is empty whereas it is set for the instance widget view settings
+    // So we cannot use the test on "isset($form_state['values']" to detect a POST as we do traditionally
+    // and we have to look at $form_state['input'] instead
+    // Might change in the future. So I kept the test on "isset($form_state['values']" below for the AJAX call from the widget settings
+    // despite I could use empty($form_state['input'] for everything
+    if (!empty($form_state['input'])) {
+
+      $target_type = $form_state['input']['field']['settings']['target_type'];
+
+      $info = entity_get_info($target_type);
+      $target_base_table = $info['base table'];
+
+      // Get the list of applicable views
+      $view_options = dynamic_select_get_applicable_views($target_base_table);
+
+      // This will be ignored when the POST is from a change of views. Only the filters is modified by the AJAX call
+      $form['instance']['widget']['settings']['view']['#options'] =  $view_options;
+      $form['instance']['widget']['settings']['view']['#default_value'] = '';
+
+      // The only way I found to know if the AJAX call is coming from Entity View List element or Target Type element
+      if ($form_state['triggering_element']['#title'] == $form['instance']['widget']['settings']['view']['#title']) {
+        $selected_view = $form_state['input']['instance']['widget']['settings']['view'];
+      }
+      else {
+        $selected_view = '';
+      }
+
+      // If it has changed to another view, reset the selection
+      $form['instance']['widget']['settings']['filters']['#options'] = dynamic_select_get_filters($selected_view);
+      unset($form['instance']['widget']['settings']['filters']['#default_value']);
+
+      // Make sure the value posted doesn't not set back the view to the saved one
+      //unset($form_state['input']['instance']['widget']['settings']['view']);
+      unset($form_state['input']['instance']['widget']['settings']['filters']);
+    }
+
+    if (empty($form['instance']['widget']['settings']['filters']['#options'])) {
+
+      $form['instance']['widget']['settings']['filters']['#description'] = t('No filter available');
+
+    }
+    else {
+
+      $form['instance']['widget']['settings']['filters']['#description'] = t('Select filters to filter the list of entities');
+    }
+
+    // Add specific submit function to save translations
+    $form['#submit'][] = '_entityreference_dynamicselect_widget_submit';
+  }
+}
+
+/**
+ * Make the widget configurable texts translatable
+ */
+function _entityreference_dynamicselect_widget_submit($form, $form_state) {
+
+  // Reuse 'fields' text group
+  $context = 'field:' . $form['#field']['field_name'] . ':entityreference_dynamicselect_widget:';
+
+  if (module_exists('i18n_string')) {
+
+    i18n_string_update($context . 'filter', $form_state['values']['instance']['widget']['settings']['filter']);
+    i18n_string_update($context . 'submit', $form_state['values']['instance']['widget']['settings']['submit']);
+  }
+}
+
+/**
+ * Modify Ajax behaviour of entity type selection in order to reset the list of view for the widget
+ * This function is called after the first #process function that create the field settings form element
+ */
+function _entityreference_dynamicselect_widget_alter_ajax($form, $form_state) {
+
+  // Set a prefix and a suffix to be able to use ajax command. The default entityreference ajax processing use the element #ids
+  // generated by Drupal but this id is increment at each ajax call ('edit-field-settings' initially then 'edit-field-settings--2' etc...)
+  // $form is a 'container' element created in function entityreference_field_settings_form which implement Implements hook_field_settings_form()
+  // The container process function creates the sub element such as 'target_type'
+  // The ajax call replace the entire 'container' content
+  // Note: the increment of id is not an issue when using the 'wrapper' ajax way which is used in entity reference
+  $form['#prefix'] = '<div id="entityreference-dynamicselect-widget-target-type-div">';
+  $form['#suffix'] = '</div>';
+
+  // We overwrite the Ajax processing callback function and replace it with our own. We do keep the ['ajax']['element'] as it is used by the ajax call 
+  $form['target_type']['#ajax']['callback'] = 'entityreference_dynamicselect_widget_alter_target_ajax_callback';
+  $form['target_type']['#ajax']['wrapper'] = NULL; // Remove wrapper as we use the #prefix and #suffix set previously  
+
+  // Hide the settings that are not used by this widget. Please note those settings are field settings because there are used
+  // by all the widget provide by entity reference
+  $form['handler']['#access'] = FALSE;
+
+  $form['handler_submit']['#access'] = FALSE;
+
+  $form['handler_settings']['#access'] = FALSE;
+
+  return $form;
+}
+
+/**
+ * Reproduce the ajax behaviour of the target_type select and add the reset of the selected view
+ */
+function entityreference_dynamicselect_widget_alter_target_ajax_callback($form, $form_state) {
+
+  // The entity entityreference_settings_ajax call entityreference_settings_ajax which modify the $form variable by reference
+  // So we need to get everything from the form before calling it
+  $rendered_view = drupal_render($form['instance']['widget']['settings']['view']);
+
+  $rendered_filters = drupal_render($form['instance']['widget']['settings']['filters']);
+
+  // Use the selector we added to get around the fact that entity reference use Drupal id# which are incremented at each ajax call
+  $selector_target_type = '#' . 'entityreference-dynamicselect-widget-target-type-div';
+
+  // Get the element returned by the ajax call
+  $field_settings = entityreference_settings_ajax($form, $form_state);
+
+  $commands = array();
+
+  $commands[] = ajax_command_replace($selector_target_type, drupal_render($field_settings));
+
+  $commands[] = ajax_command_replace('#entityreference-dynamicselect-widget-view-div', $rendered_view);
+
+  $commands[] = ajax_command_replace('#entityreference-dynamicselect-widget-div', $rendered_filters);
+  
+  return array('#type' => 'ajax', '#commands' => $commands);
+}
+
+/**
+ * Validate the widget setting form by checking the selected view uses the same base table as the entity
+ */
+function _entityreference_dynamicselect_widget_validate_settings($element, &$form_state) {
+
+  $view = $form_state['values']['instance']['widget']['settings']['view'];
+
+  // Check the view set in settings is a valid one considering the base table of the entity
+  if ( $view == '') {
+    form_error($element, t("No view has been selected for the dynamic select widget."));
+  }
+}
+
+/**
+ * Callback for ajax submit in form element 'view'.
+ * On an ajax submit, the form builder function is called again, then the $form
+ * and $form_state are passed to this callback function so it can select which
+ * portion of the form to send on to the client.
+ *
+ */
+function ajax_entityreference_dynamicselect_widget_get_filters_callback($form, &$form_state) {
+  // The form has already been submitted and updated. We can return the replaced
+  // item as it is.
+
+  return $form['instance']['widget']['settings']['filters'];
+}
+
+/**
+ * Implements hook_field_widget_form().
+ */
+function entityreference_dynamicselect_widget_field_widget_form(&$form, &$form_state, $field, $instance, $langcode, $items, $delta, $element) {
+
+  $widget = $instance['widget'];
+  
+  if ($widget['type'] == 'entityreference_dynamicselect_widget') {
+
+    $field_name = $field['field_name'];
+
+    $required = $instance['required'];
+
+    $field_language = $element['#language'];
+
+    $entity_type = $field['settings']['target_type'];
+
+    $settings = $widget['settings'];
+    
+    // The view hasn't been selected yet, abort.
+    if (empty($settings['view'])) {
+      return;
+    }
+
+    $layouts = get_entityreference_dynamicselect_widget_layouts();
+
+    // Dynamic select settings
+    $element += array(
+      '#type' => 'dynamic_select',
+      '#title' => $instance['label'],
+      '#description' => $instance['description'],
+      '#view_display' => $settings['view'],
+      '#filter_ids' => $settings['filters'],
+      '#submit_title' => _entityreference_dynamicselect_widget_translate($field_name, 'submit', $settings['submit']),
+      '#filter_title' => _entityreference_dynamicselect_widget_translate($field_name, 'filter', $settings['filter']),
+      '#default_value' => isset($items[$delta]['target_id']) ? $items[$delta]['target_id'] : NULL,
+      '#required' => $required,
+      '#empty_value' => ENTITY_REFERENCE_DYNAMICSELECT_WIDGET_EMPTY_VALUE, 
+      '#attached' => empty($settings['layout']) ? NULL : array('css' => array($layouts[$settings['layout']])),
+    );
+  }
+
+  return array('target_id' => $element);
+}
+
+/**
+ * Helper function for translation
+ */
+function _entityreference_dynamicselect_widget_translate($field_name, $item_name, $input) {
+
+  $context = 'field:' . $field_name . ':entityreference_dynamicselect_widget:' . $item_name;
+
+  if (module_exists('i18n_string')) {
+
+    return i18n_string_translate($context, $input);
+
+  }
+  else {
+
+    return $input;
+  }
+}
+
+/*
+ * Helper function to list the layout css files in css folder
+ */
+function get_entityreference_dynamicselect_widget_layouts() {
+
+  $layouts = array();
+
+  $dir = drupal_get_path('module', 'entityreference_dynamicselect_widget') . '/css';
+
+  $css_files = file_scan_directory($dir, '/.*\.css$/', array('nomask' => '/(\.\.?|CVS)$/', 'key' => 'name', 'min_depth' => 0, 'recurse' => FALSE));
+
+  foreach ($css_files as $key => $file) {
+
+    $layouts[$key] = $file->uri;
+  }
+
+  return $layouts;
+}
+
+

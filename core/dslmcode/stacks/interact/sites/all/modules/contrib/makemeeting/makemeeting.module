@@ -1,0 +1,1334 @@
+<?php
+
+/**
+ * @file
+ * Hooks and field implementations
+ */
+
+// Define choice constants
+define('MAKEMEETING_NO', 0);
+define('MAKEMEETING_YES', 1);
+define('MAKEMEETING_MAYBE', 2);
+
+/**
+ * Implements hook_permission().
+ */
+function makemeeting_permission() {
+  return array(
+    'answer makemeeting form' => array(
+      'title' => t('Provide an answer to makemeeting forms'),
+      'description' => t('Give the ability to make a choice in makemeeting answer forms.'),
+    ),
+    'edit any makemeeting answer' => array(
+      'title' => t('Edit any makemeeting answers'),
+      'description' => t('Edit answers given by other users.'),
+    ),
+    'delete any makemeeting answer' => array(
+      'title' => t('Delete any makemeeting answers'),
+      'description' => t('Delete answers given by other users.'),
+    ),
+  );
+}
+
+/**
+ * Implements hook_menu().
+ */
+function makemeeting_menu() {
+  $items['makemeeting/delete-answer/%makemeeting_answer'] = array(
+    'title' => 'Remove an answer',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('makemeeting_delete_answer', 2),
+    'access callback' => 'makemeeting_delete_answer_access',
+    'access arguments' => array(2),
+    'type' => MENU_CALLBACK,
+  );
+  $items['makemeeting/edit-answer/%makemeeting_answer'] = array(
+    'title' => 'Edit an answer',
+    'page callback' => 'makemeeting_edit_answer',
+    'page arguments' => array(2),
+    'access callback' => 'makemeeting_edit_answer_access',
+    'access arguments' => array(2),
+    'type' => MENU_CALLBACK,
+  );
+  return $items;
+}
+
+/**
+ * Load an answer
+ *
+ * @param $answer_id
+ * @return mixed
+ */
+function makemeeting_answer_load($answer_id) {
+  $answer = db_select('makemeeting_answers', 'm')
+    ->fields('m')
+    ->condition('answer_id', $answer_id)
+    ->execute()
+    ->fetchAssoc();
+  $answer['value'] = unserialize($answer['value']);
+  return $answer ? (object) $answer : FALSE;
+}
+
+/**
+ * Access callback: delete an answer
+ *
+ * @param $answer
+ * @return bool
+ */
+function makemeeting_delete_answer_access($answer) {
+  global $user;
+  if (user_access('delete any makemeeting answer') || $answer->uid == $user->uid) {
+    return TRUE;
+  }
+  return FALSE;
+}
+
+/**
+ * Access callback: edit an answer
+ *
+ * @param $answer
+ * @return bool
+ */
+function makemeeting_edit_answer_access($answer) {
+  global $user;
+  if (user_access('edit any makemeeting answer') || $answer->uid == $user->uid) {
+    return TRUE;
+  }
+  return FALSE;
+}
+
+/**
+ * Menu callback: delete an answer
+ *
+ * @param $answer_id
+ */
+function makemeeting_delete_answer($form, &$form_state, $answer, $redirect = TRUE) {
+  $form['#answer'] = $answer;
+  return confirm_form(
+    $form,
+    t('Are you sure you want to delete the answer?'),
+    ''
+  );
+}
+
+function makemeeting_delete_answer_submit($form, &$form_state) {
+  $answer = $form['#answer'];
+  db_delete('makemeeting_answers')->condition('answer_id', $answer->answer_id)->execute();
+}
+
+/**
+ * Menu callback: edit an answer
+ *
+ * @param $answer The loaded answer object
+ * @param string $type Ajax or nojs
+ * @return array|void The entire form or just the row depending on ajax
+ */
+function makemeeting_edit_answer($answer, $type = 'ajax') {
+  $entities = entity_load($answer->entity_type, array($answer->entity_id));
+  if (empty($entities)) {
+    return drupal_not_found();
+  }
+  $entity = $entities[$answer->entity_id];
+  $field = $entity->{$answer->field_name}[$answer->language][$answer->delta];
+  $form = drupal_get_form('makemeeting_answers_form_' . $answer->entity_id, $field, (array) $answer, $answer);
+  if ($type == 'ajax') {
+    $form['#theme'] = 'makemeeting_answer_row';
+    // Replace 'ajax' word in form action
+    $form['#action'] = str_replace('/ajax/', '/nojs/', $form['#action']);
+    $output = '<tr>' . drupal_render($form) . '</tr>';
+    $commands = array();
+    // See ajax_example_advanced.inc for more details on the available commands
+    // and how to use them.
+    $commands[] = ajax_command_replace('#answer-' . $answer->answer_id, $output);
+    $page = array('#type' => 'ajax', '#commands' => $commands);
+    ajax_deliver($page);
+  }
+  else {
+    return $form;
+  }
+}
+
+
+/**
+ * Implements hook_field_info().
+ */
+function makemeeting_field_info() {
+  return array(
+    'makemeeting' => array(
+      'label' => t('Makemeeting form'),
+      'description' => t('This field stores user choices about some dates in the database.'),
+      'default_widget' => 'makemeeting_choices',
+      'default_formatter' => 'makemeeting_answers',
+    ),
+  );
+}
+
+/**
+ * Implements hook_field_widget_info().
+ */
+function makemeeting_field_widget_info() {
+  return array(
+    'makemeeting_choices' => array(
+      'label' => t('Makemeeting choices'),
+      'field types' => array('makemeeting'),
+      'behaviors' => array(
+        'default value' => FIELD_BEHAVIOR_NONE,
+      ),
+    ),
+  );
+}
+
+/**
+ * Implements hook_field_widget_form().
+ */
+function makemeeting_field_widget_form(&$form, &$form_state, $field, $instance, $langcode, $items, $delta, $element) {
+  $element += array(
+    '#type' => 'fieldset',
+  );
+
+  $item =& $items[$delta];
+
+  // Simple options form elements about the poll
+  $element['hidden'] = array(
+    '#title' => t('Hidden poll'),
+    '#description' => t('Confidential participation: only you and administrators can see the answers.'),
+    '#type' => 'checkbox',
+    '#default_value' => isset($item['hidden']) ? $item['hidden'] : '',
+  );
+  $element['one_option'] = array(
+    '#title' => t('Participant can only choose one option'),
+    '#description' => t('By default all options are selectable. This setting limits the choice to one option per participant.'),
+    '#type' => 'checkbox',
+    '#default_value' => isset($item['one_option']) ? $item['one_option'] : '',
+  );
+  $element['limit'] = array(
+    '#title' => t('Limit the number of participants per option'),
+    '#description' => t('Poll as registration form: As soon as the indicated limit has been reached, the respective option is no longer available. 0 for unlimited'),
+    '#type' => 'textfield',
+    '#default_value' => isset($item['limit']) ? $item['limit'] : 0,
+    '#element_validate' => array('element_validate_integer'),
+  );
+  $element['yesnomaybe'] = array(
+    '#title' => t('Provide a "Maybe" option'),
+    '#description' => t('Provide a third "Maybe" option in case users may be available.'),
+    '#type' => 'checkbox',
+    '#default_value' => isset($item['yesnomaybe']) ? $item['yesnomaybe'] : '',
+    // Hide if one_option is checked
+    '#states' => array(
+      'visible' => array(
+        ':input[name$="[one_option]"]' => array('checked' => FALSE),
+      ),
+    ),
+  );
+  $element['closed'] = array(
+    '#title' => t('Closed'),
+    '#description' => t('Check this when you want to close the poll.'),
+    '#type' => 'checkbox',
+    '#default_value' => isset($item['closed']) ? $item['closed'] : '',
+  );
+
+  // Now let's take care of the choices part
+  // $process is a callback that we will attach to the wrapper in order
+  // to add parents to the form elements. This is so we can store
+  // nested values in the DB table with field storage API.
+  $fieldset_info = element_info('fieldset');
+  $process = array_merge($fieldset_info['#process'], array('_makemeeting_rebuild_parents'));
+  $element['choices_wrapper'] = array(
+    '#tree' => FALSE,
+    '#prefix' => '<div class="clearfix" id="makemeeting-choices-wrapper">',
+    '#suffix' => '</div>',
+    '#process' => $process,
+  );
+
+  // Container just for the poll choices.
+  $element['choices_wrapper']['choices'] = array(
+    '#prefix' => '<div id="makemeeting-choices">',
+    '#suffix' => '</div>',
+    '#theme' => 'makemeeting_choices',
+  );
+
+  // Fill the item values with previously submitted values
+  if (!empty($form_state['values'])) {
+    $submitted_values = drupal_array_get_nested_value($form_state['values'], $element['#field_parents']);
+    $submitted_values = $submitted_values[$element['#field_name']][$element['#language']][$element['#delta']];
+    if (!empty($submitted_values)) {
+      $item['choices'] = $submitted_values['choices'];
+    }
+  }
+
+  // Calculate the suggestion count
+  if (empty($form_state['suggestion_count'])) {
+    $form_state['suggestion_count'] = 1;
+  }
+  if (isset($item['choices'])) {
+    foreach ($item['choices'] as $choice) {
+      if ($form_state['suggestion_count'] < count($choice['chsuggestions'])) {
+        $form_state['suggestion_count'] = count($choice['chsuggestions']);
+      }
+    }
+  }
+
+  // Add the current choices to the form.
+  $delta = 0;
+  if (isset($item['choices'])) {
+    // Sort choices by their dates
+    asort($item['choices']);
+    $delta = count($item['choices']);
+    foreach ($item['choices'] as $key => $choice) {
+      $element['choices_wrapper']['choices'][$key] =
+        _makemeeting_choice_form($key, $choice['chdate'], $choice['chsuggestions'], $form_state['suggestion_count']);
+    }
+  }
+
+  try {
+    list($entity_id) = entity_extract_ids($element['#entity_type'], $element['#entity']);
+  } catch (Exception $e) {
+    // Fail silently if the field is not attached to any entity yet.
+  }
+  if (!isset($form_state['choice_count'])) {
+    // If the entity isn't created yet, offer an empty choice, else no choice
+    if (!isset($entity_id)) {
+      $form_state['choice_count'] = 1;
+    }
+    else {
+      $form_state['choice_count'] = 0;
+    }
+  }
+  // Add choices as required.
+  if ($form_state['choice_count']) {
+    // Add a day to the last option's timestamp for the new default date
+    $last_option_timestamp = isset($choice['chdate']) ? _makemeeting_date_timestamp($choice['chdate']) : REQUEST_TIME;
+    $additional_stamp = strtotime('+1 day', $last_option_timestamp);
+    // Build default date
+    $default_date = array(
+      'month' => date('n', $additional_stamp),
+      'day' => date('j', $additional_stamp),
+      'year' => date('Y', $additional_stamp)
+    );
+    $existing_delta = $delta;
+    for (; $delta < $form_state['choice_count']; $delta++) {
+      $key = 'new:' . ($delta - $existing_delta);
+      $element['choices_wrapper']['choices'][$key] =
+        _makemeeting_choice_form($key, $default_date, NULL, $form_state['suggestion_count']);
+    }
+  }
+
+  // We prefix our buttons with 'makemeeting' to avoid conflicts
+  // with other modules using Ajax-enabled buttons with the id 'more'.
+  $default_submit = array(
+    '#type' => 'submit',
+    '#limit_validation_errors' => array(array('choices')),
+    '#submit' => array('makemeeting_choices_submit'),
+    '#ajax' => array(
+      'callback' => 'makemeeting_choice_js',
+      'wrapper' => 'makemeeting-choices',
+      'effect' => 'fade',
+    ),
+  );
+  $element['choices_wrapper']['makemeeting_more_choices'] = $default_submit + array(
+    '#value' => t('More choices'),
+    '#attributes' => array(
+      'title' => t("If the amount of rows above isn't enough, click here to add more choices."),
+    ),
+    '#weight' => 1,
+  );
+  $element['choices_wrapper']['makemeeting_more_suggestions'] = $default_submit + array(
+    '#value' => t('More suggestions'),
+    '#attributes' => array(
+      'title' => t("If the amount of boxes above isn't enough, click here to add more suggestions."),
+    ),
+    '#weight' => 2,
+  );
+  $element['choices_wrapper']['makemeeting_copy_suggestions'] = $default_submit + array(
+    '#value' => t('Copy and paste first row'),
+    '#attributes' => array(
+      'title' => t("Copy the suggestions from the first to the other rows."),
+    ),
+    '#weight' => 3,
+  );
+  return $element;
+}
+
+/**
+ * Implements hook_field_validate().
+ */
+function makemeeting_field_validate($entity_type, $entity, $field, $instance, $langcode, $items, &$errors) {
+  foreach ($items as $delta => $item) {
+    if (isset($item['choices'])) {
+      // Verify that we do not have duplicate dates
+      $dates = array();
+      foreach ($item['choices'] as $chid => $chvalue) {
+        $date = implode('', $chvalue['chdate']);
+        if (in_array($date, $dates)) {
+          // Register an error with the choice id
+          $errors[$field['field_name']][$langcode][$delta][] = array(
+            'error' => 'duplicate_dates',
+            'message' => t('%name: you can\'t have duplicate dates.', array('%name' => $instance['label'])),
+            'chid' => $chid,
+          );
+        }
+        else {
+          $dates[] = $date;
+        }
+      }
+    }
+  }
+}
+
+/**
+ * Implements hook_field_widget_error().
+ */
+function makemeeting_field_widget_error($element, $error) {
+  // Show our error concerning duplicate dates here
+  $choices = $element['choices_wrapper']['choices'];
+  form_error($choices[$error['chid']]['chdate'], $error['message']);
+}
+
+/**
+ * Submit handler to add more choices or suggestions to a poll form,
+ * or to copy the first row of suggestions to the others
+ *
+ * This handler is run regardless of whether JS is enabled or not. It makes
+ * changes to the form state. If the button was clicked with JS disabled, then
+ * the page is reloaded with the complete rebuilt form. If the button was
+ * clicked with JS enabled, then ajax_form_callback() calls makemeeting_choice_js() to
+ * return just the changed part of the form.
+ */
+function makemeeting_choices_submit($form, &$form_state) {
+  $clicked_button = $form_state['clicked_button'];
+
+  // Get the element
+  $element =& drupal_array_get_nested_value($form_state['values'], $clicked_button['#parents']);
+
+  // If clicked button is 'Remove', unset corresponding choice
+  if ($clicked_button['#value'] == t('Remove')) {
+    unset($element['choices'][$clicked_button['#name']]);
+    $form_state['choice_count'] = count($element['choices']);
+  }
+
+  // Affect timestamp as key to each choice
+  $choices = array();
+  if (isset($element['choices'])) {
+    foreach ($element['choices'] as $choice) {
+      $choices['choices'][_makemeeting_date_timestamp($choice['chdate'])] = $choice;
+    }
+  }
+
+  // Handle other operations
+  if (!empty($form_state['values']['op'])) {
+    switch ($form_state['values']['op']) {
+      // Add 1 more choice to the form.
+      case t('More choices'):
+        // Increment choice count
+        $form_state['choice_count'] = count($element['choices']) + 1;
+        break;
+
+      // Add 1 more suggestion to the form.
+      case t('More suggestions'):
+        $form_state['suggestion_count']++;
+        break;
+
+      // Copy first row suggestions to the other rows.
+      case t('Copy and paste first row');
+        $first = reset($choices['choices']);
+        foreach (array_keys($choices['choices']) as $key) {
+          $choices['choices'][$key]['chsuggestions'] = $first['chsuggestions'];
+        }
+        break;
+    }
+  }
+
+  // Replace submitted values by our own work
+  drupal_array_set_nested_value($form_state['input'], $clicked_button['#parents'], $choices);
+  drupal_array_set_nested_value($form_state['values'], $clicked_button['#parents'], $choices);
+
+  // Require the widget form to rebuild the choices
+  // with the values in $form_state
+  $form_state['rebuild'] = TRUE;
+}
+
+/**
+ * Ajax callback in response to new choices being added to the form.
+ *
+ * This returns the new page content to replace the page content made obsolete
+ * by the form submission.
+ */
+function makemeeting_choice_js($form, $form_state) {
+  // Get the element from the parents of the clicked button
+  $element = drupal_array_get_nested_value($form, $form_state['clicked_button']['#parents']);
+  return $element['choices_wrapper']['choices'];
+}
+
+/**
+ * Ajax callback in response to an answer that has been edited.
+ *
+ * This returns the new form content to replace the form content made obsolete
+ * by the form submission.
+ */
+function makemeeting_answer_js($form, $form_state) {
+  $values = $form_state['values'];
+  $answer = $values['answer_edited'];
+  $entities = entity_load($answer->entity_type, array($answer->entity_id));
+  if (empty($entities)) {
+    return drupal_not_found();
+  }
+  $entity = $entities[$answer->entity_id];
+  $field = $entity->{$answer->field_name}[$answer->language][$answer->delta];
+  // We need to empty POST data to prevent the form
+  // from being processed as submitted
+  $_POST = array();
+  $new_form = drupal_get_form('makemeeting_answers_form_' . $answer->entity_id, $field, $values);
+  // AJaX processing overrides form action, now retrieving the correct one
+  $query = parse_url($form['#action']);
+  $parameters = drupal_get_query_array($query['query']);
+  $new_form['#action'] = $parameters['destination'];
+  return $new_form;
+}
+
+/**
+ * Implements hook_field_is_empty().
+ */
+function makemeeting_field_is_empty($item) {
+  return empty($item['choices']);
+}
+
+/**
+ * Implements hook_field_formatter_info().
+ */
+function makemeeting_field_formatter_info() {
+  return array(
+    'makemeeting_answers' => array(
+      'label' => t('Makemeeting answers'),
+      'field types' => array('makemeeting'),
+    ),
+  );
+}
+
+/**
+ * Implements hook_field_formatter_view().
+ *
+ * Build a renderable array for a field value.
+ *
+ * @param $entity_type
+ *   The type of $entity.
+ * @param $entity
+ *   The entity being displayed.
+ * @param $field
+ *   The field structure.
+ * @param $instance
+ *   The field instance.
+ * @param $langcode
+ *   The language associated with $items.
+ * @param $items
+ *   Array of values for this field.
+ * @param $display
+ *   The display settings to use, as found in the 'display' entry of instance
+ *   definitions. The array notably contains the following keys and values;
+ *   - type: The name of the formatter to use.
+ *   - settings: The array of formatter settings.
+ *
+ * @return
+ *   A renderable array for the $items, as an array of child elements keyed
+ *   by numeric indexes starting from 0.
+ *
+ * We only have a display type so no need to test $display['type']
+ */
+function makemeeting_field_formatter_view($entity_type, $entity, $field, $instance, $langcode, $items, $display) {
+  $content = array();
+  foreach ($items as $delta => $item) {
+    list($entity_id) = entity_extract_ids($entity_type, $entity);
+    $instance += array(
+      'entity_id' => $entity_id,
+      'language' => $langcode,
+      'delta' => $delta
+    );
+    $content[] = drupal_get_form('makemeeting_answers_form_' . $instance['entity_id'], $item, $instance);
+  }
+  return $content;
+}
+
+/**
+ * Implements hook_forms().
+ */
+function makemeeting_forms($form_id, $args) {
+  if (preg_match('/^makemeeting_answers_form_\d+?$/', $form_id)) {
+    return array($form_id => array(
+      'callback' => 'makemeeting_answers_form',
+    ));
+  }
+}
+
+/**
+ * Form callback: enables users to answer a makemeeting poll
+ */
+function makemeeting_answers_form($form, $form_state, $item, $instance, $answer = NULL) {
+  global $user;
+  $form = array();
+  $form['#item'] = $item;
+  $form['#theme'] = 'makemeeting_answers';
+
+  // Force the id of the form as it might get overriden in AJAX-loaded forms
+  $form['#id'] = 'makemeeting-answers-form';
+
+  // Pass entity-related values in the form
+  foreach (array('field_name', 'entity_type', 'deleted', 'entity_id',
+             'language', 'delta') as $info) {
+    $form[$info] = array(
+      '#type' => 'value',
+      '#value' => $instance[$info],
+    );
+  }
+
+  // Pass answer being edited
+  if ($answer) {
+    $form['answer_edited'] = array(
+      '#type' => 'value',
+      '#value' => $answer,
+    );
+  }
+
+  // Include the name of the current user
+  $form['name'] = array(
+    '#type' => 'textfield',
+    '#size' => 22,
+  );
+  if (!user_is_logged_in()) {
+    // This is an HTML5 attribute
+    $form['name']['#attributes'] = array('placeholder' => t('Your name (required)'));
+    $form['name']['#required'] = TRUE;
+  }
+  else {
+    $form['name']['#default_value'] = format_username($user);
+    $form['name']['#disabled'] = TRUE;
+  }
+  if (!empty($answer)) {
+    if ($answer->uid > 0) {
+      $account = user_load($answer->uid);
+      $form['name']['#default_value'] = format_username($account);
+    }
+    else {
+      $form['name']['#default_value'] = $answer->name;
+    }
+  }
+
+  // If the form is limited, fetch already submitted answers
+  $answers = array();
+  if ($item['limit'] > 0) {
+    $select = db_select('makemeeting_answers', 'ma')->fields('ma', array('value'));
+    foreach (array('field_name', 'entity_type', 'deleted', 'entity_id', 'language', 'delta') as $info) {
+      $select->condition($info, $instance[$info]);
+    }
+    // Filter out answer being edited
+    if ($answer) {
+      $select->condition('answer_id', $answer->answer_id, '!=');
+    }
+    $results = $select->execute();
+    // And add each answer to our results array for futher use
+    foreach ($results as $result) {
+      $_answer = unserialize($result->value);
+      if (is_array($_answer)) {
+        foreach ($_answer as $key => $value) {
+          if ($value) {
+            $answers[$key] = empty($answers[$key]) ? 1 : $answers[$key] + 1;
+          }
+        }
+      }
+      elseif (is_string($_answer) && $_answer) {
+        $answers[$_answer] = empty($answers[$_answer]) ? 1 : $answers[$_answer] + 1;
+      }
+    }
+  }
+
+  // Possible answers
+  $form['answers'] = array();
+  foreach ($item['choices'] as $choice) {
+    $chdate = _makemeeting_date_timestamp($choice['chdate']);
+    $count = 0;
+    foreach ($choice['chsuggestions'] as $id => $text) {
+      // Add a form element only if there's a suggestion label
+      // or it is the first suggestion for this date
+      if ($text || (!$text && !$count)) {
+        _makemeeting_answer_element($form, $item, $id, $chdate, $text, $answers, $answer);
+      }
+      $count++;
+    }
+  }
+
+  $form['submit'] = array(
+    '#type' => 'submit',
+    '#value' => t('Submit'),
+  );
+  if (!empty($answer)) {
+    // Modify form submit to include ajax behavior
+    $form['submit']['#ajax'] = array(
+      'callback' => 'makemeeting_answer_js',
+      'wrapper' => 'makemeeting-answers-form',
+      'effect' => 'fade',
+    );
+  }
+
+  return $form;
+}
+
+function makemeeting_answers_form_validate($form, &$form_state) {
+  // The required attribute won't work, so we display a single message
+  if (!$form_state['values']['name']) {
+    drupal_set_message(t('You must enter your name.'), 'error');
+  }
+  // Check is the user has already voted
+  if (user_is_logged_in() && empty($form_state['values']['answer_edited'])) {
+    global $user;
+    $select = db_select('makemeeting_answers', 'ma');
+    foreach (array('field_name', 'entity_type', 'deleted', 'entity_id',
+               'language', 'delta') as $info) {
+      $select->condition($info, $form_state['values'][$info]);
+    }
+    $result = $select->condition('uid', $user->uid)->countQuery()->execute()->fetchField();
+    if ($result) {
+      form_error($form, t('You already voted on this poll.'));
+    }
+  }
+}
+
+function makemeeting_answers_form_submit($form, $form_state) {
+  global $user;
+  if (!empty($form_state['values']['answer_edited'])) {
+    db_update('makemeeting_answers')
+      ->fields(array(
+      'value' => serialize($form_state['values']['answers']),
+    ))
+      ->condition('answer_id', $form_state['values']['answer_edited']->answer_id)
+      ->execute();
+  }
+  else {
+    $fields = array();
+    foreach (array('field_name', 'entity_type', 'deleted', 'entity_id',
+               'language', 'delta', 'name') as $field) {
+      $fields[$field] = $form_state['values'][$field];
+    }
+    db_insert('makemeeting_answers')->fields($fields + array(
+      'value' => serialize($form_state['values']['answers']),
+      'uid' => $user->uid,
+    ))->execute();
+  }
+}
+
+/**
+ * Function used to render answers' table
+ */
+function theme_makemeeting_answers($vars) {
+  global $user;
+  $form = $vars['form'];
+  $item = $form['#item'];
+
+  // Add appropriate CSS.
+  drupal_add_css(drupal_get_path('module', 'makemeeting') . '/makemeeting.css');
+
+  // Initialize variables
+  $header = $day_cell = $row_form = $tree = $rows = array();
+
+  // First construct tree of suggestions for headers
+  foreach ($item['choices'] as $choice) {
+    $chdate = _makemeeting_date_timestamp($choice['chdate']);
+    $month = format_date($chdate, 'custom', 'F Y');
+    $day = format_date($chdate, 'custom', 'D. j');
+    $count = 0;
+    foreach ($choice['chsuggestions'] as $text) {
+      if (!$text && isset($tree[$month][$day]) && $count) {
+        continue;
+      }
+      elseif (!$text) {
+        $text = "-";
+      }
+      $tree[$month][$day][] = $text;
+      $count++;
+    }
+  }
+
+  // Now construct headers based on tree
+  $headers = $row_days = $row_suggestions = array('');
+  // Add month-related classes
+  $months_total = count($tree);
+  $months_count = 0;
+  foreach ($tree as $month => $days) {
+    $header['colspan'] = 0;
+    $header['data'] = $month;
+
+    $header['class'] = array('date-month');
+    _makemeeting_define_class_suffix($header, $months_count, $months_total, 'date-month');
+    $months_count++;
+
+    // Add day-related classes
+    $days_total = count($days);
+    $days_count = 0;
+    foreach ($days as $day => $suggestions) {
+      $day_cell['colspan'] = 0;
+      $day_cell['data'] = $day;
+
+      $day_cell['class'] = array('date');
+      _makemeeting_define_class_suffix($day_cell, $days_count, $days_total, 'date');
+      $days_count++;
+
+      // Add suggestion-related classes
+      $suggestions_total = count($suggestions);
+      $suggestion_count = 0;
+      foreach ($suggestions as $text) {
+        $suggestion = array('data' => $text, 'class' => array('suggestion'));
+        _makemeeting_define_class_suffix($suggestion, $suggestion_count, $suggestions_total, 'suggestion');
+        $suggestion_count++;
+
+        $row_suggestions[] = $suggestion;
+
+        // Set colspan
+        $header['colspan']++;
+        $day_cell['colspan']++;
+      }
+      $row_days[] = $day_cell;
+    }
+    $headers[] = $header;
+  }
+  array_push($rows, $row_days, $row_suggestions);
+
+  // Initialize totals labels
+  $totals = array();
+  $options = _makemeeting_options($item['yesnomaybe']);
+  foreach ($options as $key => $label) {
+    $totals[$key]['table'] = array(array('data' => t('Totals ' . $label), 'class' => 'total-title'));
+    foreach ($item['choices'] as $choice) {
+      $count = 0;
+      foreach ($choice['chsuggestions'] as $text) {
+        if ($text || (!$text && !$count)) {
+          // Initialize totals count
+          $totals[$key]['count'][] = 0;
+        }
+        $count++;
+      }
+    }
+  }
+
+  // Display already submitted answers
+  $select = db_select('makemeeting_answers', 'ma')->fields('ma');
+  foreach (array('field_name', 'entity_type', 'deleted', 'entity_id',
+             'language', 'delta') as $info) {
+    $select->condition($info, $form[$info]['#value']);
+  }
+  // Filter out answer being edited
+  if (!empty($form['answer_edited'])) {
+    $select->condition('answer_id', $form['answer_edited']['#value']->answer_id, '!=');
+  }
+  $results = $select->execute()->fetchAllAssoc('answer_id');
+  $uids = array();
+  foreach ($results as $result) {
+    $uids[] = $result->uid;
+    $row = array();
+    // Display name of the person that has answered
+    $row[] = _makemeeting_render_cell_name($result->uid, $result->name, $result->answer_id);
+
+    // Display his/her answers
+    $answers = unserialize($result->value);
+    foreach (element_children($form['answers']) as $answer_key) {
+      $row_count = count($row);
+
+      // Determine choice based on choice type
+      if ($item['one_option']) {
+        $key = $answers == $answer_key ? MAKEMEETING_YES : MAKEMEETING_NO;
+      }
+      else {
+        $key = isset($answers[$answer_key]) ? intval($answers[$answer_key]) : FALSE;
+      }
+      $label = isset($options[$key]) ? $options[$key] : FALSE;
+
+      if ($key !== FALSE && $label !== FALSE) {
+        // Add corresponding classes for the answer
+        $classes = array('answer', 'answer-' . $key);
+        foreach (array('suggestion-first', 'suggestion-medium', 'suggestion-last') as $class) {
+          if (in_array($class, $row_suggestions[$row_count]['class'])) {
+            $classes[] = str_replace('suggestion', 'answer', $class);
+          }
+        }
+
+        // Store answer (will an background image according to class)
+        $row[] = array('data' => '&nbsp;', 'class' => $classes);
+
+        // Increment key answer counter
+        $totals[$key]['count'][$row_count - 1]++;
+      }
+      else {
+        $row[] = t('No answer');
+      }
+    }
+    $rows[] = array('data' => $row, 'id' => 'answer-' . $result->answer_id);
+  }
+
+  // Add participant count
+  $rows[1][0] = format_plural(count($results), '@count participant', '@count participants');
+
+  // Display answer form if ... not limited,
+  $limited = $item['limit'] > 0 && $item['limit'] * count($row_suggestions) - 1 <= count($results);
+  // ... not closed,
+  $closed = $item['closed'] || $limited;
+  $submitted = user_is_logged_in() && in_array($user->uid, array_values($uids));
+  // ... user has access and has not already submitted
+  $show_form = user_access('answer makemeeting form') && !$closed && !$submitted;
+  if ($show_form) {
+    $row_form[] = drupal_render($form['name']);
+    foreach (element_children($form['answers']) as $answer_key) {
+      $row_form[] = array(
+        'data' => drupal_render($form['answers'][$answer_key]),
+        'class' => $form['answers'][$answer_key]['#type'],
+      );
+    }
+    $rows[] = array(
+      'data' => $row_form,
+      'class' => array('answer-form-row'),
+    );
+  }
+
+  // Get total maxima
+  $totals_max = array();
+  foreach ($totals as $key => &$table) {
+    if (empty($table['count'])) {
+      $table['count'][] = 0;
+    }
+    $totals_max[$key] = max($table['count']);
+  }
+  // Display totals
+  foreach ($options as $key => $label) {
+    foreach ($totals[$key]['count'] as $choice => $count) {
+      $classes = array('total-count', 'total-' . $key);
+      if ($count) {
+        // Indicate first / last suggestion item
+        foreach (array('suggestion-first', 'suggestion-medium', 'suggestion-last') as $class) {
+          if (in_array($class, $row_suggestions[$choice + 1]['class'])) {
+            $classes[] = str_replace('suggestion', 'total', $class);
+          }
+        }
+      }
+      // Indicate max count
+      if (!empty($totals_max[$key]) && $count == $totals_max[$key]) {
+        $classes[] = 'total-max';
+      }
+      $totals[$key]['table'][] = array('data' => $count, 'class' => $classes);
+    }
+    $classes = array('total-row');
+
+    // Change labels for two choices
+    if (!$item['yesnomaybe']) {
+      $totals[$key]['table'][0]['data'] = t('Totals');
+    }
+    // Do not display other totals for two choices
+    if ($item['yesnomaybe'] || !$item['yesnomaybe'] && $key == MAKEMEETING_YES) {
+      $classes[] = 'total-row-' . ($key ? ($key == MAKEMEETING_YES ? 'last' : 'medium') : 'first');
+      $rows[] = array('data' => $totals[$key]['table'], 'class' => $classes);
+    }
+  }
+
+  // Apply classes to the two first rows
+  $rows[0] = array('data' => $rows[0], 'class' => array('dates'));
+  $rows[1] = array('data' => $rows[1], 'class' => array('suggestions'));
+
+  $suggestion = array(
+    '#theme' => 'table',
+    '#header' => $headers,
+    '#rows' => $rows,
+    '#attributes' => array('class' => array('makemeeting-table')),
+  );
+  if ($show_form) {
+    return drupal_render($suggestion) . drupal_render_children($form);
+  }
+  return drupal_render($suggestion);
+}
+
+/**
+ * Function used to render a single answer row as a form
+ */
+function theme_makemeeting_answer_row($vars) {
+  $form = $vars['form'];
+  $element = array(
+    'first_cell' => array(),
+    'other_cells' => array('#markup' => '')
+  );
+
+  // Render suggestions
+  foreach (element_children($form['answers']) as $answer_key) {
+    $element['other_cells']['#markup'] .= _theme_table_cell(array(
+      'data' => drupal_render($form['answers'][$answer_key]),
+      'class' => $form['answers'][$answer_key]['#type'],
+    ));
+  }
+
+  // Render name, submit and the rest of hidden children
+  $first_cell = drupal_render($form['name']) . drupal_render($form['submit']);
+  $first_cell .= drupal_render_children($form);
+  $element['first_cell']['#markup'] = _theme_table_cell($first_cell);
+
+  return drupal_render($element);
+}
+
+/**
+ * Render the cell containing the submitter's name with
+ * a possible option to delete the answer
+ */
+function _makemeeting_render_cell_name($uid, $name, $answer_id) {
+  global $user;
+  if ($uid) {
+    $account = user_load($uid);
+    $username = theme('username', array('account' => user_load($account->uid)));
+  }
+  else {
+    $username = $name;
+  }
+  if (!user_access('delete any makemeeting answer') && $uid != $user->uid) {
+    return $username;
+  }
+  $images_path = drupal_get_path('module', 'makemeeting') . '/images/';
+  $cell[] = array(
+    '#prefix' => '<div class="answer-edit">',
+    'delete-link' => array(
+      '#type' => 'link',
+      '#title' => theme_image(array('path' => $images_path . 'trash.png',
+        'attributes' => array('title' => t('Delete answer')))),
+      '#href' => 'makemeeting/delete-answer/' . $answer_id,
+      '#options' => array(
+        'query' => drupal_get_destination(),
+        'html' => TRUE,
+        'attributes' => array('rel' => 'nofollow'),
+      ),
+    ),
+    'edit-link' => array(
+      '#type' => 'link',
+      '#title' => theme_image(array('path' => $images_path . 'pen.png',
+        'attributes' => array('title' => t('Edit answer')))),
+      // Note the /nojs portion of the href - if javascript is enabled,
+      // this part will be stripped from the path before it is called.
+      '#href' => 'makemeeting/edit-answer/' . $answer_id . '/nojs/',
+      '#options' => array(
+        'query' => drupal_get_destination(),
+        'html' => TRUE,
+        'attributes' => array('rel' => 'nofollow'),
+      ),
+      '#ajax' => array(
+        'wrapper' => 'answer-' . $answer_id,
+        'method' => 'html',
+      ),
+    ),
+    '#suffix' => '</div>',
+  );
+  $cell[] = array('#markup' => $username);
+  return '<div class="answer-editable">' . drupal_render($cell) . '</div>';
+}
+
+/**
+ * Implements hook_field_presave().
+ */
+function makemeeting_field_presave($entity_type, $entity, $field, $instance, $langcode, &$items) {
+  if ($field['type'] == 'makemeeting') {
+    foreach ($items as $delta => $item) {
+      if (isset($item['choices'])) {
+        // Sort the choices by date
+        $choices = array_values($item['choices']);
+        usort($choices, '_makemeeting_sort_choices');
+        // Affect timestamp as keys
+        $timestamped_choices = array();
+        foreach ($choices as $choice) {
+          $timestamped_choices[_makemeeting_date_timestamp($choice['chdate'])] = $choice;
+        }
+        // Serialize the whole array
+        $items[$delta]['choices'] = serialize($timestamped_choices);
+      }
+    }
+  }
+}
+
+/**
+ * Implements hook_field_load().
+ */
+function makemeeting_field_load($entity_type, $entities, $field, $instances, $langcode, &$items, $age) {
+  // Unserialize array values
+  foreach ($entities as $id => $entity) {
+    foreach ($items[$id] as $delta => $item) {
+      if ($field['type'] == 'makemeeting' && is_string($items[$id][$delta]['choices'])) {
+        $items[$id][$delta]['choices'] = unserialize($items[$id][$delta]['choices']);
+      }
+    }
+  }
+}
+
+
+/**
+ * Implements hook_theme().
+ */
+function makemeeting_theme($existing, $type, $theme, $path) {
+  return array(
+    'makemeeting_choices' => array(
+      'render element' => 'form',
+    ),
+    'makemeeting_answers' => array(
+      'render element' => 'form',
+    ),
+    'makemeeting_answer_row' => array(
+      'render element' => 'form',
+    ),
+  );
+}
+
+/**
+ * Returns HTML for an admin poll form for choices.
+ */
+function theme_makemeeting_choices($variables) {
+  $form = $variables['form'];
+
+  // Add appropriate CSS.
+  drupal_add_css(drupal_get_path('module', 'makemeeting') . '/makemeeting.css');
+
+  $rows = array();
+  $headers = array(t('Date'));
+  $headers_added = FALSE;
+
+  foreach (element_children($form) as $key) {
+    // Build the table rows.
+    $row = array();
+    $row[] = array(
+      'data' => drupal_render($form[$key]['chdate']) . drupal_render($form[$key]['chremove']),
+      'class' => 'makemeeting-choice-date',
+    );
+    $delta = 0;
+    foreach (element_children($form[$key]['chsuggestions']) as $key2) {
+      $delta++;
+      // Add sugesstion headers for the first line
+      if (!$headers_added) {
+        $headers[] = t('Suggestion %num', array('%num' => $delta));
+      }
+      $row[] = drupal_render($form[$key]['chsuggestions'][$key2]);
+    }
+    $headers_added = TRUE;
+    $rows[] = $row;
+  }
+
+  $output = theme('table', array(
+    'header' => $headers,
+    'rows' => $rows,
+    'attributes' => array('id' => 'poll-choice-table')
+  ));
+  $output .= drupal_render_children($form);
+  return $output;
+}
+
+/**
+ * Helper function to update the form elements parents. This is required
+ * for the element to be saved properly by the Field API (see #process)
+ *
+ * @param $element
+ * @return mixed
+ */
+function _makemeeting_rebuild_parents(&$element) {
+  $parents = array_diff($element['#array_parents'], $element['#parents']);
+  $elements = array('makemeeting_more_choices', 'makemeeting_more_suggestions', 'makemeeting_copy_suggestions');
+  foreach ($elements as $e) {
+    $element[$e]['#parents'] = $parents;
+    $element[$e]['#limit_validation_errors'][0] = array_merge($parents,
+      $element[$e]['#limit_validation_errors'][0]);
+  }
+  $element['makemeeting_more_suggestions']['#parents'] = $parents;
+  $element['makemeeting_copy_suggestions']['#parents'] = $parents;
+  foreach (element_children($element['choices']) as $key1) {
+    foreach (element_children($element['choices'][$key1]) as $key2) {
+      $keys = element_children($element['choices'][$key1][$key2]);
+      if (empty($keys)) {
+        $element['choices'][$key1][$key2]['#parents'] = array_merge($parents,
+          $element['choices'][$key1][$key2]['#parents']);
+      }
+      else {
+        foreach ($keys as $key3) {
+          $element['choices'][$key1][$key2][$key3]['#parents'] = array_merge($parents,
+            $element['choices'][$key1][$key2][$key3]['#parents']);
+        }
+      }
+    }
+  }
+  return $element;
+}
+
+/**
+ * Helper function to construct a row of the widget form
+ *
+ * @param $key
+ * @param string $value
+ * @param array $suggestions
+ * @param int $size
+ * @return array
+ */
+function _makemeeting_choice_form($key, $value = '', $suggestions = array(), $size = 1) {
+  $form = array(
+    '#tree' => TRUE,
+  );
+
+  // We'll manually set the #parents property of these fields so that
+  // their values appear in the $form_state['values']['choices'] array
+  // They are to be updated later in #process as we don't know here the
+  // hierarchy of the parents
+  $form['chdate'] = array(
+    '#type' => 'date',
+    '#title' => t('Date'),
+    '#title_display' => 'invisible',
+    '#default_value' => $value,
+    '#parents' => array('choices', $key, 'chdate'),
+  );
+  $form['chremove'] = array(
+    '#type' => 'submit',
+    '#parents' => array(),
+    '#submit' => array('makemeeting_choices_submit'),
+    '#limit_validation_errors' => array(array('choices')),
+    '#ajax' => array(
+      'callback' => 'makemeeting_choice_js',
+      'wrapper' => 'makemeeting-choices',
+      'effect' => 'fade',
+    ),
+    '#value' => t('Remove'),
+    // Assigning key as name to make each 'Remove' button unique
+    '#name' => $key,
+  );
+
+  $form['chsuggestions'] = array(
+    '#tree' => TRUE,
+    '#parents' => array('choices', $key, 'chsuggestions'),
+  );
+
+  for ($i = 0; $i < $size; $i++) {
+    $key2 = 'sugg:' . ($i);
+    $form['chsuggestions'][$key2] = array(
+      '#type' => 'textfield',
+      '#title_display' => 'invisible',
+      '#default_value' => isset($suggestions[$key2]) ? $suggestions[$key2] : '',
+      '#size' => 5,
+      '#maxlength' => 255,
+      '#parents' => array('choices', $key, 'chsuggestions', $key2),
+    );
+  }
+  return $form;
+}
+
+/**
+ * Helper function to sort choice dates
+ */
+function _makemeeting_sort_choices($a, $b) {
+  if ($a['chdate']['year'] == $b['chdate']['year']) {
+    if ($a['chdate']['month'] == $b['chdate']['month']) {
+      if ($a['chdate']['day'] == $b['chdate']['day']) {
+        return 0;
+      }
+      else {
+        return (int) $a['chdate']['day'] < (int) $b['chdate']['day'] ? -1 : 1;
+      }
+    }
+    else {
+      return (int) $a['chdate']['month'] < (int) $b['chdate']['month'] ? -1 : 1;
+    }
+  }
+  else {
+    return (int) $a['chdate']['year'] < (int) $b['chdate']['year'] ? -1 : 1;
+  }
+}
+
+/**
+ * Helper function to convert date field value into an Unix timestamp
+ *
+ * @param $array array Date field value (month, day and year)
+ * @return int Unix timestamp
+ */
+function _makemeeting_date_timestamp($array) {
+  date_default_timezone_set('UTC');
+  $timestamp = mktime(0, 0, 0, $array['month'], $array['day'], $array['year']);
+  date_default_timezone_set(drupal_get_user_timezone());
+  return $timestamp;
+}
+
+/**
+ * Helper function for selecting choices
+ *
+ * @param bool $three_choices If should be returning three choices
+ * @return array An array of options for radios
+ */
+function _makemeeting_options($three_choices = FALSE) {
+  $options = array(
+    MAKEMEETING_NO => t('No'),
+    MAKEMEETING_MAYBE => t('Maybe'),
+    MAKEMEETING_YES => t('Yes'),
+  );
+  if (!$three_choices) {
+    unset($options[MAKEMEETING_MAYBE]);
+  }
+  return $options;
+}
+
+/**
+ * Helper function to provide an answer form element
+ *
+ * @param $form
+ *  Form to be modified
+ * @param $item
+ *  Item providing settings for the answer form
+ * @param $id
+ *  Suggestion id
+ * @param $chdate
+ *  Suggestion date
+ * @param $text
+ *  Suggestion text
+ * @param $answers
+ *  Already submitted answers
+ */
+function _makemeeting_answer_element(&$form, $item, $id, $chdate, $text, $answers = array(), $answer = NULL) {
+  $key = $chdate . ':' . $id;
+  // If the limit is reached for this option, display a markup text
+  if ($item['limit'] > 0 && isset($answers[$key]) && $answers[$key] >= $item['limit']) {
+    $form['answers'][$key] = array(
+      '#markup' => t('Unavailable'),
+    );
+  }
+  // Else add a form element
+  else {
+    $title = format_date($chdate, 'custom', 'l j F Y') . ' ' . $text;
+    $form['answers'][$key] = array(
+      '#type' => $item['one_option'] ? 'radio' : ($item['yesnomaybe'] ? 'radios' : 'checkbox'),
+      '#attributes' => array('title' => check_plain($title)),
+      '#parents' => array('answers', $key),
+    );
+
+    if ($item['one_option']) {
+      $form['answers'][$key]['#parents'] = array('answers');
+      $form['answers'][$key]['#return_value'] = $key;
+    }
+    else {
+      $form['answers'][$key]['#options'] = _makemeeting_options($item['yesnomaybe']);
+    }
+    if ($item['yesnomaybe']) {
+      $form['answers'][$key]['#default_value'] = MAKEMEETING_NO;
+    }
+    // Display previous choice if answer is being edited
+    if ($answer && !empty($answer->value[$key])) {
+      $form['answers'][$key]['#default_value'] = $answer->value[$key];
+    }
+  }
+}
+
+/**
+ * Helper function to define classes based on a count and a total
+ *
+ * @param $element
+ * @param $count
+ * @param $total
+ */
+function _makemeeting_define_class_suffix(&$element, $count, $total, $prefix = '') {
+  if ($prefix) {
+    $prefix .= '-';
+  }
+  if ($count == 0) {
+    $element['class'][] = $prefix . 'first';
+  }
+  elseif ($count == ($total - 1)) {
+    $element['class'][] = $prefix . 'last';
+  }
+  else {
+    $element['class'][] = $prefix . 'medium';
+  }
+}

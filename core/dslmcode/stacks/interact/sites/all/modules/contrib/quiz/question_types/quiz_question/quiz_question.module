@@ -1,0 +1,954 @@
+<?php
+
+/**
+ * Quiz Question module.
+ * This module provides the basic facilities for adding quiz question types to a quiz.
+ * @file
+ */
+
+/*
+ * The system remembers what quizzes a user has been involved in lately. This constant determines
+ * how many quizzes the system will remember for each user
+ */
+define('QUIZ_QUESTION_NUM_LATEST', 10);
+
+/**
+ * Implements hook_help().
+ */
+function quiz_question_help($path, $args) {
+  if ($path == 'admin/help#quiz_quesion') {
+    return t('Support for Quiz question types.');
+  }
+}
+
+/**
+ * Implements hook_menu().
+ */
+function quiz_question_menu() {
+  $items = array();
+  $items['quiz_question/%/%/revision_actions'] = array(
+    'title' => 'Revision actions',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('quiz_question_revision_actions', 1, 2),
+    'access arguments' => array('manual quiz revisioning'),
+    'file' => 'quiz_question.pages.inc',
+    'type' => MENU_NORMAL_ITEM,
+  );
+  // Menu items for admin view of each question type.
+  $items['admin/quiz/settings/questions_settings'] = array(
+    'title' => 'Question configuration',
+    'description' => 'Configure the question types.',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('quiz_question_config'),
+    'access arguments' => array('administer quiz configuration'),
+    'type' => MENU_NORMAL_ITEM,
+  );
+  return $items;
+}
+
+/**
+ * Implements hook_theme().
+ */
+function quiz_question_theme() {
+  return array(
+    'quiz_question_creation_form' => array(
+      'render element' => 'form',
+      'file' => 'quiz_question.theme.inc',
+    ),
+    'quiz_question_navigation_form' => array(
+      'render element' => 'form',
+      'file' => 'quiz_question.theme.inc',
+    ),
+  );
+}
+
+
+/**
+ * Implements hook_node_info().
+ */
+function quiz_question_node_info() {
+  $node_info = array();
+  foreach (_quiz_question_get_implementations(NULL, TRUE) as $type => $definition) {
+    $node_info[$type] = array(
+      'name' => $definition['name'],
+      'base' => 'quiz_question',
+      'description' => $definition['description']
+    );
+    //$info[$type] = $node_info + $defaults;
+  }
+  return $node_info;
+}
+
+/**
+ * Implements hook_node_access().
+ */
+function quiz_question_node_access($node, $op, $account) {
+  // We could use the "$node->is_quiz_question" property to check if it's a question type node or not.
+  // But by hook_node_access() definition $node can be a node object or the machine name of the
+  // content type. Using _quiz_question_get_implementations() as a workaround for this.
+  $question_types = array_keys(_quiz_question_get_implementations());
+  $type = is_string($node) ? $node : $node->type;
+  if (!in_array($type, $question_types)) {
+    return NODE_ACCESS_IGNORE;
+  }
+  switch ($op) {
+    case 'view':
+      if (!user_access('view quiz question outside of a quiz')) {
+         return NODE_ACCESS_DENY;
+      }
+      break;
+    case 'create':
+      if (!user_access('create quiz content', $account)) {
+        return NODE_ACCESS_DENY;
+      }
+      break;
+    case 'update':
+      if (user_access('edit any quiz content', $account) || (user_access('edit own quiz content', $account) && ($account->uid == $node->uid))) {
+        return NODE_ACCESS_ALLOW;
+      }
+      break;
+    case 'delete':
+      if (user_access('delete any quiz content', $account) || (user_access('delete own quiz content', $account) && ($account->uid == $node->uid))) {
+        return NODE_ACCESS_ALLOW;
+      }
+      break;
+  }
+  // Returning nothing from this function would have the same effect.
+  return NODE_ACCESS_IGNORE;
+}
+
+/**
+ * Figure out if a user has access to score a certain result
+ *
+ * @param $vid
+ *  Question version id
+ * @param $rid
+ *  Result id
+ * @return
+ *  True if the user has access to score the result
+ */
+function quiz_question_access_to_score($vid, $rid) {
+  global $user;
+  $sql = 'SELECT * FROM {quiz_node_results_answers} WHERE result_id = :result_id AND question_vid = :question_vid';
+  $answer = db_query($sql, array(':result_id' => $rid, ':question_vid' => $vid))->fetch();
+  if (!$answer) {
+    return FALSE;
+  }
+  if (user_access('score any quiz')) {
+    return TRUE;
+  }
+  if (user_access('score taken quiz answer')) {
+    $uid = db_query('SELECT uid from {quiz_node_results} qnr WHERE qnr.result_id = :result_id', array(':result_id' => $rid))->fetchField();
+    if($uid == $user->uid) {
+      return TRUE;
+    }
+  }
+  if (user_access('score own quiz')) {
+    return db_query('SELECT r.uid FROM {node_revision} r
+            JOIN {quiz_node_results} qnr ON (r.nid = qnr.nid)
+            WHERE qnr.result_id = :result_id
+            ', array(':result_id' => $rid))->fetchField() == $user->uid;
+  }
+}
+
+/**
+ * Implements hook_form().
+ */
+function quiz_question_form(&$node, &$form_state) {
+  $question = _quiz_question_get_instance($node);
+  $form = $question->getNodeForm($form_state);
+  return $form;
+}
+
+/**
+ * Implements hook_validate().
+ */
+function quiz_question_validate($node, &$form) {
+  // Check to make sure that there is a question.
+  if (empty($node->body)) {
+    form_set_error('body', t('Question text is empty.'));
+  }
+  _quiz_question_get_instance($node)->validateNode($form);
+}
+
+/**
+ * Get the form to show to the quiz taker.
+ */
+function quiz_question_answering_form($form, $form_state, $node, $include_nid_in_id = FALSE) {
+  $question = _quiz_question_get_instance($node);
+  $form = $question->getAnsweringForm($form_state, isset($node->rid) ? $node->rid : NULL);
+  $quiz = quiz_type_access_load(arg(1));
+
+  $form['#attributes']['class'] = array('answering-form');
+
+  $is_last = _quiz_is_last_question();
+  $form['navigation']['#theme'] = 'quiz_question_navigation_form';
+  if ($quiz->mark_doubtful) {
+    $form['is_doubtful'] = array(
+      '#type' => 'checkbox',
+      '#title' => t('doubtful'),
+      '#weight' => 1,
+      '#prefix' => '<div class="mark-doubtful checkbox enabled"><div class="toggle"><div></div></div>',
+      '#suffix' => '</div>',
+      '#default_value' => 0,
+      '#attached' => array(
+	'js' => array(drupal_get_path('module', 'quiz') . '/theme/quiz_take.js'),
+      ),
+    );
+    if (isset($node->rid)) {
+      $form['is_doubtful']['#default_value'] = db_query('SELECT is_doubtful FROM {quiz_node_results_answers} WHERE result_id = :result_id AND question_nid = :question_nid AND question_vid = :question_vid', array(':result_id' => $node->rid, ':question_nid' => $node->nid, ':question_vid' => $node->vid))->fetchField();
+    }
+  }
+
+  if (!empty($quiz->backwards_navigation) && !empty($node->question_number)) {
+    $form['navigation']['back'] = array(
+      '#type' => 'submit',
+      '#value' => t('Back'),
+      '#attributes' => array('class' => array('q-back-button')),
+    );
+    if ($is_last) {
+      $form['navigation']['#last'] = TRUE;
+    }
+  }
+
+  // Add navigation at the bottom:
+  $form['navigation']['submit'] = array(
+    '#type' => 'submit',
+    '#value' => $is_last ? t('Finish') : t('Next'),
+  );
+  if ($quiz->allow_skipping) {
+    $form['navigation']['op']  = array(
+      '#type' => 'submit',
+      '#value' => $is_last ? t('Leave blank and finish') : t('Leave blank'),
+      '#attributes' => array('class' => array('q-skip-button')),
+    );
+    if ($quiz->allow_jumping) {
+      $form['jump_to_question'] = array(
+        '#type' => 'hidden',
+        '#default_value' => 0,
+      );
+    }
+  }
+  return $form;
+}
+
+/**
+ * Form for teaser display
+ *
+ * @param $node
+ *  The question node
+ * @return
+ *  Content array
+ */
+function _quiz_question_teaser_content($node) {
+  $content['question_type'] = array(
+    '#markup' => '<div class="question_type_name">' . node_type_get_type($node)->name . '</div>',
+    '#weight' => -100,
+  );
+  return $content;
+}
+
+/**
+ * Implements hook_evaluate_question().
+ *
+ * @param $question
+ *  The question node
+ * @param $result_id
+ *  Result id
+ * @param $answer
+ *  The users answer to the question
+ * @return
+ *  Object with nid, vid, rid, score, is_correct flags set.
+ */
+function quiz_question_evaluate_question($question, $result_id, $answer = NULL) {
+  if (empty($answer) && isset($_POST['tries'])) {
+    // FIXME this use of POST array is hacky. We will try to use FAPI mor accurately in Quiz 5.x
+    $answer = $_POST['tries'];
+  }
+  unset($_POST['tries']);
+  $response = _quiz_question_response_get_instance($result_id, $question, $answer);
+
+  // If a result_id is set, we are taking a quiz.
+  if ($result_id && isset($answer)) {
+    // We don't know whether or not the user has gone back a question. However,
+    // we do know that deleting a question for this result set should be safe in
+    // the case where the user has not gone back (since there will be no entries
+    // to delete). So we always run the delete.
+    $response->delete();
+    $response->saveResult();
+  }
+
+  // Convert the response to a bare object.
+  return $response->toBareObject();
+}
+
+/**
+ * Implements hook_skip_question().
+ */
+function quiz_question_skip_question($question, $result_id) {
+  unset($_POST['tries']); // Unset any answer that might have been set.
+
+  // Delete any old answers for this question (for backwards nav).
+  _quiz_question_response_get_instance($result_id, $question)->delete();
+
+  // This is the standard response:
+  $response = new stdClass();
+  $response->nid = $question->nid;
+  $response->vid = $question->vid;
+  $response->rid = $result_id;
+  $response->is_skipped = TRUE;
+  if (isset($_POST['is_doubtful'])) {
+    $response->is_doubtful = $_POST['is_doubtful'];
+  }
+  else {
+    $response->is_doubtful = db_query('SELECT is_doubtful FROM {quiz_node_results_answers} WHERE result_id = :result_id AND question_nid = :question_nid AND question_vid = :question_vid', array(':result_id' => $result_id, ':question_nid' => $question->nid, ':question_vid' => $question->vid))->fetchField();
+  }
+  return $response;
+}
+
+/**
+ * Implements hook_list_questions().
+ */
+function quiz_question_list_questions($count = 0, $offset = 0) {
+  $query = db_select('node', 'n')
+    ->fields('n', array('nid', 'vid'))
+    ->innerjoin('node_revision', 'nr')
+    ->condition('type', array_keys(_quiz_question_get_implementations()), 'IN')
+    ->execute();
+
+  /*
+  $sql = "SELECT n.nid, n.vid, r.body, r.format FROM {node} AS n
+    INNER JOIN {node_revision} AS r USING(vid)
+    WHERE n.type IN (%s) ORDER BY n.type, n.changed";
+  $types = array();
+  foreach (array_keys(_quiz_question_get_implementations()) as $key) {
+    $types[] = "'" . $key . "'";
+  }
+  $type = implode(',', $types);
+
+  if ($count == 0) {
+    // Return all results
+    // TODO Please convert this statement to the D7 database API syntax.
+    $result = db_query(db_rewrite_sql($sql), $type);
+  }
+  else {
+    // return only $count results
+    // TODO Please convert this statement to the D7 database API syntax.
+    $result = db_query_range(db_rewrite_sql($sql), $type);
+  }
+  */
+
+  /**
+   * The following code doesn't make any sense, since
+   * the body is not fetched in the above SQL
+   *
+   * From where is this function invoked?
+   */
+  $questions = array();
+  while ($question = $query->fetch()) {
+    $question->question = check_markup($question->body, $question->body['und'][0]['format']);
+    $questions[] = $question;
+  }
+  return $questions;
+}
+
+/**
+ * Imlementation of hook_get_report().
+ *
+ * @return
+ *  Node containing all of the items from the question plus the user's answer.
+ */
+function quiz_question_get_report($nid, $vid, $rid) {
+  $response_instance = _quiz_question_response_get_instance($rid, NULL, NULL, $nid, $vid);
+  if (!$response_instance) {
+    drupal_set_message(t('Unable to load question with nid %nid and vid %vid', array('%nid' => $nid, '%vid' => $vid)), 'error');
+    return FALSE;
+  }
+  $result = $response_instance->getReport();
+  $response_instance->question->answers[$result['answer_id']] = $result;
+  $response_instance->question->correct = $result['is_correct'];
+  return $response_instance->question;
+}
+
+/**
+ * @todo Please document this function.
+ * @see http://drupal.org/node/1354
+ */
+function quiz_question_has_been_answered($node) {
+  $question_instance = _quiz_question_get_instance($node, true);
+  return $question_instance->hasBeenAnswered();
+}
+
+/**
+ * Implements hook_quiz_question_score().
+ */
+function quiz_question_quiz_question_score($quiz, $question_nid, $question_vid = NULL, $rid = NULL) {
+  if (!isset($quiz) && !isset($rid)) {
+    return quiz_question_get_max_score($question_nid, $question_vid);
+  }
+
+  // We avoid using node_load to increase performance...
+  $dummy_node = new stdClass();
+  $dummy_node->nid = $question_nid;
+  $dummy_node->vid = $question_vid;
+
+  $question = _quiz_question_get_instance($dummy_node, TRUE);
+  if (!$question) {
+    return FALSE;
+  }
+
+  $score = new stdClass();
+  $score->possible = $question->getMaximumScore();
+  $score->question_nid = $question->node->nid;
+  $score->question_vid = $question->node->vid;
+
+  if (isset($rid)) {
+    $response = _quiz_question_response_get_instance($rid, $question->node);
+    $score->attained = $score->possible > 0 ? $response->getScore() : 0;
+    $score->possible = $response->getMaxScore();
+    $score->is_evaluated = $response->isEvaluated();
+  }
+  return $score;
+}
+
+/**
+ * Implements hook_delete_result().
+ *
+ * @param $rid
+ *  Result id
+ * @param $nid
+ *  Question node id
+ * @param $vid
+ *  Question node version id
+ */
+function quiz_question_delete_result($rid, $nid, $vid) {
+  $response = _quiz_question_response_get_instance($rid, NULL, NULL, $nid, $vid);
+  if ($response) {
+    $response->delete();
+  }
+  else {
+    drupal_set_message(t('Unable to delete result. A constructor could not be found for the question-type'), 'error');
+  }
+}
+
+/**
+ * Get the configuration form for all enabled question types.
+ */
+function quiz_question_config($form, $context) {
+  $q_types = _quiz_question_get_implementations();
+  $form = array();
+  $form['#validate'] = array();
+  // Go through all question types and merge their config forms
+  foreach ($q_types as $type => $values) {
+    $function = $type . '_config';
+    if ($admin_form = $function()) {
+      $form[$type] = $admin_form;
+      $form[$type]['#type'] = 'fieldset';
+      $form[$type]['#title'] = $values['name'];
+      $form[$type]['#collapsible'] = TRUE;
+      $form[$type]['#collapsed'] = TRUE;
+      if (isset($admin_form['#validate'])) {
+        $form['#validate'] = array_merge($form['#validate'], $admin_form['#validate']);
+	unset($form[$type]['#validate']);
+      }
+    }
+  }
+  return system_settings_form($form);
+}
+
+// NODE API
+
+/**
+ * Implements hook_node_revision_delete().
+ */
+function quiz_question_node_revision_delete($node) {
+  $q_types = _quiz_question_get_implementations();
+  foreach ($q_types as $q_type => $info) {
+    if ($node->type == $q_type) {
+      _quiz_delete_question($node, TRUE); // true for only this version
+    }
+  }
+}
+
+/**
+ * Implements hook_node_presave().
+ */
+function quiz_question_node_presave($node) {
+  $q_types = _quiz_question_get_implementations();
+  foreach ($q_types as $q_type => $info) {
+    if ($node->type == $q_type) {
+      if (drupal_strlen($node->title) == 0 || !user_access('edit question titles')) {
+        $body = field_get_items('node', $node, 'body');
+        $markup = strip_tags(check_markup($body[0]['value'], $body[0]['format']));
+        if (drupal_strlen($markup) > variable_get('quiz_autotitle_length', 50)) {
+          $node->title = drupal_substr($markup, 0, variable_get('quiz_autotitle_length', 50) - 3) . '...';
+        }
+        else {
+          $node->title = $markup;
+        }
+      }
+    }
+  }
+}
+
+/**
+ * Implements hook_node_insert().
+ */
+function quiz_question_node_insert($node) {
+  // Make sure the latest quizzes table is maintained when a quiz changes
+  if ($node->type == 'quiz') {
+    quiz_question_refresh_latest_quizzes($node->nid);
+  }
+}
+
+/**
+ * Implements hook_node_update().
+ */
+function quiz_question_node_update($node) {
+  // Make sure the latest quizzes table is maintained when a quiz changes
+  if ($node->type == 'quiz') {
+    quiz_question_refresh_latest_quizzes($node->nid);
+  }
+}
+
+/**
+ * Implements hook_node_delete().
+ */
+function quiz_question_node_delete($node) {
+  // Make sure the latest quizzes table is maintained when a quiz changes
+  if ($node->type == 'quiz') {
+    quiz_question_remove_latest_quizzes($node->nid);
+  }
+}
+
+/**
+ * Implements hook_insert().
+ */
+function quiz_question_insert(stdClass $node) {
+  _quiz_question_get_instance($node)->save(TRUE);
+  if (isset($node->quiz_nid) && $node->quiz_nid > 0) {
+    quiz_question_refresh_latest_quizzes($node->quiz_nid);
+  }
+}
+
+/**
+ * Implements hook_view().
+ */
+//function quiz_question_view($node, $teaser = FALSE, $page = FALSE) {
+function quiz_question_view($node, $view_mode) {
+  if ($view_mode == 'search_index' && !variable_get('quiz_index_questions', 1)) {
+    $node->body = '';
+    $node->content = array();
+    $node->title = '';
+    $node->taxonomy = array();
+    return $node;
+  }
+  $content = '';
+
+  if (_quiz_is_taking_context()) {
+    /*
+     * @todo: I see no reason why this should be a part of view anymore.
+     * In quiz 5 we should stop using hook_view to view the answering form
+     */
+    $form = drupal_get_form('quiz_question_answering_form', $node);
+    $form_markup = drupal_render($form);
+
+    if (!empty($form_markup)) {
+      $node->content['body']['#markup'] = $form_markup;
+    }
+  }
+  elseif ($view_mode == 'teaser') {
+    $node->content['question_teaser'] = _quiz_question_teaser_content($node);
+  }
+  else {
+    // normal node view
+    //$question = _quiz_question_get_instance($node, TRUE);
+    $content = _quiz_question_get_instance($node, TRUE)->getNodeView();
+  }
+
+  // put it into the node->content
+  if (!empty($content)) {
+    $node->content = (isset($node->content)) ? $node->content + $content : $content;
+  }
+  return $node;
+}
+
+/**
+ * Implements hook_update().
+ */
+function quiz_question_update($node) {
+  _quiz_question_get_instance($node)->save();
+}
+
+/**
+ * Implements hook_delete().
+ */
+function quiz_question_delete(&$node) {
+  _quiz_delete_question($node, FALSE);
+}
+
+/**
+ * Delete the question node from the db, and mark its identifiers in the quiz
+ * linking table as "NEVER".  This is safer than deleting them
+ * and allows for same tracing of what's happened if a question was deleted unintentionally.
+ *
+ * @param $node the question node
+ * @param $only_this_version whether to delete only the specific revision of the question
+ */
+function _quiz_delete_question(&$node, $only_this_version) {
+  // let each question class delete its own stuff
+  _quiz_question_get_instance($node, TRUE)->delete($only_this_version);
+
+  // FIXME QuizQuestion class makes these relationships, so it should handle their 'deletion' too
+  // FIXME alternately, move the relationship handling out of QuizQuestion class
+  // @todo reconsider this QUESTION_NEVER status, since the node is actually gone
+
+  // then remove it from {quiz_node_relationship} linking table
+  //$base_sql = "UPDATE {quiz_node_relationship} SET question_status = " . QUESTION_NEVER;
+  $select_sql = 'SELECT parent_vid FROM {quiz_node_relationship}';
+  if ($only_this_version) {
+    $select_sql .= ' WHERE child_nid = :child_nid AND child_vid = :child_vid';
+    $filter_arg = array(':child_nid' => $node->nid, ':child_vid' => $node->vid);
+  }
+  else {
+    $select_sql .= ' WHERE child_nid = :child_nid';
+    $filter_arg = array(':child_nid' => $node->nid);
+  }
+  //$res = db_query($select_sql . $filter_sql, $node->nid, $node->vid);
+  $res = db_query($select_sql, $filter_arg);
+
+  //db_query($base_sql . $filter_sql, $node->nid, $node->vid);
+  $update = db_update('quiz_node_relationship')
+    ->fields(array('question_status' => QUESTION_NEVER))
+    ->condition('child_nid', $node->nid);
+  if ($only_this_version) {
+    $update = $update->condition('child_vid', $node->vid);
+  }
+  $update->execute();
+
+  $quizzes_to_update = array();
+  while ($quizzes_to_update[] = $res->fetchField()) {
+  }
+  quiz_update_max_score_properties($quizzes_to_update);
+}
+
+/**
+ * Implements hook_load().
+ */
+function quiz_question_load($nodes) {
+  foreach ($nodes as $nid => &$node) {
+    $node_additions = _quiz_question_get_instance($node, TRUE)->getNodeProperties();
+    foreach ($node_additions as $property => &$value) {
+      $node->$property = $value;
+    }
+  }
+}
+
+// END NODE API
+
+/**
+ * Get an instance of a quiz question.
+ *
+ * Get information about the class and use it to construct a new
+ * object of the appropriate type.
+ *
+ * @param $node
+ *  Question node
+ * @param $use_cached
+ *  Can we use a cached version of the node?
+ * @return
+ *  The appropriate QuizQuestion extension instance
+ */
+function _quiz_question_get_instance(&$node, $use_cached = FALSE) {
+  // We use static caching to improve performance
+  static $question_instances = array();
+
+  $using_dummy_node = FALSE;
+  if (is_object($node)) {
+    $vid = isset($node->vid) ? $node->vid : 0;
+    if ($use_cached && isset($question_instances[$vid])) {
+      // We just return a cached instance of the QuizQuestion
+      return $question_instances[$vid];
+    }
+    // If $node don't have a type it is a dummy node
+    if (!isset($node->type)) {
+      // To substanitally improve performance(especially on the result page) we avoid node_load()...
+      $sql = 'SELECT n.type, r.nid, r.vid, r.title, p.max_score
+              FROM {node_revision} r
+              JOIN {node} n ON r.nid = n.nid
+              JOIN {quiz_question_properties} p ON r.vid = p.vid
+              WHERE r.vid = :vid';
+      $node = db_query($sql, array(':vid' => $node->vid))->fetch();
+      $using_dummy_node = TRUE;
+    }
+    $name = $node->type;
+  }
+  elseif (is_array($node)) {
+    $name = $node['type'];
+    $vid = $node['vid'];
+    if ($use_cached && isset($question_instances[$vid])) {
+      // We return a cached instance of the appropriate QuizQuestion
+      return $question_instances[$vid];
+    }
+  }
+  // No cached instance of QuizQuestion has been returned. We construct a new instance
+  $info = _quiz_question_get_implementations();
+  $constructor = $info[$name]['question provider'];
+  if (empty($constructor)) {
+    return FALSE;
+  }
+
+  // We create a new instance of QuizQuestion
+  $to_return = new $constructor($node);
+  if (!($to_return instanceof QuizQuestion)) {
+    // Make sure the constructor is creating an extension of QuizQuestion
+    drupal_set_message(t('The question-type %name isn\'t a QuizQuestion. It needs to extend the QuizQuestion class.', array('%name' => $name)), 'error', FALSE);
+  }
+  // If we're using a dummy node we have to run getNodeProperties, and populate the node with those properties
+  if ($using_dummy_node) {
+    $props = $to_return->getNodeProperties();
+    foreach ($props as $key => $value) {
+      $to_return->node->{$key} = $value;
+    }
+  }
+  // Cache the node
+  $question_instances[$vid] = $to_return;
+
+  return $to_return;
+}
+
+/**
+ * Get an instance of a quiz question responce.
+ *
+ * Get information about the class and use it to construct a new
+ * object of the appropriate type.
+ *
+ * @param $rid
+ *  Result id
+ * @param $question
+ *  The question node(not a QuizQuestion instance)
+ * @param $answer
+ *  Resonce to the answering form.
+ * @param $nid
+ *  Question node id
+ * @param $vid
+ *  Question node version id
+ * @return
+ *  The appropriate QuizQuestionResponce extension instance
+ */
+function _quiz_question_response_get_instance($rid, $question, $answer = NULL, $nid = NULL, $vid = NULL) {
+  // We cache responses to improve performance
+  static $quiz_responses = array();
+  if (is_object($question) && isset($quiz_responses[$rid][$question->vid])) {
+    // We refresh the question node in case it has been changed since we cached the response
+    $quiz_responses[$rid][$question->vid]->refreshQuestionNode($question);
+    if ($quiz_responses[$rid][$question->vid]->is_skipped !== FALSE) {
+      return $quiz_responses[$rid][$question->vid];
+    }
+  }
+  elseif (isset($quiz_responses[$rid][$vid])) {
+    if ($quiz_responses[$rid][$vid]->is_skipped !== FALSE) {
+      return $quiz_responses[$rid][$vid];
+    }
+  }
+  if (!isset($quiz_responses[$rid])) {
+    // Prepare to cache responses for this result id
+    $quiz_responses[$rid] = array();
+  }
+  // If the question node isn't set we fetch it from the QuizQuestion instance this responce belongs to
+  if (!isset($question)) {
+    $dummy_node = new stdClass();
+    $dummy_node->nid = $nid;
+    $dummy_node->vid = $vid;
+    $question = _quiz_question_get_instance($dummy_node, TRUE)->node;
+  }
+  if (!$question) {
+    return FALSE;
+  }
+  $info = _quiz_question_get_implementations();
+  $constructor = $info[$question->type]['response provider'];
+  $to_return = new $constructor($rid, $question, $answer);
+  // All responce classes must extend QuizQuestionResponse
+  if (!($to_return instanceof QuizQuestionResponse)) {
+    drupal_set_message(t('The question-response isn\'t a QuizQuestionResponse. It needs to extend the QuizQuestionResponse interface, or extend the abstractQuizQuestionResponse class.'), 'error', FALSE);
+  }
+  // Cache the responce instance
+  $quiz_responses[$rid][$question->vid] = $to_return;
+
+  return $to_return;
+}
+
+/**
+ * Get the information about various implementations of quiz questions.
+ *
+ * @param $reset
+ *  If this is true, the cache will be reset.
+ * @return
+ *  An array of information about quiz question implementations.
+ * @see quiz_question_quiz_question_info() for an example of a quiz question info hook.
+ */
+function _quiz_question_get_implementations($name = NULL, $reset = FALSE) {
+  static $info = array();
+  if (empty($info) || $reset) {
+    $qtypes = module_invoke_all('quiz_question_info');
+    foreach ($qtypes as $type => $definition) {
+      // We only want the ones with classes.
+      if (!empty($definition['question provider'])) {
+        // Cache the info
+        $info[$type] = $definition;
+      }
+    }
+  }
+  return $info;
+}
+
+/**
+ * Refreshes the quiz_question_latest_quizzes table when a user has modified a new quiz.
+ *
+ * The latest quizzes table is used to know what quizzes the user has been using lately.
+ *
+ * @param $nid
+ *   nid of the last quiz the current user modified
+ */
+function quiz_question_refresh_latest_quizzes($nid) {
+  global $user;
+  // Delete entry if it allready exists
+  db_delete('quiz_question_latest_quizzes')
+    ->condition('uid', $user->uid)
+    ->condition('quiz_nid', $nid)
+    ->execute();
+
+  // Inserts as new entry to get new id. Latest quizzes are ordered by id(descending)
+  $id = db_insert('quiz_question_latest_quizzes')
+    ->fields(array(
+      'uid' => $user->uid,
+      'quiz_nid' => $nid,
+    ))
+    ->execute();
+
+  // If we have to many entries for current user, delete the oldest entries...
+  $min_id = db_select('quiz_question_latest_quizzes', 'lq')
+    ->fields('lq', array('id'))
+    ->condition('uid', $user->uid)
+    ->orderBy('id', 'DESC')
+    ->range(QUIZ_QUESTION_NUM_LATEST - 1, 1)
+    ->execute()
+    ->fetchField();
+
+  // Delete all table entries older than the nth row, if nth row was found.
+  if ($min_id) {
+    db_delete('quiz_question_latest_quizzes')
+      ->condition('id', $min_id, '<')
+      ->condition('uid', $user->uid)
+      ->execute();
+  }
+}
+
+/**
+ * Removes a quiz from the quiz_question_latest_quizzes table.
+ *
+ * @param $nid
+ *   the nid of a quiz that shall be removed
+ */
+function quiz_question_remove_latest_quizzes($nid) {
+  db_delete('quiz_question_latest_quizzes')
+  ->condition('quiz_nid', $nid)
+  ->execute();
+}
+
+/**
+ * Get the max score for a question
+ *
+ * @param $nid
+ *  Question node id
+ * @param $vid
+ *  Question node version id
+ * @return
+ *  Max score(int)
+ */
+function quiz_question_get_max_score($nid, $vid) {
+  return db_query('SELECT max_score
+          FROM {quiz_question_properties}
+          WHERE nid = :nid AND vid = :vid', array(':nid' => $nid, ':vid' => $vid))->fetchField();
+}
+
+/**
+ * Implements hook_field_extra_fields().
+ */
+function quiz_question_field_extra_fields() {
+  $extra = array();
+  $question_types = array_keys(_quiz_question_get_implementations());
+  if (!empty($question_types)) {
+    foreach ($question_types as $type_name) {
+      $extra['node'][$type_name]['form']['add_directly'] = array(
+        'label' => t('Add directly'),
+        'description' => t('Fieldset for adding a question directly into quizzes'),
+        'weight' => -3,
+      );
+    }
+  }
+  return $extra;
+}
+
+/**
+ * Returns a result report for a question response.
+ *
+ * The retaurned value is a form array because in some contexts the scores in the form
+ * is editable
+ *
+ * @param $question
+ *  The question node
+ * @param $showpoints
+ * @param $showfeedback
+ * @param $allow_scoring
+ * @return
+ *  FAPI form array
+ */
+function quiz_question_report_form($question, $showpoints, $showfeedback, $allow_scoring = FALSE) {
+  $answer = $question->answers[0];
+  $response_instance = _quiz_question_response_get_instance($answer['result_id'], $question, $answer);
+  // If need to specify the score weight if it isn't already specified.
+  if (!isset($response_instance->question->score_weight)) {
+    $vid = db_query('SELECT vid FROM {quiz_node_results}
+      WHERE result_id = :rid',
+      array(':rid' => $answer['result_id']))
+      ->fetchField();
+
+    $qnr_max_score = db_query('SELECT qnr.max_score FROM {quiz_node_relationship} qnr
+      WHERE qnr.child_vid = :child_vid AND qnr.parent_vid = :parent_vid',
+      array(':child_vid' => $question->vid, ':parent_vid' => $vid))
+      ->fetchField();
+
+    if ($qnr_max_score === FALSE) {
+      $qnr_max_score = db_query('SELECT qt.max_score FROM {quiz_node_results} qnr
+         JOIN {quiz_node_results_answers} qnra ON (qnr.result_id = qnra.result_id)
+         JOIN {quiz_terms} qt ON (qt.vid = qnr.vid AND qt.tid = qnra.tid)
+         WHERE qnr.result_id = :rid AND qnra.question_nid = :qnid AND qnra.question_vid = :qvid',
+        array(':rid' => $answer['result_id'], ':qnid' => $question->nid, ':qvid' => $question->vid))
+        ->fetchField();
+    }
+
+    $response_instance->question->score_weight = ($qnr_max_score == 0 || $response_instance->question->max_score == 0) ? 0 : ($qnr_max_score / $response_instance->question->max_score);
+  }
+
+  return $response_instance->getReportForm($showpoints, $showfeedback, $allow_scoring);
+}
+
+/**
+ * Add body field to quiz_question nodes.
+ */
+function quiz_question_add_body_field($type) {
+  node_types_rebuild();
+  $node_type = node_type_get_type($type);
+  if (!$node_type) {
+    watchdog('quiz', 'Attempt to add body field was failed as question content type %type is not defined.', array('%type' => $type), WATCHDOG_ERROR);
+    watchdog('quiz', '<pre>'.  print_r(node_type_get_types(), 1), array(), WATCHDOG_ERROR);
+    return;
+  }
+  node_add_body_field($node_type, 'Question');
+  // Override default weight to make body field appear first
+  $instance = field_read_instance('node', 'body', $type);
+  $instance['widget']['weight'] = -10;
+  $instance['widget']['settings']['rows'] = 6;
+  field_update_instance($instance);
+}

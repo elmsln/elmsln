@@ -1,0 +1,41 @@
+
+div.dynamic-select-container-wrapper  {
+
+  padding-top: 1em;
+  padding-bottom: 1em;
+}
+
+/* All div inside the container are inline */
+div.dynamic-select-submit-wrapper  {
+
+  display: inline-block;
+}
+
+/* All div inside the container are inline */
+div.dynamic-select-select-wrapper  {
+
+  display: inline-block;
+}
+
+/* All div inside the container are inline */
+div.dynamic-select-filter-wrapper  {
+
+  display: inline-block;
+}
+
+/* All div's inside the container should be inline except the description */
+div.description{
+
+  display: block;
+}
+
+.dynamic-select-submit-wrapper input {
+
+  margin-left: 1em;
+}
+
+
+
+
+
+

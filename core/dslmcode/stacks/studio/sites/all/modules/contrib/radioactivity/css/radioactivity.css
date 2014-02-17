@@ -1,0 +1,19 @@
+
+.radioactivity-gauge {
+  width: 16px;
+  height: 16px;
+  display: block;
+  background: transparent url(../images/gauge.png) repeat-y 0 0;
+}
+
+.radioactivity-gauge.lvl-3 {
+  background-position: 0 0;
+}
+
+.radioactivity-gauge.lvl-2 {
+  background-position: -16px 0;
+}
+
+.radioactivity-gauge.lvl-1 {
+  background-position: -32px 0;
+}

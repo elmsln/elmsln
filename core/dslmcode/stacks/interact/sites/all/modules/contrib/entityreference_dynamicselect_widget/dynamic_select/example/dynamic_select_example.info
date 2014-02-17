@@ -1,0 +1,21 @@
+name = Dynamic Select Example
+description = "This module provide an example of the Dynamic Select form element"
+package = Example modules
+core = 7.x
+
+dependencies[] = dynamic_select
+
+version = "7.x-1.x-dev"
+core = 7.x
+project = "dynamic_select_example"
+datestamp = "1273827310"
+
+
+
+
+; Information added by drupal.org packaging script on 2013-04-06
+version = "7.x-1.0"
+core = "7.x"
+project = "entityreference_dynamicselect_widget"
+datestamp = "1365259212"
+

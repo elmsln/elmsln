@@ -1,0 +1,148 @@
+<?php
+/**
+ *  @file Add a handler for facebook videos to Video Embed Field.
+ *  @see video_embed_field.api.php for more documentation
+ */
+
+/**
+ *  Implements hook_video_embed_handler_info().
+ *  This function is used to tell video_embed_field which functions will be used to handle
+ *  different operations, along with a bit of metadata.
+ *  @return an associative array with the data
+ *  @see video_embed_field.api.php for specific details on the data to return.
+ */
+function video_embed_facebook_video_embed_handler_info () {
+  $handlers = array();
+  //the key here should be unique to our handler, normally the name of the service will suffice
+  $handlers['facebook'] = array(
+    'title' => 'Facebook Video', //The title is the name to show to users
+    //function is a function to take the url and return the embed code
+    'function' => 'video_embed_facebook_handle_video', 
+    //thumbnail_function is optional and takes the url and returns the thumbnail url
+    'thumbnail_function' => 'video_embed_facebook_handle_thumbnail',
+    //data_function is optional and returns an array of extra data for the given video url
+    //because facebook requires oath to get this data, we'll leave it out for now 
+    //'data_function' => 'video_embed_facebook_handle_data',   
+    //form is the configure form to embed into video_embed styles - this is where all settings should go
+    'form' => 'video_embed_facebook_form',
+    //domains is how video embed determines which handler to use, its an array of domains to match
+    //urls against.  Don't include the scheme (like http://) or www.
+    'domains' => array(
+      'facebook.com',
+    ),
+    //defaults are the defaults to provide to your form (as defined in your form callback)
+    'defaults' => array(
+      'width' => 640,
+      'height' => 360,
+      'allowfullscreen' => TRUE,
+    ),
+  );
+
+  return $handlers;
+}
+
+/**
+ *  Our configuration form (the callback for the form key in info)
+ *  Provide a form to configure out video settings
+ *  @param $defaults - default/current values for your provider, the currently saved settings
+ *                       with empty values filled with the defaults provided in info hook
+ *  @return a form as defined by forms api
+ */
+function video_embed_facebook_form ($defaults) {
+  $form = array();
+  //form element for the width of the player - note we're using the default from defaults
+  $form['height'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Player Width'),
+    '#description' => t('The width of the player.'),
+    '#default_value' => $defaults['height'],
+  );
+  //element for width
+  $form['width'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Player Width'),
+    '#description' => t('The width of the player.'),
+    '#default_value' => $defaults['width'],
+  );
+  //allow configuration of fullscreen
+  $form['allowfullscreen'] = array(
+    '#type' => 'checkbox',
+    '#title' => t('Allow Fullscreen'),
+    '#desecription' => t('This will allow the video to be fullscreened.'),
+    '#default_value' => $defaults['allowfullscreen'],
+  );
+
+  return $form;
+}
+
+
+/**
+ *  This is the video handler (the 'function' key from handler_info)
+ *  @param $url - the full video url
+ *  @param $settings - an associative array of this handlers settings, from the settings form
+ *  @return - the embed code for the video
+ */
+function video_embed_facebook_handle_video ($url, $settings) {
+  $id = _video_embed_facebook_get_video_id($url);
+
+  if($id) {
+    //our embed code
+    $embed = '<object>
+      <param name="allowfullscreen" value="!fullscreen" />
+      <param name="allowscriptaccess" value="always" />
+      <param name="movie" value="http://www.facebook.com/v/!id" />
+      <param name="wmode" value="opaque" />
+      <embed src="http://www.facebook.com/v/!id" type="application/x-shockwave-flash" wmode="opaque"
+        allowscriptaccess="always" allowfullscreen="!fullscreen" width="!width" height="!height">
+      </embed>
+    </object>';
+    //use format_string to replace our placeholders with the values from the settings
+    $embed = format_string($embed, array(
+      '!id' => $id,
+      '!fullscreen' => $settings['allowfullscreen'] ? 'true' : 'false',
+      '!width' => $settings['width'],
+      '!height' => $settings['height'],
+    ));
+    //we want to return a render array
+    $video = array(
+      '#markup' => $embed,
+    );
+    return $video;
+  }
+  // just return an empty string if there is no id, so we don't have broken embeds showing up
+  return '';
+}
+
+/**
+ *  Retreive the thumbnail for the facebook video - note that based on a users permissions, this may be 
+ *  the facebook unknown thumbnail: https://s-static.ak.facebook.com/rsrc.php/v1/y0/r/XsEg9L6Ie5_.jpg
+ *  @param $url - the url of the video as entered by the user
+ *  @return an array with the keys:
+ *    'id' => an id for the video which is unique to your provider, used for naming the cached thumbnail file
+ *    'url' => the url to retrieve the thumbnail from 
+ */
+function video_embed_facebook_handle_thumbnail ($url) {
+  $id = _video_embed_facebook_get_video_id($url);
+  // We're using a part of the graphs api to return the thumbnail.  This only works for some videos
+  return array(
+    'id' => $id, //generally the id that the provider uses for the video
+    'url' => 'https://graph.facebook.com/'.$id.'/picture', //the url of the thumbnail
+  );
+}
+
+/**
+ *  Helper function to take a facebook video url and return its id
+ *  @param $url - the full facebook video url
+ *  @return the id for the video
+ */
+function _video_embed_facebook_get_video_id ($url) {
+  //parse_url is an easy way to break a url into its components
+  $matches = array();
+  preg_match('/(.*)?v=([^&#]*)/', $url, $matches);
+  //if the v get parameter is set, return it
+  if ($matches && !empty($matches[2])) {
+    return $matches[2];
+  }
+  //otherwise return false.
+  return FALSE;
+}

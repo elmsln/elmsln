@@ -1,0 +1,221 @@
+<?php
+/**
+ * @file
+ * Views TimelineJS API, theming, libraries, etc.
+ */
+
+/**
+ * Implements hook_views_api().
+ */
+function views_timelinejs_views_api() {
+  return array(
+    'api' => '3',
+    'path' => drupal_get_path('module', 'views_timelinejs'),
+  );
+}
+
+/**
+ * Implements hook_theme().
+ */
+function views_timelinejs_theme() {
+  $base = array('file' => 'theme/views_timelinejs.theme.inc');
+  return array(
+    'views_timelinejs_nodata' => $base + array(),
+    'views_timelinejs_link_to_entity' => $base + array(
+      'arguments' => array(
+        'uri' => NULL,
+        'link_text' => NULL,
+      ),
+    ),
+  );
+}
+
+/**
+ * Implements hook_libraries_info().
+ */
+function views_timelinejs_libraries_info() {
+  $libraries = array();
+
+  $libraries['timeline'] = array(
+    'name' => 'timeline',
+    'vendor url' => 'http://timeline.verite.co',
+    'download url' => 'http://timeline.verite.co',
+    'version arguments' => array(
+      'file' => 'compiled/js/timeline.js',
+      'pattern' => '/Version ([\d.]+)/i',
+      'lines' => 5,
+      'cols' => 20,
+    ),
+    'files' => array(
+      'js' => array(
+        'compiled/js/storyjs-embed.js',
+      ),
+      'css' => array(
+        'compiled/css/timeline.css',
+      ),
+    ),
+    'versions' => array(
+      '2.17' => array(
+        'files' => array(
+          'js' => array(
+            'compiled/js/storyjs-embed.js',
+          ),
+          'css' => array(
+            'compiled/css/timeline.css',
+          ),
+        ),
+      ),
+    ),
+  );
+
+  return $libraries;
+}
+
+/**
+ * Implements hook_ctools_plugin_directory().
+ *
+ * Plugin integration for date sources, image sources and timeline themes.
+ */
+function views_timelinejs_ctools_plugin_directory($module, $plugin) {
+  if ($module == 'views_timelinejs') {
+    return 'plugins/' . $plugin;
+  }
+}
+
+/**
+ * Implements hook_ctools_plugin_type().
+ */
+function views_timelinejs_ctools_plugin_type() {
+  return array(
+    'date_sources' => array(),
+    'text_sources' => array(),
+    'media_sources' => array(),
+    'tag_sources' => array(),
+  );
+}
+
+/**
+ * Returns the date conversion callback function name of a plugin.
+ */
+function views_timelinejs_get_callback($handler_name, $field_type, $plugin_type) {
+  ctools_include('plugins');
+  $plugins = ctools_get_plugins('views_timelinejs', $plugin_type);
+  foreach ($plugins as $plugin) {
+    if ($plugin['handler_name'] == $handler_name && $plugin['field_type'] == $field_type) {
+      return ctools_plugin_get_function($plugin, 'callback');
+    }
+  }
+}
+
+/**
+ * Returns the currently logged-in user's timezone.
+ *
+ * @return string
+ *   The name of the currently logged-in user's timezone.
+ */
+function views_timelinejs_get_timezone() {
+  global $user;
+  if (variable_get('configurable_timezones', 1) && $user->uid && drupal_strlen($user->timezone)) {
+    return $user->timezone;
+  }
+  else {
+    return variable_get('date_default_timezone', NULL);
+  }
+}
+
+/**
+ * Converts a given time and date into CSV format with Drupals timezone.
+ *
+ * @param string $value
+ *   The date to be converted.
+ * @param string $date_format
+ *   The format of the date.
+ * @param string $timezone
+ *   The timezone of the date.
+ * @param string $db_timezone
+ *   The Drupal timezone.
+ *
+ * @return string
+ *   CSV formatted date.
+ */
+function views_timelinejs_convert_to_csv($value, $date_format, $timezone, $db_timezone, $granularity) {
+  // To avoid errors, if value is empty set it to unix epoch.
+  if (empty($value)) {
+    return "FALSE";
+  }
+
+  $timezone = new DateTimezone($timezone);
+  $db_timezone = new DateTimezone($db_timezone);
+  switch ($date_format) {
+    case 'datestamp':
+    case 'timestamp':
+      $date = new DateObject();
+      $date->setTimezone($db_timezone);
+      $date->setTimestamp($value);
+      break;
+
+    default:
+      $date = new DateObject($value, $db_timezone);
+      break;
+  }
+
+  $format = array();
+  if (is_string($granularity['year']) && $granularity['year'] == 'year') {
+    $format[] = 'Y';
+  }
+  if (is_string($granularity['month']) && $granularity['month'] == 'month') {
+    $format[] = 'm';
+  }
+  if (is_string($granularity['day']) && $granularity['day'] == 'day') {
+    $format[] = 'd';
+  }
+  if (is_string($granularity['hour']) && $granularity['hour'] == 'hour') {
+    $format[] = 'H';
+  }
+  if (is_string($granularity['minute']) && $granularity['minute'] == 'minute') {
+    $format[] = 'i';
+  }
+
+  $format = implode(',', $format);
+  $date->setTimezone($timezone);
+  return $date->format($format);
+}
+
+/**
+ * Converts a given time and date into timestamp with Drupals timezone.
+ *
+ * @param string $value
+ *   The date to be converted.
+ * @param string $date_format
+ *   The format of the date.
+ * @param string $timezone
+ *   The timezone of the date.
+ * @param string $db_timezone
+ *   The Drupal timezone.
+ *
+ * @return string
+ *   Timestamp.
+ */
+function views_timelinejs_convert_to_timestamp($value, $date_format, $timezone, $db_timezone) {
+  // To avoid errors, if value is empty set it to unix epoch.
+  if (empty($value)) {
+    return "FALSE";
+  }
+
+  $timezone = new DateTimezone($timezone);
+  $db_timezone = new DateTimezone($db_timezone);
+  switch ($date_format) {
+    case 'datestamp':
+    case 'timestamp':
+      $date = new DateTime();
+      $date->setTimezone($db_timezone);
+      $date->setTimestamp($value);
+      break;
+
+    default:
+      $date = new DateTime($value, $db_timezone);
+      break;
+  }
+  $date->setTimezone($timezone);
+  return $date->format('U');
+}

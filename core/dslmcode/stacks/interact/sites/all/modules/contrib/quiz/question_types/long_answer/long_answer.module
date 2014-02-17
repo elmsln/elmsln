@@ -1,0 +1,325 @@
+<?php
+
+/**
+ * This module defines a long answer question type for quizzes.
+ *
+ * Long answer questions make use of the quiz question framework (quiz_question.module).
+ * The functions in this file are largely used for grading long answer questions. Most
+ * of the real logic is in long_answer.classes.inc.
+ *
+ * @file
+ */
+
+/**
+ * Implements hook_help().
+ */
+function long_answer_help($path, $arg) {
+  if ($path == 'admin/help#long_answer') {
+    return '<p>' . t('This module provides long-answer (essay, multi-paragraph) questions to the quiz module.') .
+      '</p><p>' . t('A long-answer question is designed to provide the quiz taker a lengthy area to expand on ideas.
+      Common forms of long-answer questions include essays, single paragraph responses, hypothesis design problems,
+      outlines and summaries, and lengthier math problems
+      where the focus is on showing work rather than simply getting the correct answer.') . '</p>';
+  }
+}
+
+/**
+ * Implements hook_menu().
+ */
+function long_answer_menu() {
+  $items['admin/quiz/reports/score-long-answer'] = array(
+    'title' => 'Score long answer questions',
+    'description' => 'Score the answers from quizzes that use long answer questions.',
+    'page callback' => 'long_answer_view_unscored',
+    'access arguments' => array('score any quiz', 'score own quiz', 'score taken quiz answer'),
+    'access callback' => 'quiz_access_multi_or',
+    'type' => MENU_NORMAL_ITEM,
+    'file' => 'long_answer.admin.inc',
+  );
+  // Pass vid and rid to this path.
+  $items['admin/quiz/reports/score-long-answer/%/%'] = array(
+    'title' => 'Score long answer response',
+    'description' => 'Score a response to a long answer question.',
+    'page callback' => 'long_answer_edit_score',
+    'page arguments' => array(4, 5),
+    'type' => MENU_NORMAL_ITEM,
+    'access arguments' => array(4, 5),
+    'access callback' => 'quiz_question_access_to_score',
+    'file' => 'long_answer.admin.inc'
+  );
+
+  return $items;
+}
+
+/**
+ * Implements hook_quiz_question_info().
+ */
+function long_answer_quiz_question_info() {
+  return array(
+    'long_answer' => array(
+      'name' => t('Long answer question'),
+      'description' => t('Quiz questions that allow a user to enter multiple paragraphs of text.'),
+      'question provider' => 'LongAnswerQuestion',
+      'response provider' => 'LongAnswerResponse',
+      'module' => 'quiz_question', // All wrapper functions are in that module.
+    ),
+  );
+}
+
+/**
+ * Implements hook_config().
+ */
+function long_answer_config() {
+  $form['long_answer_default_max_score'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Default max score'),
+    '#description' => t('Choose the default maximum score for a long answer question.'),
+    '#default_value' => variable_get('long_answer_default_max_score', 10),
+  );
+  $form['#validate'][] = 'long_answer_config_validate';
+  return $form;
+}
+
+/**
+ * Validate the long_answer config form values
+ */
+function long_answer_config_validate($form, $form_state) {
+  if ($form_state['values']['long_answer_default_max_score'] <= 0) {
+    form_set_error('long_answer_default_max_score', t('The default max score must be greater than 0'));
+  }
+}
+
+/**
+ * Implements hook_theme().
+ */
+function long_answer_theme() {
+  return array(
+    'long_answer_view_unscored' => array(
+      'variables' => array('unscored' => array()),
+      'path' => drupal_get_path('module', 'long_answer') . '/theme',
+      'file' => 'long_answer.theme.inc',
+    ),
+    'long_answer_response_form' => array(
+      'render element' => 'form',
+      'path' => drupal_get_path('module', 'long_answer') . '/theme',
+      'file' => 'long_answer.theme.inc',
+    ),
+    'long_answer_answering_form' => array(
+      'render element' => 'form',
+      'path' => drupal_get_path('module', 'long_answer') . '/theme',
+      'template' => 'long-answer-answering-form',
+    ),
+  );
+}
+
+/**
+ * Set a score for a long answer question.
+ *
+ * This stores a score for a long answer question and marks that question as having been evaluated.
+ * The function updates all of the necessary data sources so that the individual answer results should be
+ * reflected in the total scoring table.
+ *
+ * @param $quiz
+ *  Quiz node.
+ * @param $nid
+ *  Node ID of question.
+ * @param $vid
+ *  Version ID of question.
+ * @param $rid
+ *  Result ID for the quiz results.
+ * @param $score
+ *  The numeric score to assign the result.
+ * @param $update_total
+ *  Shall the total score be updated?
+ *
+ * @return int
+ *  Number of scores adjusted. If a change was made, this should be 1.
+ */
+function long_answer_score_an_answer($values, $update_total = TRUE) {
+  extract($values);
+  // Quiz scoring information is spread out across three tables:
+  // 1. The module should retain its own scoring information in any case where scoring is non-trivial.
+  // 2. The Quiz moduleretains a limited amount of scoring information.
+  // 3. The Quiz module retains an overall score for a quiz. This is the percentage score for the combination of all
+  //    questions on the quiz.
+  //
+  // We update all three.
+
+  // First, we update the long answer table
+  $question_max_score = db_query('SELECT max_score FROM {quiz_question_properties} WHERE nid = :nid AND vid = :vid', array(':nid' => $nid, ':vid' => $vid))->FetchField();
+
+  $quiz_max_score = db_query('SELECT max_score FROM {quiz_node_relationship} WHERE parent_vid = :pvid AND child_vid = :cvid', array(':pvid' => $quiz->vid, ':cvid' => $vid))->fetchField();
+
+  $changed = db_update('quiz_long_answer_user_answers')
+    ->fields(array(
+      'score' => $score * $question_max_score / $quiz_max_score,
+      'is_evaluated' => 1,
+      'answer_feedback' => $answer_feedback
+    ))
+    ->condition('question_nid', $nid)
+    ->condition('question_vid', $vid)
+    ->condition('result_id', $rid)
+    ->execute();
+  if ($changed > 0) {
+    // Second, we update the main quiz answers table
+
+    // What do we do about the quiz_node_results_answers table? It assumes strict
+    // bivalence (is_correct). I guess we consider any essay with over 50% to be correct?
+    $max = db_query('SELECT max_score FROM {quiz_question_properties} WHERE vid = :vid', array(':vid' => $vid))->fetchField();
+    if ($max <= 0) {
+      $is_correct = 0;
+      $points_awarded = 0;
+    }
+    else {
+      $is_correct = $score == $max ? 1 : 0;
+      $points_awarded = $score;
+    }
+
+    db_update('quiz_node_results_answers')
+      ->fields(array(
+        'points_awarded' => $points_awarded,
+        'is_correct' => $is_correct,
+      ))
+      ->condition('question_vid', $vid)
+      ->condition('result_id', $rid)
+      ->execute();
+
+    // Third, we update the main quiz results table
+    if ($update_total) {
+      quiz_update_total_score($quiz, $rid);
+    }
+  }
+
+  return $changed;
+}
+
+/**
+ * Get the answer for a question.
+ *
+ * This stores a score for a long answer question and marks that question as having been evaluated.
+ * @param $nid
+ *  Node ID of question.
+ * @param $vid
+ *  Version ID of question.
+ * @param $rid
+ *  Result ID for the quiz results.
+ *
+ * @return Assoc array
+ *  An array if successful, or FALSE if no result could be found. The array contains the following properties:
+ *  <code>
+ *  answer_id; // The answer ID
+ *  answer; // The full text of the answer
+ *  is_evaluated; // 0 if the question has not been evaluated, 1 if it has
+ *  score; // The score the evaluator gave the user; this should be 0 if is_evaluated is 0.
+ *  question_vid
+ *  question_nid
+ *  result_id
+ *  </code>
+ */
+function long_answer_get_answer($question_nid, $question_vid, $result_id) {
+  $result = db_query('SELECT answer_id, answer, la.is_evaluated, la.score, question_vid, question_nid, la.result_id, la.answer_feedback, rel.max_score AS rel_max_score FROM {quiz_long_answer_user_answers} la
+    JOIN {quiz_node_results} qnr ON (la.result_id = qnr.result_id)
+    JOIN {quiz_node_relationship} rel ON (qnr.vid = rel.parent_vid AND rel.child_vid = la.question_vid)
+    WHERE question_nid = :qnid AND question_vid = :qvid AND la.result_id = :rid', array(':qnid' => $question_nid, ':qvid' => $question_vid, ':rid' => $result_id))->fetchAssoc();
+  return $result ? $result : FALSE;
+}
+
+/**
+ * Given a quiz, return a list of all the unscored answers.
+ *
+ * @param $nid
+ *  Node ID for the quiz to check.
+ * @param $vid
+ *  Version ID for the quiz to check.
+ * @param $count
+ *  Number of items to return (default: 50).
+ * @param $offset
+ *  Where in the results we should start (default: 0).
+ *
+ * @return
+ *  Indexed array of result IDs that need to be scored.
+ */
+function long_answer_get_unscored_answers_by_question($nid, $vid, $count = 50, $offset = 0) {
+  $results = db_query('SELECT result_id FROM {quiz_long_answer_user_answers}
+    WHERE is_evaluated = :is_evaluated AND question_nid = :question_nid AND question_vid = :question_vid', array(':is_evaluated' => 0, ':question_nid' => $nid, ':question_vid' => $vid));
+
+  $unscored = array();
+  foreach ($results as $result) {
+    $unscored[] = $result->result_id;
+  }
+  return $unscored;
+}
+
+
+/**
+ * Get all quiz scores that have not yet been evaluated.
+ *
+ * @param $count
+ *  Number of items to return (default: 50).
+ * @param $offset
+ *  Where in the results we should start (default: 0).
+ *
+ * @return
+ *  Array of objects describing unanswered questions. Each object will have result_id, question_nid, and question_vid.
+ */
+function long_answer_get_all_unscored_answers($count = 50, $offset = 0) {
+  $unscored = LongAnswerResponse::fetchAllUnscoredAnswers();
+  return $unscored;
+}
+
+/**
+ * Generate a list of long answer questions
+ *
+ * @return
+ *  array containing nid as key and title as value
+ */
+function long_answer_questions_list() {
+  $questions = array();
+  $results = db_query('SELECT nid, title FROM {node} WHERE type = :type', array(':type' => 'long_answer'));
+  foreach ($results as $result) {
+    $questions[$result->nid] = check_plain($result->title);
+  }
+  return $questions;
+}
+
+/**
+ * Submit function for the report form
+ *
+ * @param $values
+ *   The FAPI $form_state['values']
+ */
+function long_answer_report_submit($values) {
+  long_answer_score_an_answer($values, FALSE);
+}
+
+/**
+ * Validation function for the report form
+ *
+ * @param $values
+ *  The FAPI $form_state['values']
+ * @param $form_key
+ *  Array key to add errors to
+ */
+function long_answer_report_validate($values, $form_key) {
+  $max = (int) $values['max_score'];
+  // Check to make sure that entered score is not higher than max allowed score.
+  if (!_quiz_is_int($values['score'], 0, $max)) {
+    form_set_error($form_key . '][score', t('The score needs to be a number between @min and @max', array('@min' => 0, '@max' => $max)));
+  }
+}
+
+/**
+ * Implements hook_field_extra_fields().
+ */
+function long_answer_field_extra_fields() {
+  $extra['node']['long_answer'] = array(
+    'form' => array(
+      'rubric' => array(
+        'label' => t('Rubric'),
+        'description' => t('Specify the criteria for grading the response'),
+        'weight' => -4,
+      ),
+    ),
+  );
+  return $extra;
+}

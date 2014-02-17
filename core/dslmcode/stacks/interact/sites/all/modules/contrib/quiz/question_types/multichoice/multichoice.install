@@ -1,0 +1,234 @@
+<?php
+
+/**
+ * Sponsored by: Norwegian Centre for Telemedicine
+ * Code: falcon
+ *
+ * @file
+ * multichoice Install (a quiz question type)
+ */
+
+
+/**
+ * Implements hook_install().
+ */
+function multichoice_install() {
+  // Add body field to multichoice node
+  quiz_question_add_body_field('multichoice');
+
+  // TODO The drupal_(un)install_schema functions are called automatically in D7.
+  // drupal_install_schema('multichoice')
+  cache_clear_all('autoload:', 'cache');
+  variable_set('node_options_multichoice', array('status'));
+}
+
+/**
+ * Implements hook_schema().
+ */
+function multichoice_schema() {
+  // Stores the users answers to a question.
+  $schema['quiz_multichoice_user_answers'] = array(
+    'fields' => array(
+      'id' => array(
+        'type' => 'serial',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ),
+      'result_id' => array(
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ),
+      'question_nid' => array(
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ),
+      'question_vid' => array(
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ),
+      'choice_order' => array(
+        'type' => 'text',
+      ),
+    ),
+    'primary key' => array(
+      'id'
+    ),
+    'indexes' => array(
+      'answer_id' => array('result_id', 'question_nid', 'question_vid'),
+    ),
+  );
+
+  $schema['quiz_multichoice_user_answer_multi'] = array(
+    'fields' => array(
+      'user_answer_id' => array(
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ),
+      'answer_id' => array(
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ),
+    ),
+    'primary key' => array(
+      'user_answer_id', 'answer_id'
+    ),
+    'indexes' => array(
+      'answer_id' => array('user_answer_id'),
+    ),
+  );
+
+  $schema['quiz_multichoice_properties'] = array(
+    'fields' => array(
+      'nid' => array(
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ),
+      'vid' => array(
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ),
+      'choice_multi' => array(
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'choice_random' => array(
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'choice_boolean' => array(
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+    ),
+    'primary key' => array(
+      'nid', 'vid'
+    ),
+  );
+
+  /*
+   * Holds each answer in the answer_collections.
+   */
+  $schema['quiz_multichoice_answers'] = array(
+    'fields' => array(
+      'id' => array(
+        'type' => 'serial',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ),
+      'answer' => array(
+        'type' => 'text',
+      ),
+      'answer_format' => array(
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => TRUE,
+      ),
+      'feedback_if_chosen' => array(
+        'type' => 'text',
+      ),
+      'feedback_if_chosen_format' => array(
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => TRUE,
+      ),
+      'feedback_if_not_chosen' => array(
+        'type' => 'text',
+      ),
+      'feedback_if_not_chosen_format' => array(
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => TRUE,
+      ),
+      'score_if_chosen' => array(
+        'type' => 'int',
+        'unsigned' => FALSE,
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'score_if_not_chosen' => array(
+        'type' => 'int',
+        'unsigned' => FALSE,
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'question_nid' => array(
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ),
+      'question_vid' => array(
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ),
+
+    ),
+    'primary key' => array(
+      'id',
+    ),
+    'indexes' => array(
+      'quiz_id' => array('question_nid', 'question_vid'),
+    )
+  );
+
+  $schema['quiz_multichoice_user_settings'] = array(
+    'fields' => array(
+      'uid' => array(
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ),
+      'choice_multi' => array(
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'choice_random' => array(
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'choice_boolean' => array(
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+    ),
+    'primary key' => array(
+      'uid'
+    ),
+  );
+  return $schema;
+}
+
+/**
+ * Implements hook_uninstall().
+ */
+function multichoice_uninstall() {
+  // TODO The drupal_(un)install_schema functions are called automatically in D7.
+  // drupal_uninstall_schema('multichoice')
+  $var = array(
+    'multichoice_def_scoring',
+    'multichoice_def_num_of_alts',
+  );
+  foreach ($var as $v) {
+    variable_del($v);
+  }
+  drupal_set_message(t("The multichoice module has been uninstalled. multichoice nodes may still exist, but they will not function properly."));
+}

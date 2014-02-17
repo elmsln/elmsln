@@ -1,0 +1,175 @@
+<?php
+/**
+ * @file
+ * Code for the CLE distribution.
+ */
+// default node bundle / type for OG
+define('CLE_HELPER_GROUP_BUNDLE', 'section');
+
+/**
+ * Implements hook_page_build().
+ */
+function cle_helper_page_build(&$page) {
+  drupal_add_css(drupal_get_path('module', 'cle_helper') . '/cle_helper.css');
+}
+
+/**
+ * Implements hook_form_alter().
+ */
+function cle_helper_form_alter(&$form, &$form_state, $form_id) {
+  // if only part of one group select it automatically
+  if (arg(0) == 'node' && arg(2) != 'edit' && ($form_id == 'cle_assignment_node_form' || $form_id == 'cle_submission_node_form')) {
+    // if only 1 group, set to that value
+    if (count($form['og_group_ref']['und'][0]['default']['#options']) == 2) {
+      // flip around to get key associations
+      $tmp = array_keys($form['og_group_ref']['und'][0]['default']['#options']);
+      // array 0 is always '_none' so take the only other option
+      $form['og_group_ref']['und'][0]['default']['#default_value'] = $tmp[1];
+    }
+  }
+  // reset these group specific values if a group reference exists
+  if (isset($form['og_group_ref']['und'][0])) {
+    // this allows us to avoid having to use string_overrides module
+    $form['og_group_ref']['und'][0]['default']['#title'] = t('Your Section');
+    $form['og_group_ref']['und'][0]['default']['#description'] = t('Associate your submission with your course section.');
+  }
+  // add quick link to create a new assignment when managing bulk assignment operations
+  if ($form_id == 'editableviews_entity_form_cle_assignment_bulk') {
+    $form['cle_add_new']['#markup'] = l(t('Create new Assignment'), 'node/add/cle-assignment', array('query' => array('og_group_ref' => arg(1))));
+    $form['cle_add_new']['#weight'] = 100;
+  }
+}
+
+/**
+ * Implements hook_get_group_content_ids_query_alter().
+ */
+function cle_helper_get_group_content_ids_alter(&$ids) {
+  // array of content types to remove from cloning
+  $content_types = array('cle_submission');
+  // pull out nodes for testing as this could have other entities
+  foreach ($ids as $key => $id) {
+    if ($id['entity_type'] == 'node') {
+      $id_key[$key] = $id['etid'];
+    }
+  }
+  // Don't allow submissions to be cloned
+  $query = new EntityFieldQuery();
+  // select all nodes
+  $query->entityCondition('entity_type', 'node')
+  ->entityCondition('bundle', $content_types, 'IN')
+  // where the nid matches
+  ->propertyCondition('nid', $id_key, 'IN')
+  // run as user 1
+  ->addMetaData('account', user_load(1));
+  $result = $query->execute();
+  // verify that we have results
+  if (isset($result['node'])) {
+    // test the node array against the nodes in the clone array
+    foreach ($result['node'] as $node) {
+      // if the node selected is in the array, remove it from the ids
+      if (in_array($node->nid, $id_key)) {
+        unset($ids[array_search($node->nid, $id_key)]);
+      }
+    }
+  }
+}
+
+/**
+ * Implements hook_node_view().
+ */
+function cle_helper_node_view($node, $view_mode, $langcode) {
+  // sniff out entity reference links
+  $links = cle_helper_create_node_links($node);
+  // add links if we found any
+  if (!empty($links)) {
+    $node->content['links']['nodereference_url'] = array(
+      '#theme' => 'links__node__cle_helper',
+      '#links' => $links,
+      '#attributes' => array('class' => array('links', 'inline')),
+    );
+  }
+}
+
+/**
+ * Return links to create nodes that references the $node argument.
+ *
+ * Implementation based on prepopulate_create_node_links sandbox
+ *
+ * @param $node
+ *   The will node that will be referenced when the a node is added.
+ * @return $links
+ *   array of shortcut links for creating items.
+ */
+function cle_helper_create_node_links($node) {
+  // pull entity id from node passed
+  list(, , $content_type) = entity_extract_ids('node', $node);
+  // load content types
+  $content_types = array_keys(node_type_get_types());
+  // load field data about those types
+  $fields = field_info_instances('node');
+  $links = array();
+  // iterate over each content type
+  foreach ($fields as $target_type => $field) {
+    // dig into the instances of fields of that type
+    foreach ($field as $field_name => $instance) {
+      // load up the field info in detail
+      $field_info = field_info_field($field_name);
+
+      if (empty($field_info['settings']['target_type'])) {
+        // This isn't a reference field.
+        continue;
+      }
+
+      if (!empty($field_info['settings']['target_type']) && $field_info['settings']['target_type'] != 'node') {
+        // The node isn't referenced by the field.
+        continue;
+      }
+
+      if (!empty($field_info['settings']['handler_settings']['target_bundles']) && !in_array($content_type, $field_info['settings']['handler_settings']['target_bundles'])) {
+        // The content type isn't referenced by the field.
+        continue;
+      }
+      // dig into the content types looking for a match
+      foreach ($content_types as $type_name) {
+        $instance = field_info_instance('node', $field_name, $type_name);
+        if (empty($instance['settings']['behaviors']['prepopulate']['status'])) {
+          // The field doesn't have prepopulate enabled.
+          continue;
+        }
+        // at this point we know we have one, if they can create it add the link
+        if (!node_access('create', $type_name)) {
+          continue;
+        }
+        // Build link.
+        $target_content_type = array(
+          '@content_type' => node_type_get_name($type_name),
+        );
+        $target_content_type_link = array(
+          '!content_type' => str_replace('_', '-', $type_name),
+        );
+        $query = array($field_name => $node->nid);
+        // account for og being in scope of the item being created
+        // if this is the case then auto set that as well via prepopulate
+        if (isset($node->og_group_ref) && !empty($node->og_group_ref)) {
+          // this is very specific but allows for item in og to be set
+          $query['og_group_ref'] = $node->og_group_ref['und'][0]['target_id'];
+        }
+        if (isset($node->group_group) && $type_name == 'cle_submission') {
+          // don't print this link
+        }
+        else {
+          // build the link array which will be rendered on return
+          $links[$type_name . '_' . $field_name] = array(
+            'title' => t('Create new @content_type', $target_content_type),
+            'href' => format_string('node/add/!content_type', $target_content_type_link),
+            'query' => $query + drupal_get_destination(),
+            'attributes' => array(
+              'title' => t('Create new @content_type', $target_content_type),
+            ),
+          );
+        }
+      }
+    }
+  }
+  return $links;
+}

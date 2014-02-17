@@ -1,0 +1,14 @@
+name = Quiz Question
+package = Quiz Core
+description = Helper module for all quiz question types
+core = 7.x
+dependencies[] = quiz
+
+files[] = quiz_question.core.inc
+
+; Information added by drupal.org packaging script on 2013-03-04
+version = "7.x-4.0-beta1"
+core = "7.x"
+project = "quiz"
+datestamp = "1362397820"
+

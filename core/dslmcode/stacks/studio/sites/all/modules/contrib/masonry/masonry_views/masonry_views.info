@@ -1,0 +1,17 @@
+name = Masonry Views
+description = "Provides a Views style plugin to display content in a jQuery Masonry grid."
+core = 7.x
+package = User interface
+
+files[] = views_plugin_style_masonry_views_grid.inc
+
+dependencies[] = masonry
+dependencies[] = views
+
+
+; Information added by drupal.org packaging script on 2013-02-04
+version = "7.x-1.1"
+core = "7.x"
+project = "masonry"
+datestamp = "1359936457"
+

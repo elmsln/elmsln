@@ -1,0 +1,145 @@
+/* CSS Document */
+.cle-masonry-item {
+  position: relative;
+  display: block;
+  float: left;
+  padding: 0px;
+  width: 260px;
+  height: 150px;
+  color: #eee;
+  cursor: pointer;
+  overflow: hidden;
+  text-decoration: none;
+}
+
+.cle-masonry-item a {
+  color: #fff;
+}
+
+.cle-masonry-item a:hover {
+  color: #fff;
+}
+
+.cle-masonry-item a:active {
+  color: #fff;
+}
+
+.cle-image {
+  width:270px;
+  height:160px;
+  margin:0px 5px 5px 5px !important;
+}
+.cle-image img {
+  margin:5px 0px 0px 0px;
+  padding:0px;
+  
+}
+.views-field-title {
+  float:left;
+  position:absolute;
+  margin: -50px 0px 0px 0px;
+  width: 260px;
+  height: 50px;
+}
+
+.views-field-title div {
+  margin: -10px 0px 0px 0px;
+  width: 260px;
+  height: 50px;
+  padding: 2px 0px 0px 15px;
+  font-weight:bold;
+  font-size:1.2em;
+}
+
+.views-field-title div .field-content {
+  height:20px;
+  overflow:hidden;
+  float:left;
+}
+
+.views-field-field-assignment {
+  float:left;
+  margin:-164px 0px 0px 5px;
+  position:absolute;
+}
+
+.views-field-field-assignment .field-content {
+  padding:2px;
+  font-size:1.2em;
+  font-weight:bold;
+}
+
+.cle-tile-wrapper {
+  margin:0px;
+  padding:0px;
+  display:block;
+}
+
+.flex-nav-container {
+  width:250px;
+  height:150px;
+  float:left;
+  margin-top:5px;
+}
+
+.flexslider-content {
+  border:none;
+}
+
+.flexslider {
+  height:140px !important;
+}
+
+.view-cle-submissions.view-display-id-page .masonry-item {
+  margin: 0px 0px 16px 0px !important;
+  width:260px !important;
+}
+
+.views-field-comment-count {
+  position:absolute;
+  margin: -37px 0px 0px 15px;
+  font-weight:bold;
+  font-size:1.3em;
+  color:#333;
+  text-align:center;
+}
+.views-field-comment-count .field-content{
+  background-image:url('../images/comments.png');
+  background-repeat:no-repeat;
+  width:21px;
+  height:21px;
+  float:left;
+  padding: 1px 0px 0px 1px;
+}
+
+.rate-widget {
+  position:absolute;
+  margin: -35px 0px 0px 50px;
+}
+.rate-widget .rate-info{
+  float:right;
+  font-size:1.1em;
+  margin-left:10px;
+  color:inherit;
+}
+
+.views-field-title, .views-field-comment-count, .views-field-value {
+  display:none;
+}
+
+.cle-visible-tile {
+  zoom:1;
+  filter: alpha(opacity=100) !important;
+  opacity: 1.0 !important;
+}
+
+.pager {
+  display:none;
+}
+
+/* Special mark for exemplary */
+.cle_exemplary{
+  -moz-box-shadow:    0px 3px 4px 4px #ff6;
+  -webkit-box-shadow: 0px 3px 4px 4px #ff6;
+  box-shadow:         0px 3px 4px 4px #ff6;
+}

@@ -1,0 +1,100 @@
+<?php
+
+/**
+ * @file
+ * TrueFalse question type for quiz module
+ *
+ * Allows the creation of "True or False" questions
+ */
+
+
+/**
+ * Implements hook_help().
+ */
+function truefalse_help($path, $args) {
+  switch ($path) {
+    case 'admin/modules#description':
+      return t('TrueFalse question type for the quiz module.');
+    case 'node/add#truefalse':
+    case 'admin/help#truefalse':
+      return t('A question type for the quiz module. A simplified version of multichoice where "true" and "false" are the alternatives.');
+    default:
+      break;
+  }
+}
+
+/**
+ * Implements hook_quiz_question_info().
+ */
+function truefalse_quiz_question_info() {
+  return array(
+    'truefalse' => array(
+      'name' => t('True/false question'),
+      'description' => t('Quiz questions that allow a user to select "true" or "false" as his response to a statement.'),
+      'question provider' => 'TrueFalseQuestion',
+      'response provider' => 'TrueFalseResponse',
+      'module' => 'quiz_question', // All wrapper functions are in that module.
+    ),
+  );
+}
+
+/**
+ * Implements hook_config().
+ */
+function truefalse_config() {
+  return FALSE;
+}
+
+/**
+ * Implements hook_theme().
+ */
+function truefalse_theme() {
+  return array(
+    'truefalse_answering_form' => array(
+      'render element' => 'form',
+      'path' => drupal_get_path('module', 'truefalse') . '/theme',
+      'template' => 'truefalse-answering-form',
+    ),
+    'truefalse_response' => array(
+      'variables' => array(
+        'metadata' => array(),
+        'data' => array(),
+      ),
+    ),
+  );
+}
+
+/**
+ * Theme the response part of the response report
+ *
+ * @param $metadata
+ *  Can be used as a table header
+ * @param $data
+ *  Can be used as table rows
+ */
+function theme_truefalse_response($variables) {
+  $metadata = $variables['metadata'];
+  $data = $variables['data'];
+  return theme('table', array('header' => $metadata, 'rows' => $data));
+}
+
+/**
+ * Implements hook_field_extra_fields().
+ */
+function truefalse_field_extra_fields() {
+  $extra['node']['truefalse'] = array(
+    'form' => array(
+      'correct_answer' => array(
+        'label' => t('Correct answer'),
+        'description' => t('The answer for this question.'),
+        'weight' => -4,
+      ),
+      'feedback_fields' => array(
+        'label' => t('Feedback Settings'),
+        'description' => t('Settings pertaining to feedback given along with results.'),
+        'weight' => -4,
+      ),
+    ),
+  );
+  return $extra;
+}

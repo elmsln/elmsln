@@ -1,0 +1,147 @@
+<?php
+/**
+ * Implements hook_install().
+ *
+ * Perform actions to set up the site for this profile.
+ */
+function icor_install() {
+  // Enable some icor blocks.
+  $default_theme = 'bartik';
+  $admin_theme = 'seven';
+  // disable all themes
+  db_update('system')
+    ->fields(array('status' => 0))
+    ->condition('type', 'theme')
+    ->execute();
+  // enable $default_theme
+  db_update('system')
+    ->fields(array('status' => 1))
+    ->condition('type', 'theme')
+    ->condition('name', $default_theme)
+    ->execute();
+  // enable $admin_theme
+  db_update('system')
+    ->fields(array('status' => 1))
+    ->condition('type', 'theme')
+    ->condition('name', $admin_theme)
+    ->execute();
+  variable_set('admin_theme', $admin_theme);
+  // activate admin theme when editing a node
+  variable_set('node_admin_theme', '1');
+  $blocks = array(
+    array(
+      'module' => 'system',
+      'delta' => 'main',
+      'theme' => $default_theme,
+      'status' => 1,
+      'weight' => 0,
+      'region' => 'content',
+      'pages' => '',
+      'cache' => -1,
+    ),
+    array(
+      'module' => 'user',
+      'delta' => 'login',
+      'theme' => $default_theme,
+      'status' => 1,
+      'weight' => 0,
+      'region' => 'sidebar_first',
+      'pages' => '',
+      'cache' => -1,
+    ),
+    array(
+      'module' => 'system',
+      'delta' => 'help',
+      'theme' => $default_theme,
+      'status' => 1,
+      'weight' => -10,
+      'region' => 'content',
+      'pages' => '',
+      'cache' => -1,
+    ),
+    array(
+      'module' => 'system',
+      'delta' => 'main',
+      'theme' => $admin_theme,
+      'status' => 1,
+      'weight' => 0,
+      'region' => 'content',
+      'pages' => '',
+      'cache' => -1,
+    ),
+    array(
+      'module' => 'system',
+      'delta' => 'help',
+      'theme' => $admin_theme,
+      'status' => 1,
+      'weight' => 0,
+      'region' => 'help',
+      'pages' => '',
+      'cache' => -1,
+    ),
+  );
+  // drop system / user blocks to ensure correct building
+  db_delete('block')->condition('module', 'system')->execute();
+  db_delete('block')->condition('module', 'user')->execute();
+  // add in our blocks defined above
+  $query = db_insert('block')->fields(array('module', 'delta', 'theme', 'status', 'weight', 'region', 'pages', 'cache'));
+  foreach ($blocks as $block) {
+    $query->values($block);
+  }
+  $query->execute();
+  // Update the menu router information.
+  menu_rebuild();
+  // revert features to ensure they are all installed
+  $features = array(
+    'cis_section',
+    'cis_service_roles',
+    'textbook_editor',
+    'icor_defaults',
+    'icor_interactive_player',
+    'regions_admin_example',
+    'views_timelinejs_feature',
+  );
+
+  features_revert($features);
+	// Create a default role for site administrators, with all available permissions assigned.
+  $admin_role = new stdClass();
+  $admin_role->name = 'administrator';
+  $admin_role->weight = 7;
+  user_role_save($admin_role);
+  user_role_grant_permissions($admin_role->rid, array_keys(module_invoke_all('permission')));
+  // Set this as the administrator role.
+  variable_set('user_admin_role', $admin_role->rid);
+  
+  // clean up for regions conflict w/ install routine
+  // anonymous users
+  db_merge('role_permission')->key(array(
+    'rid' => 1,
+    'permission' => 'view regions_right_slideout region',
+  ))->fields(array(
+    'module' => 'regions',
+  ))->execute();
+  // auth users
+  db_merge('role_permission')->key(array(
+    'rid' => 2,
+    'permission' => 'view regions_right_slideout region',
+  ))->fields(array(
+    'module' => 'regions',
+  ))->execute();
+  // stupid work around for regions conflict with module perms
+  /*$roles = array('teaching assistant', 'instructor', 'administrator', 'staff');
+  foreach ($roles as $name) {
+    $role = user_role_load_by_name($name);
+    db_merge('role_permission')->key(array(
+        'rid' => $role->rid,
+        'permission' => 'view regions_admin_left region',
+    ))->fields(array(
+        'module' => 'regions',
+    ))->execute();
+  }*/
+  drupal_static_reset('user_access');
+  drupal_static_reset('user_role_permissions');
+  // ignore any rebuild messages
+  node_access_needs_rebuild(FALSE);
+  // ignore any other install messages
+  drupal_get_messages();
+}

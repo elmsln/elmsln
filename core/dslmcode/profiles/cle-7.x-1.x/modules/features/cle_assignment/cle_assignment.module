@@ -1,0 +1,21 @@
+<?php
+/**
+ * @file
+ * Code for the CLE Assignment feature.
+ */
+// default assignment color for new ones
+define('CLE_ASSIGNMENT_DEFAULT_COLOR', 'aac');
+
+include_once 'cle_assignment.features.inc';
+
+/**
+ * Implements hook_init().
+ */
+function cle_assignment_init() {
+  if (arg(0) == 'node' && arg(2) == 'assignment_bulk') {
+    $file = 'assignment_bulk';
+    $path = drupal_get_path('module', 'cle_assignment') . '/';
+    drupal_add_js($path . 'js/' . $file . '.js');
+    drupal_add_css($path . 'css/' . $file . '.css');
+  }
+}

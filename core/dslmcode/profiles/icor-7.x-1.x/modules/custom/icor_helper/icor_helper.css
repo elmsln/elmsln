@@ -1,0 +1,22 @@
+/* CSS Document */
+#breadcrumb {
+  display:none;
+}
+
+#regions_admin_left {
+  display:none;
+}
+
+#header {
+  display:none;
+}
+
+p,body,h1,h2,h3 {
+  margin:0px;
+  padding:0px;
+}
+
+.section {
+  margin:0px !important;
+  padding:0px;
+}

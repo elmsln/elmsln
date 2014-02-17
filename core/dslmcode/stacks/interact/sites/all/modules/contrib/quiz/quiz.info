@@ -1,0 +1,39 @@
+name = Quiz
+package = Quiz Core
+description = "Create interactive, multipage quizzes. This module must have at least one question-type module enabled in order to function properly. If in doubt, use the Multichoice module."
+dependencies[] = taxonomy
+core = 7.x
+
+; Always available CSS
+stylesheets[all][] = quiz.css
+
+; This is (or should be) recommended, but not required.
+;dependencies[] = jquery_countdown
+
+files[] = includes/views/quiz.views.inc
+files[] = includes/views/quiz.views_default.inc
+files[] = includes/views/defaults/questions_by_quiz.inc
+files[] = includes/views/defaults/questions_by_quiz_version.inc
+files[] = includes/views/defaults/quiz_by_author.inc
+files[] = includes/views/defaults/quiz_by_taker.inc
+files[] = includes/views/handlers/quiz_views_handler_argument_quiz_nid.inc
+files[] = includes/views/handlers/quiz_views_handler_argument_user_uid_nullable.inc
+files[] = includes/views/handlers/quiz_views_handler_field_number_questions.inc
+files[] = includes/views/handlers/quiz_views_handler_field_question_status.inc
+files[] = includes/views/handlers/quiz_views_handler_field_score_aggregate.inc
+files[] = includes/views/handlers/quiz_views_handler_field_takes.inc
+files[] = includes/views/handlers/quiz_views_handler_field_node_link_take.inc
+files[] = includes/views/handlers/quiz_views_handler_field_time.inc
+files[] = includes/views/handlers/quiz_views_handler_field_user_quiz_state.inc
+files[] = includes/views/handlers/quiz_views_handler_filter_question_status.inc
+files[] = includes/views/handlers/quiz_views_handler_filter_quiz_nid.inc
+files[] = includes/views/handlers/quiz_views_handler_filter_user_nullable.inc
+files[] = includes/views/handlers/quiz_views_handler_filter_user_quiz_state.inc
+files[] = includes/views/handlers/quiz_views_handler_relationship_quiz_nid.inc
+
+; Information added by drupal.org packaging script on 2013-03-04
+version = "7.x-4.0-beta1"
+core = "7.x"
+project = "quiz"
+datestamp = "1362397820"
+

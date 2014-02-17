@@ -1,0 +1,33 @@
+
+table td div.quiz_choice_answer_correct {
+	background-color: lightgreen;
+}
+
+.multichoice-icon-cell {
+  width: 32px;
+  padding: 0 5px;
+}
+.multichoice-icon {
+  display: inline-block;
+  width: 32px;
+  height: 32px;
+  background: url(images/icons.png) no-repeat;
+}
+.multichoice-icon.wrong {
+  background-position: -32px 0;
+}
+.multichoice-icon.unknown {
+  background-position: -64px 0;
+}
+.multichoice-icon.should {
+  background-position: -96px 0;
+}
+.multichoice-icon.almost {
+  background-position: -128px 0;
+}
+.multichoice-label {
+  font-weight: bold;
+}
+.multichoice-feedback {
+  display: block;
+}

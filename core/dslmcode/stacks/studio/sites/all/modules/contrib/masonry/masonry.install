@@ -1,0 +1,33 @@
+<?php
+/**
+ * @file
+ * Install, update and uninstall functions for the Masonry module.
+ */
+
+/**
+ * Implements hook_requirements().
+ */
+function masonry_requirements($phase) {
+  $requirements = array();
+  $t = get_t();
+
+  if ($phase == 'runtime') {
+    $library = libraries_detect('masonry');
+
+    $requirements['masonry'] = array(
+      'title' => $t('jQuery Masonry'),
+    );
+    if ($library['installed']) {
+      $requirements['masonry']['value'] = $library['version'];
+      $requirements['masonry']['severity'] = REQUIREMENT_OK;
+    }
+    else {
+      $requirements['masonry']['value'] = $library['error'];
+      $requirements['masonry']['description'] = $library['error message'];
+      $requirements['masonry']['severity'] = REQUIREMENT_ERROR;
+    }
+  }
+
+  return $requirements;
+}
+

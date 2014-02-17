@@ -1,0 +1,47 @@
+<?php
+/**
+ * @file
+ * Provides a Context reacton plugin to display content in a jQuery Masonry grid.
+ */
+
+/**
+ * Implements hook_page_build().
+ */
+function masonry_context_page_build(&$page) {
+  if ($plugin = context_get_plugin('reaction', 'masonry')) {
+    $plugin->execute();
+  }
+}
+
+/**
+ * Implements hook_context_plugins().
+ */
+function masonry_context_context_plugins() {
+  $plugins = array();
+
+  $plugins['context_reaction_masonry'] = array(
+    'handler' => array(
+      'path' => drupal_get_path('module', 'masonry_context'),
+      'file' => 'context_reaction_masonry.inc',
+      'class' => 'context_reaction_masonry',
+      'parent' => 'context_reaction',
+    ),
+  );
+
+  return $plugins;
+}
+
+/**
+ * Implements hook_context_registry().
+ */
+function masonry_context_context_registry() {
+  return array(
+    'reactions' => array(
+      'masonry' => array(
+        'title' => t('Masonry'),
+        'plugin' => 'context_reaction_masonry',
+      ),
+    ),
+  );
+}
+

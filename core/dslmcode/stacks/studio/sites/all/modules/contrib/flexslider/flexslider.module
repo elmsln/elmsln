@@ -1,0 +1,324 @@
+<?php
+/**
+ * @file
+ * A light-weight, customizable image gallery plugin for Drupal based on jQuery
+ */
+
+/**
+ * Implements hook_library().
+ * @author minorOffense <mwinstone@coldfrontlabs.ca>
+ */
+function flexslider_library() {
+  $libraries['flexslider'] = array(
+    'title' => 'FlexSlider',
+    'website' => 'http://flex.madebymufffin.com/',
+    'version' => '1.8',
+    'js' => array(
+      libraries_get_path('flexslider') . '/jquery.flexslider-min.js' => array(),
+    ),
+    'css' => array(
+      libraries_get_path('flexslider') . '/flexslider.css' => array(
+        'type' => 'file',
+        'media' => 'screen',
+      ),
+      drupal_get_path('module', 'flexslider') . '/assets/css/flexslider_img.css' => array(
+        'type' => 'file',
+        'media' => 'screen',
+      ),
+    ),
+  );
+  return $libraries;
+}
+
+/**
+ * Implements hook_library_alter().
+ * @author minorOffense <mwinstone@coldfrontlabs.ca>
+ */
+function flexslider_library_alter(&$libraries, $module) {
+  $debug = variable_get('flexslider_debug', FALSE);
+  if ($debug) {
+    // Switch to the unminified version of the library
+    if ($module == 'flexslider' && isset($libraries['flexslider'])) {
+        $libraries['flexslider']['js'] = array(
+          libraries_get_path('flexslider') . '/jquery.flexslider.js' => array(),
+        );
+    }
+  }
+  
+  // @todo configure the styles for the theme to be altered by admin configurations
+
+  // As it's only possible to use one theme per page, use the first one we get for everything.
+  // @todo load the selected theme
+  // @todo override css path
+  $theme = (!empty($optionset['theme'])) ? $optionset['theme'] : 'default';
+}
+
+/**
+ * Implements hook_permission().
+ * @author minorOffense <mwinstone@coldfrontlabs.ca>
+ */
+function flexslider_permission() {
+  return array(
+    'administer flexslider' =>  array(
+      'title' => t('Administer the FlexSlider module'),
+    ),
+  );
+}
+
+/**
+ * Implements hook_menu().
+ */
+function flexslider_menu() {
+  $items = array();
+
+  $items['admin/config/media/flexslider'] = array(
+    'title' => 'Flex Slider',
+    'description' => 'Configure FlexSlider presets and display settings.',
+    'page callback' => 'flexslider_page_optionset_list',
+    'access arguments' => array('administer flexslider'),
+    'file' => 'flexslider.admin.inc',
+  );
+  $items['admin/config/media/flexslider/list'] = array(
+    'title' => 'Option sets',
+    'description' => 'List the current flexslider option sets.',
+    'type' => MENU_DEFAULT_LOCAL_TASK,
+    'weight' => 1,
+  );
+  $items['admin/config/media/flexslider/add'] = array(
+    'title' => 'Add option set',
+    'description' => 'Add a new flexslider option set.',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('flexslider_form_optionset_add'),
+    'access arguments' => array('administer flexslider'),
+    'type' => MENU_LOCAL_ACTION,
+    'weight' => 1,
+    'file' => 'flexslider.admin.inc',
+  );
+  $items['admin/config/media/flexslider/edit/%flexslider_optionset'] = array(
+    'title' => 'Edit option set',
+    'description' => 'Configure an option set.',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('flexslider_form_optionset_edit', 5),
+    'access arguments' => array('administer flexslider'),
+    'file' => 'flexslider.admin.inc',
+  );
+  $items['admin/config/media/flexslider/delete/%flexslider_optionset'] = array(
+    'title' => 'Delete option set',
+    'description' => 'Delete an option set.',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('flexslider_optionset_form_delete', 5),
+    'access arguments' => array('administer flexslider'),
+    'file' => 'flexslider.admin.inc',
+  );
+  $items['admin/config/media/flexslider/advanced'] = array(
+    'title' => 'Advanced settings',
+    'description' => 'Configure the advanced flexslider module settings.',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('flexslider_form_settings'),
+    'access arguments' => array('administer flexslider'),
+    'type' => MENU_LOCAL_TASK,
+    'weight' => 2,
+    'file' => 'flexslider.admin.inc',
+  );
+  $items['admin/config/media/flexslider/import'] = array(
+    'title' => 'Import',
+    'description' => 'Import Flex Slider option sets',
+    'page callback' => 'flexslider_form_optionset_import',
+    'access arguments' => array('administer flexslider'),
+    'type' => MENU_LOCAL_TASK,
+    'weight' => 3,
+    'file' => 'flexslider.admin.inc',
+  );
+  $items['admin/config/media/flexslider/export'] = array(
+    'title' => 'Export',
+    'description' => 'Export Flex Slider option sets',
+    'page callback' => 'flexslider_form_optionset_export',
+    'access arguments' => array('administer flexslider'),
+    'type' => MENU_LOCAL_TASK,
+    'weight' => 4,
+    'file' => 'flexslider.admin.inc',
+  );
+
+  return $items;
+}
+
+/**
+ * Implements hook_help().
+ */
+function flexslider_help($path, $arg) {
+  switch ($path) {
+    case 'admin/config/media/flexslider/edit/%':
+      return
+          '<p>'
+        . t('An <em>option set</em> defines exactly how a flexslider image gallery looks like on your site. '
+          . 'It is s a combination of <a href="@styles">image styles</a> for the various image sizes and Flex Slider library options.', array('@styles' => url('admin/config/media/image-styles'))). '<br />'
+        . t('For a full documentation of all options, refer to the official <a href="@docs">Flex Slider documentation</a>.', array('@docs' => url('http://flex.madebymufffin.com/')))
+        . '</p>';
+  }
+}
+
+/**
+ * Implements hook_theme().
+ */
+function flexslider_theme() {
+  return array(
+   'flexslider_container' => array(
+      'variables' => array('items' => array(), 'settings' => array()),
+      'template' => 'theme/flexslider-container',
+      'file' => 'theme/flexslider.theme.inc',
+    ),
+  );
+}
+
+/**
+ * Implements hook_image_default_styles().
+ */
+function flexslider_image_default_styles() {
+  $styles = array();
+
+  // Default image preset for FlexSlider
+  $styles['flexslider_full'] = array(
+    'effects' => array(
+      array(
+        'name' => 'image_scale_and_crop',
+        'data' => array('width' => 800, 'height' => 500),
+        'weight' => 0,
+      ),
+    ),
+  );
+
+  return $styles;
+}
+
+/**
+ * Implements hook_ctools_plugin_api().
+ */
+function flexslider_ctools_plugin_api($owner, $api) {
+  if ($owner == 'flexslider' && $api == 'flexslider_default_preset') {
+    return array('version' => 1);
+  }
+}
+
+/**
+ * Fetches all option sets from the database and returns them as an associative array.
+ */
+function flexslider_optionset_load_all() {
+  ctools_include('export');
+  $optionsets = ctools_export_crud_load_all('flexslider_optionset');
+  return $optionsets;
+}
+
+/**
+ * Fetches the given option set and returns it as an object or NULL, if no set could be found.
+ */
+function flexslider_optionset_load($optionset_name) {
+  ctools_include('export');
+  $optionset = ctools_export_crud_load('flexslider_optionset', $optionset_name);
+  return $optionset;
+}
+
+/**
+ * Checks whether an option set with the given name already exists.
+ */
+function flexslider_optionset_exists($optionset_name) {
+  ctools_include('export');
+  return (ctools_export_crud_load('flexslider_optionset', $optionset_name) !== NULL);
+}
+
+/**
+ * Saves the given option set to the database.
+ * Set the $new flag if this set has not been written before.
+ */
+function flexslider_optionset_save($optionset, $new = FALSE) {
+  $optionset += array(
+    'title' => $optionset['name'],
+    'options' => _flexslider_optionset_defaults(),
+  );
+
+  if ($new) {
+    drupal_write_record('flexslider_optionset', $optionset);
+  }
+  else {
+    drupal_write_record('flexslider_optionset', $optionset, 'name');
+  }
+  return $optionset;
+}
+
+/**
+ * Deletes the given option set from the database.
+ */
+function flexslider_optionset_delete($optionset) {
+  db_delete('flexslider_optionset')->condition('name', $optionset['name'])->execute();
+  // TODO: update formatters?
+  return TRUE;
+}
+
+/*
+ * This function loads the required JavaScripts and settings for a flexslider
+ * instance.
+ *
+ * @param string $id [optional]
+ *  ID Attribute for Flex Slider container
+ * @param string $optionset [optional]
+ *  Option set to load
+ */
+function flexslider_add($id = NULL, $optionset = NULL) {
+  // Static array to remember which scripts are already attached.
+  // @todo not currently in use
+  $cache = &drupal_static(__FUNCTION__, array());
+
+  // @todo investigate the best way to cache data loaded from drupal_add_library()
+  drupal_add_library('flexslider', 'flexslider');
+
+  // Moved theme configuration into hook_library_alter().
+
+  // If the ID or optionset aren't set, it is assumed the settings will be set
+  // manually via the calling module/theme
+  if (!empty($id) && !empty($optionset)) {
+    // JavaScript settings
+    $js_settings = array(
+      'optionsets' => array(
+        $optionset->name => $optionset->options,
+      ),
+      'instances' => array(
+        'flexslider-' . $id => $optionset->name,
+      ),
+    );
+    drupal_add_js(array('flexslider' => $js_settings), 'setting');
+  }
+  // Loader JavaScript
+  drupal_add_js(drupal_get_path('module', 'flexslider') . '/assets/js/flexslider.load.js');
+}
+
+/**
+ * Default settings for a newly created option set
+ */
+function _flexslider_optionset_defaults() {
+  return array(
+    'animation' => 'fade',
+    'animationduration' => 6000,
+    'slidedirection' => 'horizontal',
+    'slideshow' => TRUE,
+    'slideshowspeed' => 7000,
+    'directionnav' => TRUE,
+    'controlnav' => TRUE,
+    'keyboardnav' => TRUE,
+    'mousewheel' => FALSE,
+    'prevtext' => t('Previous'),
+    'nexttext' => t('Next'),
+    'pauseplay' => FALSE,
+    'pausetext' => t('Pause'),
+    'playtext' => t('Play'),
+    'randomize' => FALSE,
+    'slidetostart' => 0, // integer value, not boolean
+    'animationloop' => TRUE,
+    'pauseonaction' => TRUE,
+    'pauseonhover' => TRUE,
+    'controlscontainer' => '.flex-nav-container',
+    'manualcontrols' => '',
+    'startcallback' => 'function() {}',
+    'beforecallback' => 'function() {}',
+    'aftercallback' => 'function() {}',
+    'endcallback' => 'function() {}',
+  );
+}

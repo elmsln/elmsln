@@ -1,0 +1,23 @@
+; $Id: voting_rules.info,v 1.1 2010/07/27 08:53:36 heydemo Exp $ 
+name = Voting Rules 
+description = Rules Integration for VotingApi
+core = 7.x
+package = Rules
+dependencies[] = votingapi
+dependencies[] = rules
+files[] = voting_rules.module
+files[] = voting_rules.rules.inc
+files[] = voting_rules.tokens.inc
+
+; Information added by drupal.org packaging script on 2010-07-27
+version = "7.x-1.0-dev"
+core = 7.x
+project = "voting_rules"
+datestamp = "1280223313"
+
+; Information added by drupal.org packaging script on 2011-07-15
+version = "7.x-1.0-alpha1"
+core = "7.x"
+project = "voting_rules"
+datestamp = "1310711220"
+

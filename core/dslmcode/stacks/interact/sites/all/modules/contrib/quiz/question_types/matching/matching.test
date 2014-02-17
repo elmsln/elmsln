@@ -1,0 +1,162 @@
+<?php
+
+
+
+/**
+ * @file
+ * Unit tests for the matching Module.
+ *
+ */
+class MatchingUnitTest extends DrupalWebTestCase {
+  // initializing attributes
+  var $question_node_type = 'matching';
+  var $node_id = NULL;
+  var $title = '';
+  var $body = '';
+
+  // used to generate a string of random size
+  var $rand_min = 1;
+  var $rand_max = 256;
+
+  // member functions definition starts here
+
+  /*
+   * @function
+   *   generates a rand integer between the specified range
+   *
+   * @return
+   *   random Integer value
+   */
+  public function getRandSize() {
+    return mt_rand($this->min, $this->max);
+  }
+
+  /*
+   * The getInfo() method provides information about the test.
+   * In order for the test to be run, the getInfo() method needs
+   * to be implemented.
+   */
+  public static function getInfo() {
+    return array(
+      'name' => t('Matching Questions unit test'),
+      'description' => t('Unit test for matching question type.'),
+      'group' => t('Quiz'),
+    );
+  }
+
+  /*
+   * Implementing setUp() to enable truefalse module testing
+   */
+  function setUp() {
+    parent::setUp('taxonomy', 'quiz', 'views', 'autoload', 'multichoice',
+    'quiz_directions', 'quiz_question', 'querypath', 'questions_import',
+    'short_answer', 'truefalse', 'long_answer',  'matching', 'questions_export');
+
+    // Create and log in our test user. Should be cleaned up as I something
+    // was wrong with permissions and I basically kept adding potentially
+    // useful ones until it worked.
+
+    // array of drupal permission
+    $permission = array('administer site configuration', 'access administration pages',
+    'administer quiz', 'access quiz', 'administer blocks', 'import questions', 'create quiz content',
+    'administer quiz configuration', 'use PHP for block visibility', 'administer blocks',
+    'create multichoice', 'edit any multichoice', 'administer taxonomy', 'allow multiple correct answers',
+    'allow any number of answers', 'export questions');
+
+    // create a drupal test user with specified permissions
+    $user = $this->drupalCreateUser($permission);
+    $this->drupalLogin($user);
+
+    // create one quiz, which will be the default in the import form
+    $quiz_settings = array(
+      'title' => $this->randomName($this->getRandSize()),
+      'comment' => $this->randomName($this->getRandSize()),
+      'type' => 'quiz',
+    );
+    // $this->drupalCreateNode($quiz_settings);
+  }
+
+  /*
+   * checks whether hook_quiz_question for true/false questions type has been
+   * defined or not.
+   */
+  public function testMatchingQuizQuestionInfo() {
+    $info = matching_quiz_question_info();
+    $this->assertEqual(count($info), 1, t('Check that info was returned.'));
+    $this->assertTrue(isset($info['matching']), t('Check that matching question type exists.'));
+  }
+
+  /*
+   * function to create true false type question node for testing.
+   */
+  public function createMatchingQuestion() {
+    // matching question node attributes
+    $this->title = $this->randomName(mt_rand($this->min, $this->max));
+    $this->body = $this->randomName($this->getRandSize());
+
+    // array of node attributes to create a test node
+    $settings = array(
+      'type' => $this->question_node_type,
+      'title' => $this->title,
+      'body' => $this->body,
+      'revisions' => TRUE,
+    );
+
+    $this->match = array();
+    $form_size = variable_get('quiz_matching_form_size', 5);
+    // generate rand match question, answer and feedback
+    for ($i = 1; $i < $form_size; $i++) {
+      $settings['match'][$i]['question'] = $this->match[$i]['question'] = $this->randomName($this->getRandSize());
+      $setting['match'][$i]['answer'] = $this->match[$i]['answer'] = $this->randomName($this->getRandSize());
+      $settings['match'][$i]['feedback'] = $this->match[$i]['feedback'] = $this->randomName($this->getRandSize());
+    }
+
+    // create drupal node
+    return $this->drupalCreateNode($settings);
+  }
+
+  /*
+   * function to test matching type question node creation.
+   */
+  public function unitTestCreateMatchingQuestionNode() {
+    $node = $this->createMatchingQuestion();
+    // raise an exception if node is not created.
+    if (!$node) {
+      throw new Exception('Expected to have a node to work with.');
+    }
+    $this->node_id = $node->nid;
+    $this->assertEqual($node->title, $this->title, t('Title of stored node should equal the original title.'));
+    $this->assertEqual($node->body, $this->body, t('Body of stored node should be equal to original body.'));
+    $this->assertEqual($node->type, $this->question_node_type, t('Stored node type should be matching'));
+  }
+
+  /*
+   * @function
+   * function tests whether node properties has been saved appropriately or not.
+   */
+  public function unitTestCheckMatchingNodeProperties() {
+    //$node = node_load($this->node_id);
+    //$this->assertEqual(count($node->match), count($this->match), t('Test that all match questions was appropriately stored in database.'));
+  }
+
+  /**
+   * Check that question exists in DB.
+   */
+  public function unitTestCheckMatchingQuestionsList() {
+    $questions = matching_questions_list();
+    $this->assertEqual(count($questions), 1, t('Verify that the question exists.'));
+  }
+
+
+  /**
+   * Run a bundle of Node API tests.
+   *
+   * This tests CRUD and all the functionality on a singlea node.
+   */
+  public function testMatchingNodeOperations() {
+    $this->unitTestCreateMatchingQuestionNode();
+    $this->unitTestCheckMatchingNodeProperties();
+    $this->unitTestCheckMatchingQuestionsList();
+
+  }
+}

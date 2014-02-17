@@ -1,0 +1,7 @@
+<?php
+/**
+ * @file
+ * Code for the ICOR defaults feature.
+ */
+
+include_once 'icor_defaults.features.inc';

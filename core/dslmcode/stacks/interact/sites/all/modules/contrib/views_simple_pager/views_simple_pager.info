@@ -1,0 +1,15 @@
+name = Views Simple Pager
+description = Provides a simplified, configurable Previous-Next only pager for Views
+package = Views
+core = 7.x
+
+files[] = views_simple_pager.module
+
+dependencies[] = views
+
+; Information added by drupal.org packaging script on 2013-03-21
+version = "7.x-1.0-alpha2"
+core = "7.x"
+project = "views_simple_pager"
+datestamp = "1363845317"
+

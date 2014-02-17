@@ -1,0 +1,15 @@
+<?php
+/**
+ * @file
+ * ICOR experience functions and glue code
+ */
+
+/**
+ * Implements hook_init().
+ */
+function icor_helper_init() {
+  // support for entity iframe so that theme is clean in iframe mode
+  if (isset($_GET['entity_iframe']) || arg(0) == 'entity_iframe') {
+    drupal_add_css(drupal_get_path('module', 'icor_helper') . '/icor_helper.css');
+  }
+}

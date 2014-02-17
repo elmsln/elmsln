@@ -1,0 +1,93 @@
+<?php
+
+/**
+ * @file
+ * Adds FlexSlider as a slideshow option in Views Slideshow
+ *
+ * @author Mathew Winstone (minorOffense) <mwinstone@coldfrontlabs.ca>
+ */
+
+/**
+ * Implements hook_help().
+ */
+function flexslider_views_slideshow_help($path, $arg) {
+  switch ($path) {
+    // Main module help for the block module
+    case 'admin/help#flexslider_views_slideshow':
+      return '<p>' . t('More to come. For now see the README.txt file please.') . '</p>';
+  }
+}
+
+/**
+ * Implements hook_theme().
+ */
+function flexslider_views_slideshow_theme($existing, $type, $theme, $path) {
+  return array(
+    'flexslider_views_slideshow' => array(
+      'variables' => array('view' => NULL, 'settings' => array(), 'rows' => array(), 'title' => ''),
+      'template' => 'theme/flexslider-views-slideshow',
+      'file' => 'theme/flexslider_views_slideshow.theme.inc'
+    ),
+    'flexslider_views_slideshow_main_frame' => array(
+      'variables' => array('vss_id' => NULL, 'view' => NULL, 'settings' => NULL, 'rows' => NULL),
+      'template' => 'theme/flexslider-views-slideshow-main-frame',
+    ),
+    'flexslider_views_slideshow_main_frame_row' => array(
+      'variables' => array('vss_id' => NULL, 'items' => NULL, 'count' => NULL, 'view' => NULL),
+      'template' => 'theme/flexslider-views-slideshow-main-frame-row',
+    ),
+    'flexslider_views_slideshow_main_frame_row_item' => array(
+      'variables' => array('item' => NULL, 'item_count' => NULL, 'view' => NULL),
+      'template' => 'theme/flexslider-views-slideshow-main-frame-row-item',
+    ),
+  );
+}
+
+/**
+ * Implements hook_views_pre_render().
+ **/
+function flexslider_views_slideshow_views_pre_render(&$view) {
+  if (get_class($view->style_plugin) == 'views_slideshow_plugin_style_slideshow' and isset($view->style_options['slideshow_type']) and $view->style_options['slideshow_type'] == 'flexslider_views_slideshow') {
+
+    $fieldname = $view->style_plugin->options['flexslider_views_slideshow']['caption_field'];
+    if ($fieldname == 'none' or !isset($view->field[$fieldname])) {
+      return;
+    }
+    
+    $view->field[$fieldname]->options['element_type'] = 'p';
+    $view->field[$fieldname]->options['element_class'] = empty($view->field[$fieldname]->options['element_class'])? 'flex-caption': $view->field[$fieldname]->options['element_class'] . ' flex-caption';
+    $view->field[$fieldname]->options['element_label_type'] = '';
+    $view->field[$fieldname]->options['element_label_class'] = '';
+    $view->field[$fieldname]->options['element_label_colon'] = FALSE;
+    $view->field[$fieldname]->options['element_wrapper_type'] = '0';
+    $view->field[$fieldname]->options['element_wrapper_class'] = '';
+    $view->field[$fieldname]->options['element_default_classes'] = 0;
+  }
+}
+
+/**
+ * Based on notes from views_slideshow_cycle
+ * @see http://drupal.org/project/views_slideshow
+ *
+ * Need to have preprocess functions here because drupal doesn't cache them
+ * correctly in the theme.inc file.
+ *
+ * If you would like to override the preprocess functions make sure to look at
+ * the associated function in theme.inc.
+ */
+
+// Trying to make sure the theme.inc get's loaded.
+include_once('theme/flexslider_views_slideshow.theme.inc');
+
+function template_preprocess_flexslider_views_slideshow_main_frame(&$vars) {
+  _flexslider_views_slideshow_preprocess_flexslider_views_slideshow_main_frame($vars);
+}
+
+function template_preprocess_flexslider_views_slideshow_main_frame_row(&$vars) {
+  _flexslider_views_slideshow_preprocess_flexslider_views_slideshow_main_frame_row($vars);
+}
+
+function template_preprocess_flexslider_views_slideshow_main_frame_row_item(&$vars) {
+  _flexslider_views_slideshow_preprocess_flexslider_views_slideshow_main_frame_row_item($vars);
+}
+

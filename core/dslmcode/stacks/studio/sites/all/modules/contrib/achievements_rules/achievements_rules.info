@@ -1,0 +1,13 @@
+name = Achievements Rules
+description = Add Rules integration for the Achievements module
+dependencies[] = achievements
+dependencies[] = rules
+package = Achievements
+core = 7.x
+
+; Information added by drupal.org packaging script on 2013-02-06
+version = "7.x-1.0-beta1"
+core = "7.x"
+project = "achievements_rules"
+datestamp = "1360167798"
+

@@ -1,0 +1,14 @@
+name = Quiz Image Target
+package = Quiz Question
+description = Question in which you have to identify elemnts of an image
+core = 7.x
+dependencies[] = quiz
+dependencies[] = quiz_question
+files[] = image_target_question.classes.inc
+
+; Information added by drupal.org packaging script on 2012-10-10
+version = "7.x-4.4-beta2"
+core = "7.x"
+project = "image_target_question"
+datestamp = "1349878319"
+

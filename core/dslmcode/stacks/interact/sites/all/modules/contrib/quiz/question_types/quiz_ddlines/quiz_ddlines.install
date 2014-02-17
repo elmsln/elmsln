@@ -1,0 +1,220 @@
+<?php
+
+/**
+ * Sponsored by: Senter for IKT i utdanningen
+ * Code: paalj
+ *
+ * @file
+ * Drag and drop Install (a quiz question type)
+ */
+
+
+/**
+ * Implements hook_install().
+ */
+function quiz_ddlines_install() {
+  // Add body field to multichoice node
+  quiz_question_add_body_field('quiz_ddlines');
+
+  cache_clear_all('autoload:', 'cache');
+  
+  // At this point quiz core has created the ddlines node type.
+  // Now it's time to add the image field to the node:
+  if (!field_info_field('field_image')) {
+     $field = array(
+        'field_name' => 'field_image', 
+        'type' => 'image', 
+    );
+    field_create_field($field);
+  }
+  
+  $instance = field_info_instance('node', 'field_image', 'quiz_ddlines');
+  if (empty($instance)) {
+    
+    $help_text = t("<p>Start by uploading a background image. The image is movable within the canvas.<br/> 
+    				The next step is to add the alternatives, by clicking in the canvas. 
+    				Each alternative consists of a circular hotspot, a label, and a connecting line. You need 
+    				to double click the rectangular label to add the text, and move the hotspot to the correct
+    				position. When selecting a label, a popup-window is displayed, which gives you the following
+    				alternatives:
+    				<ul>
+    					<li>Set the alternative's feedback (only possible if feedback is enabled)</li>
+    					<li>Set the color of each alternative</li>
+    					<li>Delete the alternative</li>
+    				</ul>    				
+    				</p>");
+    
+    $instance = array(
+      'field_name' => 'field_image',
+      'entity_type' => 'node',
+      'bundle' => 'quiz_ddlines',
+      'label' => 'Background image',
+      'description' => $help_text,
+      'required' => TRUE,
+      'settings' => array(        
+        'no_ui' => TRUE,
+      ),
+      'widget' => array (
+        'settings' => array (
+          'preview_image_style' => 'quiz_ddlines', 
+      	  'no_ui' => TRUE,
+        ),
+      ),
+    );   
+  
+    field_create_instance($instance);
+  }
+}
+
+/**
+ * Implements hook_schema().
+ */
+function quiz_ddlines_schema() {
+  $schema['quiz_ddlines_node'] = array(
+    'fields' => array(
+      'nid' => array(
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ),
+      'vid' => array(
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ),
+      'feedback_enabled' => array(
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+	  'hotspot_radius' => array(
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 10,
+      ),
+      'ddlines_elements' => array(
+        'type' => 'text',
+      ),
+  	  'execution_mode' => array(
+        'type' => 'int',
+        'description' => "Execution mode. 0->with lines, 1->without lines",
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+    ),
+    'foreign keys' => array(
+      'node' => array(
+        'table' => 'node',
+        'columns' => array('nid' => 'nid'),
+      ),    
+    ),
+    'primary key' => array(
+      'vid', 'nid'
+    ),
+  );
+  
+  // Place to store user answers
+  $schema['quiz_ddlines_user_answers'] = array(
+    'fields' => array(
+      'id' => array(
+        'type' => 'serial',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ),
+      'result_id' => array(
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ),
+      'question_nid' => array(
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ),
+      'question_vid' => array(
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ),
+    ),
+    'primary key' => array(
+      'id'
+    ),
+    'indexes' => array(
+      'answer_id' => array('result_id', 'question_nid', 'question_vid'),
+    ),
+  );
+  
+  $schema['quiz_ddlines_user_answer_multi'] = array(
+    'fields' => array(
+      'user_answer_id' => array(
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ),       
+      'hotspot_id' => array(
+        'type' => 'int',
+        'unsigned' => TRUE,        
+        'not null' => TRUE,
+      ),
+      'label_id' => array(
+        'type' => 'int',
+        'unsigned' => TRUE,        
+        'not null' => TRUE,
+      ),
+    ),
+    'foreign keys' => array(
+      'answer_id' => array(
+        'table' => 'quiz_ddlines_user_answers',
+        'columns' => array('user_answer_id' => 'id'),
+      ),    
+    ),
+    'indexes' => array(
+      'answer_id' => array('user_answer_id'),
+    ),
+  );
+  
+  return $schema;
+}
+
+/**
+ * Implements hook_uninstall().
+ */
+function quiz_ddlines_uninstall() {
+  // Delete instance:
+  
+  $instance = field_info_instance('node', 'field_image', 'quiz_ddlines');
+  field_delete_instance($instance, FALSE);
+  
+  $var = array(
+    'quiz_ddlines_canvas_width',
+    'quiz_ddlines_canvas_height',
+    'quiz_ddlines_hotspot_radius',
+    'quiz_ddlines_pointer_radius',
+    'quiz_ddlines_feedback_correct',
+    'quiz_ddlines_feedback_wrong',
+  );
+  foreach ($var as $v) {
+    variable_del($v);
+  }
+  drupal_set_message(t("The Quiz drag and drop module has been uninstalled. Nodes of this type may still exist, but they will not function properly."));
+}
+
+/**
+ * Adding Execution mode column. Makes it possible to
+ * run the test in two different modes.
+ */
+function quiz_ddlines_update_7401() {
+  // Add field for execution mode
+  $spec = array(
+    'type' => 'int',
+    'description' => "Execution mode. 0->with lines, 1->without lines",
+    'not null' => TRUE,
+    'unsigned' => TRUE,
+    'default' => 0,
+  ); 
+  db_add_field('quiz_ddlines_node', 'execution_mode', $spec);
+}

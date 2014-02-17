@@ -1,0 +1,242 @@
+<?php
+
+/**
+ * @file
+ * Makemeeting tests
+ */
+
+/**
+ * Test for the creation of a makemeeting poll.
+ */
+class MakemeetingPollAdminTestCase extends DrupalWebTestCase {
+  protected $privileged_user;
+  protected $lambda_user;
+  protected $lambda_user2;
+  protected $anon_user;
+
+  /**
+   * Implements getInfo().
+   */
+  public static function getInfo() {
+    return array(
+      'name' => t('Poll authoring tasks'),
+      'description' => t('Tests for creating, updating and deleting polls.'),
+      'group' => t('Makemeeting'),
+    );
+  }
+
+  public function setUp() {
+    parent::setUp('field', 'field_ui', 'makemeeting');
+    $this->privileged_user = $this->drupalCreateUser(array(
+      'administer content types',
+      'administer nodes',
+      'bypass node access',
+      'answer makemeeting form',
+      'delete any makemeeting answer',
+    ));
+    $this->lambda_user = $this->drupalCreateUser(array(
+      'answer makemeeting form',
+    ));
+    $this->lambda_user2 = $this->drupalCreateUser(array(
+      'answer makemeeting form',
+    ));
+    $this->anon_user = $this->drupalCreateUser();
+    $this->drupalLogin($this->privileged_user);
+
+    // Setting default timezone
+    date_default_timezone_set('UTC');
+  }
+
+  /**
+   * Test the creation of a content type and attach a field
+   */
+  public function testFieldUI() {
+    // Create the content type and attach the field
+    $this->_testCreateField();
+
+    // Delete the field
+    $this->drupalGet('admin/structure/types/manage/event/fields');
+    $this->clickLink('delete', 1); // Body field present?
+    $this->drupalPost(NULL, NULL, t('Delete'));
+    $this->assertText('The field Choose date has been deleted from the Event content type.', 'Removed makemeeting field.');
+  }
+
+  /**
+   * Test the creation of event content with multiple makmeeting values
+   */
+  public function testCreateEvent() {
+    $this->_testCreateField();
+
+    // Basic creation
+    $edit = array();
+    $edit['title'] = $this->randomName();
+    $edit += array(
+      'field_choose_date[und][0][choices][new:0][chdate][month]' => '5',
+      'field_choose_date[und][0][choices][new:0][chdate][day]' => '20',
+      'field_choose_date[und][0][choices][new:0][chdate][year]' => '2012',
+    );
+    $this->drupalPost('node/add/event', $edit, t('Save'));
+    $this->assertText('Event ' . $edit['title'] . ' has been created.', 'Content created');
+
+    // Test adding choice
+    $this->drupalPostAJAX('node/add/event', $edit, array('op' => t('More choices')));
+    $newedit = array(
+      'field_choose_date[und][0][choices][1337472000][chdate][month]' => '5',
+      'field_choose_date[und][0][choices][1337472000][chdate][day]' => '20',
+      'field_choose_date[und][0][choices][1337472000][chdate][year]' => '2012',
+      'field_choose_date[und][0][choices][new:0][chdate][month]' => '5',
+      'field_choose_date[und][0][choices][new:0][chdate][day]' => '21',
+      'field_choose_date[und][0][choices][new:0][chdate][year]' => '2012',
+    ) + $edit;
+    $this->drupalPost(NULL, $newedit, t('Save'));
+    $this->assertRaw('<td colspan="1" class="date date-first">Sun. 20</td><td colspan="1" class="date date-last">Mon. 21</td>', 'Two dates found');
+
+    // Test adding suggestion
+    $this->drupalPostAJAX('node/add/event', $edit, array('op' => t('More suggestions')));
+    $newedit = $edit + array(
+      'field_choose_date[und][0][choices][1337472000][chdate][month]' => '5',
+      'field_choose_date[und][0][choices][1337472000][chdate][day]' => '20',
+      'field_choose_date[und][0][choices][1337472000][chdate][year]' => '2012',
+      'field_choose_date[und][0][choices][1337472000][chsuggestions][sugg:0]' => 'foo',
+      'field_choose_date[und][0][choices][1337472000][chsuggestions][sugg:1]' => 'foobarbaz',
+    );
+    unset($newedit['field_choose_date[und][0][choices][new:0][chdate][day]']);
+    unset($newedit['field_choose_date[und][0][choices][new:0][chdate][month]']);
+    unset($newedit['field_choose_date[und][0][choices][new:0][chdate][year]']);
+    $this->drupalPost(NULL, $newedit, t('Save'));
+    $this->assertText('foobarbaz', 'Added suggestion');
+
+    // Testing copying first suggestion
+    $this->drupalPostAJAX('node/add/event', $edit, array('op' => t('More choices')));
+    $newedit = array(
+      'field_choose_date[und][0][choices][1337472000][chdate][month]' => '5',
+      'field_choose_date[und][0][choices][1337472000][chdate][day]' => '20',
+      'field_choose_date[und][0][choices][1337472000][chdate][year]' => '2012',
+      'field_choose_date[und][0][choices][1337472000][chsuggestions][sugg:0]' => 'foobar',
+      'field_choose_date[und][0][choices][new:0][chdate][month]' => '5',
+      'field_choose_date[und][0][choices][new:0][chdate][day]' => '21',
+      'field_choose_date[und][0][choices][new:0][chdate][year]' => '2012',
+    ) + $edit;
+    $this->drupalPost(NULL, $newedit, t('Copy and paste first row'));
+    $this->drupalPost(NULL, array(), t('Save'));
+    $this->assertRaw('<td class="suggestion suggestion-first">foobar</td><td class="suggestion suggestion-first">foobar</td>', 'Copied and pasted first row');
+  }
+
+  /**
+   * Test the creation of event content with multiple makmeeting values
+   */
+  public function testEmptyField() {
+    $this->_testCreateField();
+
+    // Removing choice
+    $edit = array();
+    $edit['title'] = $this->randomName();
+    $this->drupalGet('node/add/event');
+    $this->drupalPostAJAX(NULL, $edit, array('new:0' => t('Remove')));
+    $this->verbose($this->content);
+    $this->assertNoRaw('<td class="makemeeting-choice-date">');
+
+    // Must not have answering form
+    $this->drupalPost(NULL, $edit, t('Save'));
+    $this->assertNoRaw('<table class="makemeeting-table');
+
+    // Must not have additional choice
+    $this->drupalGet('node/1/edit');
+    $this->assertNoRaw('<td class="makemeeting-choice-date">');
+  }
+
+  /**
+   * Test answering the makemeeting poll
+   */
+  public function testAnswerEvent() {
+    // Fill in a default event node form with some suggestions
+    $this->_testCreateField();
+    $this->_testFillMakemeetingForm();
+
+    // Create the event as is
+    $this->drupalPost(NULL, array(), t('Save'));
+    $this->assertRaw('<input title="Tuesday 22 May 2012 bar" type="checkbox" id="edit-answers-1337644800sugg1" name="answers[1337644800:sugg:1]" value="1" class="form-checkbox"', 'Checkboxes exist');
+
+    // Test answering a poll
+    $this->assertRaw('<tr class="answer-form-row', 'Answer form exists');
+    $this->drupalPost(NULL, array(), t('Submit'));
+    $this->assertNoRaw('<tr class="answer-form-row', 'No answer form once submitted');
+
+    // Test a single option form
+    $this->_testFillMakemeetingForm();
+    $this->drupalPost(NULL, array('field_choose_date[und][0][one_option]' => '1'), t('Save'));
+    $this->assertRaw('<input title="Tuesday 22 May 2012 bar" type="radio" id="edit-answers--7" name="answers" value="1337644800:sugg:1" class="form-radio"', 'Radios exist');
+
+    // Test a closed form
+    $this->_testFillMakemeetingForm();
+    $this->drupalPost(NULL, array('field_choose_date[und][0][closed]' => '1'), t('Save'));
+    $this->assertNoRaw('<input disabled="disabled" type="text" id="edit-name" name="name"');
+  }
+
+  /**
+   * Helper function to create an event content type and attach a makemeeting field
+   */
+  public function _testCreateField() {
+    // Login as admin
+    $this->drupalLogin($this->privileged_user);
+
+    // Create the content type
+    $edit = array();
+    $edit['name'] = 'Event';
+    $edit['type'] = 'event';
+    $this->drupalPost('admin/structure/types/add', $edit, t('Save content type'));
+    $this->assertText('The content type Event has been added.', 'Content type added.');
+
+    // Creates the field.
+    $edit = array();
+    $edit['fields[_add_new_field][label]'] = 'Choose date';
+    $edit['fields[_add_new_field][field_name]'] = 'choose_date';
+    $edit['fields[_add_new_field][weight]'] = '0';
+    $edit['fields[_add_new_field][type]'] = 'makemeeting';
+    $edit['fields[_add_new_field][widget_type]'] = 'makemeeting_choices';
+    $this->drupalPost('admin/structure/types/manage/event/fields', $edit, t('Save'));
+
+    $edit = array();
+    $this->drupalPost(NULL, $edit, t('Save field settings'));
+  }
+
+  public function _testFillMakemeetingForm() {
+    $edit = array();
+    $edit['title'] = $this->randomName();
+    $edit += array(
+      'field_choose_date[und][0][choices][new:0][chdate][month]' => '5',
+      'field_choose_date[und][0][choices][new:0][chdate][day]' => '20',
+      'field_choose_date[und][0][choices][new:0][chdate][year]' => '2012',
+    );
+    $this->drupalPostAJAX('node/add/event', $edit, array('op' => t('More choices')));
+    $edit = array(
+      'field_choose_date[und][0][choices][1337472000][chdate][month]' => '5',
+      'field_choose_date[und][0][choices][1337472000][chdate][day]' => '20',
+      'field_choose_date[und][0][choices][1337472000][chdate][year]' => '2012',
+      'field_choose_date[und][0][choices][1337472000][chsuggestions][sugg:0]' => 'foo',
+      'field_choose_date[und][0][choices][new:0][chdate][month]' => '5',
+      'field_choose_date[und][0][choices][new:0][chdate][day]' => '21',
+      'field_choose_date[und][0][choices][new:0][chdate][year]' => '2012',
+    ) + $edit;
+    $this->drupalPost(NULL, $edit, t('More choices'));
+    $edit = array(
+      'field_choose_date[und][0][choices][1337558400][chdate][month]' => '5',
+      'field_choose_date[und][0][choices][1337558400][chdate][day]' => '21',
+      'field_choose_date[und][0][choices][1337558400][chdate][year]' => '2012',
+      'field_choose_date[und][0][choices][new:0][chdate][month]' => '5',
+      'field_choose_date[und][0][choices][new:0][chdate][day]' => '22',
+      'field_choose_date[und][0][choices][new:0][chdate][year]' => '2012',
+    ) + $edit;
+    $this->drupalPost(NULL, $edit, t('More suggestions'));
+    $edit += array(
+      'field_choose_date[und][0][choices][1337644800][chdate][month]' => '5',
+      'field_choose_date[und][0][choices][1337644800][chdate][day]' => '22',
+      'field_choose_date[und][0][choices][1337644800][chdate][year]' => '2012',
+      'field_choose_date[und][0][choices][1337472000][chsuggestions][sugg:1]' => 'bar',
+    );
+    unset($edit['field_choose_date[und][0][choices][new:0][chdate][day]']);
+    unset($edit['field_choose_date[und][0][choices][new:0][chdate][month]']);
+    unset($edit['field_choose_date[und][0][choices][new:0][chdate][year]']);
+    $this->drupalPost(NULL, $edit, t('Copy and paste first row'));
+  }
+}

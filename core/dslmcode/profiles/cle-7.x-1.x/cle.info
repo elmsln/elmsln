@@ -1,0 +1,144 @@
+; Packaging information for cle
+name = "CLE"
+description = "Collaborative Learning Environment"
+exclusive = "1"
+core = "7.x"
+; ----------
+; Dependencies
+; ----------
+; Administration
+dependencies[] = admin_menu
+dependencies[] = admin_menu_toolbar
+; CIS
+dependencies[] = cis_connector
+; CLE
+dependencies[] = cle_helper
+dependencies[] = cle_achievements
+; Chaos tool suite
+dependencies[] = ctools
+; Context
+dependencies[] = context
+dependencies[] = context_ui
+; Core
+dependencies[] = block
+dependencies[] = color
+dependencies[] = comment
+dependencies[] = contextual
+dependencies[] = dblog
+dependencies[] = field
+dependencies[] = field_sql_storage
+dependencies[] = field_ui
+dependencies[] = file
+dependencies[] = filter
+dependencies[] = help
+dependencies[] = image
+dependencies[] = list
+dependencies[] = menu
+dependencies[] = node
+dependencies[] = number
+dependencies[] = options
+dependencies[] = overlay
+dependencies[] = path
+dependencies[] = system
+dependencies[] = taxonomy
+dependencies[] = text
+dependencies[] = update
+dependencies[] = user
+; Fields
+dependencies[] = entityreference
+dependencies[] = entityreference_prepopulate
+; Flag
+dependencies[] = flag
+; Flex Slider
+dependencies[] = flexslider
+dependencies[] = flexslider_fields
+; Image
+dependencies[] = smartcrop
+; Input filters
+dependencies[] = typogrify
+dependencies[] = video_filter
+; Jammer
+dependencies[] = jammer
+dependencies[] = jammer_feed
+dependencies[] = jammer_feed_icon
+; Learning Tools Interoperability
+dependencies[] = lti_tool_provider
+dependencies[] = lti_tool_provider_og
+; Media
+dependencies[] = imce
+dependencies[] = video_embed_field
+; Node form columns
+dependencies[] = nodeformcols
+; Organic groups
+dependencies[] = og
+dependencies[] = og_access
+dependencies[] = og_clone
+dependencies[] = og_context
+dependencies[] = og_ui
+; Other
+dependencies[] = better_formats
+dependencies[] = boxes
+dependencies[] = clone
+dependencies[] = diff
+dependencies[] = entity
+dependencies[] = entity_token
+dependencies[] = fitvids
+dependencies[] = imagefield_crop
+dependencies[] = jquery_colorpicker
+dependencies[] = libraries
+dependencies[] = masquerade
+dependencies[] = module_filter
+dependencies[] = prepopulate
+dependencies[] = quickpost_bookmarklet
+dependencies[] = strongarm
+dependencies[] = token
+dependencies[] = transliteration
+dependencies[] = unique_field
+dependencies[] = achievements
+dependencies[] = addanother
+; Performance and scalability
+dependencies[] = entitycache
+; Radioactivity
+dependencies[] = radioactivity
+dependencies[] = radioactivitydefaults
+; Regions
+dependencies[] = regions
+dependencies[] = regions_admin_left
+; Rules
+dependencies[] = rules
+dependencies[] = rules_admin
+dependencies[] = voting_rules
+; Textbook
+dependencies[] = textbook
+; Theme Tools
+dependencies[] = delta_blocks
+; UUID
+dependencies[] = uuid
+; User interface
+dependencies[] = ckeditor_link
+dependencies[] = imce_wysiwyg
+dependencies[] = jquery_update
+dependencies[] = masonry
+dependencies[] = masonry_views
+dependencies[] = wysiwyg
+; Views
+dependencies[] = views
+dependencies[] = views_autocomplete_filters
+dependencies[] = views_bulk_operations
+dependencies[] = views_infinite_scroll
+dependencies[] = views_ui
+dependencies[] = editableviews
+; Voting
+dependencies[] = rate
+dependencies[] = rate_slider
+dependencies[] = votingapi
+; Features
+dependencies[] = features
+dependencies[] = textbook_editor
+dependencies[] = regions_admin_example
+dependencies[] = cis_service_roles
+dependencies[] = cis_section
+dependencies[] = cis_service_connection_ux
+dependencies[] = cle_assignment
+dependencies[] = cle_submission
+dependencies[] = cle_perms

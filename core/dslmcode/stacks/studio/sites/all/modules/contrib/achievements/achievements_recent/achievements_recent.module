@@ -1,0 +1,169 @@
+<?php
+
+/**
+ * @file
+ * Enables leaderboards limited to recent unlocks and point totals.
+ */
+
+/**
+ * Implements hook_menu().
+ */
+function achievements_recent_menu() {
+  $items['achievements/leaderboard/all-time'] = array(
+    'title'             => 'All-time leaderboard',
+    'type'              => MENU_DEFAULT_LOCAL_TASK,
+    'weight'            => -1000,
+  );
+  foreach (achievements_recent_valid_days() as $days => $days_human) {
+    $items['achievements/leaderboard/' . $days . "-day"] = array(
+      'access arguments'  => array('access achievements'),
+      'description'       => 'View the recent achievements leaderboard.',
+      'file'              => 'achievements.pages.inc',
+      'file path'         => drupal_get_path('module', 'achievements'),
+      'page callback'     => 'achievements_leaderboard_totals',
+      'page arguments'    => array("$days"), // string not index.
+      'title'             => $days_human . ' leaderboard',
+      'type'              => MENU_LOCAL_TASK,
+      'weight'            => -$days,
+    );
+  }
+  $items['admin/config/people/achievements-recent'] = array(
+    'access arguments'  => array('administer achievements'),
+    'description'       => 'Initialize the recent achievement leaderboards.',
+    'file'              => 'achievements_recent.admin.inc',
+    'page callback'     => 'drupal_get_form',
+    'page arguments'    => array('achievements_recent_settings'),
+    'title'             => 'Achievements Recent',
+  );
+
+  return $items;
+}
+
+/**
+ * Implements hook_block_info().
+ */
+function achievements_recent_block_info() {
+  $blocks = array();
+
+  foreach (achievements_recent_valid_days() as $days => $days_human) {
+    // Can't use '_recent_' as it'll be too long for DB delta column.
+    // Ease your mind: block deltas feel the same as the tabbed URLs.
+    $blocks['achievements_leaderboard_' . $days . '_day'] = array(
+      'info'  => t('Achievements: @days_human leaderboard', array('@days_human' => $days_human)),
+      'cache' => DRUPAL_NO_CACHE,
+    );
+  }
+
+  return $blocks;
+}
+
+/**
+ * Recalculate a user's stats based on the number of days.
+ *
+ * @param $uid
+ *   The user to recalculate achievement info for (defaults to current user).
+ * @params $days
+ *   The number of days to constrain the recalculations to.
+ *
+ * @return $totals
+ *   An array of results suitable for the recent leaderboard table. If the
+ *   user is not currently an achiever or the passed $days are not a valid
+ *   frame, FALSE is returned instead. Depending on your needs, check
+ *   $totals['unlocks'] to determine if they've unlocked anything in $days.
+ */
+function achievements_recent_leaderboard_totals_recalculate($uid = NULL, $days = NULL) {
+  list($uid, $access) = achievements_user_is_achiever($uid);
+  if (!$access || !achievements_recent_valid_days($days)) {
+    return FALSE;
+  }
+
+  $totals = array(
+    'days'            => $days,
+    'uid'             => $uid,
+    'points'          => 0,
+    'unlocks'         => 0,
+    'earliest'        => NULL,
+    'timestamp'       => NULL,
+    'achievement_id'  => NULL,
+  );
+  $achievements = achievements_load();
+  $unlocks = achievements_unlocked_already(NULL, $uid);
+  $earliest_allowed = REQUEST_TIME - 60 * 60 * 24 * $days;
+
+  foreach ($unlocks as $unlock) {
+    if ($unlock['timestamp'] >= $earliest_allowed) {
+      $totals['points'] += $achievements[$unlock['achievement_id']]['points'];
+      $totals['unlocks']++; // Parent code should check for 0 unlocks, not 0 points.
+
+      if (!isset($totals['earliest']) || $unlock['timestamp'] <= $totals['earliest']) {
+        $totals['earliest'] = $unlock['timestamp'];
+      }
+
+      if ($unlock['timestamp'] >= $totals['timestamp']) {
+        $totals['timestamp'] = $unlock['timestamp'];
+        $totals['achievement_id'] = $unlock['achievement_id'];
+      }
+    }
+  }
+
+  return $totals;
+}
+
+/**
+ * Initialize a recent leaderboard with legacy data.
+ *
+ * @param $days
+ *   The number of days worth of data to go through.
+ */
+function achievements_recent_leaderboard_init($days = NULL) {
+  if (achievements_recent_valid_days($days)) {
+    // Fetch users who have unlocked something in the past $days and are
+    // not already in the $days recent leaderboard, which allows us to
+    // resume filling the table if we timeout on a ton of results.
+    $query = db_select('achievement_unlocks', 'au');
+    $query->leftJoin('achievement_totals_days', 'attd', "au.uid = attd.uid AND attd.days = $days");
+    $accounts = $query->fields('au', array('uid'))->condition('au.timestamp', REQUEST_TIME - 60 * 60 * 24 * $days, '>=')
+      ->isNull('attd.uid')->groupBy('au.uid')->execute(); // 7 more days until Diablo III. Stay awhile and listen!
+
+    // Calculate and save 'em.
+    $limit = 1000; $imported = $skipped = 0;
+    foreach ($accounts as $account) {
+      $totals = achievements_recent_leaderboard_totals_recalculate($account->uid, $days);
+      if ($totals) { // NP: 'Smile Song' from Shannon Chan-Kent's album 'My Little Pony: Friendship is Magic Season 2'.
+        db_merge('achievement_totals_days')->key(array('uid' => $account->uid, 'days' => $days))->fields($totals)->execute();
+        if (++$imported >= $limit) { break; } // This process generates thousands of queries so limit how many we do at once.
+      }
+      else {
+        $skipped++;
+      }
+    }
+
+    $day_counts = achievements_recent_valid_days(); // Try to spit some semblance of statistical sanity for those doing the import.
+    $status = t('@imported of @total users were added to the @labeled leaderboard. @skipped were skipped for not being valid achievers.',
+      array('@labeled' => $day_counts[$days], '@imported' => $imported, '@total' => $accounts->rowCount(), '@skipped' => $skipped));
+    drupal_is_cli() ? print $status : drupal_set_message($status);
+
+    if ($accounts->rowCount() - $imported - $skipped > 0) {
+      $clicky = t('@remaining users still need to be added to the @labeled leaderboard. Keep clicking the button, bub.',
+        array('@labeled' => $day_counts[$days], '@remaining' => $accounts->rowCount() - $imported - $skipped));
+      drupal_is_cli() ? print $clicky : drupal_set_message($clicky, 'warning');
+    }
+  }
+}
+
+/**
+ * Return all valid day counts or check the validity of a passed value.
+ *
+ * @param $days
+ *   Optional. If $days is passed, return TRUE if the day count is valid,
+ *   FALSE otherwise. If $days is not passed, return an array of all valid
+ *   day counts as keys, with the values as human-readable strings.
+ */
+function achievements_recent_valid_days($days = NULL) {
+  $day_counts = array(
+    7   => t('7 day'),
+    30  => t('30 day'),
+  );
+
+  return $days ? isset($day_counts[$days]) : $day_counts;
+}

@@ -1,0 +1,15 @@
+name = Grouping Type Question
+package = Quiz Question
+description = Module to create a question with terms which need to be grouped
+core = 7.x
+php = 5
+dependencies[] = quiz
+dependencies[] = quiz_question
+files[] = grouping_question.classes.inc
+
+; Information added by drupal.org packaging script on 2012-04-27
+version = "7.x-4.4"
+core = "7.x"
+project = "grouping_question"
+datestamp = "1335555978"
+

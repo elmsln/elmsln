@@ -1,0 +1,134 @@
+<?php
+
+/**
+ * @file
+ * Allows the creation of Grouping type questions
+ */
+
+/**
+ * Implements hook_help().
+ */
+function grouping_question_help($path, $args) {
+  switch ($path) {
+    case 'admin/modules#description':
+      return t('grouping question type for the quiz module.');
+    case 'node/add#grouping':
+    case 'admin/help#grouping':
+      return t('A question type for the quiz module. Trainees drag terms into groups.');
+    default:
+      break;
+  }
+}
+
+/**
+ * Implements hook_quiz_question_info().
+ */
+function grouping_question_quiz_question_info() {
+  return array(
+    'grouping_question' => array(
+      'name' => t('Grouping question'),
+      'description' => t('Quiz questions that allow a trainee to group terms into groups'),
+      'question provider' => 'GroupingQuestion',
+      'response provider' => 'GroupingResponse',
+      'module' => 'quiz_question',
+    ),
+  );
+}
+
+/**
+ * Implements the quiz_question hook_config().
+ */
+function grouping_question_config() {
+  return FALSE;
+}
+
+/**
+ * Implements hook_theme().
+ */
+function grouping_question_theme() {
+  $path = drupal_get_path('module', 'grouping_question') . '/theme';
+  return array(
+    'grouping_question_answering_form' => array(
+      'arguments' => array(
+        'form' => NULL,
+      ),
+      'path' => $path,
+      'file' => 'grouping_question.theme.inc',
+      'template' => 'grouping-question-answering-form',
+    ),
+    'grouping_question_response' => array(
+      'arguments' => array(
+        'data' => array(),
+        'display_user_answers' => FALSE,
+        'general_feedback' => '',
+        'showpoints' => FALSE,
+        'showfeedback' => FALSE,
+      ),
+      'path' => $path,
+      'file' => 'grouping_question.theme.inc',
+    ),
+    'grouping_question_creation' => array(
+      'render element' => 'form',
+      'path' => $path,
+      'template' => 'grouping-question-creation',
+      'file' => 'grouping_question.theme.inc',
+    ),
+     'grouping_question_answer_form_groups' => array(
+      'render element' => 'form',
+      'path' => $path,
+      'file' => 'grouping_question.theme.inc',
+      'template' => 'grouping-question-answer-form-groups',
+    ),
+  );
+}
+
+/**
+ * Helper function for cleaning csv.
+ */
+function _grouping_question_clean_csv($text) {
+  $elements = explode(',', $text);
+  foreach ($elements as $id => $element) {
+    $elements[$id] = trim(check_plain($element));
+  }
+  return implode(',', $elements);
+}
+
+/**
+ * Save the properties of a grouping question
+ *
+ * @param node &$node
+ *   A node object with nid, vid, feedback and feedback_format set.
+ *
+ * @param boolean $is_new
+ *   (optional) - Set to TRUE to insist on an inserion. Default is FALSE and
+ *   will result in an update or insertion depending on whether its already
+ *   in the db.
+ *
+ * @return int|boolean
+ *   Either SAVED_NEW or SAVED_UPDATED or FALSE on error.
+ */
+function _grouping_question_save(&$node, $is_new = FALSE) {
+  $node->feedback_format = $node->feedback['format'];
+  $node->feedback = $node->feedback['value'];
+
+  $props = new stdClass();
+  $props->nid = $node->nid;
+  $props->vid = $node->vid;
+  $props->feedback = $node->feedback;
+  $props->feedback_format = $node->feedback_format;
+
+  if ($is_new || $node->revision == 1) {
+    return drupal_write_record('quiz_grouping_question_properties', $props);
+  }
+  else {
+    $exists = db_query("SELECT 1 FROM {quiz_grouping_question_properties}
+                        WHERE nid = :nid AND vid = :vid",
+                       array(':nid' => $node->nid, ':vid' => $node->vid))->fetchField();
+    if ($exists) {
+      return drupal_write_record('quiz_grouping_question_properties', $props, array('nid', 'vid'));
+    }
+    else {
+      return drupal_write_record('quiz_grouping_question_properties', $props);
+    }
+  }
+}

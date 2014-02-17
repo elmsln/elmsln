@@ -1,0 +1,143 @@
+<?php
+
+/**
+ * @file
+ * Helper module for the Dynamic Select tests.
+ */
+
+// Load constants and helper view functions
+require_once('dynamic_select_test_views.inc');
+
+/**
+ * Implements hook_menu().
+ */
+function dynamic_select_test_menu() {
+  $items['dynamic-select-test/basic'] = array(
+    'title' => 'Dynamic Select Basic test',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('dynamic_select_test_basic_form'),
+    'access arguments' => array('access content'),
+    'type' => MENU_CALLBACK,
+  );
+
+  $items['dynamic-select-test/default'] = array(
+    'title' => 'Dynamic Select test with #default_value',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('dynamic_select_test_default_form'),
+    'access arguments' => array('access content'),
+    'type' => MENU_CALLBACK,
+  );
+  
+  $items['dynamic-select-test/required'] = array(
+    'title' => 'Dynamic Select test with #required and #tree',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('dynamic_select_test_required_form'),
+    'access arguments' => array('access content'),
+    'type' => MENU_CALLBACK,
+  );
+
+  return $items;
+}
+
+/**
+ * Test form for basic testing
+ */
+function dynamic_select_test_basic_form($form, &$form_state) {
+ 
+  $form['dynamic_select_test_element'] =  array(
+    '#type' => 'dynamic_select',
+    '#title' => DYNAMIC_SELECT_TEST_SELECT,
+    '#description' => DYNAMIC_SELECT_TEST_DESCRIPTION,
+    '#view_display' => VIEW_NODE_NAME . ':' . VIEW_DISPLAY,
+    '#filter_ids' => array('title' => 'title'),
+    '#submit_title' => DYNAMIC_SELECT_TEST_SUBMIT,
+    '#filter_title' => DYNAMIC_SELECT_TEST_FILTER,
+  );
+
+  $form['dynamic_select_test_submit'] = array(
+    '#type' => 'submit',
+    '#value' => 'Submit',
+  );
+
+  return $form;
+}
+
+/**
+ * submit function for the basic form
+ */
+function dynamic_select_test_basic_form_submit($form, &$form_state) {
+
+  drupal_set_message($form_state['values']['dynamic_select_test_element']);
+}
+
+
+/**
+ * Test form for default options testing
+ */
+function dynamic_select_test_default_form($form, &$form_state) {
+ 
+  $form['dynamic_select_test_element'] =  array(
+    '#type' => 'dynamic_select',
+    '#title' => DYNAMIC_SELECT_TEST_SELECT,
+    '#description' => DYNAMIC_SELECT_TEST_DESCRIPTION,
+    '#view_display' => VIEW_NODE_NAME . ':' . VIEW_DISPLAY,
+    '#filter_ids' => array('title' => 'title'),
+    '#submit_title' => DYNAMIC_SELECT_TEST_SUBMIT,
+    '#filter_title' => DYNAMIC_SELECT_TEST_FILTER,
+    '#default_value' => PAGER + 2, // Node id starts at 1
+    '#empty_value' => EMPTY_VALUE,
+    '#empty_option' => EMPTY_OPTION,
+  );
+ 
+  $form['dynamic_select_test_submit'] = array(
+    '#type' => 'submit',
+    '#value' => 'Submit',
+  );
+
+  return $form;
+}
+
+/**
+ * submit function for the default options form
+ */
+function dynamic_select_test_default_form_submit($form, &$form_state) {
+
+  drupal_set_message($form_state['values']['dynamic_select_test_element']);
+}
+
+/**
+ * Test form for required and tree settings testing
+ */
+function dynamic_select_test_required_form($form, &$form_state) {
+
+  $form['dynamic_select_test_element'] =  array(
+    '#type' => 'dynamic_select',
+    '#title' => DYNAMIC_SELECT_TEST_SELECT,
+    '#description' => DYNAMIC_SELECT_TEST_DESCRIPTION,
+    '#view_display' => VIEW_NODE_NAME . ':' . VIEW_DISPLAY,
+    '#filter_ids' => array('title' => 'title'),
+    '#submit_title' => DYNAMIC_SELECT_TEST_SUBMIT,
+    '#filter_title' => DYNAMIC_SELECT_TEST_FILTER,
+    '#required' => TRUE,
+  );
+
+  $form['dynamic_select_test_submit'] = array(
+    '#type' => 'submit',
+    '#value' => 'Submit',
+  );
+
+  return $form;
+}
+
+/**
+ * submit function for the required and tree settings form
+ */
+function dynamic_select_test_required_form_submit($form, &$form_state) {
+
+  drupal_set_message($form_state['values']['dynamic_select_test_element']);
+}
+
+
+
+
+

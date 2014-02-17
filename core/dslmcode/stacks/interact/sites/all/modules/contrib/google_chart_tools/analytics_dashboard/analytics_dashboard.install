@@ -1,0 +1,22 @@
+<?php
+/**
+ * @file
+ * Install routine for dashboard
+ */
+/**
+ * Implements hook_install().
+ */
+function analytics_dashboard_install() {
+  $charts = analytics_dashboard_get_charts();
+  foreach ($charts as $chart) {
+    $default[] = $chart['id'];
+  }
+  variable_set('chart_visible', $default);
+}
+
+/**
+ * Implements hook_uninstall().
+ */
+function analytics_dashboard_uninstall() {
+  variable_del('chart_visible');
+}

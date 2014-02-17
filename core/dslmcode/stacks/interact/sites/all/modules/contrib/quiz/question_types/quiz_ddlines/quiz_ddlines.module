@@ -1,0 +1,183 @@
+<?php
+
+/**
+ * The main file for Quiz drag and drop with lines.
+ *
+ * Sponsored by: Senter for IKT i utdanningen
+ * Code: paalj
+ *
+ * @file 
+ * Drag and drop with lines question type for the Quiz module.
+ *
+ */
+
+/**
+ * Default values
+ */
+class Defaults {
+  const CANVAS_WIDTH = 700;
+  const CANVAS_HEIGHT = 500;
+  const HOTSPOT_RADIUS = 10;
+  const POINTER_RADIUS = 5;
+}
+
+/**
+ * Status for each alternative as "enum"  
+ */
+class AnswerStatus {
+  const NO_ANSWER = 0;
+  const WRONG = 1;
+  const CORRECT = 2;
+  
+  private static $titles;
+  private static $css_class;
+  
+  public static function init() {
+    self::$titles = array(
+      t('You did not move this alternative to any hotspot'),
+      t('Wrong answer'),
+      t('Correct answer'));
+      
+    self::$css_class = array('no-answer','wrong','correct');
+  }
+  
+  public static function getTitle($status) {
+    return self::$titles[$status];
+  }
+  
+  public static function getCssClass($status) {
+    return self::$css_class[$status];
+  }
+}
+AnswerStatus::init();
+
+/**
+ * Implements hook_help().
+ */
+function quiz_ddlines_help($path, $args) {
+  if ($path == 'admin/help#quiz_ddlines') {
+    return t("Help text TBD");
+  }
+}
+/**
+ * Implements hook_quiz_question_info().
+ */
+function quiz_ddlines_quiz_question_info() {
+  return array(
+    'quiz_ddlines' => array(
+      'name' => t('Drag and drop question with lines'),
+      'description' => t('This provides drag and drop question types with lines for the Quiz module.'),
+      'question provider' => 'DDLinesQuestion',
+      'response provider' => 'DDLinesResponse',
+      'module' => 'quiz_question', // All wrapper functions are in that module.
+    ),
+  );
+}
+
+/**
+ * Implements hook_image_default_styles
+ */
+function quiz_ddlines_image_default_styles() {
+  $styles = array();
+
+  $styles['quiz_ddlines'] = array(
+    'effects' => array(
+      array(
+        'name' => 'image_scale', 
+        'data' => array(
+          'width' => 700,
+          'height' => null,
+          'upscale' => 0,
+        ), 
+        'weight' => 0,
+      ),
+    ),
+  );
+
+  return $styles;
+}
+
+/**
+ * Implements hook_theme().
+ */
+function quiz_ddlines_theme() {
+  return array(
+    'quiz_ddlines_response' => array(
+      'variables' => array(
+        'result' => array(),
+      ),
+      'path' => drupal_get_path('module', 'quiz_ddlines') . '/theme',
+      'file' => 'quiz_ddlines.theme.inc',
+    ),
+  );
+}
+
+/**
+ * Implements hook_config().
+ */
+function quiz_ddlines_config() {
+ 
+  $form['quiz_ddlines_canvas_width'] = array(
+    '#type' => 'textfield',
+    '#title' => t('The default width of the canvas'),
+    '#default_value' => variable_get('quiz_ddlines_canvas_width', Defaults::CANVAS_WIDTH),
+  );
+  $form['quiz_ddlines_canvas_height'] = array(
+    '#type' => 'textfield',
+    '#title' => t('The default height of the canvas'),
+    '#default_value' => variable_get('quiz_ddlines_canvas_height', Defaults::CANVAS_HEIGHT),
+  );
+  $form['quiz_ddlines_hotspot_radius'] = array(
+    '#type' => 'textfield',
+    '#title' => t('The radius of the hotspot'),
+    '#default_value' => variable_get('quiz_ddlines_hotspot_radius', Defaults::HOTSPOT_RADIUS),
+  );
+  $form['quiz_ddlines_pointer_radius'] = array(
+    '#type' => 'textfield',
+    '#title' => t('The radius of the pointer'),
+    '#default_value' => variable_get('quiz_ddlines_pointer_radius', Defaults::POINTER_RADIUS),
+  );
+  $form['quiz_ddlines_pointer_radius'] = array(
+    '#type' => 'textfield',
+    '#title' => t('The radius of the pointer'),
+    '#default_value' => variable_get('quiz_ddlines_pointer_radius', Defaults::POINTER_RADIUS),
+  );
+  $form['quiz_ddlines_feedback_correct'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Default feedback for correct answers'),
+    '#default_value' => variable_get('quiz_ddlines_feedback_correct', ""),
+  );
+   $form['quiz_ddlines_feedback_wrong'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Default feedback for wrong answers'),
+    '#default_value' => variable_get('quiz_ddlines_feedback_wrong', ""),
+  );
+  
+  $form['#validate'] = 'quiz_ddlines_config_validate';
+  return $form;
+}
+
+/**
+ * Validate the config form values
+ */
+function quiz_ddlines_config_validate($form, $form_state) {
+  
+  $int_fields = array('quiz_ddlines_canvas_width', 'quiz_ddlines_canvas_height', 'quiz_ddlines_hotspot_radius', 'quiz_ddlines_pointer_radius');
+  foreach ($int_fields as $field) {
+    if (!_quiz_is_int($form_state['values'][$field])) {
+      form_set_error($field, t('The value must be a positive number'));
+    } 
+  }
+  
+  // Feedback fields may contain nothing or everything; no need to validate it
+}
+
+function _quiz_ddlines_add_js_and_css() {
+  $module_path = drupal_get_path('module', 'quiz_ddlines');
+  
+  drupal_add_js($module_path.'/js/raphael.js');
+  drupal_add_js($module_path.'/js/colorwheel.js');
+  drupal_add_js($module_path.'/js/quiz_ddlines.js');
+  drupal_add_css($module_path.'/theme/quiz_ddlines.css');
+}
+ 

@@ -1,0 +1,162 @@
+<?php
+// $Id$
+
+/**
+ * @file
+ * Provides Rules intregration for the Voting API module
+ */
+
+/**
+ * Implements hook_votingapi_insert().
+ */
+function voting_rules_votingapi_insert($votes) {
+  _voting_rules_votingapi_op($votes, 'insert');
+}
+
+/**
+ * Implements hook_votingapi_results().
+ */
+function voting_rules_votingapi_delete($votes) {
+  _voting_rules_votingapi_op($votes, 'delete');
+}
+
+function _voting_rules_votingapi_op($votes, $op) {
+  foreach ($votes as $vote) {
+    $entity = voting_rules_load_entity($vote['entity_type'], $vote['entity_id']);
+
+    if ($entity) {
+      if (in_array($vote['entity_type'], array_keys(voting_rules_get_types()))) {
+      	rules_invoke_event('voting_rules_' . $op . '_' . $vote['entity_type'], $vote, $entity);
+      }
+      else {
+      	rules_invoke_event('voting_rules_' . $op . '_entity', $vote, $entity);
+      }
+    }
+  }
+}
+
+/**
+ * Implements hook_votingapi_results().
+ */
+function voting_rules_votingapi_results($cached, $entity_type, $entity_id) {
+  $entity = voting_rules_load_entity($entity_type, $entity_id);
+  foreach ($cached as $result) {
+    $vote_results[$result['function']] = $result;
+  }
+  
+  if ($entity) {
+    rules_invoke_event('voting_rules_results_' . $entity_type, $vote_results, $entity);
+  }
+}
+
+/**
+ * Helper function that loads content of the specified type. Since Voting API is
+ * built to support client defined content types, while Rules requires content 
+ * types to be pre-defined, we use this helper function to encapsulate the 
+ * loading of new content based on supported types (currently nodes, users, and
+ * comments) and the entity API for unknown entities.
+ *
+ * @param $entity_type
+ *   The entity type.
+ * @param $entity_id
+ *   The entity ID.
+ */
+function voting_rules_load_entity($entity_type, $entity_id) {
+  switch ($entity_type) {
+    case 'node':
+      return node_load($entity_id);
+
+    case 'user':
+      return user_load($entity_id);
+
+    case 'comment':
+      return comment_load($entity_id);
+
+    default:
+    	$entity_key = voting_rules_get_entity_key($entity_type);
+    	$entities = entity_load($entity_type, array($entity_id));
+    	$entity = reset($entities);
+    	return $entity;
+  }
+}
+
+/**
+ * Helper function to get Voting API entity types that should be used by rules.
+ *
+ * @return
+ *   A keyed array of entity types.
+ */
+function voting_rules_get_types() {
+  $types = array('node' => t('Node'), 'user' => t('User'), 'comment' => t('Comment'), 'entity' => t('Entity'));
+	drupal_alter('voting_rules_types', $types);
+	return $types;
+}
+
+/**
+ * Helper function to get the primary key used by an entity.
+ *
+ * @return
+ *   An entity key.
+ */
+function voting_rules_get_entity_key($entity_type) {
+  switch ($entity_type) {
+    case 'node':
+      return 'nid';
+
+    case 'user':
+      return 'uid';
+
+    case 'comment':
+      return 'cid';
+
+    default:
+    	$entity_info = entity_get_info($entity_type);
+    	return $entity_info['entity keys']['id'];
+  }
+}
+
+/**
+ * Rules callback for user and entities.
+ */
+function voting_rules_get_property($data, array $options, $name, $entity_type) {
+  switch ($name) {
+    case 'user':
+      return user_load($data['uid']);
+
+    case 'entity':
+    	return voting_rules_load_entity($data['entity_type'], $data['entity_id']);
+  }
+}
+
+/**
+ * Rules callback to get votes on an entity.
+ */
+function voting_rules_get_votes($entity, array $options, $name, $entity_type) {
+  $entity_key = voting_rules_get_entity_key($entity_type);
+
+  $votes = votingapi_select_votes(array(
+    'entity_id' => $entity->$entity_key,
+    'entity_type' => $entity_type
+  ));
+
+  return $votes;
+}
+
+/**
+ * Rules callback to get vote results on an entity.
+ */
+function voting_rules_get_vote_results($entity, array $options, $name, $entity_type) {
+  $entity_key = voting_rules_get_entity_key($entity_type);
+  $results = array();
+
+  $select_results = votingapi_select_results(array(
+    'entity_id' => $entity->$entity_key,
+    'entity_type' => $entity_type
+  ));
+
+  foreach ($select_results as $select_result) {
+    $results[$select_result['function']] = $select_result;
+  }
+
+  return $results;
+}

@@ -1,0 +1,7 @@
+name = CLE Private files
+description = Use this to automatically switch storage of images / files to private delivery
+core = 7.x
+package = CLE
+dependencies[] = cle_submission
+features[features_api][] = api:1
+features[features_overrides][] = field.node-cle_submission-field_images.field_config|settings|uri_scheme

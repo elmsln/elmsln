@@ -1,0 +1,88 @@
+.entityreference-view-widget {
+  border: 10px solid #edefeb;
+}
+
+.entityreference-view-widget .pager-submit {
+  display: none;
+}
+
+.entityreference-view-widget > .widget-left {
+  float: left;
+  display: block;
+  width: 20%;
+  overflow-x: hidden;
+  overflow-y: auto;
+  height: 380px;
+}
+.entityreference-view-widget > .widget-right {
+  float: left;
+  width: 80%;
+  overflow-x: hidden;
+  overflow-y: auto;
+  height: 380px;
+}
+
+.entityreference-view-widget > .widget-full {
+  float: none;
+  width: auto;
+}
+
+.entityreference-view-widget > .widget-right > .widget-filters, .entityreference-view-widget > .widget-full > .widget-filters {
+  padding: 5px;
+}
+
+/* The tabledrag table shouldn't have a border. */
+.entityreference-view-widget-left table {
+  border: 0;
+}
+
+.entityreference-view-widget > .widget-left .tabledrag-handle {
+  margin-top: 4px !important;
+}
+
+/*  Undo the table striping for draggable items in the sidebar.
+   "no_striping" is too bugy at the moment, with bugs such as #935066. */
+.entityreference-view-widget > .widget-left .even {
+  border: 0px;
+  background-color: white;
+}
+.entityreference-view-widget > .widget-left .odd {
+  border: 0px;
+  background-color: white;
+}
+
+.entityreference-view-widget > .widget-right > .inner {
+  border-left: 10px solid #edefeb;
+}
+
+.entityreference-view-widget > .widget-right .messages {
+    margin-left: 15px;
+    margin-right: 15px;
+}
+
+.entityreference-view-widget > .widget-right .view, .entityreference-view-widget > .widget-full .view {
+  padding-left: 15px;
+}
+
+.entityreference-view-widget  > .widget-right > .inner > .widget-filters, .entityreference-view-widget  > .widget-full > .inner > .widget-filters {
+  border-bottom: 10px solid #edefeb;
+  padding-left: 15px;
+  min-height: 15px;
+}
+
+/* Kill the border around the views results. */
+.entityreference-view-widget  > .widget-right table {
+  border: 0;
+}
+
+.entityreference-view-widget > .widget-right table td {
+  vertical-align: top;
+}
+
+.entityreference-view-widget .pager-submit {
+  display: none;
+}
+
+.entityreference-view-widget  > .widget-right > .widget-top .ajax-progress {
+  float: right;
+}

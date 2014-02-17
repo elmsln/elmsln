@@ -1,0 +1,16 @@
+<?php
+/**
+ * @file
+ * Code for the ICOR Interactive Player feature.
+ */
+
+include_once 'icor_interactive_player.features.inc';
+
+/**
+ * Implements hook_entity_view().
+ */
+function icor_interactive_player_entity_view($entity, $type, $view_mode, $langcode) {
+  if ($type == 'node' && $entity->type == 'icor_interactive_player') {
+    drupal_add_css(drupal_get_path('module', 'icor_interactive_player') . '/css/pager.css');
+  }
+}

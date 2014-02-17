@@ -1,0 +1,7 @@
+<?php
+/**
+ * @file
+ * Code for the CLE Private files feature.
+ */
+
+include_once 'cle_private_files.features.inc';

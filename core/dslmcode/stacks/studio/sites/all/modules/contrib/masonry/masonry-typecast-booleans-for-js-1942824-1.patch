@@ -1,0 +1,69 @@
+diff --git a/masonry_context/context_reaction_masonry.inc b/masonry_context/context_reaction_masonry.inc
+index 0a91cf1..844fd46 100644
+--- a/masonry_context/context_reaction_masonry.inc
++++ b/masonry_context/context_reaction_masonry.inc
+@@ -89,14 +89,14 @@ class context_reaction_masonry extends context_reaction {
+             $("' . $settings['container'] . '").masonry({
+               itemSelector: "' . $settings['item'] . '",
+               columnWidth: ' . $column_width . ',
+-              isAnimated: ' . $settings['masonry_animated'] . ',
++              isAnimated: ' . (int) $settings['masonry_animated'] . ',
+               animationOptions: {
+                 duration: ' . (int) $settings['masonry_animated_duration'] . '
+               },
+-              isResizable: ' . $settings['masonry_resizable'] . ',
+-              isFitWidth: ' . $settings['masonry_center'] . ',
++              isResizable: ' . (int) $settings['masonry_resizable'] . ',
++              isFitWidth: ' . (int) $settings['masonry_center'] . ',
+               gutterWidth: ' . (int) $settings['masonry_gutter'] . ',
+-              isRTL: ' . $settings['masonry_rtl'] . '
++              isRTL: ' . (int) $settings['masonry_rtl'] . '
+             });
+           });
+         ';
+diff --git a/masonry_formatter/masonry_formatter.module b/masonry_formatter/masonry_formatter.module
+index e27c4f1..3eaa226 100644
+--- a/masonry_formatter/masonry_formatter.module
++++ b/masonry_formatter/masonry_formatter.module
+@@ -178,14 +178,14 @@ function masonry_formatter_preprocess_field(&$variables) {
+           $container.masonry({
+             itemSelector: ".field-item",
+             columnWidth: ' . $column_width . ',
+-            isAnimated: ' . $settings['masonry_animated'] . ',
++            isAnimated: ' . (int) $settings['masonry_animated'] . ',
+             animationOptions: {
+               duration: ' . (int) $settings['masonry_animated_duration'] . '
+             },
+-            isResizable: ' . $settings['masonry_resizable'] . ',
+-            isFitWidth: ' . $settings['masonry_center'] . ',
++            isResizable: ' . (int) $settings['masonry_resizable'] . ',
++            isFitWidth: ' . (int) $settings['masonry_center'] . ',
+             gutterWidth: ' . (int) $settings['masonry_gutter'] . ',
+-            isRTL: ' . $settings['masonry_rtl'] . '
++            isRTL: ' . (int) $settings['masonry_rtl'] . '
+           });
+         });
+       })(jQuery);';
+diff --git a/masonry_views/masonry_views.module b/masonry_views/masonry_views.module
+index 310ae82..aab7806 100644
+--- a/masonry_views/masonry_views.module
++++ b/masonry_views/masonry_views.module
+@@ -61,14 +61,14 @@ function template_preprocess_views_view_masonry(&$vars) {
+         $container.masonry({
+           itemSelector: ".masonry-item",
+           columnWidth: ' . $column_width . ',
+-          isAnimated: ' . $settings['masonry_animated'] . ',
++          isAnimated: ' . (int) $settings['masonry_animated'] . ',
+           animationOptions: {
+             duration: ' . (int) $settings['masonry_animated_duration'] . '
+           },
+-          isResizable: ' . $settings['masonry_resizable'] . ',
+-          isFitWidth: ' . $settings['masonry_center'] . ',
++          isResizable: ' . (int) $settings['masonry_resizable'] . ',
++          isFitWidth: ' . (int) $settings['masonry_center'] . ',
+           gutterWidth: ' . (int) $settings['masonry_gutter'] . ',
+-          isRTL: ' . $settings['masonry_rtl'] . '
++          isRTL: ' . (int) $settings['masonry_rtl'] . '
+         });
+       }).bind("views_infinite_scroll_updated", function () {
+         $container.masonry("reload");

@@ -1,0 +1,94 @@
+<?php
+
+
+/**
+ * @file
+ * Test cases for canvas_field module.
+ *
+ */
+class CanvasFieldTestCase extends DrupalWebTestCase {
+
+  protected $field;
+  protected $instance;
+  protected $web_user;
+
+  public function getInfo() {
+    return array(
+      'name' => t('Field CRUD'),
+      'description' => t('Checks for basic CR integrity and validation.'),
+      'group' => t('Canvas Field'),
+    );
+  }
+
+  function setUp() {
+    parent::setUp('field_test', 'canvas_field');
+    $this->web_user = $this->drupalCreateUser(array('access field_test content', 'administer field_test content', 'administer content types'));
+    $this->drupalLogin($this->web_user);
+  }
+
+  function test() {
+    $this->field = array(
+      'field_name' => drupal_strtolower($this->randomName()),
+      'type' => 'image',
+      'settings' => array(
+      )
+    );
+    field_create_field($this->field);
+
+    $this->instance = array(
+      'field_name' => $this->field['field_name'],
+      'entity_type' => 'test_entity',
+      'bundle' => 'test_bundle',
+      'widget' => array(
+        'type' => 'canvas_widget',
+      ),
+      'display' => array(
+        'default' => array(
+          'type' => 'image',
+        ),
+      ),
+    );
+    field_create_instance($this->instance);
+    $this->drupalGet('test-entity/add/test-bundle');
+    $langcode = LANGUAGE_NONE;
+
+    $this->drupalPost('test-entity/add/test-bundle', array(), 'Draw');
+    $cf_name = "{$this->field['field_name']}[$langcode][0][dataurl]";
+
+
+    $this->assertFieldByName($cf_name, '', t('Hidden canvas input is on the page'));
+    $edit = array(
+      $cf_name => 'data:image/png;base64,iVBORw',
+    );
+    $this->drupalPost(NULL, $edit, 'Save');
+    preg_match('|test-entity/manage/(\d+)/edit|', $this->url, $match);
+    $id = $match[1];
+
+    $this->assertRaw('<span class="file-size">(4 bytes)</span>', t('Found 4b Image successfully created'));
+
+    //MIME Check
+    $this->drupalPost('test-entity/add/test-bundle', array(), 'Draw');
+    $edit = array(
+      $cf_name => 'data:image/xyzbz;base64,iVBORw',
+    );
+    $this->drupalPost(NULL, $edit, 'Save');
+    $this->assertRaw('Invalid Data URL: Disallowed file type.', 'Invalid data url (MIME) was detected');
+
+    //Encoding Check.
+    $this->drupalPost('test-entity/add/test-bundle', array(), 'Draw');
+    $edit = array(
+      $cf_name => 'data:image/png;base8,iVBORw',
+    );
+    $this->drupalPost(NULL, $edit, 'Save');
+    $this->assertRaw('Invalid Data URL', 'Invalid data url (encoding) was detected');
+
+    //Doubled dataurl Check.
+    $this->drupalPost('test-entity/add/test-bundle', array(), 'Draw');
+    $edit = array(
+      $cf_name => 'data:image/png;base64,iVBORw;data:image/png:base64,iVBORw',
+    );
+    $this->drupalPost(NULL, $edit, 'Save');
+    $this->assertRaw('Invalid Data URL', 'Invalid data url (doubled) was detected');
+  }
+
+}

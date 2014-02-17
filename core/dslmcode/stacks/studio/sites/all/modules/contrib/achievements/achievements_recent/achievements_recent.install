@@ -1,0 +1,71 @@
+<?php
+
+/**
+ * @file
+ * Install, update, and uninstall functions for the Achievements Recent module.
+ */
+
+/**
+ * Implements hook_schema().
+ */
+function achievements_recent_schema() {
+  $schema['achievement_totals_days'] = array(
+    'description' => 'A leaderboard of recent day totals across the entire site.',
+    'fields' => array(
+      'days' => array(
+        'default'       => 0,
+        'description'   => "The recent day timeframe this data corresponds to (ex. 7, 30, etc.).",
+        'not null'      => TRUE,
+        'type'          => 'int',
+      ),
+      'uid' => array(
+        'default'       => 0,
+        'description'   => 'The {users}.uid that is being ranked on the recent day leaderboard.',
+        'not null'      => TRUE,
+        'type'          => 'int',
+      ),
+      'points' => array(
+        'default'       => 0,
+        'description'   => "The {users}.uid's recent day achievement point total.",
+        'not null'      => TRUE,
+        'type'          => 'int',
+      ),
+      'unlocks' => array(
+        'default'       => 0,
+        'description'   => "The {users}.uid's recent day total of achievement unlocks.",
+        'not null'      => TRUE,
+        'type'          => 'int',
+      ),
+      'earliest' => array(
+        'default'       => 0,
+        'description'   => 'The Unix timestamp when the {users}.uid first received an achievement in the last recent days.',
+        'not null'      => TRUE,
+        'type'          => 'int',
+      ),
+      'timestamp' => array(
+        'default'       => 0,
+        'description'   => 'The Unix timestamp when the {users}.uid last received an achievement.',
+        'not null'      => TRUE,
+        'type'          => 'int',
+      ),
+      'achievement_id' => array(
+        'default'       => '',
+        'description'   => 'The ID of the achievement the {users}.uid has most recently unlocked.',
+        'length'        => 32,
+        'not null'      => TRUE,
+        'type'          => 'varchar',
+      ),
+    ),
+    'indexes' => array(
+      'days_uid_points'         => array('days', 'uid', 'points'),
+      'days_uid_unlocks'        => array('days', 'uid', 'unlocks'),
+      'days_uid_earliest'       => array('days', 'uid', 'earliest'),
+      'days_points_timestamp'   => array('days', 'points', 'timestamp'),
+      'days_unlocks_timestamp'  => array('days', 'unlocks', 'timestamp'),
+      'days_uid_points_unlocks' => array('days', 'uid', 'points', 'unlocks'),
+    ),
+    'primary key' => array('days', 'uid'),
+  );
+
+  return $schema;
+}

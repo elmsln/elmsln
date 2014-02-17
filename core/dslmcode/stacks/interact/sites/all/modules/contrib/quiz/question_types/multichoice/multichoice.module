@@ -1,0 +1,202 @@
+<?php
+
+/**
+ * The main file for multichoice.
+ *
+ * Sponsored by: Norwegian Centre for Telemedicine
+ * Code: falcon
+ *
+ * @file
+ * Multiplechoice question type for the Quiz module.
+ *
+ */
+
+/**
+ * Implements hook_help().
+ */
+function multichoice_help($path, $args) {
+  if ($path == 'admin/help#multichoice') {
+    return t("
+      <p>This module provides a multiple choice question type for Quiz.</p>
+
+      <p>The module has three settings.
+      <em>Multiple answers</em> allows the quiz taker to select more than one alternative
+      (it also allows for the possibility that none of the alternatives are correct).
+      Alternatives are selected using checkboxes instead of radio buttons.
+      <em>Random order</em> displays the alternatives in random order when quiz is beeing taken.
+      <em>Simple scoring</em> gives max score if everything is correct. Zero points otherwise.</p>
+
+      <p>The scoring system in multichoice is a bit complex. With multiple answers each alternative adds a given number of points to
+      the total score if it is chosen, and another number of points is added if the alternative isn't chosen. Both <em>score if chosen</em> and
+      <em>score if not chosen</em> may be edited for each alternative by the question creator.
+      If multiple answers isn't allowed the score will be set to the <em>score if chosen</em> of the alternative that has been chosen.
+      The question is considered correct if the quiz taker gets the maximum amount of points possible for the question.</p>
+    ");
+  }
+}
+/**
+ * Implements hook_quiz_question_info().
+ */
+function multichoice_quiz_question_info() {
+  return array(
+    'multichoice' => array(
+      'name' => t('Multiple choice question'),
+      'description' => t('This provides multiple choice questions for use by the Quiz module.'),
+      'question provider' => 'MultichoiceQuestion',
+      'response provider' => 'MultichoiceResponse',
+      'module' => 'quiz_question', // All wrapper functions are in that module.
+    ),
+  );
+}
+/**
+ * Implements hook_config().
+ */
+function multichoice_config() {
+  $form['multichoice_def_num_of_alts'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Default number of alternatives'),
+    '#default_value' => variable_get('multichoice_def_num_of_alts', 2),
+  );
+  $form['multichoice_def_scoring'] = array(
+    '#type' => 'radios',
+    '#title' => t('Default scoring method'),
+    '#description' => t('Choose the default scoring method for questions with multiple correct answers.'),
+    '#options' => array(
+      0 => t('Give minus one point for incorrect answers'),
+      1 => t("Give one point for each incorrect option that haven't been chosen"),
+    ),
+    '#default_value' => variable_get('multichoice_def_scoring', 0),
+  );
+  $form['#validate'][] = 'multichoice_config_validate';
+  return $form;
+}
+
+/**
+ * Validate the multichoice config form values
+ */
+function multichoice_config_validate($form, $form_state) {
+  if (!_quiz_is_int($form_state['values']['multichoice_def_num_of_alts'], 2, 50)) {
+    form_set_error('multichoice_def_num_of_alts', t('The default number of alternatives must be between 2 and 50'));
+  }
+}
+
+/**
+ * Implements hook_theme().
+ */
+function multichoice_theme($existing, $type, $theme, $path) {
+  $path = drupal_get_path('module', 'multichoice') . '/theme';
+  return array(
+    'multichoice_creation_form' => array(
+      'render element' => 'form',
+      'path' => $path,
+      'file' => 'multichoice.theme.inc',
+    ),
+    'multichoice_answer_node_view' => array(
+      'variables' => array(
+        'alternatives' => NULL,
+        'show_correct' => NULL,
+      ),
+      'path' => $path,
+      'file' => 'multichoice.theme.inc',
+    ),
+    'multichoice_response' => array(
+      'variables' => array(
+        'data' => array(),
+      ),
+      'path' => $path,
+      'file' => 'multichoice.theme.inc',
+    ),
+    'multichoice_alternative_creation' => array(
+      'render element' => 'form',
+      'path' => $path,
+      'template' => 'multichoice-alternative-creation',
+    ),
+    'multichoice_answering_form' => array(
+      'render element' => 'form',
+      'path' => $path,
+      'template' => 'multichoice-answering-form',
+    ),
+    'multichoice_alternative' => array(
+      'render element' => 'form',
+      'path' => $path,
+      'template' => 'multichoice-alternative',
+    ),
+  );
+}
+
+/**
+ * ajax callback function used when adding alternatives to the node-form
+ */
+function multichoice_add_alternative_ajax_callback($form, &$form_state) {
+  $i = 0;
+  while (isset($form['alternatives'][$i])) {
+    $i++;
+  }
+  return $form['alternatives'][$i - 1];
+}
+
+/**
+ * Submit handler used when adding more alternatives to the node-form
+ */
+function multichoice_more_choices_submit($form, &$form_state) {
+  // Set the form to rebuild and run submit handlers.
+  if (!empty($form['node']->nid)) {
+    node_form_submit_build_node($form, $form_state);
+  }
+
+  // Count the existing alternatives
+  $exists = 0;
+  while (isset($form['alternatives'][$exists])) {
+    $exists++;
+  }
+
+  // Make the changes we want to the form state.
+  if ($form_state['values']['alternatives']['multichoice_add_alternative']) {
+    // We add 3 if js is disabled. 1 if the adding is done using ahah
+    $n = $_GET['q'] == 'system/ajax' ? 1 : 3;
+    $form_state['choice_count'] = $exists + $n;
+  }
+  $form_state['rebuild'] = TRUE;
+}
+/**
+ * Recursive helper function to set the validated property. (Taken from the skip validation module.)
+ *
+ * @param &$elements
+ *   The elements that are currently being processed.
+ */
+function _multichoice_skip_validation(&$elements) {
+  $elements['#validated'] = TRUE;
+  foreach (element_children($elements) as $key) {
+    _multichoice_skip_validation($elements[$key]);
+  }
+}
+
+/**
+ * Implements hook_user_cancel().
+ */
+function multichoice_user_cancel($edit, $account, $method) {
+  db_delete('quiz_multichoice_user_settings')
+  ->condition('uid', $account->uid)
+  ->execute();
+}
+
+/**
+ * Implementation of hook user.
+ */
+function multichoice_user_OLD($op, &$edit, &$account, $category = NULL) { }
+
+/**
+ * Implements hook_field_extra_fields().
+ */
+function multichoice_field_extra_fields() {
+  $extra['node']['multichoice'] = array(
+    'form' => array(
+      'alternatives' => array(
+        'label' => t('Alternatives'),
+        'description' => t('Alternatives for multichoice'),
+        'weight' => -4,
+      ),
+    ),
+  );
+  return $extra;
+}

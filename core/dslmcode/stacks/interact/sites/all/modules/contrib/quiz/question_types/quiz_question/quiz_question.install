@@ -1,0 +1,72 @@
+<?php
+
+/**
+ * The installer file for quiz_question.
+ * @file
+ */
+
+/**
+ * Implements hook_install().
+ */
+function quiz_question_install() {
+}
+
+/**
+ * Implements hook_schema().
+ */
+function quiz_question_schema() {
+  $schema = array();
+  $schema['quiz_question_properties'] = array(
+    'description' => 'Properties common for all quizzes',
+    'fields' => array(
+      'nid' => array(
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ),
+      'vid' => array(
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ),
+      'max_score' => array(
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'default' => 0,
+      ),
+    ),
+    'primary key' => array(
+      'nid', 'vid'
+    ),
+  );
+  $schema['quiz_question_latest_quizzes'] = array(
+    'description' => 'Stores the latest quizzes each user has been involved in',
+    'fields' => array(
+      'quiz_nid' => array(
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ),
+      'uid' => array(
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ),
+      'id' => array(
+        'type' => 'serial',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ),
+    ),
+    'primary key' => array(
+      'id',
+    ),
+  );
+  return $schema;
+}
+
+/**
+ * Implements hook_uninstall().
+ */
+function quiz_question_uninstall() {
+}

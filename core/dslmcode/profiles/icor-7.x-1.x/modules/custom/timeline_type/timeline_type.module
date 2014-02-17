@@ -1,0 +1,7 @@
+<?php
+/**
+ * @file
+ * Code for the Timeline type feature.
+ */
+
+include_once 'timeline_type.features.inc';

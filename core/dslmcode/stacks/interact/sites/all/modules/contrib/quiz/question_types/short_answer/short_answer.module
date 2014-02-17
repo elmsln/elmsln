@@ -1,0 +1,261 @@
+<?php
+
+/**
+ * The main file for short_answer.
+ *
+ * Short answer is structurally similar to long answer. However, the module
+ * mechanism makes it very difficult for these two modules (either one of
+ * which may be disabled) to effectively share code.
+ * @file
+ */
+
+/**
+ * Implements hook_help().
+ */
+function short_answer_help($path, $args) {
+  if ($path == 'admin/help#short_answer') {
+    return t('This module provides a short answer question type for Quiz.');
+  }
+}
+
+/**
+ * Implements hook_permission().
+ */
+function short_answer_permission() {
+  return array(
+    'use regex for short answer' => array(
+      'title' => t('use regex for short answer'),
+      'description' => t('Use PHP "regular expressions" the advanced option for automated response evaluation.'),
+      'restrict access' => TRUE,
+    ),
+  );
+}
+
+/**
+ * Implements hook_menu().
+ */
+function short_answer_menu() {
+  $items['admin/quiz/reports/score-short-answer'] = array(
+    'title' => 'Score short answer questions',
+    'description' => 'Score the answers from quizzes that use short answer questions.',
+    'page callback' => 'short_answer_view_unscored',
+    'access arguments' => array('score any quiz', 'score own quiz', 'score taken quiz answer'),
+    'access callback' => 'quiz_access_multi_or',
+    'type' => MENU_NORMAL_ITEM,
+    'file' => 'short_answer.admin.inc',
+  );
+  // Pass vid and rid to this path.
+  $items['admin/quiz/reports/score-short-answer/%/%'] = array(
+    'title' => 'Score short answer response',
+    'description' => 'Score a response to a short answer question.',
+    'page callback' => 'short_answer_edit_score',
+    'page arguments' => array(4, 5),
+    'type' => MENU_NORMAL_ITEM,
+    'access arguments' => array(4, 5),
+    'access callback' => 'quiz_question_access_to_score',
+    'file' => 'short_answer.admin.inc'
+  );
+
+  return $items;
+}
+
+/**
+ * Implements hook_quiz_question_info().
+ */
+function short_answer_quiz_question_info() {
+  return array(
+    'short_answer' => array(
+      'name' => t('Short answer question'),
+      'description' => t('Quiz questions that allow a user to enter a line of text.'),
+      'question provider' => 'ShortAnswerQuestion',
+      'response provider' => 'ShortAnswerResponse',
+      'module' => 'quiz_question', // All wrapper functions are in that module.
+    ),
+  );
+}
+
+/**
+ * Implements hook_config().
+ */
+function short_answer_config() {
+  $form['short_answer_default_max_score'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Default max score'),
+    '#description' => t('Choose the default maximum score for a short answer question.'),
+    '#default_value' => variable_get('short_answer_default_max_score', 5),
+  );
+  $form['#validate'][] = 'short_answer_config_validate';
+  return $form;
+}
+
+/**
+ * Validate the long_answer config form values
+ */
+function short_answer_config_validate($form, $form_state) {
+  if ($form_state['values']['short_answer_default_max_score'] <= 0) {
+    form_set_error('short_answer_default_max_score', t('The default max score must be greater than 0'));
+  }
+}
+
+/**
+ * Implements hook_theme().
+ */
+function short_answer_theme($existing, $type, $theme, $path) {
+  $module_path = drupal_get_path('module', 'short_answer');
+  return array(
+    'short_answer_view_unscored' => array(
+      'variables' => array('unscored' => array()),
+      'path' => $module_path . '/theme',
+      'file' => 'short_answer.theme.inc',
+    ),
+    'short_answer_response_form' => array(
+      'render element' => 'form',
+      'path' => $module_path . '/theme',
+      'file' => 'short_answer.theme.inc',
+    ),
+    'short_answer_user_answer' => array(
+      'variables' => array('answer' => NULL, 'correct' => NULL),
+      'path' => $module_path . '/theme',
+      'file' => 'short_answer.theme.inc',
+    ),
+    'short_answer_answering_form' => array(
+      'render element' => 'form',
+      'path' => $module_path . '/theme',
+      'template' => 'short-answer-answering-form',
+    ),
+  );
+}
+
+/**
+ * Set a score for a short answer question.
+ *
+ * This stores a score for a short answer question and marks that question as having been evaluated.
+ * The function updates all of the necessary data sources so that the individual answer results should be
+ * reflected in the total scoring table.
+ *
+ * @param $quiz
+ *  Quiz node.
+ * @param $nid
+ *  Node ID of question.
+ * @param $vid
+ *  Version ID of question.
+ * @param $rid
+ *  Result ID for the quiz results.
+ * @param $score
+ *  The numeric score to assign the result.
+ * @param $update_total
+ *  Shall the total score for a quiz be updated?
+ *
+ * @return int
+ *  Number of scores adjusted. If a change was made, this should be 1.
+ */
+function short_answer_score_an_answer($values, $update_total = TRUE) {
+  extract($values);
+  // When we set the score we make sure that the max score in the quiz the question belongs to is considered
+  $question_max_score = db_query('SELECT max_score FROM {quiz_question_properties} WHERE nid = :nid AND vid = :vid', array(':nid' => $nid, ':vid' => $vid))->FetchField();
+
+  $quiz_max_score = db_query('SELECT max_score FROM {quiz_node_relationship} WHERE parent_vid = :pvid AND child_vid = :cvid', array(':pvid' => $quiz->vid, ':cvid' => $vid))->fetchField();
+
+  $changed = db_update('quiz_short_answer_user_answers')
+    ->fields(array(
+      'score' => $score * $question_max_score / $quiz_max_score,
+      'is_evaluated' => 1,
+      'answer_feedback' => empty($answer_feedback) ? '' : $answer_feedback
+    ))
+    ->condition('question_nid', $nid)
+    ->condition('question_vid', $vid)
+    ->condition('result_id', $rid)
+    ->execute();
+  // Now the short answer user data has been updated. We also need to update the data in the quiz tables
+  if ($changed > 0) {
+    $max = db_query('SELECT max_score FROM {quiz_question_properties} WHERE vid = :vid', array(':vid' => $vid))->fetchField();
+    if ($max <= 0) {
+      $is_correct = 0;
+      $points_awarded = 0;
+    }
+    else {
+      $is_correct = ($score / $max > 0.5) ? 1 : 0;
+      $points_awarded = $score;
+    }
+
+    db_update('quiz_node_results_answers')
+      ->fields(array(
+        'points_awarded' => $points_awarded,
+        'is_correct' => $is_correct,
+      ))
+      ->condition('question_vid', $vid)
+      ->condition('result_id', $rid)
+      ->execute();
+
+    // Third, we update the main quiz results table
+    if ($update_total) {
+      quiz_update_total_score($quiz, $rid);
+    }
+  }
+  return $changed;
+}
+
+/**
+ * Validate the result report for short answer
+ */
+function short_answer_report_validate($values, $form_key) {
+  // Check to make sure that entered score is not higher than max allowed score.
+  if (!_quiz_is_int($values['score'], 0, (int) $values['max_score'])) {
+    form_set_error($form_key . '][score', t('The score needs to be a number between 0 and @max', array('@max' => (int) $values['max_score'])));
+  }
+}
+
+/**
+ * Submit the result report for short answer
+ */
+function short_answer_report_submit($values) {
+  short_answer_score_an_answer($values, FALSE);
+}
+
+/**
+ * Get the answer for a question.
+ *
+ * This stores a score for a short answer question and marks that question as having been evaluated.
+ * @param $question_nid
+ *  Node ID of question.
+ * @param $question_vid
+ *  Version ID of question.
+ * @param $result_id
+ *  Result ID for the quiz results.
+ *
+ * @return Assoc array
+ *  An array if successful, or FALSE if no result could be found. The array contains the following properties:
+ *  <code>
+ *  answer_id; // The answer ID
+ *  answer; // The full text of the answer
+ *  is_evaluated; // 0 if the question has not been evaluated, 1 if it has
+ *  score; // The score the evaluator gave the user; this should be 0 if is_evaluated is 0.
+ *  question_vid
+ *  question_nid
+ *  result_id
+ *  </code>
+ */
+function short_answer_get_answer($question_nid, $question_vid, $result_id) {
+  $results = db_query('SELECT sa.answer_id, sa.answer, sa.is_evaluated, sa.score, sa.question_vid, sa.question_nid, sa.result_id, sa.answer_feedback, rel.max_score AS rel_max_score
+    FROM {quiz_short_answer_user_answers} sa
+    JOIN {quiz_node_results} qnr ON (sa.result_id = qnr.result_id)
+    JOIN {quiz_node_relationship} rel ON (qnr.vid = rel.parent_vid AND rel.child_vid = sa.question_vid)
+    WHERE sa.question_nid = :qnid AND sa.question_vid = :qvid AND sa.result_id = :rid', array(':qnid' => $question_nid, ':qvid' => $question_vid, ':rid' => $result_id))->fetchAssoc();
+  return $results ? $results : FALSE;
+}
+
+/**
+ * Implements hook_field_extra_fields().
+ */
+function short_answer_field_extra_fields() {
+  $extra['node']['short_answer'] = array(
+    'form' => array(
+      'answer' => array(
+        'label' => t('Answer'),
+        'description' => t('Provide the answer and the method by which the answer will be evaluated.'),
+        'weight' => -4,
+      ),
+    ),
+  );
+  return $extra;
+}

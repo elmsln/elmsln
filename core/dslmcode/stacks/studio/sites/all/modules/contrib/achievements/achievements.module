@@ -1,0 +1,704 @@
+<?php
+
+/**
+ * @file
+ * Unlock achievements and earn points based on milestones.
+ */
+
+/**
+ * Implements hook_permission().
+ */
+function achievements_permission() {
+  return array(
+    'access achievements' => array(
+      'title' => t('Access achievements'),
+    ),
+    'earn achievements' => array(
+      'title' => t('Earn achievements'),
+    ),
+    'administer achievements' => array(
+      'title' => t('Administer achievements'),
+    ),
+  );
+}
+
+/**
+ * Implements hook_menu().
+ */
+function achievements_menu() {
+  $items['achievements/leaderboard'] = array(
+    'access arguments'  => array('access achievements'),
+    'description'       => 'View the site-wide achievements leaderboard.',
+    'file'              => 'achievements.pages.inc',
+    'page callback'     => 'achievements_leaderboard_totals',
+    'title'             => 'Leaderboard',
+  );
+  $items['achievements/leaderboard/%achievements'] = array(
+    'access arguments'  => array('access achievements'),
+    'description'       => "View a specific achievement's leaderboard.",
+    'file'              => 'achievements.pages.inc',
+    'page callback'     => 'achievements_leaderboard_for',
+    'page arguments'    => array(2),
+    'title'             => 'Per-achievement leaderboard',
+    'type'              => MENU_CALLBACK,
+  );
+  $items['user/%user/achievements'] = array(
+    'access arguments'  => array('access achievements'),
+    'description'       => "View a specific user's leaderboard.",
+    'file'              => 'achievements.pages.inc',
+    'page callback'     => 'achievements_user_page',
+    'page arguments'    => array(1),
+    'title'             => 'Achievements',
+    'type'              => MENU_LOCAL_TASK,
+  );
+  $items['admin/config/people/achievements'] = array(
+    'access arguments'  => array('administer achievements'),
+    'description'       => 'Configure the achievements system.',
+    'file'              => 'achievements.admin.inc',
+    'page callback'     => 'drupal_get_form',
+    'page arguments'    => array('achievements_settings'),
+    'title'             => 'Achievements',
+  );
+  $items['achievements/autocomplete'] = array(
+    'access arguments'  => array('access achievements'),
+    'file'              => 'achievements.pages.inc',
+    'page callback'     => 'achievements_autocomplete',
+    'title'             => 'Achievement title autocomplete',
+    'type'              => MENU_CALLBACK,
+  );
+
+  return $items;
+}
+
+/**
+ * Implements hook_theme().
+ */
+function achievements_theme() {
+  $path = drupal_get_path('module', 'achievements') . '/templates';
+
+  return array(
+    'achievement' => array(
+      'variables'       => array('achievement' => NULL, 'unlock' => NULL),
+      'template'        => 'achievement',
+      'path'            => $path,
+    ),
+    'achievement_notification' => array(
+      'variables'       => array('achievement' => NULL, 'unlock' => NULL),
+      'template'        => 'achievement-notification',
+      'path'            => $path,
+    ),
+    'achievement_latest_unlock' => array(
+      'variables'       => array('achievement' => NULL, 'unlock' => NULL),
+      'template'        => 'achievement-latest-unlock',
+      'path'            => $path,
+    ),
+    'achievement_user_stats' => array(
+      'variables'       => array('stats' => NULL),
+    ),
+    'achievement_groups_wrapper' => array(
+      'render element'  => 'element',
+    ),
+    'achievement_group_wrapper' => array(
+      'render element'  => 'element',
+    ),
+  );
+}
+
+/**
+ * Process variables for achievement.tpl.php.
+ */
+function template_preprocess_achievement(&$variables) {
+  achievements_template_shared_variables($variables);
+}
+
+/**
+ * Process variables for achievement-notification.tpl.php.
+ */
+function template_preprocess_achievement_notification(&$variables) {
+  achievements_template_shared_variables($variables);
+  $variables['classes_array'][] = 'element-hidden';
+}
+
+/**
+ * Process variables for achievement-latest-unlock.tpl.php.
+ */
+function template_preprocess_achievement_latest_unlock(&$variables) {
+  achievements_template_shared_variables($variables);
+}
+
+/**
+ * Standard variables used in our achievement templates.
+ *
+ * All our achievement templates send in $achievement and $unlock, but display
+ * some or all of the data in different ways. This is a centralized collection
+ * of the various helper $variables needed for theme display.
+ */
+function achievements_template_shared_variables(&$variables) {
+  $variables['state'] = isset($variables['unlock']) ? 'unlocked' : 'locked';
+  $variables['classes_array'][] = 'achievement-' . $variables['state'];
+  $variables['classes_array'][] = 'ui-corner-all'; // add rounded rects for tabs.
+  $variables['achievement_url'] = url('achievements/leaderboard/' . $variables['achievement']['id']);
+
+  if (isset($variables['achievement']['secret']) && !achievements_unlocked_already($variables['achievement']['id'])) {
+    $variables['achievement']['points']      = t('???'); // IIiII haveEeeA aa seecFRrit and I'll NEEVvaaha hTellLL..
+    $variables['achievement']['title']       = t('Secret achievement'); // unless, of course, you PayPal me bribes.
+    $variables['achievement']['description'] = t('Continue playing to unlock this secret achievement.');
+    $variables['state'] = 'secret';
+  }
+
+  // set the displayed image to a secret-or-not default-or-not determined value. sheesh.
+  $default = drupal_get_path('module', 'achievements') . '/images/default-' . $variables['state'] . '-70.jpg';
+  $variables['image_path'] = isset($variables['achievement']['images'][$variables['state']])
+    ? $variables['achievement']['images'][$variables['state']] // user-defined image, yay!
+    : variable_get('achievements_image_' . $variables['state'], $default);
+
+  $variables['image'] = array(
+    '#theme' => 'image_formatter',
+    '#item' => array(
+      'uri'   => $variables['image_path'],
+      'alt'   => $variables['achievement']['title'],
+      'title' => $variables['achievement']['title'],
+    ),
+    '#path' => array(
+      'path'    => 'achievements/leaderboard/' . $variables['achievement']['id'],
+      'options' => array('html' => TRUE),
+    ),
+  );
+
+  $variables['achievement_title'] = array(
+    '#type'   => 'link',
+    '#title'  => $variables['achievement']['title'],
+    '#href'   => 'achievements/leaderboard/' . $variables['achievement']['id'],
+  );
+  $variables['achievement_points'] = array(
+    '#markup' => t('@points points', array('@points' => $variables['achievement']['points'])),
+  );
+  $variables['unlocked_date'] = array(
+    '#markup' => isset($variables['unlock']['timestamp'])
+      ? format_date($variables['unlock']['timestamp'], 'custom', 'Y/m/d')
+      : '',
+  );
+  $variables['unlocked_rank'] = array(
+    '#markup' => isset($variables['unlock']['rank'])
+      ? t('Rank #@rank', array('@rank' => $variables['unlock']['rank']))
+      : '',
+  );
+}
+
+/**
+ * Implements hook_block_info().
+ */
+function achievements_block_info() {
+  return array(
+    'achievements_leaderboard' => array(
+      'info'  => t('Achievements: All-time leaderboard'),
+      'cache' => DRUPAL_NO_CACHE,
+    ),
+  );
+}
+
+/**
+ * Implements hook_block_view().
+ */
+function achievements_block_view($delta = '') {
+  if ($delta == 'achievements_leaderboard') {
+    include_once(drupal_get_path('module', 'achievements') . '/achievements.pages.inc');
+    return array( // stupid file that I have to include. WHERE"S MY FUNCTION REGSITERYR.
+      'content' => achievements_leaderboard_block(),
+      'subject' => t('All-time leaderboard'),
+    );
+  }
+}
+
+/**
+ * Implements hook_block_configure().
+ */
+function achievements_block_configure($delta = '') {
+  if ($delta == 'achievements_leaderboard') {
+    $form['achievements_rankings'] = array(
+      '#description'        => t('Enabling the "relative leaderboard" will show the current user\'s position and, optionally, a number of ranks before and after that position. For example, if the current user is ranked 12th and you configure 3 nearby ranks, the relative leaderboard will show ranks 9 through 15. The relative leaderboard will only show if the logged-in user does not appear in the displayed top ranks.'),
+      '#title'              => t('Leaderboard ranks'),
+      '#type'               => 'fieldset',
+    );
+    $form['achievements_rankings']['achievements_leaderboard_block_count_top'] = array(
+      '#type'           => 'select',
+      '#title'          => t('Number of top ranks'),
+      '#default_value'  => variable_get('achievements_leaderboard_block_count_top', 5),
+      '#options'        => drupal_map_assoc(range(0, 30)),
+    );
+    $form['achievements_rankings']['achievements_leaderboard_block_relative'] = array(
+      '#type'           => 'radios',
+      '#title'          => t('Relative leaderboard display'),
+      '#default_value'  => variable_get('achievements_leaderboard_block_relative', 'nearby_ranks'),
+      '#options'        => array(
+        'disabled'      => t('Don\'t show the relative leaderboard'),
+        'user_only'     => t('Show only the current user'),
+        'nearby_ranks'  => t('Show the current user and nearby ranks'),
+      ),
+    );
+    $form['achievements_rankings']['achievements_leaderboard_block_relative_nearby_ranks'] = array(
+      '#type'           => 'select',
+      '#title'          => t('Number of nearby ranks to display'),
+      '#default_value'  => variable_get('achievements_leaderboard_block_relative_nearby_ranks', 1),
+      '#options'        => drupal_map_assoc(range(1, 10)),
+    );
+
+    return $form;
+  }
+}
+
+/**
+ * Implements hook_block_save().
+ */
+function achievements_block_save($delta = '', $edit = array()) {
+  if ($delta == 'achievements_leaderboard') { // bleh, this is wasteful code that should be automated.
+    variable_set('achievements_leaderboard_block_count_top', $edit['achievements_leaderboard_block_count_top']);
+    variable_set('achievements_leaderboard_block_relative', $edit['achievements_leaderboard_block_relative']);
+    variable_set('achievements_leaderboard_block_relative_nearby_ranks', $edit['achievements_leaderboard_block_relative_nearby_ranks']);
+  }
+}
+
+/**
+ * Load information about our achievements.
+ *
+ * @param $achievement_id
+ *   The (optional) achievement this request applies against.
+ * @param $grouped
+ *   Whether to return the achievements list flattened (FALSE, the default)
+ *   or grouped into achievement-defined categories. If TRUE, but there is no
+ *   group specified for an achievement, it'll be stored in a "-none-" array
+ *   intended to simplify display code. Not compatible with $achievement_id.
+ * @param $reset
+ *   Forces a refresh of the cached achievement data.
+ *
+ * @return $achievements
+ *   An array of all achievements, or just the one passed.
+ */
+function achievements_load($achievement_id = NULL, $grouped = FALSE, $reset = FALSE) {
+  $achievements = &drupal_static(__FUNCTION__);
+
+  if (!isset($achievements) || $reset) {
+    if (!$reset && $cache = cache_get('achievements_info')) {
+      $achievements = $cache->data;
+    }
+    else {
+      $achievements = array('flat' => array(), 'grouped' => array());
+      $result = module_invoke_all('achievements_info');
+      drupal_alter('achievements_info', $result);
+
+      // determine if we're looking at an achievement or group and create our
+      // master $achievements array. we store the achievements in two separate
+      // forms: one with a tree (for display purposes) and one flattened (for
+      // lookup purposes). the flattened index is referenced so that we save
+      // space in the final serialized blob that cache_set() sends.
+      foreach ($result as $key => $value) {
+        if (isset($value['achievements']) && is_array($value['achievements'])) {
+          $achievements['grouped'][$key] = $value; // copy the whole shebang into realz.
+          foreach ($achievements['grouped'][$key]['achievements'] as $id => $achievement) {
+            $achievements['grouped'][$key]['achievements'][$id]['id'] = $id;
+            $achievements['grouped'][$key]['achievements'][$id]['group_id'] = $key;
+            $achievements['grouped'][$key]['achievements'][$id]['group_title'] = $value['title'];
+            $achievements['grouped'][$key]['achievements'][$id]['points'] = isset($achievement['points']) ? $achievement['points'] : 0;
+            $achievements['flat'][$id] = &$achievements['grouped'][$key]['achievements'][$id];
+          }
+        }
+        else {
+          $value['id'] = $key;
+          $value['group_id'] = '-none-';
+          $value['group_title'] = NULL; // moo.
+          $value['points'] = isset($value['points']) ? $value['points'] : 0;
+          $achievements['grouped']['-none-']['achievements'][$key] = $value;
+          $achievements['flat'][$key] = &$achievements['grouped']['-none-']['achievements'][$key];
+        }
+      }
+
+      if (isset($achievements['grouped']['-none-'])) {
+        $achievements['grouped']['-none-']['title'] = t('Miscellany');
+      }
+
+      cache_set('achievements_info', $achievements, 'cache', CACHE_TEMPORARY);
+    }
+  }
+
+  if ($achievement_id) { // all my majesty and brilliance, and you just want one result? /me weeps.
+    return isset($achievements['flat'][$achievement_id]) ? $achievements['flat'][$achievement_id] : FALSE;
+  }
+
+  // return the whole shebang in groups or a flattened lookup bucket.
+  return $grouped ? $achievements['grouped'] : $achievements['flat'];
+}
+
+/**
+ * Returns a user-centric leaderboard.
+ *
+ * @param $nearby
+ *   How many nearby ranks/users should be returned (defaults to 0).
+ * @param $uid
+ *   The user to return achievement info for (defaults to current user).
+ * @param $days
+ *   If the achievements_recent.module is enabled, it will use the $days
+ *   parameter to constrain the totals to one of its supported day frames.
+ *
+ * @return $results
+ *   Either an empty array (for users who have yet to unlock anything) or
+ *   an array of user(s) and their achievement statistics, keyed to uid.
+ */
+function achievements_totals_user($nearby = 0, $uid = NULL, $days = NULL) {
+  list($uid, $access) = achievements_user_is_achiever($uid);
+  // we don't check for access as this is info grubbing only.
+
+  $achievers = &drupal_static(__FUNCTION__);
+  $days = !empty($days) ? $days : 0; // used in array keys.
+  $day_frame = module_exists('achievements_recent') && $days > 0;
+  $leaderboard_table = $day_frame ? 'achievement_totals_days' : 'achievement_totals';
+
+  if (!isset($achievers[$days][$uid])) {
+    $query = db_select($leaderboard_table, 'at');
+    $query->addTag('achievement_totals_user')->join('users', 'u', 'u.uid = at.uid');
+    $query->fields('at', array('uid', 'points', 'unlocks', 'timestamp', 'achievement_id'))->fields('u', array('name'));
+    $day_frame ? $query->condition('days', $days) : NULL; // hey, it's better than a 3 line code-style-friendly if.
+    $achievers[$days][$uid] = $query->condition('at.uid', $uid)->execute()->fetchObject();
+
+    if (isset($achievers[$days][$uid]->points)) { // only if they've unlocked something.
+      // to find the user's rank: count all the users with greater points, add
+      // all the users with equal points but earlier timestamps, and then add 1.
+      $better_points = $day_frame // NP: 'This Day Aria' from Britt McKillip's album 'My Little Pony: Friendship is Magic Season 2'.
+        ? db_select($leaderboard_table)->condition('points', $achievers[$days][$uid]->points, '>')->condition('days', $days)->countQuery()->execute()->fetchField()
+        : db_select($leaderboard_table)->condition('points', $achievers[$days][$uid]->points, '>')->countQuery()->execute()->fetchField();
+      // Yeah, I'm repeating queries. I started out just modifying them, like elsewhere here, but I didn't like how the code "felt".
+      $earlier_times = $day_frame // NP: 'Fields Of Joy (Thank God It's Friday, Again)' from 'Farscape: Music From The Original Soundtrack'.
+        ? db_select($leaderboard_table)->condition('points', $achievers[$days][$uid]->points)->condition('timestamp', $achievers[$days][$uid]->timestamp, '<')->condition('days', $days)->countQuery()->execute()->fetchField()
+        : db_select($leaderboard_table)->condition('points', $achievers[$days][$uid]->points)->condition('timestamp', $achievers[$days][$uid]->timestamp, '<')->countQuery()->execute()->fetchField();
+
+      $achievers[$days][$uid]->rank = $better_points + $earlier_times + 1;
+    }
+  }
+
+  // we need to get some nearby users, so use our global leaderboard query to
+  // get a range based on the $uid's current rank and how many $nearby users.
+  if (isset($achievers[$days][$uid]->points) && $nearby) {
+    $starting_rank = max(1, $achievers[$days][$uid]->rank - $nearby);
+
+    // build the magical rank-ranging query.
+    $query = db_select($leaderboard_table, 'at');
+    $query->addTag('achievement_totals_user_nearby')->join('users', 'u', 'u.uid = at.uid');
+    $query->fields('at', array('uid', 'points', 'unlocks', 'timestamp', 'achievement_id'))->fields('u', array('name'));
+    $query->orderBy('at.points', 'DESC')->orderBy('at.timestamp'); // @bug DESC/ASC doesn't index. at all. curses.
+    $day_frame ? $query->condition('days', $days) : NULL; // yeah, still better than a 3 line code-style-friendly if.
+    $offset = max(0, $achievers[$days][$uid]->rank - $nearby - 1); // max() ensures no negative numbers in our lookup.
+    $limit  = $achievers[$days][$uid]->rank - $offset + $nearby; // always get +$nearby from current rank.
+    $achievers[$days] = $query->range($offset, $limit)->execute()->fetchAllAssoc('uid');
+
+    foreach ($achievers[$days] as $achiever) {
+      $achiever->rank = $starting_rank++;
+    }
+  }
+
+  return isset($achievers[$days][$uid]->points) ? $achievers[$days] : array();
+}
+
+/**
+ * Logs a user as having unlocked an achievement.
+ *
+ * @param $achievement_id
+ *   The achievement this request applies against.
+ * @param $uid
+ *   The user to unlock an achievement for (defaults to current user).
+ * @param $timestamp
+ *   Optional; the timestamp when this achievement was unlocked.
+ */
+function achievements_unlocked($achievement_id, $uid = NULL, $timestamp = REQUEST_TIME) {
+  list($uid, $access) = achievements_user_is_achiever($uid);
+  if (!$access) { return; } // i know you want it, but...
+
+  // grab information about the achievement.
+  $achievement = achievements_load($achievement_id);
+  if (empty($achievement)) { // hrm... try a cache refresh?
+    $achievement = achievements_load($achievement_id, FALSE, TRUE);
+  }
+  if (empty($achievement)) { // still nothing even after cache refresh? ouch.
+    watchdog('achievements', '%achievement_id is not a valid achievement ID.',
+      array('%achievement_id' => $achievement_id), WATCHDOG_ERROR);
+    return FALSE;
+  }
+
+  if (!achievements_unlocked_already($achievement_id, $uid)) {
+    $last_rank = db_select('achievement_unlocks', 'au')->fields('au', array('rank')) // not. exciting. at. all.
+      ->condition('achievement_id', $achievement_id)->orderBy('rank', 'DESC')->range(0, 1)->execute()->fetchField();
+
+    db_insert('achievement_unlocks')
+      ->fields(array(
+        'achievement_id'  => $achievement_id,
+        'uid'             => $uid,
+        'rank'            => $last_rank ? $last_rank + 1 : 1,
+        'timestamp'       => $timestamp,
+        'seen'            => 0,
+      ))
+      ->execute();
+
+    db_merge('achievement_totals')
+      ->key(array('uid' => $uid))
+      ->fields(array(
+        'points'          => $achievement['points'],
+        'unlocks'         => 1, // OMG CONGRATS
+        'timestamp'       => $timestamp,
+        'achievement_id'  => $achievement_id,
+      ))
+      ->expression('points', 'points + :points', array(':points' => $achievement['points']))
+      ->expression('unlocks', 'unlocks + :increment', array(':increment' => 1))
+      ->execute();
+
+    // update the unlocked_already static cache so that it returns accurate
+    // unlocks for the rest of the page load. we could have just reset the
+    // cache entirely but that would cost us additional database queries
+    // based on the number of unique unlocks in this page load.
+    $unlocks = &drupal_static('achievements_unlocked_already');
+    $unlocks[$uid][$achievement_id] = array(
+      'achievement_id'  => $achievement_id,
+      'rank'            => $last_rank ? $last_rank + 1 : 1,
+      'timestamp'       => $timestamp,
+    );
+
+    module_invoke_all('achievements_unlocked', $achievement, $uid);
+
+    watchdog('achievements', 'Unlocked: %achievement (+@points).',
+      array('%achievement' => $achievement['title'], '@points' => $achievement['points']),
+      WATCHDOG_NOTICE, l(t('view'), 'user/' . $uid . '/achievements')); // nothing fancy.
+  }
+}
+
+/**
+ * Return data about a user's unlocked achievements.
+ *
+ * @param $achievement_id
+ *   A specific achievement to check the unlock status of.
+ * @param $uid
+ *   The user this request applies against (defaults to current user).
+ *
+ * @return NULL or $unlocked or $unlocks
+ *   One of the following, based on the passed parameters:
+ *   - If the $uid has not unlocked $achievement_id, return NULL.
+ *   - If $achievement_id is unlocked, return an array of rank and timestamp.
+ *   - If no $achievement_id is passed, an array of all $uid's unlocks.
+ */
+function achievements_unlocked_already($achievement_id = NULL, $uid = NULL) {
+  list($uid, $access) = achievements_user_is_achiever($uid);
+  if (!$access) { return; } // i can't let you in, y'know?
+  $unlocks = &drupal_static(__FUNCTION__);
+
+  if (!isset($unlocks[$uid])) {
+    // we grab all unlocks and cache per page load. it's better than lots of per-achievement lookups.
+    $unlocks[$uid] = db_select('achievement_unlocks', 'au')->fields('au', array('achievement_id', 'rank', 'timestamp'))
+      ->condition('uid', $uid)->execute()->fetchAllAssoc('achievement_id', PDO::FETCH_ASSOC); // INSERT FORTUNE, LONELINESS.
+  }
+
+  if (isset($achievement_id)) { // return data about a specific unlock if requested.
+    return isset($unlocks[$uid][$achievement_id]) ? $unlocks[$uid][$achievement_id] : NULL;
+  }
+  else { // all of 'em.
+    return $unlocks[$uid];
+  }
+}
+
+/**
+ * Relocks (or "takes away") an achievement from a user.
+ *
+ * @param $achievement_id
+ *   The achievement this request applies against.
+ * @param $uid
+ *   The user to relock an achievement for (defaults to current user).
+ */
+function achievements_locked($achievement_id, $uid = NULL) {
+  list($uid, $access) = achievements_user_is_achiever($uid);
+  if (!$access) { return; } // i have congestion and sniffles.
+
+  // only remove the achievement if the user has unlocked it.
+  if (achievements_unlocked_already($achievement_id, $uid)) {
+    $achievement = achievements_load($achievement_id); // we need the full thing so we know how many points to take away.
+    db_delete('achievement_unlocks')->condition('achievement_id', $achievement['id'])->condition('uid', $uid)->execute();
+
+    // Load up a previous unlock if they've got one.
+    $previous_unlock = db_select('achievement_unlocks')
+      ->fields('achievement_unlocks', array('achievement_id'))
+      ->condition('uid', $uid)->orderBy('timestamp', 'DESC')
+      ->range(0, 1)->execute()->fetchField();
+
+    if ($previous_unlock) {
+      db_update('achievement_totals') // subtract points and set the previous unlock as their latest.
+        ->fields(array('uid' => $uid, 'timestamp' => REQUEST_TIME, 'achievement_id' => $previous_unlock))
+        ->expression('points', 'points - :points', array(':points' => $achievement['points']))
+        ->expression('unlocks', 'unlocks - :decrement', array(':decrement' => 1))
+        ->condition('uid', $uid)->execute();
+    }
+    else { // With no previous unlock, remove from leaderboard entirely.
+      db_delete('achievement_totals')->condition('uid', $uid)->execute();
+    }
+
+    // remove any storage associated with this achievement.
+    achievements_storage_del($achievement['id'], $uid);
+    module_invoke_all('achievements_locked', $achievement, $uid);
+  }
+}
+
+/**
+ * Retrieve data needed by an achievement.
+ *
+ * @param $achievement_id
+ *   An identifier for the achievement whose data is being collected.
+ * @param $uid
+ *   The user this stored data applies to (defaults to current user).
+ *
+ * @return $data
+ *   The data stored for this achievement and user (unserialized).
+ */
+function achievements_storage_get($achievement_id = NULL, $uid = NULL) {
+  list($uid, $access) = achievements_user_is_achiever($uid);
+  if (!$access) { return; } // it's not that I don't want to...
+
+  return unserialize(db_select('achievement_storage')->fields('achievement_storage', array('data'))
+    ->condition('achievement_id', $achievement_id)->condition('uid', $uid)->execute()->fetchField());
+}
+
+/**
+ * Save data needed by an achievement.
+ *
+ * @param $achievement_id
+ *   An identifier for the achievement whose data is being collected.
+ * @param $uid
+ *   The user this stored data applies to (defaults to current user).
+ * @param $data
+ *   The data being saved (of any type; serialization occurs).
+ */
+function achievements_storage_set($achievement_id = NULL, $data = NULL, $uid = NULL) {
+  list($uid, $access) = achievements_user_is_achiever($uid);
+  if (!$access) { return; } // I... I'M IN LOVE WITH MORBUS OK?!!?
+
+  db_merge('achievement_storage')
+    ->key(array('uid' => $uid, 'achievement_id' => $achievement_id))
+    ->fields(array('data' => serialize($data))) // it's hot in here.
+    ->execute(); // i hate all DBTNG syntax. NEVAH STANDARNDIZEE?Ee1
+}
+
+/**
+ * Delete data stored by an achievement.
+ *
+ * @param $achievement_id
+ *   An identifier for the achievement whose data is being collected.
+ * @param $uid
+ *   The user this stored data applies to (defaults to current user).
+ */
+function achievements_storage_del($achievement_id = NULL, $uid = NULL) {
+  list($uid, $access) = achievements_user_is_achiever($uid);
+  if (!$access) { return; } // WE'RE GONNA HAVE A MEELLION BABIES.
+
+  $achievement = achievements_load($achievement_id);
+  $storage = isset($achievement['storage']) ? $achievement['storage'] : $achievement['id'];
+  db_delete('achievement_storage')->condition('achievement_id', $storage)->condition('uid', $uid)->execute();
+}
+
+/**
+ * Determine if a user is able to earn achievements.
+ *
+ * This is a general helper around the core achievements functions and allows
+ * us to default to the global user if a $uid is not passed, but also check
+ * permissions against a user who is not the global user. This allows us to
+ * a) define roles of users that can not earn achievements and b) manually
+ * unlock achievements for a non-current user.
+ *
+ * @param $uid
+ *   The user to check for "earn achievements" (defaults to current user).
+ *
+ * @return $results
+ *   An array with values of:
+ *   - $uid is the determined user (default: the global user).
+ *   - $access is a TRUE or FALSE determined by user_access() and hooks.
+ */
+function achievements_user_is_achiever($uid = NULL) {
+  $is_achiever = &drupal_static(__FUNCTION__);
+  $uid = isset($uid) ? $uid : $GLOBALS['user']->uid;
+
+  if (!isset($is_achiever[$uid])) {
+    if ($uid == $GLOBALS['user']->uid) { // if $uid is current user, check normally.
+      $is_achiever[$uid] = array($GLOBALS['user']->uid, user_access('earn achievements'));
+    }
+    else { // if it's not the global user, we need to load them fully, then check.
+      $is_achiever[$uid] = array($uid, user_access('earn achievements', user_load($uid)));
+    }
+
+    // Let other modules decide if this user can earn achievements. Hook
+    // results take precedence over the standard user_access() because we
+    // treat code prowess as stronger rationale than simplistic UI clicking.
+    $module_access = module_invoke_all('achievements_access_earn', $uid);
+
+    if (in_array(TRUE, $module_access, TRUE)) {
+      $is_achiever[$uid] = array($uid, TRUE);
+    }
+    elseif (in_array(FALSE, $module_access, TRUE)) {
+      $is_achiever[$uid] = array($uid, FALSE);
+    }
+  }
+
+  return $is_achiever[$uid];
+}
+
+/**
+ * Implements hook_user_cancel().
+ */
+function achievements_user_cancel($edit, $account, $method) {
+  achievements_user_delete($account); // no stats for non-players.
+}
+
+/**
+ * Implements hook_user_delete().
+ */
+function achievements_user_delete($account) {
+  db_delete('achievement_totals')->condition('uid', $account->uid)->execute();
+  db_delete('achievement_unlocks')->condition('uid', $account->uid)->execute();
+  db_delete('achievement_storage')->condition('uid', $account->uid)->execute();
+}
+
+/**
+ * Implements hook_page_alter().
+ */
+function achievements_page_alter(&$page) {
+  // Achievement popups won't show if the overlay is active, so we'll defer until it isn't.
+  // See http://drupal.stackexchange.com/questions/35382/hide-module-when-path-is-overlay.
+  if (achievements_user_is_achiever() && !(module_exists('overlay') && path_is_admin($_GET['q']))) {
+    $unlocks = db_select('achievement_unlocks', 'au')->fields('au', array('achievement_id', 'rank', 'timestamp')) // find everything we've yet to see.
+      ->condition('uid', $GLOBALS['user']->uid)->condition('seen', 0)->orderBy('timestamp')->execute()->fetchAllAssoc('achievement_id', PDO::FETCH_ASSOC);
+
+    // if unseen unlocks are available, load in our JS libraries,
+    // display our achievement notification, and flag 'em as seen.
+    if (count($unlocks)) {
+      drupal_add_library('system', 'ui.dialog');
+      drupal_add_library('system', 'effects.fade');
+      drupal_add_js(drupal_get_path('module', 'achievements') . '/achievements.js');
+
+      foreach ($unlocks as $unlock) {
+        $achievement = achievements_load($unlock['achievement_id']);
+        $page['page_bottom']['achievements'][$unlock['achievement_id']] = array(
+          '#theme'        => 'achievement_notification',
+          '#achievement'  => $achievement,
+          '#unlock'       => $unlock,
+        );
+      }
+
+      db_update('achievement_unlocks')->fields(array('seen' => 1))
+        ->condition('uid', $GLOBALS['user']->uid)->condition('seen', 0)->execute();
+    }
+  }
+}
+
+/**
+ * Implements hook_form_FORM_ID_alter().
+ */
+function achievements_form_user_profile_form_alter(&$form, $form_state) {
+  // The achievements_optout checkbox is a field that is created when that
+  // module is enabled. If that module is then disabled, but not uninstalled,
+  // the field will still show up on the user profile form. There doesn't
+  // appear to be an easy (or non-destructive) way to hide or show a field on
+  // module_enable or _disable, so we'll handle it upstream and hackishly.
+  if (!module_exists('achievements_optout') && isset($form['achievements_optout'])) {
+    $form['achievements_optout']['#access'] = FALSE;
+  }
+}

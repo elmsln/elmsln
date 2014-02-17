@@ -1,0 +1,116 @@
+<?php
+
+/**
+ * @file
+ * Adds fields integration with FlexSlider
+ *
+ * @author jepedo
+ * @author Mathew Winstone <mwinstone@coldfrontlabs.ca>
+ */
+
+/**
+ * Implements hook_field_formatter_info().
+ *
+ * Adds the flexslider format option within the manage display form of
+ * of an image field.
+ */
+function flexslider_fields_field_formatter_info() {
+  return array(
+    'flexslider' => array(
+      'label' => t('flexslider'),
+      'field types' => array('image', 'media'),
+      'settings' => array(
+        'flexslider_optionset' => 'default',
+        'flexslider_reference_img_src' => NULL,
+      ),
+    ),
+  );
+}
+
+/**
+ * Implements hook_field_formatter_settings_form().
+ *
+ * Provides display settings form within the manage display page of
+ * an image field with formatter flexslider.
+ */
+function flexslider_fields_field_formatter_settings_form($field, $instance, $view_mode, $form, &$form_state) {
+  $display = $instance['display'][$view_mode];
+  $settings = $display['settings'];
+
+  $form = array();
+
+  // Show select box for the option set
+  $optionsets = array();
+  ctools_include('export');
+  foreach (flexslider_optionset_load_all() as $name => $optionset) {
+    $optionsets[$name] = check_plain($optionset->title);
+  }
+  $form['flexslider_optionset'] = array(
+    '#title' => t('Option set'),
+    '#type' => 'select',
+    '#options' => $optionsets,
+    '#default_value' => $settings['flexslider_optionset'],
+  );
+
+  return $form;
+}
+
+/**
+ * Implements hook_field_formatter_settings_summary().
+ *
+ * Displays the summary of the set options of a flexslider formatted image field
+ */
+function flexslider_fields_field_formatter_settings_summary($field, $instance, $view_mode) {
+  $display = $instance['display'][$view_mode];
+  $settings = $display['settings'];
+
+  $summary = array();
+
+  // Load option set
+  ctools_include('export');
+  if (!empty($settings['flexslider_optionset'])) {
+    $o = ctools_export_crud_load('flexslider_optionset', $settings['flexslider_optionset']);
+    if ($o !== NULL) {
+      $optionset = $o;
+    }
+  }
+
+  // Build settings summary
+  $optionset = isset($optionset) ? $optionset->title : t('Default settings');
+  $summary[] = t('Option set: %optionset', array('%optionset' => $optionset));
+
+  if (isset($settings['flexslider_reference_img_src'])) {
+    $summary[] = t('Image field of the referenced node: %field', array('%field' => $settings['flexslider_reference_img_src']));
+  }
+
+  return implode('<br />', $summary);
+}
+
+/**
+ * Implements hook_field_formatter_view().
+ *
+ * Prepares a renderable array of images and adds the neccessary JS and CSS
+ */
+function flexslider_fields_field_formatter_view($entity_type, $entity, $field, $instance, $langcode, $items, $display) {
+  if ($field['type'] == 'media') {
+    $image_items = array();
+    foreach ($items as $item) {
+      if ($item['file']->type == 'image') {
+        $file = (array) $item['file'];
+        $file += array('alt' => '', 'title' => '');
+        $image_items[] = $file;
+      }
+    }
+    $items = $image_items;
+  }
+
+  $element = array();
+  if (count($items) > 0) {
+    $element[] = array(
+      '#theme' => 'flexslider_container',
+      '#items' => $items,
+      '#settings' => $display['settings'],
+    );
+  }
+  return $element;
+}

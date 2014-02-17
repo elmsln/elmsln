@@ -1,0 +1,5 @@
+; $Id: icor_helper.info
+name = "ICOR Module"
+description = "Tweaks for the interactive course object respository"
+core = 7.x
+package = ICOR

@@ -1,0 +1,13 @@
+name = Pointless
+description = "Hides points and leaderboards for a non-competitive environment."
+stylesheets[all][] = achievements_pointless.css
+dependencies[] = achievements
+package = Achievements
+core = 7.x
+
+; Information added by drupal.org packaging script on 2012-10-23
+version = "7.x-1.5+4-dev"
+core = "7.x"
+project = "achievements"
+datestamp = "1350995486"
+

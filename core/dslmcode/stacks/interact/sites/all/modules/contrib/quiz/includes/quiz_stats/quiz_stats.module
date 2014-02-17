@@ -1,0 +1,145 @@
+<?php
+
+/**
+ * @file
+ * Quiz stats
+ *
+ * Module creates a report to analyse and compare the results of quiz attendees.
+ */
+
+/**
+ * Implements hook_help().
+ */
+function quiz_stats_help($path, $arg) {
+  if ($path == 'admin/help#quiz_stats') {
+    return '<p>' . t('Module creates a report to analyse and compare the results of quiz attendees. The reports will be displayed visually using goolge chart API.') . '</p>';
+  }
+}
+
+/**
+ * Implements hook_permission().
+ */
+function quiz_stats_permission() {
+  $permission = array(
+    'access user stats' => array(
+      'title' => t('access user stats'),
+    ),
+    'access author stats' => array(
+      'title' => t('access author stats'),
+    ),
+  );
+  return $permission;
+}
+
+/**
+ * Implements hook_menu().
+ */
+function quiz_stats_menu() {
+  $items['admin/quiz/reports/stats/creator'] = array(
+    'title' => 'Quiz Statistics',
+    'description' => 'Generates a report on quiz results for quiz creators.',
+    'file' => 'quiz_stats.admin.inc',
+    'page callback' => 'quiz_stats_get_basic_stats',
+    'access arguments' => array('access author stats'),
+    'type' => MENU_NORMAL_ITEM,
+  );
+  $items['node/%node/statistics'] = array(
+    'title' => 'Statistics',
+    'description' => 'Generates a report on quiz results for quiz creators.',
+    'file' => 'quiz_stats.admin.inc',
+    'page callback' => 'quiz_stats_revision_selector_page',
+    'page arguments' => array(1),
+    'access callback' => 'quiz_type_confirm',
+    'access arguments' => array(1, 'access user stats'),
+    'type' => MENU_LOCAL_TASK,
+    'weight' => 4,
+  );
+  $items['node/%node/statistics/%'] = array(
+    'title' => 'Statistics',
+    'description' => 'Generates a report on quiz results for quiz creators.',
+    'file' => 'quiz_stats.admin.inc',
+    'page callback' => 'quiz_stats_get_adv_stats',
+    'page arguments' => array(3),
+    'access callback' => 'quiz_stats_validate_vid',
+    'access arguments' => array(1, 3),
+    'type' => MENU_CALLBACK,
+    'weight' => 4,
+  );
+  $items['user/%/stats'] = array(
+    'title' => 'Result Statistics',
+    'description' => 'Generates a report on quiz results for quiz creators.',
+    'file' => 'quiz_stats.admin.inc',
+    'page callback' => 'quiz_stats_get_basic_stats',
+    'page arguments' => array(1),
+    'access arguments' => array('access user stats'),
+    'type' => MENU_LOCAL_TASK,
+  );
+  $items['user/%/stats/%/view'] = array(
+    'title' => 'Result Statistics',
+    'file' => 'quiz_stats.admin.inc',
+    'page callback' => 'quiz_stats_get_adv_stats',
+    'page arguments' => array(3, 1),
+    'access arguments' => array('access user stats'),
+    'type' => MENU_CALLBACK,
+  );
+  return $items;
+}
+
+/**
+ * Implements hook_theme().
+ */
+function quiz_stats_theme() {
+  $path = drupal_get_path('module', 'quiz_stats') . '/theme';
+  return array(
+    'quiz_stats_get_basic_stats' => array(
+      'variables' => array('results' => NULL),
+      'file' => 'quiz_stats.admin.inc',
+    ),
+    'date_vs_takeup_count' => array(
+      'variables' => array('takeup' => NULL),
+      'file' => 'quiz_stats.admin.inc',
+    ),
+    'get_quiz_status_chart' => array(
+      'variables' => array('quiz' => NULL),
+      'file' => 'quiz_stats.admin.inc',
+    ),
+    'quiz_top_scorers' => array(
+      'variables' => array('scorer' => NULL),
+      'file' => 'quiz_stats.admin.inc',
+    ),
+    'quiz_grade_range' => array(
+      'variables' => array('range' => NULL),
+      'file' => 'quiz_stats.admin.inc',
+    ),
+    'quiz_stats_revision_selector' => array(
+      'variables' => array('content' => NULL),
+      'path' => $path,
+      'template' => 'quiz_stats_revision_selector',
+    ),
+    'quiz_stats_charts' => array(
+      'variables' => array('charts' => NULL),
+      'path' => $path,
+      'template' => 'quiz_stats_charts',
+    ),
+  );
+}
+
+/**
+ * Validate that a node is of type quiz, and that the user has access to it, and that the vid is a vid of that quiz
+ *
+ * @param $quiz
+ *  The quiz node
+ * @param $vid
+ *  The version id
+ * @return
+ *  TRUE if user has access
+ */
+function quiz_stats_validate_vid($quiz, $vid) {
+  if ($quiz->type != 'quiz') {
+    return FALSE;
+  }
+  if (!user_access('access author stats')) {
+    return FALSE;
+  }
+  return $quiz->nid == db_query('SELECT n.nid FROM {node} n INNER JOIN {node_revision} nr ON (n.nid = nr.nid) WHERE nr.vid = :vid', array(':vid' => $vid))->fetchField();
+}

@@ -1,0 +1,467 @@
+<?php
+
+/**
+ * @file
+ * Provide an API to combine several form elements to provide a composite dynamic select populated from a view.
+ */
+
+// Character used for tokens in the drop down format set in settings
+define('DYNAMIC_SELECT_SUBMIT', 'dynamic_select_submit');
+define('DYNAMIC_SELECT_FILTER', 'dynamic_select_filter');
+define('DYNAMIC_SELECT_SELECT', 'dynamic_select_select');
+define('DYNAMIC_SELECT_DIV_SUFFIX', '-wrapper');
+define('DYNAMIC_SELECT_SUBMIT_NAME_PREFIX', 'op-');
+
+/**
+ * Implements hook_views_api().
+ */
+function dynamic_select_views_api() {
+  return array(
+    'api' => 3,
+    'path' => drupal_get_path('module', 'dynamic_select') . '/views',
+  );
+}
+
+/**
+ * Implements hook_element_info().
+ */
+function dynamic_select_element_info() {
+
+  // Include default values but no need to include. See password_confirm type 
+  $types['dynamic_select'] = array(
+    '#input' => TRUE, // So that the function below is called '#value_callback'.
+    '#value_callback' => '_dynamic_select_type_value', // Called before process function
+    '#process' => array('_dynamic_select_process_element'),
+  );
+  
+  return $types;
+}
+
+/**
+ * Determines the value for a dynamic select form element.
+ */
+function _dynamic_select_type_value($element, $input = FALSE) {
+
+  // Only deal with the case when there is not value (like for password_confirm form element)
+  // Otherwise we simply use the #value set for the select sub element (See function).
+  if ($input === FALSE) {
+    // This function only deal with the case when $input == FALSE and rely on _form_builder_handle_input_element otherwise
+    return form_type_select_value($element);   
+  } 
+  else {
+    // We cannot rely on form_builder_handle_input_element to set it properly as it is done for the select because
+    // it will simply assign $input to #value which is an array with the two keys DYNAMIC_SELECT_SELECT and DYNAMIC_SELECT_FILTER    
+    return $input[DYNAMIC_SELECT_SELECT];
+  }
+}
+
+/**
+ * Build the dynamic select form element. The widget is made of 
+ * a select, a button and a input elements
+ */
+function _dynamic_select_process_element($element, &$form_state) {
+
+  // Set ajax wrapper based on element id to ensure unicity between different instances
+  $ajax_wrapper_id = $element['#id'] . DYNAMIC_SELECT_DIV_SUFFIX;
+  
+  // Create the select element by merging with the element properties
+  $element[DYNAMIC_SELECT_SELECT] = array(
+    '#type' => 'select',
+    '#prefix' => '<div id="' . $ajax_wrapper_id . '">',
+    '#suffix' => '</div>',
+    '#multiple' => FALSE,
+  );
+  
+  // Element properties inheritated by the select element. Note the #description is not in the list 
+  // as it will be used by the element theme_wrapper to set it up for the entire element  
+  $inheritated_properties = array('#default_value', '#empty_option', '#empty_value', '#required', '#size', '#title');
+
+  foreach($inheritated_properties as $property) {
+  
+    if(isset($element[$property])) {
+    
+      $element[DYNAMIC_SELECT_SELECT][$property] = $element[$property];
+    } 
+  }
+  
+  // The function form_builder set this property to FALSE by default if empty so that it is always filled in.
+  // As we removed it before, we need to set it otherwise we get an error during form processing
+  // The required warning will come from the select sub-element
+  $element['#required'] = FALSE;
+  
+  // The title is only assigned to the select sub-element whereas the description stay assign to the element itself
+  unset($element['#title']);
+  
+  // #tree = TRUE means that the values in $form_state['values'] will be stored
+  // hierarchically. This technique is preferred when an element has member form
+  // elements.
+  $element['#tree'] = TRUE;
+  
+  // Prepare the array to limit validation errors to the filter  
+  $hierarchy = $element['#parents'];
+
+  // Add the filter to hierarchy path
+  $hierarchy[] = DYNAMIC_SELECT_FILTER;
+  
+  $default_value = isset($element['#default_value']) ? $element['#default_value'] : NULL;
+  
+  $view_display = isset($element['#view_display']) ? $element['#view_display'] : '';
+    
+  $filter_ids = isset($element['#filter_ids']) ? $element['#filter_ids'] : array();
+  
+  // Set a flag if no filter in order to hide the button and the textfield
+  $visible = FALSE;
+  
+  foreach ($filter_ids as $filter) {
+  
+    if($filter != '0') {
+    
+      $visible = TRUE;
+      
+      break;
+    } 
+  }
+  
+  $key_exists = NULL;
+  
+  // Create the submit button
+  $element[DYNAMIC_SELECT_SUBMIT] = array(
+    '#type' => 'submit',
+    // Do not show if no filters
+    '#access' => $visible,
+    '#value' => isset($element['#submit_title']) ? $element['#submit_title'] : '',
+     // Give a different name to distinguish between several buttons with the same label when there are several instances
+    '#name' => DYNAMIC_SELECT_SUBMIT_NAME_PREFIX . $element['#id'],
+    '#executes_submit_callback' => FALSE, // Prevent form submission
+    '#limit_validation_errors' => array($hierarchy),
+    '#ajax' => array(
+      'callback' => '_ajax_get_dynamic_select_list_callback',
+      //'method' defaults to replace, but valid values also include append, prepend, before and after.
+      'method' => 'replace',
+      // 'effect' defaults to none. Other valid values are 'fade' and 'slide'.
+      'progress' => array('type' => 'throbber'),
+      'wrapper' => $ajax_wrapper_id,
+    ),
+  );
+
+  // Create the filter text field
+  $element[DYNAMIC_SELECT_FILTER] = array(
+    '#type' => 'textfield',
+    // Do not show if no filters
+    '#access' => $visible,
+    '#title' => isset($element['#filter_title']) ? $element['#filter_title'] : '',
+    '#size' => isset($element['#size']) ? $element['#size'] : 60,
+    '#maxlength' => isset($element['#maxlength']) ? $element['#maxlength'] : 128,
+    '#attributes' => array('autocomplete' => 'off'),
+  );
+  
+  // Get the filter value and sanitize it
+  $filter_value = check_plain(drupal_array_get_nested_value($form_state['input'], $hierarchy, $key_exists));
+  
+  if ($key_exists) {
+    // It is either the ajax call or a true submit
+            
+    // The select element is at the same level as the filter element
+    $key = count($hierarchy) - 1;
+
+    // Replace submit element with filter element
+    $hierarchy[$key] = DYNAMIC_SELECT_SELECT;
+
+    // Get the value that was selected
+    $select_value = drupal_array_get_nested_value($form_state['input'], $hierarchy);
+           
+    $element[DYNAMIC_SELECT_SELECT]['#options'] = _dynamic_select_get_options_list($view_display, $filter_ids, $filter_value, $select_value);
+  }
+  else {
+
+    $element[DYNAMIC_SELECT_SELECT]['#options'] = _dynamic_select_get_options_list($view_display, $filter_ids, '', $default_value);    
+  }
+  
+  // Set some properties
+  $element['#element_validate'] = array('_dynamic_select_validate');
+  $element['#theme'] = 'dynamic_select';
+  $element['#attached'] = array('css' => array(drupal_get_path('module', 'dynamic_select') . '/dynamic_select.css'));
+  $element['#theme_wrappers'] = array('form_element');
+  
+  return $element;
+}
+
+/**
+ * Ajax call back. Return the updated select form element
+ */
+function _ajax_get_dynamic_select_list_callback($form, &$form_state) {
+
+  // The magic function. See http://api.drupal.org/api/drupal/includes--common.inc/function/drupal_array_get_nested_value/7
+  // As we don't know where in the hierarchy of elements where the select item is positionned
+
+  /** Find the position of the submit button #array_parents always give the hierarchy of the $form element whereas
+   #parent give the hierarchy in the $form_state which could be flatten depending on the TREE settings
+   See http://drupal.org/node/279246#comment-2292322  */
+  $hierarchy = $form_state['triggering_element']['#array_parents'];
+  
+  // The select element is at the same level as the submit element, one level below the select
+  $key = count($hierarchy) - 1;
+
+  // Get the select element
+  $hierarchy[$key] = DYNAMIC_SELECT_SELECT;
+ 
+  $render_element = drupal_array_get_nested_value($form, $hierarchy);
+
+  return $render_element;
+}
+
+/**
+ * Implements hook_theme().
+ *
+ * Defines the theming capabilities provided by this module.
+ *
+ */
+function dynamic_select_theme() {
+  return array(
+    'dynamic_select' => array(
+      // We use 'render element' when the item to be passed is a self-describing
+      // render array
+      'render element' => 'element',
+    ),
+  );
+}
+
+/**
+ * Assign the select element returned form_state value to the dynamic select element form_state value
+ */
+function _dynamic_select_validate($element, &$form_state) {
+
+  // Get select element in form_state['values']
+  $hierarchy = $element[DYNAMIC_SELECT_SELECT]['#parents'];
+
+  // Extra select element value
+  $value = drupal_array_get_nested_value($form_state['values'], $hierarchy);
+
+  // Assign it to the element
+  form_set_value($element, $value, $form_state);
+}
+
+/**
+ * Theming the element.
+ *
+ */
+function theme_dynamic_select($variables) {
+
+  $element = $variables['element'];
+
+  // Add class to sub element
+  $element[DYNAMIC_SELECT_SELECT]['#attributes']['class'][] = 'dynamic-select-select';
+  $element[DYNAMIC_SELECT_FILTER]['#attributes']['class'][] = 'dynamic-select-filter';
+  $element[DYNAMIC_SELECT_SUBMIT]['#attributes']['class'][] = 'dynamic-select-submit';
+
+  //container-inline
+  $output = '<div class = "dynamic-select-container-wrapper"><div class = "dynamic-select-select-wrapper">';
+
+  $output .= drupal_render($element[DYNAMIC_SELECT_SELECT]);
+
+  $output .= '</div><div class = "dynamic-select-submit-wrapper">';
+
+  $output .= drupal_render($element[DYNAMIC_SELECT_SUBMIT]);
+
+  $output .= '</div><div class = "dynamic-select-filter-wrapper">';
+
+  $output .= drupal_render($element[DYNAMIC_SELECT_FILTER]);
+
+  $output .= '</div>';
+
+  // Was adviced by Drupal Guide. But in fact, it is not needed. I checked in the HTML results and there is no difference.
+  //$output .= drupal_render_children($element);
+
+  return $output;
+}
+
+/**
+ * Get the list of options for the select form element filtered by the input
+ *
+ */
+function _dynamic_select_get_options_list($view_display, $filters_ids, $input, $default = NULL) {
+
+//  Return an empty array if no view have been selected yet
+  if (empty($view_display)) {
+    return array();
+  }
+
+  // Get view and display
+  list($view_name, $display_id) = explode(':', $view_display);
+
+  // Check that the view is valid and the display still exists.
+  $view = views_get_view($view_name);
+
+  // If the view doesn't exist anymore, return an empty array
+  if (empty($view)) {
+  
+    return array();
+  }
+  
+  // If we have no access to the View an empty result should be returned to
+  // avoid triggering the fallback results.
+  if (!$view->access(array($display_id))) {
+    return array();
+  }
+
+  $view->set_display($display_id);
+
+  // Important: allow the style plugin to distinguish between the call where it return an array from the preview
+  $view->display_handler->set_option('dynamic_select_array', TRUE);
+
+  // First get the result of the view. Pass NULL as default value to get all results
+  $view->display_handler->set_option('dynamic_select_default', NULL);
+
+  // Make sure the query is not cached
+  $view->is_cacheable = FALSE;
+
+  $filters = $view->get_items('filter', $display_id);
+
+  if ( is_array($filters) && count($filters) ) {
+
+    foreach ($filters as $filter_id => $filter) {
+
+      if (array_key_exists($filter_id, $filters_ids) && $filters_ids[$filter_id]) {
+
+        $view->set_item_option($display_id, 'filter', $filter_id, 'value', $input);
+      }
+    }
+  }
+
+  // Get the results.
+  $displays = $view->execute_display($display_id);
+
+  if (isset($default)) {
+
+    if (!array_key_exists($default, $displays)) {
+
+      // Call the view a second time but need to reset it by calling views_get_view a second time
+      $view = views_get_view($view_name);
+
+      $view->set_display($display_id);
+
+//    views_invalidate_cache();
+
+      // Important: allow the style plugin to distinguish between the call where it return an array from the preview
+      $view->display_handler->set_option('dynamic_select_array', TRUE);
+
+      // Get the result of the view with only the default identifier. This settings trigger the change of the query where clause in hook_views_query_alter
+      $view->display_handler->set_option('dynamic_select_default', $default);
+
+      // Disable pager
+      //$view->display_handler->set_option('pager', array('type' => 'none', 'options' => array()));
+
+      // Get the default id.
+      $defaults = $view->execute_display($display_id);
+
+      // The default option is prepended
+      if (!empty($defaults[$default])) {
+        $displays = $defaults + $displays;
+      }
+    }
+  }
+
+  return $displays;
+}
+
+/**
+ * Helper function. Get the list of filters in a view display
+ *
+ * @param $view_display
+ *   Format = <view_machine_name>:<display_machine_name>
+ *
+ * @return
+ *   Associative array of filters
+ *     key = filter machine name
+ *     value = filter ui name
+ */
+function dynamic_select_get_filters($view_display = '') {
+
+//  Return an empty array if no view have been selected yet
+  if (empty($view_display)) {
+    return array();
+  }
+
+  list($view_name, $display_id) = explode(':', $view_display);
+
+  // Check that the view is valid and the display still exists.
+  $view = views_get_view($view_name, TRUE);
+  if (!$view || !isset($view->display[$display_id])) {
+    return FALSE;
+  }
+
+  // If we have no access to the View an empty result should be returned to
+  // avoid triggering the fallback results.
+  if (!$view->access(array($display_id))) {
+    return array();
+  }
+
+  $filters = array();
+
+  // Make sure the query is not cached
+  $view->is_cacheable = FALSE;
+
+  // ATTENTION $view->base_field is not set yet (default is nid)
+  $filters = $view->get_items('filter', $display_id);
+
+  $filter_options = array();
+
+  if (is_array($filters) && count($filters)) {
+
+    foreach ($filters as $filter_id => $filter) {
+
+      $filter_options[$filter_id] = $filter_id;
+
+      if (array_key_exists('ui_name', $filter)) {
+        $filter_options[$filter_id] .= ' (' . $filter['ui_name'] . ')';
+      }
+    }
+  }
+
+  return $filter_options;
+}
+
+/**
+ * Helper function. Return the list of view:display with a Dynamic Select display
+ *
+ * @param $base_table
+ *   To limit the list to views with a certain base table
+ *
+ * @return
+ *   Associative array of filters
+ *     key = <view machine name>:<display id>
+ *     value = <view human name> - <display name>
+ */
+function dynamic_select_get_applicable_views($base_table = NULL) {
+
+  $displays = views_get_applicable_views('dynamic_select_display');
+
+  // Return an empty array if no views are a match
+  $view_options = array();
+
+  foreach ($displays as $data) {
+
+    list($view, $display_id) = $data;
+
+    if ($base_table) {
+
+      if ($view->base_table == $base_table) {
+        // Only views with the right base table
+        $view_options[$view->name . ':' . $display_id] = $view->human_name . ' - ' . $view->display[$display_id]->display_title;
+      }
+    }
+    else {
+      // Take all views whatever the base table
+      $view_options[$view->name . ':' . $display_id] = $view->human_name . ' - ' . $view->display[$display_id]->display_title;
+    }
+  }
+
+  return $view_options;
+}
+
+
+
+
+
+
+

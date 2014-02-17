@@ -1,0 +1,25 @@
+#analytics-dashboard-page {
+  padding: 10px;
+  border: 1px solid #ccc;
+  background-color: #F8F8F8;
+  -webkit-border-radius: 7px;
+  -moz-border-radius: 7px;
+  border-radius: 7px;
+}
+#analytics-dashboard-page img {
+  padding: 10px;
+}
+#analytics-dashboard-page .analytics-dashboard-option-row {
+  padding: 6px 0;
+}
+#analytics-dashboard-page .form-item { 
+  display: inline; 
+  padding-right: 5px; 
+}
+#charts div {
+  display: inline-block;
+}
+#charts {
+  text-align: center;
+}
+

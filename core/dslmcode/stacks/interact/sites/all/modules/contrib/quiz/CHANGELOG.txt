@@ -1,0 +1,88 @@
+
+version 6.x-4.x
+----------------
+The goal is to make this version good enough to be used in a L(C)MS
+- User experience for quiz creators improved
+-- Improved question browser
+-- Can add a question to a quiz from the question node form
+-- Quiz settings are remembered
+-- Quiz defaults are customizable
+-- Random and compulsory questions are handled in a more intuitive way
+- Performance improved
+-- Question objects are cached statically
+-- Queries have been rewritten
+-- Indexes have been added
+- Statistics
+- Scale question-type
+- More advanced scoring
+- Improved stability
+
+version 6.x-3.0
+---------------
+Released.  Need to merge 3.x branch into this CHANGELOG.txt
+
+version 6.x-2.0-alpha1
+----------------------
+- Migration to Drupal 6
+- Updated to use schema api in quiz
+- Updated to use new (D6) theme system
+- Updated to use new (D6) menu system
+- Many bugs fixed
+
+version 5.x-2.0-beta2
+------------
+- Added pgsql update mechanism
+- Custom php is now executed when used with php filter in text summaries
+
+version 5.x-2.0-beta1
+------------
+- Added support for views 5.x-1.x via contrib module 'Quiz Views'
+- Added additional permission options.
+- Added feedback ranges
+- Added support for feedback options by category
+- Added support for backwards navigation
+- Questions on quiz now in groupings based on how they are placed within a quiz
+- Added support for revisions
+- Schema overhaul
+- More scalable quiz answer architecture
+- Improved random question management
+- Various Interface enhancements
+- Various Bugfixes
+- Code cleanup
+
+2007-06-13
+----------
+Removed non-working features, to be fixed in future versions
+
+2007-02-02
+----------
+Updated module to Drupal 5
+
+2005-08-31
+----------
+Initial release after Summer of Code:
+
+- Admininistration side completed, including:
+  o Create/Edit permissions
+  o Multichoice question creation
+  o Quiz creation
+  o Interface for adding questions to quizzes
+  o Taxonomy selection
+  o Taxonomy filtering on question bank
+- Implemented several hooks:
+  o hook_access
+  o hook_delete
+  o hook_help
+  o hook_validate
+  o new node hooks for 4.7
+- Formatted queries to support table prefixes
+- Added Doxygen comments throughout
+- Created user documentation in admin/help
+- Fixed numerous bugs
+- Fixed numerous formatting issues
+- Fixed numerous UI issues
+
+
+2005-07-03
+----------
+Original code written by chx

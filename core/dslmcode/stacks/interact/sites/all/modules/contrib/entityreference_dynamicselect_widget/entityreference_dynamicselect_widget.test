@@ -1,0 +1,590 @@
+<?php
+
+/**
+ * @file
+ * Test for entityreference_search_widget module.
+ */
+ 
+ // Constants
+define('FIELD_NAME', 'field_node_ref_test');
+define('BUNDLE', 'node_type_test');
+define('ROOT_ID', 'edit-field-node-ref-test-und-0-target-id-'); // All Widget elements HTML ID starts with this string
+define('ROOT_POST', FIELD_NAME . '[und][0][target_id]'); // All POST variable name starts with this string
+define('SUBMIT_BUTTON_NAME', 'op-edit-field-node-ref-test-und-0-target-id');
+define('NBSP_CHAR', "\xC2\xA0"); // To add to string a "No Break Space" 
+
+// Load constants and helper view functions
+require_once('dynamic_select/tests/dynamic_select_test_views.inc');
+
+/**
+ * This is a functional test case, meaning that it
+ * actually exercises a particular sequence of actions through the web UI.
+ */
+class EntityReferenceDynamicSelectWidgetTestCase extends DrupalWebTestCase {
+  protected $admin_user;
+
+  public static function getInfo() {
+    return array(
+      'name' => 'Entity Reference Dynamic Select Widget test',
+      'description' => 'Test the entity reference dynamic select widget.',
+      'group' => 'Entity Reference',
+    );
+  }
+
+  public function setUp() {
+
+    // Call setUp and enable current module. All dependant modules are enabled automatically
+    parent::setUp('entityreference_dynamicselect_widget');
+    
+    $this->admin_user = $this->drupalCreateUser(array('administer content types', 'administer nodes', 'access all views', 'bypass node access'));
+
+    // To be used in HTML or URL
+    $this->hyphen_bundle = str_replace('_', '-', BUNDLE);
+
+    // To be used in HTML or URL
+    $this->hyphen_field = str_replace('_', '-', FIELD_NAME);
+
+    $settings = array(
+      'type' => 'node',
+      'body' => array(LANGUAGE_NONE => array(array(PATTERN_BODY))),
+    );
+
+    $this->nb_select = PAGER + 1;
+
+    // Text to be returned by the view
+    $this->nodes = array();
+
+    // Create nodes
+    for ($i = 0; $i < $this->nb_select; $i++) {
+
+      $settings['title'] = PATTERN_TITLE . $i;
+
+      $this->nodes[$i] = $this->drupalCreateNode($settings);
+    }
+    
+    $view_node = dynamic_select_test_create_node_view(VIEW_NODE_NAME, PAGER);
+    
+    $this->pass("Create node view <code>$view_node->name</code>");
+     
+    // Text to be returned by the view
+    $this->users = array();
+
+    // Create nodes
+    for ($i = 0; $i < $this->nb_select; $i++) {
+
+      $this->users[$i] = $this->drupalCreateUser();
+    }
+    
+    $view_user = dynamic_select_test_create_user_view(VIEW_USER_NAME, PAGER);
+    
+    $this->pass("Create user view <code>$view_user->name</code>");
+    
+    // Create new content type with entity reference field
+    $content_type = $this->createTestContentType(BUNDLE, TRUE, FIELD_NAME);
+  }
+  
+  /**
+   * Regroup all tests.
+   *
+   */   
+  public function testAll() {
+  
+    //Must be called in the right order as one test use the result of the previous test
+
+    // Test the widget settings form
+    $this->WidgetSettingsTests();
+
+   // Test the widget by creating a node. The field is NOT required and left empty
+    $this->WidgetTests(PAGER + 2);
+
+    // Delete the node created previously otherwise it will appear in the field select option
+    node_delete(PAGER + 2); // Must remove the node created before or it will appear in the form below
+      
+    // Make the field required
+    $this->changeInstanceRequiredSettings(BUNDLE, FIELD_NAME, TRUE);
+    
+    // Test the widget by creating a node. The field is required
+    $this->WidgetTests(PAGER + 3);
+     
+  }
+  
+  /**
+   * Test the widget setting form.
+   *
+   */     
+  public function WidgetSettingsTests() {
+  
+    // Login as Admin user
+    $this->drupalLogin($this->admin_user);
+   
+    //Change widget       
+    $path = 'admin/structure/types/manage/' . $this->hyphen_bundle . '/fields/' . FIELD_NAME . '/widget-type';
+           
+    $edit = array('widget_type' => 'entityreference_dynamicselect_widget');
+    
+    $this->drupalPost($path,  $edit, t('Continue'));
+    
+    //Check settings are now available
+   
+    $path = '/admin/structure/types/manage/' . $this->hyphen_bundle . '/fields/' . FIELD_NAME;
+   
+    $this->drupalGet($path);
+      
+    // Check view list exist and default option -Select- (key = '') is selected. 
+    $this->assertFieldByXPath('//select[@id="edit-instance-widget-settings-view"]/option[@selected="selected"]', '', "Default option is selected.");
+        
+    $this->assertFieldByXPath('//label[starts-with(@for, "edit-instance-widget-settings-filters") and text()="View filters "]', NULL, 'Filter label is OK');
+  
+    $edit = array(
+      'instance[label]' => FIELD_NAME,
+      'instance[description]' => DYNAMIC_SELECT_TEST_DESCRIPTION,
+      'instance[widget][settings][view]' => VIEW_NODE_NAME . ':' . VIEW_DISPLAY,
+      'instance[widget][settings][submit]' => DYNAMIC_SELECT_TEST_SUBMIT,
+      'instance[widget][settings][filter]' => DYNAMIC_SELECT_TEST_FILTER,
+      'instance[widget][settings][layout]' => 'labels_above',
+      'field[cardinality]' => 1,
+      'field[settings][target_type]' => 'node',
+    );
+    
+        // AJAX Post 
+    $this->drupalPostAJAX(NULL, $edit, 'instance[widget][settings][view]');
+              
+    $this->assertFieldByXPath('//label[starts-with(@for, "edit-instance-widget-settings-filters") and text()="View filters "]', NULL, 'Filter label is OK after view selected');
+      
+    // Fetch all options
+    $filters = $this->xpath('//input[starts-with(@id, "edit-instance-widget-settings-filters-") and @type="checkbox"]');
+
+    $this->assertEqual(count($filters), 2, 'Number of filters OK');
+   
+    $this->assertFieldByXPath('//input[@id="edit-instance-widget-settings-filters-title" and @type="checkbox"]', 'title', "Filter 'title' is displayed OK.");
+    
+    $this->assertFieldByXPath('//input[@id="edit-instance-widget-settings-filters-status" and @type="checkbox"]', 'status', "Filter 'status' is displayed OK.'");
+    
+    // Select back nothing    
+    $edit['instance[widget][settings][view]'] = '';
+    
+    $this->drupalPostAJAX(NULL, $edit, 'instance[widget][settings][view]');
+    
+    $this->assertFieldByXPath('//label[starts-with(@for, "edit-instance-widget-settings-filters") and text()="View filters "]', NULL, 'Filter label OK after no view selected');
+   
+    // Check nothing selected after ajax call
+    $this->assertNoFieldByXPath('//input[starts-with(@id, "edit-instance-widget-settings-filters") and @type="checkbox"]', NULL, 'Filters reset OK.');
+    
+    // Check description. 
+    $this->assertFieldByXPath('//div[@class="description" and preceding-sibling::label[starts-with(@for, "edit-instance-widget-settings-filters")] and text() = "No filter available"]', NULL, 'No filter message OK.');
+
+/** Cannot be tested as Testing framework does not support testing of AJAX commands yet (as of Core 7.15) 
+    
+    // Set the select back to node view
+    $edit['instance[widget][settings][view]'] = VIEW_NODE_NAME . ':' . VIEW_DISPLAY;
+    
+    // AJAX Post
+    $this->drupalPostAJAX(NULL, $edit, 'instance[widget][settings][view]');
+
+    // Check the filters are displayed again. 
+    $this->assertFieldByXPath('//input[@id="edit-instance-widget-settings-filters-title" and @type="checkbox"]', 'title', 'Filter title display again OK.');
+
+  
+    // Change the entity reference
+    $edit['field[settings][target_type]'] = 'user';
+
+    // AJAX Post
+    $commands = $this->drupalPostAJAX(NULL, $edit, 'field[settings][target_type]');
+    
+    // Check view list exist and default option -Select- (key = '') is selected. 
+    $this->assertFieldByXPath('//select[@id="edit-instance-widget-settings-view"]/option[@selected="selected"]', '', "Default option after change of reference OK.");
+ 
+    // Fetch all options
+    $options = $this->xpath('//select[@id="edit-instance-widget-settings-view"]/option');
+       
+    // Select the user view
+    $edit['instance[widget][settings][view]'] = VIEW_USER_NAME . ':' . VIEW_DISPLAY;
+ 
+    // AJAX Post 
+    $this->drupalPostAJAX(NULL, $edit, 'instance[widget][settings][view]');
+
+    // Check filter name is displayed
+    $this->assertFieldByXPath('//input[@id="edit-instance-widget-settings-filters-name" and @type="checkbox"]', 'title', 'Filter name display OK.');
+    
+    // Check filter mail is displayed 
+    $this->assertFieldByXPath('//input[@id="edit-instance-widget-settings-filters-mail" and @type="checkbox"]', 'mail', 'Filter mail display OK.');
+    
+*/
+
+  // Set back to the node view
+   $edit = array(
+      'instance[label]' => FIELD_NAME,
+      'instance[description]' => DYNAMIC_SELECT_TEST_DESCRIPTION,
+      'instance[widget][settings][view]' => VIEW_NODE_NAME . ':' . VIEW_DISPLAY,
+      'instance[widget][settings][submit]' => DYNAMIC_SELECT_TEST_SUBMIT,
+      'instance[widget][settings][filter]' => DYNAMIC_SELECT_TEST_FILTER,
+      'instance[widget][settings][layout]' => 'labels_above',
+      'field[cardinality]' => 1,
+      'field[settings][target_type]' => 'node',
+    );
+    
+    // AJAX Post 
+    $this->drupalPostAJAX(NULL, $edit, 'instance[widget][settings][view]');
+              
+    $this->assertFieldByXPath('//label[starts-with(@for, "edit-instance-widget-settings-filters") and text()="View filters "]', NULL, 'Filter label OK after view selected');
+      
+    // Fetch all options
+    $filters = $this->xpath('//input[starts-with(@id, "edit-instance-widget-settings-filters-") and @type="checkbox"]');
+
+    $this->assertEqual(count($filters), 2, 'Number of filters OK');
+   
+    $this->assertFieldByXPath('//input[@id="edit-instance-widget-settings-filters-title" and @type="checkbox"]', 'title', 'Filter title display OK.');
+    
+    $this->assertFieldByXPath('//input[@id="edit-instance-widget-settings-filters-status" and @type="checkbox"]', 'status', 'Filter status display OK.');
+    
+    $edit = array(
+      'instance[label]' => FIELD_NAME,
+      'instance[description]' => DYNAMIC_SELECT_TEST_DESCRIPTION,
+      'instance[widget][settings][view]' => VIEW_NODE_NAME . ':' . VIEW_DISPLAY,
+      'instance[widget][settings][submit]' => DYNAMIC_SELECT_TEST_SUBMIT,
+      'instance[widget][settings][filter]' => DYNAMIC_SELECT_TEST_FILTER,
+      'instance[widget][settings][filters][title]' => 'title',
+      'instance[widget][settings][layout]' => 'labels_above',
+      'field[cardinality]' => 1,
+      'field[settings][target_type]' => 'node',
+    );
+ 
+    // Save the settings for next test
+    $this->drupalPost(NULL, $edit, 'Save settings');
+    
+    // Check the settings have been saved
+    $all_settings = field_info_instance('node', FIELD_NAME, BUNDLE);
+        
+    $widget_settings = sort($all_settings['widget']['settings']);
+    
+    $expected_settings = array(
+      'view' => VIEW_NODE_NAME . ':' . VIEW_DISPLAY,
+      'submit' => DYNAMIC_SELECT_TEST_SUBMIT,
+      'filter' => DYNAMIC_SELECT_TEST_FILTER,
+      'filters' => array('title' => 'title'),
+      'layout' => 'labels_above',
+    );
+    
+    $expected_widget_settings = sort($expected_settings);
+
+    $this->assertTrue($expected_widget_settings == $widget_settings, 'Widget settings saved');
+  }
+
+  /**
+   * Test entity reference form.
+   *
+   */
+  public function WidgetTests() {
+  
+    if ($this->field_required) {
+    
+      $noselection = '- Select -'; 
+
+      $this->pass("The field is REQUIRED");     
+    }
+    else {
+    
+      $noselection = '- None -'; 
+
+     $this->pass("The field is OPTIONAL");         
+    }
+  
+    // Create node       
+    $path = 'node/add/' . $this->hyphen_bundle;
+   
+    $this->drupalGet($path);
+
+    // Check select label
+    $this->assertFieldByXPath('//label[@for="' . ROOT_ID . 'dynamic-select-select" and text()="' . FIELD_NAME . ' " and following-sibling::select[@id="' . 
+    ROOT_ID . 'dynamic-select-select"] and ancestor::div[@class="dynamic-select-select-wrapper"]]', NULL, 'Select label OK');
+    
+    // Check filter label
+    $this->assertFieldByXPath('//label[@for="' . ROOT_ID . 'dynamic-select-filter" and text()="' . DYNAMIC_SELECT_TEST_FILTER . ' " and following-sibling::input[@id="' . 
+    ROOT_ID . 'dynamic-select-filter"] and ancestor::div[@class="dynamic-select-filter-wrapper"]]', NULL, 'Filter label OK');
+
+    // Check the submit element is there
+    $this->assertFieldByXPath('//input[@id="' . ROOT_ID . 'dynamic-select-submit" and ancestor::div[@class="dynamic-select-submit-wrapper"]]', DYNAMIC_SELECT_TEST_SUBMIT, 'Button title OK.');
+   
+    // Check description
+    $this->assertFieldByXPath('//div[@class="dynamic-select-container-wrapper"]//div[@class="description" and text() ="' . DYNAMIC_SELECT_TEST_DESCRIPTION . '"]', NULL, 'Description OK.');
+    
+    // Fetch all options
+    $options = $this->xpath('//select[@id="' . ROOT_ID . 'dynamic-select-select"]/option');
+    
+    $nb_options = 0;
+
+    $result = TRUE;
+
+    $default = ''; // Should either be '- None -' or '- Select -' depending on $required.
+
+    // Check options one by one
+    foreach ($options as $option) {
+
+      if ($option['value'] == ENTITY_REFERENCE_DYNAMICSELECT_WIDGET_EMPTY_VALUE) {
+
+        $default = (string) $option;
+
+      }
+      else {
+
+        // The node id is one more than the output key
+        $key = $option['value'] - 1;
+
+        // This is not the empty value
+
+        if ( ((string) $option != $this->nodes[$key]->title) || ($option['value'] != $this->nodes[$key]->nid) ) {
+
+          $result = FALSE;
+        }
+
+        $nb_options++;
+      }
+    }
+
+    // Check default value is set
+    $this->assertEqual($default, $noselection, 'No selection option OK');    
+
+    $this->assertTrue($result, 'View options OK');
+
+    // Check the number of options = pager
+    $this->assertEqual($nb_options, PAGER, 'Number of options OK');
+
+    // Search for the first node and set the select to the second node
+    $this->drupalPostAJAX(NULL, array(ROOT_POST . '[dynamic_select_filter]' => $this->nodes[1]->title, ROOT_POST . '[dynamic_select_select]' => $this->nodes[2]->nid), array(SUBMIT_BUTTON_NAME => DYNAMIC_SELECT_TEST_SUBMIT));
+
+    // Fetch all options. Must use starts-with as a integer suffix is concatenated to the id at each AJAX call
+    $options = $this->xpath('//select[starts-with(@id,"' . ROOT_ID . 'dynamic-select-select")]/option');
+
+    // Check there is only 3
+    $this->assertEqual(count($options), 3, 'Number of options after ajax OK.');
+
+    // Check selection after ajax call
+    $this->assertFieldByXPath('//select[starts-with(@id,"' . ROOT_ID . 'dynamic-select-select")]/option[@selected="selected"]', $this->nodes[2]->title, 'Selected value after ajax OK.');
+  
+    // Check the second one is matching the filter. Must use starts-with as a integer suffix is concatenated to the id at each AJAX call
+    $this->assertFieldByXPath('//select[starts-with(@id,"' . ROOT_ID . 'dynamic-select-select")]/option[@value="' . $this->nodes[1]->nid . '"]', $this->nodes[1]->title, 'Options after ajax OK.');
+
+    // Check the thiird one is None. Must use starts-with as a integer suffix is concatenated to the id at each AJAX call
+    $this->assertFieldByXPath('//select[starts-with(@id,"' . ROOT_ID . 'dynamic-select-select")]/option[@value="' . ENTITY_REFERENCE_DYNAMICSELECT_WIDGET_EMPTY_VALUE . '"]', $noselection, 'No selection options after ajax OK.');
+   
+    // Search for the last node and set the select to the second node
+    $this->drupalPostAJAX(NULL, array(ROOT_POST . '[dynamic_select_filter]' => $this->nodes[PAGER]->title, ROOT_POST . '[dynamic_select_select]' => $this->nodes[1]->nid), array(SUBMIT_BUTTON_NAME => DYNAMIC_SELECT_TEST_SUBMIT));
+       
+    // Fetch all options. Must use starts-with as a integer suffix is concatenated to the id at each AJAX call
+    $options = $this->xpath('//select[starts-with(@id,"' . ROOT_ID . 'dynamic-select-select")]/option');
+
+    // Check there is only 3
+    $this->assertEqual(count($options), 3, 'Number of options after second ajax OK.');
+       
+    // Check selection after ajax call
+    $this->assertFieldByXPath('//select[starts-with(@id,"' . ROOT_ID . 'dynamic-select-select")]/option[@selected="selected"]', $this->nodes[1]->title, 'Selected value after second ajax OK.');
+  
+    // Check the second one is matching the filter. Must use starts-with as a integer suffix is concatenated to the id at each AJAX call
+    $this->assertFieldByXPath('//select[starts-with(@id,"' . ROOT_ID . 'dynamic-select-select")]/option[@value="' . $this->nodes[PAGER]->nid . '"]', $this->nodes[PAGER]->title, 'Options after second ajax OK.');
+
+    // Check the third one is matching the filter. Must use starts-with as a integer suffix is concatenated to the id at each AJAX call
+    $this->assertFieldByXPath('//select[starts-with(@id,"' . ROOT_ID . 'dynamic-select-select")]/option[@value="' . ENTITY_REFERENCE_DYNAMICSELECT_WIDGET_EMPTY_VALUE . '"]', $noselection, 'No selection options after second ajax OK.');
+    
+   // Search for the second node node and set the select to no selection
+    $this->drupalPostAJAX(NULL, array(ROOT_POST . '[dynamic_select_filter]' => $this->nodes[2]->title, ROOT_POST . '[dynamic_select_select]' => ENTITY_REFERENCE_DYNAMICSELECT_WIDGET_EMPTY_VALUE), array(SUBMIT_BUTTON_NAME => DYNAMIC_SELECT_TEST_SUBMIT));
+       
+    // Fetch all options. Must use starts-with as a integer suffix is concatenated to the id at each AJAX call
+    $options = $this->xpath('//select[starts-with(@id,"' . ROOT_ID . 'dynamic-select-select")]/option');
+
+    // Check there is only 3
+    $this->assertEqual(count($options), 2, 'Number of options after third ajax OK.');
+       
+    // Check empty selection after ajax call
+    $this->assertFieldByXPath('//select[starts-with(@id,"' . ROOT_ID . 'dynamic-select-select")]/option[@selected="selected"]', $noselection, 'Selected value after third ajax OK.');
+  
+    // Check the second one is matching the filter. Must use starts-with as a integer suffix is concatenated to the id at each AJAX call
+    $this->assertFieldByXPath('//select[starts-with(@id,"' . ROOT_ID . 'dynamic-select-select")]/option[@value="' . $this->nodes[2]->nid . '"]', $this->nodes[2]->title, 'Options after third ajax OK.');
+    
+    // Check no error message
+    $this->assertNoFieldByXPath('//div[@class = "messages status"]', NULL, 'No error messages OK.');
+
+    if ($this->field_required) {
+    
+      $node_title = 'Required';
+    
+    } 
+    else {
+    
+      $node_title = 'Optional';   
+    }
+    
+    // Post the form with no selection field
+    $this->drupalPost(NULL, array('title' => $node_title, ROOT_POST . '[dynamic_select_filter]' => $this->nodes[2]->title, ROOT_POST . '[dynamic_select_select]' => ENTITY_REFERENCE_DYNAMICSELECT_WIDGET_EMPTY_VALUE), 'Save');
+    
+    $this->selected_node = NULL; // To allow to check the formatter
+     
+    if ($this->field_required) {
+    
+        // Check no error message
+        $this->assertFieldByXPath('//div[@class = "messages error"]', NULL, 'Error message OK.');
+        
+        // Post the form again with a select
+        $this->drupalPost(NULL, array('title' => $node_title, ROOT_POST . '[dynamic_select_filter]' => $this->nodes[2]->title, ROOT_POST . '[dynamic_select_select]' => $this->nodes[2]->nid), 'Save');  
+
+        $this->selected_node = $this->nodes[2]; // To allow to check the formatter
+    } 
+    // Check no error message
+    $this->assertNoFieldByXPath('//div[@class = "messages error"]', NULL, 'No error messages after POST OK.');  
+  }
+  
+  /**
+   * Change 'required' settings for a particular field instance
+   */
+  public function changeInstanceRequiredSettings($type = BUNDLE, $field_name = FIELD_NAME, $required = TRUE) {
+ 
+    // Check that this instance doesn't already exist
+    $instance_info = field_info_instance('node', $field_name, $type);
+    
+    if (empty($instance_info)) {
+              
+      $this->fail("The field instance doesn't exist. Field: $field_name - Content Type: $type");
+      
+      return FALSE;
+    }
+        
+    $instance_info['required'] = $required;
+        
+    field_update_instance($instance_info);
+    
+    if ($required) {
+    
+      $this->pass("The field instance has been modified to be REQUIRED.");
+      
+    } 
+    else {
+    
+      $this->pass("The field instance has been modified to be OPTIONAL.");
+    }
+    
+    $this->field_required = $required;
+    
+    return TRUE;
+  }
+ 
+  /**
+   * Inspired from tests\commerce_base.test.
+   *
+   * @param $type
+   *  Machine name of the content type to create. Also used for human readable
+   *  name to keep things simple.
+   * @param $attach_entity_reference_field
+   *  If TRUE, automatically add a entity reference field to the new content
+   *  type.
+   * @param $field_name
+   *  Only used if $attach_product_reference_field is TRUE. Sets the name for
+   *  the field instance to attach. Creates the field if it doesn't exist.
+   * 
+   * @return
+   *  An object for the content type.
+   * @see attachProductReferenceField()
+   */
+  public function createTestContentType($type = BUNDLE, $attach_entity_reference_field = TRUE, $field_name = FIELD_NAME, $cardinality_reference_field = 1, $required = FALSE, $widget_settings = NULL, $display_settings = NULL) {
+    // If the specified node type already exists, return it now.
+    if ($content_type = node_type_load($type)) {
+      return $content_type;
+    }
+
+    $content_type = array(
+      'type' => $type,
+      'name' => $type, // Don't use a human readable name here to keep it simple.
+      'base' => 'node_content',
+      'description' => 'Test content type',
+      'custom' => 1,
+      'modified' => 1,
+      'locked' => 0,
+    );
+    
+    $content_type = node_type_set_defaults($content_type);
+    node_type_save($content_type);
+    $this->pass("Created content type: $type");
+
+    // Now add a field   
+    if ($attach_entity_reference_field) {
+         
+      // Check if the field has already been created.
+      $field_info = field_info_field($field_name);
+        
+      if (empty($field_info)) {
+        // Add a select to the content type
+        $field = array(
+          'field_name' => $field_name,
+          'type' => 'entityreference',
+          'active' => '1',
+          'locked' => '0',
+          'cardinality' => $cardinality_reference_field,
+          'translatable' => FALSE,
+        );
+        
+        field_create_field($field);
+        $this->pass("New field created: $field_name");
+        
+      } 
+      else {
+        debug("NOTE: attachProductReferenceField attempting to create field <code>$field_name</code> that already exists. This is fine and this message is just for your information.");
+      }
+
+      // Check that this instance doesn't already exist
+      $instance = field_info_instance('node', $field_name, $type);
+      
+      if (empty($instance)) {
+        // Add an instance of the field to the given content type
+        $instance = array(
+          'field_name' => $field_name,
+          'entity_type' => 'node',
+          'label' => 'Entity Reference',
+          'bundle' => $type,
+          'description' => 'Entity Reference.',
+          'required' => $required,
+
+          'widget' => array(
+            'type' => $widget_settings ? 'entityreference_dynamicselect_widget' : 'entityreference_autocomplete',
+            'active' => 1,
+            'settings' => $widget_settings ? $widget_settings : array(
+              'match_operator' => 'CONTAINS',
+              'size' => '60',
+              'path' => '',
+            ),
+          ),
+
+          'display' => array(
+            'default' => array(
+              'label' => 'above',
+              'type' => $display_settings ? 'entityreference_token' : 'entityreference_label',
+              'settings' => $display_settings ? $display_settings : array(
+                'link' => FALSE,
+              ),
+            ),
+          ),
+        );
+        
+        // Remember the field if the field is required
+        $this->field_required = $required;
+        
+        field_create_instance($instance);
+        
+        if ($required) {
+        
+          $this->pass("Create REQUIRED instance of field <code>$field_name</code> on content type <code>$type</code>");
+        }
+        else {
+        
+          $this->pass("Create OPTIONAL instance of field <code>$field_name</code> on content type <code>$type</code>");       
+        }
+        
+      } 
+      else {
+      
+        $this->fail("Test Developer: You attempted to create a field that already exists. Field: $field_name -- Content Type: $type");
+      }
+    }
+
+    return $content_type;
+  }
+} // End class
+
+

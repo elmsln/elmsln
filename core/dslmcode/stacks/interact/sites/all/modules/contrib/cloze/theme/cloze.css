@@ -1,0 +1,13 @@
+.cloze-question .form-item {
+  display: inline;
+}
+
+.cloze-instruction .correct,
+.quiz-solution .correct,
+.quiz-report .correct {
+  color: #009900;
+}
+
+.quiz-report .incorrect {
+  color: #FF0000;
+}

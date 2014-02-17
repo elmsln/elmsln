@@ -1,0 +1,61 @@
+<?php
+
+/**
+ * The installer file for short_answer.
+ * @file
+ */
+
+/**
+ * Implementation of hook_install().
+ */
+function cloze_install() {
+  // Add body field to cloze node
+  quiz_question_add_body_field('cloze');
+  variable_set('node_options_cloze', array('status'));
+  cache_clear_all('autoload:', 'cache');
+}
+
+/**
+ * Implementation of hook_schema().
+ */
+function cloze_schema() {
+  // User answers go in here.
+  $schema['quiz_cloze_user_answers'] = array(
+    'fields' => array(
+      'answer_id' => array(
+        'type' => 'serial',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ),
+      'question_nid' => array(
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ),
+      'question_vid' => array(
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ),
+      'result_id' => array(
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ),
+      'score' => array(
+        'type' => 'float',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'answer' => array(
+        'type' => 'text'
+      ),
+    ),
+    'primary key' => array('answer_id'),
+    'unique keys' => array(
+      'ids' => array('result_id', 'question_nid', 'question_vid'),
+    ),
+  );
+  return $schema;
+}

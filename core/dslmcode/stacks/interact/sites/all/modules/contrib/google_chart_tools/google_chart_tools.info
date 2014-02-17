@@ -1,0 +1,11 @@
+name = Google Chart Tools
+description = Provide a Google Chart Tools API.
+core = 7.x
+package = Charting
+
+; Information added by drupal.org packaging script on 2013-03-19
+version = "7.x-1.4"
+core = "7.x"
+project = "google_chart_tools"
+datestamp = "1363700278"
+

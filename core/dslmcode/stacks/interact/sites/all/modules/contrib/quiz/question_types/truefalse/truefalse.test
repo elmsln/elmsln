@@ -1,0 +1,181 @@
+<?php
+
+/*
+ * @file
+ * Unit tests for the truefalse Module.
+ */
+
+class TrueFalseUnitTest extends DrupalWebTestCase {
+
+  // initialing attributes
+  var $question_node_type = 'true_false';
+  var $title = '';
+  var $body = '';
+  var $node_id = NULL;
+
+  // to generate a string of random size
+  var $rand_min = 1;
+  var $rand_max = 64;
+
+  // member functions definition starts here
+
+  /*
+   * The getInfo() method provides information about the test.
+   * In order for the test to be run, the getInfo() method needs
+   * to be implemented.
+   */
+  public static function getInfo() {
+    return array(
+      'name' => t('TrueFalse unit test'),
+      'description' => t('Unit test for true or false question type.'),
+      'group' => t('Quiz'),
+    );
+  }
+
+  /*
+   * Implementing setUp() to enable truefalse module testing
+   */
+  function setUp() {
+    parent::setUp('taxonomy', 'quiz', 'views', 'autoload', 'multichoice',
+    'quiz_directions', 'quiz_question', 'querypath', 'questions_import',
+    'short_answer', 'truefalse', 'long_answer',  'matching', 'questions_export');
+
+    // array of drupal user permission
+    $permission = array('administer site configuration', 'access administration pages',
+    'administer quiz', 'access quiz', 'administer blocks', 'import questions', 'create quiz content',
+    'administer quiz configuration', 'use PHP for block visibility', 'administer blocks',
+    'create multichoice', 'edit any multichoice', 'administer taxonomy', 'allow multiple correct answers',
+    'allow any number of answers', 'export questions');
+
+    // Create and log in our test user. Should be cleaned up as I something
+    // was wrong with permissions and I basically kept adding potentially
+    // useful ones until it worked.
+    $user = $this->drupalCreateUser($permission);
+
+    // login into drupal site
+    $this->drupalLogin($user);
+
+    // create one quiz, which will be the default in the import form
+    $quiz_settings = array();
+    $quiz_settings['title'] = $this->randomName($this->getRandSize());
+    $quiz_settings['comment'] = $this->randomName($this->getRandSize());
+    $quiz_settings['type'] = 'quiz';
+    //$this->drupalCreateNode($quiz_settings);
+  }
+
+  /*
+   * @function
+   *   generates a rand integer between the specified range
+   *
+   * @return
+   *   random Integer value
+   */
+  public function getRandSize() {
+    return mt_rand($this->min, $this->max);
+  }
+
+  /*
+   * checks whether hook_quiz_question for true/false questions type has been
+   * defined or not.
+   */
+  public function testTrueFalseQuizQuestionInfo() {
+    $info = truefalse_quiz_question_info();
+    $this->assertEqual(count($info), 1, t('Check that info was returned.'));
+    $this->assertTrue(isset($info['true_false']), t('Check that true/false question type exists.'));
+  }
+
+  /*
+   * function to create true false type question node for testing.
+   */
+  public function createTrueFalseQuestion() {
+    $this->title = $this->randomName($this->getRandSize());
+    $this->body = $this->randomName($this->getRandSize());
+    $this->correct_answer = array_rand(array(0, 1));
+    // array containing drupal node attributes
+    $settings = array(
+      'type' => $this->question_node_type,
+      'title' => $this->title,
+      'body' => $this->body,
+      'correct_answer' => $this->correct_answer,
+      'revisions' => TRUE,
+    );
+    // create a test drupal node
+    return $this->drupalCreateNode($settings);
+  }
+
+  /**
+   * Create and then update a node.
+   */
+  public function unitTestCreateTrueFalseQuestionNode() {
+    $node = $this->createTrueFalseQuestion();
+    // raise an exception if the quiz node is not created
+    if (!$node) {
+      throw new Exception('Expected to have a node to work with.');
+    }
+    $this->node_id = $node->nid;
+
+    $this->assertEqual($node->title, $this->title, t('Title of stored node should equal the original title.'));
+    $this->assertEqual($node->body, $this->body, t('Body of stored node should be equal to original body.'));
+    $this->assertEqual($node->type, $this->question_node_type, t('Stored node type should be true_false'));
+  }
+
+  /**
+   * Test updating of a question.
+   */
+  public function unitTestUpdateTrueFalseQuestionNode() {
+    $node = node_load($this->node_id);
+    $new_correct_answer = !$this->correct_answer;
+    $node->title = $this->randomName(100);
+    $node->correct_answer = $new_correct_answer;
+    node_save($node);
+    $nodeCopy = node_load($node->nid, $node->vid);
+    $this->assertEqual($nodeCopy->correct_answer, $new_correct_answer, t('Check that stored score is the same as newly assigned score.'));
+
+  }
+
+  /**
+   * Test deleting of true false question node.
+   */
+
+  public function unitTestDeleteTrueFalseQuestionNode() {
+  /*  $node = node_load($this->node_id);
+    if ($node === FALSE) {
+      throw new Exception("Expected fixture to have valid node_id");
+    }
+    unset($node);
+    node_delete($this->node_id);
+    $node = node_load($this->nid);
+    $this->assertFalse($node, t('Test that node was deleted'));
+    * */
+  }
+
+
+  /**
+   * Run a bundle of Node API tests.
+   *
+   * This tests CRUD and revision functionality on a single node.
+   */
+  public function testTrueFalseNodeOperations() {
+    $this->createTrueFalseQuestion();
+    $this->unitTestDeleteTrueFalseQuestionNode();
+    $this->unitTestCreateTrueFalseQuestionNode();
+    $this->unitTestCreateTrueFalseQuestionRevision();
+    $this->unitTestUpdateTrueFalseQuestionNode();
+  }
+
+
+
+  /**
+   * Test creation of node revision.
+   */
+  public function unitTestCreateTrueFalseQuestionRevision() {
+    $node = node_load($this->node_id);
+    $oldVid = $node->vid;
+    $node->revision = 1;
+    node_save($node);
+    $nodeCopy = node_load($node->nid, $node->vid);
+    $this->assertNotEqual($nodeCopy->vid, $oldVid, t('Check that VID of new version is not the same as old VID.'));
+    $this->assertEqual($oldMax, $nodeCopy->maximum_score, t('Check that new VID has an entry in node properties.'));
+  }
+
+}

@@ -1,0 +1,69 @@
+<?php
+
+/**
+ * @file
+ * Allows users to opt-out of achievements entirely.
+ */
+
+/**
+ * Implements hook_form_FORM_ID_alter().
+ */
+function achievements_optout_form_user_profile_form_alter(&$form, $form_state) {
+  $account = menu_get_object('user');
+
+  // If the user can't earn achievements, don't show the opt-out checkbox.
+  // We can't use our normal achievements_user_is_achiever() here since it
+  // would return FALSE if someone HAD opted-out, making it a permanent
+  // choice. Knowing that someone can earn them is good enough though.
+  if (!user_access('earn achievements', $account) && $form['#user_category'] == 'account') {
+    $form['achievements_optout']['#access'] = FALSE;
+  }
+}
+
+/**
+ * Implements hook_user_update().
+ */
+function achievements_optout_user_update(&$edit, $account, $category) {
+  if (!empty($account->achievements_optout[LANGUAGE_NONE][0]['value']) && $account->achievements_optout[LANGUAGE_NONE][0]['value'] == 1) {
+    achievements_user_delete($account); // NP: 'School At Night' from Goblin's album 'Profondo Rosso: Original Soundtrack'.
+  }
+}
+
+/**
+ * Implements hook_page_alter().
+ *
+ * I didn't really want to use hook_page_alter(), but preprocess hooks or
+ * theme registry alters had their own set of problems (inability to remove
+ * stats entirely, to put a nicely formatted message somewhere, etc.).
+ */
+function achievements_optout_page_alter(&$page) {
+  if (arg(0) == 'user' && arg(2) == 'achievements') {
+    $account = menu_get_object('user'); // NP 'Bees & Tin Woodman Lament (Partial Outtake)' from 'The Wizard Of Oz: The Deluxe Edition'.
+    if (!empty($account->achievements_optout[LANGUAGE_NONE][0]['value']) && $account->achievements_optout[LANGUAGE_NONE][0]['value'] == 1) {
+      unset($page['content']['system_main']['achievements']['tabs']);
+      unset($page['content']['system_main']['achievements']['stats']);
+      $page['content']['system_main']['achievements']['optout'] = array(
+        '#markup' => t('This user has chosen not to participate in or unlock achievements.'),
+      );
+    }
+  }
+}
+
+/**
+ * Implements hook_achievements_access_earn().
+ */
+function achievements_optout_achievements_access_earn($uid) {
+  $query = new EntityFieldQuery;
+  $query->entityCondition('entity_type', 'user')
+    ->entityCondition('entity_id', $uid, '=')
+    ->fieldCondition('achievements_optout', 'value', 1);
+  $result = $query->execute();
+
+  // they've opted out.
+  if (count($result)) {
+    return FALSE;
+  }
+
+  // no change.
+  return NULL;
+}

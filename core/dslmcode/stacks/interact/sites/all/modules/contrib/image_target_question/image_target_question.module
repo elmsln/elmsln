@@ -1,0 +1,323 @@
+<?php
+
+/**
+ * @file
+ * image_target_question.module
+ * Image Target question type for the Quiz module.
+ */
+
+/**
+ * Implements hook_help().
+ */
+function image_target_question_help($path, $args) {
+  if ($path == 'admin/help#image_target_question') {
+    return "<p>" . t('This module provides an image target question type for Quiz.') . "</p>";
+  }
+}
+
+/**
+ * Implements hook_quiz_question_info().
+ */
+function image_target_question_quiz_question_info() {
+  return array(
+    'image_target_question' => array(
+      'name' => t('Image target question'),
+      'description' => t('This provides the image target questions for use by the Quiz module.'),
+      'question provider' => 'ImageTargetQuestion',
+      'response provider' => 'ImageTargetResponse',
+      'module' => 'quiz_question',
+    ),
+  );
+}
+
+/**
+ * Implements hook_config().
+ * This is implemented by the quiz module which is not correctly namespaced.
+ */
+function image_target_question_config() {
+  if (function_exists('image_styles')) {
+    $options = array(0 => t('None'));
+    foreach (image_styles() as $id => $preset) {
+      $options[$preset['name']] = $preset['name'];
+    }
+
+    $form['image_target_question_image_style'] = array(
+      '#type' => 'select',
+      '#options' => $options,
+      '#title' => t('Image style preset'),
+      '#description' => t('Choose an image style to apply to images uploaded via the image_target_question module.') . ' ' . l('Image styles', 'admin/config/media/image-styles'),
+      '#default_value' => variable_get('image_target_question_image_style', 0),
+    );
+  }
+  else {
+    $form['image_target_question_image_style'] = array(
+      '#markup' => '<p>' . t('With the image module enabled you could set a style for uploaded images here') . '</p>',
+    );
+  }
+  $position_options = array(0 => t('None'));
+  $position_options[0] = 'Below';
+  $position_options[1] = 'Above';
+  $form['image_target_question_question_position'] = array(
+      '#type' => 'select',
+      '#options' => $position_options,
+      '#title' => t('Target position'),
+      '#description' => t('Choose position of targets in relation to question image.'),
+      '#default_value' => variable_get('image_target_question_question_position', 0),
+  );
+  return $form;
+}
+
+/**
+ * Implements hook_theme().
+ */
+function image_target_question_theme($existing, $type, $theme, $path) {
+  $path = drupal_get_path('module', 'image_target_question') . '/theme';
+
+  return array(
+    'image_target_question_creation_form' => array(
+      'render element' => 'form',
+      'path' => $path,
+      'file' => 'image_target_question.theme.inc',
+    ),
+
+    'image_target_question_answer_node_view' => array(
+      'arguments' => array(
+        'alternatives' => NULL,
+        'show_correct' => NULL,
+        'fid' => NULL,
+      ),
+      'path' => $path,
+      'file' => 'image_target_question.theme.inc',
+    ),
+
+    'image_target_question_response' => array(
+      'arguments' => array(
+        'fid' => NULL,
+        'answers' => array(),
+        'feedback' => '',
+        'showcorrect' => FALSE,
+        'showfeedback' => FALSE,
+      ),
+      'path' => $path,
+      'file' => 'image_target_question.theme.inc',
+    ),
+
+    'image_target_question_answering_form' => array(
+      'render element' => 'form',
+      'path' => $path,
+      'file' => 'image_target_question.theme.inc',
+    ),
+
+    'image_target_question_image' => array(
+      'arguments' => array(
+        'fid' => NULL,
+        'answers' => array(),
+        'showcorrect' => FALSE,
+        'showfeedback' => FALSE,
+      ),
+      'path' => $path,
+      'file' => 'image_target_question.theme.inc',
+    ),
+
+    'image_target_question_region' => array(
+      'arguments' => array(
+        'top' => NULL,
+        'left' => NULL,
+        'width' => NULL,
+        'height' => NULL,
+        'identifier' => NULL,
+      ),
+      'path' => $path,
+      'template' => 'image-target-question-region',
+    ),
+
+    'image_target_question_target' => array(
+      'arguments' => array(
+        'top' => NULL,
+        'left' => NULL,
+        'identifier' => NULL,
+      ),
+      'path' => $path,
+      'template' => 'image-target-question-target',
+    ),
+
+  );
+}
+
+/**
+ * Ajax callback function used when uploading the image on the node-form.
+ */
+function image_target_question_ajax_upload_image($form, &$form_state) {
+  return $form['alternatives'];
+}
+
+/**
+ * Submit handler used for uploading an image.
+ */
+function image_target_question_upload_image_submit($form, &$form_state) {
+
+  // Set the form to rebuild and run submit handlers.
+  node_form_submit_build_node($form, $form_state);
+
+  // Make the changes we want to the form state.
+  if ($form_state['values']['alternatives']['upload_now']) {
+
+    // Handle new uploads, and merge tmp files into node-files.
+    $file = image_target_question_save_image('alternatives');
+
+    if ($file) {
+      // Save the uploaded file details to the form state.
+      $form_state['values']['fid'] = $file->fid;
+      $form_state['values']['width'] = $file->width;
+      $form_state['values']['height'] = $file->height;
+    }
+  }
+
+  $form_state['rebuild'] = TRUE;
+}
+
+/**
+ * Save an image file uploaded to an image target question.
+ * This requires write access to the directory image_target_questionfiles
+ * in the file_directory_path
+ * e.g. sites/default/files/image_target_questionfiles
+ * This requires that a file was uploaded in the last POST request
+ * @return file|boolean
+ *   returns a file object describing the saved file or FALSE on failure.
+ *   Check watchdog for messages.
+ */
+function image_target_question_save_image($source) {
+  $dir_uri = file_default_scheme() . '://image_target_question_files';
+  $dir = drupal_realpath($dir_uri);
+
+  if (!is_dir($dir)) {
+    $success = mkdir($dir);
+    if ($success === FALSE) {
+      watchdog('image_target_question', 'Unable to create image_target_question image directory at %dir. If PHP user cannot do this, please make the directory for it and setup the necessary permissions.', array('%dir' => $dir), WATCHDOG_ERROR);
+      return FALSE;
+    }
+  }
+
+  if (!isset($_FILES['files']) || !$_FILES['files']['name'][$source]) {
+    // No file was uploaded.
+    return FALSE;
+  }
+
+  $file = file_save_upload($source, array(), $dir_uri, FILE_EXISTS_REPLACE);
+
+  if (!$file) {
+    watchdog('image_target_question', 'Unable to save uploaded file.', array(), WATCHDOG_ERROR);
+    return FALSE;
+  }
+
+  $file->status = FILE_STATUS_PERMANENT;
+  file_save($file);
+
+  // Create the image style derivative.
+  if (image_target_question_get_image_style()) {
+    $derivative_uri = image_style_path(image_target_question_get_image_style()->name, $file->uri);
+    $success = image_style_create_derivative((array) image_target_question_get_image_style(), $file->uri, $derivative_uri);
+    if (!$success) {
+      watchdog('image_target_question', 'Could not make the image style file for %file', array('%file' => $file->uri), WATCHDOG_ERROR);
+    }
+  }
+
+  $dimensions = getimagesize(drupal_realpath($file->uri));
+  $file->width = $dimensions[0];
+  $file->height = $dimensions[1];
+
+  return $file;
+}
+
+/**
+ * If an image cache preset has been set, retrieve it
+ * @return object|boolean
+ *   False if not set otherwise image style object with the following fields:
+ *   - 'name' string
+ *   - 'id' string
+ *   - 'actions' array of style actions.
+ */
+function image_target_question_get_image_style() {
+  static $preset;
+  if (!isset($preset)) {
+    $preset = FALSE;
+    if (function_exists('image_style_load')) {
+      $ipreset = image_style_load(variable_get('image_target_question_image_style', 0));
+      if (!empty($ipreset)) {
+        $preset = (object) $ipreset;
+      }
+    }
+  }
+  return $preset;
+}
+
+/**
+ * Get the height of the image. This is either the actual height or the height
+ * of the image cache if this is enabled
+ *
+ * @param int $fid
+ *   The fid of the image file to get the height of
+ *
+ * @return int
+ *   The height of the image file or derivitive style version if set
+ */
+function image_target_question_get_image_height($fid) {
+  $cid = 'image_target_question_img_height_' . $fid;
+  $height = cache_get($cid);
+  if (is_object($height) && isset($height->data)) {
+    return $height->data;
+  }
+
+  $file = file_load($fid);
+  $filepath = drupal_realpath($file->uri);
+
+  if (image_target_question_get_image_style()) {
+    // If an image style is in use then use the height of that.
+    $derivative_uri = image_style_path(image_target_question_get_image_style()->name, $file->uri);
+    $filepath = drupal_realpath($derivative_uri);
+
+    if (!file_exists($filepath)) {
+      image_style_create_derivative((array) image_target_question_get_image_style(), $file->uri, $derivative_uri);
+    }
+  }
+
+  $dimensions = getimagesize($filepath);
+  $height = $dimensions[1];
+  if (!is_numeric($height) || $height < 1) {
+    watchdog('image_target_question', 'Could not determine the dimensions of the image file on filepath %filepath', array('%filepath' => $filepath), WATCHDOG_ERROR);
+    return 200;
+  }
+  cache_set($cid, $dimensions[1]);
+  return $dimensions[1];
+}
+
+/**
+ * Save the properties of an image_target_question.
+ *
+ * @param node &$node
+ *   A fully populated image_target_question node.
+ * @param boolean $is_new
+ *   TRUE for insert and FALSE for update.
+ */
+function _image_target_question_properties_save(&$node, $is_new) {
+  if (is_array($node->feedback)) {
+    $node->feedback_format = $node->feedback['format'];
+    $node->feedback = $node->feedback['value'];
+  }
+
+  if (!isset($node->fid)) {
+    watchdog('image_target_question', 'Could not find any image attached to the node on save %nid', array('%nid' => $node->nid), WATCHDOG_ERROR, l($node->title, 'node/' . $node->nid));
+    $node->fid = 0;
+  }
+
+  $record = new stdClass();
+  $record->nid = $node->nid;
+  $record->vid = $node->vid;
+  $record->fid = $node->fid;
+  $record->width = $node->width;
+  $record->height = $node->height;
+  $record->feedback = $node->feedback;
+  $record->feedback_format = $node->feedback_format;
+  $ids = $is_new ? array() : array('nid', 'vid');
+  return drupal_write_record('quiz_image_target_question_properties', $record, $ids);
+}

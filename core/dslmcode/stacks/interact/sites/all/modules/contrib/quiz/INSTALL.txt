@@ -1,0 +1,40 @@
+
+Installation
+------------
+
+1. Copy the entire quiz/ folder into your modules directory.
+
+2. Log in to your site as an administrator, and go to the Administer >> Site building >> Modules
+   section. Enable both the Quiz module, the Quiz Question module and at least one question type module
+   (for example, Multichoice).
+
+
+Configuration
+-------------
+
+1. Create a user role with the appropriate permissions.
+   The role can be created under Administer >> User management >> Roles and the rights can be assigned to the role under Administer >> User management >> Access control.
+   Assigning users to this role allows users other than the administrator to 
+   create questions and quizzes.
+   
+2. Add the "access quiz" permission to roles under Administer >> User management >> Access control that should be allowed to take the quizzes.
+
+
+How to create a quiz
+--------------------
+
+1. Begin by creating a series of questions that you would like to include in 
+   the quiz. Go to Create content >> <question type> (for example, Multichoice).
+   
+2. Next, create a basic quiz by going to Create content >> Quiz. You will have 
+   the opportunity to set numerous options such as the number of questions, 
+   whether or not to shuffle question order, etc. When finished, click "Submit."
+   
+3. Finally, add questions to the quiz by clicking the "Manage questions" tab. Here you can
+   also edit the order of the questions, and the max score for each question.
+
+
+FAQ
+---
+Q. I'm getting tons of errors when I try to install this module! Why?
+A. Make sure you've installed this module with PHP 5.x and Drupal 6.x. 

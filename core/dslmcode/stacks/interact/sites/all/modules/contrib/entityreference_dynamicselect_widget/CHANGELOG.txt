@@ -1,0 +1,7 @@
+09 September 2012: Rename Project and fix bug "Illegal choice detected". Adjust to modified Dynamic Select API. 
+23 September 2012: Fix bug in testing
+30 September 2012: Replace array_replace with array_merge to ensure compatibility with PHP < 5.3
+13 October 2012: Remove formatter as it is redundant with token_formmetters module
+14 October 2012: Make a form element with dynamic select. 
+21 October 2012: Fix issue with empty field
+06 April 2013: Do not display button and textfield elements if no filters

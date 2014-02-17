@@ -1,0 +1,95 @@
+<?php
+/**
+ * @file
+ * Code for the CLE Submission feature.
+ */
+
+include_once 'cle_submission.features.inc';
+
+/**
+ * Implements hook_init().
+ */
+function cle_submission_init() {
+  $file = FALSE;
+  $path = drupal_get_path('module', 'cle_submission') . '/';
+  // add special js handling to the submissions overview
+  switch (arg(0)) {
+    case 'cle':
+      if (arg(1) == 'submissions' || arg(1) == '') {
+        $file = 'submission_overview';
+      }
+    break;
+    case 'user':
+      if (arg(2) == 'gallery') {
+        $file = 'my_gallery';
+      }
+    break;
+    default:
+      switch (arg(2)) {
+        case 'assignments':
+        case 'assignments-list':
+          $file = 'assignment_listing';
+        break;
+      }
+    break;
+  }
+  // add files if on a special path
+  if ($file) {
+    drupal_add_js($path . 'js/' . $file . '.js');
+    drupal_add_css($path . 'css/' . $file . '.css');
+  }
+}
+
+/**
+ * Implements hook_form_alter().
+ */
+function cle_submission_form_alter(&$form, &$form_state, $form_id) {
+  if ($form_id == 'cle_submission_node_form' && arg(0) != 'system') {
+    // try to pull from the default being set
+    if (isset($form['field_assignment']['und']['#default_value'][0])) {
+      $assignment = node_load($form['field_assignment']['und']['#default_value'][0]);
+    }
+    else {
+      $assignment = FALSE;
+    }
+    // ensure we have an assignment to work on before hiding items
+    if ($assignment) {
+      $path = drupal_get_path('module', 'cle_submission') . '/';
+      drupal_add_css($path . 'css/submission_form.css');
+      // fields that we allow to be optionally hidden
+      $hidden = array('field_images', 'field_video', 'body', 'field_links', 'field_files');
+      // remove things we should allow to display
+      foreach ($assignment->field_media_requirements['und'] as $field) {
+        unset($hidden[array_search($field['value'], $hidden)]);
+      }
+      // hide things that shouldn't be visible based on requirements of assignment
+      foreach ($hidden as $hide) {
+        $form[$hide]['#attributes']['class'][] = 'cle_hidden';
+      }
+    }
+  }
+}
+
+/**
+ * Implements hook_node_access().
+ */
+function cle_submission_node_access($node, $op, $account) {
+  // allow for privacy value on the assignment to dictate who can see this
+  if ($op == 'view' && $node->type == 'cle_submission' && $node->uid != $account->uid) {
+    // see if this assignment is private
+    $assignment = node_load($node->field_assignment['und'][0]['target_id']);
+    // boolean for visibility
+    if (!$assignment->field_visibility['und'][0]['value']) {
+      // if it's a hidden assignment, the last check is admin member
+      $access = og_user_access_entity('update group', 'node', $node->og_group_ref['und'][0]['target_id'], $account);
+      // allow group editors to see this work
+      if ($access) {
+        return NODE_ACCESS_ALLOW;
+      }
+      else {
+        return NODE_ACCESS_DENY;
+      }
+    }
+  }
+  return NODE_ACCESS_IGNORE;
+}

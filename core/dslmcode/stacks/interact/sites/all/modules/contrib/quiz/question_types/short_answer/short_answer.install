@@ -1,0 +1,158 @@
+<?php
+
+/**
+ * The installer file for short_answer.
+ * @file
+ */
+
+/**
+ * Implements hook_install().
+ */
+function short_answer_install() {
+  // Add body field to short answer node
+  quiz_question_add_body_field('short_answer');
+  variable_set('node_options_short_answer', array('status'));
+  cache_clear_all('autoload:', 'cache');
+}
+
+/**
+ * Implements hook_uninstall().
+ */
+function short_answer_uninstall() {
+  // TODO The drupal_(un)install_schema functions are called automatically in D7.
+  // drupal_uninstall_schema('short_answer')
+}
+
+/**
+ * Implements hook_schema().
+ */
+function short_answer_schema() {
+  // Properties for a question nodes go in here:
+  $schema['quiz_short_answer_node_properties'] = array(
+    'fields' => array(
+      'nid' => array(
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ),
+      'vid' => array(
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ),
+      'maximum_score' => array(
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 1,
+      ),
+      // One of (0) textfield and (1) textare
+      'text_entry_type' => array(
+        'type' => 'int',
+        'size' => 'tiny',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 0
+      ),
+      // One of exact (0), case insensitive (1), regex (2), manual (3)
+      'correct_answer_evaluation' => array(
+        'type' => 'int',
+        'size' => 'tiny',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 0
+      ),
+      // Correct answer
+      'correct_answer' => array(
+        'type' => 'text'
+      ),
+      // Feedback if answer is correct
+      'feedback_correct'  => array(
+        'type' => 'text'
+      ),
+      // Feedback if answer is incorrect
+      'feedback_incorrect'  => array(
+        'type' => 'text'
+      ),
+    ),
+    'primary key' => array('nid', 'vid'),
+  );
+
+  // User answers go in here.
+  $schema['quiz_short_answer_user_answers'] = array(
+    'fields' => array(
+      'answer_id' => array(
+        'type' => 'serial',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ),
+      'question_nid' => array(
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ),
+      'question_vid' => array(
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ),
+      'result_id' => array(
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ),
+      'score' => array(
+        'type' => 'float',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      // This may be set to false if manual scoring is used.
+      'is_evaluated' => array(
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'size' => 'tiny',
+        'default' => 0,
+        'not null' => TRUE,
+      ),
+      'answer' => array(
+        'type' => 'text'
+      ),
+      'answer_feedback' => array(
+        'type' => 'text'
+      ),
+    ),
+    'primary key' => array('answer_id'),
+    'unique keys' => array(
+      'ids' => array('result_id', 'question_nid', 'question_vid'),
+    ),
+  );
+  return $schema;
+}
+
+
+/**
+ * Adding feedback field to table {quiz_short_answer_user_answers}
+ */
+function short_answer_update_7401() {
+  $spec = array(
+    'type' => 'text',
+    'not null' => FALSE,
+  );
+  db_add_field('quiz_short_answer_user_answers', 'answer_feedback', $spec);
+}
+
+/**
+ * Implementation of hook_update_N()
+ *
+ * Adding feedback field to table {quiz_short_answer_user_answers}
+ */
+function short_answer_update_6401() {
+  $to_return = array();
+  $spec = array(
+    'type' => 'text',
+    'not null' => FALSE,
+  );
+  db_add_field($to_return, 'quiz_short_answer_user_answers', 'answer_feedback', $spec);
+  return $to_return;
+}

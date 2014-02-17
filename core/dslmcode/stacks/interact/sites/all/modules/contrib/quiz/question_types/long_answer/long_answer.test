@@ -1,0 +1,353 @@
+<?php
+
+/**
+ * Unit tests for the long_answer Module.
+ * @file
+ */
+
+class LongAnswerUnitTest extends DrupalWebTestCase {
+
+  // intializing attributes
+  var $question_node_type = 'long_answer';
+  var $nid1 = NULL;
+  var $max_score = 1234; // Impossible value, given max limit of 3 digits.
+  var $title = '';
+  var $body = '';
+
+  // used to generate a string of random size
+  var $rand_min = 1;
+  var $rand_max = 256;
+
+  // member functions definition starts here
+
+  /*
+   * The getInfo() method provides information about the test.
+   * In order for the test to be run, the getInfo() method needs
+   * to be implemented.
+   */
+  public function getInfo() {
+    return array(
+      'name' => t('Long answer unit test'),
+      'description' => t('Suite of unit tests for verifying functionality for essay question functions.'),
+      'group' => t('Quiz'),
+    );
+  }
+
+  /*
+   * @function
+   *   generates a rand integer between the specified range
+   *
+   * @return
+   *   random Integer value
+   */
+  public function getRandSize() {
+    return rand($this->min, $this->max);
+  }
+
+  /*
+   * Implementing setUp() to enable truefalse module testing
+   */
+  function setUp() {
+    parent::setUp('taxonomy', 'quiz', 'views', 'autoload', 'multichoice',
+    'quiz_directions', 'quiz_question', 'querypath', 'questions_import',
+    'short_answer', 'truefalse', 'long_answer',  'matching', 'questions_export');
+
+    // Create and log in our test user. Should be cleaned up as I something
+    // was wrong with permissions and I basically kept adding potentially
+    // useful ones until it worked.
+
+    $permission = array('administer site configuration', 'access administration pages',
+    'administer quiz', 'access quiz', 'administer blocks', 'import questions', 'create quiz content',
+    'administer quiz configuration', 'use PHP for block visibility', 'administer blocks',
+    'create multichoice', 'edit any multichoice', 'administer taxonomy', 'allow multiple correct answers',
+    'allow any number of answers', 'export questions');
+
+    // create user with a set of permission
+    $user = $this->drupalCreateUser($permission);
+    $this->assertTrue(is_object, t('Check that user has been created with specified permission.'));
+    $this->drupalLogin($user);
+
+    // create one quiz, which will be the default in the import form
+    $quiz_settings = array();
+    $quiz_settings['title'] = $this->randomName($this->getRandSize());
+    $quiz_settings['comment'] = $this->randomName($this->getRandSize());
+    $quiz_settings['type'] = 'quiz';
+    //$this->drupalCreateNode($quiz_settings);
+  }
+
+  //public function testModuleIsEnabled() {
+  //  $this->assertTrue(in_array('long_answer', module_list(FALSE, TRUE, TRUE)), t('Test that module is installed.'));
+  //}
+
+  /**
+   * Check that hook_quiz_question_info is working.
+   */
+  public function testLongAnswerQuizQuestionInfo() {
+    $info = long_answer_quiz_question_info();
+    $this->assertEqual(count($info), 1, t('Check that info was returned.'));
+    $this->assertTrue(isset($info['long_answer']), t('Check that long answer question type exists.'));
+  }
+
+  /**
+   * Utility function for creating a new test question.
+   */
+  public function createLongAnswerQuestion() {
+    $this->title = $this->randomName($this->getRandSize());
+    $this->body = $this->randomName($this->getRandSize());
+    $this->max_score = $this->getRandSize();
+
+    // array of node attributes
+    $settings = array(
+      'type' => $this->question_node_type,
+      'title' => $this->title,
+      'body' => $this->body,
+      'maximum_score' => $this->max_score,
+      'revisions' => TRUE,
+    );
+
+    // create test drupal node
+    return $this->drupalCreateNode($settings);;
+  }
+
+  /*
+  public function createQuiz() {
+    $title = 'Test Quiz';
+    $body = 'This is a sample quiz.';
+    $settings = array(
+      'type' => 'quiz',
+      'title' => $title,
+      'body' => $body,
+      'revisions' => TRUE,
+    );
+
+    $node = $this->drupalCreateNode($settings);
+
+    return $node;
+  }
+  */
+
+  /**
+   * Run a bundle of Node API tests.
+   *
+   * This tests CRUD and revision functionality on a single node.
+   */
+  public function testNodeAPI() {
+    $this->unitTestCreateQuestionNode();
+    $this->unitTestCheckNodeProperties();
+    $this->unitTestUpdateQuestionNode();
+
+    $this->unitTestListQuestions();
+
+    // Revisions
+    $this->unitTestCreateQuestionRevision();
+
+    $this->unitTestDeleteQuestionNode();
+  }
+
+  /**
+   * Create and then update a node.
+   */
+  public function unitTestCreateQuestionNode() {
+    $node = $this->createLongAnswerQuestion();
+
+    if (!$node) {
+      throw new Exception('Expected to have a node to work with.');
+    }
+    $this->nid1 = $node->nid;
+    $this->assertTrue(!empty($node->title), t('check that node title is not empty @title', array('@title' => $node->title)));
+    $this->assertTrue(!empty($this->title), t('check that original title is not empty @title', array('@title' => $this->title)));
+    $this->assertEqual(strlen($node->title), strlen($this->title), t('check that length of original title and stored title are same.'));
+
+    $this->assertEqual($node->title, $this->title, t('Title of stored node should equal the original title.'));
+    $this->assertEqual($node->body, $this->body, t('Body of stored node should be equal to original body.'));
+    $this->assertEqual($node->maximum_score, $this->max_score, t('Stored score should be the same as original score.'));
+    $this->assertEqual($node->type, $this->question_node_type, t('Stored node type should be long_answer'));
+  }
+
+
+  /**
+   * Test that the appropriate data was stored in the node properties table.
+   */
+  public function unitTestCheckNodeProperties() {
+    $max = db_result(db_query('SELECT maximum_score FROM {quiz_long_answer_node_properties} WHERE nid = %d', $this->nid1));
+    $this->assertEqual($max, $this->max_score, t('Test that max score was appropriately stored in database.'));
+  }
+
+  /**
+   * Check that question exists in DB.
+   */
+  public function unitTestListQuestions() {
+    $questions = long_answer_questions_list();
+    $this->assertEqual(count($questions), 1, t('Verify that the question exists.'));
+  }
+
+  /**
+   * Test updating of a question.
+   */
+  public function unitTestUpdateQuestionNode() {
+    $newScore = 2;
+    $node = node_load($this->nid1);
+    $node->maximum_score = $newScore;
+    node_save($node);
+
+    $nodeCopy = node_load($node->nid, $node->vid);
+    $this->assertEqual($nodeCopy->maximum_score, $newScore, t('Check that stored score is the same as newly assigned score.'));
+
+  }
+
+  /**
+   * Test creation of node revision.
+   */
+  public function unitTestCreateQuestionRevision() {
+    $node = node_load($this->nid1);
+    $oldVid = $node->vid;
+    $node->revision = 1;
+    node_save($node);
+
+    $oldMax = $node->maximum_score;
+
+    $nodeCopy = node_load($node->nid, $node->vid);
+    $this->assertNotEqual($nodeCopy->vid, $oldVid, t('Check that VID of new version is not the same as old VID.'));
+    $this->assertEqual($oldMax, $nodeCopy->maximum_score, t('Check that new VID has an entry in node properties.'));
+  }
+
+  /**
+   * Test deeting of question node.
+   */
+  public function unitTestDeleteQuestionNode() {
+    $node = node_load($this->nid1);
+    if ($node === FALSE) {
+      throw new Exception("Expected fixture to have valid nid1");
+    }
+    unset($node);
+
+    node_delete($this->nid1);
+    $node = node_load($this->nid);
+    $this->assertFalse($node, t('Test that node was deleted'));
+  }
+
+  /**
+   * The main callback for answering a question.
+   */
+  public function testEvaluateQuestion() {
+    //$result = long_answer_evaluate_question($question, 1);
+
+    //$this->assertTrue((count($result) > 0), t('See if a result was returned from the evaluator.'));
+    //$this->assertEqual($result->is_correct, 0, t('Test that answer was not marked correct.'));
+  }
+
+  /**
+   * Test suite to write, update and delete answers.
+   */
+  public function testSaveDeleteScoreAnswer() {
+    //$this->unitTestSaveAnswer();
+    //$this->unitTestGetUnscoredAnswers();
+    //$this->unitTestScoreAnswer();
+    //$this->unitTestGetAnswer();
+    //$this->unitTestDeleteAnswer();
+  }
+
+  /**
+   * Test saving an answer.
+   */
+  public function unitTestSaveAnswer() {
+    //$answer_id = long_answer_save_answer(1, 1, 1, 'THIS IS A TEST ANSWER');
+
+    // FIXME: This should just select * from the table and check to make sure there is an entry.
+    // We should not assume IDs are serial.
+    //$this->assertEqual($answer_id, 1, 'Answer ID is set to 1 -- first answer');
+  }
+
+  /**
+   * Test modifying (scoring) an answer.
+   */
+  public function unitTestScoreAnswer() {
+    $change = long_answer_score_an_answer(1, 1, 1, 30);
+    $this->assertEqual($change, 1, t('Only one row was changed.'));
+
+    $unanswered = long_answer_get_all_unscored_answers();
+    $this->assertEqual(count($unanswered), 0, t('There should be no unscored questions.'));
+  }
+
+  public function unitTestGetAnswer() {
+    $answer = long_answer_get_answer(1, 1, 1);
+    $this->assertTrue(($answer !== FALSE), t('Check that an answer was returned.'));
+    $this->assertEqual($answer['is_evaluated'], 1, t('Check that answer is scored.'));
+    $this->assertEqual($answer['answer_id'], 1, t('Check that this is first answer'));
+    $this->assertEqual($answer['answer'], 'THIS IS A TEST ANSWER', t('Check that answer text is expected.'));
+  }
+
+  /**
+   * Test deleting an answer.
+   */
+  public function unitTestDeleteAnswer() {
+    //$removed = long_answer_delete_answer(1, 1, 1);
+    //$this->assertEqual($removed, 1, t('A single answer should be deleted.'));
+  }
+
+  public function unitTestGetUnscoredAnswers() {
+
+    $unanswered = long_answer_get_all_unscored_answers();
+
+    drupal_set_message(__FUNCTION__ . ' Unanswered: ' . count($unanswered));
+
+    $this->assertEqual(count($unanswered), 1, t('There should be only one unanswered question in *all* questions.'));
+
+    $unanswered = long_answer_get_unscored_answers_by_question(1, 1);
+    $this->assertEqual(count($unanswered), 1, t('There should be only one unanswered question for the quiz.'));
+  }
+
+
+}
+
+/*
+// Functional tests are a pain in the butt when it comes to creating new nodes.
+class LongAnswerFunctionalTest extends DrupalWebTestCase {
+  public function getInfo() {
+    return array(
+      'name' => t('Long answer quiz question functional tests.'),
+      'description' => t('Suite of functional tests for verifying functionality for essay questions.'),
+      'group' => t('Quiz'),
+    );
+  }
+
+  public function setUp() {
+    parent::setUp('quiz', 'views', 'long_answer');
+  }
+
+  public function testEditScore() {
+    $node = $this->createLongAnswerQuestion();
+    $rid = 1;
+    $answer_text = 'This is a test answer';
+    $answer_id = long_answer_save_answer($node->nid, $node->vid, $rid, $answer_text);
+
+    $form = long_answer_edit_score($node->vid, $rid);
+
+    print_r($form);
+
+    $pattern = '|' . $answer_text . '|';
+    $this->assertText($form['answer']['#value'], check_markup($answer->answer), t('Test that answer was correctly loaded'));
+  }
+
+  public function testCreateQuestion() {
+    $path = 'node/add/long-answer';
+    $submit = 'Save';
+
+    $data = array(
+
+    );
+  }
+
+  public function testModifyQuestion() {
+
+  }
+
+  public function testAnswerQuestion() {
+
+  }
+
+  public function testScoringQuestion() {
+
+  }
+}
+*/

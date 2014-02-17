@@ -1,0 +1,14 @@
+name = Make Meeting
+description = Field allowing to schedule an event
+core = 7.x
+configure = admin/config/content/makemeeting
+package = Fields
+dependencies[] = field
+files[] = makemeeting.test
+
+; Information added by drupal.org packaging script on 2013-04-11
+version = "7.x-2.0-rc4"
+core = "7.x"
+project = "makemeeting"
+datestamp = "1365690026"
+

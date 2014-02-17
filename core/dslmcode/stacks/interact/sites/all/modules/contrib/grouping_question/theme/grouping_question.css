@@ -1,0 +1,27 @@
+.quiz-grouping-container {
+  position: relative;
+}
+
+.quiz-grouping-member {
+  display:-moz-inline-stack;
+  display:inline-block;
+  zoom:1;
+  *display:inline;
+  background-color: orange;
+  border: 1px solid black;
+  margin: 10px;
+  padding: 20px;
+
+  -moz-border-radius: 15px;
+  border-radius: 15px;
+}
+
+.quiz-grouping-group {
+  display: block;
+  background-color: #EEE8AA;
+  border: 1px solid black;
+  padding: 10px 0 100px 10px;
+  margin: 10px;
+  font-size: large;
+  font-weight: bold;
+}

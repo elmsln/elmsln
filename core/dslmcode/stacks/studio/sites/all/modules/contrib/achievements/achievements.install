@@ -1,0 +1,204 @@
+<?php
+
+/**
+ * @file
+ * Install, update, and uninstall functions for the Achievements module.
+ */
+
+/**
+ * Implements hook_schema().
+ */
+function achievements_schema() {
+  $schema['achievement_totals'] = array(
+    'description' => 'A combined leaderboard of totals across the entire site.',
+    'fields' => array(
+      'uid' => array(
+        'default'       => 0,
+        'description'   => 'The {users}.uid that is being ranked on the site-wide leaderboard.',
+        'not null'      => TRUE,
+        'type'          => 'int',
+      ),
+      'points' => array(
+        'default'       => 0,
+        'description'   => "The {users}.uid's combined achievement point total.",
+        'not null'      => TRUE,
+        'type'          => 'int',
+      ),
+      'unlocks' => array(
+        'default'       => 0,
+        'description'   => "The {users}.uid's total number of achievement unlocks.",
+        'not null'      => TRUE,
+        'type'          => 'int',
+      ),
+      'timestamp' => array(
+        'default'       => 0,
+        'description'   => 'The Unix timestamp when the {users}.uid last received an achievement.',
+        'not null'      => TRUE,
+        'type'          => 'int',
+      ),
+      'achievement_id' => array(
+        'default'       => '',
+        'description'   => 'The ID of the achievement the {users}.uid has most recently unlocked.',
+        'length'        => 32,
+        'not null'      => TRUE,
+        'type'          => 'varchar',
+      ),
+    ),
+    'indexes' => array(
+      'uid_points'        => array('uid', 'points'),
+      'uid_unlocks'       => array('uid', 'unlocks'),
+      'points_timestamp'  => array('points', 'timestamp'),
+      'unlocks_timestamp' => array('unlocks', 'timestamp'),
+      'uid_points_unlocks' => array('uid', 'points', 'unlocks'),
+    ),
+    'primary key'       => array('uid'),
+  );
+
+  // this table not only defines what user has unlocked an achievement, but
+  // also the rank for each particular unlock. since these ranks never
+  // change, the rank is stored right in the table at unlock time.
+  $schema['achievement_unlocks'] = array(
+    'description' => 'Maps users to the achievements they have unlocked.',
+    'fields' => array(
+      'achievement_id'  => array(
+        'default'       => '',
+        'description'   => 'The ID of the achievement the {users}.uid has unlocked.',
+        'length'        => 32,
+        'not null'      => TRUE,
+        'type'          => 'varchar',
+      ),
+      'rank' => array(
+        'default'       => 0,
+        'description'   => 'The ranking the {users}.uid earned for unlocking this achievement.',
+        'not null'      => TRUE,
+        'type'          => 'int',
+      ),
+      'uid' => array(
+        'default'       => 0,
+        'description'   => 'The {users}.uid that has unlocked the achievement.',
+        'not null'      => TRUE,
+        'type'          => 'int',
+      ),
+      'timestamp' => array(
+        'default'       => 0,
+        'description'   => 'The Unix timestamp when the {users}.uid last received an achievement.',
+        'not null'      => TRUE,
+        'type'          => 'int',
+      ),
+      'seen' => array(
+        'default'       => 0,
+        'description'   => 'A boolean indicating whether the user has been notified of this unlock.',
+        'not null'      => TRUE,
+        'type'          => 'int',
+      ),
+    ),
+    'indexes' => array(
+      'aid_rank'        => array('achievement_id', 'rank'),
+      'aid_timestamp'   => array('achievement_id', 'timestamp'),
+      'uid_seen_timestamp' => array('uid', 'seen', 'timestamp'),
+      'uid_timestamp'   => array('uid', 'timestamp'),
+    ),
+    'primary key'       => array('achievement_id', 'uid'),
+  );
+
+  // some achievements only trigger over time e.g. after 10 comments, after 50
+  // Mondays, etc. this is a simple table for storage of these statistics.
+  $schema['achievement_storage'] = array(
+    'description' => 'Provides a general storage area for statistic collection.',
+    'fields' => array(
+      'achievement_id'  => array(
+        'default'       => '',
+        'description'   => 'An identifier for the achievement whose data is being collected.',
+        'length'        => 32,
+        'not null'      => TRUE,
+        'type'          => 'varchar',
+      ),
+      'uid' => array(
+        'default'       => 0,
+        'description'   => 'The {users}.uid that the stored data relates to.',
+        'not null'      => TRUE,
+        'type'          => 'int',
+      ),
+      'data' => array(
+        'description'   => 'A serialized string of the stored data.',
+        'not null'      => TRUE,
+        'size'          => 'big',
+        'type'          => 'blob',
+      ),
+    ),
+    'primary key'       => array('achievement_id', 'uid'),
+  );
+
+  return $schema;
+}
+
+/**
+ * Implements hook_uninstall().
+ */
+function achievements_uninstall() {
+  variable_del('achievements_image_secret');
+  variable_del('achievements_image_locked');
+  variable_del('achievements_image_unlocked');
+  variable_del('achievements_leaderboard_block_count_top');
+  variable_del('achievements_leaderboard_block_relative');
+  variable_del('achievements_leaderboard_block_relative_nearby_ranks');
+  variable_del('achievements_leaderboard_count_per_page');
+  variable_del('achievements_leaderboard_count_top');
+  variable_del('achievements_leaderboard_relative');
+  variable_del('achievements_leaderboard_relative_nearby_ranks');
+  variable_del('achievements_manual_achievement');
+  variable_del('achievements_manual_user');
+  variable_del('achievements_unlocked_move_to_top');
+}
+
+/**
+ * Add support for achievement notification popups.
+ */
+function achievements_update_7100() {
+  db_add_field('achievement_unlocks', 'seen', array(
+    'default'           => 0,
+    'description'       => 'A boolean indicating whether the user has been notified of this unlock.',
+    'not null'          => TRUE,
+    'type'              => 'int',
+  ));
+
+  db_add_index('achievement_unlocks', 'uid_seen_timestamp', array('uid', 'seen', 'timestamp'));
+  db_update('achievement_unlocks')->fields(array('seen' => 1))->execute();
+}
+
+/**
+ * Add support for "latest achievement" in the leaderboard.
+ */
+function achievements_update_7101() {
+  db_add_field('achievement_totals', 'achievement_id', array(
+    'default'       => '',
+    'description'   => 'The ID of the achievement the {users}.uid has most recently unlocked.',
+    'length'        => 32,
+    'not null'      => TRUE,
+    'type'          => 'varchar',
+  ));
+
+  $achievers = db_select('achievement_totals', 'at')->fields('at', array('uid', 'timestamp'))->execute()->fetchAllAssoc('uid');
+  foreach ($achievers as $achiever) { // pre-fill all the current achievers with their latest unlock.
+    $achievement_id = db_select('achievement_unlocks', 'au')->fields('au', array('achievement_id')) // MINE MINE MINE.
+      ->condition('uid', $achiever->uid)->condition('timestamp', $achiever->timestamp)->range(0, 1)->execute()->fetchField();
+    db_update('achievement_totals')->fields(array('achievement_id' => $achievement_id))->condition('uid', $achiever->uid)->execute();
+  }
+}
+
+/**
+ * Rename the "hidden" achievement variable to "secret".
+ */
+function achievements_update_7102() {
+  $module_path = drupal_get_path('module', 'achievements');
+  if (variable_get('achievements_image_hidden', NULL) == $module_path . '/images/default-hidden-70.jpg') {
+    variable_set('achievements_image_secret', $module_path . '/images/default-secret-70.jpg');
+  }
+  else {
+    variable_set('achievements_image_secret', variable_get('achievements_image_hidden'));
+  }
+
+  variable_del('achievements_image_hidden'); // Send a warning to the administrator just in case they haven't seen the CHANGELOG.
+  drupal_set_message(t('"hidden" achievements MUST be retyped to "secret" else they will be exposed. See CHANGELOG.txt for more information.'), 'warning');
+}
+

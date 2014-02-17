@@ -1,0 +1,17 @@
+name = Flex Slider Views Style
+description = Adds a Views style plugin for FlexSlider
+core = 7.x
+package = Flex Slider
+
+dependencies[] = views
+dependencies[] = flexslider
+
+files[] = flexslider_views.module
+files[] = flexslider_views.views.inc
+files[] = flexslider_views_plugin_style_flexslider.inc
+; Information added by drupal.org packaging script on 2012-05-17
+version = "7.x-1.0-rc3"
+core = "7.x"
+project = "flexslider"
+datestamp = "1337289957"
+

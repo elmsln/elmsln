@@ -1,0 +1,16 @@
+
+For a current TODO list please visit http://groups.drupal.org/quiz
+
+Items
+---------
+- Adoptive quiz #413176
+- Drag and Drop matching
+- #497772
+- certify
+- Improve quiz taking
+-- Ajax
+-- Follow fapi
+
+---
+Have additional suggestions? Please visit http://drupal.org/project/issues/quiz
+and leave your feedback!

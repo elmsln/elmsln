@@ -1,0 +1,328 @@
+/*
+ * Definitions that apply while viewing questions
+ */
+.question_type_name {
+  font-style: italic;
+}
+
+/*
+ * Definitions that apply while taking the quiz.
+ */
+#quiz_progress {
+  font-style: italic;
+  font-size: 80%;
+}
+
+#quiz_score_possible, #quiz_score_percent {
+  font-weight: bold;
+}
+
+td.quiz_summary_qcell {
+  vertical-align: top;
+  padding: 1em 1em 0em 0em;
+}
+
+td.quiz_summary_qcell table tr {
+  background: transparent;
+}
+
+td.quiz_summary_qcell table td {
+  vertical-align: top;
+  padding: .5em;
+}
+
+.quiz_answer_feedback {
+  font-style: italic;
+}
+
+.quiz_summary_text {
+
+}
+
+.feedback-icon {
+  display: inline;
+}
+
+.add-questions {
+  background: transparent url(images/add.png) no-repeat scroll 0% 10%;
+  padding: 0 0 1em 2em;
+}
+
+.hidden-question {
+  display: none;
+}
+
+.quiz-question-browser-row.odd {
+  background-color: #e7e7e7;
+}
+
+.quiz-question-browser-row.even {
+  background-color: #fbfbfb;
+}
+
+#quiz-question-browser-filters {
+  /*background-color: black;*/
+  /* Black bg in seven theme looks horrible. */
+  background: none repeat scroll 0 0 #E1E2DC;
+  border-color: #BEBFB9;
+  border-style: solid;
+  border-width: 1px;
+  font-weight: normal;
+  padding: 3px 10px;
+  text-transform: uppercase;
+}
+
+#quiz-question-browser-filters td.active {
+  background-color: #666;
+}
+
+.quiz-question-browser-row.odd td.active {
+  background-color: #e2e2f9;
+}
+
+.quiz-question-browser-row.even td.active {
+  background-color: #f8f8ff;
+}
+
+tr.selected.quiz-question-browser-row td, tr.selected.quiz-question-browser-row td.active {
+  background: none repeat scroll 0 0 #505050;
+  color: #FFF;
+}
+
+.browser-table th {
+  border-bottom: 0px solid #666666;
+}
+
+.q-staying {
+  display: inline;
+  float: left;
+  margin-right: 8px;
+}
+
+
+/*
+ * Definitions that apply on the quiz report pages.
+ */
+
+div.quiz-report {
+  margin: 0;
+  padding: 0;
+}
+
+div.quiz-report .dt {
+  background: #eee;
+  border-top: solid 1px gray;
+  padding-left: 5px;
+}
+
+div.quiz-report .dt div.quiz-report-score-container {
+  border-right: solid 1px gray;
+  border-left: solid 1px gray;
+  border-bottom: solid 1px gray;
+  float: right;
+  padding: 4px 6px;
+}
+
+div.quiz-report .dt div.quiz-report-score-container span div.form-item {
+  display: inline;
+}
+
+div.quiz-report .dd {
+  margin: 10px 0 50px 0;
+}
+
+div.quiz-score-submit {
+  float: right;
+}
+
+.quiz-report-skipped {
+  float: right;
+}
+
+.q-correct {
+  background-color: #DDFFDD;
+}
+
+.q-wrong {
+  background-color: #FFCCCC;
+}
+
+.q-waiting {
+  background-color: #FFFFDD;
+}
+
+input#edit-op, input#edit-back {
+  background: 0 none;
+  border: 0 none;
+  color: #666699;
+}
+
+input.q-skip-button:hover, input#edit-back:hover {
+  color: #6666ff;
+  cursor: pointer;
+  text-decoration: underline;
+}
+
+.quiz-passed {
+  color: #00dd00;
+}
+
+.quiz-failed {
+  color: #dd0000;
+}
+
+#no-questions {
+  font-style: italic;
+}
+#quiz-view-table {
+  width: auto;
+  border-collapse: separate;
+  border: thin solid #555555;
+  padding: 0px;
+  margin: 0px;
+  margin-bottom: 20px;
+}
+#quiz-start-quiz-button-form div {
+  padding: 0px;
+  margin: 0px;
+}
+
+#quiz-start-quiz-button-form input {
+  margin: 0px;
+}
+
+#quiz-view-table td {
+  padding: 0px 3px 0px 3px;
+  margin: 0px;
+  line-height: 110%;
+}
+.quiz-view-table-title {
+
+}
+.quiz-view-table-data {
+
+}
+
+#browser-pager .pager-last {
+  display: none;
+}
+#browser-pager .pager-first {
+  display: none;
+}
+
+.matching-tbl {
+  width: auto;
+  border-collapse: separate;
+  padding: 0px;
+  margin: 0px;
+  border: 0px;
+  line-height: 100%;
+}
+
+.matching-tbl p, .matching-tbl select, .matching-tbl div {
+  padding: 0px;
+  margin: 0px;
+  line-height: 100%;
+}
+
+.matching-tbl td {
+  padding: 2px;
+  margin: 2px;
+  line-height: 100%;
+}
+
+.quiz-solution {
+  border-left: solid 5px #00ff00;
+  padding-left: 3px;
+}
+
+.quiz-answer-hidden {
+  font-style: italic;
+}
+
+#quiz-jumper {
+  display: none;
+}
+
+#quiz-categorized-form #autocomplete {
+  overflow: auto;
+  max-height: 300px;
+}
+
+.mark-doubtful .toggle {
+  margin: auto;
+  position: relative;
+  width: 100px;
+  overflow: hidden;
+  height: 18px;
+  line-height: 18px;
+  font-size: 11px;
+  text-align: center;
+  cursor: pointer;
+  border: 1px solid #ccc;
+  -moz-border-radius: 3px;
+  -webkit-border-radius: 3px;
+  -khtml-border-radius: 3px;
+  border-radius: 3px;
+  -moz-box-shadow: 0 0 10px rgba(0,0,0,0.50) inset;
+  -webkit-box-shadow: 0 0 10px rgba(0,0,0,0.50) inset;
+  box-shadow: 0 0 10px rgba(0,0,0,0.50) inset;
+}
+
+.mark-doubtful .toggle.off {
+  background-clip: padding-box;
+  background-image: -webkit-gradient(linear, 0% 0%, 100% 0%, color-stop(50%, red), color-stop(50%, white), color-stop(100%, white));
+  background-image: -moz-linear-gradient(left, red 50%, white 50%, white 100%);
+  background-image: linear-gradient(left, red 50%, white 50%, white 100%);
+}
+
+.mark-doubtful .toggle {
+  background-image: -webkit-gradient(linear, 0% 0%, 100% 0%, color-stop(50%, white), color-stop(50%, green), color-stop(100%, green));
+  background-image: -moz-linear-gradient(left, white 50%, green 50%, green 100%);
+  background-image: linear-gradient(left, white 50%, green 50%, green 100%);
+}
+
+.mark-doubtful .toggle div {
+  position: relative;
+  color: #777;
+  width: 52px;
+  -moz-border-radius: 2px;
+  -webkit-border-radius: 2px;
+  -khtml-border-radius: 2px;
+  border-radius: 2px;
+  background: white;
+  text-shadow: 1px 1px 0 white;
+  background-image: -webkit-gradient(linear, 0% 0%, 0% 100%, color-stop(0%, #FEFEFE), color-stop(100%, #EAEAEA));
+  background-image: -moz-linear-gradient(top, #FEFEFE 0%, #EAEAEA 100%);
+  background-image: linear-gradient(top, #FEFEFE 0%, #EAEAEA 100%);
+  -webkit-transition: left 0.2s;
+  -mox-transition: left 0.2s;
+  -o-transition: left 0.2s;
+  transition: left 0.2s;
+}
+
+
+.mark-doubtful .toggle div:after,
+.mark-doubtful .toggle div:before {
+  color: white;
+  text-shadow: none;
+  width: 50px;
+  position: absolute;
+  top: 0;
+  font-size: 9px;
+  font-weight: bold;
+}
+
+.mark-doubtful .toggle div:before {
+  content: "Doubtful";
+  left: -48px;
+}
+
+.mark-doubtful .toggle div:after {
+  content: "Clear";
+  right: -48px;
+}
+.mark-doubtful .toggle.off div {
+  left: 48px;
+}
+

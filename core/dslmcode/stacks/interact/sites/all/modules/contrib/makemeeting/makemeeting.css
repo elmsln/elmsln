@@ -1,0 +1,112 @@
+/**
+ * Default makemeeting style
+ */
+
+/* Backend */
+
+.makemeeting-choice-date .form-item {
+  float: left;
+}
+
+/* Frontend */
+
+.makemeeting-table {
+}
+
+.makemeeting-table .answer-editable {
+  position: relative;
+}
+
+.makemeeting-table tr:hover .answer-editable .answer-edit {
+  display: block;
+}
+
+.makemeeting-table .answer-editable .answer-edit {
+  display: none;
+  position: absolute;
+  left: -4.7em;
+  top: -0.35em;
+  padding: 0.3em 0.4em;
+  border-radius: 0.7em 0 0 0.7em;
+}
+
+.makemeeting-table .answer-editable .answer-edit a {
+  margin: 0.3em 0 -0.3em 0;
+  display: block;
+  float: left;
+  padding: 0 0.2em;
+}
+
+.makemeeting-table .answer-editable .answer-edit img {
+  border: 0 none;
+}
+
+.makemeeting-table tr.odd .answer-editable .answer-edit {
+  background: #E4E4E4;
+  background: rgba(0, 0, 0, 0.105);
+}
+
+.makemeeting-table tr.even .answer-editable .answer-edit {
+  background: #EFEFEF;
+  background: rgba(0, 0, 0, 0.063);
+}
+
+.makemeeting-table .date,
+.makemeeting-table .suggestion,
+.makemeeting-table .answer,
+.makemeeting-table .total-count,
+.makemeeting-table .total-row {
+  border: 1px solid white;
+  text-align: center;
+}
+
+.makemeeting-table .suggestion {
+  /*background-color : #D0E3FB;*//* Light blue */
+}
+
+.makemeeting-table .suggestion,
+.makemeeting-table .answer,
+.makemeeting-table .total-count {
+  border-left: 1px solid gray;
+}
+
+.makemeeting-table .answer {
+  background: transparent no-repeat center;
+}
+
+.makemeeting-table .answer-0 {
+  background-color: #FFCCCA;
+  background-image: url("images/delete.png");
+}
+
+.makemeeting-table .answer-1 {
+  background-color: #D1F3D1;
+  background-image: url("images/accept.png");
+}
+
+.makemeeting-table .answer-2 {
+  background-color: #FFEDA1;
+  background-image: url("images/warning.png");
+}
+
+.makemeeting-table tr.answer-form-row .radio,
+.makemeeting-table tr.answer-form-row .checkbox {
+  text-align: center;
+}
+
+.makemeeting-table .total-0.total-max {
+  background-color: #FFCCCA;
+}
+
+.makemeeting-table .total-1.total-max {
+  background-color: #D1F3D1;
+}
+
+.makemeeting-table .total-2.total-max {
+  background-color: #FFEDA1;
+}
+
+.makemeeting-table .total-max {
+  font-weight: bold;
+  color: black;
+}

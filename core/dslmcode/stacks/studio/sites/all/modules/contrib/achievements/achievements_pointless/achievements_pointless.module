@@ -1,0 +1,87 @@
+<?php
+
+/**
+ * @file
+ * Hides points and leaderboards for a non-competitive environment.
+ */
+
+/**
+ * Implements hook_block_info_alter().
+ *
+ * Disables the achievements leaderboard block.
+ */
+function achievements_pointless_block_info_alter(&$blocks, $theme, $code_blocks) {
+  $blocks['achievements']['achievements_leaderboard']['status'] = 0;
+}
+
+/**
+ * Implements hook_menu_alter().
+ *
+ * Disables access to the achievement leaderboards.
+ */
+function achievements_pointless_menu_alter(&$items) {
+  $items['achievements/leaderboard']['access callback'] = FALSE;
+  $items['achievements/leaderboard/%achievements']['access callback'] = FALSE;
+}
+
+/**
+ * Process variables for achievement.tpl.php.
+ */
+function achievements_pointless_preprocess_achievement(&$variables) {
+  achievements_pointless_template_hide_variables(&$variables);
+}
+
+/**
+ * Process variables for achievement-notification.tpl.php.
+ */
+function achievements_pointless_preprocess_achievement_notification(&$variables) {
+  achievements_pointless_template_hide_variables($variables);
+  $variables['unlocked_rank']['#markup'] = $variables['unlocked_date']['#markup'];
+  // The points box is now entirely empty; replace rank with the unlock timestamp.
+}
+
+/**
+ * Process variables for achievement-latest-unlock.tpl.php.
+ */
+function achievements_pointless_preprocess_achievement_latest_unlock(&$variables) {
+  achievements_pointless_template_hide_variables($variables);
+}
+
+/**
+ * Hide competitive elements from our achievement templates.
+ */
+function achievements_pointless_template_hide_variables(&$variables) {
+  unset($variables['image']['#path']); // no link path, no clicky clicky.
+  unset($variables['achievement_title']['#type']); // no longer a link type.
+  $variables['achievement_title']['#markup'] = $variables['achievement_title']['#title'];
+
+  $variables['achievement']['points'] = NULL;
+  $variables['unlocked_rank']['#markup'] = NULL;
+
+  if ($variables['unlocked_date']['#markup']) { // we don't show rank or points, so we've room to make this a bit clearer.
+    $variables['unlocked_date']['#markup'] = t('Unlocked @timestamp', array('@timestamp' => $variables['unlocked_date']['#markup']));
+  }
+}
+
+/**
+ * Implements hook_theme_registry_alter().
+ *
+ * Send the user stats theme function to our override instead.
+ */
+function achievements_pointless_theme_registry_alter(&$theme_registry) {
+  $theme_registry['achievement_user_stats']['function'] = 'achievements_pointless_achievement_user_stats';
+}
+
+/**
+ * Remove rank and points from the stats on user/#/achievements.
+ */
+function achievements_pointless_achievement_user_stats($variables) {
+  $output = '<div class="achievement-user-stats">';
+  $output .= t('@name has unlocked @unlocks_count of @total_count achievements.', array(
+    '@name'           => $variables['stats']['name'],
+    '@unlocks_count'  => $variables['stats']['unlocks_count'],
+    '@total_count'    => $variables['stats']['total_count'],
+  ));
+  $output .= '</div>';
+  return $output;
+}

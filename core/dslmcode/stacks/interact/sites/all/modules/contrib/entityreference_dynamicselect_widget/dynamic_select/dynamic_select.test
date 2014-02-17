@@ -1,0 +1,357 @@
+<?php
+
+/**
+ * @file
+ * Test for dynamic_select module.
+ */
+
+// Load the functions creation the views
+require_once('tests/dynamic_select_test_views.inc');
+
+/**
+ * This is a functional test case, meaning that it
+ * actually exercises a particular sequence of actions through the web UI.
+ */
+class DynamicSelectTestCase extends DrupalWebTestCase {
+  protected $privileged_user;
+
+  public static function getInfo() {
+    return array(
+      'name' => 'Dynamic Select test',
+      'description' => 'Ensure the dynamic form element works.',
+      'group' => 'Dynamic Select',
+    );
+  }
+
+  public function setUp() {
+    parent::setUp('dynamic_select_test'); // dynamic_select_select has a dependency on dynamic_select which is then loaded automatically
+
+    // $this->privileged_user = $this->drupalCreateUser(array('administer content types', 'access content'));
+
+    $settings = array(
+      'type' => 'node',
+      'body' => array(LANGUAGE_NONE => array(array(PATTERN_BODY))),
+    );
+
+    $this->nb_select = PAGER + 2;
+
+    // Text to be returned by the view
+    $this->output = array();
+
+    // Create nodes
+    for ($i = 0; $i < $this->nb_select; $i++) {
+
+      $settings['title'] = PATTERN_TITLE . $i;
+
+      $node = $this->drupalCreateNode($settings);
+
+      $this->outputs[$i] = $node;
+    }
+
+    $view = dynamic_select_test_create_node_view(VIEW_NODE_NAME, PAGER);
+    
+    $this->pass("Create node view <code>$view->name</code>");
+
+  }
+
+  /**
+   * Test basic form.
+   *
+   */
+  public function testBasicForm() {
+
+    //$this->drupalLogin($this->privileged_user);
+
+    //Change widget
+
+    $path = 'dynamic-select-test/basic';
+
+    $this->drupalGet($path);
+
+    // Check select label
+    $this->assertFieldByXPath('//label[@for="edit-dynamic-select-test-element-dynamic-select-select" and text()="' . DYNAMIC_SELECT_TEST_SELECT . ' " and following-sibling::select[@id="edit-dynamic-select-test-element-dynamic-select-select"] and ancestor::div[@class="dynamic-select-select-wrapper"]]', NULL, 'Select label OK');
+
+    // Check filter label
+    $this->assertFieldByXPath('//label[@for="edit-dynamic-select-test-element-dynamic-select-filter" and text()="' . DYNAMIC_SELECT_TEST_FILTER . ' " and following-sibling::input[@id="edit-dynamic-select-test-element-dynamic-select-filter"] and ancestor::div[@class="dynamic-select-filter-wrapper"]]', NULL, 'Filter label OK');
+
+    // Check description
+    $this->assertFieldByXPath('//div[@class="dynamic-select-container-wrapper"]//div[@class="description" and text() ="' . DYNAMIC_SELECT_TEST_DESCRIPTION . '"]', NULL, 'Description OK.');
+
+    // Check the submit element is there
+    $this->assertFieldByXPath('//input[@id="edit-dynamic-select-test-element-dynamic-select-submit" and ancestor::div[@class="dynamic-select-submit-wrapper"]]', DYNAMIC_SELECT_TEST_SUBMIT, 'Button title OK.');
+
+    // Check the default select element is set
+    $this->assertFieldByXPath('//select[@id="edit-dynamic-select-test-element-dynamic-select-select"]', $this->outputs[0]->nid, 'Default option OK.');
+
+    // Fetch all options
+    $options = $this->xpath('//select[@id="edit-dynamic-select-test-element-dynamic-select-select"]/option');
+
+    $key = 0;
+
+    $result = TRUE;
+
+    // Check options one by one
+    foreach ($options as $option) {
+
+      if ( ((string) $option != $this->outputs[$key]->title) || ($option['value'] != $this->outputs[$key]->nid) ) {
+
+        $result = FALSE;
+      }
+
+      $key++;
+    }
+
+    $this->assertTrue($result, 'Options OK');
+
+    $this->assertEqual($key, PAGER, 'Number of options OK');
+
+    // Search for the first node and set the select to the second node
+    $this->drupalPostAJAX(NULL, array('dynamic_select_test_element[dynamic_select_filter]' => $this->outputs[1]->title, 'dynamic_select_test_element[dynamic_select_select]' => $this->outputs[2]->nid), array('op-edit-dynamic-select-test-element' => DYNAMIC_SELECT_TEST_SUBMIT));
+
+    // Fetch all options. Must use starts-with as a integer suffix is concatenated to the id at each AJAX call
+    $options = $this->xpath("//select[starts-with(@id,'edit-dynamic-select-test-element-dynamic-select-select')]/option");
+
+    // Check there is only 2 options
+    $this->assertEqual(count($options), 2, 'Number of options after ajax OK.');
+
+    // Check the right option is selected after ajax call
+    $this->assertFieldByXPath('//select[starts-with(@id,"edit-dynamic-select-test-element-dynamic-select-select")]/option[@selected="selected"]', $this->outputs[2]->title, 'Selected value after ajax OK.');
+  
+    // Check the second one is matching the filter. Must use starts-with as a integer suffix is concatenated to the id at each AJAX call
+    $this->assertFieldByXPath('//select[starts-with(@id,"edit-dynamic-select-test-element-dynamic-select-select")]/option[@value="' . $this->outputs[1]->nid . '"]', $this->outputs[1]->title, 'Options after ajax OK.');
+   
+    // Search for the last node and set the select to the first node
+    $this->drupalPostAJAX(NULL, array('dynamic_select_test_element[dynamic_select_filter]' => $this->outputs[PAGER]->title, 'dynamic_select_test_element[dynamic_select_select]' => $this->outputs[1]->nid), array('op-edit-dynamic-select-test-element' => DYNAMIC_SELECT_TEST_SUBMIT));
+
+    // Fetch all options. Must use starts-with as a integer suffix is concatenated to the id at each AJAX call
+    $options = $this->xpath("//select[starts-with(@id,'edit-dynamic-select-test-element-dynamic-select-select')]/option");
+
+    // Check there is only 2 options
+    $this->assertEqual(count($options), 2, 'Number of options after ajax OK.');
+
+    // Check the right option is selected after ajax call
+    $this->assertFieldByXPath('//select[starts-with(@id,"edit-dynamic-select-test-element-dynamic-select-select")]/option[@selected="selected"]', $this->outputs[1]->title, 'Selected value after ajax OK.');
+  
+    // Check the second one is matching the filter. Must use starts-with as a integer suffix is concatenated to the id at each AJAX call
+    $this->assertFieldByXPath('//select[starts-with(@id,"edit-dynamic-select-test-element-dynamic-select-select")]/option[@value="' . $this->outputs[PAGER]->nid . '"]', $this->outputs[PAGER]->title, 'Options after ajax OK.');
+ 
+    // Set the select to the first node. Must use the option set by the ajax call before.
+    // Do not use an array for the submit element otherwise the function performs an ajax call
+    $this->drupalPost(NULL, array('dynamic_select_test_element[dynamic_select_filter]' => $this->outputs[2]->title, 'dynamic_select_test_element[dynamic_select_select]' => $this->outputs[1]->nid), 'Submit');
+
+    $message = $this->xpath('//div[@class = "messages status"]');
+
+    // Check there is only 2
+    $this->assertEqual((string) $message[0], $this->outputs[1]->nid, 'Form submit OK.');
+
+  }
+
+  /**
+   * Test form with #default_value, #empty_value and #empty_option properties
+   *
+   */
+  public function testDefaultForm() {
+
+    //$this->drupalLogin($this->privileged_user);
+
+    //Change widget
+
+    $path = 'dynamic-select-test/default';
+
+    $this->drupalGet($path);
+    
+    // Check select label
+    $this->assertFieldByXPath('//label[@for="edit-dynamic-select-test-element-dynamic-select-select" and text()="' . DYNAMIC_SELECT_TEST_SELECT . ' " and following-sibling::select[@id="edit-dynamic-select-test-element-dynamic-select-select"] and ancestor::div[@class="dynamic-select-select-wrapper"]]', NULL, 'Select label OK');
+
+    // Check filter label
+    $this->assertFieldByXPath('//label[@for="edit-dynamic-select-test-element-dynamic-select-filter" and text()="' . DYNAMIC_SELECT_TEST_FILTER . ' " and following-sibling::input[@id="edit-dynamic-select-test-element-dynamic-select-filter"] and ancestor::div[@class="dynamic-select-filter-wrapper"]]', NULL, 'Filter label OK');
+
+    // Check description
+    $this->assertFieldByXPath('//div[@class="dynamic-select-container-wrapper"]//div[@class="description" and text() ="' . DYNAMIC_SELECT_TEST_DESCRIPTION . '"]', NULL, 'Description OK.');
+
+    // Check the submit element is there
+    $this->assertFieldByXPath('//input[@id="edit-dynamic-select-test-element-dynamic-select-submit" and ancestor::div[@class="dynamic-select-submit-wrapper"]]', DYNAMIC_SELECT_TEST_SUBMIT, 'Button title OK.');
+
+    // Check the select element is set
+    $this->assertFieldByXPath('//select[@id="edit-dynamic-select-test-element-dynamic-select-select"]', PAGER + 2, 'Default option OK.');
+
+    // Fetch all options
+    $options = $this->xpath('//select[@id="edit-dynamic-select-test-element-dynamic-select-select"]/option');
+
+    $nb_options = 0;
+
+    $result = TRUE;
+
+    $empty = ''; //To make sure empty is defined for the test below
+
+    // Check options one by one
+    foreach ($options as $option) {
+
+      if ($option['value'] == EMPTY_VALUE) {
+
+        $empty = (string) $option;
+
+      }
+      else {
+
+        // The node id is one more than the output key
+        $key = $option['value'] - 1;
+
+        // This is not the empty value
+        if ( ((string) $option != $this->outputs[$key]->title) || ($option['value'] != $this->outputs[$key]->nid) ) {
+
+          $result = FALSE;
+        }
+
+        $nb_options++;
+      }
+    }
+
+    $this->assertEqual($empty, EMPTY_OPTION, 'Empty option OK');
+
+    $this->assertTrue($result, 'View options OK');
+
+    // Check the number of options = pager + one for the default
+    $this->assertEqual($nb_options, PAGER + 1, 'Number of options OK');
+
+    // Check which option is selected. Must use starts-with as a integer suffix is concatenated to the id at each AJAX call
+    $this->assertFieldByXPath('//select[starts-with(@id,"edit-dynamic-select-test-element-dynamic-select-select")]/option[@selected="selected"]', $this->outputs[PAGER + 1]->nid, "Default option OK.");
+
+    // Search for the first node and set the select to the second node
+    $this->drupalPostAJAX(NULL, array('dynamic_select_test_element[dynamic_select_filter]' => $this->outputs[1]->title, 'dynamic_select_test_element[dynamic_select_select]' => $this->outputs[2]->nid), array('op-edit-dynamic-select-test-element' => DYNAMIC_SELECT_TEST_SUBMIT));
+
+    // Fetch all options. Must use starts-with as a integer suffix is concatenated to the id at each AJAX call
+    $options = $this->xpath("//select[starts-with(@id,'edit-dynamic-select-test-element-dynamic-select-select')]/option");
+
+    // Check there is only 3
+    $this->assertEqual(count($options), 3, 'Number of options after AJAX OK.');
+
+    // Check the option matching the filter. Must use starts-with as a integer suffix is concatenated to the id at each AJAX call
+    $this->assertFieldByXPath('//select[starts-with(@id,"edit-dynamic-select-test-element-dynamic-select-select")]/option[@value="' . $this->outputs[1]->nid . '"]', $this->outputs[1]->title, 'Option matching the filter after AJAX OK.');
+
+    // Check the selected option. Must use starts-with as a integer suffix is concatenated to the id at each AJAX call
+    $this->assertFieldByXPath('//select[starts-with(@id,"edit-dynamic-select-test-element-dynamic-select-select")]/option[@selected="selected"]', $this->outputs[2]->title, 'Selected value after ajax OK.');
+    
+    // Check the empty option still there. Must use starts-with as a integer suffix is concatenated to the id at each AJAX call
+    $this->assertFieldByXPath('//select[starts-with(@id,"edit-dynamic-select-test-element-dynamic-select-select")]/option[@value="' . EMPTY_VALUE . '"]', EMPTY_OPTION, 'Empty value after ajax OK.');
+
+    // Search for the first node and set the select to the second node. Must use the option set by the ajax call before.
+    // Do not use an array for the submit element otherwise the function performs an ajax call
+    $this->drupalPost(NULL, array('dynamic_select_test_element[dynamic_select_filter]' => $this->outputs[2]->title, 'dynamic_select_test_element[dynamic_select_select]' => $this->outputs[1]->nid), 'Submit');
+
+    $message = $this->xpath('//div[@class = "messages status"]');
+
+    // Check there is only 2
+    $this->assertEqual((string) $message[0], $this->outputs[1]->nid, 'Form submit OK.');
+  }
+
+  /**
+   * Test form with #required and #tree properties
+   *
+   */
+  public function testRequiredTreeForm() {
+
+    //$this->drupalLogin($this->privileged_user);
+
+    //Change widget
+
+    $path = 'dynamic-select-test/required';
+
+    $this->drupalGet($path);
+
+    // Check select label
+    $this->assertFieldByXPath('//label[@for="edit-dynamic-select-test-element-dynamic-select-select" and text()="' . DYNAMIC_SELECT_TEST_SELECT . ' " and following-sibling::select[@id="edit-dynamic-select-test-element-dynamic-select-select"] and ancestor::div[@class="dynamic-select-select-wrapper"]]', NULL, 'Select label OK');
+
+    // Check filter label
+    $this->assertFieldByXPath('//label[@for="edit-dynamic-select-test-element-dynamic-select-filter" and text()="' . DYNAMIC_SELECT_TEST_FILTER . ' " and following-sibling::input[@id="edit-dynamic-select-test-element-dynamic-select-filter"] and ancestor::div[@class="dynamic-select-filter-wrapper"]]', NULL, 'Filter label OK');
+
+    // Check description
+    $this->assertFieldByXPath('//div[@class="dynamic-select-container-wrapper"]//div[@class="description" and text() ="' . DYNAMIC_SELECT_TEST_DESCRIPTION . '"]', NULL, 'Description OK.');
+
+    // Check the submit element is there
+    $this->assertFieldByXPath('//input[@id="edit-dynamic-select-test-element-dynamic-select-submit" and ancestor::div[@class="dynamic-select-submit-wrapper"]]', DYNAMIC_SELECT_TEST_SUBMIT, 'Button title OK.');
+
+    // Check the select element is set to an empty string which is the default value for empty option
+    $this->assertFieldByXPath('//select[@id="edit-dynamic-select-test-element-dynamic-select-select"]', '', 'Default option OK.');
+
+    // Fetch all options
+    $options = $this->xpath('//select[@id="edit-dynamic-select-test-element-dynamic-select-select"]/option');
+
+    $nb_options = 0;
+
+    $result = TRUE;
+
+    $default = ''; // To be sure default is defined for the test below
+
+    // Check options one by one
+    foreach ($options as $option) {
+
+      if ($option['value'] == '') {
+
+        $default = (string) $option;
+
+      }
+      else {
+
+        // The node id is one more than the output key
+        $key = $option['value'] - 1;
+
+        // This is not the empty value
+
+        if ( ((string) $option != $this->outputs[$key]->title) || ($option['value'] != $this->outputs[$key]->nid) ) {
+
+          $result = FALSE;
+        }
+
+        $nb_options++;
+      }
+    }
+
+    // Check default value is set
+    $this->assertEqual($default, '- Select -', 'Default option when mandatory select OK');
+
+    $this->assertTrue($result, 'View options OK');
+
+    // Check the number of options = pager + one for the default
+    $this->assertEqual($nb_options, PAGER, 'Number of options OK');
+
+    // Check which option is selected. Must use starts-with as a integer suffix is concatenated to the id at each AJAX call
+    $this->assertFieldByXPath('//select[starts-with(@id,"edit-dynamic-select-test-element-dynamic-select-select")]/option[@selected="selected"]', '', "Default option OK.");
+
+    // Search for the first node and set the select to the second node which will not be returned after the filter
+    $this->drupalPostAJAX(NULL, array('dynamic_select_test_element[dynamic_select_filter]' => $this->outputs[1]->title, 'dynamic_select_test_element[dynamic_select_select]' => $this->outputs[1]->nid), array('op-edit-dynamic-select-test-element' => DYNAMIC_SELECT_TEST_SUBMIT));
+
+    // Fetch all options. Must use starts-with as a integer suffix is concatenated to the id at each AJAX call
+    $options = $this->xpath("//select[starts-with(@id,'edit-dynamic-select-test-element-dynamic-select-select')]/option");
+
+    // Check there is only 2
+    $this->assertEqual(count($options), 2, 'Number of options after AJAX OK.');
+
+    // Check the option matching the filter. Must use starts-with as a integer suffix is concatenated to the id at each AJAX call
+    $this->assertFieldByXPath('//select[starts-with(@id,"edit-dynamic-select-test-element-dynamic-select-select")]/option[@selected="selected"]', $this->outputs[1]->title, 'Selected option after ajax OK.');
+
+    // Check the empty option still there. Must use starts-with as a integer suffix is concatenated to the id at each AJAX call
+    $this->assertFieldByXPath('//select[starts-with(@id,"edit-dynamic-select-test-element-dynamic-select-select")]/option[@value=""]', '- Select -', 'Empty value after ajax OK.');
+
+    // Search for the first node and select nothing. As EMPTY_VALUE and EMPTY_OPTION were not specified, default is "" => - Select -.
+    // Do not use an array for the submit element otherwise the function performs an ajax call
+    $this->drupalPost(NULL, array('dynamic_select_test_element[dynamic_select_filter]' => $this->outputs[2]->title, 'dynamic_select_test_element[dynamic_select_select]' => ""), 'Submit');
+
+    // Check error message
+    $this->assertFieldByXPath('//div[@class = "messages error"]', NULL, 'Error message OK.');
+   
+    // Search for the first node and set the select to the second node. Must use the option set by the ajax call before.
+    // Do not use an array for the submit element otherwise the function performs an ajax call
+    $this->drupalPost(NULL, array('dynamic_select_test_element[dynamic_select_filter]' => $this->outputs[2]->title, 'dynamic_select_test_element[dynamic_select_select]' => $this->outputs[2]->nid), 'Submit');
+
+    $message = $this->xpath('//div[@class = "messages status"]');
+
+    // Check there is only 2
+    $this->assertEqual((string) $message[0], $this->outputs[2]->nid, 'Form submit OK.');
+  }
+  
+  // End class
+}
+
+
+

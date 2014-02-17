@@ -1,0 +1,11 @@
+
+/**
+ * Single achievement full display.
+ */
+.achievement .achievement-points-box .achievement-unlocked-stats {
+  margin-top: 28px;
+}
+
+.achievement-notification .achievement-points-box .achievement-unlocked-stats {
+  margin-top: 20px;
+}

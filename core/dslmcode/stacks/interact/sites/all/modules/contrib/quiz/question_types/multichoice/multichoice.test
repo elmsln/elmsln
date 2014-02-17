@@ -1,0 +1,66 @@
+<?php
+
+
+/*
+ * @file
+ * Test suite for choice Questions type module.
+ *
+ */
+
+class ChoiceTestCase extends DrupalWebTestCase {
+  /*
+   * The getInfo() method provides information about the test.
+   * In order for the test to be run, the getInfo() method needs
+   * to be implemented.
+   */
+  public static function getInfo() {
+    return array(
+      'name' => t('Choice unit test'),
+      'description' => t('Unit test for true or false question type.'),
+      'group' => t('Quiz'),
+    );
+  }
+
+  /*
+   * @function
+   *   generates a rand integer between the specified range
+   *
+   * @return
+   *   random Integer value
+   */
+  public function getRandSize() {
+    return mt_rand($this->min, $this->max);
+  }
+
+  /*
+   * Implementing setUp() to enable truefalse module testing
+   */
+  function setUp() {
+    parent::setUp('taxonomy', 'quiz', 'views', 'autoload', 'multichoice',
+    'quiz_directions', 'quiz_question', 'querypath', 'questions_import',
+    'short_answer', 'truefalse', 'long_answer',  'matching', 'questions_export');
+
+    // Create and log in our test user. Should be cleaned up as I something
+    // was wrong with permissions and I basically kept adding potentially
+    // useful ones until it worked.
+
+    // array of drupal permission
+    $permission = array('administer site configuration', 'access administration pages',
+    'administer quiz', 'access quiz', 'administer blocks', 'import questions', 'create quiz content',
+    'administer quiz configuration', 'use PHP for block visibility', 'administer blocks',
+    'create multichoice', 'edit any multichoice', 'administer taxonomy', 'allow multiple correct answers',
+    'allow any number of answers', 'export questions');
+
+    // create a drupal test user with specified permissions
+    $user = $this->drupalCreateUser($permission);
+    $this->drupalLogin($user);
+
+    // create one quiz, which will be the default in the import form
+    $quiz_settings = array();
+    $quiz_settings['title'] = $this->randomName($this->getRandSize());
+    $quiz_settings['comment'] = $this->randomName($this->getRandSize());
+    $quiz_settings['type'] = 'quiz';
+    // $this->drupalCreateNode($quiz_settings);
+    // don't' create a questions node here.
+  }
+}

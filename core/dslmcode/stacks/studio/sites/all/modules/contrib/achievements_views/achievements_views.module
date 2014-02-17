@@ -1,0 +1,54 @@
+<?php
+
+/**
+ * Implements hook_views_api().
+ */
+function achievements_views_views_api() {
+  return array('api' => 3, 'path' => drupal_get_path('module', 'achievements_views'));
+}
+
+function achievements_views_achievement_load($achievement_id = NULL, $reset = FALSE) {
+    $achievements = &drupal_static(__FUNCTION__);
+    if (!isset($achievements) || $reset) {
+        if (!$reset && $cache = cache_get('achievements_views_info')) {
+            $achievements = $cache->data;
+        }
+        else {
+            $_achievements = module_invoke_all('achievements_info');
+            drupal_alter('achievements_info', $_achievements);
+
+            foreach ($_achievements as $group_key => $group) {
+                foreach ($group['achievements'] as $achievement_key => $achievement_info) {
+                    $achievements[$achievement_key] = $achievement_info;
+                }
+            }
+            cache_set('achievements_views_info', $achievements, 'cache', CACHE_TEMPORARY);
+        }
+    }
+
+    if ($achievement_id) {
+        return isset($achievements[$achievement_id]) ? $achievements[$achievement_id] : FALSE;
+    }
+
+    return $achievements;
+}
+
+function achievements_views_get_groups() {
+    if (!($achievements = achievements_load(NULL, true))) {
+        return false;
+    }
+
+    foreach ($achievements as $group_id => $info) {
+        $groups[$group_id] = $info['title'];
+    }
+
+    return $groups;
+}
+
+function achievements_views_get_group($achievement_id) {
+    if (!($achievement = achievements_load($achievement_id, true))) {
+        return false;
+    }
+
+    return array('id' => $achievement['group_id'], 'title' => $achievement['group_title']);
+}

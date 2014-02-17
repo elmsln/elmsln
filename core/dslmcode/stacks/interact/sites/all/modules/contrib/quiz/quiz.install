@@ -1,0 +1,801 @@
+<?php
+
+/**
+ * @file
+ * Quiz install schema for installing the quiz module
+ *
+ */
+
+/**
+ * Implements hook_install().
+ */
+function quiz_install() {
+  node_types_rebuild();
+  $types = node_type_get_types();
+  node_add_body_field($types['quiz']);
+
+  // Default the "Show Author and Date" for quiz nodes to OFF.
+  $temp_array = variable_get('theme_settings', array());
+  $temp_array['toggle_node_info_quiz'] = 0;
+  variable_set('theme_settings', $temp_array);
+
+  // Default the comment settings to disabled.
+  variable_set('comment_quiz', '0');
+
+  // Create the quiz_def_uid variable holding an artificial uid to use when storing default settings.
+  variable_set('quiz_def_uid', 1);
+
+  drupal_set_message(t('Quiz module has been enabled. To !create_a_quiz go to Create Content -> Quiz.', array('!create_a_quiz' => l(t('create a quiz'), 'node/add/quiz'))));
+}
+
+/**
+ * Implements hook_schema().
+ */
+function quiz_schema() {
+  $schema = array();
+  /**
+   * Connect all the quiz specific properties to the correct version of a quiz.
+   */
+  // Create the quiz node properties table
+  $schema['quiz_node_properties'] = array(
+    'description' => 'The base table for quiz nodes',
+    'fields' => array(
+      'vid' => array(
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ),
+      'nid' => array(
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ),
+      'aid' => array(
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => TRUE,
+      ),
+      'number_of_random_questions' => array(
+        'type' => 'int',
+        'size' => 'small',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'max_score_for_random' => array(
+        'type' => 'int',
+        'size' => 'tiny',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 1,
+      ),
+      'pass_rate' => array(
+        'type' => 'int',
+        'size' => 'tiny',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ),
+      'summary_pass' => array(
+        'type' => 'text',
+      ),
+      'summary_pass_format' => array(
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => TRUE,
+      ),
+      'summary_default' => array(
+        'type' => 'text',
+      ),
+      'summary_default_format' => array(
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => TRUE,
+      ),
+      'randomization' => array(
+        'type' => 'int',
+        'size' => 'small',
+        'not null' => TRUE,
+        'default' => 0
+      ),
+      'backwards_navigation' => array(
+        'type' => 'int',
+        'size' => 'tiny',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ),
+      'keep_results' => array(
+        'type' => 'int',
+        'size' => 'tiny',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ),
+      'repeat_until_correct' => array(
+        'type' => 'int',
+        'size' => 'tiny',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'feedback_time' => array(
+        'type' => 'int',
+        'size' => 'tiny',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ),
+      'display_feedback' => array(
+        'type' => 'int',
+        'size' => 'tiny',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 1,
+      ),
+      'quiz_open' => array(
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'quiz_close' => array(
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'takes' => array(
+        'type' => 'int',
+        'size' => 'tiny',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ),
+      'show_attempt_stats' => array(
+        'type' => 'int',
+        'size' => 'tiny',
+        'unsigned' => FALSE,
+        'not null' => TRUE,
+        'default' => 1,
+      ),
+      'time_limit' => array(
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'quiz_always' => array(
+        'type' => 'int',
+        'size' => 'tiny',
+        'not null' => TRUE,
+        'default' => 0
+      ),
+      'tid' => array(
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'has_userpoints' => array(
+        'type' => 'int',
+        'size' => 'tiny',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 0
+      ),
+      'time_left' => array(
+        'type' => 'int',
+        'size' => 'small',
+        'not null' => TRUE,
+        'default' => 0
+      ),
+      'max_score' => array(
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'allow_skipping' => array(
+        'type' => 'int',
+        'size' => 'small',
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'allow_resume' => array(
+        'type' => 'int',
+        'size' => 'small',
+        'not null' => TRUE,
+        'default' => 1,
+      ),
+      'allow_jumping' => array(
+        'type' => 'int',
+        'size' => 'tiny',
+        'unsigned' => FALSE,
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'show_passed' => array(
+        'type' => 'int',
+        'size' => 'tiny',
+        'unsigned' => FALSE,
+        'not null' => TRUE,
+        'default' => 1,
+      ),
+      'mark_doubtful' => array(
+        'type' => 'int',
+        'size' => 'tiny',
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+    ),
+    'primary key' => array('vid'),
+    // 'unique keys' => array('vid'),
+    'indexes' => array('quiz_id' => array('vid', 'nid')),
+  );
+  /*
+   * Both a quiz and a quiz question are nodes with versions.  A quiz is a parent node of a quiz question,
+   * making the quiz question the child.
+   *
+   * The quiz_node_relationship table stores this relationship in a way that allows a quiz question to be
+   * the child of multiple quizzes without losing version history.
+   *
+   * Future functionality will allow a quiz question to be a parent of another quiz question with the same
+   * data model.  This will make adaptive quiz functionality possible without redesign.
+   */
+  // Create the quiz node relationship table
+  $schema['quiz_node_relationship'] = array(
+    'description' => 'Table storing what questions belong to what quizzes',
+    'fields' => array(
+      'parent_nid' => array(
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ),
+      'parent_vid' => array(
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ),
+      'child_nid' => array(
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ),
+      'child_vid' => array(
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ),
+      'question_status' => array(
+        'type' => 'int',
+        'size' => 'tiny',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 1,
+      ),
+      'weight' => array(
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'max_score' => array(
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'auto_update_max_score' => array(
+        'type' => 'int',
+        'size' => 'tiny',
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+    ),
+    'primary key' => array('parent_nid', 'parent_vid', 'child_nid', 'child_vid'),
+    'indexes' => array(
+      'parent_id' => array('parent_vid'),
+      'child_id' => array('child_vid'),
+    ),
+  );
+
+  /**
+   * Quiz specific options concerning  availability and access to scores.
+   */
+  // Create the quiz node results table
+  $schema['quiz_node_results'] = array(
+    'description' => 'Table storing the total results for a quiz',
+    'fields' => array(
+      'result_id' => array(
+        'type' => 'serial',
+        'size' => 'normal',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ),
+      'nid' => array(
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ),
+      'vid' => array(
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ),
+      'uid' => array(
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ),
+      'time_start' => array(
+        'type' => 'int',
+        'unsigned' => FALSE,
+        'default' => 0,
+      ),
+      'time_end' => array(
+        'type' => 'int',
+        'unsigned' => FALSE,
+        'default' => 0,
+      ),
+      'released' => array(
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'default' => 0,
+      ),
+      'score' => array(
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'is_invalid' => array(
+        'type' => 'int',
+        'size' => 'tiny',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 0
+      ),
+      'is_evaluated' => array(
+        'type' => 'int',
+        'size' => 'tiny',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 0
+      ),
+      'time_left' => array(
+        'type' => 'int',
+        'size' => 'small',
+        'not null' => TRUE,
+        'default' => 0
+      ),
+    ),
+    'primary key' => array('result_id'),
+    'indexes' => array(
+      'user_results' => array('uid', 'vid', 'nid'),
+      'vid' => array('vid'),
+    ),
+  );
+
+  /**
+   * Information about a particular question in a result
+   */
+  $schema['quiz_node_results_answers'] = array(
+    'description' => 'Table storing information about the results for the questions',
+    'fields' => array(
+      'result_id' => array(
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ),
+      'question_nid' => array(
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ),
+      'question_vid' => array(
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ),
+      'tid' => array(
+        'type' => 'int',
+        'unsigned' => TRUE,
+      ),
+      'is_correct' => array(
+        'type' => 'int',
+        'size' => 'tiny',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'is_skipped' => array(
+        'type' => 'int',
+        'size' => 'tiny',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 0
+      ),
+      'points_awarded' => array(
+        'type' => 'int',
+        'size' => 'tiny',
+        'unsigned' => FALSE,
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'answer_timestamp' => array(
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ),
+      'number' => array(
+        'type' => 'int',
+        'size' => 'small',
+        'unsigned' => FALSE,
+        'not null' => TRUE,
+        'default' => 1,
+      ),
+      'is_doubtful' => array(
+	'type' => 'int',
+	'not null' => TRUE,
+	'default'=> 0,
+	'size'=> 'tiny'
+      ),
+    ),
+    'primary key' => array('result_id', 'question_nid', 'question_vid'),
+    'indexes' => array(
+      'result_id' => array('result_id'),
+    ),
+  );
+
+  /**
+   * Allows custom feedback based on the results of a user completing a quiz.
+   */
+  // Create the quiz node result options table
+  $schema['quiz_node_result_options'] = array(
+    'description' => 'Table storing result options for quizzes. Several result options may belong to a single quiz.',
+    'fields' => array(
+      'option_id' => array(
+        'type' => 'serial',
+        'size' => 'normal',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ),
+      'nid' => array(
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ),
+      'vid' => array(
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ),
+      'option_name' => array(
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => TRUE,
+      ),
+      'option_summary' => array(
+        'type' => 'text',
+      ),
+      'option_summary_format' => array(
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => TRUE,
+      ),
+      'option_start' => array(
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'default' => 0,
+      ),
+      'option_end' => array(
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'default' => 0,
+      ),
+    ),
+    'primary key' => array('option_id'),
+    'indexes' => array(
+      'quiz_id' => array('vid', 'nid'),
+    )
+  );
+
+  $schema['quiz_user_settings'] = array(
+    'description' => 'Table storing the user settings for the quiz node form',
+    'fields' => array(
+      'uid' => array(
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ),
+      'nid' => array(
+        'description' => 'nid for the last node the user edited',
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ),
+      'vid' => array(
+        'description' => 'vid for the last node the user edited',
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ),
+      'aid' => array(
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => TRUE,
+      ),
+      'pass_rate' => array(
+        'type' => 'int',
+        'size' => 'tiny',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ),
+      'summary_pass' => array(
+        'type' => 'text',
+      ),
+      'summary_pass_format' => array(
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => TRUE,
+      ),
+      'summary_default' => array(
+        'type' => 'text',
+      ),
+      'summary_default_format' => array(
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => TRUE,
+      ),
+      'randomization' => array(
+        'type' => 'int',
+        'size' => 'small',
+        'not null' => TRUE,
+        'default' => 0
+      ),
+      'backwards_navigation' => array(
+        'type' => 'int',
+        'size' => 'tiny',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ),
+      'keep_results' => array(
+        'type' => 'int',
+        'size' => 'tiny',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ),
+      'repeat_until_correct' => array(
+        'type' => 'int',
+        'size' => 'tiny',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'feedback_time' => array(
+        'type' => 'int',
+        'size' => 'tiny',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ),
+      'display_feedback' => array(
+        'type' => 'int',
+        'size' => 'tiny',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 1,
+      ),
+      'takes' => array(
+        'type' => 'int',
+        'size' => 'tiny',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ),
+      'show_attempt_stats' => array(
+        'type' => 'int',
+        'size' => 'tiny',
+        'unsigned' => FALSE,
+        'not null' => TRUE,
+        'default' => 1,
+      ),
+      'time_limit' => array(
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'quiz_always' => array(
+        'type' => 'int',
+        'size' => 'tiny',
+        'not null' => TRUE,
+        'default' => 0
+      ),
+      'has_userpoints' => array(
+        'type' => 'int',
+        'size' => 'tiny',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 0
+      ),
+      'allow_skipping' => array(
+        'type' => 'int',
+        'size' => 'small',
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'allow_resume' => array(
+        'type' => 'int',
+        'size' => 'small',
+        'not null' => TRUE,
+        'default' => 1,
+      ),
+      'allow_jumping' => array(
+        'type' => 'int',
+        'size' => 'tiny',
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'show_passed' => array(
+        'type' => 'int',
+        'size' => 'tiny',
+        'not null' => TRUE,
+        'default' => 1,
+      ),
+    ),
+    'primary key' => array('uid'),
+  );
+
+  $schema['quiz_terms'] = array(
+    'description' => 'Table storing what terms belongs to what quiz for categorized random quizzes',
+    'fields' => array(
+      'nid' => array(
+        'description' => 'Node id',
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ),
+      'vid' => array(
+        'description' => 'Version id',
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ),
+      'weight' => array(
+        'description' => 'The terms weight decides the order of the terms',
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ),
+      'tid' => array(
+        'description' => 'Term id',
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ),
+      'max_score' => array(
+        'description' => 'Max score for each question marked with this term',
+        'type' => 'int',
+        'size' => 'tiny',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ),
+      'number' => array(
+        'description' => 'Number of questions to be drawn from this term',
+        'type' => 'int',
+        'size' => 'tiny',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ),
+    ),
+    'primary key' => array('vid', 'tid'),
+    'indexes' => array(
+      'version' => array('vid'),
+    ),
+  );
+  return $schema;
+}
+/**
+ * Implements hook_update_N()
+ */
+
+// should have been named quiz_update_7400
+function quiz_update_7100(&$sandbox) {
+  db_add_field('quiz_node_properties', 'show_passed', array('type' => 'int', 'not null' => TRUE,'default' => 1,'size' => 'tiny'));
+  return t('Show passed field added to quiz config.');
+}
+
+// should have been named quiz_update_7401
+function quiz_update_7101(&$sandbox) {
+  db_add_field('quiz_user_settings', 'show_passed', array('type' => 'int', 'not null' => TRUE,'default' => 1,'size' => 'tiny'));
+  return t('Done !');
+}
+
+/**
+ * Implements hook_update_N
+ */
+function quiz_update_7402(&$sandbox) {
+  if (!db_field_exists('quiz_node_properties', 'summary_pass_format')) {
+    db_add_field('quiz_node_properties', 'summary_pass_format', array('type' => 'varchar', 'length' => 255));
+    db_add_field('quiz_node_properties', 'summary_default_format', array('type' => 'varchar', 'length' => 255));
+    db_add_field('quiz_node_result_options', 'option_summary_format', array('type' => 'varchar', 'length' => 255));
+    db_add_field('quiz_user_settings', 'summary_pass_format', array('type' => 'varchar', 'length' => 255));
+    db_add_field('quiz_user_settings', 'summary_default_format', array('type' => 'varchar','length' => 255));
+  }
+  return t("Added new format fields to the tables if they didn't already exist.");
+}
+
+/**
+ * Adds index on vid column to the quiz_node_results table and on child_vid to
+ * the quiz_node_relationship table.
+ */
+function quiz_update_7403() {
+  db_add_index('quiz_node_results', 'vid', array('vid'));
+  db_add_index('quiz_node_relationship', 'child_id', array('child_vid'));
+}
+
+/**
+ * Increase the maximum quiz size
+ */
+function quiz_update_7404() {
+  $results[] = db_change_field('quiz_node_properties', 'number_of_random_questions', 'number_of_random_questions', array(
+    'type' => 'int',
+    'size' => 'small',
+    'unsigned' => TRUE,
+    'not null' => TRUE,
+    'default' => 0,
+  ));
+  $results[] = db_change_field('quiz_node_results_answers', 'number', 'number', array(
+    'type' => 'int',
+    'size' => 'small',
+    'unsigned' => FALSE,
+    'not null' => TRUE,
+    'default' => 1,
+  ));
+  return $results;
+}
+
+/**
+ * Remove unsigned attribute from field time_start and time_end in quiz_node_results table.
+ */
+function quiz_update_7405() {
+  $spec = array(
+    'type' => 'int',
+    'unsigned' => FALSE,
+    'default' => 0,
+  );
+  db_change_field('quiz_node_results', 'time_start', 'time_start', $spec);
+  db_change_field('quiz_node_results', 'time_end', 'time_end', $spec);
+  return t('Removed unsigned attribute from field time_start and time_end in quiz_node_results table');
+}
+
+/**
+ * Adding columns mark answers as doubtful
+ */
+function quiz_update_7406(&$sandbox) {
+  $spec = array(
+    'type' => 'int',
+    'not null' => TRUE,
+    'default'=> 0,
+    'size'=> 'tiny'
+  );
+  db_add_field('quiz_node_results_answers','is_doubtful', $spec);
+  db_add_field('quiz_node_properties', 'mark_doubtful', $spec);
+  return t('Added new format fields to the tables');
+}
+
+/**
+ * Adding auto update max score
+ */
+function quiz_update_7407(&$sandbox) {
+  $spec = array(
+    'type' => 'int',
+    'size' => 'tiny',
+    'not null' => TRUE,
+    'default' => 0,
+  );
+  db_add_field('quiz_node_relationship','auto_update_max_score', $spec);
+  return t('Added new auto update max score field to the quiz_node_relationship table');
+}
+
+
+
+/**
+ * Implements hook_uninstall().
+ */
+function quiz_uninstall() {
+  db_delete('variable')
+    ->condition('name', "quiz_%", 'like')
+    ->execute();
+}

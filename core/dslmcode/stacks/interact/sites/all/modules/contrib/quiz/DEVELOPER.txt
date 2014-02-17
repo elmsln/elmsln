@@ -1,0 +1,62 @@
+NOTES ON DEVELOPING EXTENSIONS FOR QUIZ
+=======================================
+
+Hooks for interacting with a quiz:
+ - hook_quiz_begin($quiz, $rid): This hook is called when a user first begins a quiz.
+ - hook_quiz_finished($quiz, $score, $rid): This hook is called immediately after a user finishes taking a quiz.
+ - hook_quiz_scored($quiz, $score, $rid): This is called when a quiz score is updated. See http://drupal.org/node/460456
+ 
+
+DEVELOPING NEW QUESTION TYPES:
+
+You need to create a new module that extends the existing 
+question type core. The multichoice question type provides a precise example.
+
+Here are the steps:
+
+1. Create a new module
+2. Use your module's .install file to create the necessary tables
+3. Make sure you module implements hook_quiz_question_info()
+4. Define classes that extends QuizQuestion and QuizQuestionResponse.
+   For a complete example, see multichoice.classes.inc.
+  
+  
+  
+  
+==================================================
+How to clean up the database during development
+==================================================
+
+# see what questions are deleted but still in quizzes
+SELECT qnr.* FROM quiz_node_relationship qnr
+LEFT JOIN node n ON qnr.child_nid = n.nid 
+WHERE n.nid IS NULL
+
+# delete questions that are deleted but still in quizzes
+DELETE qnr
+FROM quiz_node_relationship qnr
+LEFT JOIN node n ON qnr.child_nid = n.nid 
+WHERE n.nid IS NULL
+
+# see what quizzes are deleted but still have questions
+SELECT qnr.* FROM quiz_node_relationship qnr
+LEFT JOIN node n ON qnr.parent_nid = n.nid 
+WHERE n.nid IS NULL
+
+# delete quizzes that are deleted but still have questions
+DELETE qnr
+FROM quiz_node_relationship qnr
+LEFT JOIN node n ON qnr.parent_nid = n.nid 
+WHERE n.nid IS NULL
+
+# see what revisions are stored for nodes that are deleted
+SELECT nr.* FROM node_revisions nr
+LEFT JOIN node n ON nr.nid = n.nid 
+WHERE n.nid IS NULL
+
+# delete orphaned revisions
+DELETE nr
+FROM node_revisions nr
+LEFT JOIN node n ON nr.nid = n.nid 
+WHERE n.nid IS NULL
+
