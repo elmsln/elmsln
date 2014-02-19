@@ -26,7 +26,8 @@ function mooc_widgets_views_default_views() {
   $handler->display->display_options['use_more_always'] = FALSE;
   $handler->display->display_options['access']['type'] = 'role';
   $handler->display->display_options['access']['role'] = array(
-    9 => '9',
+    10 => '10',
+    4 => '4',
     6 => '6',
   );
   $handler->display->display_options['cache']['type'] = 'none';
@@ -64,7 +65,7 @@ function mooc_widgets_views_default_views() {
   $handler->display->display_options['filters']['group_type']['table'] = 'content_type_groups_types';
   $handler->display->display_options['filters']['group_type']['field'] = 'group_type';
   $handler->display->display_options['filters']['group_type']['value'] = array(
-    'mooc_widgets' => 'mooc_widgets',
+    'mooc_widget_types' => 'mooc_widget_types',
   );
 
   /* Display: Page */

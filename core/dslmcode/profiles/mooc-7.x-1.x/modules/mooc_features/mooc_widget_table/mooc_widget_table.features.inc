@@ -19,7 +19,7 @@ function mooc_widget_table_ctools_plugin_api($module = NULL, $api = NULL) {
 function mooc_widget_table_node_info() {
   $items = array(
     'mooc_table' => array(
-      'name' => t('Table type'),
+      'name' => t('Table widget'),
       'base' => 'node_content',
       'description' => t('Type to add a well made table'),
       'has_title' => '1',

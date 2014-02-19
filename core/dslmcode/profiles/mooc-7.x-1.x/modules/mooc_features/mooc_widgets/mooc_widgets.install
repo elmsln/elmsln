@@ -1,0 +1,16 @@
+<?php
+/**
+ * @file MOOC Widgets installer
+ */
+
+/**
+ * Implements hook_install().
+ */
+function mooc_widgets_install() {
+  // create the widget content type group
+  $data = array(
+    'type' => 'mooc_widget_types',
+    'name' => 'MOOC Widget types',
+  );
+  db_insert('content_type_groups_groups')->fields($data)->execute();
+}

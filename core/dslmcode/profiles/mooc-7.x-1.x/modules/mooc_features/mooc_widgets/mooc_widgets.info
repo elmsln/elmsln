@@ -1,8 +1,9 @@
-name = MOOC Widgets
+name = MOOC widgets
 description = Required base package to allow for MOOC widgets to be used
 core = 7.x
 package = MOOC Widgets
 dependencies[] = content_type_groups
+dependencies[] = ctools
 dependencies[] = entity_view_mode
 dependencies[] = exclude_node_title
 dependencies[] = strongarm
@@ -12,4 +13,3 @@ features[ctools][] = views:views_default:3.0
 features[features_api][] = api:2
 features[variable][] = entity_view_modes
 features[views_view][] = mooc_widgets
-features_exclude[dependencies][ctools] = ctools

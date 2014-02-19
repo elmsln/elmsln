@@ -19,7 +19,7 @@ function mooc_widget_list_ctools_plugin_api($module = NULL, $api = NULL) {
 function mooc_widget_list_node_info() {
   $items = array(
     'mooc_list_widget' => array(
-      'name' => t('MOOC List Widget'),
+      'name' => t('List widget'),
       'base' => 'node_content',
       'description' => t('Special listing widget to display field information either as tabs or fieldsets'),
       'has_title' => '1',
