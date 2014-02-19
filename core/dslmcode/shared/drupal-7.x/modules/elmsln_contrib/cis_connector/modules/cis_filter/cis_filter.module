@@ -96,7 +96,6 @@ function theme_cis_filter_render($vars) {
             $instance = '/' . $test[2] . '/';
           }
         }
-        }
         $link = _cis_connector_format_address($settings, $instance, 'front');
         switch ($code['render']) {
           case 'link':
