@@ -12,4 +12,3 @@ sites/*/private
 # Ignore stupid dreamweaver files
 *dwsync.xml
 dwsync.xml
-libraries/
