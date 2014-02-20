@@ -92,10 +92,12 @@ if [ ! -d ${moduledir}/${university}/${cissettings} ];
       let "rand=$RANDOM % 62"
       dbpw="${pass}${char[$rand]}"
     done
-    cd $stacks/${stacklist[$COUNTER]}
-    drush site-install -y --db-url=mysql://elmslndfltdbo:$dbpw@localhost/default_${stacklist[$COUNTER]} --db-su=$dbsu --db-su-pw=$dbsupw
-    COUNTER=$[COUNTER + 1]
-
+    if (${stacklist[$COUNTER]} != 'online');
+      then
+      cd $stacks/${stacklist[$COUNTER]}
+      drush site-install -y --db-url=mysql://elmslndfltdbo:$dbpw@localhost/default_${stacklist[$COUNTER]} --db-su=$dbsu --db-su-pw=$dbsupw
+    fi
+      COUNTER=$[COUNTER + 1]
   done
   # close out function and file
   printf "  );\n\n  return \$items;\n}\n\n" >> $modulefile
@@ -121,12 +123,8 @@ chown $wwwuser:$webgroup $sitedir/online/$host/files
 chmod 755 $sitedir/online/$host/files
 
 #add site to the sites array
-
-if [ -f $sitedir/sites.php ]; then
-  sed -i "/^\$sites = array/a \ \t \'$online_domain\' =\> \'online\/$host\'\," $sitedir/sites.php
-  sed -i "/^\$sites = array/a \ \t \'$online_service_domain\' =\> \'online\/services\/$host\'\," $sitedir/sites.php
-fi
-
+echo "\$sites = array(\n  '$online_domain' => 'online/$host',\n" >> $sitedir/sites.php
+echo "  '$online_service_domain' => 'online/services/$host',\n);\n" >> $sitedir/sites.php
 # add in our cache bins
 echo "\$conf['cache_prefix'] = 'online_$host';" >> $sitedir/online/$host/settings.php
 echo "require_once DRUPAL_ROOT . '/../../shared/drupal-7.x/settings/shared_settings.php';" >> $sitedir/online/$host/settings.php
