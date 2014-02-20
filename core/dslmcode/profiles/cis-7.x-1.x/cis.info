@@ -64,7 +64,6 @@ dependencies[] = date
 dependencies[] = date_api
 dependencies[] = date_views
 ; Entity
-dependencies[] = activation_code
 dependencies[] = replicate
 dependencies[] = replicate_field_collection
 dependencies[] = replicate_ui
