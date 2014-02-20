@@ -137,12 +137,12 @@ if [ ! -d $sitedir/online/services/$host ];
       cp $sitedir/online/$host/settings.php $sitedir/online/services/$host/settings.php
     fi
     if [ -f $sitedir/online/services/$host/settings.php ]; then
-      echo "\$conf['restws_basic_auth_user_regex'] = '/^SERVICE_.*/';" >> $sitedir/online/services/$host/settings.php
+      printf "\n\$conf['restws_basic_auth_user_regex'] = '/^SERVICE_.*/';" >> $sitedir/online/services/$host/settings.php
     fi
 fi
 
 # set base_url
-echo "\$base_url= '$protocol://$online_domain';" >> $sitedir/online/$host/settings.php
+printf "\n\$base_url= '$protocol://$online_domain';" >> $sitedir/online/$host/settings.php
 
 
 cd $stacks/online
