@@ -111,7 +111,7 @@ do
   dbpw="${pass}${char[$rand]}"
 done
 cd $stacks/online
-drush site-install cis -y --db-url=mysql://online_$host:$dbpw@localhost/online_$host --db-su=$dbsu --db-su-pw=$dbsupw --sites-subdir=online/$host --site-mail=$site_email --site-name=Online
+drush site-install cis -y --db-url=mysql://online_$host:$dbpw@localhost/online_$host --db-su=$dbsu --db-su-pw=$dbsupw --sites-subdir="online/$host" --site-mail="$site_email" --site-name="Online"
 
 sitedir=$stacks/online/sites
 #create file directory
