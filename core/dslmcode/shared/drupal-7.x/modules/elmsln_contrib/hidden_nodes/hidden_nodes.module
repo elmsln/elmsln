@@ -454,12 +454,14 @@ function hidden_nodes_action_info() {
       'type' => 'node',
       'configurable' => FALSE,
       'triggers' => array('any'),
+      'behavior' => array('changes_property'),
     ),
     'hidden_nodes_unhide_action' => array(
       'label' => t('Unhide content'),
       'type' => 'node',
       'configurable' => FALSE,
       'triggers' => array('any'),
+      'behavior' => array('changes_property'),
     ),
   );
 }
