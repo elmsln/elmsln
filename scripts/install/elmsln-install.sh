@@ -120,11 +120,11 @@ chown $wwwuser:$webgroup $sitedir/online/$host/files
 chmod 755 $sitedir/online/$host/files
 
 #add site to the sites array
-echo "\$sites = array(\n  '$online_domain' => 'online/$host',\n" >> $sitedir/sites.php
-echo "  '$online_service_domain' => 'online/services/$host',\n);\n" >> $sitedir/sites.php
+printf "\$sites = array(\n  '$online_domain' => 'online/$host',\n" >> $sitedir/sites.php
+printf "  '$online_service_domain' => 'online/services/$host',\n);\n" >> $sitedir/sites.php
 # add in our cache bins
-echo "\$conf['cache_prefix'] = 'online_$host';" >> $sitedir/online/$host/settings.php
-echo "require_once DRUPAL_ROOT . '/../../shared/drupal-7.x/settings/shared_settings.php';" >> $sitedir/online/$host/settings.php
+printf "\$conf['cache_prefix'] = 'online_$host';" >> $sitedir/online/$host/settings.php
+printf "require_once DRUPAL_ROOT . '/../../shared/drupal-7.x/settings/shared_settings.php';" >> $sitedir/online/$host/settings.php
 
 #adding servies conf file
 if [ ! -d $sitedir/online/services/$host ];
