@@ -8,7 +8,7 @@ define('CIS_HELPER_COURSE_SERVICE', 'courses');
 // machine_name to indicate that  service is external to the system.
 define('CIS_HELPER_EXTERNAL_FLAG', '--external--');
 // server location of the jobs path for files to be written to.
-define('CIS_HELPER_JOB_PATH', '/var/wwwjobs');
+define('CIS_HELPER_JOB_PATH', '/var/www/elmsln/config/jobs');
 // default authentication method of newly created courses / sites.
 define('CIS_HELPER_DEFAULT_AUTHENTICATION', 'open');
 // default instructional outline to import into mooc instance.
