@@ -85,7 +85,7 @@ if [ ! -d ${moduledir}/${university}/${cissettings} ];
   printf "\n/**\n * Implements hook_cis_service_instance_options_alter().\n */\nfunction ${university}_${host}_cis_service_instance_options_alter(&/$options, /$course, /$service) {\n  // modules we require for all builds\n  /$options['en'][] = '$modulefile';\n}\n" >> $modulefile
 fi
 # make sure drush is happy post addition of drush files
-/usr/bin/drush cc drush
+drush cc drush
 # install default site for courses stack
 # generate a random 30 digit password
 for i in `seq 1 30`
@@ -94,7 +94,7 @@ do
   dbpw="${pass}${char[$rand]}"
 done
 cd $stacks/courses
-/usr/bin/drush site-install -y --db-url=mysql://default_courses:$dbpw@localhost/default_courses --db-su=$dbsu --db-su-pw=$dbsupw
+drush site-install -y --db-url=mysql://default_courses:$dbpw@localhost/default_courses --db-su=$dbsu --db-su-pw=$dbsupw
 
 # install default site for media stack
 # generate a random 30 digit password
@@ -104,7 +104,7 @@ do
   dbpw="${pass}${char[$rand]}"
 done
 cd $stacks/media
-/usr/bin/drush site-install -y --db-url=mysql://default_media:$dbpw@localhost/default_media --db-su=$dbsu --db-su-pw=$dbsupw
+drush site-install -y --db-url=mysql://default_media:$dbpw@localhost/default_media --db-su=$dbsu --db-su-pw=$dbsupw
 
 # install default site for studio stack
 # generate a random 30 digit password
@@ -114,7 +114,7 @@ do
   dbpw="${pass}${char[$rand]}"
 done
 cd $stacks/studio
-/usr/bin/drush site-install -y --db-url=mysql://default_media:$dbpw@localhost/default_media --db-su=$dbsu --db-su-pw=$dbsupw
+drush site-install -y --db-url=mysql://default_media:$dbpw@localhost/default_media --db-su=$dbsu --db-su-pw=$dbsupw
 
 # install default site for online stack
 # generate a random 30 digit password
@@ -124,7 +124,7 @@ do
   dbpw="${pass}${char[$rand]}"
 done
 cd $stacks/online
-/usr/bin/drush site-install -y --db-url=mysql://default_online:$dbpw@localhost/default_online --db-su=$dbsu --db-su-pw=$dbsupw
+drush site-install -y --db-url=mysql://default_online:$dbpw@localhost/default_online --db-su=$dbsu --db-su-pw=$dbsupw
 
 # install the CIS site
 # generate a random 30 digit password
@@ -134,7 +134,7 @@ do
   dbpw="${pass}${char[$rand]}"
 done
 cd $stacks/online
-/usr/bin/drush site-install cis -y --db-url=mysql://online_$host:$dbpw@localhost/online_$host --db-su=$dbsu --db-su-pw=$dbsupw --sites-subdir=onlinetmp --site-mail=$site_email --site-name=Online
+drush site-install cis -y --db-url=mysql://online_$host:$dbpw@localhost/online_$host --db-su=$dbsu --db-su-pw=$dbsupw --sites-subdir=onlinetmp --site-mail=$site_email --site-name=Online
 
 sitedir=$stacks/online/sites
 #create file directory
@@ -147,14 +147,14 @@ chmod 755 $sitedir/online/$host/files
 #add site to the sites array
 
 if [ -f $stacks/online/sites/sites.php ]; then
-  arraytest=`/bin/grep -e "^\\$sites" $sitedir/sites.php`
+  arraytest=`grep -e "^\\$sites" $sitedir/sites.php`
   if [[ -z $arraytest ]]; then
     echo "\$sites = array(" >> $sitedir/sites.php
     echo "" >> $sitedir/sites.php
     echo ");" >> $sitedir/sites.php
   fi
-  /bin/sed -i "/^\$sites = array/a \ \t \'$online_domain\' =\> \'online\/$host\'\," $sitedir/sites.php
-  /bin/sed -i "/^\$sites = array/a \ \t \'$online_service_domain\' =\> \'online\/services\/$host\/\'\," $sitedir/sites.php
+  sed -i "/^\$sites = array/a \ \t \'$online_domain\' =\> \'online\/$host\'\," $sitedir/sites.php
+  sed -i "/^\$sites = array/a \ \t \'$online_service_domain\' =\> \'online\/services\/$host\/\'\," $sitedir/sites.php
 fi
 
 # add in our cache bins - todo move to configsdir?
@@ -168,7 +168,7 @@ if [ ! -d $sitedir/online/services/$host ];
     chown $wwwuser:$webgroup $sitedir/online/services/$host/files
     chmod 755 $sitedir/online/services/$host/files
     if [ -f $sitedir/online/$host/settings.php ]; then
-      /bin/cp $sitedir/online/$host/settings.php $sitedir/online/services/$host/settings.php
+      cp $sitedir/online/$host/settings.php $sitedir/online/services/$host/settings.php
     fi
     if [ -f $sitedir/online/services/$host/settings.php ]; then
     echo "\$conf['restws_basic_auth_user_regex'] = '/^SERVICE_.*/';" >> $sitedir/online/services/$host/settings.php
@@ -176,18 +176,18 @@ if [ ! -d $sitedir/online/services/$host ];
 fi
 
 #set base_url
-/bin/sed -i "/\# \$base_url/a \ \t \$base_url= '$protocol://$online_domain';" $sitedir/online/$host/settings.php
+sed -i "/\# \$base_url/a \ \t \$base_url= '$protocol://$online_domain';" $sitedir/online/$host/settings.php
 
 # clean up tasks
-/usr/bin/drush -y --uri=$protocol://$online_domain vset site_slogan 'Welcome to ELMSLN'
-/usr/bin/drush -y --uri=$protocol://$online_domain en $cissettings
-/usr/bin/drush -y --uri=$protocol://$online_domain vset cron_safe_threshold 0
-/usr/bin/drush -y --uri=$protocol://$online_domain vset user_register 1
-/usr/bin/drush -y --uri=$protocol://$online_domain vset user_email_verification 0
-/usr/bin/drush -y --uri=$protocol://$online_domain vset preprocess_css 1
-/usr/bin/drush -y --uri=$protocol://$online_domain vset preprocess_js 1
-/usr/bin/drush -y --uri=$protocol://$online_domain vset file_private_path ${drupal_priv}/online/online
-/usr/bin/drush -y --uri=$protocol://$online_domain vdel update_notify_emails
-/usr/bin/drush -y --uri=$protocol://$online_domain cron
+drush -y --uri=$protocol://$online_domain vset site_slogan 'Welcome to ELMSLN'
+drush -y --uri=$protocol://$online_domain en $cissettings
+drush -y --uri=$protocol://$online_domain vset cron_safe_threshold 0
+drush -y --uri=$protocol://$online_domain vset user_register 1
+drush -y --uri=$protocol://$online_domain vset user_email_verification 0
+drush -y --uri=$protocol://$online_domain vset preprocess_css 1
+drush -y --uri=$protocol://$online_domain vset preprocess_js 1
+drush -y --uri=$protocol://$online_domain vset file_private_path ${drupal_priv}/online/online
+drush -y --uri=$protocol://$online_domain vdel update_notify_emails
+drush -y --uri=$protocol://$online_domain cron
 
 echo 'Lets see if it worked out..'
