@@ -106,10 +106,12 @@ drush site-install -y --db-url=mysql://default_online:$dbpw@localhost/default_on
 # install the CIS site
 dbpw=`</dev/urandom tr -dc A-Za-z0-9 | head -c14`
 cd $stacks/online
-drush site-install cis -y --db-url=mysql://online_$host:$dbpw@localhost/online_$host --db-su=$dbsu --db-su-pw=$dbsupw --sites-subdir=online/$host --site-mail=$site_email --site-name=Online
+drush site-install cis -y --db-url=mysql://online_$host:$dbpw@localhost/online_$host --db-su=$dbsu --db-su-pw=$dbsupw --sites-subdir=onlinetmp --site-mail=$site_email --site-name=Online
 
 sitedir=$stacks/online/sites
 #create file directory
+mkdir -p $sitedir/online
+mv  $sitedir/onlinetmp $sitedir/online/$host
 mkdir $sitedir/online/$host/files
 chown $wwwuser:$webgroup $sitedir/online/$host/files
 chmod 755 $sitedir/online/$host/files
