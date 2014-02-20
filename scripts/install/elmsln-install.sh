@@ -92,12 +92,9 @@ if [ ! -d ${moduledir}/${university}/${cissettings} ];
       let "rand=$RANDOM % 62"
       dbpw="${pass}${char[$rand]}"
     done
-    if (${stacklist[$COUNTER]} != 'online');
-      then
-      cd $stacks/${stacklist[$COUNTER]}
-      drush site-install -y --db-url=mysql://elmslndfltdbo:$dbpw@localhost/default_${stacklist[$COUNTER]} --db-su=$dbsu --db-su-pw=$dbsupw
-    fi
-      COUNTER=$[COUNTER + 1]
+    cd $stacks/${stacklist[$COUNTER]}
+    drush site-install -y --db-url=mysql://elmslndfltdbo:$dbpw@localhost/default_${stacklist[$COUNTER]} --db-su=$dbsu --db-su-pw=$dbsupw
+    COUNTER=$[COUNTER + 1]
   done
   # close out function and file
   printf "  );\n\n  return \$items;\n}\n\n" >> $modulefile
