@@ -1,0 +1,254 @@
+<?php
+
+/**
+ * @file
+ * Imageinfo Cache module.
+ */
+
+/**
+ * Default value is to use HTTPRL.
+ */
+define('IMAGEINFO_CACHE_USE_HTTPRL', TRUE);
+
+// Core Hooks.
+/**
+ * Implements hook_menu().
+ */
+function imageinfo_cache_menu() {
+  $file_path = drupal_get_path('module', 'imageinfo_cache');
+
+  $items = array();
+  $items['admin/config/media/imageinfo_cache'] = array(
+    'title' => 'Imageinfo Cache',
+    'description' => 'Configuration for Imageinfo Cache.',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('imageinfo_cache_admin_settings_form'),
+    'type' => MENU_LOCAL_TASK,
+    'access arguments' => array('administer site configuration'),
+    'file path' => $file_path,
+    'file' => 'imageinfo_cache.admin.inc',
+    'weight' => 1,
+  );
+
+  return $items;
+}
+
+/**
+ * Implements hook_field_widget_form_alter().
+ *
+ * Capture image on upload.
+ */
+function imageinfo_cache_field_widget_form_alter(&$element, &$form_state, $context) {
+  // Add in a process function if widget is for images.
+  $image_type = imageinfo_cache_detect_image_widget($context['instance']['widget']);
+  if (!empty($image_type)) {
+    $element[0]['#process'][] = 'imageinfo_cache_widget_process';
+  }
+}
+
+/**
+ * Implements hook_entity_insert().
+ *
+ * Capture image on entity save.
+ */
+function imageinfo_cache_entity_insert($entity, $type) {
+  // Skip if entity has no type.
+  if (empty($entity->type)) {
+    return;
+  }
+
+  // Get field info.
+  $instances = field_info_instances($type, $entity->type);
+
+  // Find all image/media fields.
+  $image_fields = array();
+  $return = array();
+  foreach ($instances as $field_name => $values) {
+    if (!empty($values['widget']['type'])) {
+      $image_type = imageinfo_cache_detect_image_widget($values['widget']);
+      if (!empty($image_type)) {
+        $image_fields[] = $field_name;
+      }
+    }
+  }
+
+  if (!empty($image_fields)) {
+    module_load_include('inc', 'imageinfo_cache', 'imageinfo_cache');
+    // Go into each image field and generate image styles.
+    foreach ($image_fields as $field_name) {
+      if (   empty($entity->{$field_name})
+          || empty($entity->language)
+          || empty($entity->{$field_name}[$entity->language])
+          ) {
+        continue;
+      }
+      $instance_field = $instances[$field_name];
+      foreach ($entity->{$field_name}[$entity->language] as $field_values) {
+        // Skip if no fid.
+        if (empty($field_values['fid'])) {
+          continue;
+        }
+        $file = file_load($field_values['fid']);
+        // Skip if file object isn't what we are expecting.
+        if (empty($file->uri) || strpos($file->filemime, 'image') !== 0) {
+          continue;
+        }
+
+        // Get image styles used by this field.
+        $styles = imageinfo_cache_get_styles_in_use($instance_field);
+        // Generate Image styles.
+        $return[$field_name] = imageinfo_cache_create_image_styles($styles, $file->uri);
+      }
+    }
+  }
+  return $return;
+}
+
+/**
+ * Implements hook_entity_update().
+ *
+ * Capture image on entity save.
+ */
+function imageinfo_cache_entity_update($entity, $type) {
+  // Insert/Update is the same.
+  return imageinfo_cache_entity_insert($entity, $type);
+}
+
+// Contrib hooks.
+/**
+ * Implements hook_imageinfo_cache_styles_alter().
+ *
+ * Change default settings.
+ */
+function imageinfo_cache_imageinfo_cache_styles_alter(&$styles, $field_name) {
+  $saved_values = variable_get('imageinfo_cache_' . $field_name, NULL);
+  if (empty($saved_values) || !is_array($saved_values)) {
+    return;
+  }
+
+  $image_styles = image_styles();
+
+  foreach ($saved_values as $image_style => $used) {
+    if (empty($used) && isset($styles[$image_style])) {
+      unset($styles[$image_style]);
+    }
+    elseif (!empty($image_styles[$image_style])) {
+      $styles[$image_style] = $image_styles[$image_style];
+    }
+  }
+}
+
+// Other functions.
+/**
+ * Detect if the widget is an image type.
+ *
+ * @param array $widget
+ *   Field widget array.
+ *
+ * @return string
+ *   Returns what type of imagefield it is or a blank string if not found.
+ */
+function imageinfo_cache_detect_image_widget($widget) {
+  $return = '';
+  if (!empty($widget['type']) && $widget['type'] == 'image_image') {
+    $return = 'core';
+  }
+  elseif (!empty($widget['type']) && $widget['type'] == 'image_miw') {
+    $return = 'multiupload imagefield widget';
+  }
+  elseif (!empty($widget['settings']['allowed_types']['image'])) {
+    $return = 'media module';
+  }
+  elseif (module_exists('media') && !empty($widget['type']) && $widget['type'] == 'media_generic') {
+    $return = 'media module';
+  }
+  elseif (!empty($widget['type']) && $widget['type'] == 'imagefield_crop_widget') {
+    $return = 'imagefield crop';
+  }
+  elseif (!empty($widget['type']) && strpos($widget['type'], 'image') === 0) {
+    // Use the fallback if the type starts with image.
+    $return = 'image fallback';
+  }
+
+  // Allow other modules to modify this info.
+  // Call hook_imageinfo_cache_detect_image_widget_alter()
+  drupal_alter('imageinfo_cache_detect_image_widget', $return, $widget);
+
+  return $return;
+}
+
+/**
+ * An element #process callback for the imagefield.
+ */
+function imageinfo_cache_widget_process($element, &$form_state, $form) {
+  // Adds in another #submit callback.
+  $element['upload_button']['#submit'][] = 'imageinfo_cache_file_submit';
+  return $element;
+}
+
+/**
+ * Gets the file object from the just uploaded file.
+ */
+function imageinfo_cache_file_submit($form, &$form_state) {
+  // Determine whether it was the upload or the remove button that was clicked.
+  $parents = $form_state['triggering_element']['#array_parents'];
+  $button_key = array_pop($parents);
+  if ($button_key == 'remove_button') {
+    return;
+  }
+
+  // Set $element to the managed_file element that contains that button.
+  $element = drupal_array_get_nested_value($form, $parents);
+
+  // Do nothing if element does not contain what we need.
+  if (   empty($element['#entity_type'])
+      || empty($element['#field_name'])
+      || empty($element['#bundle'])
+      || empty($element['#file'])
+      || empty($element['#file']->uri)
+        ) {
+    return;
+  }
+
+  // Get field info.
+  $instances = field_info_instances($element['#entity_type'], $element['#bundle']);
+  $instance_field = $instances[$element['#field_name']];
+
+  module_load_include('inc', 'imageinfo_cache', 'imageinfo_cache');
+  // Get image styles used by this field.
+  $styles = imageinfo_cache_get_styles_in_use($instance_field);
+  // Generate Image styles.
+  $return = imageinfo_cache_create_image_styles($styles, $element['#file']->uri);
+  return $return;
+}
+
+/**
+ * Generates all given presets given a file uri.
+ *
+ * @param array $styles
+ *   Styles to use from image_styles().
+ * @param string $uri
+ *   URI from a file object.
+ *
+ * @return array
+ *   An array of what was done.
+ */
+function imageinfo_cache_create_image_styles_call($styles, $uri) {
+  $return = array();
+  foreach ($styles as $style_name => $style_info) {
+    $destination = image_style_path($style_name, $uri);
+
+    // If the file does not exist, create it.
+    if (!file_exists($destination)) {
+      // Don't start generating the image if the derivative already exists or if
+      // generation is in progress in another thread.
+      $lock_name = 'image_style_deliver:' . $style_name . ':' . drupal_hash_base64($uri);
+      $lock_acquired = lock_acquire($lock_name);
+      if ($lock_acquired && image_style_create_derivative($style_info, $uri, $destination)) {
+        lock_release($lock_name);
+        $return[$destination] = $style_name;
+      }
+    }
+  }
+  return $return;
+}

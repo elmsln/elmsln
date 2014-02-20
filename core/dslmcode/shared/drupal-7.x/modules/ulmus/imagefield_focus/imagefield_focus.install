@@ -1,0 +1,88 @@
+<?php
+
+/**
+ * @file
+ * Written by Henri MEDOT <henri.medot[AT]absyx[DOT]fr>
+ * http://www.absyx.fr
+ */
+
+
+
+/**
+ * Implementation of hook_schema().
+ */
+function imagefield_focus_schema() {
+  $schema['imagefield_focus_file'] = array(
+    'fields' => array(
+      'fid' => array(
+        'description' => 'File ID.',
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ),
+      'focus_rect' => array(
+        'type' => 'varchar',
+        'length' => 30,
+        'not null' => TRUE,
+        'default' => '',
+      ),
+      'crop_rect' => array(
+        'type' => 'varchar',
+        'length' => 30,
+        'not null' => TRUE,
+        'default' => '',
+      ),
+    ),
+    'primary key' => array('fid'),
+  );
+
+  return $schema;
+}
+
+
+
+/**
+ * Implementation of hook_install().
+ */
+function imagefield_focus_install() {
+  db_update('system')
+    ->fields(array('weight' => 1))
+    ->condition('name', 'imagefield_focus')
+    ->execute();
+}
+
+
+
+/**
+ * Implementation of hook_uninstall().
+ */
+function imagefield_focus_uninstall() {
+  db_query("DELETE FROM {variable} WHERE name LIKE 'imagefield_focus_%%'");
+}
+
+
+
+/**
+ * Implementation of hook_enable().
+ */
+function imagefield_focus_enable() {
+  cache_clear_all('image_effects:', 'cache', TRUE);
+}
+
+
+
+/**
+ * Implementation of hook_disable().
+ */
+function imagefield_focus_disable() {
+  cache_clear_all('image_styles', 'cache');
+  cache_clear_all('image_effects:', 'cache', TRUE);
+}
+
+
+
+/**
+ * Implementation of hook_update_N().
+ */
+function imagefield_focus_update_6000() {
+}

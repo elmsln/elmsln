@@ -1,0 +1,14 @@
+
+name = Imageinfo Cache
+description = Generate imagecache presets in the background.
+package = Performance and scalability
+dependencies[] = image
+core = 7.x
+configure = admin/config/media/imageinfo_cache
+
+; Information added by Drupal.org packaging script on 2014-01-23
+version = "7.x-3.1"
+core = "7.x"
+project = "imageinfo_cache"
+datestamp = "1390507408"
+

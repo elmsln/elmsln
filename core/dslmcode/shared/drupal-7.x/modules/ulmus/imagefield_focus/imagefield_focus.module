@@ -1,0 +1,359 @@
+<?php
+
+/**
+ * @file
+ * Written by Henri MEDOT <henri.medot[AT]absyx[DOT]fr>
+ * http://www.absyx.fr
+ */
+
+require_once dirname(__FILE__) .'/imagefield_focus.effects.inc';
+
+
+
+/**
+ * Implementation of hook_field_info_alter().
+ */
+function imagefield_focus_field_info_alter(&$info) {
+  $info['image']['instance_settings'] += array(
+    'focus' => 0,
+    'focus_min_size' => '',
+    'focus_lock_ratio' => 0,
+  );
+}
+
+
+
+/**
+ * Implementation of hook_form_FORM_ID_alter(); alter field_ui_field_edit_form.
+ */
+function imagefield_focus_form_field_ui_field_edit_form_alter(&$form, &$form_state, $form_id) {
+  if (($form['#field']['type'] == 'image') && imagefield_focus_widget_support($form['#instance']['widget']['type'])) {
+    $settings = $form['#instance']['settings'];
+
+    $additions['focus_settings'] = array(
+      '#type' => 'fieldset',
+      '#title' => t('Focus settings'),
+      '#collapsible' => TRUE,
+      '#collapsed' => empty($settings['focus']),
+      '#parents' => array('instance', 'settings'),
+      '#weight' => 17,
+    );
+
+    $additions['focus_settings']['focus'] = array(
+      '#type' => 'checkbox',
+      '#title' => t('Enable focus'),
+      '#default_value' => (!empty($settings['focus'])) ? $settings['focus'] : 0,
+      '#description' => t('Enable user-defined focus and crop rectangles for images.'),
+    );
+
+    $focus_min_size = explode('x', $settings['focus_min_size']) + array('', '');
+    $additions['focus_settings']['focus_min_size'] = array(
+      '#type' => 'item',
+      '#title' => t('Minimum size'),
+      '#element_validate' => array('_image_field_resolution_validate', '_imagefield_focus_focus_min_size_validate'),
+      '#field_prefix' => '<div class="container-inline">',
+      '#field_suffix' => '</div>',
+      '#description' => t('The minimum allowed focus rectangle size expressed as WIDTHxHEIGHT (e.g. 100x75). Leave empty for no restriction.'),
+    );
+    $additions['focus_settings']['focus_min_size']['x'] = array(
+      '#type' => 'textfield',
+      '#title' => t('Minimum width'),
+      '#title_display' => 'invisible',
+      '#default_value' => $focus_min_size[0],
+      '#size' => 5,
+      '#maxlength' => 5,
+      '#field_suffix' => ' x ',
+    );
+    $additions['focus_settings']['focus_min_size']['y'] = array(
+      '#type' => 'textfield',
+      '#title' => t('Minimum height'),
+      '#title_display' => 'invisible',
+      '#default_value' => $focus_min_size[1],
+      '#size' => 5,
+      '#maxlength' => 5,
+      '#field_suffix' => ' '. t('pixels'),
+    );
+
+    $additions['focus_settings']['focus_lock_ratio'] = array(
+      '#type' => 'checkbox',
+      '#title' => t('Lock ratio'),
+      '#default_value' => (!empty($settings['focus_lock_ratio'])) ? $settings['focus_lock_ratio'] : 0,
+      '#description' => 'Whether focus rectangle aspect ratio should be maintained based on the minimum size specified above. Checking this box has no effect if no minimum size is specified.',
+    );
+
+    $form['instance']['settings'] += $additions;
+  }
+}
+
+/**
+ * Element validation function; validate focus_min_size.
+ */
+function _imagefield_focus_focus_min_size_validate($element, &$form_state, $form) {
+  $min_resolution_element = $form['instance']['settings']['min_resolution'];
+  if (!form_get_error($element['x']) && !form_get_error($element['y'])
+   && !form_get_error($min_resolution_element['x']) && !form_get_error($min_resolution_element['y'])) {
+    $value = $form_state['values']['instance']['settings']['focus_min_size'];
+    if (!empty($value)) {
+      $dimensions = explode('x', $value);
+      $min_resolution_value = $form_state['values']['instance']['settings']['min_resolution'];
+      if (empty($min_resolution_value)) {
+        $error_element = $min_resolution_element['x'];
+      }
+      else {
+        $min_resolution_dimensions = explode('x', $min_resolution_value);
+        if ($min_resolution_dimensions[0] < $dimensions[0]) {
+          $error_element = $min_resolution_element['x'];
+        }
+        elseif ($min_resolution_dimensions[1] < $dimensions[1]) {
+          $error_element = $min_resolution_element['y'];
+        }
+      }
+      if (isset($error_element)) {
+        form_error($error_element, t('Minimum resolution must be set and be greater or equal to focus minimum size, i.e. %focus_min_size.', array('%focus_min_size' => $value)));
+      }
+    }
+  }
+}
+
+
+
+/**
+ * Implementation of hook_field_widget_form_alter().
+ */
+function imagefield_focus_field_widget_form_alter(&$element, &$form_state, $context) {
+  $widget_type = $context['instance']['widget']['type'];
+  if (!empty($context['instance']['settings']['focus']) && imagefield_focus_widget_support($widget_type)) {
+    foreach (element_children($element) as $delta) {
+      $element[$delta]['#process'][] = 'imagefield_focus_widget_'. $widget_type .'_process';
+    }
+  }
+}
+
+/**
+ * Element #process callback function; process widget type image_image.
+ */
+function imagefield_focus_widget_image_image_process($element, &$form_state, $form) {
+  static $added;
+
+  $item = $element['#value'];
+  $field_name = $element['#field_name'];
+  $instance = field_widget_instance($element, $form_state);
+  $settings = $instance['settings'];
+
+  // Add JS and CSS.
+  $path = drupal_get_path('module', 'imagefield_focus');
+  drupal_add_js( $path .'/imgfocus/jquery.imgfocus.min.js');
+  drupal_add_js( $path .'/imagefield_focus.js');
+  drupal_add_css($path .'/imgfocus/jquery.imgfocus.css');
+  drupal_add_css($path .'/imagefield_focus.css');
+
+  // Add settings.
+  if (!isset($added[$field_name])) {
+    list($w, $h) = explode('x', $settings['focus_min_size']) + array('', '');
+    drupal_add_js(array(
+      'imagefield_focus' => array(
+        $field_name => array(
+          'min_width' => intval($w),
+          'min_height' => intval($h),
+          'lock_ratio' => !empty($settings['focus_lock_ratio']),
+        ),
+      ),
+    ), 'setting');
+    $added[$field_name] = TRUE;
+  }
+
+  // Add focus fields.
+  $element['focus_rect'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Focus rectangle'),
+    '#default_value' => isset($item['focus_rect']) ? $item['focus_rect'] : '',
+    '#description' => t('The important portion of the image to set focus to and that should <strong>never</strong> be cut. It is recommended to keep it as small as possible for best results.'),
+    '#attributes' => array('class' => array('imagefield-focus', 'focus-rect')),
+    '#access' => (bool) $item['fid'],
+  );
+  $element['crop_rect'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Crop rectangle'),
+    '#default_value' => isset($item['crop_rect']) ? $item['crop_rect'] : '',
+    '#description' => t('When set, the portions of the image outside this area will <strong>always</strong> be cut out.'),
+    '#attributes' => array('class' => array('imagefield-focus', 'crop-rect')),
+    '#access' => (bool) $item['fid'],
+  );
+
+  // Add focus box.
+  if ($element['#file']) {
+    $uri = $element['#file']->uri;
+    $info = (isset($element['#value']['width']) && isset($element['#value']['height'])) ? array(
+      'width'  => $element['#value']['width'],
+      'height' => $element['#value']['height'],
+    ) : image_get_info($uri);
+
+    if (is_array($info)) {
+      $element['focus_box'] = array(
+        '#markup' => '<div class="imagefield-focus focus-box"><img src="'. file_create_url($uri) .'" alt="'. $info['width'] .'x'. $info['height'] .'" style="display:none;" /></div>',
+      );
+    }
+  }
+
+  $element['#element_validate'][] = 'imagefield_focus_widget_validate';
+  return $element;
+}
+
+/**
+ * Element #element_validate callback function.
+ */
+function imagefield_focus_widget_validate($element, &$form_state, $form) {
+  foreach (array('focus_rect', 'crop_rect') as $key) {
+    if (isset($element['#value'][$key])) {
+      $value = trim($element['#value'][$key]);
+      if ((strlen($value) > 0) && !imagefield_focus_parse($value)) {
+        form_error($element[$key], t('The specified rectangle value is invalid.'));
+      }
+    }
+  }
+}
+
+
+
+/**
+ * Implementation of hook_field_attach_insert().
+ */
+function imagefield_focus_field_attach_insert($entity_type, $entity) {
+  list(, , $bundle) = entity_extract_ids($entity_type, $entity);
+
+  foreach (field_info_instances($entity_type, $bundle) as $instance) {
+    if (!empty($instance['settings']['focus']) && imagefield_focus_widget_support($instance['widget']['type'])) {
+      $field_name = $instance['field_name'];
+      $field = field_info_field($field_name);
+      $available_languages = field_available_languages($entity_type, $field);
+      $languages = _field_language_suggestion($available_languages, NULL, $field_name);
+
+      foreach ($languages as $langcode) {
+        $items = isset($entity->{$field_name}[$langcode]) ? $entity->{$field_name}[$langcode] : array();
+        foreach ($items as $item) {
+          $file = (object) $item;
+          $file->uri = file_load($file->fid)->uri;
+          _imagefield_focus_file_save($file);
+        }
+      }
+    }
+  }
+}
+
+/**
+ * Implementation of hook_field_attach_update().
+ */
+function imagefield_focus_field_attach_update($entity_type, $entity) {
+  imagefield_focus_field_attach_insert($entity_type, $entity);
+}
+
+
+
+/**
+ * Implementation of hook_file_insert().
+ */
+function imagefield_focus_file_insert($file) {
+  _imagefield_focus_file_save($file);
+}
+
+/**
+ * Implementation of hook_file_update().
+ */
+function imagefield_focus_file_update($file) {
+  _imagefield_focus_file_save($file);
+}
+
+/**
+ * Implementation of hook_file_delete().
+ */
+function imagefield_focus_file_delete($file) {
+  _imagefield_focus_file_delete($file);
+}
+
+
+
+/**
+ * Implementation of hook_query_TAG_alter(); alter queries tagged with file_load_multiple.
+ */
+function imagefield_focus_query_file_load_multiple_alter(QueryAlterableInterface $query) {
+  $query->fields('iff', array('focus_rect', 'crop_rect'));
+  $query->leftJoin('imagefield_focus_file', 'iff', 'iff.fid = base.fid');
+}
+
+
+
+/**
+ * Save focus data.
+ */
+function _imagefield_focus_file_save($file) {
+  if (empty($file->focus_rect) && empty($file->crop_rect)) {
+    $affected = _imagefield_focus_file_delete($file);
+  }
+  else {
+    $status = db_merge('imagefield_focus_file')
+      ->key(array('fid' => $file->fid))
+      ->fields(array(
+        'focus_rect' => @$file->focus_rect,
+        'crop_rect'  => @$file->crop_rect,
+      ))
+      ->execute();
+    $affected = TRUE; // TODO: should flush only when focus data has changed.
+  }
+
+  if ($affected) {
+    image_path_flush($file->uri);
+  }
+}
+
+
+
+/**
+ * Delete focus data.
+ */
+function _imagefield_focus_file_delete($file) {
+  return db_delete('imagefield_focus_file')->condition('fid', $file->fid)->execute();
+}
+
+
+
+/**
+ * Parse a rectangle from a given string.
+ * 
+ * @return
+ *   A rectangle array or FALSE.
+ */
+function imagefield_focus_parse($rect) {
+  $values = explode(',', $rect);
+  if (count($values) != 4) {
+    return FALSE;
+  }
+
+  $keys = array('x', 'y', 'width', 'height');
+  $rect = array();
+  for ($i = 0; $i < 4; $i++) {
+    $value = $values[$i];
+    if (!is_numeric($value)) {
+      return FALSE;
+    }
+    $rect[$keys[$i]] = round($value);
+  }
+
+  if (($rect['x'] < 0) || ($rect['y'] < 0) || ($rect['width'] <= 0) || ($rect['height'] <= 0)) {
+    return FALSE;
+  }
+
+  $rect['xoffset'] = $rect['x'];
+  $rect['yoffset'] = $rect['y'];
+  $rect['anchor'] = $rect['x'] .'-'. $rect['y'];
+
+  return $rect;
+}
+
+
+
+/**
+ * Return whether ImageField Focus has support for the given widget.
+ */
+function imagefield_focus_widget_support($type) {
+  return function_exists('imagefield_focus_widget_'. $type .'_process');
+}
