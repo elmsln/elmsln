@@ -6,7 +6,7 @@ the ELMS Course information system (CIS) distribution in order
 to allow for the simple request of new systems to be spun up.
 
 The basic workflow is that a node is created in drupal and CIS
-will write a file to a private directory (/var/wwwjobs by default).
+will write a file to a private directory (/var/www/elmsln/config/private_files by default).
 The script reads in the lines and executes a series of drush commands
 that have been both expected based on line number as well as free-form
 if they are white-listed.  The basic workflow is:
