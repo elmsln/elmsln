@@ -1,7 +1,7 @@
 #university / institution deploying this instance
 #these values provide defaults for getting the system primed
 
-#domains used for elmsln. 
+#domains used for elmsln.
 courses_domain=courses.domain.com
 courses_service_domain=data.courses.example.com
 media_domain=media.example.com
