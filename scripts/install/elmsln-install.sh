@@ -45,42 +45,43 @@ stacklist=('online' 'courses' 'media' 'remote_watchdog')
 instances=('FALSE' 'TRUE' 'TRUE' 'FALSE')
 moduledir=$elmsln/config/shared/drupal-${core}/modules
 cissettings=${university}_${host}_settings
-# work on authoring the connector module automatically
-# make an area specific to the university
+# work on authoring the connector module automatically if needed
 mkdir ${moduledir}/${university}
-mkdir ${moduledir}/${university}/${cissettings}
-infofile=${moduledir}/${university}/${cissettings}/${cissettings}.info
-modulefile=${moduledir}/${university}/${cissettings}/${cissettings}.module
-# write the .info file
-printf "name = ${university} ${host} Settings\ndescription = This contains registry information for all ${host} connection details\ncore = ${core}\npackage = ${university}" >> $infofile
-# write the .module file
-printf "<?php\n\n// service module that makes this implementation specific\n\n/**\n * Implements hook_cis_service_registry().\n */\nfunction ${university}_${host}_settings_cis_service_registry() {\n  \$items = array(\n" >> $modulefile
-# write the array of connection values dynamically
-COUNTER=0
-char=(0 1 2 3 4 5 6 7 8 9 a b c d e f g h i j k l m n o p q r s t u v w x y z A B C D E F G H I J K L M N O P Q R S T U V X W Y Z)
-max=${#char[*]}
-for distro in "${distros[@]}"
-do
-  # array built up to password
-  printf "    // ${distro} distro instance called ${stacklist[$COUNTER]}\n    '${distro}' => array(\n      'protocol' => '${protocol}',\n      'service_address' => 'data.${stacklist[$COUNTER]}.${serviceaddress}',\n      'address' => '${stacklist[$COUNTER]}.${host}.${address}',\n      'user' => 'SERVICE_${distro}_${host}',\n      'mail' => 'SERVICE_${distro}_${host}@${emailending}',\n      'pass' => '" >> $modulefile
-  pass=''
-  # generate a random 30 digit password
-  for i in `seq 1 30`
+if [ ! -d ${moduledir}/${university}/${cissettings} ];
+  then
+  mkdir ${moduledir}/${university}/${cissettings}
+  infofile=${moduledir}/${university}/${cissettings}/${cissettings}.info
+  modulefile=${moduledir}/${university}/${cissettings}/${cissettings}.module
+  # write the .info file
+  printf "name = ${university} ${host} Settings\ndescription = This contains registry information for all ${host} connection details\ncore = ${core}\npackage = ${university}" >> $infofile
+  # write the .module file
+  printf "<?php\n\n// service module that makes this implementation specific\n\n/**\n * Implements hook_cis_service_registry().\n */\nfunction ${university}_${host}_settings_cis_service_registry() {\n  \$items = array(\n" >> $modulefile
+  # write the array of connection values dynamically
+  COUNTER=0
+  char=(0 1 2 3 4 5 6 7 8 9 a b c d e f g h i j k l m n o p q r s t u v w x y z A B C D E F G H I J K L M N O P Q R S T U V X W Y Z)
+  max=${#char[*]}
+  for distro in "${distros[@]}"
   do
-    let "rand=$RANDOM % 62"
-    pass="${pass}${char[$rand]}"
+    # array built up to password
+    printf "    // ${distro} distro instance called ${stacklist[$COUNTER]}\n    '${distro}' => array(\n      'protocol' => '${protocol}',\n      'service_address' => 'data.${stacklist[$COUNTER]}.${serviceaddress}',\n      'address' => '${stacklist[$COUNTER]}.${host}.${address}',\n      'user' => 'SERVICE_${distro}_${host}',\n      'mail' => 'SERVICE_${distro}_${host}@${emailending}',\n      'pass' => '" >> $modulefile
+    pass=''
+    # generate a random 30 digit password
+    for i in `seq 1 30`
+    do
+      let "rand=$RANDOM % 62"
+      pass="${pass}${char[$rand]}"
+    done
+    # write password to file
+    printf $pass >> $modulefile
+    # finish off array
+    printf "',\n      'instance' => ${instances[$COUNTER]},\n    ),\n" >> $modulefile
+    COUNTER=$[COUNTER + 1]
   done
-  # write password to file
-  printf $pass >> $modulefile
-  # finish off array
-  printf "',\n      'instance' => ${instances[$COUNTER]},\n    ),\n" >> $modulefile
-  COUNTER=$[COUNTER + 1]
-done
-# close out function and file
-printf "  );\n\n  return \$items;\n}" >> $modulefile
-# add the function to include this in build outs automatically
-printf "\n/**\n * Implements hook_cis_service_instance_options_alter().\n */\nfunction ${university}_${host}_cis_service_instance_options_alter(&$options, $course, $service) {\n  // modules we require for all builds\n  $options['en'][] = '$modulefile';\n}\n" >> $modulefile
-
+  # close out function and file
+  printf "  );\n\n  return \$items;\n}" >> $modulefile
+  # add the function to include this in build outs automatically
+  printf "\n/**\n * Implements hook_cis_service_instance_options_alter().\n */\nfunction ${university}_${host}_cis_service_instance_options_alter(&$options, $course, $service) {\n  // modules we require for all builds\n  $options['en'][] = '$modulefile';\n}\n" >> $modulefile
+fi
 # make sure drush is happy post addition of drush files
 drush cc drush
 #install default site for courses stack
