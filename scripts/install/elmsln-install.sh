@@ -45,6 +45,12 @@ stacklist=('online' 'courses' 'media' 'remote_watchdog')
 instances=('FALSE' 'TRUE' 'TRUE' 'FALSE')
 moduledir=$elmsln/config/shared/drupal-${core}/modules
 cissettings=${university}_${host}_settings
+
+# used for random password generation
+COUNTER=0
+char=(0 1 2 3 4 5 6 7 8 9 a b c d e f g h i j k l m n o p q r s t u v w x y z A B C D E F G H I J K L M N O P Q R S T U V X W Y Z)
+max=${#char[*]}
+pass=''
 # work on authoring the connector module automatically if needed
 mkdir ${moduledir}/${university}
 if [ ! -d ${moduledir}/${university}/${cissettings} ];
@@ -57,14 +63,10 @@ if [ ! -d ${moduledir}/${university}/${cissettings} ];
   # write the .module file
   printf "<?php\n\n// service module that makes this implementation specific\n\n/**\n * Implements hook_cis_service_registry().\n */\nfunction ${university}_${host}_settings_cis_service_registry() {\n  \$items = array(\n" >> $modulefile
   # write the array of connection values dynamically
-  COUNTER=0
-  char=(0 1 2 3 4 5 6 7 8 9 a b c d e f g h i j k l m n o p q r s t u v w x y z A B C D E F G H I J K L M N O P Q R S T U V X W Y Z)
-  max=${#char[*]}
   for distro in "${distros[@]}"
   do
     # array built up to password
     printf "    // ${distro} distro instance called ${stacklist[$COUNTER]}\n    '${distro}' => array(\n      'protocol' => '${protocol}',\n      'service_address' => 'data.${stacklist[$COUNTER]}.${serviceaddress}',\n      'address' => '${stacklist[$COUNTER]}.${host}.${address}',\n      'user' => 'SERVICE_${distro}_${host}',\n      'mail' => 'SERVICE_${distro}_${host}@${emailending}',\n      'pass' => '" >> $modulefile
-    pass=''
     # generate a random 30 digit password
     for i in `seq 1 30`
     do
@@ -80,34 +82,59 @@ if [ ! -d ${moduledir}/${university}/${cissettings} ];
   # close out function and file
   printf "  );\n\n  return \$items;\n}" >> $modulefile
   # add the function to include this in build outs automatically
-  printf "\n/**\n * Implements hook_cis_service_instance_options_alter().\n */\nfunction ${university}_${host}_cis_service_instance_options_alter(&$options, $course, $service) {\n  // modules we require for all builds\n  $options['en'][] = '$modulefile';\n}\n" >> $modulefile
+  printf "\n/**\n * Implements hook_cis_service_instance_options_alter().\n */\nfunction ${university}_${host}_cis_service_instance_options_alter(&/$options, /$course, /$service) {\n  // modules we require for all builds\n  /$options['en'][] = '$modulefile';\n}\n" >> $modulefile
 fi
 # make sure drush is happy post addition of drush files
-drush cc drush
-#install default site for courses stack
-dbpw=`/dev/urandom tr -dc A-Za-z0-9 | head -c14`
+/usr/bin/drush cc drush
+# install default site for courses stack
+# generate a random 30 digit password
+for i in `seq 1 30`
+do
+  let "rand=$RANDOM % 62"
+  dbpw="${pass}${char[$rand]}"
+done
 cd $stacks/courses
-drush site-install -y --db-url=mysql://default_courses:$dbpw@localhost/default_courses --db-su=$dbsu --db-su-pw=$dbsupw
+/usr/bin/drush site-install -y --db-url=mysql://default_courses:$dbpw@localhost/default_courses --db-su=$dbsu --db-su-pw=$dbsupw
 
-#install default site for media stack
-dbpw=`/dev/urandom tr -dc A-Za-z0-9 | head -c14`
+# install default site for media stack
+# generate a random 30 digit password
+for i in `seq 1 30`
+do
+  let "rand=$RANDOM % 62"
+  dbpw="${pass}${char[$rand]}"
+done
 cd $stacks/media
-drush site-install -y --db-url=mysql://default_media:$dbpw@localhost/default_media --db-su=$dbsu --db-su-pw=$dbsupw
+/usr/bin/drush site-install -y --db-url=mysql://default_media:$dbpw@localhost/default_media --db-su=$dbsu --db-su-pw=$dbsupw
 
-#install default site for studio stack
-dbpw=`/dev/urandom tr -dc A-Za-z0-9 | head -c14`
+# install default site for studio stack
+# generate a random 30 digit password
+for i in `seq 1 30`
+do
+  let "rand=$RANDOM % 62"
+  dbpw="${pass}${char[$rand]}"
+done
 cd $stacks/studio
-drush site-install -y --db-url=mysql://default_media:$dbpw@localhost/default_media --db-su=$dbsu --db-su-pw=$dbsupw
+/usr/bin/drush site-install -y --db-url=mysql://default_media:$dbpw@localhost/default_media --db-su=$dbsu --db-su-pw=$dbsupw
 
-#install default site for online stack
-dbpw=`/dev/urandom tr -dc A-Za-z0-9 | head -c14`
+# install default site for online stack
+# generate a random 30 digit password
+for i in `seq 1 30`
+do
+  let "rand=$RANDOM % 62"
+  dbpw="${pass}${char[$rand]}"
+done
 cd $stacks/online
-drush site-install -y --db-url=mysql://default_online:$dbpw@localhost/default_online --db-su=$dbsu --db-su-pw=$dbsupw
+/usr/bin/drush site-install -y --db-url=mysql://default_online:$dbpw@localhost/default_online --db-su=$dbsu --db-su-pw=$dbsupw
 
 # install the CIS site
-dbpw=`/dev/urandom tr -dc A-Za-z0-9 | head -c14`
+# generate a random 30 digit password
+for i in `seq 1 30`
+do
+  let "rand=$RANDOM % 62"
+  dbpw="${pass}${char[$rand]}"
+done
 cd $stacks/online
-drush site-install cis -y --db-url=mysql://online_$host:$dbpw@localhost/online_$host --db-su=$dbsu --db-su-pw=$dbsupw --sites-subdir=onlinetmp --site-mail=$site_email --site-name=Online
+/usr/bin/drush site-install cis -y --db-url=mysql://online_$host:$dbpw@localhost/online_$host --db-su=$dbsu --db-su-pw=$dbsupw --sites-subdir=onlinetmp --site-mail=$site_email --site-name=Online
 
 sitedir=$stacks/online/sites
 #create file directory
@@ -148,8 +175,8 @@ if [ ! -d $sitedir/online/services/$host ];
     fi
 fi
 
-##set base_url
-sed -i "/\# \$base_url/a \ \t \$base_url= '$protocol://$online_domain';" $sitedir/online/$host/settings.php
+#set base_url
+/bin/sed -i "/\# \$base_url/a \ \t \$base_url= '$protocol://$online_domain';" $sitedir/online/$host/settings.php
 
 # clean up tasks
 /usr/bin/drush -y --uri=$protocol://$online_domain vset site_slogan 'Welcome to ELMSLN'
