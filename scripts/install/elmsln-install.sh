@@ -32,11 +32,12 @@ exit 1
 fi
 
 #test mysql login
-#mysql -u$dbsu -p$dbsupw -e exit
-#if [[ $? > 0 ]];then
-#echo "mysql connection failed"
-#exit 1
-#fi
+mysql -u$dbsu -p$dbsupw -e exit
+if [[ $? > 0 ]];then
+echo "mysql connection failed"
+exit 1
+fi
+
 
 core='7.x'
 distros=('cis' 'mooc' 'elmsmedia' 'remote_watchdog')
