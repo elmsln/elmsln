@@ -117,13 +117,12 @@ sitedir=$stacks/online/sites
 #create file directory
 mkdir -p $sitedir/online
 mv  $sitedir/onlinetmp $sitedir/online/$host
-mkdir $sitedir/online/$host/files
 chown $wwwuser:$webgroup $sitedir/online/$host/files
 chmod 755 $sitedir/online/$host/files
 
 #add site to the sites array
 
-if [ -f $stacks/online/sites/sites.php ]; then
+if [ -f $sitedir/sites.php ]; then
   arraytest=`grep -e "^\\$sites" $sitedir/sites.php`
   if [[ -z $arraytest ]]; then
     echo "\$sites = array(" >> $sitedir/sites.php
@@ -140,8 +139,9 @@ fi
 
 #adding servies conf file
 if [ ! -d $sitedir/online/services/$host ];
-  then mkdir -p $sitedir/online/services/$host
-    mkdir $sitedir/online/services/$host/files
+  then
+    mkdir -p $sitedir/online/services/$host
+    mkdir -p $sitedir/online/services/$host/files
     chown $wwwuser:$webgroup $sitedir/online/services/$host/files
     chmod 755 $sitedir/online/services/$host/files
     if [ -f $sitedir/online/$host/settings.php ]; then
