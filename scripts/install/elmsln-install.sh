@@ -85,27 +85,27 @@ fi
 # make sure drush is happy post addition of drush files
 drush cc drush
 #install default site for courses stack
-dbpw=`</dev/urandom tr -dc A-Za-z0-9 | head -c14`
+dbpw=`/dev/urandom tr -dc A-Za-z0-9 | head -c14`
 cd $stacks/courses
 drush site-install -y --db-url=mysql://default_courses:$dbpw@localhost/default_courses --db-su=$dbsu --db-su-pw=$dbsupw
 
 #install default site for media stack
-dbpw=`</dev/urandom tr -dc A-Za-z0-9 | head -c14`
+dbpw=`/dev/urandom tr -dc A-Za-z0-9 | head -c14`
 cd $stacks/media
 drush site-install -y --db-url=mysql://default_media:$dbpw@localhost/default_media --db-su=$dbsu --db-su-pw=$dbsupw
 
 #install default site for studio stack
-dbpw=`</dev/urandom tr -dc A-Za-z0-9 | head -c14`
+dbpw=`/dev/urandom tr -dc A-Za-z0-9 | head -c14`
 cd $stacks/studio
 drush site-install -y --db-url=mysql://default_media:$dbpw@localhost/default_media --db-su=$dbsu --db-su-pw=$dbsupw
 
 #install default site for online stack
-dbpw=`</dev/urandom tr -dc A-Za-z0-9 | head -c14`
+dbpw=`/dev/urandom tr -dc A-Za-z0-9 | head -c14`
 cd $stacks/online
 drush site-install -y --db-url=mysql://default_online:$dbpw@localhost/default_online --db-su=$dbsu --db-su-pw=$dbsupw
 
 # install the CIS site
-dbpw=`</dev/urandom tr -dc A-Za-z0-9 | head -c14`
+dbpw=`/dev/urandom tr -dc A-Za-z0-9 | head -c14`
 cd $stacks/online
 drush site-install cis -y --db-url=mysql://online_$host:$dbpw@localhost/online_$host --db-su=$dbsu --db-su-pw=$dbsupw --sites-subdir=onlinetmp --site-mail=$site_email --site-name=Online
 
