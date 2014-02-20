@@ -122,17 +122,11 @@ chmod 755 $sitedir/online/$host/files
 #add site to the sites array
 
 if [ -f $sitedir/sites.php ]; then
-  arraytest=`grep -e "^\\$sites" $sitedir/sites.php`
-  if [[ -z $arraytest ]]; then
-    echo "\$sites = array(" >> $sitedir/sites.php
-    echo "" >> $sitedir/sites.php
-    echo ");" >> $sitedir/sites.php
-  fi
   sed -i "/^\$sites = array/a \ \t \'$online_domain\' =\> \'online\/$host\'\," $sitedir/sites.php
-  sed -i "/^\$sites = array/a \ \t \'$online_service_domain\' =\> \'online\/services\/$host\/\'\," $sitedir/sites.php
+  sed -i "/^\$sites = array/a \ \t \'$online_service_domain\' =\> \'online\/services\/$host\'\," $sitedir/sites.php
 fi
 
-# add in our cache bins - todo move to configsdir?
+# add in our cache bins
   echo "\$conf['cache_prefix'] = 'online_$host';" >> $sitedir/online/$host/settings.php
   echo "require_once DRUPAL_ROOT . '/../../shared/drupal-7.x/settings/shared_settings.php';" >> $sitedir/online/$host/settings.php
 
@@ -147,14 +141,15 @@ if [ ! -d $sitedir/online/services/$host ];
       cp $sitedir/online/$host/settings.php $sitedir/online/services/$host/settings.php
     fi
     if [ -f $sitedir/online/services/$host/settings.php ]; then
-    echo "\$conf['restws_basic_auth_user_regex'] = '/^SERVICE_.*/';" >> $sitedir/online/services/$host/settings.php
+      echo "\$conf['restws_basic_auth_user_regex'] = '/^SERVICE_.*/';" >> $sitedir/online/services/$host/settings.php
     fi
 fi
 
-#set base_url
-cd $sitedir/online/$host
-sed -i "/\# \$base_url/a \ \t \$base_url= '$protocol://$online_domain';" settings.php
+# set base_url
+echo "\$base_url/a \ \t \$base_url= '$protocol://$online_domain';" >> $sitedir/online/$host/settings.php
 
+
+cd $stacks/online
 # clean up tasks
 drush -y --uri=$protocol://$online_domain vset site_slogan 'Welcome to ELMSLN'
 drush -y --uri=$protocol://$online_domain en $cissettings
