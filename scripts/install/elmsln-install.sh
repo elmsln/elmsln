@@ -128,8 +128,8 @@ if [ -f $stacks/online/sites/sites.php ]; then
 fi
 
 # add in our cache bins - todo move to configsdir?
-  echo "\$conf['cache_prefix'] = 'online_$host';" >> $sitedir/online/$subdir/settings.php
-  echo "require_once DRUPAL_ROOT . '/../../shared/drupal-7.x/settings/shared_settings.php';" >> $sitedir/online/$subdir/settings.php
+  echo "\$conf['cache_prefix'] = 'online_$host';" >> $sitedir/online/$host/settings.php
+  echo "require_once DRUPAL_ROOT . '/../../shared/drupal-7.x/settings/shared_settings.php';" >> $sitedir/online/$host/settings.php
 
 #adding servies conf file
 if [ ! -d $sitedir/online/services/$host ];
@@ -146,7 +146,7 @@ if [ ! -d $sitedir/online/services/$host ];
 fi
 
 ##set base_url
-sed -i "/\# \$base_url/a \ \t \$base_url= '$protocol://$online_domain';" $sitedir/online/$subdir/settings.php
+sed -i "/\# \$base_url/a \ \t \$base_url= '$protocol://$online_domain';" $sitedir/online/$host/settings.php
 
 # clean up tasks
 /usr/bin/drush -y --uri=$protocol://$online_domain vset site_slogan 'Welcome to ELMSLN'
