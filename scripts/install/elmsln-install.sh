@@ -32,11 +32,11 @@ exit 1
 fi
 
 #test mysql login
-mysql -u$dbsu -p$dbsupw -e exit
-if [[ $? > 0 ]];then
-echo "mysql connection failed"
-exit 1
-fi
+#mysql -u$dbsu -p$dbsupw -e exit
+#if [[ $? > 0 ]];then
+#echo "mysql connection failed"
+#exit 1
+#fi
 
 # make sure drush is happy before we begin drush calls
 drush cc drush
