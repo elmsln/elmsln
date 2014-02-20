@@ -78,7 +78,11 @@ do
 done
 # close out function and file
 printf "  );\n\n  return \$items;\n}" >> $modulefile
+# add the function to include this in build outs automatically
+printf "\n/**\n * Implements hook_cis_service_instance_options_alter().\n */\nfunction ${university}_${host}_cis_service_instance_options_alter(&$options, $course, $service) {\n  // modules we require for all builds\n  $options['en'][] = '$modulefile';\n}\n" >> $modulefile
 
+# make sure drush is happy post addition of drush files
+drush cc drush
 #install default site for courses stack
 dbpw=`</dev/urandom tr -dc A-Za-z0-9 | head -c14`
 cd $stacks/courses
@@ -89,123 +93,71 @@ dbpw=`</dev/urandom tr -dc A-Za-z0-9 | head -c14`
 cd $stacks/media
 drush site-install -y --db-url=mysql://default_media:$dbpw@localhost/default_media --db-su=$dbsu --db-su-pw=$dbsupw
 
+#install default site for studio stack
+dbpw=`</dev/urandom tr -dc A-Za-z0-9 | head -c14`
+cd $stacks/studio
+drush site-install -y --db-url=mysql://default_media:$dbpw@localhost/default_media --db-su=$dbsu --db-su-pw=$dbsupw
+
 #install default site for online stack
 dbpw=`</dev/urandom tr -dc A-Za-z0-9 | head -c14`
 cd $stacks/online
 drush site-install -y --db-url=mysql://default_online:$dbpw@localhost/default_online --db-su=$dbsu --db-su-pw=$dbsupw
 
+# install the CIS site
+dbpw=`</dev/urandom tr -dc A-Za-z0-9 | head -c14`
+cd $stacks/online
+drush site-install cis -y --db-url=mysql://online_$host:$dbpw@localhost/online_$host --db-su=$dbsu --db-su-pw=$dbsupw --sites-subdir=$online/aa --site-mail=$site_email --site-name=Online
 
-# inital tests all passed, going to write all these into the jobs system
+sitedir=$stacks/online/sites
+#create file directory
+mkdir $sitedir/online/$host/files
+chown $wwwuser:$webgroup $sitedir/online/$host/files
+chmod 755 $sitedir/online/$host/files
 
-# cis jobs file
-online=${fileloc}/online.online
-touch $online
-echo 'online' > $online
-echo $host >> $online
-echo "${online_domain}" >> $online
-echo "${online_service_domain}" >> $online
-echo 'Online' >> $online
-echo 'Welcome to ELMSLN' >> $online
-echo $admin >> $online
-echo 'cis' >> $online
-echo "drush en ${cissettings}" >> $online
-echo 'drush vset cron_safe_threshold 0' >> $online
-echo 'drush vset user_register 1' >> $online
-echo 'drush vset user_email_verification 0' >> $online
-echo 'drush vset preprocess_css 1' >> $online
-echo 'drush vset preprocess_js 1' >> $online
-echo "drush vset file_private_path ${drupal_priv}/online/online" >> $online
-echo 'drush vdel update_notify_emails' >> $online
-echo 'drush cron' >> $online
+#add site to the sites array
 
-# watchdog for the courses site
-courseswd=${fileloc}/watchdog.courses
-touch $courseswd
-echo 'watchdog' > $courseswd
-echo $host >> $courseswd
-echo "${courses_domain}" >> $courseswd
-echo "${courses_service_domain}" >> $courseswd
-echo 'Watchdog' >> $courseswd
-echo 'Courses logging service' >> $courseswd
-echo $admin >> $courseswd
-echo 'remote_watchdog' >> $courseswd
-echo "drush en ${cissettings}" >> $courseswd
-echo 'drush vset cron_safe_threshold 0' >> $courseswd
-echo 'drush vset user_register 1' >> $courseswd
-echo 'drush vset user_email_verification 0' >> $courseswd
-echo 'drush vset preprocess_css 1' >> $courseswd
-echo 'drush vset preprocess_js 1' >> $courseswd
-echo "drush vset file_private_path ${drupal_priv}/courses/watchdog" >> $courseswd
-echo 'drush vdel update_notify_emails' >> $courseswd
-echo 'drush cron' >> $courseswd
-# watchdog for the media site
-mediawd=${fileloc}/watchdog.media
-touch $mediawd
-echo 'watchdog' > $mediawd
-echo $host >> $mediawd
-echo "${media_domain}" >> $mediawd
-echo "${media_service_domain}" >> $mediawd
-echo 'Watchdog' >> $mediawd
-echo 'Media logging service' >> $mediawd
-echo $admin >> $mediawd
-echo 'remote_watchdog' >> $mediawd
-echo "drush en ${cissettings}" >> $mediawd
-echo 'drush vset cron_safe_threshold 0' >> $mediawd
-echo 'drush vset user_register 1' >> $mediawd
-echo 'drush vset user_email_verification 0' >> $mediawd
-echo 'drush vset preprocess_css 1' >> $mediawd
-echo 'drush vset preprocess_js 1' >> $mediawd
-echo "drush vset file_private_path ${drupal_priv}/media/watchdog" >> $mediawd
-echo 'drush vdel update_notify_emails' >> $mediawd
-echo 'drush cron' >> $mediawd
+if [ -f $stacks/online/sites/sites.php ]; then
+  arraytest=`/bin/grep -e "^\\$sites" $sitedir/sites.php`
+  if [[ -z $arraytest ]]; then
+    echo "\$sites = array(" >> $sitedir/sites.php
+    echo "" >> $sitedir/sites.php
+    echo ");" >> $sitedir/sites.php
+  fi
+  /bin/sed -i "/^\$sites = array/a \ \t \'$online_domain\' =\> \'online\/$host\'\," $sitedir/sites.php
+  /bin/sed -i "/^\$sites = array/a \ \t \'$online_service_domain\' =\> \'online\/services\/$host\/\'\," $sitedir/sites.php
+fi
 
-# work on example course site
-courses=${fileloc}/robots109.courses
-touch $courses
-echo 'robots109' > $courses
-echo $host >> $courses
-echo "${courses_domain}" >> $courses
-echo "${courses_service_domain}" >> $courses
-echo 'Robots 109' >> $courses
-echo 'An introduction to taking over the world' >> $courses
-echo $admin >> $courses
-echo 'mooc' >> $courses
-echo "drush en ${cissettings}" >> $courses
-echo "drush en cis_service_lti cis_remote_watchdog cis_service_restws" >> $courses
-echo 'drush vset cron_safe_threshold 0' >> $courses
-echo 'drush vset user_register 1' >> $courses
-echo 'drush vset user_email_verification 0' >> $courses
-echo 'drush vset preprocess_css 1' >> $courses
-echo 'drush vset preprocess_js 1' >> $courses
-echo "drush vset file_private_path ${drupal_priv}/courses/robots109" >> $courses
-echo 'drush vdel update_notify_emails' >> $courses
-echo 'drush dis pathauto path' >> $courses
-echo 'drush fr mooc_ux_defaults mooc_cis_ux cis_section cis_service_lti' >> $courses
-echo 'drush pm-uninstall pathauto path' >> $courses
-echo "drush feeds-import feeds_node_helper_book_import --file=${stacks}/online/profiles/cis/modules/custom/cis_helper/instructional_models/lesson-based.xml" >> $courses
-echo 'drush cron' >> $courses
-echo 'drush ecl' >> $courses
-echo 'drush cron' >> $courses
+# add in our cache bins - todo move to configsdir?
+  echo "\$conf['cache_prefix'] = 'online_$host';" >> $sitedir/online/$subdir/settings.php
+  echo "require_once DRUPAL_ROOT . '/../../shared/drupal-7.x/settings/shared_settings.php';" >> $sitedir/online/$subdir/settings.php
 
-# work on example media site
-media=${fileloc}/robots109.media
-touch $media
-echo 'robots109' >> $media
-echo $host >> $media
-echo "${media_domain}" >> $media
-echo "${media_service_domain}" >> $media
-echo 'Robots 109' >> $media
-echo 'Robots 109 Asset management' >> $media
-echo $admin >> $media
-echo 'elmsmedia' >> $media
-echo "drush en ${cissettings}" >> $media
-echo "drush en cis_remote_watchdog cis_service_restws" >> $media
-echo 'drush vset cron_safe_threshold 0' >> $media
-echo 'drush vset user_register 1' >> $media
-echo 'drush vset user_email_verification 0' >> $media
-echo 'drush vset preprocess_js 1' >> $media
-echo "drush vset file_private_path ${drupal_priv}/media/robots109" >> $media
-echo 'drush vdel update_notify_emails' >> $media
-echo 'drush cron' >> $media
-echo 'drush ecl' >> $media
-echo 'drush cron' >> $media
+#adding servies conf file
+if [ ! -d $sitedir/online/services/$host ];
+  then mkdir -p $sitedir/online/services/$host
+    mkdir $sitedir/online/services/$host/files
+    chown $wwwuser:$webgroup $sitedir/online/services/$host/files
+    chmod 755 $sitedir/online/services/$host/files
+    if [ -f $sitedir/online/$host/settings.php ]; then
+      /bin/cp $sitedir/online/$host/settings.php $sitedir/online/services/$host/settings.php
+    fi
+    if [ -f $sitedir/online/services/$host/settings.php ]; then
+    echo "\$conf['restws_basic_auth_user_regex'] = '/^SERVICE_.*/';" >> $sitedir/online/services/$host/settings.php
+    fi
+fi
+
+##set base_url
+sed -i "/\# \$base_url/a \ \t \$base_url= '$protocol://$online_domain';" $sitedir/online/$subdir/settings.php
+
+# clean up tasks
+/usr/bin/drush -y --uri=$protocol://$online_domain vset site_slogan 'Welcome to ELMSLN'
+/usr/bin/drush -y --uri=$protocol://$online_domain en $cissettings
+/usr/bin/drush -y --uri=$protocol://$online_domain vset cron_safe_threshold 0
+/usr/bin/drush -y --uri=$protocol://$online_domain vset user_register 1
+/usr/bin/drush -y --uri=$protocol://$online_domain vset user_email_verification 0
+/usr/bin/drush -y --uri=$protocol://$online_domain vset preprocess_css 1
+/usr/bin/drush -y --uri=$protocol://$online_domain vset preprocess_js 1
+/usr/bin/drush -y --uri=$protocol://$online_domain vset file_private_path ${drupal_priv}/online/online
+/usr/bin/drush -y --uri=$protocol://$online_domain vdel update_notify_emails
+/usr/bin/drush -y --uri=$protocol://$online_domain cron
+
+echo 'Lets see if it worked out..'
