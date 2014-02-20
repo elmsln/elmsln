@@ -111,12 +111,11 @@ do
   dbpw="${pass}${char[$rand]}"
 done
 cd $stacks/online
-drush site-install cis -y --db-url=mysql://online_$host:$dbpw@localhost/online_$host --db-su=$dbsu --db-su-pw=$dbsupw --sites-subdir=onlinetmp --site-mail=$site_email --site-name=Online
+drush site-install cis -y --db-url=mysql://online_$host:$dbpw@localhost/online_$host --db-su=$dbsu --db-su-pw=$dbsupw --sites-subdir=online/$host --site-mail=$site_email --site-name=Online
 
 sitedir=$stacks/online/sites
 #create file directory
 mkdir -p $sitedir/online
-mv  $sitedir/onlinetmp $sitedir/online/$host
 chown $wwwuser:$webgroup $sitedir/online/$host/files
 chmod 755 $sitedir/online/$host/files
 
@@ -153,7 +152,8 @@ if [ ! -d $sitedir/online/services/$host ];
 fi
 
 #set base_url
-sed -i "/\# \$base_url/a \ \t \$base_url= '$protocol://$online_domain';" $sitedir/online/$host/settings.php
+cd $sitedir/online/$host
+sed -i "/\# \$base_url/a \ \t \$base_url= '$protocol://$online_domain';" settings.php
 
 # clean up tasks
 drush -y --uri=$protocol://$online_domain vset site_slogan 'Welcome to ELMSLN'
