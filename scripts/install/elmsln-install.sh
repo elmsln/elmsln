@@ -147,7 +147,7 @@ if [ ! -d $sitedir/online/services/$host ];
 fi
 
 # set base_url
-echo "\$base_url/a \ \t \$base_url= '$protocol://$online_domain';" >> $sitedir/online/$host/settings.php
+echo "\$base_url= '$protocol://$online_domain';" >> $sitedir/online/$host/settings.php
 
 
 cd $stacks/online
