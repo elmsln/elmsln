@@ -105,6 +105,7 @@ fi
 
 # install the CIS site
 # generate a random 30 digit password
+pass=''
 for i in `seq 1 30`
 do
   let "rand=$RANDOM % 62"
@@ -127,8 +128,8 @@ if [ -f $sitedir/sites.php ]; then
 fi
 
 # add in our cache bins
-  echo "\$conf['cache_prefix'] = 'online_$host';" >> $sitedir/online/$host/settings.php
-  echo "require_once DRUPAL_ROOT . '/../../shared/drupal-7.x/settings/shared_settings.php';" >> $sitedir/online/$host/settings.php
+echo "\$conf['cache_prefix'] = 'online_$host';" >> $sitedir/online/$host/settings.php
+echo "require_once DRUPAL_ROOT . '/../../shared/drupal-7.x/settings/shared_settings.php';" >> $sitedir/online/$host/settings.php
 
 #adding servies conf file
 if [ ! -d $sitedir/online/services/$host ];
