@@ -46,15 +46,20 @@ distros=('cis' 'mooc' 'studio' 'icor' 'elmsmedia' 'remote_watchdog')
 stacklist=('online' 'courses' 'studio' 'interact' 'media' 'remote_watchdog')
 # array of instance definitions for the distro type
 instances=('FALSE' 'TRUE' 'TRUE' 'TRUE' 'TRUE' 'FALSE')
-moduledir=$elmsln/config/shared/drupal-${core}/modules
+moduledir=$elmsln/config/shared/drupal-${core}/modules/_elmsln_scripted
 cissettings=${university}_${host}_settings
 
 # used for random password generation
 COUNTER=0
 char=(0 1 2 3 4 5 6 7 8 9 a b c d e f g h i j k l m n o p q r s t u v w x y z A B C D E F G H I J K L M N O P Q R S T U V X W Y Z)
 max=${#char[*]}
-# work on authoring the connector module automatically if needed
-mkdir ${moduledir}/${university}
+# generate a scripted directory
+if [ ! -d ${moduledir} ];
+  then
+  mkdir ${moduledir}
+  mkdir ${moduledir}/${university}
+fi
+# work on authoring the connector module automatically
 if [ ! -d ${moduledir}/${university}/${cissettings} ];
   then
   mkdir ${moduledir}/${university}/${cissettings}
@@ -88,7 +93,7 @@ if [ ! -d ${moduledir}/${university}/${cissettings} ];
       dbpw="${pass}${char[$rand]}"
     done
     cd $stacks/${stacklist[$COUNTER]}
-    drush site-install -y --db-url=mysql://default_${stacklist[$COUNTER]}:$dbpw@localhost/default_${stacklist[$COUNTER]} --db-su=$dbsu --db-su-pw=$dbsupw
+    drush site-install -y --db-url=mysql://elmslndfltdbo:$dbpw@localhost/default_${stacklist[$COUNTER]} --db-su=$dbsu --db-su-pw=$dbsupw
     COUNTER=$[COUNTER + 1]
 
   done
