@@ -82,7 +82,7 @@ if [ ! -d ${moduledir}/${university}/${cissettings} ];
   # close out function and file
   printf "  );\n\n  return \$items;\n}" >> $modulefile
   # add the function to include this in build outs automatically
-  printf "\n/**\n * Implements hook_cis_service_instance_options_alter().\n */\nfunction ${university}_${host}_cis_service_instance_options_alter(&/$options, /$course, /$service) {\n  // modules we require for all builds\n  /$options['en'][] = '$modulefile';\n}\n" >> $modulefile
+  printf "\n/**\n * Implements hook_cis_service_instance_options_alter().\n */\nfunction ${university}_${host}_cis_service_instance_options_alter(&\$options, \$course, \$service) {\n  // modules we require for all builds\n  \$options['en'][] = '$modulefile';\n}\n" >> $modulefile
 fi
 # make sure drush is happy post addition of drush files
 drush cc drush
