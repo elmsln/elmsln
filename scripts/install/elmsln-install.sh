@@ -38,12 +38,14 @@ echo "mysql connection failed"
 exit 1
 fi
 
+# make sure drush is happy before we begin drush calls
+drush cc drush
 
 core='7.x'
-distros=('cis' 'mooc' 'elmsmedia' 'remote_watchdog')
-stacklist=('online' 'courses' 'media' 'remote_watchdog')
+distros=('cis' 'mooc' 'studio' 'icor' 'elmsmedia' 'remote_watchdog')
+stacklist=('online' 'courses' 'studio' 'interact' 'media' 'remote_watchdog')
 # array of instance definitions for the distro type
-instances=('FALSE' 'TRUE' 'TRUE' 'FALSE')
+instances=('FALSE' 'TRUE' 'TRUE' 'TRUE' 'TRUE' 'FALSE')
 moduledir=$elmsln/config/shared/drupal-${core}/modules
 cissettings=${university}_${host}_settings
 
@@ -78,54 +80,23 @@ if [ ! -d ${moduledir}/${university}/${cissettings} ];
     printf $pass >> $modulefile
     # finish off array
     printf "',\n      'instance' => ${instances[$COUNTER]},\n    ),\n" >> $modulefile
+    # install default site for associated stack
+    # generate a random 30 digit password
+    for i in `seq 1 30`
+    do
+      let "rand=$RANDOM % 62"
+      dbpw="${pass}${char[$rand]}"
+    done
+    cd $stacks/${stacklist[$COUNTER]}
+    drush site-install -y --db-url=mysql://default_${stacklist[$COUNTER]}:$dbpw@localhost/default_${stacklist[$COUNTER]} --db-su=$dbsu --db-su-pw=$dbsupw
     COUNTER=$[COUNTER + 1]
+
   done
   # close out function and file
   printf "  );\n\n  return \$items;\n}" >> $modulefile
   # add the function to include this in build outs automatically
   printf "\n/**\n * Implements hook_cis_service_instance_options_alter().\n */\nfunction ${university}_${host}_cis_service_instance_options_alter(&\$options, \$course, \$service) {\n  // modules we require for all builds\n  \$options['en'][] = '$modulefile';\n}\n" >> $modulefile
 fi
-# make sure drush is happy post addition of drush files
-drush cc drush
-# install default site for courses stack
-# generate a random 30 digit password
-for i in `seq 1 30`
-do
-  let "rand=$RANDOM % 62"
-  dbpw="${pass}${char[$rand]}"
-done
-cd $stacks/courses
-drush site-install -y --db-url=mysql://default_courses:$dbpw@localhost/default_courses --db-su=$dbsu --db-su-pw=$dbsupw
-
-# install default site for media stack
-# generate a random 30 digit password
-for i in `seq 1 30`
-do
-  let "rand=$RANDOM % 62"
-  dbpw="${pass}${char[$rand]}"
-done
-cd $stacks/media
-drush site-install -y --db-url=mysql://default_media:$dbpw@localhost/default_media --db-su=$dbsu --db-su-pw=$dbsupw
-
-# install default site for studio stack
-# generate a random 30 digit password
-for i in `seq 1 30`
-do
-  let "rand=$RANDOM % 62"
-  dbpw="${pass}${char[$rand]}"
-done
-cd $stacks/studio
-drush site-install -y --db-url=mysql://default_media:$dbpw@localhost/default_media --db-su=$dbsu --db-su-pw=$dbsupw
-
-# install default site for online stack
-# generate a random 30 digit password
-for i in `seq 1 30`
-do
-  let "rand=$RANDOM % 62"
-  dbpw="${pass}${char[$rand]}"
-done
-cd $stacks/online
-drush site-install -y --db-url=mysql://default_online:$dbpw@localhost/default_online --db-su=$dbsu --db-su-pw=$dbsupw
 
 # install the CIS site
 # generate a random 30 digit password
