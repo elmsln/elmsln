@@ -2,7 +2,6 @@
 name = "Remote Watchdog"
 description = "Create a web service to centrally manage the watchdog for multiple sites in a network."
 core = "7.x"
-version = 7.x-1.x-dev
 distribution_name = "remote_watchdog"
 project="remote_watchdog"
 ; ----------
@@ -42,7 +41,6 @@ dependencies[] = jquery_update
 ; Features
 dependencies[] = features
 dependencies[] = remote_watchdog_feature
-
 ; ----------
 ; Variables
 ; ----------
