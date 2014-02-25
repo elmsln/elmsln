@@ -520,6 +520,10 @@ function _cis_helper_add_service_instance($course, $service, $service_instance, 
   $options = array();
   // allow for advanced drush alterations via code
   drupal_alter('cis_service_instance_options', $options, $course, $service);
+  // vset the uuid from the service_instance entity into the remote site
+  // this effectively binds the remote drupal site to the service_instance
+  // content type in CIS
+  $options['vset'][] = 'cis_service_instance_uuid ' . $service_instance->uuid;
   // load optional cis_helper defined values
   $extra_options = variable_get('cis_build_' . $course->field_method_of_access[LANGUAGE_NONE][0]['value'], '');
   if (!empty($extra_options)) {

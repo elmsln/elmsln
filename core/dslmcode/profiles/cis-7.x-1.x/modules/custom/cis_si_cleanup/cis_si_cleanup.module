@@ -20,10 +20,6 @@ function cis_si_cleanup_cis_service_instance_options_alter(&$options, $course, $
   }
   // section is critical that it's set correctly so revert it again
   $options['fr'][] = 'cis_section';
-  // vset the uuid from the service_instance entity into the remote site
-  // this effectively binds the remote drupal site to the service_instance
-  // content type in CIS
-  $options['vset'][] = 'cis_service_instance_uuid ' . $service_instance->uuid;
   // disable site auto-cron run so admin can set policy globally
   $options['vset'][] = 'cron_safe_threshold 0';
     // allow users to register without approval
