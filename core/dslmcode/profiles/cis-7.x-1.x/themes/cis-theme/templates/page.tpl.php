@@ -44,7 +44,7 @@
       <?php if ($messages): print $messages; endif; ?>
       <?php if (!empty($page['help'])): print render($page['help']); endif; ?>
       <a id="main-content"></a>
-      
+
         <?php if ($title && !$is_front && (!isset($node) || (isset($node) && !in_array($node->type, array('course', 'person'))))): ?>
           <?php print render($title_prefix); ?>
           <h1 id="page-title" class="title"><?php print check_markup($title, 'textbook_editor'); ?></h1>
@@ -58,7 +58,7 @@
             <?php print render($page['highlighted']); ?>
           </div>
         <?php endif; ?>
-    
+
         <?php if ($action_links): ?>
           <ul class="action-links">
             <?php print render($action_links); ?>
@@ -106,7 +106,7 @@
       <span class="pipe-space">|</span><h3 class="footer-name"><?php print $linked_site_name; ?></h3>
     </div>
     <div class="large-2 columns">
-    <button>Contact us</button>
+    <?php //<button>Contact us</button>?>
     </div>
   </div>
   <div class="row">
