@@ -69,7 +69,11 @@ done
 #                echo "preserving database $database"
 #        fi
 #done
-
+# @todo this part needs rethought now that config lives in the config directory
+# right now this ends up copying the sites.php file that's being referenced
+# and replaces the symlink w/ the actual file that's been changed.
+# it also creates a .bak file in the core / domains locations which creates a
+# non committed file in the incorrect location.
 sitesphp=`grep -nr $2 $1/$2/sites/sites.php`
 
 while [[ $sitesphp ]]; do
