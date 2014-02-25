@@ -54,7 +54,7 @@ echo $drupalroot
 coursedb=$service"_"$college"_"$course
 #hostname=$service.$hostnamesearch
 hostname=`sed -n '3p' $coursefile`
-datahostname=`sed -n '3p' $coursefile`
+datahostname=`sed -n '4p' $coursefile`
 subdir=$service/$college
 dbpw=`</dev/urandom tr -dc A-Za-z0-9 | head -c14`
 drupalpw=`</dev/urandom tr -dc A-Za-z0-9 | head -c14`
