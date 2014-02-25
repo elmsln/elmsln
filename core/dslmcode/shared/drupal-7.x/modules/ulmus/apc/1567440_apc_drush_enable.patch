@@ -1,0 +1,15 @@
+diff --git a/apc.install b/apc.install
+index 5277028..ea4cd00 100644
+--- a/apc.install
++++ b/apc.install
+@@ -26,6 +26,10 @@ function apc_requirements($phase) {
+       )
+     );
+   }
++  elseif (drupal_is_cli() && function_exists('drush_log')) {
++    $requirements['apc']['severity'] = REQUIREMENT_WARNING;
++    drupal_set_message($t('The APC module needs the apc extension see: <a href="!link">!link</a>.', array('!link' => 'http://www.php.net/apc')), 'warning');
++  }
+   else {
+     $requirements['apc']['description'] = $t('The APC module needs the apc extension see: <a href="!link">!link</a>.', array('!link' => 'http://www.php.net/apc'));
+   }
