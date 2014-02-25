@@ -4,3 +4,6 @@ _notes/
 .DS_Store
 config/*
 config
+README.txt
+INSTALL.txt
+LICENSE.txt
