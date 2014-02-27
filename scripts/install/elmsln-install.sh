@@ -144,8 +144,8 @@ drush -y --uri=$protocol://$online_domain vdel update_notify_emails
 drush -y --uri=$protocol://$online_domain cron
 
 # add in our cache bins
-printf "\$conf['cache_prefix'] = 'online_$host';" >> $sitedir/online/$host/settings.php
-printf "require_once DRUPAL_ROOT . '/../../shared/drupal-7.x/settings/shared_settings.php';" >> $sitedir/online/$host/settings.php
+printf "\n\n\$conf['cache_prefix'] = 'online_$host';" >> $sitedir/online/$host/settings.php
+printf "\n\nrequire_once DRUPAL_ROOT . '/../../shared/drupal-7.x/settings/shared_settings.php';" >> $sitedir/online/$host/settings.php
 
 #adding servies conf file
 if [ ! -d $sitedir/online/services/$host ];
@@ -158,7 +158,7 @@ if [ ! -d $sitedir/online/services/$host ];
       cp $sitedir/online/$host/settings.php $sitedir/online/services/$host/settings.php
     fi
     if [ -f $sitedir/online/services/$host/settings.php ]; then
-      printf "\n\$conf['restws_basic_auth_user_regex'] = '/^SERVICE_.*/';" >> $sitedir/online/services/$host/settings.php
+      printf "\n\n\$conf['restws_basic_auth_user_regex'] = '/^SERVICE_.*/';" >> $sitedir/online/services/$host/settings.php
     fi
 fi
 
