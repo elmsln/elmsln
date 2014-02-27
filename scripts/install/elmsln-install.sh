@@ -44,6 +44,7 @@ drush cc drush
 core='7.x'
 distros=('cis' 'mooc' 'studio' 'icor' 'elmsmedia' 'remote_watchdog')
 stacklist=('online' 'courses' 'studio' 'interact' 'media' 'remote_watchdog')
+buildlist=('courses' 'studio' 'interact' 'media')
 # array of instance definitions for the distro type
 instances=('FALSE' 'TRUE' 'TRUE' 'TRUE' 'TRUE' 'FALSE')
 moduledir=$elmsln/config/shared/drupal-${core}/modules/_elmsln_scripted
@@ -53,12 +54,6 @@ cissettings=${university}_${host}_settings
 COUNTER=0
 char=(0 1 2 3 4 5 6 7 8 9 a b c d e f g h i j k l m n o p q r s t u v w x y z A B C D E F G H I J K L M N O P Q R S T U V X W Y Z)
 max=${#char[*]}
-# generate a random 30 digit password
-for i in `seq 1 30`
-do
-  let "rand=$RANDOM % 62"
-  dbpw="${pass}${char[$rand]}"
-done
 # generate a scripted directory
 if [ ! -d ${moduledir} ];
   then
@@ -91,20 +86,27 @@ if [ ! -d ${moduledir}/${university}/${cissettings} ];
     printf $pass >> $modulefile
     # finish off array
     printf "',\n      'instance' => ${instances[$COUNTER]},\n    ),\n" >> $modulefile
-    # install default site for associated stack
-    cd $stacks/${stacklist[$COUNTER]}
-    # don't install if online
-    if [ ! ${stacklist[$COUNTER]}=='online' ];
-      then
-      drush site-install -y --db-url=mysql://elmslndfltdbo:$dbpw@localhost/default_${stacklist[$COUNTER]} --db-su=$dbsu --db-su-pw=$dbsupw
-      COUNTER=$[COUNTER + 1]
-    fi
   done
   # close out function and file
   printf "  );\n\n  return \$items;\n}\n\n" >> $modulefile
   # add the function to include this in build outs automatically
   printf "/**\n * Implements hook_cis_service_instance_options_alter().\n */\nfunction ${university}_${host}_cis_service_instance_options_alter(&\$options, \$course, \$service) {\n  // modules we require for all builds\n  \$options['en'][] = '$cissettings';\n}\n" >> $modulefile
 fi
+
+# generate a random 30 digit password
+for i in `seq 1 30`
+do
+  let "rand=$RANDOM % 62"
+  dbpw="${pass}${char[$rand]}"
+done
+
+# build the default sites
+for build in "${buildlist[@]}"
+  do
+  # install default site for associated stacks in the build list
+  cd $stacks/${buildlist[$COUNTER]}
+  drush site-install -y --db-url=mysql://elmslndfltdbo:$dbpw@localhost/default_$build --db-su=$dbsu --db-su-pw=$dbsupw
+done
 
 # install the CIS site
 # generate a random 30 digit password
