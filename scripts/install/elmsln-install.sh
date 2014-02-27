@@ -98,7 +98,7 @@ if [ ! -d ${moduledir}/${university}/${cissettings} ];
       then
       drush site-install -y --db-url=mysql://elmslndfltdbo:$dbpw@localhost/default_${stacklist[$COUNTER]} --db-su=$dbsu --db-su-pw=$dbsupw
       COUNTER=$[COUNTER + 1]
-    done
+    fi
   done
   # close out function and file
   printf "  );\n\n  return \$items;\n}\n\n" >> $modulefile
