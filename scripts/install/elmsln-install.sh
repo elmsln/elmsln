@@ -53,6 +53,12 @@ cissettings=${university}_${host}_settings
 COUNTER=0
 char=(0 1 2 3 4 5 6 7 8 9 a b c d e f g h i j k l m n o p q r s t u v w x y z A B C D E F G H I J K L M N O P Q R S T U V X W Y Z)
 max=${#char[*]}
+# generate a random 30 digit password
+for i in `seq 1 30`
+do
+  let "rand=$RANDOM % 62"
+  dbpw="${pass}${char[$rand]}"
+done
 # generate a scripted directory
 if [ ! -d ${moduledir} ];
   then
@@ -86,12 +92,6 @@ if [ ! -d ${moduledir}/${university}/${cissettings} ];
     # finish off array
     printf "',\n      'instance' => ${instances[$COUNTER]},\n    ),\n" >> $modulefile
     # install default site for associated stack
-    # generate a random 30 digit password
-    for i in `seq 1 30`
-    do
-      let "rand=$RANDOM % 62"
-      dbpw="${pass}${char[$rand]}"
-    done
     cd $stacks/${stacklist[$COUNTER]}
     drush site-install -y --db-url=mysql://elmslndfltdbo:$dbpw@localhost/default_${stacklist[$COUNTER]} --db-su=$dbsu --db-su-pw=$dbsupw
     COUNTER=$[COUNTER + 1]
