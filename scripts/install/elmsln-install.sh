@@ -117,11 +117,12 @@ done
 cd $stacks/online
 sitedir=$stacks/online/sites
 
-drush site-install cis -y --db-url=mysql://online_$host:$dbpw@localhost/online_$host --db-su=$dbsu --db-su-pw=$dbsupw --sites-subdir="online/$host" --site-mail="$site_email" --site-name="Online"
+drush site-install cis -y --db-url=mysql://online_$host:$dbpw@localhost/online_$host --db-su=$dbsu --db-su-pw=$dbsupw --site-mail="$site_email" --site-name="Online"
 #move out of online site directory to host
 mkdir -p $sitedir/online/$host
-mv $sitedir/online/files $sitedir/online/$host/files
-mv $sitedir/online/settings.php $sitedir/online/$host/settings.php
+
+cp $sitedir/default/files $sitedir/online/$host/files
+cp $sitedir/default/settings.php $sitedir/online/$host/settings.php
 
 #modify ownership of these directories
 chown $wwwuser:$webgroup $sitedir/online/$host/files
@@ -133,8 +134,6 @@ printf "  '$online_service_domain' => 'online/services/$host',\n);\n" >> $sitedi
 # set base_url
 printf "\n\$base_url= '$protocol://$online_domain';" >> $sitedir/online/$host/settings.php
 
-# just make sure we didn't move around
-cd $stacks/online
 # clean up tasks
 drush -y --uri=$protocol://$online_domain vset site_slogan 'Welcome to ELMSLN'
 drush -y --uri=$protocol://$online_domain en $cissettings
