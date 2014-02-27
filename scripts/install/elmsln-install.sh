@@ -111,17 +111,38 @@ do
   dbpw="${pass}${char[$rand]}"
 done
 cd $stacks/online
-drush site-install cis -y --db-url=mysql://online_$host:$dbpw@localhost/online_$host --db-su=$dbsu --db-su-pw=$dbsupw --sites-subdir="online/$host" --site-mail="$site_email" --site-name="Online"
-
 sitedir=$stacks/online/sites
-#create file directory
-mkdir -p $sitedir/online
+
+drush site-install cis -y --db-url=mysql://online_$host:$dbpw@localhost/online_$host --db-su=$dbsu --db-su-pw=$dbsupw --sites-subdir="online/$host" --site-mail="$site_email" --site-name="Online"
+#move out of online site directory to host
+mkdir -p $sitedir/online/$host
+mv $sitedir/online/files $sitedir/online/$host/files
+mv $sitedir/online/settings.php $sitedir/online/$host/settings.php
+
+#modify ownership of these directories
 chown $wwwuser:$webgroup $sitedir/online/$host/files
 chmod 755 $sitedir/online/$host/files
 
 #add site to the sites array
 printf "\$sites = array(\n  '$online_domain' => 'online/$host',\n" >> $sitedir/sites.php
 printf "  '$online_service_domain' => 'online/services/$host',\n);\n" >> $sitedir/sites.php
+# set base_url
+printf "\n\$base_url= '$protocol://$online_domain';" >> $sitedir/online/$host/settings.php
+
+# just make sure we didn't move around
+cd $stacks/online
+# clean up tasks
+drush -y --uri=$protocol://$online_domain vset site_slogan 'Welcome to ELMSLN'
+drush -y --uri=$protocol://$online_domain en $cissettings
+drush -y --uri=$protocol://$online_domain vset cron_safe_threshold 0
+drush -y --uri=$protocol://$online_domain vset user_register 1
+drush -y --uri=$protocol://$online_domain vset user_email_verification 0
+drush -y --uri=$protocol://$online_domain vset preprocess_css 1
+drush -y --uri=$protocol://$online_domain vset preprocess_js 1
+drush -y --uri=$protocol://$online_domain vset file_private_path ${drupal_priv}/online/online
+drush -y --uri=$protocol://$online_domain vdel update_notify_emails
+drush -y --uri=$protocol://$online_domain cron
+
 # add in our cache bins
 printf "\$conf['cache_prefix'] = 'online_$host';" >> $sitedir/online/$host/settings.php
 printf "require_once DRUPAL_ROOT . '/../../shared/drupal-7.x/settings/shared_settings.php';" >> $sitedir/online/$host/settings.php
@@ -141,21 +162,4 @@ if [ ! -d $sitedir/online/services/$host ];
     fi
 fi
 
-# set base_url
-printf "\n\$base_url= '$protocol://$online_domain';" >> $sitedir/online/$host/settings.php
-
-
-cd $stacks/online
-# clean up tasks
-drush -y --uri=$protocol://$online_domain vset site_slogan 'Welcome to ELMSLN'
-drush -y --uri=$protocol://$online_domain en $cissettings
-drush -y --uri=$protocol://$online_domain vset cron_safe_threshold 0
-drush -y --uri=$protocol://$online_domain vset user_register 1
-drush -y --uri=$protocol://$online_domain vset user_email_verification 0
-drush -y --uri=$protocol://$online_domain vset preprocess_css 1
-drush -y --uri=$protocol://$online_domain vset preprocess_js 1
-drush -y --uri=$protocol://$online_domain vset file_private_path ${drupal_priv}/online/online
-drush -y --uri=$protocol://$online_domain vdel update_notify_emails
-drush -y --uri=$protocol://$online_domain cron
-
-echo 'Lets see if it worked out..'
+echo 'Welcome to the Singularity of edtech.. Go forth, build the future.'
