@@ -93,8 +93,12 @@ if [ ! -d ${moduledir}/${university}/${cissettings} ];
     printf "',\n      'instance' => ${instances[$COUNTER]},\n    ),\n" >> $modulefile
     # install default site for associated stack
     cd $stacks/${stacklist[$COUNTER]}
-    drush site-install -y --db-url=mysql://elmslndfltdbo:$dbpw@localhost/default_${stacklist[$COUNTER]} --db-su=$dbsu --db-su-pw=$dbsupw
-    COUNTER=$[COUNTER + 1]
+    # don't install if online
+    if [ ! ${stacklist[$COUNTER]}=='online' ];
+      then
+      drush site-install -y --db-url=mysql://elmslndfltdbo:$dbpw@localhost/default_${stacklist[$COUNTER]} --db-su=$dbsu --db-su-pw=$dbsupw
+      COUNTER=$[COUNTER + 1]
+    done
   done
   # close out function and file
   printf "  );\n\n  return \$items;\n}\n\n" >> $modulefile
