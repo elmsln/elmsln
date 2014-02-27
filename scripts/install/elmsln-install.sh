@@ -73,7 +73,7 @@ if [ ! -d ${moduledir}/${university}/${cissettings} ];
   for distro in "${distros[@]}"
   do
     # array built up to password
-    printf "    // ${distro} distro instance called ${stacklist[$COUNTER]}\n    '${distro}' => array(\n      'protocol' => '${protocol}',\n      'service_address' => 'data.${stacklist[$COUNTER]}.${serviceaddress}',\n      'address' => '${stacklist[$COUNTER]}.${host}.${address}',\n      'user' => 'SERVICE_${distro}_${host}',\n      'mail' => 'SERVICE_${distro}_${host}@${emailending}',\n      'pass' => '" >> $modulefile
+    printf "    // ${distro} distro instance called ${stacklist[$COUNTER]}\n    '${distro}' => array(\n      'protocol' => '${protocol}',\n      'service_address' => 'data.${stacklist[$COUNTER]}.${serviceaddress}',\n      'address' => '${stacklist[$COUNTER]}.${address}',\n      'user' => 'SERVICE_${distro}_${host}',\n      'mail' => 'SERVICE_${distro}_${host}@${emailending}',\n      'pass' => '" >> $modulefile
     # generate a random 30 digit password
     pass=''
     for i in `seq 1 30`
@@ -99,7 +99,7 @@ if [ ! -d ${moduledir}/${university}/${cissettings} ];
   # close out function and file
   printf "  );\n\n  return \$items;\n}\n\n" >> $modulefile
   # add the function to include this in build outs automatically
-  printf "/**\n * Implements hook_cis_service_instance_options_alter().\n */\nfunction ${university}_${host}_cis_service_instance_options_alter(&\$options, \$course, \$service) {\n  // modules we require for all builds\n  \$options['en'][] = '$modulefile';\n}\n" >> $modulefile
+  printf "/**\n * Implements hook_cis_service_instance_options_alter().\n */\nfunction ${university}_${host}_cis_service_instance_options_alter(&\$options, \$course, \$service) {\n  // modules we require for all builds\n  \$options['en'][] = '$cissettings';\n}\n" >> $modulefile
 fi
 
 # install the CIS site
