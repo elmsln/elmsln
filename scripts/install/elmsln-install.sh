@@ -144,6 +144,7 @@ drush -y --uri=$protocol://$online_domain vset user_register 1
 drush -y --uri=$protocol://$online_domain vset user_email_verification 0
 drush -y --uri=$protocol://$online_domain vset preprocess_css 1
 drush -y --uri=$protocol://$online_domain vset preprocess_js 1
+drush -y --uri=$protocol://$online_domain vset cis_college_name $host
 drush -y --uri=$protocol://$online_domain vset file_private_path ${drupal_priv}/online/online
 drush -y --uri=$protocol://$online_domain vdel update_notify_emails
 drush -y --uri=$protocol://$online_domain cron
