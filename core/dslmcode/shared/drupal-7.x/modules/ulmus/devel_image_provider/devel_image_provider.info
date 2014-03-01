@@ -1,0 +1,16 @@
+name = Devel Image Provider
+description = Allow choose image provider in content generation
+package = Development
+core = 7.x
+dependencies[] = devel
+dependencies[] = devel_generate
+dependencies[] = ctools
+
+; Handler plugin interface and base implementation.
+files[] = plugins/devel_image_provider/provider/base.inc
+; Information added by drupal.org packaging script on 2013-09-30
+version = "7.x-1.x-dev"
+core = "7.x"
+project = "devel_image_provider"
+datestamp = "1380569352"
+

@@ -1,0 +1,201 @@
+<?php
+
+/**
+ * @file
+ * Module file that exposes the options to select an external image provider to
+ * generate images.
+ */
+
+/**
+ * Implements hook_menu().
+ */
+function devel_image_provider_menu() {
+  $items['admin/config/development/devel_generate_image_provider'] = array(
+    'title' => 'Devel Generate Image Providers',
+    'description' => 'Allow choose image provider in content generation',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('devel_image_provider_providers_form'),
+    'access arguments' => array('administer nodes'),
+  );
+  return $items;
+}
+
+/**
+ * Admin settings form.
+ */
+function devel_image_provider_providers_form($form, &$form_state) {
+  $options = array();
+  $elements = array();
+
+  $form['#tree'] = TRUE;
+
+  $form['devel_generate_image_function'] = array(
+    '#type' => 'radios',
+    '#title' => t('Choose image provider to use in content generation'),
+    '#default_value' => variable_get('devel_generate_image_function', '_image_devel_generate'),
+    '#options' => array('_image_devel_generate' => t('Default')),
+  );
+
+  // Get all the providers defined by plugins.
+  ctools_include('plugins');
+  $plugins = ctools_get_plugins('devel_image_provider', 'provider');
+  $form_state['plugins'] = $plugins;
+  foreach ($plugins as $plugin) {
+    $class = ctools_plugin_get_class($plugin, 'class');
+    if (class_exists($class)) {
+      $class = new $class($plugin);
+      $elements[$plugin['name']] = $class->settingsForm();
+      $options[$plugin['name']] = $plugin['title'];
+    }
+  }
+
+  // Only expose the external provider in case there's any enabled.
+  if (count($options)) {
+    $form['devel_generate_image_function']['#options']['devel_image_provider_generate'] = t('External images provider');
+  }
+
+  // Expose all the available providers.
+  $form['available_providers'] = array(
+    '#type' => 'fieldset',
+    '#title' => t('Available providers'),
+    '#states' => array(
+      'visible' => array(
+        ':input[name="devel_generate_image_function"]' => array('value' => 'devel_image_provider_generate'),
+      ),
+    ),
+  );
+
+  $form['available_providers']['devel_image_provider_method_selected'] = array(
+    '#type' => 'radios',
+    '#options' => $options,
+    '#default_value' => variable_get('devel_image_provider_method_selected', ''),
+  );
+
+  $form['config_providers'] = array(
+    '#type' => 'container',
+  );
+  // Get all the plugin configuration forms.
+  foreach ($elements as $element) {
+    $form['config_providers'] += $element;
+  }
+
+  $form['submit'] = array(
+    '#type'  => 'submit',
+    '#value' => t('Save'),
+  );
+
+  return $form;
+}
+
+/**
+ * Validate handler for the providers settings.
+ */
+function devel_image_provider_providers_form_validate($form, &$form_state) {
+  foreach ($form_state['plugins'] as $plugin) {
+    if ($form_state['values']['available_providers']['devel_image_provider_method_selected'] == $plugin['name']) {
+      $class = ctools_plugin_get_class($plugin, 'class');
+      if (class_exists($class)) {
+        $class = new $class($plugin);
+        $class->settingsFormValidate($form, $form_state);
+      }
+    }
+  }
+}
+
+/**
+ * Submit handler for the providers settings.
+ */
+function devel_image_provider_providers_form_submit($form, &$form_state) {
+  form_state_values_clean($form_state);
+
+  // Save the values from the plugins.
+  foreach ($form_state['plugins'] as $plugin) {
+    if ($form_state['values']['available_providers']['devel_image_provider_method_selected'] == $plugin['name']) {
+      $class = ctools_plugin_get_class($plugin, 'class');
+      if (class_exists($class)) {
+        $class = new $class($plugin);
+        $class->settingsFormSubmit($form, $form_state);
+      }
+    }
+  }
+
+  // Finally, save the values coming from the generic form.
+  variable_set('devel_generate_image_function', $form_state['values']['devel_generate_image_function']);
+  variable_set('devel_image_provider_method_selected', $form_state['values']['available_providers']['devel_image_provider_method_selected']);
+  drupal_set_message(t('Settings stored'));
+}
+
+/**
+ * Helper function that takes care of redirecting the generation to the right
+ * provider.
+ */
+function devel_image_provider_generate($object, $field, $instance, $bundle) {
+  ctools_include('plugins');
+  $provider = variable_get('devel_image_provider_method_selected', array());
+  $plugin = ctools_get_plugins('devel_image_provider', 'provider', $provider);
+  $class = ctools_plugin_get_class($plugin, 'class');
+  if (class_exists($class)) {
+    $class = new $class($plugin);
+    return $class->generateImage($object, $field, $instance, $bundle);
+  }
+}
+
+/**
+ * Return file of $url using selected get_method
+ */
+function devel_image_provider_get_file($url, $filename, $method = 'curl') {
+  $data = NULL;
+
+  switch ($method) {
+    case 'curl':
+      $data = devel_image_provider_file_get_data_curl($url);
+      file_put_contents($filename, $data);
+      break;
+    case 'gd':
+      $image = imagecreatefromjpeg($url);
+      imagejpeg($image, $filename);
+      imagedestroy($image);
+      break;
+    case 'file_get_contents':
+      $data = file_get_contents($url);
+      file_put_contents($filename, $data);
+      break;
+  }
+
+  return $filename;
+}
+
+/**
+ * Gets the data from a URL
+ * http://davidwalsh.name/download-urls-content-php-curl
+ * TODO: FIX PROBLEM sometimes not work for lorempixum provider
+ * (get 301 Moved Permanently error message).
+ */
+function devel_image_provider_file_get_data_curl($url) {
+  $ch = curl_init();
+  $timeout = 5;
+  curl_setopt($ch, CURLOPT_URL, $url);
+  curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+  curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, $timeout);
+  $data = curl_exec($ch);
+  curl_close($ch);
+  return $data;
+}
+
+/**
+ * Implements hook_ctools_plugin_type().
+ */
+function devel_image_provider_ctools_plugin_type() {
+  $plugins['provider'] = array(
+    'classes' => array('class'),
+  );
+  return $plugins;
+}
+
+
+/**
+ * Implements hook_ctools_plugin_directory().
+ */
+function devel_image_provider_ctools_plugin_directory($module, $plugin) {
+  return 'plugins/' . $module . '/' . $plugin;
+}

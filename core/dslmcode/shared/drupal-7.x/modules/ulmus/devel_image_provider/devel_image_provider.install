@@ -1,0 +1,48 @@
+<?php
+
+/**
+ * @file
+ * Install hooks for devel image provider.
+ */
+
+/**
+ * Implements hook_uninstall().
+ */
+function devel_image_provider_uninstall() {
+  variable_del('devel_generate_image_function');
+}
+
+/**
+ * Implements hook_update_N().
+ *
+ * Remove old variables and uninstall former modules.
+ */
+function devel_image_provider_update_7001() {
+  variable_del('devel_image_provider_flickholdr_bw');
+  variable_del('devel_image_provider_flickholdr_tags');
+  variable_del('devel_image_provider_flickholdr_seed');
+  variable_del('devel_image_provider_flickholdr_get_method');
+  variable_del('local_folder_image_provider_folder_path');
+  variable_del('devel_image_provider_lorempixum_gray');
+  variable_del('devel_image_provider_lorempixum_categories');
+  variable_del('devel_image_provider_lorempixum_get_method');
+  variable_del('devel_image_provider_placehold_get_method');
+  variable_del('devel_image_provider_placehold_custom_text');
+  variable_del('devel_image_provider_placehold_background_color');
+  variable_del('devel_image_provider_placehold_text_color');
+  variable_del('devel_image_provider_placekitten_gray');
+  variable_del('devel_image_provider_placekitten_get_method');
+  variable_del('devel_image_provider_placezombies_gray');
+  variable_del('devel_image_provider_placezombies_get_method');
+
+  // Remove trace of former modules.
+  $modules = array('flickholdr_image_provider', 'local_folder_image_provider', 'lorempixum_image_provider', 'placehold_image_provider', 'placekitten_image_provider', 'placezombies_image_provider');
+  foreach ($modules as $module) {
+    db_update('system')
+      ->fields(array('status' => 0))
+      ->condition('type', 'module')
+      ->condition('name', $module)
+      ->execute();
+    drupal_uninstall_schema($module);
+  }
+}
