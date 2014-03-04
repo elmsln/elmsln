@@ -6,22 +6,17 @@ cd $DIR
 source ../../config/scripts/drush-create-site/config.cfg
 
 if [ -z "$1" ]; then
-echo "Usage: $0 <webroot> <course name> <stack>"
+echo "Usage: $0 <course name> <stack>"
 exit 1
 fi
 
 if [ -z "$2" ]; then
-echo "Usage: $0 <webroot> <course name> <stack>"
-exit 1
-fi
-
-if [ -z "$3" ]; then
-echo "Usage: $0 <webroot> <course name> <stack>"
+echo "Usage: $0 <course name> <stack>"
 exit 1
 fi
 
 #remove sites directory
-for sitedata in `find $1/$2/sites/$3 -name $2 | grep -v services` ; do
+for sitedata in `find $elmsln/config/stacks/$2 -name $1 | grep -v services` ; do
     echo "found sub-site $sitedata remove(y/n)"
     read rmsitedata
     if [ $rmsitedata == "y" ] || [ $rmsitedata == "yes" ]; then
@@ -47,7 +42,7 @@ for sitedata in `find $1/$2/sites/$3 -name $2 | grep -v services` ; do
                 fi
             fi
         echo "removing site data"
-            servicestest=`find $1/$2/sites/$3/*/services -name $2`
+            servicestest=`find $elmsln/config/stacks/$2/sites/$2/services/ -name $2`
             echo "services test"
             echo $servicestest
                 if [[ $servicestest ]]; then
@@ -60,29 +55,9 @@ for sitedata in `find $1/$2/sites/$3 -name $2 | grep -v services` ; do
     fi
 done
 
-#for database in `mysql -u$dbsu -p$dbsupw -e "show databases" | grep $2` ; do
-#echo "found database $database remove?(y/n)"
-#read rmdb
-#        if [ $rmdb == "y" ] || [ $rmdb == "yes" ]; then
-#                echo "This action can NOT be undone. confirm removal of $database(y/n)"
-#                read rmdb
-#                if [ $rmdb == "y" ] || [ $rmdb == "yes" ]; then
-#                echo "removing database $rmdb"
-#                mysql -u$dbsu -p$dbsupw -e "drop database $database"
-#                fi
-#        else
-#                echo "preserving database $database"
-#        fi
-#done
-# @todo this part needs rethought now that config lives in the config directory
-# right now this ends up copying the sites.php file that's being referenced
-# and replaces the symlink w/ the actual file that's been changed.
-# it also creates a .bak file in the core / domains locations which creates a
-# non committed file in the incorrect location.
-
 #move into config dir for stack
-cd $1/../../config/stacks/$3/sites
 #grep for coursename
+cd $elmsln/config/stacks/$2/sites/
 sitesphp=`grep -nr $2 sites.php`
 
 while [[ $sitesphp ]]; do
@@ -104,24 +79,8 @@ while [[ $sitesphp ]]; do
                 fi
 done
 
-#if [[ $sitesphp ]]; then
-#   grep -nr $2 $1/sites/sites.php
-#   echo "which line do you want to remove?(k to keep)"
-#   read rmnum
-#   while [[ ! $rmnum =~ [0-999-k] ]]; do
-#   echo "which line do you want to remove?(k to keep)"
-#   read rmnum
-#   done
-#       if [[ $rmnum == "k" ]]; then
-#       echo "preserving sites.php"
-#       else
-#       cp $1/sites/sites.php $1/sites/sites.php.bak
-#       echo "sites.php backed up to $1/sites/sites.php.bak"
-#       sed -i ""$rmnum"d" $1/sites/sites.php
-#       fi
-#fi
 
-if [ -L $1/$2 ]; then
+if [ -L $elmsln/domains/$2/$1 ]; then
 echo "removing symlink"
 rm -rf $1/$2
 else
