@@ -36,5 +36,9 @@ structure.  This is a very useful during testing to make sure that all
 traces of a built site are removed.  This will delete the database, dbuser,
 symlink, sites.php record, and multisite structure for the site.
 
-Currently there is no automation with CIS to use this and it's a backend
-developer command only because of its destructive nature.
+There is no automation with CIS to use this and it's a backend
+developer command only (for now) because of its destructive nature.
+
+basic usage: rm-site.sh <course> <stack>
+example (based on docs w/ symlinked command): drs test100 studio
+This will remove the course test100 from the studio stack.  This command only destroys information related to a single tool so it needs to be run against each stack to remove it from that system.  The Online stack does not have this capability.
