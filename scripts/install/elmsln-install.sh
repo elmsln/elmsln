@@ -167,5 +167,7 @@ if [ ! -d $sitedir/online/services/$host ];
       printf "\n\n\$conf['restws_basic_auth_user_regex'] = '/^SERVICE_.*/';" >> $sitedir/online/services/$host/settings.php
     fi
 fi
-
+# print out a reset password link for the online site so you can gain access
+drush -y --uri=$protocol://$online_domain uli
+# a message so you know where my head is at. you get candy if you reference this
 echo 'Welcome to the Singularity of edtech.. Go forth, build the future.'
