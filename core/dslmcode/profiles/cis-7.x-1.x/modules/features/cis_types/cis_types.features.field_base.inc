@@ -766,6 +766,41 @@ function cis_types_field_default_field_bases() {
     'type' => 'text',
   );
 
+  // Exported field_base: 'field_data_location'
+  $field_bases['field_data_location'] = array(
+    'active' => 1,
+    'cardinality' => 1,
+    'deleted' => 0,
+    'entity_types' => array(),
+    'field_name' => 'field_data_location',
+    'field_permissions' => array(
+      'type' => 2,
+    ),
+    'foreign keys' => array(),
+    'indexes' => array(),
+    'locked' => 0,
+    'module' => 'link',
+    'settings' => array(
+      'attributes' => array(
+        'class' => '',
+        'rel' => '',
+        'target' => 'default',
+      ),
+      'cis_connector_access' => FALSE,
+      'cis_connector_disable' => FALSE,
+      'display' => array(
+        'url_cutoff' => 80,
+      ),
+      'enable_tokens' => 1,
+      'title' => 'optional',
+      'title_maxlength' => 128,
+      'title_value' => '',
+      'url' => 0,
+    ),
+    'translatable' => 0,
+    'type' => 'link_field',
+  );
+
   // Exported field_base: 'field_display_in_course_list'
   $field_bases['field_display_in_course_list'] = array(
     'active' => 1,
@@ -1834,10 +1869,8 @@ function cis_types_field_default_field_bases() {
           'type' => 'none',
         ),
         'target_bundles' => array(
-          'academic_unit' => 'academic_unit',
           'college_services' => 'college_services',
           'course' => 'course',
-          'page' => 'page',
           'person' => 'person',
           'program' => 'program',
           'service' => 'service',
@@ -2229,6 +2262,40 @@ function cis_types_field_default_field_bases() {
     ),
     'translatable' => 0,
     'type' => 'list_text',
+  );
+
+  // Exported field_base: 'field_subtext'
+  $field_bases['field_subtext'] = array(
+    'active' => 1,
+    'cardinality' => 1,
+    'deleted' => 0,
+    'entity_types' => array(),
+    'field_name' => 'field_subtext',
+    'field_permissions' => array(
+      'type' => 0,
+    ),
+    'foreign keys' => array(
+      'format' => array(
+        'columns' => array(
+          'format' => 'format',
+        ),
+        'table' => 'filter_format',
+      ),
+    ),
+    'indexes' => array(
+      'format' => array(
+        0 => 'format',
+      ),
+    ),
+    'locked' => 0,
+    'module' => 'text',
+    'settings' => array(
+      'cis_connector_access' => FALSE,
+      'cis_connector_disable' => FALSE,
+      'max_length' => 50,
+    ),
+    'translatable' => 0,
+    'type' => 'text',
   );
 
   // Exported field_base: 'field_syllabus'

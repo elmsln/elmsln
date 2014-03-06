@@ -160,7 +160,7 @@ function cis_types_field_default_field_instances() {
         'settings' => array(
           'add' => 'Add',
           'delete' => 'Delete',
-          'description' => TRUE,
+          'description' => 1,
           'edit' => 'Edit',
         ),
         'type' => 'field_collection_list',
@@ -362,7 +362,7 @@ function cis_types_field_default_field_instances() {
         'year_range' => '2012:2018',
       ),
       'type' => 'date_select',
-      'weight' => 9,
+      'weight' => 12,
     ),
   );
 
@@ -498,7 +498,7 @@ function cis_types_field_default_field_instances() {
       'module' => 'field_hidden',
       'settings' => array(),
       'type' => 'field_hidden',
-      'weight' => 6,
+      'weight' => 5,
     ),
   );
 
@@ -544,7 +544,7 @@ function cis_types_field_default_field_instances() {
         'rows' => 5,
       ),
       'type' => 'text_textarea',
-      'weight' => 30,
+      'weight' => 18,
     ),
   );
 
@@ -592,7 +592,7 @@ function cis_types_field_default_field_instances() {
         'progress_indicator' => 'throbber',
       ),
       'type' => 'file_generic',
-      'weight' => 5,
+      'weight' => 4,
     ),
   );
 
@@ -651,7 +651,7 @@ function cis_types_field_default_field_instances() {
         'year_range' => '2012:2018',
       ),
       'type' => 'date_select',
-      'weight' => 10,
+      'weight' => 13,
     ),
   );
 
@@ -762,7 +762,7 @@ function cis_types_field_default_field_instances() {
       'module' => 'options',
       'settings' => array(),
       'type' => 'options_select',
-      'weight' => 31,
+      'weight' => 13,
     ),
   );
 
@@ -894,7 +894,7 @@ function cis_types_field_default_field_instances() {
     'entity_type' => 'field_collection_item',
     'field_name' => 'field_services',
     'label' => 'Services in use',
-    'required' => 0,
+    'required' => 1,
     'settings' => array(
       'behaviors' => array(
         'prepopulate' => array(
@@ -908,7 +908,7 @@ function cis_types_field_default_field_instances() {
       'module' => 'options',
       'settings' => array(),
       'type' => 'options_select',
-      'weight' => 16,
+      'weight' => 12,
     ),
   );
 
@@ -956,7 +956,7 @@ function cis_types_field_default_field_instances() {
         'progress_indicator' => 'throbber',
       ),
       'type' => 'file_generic',
-      'weight' => 28,
+      'weight' => 15,
     ),
   );
 
@@ -1061,7 +1061,7 @@ function cis_types_field_default_field_instances() {
         'progress_indicator' => 'throbber',
       ),
       'type' => 'file_generic',
-      'weight' => 29,
+      'weight' => 16,
     ),
   );
 
@@ -1106,7 +1106,7 @@ function cis_types_field_default_field_instances() {
         'rows' => 5,
       ),
       'type' => 'text_textarea',
-      'weight' => 27,
+      'weight' => 17,
     ),
   );
 
@@ -3187,7 +3187,7 @@ function cis_types_field_default_field_instances() {
         'module' => 'text',
         'settings' => array(),
         'type' => 'text_default',
-        'weight' => 1,
+        'weight' => 0,
       ),
       'teaser' => array(
         'label' => 'hidden',
@@ -3215,7 +3215,7 @@ function cis_types_field_default_field_instances() {
         'summary_rows' => 5,
       ),
       'type' => 'text_textarea_with_summary',
-      'weight' => 3,
+      'weight' => 2,
     ),
   );
 
@@ -3228,13 +3228,10 @@ function cis_types_field_default_field_instances() {
     'description' => '',
     'display' => array(
       'default' => array(
-        'label' => 'above',
-        'module' => 'entityreference',
-        'settings' => array(
-          'link' => FALSE,
-        ),
-        'type' => 'entityreference_label',
-        'weight' => 2,
+        'label' => 'hidden',
+        'settings' => array(),
+        'type' => 'hidden',
+        'weight' => 5,
       ),
       'teaser' => array(
         'label' => 'above',
@@ -3292,7 +3289,7 @@ function cis_types_field_default_field_instances() {
       'module' => 'options',
       'settings' => array(),
       'type' => 'options_select',
-      'weight' => 2,
+      'weight' => 4,
     ),
   );
 
@@ -3303,14 +3300,14 @@ function cis_types_field_default_field_instances() {
     'description' => '',
     'display' => array(
       'default' => array(
-        'label' => 'above',
+        'label' => 'hidden',
         'module' => 'image',
         'settings' => array(
           'image_link' => '',
           'image_style' => '',
         ),
         'type' => 'image',
-        'weight' => 4,
+        'weight' => 2,
       ),
       'teaser' => array(
         'label' => 'above',
@@ -3364,7 +3361,7 @@ function cis_types_field_default_field_instances() {
           'code' => 301,
         ),
         'type' => 'field_redirection',
-        'weight' => 0,
+        'weight' => 3,
       ),
       'teaser' => array(
         'label' => 'above',
@@ -3402,7 +3399,7 @@ function cis_types_field_default_field_instances() {
       'module' => 'link',
       'settings' => array(),
       'type' => 'link_field',
-      'weight' => 4,
+      'weight' => 7,
     ),
   );
 
@@ -3415,13 +3412,13 @@ function cis_types_field_default_field_instances() {
     'description' => '',
     'display' => array(
       'default' => array(
-        'label' => 'above',
+        'label' => 'inline',
         'module' => 'entityreference',
         'settings' => array(
           'link' => FALSE,
         ),
         'type' => 'entityreference_label',
-        'weight' => 3,
+        'weight' => 1,
       ),
       'teaser' => array(
         'label' => 'above',
@@ -3432,7 +3429,7 @@ function cis_types_field_default_field_instances() {
     ),
     'entity_type' => 'node',
     'field_name' => 'field_related_entity',
-    'label' => 'Related Entities',
+    'label' => 'Related',
     'required' => 0,
     'settings' => array(
       'behaviors' => array(
@@ -3485,6 +3482,49 @@ function cis_types_field_default_field_instances() {
       'settings' => array(),
       'type' => 'options_buttons',
       'weight' => 5,
+    ),
+  );
+
+  // Exported field_instance: 'node-news-field_subtext'
+  $field_instances['node-news-field_subtext'] = array(
+    'bundle' => 'news',
+    'default_value' => array(
+      0 => array(
+        'value' => 'New',
+      ),
+    ),
+    'deleted' => 0,
+    'description' => 'subtext displayed when news is highlighted on the front page',
+    'display' => array(
+      'default' => array(
+        'label' => 'above',
+        'settings' => array(),
+        'type' => 'hidden',
+        'weight' => 4,
+      ),
+      'teaser' => array(
+        'label' => 'above',
+        'settings' => array(),
+        'type' => 'hidden',
+        'weight' => 0,
+      ),
+    ),
+    'entity_type' => 'node',
+    'field_name' => 'field_subtext',
+    'label' => 'Subtext',
+    'required' => 0,
+    'settings' => array(
+      'text_processing' => 0,
+      'user_register_form' => FALSE,
+    ),
+    'widget' => array(
+      'active' => 1,
+      'module' => 'text',
+      'settings' => array(
+        'size' => 50,
+      ),
+      'type' => 'text_textfield',
+      'weight' => 1,
     ),
   );
 
@@ -4672,7 +4712,60 @@ Global will be available to all resources to reference',
         'summary_rows' => 5,
       ),
       'type' => 'text_textarea_with_summary',
-      'weight' => 5,
+      'weight' => 6,
+    ),
+  );
+
+  // Exported field_instance: 'node-service-field_data_location'
+  $field_instances['node-service-field_data_location'] = array(
+    'bundle' => 'service',
+    'default_value' => NULL,
+    'deleted' => 0,
+    'description' => 'The URL that data and backend calls can be made against.  This can be the same as the Location but is recommended that an additional domain be used so that these web service connections can operate on a different IP and be fire-walled independently for added security.',
+    'display' => array(
+      'default' => array(
+        'label' => 'above',
+        'settings' => array(),
+        'type' => 'hidden',
+        'weight' => 3,
+      ),
+      'teaser' => array(
+        'label' => 'above',
+        'settings' => array(),
+        'type' => 'hidden',
+        'weight' => 0,
+      ),
+    ),
+    'entity_type' => 'node',
+    'field_name' => 'field_data_location',
+    'label' => 'Data location',
+    'required' => 1,
+    'settings' => array(
+      'attributes' => array(
+        'class' => '',
+        'configurable_title' => 0,
+        'rel' => '',
+        'target' => 'default',
+        'title' => '',
+      ),
+      'display' => array(
+        'url_cutoff' => 80,
+      ),
+      'enable_tokens' => 0,
+      'rel_remove' => 'default',
+      'title' => 'none',
+      'title_maxlength' => 128,
+      'title_value' => '',
+      'url' => 0,
+      'user_register_form' => FALSE,
+      'validate_url' => 1,
+    ),
+    'widget' => array(
+      'active' => 0,
+      'module' => 'link',
+      'settings' => array(),
+      'type' => 'link_field',
+      'weight' => 3,
     ),
   );
 
@@ -4711,7 +4804,7 @@ Global will be available to all resources to reference',
         'size' => 60,
       ),
       'type' => 'text_textfield',
-      'weight' => 4,
+      'weight' => 5,
     ),
   );
 
@@ -4720,7 +4813,7 @@ Global will be available to all resources to reference',
     'bundle' => 'service',
     'default_value' => NULL,
     'deleted' => 0,
-    'description' => 'Web address associated with this service',
+    'description' => 'Web address associated with this service.  This is the domain where requests to build this type of system will be stored.',
     'display' => array(
       'default' => array(
         'label' => 'inline',
@@ -4739,7 +4832,7 @@ Global will be available to all resources to reference',
     'entity_type' => 'node',
     'field_name' => 'field_location',
     'label' => 'Location',
-    'required' => 0,
+    'required' => 1,
     'settings' => array(
       'attributes' => array(
         'class' => '',
@@ -4752,6 +4845,7 @@ Global will be available to all resources to reference',
         'url_cutoff' => 80,
       ),
       'enable_tokens' => 0,
+      'rel_remove' => 'default',
       'title' => 'none',
       'title_maxlength' => 128,
       'title_value' => '',
@@ -4779,7 +4873,7 @@ Global will be available to all resources to reference',
         'label' => 'above',
         'settings' => array(),
         'type' => 'hidden',
-        'weight' => 3,
+        'weight' => 4,
       ),
       'teaser' => array(
         'label' => 'above',
@@ -4803,7 +4897,7 @@ Global will be available to all resources to reference',
         'size' => 16,
       ),
       'type' => 'text_textfield',
-      'weight' => 3,
+      'weight' => 4,
     ),
   );
 
@@ -5074,6 +5168,7 @@ Global will be available to all resources to reference',
   t('Course title');
   t('Credit hours');
   t('Cron key');
+  t('Data location');
   t('Delivery Guide');
   t('Description');
   t('Design doc');
@@ -5108,8 +5203,8 @@ Global will be available to all resources to reference',
   t('Promotional screenshots for course');
   t('Readings');
   t('Redirect to');
+  t('Related');
   t('Related Academic home');
-  t('Related Entities');
   t('Related courses');
   t('Representative Courses');
   t('Resource type');
@@ -5126,9 +5221,11 @@ Global will be available to all resources to reference',
   t('Services in use');
   t('Setup guide');
   t('Special Classifications');
+  t('Subtext');
   t('Syllabus');
   t('TAs that have been allocated to this section');
   t('Teaching assistants');
+  t('The URL that data and backend calls can be made against.  This can be the same as the Location but is recommended that an additional domain be used so that these web service connections can operate on a different IP and be fire-walled independently for added security.');
   t('The account that this page is associated to.  Not required so there can be pages about people who don\'t have accounts in the system but preferred for general data reliability.');
   t('The address for the course: example Title - Art 010, machine art010');
   t('The dates that this section will have access to the material listed in the Access section');
@@ -5145,7 +5242,7 @@ Global will be available to all resources to reference',
   t('Use this to introduce the instructor to the course.  This should be a personalized message, most often accompanied by video.');
   t('Used by CIS for filtering people into different lists');
   t('User Account');
-  t('Web address associated with this service');
+  t('Web address associated with this service.  This is the domain where requests to build this type of system will be stored.');
   t('Website');
   t('Welcome Letter');
   t('Welcome Page');
@@ -5157,6 +5254,7 @@ Global will be available to all resources to reference');
   t('Year');
   t('icon');
   t('machine name of this service. This is used as part of automation');
+  t('subtext displayed when news is highlighted on the front page');
 
   return $field_instances;
 }

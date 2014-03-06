@@ -219,7 +219,9 @@ function cis_roles_user_default_permissions() {
   $permissions['administer field collections'] = array(
     'name' => 'administer field collections',
     'roles' => array(
+      'Learning Designer' => 'Learning Designer',
       'SERVICE ACCOUNT' => 'SERVICE ACCOUNT',
+      'Staff' => 'Staff',
       'administrator' => 'administrator',
     ),
     'module' => 'field_collection',
@@ -1533,7 +1535,11 @@ function cis_roles_user_default_permissions() {
   $permissions['view field_cron_key'] = array(
     'name' => 'view field_cron_key',
     'roles' => array(
+      'Coordinator' => 'Coordinator',
+      'Instructor' => 'Instructor',
+      'Learning Designer' => 'Learning Designer',
       'SERVICE ACCOUNT' => 'SERVICE ACCOUNT',
+      'Staff' => 'Staff',
       'administrator' => 'administrator',
     ),
     'module' => 'field_permissions',
@@ -1837,7 +1843,11 @@ function cis_roles_user_default_permissions() {
   $permissions['view own field_cron_key'] = array(
     'name' => 'view own field_cron_key',
     'roles' => array(
+      'Coordinator' => 'Coordinator',
+      'Instructor' => 'Instructor',
+      'Learning Designer' => 'Learning Designer',
       'SERVICE ACCOUNT' => 'SERVICE ACCOUNT',
+      'Staff' => 'Staff',
       'administrator' => 'administrator',
     ),
     'module' => 'field_permissions',

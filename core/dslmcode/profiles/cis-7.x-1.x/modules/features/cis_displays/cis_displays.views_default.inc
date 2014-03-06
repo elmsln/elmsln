@@ -22,7 +22,7 @@ function cis_displays_views_default_views() {
 
   /* Display: Master */
   $handler = $view->new_display('default', 'Master', 'default');
-  $handler->display->display_options['title'] = 'About the author';
+  $handler->display->display_options['title'] = 'About the Author';
   $handler->display->display_options['use_more_always'] = FALSE;
   $handler->display->display_options['access']['type'] = 'perm';
   $handler->display->display_options['cache']['type'] = 'none';
@@ -130,7 +130,7 @@ function cis_displays_views_default_views() {
 
   /* Display: Master */
   $handler = $view->new_display('default', 'Master', 'default');
-  $handler->display->display_options['title'] = 'Course bulk operations';
+  $handler->display->display_options['title'] = 'Course Bulk Operations';
   $handler->display->display_options['use_more_always'] = FALSE;
   $handler->display->display_options['access']['type'] = 'role';
   $handler->display->display_options['access']['role'] = array(
@@ -521,14 +521,14 @@ function cis_displays_views_default_views() {
   $view->description = 'Views that help visualize department information';
   $view->tag = 'default';
   $view->base_table = 'node';
-  $view->human_name = 'CIS departments';
+  $view->human_name = 'CIS Departments';
   $view->core = 7;
   $view->api_version = '3.0';
   $view->disabled = FALSE; /* Edit this to true to make a default view disabled initially */
 
   /* Display: Master */
   $handler = $view->new_display('default', 'Master', 'default');
-  $handler->display->display_options['title'] = 'CIS departments';
+  $handler->display->display_options['title'] = 'CIS Departments';
   $handler->display->display_options['use_more_always'] = FALSE;
   $handler->display->display_options['access']['type'] = 'perm';
   $handler->display->display_options['cache']['type'] = 'none';
@@ -700,7 +700,11 @@ function cis_displays_views_default_views() {
   $handler->display->display_options['use_ajax'] = TRUE;
   $handler->display->display_options['use_more_always'] = FALSE;
   $handler->display->display_options['access']['type'] = 'perm';
-  $handler->display->display_options['cache']['type'] = 'none';
+  $handler->display->display_options['cache']['type'] = 'time';
+  $handler->display->display_options['cache']['results_lifespan'] = '-1';
+  $handler->display->display_options['cache']['results_lifespan_custom'] = '0';
+  $handler->display->display_options['cache']['output_lifespan'] = '518400';
+  $handler->display->display_options['cache']['output_lifespan_custom'] = '0';
   $handler->display->display_options['query']['type'] = 'views_query';
   $handler->display->display_options['exposed_form']['type'] = 'better_exposed_filters';
   $handler->display->display_options['exposed_form']['options']['autosubmit'] = TRUE;
@@ -927,14 +931,14 @@ function cis_displays_views_default_views() {
   $view->description = '';
   $view->tag = 'default';
   $view->base_table = 'node';
-  $view->human_name = 'CIS faculty courses';
+  $view->human_name = 'CIS Faculty Courses';
   $view->core = 7;
   $view->api_version = '3.0';
   $view->disabled = FALSE; /* Edit this to true to make a default view disabled initially */
 
   /* Display: Master */
   $handler = $view->new_display('default', 'Master', 'default');
-  $handler->display->display_options['title'] = 'Courses authored';
+  $handler->display->display_options['title'] = 'Courses Authored';
   $handler->display->display_options['use_more_always'] = FALSE;
   $handler->display->display_options['access']['type'] = 'perm';
   $handler->display->display_options['cache']['type'] = 'none';
@@ -1650,7 +1654,7 @@ function cis_displays_views_default_views() {
   $handler->display->display_options['fields']['field_section_number_editable']['widget_type'] = '0';
   $handler->display->display_options['fields']['field_section_number_editable']['suppress_label'] = 1;
   $handler->display->display_options['fields']['field_section_number_editable']['suppress_description'] = 1;
-  /* Field: Field: Services in use (editable) */
+  /* Field: Field: Service (editable) */
   $handler->display->display_options['fields']['field_services_editable']['id'] = 'field_services_editable';
   $handler->display->display_options['fields']['field_services_editable']['table'] = 'field_data_field_services';
   $handler->display->display_options['fields']['field_services_editable']['field'] = 'field_services_editable';
@@ -2097,7 +2101,7 @@ function cis_displays_views_default_views() {
   /* Display: Verification */
   $handler = $view->new_display('page', 'Verification', 'page');
   $handler->display->display_options['defaults']['title'] = FALSE;
-  $handler->display->display_options['title'] = 'Instructor verification';
+  $handler->display->display_options['title'] = 'Instructor Verification';
   $handler->display->display_options['defaults']['fields'] = FALSE;
   /* Field: Content: Title */
   $handler->display->display_options['fields']['title']['id'] = 'title';
@@ -2246,7 +2250,7 @@ function cis_displays_views_default_views() {
   /* Display: Welcome Page */
   $handler = $view->new_display('page', 'Welcome Page', 'page_5');
   $handler->display->display_options['defaults']['title'] = FALSE;
-  $handler->display->display_options['title'] = 'Welcome page';
+  $handler->display->display_options['title'] = 'Welcome Page';
   $handler->display->display_options['defaults']['pager'] = FALSE;
   $handler->display->display_options['pager']['type'] = 'full';
   $handler->display->display_options['pager']['options']['items_per_page'] = '5';
@@ -2344,10 +2348,10 @@ function cis_displays_views_default_views() {
 
   $view = new view();
   $view->name = 'cis_marketing_programs';
-  $view->description = 'Listings of programs';
+  $view->description = 'Listings of Programs';
   $view->tag = 'default';
   $view->base_table = 'node';
-  $view->human_name = 'CIS marketing programs';
+  $view->human_name = 'CIS Marketing programs';
   $view->core = 7;
   $view->api_version = '3.0';
   $view->disabled = FALSE; /* Edit this to true to make a default view disabled initially */
@@ -2357,7 +2361,11 @@ function cis_displays_views_default_views() {
   $handler->display->display_options['title'] = 'Programs of study';
   $handler->display->display_options['use_more_always'] = FALSE;
   $handler->display->display_options['access']['type'] = 'perm';
-  $handler->display->display_options['cache']['type'] = 'none';
+  $handler->display->display_options['cache']['type'] = 'time';
+  $handler->display->display_options['cache']['results_lifespan'] = '518400';
+  $handler->display->display_options['cache']['results_lifespan_custom'] = '0';
+  $handler->display->display_options['cache']['output_lifespan'] = '518400';
+  $handler->display->display_options['cache']['output_lifespan_custom'] = '0';
   $handler->display->display_options['query']['type'] = 'views_query';
   $handler->display->display_options['exposed_form']['type'] = 'basic';
   $handler->display->display_options['pager']['type'] = 'none';
@@ -2554,14 +2562,14 @@ function cis_displays_views_default_views() {
   $view->description = 'Course listing in the administrative CIS side';
   $view->tag = 'default';
   $view->base_table = 'node';
-  $view->human_name = 'CIS courses';
+  $view->human_name = 'CIS Courses';
   $view->core = 7;
   $view->api_version = '3.0';
   $view->disabled = FALSE; /* Edit this to true to make a default view disabled initially */
 
   /* Display: Master */
   $handler = $view->new_display('default', 'Master', 'default');
-  $handler->display->display_options['title'] = 'CIS my courses';
+  $handler->display->display_options['title'] = 'CIS My Courses';
   $handler->display->display_options['use_more_always'] = FALSE;
   $handler->display->display_options['access']['type'] = 'perm';
   $handler->display->display_options['cache']['type'] = 'none';
@@ -2614,7 +2622,7 @@ function cis_displays_views_default_views() {
   /* Display: Instructor */
   $handler = $view->new_display('block', 'Instructor', 'block_1');
   $handler->display->display_options['defaults']['title'] = FALSE;
-  $handler->display->display_options['title'] = 'Courses I teach';
+  $handler->display->display_options['title'] = 'Courses I Teach';
   $handler->display->display_options['defaults']['relationships'] = FALSE;
   /* Relationship: Offering */
   $handler->display->display_options['relationships']['field_offerings_value']['id'] = 'field_offerings_value';
@@ -2673,14 +2681,14 @@ function cis_displays_views_default_views() {
   $view->description = 'Displays useful in visualizing what is being offered';
   $view->tag = 'default';
   $view->base_table = 'field_collection_item';
-  $view->human_name = 'CIS offerings';
+  $view->human_name = 'CIS Offerings';
   $view->core = 7;
   $view->api_version = '3.0';
   $view->disabled = FALSE; /* Edit this to true to make a default view disabled initially */
 
   /* Display: Master */
   $handler = $view->new_display('default', 'Master', 'default');
-  $handler->display->display_options['title'] = 'CIS offerings';
+  $handler->display->display_options['title'] = 'CIS Offerings';
   $handler->display->display_options['use_more_always'] = FALSE;
   $handler->display->display_options['access']['type'] = 'none';
   $handler->display->display_options['cache']['type'] = 'none';
@@ -3179,17 +3187,17 @@ function cis_displays_views_default_views() {
 
   $view = new view();
   $view->name = 'cis_programs';
-  $view->description = 'Listings of programs';
+  $view->description = 'Listings of Programs';
   $view->tag = 'default';
   $view->base_table = 'node';
-  $view->human_name = 'CIS programs';
+  $view->human_name = 'CIS Programs';
   $view->core = 7;
   $view->api_version = '3.0';
   $view->disabled = FALSE; /* Edit this to true to make a default view disabled initially */
 
   /* Display: Master */
   $handler = $view->new_display('default', 'Master', 'default');
-  $handler->display->display_options['title'] = 'CIS programs';
+  $handler->display->display_options['title'] = 'CIS Programs';
   $handler->display->display_options['use_more_always'] = FALSE;
   $handler->display->display_options['access']['type'] = 'perm';
   $handler->display->display_options['cache']['type'] = 'none';
@@ -3320,7 +3328,7 @@ function cis_displays_views_default_views() {
   $view->description = 'List of global resources for use by course sections in the system.';
   $view->tag = 'default';
   $view->base_table = 'node';
-  $view->human_name = 'CIS resources';
+  $view->human_name = 'CIS Resources';
   $view->core = 7;
   $view->api_version = '3.0';
   $view->disabled = FALSE; /* Edit this to true to make a default view disabled initially */
@@ -3401,7 +3409,7 @@ function cis_displays_views_default_views() {
   /* Display: Page */
   $handler = $view->new_display('page', 'Page', 'page_1');
   $handler->display->display_options['defaults']['title'] = FALSE;
-  $handler->display->display_options['title'] = 'CIS resources';
+  $handler->display->display_options['title'] = 'CIS Resources';
   $handler->display->display_options['defaults']['style_plugin'] = FALSE;
   $handler->display->display_options['style_plugin'] = 'table';
   $handler->display->display_options['style_options']['columns'] = array(
@@ -3540,11 +3548,10 @@ function cis_displays_views_default_views() {
   $handler->display->display_options['fields']['title_1']['field'] = 'title';
   $handler->display->display_options['fields']['title_1']['alter']['alter_text'] = TRUE;
   $handler->display->display_options['fields']['title_1']['alter']['text'] = '[field_course]';
-  /* Field: Field: Services in use */
+  /* Field: Field: Service */
   $handler->display->display_options['fields']['field_services']['id'] = 'field_services';
   $handler->display->display_options['fields']['field_services']['table'] = 'field_data_field_services';
   $handler->display->display_options['fields']['field_services']['field'] = 'field_services';
-  $handler->display->display_options['fields']['field_services']['label'] = 'Service';
   $handler->display->display_options['fields']['field_services']['settings'] = array(
     'link' => 1,
   );
@@ -3620,11 +3627,10 @@ function cis_displays_views_default_views() {
   /* Display: Courses */
   $handler = $view->new_display('page', 'Courses', 'page_1');
   $handler->display->display_options['defaults']['fields'] = FALSE;
-  /* Field: Field: Services in use */
+  /* Field: Field: Service */
   $handler->display->display_options['fields']['field_services']['id'] = 'field_services';
   $handler->display->display_options['fields']['field_services']['table'] = 'field_data_field_services';
   $handler->display->display_options['fields']['field_services']['field'] = 'field_services';
-  $handler->display->display_options['fields']['field_services']['label'] = 'Service';
   $handler->display->display_options['fields']['field_services']['exclude'] = TRUE;
   $handler->display->display_options['fields']['field_services']['settings'] = array(
     'link' => 0,
@@ -3679,7 +3685,7 @@ function cis_displays_views_default_views() {
   $view->description = 'List of global resources for use by course sections in the system.';
   $view->tag = 'default';
   $view->base_table = 'node';
-  $view->human_name = 'CIS services';
+  $view->human_name = 'CIS Services';
   $view->core = 7;
   $view->api_version = '3.0';
   $view->disabled = FALSE; /* Edit this to true to make a default view disabled initially */
@@ -3740,7 +3746,7 @@ function cis_displays_views_default_views() {
   /* Display: Service list */
   $handler = $view->new_display('page', 'Service list', 'page_1');
   $handler->display->display_options['defaults']['title'] = FALSE;
-  $handler->display->display_options['title'] = 'CIS resources';
+  $handler->display->display_options['title'] = 'CIS Resources';
   $handler->display->display_options['defaults']['style_plugin'] = FALSE;
   $handler->display->display_options['style_plugin'] = 'table';
   $handler->display->display_options['style_options']['columns'] = array(
@@ -3830,7 +3836,7 @@ function cis_displays_views_default_views() {
   /* Display: Service Instance list */
   $handler = $view->new_display('page', 'Service Instance list', 'page_2');
   $handler->display->display_options['defaults']['title'] = FALSE;
-  $handler->display->display_options['title'] = 'Service instances';
+  $handler->display->display_options['title'] = 'Service Instances';
   $handler->display->display_options['defaults']['style_plugin'] = FALSE;
   $handler->display->display_options['style_plugin'] = 'table';
   $handler->display->display_options['style_options']['columns'] = array(
@@ -3963,11 +3969,10 @@ function cis_displays_views_default_views() {
   $handler->display->display_options['fields']['field_course_1']['settings'] = array(
     'link' => 1,
   );
-  /* Field: Field: Services in use */
+  /* Field: Field: Service */
   $handler->display->display_options['fields']['field_services']['id'] = 'field_services';
   $handler->display->display_options['fields']['field_services']['table'] = 'field_data_field_services';
   $handler->display->display_options['fields']['field_services']['field'] = 'field_services';
-  $handler->display->display_options['fields']['field_services']['label'] = 'Service';
   $handler->display->display_options['fields']['field_services']['element_label_colon'] = FALSE;
   $handler->display->display_options['fields']['field_services']['settings'] = array(
     'link' => 1,
@@ -4037,7 +4042,7 @@ function cis_displays_views_default_views() {
     3 => 0,
     13 => 0,
   );
-  /* Filter criterion: Field: Services in use (field_services) */
+  /* Filter criterion: Field: Service (field_services) */
   $handler->display->display_options['filters']['field_services_target_id']['id'] = 'field_services_target_id';
   $handler->display->display_options['filters']['field_services_target_id']['table'] = 'field_data_field_services';
   $handler->display->display_options['filters']['field_services_target_id']['field'] = 'field_services_target_id';
@@ -4074,18 +4079,22 @@ function cis_displays_views_default_views() {
   $view->description = 'Quick links to service instances used in a course';
   $view->tag = 'default';
   $view->base_table = 'node';
-  $view->human_name = 'Course service instances';
+  $view->human_name = 'Course Service Instances';
   $view->core = 7;
   $view->api_version = '3.0';
   $view->disabled = FALSE; /* Edit this to true to make a default view disabled initially */
 
   /* Display: Master */
   $handler = $view->new_display('default', 'Master', 'default');
-  $handler->display->display_options['title'] = 'Service instances';
+  $handler->display->display_options['title'] = 'Service Instances';
   $handler->display->display_options['use_more_always'] = FALSE;
   $handler->display->display_options['access']['type'] = 'perm';
   $handler->display->display_options['access']['perm'] = 'edit any course content';
-  $handler->display->display_options['cache']['type'] = 'none';
+  $handler->display->display_options['cache']['type'] = 'time';
+  $handler->display->display_options['cache']['results_lifespan'] = '-1';
+  $handler->display->display_options['cache']['results_lifespan_custom'] = '0';
+  $handler->display->display_options['cache']['output_lifespan'] = '518400';
+  $handler->display->display_options['cache']['output_lifespan_custom'] = '0';
   $handler->display->display_options['query']['type'] = 'views_query';
   $handler->display->display_options['exposed_form']['type'] = 'basic';
   $handler->display->display_options['pager']['type'] = 'none';
@@ -4353,7 +4362,7 @@ function cis_displays_views_default_views() {
   /* Display: TA Tab */
   $handler = $view->new_display('page', 'TA Tab', 'page_2');
   $handler->display->display_options['defaults']['title'] = FALSE;
-  $handler->display->display_options['title'] = 'Teaching assistant resources';
+  $handler->display->display_options['title'] = 'Teaching Assistant Resources';
   $handler->display->display_options['display_description'] = 'Teaching assistant area for documents and resources';
   $handler->display->display_options['defaults']['hide_admin_links'] = FALSE;
   $handler->display->display_options['defaults']['access'] = FALSE;
@@ -4395,7 +4404,7 @@ function cis_displays_views_default_views() {
   /* Display: Inst Tab */
   $handler = $view->new_display('page', 'Inst Tab', 'page_3');
   $handler->display->display_options['defaults']['title'] = FALSE;
-  $handler->display->display_options['title'] = 'Instructor resources';
+  $handler->display->display_options['title'] = 'Instructor Resources';
   $handler->display->display_options['display_description'] = 'Instructor tab';
   $handler->display->display_options['defaults']['hide_admin_links'] = FALSE;
   $handler->display->display_options['defaults']['access'] = FALSE;
@@ -4506,10 +4515,10 @@ function cis_displays_views_default_views() {
 
   $view = new view();
   $view->name = 'courses_overview';
-  $view->description = '';
-  $view->tag = 'default';
+  $view->description = 'Pages and Blocks to visualize courses';
+  $view->tag = 'CIS';
   $view->base_table = 'node';
-  $view->human_name = 'Courses overview';
+  $view->human_name = 'Course pages and blocks';
   $view->core = 7;
   $view->api_version = '3.0';
   $view->disabled = FALSE; /* Edit this to true to make a default view disabled initially */
@@ -4521,7 +4530,11 @@ function cis_displays_views_default_views() {
   $handler->display->display_options['use_ajax'] = TRUE;
   $handler->display->display_options['use_more_always'] = FALSE;
   $handler->display->display_options['access']['type'] = 'perm';
-  $handler->display->display_options['cache']['type'] = 'none';
+  $handler->display->display_options['cache']['type'] = 'time';
+  $handler->display->display_options['cache']['results_lifespan'] = '-1';
+  $handler->display->display_options['cache']['results_lifespan_custom'] = '0';
+  $handler->display->display_options['cache']['output_lifespan'] = '518400';
+  $handler->display->display_options['cache']['output_lifespan_custom'] = '0';
   $handler->display->display_options['query']['type'] = 'views_query';
   $handler->display->display_options['exposed_form']['type'] = 'better_exposed_filters';
   $handler->display->display_options['exposed_form']['options']['reset_button'] = TRUE;
@@ -4983,7 +4996,7 @@ function cis_displays_views_default_views() {
   /* Display: Author block */
   $handler = $view->new_display('block', 'Author block', 'block_1');
   $handler->display->display_options['defaults']['title'] = FALSE;
-  $handler->display->display_options['title'] = 'Courses authored';
+  $handler->display->display_options['title'] = 'Courses Authored';
   $handler->display->display_options['display_description'] = 'Block of courses authored by the contextual user';
   $handler->display->display_options['defaults']['exposed_form'] = FALSE;
   $handler->display->display_options['exposed_form']['type'] = 'basic';
@@ -5099,9 +5112,9 @@ function cis_displays_views_default_views() {
   $handler->display->display_options['block_description'] = 'Course Author';
 
   /* Display: Instructor Highlights */
-  $handler = $view->new_display('block', 'Instructor highlights', 'block_2');
+  $handler = $view->new_display('block', 'Instructor Highlights', 'block_2');
   $handler->display->display_options['defaults']['title'] = FALSE;
-  $handler->display->display_options['title'] = 'Highlight reel';
+  $handler->display->display_options['title'] = 'Highlight Reel';
   $handler->display->display_options['defaults']['css_class'] = FALSE;
   $handler->display->display_options['display_description'] = 'Media for this instructor';
   $handler->display->display_options['defaults']['exposed_form'] = FALSE;
@@ -5196,7 +5209,7 @@ function cis_displays_views_default_views() {
   /* Display: Related Course */
   $handler = $view->new_display('block', 'Related Course', 'block_3');
   $handler->display->display_options['defaults']['title'] = FALSE;
-  $handler->display->display_options['title'] = 'Related courses';
+  $handler->display->display_options['title'] = 'Related Courses';
   $handler->display->display_options['display_description'] = 'Courses related to this one';
   $handler->display->display_options['defaults']['exposed_form'] = FALSE;
   $handler->display->display_options['exposed_form']['type'] = 'basic';
@@ -5329,6 +5342,144 @@ function cis_displays_views_default_views() {
   );
   $handler->display->display_options['filters']['type']['group'] = 1;
   $handler->display->display_options['block_description'] = 'Related Courses';
+
+  /* Display: Program courses */
+  $handler = $view->new_display('block', 'Program courses', 'block_4');
+  $handler->display->display_options['defaults']['title'] = FALSE;
+  $handler->display->display_options['title'] = 'Courses';
+  $handler->display->display_options['display_description'] = 'Courses in this program of study';
+  $handler->display->display_options['defaults']['exposed_form'] = FALSE;
+  $handler->display->display_options['exposed_form']['type'] = 'basic';
+  $handler->display->display_options['exposed_form']['options']['expose_sort_order'] = FALSE;
+  $handler->display->display_options['defaults']['pager'] = FALSE;
+  $handler->display->display_options['pager']['type'] = 'none';
+  $handler->display->display_options['pager']['options']['offset'] = '0';
+  $handler->display->display_options['defaults']['style_plugin'] = FALSE;
+  $handler->display->display_options['style_plugin'] = 'fluid_grid';
+  $handler->display->display_options['style_options']['items_width'] = '';
+  $handler->display->display_options['style_options']['box_shadow'] = '0';
+  $handler->display->display_options['style_options']['border_radius'] = '0';
+  $handler->display->display_options['defaults']['style_options'] = FALSE;
+  $handler->display->display_options['defaults']['row_plugin'] = FALSE;
+  $handler->display->display_options['row_plugin'] = 'fields';
+  $handler->display->display_options['defaults']['row_options'] = FALSE;
+  $handler->display->display_options['defaults']['relationships'] = FALSE;
+  /* Relationship: Entity Reference: Referenced Entity */
+  $handler->display->display_options['relationships']['field_academic_home_target_id']['id'] = 'field_academic_home_target_id';
+  $handler->display->display_options['relationships']['field_academic_home_target_id']['table'] = 'field_data_field_academic_home';
+  $handler->display->display_options['relationships']['field_academic_home_target_id']['field'] = 'field_academic_home_target_id';
+  $handler->display->display_options['relationships']['field_academic_home_target_id']['label'] = 'academic home';
+  $handler->display->display_options['relationships']['field_academic_home_target_id']['required'] = TRUE;
+  /* Relationship: Course */
+  $handler->display->display_options['relationships']['reverse_field_program_classification_node']['id'] = 'reverse_field_program_classification_node';
+  $handler->display->display_options['relationships']['reverse_field_program_classification_node']['table'] = 'node';
+  $handler->display->display_options['relationships']['reverse_field_program_classification_node']['field'] = 'reverse_field_program_classification_node';
+  $handler->display->display_options['relationships']['reverse_field_program_classification_node']['ui_name'] = 'Course';
+  $handler->display->display_options['relationships']['reverse_field_program_classification_node']['label'] = 'Course';
+  $handler->display->display_options['relationships']['reverse_field_program_classification_node']['required'] = TRUE;
+  $handler->display->display_options['defaults']['fields'] = FALSE;
+  /* Field: Content: Banner */
+  $handler->display->display_options['fields']['field_banner']['id'] = 'field_banner';
+  $handler->display->display_options['fields']['field_banner']['table'] = 'field_data_field_banner';
+  $handler->display->display_options['fields']['field_banner']['field'] = 'field_banner';
+  $handler->display->display_options['fields']['field_banner']['relationship'] = 'reverse_field_program_classification_node';
+  $handler->display->display_options['fields']['field_banner']['label'] = '';
+  $handler->display->display_options['fields']['field_banner']['element_label_colon'] = FALSE;
+  $handler->display->display_options['fields']['field_banner']['element_wrapper_class'] = 'course-block-banner';
+  $handler->display->display_options['fields']['field_banner']['click_sort_column'] = 'fid';
+  $handler->display->display_options['fields']['field_banner']['settings'] = array(
+    'image_style' => 'course_block_thumb',
+    'image_link' => 'content',
+  );
+  /* Field: Content: Color */
+  $handler->display->display_options['fields']['field_color']['id'] = 'field_color';
+  $handler->display->display_options['fields']['field_color']['table'] = 'field_data_field_color';
+  $handler->display->display_options['fields']['field_color']['field'] = 'field_color';
+  $handler->display->display_options['fields']['field_color']['relationship'] = 'field_academic_home_target_id';
+  $handler->display->display_options['fields']['field_color']['label'] = '';
+  $handler->display->display_options['fields']['field_color']['element_label_colon'] = FALSE;
+  $handler->display->display_options['fields']['field_color']['element_wrapper_class'] = 'course-block-color';
+  /* Field: Content: Title */
+  $handler->display->display_options['fields']['title']['id'] = 'title';
+  $handler->display->display_options['fields']['title']['table'] = 'node';
+  $handler->display->display_options['fields']['title']['field'] = 'title';
+  $handler->display->display_options['fields']['title']['relationship'] = 'reverse_field_program_classification_node';
+  $handler->display->display_options['fields']['title']['label'] = '';
+  $handler->display->display_options['fields']['title']['alter']['word_boundary'] = FALSE;
+  $handler->display->display_options['fields']['title']['alter']['ellipsis'] = FALSE;
+  $handler->display->display_options['fields']['title']['element_type'] = '0';
+  $handler->display->display_options['fields']['title']['element_label_colon'] = FALSE;
+  $handler->display->display_options['fields']['title']['element_wrapper_class'] = 'course-block-title';
+  $handler->display->display_options['fields']['title']['link_to_node'] = FALSE;
+  /* Field: Content: Course title */
+  $handler->display->display_options['fields']['field_course_title']['id'] = 'field_course_title';
+  $handler->display->display_options['fields']['field_course_title']['table'] = 'field_data_field_course_title';
+  $handler->display->display_options['fields']['field_course_title']['field'] = 'field_course_title';
+  $handler->display->display_options['fields']['field_course_title']['relationship'] = 'reverse_field_program_classification_node';
+  $handler->display->display_options['fields']['field_course_title']['label'] = '';
+  $handler->display->display_options['fields']['field_course_title']['element_label_colon'] = FALSE;
+  $handler->display->display_options['fields']['field_course_title']['element_wrapper_class'] = 'course-block-name';
+  /* Field: Content: Academic home */
+  $handler->display->display_options['fields']['field_academic_home']['id'] = 'field_academic_home';
+  $handler->display->display_options['fields']['field_academic_home']['table'] = 'field_data_field_academic_home';
+  $handler->display->display_options['fields']['field_academic_home']['field'] = 'field_academic_home';
+  $handler->display->display_options['fields']['field_academic_home']['relationship'] = 'reverse_field_program_classification_node';
+  $handler->display->display_options['fields']['field_academic_home']['label'] = '';
+  $handler->display->display_options['fields']['field_academic_home']['element_label_colon'] = FALSE;
+  $handler->display->display_options['fields']['field_academic_home']['element_wrapper_class'] = 'course-block-unit';
+  $handler->display->display_options['fields']['field_academic_home']['settings'] = array(
+    'link' => 0,
+  );
+  $handler->display->display_options['fields']['field_academic_home']['delta_offset'] = '0';
+  /* Field: Content: Link */
+  $handler->display->display_options['fields']['view_node']['id'] = 'view_node';
+  $handler->display->display_options['fields']['view_node']['table'] = 'views_entity_node';
+  $handler->display->display_options['fields']['view_node']['field'] = 'view_node';
+  $handler->display->display_options['fields']['view_node']['relationship'] = 'reverse_field_program_classification_node';
+  $handler->display->display_options['fields']['view_node']['label'] = '';
+  $handler->display->display_options['fields']['view_node']['element_label_colon'] = FALSE;
+  $handler->display->display_options['fields']['view_node']['element_wrapper_class'] = 'course-block-details';
+  $handler->display->display_options['fields']['view_node']['text'] = 'Details';
+  $handler->display->display_options['defaults']['sorts'] = FALSE;
+  /* Sort criterion: Content: Title */
+  $handler->display->display_options['sorts']['title']['id'] = 'title';
+  $handler->display->display_options['sorts']['title']['table'] = 'node';
+  $handler->display->display_options['sorts']['title']['field'] = 'title';
+  $handler->display->display_options['sorts']['title']['relationship'] = 'reverse_field_program_classification_node';
+  $handler->display->display_options['defaults']['arguments'] = FALSE;
+  /* Contextual filter: Content: Nid */
+  $handler->display->display_options['arguments']['nid']['id'] = 'nid';
+  $handler->display->display_options['arguments']['nid']['table'] = 'node';
+  $handler->display->display_options['arguments']['nid']['field'] = 'nid';
+  $handler->display->display_options['arguments']['nid']['default_action'] = 'default';
+  $handler->display->display_options['arguments']['nid']['default_argument_type'] = 'node';
+  $handler->display->display_options['arguments']['nid']['summary']['number_of_records'] = '0';
+  $handler->display->display_options['arguments']['nid']['summary']['format'] = 'default_summary';
+  $handler->display->display_options['arguments']['nid']['summary_options']['items_per_page'] = '25';
+  $handler->display->display_options['arguments']['nid']['specify_validation'] = TRUE;
+  $handler->display->display_options['arguments']['nid']['validate']['type'] = 'node';
+  $handler->display->display_options['arguments']['nid']['validate_options']['types'] = array(
+    'program' => 'program',
+  );
+  $handler->display->display_options['defaults']['filter_groups'] = FALSE;
+  $handler->display->display_options['defaults']['filters'] = FALSE;
+  /* Filter criterion: Content: Published */
+  $handler->display->display_options['filters']['status']['id'] = 'status';
+  $handler->display->display_options['filters']['status']['table'] = 'node';
+  $handler->display->display_options['filters']['status']['field'] = 'status';
+  $handler->display->display_options['filters']['status']['value'] = 1;
+  $handler->display->display_options['filters']['status']['group'] = 1;
+  $handler->display->display_options['filters']['status']['expose']['operator'] = FALSE;
+  /* Filter criterion: Content: Type */
+  $handler->display->display_options['filters']['type']['id'] = 'type';
+  $handler->display->display_options['filters']['type']['table'] = 'node';
+  $handler->display->display_options['filters']['type']['field'] = 'type';
+  $handler->display->display_options['filters']['type']['relationship'] = 'reverse_field_program_classification_node';
+  $handler->display->display_options['filters']['type']['value'] = array(
+    'course' => 'course',
+  );
+  $handler->display->display_options['filters']['type']['group'] = 1;
+  $handler->display->display_options['block_description'] = 'Program courses';
   $export['courses_overview'] = $view;
 
   $view = new view();
@@ -5795,7 +5946,7 @@ function cis_displays_views_default_views() {
   $handler->display->display_options['sorts']['created']['table'] = 'node';
   $handler->display->display_options['sorts']['created']['field'] = 'created';
   $handler->display->display_options['sorts']['created']['order'] = 'DESC';
-  /* Contextual filter: Content: Related Entities (field_related_entity) */
+  /* Contextual filter: Content: Related (field_related_entity) */
   $handler->display->display_options['arguments']['field_related_entity_target_id']['id'] = 'field_related_entity_target_id';
   $handler->display->display_options['arguments']['field_related_entity_target_id']['table'] = 'field_data_field_related_entity';
   $handler->display->display_options['arguments']['field_related_entity_target_id']['field'] = 'field_related_entity_target_id';
