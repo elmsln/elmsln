@@ -154,23 +154,17 @@ function cis_ux_context_default_contexts() {
   $context->reactions = array(
     'block' => array(
       'blocks' => array(
-        'views-nodequeue_3-block' => array(
+        'views-nodequeue_6-block' => array(
           'module' => 'views',
-          'delta' => 'nodequeue_3-block',
+          'delta' => 'nodequeue_6-block',
           'region' => 'content',
-          'weight' => '-23',
-        ),
-        'views-nodequeue_2-block' => array(
-          'module' => 'views',
-          'delta' => 'nodequeue_2-block',
-          'region' => 'content',
-          'weight' => '-23',
+          'weight' => '-22',
         ),
         'views-nodequeue_1-block' => array(
           'module' => 'views',
           'delta' => 'nodequeue_1-block',
           'region' => 'content',
-          'weight' => '-23',
+          'weight' => '-22',
         ),
       ),
     ),
@@ -257,6 +251,42 @@ function cis_ux_context_default_contexts() {
   t('News');
   t('News block related to an entity in the system');
   $export['cis-news'] = $context;
+
+  $context = new stdClass();
+  $context->disabled = FALSE; /* Edit this to true to make a default context disabled initially */
+  $context->api_version = 3;
+  $context->name = 'cis-program';
+  $context->description = 'Program page blocks';
+  $context->tag = 'CIS';
+  $context->conditions = array(
+    'node' => array(
+      'values' => array(
+        'program' => 'program',
+      ),
+      'options' => array(
+        'node_form' => '0',
+      ),
+    ),
+  );
+  $context->reactions = array(
+    'block' => array(
+      'blocks' => array(
+        'views-courses_overview-block_4' => array(
+          'module' => 'views',
+          'delta' => 'courses_overview-block_4',
+          'region' => 'content',
+          'weight' => '10',
+        ),
+      ),
+    ),
+  );
+  $context->condition_mode = 1;
+
+  // Translatables
+  // Included for use with string extractors like potx.
+  t('CIS');
+  t('Program page blocks');
+  $export['cis-program'] = $context;
 
   return $export;
 }

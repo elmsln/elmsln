@@ -213,11 +213,6 @@ function cis_ux_context_default_contexts_alter(&$data) {
  */
 function cis_ux_filter_default_formats_alter(&$data) {
   if (isset($data['textbook_editor'])) {
-    $data['textbook_editor']['filters']['lazyloader_filter'] = array(
-      'settings' => array(),
-      'status' => 1,
-      'weight' => 0,
-    ); /* WAS: '' */
     $data['textbook_editor']['filters']['typogrify']['settings']['fractions']['1/2'] = 0; /* WAS: '' */
     $data['textbook_editor']['filters']['typogrify']['settings']['fractions']['1/3'] = 0; /* WAS: '' */
     $data['textbook_editor']['filters']['typogrify']['settings']['fractions']['1/4'] = 0; /* WAS: '' */
@@ -242,9 +237,56 @@ function cis_ux_filter_default_formats_alter(&$data) {
 function cis_ux_image_default_styles() {
   $styles = array();
 
+  // Exported image style: cis_course_mobile.
+  $styles['cis_course_mobile'] = array(
+    'name' => 'cis_course_mobile',
+    'label' => 'cis_course_mobile',
+    'effects' => array(
+      13 => array(
+        'label' => 'Scale and crop',
+        'help' => 'Scale and crop will maintain the aspect-ratio of the original image, then crop the larger dimension. This is most useful for creating perfectly square thumbnails without stretching the image.',
+        'effect callback' => 'image_scale_and_crop_effect',
+        'dimensions callback' => 'image_resize_dimensions',
+        'form callback' => 'image_resize_form',
+        'summary theme' => 'image_resize_summary',
+        'module' => 'image',
+        'name' => 'image_scale_and_crop',
+        'data' => array(
+          'width' => 275,
+          'height' => 115,
+        ),
+        'weight' => 1,
+      ),
+    ),
+  );
+
+  // Exported image style: cis_invisible.
+  $styles['cis_invisible'] = array(
+    'name' => 'cis_invisible',
+    'label' => 'cis_invisible',
+    'effects' => array(
+      12 => array(
+        'label' => 'Scale and crop',
+        'help' => 'Scale and crop will maintain the aspect-ratio of the original image, then crop the larger dimension. This is most useful for creating perfectly square thumbnails without stretching the image.',
+        'effect callback' => 'image_scale_and_crop_effect',
+        'dimensions callback' => 'image_resize_dimensions',
+        'form callback' => 'image_resize_form',
+        'summary theme' => 'image_resize_summary',
+        'module' => 'image',
+        'name' => 'image_scale_and_crop',
+        'data' => array(
+          'width' => 1,
+          'height' => 1,
+        ),
+        'weight' => 1,
+      ),
+    ),
+  );
+
   // Exported image style: course_author_thumb.
   $styles['course_author_thumb'] = array(
     'name' => 'course_author_thumb',
+    'label' => 'course_author_thumb',
     'effects' => array(
       2 => array(
         'label' => 'Scale',
@@ -268,6 +310,7 @@ function cis_ux_image_default_styles() {
   // Exported image style: course_block_thumb.
   $styles['course_block_thumb'] = array(
     'name' => 'course_block_thumb',
+    'label' => 'course_block_thumb',
     'effects' => array(
       4 => array(
         'label' => 'Scale and Smart Crop',
@@ -290,6 +333,7 @@ function cis_ux_image_default_styles() {
   // Exported image style: course_thumb.
   $styles['course_thumb'] = array(
     'name' => 'course_thumb',
+    'label' => 'course_thumb',
     'effects' => array(
       1 => array(
         'label' => 'Scale',
@@ -313,6 +357,7 @@ function cis_ux_image_default_styles() {
   // Exported image style: people_headshot.
   $styles['people_headshot'] = array(
     'name' => 'people_headshot',
+    'label' => 'people_headshot',
     'effects' => array(
       10 => array(
         'label' => 'Focus Scale And Crop',

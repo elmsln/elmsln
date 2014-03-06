@@ -13,7 +13,7 @@ function cis_ux_path_breadcrumbs_settings_info() {
   $path_breadcrumb = new stdClass();
   $path_breadcrumb->api_version = 1;
   $path_breadcrumb->machine_name = 'course_nodes';
-  $path_breadcrumb->name = 'Course nodes';
+  $path_breadcrumb->name = 'Course Nodes';
   $path_breadcrumb->path = 'node/%node';
   $path_breadcrumb->data = array(
     'titles' => array(
@@ -55,7 +55,7 @@ function cis_ux_path_breadcrumbs_settings_info() {
   $path_breadcrumb = new stdClass();
   $path_breadcrumb->api_version = 1;
   $path_breadcrumb->machine_name = 'faculty_nodes';
-  $path_breadcrumb->name = 'Faculty nodes';
+  $path_breadcrumb->name = 'Faculty Nodes';
   $path_breadcrumb->path = 'node/%node';
   $path_breadcrumb->data = array(
     'titles' => array(
@@ -112,7 +112,7 @@ function cis_ux_path_breadcrumbs_settings_info() {
   $path_breadcrumb = new stdClass();
   $path_breadcrumb->api_version = 1;
   $path_breadcrumb->machine_name = 'program_nodes';
-  $path_breadcrumb->name = 'Program nodes';
+  $path_breadcrumb->name = 'Program Nodes';
   $path_breadcrumb->path = 'node/%node';
   $path_breadcrumb->data = array(
     'titles' => array(
@@ -154,7 +154,7 @@ function cis_ux_path_breadcrumbs_settings_info() {
   $path_breadcrumb = new stdClass();
   $path_breadcrumb->api_version = 1;
   $path_breadcrumb->machine_name = 'service_nodes';
-  $path_breadcrumb->name = 'Service nodes';
+  $path_breadcrumb->name = 'Service Nodes';
   $path_breadcrumb->path = 'node/%node';
   $path_breadcrumb->data = array(
     'titles' => array(
@@ -197,7 +197,7 @@ function cis_ux_path_breadcrumbs_settings_info() {
   $path_breadcrumb = new stdClass();
   $path_breadcrumb->api_version = 1;
   $path_breadcrumb->machine_name = 'staff_nodes';
-  $path_breadcrumb->name = 'Staff nodes';
+  $path_breadcrumb->name = 'Staff Nodes';
   $path_breadcrumb->path = 'node/%node';
   $path_breadcrumb->data = array(
     'titles' => array(

@@ -17,11 +17,6 @@ function cis_ux_features_override_default_overrides() {
   $overrides["context.regions_admin.conditions|path|values|~node/edit/*"] = '~node/edit/*';
 
   // Exported overrides for: filter
-  $overrides["filter.textbook_editor.filters|lazyloader_filter"] = array(
-    'settings' => array(),
-    'status' => 1,
-    'weight' => 0,
-  );
   $overrides["filter.textbook_editor.filters|typogrify|settings|fractions|1/2"] = 0;
   $overrides["filter.textbook_editor.filters|typogrify|settings|fractions|1/3"] = 0;
   $overrides["filter.textbook_editor.filters|typogrify|settings|fractions|1/4"] = 0;
@@ -38,5 +33,5 @@ function cis_ux_features_override_default_overrides() {
   $overrides["filter.textbook_editor.filters|typogrify|settings|fractions|5/8"] = 0;
   $overrides["filter.textbook_editor.filters|typogrify|settings|fractions|7/8"] = 0;
 
-  return $overrides;
+ return $overrides;
 }

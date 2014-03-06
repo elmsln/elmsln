@@ -151,6 +151,7 @@ dependencies[] = textbook
 ; UUID
 dependencies[] = uuid
 ; User interface
+dependencies[] = breakpoints
 dependencies[] = addanother
 dependencies[] = ckeditor_link
 dependencies[] = imce_wysiwyg
@@ -173,6 +174,7 @@ dependencies[] = cis_data
 dependencies[] = cis_displays
 dependencies[] = cis_types
 dependencies[] = cis_ux
+dependencies[] = cis_breakpoints
 dependencies[] = regions_admin_example
 dependencies[] = textbook_editor
 dependencies[] = cis_users

@@ -1,0 +1,7 @@
+<?php
+/**
+ * @file
+ * Code for the CIS breakpoints feature.
+ */
+
+include_once 'cis_breakpoints.features.inc';
