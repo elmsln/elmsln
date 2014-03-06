@@ -86,7 +86,8 @@ if [ ! -d ${moduledir}/${university}/${cissettings} ];
     printf $pass >> $modulefile
     # finish off array
     printf "',\n      'instance' => ${instances[$COUNTER]},\n    ),\n" >> $modulefile
-  done
+    COUNTER=$COUNTER+1
+ done
   # close out function and file
   printf "  );\n\n  return \$items;\n}\n\n" >> $modulefile
   # add the function to include this in build outs automatically
@@ -99,12 +100,11 @@ do
   let "rand=$RANDOM % 62"
   dbpw="${pass}${char[$rand]}"
 done
-
 # build the default sites
 for build in "${buildlist[@]}"
   do
   # install default site for associated stacks in the build list
-  cd $stacks/${buildlist[$COUNTER]}
+  cd $stacks/$build
   drush site-install -y --db-url=mysql://elmslndfltdbo:$dbpw@localhost/default_$build --db-su=$dbsu --db-su-pw=$dbsupw
 done
 
@@ -122,13 +122,13 @@ sitedir=$stacks/online/sites
 drush site-install cis -y --db-url=mysql://online_$host:$dbpw@localhost/online_$host --db-su=$dbsu --db-su-pw=$dbsupw --site-mail="$site_email" --site-name="Online"
 #move out of online site directory to host
 mkdir -p $sitedir/online/$host
-
-cp $sitedir/default/files $sitedir/online/$host/files
-cp $sitedir/default/settings.php $sitedir/online/$host/settings.php
-
+mkdir -p $sitedir/online/$host/files
 #modify ownership of these directories
 chown $wwwuser:$webgroup $sitedir/online/$host/files
 chmod 755 $sitedir/online/$host/files
+# copy the default settings file to this location, remove original
+mv $sitedir/default/settings.php $sitedir/online/$host/settings.php
+
 
 #add site to the sites array
 printf "\$sites = array(\n  '$online_domain' => 'online/$host',\n" >> $sitedir/sites.php
