@@ -79,6 +79,7 @@ features[variable][] = admin_menu_show_all
 features[variable][] = admin_menu_tweak_modules
 features[variable][] = admin_menu_tweak_permissions
 features[variable][] = admin_menu_tweak_tabs
+features[variable][] = boxes_edit_location
 features[variable][] = clean_url
 features[variable][] = fitvids_customselectors
 features[variable][] = fitvids_selectors
