@@ -149,6 +149,8 @@ drush -y --uri=$protocol://$online_domain vset file_private_path ${drupal_priv}/
 drush -y --uri=$protocol://$online_domain vdel update_notify_emails
 drush -y --uri=$protocol://$online_domain cron
 
+# print out a reset password link for the online site so you can gain access
+drush -y --uri=$protocol://$online_domain upwd admin --password=admin
 # add in our cache bins
 printf "\n\n\$conf['cache_prefix'] = 'online_$host';" >> $sitedir/online/$host/settings.php
 printf "\n\nrequire_once DRUPAL_ROOT . '/../../shared/drupal-7.x/settings/shared_settings.php';" >> $sitedir/online/$host/settings.php
@@ -167,7 +169,5 @@ if [ ! -d $sitedir/online/services/$host ];
       printf "\n\n\$conf['restws_basic_auth_user_regex'] = '/^SERVICE_.*/';" >> $sitedir/online/services/$host/settings.php
     fi
 fi
-# print out a reset password link for the online site so you can gain access
-drush -y --uri=$protocol://$online_domain upwd admin --password=admin
 # a message so you know where my head is at. you get candy if you reference this
 echo 'Welcome to the Singularity of edtech.. Go forth, build the future.'
