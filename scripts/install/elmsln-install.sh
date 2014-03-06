@@ -151,6 +151,7 @@ drush -y --uri=$protocol://$online_domain cron
 
 # print out a reset password link for the online site so you can gain access
 drush -y --uri=$protocol://$online_domain upwd admin --password=admin
+
 # add in our cache bins
 printf "\n\n\$conf['cache_prefix'] = 'online_$host';" >> $sitedir/online/$host/settings.php
 printf "\n\nrequire_once DRUPAL_ROOT . '/../../shared/drupal-7.x/settings/shared_settings.php';" >> $sitedir/online/$host/settings.php
