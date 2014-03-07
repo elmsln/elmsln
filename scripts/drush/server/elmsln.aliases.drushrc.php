@@ -10,30 +10,36 @@
   $stacks = array(
     'online',
     'courses',
+    'studio',
     'media',
+    'interact',
   );
   // loop through known stacks
   foreach ($stacks as $stack) {
-    // build root alias for the stack
-    $aliases[$stack] = array(
-      'root' => $root . $stack,
-      'uri' => "$stack.$address",
-    );
-    // step through sites directory
-    $site = new DirectoryIterator("$root$stack/sites/$stack/$group");
-    while ($site->valid()) {
-      // Look for directories containing a 'settings.php' file
-      if ($site->isDir() && !$site->isDot() && !$site->isLink()) {
-        if (file_exists($site->getPathname() . '/settings.php')) {
-          // Add site alias
-          $basename = $site->getBasename();
-          $aliases["$stack.$basename"] = array(
-            'parent' => "@$stack",
-            'uri' => "$stack.$address.$basename",
-          );
+    // only include stack if it has things we can step through
+    // this helps avoid issues of unused stacks throwing errors
+    if (file_exists("$root$stack/sites/$stack/$group")) {
+      // build root alias for the stack
+      $aliases[$stack] = array(
+        'root' => $root . $stack,
+        'uri' => "$stack.$address",
+      );
+      // step through sites directory
+      $site = new DirectoryIterator("$root$stack/sites/$stack/$group");
+      while ($site->valid()) {
+        // Look for directories containing a 'settings.php' file
+        if ($site->isDir() && !$site->isDot() && !$site->isLink()) {
+          if (file_exists($site->getPathname() . '/settings.php')) {
+            // Add site alias
+            $basename = $site->getBasename();
+            $aliases["$stack.$basename"] = array(
+              'parent' => "@$stack",
+              'uri' => "$stack.$address.$basename",
+            );
+          }
         }
+        $site->next();
       }
-      $site->next();
     }
   }
 
