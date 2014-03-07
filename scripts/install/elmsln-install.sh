@@ -127,6 +127,12 @@ mkdir -p $sitedir/online/$host/files
 chown -R $wwwuser:$webgroup $sitedir/online/$host/files
 chmod -R 755 $sitedir/online/$host/files
 
+# setup private file directory
+mkdir -p $drupal_priv/online
+mkdir -p $drupal_priv/online/online
+chown -R $wwwuser:$webgroup $drupal_priv
+chmod -R 755 $drupal_priv
+
 # copy the default settings file to this location, remove original
 mv $sitedir/default/settings.php $sitedir/online/$host/settings.php
 
