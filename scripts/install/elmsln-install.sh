@@ -162,8 +162,8 @@ if [ ! -d $sitedir/online/services/$host ];
   then
     mkdir -p $sitedir/online/services/$host
     mkdir -p $sitedir/online/services/$host/files
-    chown $wwwuser:$webgroup $sitedir/online/services/$host/files
-    chmod 755 $sitedir/online/services/$host/files
+    chown -R $wwwuser:$webgroup $sitedir/online/services/$host/files
+    chmod -R 755 $sitedir/online/services/$host/files
     if [ -f $sitedir/online/$host/settings.php ]; then
       cp $sitedir/online/$host/settings.php $sitedir/online/services/$host/settings.php
     fi
