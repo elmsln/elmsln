@@ -171,5 +171,14 @@ if [ ! -d $sitedir/online/services/$host ];
       printf "\n\n\$conf['restws_basic_auth_user_regex'] = '/^SERVICE_.*/';" >> $sitedir/online/services/$host/settings.php
     fi
 fi
+
+# perform some clean up tasks
+# piwik directories
+chown -R $wwwuser:$webgroup $elmsln/config/_nondrupal/piwik
+chmod -R 755 $elmsln/config/_nondrupal/piwik
+# jobs file directory
+chown -R $wwwuser:$webgroup $elmsln/config/jobs
+chmod -R 755 $elmsln/config/jobs
+
 # a message so you know where my head is at. you get candy if you reference this
 echo 'Welcome to the Singularity of edtech.. Go forth, build the future.'
