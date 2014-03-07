@@ -92,9 +92,7 @@ You can find this module in elmsln/config/shared/drupal-7.x/modules and can modi
 the command is:
 bash /var/www/elmsln/scripts/install/elmsln-install.sh
 
-At this point, ELMSLN should pick up files and start trying to build them and hopefully you’ll get emails if it all worked!
-
-To reset user passwords on the initial systems build. run
+At this point, ELMSLN should pick up files and start trying to build them and hopefully you’ll get emails if it all worked!  The first site you want to go to is your online address and login with admin/admin.  After making other sites you can run a command like this to recover it:
 drush @courses.robots109 upwd {username from config} —password=“{new password}”
 
 === PIWIK (optional) ===
