@@ -124,11 +124,11 @@ drush site-install cis -y --db-url=mysql://online_$host:$dbpw@localhost/online_$
 mkdir -p $sitedir/online/$host
 mkdir -p $sitedir/online/$host/files
 #modify ownership of these directories
-chown $wwwuser:$webgroup $sitedir/online/$host/files
-chmod 755 $sitedir/online/$host/files
+chown -R $wwwuser:$webgroup $sitedir/online/$host/files
+chmod -R 755 $sitedir/online/$host/files
+
 # copy the default settings file to this location, remove original
 mv $sitedir/default/settings.php $sitedir/online/$host/settings.php
-
 
 #add site to the sites array
 printf "\$sites = array(\n  '$online_domain' => 'online/$host',\n" >> $sitedir/sites.php
