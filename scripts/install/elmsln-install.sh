@@ -139,6 +139,7 @@ printf "\n\$base_url= '$protocol://$online_domain';" >> $sitedir/online/$host/se
 # clean up tasks
 drush -y --uri=$protocol://$online_domain vset site_slogan 'Welcome to ELMSLN'
 drush -y --uri=$protocol://$online_domain en $cissettings
+drush -y --uri=$protocol://$online_domain en cis_restws
 drush -y --uri=$protocol://$online_domain vset cron_safe_threshold 0
 drush -y --uri=$protocol://$online_domain vset user_register 1
 drush -y --uri=$protocol://$online_domain vset user_email_verification 0
