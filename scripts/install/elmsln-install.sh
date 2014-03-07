@@ -153,6 +153,9 @@ drush -y --uri=$protocol://$online_domain vset preprocess_css 1
 drush -y --uri=$protocol://$online_domain vset preprocess_js 1
 drush -y --uri=$protocol://$online_domain vset cis_college_name $host
 drush -y --uri=$protocol://$online_domain vset file_private_path ${drupal_priv}/online/online
+drush -y --uri=$protocol://$online_domain vset cis_build_lms cis_account_required,cis_lms_required
+drush -y --uri=$protocol://$online_domain vset cis_build_code cis_account_required,cis_lms_required
+drush -y --uri=$protocol://$online_domain vset cis_build_authenticated cis_account_required
 drush -y --uri=$protocol://$online_domain vdel update_notify_emails
 drush -y --uri=$protocol://$online_domain cron
 
