@@ -39,6 +39,12 @@ If it helps you sleep at night, we run dev in production. That's not to say you 
 2. Merging the automation present in the ELMSLN Vagrant project back into elmsln-install.sh as an optional flag
 3. Installing default content (via optional flag or vagrant) for the CIS distribution so that you immediately don't go "ok, now what do I do?"
 4. Repackaging Nodequeues for CIS (right now they don't export from original source site and are well designed)
+5. Doing additional testing on the `vagrant provision` command to ensure that it only updates the state of the currently developed ELMSLN test-bed and not overwrites critical components.  Again, this is just for the development and testing harness but still critical to long term success of this project.
 
 ###Q. How would you classify a first release?
 Stable. Most likely jumping straight from dev to 1.0.  The many distributions of ELMS have been in beta usage for several months now.
+
+###Q. How awesome is it to try and solve the edtech spaces biggest problem every day you walk into work?
+You have no idea and it's why I'm tied so heavily to this work atmosphere. It rocks.  Also who said anything about walking into work to solve these problems..isn't it the weekend or late night or something right now?
+
+Enjoy!
