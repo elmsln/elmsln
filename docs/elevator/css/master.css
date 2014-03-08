@@ -1,0 +1,195 @@
+@import 'reset.css';
+@import 'text.css';
+@import 'animation.css';
+
+/* `Basic HTML
+----------------------------------------------------------------------------------------------------*/
+
+body {
+  background: url(../images/bg_noise_overlay.png) #141414 fixed;
+  color: #999;
+  font-family: 'Prociono', serif;
+}
+
+h1 {
+  background: #eee url(../images/h1.png) no-repeat right center;
+  border-bottom: 1px solid #ccc;
+  padding: 10px 90px 10px 15px;
+  text-shadow: #fff 0 1px 0;
+}
+
+h2,
+h3,
+h4,
+h5,
+h6 {
+  line-height: 1;
+}
+
+a {
+  color: #06c;
+}
+
+a:hover {
+  color: #c60;
+}
+
+small {
+  font-size: 11px;
+}
+
+/* `Misc Classes
+----------------------------------------------------------------------------------------------------*/
+
+.align_center {
+  text-align: center;
+}
+
+.align_right {
+  text-align: right;
+}
+
+/* `Data Table
+----------------------------------------------------------------------------------------------------*/
+
+.data,
+.data th,
+.data td {
+  border-style: solid;
+  border-color: #ddd;
+}
+
+.data {
+  border-width: 0 1px 1px;
+  width: 100%;
+}
+
+.data caption {
+  padding: 0 10px 5px;
+  text-transform: uppercase;
+}
+
+.data th,
+.data td {
+  border-top-width: 1px;
+  padding: 5px 10px;
+}
+
+.data th {
+  white-space: nowrap;
+}
+
+.data thead th {
+  background: #eee;
+  font-weight: bold;
+  text-shadow: #fff 0 1px 0;
+}
+
+.data tbody th {
+  width: 1px;
+}
+
+.data tr th:first-child {
+  text-align: right;
+}
+
+/* `Code
+----------------------------------------------------------------------------------------------------*/
+
+pre,
+code {
+  font-size: 12px;
+  font-family: Menlo, Courier, monospace;
+}
+
+pre,
+.notice {
+  background: #ffe;
+  border: 1px solid;
+  border-color: #eed #ccb #bba #ddc;
+  overflow: auto;
+  padding: 10px 0 10px 10px;
+}
+
+* html pre {
+  overflow: hidden;
+  width: 97%;
+}
+
+code {
+  background: #ff9;
+  padding: 0 2px;
+}
+/* `ELMS Classes
+----------------------------------------------------------------------------------------------------*/
+.container {
+	border:0px solid #fff;	
+}
+
+div p {
+	border:0px solid #fff;
+	}
+.preload {
+	display:none;	
+}
+.nav_link a, a.highlight {
+	color: #fff;
+	text-decoration:none;
+}
+.nav_link a:hover {
+	 color: #F90;
+}
+.nav_link a.highlight:hover {
+	 color: #333;
+}
+.nav_link p {
+	background:#333;
+	padding:5px;
+	text-align:center;
+	-webkit-border-radius: 6px;
+	-moz-border-radius: 6px;
+	border-radius: 6px;
+}
+.nav_link p.highlight {
+	background:#00bbff;
+}
+img {
+	max-width:100%;	
+}
+.space-out {
+		margin-top:20px;
+}
+.about h2 {
+	padding-left:5px;
+	padding-top:5px	
+}
+h2 {
+	color: #F90;
+}
+h2.title {
+	color:#fff;
+	
+}
+h3 {
+	
+}
+.text_block {
+	color:#787878;	
+}
+
+.logo.visibility_460 {
+	padding-top:15px;
+}
+p.footer {
+	text-align:center;
+	padding-top:20px;
+	color:#666;
+}
+::-moz-selection{
+background: #00bbff;
+color: #000;
+}
+::selection {
+background: #F90;
+color: #fff;
+}
