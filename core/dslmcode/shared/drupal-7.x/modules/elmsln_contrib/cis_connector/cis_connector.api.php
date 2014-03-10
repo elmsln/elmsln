@@ -17,6 +17,11 @@
  * Typically this function is only invoked when implementing in large scale
  * implementations of distributions that all talk to each other.
  * It is the backbone of the Suite of tools approach to LMS design.
+ *
+ * While this is how you can author your own keychain, there is a function in
+ * the elmsln/scripts/install/elmsln-install.sh that automatically produces
+ * one of these.  It is recommended you use this and then modify from there when
+ * building and deploying production networks.
  */
 function hook_cis_service_registry() {
   // service module that makes our implementation specific
@@ -26,13 +31,26 @@ function hook_cis_service_registry() {
       ),
     // this example is from how CIS uses this
     'cis' => array(// Course Information System distribution
-      'protocol' => 'http',// base protocol for address calls; commonly https or http
-      'service_address' => 'datachannel.example.com',// address to make calls over, this can be the same as address but for added security an alternate domain is recommended
-      'address' => 'www.example.com',// address to connect to for CIS data
-      'user' => 'account',// special user account with HTTP authentication access
+      'protocol' => 'https',// base protocol for address calls; commonly https or http
+      'service_address' => 'data.online.example.com',// address to make calls over, this can be the same as address but for added security an alternate domain is recommended
+      'address' => 'online.example.com',// address to connect to for CIS data
+      'user' => 'SERVICE_CIS_YZ',// special user account with HTTP authentication access
       'pass' => 'password',// password for that connection account
-      'mail' => 'account@example.com',// optional email address for associated account connection
+      'mail' => 'account@example.com',// email address for associated account connection
       'instance' => FALSE,// if this is a per instance distro or single system
+      'default_title' => 'Course Information System',// default title
+      'ignore' => TRUE,// optional: if this should be ignored when aligning with the registry
+    ),
+    // this example is from how MOOC would use this
+    'mooc' => array(
+      'protocol' => 'https',
+      'service_address' => 'data.courses.example.com',
+      'address' => 'courses.example.com',
+      'user' => 'SERVICE_MOOC_YZ',
+      'pass' => 'password',
+      'mail' => 'account@example.com',
+      'instance' => TRUE,
+      'default_title' => 'Course Outline',
     ),
   );
 }

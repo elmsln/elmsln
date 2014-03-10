@@ -43,6 +43,15 @@ function cis_helper_drush_command() {
         'Add service instances to all known courses in system, attempt outline importing, only building the "course" instance.',
     ),
   );
+  $items['cis-sync-registry'] = array(
+    'description' => dt('Sync the service nodes in CIS with the reported services in the registry keychain'),
+    'aliases' => array('cis-sync-reg'),
+    'options' => array(),
+    'examples' => array(
+      'drush cis-sync-reg' =>
+        'Add service nodes to match their registry counterparts. If there is a match on machine_name then update associated fields in CIS to match registry.',
+    ),
+  );
   return $items;
 }
 
@@ -55,6 +64,42 @@ function cis_helper_drush_help($section) {
       return dt('Pass this commands to produce a new drupal site in the CIS instance.');
     case 'drush:cis-release-kraken':
       return dt('Produce a "kraken" that will hit and force the production of every course into all instances, good for initial population and testing.');
+    case 'drush:cis-sync-registry':
+      return dt('Create and update Service nodes in CIS to match what is available in the cis registry of connections.');
+  }
+}
+
+/**
+ * Drush command callback for cis-sync-registry.
+ */
+function drush_cis_helper_cis_sync_registry() {
+  // load up the services and the registry to compare them
+  $services = _cis_helper_assemble_entity_list('node', 'service', 'field_distribution', 'nid');
+  $registry = _cis_connector_build_registry();
+  foreach ($registry as $distribution => $reg) {
+    // if it is set in CIS, load the node then update it
+    if (isset($services[$distribution])) {
+      // load this service node and update it if fields are set
+      $service = node_load($services[$distribution]);
+      $service->field_location['und'][0]['url'] = $reg['protocol'] . '://' . $reg['address'];
+      $service->field_data_location['und'][0]['url'] = $reg['protocol'] . '://' . $reg['service_address'];
+      node_save($service);
+    }
+    else {
+      // make sure we aren't told to ignore this service
+      if (!isset($reg['ignore']) || !$reg['ignore']) {
+        // produce a new service instance
+        $title = $reg['default_title'];
+        $machine_name = explode('.', $reg['address']);
+        // snag base address as machine_name
+        $machine_name = $machine_name[0];
+        // form addresses, CIS uses these for creating paths to cron and links
+        $address = $reg['protocol'] . '://' . $reg['address'];
+        $data_address = $reg['protocol'] . '://' . $reg['service_address'];
+        $service = _cis_helper_generate_service_node($title, $machine_name, $distribution, $address, $data_address);
+        drush_print(dt('New service node created based on registry named @title', array('@name' => $title)));
+      }
+    }
   }
 }
 

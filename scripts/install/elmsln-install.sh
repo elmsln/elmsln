@@ -47,6 +47,8 @@ stacklist=('online' 'courses' 'studio' 'interact' 'media' 'remote_watchdog')
 buildlist=('courses' 'studio' 'interact' 'media')
 # array of instance definitions for the distro type
 instances=('FALSE' 'TRUE' 'TRUE' 'TRUE' 'TRUE' 'FALSE')
+ignorelist=('TRUE' 'FALSE' 'FALSE' 'FALSE' 'FALSE' 'TRUE')
+defaulttitle=('Course information system' 'Course outline' 'Collaborative studio' 'Interactive object repository' 'Media asset management' 'Remote logging')
 moduledir=$elmsln/config/shared/drupal-${core}/modules/_elmsln_scripted
 cissettings=${university}_${host}_settings
 
@@ -85,7 +87,9 @@ if [ ! -d ${moduledir}/${university}/${cissettings} ];
     # write password to file
     printf $pass >> $modulefile
     # finish off array
-    printf "',\n      'instance' => ${instances[$COUNTER]},\n    ),\n" >> $modulefile
+    printf "',\n      'instance' => ${instances[$COUNTER]},\n" >> $modulefile
+    printf "'      'default_title' => ${defaulttitle[$COUNTER]},\n" >> $modulefile
+    printf "'      'ignore' => ${ignorelist[$COUNTER]},\n    ),\n" >> $modulefile
     COUNTER=$COUNTER+1
  done
   # close out function and file
@@ -157,16 +161,21 @@ drush -y --uri=$protocol://$online_domain vset cis_build_lms cis_account_require
 drush -y --uri=$protocol://$online_domain vset cis_build_code cis_account_required,cis_lms_required
 drush -y --uri=$protocol://$online_domain vset cis_build_authenticated cis_account_required
 drush -y --uri=$protocol://$online_domain vdel update_notify_emails
+
+# specialized job to automatically produce service nodes to match registry we made
+drush -y --uri=$protocol://$online_domain cis-sync-reg
+
+# run cron for the good of the order
 drush -y --uri=$protocol://$online_domain cron
 
 # print out a reset password link for the online site so you can gain access
 drush -y --uri=$protocol://$online_domain upwd admin --password=admin
 
-# add in our cache bins
+# add in our cache bins now that we know it built successfully
 printf "\n\n\$conf['cache_prefix'] = 'online_$host';" >> $sitedir/online/$host/settings.php
 printf "\n\nrequire_once DRUPAL_ROOT . '/../../shared/drupal-7.x/settings/shared_settings.php';" >> $sitedir/online/$host/settings.php
 
-#adding servies conf file
+# adding servies conf file
 if [ ! -d $sitedir/online/services/$host ];
   then
     mkdir -p $sitedir/online/services/$host

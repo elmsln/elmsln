@@ -976,6 +976,60 @@ function _cis_helper_assemble_entity_list($entity_type, $bundle, $id_field, $tit
 }
 
 /**
+ * Callback to generate a service node.
+ *
+ * Generate a service node in CIS based on the fields passed.
+ *
+ * @param $title
+ *   Name of the new service node.
+ * @param $machine_name
+ *   machine name for this service to make its namespace unique
+ * @param $distribution
+ *   Drupal distribution associated with this.
+ * @param $address
+ *   Front facing URL for this system.
+ * @param $data_address
+ *   Backend URL for webservice calls to run over.
+ */
+function _cis_helper_generate_service_node($title, $machine_name, $distribution, $address, $data_address) {
+  $node = new stdClass();
+  $node->type = $type;
+  node_object_prepare($node);
+  $node->language = LANGUAGE_NONE;
+  $node->uid = 1;
+  $node->status = 1;
+  $node->promote = 0;
+  $node->comment = 0;
+  $node->revision = 1;
+  $node->sticky = 0;
+  $node->type = 'service';
+  // values from arguments passed in
+  $node->body['und'][0] = array(
+    'value'      => t("@title is used for..", array('@title' => $title)),
+    'summary'    => '',
+    'format'     => 'textbook_editor',
+  );
+  $node->title = $title;
+  $node->field_machine_name['und'][0]['value'] = $machine_name;
+  $node->field_distribution['und'][0]['value'] = $distribution;
+  $node->field_location['und'][0] = array(
+    'url'        => $address,
+    'title'      => null,
+    'attributes' => array(),
+  );
+  $node->field_data_location['und'][0] = array(
+    'url'        => $data_address,
+    'title'      => null,
+    'attributes' => array(),
+  );
+  // build out via submit then save
+  if($node = node_submit($node)) {
+    node_save($node);
+  }
+  return $node;
+}
+
+/**
  * Implements hook_httprl_spider_other_paths_alter(&$paths).
  */
 function cis_helper_httprl_spider_other_paths_alter(&$paths) {
