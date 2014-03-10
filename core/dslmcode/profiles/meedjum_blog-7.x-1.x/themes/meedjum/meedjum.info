@@ -1,0 +1,31 @@
+name = Meedjum
+description = A beautiful one column typographically focused blog theme designed to look like medium.com
+screenshot = images/screenshot.png
+core = "7.x"
+
+regions[page_top] = Page top
+regions[header] = Header
+regions[highlight] = Highlight
+regions[help] = Help
+regions[content] = Content
+regions[sidebar_first] = First sidebar
+regions[footer] = Footer
+regions[page_bottom] = Page bottom
+
+features[] = logo
+features[] = name
+features[] = slogan
+features[] = favicon
+features[] = main_menu
+
+stylesheets[all][] = css/normalize.css
+stylesheets[all][] = css/style.css
+
+settings[clear_registry] = 0
+
+; Information added by drupal.org packaging script on 2013-08-30
+version = "7.x-1.0-alpha1"
+core = "7.x"
+project = "meedjum"
+datestamp = "1377893489"
+

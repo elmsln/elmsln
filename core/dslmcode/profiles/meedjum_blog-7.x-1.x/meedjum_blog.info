@@ -1,0 +1,52 @@
+; Packaging information for meedjum_blog
+name = "Meedjum Blog"
+description = "A simple blog install profile built for the Meedjum theme which is a clone of medium.com"
+exclusive = "1"
+core = "7.x"
+; ----------
+; Dependencies
+; ----------
+; Administration
+dependencies[] = admin_menu
+; Chaos tool suite
+dependencies[] = ctools
+; Core
+dependencies[] = block
+dependencies[] = dblog
+dependencies[] = field
+dependencies[] = field_sql_storage
+dependencies[] = field_ui
+dependencies[] = file
+dependencies[] = filter
+dependencies[] = image
+dependencies[] = list
+dependencies[] = menu
+dependencies[] = node
+dependencies[] = number
+dependencies[] = options
+dependencies[] = path
+dependencies[] = system
+dependencies[] = text
+dependencies[] = update
+dependencies[] = user
+; Fields
+dependencies[] = node_reference
+dependencies[] = references
+; Input filters
+dependencies[] = markdown
+; Other
+dependencies[] = pathauto
+dependencies[] = token
+; Views
+dependencies[] = views
+dependencies[] = views_ui
+
+; Meedjum
+dependencies[] = meedjum_base
+
+; Information added by drupal.org packaging script on 2013-08-30
+version = "7.x-1.0-alpha5"
+core = "7.x"
+project = "meedjum_blog"
+datestamp = "1377896189"
+
