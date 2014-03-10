@@ -7,9 +7,10 @@
 
 /* `Basic HTML
 ----------------------------------------------------------------------------------------------------*/
-
+@import url(https://fonts.googleapis.com/css?family=Open+Sans:400,300);
+@import url(https://fonts.googleapis.com/css?family=Bitter);
 body {
-  font: 13px/1.5 'Helvetica Neue', Arial, 'Liberation Sans', FreeSans, sans-serif;
+  font: 18px/1.5 'Open Sans', 'Helvetica Neue', Arial, 'Liberation Sans', FreeSans, sans-serif;
 }
 
 hr {
