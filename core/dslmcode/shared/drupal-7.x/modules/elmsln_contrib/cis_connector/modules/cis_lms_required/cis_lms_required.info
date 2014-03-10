@@ -1,7 +1,7 @@
 name = CIS LMS required
 description = This removes access from authenticated users who would have had access via traditional account creation so that a role is required for access. This is common when syncing data from an outside source like an LMS.
 core = 7.x
-package = CIS
+package = CIS Connector
 features[features_api][] = api:1
 features[features_override_items][] = user_permission.access content
 features[features_override_items][] = user_permission.view regions_right_slideout region
