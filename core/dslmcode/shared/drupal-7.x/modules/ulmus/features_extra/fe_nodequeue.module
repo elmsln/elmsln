@@ -127,6 +127,9 @@ function fe_nodequeue_features_export_render($module_name = '', $data) {
  */
 function fe_nodequeue_features_revert($module) {
   $defaults = features_get_default('fe_nodequeue', $module);
+  if (empty($defaults)) {
+    return;
+  }
 
   // Revert.
   foreach ($defaults as $object) {

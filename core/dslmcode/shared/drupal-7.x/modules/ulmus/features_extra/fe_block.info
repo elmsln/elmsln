@@ -8,13 +8,14 @@ dependencies[] = ctools
 dependencies[] = features
 
 test_dependencies[] = block_class
+test_dependencies[] = blockcache_alter
 
 files[] = tests/features_extra_test_case.test
 files[] = tests/fe_block.test
 
-; Information added by drupal.org packaging script on 2013-04-15
-version = "7.x-1.0-beta1"
+; Information added by drupal.org packaging script on 2013-09-30
+version = "7.x-1.0-beta1+3-dev"
 core = "7.x"
 project = "features_extra"
-datestamp = "1366049112"
+datestamp = "1380578149"
 

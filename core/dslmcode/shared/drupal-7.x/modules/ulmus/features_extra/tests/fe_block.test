@@ -30,6 +30,7 @@ class FeaturesExtraBlockTestCase extends FeaturesExtraTestCase {
     $required_modules = array(
       'block',
       'block_class',
+      'blockcache_alter',
       'ctools',
       'features',
       'fe_block',
@@ -87,5 +88,16 @@ class FeaturesExtraBlockTestCase extends FeaturesExtraTestCase {
   public function testBlockClass() {
     $this->drupalGet('<front>');
     $this->assertRaw('test-class', 'The class set by the Block Class module has been found.');
+  }
+
+  /**
+   * Tests the integration with the Block Cache Alter module.
+   *
+   * @see http://www.drupal.org/node/1973926
+   */
+  public function testBlockCacheAlter() {
+    $bid = fe_block_get_bid('features_extra_test_block');
+    $this->block = block_load('block', $bid);
+    $this->assertEqual($this->block->cache, DRUPAL_CACHE_GLOBAL, 'The test block uses the caching method set by the Block Cache Alter module.');
   }
 }
