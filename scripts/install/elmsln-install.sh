@@ -87,9 +87,9 @@ if [ ! -d ${moduledir}/${university}/${cissettings} ];
     # write password to file
     printf $pass >> $modulefile
     # finish off array
-    printf ",\n      'instance' => ${instances[$COUNTER]},\n" >> $modulefile
-    printf "'      'default_title' => '${defaulttitle[$COUNTER]}',\n" >> $modulefile
-    printf "'      'ignore' => ${ignorelist[$COUNTER]},\n    ),\n" >> $modulefile
+    printf "',\n      'instance' => ${instances[$COUNTER]},\n" >> $modulefile
+    printf "      'default_title' => '${defaulttitle[$COUNTER]}',\n" >> $modulefile
+    printf "      'ignore' => ${ignorelist[$COUNTER]},\n    ),\n" >> $modulefile
     COUNTER=$COUNTER+1
  done
   # close out function and file
