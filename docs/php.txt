@@ -8,7 +8,7 @@ max_execution_time = 90
 
 ; Maximum amount of time each script may spend parsing request data. It's a good
 ; idea to limit this time on productions servers in order to eliminate unexpectedly
-; long running scripts. 
+; long running scripts.
 ; Default Value: -1 (Unlimited)
 ; Development Value: 60 (60 seconds)
 ; Production Value: 60 (60 seconds)
