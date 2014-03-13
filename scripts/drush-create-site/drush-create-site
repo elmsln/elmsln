@@ -228,7 +228,7 @@ fi
   if [ ! -d $drupalroot/sites/$service/services/$college/$course ];
     then mkdir -p $drupalroot/sites/$service/services/$college/$course
       mkdir $drupalroot/sites/$service/services/$college/$course/files
-      chown apache $drupalroot/sites/$service/services/$college/$course/files
+      chown -R $wwwuser:$webgroup $drupalroot/sites/$service/services/$college/$course/files
       if [ -f $drupalroot/sites/$service/$college/$course/settings.php ]; then
       /bin/cp $drupalroot/sites/$service/$college/$course/settings.php $drupalroot/sites/$service/services/$college/$course/settings.php
       fi
@@ -331,7 +331,7 @@ echo "5" >> $fileloc/$course.$service.progress
 ##permissions fun
 find $drupalroot/sites/$subdir/$course/files  -type f | xargs chmod 664
 find $drupalroot/sites/$subdir/$course/files  -type d | xargs chmod 775
-chown -R root:apache $drupalroot/sites/$subdir/$course/files
+chown -R $wwwuser:$webgroup $drupalroot/sites/$subdir/$course/files
 
 ##add drupal_priv directories, set permissions
 if [ ! -d $drupal_priv/$course ]; then
