@@ -42,7 +42,7 @@ fi
 drush cc drush
 
 core='7.x'
-distros=('cis' 'mooc' 'studio' 'icor' 'elmsmedia' 'remote_watchdog')
+distros=('cis' 'mooc' 'cle' 'icor' 'elmsmedia' 'remote_watchdog')
 stacklist=('online' 'courses' 'studio' 'interact' 'media' 'remote_watchdog')
 buildlist=('courses' 'studio' 'interact' 'media')
 # array of instance definitions for the distro type
