@@ -1,0 +1,50 @@
+<?php
+
+/**
+ * Implements hook_schema().
+ */
+function bakery_schema() {
+  return array(
+    'bakery_user' => array(
+      'description' => 'Keep track of UID on subsites, master only.',
+      'fields' => array(
+        'uid' => array(
+          'description' => 'User ID on master site.',
+          'type' => 'int',
+          'unsigned' => TRUE,
+          'not null' => TRUE,
+        ),
+        'slave' => array(
+          'description' => 'Slave site.',
+          'type' => 'varchar',
+          'length' => 128,
+          'not null' => TRUE,
+        ),
+        'slave_uid' => array(
+          'description' => 'User ID on slave site.',
+          'type' => 'int',
+          'unsigned' => TRUE,
+          'not null' => TRUE,
+        ),
+      ),
+      'primary key' => array('uid', 'slave'),
+    ),
+  );
+}
+
+/**
+ * Implements hook_uninstall().
+ *
+ * Remove Bakery variables.
+ */
+function bakery_uninstall() {
+  variable_del('bakery_key');
+  variable_del('bakery_domain');
+  variable_del('bakery_is_master');
+  variable_del('bakery_master');
+  variable_del('bakery_slaves');
+  variable_del('bakery_supported_fields');
+  variable_del('bakery_help_text');
+  variable_del('bakery_freshness');
+  variable_del('bakery_cookie_extension');
+}
