@@ -41,6 +41,13 @@
         $site->next();
       }
     }
+    // account for stacks that function more like CIS
+    if (file_exists("$root$stack/sites/$stack/$group/settings.php")) {
+      $aliases["$stack.$group"] = array(
+        'parent' => "@$stack",
+        'uri' => "$stack.$address",
+      );
+    }
   }
 
 /**

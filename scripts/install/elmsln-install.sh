@@ -137,8 +137,10 @@ mkdir -p $drupal_priv/online/online
 chown -R $wwwuser:$webgroup $drupal_priv
 chmod -R 755 $drupal_priv
 
-# copy the default settings file to this location, remove original
-mv $sitedir/default/settings.php $sitedir/online/$host/settings.php
+# copy the default settings file to this location
+# we leave the original for the time being because this is the first instace
+# of the system. most likely we'll always need a default to fall back on anyway
+cp $sitedir/default/settings.php $sitedir/online/$host/settings.php
 
 #add site to the sites array
 printf "\$sites = array(\n  '$online_domain' => 'online/$host',\n" >> $sitedir/sites.php
