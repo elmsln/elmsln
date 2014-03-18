@@ -455,7 +455,7 @@ function cis_helper_entity_update($entity, $type) {
           $location = $service->field_location[LANGUAGE_NONE][0]['url'] . '/' . $course->field_machine_name[LANGUAGE_NONE][0]['safe_value'];
           // add on the cron and cron_key values for a secure remote run
           $data = array(
-            'cron_key' => $instance->field_cron_key[LANGUAGE_NONE][0]['value'],
+            'cron_key' => (isset($instance->field_cron_key[LANGUAGE_NONE]) ? $instance->field_cron_key[LANGUAGE_NONE][0]['value'] : ''),
           );
           $location .= '/cron.php?' . http_build_query($data);
           // call the cron via remote call
