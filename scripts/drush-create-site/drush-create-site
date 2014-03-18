@@ -345,12 +345,12 @@ echo "$course was added to $hostname on $date"
 
 echo "6" > $fileloc/$course.$service.progress
 
-done
 if [[ -f  $coursefile.processing ]]; then
 /bin/mv $coursefile.processing $coursefile.processed
 fi
 
-if [[ -f $coursefile.progress ]]; then
-/bin/rm $coursefile.progress
+if [[ -f $fileloc/$course.$service.progress ]]; then
+/bin/rm $fileloc/$course.$service.progress
 fi
+done
 rm /tmp/drush-lock
