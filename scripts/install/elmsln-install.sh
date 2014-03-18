@@ -109,7 +109,7 @@ for build in "${buildlist[@]}"
   do
   # install default site for associated stacks in the build list
   cd $stacks/$build
-  drush site-install -y --db-url=mysql://elmslndfltdbo:$dbpw@localhost/default_$build --db-su=$dbsu --db-su-pw=$dbsupw
+  drush site-install -y --db-url=mysql://elmslndfltdbo:$dbpw@localhost/default_$build --db-su=$dbsu --db-su-pw=$dbsupw --account-mail="$admin" --site-mail="$site_email"
 done
 
 # install the CIS site
@@ -123,7 +123,7 @@ done
 cd $stacks/online
 sitedir=$stacks/online/sites
 
-drush site-install cis -y --db-url=mysql://online_$host:$dbpw@localhost/online_$host --db-su=$dbsu --db-su-pw=$dbsupw --site-mail="$site_email" --site-name="Online"
+drush site-install cis -y --db-url=mysql://online_$host:$dbpw@localhost/online_$host --db-su=$dbsu --db-su-pw=$dbsupw  --account-mail="$admin" --site-mail="$site_email" --site-name="Online"
 #move out of online site directory to host
 mkdir -p $sitedir/online/$host
 mkdir -p $sitedir/online/$host/files
