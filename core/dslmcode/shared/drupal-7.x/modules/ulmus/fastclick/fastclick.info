@@ -1,0 +1,12 @@
+name = FastClick
+description = Polyfill to remove click delays on browsers with touch UIs.
+package = Other
+dependencies[] = libraries (>=2.x)
+core = 7.x
+
+; Information added by Drupal.org packaging script on 2014-03-11
+version = "7.x-1.2"
+core = "7.x"
+project = "fastclick"
+datestamp = "1394580516"
+

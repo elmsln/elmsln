@@ -1,0 +1,55 @@
+<?php
+/**
+ * @file
+ * FastClick integration with Drupal.
+ */
+
+
+/**
+ * Implements hook_libraries_info().
+ */
+function fastclick_libraries_info() {
+
+  $libraries['fastclick'] = array(
+    'name' => 'FastClick',
+    'version' => 'master',
+    'vendor url' => 'https://github.com/ftlabs/fastclick',
+    'download url' => 'https://github.com/ftlabs/fastclick/archive/master.zip',
+    'files' => array(
+      'js' => array(
+        'fastclick.js' => array(
+          'type' => 'file',
+          'scope' => 'footer',
+        ),
+      ),
+    ),
+  );
+
+  return $libraries;
+}
+
+/**
+ * Implements hook_page_build().
+ */
+function fastclick_page_build() {
+
+  // Attach library on every page, unless overriden by settings.
+  if (variable_get('fastclick_enable_everywhere', TRUE)) {
+
+    if (($library = libraries_load('fastclick')) && !empty($library['loaded'])) {
+
+      $js_options = array(
+        'type' => 'inline',
+        'scope' => 'footer',
+      );
+
+      // Instantiate FastClick with inline JavaScript.
+      drupal_add_js('jQuery(document).ready(function() {
+        FastClick.attach(document.body);
+      });', $js_options);
+    }
+    else {
+      drupal_set_message(t('Error loading FastClick Library.'), 'warning', FALSE);
+    }
+  }
+}
