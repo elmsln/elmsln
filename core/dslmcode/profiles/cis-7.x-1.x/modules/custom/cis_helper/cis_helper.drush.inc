@@ -52,6 +52,18 @@ function cis_helper_drush_command() {
         'Add service nodes to match their registry counterparts. If there is a match on machine_name then update associated fields in CIS to match registry.',
     ),
   );
+  $items['cis-default-content'] = array(
+    'description' => dt('Produce default content for getting the system setup'),
+    'options' => array(
+      'sample_content' => dt("Just create sample content like fake departments."),
+      'system_content' => dt("Just create system content like webservice resource defaults."),
+      'all_content' => dt("Create both sample content and system content."),
+    ),
+    'examples' => array(
+      'drush cis-default-content --all_content' =>
+        'Create default system content as well as made up example nodes.',
+    ),
+  );
   return $items;
 }
 
@@ -66,6 +78,22 @@ function cis_helper_drush_help($section) {
       return dt('Produce a "kraken" that will hit and force the production of every course into all instances, good for initial population and testing.');
     case 'drush:cis-sync-registry':
       return dt('Create and update Service nodes in CIS to match what is available in the cis registry of connections.');
+    case 'drush:cis-default-content':
+      return dt('Create default content for the CIS, mostly "system" types of nodes.');
+  }
+}
+
+/**
+ * Drush command callback for cis-default-content.
+ */
+function drush_cis_helper_cis_default_content() {
+  //@todo populate with calls that generate nodes
+
+  // create system content like default resource nodes
+  if (drush_get_option('all_content') || drush_get_option('system_content')) {
+  }
+  // produce example content like instructors, resources, programs, etc.
+  if (drush_get_option('all_content') || drush_get_option('sample_content')) {
   }
 }
 
