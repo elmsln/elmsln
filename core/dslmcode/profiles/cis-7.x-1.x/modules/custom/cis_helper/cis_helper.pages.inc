@@ -787,9 +787,7 @@ function cis_helper_quick_setup_page_submit($form, $form_state) {
     // make sure that this course doesn't already have an offering for this semester/year
     if (!empty($course->field_offerings)) {
       foreach ($course->field_offerings[LANGUAGE_NONE] as $offering_ref) {
-        if (isset($offering_ref['value'])) {
-          $offering_refs[] = $offering_ref['value'];
-        }
+        $offering_refs[] = (isset($offering_ref['value']) ? $offering_ref['value'] : '');
       }
       $query = new EntityFieldQuery;
       $result = $query
