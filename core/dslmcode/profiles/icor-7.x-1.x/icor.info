@@ -6,6 +6,8 @@ core = "7.x"
 ; ----------
 ; Dependencies
 ; ----------
+; Fast click
+dependencies[] = fastclick
 ; Administration
 dependencies[] = admin_menu
 dependencies[] = admin_menu_toolbar

@@ -4,6 +4,9 @@ api = "2"
 
 ; +++++ Modules +++++
 
+projects[fastclick][version] = "1.2"
+projects[fastclick][subdir] = "contrib"
+
 projects[accessibility][version] = "1.x-dev"
 projects[accessibility][subdir] = "contrib"
 

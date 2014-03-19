@@ -6,6 +6,8 @@ core = "7.x"
 ; ----------
 ; Dependencies
 ; ----------
+; Fast click
+dependencies[] = fastclick
 ; Accessibility
 dependencies[] = accessibility
 dependencies[] = accessibility_wysiwyg
