@@ -1463,8 +1463,8 @@ function cis_sample_content_node_export_features_default() {
           array(
             \'fid\' => NULL,
             \'uid\' => \'1\',
-            \'filename\' => \'elmslndoodle2.jpg\',
-            \'uri\' => \'public://elmslndoodle2.jpg\',
+            \'filename\' => \'elmslndoodle.jpg\',
+            \'uri\' => \'public://elmslndoodle.jpg\',
             \'filemime\' => \'image/jpeg\',
             \'filesize\' => \'177652\',
             \'status\' => \'1\',
