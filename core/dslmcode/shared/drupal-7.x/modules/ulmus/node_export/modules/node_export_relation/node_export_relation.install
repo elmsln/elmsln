@@ -1,0 +1,41 @@
+<?php
+
+/**
+ * @file
+ * The Node export relation install file.
+ */
+
+/**
+ * Implements hook_uninstall().
+ */
+function node_export_relation_uninstall() {
+  // Node reference.
+  variable_del('node_export_node_reference_auto_inc');
+  variable_del('node_export_node_reference_skip');
+
+  // Organic groups.
+  variable_del('node_export_og_auto_inc');
+  variable_del('node_export_og_skip');
+}
+
+ /**
+  * Implements hook_requirements().
+  */
+ function node_export_relation_requirements($phase) {
+  $requirements = array();
+
+  // Ensure translations don't break at install time
+  $t = get_t();
+
+  if (module_exists('node_export_dependency')) {
+    $requirements['node_export_dependency'] = array(
+      'title' => 'Node export dependency',
+      'description' => $t(
+        'Node export relation is deprecated in favour of Node export dependency.  You cannot use both.'
+      ),
+      'severity' => REQUIREMENT_ERROR,
+    );
+  }
+
+  return $requirements;
+}

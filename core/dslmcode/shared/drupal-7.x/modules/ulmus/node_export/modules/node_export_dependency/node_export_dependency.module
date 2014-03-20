@@ -1,0 +1,408 @@
+<?php
+
+/**
+ * @file
+ * The Node export dependency module.
+ *
+ * Helps maintain relationships to dependent entities.
+ */
+
+/**
+ * Callback for node reference settings form.
+ */
+function node_export_dependency_form_node_export_settings_alter(&$form, &$form_state, $form_id) {
+  // @todo: remove the node_export_dependency.core.inc file if solved: [#1590312]
+  module_load_include('inc', 'node_export_dependency', 'node_export_dependency.core');
+
+  $form['node_export_dependency'] = array(
+    '#type' => 'fieldset',
+    '#title' => t('Dependencies'),
+  );
+
+  $modules_options = array();
+  $modules = module_implements('node_export_dependency');
+  foreach ($modules as $module) {
+    if ($module != 'field') {
+      $module_info = system_get_info('module', $module);
+      $modules_options[$module] = $module_info['name'];
+    }
+  }
+  $modules = module_implements('node_export_dependency_field');
+  foreach ($modules as $module) {
+    $module_info = system_get_info('module', $module);
+    $modules_options[$module] = t('Field') . ': ' . $module_info['name'];
+  }
+
+  natcasesort($modules_options);
+
+  $form['node_export_dependency']['node_export_dependency_disable_modules'] = array(
+    '#type' => 'checkboxes',
+    '#title' => t('Disable dependencies by module'),
+    '#default_value' => variable_get('node_export_dependency_disable_modules', array()),
+    '#options' => $modules_options,
+    '#description' => t('Choose modules for which to disable dependencies.'),
+  );
+
+  $form['node_export_dependency']['node_export_dependency_attach_nodes'] = array(
+    '#type' => 'checkbox',
+    '#title' => t('Attach dependent nodes to export automatically.'),
+    '#default_value' => variable_get('node_export_dependency_attach_nodes', 1),
+  );
+
+  $form['node_export_dependency']['node_export_dependency_abort'] = array(
+    '#type' => 'checkbox',
+    '#title' => t('Abort the export when a dependent node cannot be exported.'),
+    '#default_value' => variable_get('node_export_dependency_abort', 0),
+    '#description' => t('Applies when attaching dependent nodes.'),
+  );
+
+  $form['node_export_dependency']['node_export_dependency_existing'] = array(
+    '#type' => 'checkbox',
+    '#title' => t('Maintain dependency to original node.'),
+    '#default_value' => variable_get('node_export_dependency_existing', 1),
+    '#description' => t('Applies when <em>Create a new node</em> imports a duplicate dependent node.') . '<strong>' . t('Disabling this is not yet supported.') . '</strong>',
+    '#disabled' => TRUE,
+  );
+
+  $disabled_modules = variable_get('node_export_dependency_disable_modules', array());
+  foreach (element_children($form['publishing']) as $type) {
+    if (empty($disabled_modules['node'])) {
+      $form['publishing'][$type]['node_export_reset_author_' . $type]['#disabled'] = TRUE;
+      $form['publishing'][$type]['node_export_reset_author_' . $type]['#description'] .= ' <strong>' . t('Disabled by <em>Node export dependency</em> because <em>Node module</em> dependencies are enabled.') . '</strong>';
+      $form['publishing'][$type]['node_export_reset_author_' . $type]['#default_value'] = FALSE;
+      variable_set('node_export_reset_author_' . $type, FALSE);
+    }
+    if (empty($disabled_modules['book'])) {
+      $form['publishing'][$type]['node_export_reset_book_mlid_' . $type]['#disabled'] = TRUE;
+      $form['publishing'][$type]['node_export_reset_book_mlid_' . $type]['#description'] .= ' <strong>' . t('Disabled by <em>Node export dependency</em> because <em>Book module</em> dependencies are enabled.') . '</strong>';
+      $form['publishing'][$type]['node_export_reset_book_mlid_' . $type]['#default_value'] = FALSE;
+      variable_set('node_export_reset_book_mlid_' . $type, FALSE);
+    }
+  }
+
+}
+
+/**
+ * Implements hook_node_export_alter().
+ */
+function node_export_dependency_node_export_alter(&$nodes, $format) {
+  // Keyed nodes are important for preventing duplicate nodes.
+  $keyed_nodes = array();
+  foreach ($nodes as $node) {
+    $keyed_nodes[$node->nid] = $node;
+  }
+  foreach (array_keys($keyed_nodes) as $nid) {
+    node_export_dependency_load_dependencies($keyed_nodes, $nid);
+  }
+  $nodes = array_values($keyed_nodes);
+}
+
+/**
+ *  Recursively load dependencies.
+ */
+function node_export_dependency_load_dependencies(&$nodes, $nid) {
+  $node = &$nodes[$nid];
+  $dependencies = node_export_dependency_get_dependencies('node', $node);
+  foreach ($dependencies as $dep_key => &$dependency) {
+    $disabled_modules = variable_get('node_export_dependency_disable_modules', array());
+    if (!empty($disabled_modules[$dependency['module']])) {
+      unset($dependencies[$dep_key]);
+      continue;
+    }
+    $uuid = node_export_dependency_get_uuid($dependency['type'], $dependency['id']);
+    $dependency['uuid'] = $uuid;
+    if ($dependency['type'] == 'node' && variable_get('node_export_dependency_attach_nodes', 1)) {
+      // It the node doesn't exist in keyed nodes, add it.
+      if (!isset($nodes[$dependency['id']])) {
+        $new_node = node_load($dependency['id']);
+        if (node_export_access_export($new_node)) {
+          $new_node = node_export_prepare_node($new_node);
+          $nodes[$new_node->nid] = $new_node;
+          // Recursively load dependent nodes.
+          node_export_dependency_load_dependencies($nodes, $new_node->nid);
+        }
+        elseif (variable_get('node_export_dependency_abort', 0)) {
+          // Set this node to FALSE to trigger an error in node export.
+          // Do not use $new_node in this code in case there is a problem with it.
+          $nodes[$dependency['id']] = FALSE;
+          // Add a warning to watchdog.
+          watchdog('node_export_dependency', 'No access to export node dependency %nid', array('%nid' => $dependency['id']), WATCHDOG_WARNING);
+          drupal_set_message(t('No access to export node dependency %nid', array('%nid' => $dependency['id'])), 'error', FALSE);
+        }
+      }
+    }
+  }
+  if (!empty($dependencies)) {
+    $node->node_export_dependency = $dependencies;
+  }
+}
+
+/**
+ * Implements hook_node_export_import_alter().
+ */
+function node_export_dependency_node_export_after_import_alter($nodes, $format, $save) {
+  $node_export_dependency = variable_get('node_export_dependency', array());
+  foreach ($nodes as $node) {
+    if (isset($node->node_export_dependency)) {
+      foreach ($node->node_export_dependency as $dep_key => $dependency) {
+        // Try to handle this dependency now, and unset if successful.
+        // Only do this now if maintaining dependency to original node, because
+        // if that setting is turned off, doing this at this stage will break
+        // things.
+        if (variable_get('node_export_dependency_existing', 1) && node_export_dependency_handle_dependency($node, $dependency)) {
+          unset($node->node_export_dependency[$dep_key]);
+        }
+        else {
+          // Couldn't handle, store for later.
+          $node_export_dependency[$node->uuid][] = $dependency;
+          // Set the property to 0 to prevent database errors.
+          node_export_dependency_set_property($node, $dependency, 0);
+        }
+      }
+      unset($node->node_export_dependency);
+      node_save($node);
+    }
+  }
+
+  if (!empty($node_export_dependency)) {
+    variable_set('node_export_dependency', $node_export_dependency);
+  }
+  else {
+    variable_del('node_export_dependency');
+  }
+
+}
+
+/**
+ * Attempt to process outstanding dependencies.
+ *
+ * This should only be called when the parent node to fix is already saved.
+ *
+ * @param $iterations
+ *   How many iterations to run.
+ * @param $seconds
+ *   How long to lock others from processing (will release upon completion).
+ */
+function node_export_dependency_process_outstanding_dependencies($iterations, $seconds = 240) {
+  if (REQUEST_TIME - variable_get('node_export_dependency_lock', REQUEST_TIME) >= 0) {
+    variable_set('node_export_dependency_lock', REQUEST_TIME + $seconds);
+    $node_export_dependency = variable_get('node_export_dependency', array());
+
+    // Iterate $node_export_dependency and try to handle any others.
+    $node_export_dependency_keys = array_keys($node_export_dependency);
+    // Shuffle so we don't get 'stuck' on a bunch of unsolvable cases.
+    shuffle($node_export_dependency_keys);
+    for ($count = 0; $count < $iterations; $count++) {
+      $node_uuid = next($node_export_dependency_keys);
+      if ($node_uuid === FALSE && empty($node_export_dependency_keys)) {
+        break;
+      }
+      else {
+        $node_uuid = reset($node_export_dependency_keys);
+      }
+      $dependencies = &$node_export_dependency[$node_uuid];
+      foreach ($dependencies as $dep_key => &$dependency) {
+        $nids = entity_get_id_by_uuid('node', array($node_uuid));
+        $node = node_load($nids[$node_uuid]);
+        if (!empty($node)) {
+          // Try to handle this dependency now, and unset if successful.
+          if (node_export_dependency_handle_dependency($node, $dependency)) {
+            unset($dependencies[$dep_key]);
+            node_save($node);
+          }
+        }
+      }
+      if (empty($node_export_dependency[$node_uuid])) {
+        unset($node_export_dependency[$node_uuid]);
+      }
+    }
+
+    if (!empty($node_export_dependency)) {
+      variable_set('node_export_dependency', $node_export_dependency);
+    }
+    else {
+      variable_del('node_export_dependency');
+    }
+    variable_del('node_export_dependency_lock');
+  }
+}
+
+/**
+ * Implements hook_cron().
+ */
+function node_export_dependency_cron() {
+  node_export_dependency_process_outstanding_dependencies(50);
+}
+
+/**
+ * Implements hook_init().
+ */
+function node_export_dependency_init() {
+  $node_export_dependency = variable_get('node_export_dependency', array());
+  if (!empty($node_export_dependency)) {
+    node_export_dependency_process_outstanding_dependencies(10);
+    if (count($node_export_dependency) > 20) {
+      drupal_set_message(
+        t(
+          'There are %num outstanding Node export dependencies, please complete the imports and run cron as soon as possible.',
+          array('%num' => count($node_export_dependency))
+        ),
+        'warning'
+      );
+    }
+  }
+}
+
+/**
+ *  Attempt to handle a dependency.
+ *
+ *  @return
+ *    TRUE or FALSE whether the dependency was handled.
+ */
+function node_export_dependency_handle_dependency(&$node, $dependency) {
+  $handled = FALSE;
+  $disabled_modules = variable_get('node_export_dependency_disable_modules', array());
+  if (!empty($disabled_modules[$dependency['module']])) {
+    // We're not handling it, so it is 'handled'.
+    return TRUE;
+  }
+  if (!isset($dependency['relationship'])) {
+    // Entity id.
+    $entity_ids = entity_get_id_by_uuid($dependency['type'], array($dependency['uuid']));
+    $entity_id = $entity_ids ? reset($entity_ids) : FALSE;
+    if ($entity_id) {
+      node_export_dependency_set_property($node, $dependency, $entity_id);
+    }
+    $handled = TRUE;
+  }
+
+  drupal_alter('node_export_dependency', $handled, $node, $dependency);
+
+  return $handled;
+}
+
+/**
+ * Implements hook_node_export_dependency_alter().
+ */
+function node_export_dependency_node_export_dependency_alter(&$handled, &$node, $dependency) {
+
+  // @todo special fixing up for Book and OG nodes and other special cases?
+
+}
+
+/**
+ *  Set a property according to $dependency for the property location and $new_value
+ *  for the new value.
+ */
+function node_export_dependency_set_property(&$entity, $dependency, $new_value) {
+  if (isset($dependency['field_name'])) {
+    // This is a field.
+    $entity->{$dependency['field_name']}[$dependency['langcode']]
+      [$dependency['delta']][$dependency['property']] = $new_value;
+  }
+  else {
+    // Some other property.
+    if (isset($dependency['property'])) {
+      $property_path = $dependency['property'];
+      if (!is_array($property_path)) {
+        $property_path = array($property_path);
+      }
+      $value = &$entity;
+      foreach ($property_path as $p) {
+        if (is_object($value) && isset($value->{$p})) {
+          $value = &$value->{$p};
+        }
+        elseif (is_array($value) && isset($value[$p])) {
+          $value = &$value[$p];
+        }
+      }
+      $value = $new_value;
+    }
+  }
+}
+
+/**
+ * Helper function to add entity dependencies to a dependency array.
+ *
+ * We never treat user UID 0 or 1 as dependencies. Those are low level user
+ * accounts ("anonymous" and "root") that already exists in most systems.
+ *
+ * @param $dependencies
+ *   The dependency array.
+ * @param $objects
+ *   Array of objects that should be checked for dependencies in $properties.
+ * @param $entity_type
+ *   The type of entity that $properties will add dependency on.
+ * @param $properties
+ *   An array of properties that adds dependencies to $objects. All properties
+ *   must only point to one entity type at the time.  A property can be a key
+ *   on the object, or an array of parent keys to identify the property.
+ * @todo remove if this is solved [#1590312]
+ */
+function node_export_dependency_add(&$dependencies, $objects, $entity_type, $properties) {
+  if (!is_array($objects)) {
+    $objects = array($objects);
+  }
+  if (!is_array($properties)) {
+    $properties = array($properties);
+  }
+
+  foreach ($objects as $delta => $object) {
+    foreach ($properties as $property) {
+      $property_path = $property;
+      if (!is_array($property_path)) {
+        $property_path = array($property_path);
+      }
+      $value = $object;
+      foreach ($property_path as $p) {
+        if (is_object($value) && isset($value->{$p})) {
+          $value = $value->{$p};
+        }
+        elseif (is_array($value) && isset($value[$p])) {
+          $value = $value[$p];
+        }
+      }
+      if (!empty($value) && $value != $object && !($entity_type == 'user' && (int)$value == 1)) {
+        $dependencies[] = array(
+          'type' => $entity_type,
+          'id' => $value,
+          'delta' => $delta,
+          'property' => $property,
+        );
+      }
+    }
+  }
+}
+
+/**
+ *  Get UUID based on entity id.
+ */
+function node_export_dependency_get_uuid($entity_type, $id) {
+  $entity_info = entity_get_info($entity_type);
+  $id_key = $entity_info['entity keys']['id'];
+  return uuid_get_uuid($entity_type, $id_key, $id);
+}
+
+/**
+ *  Get dependencies of an entity.
+ *
+ * @todo rewrite if this is solved [#1590312]
+ */
+function node_export_dependency_get_dependencies($entity_type, $entity) {
+  // @todo: remove the node_export_dependency.core.inc file if solved: [#1590312]
+  module_load_include('inc', 'node_export_dependency', 'node_export_dependency.core');
+  $all_dependencies = array();
+  foreach (module_implements('node_export_dependency') as $module) {
+    $dependencies = module_invoke($module, 'node_export_dependency', $entity, $entity_type);
+    if (isset($dependencies) && is_array($dependencies)) {
+      foreach ($dependencies as &$dependency) {
+        if (empty($dependency['module'])) {
+          $dependency['module'] = $module;
+        }
+      }
+      $all_dependencies = array_merge_recursive($all_dependencies, $dependencies);
+    }
+  }
+  return $all_dependencies;
+}
+

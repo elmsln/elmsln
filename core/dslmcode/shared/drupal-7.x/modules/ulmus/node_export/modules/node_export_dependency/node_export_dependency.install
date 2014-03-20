@@ -1,0 +1,41 @@
+<?php
+
+/**
+ * @file
+ * The Node export dependency install file.
+ */
+
+/**
+ * Implements hook_uninstall().
+ */
+function node_export_dependency_uninstall() {
+  variable_del('node_export_dependency');
+  variable_del('node_export_dependency_lock');
+  variable_del('node_export_dependency_disable_modules');
+  variable_del('node_export_dependency_attach_nodes');
+  variable_del('node_export_dependency_abort');
+  variable_del('node_export_dependency_existing');
+}
+
+ /**
+  * Implements hook_requirements().
+  */
+ function node_export_dependency_requirements($phase) {
+  $requirements = array();
+  if ($phase == 'install') {
+    // Ensure translations don't break at install time
+    $t = get_t();
+
+    if (module_exists('node_export_relation')) {
+      $requirements['node_export_relation'] = array(
+        'title' => 'Node export relation',
+        'description' => $t(
+          'Node export dependency cannot be installed when Node export relation is in use.'
+        ),
+        'severity' => REQUIREMENT_ERROR,
+      );
+    }
+  }
+
+  return $requirements;
+}

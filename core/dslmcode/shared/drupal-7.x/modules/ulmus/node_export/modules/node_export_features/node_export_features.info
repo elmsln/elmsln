@@ -1,0 +1,13 @@
+name = Node export features
+description = Adds Features support to Node export, so you can put your exports into Features modules.
+dependencies[] = node_export
+dependencies[] = uuid
+dependencies[] = features
+core = 7.x
+package = "Node export"
+; Information added by drupal.org packaging script on 2013-10-01
+version = "7.x-3.0+0-dev"
+core = "7.x"
+project = "node_export"
+datestamp = "1380594151"
+

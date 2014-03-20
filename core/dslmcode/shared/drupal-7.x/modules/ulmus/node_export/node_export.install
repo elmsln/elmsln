@@ -1,0 +1,135 @@
+<?php
+
+/**
+ * @file
+ * The Node export install file.
+ */
+
+/**
+ * Implements hook_uninstall().
+ */
+function node_export_uninstall() {
+  variable_del('node_export_format');
+  variable_del('node_export_code');
+  variable_del('node_export_filename');
+  variable_del('node_export_file_list');
+  variable_del('node_export_existing');
+  $types = node_type_get_names();
+  foreach ($types as $type => $name) {
+    variable_del('node_export_reset_status_' . $type);
+    variable_del('node_export_reset_promote_' . $type);
+    variable_del('node_export_reset_sticky_' . $type);
+    variable_del('node_export_reset_author_' . $type);
+    variable_del('node_export_reset_created_' . $type);
+    variable_del('node_export_reset_menu_' . $type);
+    variable_del('node_export_reset_revision_timestamp_' . $type);
+    variable_del('node_export_reset_last_comment_timestamp_' . $type);
+    variable_del('node_export_reset_path_' . $type);
+    variable_del('node_export_reset_book_mlid_' . $type);
+  }
+  // File field functionality.
+  variable_del('node_export_file_types');
+  variable_del('node_export_file_mode');
+  variable_del('node_export_file_assets_path');
+  variable_del('node_export_file_supported_fields');
+  // DSV format.
+  variable_del('node_export_dsv_delimiter');
+  variable_del('node_export_dsv_enclosure');
+  variable_del('node_export_dsv_seperator');
+  variable_del('node_export_dsv_escape_eol');
+
+  // Old vars.
+  variable_del('node_export_reset_' . $type);
+  variable_del('node_export_nodes_without_confirm');
+
+}
+
+/**
+ * Warn user about changed permissions and configuration.
+ */
+function node_export_update_7300() {
+  drupal_set_message(
+    t(
+      "Node export <a href=\"!perms\">permissions</a> and <a href=\"!config\">configuration</a> "
+      . "have changed, please take this opportunity to review these options to "
+      . "ensure the correct behavior and security of the module.  The import "
+      . "form is now located under <a href=\"!add\">Create content</a>.",
+      array(
+        '!perms' => url('admin/people/permissions'),
+        '!config' => url('admin/settings/node_export'),
+        '!add' => url('node/add'),
+      )
+    ),
+    'warning'
+  );
+  drupal_set_message(
+    t(
+      "Node export no longer checks whether users have access to use the "
+      . "filter formats of the fields in the node.  Please keep this in mind "
+      . "when deciding which user roles will get the 'export nodes' "
+      . "permission."
+    ),
+    'warning'
+  );
+  return 'Note: Please update Node export permissions and configuration.';
+}
+
+/**
+ * Combine Node export file module directly into Node export.
+ */
+function node_export_update_7301() {
+  // Upgraders with node_export_file should have the module disabled.
+  if (module_exists('node_export_file')) {
+    drupal_set_message('<em>Node export file</em> is deprecated.  Please delete the ' . drupal_get_path('module', 'node_export_file') . ' directory from the Drupal installation.', 'warning');
+    module_disable(array('node_export_file'), FALSE);
+  }
+  return 'Node export file removed, functionality moved to Node export.';
+}
+
+/**
+ * Remove old variables.
+ */
+function node_export_update_7302() {
+  // Old variables.
+  variable_del('node_export_method');
+  variable_del('node_export_bulk_code');
+  variable_del('node_export_bulk_filename');
+  variable_del('node_export_omitted');
+  return 'Removed old variables.';
+}
+
+/**
+ * Combine Node export format modules directly into Node export.
+ */
+function node_export_update_7303() {
+  // Upgraders with format modules should have the modules disabled.
+  if (module_exists('node_export_node_code')) {
+    drupal_set_message('<em>Node export node code</em> is deprecated.  Please delete the ' . drupal_get_path('module', 'node_export_node_code') . ' directory from the Drupal installation.', 'warning');
+    module_disable(array('node_export_node_code'), FALSE);
+  }
+  if (module_exists('node_export_drupal')) {
+    drupal_set_message('<em>Node export drupal</em> is deprecated.  Please delete the ' . drupal_get_path('module', 'node_export_drupal') . ' directory from the Drupal installation.', 'warning');
+    module_disable(array('node_export_drupal'), FALSE);
+  }
+  if (module_exists('node_export_dsv')) {
+    drupal_set_message('<em>Node export DSV</em> is deprecated.  Please delete the ' . drupal_get_path('module', 'node_export_dsv') . ' directory from the Drupal installation.', 'warning');
+    module_disable(array('node_export_dsv'), FALSE);
+  }
+  if (module_exists('node_export_csv')) {
+    drupal_set_message('<em>Node export CSV</em> is deprecated.  Please delete the ' . drupal_get_path('module', 'node_export_csv') . ' directory from the Drupal installation.', 'warning');
+    module_disable(array('node_export_csv'), FALSE);
+  }
+  if (module_exists('node_export_json')) {
+    drupal_set_message('<em>Node export JSON</em> is deprecated.  Please delete the ' . drupal_get_path('module', 'node_export_json') . ' directory from the Drupal installation.', 'warning');
+    module_disable(array('node_export_json'), FALSE);
+  }
+  if (module_exists('node_export_serialize')) {
+    drupal_set_message('<em>Node export serialize</em> is deprecated.  Please delete the ' . drupal_get_path('module', 'node_export_serialize') . ' directory from the Drupal installation.', 'warning');
+    module_disable(array('node_export_serialize'), FALSE);
+  }
+  if (module_exists('node_export_xml')) {
+    drupal_set_message('<em>Node export XML</em> is deprecated.  Please delete the ' . drupal_get_path('module', 'node_export_xml') . ' directory from the Drupal installation.', 'warning');
+    module_disable(array('node_export_xml'), FALSE);
+  }
+  return 'Node export format modules removed, functionality moved to Node export.';
+}

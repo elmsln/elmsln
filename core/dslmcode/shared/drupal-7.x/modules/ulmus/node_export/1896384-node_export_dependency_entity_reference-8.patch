@@ -1,0 +1,45 @@
+diff --git a/modules/node_export_dependency/node_export_dependency.module b/modules/node_export_dependency/node_export_dependency.module
+index 4b3e0a0..a1ae9d4 100644
+--- a/modules/node_export_dependency/node_export_dependency.module
++++ b/modules/node_export_dependency/node_export_dependency.module
+@@ -140,20 +140,16 @@ function node_export_dependency_load_dependencies(&$nodes, $nid) {
+ /**
+  * Implements hook_node_export_import_alter().
+  */
+-function node_export_dependency_node_export_import_alter($nodes, $format) {
++function node_export_dependency_node_export_after_import_alter($nodes, $format, $save) {
+   $node_export_dependency = variable_get('node_export_dependency', array());
+-
+   foreach ($nodes as $node) {
+     if (isset($node->node_export_dependency)) {
+       foreach ($node->node_export_dependency as $dep_key => $dependency) {
+-        // Try to handle this dependency now, and unset if successfull.
++        // Try to handle this dependency now, and unset if successful.
+         // Only do this now if maintaining dependency to original node, because
+         // if that setting is turned off, doing this at this stage will break
+         // things.
+-        if (
+-          variable_get('node_export_dependency_existing', 1) &&
+-          node_export_dependency_handle_dependency($node, $dependency)
+-        ) {
++        if (variable_get('node_export_dependency_existing', 1) && node_export_dependency_handle_dependency($node, $dependency)) {
+           unset($node->node_export_dependency[$dep_key]);
+         }
+         else {
+@@ -164,6 +160,7 @@ function node_export_dependency_node_export_import_alter($nodes, $format) {
+         }
+       }
+       unset($node->node_export_dependency);
++      node_save($node);
+     }
+   }
+ 
+@@ -208,7 +205,7 @@ function node_export_dependency_process_outstanding_dependencies($iterations, $s
+         $nids = entity_get_id_by_uuid('node', array($node_uuid));
+         $node = node_load($nids[$node_uuid]);
+         if (!empty($node)) {
+-          // Try to handle this dependency now, and unset if successfull.
++          // Try to handle this dependency now, and unset if successful.
+           if (node_export_dependency_handle_dependency($node, $dependency)) {
+             unset($dependencies[$dep_key]);
+             node_save($node);

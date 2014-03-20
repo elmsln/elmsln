@@ -1,0 +1,156 @@
+<?php
+/**
+ * @file
+ * Node export feeds importer.
+ */
+
+/**
+ * Implementation of hook_ctools_plugin_api().
+ */
+function node_export_feeds_ctools_plugin_api($module = '', $api = '') {
+  if ($module == 'feeds' && in_array($api, array('feeds_importer_default', 'plugins'))) {
+    return array('version' => 1);
+  }
+}
+
+/**
+ * Implementation of hook_feeds_plugins().
+ */
+function node_export_feeds_feeds_plugins() {
+  $info = array();
+  $info['FeedsNodeExportParser'] = array(
+    'name' => 'Node export parser',
+    'description' => 'Parse a node export.',
+    'help' => 'Parses the output from the node export module.',
+    'handler' => array(
+      'parent' => 'FeedsParser',
+      'class' => 'FeedsNodeExportParser',
+      'file' => 'FeedsNodeExportParser.inc',
+      'path' => drupal_get_path('module', 'node_export_feeds'),
+    ),
+  );
+  $info['FeedsNodeExportProcessor'] = array(
+    'name' => 'Node Export Processor',
+    'description' => 'Process a node export.',
+    'help' => 'Processes the output from the node export module.',
+    'handler' => array(
+      'parent' => 'FeedsNodeProcessor',
+      'class' => 'FeedsNodeExportProcessor',
+      'file' => 'FeedsNodeExportProcessor.inc',
+      'path' => drupal_get_path('module', 'node_export_feeds'),
+    ),
+  );
+  return $info;
+}
+
+/**
+ * Implementation of hook_feeds_importer_default().
+ */
+function node_export_feeds_feeds_importer_default() {
+  $export = array();
+
+  // Commented out properties seem to be unsupported targets in feeds?
+  $mappings_keys = array(
+    //'vid',
+    'uid',
+    'title',
+    //'log',
+    'status',
+    'comment',
+    'promote',
+    'sticky',
+    //'vuuid',
+    'nid',
+    //'type',
+    'language',
+    'created',
+    //'changed',
+    //'tnid',
+    //'translate',
+    //'uuid',
+    //'revision_timestamp',
+    //'revision_uid',
+    'body',
+    //'rdf_mapping',
+    //'cid',
+    //'last_comment_timestamp',
+    //'last_comment_name',
+    //'last_comment_uid',
+    //'comment_count',
+    //'name',
+    //'picture',
+    //'data',
+    //'path',
+    //'menu',
+    //'node_export_drupal_version',
+  );
+  $mappings = array();
+  foreach ($mappings_keys as $mappings_key) {
+    $mappings[] = array(
+      'source' => $mappings_key,
+      'target' => $mappings_key,
+      'unique' => FALSE,
+    );
+  }
+  $mappings[] = array(
+    'source' => 'uuid',
+    'target' => 'guid',
+    'unique' => 1,
+  );
+
+  $feeds_importer = new stdClass;
+  $feeds_importer->disabled = FALSE;
+  $feeds_importer->api_version = 1;
+  $feeds_importer->id = 'node_export';
+  $feeds_importer->config = array(
+    'name' => 'Node export import',
+    'description' => 'Import nodes from node export.',
+    'fetcher' => array(
+      'plugin_key' => 'FeedsFileFetcher',
+      'config' => array(
+        'allowed_extensions' => 'export txt csv tsv xml opml',
+        'direct' => FALSE,
+      ),
+    ),
+    'parser' => array(
+      'plugin_key' => 'FeedsNodeExportParser',
+      'config' => array(),
+    ),
+    'processor' => array(
+      'plugin_key' => 'FeedsNodeExportProcessor',
+      'config' => array(
+        'content_type' => 'article',
+        'update_existing' => 1,
+        'expire' => '-1',
+        'mappings' => $mappings,
+        'input_format' => 'plain_text',
+        'author' => 0,
+      ),
+    ),
+    'content_type' => '',
+    'update' => 0,
+    'import_period' => '-1',
+    'expire_period' => 3600,
+    'import_on_create' => 1,
+  );
+  $export['node_export'] = $feeds_importer;
+
+  return $export;
+}
+
+/**
+ * Implementation of hook_feeds_after_import().
+ */
+function node_export_feeds_feeds_after_import($source) {
+  if ($source->importer->processor instanceOf FeedsNodeExportProcessor && !empty($source->importer->processor->new_nodes)) {
+    // This code is similar to some code in node_export_import()
+    // which gets executed for all nodes when the $save param is TRUE.
+    $save = TRUE;
+    drupal_alter('node_export_after_import', $source->importer->processor->new_nodes, $source->importer->parser->format, $save);
+    // @todo: Is this what we should do with output messages?
+    drupal_set_message(("Some values may have been reset depending on Node export's configuration."));
+
+    // Clear the page and block caches.
+    cache_clear_all();
+  }
+}
