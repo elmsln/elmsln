@@ -166,6 +166,14 @@ drush -y --uri=$protocol://$online_domain vdel update_notify_emails
 
 # specialized job to automatically produce service nodes to match registry we made
 drush -y --uri=$protocol://$online_domain cis-sync-reg
+# may seem odd but basically we want to import a default set of nodes then disable
+# everything required to do this because it can throw a lot of errors but does work
+drush -y --uri=$protocol://$online_domain en node_export node_export_features node_export_dependency
+drush -y --uri=$protocol://$online_domain en cis_sample_content
+
+# uninstall all these now because they should be in correctly as sample nodes
+drush -y --uri=$protocol://$online_domain dis cis_sample_content node_export node_export_features node_export_dependency
+drush -y --uri=$protocol://$online_domain pm-uninstall cis_sample_content node_export node_export_features node_export_dependency
 
 # run cron for the good of the order
 drush -y --uri=$protocol://$online_domain cron
