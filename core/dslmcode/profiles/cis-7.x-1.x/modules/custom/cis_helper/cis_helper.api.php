@@ -26,6 +26,30 @@ function hook_cis_service_instance_options_alter(&$options, $course, $service) {
 }
 
 /**
+ * Implements hook_cis_service_instance_TOOL_options_alter().
+ *
+ * This allows for the altering of options (drush calls)
+ * just prior to creation of the service based on a course.
+ * This hook is specific to the machine_name of the tool being produced.
+ *
+ * To integrate with home-grown distributions you can replace TOOL with the
+ * machine_name of the service, such as courses, blog, interact, etc.
+ *
+ * @param $options
+ *   array of drush commands
+ * @param $course
+ *   node object
+ * @param $service
+ *   node object
+ */
+function hook_cis_service_instance_TOOL_options_alter(&$options, $course, $service) {
+  // run drush dis pathauto as part of the install routine
+  $options['dis'][] = 'pathauto';
+  // run drush en devel as part of setup
+  $options['en'][] = 'devel';
+}
+
+/**
  * Implements hook_cis_instructional_outlines_alter().
  *
  * This allows for the altering of listed instructional outlines

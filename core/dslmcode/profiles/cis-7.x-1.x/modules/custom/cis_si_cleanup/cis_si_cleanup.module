@@ -12,12 +12,6 @@
  * manually.
  */
 function cis_si_cleanup_cis_service_instance_options_alter(&$options, $course, $service) {
-  // course / mooc is kind of an edge-case in the network
-  if ($service->field_machine_name[LANGUAGE_NONE][0]['value'] == CIS_HELPER_COURSE_SERVICE) {
-    // revert the mooc ux defaults, they struggle to automatically
-    $options['fr'][] = 'mooc_ux_defaults';
-    $options['fr'][] = 'mooc_cis_ux';
-  }
   // section is critical that it's set correctly so revert it again
   $options['fr'][] = 'cis_section';
   // disable site auto-cron run so admin can set policy globally

@@ -520,6 +520,8 @@ function _cis_helper_add_service_instance($course, $service, $service_instance, 
   $options = array();
   // allow for advanced drush alterations via code
   drupal_alter('cis_service_instance_options', $options, $course, $service);
+  // allow for tool machine name specific alterations
+  drupal_alter('cis_service_instance_' . $service->field_machine_name[LANGUAGE_NONE][0]['value'] . '_options', $options, $course, $service);
   // vset the uuid from the service_instance entity into the remote site
   // this effectively binds the remote drupal site to the service_instance
   // content type in CIS
