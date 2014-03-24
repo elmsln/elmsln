@@ -440,11 +440,11 @@ function outline_designer_book_outline_designer_operations($type) {
     case 'book':
       $ops = array(
       'drag_drop' => array(
-        'title' => '<<OUTLINE_DESIGNER_API_ONLY>>', 
+        'title' => '<<OUTLINE_DESIGNER_API_ONLY>>',
         'callback' => 'outline_designer_book_process_drag_drop',
       ),
       'reweight' => array(
-        'title' => '<<OUTLINE_DESIGNER_API_ONLY>>', 
+        'title' => '<<OUTLINE_DESIGNER_API_ONLY>>',
         'callback' => 'outline_designer_book_process_reweight',
         ),
       );
@@ -605,6 +605,10 @@ function outline_designer_book_process_add_content($title, $type, $parent_nid) {
   $node->book['weight'] = -15;
   $node->book['plid'] = $parent->book['mlid'];
   $node->book['bid'] = $parent->book['bid'];
+  // minor support for OG
+  if (!empty($parent->og_group_ref['und'][0]['target_id'])){
+    $node->og_group_ref = $parent->og_group_ref;
+  }
   $node->book['menu_name'] = $parent->book['menu_name'];
   $node->book['module'] = $parent->book['module'];
   // Allow other modules to alter the new book node.
@@ -775,7 +779,7 @@ function theme_outline_designer_book_admin_table($variables) {
     // append icons
     $icon_path = base_path() . drupal_get_path('module', 'outline_designer') . '/images/';
     $type = db_query("SELECT type FROM {node} WHERE nid = :nid", array(':nid' => $nid))->fetchField();
-      $form[$key]['title']['#prefix'] = theme('outline_designer_prefix', array('type' => $type, 'nid' => $nid, 'icon_path' => $icon_path));    
+      $form[$key]['title']['#prefix'] = theme('outline_designer_prefix', array('type' => $type, 'nid' => $nid, 'icon_path' => $icon_path));
     // if this has kids then give it a drop down
     if ($form[$key]['#item']['has_children'] == 1) {
       $form[$key]['title']['#suffix'] = theme('outline_designer_suffix', array('nid' => $nid, 'icon_path' => $icon_path));
