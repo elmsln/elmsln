@@ -19,6 +19,7 @@ dependencies[] = cis_connector
 dependencies[] = cis_helper
 dependencies[] = cis_lti
 dependencies[] = cis_si_cleanup
+dependencies[] = cis_distro_integrations
 ; Chaos tool suite
 dependencies[] = ctools
 ; Charting
