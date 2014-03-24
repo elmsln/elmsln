@@ -1,13 +1,13 @@
 <?php
 /**
  * @file
- * timeline_type.views_default.inc
+ * icor_timeline_type.views_default.inc
  */
 
 /**
  * Implements hook_views_default_views().
  */
-function timeline_type_views_default_views() {
+function icor_timeline_type_views_default_views() {
   $export = array();
 
   $view = new view();

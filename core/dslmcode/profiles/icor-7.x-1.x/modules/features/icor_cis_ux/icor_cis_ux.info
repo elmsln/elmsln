@@ -1,0 +1,7 @@
+name = ICOR CIS UX
+description = CIS user experience integration for ICOR
+core = 7.x
+package = ICOR
+dependencies[] = cis_service_connection
+dependencies[] = cis_service_connection_ux
+features[features_api][] = api:2

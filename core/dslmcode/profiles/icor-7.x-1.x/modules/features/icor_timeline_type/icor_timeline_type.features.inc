@@ -1,13 +1,13 @@
 <?php
 /**
  * @file
- * timeline_type.features.inc
+ * icor_timeline_type.features.inc
  */
 
 /**
  * Implements hook_ctools_plugin_api().
  */
-function timeline_type_ctools_plugin_api() {
+function icor_timeline_type_ctools_plugin_api() {
   list($module, $api) = func_get_args();
   if ($module == "strongarm" && $api == "strongarm") {
     return array("version" => "1");
@@ -17,14 +17,14 @@ function timeline_type_ctools_plugin_api() {
 /**
  * Implements hook_views_api().
  */
-function timeline_type_views_api() {
+function icor_timeline_type_views_api() {
   return array("api" => "3.0");
 }
 
 /**
  * Implements hook_node_info().
  */
-function timeline_type_node_info() {
+function icor_timeline_type_node_info() {
   $items = array(
     'timeline' => array(
       'name' => t('Timeline'),

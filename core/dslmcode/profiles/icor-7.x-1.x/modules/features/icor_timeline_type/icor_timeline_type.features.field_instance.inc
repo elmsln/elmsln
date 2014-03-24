@@ -1,13 +1,13 @@
 <?php
 /**
  * @file
- * timeline_type.features.field_instance.inc
+ * icor_timeline_type.features.field_instance.inc
  */
 
 /**
  * Implements hook_field_default_field_instances().
  */
-function timeline_type_field_default_field_instances() {
+function icor_timeline_type_field_default_field_instances() {
   $field_instances = array();
 
   // Exported field_instance: 'node-timeline-field_time_points'
