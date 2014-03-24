@@ -20,6 +20,12 @@ function cle_install() {
     ->condition('type', 'theme')
     ->condition('name', $default_theme)
     ->execute();
+  variable_set('theme_default', $default_theme);
+  $theme_vars = array(
+    'cdn_bootstrap' => TRUE,
+    'cdn_bootstrap_version' => '2.3.2',
+  );
+  variable_set('theme_cle_bootstrap_settings', $theme_vars);
   // enable $admin_theme
   db_update('system')
     ->fields(array('status' => 1))
@@ -80,7 +86,7 @@ function cle_install() {
     $query->values($block);
   }
   $query->execute();
-  
+
   // revert features to ensure they are all installed
   $features = array(
     'textbook_editor',
@@ -88,6 +94,8 @@ function cle_install() {
     'cis_service_roles',
     'cis_section',
     'cis_service_connection_ux',
+    'cis_service_lti',
+    'cle_cis_ux',
     'cle_assignment',
     'cle_submission',
     'cle_perms',

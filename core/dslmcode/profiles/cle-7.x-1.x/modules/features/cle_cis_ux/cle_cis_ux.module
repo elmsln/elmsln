@@ -1,0 +1,7 @@
+<?php
+/**
+ * @file
+ * Code for the CLE CIS UX feature.
+ */
+
+include_once 'cle_cis_ux.features.inc';

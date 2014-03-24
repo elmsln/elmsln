@@ -1,0 +1,10 @@
+name = CLE CIS UX
+description = CLE Integration with CIS services
+core = 7.x
+package = CLE
+dependencies[] = cis_service_connection
+dependencies[] = cis_service_connection_ux
+dependencies[] = context
+features[context][] = cle_cis_ux
+features[ctools][] = context:context:3
+features[features_api][] = api:2
