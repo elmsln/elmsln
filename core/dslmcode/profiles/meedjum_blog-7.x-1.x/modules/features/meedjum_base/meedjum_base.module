@@ -1,0 +1,7 @@
+<?php
+/**
+ * @file
+ * Code for the Meedjum Base feature.
+ */
+
+include_once 'meedjum_base.features.inc';

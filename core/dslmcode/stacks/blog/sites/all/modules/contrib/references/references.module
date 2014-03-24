@@ -1,0 +1,208 @@
+<?php
+
+/**
+ * @file
+ * Defines common base features for the various reference field types.
+ */
+
+/**
+ * Menu access callback for reference autocomplete paths.
+ *
+ * Check for both 'edit' and 'view' access in the unlikely event
+ * a user has edit but not view access.
+ */
+function reference_autocomplete_access($entity_type, $bundle, $field_name, $entity = NULL, $account = NULL) {
+  return user_access('access content', $account)
+      && ($field = field_info_field($field_name))
+      && field_info_instance($entity_type, $field_name, $bundle)
+      && field_access('view', $field, $entity_type, $entity, $account)
+      && field_access('edit', $field, $entity_type, $entity, $account);
+}
+
+/**
+ * Implements hook_init().
+ */
+function references_init() {
+  // Include feeds.module integration.
+  if (module_exists('feeds')) {
+    module_load_include('inc','references','references.feeds');
+  }
+}
+
+/**
+ * Implements hook_views_api().
+ */
+function references_views_api() {
+  return array(
+    'api' => 3,
+    'path' => drupal_get_path('module', 'references') . '/views',
+  );
+}
+
+/**
+ * Implements hook_views_plugins().
+ *
+ * Defines some plugins used by the Views modes for
+ * user_reference.
+ */
+function references_views_plugins() {
+  $plugins = array(
+    'display' => array(
+      'references' => array(
+        'title' => t('References'),
+        'admin' => t('References'),
+        'help' => 'Selects referenceable entities for a reference field (node_reference, user_reference...)',
+        'handler' => 'references_plugin_display',
+        'uses hook menu' => FALSE,
+        'use ajax' => FALSE,
+        'use pager' => FALSE,
+        'accept attachments' => FALSE,
+        // Custom property, used with views_get_applicable_views() to retrieve
+        // all views with a 'References' display.
+        'references display' => TRUE,
+      ),
+    ),
+    'style' => array(
+      'references_style' => array(
+        'title' => t('References list'),
+        'help' => 'Returns results as a PHP array of names + rendered rows.',
+        'handler' => 'references_plugin_style',
+        'theme' => 'views_view_unformatted',
+        'uses row plugin' => TRUE,
+        'uses fields' => TRUE,
+        'uses options' => TRUE,
+        'uses grouping' => TRUE,
+        'type' => 'references',
+        'even empty' => TRUE,
+      ),
+    ),
+    'row' => array(
+      'references_fields' => array(
+        'title' => t('Inline fields'),
+        'help' => t('Displays the fields with an optional template.'),
+        'handler' => 'references_plugin_row_fields',
+        'theme' => 'views_view_fields',
+        'theme path' => drupal_get_path('module', 'views') . '/theme',
+        'theme file' => 'theme.inc',
+        'uses fields' => TRUE,
+        'uses options' => TRUE,
+        'type' => 'references',
+      ),
+    ),
+  );
+  return $plugins;
+}
+
+/**
+ * Retrieves the list of views with a 'references' display, in a format suitable for a 'select' form element..
+ *
+ * @param $entity_type
+ *   The entity type.
+ *
+ * @return
+ *   An array of eligible views displays.
+ */
+function references_get_views_options($entity_type) {
+  // Filter views that contain a 'references' display. This actually returns a
+  // list of displays (the same view appears several times).
+  $displays = views_get_applicable_views('references display');
+
+  // Filter views that list the entity type we want, and group the separate
+  // displays by view.
+  $entity_info = entity_get_info($entity_type);
+  $options = array();
+  foreach ($displays as $data) {
+    list($view, $display_id) = $data;
+    if ($view->base_table == $entity_info['base table']) {
+      $options[$view->name . ':' . $display_id] = $view->name .' - ' . $view->display[$display_id]->display_title;
+    }
+  }
+
+  return $options;
+}
+
+/**
+ * Retrieves an array of candidate referenceable entities, defined by a view.
+ *
+ * @param $entity_type
+ *   The entity type.
+ * @param $view_name
+ *   The name of the view.
+ * @param $display_name
+ *   The name of the view's display. This has to be a 'References' display.
+ * @param $args
+ *   The array of arguments ("contextual filters") for the view.
+ * @param $options
+ *   Array of options to limit the scope of the returned list. This parameter
+ *   is similar to the $options parameter for
+ *   node_reference_potential_references(). An additional key is required:
+ *   - title_field: the name of the column holding entities 'titles' within the
+ *     entity base table.
+ *
+ * @return
+ *   An array of entities, in the format expected by
+ *   node_reference_potential_references().
+ *
+ * @see node_reference_potential_references()
+ * @see _node_reference_potential_references_views()
+ */
+function references_potential_references_view($entity_type, $view_name, $display_name, $args, $options) {
+  $entity_info = entity_get_info($entity_type);
+
+  // Check that the view is valid and the display still exists.
+  $view = views_get_view($view_name);
+  if (!$view || $view->base_table != $entity_info['base table'] || !isset($view->display[$display_name])) {
+    return FALSE;
+  }
+
+  // If we have no access to the View an empty result should be returned to
+  // avoid triggering the fallback results.
+  if  (!$view->access(array($display_name))) {
+    return array();
+  }
+
+  // Temporary backwards compatibility for fields migrated from CCK D6: accept
+  // 'default' display, but dynamically add a 'references' display out of it.
+  if ($display_name == 'default') {
+    $display_name = $view->add_display('references');
+  }
+
+  $view->set_display($display_name);
+
+  // @todo From merlinofchaos on IRC : arguments using summary view can defeat
+  // the style setting.
+  // We might also need to check if there's an argument, and set its
+  // style_plugin as well.
+
+  // Set additional options to let references_plugin_display::query() narrow
+  // the results.
+  $references_options = array(
+    'ids' => $options['ids'],
+    'title_field' => $options['title_field'],
+    'string' => $options['string'],
+    'match' => $options['match'],
+  );
+  $view->display_handler->set_option('references_options', $references_options);
+
+  // We need the title field for autocomplete widgets, so add it (hidden) if not
+  // present.
+  $fields = $view->get_items('field', $display_name);
+  if (!isset($fields[$options['title_field']])) {
+    $label_options = array(
+      'exclude' => 1,
+    );
+    $view->add_item($display_name, 'field', $entity_info['base table'], $options['title_field'], $label_options);
+  }
+
+  // Limit result set size.
+  $limit = !empty($options['limit']) ? $options['limit'] : 0;
+  $view->display_handler->set_option('pager', array('type' => 'some', 'options' => array('items_per_page' => $limit)));
+
+  // Make sure the query is not cached
+  $view->is_cacheable = FALSE;
+
+  // Get the results.
+  $results = $view->execute_display($display_name, $args);
+
+  return $results;
+}

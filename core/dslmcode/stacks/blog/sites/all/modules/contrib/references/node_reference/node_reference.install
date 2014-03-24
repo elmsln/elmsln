@@ -1,0 +1,38 @@
+<?php
+
+/**
+ * @file
+ * Install, update and uninstall functions for the node_reference module.
+ */
+
+/**
+ * Implements hook_field_schema().
+ */
+function node_reference_field_schema($field) {
+  $columns = array(
+    'nid' => array(
+      'type'     => 'int',
+      'unsigned' => TRUE,
+      'not null' => FALSE,
+    ),
+  );
+  return array(
+    'columns' => $columns,
+    'indexes' => array('nid' => array('nid')),
+    'foreign keys' => array(
+      'nid' => array(
+        'table' => 'node',
+        'columns' => array('nid' => 'nid'),
+      ),
+    ),
+  );
+}
+
+/**
+ * Rebuild views data cache (a callabck was renamed).
+ */
+function node_reference_update_7000() {
+  if (function_exists('views_invalidate_cache')) {
+    views_invalidate_cache();
+  }
+}
