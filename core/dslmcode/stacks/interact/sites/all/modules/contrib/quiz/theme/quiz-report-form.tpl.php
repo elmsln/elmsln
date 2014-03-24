@@ -27,16 +27,23 @@ $q_image = $p. 'question_bg.png';
 foreach ($form as $key => $sub_form):
   if (!is_numeric($key) || isset($sub_form['#no_report'])) continue;
   unset($form[$key]);
-  $c_class = ($sub_form['#is_evaluated']) ? ($sub_form['#is_correct']) ? 'q-correct' : 'q-wrong' : 'q-waiting';
-  $skipped = $sub_form['#is_skipped'] ? '<span class="quiz-report-skipped">'. t('(skipped)') .'</span>' : ''?>
-
+  $c_class = ($sub_form['#is_evaluated']) ? ($sub_form['#is_correct']) ? 'q-correct' : 'q-wrong' : 'q-waiting'; ?>
 	<div class="dt">
 	  <div class="quiz-report-score-container <?php print $c_class?>">
 	  	<span>
 	      <?php print t('Score')?>
         <?php print drupal_render($sub_form['score'])?>
         <?php print t('of') .' '. $sub_form['max_score']['#value']?>
-        <?php print '<br><em>'. $skipped .'</em>'?>
+        <?php if ($sub_form['#is_skipped']): ?>
+          <br><em><span class="quiz-report-skipped">
+          <?php print t('(skipped)') ?>
+          </span></em>
+        <?php endif; ?>
+        <?php if ($sub_form['#is_doubtful']): ?>
+          <br><em><span class="quiz-report-doubtful">
+          <?php print t('(Doubtful)') ?>
+          </span></em>
+        <?php endif; ?>
       </span>
     </div>
 	  <p class="quiz-report-question"><strong><?php print t('Question')?>: </strong></p>

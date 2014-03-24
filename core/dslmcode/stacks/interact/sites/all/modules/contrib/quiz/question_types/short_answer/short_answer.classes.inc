@@ -231,6 +231,11 @@ class ShortAnswerQuestion extends QuizQuestion {
    */
   public function evaluateAnswer($user_answer) {
     $score = 0;
+    
+    // Ignore white spaces for correct answer and user's answer.
+    $user_answer = trim($user_answer);
+    $this->node->correct_answer = trim($this->node->correct_answer);
+    
     switch ($this->node->correct_answer_evaluation) {
       case self::ANSWER_MATCH:
         if ($user_answer == $this->node->correct_answer) {

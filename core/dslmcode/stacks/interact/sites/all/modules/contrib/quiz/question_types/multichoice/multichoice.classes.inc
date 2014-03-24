@@ -197,6 +197,35 @@ class MultichoiceQuestion extends QuizQuestion {
     $this->saveUserSettings();
   }
 
+  function _normalizeAlternative($alternatives) {
+    $copy = $alternatives;
+    // answer
+    if (is_array($alternatives['answer']) && isset($alternatives['answer']['value'])) {
+      $copy['answer'] = $alternatives['answer']['value'];
+    }
+    // answer format
+    if (is_array($alternatives['answer']) && isset($alternatives['answer']['format'])) {
+      $copy['answer_format'] = $alternatives['answer']['format'];
+    }
+    // feedback if choosen
+    if (is_array($alternatives['feedback_if_chosen']) && isset($alternatives['feedback_if_chosen']['value'])) {
+      $copy['feedback_if_chosen'] = $alternatives['feedback_if_chosen']['value'];
+    }
+    // feedback if choosen foramt
+    if (is_array($alternatives['feedback_if_chosen']) && isset($alternatives['feedback_if_chosen']['format'])) {
+      $copy['feedback_if_chosen_format'] = $alternatives['feedback_if_chosen']['format'];
+    }
+    // feedback if not chosen
+    if (is_array($alternatives['feedback_if_not_chosen']) && isset($alternatives['feedback_if_not_chosen']['value'])) {
+      $copy['feedback_if_not_chosen'] = $alternatives['feedback_if_not_chosen']['value'];
+    }
+    // feedback if not chosen foramt
+    if (is_array($alternatives['feedback_if_not_chosen']) && isset($alternatives['feedback_if_not_chosen']['format'])) {
+      $copy['feedback_if_not_chosen_format'] = $alternatives['feedback_if_not_chosen']['format'];
+    }
+    return $copy;
+  }
+
   /**
    * Helper function. Saves new alternatives
    *
@@ -204,15 +233,15 @@ class MultichoiceQuestion extends QuizQuestion {
    *  The alternative index
    */
   private function insertAlternative($i) {
-    $alternatives = $this->node->alternatives[$i];
+    $alternatives = $this->_normalizeAlternative($this->node->alternatives[$i]);
     db_insert('quiz_multichoice_answers')
       ->fields(array(
-        'answer' => $alternatives['answer']['value'],
-        'answer_format' => $alternatives['answer']['format'],
-        'feedback_if_chosen' => $alternatives['feedback_if_chosen']['value'],
-        'feedback_if_chosen_format' => $alternatives['feedback_if_chosen']['format'],
-        'feedback_if_not_chosen' => $alternatives['feedback_if_not_chosen']['value'],
-        'feedback_if_not_chosen_format' => $alternatives['feedback_if_not_chosen']['format'],
+        'answer' => $alternatives['answer'],
+        'answer_format' => $alternatives['answer_format'],
+        'feedback_if_chosen' => $alternatives['feedback_if_chosen'],
+        'feedback_if_chosen_format' => $alternatives['feedback_if_chosen_format'],
+        'feedback_if_not_chosen' => $alternatives['feedback_if_not_chosen'],
+        'feedback_if_not_chosen_format' => $alternatives['feedback_if_not_chosen_format'],
         'score_if_chosen' => $alternatives['score_if_chosen'],
         'score_if_not_chosen' => $alternatives['score_if_not_chosen'],
         'question_nid' => $this->node->nid,
@@ -228,19 +257,19 @@ class MultichoiceQuestion extends QuizQuestion {
    *  The alternative index
    */
   private function updateAlternative($i) {
-    $short = $this->node->alternatives[$i];
+    $alternatives = $this->_normalizeAlternative($this->node->alternatives[$i]);
     db_update('quiz_multichoice_answers')
       ->fields(array(
-        'answer' => $short['answer']['value'],
-        'answer_format' => $short['answer']['format'],
-        'feedback_if_chosen' => $short['feedback_if_chosen']['value'],
-        'feedback_if_chosen_format' => $short['feedback_if_chosen']['format'],
-        'feedback_if_not_chosen' => $short['feedback_if_not_chosen']['value'],
-        'feedback_if_not_chosen_format' => $short['feedback_if_not_chosen']['format'],
-        'score_if_chosen' => $short['score_if_chosen'],
-        'score_if_not_chosen' => $short['score_if_not_chosen'],
+        'answer' => $alternatives['answer'],
+        'answer_format' => $alternatives['answer_format'],
+        'feedback_if_chosen' => $alternatives['feedback_if_chosen'],
+        'feedback_if_chosen_format' => $alternatives['feedback_if_chosen_format'],
+        'feedback_if_not_chosen' => $alternatives['feedback_if_not_chosen'],
+        'feedback_if_not_chosen_format' => $alternatives['feedback_if_not_chosen_format'],
+        'score_if_chosen' => $alternatives['score_if_chosen'],
+        'score_if_not_chosen' => $alternatives['score_if_not_chosen'],
       ))
-      ->condition('id', $short['id'])
+      ->condition('id', $alternatives['id'])
       ->condition('question_nid', $this->node->nid)
       ->condition('question_vid', $this->node->vid)
       ->execute();
@@ -312,10 +341,11 @@ class MultichoiceQuestion extends QuizQuestion {
       $user_answer_id = db_query('SELECT id FROM {quiz_multichoice_user_answers} WHERE question_nid = :nid', array(':nid' => $this->node->nid))->fetchCol();
     }
 
-    db_delete('quiz_multichoice_user_answer_multi')
-      ->condition('user_answer_id', $user_answer_id, 'IN')
-      ->execute();
-
+    if (!empty($user_answer_id)) {
+      db_delete('quiz_multichoice_user_answer_multi')
+        ->condition('user_answer_id', $user_answer_id, 'IN')
+        ->execute();
+    }
     $delete_properties->execute();
     $delete_answers->execute();
     $delete_results->execute();

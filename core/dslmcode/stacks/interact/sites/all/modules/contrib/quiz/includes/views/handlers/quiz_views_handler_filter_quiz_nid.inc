@@ -43,7 +43,9 @@ class quiz_views_handler_filter_quiz_nid extends views_handler_filter {
   function construct() {
     parent::construct();
     $this->vid_field = !empty($this->definition['vid field']) ? $this->definition['vid field'] : 'vid';
-    $this->group_by = $this->definition['group by'];
+    if (!empty($this->definition['group by'])) {
+      $this->group_by = $this->definition['group by'];
+    }
     if (!empty($this->definition['secondary group by'])) {
       $this->secondary_group_by = $this->definition['secondary group by'];
     }

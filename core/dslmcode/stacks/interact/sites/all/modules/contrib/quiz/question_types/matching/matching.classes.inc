@@ -38,11 +38,8 @@ class MatchingQuestion extends QuizQuestion {
     foreach ($this->node->match as $match) {
       $match['feedback'] = (isset($match['feedback'])) ? $match['feedback'] : '';
       // match_id is not so it is a new question.
-      if (empty($match['match_id']) || $this->node->revision) {
+      if (empty($match['match_id']) || $this->node->revision || isset($this->node->node_export_drupal_version)) {
         if (!empty($match['question']) && !empty($match['answer'])) {
-          $sql = "INSERT INTO {quiz_matching_node} (nid, vid, question, answer, feedback) VALUES (%d, %d, '%s', '%s', '%s')";
-          // TODO Please review the conversion of this statement to the D7 database API syntax.
-          /* db_query($sql, $this->node->nid, $this->node->vid, $match['question'], $match['answer'], $match['feedback']) */
           $id = db_insert('quiz_matching_node')
                   ->fields(array(
                     'nid' => $this->node->nid,
@@ -58,17 +55,12 @@ class MatchingQuestion extends QuizQuestion {
       else {
         if (empty($match['question']) && empty($match['answer'])) {
           // remove sub question.
-          // TODO Please review the conversion of this statement to the D7 database API syntax.
-          /* db_query("DELETE FROM {quiz_matching_node} WHERE match_id = %d", $match['match_id']) */
           db_delete('quiz_matching_node')
             ->condition('match_id', $match['match_id'])
             ->execute();
         }
         else {
           // update sub question.
-          //$sql = "UPDATE {quiz_matching_node} SET question = '%s', answer = '%s', feedback = '%s' WHERE match_id = %d";
-          // TODO Please review the conversion of this statement to the D7 database API syntax.
-          /* db_query($sql, $match['question'], $match['answer'], $match['feedback'], $match['match_id']) */
           db_update('quiz_matching_node')
             ->fields(array(
               'question' => $match['question'],
@@ -113,10 +105,11 @@ class MatchingQuestion extends QuizQuestion {
     // Delete all versions of this question.
     else {
       $match_id = db_query('SELECT match_id FROM {quiz_matching_node} WHERE nid = :nid', array(':nid' => $this->node->nid))->fetchCol();
-      db_delete('quiz_matching_user_answers')
-        ->condition('match_id', is_array($match_id) ? $match_id : array(0), 'IN')
-        ->execute();
-
+      if (!empty($match_id)) {
+        db_delete('quiz_matching_user_answers')
+          ->condition('match_id', $match_id, 'IN')
+          ->execute();
+      }
       db_delete('quiz_matching_node')
         ->condition('nid', $this->node->nid)
         ->execute();
@@ -476,27 +469,27 @@ class MatchingResponse extends QuizQuestionResponse {
     $MatchingQuestion = new MatchingQuestion($this->question);
     $correct_answers = $MatchingQuestion->getCorrectAnswer();
     $user_answers = isset($this->answer['answer']) ? $this->answer['answer'] : $this->answer;
-    $has_feedback = TRUE;
+    $has_feedback = FALSE;
     foreach ($correct_answers as $correct_answer) {
-      $answer_data = array();      
+      $answer_data = array();
       $correct = FALSE;
       $id = NULL;
       $answer_data['question'] = check_markup($correct_answer['question'], $this->getFormat());
+      if ($showpoints) {
+        $answer_data['correct_answer'] = $correct_answer['answer'];
+      }
       if ( isset($user_answers[$correct_answer['match_id']])) {
         $id = $user_answers[$correct_answer['match_id']];
         $correct = isset($correct_answers[$id]) && $correct_answer['answer'] == $correct_answers[$id]['answer'];
         $answer_data['user_answer'] = isset($correct_answers[$id]) ? check_markup($correct_answers[$id]['answer'], $this->getFormat()) : NULL;
-      }      
-      if ($showpoints) {
-        $answer_data['correct_answer'] = $correct_answer['answer'];
-      }      
+      }
       if ($showfeedback && !empty($correct_answer['feedback'])) {
-        $answer_data['feedback'] = check_markup($correct_answer['feedback'], $this->getFormat());        
-      }      
+        $answer_data['feedback'] = check_markup($correct_answer['feedback'], $this->getFormat());
+        $has_feedback = TRUE;
+      }
       else {
-        //$has_feedback = FALSE;
         if ($showfeedback)  {
-          $answer_data['feedback'] = '';
+          //$answer_data['feedback'] = '';
         }
       }
       $answer_data['is_correct'] = $correct;
@@ -506,7 +499,7 @@ class MatchingResponse extends QuizQuestionResponse {
     if ($showfeedback && $has_feedback) {
       $metadata[] = t('Feedback');
     }
-
+    $metadata[] = t('Valuation');
     return array(
       '#markup' => theme('matching_response', array('metadata' => $metadata, 'data' => $data)),
     );

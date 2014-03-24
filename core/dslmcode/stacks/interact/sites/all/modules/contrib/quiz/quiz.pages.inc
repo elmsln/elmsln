@@ -269,7 +269,7 @@ function quiz_get_user_results($uid) {
     INNER JOIN {users} u ON u.uid = qnrs.uid
     WHERE n.type = :type
       AND u.uid = :uid
-    ORDER BY qnrs.result_id ASC', array(':type' => 'quiz', ':uid' => $uid));
+    ORDER BY qnrs.result_id DESC', array(':type' => 'quiz', ':uid' => $uid));
 
   // Create an array out of the results.
   foreach ($dbresult as $result) {
@@ -362,7 +362,15 @@ function theme_quiz_get_user_results($variables) {
     t('Operation'),
   );
 
-  $output = theme('table', array('header' => $header, 'rows' => $rows));
+  $per_page = 10;
+  // Initialise the pager
+  $current_page = pager_default_initialize(count($rows), $per_page);
+  // Split your list into page sized chunks
+  $chunks = array_chunk($rows, $per_page, TRUE);
+  // Show the appropriate items from the list
+  $output = theme('table', array('header' => $header, 'rows' => $chunks[$current_page]));
+  // Show the pager
+  $output .= theme('pager', array('quantity',count($rows)));
   $output .= '<p><em>' . t('@quizzes that are not evaluated may have a different score and grade once evaluated.', array('@quizzes' => QUIZ_NAME)) . '</em></p>';
   return $output;
 }

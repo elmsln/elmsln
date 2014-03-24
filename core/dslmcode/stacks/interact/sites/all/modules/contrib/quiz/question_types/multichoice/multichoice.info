@@ -9,9 +9,9 @@ dependencies[] = quiz_question
 files[] = multichoice.classes.inc
 files[] = multichoice.test
 
-; Information added by drupal.org packaging script on 2013-03-04
-version = "7.x-4.0-beta1"
+; Information added by drupal.org packaging script on 2013-10-30
+version = "7.x-4.0-beta2"
 core = "7.x"
 project = "quiz"
-datestamp = "1362397820"
+datestamp = "1383124552"
 

@@ -406,7 +406,7 @@ class LongAnswerResponse extends QuizQuestionResponse {
       return array(
         '#title' => t('Enter feedback'),
         '#type' => 'textarea',
-        '#default_value' => $this->answer_feedback,
+        '#default_value' => isset($this->answer_feedback) ? check_markup($this->answer_feedback) : '',
         '#attributes' => array('class' => array('quiz-report-score')),
       );
     }

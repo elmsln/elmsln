@@ -1,311 +1,108 @@
 <?php
-
-$view = new view;
+$view = new view();
 $view->name = 'quiz_by_taker';
 $view->description = 'View of all the quizzes a user has taken';
 $view->tag = 'quiz';
-$view->view_php = '';
 $view->base_table = 'quiz_node_properties';
-$view->is_cacheable = FALSE;
-$view->api_version = 2;
+$view->human_name = '';
+$view->core = 0;
+$view->api_version = '3.0';
 $view->disabled = FALSE; /* Edit this to true to make a default view disabled initially */
+
+/* Display: Defaults */
 $handler = $view->new_display('default', 'Defaults', 'default');
-$handler->override_option('relationships', array(
+$handler->display->display_options['use_more_always'] = FALSE;
+$handler->display->display_options['access']['type'] = 'perm';
+$handler->display->display_options['access']['perm'] = 'administer quiz configuration';
+$handler->display->display_options['cache']['type'] = 'none';
+$handler->display->display_options['query']['type'] = 'views_query';
+$handler->display->display_options['exposed_form']['type'] = 'basic';
+$handler->display->display_options['pager']['type'] = 'none';
+$handler->display->display_options['style_plugin'] = 'table';
+$handler->display->display_options['style_options']['grouping'] = 'vid';
+$handler->display->display_options['style_options']['columns'] = array(
+  'time_end' => 'time_end',
+  'nid' => 'nid',
+  'vid' => 'vid',
+  'time_start' => 'time_start',
+  'score' => 'score',
+  'uid' => 'uid',
+);
+$handler->display->display_options['style_options']['default'] = '-1';
+$handler->display->display_options['style_options']['info'] = array(
+  'time_end' => array(
+    'sortable' => 0,
+    'separator' => '',
+  ),
+  'nid' => array(
+    'sortable' => 0,
+    'separator' => '',
+  ),
   'vid' => array(
-    'label' => 'quiz revision',
-    'required' => 1,
-    'id' => 'vid',
-    'table' => 'quiz_node_results',
-    'field' => 'vid',
-    'relationship' => 'none',
-  ),
-));
-$handler->override_option('fields', array(
-  'title' => array(
-    'label' => 'Title',
-    'alter' => array(
-      'alter_text' => 0,
-      'text' => '',
-      'make_link' => 0,
-      'path' => '',
-      'alt' => '',
-      'prefix' => '',
-      'suffix' => '',
-      'help' => '',
-      'trim' => 0,
-      'max_length' => '',
-      'word_boundary' => 1,
-      'ellipsis' => 1,
-      'html' => 0,
-    ),
-    'link_to_node' => 0,
-    'exclude' => 0,
-    'id' => 'title',
-    'table' => 'node_revision',
-    'field' => 'title',
-    'relationship' => 'vid',
-  ),
-  'name' => array(
-    'label' => 'Name',
-    'alter' => array(
-      'alter_text' => 0,
-      'text' => '',
-      'make_link' => 0,
-      'path' => '',
-      'alt' => '',
-      'prefix' => '',
-      'suffix' => '',
-      'help' => '',
-      'trim' => 0,
-      'max_length' => '',
-      'word_boundary' => 1,
-      'ellipsis' => 1,
-      'html' => 0,
-    ),
-    'link_to_user' => 1,
-    'overwrite_anonymous' => 0,
-    'anonymous_text' => '',
-    'exclude' => 0,
-    'id' => 'name',
-    'table' => 'users',
-    'field' => 'name',
-    'relationship' => 'vid',
-  ),
-  'score' => array(
-    'label' => 'Score',
-    'alter' => array(
-      'alter_text' => 0,
-      'text' => '',
-      'make_link' => 0,
-      'path' => '',
-      'alt' => '',
-      'prefix' => '',
-      'suffix' => '',
-      'help' => '',
-      'trim' => 0,
-      'max_length' => '',
-      'word_boundary' => 1,
-      'ellipsis' => 1,
-      'html' => 0,
-    ),
-    'exclude' => 0,
-    'id' => 'score',
-    'table' => 'quiz_node_results',
-    'field' => 'score',
-    'relationship' => 'none',
+    'sortable' => 0,
+    'separator' => '',
   ),
   'time_start' => array(
-    'label' => 'Quiz Start Time.',
-    'alter' => array(
-      'alter_text' => 0,
-      'text' => '',
-      'make_link' => 0,
-      'path' => '',
-      'alt' => '',
-      'prefix' => '',
-      'suffix' => '',
-      'help' => '',
-      'trim' => 0,
-      'max_length' => '',
-      'word_boundary' => 1,
-      'ellipsis' => 1,
-      'html' => 0,
-    ),
-    'date_format' => 'small',
-    'custom_date_format' => '',
-    'exclude' => 0,
-    'id' => 'time_start',
-    'table' => 'quiz_node_results',
-    'field' => 'time_start',
-    'relationship' => 'none',
+    'sortable' => 0,
+    'separator' => '',
   ),
-  'time_end' => array(
-    'label' => 'Quiz End Time',
-    'alter' => array(
-      'alter_text' => 0,
-      'text' => '',
-      'make_link' => 0,
-      'path' => '',
-      'alt' => '',
-      'prefix' => '',
-      'suffix' => '',
-      'help' => '',
-      'trim' => 0,
-      'max_length' => '',
-      'word_boundary' => 1,
-      'ellipsis' => 1,
-      'html' => 0,
-    ),
-    'date_format' => 'small',
-    'custom_date_format' => '',
-    'exclude' => 0,
-    'id' => 'time_end',
-    'table' => 'quiz_node_results',
-    'field' => 'time_end',
-    'relationship' => 'none',
+  'score' => array(
+    'sortable' => 0,
+    'separator' => '',
   ),
-  'quiz_state' => array(
-    'label' => 'Quiz State',
-    'alter' => array(
-      'alter_text' => 0,
-      'text' => '',
-      'make_link' => 0,
-      'path' => '',
-      'alt' => '',
-      'prefix' => '',
-      'suffix' => '',
-      'help' => '',
-      'trim' => 0,
-      'max_length' => '',
-      'word_boundary' => 1,
-      'ellipsis' => 1,
-      'strip_tags' => 0,
-      'html' => 0,
-    ),
-    'exclude' => 0,
-    'id' => 'quiz_state',
-    'table' => 'quiz_node_results',
-    'field' => 'quiz_state',
-    'relationship' => 'none',
-  ),
-));
-$handler->override_option('arguments', array(
   'uid' => array(
-    'default_action' => 'not found',
-    'style_plugin' => 'default_summary',
-    'style_options' => array(),
-    'wildcard' => 'all',
-    'wildcard_substitution' => 'All',
-    'title' => 'Quizzes taken by %1',
-    'default_argument_type' => 'fixed',
-    'default_argument' => '',
-    'validate_type' => 'none',
-    'validate_fail' => 'not found',
-    'break_phrase' => 0,
-    'not' => 0,
-    'allow_null' => 1,
-    'id' => 'uid',
-    'table' => 'quiz_node_results',
-    'field' => 'uid',
-    'relationship' => 'none',
-    'default_options_div_prefix' => '',
-    'default_argument_user' => 0,
-    'default_argument_fixed' => '',
-    'default_argument_php' => '',
-    'validate_argument_node_type' => array(
-      'multichoice' => 0,
-      'quiz' => 0,
-      'long_answer' => 0,
-      'true_false' => 0,
-      'page' => 0,
-      'story' => 0,
-      'wanky_group' => 0,
-    ),
-    'validate_argument_node_access' => 0,
-    'validate_argument_nid_type' => 'nid',
-    'validate_argument_vocabulary' => array(
-      '1' => 0,
-      '2' => 0,
-      '3' => 0,
-    ),
-    'validate_argument_type' => 'tid',
-    'user_argument_type' => '',
-    'restrict_user_roles' => 0,
-    'user_roles' => array(),
-    'validate_argument_php' => '',
-    'validate_user_argument_type' => 'uid',
-    'validate_user_roles' => array(
-      '2' => 0,
-    ),
-    'validate_argument_transform' => 0,
-    'validate_user_restrict_roles' => 0,
-    'validate_argument_is_member' => 0,
+    'sortable' => 0,
+    'separator' => '',
   ),
-));
-$handler->override_option('filters', array(
-  'nid' => array(
-    'operator' => '=',
-    'value' => '',
-    'group' => '0',
-    'exposed' => FALSE,
-    'expose' => array(
-      'operator' => FALSE,
-      'label' => '',
-    ),
-    'which_vid' => 'latest',
-    'secondary' => 'results',
-    'id' => 'nid',
-    'table' => 'quiz_node_properties',
-    'field' => 'nid',
-    'relationship' => 'none',
-    'secondary_group_by' => 'uid',
-    'secondary_group_by_table' => 'quiz_node_results',
-    'secondary_table' => 'quiz_node_results',
-    'secondaries' => array(
-      'secondary_group_by' => 'uid',
-      'secondary_table' => 'quiz_node_results',
-      'secondary_vid' => 'vid',
-      'secondary_nid' => 'nid',
-    ),
-  ),
-));
-$handler->override_option('access', array(
-  'type' => 'none',
-));
-$handler->override_option('style_plugin', 'table');
-$handler->override_option('style_options', array(
-  'grouping' => 'vid',
-  'override' => 1,
-  'sticky' => 0,
-  'order' => 'asc',
-  'columns' => array(
-    'time_end' => 'time_end',
-    'nid' => 'nid',
-    'vid' => 'vid',
-    'time_start' => 'time_start',
-    'score' => 'score',
-    'uid' => 'uid',
-  ),
-  'info' => array(
-    'time_end' => array(
-      'sortable' => 0,
-      'separator' => '',
-    ),
-    'nid' => array(
-      'sortable' => 0,
-      'separator' => '',
-    ),
-    'vid' => array(
-      'sortable' => 0,
-      'separator' => '',
-    ),
-    'time_start' => array(
-      'sortable' => 0,
-      'separator' => '',
-    ),
-    'score' => array(
-      'sortable' => 0,
-      'separator' => '',
-    ),
-    'uid' => array(
-      'sortable' => 0,
-      'separator' => '',
-    ),
-  ),
-  'default' => '-1',
-));
+);
+/* Relationship: Quiz Results: Quiz Node VID */
+$handler->display->display_options['relationships']['vid']['id'] = 'vid';
+$handler->display->display_options['relationships']['vid']['table'] = 'quiz_node_results';
+$handler->display->display_options['relationships']['vid']['field'] = 'vid';
+$handler->display->display_options['relationships']['vid']['label'] = 'quiz revision';
+$handler->display->display_options['relationships']['vid']['required'] = TRUE;
+/* Field: Content revision: Title */
+$handler->display->display_options['fields']['title']['id'] = 'title';
+$handler->display->display_options['fields']['title']['table'] = 'node_revision';
+$handler->display->display_options['fields']['title']['field'] = 'title';
+$handler->display->display_options['fields']['title']['relationship'] = 'vid';
+/* Field: Quiz Results: Score */
+$handler->display->display_options['fields']['score']['id'] = 'score';
+$handler->display->display_options['fields']['score']['table'] = 'quiz_node_results';
+$handler->display->display_options['fields']['score']['field'] = 'score';
+/* Field: Quiz Results: Quiz Start Time */
+$handler->display->display_options['fields']['time_start']['id'] = 'time_start';
+$handler->display->display_options['fields']['time_start']['table'] = 'quiz_node_results';
+$handler->display->display_options['fields']['time_start']['field'] = 'time_start';
+$handler->display->display_options['fields']['time_start']['label'] = 'Quiz Start Time.';
+/* Field: Quiz Results: Quiz End Time */
+$handler->display->display_options['fields']['time_end']['id'] = 'time_end';
+$handler->display->display_options['fields']['time_end']['table'] = 'quiz_node_results';
+$handler->display->display_options['fields']['time_end']['field'] = 'time_end';
+/* Field: Quiz Results: Quiz State */
+$handler->display->display_options['fields']['quiz_state']['id'] = 'quiz_state';
+$handler->display->display_options['fields']['quiz_state']['table'] = 'quiz_node_results';
+$handler->display->display_options['fields']['quiz_state']['field'] = 'quiz_state';
+/* Contextual filter: Quiz Results: User */
+$handler->display->display_options['arguments']['uid']['id'] = 'uid';
+$handler->display->display_options['arguments']['uid']['table'] = 'quiz_node_results';
+$handler->display->display_options['arguments']['uid']['field'] = 'uid';
+$handler->display->display_options['arguments']['uid']['default_action'] = 'not found';
+$handler->display->display_options['arguments']['uid']['exception']['title_enable'] = TRUE;
+$handler->display->display_options['arguments']['uid']['title_enable'] = TRUE;
+$handler->display->display_options['arguments']['uid']['title'] = 'Quizzes taken by %1';
+$handler->display->display_options['arguments']['uid']['default_argument_type'] = 'fixed';
+$handler->display->display_options['arguments']['uid']['summary']['format'] = 'default_summary';
+$handler->display->display_options['arguments']['uid']['specify_validation'] = TRUE;
+$handler->display->display_options['arguments']['uid']['allow_null'] = 1;
+/* Filter criterion: Quiz: Quiz Version */
+$handler->display->display_options['filters']['nid']['id'] = 'nid';
+$handler->display->display_options['filters']['nid']['table'] = 'quiz_node_properties';
+$handler->display->display_options['filters']['nid']['field'] = 'nid';
+$handler->display->display_options['filters']['nid']['group'] = '0';
+$handler->display->display_options['filters']['nid']['expose']['operator'] = FALSE;
+$handler->display->display_options['filters']['nid']['secondary'] = 'results';
+
+/* Display: Page */
 $handler = $view->new_display('page', 'Page', 'page_1');
-$handler->override_option('path', 'quiztest/bytaker/%');
-$handler->override_option('menu', array(
-  'type' => 'none',
-  'title' => '',
-  'description' => '',
-  'weight' => 0,
-  'name' => 'navigation',
-));
-$handler->override_option('tab_options', array(
-  'type' => 'none',
-  'title' => '',
-  'description' => '',
-  'weight' => 0,
-));
+$handler->display->display_options['path'] = 'quiztest/bytaker/%';

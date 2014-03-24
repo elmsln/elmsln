@@ -6,7 +6,7 @@
  * Sponsored by: Senter for IKT i utdanningen
  * Code: paalj
  *
- * @file 
+ * @file
  * Drag and drop with lines question type for the Quiz module.
  *
  */
@@ -22,29 +22,29 @@ class Defaults {
 }
 
 /**
- * Status for each alternative as "enum"  
+ * Status for each alternative as "enum"
  */
 class AnswerStatus {
   const NO_ANSWER = 0;
   const WRONG = 1;
   const CORRECT = 2;
-  
+
   private static $titles;
   private static $css_class;
-  
+
   public static function init() {
     self::$titles = array(
       t('You did not move this alternative to any hotspot'),
       t('Wrong answer'),
       t('Correct answer'));
-      
+
     self::$css_class = array('no-answer','wrong','correct');
   }
-  
+
   public static function getTitle($status) {
     return self::$titles[$status];
   }
-  
+
   public static function getCssClass($status) {
     return self::$css_class[$status];
   }
@@ -83,12 +83,12 @@ function quiz_ddlines_image_default_styles() {
   $styles['quiz_ddlines'] = array(
     'effects' => array(
       array(
-        'name' => 'image_scale', 
+        'name' => 'image_scale',
         'data' => array(
           'width' => 700,
           'height' => null,
           'upscale' => 0,
-        ), 
+        ),
         'weight' => 0,
       ),
     ),
@@ -116,7 +116,7 @@ function quiz_ddlines_theme() {
  * Implements hook_config().
  */
 function quiz_ddlines_config() {
- 
+
   $form['quiz_ddlines_canvas_width'] = array(
     '#type' => 'textfield',
     '#title' => t('The default width of the canvas'),
@@ -152,8 +152,8 @@ function quiz_ddlines_config() {
     '#title' => t('Default feedback for wrong answers'),
     '#default_value' => variable_get('quiz_ddlines_feedback_wrong', ""),
   );
-  
-  $form['#validate'] = 'quiz_ddlines_config_validate';
+
+  $form['#validate'][] = array('quiz_ddlines_config_validate');
   return $form;
 }
 
@@ -161,23 +161,23 @@ function quiz_ddlines_config() {
  * Validate the config form values
  */
 function quiz_ddlines_config_validate($form, $form_state) {
-  
+
   $int_fields = array('quiz_ddlines_canvas_width', 'quiz_ddlines_canvas_height', 'quiz_ddlines_hotspot_radius', 'quiz_ddlines_pointer_radius');
   foreach ($int_fields as $field) {
     if (!_quiz_is_int($form_state['values'][$field])) {
       form_set_error($field, t('The value must be a positive number'));
-    } 
+    }
   }
-  
+
   // Feedback fields may contain nothing or everything; no need to validate it
 }
 
 function _quiz_ddlines_add_js_and_css() {
   $module_path = drupal_get_path('module', 'quiz_ddlines');
-  
+
   drupal_add_js($module_path.'/js/raphael.js');
   drupal_add_js($module_path.'/js/colorwheel.js');
   drupal_add_js($module_path.'/js/quiz_ddlines.js');
   drupal_add_css($module_path.'/theme/quiz_ddlines.css');
 }
- 
+

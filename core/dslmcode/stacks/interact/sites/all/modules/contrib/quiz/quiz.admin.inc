@@ -263,7 +263,7 @@ function quiz_admin_node_form($form, &$form_state) {
   $dummy_node = new stdClass();
   // def_uid is the uid of the default user holding the default values for the node form(no real user with this uid exists)
   $dummy_node->def_uid = variable_get('quiz_def_uid', 1);
-  $settings = _quiz_load_user_settings(variable_get('quiz_def_uid', 1));
+  $settings = _quiz_load_user_settings();
   $settings += _quiz_get_node_defaults();
   foreach ($settings as $key => $value) {
     if (!isset($dummy_node->$key)) {
@@ -367,9 +367,9 @@ function quiz_admin_results($quiz, $rid) {
   $breadcrumb[] = l(t('Quiz Results'), 'admin/quiz/reports/results');
 
   // Make sure we have the right version of the quiz
-  $vid = db_query('SELECT vid FROM {quiz_node_results} WHERE result_id = :result_id', array(':result_id' => $rid))->fetchField();
-  if ($quiz->vid != $vid) {
-    $quiz = node_load($quiz->nid, $vid);
+  $result = db_query('SELECT vid, uid FROM {quiz_node_results} WHERE result_id = :result_id', array(':result_id' => $rid))->fetchObject();
+  if ($quiz->vid != $result->vid) {
+    $quiz = node_load($quiz->nid, $result->vid);
   }
 
   // Get all the data we need.
@@ -385,7 +385,8 @@ function quiz_admin_results($quiz, $rid) {
     'questions' => $questions,
     'score' => $score,
     'summary' => $summary,
-    'rid' => $rid
+    'rid' => $rid,
+    'account' => user_load($result->uid)
   );
   return theme('quiz_admin_summary', $data);
 }
@@ -790,7 +791,6 @@ function quiz_questions_form($form, $form_state, $quiz) {
   // We add the questions from the browser as hidden question rows in the question list. Doing this we can have
   // the question show up in the question list instantly when a question is chosen in the browser(using js).
   _quiz_add_hidden_questions($questions, $hidden_questions, $form_state, $quiz);
-
   // We add the questions to the form array
   _quiz_add_questions_to_form($form, $questions, $quiz, $types);
 
@@ -839,14 +839,27 @@ function _quiz_add_fields_for_creating_questions(&$form, &$types, &$quiz) {
   $url_query = drupal_get_destination();
   $url_query['quiz_nid'] = $quiz->nid;
   $url_query['quiz_vid'] = $quiz->vid;
+  $create_question = FALSE;
   foreach ($types as $type => $info) {
     $url_type = str_replace('_', '-', $type);
     $options = array(
       'attributes' => array('title' => t('Create @name', array('@name' => $info['name']))),
       'query' => $url_query,
     );
+    $access = node_access('create', $type);
+    if ($access) {
+      $create_question = TRUE;
+    }
     $form['additional_questions'][$type] = array(
       '#markup' => '<div class="add-questions">' . l($info['name'], "node/add/$url_type", $options) . '</div>',
+      '#access' => $access,
+    );
+  }
+  if (!$create_question) {
+    $form['additional_questions']['create'] = array(
+      '#type' => 'markup',
+      '#markup' => t('You have not enabled any question type module or no has permission been given to create any question.'),
+      // @todo revisit UI text
     );
   }
 }
@@ -1065,7 +1078,7 @@ function _quiz_add_questions_to_form(&$form, &$questions, &$quiz, &$question_typ
         '#type' => 'textfield',
         '#size' => 2,
         '#maxlength' => 2,
-        '#disabled' => $question->auto_update_max_score,
+        '#disabled' => isset($question->auto_update_max_score) ? $question->auto_update_max_score : FALSE,
         '#default_value' => isset($question->max_score) ? $question->max_score : 0,
       );
     }
@@ -1075,7 +1088,7 @@ function _quiz_add_questions_to_form(&$form, &$questions, &$quiz, &$question_typ
         '#value' => isset($question->max_score) ? $question->max_score : 0,
       );
     }
-    
+
     $form[$fieldset]['auto_update_max_scores'][$id] = array(
       '#type' => 'checkbox',
       '#default_value' => isset($question->auto_update_max_score) ? $question->auto_update_max_score : 0,
@@ -1097,11 +1110,17 @@ function _quiz_add_questions_to_form(&$form, &$questions, &$quiz, &$question_typ
       );
     }
 
-    $link_options = array(
-      'attributes' => array('class' => array('handle-changes')),
-    );
+    if (user_access('view quiz question outside of a quiz')) {
+      $link_options = array(
+        'attributes' => array('class' => array('handle-changes')),
+      );
+      $question_titles = l($question->title, 'node/' . $question->nid, $link_options);
+    }
+    else {
+      $question_titles = check_plain($question->title);
+    }
 
-    $form[$fieldset]['titles'][$id] = array('#markup' => l($question->title, 'node/' . $question->nid, $link_options));
+    $form[$fieldset]['titles'][$id] = array('#markup' => $question_titles);
 
 
     $form[$fieldset]['types'][$id] = array(
@@ -1117,6 +1136,7 @@ function _quiz_add_questions_to_form(&$form, &$questions, &$quiz, &$question_typ
           'attributes' => array('class' => array('handle-changes')),
         )
       ),
+      '#access' => node_access('update', node_load($question->nid, $question->vid)),
     );
     // For js enabled browsers questions are removed by pressing a remove link
     $form[$fieldset]['remove_links'][$id] = array(
@@ -1247,6 +1267,7 @@ function _quiz_question_browser_form(&$hidden_questions, $questions, $form_state
   $query->fields('u', array('name'));
   $query->leftJoin('users', 'u', 'n.uid = u.uid');
   $query->condition('type', array_keys($question_types), 'IN');
+  $query->condition('n.language', $quiz->language, '=');
   if (count($child_nid)) {
     $query->condition('nid', $child_nid, 'NOT IN');
   }
@@ -1533,7 +1554,7 @@ function _quiz_update_items($quiz, $weight_map, $max_scores, $auto_update_max_sc
     }
     else {
       $question->state = QUESTION_ALWAYS;
-    }     
+    }
     $question->weight = $weight;
     $question->max_score = $max_scores[$id];
     $question->auto_update_max_score = $auto_update_max_scores[$id];
@@ -1793,6 +1814,7 @@ function theme_quiz_admin_summary($variables) {
   $score = $variables['score'];
   $summary = $variables['summary'];
   $rid = $variables['rid'];
+  $account = $variables['account'];
   // To adjust the title uncomment and edit the line below:
   // drupal_set_title(check_plain($quiz->title));
   if (!$score['is_evaluated']) {
@@ -1800,14 +1822,15 @@ function theme_quiz_admin_summary($variables) {
   }
   // Display overall result.
   $output = '';
-  $params = array('%num_correct' => $score['numeric_score'], '%question_count' => $score['possible_score']);
-  $output .= '<div id="quiz_score_possible">' . t('This person got %num_correct of %question_count possible points.', $params) . '</div>' . "\n";
+  $params = array('%num_correct' => $score['numeric_score'], '%question_count' => $score['possible_score'], '!username' => theme('username', array('account' => $account)));
+  $output .= '<div id="quiz_score_possible">' . t('!username got %num_correct of %question_count possible points.', $params) . '</div>' . "\n";
   $output .= '<div id="quiz_score_percent">' . t('Total score: @score %', array('@score' => $score['percentage_score'])) . '</div>' . "\n";
+  $quiz_format = (isset($quiz->body[LANGUAGE_NONE][0]['format'])) ? $quiz->body[LANGUAGE_NONE][0]['format'] : NULL;
   if (isset($summary['passfail'])) {
-    $output .= '<div id="quiz_summary">' . check_markup($summary['passfail'], $quiz->body['und'][0]['format']) . '</div>' . "\n";
+    $output .= '<div id="quiz_summary">' . check_markup($summary['passfail'], $quiz_format) . '</div>' . "\n";
   }
   if (isset($summary['result'])) {
-    $output .= '<div id="quiz_summary">' . check_markup($summary['result'], $quiz->body['und'][0]['format']) . '</div>' . "\n";
+    $output .= '<div id="quiz_summary">' . check_markup($summary['result'], $quiz_format) . '</div>' . "\n";
   }
 
   // Get the feedback for all questions.
@@ -1870,6 +1893,7 @@ function theme_question_selection_table($variables) {
  *   FAPI-array
  */
 function quiz_results_manage_results_form($form, &$form_state, $quiz) {
+  global $user;
   if ($form_state['rebuild']) {
     // We remember the filters for the next time the same user visits the result browser
     _quiz_results_mr_store_filters($form_state);
@@ -1885,56 +1909,58 @@ function quiz_results_manage_results_form($form, &$form_state, $quiz) {
   }
 
   // We hide the update fieldset if we are to delete results
-  $display = isset($_GET['del']) || isset($form_state['storage']['del']) ? 'none' : 'block';
-  $form['update'] = array(
-    '#type' => 'fieldset',
-    '#title' => t('Options'),
-    '#collapsible' => FALSE,
-    '#collapsed' => FALSE,
-    '#attributes' => array(
-      'class' => array('container-inline'),
-      'id' => 'quiz-results-update',
-      'style' => "display:$display;"
-    ),
-  );
+  if (user_access('delete any quiz results') || (user_access('delete results for own quiz') && ($user->uid == $quiz->uid))) {
+    $display = isset($_GET['del']) || isset($form_state['storage']['del']) ? 'none' : 'block';
+    $form['update'] = array(
+      '#type' => 'fieldset',
+      '#title' => t('Options'),
+      '#collapsible' => FALSE,
+      '#collapsed' => FALSE,
+      '#attributes' => array(
+        'class' => array('container-inline'),
+        'id' => 'quiz-results-update',
+        'style' => "display:$display;"
+      ),
+    );
 
-  $form['update']['bulk_action'] = array(
-    '#type' => 'select',
-    '#options' => array(
-      'def' => '',
-      'del' => t('delete'),
-      // In later versions we will be adding score as a third option here
-    ),
-  );
-  $form['update']['update'] = array(
-    '#type' => 'submit',
-    '#value' => t('Update'),
-  );
+    $form['update']['bulk_action'] = array(
+      '#type' => 'select',
+      '#options' => array(
+        'def' => '',
+        'del' => t('delete'),
+        // In later versions we will be adding score as a third option here
+      ),
+    );
+    $form['update']['update'] = array(
+      '#type' => 'submit',
+      '#value' => t('Update'),
+    );
 
-  // We show the delete confirmation fieldset if we are to delete results
-  $display = isset($_GET['del']) || isset($form_state['storage']['del']) ? 'block' : 'none';
-  $form['confirm_delete'] = array(
-    '#type' => 'fieldset',
-    '#title' => t('Confirm deletion'),
-    '#collapsible' => FALSE,
-    '#collapsed' => FALSE,
-    '#attributes' => array(
-      'style' => "display:$display;",
-      'id' => 'quiz-results-confirm-delete'
-    ),
-  );
-  $form['confirm_delete']['help'] = array(
-    '#type' => 'item',
-    '#value' => t('Are you sure you want to delete all of these results?'),
-    '#description' => t('This action cannot be undone'),
-  );
-  $form['confirm_delete']['confirm_delete'] = array(
-    '#type' => 'submit',
-    '#value' => t('Delete all marked results'),
-  );
-  $form['confirm_delete']['cancel'] = array(
-    '#markup' => l(t('cancel'), $_GET['q'], array('attributes' => array('id' => 'quiz-results-cancel-delete'))),
-  );
+    // We show the delete confirmation fieldset if we are to delete results
+    $display = isset($_GET['del']) || isset($form_state['storage']['del']) ? 'block' : 'none';
+    $form['confirm_delete'] = array(
+      '#type' => 'fieldset',
+      '#title' => t('Confirm deletion'),
+      '#collapsible' => FALSE,
+      '#collapsed' => FALSE,
+      '#attributes' => array(
+        'style' => "display:$display;",
+        'id' => 'quiz-results-confirm-delete'
+      ),
+    );
+    $form['confirm_delete']['help'] = array(
+      '#type' => 'item',
+      '#value' => t('Are you sure you want to delete all of these results?'),
+      '#description' => t('This action cannot be undone'),
+    );
+    $form['confirm_delete']['confirm_delete'] = array(
+      '#type' => 'submit',
+      '#value' => t('Delete all marked results'),
+    );
+    $form['confirm_delete']['cancel'] = array(
+      '#markup' => l(t('cancel'), $_GET['q'], array('attributes' => array('id' => 'quiz-results-cancel-delete'))),
+    );
+  }
 
   $form['special_filters'] = array(
     '#type' => 'fieldset',
@@ -2159,7 +2185,7 @@ function _quiz_results_mr_prepare_filter($quiz) {
                          ) AS qnrc ON qnrs.uid = qnrc.uid AND qnrs.score = qnrc.top_score";
     $filter['group'] .= " GROUP BY qnrs.uid";
     if (db_driver() == 'pgsql') {
-      $filter['group'] .= " GROUP BY qnrs.uid, u.uid, u.name, qnrs.result_id, qnrs.score, qnrs.is_evaluated, qnrs.time_start, qnrs.time_end, qnp.pass_rate";
+      $filter['group'] .= ", u.uid, u.name, qnrs.result_id, qnrs.score, qnrs.is_evaluated, qnrs.time_start, qnrs.time_end, qnp.pass_rate";
     }
   }
   return $filter;
@@ -2366,12 +2392,20 @@ function _quiz_get_question_row($sub_form, $id) {
   // We add the class "hidden-class" to hide questions that haven't been added to the quiz yet.
   $hidden_class = ($sub_form['stayers'][$id]['#default_value'] === 0) ? ' hidden-question' : '';
 
+  $action = theme('item_list', array(
+    'items' => array(
+      drupal_render($sub_form['view_links'][$id]),
+      '<SPAN CLASS="q-remove" STYLE="display:none">' . drupal_render($sub_form['remove_links'][$id]) . '</SPAN>',
+    ),
+    'attributes' => array(
+      'class' => array('links', 'inline'),
+    ),
+  ));
   $data_array = array(
     // The checkbox and the title
     drupal_render($sub_form['stayers'][$id]) . drupal_render($sub_form['titles'][$id]),
-
     $type,
-    $sub_form['view_links'][$id]['#markup'] . '<SPAN CLASS="q-remove" STYLE="display:none"> | ' . $sub_form['remove_links'][$id]['#markup'] . '</SPAN>',
+    $action,
     isset($sub_form['revision'][$id]) ? drupal_render($sub_form['revision'][$id]) : t("Up to date"),
     drupal_render($sub_form['max_scores'][$id]),
     drupal_render($sub_form['auto_update_max_scores'][$id]),

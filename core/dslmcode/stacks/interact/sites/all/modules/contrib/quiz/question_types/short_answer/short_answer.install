@@ -135,24 +135,12 @@ function short_answer_schema() {
  * Adding feedback field to table {quiz_short_answer_user_answers}
  */
 function short_answer_update_7401() {
-  $spec = array(
-    'type' => 'text',
-    'not null' => FALSE,
-  );
-  db_add_field('quiz_short_answer_user_answers', 'answer_feedback', $spec);
+  if (!db_field_exists('quiz_short_answer_user_answers', 'answer_feedback')) {
+    $spec = array(
+      'type' => 'text',
+      'not null' => FALSE,
+    );
+    db_add_field('quiz_short_answer_user_answers', 'answer_feedback', $spec);
+  }
 }
 
-/**
- * Implementation of hook_update_N()
- *
- * Adding feedback field to table {quiz_short_answer_user_answers}
- */
-function short_answer_update_6401() {
-  $to_return = array();
-  $spec = array(
-    'type' => 'text',
-    'not null' => FALSE,
-  );
-  db_add_field($to_return, 'quiz_short_answer_user_answers', 'answer_feedback', $spec);
-  return $to_return;
-}

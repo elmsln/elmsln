@@ -1,267 +1,99 @@
 <?php
 
-$view = new view;
+$view = new view();
 $view->name = 'quiz_by_author';
 $view->description = 'View of all the quizzes owned by a particular user (\'author\').';
 $view->tag = 'quiz';
-$view->view_php = '';
 $view->base_table = 'quiz_node_properties';
-$view->is_cacheable = FALSE;
-$view->api_version = 2;
+$view->human_name = '';
+$view->core = 0;
+$view->api_version = '3.0';
 $view->disabled = FALSE; /* Edit this to true to make a default view disabled initially */
+
+/* Display: Defaults */
 $handler = $view->new_display('default', 'Defaults', 'default');
-$handler->override_option('relationships', array(
+$handler->display->display_options['use_more_always'] = FALSE;
+$handler->display->display_options['access']['type'] = 'perm';
+$handler->display->display_options['access']['perm'] = 'create quiz content';
+$handler->display->display_options['cache']['type'] = 'none';
+$handler->display->display_options['query']['type'] = 'views_query';
+$handler->display->display_options['exposed_form']['type'] = 'basic';
+$handler->display->display_options['pager']['type'] = 'none';
+$handler->display->display_options['style_plugin'] = 'table';
+$handler->display->display_options['style_options']['grouping'] = 'nid';
+$handler->display->display_options['style_options']['columns'] = array(
+  'nid' => 'nid',
+  'vid' => 'vid',
+  'quiz_close' => 'quiz_close',
+  'quiz_open' => 'quiz_open',
+  'time_limit' => 'time_limit',
+);
+$handler->display->display_options['style_options']['default'] = '-1';
+$handler->display->display_options['style_options']['info'] = array(
   'nid' => array(
-    'label' => 'node',
-    'required' => 1,
-    'id' => 'nid',
-    'table' => 'quiz_node_properties',
-    'field' => 'nid',
-    'relationship' => 'none',
-  ),
-));
-$handler->override_option('fields', array(
-  'nid' => array(
-    'label' => 'Quiz Node NID',
-    'alter' => array(
-      'alter_text' => 0,
-      'text' => '',
-      'make_link' => 0,
-      'path' => '',
-      'alt' => '',
-      'prefix' => '',
-      'suffix' => '',
-      'help' => '',
-      'trim' => 0,
-      'max_length' => '',
-      'word_boundary' => 1,
-      'ellipsis' => 1,
-      'html' => 0,
-    ),
-    'exclude' => 0,
-    'id' => 'nid',
-    'table' => 'quiz_node_properties',
-    'field' => 'nid',
-    'relationship' => 'none',
+    'sortable' => 0,
+    'separator' => '',
   ),
   'vid' => array(
-    'label' => 'Quiz Node VID',
-    'alter' => array(
-      'alter_text' => 0,
-      'text' => '',
-      'make_link' => 0,
-      'path' => '',
-      'alt' => '',
-      'prefix' => '',
-      'suffix' => '',
-      'help' => '',
-      'trim' => 0,
-      'max_length' => '',
-      'word_boundary' => 1,
-      'ellipsis' => 1,
-      'html' => 0,
-    ),
-    'exclude' => 0,
-    'id' => 'vid',
-    'table' => 'quiz_node_properties',
-    'field' => 'vid',
-    'relationship' => 'none',
+    'sortable' => 0,
+    'separator' => '',
   ),
   'quiz_close' => array(
-    'label' => 'Quiz close time',
-    'alter' => array(
-      'alter_text' => 0,
-      'text' => '',
-      'make_link' => 0,
-      'path' => '',
-      'alt' => '',
-      'prefix' => '',
-      'suffix' => '',
-      'help' => '',
-      'trim' => 0,
-      'max_length' => '',
-      'word_boundary' => 1,
-      'ellipsis' => 1,
-      'html' => 0,
-    ),
-    'date_format' => 'small',
-    'custom_date_format' => '',
-    'exclude' => 0,
-    'id' => 'quiz_close',
-    'table' => 'quiz_node_properties',
-    'field' => 'quiz_close',
-    'relationship' => 'none',
+    'sortable' => 0,
+    'separator' => '',
   ),
   'quiz_open' => array(
-    'label' => 'Quiz open time',
-    'alter' => array(
-      'alter_text' => 0,
-      'text' => '',
-      'make_link' => 0,
-      'path' => '',
-      'alt' => '',
-      'prefix' => '',
-      'suffix' => '',
-      'help' => '',
-      'trim' => 0,
-      'max_length' => '',
-      'word_boundary' => 1,
-      'ellipsis' => 1,
-      'html' => 0,
-    ),
-    'date_format' => 'small',
-    'custom_date_format' => '',
-    'exclude' => 0,
-    'id' => 'quiz_open',
-    'table' => 'quiz_node_properties',
-    'field' => 'quiz_open',
-    'relationship' => 'none',
+    'sortable' => 0,
+    'separator' => '',
   ),
   'time_limit' => array(
-    'label' => 'Time limit',
-    'alter' => array(
-      'alter_text' => 0,
-      'text' => '',
-      'make_link' => 0,
-      'path' => '',
-      'alt' => '',
-      'prefix' => '',
-      'suffix' => '',
-      'help' => '',
-      'trim' => 0,
-      'max_length' => '',
-      'word_boundary' => 1,
-      'ellipsis' => 1,
-      'html' => 0,
-    ),
-    'set_precision' => FALSE,
-    'precision' => 0,
-    'decimal' => '.',
-    'separator' => ',',
-    'prefix' => '',
-    'suffix' => '',
-    'exclude' => 0,
-    'id' => 'time_limit',
-    'table' => 'quiz_node_properties',
-    'field' => 'time_limit',
-    'relationship' => 'none',
+    'sortable' => 0,
+    'separator' => '',
   ),
-  'takes' => array(
-    'label' => 'Allowed takes',
-    'alter' => array(
-      'alter_text' => 0,
-      'text' => '',
-      'make_link' => 0,
-      'path' => '',
-      'alt' => '',
-      'prefix' => '',
-      'suffix' => '',
-      'help' => '',
-      'trim' => 0,
-      'max_length' => '',
-      'word_boundary' => 1,
-      'ellipsis' => 1,
-      'html' => 0,
-    ),
-    'exclude' => 0,
-    'id' => 'takes',
-    'table' => 'quiz_node_properties',
-    'field' => 'takes',
-    'relationship' => 'none',
-  ),
-));
-$handler->override_option('arguments', array(
-  'uid' => array(
-    'default_action' => 'not found',
-    'style_plugin' => 'default_summary',
-    'style_options' => array(),
-    'wildcard' => 'all',
-    'wildcard_substitution' => 'All',
-    'title' => 'Quizzes created by %1',
-    'default_argument_type' => 'fixed',
-    'default_argument' => '',
-    'validate_type' => 'none',
-    'validate_fail' => 'not found',
-    'break_phrase' => 0,
-    'not' => 0,
-    'id' => 'uid',
-    'table' => 'quiz_node_results',
-    'field' => 'uid',
-    'relationship' => 'none',
-    'default_options_div_prefix' => '',
-    'default_argument_user' => 0,
-    'default_argument_fixed' => '',
-    'default_argument_php' => '',
-    'validate_argument_node_type' => array(
-      'long_answer' => 0,
-      'multichoice' => 0,
-      'quiz' => 0,
-      'true_false' => 0,
-      'page' => 0,
-      'story' => 0,
-    ),
-    'validate_argument_node_access' => 0,
-    'validate_argument_nid_type' => 'nid',
-    'validate_argument_vocabulary' => array(),
-    'validate_argument_type' => 'tid',
-    'user_argument_type' => 'either',
-    'restrict_user_roles' => 0,
-    'user_roles' => array(),
-    'validate_argument_php' => '',
-  ),
-));
-$handler->override_option('access', array(
-  'type' => 'none',
-));
-$handler->override_option('style_plugin', 'table');
-$handler->override_option('style_options', array(
-  'grouping' => 'nid',
-  'override' => 1,
-  'sticky' => 0,
-  'order' => 'asc',
-  'columns' => array(
-    'nid' => 'nid',
-    'vid' => 'vid',
-    'quiz_close' => 'quiz_close',
-    'quiz_open' => 'quiz_open',
-    'time_limit' => 'time_limit',
-  ),
-  'info' => array(
-    'nid' => array(
-      'sortable' => 0,
-      'separator' => '',
-    ),
-    'vid' => array(
-      'sortable' => 0,
-      'separator' => '',
-    ),
-    'quiz_close' => array(
-      'sortable' => 0,
-      'separator' => '',
-    ),
-    'quiz_open' => array(
-      'sortable' => 0,
-      'separator' => '',
-    ),
-    'time_limit' => array(
-      'sortable' => 0,
-      'separator' => '',
-    ),
-  ),
-  'default' => '-1',
-));
+);
+/* Relationship: Quiz: Quiz Node NID */
+$handler->display->display_options['relationships']['nid']['id'] = 'nid';
+$handler->display->display_options['relationships']['nid']['table'] = 'quiz_node_properties';
+$handler->display->display_options['relationships']['nid']['field'] = 'nid';
+$handler->display->display_options['relationships']['nid']['required'] = TRUE;
+/* Field: Quiz: Quiz Node NID */
+$handler->display->display_options['fields']['nid']['id'] = 'nid';
+$handler->display->display_options['fields']['nid']['table'] = 'quiz_node_properties';
+$handler->display->display_options['fields']['nid']['field'] = 'nid';
+/* Field: Quiz: Quiz Node VID */
+$handler->display->display_options['fields']['vid']['id'] = 'vid';
+$handler->display->display_options['fields']['vid']['table'] = 'quiz_node_properties';
+$handler->display->display_options['fields']['vid']['field'] = 'vid';
+/* Field: Quiz: Close time */
+$handler->display->display_options['fields']['quiz_close']['id'] = 'quiz_close';
+$handler->display->display_options['fields']['quiz_close']['table'] = 'quiz_node_properties';
+$handler->display->display_options['fields']['quiz_close']['field'] = 'quiz_close';
+$handler->display->display_options['fields']['quiz_close']['label'] = 'Quiz close time';
+/* Field: Quiz: Open time */
+$handler->display->display_options['fields']['quiz_open']['id'] = 'quiz_open';
+$handler->display->display_options['fields']['quiz_open']['table'] = 'quiz_node_properties';
+$handler->display->display_options['fields']['quiz_open']['field'] = 'quiz_open';
+$handler->display->display_options['fields']['quiz_open']['label'] = 'Quiz open time';
+/* Field: Quiz: Time limit */
+$handler->display->display_options['fields']['time_limit']['id'] = 'time_limit';
+$handler->display->display_options['fields']['time_limit']['table'] = 'quiz_node_properties';
+$handler->display->display_options['fields']['time_limit']['field'] = 'time_limit';
+/* Field: Quiz: Allowed takes */
+$handler->display->display_options['fields']['takes']['id'] = 'takes';
+$handler->display->display_options['fields']['takes']['table'] = 'quiz_node_properties';
+$handler->display->display_options['fields']['takes']['field'] = 'takes';
+/* Contextual filter: Quiz Results: User */
+$handler->display->display_options['arguments']['uid']['id'] = 'uid';
+$handler->display->display_options['arguments']['uid']['table'] = 'quiz_node_results';
+$handler->display->display_options['arguments']['uid']['field'] = 'uid';
+$handler->display->display_options['arguments']['uid']['default_action'] = 'not found';
+$handler->display->display_options['arguments']['uid']['exception']['title_enable'] = TRUE;
+$handler->display->display_options['arguments']['uid']['title_enable'] = TRUE;
+$handler->display->display_options['arguments']['uid']['title'] = 'Quizzes created by %1';
+$handler->display->display_options['arguments']['uid']['default_argument_type'] = 'fixed';
+$handler->display->display_options['arguments']['uid']['summary']['format'] = 'default_summary';
+$handler->display->display_options['arguments']['uid']['specify_validation'] = TRUE;
+
+/* Display: Page */
 $handler = $view->new_display('page', 'Page', 'page_1');
-$handler->override_option('path', 'quiztest/byauthor/%');
-$handler->override_option('menu', array(
-  'type' => 'none',
-  'title' => '',
-  'description' => '',
-  'weight' => 0,
-  'name' => 'navigation',
-));
-$handler->override_option('tab_options', array(
-  'type' => 'none',
-  'title' => '',
-  'description' => '',
-  'weight' => 0,
-));
+$handler->display->display_options['path'] = 'quiztest/byauthor/%';

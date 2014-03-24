@@ -28,11 +28,15 @@ foreach ($form['titles']['#options'] as $key => $value): ?>
   <tr class="quiz-question-browser-row" id="browser-<?php print $key ?>">
     <td width="35"><?php print drupal_render($full_options[$key]) ?> </td>
     <td>
-      <?php print l($value, "node/$quest_nid", array(
-        'html' => TRUE,
-        'query' => array('destination' => $_GET['q']),
-        'attributes' => array('target' => 'blank')
-      )); ?>
+      <?php if (user_access('view quiz question outside of a quiz')): ?>
+        <?php print l($value, "node/$quest_nid", array(
+          'html' => TRUE,
+          'query' => array('destination' => $_GET['q']),
+          'attributes' => array('target' => 'blank')
+        )); ?>
+      <?php else: ?>
+        <?php print check_plain($value); ?>
+      <?php endif; ?>
     </td>
     <td><?php print $form['types'][$key]['#value'] ?></td>
     <td><?php print $form['changed'][$key]['#value'] ?></td>
