@@ -1,0 +1,7 @@
+name = ELMSMedia CIS UX
+description = ELMS Media to CIS UX defaults for out of the box web services
+core = 7.x
+package = ELMSMedia
+dependencies[] = cis_service_connection
+dependencies[] = cis_service_connection_ux
+features[features_api][] = api:2

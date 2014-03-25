@@ -94,7 +94,9 @@ dependencies[] = views_fluid_grid
 dependencies[] = views_ui
 ; Features
 dependencies[] = features
+dependencies[] = cis_section
 dependencies[] = cis_service_roles
 dependencies[] = regions_admin_example
 dependencies[] = textbook_editor
 dependencies[] = elmsmedia_feature
+dependencies[] = elmsmedia_cis_ux
