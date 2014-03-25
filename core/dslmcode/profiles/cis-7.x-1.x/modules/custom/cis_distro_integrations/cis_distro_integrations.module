@@ -23,7 +23,11 @@ function cis_distro_integrations_cis_service_instance_blog_options_alter(&$optio
   $options['en'][] = 'cis_section';
   $options['en'][] = 'cis_service_connection';
   $options['en'][] = 'cis_service_connection_ux';
+  $options['en'][] = 'regions';
+  $options['en'][] = 'regions_admin_left';
+  $options['en'][] = 'regions_admin_example';
   // feature reverts
+  $options['fr'][] = 'regions_admin_example';
   $options['fr'][] = 'cis_service_lti';
   $options['fr'][] = 'cis_section';
   $options['fr'][] = 'cis_service_connection_ux';
