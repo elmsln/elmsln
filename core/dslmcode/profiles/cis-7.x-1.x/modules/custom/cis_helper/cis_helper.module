@@ -350,7 +350,7 @@ function cis_helper_form_alter(&$form, $form_state, $form_id) {
     $form['cle_add_new']['#weight'] = 100;
   }
   // alterations for the section field collection
-  if ($form_id == 'field_collection_item_form' && $form['#entity']->field_name == 'field_sections') {
+  if ($form_id == 'field_collection_item_form' && isset($form['#entity']) && $form['#entity']->field_name == 'field_sections') {
     // return all service instances this section will have access to
     $service_instances = _cis_helper_derive_service_instances($form['#entity']->item_id, $form['#entity']->HostEntity()->HostEntity());
     // we need to replace the service options based on those that exist
