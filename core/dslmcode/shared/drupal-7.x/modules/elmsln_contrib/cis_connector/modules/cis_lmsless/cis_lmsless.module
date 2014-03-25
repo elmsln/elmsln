@@ -1,0 +1,61 @@
+<?php
+/**
+ * @file
+ * Code for CIS LMS-less to place branding on page and create experience.
+ */
+
+/**
+ * Implements hook_page_alter().
+ */
+function cis_lmsless_page_alter(&$page) {
+  // append output to page via normal page rendering
+  $page['page_bottom']['lmsless'] = array(
+    '#type' => 'markup',
+    '#markup' => _cis_lmsless_assemble(),
+    '#weight' => 1000,
+  );
+}
+
+/**
+ * Callback to assemble the bar
+ */
+function _cis_lmsless_assemble() {
+  $front_page = variable_get('site_frontpage','node');
+  $site_name = variable_get('site_name', t('Service'));
+  $section = _cis_connector_section_context();
+  // request a list of all other services that this section uses
+  $services = _cis_connector_transaction('other_services');
+  foreach ($services as $service) {
+    $list[$service['field_machine_name']] = array(
+      'title' => $service['title'],
+      'url' => $service['field_location']['url'] . base_path(),
+      );
+  }
+  // assemble variables for theming
+  $vars = array(
+    'front_page' => $front_page,
+    'site_name' => $site_name,
+    'section' => $section,
+    'services' => $list,
+  );
+  drupal_add_css(drupal_get_path('module', 'cis_lmsless') . '/css/cis_lmsless.css');
+  return theme('cis_lmsless_bar', $vars);
+}
+
+/**
+ * Implements hook_theme().
+ */
+function cis_lmsless_theme() {
+  return array(
+    'cis_lmsless_bar' => array(
+      'variables' => array(
+        'front_page' => '',
+        'site_name' => '',
+        'section' => '',
+        'services' => array(),
+      ),
+      'render element' => 'element',
+      'template' => 'templates/cis-lmsless-bar',
+    ),
+  );
+}

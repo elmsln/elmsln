@@ -1,0 +1,36 @@
+/**
+ * CSS
+ */
+.cis-lmsless-bar {
+  color:#eee;
+  background-color: #222;
+  width: 100%;
+  height: 1em;
+  line-height: 1em;
+  font-size: 1em;
+  top: 0;
+  left:0;
+  position: absolute;
+  padding:1em;
+  margin-top:1em;
+  z-index: 1000;
+}
+.cis-lmsless-bar .active{
+  color:#eee;
+  font-size: 1em;
+}
+.cis-lmsless-home {
+  float:left;
+}
+.cis-lmsless-site-name {
+  float:left;
+}
+.cis-lmsless-active-section {
+  float:left;
+}
+.cis-lmsless-bar-services {
+  float:left;
+}
+.cis-lmsless-bar-service {
+  float:left;
+}
