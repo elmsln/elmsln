@@ -6,13 +6,13 @@ cd $DIR
 source ../../config/scripts/drush-create-site/config.cfg
 
 if [ -z "$1" ]; then
-echo "Usage: $0 <course name> <stack>"
-exit 1
+    echo "Usage: $0 <course name> <stack>"
+    exit 1
 fi
 
 if [ -z "$2" ]; then
-echo "Usage: $0 <course name> <stack>"
-exit 1
+    echo "Usage: $0 <course name> <stack>"
+    exit 1
 fi
 
 #remove sites directory
@@ -26,30 +26,28 @@ for sitedata in `find $elmsln/config/stacks/$2 -name $1 | grep -v services` ; do
         echo $dbuser
         echo "remove database $database?(y/n)"
         read rmdatabase
-            if [ $rmdatabase == "y" ] || [ $rmdatabase == "yes" ]; then
-                echo "This action can NOT be undone. confirm remove of $database(y/n)"
-                read rmdbconf
-                    if [ $rmdbconf == "y" ] || [ $rmdbconf == "yes" ]; then
+        if [ $rmdatabase == "y" ] || [ $rmdatabase == "yes" ]; then
+            echo "This action can NOT be undone. confirm remove of $database(y/n)"
+            read rmdbconf
+            if [ $rmdbconf == "y" ] || [ $rmdbconf == "yes" ]; then
                 echo "Removing database $database"
                 mysql -u$dbsu -p$dbsupw -e "drop database $database"
-                    fi
-
+            fi
             echo "remove database user $dbuser?(y/n)"
             read rmdbuser
-                if [ $rmdbuser == "y" ] || [ $rmdbuser == "yes" ]; then
-                    echo "removing $dbuser"
-                    mysql -u$dbsu -p$dbsupw -e "drop user $dbuser@localhost;"
-                fi
+            if [ $rmdbuser == "y" ] || [ $rmdbuser == "yes" ]; then
+                echo "removing $dbuser"
+                mysql -u$dbsu -p$dbsupw -e "drop user $dbuser@localhost;"
             fi
+        fi
         echo "removing site data"
-            servicestest=`find $elmsln/config/stacks/$2/sites/$2/services/ -name $2`
-            echo "services test"
-            echo $servicestest
-                if [[ $servicestest ]]; then
-                    rm -rf $servicestest
-                fi
-            rm -rf $sitedata
-
+        servicestest=`find $elmsln/config/stacks/$2/sites/$2/services/ -name $2`
+        echo "services test"
+        echo $servicestest
+        if [[ $servicestest ]]; then
+            rm -rf $servicestest
+        fi
+        rm -rf $sitedata
     else
         echo "preserving site data in $sitedata"
     fi
@@ -61,28 +59,36 @@ cd $elmsln/config/stacks/$2/sites/
 sitesphp=`grep -nr $2 sites.php`
 
 while [[ $sitesphp ]]; do
-        sitesphp=`grep -nr $2 sites.php`
-        grep -nr $2 sites.php
-        echo "which line do you want to remove?(x to exit)"
-        read rmnum
-                validrmnum=`echo $sitesphp | grep $rmnum:`
-                if [[ $validrmnum ]]; then
-                        cp sites.php sites.php.bak
-                        echo "sites.php backed up to sites.php.bak"
-                        sed -i ""$rmnum"d" sites.php
-                else
-                        if [[ $rmnum == "x" ]]; then
-                                exit 0
-                                else echo $rmnum " is not a valid input"
-
-                        fi
-                fi
+    sitesphp=`grep -nr $2 sites.php`
+    grep -nr $2 sites.php
+    echo "which line do you want to remove?(x to exit)"
+    read rmnum
+    validrmnum=`echo $sitesphp | grep $rmnum:`
+    if [[ $validrmnum ]]; then
+        cp sites.php sites.php.bak
+        echo "sites.php backed up to sites.php.bak"
+        sed -i ""$rmnum"d" sites.php
+    else
+        if [[ $rmnum == "x" ]]; then
+            exit 0
+            else echo $rmnum " is not a valid input"
+        fi
+    fi
 done
 
-
-if [ -L $elmsln/domains/$2/$1 ]; then
-echo "removing symlink"
-rm -rf $1/$2
+# clean out the jobs folder
+jobtest=`find $elmsln/config/jobs/ -name $1.$2.processed`
+if [[ $jobtest ]]; then
+    echo "removing jobs file"
+    rm $elmsln/config/jobs/$1.$2.processed
 else
-echo "symlink not present"
+    echo "job file not present"
+fi
+
+# ax the symlink
+if [ -L $elmsln/domains/$2/$1 ]; then
+    echo "removing symlink"
+    rm $elmsln/domains/$2/$1
+else
+    echo "symlink not present"
 fi
