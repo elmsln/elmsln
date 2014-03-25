@@ -131,6 +131,8 @@ function cle_install() {
     ->fields(array('uid' => 1, 'rid' => $admin_role->rid))
     ->execute();
   menu_rebuild();
+  // set frontpage to cle
+  variable_set('site_frontpage', 'cle');
   // ignore any rebuild messages
   node_access_needs_rebuild(FALSE);
   // ignore any other install messages
