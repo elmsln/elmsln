@@ -1,0 +1,5 @@
+name = "Hidden Nodes Scheduler"
+description = "Sub-module of Hidden Nodes providing integration with the Scheduler module, to allow content to be scheduled for future un-hiding."
+package = "Permissions"
+core = 7.x
+dependencies[] = scheduler

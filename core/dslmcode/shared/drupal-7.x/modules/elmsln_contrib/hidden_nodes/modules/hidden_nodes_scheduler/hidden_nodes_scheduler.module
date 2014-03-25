@@ -1,0 +1,66 @@
+<?php
+/**
+ * @file
+ * Provides functions for integration with the Scheduler module.
+ * @see https://drupal.org/project/scheduler
+ */
+
+/**
+ * Implements hook_enable().
+ */
+function hidden_nodes_scheduler_enable() {
+  // The main hidden_nodes module runs with weight -1 and the default Scheduler
+  // weight is 0. This sub-module exists purely so that the functions can be run
+  // AFTER Schedulers hook functions, so we need to set the weight accordingly.
+  $query = db_select('system', 's');
+  $query->addfield('s', 'weight');
+  $query->condition('type', 'module')
+    ->condition('name', 'scheduler');
+  $scheduler_weight = $query->execute()->fetchField();
+
+  // Set this module weight to 1 more than the Scheduler weight.
+  $hidden_node_scheduler_weight = $scheduler_weight + 1;
+  db_update('system')
+    ->fields(array('weight' => $hidden_node_scheduler_weight))
+    ->condition('name', 'hidden_nodes_scheduler')
+    ->condition('type', 'module')
+    ->execute();
+
+  drupal_set_message(t('The Scheduler module weight is @scheduler_weight so Hidden Nodes Scheduler weight is set to @hidden_nodes_scheduler_weight',
+    array('@scheduler_weight' => $scheduler_weight, '@hidden_nodes_scheduler_weight' => $hidden_node_scheduler_weight)));
+}
+
+/**
+ * Implements hook_node_presave().
+ */
+function hidden_nodes_scheduler_node_presave($node) {
+  // If the node is hidden but also scheduled for publishing, set the status to
+  // published and inform the user. This means that the node will be visible to
+  // authorised users but Scheduler will still "publish" it at the stated time,
+  // when it will be unhidden and visable to all.
+  if (!empty($node->hidden) && !empty($node->publish_on)) {
+    $node->status = NODE_PUBLISHED;
+    drupal_set_message(t('@type %title is hidden from non-authorised users. At the scheduled time it will become unhidden', array(
+      '@type' => node_type_get_name($node), '%title' => $node->title)), 'status', FALSE);
+  }
+}
+
+/**
+ * Implements hook_scheduler_api().
+ *
+ * @param $node
+ *   The node object
+ * @param $action
+ *   The action being performed, either 'pre_publish', 'publish',
+ *   'pre_unpublish' or 'unpublish'
+ */
+function hidden_nodes_scheduler_scheduler_api($node, $action) {
+  // If scheduler has just "published" a hidden node then make it unhidden.
+  if (module_exists('hidden_nodes') && !empty($node->hidden) && $action == 'publish') {
+    $actions = array('hidden_nodes_unhide_action');
+    $context['node'] = $node;
+    actions_do($actions, $node, $context, NULL, NULL);
+    watchdog('hidden nodes', '@type %title is now un-hidden', array(
+      '@type' => node_type_get_name($node), '%title' => $node->title), WATCHDOG_NOTICE, l(t('view'), 'node/' . $node->nid));
+  }
+}
