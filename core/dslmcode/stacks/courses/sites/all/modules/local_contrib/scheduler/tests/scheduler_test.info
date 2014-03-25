@@ -1,0 +1,14 @@
+name = "Scheduler tests"
+description = "Support module for Scheduler related testing."
+package = Testing
+core = 7.x
+hidden = TRUE
+dependencies[] = list
+dependencies[] = options
+
+; Information added by Drupal.org packaging script on 2014-01-28
+version = "7.x-1.2"
+core = "7.x"
+project = "scheduler"
+datestamp = "1390940306"
+

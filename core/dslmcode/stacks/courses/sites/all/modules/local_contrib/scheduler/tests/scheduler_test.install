@@ -1,0 +1,53 @@
+<?php
+
+/**
+ * @file
+ * Install, uninstall, update and schema hooks for the Scheduler Test module.
+ */
+
+/**
+ * Implements hook_install().
+ */
+function scheduler_test_install() {
+  $t = get_t();
+
+  // Ensure the scheduler_test node type is available.
+  node_types_rebuild();
+  $types = node_type_get_types();
+
+  // Attach a body field to the node type.
+  node_add_body_field($types['scheduler_test']);
+
+  // Create a field to attach to the node type.
+  $field = field_info_field('field_scheduler_test_approved');
+  if (empty($field)) {
+    $field = array(
+      'field_name' => 'field_scheduler_test_approved',
+      'type' => 'list_integer',
+      'entity_types' => array('node'),
+      'cardinality' => 2,
+      'settings' => array(
+        'allowed_values' => array(
+          1 => $t('Approved for publication by the CEO'),
+        ),
+      ),
+    );
+    $field = field_create_field($field);
+  }
+
+  $instance = field_info_instance('node', 'field_scheduler_test_approved', 'scheduler_test');
+  if (empty($instance)) {
+    $instance = array(
+      'bundle' => 'scheduler_test',
+      'display' => array(
+        'default' => array('type' => 'list_default'),
+        'teaser' => array('type' => 'hidden'),
+      ),
+      'entity_type' => 'node',
+      'field_name' => 'field_scheduler_test_approved',
+      'label' => 'Approved',
+      'widget' => array('type' => 'options_buttons'),
+    );
+    field_create_instance($instance);
+  }
+}

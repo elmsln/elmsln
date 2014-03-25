@@ -1,0 +1,49 @@
+/**
+ * @file
+ * Basic styling for the Scheduler module.
+ */
+
+/**
+ * @todo This is added until http://drupal.org/node/1015798 gets committed to D7
+ *   core css or something else gets done about the missing fieldset borders and
+ *   titles.
+ */
+div.vertical-tabs div.vertical-tabs-panes fieldset.vertical-tabs-pane fieldset legend {
+  display: inline-block;
+}
+
+/* This is required for the SEVEN theme. */
+/* Padding stops the fieldsets overlapping, margin gives space between. */
+div.vertical-tabs.seven div.vertical-tabs-panes fieldset.vertical-tabs-pane fieldset {
+  border: 1px solid #ccc;
+  margin: 1em 0 0;
+  padding: 2.5em 0 0;
+}
+
+/* This is required for GARLAND. */
+/* Stop the legend shifting to the right on opening. */
+div.vertical-tabs.garland div.vertical-tabs-panes fieldset.vertical-tabs-pane fieldset,
+div.vertical-tabs.stark div.vertical-tabs-panes fieldset.vertical-tabs-pane fieldset {
+  border-width: 1px;
+}
+div.vertical-tabs.garland div.vertical-tabs-panes fieldset.vertical-tabs-pane fieldset.collapsed {
+  border-left-color: transparent;
+  border-right-color: transparent;
+  border-bottom-color: transparent;
+}
+
+/* This is only required for BARTIK. */
+/* Stop the legend shifting on opening and remove empty space at the bottom when closed. */
+div.vertical-tabs.bartik div.vertical-tabs-panes fieldset.vertical-tabs-pane {
+  padding-top: 0;
+}
+div.vertical-tabs.bartik div.vertical-tabs-panes fieldset.vertical-tabs-pane fieldset {
+  border-width: 1px;
+  padding-bottom: 0;
+}
+
+/* This is required for STARK. */
+/* Stop the legend shifting to the right on opening. */
+div.vertical-tabs.stark div.vertical-tabs-panes fieldset.vertical-tabs-pane fieldset {
+  border-width: 1px;
+}

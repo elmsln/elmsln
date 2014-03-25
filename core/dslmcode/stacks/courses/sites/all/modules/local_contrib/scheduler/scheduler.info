@@ -1,0 +1,18 @@
+name = Scheduler
+description = This module allows nodes to be published and unpublished on specified dates and time.
+core = 7.x
+configure = admin/config/content/scheduler
+files[] = scheduler.install
+files[] = scheduler.module
+files[] = scheduler.test
+files[] = scheduler.views.inc
+files[] = scheduler_handler_field_scheduler_countdown.inc
+files[] = tests/scheduler_api.test
+test_dependencies[] = date
+
+; Information added by Drupal.org packaging script on 2014-01-28
+version = "7.x-1.2"
+core = "7.x"
+project = "scheduler"
+datestamp = "1390940306"
+

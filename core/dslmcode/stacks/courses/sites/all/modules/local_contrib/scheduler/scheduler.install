@@ -1,0 +1,90 @@
+<?php
+
+/**
+ * @file
+ * Installation file for Scheduler module.
+ */
+
+/**
+ * Implements hook_schema().
+ */
+function scheduler_schema() {
+  return array(
+    'scheduler' => array(
+      'description' => 'The main table to hold the scheduler data.',
+      'fields' => array(
+        'nid' => array(
+          'description' => 'The foreign key to node.nid',
+          'type' => 'int',
+          'unsigned' => TRUE,
+          'not null' => TRUE,
+        ),
+        'publish_on' => array(
+          'description' => 'The UNIX UTC timestamp when to publish',
+          'type' => 'int',
+          'unsigned' => TRUE,
+          'not null' => TRUE,
+          'default' => 0,
+        ),
+        'unpublish_on' => array(
+          'description' => 'The UNIX UTC timestamp when to unpublish',
+          'type' => 'int',
+          'unsigned' => TRUE,
+          'not null' => TRUE,
+          'default' => 0,
+        ),
+      ),
+      'indexes' => array(
+        'scheduler_publish_on' => array('publish_on'),
+        'scheduler_unpublish_on' => array('unpublish_on'),
+      ),
+      'primary key' => array('nid'),
+    ),
+  );
+}
+
+/**
+ * Implements hook_uninstall().
+ */
+function scheduler_uninstall() {
+  // Keep variables in alphabetic order for easier maintenance and patching.
+  $variables = array(
+    'scheduler_allow_date_only',
+    'scheduler_date_format',
+    'scheduler_date_only_format',
+    'scheduler_default_time',
+    'scheduler_extra_info',
+    'scheduler_date_popup_minute_increment',
+    'scheduler_field_type',
+    'scheduler_lightweight_log',
+    'scheduler_time_only_format',
+  );
+
+  $types = node_type_get_types();
+  foreach ($types as $type) {
+    $type_name = $type->type;
+    $variables[] = "scheduler_expand_fieldset_" . $type_name;
+    $variables[] = "scheduler_publish_enable_" . $type_name;
+    $variables[] = "scheduler_publish_touch_" . $type_name;
+    $variables[] = "scheduler_publish_required_" . $type_name;
+    $variables[] = "scheduler_publish_revision_" . $type_name;
+    $variables[] = "scheduler_publish_past_date_" . $type_name;
+    $variables[] = "scheduler_unpublish_enable_" . $type_name;
+    $variables[] = "scheduler_unpublish_required_" . $type_name;
+    $variables[] = "scheduler_unpublish_revision_" . $type_name;
+    $variables[] = "scheduler_use_vertical_tabs_" . $type_name;
+  }
+
+  foreach ($variables as $variable) {
+    variable_del($variable);
+  }
+}
+
+/**
+ * Implements hook_update_last_removed().
+ */
+function scheduler_update_last_removed() {
+  // The updates for Scheduler 6.x are no longer required in this file.
+  // This function shows that the last update was scheduler_update_6101.
+  return 6101;
+}

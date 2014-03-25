@@ -1,0 +1,39 @@
+<?php
+
+/**
+ * @file
+ * Main functions and hook implementations of the Scheduler Test module.
+ */
+
+/**
+ * Implements hook_node_info().
+ */
+function scheduler_test_node_info() {
+  $items = array(
+    'scheduler_test' => array(
+      'name' => t('Scheduler test'),
+      'base' => 'node_content',
+      'description' => t('This content type is used to test the Scheduler module.'),
+      'has_title' => '1',
+      'title_label' => t('Title'),
+    ),
+  );
+  return $items;
+}
+
+/**
+ * Implements hook_scheduler_allow_publishing().
+ */
+function scheduler_test_scheduler_allow_publishing($node) {
+  // Only publish nodes that have the 'Approved for publication by the CEO'
+  // checkbox ticked.
+  $items = field_get_items('node', $node, 'field_scheduler_test_approved');
+  $allowed = !empty($items[0]['value']);
+
+  // If publication is denied then inform the user why.
+  if (!$allowed) {
+    drupal_set_message(t('The content will only be published after approval by the CEO.'));
+  }
+
+  return $allowed;
+}

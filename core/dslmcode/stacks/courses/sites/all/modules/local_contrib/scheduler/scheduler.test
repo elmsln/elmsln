@@ -1,0 +1,625 @@
+<?php
+
+/**
+ * @file
+ * Scheduler module test case file.
+ */
+class SchedulerTestCase extends DrupalWebTestCase {
+
+  /**
+   * The profile to install as a basis for testing.
+   *
+   * @var string
+   */
+  protected $profile = 'testing';
+
+  /**
+   * A user with administration rights.
+   *
+   * @var object
+   */
+  protected $admin_user;
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function getInfo() {
+    return array(
+      'name' => 'Scheduler functionality',
+      'description' => 'Publish/unpublish on time.',
+      'group' => 'Scheduler',
+    );
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  function setUp() {
+    parent::setUp('date', 'date_popup', 'scheduler');
+
+    // Create a 'Basic Page' content type.
+    $this->drupalCreateContentType(array('type' => 'page', 'name' => t('Basic page')));
+
+    // Create an administrator user.
+    $this->admin_user = $this->drupalCreateUser(array('access content', 'administer scheduler', 'create page content', 'edit own page content', 'delete own page content', 'view own unpublished content', 'administer nodes', 'schedule (un)publishing of nodes'));
+
+    // Add scheduler functionality to the page node type.
+    variable_set('scheduler_publish_enable_page', 1);
+    variable_set('scheduler_unpublish_enable_page', 1);
+    variable_set('scheduler_field_type', 'textfield');
+  }
+
+  /**
+   * Tests basic scheduling of content.
+   */
+  function testScheduler() {
+    // Create node values. Set time to one hour in the future.
+    $edit = array(
+      'title' => 'title',
+      'publish_on' => format_date(time() + 3600, 'custom', 'Y-m-d H:i:s'),
+      'status' => 1,
+      'promote' => 1,
+    );
+    $this->helpTestScheduler($edit);
+    $edit['unpublish_on'] = $edit['publish_on'];
+    unset($edit['publish_on']);
+    $this->helpTestScheduler($edit);
+  }
+
+  /**
+   * Helper function for testScheduler(). Schedules content and asserts status.
+   */
+  function helpTestScheduler($edit) {
+    // Add a page.
+    $langcode = LANGUAGE_NONE;
+    $body = $this->randomName();
+    $edit["body[$langcode][0][value]"] = $body;
+    $this->drupalLogin($this->admin_user);
+    $this->drupalPost('node/add/page', $edit, t('Save'));
+    // Show the site front page for an anonymous visitor, then assert that the
+    // node is correctly published or unpublished.
+    $this->drupalLogout();
+    $this->drupalGet('node');
+    if (isset($edit['publish_on'])) {
+      $key = 'publish_on';
+      $this->assertNoText($body, t('Node is unpublished'));
+    }
+    else {
+      $key = 'unpublish_on';
+      $this->assertText($body, t('Node is published'));
+    }
+    // Verify that the scheduler table is not empty.
+    $this->assertTrue(db_query_range('SELECT 1 FROM {scheduler}', 0, 1)->fetchField(), 'Scheduler table is not empty');
+    // Modify the scheduler row to a time in the past, then run cron.
+    db_update('scheduler')->fields(array($key => time() - 1))->execute();
+    $this->cronRun();
+    // Verify that the scheduler table is empty.
+    $this->assertFalse(db_query_range('SELECT 1 FROM {scheduler}', 0, 1)->fetchField(), 'Scheduler table is empty');
+    // Show the site front page for an anonymous visitor, then assert that the
+    // node is correctly published or unpublished.
+    $this->drupalGet('node');
+    if (isset($edit['publish_on'])) {
+      $this->assertText($body, t('Node is published'));
+    }
+    else {
+      $this->assertNoText($body, t('Node is unpublished'));
+    }
+  }
+
+  /**
+   * Test the different options for past publication dates.
+   */
+  public function testSchedulerPastDates() {
+    // Log in.
+    $this->drupalLogin($this->admin_user);
+
+    // Create an unpublished page node.
+    $node = $this->drupalCreateNode(array('type' => 'page', 'status' => FALSE));
+
+    // Test the default behavior: an error message should be shown when the user
+    // enters a publication date that is in the past.
+    $edit = array(
+      'title' => $this->randomName(),
+      'publish_on' => format_date(strtotime('-1 day'), 'custom', 'Y-m-d H:i:s'),
+    );
+    $this->drupalPost('node/' . $node->nid . '/edit', $edit, t('Save'));
+    $this->assertRaw(t("The 'publish on' date must be in the future"), 'An error message is shown when the publication date is in the past and the "error" behavior is chosen.');
+
+    // Test the 'publish' behavior: the node should be published immediately.
+    variable_set('scheduler_publish_past_date_page', 'publish');
+    $this->drupalPost('node/' . $node->nid . '/edit', $edit, t('Save'));
+    $this->assertNoRaw(t("The 'publish on' date must be in the future"), 'No error message is shown when the publication date is in the past and the "publish" behavior is chosen.');
+    $this->assertRaw(t('@type %title has been updated.', array('@type' => t('Basic page'), '%title' => check_plain($edit['title']))), 'The node is saved successfully when the publication date is in the past and the "publish" behavior is chosen.');
+
+    // Reload the changed node and check that it is published.
+    $node = node_load($node->nid, NULL, TRUE);
+    $this->assertTrue($node->status, 'The node has been published immediately when the publication date is in the past and the "publish" behavior is chosen.');
+
+    // Test the 'schedule' behavior: the node should be unpublished and become
+    // published on the next cron run.
+    variable_set('scheduler_publish_past_date_page', 'schedule');
+    $this->drupalPost('node/' . $node->nid . '/edit', $edit, t('Save'));
+    $this->assertNoRaw(t("The 'publish on' date must be in the future"), 'No error message is shown when the publication date is in the past and the "schedule" behavior is chosen.');
+    $this->assertRaw(t('@type %title has been updated.', array('@type' => t('Basic page'), '%title' => check_plain($edit['title']))), 'The node is saved successfully when the publication date is in the past and the "schedule" behavior is chosen.');
+    $this->assertRaw(t('This post is unpublished and will be published @publish_time.', array('@publish_time' => $edit['publish_on'])), 'The node is scheduled to be published when the publication date is in the past and the "schedule" behavior is chosen.');
+
+    // Reload the node and check that it is unpublished but scheduled correctly.
+    $node = node_load($node->nid, NULL, TRUE);
+    $this->assertFalse($node->status, 'The node has been unpublished when the publication date is in the past and the "schedule" behavior is chosen.');
+    $this->assertEqual(format_date($node->publish_on, 'custom', 'Y-m-d H:i:s'), $edit['publish_on'], 'The node is scheduled for the required date');
+
+    // Simulate a cron run and check that the node is published.
+    scheduler_cron();
+    $node = node_load($node->nid, NULL, TRUE);
+    $this->assertTrue($node->status, 'The node with publication date in the past and the "schedule" behavior has now been published by cron.');
+  }
+
+  /**
+   * Tests the creation of new revisions on scheduling.
+   */
+  public function testRevisioning() {
+    // Create a scheduled node that is not automatically revisioned.
+    $created = strtotime('-2 day');
+    $settings = array(
+      'revision' => 0,
+      'created' => $created,
+    );
+    $node = $this->drupalCreateNode($settings);
+
+    // First test scheduled publication with revisioning disabled.
+    $node = $this->schedule($node);
+    $this->assertRevisionCount($node->nid, 1, 'No new revision was created when a node was published with revisioning disabled.');
+
+    // Test scheduled unpublication.
+    $node = $this->schedule($node, 'unpublish');
+    $this->assertRevisionCount($node->nid, 1, 'No new revision was created when a node was unpublished with revisioning disabled.');
+
+    // Enable revisioning.
+    variable_set('scheduler_publish_revision_page', 1);
+    variable_set('scheduler_unpublish_revision_page', 1);
+
+    // Test scheduled publication with revisioning enabled.
+    $node = $this->schedule($node);
+    $this->assertRevisionCount($node->nid, 2, 'A new revision was created when revisioning is enabled.');
+    $expected_message = t('Node published by Scheduler on @now. Previous creation date was @date.', array(
+      '@now' => format_date(REQUEST_TIME, 'short'),
+      '@date' => format_date($created, 'short'),
+    ));
+    $this->assertRevisionLogMessage($node->nid, $expected_message, 'The correct message was found in the node revision log after scheduled publishing.');
+
+    // Test scheduled unpublication with revisioning enabled.
+    $node = $this->schedule($node, 'unpublish');
+    $this->assertRevisionCount($node->nid, 3, 'A new revision was created when a node was unpublished with revisioning enabled.');
+    $expected_message = t('Node unpublished by Scheduler on @now. Previous change date was @date.', array(
+      '@now' => format_date(REQUEST_TIME, 'short'),
+      '@date' => format_date(REQUEST_TIME, 'short'),
+    ));
+    $this->assertRevisionLogMessage($node->nid, $expected_message, 'The correct message was found in the node revision log after scheduled unpublishing.');
+  }
+
+  /**
+   * Tests if options can both be displayed as extra fields and vertical tabs.
+   */
+  function testExtraFields() {
+    $this->drupalLogin($this->admin_user);
+
+    // Test if the options are shown as vertical tabs by default.
+    $this->drupalGet('node/add/page');
+    $this->assertTrue($this->xpath('//div[contains(@class, "vertical-tabs-panes")]/fieldset[@id = "edit-scheduler-settings"]'), 'By default the scheduler options are shown as a vertical tab.');
+
+    // Test if the options are shown as extra fields when configured to do so.
+    variable_set('scheduler_use_vertical_tabs_page', 0);
+    $this->drupalGet('node/add/page');
+    $this->assertFalse($this->xpath('//div[contains(@class, "vertical-tabs-panes")]/fieldset[@id = "edit-scheduler-settings"]'), 'The scheduler options are not shown as a vertical tab when they are configured to show as an extra field.');
+    $this->assertTrue($this->xpath('//fieldset[@id = "edit-scheduler-settings" and contains(@class, "collapsed")]'), 'The scheduler options are shown as a collapsed fieldset when they are configured to show as an extra field.');
+
+    // Test the option to expand the fieldset.
+    variable_set('scheduler_expand_fieldset_page', 1);
+    $this->drupalGet('node/add/page');
+    $this->assertFalse($this->xpath('//div[contains(@class, "vertical-tabs-panes")]/fieldset[@id = "edit-scheduler-settings"]'), 'The scheduler options are not shown as a vertical tab when they are configured to show as an expanded fieldset.');
+    $this->assertTrue($this->xpath('//fieldset[@id = "edit-scheduler-settings" and not(contains(@class, "collapsed"))]'), 'The scheduler options are shown as an expanded fieldset.');
+  }
+
+  /**
+   * Simulates the scheduled (un)publication of a node.
+   *
+   * @param object $node
+   *   The node to schedule.
+   * @param string $action
+   *   The action to perform: either 'publish' or 'unpublish'. Defaults to
+   *   'publish'.
+   *
+   * @return object
+   *   The updated node, after scheduled (un)publication.
+   */
+  function schedule($node, $action = 'publish') {
+    // Simulate scheduling by setting the (un)publication date in the past and
+    // running cron.
+    $node->{$action . '_on'} = strtotime('-1 day');
+    node_save($node);
+    scheduler_cron();
+    return node_load($node->nid, NULL, TRUE);
+  }
+
+  /**
+   * Check if the latest revision log message of a node matches a given string.
+   *
+   * @param int $nid
+   *   The node id of the node to check.
+   * @param string $value
+   *   The value with which the log message will be compared.
+   * @param string $message
+   *   The message to display along with the assertion.
+   * @param string $group
+   *   The type of assertion - examples are "Browser", "PHP".
+   *
+   * @return
+   *   TRUE if the assertion succeeded, FALSE otherwise.
+   */
+  function assertRevisionLogMessage($nid, $value, $message = '', $group = 'Other') {
+    $log_message = db_select('node_revision', 'r')
+      ->fields('r', array('log'))
+      ->condition('nid', $nid)
+      ->orderBy('vid', 'DESC')
+      ->range(0, 1)
+      ->execute()
+      ->fetchColumn();
+    return $this->assertEqual($log_message, $value, $message, $group);
+  }
+
+  /**
+   * Check if the number of revisions for a node matches a given value.
+   *
+   * @param int $nid
+   *   The node id of the node to check.
+   * @param string $value
+   *   The value with which the number of revisions will be compared.
+   * @param string $message
+   *   The message to display along with the assertion.
+   * @param string $group
+   *   The type of assertion - examples are "Browser", "PHP".
+   *
+   * @return
+   *   TRUE if the assertion succeeded, FALSE otherwise.
+   */
+  function assertRevisionCount($nid, $value, $message = '', $group = 'Other') {
+    $count = db_select('node_revision', 'r')
+      ->fields('r', array('vid'))
+      ->condition('nid', $nid)
+      ->countQuery()
+      ->execute()
+      ->fetchColumn();
+    return $this->assertEqual($count, $value, $message, $group);
+  }
+
+  /**
+   * Test the default time functionality.
+   */
+  public function testDefaultTime() {
+    // For testing we use an offset of 6 hours 30 minutes (23400 seconds).
+    variable_set('scheduler_default_time', '06:30:00');
+
+    $this->drupalLogin($this->admin_user);
+
+    // First test the regular date entry, without popup.
+    debug('Testing date entry using a textfield');
+    $this->assertDefaultTime();
+
+    // Enable date popup and repeat the test.
+    debug('Testing date entry using a date popup');
+    variable_set('scheduler_field_type', 'date_popup');
+    $this->assertDefaultTime();
+  }
+
+  /**
+   * Asserts that the default time works as expected.
+   */
+  protected function assertDefaultTime() {
+    // Define the form fields and date formats we will test according to whether
+    // date popups have been enabled or not.
+    $using_popup = variable_get('scheduler_field_type', 'date_popup') == 'date_popup';
+    $publish_date_field = $using_popup ? 'publish_on[date]' : 'publish_on';
+    $unpublish_date_field = $using_popup ? 'unpublish_on[date]' : 'unpublish_on';
+    $publish_time_field = $using_popup ? 'publish_on[time]' : 'publish_on';
+    $unpublish_time_field = $using_popup ? 'unpublish_on[time]' : 'unpublish_on';
+    $time_format = $using_popup ? 'H:i:s' : 'Y-m-d H:i:s';
+
+    // We cannot easily test the exact validation messages as they contain the
+    // REQUEST_TIME of the POST request, which can be one or more seconds in the
+    // past. Best we can do is check the fixed part of the message as it is when
+    // passed to t(). This will only work in English.
+    $publish_validation_message = $using_popup ? t('The value input for field %field is invalid:', array('%field' => 'Publish on')) : "The 'publish on' value does not match the expected format of";
+    $unpublish_validation_message = $using_popup ? t('The value input for field %field is invalid:', array('%field' => 'Unpublish on')) : "The 'unpublish on' value does not match the expected format of";
+
+    // First test with the "date only" functionality disabled.
+    variable_set('scheduler_allow_date_only', FALSE);
+
+    // Test if entering a time is required.
+    $edit = array(
+      'title' => $this->randomName(),
+      $publish_date_field => date('Y-m-d', strtotime('+1 day', REQUEST_TIME)),
+      $unpublish_date_field => date('Y-m-d', strtotime('+2 day', REQUEST_TIME)),
+    );
+    $this->drupalPost('node/add/page', $edit, t('Save'));
+
+    $this->assertRaw($publish_validation_message, 'By default it is required to enter a time when scheduling content for publication.');
+    $this->assertRaw($unpublish_validation_message, 'By default it is required to enter a time when scheduling content for unpublication.');
+
+    // Allow the user to enter only the date and repeat the test.
+    variable_set('scheduler_allow_date_only', TRUE);
+
+    $this->drupalPost('node/add/page', $edit, t('Save'));
+    $this->assertNoRaw("The 'publish on' value does not match the expected format of", 'If the default time option is enabled the user can skip the time when scheduling content for publication.');
+    $this->assertNoRaw("The 'unpublish on' value does not match the expected format of", 'If the default time option is enabled the user can skip the time when scheduling content for unpublication.');
+    $this->assertRaw(t('This post is unpublished and will be published @publish_time.', array('@publish_time' => date('Y-m-d H:i:s', strtotime('tomorrow', REQUEST_TIME) + 23400))), 'The user is informed that the content will be published on the requested date, on the default time.');
+
+    // Check that the default time has been added to the scheduler form fields.
+    $this->clickLink(t('Edit'));
+    $this->assertFieldByName($publish_time_field, date($time_format, strtotime('tomorrow', REQUEST_TIME) + 23400), 'The default time offset has been added to the date field when scheduling content for publication.');
+    $this->assertFieldByName($unpublish_time_field, date($time_format, strtotime('tomorrow +1 day', REQUEST_TIME) + 23400), 'The default time offset has been added to the date field when scheduling content for unpublication.');
+  }
+
+  /**
+   * Tests creating and editing nodes with required scheduling enabled.
+   */
+  function testRequiredScheduling() {
+    $this->drupalLogin($this->admin_user);
+
+    // Define test scenarios with expected results.
+    $test_cases = array(
+      // The 1-10 numbering used below matches the test cases described in
+      // http://drupal.org/node/1198788#comment-7816119
+
+      // A. Test scenarios that require scheduled publishing.
+
+      // When creating a new unpublished node it is required to enter a
+      // publication date.
+      array(
+        'id' => 1,
+        'required' => 'publish',
+        'operation' => 'add',
+        'status' => 0,
+        'expected' => 'required',
+        'message' => 'When scheduled publishing is required and a new unpublished node is created, entering a date in the publish on field is required.',
+      ),
+
+      // When creating a new published node it is required to enter a
+      // publication date. The node will be unpublished on form submit.
+      array(
+        'id' => 2,
+        'required' => 'publish',
+        'operation' => 'add',
+        'status' => 1,
+        'expected' => 'required',
+        'message' => 'When scheduled publishing is required and a new published node is created, entering a date in the publish on field is required.',
+      ),
+
+      // When editing a published node it is not needed to enter a publication
+      // date since the node is already published.
+      array(
+        'id' => 3,
+        'required' => 'publish',
+        'operation' => 'edit',
+        'scheduled' => 0,
+        'status' => 1,
+        'expected' => 'not required',
+        'message' => 'When scheduled publishing is required and an existing published, unscheduled node is edited, entering a date in the publish on field is not required.',
+      ),
+
+      // When editing an unpublished node that is scheduled for publication it
+      // is required to enter a publication date.
+      array(
+        'id' => 4,
+        'required' => 'publish',
+        'operation' => 'edit',
+        'scheduled' => 1,
+        'status' => 0,
+        'expected' => 'required',
+        'message' => 'When scheduled publishing is required and an existing unpublished, scheduled node is edited, entering a date in the publish on field is required.',
+      ),
+
+      // When editing an unpublished node that is not scheduled for publication
+      // it is not required to enter a publication date since this means that
+      // the node has already gone through a publication > unpublication cycle.
+      array(
+        'id' => 5,
+        'required' => 'publish',
+        'operation' => 'edit',
+        'scheduled' => 0,
+        'status' => 0,
+        'expected' => 'not required',
+        'message' => 'When scheduled publishing is required and an existing unpublished, unscheduled node is edited, entering a date in the publish on field is not required.',
+      ),
+
+      // B. Test scenarios that require scheduled unpublishing.
+
+      // When creating a new unpublished node it is required to enter an
+      // unpublication date since it is to be expected that the node will be
+      // published at some point and should subsequently be unpublished.
+      array(
+        'id' => 6,
+        'required' => 'unpublish',
+        'operation' => 'add',
+        'status' => 0,
+        'expected' => 'required',
+        'message' => 'When scheduled unpublishing is required and a new unpublished node is created, entering a date in the unpublish on field is required.',
+      ),
+
+      // When creating a new published node it is required to enter an
+      // unpublication date.
+      array(
+        'id' => 7,
+        'required' => 'unpublish',
+        'operation' => 'add',
+        'status' => 1,
+        'expected' => 'required',
+        'message' => 'When scheduled unpublishing is required and a new published node is created, entering a date in the unpublish on field is required.',
+      ),
+
+      // When editing a published node it is required to enter an unpublication
+      // date.
+      array(
+        'id' => 8,
+        'required' => 'unpublish',
+        'operation' => 'edit',
+        'scheduled' => 0,
+        'status' => 1,
+        'expected' => 'required',
+        'message' => 'When scheduled unpublishing is required and an existing published, unscheduled node is edited, entering a date in the unpublish on field is required.',
+      ),
+
+      // When editing an unpublished node that is scheduled for publication it
+      // it is required to enter an unpublication date.
+      array(
+        'id' => 9,
+        'required' => 'unpublish',
+        'operation' => 'edit',
+        'scheduled' => 1,
+        'status' => 0,
+        'expected' => 'required',
+        'message' => 'When scheduled unpublishing is required and an existing unpublished, scheduled node is edited, entering a date in the unpublish on field is required.',
+      ),
+
+      // When editing an unpublished node that is not scheduled for publication
+      // it is not required to enter an unpublication date since this means that
+      // the node has already gone through a publication - unpublication cycle.
+      array(
+        'id' => 10,
+        'required' => 'unpublish',
+        'operation' => 'edit',
+        'scheduled' => 0,
+        'status' => 0,
+        'expected' => 'not required',
+        'message' => 'When scheduled unpublishing is required and an existing unpublished, unscheduled node is edited, entering a date in the unpublish on field is not required.',
+      ),
+    );
+
+    foreach ($test_cases as $test_case) {
+      // Enable required (un)publishing as stipulated by the test case.
+      variable_set('scheduler_publish_required_page', $test_case['required'] == 'publish');
+      variable_set('scheduler_unpublish_required_page', $test_case['required'] == 'unpublish');
+
+      // Set the default node status, used when creating a new node.
+      $node_options_page = !empty($test_case['status']) ? array('status') : array();
+      variable_set('node_options_page', $node_options_page);
+
+      // To assist viewing and analysing the generated test result pages create
+      // a text string showing all the test case parameters.
+      $title_data = array();
+      foreach ($test_case as $key => $value) {
+        if ($key != 'message') {
+          $title_data[] = $key . ' = ' . $value;
+        }
+      }
+      $title = implode(', ', $title_data);
+
+      // If the test case requires editing a node, we need to create one first.
+      if ($test_case['operation'] == 'edit') {
+        $options = array(
+          'title' => $title,
+          'type' => 'page',
+          'status' => $test_case['status'],
+          'publish_on' => !empty($test_case['scheduled']) ? strtotime('+ 1 day') : 0,
+        );
+        $node = $this->drupalCreateNode($options);
+      }
+
+      // Make sure the publication date fields are empty so we can check if they
+      // throw form validation errors when they are required.
+      $edit = array(
+        'title' => $title,
+        'publish_on' => '',
+        'unpublish_on' => '',
+      );
+      $path = $test_case['operation'] == 'add' ? 'node/add/page' : 'node/' . $node->nid . '/edit';
+      $this->drupalPost($path, $edit, t('Save'));
+
+      // Check for the expected result.
+      switch ($test_case['expected']) {
+        case 'required':
+          $string = t('!name field is required.', array('!name' => ucfirst($test_case['required']) . ' on'));
+          $this->assertRaw($string, $test_case['id'] . '. ' . $test_case['message']);
+          break;
+
+        case 'not required':
+          $string = '@type %title has been ' . ($test_case['operation'] == 'add' ? 'created' : 'updated') . '.';
+          $args = array('@type' => 'Basic page', '%title' => $title);
+          $this->assertRaw(t($string, $args), $test_case['id'] . '. ' . $test_case['message']);
+          break;
+      }
+    }
+  }
+
+  /**
+   * Tests configuration of different date formats with the Date Popup field.
+   */
+  public function testDatePopupFormats() {
+    $this->drupalLogin($this->admin_user);
+
+    // Define some date formats to test.
+    $test_cases = array(
+      // By default we are not using the 'date only' option, so passing only a
+      // date should fail.
+      'Y-m-d' => FALSE,
+      'd-m-Y' => FALSE,
+      'm-d-Y' => FALSE,
+      'n-j-y' => FALSE,
+
+      // Test a number of supported date formats.
+      'Y-m-d H:i' => TRUE,
+      'd-m-Y h:ia' => TRUE,
+      'm-d-Y h:iA' => TRUE,
+      'n-j-y H:i:s' => TRUE,
+      'y-m-d h:i:sA' => TRUE,
+      'd-m-y h:i:sa' => TRUE,
+
+      // Test a number of date formats with invalid time specifications.
+      'y-m-d G:i' => FALSE,
+      'y-j-n G:i:sa' => FALSE,
+      'Y-m-d g:i:sa' => FALSE,
+      'y-m-d g:i:s' => FALSE,
+      'n-j-y h:i' => FALSE,
+      'd-m-y h:i:s' => FALSE,
+      'd-m-Y H:i:sA' => FALSE,
+      'Y-m-d H:ia' => FALSE,
+    );
+    foreach ($test_cases as $date_format => $expected_result) {
+      $edit = array(
+        'scheduler_date_format' => $date_format,
+        'scheduler_field_type' => 'date_popup',
+      );
+      $this->drupalPost('admin/config/content/scheduler', $edit, t('Save configuration'));
+      $message = format_string('When using date popups the date format %format is @expected', array('%format' => $date_format, '@expected' => $expected_result ? 'allowed' : 'not allowed.'));
+      $assert = $expected_result ? 'assertNoRaw' : 'assertRaw';
+      $this->$assert('Error message', $message);
+    }
+  }
+
+  /**
+   * Tests the deletion of a scheduled node.
+   *
+   * This tests if it is possible to delete a node that does not have a
+   * publication date set, when scheduled publishing is required.
+   * @see https://drupal.org/node/1614880
+   */
+  public function testScheduledNodeDelete() {
+    // Log in.
+    $this->drupalLogin($this->admin_user);
+
+    // Create a published and an unpublished node, both without scheduling.
+    $unpublished_node = $this->drupalCreateNode(array('type' => 'page', 'status' => 0));
+    $published_node = $this->drupalCreateNode(array('type' => 'page', 'status' => 1));
+
+    // Make scheduled publishing and unpublishing required.
+    variable_set('scheduler_publish_required_page', TRUE);
+    variable_set('scheduler_unpublish_required_page', TRUE);
+
+    // Check that deleting the nodes does not throw form validation errors.
+    $this->drupalPost('node/' . $published_node->nid . '/edit', array(), t('Delete'));
+    $this->assertNoRaw(t('Error message'), 'No error messages are shown when trying to delete a published node with no scheduling information.');
+
+    $this->drupalPost('node/' . $unpublished_node->nid . '/edit', array(), t('Delete'));
+    $this->assertNoRaw(t('Error message'), 'No error messages are shown when trying to delete an unpublished node with no scheduling information.');
+  }
+
+}
