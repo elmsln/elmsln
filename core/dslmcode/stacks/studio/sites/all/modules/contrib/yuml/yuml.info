@@ -1,0 +1,12 @@
+name = yUML
+description = 'Create and share simple UML diagrams.'
+package = Visualisation
+version = 7.x-1.x
+core = 7.x
+
+; Information added by Drupal.org packaging script on 2014-02-15
+version = "7.x-1.x-dev"
+core = "7.x"
+project = "yuml"
+datestamp = "1392466707"
+
