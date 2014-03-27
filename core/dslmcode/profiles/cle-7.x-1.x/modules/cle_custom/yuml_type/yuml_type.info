@@ -1,0 +1,6 @@
+name = YUML Type
+description = This provides a field collection driven content for building YUML images.
+core = 7.x
+package = YUML
+dependencies[] = field_collection
+features[features_api][] = api:2
