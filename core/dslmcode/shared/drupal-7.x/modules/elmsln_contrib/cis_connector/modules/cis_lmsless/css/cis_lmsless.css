@@ -7,18 +7,23 @@
   width: 100%;
   height: 1em;
   line-height: 1em;
-  font-size: 1em;
-  top: 0;
+  padding:1em;
+  font-size: 1.2em;
+  bottom: 0;
   left:0;
   position: absolute;
-  padding:1em;
-  margin-top:1em;
-  z-index: 1000;
+  z-index: 1002;
 }
 .cis-lmsless-bar .active{
   color:#eee;
-  font-size: 1em;
 }
+.cis-lmsless-item {
+  margin:0 1em;
+  height: 1em;
+  line-height: 1em;
+  font-size: 1.2em;
+}
+
 .cis-lmsless-home {
   float:left;
 }
@@ -30,7 +35,8 @@
 }
 .cis-lmsless-bar-services {
   float:left;
-}
-.cis-lmsless-bar-service {
-  float:left;
+  width: auto;
+  background-color: #222222;
+  color:#eeeeee;
+  height: 1em;
 }

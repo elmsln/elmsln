@@ -82,7 +82,7 @@ function _regions_top_nav_status_messages($variables) {
   $messages = drupal_get_messages();
   // need a separater container for title mapping
   $title_messages = $messages;
-  if (!empty($messages)) {    
+  if (!empty($messages)) {
     $content = '';
     // get a map of all known values
     $map = _regions_top_nav_get_map();
@@ -90,7 +90,7 @@ function _regions_top_nav_status_messages($variables) {
     foreach ($title_messages as $key => $message_group) {
       // if this item actually has a parent, move it's status messages in there
       if (isset($map[$key]['parent'])) {
-        // test to see if this item came across itself to merge under, otherwise 
+        // test to see if this item came across itself to merge under, otherwise
         if (isset($title_messages[$map[$key]['parent']])) {
           $title_messages[$map[$key]['parent']] = array_merge($title_messages[$map[$key]['parent']], $message_group);
         }

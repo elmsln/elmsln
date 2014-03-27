@@ -19,8 +19,12 @@ function cis_distro_integrations_cis_service_instance_courses_options_alter(&$op
 function cis_distro_integrations_cis_service_instance_blog_options_alter(&$options, $course, $service) {
   // integration with meedjum_blog build routine so we don't have to hack that
   // distribution in order to utilize it correctly
+  // best practices
+  $options['en'][] = 'module_filter';
+  // CIS projects
   $options['en'][] = 'cis_service_lti';
   $options['en'][] = 'cis_section';
+  $options['en'][] = 'cis_connector';
   $options['en'][] = 'cis_service_connection';
   $options['en'][] = 'cis_service_connection_ux';
   $options['en'][] = 'regions';

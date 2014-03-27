@@ -38,6 +38,8 @@ function cis_si_cleanup_cis_service_instance_options_alter(&$options, $course, $
   $options['en'][] = 'cis_remote_watchdog';
   // make everything a webservice by default
   $options['en'][] = 'cis_service_restws';
+  // branding bar across systems
+  $options['en'][] = 'cis_lmsless';
   // if any major performance / caching modules are enabled here, enable
   // downstream by default
   if (module_exists('filecache')) {

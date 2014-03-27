@@ -20,25 +20,40 @@ function cis_lmsless_page_alter(&$page) {
  * Callback to assemble the bar
  */
 function _cis_lmsless_assemble() {
-  $front_page = variable_get('site_frontpage','node');
-  $site_name = variable_get('site_name', t('Service'));
-  $section = _cis_connector_section_context();
-  // request a list of all other services that this section uses
-  $services = _cis_connector_transaction('other_services');
-  foreach ($services as $service) {
-    $list[$service['field_machine_name']] = array(
-      'title' => $service['title'],
-      'url' => $service['field_location']['url'] . base_path(),
-      );
-  }
   // assemble variables for theming
   $vars = array(
-    'front_page' => $front_page,
-    'site_name' => $site_name,
-    'section' => $section,
-    'services' => $list,
+    'front_page' => variable_get('site_frontpage','node'),
+    'site_name' => variable_get('site_name', t('Service')),
   );
+  if ($section = _cis_connector_section_context()) {
+    $vars['section'] = $section;
+  }
+  // request a list of all other services that this section uses
+  if (!$services = _cis_connector_transaction('other_services')) {
+    $services = $list = array();
+  }
+  else {
+    foreach ($services as $service) {
+      $list[$service['field_machine_name']] = array(
+        'title' => $service['title'],
+        'url' => $service['field_location']['url'] . base_path(),
+        'machine_name' => $service['field_machine_name'],
+      );
+    }
+    // bump current link to the first position and drop url
+    foreach ($list as $key => $item) {
+      // see if this service matches the current tool
+      if ($item['url'] == $GLOBALS['base_url'] . '/') {
+        $tmp = $item;
+        $tmp['url'] = '#';
+        unset($list[$key]);
+        array_unshift($list, $tmp);
+      }
+    }
+    $vars['services'] = $list;
+  }
   drupal_add_css(drupal_get_path('module', 'cis_lmsless') . '/css/cis_lmsless.css');
+  drupal_add_js(drupal_get_path('module', 'cis_lmsless') . '/js/cis_lmsless.js');
   return theme('cis_lmsless_bar', $vars);
 }
 
@@ -49,9 +64,9 @@ function cis_lmsless_theme() {
   return array(
     'cis_lmsless_bar' => array(
       'variables' => array(
-        'front_page' => '',
-        'site_name' => '',
-        'section' => '',
+        'front_page' => 'node',
+        'site_name' => t('Service'),
+        'section' => t('Master Section'),
         'services' => array(),
       ),
       'render element' => 'element',
