@@ -5,15 +5,33 @@
  */
 
 /**
+ * Implements hook_permission().
+ */
+function cis_lmsless_permission() {
+  return array(
+    'view lmsless bar' =>  array(
+      'title' => t('View LMSless bar'),
+      'description' => t('Provides context as to what system you are in and quick links.'),
+    ),
+    'view lmsless cis link' =>  array(
+      'title' => t('View link to CIS space'),
+      'description' => t('This shows the shortcut to the marketing space in CIS.'),
+    ),
+  );
+}
+
+/**
  * Implements hook_page_alter().
  */
 function cis_lmsless_page_alter(&$page) {
-  // append output to page via normal page rendering
-  $page['page_bottom']['lmsless'] = array(
-    '#type' => 'markup',
-    '#markup' => _cis_lmsless_assemble(),
-    '#weight' => 1000,
-  );
+  if (user_access('view lmsless bar') && !path_is_admin(current_path())) {
+    // append output to page via normal page rendering
+    $page['page_bottom']['lmsless'] = array(
+      '#type' => 'markup',
+      '#markup' => _cis_lmsless_assemble(),
+      '#weight' => 1000,
+    );
+  }
 }
 
 /**
@@ -25,6 +43,7 @@ function _cis_lmsless_assemble() {
     'front_page' => variable_get('site_frontpage','node'),
     'site_name' => variable_get('site_name', t('Service')),
   );
+  // build in section context if we have one we can pull
   if ($section = _cis_connector_section_context()) {
     $vars['section'] = $section;
   }
@@ -40,7 +59,22 @@ function _cis_lmsless_assemble() {
         'machine_name' => $service['field_machine_name'],
       );
     }
-    // bump current link to the first position and drop url
+    // add in link to the CIS location if permission exists
+    // @ignore druplart_conditional_assignment
+    if (user_access('view lmsless cis link') && $settings = _cis_connector_build_registry('cis')) {
+      // space it out since this is not to be accessed frequently
+      $list['_'] = array(
+        'title' => t('_________________________'),
+        'url' => '#',
+        'machine_name' => '_',
+      );
+      $list['cis'] = array(
+        'title' => t('Course information system'),
+        'url' => _cis_connector_format_address($settings, base_path(), 'front'),
+        'machine_name' => 'cis',
+      );
+    }
+    // bump current link to the first position and drop url so its internal
     foreach ($list as $key => $item) {
       // see if this service matches the current tool
       if ($item['url'] == $GLOBALS['base_url'] . '/') {
