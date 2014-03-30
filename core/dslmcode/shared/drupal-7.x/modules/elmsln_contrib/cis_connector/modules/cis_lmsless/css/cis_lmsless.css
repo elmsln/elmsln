@@ -1,27 +1,34 @@
 /**
  * CSS
  */
+
+/**
+ * Optional margin tweak when used with admin menu.
+ */
+.cis-lmsless-margin {
+  margin-top:96px !important;
+}
 .cis-lmsless-bar {
   color:#eee;
-  background-color: #222;
+  background-color: #222222;
   width: 100%;
-  height: 1em;
-  line-height: 1em;
-  padding:1em;
-  font-size: 1.2em;
-  bottom: 0;
+  height: 16px;
+  line-height: 16px;
+  padding:16px;
+  font-size: 20px;
+  top: 0;
   left:0;
-  position: absolute;
-  z-index: 1002;
+  position: fixed;
+  z-index: 101;
 }
 .cis-lmsless-bar .active{
   color:#eee;
 }
 .cis-lmsless-item {
-  margin:0 1em;
-  height: 1em;
-  line-height: 1em;
-  font-size: 1.2em;
+  margin:0 16px;
+  height: 16px;
+  line-height: 16px;
+  font-size: 20px;
 }
 
 .cis-lmsless-home {
@@ -38,5 +45,5 @@
   width: auto;
   background-color: #222222;
   color:#eeeeee;
-  height: 1em;
+  height: 20px;
 }

@@ -2,7 +2,8 @@
   /**
    * CIS LMS-less template file
    *
-   * @todo dropdowns for available sections and system to switch to.
+   * @todo dropdowns for available sections to switch.
+   * @todo replace home text with icon.
    */
 ?>
 <div class="cis-lmsless-container cis-lmsless-bar <?php print $classes; ?>" <?php print $attributes; ?>>
