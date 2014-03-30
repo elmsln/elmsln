@@ -1,0 +1,7 @@
+node_modules/
+build/
+bower_components/
+_SpecRunner.html
+.grunt/
+*.map
+components/
