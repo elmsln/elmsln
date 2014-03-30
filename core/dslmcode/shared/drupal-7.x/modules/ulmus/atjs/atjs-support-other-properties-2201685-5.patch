@@ -1,0 +1,12 @@
+diff --git a/atjs.module b/atjs.module
+index 33f1778..fa2af4d 100755
+--- a/atjs.module
++++ b/atjs.module
+@@ -234,6 +234,7 @@ function atjs_pre_render($element) {
+         'insert_tpl' => filter_xss($listener->insert_tpl),
+         'limit' => filter_xss($listener->query_limit),
+         'max_len' => filter_xss($listener->max_length),
++        'search_key' => filter_xss(str_replace('property:', '', $listener->search_key)),
+       );
+     }
+   }

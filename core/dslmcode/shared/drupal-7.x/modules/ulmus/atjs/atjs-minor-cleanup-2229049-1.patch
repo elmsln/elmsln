@@ -1,0 +1,34 @@
+diff --git a/atjs.module b/atjs.module
+index c0bca2c..1d6fb64 100755
+--- a/atjs.module
++++ b/atjs.module
+@@ -643,7 +643,7 @@ class AtjsPregCallback {
+   }
+ 
+   public function execute($text) {
+-    return preg_replace_callback("/[\\" . $this->listener->at . ']{1}([a-zA-Z0-9-_]+)/', array($this, 'match_replace'), $text);
++    return preg_replace_callback("/[\\" . $this->listener->at . ']{' . drupal_strlen($this->listener->at) . '}([a-zA-Z0-9-_]+)/', array($this, 'match_replace'), $text);
+   }
+ 
+   public function match_replace($matches) {
+@@ -729,7 +729,10 @@ function _atjs_filter_match_load_entity($listener, $match) {
+       'listener' => clone $listener,
+     );
+     drupal_alter('atjs_filter_match_load_entity', $load_function, $load_arguments, $context);
+-
++    // bail early if we don't have a load function at this point to avoid error
++    if (empty($load_function)) {
++      return FALSE;
++    }
+     $entity = call_user_func_array($load_function, $load_arguments);
+   }
+ 
+@@ -751,7 +754,7 @@ function theme_atjs_link($variables) {
+   $entity = $variables['entity'];
+   $classes = implode(' ', $variables['classes_array']);
+ 
+-  $entity_label = check_plain($listener->at) . entity_label($listener->entity_type, $entity);
++  $entity_label = entity_label($listener->entity_type, $entity);
+   $entity_uri = entity_uri($listener->entity_type, $entity);
+ 
+   return '<span class="' . $classes . '">' . l($entity_label, $entity_uri['path']) . '</span> ';

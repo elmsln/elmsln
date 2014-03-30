@@ -1,0 +1,198 @@
+<?php
+
+/**
+ * @file
+ * atjs.install
+ */
+
+/**
+ * Implements hook_schema().
+ */
+function atjs_schema() {
+  $schema = array();
+
+  $schema['atjs_listener'] = array(
+    'description' => 'Storage for At.js listeners.',
+    'export' => array(
+      'key' => 'name',
+      'key name' => 'Name',
+      'primary key' => 'name',
+      'admin_title' => 'title',
+      'identifier' => 'listener',
+      'default hook' => 'default_atjs_listener',
+      'delete callback' => 'atjs_delete_listener',
+      'api' => array(
+        'owner' => 'atjs',
+        'api' => 'default_atjs_listener',
+        'minimum_version' => 1,
+        'current_version' => 1,
+      ),
+    ),
+    'fields' => array(
+      'name' => array(
+        'description' => 'The machine-name for this listener.',
+        'type' => 'varchar',
+        'length' => '32',
+        'not null' => FALSE,
+        'default' => '',
+      ),
+      'title' => array(
+        'description' => 'The human-readable title for this listener.',
+        'type' => 'varchar',
+        'length' => '255',
+        'not null' => FALSE,
+        'default' => '',
+      ),
+      'entity_type' => array(
+        'description' => 'The listener entity type, such as one of "node", "comment", or "user".',
+        'type' => 'varchar',
+        'length' => '128',
+        'not null' => TRUE,
+        'default' => '',
+      ),
+      'bundles' => array(
+        'description' => 'The listener target bundles.',
+        'type' => 'text',
+        'not null' => TRUE,
+        'serialize' => TRUE,
+      ),
+      'record_usage' => array(
+        'description' => 'Record activity such as additions and removal of mentions against a listener and entity.',
+        'type' => 'int',
+        'size' => 'tiny',
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'at' => array(
+        'description' => 'The trigger string for this listener.',
+        'type' => 'varchar',
+        'length' => '32',
+        'not null' => FALSE,
+        'default' => '',
+      ),
+      'tpl' => array(
+        'description' => 'The template string used in the autocomplete menu.',
+        'type' => 'text',
+        'not null' => FALSE,
+      ),
+      'insert_tpl' => array(
+        'description' => 'The template string used in the autocomplete menu.',
+        'type' => 'text',
+        'not null' => FALSE,
+      ),
+      'search_key' => array(
+        'description' => 'The search key used for matching.',
+        'type' => 'varchar',
+        'length' => '255',
+        'not null' => FALSE,
+        'default' => '',
+      ),
+      'data_to_supply' => array(
+        'description' => 'A serialized array of data to supply to templates.',
+        'type' => 'text',
+        'not null' => FALSE,
+        'serialize' => TRUE,
+      ),
+      'query_limit' => array(
+        'description' => 'Number of results to limit to.',
+        'type' => 'int',
+        'size' => 'tiny',
+        'not null' => TRUE,
+        'default' => 5,
+      ),
+      'max_length' => array(
+        'description' => 'Maximum length of accepted query.',
+        'type' => 'int',
+        'size' => 'tiny',
+        'not null' => TRUE,
+        'default' => 10,
+      ),
+    ),
+    'primary key' => array('name'),
+  );
+
+  $schema['atjs_listener_usage'] = array(
+    'fields' => array(
+      'aluid' => array(
+        'description' => 'The unique ID for this usage record.',
+        'type' => 'serial',
+        'size' => 'small',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ),
+      'listener' => array(
+        'description' => 'The machine-name for the listener.',
+        'type' => 'varchar',
+        'length' => '32',
+        'not null' => FALSE,
+        'default' => '',
+      ),
+      'source_entity_type' => array(
+        'description' => 'The entity type of the entity which has the field, and is the source of the mention.',
+        'type' => 'varchar',
+        'length' => '128',
+        'not null' => TRUE,
+        'default' => '',
+      ),
+      'source_bundle' => array(
+        'type' => 'varchar',
+        'length' => 128,
+        'not null' => TRUE,
+        'default' => '',
+      ),
+      'source_field_name' => array(
+        'type' => 'varchar',
+        'length' => 32,
+        'not null' => TRUE,
+        'description' => 'The name of the field which the listener is attached to, and the mention is in.',
+      ),
+      'source_entity_id' => array(
+        'description' => 'The unique ID of the object from where entity is being mentioned.',
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'mentioned_entity_type' => array(
+        'description' => 'The entity type of the entity is being mentioned.',
+        'type' => 'varchar',
+        'length' => '128',
+        'not null' => TRUE,
+        'default' => '',
+      ),
+      'mentioned_entity_id' => array(
+        'description' => 'The unique ID of the object, being mentioned.',
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'uid' => array(
+        'description' => 'ID of Drupal user who created the mention.',
+        'type' => 'int',
+        'not null' => TRUE,
+      ),
+      'language' => array(
+        'type' => 'varchar',
+        'length' => 32,
+        'not null' => TRUE,
+        'default' => '',
+      ),
+    ),
+    'indexes' => array(
+      'listener' => array('listener'),
+      'source_entity_type' => array('source_entity_type'),
+      'source_entity_id' => array('source_entity_id'),
+      'uid' => array('uid'),
+    ),
+    'foreign keys' => array(
+      'mention_author' => array(
+        'table' => 'users',
+        'columns' => array('uid' => 'uid'),
+      ),
+    ),
+    'primary key' => array('aluid'),
+  );
+
+  return $schema;
+}

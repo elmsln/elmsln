@@ -1,0 +1,925 @@
+<?php
+
+/**
+ * @file
+ * atjs.module
+ */
+
+/**
+ * Implements hook_permission().
+ */
+function atjs_permission() {
+  return array(
+    'access atjs' => array(
+      'title' => t('Use At.js'),
+    ),
+    'administer atjs' => array(
+      'title' => t('Administer At.js'),
+    ),
+  );
+}
+
+/**
+ * Implements hook_menu().
+ */
+function atjs_menu() {
+  $items = array();
+
+  $items['atjs/ajax/%atjs_listener/%'] = array(
+    'title' => 'At.js Listener callback',
+    'type' => MENU_CALLBACK,
+    'page callback' => 'atjs_ajax_callback',
+    'page arguments' => array(2, 3),
+    'access arguments' => array('access atjs'),
+  );
+
+  return $items;
+}
+
+/**
+ * Implements hook_ctools_plugin_directory().
+ */
+function atjs_ctools_plugin_directory($module, $type) {
+  if ($type == 'export_ui') {
+    return 'plugins/export_ui';
+  }
+}
+
+/**
+ * Implements hook_theme().
+ */
+function atjs_theme($existing, $type, $theme, $path) {
+  return array(
+    'atjs_link' => array(
+      'variables' => array(
+        'listener' => NULL,
+        'entity' => NULL,
+      ),
+    ),
+  );
+}
+
+/**
+ * Load a single listener.
+ *
+ * @param string $name
+ *   The listener identifier.
+ */
+function atjs_listener_load($name) {
+  ctools_include('export');
+  $result = ctools_export_load_object('atjs_listener', 'names', array($name));
+
+  return isset($result[$name]) ? $result[$name] : NULL;
+}
+
+/**
+ * Export a atjs_listener.
+ *
+ * @param object $obj
+ *   The atjs object.
+ * @param string $indent
+ *   An identifier.
+ *
+ * @return string
+ *   The export definition.
+ */
+function atjs_listener_export($obj, $indent = '') {
+  ctools_include('export');
+  $output = ctools_export_object('atjs_listener', $obj, $indent);
+  return $output;
+}
+
+/**
+ * Delete an At.js listener.
+ *
+ * @param object $object
+ *   The atjs object.
+ */
+function atjs_delete_listener($object) {
+  $value = is_object($object) ? $object->name : $object;
+  db_delete('atjs_listener')
+    ->condition('name', $value)
+    ->execute();
+
+  // Remove usage records.
+  if (is_object($object) && $object->record_usage) {
+    db_query('DELETE FROM {atjs_listener_usage} WHERE name = :name', array(
+        ':name' => $object->name,
+      )
+    );
+  }
+}
+
+/**
+ * Implements hook_form_FORM_ID_alter().
+ */
+function atjs_form_field_ui_field_edit_form_alter(&$form, &$form_state, $form_id) {
+  $fields = array('text_textarea_with_summary', 'text_textarea');
+  if (in_array($form['#instance']['widget']['type'], $fields)) {
+    $form['instance']['widget']['settings']['atjs_fieldset'] = array(
+      '#title' => t('At.js'),
+      '#type' => 'fieldset',
+    );
+
+    $form['instance']['widget']['settings']['atjs_fieldset']['atjs'] = array(
+      '#title' => t('Enable At.js listeners for this field'),
+      '#type' => 'checkbox',
+      '#description' => t('Tick to enable At.js listeners for this field, note that the field must use input formats which correspond to the selected listeners.'),
+      '#default_value' => isset($form['#instance']['widget']['settings']['atjs_fieldset']['atjs']) ? $form['#instance']['widget']['settings']['atjs_fieldset']['atjs'] : NULL,
+    );
+
+    // Load listeners.
+    ctools_include('export');
+    $listeners = ctools_export_load_object('atjs_listener');
+
+    if (!empty($listeners)) {
+      $options = array();
+      foreach ($listeners as $name => $listener) {
+        $options[$name] = check_plain($listener->title);
+      }
+
+      $form['instance']['widget']['settings']['atjs_fieldset']['atjs_listeners'] = array(
+        '#title' => t('At.js Listeners that should be active on this field'),
+        '#type' => 'checkboxes',
+        '#options' => $options,
+        '#default_value' => isset($form['#instance']['widget']['settings']['atjs_fieldset']['atjs_listeners']) ? $form['#instance']['widget']['settings']['atjs_fieldset']['atjs_listeners'] : array(),
+        '#states' => array(
+          'visible' => array(
+            ':input[id="edit-instance-widget-settings-atjs-fieldset-atjs"]' => array('checked' => TRUE),
+          ),
+        ),
+      );
+    }
+    else {
+      $form['instance']['widget']['settings']['atjs_text'] = array(
+        '#type' => 'item',
+        '#markup' => t('No listeners have been defined.'),
+      );
+    }
+  }
+}
+
+/**
+ * Implements hook_element_info_alter().
+ */
+function atjs_element_info_alter(&$type) {
+  $type['textarea']['#pre_render'][] = 'atjs_pre_render';
+  $type['text_format']['#pre_render'][] = 'atjs_pre_render';
+}
+
+/**
+ * Implements hook_field_attach_form().
+ */
+function atjs_field_attach_form($entity_type, $entity, &$form, &$form_state, $langcode) {
+  $fields = field_info_instances($entity_type, $form['#bundle']);
+  // Check if any of the fields has an atjs setting.
+  foreach ($fields as $field_name => $value) {
+    if (isset($value['widget']['settings']['atjs_fieldset']['atjs']) && !empty($value['widget']['settings']['atjs_fieldset']['atjs_listeners'])) {
+      $elements[$field_name] = $value;
+    }
+  }
+  if (isset($elements)) {
+    _atjs_children($form, $elements);
+  }
+}
+
+/**
+ * Recursively add the atjs properties to the elements
+ * of a form
+ *
+ * @todo: This function is currently only working for fieldapi fields.
+ *
+ * @param $element
+ *   The form element to start looking for
+ * @param $atjs_elements
+ *   An associative array of api field elements as returned by
+ *   field_info_instances().
+ */
+function _atjs_children(&$element, $atjs_elements) {
+  $children = element_get_visible_children($element);
+  foreach ($children as $child) {
+    if (isset($element[$child]['#field_name']) && isset($atjs_elements[$element[$child]['#field_name']]['widget']['settings']['atjs_fieldset']['atjs']) &&
+        $atjs_elements[$element[$child]['#field_name']]['widget']['settings']['atjs_fieldset']['atjs'] && !empty($atjs_elements[$element[$child]['#field_name']]['widget']['settings']['atjs_fieldset']['atjs_listeners'])) {
+      $element[$child]['#atjs_listeners'] = $atjs_elements[$element[$child]['#field_name']]['widget']['settings']['atjs_fieldset']['atjs_listeners'];
+    }
+
+    _atjs_children($element[$child], $atjs_elements);
+  }
+}
+
+function atjs_pre_render($element) {
+  if (empty($element['#atjs_listeners'])) {
+    return $element;
+  }
+
+  $element['#attributes']['class'][] = 'atjs';
+
+  libraries_load('caret.js');
+  libraries_load('at.js');
+
+  $js_settings = array(
+    'data' => array(
+      'atjs' => array(),
+    ),
+    'type' => 'setting',
+  );
+
+  foreach ($element['#atjs_listeners'] as $listener_name) {
+    $listener = atjs_listener_load($listener_name);
+
+    if ($listener) {
+      $js_settings['data']['atjs'][$element['#id']][$listener_name] = array(
+        'at' => filter_xss($listener->at),
+        'tpl' => filter_xss($listener->tpl),
+        'insert_tpl' => filter_xss($listener->insert_tpl),
+        'limit' => filter_xss($listener->query_limit),
+        'max_len' => filter_xss($listener->max_length),
+        'search_key' => filter_xss(str_replace('property:', '', $listener->search_key)),
+      );
+    }
+  }
+
+  $element['#attached']['css'][] = drupal_get_path('module', 'atjs') . '/css/atjs.css';
+  $element['#attached']['js'][] = drupal_get_path('module', 'atjs') . '/js/atjs.js';
+  $element['#attached']['js'][] = $js_settings;
+
+  return $element;
+}
+
+/**
+ * Implements hook_libraries_info().
+ */
+function atjs_libraries_info() {
+  $libraries = array();
+
+  $libraries['caret.js'] = array(
+    'name' => 'Caret.js',
+    'vendor url' => 'https://github.com/ichord/Caret.js',
+    'download url' => 'https://github.com/ichord/Caret.js/releases',
+    'version arguments' => array(
+      'file' => 'package.json',
+      'pattern' => '/"version": "([0-9\.]+)"/',
+      'lines' => 5,
+    ),
+    'path' => 'src',
+    'files' => array(
+      'js' => array('jquery.caret.js'),
+    ),
+  );
+
+  $libraries['at.js'] = array(
+    'name' => 'At.js',
+    'vendor url' => 'https://github.com/ichord/At.js',
+    'download url' => 'https://github.com/ichord/At.js/releases',
+    'version arguments' => array(
+      'file' => 'package.json',
+      'pattern' => '/"version": "([0-9\.]+)"/',
+      'lines' => 9,
+    ),
+    'files' => array(
+      'css' => array('src/jquery.atwho.css'),
+      'js' => array('dist/js/jquery.atwho.js'),
+    ),
+  );
+
+  return $libraries;
+}
+
+/**
+ * Implements hook_ctools_export_ui_form().
+ */
+function atjs_ctools_export_ui_form(&$form, &$form_state) {
+  $listener = $form_state['item'];
+
+  // Add in default values where needed.
+  if (empty($listener->tpl)) {
+    $listener->tpl = '<li data-value="${atwho-at}${name}">${name}</li>';
+  }
+  if (empty($listener->insert_tpl)) {
+    $listener->insert_tpl = '<span>${atwho-data-value}</span>';
+  }
+  if (empty($listener->bundles)) {
+    $listener->bundles = array();
+  }
+  if (empty($listener->data_to_supply)) {
+    $listener->data_to_supply = array();
+  }
+
+  // Check Libraries are present
+  $caretjs_missing = FALSE;
+  $atjs_missing = FALSE;
+  if (($library = libraries_detect('caret.js')) && empty($library['installed'])) {
+    $caretjs_missing = TRUE;
+  }
+  if (($library = libraries_detect('at.js')) && empty($library['installed'])) {
+    $atjs_missing = TRUE;
+  }
+  if ($caretjs_missing || $atjs_missing) {
+    if ($caretjs_missing && $atjs_missing) {
+      $libraries_missing = 'Caret.js and At.js';
+    }
+    elseif ($caretjs_missing) {
+     $libraries_missing = 'Caret.js';
+    }
+    elseif ($atjs_missing) {
+      $libraries_missing = 'At.js';
+    }
+    drupal_set_message(t('The !missing Library files were not found, please refer to README.md for instructions on how to install.', array('!missing' => $libraries_missing)), 'error');
+  }
+
+  // Build the form!
+
+  // At.js specifics.
+  $form['at'] = array(
+    '#title' => t('"At" trigger character'),
+    '#type' => 'textfield',
+    '#required' => TRUE,
+    '#default_value' => $listener->at,
+    '#maxlength' => 10,
+    '#description' => t('A character or string to initiate searching, for example @ for user.'),
+  );
+
+  // Templates.
+  $form['tpl'] = array(
+    '#title' => t('Autocomplete template'),
+    '#type' => 'textarea',
+    '#required' => TRUE,
+    '#default_value' => $listener->tpl,
+    '#description' => t('The template to display results with in the autocomplete menu.'),
+  );
+  $form['insert_tpl'] = array(
+    '#title' => t('Insert template'),
+    '#type' => 'textarea',
+    '#required' => TRUE,
+    '#default_value' => $listener->insert_tpl,
+    '#description' => t('This template is only used when in "contentEditable" mode, like in WYSWIWYG editors.'),
+  );
+
+  // Limits.
+  $form['query_limit'] = array(
+    '#title' => t('Number of autocomplete results to show'),
+    '#type' => 'textfield',
+    '#required' => TRUE,
+    '#element_validate' => array('element_validate_integer_positive'),
+    '#default_value' => $listener->query_limit,
+  );
+  $form['max_length'] = array(
+    '#title' => t('Maximum length of the accepted query'),
+    '#type' => 'textfield',
+    '#required' => TRUE,
+    '#element_validate' => array('element_validate_integer_positive'),
+    '#default_value' => $listener->max_length,
+  );
+
+  // Entity type to target.
+  $options = array();
+  foreach (entity_get_info() as $entity_type => $entity_info) {
+    $options[$entity_type] = filter_xss($entity_info['label']);
+  }
+
+  $form['entity_type'] = array(
+    '#title' => t('Target entity type'),
+    '#type' => 'select',
+    '#options' => $options,
+    '#required' => TRUE,
+    '#default_value' => $listener->entity_type,
+    '#ajax' => array(
+      'callback' => 'atjs_form_bundle_ajax_callback',
+      'wrapper' => 'settings_ajax_wrapper',
+    ),
+  );
+
+  $form['record_usage'] = array(
+    '#title' => t('Record autocomplete results usage'),
+    '#type' => 'checkbox',
+    '#default_value' => $listener->record_usage,
+    '#description' => t('Store in the database each time an entity is mentioned within a target text field. This will allow developers to determine new mentions and when mentions are removed.'),
+  );
+
+  // Entity related settings.
+  $form['settings'] = array(
+    '#title' => t('Search and template settings'),
+    '#type' => 'fieldset',
+    '#collapsible' => FALSE,
+    '#collapsed' => FALSE,
+    '#prefix' => '<div id="settings_ajax_wrapper">',
+    '#suffix' => '</div>',
+  );
+
+  // If the entity type that's been selected, allow the
+  // selection of bundles.
+  $entity_info = entity_get_info();
+  $listener_entity_type = $listener->entity_type != '' ? $listener->entity_type : key($entity_info);
+  $selected_entity_type = !empty($form_state['values']['entity_type']) ? $form_state['values']['entity_type'] : $listener_entity_type;
+
+  if (!empty($entity_info[$selected_entity_type]['entity keys']['bundle'])) {
+    $options = array();
+    foreach ($entity_info[$selected_entity_type]['bundles'] as $bundle_name => $bundle) {
+      $options[$bundle_name] = check_plain($bundle['label']);
+    }
+
+    $form['settings']['bundles'] = array(
+      '#title' => t('Bundles'),
+      '#title_display' => 'before',
+      '#type' => 'checkboxes',
+      '#options' => $options,
+      '#default_value' => $listener->bundles,
+      '#required' => TRUE,
+    );
+  }
+  else {
+    $form['settings']['bundles'] = array(
+      '#type' => 'value',
+      '#value' => array(),
+    );
+  }
+
+  // Build a list of properties and fields.
+  $entity_properties = $entity_info[$selected_entity_type]['schema_fields_sql']['base table'];
+  $options = array();
+  if (!empty($entity_properties)) {
+    foreach ($entity_properties as $property) {
+      $property_plain = check_plain($property);
+      $options[t('Properties')]["property:$property_plain"] = $property_plain;
+    }
+  }
+  $entity_fields = array();
+  if ($entity_info[$selected_entity_type]['fieldable']) {
+    $entity_fields = field_info_instances($selected_entity_type);
+
+    if (!empty($entity_fields[$selected_entity_type])) {
+      foreach ($entity_fields[$selected_entity_type] as $field_name => $field) {
+        $options[t('Fields')]["field:$field_name"] = check_plain($field['label']);
+      }
+    }
+  }
+
+  // Properties on the selected entity type.
+  $form['settings']['search_key'] = array(
+    '#title' => t('Entity property or field to search against'),
+    '#type' => 'select',
+    '#options' => $options,
+    '#required' => TRUE,
+    '#default_value' => $listener->search_key,
+  );
+
+  // Properties or fields to supply to the template.
+  $options = array();
+  if (!empty($entity_properties)) {
+    foreach ($entity_properties as $property) {
+      $options[$property] = t('Property: @label', array('@label' => $property));
+    }
+  }
+  if (!empty($entity_fields[$selected_entity_type])) {
+    foreach ($entity_fields[$selected_entity_type] as $field_name => $field) {
+      $options[$field_name] = t('Field: @label', array('@label' => $field['label']));
+    }
+  }
+  $form['settings']['data_to_supply'] = array(
+    '#title' => t('Data to supply to template'),
+    '#title_display' => 'before',
+    '#type' => 'checkboxes',
+    '#options' => $options,
+    '#default_value' => $listener->data_to_supply,
+    '#required' => TRUE,
+    '#description' => t('Data to make available to the templates. Data should be used in the form of ${name}.'),
+  );
+}
+
+/**
+ * Listener add/edit AJAX callback.
+ */
+function atjs_form_bundle_ajax_callback($form, $form_state) {
+  return $form['settings'];
+}
+
+/**
+ * Main listener callback.
+ */
+function atjs_ajax_callback($listener, $search_query) {
+  $results = array(
+    'rows' => array(),
+    'entities' => array(),
+  );
+
+  // Get some results! Build a query.
+  $query = new EntityFieldQuery();
+  $query->entityCondition('entity_type', $listener->entity_type);
+  if (!empty($listener->bundles)) {
+    $query->entityCondition('bundle', $listener->bundles, 'IN');
+  }
+
+  $bundles = !empty($listener->bundles) ? $listener->bundles : $listener->entity_type;
+
+  // Search specified property
+  $property_search_key = strpos($listener->search_key, 'property:') === 0;
+  if ($property_search_key) {
+    $property_name = substr($listener->search_key, 9);
+    $query->propertyCondition($property_name, $search_query, 'STARTS_WITH');
+  }
+  // Search a field.
+  else {
+    $field_name = substr($listener->search_key, 6);
+    $field_info = field_info_field($field_name);
+    $field_column = key($field_info['columns']);
+    $query->fieldCondition($field_name, $field_column, $search_query, 'STARTS_WITH');
+  }
+
+  // Add sort.
+  if ($property_search_key) {
+    $query->propertyOrderBy($property_name);
+  }
+  else {
+    $query->fieldOrderBy($field_name, $field_column);
+  }
+
+  // Limit results.
+  $query->range(0, $listener->query_limit);
+
+  // Add in some default modifications dependent on entity type.
+  switch ($listener->entity_type) {
+    case 'node':
+      if (!user_access('bypass node access') && !count(module_implements('node_grants'))) {
+        $query->propertyCondition('status', NODE_PUBLISHED);
+      }
+      break;
+    case 'user':
+      // Make sure users aren't blocked, odd there isn't a constant for that.
+      if (!user_access('administer users')) {
+        $query->propertyCondition('status', 1);
+      }
+      $query->entityCondition('entity_id', 0, '>');
+      break;
+  }
+
+  // Allow modules to alter the query.
+  $context = array(
+    'listener' => clone $listener,
+  );
+  drupal_alter('atjs_ajax_query', $query, $context);
+
+  // Execute.
+  $result = $query->execute();
+
+  if (isset($result[$listener->entity_type])) {
+    $result_ids = array_keys($result[$listener->entity_type]);
+    $entities = entity_load($listener->entity_type, $result_ids);
+
+    if (!empty($entities)) {
+      foreach ($entities as $entity_id => $entity) {
+        $result = array();
+        $wrapper = entity_metadata_wrapper($listener->entity_type, $entity);
+        $property_info = $wrapper->getPropertyInfo();
+
+        foreach ($listener->data_to_supply as $data) {
+          if ($data && !empty($property_info[$data])) {
+            $result[$data] = $wrapper->{$data}->value(array('sanitize' => TRUE));
+          }
+        }
+
+        $results['entities'][$entity_id] = $entity;
+        $results['rows'][$entity_id] = $result;
+      }
+    }
+  }
+
+  // Allow modules to alter the results.
+  drupal_alter('atjs_ajax_results', $results, $context);
+
+  drupal_json_output(array_values($results['rows']));
+  drupal_exit();
+}
+
+/**
+ * Implements hook_filter_info().
+ */
+function atjs_filter_info() {
+  $filters['atjs'] = array(
+    'title' => t('At.js filter'),
+    'description' => t('Replace inline references with themed links.'),
+    'settings callback' => '_atjs_filter_settings',
+    'process callback' => '_atjs_filter_process',
+    'default settings' => array(
+      'atjs_listeners' => array(),
+    ),
+  );
+
+  return $filters;
+}
+
+/**
+ * Filter settings callback for atjs filter.
+ */
+function _atjs_filter_settings($form, $form_state, $filter, $format, $defaults) {
+  // Load listeners.
+  $options = array();
+  ctools_include('export');
+  $listeners = ctools_export_load_object('atjs_listener');
+
+  if (!empty($listeners)) {
+    $options = array();
+    foreach ($listeners as $name => $listener) {
+      $options[$name] = check_plain($listener->title);
+    }
+  }
+
+  $settings['atjs_listeners'] = array(
+    '#title' => t('Listeners to process'),
+    '#type' => 'checkboxes',
+    '#options' => $options,
+    '#default_value' => isset($filter->settings['atjs_listeners']) ? $filter->settings['atjs_listeners'] : $defaults['atjs_listeners'],
+    '#description' => t('Listeners to be processed, this should correspond to textarea field settings.'),
+  );
+
+  return $settings;
+}
+
+class AtjsPregCallback {
+  private $listener;
+  private $replacements = array();
+
+  public function __construct($listener) {
+    $this->listener = $listener;
+  }
+
+  public function execute($text) {
+    return preg_replace_callback("/[\\" . $this->listener->at . ']{' . drupal_strlen($this->listener->at) . '}([a-zA-Z0-9-_]+)/', array($this, 'match_replace'), $text);
+  }
+
+  public function match_replace($matches) {
+    $entity = _atjs_filter_match_load_entity($this->listener, $matches[1]);
+
+    if ($entity) {
+      // Allow modules to respond to an entity replacing text.
+      $listener = clone $this->listener;
+      module_invoke_all('atjs_entity_replaced', $listener, $entity);
+
+      $variables = array(
+        'listener' => $this->listener,
+        'entity' => $entity,
+      );
+
+      // Record the replacement.
+      if ($this->listener->record_usage) {
+        list($id, $vid, $bundle) = entity_extract_ids($this->listener->entity_type, $entity);
+        $this->replacements[$matches[1]] = $id;
+      }
+
+      return theme('atjs_link', $variables);
+    }
+    else {
+      return $matches[0];
+    }
+  }
+
+  public function get_replacements() {
+    return $this->replacements;
+  }
+}
+
+/**
+ * Filter process callback for At.js filter.
+ */
+function _atjs_filter_process($text, $filter, $format, $langcode, $cache, $cache_id) {
+  if (empty($filter->settings['atjs_listeners'])) {
+    return $text;
+  }
+
+  foreach ($filter->settings['atjs_listeners'] as $listener_name) {
+    $listener = atjs_listener_load($listener_name);
+
+    if (empty($listener) || !empty($listener->at) && strpos($text, $listener->at) === FALSE) {
+      continue;
+    }
+
+    $replace = new AtjsPregCallback($listener);
+    $text = $replace->execute($text);
+  }
+
+  return $text;
+}
+
+function _atjs_filter_match_load_entity($listener, $match) {
+  $entity = NULL;
+  $load_function = NULL;
+  $entity_info = entity_get_info();
+  $load_arguments = array($match);
+
+  if (!empty($entity_info)) {
+    $id_key = $entity_info[$listener->entity_type]['entity keys']['id'];
+
+    if ($listener->search_key === $id_key) {
+      $load_function = 'entity_load_single';
+      $load_arguments = array(
+        $listener->entity_type,
+        $match,
+      );
+    }
+    elseif ($listener->entity_type === 'user' && $listener->search_key === 'property:name') {
+      $load_function = 'user_load_by_name';
+    }
+    elseif ($listener->entity_type === 'user' && $listener->search_key === 'property:mail') {
+      $load_function = 'user_load_by_mail';
+    }
+    elseif ($listener->entity_type === 'taxonomy_term' && $listener->search_key === 'property:name') {
+      $load_function = 'taxonomy_get_term_by_name';
+    }
+
+    $context = array(
+      'listener' => clone $listener,
+    );
+    drupal_alter('atjs_filter_match_load_entity', $load_function, $load_arguments, $context);
+    // bail early if we don't have a load function at this point to avoid error
+    if (empty($load_function)) {
+      return FALSE;
+    }
+    $entity = call_user_func_array($load_function, $load_arguments);
+  }
+
+  return $entity;
+}
+
+function atjs_preprocess_atjs_link(&$variables) {
+  $variables['classes_array'] = array(
+    'atwho',
+    'atwho-' . drupal_html_class($variables['listener']->name),
+  );
+}
+
+/**
+ * Theme implementation for atjs_link.
+ */
+function theme_atjs_link($variables) {
+  $listener = $variables['listener'];
+  $entity = $variables['entity'];
+  $classes = implode(' ', $variables['classes_array']);
+
+  $entity_label = entity_label($listener->entity_type, $entity);
+  $entity_uri = entity_uri($listener->entity_type, $entity);
+
+  return '<span class="' . $classes . '">' . l($entity_label, $entity_uri['path']) . '</span> ';
+}
+
+/**
+ * Implements hook_field_attach_insert().
+ */
+function atjs_field_attach_insert($entity_type, $entity) {
+  atjs_field_attach_check_usage($entity_type, $entity);
+}
+
+/**
+ * Implements hook_field_attach_update().
+ */
+function atjs_field_attach_update($entity_type, $entity) {
+  atjs_field_attach_check_usage($entity_type, $entity);
+}
+
+function atjs_field_attach_check_usage($entity_type, $entity) {
+  list($id, $vid, $bundle) = entity_extract_ids($entity_type, $entity);
+  $language = entity_language($entity_type, $entity);
+  $language = !empty($language) ? $language : LANGUAGE_NONE;
+
+  foreach (field_info_instances($entity_type, $bundle) as $instance) {
+    if (!in_array($instance['widget']['type'], array('text_textarea_with_summary', 'text_textarea'))) {
+      continue;
+    }
+
+    $field = field_info_field_by_id($instance['field_id']);
+    $field_id = $field['id'];
+    $field_name = $field['field_name'];
+    if (!empty($entity->$field_name) && !empty($instance['widget']['settings']['atjs_fieldset']['atjs']) && $instance['widget']['settings']['atjs_fieldset']['atjs'] && !empty($instance['widget']['settings']['atjs_fieldset']['atjs_listeners'])) {
+      foreach ($instance['widget']['settings']['atjs_fieldset']['atjs_listeners'] as $listener_name) {
+        $listener = atjs_listener_load($listener_name);
+
+        if (!empty($listener) && $listener->record_usage) {
+          foreach (field_get_items($entity_type, $entity, $field_name, $language) as $delta => $field) {
+            $replace = new AtjsPregCallback($listener);
+            $replace->execute($field['value']);
+            $replacements = $replace->get_replacements();
+
+            // Get the last recorded replacements.
+            $recorded_replacements = db_query('SELECT mentioned_entity_id FROM {atjs_listener_usage} WHERE listener = :name AND source_entity_type = :type AND source_entity_id = :id AND language = :language', array(
+                ':name' => $listener->name,
+                ':type' => $entity_type,
+                ':id' => $id,
+                ':language' => $language,
+              )
+            )->fetchAllAssoc('mentioned_entity_id');
+
+            if (!empty($replacements) || !empty($recorded_replacements)) {
+              $recorded_replacements = array_keys($recorded_replacements);
+              $replacements = array_values($replacements);
+              $new_mentions = array();
+              $removed_mentions = array();
+              $listener_clone = clone $listener;
+
+              // Work out if there are any new mentions.
+              if (!empty($replacements)) {
+                if (empty($recorded_replacements)) {
+                  $new_mentions = $replacements;
+                }
+                else {
+                  foreach ($replacements as $replacement) {
+                    if (!in_array($replacement, $recorded_replacements)) {
+                      $new_mentions[] = $replacement;
+                    }
+                  }
+                }
+              }
+
+              // Add in new mentions to database.
+              if (!empty($new_mentions)) {
+                // Allow other modules to respond.
+                module_invoke_all('atjs_new_entity_mentions', $listener_clone, $entity_type, $entity, $listener_clone->entity_type, $new_mentions);
+
+                $insert_values = array();
+                foreach ($new_mentions as $new_mention) {
+                  $insert_values[] = array(
+                    'listener' => $listener->name,
+                    'source_entity_type' => $entity_type,
+                    'source_bundle' => $bundle,
+                    'source_field_name' => $field_name,
+                    'source_entity_id' => $id,
+                    'mentioned_entity_type' => $listener->entity_type,
+                    'mentioned_entity_id' => $new_mention,
+                    'uid' => $entity->uid,
+                    'language' => $language,
+                  );
+                }
+                $insert_query = db_insert('atjs_listener_usage')->fields(array_keys($insert_values[0]));
+                foreach ($insert_values as $record) {
+                  $insert_query->values($record);
+                }
+                $insert_query->execute();
+              }
+
+              // Work out which mentions have been removed.
+              if (!empty($recorded_replacements)) {
+                if (empty($replacements) && !empty($recorded_replacements)) {
+                  $removed_mentions = $recorded_replacements;
+                }
+                elseif (!empty($replacements)) {
+                  foreach ($recorded_replacements as $recorded_replacement) {
+                    if (!in_array($recorded_replacement, $replacements)) {
+                      $removed_mentions[] = $recorded_replacement;
+                    }
+                  }
+                }
+              }
+
+              // Mentions have been removed!
+              if (!empty($removed_mentions)) {
+                // Allow other modules to respond.
+                module_invoke_all('atjs_new_entity_mentions_removed', $listener_clone, $entity_type, $entity, $listener_clone->entity_type, $removed_mentions);
+
+                foreach ($removed_mentions as $removed_mention) {
+                  db_query('DELETE FROM {atjs_listener_usage}
+                    WHERE listener = :listener
+                    AND source_entity_type = :source_entity_type
+                    AND source_entity_id = :source_entity_id
+                    AND language = :language
+                    AND mentioned_entity_type = :mentioned_entity_type
+                    AND mentioned_entity_id = :mentioned_entity_id', array(
+                      ':listener' => $listener->name,
+                      ':source_entity_type' => $entity_type,
+                      ':source_entity_id' => $id,
+                      ':language' => $language,
+                      ':mentioned_entity_type' => $listener->entity_type,
+                      ':mentioned_entity_id' => $removed_mention,
+                    )
+                  );
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
+
+/**
+ * Implements hook_entity_delete().
+ *
+ * Remove any usage entries.
+ */
+function atjs_entity_delete($entity, $type) {
+  list($id, $vid, $bundle) = entity_extract_ids($type, $entity);
+  db_query('DELETE FROM {atjs_listener_usage} WHERE source_entity_type = :type AND source_entity_id = :id OR mentioned_entity_type = :type AND mentioned_entity_id = :id', array(
+      ':type' => $type,
+      ':id' => $id,
+    )
+  );
+}
+
+/**
+ * Implements hook_field_delete_instance().
+ */
+function atjs_field_delete_instance($instance) {
+  db_query('DELETE FROM {atjs_listener_usage} WHERE source_entity_type = :type AND source_bundle = :bundle AND field_name = :field_name', array(
+      ':type' => $instance['entity_type'],
+      ':bundle' => $instance['bundle'],
+      ':field_name' => $instance['field_name'],
+    )
+  );
+}

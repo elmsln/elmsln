@@ -1,0 +1,17 @@
+diff --git a/atjs.module b/atjs.module
+index 33f1778..4845c07 100755
+--- a/atjs.module
++++ b/atjs.module
+@@ -275,10 +275,9 @@ function atjs_libraries_info() {
+       'pattern' => '/"version": "([0-9\.]+)"/',
+       'lines' => 9,
+     ),
+-    'path' => 'src',
+     'files' => array(
+-      'css' => array('jquery.atwho.css'),
+-      'js' => array('jquery.atwho.js'),
++      'css' => array('src/jquery.atwho.css'),
++      'js' => array('dist/js/jquery.atwho.js'),
+     ),
+   );
+ 

@@ -1,0 +1,11 @@
+name = At.js
+description = Provides an inline autocomplete within textareas.
+core = 7.x
+
+dependencies[] = ctools
+dependencies[] = jquery_update (>=7.x-2.3)
+dependencies[] = libraries
+
+package = Other
+
+files[] = plugins/export_ui/atjs_ctools_export_ui.class.php

@@ -1,0 +1,18 @@
+.atwho-view,
+.atwho-view small,
+.atwho-view strong,
+.atwho-view .cur small,
+.atwho-view .cur strong {
+  color: #3b3b3b;
+}
+
+.atwho-view ul li img {
+  display: inline-block;
+  vertical-align: bottom;
+  margin-right: 5px;
+}
+
+.atwho-view .cur {
+    background: #eee;
+    color: #3b3b3b;
+}

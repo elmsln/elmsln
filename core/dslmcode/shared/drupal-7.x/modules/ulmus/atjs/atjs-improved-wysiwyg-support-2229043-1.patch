@@ -1,0 +1,71 @@
+diff --git a/js/atjs.js b/js/atjs.js
+index 24f89be..4eda336 100644
+--- a/js/atjs.js
++++ b/js/atjs.js
+@@ -1,18 +1,20 @@
+ (function($) {
+   var drupal_atjs = drupal_atjs || {};
+-
++  $(document).ready(function(){
++    drupal_atjs.ckeditor();
++    drupal_atjs.tinymce();
++  });
+   Drupal.behaviors.atjs = {
+     attach: function(context, settings) {
+       drupal_atjs['storage'] = {};
+-
+-      if (Drupal.wysiwyg != undefined) {
++      if (Drupal.wysiwyg !== undefined) {
+         $.each(Drupal.wysiwyg.editor.init, function(editor) {
+           if (typeof drupal_atjs[editor] == 'function') {
+             drupal_atjs[editor](context);
+           }
+         });
+       }
+-      else if (Drupal.settings.ckeditor != undefined) {
++      else if (Drupal.settings.ckeditor !== undefined) {
+         drupal_atjs.ckeditor(context);
+       }
+ 
+@@ -54,14 +56,14 @@
+         }
+       });
+     }
+-  }
++  };
+ 
+   /**
+    * Integrate with ckEditor.
+    */
+   drupal_atjs.ckeditor = function(context) {
+     var onlyOnce = false;
+-    if (!onlyOnce) {
++    if (!onlyOnce && typeof CKEDITOR == 'object') {
+       onlyOnce = true;
+       CKEDITOR.on('instanceReady', function(e) {
+         var editor = $('#' + e.editor.name + '.atjs');
+@@ -70,14 +72,14 @@
+         }
+       });
+     }
+-  }
++  };
+ 
+   /**
+    * Integrate with TinyMCE.
+    */
+   drupal_atjs.tinymce = function(context) {
+     var onlyOnce = false;
+-    if (!onlyOnce) {
++    if (!onlyOnce && typeof tinyMCE == 'object') {
+       onlyOnce = true;
+       tinyMCE.onAddEditor.add(function(mgr, ed) {
+         var editor = $('#' + ed.editorId + '.atjs');
+@@ -88,6 +90,6 @@
+         }
+       });
+     }
+-  }
++  };
+ 
+ })(jQuery);
