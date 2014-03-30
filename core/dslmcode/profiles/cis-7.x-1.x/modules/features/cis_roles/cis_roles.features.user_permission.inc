@@ -278,7 +278,9 @@ function cis_roles_user_default_permissions() {
   // Exported permission: 'cis setup admin options'.
   $permissions['cis setup admin options'] = array(
     'name' => 'cis setup admin options',
-    'roles' => array(),
+    'roles' => array(
+      'administrator' => 'administrator',
+    ),
     'module' => 'cis_helper',
   );
 
@@ -569,7 +571,9 @@ function cis_roles_user_default_permissions() {
   // Exported permission: 'create instructional_model content'.
   $permissions['create instructional_model content'] = array(
     'name' => 'create instructional_model content',
-    'roles' => array(),
+    'roles' => array(
+      'administrator' => 'administrator',
+    ),
     'module' => 'node',
   );
 
@@ -633,7 +637,9 @@ function cis_roles_user_default_permissions() {
   // Exported permission: 'delete any instructional_model content'.
   $permissions['delete any instructional_model content'] = array(
     'name' => 'delete any instructional_model content',
-    'roles' => array(),
+    'roles' => array(
+      'administrator' => 'administrator',
+    ),
     'module' => 'node',
   );
 
@@ -694,7 +700,9 @@ function cis_roles_user_default_permissions() {
   // Exported permission: 'delete own instructional_model content'.
   $permissions['delete own instructional_model content'] = array(
     'name' => 'delete own instructional_model content',
-    'roles' => array(),
+    'roles' => array(
+      'administrator' => 'administrator',
+    ),
     'module' => 'node',
   );
 
@@ -766,7 +774,9 @@ function cis_roles_user_default_permissions() {
   // Exported permission: 'edit any instructional_model content'.
   $permissions['edit any instructional_model content'] = array(
     'name' => 'edit any instructional_model content',
-    'roles' => array(),
+    'roles' => array(
+      'administrator' => 'administrator',
+    ),
     'module' => 'node',
   );
 
@@ -1371,7 +1381,9 @@ function cis_roles_user_default_permissions() {
   // Exported permission: 'edit own instructional_model content'.
   $permissions['edit own instructional_model content'] = array(
     'name' => 'edit own instructional_model content',
-    'roles' => array(),
+    'roles' => array(
+      'administrator' => 'administrator',
+    ),
     'module' => 'node',
   );
 
