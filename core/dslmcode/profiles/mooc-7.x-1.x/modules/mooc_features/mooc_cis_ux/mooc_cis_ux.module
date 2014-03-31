@@ -56,36 +56,7 @@ function mooc_cis_ux_page_build(&$page) {
           // useful for custom college / university integrations
           drupal_alter('cis_section_list', $sections);
         }
-        // see if we should print anything
-        if (!empty($sections)) {
-          // list sections out
-          $output = '<div id="mooc_active_outline_flag">';
-          foreach ($sections as $key => $section) {
-            $output .= l($section, 'node/' . $key) . ' ';
-          }
-          $output .= '</ul></div>';
-          // append output to screen to indicate section relation
-          drupal_add_css(drupal_get_path('module', 'mooc_cis_ux') . '/mooc_cis_ux.css');
-          $page['page_bottom']['mooc_cis_ux'] = array(
-            '#weight' => 100,
-            '#type' => 'markup',
-            '#markup' => $output,
-          );
-        }
       }
-    }
-    else if (in_array(arg(0), array('welcome_page', 'syllabus','course-help','resources'))) {
-      // get section context if this isn't a book page
-      $output = '<div id="mooc_active_outline_flag">';
-      $output .= _cis_connector_section_context();
-      $output .= '</ul></div>';
-      // append output to screen to indicate section relation
-      drupal_add_css(drupal_get_path('module', 'mooc_cis_ux') . '/mooc_cis_ux.css');
-      $page['page_bottom']['mooc_cis_ux'] = array(
-        '#weight' => 100,
-        '#type' => 'markup',
-        '#markup' => $output,
-      );
     }
   }
 }
