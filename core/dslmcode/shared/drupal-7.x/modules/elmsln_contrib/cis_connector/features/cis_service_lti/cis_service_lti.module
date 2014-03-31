@@ -1,0 +1,44 @@
+<?php
+/**
+ * @file
+ * Code for the CIS Service LTI feature.
+ */
+
+include_once 'cis_service_lti.features.inc';
+
+/**
+ * Recreate the lti consumer locally.
+ */
+function _cis_service_lti_get_consumer() {
+  // return the lti details for the associated service
+  // @ignore druplart_conditional_assignment
+  if ($settings = _cis_connector_build_registry('cis')) {
+    $address = $settings['protocol'] . '://' . $settings['address'];
+  }
+  if (!$settings) {
+    return FALSE;
+  }
+  $query = array(
+    'lti_tool_provider_consumer_consumer' => $address,
+  );
+  $cis_section_item = _cis_connection_query($query, 'lti_tool_provider_consumer');
+  // capture the first result, we'll only allow one LTI for sync up
+  $item = $cis_section_item['list'][0];
+  // this is generated locally on creation so set to 0 for new
+  $item['lti_tool_provider_consumer_id'] = 0;
+  // make sure all fields are at least set, no defaults
+  $info = entity_get_info('lti_tool_provider_consumer');
+  // step through each reported property of the base table
+  foreach ($info['schema_fields_sql']['base table'] as $field) {
+    // if field definition isn't set, mark it empty
+    if (!isset($item[$field])) {
+      $item[$field] = '';
+    }
+  }
+  // typecast as object
+  $entity = (object) $item;
+  // save entity, recreating it locally
+  $entity = lti_tool_provider_consumer_save($entity);
+  // return the saved item should we so choose
+  return $entity;
+}

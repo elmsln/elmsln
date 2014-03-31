@@ -1,0 +1,72 @@
+<?php
+/**
+ * @file
+ * Reroute watchdog logs from this site to a related service.
+ */
+
+/**
+ * Implements hook_cis_service_registry_alter().
+ *
+ * This is a rare edgecase where you'd want to modify the registry
+ * and do so contextually.
+ */
+function cis_remote_watchdog_cis_service_registry_alter(&$registry) {
+  $distro = variable_get('install_profile', FALSE);
+  // make sure this distro is valid in our network
+  if (isset($registry[$distro])) {
+    // divert to a connection address relative to the distro implementing it
+    $registry['remote_watchdog']['service_address'] = $registry[$distro]['service_address'] . '/watchdog';
+    $registry['remote_watchdog']['address'] = $registry[$distro]['address'] . '/watchdog';
+  }
+}
+
+/**
+ * Impements hook_watchdog().
+ */
+function cis_remote_watchdog_watchdog(array $log_entry) {
+  // build a message w/ the user / uid written into it
+  // this is because we can't assume the UIDs match in the
+  // remote service
+  $msg = $log_entry['message'];
+  // write some info into variables for serious error debugging
+  $admin_notices = array(WATCHDOG_EMERGENCY, WATCHDOG_ALERT, WATCHDOG_CRITICAL, WATCHDOG_ERROR, WATCHDOG_WARNING);
+  // limit messages only to certain groups
+  if (array_key_exists($log_entry['severity'], $admin_notices)) {
+    if (isset($log_entry['user']->name)) {
+      $name = $log_entry['user']->name;
+    }
+    else {
+      $name = ' ';
+    }
+    if (isset($log_entry['user']->mail)) {
+      $mail = $log_entry['user']->mail;
+    }
+    else {
+      $mail = ' ';
+    }
+    $log_entry['variables']['_cis_user'] = $name;
+    $log_entry['variables']['_cis_mail'] = $mail;
+    $log_entry['variables']['_cis_uid'] = $log_entry['uid'];
+    $log_entry['variables']['_cis_distro'] = variable_get('install_profile', '');
+    $log_entry['variables']['_cis_instance'] = str_replace('/', '', base_path());
+    $log_entry['variables']['_cis_service_instance'] = variable_get('cis_service_instance_uuid', '');
+    $log_entry['variables']['_cis_user_agent'] = filter_xss($_SERVER['HTTP_USER_AGENT']);
+  }
+  // build the data array to ship off
+  $data = array(
+    'uid' => 1,
+    'type' => substr($log_entry['type'], 0, 64),
+    'message' => $msg,
+    'variables' => serialize($log_entry['variables']),
+    'severity' => $log_entry['severity'],
+    'referer' => (empty($log_entry['referer']) ? $log_entry['request_uri'] : $log_entry['referer']),
+    'location' => $log_entry['request_uri'],
+    'link' => substr($log_entry['link'], 0, 255),
+    'hostname' => substr($log_entry['ip'], 0, 128),
+    'timestamp' => $log_entry['timestamp'],
+  );
+  // force message to be sent without waiting for confirmation
+  $call_options = array('blocking' => FALSE);
+  // push watchdog message to remote_watchdog without waiting for a response
+  _cis_connection_object(NULL, 'watchdog', NULL, 'POST', $data, 'remote_watchdog', '', FALSE, '', $call_options);
+}

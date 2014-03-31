@@ -1,0 +1,12 @@
+name = CIS Service RestWS
+description = Adds Restful webservice support to any distribution that implements it.  Creates account based on registry too.
+core = 7.x
+package = CIS Connector
+dependencies[] = features
+dependencies[] = restws
+dependencies[] = cis_connector
+features[features_api][] = api:1
+features[features_overrides][] = user_permission.access content.roles|SERVICE ACCOUNT
+features[features_overrides][] = user_permission.bypass node access.roles|SERVICE ACCOUNT
+features[user_permission][] = access resource node
+features[user_role][] = SERVICE ACCOUNT

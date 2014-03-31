@@ -1,0 +1,8 @@
+# Ignore stupid mac files
+*.DS_Store
+.DS_Store
+# Ignore stupid dreamweaver files
+*dwsync.xml
+*_notes/*
+dwsync.xml
+_notes

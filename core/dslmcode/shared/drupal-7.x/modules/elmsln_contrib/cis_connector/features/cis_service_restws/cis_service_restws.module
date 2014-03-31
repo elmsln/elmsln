@@ -1,0 +1,100 @@
+<?php
+/**
+ * @file
+ * Code for the CIS Service RestWS feature.
+ */
+
+include_once 'cis_service_restws.features.inc';
+
+/**
+ * Alter the outgoing response.
+ *
+ * @param mixed $response
+ *   The response data being returned by the REST service (not yet serialized).
+ * @param string $function
+ *   The function being called on the REST service.
+ * @param string $format_name
+ *   The name of the format serializing the response.
+ *
+ * related issue https://drupal.org/node/2024603
+ */
+function cis_service_restws_restws_response_alter(&$response, $function, $format_name) {
+  // specific modifications based common request type
+  if (($function == 'viewResource' || $function == 'queryResource') && $format_name == 'json' && isset($_GET['deep-load-refs'])) {
+    // query response is nested, direct access is not
+    if ($function == 'queryResource') {
+      foreach ($response['list'] as &$object) {
+        _cis_service_restws_restws_deep_load($object);
+      }
+    }
+    else {
+      _cis_service_restws_restws_deep_load($response);
+    }
+  }
+}
+
+/**
+ * Callback to perform deep load on a base entity
+ *
+ * @param $response
+ *   response about to be sent back for the RestWS query
+ * @return NULL
+ *   this will load additional items into the response, filtering their
+ *   fields based on account access to the deep loaded items.
+ */
+function _cis_service_restws_restws_deep_load(&$response) {
+  // build list of allowed entity types to deep pull down
+  $allowed = explode(',', $_GET['deep-load-refs']);
+  // allow for deep loading of resources
+  foreach ($response as $key => &$val) {
+    // check for a single resource verses many
+    if (is_array($val) && isset($val[0]['id'])) {
+      // loop through items loading them in
+      foreach ($val as &$item) {
+        if (in_array($item['resource'], $allowed)) {
+          // load the entity
+          $entity = entity_load_single($item['resource'], $item['id']);
+          // ensure they can view this specific item
+          if (entity_access('view', $item['resource'], $entity)) {
+            // create a meta wrapper to act on for entity
+            $wrapper = entity_metadata_wrapper($item['resource'], $entity);
+            // filter out these values
+            $wrap = restws_property_access_filter($wrapper);
+            $eary = (array) $entity;
+            foreach ($eary as $property => $value) {
+              // value needs to be removed as it didn't pass wrapper validation
+              if (!isset($wrap[$property])) {
+                unset($eary[$property]);
+              }
+            }
+            // add values based on wrapper passing correctly
+            $item = $eary;
+          }
+        }
+      }
+    }
+    elseif (is_array($val) && isset($val['id'])) {
+      if (in_array($val['resource'], $allowed)) {
+        // load the entity
+        $entity = entity_load_single($val['resource'], $val['id']);
+        // ensure they can view this specific item
+        if (entity_access('view', $val['resource'], $entity)) {
+          // create a meta wrapper to act on for entity
+          $wrapper = entity_metadata_wrapper($val['resource'], $entity);
+          // filter out fields
+          $wrap = restws_property_access_filter($wrapper);
+          // typecast entity as array for property evaluation
+          $eary = (array) $entity;
+          foreach ($eary as $property => $value) {
+            // value needs to be removed as it didn't pass wrapper validation
+            if (!isset($wrap[$property])) {
+              unset($eary[$property]);
+            }
+          }
+          // add values based on wrapper passing correctly
+          $val = $eary;
+        }
+      }
+    }
+  }
+}

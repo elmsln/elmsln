@@ -1,0 +1,6 @@
+name = ELMSLN API
+description = Works with drupalapi distro to allow for auto setup of API documentation site
+core = 7.x
+package = ELMSLN
+files[] = elmslnapi.module
+
