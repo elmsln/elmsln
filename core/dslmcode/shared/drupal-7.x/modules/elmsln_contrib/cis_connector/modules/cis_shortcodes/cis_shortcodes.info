@@ -1,6 +1,0 @@
-name = CIS Shortcodes
-description = Generate shortcodes for different resources for referencing in content outside of this system
-core = 7.x
-package = CIS
-files[] = cis_shortcodes.module
-dependencies[] = cis_connector

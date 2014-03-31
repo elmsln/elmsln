@@ -1,5 +1,0 @@
-name = CIS LMS-less
-description = Branding to stitch together the CIS experience with quick links between tools to form a LMS-less structure.
-core = 7.x
-package = CIS Connector
-dependencies[] = cis_connector

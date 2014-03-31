@@ -1,7 +1,0 @@
-name = CIS Account required
-description = This drops anonymous users from being able to access anything
-core = 7.x
-package = CIS Connector
-features[features_api][] = api:1
-features[features_overrides][] = user_permission.access content.roles|anonymous user
-features[features_overrides][] = user_permission.view regions_right_slideout region.roles|anonymous user
