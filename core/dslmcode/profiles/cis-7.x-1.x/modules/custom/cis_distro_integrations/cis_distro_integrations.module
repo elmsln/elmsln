@@ -8,9 +8,9 @@
  * Implements hook_cis_service_instance_TOOL_options_alter().
  */
 function cis_distro_integrations_cis_service_instance_courses_options_alter(&$options, $course, $service) {
-    // revert the mooc ux defaults, they struggle to automatically
-    $options['fr'][] = 'mooc_ux_defaults';
-    $options['fr'][] = 'mooc_cis_ux';
+  // revert the mooc ux defaults, they struggle to automatically
+  $options['fr'][] = 'mooc_ux_defaults';
+  $options['fr'][] = 'mooc_cis_ux';
 }
 
 /**
