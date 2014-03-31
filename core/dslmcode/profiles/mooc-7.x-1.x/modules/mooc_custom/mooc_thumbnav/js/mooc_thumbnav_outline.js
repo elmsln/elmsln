@@ -10,6 +10,10 @@
         $(this).attr('src', $(this).attr('src').replace('outline.png', 'outline-click.png'));
         var text = '';
         var title = $(this).attr('alt');
+        // support for lmsless-bar services list
+        if ($('.cis-lmsless-bar-services').length > 0) {
+          text += '<select class="cis-lmsless-mobile">' + $('.cis-lmsless-bar-services').html() + '</select>';
+        }
         if ($('#block-system-main-menu').length > 0) {
           text += $('#block-system-main-menu').html();
         }

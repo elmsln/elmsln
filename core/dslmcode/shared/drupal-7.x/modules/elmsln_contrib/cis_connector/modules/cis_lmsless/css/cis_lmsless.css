@@ -47,3 +47,10 @@
   color:#eeeeee;
   height: 20px;
 }
+
+/* hide the bar when on a phone */
+@media screen and (max-width: 739px) {
+  .cis-lmsless-bar {
+    display:none;
+  }
+}
