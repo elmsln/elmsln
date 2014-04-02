@@ -1,0 +1,128 @@
+<?php
+
+/**
+ * @file
+ * Install, update and uninstall functions for the css_injector module.
+ *
+ */
+
+/**
+ * Implements hook_install().
+ */
+function css_injector_install() {
+}
+
+/**
+ * Implements hook_schema().
+ */
+function css_injector_schema() {
+  $schema['css_injector_rule'] = array(
+    'fields' => array(
+      'crid' => array(
+        'description' => 'The primary identifier for the CSS injection rule',
+        'type' => 'serial',
+        'unsigned' => TRUE,
+        'not null' => TRUE),
+      'title' => array(
+        'description' => 'The descriptive title of the CSS injection rule',
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => TRUE),
+      'rule_type' => array(
+        'description' => 'The type of rule to use when determining if the CSS should be injected',
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 0),
+      'rule_conditions' => array(
+        'description' => 'The data to evaluate when determining if the CSS should be injected',
+        'type' => 'text',
+        'not null' => TRUE),
+      'rule_themes' => array(
+        'description' => 'Themes that CSS rule will be applied to',
+        'type' => 'text',
+        'not null' => TRUE),
+      'media' => array(
+        'description' => 'The media type of the CSS file (screen, print, etc.)',
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => TRUE),
+      'preprocess' => array(
+        'description' => 'Whether the CSS file should be included by the CSS preprocessor',
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 0),
+      'enabled' => array(
+        'description' => 'Whether the rules should be enabled',
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 1),
+    ),
+    'primary key' => array('crid'),
+  );
+  return $schema;
+}
+
+/**
+ * Adds enabled rule and themes list.
+ */
+function css_injector_update_7002() {
+  $enabled = array(
+    'description' => 'Whether the rules should be enabled',
+    'type' => 'int',
+    'unsigned' => TRUE,
+    'not null' => TRUE,
+    'default' => 1,
+  );
+  $themes = array(
+    'description' => 'Themes that CSS rule will be applied to',
+    'type' => 'text',
+  );
+  if (!db_field_exists('css_injector_rule', 'enabled')) {
+    db_add_field( 'css_injector_rule', 'enabled', $enabled);
+  }
+  if (!db_field_exists('css_injector_rule', 'rule_themes')) {
+    db_add_field( 'css_injector_rule', 'rule_themes', $themes);
+  } else {
+    db_change_field('css_injector_rule', 'rule_themes', 'rule_themes', array('type' => 'text', 'not null' => FALSE));
+  }
+}
+
+/**
+ * Implements hook_uninstall().
+ */
+function css_injector_uninstall() {
+  cache_clear_all('css_injector:*', 'cache', TRUE);
+  $rules = db_query("SELECT * FROM {css_injector_rule}", array(), array('fetch' => PDO::FETCH_ASSOC))->fetchAllAssoc('crid');
+  module_load_include('module', 'css_injector');
+  foreach($rules as $crid => $rule) {
+    file_unmanaged_delete(_css_injector_rule_uri($crid));
+  }
+  db_drop_table('css_injector_rule');
+}
+
+/**
+ * Implements hook_requirements().
+ * We'll use this to prevent installation of the module if the file directory
+ * is not available and writable.
+ */
+function css_injector_requirements($phase) {
+  $status = REQUIREMENT_OK;
+  $dir = 'public://css_injector';
+  if (!file_prepare_directory($dir, FILE_MODIFY_PERMISSIONS)) {
+    if (!file_prepare_directory($dir, FILE_CREATE_DIRECTORY)) {
+      $status = REQUIREMENT_ERROR;
+    }
+  }
+  $requirements = array(
+    'css_injector' => array(
+      'title' => t('CSS Injector directory writable'),
+      'description' => $status == REQUIREMENT_OK ? t('CSS Injector Directory %dir is writable', array('%dir' => $dir)) : t('Directory %dir is not writable', array('%dir' => $dir)),
+      'severity' => $status,
+      'value' => $status == REQUIREMENT_OK ? t('Writable') : t('Not writable'),
+    ),
+  );
+  return $requirements;
+}

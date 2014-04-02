@@ -1,0 +1,13 @@
+name = Style guide palette
+description = Stores and displays color palettes.
+core = 7.x
+dependencies[] = styleguide
+configure = admin/config/user-interface/styleguide-palette
+files[] = styleguide_palette.test
+
+; Information added by drupal.org packaging script on 2013-05-02
+version = "7.x-1.1"
+core = "7.x"
+project = "styleguide"
+datestamp = "1367467219"
+

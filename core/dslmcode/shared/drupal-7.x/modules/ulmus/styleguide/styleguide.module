@@ -1,0 +1,683 @@
+<?php
+
+/**
+ * Implements hook_help().
+ */
+function styleguide_help($path, $arg) {
+  $output = '';
+  switch ($path) {
+    // Main module help for the Style guide module.
+    case 'admin/help#styleguide':
+      $output .= '<p>' . t('Provides a visual testing page for Drupal themes. Quickly compare the display of common elements across your themes, and verify that your new theme addresses all common style elements.') . '</p>';
+
+      $output .= '<p>' . t('The Style Guide module creates a preview page for displaying common theme elements in all active themes for your Drupal site. The module comes with previews for common HTML elements, such as tables, forms, links and lists.') . '</p>';
+
+      $output .= '<p>' . t('You can preview the styleguide at !url', array('!url' => l(t('admin/appearance/styleguide'), "admin/appearance/styleguide"))) . '</p>';
+
+      break;
+  }
+
+  return $output;
+}
+
+/**
+ * Implements hook_menu().
+ */
+function styleguide_menu() {
+  $default = variable_get('theme_default', 'bartik');
+  $items['admin/appearance/styleguide'] = array(
+    'title' => 'Style guide',
+    'page callback' => 'styleguide_page',
+    'weight' => 40,
+    'access arguments' => array('view style guides'),
+    'theme callback' => '_styleguide_page_theme',
+    'theme arguments' => array($default),
+  );
+  foreach (list_themes() as $theme) {
+    $is_default = $theme->name == $default;
+    $items['admin/appearance/styleguide/' . $theme->name] = array(
+      'title' => $theme->info['name'],
+      'page callback' => 'styleguide_page',
+      'page arguments' => array($theme->name),
+      'type' => $is_default ? MENU_DEFAULT_LOCAL_TASK : MENU_LOCAL_TASK,
+      'access callback' => 'styleguide_access_check',
+      'access arguments' => array($theme),
+      'weight' => $is_default ? -10 : 0,
+      'theme callback' => '_styleguide_page_theme',
+      'theme arguments' => array($theme->name),
+    );
+  }
+  return $items;
+}
+
+/**
+ * Implements hook_admin_paths().
+ */
+function styleguide_admin_paths() {
+  $paths = array(
+    'admin/appearance/styleguide' => FALSE,
+    'admin/appearance/styleguide/*' => FALSE,
+  );
+
+  return $paths;
+}
+
+/**
+ * Theme callback for the styleguide pages.
+ */
+function _styleguide_page_theme($theme) {
+  return $theme;
+}
+
+/**
+ * Implements hook_theme().
+ */
+function styleguide_theme($existing, $type, $theme, $path) {
+  $themes = array(
+    'styleguide_header' => array(
+      'variables' => array('theme_info' => array()),
+    ),
+    'styleguide_links' => array(
+      'variables' => array('items' => array()),
+    ),
+    'styleguide_item' => array(
+      'variables' => array('key' => NULL, 'item' => array(), 'content' => NULL),
+    ),
+    'styleguide_content' => array(
+      'variables' => array('content' => NULL),
+    ),
+  );
+  foreach ($themes as $theme => $data) {
+    $themes[$theme]['file'] = 'styleguide.theme.inc';
+  }
+  return $themes;
+}
+
+/**
+ * Implements hook_permission().
+ */
+function styleguide_permission() {
+  $permissions = array(
+    'view style guides' => array(
+      'title' => t('View theme style guides'),
+    )
+  );
+  return $permissions;
+}
+
+/**
+ * Menu access callback.
+ */
+function styleguide_access_check($theme) {
+  if (!user_access('view style guides')) {
+    return FALSE;
+  }
+  if (drupal_theme_access($theme)) {
+    return TRUE;
+  }
+  return FALSE;
+}
+
+/**
+ * The styleguide page.
+ */
+function styleguide_page($theme = NULL) {
+  // Get the path to the module for loading includes.
+  $path = drupal_get_path('module', 'styleguide');
+
+  // TODO: notice about the Overlay module?
+
+  // Check the theme.
+  if (is_null($theme)) {
+    $theme = variable_get('theme_default', 'bartik');
+  }
+
+  // Get theme data.
+  $themes = list_themes();
+  $active = $themes[$theme];
+
+  // Include modules for which we implement styleguides.
+  $modules = module_list();
+  foreach ($modules as $module) {
+    if (file_exists($path . '/modules/' . $module . '.inc')) {
+      include_once $path . '/modules/' . $module . '.inc';
+    }
+  }
+
+  // Get visual testing elements.
+  $items = module_invoke_all('styleguide');
+  drupal_alter('styleguide', $items);
+
+  // Get theme style information.
+  $theme_info = $active->info;
+  drupal_alter('styleguide_theme_info', $theme_info, $theme);
+
+  $groups = array();
+  foreach ($items as $key => $item) {
+    if (!isset($item['group'])) {
+      $item['group'] = t('Common');
+    }
+    else {
+      $item['group'] = t('@group', array('@group' => $item['group']));
+    }
+    $item['title'] = t('@title', array('@title' => $item['title']));
+    $groups[$item['group']][$key] = $item;
+  }
+  ksort($groups);
+  // Create a navigation header.
+  $header = array();
+  $head = '';
+  $content = '';
+  // Process the elements, by group.
+  foreach ($groups as $group => $elements) {
+    foreach ($elements as $key => $item) {
+      $display = '';
+      // Output a standard theme item.
+
+      if (isset($item['theme'])) {
+        $display = theme($item['theme'], $item['variables']);
+      }
+      // Output a standard HTML tag. In Drupal 7, the preference
+      // is to pass theme('html_tag') instead. This is kept for API
+      // compatibility with Drupal 6.
+      elseif (isset($item['tag']) && isset($item['content'])) {
+        if (empty($item['attributes'])) {
+          $display = '<' . $item['tag'] . '>' . $item['content'] . '</' . $item['tag'] . '>';
+        }
+        else {
+          $display = '<' . $item['tag'] . ' ' . drupal_attributes($item['attributes']) . '>' . $item['content'] . '</' . $item['tag'] . '>';
+        }
+      }
+      // Support a renderable array for content.
+      elseif (isset($item['content']) && is_array($item['content'])) {
+        $display = drupal_render($item['content']);
+      }
+      // Just print the provided content.
+      elseif (isset($item['content'])) {
+        $display = $item['content'];
+      }
+      // Add the content.
+      $content .= theme('styleguide_item', array('key' => $key, 'item' => $item, 'content' => $display));
+      // Prepare the header link.
+      $header[$group][] = l($item['title'], $_GET['q'], array('fragment' => $key));
+    }
+    $head .= theme('item_list', array('items' => $header[$group], 'title' => $group));
+  }
+  // Return the page.
+  $build = array();
+  $build['header']['#markup'] = theme('styleguide_header', array('theme_info' => $theme_info));
+  $build['navigation']['#markup']= theme('styleguide_links', array('items' => $head));
+  $build['content']['#markup'] = theme('styleguide_content', array('content' => $content));
+  $build['content']['#attached']['css'][] = $path . '/styleguide.css';
+  return $build;
+}
+
+/**
+ * Implements hook_hook_info().
+ */
+function styleguide_hook_info() {
+  $hooks['styleguide'] = array(
+    'group' =>  'styleguide',
+  );
+  return $hooks;
+}
+
+/**
+ * Return a simple array of words.
+ *
+ * @param $size
+ *   The size of the list to return.
+ * @return
+ *   An array of words.
+ */
+function styleguide_list($size = 5, $words = 3) {
+  $items = array();
+  for ($i = 0; $i < $size; $i++) {
+    $items[] = styleguide_word($words, 'ucfirst');
+  }
+  return $items;
+}
+
+/**
+ * Return a random word or words.
+ *
+ * @param $size
+ *   The number of words to return.
+ * @param $case
+ *   A string indicating the case to return. This is the name of a PHP function.
+ *   options are 'ucfirst', 'ucwords', 'strtoupper', and 'strtolower'.
+ *   Defaults to return strtolower().
+ */
+function styleguide_word($size = 1, $case = 'strtolower') {
+  $words = styleguide_lorem(1, $size, 'lower', FALSE, FALSE);
+  $functions = array('ucfirst', 'ucwords', 'strtoupper', 'strtolower');
+  if (!is_null($case) && function_exists($case) && in_array($case, $functions)) {
+    $words = $case($words);
+  }
+  return $words;
+}
+
+/**
+ * Return a random table header array.
+ *
+ * @param $size
+ *   The size of the list to return.
+ * @return
+ *   An array of header elements.
+ */
+function styleguide_header($size = 5) {
+  $header = styleguide_list($size);
+  return $header;
+}
+
+/**
+ * Return a random table row array.
+ *
+ * @param $size
+ *   The size of the list to return.
+ * @return
+ *   An array of row elements.
+ */
+function styleguide_rows($size = 5) {
+  $rows = array();
+  for ($i = 0; $i < $size; $i++) {
+    $rows[] = styleguide_list($size);
+  }
+  return $rows;
+}
+
+/**
+ * Lorum ipsum text, used to generate words and phrases.
+ *
+ * @param $size
+ *   The size of the list to return.
+ * @param $words
+ *   The number of words to return. Pass 0 for a whole paragraph.
+ * @param $case
+ *   The case of the text. Options are 'mixed', 'upper' and 'lower'.
+ * @param $returns
+ *   Indicates whether line returns should not be stripped out of the result.
+ * @param $punctuation
+ *   Indicates whether punctuation should not be stripped out of the result.
+ * @param $array
+ *   Indicates that the return value should be an array instead of a string.
+ * @return
+ *   A string or array of content.
+ */
+function styleguide_lorem($size = 5, $words = 0, $case = 'mixed', $returns = TRUE, $punctuation = TRUE, $array = FALSE) {
+  $text = <<<EOT
+Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aliquam iaculis, velit gravida convallis tincidunt, felis enim venenatis lorem, nec lobortis nisl urna et mi. Pellentesque ac dictum ante. Fusce dignissim tempor elementum. Ut dignissim convallis eros, viverra luctus lacus consequat ac. Sed feugiat velit sed magna aliquam accumsan. Nam vitae porta tortor. Nam auctor dui a neque iaculis in aliquam erat viverra. Duis orci nunc, lacinia in malesuada et, euismod id turpis. Cras mattis vulputate erat, eget tempor magna egestas eu. Vestibulum sit amet massa est.
+
+Vivamus pretium placerat lorem, in tempor massa convallis sit amet. Aliquam sed quam eget ligula luctus aliquam sed vitae nulla. Aliquam dui dolor, ullamcorper eget rutrum ut, hendrerit ac lorem. Donec magna est, sollicitudin vel ultrices vel, mattis ut odio. Integer vel felis laoreet purus sollicitudin varius sed id ipsum. Suspendisse potenti. Praesent ut justo vitae metus luctus vehicula a et purus. Suspendisse potenti. Sed viverra, quam non hendrerit laoreet, massa odio blandit arcu, ac molestie metus diam eu tortor. Donec erat arcu, ultrices sit amet placerat non, feugiat in arcu. Mauris eros quam, varius eget volutpat vel, tristique sed est. In faucibus feugiat urna sit amet elementum. Integer consequat rhoncus libero, in molestie augue posuere et. Phasellus ac eleifend magna. Proin vulputate dui ac justo pharetra consequat. In vel iaculis ligula.
+
+Cras vestibulum lacus sit amet sem commodo ullamcorper aliquet eros vestibulum. Sed fermentum nulla quis risus suscipit dapibus. Sed vitae velit ut dolor varius semper at id lectus. Aenean quis leo sit amet tellus tempus cursus. Vivamus semper vehicula ante eget semper. In ac ipsum erat. Suspendisse lectus erat, commodo nec fringilla quis, interdum non leo. Vivamus et lectus vitae risus porta sollicitudin luctus eget est. Etiam quis elit vel est suscipit tristique. Nullam fringilla purus ac velit gravida ullamcorper. Praesent porttitor ante non lacus suscipit porta. Nunc fermentum sem et metus aliquam ultricies non sollicitudin nibh. Vestibulum ut ligula dolor, in placerat tortor. Sed nec lacus sed nibh iaculis luctus. Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas. Curabitur rutrum, diam vel tempor commodo, augue nunc viverra risus, in pellentesque neque justo eget dolor. Maecenas quis odio leo, a auctor lorem.
+
+Curabitur dapibus odio quis enim hendrerit eu placerat lorem accumsan. Phasellus sagittis, orci vel laoreet molestie, urna orci imperdiet elit, quis ultricies orci mauris vel ante. Cras pharetra, nisl a sagittis feugiat, turpis magna placerat sem, sed euismod erat elit in magna. Phasellus blandit ullamcorper diam vel porta. Vivamus mollis, metus nec tincidunt venenatis, risus odio sodales risus, vitae ultrices est nisi eget ante. Aenean eget nisi mi. Nulla non nulla nec metus rhoncus congue. Curabitur quis nunc nibh. Cras metus lorem, euismod ornare mattis sagittis, ultrices eget turpis. Integer quis dui tellus. Morbi vel dolor sit amet metus eleifend fringilla. Fusce nunc neque, ultricies et commodo semper, dignissim vitae tortor. Phasellus et ipsum quis sapien accumsan auctor. Morbi congue nulla vel tortor aliquet imperdiet. Morbi eget odio elit, et cursus odio. Quisque a velit diam. Duis urna libero, tempus non mattis a, convallis ac erat. Etiam vel dui posuere lectus auctor viverra vitae id eros. Maecenas mollis eros non elit sollicitudin quis fermentum diam lacinia. Quisque at ante nibh, a molestie ligula.
+
+Sed et enim nunc, nec vehicula sem. Sed risus orci, auctor et dictum at, hendrerit eu augue. Curabitur sed ante non quam fermentum vehicula. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nam tincidunt dictum molestie. Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia Curae; Phasellus nec urna ut lorem tempus aliquet eget nec lectus. Phasellus quis venenatis tortor. Integer elementum, sapien at feugiat cursus, tortor sapien adipiscing massa, non molestie elit lacus vel velit. Suspendisse sit amet sem id libero auctor pharetra sit amet ut dui. Aenean sit amet tellus sit amet ante congue faucibus. Nullam hendrerit, justo et iaculis tristique, ligula risus pretium erat, sed tempus lacus felis ut nulla.
+EOT;
+  if (!$punctuation) {
+    $text = str_replace(array(',', '.'), '', $text);
+  }
+  switch ($case) {
+    case 'mixed':
+      break;
+    case 'upper':
+      $text = strtoupper($text);
+      break;
+    case 'lower':
+      $text = strtolower($text);
+      break;
+  }
+  $graphs = explode("\n\n", $text);
+  $text = array_slice($graphs, 0, $size);
+  $spacer = ' ';
+  if ($returns) {
+    $spacer = "\n\n";
+  }
+  if ($words > 0) {
+    $elements = explode(' ', implode(' ', $text));
+    $output = array();
+    for ($i = 0; $i < $words; $i++) {
+      $val = array_rand($elements);
+      $output[] = $elements[$val];
+    }
+    return implode(' ', $output);
+  }
+  if (!$array) {
+    return implode($spacer, $text);
+  }
+  return $text;
+}
+
+/**
+ * Generate paragraph(s) of random text.
+ *
+ * @param $size
+ *   The number of paragraphs to return.
+ * @return
+ *   HTML paragraphs.
+ */
+function styleguide_paragraph($size = 5) {
+  $text = styleguide_lorem($size, 0, 'mixed', TRUE, TRUE, TRUE);
+  $output = '';
+  foreach ($text as $item) {
+    $output .= '<p>' . trim($item) . '</p>';
+  }
+  return $output;
+}
+
+/**
+ * Provide a default image for display.
+ *
+ * Images should be in the assets directory. The current images are
+ * (c) Ken Rickard and used by permission.
+ *
+ * @param $image
+ *   The name of the image. Will be prefixed with 'image-'.
+ * @param $type
+ *   The file type, (jpg, png, gif). Do not include a dot.
+ * @return
+ *    The Drupal path to the file.
+ */
+function styleguide_image($image = 'vertical', $type = 'jpg') {
+  $path = drupal_get_path('module', 'styleguide');
+  $filepath = $path . '/assets/image-' . $image . '.' . $type;
+  if (file_exists($filepath)) {
+    return $filepath;
+  }
+}
+
+/**
+ * Implements hook_system_theme_page_alter().
+ */
+function styleguide_system_themes_page_alter(&$theme_groups) {
+  if (!user_access('view style guides')) {
+    return;
+  }
+  foreach ($theme_groups as $group => $members) {
+    if (empty($group)) {
+      continue;
+    }
+    foreach ($members as $key => $theme) {
+      if (!styleguide_access_check($theme)) {
+        continue;
+      }
+      $theme_groups[$group][$key]->operations[] = array(
+        'title' => t('Style guide'),
+        'href' => 'admin/appearance/styleguide/' . $theme->name,
+        'attributes' => array('title' => t('Style guide for @theme', array('@theme' => $theme->info['name']))),
+      );
+    }
+  }
+}
+
+/**
+ * Generate a random sentence.
+ */
+function styleguide_sentence() {
+  $graph = strip_tags(styleguide_paragraph());
+  $explode = explode('.', $graph);
+  $rand = array_rand($explode);
+  return trim($explode[$rand]) . '.';
+}
+
+/**
+ * Provide results for the machine_name field's duplication check.
+ *
+ * @param $value
+ *   The submitted value.
+ * @return
+ *   The check isn't necessary here, so always return FALSE.
+ */
+function styleguide_machine_name_exists($value) {
+  return FALSE;
+}
+
+/**
+ * Sample form, showing all elements.
+ */
+function styleguide_form($form, &$form_state, $form_keys = array()) {
+  $form = array();
+  $options = array();
+  $list = styleguide_list();
+  foreach ($list as $item) {
+    $options[$item] = $item;
+  }
+  $form['select'] = array(
+    '#type' => 'select',
+    '#title' => t('Select'),
+    '#options' => $options,
+    '#description' => styleguide_sentence(),
+  );
+  $form['checkbox'] = array(
+    '#type' => 'checkbox',
+    '#title' => t('Checkbox'),
+    '#value' => 1,
+    '#default_value' => 1,
+    '#description' => styleguide_sentence(),
+  );
+  $form['checkboxes'] = array(
+    '#type' => 'checkboxes',
+    '#title' => t('Checkboxes'),
+    '#options' => $options,
+    '#description' => styleguide_sentence(),
+  );
+  $form['radios'] = array(
+    '#type' => 'radios',
+    '#title' => t('Radios'),
+    '#options' => $options,
+    '#description' => styleguide_sentence(),
+  );
+  $form['textfield'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Textfield'),
+    '#default_value' => styleguide_word(3, 'ucfirst'),
+    '#description' => styleguide_sentence(),
+  );
+  $form['autocomplete'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Autocomplete textfield'),
+    '#default_value' => styleguide_word(),
+    '#description' => styleguide_sentence(),
+    '#autocomplete_path' => 'user/autocomplete',
+  );
+  $form['textfield-machine'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Textfield, with machine name'),
+    '#default_value' => styleguide_word(3, 'ucfirst'),
+    '#description' => styleguide_sentence(),
+  );
+  $form['machine_name'] = array(
+    '#type' => 'machine_name',
+    '#title' => t('Machine name'),
+    '#machine_name' => array(
+      'exists' => 'styleguide_machine_name_exists',
+      'source' => array('textfield-machine'),
+    ),
+    '#description' => styleguide_sentence(),
+  );
+  $form['textarea'] = array(
+    '#type' => 'textarea',
+    '#title' => t('Textarea'),
+    '#default_value' => styleguide_paragraph(),
+    '#description' => styleguide_sentence(),
+  );
+  $form['date'] = array(
+    '#type' => 'date',
+    '#title' => t('Date'),
+    '#description' => styleguide_sentence(),
+  );
+  $form['file'] = array(
+    '#type' => 'file',
+    '#title' => t('File'),
+    '#description' => styleguide_sentence(),
+  );
+  $form['managed_file'] = array(
+    '#type' => 'managed_file',
+    '#title' => t('Managed file'),
+    '#description' => styleguide_sentence(),
+  );
+  $form['password'] = array(
+    '#type' => 'password',
+    '#title' => t('Password'),
+    '#default_value' => styleguide_word(),
+    '#description' => styleguide_sentence(),
+  );
+  $form['password_confirm'] = array(
+    '#type' => 'password_confirm',
+    '#title' => t('Password confirm'),
+  );
+  $form['weight'] = array(
+    '#type' => 'weight',
+    '#title' => t('Weight'),
+    '#delta' => 10,
+    '#description' => styleguide_sentence(),
+  );
+  $form['fieldset-collapsed'] = array(
+    '#type' => 'fieldset',
+    '#title' => t('Fieldset collapsed'),
+    '#collapsible' => TRUE,
+    '#collapsed' => TRUE,
+    '#description' => styleguide_sentence(),
+  );
+  $form['fieldset-collapsible'] = array(
+    '#type' => 'fieldset',
+    '#title' => t('Fieldset collapsible'),
+    '#collapsible' => TRUE,
+    '#description' => styleguide_sentence(),
+  );
+  $form['fieldset'] = array(
+    '#type' => 'fieldset',
+    '#title' => t('Fieldset'),
+    '#collapsible' => FALSE,
+    '#description' => styleguide_sentence(),
+  );
+  $fieldsets = array('fieldset', 'fieldset-collapsed', 'fieldset-collapsible');
+  $count = 0;
+  foreach ($form as $key => $value) {
+    if ($value['#type'] != 'fieldset' && $value['#type'] != 'checkbox' && $count < 2) {
+      $count++;
+      foreach ($fieldsets as $item) {
+        $form[$item][$key . '-' .  $item] = $value;
+      }
+    }
+  }
+  $form['vertical_tabs'] = array(
+    '#type' => 'vertical_tabs',
+  );
+  foreach ($fieldsets as $fieldset) {
+    $form['vertical_tabs'][$fieldset] = $form[$fieldset];
+  }
+  $form['markup'] = array(
+    '#markup' => t('<p><em>Markup</em>: Note that markup does not allow titles or descriptions. Use "item" for those options.</p>') . styleguide_paragraph(1),
+  );
+  $form['item'] = array(
+    '#type' => 'item',
+    '#title' => t('Item'),
+    '#markup' => styleguide_paragraph(1),
+    '#description' => styleguide_sentence(),
+  );
+  $form['image_button'] = array(
+    '#type' => 'image_button',
+    '#src' => 'misc/druplicon.png',
+    '#attributes' => array('height' => 20),
+    '#name' => t('Image button'),
+  );
+  $form['submit'] = array(
+    '#type' => 'submit',
+    '#value' => t('Submit'),
+  );
+  $form['button'] = array(
+    '#type' => 'button',
+    '#value' => t('Button'),
+  );
+  if (!empty($form_keys)) {
+    $items = array();
+    foreach ($form_keys as $key) {
+      if (isset($form[$key])) {
+        $items[$key] = $form[$key];
+      }
+    }
+    return $items;
+  }
+  return $form;
+}
+
+/**
+ * Simulate Drupal pagination,
+ *
+ * @param $size
+ *   The number of page numbers to display.
+ * @param $total
+ *   The total number of pages to simulate.
+ * @return
+ *   A Drupal pager HTML element.
+ */
+function styleguide_pager($size = 8, $total = 20) {
+  global $pager_page_array, $pager_total;
+  $pager_page_array[1] = $size;
+  $pager_total[1] = $total;
+  // For some reason, the pager breaks the page title.
+  drupal_set_title('Style guide');
+  return theme('pager', array('element' => 1));
+}
+
+/**
+ * Generate a array of random links
+ *
+ * @param $url
+ *   The internal path or external URL being linked to.
+ * @param $size
+ *   The total number of links to generate .
+ * @return
+ *   A array of random links
+ */
+function styleguide_links($url, $size = 4) {
+  $links = array();
+  for ($i = 0; $i < 5; $i++) {
+    $links[] = array(
+      'title' => styleguide_word(3),
+      'href' => $url,
+    );
+  }
+  return $links;
+}
+
+/**
+ * Generate a random menu item
+ *
+ * @param $url
+ *   The internal path or external URL being linked to.
+ * @return
+ *   A random menu item, see menu_tree_page_data for a description of the data structure.
+ */
+function styleguide_menu_item($url) {
+  $menu_item = array(
+    '#title' => styleguide_sentence(),
+    '#href' => $url, 
+    '#localized_options' => array(),
+    '#attributes' => array(),
+    '#below' => FALSE,
+  );
+  return $menu_item;
+}
+
+/**
+ * Generate a links array for theme_links.
+ */
+function styleguide_ul_links() {
+  $links = array();
+
+  for ($i = 0; $i <= 10; $i++) {
+    $word = styleguide_word();
+    $links[$word] = array(
+      'title' => $word,
+      'href' => current_path(),
+      'fragment' => 'ul_links',
+    );
+  }
+
+  return $links;
+}
+

@@ -1,0 +1,66 @@
+
+CHANGELOG file for Style Guide.
+
+04-MAR-2012
+-- Patch #1440510 by BWPanda. Do not use admin theme with Styleguide.
+
+25-JUN-2011
+-- Fixes use of example.com in README.
+
+07-MAY-2011
+-- Patch #1142982 by dcmouyard, tsi. Better color css handling.
+
+24-DEC-2010
+-- Patch #989082 by chalet16. Adds link theme support.
+-- Fixes title handling. Cleans up CSS. Uses proper render arrays.
+
+22-DEC-2010
+-- Patch #989072 by chalet16. Adds search and filter module support.
+
+21-DEC-2010
+-- Patch #989060 by chalet16. Adds forum and image module support.
+
+16-DEC-2010
+-- Patch #989076 by chalet16. Adds new elements to default support.
+
+04-DEC-2010
+-- Patch #949070 by dmitrig01. Adds module includes and features
+    from Style Guide GCI tasks.
+-- Changes the function signature of styleguide_word().
+-- Updates handling of styleguide_word() calls.
+
+23-OCT-2010
+-- Uses proper theming for page display.
+-- Adds styleguide.theme.inc.
+-- Documents preferred use of theme_html_tag().
+-- Fixes default page callback.
+
+22-OCT-2010
+-- #949758. Use t() normally.
+-- #949764. Suppert attributes for tags.
+
+21-OCT-2010
+-- Patch #948886 by Dave Reid. General code cleaup and renderable arrays.
+
+20-OCT-2010
+-- Adds bottom baseline to element displays.
+-- Adds more hook documentation.
+-- Adds optional element descriptions.
+-- Adds theme descriptions.
+-- Adds hook_styleguide_theme_info_alter().
+-- Adds basic tests for images within paragraphs.
+-- Splits forms into smaller chunks.
+
+19-OCT-2010
+-- README added (inadarei) and proofread (agentrickard).
+-- Adds group options to the API, cleaning the interface.
+-- Updates API documentation.
+-- Adds RTL css support.
+-- Fixes RTL file. Adds more padding on items.
+
+06-OCT-2010
+-- Adds hook_system_theme_page_alter().
+-- Adds new test items.
+
+05-OCT-2010
+-- Initial commit.

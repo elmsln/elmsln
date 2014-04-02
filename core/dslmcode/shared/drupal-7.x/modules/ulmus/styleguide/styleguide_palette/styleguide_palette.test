@@ -1,0 +1,260 @@
+<?php
+
+/**
+ * @file
+ * Tests for styleguide_palette.module.
+ */
+
+/**
+ * Provides a base class for Style guide palette tests.
+ */
+class StyleguidePaletteTestBase extends DrupalWebTestCase {
+
+  protected $profile = 'testing';
+
+  protected function setUp() {
+    $modules = func_get_args();
+    if (isset($modules[0]) && is_array($modules[0])) {
+      $modules = $modules[0];
+    }
+    $modules[] = 'styleguide_palette';
+    parent::setUp($modules);
+  }
+
+  /**
+   * Asserts themed output.
+   *
+   * @todo Remove once http://drupal.org/node/1706878 is committed.
+   *
+   * @param $callback
+   *   The name of the theme function to invoke; e.g. 'links' for theme_links().
+   * @param $variables
+   *   An array of variables to pass to the theme function.
+   * @param $expected
+   *   The expected themed output string.
+   * @param $message
+   *   (optional) A message to display with the assertion. Do not translate
+   *   messages: use format_string() to embed variables in the message text, not
+   *   t(). If left blank, a default message will be displayed.
+   * @param $group
+   *   (optional) The group this message is in, which is displayed in a column
+   *   in test output. Use 'Debug' to indicate this is debugging output. Do not
+   *   translate this string. Defaults to 'Other'; most tests do not override
+   *   this default.
+   *
+   * @return
+   *   TRUE on pass, FALSE on fail.
+   */
+  protected function assertThemeOutput($callback, array $variables = array(), $expected, $message = '', $group = 'Other') {
+    $output = theme($callback, $variables);
+    $this->verbose('Variables:' . '<pre>' .  check_plain(var_export($variables, TRUE)) . '</pre>'
+      . '<hr />' . 'Result:' . '<pre>' .  check_plain(var_export($output, TRUE)) . '</pre>'
+      . '<hr />' . 'Expected:' . '<pre>' .  check_plain(var_export($expected, TRUE)) . '</pre>'
+      . '<hr />' . $output
+    );
+    if (!$message) {
+      $message = '%callback rendered correctly.';
+    }
+    $message = format_string($message, array('%callback' => 'theme_' . $callback . '()'));
+    return $this->assertIdentical($output, $expected, $message, $group);
+  }
+
+}
+
+/**
+ * Tests style guide palette functionality.
+ */
+class StyleguidePaletteTest extends StyleguidePaletteTestBase {
+
+  /**
+   * A normal user.
+   *
+   * @var \stdClass
+   */
+  protected $webUser;
+
+  /**
+   * An admin user.
+   *
+   * @var \stdClass
+   */
+  protected $adminUser;
+
+  public static function getInfo() {
+    return array(
+      'name' => 'Style guide palette',
+      'description' => 'Tests style guide palette functionality.',
+      'group' => 'Style guide',
+    );
+  }
+
+  protected function setUp() {
+    parent::setUp();
+
+    $this->webUser = $this->drupalCreateUser(array('view style guides'));
+    $this->adminUser = $this->drupalCreateUser(array('view style guides', 'configure style guide palettes'));
+    $this->drupalLogin($this->adminUser);
+  }
+
+  /**
+   * Tests adding a new palette.
+   */
+  protected function testAddingSwatches() {
+    // Check the palette page before any have been added.
+    $this->drupalGet('admin/config/user-interface/styleguide-palette');
+    $this->assertText(t('There are no swatches yet.'));
+
+    // Add a new swatch.
+    $name = $this->randomName();
+    $edit = array(
+      'name' => $this->randomName(),
+      'description' => $this->randomName(),
+      'hex' => '#123456',
+    );
+    $this->drupalPost('admin/config/user-interface/styleguide-palette/edit', $edit, t('Save palette'));
+    $this->assertText(t('Style guide swatches added.'));
+    $this->assertFieldByXPath('//input[@name="palette[' . $edit['name'] . '][hex]"]', $edit['hex'], 'The newly added color swatch is shown.');
+
+    // View an existing swatch as a regular user.
+    $this->drupalLogin($this->webUser);
+    $this->drupalGet('admin/config/user-interface/styleguide-palette');
+
+    $this->assertRaw('<h3 class="styleguide-palette-swatch-name">' . $edit['name'] . '</h3>', 'The swatch name is found.');
+    $this->assertRaw('<div class="styleguide-palette-swatch-color" style="background-color: ' . $edit['hex'] . ';">&nbsp;</div>', 'The swatch sample is found.');
+    $this->assertRaw('<div class="styleguide-palette-swatch-description">' . $edit['description'] . '</div>', 'The swatch description is found.');
+  }
+
+  /**
+   * Tests editing an existing palette.
+   */
+  protected function testEditingSwatches() {
+    // Add a new swatch as the admin user.
+    $name = $this->randomName();
+    $edit = array(
+      'name' => $name,
+      'description' => $this->randomName(),
+      'hex' => '#123456',
+    );
+    $this->drupalPost('admin/config/user-interface/styleguide-palette/edit', $edit, t('Save palette'));
+
+    $edit = array(
+      "palette[$name][hex]" => '#654321',
+    );
+    $this->drupalPost(NULL, $edit, t('Save palette'));
+    $this->assertText(t('Style guide palette updated.'));
+    $this->assertFieldByXPath('//input[@name="palette[' . $name . '][hex]"]', '#654321', 'The newly added color swatch is shown.');
+  }
+
+  /**
+   * Tests deleting an existing swatch.
+   */
+  protected function testDeletingSwatches() {
+    // Add a new swatch as the admin user.
+    $name = $this->randomName();
+    $edit = array(
+      'name' => $name,
+      'description' => $this->randomName(),
+      'hex' => '#123456',
+    );
+    $this->drupalPost('admin/config/user-interface/styleguide-palette/edit', $edit, t('Save palette'));
+
+    $this->clickLink(t('Delete'));
+    $this->assertRaw(t('Are you sure you want to delete %name?', array('%name' => $name)));
+    $this->drupalPost(NULL, array(), t('Delete'));
+    $this->assertRaw(t('%name has been deleted.', array('%name' => $name)));
+    $this->assertNoFieldByXPath('//input[@name="palette[' . $name . '][hex]"]', '#123456', 'The deleted color swatch is not shown.');
+  }
+
+  /**
+   * Tests adding invalid swatches.
+   */
+  protected function testInvalidSwatches() {
+    $edit = array(
+      'name' => $this->randomName(),
+    );
+    $this->drupalPost('admin/config/user-interface/styleguide-palette/edit', $edit, t('Save palette'));
+    $this->assertText(t('Missing swatch hex value.'));
+    $this->assertNoText(t('Style guide swatches added.'));
+
+    $edit = array(
+      'hex' => '#123456',
+    );
+    $this->drupalPost('admin/config/user-interface/styleguide-palette/edit', $edit, t('Save palette'));
+    $this->assertText(t('Missing swatch name.'));
+    $this->assertNoText(t('Style guide swatches added.'));
+
+    $edit = array(
+      'name' => $this->randomName(),
+      'hex' => '#12345',
+    );
+    $this->drupalPost('admin/config/user-interface/styleguide-palette/edit', $edit, t('Save palette'));
+    $this->assertRaw(t('%name must be a valid hexadecimal CSS color value.', array('%name' => 'Hex value')));
+    $this->assertNoText(t('Style guide swatches added.'));
+  }
+
+  /**
+   * Tests adding swatches to multiple themes.
+   */
+  protected function testMultipleThemes() {
+    theme_enable(array('stark'));
+    $edit = array(
+      'name' => $this->randomName(),
+      'hex' => '#123456',
+    );
+    $this->drupalPost('admin/config/user-interface/styleguide-palette/edit/stark', $edit, t('Save palette'));
+    $this->assertFieldByXPath('//input[@name="palette[' . $edit['name'] . '][hex]"]', $edit['hex'], 'The newly added color swatch is shown.');
+    $this->drupalGet('admin/config/user-interface/styleguide-palette/edit');
+    $this->assertNoFieldByXPath('//input[@name="palette[' . $edit['name'] . '][hex]"]', $edit['hex'], 'The color swatch is only shown for its theme.');
+  }
+
+  /**
+   * Tests theme functions.
+   */
+  protected function testSwatchTheming() {
+    $expected = '';
+    $expected .= '<div class="styleguide-palette">' . "\n";
+    $expected .= '<div class="styleguide-palette-empty">' . "\n";
+    $expected .= '  ' . t('There are no swatches yet.');
+    $expected .= '</div>' . "\n";
+    $expected .= '</div>' . "\n";
+    $this->assertThemeOutput('styleguide_palette', array(), $expected);
+
+    $edit1 = array(
+      'name' => $this->randomName(),
+      'description' => $this->randomName(),
+      'hex' => '#123456',
+    );
+    $this->drupalPost('admin/config/user-interface/styleguide-palette/edit', $edit1, t('Save palette'));
+    $edit2 = array(
+      'name' => $this->randomName(),
+      'description' => $this->randomName(),
+      'hex' => '#654321',
+    );
+    $this->drupalPost('admin/config/user-interface/styleguide-palette/edit', $edit2, t('Save palette'));
+
+    $expected = '';
+    $expected .= '<div class="styleguide-palette-swatch-color" style="background-color: ' . $edit1['hex'] . ';">&nbsp;</div>' . "\n";
+    $expected .= '<h3 class="styleguide-palette-swatch-name">' . $edit1['name'] . '</h3>' . "\n";
+    $expected .= '<div class="styleguide-palette-swatch-hex"><em>' . $edit1['hex'] . '</em></div>' . "\n";
+    $expected .= '<div class="styleguide-palette-swatch-description">' . $edit1['description'] . '</div>' . "\n";
+    $this->assertThemeOutput('styleguide_palette_swatch', $edit1, $expected);
+
+    $expected = '';
+    $expected .= '<div class="styleguide-palette">' . "\n";
+    $expected .= '<div class="styleguide-palette-swatch">' . "\n";
+    $expected .= '  ' . theme('styleguide_palette_swatch', $edit1);
+    $expected .= '</div>' . "\n";
+    $expected .= '<div class="styleguide-palette-swatch">' . "\n";
+    $expected .= '  ' . theme('styleguide_palette_swatch', $edit2);
+    $expected .= '</div>' . "\n";
+    $expected .= '</div>' . "\n";
+    $variables = array(
+      'swatches' => array(
+        $edit1,
+        $edit2,
+      ),
+    );
+    $this->assertThemeOutput('styleguide_palette', $variables, $expected);
+  }
+
+}

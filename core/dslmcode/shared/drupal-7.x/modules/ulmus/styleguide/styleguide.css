@@ -1,0 +1,48 @@
+
+/* LTR */
+h2.styleguide {
+  font: 16px bold helvetica, arial, sans-serif;
+  margin: 2em 0 .5em 0;
+  padding: 0;
+  text-transform: uppercase;
+}
+
+#styleguide-header {
+  background: #eee;
+  border: 1px solid #ccc;
+  color: #333;
+  padding: .5em 1em;
+}
+
+/* LTR */
+#styleguide-header .item-list {
+  float: left;
+  margin: 0 2em 1em 0;
+  width: 20%;
+}
+
+#styleguide-header h3 {
+  font: 16px bold helvetica, arial, sans-serif;
+  margin: .5em 0 0;
+  text-transform: uppercase;
+}
+
+#styleguide-header a,
+#styleguide-header li a.active {
+  color: #0071B3;
+}
+
+#styleguide-header .break {
+  margin-bottom: 1em;
+  clear: both;
+}
+
+.styleguide-description {
+  font: 12px helvetica, arial, sans-serif;
+  margin: 0 0 .5em;
+}
+
+div.styleguide {
+  border-top: 1px solid #777;
+  padding-top: 1em;
+}

@@ -1,0 +1,56 @@
+<?php
+
+/**
+ * @file
+ * Install, update and uninstall functions for the Style guide palette module.
+ */
+
+/**
+ * Implements hook_schema().
+ */
+function styleguide_palette_schema() {
+  $schema['styleguide_palette_swatch'] = array(
+    'description' => 'Stores color palette swatch data.',
+    'fields' => array(
+      'id' => array(
+        'description' => 'The primary identifier for the swatch.',
+        'type' => 'serial',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ),
+      'name' => array(
+        'description' => 'The swatch title.',
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => TRUE,
+        'default' => '',
+        'translatable' => TRUE,
+      ),
+      'description' => array(
+        'description' => 'The swatch description.',
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => TRUE,
+        'default' => '',
+        'translatable' => TRUE,
+      ),
+      'hex' => array(
+        'description' => 'The swatch hex value.',
+        'type' => 'varchar',
+        'length' => 7,
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'theme' => array(
+        'type' => 'varchar',
+        'length' => 64,
+        'not null' => TRUE,
+        'default' => '',
+        'description' => 'The theme the palette is used for.',
+      ),
+    ),
+    'primary key' => array('id'),
+  );
+
+  return $schema;
+}

@@ -1,0 +1,115 @@
+<?php
+
+/**
+ * @file
+ * Tests for css_injector.
+ */
+
+class CSSInjectorTest extends DrupalWebTestCase {
+
+  protected $privileged_user;
+
+  public static function getInfo() {
+    return array(
+      'name' => t('CSS Injector Functionality'),
+      'description' => t('CSS Injector Functionality.'),
+      'group' => 'CSS Injector',
+    );
+  }
+  function setUp() {
+    parent::setUp(array('css_injector', 'php'));
+    $privileged_user = $this->drupalCreateUser(array('administer css injection', 'use PHP for settings'));
+    $this->drupalLogin($privileged_user);
+  }
+
+  /**
+   * Test the Administrative UI, making sure it does what it ought to do.
+   *
+   * - Create 3 rules:
+   *   - A basic rule that will appear on every page.
+   *   - A basic rule that will appear on only one page.
+   */
+  function testCSSInjectionUI() {
+
+    $base_url = 'admin/config/development/css-injector';
+    $add_url = $base_url . '/add';
+
+    // To add to these rules, just copy and paste.
+    $rules = array(
+      1 => array(
+        'crid' => 1,
+        'title' => t('Rule 1: pink background on all pages'),
+        'css_text' => '.content { background-color: pink; }',
+        'rule_type' => CSS_INJECTOR_PAGES_NOTLISTED, // add on every page except
+        'rule_conditions' => '',  // no conditions
+        'pages_with' => array('user'), // Test page where it should show up.
+        'pages_without' => array(),
+      ),
+      2 => array(
+        'crid' => 2,
+        'title' => t('Rule 2: blue background on admin page'),
+        'css_text' => '.content { background-color: blue; }',
+        'rule_type' => CSS_INJECTOR_PAGES_LISTED, // add on listed pages.
+        'rule_conditions' => 'user',  // show only on /user
+        'pages_with' => array('user'), // Test page where it should show up.
+        'pages_without' => array(''), // front page
+      ),
+      3 => array(
+        'crid' => 3,
+        'title' => t('Rule 3: blue background on admin page'),
+        'css_text' => '.content { background-color: green; }',
+        'rule_type' => CSS_INJECTOR_PHP, // add on listed pages.
+        'rule_conditions' => '<?php print (arg(0) == "admin"); ?>',  // show only on /admin
+        'pages_with' => array('admin/config/development/css-injector'), // Test page where it should show up.
+        'pages_without' => array('user'), // front page should not have this one.
+      ),
+
+    );
+
+    foreach ($rules as $index => $rule) {
+      // Create the rule.
+      $edit = array(
+        'title' => $rule['title'],
+        'css_text' => $rule['css_text'],
+        'rule_type' => $rule['rule_type'],
+        'rule_conditions' => $rule['rule_conditions'],
+      );
+      $this->drupalPost($add_url, $edit, t('Save'));
+      $this->assertRaw(t('Your CSS injection rule %rule was saved', array('%rule' => $rule['title'])));
+      $file = 'css_injector_' . $index . '.css';
+
+      // visit 'pages_with' to see if it's there.
+      foreach ($rule['pages_with'] as $page) {
+        $this->drupalGet($page);
+        $this->assertRaw($file, t('Rule %rule file %file was found on page %page', array('%rule' => $rule['crid'], '%file' => $file, '%page' => $page )));
+      }
+      // visit 'pages_without' and assert that the CSS is not there.
+      foreach ($rule['pages_without'] as $page) {
+        $this->drupalGet($page);
+        $this->assertNoRaw($file, t('Rule %rule file %file not found on page %page', array('%rule' => $rule['crid'], '%file' => $file, '%page' => $page )));
+      }
+
+      $buffer = file_get_contents(_css_injector_rule_uri($rule['crid']));
+      $this->assertIdentical($rule['css_text'], $buffer, t('The file being used has the contents expected'));
+    }
+
+    // Now delete each one and make sure that things work correctly.
+    foreach ($rules as $index => $rule) {
+      $delete_url = $base_url . '/delete/' . $index;
+      $this->drupalPost($delete_url, array(), t('Delete'));
+      $this->assertRaw(t('The CSS rule %rule has been deleted', array('%rule' => $rule['title'])));
+
+      // visit 'pages_with' to verify it's no longer there.
+      foreach ($rule['pages_with'] as $page) {
+        $this->drupalGet($page);
+        $this->assertNoRaw($file, t('Rule %rule file %file no longer found on page %page', array('%rule' => $rule['crid'], '%file' => $file, '%page' => $page )));
+      }
+      // visit 'pages_without' and assert that the CSS is not there either.
+      foreach ($rule['pages_without'] as $page) {
+        $this->drupalGet($page);
+        $this->assertNoRaw($file, t('Rule %rule file %file not found on page %page', array('%rule' => $rule['crid'], '%file' => $file, '%page' => $page )));
+      }
+
+    }
+  }
+}

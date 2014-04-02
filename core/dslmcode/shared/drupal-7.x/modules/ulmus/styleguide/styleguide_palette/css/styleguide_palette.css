@@ -1,0 +1,14 @@
+/* Styling for the color palette display page. */
+
+.styleguide-palette-swatch {
+  display: inline-block;
+  margin: 0.5em;
+  vertical-align: top;
+  width: 14em;
+}
+
+.styleguide-palette-swatch-color {
+  border: 1px solid #f1f1f1;
+  height: 100px;
+  width: 100px;
+}

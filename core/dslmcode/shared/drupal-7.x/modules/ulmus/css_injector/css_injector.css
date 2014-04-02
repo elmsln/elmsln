@@ -1,0 +1,12 @@
+form input.css-inject-edit,
+form input.css-inject-delete {
+  padding-left: 35px;
+ background-position: 12px center;
+ background-repeat: no-repeat;
+}
+form input.css-inject-edit {
+ background-image: url('text-editor.png');
+}
+form input.css-inject-delete {
+  background-image: url('edit-delete.png');
+}

@@ -1,0 +1,13 @@
+name = Style guide
+description = Generates a theme style guide for proofing common elements.
+core = 7.x
+files[] = styleguide.module
+files[] = styleguide.styleguide.inc
+
+
+; Information added by drupal.org packaging script on 2013-05-02
+version = "7.x-1.1"
+core = "7.x"
+project = "styleguide"
+datestamp = "1367467219"
+

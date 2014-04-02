@@ -1,0 +1,10 @@
+
+h2.styleguide {
+  margin: 0.25em 0 2em 0;
+}
+
+#styleguide-header .item-list {
+  float: right;
+  margin: 0 0 1em 2em;
+}
+

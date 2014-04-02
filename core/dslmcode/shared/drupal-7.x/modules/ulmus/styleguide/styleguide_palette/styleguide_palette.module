@@ -1,0 +1,192 @@
+<?php
+
+/**
+ * @file
+ * Stores and displays color palettes and swatches.
+ */
+
+/**
+ * Implements hook_menu().
+ */
+function styleguide_palette_menu() {
+  $items['admin/config/user-interface/styleguide-palette'] = array(
+    'title' => 'Style guide palette',
+    'description' => 'View color palettes.',
+    'page callback' => 'styleguide_palette_page',
+    'access arguments' => array('view style guides'),
+    'file' => 'styleguide_palette.admin.inc',
+  );
+  $items['admin/config/user-interface/styleguide-palette/view'] = array(
+    'title' => 'View',
+    'type' => MENU_DEFAULT_LOCAL_TASK,
+    'weight' => -10,
+  );
+  $items['admin/config/user-interface/styleguide-palette/edit'] = array(
+    'title' => 'Edit',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('styleguide_palette_form'),
+    'access arguments' => array('configure style guide palettes'),
+    'file' => 'styleguide_palette.admin.inc',
+    'type' => MENU_LOCAL_TASK,
+    'weight' => -5,
+  );
+  $items['admin/config/user-interface/styleguide-palette/delete/%styleguide_palette_swatch'] = array(
+    'title' => 'Delete swatch',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('styleguide_palette_swatch_delete_form', 5),
+    'access arguments' => array('configure style guide palettes'),
+    'file' => 'styleguide_palette.admin.inc',
+  );
+  $default = variable_get('theme_default', 'bartik');
+  foreach (list_themes() as $theme) {
+    if (!$theme->status) {
+      continue;
+    }
+
+    $is_default = $theme->name == $default;
+    $items["admin/config/user-interface/styleguide-palette/view/$theme->name"] = array(
+      'title' => $theme->info['name'],
+      'page callback' => 'styleguide_palette',
+      'page arguments' => array($theme->name),
+      'access arguments' => array('view style guides'),
+      'file' => 'styleguide_palette.admin.inc',
+      'type' => $is_default ? MENU_DEFAULT_LOCAL_TASK : MENU_LOCAL_TASK,
+      'weight' => -10,
+    );
+    $items["admin/config/user-interface/styleguide-palette/edit/$theme->name"] = array(
+      'title' => $theme->info['name'],
+      'page callback' => 'drupal_get_form',
+      'page arguments' => array('styleguide_palette_form', $theme->name),
+      'access arguments' => array('configure style guide palettes'),
+      'file' => 'styleguide_palette.admin.inc',
+      'type' => $is_default ? MENU_DEFAULT_LOCAL_TASK : MENU_LOCAL_TASK,
+      'weight' => -5,
+    );
+  }
+  return $items;
+}
+
+/**
+ * Returns the sanitized swatches for a given theme.
+ *
+ * @param string $theme
+ *   The machine name of the theme.
+ *
+ * @return array
+ *   An array of swatches, with all values sanitized.
+ */
+function styleguide_palette($theme) {
+  $swatches = array();
+  $results = styleguide_palette_swatch_load_multiple($theme);
+  foreach ($results as $swatch) {
+    $swatches[] = array_map('check_plain', (array) $swatch);
+  }
+  return $swatches;
+}
+
+/**
+ * Implements hook_styleguide().
+ *
+ * Adds the color palette to the style guide page.
+ */
+function styleguide_palette_styleguide() {
+  global $theme;
+  $items['color_palette'] = array(
+    'title' => t('Color palette'),
+    'theme' => 'styleguide_palette',
+    'variables' => array('swatches' => styleguide_palette($theme)),
+    'group' => t('Branding'),
+  );
+  return $items;
+}
+
+/**
+ * Loads a color swatch.
+ *
+ * @param int $swatch_id
+ *   The swatch ID.
+ *
+ * @return array
+ *   An associative array representing the color swatch with the following keys:
+ *   - id: The swatch ID.
+ *   - name: The swatch name.
+ *   - description: The swatch description.
+ *   - hex: The swatch hex value.
+ */
+function styleguide_palette_swatch_load($swatch_id) {
+  return db_select('styleguide_palette_swatch', 's')
+    ->fields('s')
+    ->condition('id', $swatch_id)
+    ->execute()
+    ->fetchAssoc();
+}
+
+/**
+ * Loads all color swatches for a theme.
+ *
+ * @param string $theme
+ *   The theme machine name
+ *
+ * @return array
+ *   An array of swatches.
+ */
+function styleguide_palette_swatch_load_multiple($theme) {
+  return db_select('styleguide_palette_swatch', 's')
+    ->fields('s')
+    ->condition('theme', $theme)
+    ->execute()
+    ->fetchAllAssoc('id');
+}
+
+/**
+ * Deletes a color swatch.
+ *
+ * @param int $swatch_id
+ *   The swatch ID.
+ */
+function styleguide_palette_swatch_delete($swatch_id) {
+  return db_delete('styleguide_palette_swatch')
+    ->condition('id', $swatch_id)
+    ->execute();
+}
+
+/**
+ * Implements hook_permission().
+ */
+function styleguide_palette_permission() {
+  $permissions = array(
+    'configure style guide palettes' => array(
+      'title' => t('Configure style guide palettes'),
+    ),
+  );
+  return $permissions;
+}
+
+/**
+ * Implements hook_theme().
+ */
+function styleguide_palette_theme($existing, $type, $theme, $path) {
+  return array(
+    'styleguide_palette' => array(
+      'variables' => array('swatches' => array()),
+      'path' => "$path/templates",
+      'template' => 'styleguide-palette',
+    ),
+    'styleguide_palette_swatch' => array(
+      'variables' => array('name' => NULL, 'description' => '', 'hex' => NULL),
+      'path' => "$path/templates",
+      'template' => 'styleguide-palette-swatch',
+    ),
+  );
+}
+
+/**
+ * Implements hook_preprocess_HOOK() for styleguide-palette.tpl.php.
+ */
+function template_preprocess_styleguide_palette(&$variables) {
+  drupal_add_css(drupal_get_path('module', 'styleguide_palette') . '/css/styleguide_palette.css');
+  $variables['empty'] = empty($variables['swatches']) ? t('There are no swatches yet.') : '';
+  foreach ($variables['swatches'] as &$swatch) {
+    $swatch = theme('styleguide_palette_swatch', $swatch);
+  }
+}

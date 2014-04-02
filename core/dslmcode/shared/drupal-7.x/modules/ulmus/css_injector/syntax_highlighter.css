@@ -1,0 +1,35 @@
+.ace-editor {
+  display: none;
+}
+.has-js .ace-editor {
+  display: block;
+  position: relative;
+  width: 100%;
+  height: 300px;
+  margin-bottom: 15px;
+  margin-top: -10px;
+  border: 1px #bbb solid;
+}
+.has-js .form-item-css-text .form-textarea-wrapper{
+  display: none;
+}
+#editor {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+}
+.disable-ace {
+  float: right;
+  margin-top: -40px;
+  text-decoration: none;
+  color: #0074BD;
+  cursor: pointer;
+}
+.disable-ace.ace-disabled {
+ margin-top: -10px;
+}
+.disable-ace:hover {
+  text-decoration: underline;
+}
