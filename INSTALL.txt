@@ -13,6 +13,11 @@ sudo mkdir elmsln
 sudo chown {you}:{group} elmsln
 git clone https://github.com/btopro/elmsln.git
 
+Next you’ll want to replace the included config directory with an example one.
+cd /var/www/elmsln
+rm -rf config
+git clone https://github.com/btopro/elmsln-config-example.git
+
 === MODIFY CONFIG ===
 cd /var/www/elmsln/config/scripts/drush-create-site/
 cp config.cfg.example config.cfg
