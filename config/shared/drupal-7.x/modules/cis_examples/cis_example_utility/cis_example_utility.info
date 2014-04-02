@@ -1,5 +1,0 @@
-name = CIS Example Utility
-description = Utility module that has functions common to developing for the university.
-package = Examples
-core = "7.x"
-project = "cis_example_utility"

@@ -1,5 +1,0 @@
-name = Example CIS Service
-description = Examples specific Service integration package
-core = 7.x
-package = Examples
-dependencies[] = cis_connector

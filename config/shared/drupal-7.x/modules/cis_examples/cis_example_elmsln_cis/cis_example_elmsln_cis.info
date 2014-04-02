@@ -1,7 +1,0 @@
-name = CIS Example ELMSLN CIS
-description = Example ELMSLN specific modifications to CIS
-package = Examples
-dependencies[] = cis_helper
-dependencies[] = cis_example_elmsln_utility
-core = "7.x"
-project = "cis_example_elmsln_cis"

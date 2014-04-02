@@ -1,1 +1,0 @@
-This directory will store all the settings associated with this tool.

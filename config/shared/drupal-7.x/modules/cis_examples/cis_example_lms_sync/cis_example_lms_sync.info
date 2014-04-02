@@ -1,7 +1,0 @@
-name = CIS Example LMS Sync
-description = Keep users synced with LMS. This implementation requires OG
-core = 7.x
-package = Examples
-dependencies[] = cis_connector
-dependencies[] = cis_service_connection
-dependencies[] = og

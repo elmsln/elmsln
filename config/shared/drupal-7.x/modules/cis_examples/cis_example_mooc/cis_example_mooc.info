@@ -1,5 +1,0 @@
-name = CIS Example MOOC
-description = Examples specific modifications to MOOC
-core = 7.x
-package = Examples
-dependencies[] = mooc_helper

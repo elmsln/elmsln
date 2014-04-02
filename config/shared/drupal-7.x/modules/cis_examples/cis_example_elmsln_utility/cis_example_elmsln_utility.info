@@ -1,5 +1,0 @@
-name = CIS Example ELMSLN Utility
-description = ELMSLN specific utility module.
-package = Examples
-core = "7.x"
-project = "cis_example_elmsln_utility"
