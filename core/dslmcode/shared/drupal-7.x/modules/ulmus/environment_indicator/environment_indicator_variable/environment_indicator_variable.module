@@ -1,0 +1,95 @@
+<?php
+
+/**
+ * @file
+ * Module implementation file.
+ */
+
+/**
+ * Implement hook_menu().
+ */
+function environment_indicator_variable_menu() {
+  // Embed variable select form in environment sections
+  $items['admin/config/development/environment-indicator/variables'] = array(
+    'title' => 'Variables',
+    'type' => MENU_LOCAL_TASK,
+    'access arguments' => array('administer environment indicator settings'),
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('variable_realm_select_variables_form', 'environment'),
+    'file' => 'variable_realm.form.inc',
+    'file path' => drupal_get_path('module', 'variable_realm'),
+  );
+  // Page for editing all variables
+  $items['admin/config/development/environment-indicator/list/%/variables'] = array(
+    'title' => 'Variables',
+    'description' => 'Edit all environment-specific variables',
+    'type' => MENU_LOCAL_TASK,
+    'access arguments' => array('administer environment indicator settings'),
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('variable_realm_edit_variables_form', 'environment', 4),
+    'file' => 'variable_realm.form.inc',
+    'file path' => drupal_get_path('module', 'variable_realm'),
+  );
+  return $items;
+}
+
+/**
+ * Implements hook_variable_realm_info().
+ */
+function environment_indicator_variable_variable_realm_info() {
+  $realm['environment'] = array(
+    'title' => t('Environment'),
+    'weight' => 108,
+    'controller class' => 'EnvironmentVariableRealmController',
+    'store class' => 'VariableStoreRealmStore',
+    // Variables for this realm can be selected from a list.
+    'select' => TRUE,
+    'select path' => 'admin/config/development/environment-indicator/variables',
+    // Automatically handle these variables in system settings forms.
+    // If this option is enabled we'll need the rest of the values
+    'form settings' => TRUE,
+    'form switcher' => TRUE,
+    // Name for variables that belong to this realm: 'domain' variable/s
+    'variable name' => t('environment'),
+    // Class for variables that belong to this realm in settings forms
+    'variable class' => 'environment-variable',
+  );
+  return $realm;
+}
+
+/**
+ * Load a variable specific to an environment.
+ *
+ * @param $environment_id
+ *   The unique environment ID that is being edited.
+ * @param $variable
+ *   The name of the variable you wish to get.
+ * @param $all
+ *   A boolean flag indicating whether to return the entire variable array.
+ * @param $reset
+ *   A boolean flag to reset the static variable array for the environment. Useful
+ *   if you are changing variables during a page request.
+ * @return
+ *   The value of the variable for that environment, or NULL if not set,
+ *   or an array of variables, in the case of $all.
+ */
+function environment_indicator_variable_get($environment_id, $variable = '', $all = FALSE, $reset = FALSE) {
+  if ($reset) {
+    // Reinitialize the variable realm from stored values.
+    $variables = variable_store('environment', $environment_id);
+    variable_realm_add('environment', $environment_id, $variables);
+  }
+  if ($all) {
+    return variable_store('environment', $environment_id);
+  }
+  else {
+    return variable_store_get('environment', $environment_id, $variable);
+  }
+}
+
+/**
+ * Implements hook_init().
+ */
+function environment_indicator_variable_init() {
+  variable_realm_initialize('environment');
+}

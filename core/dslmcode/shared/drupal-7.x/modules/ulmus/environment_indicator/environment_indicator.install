@@ -1,0 +1,134 @@
+<?php
+
+/**
+ * @file
+ * Install implementation file.
+ */
+
+/**
+ * Implements hook_schema().
+ */
+function environment_indicator_schema() {
+  $schema['environment_indicator_environment'] = array(
+    'description' => t('Table storing preset definitions.'),
+    'export' => array(
+      'key' => 'machine',
+      'key name' => 'Machine name',
+      'primary key' => 'envid',
+      'identifier' => 'environment', // Exports will be defined as $environment
+      'default hook' => 'default_environment_indicator_environment',  // Function hook name.
+      'api' => array(
+        'owner' => 'environment_indicator',
+        'api' => 'default_environment_indicator_environments',  // Base name for api include files.
+        'minimum_version' => 1,
+        'current_version' => 1,
+      ),
+    ),
+    'fields' => array(
+      'machine' => array(
+        'type' => 'varchar',
+        'length' => '32',
+        'description' => 'Unique ID for environments.',
+      ),
+      'name' => array(
+        'type' => 'varchar',
+        'length' => '255',
+        'description' => 'Name for the environments.',
+      ),
+      'envid' => array(
+        'type' => 'serial',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'description' => 'Primary ID field for the table. Not used for anything except internal lookups.',
+        'no export' => TRUE, // Do not export database-only keys.
+      ),
+      'regexurl' => array(
+        'type' => 'varchar',
+        'length' => '255',
+        'description' => 'A regular expression to match against the url.',
+      ),
+      'settings' => array(
+        'type' => 'text',
+        'size' => 'big',
+        'serialize' => TRUE,
+        'description' => 'Serialized array with the configuration for the environment.',
+      ),
+    ),
+    'primary key' => array('envid'),
+    'unique keys' => array(
+      'name' => array('machine'),
+    ),
+  );
+  return $schema;
+}
+
+/**
+ * Add table when updating from 1.x
+ */
+function environment_indicator_update_7200(&$sandbox) {
+  if (!db_table_exists('environment_indicator_environment')) {
+    $schema = environment_indicator_schema();
+    db_create_table('environment_indicator_environment', $schema['environment_indicator_environment']);
+  }
+}
+
+/**
+ * Add the default text color for existing environments.
+ */
+function environment_indicator_update_7201(&$sandbox) {
+  module_load_include('inc', 'ctools', 'includes/export');
+  $environments = ctools_export_crud_load_all('environment_indicator_environment');
+  foreach ($environments as $machine => $environment) {
+    if (!isset($environment->settings['text_color'])) {
+      $environment->settings['text_color'] = '#ffffff';
+      ctools_export_crud_save('environment_indicator_environment', $environment);
+    }
+  }
+}
+
+/**
+ * Migrate the old variables to the default environment.
+ */
+function environment_indicator_update_7202(&$sandbox) {
+  module_load_include('inc', 'ctools', 'includes/export');
+  $default_environment = ctools_export_crud_load('environment_indicator_environment', 'default_environment');
+  // We want to load the environment variables directly from the database, not
+  // from settings.php. Using variable_get() is thus not an option, since it
+  // uses the values from settings.php to override those in the database.
+  $result = db_query("SELECT * FROM {variable} WHERE name LIKE 'environment_indicator_%'");
+  $updated = FALSE;
+  if ($result) {
+    while ($row = $result->fetchAssoc()) {
+      switch ($row['name']) {
+        case 'environment_indicator_color':
+          $default_environment->settings['color'] = unserialize($row['value']);
+          variable_del($row['name']);
+          $updated = TRUE;
+          break;
+
+        case 'environment_indicator_text':
+          $default_environment->name = unserialize($row['value']);
+          variable_del($row['name']);
+          $updated = TRUE;
+          break;
+
+        case 'environment_indicator_enabled':
+        case 'environment_indicator_margin':
+        case 'environment_indicator_position':
+          // This variable is no longer used. Remove it.
+          variable_del($row['name']);
+          break;
+        case 'environment_indicator_suppress_pages':
+          // This variable is still used, keep it.
+          break;
+      }
+    }
+  }
+
+  // Only save if the default environment was not edited yet. The old variables
+  // have been removed nonetheless.
+  if (!($defaut_environment->export_type & EXPORT_IN_DATABASE) && $default_environment->export_module == 'environment_indicator' && $updated) {
+    ctools_export_crud_save('environment_indicator_environment', $default_environment);
+    return t('Your default environment was updated with your previous configuration.');
+  }
+}

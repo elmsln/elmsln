@@ -1,0 +1,13 @@
+<?php
+/**
+ * @file
+ * Installation file for Environment Indicator Variables Integration module
+ */
+
+/**
+ * Implements hook_install().
+ */
+function environment_indicator_variable_install() {
+  // Set module weight for it to run before most modules, but after variable_realm
+  db_query("UPDATE {system} SET weight = -890 WHERE name = 'environment_indicator_variable' AND type = 'module'");
+}

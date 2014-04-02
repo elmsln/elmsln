@@ -1,0 +1,510 @@
+<?php
+
+/**
+ * @file
+ * Module implementation file.
+ */
+
+/**
+ * Implement hook_help().
+ */
+function environment_indicator_help($path, $arg) {
+  switch ($path) {
+    case 'admin/config/development/environment-indicator':
+      return t('The Environment Indicator adds a coloured strip to the site informing you which environment you\'re currently in (Development, Staging Production etc). You may override these settings by adding a new environment based on the hostname being seen or with your settings.php file in each of your environments.');
+
+    case 'admin/help#environment_indicator':
+      $output = '<p>' .t('The Environment Indicator adds a coloured strip to the site informing you which environment you\'re currently in (Development, Staging Production etc') .'</p>';
+
+      $output .= '<p>'. t('The Environment Indicator <a href="@settings">settings page</a> allows you to modify some elements of the indicator\'s behavior and appearance. Since the appearance of the indicator is dependent on your site theme, substantial customisations require modifications to your site\'s theme and CSS files.', array('@settings' => url('admin/config/development/environment-indicator'))) . '</p>';
+
+      $output .= '<p>'. t('The Environment Indicator\'s visibility depends upon the permissions of the viewer. The <a href="@permissions">access environment indicator</a> permission must be enabled for a user role in order for users of that role to see the indicator.', array('@permissions' => url('admin/people/permissions', array('fragment' => 'module-environment_indicator')))) .'</p>';
+
+      $output .= '<p>'. t('The settings for the Environment Indicator, such as the text to display and the color can be overridden for each of your specific environments using the configuration UI or in the site\'s settings.php file. You can also export this configuration to code, this allows you to customise the indicator for each environment without needing to make any changes in the database. This means that the Environment Indicator will always display correctly when moving your site from development to staging to production. If you choose to detect your environment using settings.php, then all configuration variables can be overridden in settings.php, but the most common three are:') .'</p>';
+      $output .= '<dl>';
+      $output .= '<dt><em>environment_indicator_overwrite</em></dt><dd>'. t('A boolean value indicating whether the Environment Indicator should use the settings.php variables for the indicator. On your production environment, you should probably set this to FALSE.') . '<br/>$conf[\'environment_indicator_overwrite\'] = FALSE;<br />* ' . t('This setting corresponds to the old %setting in version 1.x.', array('%setting' => 'environment_indicator_enabled')) . '</dd></dt>';
+      $output .= '<dt><em>environment_indicator_overwritten_name</em></dt><dd>'. t('The text that will be displayed on the indicator.') . '<br/>$conf[\'environment_indicator_overwritten_name\'] = \'Staging\';<br />* ' . t('This setting corresponds to the old %setting in version 1.x.', array('%setting' => 'environment_indicator_text')) . '</dd></dt>';
+      $output .= '<dt><em>environment_indicator_overwritten_color</em></dt><dd>'. t('A valid css color.') . '<br/>$conf[\'environment_indicator_overwritten_color\'] = \'#ff5555\';<br />* ' . t('This setting corresponds to the old %setting in version 1.x.', array('%setting' => 'environment_indicator_color')) . '</dd></dt>';
+      $output .= '<dt><em>environment_indicator_overwritten_position</em></dt><dd>'. t('Where your indicator may appear. Allowed values are "top" and "bottom".') . '<br/>$conf[\'environment_indicator_overwritten_position\'] = \'top\';</dd></dt>';
+      $output .= '<dt><em>environment_indicator_overwritten_fixed</em></dt><dd>'. t('A boolean value indicating whether the Environment Indicator should be visible at all times, fixed at the top/bottom of the screen.') . '<br/>$conf[\'environment_indicator_overwritten_fixed\'] = FALSE;</dd></dt>';
+      $output .= '</dl>';
+
+      return $output;
+  }
+}
+
+/**
+ * Implements hook_requirements().
+ */
+function environment_indicator_requirements($phase) {
+  $requirements = array();
+
+  // Report Drupal version
+  if ($phase == 'runtime') {
+    if (_environment_indicator_has_old_vars()) {
+      $requirements['environment_indicator'] = array(
+        'title' => t('Environment indicator'),
+        'value' => t('You are using old environment indicator variables. Please check the !help on how to upgrade your variables for the new release, and then remove the old ones.', array('!help' => l(t('help pages'), 'admin/help/environment_indicator'))),
+        'severity' => REQUIREMENT_ERROR
+      );
+    }
+  }
+
+  return $requirements;
+}
+
+/**
+ * Implement hook_menu().
+ */
+function environment_indicator_menu() {
+  $items['admin/config/development/environment-indicator/settings'] = array(
+    'title' => 'Settings',
+    'description' => 'Adjust settings for the Environment Indicator.',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('environment_indicator_settings'),
+    'access arguments' => array('administer environment indicator settings'),
+    'type' => MENU_LOCAL_TASK,
+    'file' =>'environment_indicator.admin.inc',
+  );
+  return $items;
+}
+
+/**
+ * Implements hook_permission().
+ */
+function environment_indicator_permission() {
+  $permissons = array(
+    'administer environment indicator settings' =>  array(
+      'title' => t('Administer environment_indicator settings'),
+      'description' => t('Configure the environments and the colors to display.'),
+    ),
+    'access environment indicator' =>  array(
+      'title' => t('See environment indicator'),
+      'description' => t('See all the environment indicators in the site.'),
+    ),
+  );
+  $environments = environment_indicator_get_all();
+  foreach ($environments as $machine => $environment) {
+    $permissons['access environment indicator ' . $environment->machine] = array(
+      'title' => t('See environment indicator for %name', array('%name' => $environment->name)),
+      'description' => t('See the evironment indicator if the user is in the %name environment.', array('%name' => $environment->name)),
+    );
+  }
+  // Manually add the overwritten environment.
+  $permissons['access environment indicator overwritten_environment'] = array(
+    'title' => t('See environment indicator for the overwritten environment'),
+    'description' => t('See the evironment indicator if the user is in the environment defined in settings.php.'),
+  );
+  return $permissons;
+}
+
+/**
+ * Implements hook_ctools_plugin_api().
+ */
+function environment_indicator_ctools_plugin_api($owner, $api) {
+  if ($owner == 'environment_indicator' && $api == 'default_environment_indicator_environments') {
+    return array('version' => 1);
+  }
+}
+
+/**
+ * Implementation of hook_default_environment_indicator_environment().
+ */
+function environment_indicator_default_environment_indicator_environment() {
+  $export = array();
+
+  $environment = new stdClass;
+  $environment->api_version = 1;
+  $environment->machine = 'default_environment';
+  $environment->name = t('Default environment');
+  $environment->regexurl = '.*';
+  $environment->settings = array('color' => '#aa3333', 'text_color' => '#ffffff', 'weight' => 99, 'position' => 'top', 'fixed' => FALSE);
+  $export['default_environment'] = $environment;
+
+  return $export;
+}
+
+/**
+ * Implementation of hook_ctools_plugin_directory().
+ */
+function environment_indicator_ctools_plugin_directory($module, $type) {
+  // Load the export_ui plugin.
+  if ($type =='export_ui') {
+    return 'plugins/export_ui';
+  }
+}
+
+/**
+ * System settings form
+ */
+function environment_indicator_ctools_export_ui_form(&$form, &$form_state) {
+  $environment = $form_state['item'];
+  $environment->color = '';
+  $environment->text_color = '';
+  $environment->weight = '';
+  $environment->position = 'top';
+  $environment->fixed = FALSE;
+  if (!empty($environment->settings)) {
+    $settings = $environment->settings;
+    $environment->color = $settings['color'];
+    $environment->text_color = $settings['text_color'];
+    $environment->weight = $settings['weight'];
+    $environment->position = $settings['position'];
+    $environment->fixed = $settings['fixed'];
+  }
+  unset($form['info']);
+  $form['name'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Name'),
+    '#description' => t('Name for this environment.'),
+    '#default_value' => $environment->name,
+    '#id' => 'name'
+  );
+  $form['machine'] = array(
+    '#title' => t('Machine name'),
+    '#type' => 'machine_name',
+    '#default_value' => $environment->machine,
+    '#maxlength' => 32,
+    '#required' => TRUE,
+    '#machine_name' => array(
+      'exists' => 'environment_indicator_machine_available',
+      'source' => array('name'),
+    ),
+    '#id' => 'machine-name',
+  );
+  $form['regexurl'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Hostname'),
+    '#description' => t('The hostname you want to detect. You can use a regular expression in this field. This regular expression will be run against the current URL to determine whether the environment is active or not. If you use a regular expression here this environment will <strong>not be availabe</strong> for environment switch.'),
+    '#default_value' => $environment->regexurl,
+  );
+  $form['color_picker'] = array(
+    '#markup' => '<div id="environment-indicator-color-picker"></div>',
+  );
+  $form['color'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Color'),
+    '#description' => t('Color for the indicator. Ex: #d0d0d0.'),
+    '#default_value' => $environment->color ? $environment->color : '#d0d0d0',
+    '#attached' => array(
+      // Add Farbtastic color picker.
+      'library' => array(
+        array('system', 'farbtastic'),
+      ),
+    ),
+  );
+  $form['text_color_picker'] = array(
+      '#markup' => '<div id="environment-indicator-text-color-picker"></div>',
+  );
+  $form['text_color'] = array(
+      '#type' => 'textfield',
+      '#title' => t('Text Color'),
+      '#description' => t('Text Color for the indicator. Ex: #ffffff.'),
+      '#default_value' => $environment->text_color ? $environment->text_color : '#ffffff',
+      '#attached' => array(
+          // Add Farbtastic color picker.
+          'library' => array(
+              array('system', 'farbtastic'),
+          ),
+      ),
+  );
+  $form['weight'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Weight'),
+    '#description' => t('Defines the order how the regular expressions are applied.'),
+    '#default_value' => $environment->weight,
+  );
+  $form['position'] = array(
+    '#title' => t('Position'),
+    '#description' => t('Whether you want the indicator at the top or at the bottom. Please note that this setting has no effect when the user has access to the Toolbar or Admin Menu, since the coloring and indication happens in those bars.'),
+    '#type' => 'radios',
+    '#options' => array(
+      'top' => t('Top'),
+      'bottom' => t('Bottom'),
+    ),
+    '#default_value' => $environment->position,
+  );
+  $form['fixed'] = array(
+    '#title' => t('Fixed'),
+    '#description' => t('Check this if you want the indicator to be positioned fixed.'),
+    '#type' => 'checkbox',
+    '#default_value' => $environment->fixed,
+  );
+  return $form;
+}
+
+/**
+ * Validate callback for environment_indicator_ctools_export_ui_form
+ */
+function environment_indicator_ctools_export_ui_validate($form, &$form_state) {
+  $color_elements = array('color', 'text_color');
+  $values = $form_state['values'];
+  foreach ($color_elements as $color_element) {
+    // Validate that the colors are in valid Hex format.
+    if (!preg_match('/^#[a-f0-9]{6}$/i', $values[$color_element])) {
+      form_set_error($color_element, t('%name must be a valid color in the format <em>#RRGGBB</em>.', array('%name' => $form[$color_element]['#title'])));
+    }
+  }
+}
+
+/**
+ * Submit callback for environment_indicator_ctools_export_ui_form
+ */
+function environment_indicator_ctools_export_ui_form_submit(&$form, &$form_state) {
+  $form_state['item']->settings = array(
+    'color' => $form_state['values']['color'],
+    'text_color' => $form_state['values']['text_color'],
+    'weight' => $form_state['values']['weight'],
+    'position' => $form_state['values']['position'],
+    'fixed' => $form_state['values']['fixed'],
+  );
+
+  // We need to flush admin_menu cache so that the new indicator shows up properly
+  $integrations = variable_get('environment_indicator_integration', array('toolbar' => 'toolbar', 'admin_menu' => 'admin_menu'));
+  if (module_exists('admin_menu') && user_access('access administration menu') && !empty($integrations['admin_menu'])) {
+    admin_menu_flush_caches();
+  }
+
+  // Invalidate the environment_indicator cache.
+  cache_clear_all('environment_indicator', 'cache');
+}
+
+/**
+ * Helper function to check if the machine name is available.
+ */
+function environment_indicator_machine_available($machine) {
+  return db_query("SELECT COUNT(*) FROM {environment_indicator_environment} WHERE machine = ':machine'", array(':machine' => $machine))->fetchField() > 0 && $machine != 'overwritten_environment';
+}
+
+/**
+ * Implements hook_page_build().
+ */
+function environment_indicator_page_build(&$page) {
+  if ($match = environment_indicator_get_active()) {
+    if (environment_indicator_check_access($match)) {
+      $js_settings = array(
+        'environment_indicator' => array(
+          'addFavicon' => TRUE,
+          'faviconLabel' => $match['name'][0], // Get the first letter out of the name.
+          'faviconColor' => $match['color'],
+          'faviconTextColor' => $match['text_color'],
+        ),
+      );
+      $integrations = variable_get('environment_indicator_integration', array('toolbar' => 'toolbar', 'admin_menu' => 'admin_menu'));
+      if (environment_indicator_needs_js()) {
+        $js_settings['environment_indicator']['toolbar-color'] = $match['color'];
+        $js_settings['environment_indicator']['toolbar-text-color'] = $match['text_color'];
+        $js_settings['environment_indicator']['environment-indicator-name'] = theme('environment_indicator_indicator_name', $match);
+      }
+      else {
+        environment_indicator_attach_indicator($match, $page);
+      }
+      drupal_add_js($js_settings, 'setting');
+    }
+  }
+}
+
+/**
+ * Implements hook_theme().
+ */
+function environment_indicator_theme($existing, $type, $theme, $path) {
+  return array(
+    'environment_indicator_indicator_name' => array(
+      'variables' => array('name' => NULL),
+      'file' => 'environment_indicator.theme.inc',
+    ),
+    'environment_indicator_indicator_bar' => array(
+      'variables' => array('info' => NULL),
+      'file' => 'environment_indicator.theme.inc',
+    ),
+    'environment_indicator_switches' => array(
+      'variables' => array('switches' => NULL),
+      'file' => 'environment_indicator.theme.inc',
+    ),
+    'environment_indicator_overwritten_header' => array(
+      'file' => 'environment_indicator.theme.inc',
+    ),
+  );
+}
+
+/**
+ * Implements hook_admin_menu_output_alter().
+ */
+function environment_indicator_admin_menu_output_alter(&$content) {
+  $integrations = variable_get('environment_indicator_integration', array('toolbar' => 'toolbar', 'admin_menu' => 'admin_menu'));
+  if (empty($integrations['admin_menu'])) {
+    return;
+  }
+  $environment_info = environment_indicator_get_active();
+  if (!empty($environment_info) && environment_indicator_check_access($environment_info)) {
+    $content['environment_indicator'] = array(
+      '#theme' => 'html_tag',
+      '#tag' => 'div',
+      '#value' => theme('environment_indicator_indicator_name', $environment_info),
+      '#weight' => 50,
+      '#attributes' => array(
+        'id' => 'environment-indicator',
+        'style' => 'background-color: ' . $environment_info['color'] . '; color: ' . $environment_info['text_color'] . ';',
+      ),
+    );
+  }
+}
+
+/**
+ * Helper function to attach the indicator to the page.
+ */
+function environment_indicator_attach_indicator($environment_info, &$page) {
+  $page['page_' . $environment_info['position']]['environment_indicator'] = array(
+    '#theme' => 'environment_indicator_indicator_bar',
+    '#info' => $environment_info,
+  );
+}
+
+/**
+ * Helper function to get the active indicator.
+ */
+function environment_indicator_get_active() {
+  $env = &drupal_static(__FUNCTION__);
+  // Try to get the static or the db caches first.
+  if (isset($env)) {
+    return $env;
+  }
+  elseif ($cached_env = cache_get('environment_indicator')) {
+    // Check it the indicator is in the db cache.
+    return $cached_env->data;
+  }
+  // If no environment was found in the caches, then
+  if (_environment_indicator_is_overwritten()) {
+    $env = _environment_indicator_load_overwritten();
+  }
+  else {
+    $environments = environment_indicator_get_all();
+    $matches = array();
+    foreach ($environments as $machine => $environment) {
+      // Check if the environment record has ben disabled. Then check the regex.
+      if (preg_match("/$environment->regexurl/", $_SERVER['HTTP_HOST'])) {
+        $settings = $environment->settings;
+        $matches[] = array(
+          'name' => $environment->name,
+          'machine' => $environment->machine,
+          'weight' => $settings['weight'],
+          'color' => $settings['color'],
+          'text_color' => $settings['text_color'],
+          'position' => $settings['position'],
+          'fixed' => $settings['fixed'],
+        );
+      }
+    }
+    uasort($matches, 'drupal_sort_weight');
+    $env = reset($matches);
+  }
+  // Save it to the db_cache.
+  cache_set('environment_indicator', $env);
+  return $env;
+}
+
+/**
+ * Helper function to get all environments.
+ *
+ * @param bool $fixed
+ *   If TRUE it will only return fixed environments. Fixed environments are
+ *   those that do not use a regular expression for detection.
+ */
+function environment_indicator_get_all($fixed = FALSE) {
+  module_load_include('inc', 'ctools', 'includes/export');
+  $environments = ctools_export_crud_load_all('environment_indicator_environment');
+  $environments = array_filter($environments, '_environment_indicator_active');
+  // Check if the regular expression is a environment name.
+  return $fixed ? array_filter($environments, '_environment_indicator_regex_filter') : $environments;
+}
+
+/**
+ * Helper function to check access to show the indicator.
+ *
+ * @param array
+ *   The environment info array.
+ * @return boolean
+ *   TRUE if the user can see the indicator.
+ */
+function environment_indicator_check_access($environment_info) {
+  // Do not show the indicator on select pages.
+  $off_pages = variable_get('environment_indicator_suppress_pages', "");
+  $path = drupal_get_path_alias($_GET['q']);
+  // Compare with the internal and path alias (if any).
+  $page_match = drupal_match_path($path, $off_pages);
+  if ($path != $_GET['q']) {
+    $page_match = $page_match || drupal_match_path($_GET['q'], $off_pages);
+  }
+  if ($page_match) {
+    return FALSE;
+  }
+
+  return user_access('access environment indicator') || user_access('access environment indicator ' . $environment_info['machine']);
+}
+
+/**
+ * Helper function to check if the JS needs to be included.
+ *
+ * @return boolean
+ *   TRUE if the extra javascript is needed.
+ */
+function environment_indicator_needs_js() {
+  $integrations = variable_get('environment_indicator_integration', array('toolbar' => 'toolbar', 'admin_menu' => 'admin_menu'));
+  return (module_exists('toolbar') && user_access('access toolbar') && !empty($integrations['toolbar'])) || (module_exists('admin_menu') && user_access('access administration menu') && !empty($integrations['admin_menu']));
+}
+
+/**
+ * Filter callback
+ */
+function _environment_indicator_regex_filter($item) {
+  return !preg_match("/[\*\?\[\]\(\)]/", $item->regexurl);
+}
+
+/**
+ * Filter callback
+ */
+function _environment_indicator_active($item) {
+  return empty($item->disabled) || !$item->disabled;
+}
+
+/**
+ * Helper function to load the overwritten indicator.
+ *
+ * @return array
+ *   Environment info array.
+ */
+function _environment_indicator_load_overwritten() {
+  $env = &drupal_static(__FUNCTION__);
+  if (isset($env)) {
+    return $env;
+  }
+  $env = array(
+    'machine' => 'overwritten_environment',
+    'name' => variable_get('environment_indicator_overwritten_name', variable_get('environment_indicator_text', t('Overwritten environment.'))),
+    'weight' => -99,
+    'color' => variable_get('environment_indicator_overwritten_color', variable_get('environment_indicator_color', '#aa3333')),
+    'text_color' => variable_get('environment_indicator_overwritten_text_color', '#ffffff'),
+    'position' => variable_get('environment_indicator_overwritten_position', 'top'),
+    'fixed' => variable_get('environment_indicator_overwritten_fixed', FALSE),
+  );
+
+  return $env;
+}
+
+/**
+ * Helper function to determine if there is an overwritten indicator.
+ */
+function _environment_indicator_is_overwritten() {
+  return variable_get('environment_indicator_enabled', FALSE) || variable_get('environment_indicator_overwrite', FALSE);
+}
+
+/**
+ * Helper function to determine if 7.x-1.x variables are present.
+ */
+function _environment_indicator_has_old_vars() {
+  $color = !is_null(variable_get('environment_indicator_color', NULL));
+  $enabled = !is_null(variable_get('environment_indicator_enabled', NULL));
+  $name = !is_null(variable_get('environment_indicator_text', NULL));
+  return $color || $enabled || $name;
+}
+

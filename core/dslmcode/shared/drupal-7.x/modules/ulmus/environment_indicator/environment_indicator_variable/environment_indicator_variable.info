@@ -1,0 +1,16 @@
+name = Environment indicator variables
+description = Adds a variable a realm for environment.
+core = 7.x
+
+dependencies[] = variable_realm (7.x-2.x)
+dependencies[] = variable_store (7.x-2.x)
+dependencies[] = environment_indicator
+
+files[] = class/EnvironmentVariableRealmController.php
+
+; Information added by  packaging script on 2013-12-01
+version = "7.x-2.2"
+core = "7.x"
+project = "environment_indicator"
+datestamp = "1385935410"
+
