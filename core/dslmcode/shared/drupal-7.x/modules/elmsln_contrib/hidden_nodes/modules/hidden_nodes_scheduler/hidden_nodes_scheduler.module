@@ -60,6 +60,7 @@ function hidden_nodes_scheduler_scheduler_api($node, $action) {
     $actions = array('hidden_nodes_unhide_action');
     $context['node'] = $node;
     actions_do($actions, $node, $context, NULL, NULL);
+    node_save($node);
     watchdog('hidden nodes', '@type %title is now un-hidden', array(
       '@type' => node_type_get_name($node), '%title' => $node->title), WATCHDOG_NOTICE, l(t('view'), 'node/' . $node->nid));
   }
