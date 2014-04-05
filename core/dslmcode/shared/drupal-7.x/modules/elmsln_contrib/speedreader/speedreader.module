@@ -27,14 +27,14 @@ function speedreader_get_library() {
   if (function_exists('libraries_get_libraries')) {
     $libraries = libraries_get_libraries();
     if (isset($libraries['speedreader'])) {
-      return $libraries['speedreader'] . '/index.js';
+      return $libraries['speedreader'] . '/js/index.js';
     }
   }
   else {
     $directory = 'libraries';
     $profile = drupal_get_profile();
     $config = conf_path();
-    $lib = 'speedreader/index.js';
+    $lib = 'speedreader/js/index.js';
     // look in install profile
     if (file_exists("profiles/$profile/$directory/$lib")) {
       return "profiles/$profile/$directory/$lib";

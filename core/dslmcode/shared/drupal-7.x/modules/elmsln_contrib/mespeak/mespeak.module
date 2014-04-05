@@ -27,7 +27,7 @@ function mespeak_get_library() {
   if (function_exists('libraries_get_libraries')) {
     $libraries = libraries_get_libraries();
     if (isset($libraries['mespeak'])) {
-      return $libraries['mespeak'] . '/index.js';
+      return $libraries['mespeak'] . '/mespeak.js';
     }
   }
   else {
