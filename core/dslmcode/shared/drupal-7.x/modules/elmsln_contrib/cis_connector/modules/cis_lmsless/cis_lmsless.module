@@ -50,6 +50,13 @@ function _cis_lmsless_assemble() {
   // request a list of all other services that this section uses
   if (!$services = _cis_connector_transaction('other_services')) {
     $services = $list = array();
+    $distro = variable_get('install_profile', 'standard');
+    $reg = _cis_connector_build_registry($distro);
+    $list[$distro] = array(
+      'title' => $reg['default_title'],
+      'url' => '#',
+      'machine_name' => $distro,
+    );
   }
   else {
     foreach ($services as $service) {
@@ -59,33 +66,33 @@ function _cis_lmsless_assemble() {
         'machine_name' => $service['field_machine_name'],
       );
     }
-    // add in link to the CIS location if permission exists
-    // @ignore druplart_conditional_assignment
-    if (user_access('view lmsless cis link') && $settings = _cis_connector_build_registry('cis')) {
-      // space it out since this is not to be accessed frequently
-      $list['_'] = array(
-        'title' => t('_________________________'),
-        'url' => '#',
-        'machine_name' => '_',
-      );
-      $list['cis'] = array(
-        'title' => t('Course information system'),
-        'url' => _cis_connector_format_address($settings, base_path(), 'front'),
-        'machine_name' => 'cis',
-      );
-    }
-    // bump current link to the first position and drop url so its internal
-    foreach ($list as $key => $item) {
-      // see if this service matches the current tool
-      if ($item['url'] == $GLOBALS['base_url'] . '/') {
-        $tmp = $item;
-        $tmp['url'] = '#';
-        unset($list[$key]);
-        array_unshift($list, $tmp);
-      }
-    }
-    $vars['services'] = $list;
   }
+  // add in link to the CIS location if permission exists
+  // @ignore druplart_conditional_assignment
+  if (user_access('view lmsless cis link') && $settings = _cis_connector_build_registry('cis')) {
+    // space it out since this is not to be accessed frequently
+    $list['_'] = array(
+      'title' => t('_________________________'),
+      'url' => '#_blank',
+      'machine_name' => '_',
+    );
+    $list['cis'] = array(
+      'title' => t('Course information system'),
+      'url' => _cis_connector_format_address($settings, base_path(), 'front'),
+      'machine_name' => 'cis',
+    );
+  }
+  // bump current link to the first position and drop url so its internal
+  foreach ($list as $key => $item) {
+    // see if this service matches the current tool
+    if ($item['url'] == $GLOBALS['base_url'] . '/') {
+      $tmp = $item;
+      $tmp['url'] = '#';
+      unset($list[$key]);
+      array_unshift($list, $tmp);
+    }
+  }
+  $vars['services'] = $list;q
   drupal_add_css(drupal_get_path('module', 'cis_lmsless') . '/css/cis_lmsless.css');
   drupal_add_js(drupal_get_path('module', 'cis_lmsless') . '/js/cis_lmsless.js');
   return theme('cis_lmsless_bar', $vars);
