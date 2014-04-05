@@ -1,0 +1,20 @@
+<html>
+<head>
+  <title>meSpeak.js: Deferred Call Demo</title>
+  <script>
+    // This demo is licensed under the GNU GPL.
+  </script>
+  <script type="text/javascript" src="mespeak.js"></script>
+  <script type="text/javascript">
+    meSpeak.speak("Configuration and voice definition loaded.");
+    meSpeak.loadConfig("mespeak_config.json");
+    meSpeak.loadVoice("voices/en/en-us.json");
+  </script>
+</head>
+<body>
+  <h1>meSpeak.js</h1>
+  <h2>Defererred Call Demo</h2>
+  <p>This page demonstrates a call to speak() that will be deferred and will be executed instantly after the configuration and any voice definition has been set up.</p>
+</body>
+</html>
+

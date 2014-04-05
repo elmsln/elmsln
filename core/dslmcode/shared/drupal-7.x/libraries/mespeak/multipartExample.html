@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="utf-8" />
+	<title>meSpeak.js &mdash; Multipart Example</title>
+	<script type="text/javascript" src="mespeak.js"></script>
+
+<script type="text/javascript">
+
+meSpeak.loadConfig("mespeak_config.json");
+meSpeak.loadVoice("voices/en/en-us.json");
+meSpeak.loadVoice("voices/fr.json");
+
+
+var parts = [
+  { text: "Travel to",      voice: "en/en-us", variant: "m3" },
+  { text: "Paris",          voice: "fr",       variant: "f5" },
+  { text: "at light speed", voice: "en/en-us", variant: "m3" }
+];
+
+function speakIt() {
+  // called by button
+  meSpeak.speakMultipart(parts);
+}
+
+function speakItWithDefaults() {
+  // called by button
+  meSpeak.speakMultipart(parts, {pitch: 35, speed: 160});
+}
+
+</script>
+<style type="text/css">
+	body {max-width: 1000px; }
+	h3 { margin-top: 2em; }
+	form p
+	{
+		margin-top: 0.5em;
+		margin-bottom: 0.5em;
+	}
+	p.codesample
+	{
+		margin: 1em 0;
+		padding: 1em 0 1em 2em;
+		white-space: pre;
+		font-family: monospace;
+		line-height: 120%;
+		background-color: #f2f2f2;
+	}
+	p.codesample strong { color: #111; }
+	p.action { margin: 1em 0 1em 1.5em; }
+</style>
+</head>
+<body>
+
+<h1>meSpeak.js &mdash; Multipart Example</h1>
+
+<p>This is an example for mixing multiple parts into a single utterance using <tt>meSpeak.speakMultipart()</tt>.</p>
+
+<p>We will speak the text <em>&quot;Travel to Paris at light speed.&quot;</em> using a female French voice for the word &quot;Paris&quot;.</p>
+<p>For this, we break up the sentence in multiple parts, each part representing a continous text to be spoken by a voice. Each part is an object, containing the text to be spoken and any options to be applied.</p>
+
+<p class="action">Try it: <button onclick="speakIt();">Speak It</button></p>
+
+<p class="codesample">
+meSpeak.loadConfig(&quot;mespeak_config.json&quot;);
+meSpeak.loadVoice(&quot;voices/en/en-us.json&quot;);
+meSpeak.loadVoice(&quot;voices/fr.json&quot;);
+
+
+var parts = [
+  { text: &quot;Travel to&quot;,      voice: &quot;en/en-us&quot;, variant: &quot;m3&quot; },
+  { text: &quot;Paris&quot;,          voice: &quot;fr&quot;,       variant: &quot;f5&quot; },
+  { text: &quot;at light speed&quot;, voice: &quot;en/en-us&quot;, variant: &quot;m3&quot; }
+];
+
+function speakIt() {
+  // called by button
+  meSpeak.speakMultipart(parts);
+}
+</p>
+
+<p>We even may provide any options to be applied as defaults to the individual parts.<br />
+(You may apply any options valid for <tt>meSpeak.speak()</tt>.)</p>
+
+<p class="codesample">
+function speakItWithDefaults() {
+  // called by button
+  meSpeak.speakMultipart(parts, {pitch: 35, speed: 160});
+}
+</p>
+<p class="action">Try it: <button onclick="speakItWithDefaults();">Speak It</button></p>
+
+<p>&nbsp;</p>
+<h2>Syntax</h2>
+<p>The general form of <tt>meSpeak.speakMultipart()</tt> is analogous to <tt>meSpeak.speak()</tt>, but with an array of objects (the parts to be spoken) as the first argument (rather than a single text):</p>
+
+<p class="codesample">
+<strong>meSpeak.speakMultipart(</strong> &lt;parts-array&gt; [, &lt;options-object&gt; [, &lt;callback-function&gt; ]] <strong>)</strong>;
+
+<strong>meSpeak.speakMultipart(</strong>
+  [
+    { text: &quot;text-1&quot;, &lt;other options&gt; ] },
+    { text: &quot;text-2&quot;, &lt;other options&gt; ] },
+    ...
+    { text: &quot;text-n&quot;, &lt;other options&gt; ] },
+  ],
+  { option1: value1, option2: value2 .. },
+  callback
+<strong>)</strong>;
+</p>
+<p>Only the the first argument is mandatory, any further arguments are optional.<br />
+The <em>parts-array</em> must contain a single element (of type object) at least.<br />
+For any other options refer to <tt>meSpeak.speak()</tt>.<br />
+The method returns &mdash; like <tt>meSpeak.speak()</tt> &mdash; either an ID, or, if called with the <tt>&quot;rawdata&quot;</tt> option (in the general options / second argument), a stream-buffer representing the generated wav-file.</p>
+
+
+<p>&nbsp;</p>
+<p>N. Landsteiner, 2014</p>
+
+</body>
+</html>

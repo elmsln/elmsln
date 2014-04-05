@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="utf-8" />
+	<title>meSpeak Flash Fallback</title>
+  	<script type="text/javascript" src="../mespeak.js"></script>
+	<script type="text/javascript" src="flashFallback.js"></script>
+
+	<script type="text/javascript">
+		meSpeak.loadConfig("../mespeak/mespeak_config.json");
+		meSpeak.loadVoice("../mespeak/voices/en/en.json");
+		
+		var fallbackInstalled = false;
+		var hasTypedArrays = Boolean(window.Int32Array && window.Float32Array
+			&& (window.Int32Array.prototype.subarray || window.Int32Array.subarray)
+			),
+			canSpeak = (hasTypedArrays && window.meSpeak && meSpeak.canPlay());
+		
+		function checkAndInstall() {
+			// check typed array support (we need this) and wav-support (we fallback, if not present)
+			if (hasTypedArrays && window.meSpeak && !meSpeak.canPlay()) {
+				canSpeak = installFallback();
+			}
+		}
+		
+		function installFallback() {
+			// install with explicit default values
+			// swf will be 2px x 2px (h x w), transparent
+			return fallbackInstalled = meSpeakFlashFallback.install(
+				'meSpeakFallback.swf', // url
+				'meSpeakFallback',     // id of swf object
+				null                   // parent element to inject into
+				                       // (default: append to body)
+			);
+		}
+		
+		function fallbackSpeak() {
+			meSpeakFlashFallback.speak('Hello world.', { 'speed': 180 } );
+		}
+		
+		// some functions for abstracting
+		
+		function speakAny( txt, options, vol ) {
+			if (fallbackInstalled) {
+				meSpeakFlashFallback.speak( txt, options );
+			}
+			else if (canSpeak) {
+				meSpeak.speak( txt, options, vol );
+			}
+		}
+		
+		function setVolume( vol) {
+			if (fallbackInstalled) {
+				meSpeakFlashFallback.setVolume( vol );
+			}
+			else if (canSpeak) {
+				meSpeak.setVolume( vol );
+			}
+		}
+		
+		function fallbackReady() {
+			// check if the swf has loaded and performed a handshake, indicating that it's available
+			return meSpeakFlashFallback.ready();
+		}
+		
+		// install only, if needed
+		// if (document.addEventListener) document.addEventListener('DOMContentLoaded', checkAndInstall, false);
+		
+		// install unconditionally (for testing purpose)
+		if (document.addEventListener) document.addEventListener('DOMContentLoaded', installFallback, false);
+	</script>
+</head>
+<body>
+	<h1>meSpeak Flash Fallback <small>(for IE 10)</small></h1>
+	
+	<p>A fallback to play meSpeak's wav-files via Flash.<br />Since typed arrays are still a requirement, the only use-case is MS Internet Explorer 10.<br />
+	Please note that, since we may not send binary data to a swf-object, the data has to be copied internally to a binary object, which may take some time and memory.<br />Because of this, the status of this solution is at best &quot;experimental&quot; and not for everyday use.</p>
+	<p>The fallback &quot;meSpeakFallback.swf&quot; uses the <a href="http://code.google.com/p/as3wavsound/">AS3WavSound</a> library (v0.9) for wav-playback inside the SWF. (Ironically Flash doesn't support native wav-playback either.)<br />The swf-file is compiled for network use, meaning it will work only, if loaded over a network (web-server).</p>
+
+	<p>For testing, the fallback is installed for all browsers on this page:
+	<input type="button" value="speak: Hello world." onclick="fallbackSpeak();" /></p>
+	
+	<p>See page source for API &amp; details.</p>
+
+	<hr style="margin-top: 2em; margin-bottom: 2em;">
+	<p><strong>A Note on Usage:</strong><br />While the fallback-script strips down the coded needed to inject a swf-object to a minimum, best practice would be to include the script only, if applicable (i.e.: for MS IE 10 only), using MS-specific conditional comments:</p>
+	
+	<xmp style="margin-left: 1em;">
+<!--[if IE 10]>
+  <script type="text/javascript" src="flashFallback.js"></script>
+<![endif]-->
+	</xmp>
+	<p>If doing so, you would have to check for the existence of <code>meSpeakFlashFallback</code> first, before calling it:</p>
+	
+	<xmp style="margin-left: 1em;">
+if (window.meSpeakFlashFallback) callbackInstalled = meSpeakFlashFallback.install();
+
+// later, see page source for API details and usage
+if (callbackInstalled) meSpeakFlashFallback.speak('Hello world.');
+	</xmp>
+	<p>This way, page- and memory-loads are reduced to a minimum for all browsers.</p>
+	<p>Please note that there is a delay between calling <code>install()</code> and the fallback actually being available, since the swf-file has to load and initialize first.</p>
+	<p>&nbsp;</p>
+	<p>Norbert Landsteiner, mass:werk &ndash; media environments, <a href="http://www.masswerk.at/">www.masswerk.at</a><br />
+	Vienna, July 2013</p>
+</body>
+</html>

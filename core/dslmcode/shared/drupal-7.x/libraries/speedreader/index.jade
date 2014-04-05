@@ -1,0 +1,40 @@
+.spritz#spritz
+  .spritz-word#spritz_word
+  
+.settings
+  .controls.settings-controls
+    span.speed
+      a.slower.entypo-fast-backward#spritz_slower(href="#" title="Slow Down")
+      input.wpm#spritz_wpm(type="number" value="300" step="50" min="50")
+      a.faster.entypo-fast-forward#spritz_faster(href="#" title="Speed Up")
+    a.save.entypo-save#spritz_save(href="#" title="Save")
+    span.interaction
+      a.back.entypo-left-open#spritz_back(href="#" title="Jog Back")
+      a.pause.entypo-pause#spritz_pause(href="#" title="Pause/Play")
+      a.forward.entypo-right-open#spritz_forward(href="#" title="Jog Forward")
+      
+  .controls.extra-controls
+    .togglable.closed
+      .zoom
+        a.smaller.entypo-minus#spritz_smaller(href="#" title="Smaller")
+        span.entypo-search(href="#" title="Smaller")
+        a.bigger.entypo-plus#spritz_bigger(href="#" title="Bigger")
+      .autosave
+        input.checkbox#autosave_checkbox(type="checkbox")
+        label.checkbox-label.entypo-cancel#spritz_autosave(for="autosave_checkbox") auto-save on pause
+    a.toggle.entypo-dot-3(href="#" title="Extra Controls")
+    
+  .words
+    .controls.words-controls
+      a.select.entypo-doc-text#spritz_select(href="#" title="Select All")
+      a.refresh.entypo-cycle#spritz_refresh(href="#" title="Refresh Text")
+      a.expand.entypo-resize-full#spritz_expand(href="#" title="Text Area Resize")
+    .progress-bar#spritz_progress
+    textarea.demo-words#spritz_words.
+      Spritz
+      This is a jQuery implementation of Spritz technology.
+      Reading is inherently  time consuming because your eyes have to move from word to word and line to line. Traditional reading also consumes huge amounts of physical space on a page or screen, which limits reading effectiveness on small displays. Scrolling, pinching, and resizing a reading area doesn’t fix the problem and only frustrates people. Now, with compact text streaming from Spritz, content can be streamed one word at a time, without forcing your eyes to spend time moving around the page. Spritz makes streaming your content easy and more comfortable, especially on small displays. Our “Redicle” technology enhances readability even more by using horizontal lines and hash marks to direct your eyes to the red letter in each word, so you can focus on the content that interests you. Best of all, Spritz’s patent-pending technology can integrate into photos, maps, videos, and websites to promote more effective communication.
+      
+a.light(href="#" title="Change Theme")
+
+.alert#alert

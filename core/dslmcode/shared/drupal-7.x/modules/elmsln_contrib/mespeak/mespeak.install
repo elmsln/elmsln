@@ -1,0 +1,30 @@
+<?php
+/**
+ * @file
+ * Install file for mespeak module.
+ */
+
+/**
+ * Implements hook_requirements().
+ */
+function mespeak_requirements($phase) {
+  module_load_include('module', 'mespeak');
+  $requirements = array();
+  $requirements['mespeak'] = array(
+    'title' => 'mespeak library',
+  );
+  switch ($phase) {
+    case 'install':
+    case 'runtime':
+      $lib = mespeak_get_library();
+      if (!$lib) {
+        $requirements['mespeak']['description'] = 'Me Speak: Could not locate the mespeak library. Please download the latest version of the library from ' . l(MESPEAK_URL, MESPEAK_URL) . ', unzip the package and place it in your libraries directory under the name mespeak.';
+        $requirements['mespeak']['severity'] = REQUIREMENT_ERROR;
+      }
+      else {
+        $requirements['mespeak']['value'] = 'Installed correctly';
+        $requirements['mespeak']['severity'] = REQUIREMENT_OK;
+      }
+  }
+  return $requirements;
+}

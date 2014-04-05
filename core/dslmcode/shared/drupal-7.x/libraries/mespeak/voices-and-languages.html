@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="utf-8" />
+	<title>meSpeak &ndash; Voices &amp; Languages</title>
+	<style type="text/css">
+		li { margin-bottom: 0.5em; }
+		h2,h3 { margin-top: 2em; }
+	</style>
+</head>
+<body>
+
+<h1>meSpeak &ndash; Voices &amp; Languages</h1>
+
+<p>A short guide to the set-up of languages and voices for meSpeak.<br />
+Please mind that meSpeak is based on an Emscripten-port of <a href="http://espeak.sourceforge.net/" target="_blank">eSpeak</a>, so all of the eSpeak grammar applies also to meSpeak.</p>
+
+
+<h2>Standard Language Files</h2>
+
+<p>meSpeak's language-files provide eSpeak's language- and voice-files in a single package.<br />(Since a voice usually refers to a language and its dictionary, it seems suitable to bundle them together in a single file.)<br />The language-files are of the following structure (JSON):</p>
+
+<xmp>{
+  "voice_id": "<filename>",
+  "dict_id":  "<filename>",
+  "dict":     "<base64-encoded octet stream>",
+  "voice":    "<base64-encoded octet stream>"
+}
+</xmp>
+
+
+<p>The values of <em>voice_id</em> and <em>dict_id</em> are actually UNIX-filenames, <code>dict_id</code> relative to the path of eSpeak's data-directory &quot;<code>espeak-data/</code>&quot;, <em>voice_id</em> relative to &quot;<code>espeak-data/voices/</code>&quot;.</p>
+
+<p>If we were to embed the files for the langage &quot;<code>en-en</code>&quot;, these would be:</p>
+<ul>
+	<li>&quot;<code>en/en-en</code>&quot; for the voice and</li>
+	<li>&quot;<code>en_dict</code>&quot; for the dictionary used by &quot;en-en&quot;</li>
+</ul>
+
+<p>For a standard language-file, you would add a base64-representation as the string value of <em>dict</em> and <em>voice</em> of the respective eSpeak-files.</p>
+
+
+<h2>Customizing</h2>
+
+<p>There is an alternate layout for meSpeak's language-files, which is espacially usefull for the purpose of customizing and testing:</p>
+
+<xmp>{
+  "voice_id": "<filename>",
+  "dict_id":  "<filename>",
+  "dict":     "<base64-encoded octet stream>",
+  "voice":    "<text-string>",
+  "voice_encoding": "text"
+}
+</xmp>
+
+<p>Since eSpeak's voice-files are actually plain-text files, you may use a simple string for these, if you provide an additional property <code>&quot;voice_encoding&quot;: &quot;text&quot;</code> at the same time.</p>
+<p><em>For dictionaries, which are a binary files with eSpeak, see the note at the end of the page.</em></p>
+
+<h3>Example</h3>
+
+<p>For an example we will configure a basic female voice for &quot;en-us&quot;, which will be named &quot;en-us-f&quot;.</p>
+
+<ol>
+<li>Make a copy of a meSpeak-language file (json), which you want to modify (in this case &quot;<code>voices/en/en-us.json</code>).</li>
+
+<li>Rename the file (e.g.: &quot;<code>en-us-f.json</code>&quot;) and open it in editor.</li>
+
+<li>Download the source of <a href="http://espeak.sourceforge.net/" target="_blank">eSpeak</a> and go to the &quot;<code>espeak-data/</code>&quot; directory.</li>
+
+<li>The eSpeak-file &quot;<code>espeak-data/voices/en-us</code>&quot; looks like this:
+
+<xmp>// moving towards US English
+name english-us
+language en-us 2
+language en-r
+language en 3
+gender male
+// and more, skipped here
+</xmp></li>
+
+<li>Rename the &quot;<code>name</code>&quot; parameter to make it unique (e.g.: &quot;<code>name english-us-f</code>&quot;).</li>
+
+<li>Change any paramaters as you whish, in this case change &quot;<code>gender male</code>&quot; to &quot;<code>gender female</code>&quot; for a female voice.</li>
+
+<li>You should have arrived at something like this (first line removed, since it is just a comment):
+
+<xmp>name english-us-f
+language en-us 2
+language en-r
+language en 3
+gender female
+</xmp></li>
+
+<li>Replace any line-breaks by &quot;<code>\n</code>&quot; in order to get a valid JSON-string:
+
+<xmp>"name english-us-f\nlanguage en-us 2\nlanguage en-r\nlanguage en 3\ngender female"</xmp>
+
+And use this as a value for the &quot;<code>voice</code>&quot;-property of the JSON-file.</li>
+
+<li>Add the line <code>&quot;voice_encoding&quot;: &quot;text&quot;</code> to the JSON to indicate that the voice is plain-text.<br />Your voice file should now look like this:
+
+<xmp>Content of file: "en-us-f.json":
+
+{
+  "voice_id": "en-us-f",
+  "dict_id":  "en_dict",
+  "dict":     "<base64-encoded octet stream>",
+  "voice":    "name english-us-f\nlanguage en-us 2\nlanguage en-r\nlanguage en 3\ngender female",
+  "voice_encoding": "text"
+}
+</xmp></li>
+<li>Save it and load it into meSpeak.</li>
+</ol>
+
+<p><em>Please note that eSpeak is not very graceful with syntax errors in a voice-definition and will just throw an error, which will &mdash; in the case of meSpeak &mdash; show up in the console-log.</em></p>
+
+<p>For further details on voice-parameters and fine-tuning, please refer to the eSpeak-documentation: <a href="http://espeak.sourceforge.net/voices.html" target="_blank">http://espeak.sourceforge.net/voices.html</a>.</p>
+
+<h2>Custom Dictionaries</h2>
+<p>eSpeak's dictonaries are binary files, which must be compiled with eSpeak first.<br />
+You would have to install eSpeak and compile a file following the <a href="http://espeak.sourceforge.net/docindex.html" target="_blank">eSpeak documentation</a>.</br />
+Further, you would insert a base64-encoded string of the resulting object-file's content as the value of the <em>dict</em> property of a meSpeak-language-file.<br />
+Finally, you would set a suiting and unique value for the property <em>dict_id</em> (UNIX file path).</p>
+<p>There is no shortcut to this. Sorry.</p>
+
+<p>Please see also the section on the <em>extended voice format</em> at the <a href="./">main-page</em>.</p>
+
+
+<p>&nbsp;</p>
+<p>Norbert Landsteiner<br />
+Vienna, July 2013</p>
+
+</body>
+</html>

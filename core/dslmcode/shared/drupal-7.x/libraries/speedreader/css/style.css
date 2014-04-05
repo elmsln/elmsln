@@ -1,0 +1,370 @@
+.spritz {
+  position: relative;
+  max-width: 30rem;
+  padding: 1rem 0 1.2rem;
+  border-top: 2px solid black;
+  border-bottom: 2px solid black;
+  margin: 10rem auto;
+  font-size: 1em;
+}
+.spritz:before, .spritz:after {
+  content: "";
+  position: absolute;
+  left: 40%;
+  height: 0.8rem;
+  width: 2px;
+  margin-left: -1px;
+  background-color: black;
+}
+.night .spritz {
+  border-color: #555555;
+}
+.night .spritz:before, .night .spritz:after {
+  background-color: #555555;
+}
+.spritz:before {
+  top: 0;
+}
+.spritz:after {
+  bottom: 0;
+}
+
+.spritz-word {
+  font-size: 1.6em;
+  line-height: 1.6em;
+  height: 1.7em;
+  font-weight: 600;
+  color: black;
+}
+.night .spritz-word {
+  color: #bbbbbb;
+}
+.spritz-word div {
+  display: table-cell;
+}
+.spritz-word div:first-child {
+  width: 40%;
+  text-align: right;
+}
+.spritz-word div:nth-child(2) {
+  color: #e60000;
+}
+.night .spritz-word div:nth-child(2) {
+  color: #ff4d4d;
+}
+.spritz-word div:last-child {
+  width: 60%;
+  text-align: left;
+}
+
+.controls {
+  text-align: center;
+}
+.controls:after {
+  content: "";
+  display: table;
+  clear: both;
+}
+.controls a {
+  display: inline-block;
+  vertical-align: bottom;
+  color: #aaaaaa;
+  text-decoration: none;
+  transition: color 150ms linear;
+}
+.controls a:hover, .controls a.active {
+  color: #777777;
+}
+.night .controls a {
+  color: #444444;
+}
+.night .controls a:hover, .night .controls a.active {
+  color: #999999;
+}
+
+.settings input, .settings textarea, .settings button {
+  box-sizing: border-box;
+  border: 0;
+  color: black;
+  background: transparent;
+}
+.night .settings input, .night .settings textarea, .night .settings button {
+  color: #888888;
+}
+.settings input:focus, .settings textarea:focus, .settings button:focus {
+  outline: none;
+}
+
+.settings-controls {
+  max-width: 30rem;
+  margin: 0 auto;
+}
+.settings-controls .speed {
+  float: left;
+}
+.settings-controls .interaction {
+  float: right;
+}
+.settings-controls a {
+  font-size: 3rem;
+  line-height: 4rem;
+}
+.settings-controls .save {
+  transition: opacity 0.2s linear;
+  opacity: 0;
+  font-size: 2.5rem;
+}
+.paused .settings-controls .save {
+  opacity: 1;
+}
+.autosave .settings-controls .save {
+  opacity: 0;
+}
+.settings-controls .save.active {
+  opacity: 0.4 !important;
+}
+.settings-controls .pause {
+  margin: 0;
+  width: 4rem;
+  text-align: center;
+  font-size: 4rem;
+}
+.paused .settings-controls .pause:before {
+  content: "\e601";
+  position: relative;
+  margin-left: -0.4rem;
+}
+
+.wpm {
+  position: relative;
+  display: inline-block;
+  width: 7rem;
+  margin: 0;
+  padding: 0;
+  text-align: center;
+  font-weight: 600;
+  font-size: 2rem;
+  line-height: 4rem;
+  vertical-align: top;
+}
+.wpm::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+}
+
+.extra-controls {
+  margin: 5rem auto 0;
+}
+.extra-controls .toggle {
+  font-size: 2rem;
+  padding: 1rem 2rem;
+}
+.extra-controls .togglable {
+  display: none;
+}
+.extra-controls .zoom {
+  font-size: 2rem;
+}
+.extra-controls .zoom * {
+  display: inline-block;
+  padding: 0.6rem;
+}
+.extra-controls .autosave .checkbox {
+  display: none;
+}
+.extra-controls .autosave .checkbox:checked + .checkbox-label:before {
+  content: "\e60a";
+}
+.extra-controls .autosave .checkbox-label {
+  user-select: none;
+  cursor: pointer;
+}
+.extra-controls .autosave .checkbox-label:before {
+  position: relative;
+  display: inline-block;
+  margin-right: 1rem;
+  width: 1.4rem;
+  vertical-align: top;
+  overflow: visible;
+  font-size: 1.8rem;
+}
+
+.words {
+  max-width: 30rem;
+  margin: 0 auto;
+  position: relative;
+  transition: max-width 0.2s linear;
+}
+.fullscreen .words {
+  max-width: 60rem;
+}
+.fullscreen .words .demo-words {
+  height: 30rem;
+}
+.words .demo-words {
+  width: 100%;
+  height: 5em;
+  transition: height 0.2s linear;
+  padding: 1rem 1.5rem;
+  background-color: #eeeeee;
+}
+.words .demo-words::-webkit-scrollbar {
+  width: 0.8rem;
+}
+.words .demo-words::-webkit-scrollbar-thumb {
+  background: #d4d4d4;
+}
+.night .words .demo-words {
+  background-color: #191919;
+}
+.night .words .demo-words::-webkit-scrollbar-thumb {
+  background: #2d2d2d;
+}
+.night .words .demo-words::-webkit-resizer {
+  background: #141414;
+}
+
+.progress-bar {
+  height: 2px;
+  width: 0;
+  background: red;
+  opacity: 0.4;
+}
+
+.words-controls {
+  margin: 0 0 2rem;
+}
+.words-controls a {
+  margin: 0 0.6rem;
+  font-size: 2rem;
+  line-height: 2rem;
+}
+.words-controls .refresh {
+  font-size: 2.6rem;
+}
+.fullscreen .words-controls .expand:before {
+  content: "\e612";
+}
+
+.light {
+  position: absolute;
+  top: 2rem;
+  left: 3rem;
+  font-size: 3rem;
+  font-family: "Spritz", sans-serif;
+  text-decoration: none;
+}
+.light:after {
+  content: "\e609";
+  color: #aaaaaa;
+}
+.night .light:after {
+  content: "\e608";
+  color: #444444;
+}
+
+#alert {
+  position: absolute;
+  top: 0;
+  padding: 2rem;
+  box-sizing: border-box;
+  width: 100%;
+  text-align: center;
+  left: 0;
+  pointer-events: none;
+}
+
+html {
+  font-size: 10px;
+}
+
+body {
+  background: #dddddd;
+  color: black;
+  transition: background 0.1s linear;
+  margin: 3rem;
+}
+.night body {
+  background: black;
+  color: #888888;
+}
+
+body, input, textarea, button {
+  font-size: 1.4rem;
+  font-family: Open Sans, sans-serif;
+}
+
+::selection {
+  background: #aaaaaa;
+  color: #eeeeee;
+}
+.night ::selection {
+  background: #444444;
+  color: #191919;
+}
+
+@font-face {
+  font-family: "Spritz";
+  src: url("https://s3-us-west-2.amazonaws.com/s.cdpn.io/2361/spritz.eot?ziiuop");
+  src: url("https://s3-us-west-2.amazonaws.com/s.cdpn.io/2361/spritz.eot?#iefixziiuop") format("embedded-opentype"), url("https://s3-us-west-2.amazonaws.com/s.cdpn.io/2361/spritz.woff?ziiuop") format("woff"), url("https://s3-us-west-2.amazonaws.com/s.cdpn.io/2361/spritz.ttf?ziiuop") format("truetype"), url("https://s3-us-west-2.amazonaws.com/s.cdpn.io/2361/spritz.svg?ziiuop#spritz") format("svg");
+  font-weight: normal;
+  font-style: normal;
+}
+[class*="entypo-"]:before {
+  font-family: "Spritz", sans-serif;
+}
+
+.entypo-fast-backward:before {
+  content: "\e606";
+}
+
+.entypo-fast-forward:before {
+  content: "\e605";
+}
+
+.entypo-save:before {
+  content: "\e600";
+}
+
+.entypo-left-open:before {
+  content: "\e60e";
+}
+
+.entypo-pause:before {
+  content: "\e602";
+}
+
+.entypo-right-open:before {
+  content: "\e607";
+}
+
+.entypo-dot-3:before {
+  content: "\e60b";
+}
+
+.entypo-minus:before {
+  content: "\e60d";
+}
+
+.entypo-search:before {
+  content: "\e604";
+}
+
+.entypo-plus:before {
+  content: "\e60c";
+}
+
+.entypo-cancel:before {
+  content: "\e603";
+}
+
+.entypo-doc-text:before {
+  content: "\e60f";
+}
+
+.entypo-cycle:before {
+  content: "\e610";
+}
+
+.entypo-resize-full:before {
+  content: "\e611";
+}

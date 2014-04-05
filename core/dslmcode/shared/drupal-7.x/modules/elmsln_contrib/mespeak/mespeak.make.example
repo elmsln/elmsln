@@ -1,0 +1,15 @@
+; See http://davehall.com.au/blog/dave/2011/05/17/drush-make-and-module-dependencies#comment-2261
+; as to why this file ends with .example rather than .make.
+core = "7.x"
+api = "2"
+projects[drupal][version] = "7.x"
+
+; mespeak modules
+projects[mespeak][version] = “1.x-dev"
+projects[mespeak][subdir] = "contrib"
+
+; mespeak library location
+libraries[mespeak][download][type] = "get"
+libraries[mespeak][download][url] = "https://github.com/btopro/mespeak/archive/master.zip"
+libraries[mespeak][directory_name] = "mespeak"
+libraries[mespeak][destination] = "libraries"

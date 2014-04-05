@@ -1,0 +1,15 @@
+; See http://davehall.com.au/blog/dave/2011/05/17/drush-make-and-module-dependencies#comment-2261
+; as to why this file ends with .example rather than .make.
+core = "7.x"
+api = "2"
+projects[drupal][version] = "7.x"
+
+; speedreader modules
+projects[speedreader][version] = “1.x-dev"
+projects[speedreader][subdir] = "contrib"
+
+; speedreader library location
+libraries[speedreader][download][type] = "get"
+libraries[speedreader][download][url] = "https://github.com/btopro/speedreader/archive/master.zip"
+libraries[speedreader][directory_name] = "speedreader"
+libraries[speedreader][destination] = "libraries"

@@ -1,0 +1,5 @@
+name = "Go Speed Reader, go!"
+description = "A new way of reading content, one word at a time, really really fast."
+core = 7.x
+package = "User Interface"
+dependencies[] = libraries

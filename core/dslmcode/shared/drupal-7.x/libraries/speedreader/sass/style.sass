@@ -1,0 +1,294 @@
+@import "compass/css3"
+
+$f-icon: 'Spritz', sans-serif
+  
+$c-light-bg: #ddd
+$c-light-field-bg: #eee
+$c-light-markers: #000
+$c-light-spritz: #000
+$c-light-text: #000
+$c-light-icon: #aaa
+$c-light-icon-hover: #777
+
+$c-dark-bg: #000
+$c-dark-field-bg: #191919
+$c-dark-markers: #555
+$c-dark-spritz: #bbb
+$c-dark-text: #888
+$c-dark-icon: #444
+$c-dark-icon-hover: #999
+
+.spritz
+  position: relative
+  max-width: 30rem
+  padding: 1rem 0 1.2rem 
+  border-top: 2px solid $c-light-markers
+  border-bottom: 2px solid $c-light-markers
+  margin: 10rem auto
+  font-size: 1em
+  &:before, &:after
+    content: ''
+    position: absolute
+    left: 40%
+    height: 0.8rem
+    width: 2px
+    margin-left: -1px
+    background-color: $c-light-markers
+  .night &
+    border-color: $c-dark-markers
+    &:before, &:after
+      background-color: $c-dark-markers
+  &:before
+    top: 0
+  &:after
+    bottom: 0
+.spritz-word
+  font-size: 1.6em
+  line-height: 1.6em
+  height: 1.7em
+  font-weight: 600
+  color: $c-light-spritz
+  .night &
+    color: $c-dark-spritz
+  div
+    display: table-cell
+    &:first-child
+      width: 40%
+      text-align: right
+    &:nth-child(2)
+      color: darken(red,5)
+      .night &
+        color: lighten(red,15)
+    &:last-child
+      width: 60%
+      text-align: left
+        
+.controls
+  text-align: center
+  &:after
+    content: ''
+    display: table
+    clear: both
+  a
+    display: inline-block
+    vertical-align: bottom
+    color: $c-light-icon
+    text-decoration: none
+    transition: color 150ms linear
+    &:hover, &.active
+      color: $c-light-icon-hover
+    .night &
+      color: $c-dark-icon
+      &:hover, &.active
+        color: $c-dark-icon-hover
+        
+.settings
+  input, textarea, button
+    box-sizing: border-box
+    border: 0
+    color: $c-light-text
+    background: transparent
+    .night &
+      color: $c-dark-text
+    &:focus
+      outline: none
+.settings-controls
+  max-width: 30rem
+  margin: 0 auto
+  .speed
+    float: left
+  .interaction
+    float: right
+  a
+    font-size: 3rem
+    line-height: 4rem
+  .save
+    transition: opacity 0.2s linear
+    opacity: 0
+    font-size: 2.5rem
+    .paused &
+      opacity: 1
+    .autosave &
+      opacity: 0
+    &.active
+      opacity: 0.4!important
+  .pause
+    margin: 0
+    width: 4rem
+    text-align: center
+    font-size: 4rem
+    .paused &:before
+      content: '\e601'
+      position: relative
+      margin-left: -0.4rem
+.wpm
+  position: relative
+  display: inline-block
+  width: 7rem
+  margin: 0
+  padding: 0
+  text-align: center
+  font-weight: 600
+  font-size: 2rem
+  line-height: 4rem
+  vertical-align: top
+  &::-webkit-inner-spin-button
+    -webkit-appearance: none
+      
+.extra-controls
+  margin: 5rem auto 0
+  .toggle
+    font-size: 2rem
+    padding: 1rem 2rem
+  .togglable
+    display: none
+  .zoom
+    font-size: 2rem
+    *
+      display: inline-block
+      padding: 0.6rem
+  .autosave
+    .checkbox
+      display: none
+      &:checked + .checkbox-label:before
+        content: '\e60a'
+    .checkbox-label
+      user-select: none
+      cursor: pointer
+      &:before
+        position: relative
+        display: inline-block
+        margin-right: 1rem
+        width: 1.4rem
+        vertical-align: top
+        overflow: visible
+        font-size: 1.8rem
+        
+.words
+  max-width: 30rem
+  margin: 0 auto
+  position: relative
+  transition: max-width 0.2s linear
+  .fullscreen &
+    max-width: 60rem
+    .demo-words
+      height: 30rem
+  .demo-words
+    width: 100%
+    height: 5em
+    transition: height 0.2s linear
+    padding: 1rem 1.5rem
+    background-color: $c-light-field-bg
+    &::-webkit-scrollbar
+      width: 0.8rem
+    &::-webkit-scrollbar-thumb
+      background: darken($c-light-field-bg, 10)
+    .night &
+      background-color: $c-dark-field-bg
+      &::-webkit-scrollbar-thumb
+        background: lighten($c-dark-field-bg, 8)
+      &::-webkit-resizer
+        background: darken($c-dark-field-bg, 2)
+.progress-bar
+  height: 2px
+  width: 0
+  background: red
+  opacity: 0.4
+          
+.words-controls
+  margin: 0 0 2rem
+  a
+    margin: 0 0.6rem
+    font-size: 2rem
+    line-height: 2rem
+  .refresh
+    font-size: 2.6rem
+  .fullscreen & .expand:before
+    content: '\e612'
+        
+.light
+  position: absolute
+  top: 2rem
+  left: 3rem
+  font-size: 3rem
+  font-family: $f-icon
+  text-decoration: none
+  &:after
+    content: '\e609'
+    color: $c-light-icon
+  .night &:after
+    content: '\e608'
+    color: $c-dark-icon
+    
+#alert
+  position: absolute
+  top: 0
+  padding: 2rem
+  box-sizing: border-box
+  width: 100%
+  text-align: center
+  left: 0
+  pointer-events: none
+      
+html
+  font-size: 10px
+body
+  background: $c-light-bg
+  color: $c-light-text
+  transition: background 0.1s linear
+  margin: 3rem
+  .night &
+    background: $c-dark-bg
+    color: $c-dark-text
+body, input, textarea, button
+  font-size: 1.4rem
+  font-family: Open Sans, sans-serif
+::selection
+  background: $c-light-icon
+  color: $c-light-field-bg
+  .night &
+    background: $c-dark-icon
+    color: $c-dark-field-bg
+  
+  
+@font-face
+  font-family: 'Spritz'
+  src: url('https://s3-us-west-2.amazonaws.com/s.cdpn.io/2361/spritz.eot?ziiuop')
+  src: url('https://s3-us-west-2.amazonaws.com/s.cdpn.io/2361/spritz.eot?#iefixziiuop') format('embedded-opentype'), url('https://s3-us-west-2.amazonaws.com/s.cdpn.io/2361/spritz.woff?ziiuop') format('woff'), url('https://s3-us-west-2.amazonaws.com/s.cdpn.io/2361/spritz.ttf?ziiuop') format('truetype'), url('https://s3-us-west-2.amazonaws.com/s.cdpn.io/2361/spritz.svg?ziiuop#spritz') format('svg')
+  font-weight: normal
+  font-style: normal
+  
+[class*="entypo-"]:before
+  font-family: $f-icon
+.entypo-fast-backward:before
+  content: '\e606'
+.entypo-fast-forward:before
+  content: '\e605'
+.entypo-save:before
+  content: '\e600'
+.entypo-left-open:before
+  content: '\e60e'
+.entypo-pause:before
+  content: '\e602'
+.entypo-right-open:before
+  content: '\e607'
+.entypo-dot-3:before
+  content: '\e60b'
+.entypo-minus:before
+  content: '\e60d'
+.entypo-search:before
+  content: '\e604'
+.entypo-plus:before
+  content: '\e60c'
+.entypo-cancel:before
+  content: '\e603'
+.entypo-doc-text:before
+  content: '\e60f'
+.entypo-cycle:before
+  content: '\e610'
+.entypo-resize-full:before
+  content: '\e611'
+  
+  
+  
+  
