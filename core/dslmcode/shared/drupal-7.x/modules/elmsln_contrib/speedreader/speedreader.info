@@ -3,3 +3,4 @@ description = "A new way of reading content, one word at a time, really really f
 core = 7.x
 package = "User Interface"
 dependencies[] = libraries
+configure = admin/config/user-interface/speedreader

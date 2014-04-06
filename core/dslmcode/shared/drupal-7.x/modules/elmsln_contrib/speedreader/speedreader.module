@@ -6,35 +6,99 @@
 
 // speedreader global variables
 define('SPEEDREADER_URL', 'http://github.com/btopro/speedreader');
+define('SPEEDREADER_SELECTOR', '.node');
 
 /**
- * Implements hook_page_build().
+ * Implements hook_block_info().
  */
-function speedreader_page_build(&$page) {
-  $lib = speedreader_get_library();
-  // check for the library being installed
-  if ($lib) {
-    // add library to all pages
-    drupal_add_js($lib);
+function speedreader_block_info() {
+  $blocks['speedreader-block'] = array(
+    'info' => t('Speed reader'),
+    'cache' => DRUPAL_NO_CACHE
+  );
+  return $blocks;
+}
+
+/**
+ * Implements hook_block_view().
+ */
+function speedreader_block_view($delta = '') {
+  $block = array();
+  switch ($delta) {
+    case 'speedreader-block':
+      $lib = speedreader_get_library();
+      // check for the library being installed
+      if ($lib) {
+        // add library to all pages
+        drupal_add_js($lib, array('scope' => 'footer'));
+        drupal_add_js(speedreader_get_library('js/prefixfree.min.js'));
+        $settings = array(
+          'speedreader' => array(
+            'selector' => variable_get('speedreader_selector', SPEEDREADER_SELECTOR)
+          ),
+        );
+        drupal_add_js($settings, 'setting');
+        drupal_add_css(speedreader_get_library('css/style.css'));
+      }
+      $block['subject'] = t('Speed reader');
+      $block['content'] = theme('speedreader_block', array('text_selector' => variable_get('speedreader_selector', SPEEDREADER_SELECTOR)));
+    break;
   }
+  return $block;
+}
+
+
+/**
+ * Implements hook_theme().
+ */
+function speedreader_theme() {
+  return array(
+    'speedreader_block' => array(
+      'variables' => array(
+        'text_selector' => NULL,
+      ),
+      'render element' => 'element',
+      'template' => 'templates/speedreader-block',
+    ),
+  );
+}
+
+/**
+ * Implements hook_menu().
+ */
+function speedreader_menu() {
+  $items = array();
+  $path = drupal_get_path('module', 'speedreader');
+  // admin settings for speedreader
+  $items['admin/config/user-interface/speedreader'] = array(
+    'title' => 'Speed reader',
+    'description' => 'Options for speed reader',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('speedreader_settings'),
+    'access arguments' => array('administer site configuration'),
+    'type' => MENU_NORMAL_ITEM,
+    'file' => 'speedreader.admin.inc',
+    'file path' => $path,
+  );
+  return $items;
 }
 
 /**
  * Wrapper to get the library so it works with install profiles.
  */
-function speedreader_get_library() {
+function speedreader_get_library($file = 'js/index.js') {
   // account for libraries not being available on install
   if (function_exists('libraries_get_libraries')) {
     $libraries = libraries_get_libraries();
     if (isset($libraries['speedreader'])) {
-      return $libraries['speedreader'] . '/js/index.js';
+      return $libraries['speedreader'] . '/' . $file;
     }
   }
   else {
     $directory = 'libraries';
     $profile = drupal_get_profile();
     $config = conf_path();
-    $lib = 'speedreader/js/index.js';
+    $lib = 'speedreader/' . $file;
     // look in install profile
     if (file_exists("profiles/$profile/$directory/$lib")) {
       return "profiles/$profile/$directory/$lib";

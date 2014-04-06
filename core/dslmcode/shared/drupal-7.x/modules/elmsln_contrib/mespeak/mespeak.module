@@ -6,35 +6,99 @@
 
 // mespeak global variables
 define('MESPEAK_URL', 'http://github.com/btopro/mespeak');
+define('MESPEAK_SELECTOR', '.node');
 
 /**
- * Implements hook_page_build().
+ * Implements hook_block_info().
  */
-function mespeak_page_build(&$page) {
-  $lib = mespeak_get_library();
-  // check for the library being installed
-  if ($lib) {
-    // add library to all pages
-    drupal_add_js($lib);
+function mespeak_block_info() {
+  $blocks['mespeak-block'] = array(
+    'info' => t('Mespeak'),
+    'cache' => DRUPAL_NO_CACHE
+  );
+  return $blocks;
+}
+
+/**
+ * Implements hook_block_view().
+ */
+function mespeak_block_view($delta = '') {
+  $block = array();
+  switch ($delta) {
+    case 'mespeak-block':
+      $lib = mespeak_get_library();
+      // check for the library being installed
+      if ($lib) {
+        // add library to all pages
+        global $base_url;
+        drupal_add_js($lib);
+        $settings = array(
+          'mespeak' => array(
+            'selector' => variable_get('mespeak_selector', MESPEAK_SELECTOR),
+            'path' => $base_url . '/' . mespeak_get_library(''),
+          ),
+        );
+        drupal_add_js($settings, 'setting');
+      }
+      $block['subject'] = t('Mespeak');
+      $block['content'] = theme('mespeak_block', array('text_selector' => variable_get('mespeak_selector', MESPEAK_SELECTOR)));
+    break;
   }
+  return $block;
+}
+
+
+/**
+ * Implements hook_theme().
+ */
+function mespeak_theme() {
+  return array(
+    'mespeak_block' => array(
+      'variables' => array(
+        'text_selector' => NULL,
+      ),
+      'render element' => 'element',
+      'template' => 'templates/mespeak-block',
+    ),
+  );
+}
+
+/**
+ * Implements hook_menu().
+ */
+function mespeak_menu() {
+  $items = array();
+  $path = drupal_get_path('module', 'mespeak');
+  // admin settings for mespeak
+  $items['admin/config/user-interface/mespeak'] = array(
+    'title' => 'Mespeak',
+    'description' => 'Options for mespeak',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('mespeak_settings'),
+    'access arguments' => array('administer site configuration'),
+    'type' => MENU_NORMAL_ITEM,
+    'file' => 'mespeak.admin.inc',
+    'file path' => $path,
+  );
+  return $items;
 }
 
 /**
  * Wrapper to get the library so it works with install profiles.
  */
-function mespeak_get_library() {
+function mespeak_get_library($file = 'mespeak.js') {
   // account for libraries not being available on install
   if (function_exists('libraries_get_libraries')) {
     $libraries = libraries_get_libraries();
     if (isset($libraries['mespeak'])) {
-      return $libraries['mespeak'] . '/mespeak.js';
+      return $libraries['mespeak'] . '/' . $file;
     }
   }
   else {
     $directory = 'libraries';
     $profile = drupal_get_profile();
     $config = conf_path();
-    $lib = 'mespeak.js';
+    $lib = 'mespeak/' . $file;
     // look in install profile
     if (file_exists("profiles/$profile/$directory/$lib")) {
       return "profiles/$profile/$directory/$lib";

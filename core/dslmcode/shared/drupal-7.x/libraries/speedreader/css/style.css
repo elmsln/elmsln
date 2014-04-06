@@ -1,10 +1,10 @@
 .spritz {
   position: relative;
-  max-width: 30rem;
+  max-width: 90%;
   padding: 1rem 0 1.2rem;
   border-top: 2px solid black;
   border-bottom: 2px solid black;
-  margin: 10rem auto;
+  margin: 1em auto;
   font-size: 1em;
 }
 .spritz:before, .spritz:after {
@@ -152,7 +152,7 @@
 }
 
 .extra-controls {
-  margin: 5rem auto 0;
+  margin: 1em auto 0;
 }
 .extra-controls .toggle {
   font-size: 2rem;
