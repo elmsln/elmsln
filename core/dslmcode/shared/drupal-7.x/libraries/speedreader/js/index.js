@@ -1,57 +1,16 @@
 /**
  @file
 Original Speed Reader by Charlotte Dann
-local storage implementation by Keith Wyland
 Fork supported by Bryan Ollendyke
 */
 (function ($) {
   $(document).ready(function(){
     function words_load() {
-    if (!localStorage.jqspritz) {
       words_set();
       word_show(0);
       word_update();
       spritz_pause(true);
-    } else {
-      local_spritz = JSON.parse(localStorage['jqspritz']);
-      $words.html(local_spritz.words);
-      i = local_spritz.word;
-      if (local_spritz.night) {
-        night = true;
-        $('html').addClass('night');
-      }
-      if (local_spritz.autosave) {
-        autosave = true;
-        $('html').addClass('autosave');
-        $('#autosave_checkbox').attr('checked', true);
-      }
-      $wpm.val(local_spritz.wpm);
-      interval = 60000/local_spritz.wpm;
-      spritz_zoom(0);
-      words_set();
-      word_show(i);
-      word_update();
-      spritz_pause(true);
-      spritz_alert('loaded');
     }
-  }
-  function words_save() {
-    local_spritz = {
-      word: i,
-      words: $words.html(),
-      wpm: $wpm.val(),
-      night: night,
-      autosave: autosave,
-      zoom: zoom
-    };
-    localStorage['jqspritz'] = JSON.stringify(local_spritz);
-    if (!autosave) {
-      spritz_alert('saved');
-    } else {
-      button_flash('save', 500);
-    }
-  }
-
 
   /* TEXT PARSING */
   function words_set() {
@@ -102,9 +61,6 @@ Fork supported by Bryan Ollendyke
       clearInterval(spritz);
       paused = true;
       $('html').addClass('paused');
-      if (autosave && !ns) {
-        words_save();
-      }
     }
   }
   function spritz_play() {
@@ -127,7 +83,6 @@ Fork supported by Bryan Ollendyke
       clearInterval(spritz);
       word_update();
     }
-    $('#spritz_save').removeClass('saved loaded');
   }
   function spritz_faster() {
     $('#spritz_wpm').val(parseInt($('#spritz_wpm').val(), 10) + 50);
@@ -154,50 +109,6 @@ Fork supported by Bryan Ollendyke
     }
   }
 
-  /* WORDS FUNCTIONS */
-  function spritz_zoom(c) {
-    zoom = zoom+c;
-    $('#spritz').css('font-size', zoom+'em');
-  }
-  function spritz_refresh() {
-    clearInterval(spritz);
-    words_set();
-    i = 0;
-    spritz_pause();
-    word_show(0);
-  }
-  function spritz_select() {
-    $words.select();
-  }
-  function spritz_expand() {
-    $('html').toggleClass('fullscreen');
-  }
-
-  /* AUTOSAVE FUNCTION */
-  function spritz_autosave() {
-    $('html').toggleClass('autosave');
-    autosave = !autosave;
-    if (autosave) {
-      $('#autosave_checkbox').attr('checked', true);
-    } else {
-      $('#autosave_checkbox').attr('checked', false);
-    }
-  }
-
-  /* ALERT FUNCTION */
-  function spritz_alert(type) {
-    var msg = '';
-    switch (type) {
-      case 'loaded':
-        msg = 'Data loaded from local storage';
-        break;
-      case 'saved':
-        msg = 'Words, Position and Settings have been saved in local storage for the next time you visit';
-        break;
-    }
-    $('#alert').text(msg).fadeIn().delay(2000).fadeOut();
-  }
-
   /* KEY EVENTS */
   function button_flash(btn, time) {
     var $btn = $('.controls a.'+btn);
@@ -213,10 +124,7 @@ Fork supported by Bryan Ollendyke
     var $space = $('#spritz_word');
     var i = 0;
     var night = false;
-    var zoom = 1;
-    var autosave = false;
     var $words = $(Drupal.settings.speedreader.selector);
-    var local_spritz = {};
     /* CONTROLS */
     $('#spritz_wpm').change(function() {
       spritz_speed();
@@ -227,22 +135,8 @@ Fork supported by Bryan Ollendyke
           spritz_slower(); break;
         case 'spritz_faster':
           spritz_faster(); break;
-        case 'spritz_save':
-          words_save(); break;
         case 'spritz_pause':
           spritz_flip(); break;
-        case 'spritz_smaller':
-          spritz_zoom(-0.1); break;
-        case 'spritz_bigger':
-          spritz_zoom(0.1); break;
-        case 'spritz_autosave':
-          spritz_autosave(); break;
-        case 'spritz_refresh':
-          spritz_refresh(); break;
-        case 'spritz_select':
-          spritz_select(); break;
-        case 'spritz_expand':
-          spritz_expand(); break;
       }
       return false;
     });
@@ -300,13 +194,6 @@ Fork supported by Bryan Ollendyke
 
     /* INITIATE */
     words_load();
-
-    /* LIGHT/DARK THEME */
-    $('.light').click(function() {
-      $('html').toggleClass('night');
-      night = !night;
-      return false;
-    });
 
     $('a.toggle').click(function() {
       $(this).siblings('.togglable').slideToggle();
