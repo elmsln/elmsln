@@ -1,7 +1,7 @@
 /**
  @file
 Original Speed Reader by Charlotte Dann
-Fork supported by Bryan Ollendyke
+Fork gutted and supported by Bryan Ollendyke
 */
 (function ($) {
   $(document).ready(function(){
@@ -95,20 +95,6 @@ Fork supported by Bryan Ollendyke
     spritz_speed();
   }
 
-  /* JOG FUNCTIONS */
-  function spritz_back() {
-    spritz_pause();
-    if (i >= 1) {
-      word_prev();
-    }
-  }
-  function spritz_forward() {
-    spritz_pause();
-    if (i < words.length) {
-      word_next();
-    }
-  }
-
   /* KEY EVENTS */
   function button_flash(btn, time) {
     var $btn = $('.controls a.'+btn);
@@ -140,28 +126,6 @@ Fork supported by Bryan Ollendyke
       }
       return false;
     });
-    $('.controls a').mousedown(function() {
-      switch (this.id) {
-        case 'spritz_back':
-          spritz_jog_back = setInterval(function() {
-            spritz_back();
-          }, 100);
-          break;
-        case 'spritz_forward':
-          spritz_jog_forward = setInterval(function() {
-            spritz_forward();
-          }, 100);
-          break;
-      }
-    });
-    $('.controls a').mouseup(function() {
-      switch (this.id) {
-        case 'spritz_back':
-          clearInterval(spritz_jog_back); break;
-        case 'spritz_forward':
-          clearInterval(spritz_jog_forward); break;
-      }
-    });
 
     $(document).keyup(function(e) {
       if (e.target.tagName.toLowerCase() != 'body') {
@@ -170,25 +134,10 @@ Fork supported by Bryan Ollendyke
       switch (e.keyCode) {
         case 32:
           spritz_flip(); button_flash('pause'); break;
-        case 37:
-          spritz_back(); button_flash('back'); break;
         case 38:
           spritz_faster(); button_flash('faster'); break;
-        case 39:
-          spritz_forward(); button_flash('forward'); break;
         case 40:
           spritz_slower(); button_flash('slower'); break;
-      }
-    });
-    $(document).keydown(function(e) {
-      if (e.target.tagName.toLowerCase() != 'body') {
-        return;
-      }
-      switch (e.keyCode) {
-        case 37:
-          spritz_back(); button_flash('back'); break;
-        case 39:
-          spritz_forward(); button_flash('forward'); break;
       }
     });
 

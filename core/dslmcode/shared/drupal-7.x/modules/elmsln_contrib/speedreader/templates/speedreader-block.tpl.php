@@ -9,9 +9,7 @@
       <a id="spritz_faster" href="#" title="Speed Up" class="faster entypo-fast-forward"></a>
     </span>
     <span class="interaction">
-      <a id="spritz_back" href="#" title="Jog Back" class="back entypo-left-open"></a>
       <a id="spritz_pause" href="#" title="Pause/Play" class="pause entypo-pause"></a>
-      <a id="spritz_forward" href="#" title="Jog Forward" class="forward entypo-right-open"></a>
     </span>
   </div>
   <div class="words">
