@@ -31,9 +31,7 @@ $includes = array(
   $include_dir . '/schema.inc',
   $include_dir . '/actions.inc',
   $include_dir . '/entity.inc',
-  $module_dir . '/entity/entity.module',
-  $module_dir . '/entity/entity.controller.inc',
-  $module_dir . '/system/system.module',
+  $module_dir  . '/system/system.module',
   $include_dir . '/database/query.inc',
   $include_dir . '/database/select.inc',
   $include_dir . '/registry.inc',
@@ -69,6 +67,8 @@ if (function_exists('registry_rebuild')) { // == D7
 elseif (!function_exists('cache_clear_all')) { // D8+
   // TODO
   // http://api.drupal.org/api/drupal/namespace/Drupal!Core!Lock/8
+  $includes[] = $module_dir . '/entity/entity.module';
+  $includes[] = $module_dir . '/entity/entity.controller.inc';
 }
 // In Drupal 6 the configured lock.inc is already loaded during
 // DRUSH_BOOTSTRAP_DRUPAL_DATABASE
