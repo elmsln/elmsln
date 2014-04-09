@@ -64,22 +64,6 @@ function cis_roles_user_default_permissions() {
     'module' => 'contextual',
   );
 
-  // Exported permission: 'access dashboard'.
-  $permissions['access dashboard'] = array(
-    'name' => 'access dashboard',
-    'roles' => array(
-      'Coordinator' => 'Coordinator',
-      'Dean' => 'Dean',
-      'Instructor' => 'Instructor',
-      'Learning Designer' => 'Learning Designer',
-      'Staff' => 'Staff',
-      'Teaching Assistant' => 'Teaching Assistant',
-      'Unit Head' => 'Unit Head',
-      'administrator' => 'administrator',
-    ),
-    'module' => 'dashboard',
-  );
-
   // Exported permission: 'access lti_tool_provider_consumer entities'.
   $permissions['access lti_tool_provider_consumer entities'] = array(
     'name' => 'access lti_tool_provider_consumer entities',
