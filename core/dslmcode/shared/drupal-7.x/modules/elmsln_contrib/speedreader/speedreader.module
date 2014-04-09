@@ -38,7 +38,7 @@ function speedreader_block_view($delta = '') {
           ),
         );
         drupal_add_js($settings, 'setting');
-        drupal_add_css(speedreader_get_library('css/style.css'));
+        drupal_add_css(speedreader_get_library('css/speedreader-style.css'));
       }
       $block['subject'] = t('Speed reader');
       $block['content'] = theme('speedreader_block', array('text_selector' => variable_get('speedreader_selector', SPEEDREADER_SELECTOR)));
@@ -105,7 +105,6 @@ function speedreader_get_library($file = 'js/index.js') {
     }
     // look in sites all
     // Always search sites/all/*.
-    $searchdir[] = 'sites/all/' . $directory ;
     if (file_exists("sites/all/$directory/$lib")) {
       return "sites/all/$directory/$lib";
     }

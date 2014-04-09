@@ -1,8 +1,10 @@
 #ELMSLN cron.php calls, at least 1 per stack
-02 05 * * * root /usr/bin/php /var/www/elmsln/core/dslmcode/stacks/courses/sites/cron.php
-02 10 * * * root /usr/bin/php /var/www/elmsln/core/dslmcode/stacks/media/sites/cron.php
-02 15 * * * root /usr/bin/php /var/www/elmsln/core/dslmcode/stacks/online/sites/cron.php
-#ELMSLN drush-create-site activation for site request processing
-* * * * * root  /usr/local/bin/drush-create-site/drush-create-site >> /var/log/drush.log
+10 05 * * * root /usr/bin/php /var/www/elmsln/core/dslmcode/stacks/online/sites/cron.php
+20 05 * * * root /usr/bin/php /var/www/elmsln/core/dslmcode/stacks/courses/sites/cron.php
+30 05 * * * root /usr/bin/php /var/www/elmsln/core/dslmcode/stacks/studio/sites/cron.php
+40 05 * * * root /usr/bin/php /var/www/elmsln/core/dslmcode/stacks/media/sites/cron.php
+50 05 * * * root /usr/bin/php /var/www/elmsln/core/dslmcode/stacks/interact/sites/cron.php
 #ELMSLN flush pac caches nightly to prevent overfragmentation
 00 05 * * * root /etc/init.d/httpd reload
+#ELMSLN drush-create-site activation for site request processing
+* * * * * root  /usr/local/bin/drush-create-site/drush-create-site >> /var/log/drush.log
