@@ -1,0 +1,38 @@
+GEM
+  remote: https://rubygems.org/
+  specs:
+    blend-mode (0.0.1)
+      compass (~> 0.12)
+    breakpoint (2.0.5)
+      compass (>= 0.12.1)
+      sass (>= 3.2.0)
+    chunky_png (1.2.8)
+    color-schemer (0.2.3)
+      blend-mode (~> 0.0.1)
+      compass (~> 0.12)
+    compass (0.12.2)
+      chunky_png (~> 1.2)
+      fssm (>= 0.2.7)
+      sass (~> 3.1)
+    fssm (0.2.10)
+    sass (3.2.8)
+    sassy-strings (0.3.1)
+      compass (>= 0.12.2)
+    singularitygs (1.0.8)
+      breakpoint (>= 2.0.1)
+      compass (>= 0.12.2)
+      sass (>= 3.2.1)
+    toolkit (1.0.0)
+      breakpoint (>= 2.0.2)
+      color-schemer (>= 0.2.3)
+      compass (>= 0.12.2)
+      sassy-strings (>= 0.1)
+      singularitygs (>= 1.0.7)
+
+PLATFORMS
+  ruby
+
+DEPENDENCIES
+  breakpoint (~> 2.0.2)
+  singularitygs (~> 1.0.7)
+  toolkit (~> 1.0.0)

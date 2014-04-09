@@ -1,0 +1,27 @@
+name = Aurora
+description = Lightweight Responsive Ready HTML5 base theme
+core = 7.x
+
+regions[header]         = Header
+regions[main_prefix]    = Main Region Prefix
+regions[content]        = Main
+regions[main_suffix]    = Main Region Suffix
+regions[footer]         = Footer
+
+plugins[panels][layouts] = layouts
+
+; Theme Settings
+
+; Chrome Frame Options
+settings[aurora_enable_chrome_frame] = 1
+settings[aurora_min_ie_support] = 9
+
+; Miscelaneous Options
+settings[aurora_html_tags] = 1
+settings[aurora_typekit_id] =
+; Information added by drupal.org packaging script on 2013-10-10
+version = "7.x-3.2"
+core = "7.x"
+project = "aurora"
+datestamp = "1381420227"
+

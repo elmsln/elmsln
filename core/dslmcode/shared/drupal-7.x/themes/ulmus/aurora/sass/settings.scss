@@ -1,0 +1,169 @@
+@import "compass";
+@import 'singularitygs';
+@import "toolkit/clearfix";
+
+//////////////////////////////
+// Variables
+//////////////////////////////
+$drupal-grey: #ccc;
+$drupal-default-border: 1px solid $drupal-grey;
+
+$row-one-to-two: 735px;
+$vtab: 'max-width' $row-one-to-two;
+$breakpoint-to-ems: true;
+
+$grids: 2;
+$gutters: .15;
+
+//////////////////////////////
+// Styling
+//////////////////////////////
+.form-item {
+  display: block;
+
+  &.form-disabled {
+    display: none;
+  }
+}
+
+pre {
+  display: inline-block;
+  background-color: lighten($drupal-grey, 10%);
+  padding: {
+    left: .5em !important;
+    right: .5em !important;
+  }
+}
+
+input {
+  max-width: 100%;
+}
+
+#system-theme-settings * {
+//  @include container;
+  @include box-sizing('border-box');
+}
+
+.aurora-settigns-row:first-of-type {
+  @include breakpoint($row-one-to-two) {
+    margin-bottom: 1.25em;
+  }
+}
+
+[class*="aurora-row"] {
+  @include breakpoint($row-one-to-two) {
+    border: none;
+    position: relative;
+  }
+}
+
+.aurora-row-left {
+  @include breakpoint($row-one-to-two) {
+    @include grid-span(1, 1);
+
+    &:after {
+      position: absolute;
+      display: inline-block;
+      top: 0;
+      @include push(2, 1);
+      width: 0px;
+      height: 100%;
+      content: '';
+      border-right: $drupal-default-border;
+    }
+  }
+}
+
+.aurora-row-right {
+  @include breakpoint($row-one-to-two) {
+    @include grid-span(1, 2);
+  }
+}
+
+#edit-theme-settings {
+  clear: both;
+
+  margin-bottom: 0;
+  @include breakpoint($row-one-to-two) {
+    margin-bottom: 1em;
+  }
+}
+
+.aurora-settigns-row {
+  @extend %clearfix-legacy;
+
+  display: block;
+  padding: 0;
+
+  @include breakpoint($row-one-to-two) {
+    border: $drupal-default-border;
+  }
+}
+
+label[for="edit-aurora-typekit-id"] {
+  display: inline;
+}
+
+#edit-aurora-typekit-id {
+  margin-left: .15em;
+}
+
+.aurora-recommended-modules {
+  border: 0;
+  margin: 0;
+}
+
+.messages.aurora {
+  margin-bottom: 1em;
+}
+
+
+//////////////////////////////
+// Vertical tabs, nasty fuckers
+//////////////////////////////
+div.vertical-tabs {
+  @include breakpoint($vtab) {
+    background: #fff;
+
+    .vertical-tabs-list {
+      width: 100%;
+      background: #f2f2f2;
+
+      a {
+        border: none !important;
+
+        strong {
+          padding: 5px 10px;
+          border-radius: 5px;
+        }
+
+        &:hover {
+          background: inherit !important;
+
+          strong {
+            background: rgba(black, .15);
+          }
+        }
+      }
+
+      .selected a {
+        background: inherit;
+
+        strong {
+          background: #fff;
+        }
+      }
+
+      li {
+        display: inline-block;
+      }
+    }
+
+    .vertical-tabs-panes {
+      width: 100%;
+      margin: 0;
+      padding: 0;
+      clear: both;
+    }
+  }
+}
