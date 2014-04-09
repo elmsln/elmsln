@@ -1,0 +1,12 @@
+name = Shortcode Basic Tags                                                                             
+description = Provides basic shortcode tags like highlight, dropcap, etc.                                                       
+package = Shortcode                                                                                              
+core = 7.x
+dependencies[] = filter
+dependencies[] = shortcode
+; Information added by drupal.org packaging script on 2013-08-20
+version = "7.x-2.0"
+core = "7.x"
+project = "shortcode"
+datestamp = "1376997108"
+

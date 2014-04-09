@@ -1,0 +1,49 @@
+Shortcode 7.x-2.x, xxxx-xx-xx
+------------------------------
+Shortcode 7.x-2.x, 7.x-2.0, 2013-08-20
+  #1879712 by BarisW: Implement hook_shortcode_info()
+  #2042645 by mrupal: fix in default value handling
+  Various fixes and additional checkings
+
+Shortcode 7.x-2.x, 7.x-2.0-alpha4, 2012-10-12
+
+Changes since 7.x-2.0-alpha1:
+
+  #1716806: small fixes.
+  #1716806 by JurriaanRoelofs : Added latest patch (#6) lines.
+  #1716806: Making Shortcode WYSIWYG compatible with FAPI form states - clean up and fixes.
+  #1716806 by  JurriaanRoelofs : Making Shortcode WYSIWYG compatible with FAPI form states.
+  #1759416#[1759416]: don't filter out brackets if that don't contains shortcode.  Reported by SpaceGoat1701.
+  Formatting source code, removing, adding comments.
+  #1716806 by JurriaanRoelofs: Making shortcode escaping media tags aware.
+  #1661656 by ablondeau: Added html_entity_decode to the attributes parsing.
+  #1591312 by dropletz: Added better shortcode description in filter format form.
+  Updated video id handling code.
+  Disabled filter format caching. Enabled only for debug.
+  by balagan: Corrected the module english words.
+  Initial version of the video macro shortcode module.
+  Allowed escaping codes.
+  Removed debug code, small code clean ups.
+
+------------------------------
+
+Shortcode 7.x-2.x, 2012-03-10
+------------------------------
+
+by balagan: Corrected the module english words.
+by Denes.Szabo: Added the initial version of the video macro shortcode module.
+
+
+Shortcode 7.x-2.x, 2012-03-10
+------------------------------
+
+by Denes.Szabo: Allowed to escape codes.
+by Denes.Szabo: Updated the code tips, now all translateable.
+by Denes.Szabo: Updated to use new attr handling method to help code editors.
+by Denes.Szabo: Lots of fixes and cleanups
+by Denes.szabo: Fixed multi text format handling in one content.
+#1469108 by Nick Cash: Fixed a missing object creation.
+#1469132 by Nick Cash: Removed theme alter.
+by Denes.szabo: Added documentation to the functions.
+by Denes.szabo: Renamed the shortcode_embed_content module.
+

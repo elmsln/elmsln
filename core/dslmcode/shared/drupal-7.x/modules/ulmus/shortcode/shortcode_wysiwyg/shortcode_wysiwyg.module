@@ -1,0 +1,61 @@
+<?php
+
+/**
+ * @file
+ * This module provides wysiwyg support for shortcodes.
+ */
+function shortcode_wysiwyg_wysiwyg_include_directory($type) {
+  switch ($type) {
+    case 'plugins':
+      return $type;
+  }
+}
+
+function shortcode_wysiwyg_form_alter(&$form, $form_state, $form_id) {
+  // TODO: attach form id to all textarea
+  if (strpos($form_id, 'node_form') !== FALSE || strpos($form_id, 'comment') !== FALSE || strpos($form_id, 'block') !== FALSE) {
+    drupal_add_library('system', 'ui.dialog');
+    drupal_add_library('system', 'ui.draggable');
+    drupal_add_js(array('shortcode_wysiwyg' => array('current_form' => $form['form_build_id']['#value'])), 'setting');
+  }
+}
+
+function shortcode_wysiwyg_menu() {
+  $items = array();
+  $items['shortcode_wysiwyg/%/%'] = array(
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('shortcode_wysiwyg_form', 1, 2),
+    'access callback' => TRUE,
+    'type' => MENU_CALLBACK,
+  );
+
+  return $items;
+}
+
+function shortcode_wysiwyg_form($form, &$form_state, $format_id) {
+  $options = $form = array();
+  module_load_include('inc', 'shortcode', 'shortcode');
+  drupal_set_title(t('Shortcode'));
+
+  $format_id = str_replace("format", "", $format_id); /// euhj...wtf...
+  $shortcodes = shortcode_list_all_enabled($format_id);
+
+  foreach ($shortcodes as $name => $shortcode) {
+    $options[$name] = $shortcode['title'];
+  }
+
+  $form['shortcode'] = array(
+    '#type' => 'select',
+    '#title' => t('Choose the shortcode you want to insert.'),
+    '#options' => $options,
+    '#description' => t('This shortcode will be inserted in your textfield')
+  );
+
+  foreach ($shortcodes as $name => $shortcode) {
+    if (isset($shortcode['attributes callback'])) {
+      $form[$name] = call_user_func_array($shortcode['attributes callback'], array(array(), $form_state));
+    }
+  }
+
+  return $form;
+}

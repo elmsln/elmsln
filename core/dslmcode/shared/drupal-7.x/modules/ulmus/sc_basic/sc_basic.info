@@ -1,0 +1,19 @@
+name = Shortcode Library: Basic Tags
+description = Provides basic shortcode tags like columns, toggle, tabs, highlight, dropcap, etc.
+package = Shortcode
+core = 7.x
+dependencies[] = filter
+dependencies[] = shortcode
+; Information added by drupal.org packaging script on 2012-07-12
+version = "7.x-1.x-dev"
+core = "7.x"
+project = "sc_basic"
+datestamp = "1342097343"
+
+
+; Information added by drupal.org packaging script on 2013-10-01
+version = "7.x-1.0-beta1+0-dev"
+core = "7.x"
+project = "sc_basic"
+datestamp = "1380626789"
+
