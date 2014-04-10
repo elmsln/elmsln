@@ -172,7 +172,7 @@ drush -y --uri=$protocol://$online_domain en cis_sample_content
 
 # uninstall all these now because they should be in correctly as sample nodes
 drush -y --uri=$protocol://$online_domain dis cis_sample_content node_export node_export_features node_export_dependency
-drush -y --uri=$protocol://$online_domain pm-uninstall cis_sample_content node_export node_export_features node_export_dependency
+drush -y --uri=$protocol://$online_domain pm-uninstall node_export node_export_features node_export_dependency
 
 # run cron for the good of the order
 drush -y --uri=$protocol://$online_domain cron
