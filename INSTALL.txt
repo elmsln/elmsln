@@ -47,6 +47,7 @@ sudo vi /etc/my.cnf
 issue the following commands to place these scripts in scope of bin which will allow the crontab to pick up the job and process it.  There’s also an optional drush remove site command that’s listed too. (good for clean up of things accidentally created)
 
 sudo ln -s /var/www/elmsln/scripts/drush-create-site /usr/local/bin/drush-create-site
+chmod 744 /usr/local/bin/drush-create-site/rm-site.sh
 
 # add the following command for drush remove site shorthand
 sudo -i

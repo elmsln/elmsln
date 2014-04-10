@@ -8,3 +8,5 @@
 00 05 * * * root /etc/init.d/httpd reload
 #ELMSLN drush-create-site activation for site request processing
 * * * * * root  /usr/local/bin/drush-create-site/drush-create-site >> /var/log/drush.log
+#ELMSLN drush-command-job activation for command processing
+* * * * * root  /usr/local/bin/drush-command-job/drush-command-job >> /var/log/drush.log

@@ -1,0 +1,7 @@
+<?php
+/**
+ * @file
+ * Code for the MOOC theme aurora feature.
+ */
+
+include_once 'mooc_theme_aurora.features.inc';

@@ -1,0 +1,14 @@
+name = MOOC theme aurora
+description = Support for Aurora base theme block positions
+core = 7.x
+package = MOOC Extras
+dependencies[] = boxes
+dependencies[] = cis_service_connection
+dependencies[] = context
+dependencies[] = ctools
+dependencies[] = delta_blocks
+features[context][] = mooc-aurora-blocks
+features[ctools][] = boxes:box:1
+features[ctools][] = context:context:3
+features[features_api][] = api:2
+features_exclude[dependencies][chamfer_defaults] = chamfer_defaults
