@@ -13,7 +13,7 @@ function mooc_theme_aurora_context_default_contexts() {
   $context = new stdClass();
   $context->disabled = FALSE; /* Edit this to true to make a default context disabled initially */
   $context->api_version = 3;
-  $context->name = 'mooc-aurora-blocks';
+  $context->name = 'mooc-themecompat-aurora-blocks';
   $context->description = 'Compatibility with aurora';
   $context->tag = 'MOOC theme compat';
   $context->conditions = array(
@@ -77,7 +77,7 @@ function mooc_theme_aurora_context_default_contexts() {
   // Included for use with string extractors like potx.
   t('Compatibility with aurora');
   t('MOOC theme compat');
-  $export['mooc-aurora-blocks'] = $context;
+  $export['mooc-themecompat-aurora-blocks'] = $context;
 
   return $export;
 }

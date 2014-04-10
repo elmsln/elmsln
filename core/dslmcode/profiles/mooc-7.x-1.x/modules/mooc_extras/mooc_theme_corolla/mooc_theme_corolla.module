@@ -1,0 +1,7 @@
+<?php
+/**
+ * @file
+ * Code for the MOOC theme corolla feature.
+ */
+
+include_once 'mooc_theme_corolla.features.inc';

@@ -1,0 +1,10 @@
+name = MOOC theme corolla
+description = Support for Corolla base theme block positions
+core = 7.x
+package = MOOC Extras
+dependencies[] = cis_service_connection
+dependencies[] = context
+dependencies[] = ctools
+features[context][] = mooc-themecompat-corolla-blocks
+features[ctools][] = context:context:3
+features[features_api][] = api:2

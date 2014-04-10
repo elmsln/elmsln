@@ -17,6 +17,11 @@ function mooc_cis_ux_context_default_contexts() {
   $context->description = 'This helps display the instructional content outline block';
   $context->tag = 'Content';
   $context->conditions = array(
+    'context' => array(
+      'values' => array(
+        '~mooc-themecompat-*' => '~mooc-themecompat-*',
+      ),
+    ),
     'sitewide' => array(
       'values' => array(
         1 => 1,
