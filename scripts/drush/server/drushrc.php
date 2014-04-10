@@ -344,7 +344,7 @@
 # popular aliases
 $options['shell-aliases']['offline'] = 'variable-set -y --always-set maintenance_mode 1';
 $options['shell-aliases']['online'] = 'variable-delete -y --exact maintenance_mode';
-$options['shell-aliases']['whereis'] = 'dd'
+$options['shell-aliases']['whereis'] = 'dd';
 
 # ELMSLN Base for dslm
 $options['dslm_base'] = '/var/www/elmsln/core/dslmcode';
