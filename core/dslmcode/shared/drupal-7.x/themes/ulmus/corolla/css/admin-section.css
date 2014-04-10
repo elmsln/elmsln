@@ -1,0 +1,217 @@
+/**
+ * NOTE: This file is not loaded by default, to use it you must un-comment
+ * it in your themes info file if you want to use Corolla as an admin theme.
+ */
+/* admin/structure/block and admin/people/permissions */
+tr.region-title td,
+table#permissions td.module {
+  color: #779125;
+  font-size: 1.083em;
+  font-weight: 700;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+}
+tr.region-populated {
+  display: none;
+}
+/* admin/config */
+div.admin .left,
+div.admin .right {
+  margin: 0;
+}
+div.admin-panel {
+  margin: 0 0 9px 0;
+  padding: 5px 0 10px;
+  border-bottom: 1px dashed #000;
+}
+div.admin-panel h3 {
+  margin-top: 5px;
+}
+.admin-panel:last-child {
+  border-bottom: none;
+}
+/* admin/help/ */
+body.page-admin-help dd {
+  margin-bottom: 12px;
+}
+/* admin/config/regional/date-time */
+td .form-item {
+  margin: 4px 0;
+}
+/* admin/<content_type>/fields */
+.label-add-new-field,
+.label-add-existing-field {
+  display: inline-block;
+  vertical-align: middle;
+}
+/* admin/config/people/ip-blocking */
+form#system-ip-blocking-form {
+  margin-bottom: 15px;
+}
+/* admin/config */
+div.admin-panel .body {
+  padding: 0;
+}
+/* admin/reports/updates */
+table.version tr {
+  margin: 10px 0;
+}
+td.version-links li {
+  display: inline;
+  margin: 0 0 0 10px;
+}
+table.update tr {
+  margin: 10px 0;
+  display: block;
+  -moz-border-radius: 3px;
+  -webkit-border-radius: 3px;
+  -khtml-border-radius: 3px;
+  border-radius: 3px;
+}
+table.update tr.error > td,
+table.update tr.ok > td,
+table.update tr.warning > td,
+table.update tr.unknown > td {
+  display: block;
+}
+table.update tr,
+table.update td {
+  border: none;
+}
+body.page-admin-reports-updates h3 {
+  margin-bottom: 0;
+}
+.update tr.error {
+  background-color: #ffece2;
+  border: 1px solid #f4c6af;
+}
+.update tr.ok {
+  background-color: #eef8ca;
+  border: 1px solid #d6ec8b;
+}
+.update tr.warning {
+  background-color: #fdf9e5;
+  border: 1px solid #f1e7b4;
+}
+.update tr.unknown {
+  background-color: #efefef;
+  border: 1px solid #d4d4d4;
+}
+.update .project,
+.update table.version .version-title,
+.update .info  {
+  padding-left: 0;
+  padding-right: 0;
+}
+/* admin/reports/status */
+table.system-status-report tr {
+  border-bottom: 1px solid #878787;
+  border-top: 1px solid #878787;
+  padding-left: 30px;
+}
+table.system-status-report tr.warning {
+  background-color: #fdf9e5;
+}
+table.system-status-report tr.ok {
+  background-color: #eef8ca;
+}
+table.system-status-report tr.error {
+  background-color: #ffece2;
+}
+/* admin/appearance */
+.system-themes-list-disabled .theme-selector  {
+  padding: 20px 30px 20px 0;
+  width: 200px;
+}
+.system-themes-list-disabled .theme-info {
+  min-height: 0;
+}
+.block-region {
+  background-color: transparent;
+  border: 2px dashed #ff3e00;
+  padding: 10px 10px;
+  font-size: 1.4em;
+  font-weight: 700;
+  color: #ff3e00;
+  text-align: center;
+  text-transform: uppercase;
+}
+/* Admin forms */
+body.page-admin label {
+  font-weight: 700;
+}
+#edit-actions {
+  vertical-align: top;
+  margin: 10px 0;
+}
+.fieldset-description {
+  margin-bottom: 6px;
+}
+body.page-admin input {
+  width: auto;
+}
+.multiselect .form-item {
+  display: inline-block;
+  margin: 0 10px 0 0;
+}
+dl.multiselect dt,
+dl.multiselect dd {
+  float: none;
+}
+#user-admin-buttons  {
+  margin-left: 0;
+  margin-right: 0;
+}
+form#system-actions-manage-form {
+  margin-top: 30px;
+}
+table + input {
+  margin-top: 10px!important;
+}
+legend + .fieldset-wrapper {
+  margin-top: 0;
+}
+dl.multiselect dd .form-item {
+  margin-bottom: 30px;
+}
+dl.multiselect dd .form-item label {
+  margin-top: 2px;
+}
+.node-form #edit-poll-more {
+  margin-top: 10px;
+}
+#edit-field-screenshot {
+  float: none;
+}
+td.block {
+  background: inherit;
+  border: none;
+  margin: 0;
+}
+td.edit,
+td.delete {
+  padding-left: 7px;
+}
+dl.admin-list dd {
+  margin: 0 0 11px 0;
+}
+dl.multiselect label {
+  text-transform: capitalize;
+}
+dl.multiselect dd {
+  line-height: normal;
+  margin-left: 0;
+}
+.node-type-list dt {
+  margin-top: 11px;
+}
+#user-admin-buttons,
+#node-admin-buttons {
+  margin-top: 10px;
+}
+fieldset .action {
+  margin-top: 7px;
+}
+.compact-link {
+  margin-bottom: 5px;
+}

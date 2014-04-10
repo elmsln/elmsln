@@ -1,0 +1,43 @@
+
+// _base.scss imports _custom.scss and other partials.
+@import "base";
+
+/*
+ *   Important Information about this CSS File
+ *
+ * - Do not delete or rename this file, if you do not use it leave it blank (delete
+ *   everything) and the file will be skipped when you enable Production Mode in
+ *   the Global theme settings.
+ *
+ * - Read the _README file in this directory, it contains useful help and other information.
+ */
+
+/* Increase the default font size on small touch devices */
+body {
+  font-size: 100%;
+}
+
+/* =============================================================================
+ *   Mobile Menu Toggle
+ *   See your theme settings extensions for how to enable the menu toggle.
+ *   These are example styles for the menu toggle menu, you can use these in the
+ *   relevant responsive stylesheets as required. Modify to suit your design.
+ * ========================================================================== */
+.at-mt .at-menu-toggle {
+  /* The toggle link */
+  h2 {
+    margin-bottom: 5px;
+    
+    a {
+      background: #eee;
+      border: 2px solid #ccc;
+      padding: 2px 10px;
+    }
+  }
+
+  /* Menu items */
+  ul.menu li a {
+    background: #eee;
+    border-bottom: 1px solid #fff;
+  }
+}

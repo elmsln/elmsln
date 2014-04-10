@@ -1,0 +1,134 @@
+@charset "utf-8";
+/**
+ * adaptivethemes.com 
+ *
+ * @file at-admin-rtl.css
+ * Contains all RTL styles for the built in Administration Theme.
+ */
+#admin-menu ul li {
+z-index:999;
+}
+
+.two-sidebars .content-inner {
+margin:0 240px;
+}
+
+.sidebar-left .content-inner {
+margin-left:0;
+margin-right:240px;
+}
+
+.sidebar-right .content-inner {
+margin-left:240px;
+margin-right:0;
+}
+
+#sidebar-first {
+margin-left:0;
+margin-right:-100%;
+width:240px;
+}
+
+#sidebar-last {
+margin-left:0;
+margin-right:-240px;
+width:240px;
+}
+
+#content-aside {
+float:left;
+padding:0 10px 20px 0;
+}
+
+#skip-nav {
+text-align:left;
+}
+
+#search-box {
+left:0;
+position:absolute;
+right:auto;
+}
+
+#logo {
+padding:0 0 0 10px;
+}
+
+.primary-links {
+left:6px;
+right:auto;
+}
+
+#user-menu {
+left:0;
+right:auto;
+}
+
+ul.menu,ul.menu ul,ul.menu ul ul,ul.menu ul ul ul {
+margin:0 1em 0 0;
+}
+
+.block-at-admin h2 {
+text-align:right;
+}
+
+.block-at-admin legend {
+margin:0 -10px 0 0;
+}
+
+.at-admin-block-edit-links .item-list li {
+margin:0 0 0 .3em;
+}
+
+#permissions td.permission {
+padding-left:0;
+padding-right:0.5em;
+}
+
+ul.primary {
+padding:0 0.3em 0.4em 0;
+}
+
+ul.secondary li {
+padding:0 0 0 2em;
+}
+
+#system-theme-settings .button-wrapper {
+clear:left;
+float:right;
+}
+
+tr #acquia-agent-no-search {
+background-position:24px 5px;
+padding-left:0;
+padding-right:75px;
+}
+
+.tips {
+margin-left:0;
+margin-right:3em;
+padding:0.1875em 1.5em 0.1875em 0.375em;
+}
+
+.block-at-admin fieldset {
+margin-right:0.5em;
+}
+
+.block-at-admin h2 span {
+float:left;
+}
+
+div.block div.block-edit {
+top:10px;
+left:15px;
+right:auto;
+}
+
+.logo-site-name span,#user-date,#header-region {
+float:right;
+}
+
+#user-menu ul li a,ul.primary li a {
+margin-right:0;
+margin-left:0.08em;
+}

@@ -1,0 +1,10 @@
+/*
+ * Target IE 6, 7 and 8 (less than IE9)
+ */
+/*
+ * Assuming a mobile first approach with respond.js OFF, we must reset the font
+ * size for lt IE9
+ */
+html {
+  font-size: 81.3%;
+}

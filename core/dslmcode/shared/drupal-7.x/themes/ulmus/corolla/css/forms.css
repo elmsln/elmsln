@@ -1,0 +1,449 @@
+/* Forms */
+form {
+  margin: 0 0 1.5em;
+  padding: 0;
+}
+.form-item label {
+  font-weight: 400;
+}
+input {
+  margin: 0;
+}
+input.title {
+  font-size: 1.3em;
+}
+input.text,
+input.title,
+textarea,
+select {
+  border: 1px solid #ccc;
+  margin: 0;
+}
+select {
+  margin-bottom: 3px;
+  padding: 3px;
+}
+input.form-text,
+input.form-password,
+input.form-file,
+textarea {
+  background-color: #fafafa;
+  border: 1px solid #ccc;
+  font-family: inherit;
+  font-size: inherit;
+  line-height: inherit;
+  padding: 4px;
+  -moz-border-radius: 3px;
+  -webkit-border-radius: 3px;
+  border-radius: 3px;
+  -moz-box-sizing: border-box;
+  -webkit-box-sizing: border-box;
+  box-sizing: border-box;
+}
+.form-textarea-wrapper.resizable textarea{
+  -moz-border-radius: 3px 3px 0 0;
+  -webkit-border-radius: 3px 3px 0 0;
+  border-radius: 3px 3px 0 0;
+}
+input.form-text {
+  max-width: 100%;
+}
+input.form-text,
+input.form-password,
+input.form-file {
+  width: auto;
+}
+.block input.form-text,
+.block input.form-password,
+.block input.form-file {
+  max-width: 400px;
+  width: 100%;
+}
+input.form-file,
+.block input.form-file {
+  max-width: 240px;
+  width: 100%;
+}
+#block-search-form input.form-text {
+  width: auto;
+}
+input.form-button,
+input.form-submit {
+  background: url(images/button.png) repeat-x left top transparent;
+  border: 1px solid #ccc;
+  cursor: pointer;
+  margin: 0 5px 0 0;
+  padding: 5px 11px;
+}
+input.form-button:hover,
+input.form-submit:hover,
+input.form-button:focus,
+input.form-submit:focus {
+  border-color: #bbb;
+}
+textarea,
+input {
+  font: 1em normal Arial, Helvetica, sans-serif;
+}
+.form-item,
+.form-action {
+  margin-top: 10px;
+  margin-bottom: 10px;
+}
+.exposed-filters .form-item {
+  margin-top: 0;
+  margin-bottom: 10px;
+}
+.form-item textarea.error {
+  padding: 2px;
+}
+.form-item .description,
+fieldset .description,
+.fieldset-layout-settings dd {
+  font-size: 0.85em;
+}
+#article-admin-filter ul {
+  padding: .5em 0;
+}
+#edit-operation-wrapper select {
+  margin: .5em;
+}
+fieldset {
+  background: transparent;
+  border: 1px solid #dadada;
+  margin: 10px 0;
+  padding: 10px;
+  position: relative;
+}
+fieldset fieldset:last-child {
+  margin-bottom: 0;
+}
+.form-type-radio .description,
+.form-type-checkbox .description {
+  margin-left: 0;
+}
+*:first-child+html fieldset {
+  background-color: transparent;
+  background-position: 0 10px;
+  padding: 0 10px 10px;
+}
+*:first-child+html fieldset > .description,
+*:first-child+html fieldset .fieldset-wrapper .description {
+  padding-top: 10px;
+}
+fieldset div.with-legend {
+  margin-top: 3em;
+}
+fieldset legend {
+  display: block;
+  font-weight: 400;
+  padding: 0;
+  position: absolute;
+  top: 0;
+  -moz-border-radius: 3px;
+  -webkit-border-radius: 3px;
+  border-radius: 3px;
+}
+*:first-child+html fieldset legend,
+*:first-child+html fieldset.collapsed legend {
+  display: inline;
+}
+fieldset legend span.fieldset-legend {
+ display: block;
+ padding: 4px 10px;
+}
+html.js fieldset.collapsed {
+  min-height: 1.85em;
+}
+html.js fieldset.collapsible .fieldset-legend {
+  background: none;
+}
+html.js fieldset.collapsible .fieldset-legend {
+  padding: 2px 4px 2px 10px;
+}
+html.js fieldset.collapsible legend a {
+  padding: 0 15px 0 0;
+  color: #fff;
+  background: url(images/arrow-down-white.png) no-repeat right 6px;
+}
+html.js fieldset.collapsed legend a {
+  background: url(images/arrow-right-white.png) no-repeat right 6px;
+}
+html.js fieldset.collapsed .fieldset-wrapper,
+html.js fieldset.collapsed .action {
+  display: none;
+}
+html.js fieldset.collapsed {
+}
+html.js fieldset.collapsed {
+  border-width: 1px;
+  margin-bottom: 15px;
+}
+html.js fieldset.collapsible div.fieldset-wrapper {
+  margin-top: 3em;
+}
+html.js input.form-autocomplete {
+  background-position: 99% 7px;
+}
+html.js input.throbbing {
+  background-position: 99% -13px;
+}
+#autocomplete ul li {
+  margin: 0;
+}
+#autocomplete ul li:hover {
+  background: none;
+}
+#autocomplete ul div {
+  cursor: pointer;
+  position: relative;
+  display: block;
+  width: 100%;
+  padding: 3px;
+}
+div.resizable-textarea textarea {
+  margin-top: 0;
+}
+.resizable-textarea {
+  width: 100%;
+}
+.resizable-textarea .grippie {
+  height: 9px;
+  width: 100%;
+  background: #ccc url(images/grippie.png) no-repeat center 2px;
+  border: 1px solid #ccc;
+  border-top-width: 0;
+  cursor: s-resize;
+  margin-top: -6px;
+  position: relative;
+  margin-right: 0!important;
+  -moz-box-sizing: border-box;
+  -webkit-box-sizing: border-box;
+  box-sizing: border-box;
+}
+#search-block-form {
+    margin-top: 0.4em;
+}
+#search-block-form .form-text {
+  margin-bottom: 6px;
+}
+fieldset#edit-advanced fieldset {
+  margin: 0 10px 10px 0;
+}
+fieldset#edit-advanced fieldset .fieldset-legend {
+  background: none;
+  padding-left: 1em;
+}
+.advanced-search-submit {
+  clear: both;
+}
+.search-advanced .criterion {
+  float: none;
+  margin: 0 5px;
+}
+#edit-keywords-fieldset .form-item:first-child {
+  margin-top: 5px;
+}
+#search-form {
+  margin: 10px 0;
+}
+#search-form > div {}
+#search-form .container-inline {}
+#search-form #edit-basic label {
+  clip: rect(1px 1px 1px 1px);
+  clip: rect(1px, 1px, 1px, 1px);
+  position: absolute;
+}
+.search-advanced .fieldset-wrapper legend {
+  background: transparent;
+}
+#user-login-form ul {
+  margin: 0;
+  padding: 0;
+}
+#user-login-form li.openid-link,
+#user-login-form li.user-link {
+  text-align: center;
+}
+#user-login ul {
+  margin: 0 0 5px;
+}
+#user-login ul li {
+  margin: 0;
+}
+#user-login-form .item-list li {
+  list-style: none;
+  margin: 0;
+}
+#user-login-form li.openid-link,
+#user-login li.openid-link {
+  background: none;
+}
+.hide-label label {
+  position: absolute !important;
+  clip: rect(1px 1px 1px 1px); /* IE6, IE7 */
+  clip: rect(1px, 1px, 1px, 1px);
+  background: none;
+}
+#user-admin-filter ul li,
+#article-admin-filter ul li {
+  list-style: none;
+}
+.description {
+  color: #555;
+}
+.field-type-text-long fieldset {
+  padding: 10px 0;
+}
+.field-type-text-long fieldset .form-item {
+  margin: 0;
+  padding: 0 0 0 15px;
+}
+fieldset .filter-help {
+  padding: 0 15px 5px;
+}
+.filter-guidelines {
+  font-size: .9em;
+  margin: 0;
+  padding: 5px 18px 10px;
+}
+#devel-switch-user-form {
+  margin-bottom: 0;
+}
+fieldset.filter-wrapper {
+  margin: 0 0 12px 0;
+  border-top: none;
+  width: auto;
+}
+.filter-help {
+  float: right;
+  margin: 0;
+}
+.filter-help a {
+  background: none;
+  padding: 0;
+}
+.filter-wrapper .form-item {
+  margin-top: 0;
+}
+.filter-guidelines {
+  padding-top: 6px;
+  font-size: 0.8em;
+}
+.filter-guidelines ul {
+  margin: 0;
+}
+.block .filter-guidelines ul li {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+body.page-filter-tips #block-system-main ul {
+  margin: 0;
+  list-style: none;
+}
+body.page-filter-tips #block-system-main li {
+  margin: 10px 0;
+}
+body.page-filter-tips #block-system-main table {
+  margin: 10px 0;
+}
+div.vertical-tabs {
+  border: 1px solid #ccc;
+}
+div.vertical-tabs ul.vertical-tabs-list {
+  list-style-position: outside;
+}
+.vertical-tabs-panes {
+  padding: 9px 5px;
+}
+div.vertical-tabs fieldset {
+  background: none;
+}
+ul.vertical-tabs-list li a {
+  display: block;
+  border: none;
+  padding: 7px 12px;
+  color: inherit;
+}
+ul.vertical-tabs-list li.selected a {
+  background-color: #fff;
+}
+.vertical-tabs input {
+  width: 100%;
+}
+.vertical-tabs input.form-checkbox,
+.vertical-tabs input.form-radio {
+  width: auto;
+}
+.marker {
+  color: #e25401;
+  text-transform: capitalize;
+  margin-left: 3px;
+}
+.marker:before {
+  content: "(";
+}
+.marker:after {
+  content: ")";
+}
+.farbtastic .marker:before {
+  content: "";
+}
+.farbtastic .marker:after {
+  content: "";
+}
+#palette .form-item {
+  width: auto;
+}
+.color-form .form-item {
+  height: 3em;
+}
+#palette .item-selected {
+  background: none;
+}
+#palette .lock {
+  background-position: 50% 2px;
+}
+#palette .unlocked {
+  background-position: 50% -22px;
+}
+#palette .hook {
+  margin-top: 0.6em;
+}
+.password-parent,
+div.form-item div.password-suggestions {
+  position: relative;
+  width: auto;
+}
+#password-strength {
+  float: none;
+  left: 16em;
+  position: absolute;
+  width: 11.5em;
+}
+#password-strength-text,
+.password-strength-title,
+div.password-confirm {
+  font-size: 0.8em;
+}
+#password-strength-text {
+  margin-top: 0.2em;
+}
+input.password-confirm,
+input.password-field {
+  width: 15em;
+  margin-bottom: 0.4em;
+}
+div.form-item div.password-suggestions {
+  padding: 8px 9px;
+  margin: 10px 0;
+  background-color: #f3fcdb;
+  border: 1px solid #b8e643;
+}
+
+/* Reset textarea backgrounds in WYSIWYG module text editors */
+body.wysiwygeditor {
+  background-color: #fff;
+  background-image: none;
+}

@@ -1,0 +1,14 @@
+/* Float Blocks */
+.float-blocks-left .block {float:left;}
+.float-blocks-right .block {float:right;}
+.float-blocks-2 .block {width:50%}
+.float-blocks-3 .block {width:33.333333%;}
+.float-blocks-4 .block {width:25%;}
+.float-blocks-5 .block {width:20%}
+.float-blocks-6 .block {width:16.66666666666667%;}
+.float-blocks-7 .block {width:14.28571428571429%;}
+.float-blocks-8 .block {width:12.5%;}
+.float-blocks-9 .block {width:11.11111111111111%;}
+.float-blocks-10 .block {width:10%;}
+.float-blocks-11 .block {width:9.090909090909091%;}
+.float-blocks-12 .block {width:8.333333333333333%;}

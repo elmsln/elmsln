@@ -1,0 +1,479 @@
+
+;----------// Theme Information
+
+  name        = AT Subtheme
+  description = Copy this subtheme to get started - see the <b><a href="http://adaptivethemes.com/documentation/adaptivethemes-documentation" target="_blank" title="Adaptivethemes.com - Rocking the hardest since 2006">documentation</a></b> for guidence or the included README. Drush users can generate a new theme using the command: drush adaptivetheme. If you need help please use the <b><a href="http://drupal.org/project/issues/adaptivetheme" target="_blank">issue queue</a></b> or ask in the IRC channel: <b><a href="irc://irc.freenode.net/drupal-adaptivetheme">#drupal-adaptivetheme</a></b>.
+  core        = 7.x
+  base theme  = adaptivetheme
+  release     = 7.x-3.x
+  engine      = phptemplate
+  screenshot  = screenshot.png
+
+
+;----------// Stylesheets
+
+  ; See each stylesheet for extensive documentation and help.
+  stylesheets[screen][] = css/global.base.css
+  stylesheets[screen][] = css/global.styles.css
+
+  ; Print - uncomment to load basic print styles.
+  ; stylesheets[print][] = css/print.css
+
+
+  ; Internet Explorer Stylesheets
+  ;
+  ; AT can load stylesheets in conditional comments from the info file.
+  ;
+  ; Syntax: ie_stylesheets[media][condition][] = path/to/file (path must be
+  ; relative to your theme root)
+  ;
+  ; For example if you want to load a stylesheet just for IE7 use the
+  ; following (note: you need to create "ie7.css" in the /css/ directory):
+  ; ie_stylesheets[screen][IE 7][] = css/ie7.css
+  ;
+  ; By default the sub-theme has one IE stylesheet which loads for
+  ; "less than IE9" but "not IEMobile 7".
+  ; Uncomment the following to use the included IE styleseet:
+
+  ; ie_stylesheets[screen][(lt IE 9)&(!IEMobile 7)][] = css/lt-ie9.css
+
+
+  ; Unset Module CSS or other Stylesheets
+  ;
+  ; In your theme settings you can unset many stylesheets using the Unset CSS
+  ; Extension. If for some reason the file you want to unset is not showing,
+  ; you can explicitly declare it here. Once you have finished adding your
+  ; declarations you must clear the sites cache, then go to your theme settings
+  ; and check the checkbox for the file, then save the theme settings and the
+  ; file will be unset thereafter.
+  ;
+  ; Follow the syntax:
+  ;
+  ; unset_css[path/to/css/file.css] = 1
+  ;
+  ; For example to unset foobar_module.css you might use something like this:
+
+  ; unset_css[sites/all/modules/foobar_module/foobar_module.css] = 1
+
+
+;----------// Scripts
+
+  ; Internet Explorer Scripts
+  ;
+  ; AT can load scripts in conditional comments from the info file. If you are
+  ; planning to use a polyfill be sure to check the "Settings" tab in theme
+  ; settings for existing Polyfills.
+  ;
+  ; Syntax: ie_scripts[condition][] = path/to/file (path must be relative to your
+  ; theme root)
+  ;
+  ; For example if you want to load a script just for IE 8 and below use the
+  ; following as a guide:
+
+  ; ie_scripts[lte IE 8][] = scripts/my-script.js
+
+
+;----------// Regions
+
+  regions[sidebar_first]     = Sidebar first
+  regions[sidebar_second]    = Sidebar second
+  regions[content]           = Main Content
+  regions[highlighted]       = Highlighted
+  regions[content_aside]     = Aside
+  regions[secondary_content] = Secondary
+  regions[tertiary_content]  = Tertiary
+  regions[footer]            = Footer
+  regions[leaderboard]       = Leaderboard
+  regions[header]            = Header
+  regions[menu_bar]          = Menu Bar
+  regions[help]              = Help
+  regions[page_top]          = Page top
+  regions[page_bottom]       = Page bottom
+
+
+;----------// Gpanel Regions
+
+  ; If you are using Gpanels copy and paste the region definitions here. You
+  ; will find them in each layout PHP file in adaptivetheme/layouts/gpanels
+
+
+;----------// Custom Layout Plugins
+
+  ; Adaptivetheme supports both Page Layout plugins (it's own native layout
+  ; plugin type) and Panels layout plugins. Page layouts control the sidebars
+  ; and main content column layout - these are controlled via theme settings for
+  ; Page layouts. The Panels layouts are for Panels module and are controlled via
+  ; the theme settings for Panels layouts.
+
+  ; There are seperate directories for each type of layout and an example
+  ; plugin for each. These don't do very much, they are just examples, you can
+  ; use the core themes layout plugins as a guide. Please see the _README in the
+  ; layouts directory of this subtheme.
+
+  ; Remove the semicolon to umcomment and clear the sites cache.
+
+  ; Page layout plugins
+  :plugins[page_layout][layouts] = layouts/page
+
+  ; Panels layout plugins
+  :plugins[panels][layouts] = layouts/panels
+
+
+;----------// Site Features
+
+  features[] = logo
+  features[] = name
+  features[] = slogan
+  features[] = node_user_picture
+  features[] = comment_user_picture
+  features[] = comment_user_verification
+  features[] = favicon
+  features[] = main_menu
+  features[] = secondary_menu
+
+  ; Default settings for site features
+  settings[toggle_logo]                      = 1
+  settings[toggle_name]                      = 1
+  settings[toggle_slogan]                    = 1
+  settings[toggle_node_user_picture]         = 1
+  settings[toggle_comment_user_picture]      = 1
+  settings[toggle_comment_user_verification] = 1
+  settings[toggle_favicon]                   = 1
+  settings[toggle_main_menu]                 = 1
+  settings[toggle_secondary_menu]            = 1
+
+
+;----------// Theme Settings
+
+  ; Layout settings - Standard layout
+  settings[bigscreen_layout]         = 'three_col_grail'
+  settings[bigscreen_page_unit]      = '%'
+  settings[bigscreen_sidebar_unit]   = '%'
+  settings[bigscreen_max_width_unit] = 'px'
+  settings[bigscreen_page_width]     = 100
+  settings[bigscreen_sidebar_first]  = 25
+  settings[bigscreen_sidebar_second] = 25
+  settings[bigscreen_set_max_width]  = 1
+  settings[bigscreen_max_width]      = 1140
+  settings[bigscreen_media_query]    = 'only screen and (min-width:1025px)'
+
+
+  ; Layout settings - Tablet landscape
+  settings[tablet_landscape_layout]         = 'three_col_grail'
+  settings[tablet_landscape_page_unit]      = '%'
+  settings[tablet_landscape_sidebar_unit]   = '%'
+  settings[tablet_landscape_page_width]     = 100
+  settings[tablet_landscape_sidebar_first]  = 20
+  settings[tablet_landscape_sidebar_second] = 20
+  settings[tablet_landscape_media_query]    = 'only screen and (min-width:769px) and (max-width:1024px)'
+
+
+  ; Layout settings - Tablet portrait
+  settings[tablet_portrait_layout]         = 'one_col_vert'
+  settings[tablet_portrait_page_unit]      = '%'
+  settings[tablet_portrait_sidebar_unit]   = '%'
+  settings[tablet_portrait_page_width]     = 100
+  settings[tablet_portrait_sidebar_first]  = 50
+  settings[tablet_portrait_sidebar_second] = 50
+  settings[tablet_portrait_media_query]    = 'only screen and (min-width:581px) and (max-width:768px)'
+
+
+  ; Layout settings - Smalltouch landscape
+  settings[smalltouch_landscape_layout]         = 'one_col_vert'
+  settings[smalltouch_landscape_page_unit]      = '%'
+  settings[smalltouch_landscape_sidebar_unit]   = '%'
+  settings[smalltouch_landscape_page_width]     = 100
+  settings[smalltouch_landscape_sidebar_first]  = 50
+  settings[smalltouch_landscape_sidebar_second] = 50
+  settings[smalltouch_landscape_media_query]    = 'only screen and (min-width:321px) and (max-width:580px)'
+
+
+  ; Layout settings - Smalltouch portrait
+  settings[smalltouch_portrait_layout]         = 'one_col_stack'
+  settings[smalltouch_portrait_page_unit]      = '%'
+  settings[smalltouch_portrait_sidebar_unit]   = '%'
+  settings[smalltouch_portrait_page_width]     = 100
+  settings[smalltouch_portrait_sidebar_first]  = 100
+  settings[smalltouch_portrait_sidebar_second] = 100
+  settings[smalltouch_portrait_media_query]    = 'only screen and (max-width:320px)'
+
+
+  ; Responsive Panels - Standard layout
+  settings[bigscreen_two_50]            = 'two-50'
+  settings[bigscreen_two_33_66]         = 'two-33-66'
+  settings[bigscreen_two_66_33]         = 'two-66-33'
+  settings[bigscreen_two_brick]         = 'two-brick'
+  settings[bigscreen_three_3x33]        = 'three-3x33'
+  settings[bigscreen_three_25_50_25]    = 'three-25-50-25'
+  settings[bigscreen_three_25_25_50]    = 'three-25-25-50'
+  settings[bigscreen_three_50_25_25]    = 'three-50-25-25'
+  settings[bigscreen_four_4x25]         = 'four-4x25'
+  settings[bigscreen_five_5x20]         = 'five-5x20-2x3-grid'
+  settings[bigscreen_six_6x16]          = 'six-6x16-3x2-grid'
+  settings[bigscreen_three_inset_left]  = 'three-inset-left'
+  settings[bigscreen_three_inset_right] = 'three-inset-right'
+
+
+  ; Responsive Panels - Tablet landscape
+  settings[tablet_landscape_two_50]            = 'two-50'
+  settings[tablet_landscape_two_33_66]         = 'two-33-66'
+  settings[tablet_landscape_two_66_33]         = 'two-66-33'
+  settings[tablet_landscape_two_brick]         = 'two-brick'
+  settings[tablet_landscape_three_3x33]        = 'three-3x33'
+  settings[tablet_landscape_three_25_50_25]    = 'three-25-50-25'
+  settings[tablet_landscape_three_25_25_50]    = 'three-25-25-50'
+  settings[tablet_landscape_three_50_25_25]    = 'three-50-25-25'
+  settings[tablet_landscape_four_4x25]         = 'four-4x25'
+  settings[tablet_landscape_five_5x20]         = 'five-5x20'
+  settings[tablet_landscape_six_6x16]          = 'six-6x16-3x2-grid'
+  settings[tablet_landscape_three_inset_left]  = 'three-inset-left'
+  settings[tablet_landscape_three_inset_right] = 'three-inset-right'
+
+
+  ; Responsive Panels - Tablet portrait
+  settings[tablet_portrait_two_50]            = 'two-50'
+  settings[tablet_portrait_two_33_66]         = 'two-33-66'
+  settings[tablet_portrait_two_66_33]         = 'two-66-33'
+  settings[tablet_portrait_two_brick]         = 'two-brick'
+  settings[tablet_portrait_three_3x33]        = 'three-3x33-stack-top'
+  settings[tablet_portrait_three_25_50_25]    = 'three-25-50-25-stack-top'
+  settings[tablet_portrait_three_25_25_50]    = 'three-25-25-50-stack-top'
+  settings[tablet_portrait_three_50_25_25]    = 'three-50-25-25-stack-top'
+  settings[tablet_portrait_four_4x25]         = 'four-4x25-2x2-grid'
+  settings[tablet_portrait_five_5x20]         = 'five-5x20-1x2x2-grid'
+  settings[tablet_portrait_six_6x16]          = 'six-6x16-2x3-grid'
+  settings[tablet_portrait_three_inset_left]  = 'three-inset-left-wrap'
+  settings[tablet_portrait_three_inset_right] = 'three-inset-right-wrap'
+
+
+  ; Responsive Panels - Smalltouch landscape
+  settings[smalltouch_landscape_two_50]            = 'two-50-stack'
+  settings[smalltouch_landscape_two_33_66]         = 'two-33-66-stack'
+  settings[smalltouch_landscape_two_66_33]         = 'two-66-33-stack'
+  settings[smalltouch_landscape_two_brick]         = 'two-brick-stack'
+  settings[smalltouch_landscape_three_3x33]        = 'three-3x33-stack'
+  settings[smalltouch_landscape_three_25_50_25]    = 'three-25-50-25-stack'
+  settings[smalltouch_landscape_three_25_25_50]    = 'three-25-25-50-stack'
+  settings[smalltouch_landscape_three_50_25_25]    = 'three-50-25-25-stack'
+  settings[smalltouch_landscape_four_4x25]         = 'four-4x25-stack'
+  settings[smalltouch_landscape_five_5x20]         = 'five-5x20-stack'
+  settings[smalltouch_landscape_six_6x16]          = 'six-6x16-stack'
+  settings[smalltouch_landscape_three_inset_left]  = 'three-inset-left-stack'
+  settings[smalltouch_landscape_three_inset_right] = 'three-inset-right-stack'
+
+
+  ; CSS
+  settings[disable_responsive_styles]     = 0
+  settings[enable_custom_media_queries]   = 1
+  settings[global_default_layout]         = 'smalltouch-portrait'
+  settings[global_default_layout_toggle]  = 0
+  settings[global_files_path]             = 'public_files'
+
+
+  ; Polyfills
+  settings[load_html5js]       = 1
+  settings[load_respondjs]     = 0
+  settings[load_ltie8css]      = 0
+  settings[load_scalefixjs]    = 0
+
+
+  ; Debug
+  settings[expose_regions]              = 0
+  settings[load_all_panels]             = 0
+  settings[load_all_panels_no_sidebars] = 0
+  settings[show_window_size]            = 0
+  settings[rebuild_theme_data]          = 0
+
+
+  ; Enable extensions
+  settings[enable_extensions]          = 0
+  settings[enable_font_settings]       = 0
+  settings[enable_heading_settings]    = 0
+  settings[enable_image_settings]      = 0
+  settings[enable_apple_touch_icons]   = 0
+  settings[enable_exclude_css]         = 0
+  settings[enable_custom_css]          = 0
+  settings[enable_context_regions]     = 0
+  settings[enable_float_region_blocks] = 0
+  settings[enable_markup_overides]     = 0
+
+
+  ; Font type
+  settings[base_font_type]           = '<none>'
+  settings[site_name_font_type]      = '<none>'
+  settings[site_slogan_font_type]    = '<none>'
+  settings[page_title_font_type]     = '<none>'
+  settings[node_title_font_type]     = '<none>'
+  settings[comment_title_font_type]  = '<none>'
+  settings[block_title_font_type]    = '<none>'
+  settings[main_menu_font_type]      = '<none>'
+  settings[secondary_menu_font_type] = '<none>'
+  settings[block_menu_font_type]     = '<none>'
+  settings[selectors_font_type]      = '<none>'
+  settings[content_headings_h1h4_font_type] = '<none>'
+  settings[content_headings_h5h6_font_type] = '<none>'
+
+
+  ; Font size
+  settings[base_font_size]           = '<none>'
+  settings[site_name_font_size]      = '<none>'
+  settings[site_slogan_font_size]    = '<none>'
+  settings[page_title_font_size]     = '<none>'
+  settings[node_title_font_size]     = '<none>'
+  settings[comment_title_font_size]  = '<none>'
+  settings[block_title_font_size]    = '<none>'
+  settings[main_menu_font_size]      = '<none>'
+  settings[secondary_menu_font_size] = '<none>'
+  settings[block_menu_font_size]     = '<none>'
+
+
+  ; Font size heading levels
+  settings[h1_font_size] = '2em'
+  settings[h2_font_size] = '1.6em'
+  settings[h3_font_size] = '1.4em'
+  settings[h4_font_size] = '1.2em'
+  settings[h5_font_size] = '1em'
+  settings[h6_font_size] = '1em'
+
+
+  ; Site name
+  settings[site_name_case]      = 'snc-n'
+  settings[site_name_weight]    = 'snw-b'
+  settings[site_name_alignment] = 'sna-l'
+  settings[site_name_shadow]    = 'sns-n'
+
+
+  ; Site slogan
+  settings[site_slogan_case]      = 'ssc-n'
+  settings[site_slogan_weight]    = 'ssw-b'
+  settings[site_slogan_alignment] = 'ssa-l'
+  settings[site_slogan_shadow]    = 'sss-n'
+
+
+  ; Page title
+  settings[page_title_case]      = 'ptc-n'
+  settings[page_title_weight]    = 'ptw-b'
+  settings[page_title_alignment] = 'pta-l'
+  settings[page_title_shadow]    = 'pts-n'
+
+
+  ; Node title
+  settings[node_title_case]      = 'ntc-n'
+  settings[node_title_weight]    = 'ntw-b'
+  settings[node_title_alignment] = 'nta-l'
+  settings[node_title_shadow]    = 'nts-n'
+
+
+  ; Comment title
+  settings[comment_title_case]      = 'ctc-n'
+  settings[comment_title_weight]    = 'ctw-b'
+  settings[comment_title_alignment] = 'cta-l'
+  settings[comment_title_shadow]    = 'cts-n'
+
+
+  ; Block title
+  settings[block_title_case]      = 'btc-n'
+  settings[block_title_weight]    = 'btw-b'
+  settings[block_title_alignment] = 'bta-l'
+  settings[block_title_shadow]    = 'bts-n'
+
+
+  ; Images
+  settings[image_alignment]        = 'ia-n'
+  settings[image_alignment_teaser] = 'iat-n'
+  settings[image_caption_full]     = 0
+  settings[image_caption_teaser]   = 0
+  settings[image_teaser]           = 0
+
+
+  ; Breadcrumb
+  settings[breadcrumb_display]   = 1
+  settings[breadcrumb_home]      = 0
+  settings[breadcrumb_label]     = 0
+  settings[breadcrumb_title]     = 0
+  settings[breadcrumb_separator] = ' &#187; '
+
+
+  ; Login block options
+  settings[horizontal_login_block_enable] = 'on'
+  settings[horizontal_login_block]    = 0
+  settings[login_block_remove_links]  = 0
+  settings[login_block_remove_openid] = 0
+
+
+  ; User block
+  settings[user_block_user_name] = 1
+
+
+  ; Design
+  settings[global_gutter_width]           = ''
+  settings[page_full_width_wrappers]      = 0
+  settings[page_content_type_suggestions] = 0
+  settings[menu_item_span_elements]       = 0
+
+
+  ; Extra CSS classes
+  settings[extra_page_classes]      = 1
+  settings[extra_article_classes]   = 1
+  settings[extra_comment_classes]   = 1
+  settings[extra_block_classes]     = 1
+  settings[extra_menu_classes]      = 1
+  settings[extra_item_list_classes] = 1
+
+
+  ; Remove or Hide
+  settings[comments_hide_title]           = 0
+  settings[feed_icons]                    = 0
+  settings[unset_block_system_main_front] = 0
+  settings[unset_menu_titles]             = 0
+
+
+  ; Accessibility
+  settings[skip_link_target] = '#main-content'
+  settings[adv_search_extra_fieldsets] = 0
+
+
+  ; SEO
+  settings[rel_author] = 0
+
+
+  ; Mobile metu toggle
+  settings[menu_toggle_tablet_portrait]  = 1
+  settings[menu_toggle_tablet_landscape] = 0
+  settings[menu_toggle_main_menu]        = 1
+  settings[menu_toggle_secondary_menu]   = 1
+  settings[menu_toggle_leaderboard]      = 0
+  settings[menu_toggle_header]           = 0
+  settings[menu_toggle_menu_bar]         = 1
+  settings[menu_toggle_main_menu_title] = Main menu
+  settings[menu_toggle_secondary_menu_title] = User menu
+
+
+  ; Mobile metatags
+  settings[mobile_friendly_metatags]            = 1
+  settings[adaptivetheme_meta_viewport]         = 'width=device-width, initial-scale=1.0, user-scalable=yes'
+  settings[adaptivetheme_meta_mobileoptimized]  = 'width'
+  settings[adaptivetheme_meta_handheldfriendly] = 'true'
+  settings[adaptivetheme_meta_apple_mobile_web_app_capable] = 'yes'
+  settings[adaptivetheme_meta_ie_document_mode] = ''
+  settings[adaptivetheme_meta_clear_type]       = 0
+
+
+  ; Touch icons
+  settings[apple_touch_icon_enable] = 0
+  settings[icon_path_default]                   = 'images/default-60x60.png'
+  settings[apple_touch_icon_path_ipad]          = 'images/ipad-standard-76x76.png'
+  settings[apple_touch_icon_path_iphone_retina] = 'images/iphone-retina-120x120.png'
+  settings[apple_touch_icon_path_ipad_retina]   = 'images/ipad-retina-152x152.png'
+  settings[icon_rel] = 0
+
+
+  ; Custom CSS
+  settings[custom_css] = ''
+
+; Information added by Drupal.org packaging script on 2014-03-23
+version = "7.x-3.2"
+core = "7.x"
+project = "adaptivetheme"
+datestamp = "1395575059"
+

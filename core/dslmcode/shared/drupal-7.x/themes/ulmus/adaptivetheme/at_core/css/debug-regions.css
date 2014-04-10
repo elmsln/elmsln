@@ -1,0 +1,198 @@
+/* Highlight regions for debugging the layout */
+
+/* Sections */
+#section-top,
+#section-header,
+#section-menu-bar,
+#section-preface,
+#section-messages,
+#section-breadcrumb,
+#section-main-columns,
+#section-postscript,
+#section-footer {
+  background: #f5f5f5;
+  position: relative;
+  min-height: 65px;
+  margin-bottom: 20px;
+}
+
+#section-top:before,
+#section-header:before,
+#section-menu-bar:before,
+#section-preface:before,
+#section-messages:before,
+#section-breadcrumb:before,
+#section-main-columns:before,
+#section-postscript:before,
+#section-footer:before {
+  font-size: 1.2em;
+  font-weight: 700;
+  z-index: 80;
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 100%;
+  padding: 3px 0;
+  text-indent: 10px;
+  text-align: left;
+  color: #000;
+  background: rgba(0,0,0,0.1);
+}
+
+#section-top:before {
+  content: "#section-top";
+}
+
+#section-header:before {
+  content: "#section-header";
+}
+
+#section-menu-bar:before{
+  content: "#section-menu-bar";
+}
+
+#section-preface:before {
+  content: "#section-preface";
+}
+
+#section-messages:before {
+  content: "#section-messages";
+}
+
+#section-breadcrumb:before {
+  content: "#section-breadcrumb";
+}
+
+#section-main-columns:before {
+  content: "#section-main-columns";
+}
+
+#section-postscript:before {
+  content: "#section-postscript";
+}
+
+#section-footer:before {
+  content: "#section-footer";
+}
+
+/* Region */
+.debug-regions #main-content #content,
+.debug-regions .region,
+.debug-regions #menu-bar {
+  position: relative;
+}
+.debug-regions #main-content #content,
+.debug-regions .region .block-inner,
+.debug-regions #menu-bar nav {
+  background: #00B2EE;
+  position: relative;
+  opacity: 0.6;
+  min-height: 40px;
+  -webkit-transition: all 0.1s ease-in;
+  -moz-transition: all 0.1s ease-in;
+  -ms-transition: all 0.1s ease-in;
+  -o-transition: all 0.1s ease-in;
+  transition: all 0.1s ease-in;
+}
+
+#branding,
+.debug-regions .region-inner,
+.debug-regions #menu-bar .block {
+}
+
+.debug-regions .content-inner:hover,
+.debug-regions .region:hover,
+.debug-regions #menu-bar:hover {
+  background: #eee;
+  opacity: 0.95;
+  outline: 1px dotted #ccc;
+}
+
+.debug-regions #main-content #content:before,
+.debug-regions .region:before,
+.debug-regions #menu-bar:before {
+  font-size: 1em;
+  font-weight: 700;
+  position: absolute;
+  z-index: 400;
+  left: 2px;
+  top: 2px;
+  padding: 5px 25px;
+  color: #000;
+  background: #fff;
+  box-shadow: 0 3px 5px #666;
+}
+
+/* Expose lables for known regions */
+.debug-regions #main-content #content:before {
+  content: "#content (main content region)";
+}
+
+.debug-regions .region:hover:before {}
+.debug-regions .region-top-bar:before {
+  content: ".region-top-bar";
+}
+
+.debug-regions .region-leaderboard:before {
+  content: ".region-leaderboard";
+}
+
+.debug-regions .region-header-preface:before {
+  content: ".region-header-preface";
+}
+
+.debug-regions .region-header:before {
+  content: ".region-header";
+}
+
+.debug-regions .region-header-postscript:before {
+  content: ".region-header-postscript";
+}
+
+.debug-regions #menu-bar:before {
+  content: "#menu-bar";
+}
+
+.debug-regions .region-secondary-content:before {
+  content: ".region-secondary-content";
+}
+
+.debug-regions .region-preface:before {
+  content: ".region-preface";
+}
+
+.debug-regions .region-help:before {
+  content: ".region-help";
+}
+
+.debug-regions .region-highlighted:before {
+  content: ".region-highlighted";
+}
+
+.debug-regions .region-content:before {
+  content: ".region-content";
+}
+
+.debug-regions .region-content-aside:before {
+  content: ".region-content-aside";
+}
+
+.debug-regions .region-sidebar-first:before {
+  content: ".region-sidebar-first";
+}
+
+.debug-regions .region-sidebar-second:before {
+  content: ".region-sidebar-second";
+}
+
+.debug-regions .region-tertiary-content:before {
+  content: ".region-tertiary-content";
+}
+
+.debug-regions .region-postscript:before {
+  content: ".region-postscript";
+}
+
+.debug-regions .region-footer:before {
+  content: ".region-footer";
+}

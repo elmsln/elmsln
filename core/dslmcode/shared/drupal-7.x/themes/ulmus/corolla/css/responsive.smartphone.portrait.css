@@ -1,0 +1,130 @@
+/**
+ * Smalltouch / Smartphone portrait
+ */
+
+#admin-menu-wrapper {display: none;}
+
+#branding {
+  padding: 10px 0 10px;
+}
+
+.region-header {
+  padding: 0 0 10px;
+}
+
+#branding,
+.region-header {
+  float: none;
+  margin: auto;
+  text-align: center;
+  display: table;
+}
+
+#logo,
+#site-name,
+#site-slogan {
+  display: block;
+  float: none;
+  margin-left: 0;
+  margin-right: 0;
+  padding: 0;
+}
+
+#site-name {
+  font-size: 3em;
+}
+
+.content-style {
+  padding: 10px;
+}
+
+#secondary-content-wrapper,
+#top-panels-wrapper,
+#content-wrapper,
+#footer-panels-wrapper,
+#tertiary-content-wrapper {
+  margin-bottom: 10px;
+}
+
+.region-secondary-content .block {
+  margin-bottom: 0;
+  font-size: 1em;
+}
+
+/* Menu bar */
+#menu-bar .block > ul > li {
+  margin: 0 1px 1px 0;
+}
+
+#menu-bar-wrapper .nav .block-menu li a,
+#menu-bar-wrapper #menu-bar li.sf-depth-1,
+#menu-bar-wrapper #menu-bar li.sf-depth-1 > a,
+#menu-bar-wrapper .region-header .block-content > ul > li > a {
+  border-radius: 6px 6px 6px 0;
+}
+
+.at-mt #menu-bar .block.at-menu-toggle.block,
+.at-mt #menu-bar .block.at-menu-toggle ul li,
+.at-mt #menu-bar .block.at-menu-toggle ul {
+  float: none;
+}
+
+.at-mt #menu-bar-wrapper .container,
+.at-mt #menu-bar .block-menu.at-menu-toggle.block {
+  overflow-x: hidden;
+  -moz-box-sizing: border-box;
+  -webkit-box-sizing: border-box;
+  box-sizing: border-box;
+}
+
+.at-mt #menu-bar-wrapper .at-menu-toggle-button-link {
+  padding: 3px 15px;
+}
+
+/* Header region */
+.region-header .block {
+  overflow: hidden;
+}
+
+.region-header .block ul li {
+  display: block;
+  text-align: center;
+  float: none;
+}
+
+.region-header .block ul li a {
+  -moz-border-radius: 0 !important;
+  -webkit-border-radius: 0 !important;
+  border-radius: 0 !important;
+}
+
+
+.at-mt .region-header .block.at-menu-toggle.block,
+.at-mt .region-header .block.at-menu-toggle ul li,
+.at-mt .region-header .block.at-menu-toggle ul {
+  float: none;
+}
+
+.node-title {
+  font-size: 1.5em;
+}
+
+#tasks {
+  margin: 10px 10px 2px;
+}
+
+ul.primary {
+  white-space: normal;
+  border: 0;
+}
+
+ul.primary li a {
+  border-radius: 6px;
+  line-height: 2em;
+  padding: 0 10px;
+  white-space: nowrap;
+  border: 0 !important;
+  display: block;
+  float: left;
+  margin: 0 5px 5px 0;
+}

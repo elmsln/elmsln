@@ -1,0 +1,40 @@
+//
+// 'base' partial
+//
+// To make it easier to use all variables and mixins in any SCSS file in this
+// theme, each .scss file has a @import 'base' declaration. And this base.scss
+// file is in charge of importing all the other partials needed for the theme.
+//
+
+
+//
+// Legacy IE support
+//
+// These variables are used by many mixins to add additional CSS to support
+// specific versions of IE or specific vendor prefixes.
+//
+// To turn off support for IE6 or IE7, set those variables to false.
+//
+// AdaptiveTheme does not require special handling for IE8 or later. But Compass
+// defines more Legacy IE variables that you might find useful for your theme.
+// See the documentation at http://compass-style.org/reference/compass/support/
+//
+
+$legacy-support-for-ie6: true;
+$legacy-support-for-ie7: true;
+
+
+//
+// Partials to be shared with all .scss files.
+//
+
+@import 'compass/support';                     // Add Compass and IE vendor prefix support variables.
+@import 'compass/utilities/general/clearfix';  // Better than Drupal's clearfix.
+@import 'compass/utilities/sprites';           // See http://compass-style.org/help/tutorials/spriting/
+@import 'compass/css3';                        // Use one CSS3 mixin instead of multiple vendor prefixes.
+
+
+//
+// Import custom partial - mixins and variables defined for your theme
+//
+@import 'custom';

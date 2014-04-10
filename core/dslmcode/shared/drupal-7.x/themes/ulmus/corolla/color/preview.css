@@ -1,0 +1,5 @@
+/* color_scheme_form - kill it, its not needed and too hard to support */
+#color_scheme_form h2,
+#color_scheme_form #preview {
+  display: none;
+}

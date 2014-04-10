@@ -1,0 +1,7 @@
+#panels-dnd-main .region {float: left; margin-bottom: 5px}
+#panels-dnd-main .region-three-inset-right-sidebar {width: 25%}
+#panels-dnd-main .inset-wrapper {float: left; width: 74.5%; margin-left: 0.5%}
+#panels-dnd-main .inset-wrapper .region {width: 100%}
+#panels-dnd-main .inset-wrapper .region-three-inset-right-middle {width: 69.5%}
+#panels-dnd-main .inset-wrapper .region-three-inset-right-inset {width: 30%; margin-left: 0.5%}
+#panels-dnd-main .region-three-inset-right-bottom {clear: both}

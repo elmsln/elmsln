@@ -1,0 +1,221 @@
+/* HTML Elements */
+html {
+  font-size: 100%;
+  word-wrap: break-word;
+  -webkit-text-size-adjust: 100%;
+  line-height: 1.5;
+  height: 100%;
+  overflow-y: scroll;
+}
+body {
+  font-family: Verdana, Geneva, "DejaVu Sans", sans-serif;
+  min-height: 100%;
+  margin: 0;
+  padding: 0;
+  -webkit-font-smoothing: antialiased;
+  font-smoothing: antialiased;
+  text-rendering: optimizeLegibility\9; /* Only IE, can mess with Android */
+}
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  margin: 0;
+  padding: 0;
+}
+/* Sizes match proper font scaling. */
+h1 {
+  font-size: 1.5em;
+}
+h2 {
+  font-size: 1.9em;
+  font-weight: 700;
+  line-height: 1.3;
+  margin: 7px 0;
+}
+h3 {
+  font-size: 1.2em;
+}
+h4 {
+  font-size: 1.1em;
+}
+h5,
+h6 {
+  font-size: 1em;
+}
+a img {
+  border:none;
+}
+p {
+  margin: 0 0 1.5em;
+  padding: 0;
+}
+em,
+dfn {
+  font-style: italic;
+}
+ins {
+  border-bottom: none;
+  text-decoration: none;
+}
+pre,
+code,
+tt,
+samp,
+kbd,
+var {
+  font-size: 1em;
+  font-family: Consolas, "Lucida Console", Menlo, Monaco, "DejaVu Sans Mono", monospace, sans-serif; /* Safari hack */
+}
+blockquote,
+q {
+  font-style:italic;
+  quotes:"" "";
+}
+blockquote {
+  margin: 0 0 1.5em;
+  padding: 0 0 0 3em;
+}
+blockquote:before,
+blockquote:after,
+q:before,
+q:after {
+  content:"";
+}
+blockquote p {
+  margin: 0;
+}
+strong,
+dfn,
+caption,
+th {
+  font-weight: 700;
+}
+ul,
+ol {
+  margin: 0 0 1.5em 40px;
+  padding:0;
+}
+.item-list ul,
+.item-list ol {
+  margin: 0 0 0 12px;
+  padding: 0;
+}
+ul ul,
+ul ol,
+ol ol,
+ol ul,
+.block ul ul,
+.block ul ol,
+.block ol ol,
+.block ol ul,
+.item-list ul ul,
+.item-list ul ol,
+.item-list ol ol,
+.item-list ol ul {
+  margin-bottom: 0;
+}
+ul {
+  list-style-type: disc;
+}
+ul ul ul {
+  list-style-type: square;
+}
+ol {
+  list-style-type: decimal;
+}
+ol ol {
+  list-style-type: lower-alpha;
+}
+ol ol ol {
+  list-style-type: lower-roman;
+}
+ul ul,
+ul ul ul ul {
+  list-style-type: circle;
+}
+dt {
+  font-weight: 700;
+}
+dd {
+  margin: 0 0 1.5em 40px;
+}
+
+/* Reset HTML5 elements */
+article,
+aside,
+details,
+figcaption,
+figure,
+footer,
+header,
+hgroup,
+menu,
+nav,
+section {
+  display: block;
+}
+
+/**
+ * Flexible Media and Cross browser improvements
+ * - This can cause issues in table cells where no width is set on the column,
+ *   only in some versions of webkit and IE 7/8.
+ * - declaring the width attribute on image elements and using max-width causes
+ *   the "dissappering images" bug in IE8.
+ * - Google maps break also, see below for fixes.
+ */
+img {
+  max-width: 100%;
+  height: auto;
+  -ms-interpolation-mode: bicubic;
+}
+
+/* /ht Ethan Marcotte - http://front.ie/l8rJaA */
+embed,
+object,
+video {
+  max-width: 100%;
+}
+
+/* Disable flexiblity for IE8 and below */
+.lt-ie9 img,
+.lt-ie9 object,
+.lt-ie9 embed,
+.lt-ie9 video {
+  max-width: none !important;
+}
+
+/* Override max-width 100% for map displays and widgets */
+#map img,
+.gmap img,
+.view-gmap img,
+.openlayers-map img,
+#getlocations_map_canvas img,
+#locationmap_map img,
+.geofieldMap img,
+.views_horizontal_slider img,
+.field-widget-imagefield-crop-widget img {
+  max-width: none !important;
+}
+
+svg:not(:root) {
+  overflow: hidden;
+}
+
+audio,
+canvas,
+video {
+  display: inline-block;
+  *display: inline;
+  *zoom: 1;
+}
+
+audio:not([controls]) {
+  display: none;
+}
+
+[hidden] {
+  display: none;
+}

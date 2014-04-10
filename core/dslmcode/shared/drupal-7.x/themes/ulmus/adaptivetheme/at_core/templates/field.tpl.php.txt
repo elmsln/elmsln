@@ -1,0 +1,98 @@
+<?php
+/**
+ * This is a copy of cores field.tpl.php modified to support HTML5. The main
+ * difference to Drupal core is that field labels are treated like headings. In
+ * the context of HTML5 we need to account for sectioning, so this template, like
+ * is counterpart adaptivetheme_field() conditionally supplies the top level
+ * element as either <section> (field label is showing) or <div> (field label
+ * is hidden). "Hidden labels" is a misnomer and implies they are output and
+ * hidden via CSS - not so, if a label is hidden it does not print.
+ *
+ * Additionally field labels are wrapped in h2 elements to improve the outline.
+ *
+ * Useage:
+ * This file is not used by default by Adaptivetheme which is why this is a text
+ * file - it is here to serve as an example if you want to override field
+ * templates using suggestions.
+ *
+ * Adaptivetheme overrides theme_field() to achieve the same markup you see
+ * here because functions are 5 times faster than templates. theme_field() is
+ * called often in Drupal 7 sites so we want to keep things as fast as possible.
+ *
+ * Taxonomy Fields:
+ * Adaptivetheme outputs taxonomy term fields as unordered lists - it
+ * does this in adaptivetheme_field__taxonomy_term_reference().
+ *
+ * Image Fields:
+ * Image fields are overridden in adaptivetheme_field__image(), instead of
+ * the regular div container for images we use <figure> from HTML5.
+ * The template can print captions also, using the <figcaption> element, again
+ * from HTML5. You need to enable the "Image" theme settings in "Site Tweaks"
+ * to enable and configure the captioning features. Captions use the #title
+ * field for the caption text, so you must have titles enabled on image fields
+ * for this to work.
+ *
+ * Adaptivetheme variables:
+ * - $field_view_mode: The view mode so we can test for it inside a template.
+ * - $image_caption_teaser: Boolean value to test for a theme setting.
+ * - $image_caption_full: Boolean value to test for a theme setting.
+ * - $is_mobile: Mixed, requires the Mobile Detect or Browscap module to return
+ *   TRUE for mobile.  Note that tablets are also considered mobile devices.  
+ *   Returns NULL if the feature could not be detected.
+ * - $is_tablet: Mixed, requires the Mobile Detect to return TRUE for tablets.
+ *   Returns NULL if the feature could not be detected.
+ *
+ * Available variables:
+ * - $items: An array of field values. Use render() to output them.
+ * - $label: The item label.
+ * - $label_hidden: Whether the label display is set to 'hidden'.
+ * - $classes: String of classes that can be used to style contextually through
+ *   CSS. It can be manipulated through the variable $classes_array from
+ *   preprocess functions. The default values can be one or more of the
+ *   following:
+ *   - field: The current template type, i.e., "theming hook".
+ *   - field-name-[field_name]: The current field name. For example, if the
+ *     field name is "field_description" it would result in
+ *     "field-name-field-description".
+ *   - field-type-[field_type]: The current field type. For example, if the
+ *     field type is "text" it would result in "field-type-text".
+ *   - field-label-[label_display]: The current label position. For example, if
+ *     the label position is "above" it would result in "field-label-above".
+ *
+ * Other variables:
+ * - $element['#object']: The entity to which the field is attached.
+ * - $element['#view_mode']: View mode, e.g. 'full', 'teaser'...
+ * - $element['#field_name']: The field name.
+ * - $element['#field_type']: The field type.
+ * - $element['#field_language']: The field language.
+ * - $element['#field_translatable']: Whether the field is translatable or not.
+ * - $element['#label_display']: Position of label display, inline, above, or
+ *   hidden.
+ * - $field_name_css: The css-compatible field name.
+ * - $field_type_css: The css-compatible field type.
+ * - $classes_array: Array of html class attribute values. It is flattened
+ *   into a string within the variable $classes.
+ *
+ * @see template_preprocess_field()
+ * @see theme_field()
+ * @see adaptivetheme_preprocess_field()
+ * @see adaptivetheme_field()
+ * @see adaptivetheme_field__taxonomy_term_reference()
+ * @see adaptivetheme_field__image()
+ */
+?>
+<<?php print $tag; ?> class="<?php print $classes; ?>"<?php print $attributes; ?>>
+
+  <?php if (!$label_hidden) : ?>
+    <h2 class="field-label"<?php print $title_attributes; ?>><?php print $label ?>:&nbsp; XXXX</h2>
+  <?php endif; ?>
+
+  <div class="field-items"<?php print $content_attributes; ?>>
+    <?php foreach ($items as $delta => $item) : ?>
+      <div class="field-item <?php print $delta % 2 ? 'odd' : 'even'; ?>"<?php print $item_attributes[$delta]; ?>>
+        <?php print render($item); ?>
+      </div>
+    <?php endforeach; ?>
+  </div>
+
+</<?php print $tag; ?>>

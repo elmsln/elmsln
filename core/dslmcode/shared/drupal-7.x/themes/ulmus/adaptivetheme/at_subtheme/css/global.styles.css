@@ -1,0 +1,1801 @@
+/*
+ * @file
+ * global.styles
+ *
+ * Styles you add here will load for all device sizes, they are "global", as
+ * opposed to "responsive" styles, which only load for a given breakpoint (media
+ * query) that you set in theme settings. See the README for more details.
+ *
+ *
+ * How to use this file:
+ * --------------------
+ *
+ * There are many empty selectors and some basic styles to act as a guide.
+ * Nothing is set in stone and you can change anything - even delete all of it
+ * and start with your own clean slate.
+ *
+ * See global.base also which includes normalize.css and some additional
+ * helper classes and base styles.
+ */
+
+/* =============================================================================
+ *   Base
+ * ========================================================================== */
+
+/*
+ * To preserve theme settings never apply font properties to the HTML element.
+ * This is critically important if you are using the Responsive JavaScript
+ * feature as this relies on being able to set a pseudo font family on the HTML
+ * element. If you need to set default font properties of any kind use the BODY
+ * element as these can be overridden using font theme settings.
+ */
+
+html {
+  background: #fff;
+}
+
+
+body {
+  font-family: "Trebuchet MS", "Helvetica Neue", Arial, Helvetica, sans-serif;
+  font-size: 87.5%;
+}
+
+
+/* =============================================================================
+ *   HTML Elements
+ * ========================================================================== */
+
+h1 {}
+
+h2 {}
+
+h3 {}
+
+h4 {}
+
+h5 {}
+
+h6 {}
+
+p {}
+
+b,
+strong {}
+
+i,
+em {}
+
+dfn {}
+
+sup {}
+
+sub {}
+
+del {}
+
+ins {}
+
+blockquote {}
+
+cite {}
+
+q {}
+
+address {}
+
+ul {}
+
+ol {}
+
+li {}
+
+dl {}
+
+dd {}
+
+dt {}
+
+abbr {}
+
+acronym {}
+
+pre,
+code,
+tt,
+samp,
+kbd,
+var {
+  font-family: Consolas, Monaco, 'Courier New', Courier, monospace, sans-serif;
+}
+
+
+/* =============================================================================
+ *   Wrappers
+ * ========================================================================== */
+
+/*
+ * Outer wrappers:
+ * - #page-wrapper: body > #page-wrapper
+ * - #page: body > #page-wrapper > #page
+ * - .container: body > #page-wrapper > #page.container
+ *
+ * The .container class holds the page width value from theme settings.
+ */
+#page-wrapper {}
+#page {}
+#page .container {}
+
+/*
+ * Wraps all header elements - branding and .region-header
+ */
+#header {}
+
+/*
+ * Wraps the sidebars the content column
+ */
+#columns {}
+
+/*
+ * Main content column wrapper
+ */
+#content-column {}
+
+/*
+ * Wraps the main-content-header, the content region and feed-icons. Use this
+ * wrapper to style the entire main content column
+ */
+#main-content {}
+
+/*
+ * Wraps the content region, avoid applying styles to this wrapper, its used
+ * mainly for position and invisible gutters and can be problematic to style
+ */
+#content {}
+
+/*
+ * Footer wrapper
+ */
+#footer {}
+
+/*
+ * Panels may need additional margin wrangling when in the $content region
+ */
+#content .panel-display {}
+
+/*
+ * Full Width Wrappers
+ * These are used in the optional page--full-width-wrappers.tpl.php template.
+ * All have internal .container classes. In the full width wrapper template the
+ * .container classes set the width or max-width - you can style this but never
+ * add any width/margin/padding/borders etc to .container
+ */
+
+/*
+ * Wraps the leaderboard
+ */
+#leaderboard-wrapper {}
+#leaderboard-wrapper .container {}
+
+/*
+ * Wraps the header
+ */
+#header-wrapper {
+  /* Debug styles, is this working */
+  background: rgba(255, 192, 203, 0.5);
+}
+#header-wrapper .container {}
+
+/*
+ * Wraps the nav elements
+ */
+#nav-wrapper {}
+#nav-wrapper .container {}
+
+/*
+ * Wraps breadcrumb
+ */
+#breadcrumb-wrapper {}
+#breadcrumb-wrapper .container {}
+
+/*
+ * Wraps messages and help
+ */
+#messages-help-wrapper {}
+#messages-help-wrapper .container {}
+
+/*
+ * Wraps the secondary content/preface region
+ */
+#secondary-content-wrapper {}
+#secondary-content-wrapper .container {}
+
+/*
+ * Wraps the main content column
+ */
+#content-wrapper {}
+#content-wrapper .container {}
+
+/*
+ * Wraps the tertiary content/postfix region
+ */
+#tertiary-content-wrapper {}
+#tertiary-content-wrapper .container {}
+
+/*
+ * Footer wrapper
+ */
+#footer-wrapper {
+  /* Debug styles, is this working? */
+  background: rgba(255, 192, 203, 0.5);
+}
+#footer-wrapper .container {}
+
+
+/* =============================================================================
+ *   Branding
+ * ========================================================================== */
+
+/*
+ * Wraps all the branding elements, logo, name and slogan
+ */
+#branding {}
+
+/*
+ * Logo
+ */
+#logo {
+  padding: 10px 0;
+}
+
+#logo img {
+  vertical-align: bottom;
+}
+
+/*
+ * Wrapper for the site name and slogan
+ */
+#name-and-slogan {}
+
+/*
+ * Site name (h1)
+ */
+#site-name {
+  margin: 0;
+}
+
+#site-name a {}
+
+#site-name a:link,
+#site-name a:visited {
+  text-decoration: none;
+}
+
+#site-name a:hover,
+#site-name a:focus {
+  text-decoration: underline;
+}
+
+/*
+ * Site slogan (h2)
+ */
+#site-slogan {
+  margin: 0;
+}
+
+
+/* =============================================================================
+ *   Page content header
+ * ========================================================================== */
+
+/*
+ * Main content header wraps the page title, tabs and actions links
+ */
+#main-content-header {}
+
+/*
+ * The main page title (h1)
+ */
+#page-title {
+  margin: 0;
+}
+
+
+/* =============================================================================
+ *   Misc Global Styles
+ * ========================================================================== */
+
+/*
+ * Feed icons
+ */
+.feed-icon {}
+
+/*
+ * Aggregator feed source
+ */
+#aggregator .feed-source .feed-icon {
+  display: inline;
+  float: none;
+  margin-right: 10px;
+}
+
+.feed-details dt,
+.feed-details dd {
+  display: inline;
+  margin: 0;
+}
+
+/*
+ * Generic styles for the more link
+ */
+.more-link {}
+
+/*
+ * Generic styles for links. See the ul.links declaration in node and comment
+ * stylesheets
+ */
+ul.links {
+  margin: 0;
+  padding: 0;
+}
+
+ul.links.inline {
+  display: block;
+}
+
+ul.links li {
+  display: inline;
+  list-style: none;
+  padding: 0 10px 0 0;
+}
+
+/*
+ * Search results are an ordered list so reset the margin
+ */
+.search-results {
+  margin: 0;
+  padding: 0;
+}
+
+/*
+ * Attribution message and link
+ */
+.attribution {
+  display: block;
+  opacity: 0.65;
+  padding: 1em 0;
+  text-align: center;
+}
+
+.attribution a {
+  text-decoration: none;
+  color: inherit;
+}
+
+.attribution a:hover,
+.attribution a:focus {
+  text-decoration: underline;
+}
+
+
+/* =============================================================================
+ *   Regions
+ * ========================================================================== */
+
+/*
+ * Standard region wrapper, don't add width to any regions, you will bork the
+ * layout - no margin, padding or borders etc
+ */
+.region {}
+
+/*
+ * Regions have an inner div - perfect for adding margin, padding or borders
+ */
+.region-inner {}
+
+/*
+ * Regions can be nested, such as when using Panels
+ */
+.region-inner .region-inner {}
+
+/*
+ * Header region, embedded in the #header
+ */
+.region-header {}
+
+/*
+ * Generally used to output Drupals help block, if the help module is enabled
+ */
+.region-help {}
+
+/*
+ * Secondary content
+ */
+.region-secondary-content {}
+
+/*
+ * Sits above the main content header, like a content-top region
+ */
+.region-highlighted {}
+
+/*
+ * Sits below the main content, like a content-bottom region
+ */
+.region-content-aside {}
+
+/*
+ * Sidebars - targets both
+ */
+.sidebar {}
+
+/*
+ * First sidebar
+ */
+.region-sidebar-first {}
+
+/*
+ * Second sidebar
+ */
+.region-sidebar-second {}
+
+/*
+ * Tertiary content
+ */
+.region-tertiary-content {}
+
+/*
+ * Footer region
+ */
+.region-footer {}
+
+
+/* =============================================================================
+ *   Links
+ * ========================================================================== */
+
+a {
+  text-decoration: none;
+}
+
+a:link,
+a:visited {}
+
+a:active,
+a.active {}
+
+a:hover,
+a:focus {
+  text-decoration: underline;
+}
+
+
+/* =============================================================================
+ *   Primary, Secondary and Menu Bar region menus
+ * ========================================================================== */
+
+.nav {
+  clear: both;
+  margin: 10px 0;
+}
+
+.nav ul,
+.nav ul.menu {
+  margin: 0;
+  padding: 0;
+}
+
+.nav li,
+.nav ul.menu li {
+  display: inline;
+  float: left;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.nav li a,
+.nav ul.menu li a {
+  display: block;
+  white-space: nowrap;
+  padding: 0 10px;
+}
+
+.nav li a:visited,
+.nav ul.menu li a:visited {}
+
+.nav li a:hover,
+.nav li a:focus,
+.nav ul.menu li a:hover,
+.nav ul.menu li a:focus {}
+
+.nav .block {
+  margin-bottom: 0;
+}
+
+
+/* =============================================================================
+ *   Superfish
+ * ========================================================================== */
+
+ul.sf-menu {
+  margin-bottom: 0;
+}
+
+ul.sf-menu a {
+  border-left: 0;
+  border-top: 0;
+  padding: 0 10px;
+  text-decoration: none;
+  height: 2.5em;
+  line-height: 2.5em;
+}
+
+ul.sf-menu a:link,
+ul.sf-menu a:visited {}
+
+ul.sf-menu li {}
+
+ul.sf-menu li:hover,
+ul.sf-menu li.sfHover {
+  outline: 0;
+}
+
+ul.sf-menu a {}
+
+ul.sf-menu a:focus,
+ul.sf-menu a:hover,
+ul.sf-menu a:active {
+  outline: 0;
+}
+
+/*
+ * Superfish blocks
+ */
+.block-superfish {}
+
+.block-superfish .block-inner .content {}
+
+.block-superfish ul {
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+.block-superfish ul ul {}
+
+.block-superfish ul ul ul {}
+
+.block-superfish ul ul ul ul {}
+
+.block-superfish li {
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+/*
+ * Vertical style
+ */
+.sf-vertical {
+  width: 100%;
+}
+
+.sf-vertical li {
+  width: 100%;
+}
+
+.sf-vertical li.last {}
+
+.sf-vertical li:hover ul,
+.sf-vertical li.sfHover ul {
+  left: 100%;
+  top: 0;
+  margin: 0;
+  padding: 0;
+}
+
+.sf-vertical li a {
+  padding: 0 10px;
+}
+
+/*
+ * Navbar style
+ */
+.sf-navbar {
+  padding-bottom: 0 !important;
+}
+
+/*
+ * Sensible padding for the default style
+ */
+.sf-menu.sf-style-default a {
+  padding: 0 10px;
+}
+
+
+
+
+/* =============================================================================
+ *   Menu Toggles
+ * ========================================================================== */
+
+.at-mt .at-menu-toggle,
+.at-mt .at-menu-toggle ul,
+.at-mt .at-menu-toggle ul.menu {
+  margin-top: 0;
+  margin-bottom: 0;
+  padding: 0;
+}
+
+.at-mt .at-menu-toggle-button {
+  margin: 0;
+}
+
+.at-mt .at-menu-toggle ul a {
+  padding: 0 10px;
+  white-space: nowrap;
+}
+
+
+
+
+/* =============================================================================
+ *   Menus, usually blocks
+ * ========================================================================== */
+
+ul.menu {
+  padding-left: 15px;
+}
+
+ul.menu ul {
+  padding-left: 15px;
+}
+
+ul.menu ul ul {}
+
+ul.menu ul ul ul {}
+
+ul.menu li {
+  margin: 0;
+}
+
+ul.menu li.collapsed,
+ul.menu li.expanded,
+ul.menu li.leaf {}
+
+ul.menu li a {}
+
+ul.menu li a:link,
+ul.menu li a:visited {}
+
+ul.menu li a:active,
+ul.menu li a.active {}
+
+ul.menu li a:hover,
+ul.menu li a:focus {}
+
+ul.menu li.active a,
+ul.menu li.active-trail a {}
+
+ul.menu li.first,
+ul.menu li.last {}
+
+/* If li.content exists it's a problem, so reset the padding */
+.block .menu li.content {
+  padding: 0;
+}
+
+
+/* =============================================================================
+ *   Book navigation menu
+ * ========================================================================== */
+
+.book-navigation {}
+
+.book-navigation .page-links {}
+
+.book-navigation .page-previous {}
+
+.book-navigation .page-next {}
+
+.book-navigation .page-up {
+  /* Prevent text wrapping to a new line, assumes the string is two chars */
+  min-width: 2em;
+  white-space: nowrap;
+}
+
+.book-navigation .menu {
+  margin-left: 0;
+}
+
+
+/* =============================================================================
+ *   Breadcrumbs
+ * ========================================================================== */
+
+#breadcrumb {
+  margin: 10px 0;
+}
+
+/* If the label is set to show in theme settings the label class is added */
+#breadcrumb .breadcrumb-label {
+  font-size: 1em;
+  display: inline;
+  padding-right: 10px;
+}
+
+#breadcrumb .breadcrumb-label:after {
+  content: ":";
+}
+
+#breadcrumb ol {
+  margin: 0;
+  padding: 0;
+}
+
+#breadcrumb .with-breadcrumb-label ol {
+  display: inline;
+}
+
+#breadcrumb li {
+  list-style: none;
+  display: inline;
+}
+
+#breadcrumb li.crumb-first {}
+
+#breadcrumb li.crumb-last {}
+
+#breadcrumb a {}
+
+#breadcrumb a:link,
+#breadcrumb a:visited {}
+
+#breadcrumb a:active,
+#breadcrumb a.active {}
+
+#breadcrumb a:hover,
+#breadcrumb a:focus {}
+
+#breadcrumb .crumb-separator {}
+
+
+/* =============================================================================
+ *   Pagers
+ * ========================================================================== */
+
+ul.pager {
+  clear: both;
+  margin: 0;
+  text-align: center;
+}
+
+.item-list ul.pager li {
+  margin: 0;
+}
+
+ul.pager li {
+  background-image: none;
+  display: inline;
+  list-style-type: none;
+  padding: .5em;
+}
+
+ul.pager li.pager-current {
+  font-weight: 700;
+}
+
+.block ul.pager li {
+  margin: 0;
+}
+
+/*
+ * Theme the various states of pager links
+ */
+ul.pager li {}
+
+ul.pager li a {}
+
+ul.pager li a:link,
+ul.pager li a:visited {}
+
+ul.pager li a:active,
+ul.pager li a.active {}
+
+ul.pager li a:hover,
+ul.pager li a:focus {}
+
+ul.pager li.pager-item {}
+ul.pager li.first {}
+ul.pager li.last {}
+ul.pager li.pager-current {}
+ul.pager li.pager-first {}
+ul.pager li.pager-previous {}
+ul.pager li.pager-next {}
+ul.pager li.pager-last {}
+
+
+/* =============================================================================
+ *   Skip Navigation
+ * ========================================================================== */
+
+#skip-link {
+  left: 50%;
+  margin-left: -6.5em;
+  margin-top: 0;
+  padding: 0 0.5em;
+  position: absolute;
+  width: 12em;
+  z-index: 50;
+}
+
+#skip-link a {
+  background: #444;
+  background: rgba(0,0,0,0.6);
+  color: #fff;
+  display: block;
+  line-height: 2;
+  padding: 0;
+  text-align: center;
+  text-decoration: none;
+}
+
+#skip-link a:link,
+#skip-link a:visited {
+  background: #444;
+  background: rgba(0,0,0,0.6);
+  color: #fff;
+  display: block;
+  line-height: 2;
+  padding: 0;
+  text-align: center;
+  text-decoration: none;
+}
+
+#skip-link a:hover,
+#skip-link a:focus,
+#skip-link a:active {
+  outline: 0;
+}
+
+
+/* =============================================================================
+ *   Tabs (local tasks)
+ * ========================================================================== */
+
+#tasks {
+  margin-bottom: 15px;
+}
+
+ul.primary {
+  border-bottom-color: #ccc;
+  margin: 20px 0;
+  padding: 0 0 0 5px;
+}
+
+ul.primary li {
+  display: block;
+  float: left;
+  margin: 0 1px -1px;
+}
+
+ul.primary li a {
+  background-color: #f5f5f5;
+  border-color: #ccc;
+  margin-right: 1px;
+  padding: 0 10px;
+  display: block;
+  float: left;
+  height: 1.5em;
+  line-height: 1.5em;
+}
+
+ul.primary li a:hover,
+ul.primary li a:focus {
+  background-color: #eee;
+  border-color: #ccc;
+}
+
+ul.primary li.active a,
+ul.primary li.active a:hover,
+ul.primary li.active a:focus {
+  background-color: #fff;
+  border-bottom-color: #fff;
+}
+
+ul.secondary {
+  border-bottom: 1px solid #ccc;
+  margin: 1em 0 0;
+  padding: 0 .3em 1em;
+}
+
+ul.secondary li {
+  border-right: 0;
+  list-style: none;
+  padding: 0 10px 0 0;
+}
+
+ul.secondary li a {}
+
+ul.secondary li a:hover,
+ul.secondary li a.active {
+  border-bottom: none;
+  text-decoration: underline;
+}
+
+
+/* =============================================================================
+ *   Action links
+ * ========================================================================== */
+
+ul.action-links {
+  margin: 20px 0 0;
+  list-style: none;
+}
+
+ul.action-links li {}
+
+
+/* =============================================================================
+ *  Field Styling
+ * ========================================================================== */
+
+/*
+ * Wrapper for any field
+ */
+.field {}
+
+/*
+ * Above and inline classes are on the field wrapper
+ */
+.field-label-above {}
+
+/*
+ * When labels are set to inline in field display settings the clearfix class is
+ * automatically added
+ */
+.field-label-inline {}
+
+.field-label-inline .field-label {
+  margin: 0;
+}
+
+/*
+ * Labels are h2 in Adaptivetheme. Use a strong selector to mitigate unwanted
+ * ineritance issues
+ */
+.field-label {
+  font-size: 1em;
+  font-weight: 700;
+  font-family: inherit;
+  line-height: inherit;
+  margin-bottom: 0;
+}
+
+
+
+
+/*
+ * Field types (Core)
+ */
+
+/*
+ * Image fields use the <figure> and <figcaption> elements from HTML5
+ */
+.field-type-image {}
+
+.field-type-image .caption {}
+
+.field-type-image .full-caption {}
+
+.field-type-image .teaser-caption {}
+
+/*
+ * Taxonomy
+ */
+.field-type-taxonomy-term-reference {
+  /* The same bottom margin as p, blockquote, ul, ol and dl */
+  margin-bottom: 1.5em;
+}
+
+.field-type-taxonomy-term-reference.field-label-inline .field-items {
+  margin: 0;
+  padding: 0;
+}
+
+.field-type-taxonomy-term-reference.field-label-inline .field-item {
+  display: inline;
+  list-style: none;
+  padding: 0 10px 0 0;
+}
+
+/*
+ * Text
+ */
+.field-type-text {}
+
+/*
+ * Long text
+ */
+.field-type-text-long {}
+
+/*
+ * Text with summary
+ */
+.field-type-text-with-summary {}
+
+/*
+ * File
+ */
+.field-type-file {}
+
+/*
+ * Number/Integer
+ */
+.field-type-number-integer {}
+
+/*
+ * Decimal
+ */
+.field-type-number-decimal {}
+
+/*
+ * Number float
+ */
+.field-type-number-float {}
+
+/*
+ * List
+ */
+.field-type-list-text {}
+
+/*
+ * List boolean
+ */
+.field-type-list-boolean {}
+
+/*
+ * List integer
+ */
+.field-type-list-integer {}
+
+/*
+ * List float
+ */
+.field-type-list-float {}
+
+/*
+ * Field types (Contrib)
+ */
+.field-type-datetime {}
+
+.field-type-node-reference {}
+
+.field-type-user-reference {}
+
+/*
+ * Named fields
+ */
+.field-name-body {}
+
+.field-name-field-image {}
+
+.field-name-field-tags {}
+
+/*
+ * Underscores in field name are replaced with dashes
+ */
+.field-name-field-FIELDNAME {}
+
+/*
+ * Image Alignment Theme Settings - included here so you can easily override
+ */
+/*
+ * Float none setting
+ */
+.ia-n .field-type-image,
+.iat-n .field-type-image {}
+
+/*
+ * Float left setting
+ */
+.ia-l .field-type-image figure,
+.iat-l .field-type-image figure {
+  margin: 5px 20px 15px 0;
+}
+
+/*
+ * Centered setting
+ */
+.ia-c .field-type-image figure,
+.iat-c .field-type-image figure {
+  margin: 5px auto 15px;
+}
+
+/*
+ * Float right setting
+ */
+.ia-r .field-type-image figure,
+.iat-r .field-type-image figure {
+  margin: 5px 0 15px 20px;
+}
+
+
+/* =============================================================================
+ *   Block Styling
+ * ========================================================================== */
+
+/*
+ * Main wrapper for most blocks, block_system_main does not have it
+ */
+.block {
+  margin-bottom: 20px;
+}
+
+/*
+ * Inner wrapper for most blocks, good for margin, padding and borders,
+ * block_system_main does not have it
+ */
+.block-inner {}
+
+/*
+ * The first block in the region
+ */
+.block.first {}
+
+/*
+ * The last block in the region
+ */
+.block.last {}
+
+/*
+ * Zebra striping for each block in the region
+ */
+.block.odd {}
+
+/*
+ * Zebra striping for each block in the region
+ */
+.block.even {}
+
+/*
+ * Block title
+ */
+.block-title {
+  margin: 0;
+}
+
+/*
+ * Block content wrapper
+ */
+.block-content {}
+
+/*
+ * Match item list and block menu margin and padding
+ */
+.block-content {}
+
+.block-content ul,
+.block-content ol {
+  padding: 0 0 0 15px;
+}
+
+.block-content li {
+  margin: 0;
+  padding: 0;
+}
+
+/*
+ * Block for the latest news items in the first category
+ */
+#block-aggregator-category-1 {}
+
+/*
+ * Block for the latest news items in the first feed
+ */
+#block-aggregator-feed-1 {}
+
+/*
+ * First block created with "Add block" link
+ */
+#block-block-1 {}
+
+/*
+ * "Recent blog posts" block
+ */
+#block-blog-recent {}
+
+/*
+ * "Book navigation" block for the current book's table of contents
+ */
+#block-book-navigation {}
+
+/*
+ * "Recent comments" block
+ */
+#block-comment-recent {}
+
+/*
+ * "Active forum topics" block
+ */
+#block-forum-active {}
+
+/*
+ * "New forum topics" block
+ */
+#block-forum-new {}
+
+/*
+ * Language switcher block
+ */
+#block-locale-language {}
+
+/*
+ * Custom menu block
+ */
+#block-menu-menu-NAME {}
+
+/*
+ * "Recent content" block
+ */
+#block-node-recent {}
+
+/*
+ * "Syndicate" block for primary RSS feed; see also page.css's .feed-icon
+ */
+#block-node-syndicate {}
+
+/*
+ * "Most recent poll" block
+ */
+#block-poll-recent {}
+
+/*
+ * "Author information" block for the profile of the page's author
+ */
+#block-profile-author-information {}
+
+/*
+ * "Search form" block
+ */
+#block-search-form {}
+
+/*
+ * "Shortcuts" block
+ */
+#block-shortcut-shortcuts {}
+
+/*
+ * "Popular content" block
+ */
+#block-statistics-popular {}
+
+/*
+ * "Main menu" block
+ */
+#block-system-main-menu {}
+
+/*
+ * "Management" block for Drupal management menu
+ */
+#block-system-management {}
+
+/*
+ * "Navigation" block for Drupal navigation menu
+ */
+#block-system-navigation {}
+
+/*
+ * "User menu" block for Drupal user menu
+ */
+#block-system-user-menu {}
+
+/*
+ * "System help" block
+ */
+#block-system-help {}
+
+/*
+ * "Main page content" block
+ */
+#block-system-main {}
+
+/*
+ * "Powered by Drupal" block
+ */
+#block-system-powered-by {}
+
+/*
+ * "User login form" block
+ */
+#block-user-login {}
+
+/*
+ * "Who's new" block for a list of the newest users
+ */
+#block-user-new {}
+
+/*
+ * "Who's online" block for a list of the online users
+ */
+#block-user-online {}
+
+
+/* =============================================================================
+ *   Node Styling
+ * ========================================================================== */
+
+.node {
+  margin-bottom: 20px;
+}
+
+.node.node-promoted {}
+
+.node.node-sticky {}
+
+.node.node-by-viewer {}
+
+.node.node-teaser {}
+
+.node.node-full {}
+
+.node.odd {}
+
+.node.even {}
+
+.node .node-title {
+  margin: 0;
+}
+
+.node .user-picture {}
+
+.node .submitted {}
+
+.node .submitted .username {}
+
+.node .submitted time {}
+
+.node .node-content {}
+
+.node ul.links {}
+
+.node ul.links li {}
+
+.node ul.links li a {}
+
+.node ul.links li.node-read-more a {}
+
+.node ul.links li.comment-add a {}
+
+.node ul.links li.comment-comments a {}
+
+.node ul.links li.comment-new-comments a {}
+
+.node ul.links li.blog-sernames-blog a {}
+
+.node ul.links li.print-html a {}
+
+.node ul.links li.print-email a {}
+
+.node ul.links li.print-pdf a {}
+
+.preview .node {}
+
+/*
+ * All nodes are given a node-FOO class that describes the type of content that
+ * it is. If you create a new content type called "my-custom-type", it will
+ * receive a "node-my-custom-type" class.
+ */
+.node-page {}
+
+.node-article {}
+
+.node-book {}
+
+.node-forum {}
+
+.node-poll {}
+
+
+/* =============================================================================
+ *   Comment Styling - Comments, comment wrapper, comment form
+ * ========================================================================== */
+
+/*
+ * Wrapper for the list of comments and its titles
+ */
+#comments {
+  margin: 1.5em 0;
+}
+
+#comments h2 {}
+
+#comments h2.comment-title {
+  margin: 0;
+}
+
+#comments h2.comment-form {
+  margin: 0;
+}
+
+/*
+ * Wrapper for a single comment
+ */
+.comment {
+  margin-bottom: 20px;
+}
+
+.comment.first {}
+
+.comment.last {}
+
+.comment.odd {}
+
+.comment.even {}
+
+.comment .user-picture {}
+
+.comment .submitted {}
+
+.comment .submitted p {}
+
+.comment .submitted .username {}
+
+.comment .submitted time {}
+
+.comment .user-signature {}
+
+.comment ul.links {}
+
+/*
+ * Comment title
+ */
+.comment-title {
+  margin: 0;
+}
+
+/*
+ * Comment states
+ */
+.comment-new {}
+
+.comment-by-anonymous {}
+
+.comment-by-node-author {}
+
+.comment-by-viewer {}
+
+.comment-title-hidden {}
+
+.comment-with-picture {}
+
+.comment-with-signature {}
+
+/*
+ * Preview of the comment before submitting new or updated comment
+ */
+.comment-preview {}
+
+/*
+ * "New" marker for comments that are new for the current user
+ */
+.new {
+  color: #c00;
+}
+
+/*
+ * Nested comments are indented
+ */
+.indented {
+  margin-left: 40px;
+}
+
+
+/* =============================================================================
+ *   Forms
+ * ========================================================================== */
+
+/*
+ * Wrapper for a form element (or group of form elements) and its label
+ */
+.form-item {}
+
+.form-item input.error,
+.form-item textarea.error,
+.form-item select.error {
+  border: 1px solid #c00;
+}
+
+.form-item label {
+  font-weight: 700;
+}
+
+.form-item label.option {}
+
+/*
+ * Highlight marks and form required mark
+ */
+.marker,
+.form-required {
+  color: #c00;
+}
+
+.form-item .description {
+  font-size: 0.85em;
+}
+
+.form-checkboxes .form-item,
+.form-radios .form-item {}
+
+/*
+ * The submit button
+ */
+.form-submit {}
+
+.container-inline div,
+.container-inline label {
+  display: inline;
+}
+
+/*
+ * Define consistent borders
+ */
+fieldset {
+  border: 1px solid #ccc;
+}
+
+/*
+ * Tips for Drupal's input formats
+ */
+.tips {}
+
+/*
+ * Buttons used by contrib modules like Media
+ */
+a.button {
+  -webkit-appearance: button;
+  -moz-appearance: button;
+  appearance: button;
+}
+
+/*
+ * Password confirmation
+ */
+.password-parent,
+.confirm-parent {
+  margin: 0;
+}
+
+
+/* =============================================================================
+ *   Tables
+ * ========================================================================== */
+
+table {
+  margin: 10px 0;
+  padding: 0;
+  width: 100%;
+}
+
+table.sticky-header {
+  z-index: 10;
+}
+
+table,
+thead,
+tbody,
+tr,
+th,
+td {
+  border-color: #ccc;
+}
+
+table,
+td,
+th {
+  vertical-align: middle;
+}
+
+caption,
+th,
+td {
+  text-align: left;
+}
+
+thead tr {
+  font-weight: 700;
+  background-color: #e5e5e5;
+
+}
+
+td,
+th {
+  border-bottom: 0;
+  margin: 0;
+  padding: 5px 7px;
+}
+
+tbody {}
+
+tbody tr {
+  border-top: 1px solid #ccc;
+}
+
+tr.odd {
+  background: #fff;
+}
+
+tr.info,
+tr.even,
+tr:nth-child(2n+2) {
+  border-bottom: 0;
+  background-color: #f5f5f5;
+}
+
+tr.drag {}
+
+tr.drag-previous {}
+
+tr.odd td.active {
+  background-color: #eee;
+}
+
+tr.even td.active {
+  background-color: #ebebeb;
+}
+
+.lt-ie8 tr {}
+
+.lt-ie8 tr.even,
+.lt-ie8 tr.odd {}
+
+.lt-ie8 tr.even th,
+.lt-ie8 tr.even td,
+.lt-ie8 tr.odd th,
+.lt-ie8 tr.odd td {
+}
+
+/*
+ * Forum tables
+ * Core sets white-space to nowrap, which makes no sense
+ */
+#forum td {}
+
+#forum td.created,
+#forum td.posts,
+#forum td.topics,
+#forum td.last-reply,
+#forum td.replies,
+#forum td.pager {
+  white-space: normal;
+}
+
+
+
+/* =============================================================================
+ *   Messages
+ * ========================================================================== */
+
+/* Left and right margin are set by the global gutter width */
+div.messages {
+  margin-bottom: 10px;
+  margin-top: 10px;
+}
+
+div.messages ul {
+  margin-top: 0;
+  margin-bottom: 0;
+}
+
+div.status {}
+
+div.warning {}
+
+tr.warning {}
+
+div.error,
+tr.error {}
+
+.error {}
+
+.warning {}
+
+/*
+ * Unpublished nodes
+ */
+.node-unpublished,
+.comment-unpublished {}
+
+.node-unpublished,
+.comment-unpublished {}
+
+.node-unpublished p.unpublished,
+.comment-unpublished p.unpublished {
+  color: pink;
+  color: rgba(239, 170, 170, 0.4);
+  font-family: Impact,"Arial Narrow",Helvetica,sans-serif;
+  font-size: 75px;
+  font-weight: bold;
+  height: 0;
+  line-height: 1.2;
+  margin: 0;
+  padding: 0;
+  overflow: visible;
+  text-align: center;
+  text-transform: uppercase;
+  word-wrap: break-word;
+}
+
+/*
+ * Otherwise these elements will appear below the "Unpublished" text
+ */
+.lt-ie8 {}
+
+.lt-ie8 .node-unpublished > *,
+.lt-ie8 .comment-unpublished > * {
+  position: relative;
+}
+
+
+/* =============================================================================
+ *    Maintenance pages
+ * ========================================================================== */
+
+.maintenance-page {}
+.maintenance-page .container {
+  padding: 40px 0;
+}
+
+.maintenance-page #site-name,
+.maintenance-page #page-title {
+  margin: 0;
+}
+
+.db-offline {}
+
+.db-offline .container {
+  margin: 0 auto;
+  padding: 40px 0;
+  width: 100%;
+  max-width: 960px;
+}
+
+.db-offline div.messages {
+  margin: 20px 0 0;
+}
+
+.db-offline #content {
+  padding: 20px 0;
+}
+
+
+/* =============================================================================
+ *   Misc overrides for contrib modules
+ * ========================================================================== */
+
+/*
+ * Admin menu overrides
+ */
+#admin-menu {
+  margin: 0;
+  padding: 0;
+}
+
+/*
+ * Devel Module
+ */
+.dev-query {
+  background: #eee;
+  padding: 30px;
+}
+
+/*
+ * Styleguide module tweaks
+ */
+#styleguide-header {
+  padding: 0 10px;
+}
+
+#styleguide-header .item-list {
+  font-family: inherit;
+  margin: 0 20px 20px 0;
+  min-height: 260px;
+  width: auto;
+}

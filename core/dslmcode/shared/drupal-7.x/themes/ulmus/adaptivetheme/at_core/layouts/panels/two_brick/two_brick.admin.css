@@ -1,0 +1,6 @@
+#panels-dnd-main .region {margin-bottom: 5px}
+#panels-dnd-main .panel-row .region {width: 49.75%}
+#panels-dnd-main .region-two-brick-left-above,
+#panels-dnd-main .region-two-brick-left-below {float: left}
+#panels-dnd-main .region-two-brick-right-above,
+#panels-dnd-main .region-two-brick-right-below {float: right}

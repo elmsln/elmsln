@@ -1,0 +1,11 @@
+#panels-dnd-main .panel-row, #panels-dnd-main .region {float: left}
+#panels-dnd-main .region {margin: 0 0.4166666666666667% 5px}
+#panels-dnd-main .six-6x16 .panel-row {width: 33.333333%}
+#panels-dnd-main .six-6x16 .region {width: 49%}
+
+/* Six col sprite */
+[id^=edit-six] .form-type-radio label {background: url(sixcol-sprite.png)}
+.form-type-radio label[for$=six-6x16] {background-position: 0 0}
+.form-type-radio label[for$=six-6x16-3x2-grid] {background-position: -41px 0}
+.form-type-radio label[for$=six-6x16-2x3-grid] {background-position: -82px 0}
+.form-type-radio label[for$=six-6x16-stack] {background-position: -123px 0}

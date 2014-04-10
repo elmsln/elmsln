@@ -1,0 +1,15 @@
+#panels-dnd-main .region {margin-bottom: 5px}
+#panels-dnd-main .region-two-33-66-first {float: left; width: 33%}
+#panels-dnd-main .region-two-33-66-second {float: right; width: 66.5%}
+#panels-dnd-main .region-two-33-66-bottom {clear: both}
+
+/* Two col sprite */
+[id^=edit-two] .form-type-radio label {background: url(twocol-sprite.png)}
+.form-type-radio label[for$=two-50] {background-position: 0 0}
+.form-type-radio label[for$=two-66-33] {background-position: -41px 0}
+.form-type-radio label[for$=two-33-66] {background-position: -82px 0}
+.form-type-radio label[for$=two-brick] {background-position: -123px 0}
+.form-type-radio label[for$=two-brick-stack] {background-position: -164px 0}
+.form-type-radio label[for$=two-50-stack],
+.form-type-radio label[for$=two-66-33-stack],
+.form-type-radio label[for$=two-33-66-stack] {background-position: -205px 0}

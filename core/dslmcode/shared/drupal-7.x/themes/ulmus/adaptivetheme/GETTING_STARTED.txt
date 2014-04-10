@@ -1,0 +1,70 @@
+
+
+Theme Structure
+---------------
+
+In this directory there are three folders:
+
+  - at_core
+  - at_admin
+  - at_subtheme
+
+
+
+AT Core
+-------
+
+The core base theme, includes the pluggable layout system, templates,
+polyfill scripts, forms, very basic CSS used by core and some admin pages and
+a couple CSS files for some theme settings styles, all the core function
+overrides and all the core Extension features available to your sub-themes.
+
+You can safely ignore this theme, it's merely there to run in the background
+and do the heavy lifting. For developers the code is well commented and I have
+tried to structure the theme so its easy to follow. Suggestions, improvements
+and of course patches are welcome.
+
+
+
+AT Admin
+--------
+
+An administration theme, use is entirely optional. This theme was carried
+forward from the Drupal 6, which did not have a default admin theme like Drupal
+7's Seven theme. AT will work just as well with both admin themes, either Seven
+or AT Admin, however issues could arise if you try to use something like Rubrik
+or Root Candy (both untested). AT Core heavily styles its theme settings pages
+and there is no accounting for what other admin themes might break.
+
+
+
+AT Subtheme
+-----------
+
+The blank "starterkit" type theme for building your own sub-theme.
+This is the one you need and will be most interested in if you are developing
+a new theme. Instructions are included in the README in this theme.
+
+
+
+Note from the developer...
+--------------------------
+
+I hope you enjoy this theme and it provides the tools and experience you are
+looking for. I have spent countless hours developing Adaptivetheme in the hope
+that it will ease theme development and make your job a little bit more
+enjoyable. I enjoy developing and using this theme, I hope you do as well.
+
+At some stage you may need support or simply have a question, or even a bold
+new suggestion - please see the issue queue first and submit issues there:
+
+  http://drupal.org/project/issues/adaptivetheme
+
+Happy theming!
+
+Jeff Burnz
+Adaptivethemes.com
+
+
+
+

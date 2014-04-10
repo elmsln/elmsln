@@ -1,0 +1,445 @@
+
+;----------// Theme info
+
+  name        = Corolla
+  description = Corolla is a subtheme of <a href="http://drupal.org/project/adaptivetheme">Adaptivetheme 7.x-3.x</a>. To use this theme you must first download and install the 7.x-3.x version of Adaptivetheme. Corolla is colorable and has many theme settings for layout, fonts, headings and much more. Corolla also supports layouts for mobile devices such as tablets and smartphones.
+  core        = 7.x
+  release     = 7.x-3.x
+  engine      = phptemplate
+  base theme  = adaptivetheme
+  screenshot  = screenshot.png
+
+
+
+;----------// CSS
+
+  stylesheets[all][] = css/html-elements.css
+  stylesheets[all][] = css/forms.css
+  stylesheets[all][] = css/tables.css
+  stylesheets[all][] = css/page.css
+  stylesheets[all][] = css/articles.css
+  stylesheets[all][] = css/comments.css
+  stylesheets[all][] = css/fields.css
+  stylesheets[all][] = css/blocks.css
+  stylesheets[all][] = css/navigation.css
+  stylesheets[all][] = css/fonts.css
+  stylesheets[all][] = css/corolla.settings.style.css
+  stylesheets[all][] = color/colors.css
+  stylesheets[print][] = css/print.css
+
+  ; Internet Explorer Stylesheets
+  ;
+  ; AT can load stylesheets in conditional comments from the info file.
+  ;
+  ; Syntax: ie_stylesheets[media][condition] = path/to/file (path must be
+  ; relative to your theme root). The file name is not important.
+
+  ie_stylesheets[screen][lte IE 9][] = css/ie-lte-9.css
+
+
+;----------// Scripts
+
+  ; Internet Explorer Scripts
+  ;
+  ; AT can load scripts in conditional comments from the info file.
+  ; If you are planning to use a polyfill be sure to check the "Settings" tab in
+  ; theme settings - this includes checkboxes to enable the HTML5 Shiv (on by
+  ; default), Respond.js and boxsizing.htc. See the js folder in at_core to
+  ; view these scripts.
+  ;
+  ; Syntax: ie_scripts[condition] = path/to/file (path must be relative)
+  ;
+  ; For example if you want to load a script just for IE 8 and below use the
+  ; following as a guide:
+  ;
+  ; ie_scripts[lte IE 8] = js/my-script.js
+
+
+
+;----------// Regions
+
+  regions[sidebar_first]     = Sidebar first
+  regions[sidebar_second]    = Sidebar second
+
+  regions[header]            = Header
+  regions[menu_bar]          = Menu Bar
+  regions[help]              = Help
+
+  regions[highlighted]       = Highlighted
+  regions[content]           = Main content
+  regions[content_aside]     = Content bottom
+
+  regions[secondary_content] = Secondary content
+  regions[tertiary_content]  = Tertiary content
+  regions[footer]            = Footer
+
+  ; Hidden regions (required by Drupal core)
+  regions[page_top]          = Page top
+  regions[page_bottom]       = Page bottom
+
+
+
+;----------// Gpanel Regions
+
+  ; This theme uses Gpanels from Adaptivetheme core. You can add more Gpanel
+  ; regions - see the "gpanels" directory in AT Core:
+  ;
+  ; adaptivetheme > at_core > layouts > gpanels
+  ;
+  ; Note that Corolla already uses the three-3x33 and four-4x25 Gpanels.
+  ;
+  ; To set the responsive layout options for Gpanels see your themes settings on
+  ; the Appearance settings page.
+
+  ; 3x33 Gpanel
+  regions[three_33_top]    = AT Three column 3x33 - top
+  regions[three_33_first]  = AT Three column 3x33 - left
+  regions[three_33_second] = AT Three column 3x33 - center
+  regions[three_33_third]  = AT Three column 3x33 - right
+  regions[three_33_bottom] = AT Three column 3x33 - bottom
+
+  ; 4x25 Gpanel
+  regions[four_first]  = AT Four column 4x25 - 1
+  regions[four_second] = AT Four column 4x25 - 2
+  regions[four_third]  = AT Four column 4x25 - 3
+  regions[four_fourth] = AT Four column 4x25 - 4
+
+
+
+;----------// Features
+
+  ; Corolla does not support Main or Secondary menus, instead use the block
+  ; versions and place in the Menu bar (or other) region.
+
+  features[] = logo
+  features[] = name
+  features[] = slogan
+  features[] = node_user_picture
+  features[] = comment_user_picture
+  features[] = comment_user_verification
+  features[] = favicon
+
+
+
+;----------// Features settings
+
+  settings[toggle_logo] = 1
+  settings[toggle_name] = 1
+  settings[toggle_slogan] = 1
+  settings[toggle_node_user_picture] = 1
+  settings[toggle_comment_user_picture] = 1
+  settings[toggle_comment_user_verification] = 1
+  settings[toggle_favicon] = 1
+
+
+
+;----------// Theme Settings
+
+  ; These settings set the default settings for the options for Corolla's
+  ; Appearance settings. You can safely ignore everything below here.
+
+  ; Layout settings - Standard bigscreen
+  settings[bigscreen_layout]         = 'three_col_grail'
+  settings[bigscreen_page_unit]      = '%'
+  settings[bigscreen_sidebar_unit]   = '%'
+  settings[bigscreen_max_width_unit] = 'px'
+  settings[bigscreen_page_width]     = 100
+  settings[bigscreen_sidebar_first]  = 25
+  settings[bigscreen_sidebar_second] = 25
+  settings[bigscreen_set_max_width]  = 1
+  settings[bigscreen_max_width]      = 1140
+  settings[bigscreen_media_query]    = 'only screen and (min-width:1025px)'
+
+
+  ; Layout settings - Tablet landscape
+  settings[tablet_landscape_layout]         = 'three_col_grail'
+  settings[tablet_landscape_page_unit]      = '%'
+  settings[tablet_landscape_sidebar_unit]   = '%'
+  settings[tablet_landscape_page_width]     = 100
+  settings[tablet_landscape_sidebar_first]  = 20
+  settings[tablet_landscape_sidebar_second] = 20
+  settings[tablet_landscape_media_query]    = 'only screen and (min-width:769px) and (max-width:1024px)'
+
+
+  ; Layout settings - Tablet portrait
+  settings[tablet_portrait_layout]         = 'one_col_vert'
+  settings[tablet_portrait_page_unit]      = '%'
+  settings[tablet_portrait_sidebar_unit]   = '%'
+  settings[tablet_portrait_page_width]     = 100
+  settings[tablet_portrait_sidebar_first]  = 50
+  settings[tablet_portrait_sidebar_second] = 50
+  settings[tablet_portrait_media_query]    = 'only screen and (min-width:481px) and (max-width:768px)'
+
+
+  ; Layout settings - Smartphone landscape
+  settings[smartphone_landscape_layout]         = 'one_col_vert'
+  settings[smartphone_landscape_page_unit]      = '%'
+  settings[smartphone_landscape_sidebar_unit]   = '%'
+  settings[smartphone_landscape_page_width]     = 100
+  settings[smartphone_landscape_sidebar_first]  = 50
+  settings[smartphone_landscape_sidebar_second] = 50
+  settings[smartphone_landscape_media_query]    = 'only screen and (min-width:321px) and (max-width:480px)'
+
+
+  ; Layout settings - Smartphone portrait
+  settings[smartphone_portrait_layout]         = 'one_col_stack'
+  settings[smartphone_portrait_page_unit]      = '%'
+  settings[smartphone_portrait_sidebar_unit]   = '%'
+  settings[smartphone_portrait_page_width]     = 100
+  settings[smartphone_portrait_sidebar_first]  = 100
+  settings[smartphone_portrait_sidebar_second] = 100
+  settings[smartphone_portrait_media_query]    = 'only screen and (max-width:320px)'
+
+  ; Responsive Panels - Standard layout
+  settings[bigscreen_two_50]            = 'two-50'
+  settings[bigscreen_two_33_66]         = 'two-33-66'
+  settings[bigscreen_two_66_33]         = 'two-66-33'
+  settings[bigscreen_two_brick]         = 'two-brick'
+  settings[bigscreen_three_3x33]        = 'three-3x33'
+  settings[bigscreen_three_25_50_25]    = 'three-25-50-25'
+  settings[bigscreen_three_25_25_50]    = 'three-25-25-50'
+  settings[bigscreen_three_50_25_25]    = 'three-50-25-25'
+  settings[bigscreen_four_4x25]         = 'four-4x25'
+  settings[bigscreen_five_5x20]         = 'five-5x20-2x3-grid'
+  settings[bigscreen_six_6x16]          = 'six-6x16-3x2-grid'
+  settings[bigscreen_three_inset_left]  = 'three-inset-left'
+  settings[bigscreen_three_inset_right] = 'three-inset-right'
+
+  ; Responsive Panels - Tablet landscape
+  settings[tablet_landscape_two_50]            = 'two-50'
+  settings[tablet_landscape_two_33_66]         = 'two-33-66'
+  settings[tablet_landscape_two_66_33]         = 'two-66-33'
+  settings[tablet_landscape_two_brick]         = 'two-brick'
+  settings[tablet_landscape_three_3x33]        = 'three-3x33'
+  settings[tablet_landscape_three_25_50_25]    = 'three-25-50-25'
+  settings[tablet_landscape_three_25_25_50]    = 'three-25-25-50'
+  settings[tablet_landscape_three_50_25_25]    = 'three-50-25-25'
+  settings[tablet_landscape_four_4x25]         = 'four-4x25'
+  settings[tablet_landscape_five_5x20]         = 'five-5x20-2x3-grid'
+  settings[tablet_landscape_six_6x16]          = 'six-6x16-3x2-grid'
+  settings[tablet_landscape_three_inset_left]  = 'three-inset-left'
+  settings[tablet_landscape_three_inset_right] = 'three-inset-right'
+
+
+  ; Responsive Panels - Tablet portrait
+  settings[tablet_portrait_two_50]            = 'two-50'
+  settings[tablet_portrait_two_33_66]         = 'two-33-66'
+  settings[tablet_portrait_two_66_33]         = 'two-66-33'
+  settings[tablet_portrait_two_brick]         = 'two-brick'
+  settings[tablet_portrait_three_3x33]        = 'three-3x33-stack-top'
+  settings[tablet_portrait_three_25_50_25]    = 'three-25-50-25-stack-top'
+  settings[tablet_portrait_three_25_25_50]    = 'three-25-25-50-stack-top'
+  settings[tablet_portrait_three_50_25_25]    = 'three-50-25-25-stack-top'
+  settings[tablet_portrait_four_4x25]         = 'four-4x25-2x2-grid'
+  settings[tablet_portrait_five_5x20]         = 'five-5x20-1x2x2-grid'
+  settings[tablet_portrait_six_6x16]          = 'six-6x16-2x3-grid'
+  settings[tablet_portrait_three_inset_left]  = 'three-inset-left-wrap'
+  settings[tablet_portrait_three_inset_right] = 'three-inset-right-wrap'
+
+
+  ; Responsive Panels - Smartphone landscape
+  settings[smartphone_landscape_two_50]            = 'two-50-stack'
+  settings[smartphone_landscape_two_33_66]         = 'two-33-66-stack'
+  settings[smartphone_landscape_two_66_33]         = 'two-66-33-stack'
+  settings[smartphone_landscape_two_brick]         = 'two-brick-stack'
+  settings[smartphone_landscape_three_3x33]        = 'three-3x33-stack'
+  settings[smartphone_landscape_three_25_50_25]    = 'three-25-50-25-stack'
+  settings[smartphone_landscape_three_25_25_50]    = 'three-25-25-50-stack'
+  settings[smartphone_landscape_three_50_25_25]    = 'three-50-25-25-stack'
+  settings[smartphone_landscape_four_4x25]         = 'four-4x25-stack'
+  settings[smartphone_landscape_five_5x20]         = 'five-5x20-stack'
+  settings[smartphone_landscape_six_6x16]          = 'six-6x16-stack'
+  settings[smartphone_landscape_three_inset_left]  = 'three-inset-left-stack'
+  settings[smartphone_landscape_three_inset_right] = 'three-inset-right-stack'
+
+
+  ; CSS
+  settings[disable_responsive_styles]     = 0
+  settings[enable_custom_media_queries]   = 0
+  settings[global_default_layout]         = 'smartphone-portrait'
+  settings[global_default_layout_toggle]  = 0
+  settings[global_files_path]             = 'public_files'
+
+
+  ; Polyfills
+  settings[load_html5js]       = 1
+  settings[load_respondjs]     = 0
+  settings[load_ltie8css]      = 0
+  settings[load_scalefixjs]    = 0
+
+
+  ; Debug
+  settings[expose_regions]              = 0
+  settings[load_all_panels]             = 0
+  settings[load_all_panels_no_sidebars] = 0
+  settings[show_window_size]            = 0
+  settings[rebuild_theme_data]          = 0
+
+
+  ; Enable extensions
+  settings[enable_extensions]          = 1
+  settings[enable_font_settings]       = 1
+  settings[enable_heading_settings]    = 1
+  settings[enable_image_settings]      = 1
+  settings[enable_apple_touch_icons]   = 0
+  settings[enable_exclude_css]         = 0
+  settings[enable_custom_css]          = 0
+  settings[enable_context_regions]     = 0
+  settings[enable_float_region_blocks] = 0
+  settings[enable_markup_overides]     = 1
+
+
+  ; Font type
+  settings[base_font_type]          = ''
+  settings[site_name_font_type]     = ''
+  settings[site_slogan_font_type]   = ''
+  settings[page_title_font_type]    = ''
+  settings[node_title_font_type]    = ''
+  settings[comment_title_font_type] = ''
+  settings[block_title_font_type]   = ''
+
+
+  ; Fonts
+  settings[base_font]          = 'bf-sss'
+  settings[site_name_font]     = 'snf-sl'
+  settings[site_slogan_font]   = 'ssf-sl'
+  settings[main_menu_font]     = 'mmf-sl'
+  settings[page_title_font]    = 'ptf-sl'
+  settings[node_title_font]    = 'ntf-sl'
+  settings[comment_title_font] = 'ctf-sl'
+  settings[block_title_font]   = 'btf-sl'
+
+
+  ; Font size
+  settings[base_font_size]          = '1em'
+  settings[site_name_font_size]     = '3.5em'
+  settings[site_slogan_font_size]   = '1.2em'
+  settings[page_title_font_size]    = '2em'
+  settings[node_title_font_size]    = '1.6em'
+  settings[comment_title_font_size] = '1.4em'
+  settings[block_title_font_size]   = '1.4em'
+
+
+  ; Font size heading levels
+  settings[h1_font_size] = '2em'
+  settings[h2_font_size] = '1.6em'
+  settings[h3_font_size] = '1.4em'
+  settings[h4_font_size] = '1.2em'
+  settings[h5_font_size] = '1em'
+  settings[h6_font_size] = '1em'
+
+
+  ; Page title
+  settings[page_title_case]      = 'ptc-n'
+  settings[page_title_weight]    = 'ptw-b'
+  settings[page_title_alignment] = 'pta-l'
+  settings[page_title_shadow]    = 'pts-n'
+
+
+  ; Node title
+  settings[node_title_case]      = 'ntc-n'
+  settings[node_title_weight]    = 'ntw-b'
+  settings[node_title_alignment] = 'nta-l'
+  settings[node_title_shadow]    = 'nts-n'
+
+
+  ; Comment title
+  settings[comment_title_case]      = 'ctc-n'
+  settings[comment_title_weight]    = 'ctw-b'
+  settings[comment_title_alignment] = 'cta-l'
+  settings[comment_title_shadow]    = 'cts-n'
+
+
+  ; Block title
+  settings[block_title_case]      = 'btc-n'
+  settings[block_title_weight]    = 'btw-b'
+  settings[block_title_alignment] = 'bta-l'
+  settings[block_title_shadow]    = 'bts-n'
+
+
+  ; Images
+  settings[image_alignment]        = 'ia-n'
+  settings[image_alignment_teaser] = 'iat-n'
+  settings[image_caption_full]     = 0
+  settings[image_caption_teaser]   = 0
+  settings[image_teaser]           = 0
+
+
+  ; Breadcrumb
+  settings[breadcrumb_display]   = 1
+  settings[breadcrumb_home]      = 0
+  settings[breadcrumb_label]     = 0
+  settings[breadcrumb_title]     = 0
+  settings[breadcrumb_separator] = ' &#187; '
+
+
+  ; Login block options
+  settings[horizontal_login_block_enable] = 'on'
+  settings[horizontal_login_block]    = 0
+  settings[login_block_remove_links]  = 0
+  settings[login_block_remove_openid] = 0
+
+
+  ; Design
+  settings[global_gutter_width]           = ''
+  settings[page_full_width_wrappers]      = 0
+  settings[page_content_type_suggestions] = 0
+  settings[menu_item_span_elements]       = 0
+
+
+  ; Extra CSS classes
+  settings[extra_page_classes]      = 1
+  settings[extra_article_classes]   = 1
+  settings[extra_comment_classes]   = 1
+  settings[extra_block_classes]     = 1
+  settings[extra_menu_classes]      = 1
+  settings[extra_item_list_classes] = 1
+
+
+  ; Remove or Hide
+  settings[comments_hide_title]           = 0
+  settings[feed_icons]                    = 0
+  settings[unset_block_system_main_front] = 0
+  settings[unset_menu_titles]             = 0
+
+
+  ; Accessibility
+  settings[skip_link_target] = '#main-content'
+  settings[adv_search_extra_fieldsets] = 0
+
+
+  ; Mobile metatags
+  settings[mobile_friendly_metatags] = 1
+  settings[adaptivetheme_meta_viewport] = 'width=device-width, initial-scale=1'
+  settings[adaptivetheme_meta_mobileoptimized]  = 'width'
+  settings[adaptivetheme_meta_handheldfriendly] = 'true'
+  settings[adaptivetheme_meta_apple_mobile_web_app_capable] = 'yes'
+  settings[chrome_edge] = 0
+  settings[clear_type]  = 0
+
+
+  ; Touch icons
+  settings[apple_touch_icon_enable] = 0
+  settings[apple_touch_icon_path_l] = 'images/touch-icon-l.png'
+  settings[apple_touch_icon_path_m] = 'images/touch-icon-m.png'
+  settings[apple_touch_icon_path_h] = 'images/touch-icon-h.png'
+
+
+  ; Custom CSS
+  settings[custom_css] = ''
+
+
+  ; Corolla Custom
+  settings[content_corner_radius] = 'rc-6'
+  settings[tabs_corner_radius]    = 'rct-6'
+  settings[box_shadows]           = 'bs-n'
+  settings[body_background]       = 'bb-n'
+  settings[menu_bullets]          = 'mb-dd'
+  settings[menu_bar_position]     = 'mbp-l'
+
+; Information added by Drupal.org packaging script on 2014-03-23
+version = "7.x-3.0"
+core = "7.x"
+project = "corolla"
+datestamp = "1395577158"
+

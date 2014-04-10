@@ -1,0 +1,50 @@
+/* Layout Helpers */
+
+/* Center layout be default */
+.container {
+  margin: 0 auto;
+}
+
+
+/* Prevent the layout from collapsing if there is nothing in the content column */
+.content-inner {
+  min-height: 1px;
+}
+
+
+.lt-ie7 .content-inner {
+  height: 1px;
+}
+
+
+/* Ensure the content column is the full width of its container */
+#content-column,
+.content-column {
+  width: 100%;
+}
+
+
+/* Compass clearfix */
+.clearfix:after {
+  content: "";
+  display: table;
+  clear: both;
+}
+
+.clearfix {
+  zoom: 1;
+}
+
+
+/* AT Panels */
+.one-column .region,
+div.at-panel .region-conditional-stack {
+  float: none;
+  display: block;
+  clear: both;
+  width: 100%;
+}
+
+.lt-ie8 .at-panel {
+  overflow: hidden;
+}

@@ -1,0 +1,692 @@
+/* Theme Settings CSS
+   This is crafted to work with Seven and AT Admin themes,
+   other admin themes could spit the dummy with these styles. */
+.theme-settings-header {
+  border-radius: 3px 3px 0 0;
+}
+.theme-settings-header h1 {
+  margin: 0;
+  float: left;
+  font-size: 1.25em;
+  text-shadow: 1px 1px 1px #fff;
+}
+p.docs-link {
+  float: left;
+  margin: 3px 10px 0;
+  padding: 0;
+}
+p.docs-link a {
+  width: 16px;
+  height: 16px;
+  display: block !important;
+  text-indent: 100%;
+  white-space: nowrap;
+  overflow: hidden;
+  background: url(images/help.png) no-repeat;
+  -webkit-transition: none 0 delay;
+  -moz-transition: none 0 delay;
+  -o-transition: none 0 delay;
+  -ms-transition: none 0 delay;
+  transition: none 0 delay;
+}
+p.docs-link a:hover,
+p.docs-link a:focus {
+  background-position: 0 -16px;
+}
+p.logo-link {
+  float: right;
+  width: 65px;
+  margin: 0;
+  padding: 0;
+}
+.layout-header a {
+  display: block;
+}
+.layout-header a img {
+  width: 100%;
+  height: auto;
+}
+.admin-theme-adaptivetheme_admin div.vertical-tabs {
+}
+div.vertical-tabs .vertical-tabs-panes {
+  min-height: 100px;
+}
+.vertical-tabs-panes .form-item {
+  clear: both;
+}
+.vertical-tabs-panes label {
+  font-weight: 400;
+  margin: 5px 0;
+  display: inline-block;
+}
+.vertical-tabs-panes select {
+  max-width: 480px; /* Mitigate huge width when page is zoomed */
+}
+#edit-font label {
+  width: 10em;
+}
+#edit-font #edit-font-size {
+  width: auto;
+}
+#edit-breadcrumb select#edit-breadcrumb-display,
+#edit-breadcrumb input#edit-breadcrumb-separator {
+  width: auto;
+}
+#edit-pagestyles fieldset p {
+  margin-bottom: 0;
+}
+div.vertical-tabs .vertical-tabs-panes .form-type-checkbox label,
+div.vertical-tabs .vertical-tabs-panes .form-type-radios label {
+  float: none;
+  width: auto;
+}
+.no-extensions-enabled,
+div.vertical-tabs .vertical-tabs-panes fieldset fieldset {
+  background: #ededed;
+  border: 0;
+  margin: 1px 0;
+}
+div.vertical-tabs .vertical-tabs-panes fieldset fieldset .fieldset-wrapper {
+  padding-top: 10px;
+}
+div.vertical-tabs .vertical-tabs-panes fieldset fieldset .fieldset-wrapper .fieldset-description {
+  padding-bottom: 5px;
+}
+fieldset.at-layout-form div.form-item  label[for*="-media-query"] {
+  padding-bottom: 10px;
+}
+fieldset.at-layout-form div.form-item[class*="-media-query"] .description {
+  padding-top: 3px;
+}
+.no-extensions-enabled {
+  padding: 10px;
+}
+
+/* Hide text in form labels where needed
+   Kellum Method: http://www.zeldman.com/2012/03/01/replacing-the-9999px-hack-new-image-replacement */
+fieldset.at-layout-form div.form-type-radio label,
+div.smalltouch-portrait-layout,
+.panel-option-lists .form-radios label  {
+  text-indent: 100%;
+  white-space: nowrap;
+  overflow: hidden;
+  text-indent: -1000px\9; /* IE */
+}
+
+/* edit-disabled responsive layout disabled messages */
+.vertical-tabs-panes fieldset fieldset[id*="edit-disabled"],
+.vertical-tabs-panes fieldset fieldset[id*="edit-disabled"] .fieldset-wrapper {
+  background: transparent;
+  margin: 0;
+  padding: 0;
+}
+
+
+/* Layout settings */
+.at-layout-form div.form-item {
+  float: left;
+  margin-right: 25px;
+  clear: none;
+}
+fieldset.at-layout-form div.form-item  label,
+fieldset.at-layout-form div.form-type-checkbox {
+  float: none;
+  width: auto;
+}
+fieldset.at-layout-form div.form-item input {
+  width: 8em;
+  max-width: 120px;
+}
+fieldset.at-layout-form select {
+  width: 4em;
+  max-width: 100px;
+}
+fieldset.at-layout-form div.form-type-checkbox label,
+fieldset.at-media-queries div.form-type-textfield label {
+  font-weight: 700;
+}
+fieldset.at-media-queries div.form-item {
+  margin-right: 0;
+}
+fieldset.at-media-queries div.form-item,
+fieldset.at-media-queries div.form-type-textfield input {
+  width: 90%;
+  max-width: 480px;
+}
+h4 {
+  margin-bottom: 0;
+}
+fieldset.at-layout-form div.form-type-radio {
+  clear: none;
+  float: left;
+  margin: 0 30px 10px 0;
+  text-align: center;
+  width: 60px;
+}
+fieldset.at-layout-form div.form-type-radio input,
+fieldset.at-layout-form div[class*="set-max-width"] input  {
+  width: auto;
+}
+fieldset.at-layout-form div.form-type-radio label,
+div.smalltouch-portrait-layout  {
+  background-repeat: no-repeat;
+  margin-top: 4px;
+  height: 60px;
+  width: 60px;
+  display: block;
+  float: none;
+  text-align: center;
+}
+div.smalltouch-portrait-layout  {
+  float: left;
+  margin: 15px 15px 0 0;
+}
+fieldset#edit-portrait--2  .fieldset-description {
+  overflow: hidden;
+}
+fieldset#edit-landscape,
+fieldset#edit-landscape--2,
+fieldset#edit-portrait,
+fieldset#edit-portrait--2 {
+  border: 0;
+  background: none;
+}
+fieldset#edit-landscape > .fieldset-wrapper,
+fieldset#edit-landscape--2 > .fieldset-wrapper,
+fieldset#edit-portrait > .fieldset-wrapper,
+fieldset#edit-portrait--2 > .fieldset-wrapper {
+  padding: 0;
+}
+.vertical-tabs-panes #edit-media-queries  label {
+  width: 13em;
+}
+#edit-media-queries .form-type-checkbox label {
+  font-weight: 700;
+}
+#edit-debug p.warning {
+  background: url(images/warning.png) no-repeat left center;
+  padding-left: 25px;
+}
+.field-description-info {
+  color: #666;
+}
+
+/* Conditional messages for sidebars */
+fieldset[id*="message-wrapper"] {
+  margin-bottom: 0;
+  padding-bottom: 0;
+}
+fieldset[id*="message-wrapper"] .fieldset-wrapper {
+  margin: 0 !important;
+  padding: 0;
+}
+fieldset[id*="message-wrapper"] .fieldset-wrapper .description {
+  padding-top: 4px;
+}
+
+/* AT Panels */
+#edit-panels-wrapper,
+#edit-panels-wrapper .fieldset-wrapper {
+  background: transparent;
+  padding: 10px 0;
+}
+ #edit-panels-wrapper fieldset {
+  margin: 0 0 20px;
+  padding-bottom: 0;
+}
+#edit-panels-wrapper fieldset fieldset {
+  margin: 0;
+  padding-bottom: 0;
+}
+#edit-panels-wrapper  fieldset.collapsed  {
+  background: transparent;
+  overflow: hidden;
+  margin: 0 0 10px;
+}
+#edit-panels-wrapper  fieldset  fieldset.collapsed  {
+  margin: 0;
+}
+#edit-rpw > .fieldset-wrapper > .fieldset-description {}
+.panel-option-lists .fieldset-wrapper {
+  display: table;
+  width: 95%;
+}
+.panel-option-lists .fieldset-wrapper .fieldset-wrapper {
+  padding: 0;
+  margin-left: 2.5%;
+}
+.panel-option-lists .fieldset-wrapper > .form-item {
+  display: table-row;
+}
+.panel-option-lists .fieldset-wrapper > .form-item > label,
+.panel-option-lists .fieldset-wrapper > .form-item > div > div {
+  display: table-cell;
+  vertical-align: middle;
+}
+div.vertical-tabs .vertical-tabs-panes .panel-option-lists .fieldset-wrapper > .form-item > label {
+  font-weight: 400;
+  width: 22.5%;
+}
+.panel-option-lists .fieldset-wrapper legend {
+  display: block !important; /* need to show these no matter what */
+}
+.panel-option-lists label {
+}
+.panel-option-lists .form-type-radio {
+  clear: none;
+  float: left;
+  margin: 0 30px 10px 0 !important;
+  text-align: center;
+  width: 40px;
+}
+.panel-option-lists .form-radios label {
+  background: #ddd;
+  background-repeat: no-repeat;
+  margin-top: 4px;
+  height: 40px;
+  width: 40px;
+  display: block !important;
+  float: none;
+  text-align: center;
+}
+
+/* Wrangel fielset wrappers */
+html.js .vertical-tabs-panes fieldset.collapsed div.fieldset-wrapper {
+  overflow: hidden;
+  display: none !important;
+}
+
+/* Fonts */
+fieldset#edit-font .fieldset-wrapper legend {
+  display: block;
+  padding-top: 10px;
+}
+fieldset#edit-font .fieldset-wrapper .fieldset-wrapper {
+  padding-top: 35px;
+}
+#edit-font > .fieldset-wrapper > fieldset.collapsed {
+  background: transparent;
+}
+#edit-base-font {
+  margin-bottom: 11px;
+}
+
+/* style select list websafe fonts */
+.font-element-wrapper option[value$=-ssl] {font-family: Verdana, Geneva, 'DejaVu Sans', Arial, Helvetica, sans-serif;}
+.font-element-wrapper option[value$=-a]   {font-family: Arial, Helvetica, sans-serif;}
+.font-element-wrapper option[value$=-cc]  {font-family: Calibri, Candara, Arial, Helvetica, sans-serif;}
+.font-element-wrapper option[value$=-m]   {font-family: 'Segoe UI', 'Myriad Pro', Myriad, Arial, Helvetica, sans-serif;}
+.font-element-wrapper option[value$=-l]   {font-family: 'Lucida Sans Unicode', 'Lucida Sans', 'Lucida Grande', Verdana, Geneva, sans-seri;}
+.font-element-wrapper option[value$=-i]   {font-family: Impact, Haettenschweiler, 'Franklin Gothic Bold', Charcoal, 'Helvetica Inserat', 'Bitstream Vera Sans Bold', 'Arial Black', sans-serif;}
+.font-element-wrapper option[value$=-ss]  {font-family: Garamond, Perpetua, 'Times New Roman', serif;}
+.font-element-wrapper option[value$=-sl]  {font-family: Georgia, Baskerville, Palatino, 'Palatino Linotype', 'Book Antiqua', 'Times New Roman', serif;}
+.font-element-wrapper option[value$=-ms]  {font-family: Consolas, Monaco, 'Courier New', Courier, monospace, sans-serif;}
+
+/* Google font new styles */
+#edit-font fieldset[id$=-gwf-styles],
+#edit-font fieldset[id$=-gwf-charsets],
+#edit-font fieldset[id$=-gwf-styles] .fieldset-wrapper,
+#edit-font fieldset[id$=-gwf-charsets] .fieldset-wrapper {
+  overflow: hidden;
+  padding: 0 !important;
+  margin: 0 !important;
+}
+#edit-font fieldset[id$=-gwf-charsets] {
+  margin-bottom: 20px !important;
+}
+#edit-font fieldset[id$=-gwf-styles] legend,
+#edit-font fieldset[id$=-gwf-charsets] legend {
+  display: none !important;
+}
+#edit-font fieldset[id$=-gwf-styles] div.form-type-checkbox,
+#edit-font fieldset[id$=-gwf-charsets] div.form-type-checkbox {
+  float: left;
+  clear: none;
+  margin: 0 15px 0 0;
+  padding: 7px 0 0 0;
+}
+#system-theme-settings #edit-font div.form-type-textfield label,
+#system-theme-settings #edit-font div.form-type-checkbox label {
+  width: auto;
+}
+
+/* Heading styles for advanced themes */
+.headings-styles-wrapper .form-type-radios,
+.headings-styles-wrapper .form-type-select {
+  min-width: 10em;
+  float: left;
+  clear: none;
+  padding: 0;
+  margin: 0;
+}
+.headings-styles-wrapper .form-type-select label {
+  clip: rect(1px 1px 1px 1px);
+  clip: rect(1px, 1px, 1px, 1px);
+  position: absolute;
+  overflow: hidden;
+}
+#edit-site-name-font-style .form-type-select label {
+  position: static !important;
+  clip: auto;
+  height: auto;
+  width: auto;
+  overflow: auto;
+  padding-bottom: 0.5em;
+  display: block !important;
+}
+.headings-styles-wrapper .form-type-select select {
+  min-width: 8em;
+}
+.headings-styles-wrapper .fieldset-description {
+  float: left;
+  padding: 0;
+  width: 12em;
+}
+.headings-styles-wrapper .fieldset-wrapper {
+  padding: 0 15px;
+}
+#edit-site-name-font-style .fieldset-description {
+  padding-top: 2.2em;
+}
+
+/* Global settings form is ugly */
+#edit-global-settings .fieldset-description {
+  padding-bottom: 0;
+}
+
+/* Give some real definition to disabled selects */
+select[disabled],
+fieldset[disabled] select,
+input[disabled] {
+  background: #e7e7e7;
+  border-color: #ccc;
+  color: #666;
+}
+
+/* Tweaks fieldsets collapsed */
+#edit-site-tweaks fieldset.collapsed {
+  background: #fff;
+  overflow: hidden;
+}
+#edit-site-tweaks .fieldset-wrapper legend {
+}
+
+/* Meta tags */
+#edit-meta .form-type-textfield label {
+  width: 18em;
+}
+#edit-meta .form-type-textfield input {
+  width: 20em;
+}
+
+/* Image alignment options */
+#edit-alignment .description {
+  clear: both;
+}
+#edit-alignment .form-type-radio {
+  clear: none;
+  float: left;
+  margin: 0 30px 10px 0;
+  text-align: center;
+  width: 50px;
+}
+#edit-alignment .form-type-radio input.form-radio {
+  margin-bottom: 4px;
+}
+#edit-alignment .form-type-radio label {
+  background-image: url(images/image-alignment-sprite.png);
+  background-repeat: no-repeat;
+  display: table-cell;
+  font-size: 0.8em;
+  height: 80px;
+  margin-top: 0;
+  text-align: center;
+  vertical-align: bottom;
+  width: 50px;
+}
+#edit-alignment .form-type-radio label[for$=-n] {background-position: 0 0;}
+#edit-alignment .form-type-radio label[for$=-l] {background-position: -50px 0;}
+#edit-alignment .form-type-radio label[for$=-c] {background-position: -100px 0;}
+#edit-alignment .form-type-radio label[for$=-r] {background-position: -150px 0;}
+
+/* Skip link target/ Apple touch */
+#edit-ati .fieldset-description ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+.form-item-skip-link-target label,
+.form-item-apple-touch-icon-path label,
+#edit-ati label {
+  display: block;
+}
+
+/* Misc */
+.field-prefix {
+  color: #666;
+}
+
+/* Revert the decision to fix hidden fieldset legends in vertical tabs until
+   its safe to fix this properly, we have many workarounds for this that need to be
+   reverted and its not really safe to do that until we're well past 7.13 */
+div.vertical-tabs fieldset.vertical-tabs-pane fieldset legend {
+  display: none;
+}
+abbr.form-required,
+span.form-required,
+span.marker {
+  border: 0;
+  color: #8a1a11;
+  font-weight: 700;
+}
+div.vertical-tabs {
+  margin-top: 0;
+}
+html.js fieldset.collapsible fieldset .fieldset-legend {
+    background-image: none;
+    padding-left: 0;
+}
+
+/* Gutter width setting */
+#edit-design .form-item-global-gutter-width label {
+  font-weight: 400;
+  display: inline;
+}
+#edit-design .form-item-global-gutter-width input {
+  width: 3em;
+  text-align: center;
+}
+
+/* Mobile Regions */
+#edit-context-regions fieldset legend {
+  display: block;
+  position: static;
+}
+
+
+#edit-context-regions fieldset .fieldset-wrapper {
+  padding: 30px 15px 15px 1px;
+}
+
+#edit-context-regions fieldset fieldset .fieldset-wrapper {
+  padding: 0 15px 0 1px;
+}
+
+.admin-theme-adaptivetheme-admin #edit-context-regions fieldset .fieldset-wrapper {
+  padding-left: 15px;
+}
+.detection {
+  color: green;
+}
+.no-detection {
+  color: red;
+}
+
+div[class*=form-item-unset-region-options],
+div[class*=form-item-move-region-options],
+fieldset[id*=edit-region-options] .form-type-select {
+  border-left: 13px solid #ddd;
+  margin: 0;
+  padding: 0 0 0 10px;
+}
+
+fieldset[id*=edit-region-options] .form-type-select {
+  padding: 10px 0 0 10px;
+}
+
+#edit-context-regions fieldset fieldset legend,
+div[class*=form-item-unset-region-options] label:first-child,
+div[class*=form-item-move-region-options] label:first-child {
+  clip: rect(1px 1px 1px 1px);
+  clip: rect(1px, 1px, 1px, 1px);
+  position: absolute;
+  overflow: hidden;
+}
+
+
+/* Float block regions */
+#edit-float-region-blocks label {
+  min-width: 15em;
+}
+#edit-float-region-blocks .form-type-select,
+#edit-float-region-blocks .form-type-radios {
+  float: left;
+  clear: none;
+}
+#edit-float-region-blocks .form-type-radios * {
+  display: inline-block;
+  width: auto;
+  min-width: 0;
+}
+#edit-float-region-blocks .form-type-radios {
+  padding: 2px 10px 0 20px;
+}
+#edit-float-region-blocks .form-type-radios label {
+  margin-right: 5px;
+}
+#edit-float-region-blocks .form-type-radios > label:after {
+  content: ":";
+}
+#edit-float-region-blocks ol {
+  list-style: lower-roman;
+  margin-bottom: 20px;
+}
+
+/* Global CSS files path */
+#edit-files-path .form-item-global-files-path {
+  margin-bottom: 0;
+  padding-bottom: 0;
+}
+#edit-files-path fieldset .fieldset-wrapper {
+  margin: 0 0 20px;
+}
+#edit-files-path .form-item-global-files-path label {
+  margin-bottom: 10px;
+}
+#edit-global-files-path {
+  display: block;
+}
+
+/* Debugger media queries dl */
+#edit-mediaqueries dl {
+  padding: 20px 20px 0;
+  background: #fff;
+  border: 1px solid #ccc;
+}
+#edit-mediaqueries dl dt {
+  font-weight: 700;
+}
+#edit-mediaqueries dl dd {
+  margin-bottom: 20px;
+  margin-left: 0;
+}
+
+/* Wrangel Seven to look half decent */
+.admin-theme-seven div.vertical-tabs .font-element-wrapper .fieldset-legend,
+.admin-theme-seven div.vertical-tabs .panel-option-lists .fieldset-legend {
+  position: static;
+}
+.admin-theme-seven .panel-option-lists .form-type-radio {
+  margin-right: 20px;
+}
+.admin-theme-seven div.smalltouch-portrait-layout {
+  margin-top: 7px;
+}
+.admin-theme-seven div.vertical-tabs fieldset,
+.admin-theme-seven div.vertical-tabs fieldset fieldset,
+.admin-theme-seven div.vertical-tabs .fieldset-wrapper,
+.admin-theme-seven div.vertical-tabs legend
+.admin-theme-seven div.vertical-tabs .fieldset-legend {
+  margin: 0;
+  padding: 0;
+}
+.admin-theme-seven #edit-panels-wrapper > .fieldset-wrapper > fieldset {
+  margin: 0;
+  padding: 10px 0 0 0;
+  overflow: hidden;
+}
+.admin-theme-seven #edit-panels-wrapper fieldset fieldset .fieldset-wrapper,
+.admin-theme-seven fieldset.collapsible fieldset fieldset .fieldset-wrapper{
+  background: #f6f6f6;
+}
+.admin-theme-seven #edit-panels-wrapper fieldset fieldset .fieldset-wrapper {
+  padding-left: 20px;
+}
+.admin-theme-seven #edit-panels-wrapper fieldset > .fieldset-wrapper {
+  padding-top: 0;
+  margin-bottom: 20px;
+}
+.admin-theme-seven #edit-panels-wrapper fieldset > .fieldset-wrapper > fieldset {;
+}
+.admin-theme-seven #edit-panels-wrapper fieldset fieldset.collapsed {
+  margin: 0;
+  padding: 10px 0 0;
+}
+.admin-theme-seven fieldset .fieldset-wrapper .fieldset-wrapper {
+  padding: 0;
+  margin: 0 15px;
+}
+.admin-theme-seven fieldset#edit-font fieldset > .fieldset-wrapper  > fieldset > .fieldset-wrapper {
+  margin: 0 15px;
+  padding: 5px 10px 0;
+  background: #f6f6f6;
+}
+.admin-theme-seven fieldset#edit-font fieldset > .fieldset-wrapper  > fieldset legend {
+  padding: 0;
+}
+.admin-theme-seven fieldset#edit-font fieldset > .fieldset-wrapper  > fieldset .fieldset-legend {
+  text-transform: none;
+  padding: 5px 0 5px 15px;
+}
+.admin-theme-seven fieldset#edit-font .fieldset-wrapper legend {
+  display: block;
+  padding-top: 10px;
+  position: absolute;
+  top: 0;
+}
+.admin-theme-seven fieldset#edit-font fieldset.collapsed legend,
+.admin-theme-seven fieldset#edit-font fieldset[id$=font-selector] legend,
+.admin-theme-seven fieldset#edit-headings fieldset[id=edit-sizes] legend,
+.admin-theme-seven fieldset#edit-headings fieldset[id=edit-menus] legend,
+.admin-theme-seven fieldset#edit-headings fieldset[id=edit-css] legend {
+  position: static;
+}
+.admin-theme-seven #edit-titles fieldset {
+  padding: 0;
+}
+.admin-theme-seven #edit-titles fieldset .fieldset-description {
+  padding: 3px 0;
+}
+.admin-theme-seven #edit-titles #edit-site-name-font-style .fieldset-description {
+  padding-top: 2.2em;
+}
+.admin-theme-seven #edit-font fieldset[id$=-gwf-styles] .fieldset-wrapper,
+.admin-theme-seven #edit-font fieldset[id$=-gwf-charsets] .fieldset-wrapper {
+  padding: 0 10px 7px !important;
+}
+.admin-theme-seven fieldset[id*="message-wrapper"] .fieldset-wrapper .description {
+  padding-top: 7px;
+}
+#edit-ati .form-item-icon-rel label {
+  display: inline;
+}

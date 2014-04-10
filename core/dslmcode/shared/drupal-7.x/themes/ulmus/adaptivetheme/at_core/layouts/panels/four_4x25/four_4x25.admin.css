@@ -1,0 +1,9 @@
+#panels-dnd-main .panel-row {float: left; margin: 0; width: 50%}
+#panels-dnd-main .region {float: left; margin: 0 0.333% 5px; width: 49.333333%}
+
+/* Four col sprite */
+[id^=edit-four] .form-type-radio label {background: url(fourcol-sprite.png)}
+.form-type-radio label[for$=four-4x25] {background-position: 0 0}
+.form-type-radio label[for$=four-4x25-right-stack] {background-position: -41px 0}
+.form-type-radio label[for$=four-4x25-2x2-grid] {background-position: -82px 0}
+.form-type-radio label[for$=four-4x25-stack] {background-position: -123px 0}

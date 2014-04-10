@@ -1,0 +1,25 @@
+#panels-dnd-main .region {margin-bottom: 5px}
+#panels-dnd-main .region-three-25-25-50-first {float: left; width: 24.5%}
+#panels-dnd-main .region-three-25-25-50-second {float: left; width: 24.5%; margin-left: 0.5%}
+#panels-dnd-main .region-three-25-25-50-third {float: right; width: 50%}
+#panels-dnd-main .region-three-25-25-50-bottom {clear: both}
+
+/* Three col sprite */
+[id^=edit-three] .form-type-radio label {background: url(threecol-sprite.png)}
+.form-type-radio label[for$=three-50-25-25] {background-position: 0 0}
+.form-type-radio label[for$=three-50-25-25-stack-bottom] {background-position: -41px 0}
+.form-type-radio label[for$=three-50-25-25-stack-top] {background-position: -82px 0}
+.form-type-radio label[for$=three-50-25-25-stack] {background-position: -123px 0}
+.form-type-radio label[for$=three-3x33] {background-position: 0 -41px}
+.form-type-radio label[for$=three-3x33-5050-stack-bottom] {background-position: 0 -165px}
+.form-type-radio label[for$=three-3x33-stack-bottom] {background-position: -41px -41px}
+.form-type-radio label[for$=three-3x33-stack-top] {background-position: -82px -41px}
+.form-type-radio label[for$=three-3x33-stack] {background-position: -123px -41px}
+.form-type-radio label[for$=three-25-50-25] {background-position: 0 -82px}
+.form-type-radio label[for$=three-25-50-25-stack-bottom] {background-position: -41px -82px}
+.form-type-radio label[for$=three-25-50-25-stack-top] {background-position: -82px -82px}
+.form-type-radio label[for$=three-25-50-25-stack] {background-position: -123px -82px}
+.form-type-radio label[for$=three-25-25-50] {background-position: 0 -123px}
+.form-type-radio label[for$=three-25-25-50-stack-bottom] {background-position: -41px -123px}
+.form-type-radio label[for$=three-25-25-50-stack-top] {background-position: -82px -123px}
+.form-type-radio label[for$=three-25-25-50-stack] {background-position: -123px -123px}

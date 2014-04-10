@@ -1,0 +1,45 @@
+/* Fields */
+.field .field-label {
+  font-size: 1em;
+  font-weight: 700;
+  line-height: inherit;
+  margin: 0;
+}
+.field-lable-inline .field-label {
+  display: inline;
+}
+.field-type-taxonomy-term-reference .field-label {
+  font-size: 1em;
+}
+.field-type-taxonomy-term-reference ul {
+  margin: 0;
+  padding: 0;
+}
+.field-type-taxonomy-term-reference ul li {
+  display: inline;
+  list-style: none;
+  padding: 0 .75em 0 0;
+}
+.field-label-inline .field-label,
+.field-label-inline .field-items {
+  display: inline;
+}
+.field-type-image figure {
+  margin: 0;
+  padding: 0;
+}
+.field-type-image figcaption {
+  margin: 0 0 10px;
+  padding: 0;
+}
+.field-type-image figure img {
+  margin: auto;
+}
+.field-type-image figcaption {
+  font-size: 0.8em;
+  font-style: italic;
+}
+table .field-type-image img {
+  width: 100%;
+  height: auto;
+}

@@ -1,0 +1,9 @@
+fieldset.at-layout-form div.form-type-radio label,div.smalltouch-portrait-layout  {background: url(page-layouts-sprite.png);}
+fieldset.at-layout-form .form-type-radio label[for$=three-col-grail]  {background-position: 0 0;}
+fieldset.at-layout-form .form-type-radio label[for$=two-sidebars-right]  {background-position: -122px 0;}
+fieldset.at-layout-form .form-type-radio label[for$=two-sidebars-left]  {background-position: -61px 0;}
+fieldset.at-layout-form .form-type-radio label[for$=two-sidebars-left-stack]  {background-position: -183px 0;}
+fieldset.at-layout-form .form-type-radio label[for$=two-sidebars-right-stack]  {background-position: -244px 0;}
+fieldset.at-layout-form .form-type-radio label[for$=one-col-stack] {background-position: -305px 0;}
+fieldset.at-layout-form .form-type-radio label[for$=one-col-vert] {background-position: -366px 0;}
+div.smalltouch-portrait-layout  {background-position: -305px 0;}

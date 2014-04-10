@@ -1,0 +1,14 @@
+/* Login block - horizontal */
+.lb-h form,
+.lb-h .form-item {margin:0;padding:0}
+.lb-h .form-actions,
+.lb-h .form-submit {margin:0}
+.lb-h label,
+.lb-h .form-actions {padding:4px}
+.lb-h label,
+.lb-h .form-item,
+.lb-h .form-actions,
+.lb-h form .item-list,
+.lb-h form .item-list ul li {float:left}
+.lb-h .form-required {display:none}
+.lb-h input.form-text {max-width:none}

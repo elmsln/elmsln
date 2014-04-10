@@ -1,0 +1,16 @@
+/**
+ *   Important Information about this CSS File
+ *
+ * - Do not delete or rename this file, if you do not use it leave it blank (delete 
+ *   everything) and the file will be skipped when you enable Production Mode in
+ *   the Global theme settings.
+ *   
+ * - There is an scss (SASS) version of this file in the /sass/ directory in your
+ *   sub-theme, if you set Compass to watch it or the directory this file will be
+ *   overwritten!
+ *
+ * - Read the _README file in this directory, it contains useful help and other information.
+ */
+html /* Example style to show how to target a device range */ {
+ font-size: 112.5%; /* Increase the body font size on small devices */
+}

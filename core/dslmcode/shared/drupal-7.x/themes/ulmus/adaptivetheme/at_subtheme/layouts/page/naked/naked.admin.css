@@ -1,0 +1,4 @@
+/* Set the icon for the layout in the theme settings form */
+fieldset.at-layout-form .form-type-radio label[for$=naked] {
+  background: transparent url(naked.png) no-repeat 0 0;
+}

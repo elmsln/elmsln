@@ -1,0 +1,55 @@
+/**
+ * Do not delete or rename this file, if you do not use it leave it blank.
+ */
+#branding,
+.region-header  {
+  padding-top: 15px;
+  padding-bottom: 20px;
+}
+#branding .h-group {
+  margin-top: 0.8em;
+}
+#site-name {
+  font-size: 3.5em;
+}
+.region-secondary-content .block {
+  margin-bottom: 0;
+  font-size: 1.077em;
+}
+
+/* Menu bar */
+#menu-bar .block > ul > li {
+  margin: 0 1px 1px 0;
+}
+
+.at-mt #menu-bar-wrapper .nav .block-menu li a,
+.at-mt #menu-bar-wrapper #menu-bar li.sf-depth-1,
+.at-mt #menu-bar-wrapper #menu-bar li.sf-depth-1 > a,
+.at-mt #menu-bar-wrapper .region-header .block-content > ul > li > a {
+  border-radius: 6px 6px 6px 0;
+}
+
+.at-mt #menu-bar .block-menu.at-menu-toggle.block,
+.at-mt #menu-bar .block-menu.at-menu-toggle ul li,
+.at-mt #menu-bar .block-menu.at-menu-toggle ul {
+  float: none;
+}
+
+.at-mt #menu-bar-wrapper .container,
+.at-mt #menu-bar .block-menu.at-menu-toggle.block {
+  overflow-x: hidden;
+  -moz-box-sizing: border-box;
+  -webkit-box-sizing: border-box;
+  box-sizing: border-box;
+}
+
+.at-menu-toggle-button-link {
+  padding: 3px 15px;
+}
+
+/* Header region */
+.at-mt .region-header .block.at-menu-toggle.block,
+.at-mt .region-header .block.at-menu-toggle ul li,
+.at-mt .region-header .block.at-menu-toggle ul {
+  float: none;
+}

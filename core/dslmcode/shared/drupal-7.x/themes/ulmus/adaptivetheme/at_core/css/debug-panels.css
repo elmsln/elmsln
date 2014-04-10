@@ -1,0 +1,342 @@
+/* Highlight regions for debugging the layout */
+
+/* Panels */
+.debug-panels {
+  margin: 20px 0;
+}
+
+.debug-panels .at-panel {
+  position: relative;
+  margin-bottom: 20px;
+}
+
+.debug-panels .at-panel .region {
+  background: rgba(255, 192, 203, 0.5);
+  position: relative;
+  outline: 1px dotted #000;
+  min-height: 80px;
+}
+
+.debug-panels .at-panel .region:hover {
+  background: rgb(255, 192, 203);
+  outline: 1px dotted #000;
+}
+
+.debug-panels .at-panel:before {
+  font-size: 1em;
+  font-weight: 700;
+  position: absolute;
+  right: 0;
+  padding: 3px 10px;
+  color: #555;
+}
+
+.debug-panels .at-panel .region:before {
+  font-size: 1em;
+  font-weight: 400;
+  position: absolute;
+  left: 0;
+  top: 25px;
+  width: 100%;
+  padding: 3px 0;
+  text-align: center;
+  color: #000;
+  background: transparent;
+  box-shadow: none;
+}
+
+.debug-panels .region-three-inset-left-sidebar,
+.debug-panels .region-three-inset-left-sidebar .region-inner,
+.debug-panels .region-three-inset-right-sidebar,
+.debug-panels .region-three-inset-right-sidebar .region-inner {
+  min-height: 240px;
+}
+
+/* One */
+.debug-panels .one-column:before {
+  content: "ONE (.one-column)";
+}
+.debug-panels .region-one-main:before {
+  content: ".region-one-main";
+}
+/* Two 50 */
+.debug-panels .two-50:before {
+  content: "TWO 50 (.two-50)";
+}
+.debug-panels .region-two-50-top:before {
+  content: ".region-two-50-top";
+}
+.debug-panels .region-two-50-first:before {
+  content: ".region-two-50-first";
+}
+.debug-panels .region-two-50-second:before {
+  content: ".region-two-50-second";
+}
+.debug-panels .region-two-50-bottom:before {
+  content: ".region-two-50-bottom";
+}
+
+/* Two 33 66 */
+.debug-panels .two-33-66:before {
+  content: "TWO 33/66 (.two-33-66)";
+}
+.debug-panels .region-two-33-66-top:before {
+  content: ".region-two-33-66-top";
+}
+.debug-panels .region-two-33-66-first:before {
+  content: ".region-two-33-66-first";
+}
+.debug-panels .region-two-33-66-second:before {
+  content: ".region-two-33-66-second";
+}
+.debug-panels .region-two-33-66-bottom:before {
+  content: ".region-two-33-66-bottom";
+}
+
+/* Two 66 33 */
+.debug-panels .two-66-33:before {
+  content: "TWO 66/33 (.two-66-33)";
+}
+.debug-panels .region-two-66-33-top:before {
+  content: ".region-two-66-33-top";
+}
+.debug-panels .region-two-66-33-first:before {
+  content: ".region-two-66-33-first";
+}
+.debug-panels .region-two-66-33-second:before {
+  content: ".region-two-66-33-second";
+}
+.debug-panels .region-two-66-33-bottom:before {
+  content: ".region-two-66-33-bottom";
+}
+
+/* Two brick */
+.debug-panels .two-brick:before {
+  content: "TWO BRICK (.two-brick)";
+}
+.debug-panels .region-two-brick-top:before {
+  content: ".region-two-brick-top";
+}
+.debug-panels .region-two-brick-left-above:before {
+  content: ".region-two-brick-left-above";
+}
+.debug-panels .region-two-brick-right-above:before {
+  content: ".region-two-brick-right-above";
+}
+.debug-panels .region-two-brick-middle:before {
+  content: ".region-two-brick-middle";
+}
+.debug-panels .region-two-brick-left-below:before {
+  content: ".region-two-brick-left-below";
+}
+.debug-panels .region-two-brick-right-below:before {
+  content: ".region-two-brick-right-below";
+}
+.debug-panels .region-two-brick-bottom:before {
+  content: ".region-two-brick-bottom";
+}
+
+/* Three 3x33 */
+.debug-panels .three-3x33:before {
+  content: "THREE 3x33 (.three-3x33)";
+}
+.debug-panels .region-three-33-top:before {
+  content: ".region-three-33-top";
+}
+.debug-panels .region-three-33-first:before {
+  content: ".region-three-33-first";
+}
+.debug-panels .region-three-33-second:before {
+  content: ".region-three-33-second";
+}
+.debug-panels .region-three-33-third:before {
+  content: ".region-three-33-third";
+}
+.debug-panels .region-three-33-bottom:before {
+  content: ".region-three-33-bottom";
+}
+
+/* Three 25-25-50 */
+.debug-panels .three-25-25-50:before {
+  content: "THREE 25-25-50 (.three-25-25-50)";
+}
+.debug-panels .region-three-25-25-50-top:before {
+  content: ".region-three-25-25-50-top";
+}
+.debug-panels .region-three-25-25-50-first:before {
+  content: ".region-three-25-25-50-first";
+}
+.debug-panels .region-three-25-25-50-second:before {
+  content: ".region-three-25-25-50-second";
+}
+.debug-panels .region-three-25-25-50-third:before {
+  content: ".region-three-25-25-50-third";
+}
+.debug-panels .region-three-25-25-50-bottom:before {
+  content: ".region-three-25-25-50-bottom";
+}
+
+/* Three 25-50-25 */
+.debug-panels .three-25-50-25:before {
+  content: "THREE 25-50-25 (.three-25-50-25)";
+}
+.debug-panels .region-three-25-50-25-top:before {
+  content: ".region-three-25-50-25-top";
+}
+.debug-panels .region-three-25-50-25-first:before {
+  content: ".region-three-25-50-25-first";
+}
+.debug-panels .region-three-25-50-25-second:before {
+  content: ".region-three-25-50-25-second";
+}
+.debug-panels .region-three-25-50-25-third:before {
+  content: ".region-three-25-50-25-third";
+}
+.debug-panels .region-three-25-50-25-bottom:before {
+  content: ".region-three-25-50-25-bottom";
+}
+
+/* Three 50-25-25 */
+.debug-panels .three-50-25-25:before {
+  content: "THREE 50-25-25 (.three-50-25-25)";
+}
+.debug-panels .region-three-50-25-25-top:before {
+  content: ".region-three-50-25-25-top";
+}
+.debug-panels .region-three-50-25-25-first:before {
+  content: ".region-three-50-25-25-first";
+}
+.debug-panels .region-three-50-25-25-second:before {
+  content: ".region-three-50-25-25-second";
+}
+.debug-panels .region-three-50-25-25-third:before {
+  content: ".region-three-50-25-25-third";
+}
+.debug-panels .region-three-50-25-25-bottom:before {
+  content: ".region-three-50-25-25-bottom";
+}
+
+/* Four 4x25 */
+.debug-panels .four-4x25:before {
+  content: "FOUR 4x25 (.four-4x25)";
+}
+.debug-panels .region-four-first:before {
+  content: ".region-four-first";
+}
+.debug-panels .region-four-second:before {
+  content: ".region-four-second";
+}
+.debug-panels .region-four-third:before {
+  content: ".region-four-third";
+}
+.debug-panels .region-four-fourth:before {
+  content: ".region-four-fourth";
+}
+
+/* Five 5x20 */
+.debug-panels .five-5x20:before {
+  content: "FIVE 5x20 (.five-5x20)";
+}
+.debug-panels .region-five-first:before {
+  content: ".region-five-first";
+}
+.debug-panels .region-five-second:before {
+  content: ".region-five-second";
+}
+.debug-panels .region-five-third:before {
+  content: ".region-five-third";
+}
+.debug-panels .region-five-fourth:before {
+  content: ".region-five-fourth";
+}
+.debug-panels .region-five-fifth:before {
+  content: ".region-five-fifth";
+}
+
+/* Six 6x16 */
+.debug-panels .six-6x16:before {
+  content: "SIX 6x16 (.six-6x16)";
+}
+.debug-panels .region-six-first:before {
+  content: ".region-six-first";
+}
+.debug-panels .region-six-second:before {
+  content: ".region-six-second";
+}
+.debug-panels .region-six-third:before {
+  content: ".region-six-third";
+}
+.debug-panels .region-six-fourth:before {
+  content: ".region-six-fourth";
+}
+.debug-panels .region-six-fifth:before {
+  content: ".region-six-fifth";
+}
+.debug-panels .region-six-sixth:before {
+  content: ".region-six-sixth";
+}
+
+/* Inset left */
+.three-inset-left:before {
+  content: "INSET LEFT (.three-inset-left)";
+}
+.region-three-inset-left-sidebar:before {
+  content: ".region-three-inset-left-sidebar";
+}
+.region-three-inset-left-top:before {
+  content: ".region-three-inset-left-top";
+}
+.region-three-inset-left-middle:before {
+  content: ".region-three-inset-left-middle";
+}
+.region-three-inset-left-inset:before {
+  content: ".region-three-inset-left-inset";
+}
+.region-three-inset-left-bottom:before {
+  content: ".region-three-inset-left-bottom";
+}
+
+/* Inset right */
+.three-inset-right:before {
+  content: "INSET RIGHT (.three-inset-right)";
+}
+.region-three-inset-right-sidebar:before {
+  content: ".region-three-inset-right-sidebar";
+}
+.region-three-inset-right-top:before {
+  content: ".region-three-inset-right-top";
+}
+.region-three-inset-right-middle:before {
+  content: ".region-three-inset-right-middle";
+}
+.region-three-inset-right-inset:before {
+  content: ".three-inset-right-inset";
+}
+.region-three-inset-right-bottom:before {
+  content: ".region-three-inset-right-bottom";
+}
+
+/* Reset for the block demo */
+.page-admin-structure-block-demo.debug-regions .region .block {
+  opacity: 1;
+}
+.page-admin-structure-block-demo.debug-regions .region {
+  background: transparent;
+}
+.page-admin-structure-block-demo.debug-regions .region:hover,
+.page-admin-structure-block-demo.debug-regions #menu-bar:hover {
+  background: transparent;
+  outline: 0;
+}
+.page-admin-structure-block-demo.debug-regions  .region:before,
+.page-admin-structure-block-demo.debug-regions  #menu-bar:before {
+  content: "" !important;
+  display: none;
+}
+
+/* Hide panel labels on smaller screens */
+@media only screen and (max-width:1024px) {
+  .debug-panels .at-panel:before {
+    content: "";
+  }
+}

@@ -1,0 +1,21 @@
+/* Corolla < IE9 */
+#branding * {
+  display: block;
+}
+#branding,
+#logo,
+#branding .h-group {
+  float: left;
+}
+.site-name-hidden #branding .h-group {
+  clear: left;
+}
+.article .user-picture {
+  width: 50px;
+  margin-right: 15px;
+}
+.block input.form-text,
+.block input.form-password,
+.block input.form-file {
+  width: 95%;
+}

@@ -1,0 +1,58 @@
+/* Comments */
+#comments > h2.title {
+  margin-bottom: .5em;
+}
+.comment {
+  border-bottom: 1px solid #ccc;
+  margin: 20px 0;
+  padding: 0 0 16px;
+}
+.comment .indented {
+  margin-left: 60px;
+}
+h3.comment-title {
+  border: none;
+  line-height: 1;
+  margin: 0 0 5px;
+  padding: 0;
+}
+.comment-title a:link,
+.comment-title a:visited,
+.comment-title a:active {
+  text-decoration: none;
+  border-bottom: none;
+}
+.comment-title a:hover,
+.comment-title a:focus {
+  text-decoration: underline;
+}
+.comment-title .new {
+  color: #ff8000;
+}
+.comment .user-picture {
+  float: right;
+  margin: 6px 0 10px 10px;
+}
+.comment .user-picture img {
+  background-color: #fcfcfc;
+  border: 1px solid #ccc;
+  padding: 2px;
+  width: 28px;
+}
+.comment-submitted {
+  margin: 1px 0 0;
+  color: #696969;
+  line-height: 1;
+  margin-top: 3px;
+}
+.comment ul.links {
+  display: block;
+  text-align: left;
+  padding: 0;
+}
+.comment ul.links li {
+  padding: 0;
+}
+.comment ul.links li a {
+  text-transform: capitalize;
+}

@@ -1,0 +1,15 @@
+#panels-dnd-main .panel-row,
+#panels-dnd-main .region {float: left}
+#panels-dnd-main .region {margin: 0 0.4166666666666667% 5px}
+#panels-dnd-main .five-5x20 .row-1 {width: 40%}
+#panels-dnd-main .five-5x20 .row-2 {width: 60%}
+#panels-dnd-main .five-5x20 .row-1 .region {width: 49%}
+#panels-dnd-main .five-5x20 .row-2 .region {width: 32%}
+
+/* Five col sprite */
+[id^=edit-five] .form-type-radio label {background: url(fivecol-sprite.png)}
+.form-type-radio label[for$=five-5x20] {background-position: 0 0}
+.form-type-radio label[for$=five-5x20-2x3-grid] {background-position: -41px 0}
+.form-type-radio label[for$=five-5x20-1x2x2-grid] {background-position: -82px 0}
+.form-type-radio label[for$=five-5x20-stack-2] {background-position: -123px 0}
+.form-type-radio label[for$=five-5x20-stack] {background-position: -164px 0}

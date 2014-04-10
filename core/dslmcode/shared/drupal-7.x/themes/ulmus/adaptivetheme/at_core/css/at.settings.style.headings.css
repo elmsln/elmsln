@@ -1,0 +1,16 @@
+/* Case */
+.snc-uc #site-name,.ssc-uc #site-slogan,.ptc-uc #page-title,.ntc-uc .node-title,.ctc-uc .comment-title,.btc-uc .block-title {text-transform:uppercase}
+.snc-lc #site-name,.ssc-lc #site-slogan,.ptc-lc #page-title,.ntc-lc .node-title,.ctc-lc .comment-title,.btc-lc .block-title {text-transform:lowercase}
+.snc-c #site-name,.ssc-c #site-slogan,.ptc-c #page-title,.ntc-c .node-title,.ctc-c .comment-title,.btc-c .block-title {text-transform:capitalize}
+.snc-sc #site-name,.ssc-sc #site-slogan,.ptc-sc #page-title,.ntc-sc .node-title,.ctc-sc .comment-title,.btc-sc .block-title {text-transform:none;font-variant:small-caps}
+/* Weight */
+.snw-n #site-name,.ssw-n #site-slogan,.ptw-n #page-title,.ntw-n .node-title,.ctw-n .comment-title,.btw-n .block-title {font-weight:400}
+.snw-b #site-name,.ssw-b #site-slogan,.ptw-b #page-title,.ntw-b .node-title,.ctw-b .comment-title,.btw-b .block-title {font-weight:700}
+/* Alignment */
+.sna-l #site-name,.ssa-l #site-slogan,.pta-l #page-title,.nta-l .node-title,.cta-l .comment-title,.bta-l .block-title {text-align:left}
+.sna-r #site-name,.ssa-r #site-slogan,.pta-r #page-title,.nta-r .node-title,.cta-r .comment-title,.bta-r .block-title {text-align:right}
+.sna-c #site-name,.ssa-c #site-slogan,.pta-c #page-title,.nta-c .node-title,.cta-c .comment-title,.bta-c .block-title {text-align:center}
+/* Shadow */
+.sns-l #site-name,.sss-l #site-slogan,.pts-l #page-title,.nts-l .node-title,.cts-l .comment-title,.bts-l .block-title {text-shadow:0 1px 1px rgba(0,0,0,.3)}
+.sns-d #site-name,.sss-d #site-slogan,.pts-d #page-title,.nts-d .node-title,.cts-d .comment-title,.bts-d .block-title {text-shadow:0 1px 1px rgba(0,0,0,.6)}
+.sns-w #site-name,.sss-w #site-slogan,.pts-w #page-title,.nts-w .node-title,.cts-w .comment-title,.bts-w .block-title {text-shadow:0 1px 1px rgba(255,255,255,.8)}

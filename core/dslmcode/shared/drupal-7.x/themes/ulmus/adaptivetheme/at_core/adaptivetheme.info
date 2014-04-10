@@ -1,0 +1,381 @@
+
+; NOTE - you do not need to enable or modify this theme - instead use
+; the included starter sub-theme as a starting point for building your own theme.
+
+;----------// Theme Information
+  name        = AT Core
+  description = AT Core is the framework that drives the responsive layout system and provides an extensive set of tools for theme development. You do not need to enable this theme. Use the provided AT Subtheme to get started.
+  core        = 7.x
+  release     = 7.x-3.x
+  engine      = phptemplate
+  screenshot  = screenshot.png
+
+
+;----------// Stylesheets
+  stylesheets[screen][] = css/at.layout.css
+
+  ; Stylesheets you may want to unset - includes all cores CSS files, except
+  ; for overlay.
+
+  unset_core[modules/aggregator/aggregator.css]     = 'aggregator.css'
+  unset_core[modules/block/block.css]               = 'block.css'
+  unset_core[modules/book/book.css]                 = 'book.css'
+  unset_core[modules/color/color.css]               = 'color.css'
+  unset_core[modules/comment/comment.css]           = 'comment.css'
+  unset_core[modules/contextual/contextual.css]     = 'contextual.css'
+  unset_core[modules/dashboard/dashboard.css]       = 'dashboard.css'
+  unset_core[modules/dblog/dblog.css]               = 'dblog.css'
+  unset_core[modules/field/theme/field.css]         = 'field.css'
+  unset_core[modules/field_ui/field_ui.css]         = 'field_ui.css'
+  unset_core[modules/file/file.css]                 = 'file.css'
+  unset_core[modules/filter/filter.css]             = 'filter.css'
+  unset_core[modules/forum/forum.css]               = 'forum.css'
+  unset_core[modules/help/help.css]                 = 'help.css'
+  unset_core[modules/image/image.admin.css]         = 'image.admin.css'
+  unset_core[modules/image/image.css]               = 'image.css'
+  unset_core[modules/locale/locale.css]             = 'locale.css'
+  unset_core[modules/menu/menu.css]                 = 'menu.css'
+  unset_core[modules/node/node.css]                 = 'node.css'
+  unset_core[modules/openid/openid.css]             = 'openid.css'
+  unset_core[modules/poll/poll.css]                 = 'poll.css'
+  unset_core[modules/profile/profile.css]           = 'profile.css'
+  unset_core[modules/search/search.css]             = 'search.css'
+  unset_core[modules/shortcut/shortcut.admin.css]   = 'shortcut.admin.css'
+  unset_core[modules/shortcut/shortcut.css]         = 'shortcut.css'
+  unset_core[modules/simpletest/simpletest.css]     = 'simpletest.css'
+  unset_core[modules/system/system.admin.css]       = 'system.admin.css'
+  unset_core[modules/system/system.base.css]        = 'system.base.css'
+  unset_core[modules/system/system.maintenance.css] = 'system.maintenance.css'
+  unset_core[modules/system/system.menus.css]       = 'system.menus.css'
+  unset_core[modules/system/system.messages.css]    = 'system.messages.css'
+  unset_core[modules/system/system.theme.css]       = 'system.theme.css'
+  unset_core[modules/taxonomy/taxonomy.css]         = 'taxonomy.css'
+  unset_core[modules/toolbar/toolbar.css]           = 'toolbar.css'
+  unset_core[modules/tracker/tracker.css]           = 'tracker.css'
+  unset_core[modules/update/update.css]             = 'update.css'
+  unset_core[modules/user/user.css]                 = 'user.css'
+
+  ; Unsetting these could really do some damage, here for completedness, don't
+  ; unset unless you really know what you are doing.
+  ;unset_core[modules/overlay/overlay-child.css]    = 'overlay-child.css'
+  ;unset_core[modules/overlay/overlay-parent.css]   = 'overlay-parent.css'
+
+
+;----------// Regions
+  regions[sidebar_first]     = Sidebar first
+  regions[sidebar_second]    = Sidebar second
+  regions[content]           = Main Content
+  regions[highlighted]       = Highlighted
+  regions[content_aside]     = Aside
+  regions[secondary_content] = Secondary
+  regions[tertiary_content]  = Tertiary
+  regions[footer]            = Footer
+  regions[leaderboard]       = Leaderboard
+  regions[header]            = Header
+  regions[menu_bar]          = Menu Bar
+  regions[help]              = Help
+  regions[page_top]          = Page top
+  regions[page_bottom]       = Page bottom
+
+
+;----------// Layout plugins
+  ; AT Core page layout plugins
+  plugins[page_layout][layouts] = layouts/core
+
+  ; Panels Module layouts
+  plugins[panels][layouts] = layouts/panels
+
+
+;----------// Layout Settings
+  ; Layout settings - Standard layout
+  settings[bigscreen_layout]         = 'three_col_grail'
+  settings[bigscreen_page_unit]      = '%'
+  settings[bigscreen_sidebar_unit]   = '%'
+  settings[bigscreen_max_width_unit] = 'px'
+  settings[bigscreen_page_width]     = 100
+  settings[bigscreen_sidebar_first]  = 25
+  settings[bigscreen_sidebar_second] = 25
+  settings[bigscreen_set_max_width]  = 1
+  settings[bigscreen_max_width]      = 1140
+  settings[bigscreen_media_query]    = 'only screen and (min-width:1025px)'
+
+
+  ; Layout settings - Tablet landscape
+  settings[tablet_landscape_layout]         = 'three_col_grail'
+  settings[tablet_landscape_page_unit]      = '%'
+  settings[tablet_landscape_sidebar_unit]   = '%'
+  settings[tablet_landscape_page_width]     = 100
+  settings[tablet_landscape_sidebar_first]  = 20
+  settings[tablet_landscape_sidebar_second] = 20
+  settings[tablet_landscape_media_query]    = 'only screen and (min-width:769px) and (max-width:1024px)'
+
+
+  ; Layout settings - Tablet portrait
+  settings[tablet_portrait_layout]         = 'one_col_vert'
+  settings[tablet_portrait_page_unit]      = '%'
+  settings[tablet_portrait_sidebar_unit]   = '%'
+  settings[tablet_portrait_page_width]     = 100
+  settings[tablet_portrait_sidebar_first]  = 50
+  settings[tablet_portrait_sidebar_second] = 50
+  settings[tablet_portrait_media_query]    = 'only screen and (min-width:581px) and (max-width:768px)'
+
+
+  ; Layout settings - Smalltouch landscape
+  settings[smalltouch_landscape_layout]         = 'one_col_vert'
+  settings[smalltouch_landscape_page_unit]      = '%'
+  settings[smalltouch_landscape_sidebar_unit]   = '%'
+  settings[smalltouch_landscape_page_width]     = 100
+  settings[smalltouch_landscape_sidebar_first]  = 50
+  settings[smalltouch_landscape_sidebar_second] = 50
+  settings[smalltouch_landscape_media_query]    = 'only screen and (min-width:321px) and (max-width:580px)'
+
+
+  ; Layout settings - Smalltouch portrait
+  settings[smalltouch_portrait_layout]         = 'one_col_stack'
+  settings[smalltouch_portrait_page_unit]      = '%'
+  settings[smalltouch_portrait_sidebar_unit]   = '%'
+  settings[smalltouch_portrait_page_width]     = 100
+  settings[smalltouch_portrait_sidebar_first]  = 100
+  settings[smalltouch_portrait_sidebar_second] = 100
+  settings[smalltouch_portrait_media_query]    = 'only screen and (max-width:320px)'
+
+
+  ; Responsive Panels - Standard layout
+  settings[bigscreen_two_50]            = 'two-50'
+  settings[bigscreen_two_33_66]         = 'two-33-66'
+  settings[bigscreen_two_66_33]         = 'two-66-33'
+  settings[bigscreen_two_brick]         = 'two-brick'
+  settings[bigscreen_three_3x33]        = 'three-3x33'
+  settings[bigscreen_three_25_50_25]    = 'three-25-50-25'
+  settings[bigscreen_three_25_25_50]    = 'three-25-25-50'
+  settings[bigscreen_three_50_25_25]    = 'three-50-25-25'
+  settings[bigscreen_four_4x25]         = 'four-4x25'
+  settings[bigscreen_five_5x20]         = 'five-5x20'
+  settings[bigscreen_six_6x16]          = 'six-6x16'
+  settings[bigscreen_three_inset_left]  = 'three-inset-left'
+  settings[bigscreen_three_inset_right] = 'three-inset-right'
+
+
+  ; Responsive Panels - Tablet landscape
+  settings[tablet_landscape_two_50]            = 'two-50'
+  settings[tablet_landscape_two_33_66]         = 'two-33-66'
+  settings[tablet_landscape_two_66_33]         = 'two-66-33'
+  settings[tablet_landscape_two_brick]         = 'two-brick'
+  settings[tablet_landscape_three_3x33]        = 'three-3x33'
+  settings[tablet_landscape_three_25_50_25]    = 'three-25-50-25'
+  settings[tablet_landscape_three_25_25_50]    = 'three-25-25-50'
+  settings[tablet_landscape_three_50_25_25]    = 'three-50-25-25'
+  settings[tablet_landscape_four_4x25]         = 'four-4x25'
+  settings[tablet_landscape_five_5x20]         = 'five-5x20'
+  settings[tablet_landscape_six_6x16]          = 'six-6x16-3x2-grid'
+  settings[tablet_landscape_three_inset_left]  = 'three-inset-left'
+  settings[tablet_landscape_three_inset_right] = 'three-inset-right'
+
+
+  ; Responsive Panels - Tablet portrait
+  settings[tablet_portrait_two_50]            = 'two-50'
+  settings[tablet_portrait_two_33_66]         = 'two-33-66'
+  settings[tablet_portrait_two_66_33]         = 'two-66-33'
+  settings[tablet_portrait_two_brick]         = 'two-brick'
+  settings[tablet_portrait_three_3x33]        = 'three-3x33-stack-top'
+  settings[tablet_portrait_three_25_50_25]    = 'three-25-50-25-stack-top'
+  settings[tablet_portrait_three_25_25_50]    = 'three-25-25-50-stack-top'
+  settings[tablet_portrait_three_50_25_25]    = 'three-50-25-25-stack-top'
+  settings[tablet_portrait_four_4x25]         = 'four-4x25-2x2-grid'
+  settings[tablet_portrait_five_5x20]         = 'five-5x20-1x2x2-grid'
+  settings[tablet_portrait_six_6x16]          = 'six-6x16-2x3-grid'
+  settings[tablet_portrait_three_inset_left]  = 'three-inset-left-wrap'
+  settings[tablet_portrait_three_inset_right] = 'three-inset-right-wrap'
+
+
+  ; Responsive Panels - Smalltouch landscape
+  settings[smalltouch_landscape_two_50]            = 'two-50-stack'
+  settings[smalltouch_landscape_two_33_66]         = 'two-33-66-stack'
+  settings[smalltouch_landscape_two_66_33]         = 'two-66-33-stack'
+  settings[smalltouch_landscape_two_brick]         = 'two-brick-stack'
+  settings[smalltouch_landscape_three_3x33]        = 'three-3x33-stack'
+  settings[smalltouch_landscape_three_25_50_25]    = 'three-25-50-25-stack'
+  settings[smalltouch_landscape_three_25_25_50]    = 'three-25-25-50-stack'
+  settings[smalltouch_landscape_three_50_25_25]    = 'three-50-25-25-stack'
+  settings[smalltouch_landscape_four_4x25]         = 'four-4x25-stack'
+  settings[smalltouch_landscape_five_5x20]         = 'five-5x20-stack'
+  settings[smalltouch_landscape_six_6x16]          = 'six-6x16-stack'
+  settings[smalltouch_landscape_three_inset_left]  = 'three-inset-left-stack'
+  settings[smalltouch_landscape_three_inset_right] = 'three-inset-right-stack'
+
+
+;----------// CSS
+  settings[disable_responsive_styles]     = 0
+  settings[enable_custom_media_queries]   = 1
+  settings[global_default_layout]         = 'smalltouch-portrait'
+  settings[global_default_layout_toggle]  = 0
+  settings[global_files_path]             = 'public_files'
+
+
+;----------// Polyfills
+  settings[load_html5js]        = 1
+  settings[load_onmediaqueryjs] = 0
+  settings[load_respondjs]      = 0
+  settings[load_ltie8css]       = 0
+  settings[load_scalefixjs]     = 0
+
+
+;----------// Debug
+  settings[expose_regions]              = 0
+  settings[load_all_panels]             = 0
+  settings[load_all_panels_no_sidebars] = 0
+  settings[show_window_size]            = 0
+  settings[rebuild_theme_data]          = 0
+
+
+;----------// Extensions
+  settings[enable_extensions]          = 0
+  settings[enable_font_settings]       = 0
+  settings[enable_heading_settings]    = 0
+  settings[enable_image_settings]      = 0
+  settings[enable_apple_touch_icons]   = 0
+  settings[enable_exclude_css]         = 0
+  settings[enable_custom_css]          = 0
+  settings[enable_context_regions]     = 0
+  settings[enable_float_region_blocks] = 0
+  settings[enable_markup_overides]     = 0
+
+
+;----------// Fonts
+  ; Font type
+  settings[base_font_type]           = '<none>'
+  settings[site_name_font_type]      = '<none>'
+  settings[site_slogan_font_type]    = '<none>'
+  settings[page_title_font_type]     = '<none>'
+  settings[node_title_font_type]     = '<none>'
+  settings[comment_title_font_type]  = '<none>'
+  settings[block_title_font_type]    = '<none>'
+  settings[main_menu_font_type]      = '<none>'
+  settings[secondary_menu_font_type] = '<none>'
+  settings[block_menu_font_type]     = '<none>'
+  settings[selectors_font_type]      = '<none>'
+  settings[base_font_size]           = '<none>'
+  settings[site_name_font_size]      = '<none>'
+  settings[site_slogan_font_size]    = '<none>'
+  settings[page_title_font_size]     = '<none>'
+  settings[node_title_font_size]     = '<none>'
+  settings[comment_title_font_size]  = '<none>'
+  settings[block_title_font_size]    = '<none>'
+  settings[main_menu_font_size]      = '<none>'
+  settings[secondary_menu_font_size] = '<none>'
+  settings[block_menu_font_size]     = '<none>'
+  settings[content_headings_h1h4_font_type] = '<none>'
+  settings[content_headings_h5h6_font_type] = '<none>'
+  settings[h1_font_size]             = '2em'
+  settings[h2_font_size]             = '1.6em'
+  settings[h3_font_size]             = '1.4em'
+  settings[h4_font_size]             = '1.2em'
+  settings[h5_font_size]             = '1em'
+  settings[h6_font_size]             = '1em'
+
+
+;----------// Title Styles
+  settings[site_name_case]          = 'snc-n'
+  settings[site_name_weight]        = 'snw-b'
+  settings[site_name_alignment]     = 'sna-l'
+  settings[site_name_shadow]        = 'sns-n'
+  settings[site_slogan_case]        = 'ssc-n'
+  settings[site_slogan_weight]      = 'ssw-b'
+  settings[site_slogan_alignment]   = 'ssa-l'
+  settings[site_slogan_shadow]      = 'sss-n'
+  settings[page_title_case]         = 'ptc-n'
+  settings[page_title_weight]       = 'ptw-b'
+  settings[page_title_alignment]    = 'pta-l'
+  settings[page_title_shadow]       = 'pts-n'
+  settings[node_title_case]         = 'ntc-n'
+  settings[node_title_weight]       = 'ntw-b'
+  settings[node_title_alignment]    = 'nta-l'
+  settings[node_title_shadow]       = 'nts-n'
+  settings[comment_title_case]      = 'ctc-n'
+  settings[comment_title_weight]    = 'ctw-b'
+  settings[comment_title_alignment] = 'cta-l'
+  settings[comment_title_shadow]    = 'cts-n'
+  settings[block_title_case]        = 'btc-n'
+  settings[block_title_weight]      = 'btw-b'
+  settings[block_title_alignment]   = 'bta-l'
+  settings[block_title_shadow]      = 'bts-n'
+
+;----------// Images
+  settings[image_alignment]        = 'ia-l'
+  settings[image_alignment_teaser] = 'iat-l'
+  settings[image_caption_full]     = 0
+  settings[image_caption_teaser]   = 0
+  settings[image_teaser]           = 0
+
+
+;----------// Breadcrumb
+  settings[breadcrumb_display]   = 1
+  settings[breadcrumb_home]      = 0
+  settings[breadcrumb_label]     = 0
+  settings[breadcrumb_title]     = 0
+  settings[breadcrumb_separator] = ' &#187; '
+
+
+;----------// Login block options
+  settings[horizontal_login_block_enable] = 'on'
+  settings[horizontal_login_block]    = 0
+  settings[login_block_remove_links]  = 0
+  settings[login_block_remove_openid] = 0
+
+
+;----------// Design
+  settings[global_gutter_width]           = ''
+  settings[page_full_width_wrappers]      = 0
+  settings[page_content_type_suggestions] = 0
+  settings[menu_item_span_elements]       = 0
+
+
+;----------// CSS classes
+  settings[extra_page_classes]      = 1
+  settings[extra_article_classes]   = 1
+  settings[extra_comment_classes]   = 1
+  settings[extra_block_classes]     = 1
+  settings[extra_menu_classes]      = 1
+  settings[extra_item_list_classes] = 1
+
+
+;----------// Remove or Hide
+  settings[comments_hide_title]           = 0
+  settings[feed_icons]                    = 0
+  settings[unset_block_system_main_front] = 0
+
+
+;----------// Accessibility
+  settings[skip_link_target] = '#main-content'
+  settings[adv_search_extra_fieldsets] = 0
+
+
+;----------// SEO
+  settings[rel_author] = 0
+
+
+;----------// Mobile metatags
+  settings[mobile_friendly_metatags] = 1
+  settings[adaptivetheme_meta_viewport] = 'width=device-width, initial-scale=1.0, user-scalable=yes'
+  settings[adaptivetheme_meta_mobileoptimized]  = 'width'
+  settings[adaptivetheme_meta_handheldfriendly] = 'true'
+  settings[adaptivetheme_meta_ie_document_mode] = ''
+  settings[adaptivetheme_meta_clear_type] = 0
+
+
+;----------// Touch icons
+  settings[apple_touch_icon_enable] = 0
+  settings[apple_touch_icon_path_l] = ''
+  settings[apple_touch_icon_path_m] = ''
+  settings[apple_touch_icon_path_h] = ''
+
+
+;----------// Custom CSS
+  settings[custom_css] = ''
+
+; Information added by Drupal.org packaging script on 2014-03-23
+version = "7.x-3.2"
+core = "7.x"
+project = "adaptivetheme"
+datestamp = "1395575059"
+

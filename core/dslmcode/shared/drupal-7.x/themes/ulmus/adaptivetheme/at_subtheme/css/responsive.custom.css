@@ -1,0 +1,63 @@
+/*
+ * responsive.custom.css is for custom media queries that are not set via the
+ * theme settings, such as cascading media queries.
+ *
+ * By default all the other responsive stylesheets used in Adaptivetheme use a
+ * "stacking method", however cascading media queries use a waterfall method so
+ * you can leverage the cascade and inheritance for all browsers that support
+ * media queries.
+ *
+ * @SEE http://zomigi.com/blog/essential-considerations-for-crafting-quality-media-queries/#mq-overlap-stack
+ *
+ * NOTE: this file loads by default, to disable go to your theme settings and
+ * look under the "CSS" settings tab.
+ */
+
+/*
+ * Really small screens and up
+ */
+/* @media only screen and (min-width: 220px) {} */
+
+/*
+ * Smalltouch sizes and up
+ */
+/* @media only screen and (min-width: 320px) {} */
+
+/*
+ * Smalltouch sizes and down
+ */
+@media only screen and (max-width: 480px) {
+  /* 
+   * Float Region Blocks - custom media query CSS example:
+   * 
+   * Float regions blocks is an Extension you can enable in the appearance
+   * settings for your theme. This feature allows you to automatically float
+   * blocks in regions, you can switch it on and off depending on your
+   * requirements. For design purposes you many want to remove the floats for
+   * devices where the entire theme is just one column - for example small
+   * mobile phones. The following CSS is inside the custom media query:
+   *
+   *   @media only screen and (max-width: 480px){}
+   *
+   * This will target devices with a maximum width of 480px - most small phones.
+   * In these smaller screen sizes we can remove the float and widths so all
+   * blocks stack instead of displaying horizonally. The selector used is an
+   * "attribute selector" which will match on any float block class. Use your
+   * inspector or Firebug to get the classes from the page output if you need
+   * more granular control over block alignment and stacking.
+   */
+  .region[class*="float-blocks"] .block {
+    float: none;
+    width: 100%;
+  }
+}
+
+/*
+ * Tablet sizes and up
+ */
+/* @media only screen and (min-width: 768px) {} */
+
+/*
+ * Desktops/laptops and up
+ */
+/* @media only screen and (min-width: 1025px) {} */
