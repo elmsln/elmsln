@@ -179,6 +179,10 @@ projects[blank][type] = "theme"
 projects[blank][version] = "1.x-dev"
 projects[blank][subdir] = "contrib"
 
+projects[entity_iframe][type] = "theme"
+projects[entity_iframe][version] = "1.x-dev"
+projects[entity_iframe][subdir] = "contrib"
+
 ; +++++ Libraries +++++
 
 ; CKEditor

@@ -7,9 +7,6 @@ api = "2"
 projects[fastclick][version] = "1.2"
 projects[fastclick][subdir] = "contrib"
 
-projects[accessibility][version] = "1.x-dev"
-projects[accessibility][subdir] = "contrib"
-
 projects[entity_view_mode][version] = "1.x-dev"
 projects[entity_view_mode][subdir] = "contrib"
 

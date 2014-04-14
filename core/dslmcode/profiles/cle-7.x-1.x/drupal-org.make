@@ -246,12 +246,6 @@ libraries[flexslider][destination] = "libraries"
 libraries[flexslider][download][type] = "get"
 libraries[flexslider][download][url] = "https://github.com/woothemes/FlexSlider/archive/flexslider1.zip"
 
-libraries[plupload][directory_name] = "plupload"
-libraries[plupload][download][type] = "file"
-libraries[plupload][download][url] = "http://plupload.com/downloads/plupload_1_5_6.zip"
-libraries[plupload][patch][] = "http://drupal.org/files/plupload-1_5_6-rm_examples-1903850-5.patch"
-libraries[plupload][type] = "library"
-
 libraries[fitvids][directory_name] = "fitvids"
 libraries[fitvids][type] = "library"
 libraries[fitvids][destination] = "libraries"
@@ -273,5 +267,3 @@ projects[og_clone][patch][] = "http://drupal.org/files/og_clone-item-id-alter-19
 projects[jquery_update][patch][] = "http://drupal.org/files/jquery_update-1524944-78.patch"
 ; infinite scroll to work with masonry
 projects[views_infinite_scroll][patch][] = "http://drupal.org/files/views_infinite_scroll-1806628-13.patch"
-; masonry issue with default views rendering for false values
-projects[masonry][patch][] = "http://drupal.org/files/masonry-typecast-booleans-for-js-1942824-1.patch"
