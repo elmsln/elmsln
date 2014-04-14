@@ -1,1 +1,124 @@
 <?php
+/**
+ * @file
+ * Code for the YUML Type feature.
+ */
+
+define('YUML_ADDRESS','http://yuml.me');
+
+include_once 'yuml_type.features.inc';
+
+/**
+ * Implements hook_field_formatter_info().
+ */
+function yuml_type_field_formatter_info() {
+  return array(
+    'yuml_type_field_collection' => array(
+      'label' => t('YUML Image'),
+      'description' => t('Renders field collection as a YUML Image'),
+      'field types' => array(
+        'field_collection'
+      ),
+      'settings' => array(
+        'view_mode' => 'full'
+      )
+    )
+  );
+}
+
+/**
+ * Implements hook_field_formatter_settings_form().
+ */
+function yuml_type_field_collection_field_formatter_settings_form($field, $instance, $view_mode, $form, &$form_state) {
+  $display = $instance['display'][$view_mode];
+  $settings = $display['settings'];
+  $element = array();
+  if ($display['type'] == 'yuml_type_field_collection') {
+    $entity_type = entity_get_info('field_collection_item');
+    $options = array();
+    foreach ($entity_type['view modes'] as $mode => $info) {
+      $options[$mode] = $info['label'];
+    }
+
+    $element['view_mode'] = array(
+      '#type' => 'select',
+      '#title' => t('View mode'),
+      '#options' => $options,
+      '#default_value' => $settings['view_mode'],
+      '#description' => t('Select the view mode'),
+    );
+  }
+  return $element;
+}
+
+/**
+ * Implements hook_field_formatter_settings_summary().
+ */
+function yuml_type_field_formatter_settings_summary($field, $instance, $view_mode) {
+  $display = $instance['display'][$view_mode];
+  $settings = $display['settings'];
+  if ($display['type'] == 'yuml_type_field_collection') {
+    $fields = field_info_instances('field_collection_item', $field['field_name']);
+    $output = array();
+    return implode("<br />\n", $output);
+  }
+}
+
+/**
+ * Implements hook_field_formatter_view().
+ */
+function yuml_type_field_formatter_view($entity_type, $entity, $field, $instance, $langcode, $items, $display) {
+  $element = array();
+
+  switch ($display['type']) {
+    case 'yuml_type_field_collection':
+      $element[] = array(
+        '#theme' => 'yuml_type_field_collection',
+        '#entity' => $entity,
+        '#prefix' => '<div class="yuml-type-field-collection">',
+        '#suffix' => '</div>',
+      );
+    break;
+  }
+
+  return $element;
+}
+
+/**
+ * Implements hook_theme().
+ */
+function yuml_type_theme() {
+  return array(
+    'yuml_type_field_collection' => array(
+      'variables' => array(
+        'entity' => NULL,
+      )
+    ),
+  );
+}
+
+/**
+ * Default implementation of theme_yuml_type_field_collection().
+ */
+function theme_yuml_type_field_collection($variables) {
+  $fc = array();
+  $entity = $variables['entity'];
+  foreach ($entity->field_yuml_relationship['und'] as $row) {
+    $fc[] = $row['value'];
+  }
+  $list = entity_load('field_collection_item', $fc);
+  // loop through the field collection items to build the address
+  foreach ($list as $item) {
+    $yuml = '[' . $item->field_yt_object_1['und'][0]['value'] . ']';
+    $yuml .= (!isset($item->field_yt_arrow_1['und']))?'':$item->field_yt_arrow_1['und'][0]['value'];
+    $yuml .= $item->field_yt_line['und'][0]['value'];
+    $yuml .= (!isset($item->field_yt_arrow_2['und']))?'':$item->field_yt_arrow_2['und'][0]['value'];
+    $yuml .= '[' . $item->field_yt_object_2['und'][0]['value'] . ']';
+    $yumls[] = $yuml;
+  }
+  // path assembly
+  $path = YUML_ADDRESS . '/diagram/class/' . implode($yumls, ',');
+  $img = '<img class="yuml-type-field-collection-image image yuml-image" src="' . $path . '" />';
+  // wrap in a class that has the number of items included so it can be split
+  return $img;
+}
