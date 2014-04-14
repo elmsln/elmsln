@@ -329,7 +329,5 @@ projects[og_clone][patch][] = "http://drupal.org/files/og_clone-item-id-alter-19
 projects[feeds][patch][] = "http://drupal.org/files/608408-feeds_drush_d7-57.patch"
 ; resolve accessibility issues
 projects[tablefield][patch][] = "http://drupal.org/files/tablefield_accessibility-1251738-6.patch"
-; token insert entity notice resolved
-projects[token_insert_entity][patch][] = "https://drupal.org/files/token_insert_entity-undefined-constant-2091109-1.patch"
 ; patch to resolve issue with ckeditor 4.x
 projects[footnotes][patch][] = "https://drupal.org/files/footnotes-wysiwyg_fix_js_error_ckeditor-1589130-6.patch"
