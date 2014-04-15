@@ -340,7 +340,7 @@ function _user_progress_set($action) {
 function _user_progress_convert_value(&$data, $upregid, $field = 'default_handler', $reverse = FALSE) {
   // need to invoke as more data is here then we store in the database cache
   $type_data = module_invoke_all('user_progress_define_types');
-  drupal_alter('user_progress_define_typess', $type_data);
+  drupal_alter('user_progress_define_types', $type_data);
   $upt_name = db_query("SELECT upt_name FROM {user_progress_registry} WHERE upregid = :upregid", array(':upregid' => $upregid))->fetchField();
   switch ($type_data[$upt_name][$field]) {
     case 'int':
@@ -485,7 +485,7 @@ function _user_progress_get_registry_upt_name($upregid) {
 function _user_progress_rebuild_types() {
   // this is more efficient then invoking with every call
   $types = module_invoke_all('user_progress_define_types');
-  drupal_alter('user_progress_define_typess', $types);
+  drupal_alter('user_progress_define_types', $types);
   // act on each type record we found
   foreach ($types as $key => $type) {
     $exists = db_query("SELECT COUNT(upt_name) FROM {user_progress_types} WHERE upt_name = :upt_name", array(':upt_name' => $key))->fetchField();
