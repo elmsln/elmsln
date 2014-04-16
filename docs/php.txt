@@ -29,3 +29,7 @@ memory_limit = 256M
 ; Production Value: E_ALL & ~E_DEPRECATED
 ; http://www.php.net/manual/en/errorfunc.configuration.php#ini.error-reportin
 error_reporting = E_ALL & ~E_DEPRECATED
+
+; increase max file upload size from defaults
+upload_max_filesize = 50M
+post_max_size = 50M
