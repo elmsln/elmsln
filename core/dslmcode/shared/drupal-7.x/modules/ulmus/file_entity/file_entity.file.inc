@@ -114,7 +114,7 @@ function file_entity_file_update($file) {
     }
   }
 
-  if (file_entity_file_get_mimetype_type($file) == 'image' && module_exists('image')) {
+  if (module_exists('image') && file_entity_file_get_mimetype_type($file) == 'image' && $file->filesize) {
     // If the image dimensions have changed, update any image field references
     // to this file and flush image style derivatives.
     if ($file->metadata['width'] != $file->metadata['width'] || $file->metadata['height'] != $file->metadata['height']) {
@@ -246,6 +246,12 @@ function file_entity_metadata_fetch_image_dimensions($file) {
  * @see http://drupal.org/node/1448124
  */
 function _file_entity_update_image_field_dimensions($file) {
+  // Prevent PHP notices when trying to read empty files.
+  // @see http://drupal.org/node/681042
+  if (!$file->filesize) {
+    return;
+  }
+
   // Do not bother proceeding if this file does not have an image mime type.
   if (file_entity_file_get_mimetype_type($file) != 'image') {
     return;

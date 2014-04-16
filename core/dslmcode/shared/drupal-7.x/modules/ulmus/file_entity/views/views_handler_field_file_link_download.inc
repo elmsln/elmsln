@@ -24,7 +24,7 @@ class views_handler_field_file_link_download extends views_handler_field_file_li
     $this->options['alter']['make_link'] = TRUE;
     $uri = file_entity_download_uri($file);
     $this->options['alter']['path'] = $uri['path'];
-    $this->options['alter'] += $uri['options'];
+    $this->options['alter'] = drupal_array_merge_deep($this->options['alter'], $uri['options']);
 
     $text = !empty($this->options['text']) ? $this->options['text'] : t('Download');
     return $text;

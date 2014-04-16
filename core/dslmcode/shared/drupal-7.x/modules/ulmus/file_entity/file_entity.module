@@ -189,6 +189,20 @@ function file_entity_menu() {
     'type' => MENU_DEFAULT_LOCAL_TASK,
     'weight' => -10,
   );
+  $items['file/add/upload/file'] = array(
+    'title' => 'File',
+    'type' => MENU_DEFAULT_LOCAL_TASK,
+    'weight' => -10,
+  );
+  $items['file/add/upload/archive'] = array(
+    'title' => 'Archive',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('file_entity_upload_archive_form'),
+    'access arguments' => array('administer files'),
+    'file' => 'file_entity.pages.inc',
+    'type' => MENU_LOCAL_TASK,
+    'weight' => -5,
+  );
   $items['file/%file'] = array(
     'title callback' => 'entity_label',
     'title arguments' => array('file', 1),
@@ -1878,6 +1892,13 @@ function _file_entity_query_file_entity_access_alter($query, $type) {
           $file_conditions->exists($subquery);
         }
         // Otherwise attach it to the node query itself.
+        elseif ($table == 'file_managed') {
+          // Fix for https://drupal.org/node/2073085
+          $db_or = db_or();
+          $db_or->exists($subquery);
+          $db_or->isNull($falias . '.' . $field);
+          $query->condition($db_or);
+        }
         else {
           $query->exists($subquery);
         }
@@ -2265,7 +2286,7 @@ function pathauto_file_operations() {
  */
 function pathauto_file_update_alias(stdClass $file, $op, array $options = array()) {
   // Skip processing if the user has disabled pathauto for the file.
-  if (isset($file->path['pathauto']) && empty($file->path['pathauto'])) {
+  if (isset($file->path['pathauto']) && empty($file->path['pathauto']) && empty($options['force'])) {
     return;
   }
 
@@ -2495,8 +2516,8 @@ function file_entity_admin_menu_map() {
  *   A CSRF token string.
  */
 function file_entity_get_download_token($file) {
-  $identifier = !empty($GLOBALS['user']->uid) ? session_id() : ip_address();
-  return drupal_hmac_base64("file/$file->fid/download", $identifier . drupal_get_private_key() . drupal_get_hash_salt());
+  $identifier = !empty($GLOBALS['user']->uid) ? session_id() : '';
+  return drupal_hmac_base64("file/$file->fid/download" . ':' . filemtime($file->uri) . ':' . $file->filesize, $identifier . drupal_get_private_key() . drupal_get_hash_salt());
 }
 
 /**
@@ -2542,7 +2563,7 @@ function file_entity_field_attach_load($entity_type, $entities, $age, $options) 
           foreach ($items as $delta => $item) {
             // If alt and title text is not specified, fall back to alt and
             // title text on the file.
-            if (empty($item['alt']) || empty($item['title'])) {
+            if (!empty($item['fid']) && (empty($item['alt']) || empty($item['title']))) {
               $file = file_load($item['fid']);
               foreach (array('alt', 'title') as $key) {
                 if (empty($item[$key]) && !empty($file->{$key})) {

@@ -339,6 +339,17 @@ function hook_file_download_headers_alter(array &$headers, $file) {
 }
 
 /**
+ * React to a file being downloaded.
+ */
+function hook_file_transfer($uri, array $headers) {
+  // Redirect a download for an S3 file to the actual location.
+  if (file_uri_scheme($uri) == 's3') {
+    $url = file_create_url($uri);
+    drupal_goto($url);
+  }
+}
+
+/**
  * Decides which file type (bundle) should be assigned to a file entity.
  *
  * @param object $file

@@ -1188,11 +1188,11 @@ class FileEntityAccessTestCase extends FileEntityTestHelper {
     $url = "file/{$file->fid}/download";
     $web_user = $this->drupalCreateUser(array());
     $this->drupalLogin($web_user);
-    $this->drupalGet($url, array('query' => array('token' => $this->drupalGetToken($url))));
+    $this->drupalGet($url, array('query' => array('token' => $this->drupalGetToken($url . ':' . filemtime($file->uri) . ':' . $file->filesize))));
     $this->assertResponse(403, 'Users without access can not download the file');
     $web_user = $this->drupalCreateUser(array('download any document files'));
     $this->drupalLogin($web_user);
-    $this->drupalGet($url, array('query' => array('token' => $this->drupalGetToken($url))));
+    $this->drupalGet($url, array('query' => array('token' => $this->drupalGetToken($url . ':' . filemtime($file->uri) . ':' . $file->filesize))));
     $this->assertResponse(200, 'Users with access can download the file');
     $this->drupalGet($url, array('query' => array('token' => 'invalid-token')));
     $this->assertResponse(403, 'Cannot download file with in invalid token.');
