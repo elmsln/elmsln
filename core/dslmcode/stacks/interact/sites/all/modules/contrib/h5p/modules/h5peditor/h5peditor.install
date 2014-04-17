@@ -1,0 +1,28 @@
+<?php
+
+/**
+ * @file
+ *  h5peditor.install php file
+ *  Install and upgrade instructions for the h5pedtior Drupal module.
+ */
+
+/**
+ * Implements hook_requirements().
+ */
+function h5peditor_requirements($phase) {
+  $requirements = array();
+  $t = get_t();
+
+  //if ($phase === 'runtime') {
+  if (!extension_loaded('fileinfo') || (!function_exists('mime_content_type') && !function_exists('finfo_file'))) {
+    $requirements['fileinfo'] = array(
+      'title' => 'Fileinfo',
+      'description' => $t("The h5peditor module requires this php extension to properly check the mime type of uploaded files. If the extension isn't present browser input will be used."),
+      'severity' => REQUIREMENT_WARNING,
+      'value' => $t('Not present'),
+    );
+  }
+  //}
+
+  return $requirements;
+}

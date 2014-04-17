@@ -1,0 +1,218 @@
+/* Font Awesome font licensed under SIL OFL 1.1 · Code licensed under MIT License */
+@font-face {
+  font-family: 'H5PFontAwesome4'; /* Named so to avoid collisions and preserve backwards compatibility! */
+  src: url('../fonts/fontawesome-webfont.eot?v=4.0.3');
+  src: url('../fonts/fontawesome-webfont.eot?#iefix&v=4.0.3') format('embedded-opentype'), url('../fonts/fontawesome-webfont.woff?v=4.0.3') format('woff'), url('../fonts/fontawesome-webfont.ttf?v=4.0.3') format('truetype'), url('../fonts/fontawesome-webfont.svg?v=4.0.3#fontawesomeregular') format('svg');
+  font-weight: normal;
+  font-style: normal;
+}
+
+body.h5p-iframe-content {
+  font-family: Arial, Helvetica, sans-serif;
+  margin: 0;
+}
+
+body.h5p-semi-fullscreen {
+  overflow: hidden;
+}
+.h5p-content {
+  display: block;
+  width: auto;
+  height: auto;
+  background: #fefefe;
+  font-size: 16px;
+}
+div.h5p-semi-fullscreen {
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 101;
+  width: 100%;
+  height: 100%;
+}
+
+.h5p-content-controls {
+  margin: 0;
+  text-align: right;
+  margin: 0;
+}
+
+.h5p-content-controls > a:link, .h5p-content-controls > a:visited, a.h5p-disable-fullscreen:link, a.h5p-disable-fullscreen:visited {
+  color: #e5eef6;
+}
+
+.h5p-enable-fullscreen:before, .h5p-disable-fullscreen:before {
+  font-family: H5PFontAwesome4;
+  margin-right: 10px;
+  content: "\f0b2";
+  font-size: 1.2em;
+}
+
+.h5p-enable-fullscreen, .h5p-disable-fullscreen {
+  display: inline-block;
+  padding: 6px 12px;
+  border: 0.2em solid #fff;
+  border-radius: 0.4em;
+  margin: 1em 1.2em;
+  cursor: pointer;
+  color: #fff;
+  box-shadow: 0 0 0.5em #999;
+  font-size: 12px;
+  text-decoration: none;
+  font-family: Verdana, Arial, sans-serif;
+
+  background: rgb(100,152,254); /* Old browsers */
+  background: -moz-linear-gradient(top,  rgba(100,152,254,1) 0%, rgba(4,104,206,1) 100%); /* FF3.6+ */
+  background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,rgba(100,152,254,1)), color-stop(100%,rgba(4,104,206,1))); /* Chrome,Safari4+ */
+  background: -webkit-linear-gradient(top,  rgba(100,152,254,1) 0%,rgba(4,104,206,1) 100%); /* Chrome10+,Safari5.1+ */
+  background: -o-linear-gradient(top,  rgba(100,152,254,1) 0%,rgba(4,104,206,1) 100%); /* Opera 11.10+ */
+  background: -ms-linear-gradient(top,  rgba(100,152,254,1) 0%,rgba(4,104,206,1) 100%); /* IE10+ */
+  filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#6498fe', endColorstr='#0468ce',GradientType=0 ); /* IE6-9 */
+}
+.h5p-disable-fullscreen {
+  position: absolute;
+  right: 0;
+  top: 0;
+  z-index: 201;
+}
+.h5p-enable-fullscreen:hover, .h5p-disable-fullscreen:hover {
+  text-decoration: none;
+
+  background: rgb(4,104,206); /* Old browsers */
+  background: -moz-linear-gradient(top,  rgba(4,104,206,1) 0%, rgba(100,152,254,1) 100%); /* FF3.6+ */
+  background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,rgba(4,104,206,1)), color-stop(100%,rgba(100,152,254,1))); /* Chrome,Safari4+ */
+  background: -webkit-linear-gradient(top,  rgba(4,104,206,1) 0%,rgba(100,152,254,1) 100%); /* Chrome10+,Safari5.1+ */
+  background: -o-linear-gradient(top,  rgba(4,104,206,1) 0%,rgba(100,152,254,1) 100%); /* Opera 11.10+ */
+  background: -ms-linear-gradient(top,  rgba(4,104,206,1) 0%,rgba(100,152,254,1) 100%); /* IE10+ */
+  filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#0468ce', endColorstr='#6498fe',GradientType=0 ); /* IE6-9 */
+}
+div.h5p-fullscreen {
+  width: 100%;
+  height: 100%;
+}
+.h5p-iframe-wrapper {
+  width: auto;
+  height: auto;
+}
+
+.h5p-fullscreen .h5p-iframe-wrapper,
+.h5p-semi-fullscreen .h5p-iframe-wrapper {
+  width: 100%;
+  height: 100%;
+}
+
+.h5p-iframe-wrapper.h5p-semi-fullscreen {
+  width: 100%;
+  height: 100%;
+  background: black;
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 100;
+}
+.h5p-iframe-wrapper .buttons {
+  text-align: right;
+}
+.h5p-iframe-wrapper.h5p-semi-fullscreen .buttons {
+  position: absolute;
+  top: 0;
+  right: 0;
+  z-index: 20;
+}
+.h5p-iframe-wrapper .h5p-iframe {
+  width: 100%;
+  height: 100%;
+  z-index: 10;
+  overflow: hidden;
+  border: 0;
+}
+.h5p-iframe-wrapper.h5p-semi-fullscreen .buttons button:before {
+  content: 'Exit ';
+}
+.h5p-iframe-wrapper button.fullscreen {
+  color: #e5eef6;
+  text-decoration: none;
+  padding: 6px 12px;
+  background: #539ad7;
+  background-image: -webkit-linear-gradient(top,#4584ba,#539ad7);
+  background-image: -moz-linear-gradient(top,#4584ba,#539ad7);
+  background-image: -o-linear-gradient(top,#4584ba,#539ad7);
+  background-image: -ms-linear-gradient(top,#4584ba,#539ad7);
+  background-image: linear-gradient(to bottom,#4584ba,#539ad7);
+  filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#4584ba',endColorstr='#539ad7',GradientType=0);
+  box-shadow: 0 0 8px #bebebe;
+  border: none;
+  opacity: 0.8;
+}
+.h5p-iframe-wrapper button.fullscreen:hover {
+  opacity: 1;
+  background: #539ad7;
+  background-image: -webkit-linear-gradient(top,#539ad7,#4584ba);
+  background-image: -moz-linear-gradient(top,#539ad7,#4584ba);
+  background-image: -o-linear-gradient(top,#539ad7,#4584ba);
+  background-image: -ms-linear-gradient(top,#539ad7,#4584ba);
+  background-image: linear-gradient(to bottom,#539ad7,#4584ba);
+  filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#539ad7',endColorstr='#4584ba',GradientType=0);
+  cursor: pointer;
+}
+
+html.h5p-fullscreen, body.h5p-fullscreen {
+  height: 100%;
+  overflow: hidden;
+}
+.h5p-fullscreen .h5p-content-controls {
+  display: none;
+}
+body.h5p-iframe-content div.h5p-content {
+  overflow: hidden;
+}
+body.h5p-iframe-content.h5p-fullscreen div.h5p-content {
+  height: 100%;
+}
+
+.h5p-export {
+  margin-top: 6px;
+  display: block;
+  position: relative;
+  float: left;
+  border-radius: 4px;
+  padding: 4px 58px 3px 12px;
+  font-weight: 900; 
+  font-family: "Arial Black", Arial, sans-serif;
+  text-transform: uppercase;
+  color: white !important;
+  background-color: #ccc;
+  box-shadow: 0px 0px 4px #666;
+}
+
+.h5p-export:after {
+  content: "";
+  
+  display: inline;
+  width: 45px;
+  height: 27px;
+  
+  position: absolute;
+  right: 0;
+  top: 0;
+  
+  background-image: url(../images/h5p_logo.png);
+  background-image: url(../images/h5p_logo.svg), none;
+  background-repeat: no-repeat;
+  background-position: left center;
+}
+
+.h5p-export:hover {
+  text-decoration: none;
+  color: white;
+  box-shadow: 0px 0px 6px #333;
+  background-color: #0092bf;
+  /* Firefox */
+  -moz-transition: all 0.4s ease-in;
+  /* WebKit */
+  -webkit-transition: all 0.4s ease-in;
+  /* Opera */
+  -o-transition: all 0.4s ease-in;
+  /* Standard */
+  transition: all 0.4s ease-in;
+}

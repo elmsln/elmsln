@@ -1,0 +1,394 @@
+<?php
+
+/**
+ * @file
+ *  h5p.install php file
+ *  Install and upgrade instructions for the h5p Drupal module.
+ */
+
+/**
+ * Implements hook_uninstall().
+ */
+function h5p_uninstall() {
+  variable_del('h5p_export');
+  variable_del('h5p_revisioning');
+}
+
+/**
+ * Implements hook_schema().
+ */
+function h5p_schema() {
+  $schema['h5p_nodes_libraries'] = array(
+    'description' => 'Stores information about what h5p uses what libraries.',
+    'fields' => array(
+      'content_id' => array(
+        'description' => 'Primary Key: The unique identifier for a node(vid by default).',
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ),
+      'library_id' => array(
+        'description' => 'The id of a h5p library this content uses',
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ),
+      'preloaded' => array(
+        'description' => '0 if this library is dynamic, 1 if this library is to be preloaded',
+        'type' => 'int',
+        'size' => 'tiny',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 1,
+      ),
+      'drop_css' => array(
+        'description' => '1 if this node does not want the library css included',
+        'type' => 'int',
+        'size' => 'tiny',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+    ),
+    'primary key' => array('content_id', 'library_id'),
+  );
+
+  $schema['h5p_libraries'] = array(
+    'description' => 'Stores information about what h5p uses what libraries.',
+    'fields' => array(
+      'library_id' => array(
+        'description' => 'Primary Key: The id of the library.',
+        'type' => 'serial',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ),
+      'machine_name' => array(
+        'description' => 'The library machine name',
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => TRUE,
+        'default' => '',
+      ),
+      'title' => array(
+        'description' => 'The human readable name of this library',
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => TRUE,
+        'default' => '',
+      ),
+      'major_version' => array(
+        'description' => 'The version of this library',
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ),
+      'minor_version' => array(
+        'description' => 'The minor version of this library',
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ),
+      'patch_version' => array(
+        'description' => 'The patch version of this library',
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ),
+      'runnable' => array(
+        'description' => 'Whether or not this library is executable.',
+        'type' => 'int',
+        'size' => 'tiny',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 1,
+      ),
+      'fullscreen' => array(
+        'description' => 'Indicates if this library can be opened in fullscreen.',
+        'type' => 'int',
+        'size' => 'tiny',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'embed_types' => array(
+        'description' => 'The allowed embed types for this library as a comma separated list',
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => TRUE,
+        'default' => '',
+      ),
+      'preloaded_js' => array(
+        'description' => 'The preloaded js for this library as a comma separated list',
+        'type' => 'text',
+      ),
+      'preloaded_css' => array(
+        'description' => 'The preloaded css for this library as a comma separated list',
+        'type' => 'text',
+      ),
+      'drop_library_css' => array(
+        'description' => 'List of libraries that should not have CSS included if this library is used. Comma separated list.',
+        'type' => 'text',
+      ),
+      'semantics' => array(
+        'description' => 'The semantics definition in json format',
+        'type' => 'text',
+        'not null' => TRUE,
+      ),
+    ),
+    'primary key' => array('library_id'),
+  );
+
+  $schema['h5p_libraries_libraries'] = array(
+    'description' => 'Stores information about library dependencies.',
+    'fields' => array(
+      'library_id' => array(
+        'description' => 'Primary Key: The id of a h5p library.',
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ),
+      'required_library_id' => array(
+        'description' => 'Primary Key: The id of a h5p library.',
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ),
+      'dependency_type' => array(
+        'description' => 'preloaded, dynamic, or editor',
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => TRUE,
+      ),
+    ),
+    'primary key' => array('library_id', 'required_library_id'),
+  );
+
+  $schema['h5p_libraries_languages'] = array(
+    'description' => 'Stores translations for the languages.',
+    'fields' => array(
+      'library_id' => array(
+        'description' => 'Primary Key: The id of a h5p library.',
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ),
+      'language_code' => array(
+        'description' => 'Primary Key: The language code.',
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => TRUE,
+      ),
+      'language_json' => array(
+        'description' => 'The translations defined in json format',
+        'type' => 'text',
+        'not null' => TRUE,
+      ),
+    ),
+    'primary key' => array('library_id', 'language_code'),
+  );
+
+  $schema['h5p_nodes'] = array(
+    'description' => 'Stores information about where the h5p content is stored.',
+    'fields' => array(
+      'content_id' => array(
+        'description' => 'Primary Key: The unique identifier for this node(vid by default).',
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ),
+      'nid' => array(
+        'description' => 'The {node}.nid of the h5p node.',
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ),
+      'json_content' => array(
+        'description' => 'The content in json format',
+        'type' => 'text',
+        'not null' => TRUE,
+        'size' => 'big',
+      ),
+      'embed_type' => array(
+        'description' => 'The embed type for this content',
+        'type' => 'varchar',
+        'length' => 127,
+        'not null' => TRUE,
+        'default' => '',
+      ),
+      'main_library_id' => array(
+        'description' => 'The library we first instanciate for this node',
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ),
+      'content_type' => array(
+        'description' => 'Content type as defined in h5p.json',
+        'type' => 'varchar',
+        'length' => 127,
+      ),
+      'author' => array(
+        'description' => 'Author as defined in h5p.json',
+        'type' => 'varchar',
+        'length' => 127,
+      ),
+      'license' => array(
+        'description' => 'License as defined in h5p.json',
+        'type' => 'varchar',
+        'length' => 7,
+      ),
+      'meta_keywords' => array(
+        'description' => 'Keywords as defined in h5p.json',
+        'type' => 'text',
+      ),
+      'meta_description' => array(
+        'description' => 'Meta description as defined in h5p.json',
+        'type' => 'text',
+      ),
+    ),
+    'primary key' => array('content_id'),
+  );
+  return $schema;
+}
+
+/**
+ * Implements hook_requirements().
+ */
+function h5p_requirements($phase) {
+  $requirements = array();
+
+  if ($phase == 'runtime') {
+    // TODO: Add check for zip library
+    // File paths
+    $h5p_path = file_stream_wrapper_get_instance_by_uri('public://')->getDirectoryPath() . '/' . variable_get('h5p_default_path', 'h5p');
+    $temp_path = $h5p_path . '/temp';
+    $export_path = $h5p_path . '/exports';
+    if (!file_prepare_directory($h5p_path, FILE_CREATE_DIRECTORY | FILE_MODIFY_PERMISSIONS)) {
+      $requirements['h5p_dirs'] = array(
+        'value' => t('Missing directory.'),
+        'severity' => REQUIREMENT_ERROR,
+        'description' => t("The h5p module's package directory %h5p_path is missing.", array('%h5p_path' => $h5p_path)),
+      );
+    }
+    else if (!file_prepare_directory($temp_path, FILE_CREATE_DIRECTORY | FILE_MODIFY_PERMISSIONS)) {
+      $requirements['h5p_dirs'] = array(
+        'value' => t('Missing temp directory.'),
+        'severity' => REQUIREMENT_ERROR,
+        'description' => t("The h5p module's temp directory %temp_path is missing.", array('%temp_path' => $temp_path)),
+      );
+    }
+    else if (!file_prepare_directory($export_path, FILE_CREATE_DIRECTORY | FILE_MODIFY_PERMISSIONS)) {
+      $requirements['h5p_dirs'] = array(
+        'value' => t('Missing export directory.'),
+        'severity' => REQUIREMENT_ERROR,
+        'description' => t("The h5p module's export directory %export_path is missing.", array('%export_path' => $export_path)),
+      );
+    }
+    else {
+      $requirements['h5p_dirs'] = array(
+        'value' => t('Exists (%path).', array('%path' => $h5p_path)),
+        'severity' => REQUIREMENT_OK,
+      );
+    }
+    $requirements['h5p_dirs']['title'] = t('h5p module directories');
+  }
+
+  return $requirements;
+}
+
+/**
+ * Implements hook_update_N().
+ */
+function h5p_update_6100() {
+  db_add_field('h5p_libraries', 'fullscreen', array(
+    'description' => 'Indicates if this library can be opened in fullscreen.',
+    'type' => 'int',
+    'size' => 'tiny',
+    'unsigned' => TRUE,
+    'not null' => TRUE,
+    'default' => 0,
+  ));
+  return t('Fullscreen field added to h5p_libraries');
+}
+
+/**
+ * Implements hook_update_N().
+ */
+function h5p_update_6101() {
+  db_create_table('h5p_libraries_languages', array(
+    'description' => 'Stores translations for the languages.',
+    'fields' => array(
+      'library_id' => array(
+        'description' => 'Primary Key: The id of a h5p library.',
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ),
+      'language_code' => array(
+        'description' => 'Primary Key: The language code.',
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => TRUE,
+      ),
+      'language_json' => array(
+        'description' => 'The translations defined in json format',
+        'type' => 'text',
+        'not null' => TRUE,
+      ),
+    ),
+    'primary key' => array('library_id', 'language_code'),
+  ));
+  return t('Table for storing language information created');
+}
+
+/**
+ * Implements hook_update_N().
+ */
+function h5p_update_6102() {
+  db_add_field('h5p_nodes', 'content_type', array(
+    'description' => 'Content type as defined in h5p.json',
+    'type' => 'varchar',
+    'length' => 127,
+  ));
+  db_add_field('h5p_nodes', 'author', array(
+    'description' => 'Author as defined in h5p.json',
+    'type' => 'varchar',
+    'length' => 127,
+  ));
+  db_add_field('h5p_nodes', 'license', array(
+    'description' => 'License as defined in h5p.json',
+    'type' => 'varchar',
+    'length' => 7,
+  ));
+  db_add_field('h5p_nodes', 'meta_keywords', array(
+    'description' => 'Keywords as defined in h5p.json',
+    'type' => 'text',
+  ));
+  db_add_field('h5p_nodes', 'meta_description', array(
+    'description' => 'Meta description as defined in h5p.json',
+    'type' => 'text',
+  ));
+  return t('Fields for storing metadata about the H5P content added');
+}
+
+/**
+ * Implements hook_update_N().
+ */
+function h5p_update_6103() {
+  db_change_field('h5p_nodes', 'json_content', 'json_content', array(
+    'description' => 'The content in json format',
+    'type' => 'text',
+    'not null' => TRUE,
+    'size' => 'big',
+  ));
+
+  return t("Support for H5P's with lots of data added.");
+}
+
+/**
+ * Implements hook_update_N().
+ */
+function h5p_update_6104() {
+  $ret = array();
+  db_add_index('files', 'filepath', array('filepath'));
+  return t('Add index to filepath in the files table');
+}

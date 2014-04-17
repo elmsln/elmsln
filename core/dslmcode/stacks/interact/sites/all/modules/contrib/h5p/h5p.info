@@ -1,0 +1,16 @@
+; @file
+;  h5p.info ini file
+;  Contains general information about the h5p Drupal module.
+name = H5P
+description = "Upload interactive HTML5 Packages to your Druapl site."
+core = 7.x
+
+files[] = h5p.classes.inc
+files[] = library/h5p.classes.php
+
+; Information added by Drupal.org packaging script on 2014-02-25
+version = "7.x-1.0-beta4"
+core = "7.x"
+project = "h5p"
+datestamp = "1393341816"
+
