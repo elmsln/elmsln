@@ -27,10 +27,12 @@
    */
   Drupal.behaviors.lmsLessBarMarginTop = {
     attach: function (context, settings) {
-      if (!settings.admin_menu.suppress && settings.admin_menu.margin_top) {
-        $('body:not(.cis-lmsless-margin)', context).addClass('cis-lmsless-margin');
+      if (typeof settings.admin_menu != 'undefined' && !settings.admin_menu.suppress && settings.admin_menu.margin_top) {
+        $('body:not(.cis-lmsless-admin-margin)', context).addClass('cis-lmsless-admin-margin');
         $('body', context).removeClass('admin-menu');
-        $('.cis-lmsless-bar').css('top', '24px');
+      }
+      else {
+        $('body:not(.cis-lmsless-margin)', context).addClass('cis-lmsless-margin');
       }
     }
   };
