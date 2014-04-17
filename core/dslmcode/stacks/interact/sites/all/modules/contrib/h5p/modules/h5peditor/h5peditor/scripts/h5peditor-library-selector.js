@@ -21,11 +21,15 @@ ns.LibrarySelector = function (libraries, defaultLibrary, defaultParams) {
   for (var i = 0; i < libraries.length; i++) {
     var library = libraries[i];
     var libraryName = ns.libraryToString(library);
-    options += '<option value="' + libraryName + '"';
-    if (libraryName === defaultLibrary || library.name === this.defaultLibraryParameterized) {
-      options += ' selected="selected"';
+    
+    // Allow old version of library only if used by existing content
+    if (library.isOld !== true || (library.isOld === true && this.defaultLibrary === libraryName)) {
+      options += '<option value="' + libraryName + '"';
+      if (libraryName === defaultLibrary || library.name === this.defaultLibraryParameterized) {
+        options += ' selected="selected"';
+      }
+      options += '>' + library.title + (library.isOld===true ? ' (deprecated)' : '') + '</option>';
     }
-    options += '>' + library.title + '</option>';
   }
 
   this.$selector = ns.$('<select name="h5peditor-library" title="' + ns.t('core', 'selectLibrary') + '">' + options + '</select>').change(function () {

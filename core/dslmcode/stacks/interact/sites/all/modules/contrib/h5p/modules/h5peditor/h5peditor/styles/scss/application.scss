@@ -2,8 +2,11 @@
 @import "compass/css3/box-shadow";
 @import "compass/css3/opacity";
 @import "compass/css3/text-shadow";
+@import "compass/css3/transition";
+@import "compass/css3/transform";
 
 $fa: H5PFontAwesome4;
+$i: H5P;
 
 .h5peditor {
   font-size: 16px;
@@ -21,11 +24,20 @@ $fa: H5PFontAwesome4;
     &:last-child {
       margin-bottom: 0;
     }
+    
+    &.boolean .h5peditor-label {
+      display: inline;
+    }
+    &.video, &.image, &.file, &.audio {
+      position: relative;
+    }
+    
+    .library {
+      border: 1px solid #666;
+      padding: 8px;
+    }
   }
-  .field .library {
-    border: 1px solid #666;
-    padding: 8px;
-  }
+  
   .errors p {
     margin: 0 0 4px 0;
     color: #f00;
@@ -74,7 +86,6 @@ $fa: H5PFontAwesome4;
       margin: 8px 0;
       list-style: none;
       background: #fff;
-      overflow: hidden;
       border: 1px solid #ccc;
 
       & > .content {
@@ -333,6 +344,72 @@ $fa: H5PFontAwesome4;
   .h5peditor-loading {
     padding: 0.875em 0 1em 3.25em;
     font-style: italic;
+  }
+  .h5p-copyright-button {
+    float: left;
+    display: block;
+    clear: both;
+    cursor: pointer;
+    border: 1px solid #999;
+    color: #999;
+    font-size: 0.875em;
+    padding: 0.1875em 0.5625em 0.1875em 0.5em;
+    
+    &:before {
+      font-family: $i;
+      content: "\e668";
+      padding-right: 0.25em;
+      vertical-align: bottom;
+      font-size: 1.5em;
+    }
+    &:hover {
+      color: #555;
+      text-decoration: none;
+      border-color: #555;
+    }
+  }
+  
+  .h5p-editor-dialog {
+    position: absolute;
+    z-index: 1;
+    width: 90%;
+    background: #fff;
+    padding: 10px 10px 0;
+    margin: 5.5em 0 1em;
+    visibility: hidden;
+    opacity: 0;
+    @include box-shadow(0 0 8px #666);
+    @include transition(visibility 0s 0.2s, opacity 0.2s, margin-top 0.2s);
+    
+    &.h5p-open {
+      margin-top: 3.5em;
+      visibility: visible;
+      opacity: 1;
+      @include transition(visibility 0s 0s, opacity 0.2s, margin-top 0.2s);
+    }
+    
+    & > .field {
+      margin: 0 0 10px;
+      border: 0;
+      box-shadow: none;
+    }
+    
+    .h5p-close {
+      color: #494949;
+    
+      &:before {
+        font-size: 2em;
+        right: 13px;
+        position: absolute;
+        font-family: H5PFontAwesome4;
+        content: "\f00d";
+        @include transition(scale 0.2s);
+      }
+      
+      &:hover:before {
+        @include scale(1.1, 1.1);
+      }
+    }
   }
 }
 

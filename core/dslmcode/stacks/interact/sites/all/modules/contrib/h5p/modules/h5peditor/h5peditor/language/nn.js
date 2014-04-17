@@ -24,5 +24,7 @@ H5PEditor.language.core = {
   moreLibraries: 'Sjå etter <a href="http://h5p.org/content-types-and-applications" target="_blank">fleir innhaldstypar</a> på h5p.org',
   commonFields: 'Felles felter',
   uploading: 'Lastar opp fil, ver venleg og vent...',
-  noFollow: 'Kunne ikkje følge feltet ":path".'
+  noFollow: 'Kunne ikkje følge feltet ":path".',
+  editCopyright: 'Rediger opphavsrett',
+  close: 'Lukk'
 };

@@ -10,8 +10,54 @@
  * Implements hook_uninstall().
  */
 function h5p_uninstall() {
+  // Clean out file dirs.
+  $h5p_path = file_stream_wrapper_get_instance_by_uri('public://')->getDirectoryPath() . '/' . variable_get('h5p_default_path', 'h5p');
+   
+  // Remove these regardless of their content.
+  foreach (array('temp', 'libraries', 'content', 'exports') as $directory) {
+    _h5p_recursive_unlink($h5p_path . '/' . $directory);
+  }
+  
+  // Only remove development dir if it's empty.
+  $dir = $h5p_path . '/development';
+  if (is_dir($dir) && count(scandir($dir)) === 2) {
+    rmdir($dir);
+    
+    // Remove parent if empty.
+    if (count(scandir($h5p_path)) === 2) {
+      rmdir($h5p_path);
+    }
+  }
+
+  // Remove variables.
   variable_del('h5p_export');
   variable_del('h5p_revisioning');
+  variable_del('h5p_content_dev_mode');
+  variable_del('h5p_default_path');
+  variable_del('h5p_dev_mode');
+  variable_del('h5p_library_development');
+  variable_del('h5p_library_whitelist_extras');
+  variable_del('h5p_whitelist');
+  variable_del('h5p_icon_in_action_bar');
+}
+
+/**
+ * Recursively remove file or directory.
+ *
+ * @param string $file
+ */
+function _h5p_recursive_unlink($file) {
+  if (is_dir($file)) {
+    // Remove all files in dir.
+    $subfiles = array_diff(scandir($file), array('.','..'));
+    foreach ($subfiles as $subfile)  {
+      _h5p_recursive_unlink($file . '/' . $subfile);
+    }
+    rmdir($file);
+  }
+  elseif (file_exists($file)) {
+    unlink($file); // TODO: Remove from file_managed!!
+  }
 }
 
 /**
@@ -28,21 +74,20 @@ function h5p_schema() {
         'not null' => TRUE,
       ),
       'library_id' => array(
-        'description' => 'The id of a h5p library this content uses',
+        'description' => 'The identifier of a h5p library this content uses.',
         'type' => 'int',
         'unsigned' => TRUE,
         'not null' => TRUE,
       ),
-      'preloaded' => array(
-        'description' => '0 if this library is dynamic, 1 if this library is to be preloaded',
-        'type' => 'int',
-        'size' => 'tiny',
-        'unsigned' => TRUE,
+      'dependency_type' => array(
+        'description' => "dynamic, preloaded or editor",
+        'type' => 'varchar',
+        'length' => 255,
         'not null' => TRUE,
-        'default' => 1,
+        'default' => 'preloaded',
       ),
       'drop_css' => array(
-        'description' => '1 if this node does not want the library css included',
+        'description' => '1 if the preloaded css from the dependency is to be excluded.',
         'type' => 'int',
         'size' => 'tiny',
         'unsigned' => TRUE,
@@ -50,7 +95,7 @@ function h5p_schema() {
         'default' => 0,
       ),
     ),
-    'primary key' => array('content_id', 'library_id'),
+    'primary key' => array('content_id', 'library_id', 'dependency_type'),
   );
 
   $schema['h5p_libraries'] = array(
@@ -125,7 +170,7 @@ function h5p_schema() {
         'description' => 'The preloaded css for this library as a comma separated list',
         'type' => 'text',
       ),
-      'drop_library_css' => array(
+      'drop_library_css' => array( // TODO: This really needs to be move to h5p_libraries_libraries.
         'description' => 'List of libraries that should not have CSS included if this library is used. Comma separated list.',
         'type' => 'text',
       ),
@@ -247,6 +292,50 @@ function h5p_schema() {
     ),
     'primary key' => array('content_id'),
   );
+
+  $schema['h5p_points'] = array(
+    'description' => 'Stores user statistics.',
+    'fields' => array(
+      'content_id' => array(
+        'description' => 'Primary Key: The unique identifier for this node.',
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ),
+      'uid' => array(
+        'description' => 'Primary Key: The id for the user answering this H5P.',
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ),
+      'started' => array(
+        'description' => 'When the user started on the interaction',
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ),
+      'finished' => array(
+        'description' => 'When the user submitted the result',
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'points' => array(
+        'description' => 'The users score',
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => FALSE,
+      ),
+      'max_points' => array(
+        'description' => 'The maximum score for this test',
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => FALSE,
+      ),
+    ),
+    'primary key' => array('content_id', 'uid'),
+  );
   return $schema;
 }
 
@@ -258,7 +347,9 @@ function h5p_requirements($phase) {
 
   if ($phase == 'runtime') {
     // TODO: Add check for zip library
+    
     // File paths
+    // TODO: Merge over _h5p_check_settings from .module?
     $h5p_path = file_stream_wrapper_get_instance_by_uri('public://')->getDirectoryPath() . '/' . variable_get('h5p_default_path', 'h5p');
     $temp_path = $h5p_path . '/temp';
     $export_path = $h5p_path . '/exports';
@@ -388,7 +479,131 @@ function h5p_update_6103() {
  * Implements hook_update_N().
  */
 function h5p_update_6104() {
-  $ret = array();
   db_add_index('files', 'filepath', array('filepath'));
   return t('Add index to filepath in the files table');
+}
+
+/**
+ * Implementation of hook_update_N().
+ * 
+ * Renames the h5p_nodes_libraries.preloaded field to dependency_type,
+ * and converts it to contain an integer.
+ * 
+ * Updates h5p_nodes_libraries to get all dependencies.
+ */
+function h5p_update_6105(&$sandbox) {
+  if (isset($sandbox['content']) === FALSE) {
+    
+    if (db_field_exists('h5p_nodes_libraries', 'preloaded')) {
+      db_drop_primary_key('h5p_nodes_libraries');
+      db_change_field('h5p_nodes_libraries', 'preloaded', 'dependency_type', array(
+        'description' => "dynamic, preloaded or editor",
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => TRUE,
+        'default' => 'preloaded',
+      ), array(
+        'primary key' => array('content_id', 'library_id', 'dependency_type')
+      ));
+    }
+  
+    // Update h5p_nodes_libraries to get all dependencies.
+    $result = db_query("
+      SELECT hn.content_id AS id, 
+             hl.machine_name AS libraryName, 
+             hl.major_version AS libraryMajorVersion, 
+             hl.minor_version AS libraryMinorVersion
+      FROM {h5p_nodes} hn
+      JOIN {h5p_libraries} hl ON hl.library_id = hn.main_library_id
+    ");
+    
+    // Update h5p_nodes_libraries since column has changed type
+    db_query("UPDATE {h5p_nodes_libraries} set dependency_type='preloaded' where dependency_type='1'");
+    db_query("UPDATE {h5p_nodes_libraries} set dependency_type='dynamic' where dependency_type='0'");
+
+    $sandbox['content'] = array();
+    foreach ($result as $content) {
+      $sandbox['content'][] = $content;
+    }
+    
+    $sandbox['current'] = 0;
+    $sandbox['max'] = count($sandbox['content']);
+  }
+  
+  if ($sandbox['max'] === 0) {
+    $sandbox['#finished'] = 1;
+  }
+  else {
+    h5p_save_content_dependencies($sandbox['content'][$sandbox['current']]);
+    $sandbox['current']++;
+    $sandbox['#finished'] = ($sandbox['current'] / $sandbox['max']);
+  }
+}
+
+function h5p_update_7100(&$sandbox) {
+  db_create_table('h5p_points', array(
+    'description' => 'Stores user statistics.',
+    'fields' => array(
+      'content_id' => array(
+        'description' => 'Primary Key: The unique identifier for this node.',
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ),
+      'uid' => array(
+        'description' => 'Primary Key: The id for the user answering this H5P.',
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ),
+      'started' => array(
+        'description' => 'When the user started on the interaction',
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ),
+      'finished' => array(
+        'description' => 'When the user submitted the result',
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'points' => array(
+        'description' => 'The users score',
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => FALSE,
+      ),
+      'max_points' => array(
+        'description' => 'The maximum score for this test',
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => FALSE,
+      ),
+    ),
+    'primary key' => array('content_id', 'uid'),
+  ));
+}
+
+/**
+ * (re)Save all dependencies for given content.
+ * This will given content nodes a relation to all libraries used by it's main library.
+ *
+ * @param object $content
+ */
+function h5p_save_content_dependencies($content) {
+  require_once drupal_get_path('module', 'h5p') . '/library/h5p-development.class.php';
+  require_once drupal_get_path('module', 'h5p') . '/library/h5p.classes.php';
+  require_once drupal_get_path('module', 'h5p') . '/h5p.classes.inc';
+  
+  $i = _h5p_get_instance('interface');
+  $core = _h5p_get_instance('core');
+  
+  $library = $i->loadLibrary($content->libraryName, $content->libraryMajorVersion, $content->libraryMinorVersion);
+  
+  $dependencies = array();
+  $core->findLibraryDependencies($dependencies, $library);
+  
+  $i->saveLibraryUsage($content->id, $dependencies);
 }

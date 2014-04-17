@@ -99,6 +99,29 @@ class H5PDrupal implements H5PFrameworkInterface {
   }
 
   /**
+   * Implements getLibraryUsage
+   *  
+   * Get number of content/nodes using a library, and the number of 
+   * dependencies to other libraries
+   * 
+   * @param int $library_id
+   * @return array The array contains two elements, keyed by 'content' and 'libraries'. 
+   *               Each element contains a number
+   */
+  public function getLibraryUsage($libraryId) {
+    $usage = array();
+    
+    $usage['content'] = intval(db_query(
+      'SELECT COUNT(distinct n.nid)
+      FROM {h5p_libraries} l JOIN {h5p_nodes_libraries} nl ON l.library_id = nl.library_id JOIN {h5p_nodes} n ON nl.content_id = n.content_id
+      WHERE l.library_id = :id', array(':id' => $libraryId))->fetchField());
+    
+    $usage['libraries'] = intval(db_query('SELECT COUNT(*) FROM {h5p_libraries_libraries} WHERE required_library_id = :id', array(':id' => $libraryId))->fetchField());
+    
+    return $usage;
+  }
+  
+  /**
    * Implements saveLibraryData
    */
   public function saveLibraryData(&$libraryData, $new = TRUE) {
@@ -205,7 +228,22 @@ class H5PDrupal implements H5PFrameworkInterface {
     ->condition('library_id', $libraryId)
     ->execute();
   }
-
+  
+  /**
+   * Implements deleteLibrary. Will delete a library's data both in the database and file system
+   */
+  public function deleteLibrary($libraryId) {    
+    $library = db_query("SELECT * FROM {h5p_libraries} WHERE library_id = :id", array(':id' => $libraryId))->fetchObject();
+    
+    // Delete files
+    H5PCore::deleteFileTree(file_directory_path() . '/' . variable_get('h5p_default_path', 'h5p') . '/libraries/' . $library->machine_name . '-' . $library->major_version . '.' . $library->minor_version);
+    
+    // Delete data in database (won't delete content)
+    db_delete('h5p_libraries_libraries')->condition('library_id', $libraryId)->execute();
+    db_delete('h5p_libraries_languages')->condition('library_id', $libraryId)->execute();
+    db_delete('h5p_libraries')->condition('library_id', $libraryId)->execute();
+  }
+  
   /**
    * Implements saveLibraryDependencies
    */
@@ -239,6 +277,7 @@ class H5PDrupal implements H5PFrameworkInterface {
     if (isset($mainJsonData['embedTypes'])) {
       $embedTypes = implode(', ', $mainJsonData['embedTypes']);
     }
+
     $id = db_insert('h5p_nodes')
     ->fields(array(
       'content_id' => $contentId,
@@ -265,17 +304,12 @@ class H5PDrupal implements H5PFrameworkInterface {
    * Implements copyLibraryUsage
    */
   public function copyLibraryUsage($contentId, $copyFromId, $contentMainId = NULL) {
-    $query = db_select('h5p_nodes_libraries', 'hnl');
-    $query->addField('hnl', 'library_id');
-    $query->addField('hnl', 'preloaded');
-    $query->addField('hnl', 'drop_css');
-    $query->addExpression($contentId);
-    $query->condition('content_id', $copyFromId);
-    
-    db_insert('h5p_nodes_libraries')
-      ->fields(array('library_id', 'preloaded', 'drop_css', 'content_id'))
-      ->from($query)
-      ->execute();
+    db_query(    
+      "INSERT INTO {h5p_nodes_libraries} (content_id, library_id, dependency_type, drop_css)
+      SELECT :toId, hnl.library_id, hnl.dependency_type, hnl.drop_css
+      FROM {h5p_nodes_libraries} hnl
+      WHERE hnl.content_id = :fromId", array(':toId' => $contentId, ':fromId' => $copyFromId)
+    );
   }
 
   /**
@@ -299,28 +333,36 @@ class H5PDrupal implements H5PFrameworkInterface {
 
   /**
    * Implements saveLibraryUsage
+   *
+   * TODO: Does the name saveContentDependencies() better describe what this function does?
    */
   public function saveLibraryUsage($contentId, $librariesInUse) {
     $dropLibraryCssList = array();
-    foreach ($librariesInUse as $machineName => $library) {
-      if (!empty($library['library']['dropLibraryCss'])) {
-        $dropLibraryCssList = array_merge($dropLibraryCssList, explode(', ', $library['library']['dropLibraryCss']));
+    
+    foreach ($librariesInUse as $dependency) {
+      if (!empty($dependency['library']['dropLibraryCss'])) {
+        $dropLibraryCssList = array_merge($dropLibraryCssList, explode(', ', $dependency['library']['dropLibraryCss']));
       }
     }
-    foreach ($librariesInUse as $machineName => $library) {
-      $dropCss = in_array($machineName, $dropLibraryCssList) ? 1 : 0;
+    
+    foreach ($librariesInUse as $dependency) {
+      $dropCss = in_array($dependency['library']['machineName'], $dropLibraryCssList) ? 1 : 0;
       db_merge('h5p_nodes_libraries')
         ->key(array(
           'content_id' => $contentId,
-          'library_id' => $library['library']['libraryId']
+          'library_id' => $dependency['library']['libraryId'],
+          'dependency_type' => $dependency['type'], 
         ))
-        ->fields(array(
-        'content_id' => $contentId,
-        'library_id' => $library['library']['libraryId'],
-        'preloaded' => $library['preloaded'],
-        'drop_css' => $dropCss,
-      ))
-      ->execute();
+        ->insertFields(array(
+          'content_id' => $contentId,
+          'library_id' => $dependency['library']['libraryId'],
+          'dependency_type' => $dependency['type'], 
+          'drop_css' => $dropCss,
+        ))
+        ->updateFields(array(
+          'drop_css' => $dropCss,
+        ))
+        ->execute();
     }
   }
 
@@ -357,13 +399,23 @@ class H5PDrupal implements H5PFrameworkInterface {
     }
     return $library;
   }
+  
+  private function getSemanticsFromFile($machineName, $majorVersion, $minorVersion) {
+    $semanticsPath = drupal_realpath('public://' . variable_get('h5p_default_path', 'h5p') . '/libraries/' . $machineName . '-' . $majorVersion . '.' . $minorVersion . '/semantics.json');
+    if (file_exists($semanticsPath)) {
+      $semantics = file_get_contents($semanticsPath);
+      if (!json_decode($semantics, TRUE)) {
+        drupal_set_message(t('Invalid json in semantics for %library', array('%library' => $machineName)), 'warning');
+      }
+      return $semantics;
+    }
+    return FALSE;
+  }
 
   /**
-   * Implements getLibrarySemantics
-   *
-   * Calls modules implementing hook_alter_h5p_semantics().
+   * Implements loadLibrarySemantics().
    */
-  public function getLibrarySemantics($machineName, $majorVersion, $minorVersion) {
+  public function loadLibrarySemantics($machineName, $majorVersion, $minorVersion) {
     if ($this->isInDevMode()) {
       $semantics = $this->getSemanticsFromFile($machineName, $majorVersion, $minorVersion);
     }
@@ -375,39 +427,16 @@ class H5PDrupal implements H5PFrameworkInterface {
         AND major_version = :major_version
         AND minor_version = :minor_version", array(':machine_name' => $machineName, ':major_version' => $majorVersion, ':minor_version' => $minorVersion))->fetchField();
     }
-    $semantics = json_decode($semantics);
-    if (!empty($semantics)) {
-      drupal_alter('h5p_semantics', $semantics);
-    }
-
-    return $semantics;
+    return ($semantics === FALSE ? NULL : $semantics);
   }
 
   /**
-   * Reads semantics for a library from the library.json file instead of the database
-   * 
-   * @param string $machineName
-   *  Machine readable name of the library
-   * @param int $majorVersion
-   *  Major version for the library
-   * @param int $minorVersion
-   *  Minor version for the library
-   * @return sting|boolean
-   *  Semantics as string if successfull
-   *  FALSE as boolean if not successfull
-   *  
+   * Implements alterLibrarySemantics().
    */
-  private function getSemanticsFromFile($machineName, $majorVersion, $minorVersion) {
-    $semanticsPath = file_stream_wrapper_get_instance_by_uri('public://')->realpath() . '/' . variable_get('h5p_default_path', 'h5p') . '/libraries/' . $machineName . '-' . $majorVersion . '.' . $minorVersion . '/semantics.json';
-    if (file_exists($semanticsPath)) {
-      $semantics = file_get_contents($semanticsPath);
-      if (!json_decode($semantics, TRUE)) {
-        drupal_set_message(t('Invalid json in semantics for %library', array('%library' => $machineName)), 'warning');
-      }
-      return $semantics;
-    }
-    return FALSE;
+  public function alterLibrarySemantics(&$semantics, $name, $majorVersion, $minorVersion) {
+    drupal_alter('h5p_semantics', $semantics, $name, $majorVersion, $minorVersion);
   }
+  
 
   /**
    * Implements getExportData
@@ -426,8 +455,8 @@ class H5PDrupal implements H5PFrameworkInterface {
 
     // Use library ids to get library info.
     $res = db_query(
-      "SELECT hl.machine_name as machine_name, hl.major_version as major_version, hl.minor_version as minor_version,
-      hnl.preloaded as preloaded, hl.library_id as library_id
+      "SELECT hl.machine_name as machine_name, hl.major_version as major_version, hl.minor_version as minor_version, 
+      hnl.dependency_type, hl.library_id as library_id
       FROM {h5p_libraries} hl
       JOIN {h5p_nodes_libraries} hnl ON hl.library_id =  hnl.library_id
       WHERE hnl.content_id = :hnl_content_id", array(':hnl_content_id' => $contentId));
@@ -437,7 +466,7 @@ class H5PDrupal implements H5PFrameworkInterface {
         'machineName' => $libs['machine_name'],
         'majorVersion' => $libs['major_version'],
         'minorVersion' => $libs['minor_version'],
-        'preloaded' => $libs['preloaded'],
+        'dependencyType' => $libs['dependency_type'],
       );
 
       // Save the main libary machine name.
@@ -447,14 +476,15 @@ class H5PDrupal implements H5PFrameworkInterface {
       }
     }
 
-    $editorLibraries = $this->getEditorLibraries($mainLibraryMachineName, $mainLibrary['majorVersion'], $mainLibrary['minorVersion'], TRUE);
-    
+    // Set language to drupals node language, or 'und' if not set.
+    $exportLanguage = LANGUAGE_NONE; // TODO: What language to use?
+
     $export = array(
       'contentId' => $contentId,
       'mainLibrary' => $mainLibraryMachineName,
       'embedType' => $content['embed_type'],
       'libraries' => $librariesInfo,
-      'editorLibraries' => $editorLibraries,
+      'language' => $exportLanguage,
       'jsonContent' => $content['json_content'],
     );
 
@@ -471,45 +501,55 @@ class H5PDrupal implements H5PFrameworkInterface {
   }
   
   /**
-   * Implements getEditorLibraries.
-   *
-   * TODO: Perhaps this should be part of some dependency function? 
+   * Implements loadContent().
    */
-  public function getEditorLibraries($machineName, $majorVersion, $minorVersion, $complete = FALSE) {
-    $editorLibraries = array();
+  public function loadContent($id) {
+    $content = db_query(
+      "SELECT hn.json_content AS params
+            , hn.embed_type AS embedType 
+            , hl.library_id AS libraryId 
+            , hl.machine_name AS libraryName
+            , hl.major_version AS libraryMajorVersion
+            , hl.minor_version AS libraryMinorVersion
+            , hl.embed_types AS libraryEmbedTypes
+            , hl.fullscreen AS libraryFullscreen
+       FROM {h5p_nodes} hn
+       JOIN {h5p_libraries} hl ON hl.library_id = hn.main_library_id
+       WHERE content_id = :id", array(':id' => $id))->fetchAssoc();
+       
+    return ($content === FALSE ? NULL : $content);
+  }
 
-    $result = db_query("
-      SELECT hll.required_library_id AS libraryId, hl2.machine_name AS machineName, hl2.major_version AS majorVersion, hl2.minor_version AS minorVersion
-      FROM {h5p_libraries} hl
-      JOIN {h5p_libraries_libraries} hll ON hll.library_id = hl.library_id
-      JOIN {h5p_libraries} hl2 ON hl2.library_id = hll.required_library_id
-      WHERE hl.machine_name = :hl_machine_name
-      AND hl.major_version = :hl_major_version
-      AND hl.minor_version = :hl_minor_version
-      AND hll.dependency_type = :hll_dependency_type
-    ", array(':hl_machine_name' => $machineName, ':hl_major_version' => $majorVersion, ':hl_minor_version' => $minorVersion, ':hll_dependency_type' => 'editor'));
-
-    $jsonData = array('preloadedDependencies' => array());
-    while ($editorLibrary = $result->fetchAssoc()) {
-      $editorLibraries[$editorLibrary['libraryId']] = $editorLibrary;
-
-      $jsonData['preloadedDependencies'][$editorLibrary['libraryId']] = array(
-        'machineName' => $editorLibrary['machineName'],
-        'majorVersion' => $editorLibrary['majorVersion'],
-        'minorVersion' => $editorLibrary['minorVersion'],
-      );
-    }
-
-    $libraries = array();
-    $storage = _h5p_get_instance('storage');
-    $storage->getLibraryUsage($libraries, $jsonData, FALSE, $complete);
+  /**
+   * Implements loadContentDependencies().
+   */
+  public function loadContentDependencies($id, $type = NULL) {
+    $query = 
+      "SELECT hl.library_id, 
+              hl.machine_name AS machineName, 
+              hl.major_version AS majorVersion, 
+              hl.minor_version AS minorVersion, 
+              hl.preloaded_css AS preloadedCss, 
+              hl.preloaded_js AS preloadedJs, 
+              hnl.drop_css AS dropCss,
+              hnl.dependency_type AS dependencyType
+        FROM {h5p_nodes_libraries} hnl
+        JOIN {h5p_libraries} hl ON hnl.library_id = hl.library_id
+        WHERE hnl.content_id = :id";
+    $queryArgs = array(':id' => $id);
     
-    foreach ($libraries as $library) {
-      if ($library['preloaded']) {
-        $editorLibraries[$library['library']['libraryId']] = $library['library'];
-      }
+    if ($type !== NULL) {
+      $query .= " AND hnl.dependency_type = :dt";
+      $queryArgs[':dt'] = $type;
     }
 
-    return $editorLibraries;
+    $result = db_query($query, $queryArgs);
+    
+    $dependencies = array();
+    while ($dependency = $result->fetchAssoc()) {
+      $dependencies[] = $dependency;
+    }
+
+    return $dependencies;
   }
 }

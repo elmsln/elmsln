@@ -24,6 +24,11 @@ ns.List = function (parent, field, params, setValue) {
     this.params = params;
   }
 
+  if (field.defaultNum === undefined && field.min !== undefined) {
+    // Use min as defaultNum if defaultNum isn't set.
+    field.defaultNum = field.min;
+  }
+
   this.field = field;
   this.parent = parent;
   this.$items = [];
@@ -63,15 +68,16 @@ ns.List.prototype.appendTo = function ($wrapper) {
     }
   });
 
-  for (var i = 0; i < this.params.length; i++) {
-    this.addItem(i);
+  if (this.params.length) {
+    for (var i = 0; i < this.params.length; i++) {
+      this.addItem(i);
+    }
   }
-
-  // Add min. fields.
-  var missing = this.field.min - this.params.length;
-  while (missing > 0) {
-    that.$add.click();
-    missing--;
+  else {
+    // Add default number of fields.
+    for (var i = 0; i < this.field.defaultNum; i++) {
+      that.$add.click();
+    }
   }
 };
 

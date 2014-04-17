@@ -36,8 +36,15 @@ ns.Text.prototype.appendTo = function ($wrapper) {
 
     if (value !== false) {
       // Set param
-      that.value = value;
-      that.setValue(that.field, ns.htmlspecialchars(value));
+      if (H5P.trim(value) === '') {
+        // Avoid storing empty strings. (will be valid if field is optional)
+        delete that.value;
+        that.setValue(that.field);
+      }
+      else {
+        that.value = value;
+        that.setValue(that.field, ns.htmlspecialchars(value));
+      }
 
       for (var i = 0; i < that.changeCallbacks.length; i++) {
         that.changeCallbacks[i](value);

@@ -92,7 +92,7 @@ ns.loadLibrary = function (libraryName, callback) {
         url: ns.ajaxPath + 'libraries/' + library.machineName + '/' + library.majorVersion + '/' + library.minorVersion,
         success: function (libraryData) {
           var semantics = libraryData.semantics;
-          if (libraryData.language !== undefined) {
+          if (libraryData.language !== null) {
             var language = JSON.parse(libraryData.language);
             semantics = ns.$.extend(true, [], semantics, language.semantics);
           }
@@ -185,7 +185,7 @@ ns.processSemanticsChunk = function (semanticsChunk, params, $wrapper, parent) {
       params[field.name] = field['default'];
     }
 
-    var widget = field.widget === undefined ? field.type : field.widget;
+    var widget = ns.getWidgetName(field);
 
     // TODO: Remove later, this is here for debugging purposes.
     if (ns.widgets[widget] === undefined) {
@@ -240,7 +240,7 @@ ns.addCommonField = function (field, parent, params, ancestor) {
   }
 
   if (ancestor.commonFields[parent.library][field.name] === undefined) {
-    var widget = field.widget === undefined ? field.type : field.widget;
+    var widget = ns.getWidgetName(field);
     ancestor.commonFields[parent.library][field.name] = {
       instance: new ns.widgets[widget](parent, field, params[field.name], function (field, value) {
           for (var i = 0; i < commonField.setValues.length; i++) {
@@ -535,6 +535,16 @@ ns.libraryFromString = function (library) {
   else {
     return false;
   }
+};
+
+/**
+ * Helper function for detecting field widget.
+ *
+ * @param {Object} field
+ * @returns {String} Widget name
+ */
+ns.getWidgetName = function (field) {
+  return (field.widget === undefined ? field.type : field.widget);
 };
 
 /**

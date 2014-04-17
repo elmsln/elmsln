@@ -24,5 +24,7 @@ H5PEditor.language.core = {
   moreLibraries: 'Look for <a href="http://h5p.org/content-types-and-applications" target="_blank">more content types</a> on h5p.org',
   commonFields: 'Common fields',
   uploading: 'Uploading, please wait...',
-  noFollow: 'Cannot follow field ":path".'
+  noFollow: 'Cannot follow field ":path".',
+  editCopyright: 'Edit copyright',
+  close: 'Close'
 };

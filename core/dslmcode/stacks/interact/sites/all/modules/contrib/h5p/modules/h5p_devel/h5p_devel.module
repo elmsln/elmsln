@@ -1,0 +1,38 @@
+<?php
+
+/**
+ * @file
+ *  h5p_devel.module php file
+ *  Drupal module - h5p developer tools. 
+ */
+
+/**
+ * Implements hook_nodeapi
+ * 
+ * @param object $node
+ * @param string $op
+ * @param string $a3
+ * @param string $a4
+ */
+function h5p_devel_nodeapi(&$node, $op, $a3 = NULL, $a4 = NULL) {
+  
+  /* Check if the devel_generate module is about to create an H5P-node */
+  if(isset($node->devel_generate) && $node->type === 'h5p_content' && $op === 'presave') {
+
+    // Make all nodes multichoice with the same content
+    // TODO - generate all sorts of H5P content
+    
+    $library = 'H5P.MultiChoice 1.0';
+    $json_content = '{"singleAnswer":true,"singlePoint":true,"randomAnswers":true,"answers":[{"correct":true,"text":"<div>Correct answer</div>\n"},{"correct":false,"text":"<div>Wrong answer</div>\n"}],"UI":{"showSolutionButton":"Vis svar","tryAgainButton":"Prøv igjen","correctText":"Riktig!","almostText":"Nesten!","wrongText":"Feil!"},"tryAgain":true,"question":"<p>Question</p>\n"}';
+
+    // Find main library id:
+    $library_id = db_result(db_query("SELECT library_id from {h5p_libraries} where machine_name = 'H5P.MultiChoice' and major_version = 1 and minor_version = 0"));
+    
+    $node->json_content = $json_content;
+    $node->main_library_id = $library_id;
+    $node->h5p_params = $json_content;
+    $node->h5p_type = 'create';
+    $node->h5p_library = $library;
+    $node->embed_type = 'div';
+  } 
+}

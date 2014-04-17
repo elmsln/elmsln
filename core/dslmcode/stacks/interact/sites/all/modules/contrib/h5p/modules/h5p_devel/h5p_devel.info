@@ -1,0 +1,9 @@
+; @file
+;  h5_devel.info ini file
+;  Contains general information about the h5_devel Drupal module.
+name = h5_devel
+description = "Developer tools for H5P"
+core = 6.x
+
+dependencies[] = h5p
+dependencies[] = devel_generate

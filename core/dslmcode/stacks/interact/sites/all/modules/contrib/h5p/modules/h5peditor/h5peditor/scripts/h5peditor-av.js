@@ -17,10 +17,15 @@ H5PEditor.widgets.video = H5PEditor.widgets.audio = H5PEditor.AV = (function ($)
    * @returns {_L3.C}
    */
   function C(parent, field, params, setValue) {
+    this.parent = parent;
     this.field = field;
     this.params = params;
     this.setValue = setValue;
     this.changes = [];
+    
+    if (params !== undefined && params[0] !== undefined) {
+      this.setCopyright(params[0].copyright);
+    }
   }
 
   /**
@@ -29,7 +34,7 @@ H5PEditor.widgets.video = H5PEditor.widgets.audio = H5PEditor.AV = (function ($)
    * @param {jQuery} $wrapper
    */
   C.prototype.appendTo = function ($wrapper) {
-    var that = this;
+    var self = this;
 
     // Add iframe for uploads.
     H5PEditor.File.addIframe();
@@ -39,20 +44,35 @@ H5PEditor.widgets.video = H5PEditor.widgets.audio = H5PEditor.AV = (function ($)
       label = '<span class="h5peditor-label">' + (this.field.label === undefined ? this.field.name : this.field.label) + '</span>';
     }
 
-    var html = H5PEditor.createItem(this.field.type, label + '<div class="file">' + C.createAdd() + '</div>', this.field.description);
+    var html = H5PEditor.createItem(this.field.type, label + '<div class="file">' + C.createAdd() + '</div><a class="h5p-copyright-button" href="#">' + ns.t('core', 'editCopyright') + '</a><div class="h5p-editor-dialog"><a href="#" class="h5p-close" title="' + ns.t('core', 'close') + '"></a></div>', this.field.description);
 
-    var $file = $(html).appendTo($wrapper).children('.file');
+    var $container = $(html).appendTo($wrapper);
+    var $file = $container.children('.file');
     this.$add = $file.children('.add').click(function () {
-      that.uploadFile();
+      self.uploadFile();
       return false;
     });
-    this.$errors = $file.next();
+    this.$errors = $container.children('.h5p-errors');
 
     if (this.params !== undefined) {
       for (var i = 0; i < this.params.length; i++) {
         this.addFile(i);
       }
     }
+    
+    var $dialog = $container.find('.h5p-editor-dialog');
+    $container.find('.h5p-copyright-button').add($dialog.find('.h5p-close')).click(function () {
+      $dialog.toggleClass('h5p-open');
+      return false;
+    });
+  
+    var group = new H5PEditor.widgets.group(self, H5PEditor.copyrightSemantics, self.copyright, function (field, value) {
+      self.setCopyright(value);
+    });
+    group.appendTo($dialog);
+    group.expand();
+    group.$group.find('.title').remove();
+    this.children = [group];
   };
 
   /**
@@ -125,7 +145,8 @@ H5PEditor.widgets.video = H5PEditor.widgets.audio = H5PEditor.AV = (function ($)
 
         var file = {
           path: result.path,
-          mime: result.mime
+          mime: result.mime,
+          copyright: that.copyright
         };
         that.params.push(file);
 
@@ -181,6 +202,35 @@ H5PEditor.widgets.video = H5PEditor.widgets.audio = H5PEditor.AV = (function ($)
   C.prototype.remove = function () {
     // TODO: Check what happens when removed during upload.
     this.$errors.parent().remove();
+  };
+  
+  /**
+   * Sync copyright between all video files.
+   *
+   * @returns {undefined}
+   */
+  C.prototype.setCopyright = function (value) {
+    this.copyright = value;
+    if (this.params !== undefined) {
+      for (var i = 0; i < this.params.length; i++) {
+        this.params[i].copyright = value;
+      }
+    }
+  };
+  
+  /**
+   * Collect functions to execute once the tree is complete.
+   *
+   * @param {function} ready
+   * @returns {undefined}
+   */
+  C.prototype.ready = function (ready) {
+    if (this.passReadies) {
+      this.parent.ready(ready);
+    }
+    else {
+      ready();
+    }
   };
 
   /**
