@@ -8,7 +8,7 @@
 
 
 .cis-lmsless-bar {
-  color:#eee;
+  color:#eeeeee;
   background-color: #222222;
   width: 100%;
   top: 0;
@@ -91,4 +91,25 @@
   top: auto;
   position: relative;
   z-index: auto;
+}
+
+/**
+ * Minor fixes for accessibility module
+ */
+
+.accessibility-content-toggle,
+.accessibility-content-toggle a {
+  color:#eeeeee;
+  background-color: #222222;
+  font-size: 18px;
+  font-family: Tahoma, Geneva, sans-serif;
+}
+
+.accessibility-content-toggle a,
+.accessibility-content-toggle a:link,
+.accessibility-content-toggle a:visited,
+.accessibility-content-toggle a:active {
+  color:#eeeeee;
+  font-size: 18px;
+  font-family: Tahoma, Geneva, sans-serif;
 }
