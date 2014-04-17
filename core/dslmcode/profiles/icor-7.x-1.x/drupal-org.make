@@ -178,6 +178,10 @@ projects[entity_iframe][subdir] = "contrib"
 projects[httprl][version] = "1.12"
 projects[httprl][subdir] = "contrib"
 
+projects[h5p][version] = "1.x-dev"
+projects[h5p][subdir] = "contrib"
+
+
 ; +++++ Themes +++++
 
 ; blank
@@ -211,3 +215,6 @@ libraries[oauth][type] = "library"
 libraries[oauth][destination] = "libraries"
 libraries[oauth][download][type] = "get"
 libraries[oauth][download][url] = "https://github.com/juampy72/OAuth-PHP/archive/master.zip"
+
+; +++++ Patches +++++
+projects[h5p][patch][2243751] = "http://drupal.org/files/issues/h5p-support-other-display-modes-2243751-1.patch"

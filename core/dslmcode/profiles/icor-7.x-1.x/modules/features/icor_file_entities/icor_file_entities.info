@@ -1,0 +1,10 @@
+name = ICOR file entities
+description = File entities packaged for mapping file uploads to drupal, especially around zip files.
+core = 7.x
+package = ICOR
+dependencies[] = ctools
+dependencies[] = file_entity
+features[ctools][] = file_entity:file_type:1
+features[features_api][] = api:2
+features[file_type][] = icor_html
+features[file_type][] = icor_zip

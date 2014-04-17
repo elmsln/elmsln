@@ -136,4 +136,6 @@ dependencies[] = regions_admin_example
 dependencies[] = icor_cis_ux
 dependencies[] = icor_timeline_type
 dependencies[] = icor_interactive_player
+dependencies[] = icor_file_entities
+dependencies[] = icor_admin_ux
 dependencies[] = icor_defaults

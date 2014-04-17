@@ -1,0 +1,17 @@
+name = ICOR admin ux
+description = Menu items and other administration user experience clean up
+core = 7.x
+package = ICOR
+dependencies[] = features
+dependencies[] = menu
+features[features_api][] = api:2
+features[menu_links][] = menu-cis-toolkit_add-content:node/add
+features[menu_links][] = menu-cis-toolkit_file-upload:file/add
+features[menu_links][] = menu-cis-toolkit_html5-interaction:node/add/h5p-content
+features[menu_links][] = menu-cis-toolkit_interactive-player:node/add/icor-interactive-player
+features[menu_links][] = menu-cis-toolkit_poll:node/add/poll
+features[menu_links][] = menu-cis-toolkit_quiz:node/add/quiz
+features[menu_links][] = menu-cis-toolkit_timeline-date:node/add/timeline-date
+features[menu_links][] = menu-cis-toolkit_timeline:node/add/timeline
+features[menu_links][] = menu-cis-toolkit_zip-upload:file/add/upload/archive
+features_exclude[dependencies][cis_service_connection_ux] = cis_service_connection_ux
