@@ -2,40 +2,43 @@
 
 #regions_admin_left {
   width:200px;
-  top:0px;
+  top:0;
   z-index:10000;
   left:-225px;
   float:right;
   position:absolute;
   height:auto;
-  padding:0px 6px;
+  padding:0 6px;
   overflow:visible;
   border-right: 4px solid #dbdee3;
   border-left: 4px solid #dbdee3;
   background-color: #dbdee3;
   -webkit-box-shadow: 0px 0px 10px 0px #bbb;
   box-shadow: 0px 0px 10px 0px #bbb;
-  border-radius: 0px 0px 10px 10px; 
-  -moz-border-radius: 0px 0px 10px 10px; 
+  border-radius: 0px 0px 10px 10px;
+  -moz-border-radius: 0px 0px 10px 10px;
   -webkit-border-radius: 0px 0px 10px 10px;
+  -moz-box-sizing: initial;
+  -webkit-box-sizing: initial;
+  box-sizing: initial;
 }
 #regions_admin_left a:hover{
   color:#111;
 }
 /*-------------------------overrides-------------------------*/
 #regions_admin_left form {
-  margin: 0 0 40px;  
+  margin: 0 0 40px;
 }
 #regions_admin_left p {
-  padding:10px 15px;  
+  padding:10px 15px;
 }
 #regions_admin_left label {
   font-weight:bold;
   text-align:center;
-  color:#373b43;  
+  color:#373b43;
 }
 #regions_admin_left select {
-  width:100%;  
+  width:100%;
 }
 #regions_admin_left .help-block, .help-inline{
   color:#373b43;
@@ -61,9 +64,9 @@
   margin-bottom:10px;
 }
 #regions_admin_left ul.menu {
-  border-radius: 10px; 
-  -moz-border-radius: 10px; 
-  -webkit-border-radius: 10px;  
+  border-radius: 10px;
+  -moz-border-radius: 10px;
+  -webkit-border-radius: 10px;
   background-color:#ffffff;
   color: #373b43;
   padding-top:10px;
@@ -82,10 +85,9 @@
   color:#373b43;
   padding: 5px 5px 5px 10px;
   font-size:1em;
-  border-radius: 5px; 
-  -moz-border-radius: 5px; 
+  border-radius: 5px;
+  -moz-border-radius: 5px;
   -webkit-border-radius: 5px;
-  
 }
 #regions_admin_left #block-masquerade-masquerade h2{
   color: #111;
@@ -125,6 +127,9 @@
   margin: 75px 198px 0px;
   height: 20px;
   width: 44px;
+  line-height: 12px;
+  font-size:12px;
+  font-family: Tahoma, Geneva, sans-serif;
   -o-transform:  rotate(90deg); /* opera specific */
   filter: progid:DXImageTransform.Microsoft.BasicImage(rotation=3); /* ie */
   -webkit-transform: rotate(90deg);
@@ -136,12 +141,14 @@
   -moz-border-radius-topright: 4px;
   border-top-left-radius: 4px;
   border-top-right-radius: 4px;
+  -moz-box-sizing: initial;
+  -webkit-box-sizing: initial;
+  box-sizing: initial;
   display:block;
   text-align:center;
   float:left;
   cursor:pointer;
   position:fixed;
-  font-size:14px;
   font-weight:bold;
   background-color:#dbdee3;
   color:#373b43;

@@ -15,11 +15,20 @@
   padding: 0;
   height: 28px;
   line-height: 28px;
-  font-size: 20px;
+  font-size: 18px;
   left:0;
   position: fixed;
   z-index: 101;
+  font-family: Tahoma, Geneva, sans-serif;
 }
+
+.cis-lmsless-bar a,
+.cis-lmsless-bar a:link,
+.cis-lmsless-bar a:visited,
+.cis-lmsless-bar a:active {
+  color:#eee;
+}
+
 .cis-lmsless-bar .active{
   color:#eee;
 }
@@ -27,7 +36,7 @@
   margin:4px 16px;
   height: 20px;
   line-height: 20px;
-  font-size: 20px;
+  font-size: 18px;
 }
 
 .cis-lmsless-home {
@@ -54,6 +63,9 @@
   .cis-lmsless-bar {
     display:none;
   }
+  .cis-lmsless-margin {
+    margin-top:none;
+  }
 }
 
 /**
@@ -67,11 +79,16 @@
   height:29px;
 }
 
-.cis-lmsless-admin-margin .navbar-fixed-top{
+.cis-lmsless-admin-margin .cis-lmsless-bar {
+  top: 29px
+}
+
+/**
+ * Support for Bootstrap
+ */
+.cis-lmsless-admin-margin .navbar-fixed-top,
+.cis-lmsless-margin .navbar-fixed-top{
   top: auto;
   position: relative;
   z-index: auto;
 }
-
-.cis-lmsless-admin-margin .cis-lmsless-bar {
-  top: 29px
