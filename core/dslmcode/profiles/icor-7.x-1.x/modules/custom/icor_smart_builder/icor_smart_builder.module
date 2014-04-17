@@ -1,0 +1,22 @@
+<?php
+/**
+ * @file
+ * ICOR Smart Builder experience functions and glue code
+ */
+
+/**
+ * Implements hook_init().
+ */
+function icor_smart_builder_init() {
+}
+
+/**
+ * Implements hook_menu_alter().
+ */
+function icor_smart_builder_menu_alter(&$items) {
+  // Example - disable the page at node/add
+  /*
+   *$items['node/add']['access callback'] = FALSE;
+   */
+  /* Your code here */
+}
