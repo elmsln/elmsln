@@ -189,6 +189,16 @@ function entity_iframe_cron() {
 }
 
 /**
+ * Implements hook_admin_paths().
+ */
+function entity_iframe_admin_paths() {
+  $paths = array(
+    'entity_iframe/*' => TRUE,
+  );
+  return $paths;
+}
+
+/**
  * Callback for iframe path for iframe specific theme.
  */
 function _entity_iframe_theme() {
