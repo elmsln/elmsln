@@ -54,6 +54,7 @@ dependencies[] = link
 dependencies[] = makemeeting
 ; ICOR
 dependencies[] = icor_helper
+dependencies[] = icor_smart_builder
 ; Input filters
 dependencies[] = typogrify
 dependencies[] = video_filter
@@ -69,6 +70,9 @@ dependencies[] = og_context
 dependencies[] = og_register
 dependencies[] = og_ui
 ; Other
+dependencies[] = user_progress
+dependencies[] = file_entity
+dependencies[] = yuml
 dependencies[] = boxes
 dependencies[] = clone
 dependencies[] = dynamic_select
@@ -123,6 +127,7 @@ dependencies[] = views_xml_backend
 ; Features
 dependencies[] = features
 dependencies[] = features_override
+dependencies[] = yuml_type
 dependencies[] = textbook_editor
 dependencies[] = views_timelinejs_feature
 dependencies[] = cis_section
