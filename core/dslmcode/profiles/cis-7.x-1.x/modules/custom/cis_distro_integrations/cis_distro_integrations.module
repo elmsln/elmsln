@@ -30,6 +30,9 @@ function cis_distro_integrations_cis_service_instance_blog_options_alter(&$optio
   $options['en'][] = 'regions';
   $options['en'][] = 'regions_admin_left';
   $options['en'][] = 'regions_admin_example';
+  // textbook input filter since we use it everywhere
+  $options['en'][] = 'textbook';
+  $options['en'][] = 'textbook_editor';
   // feature reverts
   $options['fr'][] = 'regions_admin_example';
   $options['fr'][] = 'cis_service_lti';
