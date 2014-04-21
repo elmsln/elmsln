@@ -1,7 +1,0 @@
-name = Collapse Text Wysiwyg
-description = "Adds a button to allow inserting collapsible texts through a rich text editor's toolbar."
-package = Other
-core = 7.x
-configure = admin/config/content/wysiwyg
-dependencies[] = wysiwyg
-dependencies[] = collapse_text
