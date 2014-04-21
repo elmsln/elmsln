@@ -3,7 +3,6 @@ description = Default permissions
 core = 7.x
 package = MOOC
 dependencies[] = accessibility
-dependencies[] = admin_menu
 dependencies[] = admin_theme
 dependencies[] = better_formats
 dependencies[] = block
