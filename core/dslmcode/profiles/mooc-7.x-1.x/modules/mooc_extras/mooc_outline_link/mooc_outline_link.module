@@ -1,0 +1,7 @@
+<?php
+/**
+ * @file
+ * Code for the MOOC outline link feature.
+ */
+
+include_once 'mooc_outline_link.features.inc';
