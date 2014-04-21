@@ -1,0 +1,187 @@
+<?php
+
+/**
+ * @file
+ * Tests for the Collapse Text module
+ *
+ * Most of the test functions are currently empty; they can be filled
+ * as things come up.
+ */
+class CollapseTextTestCase extends DrupalUnitTestCase {
+
+/**
+ * tests to be added:
+ * - test non-ascii titles
+ */
+  
+  function getInfo () {
+    return array(
+      'name'        => t('Collapse Text tests'),
+      'description' => t('Tests for the Collapse Text module.'),
+      'group'       => t('Collapse Text'),
+    );
+  }
+  
+  /**
+   * Make sure that the filter doesn't prevent text from being cached.
+   */
+  function testFilterInfo () {
+    $filter_info = collapse_text_filter_info();
+    $this->assertTrue(
+      $filter_info['collapse_text_filter']['cache'],
+      t('hook_filter_info() should return "cache" => TRUE.'),
+      t('Filter info')
+    );
+  }
+  
+  /**
+   * Tests of the prepare step
+   */
+  function testPrepareFunction () {
+  
+    /* test for changing angle brackets to straight brackets */
+    $this->assertEqual(
+      $this->prepareWrapper('<collapse>'),
+      '[collapse]',
+      t('&lt;collapse&gt; should become [collapse]'),
+      t('Prepare - angle brackets')
+    );
+    $this->assertEqual(
+      $this->prepareWrapper('\\<collapse>'),
+      '\\<collapse>',
+      t('Prefixing &lt;collapse&gt; with "\\" should escape it'),
+      t('Prepare - angle brackets')
+    );
+    $this->assertEqual(
+      $this->prepareWrapper('</collapse>'),
+      '[/collapse]',
+      t('&lt;/collapse&gt; should become [/collapse]'),
+      t('Prepare - angle brackets')
+    );
+    $this->assertEqual(
+      $this->prepareWrapper('\\</collapse>'),
+      '\\</collapse>',
+      t('Prefixing &lt;/collapse&gt; with "\\" should escape it'),
+      t('Prepare - angle brackets')
+    );
+    $this->assertEqual(
+      $this->prepareWrapper('<collapse extra stuff>'),
+      '[collapse extra stuff]',
+      t('Extra content in a &lt;collapse&gt; span should be retained'),
+      t('Prepare - angle brackets')
+    );
+    
+    /* test collapsed changes */
+    $this->assertEqual(
+      $this->prepareWrapper('[collapse collapsed]'),
+      '[collapse collapsed="collapsed"]',
+      t('[collapse collapsed] should become [collapse collapsed="collapsed"]'),
+      t('Prepare - collapsed')
+    );
+    $this->assertEqual(
+      $this->prepareWrapper('[collapsed]'),
+      '[collapse collapsed="collapsed"]',
+      t('[collapsed] should expand to [collapse collapsed="collapsed"]'),
+      t('Prepare - collapsed')
+    );
+    
+    /* test class= / style= changes */
+    $this->assertEqual(
+      $this->prepareWrapper('[collapse style="foo"]'),
+      '[collapse class="foo"]',
+      t('style= should be converted to class='),
+      t('Prepare - class=')
+    );
+    $this->assertEqual(
+      $this->prepareWrapper('[collapse style=foo]'),
+      '[collapse class="foo"]',
+      t('style= simple unquoted support'),
+      t('Prepare - class=')
+    );
+    $this->assertEqual(
+      $this->prepareWrapper('[collapse class=foo]'),
+      '[collapse class=foo]',
+      t('class= should not add quotes'),
+      t('Prepare - class=')
+    );
+    $this->assertEqual(
+      $this->prepareWrapper('[collapse style=foo bar baz title="stuff"]'),
+      '[collapse class="foo bar baz" title="stuff"]',
+      t('style= should grab up until title='),
+      t('Prepare - class=')
+    );
+    
+    /* title tests */
+    $this->assertEqual(
+      $this->prepareWrapper('[collapse title=this is a title]'),
+      '[collapse title="this is a title"]',
+      t('title= should add quotes'),
+      t('Prepare - title=')
+    );
+    $this->assertEqual(
+      $this->prepareWrapper('[collapse title=this is a title class="stuff"]'),
+      '[collapse title="this is a title" class="stuff"]',
+      t('title= should grab until class='),
+      t('Prepare - title=')
+    );
+    
+    /* combined tests */
+    $this->assertEqual(
+      $this->prepareWrapper('[collapse collapsed style=foo bar title=more stuff]'),
+      '[collapse collapsed="collapsed" class="foo bar" title="more stuff"]',
+      t('combined test 1'),
+      t('Prepare - combined')
+    );
+  }
+  function prepareWrapper ($text) {
+    $test_filter = new StdClass();
+    $test_filter->settings = array(
+      'form'          => 1,
+      'default_title' => COLLAPSE_TEXT_DEFAULT_TITLE,
+    );
+    return _collapse_text_filter_prepare($text, $test_filter, NULL, NULL, NULL, NULL);
+  }
+  
+  /**
+   * Tests of the process step.
+   */
+  function testProcessFunction () {
+  }
+  function processWrapper ($text) {
+    $test_filter->settings = array(
+      'form'          => 1,
+      'default_title' => COLLAPSE_TEXT_DEFAULT_TITLE,
+    );
+    return _collapse_text_filter_process($text, $test_filter, NULL, NULL, NULL, NULL);
+  }
+  
+  /**
+   * Tests of _collapse_text_process_recurse_levels
+   */
+  function testRecurseLevels () {
+  }
+  
+  /**
+   * Tests of _collapse_text_process_recurse_tree
+   */
+  function testRecurseTree () {
+  }
+  
+  /**
+   * Tests of _collapse_text_process_text_item and _collapse_text_process_child_item
+   */
+  function testProcessItems () {
+  }
+  
+  /**
+   * Tests of collapse_text_preprocess_page and _collapse_text_preprocess_page_walk_callback
+   */
+  function testPreprocessPage () {
+  }
+  
+  /**
+   * Tests of the theme functions
+   */
+  function testTheme () {
+  }
+}

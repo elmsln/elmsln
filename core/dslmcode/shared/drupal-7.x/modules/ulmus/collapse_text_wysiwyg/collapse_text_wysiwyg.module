@@ -1,0 +1,25 @@
+<?php
+
+/**
+ * @file
+ * Provides integration between Collapse Text and Wysiwyg API.
+ */
+
+/**
+ * Implements hook_wysiwyg_plugin().
+ */
+function collapse_text_wysiwyg_wysiwyg_plugin($editor) {
+  if ($editor == 'ckeditor') {
+    return array(
+      'collapse_text' => array(
+        'name' => 'collapse_text',
+        'description' => 'Collapse Text - ' . t('Inserts [collapsed][/collapsed] tags'),
+        'path' => drupal_get_path('module', 'collapse_text_wysiwyg') . '/ckeditor-plugins/collapse_text/',
+        'load' => TRUE,
+        'buttons' => array(
+          'collapse_text' => 'Insert Collapsible Text',
+        ),
+      ),
+    );
+  }
+}

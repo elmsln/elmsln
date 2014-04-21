@@ -1,0 +1,911 @@
+<?php
+
+/**
+ * @file
+ * collapse_text is an input filter that allows text to be collapsible
+ *
+ * Attributions not otherwhere noted:
+ * - #259535 and #233877, ability to specify title in tag. Thanks rivena, Justyn
+ * - #233877 requested ability to have nested tags.
+ */
+
+// #1245584 per Nikdilis; change default text because arrow isn't actually clickable.
+define('COLLAPSE_TEXT_DEFAULT_TITLE', t('Click here to expand or collapse this section'));
+
+/**
+ * Implements hook_filter_info().
+ */
+function collapse_text_filter_info () {
+  $filters = array();
+  
+  $filters['collapse_text_filter'] = array(
+    'title'             => t('Collapsible text blocks'),
+    'description'       => t('Allows the creation of collapsing blocks of text. This filter must be after the "Limit allowed HTML tags" filter, and should be after the "Convert line breaks into HTML" filter.'),
+    'tips callback'     => '_collapse_text_filter_tips',
+    'settings callback' => '_collapse_text_filter_settings',
+    'default settings'  => array(
+      'form'          => 1,
+      'default_title' => COLLAPSE_TEXT_DEFAULT_TITLE,
+    ),
+    'prepare callback'  => '_collapse_text_filter_prepare',
+    'process callback'  => '_collapse_text_filter_process',
+    'cache'             => TRUE,
+  );
+  
+  return $filters;
+}
+
+/**
+ * Implements hook_filter_FILTER_settings().
+ */
+function _collapse_text_filter_settings ($form, &$form_state, $filter, $format, $defaults, $filters) {
+  $filter->settings += $defaults;
+  
+  $form = array();
+  
+  $form['default_title'] = array(
+    '#type'          => 'textfield',
+    '#title'         => t('Default title'),
+    '#description'   => t('If no title is supplied for a section, use this as the default. This may not be empty. The original default title is "@default_title".', array('@default_title' => COLLAPSE_TEXT_DEFAULT_TITLE)),
+    '#default_value' => $filter->settings['default_title'],
+    '#required'      => TRUE,
+  );
+  
+  $form['form'] = array(
+    '#type'          => 'checkbox',
+    '#title'         => t('Surround text with an empty form tag'),
+    '#description'   => t('Collapse text works by generating &lt;fieldset&gt; tags. To validate as proper HTML, these need to be within a &lt;form&gt; tag. This option allows you to prevent the generation of the surrounding form tag. You probably do not want to change this.'),
+    '#default_value' => $filter->settings['form'],
+  );
+  
+  return $form;
+}
+
+/**
+ * Implements hook_filter_FILTER_tips().
+ */
+function _collapse_text_filter_tips ($filter, $format, $long) {
+  if ($long) {
+    return t(
+        '<p>You may surround a section of text with "[collapse]" and "[/collapse]" to it into a collapsible section.</p>'
+      . '<p>You may use "[collapse]" tags within other "[collapse]" tags for nested collapsing sections.</p>'
+      . '<p>If you start with "[collapsed]" or "[collapse collapsed]", the section will default to a collapsed state.</p>'
+      . '<p>You may specify a title for the section in two ways. You may add a "title=" parameter to the opening tag, such as "[collapse title=&lt;your title here&gt;]". In this case, you should surround the title with double-quotes. If you need to include double-quotes in the title, use the html entity "&amp;quot;". For example: \'[collapse title="&amp;quot;Once upon a time&amp;quot;"]\'. If a title is not specified in the "[collapse]" tag, the title will be taken from the first heading found inside the section. A heading is specified using the "&lt;hX&gt;" html tag, where X is a number from 1-6. The heading will be removed from the section in order to prevent duplication. If a title is not found using these two methods, a default title will be supplied.</p>'
+      . '<p>For advanced uses, you may also add a "class=" option to specify CSS classes to be added to the section. The CSS classes should be surrounded by double-quotes, and separated by spaces; e.g. \'[collapse class="class1 class2"]\'.</p>'
+      . '<p>You may combine these options in (almost) any order. The "collapsed" option should always come first; things will break if it comes after "title=" or "class=". If you need to have it come after the other options, you must specify it as \'collapsed="collapsed"\'; e.g. \'[collapse title="foo" collapsed="collapsed"]\'.</p>'
+      . '<p>If you wish to put the string "[collapse" into the document, you will need to prefix it with a backslash ("\\"). The first backslash before any instance of "[collapse" or "[/collapse" will be removed, all others will remain. Thus, if you want to display "[collapse stuff here", you should enter "\\[collapse stuff here". If you wish to display "\\[collapse other stuff", you will need to put in "\\\\[collapse other stuff". If you prefix three backslashes, two will be displayed, etc.</p>'
+      . '<p>If you prefer, you can use angle brackets ("&lt;&gt;") instead of straight brackets ("[]"). This module will find any instance of "&lt;collapse" and change it to "[collapse" (also fixing the end of the tags and the closing tags).</p>'
+      . '<p>You may override the settings of the filter on an individual basis using a "[collapse options ...]" tag. The possible options now are \'form="form"\' or \'form="noform"\', and \'default_title="..."\'. For example, \'[collapse options form="noform" default_title="Click me!"]\'. Only the first options tag will be looked at, and the settings apply for the entire text area, not just the "[collapse]" tags following the options tag. Note that surrounding &lt;p&gt; and &lt;br&gt; tags will be removed.</p>'
+      . '<p>This module supports some historical variants of the tag as well. The following are <strong>not</strong> recommended for any new text, but are left in place so that old uses still work. The "class=" option used to called "style=", and "style=" will be changed into "class=". If you don\'t put a double-quote immediately after "class=", everything up to the end of the tag or the string "title=" will be interpreted as the class string. Similarly, if you don\'t have a double-quote immediately following "title=", everything up to the end of the tag will be used as the title. Note that in this format, "style=" <em>must</em> precede "title=".</p>'
+    );
+  }
+  else {
+    return t('Use [collapse] and [/collapse] to create collapsible text blocks. [collapse collapsed] or [collapsed] will start with the block closed.'); 
+  }
+}
+
+/**
+ * Implements hook_filter_FILTER_prepare().
+ *
+ * Convert any html style tags into bracket style.
+ * @todo create a better delimiter...
+ * Attempt to add quotes where needed for title= and style=
+ */
+function _collapse_text_filter_prepare ($text, $filter, $format, $langcode, $cache, $cache_id) {
+  // fix any html style (ie, '<>' delimited) tags into our '[]' style delimited tags
+  $text = preg_replace(
+    '/(?<!\\\\)     # not preceded by a backslash
+      <             # an open bracket
+      (             # start capture
+        \/?         # optional backslash
+        collapse    # the string collapse
+        [^>]*       # everything up to the closing angle bracket; note that you cannot use one inside the tag!
+      )             # stop capture
+      >             # close bracket
+    /ix',
+    '[$1]',
+    $text
+  );
+  
+  $text = preg_replace_callback(
+    '/(?<!\\\\)     # not preceded by a backslash
+      \[            # open bracket
+      collapse      # the string collapse
+      [^\]]*        # everything up to a closing straight bracket; note that you cannot use one inside a tag!
+      \]            # closing bracket
+    /ix',
+    '_collapse_text_filter_prepare_regex_callback',
+    $text
+  );
+  
+  return $text;
+}
+
+/**
+ * callback function for the prepare replacement.
+ * attempt to clean up poorly formatted tags
+ */
+function _collapse_text_filter_prepare_regex_callback ($matches) {
+  // all regexes here are running against an already extracted tag
+  $tag = $matches[0];
+  
+  // allow the [collapsed] open tag
+  $tag = preg_replace(
+    '/^                  # start of tag
+      \[                 # open bracket
+      (                  # start capture
+        collapsed        # the string collapsed
+        (?: |\])         # either a space or a close bracket
+      )                  # end capture
+    /ix',
+    '[collapse $1',
+    $tag
+  );
+  
+  // fix the collapsed element
+  $tag = preg_replace(
+    '/^\[collapse collapsed( |\])/i',
+    '[collapse collapsed="collapsed"$1',
+    $tag
+  );
+  
+  // fix the style element. going forward, we prefer "class=".
+  $tag = preg_replace(
+    '/ style=([^"].*?)(?= collapsed=| title=|\])/i',
+    ' class="$1"',
+    $tag
+  );
+  $tag = preg_replace(
+    '/ style="/i',
+    ' class="',
+    $tag
+  );
+  
+  // fix the title element
+  // not sufficient if title includes double-quotes
+  $tag = preg_replace(
+    '/ title=([^"].*?)(?= collapsed=| class=|\])/i',
+    ' title="$1"',
+    $tag
+  );
+  
+  return $tag;
+}
+
+/**
+ * Implements hook_filter_FILTER_process().
+ *
+ * This function uses a pseudo-"parser". Earlier versions used a
+ * (very complex) regular expression, but I think this verion will
+ * work better and have fewer memory issues.
+ */
+function _collapse_text_filter_process ($text, $filter, $format, $langcode, $cache, $cache_id) {
+  // retrieve the options, then look for overrides
+  $options = $filter->settings;
+  list($text, $options) = _collapse_text_check_options($text, $options);
+  
+  // find all of the collapse tags and their location in the string
+  $tags = _collapse_text_find_tags($text, $options);
+  
+  // determine the level of nesting for each element.
+  $levels = _collapse_text_find_levels($tags, $options);
+  
+  // process the text if there are any collapse tags...
+  if (count($levels)) {
+    // turn the levels and the string into a structured tree
+    $tree = _collapse_text_process_recurse_levels($text, 0, strlen($text), $levels, $options);
+    
+    // take the tree, and turn it into FAPI elements, then embed
+    // them in a form if requested
+    // see #634666, per deviantintegral
+    static $render_number = 1;   // used to generate unique ids to prevent an E_NOTICE
+    $holder = array();    
+    if ($options['form']) {
+      $holder = array(
+        '#type'  => 'form',
+        '#theme' => 'collapse_text_form',
+        '#id'    => 'collapse-text-dynamic-form-number-' . $render_number++,
+      );
+    }
+    else {
+      $holder = array(
+        '#type'   => 'markup',
+        '#prefix' => '<div id="' . 'collapse-text-dynamic-div-number-' . $render_number++ . '">',
+        '#suffix' => '</div>',
+      );
+    }
+    $holder['collapse_text_internal_text'] = _collapse_text_process_recurse_tree($tree, $options);
+    
+    // render the elements back to a string
+    $text = drupal_render($holder);
+    drupal_add_library('system', 'drupal.collapse');
+      // by adding this here, our preprocess function doesn't need to actually
+      // recurse through the entire page array. This may be faster...
+  }
+  
+  return $text;
+}
+
+/**
+ * see if there is an options tag available.
+ * if so, remove it from the text and set the options.
+ */
+function _collapse_text_check_options ($text, $options) {
+  $matches = array();
+  $regex_text = '
+    (?<!\\\\)     # not proceeded by a backslash
+    \[            # opening bracket
+    collapse      # the word collapse
+    \s+           # white space
+    options       # the word options
+    [^\]]*        # everything until the closing bracket
+    \]            # a closing bracket
+  ';
+  
+  if (preg_match('/' . $regex_text . '/smx', $text, $matches)) {
+    $opt_tag = $matches[0];
+    
+    // remove the "collapse" from the front of the tag, baking in an "options" tag
+    $opt_tag = preg_replace('/^\[collapse /', '[', $opt_tag);
+    // change to angle brackets, so it can be parsed as XML
+    $opt_tag = preg_replace(array('/^\[/', '/\]$/'), array('<', '/>'), $opt_tag);
+    
+    // turn HTML entities into XML entities
+    // Issue #1109792 by eronte
+    $opt_tag = _collapse_text_html_to_xml_entities($opt_tag);
+    
+    $opt_tag = simplexml_load_string($opt_tag);
+    
+    // form options are either 'form="form"' or 'form="noform"'
+    if ($opt_tag['form'] == 'form') {
+      $options['form'] = 1;
+    }
+    elseif ($opt_tag['form'] == 'noform') {
+      $options['form'] = 0;
+    }
+    
+    if ($opt_tag['default_title']) {
+      // Issue #1096070 by Asgardinho: issues with UTF8 text
+      $options['default_title'] = htmlspecialchars(trim($opt_tag['default_title']), ENT_QUOTES, 'UTF-8');
+    }
+    
+    // remove the options tag, including any miscellaneous <p>, </p>, or <br> tags around it.
+    $text = preg_replace(
+      '/(?:<\/?p>|<br\s*\/?>)*' . $regex_text . '(?:<\/?p>|<br\s*\/?>)*/smx',
+      '',
+      $text
+    );
+  }
+  
+  return array($text, $options);
+}
+
+/**
+ * find all of the [collapse...] tags and return an array of their locations
+ */
+function _collapse_text_find_tags ($text, $options) {
+  $matches = array();
+  
+  $regex = '/
+    (?<!\\\\)     # not proceeded by a backslash
+    \[            # opening bracket
+    \/?           # a closing tag?
+    collapse      # the word collapse
+    [^\]]*        # everything until the closing bracket
+    \]            # a closing bracket
+  /smx';
+  preg_match_all($regex, $text, $matches, PREG_OFFSET_CAPTURE);
+  
+  return $matches[0];
+}
+
+/**
+ * using the locations of the tags, determine what the nesting structure is.
+ */
+function _collapse_text_find_levels ($tags, $options) {
+  $levels = array();
+  
+  $curr_level = 0;
+  foreach ($tags as $item) {
+    // determine whether this is an open or close tag
+    $type = 'unknown';
+    if (substr($item[0], 0, 9) == '[collapse') {
+      $type = 'start';
+    }
+    elseif (substr($item[0], 0, 10) == '[/collapse') {
+      $type = 'end';
+    }
+    
+    // the level of an open tag is incremented before we save its
+    // information, while the level of a close tag is decremented after
+    
+    if ($type == 'start') {
+      $curr_level++;
+    }
+    
+    $levels[] = array(
+      'type'  => $type,
+      'tag'   => $item[0],
+      'start' => $item[1],
+      'end'   => $item[1] + strlen($item[0]),
+      'level' => $curr_level,
+    );
+    
+    if ($type == 'end') {
+      $curr_level--;
+    }
+  }
+  
+  return $levels;
+}
+
+/**
+ * translate the flat levels array into a tree.
+ *
+ * this function is recursive.
+ */
+function _collapse_text_process_recurse_levels ($string, $string_start, $string_end, $elements, $options) {
+  
+  $text_start = $string_start;
+  $text_length = $string_end - $string_start;
+  $child_start = $string_start;
+  $child_end = $string_end;
+  $slice_start = -1;
+  $slice_end = count($elements);
+  
+  // find the first start element
+  $elt_start_found = FALSE;
+  $elt_start = 0;
+  while((! $elt_start_found) and ($elt_start < count($elements))) {
+    if ($elements[$elt_start]['type'] == 'start') {
+      $elt_start_found = TRUE;
+    }
+    else {
+      $elt_start++;
+    }
+  }
+  
+  if ($elt_start_found) {
+    // if there is an opening element, set the text length to everything up to it
+    $text_length = $elements[$elt_start]['start'] - $string_start;
+    $child_start = $elements[$elt_start]['end'];
+    $slice_start = $elt_start + 1;
+  }
+  else {
+    // otherwise, return everything in this segment as a string
+    return array(array(
+      'type'  => 'text',
+      'value' => substr($string, $text_start, $text_length),
+    ));
+  }
+  
+  // find the next end element at the same level
+  $elt_end_found = FALSE;
+  $elt_end = $elt_start;
+  while((! $elt_end_found) and ($elt_end < count($elements))) {
+    if (($elements[$elt_end]['type'] == 'end') and ($elements[$elt_end]['level'] == $elements[$elt_start]['level'])) {
+      $elt_end_found = TRUE;
+    }
+    else {
+      $elt_end++;
+    }
+  }
+  
+  if ($elt_end_found) {
+    $child_end = $elements[$elt_end]['start'];
+    $slice_length = $elt_end - $slice_start;
+  }
+  else {
+    // there is a matching failure
+    // try skipping the start element...
+    if (($elt_start + 1) < count($elements)) {
+      return _collapse_text_process_recurse_levels($string, $string_start, $string_end, array_slice($elements, $elt_start + 1), $options);
+    }
+    else {
+      // fall back to just returning the string...
+      $text_length = $string_end - $text_start; // reset the text length
+      return array(array(
+        'type' => 'text',
+        'value' => substr($string, $text_start, $text_length),
+      ));
+    }
+  }
+  
+  $parts = array();
+  
+  // add the text before the opening element
+  $parts[] = array(
+    'type'  => 'text',
+    'value' => substr($string, $text_start, $text_length),
+  );
+  
+  // add the child element
+  $parts[] = array(
+    'type'  => 'child',
+    'tag'   => $elements[$elt_start]['tag'],
+    'value' => _collapse_text_process_recurse_levels($string, $child_start, $child_end, array_slice($elements, $slice_start, $slice_length), $options),
+  );
+  
+  // tail recurse (which ideally could be optimized away, although it won't be...) to handle
+  // any siblings
+  $parts = array_merge($parts,
+                       _collapse_text_process_recurse_levels($string, $elements[$elt_end]['end'], $string_end, array_slice($elements, $elt_end), $options));
+  
+  // return the result
+  return $parts;
+}
+
+/**
+ * Take a nested tree and turn it into a string.
+ *
+ * This function is recursive.
+ */
+function _collapse_text_process_recurse_tree ($tree, $options) {
+  $parts = array();
+  $weight = 0; // we use $weight to make sure elements are displayed in the correct order
+  
+  foreach ($tree as $item) {
+    // iterate over the tree
+    $part = NULL;
+    
+    if ($item['type'] == 'text') {
+      $part = _collapse_text_process_text_item($item['value'], $options);
+    }
+    elseif ($item['type'] = 'child') {
+      $part = _collapse_text_process_child_item($item, $options);
+    }
+    
+    if (isset($part)) {
+      $part['#weight'] = $weight++;
+      $parts[] = $part;
+    }
+  }
+  
+  return $parts;
+}
+
+/**
+ * process a text item.
+ */
+function _collapse_text_process_text_item ($item, $options) {
+  
+  // remove any leftover [collapse] or [/collapse] tags, such as might be caused by the teaser
+  // leaving out the closing tag. Note that a backslash before the collapse tag will act
+  // as an escape.
+  $item = preg_replace('/(?<!\\\\)\[\/?collapse[^\]]*\]/', '', $item);
+  
+  // remove the first backslash before any collapse tags. This allows collapse tags to be
+  // escaped.
+  $item = str_replace(array('\\[collapse', '\\[/collapse'),
+                      array('[collapse',   '[/collapse'),
+                      $item);
+  
+  // clear out some miscellaneous tags that are introduced by visual editors...
+  $item = preg_replace('/^<\/p>/', '', $item);           // close paragraph right at the start
+  $item = preg_replace('/<p(?:\s[^>]*)?>$/', '', $item); // open paragraph right at the end
+  
+  // clear out cruft introduced by the html line ending filter
+  // these are probably more controversial, since they may actually be intended...
+  $item = preg_replace('/^<br ?\/?>/', '', $item);       // <br> at the very start
+  $item = preg_replace('/<br ?\/?>$/', '', $item);       // <br> at the very end
+  
+  // only return a value if there is something besides whitespace.
+  if (preg_match('/\S/', $item)) {
+    return array(
+      '#type'   => 'markup',
+      '#markup' => $item,
+      '#prefix' => '<div class="collapse-text-text">',
+      '#suffix' => '</div>',
+    );
+  }
+  else {
+    return NULL;
+  }
+}
+
+/**
+ * process a child item.
+ */
+function _collapse_text_process_child_item ($item, $options) {
+  
+  // translate the "tag" into a proper tag, and then parse it
+  // as an xml tag; this is more robust than the previous method
+  $tag = preg_replace(
+    array('/^\[/', '/\]$/'),
+    array('<',     '/>'),
+    $item['tag']
+  );
+  
+  // turn HTML entities into XML entities
+  // Issue #1109792 by eronte
+  $tag = _collapse_text_html_to_xml_entities($tag);
+  
+  $xmltag = simplexml_load_string($tag);
+  
+  $collapsed = ($xmltag['collapsed'] == 'collapsed');
+  $class     = trim($xmltag['class']);
+  // Issue #1096070 by Asgardinho: issues with UTF8 text
+  $title     = htmlspecialchars(trim($xmltag['title']), ENT_QUOTES, 'UTF-8');
+  
+  // set up the styles array. We need to include the 'collapsible' and 'collapsed'
+  // classes ourself, because this is no longer done by the theme system.
+  $classes = array();
+  $classes[] = drupal_clean_css_identifier('collapse-text-fieldset');
+  $classes[] = 'collapsible';
+  if ($collapsed) {
+    $classes[] = 'collapsed'; 
+  }
+  
+  // change the style item into an array
+  // older versions used a custom safe id function, but
+  // I've gone to using the core Drupal function.
+  foreach (explode(' ' , $class) as $c) {
+    if (!empty($c)) {
+      $classes[] = drupal_clean_css_identifier($c);
+    }
+  }
+  
+  // if a title is not supplied, look in the first child for a header tag
+  if (empty($title)) {
+    if ($item['value'][0]['type'] == 'text') {
+      $h_matches = array();
+      if (preg_match('/(<h\d[^>]*>(.+?)<\/h\d>)/smi', $item['value'][0]['value'], $h_matches)) {
+        $title = strip_tags($h_matches[2]);
+      }
+      
+      // if we get the title from the first header tag, we should remove it from
+      // the text so that it isn't repeated.
+      if (!empty($title)) {
+        $occ = 1; // this is a hack to only replace the first instance.
+        $item['value'][0]['value'] = str_replace($h_matches[0], '', $item['value'][0]['value'], $occ);
+      }
+    }
+  }
+  
+  // if still no title, put in the default title
+  if (empty($title)) {
+    $title = $options['default_title'];
+    $classes[] = drupal_clean_css_identifier('collapse-text-default-title');
+  }
+  
+  // create a fieldset that can be themed.
+  // per #634666, deviantintegral, although not including the form tag, as we allow nesting.
+  $fieldset = array(
+    '#type'        => 'fieldset',
+    '#theme'       => 'collapse_text_fieldset',
+    '#title'       => $title,
+    '#collapsible' => TRUE,         // not actually used, but here for correctness
+    '#collapsed'   => $collapsed,   // not actually used, but here for correctness
+    '#attributes'  => array('class' => $classes),
+    
+    'collapse_text_contents' => _collapse_text_process_recurse_tree($item['value'], $options),
+  );
+  
+  return $fieldset;
+}
+
+/**
+ * add the collapse.js file.
+ * in the past, there was a lot of awkward code to try and include this library
+ * conditionally. This was getting really broken, and causing all kinds of weird
+ * errors. This was suggested by jrockowitz in #947710. Since this has caused more
+ * problems than it is worth, I am adopting #1664952 by mstrelan, and just adding
+ * the library. Hopefully this will work better.
+ */
+function collapse_text_preprocess_page (&$variables) {
+  drupal_add_library('system', 'drupal.collapse');
+}
+
+/**
+ * Implementation of hook_theme().
+ */
+function collapse_text_theme ($existing, $type, $theme, $path) {
+  return array(
+    'collapse_text_fieldset' => array(
+      'render element' => 'element',
+    ),
+    'collapse_text_form' => array(
+      'render element' => 'element',
+    ),
+  );
+}
+
+/**
+ * Theme a section of collapsible text. By default, this function calls the
+ * default 'theme_fieldset' implementation, but this function can be overridden
+ * to implement a custom theme just for collapsed text.
+ *
+ * @param $element
+ *   An associative array containing the properties of the element.
+ *   Properties used: attributes, title, value, description, children, collapsible, collapsed
+ * @return
+ *   A themed HTML string representing the collapsed text.
+ *
+ * @ingroup themeable
+ */
+function theme_collapse_text_fieldset ($element) {
+  return drupal_render_children($element['element']);
+}
+
+/**
+ * Theme the outer form. This is required for the fieldset(s) to validate.
+ */
+function theme_collapse_text_form ($element) {
+  return drupal_render_children($element['element']);
+}
+
+/**
+ * convert html entities to xml entities
+ * See issue #1109792 by eronte
+ *
+ * HTML entity lists from
+ * - http://www.w3.org/TR/xhtml1/DTD/xhtml-lat1.ent
+ * - http://www.w3.org/TR/xhtml1/DTD/xhtml-special.ent
+ * - http://www.w3.org/TR/xhtml1/DTD/xhtml-symbol.ent
+ * 
+ * @todo -- rewrite to use str_replace
+ */
+function _collapse_text_html_to_xml_entities ($text) {
+  static $replace = array(
+    // latin 1
+    '&nbsp;'    => '&#160;',
+    '&iexcl;'   => '&#161;',
+    '&cent;'    => '&#162;',
+    '&pound;'   => '&#163;',
+    '&curren;'  => '&#164;',
+    '&yen;'     => '&#165;',
+    '&brvbar;'  => '&#166;',
+    '&sect;'    => '&#167;',
+    '&uml;'     => '&#168;',
+    '&copy;'    => '&#169;',
+    '&ordf;'    => '&#170;',
+    '&laquo;'   => '&#171;',
+    '&not;'     => '&#172;',
+    '&shy;'     => '&#173;',
+    '&reg;'     => '&#174;',
+    '&macr;'    => '&#175;',
+    '&deg;'     => '&#176;',
+    '&plusmn;'  => '&#177;',
+    '&sup2;'    => '&#178;',
+    '&sup3;'    => '&#179;',
+    '&acute;'   => '&#180;',
+    '&micro;'   => '&#181;',
+    '&para;'    => '&#182;',
+    '&middot;'  => '&#183;',
+    '&cedil;'   => '&#184;',
+    '&sup1;'    => '&#185;',
+    '&ordm;'    => '&#186;',
+    '&raquo;'   => '&#187;',
+    '&frac14;'  => '&#188;',
+    '&frac12;'  => '&#189;',
+    '&frac34;'  => '&#190;',
+    '&iquest;'  => '&#191;',
+    '&Agrave;'  => '&#192;',
+    '&Aacute;'  => '&#193;',
+    '&Acirc;'   => '&#194;',
+    '&Atilde;'  => '&#195;',
+    '&Auml;'    => '&#196;',
+    '&Aring;'   => '&#197;',
+    '&AElig;'   => '&#198;',
+    '&Ccedil;'  => '&#199;',
+    '&Egrave;'  => '&#200;',
+    '&Eacute;'  => '&#201;',
+    '&Ecirc;'   => '&#202;',
+    '&Euml;'    => '&#203;',
+    '&Igrave;'  => '&#204;',
+    '&Iacute;'  => '&#205;',
+    '&Icirc;'   => '&#206;',
+    '&Iuml;'    => '&#207;',
+    '&ETH;'     => '&#208;',
+    '&Ntilde;'  => '&#209;',
+    '&Ograve;'  => '&#210;',
+    '&Oacute;'  => '&#211;',
+    '&Ocirc;'   => '&#212;',
+    '&Otilde;'  => '&#213;',
+    '&Ouml;'    => '&#214;',
+    '&times;'   => '&#215;',
+    '&Oslash;'  => '&#216;',
+    '&Ugrave;'  => '&#217;',
+    '&Uacute;'  => '&#218;',
+    '&Ucirc;'   => '&#219;',
+    '&Uuml;'    => '&#220;',
+    '&Yacute;'  => '&#221;',
+    '&THORN;'   => '&#222;',
+    '&szlig;'   => '&#223;',
+    '&agrave;'  => '&#224;',
+    '&aacute;'  => '&#225;',
+    '&acirc;'   => '&#226;',
+    '&atilde;'  => '&#227;',
+    '&auml;'    => '&#228;',
+    '&aring;'   => '&#229;',
+    '&aelig;'   => '&#230;',
+    '&ccedil;'  => '&#231;',
+    '&egrave;'  => '&#232;',
+    '&eacute;'  => '&#233;',
+    '&ecirc;'   => '&#234;',
+    '&euml;'    => '&#235;',
+    '&igrave;'  => '&#236;',
+    '&iacute;'  => '&#237;',
+    '&icirc;'   => '&#238;',
+    '&iuml;'    => '&#239;',
+    '&eth;'     => '&#240;',
+    '&ntilde;'  => '&#241;',
+    '&ograve;'  => '&#242;',
+    '&oacute;'  => '&#243;',
+    '&ocirc;'   => '&#244;',
+    '&otilde;'  => '&#245;',
+    '&ouml;'    => '&#246;',
+    '&divide;'  => '&#247;',
+    '&oslash;'  => '&#248;',
+    '&ugrave;'  => '&#249;',
+    '&uacute;'  => '&#250;',
+    '&ucirc;'   => '&#251;',
+    '&uuml;'    => '&#252;',
+    '&yacute;'  => '&#253;',
+    '&thorn;'   => '&#254;',
+    '&yuml;'    => '&#255;',
+    
+    // special
+    '&apos;'    => '&#39;',
+    '&OElig;'   => '&#338;',
+    '&oelig;'   => '&#339;',
+    '&Scaron;'  => '&#352;',
+    '&scaron;'  => '&#353;',
+    '&Yuml;'    => '&#376;',
+    '&circ;'    => '&#710;',
+    '&tilde;'   => '&#732;',
+    '&ensp;'    => '&#8194;',
+    '&emsp;'    => '&#8195;',
+    '&thinsp;'  => '&#8201;',
+    '&zwnj;'    => '&#8204;',
+    '&zwj;'     => '&#8205;',
+    '&lrm;'     => '&#8206;',
+    '&rlm;'     => '&#8207;',
+    '&ndash;'   => '&#8211;',
+    '&mdash;'   => '&#8212;',
+    '&lsquo;'   => '&#8216;',
+    '&rsquo;'   => '&#8217;',
+    '&sbquo;'   => '&#8218;',
+    '&ldquo;'   => '&#8220;',
+    '&rdquo;'   => '&#8221;',
+    '&bdquo;'   => '&#8222;',
+    '&dagger;'  => '&#8224;',
+    '&Dagger;'  => '&#8225;',
+    '&permil;'  => '&#8240;',
+    '&lsaquo;'  => '&#8249;',
+    '&rsaquo;'  => '&#8250;',
+    '&euro;'    => '&#8364;',
+    
+    // symbols
+    '&fnof;'    => '&#402;',
+    '&Alpha;'   => '&#913;',
+    '&Beta;'    => '&#914;',
+    '&Gamma;'   => '&#915;',
+    '&Delta;'   => '&#916;',
+    '&Epsilon;' => '&#917;',
+    '&Zeta;'    => '&#918;',
+    '&Eta;'     => '&#919;',
+    '&Theta;'   => '&#920;',
+    '&Iota;'    => '&#921;',
+    '&Kappa;'   => '&#922;',
+    '&Lambda;'  => '&#923;',
+    '&Mu;'      => '&#924;',
+    '&Nu;'      => '&#925;',
+    '&Xi;'      => '&#926;',
+    '&Omicron;' => '&#927;',
+    '&Pi;'      => '&#928;',
+    '&Rho;'     => '&#929;',
+    '&Sigma;'   => '&#931;',
+    '&Tau;'     => '&#932;',
+    '&Upsilon;' => '&#933;',
+    '&Phi;'     => '&#934;',
+    '&Chi;'     => '&#935;',
+    '&Psi;'     => '&#936;',
+    '&Omega;'   => '&#937;',
+    '&alpha;'   => '&#945;',
+    '&beta;'    => '&#946;',
+    '&gamma;'   => '&#947;',
+    '&delta;'   => '&#948;',
+    '&epsilon;' => '&#949;',
+    '&zeta;'    => '&#950;',
+    '&eta;'     => '&#951;',
+    '&theta;'   => '&#952;',
+    '&iota;'    => '&#953;',
+    '&kappa;'   => '&#954;',
+    '&lambda;'  => '&#955;',
+    '&mu;'      => '&#956;',
+    '&nu;'      => '&#957;',
+    '&xi;'      => '&#958;',
+    '&omicron;' => '&#959;',
+    '&pi;'      => '&#960;',
+    '&rho;'     => '&#961;',
+    '&sigmaf;'  => '&#962;',
+    '&sigma;'   => '&#963;',
+    '&tau;'     => '&#964;',
+    '&upsilon;' => '&#965;',
+    '&phi;'     => '&#966;',
+    '&chi;'     => '&#967;',
+    '&psi;'     => '&#968;',
+    '&omega;'   => '&#969;',
+    '&upsih;'   => '&#978;',
+    '&piv;'     => '&#982;',
+    '&bull;'    => '&#8226;',
+    '&hellip;'  => '&#8230;',
+    '&prime;'   => '&#8242;',
+    '&Prime;'   => '&#8243;',
+    '&oline;'   => '&#8254;',
+    '&frasl;'   => '&#8260;',
+    '&weierp;'  => '&#8472;',
+    '&image;'   => '&#8465;',
+    '&real;'    => '&#8476;',
+    '&trade;'   => '&#8482;',
+    '&alefsym;' => '&#8501;',
+    '&larr;'    => '&#8592;',
+    '&uarr;'    => '&#8593;',
+    '&rarr;'    => '&#8594;',
+    '&darr;'    => '&#8595;',
+    '&harr;'    => '&#8596;',
+    '&crarr;'   => '&#8629;',
+    '&lArr;'    => '&#8656;',
+    '&uArr;'    => '&#8657;',
+    '&rArr;'    => '&#8658;',
+    '&dArr;'    => '&#8659;',
+    '&hArr;'    => '&#8660;',
+    '&forall;'  => '&#8704;',
+    '&part;'    => '&#8706;',
+    '&exist;'   => '&#8707;',
+    '&empty;'   => '&#8709;',
+    '&nabla;'   => '&#8711;',
+    '&isin;'    => '&#8712;',
+    '&notin;'   => '&#8713;',
+    '&ni;'      => '&#8715;',
+    '&prod;'    => '&#8719;',
+    '&sum;'     => '&#8721;',
+    '&minus;'   => '&#8722;',
+    '&lowast;'  => '&#8727;',
+    '&radic;'   => '&#8730;',
+    '&prop;'    => '&#8733;',
+    '&infin;'   => '&#8734;',
+    '&ang;'     => '&#8736;',
+    '&and;'     => '&#8743;',
+    '&or;'      => '&#8744;',
+    '&cap;'     => '&#8745;',
+    '&cup;'     => '&#8746;',
+    '&int;'     => '&#8747;',
+    '&there4;'  => '&#8756;',
+    '&sim;'     => '&#8764;',
+    '&cong;'    => '&#8773;',
+    '&asymp;'   => '&#8776;',
+    '&ne;'      => '&#8800;',
+    '&equiv;'   => '&#8801;',
+    '&le;'      => '&#8804;',
+    '&ge;'      => '&#8805;',
+    '&sub;'     => '&#8834;',
+    '&sup;'     => '&#8835;',
+    '&nsub;'    => '&#8836;',
+    '&sube;'    => '&#8838;',
+    '&supe;'    => '&#8839;',
+    '&oplus;'   => '&#8853;',
+    '&otimes;'  => '&#8855;',
+    '&perp;'    => '&#8869;',
+    '&sdot;'    => '&#8901;',
+    '&lceil;'   => '&#8968;',
+    '&rceil;'   => '&#8969;',
+    '&lfloor;'  => '&#8970;',
+    '&rfloor;'  => '&#8971;',
+    '&lang;'    => '&#9001;',
+    '&rang;'    => '&#9002;',
+    '&loz;'     => '&#9674;',
+    '&spades;'  => '&#9824;',
+    '&clubs;'   => '&#9827;',
+    '&hearts;'  => '&#9829;',
+    '&diams;'   => '&#9830;',
+  );
+  
+  // only run the substitution if there is actually an entity in the tag.
+  if (strpos($text, '&') !== FALSE) {
+    $text = strtr($text, $replace);
+  }
+  
+  return $text;
+}
