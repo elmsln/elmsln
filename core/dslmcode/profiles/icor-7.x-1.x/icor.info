@@ -72,7 +72,6 @@ dependencies[] = og_ui
 ; Other
 dependencies[] = user_progress
 dependencies[] = file_entity
-dependencies[] = yuml
 dependencies[] = boxes
 dependencies[] = clone
 dependencies[] = dynamic_select
@@ -127,7 +126,6 @@ dependencies[] = views_xml_backend
 ; Features
 dependencies[] = features
 dependencies[] = features_override
-dependencies[] = yuml_type
 dependencies[] = textbook_editor
 dependencies[] = views_timelinejs_feature
 dependencies[] = cis_section
