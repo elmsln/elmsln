@@ -6,7 +6,7 @@
  */
 
 /**
- * Implementation of hook_requirements().
+ * Implements hook_requirements().
  */
 function jquery_update_requirements($phase) {
   $requirements = array();
@@ -26,14 +26,13 @@ function jquery_update_requirements($phase) {
 }
 
 /**
- * Implementation of hook_uninstall().
+ * Implements hook_uninstall().
  */
 function jquery_update_uninstall() {
   variable_del('jquery_update_compression_type');
-  variable_del('jquery_update_jquery_admin_version');
   variable_del('jquery_update_jquery_version');
-  variable_del('jquery_update_pages');
-  variable_del('jquery_update_visibility');
+  variable_del('jquery_update_jquery_admin_version');
+  variable_del('jquery_update_jquery_cdn');
 }
 
 /**
