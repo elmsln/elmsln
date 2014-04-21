@@ -1,0 +1,291 @@
+<?php
+
+/**
+ * @file
+ * Alters the menu item form to allow the administrator to specify additional
+ * attributes for the menu link
+ */
+
+/**
+ * Implements hook_permission().
+ */
+function menu_attributes_permission() {
+  return array(
+    'administer menu attributes' => array(
+      'title' => t('Administer menu attributes'),
+      'description' => t('Administer menu attributes.'),
+    ),
+  );
+}
+
+/**
+ * Implements hook_menu_link_alter().
+ */
+function menu_attributes_menu_link_alter(&$item, $menu) {
+  if (isset($item['options']['attributes']) && is_array($item['options']['attributes'])) {
+    // Filter out blank attributes.
+    foreach ($item['options']['attributes'] as $key => $value) {
+      if ((is_array($value) && empty($value)) || is_string($value) && !drupal_strlen($value)) {
+        unset($item['options']['attributes'][$key]);
+      }
+    }
+
+    // Convert classes to an array.
+    if (isset($item['options']['attributes']['class']) && is_string($item['options']['attributes']['class'])) {
+      $item['options']['attributes']['class'] = explode(' ', $item['options']['attributes']['class']);
+    }
+  }
+}
+
+/**
+ * Implements hook_menu_attriute_info().
+ */
+function menu_attributes_menu_attribute_info() {
+  $info['title'] = array(
+    'label' => t('Title'),
+    'description' => t('The description displayed when hovering over the link.'),
+    'form' => array(
+      '#type' => 'textarea',
+      '#rows' => 2,
+    ),
+  );
+  $info['id'] = array(
+    'label' => t('ID'),
+    'description' => t('Specifies a unique ID for the link.'),
+  );
+  $info['name'] = array(
+    'label' => t('Name'),
+  );
+  $info['rel'] = array(
+    'label' => t('Relationship'),
+    'description' => t("Specifies the relationship between the current page and the link. Enter 'nofollow' here to nofollow this link."),
+  );
+  $info['class'] = array(
+    'label' => t('Classes'),
+    'description' => t('Enter additional classes to be added to the link.'),
+  );
+  $info['style'] = array(
+    'label' => t('Style'),
+    'description' => t('Enter additional styles to be applied to the link.'),
+  );
+  $info['target'] = array(
+    'label' => t('Target'),
+    'description' => t('Specifies where to open the link. Using this attribute breaks XHTML validation.'),
+    'form' => array(
+      '#type' => 'select',
+      '#options' => array(
+        '' => 'None (i.e. same window)',
+        '_blank' => 'New window (_blank)',
+        '_top' => 'Top window (_top)',
+        '_self' => 'Same window (_self)',
+        '_parent' => 'Parent window (_parent)',
+      ),
+    ),
+  );
+  $info['accesskey'] = array(
+    'label' => t('Access Key'),
+    'description' => t('Specifies a <a href="@accesskey">keyboard shortcut</a> to access this link.', array('@accesskey' => url('http://en.wikipedia.org/wiki/Access_keys'))),
+    'form' => array(
+      '#maxlength' => 1,
+      '#size' => 1,
+    ),
+  );
+  return $info;
+}
+
+/**
+ * Fetch an array of menu attributes.
+ */
+function menu_attributes_get_menu_attribute_info() {
+  $attributes = module_invoke_all('menu_attribute_info');
+  drupal_alter('menu_attribute_info', $attributes);
+
+  // Merge in defaul values.
+  foreach ($attributes as $attribute => &$info) {
+    $info += array(
+      'form' => array(),
+      'enabled' => variable_get("menu_attributes_{$attribute}_enable", 1),
+      'default' => '',
+    );
+    $info['form'] += array(
+      '#type' => 'textfield',
+      '#title' => $info['label'],
+      '#description' => isset($info['description']) ? $info['description'] : '',
+      '#default_value' => variable_get("menu_attributes_{$attribute}_default", $info['default']),
+    );
+  }
+
+  return $attributes;
+}
+
+/**
+ * Implements hook_form_FORM_ID_alter().
+ *
+ * Adds menu attribute options to the edit menu item form.
+ *
+ * @see menu_edit_item()
+ * @see _menu_attributes_form_alter()
+ * @see menu_attributes_form_menu_edit_item_submit()
+ */
+function menu_attributes_form_menu_edit_item_alter(&$form, $form_state) {
+  $item = $form['original_item']['#value'];
+  _menu_attributes_form_alter($form, $item, $form);
+}
+
+/**
+ * Implements hook_form_FORM_ID_alter().
+ *
+ * Adds menu attribute options to the node's edit menu item form.
+ *
+ * @see _menu_attributes_form_alter()
+ */
+function menu_attributes_form_node_form_alter(&$form, $form_state) {
+  if (isset($form['menu']['link'])) {
+    $item = $form['#node']->menu;
+    _menu_attributes_form_alter($form['menu']['link'], $item, $form);
+    $form['menu']['link']['options']['attributes']['#type'] = 'container';
+  }
+}
+
+/**
+ * Add the menu attributes to a menu item edit form.
+ *
+ * @param $form
+ *   The menu item edit form passed by reference.
+ * @param $item
+ *   The optional existing menu item for context.
+ */
+function _menu_attributes_form_alter(array &$form, array $item = array(), array &$complete_form) {
+  // Restrict access to the new form elements.
+  $form['options']['attributes']['#access'] = user_access('administer menu attributes');
+
+  $form['options']['#tree'] = TRUE;
+  $form['options']['#weight'] = 50;
+
+  // Unset the previous value so that the new values get saved.
+  unset($form['options']['#value']['attributes']);
+
+  $form['options']['attributes'] = array(
+    '#type' => 'fieldset',
+    '#title' => t('Menu item attributes'),
+    '#collapsible' => TRUE,
+    '#collapsed' => FALSE,
+    '#tree' => TRUE,
+  );
+
+  $attributes = menu_attributes_get_menu_attribute_info();
+  foreach ($attributes as $attribute => $info) {
+    // Merge in the proper default value.
+    if (isset($item['options']['attributes'][$attribute])) {
+      // If the menu link already has this attribute, use it.
+      $info['form']['#default_value'] = $item['options']['attributes'][$attribute];
+      // Convert the classes array to a string for the form.
+      if ($attribute == 'class' && is_array($info['form']['#default_value'])) {
+        $info['form']['#default_value'] = implode(' ', $info['form']['#default_value']);
+      }
+    }
+    elseif ($item['mlid']) {
+      // If this is an existing link, use the raw default (usually empty).
+      $info['form']['#default_value'] = $info['default'];
+    }
+    $form['options']['attributes'][$attribute] = $info['form'] + array(
+      '#access' => $info['enabled'],
+    );
+  }
+
+  // Add form values for the reset of $item['options'] and
+  // $item['options']['attributes'] so the values will carry over during save.
+  foreach ($item['options'] as $key => $value) {
+    if ($key !== 'attributes' && !isset($form['options'][$key])) {
+      $form['options'][$key] = array(
+        '#type' => 'value',
+        '#value' => $value,
+      );
+    }
+  }
+  if (isset($item['options']['attributes'])) {
+    foreach ($item['options']['attributes'] as $key => $value) {
+      if (!isset($form['options']['attributes'][$key])) {
+        $form['options']['attributes'][$key] = array(
+          '#type' => 'value',
+          '#value' => $value,
+        );
+      }
+    }
+  }
+
+  // Hide the 'description' field since we will be using our own 'title' field.
+  if (isset($form['description'])) {
+    $form['description']['#access'] = FALSE;
+
+    // Because this form uses a special $form['description'] field which is
+    // really the 'title' attribute, we need to add special pre-submit handling
+    // to ensure our field gets saved as the title attribute.
+    array_unshift($complete_form['#submit'], '_menu_attributes_form_submit');
+  }
+
+  $form['options']['attributes']['#access'] = (bool) element_get_visible_children($form['options']['attributes']);
+}
+
+/**
+ * Form submit handler for menu item links.
+ *
+ * Move the title attributes value into the 'description' value so that it
+ * will get properly saved.
+ */
+function _menu_attributes_form_submit($form, &$form_state) {
+  if (isset($form_state['values']['menu']['options']['attributes']['title'])) {
+    $form_state['values']['menu']['description'] = $form_state['values']['menu']['options']['attributes']['title'];
+  }
+  elseif (isset($form_state['values']['options']['attributes']['title'])) {
+    $form_state['values']['description'] = $form_state['values']['options']['attributes']['title'];
+  }
+}
+
+/**
+ * Implements hook_form_FORM_ID_alter().
+ *
+ * Alters the menu settings form with our menu attribute settings.
+ *
+ * @see menu_configure_form()
+ */
+function menu_attributes_form_menu_configure_alter(&$form, $form_state) {
+  if (!user_access('administer menu attributes')) {
+    return;
+  }
+
+  $form['attributes_title'] = array(
+    '#type' => 'item',
+    '#title' => t('Menu item attribute options'),
+  );
+  $form['attributes_vertical_tabs'] = array(
+    '#type' => 'vertical_tabs',
+    '#attached' => array(
+      'js' => array(drupal_get_path('module', 'menu_attributes') . '/menu_attributes.js'),
+    ),
+  );
+
+  $attributes = menu_attributes_get_menu_attribute_info();
+  foreach ($attributes as $attribute => $info) {
+    $form['attributes'][$attribute] = array(
+      '#type' => 'fieldset',
+      '#title' => $info['label'],
+      '#group' => 'attributes_vertical_tabs',
+      '#description' => $info['form']['#description'],
+    );
+    $form['attributes'][$attribute]["menu_attributes_{$attribute}_enable"] = array(
+      '#type' => 'checkbox',
+      '#title' => t('Enable the @attribute attribute.', array('@attribute' => drupal_strtolower($info['label']))),
+      '#default_value' => $info['enabled'],
+    );
+    $form['attributes'][$attribute]["menu_attributes_{$attribute}_default"] = array(
+      '#title' => t('Default'),
+      '#description' => '',
+      '#states' => array(
+        'invisible' => array(
+          'input[name="menu_attributes_' . $attribute . '_enable"]' => array('checked' => FALSE),
+        ),
+      ),
+    ) + $info['form'];
+  }
+}
