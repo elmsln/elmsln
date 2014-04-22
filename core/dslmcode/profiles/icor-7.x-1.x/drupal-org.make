@@ -215,6 +215,3 @@ libraries[oauth][type] = "library"
 libraries[oauth][destination] = "libraries"
 libraries[oauth][download][type] = "get"
 libraries[oauth][download][url] = "https://github.com/juampy72/OAuth-PHP/archive/master.zip"
-
-; +++++ Patches +++++
-projects[h5p][patch][2243751] = "http://drupal.org/files/issues/h5p-support-other-display-modes-2243751-1.patch"
