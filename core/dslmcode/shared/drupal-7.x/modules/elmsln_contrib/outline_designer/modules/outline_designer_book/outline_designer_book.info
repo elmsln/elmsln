@@ -5,3 +5,4 @@ dependencies[] = "outline_designer"
 package = "Outline Designer"
 project = "outline_designer_book"
 core = 7.x
+configure = admin/content/book/outline_designer

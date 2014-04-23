@@ -8,14 +8,14 @@ OPTIONAL (need to use to make sense)
 * Outline Child Pages will give a contextual outline designer under the outline tab
 on a node
 * There is keyboard based jwerty integration by downloading the project from
-http://keithcirkel.co.uk/jwerty/ and moving the contents to 
+http://keithcirkel.co.uk/jwerty/ and moving the contents to
 sites/all/libraries/jwerty .  This package also has book_copy and hidden_nodes support
 
 INSTALLATION
 *Place the outline_designer directory in the correct modules folder as you would any other Drupal module
 *Activate the module
 *Activate the sub-modules (outline_designer_book is highly recommended)
-*Go to admin/settings/outline_designer and configure global settings
+*Go to admin/config/content/outline_designer and configure global settings
 If you activate outline_designer_book:
 *Go to admin/content/book/settings to enable / disable content types from outlining and set default type
 *Go to admin/content/book/outline_designer to enable / disable content types from outlining and set default type

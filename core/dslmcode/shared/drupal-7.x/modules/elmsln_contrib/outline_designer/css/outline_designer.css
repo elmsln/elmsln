@@ -2,16 +2,16 @@
  * Outline designer specific buttons / system
  */
  #reload_table {
-  display:none; 
+  display:none;
  }
  #od_popup table {
   float:left;
  }
  #book-outline th:not(:first-child){
-  display:none; 
+  display:none;
  }
  tr.draggable td:not(:first-child) {
-  display:none; 
+  display:none;
  }
  tr.draggable td:first-child {
   width:800px;
@@ -20,7 +20,7 @@
    display:none;
  }
  #od_popup_toolbox {
-  display:none; 
+  display:none;
   text-align:left;
  }
  #od_popup_overlay {
@@ -33,7 +33,7 @@
   display:none;
  }
  .od_show {
-  display:block !important; 
+  display:block !important;
  }
  #od_popup {
   display:none;
@@ -60,7 +60,7 @@
    text-align:left;
  }
  #od_popup .popup-content img {
-  margin:0px 3px 0px 0px; 
+  margin:0px 3px 0px 0px;
  }
  #od_popup .popup-buttons {
    padding:0px 0px 10px 10px;
@@ -75,10 +75,10 @@
    margin: 2px 0px 2px 4px;
  }
  .tmptitle {
-  margin: 0px 2px; 
+  margin: 0px 2px;
  }
- .od_submit_button, .od_delete_button { 
-  
+ .od_submit_button, .od_delete_button {
+
  }
 .outline_designer_edit_button{
   margin: 2px 5px;
@@ -96,8 +96,8 @@
 #book-outline tr{
   width:98%;
   margin:0px;
-  padding-left:1%;
-  padding-right:1%;
+  display: block;
+  padding: 2px 2px 1px 2px;
   border-bottom:1px solid #DDDDDD;
   border-top:none;
 }
@@ -128,8 +128,8 @@
 .od_msg{
   margin:0px !important;
 }
-/* 
- * This is part of the jquery.contextmenu.js package to create some different theme styles 
+/*
+ * This is part of the jquery.contextmenu.js package to create some different theme styles
  */
 
 /* Classic Windows Theme (default) */
@@ -415,7 +415,9 @@
 }
 #book-outline .od-hover {
  border:2px #AEE solid !important;
+ padding: 0px;
 }
 #book-outline .od-selected {
  border:2px #0AA solid !important;
+ padding: 0px;
 }

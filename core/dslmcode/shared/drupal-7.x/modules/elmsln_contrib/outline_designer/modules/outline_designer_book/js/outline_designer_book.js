@@ -49,7 +49,7 @@ Drupal.behaviors.outline_designer_book = {
   });
   //set the active node id everytime an edit icon is clicked on
   $('.outline_designer_edit_button', context).bind('click',function(e){
-    Drupal.outline_designer.set_active($(this).attr('id'));    
+    Drupal.outline_designer.set_active($(this).attr('id'));
   });
   //whenever you doubleclick on a title, switch it to the rename state
   $("#book-outline span.od_title_span", context).bind('dblclick',function(e){
@@ -74,7 +74,7 @@ Drupal.behaviors.outline_designer_book = {
       if(e.keyCode==13){  // Enter pressed
         Drupal.outline_designer_ops.rename_submit();
         return false;
-      }  
+      }
       if(e.keyCode == 27){  // ESC pressed
         Drupal.outline_designer_ops.active('span').css('display','');
         Drupal.outline_designer_ops.active('input').val(Drupal.outline_designer_ops.active('span').html());
@@ -103,9 +103,9 @@ Drupal.behaviors.outline_designer_book = {
   }
   //binding isn't working in Opera / IE correctly or at all
     $('.outline_designer_edit_button').contextMenu(Drupal.settings.outline_designer.context_menu, {
-      theme: Drupal.settings.outline_designer.theme, 
-      beforeShow: function () { 
-      if ($.inArray("nid", unavailableContextMenuItems) == -1) { 
+      theme: Drupal.settings.outline_designer.theme,
+      beforeShow: function () {
+      if ($.inArray("nid", unavailableContextMenuItems) == -1) {
         $(this.menu).find('.context-menu-item-inner:first').css('backgroundImage','url(' + $("#node-" + Drupal.settings.outline_designer.activeNid +"-icon").attr('src') +')').empty().append("nid " + Drupal.settings.outline_designer.activeNid);
         }
       },
@@ -174,7 +174,7 @@ Drupal.outline_designer.render_popup = function(render_title) {
 }
 // define function for edit
   Drupal.outline_designer_ops.edit = function() {
-    window.open(Drupal.settings.basePath + '?q=node/' + Drupal.settings.outline_designer.activeNid + '/edit','_blank');
+    window.open(Drupal.settings.basePath + '?q=node/' + Drupal.settings.outline_designer.activeNid + '/edit&destination=' + 'admin/content/book/' + Drupal.settings.outline_designer.rootNid,'_self');
   };
   // define function for view
   Drupal.outline_designer_ops.view = function() {
@@ -226,7 +226,7 @@ Drupal.outline_designer.render_popup = function(render_title) {
       title = title.replace(/%2B/g,"@2@B@"); //weird escape for ajax with +
       title = title.replace(/%26/g,"@2@6@"); // Fix ampersand issue &
       Drupal.outline_designer.ajax_call(Drupal.settings.outline_designer.type, 'rename', Drupal.settings.outline_designer.activeNid, title, null);
-    }  
+    }
   };
   // submit handler for change type
   Drupal.outline_designer_ops.change_type_submit = function() {
