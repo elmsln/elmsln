@@ -10,13 +10,13 @@ projects[fastclick][subdir] = "contrib"
 projects[admin_menu][version] = "3.0-rc4"
 projects[admin_menu][subdir] = "contrib"
 
-projects[ctools][version] = "1.3"
+projects[ctools][version] = "1.4"
 projects[ctools][subdir] = "contrib"
 
 projects[google_chart_tools][version] = "1.4"
 projects[google_chart_tools][subdir] = "contrib"
 
-projects[context][version] = "3.0-beta6"
+projects[context][version] = "3.2"
 projects[context][subdir] = "contrib"
 
 projects[date][version] = "2.6"
@@ -37,7 +37,7 @@ projects[features][subdir] = "contrib"
 projects[features_override][version] = "2.0-beta2"
 projects[features_override][subdir] = "contrib"
 
-projects[entityreference][version] = "1.0"
+projects[entityreference][version] = "1.1"
 projects[entityreference][subdir] = "contrib"
 
 projects[entityreference_dynamicselect_widget][version] = "1.0"
@@ -52,7 +52,7 @@ projects[makemeeting][subdir] = "contrib"
 projects[yuml][version] = "1.x-dev"
 projects[yuml][subdir] = "contrib"
 
-projects[typogrify][version] = "1.0-rc6"
+projects[typogrify][version] = "1.0-rc8"
 projects[typogrify][subdir] = "contrib"
 
 projects[video_filter][version] = "3.1"
@@ -64,7 +64,7 @@ projects[lti_tool_provider][subdir] = "contrib"
 projects[imce][version] = "1.7"
 projects[imce][subdir] = "contrib"
 
-projects[og][version] = "2.1"
+projects[og][version] = "2.6"
 projects[og][subdir] = "contrib"
 
 projects[og_clone][version] = "1.x-dev"
@@ -73,7 +73,7 @@ projects[og_clone][subdir] = "contrib"
 projects[boxes][version] = "1.1"
 projects[boxes][subdir] = "contrib"
 
-projects[entity][version] = "1.0"
+projects[entity][version] = "1.5"
 projects[entity][subdir] = "contrib"
 
 projects[entityreference_dynamicselect_widget][version] = "1.0"
@@ -82,7 +82,7 @@ projects[entityreference_dynamicselect_widget][subdir] = "contrib"
 projects[libraries][version] = "2.1"
 projects[libraries][subdir] = "contrib"
 
-projects[masquerade][version] = "1.0-rc5"
+projects[masquerade][version] = "1.0-rc7"
 projects[masquerade][subdir] = "contrib"
 
 projects[menu_breadcrumb][version] = "1.3"
@@ -97,7 +97,7 @@ projects[node_clone][subdir] = "contrib"
 projects[profile2][version] = "1.3"
 projects[profile2][subdir] = "contrib"
 
-projects[restws][version] = "2.0-alpha5"
+projects[restws][version] = "2.1"
 projects[restws][subdir] = "contrib"
 
 projects[strongarm][version] = "2.0"
@@ -109,7 +109,7 @@ projects[transliteration][subdir] = "contrib"
 projects[entitycache][version] = "1.1"
 projects[entitycache][subdir] = "contrib"
 
-projects[quiz][version] = "4.0-beta1"
+projects[quiz][version] = "4.0-beta2"
 projects[quiz][subdir] = "contrib"
 
 projects[cloze][version] = "1.0-alpha3"
@@ -121,13 +121,10 @@ projects[grouping_question][subdir] = "contrib"
 projects[image_target_question][version] = "4.4-beta2"
 projects[image_target_question][subdir] = "contrib"
 
-projects[quiz][version] = "4.0-beta1"
-projects[quiz][subdir] = "contrib"
-
 projects[regions][version] = "1.5"
 projects[regions][subdir] = "contrib"
 
-projects[textbook][version] = "1.0-rc2"
+projects[textbook][version] = "4.0"
 projects[textbook][subdir] = "contrib"
 
 projects[delta][version] = "3.0-beta11"
@@ -215,3 +212,7 @@ libraries[oauth][type] = "library"
 libraries[oauth][destination] = "libraries"
 libraries[oauth][download][type] = "get"
 libraries[oauth][download][url] = "https://github.com/juampy72/OAuth-PHP/archive/master.zip"
+
+; allow for custom meta controllers to enable deep querying
+projects[restws][patch][] = "http://drupal.org/files/restws_meta_controls-2053147-1.patch"
+

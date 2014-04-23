@@ -10,7 +10,7 @@ projects[fastclick][subdir] = "contrib"
 projects[admin_menu][version] = "3.0-rc4"
 projects[admin_menu][subdir] = "contrib"
 
-projects[ctools][version] = "1.3"
+projects[ctools][version] = "1.4"
 projects[ctools][subdir] = "contrib"
 
 projects[context][version] = "3.1"
@@ -22,13 +22,13 @@ projects[devel][subdir] = "contrib"
 projects[profiler_builder][version] = "1.x-dev"
 projects[profiler_builder][subdir] = "contrib"
 
-projects[entity_iframe][version] = "1.0-rc1"
+projects[entity_iframe][version] = "1.x-dev"
 projects[entity_iframe][subdir] = "contrib"
 
 projects[features][version] = "2.0"
 projects[features][subdir] = "contrib"
 
-projects[entityreference][version] = "1.0"
+projects[entityreference][version] = "1.1"
 projects[entityreference][subdir] = "contrib"
 
 projects[typogrify][version] = "1.0-rc8"
@@ -40,10 +40,10 @@ projects[video_filter][subdir] = "contrib"
 projects[imce][version] = "1.7"
 projects[imce][subdir] = "contrib"
 
-projects[og][version] = "2.3"
+projects[og][version] = "2.6"
 projects[og][subdir] = "contrib"
 
-projects[entity][version] = "1.2"
+projects[entity][version] = "1.5"
 projects[entity][subdir] = "contrib"
 
 projects[fitvids][version] = "1.14"
@@ -55,7 +55,7 @@ projects[imagefield_focus][subdir] = "contrib"
 projects[libraries][version] = "2.1"
 projects[libraries][subdir] = "contrib"
 
-projects[masquerade][version] = "1.0-rc5"
+projects[masquerade][version] = "1.0-rc7"
 projects[masquerade][subdir] = "contrib"
 
 projects[mediaelement][version] = "1.2"
