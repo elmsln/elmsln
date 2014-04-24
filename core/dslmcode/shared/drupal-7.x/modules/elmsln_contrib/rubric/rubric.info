@@ -4,3 +4,4 @@ name = "Rubric"
 package = "Rubric"
 project = "rubric"
 dependencies[] = field_collection
+dependencies[] = contextual
