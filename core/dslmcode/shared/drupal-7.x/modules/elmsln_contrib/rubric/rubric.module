@@ -354,13 +354,17 @@ function rubric_menu_contextual_links_alter(&$links, $router_item, $root_path) {
         ),
       );
     }
-    // shift to end
-    $tmp = $links['rubric-edit'];
-    unset($links['rubric-edit']);
-    $links['rubric-edit'] = $tmp;
-    $tmp = $links['rubric-delete'];
-    unset($links['rubric-delete']);
-    $links['rubric-delete'] = $tmp;
+    // shift to end for edit and delete if set
+    if (isset($links['rubric-edit'])) {
+      $tmp = $links['rubric-edit'];
+      unset($links['rubric-edit']);
+      $links['rubric-edit'] = $tmp;
+    }
+    if (isset($links['rubric-delete'])) {
+      $tmp = $links['rubric-delete'];
+      unset($links['rubric-delete']);
+      $links['rubric-delete'] = $tmp;
+    }
   }
 }
 
