@@ -1,0 +1,15 @@
+.rubric-feature-generator-level-wrapper {
+  width:20%;
+}
+
+.rubric-feature-generator-level-wrapper {
+  float:left;
+}
+
+.rubric-feature-generator-level-wrapper:nth-child(odd) {
+  background-color: #eeeeee;
+}
+
+.rubric-feature-generator-level-wrapper .form-type-textfield {
+  margin:5px;
+}
