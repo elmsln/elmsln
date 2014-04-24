@@ -109,7 +109,7 @@ projects[masquerade][subdir] = "contrib"
 projects[module_filter][version] = "1.7"
 projects[module_filter][subdir] = "contrib"
 
-projects[node_clone][version] = "1.0-rc1"
+projects[node_clone][version] = "1.0-rc2"
 projects[node_clone][subdir] = "contrib"
 
 projects[plup][version] = "1.x-dev"
@@ -195,6 +195,15 @@ projects[seckit][subdir] = "contrib"
 
 projects[httprl][version] = "1.12"
 projects[httprl][subdir] = "contrib"
+
+projects[rubric][version] = "1.x-dev"
+projects[rubric][subdir] = "contrib"
+
+projects[field_collection_node_clone][version] = "1.x-dev"
+projects[field_collection_node_clone][subdir] = "contrib"
+
+projects[field_collection][version] = "1.0-beta7"
+projects[field_collection][subdir] = "contrib"
 
 
 ; Themes
