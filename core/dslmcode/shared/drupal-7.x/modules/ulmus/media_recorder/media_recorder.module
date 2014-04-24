@@ -405,6 +405,8 @@ function media_recorder_field_widget_form_process($element, &$form_state, $form)
         'timeLimit' => variable_get('media_recorder_timelimit', 300) * 1000,
         'width' => variable_get('media_recorder_width', 300),
         'height' => variable_get('media_recorder_height', 100),
+        'swfurl' => libraries_get_path('recorder.js', TRUE),
+        'html5url' => libraries_get_path('Recorderjs', TRUE),
       ),
     ),
     'type' => 'setting',

@@ -12,9 +12,9 @@ files[] = includes/MediaRecorderBrowser.inc
 
 configure = admin/config/media/mediarecorder
 
-; Information added by  packaging script on 2013-11-21
-version = "7.x-1.0-alpha4+2-dev"
+; Information added by Drupal.org packaging script on 2014-04-21
+version = "7.x-1.0-alpha4+4-dev"
 core = "7.x"
 project = "media_recorder"
-datestamp = "1385054605"
+datestamp = "1398104328"
 

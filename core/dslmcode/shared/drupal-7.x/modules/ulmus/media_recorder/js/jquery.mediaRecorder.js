@@ -6,7 +6,7 @@
  *******************************************************************/
 
 (function($, window, document, undefined) {
-  
+
   // ********************************************************************
   // * Global variables.
   // ********************************************************************
@@ -55,7 +55,7 @@
       $(this.element).parent().children('div.file-audio').width(options.width);
       // Load Recorderjs library and initialize recorder.
       $.ajax({
-        url: Drupal.settings.basePath + 'sites/all/libraries/Recorderjs/recorder.js',
+        url: Drupal.settings.mediaRecorder.html5url + '/recorder.js',
         async: false,
         dataType: "script",
       });
@@ -69,7 +69,7 @@
       $(this.element).parent().children('div.file-audio').width(options.width);
       // Load recorder.js library and initialize recorder.
       $.ajax({
-        url: Drupal.settings.basePath + 'sites/all/libraries/recorder.js/recorder.js',
+        url: Drupal.settings.mediaRecorder.swfurl + '/recorder.js',
         async: false,
         dataType: "script",
       });
@@ -270,7 +270,7 @@
 
       // Initialize flash recorder.
       Recorder.initialize({
-        swfSrc: Drupal.settings.basePath + 'sites/all/libraries/recorder.js/recorder.swf',
+        swfSrc: Drupal.settings.mediaRecorder.swfurl + '/recorder.swf',
         flashContainer: document.getElementById('flashRecorder-' + wrapperID),
       });
     },
@@ -390,7 +390,7 @@
       gainNode.connect(analyserNode);
 
       // Create a recorder using the gain node.
-      element.recorder.HTML5Recorder = new Recorder(gainNode, {workerPath:Drupal.settings.basePath + 'sites/all/libraries/Recorderjs/recorderWorker.js'});
+      element.recorder.HTML5Recorder = new Recorder(gainNode, {workerPath:Drupal.settings.mediaRecorder.html5url + '/recorderWorker.js'});
 
       // Create a muted gain node.
       zeroGainNode = element.recorder.audioContext.createGain();

@@ -13,7 +13,8 @@
         'timeLimit': Drupal.settings.mediaRecorder.timeLimit,
         'width': Drupal.settings.mediaRecorder.width,
         'height': Drupal.settings.mediaRecorder.height,
-        'swfurl': Drupal.settings.basePath + 'sites/all/libraries/wami/Wami.swf',
+        'swfurl': Drupal.settings.mediaRecorder.swfurl,
+        'html5url': Drupal.settings.mediaRecorder.html5url,
       });
     }
   };
