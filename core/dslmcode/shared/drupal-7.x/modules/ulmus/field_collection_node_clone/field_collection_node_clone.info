@@ -1,0 +1,12 @@
+name = Field Collection Node Clone
+description = Clones field collections along with cloned nodes.
+core = 7.x
+dependencies[] = field_collection
+dependencies[] = clone
+
+; Information added by Drupal.org packaging script on 2014-02-20
+version = "7.x-1.0-beta1"
+core = "7.x"
+project = "field_collection_node_clone"
+datestamp = "1392927806"
+

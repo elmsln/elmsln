@@ -1,0 +1,77 @@
+<?php
+/**
+ * @file
+ * Field Collection Node Clone module.
+ */
+
+/**
+ * Implements hook_node_clone_alter().
+ */
+function field_collection_node_clone_clone_node_alter(&$node, $context) {
+  foreach (field_info_fields() as $field_name => $field) {
+    if ($field['type'] == 'field_collection' && isset($node->$field_name)) {
+      foreach ($node->$field_name as $language => $values) {
+        field_collection_clone_items('node', $node, $field_name, $language);
+      }
+    }
+  }
+}
+
+/**
+ * Implements hook_form_alter().
+ */
+function field_collection_node_clone_form_alter(&$form, &$form_state, $form_id) {
+  // Alter the node edit forms for cloned nodes.
+  if (('clone' == arg(2)) && ('_node_form' == substr($form_id, -10))) {
+    // Go through all fields.
+    foreach ($form_state['field'] as &$field_config) {
+      // Only find fields containing field_collections.
+      if (isset($field_config[LANGUAGE_NONE]['field']['type']) && ('field_collection' == $field_config[LANGUAGE_NONE]['field']['type'])) {
+        // Unset the item_id and revision_id of each field_collection item so
+        // that new items are created on save.
+        foreach ($field_config[LANGUAGE_NONE]['entity'] as $field_collection_item) {
+          $field_collection_item->item_id = NULL;
+          $field_collection_item->revision_id = NULL;
+        }
+      }
+    }
+  }
+}
+
+/**
+ * Clone a Field Collection. Helper function for hook_node_clone_alter().
+ */
+function field_collection_clone_items($entity_type, &$entity, $fc_field, $language = LANGUAGE_NONE) {
+  $entity_wrapper = entity_metadata_wrapper($entity_type, $entity);
+  $old_items = $entity_wrapper->{$fc_field}->value();
+  if (!is_array($old_items)) {
+    $old_items = array($old_items);
+  }
+
+  $field_info_instances = field_info_instances();
+  $field_names = element_children($field_info_instances['field_collection_item'][$fc_field]);
+
+  unset($entity->{$fc_field}[$language]);
+
+  foreach ($old_items as $old_item) {
+    $new_item = entity_create('field_collection_item', array('field_name' => $fc_field));
+    $new_item->setHostEntity($entity_type, $entity);
+
+    foreach ($field_names as $field_name) {
+      if (!empty($old_item->{$field_name})) {
+        $new_item->{$field_name} = $old_item->{$field_name};
+      }
+    }
+
+    // Now check if any of the fields in the newly cloned fc item is a field
+    // collection and recursively call this function to properly clone it.
+    foreach ($field_names as $field_name) {
+      if (!empty($new_item->{$field_name})) {
+        $field_info = field_info_field($field_name);
+        if ($field_info['type'] == 'field_collection') {
+          field_collection_clone_items('field_collection_item', $new_item, $field_name, $language);
+        }
+      }
+    }
+  }
+}
