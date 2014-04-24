@@ -5,3 +5,18 @@
  */
 
 include_once 'rubric_feature.features.inc';
+
+/**
+ * Implements hook_menu().
+ */
+function rubric_feature_menu() {
+  $items['node/add/elms-rubric/generator'] = array(
+    'title' => 'Rubric Generator',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('rubric_feature_generator_form'),
+    'access arguments' => array('create elms_rubric content'),
+    'type' => MENU_LOCAL_TASK,
+    'file' => 'rubric_feature.pages.inc',
+  );
+  return $items;
+}
