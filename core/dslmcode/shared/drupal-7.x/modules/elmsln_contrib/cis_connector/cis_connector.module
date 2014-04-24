@@ -12,7 +12,7 @@
 // this is a kill switch to force all calls to be uncached
 // trigger this when testing and debugging calls
 define ('CIS_CONNECTOR_DEVELOPMENT', FALSE);
-define ('CIS_CONNECTOR_ROOT_USER_DEVELOPMENT', TRUE);
+define ('CIS_CONNECTOR_ROOT_USER_DEVELOPMENT', FALSE);
 define ('CIS_CONNECTOR_ENTITY_BOTH', 0);
 define ('CIS_CONNECTOR_ENTITY_REMOTE_ONLY', 1);
 
