@@ -1,0 +1,71 @@
+<?php
+/**
+ * @file
+ */
+ 
+/**
+ * Implementation of hook_install().
+ */
+function audioconverter_install() {
+}
+
+function audioconverter_uninstall() {
+  //Delete module variables
+  db_query("DELETE FROM {variable} WHERE name LIKE '%audioconverter%'");
+}
+
+/**
+ * Implementation of hook_schema().
+ */
+function audioconverter_schema() {
+  $schema['audio_rendering'] = array(
+    'description' => t('Store audio transcoding queue'),
+    'fields' => array(
+      'fid' => array(
+        'description' => t('original file id'),
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'pid' => array(
+        'description' => t('Process ID'),
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'status' => array(
+        'description' => t('status of the transcoding'),
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'started' => array(
+        'description' => t('Started transcodings'),
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'completed' => array(
+        'description' => t('Transcoding completed'),
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+        'serialized_data' => array(
+        'description' => t('Informations related to the videos'),
+        'type' => 'text',
+        'not null' => FALSE,
+      ),
+
+    ),
+    'indexes' => array(
+    'status' => array('status'),
+    ),
+    'primary key' => array('fid'),
+  );
+
+  return $schema;
+}

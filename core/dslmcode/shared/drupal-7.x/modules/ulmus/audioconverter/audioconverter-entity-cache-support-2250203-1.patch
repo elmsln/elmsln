@@ -1,0 +1,162 @@
+diff --git a/audioconverter.module b/audioconverter.module
+index 40ead6c..ad80110 100644
+--- a/audioconverter.module
++++ b/audioconverter.module
+@@ -1,4 +1,4 @@
+-<?php 
++<?php
+ 
+ /**
+  * Define some constants
+@@ -75,10 +75,10 @@ function _audioconverter_process_entity($entity, $type) {
+             continue;
+           }
+           $rfile = file_load($field_data['fid']);
+-         
++
+           $info = pathinfo($rfile->uri);
+           $op = $info['extension'];
+-          
++
+           if ($op == 'mp3') {
+             continue;
+           }
+@@ -158,7 +158,7 @@ function audioconverter_form_field_ui_field_edit_form_alter(&$form, &$form_state
+      '#description' => t('Automatically convert existing audio fields to mp3. Please make sure the Audio Converter settings are properly configured.'),
+      '#default_value' => variable_get('audioconverter_' . $field_name, 0),
+     );
+-      
++
+     $form['submit']['#weight']=10;
+     $form['#submit'][]='audioconverter_form_field_submit';
+   }
+@@ -192,21 +192,21 @@ function audioconverter_admin_settings_form() {
+     '#default_value' => variable_get('audioconverter_all', 0),
+     '#options' => array('Use individual field settings', 'Automatically convert all audio fields in the system'),
+   );
+-  
++
+   $form['audioconverter_on_save'] = array(
+     '#type' => 'radios',
+     '#title' => t('Audio conversion time'),
+     '#default_value' => variable_get('audioconverter_on_save', 0),
+     '#options' => array('Audio files should be converted on cron', 'Audio files should be converted on Node Submit'),
+   );
+- 
++
+   $form['audioconverter_wav_setting'] = array(
+     '#type' => 'radios',
+     '#title' => t('What to do after converting files to mp3?'),
+     '#default_value' => variable_get('audioconverter_wav_setting', 1),
+     '#options' => array('Delete existing .wav files', 'Leave .wav files untouched'),
+   );
+-  
++
+   $form['ffmpeg'] = array(
+           '#type' => 'fieldset',
+           '#title' => t('FFMPEG Settings'),
+@@ -227,7 +227,7 @@ function audioconverter_admin_settings_form() {
+           '#default_value' => variable_get('ffmpeg_executable_command', ' -i %audiofile %convertfile'),
+           '#description' => t('Arguments to be passed to FFMPEG. Tokens available: %audiofile - original audio filename, %convertfile - name of the converted file.')
+   );
+-  
++
+   $form['sox'] = array(
+           '#type' => 'fieldset',
+           '#title' => t('SOX Utility Settings'),
+@@ -282,14 +282,14 @@ function _audioconverter_scheduler_select() {
+ function _audioconverter_scheduler_start($job) {
+   $fid = $job->fid;
+   _audioconverter_render_job_change_status($fid, AUDIO_RENDERING_ACTIVE);
+-  
++
+   if (variable_get('audioconverter', 0) == 0) {
+     _audioconverter_scheduler_ffmpeg_helper($job);
+   }
+   else {
+     _audioconverter_scheduler_sox_helper($job);
+   }
+-  
++
+ 
+   if (empty($job->converted)) {
+     watchdog('audioconverter', 'converted file is an empty file.', array(), WATCHDOG_ERROR);
+@@ -314,14 +314,24 @@ function _audioconverter_scheduler_start($job) {
+       //file_delete($file);
+       drupal_unlink($job->uri);
+     }
++    // support entitycache if tables exist
++    if (db_table_exists('cache_entity_node')) {
++      $node = menu_get_object();
++      if (isset($node->nid)) {
++        cache_clear_all($node->nid, 'cache_entity_node');
++      }
++      if (db_table_exists('cache_entity_file')) {
++        cache_clear_all($file->fid, 'cache_entity_file');
++      }
++    }
+     // TODO : add data of rendering
+     _audioconverter_render_job_change_status($fid, AUDIO_RENDERING_COMPLETE);
+-    // clear all cache data 
++    // clear all cache data
+     field_cache_clear();
+     watchdog('audioconverter', 'successfully converted %orig to %dest', array('%orig' => $job->uri, '%dest' => $file->uri), WATCHDOG_INFO);
+   }
+   /*else {
+-    
++
+     // get the username of the process owner
+     $ownerarray = posix_getpwuid(posix_getuid());
+     $owner=$ownerarray['name'];
+@@ -335,7 +345,7 @@ function _audioconverter_scheduler_start($job) {
+ }
+ 
+ function _audioconverter_scheduler_ffmpeg_helper(&$job) {
+- 
++
+   $info = pathinfo($job->uri);
+   $scheme = file_uri_scheme($job->uri);
+   $wrapper = file_stream_wrapper_get_instance_by_scheme($scheme);
+@@ -347,7 +357,7 @@ function _audioconverter_scheduler_ffmpeg_helper(&$job) {
+   /*$options = preg_replace(array('/%audiofile/', '/%convertfile/'),
+   array($audiofile, $convfile),
+   variable_get('ffmpeg_executable_command', ' -i %audiofile %convertfile'));*/
+-  
++
+   $options = str_replace('%audiofile', $audiofile, variable_get('ffmpeg_executable_command', ' -i %audiofile %convertfile'));
+   $options = str_replace('%convertfile', $convfile, $options);
+   // set to the converted file output
+@@ -363,7 +373,7 @@ function _audioconverter_scheduler_ffmpeg_helper(&$job) {
+   }
+   else {
+     $file = new stdClass();
+-    //TODO: uid always empty, should add field to the table and store it 
++    //TODO: uid always empty, should add field to the table and store it
+     global $user;
+     $file->uid      = $user->uid;
+     //$file->uid      = $job->uid;
+@@ -383,7 +393,7 @@ function _audioconverter_scheduler_sox_helper(&$job) {
+   $wrapper = file_stream_wrapper_get_instance_by_scheme($scheme);
+   $audiofile = file_create_url($job->uri);
+   $convfile =  getcwd(). '/'. $wrapper->getDirectoryPath() . '/' . $info['filename'] . ".mp3";
+-  
++
+   $converter = variable_get('sox_executable_path', '/usr/bin/sox');
+ 
+   $options = preg_replace(array('/%videofile/', '/%convertfile/'),
+@@ -404,7 +414,7 @@ function _audioconverter_scheduler_sox_helper(&$job) {
+ 
+   if (!file_exists($job->convfile) || !filesize($job->convfile)) {
+     watchdog('audioconverter', 'Audio conversion failed. SOX reported the following output: ' . $command_output, array(), WATCHDOG_ERROR);
+- 
++
+   }
+   else {
+     $file_name = $convfile;
+@@ -456,4 +466,4 @@ function audioconverter_allowed_fields() {
+     $fields[]='audiofield';
+     $fields[]='audiorecorderfield';
+     return $fields;
+-}
+\ No newline at end of file
++}

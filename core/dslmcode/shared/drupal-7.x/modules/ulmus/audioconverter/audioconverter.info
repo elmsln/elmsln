@@ -1,0 +1,5 @@
+name = Audio Converter
+description = Adds the ability to convert audio files to mp3.
+core = 7.x
+package = Media
+files[] = audioconverter.module

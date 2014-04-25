@@ -1,0 +1,21 @@
+diff --git a/audioconverter.info b/audioconverter.info
+index 1ffa934..2eeb338 100644
+--- a/audioconverter.info
++++ b/audioconverter.info
+@@ -2,5 +2,4 @@ name = Audio Converter
+ description = Adds the ability to convert audio files to mp3.
+ core = 7.x
+ package = Media
+-dependencies[] = audiofield
+ files[] = audioconverter.module
+diff --git a/audioconverter.module b/audioconverter.module
+index ad80110..d718d1e 100644
+--- a/audioconverter.module
++++ b/audioconverter.module
+@@ -465,5 +465,6 @@ function audioconverter_allowed_fields() {
+     $fields=module_invoke_all('audioconverter_allowed_fields');
+     $fields[]='audiofield';
+     $fields[]='audiorecorderfield';
++    $fields[]='media_recorder';
+     return $fields;
+ }
