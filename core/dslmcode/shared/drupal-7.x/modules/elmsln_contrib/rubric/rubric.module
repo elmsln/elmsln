@@ -524,3 +524,10 @@ function theme_rubric_field_collection_level($variables) {
   $output = _rubric_make_contextual_links($output, 'field_collection', $pieces[1], $pieces[0]);
   return $output;
 }
+
+/**
+ * Implements hook_audioconverter_allowed_fields().
+ */
+function rubric_feedback_audioconverter_allowed_fields() {
+  return array('media_recorder');
+}

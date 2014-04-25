@@ -242,9 +242,14 @@ function rubric_feedback_field_default_field_instances() {
     'display' => array(
       'default' => array(
         'label' => 'above',
-        'module' => 'file',
-        'settings' => array(),
-        'type' => 'file_default',
+        'module' => 'file_entity',
+        'settings' => array(
+          'autoplay' => FALSE,
+          'controls' => TRUE,
+          'loop' => FALSE,
+          'multiple_file_behavior' => 'tags',
+        ),
+        'type' => 'file_audio',
         'weight' => 3,
       ),
     ),
@@ -517,6 +522,12 @@ function rubric_feedback_field_default_field_instances() {
       'active' => 1,
       'module' => 'canvas_field',
       'settings' => array(
+        'buttons' => array(
+          'color' => TRUE,
+          'paint' => FALSE,
+          'pen' => TRUE,
+          'reset' => TRUE,
+        ),
         'color' => 1,
         'mode_edit' => 1,
         'mode_start' => 0,
@@ -644,9 +655,14 @@ function rubric_feedback_field_default_field_instances() {
     'display' => array(
       'default' => array(
         'label' => 'above',
-        'module' => 'file',
-        'settings' => array(),
-        'type' => 'file_default',
+        'module' => 'file_entity',
+        'settings' => array(
+          'autoplay' => FALSE,
+          'controls' => TRUE,
+          'loop' => FALSE,
+          'multiple_file_behavior' => 'tags',
+        ),
+        'type' => 'file_audio',
         'weight' => 10,
       ),
       'teaser' => array(
@@ -691,15 +707,12 @@ function rubric_feedback_field_default_field_instances() {
     'display' => array(
       'default' => array(
         'label' => 'above',
-        'module' => 'field_collection',
+        'module' => 'field_collection_tabs',
         'settings' => array(
-          'add' => 'Add',
-          'delete' => 'Delete',
-          'description' => TRUE,
-          'edit' => 'Edit',
+          'title_field' => 'field_feedback_points',
           'view_mode' => 'full',
         ),
-        'type' => 'field_collection_view',
+        'type' => 'field_collection_tabs',
         'weight' => 11,
       ),
       'teaser' => array(
@@ -718,12 +731,12 @@ function rubric_feedback_field_default_field_instances() {
     ),
     'widget' => array(
       'active' => 1,
-      'module' => 'field_collection_fieldset',
+      'module' => 'field_collection',
       'settings' => array(
         'collapsed' => 1,
         'last_item_collapsed' => 1,
       ),
-      'type' => 'field_collection_fieldset',
+      'type' => 'field_collection_hidden',
       'weight' => 11,
     ),
   );
