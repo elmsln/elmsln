@@ -1,0 +1,12 @@
+.custom-contextual-links {
+  display:none;
+}
+
+.rubric-level-wrapper:hover {
+  background-color:#ffffaa !important;
+  cursor: pointer;
+}
+
+.rubric-level-selected {
+  background-color:#ffbbbb;
+}

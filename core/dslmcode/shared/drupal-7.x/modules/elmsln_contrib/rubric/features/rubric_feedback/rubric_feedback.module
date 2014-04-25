@@ -7,12 +7,29 @@
 include_once 'rubric_feedback.features.inc';
 
 /**
- * Implements hook_form_alter().
+ * Implements hook_permission().
  */
-function rubric_feedback_form_alter(&$form, &$form_state, $form_id) {
-  // only apply to rubric submission form
-  if (isset($form['type']) && $form_id == 'rubric_submission_assessment_node_form') {
-    drupal_add_js(drupal_get_path('module', 'rubric') . '/js/rubric_feedback.js');
-    drupal_add_css(drupal_get_path('module', 'rubric') . '/css/rubric_feedback.css');
-  }
+function rubric_feedback_permission() {
+  return array(
+    'access rubric feedback ui' =>  array(
+      'title' => t('Access feedback interface'),
+      'description' => t('Access the Rubric user interface to give feedback.'),
+    ),
+  );
+}
+
+/**
+ * Implements hook_menu().
+ */
+function rubric_feedback_menu() {
+  $items['rubric-feedback/%/%'] = array(
+    'title' => 'Rubric assessment',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('rubric_feedback_ui_form', 1, 2),
+    'access arguments' => array('access rubric feedback ui'),
+    'type' => MENU_NORMAL_ITEM,
+    'file' => 'rubric_feedback.pages.inc',
+  );
+
+  return $items;
 }

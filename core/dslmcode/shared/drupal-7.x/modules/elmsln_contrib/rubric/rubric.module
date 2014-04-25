@@ -342,7 +342,6 @@ function rubric_menu_contextual_links_alter(&$links, $router_item, $root_path) {
       else {
         $id = $fc->hostEntity()->item_id;
       }
-      //module_load_include('inc', 'field_collection', 'field_collection.pages');
       $path = 'field-collection/' .  str_replace('_', '-', $fc->field_name) . '/';
       $path .= 'add/' . $fc->hostEntityType() . '/' . $id;
       // add items
