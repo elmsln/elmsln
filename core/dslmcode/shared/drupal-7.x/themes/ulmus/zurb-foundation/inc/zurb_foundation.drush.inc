@@ -79,7 +79,10 @@ function drush_zurb_foundation_foundation_sub_theme($name = NULL, $machine_name 
   drush_op('zurb_foundation_file_str_replace', "$subtheme_path/$machine_name.info", 'scripts.js', "$machine_name.js");
   // Rename the Drupal behavior name in the custom js file.
   drush_op('zurb_foundation_file_str_replace', "$subtheme_path/js/$machine_name.js", 'STARTER', "$machine_name");
-  // @TODO drush_op('zurb_foundation_file_str_replace', "$subtheme_path/template.php", '//', "$name");
+  // Rename functions in template.php
+  drush_op('zurb_foundation_file_str_replace', "$subtheme_path/template.php", 'STARTER', "$machine_name");
+  // Rename functions in theme-settings.php
+  drush_op('zurb_foundation_file_str_replace', "$subtheme_path/theme-settings.php", 'STARTER', "$machine_name");
 
   // Notify user of the newly created theme.
   drush_print(dt("\n!name sub-theme was created in !path. \n",

@@ -62,29 +62,51 @@ function zurb_foundation_form_alter(&$form, &$form_state, $form_id) {
     }
   }
 }
+
 /**
- * Implements theme_form_element_label()
+ * Implements theme_form_element_label().
  */
 function zurb_foundation_form_element_label($variables) {
-  if (!empty($variables['element']['#title'])) {
-    $variables['element']['#title'] = '<label>' . $variables['element']['#title'] . '</label>';
-  }
+ _zurb_foundation_add_tooltips($variables);
+ return theme_form_element_label($variables);
+}
 
-  // Check whether we want to add tooltips.
-  if (!empty($variables['element']['#description']) && theme_get_setting('zurb_foundation_tooltip_enable')) {
-    // Check whether we're adding in a "More information?" text.
-    if (theme_get_setting('zurb_foundation_tooltip_mode') === 'text') {
-      $text = theme_get_setting('zurb_foundation_tooltip_text');
-      $position = theme_get_setting('zurb_foundation_tooltip_position');
-      $touch = theme_get_setting('zurb_foundation_tooltip_touch') ? 'data-options="disable-for-touch:true"' : '';
-      $variables['element']['#description'] = ' <span data-tooltip ' . $touch . 'class="has-tip ' . $position . '" title="' . strip_tags($variables['element']['#description']) . '">' . t($text) . '</span>';
-    }
-    else {
-      // Hide description field, we add it directly to the form element's "title" attribute.
-      $variables['element']['#description'] = '';
-    }
+/**
+ * Implements theme_text_format_wrapper().
+ */
+function zurb_foundation_text_format_wrapper($variables) {
+  _zurb_foundation_add_tooltips($variables);
+  return theme_text_format_wrapper($variables);
+}
+
+/**
+ * Implements theme_field_multiple_value_form().
+ */
+function zurb_foundation_field_multiple_value_form($variables) {
+  _zurb_foundation_add_tooltips($variables);
+  return theme_field_multiple_value_form($variables);
+}
+
+/**
+ * Modifies description to display the description in a tooltip.
+ */
+function _zurb_foundation_add_tooltips(&$variables) {
+  // Don't do this if tooltips were turned off in settings.
+  if (!theme_get_setting('zurb_foundation_tooltip_enable')) {
+    return;
   }
-  return theme_form_element_label($variables);
+  if (!empty($variables['element']['#title']) && !empty($variables['element']['#description'])) {
+    $variables['element']['#title'] = '<label>' . $variables['element']['#title'] . '</label>';
+    $text = theme_get_setting('zurb_foundation_tooltip_text');
+    $position = theme_get_setting('zurb_foundation_tooltip_position');
+    $touch = theme_get_setting('zurb_foundation_tooltip_touch') ? 'data-options="disable-for-touch:true"' : '';
+    $variables['element']['#description'] = ' <span data-tooltip ' . $touch . 'class="has-tip ' . $position . '" title="' . check_plain(strip_tags($variables['element']['#description'])) . '">' . t($text) . '</span>';
+  }
+  else {
+    // Hide description field, we add it directly to the form element's
+    // "title" attribute.
+    $variables['element']['#description'] = '';
+  }
 }
 
 /**

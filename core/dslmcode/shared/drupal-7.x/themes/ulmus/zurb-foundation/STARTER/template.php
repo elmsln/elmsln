@@ -117,13 +117,25 @@
 //function STARTER_form_alter(&$form, &$form_state, $form_id) {
 //  // Sexy submit buttons
 //  if (!empty($form['actions']) && !empty($form['actions']['submit'])) {
-//    $form['actions']['submit']['#attributes'] = array('class' => array('primary', 'button', 'radius'));
+//    $classes = (is_array($form['actions']['submit']['#attributes']['class']))
+//      ? $form['actions']['submit']['#attributes']['class']
+//      : array();
+//    $classes = array_merge($classes, array('secondary', 'button', 'radius'));
+//    $form['actions']['submit']['#attributes']['class'] = $classes;
 //  }
 //}
 
-// Sexy preview buttons
+/**
+ * Implements hook_form_FORM_ID_alter()
+ * Example of using foundation sexy buttons on comment form
+ */
 //function STARTER_form_comment_form_alter(&$form, &$form_state) {
-//  $form['actions']['preview']['#attributes']['class'][] = array('class' => array('secondary', 'button', 'radius'));
+  // Sexy preview buttons
+//  $classes = (is_array($form['actions']['preview']['#attributes']['class']))
+//    ? $form['actions']['preview']['#attributes']['class']
+//    : array();
+//  $classes = array_merge($classes, array('secondary', 'button', 'radius'));
+//  $form['actions']['preview']['#attributes']['class'] = $classes;
 //}
 
 
@@ -164,27 +176,27 @@ function THEMENAME_preprocess_views_view_fields(&$variables) {
 /**
  * Implements hook_css_alter().
  */
-function STARTER_css_alter(&$css) {
-  // Always remove base theme CSS.
-  $theme_path = drupal_get_path('theme', 'zurb_foundation');
-
-  foreach($css as $path => $values) {
-    if(strpos($path, $theme_path) === 0) {
-      unset($css[$path]);
-    }
-  }
-}
+//function STARTER_css_alter(&$css) {
+//  // Always remove base theme CSS.
+//  $theme_path = drupal_get_path('theme', 'zurb_foundation');
+//
+//  foreach($css as $path => $values) {
+//    if(strpos($path, $theme_path) === 0) {
+//      unset($css[$path]);
+//    }
+//  }
+//}
 
 /**
  * Implements hook_js_alter().
  */
-function STARTER_js_alter(&$js) {
-  // Always remove base theme JS.
-  $theme_path = drupal_get_path('theme', 'zurb_foundation');
-
-  foreach($js as $path => $values) {
-    if(strpos($path, $theme_path) === 0) {
-      unset($js[$path]);
-    }
-  }
-}
+//function STARTER_js_alter(&$js) {
+//  // Always remove base theme JS.
+//  $theme_path = drupal_get_path('theme', 'zurb_foundation');
+//
+//  foreach($js as $path => $values) {
+//    if(strpos($path, $theme_path) === 0) {
+//      unset($js[$path]);
+//    }
+//  }
+//}

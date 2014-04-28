@@ -50,14 +50,6 @@ function zurb_foundation_status_messages($variables) {
   }
 
   if ($output != '' && theme_get_setting('zurb_foundation_messages_modal')) {
-    $js = <<<EOL
-jQuery(document).ready(function() {
-  jQuery('#status-messages').foundation('reveal','open');
-});
-EOL;
-
-    drupal_add_js($js, array('type' => 'inline', 'scope' => 'footer'));
-
     $output = '<div id="status-messages" class="reveal-modal" role="alertdialog">'. $output;
     $output .= '<a class="close-reveal-modal">&#215;</a>';
     $output .= "</div>";

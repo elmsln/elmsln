@@ -4,26 +4,26 @@
  * Template for Zurb Foundation Three row Display Suite layout.
  */
 ?>
-<<?php print $layout_wrapper; print $layout_attributes; ?> class="row zf-3row <?php print $classes;?> clearfix">
+<<?php print $layout_wrapper; print $layout_attributes; ?> class="zf-3row <?php print $classes;?>">
 
   <?php if (isset($title_suffix['contextual_links'])): ?>
   <?php print render($title_suffix['contextual_links']); ?>
   <?php endif; ?>
 
   <div class="row">
-    <<?php print $header_wrapper ?> class="group-header columns<?php print $header_classes; ?>">
+    <<?php print $header_wrapper ?> class="group-header<?php print $header_classes; ?>">
       <?php print $header; ?>
     </<?php print $header_wrapper ?>>
   </div>
 
   <div class="row">
-    <<?php print $ds_content_wrapper ?> class="group-content columns<?php print $ds_content_classes; ?>">
+    <<?php print $ds_content_wrapper ?> class="group-content<?php print $ds_content_classes; ?>">
       <?php print $ds_content; ?>
     </<?php print $ds_content_wrapper ?>>
   </div>
 
   <div class="row">
-    <<?php print $footer_wrapper ?> class="group-footer columns<?php print $footer_classes; ?>">
+    <<?php print $footer_wrapper ?> class="group-footer<?php print $footer_classes; ?>">
       <?php print $footer; ?>
     </<?php print $footer_wrapper ?>>
   </div>

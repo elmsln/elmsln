@@ -41,17 +41,7 @@ function zurb_foundation_html_head_alter(&$head_elements) {
     '#tag' => 'meta',
     '#attributes' => array(
       'name' => 'viewport',
-      'content' => 'width=device-width',
-    ),
-  );
-
-  // Force IE to use Chrome Frame if installed.
-  $head_elements['chrome_frame'] = array(
-    '#type' => 'html_tag',
-    '#tag' => 'meta',
-    '#attributes' => array(
-      'content' => 'ie=edge, chrome=1',
-      'http-equiv' => 'x-ua-compatible',
+      'content' => 'width=device-width, maximum-scale = 1.0',
     ),
   );
 
@@ -239,7 +229,7 @@ function _zurb_foundation_render_link($link) {
 
     // Test for localization options and apply them if they exist.
     if (isset($link['#localized_options']['attributes']) && is_array($link['#localized_options']['attributes'])) {
-      $link['#attributes'] = array_merge($link['#attributes'], $link['#localized_options']['attributes']);
+      $link['#attributes'] = array_merge_recursive($link['#attributes'], $link['#localized_options']['attributes']);
     }
     $output .= '<li' . drupal_attributes($link['#attributes']) . '>' . $rendered_link;
 
@@ -376,7 +366,7 @@ function zurb_foundation_preprocess_field(&$variables) {
   // Add class to a specific fields across content types.
   switch ($variables['element']['#field_name']) {
     case 'body':
-      $variables['classes_array'] = array('body');
+      $variables['classes_array'][] = 'body';
       break;
 
     case 'field_summary':
@@ -472,14 +462,6 @@ function zurb_foundation_preprocess_html(&$variables) {
         break;
     }
   }
-  /*
-   * Zepto Fallback
-   *   Use with caution.
-   */
-  // drupal_add_js('document.write(\'<script src=/' . drupal_get_path('theme', 'zurb_foundation') .'/js/vendor/\'
-  //       + (\'__proto__\' in {} ? \'zepto\' : \'jquery\')
-  //       + \'.js><\/script>\');',
-  //       'inline', array('group',JS_LIBRARY));
 }
 
 /**
@@ -500,24 +482,6 @@ function zurb_foundation_preprocess_node(&$variables) {
   }
 
   $variables['title_attributes_array']['class'][] = 'node-title';
-
-//  // Add classes based on node type.
-//  switch ($variables['type']) {
-//    case 'news':
-//    case 'pages':
-//      $variables['attributes_array']['class'][] = 'content-wrapper';
-//      $variables['attributes_array']['class'][] = 'text-content';
-//      break;
-//  }
-//
-//  // Add classes & theme hook suggestions based on view mode.
-//  switch ($variables['view_mode']) {
-//    case 'block_display':
-//      $variables['theme_hook_suggestions'][] = 'node__aside';
-//      $variables['title_attributes_array']['class'] = array('title-block');
-//      $variables['attributes_array']['class'][] = 'block-content';
-//      break;
-//  }
 }
 
 /**
@@ -581,7 +545,7 @@ function zurb_foundation_preprocess_page(&$variables) {
     }
 
     $variables['top_bar_classes'] = implode(' ', $top_bar_classes);
-    $variables['top_bar_menu_text'] = theme_get_setting('zurb_foundation_top_bar_menu_text');
+    $variables['top_bar_menu_text'] = check_plain(theme_get_setting('zurb_foundation_top_bar_menu_text'));
 
     $top_bar_options = array();
 
@@ -589,7 +553,7 @@ function zurb_foundation_preprocess_page(&$variables) {
       $top_bar_options[] = 'custom_back_text:false';
     }
 
-    if ($back_text = theme_get_setting('zurb_foundation_top_bar_back_text')) {
+    if ($back_text = check_plain(theme_get_setting('zurb_foundation_top_bar_back_text'))) {
       if ($back_text !== 'Back') {
         $top_bar_options[] = "back_text:'{$back_text}'";
       }
@@ -686,8 +650,13 @@ function zurb_foundation_preprocess_page(&$variables) {
   $variables['zurb_foundation_messages_modal'] = theme_get_setting('zurb_foundation_messages_modal');
 
   // Convenience variables
-  $left = $variables['page']['sidebar_first'];
-  $right = $variables['page']['sidebar_second'];
+  if (!empty($variables['page']['sidebar_first'])){
+    $left = $variables['page']['sidebar_first'];
+  }
+
+  if (!empty($variables['page']['sidebar_second'])) {
+    $right = $variables['page']['sidebar_second'];
+  }
 
   // Dynamic sidebars
   if (!empty($left) && !empty($right)) {
@@ -707,6 +676,11 @@ function zurb_foundation_preprocess_page(&$variables) {
     $variables['sidebar_first_grid'] = '';
     $variables['sidebar_sec_grid'] = '';
   }
+
+  // Ensure modal reveal behavior if modal messages are enabled.
+  if(theme_get_setting('zurb_foundation_messages_modal')) {
+    drupal_add_js(drupal_get_path('theme', 'zurb_foundation') . '/js/behavior/reveal.js');
+  }
 }
 
 /**
@@ -724,29 +698,6 @@ function zurb_foundation_css_alter(&$css) {
       }
     }
   }
-}
-
-/**
- * Implements hook_js_alter()
- */
-function zurb_foundation_js_alter(&$js) {
-  // Display warning if jQuery Update not present.
-  if (!module_exists('jquery_update')) {
-    drupal_set_message(t('Incorrect jQuery version detected. Zurb Foundation requires jQuery 1.7 or higher. Please install jQuery Update.'), 'error', FALSE);
-  }
-  // If it is present, check for correct jQuery version.
-  else {
-    $jquery_version = variable_get('jquery_update_jquery_version', '1.5');
-
-    if (!version_compare($jquery_version, '1.7', '>=')) {
-      drupal_set_message(t('Incorrect jQuery version detected. Zurb Foundation requires jQuery 1.7 or higher. Please change your <a href="!settings">jQuery Update settings</a>.', array('!settings' => url('admin/config/development/jquery_update'))), 'error', FALSE);
-    }
-  }
-
-  // @TODO moving scripts to footer possibly remove?
-  // foreach ($js as $key => $js_script) {
-  //   $js[$key]['scope'] = 'footer';
-  // }
 }
 
 /**
@@ -1057,12 +1008,14 @@ function zurb_foundation_entity_variables(&$vars) {
       case 'zf_1col':
         if (empty($vars['ds_content_classes'])) {
           $vars['ds_content_classes'] = ' large-12';
+          $vars['classes_array'][] = 'row';
         }
         break;
       case 'zf_2col':
         if (empty($vars['left_classes']) && empty($vars['right_classes'])) {
           $vars['left_classes'] = ' large-6';
           $vars['right_classes'] = ' large-6';
+          $vars['classes_array'][] = 'row';
         }
         break;
       case 'zf_2col_stacked':
@@ -1074,6 +1027,7 @@ function zurb_foundation_entity_variables(&$vars) {
           $vars['left_classes'] = ' large-6';
           $vars['right_classes'] = ' large-6';
           $vars['footer_classes'] = ' large-12';
+          $vars['classes_array'][] = 'row';
         }
         break;
       case 'zf_2col_bricks':
@@ -1089,6 +1043,7 @@ function zurb_foundation_entity_variables(&$vars) {
           $vars['below_left_classes'] = ' large-6';
           $vars['below_right_classes'] = ' large-6';
           $vars['bottom_classes'] = ' large-12';
+          $vars['classes_array'][] = 'row';
         }
         break;
       case 'zf_3col':
@@ -1098,6 +1053,7 @@ function zurb_foundation_entity_variables(&$vars) {
           $vars['left_classes'] = ' large-4';
           $vars['middle_classes'] = ' large-4';
           $vars['right_classes'] = ' large-4';
+          $vars['classes_array'][] = 'row';
         }
         break;
       case 'zf_3col_stacked':
@@ -1111,6 +1067,7 @@ function zurb_foundation_entity_variables(&$vars) {
           $vars['middle_classes'] = ' large-4';
           $vars['right_classes'] = ' large-4';
           $vars['footer_classes'] = ' large-12';
+          $vars['classes_array'][] = 'row';
         }
         break;
       case 'zf_3col_bricks':
@@ -1129,6 +1086,7 @@ function zurb_foundation_entity_variables(&$vars) {
           $vars['below_middle_classes'] = ' large-4';
           $vars['below_right_classes'] = ' large-4';
           $vars['bottom_classes'] = ' large-12';
+          $vars['classes_array'][] = 'row';
         }
         break;
       case 'zf_3row':
@@ -1138,6 +1096,7 @@ function zurb_foundation_entity_variables(&$vars) {
           $vars['header_classes'] = ' large-12';
           $vars['ds_content_classes'] = ' large-12';
           $vars['footer_classes'] = ' large-12';
+          $vars['classes_array'][] = 'row';
         }
         break;
       case 'zf_4col':
@@ -1148,6 +1107,7 @@ function zurb_foundation_entity_variables(&$vars) {
           $vars['second_classes'] = ' large-3';
           $vars['third_classes'] = ' large-3';
           $vars['fourth_classes'] = ' large-3';
+          $vars['classes_array'][] = 'row';
         }
         break;
       case 'zf_4col_stacked':
@@ -1162,6 +1122,7 @@ function zurb_foundation_entity_variables(&$vars) {
           $vars['third_classes'] = ' large-3';
           $vars['fourth_classes'] = ' large-3';
           $vars['footer_classes'] = ' large-12';
+          $vars['classes_array'][] = 'row';
         }
         break;
       case 'zf_4col_bricks':
@@ -1183,6 +1144,7 @@ function zurb_foundation_entity_variables(&$vars) {
           $vars['below_third_classes'] = ' large-3';
           $vars['below_fourth_classes'] = ' large-3';
           $vars['bottom_classes'] = ' large-12';
+          $vars['classes_array'][] = 'row';
         }
         break;
     }
@@ -1206,4 +1168,126 @@ function zurb_foundation_process_html_tag(&$vars) {
       unset($el['#attributes']['media']);
     }
   }
+}
+
+/**
+ * Helper function to output a single link as button or multiple links as dropdown/split buttons.
+ *
+ * @param $variables
+ * @return string
+ */
+function zurb_foundation_links__magic_button($variables) {
+  if (empty($variables['attributes']['class'])) {
+    $variables['attributes']['class'] = array();
+  }
+
+  if (count($variables['links']) > 1) {
+    switch ($variables['type']) {
+      case 'split':
+        return zurb_foundation_links__split_button($variables);
+        break;
+
+      case 'dropdown':
+      default:
+        return zurb_foundation_links__dropdown_button($variables);
+        break;
+    }
+  }
+
+  $links = $variables['links'];
+  $link = array_shift($links);
+
+  if (!isset($link['#localized_options']['attributes'])) {
+    $link['#localized_options']['attributes'] = array();
+  }
+  $link['#localized_options']['attributes'] = array_merge_recursive($link['#localized_options']['attributes'], $variables['attributes']);
+  $link['#localized_options']['attributes']['class'][] = 'button';
+
+  return l($link['#title'], $link['#href'], $link['#localized_options']);
+}
+
+/**
+ * Implements theme_links() with foundations dropdown button markup.
+ *
+ * @param $variables
+ *   An associative array containing:
+ *   - label
+ *     - Dropdown button label.
+ *   - links
+ *     - An array of menu links.
+ *   - attributes (optional)
+ *     - class: Array of additional classes like large, alert, round
+ *     - data-dropdown: Custom dropdown id.
+ *
+ * @return string
+ *
+ * Formats links for Dropdown Button http://foundation.zurb.com/docs/components/dropdown-buttons.html
+ */
+function zurb_foundation_links__dropdown_button($variables) {
+  if (empty($variables['attributes']['class'])) {
+    $variables['attributes']['class'] = array();
+  }
+
+  $variables['attributes']['class'][] = 'button';
+  $variables['attributes']['class'][] = 'dropdown';
+
+  if (!isset($variables['attributes']['data-dropdown'])) {
+    $variables['attributes']['data-dropdown'] = drupal_html_id('ddb');
+  }
+
+  if (!isset($variables['label'])) {
+    $variables['label'] = t('Dropdown button');
+  }
+
+  $title = '<a href="#"' . drupal_attributes($variables['attributes']) .'>' . $variables['label'] . '</a>';
+
+  $output = _zurb_foundation_links($variables['links']);
+  return $title . '<ul id="' . $variables['attributes']['data-dropdown'] . '" class="f-dropdown" data-dropdown-content>' . $output . '</ul>';
+}
+
+/**
+ * Implements theme_links() with foundations split button markup.
+ *
+ * @param $variables
+ *   An associative array containing:
+ *   - links
+ *     - An array of menu links.
+ *   - attributes (optional)
+ *     - class: Array of additional classes like large, alert, round
+ *     - data-dropdown: Custom dropdown id.
+ *
+ * @return string
+ *
+ * Formats links for Split Button http://foundation.zurb.com/docs/components/split-buttons.html
+ */
+function zurb_foundation_links__split_button($variables) {
+  $links = $variables['links'];
+
+  if (empty($variables['attributes']['class'])) {
+    $variables['attributes']['class'] = array();
+  }
+
+  $variables['attributes']['class'][] = 'button';
+
+  if (!isset($variables['attributes']['data-dropdown'])) {
+    $variables['attributes']['data-dropdown'] = drupal_html_id('ddb');
+  }
+  $id = $variables['attributes']['data-dropdown'];
+  unset($variables['attributes']['data-dropdown']);
+
+  if (!isset($variables['label'])) {
+    $variables['label'] = t('Split button');
+  }
+
+  $primary_link = array();
+  $primary_link['#title'] = $variables['label'] . '<span data-dropdown="' . $id . '"></span>';
+  $primary_link['#localized_options']['attributes']['class'][] = 'split';
+  $primary_link['#localized_options']['html'] = TRUE;
+  $primary_link['#localized_options']['fragment'] = $id;
+  $primary_link['#localized_options']['attributes'] = array_merge_recursive($primary_link['#localized_options']['attributes'], $variables['attributes']);
+  $primary_link = l($primary_link['#title'], '', $primary_link['#localized_options']);
+
+  $output = _zurb_foundation_links($links);
+
+  return $primary_link . '<ul id="' . $id . '" class="f-dropdown" data-dropdown-content>' . $output . '</ul>';
 }

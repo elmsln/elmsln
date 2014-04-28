@@ -18,7 +18,7 @@
  * - Layout: Macro arrangement of a web page, including any grid systems.
  * - Component: Dictate minor layout modules or reusable elements.
  * - State: Describe the appearance of a module in various states.
- * - Theme: Purely visual optional styling (“look-and-feel”) for a component.
+ * - Theme: Purely visual optional styling ("look-and-feel") for a component.
  *
  * For more information about this new Drupal css file standard, please review
  * the following:
@@ -59,14 +59,10 @@
 // @import "components/buttons";
 // @import "components/type";
 // @import "components/forms";
-
-// Note about using Foundation Icons.
-// The "components/icons" partial is required for the icon sets to work.
-//@import "components/icons";
-//@import "components/icons-accessibility";
-//@import "components/icons-general";
-//@import "components/icons-general_enclosed";
-//@import "components/icons-social";
+// @import "components/foundation-icons";
 
 // Themes
 // @import "theme/button-light";
+
+// IE8 Grid Support
+//@import "ie";

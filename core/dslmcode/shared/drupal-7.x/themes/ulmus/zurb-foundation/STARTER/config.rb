@@ -1,5 +1,5 @@
 # Requre a specific version in this file:
-# gem 'zurb-foundation', '=4.3.1'
+# gem 'zurb-foundation', '=4.3.2'
 require 'zurb-foundation'
 # Require any additional compass plugins here.
 
