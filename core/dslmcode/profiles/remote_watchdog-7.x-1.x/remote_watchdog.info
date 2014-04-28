@@ -75,3 +75,8 @@ variables[jquery_update_visibility] = '0'
 variables[node_options_page][0] = 'status'
 variables[theme_default] = 'bartik'
 variables[user_register] = '0'
+
+; Information added for Drupal.org usage stats while in dev
+version = "7.x-1.x-dev"
+project = "cis"
+datestamp = "1398114533"

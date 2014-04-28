@@ -182,3 +182,8 @@ dependencies[] = regions_admin_example
 dependencies[] = textbook_editor
 dependencies[] = cis_users
 dependencies[] = cis_roles
+
+; Information added for Drupal.org usage stats while in dev
+version = "7.x-1.x-dev"
+project = "cis"
+datestamp = "1398114533"

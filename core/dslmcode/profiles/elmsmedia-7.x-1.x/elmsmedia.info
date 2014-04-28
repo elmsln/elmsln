@@ -100,3 +100,8 @@ dependencies[] = regions_admin_example
 dependencies[] = textbook_editor
 dependencies[] = elmsmedia_feature
 dependencies[] = elmsmedia_cis_ux
+
+; Information added for Drupal.org usage stats while in dev
+version = "7.x-1.x-dev"
+project = "elmsmedia"
+datestamp = "1398114533"

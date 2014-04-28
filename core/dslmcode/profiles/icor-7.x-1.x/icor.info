@@ -137,3 +137,8 @@ dependencies[] = icor_interactive_player
 dependencies[] = icor_file_entities
 dependencies[] = icor_admin_ux
 dependencies[] = icor_defaults
+
+; Information added for Drupal.org usage stats while in dev
+version = "7.x-1.x-dev"
+project = "icor"
+datestamp = "1398114533"

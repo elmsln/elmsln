@@ -147,3 +147,8 @@ dependencies[] = cle_cis_ux
 dependencies[] = cle_assignment
 dependencies[] = cle_submission
 dependencies[] = cle_perms
+
+; Information added for Drupal.org usage stats while in dev
+version = "7.x-1.x-dev"
+project = "cle"
+datestamp = "1398114533"

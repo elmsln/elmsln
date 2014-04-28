@@ -162,3 +162,8 @@ dependencies[] = textbook_editor
 dependencies[] = textbook_templates
 dependencies[] = mooc_page
 dependencies[] = mooc_perms
+
+; Information added for Drupal.org usage stats while in dev
+version = "7.x-1.x-dev"
+project = "mooc"
+datestamp = "1398114533"
