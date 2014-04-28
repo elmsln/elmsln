@@ -609,9 +609,7 @@ nav.top-bar {
 nav.top-bar .name h1 a {
   color:#898a8e;
 }
-.top-bar-section {
-  width:100%;
-}
+
 nav.top-bar .top-bar-section.user-menu ul {
   background-color:#383a43;
 }
@@ -1114,6 +1112,9 @@ div.course_author_view_profile {
   h1#page-title {
     text-align:center;
     line-height:1em;
+  }
+  .top-bar-section {
+    width:100%;
   }
 }
 @media only screen and (max-width: 680px) {
