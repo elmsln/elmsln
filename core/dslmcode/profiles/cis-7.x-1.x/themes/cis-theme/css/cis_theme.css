@@ -613,6 +613,10 @@ nav.top-bar .name h1 a {
 nav.top-bar .top-bar-section.user-menu ul {
   background-color:#383a43;
 }
+.top-bar-section ul li.leaf label{
+  padding: 0 15px;
+  line-height: 45px;
+}
 
 /* This controls the background color of the top user links */
 .top-bar-section li a:not(.button) {
