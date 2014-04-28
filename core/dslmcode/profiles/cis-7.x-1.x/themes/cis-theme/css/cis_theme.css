@@ -609,7 +609,9 @@ nav.top-bar {
 nav.top-bar .name h1 a {
   color:#898a8e;
 }
-
+.top-bar-section {
+  width:100%;
+}
 nav.top-bar .top-bar-section.user-menu ul {
   background-color:#383a43;
 }
@@ -635,7 +637,10 @@ nav.top-bar .name h1 {
 nav.top-bar section.main-menu {
   margin-top: 2.1875em;
 }
-
+.top-bar-section .divider, .top-bar-section [role="separator"] {
+  clear: none;
+  width:1px;
+}
 nav.top-bar section.main-menu ul li span.separator {
   display: block;
   height: 4.375em;
