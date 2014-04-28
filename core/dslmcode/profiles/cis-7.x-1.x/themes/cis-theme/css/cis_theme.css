@@ -642,6 +642,7 @@ nav.top-bar section.main-menu {
 .top-bar-section .divider, .top-bar-section [role="separator"] {
   clear: none;
   width:1px;
+  border: none;
 }
 nav.top-bar section.main-menu ul li span.separator {
   display: block;
