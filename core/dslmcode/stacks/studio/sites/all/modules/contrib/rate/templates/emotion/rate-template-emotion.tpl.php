@@ -5,7 +5,10 @@
  * Rate widget theme
  */
 
-print theme('item_list', array('items' => $stars));
+print theme('item_list', array(
+  'items' => $buttons,
+  //'title' => $display_options['title'],
+  ));
 
 if ($info) {
   print '<div class="rate-info">' . $info . '</div>';

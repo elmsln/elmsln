@@ -64,24 +64,32 @@ function rate_expiration_rate_widget_update($widget, $values) {
  */
 function rate_expiration_rate_widget_alter($widget, $context) {
   extract($context); // Introduces $content_type and $content_id
-  if ($content_type == 'node') {
-    if ($node = node_load($content_id)) {
-      $configuration = _rate_expiration_get_node_values($node->nid);
-      if (isset($configuration[$widget->name])) {
-        $start = $configuration[$widget->name]->start;
-        $end = $configuration[$widget->name]->end;
+  switch ($content_type) {
+    case 'node':
+      $node = node_load($content_id);
+      break;
+    case 'comment':
+      if ($comment = comment_load($content_id)) {
+        $node = node_load($comment->nid);
       }
-      else {
-        $start = 0;
-        $end = 0;
-      }
-      isset($widget->expiration) or $widget->expiration = 0;
-      if ($widget->expiration > 0) {
-        !empty($end) or $end = $node->created + $widget->expiration;
-      }
-      if (($end > 0 && $end <= REQUEST_TIME) || ($start > 0 && $start > REQUEST_TIME)) {
-        $widget->mode = RATE_CLOSED;
-      }
+      break;
+  }
+  if (isset($node)) {
+    $configuration = _rate_expiration_get_node_values($node->nid);
+    if (isset($configuration[$widget->name])) {
+      $start = $configuration[$widget->name]->start;
+      $end = $configuration[$widget->name]->end;
+    }
+    else {
+      $start = 0;
+      $end = 0;
+    }
+    isset($widget->expiration) or $widget->expiration = 0;
+    if ($widget->expiration > 0) {
+      !empty($end) or $end = $node->created + $widget->expiration;
+    }
+    if (($end > 0 && $end <= REQUEST_TIME) || ($start > 0 && $start > REQUEST_TIME)) {
+      $widget->mode = RATE_CLOSED;
     }
   }
 }

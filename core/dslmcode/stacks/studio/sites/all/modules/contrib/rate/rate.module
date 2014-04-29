@@ -162,6 +162,19 @@ function rate_menu() {
 }
 
 /**
+ * Implements hook_ctools_plugin_directory().
+ *
+ * It simply tells panels where to find the .inc files that define various
+ * args, contexts, content_types. In this case the subdirectories of
+ * ctools_plugin_example/panels are used.
+ */
+function rate_ctools_plugin_directory($module, $plugin) {
+  if ($module == 'ctools' && !empty($plugin)) {
+    return "plugins/$plugin";
+  }
+}
+
+/**
  * Get list of active widgets.
  *
  * @param string $content_type Node type
@@ -343,6 +356,7 @@ function rate_generate_widget($widget_id, $content_type, $content_id, $mode = RA
 
   $display_options = array(
     'description' => '',
+    'title' => check_plain($widget->title),
   );
   if (($widget->mode != RATE_COMPACT && $widget->mode != RATE_COMPACT_DISABLED) || $widget->description_in_compact) {
     $display_options['description'] = check_plain($widget->description);
@@ -361,7 +375,7 @@ function rate_generate_widget($widget_id, $content_type, $content_id, $mode = RA
     $token = _rate_get_token($id);
     $classes[] = 'rate-' . $token;
     return
-      '<div class="' . implode(' ', $classes) . '" id="' . $div_id . '">' .
+      '<div class="' . implode(' ', $classes) . ' ' . $div_id . '" id="' . drupal_html_id($div_id) . '">' .
       $widget_html .
       '</div>';
   }
@@ -756,6 +770,8 @@ function rate_node_view($node, $view_mode, $langcode = '') {
       $widget_code = array(
         '#weight' => $widget->node_display == RATE_DISPLAY_ABOVE_CONTENT ? -50 : 50,
         '#markup' => rate_generate_widget($widget_id, 'node', $node->nid, $display_mode),
+        '#title' => check_plain($widget->title),
+        '#type' => 'item',
       );
       if ($widget->node_display == RATE_DISPLAY_DISABLE) {
         $node->$widget_name = $widget_code;
@@ -1128,32 +1144,32 @@ function rate_theme() {
     // Templates for default widget types.
     'rate_template_thumbs_up' => array(
       'variables' => array('links' => NULL, 'results' => NULL, 'mode' => NULL, 'just_voted' => FALSE, 'content_type' => NULL, 'content_id' => NULL, 'display_options' => NULL),
-      'template' => 'thumbs-up',
+      'template' => 'rate-template-thumbs-up',
       'path' => drupal_get_path('module', 'rate') . '/templates/thumbs-up',
     ),
     'rate_template_thumbs_up_down' => array(
       'variables' => array('links' => NULL, 'results' => NULL, 'mode' => NULL, 'just_voted' => FALSE, 'content_type' => NULL, 'content_id' => NULL, 'display_options' => NULL),
-      'template' => 'thumbs-up-down',
+      'template' => 'rate-template-thumbs-up-down',
       'path' => drupal_get_path('module', 'rate') . '/templates/thumbs-up-down',
     ),
     'rate_template_number_up_down' => array(
       'variables' => array('links' => NULL, 'results' => NULL, 'mode' => NULL, 'just_voted' => FALSE, 'content_type' => NULL, 'content_id' => NULL, 'display_options' => NULL),
-      'template' => 'number-up-down',
+      'template' => 'rate-template-number-up-down',
       'path' => drupal_get_path('module', 'rate') . '/templates/number-up-down',
     ),
     'rate_template_fivestar' => array(
       'variables' => array('links' => NULL, 'results' => NULL, 'mode' => NULL, 'just_voted' => FALSE, 'content_type' => NULL, 'content_id' => NULL, 'display_options' => NULL),
-      'template' => 'fivestar',
+      'template' => 'rate-template-fivestar',
       'path' => drupal_get_path('module', 'rate') . '/templates/fivestar',
     ),
     'rate_template_emotion' => array(
       'variables' => array('links' => NULL, 'results' => NULL, 'mode' => NULL, 'just_voted' => FALSE, 'content_type' => NULL, 'content_id' => NULL, 'display_options' => NULL),
-      'template' => 'emotion',
+      'template' => 'rate-template-emotion',
       'path' => drupal_get_path('module', 'rate') . '/templates/emotion',
     ),
     'rate_template_yesno' => array(
       'variables' => array('links' => NULL, 'results' => NULL, 'mode' => NULL, 'just_voted' => FALSE, 'content_type' => NULL, 'content_id' => NULL, 'display_options' => NULL),
-      'template' => 'yesno',
+      'template' => 'rate-template-yesno',
       'path' => drupal_get_path('module', 'rate') . '/templates/yesno',
     ),
   );

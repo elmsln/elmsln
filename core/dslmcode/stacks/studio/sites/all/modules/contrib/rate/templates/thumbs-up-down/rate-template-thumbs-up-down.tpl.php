@@ -5,6 +5,15 @@
  * Rate widget theme
  */
 ?>
+
+<?php
+  /*
+  <div class="rate-label">
+    <?php print $display_options['title']; ?>
+  </div>
+  */
+?>
+
 <ul>
   <li class="thumb-up">
     <?php print $up_button; ?>

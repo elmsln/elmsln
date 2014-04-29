@@ -3,7 +3,10 @@
     attach: function(context) {
       $('.rate-widget:not(.rate-processed)', context).addClass('rate-processed').each(function () {
         var widget = $(this);
-        var ids = widget.attr('id').match(/^rate\-([a-z]+)\-([0-9]+)\-([0-9]+)\-([0-9])$/);
+        // as we use drupal_html_id() to generate unique ids
+        // we have to truncate the '--<id>'
+        var ids = widget.attr('id').split('--');
+        ids = ids[0].match(/^rate\-([a-z]+)\-([0-9]+)\-([0-9]+)\-([0-9])$/);
         var data = {
           content_type: ids[1],
           content_id: ids[2],
@@ -33,6 +36,9 @@
       q = q + '&value=' + data.value;
     }
 
+    // fetch all widgets with this id as class
+    widget = $('.' + widget.attr('id'));
+
     $.get(Drupal.settings.rate.basePath + q, function(response) {
       if (response.match(/^https?\:\/\/[^\/]+\/(.*)$/)) {
         // We got a redirect.
@@ -51,7 +57,7 @@
         widget.remove();
         widget = undefined;
 
-        Drupal.attachBehaviors(p.get(0));
+        Drupal.attachBehaviors(p);
       }
     });
 
