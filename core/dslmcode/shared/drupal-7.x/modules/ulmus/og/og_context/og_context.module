@@ -334,7 +334,7 @@ function og_context_provider_weight($provider) {
 function og_context_determine_context($group_type, $item = NULL) {
   // Enable url and node context handlers by default.
   $defaults = array('url' => -5, 'node' => -4);
-  if (!$enabled_providers = array_keys(variable_get("og_context_negotiation_group_context", $defaults))) {
+  if (!$enabled_providers = variable_get('og_context_negotiation_group_context', $defaults)) {
     return;
   }
 
@@ -343,8 +343,8 @@ function og_context_determine_context($group_type, $item = NULL) {
   }
 
   $providers = og_context_negotiation_info();
-  foreach ($enabled_providers as $name) {
-    if (!in_array($name, array_keys($providers))) {
+  foreach ($enabled_providers as $name => $ignore) {
+    if (empty($providers[$name])) {
       continue;
     }
     $provider = $providers[$name];
@@ -417,9 +417,17 @@ function og_context_handler_url() {
       $valid_ids = array();
       $entities = entity_load($target_type, $ids);
       foreach ($entities as $id => $entity) {
-        if (entity_access('view', $target_type, $entity)) {
-          $valid_ids[] = $id;
+        if (!entity_access('view', $target_type, $entity)) {
+          // User can't access entity.
+          continue;
         }
+
+        if (!og_is_group($target_type, $entity)) {
+          // Entity is not a group.
+          continue;
+        }
+
+        $valid_ids[] = $id;
       }
 
       if ($valid_ids) {

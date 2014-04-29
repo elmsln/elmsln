@@ -112,7 +112,7 @@ function og_access_node_access_records($node) {
       }
 
       if ($has_private) {
-        $gids = $gids + $list_gids;
+        $gids = array_merge_recursive($gids, $list_gids);
       }
       break;
 
@@ -121,7 +121,7 @@ function og_access_node_access_records($node) {
       break;
 
     case OG_CONTENT_ACCESS_PRIVATE:
-      $gids = $gids + og_get_entity_groups('node', $node);
+      $gids = array_merge_recursive($gids, og_get_entity_groups('node', $node));
       break;
   }
 

@@ -17,17 +17,25 @@ class OgBehaviorHandler extends EntityReference_BehaviorHandler_Abstract {
    */
   public function load($entity_type, $entities, $field, $instances, $langcode, &$items) {
     // Get the OG memberships from the field.
+    $field_name = $field['field_name'];
+    $target_type = $field['settings']['target_type'];
     foreach ($entities as $entity) {
       $wrapper = entity_metadata_wrapper($entity_type, $entity);
-      if (empty($wrapper->{$field['field_name'] . '__og_membership'})) {
+      if (empty($wrapper->{$field_name})) {
         // If the entity belongs to a bundle that was deleted, return early.
         continue;
       }
       $id = $wrapper->getIdentifier();
       $items[$id] = array();
-      foreach ($wrapper->{$field['field_name'] . '__og_membership'}->value() as $og_membership) {
+      $gids = og_get_entity_groups($entity_type, $entity, array(OG_STATE_ACTIVE), $field_name);
+
+      if (empty($gids[$target_type])) {
+        continue;
+      }
+
+      foreach ($gids[$target_type] as $gid) {
         $items[$id][] = array(
-          'target_id' => $og_membership->gid,
+          'target_id' => $gid,
         );
       }
     }
@@ -242,11 +250,18 @@ class OgBehaviorHandler extends EntityReference_BehaviorHandler_Abstract {
   public function validate($entity_type, $entity, $field, $instance, $langcode, $items, &$errors) {
     $new_errors = array();
     $values = array('default' => array(), 'admin' => array());
-    foreach ($items as $item) {
-      $values[$item['field_mode']][] = $item['target_id'];
+    // If the widget type name starts with 'og_' we suppose it is separated
+    // into an admin and default part.
+    if (strpos($instance['widget']['type'], 'og_') === 0) {
+      foreach ($items as $item) {
+        $values[$item['field_mode']][] = $item['target_id'];
+      }
     }
-
-    list(,, $bundle) = entity_extract_ids($entity_type, $entity);
+    else {
+      foreach ($items as $item) {
+        $values['default'][] = $item['target_id'];
+      }
+    }
 
     $field_name = $field['field_name'];
 
@@ -277,6 +292,7 @@ class OgBehaviorHandler extends EntityReference_BehaviorHandler_Abstract {
       og_field_widget_register_errors($field_name, $new_errors);
     }
 
-    $errors = array();
+    // Errors for this field now handled, removing from the referenced array.
+    unset($errors[$field_name]);
   }
 }

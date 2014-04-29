@@ -362,30 +362,13 @@ function og_get_field_og_membership_properties($entity, array $options, $name, $
   $field_name = substr($name, 0, $remove_char);
 
   $field_name = $args[0];
-  $state = count($args) == 2 ? FALSE : $args[2];
-  list($id) = entity_extract_ids($type, $entity);
+  $field = field_info_field($field_name);
+  $states = count($args) == 2 ? FALSE : array($args[2]);
 
-  $identifier = $type . ':' . $id . ':' . $field_name . ':' . $state;
-  $cache = &drupal_static(__FUNCTION__, array());
-  if (isset($cache[$identifier])) {
-    // Return the cached result.
-    return $cache[$identifier];
-  }
+  $result = og_get_entity_groups($type, $entity, $states, $field_name);
+  $target_type = $field['settings']['target_type'];
 
-  $query = new EntityFieldQuery();
-  $query
-    ->entityCondition('entity_type', 'og_membership')
-    ->propertyCondition('entity_type', $type, '=')
-    ->propertyCondition('etid', $id, '=')
-    ->propertyCondition('field_name', $field_name, '=');
-
-  if ($state) {
-    $query->propertyCondition('state', $state, '=');
-  }
-
-  $result = $query->execute();
-  $cache[$identifier] = !empty($result['og_membership']) ? array_keys($result['og_membership']) : array();
-  return $cache[$identifier];
+  return !empty($result[$target_type]) ? array_keys($result[$target_type]) : array();
 }
 
 /**
@@ -1381,7 +1364,7 @@ function og_entity_query_alter(EntityFieldQuery $query) {
 }
 
 /**
- * Implements hook_query_QUERY_TAG_alter().
+ * Implements hook_query_TAG_alter().
  *
  * Join the {og_membership} table and alter the query.
  */
@@ -2261,13 +2244,15 @@ function og_user_access_entity($perm, $entity_type, $entity, $account = NULL) {
  *   "user", the current user will be used.
  * @param $states
  *   (optional) Array with the state to return. Defaults to active.
+ * @param $field_name
+ *   (optional) The field name associated with the group.
  *
  * @return
  *  An array with the group's entity type as the key, and array - keyed by
  *  the OG membership ID and the group ID as the value. If nothing found,
  *  then an empty array.
  */
-function og_get_entity_groups($entity_type = 'user', $entity = NULL, $states = array(OG_STATE_ACTIVE)) {
+function og_get_entity_groups($entity_type = 'user', $entity = NULL, $states = array(OG_STATE_ACTIVE), $field_name = NULL) {
   $cache = &drupal_static(__FUNCTION__, array());
 
   if ($entity_type == 'user' && empty($entity)) {
@@ -2288,36 +2273,47 @@ function og_get_entity_groups($entity_type = 'user', $entity = NULL, $states = a
     $state_identifier = implode(':', $states);
   }
   else {
-    $state_identifier = 0;
+    $state_identifier = FALSE;
   }
 
-  if (isset($cache[$entity_type][$id][$state_identifier])) {
+  $identifier = array(
+    $entity_type,
+    $id,
+    $state_identifier,
+    $field_name,
+  );
+
+  $identifier = implode(':', $identifier);
+
+  if (isset($cache[$identifier])) {
     // Return cached values.
-    return $cache[$entity_type][$id][$state_identifier];
+    return $cache[$identifier];
   }
 
-  $cache[$entity_type][$id][$state_identifier] = array();
+  $cache[$identifier] = array();
 
-  $query = new EntityFieldQuery();
-  $query
-    ->entityCondition('entity_type', 'og_membership')
-    ->propertyCondition('entity_type', $entity_type, '=')
-    ->propertyCondition('etid', $id, '=');
+  $query = db_select('og_membership', 'ogm')
+    ->fields('ogm', array('id', 'gid', 'group_type'))
+    ->condition('entity_type', $entity_type)
+    ->condition('etid', $id);
 
   if ($states) {
-    $query->propertyCondition('state', $states, 'IN');
+    $query->condition('state', $states, 'IN');
   }
 
-  $result = $query->execute();
-  if (!empty($result['og_membership'])) {
-    // Get the group ID from the group membership.
-    $og_memberships = og_membership_load_multiple(array_keys($result['og_membership']));
-    foreach ($og_memberships as $og_membership) {
-      $cache[$entity_type][$id][$state_identifier][$og_membership->group_type][$og_membership->id] = $og_membership->gid;
-    }
+  if ($field_name) {
+    $query->condition('field_name', $field_name);
   }
 
-  return $cache[$entity_type][$id][$state_identifier];
+  $result = $query
+    ->execute()
+    ->fetchAll();
+
+  foreach ($result as $row) {
+    $cache[$identifier][$row->group_type][$row->id] = $row->gid;
+  }
+
+  return $cache[$identifier];
 }
 
 
@@ -2511,6 +2507,8 @@ function og_get_all_group_content_bundle() {
 /**
  * Return TRUE if entity belongs to a group.
  *
+ * @param $group_type
+ *   The entity type of the group.
  * @param $gid
  *   The group ID.
  * @param $entity_type
@@ -2856,6 +2854,13 @@ function og_role_delete($rid) {
 /**
  * Delete all roles belonging to a group.
  *
+ * This will also maintain user roles when revertting an ovverriden group.
+ * For example, if in the overridden group users were assigned to the role
+ * "administrator", upon reverting back to default roles and
+ * permissions, OG will search for existing roles with that name, and re-assign
+ * the correct role ID, and the users that had "administrator" will still have
+ * it.
+ *
  * @param $group_type
  *   The group type.
  * @param $gid
@@ -2864,12 +2869,26 @@ function og_role_delete($rid) {
 function og_delete_user_roles_by_group($group_type, $group) {
   // Check if group has overriden roles defined.
   list($gid, $vid,$bundle) = entity_extract_ids($group_type, $group);
+  $global_roles = array_flip(og_roles($group_type, $bundle));
   if ($roles = og_roles($group_type, $bundle, $gid, TRUE)) {
     foreach ($roles as $rid => $name) {
+
+      if (variable_get('og_maintain_overridden_roles', TRUE) && !empty($global_roles[$name])) {
+        // Role name exists in the global roles, update the role ID to the
+        // global one.
+        db_update('og_users_roles')
+          ->fields(array('rid' => $global_roles[$name]))
+          ->condition('rid', $rid)
+          ->condition('group_type', $group_type)
+          ->condition('gid', $gid)
+          ->execute();
+      }
+
       og_role_delete($rid);
     }
   }
 }
+
 
 /**
  * Get the role names of role IDs.
@@ -3568,16 +3587,44 @@ function og_features_api() {
  *
  * Prevent OG related fields from being piped in features, when a content
  * type that has them is selected.
+ *
+ * This if compatible with Features 1.x and 2.x
  */
 function og_features_pipe_alter(&$pipe, $data, $export) {
-  if (!variable_get('og_features_ignore_og_fields', FALSE) || empty($pipe['field'])) {
+  if (!variable_get('og_features_ignore_og_fields', FALSE)) {
     return;
   }
-  foreach ($pipe['field'] as $delta => $value) {
-    $args = explode('-', $value);
-    $field_name = $args[2];
+
+  if (empty($pipe['field']) && empty($pipe['field_base']) && empty($pipe['field_instance'])) {
+    // The exported item is not a field.
+    return;
+  }
+
+  if (!empty($pipe['field_instance'])) {
+    $key = 'field_instance';
+    $explode = TRUE;
+  }
+  elseif (!empty($pipe['field_base'])) {
+    $key = 'field_base';
+    $explode = FALSE;
+  }
+  else {
+    $key = 'field';
+    $explode = TRUE;
+  }
+
+  foreach ($pipe[$key] as $delta => $value) {
+    if ($explode) {
+      // Get the field name from the [entity-type]-[bundle]-[field-name].
+      $args = explode('-', $value);
+      $field_name = $args[2];
+    }
+    else {
+      $field_name = $value;
+    }
+
     if (og_fields_info($field_name) || og_is_group_audience_field($field_name)) {
-      unset($pipe['field'][$delta]);
+      unset($pipe[$key][$delta]);
     }
   }
 }

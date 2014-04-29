@@ -218,6 +218,11 @@ class OgUiSubscribeTestCase extends DrupalWebTestCase {
 }
 
 class OgUiManagePeopleTestCase extends DrupalWebTestCase {
+
+  public $user1;
+  public $user2;
+  public $entity;
+
   public static function getInfo() {
     return array(
       'name' => 'OG UI manage people',
@@ -230,41 +235,81 @@ class OgUiManagePeopleTestCase extends DrupalWebTestCase {
     parent::setUp('og_ui', 'entity_feature');
     // Add OG group field.
     og_create_field(OG_GROUP_FIELD, 'entity_test', 'test');
+
+    // Create users.
+    $this->user1 = $this->drupalCreateUser();
+    $this->user2 = $this->drupalCreateUser();
+
+    // Create a group.
+    $this->entity = entity_create('entity_test', array('name' => 'test', 'uid' => $this->user1->uid));
+    $wrapper = entity_metadata_wrapper('entity_test', $this->entity);
+    $wrapper->{OG_GROUP_FIELD}->set(1);
+    $wrapper->save();
+
   }
 
   /**
    * Test adding people via group/[entity_type]/[etid]/admin/people/add-user.
    */
   function testOgUiAddPeople() {
-    $user1 = $this->drupalCreateUser();
-    $this->drupalLogin($user1);
-
-    // Create a group.
-    $entity = entity_create('entity_test', array('name' => 'test', 'uid' => $user1->uid));
-    $wrapper = entity_metadata_wrapper('entity_test', $entity);
-    $wrapper->{OG_GROUP_FIELD}->set(1);
-    $wrapper->save();
+    $this->drupalLogin($this->user1);
 
     // Add user2 to the group.
-    $user2 = $this->drupalCreateUser();
-    $this->assertFalse(og_is_member('entity_test', $entity->pid, 'user', $user2), 'User is not a group member');
+    $this->assertFalse(og_is_member('entity_test', $this->entity->pid, 'user', $this->user2), 'User is not a group member');
     $edit = array();
-    $edit['name'] = $user2->name;
-    $this->drupalPost('group/entity_test/' . $entity->pid . '/admin/people/add-user', $edit, t('Add users'));
+    $edit['name'] = $this->user2->name;
+    $this->drupalPost('group/entity_test/' . $this->entity->pid . '/admin/people/add-user', $edit, t('Add users'));
 
     // Reload user.
     og_membership_invalidate_cache();
-    $this->assertTrue(og_is_member('entity_test', $entity->pid, 'user', $user2), 'User was added to the group.');
+    $this->assertTrue(og_is_member('entity_test', $this->entity->pid, 'user', $this->user2), 'User was added to the group.');
 
     // Add the same user twice.
-    $this->drupalPost('group/entity_test/' . $entity->pid . '/admin/people/add-user', $edit, t('Add users'));
-    $this->assertText(t('User @name is already subscribed to group.', array('@name' => format_username($user2))), 'User can not be added twice.');
+    $this->drupalPost('group/entity_test/' . $this->entity->pid . '/admin/people/add-user', $edit, t('Add users'));
+    $this->assertText(t('User @name is already subscribed to group.', array('@name' => format_username($this->user2))), 'User can not be added twice.');
 
     // Add non-existing user.
     $edit = array();
     $edit['name'] = $this->randomName();
-    $this->drupalPost('group/entity_test/' . $entity->pid . '/admin/people/add-user', $edit, t('Add users'));
+    $this->drupalPost('group/entity_test/' . $this->entity->pid . '/admin/people/add-user', $edit, t('Add users'));
     $this->assertText(t('You have entered an invalid user name.'), t('Invalid user name not added to group.'));
+  }
+
+  /**
+   * Change membership status for a single group user.
+   */
+  function testOgUiEditMembershipStatus() {
+    $this->drupalLogin($this->user1);
+
+    // Group the user to the group.
+    $membership = og_group('entity_test', $this->entity->pid, array('entity' => $this->user2));
+
+    // Updating the state status.
+    $states = og_group_content_states();
+    foreach ($states as $state => $title) {
+      $this->drupalPost('group/entity_test/' . $this->entity->pid . '/admin/people/edit-membership/' . $membership->id, array('state' => $state), t('Update membership'));
+
+      // Reset the static cache for a fresh OG membership object.
+      drupal_static_reset();
+      $membership = og_membership_load($membership->id);
+
+      // Verify the membership has updates successfully.
+      $this->assertEqual($membership->state, $state, format_string('The membership state has updated successfully to @title', array('@title' => $title)));
+    }
+  }
+
+  /**
+   * Delete a single user's membership from group.
+   */
+  function testOgUiDeleteMembership() {
+    $this->drupalLogin($this->user1);
+
+    // Group the user to the group.
+    $membership = og_group('entity_test', $this->entity->pid, array('entity' => $this->user2));
+    $this->drupalPost('group/entity_test/' . $this->entity->pid . '/admin/people/delete-membership/' . $membership->id, array(), t('Remove'));
+
+    // Verify the membership was removed.
+    $this->assertText('The membership was removed.');
   }
 
   /**
@@ -344,7 +389,6 @@ class OgUiManagePeopleTestCase extends DrupalWebTestCase {
     // bundle, no select box should be shown.
     $this->drupalGet('group/entity_test/' . $entity->pid . '/admin/people/add-user');
     $this->assertNoField('edit-field-name');
-
 
     // Temporarily change the second field to apply to this bundle. Now the
     // select box should be shown.

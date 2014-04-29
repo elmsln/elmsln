@@ -80,7 +80,7 @@ class OgMembership extends Entity {
     cache_clear_all('field:'. $entity_type . ':' . $etid, 'cache_field');
 
     // Supporting the entity cache module.
-    if (module_exists('entitycache')) {
+    if (module_exists('entitycache') && db_table_exists('cache_entity_' . $this->entity_type)) {
       cache_clear_all($etid, 'cache_entity_' . $entity_type);
     }
   }
@@ -93,7 +93,7 @@ class OgMembership extends Entity {
     cache_clear_all('field:'. $this->entity_type . ':' . $this->etid, 'cache_field');
 
     // Supporting the entity cache module.
-    if (module_exists('entitycache')) {
+    if (module_exists('entitycache') && db_table_exists('cache_entity_' . $this->entity_type)) {
       cache_clear_all($this->etid, 'cache_entity_' . $this->entity_type);
     }
   }

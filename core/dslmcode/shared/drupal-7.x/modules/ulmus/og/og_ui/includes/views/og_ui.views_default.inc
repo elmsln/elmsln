@@ -38,6 +38,8 @@ function og_ui_views_default_views() {
     'og_roles' => 'og_roles',
     'created' => 'created',
     'og_membership_request' => 'og_membership_request',
+    'edit_membership' => 'edit_membership',
+    'delete_membership' => 'edit_membership',
   );
   $handler->display->display_options['style_options']['default'] = 'name';
   $handler->display->display_options['style_options']['info'] = array(
@@ -75,6 +77,16 @@ function og_ui_views_default_views() {
     'og_membership_request' => array(
       'sortable' => 0,
       'default_sort_order' => 'asc',
+      'align' => '',
+      'separator' => '',
+      'empty_column' => 0,
+    ),
+    'edit_membership' => array(
+      'align' => '',
+      'separator' => ' ',
+      'empty_column' => 0,
+    ),
+    'delete_membership' => array(
       'align' => '',
       'separator' => '',
       'empty_column' => 0,
@@ -217,6 +229,13 @@ function og_ui_views_default_views() {
   $handler->display->display_options['fields']['edit_membership']['label'] = '';
   $handler->display->display_options['fields']['edit_membership']['element_label_colon'] = FALSE;
   $handler->display->display_options['fields']['edit_membership']['destination'] = TRUE;
+  /* Field: OG membership: Delete link */
+  $handler->display->display_options['fields']['delete_membership']['id'] = 'delete_membership';
+  $handler->display->display_options['fields']['delete_membership']['table'] = 'og_membership';
+  $handler->display->display_options['fields']['delete_membership']['field'] = 'delete_membership';
+  $handler->display->display_options['fields']['delete_membership']['relationship'] = 'og_membership_rel';
+  $handler->display->display_options['fields']['delete_membership']['label'] = '';
+  $handler->display->display_options['fields']['delete_membership']['element_label_colon'] = FALSE;
   /* Sort criterion: User: Name */
   $handler->display->display_options['sorts']['name']['id'] = 'name';
   $handler->display->display_options['sorts']['name']['table'] = 'users';

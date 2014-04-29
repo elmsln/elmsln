@@ -1,6 +1,5 @@
 <?php
 
-
 /**
  * @file
  * Test organic groups access module.
@@ -41,6 +40,48 @@ class OgAccessTestCase extends DrupalWebTestCase {
     $settings[OG_ACCESS_FIELD][LANGUAGE_NONE][0]['value'] = 1;
     $settings['uid'] = $this->user1->uid;
     $this->group_node = $this->drupalCreateNode($settings);
+  }
+
+  /**
+   * Testing special case in which a group is also group content, and it is
+   * inside another group. When those groups are set to private (either when
+   * set specifically or given from the group defaults), it should be verified
+   * groups are accessible, even for members.
+   */
+  function testSubGroupContentAccess() {
+    $subgroup_content_type = $this->drupalCreateContentType()->type;
+    og_create_field(OG_AUDIENCE_FIELD, 'node', $subgroup_content_type);
+    og_create_field(OG_GROUP_FIELD, 'node', $subgroup_content_type);
+    og_create_field(OG_ACCESS_FIELD, 'node', $subgroup_content_type);
+    og_create_field(OG_CONTENT_ACCESS_FIELD, 'node', $subgroup_content_type);
+
+    // Create a subgroup node and enable access.
+    $settings = array();
+    $settings['type'] = $subgroup_content_type;
+    $settings['uid'] = $this->user1->uid;
+    $settings[OG_GROUP_FIELD][LANGUAGE_NONE][0]['value'] = 1;
+    $settings[OG_ACCESS_FIELD][LANGUAGE_NONE][0]['value'] = 1;
+    $settings[OG_AUDIENCE_FIELD][LANGUAGE_NONE][0]['target_id'] = $this->group_node->nid;
+    $settings[OG_CONTENT_ACCESS_FIELD][LANGUAGE_NONE][0]['value'] = OG_CONTENT_ACCESS_DEFAULT;
+    $subgroup_node = $this->drupalCreateNode($settings);
+
+    // Add another user to group.
+    og_group('node', $this->group_node->nid, array('entity' => $this->user2));
+    $this->drupalLogin($this->user1);
+
+    // Assert the user can view the group.
+    // Assert the user is a group member.
+    $this->assertTrue(og_is_member('node', $this->group_node->nid, 'user', $this->user1), 'User is a group member.');
+    $this->drupalGet('node/' . $subgroup_node->nid);
+    $this->assertResponse('200', 'Group member can view subgroup.');
+
+    // Assert another user is a group member.
+    $this->drupalLogin($this->user2);
+    $this->assertTrue(og_is_member('node', $this->group_node->nid, 'user', $this->user2), 'User is a group member.');
+
+    // Assert the member can see the subgroup.
+    $this->drupalGet('node/' . $subgroup_node->nid);
+    $this->assertResponse('200', 'Group member can view subgroup.');
   }
 
   /**

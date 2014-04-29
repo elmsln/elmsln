@@ -53,7 +53,8 @@ function og_test_entity_delete($entity, $type) {
     return;
   }
 
-  $nid = reset(array_keys($result['node']));
+  $nids = array_keys($result['node']);
+  $nid = reset($nids);
 
   $entity->og_orphans = array(
     'move' => array(

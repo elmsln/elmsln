@@ -12,8 +12,9 @@ function og_example_default_rules_configuration() {
   $items['rules_og_new_content_message'] = entity_import('rules_config', '{ "rules_og_new_content_message" : {
       "LABEL" : "OG new content notification (With Message)",
       "PLUGIN" : "reaction rule",
+      "OWNER" : "rules",
       "REQUIRES" : [ "og", "rules", "message_notify" ],
-      "ON" : [ "node_insert" ],
+      "ON" : { "node_insert" : [] },
       "IF" : [ { "og_entity_is_group_content" : { "entity" : [ "node" ] } } ],
       "DO" : [
         { "og_get_members" : {
@@ -53,15 +54,4 @@ function og_example_default_rules_configuration() {
     }
   }');
   return $items;
-}
-
-
-/**
- * Implements hook_default_rules_configuration_alter().
- *
- * Remove OG's default notification Rules, as this modules has a superior
- * version of it, that uses Message notify.
- */
-function og_example_default_rules_configuration_alter(&$configs) {
-  unset($configs['rules_og_new_content']);
 }

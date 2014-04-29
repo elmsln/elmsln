@@ -57,6 +57,7 @@ function og_uninstall() {
     'og_upgrade_7001',
     'og_node_access_strict',
     'og_features_ignore_og_fields',
+    'og_maintain_overridden_roles',
   );
   foreach ($vars as $var) {
     variable_del($var);
@@ -346,6 +347,7 @@ function og_schema() {
       // Entity index; When searching for an entity, we use both the id and type.
       'entity' => array('etid', 'entity_type'),
       'group' => array('gid', 'group_type'),
+      'group_type' => array('group_type'),
     ),
     'foreign keys' => array(
       'og_membership_type' => array(
@@ -1126,7 +1128,6 @@ function og_update_7203() {
 
     foreach ($field['bundles'] as $entity_type => $bundles) {
       foreach ($bundles as $bundle) {
-        $og_widget =
         $instance = field_info_instance($entity_type, $field_name, $bundle);
         $instance['settings']['behaviors']['og_widget'] = array(
           'status' => TRUE,
@@ -1178,4 +1179,11 @@ function og_update_7204() {
   foreach ($schema as $name => $table) {
     db_create_table($name, $table);
   }
+}
+
+/**
+ * Add an index to {og_membership} on group_type.
+ */
+function og_update_7205() {
+  db_add_index('og_membership', 'group_type', array('group_type'));
 }

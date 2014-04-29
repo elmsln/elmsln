@@ -221,6 +221,58 @@ function og_rules_action_info() {
     'access callback' => 'og_rules_integration_access',
   );
 
+  $items['og_grant_og_role'] = array(
+    'label' => t('Grant OG role'),
+    'group' => t('Organic groups'),
+    'parameter' => array(
+      'account' => array(
+        'type' => 'user',
+        'label' => t('User'),
+        'description' => t('The user who will be granted this role.'),
+        'wrapped' => TRUE,
+      ),
+      'group' => array(
+        'type' => array_keys(og_get_all_group_entity()),
+        'label' => t('Group'),
+        'wrapped' => TRUE,
+      ),
+      'roles' => array(
+        'type' => 'list<text>',
+        'label' => t('Group roles'),
+        'options list' => 'og_rules_group_roles_options_list',
+        'restriction' => 'input',
+      ),
+    ),
+    'base' => 'og_rules_grant_og_role',
+    'access callback' => 'og_rules_integration_access',
+  );
+
+  $items['og_revoke_og_role'] = array(
+    'label' => t('Revoke OG role'),
+    'group' => t('Organic groups'),
+    'parameter' => array(
+      'account' => array(
+        'type' => 'user',
+        'label' => t('User'),
+        'description' => t('The user who will have the role revoked.'),
+        'wrapped' => TRUE,
+      ),
+      'group' => array(
+        'type' => array_keys(og_get_all_group_entity()),
+        'label' => t('Group'),
+        'wrapped' => TRUE,
+      ),
+      'roles' => array(
+        'type' => 'list<integer>',
+        'label' => t('Group roles'),
+        'options list' => 'og_rules_group_roles_options_list',
+        'restriction' => 'input',
+      ),
+    ),
+    'base' => 'og_rules_revoke_og_role',
+    'access callback' => 'og_rules_integration_access',
+  );
+
   return $items;
 }
 
@@ -312,6 +364,46 @@ function og_rules_add_entity_to_group(EntityDrupalWrapper $entity, EntityDrupalW
  */
 function og_rules_remove_entity_from_group(EntityDrupalWrapper $entity, EntityDrupalWrapper $group) {
   og_ungroup($group->type(), $group->getIdentifier(), $entity->type(), $entity->value());
+}
+
+/**
+ * Action: Grant OG role.
+ */
+function og_rules_grant_og_role(EntityDrupalWrapper $account, EntityDrupalWrapper $group, $roles) {
+  $group_roles = og_roles($group->type(), NULL, $group->getIdentifier());
+  foreach ($roles as $role) {
+    $rid = array_search($role, $group_roles);
+    if ($rid !== FALSE) {
+      og_role_grant($group->type(), $group->getIdentifier(), $account->getIdentifier(), $rid);
+    }
+  }
+}
+
+/**
+ * Action: Revoke OG role.
+ */
+function og_rules_revoke_og_role(EntityDrupalWrapper $account, EntityDrupalWrapper $group, $roles) {
+  $group_roles = og_roles($group->type(), NULL, $group->getIdentifier());
+  foreach ($roles as $role) {
+    $rid = array_search($role, $group_roles);
+    if ($rid !== FALSE) {
+      og_role_revoke($group->type(), $group->getIdentifier(), $account->getIdentifier(), $rid);
+    }
+  }
+}
+
+/**
+ * Options list callback for group roles.
+ */
+function og_rules_group_roles_options_list($element) {
+  $og_roles = array();
+  $unique_roles = array_unique(og_get_user_roles_name());
+  foreach ($unique_roles as $role) {
+    if (!in_array($role, array(OG_ANONYMOUS_ROLE, OG_AUTHENTICATED_ROLE))) {
+      $og_roles[$role] = $role;
+    }
+  }
+  return $og_roles;
 }
 
 /**
@@ -426,6 +518,30 @@ function og_rules_condition_info() {
     'base' => 'og_rules_entity_is_group_content',
     'access callback' => 'og_rules_integration_access',
   );
+  $items['og_user_has_role'] = array(
+    'label' => t('User has group role'),
+    'group' => t('Organic groups'),
+    'parameter' => array(
+      'account' => array(
+        'type' => 'user',
+        'label' => t('User'),
+        'wrapped' => TRUE,
+      ),
+      'group' => array(
+        'type' => array_keys(og_get_all_group_entity()),
+        'label' => t('Group'),
+        'wrapped' => TRUE,
+      ),
+      'roles' => array(
+        'type' => 'list<text>',
+        'label' => t('Group roles'),
+        'options list' => 'og_rules_group_roles_options_list',
+        'restriction' => 'input',
+      ),
+    ),
+    'base' => 'og_rules_condition_user_has_role',
+    'access callback' => 'og_rules_integration_access',
+  );
   return $items;
 }
 
@@ -496,6 +612,14 @@ function og_rules_entity_is_group_content(EntityDrupalWrapper $entity) {
  */
 function og_rules_entity_is_group_content_help() {
   return t('Determines whether the entity is group content, i.e. it can be or is used as group content.');
+}
+
+/**
+ * Condition: User has group role.
+ */
+function og_rules_condition_user_has_role(EntityDrupalWrapper $account, EntityDrupalWrapper $group, $roles) {
+  $user_roles = og_get_user_roles($group->type(), $group->getIdentifier(), $account->getIdentifier());
+  return !array_diff($roles, $user_roles);
 }
 
 /**

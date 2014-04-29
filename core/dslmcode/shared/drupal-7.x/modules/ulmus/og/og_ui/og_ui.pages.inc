@@ -34,8 +34,9 @@ function og_ui_subscribe($entity_type, $etid, $field_name = NULL) {
 
   list($id, $vid, $bundle) = entity_extract_ids($entity_type, $entity);
 
+  $account = user_load($user->uid);
   if (empty($field_name)) {
-    $field_name = og_get_best_group_audience_field('user', $user->uid, $entity_type, $bundle);
+    $field_name = og_get_best_group_audience_field('user', $account, $entity_type, $bundle);
     if (empty($field_name)) {
       // User entity has no group audience field.
       drupal_not_found();
@@ -45,7 +46,6 @@ function og_ui_subscribe($entity_type, $etid, $field_name = NULL) {
 
   $field = field_info_field($field_name);
   $instance = field_info_instance('user', $field_name, 'user');
-  $account = user_load($user->uid);
 
   if (empty($instance) || !field_access('view', $field, 'user', $account)) {
     // Field name given is incorrect, or user doesn't have access to the field.
@@ -251,5 +251,8 @@ function og_ui_confirm_unsubscribe_submit($form, &$form_state) {
 
   if (entity_access('view', $group_type, $group)) {
     $form_state['redirect'] = entity_uri($group_type, $group);
+  }
+  else {
+    $form_state['redirect'] = '<front>';
   }
 }

@@ -10,3 +10,13 @@ function og_example_ctools_plugin_directory($module, $plugin) {
     return "plugins/entityreference/$plugin";
   }
 }
+
+/**
+ * Implements hook_default_rules_configuration_alter().
+ *
+ * Remove OG's default notification Rules, as this modules has a superior
+ * version of it, that uses Message notify.
+ */
+function og_example_default_rules_configuration_alter(&$configs) {
+  unset($configs['rules_og_new_content']);
+}

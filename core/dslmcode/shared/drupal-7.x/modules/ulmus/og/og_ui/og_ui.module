@@ -70,6 +70,17 @@ function og_ui_menu() {
     'file' => 'og_ui.admin.inc',
   );
 
+  // Delete a single membership.
+  $items['group/%/%/admin/people/delete-membership/%og_membership'] = array(
+    'title' => 'Delete',
+    'type' => MENU_CALLBACK,
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('og_ui_delete_membership', 1, 2, 6),
+    'access callback' => 'og_ui_user_access_group',
+    'access arguments' => array('manage members', 1, 2),
+    'file' => 'og_ui.admin.inc',
+  );
+
   // Permission administration pages.
   $items['group/%/%/admin/roles'] = array(
     'title callback' => 'og_ui_menu_title_callback',

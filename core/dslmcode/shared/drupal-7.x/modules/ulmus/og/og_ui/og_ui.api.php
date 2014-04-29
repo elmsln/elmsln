@@ -34,9 +34,11 @@ function hook_og_ui_get_group_admin() {
  * @param $gid
  *   The group being viewed.
  */
-function hook_og_ui_get_group_admin_alter(&$data, $gid) {
+function hook_og_ui_get_group_admin_alter(&$data, $context) {
   // Hijack the add people to use a custom implementation.
-  $items['add_people']['href'] = 'admin/people/custom-add-user';
+  if (og_ui_user_access_group('add user', $context['entity_type'], $context['etid'])) {
+    $data['add_people']['href'] = 'admin/people/mass-add-user-filter';
+  }
 }
 
 /**

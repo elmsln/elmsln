@@ -102,27 +102,25 @@ function og_field_widget_form(&$form, &$form_state, $field, $instance, $langcode
         }
       }
 
-      if ($id) {
-        // The field might be required, and it will throw an exception
-        // when we try to set an empty value, so change the wrapper's
-        // info.
-        $wrapper = entity_metadata_wrapper($entity_type, $dummy_entity, array('property info alter' => 'og_property_info_alter', 'field name' => $field_name));
-        if ($field_mode == 'admin') {
-          // Keep only the hidden group IDs on the entity, so they won't
-          // appear again on the "admin" field, for example on an autocomplete
-          // widget type.
-          $valid_ids = $other_groups_ids ? entityreference_get_selection_handler($field, $mocked_instance, $entity_type, $dummy_entity)->validateReferencableEntities($other_groups_ids) : array();
-          $valid_ids = $field['cardinality'] == 1 ? reset($valid_ids) : $valid_ids;
-          $wrapper->{$field_name}->set($valid_ids ? $valid_ids : NULL);
-        }
-        else {
-          // Keep only the groups that belong to the user and to the entity.
-          $my_group_ids = array_values(array_intersect($user_gids, $entity_gids));
-          $valid_ids = $my_group_ids ? entityreference_get_selection_handler($field, $mocked_instance, $entity_type, $dummy_entity)->validateReferencableEntities($my_group_ids) : array();
+      // The field might be required, and it will throw an exception
+      // when we try to set an empty value, so change the wrapper's
+      // info.
+      $wrapper = entity_metadata_wrapper($entity_type, $dummy_entity, array('property info alter' => 'og_property_info_alter', 'field name' => $field_name));
+      if ($field_mode == 'admin') {
+        // Keep only the hidden group IDs on the entity, so they won't
+        // appear again on the "admin" field, for example on an autocomplete
+        // widget type.
+        $valid_ids = $other_groups_ids ? entityreference_get_selection_handler($field, $mocked_instance, $entity_type, $dummy_entity)->validateReferencableEntities($other_groups_ids) : array();
+        $valid_ids = $field['cardinality'] == 1 ? reset($valid_ids) : $valid_ids;
+        $wrapper->{$field_name}->set($valid_ids ? $valid_ids : NULL);
+      }
+      else {
+        // Keep only the groups that belong to the user and to the entity.
+        $my_group_ids = array_values(array_intersect($user_gids, $entity_gids));
+        $valid_ids = $my_group_ids ? entityreference_get_selection_handler($field, $mocked_instance, $entity_type, $dummy_entity)->validateReferencableEntities($my_group_ids) : array();
 
-          $valid_ids = $field['cardinality'] == 1 ? reset($valid_ids) : $valid_ids;
-          $wrapper->{$field_name}->set($valid_ids ? $valid_ids : NULL);
-        }
+        $valid_ids = $field['cardinality'] == 1 ? reset($valid_ids) : $valid_ids;
+        $wrapper->{$field_name}->set($valid_ids ? $valid_ids : NULL);
       }
     }
     elseif ($other_groups_ids) {
