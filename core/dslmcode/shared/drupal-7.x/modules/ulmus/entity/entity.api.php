@@ -155,10 +155,11 @@
  *   edit form for your entity type. See entity_form().
  *   In case the 'admin ui' is used, no callback needs to be specified.
  * - entity cache: (optional) Whether entities should be cached using the cache
- *   system. Requires the entitycache module to be installed and enabled. As
- *   cached entities are only retrieved by id key, the cache would not apply to
- *   exportable entities retrieved by name key. If enabled, 'field cache' is
- *   obsolete and should be disabled. Defaults to FALSE.
+ *   system. Requires the entitycache module to be installed and enabled and the
+ *   module key to be specified. As cached entities are only retrieved by id key,
+ *   the cache would not apply to exportable entities retrieved by name key.
+ *   If enabled and the entitycache module is active, 'field cache' is obsolete
+ *   and is automatically disabled. Defaults to FALSE.
  *
  * @see hook_entity_info()
  * @see entity_metadata_hook_entity_info()

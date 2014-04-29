@@ -133,7 +133,7 @@ function entity_ui_bundle_add_page($entity_type) {
   foreach ($info['bundles'] as $bundle_name => $bundle_info) {
     // Create an empty entity with just the bundle set to check for access.
     $dummy_entity = entity_create($entity_type, array(
-      'bundle' => $bundle_name,
+      $info['entity keys']['bundle'] => $bundle_name,
     ));
     // If modules use a uid, they can default to the current-user
     // in their create() method on the storage controller.
@@ -164,6 +164,49 @@ function entity_ui_get_bundle_add_form($entity_type, $bundle_name) {
   $entity = entity_create($entity_type, $values);
 
   return entity_ui_get_form($entity_type, $entity, 'add');
+}
+
+/**
+ * Page callback for viewing an entity.
+ *
+ * @param Entity $entity
+ *   The entity to be rendered.
+ *
+ * @return array
+ *   A renderable array of the entity in full view mode.
+ */
+function entity_ui_entity_page_view($entity) {
+  module_load_include('inc', 'entity', 'includes/entity.ui');
+  return $entity->view('full', NULL, TRUE);
+}
+
+/**
+ * Gets the page title for the passed operation.
+ */
+function entity_ui_get_page_title($op, $entity_type, $entity = NULL) {
+  module_load_include('inc', 'entity', 'includes/entity.ui');
+  $label = entity_label($entity_type, $entity);
+  switch ($op) {
+    case 'view':
+      return $label;
+    case 'edit':
+      return t('Edit @label', array('@label' => $label));
+    case 'clone':
+      return t('Clone @label', array('@label' => $label));
+    case 'revert':
+      return t('Revert @label', array('@label' => $label));
+    case 'delete':
+      return t('Delete @label', array('@label' => $label));
+    case 'export':
+      return t('Export @label', array('@label' => $label));
+  }
+  if (isset($entity)) {
+    list(, , $bundle) = entity_extract_ids($entity_type, $entity);
+  }
+  else {
+    $bundle = NULL;
+  }
+  return entity_ui_get_action_title($op, $entity_type, $bundle);
 }
 
 /**
@@ -582,7 +625,15 @@ function entity_view($entity_type, $entities, $view_mode = 'full', $langcode = N
 }
 
 /**
- * Determines whether the given user has access to an entity.
+ * Determines whether the given user can perform actions on an entity.
+ *
+ * For create operations, the pattern is to create an entity and then
+ * check if the user has create access.
+ *
+ * @code
+ * $node = entity_create('node', array('type' => 'page'));
+ * $access = entity_access('create', 'node', $node, $account);
+ * @endcode
  *
  * @param $op
  *   The operation being performed. One of 'view', 'update', 'create' or
@@ -881,7 +932,12 @@ function _entity_defaults_rebuild($entity_type) {
       // implementations.
       $originals[$name] = $entity->original;
 
-      $entity->{$keys['status']} |= ENTITY_IN_CODE;
+      if (!isset($entity->{$keys['status']})) {
+        $entity->{$keys['status']} = ENTITY_IN_CODE;
+      }
+      else {
+        $entity->{$keys['status']} |= ENTITY_IN_CODE;
+      }
       $entity->is_rebuild = TRUE;
       entity_save($entity_type, $entity);
       unset($entity->is_rebuild);
@@ -893,6 +949,22 @@ function _entity_defaults_rebuild($entity_type) {
 
     lock_release('entity_rebuild_' . $entity_type);
   }
+}
+
+/**
+ * Implements hook_modules_installed().
+ */
+function entity_modules_installed($modules) {
+  module_load_install('entity');
+  entity_entitycache_installed_modules($modules);
+}
+
+/**
+ * Implements hook_modules_uninstalled().
+ */
+function entity_modules_uninstalled($modules) {
+  module_load_install('entity');
+  entity_entitycache_uninstalled_modules($modules);
 }
 
 /**
@@ -1006,6 +1078,17 @@ function entity_flush_caches() {
   // to do it again.
   if (current_path() != 'admin/modules/list/confirm') {
     entity_defaults_rebuild();
+  }
+
+  // Care about entitycache tables.
+  if (module_exists('entitycache')) {
+    $tables = array();
+    foreach (entity_crud_get_info() as $entity_type => $entity_info) {
+      if (isset($entity_info['module']) && !empty($entity_info['entity cache'])) {
+        $tables[] = 'cache_entity_' . $entity_type;
+      }
+    }
+    return $tables;
   }
 }
 
@@ -1194,6 +1277,37 @@ function entity_ui_get_form($entity_type, $entity, $op = 'edit', $form_state = a
   return drupal_build_form($form_id, $form_state);
 }
 
+
+/**
+ * Gets the page/menu title for local action operations.
+ *
+ * @param $op
+ *  The current operation. One of 'add' or 'import'.
+ * @param $entity_type
+ *  The entity type.
+ * @param $bundle_name
+ *  (Optional) The name of the bundle. May be NULL if the bundle name is not
+ *  relevant to the current page. If the entity type has only one bundle, or no
+ *  bundles, this will be the same as the entity type.
+ */
+function entity_ui_get_action_title($op, $entity_type, $bundle_name = NULL) {
+  $info = entity_get_info($entity_type);
+  switch ($op) {
+    case 'add':
+      if (isset($bundle_name) && $bundle_name != $entity_type) {
+        return t('Add @bundle_name @entity_type', array(
+          '@bundle_name' => drupal_strtolower($info['bundles'][$bundle_name]['label']),
+          '@entity_type' => drupal_strtolower($info['label']),
+        ));
+      }
+      else {
+        return t('Add @entity_type', array('@entity_type' => drupal_strtolower($info['label'])));
+      }
+    case 'import':
+      return t('Import @entity_type', array('@entity_type' => drupal_strtolower($info['label'])));
+  }
+}
+
 /**
  * Helper for using i18n_string().
  *
@@ -1356,6 +1470,13 @@ function entity_entity_info_alter(&$entity_info) {
     if (!isset($info['configuration'])) {
       $entity_info[$type]['configuration'] = !empty($info['exportable']);
     }
+
+    if (isset($info['controller class']) && in_array('EntityAPIControllerInterface', class_implements($info['controller class']))) {
+      // Automatically disable field cache when entity cache is used.
+      if (!empty($info['entity cache']) && module_exists('entitycache')) {
+        $entity_info[$type]['field cache'] = FALSE;
+      }
+    }
   }
 }
 
@@ -1395,6 +1516,11 @@ function _entity_info_add_metadata(&$entity_info) {
   // Form callbacks.
   $entity_info['node']['form callback'] = 'entity_metadata_form_node';
   $entity_info['user']['form callback'] = 'entity_metadata_form_user';
+
+  // URI callbacks.
+  if (!isset($entity_info['file']['uri callback'])) {
+    $entity_info['file']['uri callback'] = 'entity_metadata_uri_file';
+  }
 
   // View callbacks.
   $entity_info['node']['view callback'] = 'entity_metadata_view_node';

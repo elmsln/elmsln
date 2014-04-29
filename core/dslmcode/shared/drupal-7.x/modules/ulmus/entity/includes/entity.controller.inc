@@ -171,7 +171,7 @@ class EntityAPIController extends DrupalDefaultEntityController implements Entit
     if ($this->revisionKey) {
       // Compare revision id of the base and revision table, if equal then this
       // is the default revision.
-      $query->addExpression('base.' . $this->revisionKey . ' = revision.' . $this->revisionKey, $this->defaultRevisionKey);
+      $query->addExpression('CASE WHEN base.' . $this->revisionKey . ' = revision.' . $this->revisionKey . ' THEN 1 ELSE 0 END', $this->defaultRevisionKey);
     }
     return $query;
   }
@@ -373,10 +373,7 @@ class EntityAPIController extends DrupalDefaultEntityController implements Entit
       // Do nothing, in case invalid or no ids have been passed.
       return;
     }
-    // This transaction causes troubles on MySQL, see
-    // http://drupal.org/node/1007830. So we deactivate this by default until
-    // is shipped in a point release.
-    // $transaction = isset($transaction) ? $transaction : db_transaction();
+    $transaction = isset($transaction) ? $transaction : db_transaction();
 
     try {
       $ids = array_keys($entities);
@@ -400,9 +397,7 @@ class EntityAPIController extends DrupalDefaultEntityController implements Entit
       db_ignore_slave();
     }
     catch (Exception $e) {
-      if (isset($transaction)) {
-        $transaction->rollback();
-      }
+      $transaction->rollback();
       watchdog_exception($this->entityType, $e);
       throw $e;
     }
@@ -586,6 +581,16 @@ class EntityAPIController extends DrupalDefaultEntityController implements Entit
     // Remove previously built content, if exists.
     $entity->content = $content;
     $langcode = isset($langcode) ? $langcode : $GLOBALS['language_content']->language;
+
+    // Allow modules to change the view mode.
+    $context = array(
+      'entity_type' => $this->entityType,
+      'entity' => $entity,
+      'langcode' => $langcode,
+    );
+    drupal_alter('entity_view_mode', $view_mode, $context);
+    // Make sure the used view-mode gets stored.
+    $entity->content += array('#view_mode' => $view_mode);
 
     // By default add in properties for all defined extra fields.
     if ($extra_field_controller = entity_get_extra_fields_controller($this->entityType)) {

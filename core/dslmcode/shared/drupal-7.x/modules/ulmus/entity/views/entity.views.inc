@@ -389,6 +389,50 @@ class EntityDefaultViewsController {
       // Add in any reverse-relationships which have been determined.
       $data += $this->relationships;
     }
+    if (!empty($this->info['revision table']) && !empty($this->info['entity keys']['revision'])) {
+      $revision_table = $this->info['revision table'];
+
+      $data[$table]['table']['default_relationship'] = array(
+        $revision_table => array(
+          'table' => $revision_table,
+          'field' => $this->info['entity keys']['revision'],
+        ),
+      );
+
+      // Define the base group of this table. Fields that don't
+      // have a group defined will go into this field by default.
+      $data[$revision_table]['table']['group']  = drupal_ucfirst($this->info['label']) . ' ' . t('Revisions');
+      $data[$revision_table]['table']['entity type'] = $this->type;
+
+      // If the plural label isn't available, use the regular label.
+      $label = isset($this->info['plural label']) ? $this->info['plural label'] : $this->info['label'];
+      $data[$revision_table]['table']['base'] = array(
+        'field' => $this->info['entity keys']['revision'],
+        'access query tag' => $this->type . '_access',
+        'title' => drupal_ucfirst($label) . ' ' . t('Revisions'),
+        'help' => (isset($this->info['description']) ? $this->info['description'] . ' ' : '') . t('Revisions'),
+      );
+      $data[$revision_table]['table']['entity type'] = $this->type;
+      $data[$revision_table] += $this->schema_revision_fields();
+
+      // Add in any reverse-relationships which have been determined.
+      $data += $this->relationships;
+
+      // For other base tables, explain how we join.
+      $data[$revision_table]['table']['join'] = array(
+        // Directly links to base table.
+        $table => array(
+          'left_field' => $this->info['entity keys']['revision'],
+          'field' => $this->info['entity keys']['revision'],
+        ),
+      );
+      $data[$revision_table]['table']['default_relationship'] = array(
+        $table => array(
+          'table' => $table,
+          'field' => $this->info['entity keys']['id'],
+        ),
+      );
+    }
     return $data;
   }
 
@@ -405,6 +449,27 @@ class EntityDefaultViewsController {
       if (isset($property_info['schema field']) && isset($schema['fields'][$property_info['schema field']])) {
         if ($views_info = $this->map_from_schema_info($name, $schema['fields'][$property_info['schema field']], $property_info)) {
           $data[$name] = $views_info;
+        }
+      }
+    }
+    return $data;
+  }
+
+  /**
+   * Try to come up with some views fields with the help of the revision schema
+   * and the entity property information.
+   */
+  protected function schema_revision_fields() {
+    $data = array();
+    if (!empty($this->info['revision table'])) {
+      $schema = drupal_get_schema($this->info['revision table']);
+      $properties = entity_get_property_info($this->type) + array('properties' => array());
+
+      foreach ($properties['properties'] as $name => $property_info) {
+        if (isset($property_info['schema field']) && isset($schema['fields'][$property_info['schema field']])) {
+          if ($views_info = $this->map_from_schema_info($name, $schema['fields'][$property_info['schema field']], $property_info)) {
+            $data[$name] = $views_info;
+          }
         }
       }
     }

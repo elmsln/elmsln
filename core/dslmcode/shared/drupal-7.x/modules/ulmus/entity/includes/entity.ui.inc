@@ -725,61 +725,6 @@ function entity_ui_controller_form_submit($form, &$form_state) {
 }
 
 /**
- * Gets the page title for the passed operation.
- */
-function entity_ui_get_page_title($op, $entity_type, $entity = NULL) {
-  $label = entity_label($entity_type, $entity);
-  switch ($op) {
-    case 'view':
-      return $label;
-    case 'edit':
-      return t('Edit @label', array('@label' => $label));
-    case 'clone':
-      return t('Clone @label', array('@label' => $label));
-    case 'revert':
-      return t('Revert @label', array('@label' => $label));
-    case 'delete':
-      return t('Delete @label', array('@label' => $label));
-    case 'export':
-      return t('Export @label', array('@label' => $label));
-  }
-  if (isset($entity)) {
-    list(, , $bundle) = entity_extract_ids($entity_type, $entity);
-  }
-  return entity_ui_get_action_title($op, $entity_type, $bundle);
-}
-
-/**
- * Gets the page/menu title for local action operations.
- *
- * @param $op
- *  The current operation. One of 'add' or 'import'.
- * @param $entity_type
- *  The entity type.
- * @param $bundle_name
- *  (Optional) The name of the bundle. May be NULL if the bundle name is not
- *  relevant to the current page. If the entity type has only one bundle, or no
- *  bundles, this will be the same as the entity type.
- */
-function entity_ui_get_action_title($op, $entity_type, $bundle_name = NULL) {
-  $info = entity_get_info($entity_type);
-  switch ($op) {
-    case 'add':
-      if (isset($bundle_name) && $bundle_name != $entity_type) {
-        return t('Add @bundle_name @entity_type', array(
-          '@bundle_name' => drupal_strtolower($info['bundles'][$bundle_name]['label']),
-          '@entity_type' => drupal_strtolower($info['label']),
-        ));
-      }
-      else {
-        return t('Add @entity_type', array('@entity_type' => drupal_strtolower($info['label'])));
-      }
-    case 'import':
-      return t('Import @entity_type', array('@entity_type' => drupal_strtolower($info['label'])));
-  }
-}
-
-/**
  * Submit builder for the main entity form, which extracts the form values and updates the entity.
  *
  * This is a helper function for entities making use of the entity UI
@@ -820,15 +765,3 @@ function theme_entity_ui_overview_item($variables) {
   return $output;
 }
 
-/**
- * Page callback for viewing an entity.
- *
- * @param Entity $entity
- *   The entity to be rendered.
- *
- * @return array
- *   A renderable array of the entity in full view mode.
- */
-function entity_ui_entity_page_view($entity) {
-  return $entity->view('full', NULL, TRUE);
-}

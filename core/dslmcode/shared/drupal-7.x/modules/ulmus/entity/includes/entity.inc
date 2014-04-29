@@ -56,7 +56,7 @@ class Entity {
     $this->entityInfo = entity_get_info($this->entityType);
     $this->idKey = $this->entityInfo['entity keys']['id'];
     $this->nameKey = isset($this->entityInfo['entity keys']['name']) ? $this->entityInfo['entity keys']['name'] : $this->idKey;
-    $this->statusKey = empty($info['entity keys']['status']) ? 'status' : $info['entity keys']['status'];
+    $this->statusKey = empty($this->entityInfo['entity keys']['status']) ? 'status' : $this->entityInfo['entity keys']['status'];
   }
 
   /**
