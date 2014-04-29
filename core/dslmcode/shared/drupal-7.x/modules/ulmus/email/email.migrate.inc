@@ -10,7 +10,7 @@ class MigrateEmailFieldHandler extends MigrateFieldHandler {
     $this->registerTypes(array('email'));
   }
 
-  public function prepare(stdClass $entity, array $field_info, array $instance, array $values) {
+  public function prepare($entity, array $field_info, array $instance, array $values) {
     // Setup the Field API array for saving.
     $arguments = (isset($values['arguments'])) ? $values['arguments']: array();
     $language = $this->getFieldLanguage($entity, $field_info, $arguments);

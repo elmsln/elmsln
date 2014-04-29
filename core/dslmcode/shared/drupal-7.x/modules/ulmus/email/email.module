@@ -1,5 +1,9 @@
 <?php
 
+/**
+ * @file
+ * Module file for the email module, which creates a email address field.
+ */
 
 /**
  * Implements hook_field_info().
@@ -20,7 +24,10 @@ function email_field_info() {
  * Implements hook_migrate_api().
  */
 function email_migrate_api() {
-  return array('api' => 2);
+  return array(
+    'api' => 2,
+    'field handlers' => array('MigrateEmailFieldHandler'),
+  );
 }
 
 /**
@@ -198,7 +205,7 @@ function email_menu() {
     'page callback' => 'drupal_get_form',
     'page arguments' => array('email_admin_settings'),
     'access arguments' => array('administer site configuration'),
-    'type' => MENU_CALLBACK,
+    'type' => MENU_NORMAL_ITEM,
   );
   return $items;
 }
@@ -433,7 +440,7 @@ function email_mail_page_form_submit($form, &$form_state) {
 
   // Log the operation:
   flood_register_event('email');
-  watchdog('mail', t('%name-from sent an e-mail at %form.', array('%name-from' => $form_state['values']['name'], '%form' => url($_GET['q'], array('absolute' => TRUE)))));
+  watchdog('mail', '%name-from sent an e-mail at %form.', array('%name-from' => $form_state['values']['name'], '%form' => url($_GET['q'], array('absolute' => TRUE))));
 
   drupal_set_message(t('Your message has been sent.'));
   $form_state['redirect'] = $path;
@@ -447,7 +454,7 @@ function email_mail($key, &$message, $params) {
   switch ($key) {
     case 'contact':
       // Compose the body:
-      $message['body'][] = t('@name sent a message using the contact form at @url.', array('@name' => $params['name'], '@url' => $params['url']), array('langcode' =>$language->language));
+      $message['body'][] = t('@name sent a message using the contact form at @url.', array('@name' => $params['name'], '@url' => $params['url']), array('langcode' => $language->language));
       $message['body'][] = $params['message'];
       $message['subject'] = "";
 
