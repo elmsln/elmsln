@@ -1,9 +1,11 @@
-name = Data Admin UI
-description = Admin UI for Data Module
+name = Data Taxonomy
+description = Relate data table entries to taxonomy terms.
 package = Data
 dependencies[] = data
-dependencies[] = schema
-core = 7.x
+dependencies[] = data_ui
+dependencies[] = taxonomy
+core = 6.x
+
 
 ; Information added by drupal.org packaging script on 2012-09-28
 version = "7.x-1.0-alpha3+2-dev"

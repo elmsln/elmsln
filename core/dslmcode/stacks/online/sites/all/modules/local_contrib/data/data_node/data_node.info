@@ -1,9 +1,9 @@
-name = "Data UI module tests"
-description = "Test module for Data UI testing."
-package = Testing
-version = VERSION
-core = 7.x
-hidden = TRUE
+name = Data Node
+description = Relate data tables to nodes.
+package = Data
+dependencies[] = data
+dependencies[] = data_ui
+core = 6.x
 
 ; Information added by drupal.org packaging script on 2012-09-28
 version = "7.x-1.0-alpha3+2-dev"

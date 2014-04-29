@@ -2,6 +2,8 @@
 
 /**
  * Entity controller class for Data entities.
+ *
+ * @todo: move to an .inc file.
  */
 class DataEntityController extends EntityAPIController implements EntityAPIControllerInterface {
 

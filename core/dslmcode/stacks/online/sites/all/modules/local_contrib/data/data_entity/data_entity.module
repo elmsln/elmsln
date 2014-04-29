@@ -23,12 +23,20 @@ function data_entity_meta_add_defaults(&$meta) {
       'locked' => FALSE,
       'required' => FALSE,
     );
-    $meta += array('label_field' => '');
   }
-  $meta += array(
-    'is_entity_type' => FALSE,
-    'entity_id' => '',
-  );
+}
+
+/**
+ * Get the name of a table entity's id.
+ *
+ * @todo: consider moving this to the DataTable class.
+ */
+function data_entity_get_id_field($table) {
+  if (isset($table->table_schema['primary key'])) {
+    // @todo: whopping assumption that there's a single primary key field.
+    $id_field = $table->table_schema['primary key'][0];
+    return $id_field;
+  }
 }
 
 /**
@@ -43,13 +51,12 @@ function data_entity_entity_info() {
   $info = array();
 
   foreach ($tables as $table_name => $table) {
-    data_entity_meta_add_defaults($table->meta);
-    $meta = $table->get('meta');
-
-    if (empty($meta['is_entity_type'])) {
+    if (!isset($table->table_schema['primary key'])) {
+      // Skip tables that don't have a primary key.
       continue;
     }
 
+    $id_field = data_entity_get_id_field($table);
     $entity_type = 'data_' . $table_name;
 
     $info[$entity_type] = array(
@@ -58,13 +65,34 @@ function data_entity_entity_info() {
       'base table'  => $table_name,
       'fieldable' => TRUE,
       'entity keys' => array(
-        'id' => $meta['entity_id'],
+        'id' => $id_field,
       ),
       'bundles' => array(
         $entity_type => array(
           'label' => $table->title,
           'admin' => array(
+            // This is fraught with difficulties with the menu system tabs.
+            // We can't give 'admin/structure/data/edit/%data_ui_table' as a
+            // path, because that would cause all data table entities to store
+            // the same router path and thus only the last entity defined here
+            // would win.
+            // On the other hand, giving the table name literally as $table_name
+            // messes up the tabs, as the nearest tab parent found for this is
+            // the base data admin tab set at 'admin/structure/data' rather
+            // than that for the table.
+            // In *theory*, the tab parentage should be fixable by tweaking it
+            // in hook_menu_alter(), but that doesn't seem to be working.
+            // In short, ARGH! and please file a patch if you can make sense of this.
+
+            // This does not work because multiple entities store the same router path!
+            /*
+            'path'      => 'admin/structure/data/edit/%data_ui_table',
+            'real path' => 'admin/structure/data/edit/' . $table_name,
+            */
+
+            // This messes up the tabs.
             'path' => 'admin/structure/data/edit/' . $table_name,
+
             'access arguments' => array('administer data tables'),
           ),
         ),
@@ -76,13 +104,6 @@ function data_entity_entity_info() {
       'views controller class' => FALSE, // This prevents EntityAPI trying to
         // provide views integration because we've specified 'module'.
     );
-    // Use label if specified
-    if (isset($table->meta['label_field'])) {
-      $info[$entity_type]['entity keys']['label'] = $table->meta['label_field'];
-    }
-    else {
-      $info[$entity_type]['label callback'] = 'data_entity_label';
-    }
   }
 
   return $info;
@@ -92,33 +113,15 @@ function data_entity_entity_info() {
  * Implements hook_menu().
  */
 function data_entity_menu() {
-  $tables = data_entity_get_entity_tables();
-
-  foreach ($tables as $table_name => $table) {
-    // Items that are in the same tab set as Field UI tabs need to have separate
-    // menu router items.
-    $items['admin/structure/data/edit/' . $table_name . '/entity-type'] = array(
-      'title' => 'Entity type',
-      'description' => 'Configure the entity type for the data table.',
-      'page callback' => 'drupal_get_form',
-      'page arguments' => array('data_entity_admin_entity_type_form', 4),
-      'file' => 'data_entity.admin.inc',
-      'access arguments' => array('administer data tables'),
-      'type' => MENU_LOCAL_TASK,
-      'weight' => -3,
-    );
- 
-    $items['admin/structure/data/edit/' . $table_name . '/entity-form'] = array(
-      'title' => 'Configure entity form',
-      'description' => 'Administer data tables.',
-      'page callback' => 'drupal_get_form',
-      'page arguments' => array('data_entity_admin_entity_form', 4),
-      'file' => 'data_entity.admin.inc',
-      'access arguments' => array('administer data tables'),
-      'type' => MENU_LOCAL_TASK,
-      'weight' => -2,
-    );
-  }
+  $items['admin/structure/data/edit/%data_ui_table/entity-form'] = array(
+    'title' => 'Configure entity form',
+    'description' => 'Administer data tables.',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('data_entity_admin_entity_form', 4),
+    'file' => 'data_entity.admin.inc',
+    'access arguments' => array('administer data tables'),
+    'type' => MENU_LOCAL_TASK,
+  );
 
   $items['admin/content/data/entity/%data_ui_table/%data_entity_item'] = array(
     'title' => 'Edit data item',
@@ -186,13 +189,6 @@ function data_entity_permission() {
   }
 
   return $permissions;
-}
-
-/**
- * Entity Label callback.
- */
-function data_entity_label($entity, $entity_type) {
-  return t('No label');
 }
 
 /**

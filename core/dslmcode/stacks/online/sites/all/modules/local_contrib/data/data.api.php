@@ -85,16 +85,3 @@ function hook_ctools_plugin_api() {
 function data_data_views_handlers_alter(&$handlers) {
   $handlers['field']['views_handler_field_data_markup'] = 'views_handler_field_data_markup';
 }
-
-/**
- * Declare additional field types for use with data module.
- *
- * @see data_get_field_definitions()
- */
-function hook_data_field_definitions_alter(&$data_types) {
-  $data_types['timestamp'] = array(
-    'type' => 'int',
-    'unsigned' => TRUE,
-    'not null' => FALSE,
-  );
-}
