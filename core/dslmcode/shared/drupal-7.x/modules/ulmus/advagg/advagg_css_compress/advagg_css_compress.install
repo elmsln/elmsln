@@ -6,6 +6,51 @@
  */
 
 /**
+ * Implements hook_requirements().
+ */
+function advagg_css_compress_requirements($phase) {
+  $requirements = array();
+  // Ensure translations don't break at install time.
+  $t = get_t();
+
+  // If not at runtime, return here.
+  if ($phase != 'runtime') {
+    return $requirements;
+  }
+
+  // Make sure a compressor is being used.
+  if (   variable_get('advagg_css_compressor', ADVAGG_CSS_COMPRESSOR) == 0
+      && variable_get('advagg_css_inline_compressor', ADVAGG_CSS_INLINE_COMPRESSOR) == 0
+      ) {
+    // Check all files.
+    $file_settings = variable_get('advagg_css_compressor_file_settings', array());
+    $compression_used = FALSE;
+    foreach ($file_settings as $form_api_filename => $setting) {
+      if (!empty($setting)) {
+        $compression_used = TRUE;
+        break;
+      }
+    }
+
+    if (!$compression_used) {
+      $config_path = advagg_admin_config_root_path();
+      $requirements['advagg_css_compress_not_on'] = array(
+        'title' => $t('AdvAgg CSS Compressor'),
+        'severity' => REQUIREMENT_WARNING,
+        'value' => $t('AdvAgg CSS Compression is disabled.'),
+        'description' => $t('Go to the <a href="@settings">advagg css compress settings page</a> and select a compressor, or go to the <a href="@modules">modules page</a> and disable the "AdvAgg Compress CSS" module.', array(
+          '@settings' => url($config_path . '/advagg/css-compress'),
+          '@modules' => url('admin/modules', array(
+            'fragment' => 'edit-modules-advanced-cssjs-aggregation',
+          )),
+        )),
+      );
+    }
+  }
+  return $requirements;
+}
+
+/**
  * Upgrade AdvAgg CSS Compress previous versions (6.x-1.x & 7.x-1.x) to 7.x-2.x.
  *
  * Implements hook_update_N().

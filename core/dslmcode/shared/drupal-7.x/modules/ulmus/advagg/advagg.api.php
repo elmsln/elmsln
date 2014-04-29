@@ -13,12 +13,12 @@
 /**
  * Allow modules to modify the aggregate plan.
  *
- * @param $files
+ * @param array $files
  *   An associative array.
  *    filename - data
- * @param $modified
+ * @param bool $modified
  *   Set this to TRUE if the $files structure has been changed.
- * @param $type
+ * @param string $type
  *   css or js.
  *
  * @see advagg_build_aggregate_plans()
@@ -46,14 +46,14 @@ function hook_advagg_build_aggregate_plans_alter(&$files, &$modified, $type) {
 
       // Bump Counter if group/every_page has changed from the last one.
       if ($group != $fileinfo['group'] || $every_page != $fileinfo['every_page']) {
-        $counter++;
+        ++$counter;
         $group = $fileinfo['group'];
         $every_page = $fileinfo['every_page'];
         $modified = TRUE;
       }
       $temp_new_files[$counter][] = $fileinfo;
     }
-    $counter++;
+    ++$counter;
   }
 
   // Replace $files array with new aggregate filenames.
@@ -63,13 +63,13 @@ function hook_advagg_build_aggregate_plans_alter(&$files, &$modified, $type) {
 /**
  * Let other modules know about the changed files.
  *
- * @param $files
+ * @param array $files
  *   An associative array.
  *    filename - meta_data
- * @param $types
+ * @param array $types
  *   Array containing css and/or js.
  *
- * @return
+ * @return array
  *   Not used currently.
  *
  * @see advagg_push_new_changes()
@@ -96,7 +96,7 @@ function hook_advagg_changed_files($files, $types) {
 /**
  * Allow other modules to add in their own settings and hooks.
  *
- * @param $aggregate_settings
+ * @param array $aggregate_settings
  *   An associative array of hooks and settings used.
  *
  * @see advagg_current_hooks_hash_array()
@@ -111,11 +111,11 @@ function hook_advagg_current_hooks_hash_array_alter(&$aggregate_settings) {
 /**
  * Allow other modules to alter the contents and add new files to save (.gz).
  *
- * @param $files_to_save
+ * @param array $files_to_save
  *   array($uri => $contents)
- * @param $aggregate_settings
+ * @param array $aggregate_settings
  *   array of settings.
- * @param $other_parameters
+ * @param array $other_parameters
  *   array of containing $files & $type.
  *
  * @see advagg_save_aggregate()
@@ -131,11 +131,11 @@ function hook_advagg_save_aggregate_alter(&$files_to_save, $aggregate_settings, 
   $gzip_exists = FALSE;
   foreach ($files_to_save as $uri => $contents) {
     // See if this uri contains .gz near the end of it.
-    $pos = strripos($uri, '.gz', 91 + strlen(ADVAGG_SPACE)*3);
+    $pos = strripos($uri, '.gz', 91 + strlen(ADVAGG_SPACE) * 3);
     if (!empty($pos)) {
       $len = strlen($uri);
       // .gz file exists, exit loop.
-      if ($pos == $len-3) {
+      if ($pos == $len - 3) {
         $gzip_exists = TRUE;
         break;
       }
@@ -156,9 +156,9 @@ function hook_advagg_save_aggregate_alter(&$files_to_save, $aggregate_settings, 
 /**
  * Allow other modules to alter css and js paths.
  *
- * @param $css_paths
+ * @param array $css_paths
  *   Array containing the local path and url path.
- * @param $js_paths
+ * @param array $js_paths
  *   Array containing the local path and url path.
  *
  * @see advagg_get_root_files_dir()
@@ -190,11 +190,11 @@ function hook_advagg_get_root_files_dir(&$css_paths, &$js_paths) {
 /**
  * Allow other modules to modify this aggregates contents.
  *
- * @param $data
+ * @param string $data
  *   Raw CSS data.
- * @param $files
+ * @param array $files
  *   List of files used to create this aggregate.
- * @param $aggregate_settings
+ * @param array $aggregate_settings
  *   An associative array of hooks and settings used.
  *
  * @see advagg_get_css_aggregate_contents()
@@ -213,11 +213,11 @@ function hook_advagg_get_css_aggregate_contents_alter(&$data, $files, $aggregate
 /**
  * Allow other modules to modify this aggregates contents.
  *
- * @param $data
+ * @param string $data
  *   Raw JS data.
- * @param $files
+ * @param array $files
  *   List of files used to create this aggregate.
- * @param $aggregate_settings
+ * @param array $aggregate_settings
  *   An associative array of hooks and settings used.
  *
  * @see advagg_get_css_aggregate_contents()
@@ -237,11 +237,11 @@ function hook_advagg_get_js_aggregate_contents_alter(&$data, $files, $aggregate_
 /**
  * Allow other modules to modify this files contents.
  *
- * @param $contents
+ * @param string $contents
  *   Raw file data.
- * @param $file
+ * @param string $file
  *   Filename
- * @param $aggregate_settings
+ * @param array $aggregate_settings
  *   An associative array of hooks and settings used.
  *
  * @see advagg_get_css_aggregate_contents()
@@ -260,11 +260,11 @@ function hook_advagg_get_css_file_contents_alter(&$contents, $file, $aggregate_s
 /**
  * Allow other modules to modify this files contents.
  *
- * @param $contents
+ * @param string $contents
  *   Raw file data.
- * @param $file
+ * @param string $file
  *   Filename
- * @param $aggregate_settings
+ * @param array $aggregate_settings
  *   An associative array of hooks and settings used.
  *
  * @see advagg_get_css_aggregate_contents()
@@ -294,10 +294,10 @@ function hook_advagg_get_js_file_contents_alter(&$contents, $file, $aggregate_se
 /**
  * Allow other modules to modify $css_groups right before it is processed.
  *
- * @param $css_groups
+ * @param array $css_groups
  *   An associative array.
  *    key - group
- * @param $preprocess_css
+ * @param bool $preprocess_css
  *   TRUE if preprocessing is enabled.
  *
  * @see _advagg_aggregate_css()
@@ -345,7 +345,8 @@ function hook_advagg_css_groups_alter(&$css_groups, $preprocess_css) {
       }
     }
     else {
-      $diff = array_merge(array_diff($group['browsers'], $target['browsers']), array_diff($target['browsers'], $group['browsers']));
+      $diff = array_merge(array_diff_assoc($group['browsers'], $target['browsers']), array_diff_assoc($target['browsers'], $group['browsers']));
+      // @ignore sniffer_whitespace_openbracketspacing_openingwhitespace
       if (   $group['type'] != $target['type']
           || $group['group'] != $target['group']
           || $group['every_page'] != $target['every_page']
@@ -353,9 +354,10 @@ function hook_advagg_css_groups_alter(&$css_groups, $preprocess_css) {
           || $group['media'] != $target['media']
           || $group['preprocess'] != $target['preprocess']
           || !empty($diff)
-            ) {
+          ) {
         if (!empty($last_group)) {
-          $diff = array_merge(array_diff($last_group['browsers'], $target['browsers']), array_diff($target['browsers'], $last_group['browsers']));
+          $diff = array_merge(array_diff_assoc($last_group['browsers'], $target['browsers']), array_diff_assoc($target['browsers'], $last_group['browsers']));
+          // @ignore sniffer_whitespace_openbracketspacing_openingwhitespace
           if (   $last_group['type'] != $target['type']
               || $last_group['group'] != $target['group']
               || $last_group['every_page'] != $target['every_page']
@@ -363,8 +365,8 @@ function hook_advagg_css_groups_alter(&$css_groups, $preprocess_css) {
               || $last_group['media'] != $target['media']
               || $last_group['preprocess'] != $target['preprocess']
               || !empty($diff)
-                ) {
-            // Insert New
+              ) {
+            // Insert New.
             $css_groups[$kill_key] = array(
               'group' => $target['group'],
               'type' => $target['type'],
@@ -401,10 +403,10 @@ function hook_advagg_css_groups_alter(&$css_groups, $preprocess_css) {
 /**
  * Allow other modules to modify $js_groups right before it is processed.
  *
- * @param $js_groups
+ * @param array $js_groups
  *   An associative array.
  *    key - group
- * @param $preprocess_css
+ * @param bool $preprocess_js
  *   TRUE if preprocessing is enabled.
  *
  * @see _advagg_aggregate_js()
@@ -431,9 +433,9 @@ function hook_advagg_js_groups_alter(&$js_groups, $preprocess_js) {
 /**
  * Allow other modules to modify $children & $elements before they are rendered.
  *
- * @param $children
+ * @param array $children
  *   An array of children elements.
- * @param $elements
+ * @param array $elements
  *   A render array containing:
  *   - #items: The CSS items as returned by drupal_add_css() and
  *     altered by drupal_get_css().
@@ -475,9 +477,9 @@ function hook_advagg_modify_css_pre_render_alter(&$children, &$elements) {
 /**
  * Allow other modules to modify $children & $elements before they are rendered.
  *
- * @param $children
+ * @param array $children
  *   An array of children elements.
- * @param $elements
+ * @param array $elements
  *   A render array containing:
  *   - #items: The JavaScript items as returned by drupal_add_js() and
  *     altered by drupal_get_js().
@@ -521,16 +523,16 @@ function hook_advagg_modify_js_pre_render_alter(&$children, &$elements) {
 /**
  * Allow other modules to modify $css_groups right before it is processed.
  *
- * @param $original
+ * @param array $original
  *   array of original settings.
- * @param $aggregate_settings
+ * @param array $aggregate_settings
  *   array of contextual settings.
- * @param $mode
+ * @param int $mode
  *   0 to change context to what is inside of $aggregate_settings.
  *   1 to change context back.
  *
- * @see advagg_context_css().
- * @see advagg_advagg_context_alter().
+ * @see advagg_context_css()
+ * @see advagg_advagg_context_alter()
  */
 function hook_advagg_context_alter(&$original, $aggregate_settings, $mode) {
   if ($mode == 0) {

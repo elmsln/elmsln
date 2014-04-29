@@ -7,16 +7,17 @@
  * File used to store hook_advagg_* hooks.
  */
 
+// @ignore sniffer_commenting_functioncomment_hookparamdoc:11
 /**
  * Implements hook_advagg_save_aggregate_alter().
  *
  * Used to add in a .gz file if none exits.
  *
- * @param $files_to_save
+ * @param array $files_to_save
  *   array($uri => $contents)
- * @param $aggregate_settings
+ * @param array $aggregate_settings
  *   array of settings.
- * @param $other_parameters
+ * @param array $other_parameters
  *   array of containing $files & $type.
  */
 function advagg_advagg_save_aggregate_alter(&$files_to_save, $aggregate_settings, $other_parameters) {
@@ -29,11 +30,11 @@ function advagg_advagg_save_aggregate_alter(&$files_to_save, $aggregate_settings
   $gzip_exists = FALSE;
   foreach ($files_to_save as $uri => $contents) {
     // See if this uri contains .gz near the end of it.
-    $pos = strripos($uri, '.gz', 91 + strlen(ADVAGG_SPACE)*3);
+    $pos = strripos($uri, '.gz', 91 + strlen(ADVAGG_SPACE) * 3);
     if (!empty($pos)) {
       $len = strlen($uri);
       // .gz file exists, exit loop.
-      if ($pos == $len-3) {
+      if ($pos == $len - 3) {
         $gzip_exists = TRUE;
         break;
       }
@@ -51,16 +52,17 @@ function advagg_advagg_save_aggregate_alter(&$files_to_save, $aggregate_settings
   }
 }
 
+// @ignore sniffer_commenting_functioncomment_hookparamdoc:10
 /**
  * Implements hook_advagg_build_aggregate_plans_alter().
  *
  * Used to alter the plan so it has the same grouping as cores.
  *
- * @param $files
+ * @param array $files
  *   List of files in the aggregate as well as the aggregate name.
- * @param $modified
+ * @param bool $modified
  *   Change this to TRUE if $files has been changed.
- * @param $type
+ * @param string $type
  *   css or js.
  */
 function advagg_advagg_build_aggregate_plans_alter(&$files, &$modified, $type) {
@@ -85,14 +87,14 @@ function advagg_advagg_build_aggregate_plans_alter(&$files, &$modified, $type) {
 
       // Bump Counter if group/every_page has changed from the last one.
       if ($group != $fileinfo['group'] || $every_page != $fileinfo['every_page']) {
-        $counter++;
+        ++$counter;
         $group = $fileinfo['group'];
         $every_page = $fileinfo['every_page'];
         $modified = TRUE;
       }
       $temp_new_files[$counter][] = $fileinfo;
     }
-    $counter++;
+    ++$counter;
   }
 
   // Replace $files array with new aggregate filenames.
@@ -101,7 +103,7 @@ function advagg_advagg_build_aggregate_plans_alter(&$files, &$modified, $type) {
 
 
 /**
- * Implement hook_advagg_context_alter().
+ * Implements hook_advagg_context_alter().
  */
 function advagg_advagg_context_alter(&$original, $aggregate_settings, $mode) {
   if ($mode == 0) {
@@ -110,6 +112,8 @@ function advagg_advagg_context_alter(&$original, $aggregate_settings, $mode) {
     $original['base_url'] = $GLOBALS['base_url'];
     $original['base_path'] = $GLOBALS['base_path'];
     $original['is_https'] = $GLOBALS['is_https'];
+    $original['language'] = isset($GLOBALS['language']) ? $GLOBALS['language'] : NULL;
+
     $GLOBALS['is_https'] = $aggregate_settings['variables']['is_https'];
     if ($aggregate_settings['variables']['is_https']) {
       $GLOBALS['base_root'] = str_replace('http://', 'https://', $GLOBALS['base_root']);
@@ -120,6 +124,13 @@ function advagg_advagg_context_alter(&$original, $aggregate_settings, $mode) {
       $GLOBALS['base_url'] = str_replace('https://', 'http://', $GLOBALS['base_url']);
     }
     $GLOBALS['base_path'] = $aggregate_settings['variables']['base_path'];
+
+    if (isset($aggregate_settings['variables']['language'])) {
+      $languages = language_list();
+      if (isset($languages[$aggregate_settings['variables']['language']])) {
+        $GLOBALS['language'] = $languages[$aggregate_settings['variables']['language']];
+      }
+    }
   }
   elseif ($mode == 1) {
     // Change context back.
@@ -135,6 +146,8 @@ function advagg_advagg_context_alter(&$original, $aggregate_settings, $mode) {
     if (isset($original['is_https'])) {
       $GLOBALS['is_https'] = $original['is_https'];
     }
+    if (isset($original['language'])) {
+      $GLOBALS['language'] = $original['language'];
+    }
   }
 }
-

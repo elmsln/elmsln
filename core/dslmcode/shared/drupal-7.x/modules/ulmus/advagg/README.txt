@@ -75,55 +75,103 @@ CONFIGURATION
 Settings page is located at:
 admin/config/development/performance/advagg
 **Global Options**
- * Enable Advanced Aggregation. You can disable the module here; same effect as
-   placing ?advagg=-1 in the URL.
- * Create .gz files. For every Aggregated file generated, this will create a
-   gzip version of that and then serve that out if the browser accepts gzip
-   compression.
- * Use Cores Grouping Logic. Will group files just like core does.
- * Use HTTPRL to generate aggregates. If HTTPRL is installed, advagg will use it
-   to generate aggregates on the fly in a background parallel process.
-**CSS Options**
- * Combine CSS files by using media queries. Use cores grouping logic needs to
+ * Enable Advanced Aggregation: Check this to start using this module. You can
+   also quickly disable the module here. For testing purposes, this has the same
+   effect as placing ?advagg=-1 in the URL. Disabled by default.
+ * Create .gz files: Check this by default as it will improve your performance.
+   For every Aggregated file generated, this will create a gzip version of file
+   and then only serve it out if the browser accepts gzip files compression.
+   Enabled by default.
+ * Use Cores Grouping Logic: Leave this checkbox enabled until you are ready to
+   begin exploring the AdvAgg Bundler sub-module which overrides Core's
+   functionality. This groups files just like Core does so should just work.
+   Enabled by default. You will also have to disable this checkbox if you wish
+   to enable some of the CSS Options below on this settings page.
+ * Use HTTPRL to generate aggregates: If the HTTPRL module is enabled -
+   https://drupal.org/project/httprl - advagg will use it to generate aggregates
+   on the fly in a background parallel process. Enabling HTTPRL will improve
+   page generation speeds when a new aggregate is created because the CSS/JS
+   file creation will happen in a different process. If HTTPRL is installed it
+   is Enabled by default; otherwise is it Disabled.
+ * AdvAgg Cache Settings: As a reference, core takes about 7 ms to run.
+   Development will scan all files for a change on every page load ~ 100ms.
+   Normal is should be fine for all use cases ~ 10ms. Aggressive might break
+   depending on how various hook_alter's for CSS/JS are implemented ~ 4ms; to
+   see what modules are using css/js_alter you can go to the Information Page
+   and under 'AdvAgg CSS/JS hooks implemented by modules' modules using both of
+   these hooks will be listed near the bottom of that section; more information
+   about the Aggressive setting can be found in Technical Details under
+   Aggressive Cache Setting in this document.
+
+**CSS Options & JS Options**
+ * Combine CSS files by using media queries: "Use cores grouping logic" needs to
    be unchecked in order for this to work. Also noted is that due to an issue
-   with IE9, compatibility mode is forced off if this is enabled.
- * Prevent more than 4095 CSS selectors in an aggregated CSS file. Internet
+   with IE9, compatibility mode is forced off if this is enabled by adding this
+   tag in the html head:
+
+       <!--[if IE]>
+       <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+       <![endif]-->
+
+   Disabled by default.
+ * Prevent more than 4095 CSS selectors in an aggregated CSS file: Internet
    Explorer before version 10; IE9, IE8, IE7, & IE6 all have 4095 as the limit
    for the maximum number of css selectors that can be in a file. Enabling this
-   will prevent CSS aggregates from being created that exceed this limit.
+   will prevent CSS aggregates from being created that exceed this limit. For
+   more information see
+   http://blogs.msdn.com/b/ieinternals/archive/2011/05/14/10164546.aspx Disabled
+   by default.
+ * Fix improperly set type (CSS/JS): If type is external but does not start with
+   http, https, or // change it to be type file. If type is file but it starts
+   with http, https, or // change type to be external.
+
+Information page is located at:
+admin/config/development/performance/advagg/info
+This page provides debugging information. There are no configuration options
+here.
+ * Hook Theme Info: Displays the process_html order. Used for debugging.
+ * CSS files: Displays how often a file has changed.
+ * JS files: Displays how often a file has changed.
+ * Modules implementing AdvAgg CSS/JS hooks: Lets you know what modules are
+   using advagg.
+ * AdvAgg CSS/JS hooks implemented by modules: Lets you know what advagg hooks
+   are in use.
+ * Hooks And Variables Used In Hash: Show what is used to calculate the 3rd hash
+   of an aggregates filename.
+ * Get detailed info about an aggregate file: Look up detailed array about any
+   CSS or JS file listed.
 
 Operations page is located at:
 admin/config/development/performance/advagg/operations
- * Smart cache flush button. Scan all files referenced in aggregated files. If
-   any of them have changed, increment the counters containing that file and
-   rebuild the bundle.
- * Remove all stale files. Scan all files in the advagg_css/js directories and
-   remove the ones that have not been accessed in the last 30 days.
- * Clear missing files from the database. Scan for missing files and remove the
-   associated entries in the database.
- * Delete Unused Aggregates from the database. Delete aggregates that have not
-   been accessed in the last 6 weeks.
- * Aggregation Bypass Cookie. This will set or remove a cookie that disables
-   aggregation for the remainder of the browser session. It acts almost the same
-   as adding ?advagg=0 to every URL.
- * Drastic Measures.
-   * Clear all caches. Remove all data stored in the advagg cache bins.
-   * Remove all generated files. Remove all files in the advagg_css/js
-     directories.
-   * Force new aggregates. Force the creation of all new aggregates by
-     incrementing a global counter
+This is a collection of commands to control the cache and to manage testing of
+this module. In general this page is useful when troubleshooting some
+aggregation issues. For normal operations, you do not need to do anything on
+this page below the Smart Cache Flush. There are no configuration options here.
+ * Smart Cache Flush
+   * Flush AdvAgg Cache: Scan all files referenced in aggregated files. If
+     any of them have changed, increment the counters containing that file and
+     rebuild the bundle.
 
-Additional information is available at:
-admin/config/development/performance/advagg/info
- * Hook theme info. Displays the process_html order. Used for debugging.
- * CSS files. Displays how often a file has changed.
- * JS files. Displays how often a file has changed.
- * Modules implementing advagg hooks. Lets you know what modules are using
-   advagg.
- * AdvAgg CSS/JS hooks implemented by modules. Lets you know what advagg hooks
-   are in use.
- * Hooks and variables used in hash. Show what is used to calculate the 3rd hash
-   of an aggregates filename.
+ * Aggregation Bypass Cookie
+    * Toggle The "aggregation bypass cookie" For This Browser: This will set or
+      remove a cookie that disables aggregation for the remainder of the browser
+      session. It acts almost the same as adding ?advagg=0 to every URL.
+
+ * Cron Maintenance Tasks
+   * Remove All Stale Files: Scan all files in the advagg_css/js directories and
+     remove the ones that have not been accessed in the last 30 days.
+   * Clear Missing Files From the Database: Scan for missing files and remove
+     the associated entries in the database.
+   * Delete Unused Aggregates from Database: Delete aggregates that have not
+     been accessed in the last 6 weeks.
+   * Delete orphaned/expired advagg locks from the semaphore database table.
+
+ * Drastic Measures
+   * Clear All Caches: Remove all data stored in the advagg cache bins.
+   * Remove All Generated Files. Remove all files in the advagg_css/js
+     directories.
+   * Increment Global Counter: Force the creation of all new aggregates by
+     incrementing a global counter.
 
 Hidden Settings:
 The following settings are not configurable from the admin UI and must be set in
@@ -146,6 +194,10 @@ settings.php. In general they are settings that should not be changed.
 
     // Allow JavaScript insertion into any scope even if theme does not support
     // it.
+    $conf['advagg_scripts_scope_anywhere'] = FALSE;
+
+    // Empty the scripts key inside of template_process_html replacement
+    // function.
     $conf['advagg_scripts_scope_anywhere'] = FALSE;
 
     // Set the jQuery UI version.
@@ -199,11 +251,11 @@ TECHNICAL DETAILS & HOOKS
 -------------------------
 
 Technical Details:
- * There are four database tables and two cache table used by advagg.
+ * There are five database tables and two cache table used by advagg.
    advagg_schema documents what they are used for.
  * Files are generated by this pattern:
 
-    css__[BASE64_HASH]__[BASE64_HASH]__[BASE64_HASH].css
+       css__[BASE64_HASH]__[BASE64_HASH]__[BASE64_HASH].css
 
    The first base64 hash value tells us what files are included in the
    aggregate. Changing what files get included will change this value.
@@ -215,6 +267,46 @@ Technical Details:
    The third base64 hash value records what settings were used when generating
    the aggregate. Changing a setting that affects how aggregates get built
    (like toggling "Create .gz files") will change this value.
+
+ * To trigger scanning of the CSS / JS file cache to identify new files, run
+   the following:
+
+       // Trigger reloading the CSS and JS file cache in AdvAgg.
+       if (module_exists('advagg')) {
+         module_load_include('inc', 'advagg', 'advagg.cache');
+         advagg_push_new_changes();
+       }
+
+ * Aggressive Cache Setting: This will fully cache the rendered html generated
+   by AdvAgg. The cache ID is set by this code:
+
+       $hooks_hash = advagg_get_current_hooks_hash();
+       $css_hash = drupal_hash_base64(serialize($variables['css']));
+       $css_cache_id = 'advagg:css:full:' . $hooks_hash . ':' . $css_hash;
+
+       $hooks_hash = advagg_get_current_hooks_hash();
+       $js_hash = drupal_hash_base64(serialize($javascript));
+       $js_cache_id = 'advagg:js:full:' . $hooks_hash . ':' . $js_hash;
+
+   The second and final hash value in this cache id is the css/js_hash value.
+   This takes the input from drupal_add_css/js() and creates a hash value from
+   it. If a different file is added and/or inline code changed, this hash value
+   will be different.
+
+   The first hash value will take the current_hooks_hash value which is the
+   third base64 hash value listed above in this section (Technical Details) as
+   the first part of the hash. This means that if any value is changed in this
+   nested array a different cache id will be used. You can see the contents of
+   this nested array by going to
+   admin/config/development/performance/advagg/info under
+   "Hooks And Variables Used In Hash". An example of this being properly used is
+   if you enable the core locale module the language key will appear in the
+   array. This is needed because the locale_css_alter and locale_js_alter
+   functions both use the global $language variable in determining what css or
+   js files need to be altered. To add in your own context you can use
+   hook_advagg_current_hooks_hash_array_alter to do so. Be careful when doing so
+   as including something like the user id will make every user have a different
+   set of aggregate files.
 
 Hooks:
 
@@ -265,7 +357,7 @@ Note that @drupal might be @rewrite depending on your servers configuration.
       access_log  off;
       expires     max;
       add_header  ETag "";
-      add_header  Cache-Control "max-age=290304000, no-transform, public";
+      add_header  Cache-Control "max-age=31449600, no-transform, public";
       try_files   $uri @drupal;
     }
 
@@ -285,6 +377,23 @@ variable must be set inside of settings.php. Add this to your settings.php file:
     $conf['fast_404_string_whitelisting'][] = '/advagg_';
 
 
+Modules like the Central Authentication Services https://drupal.org/project/cas
+will redirect all anonymous requests to a login page. Most of the time there is
+a setting that allows certain pages to be excluded from the redirect. You should
+add the following to those exclusions. Note that sites/default/files is the
+location of you public file system (public://) so you might have to adjust this
+to fit your setup. services/* is the default (CAS_EXCLUDE) and
+httprl_async_function_callback is needed if httprl will be used.
+
+    services/*
+    sites/default/files/advagg_css/*
+    sites/default/files/advagg_js/*
+    httprl_async_function_callback
+
+In the example of CAS this setting can be found on the admin/config/people/cas
+page and under Redirection there should be a setting called "Excluded Pages".
+
+
 If Far-Future headers are not being sent out and you are using Apache here are
 some tips to hopefully get it working. For Apache enable mod_rewrite,
 mod_headers, and mod_expires. Add the following code to the bottom of Drupal's
@@ -293,25 +402,38 @@ core .htaccess file (located at the webroot level).
     <FilesMatch "^(css|js)__[A-Za-z0-9-_]{43}__[A-Za-z0-9-_]{43}__[A-Za-z0-9-_]{43}.(css|js)(\.gz)?">
       # No mod_headers
       <IfModule !mod_headers.c>
-        # Use Expires Directive.
-        <IfModule mod_expires.c>
-          # Do not use ETags.
-          FileETag None
-          # Enable expirations.
-          ExpiresActive On
-          # Cache all aggregated css/js files for 480 weeks after access (A).
-          ExpiresDefault A290304000
+        # No mod_expires
+        <IfModule !mod_expires.c>
+          # Use ETags.
+          FileETag MTime Size
         </IfModule>
       </IfModule>
 
+      # Use Expires Directive.
+      <IfModule mod_expires.c>
+        # Do not use ETags.
+        FileETag None
+        # Enable expirations.
+        ExpiresActive On
+        # Cache all aggregated css/js files for 52 weeks after access (A).
+        ExpiresDefault A31449600
+      </IfModule>
+
       <IfModule mod_headers.c>
-        # Set a far future Cache-Control header to 480 weeks.
-        Header set Cache-Control "max-age=290304000, no-transform, public"
-        # Set a far future Expires header.
-        Header set Expires "Tue, 20 Jan 2037 04:20:42 GMT"
         # Do not use etags for cache validation.
         Header unset ETag
+        <IfModule !mod_expires.c>
+          # Set a far future Cache-Control header to 52 weeks.
+          Header set Cache-Control "max-age=31449600, no-transform, public"
+        </IfModule>
+        <IfModule mod_expires.c>
+          Header append Cache-Control "no-transform, public"
+        </IfModule>
       </IfModule>
+    </FilesMatch>
+    # Force advagg .js file to have the type of application/javascript.
+    <FilesMatch "^js__[A-Za-z0-9-_]{43}__[A-Za-z0-9-_]{43}__[A-Za-z0-9-_]{43}.js(\.gz)?">
+      ForceType application/javascript
     </FilesMatch>
 
 
@@ -319,4 +441,4 @@ If pages on the site stop working correctly or looks broken after Advanced
 CSS/JS Aggregation is enabled, the first step should be to validate the
 individual CSS and/or JS files using the included advagg_validator module -
 something as simple as an errant unfinished comment in one file may cause entire
-files to be ignored.
+aggregates of files to be ignored.

@@ -46,7 +46,6 @@ function advagg_css_compress_admin_settings_form($form, $form_state) {
     ),
   );
 
-
   $options[-1] = t('Default');
   ksort($options);
 
@@ -104,8 +103,7 @@ function advagg_css_compress_admin_settings_form_submit($form, &$form_state) {
     cache_clear_all('*', $bin, TRUE);
   }
 
-
-  // Get current defaults
+  // Get current defaults.
   $file_settings = variable_get('advagg_css_compressor_file_settings', array());
 
   // Save per file settings.

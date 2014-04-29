@@ -6,16 +6,31 @@
  */
 
 /**
- * Form builder; validator advagg.
+ * Form builder; CSS validator via w3.
+ *
+ * @return array
+ *   form array.
  */
 function advagg_validator_admin_css_w3_form() {
   drupal_set_title(t('AdvAgg: CSS Validator using w3.org'));
 
   $form = advagg_validator_admin_form_generator('css', FALSE);
 
+  // Add notice that using this form will submit files to a remote server.
+  $form['notice'] = array(
+    '#markup' => '<div>' . t('Notice: The form below will submit files to the <a href="http://jigsaw.w3.org/css-validator/">http://jigsaw.w3.org/css-validator/</a> service if used.') . '</div>',
+    '#weight' => -1,
+  );
+
   return $form;
 }
 
+/**
+ * Form builder; CSS validator via csslint.
+ *
+ * @return array
+ *   form array.
+ */
 function advagg_validator_admin_css_lint_form() {
   drupal_set_title(t('AdvAgg: CSS Validator using CSSLINT'));
 
@@ -29,10 +44,16 @@ function advagg_validator_admin_css_lint_form() {
     'data' => drupal_get_path('module', 'advagg_validator') . '/advagg_validator.js',
     'type' => 'file',
   );
-  return $form;
 
+  return $form;
 }
 
+/**
+ * Form builder; CSS validator via jshint.
+ *
+ * @return array
+ *   form array.
+ */
 function advagg_validator_admin_js_hint_form() {
   drupal_set_title(t('AdvAgg: JavaScript Validator using JSHINT'));
 
@@ -80,6 +101,17 @@ function advagg_validator_admin_js_hint_form() {
   return $form;
 }
 
+/**
+ * Scan the file system and build a form tree from it.
+ *
+ * @param string $type
+ *   css or js
+ * @param bool $run_client_side
+ *   Set to TRUE to run the checking code client side.
+ *
+ * @return array
+ *   form array.
+ */
 function advagg_validator_admin_form_generator($type, $run_client_side) {
   $form = array();
   module_load_include('inc', 'advagg_validator', 'advagg_validator');
@@ -142,7 +174,7 @@ function advagg_validator_admin_form_generator($type, $run_client_side) {
       }
 
       // Drop in button and info if we reached the point where a file lives.
-      if (count($levels) == $key+1) {
+      if (count($levels) == $key + 1) {
         $form_api_filename = str_replace(array('/', '.'), array('__', '--'), $file);
 
         if (!isset($point['check_this_level'])) {
@@ -169,12 +201,12 @@ function advagg_validator_admin_form_generator($type, $run_client_side) {
         }
         if (!isset($point['start'])) {
           $point['start'] = array(
-            '#markup' => '<br><strong>' . t('File:') . ' </strong><div class="filenames">',
+            '#markup' => '<br /><strong>' . t('File:') . ' </strong><div class="filenames">',
           );
         }
         else {
           $point['start'] = array(
-            '#markup' => '<br><strong>' . t('Files:') . ' </strong><div class="filenames">',
+            '#markup' => '<br /><strong>' . t('Files:') . ' </strong><div class="filenames">',
           );
         }
         $point[$form_api_filename] = array(
@@ -219,6 +251,7 @@ function advagg_validator_admin_test_advagg_css_submit($form, &$form_state) {
   else {
     $output = '<pre>' . check_plain(print_r($info, TRUE)) . '</pre>';
   }
+  // @ignore security_dsm
   drupal_set_message($output);
 }
 
@@ -254,7 +287,7 @@ function advagg_validator_admin_test_advagg_css_directory_submit($form, &$form_s
   }
   module_load_include('inc', 'advagg_validator', 'advagg_validator');
 
-  $dir = trim(substr($form_state['values']['op'], strpos($form_state['values']['op'], ':')+1));
+  $dir = trim(substr($form_state['values']['op'], strpos($form_state['values']['op'], ':') + 1));
   $slash_count = substr_count('/' . $dir, '/');
 
   // Get list of files.
@@ -275,8 +308,8 @@ function advagg_validator_admin_test_advagg_css_directory_submit($form, &$form_s
   else {
     $output = '<pre>' . check_plain(print_r($info, TRUE)) . '</pre>';
   }
+  // @ignore security_dsm
   drupal_set_message($output);
-
 }
 
 /**
@@ -288,7 +321,7 @@ function advagg_validator_admin_test_advagg_css_directory_callback($form, &$form
   }
   module_load_include('inc', 'advagg_validator', 'advagg_validator');
 
-  $dir = trim(substr($form_state['values']['op'], strpos($form_state['values']['op'], ':')+1));
+  $dir = trim(substr($form_state['values']['op'], strpos($form_state['values']['op'], ':') + 1));
   $slash_count = substr_count('/' . $dir, '/');
 
   // Get list of files.
@@ -327,7 +360,7 @@ function advagg_validator_admin_test_advagg_css_subdirectory_submit($form, &$for
   }
   module_load_include('inc', 'advagg_validator', 'advagg_validator');
 
-  $dir = trim(substr($form_state['values']['op'], strpos($form_state['values']['op'], ':')+1));
+  $dir = trim(substr($form_state['values']['op'], strpos($form_state['values']['op'], ':') + 1));
   $slash_count = substr_count('/' . $dir, '/');
 
   // Get list of files.
@@ -348,17 +381,20 @@ function advagg_validator_admin_test_advagg_css_subdirectory_submit($form, &$for
   else {
     $output = '<pre>' . check_plain(print_r($info, TRUE)) . '</pre>';
   }
+  // @ignore security_dsm
   drupal_set_message($output);
-
 }
 
+/**
+ * Display file info via ajax callback.
+ */
 function advagg_validator_admin_test_advagg_css_subdirectory_callback($form, &$form_state) {
   if (empty($form_state['values']['op']) || strpos($form_state['values']['op'], t('Check this Directory and all Subdirectories:')) !== 0) {
     return '<div></div>';
   }
   module_load_include('inc', 'advagg_validator', 'advagg_validator');
 
-  $dir = trim(substr($form_state['values']['op'], strpos($form_state['values']['op'], ':')+1));
+  $dir = trim(substr($form_state['values']['op'], strpos($form_state['values']['op'], ':') + 1));
   $slash_count = substr_count('/' . $dir, '/');
 
   // Get list of files.
@@ -405,6 +441,7 @@ function advagg_validator_admin_test_all_css_submit($form, &$form_state) {
   else {
     $output = '<pre>' . check_plain(print_r($info, TRUE)) . '</pre>';
   }
+  // @ignore security_dsm
   drupal_set_message($output);
 }
 
@@ -436,6 +473,7 @@ function advagg_validator_admin_test_all_css_callback($form, &$form_state) {
  *
  * @param array $info
  *   Array containing info about validators and if the file is valid.
+ *
  * @return array
  *   $info array minus data if that file is valid.
  */

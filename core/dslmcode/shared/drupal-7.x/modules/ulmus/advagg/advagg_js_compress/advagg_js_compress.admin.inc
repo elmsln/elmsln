@@ -19,7 +19,7 @@ function advagg_js_compress_admin_settings_form($form, $form_state) {
   $options = array(
     0 => t('Disabled'),
     1 => t('JSMin+'),
-//     2 => t('Packer'),
+    // 2 => t('Packer'),
   );
   if (function_exists('jsmin')) {
     $options[3] = t('JSMin');
@@ -130,7 +130,7 @@ function advagg_js_compress_admin_settings_form_submit($form, &$form_state) {
     cache_clear_all('*', $bin, TRUE);
   }
 
-  // Get current defaults
+  // Get current defaults.
   $file_settings = variable_get('advagg_js_compressor_file_settings', array());
 
   // Save per file settings.

@@ -6,12 +6,12 @@
  */
 
 /**
- * Implement hook_advagg_get_css_file_contents_alter().
- *
- * @see drupal_load_stylesheet_content().
+ * Implements hook_advagg_get_css_file_contents_alter().
  *
  * Used to run strings inside of quotes of the content attribute through the t
  * function.
+ *
+ * @see drupal_load_stylesheet_content()
  */
 function advagg_mod_advagg_get_css_file_contents_alter(&$contents, $filename, $aggregate_settings) {
   if (empty($aggregate_settings['variables']['advagg_mod_css_translate'])) {
@@ -34,9 +34,10 @@ function advagg_mod_advagg_get_css_file_contents_alter(&$contents, $filename, $a
 /**
  * Run preg matches through the t() function.
  *
- * @param $matches
+ * @param array $matches
  *   Array of matches from preg_replace_callback().
- * @return
+ *
+ * @return string
  *   Replaced String.
  */
 function advagg_mod_advagg_css_content_t_replace_callback($matches) {
@@ -58,6 +59,7 @@ function advagg_mod_advagg_css_content_t_replace_callback($matches) {
   }
 
   // Run t function.
+  // @ignore sniffer_semantics_functioncall_notliteralstring
   $after = t($before);
   // Put back.
   return str_replace($matches[1], str_replace($before, $after, $matches[1]), $matches[0]);

@@ -1,5 +1,4 @@
 <?php
-
 /**
  * JSMinPlus version 1.4
  *
@@ -25,6 +24,7 @@
  *
  * Latest version of this script: http://files.tweakers.net/jsminplus/jsminplus.zip
  *
+ * @file
  */
 
 /* ***** BEGIN LICENSE BLOCK *****
@@ -298,7 +298,7 @@ class JSMinPlus {
                 $s .= "\n";
               }
               elseif ($type == KEYWORD_VAR && $type == $lastType) {
-                // mutiple var-statements can go into one
+                // multiple var-statements can go into one
                 $t = ',' . substr($t, 4);
               }
               else {
@@ -339,7 +339,7 @@ class JSMinPlus {
         }
 
         if ($elsePart) {
-          // be carefull and always make a block out of the thenPart; could be more optimized but is a lot of trouble
+          // be careful and always make a block out of the thenPart; could be more optimized but is a lot of trouble
           if ($thenPart != ';' && $thenPart[0] != '{') {
             $thenPart = '{' . $thenPart . '}';
           }
@@ -584,7 +584,7 @@ class JSMinPlus {
             break;
 
           case TOKEN_STRING:
-            //combine concatted strings with same quotestyle
+            //combine concatenated strings with same quote style
             if ($n->type == OP_PLUS && substr($left, -1) == $right[0]) {
               $s = substr($left, 0, -1) . substr($right, 1);
               break;
@@ -2201,13 +2201,54 @@ class JSTokenizer {
           break;
 
         default:
-          // FIXME: add support for unicode and unicode escape sequence \uHHHH
-          if (preg_match('/^[$\w]+/', $input, $match)) {
-            $tt = in_array($match[0], $this->keywords) ? $match[0] : TOKEN_IDENTIFIER;
+          // Fast path for identifiers: word chars followed by whitespace or various other tokens.
+          // Note we don't need to exclude digits in the first char, as they've already been found
+          // above.
+          if (!preg_match('/^[$\w]+(?=[\s\/\|\^\&<>\+\-\*%=!.;,\?:~\[\]\{\}\(\)@])/', $input, $match)) {
+            // Character classes per ECMA-262 edition 5.1 section 7.6
+            // Per spec, must accept Unicode 3.0, *may* accept later versions.
+            // We'll take whatever PCRE understands, which should be more recent.
+            $identifierStartChars = "\\p{L}\\p{Nl}" .  # UnicodeLetter
+                                    "\$" .
+                                    "_";
+            $identifierPartChars  = $identifierStartChars .
+                                    "\\p{Mn}\\p{Mc}" . # UnicodeCombiningMark
+                                    "\\p{Nd}" .        # UnicodeDigit
+                                    "\\p{Pc}";         # UnicodeConnectorPunctuation
+            $unicodeEscape = "\\\\u[0-9A-F-a-f]{4}";
+            $identifierRegex = "/^" .
+                               "(?:[$identifierStartChars]|$unicodeEscape)" .
+                               "(?:[$identifierPartChars]|$unicodeEscape)*" .
+                               "/uS";
+            if (preg_match($identifierRegex, $input, $match)) {
+              if (strpos($match[0], '\\') !== false) {
+                // Per ECMA-262 edition 5.1, section 7.6 escape sequences should behave as if they were
+                // the original chars, but only within the boundaries of the identifier.
+                $decoded = preg_replace_callback('/\\\\u([0-9A-Fa-f]{4})/',
+                    array(__CLASS__, 'unicodeEscapeCallback'),
+                    $match[0]);
+
+                // Since our original regex didn't de-escape the originals, we need to check for validity again.
+                // No need to worry about token boundaries, as anything outside the identifier is illegal!
+                if (!preg_match("/^[$identifierStartChars][$identifierPartChars]*$/u", $decoded)) {
+                  throw $this->newSyntaxError('Illegal token');
+                }
+
+                // Per spec it _ought_ to work to use these escapes for keywords words as well...
+                // but IE rejects them as invalid, while Firefox and Chrome treat them as identifiers
+                // that don't match the keyword.
+                if (in_array($decoded, $this->keywords)) {
+                  throw $this->newSyntaxError('Illegal token');
+                }
+
+                // TODO: save the decoded form for output?
+              }
+            }
+            else {
+              throw $this->newSyntaxError('Illegal token');
+            }
           }
-          else {
-            throw $this->newSyntaxError('Illegal token');
-          }
+          $tt = in_array($match[0], $this->keywords) ? $match[0] : TOKEN_IDENTIFIER;
       }
     }
 
@@ -2245,6 +2286,10 @@ class JSTokenizer {
 
   public function newSyntaxError($m) {
     return new Exception('Parse error: ' . $m . ' in file \'' . $this->filename . '\' on line ' . $this->lineno);
+  }
+
+  public static function unicodeEscapeCallback($m) {
+    return html_entity_decode('&#x' . $m[1]. ';', ENT_QUOTES, 'UTF-8');
   }
 }
 

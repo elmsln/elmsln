@@ -31,7 +31,7 @@ define('ADVAGG_JS_CDN_JQUERY_UI_VERSION', '1.8.7');
 define('ADVAGG_JS_CDN_COMPRESSION', TRUE);
 
 /**
- * Implement hook_js_alter.
+ * Implements hook_js_alter().
  */
 function advagg_js_cdn_js_alter(&$javascript) {
   // Only modify if jquery_update is not enabled,
@@ -40,15 +40,17 @@ function advagg_js_cdn_js_alter(&$javascript) {
   }
 
   // Setup variables.
-  // jquery.
+  // JQuery.
   $jquery_version = variable_get('advagg_js_cdn_jquery_version', ADVAGG_JS_CDN_JQUERY_VERSION);
   $min = variable_get('advagg_js_cdn_compression', ADVAGG_JS_CDN_COMPRESSION) ? '.min' : '';
-  // jquery ui.
+  // JQuery ui.
   $jquery_ui_version = variable_get('advagg_js_cdn_jquery_ui_version', ADVAGG_JS_CDN_JQUERY_UI_VERSION);
   $ui_mapping = advagg_js_cdn_get_ui_mapping();
   $add_in_ui = FALSE;
 
   foreach ($javascript as $name => $values) {
+    // @ignore sniffer_commenting_inlinecomment_spacingbefore:4
+    // @ignore sniffer_whitespace_openbracketspacing_openingwhitespace:8
     // Only modify if
     //  advagg_js_cdn_jquery is enabled,
     //  name is misc/jquery.js,
@@ -56,7 +58,7 @@ function advagg_js_cdn_js_alter(&$javascript) {
     if (   variable_get('advagg_js_cdn_jquery', ADVAGG_JS_CDN_JQUERY)
         && $name == 'misc/jquery.js'
         && $javascript[$name]['type'] == 'file'
-          ) {
+        ) {
       // Add in backup.
       $values['weight'] += 0.00001;
       $values['data'] = 'window.jQuery || document.write("<script src=\'' . base_path() . $values['data'] . '\'>\x3C/script>")';
@@ -64,10 +66,12 @@ function advagg_js_cdn_js_alter(&$javascript) {
       $javascript[$name . 'backup.js'] = $values;
 
       // Change core to external.
-      $javascript[$name]['data'] = '//ajax.googleapis.com/ajax/libs/jquery/'. $jquery_version . '/jquery' . $min . '.js';
+      $javascript[$name]['data'] = '//ajax.googleapis.com/ajax/libs/jquery/' . $jquery_version . '/jquery' . $min . '.js';
       $javascript[$name]['type'] = 'external';
     }
 
+    // @ignore sniffer_commenting_inlinecomment_spacingbefore:4
+    // @ignore sniffer_whitespace_openbracketspacing_openingwhitespace:8
     // Only modify if
     //  advagg_js_cdn_jquery_ui is enabled,
     //  name is in the $ui_mapping array.
@@ -75,18 +79,18 @@ function advagg_js_cdn_js_alter(&$javascript) {
     if (   variable_get('advagg_js_cdn_jquery_ui', ADVAGG_JS_CDN_JQUERY_UI)
         && array_key_exists($name, $ui_mapping)
         && $javascript[$name]['type'] == 'file'
-          ) {
-      // We only need one file
+        ) {
+      // We only need one file.
       if (!$add_in_ui) {
         // Add in backup.
         $values['weight'] += 0.00001;
-        $values['data'] = 'window.jQuery.ui || document.write("<script src=\'' . base_path() .   drupal_get_path('module', 'advagg_js_cdn') . '/js/jquery-ui.js' . '\'>\x3C/script>")';
+        $values['data'] = 'window.jQuery.ui || document.write("<script src=\'' . base_path() . drupal_get_path('module', 'advagg_js_cdn') . '/js/jquery-ui.js' . '\'>\x3C/script>")';
         $values['type'] = 'inline';
         $javascript[$name . 'backup.js'] = $values;
 
         // Change core to external.
         $add_in_ui = TRUE;
-        $javascript[$name]['data'] = '//ajax.googleapis.com/ajax/libs/jqueryui/'. $jquery_ui_version . '/jquery-ui' . $min . '.js';
+        $javascript[$name]['data'] = '//ajax.googleapis.com/ajax/libs/jqueryui/' . $jquery_ui_version . '/jquery-ui' . $min . '.js';
         $javascript[$name]['type'] = 'external';
       }
       else {
@@ -98,6 +102,9 @@ function advagg_js_cdn_js_alter(&$javascript) {
 
 /**
  * Return an array of jquery ui files.
+ *
+ * @return array
+ *   array of jQuery UI file locations.
  */
 function advagg_js_cdn_get_ui_mapping() {
   // Replace jQuery UI's JavaScript, beginning by defining the mapping.

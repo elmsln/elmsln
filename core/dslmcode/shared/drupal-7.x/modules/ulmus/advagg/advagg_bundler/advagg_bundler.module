@@ -3,7 +3,6 @@
 /**
  * @file
  * Advanced aggregation bundler module.
- *
  */
 
 /**
@@ -31,10 +30,9 @@ define('ADVAGG_BUNDLER_OUTDATED', 1209600);
 define('ADVAGG_BUNDLER_ACTIVE', TRUE);
 
 /**
- * Implement hook_menu.
+ * Implements hook_menu().
  */
 function advagg_bundler_menu() {
-  $items = array();
   $file_path = drupal_get_path('module', 'advagg_bundler');
   $config_path = advagg_admin_config_root_path();
 
@@ -54,7 +52,7 @@ function advagg_bundler_menu() {
 }
 
 /**
- * Implement hook_advagg_hooks_implemented_alter.
+ * Implements hook_advagg_hooks_implemented_alter().
  */
 function advagg_bundler_advagg_hooks_implemented_alter(&$hooks, $all) {
   if ($all) {
@@ -63,7 +61,7 @@ function advagg_bundler_advagg_hooks_implemented_alter(&$hooks, $all) {
 }
 
 /**
- * Implement hook_init.
+ * Implements hook_init().
  */
 function advagg_bundler_init() {
   if (advagg_bundler_enabled()) {
@@ -72,7 +70,7 @@ function advagg_bundler_init() {
 }
 
 /**
- * Implement hook_form_FORM_ID_alter.
+ * Implements hook_form_FORM_ID_alter().
  */
 function advagg_bundler_form_advagg_admin_settings_form_alter(&$form, $form_state) {
   if (advagg_bundler_enabled()) {
@@ -94,11 +92,12 @@ function advagg_bundler_enabled() {
 /**
  * Given a filename return a bundle key.
  *
- * @param $filename
+ * @param string $filename
  *   filename
- * @param $force
+ * @param bool $force
  *   bypass the cache and get a fresh version of the analysis.
- * @return
+ *
+ * @return string
  *   string to be used for the grouping key.
  */
 function advagg_bundler_analysis($filename = '', $force = FALSE) {
@@ -115,7 +114,7 @@ function advagg_bundler_analysis($filename = '', $force = FALSE) {
 
     if (!$force) {
       // Generate cache IDs.
-      $counts = range(max(0, $count-3), $count+3);
+      $counts = range(max(0, $count - 3), $count + 3);
       foreach ($counts as $count) {
         $cache_ids[] = 'advagg:bundler_analysis:' . $count;
       }
@@ -164,6 +163,7 @@ function advagg_bundler_analysis($filename = '', $force = FALSE) {
       // old site structure from influencing new bundles.
       // Grouping by the filename gives us the count and makes it so we don't
       // return a lot of rows;
+      // @ignore sniffer_commenting_inlinecomment_spacingafter
 
       // Create join query for the advagg_aggregates_versions table.
       // 1209600 = 2 weeks.
@@ -191,7 +191,14 @@ function advagg_bundler_analysis($filename = '', $force = FALSE) {
       // Create main query for the advagg_files table.
       $query = db_select('advagg_files', 'af');
       $query->join($subquery_aggregates, 'aa', 'af.filename_hash=aa.filename_hash');
-      $query = $query->fields('af', array('filename', 'filesize', 'mtime', 'changes', 'linecount', 'filename_hash'))
+      $query = $query->fields('af', array(
+          'filename',
+          'filesize',
+          'mtime',
+          'changes',
+          'linecount',
+          'filename_hash',
+        ))
         ->fields('aa', $fields)
         ->orderBy('aa.counter', 'DESC');
       $query->comment('Query called from ' . __FUNCTION__ . '()');

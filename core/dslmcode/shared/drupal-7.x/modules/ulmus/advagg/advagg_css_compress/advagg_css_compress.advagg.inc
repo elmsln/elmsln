@@ -6,7 +6,7 @@
  */
 
 /**
- * Implement hook_advagg_get_css_aggregate_contents_alter().
+ * Implements hook_advagg_get_css_aggregate_contents_alter().
  */
 function advagg_css_compress_advagg_get_css_aggregate_contents_alter(&$data, $files, $aggregate_settings) {
   // Get per file settings.
@@ -15,7 +15,8 @@ function advagg_css_compress_advagg_get_css_aggregate_contents_alter(&$data, $fi
       $form_api_filename = str_replace(array('/', '.'), array('__', '--'), $filename);
       if (isset($aggregate_settings['variables']['advagg_css_compressor_file_settings'][$form_api_filename])) {
         $aggregate_settings['variables']['advagg_css_compressor'] = $aggregate_settings['variables']['advagg_css_compressor_file_settings'][$form_api_filename];
-        // If one file can not be compressed then the whole aggregrate can not be compressed.
+        // If one file can not be compressed then the whole aggregrate can not
+        // be compressed.
         if ($aggregate_settings['variables']['advagg_css_compressor'] == 0) {
           break;
         }
@@ -38,12 +39,10 @@ function advagg_css_compress_advagg_get_css_aggregate_contents_alter(&$data, $fi
 function advagg_css_compress_yui_cssmin(&$data) {
   // Only include CSSMin.inc if the CSSmin class doesn't exist.
   if (!class_exists('CSSmin')) {
-    include(drupal_get_path('module', 'advagg_css_compress') . '/yui/CSSMin.inc');
+    include drupal_get_path('module', 'advagg_css_compress') . '/yui/CSSMin.inc';
   }
 
   $cssmin = new CSSmin(FALSE);
-  // Compress the CSS splitting lines after 4k of text
+  // Compress the CSS splitting lines after 4k of text.
   $data = $cssmin->run($data, 4096);
 }
-
-

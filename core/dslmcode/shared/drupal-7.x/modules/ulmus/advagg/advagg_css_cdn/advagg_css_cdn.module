@@ -16,7 +16,7 @@ define('ADVAGG_CSS_CDN_JQUERY_UI', TRUE);
 define('ADVAGG_CSS_CDN_JQUERY_UI_VERSION', '1.8.7');
 
 /**
- * Implement hook_css_alter.
+ * Implements hook_css_alter().
  */
 function advagg_css_cdn_css_alter(&$css) {
   // Only modify if jquery_update is not enabled,
@@ -31,6 +31,8 @@ function advagg_css_cdn_css_alter(&$css) {
   $add_in_ui = FALSE;
 
   foreach ($css as $name => $values) {
+    // @ignore sniffer_commenting_inlinecomment_spacingbefore:4
+    // @ignore sniffer_whitespace_openbracketspacing_openingwhitespace:8
     // Only modify if
     //  advagg_css_cdn_jquery_ui is enabled,
     //  name is in the $ui_mapping array.
@@ -38,8 +40,8 @@ function advagg_css_cdn_css_alter(&$css) {
     if (   variable_get('advagg_css_cdn_jquery_ui', ADVAGG_CSS_CDN_JQUERY_UI)
         && array_key_exists($name, $ui_mapping)
         && $css[$name]['type'] == 'file'
-          ) {
-      $css[$name]['data'] = '//ajax.googleapis.com/ajax/libs/jqueryui/'. $jquery_ui_version . '/themes/base/jquery.' . $ui_mapping[$name] . '.css';
+        ) {
+      $css[$name]['data'] = '//ajax.googleapis.com/ajax/libs/jqueryui/' . $jquery_ui_version . '/themes/base/jquery.' . $ui_mapping[$name] . '.css';
       $css[$name]['type'] = 'external';
 
       // Fallback can not work do to "SecurityError: The operation is insecure."
@@ -70,7 +72,7 @@ function advagg_css_cdn_get_ui_mapping() {
 }
 
 /**
- * Implement hook_advagg_css_groups_alter.
+ * Implements hook_advagg_css_groups_alter().
  */
 function advagg_css_cdn_advagg_css_groups_alter(&$css_groups, $preprocess_css) {
   // Work around a bug with seven_css_alter.
@@ -114,7 +116,8 @@ function advagg_css_cdn_advagg_css_groups_alter(&$css_groups, $preprocess_css) {
       }
     }
     else {
-      $diff = array_merge(array_diff($group['browsers'], $target['browsers']), array_diff($target['browsers'], $group['browsers']));
+      $diff = array_merge(array_diff_assoc($group['browsers'], $target['browsers']), array_diff_assoc($target['browsers'], $group['browsers']));
+      // @ignore sniffer_whitespace_openbracketspacing_openingwhitespace:8
       if (   $group['type'] != $target['type']
           || $group['group'] != $target['group']
           || $group['every_page'] != $target['every_page']
@@ -122,9 +125,10 @@ function advagg_css_cdn_advagg_css_groups_alter(&$css_groups, $preprocess_css) {
           || $group['media'] != $target['media']
           || $group['preprocess'] != $target['preprocess']
           || !empty($diff)
-            ) {
+          ) {
         if (!empty($last_group)) {
-          $diff = array_merge(array_diff($last_group['browsers'], $target['browsers']), array_diff($target['browsers'], $last_group['browsers']));
+          $diff = array_merge(array_diff_assoc($last_group['browsers'], $target['browsers']), array_diff_assoc($target['browsers'], $last_group['browsers']));
+          // @ignore sniffer_whitespace_openbracketspacing_openingwhitespace:8
           if (   $last_group['type'] != $target['type']
               || $last_group['group'] != $target['group']
               || $last_group['every_page'] != $target['every_page']
@@ -132,8 +136,8 @@ function advagg_css_cdn_advagg_css_groups_alter(&$css_groups, $preprocess_css) {
               || $last_group['media'] != $target['media']
               || $last_group['preprocess'] != $target['preprocess']
               || !empty($diff)
-                ) {
-            // Insert New
+              ) {
+            // Insert New.
             $css_groups[$kill_key] = array(
               'group' => $target['group'],
               'type' => $target['type'],

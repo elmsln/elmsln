@@ -44,12 +44,13 @@ function advagg_validator_test_all_css($options = array()) {
  *
  * @param string $ext
  *   Usually css or js.
+ *
  * @return array
  *   An array of files.
  */
 function advagg_validator_scan_all_dirs($ext) {
   $options = array(
-    'nodirmask' => '/(\.git|.*\/files*)/'
+    'nodirmask' => '/(\.git|.*\/files*)/',
   );
   $output = advagg_validator_file_scan_directory(DRUPAL_ROOT, '/.*\.' . $ext . '$/', $options);
   $files = array();
@@ -103,7 +104,7 @@ function advagg_validator_test_css_files($files, $options = array()) {
     if (!empty($output[$filename]['jigsaw.w3.org']['errors'])) {
       foreach ($output[$filename]['jigsaw.w3.org']['errors'] as $key => &$value) {
         if (isset($value['line'])) {
-          $value['linedata'] = $lines[($value['line']-1)];
+          $value['linedata'] = $lines[($value['line'] - 1)];
           if (strlen($value['linedata']) > 512) {
             unset($value['linedata']);
           }
@@ -113,7 +114,7 @@ function advagg_validator_test_css_files($files, $options = array()) {
     if (!empty($output[$filename]['jigsaw.w3.org']['warnings'])) {
       foreach ($output[$filename]['jigsaw.w3.org']['warnings'] as $key => &$value) {
         if (isset($value['line'])) {
-          $value['linedata'] = $lines[$value['line']-1];
+          $value['linedata'] = $lines[$value['line'] - 1];
           if (strlen($value['linedata']) > 512) {
             unset($value['linedata']);
           }
@@ -192,19 +193,19 @@ function advagg_validator_test_css_file_w3c($filename, &$validator_options = arr
  *
  * This function parses a SOAP 1.2 response XML string from the validator.
  *
- * @param string $XML
+ * @param string $xml
  *   The raw SOAP 1.2 XML response from the validator.
  *
  * @return array
  *   Info from the w3c server.
  */
-function advagg_validator_parse_soap_response_w3c($XML) {
+function advagg_validator_parse_soap_response_w3c($xml) {
   $doc = new DOMDocument();
   $response = array();
 
   // Try to load soap 1.2 XML response, and suppress warning reports if any.
-  if (!@$doc->loadXML($XML)) {
-    // Could not load the XML document
+  if (!@$doc->loadXML($xml)) {
+    // Could not load the XML document.
     return $response;
   }
 
@@ -269,11 +270,11 @@ function advagg_validator_dom_extractor($dom) {
  * prevents hidden files and directories (such as SVN working directories)
  * from being scanned.
  *
- * @param $dir
+ * @param string $dir
  *   The base directory or URI to scan, without trailing slash.
- * @param $mask
+ * @param string $mask
  *   The preg_match() regular expression of the files to find.
- * @param $options
+ * @param array $options
  *   An associative array of additional options, with the following elements:
  *   - 'nomask': The preg_match() regular expression of the files to ignore.
  *     Defaults to '/(\.\.?|CVS)$/'.
@@ -289,11 +290,11 @@ function advagg_validator_dom_extractor($dom) {
  *     extension. Defaults to 'uri'.
  *   - 'min_depth': Minimum depth of directories to return files from. Defaults
  *     to 0.
- * @param $depth
+ * @param int $depth
  *   Current depth of recursion. This parameter is only used internally and
  *   should not be passed in.
  *
- * @return
+ * @return array
  *   An associative array (keyed on the chosen key) of objects with 'uri',
  *   'filename', and 'name' members corresponding to the matching files.
  */
@@ -310,13 +311,15 @@ function advagg_validator_file_scan_directory($dir, $mask, $options = array(), $
 
   $options['key'] = in_array($options['key'], array('uri', 'filename', 'name')) ? $options['key'] : 'uri';
   $files = array();
+  // @ignore druplart_andor_assignment
   if (is_dir($dir) && $handle = opendir($dir)) {
     while (FALSE !== ($filename = readdir($handle))) {
       if (!preg_match($options['nomask'], $filename) && $filename[0] != '.') {
         $uri = "$dir/$filename";
         $uri = file_stream_wrapper_uri_normalize($uri);
         if (is_dir($uri) && $options['recurse'] && !preg_match($options['nodirmask'], $uri)) {
-          // Give priority to files in this folder by merging them in after any subdirectory files.
+          // Give priority to files in this folder by merging them in after any
+          // subdirectory files.
           $files = array_merge(advagg_validator_file_scan_directory($uri, $mask, $options, $depth + 1), $files);
         }
         elseif ($depth >= $options['min_depth'] && preg_match($mask, $filename)) {
