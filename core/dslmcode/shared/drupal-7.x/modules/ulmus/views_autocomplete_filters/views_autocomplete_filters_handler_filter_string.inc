@@ -14,6 +14,7 @@ class views_autocomplete_filters_handler_filter_string extends views_handler_fil
     $options['expose']['contains'] += array(
       'autocomplete_filter' => array('default' => 0),
       'autocomplete_items' => array('default' => 10),
+      'autocomplete_min_chars' => array('default' => 0),
       'autocomplete_field' => array('default' => ''),
       'autocomplete_raw_suggestion' => array('default' => TRUE),
       'autocomplete_raw_dropdown' => array('default' => TRUE),
@@ -50,9 +51,17 @@ class views_autocomplete_filters_handler_filter_string extends views_handler_fil
       ),
       'autocomplete_items' => array(
         '#type' => 'textfield',
-        '#title' => t('Maximum number of items in Autocomplete'),
+        '#title' => t('Maximum number of items in Autocomplete results'),
         '#default_value' => $this->options['expose']['autocomplete_items'],
-        '#description' => t('Enter 0 for no limit.'),
+        '#description' => t('Enter 0 or empty for no limit.'),
+        '#element_validate' => array('element_validate_integer'),
+        '#dependency' => array('edit-options-expose-autocomplete-filter' => array(TRUE)),
+      ),
+      'autocomplete_min_chars' => array(
+        '#type' => 'textfield',
+        '#title' => t('Minimum number of characters to start filter'),
+        '#default_value' => $this->options['expose']['autocomplete_min_chars'],
+        '#element_validate' => array('element_validate_integer'),
         '#dependency' => array('edit-options-expose-autocomplete-filter' => array(TRUE)),
       ),
       'autocomplete_dependent' => array(
@@ -94,15 +103,15 @@ class views_autocomplete_filters_handler_filter_string extends views_handler_fil
       // It's not an exposed form or autocomplete is not enabled.
       return;
     }
-    
+
     if (empty($form['value']['#type']) || $form['value']['#type'] !== 'textfield') {
       // Not a textfield.
       return;
     }
-    
+
     // Add autocomplete path to the exposed textfield.
-    $form['value']['#autocomplete_path'] = 'autocomplete_filter/' . $this->options['id'] . '/' . $this->view->name . '/' . $this->view->current_display;
-    
+    $form['value']['#autocomplete_path'] = 'autocomplete_filter/' . $this->options['id'] . '/' . $this->view->name . '/' . $this->view->current_display . '/' . implode('||', $this->view->args);
+
     // Add JS script with core autocomplete overrides to the end of JS files
     // list to be sure it is added after the "misc/autocomplete.js" file. Also
     // mark the field with special class.
@@ -116,18 +125,33 @@ class views_autocomplete_filters_handler_filter_string extends views_handler_fil
     }
   }
 
+  /**
+   * Validate that this filter instance has a corresponding autocomplete results field.
+   *
+   * @return array    An array of errors triggered by this validation.
+   */
   public function validate() {
     $errors = parent::validate();
 
+    // Only check if this filter instance is exposed and has the autocomplete box checked.
     if (!empty($this->options['exposed']) && !empty($this->options['expose']['autocomplete_filter'])) {
-      $fields = $this->view->display_handler->get_handlers('field');
-      $field_name = !empty($this->options['expose']['autocomplete_field']) ? $this->options['expose']['autocomplete_field'] : $this->options['id'];
-      if (empty($field_name) || empty($fields[$field_name])) {
-        $current_display = $this->view->display[$this->view->current_display];
-        $errors[] = t('Field with autocomplete results is not selected for %label filter in %display display.', array(
-          '%label' => $this->ui_name(TRUE),
-          '%display' => $current_display->display_title . ' (' . $this->view->current_display . ')',
-        ));
+      // Look through the view and find the display that this filter instance is part of.
+      foreach ($this->view->display as $display_id => $display) {
+        $display_filters = $display->handler->get_handlers('filter');
+        foreach ($display_filters as $filter_id => $filter) {
+          if ($filter === $this) {
+            // At this point we know we're looking at the correct display, and can check the fields.
+            // Get the fields from the correct display.
+            $display_fields = $display->handler->get_handlers('field');
+            $field_name = !empty($this->options['expose']['autocomplete_field']) ? $this->options['expose']['autocomplete_field'] : $this->options['id'];
+            if (empty($field_name) || empty($display_fields[$field_name])) {
+              $errors[] = t('Field with autocomplete results is not selected for %label filter in %display display.', array(
+                '%label' => $this->ui_name(TRUE),
+                '%display' => $display->display_title . ' (' . $display->id . ')',
+              ));
+            }
+          }
+        }
       }
     }
 

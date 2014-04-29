@@ -5,10 +5,10 @@
  */
 function views_autocomplete_filters_menu() {
   $items = array();
-  $items['autocomplete_filter/%/%/%'] = array(
+  $items['autocomplete_filter/%/%/%/%'] = array(
     'title' => 'Autocomplete Filters',
     'page callback' => 'views_autocomplete_filter',
-    'page arguments' => array(1, 2, 3),
+    'page arguments' => array(1, 2, 3, 4),
     'access callback' => '_views_autocomplete_filters_access_callback',
     'access arguments' => array(2, 3),
     'file' => 'views_autocomplete_filters.inc',
