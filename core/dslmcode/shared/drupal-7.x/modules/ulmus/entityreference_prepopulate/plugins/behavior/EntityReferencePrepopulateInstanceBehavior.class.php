@@ -6,8 +6,6 @@ class EntityReferencePrepopulateInstanceBehavior extends EntityReference_Behavio
    * Generate a settings form for this handler.
    */
   public function settingsForm($field, $instance) {
-    $field_name = $field['field_name'];
-
     $form['action'] = array(
       '#type' => 'select',
       '#title' => t('Action'),
@@ -60,19 +58,114 @@ class EntityReferencePrepopulateInstanceBehavior extends EntityReference_Behavio
       '#options' => $perms,
     );
 
-    $description = t('Determine if values that should be prepopulated should "listen" to the OG-context.');
-
-    if ($disabled = !module_exists('og_context') || !og_is_group_audience_field($field_name)) {
-      $description .= '<br / >' . t('Organic groups integration: Enable OG-context and set "Entity selection mode" to "Organic groups" to enable this selection.');
-    }
-
-    $form['og_context'] = array(
-      '#type' => 'checkbox',
-      '#title' => t('OG context'),
-      '#description' => $description,
-      '#disabled' => $disabled,
+    $form['providers'] = array(
+      '#type' => 'container',
+      '#theme' => 'entityreference_prepopulate_providers_table',
+      '#element_validate' => array('entityreference_prepopulate_providers_validate'),
     );
+
+    $providers = entityreference_prepopulate_providers_info();
+
+    // Sort providers by weight.
+    $providers_names = !empty($instance['settings']['behaviors']['prepopulate']['providers']) ? array_keys($instance['settings']['behaviors']['prepopulate']['providers']) : array();
+    $providers_names = drupal_array_merge_deep($providers_names, array_keys($providers));
+
+    $weight = 0;
+    foreach ($providers_names as $name) {
+      $provider = $providers[$name];
+
+      // Set default values.
+      $provider += array(
+        'disabled' => FALSE,
+      );
+
+      $form['providers']['title'][$name] = array(
+        '#type' => 'item',
+        '#markup' => filter_xss($provider['title']),
+        '#description' => filter_xss($provider['description']),
+      );
+
+      if (!isset($instance['settings']['behaviors']['prepopulate']['providers'][$name])) {
+        // backwards compatibility with version 1.4.
+        if ($name == 'url') {
+          // Enable the URL provider is it is not set in the instance yet.
+          $default_value = TRUE;
+        }
+        elseif ($name == 'og_context') {
+          $default_value = !empty($instance['settings']['behaviors']['prepopulate']['og_context']);
+        }
+      }
+      else {
+        $default_value = !empty($instance['settings']['behaviors']['prepopulate']['providers'][$name]);
+      }
+
+      $form['providers']['enabled'][$name] = array(
+        '#type' => 'checkbox',
+        '#disabled' => $provider['disabled'],
+        '#default_value' => $default_value,
+      );
+
+      $form['providers']['weight'][$name] = array(
+        '#type' => 'weight',
+        '#default_value' => $weight,
+        '#attributes' => array('class' => array('provider-weight')),
+      );
+
+      ++$weight;
+    }
 
     return $form;
   }
+}
+
+/**
+ * Theme the providers table.
+ *
+ * @ingroup themeable
+ */
+function theme_entityreference_prepopulate_providers_table($variables) {
+  $form = $variables['form'];
+
+  $provider_names = element_children($form['enabled']);
+
+  foreach ($provider_names as $provider_name) {
+    $row = array(
+      'data' => array(
+        drupal_render($form['title'][$provider_name]),
+        drupal_render($form['enabled'][$provider_name]),
+        drupal_render($form['weight'][$provider_name]),
+      ),
+      'class' => array('draggable'),
+    );
+    $rows[] = $row;
+  }
+
+  $header = array(
+    array('data' => t('Provider')),
+    array('data' => t('Enabled')),
+    array('data' => t('Weight')),
+  );
+
+  $table_variables = array(
+    'header' => $header,
+    'rows' => $rows,
+    'attributes' => array('id' => 'table-providers'),
+  );
+
+  $output = theme('table', $table_variables);
+
+  drupal_add_tabledrag('table-providers', 'order', 'sibling', 'provider-weight');
+  return $output;
+}
+
+/**
+ * Element validate; Set the value of the providers.
+ */
+function entityreference_prepopulate_providers_validate($element, &$form_state) {
+  $value = $form_state['values']['instance']['settings']['behaviors']['prepopulate']['providers']['enabled'];
+
+  // Sort the value by the weight.
+  uasort($value, 'drupal_sort_weight');
+
+  form_set_value($element, $value, $form_state);
 }

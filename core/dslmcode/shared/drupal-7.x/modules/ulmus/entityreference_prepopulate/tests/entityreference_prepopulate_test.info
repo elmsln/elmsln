@@ -5,9 +5,9 @@ dependencies[] = entityreference_prepopulate
 dependencies[] = og_context
 hidden = TRUE
 
-; Information added by drupal.org packaging script on 2013-04-22
-version = "7.x-1.3"
+; Information added by Drupal.org packaging script on 2014-02-19
+version = "7.x-1.5"
 core = "7.x"
 project = "entityreference_prepopulate"
-datestamp = "1366630855"
+datestamp = "1392845305"
 

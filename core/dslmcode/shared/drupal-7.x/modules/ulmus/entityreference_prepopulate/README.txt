@@ -21,13 +21,13 @@ Fallback behaviour
   Select what to do if the URL path does NOT contain a parameter to
   pre-populate the field.
 Skip access permission
-  This is a fallback overide, the fallback behaviour will not be followed
+  This is a fallback override, the fallback behaviour will not be followed
   for users with the specified permission.
 
 Usage
 =====
 In order to pre-populate an entity reference field you have to supply the
-paramater in the URL.
+parameter in the URL.
 
 The structure is
 node/add/article?[field_ref]=[id]
