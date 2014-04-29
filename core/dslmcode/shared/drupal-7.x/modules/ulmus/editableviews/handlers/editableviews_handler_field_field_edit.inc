@@ -65,6 +65,13 @@ class editableviews_handler_field_field_edit extends views_handler_field_field {
   }
 
   /**
+   * Return the name of the entity property this handler controls.
+   */
+  function field_name() {
+    return $this->definition['field_name'];
+  }
+
+  /**
    * Add the form element for this handler's field to the form.
    *
    * We break this out into the handler to allow other handlers that work with

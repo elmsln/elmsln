@@ -74,6 +74,24 @@ function editableviews_views_data_alter(&$data) {
     $data[$table][$new_field_name]['field']['handler'] = 'editableviews_handler_field_field_edit';
   } // foreach field_info_fields()
 
+  // Editable field for entity metadata properties. Only properties with a
+  // defined 'setter callback' may be used.
+  // We define a single pseudofield, and set the particular property at the
+  // handler options level, as depending on metadata properties here is quite
+  // likely weirdly circular.
+  foreach ($entity_info as $entity_type => $entity_type_info) {
+    if (!empty($entity_type_info['base table']) && isset($data[$entity_type_info['base table']])) {
+      $data[$entity_type_info['base table']]['metadata_property_editable'] = array(
+        'title' => t("Entity metadata property (editable)"),
+        'help' => t("Editable field for entity metadata properties that have setter callbacks defined."),
+        'field' => array(
+          'real field' => $entity_type_info['entity keys']['id'],
+          'handler' => 'editableviews_handler_field_entity_metadata_property',
+        ),
+      );
+    }
+  }
+
   // Node title editable field.
   $data['node']['title_editable'] = array(
     'title' => $data['node']['title']['title'] . ' ' . t('(editable)'),
@@ -81,9 +99,6 @@ function editableviews_views_data_alter(&$data) {
   );
   $data['node']['title_editable']['field'] = $data['node']['title']['field'];
   $data['node']['title_editable']['field']['handler'] = 'editableviews_handler_field_node_title_edit';
-  // This is needed by insert_form_elements(). Outside of FieldAPI fields, this
-  // is simply the key of the element that our handler adds to the form.
-  $data['node']['title_editable']['field']['field_name'] = 'title';
 
   // Define the direction of entityreference reverse relationships.
   // This is set by entityreference module in the magic callback on the field,

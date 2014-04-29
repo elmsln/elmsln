@@ -34,6 +34,13 @@ class editableviews_handler_field_node_title_edit extends views_handler_field_no
   }
 
   /**
+   * Return the name of the entity property this handler controls.
+   */
+  function field_name() {
+    return 'title';
+  }
+
+  /**
    * Return the edit form for the field.
    */
   function edit_form($entity_type, $entity, &$element, &$form_state) {

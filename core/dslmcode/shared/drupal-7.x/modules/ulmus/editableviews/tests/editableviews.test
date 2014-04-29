@@ -152,6 +152,68 @@ class EditableViewsBasicWebTestCase extends EditableViewsBaseWebTestCase {
     $this->assertEqual($first_node_wrapper->field_test_editable_options->value(), $new_value_field_test_editable_options, t("The node's field value is set to the new value by saving the view."));
   }
 
+  /**
+   * Test basic node view 'test_editable_views_node_properties'.
+   */
+  function testNodePropertiesView() {
+    $first_node_title = $this->randomName();
+    $first_node = $this->drupalCreateNode(array(
+      'title' => $first_node_title,
+      'type'  => 'editable_views_test_node',
+    ));
+    $second_node_title = $this->randomName();
+    $second_node = $this->drupalCreateNode(array(
+      'title' => $second_node_title,
+      'type'  => 'editable_views_test_node',
+    ));
+
+    $property_names = array(
+      'status',
+      'promote',
+      'sticky',
+    );
+
+    // An array of form element names, keyed first by node id, and then by
+    // property name.
+    $editable_element_names = array(
+      $first_node->nid => array(
+        'status'    => "node[{$first_node->nid}][status]",
+        'promote'   => "node[{$first_node->nid}][promote]",
+        'sticky'    => "node[{$first_node->nid}][sticky]",
+      ),
+      $second_node->nid => array(
+        'status'    => "node[{$second_node->nid}][status]",
+        'promote'   => "node[{$second_node->nid}][promote]",
+        'sticky'    => "node[{$second_node->nid}][sticky]",
+      ),
+    );
+
+    // Look at the node properties editable view.
+    $this->drupalGet('test-editable-views-node-properties');
+
+    // Check the field editable elements are shown in the view form.
+    foreach ($property_names as $property_name) {
+      $this->assertFieldByName($editable_element_names[$first_node->nid][$property_name], NULL, t("View shows an edit form for the first node's $property_name field."));
+
+      $this->assertFieldByName($editable_element_names[$second_node->nid][$property_name], NULL, t("View shows an edit form for the second node's $property_name field."));
+    }
+
+    // Save changes to the first node's properties.
+    $edit = array(
+      "node[{$first_node->nid}][status]"  => 0,
+      "node[{$first_node->nid}][promote]" => 1,
+      "node[{$first_node->nid}][sticky]"  => 1,
+    );
+    $this->drupalPost('test-editable-views-node-properties', $edit, t('Save'));
+
+    entity_get_controller('node')->resetCache();
+    $first_node = node_load($first_node->nid);
+
+    $this->assertEqual($first_node->status, FALSE, t("The node's 'status' property is set to the new value by saving the view."));
+    $this->assertEqual($first_node->promote, TRUE, t("The node's 'status' property is set to the new value by saving the view."));
+    $this->assertEqual($first_node->sticky, TRUE, t("The node's 'status' property is set to the new value by saving the view."));
+  }
+
 }
 
 /**

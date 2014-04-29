@@ -9,12 +9,16 @@ core = 7.x
 files[] = editableviews_plugin_style_row_edit_table.inc
 files[] = handlers/editableviews_handler_field_field_edit.inc
 files[] = handlers/editableviews_handler_field_node_title_edit.inc
+files[] = handlers/editableviews_handler_field_entity_metadata_property.inc
 
 files[] = tests/editableviews.test
 
-; Information added by  packaging script on 2013-11-15
-version = "7.x-1.0-beta7"
+test_dependencies[] = entityreference
+test_dependencies[] = features
+
+; Information added by Drupal.org packaging script on 2014-04-18
+version = "7.x-1.0-beta8"
 core = "7.x"
 project = "editableviews"
-datestamp = "1384514907"
+datestamp = "1397838560"
 

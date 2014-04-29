@@ -155,7 +155,7 @@ class editableviews_plugin_style_row_edit_table extends views_plugin_style_table
 
     foreach ($edit_field_handlers as $handler_id => $handler) {
       //dsm($handler, "field handler $handler_id");
-      $edit_fields[$handler_id] = $handler->definition['field_name'];
+      $edit_fields[$handler_id] = $handler->field_name();
 
       // Build an array of handlers grouped by relationship ID.
       // This is for the form builder to only work on the handlers that are
@@ -240,7 +240,7 @@ class editableviews_plugin_style_row_edit_table extends views_plugin_style_table
         list($entity_type, $entity_id) = $result_indexes_reverse[$field_handler_relationship_id][$index];
         if (!is_numeric($entity_id)) {
           $entity = $result_entities[$entity_type][$entity_id];
-          $entity->editableviews_exposed_fields[] = $handler->definition['field_name'];
+          $entity->editableviews_exposed_fields[] = $handler->field_name();
         }
 
         // Build a lookup array from index and field handler to the entity type
