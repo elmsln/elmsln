@@ -188,11 +188,11 @@ function httprl_menu() {
 /**
  * Implements hook_cron().
  *
- * This hook should be ran about once a day to once an hour.
+ * This hook should be ran about once an hour to once every 5 minutes.
  */
 function httprl_cron() {
-  // Let expiration times vary by 1 hour.
-  $fuzz_factor = 3600;
+  // Let expiration times vary by 5 minutes.
+  $fuzz_factor = 300;
 
   // Remove expired locks from the semaphore database table.
   if (defined('VERSION') && substr(VERSION, 0, 1) >= 7) {
@@ -234,39 +234,43 @@ function httprl_override_core($url, $options = array()) {
 /**
  * Helper function to build an URL for asynchronous requests to self.
  *
- * @param string $path
- *   Path to a URI excluding everything to the left and including the base path.
- * @param bool $detect_schema
- *   If TRUE it will see if this request is https; if so, it will set the full
- *   url to be https as well.
+ * @param string $level
+ *   How deep to go when setting the base path.
  */
-function httprl_build_url_self($path = '', $detect_schema = FALSE) {
-  global $base_path;
+function _httprl_build_drupal_root($level = 0) {
+  static $webroot;
+  $root_path = '/';
+  if ($level > 0) {
+    // Work backwards from this file till we find drupal's index.php.
+    if (!isset($webroot)) {
+      $webroot = str_replace('\\', '/', dirname(__FILE__));
+      while (!empty($webroot)) {
+        if (file_exists($webroot . '/index.php') && strpos(file_get_contents($webroot . '/index.php'), 'menu_execute_active_handler();') !== FALSE) {
+          break;
+        }
+        $new_webroot = str_replace('\\', '/', dirname($webroot));
+        if ($new_webroot == $webroot) {
+          $webroot = str_replace('\\', '/', getcwd());
+          break;
+        }
+        $webroot = $new_webroot;
+      }
+    }
 
-  if (!empty($base_path)) {
-    $root_path = $base_path;
+    $root_path = '';
+    $webroot_array = explode('/', $webroot);
+    while ($level > 0 && count($webroot_array) != 0) {
+      $level--;
+      $root_path = array_pop($webroot_array) . '/' . $root_path;
+    }
+    $root_path = '/' . $root_path;
   }
   else {
-    // $_SERVER['SCRIPT_NAME'] can, in contrast to $_SERVER['PHP_SELF'], not
-    // be modified by a visitor.
-    if ($dir = trim(dirname($_SERVER['SCRIPT_NAME']), '\,/')) {
-      $root_path = "/$dir/";
-    }
-    else {
-      $root_path = '/';
+    if (!empty($GLOBALS['base_path'])) {
+      $root_path = $GLOBALS['base_path'];
     }
   }
 
-  // Fix root_path.
-  // With dirname() if there are no slashes in the path, a dot is returned,
-  if ($root_path == '/./') {
-    $root_path = '/';
-  }
-  // If ran from the command line SCRIPT_NAME contains the working directory.
-  elseif (isset($_SERVER['argc']) || isset($_SERVER['argv'])) {
-    $cwd = isset($_SERVER['PWD']) ? $_SERVER['PWD'] : getcwd();
-    $root_path = str_replace($cwd . '/', '', $root_path);
-  }
 
   // Server auth.
   $auth = '';
@@ -278,8 +282,14 @@ function httprl_build_url_self($path = '', $detect_schema = FALSE) {
   $ip = httprl_variable_get('httprl_server_addr', FALSE);
   if ($ip == -1) {
     $ip = $_SERVER['HTTP_HOST'];
+    // If the host is bad don't use it.
+    if (isset($_SERVER['argc']) || isset($_SERVER['argv'])) {
+      if (gethostbyname($_SERVER['HTTP_HOST']) == $_SERVER['HTTP_HOST']) {
+        $ip = '';
+      }
+    }
   }
-  elseif (empty($ip)) {
+  if (empty($ip)) {
     $ip = empty($_SERVER['SERVER_ADDR']) ? '127.0.0.1' : $_SERVER['SERVER_ADDR'];
     // Check for IPv6. If IPv6 convert to IPv4 if possible.
     if (strpos($ip, ':') !== FALSE) {
@@ -292,8 +302,14 @@ function httprl_build_url_self($path = '', $detect_schema = FALSE) {
       elseif (!empty($_SERVER['HTTP_HOST'])) {
         // Last option is to use the IP from the host name.
         $ip = gethostbyname($_SERVER['HTTP_HOST']);
+        if (gethostbyname($_SERVER['HTTP_HOST']) == $_SERVER['HTTP_HOST']) {
+          $ip = '';
+        }
       }
     }
+  }
+  if (empty($ip)) {
+    $ip = '127.0.0.1';
   }
 
   // Port.
@@ -321,7 +337,54 @@ function httprl_build_url_self($path = '', $detect_schema = FALSE) {
     }
   }
 
-  return $schema . $auth . $ip . $port . $root_path . $path;
+  return $schema . $auth . $ip . $port . $root_path;
+}
+
+/**
+ * Helper function to build an URL for asynchronous requests to self.
+ *
+ * @param string $path
+ *   Path to a URI excluding everything to the left and including the base path.
+ * @param bool $detect_schema
+ *   If TRUE it will see if this request is https; if so, it will set the full
+ *   url to be https as well.
+ */
+function httprl_build_url_self($path = '', $detect_schema = FALSE) {
+  static $drupal_root;
+  if (!isset($drupal_root)) {
+    $drupal_root = _httprl_build_drupal_root();
+
+    // If ran from the command line, the drupal root might be in a subdir. Test to
+    // make sure we have the right directory.
+    if (isset($_SERVER['argc']) || isset($_SERVER['argv'])) {
+      $level = 0;
+      $found = FALSE;
+      while (!$found) {
+        // Trick due to not knowing the subdir.
+        // http://stackoverflow.com/questions/8361355/get-apache-document-root-from-command-line-execution-no-browser/8415235#8415235
+        $headers = get_headers($drupal_root . 'httprl_async_function_callback');
+        if (!empty($headers)) {
+          foreach ($headers as $header) {
+            if (stripos($header, 'X-HTTPRL') !== FALSE) {
+              $found = TRUE;
+            }
+          }
+        }
+        if (!$found) {
+          $level++;
+          $new_drupal_root = _httprl_build_drupal_root($level);
+          if ($new_drupal_root == $drupal_root) {
+            // Use no subdirectories if nothing worked.
+            $drupal_root = _httprl_build_drupal_root();
+            break;
+          }
+          $drupal_root = $new_drupal_root;
+        }
+      }
+    }
+  }
+
+  return $drupal_root . $path;
 }
 
 /**
@@ -1336,7 +1399,7 @@ function httprl_send_request($results = NULL) {
     // Do some voodoo and open all streams at once. Wait 25ms for streams to
     // respond.
     if (strtoupper(substr(PHP_OS, 0, 3)) === 'WIN') {
-      // If on windows, use error supression http://drupal.org/node/1869026
+      // If on windows, use error suppression http://drupal.org/node/1869026
       $n = @stream_select($read, $write, $except, $stream_select_timeout, 25000);
     }
     else {
@@ -1360,108 +1423,109 @@ function httprl_send_request($results = NULL) {
     // We have some streams to read/write to.
     $rw_done = FALSE;
     if (!empty($n)) {
-
-      // Readable sockets either have data for us, or are failed connection
-      // attempts.
-      foreach ($read as $r) {
-        $id = array_search($r, $this_run);
-        // Make sure ID is in the streams.
-        if ($id === FALSE) {
-          @fclose($r);
-          continue;
-        }
-        // Do not read from the non blocking sockets.
-        if (empty($responses[$id]->options['blocking'])) {
-          // Do post processing on the stream and close it.
-          httprl_post_processing($id, $responses, $output);
-          continue;
-        }
-
-        // Read socket.
-        $chunk = fread($r, $responses[$id]->chunk_size);
-        if (strlen($chunk) > 0) {
-          $rw_done = TRUE;
-          if (!isset($responses[$id]->time_to_first_byte)) {
-            // Calculate Time to First Byte.
-            $responses[$id]->time_to_first_byte = $result->running_time + microtime(TRUE) - $start_time_this_run;
+      if (!empty($read) && is_array($read)) {
+        // Readable sockets either have data for us, or are failed connection
+        // attempts.
+        foreach ($read as $r) {
+          $id = array_search($r, $this_run);
+          // Make sure ID is in the streams.
+          if ($id === FALSE) {
+            @fclose($r);
+            continue;
           }
-        }
-        $responses[$id]->data .= $chunk;
+          // Do not read from the non blocking sockets.
+          if (empty($responses[$id]->options['blocking'])) {
+            // Do post processing on the stream and close it.
+            httprl_post_processing($id, $responses, $output);
+            continue;
+          }
 
-        // Process the headers if we have some data.
-        if (!empty($responses[$id]->data) && empty($responses[$id]->headers) &&
-            (    strpos($responses[$id]->data, "\r\n\r\n")
-              || strpos($responses[$id]->data, "\n\n")
-              || strpos($responses[$id]->data, "\r\r")
-                )
-                  ) {
-          // See if the headers are in the data stream.
-          httprl_parse_data($responses[$id]);
-          if (!empty($responses[$id]->headers)) {
-            // Stream was a redirect, kill & close this connection; redirect is
-            // being followed now.
-            if (!empty($responses[$id]->options['internal_states']['kill'])) {
-              fclose($r);
-              unset($responses[$id]);
-              continue;
-            }
-
-            // Now that we have the headers, increase the chunk size.
-            $responses[$id]->chunk_size = $responses[$id]->options['chunk_size_read'];
-
-            // If a range header is set, 200 was returned, method is GET,
-            // calculate how many bytes need to be downloaded.
-            if (   !empty($responses[$id]->options['headers']['Range'])
-                && $responses[$id]->code == 200
-                && $responses[$id]->options['method'] == 'GET'
-                  ) {
-              $responses[$id]->ranges = httprl_get_ranges($responses[$id]->options['headers']['Range']);
-              $responses[$id]->options['max_data_size'] = httprl_get_last_byte_from_range($responses[$id]->ranges);
+          // Read socket.
+          $chunk = fread($r, $responses[$id]->chunk_size);
+          if (strlen($chunk) > 0) {
+            $rw_done = TRUE;
+            if (!isset($responses[$id]->time_to_first_byte)) {
+              // Calculate Time to First Byte.
+              $responses[$id]->time_to_first_byte = $result->running_time + microtime(TRUE) - $start_time_this_run;
             }
           }
-        }
+          $responses[$id]->data .= $chunk;
 
-        // Close the connection if Transfer-Encoding & Content-Encoding are not
-        // used, a Range request was made and the currently downloaded data size
-        // is larger than the Range request.
-        if (   !empty($responses[$id]->options['max_data_size'])
-            && is_numeric($responses[$id]->options['max_data_size'])
-            && (!isset($result->headers['transfer-encoding']) || $result->headers['transfer-encoding'] != 'chunked')
-            && (!isset($result->headers['content-encoding']) || ($result->headers['content-encoding'] != 'gzip' && $result->headers['content-encoding'] != 'deflate'))
-            && $responses[$id]->options['max_data_size'] < httprl_strlen($responses[$id]->data)
-              ) {
-          $responses[$id]->status = 'Done.';
+          // Process the headers if we have some data.
+          if (!empty($responses[$id]->data) && empty($responses[$id]->headers) &&
+              (    strpos($responses[$id]->data, "\r\n\r\n")
+                || strpos($responses[$id]->data, "\n\n")
+                || strpos($responses[$id]->data, "\r\r")
+                  )
+                    ) {
+            // See if the headers are in the data stream.
+            httprl_parse_data($responses[$id]);
+            if (!empty($responses[$id]->headers)) {
+              // Stream was a redirect, kill & close this connection; redirect is
+              // being followed now.
+              if (!empty($responses[$id]->options['internal_states']['kill'])) {
+                fclose($r);
+                unset($responses[$id]);
+                continue;
+              }
 
-          // Do post processing on the stream.
-          httprl_post_processing($id, $responses, $output);
-          continue;
-        }
+              // Now that we have the headers, increase the chunk size.
+              $responses[$id]->chunk_size = $responses[$id]->options['chunk_size_read'];
 
-        // Get stream data.
-        $info = stream_get_meta_data($r);
-        $alive = !$info['eof'] && !feof($r) && !$info['timed_out'] && strlen($chunk);
-        if (!$alive) {
-          if ($responses[$id]->status == 'Connecting.') {
-            $responses[$id]->error = $t('Connection refused by destination. TCP.');
-            $responses[$id]->code = HTTPRL_CONNECTION_REFUSED;
+              // If a range header is set, 200 was returned, method is GET,
+              // calculate how many bytes need to be downloaded.
+              if (   !empty($responses[$id]->options['headers']['Range'])
+                  && $responses[$id]->code == 200
+                  && $responses[$id]->options['method'] == 'GET'
+                    ) {
+                $responses[$id]->ranges = httprl_get_ranges($responses[$id]->options['headers']['Range']);
+                $responses[$id]->options['max_data_size'] = httprl_get_last_byte_from_range($responses[$id]->ranges);
+              }
+            }
           }
-          if ($responses[$id]->status == 'Writing to server.') {
-            $responses[$id]->error = $t('Connection refused by destination. Write.');
-            $responses[$id]->code = HTTPRL_CONNECTION_REFUSED;
-          }
-          $responses[$id]->status = 'Done.';
 
-          // Do post processing on the stream.
-          httprl_post_processing($id, $responses, $output);
-          continue;
-        }
-        else {
-          $responses[$id]->status = 'Reading data';
+          // Close the connection if Transfer-Encoding & Content-Encoding are not
+          // used, a Range request was made and the currently downloaded data size
+          // is larger than the Range request.
+          if (   !empty($responses[$id]->options['max_data_size'])
+              && is_numeric($responses[$id]->options['max_data_size'])
+              && (!isset($result->headers['transfer-encoding']) || $result->headers['transfer-encoding'] != 'chunked')
+              && (!isset($result->headers['content-encoding']) || ($result->headers['content-encoding'] != 'gzip' && $result->headers['content-encoding'] != 'deflate'))
+              && $responses[$id]->options['max_data_size'] < httprl_strlen($responses[$id]->data)
+                ) {
+            $responses[$id]->status = 'Done.';
+
+            // Do post processing on the stream.
+            httprl_post_processing($id, $responses, $output);
+            continue;
+          }
+
+          // Get stream data.
+          $info = stream_get_meta_data($r);
+          $alive = !$info['eof'] && !feof($r) && !$info['timed_out'] && strlen($chunk);
+          if (!$alive) {
+            if ($responses[$id]->status == 'Connecting.') {
+              $responses[$id]->error = $t('Connection refused by destination. TCP.');
+              $responses[$id]->code = HTTPRL_CONNECTION_REFUSED;
+            }
+            if ($responses[$id]->status == 'Writing to server.') {
+              $responses[$id]->error = $t('Connection refused by destination. Write.');
+              $responses[$id]->code = HTTPRL_CONNECTION_REFUSED;
+            }
+            $responses[$id]->status = 'Done.';
+
+            // Do post processing on the stream.
+            httprl_post_processing($id, $responses, $output);
+            continue;
+          }
+          else {
+            $responses[$id]->status = 'Reading data';
+          }
         }
       }
 
       // Write to each stream if it is available.
-      if ($stream_write_count > 0) {
+      if ($stream_write_count > 0 && !empty($write) && is_array($write)) {
         foreach ($write as $w) {
           $id = array_search($w, $this_run);
           // Make sure ID is in the streams & status is for writing.
@@ -1988,7 +2052,7 @@ function httprl_run_callback(&$result) {
 }
 
 /**
- * Run callback in the backround.
+ * Run callback in the background.
  *
  * Will run the given callback returning values and what might have been
  * printed by that function, as well as respecting any pass by reference values.
@@ -2063,7 +2127,16 @@ function httprl_queue_background_callback(&$args, &$result = NULL) {
   $available = FALSE;
   $lock_counter = 0;
   while (!$available && $lock_counter < 20) {
-    $name = 'httprl_' . hash('sha512', mt_rand() . microtime(TRUE));
+    // 512 bits = 64 bytes.
+    if (function_exists('drupal_random_bytes')) {
+      $name = 'httprl_' . hash('sha512', drupal_random_bytes(64));
+    }
+    elseif (function_exists('openssl_random_pseudo_bytes')) {
+      $name = 'httprl_' . hash('sha512', openssl_random_pseudo_bytes(64));
+    }
+    else {
+      $name = 'httprl_' . hash('sha512', mt_rand() . microtime(TRUE) . serialize($_SERVER));
+    }
     $available = lock_may_be_available($name);
     $lock_counter++;
   }
@@ -2467,10 +2540,9 @@ function httprl_fast403($msg = '') {
  *   The name of the lock.
  */
 function httprl_lock_release($name) {
-  if (httprl_variable_get('lock_inc', './includes/lock.inc') !== './includes/lock.inc') {
-    lock_release($name);
-  }
-  else {
+  $lock_inc = httprl_variable_get('lock_inc', './includes/lock.inc');
+  // Core.
+  if ($lock_inc === './includes/lock.inc') {
     global $locks;
 
     unset($locks[$name]);
@@ -2482,6 +2554,21 @@ function httprl_lock_release($name) {
     else {
       db_query("DELETE FROM {semaphore} WHERE name = '%s'", $name);
     }
+  }
+  // Memcache storage module.
+  elseif (strpos($lock_inc, '/memcache_storage/includes/lock.inc') !== FALSE) {
+    global $locks;
+
+    // We unset unconditionally since caller assumes lock is released anyway.
+    unset($locks[$name]);
+
+    // Remove current lock from memcached pool.
+    if (MemcacheStorageAPI::get($name, 'semaphore')) {
+      MemcacheStorageAPI::delete($name, 'semaphore');
+    }
+  }
+  else {
+    lock_release($name);
   }
 }
 
@@ -3040,4 +3127,193 @@ function httprl_set_user($uid) {
  */
 function httprl_set_q($q) {
   $_GET['q'] = $q;
+}
+
+/**
+ * Queue Callback to run In a New Process.
+ *
+ * @see call_user_func_array()
+ *
+ * @param callback
+ *   The callable to be called.
+ * @param param_arr
+ *   The parameters to be passed to the callback, as an indexed array.
+ * @param $return
+ *   Set to TRUE if you want something returned.
+ * @param $httprl_options
+ *   Options to pass along to httprl_queue_background_callback.
+ * @return
+ *   Reference to the return varible OR NULL if $return is FALSE.
+ */
+function &httprl_qcinp($callback, $param_arr = array(), $return = TRUE, $httprl_options = array()) {
+  $return_var = NULL;
+
+  // Setup callback options array.
+  $callback_options[0]['function'] = $callback;
+  if ($return) {
+    $return_var = '';
+    $callback_options[0]['return'] = &$return_var;
+  }
+  if (isset($httprl_options['context'])) {
+    $callback_options[0]['context'] = $httprl_options['context'];
+    unset($httprl_options['context']);
+  }
+  $callback_options[0]['options'] = $httprl_options;
+
+  // Include function arguments.
+  $callback_options = array_merge($callback_options, $param_arr);
+
+  // Queue up the request.
+  httprl_queue_background_callback($callback_options);
+
+  return $return_var;
+}
+
+/**
+ * Given an array of data, use mutiple processes to crunch it.
+ *
+ * Similar to MapReduce.
+ *
+ * @see http://php.net/array-chunk#63394
+ *
+ * @param $callback
+ *   The function to run
+ * @param $data
+ *   The data to process.
+ * @return
+ *   Array of returned results.
+ */
+function httprl_batch_callback($callback, $data, $options = array()) {
+  // Set defaults.
+  $results = array();
+  $unified_result = NULL;
+  $number_of_items = count($data);
+  $options += array(
+    'max_batchsize' => 30,
+    'threads' => 3,
+    'timeout' => 120,
+    'multiple_helper' => FALSE,
+  );
+
+  // Shrink batchsize to evenly distribute workload if needed.
+  if ($number_of_items < $options['max_batchsize']*$options['threads']) {
+    $options['max_batchsize'] = ceil($number_of_items/$options['threads']);
+  }
+
+  // Chunk the data.
+  $data = array_chunk($data, $options['max_batchsize'], TRUE);
+
+  // Convert options to httprl_queue_background_callback options.
+  unset($options['max_batchsize']);
+  $options['domain_connections'] = $options['threads'];
+  unset($options['threads']);
+  $multiple = $options['multiple_helper'];
+  unset($options['multiple_helper']);
+
+  // Queue up the processes.
+  if ($multiple) {
+    foreach ($data as $key => $values) {
+      $results[$key] = &httprl_qcinp('httprl_run_multiple', array($callback, $values), TRUE, $options);
+    }
+  }
+  else {
+    foreach ($data as $key => $values) {
+      $results[$key] = &httprl_qcinp($callback, array($values), TRUE, $options);
+    }
+  }
+
+  // Execute in parallel.
+  httprl_send_request();
+
+  // Try to merge the results into one.
+  $unified = TRUE;
+  $is_assoc = TRUE;
+  foreach ($results as $key => $value) {
+    if (is_null($unified_result)) {
+      $unified_result = $results[$key];
+    }
+    elseif (is_string($results[$key]) && is_string($unified_result)) {
+      $unified_result .= $results[$key];
+    }
+    elseif (is_array($results[$key]) && is_array($unified_result)) {
+      if ($is_assoc && httprl_is_array_assoc($results[$key]) && httprl_is_array_assoc($unified_result)) {
+        $unified_result = httprl_lossless_assoc_array_merge($unified_result, $results[$key]);
+      }
+      else {
+        $is_assoc = FALSE;
+        $unified_result += $results[$key];
+      }
+    }
+    else {
+      $unified = FALSE;
+      break;
+    }
+  }
+
+  // Return results.
+  if ($unified) {
+    return $unified_result;
+  }
+  else {
+    return $results;
+  }
+}
+
+/**
+ * Given an array return TRUE if all keys are numeric.
+ *
+ * @see http://stackoverflow.com/questions/173400/php-arrays-a-good-way-to-check-if-an-array-is-associative-or-sequential/2444661#2444661
+ *
+ * @param $array
+ *   The data to process.
+ * @return
+ *   TRUE or FALSE.
+ */
+function httprl_is_array_assoc($array) {
+  return ctype_digit(implode('', array_keys($array)));
+}
+
+/**
+ * Merge mutiple associative arrays into one.
+ *
+ * @see http://stackoverflow.com/questions/2148694/how-to-combine-2-associative-arrays-in-php-such-that-we-do-not-overwrite-any-dup/2152054#2152054
+ *
+ * @param ...
+ *   Arrays to merge.
+ * @return
+ *   Merged array.
+ */
+function httprl_lossless_assoc_array_merge() {
+  $arrays = func_get_args();
+  $data = array();
+  foreach ($arrays as $a) {
+    foreach ($a as $k => $v) {
+      if (isset($data[$k])) {
+        $data[] = $v;
+      }
+      else {
+        $data[$k] = $v;
+      }
+    }
+  }
+  return $data;
+}
+
+/**
+ * Run array of data through callback.
+ *
+ *
+ * @param $data
+ *   The data to process.
+ * @param $callback
+ *   The function to run
+ * @return
+ *   Array of results.
+ */
+function httprl_run_multiple($callback, $data) {
+  $results = array();
+  foreach ($data as $key => $values) {
+    $results[$key] = call_user_func_array($callback, array($values));
+  }
+  return $results;
 }

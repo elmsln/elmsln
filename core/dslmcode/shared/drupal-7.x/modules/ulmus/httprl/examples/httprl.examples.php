@@ -475,6 +475,80 @@ echo httprl_pr($nodes);
 ?>
 
 
+
+Load nodes 50-100 using httprl_batch_callback and node_load_multiple.
+
+<?php
+// List of nodes to load; 50-100.
+$nids = range(50, 100);
+// Run not parallel if background callbacks are disabled.
+if (!httprl_is_background_callback_capable()) {
+  $results = node_load_multiple($nids);
+}
+else {
+  // Queue & Execute requests.
+  $results = httprl_batch_callback('node_load_multiple', $nids);
+}
+// Echo what was returned.
+echo httprl_pr($results);
+?>
+
+
+
+Load nodes 50-100 using httprl_batch_callback and node_load.
+
+<?php
+// List of nodes to load; 50-100.
+$nids = range(50, 100);
+// Run not parallel if background callbacks are disabled.
+if (!httprl_is_background_callback_capable()) {
+  // httprl_run_multiple does a foreach on $nids running every $value through
+  // the given callback.
+  $results = httprl_run_multiple('node_load', $nids);
+}
+else {
+  // Set options.
+  $options = array(
+    'multiple_helper' => TRUE,
+  );
+  // Queue & Execute requests.
+  $results = httprl_batch_callback('node_load', $nids, $options);
+}
+// Echo what was returned.
+echo httprl_pr($results);
+?>
+
+
+Load nodes 50-100 using httprl_batch_callback and node_load_multiple as user 1.
+
+<?php
+// List of nodes to load; 50-100.
+$nids = range(50, 100);
+// Run not parallel if background callbacks are disabled.
+if (!httprl_is_background_callback_capable()) {
+  // Run node_load_multiple as user 1
+  $current_account = $GLOBALS['user']->uid;
+  $GLOBALS['user'] = user_load(1);
+  $results = node_load_multiple($nids);
+  // Set global user back.
+  $GLOBALS['user'] = $current_account;
+}
+else {
+  // Set options.
+  $options = array(
+    'context' => array(
+      'uid' => 1,
+    ),
+  );
+  // Queue & Execute requests.
+  $results = httprl_batch_callback('node_load_multiple', $nids, $options);
+}
+// Echo what was returned.
+echo httprl_pr($results);
+?>
+
+
+
 Run a function in the background. Notice that there is no return or printed key
 in the callback options.
 

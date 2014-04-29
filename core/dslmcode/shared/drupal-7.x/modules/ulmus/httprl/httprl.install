@@ -154,7 +154,16 @@ function httprl_requirements($phase) {
  */
 function httprl_install_http_test($mode, $blocking = FALSE) {
   global $conf, $_httprl;
-  $id = 'httprl_' . hash('sha512', mt_rand() . microtime(TRUE));
+  // 512 bits = 64 bytes.
+  if (function_exists('drupal_random_bytes')) {
+    $id = 'httprl_' . hash('sha512', drupal_random_bytes(64));
+  }
+  elseif (function_exists('openssl_random_pseudo_bytes')) {
+    $id = 'httprl_' . hash('sha512', openssl_random_pseudo_bytes(64));
+  }
+  else {
+    $id = 'httprl_' . hash('sha512', mt_rand() . microtime(TRUE) . serialize($_SERVER));
+  }
 
   // Set the headers to point to this hostname.
   $headers = array(
@@ -186,12 +195,19 @@ function httprl_install_http_test($mode, $blocking = FALSE) {
       $args[0]['return'] = '';
       $args[0]['printed'] = '';
     }
-
+    $old_var = variable_get('httprl_background_callback', HTTPRL_BACKGROUND_CALLBACK);
+    $GLOBALS['conf']['httprl_background_callback'] = HTTPRL_BACKGROUND_CALLBACK;
     $url = httprl_queue_background_callback($args);
-    $url = array_keys($url);
-    $url = array_pop($url);
-    // Execute request.
-    $output = httprl_send_request();
+    if (empty($url)) {
+      return FALSE;
+    }
+    else {
+      $url = array_keys($url);
+      $url = array_pop($url);
+      // Execute request.
+      $output = httprl_send_request();
+    }
+    $GLOBALS['conf']['httprl_background_callback'] = $old_var;
   }
   else {
     // Get options.
@@ -204,7 +220,12 @@ function httprl_install_http_test($mode, $blocking = FALSE) {
     $available = FALSE;
     $lock_counter = 0;
     while (!$available && $lock_counter < 20) {
-      $name = 'httprl_' . hash('sha512', mt_rand() . microtime(TRUE));
+      if (function_exists('openssl_random_pseudo_bytes')) {
+        $name = 'httprl_' . hash('sha512', openssl_random_pseudo_bytes(512));
+      }
+      else {
+        $name = 'httprl_' . hash('sha512', mt_rand() . microtime(TRUE));
+      }
       $available = lock_may_be_available($name);
       $lock_counter++;
     }
