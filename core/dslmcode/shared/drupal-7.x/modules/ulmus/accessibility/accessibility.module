@@ -629,15 +629,30 @@ function accessibility_field_extra_fields() {
   $extras = array(
       'quail_name' => array(
         'label' => t('Machine Name'),
-        'weight' => 0
+        'weight' => 0,
+        'display' => array(
+          'popup' => array(
+            'visible' => FALSE,
+            ),
+          ),
       ),
       'severity' => array(
         'label' => t('Severity level'),
-        'weight' => 0
+        'weight' => 0,
+        'display' => array(
+          'popup' => array(
+            'visible' => FALSE,
+            ),
+          ),
       ),
       'status' => array(
         'label' => t('Status'),
-        'weight' => 0
+        'weight' => 0,
+        'display' => array(
+          'popup' => array(
+            'visible' => FALSE,
+            ),
+          ),
       )
     );
   $return['accessibility_test']['accessibility_test'] = array(

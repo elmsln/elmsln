@@ -32,7 +32,7 @@
         var guideline = this.settings.guideline;
         if (typeof category !== 'undefined') {
           $.each(this.settings.tests, function(testName, test) {
-            if(test.tags.indexOf(category) === -1) {
+            if(typeof test.tags !== 'undefined' && test.tags && test.tags.indexOf(category) === -1) {
               guideline.splice(guideline.indexOf(testName), 1);
             }
           });
