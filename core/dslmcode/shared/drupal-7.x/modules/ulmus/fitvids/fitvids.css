@@ -1,0 +1,7 @@
+/*
+ * Fix to stop CKeditor widgets disappearing
+ * See https://drupal.org/comment/8263377#comment-8263377
+ * */
+.cke.cke_chrome{
+  visibility:inherit;
+}

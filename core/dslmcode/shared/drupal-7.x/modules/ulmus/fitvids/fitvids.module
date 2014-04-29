@@ -6,7 +6,7 @@
 
 // Constants
 define("FITVIDS_DEFAULT_REGIONS", 'body');
-define("FITVIDS_PLUGIN_URL", 'https://github.com/davatron5000/FitVids.js');
+define("FITVIDS_PLUGIN_URL", 'https://raw.github.com/davatron5000/FitVids.js/master/jquery.fitvids.js');
 define("FITVIDS_PLUGIN_FILENAME", 'jquery.fitvids.js');
 
 /**
@@ -28,7 +28,7 @@ function fitvids_help($path, $arg) {
       $output .= '<p>' . t("It's useful if you are using a responsive theme (such as Omega), and want the videos to scale.") . '</p>';
       $output .= '<p>' . t("By default it supports Vimeo, YouTube and Kickstarter.") . '</p>';
       $output .= '<h3>' . t('jQuery plugin') . '</h3>';
-      $output .= '<p>' . t("Download the plugin from https://raw.github.com/davatron5000/FitVids.js/master/jquery.fitvids.js") . '</p>';
+      $output .= '<p>' . t("Download the plugin from " . FITVIDS_PLUGIN_URL) . '</p>';
       $output .= '<h3>' . t('Compatibility') . '</h3>';
       $output .= '<p>' . t("Older versions of the media_youtube and media_vimeo modules wrap videos in HTML which may stop FitVids working properly. You can configure FitVids to remove the unneccesary markup.") . '</p>';
       $output .= '<h3>' . t('Further info') . '</h3>';
@@ -78,7 +78,7 @@ function fitvids_form($form, &$form_state) {
   $path = libraries_get_path('fitvids') . '/jquery.fitvids.js';
   $installed = file_exists($path);
   if (!$installed) {
-    $message = t('You need to download the FitVids.js jQuery plugin to use this module. Download it from !fitvids-site, copy it to the !fitvids-library directory, and rename it to !fitvids-filename.', array(
+    $message = t('You need to download the FitVids.js jQuery plugin to use this module. Download it from !fitvids-site and copy it to !fitvids-library/!fitvids-filename.', array(
       '!fitvids-site' => l(t('here'), FITVIDS_PLUGIN_URL),
       '!fitvids-library' => libraries_get_path('fitvids'),
       '!fitvids-filename' => FITVIDS_PLUGIN_FILENAME,

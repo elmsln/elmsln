@@ -19,8 +19,8 @@ function fitvids_requirements($phase) {
         $requirements[] = array(
           'title' => t('FitVids jQuery plugin'),
           'value' => t('Missing'),
-          'description' => t('The FitVids jQuery plugin is missing. Download it from !fitvids-site, copy it to the !fitvids-library directory, and rename it to !fitvids-filename.', array(
-            '!fitvids-site' => l(t('here'), FITVIDS_PLUGIN_URL),
+          'description' => t('The FitVids jQuery plugin is missing. Download it from !fitvids-site and copy it to !fitvids-library/!fitvids-filename.', array(
+            '!fitvids-site' => l(FITVIDS_PLUGIN_URL, FITVIDS_PLUGIN_URL, array('external' => TRUE)),
             '!fitvids-library' => libraries_get_path('fitvids'),
             '!fitvids-filename' => FITVIDS_PLUGIN_FILENAME,
           )),
@@ -31,10 +31,10 @@ function fitvids_requirements($phase) {
         $requirements[] = array(
           'title' => t('FitVids jQuery plugin'),
           'value' => t('Installed'),
-          'description' => t('FitVids is available at !fitvids-library/!fitvids-filename.', array(
+          /*'description' => t('FitVids is available at !fitvids-library/!fitvids-filename.', array(
             '!fitvids-library' => libraries_get_path('fitvids'),
             '!fitvids-filename' => FITVIDS_PLUGIN_FILENAME,
-          )),
+          )),*/
           'severity' => REQUIREMENT_OK,
         );
       }

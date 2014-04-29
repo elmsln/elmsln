@@ -4,10 +4,11 @@ core = 7.x
 dependencies[] = libraries
 configure = admin/config/media/fitvids
 scripts[] = fitvids.js
+stylesheets[all][] = fitvids.css
 
-; Information added by drupal.org packaging script on 2013-08-29
-version = "7.x-1.14"
+; Information added by Drupal.org packaging script on 2014-02-25
+version = "7.x-1.15"
 core = "7.x"
 project = "fitvids"
-datestamp = "1377766598"
+datestamp = "1393336706"
 
