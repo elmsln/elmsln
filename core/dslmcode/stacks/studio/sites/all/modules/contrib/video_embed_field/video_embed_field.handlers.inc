@@ -1,12 +1,12 @@
 <?php
 /**
- *  Provide some handlers for video embed field
- *  Other modules can implement the hook_video_embed_handler_info to provide more handlers
+ * Provide some handlers for video embed field
+ * Other modules can implement the hook_video_embed_handler_info to provide more handlers
  */
 
 
 /**
- *  Implementation of hook_video_embed_handler_info
+ * Implements hook_video_embed_handler_info().
  */
 function video_embed_field_video_embed_handler_info() {
   $handlers = array();
@@ -19,13 +19,13 @@ function video_embed_field_video_embed_handler_info() {
     'form' => 'video_embed_field_handler_youtube_form',
     'domains' => array(
       'youtube.com',
-      'youtu.be'
+      'youtu.be',
     ),
     'defaults' => array(
       'width' => '640px',
       'height' => '360px',
       'autoplay' => 0,
-      'hd' => 1,
+      'vq' => 'large',
       'rel' => 0,
       'autohide' => 2,
       'showinfo' => 1,
@@ -42,7 +42,7 @@ function video_embed_field_video_embed_handler_info() {
     'data_function' => 'video_embed_field_handle_vimeo_data',
     'form' => 'video_embed_field_handler_vimeo_form',
     'domains' => array(
-      'vimeo.com'
+      'vimeo.com',
     ),
     'defaults' => array(
       'width' => '640px',
@@ -60,51 +60,51 @@ function video_embed_field_video_embed_handler_info() {
 }
 
 /**
- *  Helper function to get the youtube video's id
- *  Returns false if it doesn't parse for wahtever reason
+ * Helper function to get the youtube video's id
+ * Returns false if it doesn't parse for wahtever reason
  */
-function _video_embed_field_get_youtube_id($url){
+function _video_embed_field_get_youtube_id($url) {
   // Find the ID of the video they want to play from the url
   if (stristr($url, 'http://')) {
     $url = substr($url, 7);
   }
-  else if (stristr($url, 'https://')) {
+  elseif (stristr($url, 'https://')) {
     $url = substr($url, 8);
   }
 
-  if(stristr($url, 'playlist')){
+  if (stristr($url, 'playlist')) {
     //Playlists need the appended ampersand to take the options properly.
     $url = $url . '&';
     $pos = strripos($url, '?list=');
-    if($pos!==FALSE){
+    if ($pos !== FALSE) {
       $pos2 = stripos($url, '&');
       $pos2++;
     }
-    else{
+    else {
       return FALSE;
     }
   }
   //Alternate playlist link
-  else if(stristr($url, 'view_play_list')){
+  elseif (stristr($url, 'view_play_list')) {
     $url = $url . '&';
     //All playlist ID's are prepended with PL. view_play_list links allow you to not have that, though.
-    if(!stristr($url, '?p=PL')){
+    if (!stristr($url, '?p=PL')) {
       $url = substr_replace($url, 'PL', strpos($url, '?p=') + 3, 0);
     }
     //Replace the links format with the embed format
     $url = str_ireplace('play_list?p=', 'videoseries?list=', $url);
     $pos = strripos($url, 'videoseries?list=');
-    if($pos !== FALSE){
+    if ($pos !== FALSE) {
       $pos2 = stripos($url, '&');
       $pos2++;
     }
-    else{
+    else {
       return FALSE;
     }
   }
-  else{
+  else {
     $pos = strripos($url, 'v=');
-    if ($pos!== FALSE) {
+    if ($pos !== FALSE) {
       $pos += 2;
       $pos2 = stripos($url, '&', $pos);
       $pos_hash = stripos($url, '#', $pos);
@@ -147,8 +147,8 @@ function video_embed_field_handle_youtube($url, $settings) {
 
   //Give it some default data in case there is no #t=...
   $matches += array(
-  	"min" => 0,
-  	"sec" => 0,
+    "min" => 0,
+    "sec" => 0,
   );
   $time = ($matches["min"] * 60) + $matches["sec"];
   $settings['start'] = $time;
@@ -169,15 +169,15 @@ function video_embed_field_handle_youtube($url, $settings) {
 }
 
 /**
- *  Get the thumbnail url for youtube videos
+ * Get the thumbnail url for youtube videos
  */
-function video_embed_field_handle_youtube_thumbnail($video_url){
+function video_embed_field_handle_youtube_thumbnail($video_url) {
   $info = array();
 
   $id = _video_embed_field_get_youtube_id($video_url);
 
   //Playlist
-  if(stristr($id, '?list=')){
+  if (stristr($id, '?list=')) {
     //Strip out all but the ID, including the PL behind the ID.
     $start = strpos($id, '?list=PL') + 8;
     $length = strpos($id, '&') - $start;
@@ -185,24 +185,24 @@ function video_embed_field_handle_youtube_thumbnail($video_url){
     $info['id'] = $id;
     //Playlist info is stored in XML. The thumbnail is in there.
     $xml = drupal_http_request('http://gdata.youtube.com/feeds/api/playlists/' . $id);
-    if(!isset($xml->error)){
+    if (!isset($xml->error)) {
       $xml = new SimpleXMLElement($xml->data);
       $media = $xml->children('http://search.yahoo.com/mrss/');
-      if($media->group->thumbnail && $media->group->thumbnail[0]->attributes()){
+      if ($media->group->thumbnail && $media->group->thumbnail[0]->attributes()) {
         $attrs = $media->group->thumbnail[0]->attributes();
-        $info['url'] = (string)$attrs['url'];
+        $info['url'] = (string) $attrs['url'];
       }
     }
   }
   //Regular video
-  else if($id) {
+  elseif ($id) {
     $info['id'] = $id;
-    $info['url'] = 'http://img.youtube.com/vi/'.$id.'/0.jpg';
+    $info['url'] = 'http://img.youtube.com/vi/' . $id . '/0.jpg';
   }
   return $info;
 }
 
- /**
+/**
  * Get video data for a YouTube video URL
  *
  * @param string $url
@@ -221,7 +221,7 @@ function video_embed_field_handle_youtube_data($url) {
     $response = drupal_http_request('http://gdata.youtube.com/feeds/api/videos/' . $id . '?v=2&alt=json');
     if (!isset($response->error)) {
       $data = json_decode($response->data);
-      $data = (array) $data->entry;
+      $data = isset($data->entry) ? (array) $data->entry : (array) $data->feed;
       return _video_embed_field_clean_up_youtube_data($data);
     }
   }
@@ -230,30 +230,32 @@ function video_embed_field_handle_youtube_data($url) {
 }
 
 /**
- *  Flatten out some unnecessary nesting in the youtube data
+ * Flatten out some unnecessary nesting in the youtube data
  */
 function _video_embed_field_clean_up_youtube_data($data) {
   //make things a bit nicer for people trying to use the data
   foreach ($data as $key => $value) {
     if (is_object($value)) {
-      $temp = (array)$value;
+      $temp = (array) $value;
       if (isset($temp['$t'])) {
         $data[$key] = $temp['$t'];
-      } else {
+      }
+      else {
         $data[$key] = _video_embed_field_clean_up_youtube_data($temp);
       }
-    } else if (is_array($value)) {
+    }
+    elseif (is_array($value)) {
       $data[$key] = _video_embed_field_clean_up_youtube_data($value);
     }
 
-    if($key === 'category') {
+    if ($key === 'category') {
       $terms = array();
       foreach ($data[$key] as $value) {
-        if(isset($value['scheme']) && $value['scheme'] == 'http://schemas.google.com/g/2005#kind') {
+        if (isset($value['scheme']) && $value['scheme'] == 'http://schemas.google.com/g/2005#kind') {
           continue;
         }
 
-        if(isset($value['term'])) {
+        if (isset($value['term'])) {
           $terms[] = $value['term'];
         }
       }
@@ -298,11 +300,18 @@ function video_embed_field_handler_youtube_form($defaults) {
     '#description' => t('Play the video immediately.'),
     '#default_value' => $defaults['autoplay'],
   );
-  $form['hd'] = array(
-    '#type' => 'checkbox',
-    '#title' => t('Use HD'),
-    '#description' => t('Attempt to play the video in HD if available.'),
-    '#default_value' => $defaults['hd'],
+  $form['vq'] = array(
+    '#type' => 'select',
+    '#title' => t('Video quality'),
+    '#options' => array(
+      'small' => t('Small (240p)'),
+      'medium' => t('Medium (360p)'),
+      'large' => t('Large (480p)'),
+      'hd720' => t('HD 720p'),
+      'hd1080' => t('HD 10800p'),
+    ),
+    '#default_value' => $defaults['vq'],
+    '#description' => t('Attempt to play the video in certain quality if available.'),
   );
   $form['rel'] = array(
     '#type' => 'checkbox',
@@ -317,10 +326,10 @@ function video_embed_field_handler_youtube_form($defaults) {
     '#default_value' => $defaults['showinfo'],
   );
   $form['modestbranding'] = array(
-  	'#type' => 'checkbox',
-  	'#title' => t('Hide Youtube logo'),
-  	'#description' => t('Hide the Youtube logo button on the player'),
-  	'#default_value' => $defaults['modestbranding']
+    '#type' => 'checkbox',
+    '#title' => t('Hide Youtube logo'),
+    '#description' => t('Hide the Youtube logo button on the player'),
+    '#default_value' => $defaults['modestbranding'],
   );
   $form['iv_load_policy'] = array(
     '#type' => 'radios',
@@ -356,7 +365,7 @@ function video_embed_field_handler_youtube_form($defaults) {
  * @return integer|false $id
  *   The video ID, or FALSE if unable to get the video ID
  */
-function _video_embed_field_get_vimeo_id($url){
+function _video_embed_field_get_vimeo_id($url) {
   $pos = strripos($url, '/');
   if ($pos != FALSE) {
     $pos += 1;
@@ -388,10 +397,10 @@ function video_embed_field_handle_vimeo($url, $settings) {
 }
 
 /**
- *  Get the thumbnail url for youtube videos
+ * Get the thumbnail url for youtube videos
  */
-function video_embed_field_handle_vimeo_thumbnail($url){
-    // Get ID of video from URL
+function video_embed_field_handle_vimeo_thumbnail($url) {
+  // Get ID of video from URL
   $id = _video_embed_field_get_vimeo_id($url);
   $info = array(
     'id' => $id,
@@ -456,7 +465,7 @@ function video_embed_field_handler_vimeo_form($defaults) {
       'ff9933' => t('Orange'),
       'c9ff23' => t('Lime'),
       'ff0179' => t('Fuschia'),
-      'ffffff' => t('White')
+      'ffffff' => t('White'),
     ),
     '#title' => t('Player Color'),
     '#description' => t('The color to use on the vimeo player.'),
@@ -480,8 +489,8 @@ function video_embed_field_handler_vimeo_form($defaults) {
     '#description' => t('Overlay the video\'s description before the video is played.'),
     '#default_value' => $defaults['byline'],
   );
-  $form['overridable'] = array (
-    '#prefix' => '<p class="note"><strong>'.t('Note').': </strong><em>',
+  $form['overridable'] = array(
+    '#prefix' => '<p class="note"><strong>' . t('Note') . ': </strong><em>',
     '#markup' => t('Color, portrait, title and byline can be restricted by Vimeo Plus videos.
       Such videos will ignore these settings.'),
     '#suffix' => '</em></p>',
@@ -502,14 +511,16 @@ function video_embed_field_handler_vimeo_form($defaults) {
 }
 
 /**
- *  Calculate the min index for use in finding the id of a youtube video
+ * Calculate the min index for use in finding the id of a youtube video
  */
 function _video_embed_get_min($pos1, $pos2) {
-  if(!$pos1) {
+  if (!$pos1) {
     return $pos2;
-  } else if(!$pos2) {
+  }
+  elseif (!$pos2) {
     return $pos1;
-  } else {
+  }
+  else {
     return min($pos1, $pos2);
   }
 }

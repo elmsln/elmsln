@@ -8,9 +8,10 @@
  * @see video_embed_field_video_style_form_submit()
  */
 function video_embed_field_video_style_form(&$form, &$form_state) {
-  if(isset($form_state['item'])){
+  if (isset($form_state['item'])) {
     $style = (array) $form_state['item'];
-  } else {
+  }
+  else {
     $style = array();
   }
   $form_state['video_style'] = $style;
