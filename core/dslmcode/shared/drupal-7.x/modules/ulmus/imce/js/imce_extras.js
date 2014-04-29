@@ -192,7 +192,7 @@ imce.recallDimensions = function() {
 //set row heights with respect to window height
 imce.recallHeights = function(bwFixedHeight) {
   //window & body dimensions
-  var winHeight = $.browser.opera ? window.innerHeight : $(window).height();
+  var winHeight = window.opera ? window.innerHeight : $(window).height();
   var bodyHeight = $(document.body).outerHeight(true);
   var diff = winHeight - bodyHeight;
   var bwHeight = $(imce.BW).height(), pwHeight = $(imce.PW).height();
@@ -259,12 +259,12 @@ imce.imagestyleURL = function (url, stylename) {
 // replace table view with box view for file list
 imce.boxView = function () {
   var w = imce.vars.boxW, h = imce.vars.boxH;
-  if (!w || !h || $.browser.msie && parseFloat($.browser.version) < 8) return;
+  if (!w || !h || imce.ie && imce.ie < 8) return;
   var $body = $(document.body);
   var toggle = function() {
     $body.toggleClass('box-view');
     // refresh dom. required by all except FF.
-    !$.browser.mozilla && $('#file-list').appendTo(imce.FW).appendTo(imce.FLW);
+    $('#file-list').appendTo(imce.FW).appendTo(imce.FLW);
   };
   $body.append('<style type="text/css">.box-view #file-list td.name {width: ' + w + 'px;height: ' + h + 'px;} .box-view #file-list td.name span {width: ' + w + 'px;word-wrap: normal;text-overflow: ellipsis;}</style>');
   imce.hooks.load.push(function() {

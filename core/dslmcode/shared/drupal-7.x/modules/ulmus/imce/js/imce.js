@@ -1,4 +1,3 @@
-
 (function($) {
 //Global container.
 window.imce = {tree: {}, findex: [], fids: {}, selected: {}, selcount: 0, ops: {}, cache: {}, urlId: {},
@@ -8,6 +7,7 @@ hooks: {load: [], list: [], navigate: [], cache: []},
 //initiate imce.
 initiate: function() {
   imce.conf = Drupal.settings.imce || {};
+  imce.ie = (navigator.userAgent.match(/msie (\d+)/i) || ['', 0])[1] * 1;
   if (imce.conf.error != false) return;
   imce.FLW = imce.el('file-list-wrapper'), imce.SBW = imce.el('sub-browse-wrapper');
   imce.NW = imce.el('navigation-wrapper'), imce.BW = imce.el('browse-wrapper');
@@ -79,7 +79,7 @@ dirCollapsible: function (branch) {
     if (branch.ul) {
       $(branch.ul).toggle();
       $(branch.li).toggleClass('expanded');
-      $.browser.msie && $('#navigation-header').css('top', imce.NW.scrollTop);
+      imce.ie && $('#navigation-header').css('top', imce.NW.scrollTop);
     }
     else if (branch.clkbl){
       $(branch.a).click();
@@ -432,7 +432,6 @@ uploadValidate: function (data, form, options) {
       return imce.setMessage(Drupal.t('Only files with the following extensions are allowed: %files-allowed.', {'%files-allowed': imce.conf.extensions}), 'error');
     }
   }
-  var sep = path.indexOf('/') == -1 ? '\\' : '/';
   options.url = imce.ajaxURL('upload');//make url contain current dir.
   imce.fopLoading('upload', true);
   return true;
@@ -487,7 +486,7 @@ commonSubmit: function(fop) {
 
 //settings for default file operations
 fopSettings: function (fop) {
-  return {url: imce.ajaxURL(fop), type: 'POST', dataType: 'json', success: imce.processResponse, complete: function (response) {imce.fopLoading(fop, false);}, data: imce.vars.opform +'&filenames='+ imce.serialNames() +'&jsop='+ fop + (imce.ops[fop].div ? '&'+ $('input, select, textarea', imce.ops[fop].div).serialize() : '')};
+  return {url: imce.ajaxURL(fop), type: 'POST', dataType: 'json', success: imce.processResponse, complete: function (response) {imce.fopLoading(fop, false);}, data: imce.vars.opform +'&filenames='+ escape(imce.serialNames()) +'&jsop='+ fop + (imce.ops[fop].div ? '&'+ $('input, select, textarea', imce.ops[fop].div).serialize() : '')};
 },
 
 //toggle loading state
@@ -789,7 +788,7 @@ updateUI: function() {
     imce.opAdd({name: 'help', title: $('#help-box-title').remove().text(), content: $('#help-box').show()});
   });
   //add ie classes
-  $.browser.msie && $('html').addClass('ie') && parseFloat($.browser.version) < 8 && $('html').addClass('ie-7');
+  imce.ie && $('html').addClass('ie') && imce.ie < 8 && $('html').addClass('ie-7');
   // enable box view for file list
   imce.vars.boxW && imce.boxView();
   //scrolling file list

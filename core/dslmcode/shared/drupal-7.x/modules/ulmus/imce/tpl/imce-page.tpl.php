@@ -4,6 +4,7 @@
 
 <head>
   <title><?php print t('File Browser'); ?></title>
+  <meta name="robots" content="noindex,nofollow" />
   <?php if (isset($_GET['app'])): drupal_add_js(drupal_get_path('module', 'imce') .'/js/imce_set_app.js'); endif;?>
   <?php print drupal_get_html_head(); ?>
   <?php print drupal_get_css(); ?>
