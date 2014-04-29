@@ -6,35 +6,24 @@ Drupal.behaviors.moduleFilterDynamicPosition = {
 
     $('#module-filter-wrapper', context).once('dynamic-position', function() {
       // Move the submit button just below the tabs.
-      $('#module-filter-modules'). before($('#module-filter-submit'));
-      if (Drupal.settings.moduleFilter.hideEmptyTabs) {
-        // Trigger window scroll. When the save buttons dynamic position is enabled
-        // we need this to ensure the save button's position updates with the new
-        // height of the tabs.
-        $window.trigger('scroll');
-      }
+      $('#module-filter-tabs').append($('#module-filter-submit'));
 
-      // Control the positioning.
-      $window.scroll(function() {
+      var positionSubmit = function() {
         var $tabs = $('#module-filter-tabs');
-        var $submit = $('#module-filter-submit');
+        var $submit = $('#module-filter-submit', $tabs);
 
         // Vertical movement.
-        var top = $tabs.offset().top;
-        var bottom = top + $tabs.height();
-        var windowHeight = $window.height();
-        var topOffset = Drupal.settings.tableHeaderOffset ? eval(Drupal.settings.tableHeaderOffset + '()') : 0;
-        if (((bottom - windowHeight) > ($window.scrollTop() - $submit.height())) && $window.scrollTop() + windowHeight - $submit.height() - $('li:first', $tabs).height() > top) {
-          $submit.css('margin-top', 0);
-          $submit.removeClass('fixed-top').addClass('fixed fixed-bottom');
+        var bottom = $tabs.offset().top + $tabs.outerHeight();
+        if ($submit.hasClass('fixed-bottom')) {
+          bottom += $submit.height();
         }
-        else if (bottom < ($window.scrollTop() + topOffset)) {
-          $submit.css('margin-top', topOffset);
-          $submit.removeClass('fixed-bottom').addClass('fixed fixed-top');
+        if (bottom >= $window.height() + $window.scrollTop()) {
+          $submit.addClass('fixed fixed-bottom');
+          $tabs.css('padding-bottom', $submit.height());
         }
         else {
-          $submit.css('margin-top', 0);
-          $submit.removeClass('fixed fixed-bottom fixed-top');
+          $submit.removeClass('fixed fixed-bottom');
+          $tabs.css('padding-bottom', 0);
         }
 
         // Horizontal movement.
@@ -44,11 +33,14 @@ Drupal.behaviors.moduleFilterDynamicPosition = {
             $submit.css('left', left);
           }
         }
-      });
-      $window.trigger('scroll');
-      $window.resize(function() {
-        $window.trigger('scroll');
-      });
+      };
+
+      // Control the positioning.
+      $window.scroll(positionSubmit);
+      $window.resize(positionSubmit);
+      var moduleFilter = $('input[name="module_filter[name]"]').data('moduleFilter');
+      moduleFilter.element.bind('moduleFilter:adjustHeight', positionSubmit);
+      moduleFilter.adjustHeight();
     });
   }
 };

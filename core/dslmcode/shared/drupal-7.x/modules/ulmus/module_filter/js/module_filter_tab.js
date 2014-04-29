@@ -52,8 +52,10 @@ Drupal.behaviors.moduleFilterTabs = {
         // Remove package header rows.
         $('tr.admin-package-header', table).remove();
 
+        var $tabsWrapper = $('<div id="module-filter-tabs"></div>');
+
         // Build tabs from package title rows.
-        var tabs = '<ul id="module-filter-tabs">';
+        var tabs = '<ul>';
         for (var i in Drupal.settings.moduleFilter.packageIDs) {
           var id = Drupal.settings.moduleFilter.packageIDs[i];
 
@@ -92,7 +94,8 @@ Drupal.behaviors.moduleFilterTabs = {
           tabs += '<li id="' + id + '-tab" class="' + tabClass + '"><a href="#' + id + '" class="overlay-exclude"' + (title ? ' title="' + title + '"' : '') + '><strong>' + name + '</strong><span class="summary">' + summary + '</span></a></li>';
         }
         tabs += '</ul>';
-        $modules.before(tabs);
+        $tabsWrapper.append(tabs);
+        $modules.before($tabsWrapper);
 
         // Index tabs.
         $('#module-filter-tabs li').each(function() {
@@ -128,7 +131,7 @@ Drupal.behaviors.moduleFilterTabs = {
           .filter(':odd').addClass('even').end()
           .filter(':even').addClass('odd');
 
-        Drupal.ModuleFilter.adjustHeight();
+        moduleFilter.adjustHeight();
 
         moduleFilter.element.bind('moduleFilter:start', function() {
           moduleFilter.tabResults = {
@@ -204,7 +207,6 @@ Drupal.behaviors.moduleFilterTabs = {
                     Drupal.ModuleFilter.tabs[id].element.hide();
                   }
                 }
-                Drupal.ModuleFilter.adjustHeight();
               }
             }
             else {
@@ -219,6 +221,8 @@ Drupal.behaviors.moduleFilterTabs = {
             // The current tab contains no results.
             moduleFilter.results = 0;
           }
+
+          moduleFilter.adjustHeight();
         });
 
         if (Drupal.settings.moduleFilter.useURLFragment) {
@@ -276,7 +280,6 @@ Drupal.behaviors.moduleFilterTabs = {
           return top;
         }
 
-        var pageActionsHeight;
         function viewportBottom() {
           var top = $(window).scrollTop();
           var bottom = top + $(window).height();
@@ -319,6 +322,9 @@ Drupal.behaviors.moduleFilterTabs = {
             if (pageActionsHeight > 0) {
               style = 'bottom: ' + pageActionsHeight + 'px';
             }
+            else if (Drupal.settings.moduleFilter.dynamicPosition) {
+              // style = 'bottom: ' + $('#module-filter-submit', $tabs).height() + 'px';
+            }
             $tabs.attr('style', style);
           }
         }
@@ -346,6 +352,8 @@ Drupal.behaviors.moduleFilterTabs = {
           }
           lastTop = top;
         });
+
+        moduleFilter.adjustHeight();
       });
     }
   }
@@ -539,13 +547,12 @@ Drupal.ModuleFilter.updateVisualAid = function(type, $row) {
   tab.updateVisualAid();
 };
 
-Drupal.ModuleFilter.adjustHeight = function() {
+Drupal.ModuleFilter.Filter.prototype.adjustHeight = function() {
   // Hack for adjusting the height of the modules section.
-  var minHeight = $('#module-filter-tabs').height() + 10;
-  if (Drupal.settings.moduleFilter.dynamicPosition) {
-    minHeight += $('#module-filter-submit').height();
-  }
+  var minHeight = $('#module-filter-tabs ul').height() + 10;
+  minHeight += $('#module-filter-tabs #module-filter-submit').height();
   $('#module-filter-modules').css('min-height', minHeight);
+  this.element.trigger('moduleFilter:adjustHeight');
 }
 
 })(jQuery);

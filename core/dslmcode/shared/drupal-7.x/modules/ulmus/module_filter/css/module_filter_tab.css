@@ -3,6 +3,9 @@
 }
 
 #module-filter-tabs {
+  float: left;
+}
+#module-filter-tabs ul {
   width: 239px;
   list-style: none;
   list-style-image: none;
@@ -11,7 +14,6 @@
   border-top: none;
   margin: 0;
   padding: 0;
-  float: left;
   line-height: 1;
 }
 #module-filter-tabs li {

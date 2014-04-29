@@ -1,3 +1,9 @@
+Module Filter 7.x-2.0-alpha2, 2013-12-06
+----------------------------------------
+#2141743, #2141743 by greenSkin: Fixed issues related to the new dynamically
+  positioned tabs and using the dynamically positioned save button.
+
+
 Module Filter 7.x-2.0-alpha1, 2013-11-18
 ----------------------------------------
 by greenSkin: Tabs now should always be visible while scrolling large lists of
