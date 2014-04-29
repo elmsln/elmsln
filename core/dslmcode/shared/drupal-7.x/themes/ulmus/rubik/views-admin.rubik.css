@@ -1,11 +1,22 @@
 /* Custom CSS for making Views 3 play nice with Rubik */
 
-#views-ui-add-form.views-admin fieldset fieldset.container-inline > .fieldset-wrapper {
-  padding: 10px 9px 9px;
+.views-displays .secondary .action-list input.form-submit {
+  box-shadow: none;
+  -moz-box-shadow: none;
+  -webkit-box-shadow: none;
+  border-radius: 0;
+  -moz-border-radius: 0;
+  -webkit-border-radius: 0;
+}
+.views-displays .secondary .open > a:hover {
+  color: #59A;
 }
 
-#views-ui-edit-form div div.views-displays div.views-display-top ul.tabs.secondary.views-ui-render-add-view-button-processed-processed {
-   position: relative;
+.views-ui-display-tab-actions .ctools-button-processed li a, .views-ui-display-tab-actions .ctools-button-processed input {
+  border: none;
+  box-shadow: none;
+  -moz-box-shadow: none;
+  -webkit-box-shadow: none;
 }
 
 #ctools-button-9 {
@@ -21,9 +32,13 @@
    float: left;
 }
 
-#edit-options .collapsible {
-  float: none;
-  width: 100%;
+#views-ui-edit-form .tabs {
+  position: static;
+}
+
+#views-ui-edit-form .pager {
+  margin: 0;
+  height: auto;
 }
 
 .views-displays {
@@ -38,13 +53,14 @@
    text-decoration: none;
 }
 
-.views-attachment .options-set label {
-  font-weight: bold;
-}
-
 .views-display-setting .views-ajax-link {
   margin-left: 0.2083em;
   margin-right: 0.2083em;
+}
+
+.views-ui-display-tab-bucket > h3,
+.views-ui-display-tab-bucket > .views-display-setting {
+  padding: 2px 6px 4px;
 }
 
 /* Hide 'remove' checkboxes. This might be scoped too widely. */
@@ -67,33 +83,6 @@
   margin-top: 0;
 }
 
-.views-ui-display-tab-bucket.pager {
-   height:auto;
-   margin:0;
-}
-
-.views-ui-display-tab-bucket.pager span,
-.views-ui-display-tab-bucket.pager a {
-   padding: 0;
-}
-
-.views-ui-display-tab-bucket.pager a,
-.views-ui-display-tab-bucket.pager a span {
-   color: #59A;
-}
-
-.ctools-button input {
-   box-shadow:none;
-}
-
-.views-displays .ctools-dropbutton-processed {
-   right:0;
-}
-
-.views-display-top .ctools-button {
-   z-index:1;
-}
-
 #edit-display-settings-main {
   margin-top: 15px;
 }
@@ -108,7 +97,6 @@ select.form-select {
   border-top-color: #999;
   background: #fff;
   color: #333;
-  width: auto;
 }
 
 input.form-text:focus,
@@ -117,6 +105,30 @@ textarea.form-textarea:focus,
 select.form-select:focus {
   color: #000;
   border-color: #ace;
+}
+
+#views-ui-preview-form .form-type-textfield {
+  margin-top: 2px;
+}
+#views-ui-preview-form {
+  border-width: 1px;
+  border-style: solid;
+  border-color: #DDD;
+  padding: 9px;
+}
+#views-ui-preview-form .form-item {
+  border: none;
+  padding: 0;
+}
+#views-ui-preview-form .form-type-textfield .description {
+  white-space: normal;
+  margin-bottom: 0;
+}
+#views-ui-preview-form .form-type-textfield input {
+  width: 180px;
+}
+#views-ui-preview-form .form-type-textfield label {
+  height: auto;
 }
 
 #edit-display-preview-controls .form-type-textfield label {
@@ -142,16 +154,100 @@ select.form-select:focus {
 
 #edit-display-preview-controls .form-item {
   margin-bottom: 0;
+  padding-bottom: 0;
+  padding-top: 0;
 }
-#edit-options-exception.collapsible {
-    margin-top: 0;
+
+/* Labels are outside the .form-item wrapper */
+.views-exposed-form .views-exposed-widget label {
+  margin: 0px;
+  padding: 0px;
+  color: #999;
+  font-weight: bold;
+  font-size: 10px;
+  text-transform: uppercase;
 }
-.views-ui-dialog fieldset,
-.views-ui-dialog fieldset.collapsed,
-.views-ui-dialog fieldset.collapsible {
-    padding-top:0;
+.views-exposed-form .views-exposed-widget .form-item {
+  border: 0;
+  padding: 0;
 }
-#edit-options-default-action {
-  float: none;
+
+/** collapsible within dependent **/
+#edit-options .collapsible .collapsible,
+#edit-options .collapsible {
+   float: none;
+}
+
+.dependent-options, .dependent-options.form-item, .form-item-options-expose-required, .form-item-options-expose-label {
+  margin-left: 1.5em;
+}
+
+#views-ajax-popup {
+  border: 0;
+}
+
+.views-ui-dialog .ui-dialog-titlebar {
+  border: none;
+}
+.views-ui-dialog .ui-dialog-titlebar-close {
+  -moz-border-radius: 5px;
+  -webkit-border-radius: 5px;
+  border-radius: 5px;
+  border: 0;
+  background: #444 url(images/buttons.png) -4000px 50% no-repeat;
+  display: block;
+  position: absolute;
+  height: 20px;
+  width: 20px;
+  margin: 5px;
+  padding: 0px;
+  right: 0px;
+  left: auto;
+}
+
+.views-ui-dialog #views-ajax-title {
+  color:#fff;
+  font-size: 100%;
+  font-weight: normal;
+  text-transform: uppercase;
+  background: url(images/bleeds.png) 0px -30px repeat-x;
+  border-radius: 6px 6px 5px 5px;
+  border: 0;  
+  -moz-border-radius: 6px 6px 5px 5px;
+  -webkit-border-radius: 6px 6px 5px 5px;
+  border-bottom-right-radius: 0;
+  -moz-border-bottom-right-radius: 0;
+  -webkit-border-bottom-right-radius: 0;
+  border-radius-bottom-left: 0;
+  -moz-border-bottom-left-radius: 0;
+  -webkit-border-bottom-left-radius: 0;
+  padding: 5px 10px;  
   margin-bottom: 10px;
+}
+
+.views-ui-dialog .views-override {
+  background: transparent; 
+  padding: 0 0 8px;
+}
+
+.views-ui-dialog #views-ajax-body {
+  margin: 0 20px;
+}
+
+.views-ui-dialog .scroll {
+  border: none;
+  padding: 8px 10px 8px 0;
+}
+
+/** form buttons **/
+.views-ui-dialog .form-buttons {
+  background: #EEE;
+  border: 1px solid #DDD;
+  padding: 9px;
+  margin-top: 10px;
+}
+
+/* Filtering options */
+.views-filterable-options .form-type-checkbox  {
+  padding: 5px 8px !important;
 }

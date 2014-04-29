@@ -25,7 +25,7 @@ Drupal.behaviors.rubik.attach = function(context) {
     // Target exists, add click handler.
     if ($('#' + id).size() > 0) {
       $(this).click(function() {
-        toggleable = $('#' + id);
+        var toggleable = $('#' + id);
         toggleable.toggle();
         $(this).toggleClass('toggler-active');
         return false;
@@ -39,12 +39,40 @@ Drupal.behaviors.rubik.attach = function(context) {
     // Mark as processed.
     $(this).addClass('rubik-processed');
   });
-};
-$(document).ready(function() {
-  // If there's no active secondary tab, make the first one show.
+
+    // If there's no active secondary tab, make the first one show.
   var activeli = $('.primary-tabs li.active .secondary-tabs li.active');
-  if (activeli.length == 0) {
+  if (activeli.length === 0) {
     $('.primary-tabs li.active .secondary-tabs li:first-child a').css('display', 'block');
   }
-});
+  
+  $('.secondary-tabs li a, .secondary-tabs', context).bind('focus blur', function(){
+    $(this).parents('.secondary-tabs').toggleClass('focused');
+  });
+
+  // Sticky sidebar
+  if ($('#content .column-side .column-wrapper').length !== 0) {
+    var rubikColumn = $('#content .column-side .column-wrapper', context);
+    var rubikStickySidebar = rubikColumn.offset().top;
+    $(window).scroll(function(){
+      if( $(window).scrollTop() > rubikStickySidebar ) {
+        rubikColumn.each(function() {
+          $(this).addClass("fixed");
+          $(this).width($(this).parent().width());
+        });
+      } else {
+        rubikColumn.each(function() {
+          $(this).removeClass("fixed");
+          $(this).width($(this).parent().width());
+        });
+      }
+    });
+
+    // Move fields to sidebar.
+    $(".rubik_sidebar_field").each(function() {
+      $('.column-side .column-wrapper').append($(this));
+    });
+  }
+  
+};
 })(jQuery);

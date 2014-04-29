@@ -13,16 +13,22 @@ scripts[] = js/rubik.js
 stylesheets[screen][] = core.css
 stylesheets[screen][] = icons.css
 stylesheets[screen][] = style.css
+stylesheets[screen][] = jquery.ui.theme.css
 stylesheets[print][] = print.css
 
 ; Support shortcut module links
 settings[shortcut_module_link] = 1
 settings[rubik_inline_field_descriptions] = 0
 
+; By default sidebar in forms is enabled
+settings[rubik_disable_sidebar_in_form] = 0
 
-; Information added by  packaging script on 2013-11-23
-version = "7.x-4.0-rc1"
+; By default field placement in the sidebar is disabled
+settings[rubik_sidebar_field_ui] = 0
+
+; Information added by Drupal.org packaging script on 2014-03-18
+version = "7.x-4.0"
 core = "7.x"
 project = "rubik"
-datestamp = "1385199811"
+datestamp = "1395127757"
 

@@ -23,6 +23,7 @@ hr { display:none; }
 div.messages {
   color:#036;
   background-color:#f8f8f8;
+  padding:9px;
   border:1px solid #ccc;
   margin:0px 0px 10px;
   }
@@ -45,6 +46,13 @@ div.status {
   color:#687;
   background-color:#ecf8f4;
   }
+
+table tr.merge-down td {border-bottom: 0;}
+table tr.merge-up td {border-top: 0;}
+table td.status-description {
+  padding: 3px 40px;
+  font-size: .9em;
+}
 
   div.error   { border-color:#ffd4d0; }
   div.warning { border-color:#ffe4b0; }
@@ -201,6 +209,10 @@ table.field-multiple-table td { padding: 10px; }
 .page-admin table tr.even td {
   background-color: #f9f9f9;
 }
+.page-admin table tr.odd,
+.page-admin table tr.odd td {
+  background-color: #fff;
+}
 
 /* Use Drupal's default colors for Available Updates page statuses */
 .page-admin table tr.warning,
@@ -251,7 +263,6 @@ table.field-multiple-table td { padding: 10px; }
     padding:9px;
     }
 .form-wrapper {
-  border: 1px solid #ddd;
   margin-bottom: 10px;
   }
 
@@ -310,13 +321,26 @@ table .item-list,
   color:#666;
   font-weight:bold;
   font-size:10px;
-  text-transform:uppercase;
   }
 
   .form-item label.option {
     text-transform:none;
     font-size:11px;
     }
+		
+	input.button-add {
+	  background-position:-801px 50%;
+	  padding-left:25px;
+	  }
+
+	input.button-add:active { background-position:-1201px 50%; }
+
+	input.button-remove {
+	  background-position:-1601px 50%;
+	  padding-left:25px;
+	  }
+
+	input.button-remove:active { background-position:-2001px 50%; }
 
   .form-item label.option input { vertical-align:middle; }
 
@@ -362,7 +386,7 @@ table .item-list,
     }
 
   .page-content .form-item:hover {
-    z-index:1;
+    z-index:10;
     height:auto; /* Fix for flicker in IE7 */
     }
 
@@ -380,10 +404,11 @@ table .item-list,
     z-index:0;
     }
 
-input.form-submit, a.button { display: inline-block;}
+input.form-submit, a.button, .form-actions #edit-cancel { display: inline-block;}
 
 input.teaser-button,
-input.form-submit, a.button {
+input.form-submit, a.button,
+.form-actions #edit-cancel {
   cursor:pointer;
   padding:2px 10px;
   color:#333;
@@ -396,12 +421,16 @@ input.form-submit, a.button {
   background:#fff url(images/buttons.png) -1px 50% no-repeat;
   }
 
-  input.form-submit:hover, a.button:hover {
+  input.form-submit:hover,
+  a.button:hover,
+  .form-actions #edit-cancel:hover {
     border-color:#ace;
     -webkit-box-shadow:#ace 0px 0px 5px;
     }
 
-  input.form-submit:active, a.button:active {
+  input.form-submit:active,
+  a.button:active,
+  .form-actions #edit-cancel:active {
     border-color:#666 #666 #555;
     background:#666 url(images/buttons.png) -401px 50% no-repeat;
     color:#222;
@@ -458,6 +487,7 @@ input.form-submit, a.button {
 
 input.form-autocomplete,
 input.form-text,
+input.form-file,
 textarea.form-textarea,
 select.form-select {
   padding:3px;
@@ -471,10 +501,12 @@ select.form-select {
 
   input.form-autocomplete:hover,
   input.form-text:hover,
+  input.form-file:hover,
   textarea.form-textarea:hover,
   select.form-select:hover,
   input.form-autocomplete:focus,
   input.form-text:focus,
+  input.form-file:focus,
   textarea.form-textarea:focus,
   select.form-select:focus {
     color:#333;
@@ -488,6 +520,11 @@ select.form-select {
     box-sizing: border-box;
     width:100%;
     }
+
+  input.form-file {
+    padding: 1px;
+    margin-right: 3px;
+  }
 
   html.js input.form-autocomplete { background-position:100% 7px; }
   html.js input.throbbing { background-position:100% -2px; }
@@ -688,7 +725,6 @@ body.page-admin div.vertical-tabs .vertical-tabs-panes .vertical-tabs-pane field
 .box-title {
   font-weight:normal;
   font-size:10px;
-  text-transform:uppercase;
 
   background:#eee;
   border:1px solid #ddd;
@@ -985,3 +1021,121 @@ div.ctools-modal-content .color-form .form-item input {
   color:#666;
   background:#fff;
   }
+
+/**
+ * Display Suite ====================================================
+ */
+
+.field-formatter-settings-edit-form.ds-ft-processed {
+  -webkit-box-sizing: border-box;
+  -moz-box-sizing: border-box;
+  -ms-box-sizing: border-box;
+  box-sizing: border-box;
+  padding: 0.5em 1em 0;
+}
+.field-formatter-settings-edit-form.ds-ft-processed .ft-group {
+  overflow: auto;
+  margin-bottom: 1em !important;
+  border-bottom: 1px solid #CCC;
+}
+.field-formatter-settings-edit-form.ds-ft-processed .ft-group.fi {
+  border-bottom: 0;
+}
+.field-formatter-settings-edit-form.ds-ft-processed .ft-group > .form-item {
+  margin: 0.25em 1em 0.5em 0 !important;
+}
+.field-formatter-settings-edit-form.ds-ft-processed .ft-group > .form-item .description {
+  max-width: 120px !important;
+}
+.field-formatter-settings-edit-form.ds-ft-processed .ft-group > .form-item.form-type-checkbox {
+  clear: both;
+  margin-right: 0 !important;
+}
+.field-formatter-settings-edit-form.ds-ft-processed .ft-group.ow .form-type-textfield,
+.field-formatter-settings-edit-form.ds-ft-processed .ft-group.fis .form-type-textfield,
+.field-formatter-settings-edit-form.ds-ft-processed .ft-group.fi .form-type-textfield {
+  clear: left;
+}
+.field-formatter-settings-edit-form.ds-ft-processed .ft-group.ow .form-type-textfield ~ .form-type-textfield,
+.field-formatter-settings-edit-form.ds-ft-processed .ft-group.fis .form-type-textfield ~ .form-type-textfield,
+.field-formatter-settings-edit-form.ds-ft-processed .ft-group.fi .form-type-textfield ~ .form-type-textfield {
+  clear: none;
+}
+
+/**
+ * Search API ====================================================
+ */
+
+#facetapi-facet-display-form .fieldset-content > .form-item {
+  -webkit-box-sizing: border-box;
+  -moz-box-sizing: border-box;
+  -ms-box-sizing: border-box;
+  box-sizing: border-box;
+  float: left;
+  width: 50% !important;
+}
+
+#facetapi-facet-display-form .fieldset-content .facetapi-sort-table {
+  -webkit-box-sizing: border-box;
+  -moz-box-sizing: border-box;
+  -ms-box-sizing: border-box;
+  box-sizing: border-box;
+  margin-top: 0 !important;
+  position: static !important;
+  width: 50% !important;
+  z-index: 1 !important;
+}
+
+/**
+ * Sidebar Scroll ====================================================
+ */
+
+#content .column-side .column-wrapper {
+  padding-bottom: 5px;
+}
+#content .column-side .column-wrapper.fixed {
+  background-color: #FFF;
+  -webkit-box-sizing: border-box;
+  -moz-box-sizing: border-box;
+  -m-box-sizing: border-box;
+  box-sizing: border-box;
+  display: inline-block;
+  position: fixed;
+  top: 5px;
+  z-index: 12;
+}
+
+.admin-menu #content .column-side .column-wrapper.fixed {
+  top: 40px;
+}
+
+/**
+ * Watchdog/dblog =================================================
+ */
+
+#admin-dblog td {border-color: #ccc;}
+#admin-dblog .dblog-notice td, #admin-dblog .dblog-notice .active {background-color:#ECF8FC;}
+#admin-dblog .dblog-info td, #admin-dblog .dblog-info .active {background-color: #DFF2BF;}
+#admin-dblog .dblog-warning td, #admin-dblog .dblog-warning .active {background-color: #FEEFB3;}
+#admin-dblog .dblog-error td, #admin-dblog .dblog-error .active {background-color: #FFBABA;}
+
+/**
+ * Media ====================================================
+ */
+
+.media-widget .preview {
+  background-color: #CCC;
+  min-width: 50px;
+  min-height: 50px;
+}
+
+.media-widget .preview .media-item {margin: 0;}
+.media-widget .preview.launcher > .form-item {padding: 0; border: 0;}
+.media-widget.form-wrapper {margin-bottom: 0;}
+.media-widget > .form-item:last-child {display: none;}
+.field-widget-media-generic > div > .form-item {
+  border: 0;
+  padding: 0;
+}
+
+.field-widget-media-generic .field-multiple-table thead .field-label {padding-left: 5px;}
