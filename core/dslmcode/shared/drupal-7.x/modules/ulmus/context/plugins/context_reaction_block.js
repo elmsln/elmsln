@@ -438,7 +438,7 @@ DrupalContextBlockEditor.prototype = {
         dropOnEmpty: true,
         placeholder: 'draggable-placeholder',
         forcePlaceholderSize: true,
-        items: '> .block:has(a.context-block.editable)',
+        items: '> *:has(a.context-block.editable)',
         handle: 'a.context-block-handle',
         start: function(event, ui) { self.scriptFix(event, ui, editor, context); },
         stop: function(event, ui) { self.addBlock(event, ui, editor, context); },

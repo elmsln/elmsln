@@ -124,3 +124,13 @@ function template_preprocess_context_block_browser_item(&$vars) {
   $vars['bid'] = $vars['block']->bid;
   $vars['info'] = check_plain($vars['block']->info);
 }
+
+/**
+ * Theme wrapper for editable blocks.
+ *
+ * @ingroup themeable
+ */
+function theme_context_block_edit_wrap($vars) {
+  $block = $vars['element']['#block'];
+  return $vars['element']['#children'] . "<a id='context-block-{$block->module}-{$block->delta}' class='context-block editable edit-{$block->context}'></a>";
+}

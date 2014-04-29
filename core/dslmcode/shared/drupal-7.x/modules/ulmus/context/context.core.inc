@@ -57,6 +57,11 @@ function context_theme() {
     'path' => drupal_get_path('module', 'context') . '/theme',
     'file' => 'context_reaction_block.theme.inc',
   );
+  $items['context_block_edit_wrap'] = array(
+    'render element' => 'element',
+    'path' => drupal_get_path('module', 'context') . '/theme',
+    'file' => 'context_reaction_block.theme.inc',
+  );
   return $items;
 }
 
@@ -116,11 +121,9 @@ function context_entity_prepare_view($prepare, $entity_type) {
  * Implementation of hook_node_view().
  */
 function context_node_view($node, $view_mode) {
-  if ($view_mode === 'full') {
-    $object = menu_get_object();
-    if (isset($object->nid) && $object->nid === $node->nid) {
-      context_node_condition($node, 'view');
-    }
+  $object = menu_get_object();
+  if (isset($object->nid) && $object->nid === $node->nid) {
+    context_node_condition($node, 'view');
   }
 }
 
@@ -316,10 +319,10 @@ function context_context_page_condition() {
   if ($plugin = context_get_plugin('condition', 'menu')) {
     $plugin->execute();
   }
-  if ($plugin = context_get_plugin('condition', 'sitewide')) {
-    $plugin->execute(1);
-  }
   if ($plugin = context_get_plugin('condition', 'context')) {
+    $plugin->execute();
+  }
+  if ($plugin = context_get_plugin('condition', 'context_all')) {
     $plugin->execute();
   }
 }

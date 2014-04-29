@@ -42,13 +42,19 @@ class context_reaction_block extends context_reaction {
       $group = isset($block->context_group) ? $block->context_group : $block->module;
       if (!isset($form['selector'][$group])) {
         $form['selector'][$group] = array(
-          '#type' => 'checkboxes',
+          '#type' => 'fieldset',
+          '#collapsible' => TRUE, 
+          '#collapsed' => TRUE,
           '#title' => isset($block->context_group) ? $block->context_group : $modules[$block->module],
+        );
+        $form['selector'][$group]['checkboxes'] = array(
+          '#type' => 'checkboxes',
           '#options' => array(),
         );
       }
-      $form['selector'][$group]['#options'][$block->bid] = check_plain($block->info);
+      $form['selector'][$group]['checkboxes']['#options'][$block->bid] = check_plain($block->info);
     }
+
     ksort($form['selector']);
 
     /**
@@ -299,15 +305,7 @@ class context_reaction_block extends context_reaction {
    */
   protected function editable_block($block) {
     if (!empty($block->content)) {
-      $block->content = array(
-        'content' => $block->content,
-        'context' => array('#markup' => "<a id='context-block-{$block->module}-{$block->delta}' class='context-block editable edit-{$block->context}'></a>"),
-      );
-      //Contextual links are in the wrong spot in the render array once we've nested them
-      if (isset($block->content['content']['#contextual_links'])) {
-        $block->content['#contextual_links'] = $block->content['content']['#contextual_links'];
-        unset($block->content['content']['#contextual_links']);
-      }
+      $block->content['#theme_wrappers'][] = 'context_block_edit_wrap';
     }
     else {
       // the block alter in context.module should ensure that blocks are never
