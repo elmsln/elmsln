@@ -177,7 +177,7 @@ function masquerade_update_7000() {
 function masquerade_update_7001() {
   db_update('block')
     ->fields(array('cache' => DRUPAL_NO_CACHE))
-    ->condition('module', 'masqurade')
+    ->condition('module', 'masquerade')
     ->condition('delta', 'masquerade')
     ->execute();
 }

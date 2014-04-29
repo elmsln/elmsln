@@ -24,23 +24,49 @@ class MasqueradeTestCase extends DrupalWebTestCase {
     $admin_perms = array(
       'administer site configuration',
       'administer permissions',
+      'administer blocks',
+      'administer masquerade',
+      'administer users',
+      'access user profiles',
       'masquerade as user',
+      'masquerade as any user',
     );
     $admin = $this->drupalCreateUser($admin_perms);
     $user = $this->drupalCreateUser();
 
     $this->drupalLogin($admin);
 
-    //test admin form
-    $this->drupalGet('admin/config/development/masquerade');
+    // Test accessing the admin form
+    $this->drupalGet('admin/config/people/masquerade');
+    $this->assertText(t('Roles that are considered "administrators" for masquerading'));
 
-    //test switch
-    $this->drupalGet('masquerade/switch/' . $user->uid);
-    $this->assertText('Now masquerading as ' . $user->name);
+    // Test enabling the Masquerade block
+    $this->drupalGet('admin/structure/block/manage/masquerade/masquerade/configure');
+    $this->assertText(t("'@module' block", array('@module' => 'Masquerade')));
+    $edit = array(
+      'regions[bartik]' => 'content',
+      'regions[seven]' => 'content',
+    );
+    $this->drupalPost('admin/structure/block/manage/masquerade/masquerade/configure', $edit, t('Save block'));
+    $this->assertText(t('The block configuration has been saved.'));
 
-    //test unswitch
-    $this->drupalGet('masquerade/unswitch');
-    $this->assertText('No longer masquerading as ' . $user->name);
+    // Test switch from user profile
+    $this->drupalGet("user/{$user->uid}");
+    $this->clickLink(t('Masquerade as @name', array('@name' => $user->name)));
+    $this->assertText(t('You are now masquerading as @name.', array('@name' => $user->name)));
+
+    // Test unswitch
+    $this->drupalGet('');
+    $this->clickLink(t('Switch back'));
+    $this->assertText(t('You are no longer masquerading as @name and are now logged in as @admin.',
+                        array('@name' => $user->name, '@admin' => $admin->name)));
+
+    // Test switch from masquerade block
+    $edit = array(
+      'masquerade_user_field' => $user->name,
+    );
+    $this->drupalPost('', $edit, t('Go'));
+    $this->assertText(t('You are now masquerading as @name.', array('@name' => $user->name)));
   }
 
 }
