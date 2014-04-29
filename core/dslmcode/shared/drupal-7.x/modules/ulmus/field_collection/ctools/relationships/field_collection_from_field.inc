@@ -29,6 +29,7 @@ function field_collection_field_collection_from_field_get_child($plugin, $parent
  */
 function field_collection_field_collection_from_field_get_children($plugin, $parent) {
 
+  $plugins = array();
   $instances_info = field_info_instances();
   if (isset($instances_info['field_collection_item'])) {
     $field_collection_items = $instances_info['field_collection_item'];

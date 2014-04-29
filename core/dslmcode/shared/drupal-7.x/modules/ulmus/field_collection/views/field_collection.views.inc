@@ -1,10 +1,14 @@
 <?php
 
 /**
+ * @file
+ * Views integration for field collection fields.
+ */
+
+/**
  * Implements hook_field_views_data().
  *
- * Views integration for field collection fields. Adds a relationship to the
- * default field data.
+ * Adds a relationship to the default field data.
  *
  * @see field_views_field_default_views_data()
  */

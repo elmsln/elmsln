@@ -74,6 +74,11 @@ function field_collection_entity_info() {
     );
   }
 
+  if (module_exists('entitycache')) {
+    $return['field_collection_item']['field cache'] = FALSE;
+    $return['field_collection_item']['entity cache'] = TRUE;
+  }
+
   return $return;
 }
 
@@ -916,6 +921,12 @@ function field_collection_field_insert($host_entity_type, $host_entity, $field, 
  * creation or to save changes to the host entity and its collections at once.
  */
 function field_collection_field_update($host_entity_type, $host_entity, $field, $instance, $langcode, &$items) {
+  // Prevent workbench moderation from deleting field collections on node_save()
+  // during workbench_moderation_store(), when $host_entity->revision == 0.
+  if (!empty($host_entity->workbench_moderation['updating_live_revision'])) {
+    return;
+  }
+
   $items_original = !empty($host_entity->original->{$field['field_name']}[$langcode]) ? $host_entity->original->{$field['field_name']}[$langcode] : array();
   $original_by_id = array_flip(field_collection_field_item_to_ids($items_original));
 
@@ -1227,7 +1238,6 @@ function field_collection_field_formatter_view($entity_type, $entity, $field, $i
 
     case 'field_collection_view':
 
-      $element['#attached']['css'][] = drupal_get_path('module', 'field_collection') . '/field_collection.theme.css';
       $view_mode = !empty($display['settings']['view_mode']) ? $display['settings']['view_mode'] : 'full';
       foreach ($items as $delta => $item) {
         if ($field_collection = field_collection_field_get_entity($item)) {
@@ -1254,6 +1264,9 @@ function field_collection_field_formatter_view($entity_type, $entity, $field, $i
         }
       }
       field_collection_field_formatter_links($element, $entity_type, $entity, $field, $instance, $langcode, $items, $display);
+      if (!empty($items) || !empty($element['#suffix'])) {
+        $element['#attached']['css'][] = drupal_get_path('module', 'field_collection') . '/field_collection.theme.css';
+      }
       break;
 
     case 'field_collection_fields':
@@ -1275,6 +1288,7 @@ function field_collection_field_formatter_view($entity_type, $entity, $field, $i
  */
 function field_collection_field_formatter_links(&$element, $entity_type, $entity, $field, $instance, $langcode, $items, $display) {
   $settings = $display['settings'];
+  $allow_create_item = FALSE;
 
   if ($settings['add'] && ($field['cardinality'] == FIELD_CARDINALITY_UNLIMITED || count($items) < $field['cardinality'])) {
     // Check whether the current is allowed to create a new item.
@@ -1282,6 +1296,7 @@ function field_collection_field_formatter_links(&$element, $entity_type, $entity
     $field_collection_item->setHostEntity($entity_type, $entity, LANGUAGE_NONE, FALSE);
 
     if (field_collection_item_access('create', $field_collection_item)) {
+      $allow_create_item = TRUE;
       $path = field_collection_field_get_path($field);
       list($id) = entity_extract_ids($entity_type, $entity);
       $element['#suffix'] = '';
@@ -1296,14 +1311,16 @@ function field_collection_field_formatter_links(&$element, $entity_type, $entity
     }
   }
   // If there is no add link, add a special class to the last item.
-  if (empty($element['#suffix'])) {
-    $index = count(element_children($element)) - 1;
-    $element[$index]['#attributes']['class'][] = 'field-collection-view-final';
-  }
+  if (!empty($items) || $allow_create_item) {
+    if (empty($element['#suffix'])) {
+      $index = count(element_children($element)) - 1;
+      $element[$index]['#attributes']['class'][] = 'field-collection-view-final';
+    }
 
-  $element += array('#prefix' => '', '#suffix' => '');
-  $element['#prefix'] .= '<div class="field-collection-container clearfix">';
-  $element['#suffix'] .= '</div>';
+    $element += array('#prefix' => '', '#suffix' => '');
+    $element['#prefix'] .= '<div class="field-collection-container clearfix">';
+    $element['#suffix'] .= '</div>';
+  }
 
   return $element;
 }
@@ -1400,6 +1417,7 @@ function field_collection_field_widget_form(&$form, &$form_state, $field, $insta
         // load.
         if (empty($field_collection_item)) {
           $field_collection_item = entity_create('field_collection_item', array('field_name' => $field_name));
+          $field_collection_item->setHostEntity($element['#entity_type'], $element['#entity']);
         }
 
         // Put our entity in the form state, so FAPI callbacks can access it.
@@ -1507,9 +1525,9 @@ function field_collection_remove_js() {
  * When a remove button is submitted, we need to find the item that it
  * referenced and delete it. Since field UI has the deltas as a straight
  * unbroken array key, we have to renumber everything down. Since we do this
- * we *also* need to move all the deltas around in the $form_state['values']
- * and $form_state['input'] so that user changed values follow. This is a bit
- * of a complicated process.
+ * we *also* need to move all the deltas around in the $form_state['values'],
+ * $form_state['input'], and $form_state['field'] so that user changed values
+ * follow. This is a bit of a complicated process.
  */
 function field_collection_remove_submit($form, &$form_state) {
   $button = $form_state['triggering_element'];
@@ -1535,6 +1553,7 @@ function field_collection_remove_submit($form, &$form_state) {
     $moving_element = drupal_array_get_nested_value($form, $old_element_address);
     $moving_element_value = drupal_array_get_nested_value($form_state['values'], $old_element_address);
     $moving_element_input = drupal_array_get_nested_value($form_state['input'], $old_element_address);
+    $moving_element_field = drupal_array_get_nested_value($form_state['field']['#parents'], $old_element_address);
 
     // Tell the element where it's being moved to.
     $moving_element['#parents'] = $new_element_address;
@@ -1542,6 +1561,7 @@ function field_collection_remove_submit($form, &$form_state) {
     // Move the element around.
     form_set_value($moving_element, $moving_element_value, $form_state);
     drupal_array_set_nested_value($form_state['input'], $moving_element['#parents'], $moving_element_input);
+    drupal_array_set_nested_value($form_state['field']['#parents'], $moving_element['#parents'], $moving_element_field);
 
     // Move the entity in our saved state.
     if (isset($field_state['entity'][$i + 1])) {
@@ -1685,7 +1705,7 @@ function field_collection_field_widget_embed_validate($element, &$form_state, $c
         $is_empty_option = (isset($elements['#options']['_none']) && $elements['#value'] == '_none');
         if ($is_empty_multiple || $is_empty_string || $is_empty_value || $is_empty_option) {
           if (isset($elements['#title'])) {
-            form_error($elements, t('!name field is required.', array('!name' => $elements['#title'])));
+            form_error($elements, t('@name field is required.', array('@name' => $elements['#title'])));
           }
           else {
             form_error($elements);

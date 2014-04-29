@@ -230,8 +230,7 @@ function field_collection_update_7002() {
     $ids = $select->execute()->fetchCol(0);
 
     entity_delete_multiple('field_collection_item', $ids);
-    $count = count($ids);
-    drupal_set_message("Deleted $count orphaned field collection items.");
+    drupal_set_message(t('Deleted @count orphaned field collection items.', array('@count' => count($ids))));
   }
 }
 
@@ -277,7 +276,55 @@ function field_collection_update_7004() {
       $revision_id_column = sprintf('%s_revision_id', $field_name);
 
       // Add index on revision_id column.
-      db_add_index($table, $revision_id_column, array($revision_id_column));
+      if (!db_index_exists($table, $revision_id_column)) {
+        db_add_index($table, $revision_id_column, array($revision_id_column));
+      }
+    }
+  }
+}
+
+/**
+ * Force the creation of the table cache_entity_field_collection_item.
+ *
+ * entity_update_7003 will attempt to install entitycache tables for existing
+ * modules, but it uses module_list() to get the list of available modules,
+ * which, when called from a database update, may not return field_collection
+ * since drupal is bootstrapped at a lower level.
+ */
+function field_collection_update_7005() {
+  if (module_exists('entitycache')) {
+    $entity_type = 'field_collection_item';
+    $table = 'cache_entity_' . $entity_type;
+    if (!db_table_exists($table)) {
+      $schema = drupal_get_schema_unprocessed('system', 'cache');
+      $schema['description'] = 'Cache table used to store' . $entity_type . ' entity records.';
+      db_create_table($table, $schema);
+    }
+  }
+}
+
+/**
+ * Ensures revision_id indexes are present at field_config table.
+ */
+function field_collection_update_7006() {
+  $result = db_query("SELECT id, field_name, data FROM {field_config} WHERE type = 'field_collection'");
+  foreach ($result as $field_config) {
+    $data = unserialize($field_config->data);
+    // Skip this record if the revision_id index is already present.
+    if (isset($data['indexes']['revision_id'])) {
+      continue;
+    }
+    // Otherwise, add the revision_id index and update the record.
+    $data['indexes']['revision_id'] = array('revision_id');
+    $data = serialize($data);
+    $num_updated = db_update('field_config')
+      ->fields(array('data' => $data))
+      ->condition('id', $field_config->id)
+      ->execute();
+    // If for some reason the update failed, throw an exception.
+    if ($num_updated != 1) {
+      $t_args['@field'] = $field_config->field_name;
+      throw new DrupalUpdateException(t('An error was detected when attempting to update field configuration for field @field.', $t_args));
     }
   }
 }
