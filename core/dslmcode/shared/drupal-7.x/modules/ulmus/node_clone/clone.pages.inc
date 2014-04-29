@@ -1,4 +1,8 @@
 <?php
+/**
+ * @file
+ * Additional functions for Node_Clone module.
+ */
 
 /**
  * Menu callback to configure module settings.
@@ -20,7 +24,7 @@ function clone_settings($form, &$form_state) {
     '#title' => t('Confirmation mode when using the "Save as a new node then edit" method'),
     '#default_value' => (int)variable_get('clone_nodes_without_confirm', 0),
     '#options' => array(t('Require confirmation (recommended)'), t('Bypass confirmation')),
-    '#description' => t('A new node may be saved immediately upon clicking the "clone" tab when viewing a node, bypassing the normal confirmation form.'),
+    '#description' => t('A new node may be saved immediately upon clicking the "clone" link when viewing a node, bypassing the normal confirmation form.'),
   );
   $form['basic']['clone_menu_links'] = array(
     '#type' => 'radios',
@@ -28,7 +32,7 @@ function clone_settings($form, &$form_state) {
     '#options' => array(0 => t('No'), 1 => t('Yes')),
     '#default_value' => (int) variable_get('clone_menu_links', 0),
     '#description' => t('Should any menu link for a node also be cloned?'),
-  ); 
+  );
   $form['basic']['clone_use_node_type_name'] = array(
     '#type' => 'checkbox',
     '#title' => t('Use node type name in clone link'),
@@ -43,10 +47,10 @@ function clone_settings($form, &$form_state) {
   $types = node_type_get_names();
 
   foreach ($types as $type => $name) {
-    $form['publishing']['clone_reset_'. $type] = array(
+    $form['publishing']['clone_reset_' . $type] = array(
       '#type' => 'checkbox',
       '#title' => t('@s: reset publishing options when cloned', array('@s' => $name)),
-      '#default_value' => variable_get('clone_reset_'. $type, FALSE),
+      '#default_value' => variable_get('clone_reset_' . $type, FALSE),
     );
   }
 
@@ -72,12 +76,16 @@ function clone_settings($form, &$form_state) {
 function clone_node_check($node) {
 
   $method = variable_get('clone_method', 'prepopulate');
-  
+
   switch ($method) {
     case 'save-edit':
       if (variable_get('clone_nodes_without_confirm', FALSE)) {
         $new_nid = clone_node_save($node->nid);
-        drupal_goto('node/'. $new_nid .'/edit');
+        $options = array();
+        if (!empty($_GET['node-clone-destination'])) {
+          $options['query']['destination'] = $_GET['node-clone-destination'];
+        }
+        drupal_goto('node/' . $new_nid . '/edit', $options);
       }
       else {
         return drupal_get_form('clone_node_confirm', $node);
@@ -98,7 +106,7 @@ function clone_node_confirm($form, &$form_state, $node) {
     $form['nid'] = array('#type' => 'value', '#value' => $node->nid);
     return confirm_form($form,
       t('Are you sure you want to clone %title?', array('%title' =>  $node->title)),
-      'node/'. $node->nid, '<p>'. t('This action will create a new node. You will then be redirected to the edit page for the new node.') .'</p>',
+      'node/' . $node->nid, '<p>' . t('This action will create a new node. You will then be redirected to the edit page for the new node.') . '</p>',
       t('Clone'), t('Cancel'));
 }
 
@@ -109,7 +117,7 @@ function clone_node_confirm_submit($form, &$form_state) {
   if ($form_state['values']['confirm']) {
     $new_nid = clone_node_save($form_state['values']['nid']);
   }
-  $form_state['redirect'] = 'node/'. $new_nid .'/edit';
+  $form_state['redirect'] = 'node/' . $new_nid . '/edit';
 }
 
 
@@ -141,39 +149,10 @@ function clone_node_clone_menu_link($node) {
  */
 function clone_node_prepopulate($original_node) {
   if (isset($original_node->nid)) {
-    global $user;
 
     if (clone_is_permitted($original_node->type)) {
-      $node = clone $original_node;
-
-      $node->nid = NULL;
-      $node->vid = NULL;
-      $node->tnid = NULL;
-      // Anyonmymous users don't have a name.
-      // @see: drupal_anonymous_user().
-      $node->name = isset($user->name) ? $user->name : NULL;
-      $node->uid = $user->uid;
-      $node->created = NULL;
-      $node->menu = clone_node_clone_menu_link($original_node);
-      if (isset($node->book['mlid'])) {
-        $node->book['mlid'] = NULL;
-        $node->book['has_children'] = 0;
-      }
-      $node->path = NULL;
-      $node->files = array();
-      $node->title = t('Clone of !title', array('!title' => $node->title));
-      // Add an extra property as a flag.
-      $node->clone_from_original_nid = $original_node->nid;
+      $node = _clone_node_prepare($original_node, TRUE);
       drupal_set_title($node->title);
-
-      if (variable_get('clone_reset_'. $node->type, FALSE)) {
-        $node_options = variable_get('node_options_'. $node->type, array('status', 'promote'));
-        // Fill in the default values.
-        foreach (array('status', 'moderate', 'promote', 'sticky', 'revision') as $key) {
-          // Cast to int since that's how they come out of the DB.
-          $node->$key = (int) in_array($key, $node_options);
-        }
-      }
       // Let other modules do special fixing up.
       $context = array('method' => 'prepopulate', 'original_node' => $original_node);
       drupal_alter('clone_node', $node, $context);
@@ -189,48 +168,70 @@ function clone_node_prepopulate($original_node) {
 /**
  *  Clones a node by directly saving it.
  */
-function clone_node_save($nid) {
+function clone_node_save($nid, $account = NULL) {
   if (is_numeric($nid)) {
-    global $user;
 
-    $node = node_load($nid);
-    if (isset($node->nid) && clone_is_permitted($node->type)) {
-      $original_node = clone $node;
-
-      $node->nid = NULL;
-      $node->vid = NULL;
-      $node->tnid = NULL;
-      // Anyonmymous users don't have a name.
-      // @see: drupal_anonymous_user().
-      $node->name = isset($user->name) ? $user->name : NULL;
-      $node->uid = $user->uid;
-      $node->created = NULL;
-      $node->menu = clone_node_clone_menu_link($original_node);
-      if (isset($node->book['mlid'])) {
-        $node->book['mlid'] = NULL;
-        $node->book['has_children'] = 0;
-      }
-      $node->path = NULL;
-      $node->files = array();
-      $node->title = t('Clone of !title', array('!title' => $node->title));
-      // Add an extra property as a flag.
-      $node->clone_from_original_nid = $original_node->nid;
-
-      if (variable_get('clone_reset_'. $node->type, FALSE)) {
-        $node_options = variable_get('node_options_'. $node->type, array('status', 'promote'));
-        // Fill in the default values.
-        foreach (array('status', 'moderate', 'promote', 'sticky', 'revision') as $key) {
-          // Cast to int since that's how they need to be saved to the DB.
-          $node->$key = (int) in_array($key, $node_options);
-        }
-      }
+    $original_node = node_load($nid);
+    if (isset($original_node->nid) && clone_is_permitted($original_node->type)) {
+      $node = _clone_node_prepare($original_node, TRUE, $account);
       // Let other modules do special fixing up.
       $context = array('method' => 'save-edit', 'original_node' => $original_node);
       drupal_alter('clone_node', $node, $context);
 
       node_save($node);
+      if (module_exists('rules')) {
+        rules_invoke_event('clone_node', $node, $original_node);
+      }
       return $node->nid;
     }
   }
+}
+
+/**
+ *  Prepares a node to be cloned.
+ */
+function _clone_node_prepare($original_node, $prefix_title = FALSE, $account = NULL) {
+  $node = clone $original_node;
+
+  if (!isset($account->uid)) {
+    $account = $GLOBALS['user'];
+  }
+
+  $node->nid = NULL;
+  $node->vid = NULL;
+  $node->tnid = NULL;
+  $node->log = NULL;
+  // Also handle modules that attach a UUID to the node.
+  $node->uuid = NULL;
+  $node->vuuid = NULL;
+
+  // Anyonmymous users don't have a name.
+  // @see: drupal_anonymous_user().
+  $node->name = isset($account->name) ? $account->name : NULL;
+  $node->uid = $account->uid;
+
+  $node->created = NULL;
+  $node->menu = clone_node_clone_menu_link($original_node);
+  if (isset($node->book['mlid'])) {
+    $node->book['mlid'] = NULL;
+    $node->book['has_children'] = 0;
+  }
+  $node->path = NULL;
+  $node->files = array();
+  if ($prefix_title) {
+    $node->title = t('Clone of !title', array('!title' => $node->title));
+  }
+  // Add an extra property as a flag.
+  $node->clone_from_original_nid = $original_node->nid;
+
+  if (variable_get('clone_reset_'. $node->type, FALSE)) {
+    $node_options = variable_get('node_options_'. $node->type, array('status', 'promote'));
+    // Fill in the default values.
+    foreach (array('status', 'moderate', 'promote', 'sticky', 'revision') as $key) {
+      // Cast to int since that's how they need to be saved to the DB.
+      $node->$key = (int) in_array($key, $node_options);
+    }
+  }
+  return $node;
 }
 

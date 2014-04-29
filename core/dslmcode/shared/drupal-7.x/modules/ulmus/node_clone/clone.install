@@ -1,4 +1,8 @@
 <?php
+/**
+ * @file
+ * Install & uninstall functions for Node_Clone module.
+ */
 
 /**
  * Implementation of hook_uninstall.
@@ -11,7 +15,7 @@ function clone_uninstall() {
   variable_del('clone_menu_links');
   $types = node_type_get_names();
   foreach ($types as $type => $name) {
-    variable_del('clone_reset_'. $type);
+    variable_del('clone_reset_' . $type);
   }
 }
 

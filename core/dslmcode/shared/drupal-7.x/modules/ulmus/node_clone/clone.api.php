@@ -20,7 +20,7 @@
  * @see drupal_alter()
  */
 function hook_clone_node_alter(&$node, $context) {
-  if ($context['original_node']->type = 'special') {
+  if ($context['original_node']->type == 'special') {
     $node->special = special_something();
   }
 }

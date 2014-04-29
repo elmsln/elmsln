@@ -1,4 +1,8 @@
 <?php
+/**
+ * @file
+ * Views settings for Node_Clone module.
+ */
 
 /**
 * Implements hook_views_data_alter()
