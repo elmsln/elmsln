@@ -11,6 +11,7 @@ define("RADIOACTIVITY_FIELD_ENERGY", "radioactivity_energy");
 define("RADIOACTIVITY_FIELD_TIMESTAMP", "radioactivity_timestamp");
 define("RADIOACTIVITY_COMBO_FORMATTER", "radioactivity_combo_formatter");
 define("RADIOACTIVITY_BASIC_WIDGET", "radioactivity_basic_widget");
+define("RADIOACTIVITY_HISTORY_GRAPH", "radioactivity_history_graph");
 
 include "radioactivity.field.inc";
 
@@ -38,6 +39,9 @@ function radioactivity_theme() {
     'radioactivity_gauge' => array(
       'variables' => array('energy' => 1, 'maximum' => 1),
     ),
+    'radioactivity_history' => array(
+      'variables' => array('dataset' => array(), 'cutoff' => 0),
+    ),
   );
 }
 
@@ -50,6 +54,30 @@ function theme_radioactivity_gauge($vars) {
 }
 
 /**
+ * Theme callback
+ */
+function theme_radioactivity_history($vars) {
+  
+  drupal_add_js(drupal_get_path('module', 'radioactivity') . '/js/jquery.sparkline.min.js');
+  drupal_add_js(drupal_get_path('module', 'radioactivity') . '/js/radioactivity-history.js');
+  drupal_add_css(drupal_get_path('module', 'radioactivity') . '/css/radioactivity.css');
+
+  $data = array(
+    'values' => array(),
+    'tooltips' => array(),
+    'cutoff' => $vars['cutoff'],
+    'tooltipFormat' => '<span style="color:{{color}}">&#9679;</span> {{value}} | {{offset:tooltips}}'
+  );
+  
+  foreach ($vars['dataset'] as $time => $value) {
+    $data['values'][] = round($value, 2);
+    $data['tooltips'][] = format_date($time, 'short');
+  }
+
+  return '<div class="radioactivity-history">' . drupal_json_encode($data) . '</div>';
+}
+
+/**
  * Implements hook_help().
  */
 function radioactivity_help($path, $arg) {
@@ -58,7 +86,46 @@ function radioactivity_help($path, $arg) {
 
   switch ($path) {
     case "admin/help#radioactivity":
-      $output = '<p>' . t('This module is the core for all radioactivity functionality.') . '</p>';
+      $output .= '<h2>' . t('Radioactivity') . '</h2>';
+      $output .= '<h3>' . t('Introduction to Radioactivity') . '</h3>';
+      $output .= '<p>';
+      $output .= t('The radioactivity module provides a field type that measures
+        the relative popularity of a particular piece of content.  It can be used
+        as a measure of the hotness of a particular piece of content.  Content
+        popularity is tracked is by the radioactivity energy field.  Energy can
+        be added to a piece of content by a variety of ways depending on the submodule.  ');
+      $output .= '</p>';
+      $output .= '<h3>' . t('How to use') . '</h3>';
+      $output .= '<p>';
+      $output .= t('Go to <a href="admin/structure/radioactivity">admin/structure/radioactivity</a>
+        and click <em>add</em>.  Then choose a profile name & description. The
+        next set of fields widely depends on the submodules enabled, but two
+        additional fields are part of the main radioactivity module: Incident
+        storage and profile mode.  Incident storage sets when the energy levels
+        will be set. Profile mode creates several types of profiles: simple, basic
+        & advanced.  Simple profiles act as a view counter, basic provides rudimentary
+        decay behavior and advanced allows for custom half lives graph granularity
+        and cutoff energy.');
+      $output .= '</p>';
+      $output .= '<h3>' . t('Submodules') . '</h3>';
+      $output .= '<p>';
+      $output .= t('Radioactivity comes with the radioactivity defaults submodule
+        that demonstrates the different decay profiles available to use.');
+      $output .= '</p>';
+      $output .= '<h3>' . t('Note:') . '</h3>';
+      $output .= '<p>';
+      $output .= t('Radioactivity has it\'s own method of hiding the field.  If the field is hidden using the regular field display method, the radioactivity counter on that content type <strong>WILL NOT WORK</strong>.  ');
+      $output .= t('Furthermore, Any changes to an energy profile are not retroactive, which
+        means any changes will only affect <em>future</em> energy levels.');
+      $output .= '</p>';
+      $output .= '<h3>' . t('More information') . '</h3>';
+      $output .= '<p>';
+      $output .= t('Please see the handbook page
+        <a href="http://drupal.org/node/338101">http://drupal.org/node/338101</a>,
+        Wonderkraut has a <a href="http://www.wunderkraut.com/blog/radioactivity-2-basics/2011-12-05">blog post on Radioactivity</a>,
+        or consult #drupal-support on IRC.');
+      $output .= '</p>';
+      // No retroactive changes.
       break;
   }
 
@@ -258,6 +325,19 @@ function _radioactivity_get_field_maximum($field_id, $entity_type) {
 }
 
 /**
+ * Get history data for the given field
+ */
+function _radioactivity_get_history_for_field_and_entity($field_id, $entity_id) {
+  return db_select('radioactivity_history', 'rh')
+    ->fields('rh', array('time', 'energy'))
+    ->orderBy('rh.time', 'ASC')
+    ->condition('rh.field_instance_id', $field_id)
+    ->condition('rh.entity_id', $entity_id)
+    ->execute()
+    ->fetchAllKeyed();
+}
+
+/**
  * Get storage by key
  */
 function _radioactivity_get_storage($key) {
@@ -319,11 +399,19 @@ function radioactivity_cron() {
 
   module_load_include("inc", "radioactivity", "radioactivity-bootstrap");
 
-  if (class_exists("Memcache")) {
+  if (class_exists("Memcache") || class_exists("Memcached")) {
     // Expose the memcache settings for the memcache processIncident call
     if (!defined("VAR_RADIOACTIVITY_MEMCACHED_HOST")) {
       define("VAR_RADIOACTIVITY_MEMCACHED_HOST", variable_get("radioactivity_memcached_host", "localhost"));
       define("VAR_RADIOACTIVITY_MEMCACHED_PORT", variable_get("radioactivity_memcached_port", "11211"));
+    }
+  }
+
+  if (class_exists("Redis")) {
+    // Expose the redis settings for the memcache processIncident call
+    if (!defined("VAR_RADIOACTIVITY_REDIS_HOST")) {
+      define("VAR_RADIOACTIVITY_REDIS_HOST", variable_get("radioactivity_redis_host", "localhost"));
+      define("VAR_RADIOACTIVITY_REDIS_PORT", variable_get("radioactivity_redis_port", "6379"));
     }
   }
 
@@ -354,14 +442,12 @@ function radioactivity_cron() {
 
         $storage = $profile->storageObject;
 
-        // Process incidents
+        // Process incidents (Note: this will process all incidents within the
+        // storage, even those unrelated to THIS entity).
         $storage->processIncidents();
 
         // Check granularity
         $threshold_timestamp = $last_cron_timestamp - ($last_cron_timestamp % $profile->granularity) + $profile->granularity;
-        if (REQUEST_TIME < $threshold_timestamp) {
-          continue;
-        }
 
         // Update field database
         $half_life = $profile->half_life;
@@ -373,7 +459,7 @@ function radioactivity_cron() {
 
         // grab update value from deferred values table
         // and update it to the fields table if it is used
-        if ($profile->enable_decay > 0) {
+        if ($profile->enable_decay > 0 && REQUEST_TIME > $threshold_timestamp) {
 
           // Switched deletion and decaying order because in
           // some cases the decaying stops working when there are sh*tloads of fields.
@@ -410,8 +496,27 @@ function radioactivity_cron() {
             ->condition($timestamp, REQUEST_TIME, '<')
             ->condition("deleted", "0")
             ->execute();
-        } // bundles
-      } // entity types
+        } // Decay
+
+        $field_info = field_info_instance($entity_type, $field_name, $bundle);
+
+        if ($field_info['settings']['history'] == 1) {
+          db_query("INSERT INTO {radioactivity_history}"
+            . " (SELECT :id, entity_id, :time, " . $energy
+            . " FROM " . $table_name
+            . " WHERE deleted = 0)",
+            array(':id' => $field_info['id'], ':time' => REQUEST_TIME)
+          );
+
+          $time = REQUEST_TIME - ($field_info['settings']['history_limit'] * 60 * 60);
+
+          db_delete('radioactivity_history')
+            ->condition('time', $time, '<')
+            ->condition('field_instance_id', $field_info['id'])
+            ->execute();
+        } // History
+
+      } // Bundles
     }
   }
 
@@ -489,7 +594,11 @@ function radioactivity_decay_profile_export($profile) {
  */
 function radioactivity_decay_profile_save($profile) {
 
-  db_merge("radioactivity_decay_profile")->key(array("machine_name" => $profile->machine_name))->fields($profile)->execute();
+  db_merge("radioactivity_decay_profile")
+    ->key(array("machine_name" => $profile->machine_name))
+    ->fields($profile)
+    ->execute();
+
 }
 
 /**
@@ -497,17 +606,25 @@ function radioactivity_decay_profile_save($profile) {
  */
 function radioactivity_decay_profile_delete($machine_name) {
 
-  db_delete("radioactivity_decay_profile")->condition("machine_name", $machine_name)->execute();
+  db_delete("radioactivity_decay_profile")
+    ->condition("machine_name", $machine_name)
+    ->execute();
+
 }
 
 /**
  * Callback for testing if certain machine name already exists
  */
 function radioactivity_decay_profile_exists($machine_name) {
-
-  $obj = db_select("radioactivity_decay_profile", "dcp")->fields("dcp", array("machine_name"))->condition("dcp.machine_name", $machine_name)->execute()->fetch();
-
+  
+  $obj = db_select("radioactivity_decay_profile", "dcp")
+    ->fields("dcp", array("machine_name"))
+    ->condition("dcp.machine_name", $machine_name)
+    ->execute()
+    ->fetch();
+  
   return $obj != NULL;
+
 }
 
 /**

@@ -74,8 +74,8 @@ function radioactivity_admin_general_form() {
 
   $form['advanced']['radioactivity_temp_dir'] = array(
     '#type' => 'textfield',
-    '#title' => t('System temporary dir'),
-    '#description' => t('Temporary directory used by the file incident storage.'),
+    '#title' => t('Radioactivity temporary dir'),
+    '#description' => t('Temporary directory used by the file incident storage. If no directory is specified, value defaults to system temporary directory.'),
     '#size' => 128,
     '#required' => TRUE,
     '#default_value' => $temp_dir,
@@ -90,7 +90,14 @@ function radioactivity_admin_general_form() {
     '#description' => t('Settings for the Memcache incident storage'),
   );
 
-  if (class_exists("Memcache")) {
+  $form['redis'] = array(
+    '#type' => 'fieldset',
+    '#title' => t('Redis settings'),
+    '#collapsible' => TRUE,
+    '#description' => t('Settings for the Redis incident storage'),
+  );
+
+  if (class_exists("Memcache") || class_exists("Memcached")) {
     $form['memcache'] = array(
       '#type' => 'fieldset',
       '#title' => t('Memcached settings'),
@@ -124,6 +131,42 @@ function radioactivity_admin_general_form() {
   }
   else {
     $form['memcache']['#description'] = t('PHP memcache(d) extension is not enabled! Memcached storage type is not available.');
+  }
+
+  if (class_exists("Redis")) {
+    $form['redis'] = array(
+      '#type' => 'fieldset',
+      '#title' => t('Redis settings'),
+      '#collapsible' => TRUE,
+      '#description' => t('Settings for the Redis incident storage'),
+    );
+
+    $host = variable_get('radioactivity_redis_host', 'localhost');
+    $port = variable_get('radioactivity_redis_port', '6379');
+
+    $form['redis']['radioactivity_redis_host'] = array(
+      '#type' => 'textfield',
+      '#title' => t('Host name'),
+      '#description' => t('Usually localhost or path to socket'),
+      '#size' => 128,
+      '#required' => TRUE,
+      '#default_value' => $host,
+    );
+
+    $form['redis']['radioactivity_redis_port'] = array(
+      '#type' => 'textfield',
+      '#title' => t('Port'),
+      '#description' => t('Default is 6379 (leave empty if using sockets)'),
+      '#size' => 128,
+      '#required' => FALSE,
+      '#default_value' => $port,
+    );
+
+    $settings .= "define('VAR_RADIOACTIVITY_REDIS_HOST', '$host');" . PHP_EOL;
+    $settings .= "define('VAR_RADIOACTIVITY_REDIS_PORT', '$port');" . PHP_EOL;
+  }
+  else {
+    $form['redis']['#description'] = t('PhpRedis extension is not enabled! See https://github.com/nicolasff/phpredis for further information on enabling it.');
   }
 
   $salt = variable_get('radioactivity_checksum_salt', 'undefined');
@@ -191,9 +234,14 @@ function radioactivity_admin_general_form_submit($form_id, $form_state) {
   variable_set('radioactivity_drupal_root', $form_state['values']['radioactivity_drupal_root']);
   variable_set('radioactivity_temp_dir', $form_state['values']['radioactivity_temp_dir']);
 
-  if (class_exists('Memcache')) {
+  if (class_exists('Memcache') || class_exists("Memcached")) {
     variable_set('radioactivity_memcached_host', $form_state['values']['radioactivity_memcached_host']);
     variable_set('radioactivity_memcached_port', $form_state['values']['radioactivity_memcached_port']);
+  }
+
+  if (class_exists('Redis')) {
+    variable_set('radioactivity_redis_host', $form_state['values']['radioactivity_redis_host']);
+    variable_set('radioactivity_redis_port', $form_state['values']['radioactivity_redis_port']);
   }
 
   if ($form_state['values']['auto']) {

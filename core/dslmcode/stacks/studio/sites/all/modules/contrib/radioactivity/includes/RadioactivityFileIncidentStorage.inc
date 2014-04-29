@@ -19,7 +19,7 @@ class RadioactivityFileIncidentStorage extends RadioactivityIncidentStorage {
   /**
    * Add incident directly to the db
    */
-  public function addIncident(RadioactivityIncident$incident) {
+  public function addIncident(RadioactivityIncident $incident) {
     $row  = serialize($incident);
     $tmp  = VAR_RADIOACTIVITY_TEMP_DIR;
     $file = $tmp . "/radioactivity-payload.txt";

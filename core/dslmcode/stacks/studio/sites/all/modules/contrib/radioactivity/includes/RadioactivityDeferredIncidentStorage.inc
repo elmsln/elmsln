@@ -15,7 +15,7 @@ class RadioactivityDeferredIncidentStorage extends RadioactivityIncidentStorage 
    * add incident to the deferred storage
    * @entity_energy energy by entity id
    */
-  public function addIncident($incident) {
+  public function addIncident(RadioactivityIncident $incident) {
 
     db_insert('radioactivity_deferred_incidents')->fields(array('data' => serialize($incident)))->execute();
   }

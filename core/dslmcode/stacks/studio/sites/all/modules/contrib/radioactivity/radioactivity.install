@@ -165,6 +165,37 @@ function radioactivity_schema() {
     'indexes' => array('main' => array('source')),
   );
 
+  $schema['radioactivity_history'] = array(
+    'description' => 'History storage table for radioactivity',
+    'fields' => array(
+      'field_instance_id' => array(
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'description' => 'Field instance id',
+      ),
+      'entity_id' => array(
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'description' => 'Entity ID',
+      ),
+      'time' => array(
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'description' => 'Unix timestamp',
+      ),
+      'energy' => array(
+        'type' => 'float',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'description' => 'Energy',
+      ),
+    ),
+    'indexes' => array('main' => array('field_instance_id', 'entity_id')),
+  );
+
 
   return $schema;
 }
@@ -228,4 +259,13 @@ function radioactivity_update_7204() {
     ->fields(array('enable_decay' => 2))
     ->condition('enable_decay', 1, '=')
     ->execute();
+}
+
+/**
+ * Add a table for history functionality
+ */
+function radioactivity_update_7205() {
+  $table_name = 'radioactivity_history';
+  $table = drupal_get_schema_unprocessed('radioactivity', $table_name);
+  db_create_table($table_name, $table);
 }

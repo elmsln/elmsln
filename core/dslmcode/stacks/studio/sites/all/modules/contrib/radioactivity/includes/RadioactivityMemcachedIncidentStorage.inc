@@ -3,10 +3,7 @@
 /**
  * @file Memcached incident storage class
  */
-
 class RadioactivityMemcachedIncidentStorage extends RadioactivityIncidentStorage {
-
-  static $memcachedEmitters;
 
   /**
    * Constructor
@@ -17,20 +14,28 @@ class RadioactivityMemcachedIncidentStorage extends RadioactivityIncidentStorage
    * Connect to the memcache server
    */
   private function connect() {
-    if (class_exists("Memcache")) {
-      $mc = new Memcache();
-      $mc->addServer(VAR_RADIOACTIVITY_MEMCACHED_HOST, VAR_RADIOACTIVITY_MEMCACHED_PORT);
-      if (@$mc->connect(VAR_RADIOACTIVITY_MEMCACHED_HOST, VAR_RADIOACTIVITY_MEMCACHED_PORT)) {
-        return $mc;
-      }
+    $mc = null;
+    if (class_exists('Memcache')) {
+      $extension = 'Memcache';
     }
+    elseif (class_exists('Memcached')) {
+      $extension = 'Memcached';
+    }
+    if (empty($extension)) return FALSE;
+    
+    $mc = new $extension();
+    $connected = @$mc->addServer(VAR_RADIOACTIVITY_MEMCACHED_HOST, VAR_RADIOACTIVITY_MEMCACHED_PORT);
+    if ($connected) {
+      return $mc;
+    }
+
     return FALSE;
   }
 
   /**
    * Add incident to cache
    */
-  public function addIncident($incident) {
+  public function addIncident(RadioactivityIncident $incident) {
     $mc = $this->connect();
     if (!$mc) {
       return;
@@ -51,10 +56,7 @@ class RadioactivityMemcachedIncidentStorage extends RadioactivityIncidentStorage
     if (!$mc) {
       return;
     }
-    $i = $mc->get("radioactivity_bottom");
-    if (!$i) {
-      $i = 0;
-    }
+    $i = 0;
     // get and reset top
     $to = $mc->get("radioactivity_top");
     $mc->set("radioactivity_top", 0);
@@ -67,25 +69,6 @@ class RadioactivityMemcachedIncidentStorage extends RadioactivityIncidentStorage
         $incident->updateEnergy();
       }
       $i++;
-    }
-    $mc->set("radioactivity_bottom", 0);
-  }
-
-  /**
-   * Default emitting for the default processEmitter function
-   */
-  public function addEmitter($entity_id, $energy) {
-    if (self::$memcachedEmitters == NULL) {
-      self::$memcachedEmitters = array();
-    }
-    if ($entity_id !== NULL) {
-      if (!isset(self::$memcachedEmitters[$this->entityType][$this->bundle][$this->fieldName][$entity_id])) {
-        self::$memcachedEmitters[$this->entityType][$this->bundle][$this->fieldName][$entity_id] = 0;
-      }
-      self::$memcachedEmitters[$this->entityType][$this->bundle][$this->fieldName][$entity_id] += $energy;
-    }
-    else {
-      return self::$memcachedEmitters;
     }
   }
 
