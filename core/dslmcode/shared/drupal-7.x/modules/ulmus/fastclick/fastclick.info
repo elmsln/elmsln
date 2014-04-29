@@ -4,9 +4,9 @@ package = Other
 dependencies[] = libraries (>=2.x)
 core = 7.x
 
-; Information added by Drupal.org packaging script on 2014-03-11
-version = "7.x-1.2"
+; Information added by Drupal.org packaging script on 2014-04-05
+version = "7.x-1.3"
 core = "7.x"
 project = "fastclick"
-datestamp = "1394580516"
+datestamp = "1396688951"
 
