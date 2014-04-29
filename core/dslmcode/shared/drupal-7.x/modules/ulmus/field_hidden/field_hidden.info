@@ -6,9 +6,9 @@ core = 7.x
 stylesheets[all][] = field_hidden.css
 configure = admin/config/fields/field_hidden
 
-; Information added by  packaging script on 2013-11-23
-version = "7.x-1.5"
+; Information added by Drupal.org packaging script on 2014-04-27
+version = "7.x-1.6"
 core = "7.x"
 project = "field_hidden"
-datestamp = "1385200110"
+datestamp = "1398590928"
 

@@ -1,5 +1,5 @@
 
-All code of the Drupal module Field Hidden is Copyright 2012-2013 Jacob Friis Mathiasen.
+All code of the Drupal module Field Hidden is Copyright 2012-2014 Jacob Friis Mathiasen.
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
