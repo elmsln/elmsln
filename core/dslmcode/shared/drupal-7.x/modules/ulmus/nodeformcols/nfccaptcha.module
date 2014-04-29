@@ -14,14 +14,14 @@
  * @return void
  */
 function nodeformcols_nodeformcols_base_form_alter(&$form, $variant) {
-  $using_captcha = db_query("SELECT COUNT(module)
-    FROM {captcha_points} WHERE form_id = :form_id", array(':form_id' => array(
+  $using_captcha = db_query("SELECT COUNT(captcha_type)
+    FROM {captcha_points} WHERE form_id = :form_id", array(
       ':form_id' => $form['#node']->type . '_node_form',
-    )))->fetchField();
+    ))->fetchField();
   if ($using_captcha) {
     $form['captcha'] = array(
       '#title' => t('CAPTCHA'),
-      '#weight' => $form['buttons']['#weight'] - 1,
+      '#weight' => $form['actions']['#weight'] - 1,
     );
   }
 }

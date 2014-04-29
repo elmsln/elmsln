@@ -160,8 +160,8 @@ function template_preprocess_node_form(&$aVars) {
     }
   }
 
-  foreach ($has_elements as $name => $has) {
-    if ($has) {
+  foreach ($regions as $name => $data) {
+    if (!empty($has_elements[$name])) {
       $class[] = 'node-form-has-region-' . $name;
       $form['nodeformcols_region_' . $name] = $regions[$name];
     }
@@ -175,7 +175,7 @@ function template_preprocess_node_form(&$aVars) {
  */
 function nodeformcols_node_type_delete($info) {
   $result = db_select('variable')
-    ->condition('name', 'nodeformscols_field_placements_' . $info->old_type . '%', 'LIKE')
+    ->condition('name', 'nodeformscols_field_placements_' . $info->type . '%', 'LIKE')
     ->fields('variable', array('name'))
     ->execute();
   foreach ($result as $row) {
@@ -191,8 +191,8 @@ function nodeformcols_node_type_update($info) {
     $base = 'nodeformscols_field_placements_' . $info->old_type;
     $new_base = 'nodeformscols_field_placements_' . $info->type;
     $result = db_select('variable')
-      ->condition('name', $base . '%', 'LIKE')
       ->fields('variable', array('name'))
+      ->condition('name', $base . '%', 'LIKE')
       ->execute();
     foreach ($result as $row) {
       $value = variable_get($row->name, NULL);

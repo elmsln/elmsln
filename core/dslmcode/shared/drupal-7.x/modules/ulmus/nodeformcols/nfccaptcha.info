@@ -5,9 +5,9 @@ dependencies[] = captcha
 core = 7.x
 package = Node form columns
 
-; Information added by drupal.org packaging script on 2013-10-01
-version = "7.x-1.x-dev"
+; Information added by Drupal.org packaging script on 2014-04-09
+version = "7.x-1.0+6-dev"
 core = "7.x"
 project = "nodeformcols"
-datestamp = "1380593391"
+datestamp = "1397085554"
 

@@ -19,7 +19,7 @@ function nfcbiblio_nodeformcols_variants_alter(&$variants, $type) {
       WHERE tid >= :tid
         AND visible = :visible
       ORDER BY weight ASC', array(':tid' => 0, ':visible' => 1));
-    while ($option = db_fetch_object($res)) {
+    while ($option = $res->fetchObject()) {
       $variants[$option->tid] = $option->name;
     }
   }
@@ -35,8 +35,8 @@ function _nfcbiblio_top_visible_type() {
   return db_query_range("SELECT tid
     FROM {biblio_types}
     WHERE visible = :visible
-      AND tid> = :tid>
-    ORDER BY weight ASC", array(':visible' => 1, ':tid>' => 0))->fetchField();
+    AND tid >= :tid
+    ORDER BY weight ASC", 0, 1, array(':visible' => 1, ':tid' => 0))->fetchField();
 }
 
 /**

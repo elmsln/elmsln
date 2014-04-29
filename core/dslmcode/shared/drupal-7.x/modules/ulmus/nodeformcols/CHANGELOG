@@ -1,7 +1,12 @@
 // $Id$
 
-Node form columns 7.x-1.x, xxxx-xx-xx
+Node form columns 7.x-1.0, 2014-01-15
 ------------------------------
-#801804 by yhahn, voxpelli: Port to drupal 7
+Issue #801804 by yhahn, voxpelli: Port to drupal 7
 by voxpelli: No longer positions form fields that the access is denied to
-#664840 by swentel, voxpelli: Fixed PHP notices
+Issue #664840 by swentel, voxpelli: Fixed PHP notices
+Issue #1024830 by barraponto: hidden fields weren't actually hiding
+Issue #1159746 by kevee: set form_state['input'] to prevent errors with some widgets
+Issue #1287452 by barraponto: Text fields and text areas on the right sidebar should be resized.
+Issue #1393090 by ptrl,kevee: Fix captcha for node form columns
+Issue #1305212 by Nor4a,gabrielu: Fixed bug in the nodeformcols_node_type_delete function
