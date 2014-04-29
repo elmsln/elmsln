@@ -1,4 +1,22 @@
 
+Libraries 7.x-2.2, 2014-02-09
+-----------------------------
+#2046919 by tstoeckler: Clarify 'version' docs.
+#1946110 by munroe_richard: Allow uppercase letters as library machine names.
+#1953260 by tstoeckler: Improve documentation of libraries_get_version().
+#1855918 by tstoeckler: Make integration file loading backwards-compatible.
+#1876124 by tstoeckler: Fix integration files for themes.
+#1876124 by tstoeckler: Add tests for theme-provided library information.
+#1876124 by tstoeckler: Prepare for adding a test theme.
+#1876124 by tstoeckler | whastings, fubhy: Fix hook_libraries_info() for themes.
+#2015721 by tstoeckler, CaptainHook: Protect against files overriding local variables.
+#2046919 by tstoeckler: Improve documentation around 'version callback'.
+#1844272 by tstoeckler, jweowu: Fix typos in libraries.api.php.
+#1938638 by tstoeckler: Prevent weird PHP notice on update.
+#1329388 by RobLoach, tstoeckler: Clear static caches in libraries_flush_caches().
+#1855918 by rbayliss: Load integration files after library files.
+#1938638 by Pol: Fix typo in libraries.api.php.
+
 Libraries 7.x-2.1, 2013-03-09
 -----------------------------
 #1937446 by Pol, tstoeckler: Add a 'pre-dependencies-load' callback group.
@@ -13,7 +31,6 @@ Libraries 7.x-2.0, 2012-07-29
 #1578618 by iamEAP: Fixed Fatal cache flush failure on major version upgrades.
 #1449346 by tstoeckler, sun: Clean-up libraries.test
 
-
 Libraries 7.x-2.0-alpha2, 2011-12-15
 ------------------------------------
 #1299076 by tstoeckler: Improve testing of JS, CSS, and PHP files.
@@ -22,7 +39,6 @@ Libraries 7.x-2.0-alpha2, 2011-12-15
 #1325524 by sun, Rob Loach, tstoeckler: Statically cache libraries_detect().
 #1321372 by Rob Loach: Provide a 'post-load' callback group.
 #1205854 by tstoeckler, sun: Test library caching.
-
 
 Libraries 7.x-2.0-alpha1, 2011-10-01
 ------------------------------------
@@ -65,20 +81,20 @@ by sun: Fixed testbot breaks upon .info file without .module file.
 Libraries 7.x-1.x, xxxx-xx-xx
 -----------------------------
 
-
 Libraries 7.x-1.0, 2010-01-27
 -----------------------------
 #743522 by sun: Ported to D7.
 
+
+Libraries 6.x-1.x, xxxx-xx-xx
+-----------------------------
 
 Libraries 6.x-1.0, 2010-01-27
 -----------------------------
 #1028744 by tstoeckler: Code clean-up.
 #496732 by tstoeckler, robphillips: Allow placing libraries in root directory.
 
-
-Libraries 6.x-1.0-ALPHA1, 2009-12-30
+Libraries 6.x-1.0-alpha1, 2009-12-30
 ------------------------------------
 #480440 by markus_petrux: Fixed base_path() not applied to default library path.
 #320562 by sun: Added basic functions.
-

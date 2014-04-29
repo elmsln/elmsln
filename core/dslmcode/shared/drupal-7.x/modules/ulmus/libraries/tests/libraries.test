@@ -72,7 +72,8 @@ class LibrariesTestCase extends DrupalWebTestCase {
   }
 
   function setUp() {
-    parent::setUp('libraries', 'libraries_test');
+    parent::setUp('libraries', 'libraries_test_module');
+    theme_enable(array('libraries_test_theme'));
   }
 
   /**
@@ -131,6 +132,7 @@ class LibrariesTestCase extends DrupalWebTestCase {
       // FALSE for missing or incompatible dependencies.
       $library['installed'] = TRUE;
       libraries_detect_dependencies($library);
+      $this->verbose('Library:<pre>' . var_export($library, TRUE) . '</pre>');
       $this->assertTrue($library['installed'], "libraries_detect_dependencies() detects compatible version string: '$version_string' is compatible with '$version'");
     }
     foreach ($incompatible as $version_string) {
@@ -138,6 +140,7 @@ class LibrariesTestCase extends DrupalWebTestCase {
       $library['installed'] = TRUE;
       unset($library['error'], $library['error message']);
       libraries_detect_dependencies($library);
+      $this->verbose('Library:<pre>' . var_export($library, TRUE) . '</pre>');
       $this->assertEqual($library['error'], 'incompatible dependency', "libraries_detect_dependencies() detects incompatible version strings: '$version_string' is incompatible with '$version'");
     }
     // Instead of repeating this assertion for each version string, we just
@@ -157,7 +160,7 @@ class LibrariesTestCase extends DrupalWebTestCase {
    */
   function testLibrariesScanInfoFiles() {
     $expected = array('example_info_file' => (object) array(
-      'uri' => drupal_get_path('module', 'libraries') . '/tests/example/example_info_file.libraries.info',
+      'uri' => drupal_get_path('module', 'libraries') . '/tests/libraries/example_info_file.libraries.info',
       'filename' => 'example_info_file.libraries.info',
       'name' => 'example_info_file.libraries',
     ));
@@ -169,17 +172,33 @@ class LibrariesTestCase extends DrupalWebTestCase {
    * Tests libraries_info().
    */
   function testLibrariesInfo() {
+    // Test that modules can provide and alter library information.
+    $info = libraries_info();
+    $this->assertTrue(isset($info['example_module']));
+    $this->verbose('Library:<pre>' . var_export($info['example_module'], TRUE) . '</pre>');
+    $this->assertEqual($info['example_module']['info type'], 'module');
+    $this->assertEqual($info['example_module']['module'], 'libraries_test_module');
+    $this->assertTrue($info['example_module']['module_altered']);
+
+    // Test that themes can provide and alter library information.
+    $this->assertTrue(isset($info['example_theme']));
+    $this->verbose('Library:<pre>' . var_export($info['example_theme'], TRUE) . '</pre>');
+    $this->assertEqual($info['example_theme']['info type'], 'theme');
+    $this->assertEqual($info['example_theme']['theme'], 'libraries_test_theme');
+    $this->assertTrue($info['example_theme']['theme_altered']);
+
     // Test that library information is found correctly.
     $expected = array(
       'name' => 'Example files',
-      'library path' => drupal_get_path('module', 'libraries') . '/tests/example',
+      'library path' => drupal_get_path('module', 'libraries') . '/tests/libraries/example',
       'version' => '1',
       'files' => array(
         'js' => array('example_1.js' => array()),
         'css' => array('example_1.css' => array()),
         'php' => array('example_1.php' => array()),
       ),
-      'module' => 'libraries_test',
+      'info type' => 'module',
+      'module' => 'libraries_test_module',
     );
     libraries_info_defaults($expected, 'example_files');
     $library = libraries_info('example_files');
@@ -190,7 +209,8 @@ class LibrariesTestCase extends DrupalWebTestCase {
     // Test a library specified with an .info file gets detected.
     $expected = array(
       'name' => 'Example info file',
-      'info file' => drupal_get_path('module', 'libraries_test') . '/example/example_info_file.libraries.info',
+      'info type' => 'info file',
+      'info file' => drupal_get_path('module', 'libraries') . '/tests/libraries/example_info_file.libraries.info',
     );
     libraries_info_defaults($expected, 'example_info_file');
     $library = libraries_info('example_info_file');
@@ -303,6 +323,12 @@ class LibrariesTestCase extends DrupalWebTestCase {
     $loaded = &drupal_static('libraries_load');
     $this->verbose('<pre>' . var_export($loaded, TRUE) . '</pre>');
     $this->assertEqual($loaded['example_dependency']['loaded'], 1, 'Dependency library is also loaded');
+
+    // Test that PHP files that have a local $path variable do not break library
+    // loading.
+    // @see _libraries_require_once()
+    $library = libraries_load('example_path_variable_override');
+    $this->assertEqual($library['loaded'], 2, 'PHP files cannot break library loading.');
   }
 
   /**
@@ -311,7 +337,7 @@ class LibrariesTestCase extends DrupalWebTestCase {
   function testCallbacks() {
     $expected = array(
       'name' => 'Example callback',
-      'library path' => drupal_get_path('module', 'libraries') . '/tests/example',
+      'library path' => drupal_get_path('module', 'libraries') . '/tests/libraries/example',
       'version' => '1',
       'versions' => array(
         '1' => array(
@@ -344,12 +370,12 @@ class LibrariesTestCase extends DrupalWebTestCase {
         ),
       ),
       'callbacks' => array(
-        'info' => array('_libraries_test_info_callback'),
-        'pre-detect' => array('_libraries_test_pre_detect_callback'),
-        'post-detect' => array('_libraries_test_post_detect_callback'),
-        'pre-dependencies-load' => array('_libraries_test_pre_dependencies_load_callback'),
-        'pre-load' => array('_libraries_test_pre_load_callback'),
-        'post-load' => array('_libraries_test_post_load_callback'),
+        'info' => array('_libraries_test_module_info_callback'),
+        'pre-detect' => array('_libraries_test_module_pre_detect_callback'),
+        'post-detect' => array('_libraries_test_module_post_detect_callback'),
+        'pre-dependencies-load' => array('_libraries_test_module_pre_dependencies_load_callback'),
+        'pre-load' => array('_libraries_test_module_pre_load_callback'),
+        'post-load' => array('_libraries_test_module_post_load_callback'),
       ),
       'info callback' => 'not applied',
       'pre-detect callback' => 'not applied',
@@ -357,7 +383,8 @@ class LibrariesTestCase extends DrupalWebTestCase {
       'pre-dependencies-load callback' => 'not applied',
       'pre-load callback' => 'not applied',
       'post-load callback' => 'not applied',
-      'module' => 'libraries_test',
+      'info type' => 'module',
+      'module' => 'libraries_test_module',
     );
     libraries_info_defaults($expected, 'example_callback');
 
@@ -424,37 +451,46 @@ class LibrariesTestCase extends DrupalWebTestCase {
    * We check for JavaScript and CSS files directly in the DOM and add a list of
    * included PHP files manually to the page output.
    *
-   * @see _libraries_test_load()
+   * @see _libraries_test_module_load()
    */
   function testLibrariesOutput() {
     // Test loading of a simple library with a top-level files property.
-    $this->drupalGet('libraries_test/files');
+    $this->drupalGet('libraries-test-module/files');
     $this->assertLibraryFiles('example_1', 'File loading');
 
     // Test loading of integration files.
-    $this->drupalGet('libraries_test/integration_files');
-    $this->assertRaw('libraries_test.js', 'Integration file loading: libraries_test.js found');
-    $this->assertRaw('libraries_test.css', 'Integration file loading: libraries_test.css found');
-    $this->assertRaw('libraries_test.inc', 'Integration file loading: libraries_test.inc found');
+    $this->drupalGet('libraries-test-module/module-integration-files');
+    $this->assertRaw('libraries_test_module.js', 'Integration file loading: libraries_test_module.js found');
+    $this->assertRaw('libraries_test_module.css', 'Integration file loading: libraries_test_module.css found');
+    $this->assertRaw('libraries_test_module.inc', 'Integration file loading: libraries_test_module.inc found');
+    $this->drupalGet('libraries-test-module/theme-integration-files');
+    $this->assertRaw('libraries_test_theme.js', 'Integration file loading: libraries_test_theme.js found');
+    $this->assertRaw('libraries_test_theme.css', 'Integration file loading: libraries_test_theme.css found');
+    $this->assertRaw('libraries_test_theme.inc', 'Integration file loading: libraries_test_theme.inc found');
+
+    // Test loading of post-load integration files.
+    $this->drupalGet('libraries-test-module/module-integration-files-post-load');
+    // If the files were not loaded correctly, a fatal error occurs.
+    $this->assertResponse(200, 'Post-load integration files are loaded correctly.');
 
     // Test version overloading.
-    $this->drupalGet('libraries_test/versions');
+    $this->drupalGet('libraries-test-module/versions');
     $this->assertLibraryFiles('example_2', 'Version overloading');
 
     // Test variant loading.
-    $this->drupalGet('libraries_test/variant');
+    $this->drupalGet('libraries-test-module/variant');
     $this->assertLibraryFiles('example_3', 'Variant loading');
 
     // Test version overloading and variant loading.
-    $this->drupalGet('libraries_test/versions_and_variants');
+    $this->drupalGet('libraries-test-module/versions-and-variants');
     $this->assertLibraryFiles('example_4', 'Concurrent version and variant overloading');
 
     // Test caching.
-    variable_set('libraries_test_cache', TRUE);
+    variable_set('libraries_test_module_cache', TRUE);
     cache_clear_all('example_callback', 'cache_libraries');
     // When the library information is not cached, all callback groups should be
     // invoked.
-    $this->drupalGet('libraries_test/cache');
+    $this->drupalGet('libraries-test-module/cache');
     $this->assertRaw('The <em>info</em> callback group was invoked.', 'Info callback invoked for uncached libraries.');
     $this->assertRaw('The <em>pre-detect</em> callback group was invoked.', 'Pre-detect callback invoked for uncached libraries.');
     $this->assertRaw('The <em>post-detect</em> callback group was invoked.', 'Post-detect callback invoked for uncached libraries.');
@@ -462,13 +498,13 @@ class LibrariesTestCase extends DrupalWebTestCase {
     $this->assertRaw('The <em>post-load</em> callback group was invoked.', 'Post-load callback invoked for uncached libraries.');
     // When the library information is cached only the 'pre-load' and
     // 'post-load' callback groups should be invoked.
-    $this->drupalGet('libraries_test/cache');
+    $this->drupalGet('libraries-test-module/cache');
     $this->assertNoRaw('The <em>info</em> callback group was not invoked.', 'Info callback not invoked for cached libraries.');
     $this->assertNoRaw('The <em>pre-detect</em> callback group was not invoked.', 'Pre-detect callback not invoked for cached libraries.');
     $this->assertNoRaw('The <em>post-detect</em> callback group was not invoked.', 'Post-detect callback not invoked for cached libraries.');
     $this->assertRaw('The <em>pre-load</em> callback group was invoked.', 'Pre-load callback invoked for cached libraries.');
     $this->assertRaw('The <em>post-load</em> callback group was invoked.', 'Post-load callback invoked for cached libraries.');
-    variable_set('libraries_test_cache', FALSE);
+    variable_set('libraries_test_module_cache', FALSE);
   }
 
   /**
@@ -516,7 +552,7 @@ class LibrariesTestCase extends DrupalWebTestCase {
 
     foreach ($names as $name => $expected) {
       foreach ($extensions as $extension) {
-        $filepath = drupal_get_path('module', 'libraries_test') . "/example/$name.$extension";
+        $filepath = drupal_get_path('module', 'libraries') . "/tests/libraries/example/$name.$extension";
         // JavaScript and CSS files appear as full URLs and with an appended
         // query string.
         if (in_array($extension, array('js', 'css'))) {
