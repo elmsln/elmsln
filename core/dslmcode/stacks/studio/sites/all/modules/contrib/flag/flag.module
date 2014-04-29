@@ -1959,7 +1959,10 @@ function flag_get_content_flags($content_type, $content_id, $flag_name = NULL) {
     return array();
   }
   if (isset($flag_name)) {
-    return $content_flags[$content_type][$content_id]['flags'][$flag_name];
+    if (isset($content_flags[$content_type][$content_id]['flags'][$flag_name])) {
+      return $content_flags[$content_type][$content_id]['flags'][$flag_name];
+    }
+    return array();
   }
   return $content_flags[$content_type][$content_id]['users'];
 }

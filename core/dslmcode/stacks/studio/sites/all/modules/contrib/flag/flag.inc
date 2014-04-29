@@ -1350,9 +1350,8 @@ class flag_entity extends flag_flag {
       '#type' => 'checkboxes',
       '#title' => t('Bundles'),
       '#options' => $bundles,
-      '#description' => t('Check any bundle that this flag may be used on. You must check at least one bundle.'),
+      '#description' => t('Select the bundles that this flag may be used on. Leave blank to allow on all bundles for the entity type.'),
       '#default_value' => $this->types,
-      '#required' => TRUE,
     );
     // Handlers may want to unset this option if they provide their own more
     // specific ways to show links.
@@ -1388,7 +1387,12 @@ class flag_entity extends flag_flag {
    */
   function applies_to_content_object($entity) {
     $entity_info = entity_get_info($this->content_type);
-    if (empty($entity_info['entity keys']['bundle']) || in_array($entity->{$entity_info['entity keys']['bundle']}, $this->types)) {
+    // The following conditions are applied:
+    // - if the types array is empty, the flag applies to all bundles and thus
+    //   to this entity.
+    // - if the entity has no bundles, the flag applies to the entity.
+    // - if the entity's bundle is in the list of types.
+    if (empty($this->types) || empty($entity_info['entity keys']['bundle']) || in_array($entity->{$entity_info['entity keys']['bundle']}, $this->types)) {
       return TRUE;
     }
     return FALSE;
@@ -1551,6 +1555,11 @@ class flag_node extends flag_entity {
 
   function type_access_multiple($content_ids, $account) {
     $access = array();
+
+    // If all subtypes are allowed, we have nothing to say here.
+    if (empty($this->types)) {
+      return $access;
+    }
 
     // Ensure that only flaggable node types are granted access. This avoids a
     // node_load() on every type, usually done by applies_to_content_id().
