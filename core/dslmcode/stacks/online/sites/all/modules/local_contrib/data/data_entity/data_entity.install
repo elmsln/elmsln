@@ -1,0 +1,36 @@
+<?php
+
+/**
+ * @file data_entity.install
+ * Contains install hooks.
+ */
+
+/**
+ * Update the settings on data tables used as entities.
+ */
+function data_entity_update_7000() {
+  $tables = data_get_all_tables();
+
+  foreach ($tables as $table_name => $table) {
+    if (!isset($table->table_schema['primary key'])) {
+      // Skip tables that don't have a primary key.
+      continue;
+    }
+
+    data_entity_meta_add_defaults($table->meta);
+    $meta = $table->get('meta');
+
+    // All tables were hitherto declared as entity types.
+    $meta['is_entity_type'] = TRUE;
+
+    // Prior to this update, all data entity types assumed there was a single
+    // primary key to use as the entity id field.
+    $id_field = $table->table_schema['primary key'][0];
+    $meta['entity_id'] = $id_field;
+
+    // Update the table.
+    $table->update(array('meta' => $meta));
+  }
+
+  return t('Table settings have been updated.');
+}
