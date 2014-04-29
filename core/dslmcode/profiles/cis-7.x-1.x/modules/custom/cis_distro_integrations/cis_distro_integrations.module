@@ -17,6 +17,9 @@ function cis_distro_integrations_cis_service_instance_courses_options_alter(&$op
  * Implements hook_cis_service_instance_TOOL_options_alter().
  */
 function cis_distro_integrations_cis_service_instance_blog_options_alter(&$options, $course, $service) {
+  // account for jquery update issues
+  $options['vset'][] = 'jquery_update_jquery_admin_version 1.5';
+  $options['vset'][] = 'jquery_update_jquery_version 1.8';
   // integration with meedjum_blog build routine so we don't have to hack that
   // distribution in order to utilize it correctly
   // best practices

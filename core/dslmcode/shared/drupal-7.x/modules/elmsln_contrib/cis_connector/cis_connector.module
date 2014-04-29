@@ -754,6 +754,7 @@ function _cis_connector_request($url, $options = array(), $bucket = 'cis', $cach
       $data = $cache;
     }
     else {
+      $settings = _cis_connector_build_registry($bucket);
       // allow for direct http requests
       if ($bucket == 'none') {
         // queue request
