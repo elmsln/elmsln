@@ -5,6 +5,17 @@
  * Support for migration into Date fields.
  */
 
+/**
+ * Implements hook_migrate_api().
+ */
+function date_migrate_api() {
+  $api = array(
+    'api' => 2,
+    'field handlers' => array('DateMigrateFieldHandler'),
+  );
+  return $api;
+}
+
 class DateMigrateFieldHandler extends MigrateFieldHandler {
 
   /**
@@ -57,37 +68,47 @@ class DateMigrateFieldHandler extends MigrateFieldHandler {
       $arguments = array();
     }
 
-    if (isset($arguments['timezone'])) {
-      $default_timezone = $arguments['timezone'];
-    }
-    else {
-      $default_timezone = 'UTC';
-    }
-    if (isset($arguments['timezone_db'])) {
-      $default_timezone_db = $arguments['timezone_db'];
-    }
-    else {
-      $default_timezone_db = NULL;
-    }
-    if (isset($arguments['rrule'])) {
-      $default_rrule = $arguments['rrule'];
-    }
-    else {
-      $default_rrule = NULL;
-    }
     $language = $this->getFieldLanguage($entity, $field_info, $arguments);
 
-    // Setup the standard Field API array for saving.
-    $delta = 0;
-    foreach ($values as $from) {
-      // Set defaults.
-      $to = NULL;
-      $timezone = $default_timezone;
-      $timezone_db = $default_timezone_db;
-      $rrule = $default_rrule;
+    foreach ($values as $delta => $from) {
+      if (!empty($arguments['timezone'])) {
+        if (is_array($arguments['timezone'])) {
+          $timezone = $arguments['timezone'][$delta];
+        }
+        else {
+          $timezone = $arguments['timezone'];
+        }
+      }
+      else {
+        $timezone = 'UTC';
+      }
 
-      // Is the value a straight datetime value, or JSON containing a set of
-      // properties?
+      if (!empty($arguments['rrule'])) {
+        if (is_array($arguments['rrule'])) {
+          $rrule = $arguments['rrule'][$delta];
+        }
+        else {
+          $rrule = $arguments['rrule'];
+        }
+      }
+      else {
+        $rrule = NULL;
+      }
+
+      if (!empty($arguments['to'])) {
+        if (is_array($arguments['to'])) {
+          $to = $arguments['to'][$delta];
+        }
+        else {
+          $to = $arguments['to'];
+        }
+      }
+      else {
+        $to = NULL;
+      }
+
+      // Legacy support for JSON containing a set of properties - deprecated
+      // now that we have subfields.
       if (!empty($from) && $from{0} == '{') {
         $properties = drupal_json_decode($from);
         $from = $properties['from'];
@@ -97,9 +118,6 @@ class DateMigrateFieldHandler extends MigrateFieldHandler {
         }
         if (!empty($properties['timezone'])) {
           $timezone = $properties['timezone'];
-        }
-        if (!empty($properties['timezone_db'])) {
-          $timezone_db = $properties['timezone_db'];
         }
         if (!empty($properties['rrule'])) {
           $rrule = $properties['rrule'];
@@ -165,11 +183,18 @@ class DateMigrateFieldHandler extends MigrateFieldHandler {
           $return[$language][$delta]['value2'] = $to;
         }
       }
-      $delta++;
     }
     if (!isset($return)) {
       $return = NULL;
     }
     return $return;
+  }
+
+  public function fields($migration = NULL) {
+    return array(
+      'timezone' => t('Timezone'),
+      'rrule' => t('Recurring event rule'),
+      'to' => t('End date date'),
+    );
   }
 }

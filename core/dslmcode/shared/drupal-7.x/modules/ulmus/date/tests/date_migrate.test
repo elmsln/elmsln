@@ -15,9 +15,9 @@ class DateMigrateExampleUnitTest extends DrupalWebTestCase {
    */
   public static function getInfo() {
     return array(
-      'name' => 'Date2 migration',
-      'description' => 'Testing migration of date fields',
-      'group' => 'Migrate',
+      'name' => 'Date Migration',
+      'description' => 'Test migration into date fields',
+      'group' => 'Date',
     );
   }
 
@@ -25,7 +25,17 @@ class DateMigrateExampleUnitTest extends DrupalWebTestCase {
    * Declars the module dependencies for the test.
    */
   function setUp() {
-    parent::setUp('migrate', 'features', 'date', 'date_repeat', 'date_repeat_field', 'date_migrate_example');
+    parent::setUp('migrate', 'features', 'date', 'date_repeat',
+                  'date_repeat_field', 'date_migrate_example');
+    // Make sure the migration is registered.
+    if (function_exists('migrate_static_registration')) {
+      // Migrate 2.6 and later
+      migrate_static_registration();
+    }
+    else {
+      // Migrate 2.5 and earlier
+      migrate_get_module_apis(TRUE);
+    }
   }
 
   /**
