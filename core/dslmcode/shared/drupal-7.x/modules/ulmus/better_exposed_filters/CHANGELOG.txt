@@ -4,9 +4,19 @@ Better Exposed Filters change log
 
 Better Exposed Filters 7.x-x.x  xxxx-xx-xx
 ------------------------------------------
+Issue #1240238 by marvil07, Max Ka, gapple, chichilatte: Let use toggle links on the exposed form sorts.
+by mikeker: Revamped automated tests.
+by mikeker: Fixed (most) Drupal Coding Standards errors and warnings
+Issue #1842494 by mikeker: Fixed Combined Sort Order - Rendered in Div of Submit Button.
 Issue #1784424 by mikeker: Refactored getting existing and default values.
 Issue #1666896 by Staratel: Fixed Filter captions on BEF settings form are empty if filter labels are empty.
 Issue #1798350 by mikeker: Fixed: secondary options were using the filter label instead of ID.
+By mikeker: Allow rewriting of filter values (similar to the rewrite combined sort option)
+Issue #1673562 by buzkall, nedjo: Added Automatically select children in nested checkboxes option.
+Issue #1813654 by elbahek, mikeker: Fixed Undefined offset notice on rendered page.
+Issue #1627524 by rooby: Added the jQuery slider widget to BEF.
+Issue #1873164 by mikeker: Fixed Taxonomy exposed filter links not linking to appropriate page.
+By mikeker: Correctly handle hierarchical taxonomy filters when rewriting filter options.
 
 Better Exposed Filters 7.x-3.0-beta2  2012-09-13
 ------------------------------------------------
