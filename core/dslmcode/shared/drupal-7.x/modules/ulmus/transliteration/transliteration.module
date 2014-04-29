@@ -47,11 +47,27 @@ function transliteration_form_system_file_system_settings_alter(&$form, &$form_s
     '#description' => t('Enable to convert file names to US-ASCII character set for cross-platform compatibility.'),
     '#default_value' => variable_get('transliteration_file_uploads', TRUE),
   );
+  $form['transliteration']['transliteration_file_uploads_display_name'] = array(
+    '#type' => 'checkbox',
+    '#title' => t('Transliterate the displayed file name.'),
+    '#description' => t('Enable to also convert the file name that is displayed within the site (for example, in link text).'),
+    '#default_value' => variable_get('transliteration_file_uploads_display_name', TRUE),
+    '#states' => array(
+      'invisible' => array(
+        'input[name="transliteration_file_uploads"]' => array('checked' => FALSE),
+      ),
+    ),
+  );
   $form['transliteration']['transliteration_file_lowercase'] = array(
     '#type' => 'checkbox',
     '#title' => t('Lowercase transliterated file names.'),
     '#default_value' => variable_get('transliteration_file_lowercase', TRUE),
     '#description' => t('This is a recommended setting to prevent issues with case-insensitive file systems. It has no effect if transliteration has been disabled.'),
+    '#states' => array(
+      'invisible' => array(
+        'input[name="transliteration_file_uploads"]' => array('checked' => FALSE),
+      ),
+    ),
   );
   $form['buttons']['#weight'] = 1;
 }
@@ -102,6 +118,9 @@ function transliteration_clean_filename($filename, $source_langcode = NULL) {
     }
     return $filename;
   }
+
+  // Allow other modules to alter the filename prior to processing.
+  drupal_alter('transliteration_clean_filename_prepare', $filename, $source_langcode);
   $filename = transliteration_get($filename, '', $source_langcode);
   // Replace whitespace.
   $filename = str_replace(' ', '_', $filename);
@@ -166,6 +185,23 @@ function transliteration_init() {
       // Keep a copy of the unaltered file name.
       $_FILES['files']['orig_name'][$field] = $filename;
       $_FILES['files']['name'][$field] = transliteration_clean_filename($filename, $langcode);
+    }
+  }
+}
+
+/**
+ * Implements hook_file_presave().
+ */
+function transliteration_file_presave($file) {
+  // If an uploaded file had its name altered in transliteration_init() and if
+  // the human-readable display name is not being transliterated, restore the
+  // original version as the human-readable name before saving. (The
+  // transliterated version will still be used in the file URI, which is the
+  // only place where it matters.)
+  if (!empty($_FILES['files']['name']) && variable_get('transliteration_file_uploads', TRUE) && !variable_get('transliteration_file_uploads_display_name', TRUE)) {
+    $key = array_search($file->filename, $_FILES['files']['name']);
+    if ($key !== FALSE && isset($_FILES['files']['orig_name'][$key])) {
+      $file->filename = $_FILES['files']['orig_name'][$key];
     }
   }
 }
