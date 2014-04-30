@@ -58,68 +58,52 @@ function node_admin_menu_map() {
 
 /**
  * Implements hook_admin_menu_map() on behalf of Field UI module.
+ *
+ * @todo Figure out how to fix the comment entity bundle mappings.
  */
 function field_ui_admin_menu_map() {
   $map = array();
-  foreach (entity_get_info() as $obj_type => $info) {
-    foreach ($info['bundles'] as $bundle_name => $bundle_info) {
-      if (isset($bundle_info['admin'])) {
-        $arguments = array();
-        switch ($obj_type) {
-          case 'comment':
-            $fields = array();
-            foreach (field_info_instances($obj_type, $bundle_name) as $field) {
-              $fields[] = $field['field_name'];
-            }
-            // @todo Make Comment module expose the original node type bundle,
-            //   pretty please.
-            if (drupal_substr($bundle_name, 0, 13) == 'comment_node_') {
-              $bundle_name = drupal_substr($bundle_name, 13);
-            }
-            // @todo Doesn't work yet. Why?
-            $arguments = array(
-              '%comment_node_type' => array($bundle_name),
-              '%field_ui_menu' => $fields,
-            );
-            break;
 
-          case 'node':
-            $fields = array();
-            foreach (field_info_instances($obj_type, $bundle_name) as $field) {
-              $fields[] = $field['field_name'];
-            }
-            $arguments = array(
-              '%node_type' => array($bundle_name),
-              '%field_ui_menu' => $fields,
-            );
-            break;
+  foreach (entity_get_info() as $entity_type => $entity_info) {
+    if (!$entity_info['fieldable']) {
+      continue;
+    }
 
-          case 'taxonomy_term':
-            $fields = array();
-            foreach (field_info_instances($obj_type, $bundle_name) as $field) {
-              $fields[] = $field['field_name'];
-            }
-            // Map machine_name to vid.
-            $arguments = array(
-              '%taxonomy_vocabulary_machine_name' => array($bundle_name),
-              '%field_ui_menu' => $fields,
-            );
-            break;
+    foreach ($entity_info['bundles'] as $bundle => $bundle_info) {
+      // @see field_ui_menu()
+      if (!isset($bundle_info['admin'])) {
+        continue;
+      }
 
-          case 'user':
-            $arguments = array(
-              '%field_ui_menu' => array_keys(field_info_fields('user')),
-            );
-            break;
+      // Check access to this bundle.
+      $bundle_info['admin'] += array(
+        'access callback' => 'user_access',
+        'access arguments' => array('administer site configuration'),
+      );
+      if (!call_user_func_array($bundle_info['admin']['access callback'], $bundle_info['admin']['access arguments'])) {
+        continue;
+      }
+
+      if ($fields = field_info_instances($entity_type, $bundle)) {
+        $path = $bundle_info['admin']['path'];
+        $argument = array();
+        if (isset($bundle_info['admin']['bundle argument'])) {
+          $bundle_arg = arg($bundle_info['admin']['bundle argument'], $path);
+          $argument[$bundle_arg] = array($bundle);
         }
-        if (!empty($arguments)) {
-          $path = $bundle_info['admin']['path'];
-          $map["$path/fields/%field_ui_menu"]['parent'] = "$path/fields";
-          $map["$path/fields/%field_ui_menu"]['arguments'][] = $arguments;
+        $argument['%field_ui_menu'] = array_keys($fields);
+
+        if (!isset($map["$path/fields/%field_ui_menu"])) {
+          $map["$path/fields/%field_ui_menu"] = array(
+            'parent' => "$path/fields",
+            'arguments' => array(),
+          );
         }
+        $map["$path/fields/%field_ui_menu"]['arguments'][] = $argument;
       }
     }
   }
+
   return $map;
 }
 
@@ -161,4 +145,3 @@ function views_ui_admin_menu_map() {
   );
   return $map;
 }
-

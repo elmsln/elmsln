@@ -126,11 +126,7 @@ body.admin-menu {
 #admin-menu .dropdown li:hover ul ul,
 #admin-menu .dropdown li:hover ul ul ul,
 #admin-menu .dropdown li:hover ul ul ul ul,
-#admin-menu .dropdown li:hover ul ul ul ul ul,
-#admin-menu .dropdown li.iehover ul ul,
-#admin-menu .dropdown li.iehover ul ul ul,
-#admin-menu .dropdown li.iehover ul ul ul ul,
-#admin-menu .dropdown li.iehover ul ul ul ul ul {
+#admin-menu .dropdown li:hover ul ul ul ul ul {
   display: none;
   left: -999em; /* LTR */
 }
@@ -140,12 +136,7 @@ body.admin-menu {
 #admin-menu .dropdown li li:hover ul,
 #admin-menu .dropdown li li li:hover ul,
 #admin-menu .dropdown li li li li:hover ul,
-#admin-menu .dropdown li li li li li:hover ul,
-#admin-menu .dropdown li.iehover ul,
-#admin-menu .dropdown li li.iehover ul,
-#admin-menu .dropdown li li li.iehover ul,
-#admin-menu .dropdown li li li li.iehover ul,
-#admin-menu .dropdown li li li li li.iehover ul {
+#admin-menu .dropdown li li li li li:hover ul {
   display: block;
   left: auto; /* LTR */
 }
@@ -157,8 +148,7 @@ body.admin-menu {
 #admin-menu .dropdown li li.expandable {
   background: #45454A url(images/arrow.png) no-repeat 145px 6px;
 }
-#admin-menu .dropdown li li:hover,
-#admin-menu .dropdown li li.iehover {
+#admin-menu .dropdown li li:hover {
   background-color: #111;
 }
 #admin-menu .dropdown li li:hover a,
@@ -175,16 +165,8 @@ body.admin-menu {
 #admin-menu .dropdown li li.expandable:hover li.expandable:hover li a {
   border-color: #323232;
 }
-#admin-menu .dropdown li li:hover li a,
-#admin-menu .dropdown li li.iehover li a,
-#admin-menu .dropdown li li.iehover li.iehover li a {
+#admin-menu .dropdown li li:hover li a {
   color: #EEE;
-}
-#admin-menu .dropdown li li.iehover a,
-#admin-menu .dropdown li li.iehover li.iehover a,
-#admin-menu .dropdown li li.iehover li.iehover li.iehover a {
-  color: #FFF;
-  width: 90%; /* IE */
 }
 
 /* Search form */

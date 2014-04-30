@@ -8,9 +8,9 @@ configure = admin/config/administration/admin_menu
 dependencies[] = system (>7.10)
 files[] = tests/admin_menu.test
 
-; Information added by drupal.org packaging script on 2013-01-31
-version = "7.x-3.0-rc4"
+; Information added by Drupal.org packaging script on 2014-03-21
+version = "7.x-3.0-rc4+4-dev"
 core = "7.x"
 project = "admin_menu"
-datestamp = "1359651687"
+datestamp = "1395418457"
 
