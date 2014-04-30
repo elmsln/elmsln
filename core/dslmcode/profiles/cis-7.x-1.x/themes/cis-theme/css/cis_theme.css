@@ -137,7 +137,8 @@ body.page-batch div.message {
 }
 
 .views-exposed-widgets #edit-field-display-name-value-wrapper {
-  border-bottom:solid 1em #ffffff;
+  border-bottom:solid .5em #ffffff;
+  padding:.5em;
 }
 .views-exposed-widgets #edit-field-display-name-value-wrapper input {
   margin:0em;
