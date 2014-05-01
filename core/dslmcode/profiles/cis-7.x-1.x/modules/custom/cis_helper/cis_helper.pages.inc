@@ -100,6 +100,8 @@ function cis_helper_add_offering_page_submit($form, $form_state) {
     'context_label' => $access_string,
     'user_id' => $GLOBALS['user']->name,
     'lis_person_contact_email_primary' => $GLOBALS['user']->mail,
+    'lis_person_name_given' => $GLOBALS['user']->field_first_name['und'][0]['value'],
+    'lis_person_name_family' => $GLOBALS['user']->field_last_name['und'][0]['value'],
     'course' => array(
       'machine_name' => check_plain($form_state['values']['courses']),
       'name' => check_plain($form_state['values']['courses']),
