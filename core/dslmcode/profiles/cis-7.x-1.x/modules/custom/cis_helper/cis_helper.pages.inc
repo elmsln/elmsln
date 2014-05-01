@@ -100,6 +100,14 @@ function cis_helper_add_offering_page_submit($form, $form_state) {
     'context_label' => $access_string,
     'user_id' => $GLOBALS['user']->name,
     'lis_person_contact_email_primary' => $GLOBALS['user']->mail,
+    'course' => array(
+      'machine_name' => check_plain($form_state['values']['courses']),
+      'name' => check_plain($form_state['values']['courses']),
+    ),
+    'section' => array(
+      'semester' => check_plain($form_state['values']['semester']),
+      'year' => check_plain($form_state['values']['year']),
+    ),
   );
   // convert to fake LTI launch info since page can handle it
   $options = array(
