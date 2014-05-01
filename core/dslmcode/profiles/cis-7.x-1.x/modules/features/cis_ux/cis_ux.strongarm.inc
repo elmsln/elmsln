@@ -1,4 +1,4 @@
-f<?php
+<?php
 /**
  * @file
  * cis_ux.strongarm.inc
