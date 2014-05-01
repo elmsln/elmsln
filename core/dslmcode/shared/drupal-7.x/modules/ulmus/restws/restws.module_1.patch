@@ -1,0 +1,60 @@
+--- restws.module.original	2013-03-29 09:54:46.300384327 -0700
++++ restws.module	2013-03-29 09:58:06.510383591 -0700
+@@ -129,10 +129,57 @@
+     // Since there is no access callback for query we need to use view.
+     $access_op = $op == 'query' ? 'view' : $op;
+ 
++    // Set user if not set
++    $id = (isset($id)) ? $id : $GLOBALS['user']->uid;
++
+     if (user_access('access resource ' . $resource_name) && $resource->access($access_op, $id)) {
+       try {
+         $method = $op . 'Resource';
+         if ($op == 'create') {
++
++     /**
++      * Add image field support (base64)
++      * @author BLE
++      * @version 1.2
++      */
++          // intercept payload and convert for manipulation
++          $payload_array = json_decode($payload);
++          // get field information for specified entity and type (bundle)
++          $fields_info = field_info_instances($resource_name, $payload_array->type);
++          // loop through each field looking for image type
++          foreach ($fields_info as $field_name => $value) {
++            $field_info = field_info_field($field_name);
++            $type = $field_info['type'];
++            if ($type == "image") {
++              // get base64 image string
++              $base64_data = (isset($payload_array->$field_name)) ? $payload_array->$field_name : null;
++              // remove base64 prefix metadata, if exists
++              $result = preg_split('/^data\:image\/(.*)\;base64\,/', $base64_data, -1, PREG_SPLIT_NO_EMPTY);
++              if (count($result) > 0) {
++                // replace any spaces with base64-compliant '+' signs and convert to binary image
++                $data = base64_decode(str_replace(' ', '+', $result[0]));
++                // base64 string may not have included a metadata prefix so create instance to determine mime type
++                $finfo = finfo_open();
++                $mime_type = finfo_buffer($finfo, $data, FILEINFO_MIME_TYPE);
++                finfo_close($finfo);
++                // get and validate image extension from mime type
++                $ext = str_replace('image/', '', $mime_type);
++                if ($ext == "png" || $ext == "gif" || $ext == "jpeg") {
++                  // create filename (format: entity_name_timestamp.ext, e.g. favorite_color_survey_1363723712.png)
++                  $filename = $payload_array->{"type"} . "_" . time() . "." . $ext;
++                  // save binary image in Drupal site's public file directory
++                  if ($file = file_save_data($data, "public://" . $filename)) {
++                    file_save($file);
++                    // replace the base64 image string in the payload with the file id reference of the newly created image
++                    $payload_array->$field_name = array('fid' => $file->fid);
++                  }
++                }
++              }
++            }
++          }
++          // convert the payload back to a json string
++          $payload = json_encode($payload_array);
++
+           print $format->$method($resource, $payload);
+           drupal_add_http_header('Status', '201 Created');
+         }
