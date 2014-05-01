@@ -96,6 +96,7 @@ function cis_helper_add_offering_page_submit($form, $form_state) {
   // context_id is actually access_string
   $access_string = check_plain($form_state['values']['access_string']);
   $data = array(
+    'context_title' => check_plain($form_state['values']['courses']),
     'context_id' => $access_string,
     'context_label' => $access_string,
     'user_id' => $GLOBALS['user']->name,
@@ -103,10 +104,14 @@ function cis_helper_add_offering_page_submit($form, $form_state) {
     'lis_person_name_given' => isset($GLOBALS['user']->field_first_name) ? $GLOBALS['user']->field_first_name['und'][0]['value'] : '',
     'lis_person_name_family' => isset($GLOBALS['user']->field_last_name) ? $GLOBALS['user']->field_last_name['und'][0]['value'] : '',
     'course' => array(
-      'machine_name' => check_plain($form_state['values']['courses']),
       'name' => check_plain($form_state['values']['courses']),
+      'machine_name' => check_plain($form_state['values']['courses']),
+      'title' => check_plain($form_state['values']['courses']),
     ),
     'section' => array(
+      'string' => $access_string,
+      'campus' => '',
+      'number' => '',
       'semester' => check_plain($form_state['values']['semester']),
       'year' => check_plain($form_state['values']['year']),
     ),
