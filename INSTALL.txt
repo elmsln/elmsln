@@ -120,7 +120,8 @@ the command is:
 sudo bash /var/www/elmsln/scripts/install/elmsln-install.sh
 
 At this point, ELMSLN should pick up files and start trying to build them and 
-hopefully you’ll get emails if it all worked! Now its time to get fresh login details. Issue the drush command
+hopefully you’ll get emails if it all worked! You can login with admin/admin
+to your online domain (CIS) or issue the following to get a fresh login link
 
 drush @online uli
 
