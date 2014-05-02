@@ -2,8 +2,7 @@ ELMSLN - Installation Guide
 
 These steps will help you setup ELMSLN on an Apache / Unix environment.
 
-Using git for version control is recommended due to the sheer volume of files.  Suggested .gitignores are included but generally all changes you make after deploying should happen inside the config directory.  All scripts, Drupal core files, and piwik files that need configuration changes are referenced to symlinks in the config directory.
-
+Using git for version control is recommended due to the sheer volume of files Suggested .gitignores are included but generally all changes you make after deploying should happen inside the config directory.  All scripts, Drupal core files, and piwik files that need configuration changes are referenced to symlinks in the config directory.
 
 === DOWNLOAD ===
 First, get elmsln and put it in /var/www:
@@ -16,7 +15,7 @@ git clone https://github.com/btopro/elmsln.git
 Next you’ll want to replace the included config directory with an example one.
 cd /var/www/elmsln
 rm -rf config
-git clone https://github.com/btopro/elmsln-config-example.git
+git clone https://github.com/btopro/elmsln-config-example.git config
 
 === MODIFY CONFIG ===
 cd /var/www/elmsln/config/scripts/drush-create-site/
