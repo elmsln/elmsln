@@ -172,7 +172,9 @@ drush -y --uri=$protocol://$online_domain en cis_sample_content
 
 # uninstall all these now because they should be in correctly as sample nodes
 drush -y --uri=$protocol://$online_domain dis cis_sample_content node_export node_export_features node_export_dependency
-drush -y --uri=$protocol://$online_domain pm-uninstall cis_sample_content node_export node_export_features node_export_dependency
+drush -y --uri=$protocol://$online_domain pm-uninstall cis_sample_content
+drush -y --uri=$protocol://$online_domain pm-uninstall node_export_features node_export_dependency
+drush -y --uri=$protocol://$online_domain pm-uninstall node_export
 
 # run cron for the good of the order
 drush -y --uri=$protocol://$online_domain cron
@@ -206,6 +208,7 @@ chmod -R 755 $elmsln/config/_nondrupal/piwik
 # jobs file directory
 chown -R $wwwuser:$webgroup $elmsln/config/jobs
 chmod -R 755 $elmsln/config/jobs
-
+# make sure everything in that folder is as it should be ownerwise
+chown -R $wwwuser:$webgroup $sitedir/online/$host/files
 # a message so you know where my head is at. you get candy if you reference this
 echo 'Welcome to the Singularity of edtech.. Go forth, build the future.'
