@@ -32,15 +32,15 @@ chcon -R --reference /var/www/html /dev/shm
 
 === APC ===
 Apply the settings recommended in docs/apc.txt:
-sudo vi /etc/php.d/apc.ini
+sudo vi /etc/php.d/apc.ini (/etc/php5/conf.d/apc.ini for ubuntu)
 
 === PHP ===
 Apply the settings recommended in docs/php.txt
-sudo vi /etc/php.ini
+sudo vi /etc/php.ini (/etc/php5/apache2/php.ini for ubuntu)
 
 === MYSQL ===
 Apply the settings recommended in docs/mysql.txt
-sudo vi /etc/my.cnf
+sudo vi /etc/my.cnf (/etc/php5/conf.d/mysql.ini for ubuntu)
 
 === BIN ===
 issue the following commands to place these scripts in scope of bin which will allow the crontab to pick up the job and process it.  There’s also an optional drush remove site command that’s listed too. (good for clean up of things accidentally created)
@@ -52,6 +52,7 @@ chmod 744 /usr/local/bin/drush-create-site/rm-site.sh
 sudo -i
 vi .bashrc
 alias drs='/usr/local/bin/drush-create-site/rm-site.sh'
+logout
 
 === CRONTAB ===
 Apply the settings recommended in docs/crontab.txt
@@ -59,22 +60,31 @@ sudo vi /etc/crontab
 
 === DOMAINS ===
 Apply similar settings to those recommended in docs/domains.txt
-sudo vi /etc/httpd/conf.d/domains.conf
+sudo vi /etc/httpd/conf.d/domains.conf (/etc/apache2/sites-available/elmsln for ubuntu then symlink into sites-enabled)
 
 === DRUSH ===
 Install drush by following instructions at https://github.com/drush-ops/drush
-pear upgrade --force Console_Getopt
-pear upgrade --force pear
-pear upgrade-all
-pear channel-discover pear.drush.org
-pear install drush/drush
+sudo pear upgrade --force Console_Getopt
+sudo pear upgrade --force pear
+sudo pear upgrade-all
+sudo pear channel-discover pear.drush.org
+sudo pear install drush/drush
 
-# copy the included drush packages
-sudo cp /var/www/elmsln/scripts/drush/server/* ~/.drush/*
+# copy the included drush packages (for root and you)
+sudo cp -r /var/www/elmsln/scripts/drush/server/* ~/.drush/
+sudo chown -R {user}:{user} .drush
+vi ~/.drush/elmsln.aliases.drushrc.php
+# change the domain to your base domain and change the grouping to your config grouping identifier
+sudo -i
+cp -r /var/www/elmsln/scripts/drush/server/* ~/.drush/
+vi ~/.drush/elmsln.aliases.drushrc.php
+# change the domain to your base domain and change the grouping to your config grouping identifier
+logout
 
 === MBSTRING ===
 install mb_string package
 
+sudo apt-get install yum
 yum repolist
 subscription-manager repos --enable rhel-6-server-optional-rpms
 yum repolist
@@ -99,6 +109,16 @@ bash /var/www/elmsln/scripts/install/elmsln-install.sh
 
 At this point, ELMSLN should pick up files and start trying to build them and hopefully you’ll get emails if it all worked!  The first site you want to go to is your online address and login with admin/admin.  After making other sites you can run a command like this to recover it:
 drush @online upwd {username from config} —password=“{new password}”
+
+=== EASE OF DEV (optional) ===
+symlink to elmsln
+ln -s /var/www/elmsln elmsln
+
+shorter commands for lazy people
+vi .bashrc
+alias g='git'
+alias d='drush'
+alias l='ls -laHD'
 
 === PIWIK (optional) ===
 Install the analytics package by pointing a domain to the elmsln/domains/analytics.  This is running piwik and has config and tmp files modified to point to the symlink directories in the config directory.
