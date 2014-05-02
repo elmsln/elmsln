@@ -96,6 +96,9 @@ vi  /etc/php.d/mbstring.ini
 (add the following to that file)
 extension=mbstring.so
 
+=== CLEAN URLS ===
+This changes based on the server but for Ubuntu check https://drupal.org/node/134439
+
 === RESTART APACHE ===
 sudo apachectl -k restart
 
@@ -117,11 +120,9 @@ the command is:
 sudo bash /var/www/elmsln/scripts/install/elmsln-install.sh
 
 At this point, ELMSLN should pick up files and start trying to build them and 
-hopefully you’ll get emails if it all worked!  The first site you want to go
- to is your online address and login with admin/admin.  After making other
-  sites you can run a command like this to recover it:
+hopefully you’ll get emails if it all worked! Now its time to get fresh login details. Issue the drush command
 
-drush @online upwd {username from config} —password=“{new password}”
+drush @online uli
 
 === EASE OF DEV (optional) ===
 symlink to elmsln
