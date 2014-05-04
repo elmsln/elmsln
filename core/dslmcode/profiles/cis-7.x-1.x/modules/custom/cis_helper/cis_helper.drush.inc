@@ -97,7 +97,7 @@ function drush_cis_helper_cis_sync_registry() {
         $address = $reg['protocol'] . '://' . $reg['address'];
         $data_address = $reg['protocol'] . '://' . $reg['service_address'];
         $service = _cis_helper_generate_service_node($title, $machine_name, $distribution, $address, $data_address);
-        drush_print(dt('New service node created based on registry named @title', array('@name' => $title)));
+        drush_print(dt('New service node created based on registry named @title', array('@title' => $title)));
       }
     }
   }
