@@ -1,28 +1,46 @@
 #ELMSLN domains.conf recommendations
-NameVirtualHost example.com:80
-
-<VirtualHost example.com:80>
-    DocumentRoot /var/www/html
-    ServerName example.com
-    ServerAlias www.example.com
-</VirtualHost>
-<VirtualHost courses.example.com:80>
-    DocumentRoot /var/www/elmsln/domains/courses
-    ServerName courses.example.com
-</VirtualHost>
-<VirtualHost media.example.com:80>
-    DocumentRoot /var/www/elmsln/domains/media
-    ServerName media.example.com
-</VirtualHost>
-<VirtualHost analytics.example.com:80>
-    DocumentRoot /var/www/elmsln/domains/analytics
-    ServerName analytics.example.com
-</VirtualHost> 
-<VirtualHost online.example.com:80>
+NameVirtualHost *:80
+<VirtualHost *:80>
     DocumentRoot /var/www/elmsln/domains/online
-    ServerName online.example.com
+    ServerName online.example.edu
+    ServerAlias online.services.example.edu
 </VirtualHost>
+<VirtualHost *:80>
+    DocumentRoot /var/www/elmsln/domains/courses
+    ServerName courses.example.edu
+    ServerAlias courses.services.example.edu
+</VirtualHost>
+<VirtualHost *:80>
+    DocumentRoot /var/www/elmsln/domains/media
+    ServerName media.example.edu
+    ServerAlias media.services.example.edu
+</VirtualHost>
+<VirtualHost *:80>
+    DocumentRoot /var/www/elmsln/domains/interact
+    ServerName interact.example.edu
+    ServerAlias interact.services.example.edu
+</VirtualHost>
+<VirtualHost *:80>
+    DocumentRoot /var/www/elmsln/domains/blog
+    ServerName blog.example.edu
+    ServerAlias blog.services.example.edu
+</VirtualHost>
+<VirtualHost *:80>
+    DocumentRoot /var/www/elmsln/domains/studio
+    ServerName studio.example.edu
+    ServerAlias studio.services.example.edu
+</VirtualHost>
+<VirtualHost *:80>
+    DocumentRoot /var/www/elmsln/domains/analytics
+    ServerName analytics.example.edu
+</VirtualHost> 
 
+<Directory /var/www/elmsln/domains/online>
+    AllowOverride All
+    Order allow,deny
+    allow from all
+    Include /var/www/elmsln/domains/online/.htaccess
+</Directory>
 <Directory /var/www/elmsln/domains/courses>
     AllowOverride All
     Order allow,deny
@@ -35,11 +53,23 @@ NameVirtualHost example.com:80
     allow from all
     Include /var/www/elmsln/domains/media/.htaccess
 </Directory>
-<Directory /var/www/elmsln/domains/online>
+<Directory /var/www/elmsln/domains/interact>
     AllowOverride All
     Order allow,deny
     allow from all
-    Include /var/www/elmsln/domains/online/.htaccess
+    Include /var/www/elmsln/domains/interact/.htaccess
+</Directory>
+<Directory /var/www/elmsln/domains/blog>
+    AllowOverride All
+    Order allow,deny
+    allow from all
+    Include /var/www/elmsln/domains/blog/.htaccess
+</Directory>
+<Directory /var/www/elmsln/domains/studio>
+    AllowOverride All
+    Order allow,deny
+    allow from all
+    Include /var/www/elmsln/domains/studio/.htaccess
 </Directory>
 <Directory /var/www/elmsln/domains/analytics>
     AllowOverride None
