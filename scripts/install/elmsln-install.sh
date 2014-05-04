@@ -206,13 +206,13 @@ fi
 chown -R $wwwuser:$webgroup $elmsln/config/_nondrupal/piwik
 chmod -R 755 $elmsln/config/_nondrupal/piwik
 chown -R $wwwuser:$webgroup $elmsln/core/_nondrupal/piwik
-chmod -R 0755 $elmsln/core/_nondrupal/piwik/tmp/
-chmod -R 0755 $elmsln/core/_nondrupal/piwik/tmp/
-chmod -R 0755 $elmsln/core/_nondrupal/piwik/tmp/assets/
-chmod -R 0755 $elmsln/core/_nondrupal/piwik/tmp/cache/
-chmod -R 0755 $elmsln/core/_nondrupal/piwik/tmp/logs/
-chmod -R 0755 $elmsln/core/_nondrupal/piwik/tmp/tcpdf/
-chmod -R 0755 $elmsln/core/_nondrupal/piwik/tmp/templates_c/
+# check for tmp directory in config area
+if [ ! -d $elmsln/config/_nondrupal/piwik/tmp ];
+then
+  mkdir $elmsln/config/_nondrupal/piwik/tmp
+  chown -R $wwwuser:$webgroup $elmsln/config/_nondrupal/piwik/tmp
+fi
+chmod -R 0755 $elmsln/config/_nondrupal/piwik/tmp
 # jobs file directory
 chown -R $wwwuser:$webgroup $elmsln/config/jobs
 chmod -R 755 $elmsln/config/jobs
