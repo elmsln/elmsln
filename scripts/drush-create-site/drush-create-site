@@ -7,27 +7,27 @@ source ../../config/scripts/drush-create-site/config.cfg
 
 #test for empty vars. if empty required var -- exit
 if [ -z $fileloc ]; then
-echo "please update your config.cfg file"
-exit 1
+  echo "please update your config.cfg file"
+  exit 1
 fi
 if [ -z $site_email ]; then
-echo "please update your config.cfg file"
-exit 1
+  echo "please update your config.cfg file"
+  exit 1
 fi
 if [ -z $admin ]; then
-echo "please update your config.cfg file"
-exit 1
+  echo "please update your config.cfg file"
+  exit 1
 fi
 if [ -z $webdir ]; then
-echo "please update your config.cfg file"
-exit 1
+  echo "please update your config.cfg file"
+  exit 1
 fi
 
 #test mysql login
 mysql -u$dbsu -p$dbsupw -e exit
 if [[ $? > 0 ]];then
-echo "mysql connection failed"
-exit 1
+  echo "mysql connection failed"
+  exit 1
 fi
 
 date=`date +%Y-%m-%d_%H:%M:%S`
@@ -35,322 +35,319 @@ date=`date +%Y-%m-%d_%H:%M:%S`
 
 #prevent the script from being run more than once
 if [ -f /tmp/drush-lock ]; then
-exit 1
+  exit 1
 fi
 touch /tmp/drush-lock
 
 #read the files in the $fileloc and set vars based on file name.
 for coursefile in `find $fileloc ! -name *.swp ! -name '*progress'  ! -name '*processing*' ! -name '*error' ! -name '*processed' ! -name '*example' ! -name '*.md' -type f`
 do
-college=`sed -n '2p' $coursefile`
-course=`sed -n '1p' $coursefile`
-service=${coursefile#*.}
-if [ -z $stacks ]; then
-drupalroot=$webdir/$service
-else
-drupalroot=$stacks/$service
-fi
-echo $drupalroot
-coursedb=$service"_"$college"_"$course
-#hostname=$service.$hostnamesearch
-hostname=`sed -n '3p' $coursefile`
-datahostname=`sed -n '4p' $coursefile`
-subdir=$service/$college
-dbpw=`</dev/urandom tr -dc A-Za-z0-9 | head -c14`
-drupalpw=`</dev/urandom tr -dc A-Za-z0-9 | head -c14`
-#drupal user is first bit of admin e-mail
-drupaluid=`echo $admin | cut -d@ -f1`
-collegelen=${#college}
-coursefilelen=${#coursefile}
-#coursedb="courses_"$college"_"$course
-courselen=${#course}
-error=0
-sitename=`sed -n '5p' $coursefile`
-slogan=`sed -n '6p' $coursefile`
-requester=`sed -n '7p' $coursefile`
-insprofile=`sed -n '8p' $coursefile`
-options=`sed -n '9p' $coursefile`
+  college=`sed -n '2p' $coursefile`
+  course=`sed -n '1p' $coursefile`
+  service=${coursefile#*.}
+  if [ -z $stacks ]; then
+  drupalroot=$webdir/$service
+  else
+  drupalroot=$stacks/$service
+  fi
+  echo $drupalroot
+  coursedb=$service"_"$college"_"$course
+  #hostname=$service.$hostnamesearch
+  hostname=`sed -n '3p' $coursefile`
+  datahostname=`sed -n '4p' $coursefile`
+  subdir=$service/$college
+  dbpw=`</dev/urandom tr -dc A-Za-z0-9 | head -c14`
+  drupalpw=`</dev/urandom tr -dc A-Za-z0-9 | head -c14`
+  #drupal user is first bit of admin e-mail
+  drupaluid=`echo $admin | cut -d@ -f1`
+  collegelen=${#college}
+  coursefilelen=${#coursefile}
+  #coursedb="courses_"$college"_"$course
+  courselen=${#course}
+  error=0
+  sitename=`sed -n '5p' $coursefile`
+  slogan=`sed -n '6p' $coursefile`
+  requester=`sed -n '7p' $coursefile`
+  insprofile=`sed -n '8p' $coursefile`
+  options=`sed -n '9p' $coursefile`
 
-#makeshift progress indicator start
-echo "1" > $fileloc/$course.$service.progress
+  #makeshift progress indicator start
+  echo "1" > $fileloc/$course.$service.progress
 
-#chartest=`sed -n '1,6' $coursefile`
+  #chartest=`sed -n '1,6' $coursefile`
 
-##Error catching here.
-#testing for bad characters. if found any in the course file we exit
+  ##Error catching here.
+  #testing for bad characters. if found any in the course file we exit
 
-badchars=`sed 's/[a-z A-Z 0-9 _@.= \: \/ \-]//g' $coursefile`
-if [ $badchars ]; then
-echo "bad characters in the course file"
-error=1
-fi
+  badchars=`sed 's/[a-z A-Z 0-9 _@.= \: \/ \-]//g' $coursefile`
+  if [ $badchars ]; then
+    echo "bad characters in the course file"
+    error=1
+  fi
 
-if [ $coursefilelen -gt 300 ]; then
-echo "$coursefile is too large."
-error=1
-fi
+  if [ $coursefilelen -gt 300 ]; then
+    echo "$coursefile is too large."
+    error=1
+  fi
 
-if [ ! -f $drupalroot/index.php ]; then
-echo $date " Drupal doesn't exist in $drupalroot"
-error=1
-fi
-
-
-if [[ -z $sitename ]]; then
-echo ""
-title=$course
-fi
-
-if [ -z $course ]; then
-echo " $date course is missing. exiting"
-error=1
-fi
-
-if [ -z $hostname ]; then
-echo " $date hostname is missing"
-error=1
-fi
-
-if [ -z $college ]; then
-echo " $date college is missing. exiting"
-error=1
-fi
-
-if [ $collegelen -gt 3 ]; then
-echo " $date college name is too long. expecting 2 chars. exiting"
-error=1
-fi
-
-if [ $courselen -gt 12 ]; then
-echo " $date Course length is too long, please enter one that's less than 14 chars"
-error=1
-fi
-
-if [ $? -gt 0 ]; then
-echo " $date errors!"
-error=1
-fi
+  if [ ! -f $drupalroot/index.php ]; then
+    echo $date " Drupal doesn't exist in $drupalroot"
+    error=1
+  fi
 
 
-#Test if dbuser exists, if it does, then we tack on a number and try again
-dbprefixtest=$dbprefix
-dbcount=0
-function userexist {
-userexist=`mysql -u$dbsu -p$dbsupw -e "select user from mysql.user;" | grep ^$dbprefixtest$college$course`
-}
-userexist
+  if [[ -z $sitename ]]; then
+    echo ""
+    title=$course
+  fi
 
-while [ $userexist ]; do
-dbcount=$((dbcount+1))
-echo "database use exists, adding $dbcount to $dbprefix"
-dbprefixtest=$dbprefix$dbcount
-userexist
-done
+  if [ -z $course ]; then
+    echo " $date course is missing. exiting"
+    error=1
+  fi
 
-if [ $dbcount -gt 0 ]; then
-dbprefix=$dbprefix$dbcount
-fi
+  if [ -z $hostname ]; then
+    echo " $date hostname is missing"
+    error=1
+  fi
 
-#Test if database exists, if does back out with warning
-dbexist=`mysql -u$dbsu -p$dbsupw -e "show databases;" | grep ^"$coursedb"$`
-if [ $dbexist ]; then
-echo " $date database $course exists. exiting"
-error=1
-fi
+  if [ -z $college ]; then
+    echo " $date college is missing. exiting"
+    error=1
+  fi
 
-#test course name for bad characters
-badchars=`echo "$course" | sed 's/[a-zA-Z0-9_]//g'`
-if [ $badchars ];then
-echo "$date course name has bad characters. exiting"
-error=1
-fi
+  if [ $collegelen -gt 3 ]; then
+    echo " $date college name is too long. expecting 2 chars. exiting"
+    error=1
+  fi
 
-#has this course been added?
-#todo add check for dslm locs
-if [ -L $drupalroot/$course ]; then
-echo "it appears this course has already been added. exiting"
-error=1
-fi
+  if [ $courselen -gt 12 ]; then
+    echo " $date Course length is too long, please enter one that's less than 14 chars"
+    error=1
+  fi
 
-#if errors are found, back out
-if [ $error = 1 ]; then
-/bin/mv $coursefile $coursefile.$date.error
-echo "there was an error processing $coursefile. please check the logs" | mail -s "error creating site" $admin
-echo "there was an error processing site, please contact your admin" | mail -s "error creating site" $requester
-echo "error" > $fileloc/$course.$service.progress
-rm /tmp/drush-lock
-exit 1
-fi
+  if [ $? -gt 0 ]; then
+    echo " $date errors!"
+    error=1
+  fi
 
-#start processing
-/bin/mv $coursefile $coursefile.processing
+  #Test if dbuser exists, if it does, then we tack on a number and try again
+  dbprefixtest=$dbprefix
+  dbcount=0
+  function userexist {
+    userexist=`mysql -u$dbsu -p$dbsupw -e "select user from mysql.user;" | grep ^$dbprefixtest$college$course`
+  }
+  userexist
 
-#makeshift progress bar
-echo "2" > $fileloc/$course.$service.progress
+  while [ $userexist ]; do
+    dbcount=$((dbcount+1))
+    echo "database use exists, adding $dbcount to $dbprefix"
+    dbprefixtest=$dbprefix$dbcount
+    userexist
+  done
 
-cd $drupalroot
-#Install site with drush
-/usr/bin/drush -y site-install $insprofile --db-url=mysql://$dbprefix$college$course:$dbpw@localhost/$coursedb --sites-subdir=$course --db-su=$dbsu --db-su-pw=$dbsupw --site-name="$sitename" --account-name=$drupaluid --account-pass=$drupalpw --account-mail=$admin --site-mail=$site_email > /dev/null
+  if [ $dbcount -gt 0 ]; then
+    dbprefix=$dbprefix$dbcount
+  fi
+
+  #Test if database exists, if does back out with warning
+  dbexist=`mysql -u$dbsu -p$dbsupw -e "show databases;" | grep ^"$coursedb"$`
+  if [ $dbexist ]; then
+    echo " $date database $course exists. exiting"
+    error=1
+  fi
+
+  #test course name for bad characters
+  badchars=`echo "$course" | sed 's/[a-zA-Z0-9_]//g'`
+  if [ $badchars ];then
+    echo "$date course name has bad characters. exiting"
+    error=1
+  fi
+
+  #has this course been added?
+  #todo add check for dslm locs
+  if [ -L $drupalroot/$course ]; then
+    echo "it appears this course has already been added. exiting"
+    error=1
+  fi
+
+  #if errors are found, back out
+  if [ $error = 1 ]; then
+    /bin/mv $coursefile $coursefile.$date.error
+    echo "there was an error processing $coursefile. please check the logs" | mail -s "error creating site" $admin
+    echo "there was an error processing site, please contact your admin" | mail -s "error creating site" $requester
+    echo "error" > $fileloc/$course.$service.progress
+    rm /tmp/drush-lock
+    exit 1
+  fi
+
+  #start processing
+  /bin/mv $coursefile $coursefile.processing
+
+  #makeshift progress bar
+  echo "2" > $fileloc/$course.$service.progress
+
+  cd $drupalroot
+  #Install site with drush
+  /usr/bin/drush -y site-install $insprofile --db-url=mysql://$dbprefix$college$course:$dbpw@localhost/$coursedb --sites-subdir=$course --db-su=$dbsu --db-su-pw=$dbsupw --site-name="$sitename" --account-name=$drupaluid --account-pass=$drupalpw --account-mail=$admin --site-mail=$site_email > /dev/null
 
 
-echo "3" > $fileloc/$course.$service.progress
+  echo "3" > $fileloc/$course.$service.progress
 
-#create symlink for subdir
-cd $webdir/$service
-/bin/ln -s $drupalroot $course
+  #create symlink for subdir
+  cd $webdir/$service
+  /bin/ln -s $drupalroot $course
 
-mkdir -p $drupalroot/sites/$subdir
-mv  $drupalroot/sites/$course $drupalroot/sites/$subdir/$course
-mkdir $drupalroot/sites/$subdir/$course/files/feeds
-#add site to the sites array
+  mkdir -p $drupalroot/sites/$subdir
+  mv  $drupalroot/sites/$course $drupalroot/sites/$subdir/$course
+  mkdir $drupalroot/sites/$subdir/$course/files/feeds
+  #add site to the sites array
 
 
-if [ -f $configsdir/stacks/$service/sites/sites.php ]; then
-arraytest=`/bin/grep -e "^\\$sites" $configsdir/stacks/$service/sites/sites.php`
-        if [[ -z $arraytest ]]; then
-                echo "\$sites = array(" >> $configsdir/stacks/$service/sites/sites.php
-                echo "" >> $configsdir/stacks/$service/sites/sites.php
-                echo ");" >> $configsdir/stacks/$service/sites/sites.php
-        fi
-/bin/sed -i "/^\$sites = array/a \ \t \'$hostname.$course\' =\> \'$subdir\/$course\'\," $configsdir/stacks/$service/sites/sites.php
-	if [[ $datahostname ]]; then
-		/bin/sed -i "/^\$sites = array/a \ \t \'$datahostname.$course\' =\> \'$service\/services\/$college\/$course\'\," $configsdir/stacks/$service/sites/sites.php
-	else
-		/bin/sed -i "/^\$sites = array/a \ \t \'data.$hostname.$course\' =\> \'$service\/services\/$college\/$course\'\," $configsdir/stacks/$service/sites/sites.php
-	fi
-fi
+  if [ -f $configsdir/stacks/$service/sites/sites.php ]; then
+    arraytest=`/bin/grep -e "^\\$sites" $configsdir/stacks/$service/sites/sites.php`
+    if [[ -z $arraytest ]]; then
+      echo "\$sites = array(" >> $configsdir/stacks/$service/sites/sites.php
+      echo "" >> $configsdir/stacks/$service/sites/sites.php
+      echo ");" >> $configsdir/stacks/$service/sites/sites.php
+    fi
+    /bin/sed -i "/^\$sites = array/a \ \t \'$hostname.$course\' =\> \'$subdir\/$course\'\," $configsdir/stacks/$service/sites/sites.php
+  	if [[ $datahostname ]]; then
+  		/bin/sed -i "/^\$sites = array/a \ \t \'$datahostname.$course\' =\> \'$service\/services\/$college\/$course\'\," $configsdir/stacks/$service/sites/sites.php
+  	else
+  		/bin/sed -i "/^\$sites = array/a \ \t \'data.$hostname.$course\' =\> \'$service\/services\/$college\/$course\'\," $configsdir/stacks/$service/sites/sites.php
+  	fi
+  fi
 
-# add in our cache bins - todo move to configsdir?
+  # add in our cache bins - todo move to configsdir?
   echo "\$conf['cache_prefix'] = '$coursedb';" >> $drupalroot/sites/$subdir/$course/settings.php
   echo "require_once DRUPAL_ROOT . '/../../shared/drupal-7.x/settings/shared_settings.php';" >> $drupalroot/sites/$subdir/$course/settings.php
 
-#adding servies conf file
+  #adding servies conf file
   if [ ! -d $drupalroot/sites/$service/services/$college/$course ];
     then mkdir -p $drupalroot/sites/$service/services/$college/$course
       mkdir $drupalroot/sites/$service/services/$college/$course/files
       chown -R $wwwuser:$webgroup $drupalroot/sites/$service/services/$college/$course/files
       if [ -f $drupalroot/sites/$service/$college/$course/settings.php ]; then
-      /bin/cp $drupalroot/sites/$service/$college/$course/settings.php $drupalroot/sites/$service/services/$college/$course/settings.php
+        /bin/cp $drupalroot/sites/$service/$college/$course/settings.php $drupalroot/sites/$service/services/$college/$course/settings.php
       fi
-        if [ -f $drupalroot/sites/$service/services/$college/$course/settings.php ]; then
+      if [ -f $drupalroot/sites/$service/services/$college/$course/settings.php ]; then
         echo "\$conf['restws_basic_auth_user_regex'] = '/^SERVICE_.*/';" >> $drupalroot/sites/$service/services/$college/$course/settings.php
-        fi
+      fi
+  fi
+  ##set base_url
+  sed -i "/\# \$base_url/a \ \t \$base_url= '$protocol://$hostname/$course';" $drupalroot/sites/$subdir/$course/settings.php
+
+  cd $drupalroot
+  ###options
+  if [[ $requester ]]; then
+    if [[ $requester == $admin ]]; then
+      echo "requester equals admin"
+    else
+      requesterpw=`</dev/urandom tr -dc A-Za-z0-9 | head -c14`
+      requesterid=`echo $requester | cut -d@ -f1`
+      /usr/bin/drush -y --uri=http://$hostname.$course user-create $requesterid --mail="$requester"
+      #/usr/bin/drush -y --uri=http://$hostname.$course user-add-role administrator $requesterid
+      /usr/bin/drush -y --uri=http://$hostname.$course user-password $requesterid --password="$requesterpw"
+      if [[ $send_requester_pw ]]; then
+         echo " $protocol://$hostname/$course has been created!  id: $requesterid  password: $requesterpw" | mail -s "$course has been added to $hostname" $requester
+      else
+         echo " $protocol://$hostname/$course has been created!" | mail -s "$course has been added to $hostname" $requester
+      fi
+    fi
   fi
 
-##set base_url
-sed -i "/\# \$base_url/a \ \t \$base_url= '$protocol://$hostname/$course';" $drupalroot/sites/$subdir/$course/settings.php
-
-cd $drupalroot
-###options
-if [[ $requester ]]; then
-  if [[ $requester == $admin ]]; then
-  echo "requester equals admin"
-  else
-    requesterpw=`</dev/urandom tr -dc A-Za-z0-9 | head -c14`
-    requesterid=`echo $requester | cut -d@ -f1`
-    /usr/bin/drush -y --uri=http://$hostname.$course user-create $requesterid --mail="$requester"
-    #/usr/bin/drush -y --uri=http://$hostname.$course user-add-role administrator $requesterid
-    /usr/bin/drush -y --uri=http://$hostname.$course user-password $requesterid --password="$requesterpw"
-	if [[ $send_requester_pw ]]; then
-     		echo " $protocol://$hostname/$course has been created!  id: $requesterid  password: $requesterpw" | mail -s "$course has been added to $hostname" $requester
-	else
-     		echo " $protocol://$hostname/$course has been created!" | mail -s "$course has been added to $hostname" $requester
-	fi
+  if [[ $slogan ]]; then
+    /usr/bin/drush -y --uri=http://$hostname.$course vset site_slogan "$slogan"
   fi
-fi
 
-if [[ $slogan ]]; then
-/usr/bin/drush -y --uri=http://$hostname.$course vset site_slogan "$slogan"
-fi
+  #progress
+  echo "4" > $fileloc/$course.$service.progress
+  #echo ${PWD}
 
-#progress
-echo "4" > $fileloc/$course.$service.progress
-#echo ${PWD}
+  if [[ $options ]]; then
+    /bin/grep ^drush $coursefile.processing | while read drush; do
+      #echo "things"
+      drushcommand=`echo $drush | awk '{print $2}'`
+      case $drushcommand in
+      en)
+      drushcommand=`echo "$drush" | cut -f 2- -d ' '`
+      ;;
+      vset)
+      drushcommand=`echo "$drush" | cut -f 2- -d ' '`
+      ;;
+      feeds-import)
+      drushcommand=`echo "$drush" | cut -f 2- -d ' '`
+      ;;
+      cron)
+      drushcommand=`echo "$drush" | cut -f 2- -d ' '`
+      ;;
+      cc)
+      drushcommand=`echo "$drush" | cut -f 2- -d ' '`
+      ;;
+      dis)
+      drushcommand=`echo "$drush" | cut -f 2- -d ' '`
+      ;;
+      urol)
+      drushcommand=`echo "$drush" | cut -f 2- -d ' '`
+      ;;
+      ucrt)
+      drushcommand=`echo "$drush" | cut -f 2- -d ' '`
+  ;;
+      rf)
+      drushcommand=`echo "$drush" | cut -f 2- -d ' '`
+      ;;
+      fr)
+      drushcommand=`echo "$drush" | cut -f 2- -d ' '`
+      ;;
+  pm-uninstall)
+      drushcommand=`echo "$drush" | cut -f 2- -d ' '`
+  ;;
+  vdel)
+      drushcommand=`echo "$drush" | cut -f 2- -d ' '`
+  ;;
+  ecl)
+      drushcommand=`echo "$drush" | cut -f 2- -d ' '`
+      ;;
+      *)
+      badcommand=`echo "$drush" | cut -f 2- -d ' '`
+      drushcommand="NULL"
+      ;;
+      esac
 
-if [[ $options ]]; then
-  /bin/grep ^drush $coursefile.processing | while read drush; do
-	#echo "things"
-        drushcommand=`echo $drush | awk '{print $2}'`
-        case $drushcommand in
-        en)
-        drushcommand=`echo "$drush" | cut -f 2- -d ' '`
-        ;;
-        vset)
-        drushcommand=`echo "$drush" | cut -f 2- -d ' '`
-        ;;
-        feeds-import)
-        drushcommand=`echo "$drush" | cut -f 2- -d ' '`
-        ;;
-        cron)
-        drushcommand=`echo "$drush" | cut -f 2- -d ' '`
-        ;;
-        cc)
-        drushcommand=`echo "$drush" | cut -f 2- -d ' '`
-        ;;
-        dis)
-        drushcommand=`echo "$drush" | cut -f 2- -d ' '`
-        ;;
-        urol)
-        drushcommand=`echo "$drush" | cut -f 2- -d ' '`
-        ;;
-        ucrt)
-        drushcommand=`echo "$drush" | cut -f 2- -d ' '`
-  	;;
-        rf)
-        drushcommand=`echo "$drush" | cut -f 2- -d ' '`
-        ;;
-        fr)
-        drushcommand=`echo "$drush" | cut -f 2- -d ' '`
-        ;;
-  	pm-uninstall)
-        drushcommand=`echo "$drush" | cut -f 2- -d ' '`
-  	;;
-  	vdel)
-        drushcommand=`echo "$drush" | cut -f 2- -d ' '`
-  	;;
-  	ecl)
-        drushcommand=`echo "$drush" | cut -f 2- -d ' '`
-        ;;
-        *)
-        badcommand=`echo "$drush" | cut -f 2- -d ' '`
-        drushcommand="NULL"
-        ;;
-        esac
+  if [[ $drushcommand = "NULL" ]]; then
+    echo "$badcommand is not a supported drush command."
+    rm /tmp/drush-lock
+    exit 1
+  fi
+    /usr/bin/drush -y --uri=http://$hostname.$course $drushcommand
+  done
+  fi
+  echo "5" >> $fileloc/$course.$service.progress
 
-if [[ $drushcommand = "NULL" ]]; then
-echo "$badcommand is not a supported drush command."
-rm /tmp/drush-lock
-exit 1
-fi
-  /usr/bin/drush -y --uri=http://$hostname.$course $drushcommand
+  ##permissions fun
+  find $drupalroot/sites/$subdir/$course/files  -type f | xargs chmod 664
+  find $drupalroot/sites/$subdir/$course/files  -type d | xargs chmod 775
+  chown -R $wwwuser:$webgroup $drupalroot/sites/$subdir/$course/files
 
-done
-fi
-echo "5" >> $fileloc/$course.$service.progress
+  ##add drupal_priv directories, set permissions
+  if [ ! -d $drupal_priv/$course ]; then
+    mkdir $drupal_priv/$course
+    chown $wwwuser:$webgroup $drupal_priv/$course
+    chmod g+w $drupal_priv/$course
+  fi
 
-##permissions fun
-find $drupalroot/sites/$subdir/$course/files  -type f | xargs chmod 664
-find $drupalroot/sites/$subdir/$course/files  -type d | xargs chmod 775
-chown -R $wwwuser:$webgroup $drupalroot/sites/$subdir/$course/files
+  echo "$course was added by $requester on $date" | mail -s "$course has been added to $hostname" $admin
+  echo "$course was added to $hostname on $date"
 
-##add drupal_priv directories, set permissions
-if [ ! -d $drupal_priv/$course ]; then
-mkdir $drupal_priv/$course
-chown $wwwuser:$webgroup $drupal_priv/$course
-chmod g+w $drupal_priv/$course
-fi
+  echo "6" > $fileloc/$course.$service.progress
 
-echo "$course was added by $requester on $date" | mail -s "$course has been added to $hostname" $admin
-echo "$course was added to $hostname on $date"
+  if [[ -f  $coursefile.processing ]]; then
+    /bin/mv $coursefile.processing $coursefile.processed
+  fi
 
-echo "6" > $fileloc/$course.$service.progress
-
-if [[ -f  $coursefile.processing ]]; then
-/bin/mv $coursefile.processing $coursefile.processed
-fi
-
-if [[ -f $fileloc/$course.$service.progress ]]; then
-/bin/rm $fileloc/$course.$service.progress
-fi
+  if [[ -f $fileloc/$course.$service.progress ]]; then
+    /bin/rm $fileloc/$course.$service.progress
+  fi
 done
 rm /tmp/drush-lock
