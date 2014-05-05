@@ -1,0 +1,10 @@
+/**
+ * CSS formatting for add offering form.
+ */
+.form-item-courses,
+.form-item-semester,
+.form-item-year,
+.form-item-access-string, {
+  float:left;
+  padding: 1em;
+}

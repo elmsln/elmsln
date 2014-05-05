@@ -114,8 +114,11 @@ function _cis_helper_run_operation($section) {
 function cis_helper_page_build(&$page) {
   drupal_add_css(drupal_get_path('module', 'cis_helper') . '/css/cis_helper.css');
   $node = menu_get_object();
-  // special js for hiding / displaying groups of form fields
-  if (arg(0) == 'cis-quick-setup') {
+  if (arg(0) == 'cis-add-offering') {
+    drupal_add_cdd(drupal_get_path('module', 'cis_helper') . '/css/cis_helper_add_offering_page.css');
+  }
+  elseif (arg(0) == 'cis-quick-setup') {
+    // special js for hiding / displaying groups of form fields
     drupal_add_js(drupal_get_path('module', 'cis_helper') . '/js/cis_helper.js');
   }
   elseif (isset($node->type)) {
