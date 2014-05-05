@@ -8,3 +8,7 @@
   float:left;
   padding: 1em;
 }
+
+#edit-submit-another {
+  display:block;
+}

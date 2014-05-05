@@ -82,13 +82,13 @@ function cis_helper_add_offering_page($form, $form_state) {
     '#title' => t('Access string'),
     '#default_value' => $access_string,
   );
-  $form['actions']['submit'] = array(
-    '#type' => 'submit',
-    '#value' => t('Create offering'),
-  );
   $form['actions']['submit_another'] = array(
     '#type' => 'submit',
     '#value' => t('Save, and add another'),
+  );
+  $form['actions']['submit'] = array(
+    '#type' => 'submit',
+    '#value' => t('Create offering'),
   );
   return $form;
 }
