@@ -4,7 +4,7 @@
 .form-item-courses,
 .form-item-semester,
 .form-item-year,
-.form-item-access-string, {
+.form-item-access-string {
   float:left;
   padding: 1em;
 }
