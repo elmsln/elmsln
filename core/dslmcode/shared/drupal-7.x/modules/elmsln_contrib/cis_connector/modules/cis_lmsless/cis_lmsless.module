@@ -49,20 +49,6 @@ function cis_lmsless_block_view($delta = '') {
 }
 
 /**
- * Implements hook_page_alter().
- */
-/*function cis_lmsless_page_alter(&$page) {
-  if (user_access('view lmsless bar') && !path_is_admin(current_path())) {
-    // append output to page via normal page rendering
-    $page['page_bottom']['lmsless'] = array(
-      '#type' => 'markup',
-      '#markup' => _cis_lmsless_assemble(),
-      '#weight' => 1000,
-    );
-  }
-}*/
-
-/**
  * Callback to assemble the bar
  */
 function _cis_lmsless_assemble() {
@@ -121,7 +107,7 @@ function _cis_lmsless_assemble() {
     }
   }
   $vars['services'] = $list;
-  drupal_add_css(drupal_get_path('module', 'cis_lmsless') . '/css/cis_lmsless.css');
+  //drupal_add_css(drupal_get_path('module', 'cis_lmsless') . '/css/cis_lmsless.css');
   drupal_add_js(drupal_get_path('module', 'cis_lmsless') . '/js/cis_lmsless.js');
   return theme('cis_lmsless_bar', $vars);
 }
