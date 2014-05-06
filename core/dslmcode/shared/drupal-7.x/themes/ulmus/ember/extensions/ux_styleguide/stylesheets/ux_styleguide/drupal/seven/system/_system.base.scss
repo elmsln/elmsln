@@ -1,0 +1,417 @@
+//
+// @file
+// Generic theme-independent base styles.
+//
+
+/**
+ * Autocomplete.
+ *
+ * @see autocomplete.js
+ */
+/* Suggestion list */
+#autocomplete {
+  border: 1px solid;
+  overflow: hidden;
+  position: absolute;
+  z-index: 100;
+
+  ul {
+    list-style: none;
+    list-style-image: none;
+    margin: 0;
+    padding: 0;
+  }
+
+  li {
+    margin: 0;
+    padding: $rhythm-space-short;
+    cursor: default;
+    white-space: pre;
+    zoom: 1; /* IE7 */
+  }
+}
+
+/* Animated throbber */
+html.js {
+  .form-autocomplete {
+    background: {
+      image: image-url("throbber.gif");
+      repeat: no-repeat;
+      size: 2em;
+    }
+    @include single-transition(background-color, .2s);
+  }
+
+  &[dir="ltr"] {
+    .form-autocomplete {
+      background-position: 100% .6em; /* LTR */
+    }
+  }
+
+  &[dir="rtl"] {
+    .form-autocomplete {
+      background-position: $rhythm-space .6em; /* LTR */
+    }
+  }
+
+  .throbbing {
+    background-color: $color-background-highlight;
+  }
+
+  &[dir="ltr"] {
+    .throbbing {
+      background-position: 100% -2em; /* LTR */
+    }
+  }
+
+  &[dir="rtl"] {
+    .throbbing {
+      background-position: $rhythm-space -2em; /* LTR */
+    }
+  }
+}
+
+/**
+ * Collapsible fieldsets.
+ *
+ * @see collapse.js
+ */
+html.js {
+  .collapsed {
+    height: $rhythm-space;
+    margin-bottom: $rhythm-space * 2;
+    border-color: transparent;
+
+    .fieldset-wrapper {
+      display: none;
+    }
+  }
+
+  .collapsible {
+    position: relative;
+    @include single-transition(border-color, .4s);
+
+    .fieldset-legend {
+      display: block;
+    }
+  }
+}
+
+/**
+ * Resizable textareas.
+ *
+ * @see textarea.js
+ */
+.form-textarea-wrapper {
+  textarea {
+    display: block;
+    margin: 0;
+    width: 100%;
+    @include box-sizing(border-box);
+  }
+
+  .grippie {
+    background: #eee image-url("grippie.png") no-repeat center 2px;
+    border: 1px solid #ddd;
+    border-top-width: 0;
+    cursor: s-resize;
+    height: 9px;
+    overflow: hidden;
+  }
+}
+
+/**
+ * TableDrag behavior.
+ *
+ * @see tabledrag.js
+ */
+body.drag {
+  cursor: move;
+}
+
+.draggable {
+  td {
+    &:first-child {
+      padding-left: 0;
+    }
+  }
+}
+
+.tabledrag-handle {
+  text-decoration: none;
+
+  &,
+  &:link,
+  &:visited {
+    color: $color-border;
+  }
+
+  &:hover,
+  &:active,
+  &:focus {
+    color: $color-link-alternate;
+  }
+
+  .draggable & {
+    cursor: move;
+    text-decoration: none;
+  }
+
+  .handle {
+    display: inline-block;
+    vertical-align: middle;
+
+    [dir="ltr"] & {
+      margin: {
+        right: $rhythm-space-short;
+        left: $rhythm-space;
+      }
+    }
+
+    [dir="rtl"] & {
+      margin: {
+        right: $rhythm-space;
+        left: $rhythm-space-short;
+      }
+    }
+
+    &:before {
+      line-height: 1em;
+      font-size: ms(1);
+      content: "\2261";
+    }
+  }
+}
+
+.tabledrag-handle-hover {
+  .handle {
+    background-position: 6px -11px;
+  }
+}
+
+.indentation {
+  display: inline-block;
+  width: 1em;
+  vertical-align: baseline;
+  font-family: Times, serif;
+  color: $color-border;
+
+  [dir="ltr"] & {
+    text-align: left;
+  }
+
+  [dir="rtl"] & {
+    text-align: right;
+  }
+}
+
+.tree-child {
+  &:after {
+    [dir="ltr"] & {
+      content: "\251c";
+    }
+
+    [dir="rtl"] & {
+      content: "\2524";
+    }
+  }
+}
+
+.tree-child-last {
+  &:after {
+    [dir="ltr"] & {
+      content: "\2514";
+    }
+
+    [dir="rtl"] & {
+      content: "\2518";
+    }
+  }
+}
+
+.tree-child-horizontal {
+  &:after {
+    content: "\2500";
+  }
+}
+
+.tabledrag-toggle-weight-wrapper {
+  [dir="ltr"] & {
+    text-align: right; /* LTR */
+  }
+
+  [dir="rtl"] & {
+    text-align: left; /* LTR */
+  }
+}
+
+/**
+ * TableHeader behavior.
+ *
+ * @see tableheader.js
+ */
+.sticky-header {
+  background-color: $color-background;
+  margin-top: 0;
+}
+
+/**
+ * Progress behavior.
+ *
+ * @see progress.js
+ */
+/* Bar */
+.progress {
+  position: relative;
+
+  .bar,
+  .message {
+    margin: $rhythm-space 0;
+  }
+
+  .bar {
+    border: $base-border-width solid $color-border;
+  }
+
+  .filled {
+    background-color: $color-background-alternate;
+    height: ($rhythm-space * 2 + $line-height);
+    width: $rhythm-space-short;
+  }
+
+  .percentage {
+    position: absolute;
+    top: 0;
+    width: 100%;
+    line-height: ($rhythm-space * 2 + $line-height);
+    text-align: center;
+  }
+}
+/* Throbber */
+.ajax-progress {
+  display: inline-block;
+
+  .throbber {
+    background: transparent image-url("throbber.gif") no-repeat 0px -18px;
+    height: 15px;
+    margin: $rhythm-space-short;
+    width: 15px;
+
+    [dir="ltr"] & {
+      float: left; /* LTR */
+    }
+
+    [dir="rtl"] & {
+      float: right; /* LTR */
+    }
+  }
+
+  .message {
+    [dir="ltr"] & {
+      padding-left: $rhythm-space;
+    }
+
+    [dir="rtl"] & {
+      padding-right: $rhythm-space;
+    }
+  }
+
+  tr & {
+    .throbber {
+      margin: 0 $rhythm-space-short;
+    }
+  }
+}
+
+.ajax-progress-bar {
+  width: 16em;
+}
+
+/**
+ * Inline items.
+ */
+.container-inline {
+  label {
+    display: block;
+  }
+
+  div,
+  input {
+    display: inline-block;
+  }
+
+  /* Fieldset contents always need to be rendered as block. */
+  .fieldset-wrapper {
+    display: block;
+  }
+}
+
+/**
+ * Prevent text wrapping.
+ */
+.nowrap {
+  white-space: nowrap;
+}
+
+/**
+ * For anything you want to hide on page load when JS is enabled, so
+ * that you can use the JS to control visibility and avoid flicker.
+ */
+html.js {
+  .js-hide {
+    display: none;
+  }
+}
+
+/**
+ * Hide elements from all users.
+ *
+ * Used for elements which should not be immediately displayed to any user. An
+ * example would be a collapsible fieldset that will be expanded with a click
+ * from a user. The effect of this class can be toggled with the jQuery show()
+ * and hide() functions.
+ */
+.element-hidden {
+  display: none;
+}
+
+/**
+ * Hide elements visually, but keep them available for screen-readers.
+ *
+ * Used for information required for screen-reader users to understand and use
+ * the site where visual display is undesirable. Information provided in this
+ * manner should be kept concise, to avoid unnecessary burden on the user.
+ * "!important" is used to prevent unintentional overrides.
+ */
+.element-invisible {
+  position: absolute !important;
+  clip: rect(1px 1px 1px 1px); /* IE6, IE7 */
+  clip: rect(1px, 1px, 1px, 1px);
+  overflow: hidden;
+  height: 1px;
+}
+
+/**
+ * The .element-focusable class extends the .element-invisible class to allow
+ * the element to be focusable when navigated to via the keyboard.
+ */
+.element-invisible {
+  &.element-focusable {
+    &:active,
+    &:focus {
+      position: static !important;
+      clip: auto;
+      overflow: visible;
+      height: auto;
+    }
+  }
+}
+
+/**
+ * Markup free clearing.
+ *
+ * @see http://perishablepress.com/press/2009/12/06/new-clearfix-hack
+ */
+.clearfix {
+  @include clearfix;
+}

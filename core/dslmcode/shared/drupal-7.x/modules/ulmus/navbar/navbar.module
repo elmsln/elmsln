@@ -1,0 +1,1288 @@
+<?php
+
+/**
+ * @file
+ * Administration navbar for quick access to top level administration items.
+ */
+
+/**
+ * Implements hook_help().
+ */
+function navbar_help($path, $arg) {
+  switch ($path) {
+    case 'admin/help#navbar':
+      $output = '<h3>' . t('About') . '</h3>';
+      $output .= '<p>' . t('The Navbar module displays links to top-level administration menu items and links from other modules at the top of the screen. For more information, see the online handbook entry for <a href="@navbar">Navbar module</a>.', array('@navbar' => 'https://drupal.org/node/1993254')) . '</p>';
+      $output .= '<h3>' . t('Uses') . '</h3>';
+      $output .= '<dl>';
+      $output .= '<dt>' . t('Displaying administrative links') . '</dt>';
+      $output .= '<dd>' . t('The Navbar module displays a bar containing top-level administrative components across the top of the screen. Below that, the Navbar module has a <em>drawer</em> section where it displays links provided by other modules, such as the core <a href="@shortcuts-help">Shortcut module</a>. The drawer can be hidden/shown by clicking on its corresponding tab.', array('@shortcuts-help' => url('admin/help/shortcut'))) . '</dd>';
+      $output .= '</dl>';
+      return $output;
+  }
+}
+
+/**
+ * Implements hook_permission().
+ */
+function navbar_permission() {
+  return array(
+    'access navbar' => array(
+      'title' => t('Use the administration navbar'),
+    ),
+  );
+}
+
+/**
+ * Implements hook_theme().
+ */
+function navbar_theme($existing, $type, $theme, $path) {
+  $items['navbar'] = array(
+    'render element' => 'element',
+  );
+  $items['navbar_item'] = array(
+    'render element' => 'element',
+  );
+  $items['navbar_tab_wrapper'] = array(
+    'render element' => 'element',
+  );
+  $items['navbar_tray_wrapper'] = array(
+    'render element' => 'element',
+  );
+  $items['navbar_tray_heading_wrapper'] = array(
+    'render element' => 'element',
+  );
+  return $items;
+}
+
+/**
+ * Implements hook_menu().
+ */
+function navbar_menu() {
+  $items['navbar/subtrees/%'] = array(
+    'page callback' => 'navbar_subtrees_jsonp',
+    'page arguments' => array(2),
+    'access callback' => '_navbar_subtrees_access',
+    'access arguments' => array(2),
+    'type' => MENU_CALLBACK,
+  );
+  return $items;
+}
+
+/**
+ * Implements hook_element_info().
+ */
+function navbar_element_info() {
+  $elements = array();
+
+  $elements['navbar'] = array(
+    '#pre_render' => array('navbar_pre_render'),
+    '#theme' => 'navbar',
+    '#attached' => array(
+      'library' => array(
+        array('navbar', 'navbar'),
+      ),
+    ),
+    // Metadata for the navbar wrapping element.
+    '#attributes' => array(
+      // The id cannot be simply "navbar" or it will clash with the simpletest
+      // tests listing which produces a checkbox with attribute id="navbar"
+      'id' => 'navbar-administration',
+      // The 'overlay-displace-top' class is necessary in overlay-parent so that
+      // the drupalOverlayResize and drupalOverlayClose events will be bound
+      // to the document. The navbar does not use this class. It is present
+      // to enable compatibility with the Overlay module.
+      'class' => array('drupal-navbar', 'overlay-displace-top'),
+      'role' => 'navigation',
+    ),
+    // Metadata for the administration bar.
+    '#bar' => array(
+      '#heading' => t('Navbar items'),
+      '#attributes' => array(
+        'id' => 'navbar-bar',
+        'class' => array('navbar-bar', 'clearfix'),
+      ),
+    ),
+  );
+
+  // A navbar item is wrapped in markup for common styling.  The 'tray'
+  // property contains a renderable array. theme_navbar_tab() is a light
+  // wrapper around the l() function. The contents of tray are rendered in
+  // theme_navbar_tab().
+  $elements['navbar_item'] = array(
+    '#pre_render' => array('navbar_pre_render_item'),
+    '#theme' => 'navbar_item',
+    '#theme_wrappers' => array('navbar_tab_wrapper'),
+    'tab' => array(
+      '#type' => 'link',
+      '#title' => NULL,
+      '#href' => '',
+    ),
+  );
+  return $elements;
+}
+
+/**
+ * Access callback: Returns if the user has access to the rendered subtree requested by the hash.
+ *
+ * @see navbar_menu().
+ */
+function _navbar_subtrees_access($hash) {
+  return user_access('access navbar') && ($hash == _navbar_get_subtree_hash());
+}
+
+/**
+ * Page callback: Returns the rendered subtree of each top-level navbar link.
+ *
+ * @see navbar_menu().
+ */
+function navbar_subtrees_jsonp($hash) {
+  _navbar_initialize_page_cache();
+  $subtrees = navbar_get_rendered_subtrees();
+  $response = new JsonResponse($subtrees);
+  $response->setCallback('Drupal.navbar.setSubtrees.resolve');
+  return $response;
+}
+
+/**
+ * Use Drupal's page cache for navbar/subtrees/*, even for authenticated users.
+ *
+ * This gets invoked after full bootstrap, so must duplicate some of what's
+ * done by _drupal_bootstrap_page_cache().
+ *
+ * @todo Replace this hack with something better integrated with DrupalKernel
+ *   once Drupal's page caching itself is properly integrated.
+ */
+function _navbar_initialize_page_cache() {
+  $GLOBALS['conf']['system.performance']['cache']['page']['enabled'] = TRUE;
+  drupal_page_is_cacheable(TRUE);
+
+  // If we have a cache, serve it.
+  // @see _drupal_bootstrap_page_cache()
+  $cache = drupal_page_get_cache();
+  if (is_object($cache)) {
+    header('X-Drupal-Cache: HIT');
+    // Restore the metadata cached with the page.
+    $_GET['q'] = $cache->data['path'];
+    date_default_timezone_set(drupal_get_user_timezone());
+
+    drupal_serve_page_from_cache($cache);
+
+    // We are done.
+    exit;
+  }
+
+  // Otherwise, create a new page response (that will be cached).
+  header('X-Drupal-Cache: MISS');
+
+  // The Expires HTTP header is the heart of the client-side HTTP caching. The
+  // additional server-side page cache only takes effect when the client
+  // accesses the callback URL again (e.g., after clearing the browser cache or
+  // when force-reloading a Drupal page).
+  $max_age = 3600 * 24 * 365;
+  drupal_add_http_header('Expires', gmdate(DATE_RFC1123, REQUEST_TIME + $max_age));
+  drupal_add_http_header('Cache-Control', 'private, max-age=' . $max_age);
+}
+
+/**
+ * Implements hook_page_build().
+ *
+ * Add admin navbar to the page_top region automatically.
+ */
+function navbar_page_build(&$page) {
+  if (navbar_suppress(FALSE)) {
+    return;
+  }
+  $page['page_top']['navbar'] = array(
+    '#type' => 'navbar',
+    '#access' => user_access('access navbar'),
+  );
+}
+
+/**
+ * Builds the Navbar as a structured array ready for drupal_render().
+ *
+ * Since building the navbar takes some time, it is done just prior to
+ * rendering to ensure that it is built only if it will be displayed.
+ *
+ * @param array $element
+ *  A renderable array.
+ *
+ * @return
+ *  A renderable array.
+ *
+ * @see navbar_page_build().
+ */
+function navbar_pre_render($element) {
+
+  // Define the breakpoints to switch from vertical to horizontal
+  // navbar presentation.
+  $breakpoints = array(
+    'narrow' => 'only screen and (min-width: 16.5em)',
+    'standard' => 'only screen and (min-width: 38.125em)',
+    'wide' => 'only screen and (min-width: 50em)',
+  );
+  // Allow for altering of the breakpoints.
+  drupal_alter('navbar_breakpoints', $breakpoints);
+
+  if (!empty($breakpoints)) {
+    $element['#attached']['js'][] = array(
+      'data' => array(
+        'navbar' => array(
+          'breakpoints' => $breakpoints,
+        ),
+      ),
+      'type' => 'setting',
+    );
+  }
+
+  // Get navbar items from all modules that implement hook_navbar().
+  $items = module_invoke_all('navbar');
+  // Allow for altering of hook_navbar().
+  drupal_alter('navbar', $items);
+  // Sort the children.
+  uasort($items, 'element_sort');
+
+  // Merge in the original navbar values.
+  $element = array_merge($element, $items);
+
+  // Render the children.
+  $element['#children'] = drupal_render_children($element);
+
+  return $element;
+}
+
+/**
+ * Returns HTML that wraps the administration navbar.
+ *
+ * @param array $variables
+ *   An associative array containing:
+ *   - element: An associative array containing the properties and children of
+ *     the tray. Properties used: #children, #attributes and #bar.
+ */
+function theme_navbar(&$variables) {
+  if (!empty($variables['element']['#children'])) {
+    $element = $variables['element'];
+    $trays = '';
+    foreach (element_children($element) as $key) {
+      $trays .= drupal_render($element[$key]['tray']);
+    }
+    return '<nav' . drupal_attributes($element['#attributes']) . '>'
+      . '<div' . drupal_attributes($element['#bar']['#attributes']) . '>'
+      . '<h2 class="element-invisible">' . $element['#bar']['#heading'] . '</h2>'
+      . $element['#children'] . '</div>' . $trays . '</nav>';
+  }
+}
+
+/**
+ * Provides markup for associating a tray trigger with a tray element.
+ *
+ * A tray is a responsive container that wraps renderable content. Trays present
+ * content well on small and large screens alike.
+ *
+ * @param array $element
+ *   A renderable array.
+ *
+ * @return
+ *   A renderable array.
+ */
+function navbar_pre_render_item($element) {
+  // Assign each item a unique ID.
+  $id = drupal_html_id('navbar-item');
+
+  // Provide attributes for a navbar item.
+  $attributes = array(
+    'id' => $id,
+  );
+
+  // If tray content is present, markup the tray and its associated trigger.
+  if (!empty($element['tray'])) {
+    // Provide attributes necessary for trays.
+    $attributes += array(
+      'data-navbar-tab-trigger' => '',
+      'data-navbar-tray' => $id . '-tray',
+      'aria-owns' => $id,
+      'role' => 'button',
+      'aria-pressed' => 'false',
+    );
+
+    // Merge in module-provided attributes.
+    $element['tab'] += array('#attributes' => array());
+    $element['tab']['#attributes'] += $attributes;
+
+    // Provide attributes for the tray theme wrapper.
+    $attributes = array(
+      'id' => $id . '-tray',
+      'data-navbar-tray' => $id . '-tray',
+      'aria-owned-by' => $id,
+    );
+
+    // Merge in module-provided attributes.
+    if (!isset($element['tray']['#wrapper_attributes'])) {
+      $element['tray']['#wrapper_attributes'] = array();
+    }
+    $element['tray']['#wrapper_attributes'] += $attributes;
+    $element['tray']['#wrapper_attributes']['class'][] = 'navbar-tray';
+
+    if (!isset($element['tray']['#theme_wrappers'])) {
+      $element['tray']['#theme_wrappers'] = array();
+    }
+    // Add the standard theme_wrapper for trays.
+    array_unshift($element['tray']['#theme_wrappers'], 'navbar_tray_wrapper');
+    // If a #heading is provided for the tray, provided a #theme_wrapper
+    // function to append it.
+    array_unshift($element['tray']['#theme_wrappers'], 'navbar_tray_heading_wrapper');
+  }
+
+  return $element;
+}
+
+/**
+ * Implements template_preprocess_HOOK().
+ */
+function template_preprocess_navbar_tab_wrapper(&$variables) {
+  if (!isset($variables['element']['#wrapper_attributes'])) {
+    $variables['element']['#wrapper_attributes'] = array();
+  }
+  $variables['element']['#wrapper_attributes']['class'][] = 'navbar-tab';
+}
+
+/**
+ * Returns HTML for a navbar item.
+ *
+ * This theme function only renders the tab portion of the navbar item. The
+ * tray portion will be rendered later.
+ *
+ * @param array $variables
+ *   An associative array containing:
+ *   - element: An associative array containing the properties and children of
+ *     the tray. Property used: tab.
+ *
+ * @see navbar_pre_render_item().
+ * @see theme_navbar().
+ */
+function theme_navbar_item(&$variables) {
+  return drupal_render($variables['element']['tab']);
+}
+
+/**
+ * Returns HTML for wrapping a navbar tab.
+ *
+ * Navbar tabs have a common styling and placement with the navbar's bar area.
+ *
+ * @param array $variables
+ *   An associative array containing:
+ *   - element: An associative array containing the properties and children of
+ *     the tray. Properties used: #children and #attributes.
+ */
+function theme_navbar_tab_wrapper(&$variables) {
+  if (!empty($variables['element']['#children'])) {
+    $element = $variables['element'];
+    return '<div' . drupal_attributes($element['#wrapper_attributes']) . '>' . $element['#children'] . '</div>';
+  }
+}
+
+/**
+ * Returns HTML for wrapping a navbar tray.
+ *
+ * Used in combination with theme_navbar_tab() to create an
+ * association between a link tag in the administration bar and a tray.
+ *
+ * @param array $variables
+ *   An associative array containing:
+ *   - element: An associative array containing the properties and children of
+ *     the tray. Properties used: #children, #navbar_identifier and
+ *     #attributes.
+ */
+function theme_navbar_tray_wrapper(&$variables) {
+  if (!empty($variables['element']['#children'])) {
+    $element = $variables['element'];
+    return '<div' . drupal_attributes($element['#wrapper_attributes']) . '><div class="navbar-lining clearfix">' . $element['#children'] . '</div></div>';
+  }
+}
+
+/**
+ * Returns HTML for prepending a heading to a navbar tray.
+ *
+ * @param array $variables
+ *   An associative array containing:
+ *   - element: An associative array containing the properties and children of
+ *     the tray. Properties used: #children and #heading.
+ */
+function theme_navbar_tray_heading_wrapper(&$variables) {
+  $element = $variables['element'];
+  if (!empty($element['#children'])) {
+    $heading = '';
+    if (!empty($element['#heading'])) {
+      $heading = '<h3 class="navbar-tray-name element-invisible">' . $element['#heading'] . '</h3>';
+    }
+    return $heading . $element['#children'];
+  }
+}
+
+/**
+ * Implements hook_system_info_alter().
+ *
+ * Indicate that the 'page_top' region (in which the navbar will be displayed)
+ * is an overlay supplemental region that should be refreshed whenever its
+ * content is updated.
+ *
+ * This information is provided for any module that might need to use it, not
+ * just the core Overlay module.
+ */
+function navbar_system_info_alter(&$info, $file, $type) {
+  if ($type == 'theme') {
+    $info['overlay_supplemental_regions'][] = 'page_top';
+  }
+}
+
+/**
+ * Implements hook_navbar().
+ */
+function navbar_navbar() {
+  global $user;
+
+  $items = array();
+
+  // The 'Home' tab is a simple link, with no corresponding tray.
+  $items['home'] = array(
+    '#type' => 'navbar_item',
+    'tab' => array(
+      '#type' => 'link',
+      '#title' => t('Home'),
+      '#href' => '<front>',
+      '#options' => array(
+        'attributes' => array(
+          'title' => t('Home page'),
+          'class' => array('navbar-icon', 'navbar-icon-home'),
+        ),
+      ),
+    ),
+    '#weight' => -20,
+  );
+
+  // Retrieve the administration menu from the database.
+  $tree = navbar_get_menu_tree();
+
+  // If no menu links exist because the user does not have access to any, then
+  // don't render a menu tab.
+  if (!empty($tree)) {
+
+    // Add attributes to the links before rendering.
+    navbar_menu_navigation_links($tree);
+
+    $menu = array(
+      '#heading' => t('Administration menu'),
+      'navbar_administration' => array(
+        '#type' => 'container',
+        '#attributes' => array(
+          'class' => array('navbar-menu-administration'),
+        ),
+        'administration_menu' => menu_tree_output($tree),
+      ),
+    );
+
+    // This flow is commented out until we figure out how to return a JSONP
+    // response in Drupal 7.
+    //
+    // To conserve bandwidth, we only include the top-level links in the HTML.
+    // The subtrees are included in a JSONP script, cached by the browser. Here we
+    // add that JSONP script. We add it as an external script, because it's a
+    // Drupal path, not a file available via a stream wrapper.
+    // @see navbar_subtrees_jsonp()
+    // $menu['navbar_administration']['#attached']['js'][url('navbar/subtrees/' . _navbar_get_subtree_hash())] = array('type' => 'external');
+    // The administration element has a link that is themed to correspond to
+    // a navbar tray. The tray contains the full administrative menu of the site.
+    $items['administration'] = array(
+      '#type' => 'navbar_item',
+      'tab' => array(
+        '#type' => 'link',
+        '#title' => t('Menu'),
+        '#href' => 'admin',
+        '#options' => array(
+          'attributes' => array(
+            'title' => t('Admin menu'),
+            'class' => array('navbar-icon', 'navbar-icon-menu',),
+          ),
+        ),
+      ),
+      'tray' => $menu,
+      '#weight' => -15,
+    );
+  }
+
+  // Add logout & user account links or login link.
+  if (module_exists('user')) {
+    if ($user->uid) {
+      $links = array(
+        'account' => array(
+          'title' => t('View profile'),
+          'href' => 'user',
+          'html' => TRUE,
+          'attributes' => array(
+            'title' => t('User account'),
+          ),
+        ),
+        'logout' => array(
+          'title' => t('Log out'),
+          'href' => 'user/logout',
+        ),
+      );
+    }
+    else {
+      $links = array(
+        'login' => array(
+          'title' => t('Log in'),
+          'href' => 'user',
+        ),
+      );
+    }
+
+    $items['user'] = array(
+      '#type' => 'navbar_item',
+      'tab' => array(
+        '#type' => 'link',
+        '#title' => format_username($user),
+        '#href' => 'user',
+        '#options' => array(
+          'attributes' => array(
+            'title' => t('My account'),
+            'class' => array('navbar-icon', 'navbar-icon-user',),
+          ),
+        ),
+      ),
+      'tray' => array(
+        '#heading' => t('User account actions'),
+        'user_links' => array(
+          '#theme' => 'links__navbar_user',
+          '#links' => $links,
+          '#attributes' => array(
+            'class' => array('menu', 'navbar-menu-user'),
+          ),
+        ),
+      ),
+      '#weight' => 100,
+    );
+  }
+
+  // Add a shortcuts tab.
+  if (module_exists('shortcut')) {
+    $links = shortcut_renderable_links();
+    $shortcut_set = shortcut_current_displayed_set();
+    $configure_link = NULL;
+    if (shortcut_set_edit_access($shortcut_set)) {
+      $configure_link = array(
+        '#type' => 'link',
+        '#title' => t('Edit shortcuts'),
+        '#href' => 'admin/config/user-interface/shortcut/' . $shortcut_set->set_name,
+        '#options' => array('attributes' => array('class' => array('edit-shortcuts'))),
+      );
+    }
+    if (!empty($links) || !empty($configure_link)) {
+      $items['shortcuts'] = array(
+        '#type' => 'navbar_item',
+        'tab' => array(
+          '#type' => 'link',
+          '#title' => t('Shortcuts'),
+          '#href' => 'admin/config/user-interface/shortcut',
+          '#options' => array(
+            'attributes' => array(
+              'title' => t('Shortcuts'),
+              'class' => array('navbar-icon', 'navbar-icon-shortcut',),
+            ),
+          ),
+        ),
+        'tray' => array(
+          '#heading' => t('User-defined shortcuts'),
+          '#wrapper_attributes' => array(
+            'class' => array('navbar-tray-shortcuts', 'navbar-menu-shortcuts'),
+          ),
+          'shortcuts' => $links,
+          'configure' => $configure_link,
+        ),
+        '#weight' => -10,
+      );
+    }
+  }
+
+  return $items;
+}
+
+/**
+ * Gets only the top level items below the 'admin' path.
+ *
+ * @return
+ *   An array containing a menu tree of top level items below the 'admin' path.
+ */
+function navbar_get_menu_tree() {
+  $tree = array();
+  $admin_link = db_query('SELECT * FROM {menu_links} WHERE menu_name = :menu_name AND module = :module AND link_path = :path', array(':menu_name' => 'management', ':module' => 'system', ':path' => 'admin'))->fetchAssoc();
+  if ($admin_link) {
+    $tree = menu_tree_all_data('management');
+  }
+  // Return the sub-menus of the management menu root.
+  foreach ($tree as $key => $menu) {
+    return (!empty($tree[$key]['below'])) ? $tree[$key]['below'] : array();
+  }
+  return array();
+}
+
+/**
+ * Generates an array of links from a menu tree array.
+ *
+ * Based on menu_navigation_links(). Adds path based IDs and icon placeholders
+ * to the links.
+ *
+ * @return
+ *   An array of links as defined above.
+ */
+function navbar_menu_navigation_links(&$tree) {
+  foreach ($tree as $key => $item) {
+    // Configure sub-items.
+    if (!empty($item['below'])) {
+      navbar_menu_navigation_links($tree[$key]['below']);
+    }
+    // Make sure we have a path specific ID in place, so we can attach icons
+    // and behaviors to the items.
+    $tree[$key]['link']['localized_options']['attributes'] = array(
+      'id' => 'navbar-link-' . str_replace(array('/', '<', '>'), array('-', '', ''), $item['link']['link_path']),
+      'class' => array(
+        'navbar-icon',
+        'navbar-icon-' . strtolower(str_replace(' ', '-', $item['link']['link_title'])),
+      ),
+      'title' => check_plain($item['link']['description']),
+    );
+  }
+}
+
+/**
+ * Returns the rendered subtree of each top-level navbar link.
+ */
+function navbar_get_rendered_subtrees() {
+  $subtrees = array();
+  $tree = navbar_get_menu_tree();
+  foreach ($tree as $tree_item) {
+    $item = $tree_item['link'];
+    if (!$item['hidden'] && $item['access']) {
+      if ($item['has_children']) {
+        $query = db_select('menu_links');
+        $query->addField('menu_links', 'mlid');
+        $query->condition('has_children', 1);
+        for ($i = 1; $i <= $item['depth']; $i++) {
+          $query->condition('p' . $i, $item['p' . $i]);
+        }
+        $parents = $query->execute()->fetchCol();
+        $subtree = menu_build_tree($item['menu_name'], array('expanded' => $parents, 'min_depth' => $item['depth'] + 1));
+        navbar_menu_navigation_links($subtree);
+        $subtree = menu_tree_output($subtree);
+        $subtree = drupal_render($subtree);
+      }
+      else {
+        $subtree = '';
+      }
+
+      $id = str_replace(array('/', '<', '>'), array('-', '', ''), $item['href']);
+      $subtrees[$id] = $subtree;
+    }
+  }
+  return $subtrees;
+}
+
+/**
+ * Checks whether an item is in the active trail.
+ *
+ * Useful when using a menu generated by menu_tree_all_data() which does
+ * not set the 'in_active_trail' flag on items.
+ *
+ * @return
+ *   TRUE when path is in the active trail, FALSE if not.
+ *
+ * @todo
+ *   Look at migrating to a menu system level function.
+ */
+function navbar_in_active_trail($path) {
+  $active_paths = &drupal_static(__FUNCTION__);
+
+  // Gather active paths.
+  if (!isset($active_paths)) {
+    $active_paths = array();
+    $trail = menu_get_active_trail();
+    foreach ($trail as $item) {
+      if (!empty($item['href'])) {
+        $active_paths[] = $item['href'];
+      }
+    }
+  }
+  return in_array($path, $active_paths);
+}
+
+/**
+ * Implements hook_library().
+ */
+function navbar_library() {
+
+  $path = drupal_get_path('module', 'navbar');
+
+  $libraries['navbar'] = array(
+    'title' => 'Navbar',
+    'version' => VERSION,
+    'js' => array(
+      $path . '/js/navbar.js' => array(),
+    ),
+    'css' => array(
+      $path . '/css/navbar.module.css',
+      $path . '/css/navbar.theme.css',
+      $path . '/css/navbar.icons.css',
+    ),
+    'dependencies' => array(
+      array('navbar', 'modernizr'),
+      array('system', 'jquery'),
+      array('navbar', 'underscore'),
+      array('navbar', 'backbone'),
+      array('navbar', 'navbar.matchmedia'),
+      array('system', 'jquery.once'),
+      array('navbar', 'navbar.debounce'),
+      array('navbar', 'navbar.announce'),
+      array('navbar', 'navbar.displace'),
+      array('navbar', 'navbar.menu'),
+    ),
+  );
+
+  // Only load navbar.overlay if overlay is enabled.
+  if (module_exists('overlay')) {
+    $libraries['navbar']['dependencies'][] = array('navbar', 'navbar.overlay');
+  }
+
+  $libraries['navbar.menu'] = array(
+    'title' => 'Navbar nested accordion menus.',
+    'version' => VERSION,
+    'js' => array(
+      $path . '/js/navbar.menu.js' => array(),
+    ),
+    'css' => array(
+      $path . '/css/navbar.menu.css',
+    ),
+    'dependencies' => array(
+      array('system', 'jquery'),
+      array('system', 'jquery.once'),
+    ),
+  );
+
+  // Backport of D8 matchMedia polyfill.
+  $libraries['navbar.matchmedia'] = array(
+    'title' => 'window.matchMedia polyfill',
+    'website' => 'http://drupal.org/node/1815602',
+    'version' => VERSION,
+    'js' => array(
+      $path . '/js/matchmedia.js' => array(),
+    ),
+  );
+
+  // A utility function to limit calls to a function with a given time.
+  $libraries['navbar.debounce'] = array(
+    'title' => 'Navbar debounce',
+    'version' => VERSION,
+    'js' => array(
+      $path . '/js/debounce.js' => array('group' => JS_LIBRARY),
+    ),
+  );
+
+  // A utility function determine viewport offset distances.
+  $libraries['navbar.displace'] = array(
+    'title' => 'Navbar displace',
+    'version' => VERSION,
+    'js' => array(
+      $path . '/js/displace.js' => array('group' => JS_LIBRARY),
+    ),
+    'dependencies' => array(
+      array('system', 'jquery'),
+      array('navbar', 'navbar.debounce'),
+    ),
+  );
+
+    // A utility for writing text to a common aria-live region.
+  $libraries['navbar.announce'] = array(
+    'title' => 'Navbar announce',
+    'version' => VERSION,
+    'js' => array(
+      $path . '/js/announce.js' => array('group' => JS_LIBRARY),
+    ),
+    'dependencies' => array(
+      array('navbar', 'navbar.debounce'),
+    ),
+  );
+
+  // Override Overlay methods to support displacement.
+  $libraries['navbar.overlay'] = array(
+    'title' => 'Overlay method overrides to support D8 viewport displacement.',
+    'version' => VERSION,
+    'css' => array(
+      $path . '/css/navbar-overlay.css',
+    ),
+    'js' => array(
+      // Load this file well after Overlay code has loaded.
+      $path . '/js/navbar-overlay.js' => array('weight' => 100),
+    ),
+    'dependencies' => array(
+      array('system', 'jquery'),
+      array('navbar', 'navbar.displace'),
+    ),
+  );
+
+  // Support Tableheader displacement.
+  $libraries['navbar.tableheader'] = array(
+    'title' => 'Tableheader method to support D8 viewport displacement.',
+    'version' => VERSION,
+    'js' => array(
+      // Load this file well after Overlay code has loaded.
+      $path . '/js/navbar-tableheader.js' => array('weight' => 100),
+      array(
+        'data' => array('tableHeaderOffset' => 'Drupal.navbar.height'),
+        'type' => 'setting'
+      ),
+    ),
+    'dependencies' => array(
+      array('system', 'jquery'),
+      array('navbar', 'navbar.displace'),
+    ),
+  );
+
+  // Ensure that each 3rd party library dependency has a default variant.
+  // Convert Libraries module data structures to library data structures.
+  // Modernizr
+  $libraries['modernizr'] = _navbar_convert_libraries_to_library(libraries_detect('modernizr'), array(
+    'group' => JS_LIBRARY,
+    'weight' => -100,
+  ));
+
+  // Underscore
+  $libraries['underscore'] = _navbar_convert_libraries_to_library(libraries_detect('underscore'), array(
+    'group' => JS_LIBRARY,
+    'weight' => -20,
+  ));
+
+  // Backbone
+  $libraries['backbone'] = _navbar_convert_libraries_to_library(libraries_detect('backbone'), array(
+    'group' => JS_LIBRARY,
+    'weight' => -19,
+  ));
+
+  return $libraries;
+}
+
+/**
+ * Implements hook_library_alter().
+ */
+function navbar_library_alter(&$libraries, $module) {
+  $jquery_version = &drupal_static(__FUNCTION__, NULL);
+
+  if ($module == 'system') {
+    $jquery_version = $libraries['jquery']['version'];
+  }
+  if ($jquery_version && $module == 'navbar') {
+    $path = drupal_get_path('module', 'navbar');
+    // If the version of jQuery is old, we need to add `on` and `off`.
+    if ($jquery_version < '1.7') {
+      $libraries['navbar']['js'][$path . '/js/jquery/ducktape.events.js'] = array('group' => JS_LIBRARY);
+    }
+  }
+
+  if ($module === 'overlay' && !empty($libraries)) {
+    // Unset the child CSS file from Overlay and add our own.
+    if (!empty($libraries['child']['css'])) {
+      unset($libraries['child']['css']['modules/overlay/overlay-child.css']);
+    }
+    $libraries['child']['css'][drupal_get_path('module', 'navbar') . '/css/navbar-overlay-child.css'] = array();
+  }
+}
+
+/**
+ * Implements hook_js_alter().
+ */
+function navbar_js_alter(&$javascript) {
+  // Only load the tableheader offset script if the core tableheader script
+  // is loaded.
+  if (isset($javascript['misc/tableheader.js'])) {
+    drupal_add_library('navbar', 'navbar.tableheader');
+  }
+}
+
+/**
+ * Implements hook_libraries_info().
+ *
+ * @see Libraries module.
+ */
+function navbar_libraries_info() {
+  $libraries = array();
+
+  $common = array(
+    'version callback' => '_navbar_libraries_get_version',
+    'variant order' => array('minified', 'source'),
+  );
+
+  $libraries['modernizr'] = array(
+    'name' => 'Modernizr',
+    'vendor url' => 'https://github.com/Modernizr/Modernizr',
+    'download url' => 'http://modernizr.com/download/#-inputtypes-svg-touch-cssclasses-addtest-teststyles-prefixes-elem_details',
+    'version arguments' => array(
+      'variants' => array(
+        'source' => array(
+          'file' => 'modernizr.js',
+          // @todo Document an actual example version string.
+          'pattern' => '#Modernizr\s+[Vv]?([0-9\.]+)#',
+        ),
+        'minified' => array(
+          'file' => 'modernizr-min.js',
+          'pattern' => '#Modernizr\s+[Vv]?([0-9\.]+)#',
+        ),
+      ),
+    ),
+    'versions' => array(
+      // Means ">=2.6.2": matches 2.6.2, 2.7.1, etc.
+      '2.6.2' => array(
+        'variants' => array(
+          'source' => array(
+            'files' => array(
+              'js' => array(
+                'modernizr.js',
+              ),
+            ),
+            // Without a variant callback, the variant is assumed to be
+            // installed.
+            'variant callback' => '_navbar_libraries_variant_exists',
+            'variant arguments' => array('modernizr.js')
+          ),
+          'minified' => array(
+            'files' => array(
+              'js' => array(
+                'modernizr-min.js',
+              ),
+            ),
+            // Without a variant callback, the variant is assumed to be
+            // installed.
+            'variant callback' => '_navbar_libraries_variant_exists',
+            'variant arguments' => array('modernizr-min.js')
+          ),
+        ),
+      ),
+    ),
+  );
+  $libraries['modernizr'] += $common;
+
+  $libraries['underscore'] = array(
+    'name' => 'Underscore',
+    'vendor url' => 'http://documentcloud.github.io/backbone/',
+    'download url' => 'https://github.com/jashkenas/underscore/archive/1.5.2.zip',
+    'version arguments' => array(
+      'variants' => array(
+        'source' => array(
+          'file' => 'underscore.js',
+          // @todo Document an actual example version string.
+          'pattern' => '#VERSION *\W *[\'\"]{1}(.*?)[\'\"]{1}#',
+          // In the unminified Underscore.js 1.5.2, the version is defined on
+          // line 68.
+          'lines' => 100,
+        ),
+        'minified' => array(
+          'file' => 'underscore-min.js',
+          'pattern' => '#VERSION *\W *[\'\"]{1}(.*?)[\'\"]{1}#',
+        ),
+      ),
+    ),
+    'versions' => array(
+      // Means ">=1.5.0": matches 1.5.0, 1.5.2, etc.
+      '1.5.0' => array(
+        'variants' => array(
+          'source' => array(
+            'files' => array(
+              'js' => array(
+                'underscore.js',
+              ),
+            ),
+            // Without a variant callback, the variant is assumed to be
+            // installed.
+            'variant callback' => '_navbar_libraries_variant_exists',
+            'variant arguments' => array('underscore.js'),
+          ),
+          'minified' => array(
+            'files' => array(
+              'js' => array(
+                'underscore-min.js',
+              ),
+            ),
+            // Without a variant callback, the variant is assumed to be
+            // installed.
+            'variant callback' => '_navbar_libraries_variant_exists',
+            'variant arguments' => array('underscore-min.js'),
+          ),
+        ),
+      ),
+    ),
+  );
+  $libraries['underscore'] += $common;
+
+  $libraries['backbone'] = array(
+    'name' => 'Backbone',
+    'vendor url' => 'http://documentcloud.github.io/backbone/',
+    'download url' => 'https://github.com/jashkenas/backbone/archive/1.1.0.zip',
+    'version arguments' => array(
+      'variants' => array(
+        'source' => array(
+          'file' => 'backbone.js',
+          // @todo Document an actual example version string.
+          'pattern' => '#VERSION *\W *[\'\"]{1}(.*?)[\'\"]{1}#',
+          // In the unminified Backbone.js 1.1.0, the version is defined on line
+          // 38.
+          'lines' => 50,
+        ),
+        'minified' => array(
+          'file' => 'backbone-min.js',
+          'pattern' => '#VERSION *\W *[\'\"]{1}(.*?)[\'\"]{1}#',
+        ),
+      ),
+    ),
+    'versions' => array(
+      // Means ">=1.0.0": matches 1.0.0, 1.1.0, etc.
+      '1.0.0' => array(
+        'variants' => array(
+          'source' => array(
+            'name' => 'Backbone',
+            'files' => array(
+              'js' => array(
+                'backbone.js',
+              ),
+            ),
+            // Without a variant callback, the variant is assumed to be
+            // installed.
+            'variant callback' => '_navbar_libraries_variant_exists',
+            'variant arguments' => array('backbone.js'),
+            'dependencies' => array('underscore (>=1.5.0)'),
+          ),
+          'minified' => array(
+            'name' => 'Backbone',
+            'files' => array(
+              'js' => array(
+                'backbone-min.js',
+              ),
+            ),
+            // Without a variant callback, the variant is assumed to be
+            // installed.
+            'variant callback' => '_navbar_libraries_variant_exists',
+            'variant arguments' => array('backbone-min.js'),
+            'dependencies' => array('underscore (>=1.5.0)'),
+          ),
+        ),
+      ),
+    ),
+  );
+  $libraries['backbone'] += $common;
+
+  return $libraries;
+}
+
+/**
+ * Determines the version of a navbar library.
+ *
+ * This is used in case different variants of the library are shipped separately
+ * and, thus, different variants can contain different versions.
+ *
+ * @param array $library
+ *   An associative array containing all information about the library. The
+ *   library is assumed to have the following non-standard keys:
+ *   - variant order: An array of variant names, ordered from the most preferred
+ *     variant to the least preferred.
+ * @param array $options
+ *   An associative array with the following keys:
+ *   - variants: An array of options for libraries_get_version() keyed by
+ *     variant name.
+ *
+ */
+function _navbar_libraries_get_version(&$library, $options = array()) {
+  $versions = array();
+  foreach ($library['variant order'] as $variant_name) {
+    $variant = $library['version arguments']['variants'][$variant_name];
+    // Use the libraries get version function to determine the version string.
+    $versions[$variant_name] = libraries_get_version($library, $variant);
+  }
+
+  // If no versions could be found for any of the variant, there is no version
+  // to return. If different versions have been found, there is no way to
+  // determine the correct one. We cannot use the information on the preferred
+  // variants because we cannot guarantee that a less preferred variant will not
+  // be loaded. Null values are fine. Either that variant file doesn't exist
+  // or id doesn't contain version information. As long as the there is no
+  // conflicting version information, the check should pass.
+  $versions = array_filter($versions, '_navbar_libraries_filter_null_values');
+  $version = array_unique($versions);
+  $vcount = count($version);
+  if ($vcount == 1) {
+    // A version number exists, so suppress any errors that any individual
+    // variant might have raised.
+    unset($library['error']);
+    unset($library['error message']);
+    return array_shift($version);
+  }
+  elseif ($vcount > 1) {
+    $output = array();
+    foreach ($versions as $name => $v) {
+      $output[] = t('@name (@v)', array(
+        '@name' => $name,
+        '@v' => $v,
+      ));
+    }
+
+    $library['error'] = 'inconsistent versions';
+    $library['error message'] = t('The library\'s variants returned inconsistent versions: @variant_info', array(
+      '@variant_info' => implode(', ', $output),
+    ));
+  }
+  // If the version count is zero, then let the error from libraries_get_version
+  // propagate through.
+}
+
+/**
+ * Determines if an item is empty or not.
+ *
+ * @param string $item
+ *   A version number string.
+ * @return boolean
+ *   Whether the $item's value is empty or not.
+ */
+function _navbar_libraries_filter_null_values($item) {
+  return !empty($item);
+}
+
+/**
+ * Libraries API variant callback.
+ */
+function _navbar_libraries_variant_exists($library, $variant_name, $required_file) {
+  return file_exists($library['library path'] . '/' . $required_file);;
+}
+
+/**
+ * Implements hook_cache_flush().
+ */
+function navbar_cache_flush() {
+  return array('navbar');
+}
+
+/**
+ * Returns the hash of the per-user rendered navbar subtrees.
+ */
+function _navbar_get_subtree_hash() {
+  global $user;
+  $cid = $user->uid . ':' . language(LANGUAGE_TYPE_INTERFACE)->langcode;
+  if ($cache = cache('navbar')->get($cid)) {
+    $hash = $cache->data;
+  }
+  else {
+    $subtrees = navbar_get_rendered_subtrees();
+    $hash = drupal_hash_base64(serialize($subtrees));
+    cache('navbar')->set($cid, $hash);
+  }
+  return $hash;
+}
+
+/**
+ * Converts a libraries module array to a hook_library array.
+ *
+ * @todo Libraries API should automatically register all libraries in
+ *   hook_library(). See https://drupal.org/node/1386368
+ *
+ * @return Array
+ *  Returns a standard Drupal library definition structure.
+ */
+function _navbar_convert_libraries_to_library($library, $options = array()) {
+  // If the library wasn't installed, don't bother converting it.
+  if (!$library['installed']) {
+    return array();
+  }
+
+  $converted = array();
+  $files = array();
+
+  // Get the library files from one of the installed variants.
+  if ($name = _navbar_libraries_get_preferred_variant_name($library)) {
+    $files = $library['variants'][$name]['files'];
+  }
+
+  // Define the library if files exist for it.
+  if (!empty($files)) {
+    // This is the basic structure expected by hook_library().
+    $converted = array(
+      'title' => $library['name'],
+      'website' => $library['vendor url'],
+      'version' => $library['version'],
+    );
+    foreach ($files as $type => $paths) {
+      foreach($paths as $filename => $data) {
+        $converted[$type][$library['library path'] . '/' . $filename] = $options;
+      }
+    }
+  }
+
+  return $converted;
+}
+
+/**
+ * Returns the variant that should be loaded based on order preference.
+ *
+ * @param array $library
+ *   A libraries module library definition array.
+ * @return string
+ *   The name of the variant that should be loaded.
+ */
+function _navbar_libraries_get_preferred_variant_name($library) {
+  if (!empty($library['variant order'])) {
+    foreach ($library['variant order'] as $name) {
+      if ($variant = $library['variants'][$name]) {
+        if ($variant['installed']) {
+          return $name;
+        }
+      }
+    }
+  }
+  return NULL;
+}
+
+/**
+ * Implementation of hook_suppress()
+ *
+ * Allows other modules to suppress display of Navbar
+ *
+ * This function should be called from within another module's page callback
+ * (preferably using module_invoke()) when the navbar should not be displayed.
+ * This is useful for modules that implement popup pages or other special
+ * pages where the navbar would be distracting or break the layout.
+ *
+ * @param $set
+ *   Defaults to TRUE. If called before hook_footer(), the navbar will not be
+ *   displayed. If FALSE is passed, the suppression state is returned.
+ **/
+function navbar_suppress($set = TRUE) {
+  static $suppress = FALSE;
+  if (!empty($set) && $suppress === FALSE) {
+    $suppress = TRUE;
+  }
+  return $suppress;
+}
+
+/**
+ * Implements hook_modernizr_info().
+ */
+function navbar_modernizr_info() {
+  $tests = array();
+
+  // Feature tests
+  $tests[] = 'inputtypes';
+  $tests[] = 'svg';
+  $tests[] = 'touch';
+  $tests[] = 'elem_details';
+
+  // Extensibility
+  $tests[] = 'addtest';
+  $tests[] = 'teststyles';
+  $tests[] = 'prefixes';
+
+  return $tests;
+}

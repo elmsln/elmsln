@@ -1,0 +1,59 @@
+/**
+ * Override of responsive vertical tabs module css/vertical-tabs-rtl.css.
+ */
+
+/* push summary left */
+.vertical-tabs-panes a.fieldset-title {
+  margin-left: .5em; 
+  margin-right: 0;
+}
+/* positions collapse icon beside legend */
+html.js .vertical-tabs-panes fieldset.collapsed .fieldset-legend {
+  background-position: 100% 7px;
+}
+/* positions collapse icon beside legend */
+html.js .vertical-tabs-panes fieldset.collapsible .fieldset-legend {
+  background-position: 100% 7px;
+}
+html.js .vertical-tabs-panes .fieldset-legend span.summary {
+  margin-right: 0;
+  margin-left: 0;
+}
+/* create the two column layout for 960+ */
+@media all and (min-width: 960px) and (max-width: 5000px) {
+  /* make all the form elements 65% on node and block forms 
+   * TODO: this needs to be re-done with js that adds the column on admin pages where vertical tabs exist */
+  form[class^='node-'] .fieldset,
+  form[class^='node-'] .form-wrapper,
+  form#block-admin-configure fieldset,
+  form#block-admin-configure .form-wrapper,
+  form#block-admin-configure .form-item  {
+    float: right; 
+  }
+   /* make the tabs column for the vertical tabs */
+  form[class^='node-'] .vertical-tabs-panes,
+  form#block-admin-configure .vertical-tabs-panes {
+    right: 65%;
+    left: 0;
+    padding-right: 30px; 
+    padding-left: 0;
+  }
+  /* re-positions vertical tabs title at the top of the tabs column for Block UI, account settings */
+  form#block-admin-configure #edit-visibility-title {
+  	right: 65%;
+  	left: 0;
+    padding-right: 30px;
+    padding-left: 0;
+  }
+}
+
+
+
+
+
+
+
+
+
+
+

@@ -1,0 +1,153 @@
+/**
+ * @file
+ * Replaces Drupal core's system.messages.css.
+ */
+/**
+ * Drupal messages
+ */
+/* General message styles. */
+.messages {
+  -webkit-box-sizing: border-box;
+  -moz-box-sizing: border-box;
+  box-sizing: border-box;
+  margin: 0.70711em 0;
+  padding: 0.70711em;
+  border-width: 1px;
+  border-style: solid;
+  border-color: #dddddd;
+}
+[dir="ltr"] .messages {
+  border-left-width: 0.35355em;
+  -moz-border-radius-topright: 2px;
+  -webkit-border-top-right-radius: 2px;
+  border-top-right-radius: 2px;
+  -moz-border-radius-bottomright: 2px;
+  -webkit-border-bottom-right-radius: 2px;
+  border-bottom-right-radius: 2px;
+}
+[dir="rtl"] .messages {
+  border-right-width: 0.35355em;
+  -moz-border-radius-topleft: 2px;
+  -webkit-border-top-left-radius: 2px;
+  border-top-left-radius: 2px;
+  -moz-border-radius-bottomleft: 2px;
+  -webkit-border-bottom-left-radius: 2px;
+  border-bottom-left-radius: 2px;
+}
+.messages > :first-child {
+  margin-top: 0;
+}
+.messages > :last-child {
+  margin-bottom: 0;
+}
+
+/* Messages with icons. */
+[dir="ltr"] .status,
+[dir="ltr"] .ok, [dir="ltr"] .warning, [dir="ltr"] .error {
+  padding-left: 2.91421em;
+}
+[dir="rtl"] .status,
+[dir="rtl"] .ok, [dir="rtl"] .warning, [dir="rtl"] .error {
+  padding-right: 2.91421em;
+}
+.status:before,
+.ok:before, .warning:before, .error:before {
+  content: "";
+  display: inline-block;
+  width: 1.5em;
+  height: 1.5em;
+  background-color: transparent;
+  background-repeat: no-repeat;
+  background-position: center center;
+  background-size: 100%;
+}
+[dir="ltr"] .status:before,
+[dir="ltr"] .ok:before, [dir="ltr"] .warning:before, [dir="ltr"] .error:before {
+  float: left;
+  margin-left: -2.20711em;
+}
+[dir="rtl"] .status:before,
+[dir="rtl"] .ok:before, [dir="rtl"] .warning:before, [dir="rtl"] .error:before {
+  float: right;
+  margin-right: -2.20711em;
+}
+
+/* Specific styles for the status message. */
+.status,
+.ok {
+  background: white;
+}
+[dir="ltr"] .status,
+[dir="ltr"] .ok {
+  border-left-color: #82bb41;
+}
+[dir="rtl"] .status,
+[dir="rtl"] .ok {
+  border-right-color: #82bb41;
+}
+.status:before,
+.ok:before {
+  background-image: url('../images/success.svg?1396547846');
+}
+
+/* Specific styles for the warning message. */
+.warning {
+  background: white;
+}
+[dir="ltr"] .warning {
+  border-left-color: #f79521;
+}
+[dir="rtl"] .warning {
+  border-right-color: #f79521;
+}
+.warning:before {
+  background-image: url('../images/warning.svg?1396547846');
+}
+
+/* Specific styles for the error message. */
+.error {
+  background: white;
+}
+[dir="ltr"] .error {
+  border-left-color: #cb2026;
+}
+[dir="rtl"] .error {
+  border-right-color: #cb2026;
+}
+.error:before {
+  background-image: url('../images/error.svg?1396547846');
+}
+
+/* Report message styles. */
+tr.ok, tr.info, tr.warning, tr.error,
+span.ok,
+span.info,
+span.warning,
+span.error {
+  padding: 0;
+  background: none;
+}
+tr.ok:before, tr.info:before, tr.warning:before, tr.error:before,
+span.ok:before,
+span.info:before,
+span.warning:before,
+span.error:before {
+  display: none;
+}
+tr.ok,
+span.ok {
+  color: #82bb41;
+}
+tr.warning,
+span.warning {
+  color: #f79521;
+}
+tr.error,
+span.error {
+  color: #cb2026;
+}
+
+/* Inline messages. */
+[dir="ltr"] span.ok, [dir="rtl"] span.ok, [dir="ltr"] span.info, [dir="rtl"] span.info, [dir="ltr"] span.warning, [dir="rtl"] span.warning, [dir="ltr"] span.error, [dir="rtl"] span.error {
+  padding: 0;
+}

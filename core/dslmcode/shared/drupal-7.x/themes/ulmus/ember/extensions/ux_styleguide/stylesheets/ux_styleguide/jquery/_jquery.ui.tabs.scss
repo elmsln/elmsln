@@ -1,0 +1,12 @@
+//
+// @file
+// Provide replacement styles for jQuery UI.
+//
+
+.ui-tabs-nav {
+  @extend %tabs-primary;
+}
+
+.ui-tabs-hide {
+  display: none;
+}

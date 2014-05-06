@@ -1,0 +1,88 @@
+/**
+ * @file navbar.menu.css
+ */
+#navbar-administration .menu {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+#navbar-administration .navbar-box {
+  display: block;
+  line-height: 1em; /* this prevents the value "normal" from being returned as the line-height */
+  position: relative;
+  width: auto;
+}
+#navbar-administration .navbar-tray-horizontal .menu .navbar-handle,
+#navbar-administration .navbar-tray-horizontal .menu .menu,
+#navbar-administration .navbar-tray-vertical .menu > .navbar-twisty > .menu {
+  display: none;
+}
+#navbar-administration .navbar-tray-vertical .navbar-twisty.open > .menu {
+  display: block; /* Show the sub-menus */
+}
+#navbar-administration .navbar-tray-vertical .navbar-handle + .navbar-menu-item {
+  margin-right: 3em; /* LTR */
+}
+#navbar-administration .navbar-tray .navbar-active-trail > .navbar-box .navbar-menu-item,
+#navbar-administration .navbar-tray .navbar-active
+/* Drupal's active menu item class. */
+#navbar-administration .navbar-tray .active {
+  color: #000;
+  font-weight: bold;
+}
+
+/**
+ * Items.
+ */
+#navbar-administration .navbar-level-2 > ul {
+  background-color: #fafafa;
+  border-bottom-color: #cccccc;
+  border-top-color: #e5e5e5;
+}
+#navbar-administration .navbar-level-3 > ul {
+  background-color: #f5f5f5;
+  border-bottom-color: #c5c5c5;
+  border-top-color: #dddddd;
+}
+#navbar-administration .navbar-level-4 > ul {
+  background-color: #eeeeee;
+  border-bottom-color: #bbbbbb;
+  border-top-color: #d5d5d5;
+}
+#navbar-administration .navbar-level-5 > ul {
+  background-color: #e5e5e5;
+  border-bottom-color: #b5b5b5;
+  border-top-color: #cccccc;
+}
+#navbar-administration .navbar-level-6 > ul {
+  background-color: #eeeeee;
+  border-bottom-color: #aaaaaa;
+  border-top-color: #c5c5c5;
+}
+#navbar-administration .navbar-level-7 > ul {
+  background-color: #fafafa;
+  border-bottom-color: #b5b5b5;
+  border-top-color: #cccccc;
+}
+#navbar-administration .navbar-level-8 > ul {
+  background-color: #dddddd;
+  border-bottom-color: #cccccc;
+  border-top-color: #dddddd;
+}
+
+/**
+ * Handle.
+ */
+#navbar-administration .navbar-handle:hover {
+  cursor: pointer;
+}
+#navbar-administration .navbar-icon.navbar-handle {
+  bottom: 0;
+  display: block;
+  height: 100%;
+  padding: 0;
+  position: absolute;
+  right: 0; /* LTR */
+  top: 0;
+  z-index: 1;
+}

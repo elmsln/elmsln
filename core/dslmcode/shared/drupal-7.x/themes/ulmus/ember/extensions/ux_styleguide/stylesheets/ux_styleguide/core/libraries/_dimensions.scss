@@ -1,0 +1,45 @@
+//
+// @file
+// Dimension variables.
+//
+
+// Use the border-box model for layouts.
+$include-border-box: true;
+
+// Use the modular-scale plugin for spacing.
+$base-size: 1em;
+$ratio: augmented-fourth() fifth();
+
+// Set defaults for borders.
+$default-border-radius: 2px;
+$base-border-width: 1px !default;
+
+// Configure for Compass vertical rhythm and set defaults for reuse.
+$font-size: 14px !default;
+$font-size-small: .88em !default;
+$font-size-micro: ms(-1) !default;
+$line-height: ms(1) !default;
+$rhythm-space: ms(-1) !default;
+$rhythm-space-short: ms(-5) !default;
+$inset-space: ms(4) !default;
+$inset-space-short: ms(2) !default;
+
+// Breakpoints
+$breakpoint-extra-small: 15em !default;
+$breakpoint-small: 30em !default;
+$breakpoint-medium: 40em !default;
+$breakpoint-large: 60em !default;
+$breakpoint-extra-large: 80em !default;
+
+// Make the default output for singularitygs grids float.
+$output: float;
+
+// Add support for rtl layouts.
+$direction: both;
+
+// Set the gutters for the Singularitygs grids.
+$gutters: $rhythm-space * 2;
+$gutter-styles: split fixed;
+
+// Set a maximum page width.
+$maximum-page-width: 140em !default;

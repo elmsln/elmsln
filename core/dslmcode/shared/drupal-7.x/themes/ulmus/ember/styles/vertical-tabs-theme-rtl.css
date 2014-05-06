@@ -1,0 +1,23 @@
+/**
+ * Override of responsive vertical tabs module css/vertical-tabs-theme-rtl.css.
+ */
+
+/* push summary right */
+.vertical-tabs-panes a.fieldset-title {
+  margin-left: .5em; 
+}
+html.js .vertical-tabs-panes .fieldset-legend span.summary {
+  margin-right: 0; /* LTR */
+  margin-left: .5em; /* LTR */
+}
+
+
+
+
+
+
+
+
+
+
+

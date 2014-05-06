@@ -1,0 +1,782 @@
+/* Ember overrides of views CSS */
+
+// Import the common includes for all files.
+@import "base";
+
+.views-admin {
+  ul,
+  menu,
+  dir {
+    padding: 0;
+  }
+
+  pre {
+    margin-bottom: inherit;
+    margin-top: inherit;
+    white-space: inherit;
+  }
+
+  .icon {
+    &.linked {
+      background-position: center -157px;
+    }
+
+    &.unlinked {
+      background-position: center -199px;
+    }
+
+    &.add {
+      background-position: center 7px;
+    }
+
+    &.delete {
+      background-position: center -56px;
+    }
+
+    &.rearrange {
+      background-position: center -115px;
+    }
+  }
+
+  a {
+    &.icon {
+      &.add {
+        background-position: center 7px, left top;
+      }
+
+      &.delete {
+        background-position: center -56px, left top;
+      }
+
+      &.rearrange {
+        background-position: center -115px, left top;
+      }
+    }
+  }
+
+  span.icon {
+    float: none;
+  }
+
+  .form-type-checkbox {
+    + .form-wrapper {
+      margin-left: 0;
+    }
+  }
+
+  .form-type-checkbox,
+  .form-type-radio {
+    label {
+      line-height: inherit;
+    }
+  }
+
+  h1.unit-title {
+    font-size: 2.5em;
+    line-height: normal;
+    margin-top: 0em;
+  }
+}
+
+.views-group-box {
+  .form-item {
+    margin-left: inherit;
+    margin-right: inherit;
+  }
+}
+
+.views-displays {
+  .secondary {
+    border-bottom: 0 none;
+    margin: 0;
+    overflow: visible;
+    padding: 0;
+
+    > li {
+      border-right: 0 none;
+      padding: 0;
+    }
+
+    .action-list {
+      top: inherit;
+    }
+  }
+}
+
+.views-display-tab {
+  .fieldset-legend {
+    left: 0;
+  }
+
+  .fieldset-wrapper {
+    > .views-ui-display-tab-bucket .actions {
+      right: 0;
+      top: 0;
+    }
+  }
+}
+
+.views-display-columns {
+  > * {
+    margin-left: 0;
+    padding-left: 0;
+    padding-right: 1em;
+
+    &:first-child {
+      margin-left: 0;
+      padding-left: 0;
+    }
+  }
+}
+
+.views-ui-dialog {
+  .ui-dialog-titlebar-close {
+    border: 0px solid transparent;
+    top: 0;
+  }
+  .views-messages {
+    padding: 0 1em;
+  }
+}
+
+.box-padding {
+  padding-left: 0;
+  padding-right: 0;
+}
+
+.box-margin {
+  margin: 0;
+}
+
+.views-admin-dependent {
+  .form-item {
+    margin-bottom: 0;
+    margin-top: 0;
+  }
+}
+
+.horizontal {
+  > * {
+    + * {
+      margin-left: 0;
+      padding-left: 0;
+    }
+  }
+}
+
+.views-ui-view-title {
+  font-weight: inherit;
+}
+
+.view-changed {
+  margin-bottom: 0;
+}
+
+.form-item-description-enable {
+  label {
+    font-weight: inherit;
+  }
+}
+
+.form-item-page-create,
+.form-item-block-create {
+  margin-top: inherit;
+
+  label {
+    font-weight: inherit;
+  }
+}
+
+.views-attachment {
+  .options-set {
+    label {
+      font-weight: inherit;
+    }
+  }
+}
+
+td.group-title {
+  font-weight: inherit;
+
+  .views-ui-dialog & {
+    span {
+      height: inherit;
+    }
+  }
+}
+
+.views-operator-label {
+  font-weight: 500;
+}
+
+.grouped-description,
+.exposed-description {
+  padding: {
+    top: 0;
+    right: 0;
+  }
+}
+
+.views-displays {
+  border: 0px solid transparent;
+  padding-bottom: 0;
+}
+
+.views-display-top {
+  background-color: transparent;
+  border: 0px solid transparent;
+  padding: 0;
+  border-bottom: 1px solid #999;
+  margin-bottom: 1em;
+  height: 2.8em;
+
+  .ctools-button-processed {
+    right: 0;
+  }
+
+  .secondary {
+    margin-right: 0;
+
+    > li {
+      margin-right: 1em;
+    }
+  }
+}
+
+#views-display-extra-actions {
+  li {
+    padding: 0;
+  }
+}
+
+ul#views-display-menu-tabs {
+  li {
+    padding: 0;
+    margin: 0 1em 0 0;
+    color: $color-text;
+    line-height: 2.5em;
+    text-shadow: none;
+    background-color: $color-background-medium;
+    border-radius: 0;
+  }
+}
+
+.views-displays {
+  .secondary a {
+    border: 0px solid transparent;
+    font-size: inherit;
+    line-height: inherit;
+    padding: 0;
+    color: $color-text-reverse;
+  }
+
+  .secondary a:hover > .icon.add {
+    background-position: center 7px;
+  }
+
+  ul.secondary li.active a.active.error,
+  .secondary a.error {
+    border: 0;
+    color: $color-error;
+  }
+
+  .secondary {
+    a:hover,
+    .active a {
+      background-color: inherit;
+      color: $color-text;
+      border: 0px solid transparent;;
+    }
+
+    .open {
+      > a {
+        background-color: inherit;
+        border: 0px solid transparent;
+
+        &:hover {
+          background-color: inherit;
+        }
+      }
+
+      a:hover {
+        > .icon.add {
+          background-position: center 7px;
+        }
+      }
+    }
+
+    .action-list  {
+      li {
+        background-color: inherit;
+        border: 0px solid transparent;
+        padding: 0px;
+      }
+    }
+  }
+}
+
+#edit-display-settings-title {
+  font-size: 14px;
+  line-height: inherit;
+  margin: 0;
+}
+
+#edit-display-settings-top {
+  padding-bottom: 0px;
+}
+
+#edit-display-settings-content {
+  margin-top: 0px;
+}
+
+#edit-display-settings-main {
+  margin-top: 0px;
+}
+
+.views-display-column {
+  + .views-display-column {
+    margin-top: 0;
+  }
+}
+
+#views-ui-preview-form {
+  .form-type-checkbox {
+    margin-top: 0px;
+    margin-left: 0px;
+    float: none;
+  }
+
+  .arguments-preview,
+  .form-type-textfield {
+    margin-left: 0px;
+  }
+
+  .form-type-textfield {
+    margin-top: 0;
+    display:inline-block;
+
+    label {
+      float: none;
+      font-weight: normal;
+      height: inherit;
+      margin-right: 0;
+    }
+
+    .description {
+      white-space: normal;
+      max-width: 300px;
+    }
+  }
+
+  .arguments-preview {
+    font-size: inherit;
+  }
+}
+
+.views-ui-display-tab-bucket {
+  border: 0px solid transparent;
+  line-height: inherit;
+  padding-top: 0px;
+}
+
+.views-ui-display-tab-bucket {
+  + .views-ui-display-tab-bucket {
+    border-top: 0px solid transparent;
+  }
+
+  > h3,
+  > .views-display-setting {
+    padding: inherit;
+  }
+
+  h3 {
+    font-size: inherit;
+    margin: .5em 0;
+    font-weight: 900;
+    border-top: 1px solid #ddd;
+    padding: .5em 0 0;
+  }
+
+  .horizontal.actions {
+    margin-right: 0px;
+
+    li {
+      + li {
+        margin-left: 0px;
+        padding-left: 0px;
+      }
+    }
+  }
+
+  &.access {
+    padding-top: 0;
+  }
+
+  &.page-settings {
+    border-bottom: medium none;
+  }
+
+  .views-display-setting {
+    color: inherit;
+    font-size: inherit;
+    padding-bottom: 0px;
+  }
+
+  .even {
+    background-color: transparent;
+  }
+
+  .views-group-text {
+    margin-top: 0px;
+    margin-bottom: 0px;
+  }
+}
+
+.views-display-setting {
+  .views-ajax-link {
+    margin-left: 0em;
+    margin-right: 0em;
+  }
+
+  .label {
+    margin-right: .5em;
+  }
+}
+
+#edit-displays-preview-controls {
+  .fieldset-wrapper {
+    > .form-item {
+      margin-top: 0em;
+      display: block;
+    }
+  }
+
+  .form-submit {
+    margin-right: 0em;
+    display: block;
+  }
+}
+
+#views-ui-preview-form {
+  > div {
+    > div {
+      display: block;
+      margin: 2.2em .5em 0 0;
+    }
+  }
+}
+
+#edit-displays-preview-controls {
+  .form-type-textfield {
+    margin-left: 0em;
+
+    label {
+      border-left: 0px solid transparent;
+      padding-left: 0em;
+
+      &:after {
+        content: ":";
+      }
+    }
+  }
+}
+
+.views-filterable-options {
+  border-top:  0px solid transparent;
+
+  .form-type-checkbox {
+    border: 0px solid transparent;
+    padding: 0;
+  }
+
+  .even {
+    .form-type-checkbox {
+      background-color: transparent;
+    }
+  }
+}
+
+#views-filterable-options-controls {
+  margin: 0em 0;
+}
+
+.views-ui-dialog {
+  font-size: inherit;
+  padding: 0;
+
+  .form-buttons {
+    padding: 1.5em;
+    background-color: #F3F4EE;
+    width: 100%;
+    position: absolute;
+    bottom: 0;
+  }
+
+  #edit-cancel {
+    margin: 0 .5em 0 0;
+    font-size: inherit;
+  }
+
+  #edit-submit {
+    margin: 0 .5em 0 0;
+  }
+
+  .ui-dialog-titlebar-close {
+    display: none;
+
+    span {
+      display: block;
+    }
+  }
+
+  .views-filterable-options {
+    margin-bottom: 0px;
+    line-height: 2em;
+  }
+
+  .views-ui-dialog #edit-selected {
+    margin: 0;
+    padding: 0;
+  }
+
+  #views-ajax-title,
+  .views-override {
+    background-color: transparent;
+  }
+
+  .views-override {
+    padding: 0 2em 1em;
+    border-bottom: 1px solid #ccc;
+
+    > * {
+      margin: 0;
+    }
+  }
+
+  #views-ajax-title {
+    font-size: 2em;
+    padding: .5em;
+    display: block;
+    margin: 0;
+    background: $color-background-dark;
+    color: $color-text-reverse;
+  }
+
+  #views-progress-indicator {
+    font-size: inherit;
+    right: 0;
+    top: 0px;
+
+    &:before {
+      content: "\003C\00A0";
+    }
+
+    &:after {
+      content: "\00A0\003E";
+    }
+  }
+
+  .scroll {
+    border: 1px solid #CCC;
+    border-width: 0;
+    padding: 1em 2em 3em;
+  }
+
+  #edit-options {
+    float: none;
+    display: block;
+    width: auto;
+  }
+}
+
+.form-type-checkboxes {
+  #edit-options-value,
+  #edit-options-validate-options-node-types {
+    border: 0px solid transparent;
+    margin-top: inherit;
+    padding: inherit;
+  }
+}
+
+#views-ui-rearrange-filter-form {
+  /*tr {
+    td[rowspan] {
+      border: 0px solid transparent;
+    }
+
+    &[id^="views-row"] {
+      border-right: 0px solid transparent;
+
+      &.even {
+        td {
+          background-color: transparent;
+        }
+      }
+    }
+  }*/
+
+  .views-group-title {
+    border-top: 0px solid transparent;
+  }
+
+  .group-empty {
+    border-bottom: 0px solid transparent;
+  }
+}
+
+.form-item-options-expose-required,
+.form-item-options-expose-label,
+.form-item-options-expose-description {
+  margin-bottom: 0px;
+  margin-left: 0px;
+  margin-top: 0px;
+}
+
+#views-preview-wrapper {
+  border: 0px solid transparent;;
+  padding: 0px;
+}
+
+#views-ui-preview-form {
+  margin: 0px;
+}
+
+#views-live-preview {
+  margin: 0px;
+
+  h1.section-title {
+    color: inherit;
+    font-size: inherit;
+    font-weight: inherit;
+    line-height: inherit;
+  }
+
+  .view {
+    > * {
+      margin-top: 0px;
+    }
+  }
+
+  .preview-section {
+    border: 1px dashed #DEDEDE;
+    margin: 0px;
+    padding: 0px;
+  }
+
+  li.views-row {
+    + li.views-row {
+      margin-top: 0px;
+    }
+  }
+
+  div.views-row {
+    + div.views-row {
+      margin-top: 0px;
+    }
+  }
+
+  .view-content {
+    > .item-list {
+      > ul {
+        padding-left: 0px;
+      }
+    }
+  }
+}
+
+/*.views-query-info {
+  table {
+    border-color: inherit;
+    border-spacing: 0;
+    margin: inherit;
+
+    tr {
+      background-color: inherit;
+    }
+
+    th,
+    td {
+      color: inherit;
+      padding: 0px;
+    }
+  }
+}*/
+
+#edit-options-exception.collapsible {
+  margin-top: 0;
+}
+
+/* Hide the drupal system throbber image */
+.ajax-progress {
+  .throbber {
+    display: none;
+  }
+}
+
+#views-ajax-body {
+  form {
+    margin: 1em 0;
+  }
+}
+
+.views-exposed-form {
+  .views-exposed-widget {
+    float: none;
+    display: inline-block;
+    padding: 0;
+
+    .form-submit {
+      margin-top: 2.4em;
+    }
+  }
+}
+
+ul#views-display-menu-tabs {
+  margin-top: .5em;
+
+  li {
+    background-color: transparent;
+    color: $color-text;
+    border-bottom:4px solid transparent;
+    border-radius: 0;
+  }
+}
+
+.action-list {
+  input.form-submit {
+    color: $color-link;
+    padding: 0;
+    margin: 0;
+  }
+}
+
+.views-displays {
+  .secondary {
+    a {
+      color: $color-text;
+    }
+
+    .active {
+      a {
+        &,
+        &:hover   {
+          color: $color-text;
+          border-bottom: 4px solid;
+          border-color: $color-link-alternate;
+        }
+      }
+    }
+
+    .action-list {
+      background: #fff;
+      border: 1px solid #ddd;
+      padding: .5em;
+
+      input.form-submit {
+        color: $color-text;
+        text-shadow: none;
+        font-weight: normal;
+      }
+    }
+  }
+}

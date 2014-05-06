@@ -1,0 +1,20 @@
+//
+// @file
+// General style additions for Drupal 7.
+//
+
+/* Make fake buttons inherit the given styles. */
+.button,
+[id^="edit-cancel"] {
+  @extend %font-sansserif-bold;
+  @extend %button-default-layout;
+  @extend %button-default;
+}
+
+input[id^="edit-submit"],
+input[id^="edit-next"],
+.fake-submit {
+  @extend %font-sansserif-bold;
+  @extend %button-default-layout;
+  @extend %button-primary;
+}

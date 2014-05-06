@@ -1,0 +1,83 @@
+/* Ember overrides of features CSS */
+
+// Import the common includes for all files.
+@import "base";
+
+form {
+  div.buttons {
+    text-align: left;
+  }
+}
+
+div.features-components table td {
+  line-height: 2.25;
+}
+
+div.features-components table th span {
+  background: none;
+}
+
+a.admin-update, 
+a.features-storage, 
+span.features-storage, 
+span.features-component-list span {
+  white-space: nowrap;
+  margin-right: 0;
+  padding: .25em .5em;
+  background: #ddd;
+  -moz-border-radius: 0;
+  -webkit-border-radius: 0;
+}
+
+#features-export-wrapper .component-included .form-type-checkbox {
+  margin: 0;
+  padding: .25em;
+}
+
+div.features-export-list {
+  border: 0;
+}
+
+div.features-components,
+#features-filter,
+fieldset.features-export-component,
+div.features-components div.column div.info {
+  h3 {
+    font-weight: 300;
+    font-size: 2.25em;
+    line-height: normal;
+  }
+}
+
+fieldset.features-export-component {
+  &,
+  &.collapsed {
+    background: none;
+  }
+}
+
+#features-filter {
+  label,
+  #input {
+    display: inline;
+    width: auto;
+  }
+
+  span  {
+    @extend %button-common;
+    display: inline;
+    float: left;
+    padding: 0 1em 0 0;
+    background: inherit;
+  }
+
+  .form-item  {
+    float: none;
+    margin: inherit;
+    padding: inherit;
+
+    &.form-type-checkbox {
+      margin: inherit;
+    }
+  }
+}

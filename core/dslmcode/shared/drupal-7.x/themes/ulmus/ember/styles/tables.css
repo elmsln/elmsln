@@ -1,0 +1,273 @@
+th {
+  font-family: "Helvetica Neue", helvetica, "Segoe UI", segoe, "Ubuntu", "Droid Sans", "Arial", sans-serif;
+}
+
+th {
+  font-weight: 400;
+}
+
+caption,
+tfoot {
+  font-family: Constantia, "Lucida Bright", Lucidabright, "Lucida Serif", Lucida, "DejaVu Serif", "Bitstream Vera Serif", "Liberation Serif", Georgia, serif;
+}
+
+caption,
+tfoot {
+  font-style: italic;
+}
+caption i,
+tfoot i,
+caption em,
+tfoot em {
+  font-style: normal;
+}
+
+/**
+ * Ember table styles
+ */
+table {
+  /* Firefox has issues with tables aligning to the right and off the page. */
+  clear: both;
+  width: 100%;
+  border-spacing: 0;
+  margin: 0 0 2em;
+  overflow: scroll;
+}
+
+table thead {
+  border-top: 1px solid #dddddd;
+}
+table tfoot {
+  border-bottom: 1px solid #dddddd;
+}
+table tbody {
+  border-collapse: collapse;
+  border-top: 1px solid #dddddd;
+}
+
+tr {
+  /* Exception for webkit bug with the right border of the last cell in some
+  * tables, since it's webkit only, we can use :last-child */
+}
+tr.odd, tr.even {
+  background-color: transparent;
+}
+tr.odd .form-item,
+tr.odd .form-actions, tr.even .form-item,
+tr.even .form-actions {
+  margin: 0;
+  padding: 0;
+}
+tr.region-title {
+  background-color: transparent;
+  border: 0px solid transparent;
+}
+tr:hover td {
+  background-color: white;
+}
+tr.selected td {
+  background-color: #ffffee;
+}
+tr:last-child {
+  border-right: none;
+  /* LTR */
+}
+
+th {
+  font-size: .9em;
+  font-weight: 600;
+  color: #999999;
+  text-transform: uppercase;
+  letter-spacing: .05em;
+  margin: 0;
+  position: relative;
+}
+[dir="ltr"] th {
+  text-align: left;
+  padding: 0.5rem 3rem 0.5rem 1rem;
+}
+[dir="rtl"] th {
+  text-align: right;
+  padding: 0.5rem 1rem 0.5rem 3rem;
+}
+a th {
+  text-decoration: none;
+  cursor: pointer;
+}
+a th:hover {
+  color: #007ec0;
+}
+a th:active {
+  color: #333333;
+}
+th:last-child {
+  width: 100%;
+  text-align: right;
+}
+th:first-child {
+  text-align: left;
+}
+
+th > a:link,
+th > a:visited {
+  color: #2fa6e5;
+}
+
+th > a:hover {
+  color: #007ec0;
+}
+
+th:before {
+  content: "";
+  position: absolute;
+  width: 100%;
+  top: -2px;
+  left: 0px;
+  height: 100%;
+  z-index: -1;
+  background-color: #fafafa;
+}
+
+th a:before {
+  content: "";
+  position: absolute;
+  width: 100%;
+  top: -2px;
+  left: 0px;
+  height: 100%;
+  z-index: -1;
+}
+
+th a:hover:before {
+  content: "";
+  position: absolute;
+  border-bottom: 2px solid #2fa6e5;
+  width: 100%;
+  top: 0px;
+  left: 0px;
+  background-color: white;
+  height: 95%;
+  z-index: -1;
+}
+
+th.active a:before {
+  content: "";
+  position: absolute;
+  border-bottom: 2px solid #f05724;
+  width: 100%;
+  top: -2px;
+  left: 0px;
+  background-color: white;
+  height: 100%;
+  z-index: -1;
+}
+
+th.active {
+  white-space: nowrap;
+}
+th.active > a {
+  color: #333333;
+}
+
+td > a:hover,
+th > a:hover,
+th.active > a:hover {
+  cursor: pointer;
+  text-decoration: none;
+}
+
+td {
+  padding: 0.5rem 3rem 0.5rem 1rem;
+  vertical-align: top;
+  border-bottom: 1px solid #dddddd;
+}
+[dir="ltr"] td {
+  text-align: left;
+  padding: 0.5rem 3rem 0.5rem 1rem;
+}
+[dir="rtl"] td {
+  text-align: right;
+  padding: 0.5rem 1rem 0.5rem 3rem;
+}
+a td {
+  color: #2fa6e5;
+  cursor: pointer;
+}
+a td:hover {
+  color: #007ec0;
+}
+td:last-child {
+  text-align: right;
+}
+td:first-child {
+  text-align: left;
+}
+td.status, td.ok {
+  background-color: transparent;
+}
+td ul.inline {
+  margin: 0;
+}
+
+th a,
+td a {
+  text-decoration: none;
+}
+
+td li.first.last,
+td li {
+  padding: 0;
+  margin: 0;
+  line-height: 0;
+}
+
+.sticky-header {
+  z-index: 2;
+}
+
+/* on multi-select tables the second column is primary, thus nth child 2 is used to emphasize the primary column */
+.table-select-processed td:nth-child(2) {
+  font-weight: bold;
+}
+
+@media (max-width: 680px) {
+  table {
+    display: block;
+  }
+
+  tr {
+    position: relative;
+  }
+
+  th:nth-child(2),
+  td:nth-child(2) {
+    position: absolute;
+    left: 0;
+    display: block;
+    width: 30%;
+    margin: 0;
+    overflow: hidden;
+    background-color: white;
+    border-right: 1px solid #dddddd;
+  }
+
+  td:nth-child(1),
+  th:nth-child(1) {
+    padding-left: 250px;
+  }
+}
+/* overrides */
+#permissions td,
+#permissions th:last-child,
+#permissions th:first-child,
+#views td,
+#views th:last-child,
+#views th:first-child,
+#system-modules td,
+#system-modules th:last-child,
+#system-modules th:first-child,
+#features-filter td,
+#features-filter th:last-child,
+#features-filter th:first-child {
+  width: auto;
+}

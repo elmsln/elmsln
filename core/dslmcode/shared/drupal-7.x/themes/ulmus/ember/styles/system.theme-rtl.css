@@ -1,0 +1,7 @@
+/**
+ * Override of system theme rtl
+ */
+
+html.js fieldset.collapsed .fieldset-legend {
+	background-image: none;
+}

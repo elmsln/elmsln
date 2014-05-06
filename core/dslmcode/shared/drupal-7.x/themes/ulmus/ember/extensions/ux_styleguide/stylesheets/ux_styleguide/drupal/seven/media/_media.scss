@@ -1,0 +1,150 @@
+/**
+ * @file
+ * Styles for the media library.
+ *
+ * The display and layout of the Media browser assumes Drupal's Seven theme as
+ * the theme active when this is displayed.
+ */
+
+/* jQuery UI Resets */
+
+.ui-dialog.media-wrapper {
+  .ui-dialog-buttonpane {
+    display: none;
+  }
+}
+
+/* Media item display */
+
+.media-item {
+  background: #FFFFFF;
+  border: 1px solid #CCCCCC;
+  padding: 5px;
+  position: relative;
+
+  img {
+    height: auto;
+    margin-bottom: 10px;
+  }
+
+  .label-wrapper {
+    text-align: center;
+    position: absolute;
+    bottom: 0;
+    margin-left: auto;
+    margin-right: auto;
+    width: 90%;
+
+    label {
+      font-size: 10px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+  }
+}
+
+/* Media item lists */
+
+#media-browser-library-list {
+  margin: 0;
+  padding: 0;
+}
+
+.media-list-thumbnails {
+
+  li {
+    float: left;
+    list-style: none;
+    margin: 0 10px 10px 0;
+
+    a {
+      text-decoration: none;
+    }
+  }
+
+  .media-item {
+    &.selected {
+      background: #F4ECC7;
+      border-color: #058AC5;
+    }
+
+    &:hover {
+      border-color: #058AC5;
+      cursor: pointer;
+    }
+
+    .label-wrapper label {
+      color: #058AC5;
+
+      &:hover {
+        cursor: pointer;
+      }
+    }
+  }
+
+  .form-type-checkbox {
+    bottom: 135px;
+    left: 8px;
+    margin: 0;
+    padding: 0;
+    position: relative;
+  }
+}
+
+/* Format form */
+
+#media-format-form {
+  margin: 20px;
+
+  .media-item {
+    float: left;
+    margin-right: 10px;
+  }
+
+  .form-item-format label {
+    display: inline;
+  }
+}
+
+/* File field */
+
+.media-widget .preview {
+  display: inline-block;
+  vertical-align: middle;
+
+  a {
+    text-decoration: none;
+  }
+
+  .media-item {
+    margin-right: 10px;
+
+    &:hover {
+      border-color: #058AC5;
+      cursor: pointer;
+    }
+
+    .label-wrapper label {
+      color: #058AC5;
+
+      &:hover {
+        cursor: pointer;
+      }
+    }
+  }
+}
+
+/* Plupload */
+
+body.page-media-format-form #media-browser-page .plupload_start {
+  display: none;
+}
+
+/* Multiedit */
+
+.media-multiedit-form .media-edit-form {
+  border-bottom: 1px solid #AAAAAA;
+  margin-bottom: 1em;
+  margin-top: 1.5em;
+}

@@ -1,0 +1,78 @@
+/* Ember overrides of Media module CSS */
+
+// Import the common includes for all files.
+@import "base";
+
+/* Media - Field widget */
+
+.media-widget {
+  padding: 9px 0;
+  margin: 0 10px 10px 0;
+
+  &:after {
+    content: ".";
+    display: block;
+    height: 0;
+    clear: both;
+    visibility: hidden;
+  }
+
+  .form-item {
+    margin: 0;
+    padding-bottom: 0;
+  }
+
+  .preview {
+    background: #CCC;
+    min: {
+      height: 110px;
+      width: 110px;
+    }
+    margin-right: 10px;
+    border: 1px solid #CCC;
+    float: left;
+
+    .media-item {
+      margin: 0;
+      border: 0;
+    }
+  }
+}
+
+.media-thumbnails-select {
+  float: left;
+  margin: 1em 0;
+  clear: both;
+}
+
+#media-browser-library-list {
+  clear: both;
+  float: left;
+}
+
+.media-list-thumbnails {
+  .form-type-checkbox {
+    bottom: 138px;
+    left: 2px;
+  }
+
+  img,
+  label {
+    margin: 0;
+  }
+}
+
+.media-item {
+  background: #eee;
+  border: 1px solid #ccc;
+  padding: 18px;
+
+  .label-wrapper {
+    text-align: left;
+    bottom: 0;
+    left: 5px;
+    margin: 0;
+    width: 90%;
+    overflow: hidden;
+  }
+}

@@ -1,0 +1,11 @@
+/**
+ * @file navbar.menu-rtl.css
+ */
+#navbar-administration .navbar-tray-vertical .navbar-handle + .navbar-menu-item {
+  margin-left: 3em;
+  margin-right: 0;
+}
+#navbar-administration .navbar-icon.navbar-handle {
+  left: 0;
+  right: auto;
+}

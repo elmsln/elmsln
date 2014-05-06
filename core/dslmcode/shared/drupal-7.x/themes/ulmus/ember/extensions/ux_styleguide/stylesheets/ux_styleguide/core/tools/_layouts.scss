@@ -1,0 +1,168 @@
+//
+// @file
+// Generate simple grids using singularitygs.
+//
+
+// Output placeholder classes for a single layout.
+@mixin simple-layout($group, $name, $columns, $breakpoint: null) {
+  $gutter: find-gutter();
+
+  %#{$group}-container {
+    %#{$group}-#{$name}-child {
+      position: relative;
+      @include grid-span(1);
+    }
+
+    @for $count from 1 through $columns {
+      @if $count > 1 {
+        %#{$group}-#{$name}-span-#{$count} {
+          @include grid-span($count);
+        }
+      }
+
+      %#{$group}-#{$name}-push-#{$count} {
+        left: column-span($count, 1);
+
+        [dir="rtl"] & {
+          left: auto;
+          right: column-span($count, 1);
+        }
+      }
+
+      %#{$group}-#{$name}-pull-#{$count} {
+        left: -(column-span($count, 1));
+
+        [dir="rtl"] & {
+          left: auto;
+          right: -(column-span($count, 1));
+        }
+      }
+    }
+
+    @if $columns > 1 {
+      %#{$group}-#{$name}-first {
+        clear: left;
+
+        [dir="rtl"] & {
+          clear: right;
+        }
+      }
+
+      %#{$group}-#{$name}-last {
+        clear: right;
+
+        [dir="rtl"] & {
+          clear: left;
+        }
+      }
+    }
+  }
+}
+
+// Bulk generate placeholder classes for multiple layouts linked to breakpoints.
+@mixin responsive-layout($group, $layouts) {
+  $gutter: find-gutter();
+
+  %#{$group}-container {
+    @extend %clearfix;
+    margin: {
+      right: -($gutter / 2);
+      left: -($gutter / 2);
+    }
+  }
+
+  // Generate the grid definitions.
+  @each $layout in $layouts {
+    @if length($layout) > 2 {
+      $grids: add-grid(nth($layout, 2) at nth($layout, 3));
+    }
+    @else {
+      $grids: nth($layout, 2);
+    }
+  }
+
+  // Generate the css for the layouts.
+  @each $layout in $layouts {
+    $index: index($layouts, $layout);
+    $breakpoint: null;
+
+    @if length($layout) > 2 {
+      $breakpoint: nth($layout, 3);
+    }
+
+    @if length($layouts) > $index and length(nth($layouts, $index + 1)) > 2 {
+      $next: nth(nth($layouts, $index + 1), 3);
+
+      @if $breakpoint != null {
+        @if unit($next) == px {
+          $breakpoint: ($next - 1) $breakpoint;
+        }
+        @else {
+          $breakpoint: ($next - .001) $breakpoint;
+        }
+      }
+      @else {
+        @if unit($next) == px {
+          $breakpoint: max-width ($next - 1);
+        }
+        @else {
+          $breakpoint: max-width ($next - .001);
+        }
+      }
+
+      @include breakpoint($breakpoint) {
+        @include simple-layout($group, $layout...);
+      }
+    }
+    @else if length($layouts) == $index and $breakpoint != null {
+      @include breakpoint($breakpoint) {
+        @include simple-layout($group, $layout...);
+      }
+    }
+    @else {
+      @include simple-layout($group, $layout...);
+    }
+  }
+}
+
+// Quickly attach grids to containers and children.
+@mixin attach-layouts($parent, $child, $prefix, $group, $layouts) {
+  #{$parent} {
+    @extend %#{$group}-container;
+  }
+
+  @each $layout in $layouts {
+    $name: nth($layout, 1);
+    $columns: nth($layout, 2);
+
+    #{$child} {
+      @extend %#{$group}-#{$name}-child;
+    }
+
+    @for $count from 1 through $columns {
+      @if $count > 1 {
+        #{$prefix}-#{$name}-span-#{$count} {
+          @extend %#{$group}-#{$name}-span-#{$count};
+        }
+      }
+
+      #{$prefix}-#{$name}-push-#{$count} {
+        @extend %#{$group}-#{$name}-push-#{$count};
+      }
+
+      #{$prefix}-#{$name}-pull-#{$count} {
+        @extend %#{$group}-#{$name}-pull-#{$count};
+      }
+    }
+
+    @if $columns > 1 {
+      #{$prefix}-#{$name}-first {
+        @extend %#{$group}-#{$name}-first;
+      }
+
+      #{$prefix}-#{$name}-last {
+        @extend %#{$group}-#{$name}-last;
+      }
+    }
+  }
+}

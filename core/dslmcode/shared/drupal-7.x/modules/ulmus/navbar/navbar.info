@@ -1,0 +1,12 @@
+name = Mobile Friendly Navigation Toolbar
+description = A very simple mobile friendly toolbar that lets you switch between frontend and backend.
+core = 7.x
+
+dependencies[] = libraries (>=2.0)
+
+; Information added by Drupal.org packaging script on 2014-02-27
+version = "7.x-1.4+9-dev"
+core = "7.x"
+project = "navbar"
+datestamp = "1393520316"
+

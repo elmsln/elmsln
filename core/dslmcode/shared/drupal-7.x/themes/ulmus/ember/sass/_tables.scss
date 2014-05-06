@@ -1,0 +1,351 @@
+// Import the common includes for all files.
+
+
+/**
+ * Ember table styles
+ */
+
+table,
+thead,
+tfoot,
+tbody,
+tr,
+th,
+td {
+  overflow: hidden;
+  white-space: normal;
+  text-align: left;
+}
+
+table {
+  /* Firefox has issues with tables aligning to the right and off the page. */
+  clear: both; 
+  display: block;
+  width: 100%;
+  max-width: 100%;
+  border-spacing: 0;
+  margin: 0 0 2em;
+  overflow: scroll;
+}
+
+caption,
+tfoot {
+  @extend %font-serif-italic;
+}
+
+table { 
+  thead {
+    border-top: $base-border-width solid $color-border;
+  }
+
+  tfoot {
+    border-bottom: $base-border-width solid $color-border;
+  }
+
+  tbody {
+    border-collapse: collapse;
+    border-top: $base-border-width solid $color-border; 
+  }
+}
+
+tr {
+  &.odd,
+  &.even {
+    background-color: transparent;
+
+    .form-item,
+    .form-actions {
+      margin: 0;
+      padding: 0;
+    }
+  }
+
+  &.region-title  {
+    background-color: transparent;
+    border: 0px solid transparent;
+  }
+
+  &:hover td {
+    background-color: $color-background;
+  }
+
+  &.selected td {
+    background-color: $color-selected;
+  }
+  /* Exception for webkit bug with the right border of the last cell in some
+  * tables, since it's webkit only, we can use :last-child */
+  &:last-child {
+    border-right: none; /* LTR */
+  }
+}
+
+td > a:hover,
+th > a:hover,
+th.active > a:hover {
+  cursor: pointer;
+  text-decoration: none;
+  color: $color-link-hover;
+}
+
+th.active {
+  white-space: nowrap; & {
+    & > a {
+      color: $color-text;
+    }
+  } 
+}
+
+th,
+td {
+  padding: 0.5rem 1.5rem;
+}
+th {
+  @extend %font-sansserif-regular;
+  font-size: .9em;
+  font-weight: 600;
+  color: $color-text-light;
+  text-transform: uppercase;
+  letter-spacing: .05em;
+  margin: 0;
+  position: relative;
+  white-space: nowrap;
+}
+
+/* Creates the border bottom and background that will be altered for affordances for sortable columns. 
+ * :before is used bacause we can't change attributes on the parent of the link */
+th:before {
+  content: "";
+  position: absolute;
+  width: 100%;
+  top: -2px;
+  left: 0px;
+  height: 100%;
+  background-color: $color-background-lightest;
+  z-index: -1;
+}
+
+th a:hover:before {
+  content: "";
+  position: absolute;
+  border-bottom: 2px solid $color-link;
+  width: 100%;
+  top: 0px;
+  left: 0px;
+  background-color: $color-background;
+  height: 95%;
+  z-index: -1;
+}
+
+th.active a:before {
+  content: "";
+  position: absolute;
+  border-bottom: 2px solid $color-link-alternate;
+  width: 100%;
+  top: -2px;
+  left: 0px;
+  background-color: $color-background;
+  height: 100%;
+  z-index: -1;
+}
+
+td {
+  padding: 0.5rem 3rem 0.5rem 1rem;
+  vertical-align: top;
+  border-bottom: $base-border-width solid $color-border;
+  overflow: hidden;
+
+  [dir="ltr"] & {
+    text-align: left;
+    padding: 0.5rem 3rem 0.5rem 1rem;
+  }
+
+  [dir="rtl"] & {
+    text-align: right;
+    padding: 0.5rem 1rem 0.5rem 3rem;
+  }
+
+  a & {
+  color: $color-link;
+  cursor: pointer;
+
+    &:hover {
+    color: $color-link-hover;
+    }
+  }
+  
+  &.status,
+  &.ok {
+   background-color: transparent;
+  }
+  ul.inline {
+    margin: 0;
+  }
+  &.description {
+    opacity: 1;
+    background-color: inherit;
+    transition: none;
+  }
+}
+
+th a,
+td a {
+  text-decoration: none;
+}
+
+td ul,
+td ol,
+td li.first,
+td li.last,
+td li  {
+  padding: 0;
+  margin: 0;
+  line-height: normal;
+}
+
+/* Remove padding from lists inside tables */
+[dir="ltr"] td {
+  ul, 
+  ol {
+    padding-left: 0;
+  }
+}
+[dir="rtl"] td {
+  ul, 
+  ol {
+    padding-right: 0;
+  }
+}
+
+.sticky-header {
+  z-index: 2;
+}
+
+
+
+@media (max-width: 680px) {
+  table {
+    display: block;
+  }
+  tr { 
+    position: relative;
+  }
+  th:nth-child(2),
+  td:nth-child(2) {
+    position: absolute;
+    left: 0;
+    display: block;
+    width: 30%;
+    margin: 0;
+    overflow: hidden;
+    background-color: $color-background;
+    border-right: 1px solid $color-border;
+    z-index: 2;
+  }
+  td,
+  th {
+    &:nth-child(1) {
+      padding-left: 250px;
+    }
+  }
+}
+
+/* overrides */
+
+
+/* on these forms/pages make column 1 widest */
+#permissions,
+.page-admin-structure-menu,
+.page-admin-reports-updates {
+  th,
+  td {
+    &:last-child {
+      width: 100%;
+    }
+  }
+}
+
+/* on these forms/pages make column 4 widest */
+form#system-modules {
+  th,
+  td {
+    &:nth-child(4) {
+      width: 100%;
+      min-width: 300px;
+    }
+  }
+}
+
+/* on these pages align last child left */
+#node-admin-content,
+#block-admin-display-form,
+#user-admin-account {
+  td,
+  th {
+    &:last-child {
+      width: 100%;
+      text-align: right;
+    }
+  }
+}
+
+/* on these pages align last child column right */
+#node-admin-content,
+#block-admin-display-form,
+#user-admin-account {
+  td,
+  th {
+    &:last-child {
+      text-align: right;
+    }
+  }
+}
+
+/*
+#update-manager-update-form table {
+  td {
+    white-space: normal;
+  }
+  td:last-child {
+    text-align: left;
+    white-space: normal;
+  }
+}*/
+
+/* on multi-select tables the second column is primary, thus nth child 2 is used to emphasize the primary column */
+
+.table-select-processed {
+  td,
+  th {
+    white-space: nowrap;
+    &:first-child {
+      padding: 0.5rem 1rem;
+    }
+    &:nth-child(2) {
+      font-weight: bold;
+    }
+    &:last-child {
+      width: 100%;
+    }
+  }
+}
+
+
+/*.table-select-processed {
+  tr {
+    overflow: hidden;
+  }
+  td {
+    white-space: nowrap;
+    overflow: hidden;
+  }
+} */
+
+
+
+  
+
+
+
+
+
+

@@ -1,0 +1,45 @@
+/* Ember styles for the dropbutton component */
+
+// Import the common includes for all files.
+@import "base";
+
+.dropbutton-widget {
+  .js & {
+    background: #f5f5f5;
+    border: 0px solid transparent;
+    border-radius: 4px;
+    @include box-shadow(0px 1px 2px rgba(0,0,0,0.3));
+
+    a {
+      color: #555;
+
+      &:hover {
+        color: #000;
+      }
+    }
+  }
+
+  tr.selected > & {
+    background: $color-background;
+  }
+}
+
+.dropbutton {
+  .dropbutton-widget & {
+    line-height: 1.8em;
+  }
+
+  .dropbutton-multiple & {
+    border-right: 1px solid #ddd;
+  }
+
+  .secondary-action {
+    border-top: 1px solid #ddd;
+  }
+}
+
+.dropbutton-toggle {
+  button {
+    background:none;
+  }
+}

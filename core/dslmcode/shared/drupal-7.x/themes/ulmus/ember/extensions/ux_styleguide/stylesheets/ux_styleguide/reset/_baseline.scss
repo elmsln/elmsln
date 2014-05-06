@@ -1,0 +1,636 @@
+//
+// @file
+// General typography styles.
+//
+
+@mixin styleguide-reset($type: all) {
+  @if $type == all or $type == outer {
+    /**
+     * Default element styles
+     */
+    html {
+      font: #{$font-size}/#{$line-height} $font-sansserif;
+      color: $color-text;
+      -webkit-font-smoothing: antialiased;
+      font-smoothing: antialiased;
+      text-rendering: optimizeLegibility\9; /* Only IE, can mess with Android */
+    }
+
+    html,
+    body {
+      margin: 0;
+      padding: 0;
+    }
+  }
+
+  @if $type == all or $type == text-block {
+    /**
+     * Block level elements
+     */
+    p,
+    ul,
+    ol,
+    dl,
+    form,
+    fieldset {
+      display: block;
+      margin: $rhythm-space 0;
+      padding: 0;
+      font-size: ms(0);
+      line-height: $line-height;
+    }
+  }
+
+  @if $type == all or $type == headings {
+    /**
+     * Default header styles
+     */
+    #{headings(1, 2)} {
+      @extend %font-sansserif-light;
+    }
+
+    #{headings(3, 4)} {
+      @extend %font-sansserif-regular;
+    }
+
+    #{headings(5, 6)} {
+      @extend %font-sansserif-bold;
+    }
+
+    $hcount: 6;
+    @while $hcount > 0 {
+      h#{7 - $hcount} {
+        font-size: ms($hcount - 1);
+        margin: ms(2 - $hcount) 0 ms(0 - $hcount);
+      }
+
+      $hcount: $hcount - 1;
+    }
+
+    #{headings()} {
+      line-height: normal;
+    }
+  }
+
+  @if $type == all or $type == lists {
+    /**
+     * Default list styles
+     */
+    ul,
+    ol,
+    dl {
+      margin: {
+        right: 0;
+        left: 0;
+      }
+      padding: 0;
+
+      [dir="ltr"] & {
+        padding-left: $inset-space;
+      }
+
+      [dir="rtl"] & {
+        padding-right: $inset-space;
+      }
+
+      ul,
+      ol {
+        [dir="ltr"] & {
+          padding-left: $inset-space-short;
+        }
+
+        [dir="rtl"] & {
+          padding-right: $inset-space-short;
+        }
+      }
+    }
+
+    ol {
+      list-style: decimal;
+    }
+
+    ul {
+      list-style: disc;
+    }
+
+    li,
+    dt,
+    dd {
+      margin: $rhythm-space-short 0;
+    }
+
+    dt {
+      @extend %font-sansserif-bold;
+    }
+
+    dd {
+      [dir="ltr"] {
+        margin-left: $inset-space-short;
+      }
+
+      [dir="rtl"] {
+        margin-right: $inset-space-short;
+      }
+    }
+  }
+
+  @if $type == all or $type == quotes {
+    /**
+     * Default quote styles
+     */
+    q {}
+
+    blockquote {
+      margin: $rhythm-space $inset-space-short;
+      padding: $rhythm-space;
+      border: {
+        top: $base-border-width solid;
+        bottom: $base-border-width solid;
+        color: $color-border;
+      }
+      @include border-radius;
+      @extend %font-serif-italic;
+
+      > * {
+        font-size: 1.25em;
+
+        &:first-child {
+          margin-top: 0;
+        }
+
+        &:last-child {
+          margin-bottom: 0;
+        }
+      }
+    }
+  }
+
+  @if $type == all or $type == preformatted {
+    /**
+     * Preformatted text styles
+     */
+    pre,
+    code {
+      @extend %font-monospace;
+    }
+
+    pre {
+      margin: $rhythm-space $inset-space-short;
+      padding: 0;
+    }
+
+    code {
+      display: inline-block;
+      padding: 0 $rhythm-space;
+      @include border-radius;
+      background: $color-text;
+      color: $color-text-code;
+
+      pre & {
+        display: block;
+        padding: $rhythm-space;
+        overflow: auto;
+      }
+    }
+  }
+
+  @if $type == all or $type == tables {
+    /**
+     * Default table styles
+     */
+    table {
+      width: 100%;
+      margin: $rhythm-space 0;
+      border-collapse: collapse;
+      border-spacing: 0;
+    }
+
+    caption,
+    tfoot {
+      @extend %font-serif-italic;
+    }
+
+    tbody {
+      border-top: $base-border-width solid $color-border;
+    }
+
+    th {
+      @extend %font-sansserif-regular;
+      text-transform: uppercase;
+
+      [dir="ltr"] & {
+        text-align: left;
+      }
+
+      [dir="rtl"] & {
+        text-align: right;
+      }
+    }
+
+    th,
+    td {
+      margin: 0;
+      padding: $rhythm-space-short $rhythm-space;
+      border-bottom: $base-border-width solid $color-border;
+    }
+  }
+
+  @if $type == all or $type == forms {
+    /**
+     * Default form styles
+     */
+    label {
+      display: block;
+      @extend %font-sansserif-bold;
+      margin: $rhythm-space-short 0;
+
+      &.required {
+        color: $color-warning;
+      }
+
+      &.error {
+        color: $color-error;
+      }
+    }
+
+    fieldset {
+      @include box-sizing(border-box);
+      width: 100%;
+      max-width: 100%;
+      min-height: ms(1);
+      margin: ($rhythm-space * 2) 0 $rhythm-space;
+      padding: 0;
+      border: {
+        /* There needs to be some width or Webkit will freak. */
+        width: 1px 0;
+        style: solid;
+        color: transparent;
+      }
+
+      [dir="ltr"] & {
+        padding-left: $inset-space;
+      }
+
+      [dir="rtl"] & {
+        padding-right: $inset-space;
+      }
+    }
+
+    legend {
+      margin-bottom: $rhythm-space;
+      font: {
+        size: ms(1);
+        weight: $font-light;
+      }
+    }
+
+    button,
+    input,
+    textarea {
+      display: inline-block;
+      @include box-sizing(border-box);
+      @include single-transition((background, color, border, outline), .2s);
+      outline: 0 solid $color-border-highlight;
+      font-family: $font-sansserif;
+
+      &:focus,
+      &:active {
+        outline-width: $base-border-width;
+        @include box-shadow(none);
+      }
+    }
+
+    input[type="color"],
+    input[type="date"],
+    input[type="datetime"],
+    input[type="datetime-local"],
+    input[type="email"],
+    input[type="file"],
+    input[type="month"],
+    input[type="number"],
+    input[type="password"],
+    input[type="range"],
+    input[type="search"],
+    input[type="tel"],
+    input[type="text"],
+    input[type="time"],
+    input[type="url"],
+    input[type="week"],
+    select,
+    textarea {
+      -webkit-appearance: none;
+      @include box-sizing(border-box);
+      margin: $rhythm-space-short 0;
+      padding: $rhythm-space-short $rhythm-space;
+      max-width: 100%;
+      border: $base-border-width solid $color-border;
+      @include border-radius;
+      font-size: 1em;
+      line-height: $line-height;
+      background: $color-input-background;
+      @include background-clip(padding-box);
+
+      @include placeholder {
+        color: $color-placeholder;
+        font: {
+          family: $font-sansserif;
+          weight: $font-regular;
+        }
+      }
+
+      &.required {
+        border-color: $color-warning;
+      }
+
+      &.error {
+        border-color: $color-error;
+      }
+
+      &:focus,
+      &:active {
+        color: $color-text;
+        @include box-shadow(none);
+        background: $color-input-background;
+        border-color: $color-border-highlight;
+      }
+    }
+
+    textarea {
+      display: block;
+      width: 100%;
+      height: auto;
+    }
+
+    input[type="color"] {
+      &::-webkit-color-swatch-wrapper,
+      &::-webkit-color-swatch {
+        position: relative;
+        top: -$rhythm-space-short;
+        left: -$rhythm-space-short;
+        width: $line-height * 2;
+        height: $line-height;
+        padding: 0;
+      }
+    }
+
+    input[type="search"] {
+      -webkit-appearance: textfield;
+
+      &::-webkit-search-decoration {
+        display: none;
+      }
+    }
+
+    input[type="range"] {
+      -webkit-appearance: slider-horizontal;
+      color: $color-text;
+      @include box-shadow(none);
+    }
+
+    // See: https://gist.github.com/joaocunha/6273016
+    select {
+      -moz-appearance: none;
+      -webkit-appearance: none;
+      text-indent: .01px;
+      text-overflow: '';
+
+      &,
+      &[size="0"],
+      &[size="1"] {
+        @include border-radius;
+
+        &,
+        &:focus {
+          background: {
+            image: url(data:image/png;base64,R0lGODlhDQAEAIAAAAAAAP8A/yH5BAEHAAEALAAAAAANAAQAAAILhA+hG5jMDpxvhgIAOw==);
+            repeat: no-repeat;
+          }
+        }
+
+        [dir="ltr"] & {
+          padding-right: 20px;
+          background-position: right center;
+        }
+
+        [dir="rtl"] & {
+          padding-left: 20px;
+          background-position: $rhythm-space center;
+        }
+      }
+
+      &[size],
+      &[multiple],
+      &[multiple][size] {
+        background-image: none;
+        padding-right: 3px;
+      }
+
+      &::-ms-expand {
+        display: none;
+      }
+    }
+
+    // Tweaks for Safari + Chrome.
+    @media (-webkit-min-device-pixel-ratio: 0) {
+      ::-webkit-validation-bubble-message {
+        @include box-shadow(none);
+        background: -webkit-gradient(linear, left top, left bottom, color-stop(0, #666666), color-stop(1, black));
+        border: 1px solid;
+        border-color: #747474 #5e5e5e #4f4f4f;
+        color: white;
+        overflow: hidden;
+        padding: 15px 15px 17px;
+        text-shadow: black 0 0 1px;
+        height: 16px;
+      }
+
+      ::-webkit-validation-bubble-arrow,
+      ::-webkit-validation-bubble-top-outer-arrow,
+      ::-webkit-validation-bubble-top-inner-arrow {
+        @include box-shadow(none);
+        background: #666666;
+        border: 0;
+      }
+    }
+
+    input,
+    select,
+    textarea {
+      &,
+      &[type] {
+        &[disabled] {
+          &,
+          &:active,
+          &:focus {
+            cursor: not-allowed;
+            background-color: $color-background-alternate;
+            border-color: shade($color-background-alternate, 20);
+            color: shade($color-background-alternate, 20);
+            outline: none;
+          }
+        }
+      }
+    }
+  }
+
+  @if $type == all or $type == inline-text {
+    /**
+     * Default inline text styles
+     */
+    sub,
+    sup {
+      font-size: $font-size-micro;
+    }
+
+    sup {
+      vertical-align: super;
+    }
+
+    sub {
+      vertical-align: sub;
+    }
+
+    small {
+      font-size: $font-size-small;
+    }
+
+    i,
+    em {
+      font-style: italic;
+    }
+
+    bold,
+    strong {
+      font-weight: $font-bold;
+    }
+  }
+
+  @if $type == all or $type == links {
+    /**
+     * Default link styles
+     */
+    a {
+      @include single-transition((background, color, border, outline), .2s);
+
+      &,
+      &:link {
+        color: $color-link;
+        text-decoration: none;
+      }
+
+      &:visited {
+        color: $color-link-visited;
+      }
+
+      &:hover {
+        color: $color-link-hover;
+        text-decoration: underline;
+      }
+    }
+  }
+
+  @if $type == all or $type == media {
+    /**
+     * Default media styles
+     */
+    img,
+    video,
+    audio,
+    figure {
+      display: block;
+      margin: $rhythm-space 0;
+      max-width: 100%;
+      height: auto;
+    }
+
+    audio {
+      min-height: $line-height;
+    }
+  }
+
+  @if $type == all or $type == buttons {
+    /**
+     * Button styles
+     */
+    @include buttons;
+
+    button,
+    input[type="reset"],
+    input[type="submit"],
+    input[type="button"],
+    [class*="action-item"] {
+      @extend %font-sansserif-bold;
+      @extend %button-default-layout;
+      @extend %button-default;
+      max-width: 100%;
+
+      &[class*="action-item-large"] {
+        @include text-shadow(none);
+        font-weight: $font-regular;
+      }
+    }
+
+    [class*="action-item-small"] {
+      @extend %button-small-layout;
+    }
+
+    [class*="action-item-large"] {
+      @extend %button-large-layout;
+    }
+
+    .action-item-active,
+    .action-item-small-active,
+    .action-item-large-active {
+      &,
+      &[type="reset"],
+      &[type="submit"],
+      &[type="button"] {
+        @extend %button-active;
+      }
+    }
+
+    .action-item-primary,
+    .action-item-small-primary,
+    .action-item-large-primary {
+      &,
+      &[type="reset"],
+      &[type="submit"],
+      &[type="button"] {
+        @extend %button-primary;
+      }
+    }
+
+    .action-item-primary-active,
+    .action-item-small-primary-active,
+    .action-item-large-primary-active {
+      &,
+      &[type="reset"],
+      &[type="submit"],
+      &[type="button"] {
+        @extend %button-primary-active;
+      }
+    }
+
+    .action-item-alternate,
+    .action-item-small-alternate,
+    .action-item-large-alternate {
+      &,
+      &[type="reset"],
+      &[type="submit"],
+      &[type="button"] {
+        @extend %button-alternate;
+      }
+    }
+
+    .action-item-alternate-active,
+    .action-item-small-alternate-active,
+    .action-item-large-alternate-active {
+      &,
+      &[type="reset"],
+      &[type="submit"],
+      &[type="button"] {
+        @extend %button-alternate-active;
+      }
+    }
+  }
+}

@@ -1,0 +1,1250 @@
+// Import the common includes for all files.
+@import "base";
+
+/* =============================================================================
+
+   GENERIC ELEMENTS
+
+   ========================================================================== */
+
+@include styleguide-reset;
+
+body {
+  background: #f5f5f5;
+}
+
+p,
+blockquote,
+pre,
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+article,
+aside,
+details,
+figcaption,
+figure,
+footer,
+header,
+hgroup,
+nav,
+section,
+summary,
+dt,
+dd,
+li,
+.more-help-link,
+.more-link {
+  max-width: $line-length-normal;
+}
+
+h2,
+h3 {
+  color: #555;
+  font-weight: 300;
+}
+
+/* =============================================================================
+
+   DRUPAL ADDMIN INTERACTION PATTERNS
+
+   ========================================================================== */
+
+/* SKIP LINK */
+
+#skip-link {
+  left: 50%; /* LTR */
+  margin-left: -5.25em; /* LTR */
+  margin-top: 0;
+  position: absolute;
+  width: auto;
+  z-index: 50;
+
+  a {
+    &,
+    &:link,
+    &:visited {
+      background: #444;
+      border-radius: 0 0 10px 10px;
+      color: $color-text-reverse;
+      display: block;
+      font-size: $font-size-small;
+      padding: 1px 10px 2px 10px; /* LTR */
+      text-decoration: none;
+    }
+
+    &:hover,
+    &:focus,
+    &:active {
+      outline: 0;
+    }
+  }
+}
+
+/* FORM ELEMENTS */
+
+@import "ux_styleguide/drupal/seven/drupal-7";
+
+.form-select  {
+  &,
+  &:focus,
+  &:active {
+    background: $color-background image-url("select_sprite.svg") no-repeat;
+  }
+
+  $select-image-padding: px-to-em(45px) + $rhythm-space;
+
+  [dir="ltr"] & {
+    padding-right: $select-image-padding;
+    background-position: right -5px center;
+  }
+
+  [dir="rtl"] & {
+    padding-left: $select-image-padding;
+    background-position: left -5px center;
+  }
+}
+
+.machine-name-label {
+  margin-left: 10px;
+}
+
+.form-managed-file {
+  .form-file,
+  .form-submit {
+    vertical-align: middle;
+  }
+
+  .form-file {
+    display: inline-block;
+    margin-right: .5em;
+    line-height: 1em; /* corrects vertical alignment of default filename text */
+  }
+
+  .form-submit {
+    margin: 0;
+  }
+}
+
+.tips,
+.description {
+  font-size: $font-size-small;
+  opacity: .5;
+  background-color: transparent;
+
+  &:hover {
+    opacity: 1;
+  }
+}
+
+/* ADMIN LISTS */
+
+div.admin {
+  padding: 0;
+}
+
+.block .body ul {
+  margin: 0;
+}
+
+div.admin-panel {
+  margin: 0 0 2em;
+  padding: 0 20px 0 0;
+
+  .body {
+    padding: 0;
+  }
+
+  h3 {
+    font-size: ms(1);
+    margin: 0 0 .5em 0;
+    padding: 0 0 5px;
+    border-bottom: 1px solid #ddd;
+    text-transform: uppercase;
+    font-weight: 200;
+  }
+}
+
+ul.admin-list {
+  margin: 0 0 2em;
+  padding: 0;
+
+  li {
+    background: image-url("list-item.png") no-repeat scroll 0 0 transparent;
+    background-size: 18px; 
+    background-position: 0 1px;
+    list-style: {
+      image: none;
+      type: none;
+    }
+    margin: 0 0 1em;
+    padding: 0 0 0 2em;
+
+    a {
+      font: {
+        size: 1em;
+        weight: 900;
+      }
+    }
+  }
+
+  .label {
+   color: #555;
+   font-size: 1.25em;
+  }
+}
+
+.compact-link {
+  text-align: right;
+  margin: -1em 0 0; /* pushes link up into the padding of #content so list has an even margin all around */
+}
+
+/* CONTEXTUAL LINKS */
+
+.contextual-links-trigger  {
+  @include transition(none);
+}
+
+/* SHORTCUTS */
+
+div.add-or-remove-shortcuts {
+  float: right;
+  margin-top: -50px;
+
+  a {
+    span.icon {
+      display: block;
+      width: 24px;
+      background: transparent image-url("no_shortcut.svg") no-repeat scroll 0 0;
+      height: 24px;
+      float: right;
+      margin-left: 8px;
+    }
+  }
+}
+
+div.add-shortcut {
+  a {
+    &:focus,
+    &:hover {
+      span.icon {
+        background: transparent image-url("shortcut.svg") no-repeat scroll 0 0;
+        @include transition(all 1s);
+      }
+    }
+  }
+}
+
+div.remove-shortcut {
+  a {
+    span.icon {
+      background: transparent image-url("no_shortcut.svg") no-repeat scroll 0 0;
+    }
+
+    &:focus,
+    &:hover {
+      span.icon {
+        background: transparent image-url("no_shortcut.svg") no-repeat scroll 0 0;
+        @include transition(all 1s);
+      }
+    }
+  }
+}
+
+div.add-or-remove-shortcuts {
+  a {
+    span.text  {
+      padding-top: 8px;
+    }
+
+    &:focus,
+    &:hover {
+      span.text {
+        background-color: inherit;
+        font-size: $font-size-small;
+        color: $color-text-title;
+        @include transition(all 1s);
+      }
+    }
+  }
+}
+
+/* ACTION LINKS */
+
+ul.action-links {
+  margin: 0;
+  padding-left: 0;
+  padding-right: 0; 
+}
+
+.action-links {
+  li {
+    display: inline-block;
+    margin-right: .5em;
+    margin-left: 0;
+    font-size: 1.2em;
+    font-weight: 900;
+
+    a:hover  {
+      text-decoration: none;
+    }
+
+    &:before {
+      content: "+";
+      font-size: 1.5em;
+      top: .0em;
+      color: $color-link;
+      position: relative;
+      margin-right: .1em;
+    }
+  }
+}
+
+/* SECONDARY LINKS */
+
+ul.links {
+  li {
+    #secondary-links & {
+      padding:0 10px 10px 0; /* LTR */
+
+      a {
+        font-size: $font-size-small;
+        color: $color-text-reverse;
+        text-align:center;
+        padding:5px;
+        overflow:hidden;
+      }
+    }
+  }
+}
+
+ul {
+  &.links,
+  &.inline {
+    li {
+      padding-right:1em; /* LTR */
+    }
+  }
+
+  &.inline {
+    li {
+      display:inline;
+    }
+  }
+}
+
+/* SUMMARY AND DETAILS */
+
+summary {
+  // @todo This image path does not exist.
+  background: url("../misc/menu-expanded.png") no-repeat scroll 0 100% #eee;
+  height: 2em;
+  border: 0px solid transparent;
+  padding: 0 10px;;
+  background: #f5f5f5;
+  border-radius: 4px 4px 0 0;
+  line-height: 2em;
+
+  &:focus {
+    outline: 0px solid transparent; /*hides browser focus border on this element since it contains no user action. Should not effect a11y.*/
+  }
+
+  &::-webkit-details-marker {
+    display: none;
+  }
+}
+
+.collapse-processed > summary {
+  padding-left: 0.75em;
+  padding-right: 0.75em;
+
+  &:before {
+    background-position:0 70%;
+    height: 1.6em;
+    width: 1em;
+  }
+}
+
+details {
+  border: 0px solid transparent;
+}
+
+.details-wrapper {
+  details > &,
+  .container-inline & {
+    padding:10px;
+    border:solid #eee;
+    border-width:0px 1px 1px 1px;
+    margin:0 0 1em;
+  }
+}
+
+ul.current-filters  {
+  div.item-list & {
+    margin: .5em 0;
+    padding: 0;
+    margin-bottom: 1rem;
+  }
+
+  li {
+    margin: 1em 0;
+    display: inline;
+  }
+}
+
+/* position and style edit filters neatly inline and floated left above tables they filter. */
+#edit-filters {
+  float: left;
+  display: inline-block;
+  margin-top: 0;
+  padding-left: 0;
+  width: 65%; & {
+    div.fieldset-wrapper {
+      margin-top: 1rem;
+    }
+    div.exposed-filters {
+      display: inline-block; & {
+        .form-select {
+          width: 100%;
+        }
+
+        .form-item {
+          width: 25%;
+          float: none;
+          margin-bottom: 1rem;
+          display: inline-block;
+          position: relative;
+          vertical-align: top;
+
+          label {
+            font-weight: bold;
+            position: absolute;
+            top: -1rem;
+          }
+        }
+  
+        .filters {
+          float: none;
+          margin-right: 0;
+          display: inline;
+        }
+
+        .current-filters,
+        .block,
+        .item-list {
+          ul {
+            margin-bottom: 1rem;
+          }
+        }
+
+        .additional-filters {
+          padding: 12px 0 0 0;
+          margin-right: 1em;
+          font-weight: bold;
+        }
+
+        div#edit-actions {
+          display: inline-block;
+          width: auto; & {
+          
+            .form-submit {
+              width: auto;
+              padding: .47em 1em;
+              vertical-align: middle;
+              margin-left: 0;
+              font-weight: bold;
+              letter-spacing: 0em;
+            }
+          }
+        }
+      } 
+    }
+  }
+}
+
+/* position and style edit options neatly inline (with form items vertically alined with those in edit filters) 
+   and float the whole group to the right  */
+#edit-options {
+  float: right;
+  display: inline-block;
+  width: 35%;
+  margin-top: 0;
+  padding-left: 0; & {
+    div.fieldset-wrapper {
+      display: inline-block;
+      margin-top: 1rem;
+    }
+    div.form-item.form-type-select.form-item-operation {
+      width: 67%;
+      float: left;
+    }
+    .form-submit {
+      width: 28%;
+      float: right;
+      padding: .47em 1em;
+      vertical-align: middle;
+      font-weight: bold;
+    }
+    div.fieldset-wrapper,
+    #edit-options legend {
+      width: 100%;
+      float: right;
+    }
+    .form-select {
+      width: 100%;
+    }
+  }
+}
+
+/* TIPS */
+
+%tips {
+  font-size: $font-size-small;
+  margin: $rhythm-space-short 0;
+}
+
+ul.tips {
+  @extend %tips;
+
+  li {
+    margin: $rhythm-space-short 0;
+    list-style: none;
+  }
+}
+
+div.description {
+  &,
+  div.admin-panel &,
+  .form-item & {
+    @extend %tips;
+  }
+
+  body div.form-type-radio &,
+  body div.form-type-checkbox & {
+    margin-left: 1.5em; /* LTR */
+  }
+}
+
+#system-modules {
+  label {
+    font-weight: normal;
+  }
+
+  .expand {
+    .inner {
+      outline: 0px solid transparent;
+    }
+  }
+}
+
+/* Preview */
+
+.preview .node {
+  background-color: $color-background;
+}
+
+// Import Ember component styles.
+@import "component/tables";
+@import "component/vertical_tabs";
+@import "component/dropbutton";
+@import "component/overlay";
+
+
+/* =============================================================================
+
+   STYLING SPECIFIC TO REGIONS
+
+   ========================================================================== */
+
+/* Branding region (includes page title, shortcut, contextual links and breadcrumb) */
+
+#branding {
+  @include box-sizing(border-box);
+  background-color: $color-background-dark;
+  padding: 1em $inset-space 0;
+  width: 100%;
+  color: $color-text-title;
+  border-top: 50px solid $color-background-dark; /* removes ugly white gap when you scroll past the top */
+  margin-top: -50px;
+  
+  .breadcrumb {
+    color: #777;
+    margin:0; 
+    a {
+     color: #777;
+     font-size: 90%;
+    }
+    a:hover {
+     color: #FFF;
+     text-decoration: none;
+    }
+  }
+
+  h1.page-title {
+    margin: 0 0 .25em;
+    font-size: 2.75em;
+    font-weight: 200;
+  }
+}
+
+/* CONSOLE REGION */
+
+#console {
+  margin: 9px 0 10px;
+}
+
+/* HELP REGION */
+
+#help {
+  margin: 1em 0;
+  line-height: 1.6em;
+
+  div.more-help-link {
+    text-align: right; /* LTR */
+  }
+}
+
+.region-help {
+  margin-bottom: 1em;
+
+  .region & {
+    ul {
+      margin: 0 0 20px 0;
+    }
+  }
+
+  p {
+    font-size: 1.1em;
+    color: #555;
+  }
+}
+
+/* PAGE REGION */
+
+#content {
+  clear: left;
+}
+
+#page {
+  margin: 1.5rem $inset-space 0;
+  position: relative;
+}
+
+/* Update status */
+
+.versions {
+  table.version {
+    border: none;
+  }
+}
+
+/* MAINTENANCE PAGE */
+
+body.in-maintenance {
+  #sidebar-first {
+    float: left; /* LTR */
+    width: 200px;
+  }
+
+  #content {
+    clear: none;
+    float: right; /* LTR */
+    padding-right: 20px; /* LTR */
+    width: 550px;
+  }
+
+  #page {
+    margin: 0 auto;
+    overflow: auto;
+    padding-top: 2em;
+    width: 770px;
+  }
+
+  #branding {
+    h1 {
+      float: none;
+      margin: 0 auto;
+      width: 770px;
+    }
+  }
+
+  .form-radios {
+    .form-type-radio {
+      padding: 2px 0;
+    }
+  }
+
+  div.form-item {
+    &:after {
+      clear: none;
+      content: "";
+      display: none;
+    }
+  }
+
+  .form-submit {
+    display: block;
+  }
+
+  #logo {
+    margin-bottom: 1.5em;
+  }
+}
+
+ol.task-list {
+  list-style: {
+    type: none;
+    image: none;
+  }
+  margin-left: 0; /* LTR */
+
+  li {
+    color: #adadad;
+    padding: 0.5em 1em 0.5em 20px; /* LTR */
+
+    &.active {
+      background: transparent image-url("task-item.png") no-repeat 3px 50%; /* LTR */
+      color: #000;
+      padding: 0.5em 1em 0.5em 20px; /* LTR */
+    }
+
+    &.done {
+      background: transparent image-url("task-check.png") no-repeat 0 50%;
+      color: green;
+    }
+  }
+}
+
+/* DASHBOARD PAGE */
+
+#dashboard {
+  .region {
+    margin: 0;
+  }
+
+  div.block {
+    h2 {
+      font-size: 1.5em;
+      margin: 0;
+      padding: 3px 10px;
+    }
+
+    div.content {
+      padding: 10px 10px 20px; /* LTR */
+
+      ul.menu {
+        margin-left: 20px; /* LTR */
+      }
+    }
+  }
+
+  .dashboard-region {
+    .block {
+      border: 1px solid #ddd;
+    }
+  }
+
+  div#dashboard_main {
+    margin-right: 1.5%;
+    width: 48%;
+  }
+
+  div#dashboard_sidebar {
+    width: 48%;
+  }
+
+  .canvas-content {
+    a.button {
+      color: $color-text-reverse;
+      margin: 10px 0 0;
+      text-decoration: none;
+    }
+  }
+
+  .ui-sortable {
+    border: 2px dotted #ccc;
+    border-color: $color-link;
+    padding: 10px 10px 0;
+  }
+
+  #disabled-blocks {
+    .region {
+      background-color: transparent;
+      border: none;
+      padding: 0;
+    }
+
+    .block {
+      background-color: transparent;
+      border-radius: 3px;
+    }
+  }
+
+  #disabled-blocks .block,
+  .block-placeholder {
+    background-color: #ccc;
+    border-radius: 3px;
+    float: left;
+    margin: 3px 6px 3px 0;
+    padding: 5px 4px 5px 8px;
+  }
+}
+
+#block-node-recent {
+  table,
+  tr {
+    border: none;
+  }
+
+  .more-link {
+    padding: 0 5px 5px 0; /* LTR */
+  }
+
+  #dashboard & {
+    div.content {
+      padding: 0;
+    }
+  }
+}
+
+/* CONTENT TYPES PAGE */
+
+#field-display-overview {
+  input.field-formatter-settings-edit {
+    margin: 0;
+    padding: 1px 8px;
+  }
+
+  tr {
+    &.field-formatter-settings-changed {
+      background: #ffb;
+    }
+
+    &.field-formatter-settings-editing {
+      background: #D5E9F2;
+    }
+  }
+
+  .field-formatter-settings-edit-form {
+    .form-item {
+      margin: 10px 0 0;
+    }
+  }
+}
+
+/* PEOPLE PAGE */
+
+#permissions {
+  td.module {
+    background: {
+      color: #f5f5f5;
+      image: none;
+    }
+    font-weight: bold;
+  }
+}
+em.permission-warning,
+.permission .description .placeholder em {
+  color: $color-warning;
+  font-weight: bold;
+  display: block;
+}
+#edit-cancel-account {
+  background: inherit;
+  text-align: inherit;
+  font-weight: inherit;
+}
+
+/* APPEARANCE PAGE */
+
+.theme-selector {
+  .no-screenshot {
+    background: #ddd;
+  }
+}
+
+.theme-default {
+  h3 {
+    font-weight: normal;
+    color: $color-link-alternate;
+  }
+}
+
+.screenshot {
+  .theme-default &,
+  .theme-selector & {
+    border: 2px solid #999;
+    padding: 0px;
+  }
+}
+
+img.screenshot  {
+  margin: 0;
+}
+
+.system-themes-list {
+  h2 {
+    font-size: ms(3);
+  }
+}
+
+.theme-info {
+  h3 {
+    font-size: ms(2);
+  }
+}
+
+/* MODULES PAGE */
+
+#module-filter-squeeze,
+#module-filter-modules {
+  table {
+    clear: none;
+  }
+}
+
+/* =============================================================================
+
+   STYLING SPECIFIC TO BLOCKS
+
+   ========================================================================== */
+
+/* User login */
+
+#user-login-form {
+  .openid-links {
+    margin-left: 0; /* LTR */
+
+    .user-link {
+      margin-left: 1.5em; /* LTR */
+    }
+  }
+}
+
+/* Disable overlay message */
+
+#overlay-disable-message {
+  background-color: #addafc;
+
+  a {
+    &,
+    &:visited {
+      color: #000;
+    }
+
+    &:focus,
+    &:active {
+      outline: none;
+      text-decoration: underline;
+    }
+  }
+}
+
+.overlay-disable-message-focused {
+  a {
+    padding: 0.4em 0.6em;
+  }
+
+  #overlay-dismiss-message {
+    background-color: #59a0d8;
+    border-radius: 8px;
+    color: $color-text-reverse;
+  }
+}
+
+.search-block-form {
+  margin-top: 20px;
+  margin-bottom: 20px;
+}
+
+// Import Ember contrib module styles.
+@import "contrib/ctools";
+@import "contrib/views";
+@import "contrib/panels";
+@import "contrib/media";
+@import "contrib/workbench";
+@import "contrib/features";
+
+
+
+/* =============================================================================
+
+   MEDIA QUERIES
+
+   ========================================================================== */
+
+@include breakpoint(max-width $breakpoint-large) {
+  /* dashboard */
+  div#dashboard_sidebar {
+    clear: both;
+    margin: 0;
+    width: 100% !important;
+  }
+
+  #dashboard {
+    div#dashboard_main {
+      clear: both;
+      margin-right: 0%;
+      width: 100%;
+    }
+  }
+
+  /* configuration page */
+  div.admin {
+    .right,
+    .left {
+      margin: 0;
+      width: 100%;
+    }
+  }
+}
+
+@include breakpoint(max-width $breakpoint-small) {
+  #page {
+    margin: 0;
+    padding: 1em;
+  }
+
+  #branding {
+    padding: {
+      right: 1em;
+      left: 1em;
+    }
+  }
+
+  #overlay  {
+    padding: 1em;
+
+    #page {
+      margin: 0;
+      padding: 1em;
+    }
+  }
+
+  div#overlay {
+    width:100%;
+  }
+
+  body.admin-expanded {
+    margin-left: 0;
+
+    div#admin-toolbar {
+      width: 100%;
+
+      &.vertical {
+        div.admin-blocks {
+          width: 100% !important;
+        }
+      }
+    }
+  }
+
+  #toolbar {
+    .screen-reader-text {
+      display: none;
+    }
+  }
+
+  #tab-bar {
+    display: none;
+  }
+
+  /* dashboard */
+  #dashboard {
+    div#dashboard_main {
+      clear: both;
+      margin-right: 0%;
+      width: 100%;
+    }
+  }
+
+  div#dashboard_sidebar {
+    clear: both;
+    margin: 0;
+    width: 100% !important;
+  }
+
+  /* configuration page */
+  div.admin {
+    .right,
+    .left {
+      margin: 0;
+      width: 100%;
+    }
+  }
+
+  /* appearance page */
+  .system-themes-list-enabled {
+    .theme-selector {
+      .screenshot,
+      .no-screenshot {
+        clear: both;
+        margin: 0 40px 20px 0;
+      }
+    }
+  }
+
+  .system-themes-list-disabled {
+    .theme-selector {
+      float: left;
+      padding: 0 20px 20px 0;
+      width: 300px;
+    }
+  }
+
+  .color-form {
+    #placeholder {
+      position:relative;
+    }
+  }
+
+  html.js {
+    #preview {
+      margin-left: -15px;
+    }
+  }
+
+  /* vertical tabs */
+  div.vertical-tabs {
+    background: image-url("fc.png") repeat-y scroll -97px 0 $color-background;
+    border: 1px solid #ddd;
+
+    .vertical-tabs-list {
+      width: 143px;
+    }
+
+    .vertical-tabs-panes {
+      margin: 0 0 0 163px;
+    }
+  }
+} 
+
+/* responsive filters and edit options */
+
+@media (max-width: 960px) {
+  #edit-options,
+  #edit-filters  {
+    float: none;
+    width: 100%;
+  }
+  #edit-options .form-submit,
+  div.form-item.form-type-select.form-item-operation,
+  div.exposed-filters .form-item,
+  div.exposed-filters div#edit-actions {
+    float: none;
+    width: auto;
+  }
+  #edit-options div.fieldset-wrapper {
+    margin: 0;
+  }
+}
+
+@media (max-width: 680px) {
+  #edit-options .form-submit,
+  #edit-options div.form-item.form-type-select.form-item-operation,
+  #edit-filters div.exposed-filters .form-item,
+  #edit-filters div.exposed-filters div#edit-actions {
+    width: 100%;
+    float: left;
+    margin-left: 0;
+    margin-top: 0;
+  }
+}
+
+/* =============================================================================
+
+   FADE IN ON PAGELOAD
+
+   ========================================================================== */
+
+// @todo Animation support is coming in Compass .13. Once that hits, convert all
+// of this to that.
+// @see http://beta.compass-style.org/reference/compass/css3/animation/
+@-webkit-keyframes fadeIn { from { opacity:0; } to { opacity:1; } }
+@-moz-keyframes fadeIn { from { opacity:0; } to { opacity:1; } }
+@keyframes fadeIn { from { opacity:0; } to { opacity:1; } }
+
+.fade-in {
+  opacity:0;
+  -webkit-animation:fadeIn ease-in 1;
+  -moz-animation:fadeIn ease-in 1;
+  animation:fadeIn ease-in 1;
+
+  -webkit-animation-fill-mode:forwards;
+  -moz-animation-fill-mode:forwards;
+  animation-fill-mode:forwards;
+
+  -webkit-animation-duration:.3s;
+  -moz-animation-duration:.3s;
+  animation-duration:.3s;
+
+  -webkit-animation-delay: 0.5s;
+  -moz-animation-delay: 0.5s;
+  animation-delay: 0.5s;
+}
+
+/* overrides of UX styleguide
+ * TODO move to proper place in UX styleguide
+ */
+
+[dir="ltr"] fieldset {
+  padding-left: 0em;
+}
+label {
+  color: #555;
+  margin: 0 .1em;
+}
+div.fieldset-description {
+  margin-bottom: 1em;
+}
+legend {
+  font-size: 1.3em;
+  font-weight: normal;
+  margin-bottom: .5em;
+}
+[dir="ltr"] div.admin .left {
+  margin-left: 0;
+}
+[dir="rtl"] div.admin .right{
+  margin-right: 0;
+}
+#branding h1.page-title {
+  font-size: 2.5em;
+}
+#branding {
+  background: #444;
+  color: #BBB;
+}
+div#branding ul.secondary {
+  background-color: #fff;
+  border-bottom: 1px solid #DDD;
+
+  a,
+  a:link,
+  a:visited {
+    font-weight: $font-bold;
+    color: $color-text;
+  }
+
+  a:hover,
+  a:active,
+  a.active {
+    color: $color-link-alternate;
+  }
+}
+a.active {
+  cursor: default;
+}
+
+th,
+td {
+  padding: 0.5rem 1.5rem;
+}
+
+
+
+
+

@@ -1,0 +1,4501 @@
+h3, h4, th, h1, h2, h5, h6, dt, label, button,
+input[type="reset"],
+input[type="submit"],
+input[type="button"],
+[class*="action-item"], .button,
+[id^="edit-cancel"], input[id^="edit-submit"],
+input[id^="edit-next"],
+.fake-submit {
+  font-family: "Helvetica Neue", helvetica, "Segoe UI", segoe, "Ubuntu", "Droid Sans", "Arial", sans-serif;
+}
+
+h3, h4, th {
+  font-weight: 400;
+}
+
+h1, h2 {
+  font-weight: 200;
+}
+
+h5, h6, dt, label, button,
+input[type="reset"],
+input[type="submit"],
+input[type="button"],
+[class*="action-item"], .button,
+[id^="edit-cancel"], input[id^="edit-submit"],
+input[id^="edit-next"],
+.fake-submit {
+  font-weight: 700;
+}
+h5 b, h6 b, dt b, label b, button b,
+input[type="reset"] b,
+input[type="submit"] b,
+input[type="button"] b,
+[class*="action-item"] b, .button b,
+[id^="edit-cancel"] b, input[id^="edit-submit"] b,
+input[id^="edit-next"] b,
+.fake-submit b,
+h5 strong,
+h6 strong,
+dt strong,
+label strong,
+button strong,
+input[type="reset"] strong,
+input[type="submit"] strong,
+input[type="button"] strong,
+[class*="action-item"] strong,
+.button strong,
+[id^="edit-cancel"] strong,
+input[id^="edit-submit"] strong,
+input[id^="edit-next"] strong,
+.fake-submit strong {
+  font-weight: 400;
+}
+
+blockquote, caption,
+tfoot {
+  font-family: Constantia, "Lucida Bright", Lucidabright, "Lucida Serif", Lucida, "DejaVu Serif", "Bitstream Vera Serif", "Liberation Serif", Georgia, serif;
+}
+
+blockquote, caption,
+tfoot {
+  font-style: italic;
+}
+blockquote i, caption i,
+tfoot i,
+blockquote em,
+caption em,
+tfoot em {
+  font-style: normal;
+}
+
+pre,
+code {
+  font-family: Consolas, "Andale Mono WT", "Andale Mono", "Lucida Console", "Lucida Sans Typewriter", "DejaVu Sans Mono", "Bitstream Vera Sans Mono", "Liberation Mono", "Nimbus Mono L", Monaco, "Courier New", Courier, monospace;
+}
+pre i,
+code i,
+pre em,
+code em {
+  font-style: normal;
+}
+pre b,
+code b,
+pre strong,
+code strong {
+  font-weight: 400;
+}
+
+/* =============================================================================
+
+   GENERIC ELEMENTS
+
+   ========================================================================== */
+/**
+ * Default element styles
+ */
+html {
+  font: 14px/1.41421em "Helvetica Neue", helvetica, "Segoe UI", segoe, "Ubuntu", "Droid Sans", "Arial", sans-serif;
+  color: #333333;
+  -webkit-font-smoothing: antialiased;
+  font-smoothing: antialiased;
+  text-rendering: optimizeLegibility\9;
+  /* Only IE, can mess with Android */
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+}
+
+/**
+ * Block level elements
+ */
+p,
+ul,
+ol,
+dl,
+form,
+fieldset {
+  display: block;
+  margin: 0.70711em 0;
+  padding: 0;
+  font-size: 1em;
+  line-height: 1.41421em;
+}
+
+/**
+ * Default header styles
+ */
+h1 {
+  font-size: 3.375em;
+  margin: 0.31641em 0 0.19753em;
+}
+
+h2 {
+  font-size: 3.16049em;
+  margin: 0.44444em 0 0.2963em;
+}
+
+h3 {
+  font-size: 2.25em;
+  margin: 0.5625em 0 0.31641em;
+}
+
+h4 {
+  font-size: 1.77778em;
+  margin: 0.66667em 0 0.44444em;
+}
+
+h5 {
+  font-size: 1.5em;
+  margin: 1em 0 0.5625em;
+}
+
+h6 {
+  font-size: 1em;
+  margin: 1.5em 0 0.66667em;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  line-height: normal;
+}
+
+/**
+ * Default list styles
+ */
+ul,
+ol,
+dl {
+  margin-right: 0;
+  margin-left: 0;
+  padding: 0;
+}
+[dir="ltr"] ul, [dir="ltr"]
+ol, [dir="ltr"]
+dl {
+  padding-left: 2.25em;
+}
+[dir="rtl"] ul, [dir="rtl"]
+ol, [dir="rtl"]
+dl {
+  padding-right: 2.25em;
+}
+[dir="ltr"] ul ul, [dir="ltr"]
+ul ol, [dir="ltr"]
+ol ul, [dir="ltr"]
+ol ol, [dir="ltr"]
+dl ul, [dir="ltr"]
+dl ol {
+  padding-left: 1.5em;
+}
+[dir="rtl"] ul ul, [dir="rtl"]
+ul ol, [dir="rtl"]
+ol ul, [dir="rtl"]
+ol ol, [dir="rtl"]
+dl ul, [dir="rtl"]
+dl ol {
+  padding-right: 1.5em;
+}
+
+ol {
+  list-style: decimal;
+}
+
+ul {
+  list-style: disc;
+}
+
+li,
+dt,
+dd {
+  margin: 0.35355em 0;
+}
+
+dd [dir="ltr"] {
+  margin-left: 1.5em;
+}
+dd [dir="rtl"] {
+  margin-right: 1.5em;
+}
+
+/**
+ * Default quote styles
+ */
+blockquote {
+  margin: 0.70711em 1.5em;
+  padding: 0.70711em;
+  border-top: 1px solid;
+  border-bottom: 1px solid;
+  border-color: #dddddd;
+  -webkit-border-radius: 2px;
+  -moz-border-radius: 2px;
+  -ms-border-radius: 2px;
+  -o-border-radius: 2px;
+  border-radius: 2px;
+}
+blockquote > * {
+  font-size: 1.25em;
+}
+blockquote > *:first-child {
+  margin-top: 0;
+}
+blockquote > *:last-child {
+  margin-bottom: 0;
+}
+
+/**
+ * Preformatted text styles
+ */
+pre {
+  margin: 0.70711em 1.5em;
+  padding: 0;
+}
+
+code {
+  display: inline-block;
+  padding: 0 0.70711em;
+  -webkit-border-radius: 2px;
+  -moz-border-radius: 2px;
+  -ms-border-radius: 2px;
+  -o-border-radius: 2px;
+  border-radius: 2px;
+  background: #333333;
+  color: #96ff73;
+}
+pre code {
+  display: block;
+  padding: 0.70711em;
+  overflow: auto;
+}
+
+/**
+ * Default table styles
+ */
+table {
+  width: 100%;
+  margin: 0.70711em 0;
+  border-collapse: collapse;
+  border-spacing: 0;
+}
+
+tbody {
+  border-top: 1px solid #dddddd;
+}
+
+th {
+  text-transform: uppercase;
+}
+[dir="ltr"] th {
+  text-align: left;
+}
+[dir="rtl"] th {
+  text-align: right;
+}
+
+th,
+td {
+  margin: 0;
+  padding: 0.35355em 0.70711em;
+  border-bottom: 1px solid #dddddd;
+}
+
+/**
+ * Default form styles
+ */
+label {
+  display: block;
+  margin: 0.35355em 0;
+}
+label.required {
+  color: #f79521;
+}
+label.error {
+  color: #cb2026;
+}
+
+fieldset {
+  -webkit-box-sizing: border-box;
+  -moz-box-sizing: border-box;
+  box-sizing: border-box;
+  width: 100%;
+  max-width: 100%;
+  min-height: 1.5em;
+  margin: 1.41421em 0 0.70711em;
+  padding: 0;
+  /* There needs to be some width or Webkit will freak. */
+  border-width: 1px 0;
+  border-style: solid;
+  border-color: transparent;
+}
+[dir="ltr"] fieldset {
+  padding-left: 2.25em;
+}
+[dir="rtl"] fieldset {
+  padding-right: 2.25em;
+}
+
+legend {
+  margin-bottom: 0.70711em;
+  font-size: 1.5em;
+  font-weight: 200;
+}
+
+button,
+input,
+textarea {
+  display: inline-block;
+  -webkit-box-sizing: border-box;
+  -moz-box-sizing: border-box;
+  box-sizing: border-box;
+  -webkit-transition: background color border, 0.2s;
+  -webkit-transition-delay: outline, 0s;
+  -moz-transition: background color border outline, 0.2s;
+  -o-transition: background color border outline, 0.2s;
+  transition: background, color, border, outline, 0.2s;
+  outline: 0 solid #fffff9;
+  font-family: "Helvetica Neue", helvetica, "Segoe UI", segoe, "Ubuntu", "Droid Sans", "Arial", sans-serif;
+}
+button:focus, button:active,
+input:focus,
+input:active,
+textarea:focus,
+textarea:active {
+  outline-width: 1px;
+  -webkit-box-shadow: none;
+  -moz-box-shadow: none;
+  box-shadow: none;
+}
+
+input[type="color"],
+input[type="date"],
+input[type="datetime"],
+input[type="datetime-local"],
+input[type="email"],
+input[type="file"],
+input[type="month"],
+input[type="number"],
+input[type="password"],
+input[type="range"],
+input[type="search"],
+input[type="tel"],
+input[type="text"],
+input[type="time"],
+input[type="url"],
+input[type="week"],
+select,
+textarea {
+  -webkit-appearance: none;
+  -webkit-box-sizing: border-box;
+  -moz-box-sizing: border-box;
+  box-sizing: border-box;
+  margin: 0.35355em 0;
+  padding: 0.35355em 0.70711em;
+  max-width: 100%;
+  border: 1px solid #dddddd;
+  -webkit-border-radius: 2px;
+  -moz-border-radius: 2px;
+  -ms-border-radius: 2px;
+  -o-border-radius: 2px;
+  border-radius: 2px;
+  font-size: 1em;
+  line-height: 1.41421em;
+  background: white;
+  -webkit-background-clip: padding;
+  -moz-background-clip: padding;
+  background-clip: padding-box;
+}
+input[type="color"]::-webkit-input-placeholder,
+input[type="date"]::-webkit-input-placeholder,
+input[type="datetime"]::-webkit-input-placeholder,
+input[type="datetime-local"]::-webkit-input-placeholder,
+input[type="email"]::-webkit-input-placeholder,
+input[type="file"]::-webkit-input-placeholder,
+input[type="month"]::-webkit-input-placeholder,
+input[type="number"]::-webkit-input-placeholder,
+input[type="password"]::-webkit-input-placeholder,
+input[type="range"]::-webkit-input-placeholder,
+input[type="search"]::-webkit-input-placeholder,
+input[type="tel"]::-webkit-input-placeholder,
+input[type="text"]::-webkit-input-placeholder,
+input[type="time"]::-webkit-input-placeholder,
+input[type="url"]::-webkit-input-placeholder,
+input[type="week"]::-webkit-input-placeholder,
+select::-webkit-input-placeholder,
+textarea::-webkit-input-placeholder {
+  color: #dddddd;
+  font-family: "Helvetica Neue", helvetica, "Segoe UI", segoe, "Ubuntu", "Droid Sans", "Arial", sans-serif;
+  font-weight: 400;
+}
+input[type="color"]:-moz-placeholder,
+input[type="date"]:-moz-placeholder,
+input[type="datetime"]:-moz-placeholder,
+input[type="datetime-local"]:-moz-placeholder,
+input[type="email"]:-moz-placeholder,
+input[type="file"]:-moz-placeholder,
+input[type="month"]:-moz-placeholder,
+input[type="number"]:-moz-placeholder,
+input[type="password"]:-moz-placeholder,
+input[type="range"]:-moz-placeholder,
+input[type="search"]:-moz-placeholder,
+input[type="tel"]:-moz-placeholder,
+input[type="text"]:-moz-placeholder,
+input[type="time"]:-moz-placeholder,
+input[type="url"]:-moz-placeholder,
+input[type="week"]:-moz-placeholder,
+select:-moz-placeholder,
+textarea:-moz-placeholder {
+  color: #dddddd;
+  font-family: "Helvetica Neue", helvetica, "Segoe UI", segoe, "Ubuntu", "Droid Sans", "Arial", sans-serif;
+  font-weight: 400;
+}
+input[type="color"]::-moz-placeholder,
+input[type="date"]::-moz-placeholder,
+input[type="datetime"]::-moz-placeholder,
+input[type="datetime-local"]::-moz-placeholder,
+input[type="email"]::-moz-placeholder,
+input[type="file"]::-moz-placeholder,
+input[type="month"]::-moz-placeholder,
+input[type="number"]::-moz-placeholder,
+input[type="password"]::-moz-placeholder,
+input[type="range"]::-moz-placeholder,
+input[type="search"]::-moz-placeholder,
+input[type="tel"]::-moz-placeholder,
+input[type="text"]::-moz-placeholder,
+input[type="time"]::-moz-placeholder,
+input[type="url"]::-moz-placeholder,
+input[type="week"]::-moz-placeholder,
+select::-moz-placeholder,
+textarea::-moz-placeholder {
+  color: #dddddd;
+  font-family: "Helvetica Neue", helvetica, "Segoe UI", segoe, "Ubuntu", "Droid Sans", "Arial", sans-serif;
+  font-weight: 400;
+}
+input[type="color"]:-ms-input-placeholder,
+input[type="date"]:-ms-input-placeholder,
+input[type="datetime"]:-ms-input-placeholder,
+input[type="datetime-local"]:-ms-input-placeholder,
+input[type="email"]:-ms-input-placeholder,
+input[type="file"]:-ms-input-placeholder,
+input[type="month"]:-ms-input-placeholder,
+input[type="number"]:-ms-input-placeholder,
+input[type="password"]:-ms-input-placeholder,
+input[type="range"]:-ms-input-placeholder,
+input[type="search"]:-ms-input-placeholder,
+input[type="tel"]:-ms-input-placeholder,
+input[type="text"]:-ms-input-placeholder,
+input[type="time"]:-ms-input-placeholder,
+input[type="url"]:-ms-input-placeholder,
+input[type="week"]:-ms-input-placeholder,
+select:-ms-input-placeholder,
+textarea:-ms-input-placeholder {
+  color: #dddddd;
+  font-family: "Helvetica Neue", helvetica, "Segoe UI", segoe, "Ubuntu", "Droid Sans", "Arial", sans-serif;
+  font-weight: 400;
+}
+input[type="color"].required,
+input[type="date"].required,
+input[type="datetime"].required,
+input[type="datetime-local"].required,
+input[type="email"].required,
+input[type="file"].required,
+input[type="month"].required,
+input[type="number"].required,
+input[type="password"].required,
+input[type="range"].required,
+input[type="search"].required,
+input[type="tel"].required,
+input[type="text"].required,
+input[type="time"].required,
+input[type="url"].required,
+input[type="week"].required,
+select.required,
+textarea.required {
+  border-color: #f79521;
+}
+input[type="color"].error,
+input[type="date"].error,
+input[type="datetime"].error,
+input[type="datetime-local"].error,
+input[type="email"].error,
+input[type="file"].error,
+input[type="month"].error,
+input[type="number"].error,
+input[type="password"].error,
+input[type="range"].error,
+input[type="search"].error,
+input[type="tel"].error,
+input[type="text"].error,
+input[type="time"].error,
+input[type="url"].error,
+input[type="week"].error,
+select.error,
+textarea.error {
+  border-color: #cb2026;
+}
+input[type="color"]:focus, input[type="color"]:active,
+input[type="date"]:focus,
+input[type="date"]:active,
+input[type="datetime"]:focus,
+input[type="datetime"]:active,
+input[type="datetime-local"]:focus,
+input[type="datetime-local"]:active,
+input[type="email"]:focus,
+input[type="email"]:active,
+input[type="file"]:focus,
+input[type="file"]:active,
+input[type="month"]:focus,
+input[type="month"]:active,
+input[type="number"]:focus,
+input[type="number"]:active,
+input[type="password"]:focus,
+input[type="password"]:active,
+input[type="range"]:focus,
+input[type="range"]:active,
+input[type="search"]:focus,
+input[type="search"]:active,
+input[type="tel"]:focus,
+input[type="tel"]:active,
+input[type="text"]:focus,
+input[type="text"]:active,
+input[type="time"]:focus,
+input[type="time"]:active,
+input[type="url"]:focus,
+input[type="url"]:active,
+input[type="week"]:focus,
+input[type="week"]:active,
+select:focus,
+select:active,
+textarea:focus,
+textarea:active {
+  color: #333333;
+  -webkit-box-shadow: none;
+  -moz-box-shadow: none;
+  box-shadow: none;
+  background: white;
+  border-color: #fffff9;
+}
+
+textarea {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+input[type="color"]::-webkit-color-swatch-wrapper, input[type="color"]::-webkit-color-swatch {
+  position: relative;
+  top: -0.35355em;
+  left: -0.35355em;
+  width: 2.82843em;
+  height: 1.41421em;
+  padding: 0;
+}
+
+input[type="search"] {
+  -webkit-appearance: textfield;
+}
+input[type="search"]::-webkit-search-decoration {
+  display: none;
+}
+
+input[type="range"] {
+  -webkit-appearance: slider-horizontal;
+  color: #333333;
+  -webkit-box-shadow: none;
+  -moz-box-shadow: none;
+  box-shadow: none;
+}
+
+select {
+  -moz-appearance: none;
+  -webkit-appearance: none;
+  text-indent: .01px;
+  text-overflow: '';
+}
+select, select[size="0"], select[size="1"] {
+  -webkit-border-radius: 2px;
+  -moz-border-radius: 2px;
+  -ms-border-radius: 2px;
+  -o-border-radius: 2px;
+  border-radius: 2px;
+}
+select, select:focus, select[size="0"], select[size="0"]:focus, select[size="1"], select[size="1"]:focus {
+  background-image: url(data:image/png;base64,R0lGODlhDQAEAIAAAAAAAP8A/yH5BAEHAAEALAAAAAANAAQAAAILhA+hG5jMDpxvhgIAOw==);
+  background-repeat: no-repeat;
+}
+[dir="ltr"] select, [dir="ltr"] select[size="0"], [dir="ltr"] select[size="1"] {
+  padding-right: 20px;
+  background-position: right center;
+}
+[dir="rtl"] select, [dir="rtl"] select[size="0"], [dir="rtl"] select[size="1"] {
+  padding-left: 20px;
+  background-position: 0.70711em center;
+}
+select[size], select[multiple], select[multiple][size] {
+  background-image: none;
+  padding-right: 3px;
+}
+select::-ms-expand {
+  display: none;
+}
+
+@media (-webkit-min-device-pixel-ratio: 0) {
+  ::-webkit-validation-bubble-message {
+    -webkit-box-shadow: none;
+    -moz-box-shadow: none;
+    box-shadow: none;
+    background: -webkit-gradient(linear, left top, left bottom, color-stop(0, #666666), color-stop(1, black));
+    border: 1px solid;
+    border-color: #747474 #5e5e5e #4f4f4f;
+    color: white;
+    overflow: hidden;
+    padding: 15px 15px 17px;
+    text-shadow: black 0 0 1px;
+    height: 16px;
+  }
+
+  ::-webkit-validation-bubble-arrow,
+  ::-webkit-validation-bubble-top-outer-arrow,
+  ::-webkit-validation-bubble-top-inner-arrow {
+    -webkit-box-shadow: none;
+    -moz-box-shadow: none;
+    box-shadow: none;
+    background: #666666;
+    border: 0;
+  }
+}
+input[disabled], input[disabled]:active, input[disabled]:focus, input[type][disabled], input[type][disabled]:active, input[type][disabled]:focus,
+select[disabled],
+select[disabled]:active,
+select[disabled]:focus,
+select[type][disabled],
+select[type][disabled]:active,
+select[type][disabled]:focus,
+textarea[disabled],
+textarea[disabled]:active,
+textarea[disabled]:focus,
+textarea[type][disabled],
+textarea[type][disabled]:active,
+textarea[type][disabled]:focus {
+  cursor: not-allowed;
+  background-color: #f9f9f9;
+  border-color: #c7c7c7;
+  color: #c7c7c7;
+  outline: none;
+}
+
+/**
+ * Default inline text styles
+ */
+sub,
+sup {
+  font-size: 0.70711em;
+}
+
+sup {
+  vertical-align: super;
+}
+
+sub {
+  vertical-align: sub;
+}
+
+small {
+  font-size: 0.88em;
+}
+
+i,
+em {
+  font-style: italic;
+}
+
+bold,
+strong {
+  font-weight: 700;
+}
+
+/**
+ * Default link styles
+ */
+a {
+  -webkit-transition: background color border, 0.2s;
+  -webkit-transition-delay: outline, 0s;
+  -moz-transition: background color border outline, 0.2s;
+  -o-transition: background color border outline, 0.2s;
+  transition: background, color, border, outline, 0.2s;
+}
+a, a:link {
+  color: #2fa6e5;
+  text-decoration: none;
+}
+a:visited {
+  color: #008fdc;
+}
+a:hover {
+  color: #007ec0;
+  text-decoration: underline;
+}
+
+/**
+ * Default media styles
+ */
+img,
+video,
+audio,
+figure {
+  display: block;
+  margin: 0.70711em 0;
+  max-width: 100%;
+  height: auto;
+}
+
+audio {
+  min-height: 1.41421em;
+}
+
+/**
+ * Button styles
+ */
+/* Common styles for all buttons. */
+button,
+input[type="reset"],
+input[type="submit"],
+input[type="button"],
+[class*="action-item"], .button,
+[id^="edit-cancel"], input[id^="edit-submit"],
+input[id^="edit-next"],
+.fake-submit, [class*="action-item-small"], [class*="action-item-large"], .ctools-button-processed, #features-filter span {
+  -webkit-appearance: none;
+  display: inline-block;
+  -webkit-box-sizing: border-box;
+  -moz-box-sizing: border-box;
+  box-sizing: border-box;
+  margin: 0.2963em;
+  max-width: 100%;
+  overflow: visible;
+  line-height: 1.25em;
+  vertical-align: baseline;
+  border: none;
+  -webkit-border-radius: 2px;
+  -moz-border-radius: 2px;
+  -ms-border-radius: 2px;
+  -o-border-radius: 2px;
+  border-radius: 2px;
+  /* Reset all button fonts to a similar baseline in webkit. */
+  font: -webkit-small-control;
+  font-family: "Helvetica Neue", helvetica, "Segoe UI", segoe, "Ubuntu", "Droid Sans", "Arial", sans-serif;
+  font-weight: 700;
+  text-align: center;
+  text-decoration: none;
+  cursor: pointer;
+  outline: none;
+}
+button:focus,
+input[type="reset"]:focus,
+input[type="submit"]:focus,
+input[type="button"]:focus,
+[class*="action-item"]:focus, .button:focus,
+[id^="edit-cancel"]:focus, input[id^="edit-submit"]:focus,
+input[id^="edit-next"]:focus,
+.fake-submit:focus, [class*="action-item-small"]:focus, [class*="action-item-large"]:focus, .ctools-button-processed:focus, #features-filter span:focus, button:hover,
+input[type="reset"]:hover,
+input[type="submit"]:hover,
+input[type="button"]:hover,
+[class*="action-item"]:hover, .button:hover,
+[id^="edit-cancel"]:hover, input[id^="edit-submit"]:hover,
+input[id^="edit-next"]:hover,
+.fake-submit:hover, [class*="action-item-small"]:hover, [class*="action-item-large"]:hover, .ctools-button-processed:hover, #features-filter span:hover {
+  text-decoration: none;
+}
+button:active,
+input[type="reset"]:active,
+input[type="submit"]:active,
+input[type="button"]:active,
+[class*="action-item"]:active, .button:active,
+[id^="edit-cancel"]:active, input[id^="edit-submit"]:active,
+input[id^="edit-next"]:active,
+.fake-submit:active, [class*="action-item-small"]:active, [class*="action-item-large"]:active, .ctools-button-processed:active, #features-filter span:active, button:focus,
+input[type="reset"]:focus,
+input[type="submit"]:focus,
+input[type="button"]:focus,
+[class*="action-item"]:focus, .button:focus,
+[id^="edit-cancel"]:focus, input[id^="edit-submit"]:focus,
+input[id^="edit-next"]:focus,
+.fake-submit:focus, [class*="action-item-small"]:focus, [class*="action-item-large"]:focus, .ctools-button-processed:focus, #features-filter span:focus {
+  text-decoration: none;
+  -webkit-box-shadow: 0 0 0 0.2963em rgba(221, 221, 221, 0.4);
+  -moz-box-shadow: 0 0 0 0.2963em rgba(221, 221, 221, 0.4);
+  box-shadow: 0 0 0 0.2963em rgba(221, 221, 221, 0.4);
+}
+button::-moz-focus-inner,
+input[type="reset"]::-moz-focus-inner,
+input[type="submit"]::-moz-focus-inner,
+input[type="button"]::-moz-focus-inner,
+[class*="action-item"]::-moz-focus-inner, .button::-moz-focus-inner,
+[id^="edit-cancel"]::-moz-focus-inner, input[id^="edit-submit"]::-moz-focus-inner,
+input[id^="edit-next"]::-moz-focus-inner,
+.fake-submit::-moz-focus-inner, [class*="action-item-small"]::-moz-focus-inner, [class*="action-item-large"]::-moz-focus-inner, .ctools-button-processed::-moz-focus-inner, #features-filter span::-moz-focus-inner {
+  border: 0;
+  padding: 0;
+  margin-top: -2px;
+  margin-bottom: -2px;
+}
+
+/* Dimensions for the default button type. */
+button,
+input[type="reset"],
+input[type="submit"],
+input[type="button"],
+[class*="action-item"], .button,
+[id^="edit-cancel"], input[id^="edit-submit"],
+input[id^="edit-next"],
+.fake-submit {
+  padding: 0.70711em 1em;
+  font-size: 1em;
+}
+
+/* Dimensions for the small button type. */
+[class*="action-item-small"] {
+  padding: 0.35355em 0.70711em;
+  font-size: 1em;
+}
+
+/* Dimensions for the large button type. */
+[class*="action-item-large"] {
+  padding: 0.70711em 1em;
+  font-size: 1.41421em;
+}
+
+button,
+input[type="reset"],
+input[type="submit"],
+input[type="button"],
+[class*="action-item"], .button,
+[id^="edit-cancel"] {
+  background: #dddddd;
+  text-shadow: 0 1px 0 #f4f4f4;
+}
+button,
+input[type="reset"],
+input[type="submit"],
+input[type="button"],
+[class*="action-item"], .button,
+[id^="edit-cancel"], button:link,
+input[type="reset"]:link,
+input[type="submit"]:link,
+input[type="button"]:link,
+[class*="action-item"]:link, .button:link,
+[id^="edit-cancel"]:link, button:visited,
+input[type="reset"]:visited,
+input[type="submit"]:visited,
+input[type="button"]:visited,
+[class*="action-item"]:visited, .button:visited,
+[id^="edit-cancel"]:visited {
+  color: #2b2b2b;
+}
+button:hover,
+input[type="reset"]:hover,
+input[type="submit"]:hover,
+input[type="button"]:hover,
+[class*="action-item"]:hover, .button:hover,
+[id^="edit-cancel"]:hover {
+  color: #303030;
+  background: #e3e3e3;
+  text-shadow: 0 1px 0 #f6f6f6;
+}
+button:focus,
+input[type="reset"]:focus,
+input[type="submit"]:focus,
+input[type="button"]:focus,
+[class*="action-item"]:focus, .button:focus,
+[id^="edit-cancel"]:focus, button:active,
+input[type="reset"]:active,
+input[type="submit"]:active,
+input[type="button"]:active,
+[class*="action-item"]:active, .button:active,
+[id^="edit-cancel"]:active {
+  background: #dddddd;
+}
+button[disabled],
+input[disabled][type="reset"],
+input[disabled][type="submit"],
+input[disabled][type="button"],
+[disabled][class*="action-item"], [disabled].button,
+[disabled][id^="edit-cancel"], button[type="submit"][disabled],
+input[type="submit"][disabled],
+[type="submit"][disabled][class*="action-item"], [type="submit"][disabled].button,
+[type="submit"][disabled][id^="edit-cancel"] {
+  color: #aaaaaa;
+  background: #dddddd;
+  cursor: default;
+  cursor: not-allowed;
+  text-shadow: none;
+  -webkit-transition: none;
+  -moz-transition: none;
+  -o-transition: none;
+  transition: none;
+}
+button[disabled]:active,
+input[disabled][type="reset"]:active,
+input[disabled][type="submit"]:active,
+input[disabled][type="button"]:active,
+[disabled][class*="action-item"]:active, [disabled].button:active,
+[disabled][id^="edit-cancel"]:active, button[disabled]:focus,
+input[disabled][type="reset"]:focus,
+input[disabled][type="submit"]:focus,
+input[disabled][type="button"]:focus,
+[disabled][class*="action-item"]:focus, [disabled].button:focus,
+[disabled][id^="edit-cancel"]:focus, button[type="submit"][disabled]:active,
+input[type="submit"][disabled]:active,
+[type="submit"][disabled][class*="action-item"]:active, [type="submit"][disabled].button:active,
+[type="submit"][disabled][id^="edit-cancel"]:active, button[type="submit"][disabled]:focus,
+input[type="submit"][disabled]:focus,
+[type="submit"][disabled][class*="action-item"]:focus, [type="submit"][disabled].button:focus,
+[type="submit"][disabled][id^="edit-cancel"]:focus {
+  -webkit-box-shadow: none;
+  -moz-box-shadow: none;
+  box-shadow: none;
+  color: #aaaaaa;
+  background: #dddddd;
+}
+
+.action-item-active, .action-item-active[type="reset"], .action-item-active[type="submit"], .action-item-active[type="button"],
+.action-item-small-active,
+.action-item-small-active[type="reset"],
+.action-item-small-active[type="submit"],
+.action-item-small-active[type="button"],
+.action-item-large-active,
+.action-item-large-active[type="reset"],
+.action-item-large-active[type="submit"],
+.action-item-large-active[type="button"] {
+  background: #b0b0b0;
+  text-shadow: 0 1px 0 #343434;
+}
+.action-item-active, .action-item-active[type="reset"], .action-item-active[type="submit"], .action-item-active[type="button"],
+.action-item-small-active,
+.action-item-small-active[type="reset"],
+.action-item-small-active[type="submit"],
+.action-item-small-active[type="button"],
+.action-item-large-active,
+.action-item-large-active[type="reset"],
+.action-item-large-active[type="submit"],
+.action-item-large-active[type="button"], .action-item-active:link,
+.action-item-small-active:link,
+.action-item-large-active:link, .action-item-active:visited,
+.action-item-small-active:visited,
+.action-item-large-active:visited {
+  color: white;
+}
+.action-item-active:hover,
+.action-item-small-active:hover,
+.action-item-large-active:hover {
+  color: white;
+  background: #bfbfbf;
+  text-shadow: 0 1px 0 #393939;
+}
+.action-item-active:focus,
+.action-item-small-active:focus,
+.action-item-large-active:focus, .action-item-active:active,
+.action-item-small-active:active,
+.action-item-large-active:active {
+  background: #b0b0b0;
+}
+[disabled].action-item-active,
+[disabled].action-item-small-active,
+[disabled].action-item-large-active, [type="submit"][disabled].action-item-active,
+[type="submit"][disabled].action-item-small-active,
+[type="submit"][disabled].action-item-large-active {
+  color: #e3e3e3;
+  background: #b0b0b0;
+  cursor: default;
+  cursor: not-allowed;
+  text-shadow: none;
+  -webkit-transition: none;
+  -moz-transition: none;
+  -o-transition: none;
+  transition: none;
+}
+[disabled].action-item-active:active,
+[disabled].action-item-small-active:active,
+[disabled].action-item-large-active:active, [disabled].action-item-active:focus,
+[disabled].action-item-small-active:focus,
+[disabled].action-item-large-active:focus, [type="submit"][disabled].action-item-active:active,
+[type="submit"][disabled].action-item-small-active:active,
+[type="submit"][disabled].action-item-large-active:active, [type="submit"][disabled].action-item-active:focus,
+[type="submit"][disabled].action-item-small-active:focus,
+[type="submit"][disabled].action-item-large-active:focus {
+  -webkit-box-shadow: none;
+  -moz-box-shadow: none;
+  box-shadow: none;
+  color: #e3e3e3;
+  background: #b0b0b0;
+}
+
+.action-item-primary, .action-item-primary[type="reset"], .action-item-primary[type="submit"], .action-item-primary[type="button"],
+.action-item-small-primary,
+.action-item-small-primary[type="reset"],
+.action-item-small-primary[type="submit"],
+.action-item-small-primary[type="button"],
+.action-item-large-primary,
+.action-item-large-primary[type="reset"],
+.action-item-large-primary[type="submit"],
+.action-item-large-primary[type="button"], input[id^="edit-submit"],
+input[id^="edit-next"],
+.fake-submit, .ctools-auto-submit-click {
+  background: #2fa6e5;
+  text-shadow: 0 1px 0 #0e3144;
+}
+.action-item-primary, .action-item-primary[type="reset"], .action-item-primary[type="submit"], .action-item-primary[type="button"],
+.action-item-small-primary,
+.action-item-small-primary[type="reset"],
+.action-item-small-primary[type="submit"],
+.action-item-small-primary[type="button"],
+.action-item-large-primary,
+.action-item-large-primary[type="reset"],
+.action-item-large-primary[type="submit"],
+.action-item-large-primary[type="button"], input[id^="edit-submit"],
+input[id^="edit-next"],
+.fake-submit, .ctools-auto-submit-click, .action-item-primary:link,
+.action-item-small-primary:link,
+.action-item-large-primary:link, input[id^="edit-submit"]:link,
+input[id^="edit-next"]:link,
+.fake-submit:link, .ctools-auto-submit-click:link, .action-item-primary:visited,
+.action-item-small-primary:visited,
+.action-item-large-primary:visited, input[id^="edit-submit"]:visited,
+input[id^="edit-next"]:visited,
+.fake-submit:visited, .ctools-auto-submit-click:visited {
+  color: white;
+}
+.action-item-primary:hover,
+.action-item-small-primary:hover,
+.action-item-large-primary:hover, input[id^="edit-submit"]:hover,
+input[id^="edit-next"]:hover,
+.fake-submit:hover, .ctools-auto-submit-click:hover {
+  color: white;
+  background: #58b7ea;
+  text-shadow: 0 1px 0 #1a3646;
+}
+.action-item-primary:focus,
+.action-item-small-primary:focus,
+.action-item-large-primary:focus, input[id^="edit-submit"]:focus,
+input[id^="edit-next"]:focus,
+.fake-submit:focus, .ctools-auto-submit-click:focus, .action-item-primary:active,
+.action-item-small-primary:active,
+.action-item-large-primary:active, input[id^="edit-submit"]:active,
+input[id^="edit-next"]:active,
+.fake-submit:active, .ctools-auto-submit-click:active {
+  background: #2fa6e5;
+}
+[disabled].action-item-primary,
+[disabled].action-item-small-primary,
+[disabled].action-item-large-primary, input[disabled][id^="edit-submit"],
+input[disabled][id^="edit-next"],
+[disabled].fake-submit, [disabled].ctools-auto-submit-click, [type="submit"][disabled].action-item-primary,
+[type="submit"][disabled].action-item-small-primary,
+[type="submit"][disabled].action-item-large-primary, input[type="submit"][disabled][id^="edit-submit"],
+input[type="submit"][disabled][id^="edit-next"],
+[type="submit"][disabled].fake-submit, [type="submit"][disabled].ctools-auto-submit-click {
+  color: #bdbdbd;
+  background: #8a8a8a;
+  cursor: default;
+  cursor: not-allowed;
+  text-shadow: none;
+  -webkit-transition: none;
+  -moz-transition: none;
+  -o-transition: none;
+  transition: none;
+}
+[disabled].action-item-primary:active,
+[disabled].action-item-small-primary:active,
+[disabled].action-item-large-primary:active, input[disabled][id^="edit-submit"]:active,
+input[disabled][id^="edit-next"]:active,
+[disabled].fake-submit:active, [disabled].ctools-auto-submit-click:active, [disabled].action-item-primary:focus,
+[disabled].action-item-small-primary:focus,
+[disabled].action-item-large-primary:focus, input[disabled][id^="edit-submit"]:focus,
+input[disabled][id^="edit-next"]:focus,
+[disabled].fake-submit:focus, [disabled].ctools-auto-submit-click:focus, [type="submit"][disabled].action-item-primary:active,
+[type="submit"][disabled].action-item-small-primary:active,
+[type="submit"][disabled].action-item-large-primary:active, input[type="submit"][disabled][id^="edit-submit"]:active,
+input[type="submit"][disabled][id^="edit-next"]:active,
+[type="submit"][disabled].fake-submit:active, [type="submit"][disabled].ctools-auto-submit-click:active, [type="submit"][disabled].action-item-primary:focus,
+[type="submit"][disabled].action-item-small-primary:focus,
+[type="submit"][disabled].action-item-large-primary:focus, input[type="submit"][disabled][id^="edit-submit"]:focus,
+input[type="submit"][disabled][id^="edit-next"]:focus,
+[type="submit"][disabled].fake-submit:focus, [type="submit"][disabled].ctools-auto-submit-click:focus {
+  -webkit-box-shadow: none;
+  -moz-box-shadow: none;
+  box-shadow: none;
+  color: #bdbdbd;
+  background: #8a8a8a;
+}
+
+.action-item-primary-active, .action-item-primary-active[type="reset"], .action-item-primary-active[type="submit"], .action-item-primary-active[type="button"],
+.action-item-small-primary-active,
+.action-item-small-primary-active[type="reset"],
+.action-item-small-primary-active[type="submit"],
+.action-item-small-primary-active[type="button"],
+.action-item-large-primary-active,
+.action-item-large-primary-active[type="reset"],
+.action-item-large-primary-active[type="submit"],
+.action-item-large-primary-active[type="button"] {
+  background: #008fdc;
+  text-shadow: 0 1px 0 #002a42;
+}
+.action-item-primary-active, .action-item-primary-active[type="reset"], .action-item-primary-active[type="submit"], .action-item-primary-active[type="button"],
+.action-item-small-primary-active,
+.action-item-small-primary-active[type="reset"],
+.action-item-small-primary-active[type="submit"],
+.action-item-small-primary-active[type="button"],
+.action-item-large-primary-active,
+.action-item-large-primary-active[type="reset"],
+.action-item-large-primary-active[type="submit"],
+.action-item-large-primary-active[type="button"], .action-item-primary-active:link,
+.action-item-small-primary-active:link,
+.action-item-large-primary-active:link, .action-item-primary-active:visited,
+.action-item-small-primary-active:visited,
+.action-item-large-primary-active:visited {
+  color: white;
+}
+.action-item-primary-active:hover,
+.action-item-small-primary-active:hover,
+.action-item-large-primary-active:hover {
+  color: white;
+  background: #33a5e3;
+  text-shadow: 0 1px 0 #0f3144;
+}
+.action-item-primary-active:focus,
+.action-item-small-primary-active:focus,
+.action-item-large-primary-active:focus, .action-item-primary-active:active,
+.action-item-small-primary-active:active,
+.action-item-large-primary-active:active {
+  background: #008fdc;
+}
+[disabled].action-item-primary-active,
+[disabled].action-item-small-primary-active,
+[disabled].action-item-large-primary-active, [type="submit"][disabled].action-item-primary-active,
+[type="submit"][disabled].action-item-small-primary-active,
+[type="submit"][disabled].action-item-large-primary-active {
+  color: #8ea7b4;
+  background: #587584;
+  cursor: default;
+  cursor: not-allowed;
+  text-shadow: none;
+  -webkit-transition: none;
+  -moz-transition: none;
+  -o-transition: none;
+  transition: none;
+}
+[disabled].action-item-primary-active:active,
+[disabled].action-item-small-primary-active:active,
+[disabled].action-item-large-primary-active:active, [disabled].action-item-primary-active:focus,
+[disabled].action-item-small-primary-active:focus,
+[disabled].action-item-large-primary-active:focus, [type="submit"][disabled].action-item-primary-active:active,
+[type="submit"][disabled].action-item-small-primary-active:active,
+[type="submit"][disabled].action-item-large-primary-active:active, [type="submit"][disabled].action-item-primary-active:focus,
+[type="submit"][disabled].action-item-small-primary-active:focus,
+[type="submit"][disabled].action-item-large-primary-active:focus {
+  -webkit-box-shadow: none;
+  -moz-box-shadow: none;
+  box-shadow: none;
+  color: #8ea7b4;
+  background: #587584;
+}
+
+.action-item-alternate, .action-item-alternate[type="reset"], .action-item-alternate[type="submit"], .action-item-alternate[type="button"],
+.action-item-small-alternate,
+.action-item-small-alternate[type="reset"],
+.action-item-small-alternate[type="submit"],
+.action-item-small-alternate[type="button"],
+.action-item-large-alternate,
+.action-item-large-alternate[type="reset"],
+.action-item-large-alternate[type="submit"],
+.action-item-large-alternate[type="button"] {
+  background: #f05724;
+  text-shadow: 0 1px 0 #481a0a;
+}
+.action-item-alternate, .action-item-alternate[type="reset"], .action-item-alternate[type="submit"], .action-item-alternate[type="button"],
+.action-item-small-alternate,
+.action-item-small-alternate[type="reset"],
+.action-item-small-alternate[type="submit"],
+.action-item-small-alternate[type="button"],
+.action-item-large-alternate,
+.action-item-large-alternate[type="reset"],
+.action-item-large-alternate[type="submit"],
+.action-item-large-alternate[type="button"], .action-item-alternate:link,
+.action-item-small-alternate:link,
+.action-item-large-alternate:link, .action-item-alternate:visited,
+.action-item-small-alternate:visited,
+.action-item-large-alternate:visited {
+  color: white;
+}
+.action-item-alternate:hover,
+.action-item-small-alternate:hover,
+.action-item-large-alternate:hover {
+  color: white;
+  background: #f3784f;
+  text-shadow: 0 1px 0 #482417;
+}
+.action-item-alternate:focus,
+.action-item-small-alternate:focus,
+.action-item-large-alternate:focus, .action-item-alternate:active,
+.action-item-small-alternate:active,
+.action-item-large-alternate:active {
+  background: #f05724;
+}
+[disabled].action-item-alternate,
+[disabled].action-item-small-alternate,
+[disabled].action-item-large-alternate, [type="submit"][disabled].action-item-alternate,
+[type="submit"][disabled].action-item-small-alternate,
+[type="submit"][disabled].action-item-large-alternate {
+  color: #c2bbb8;
+  background: #928682;
+  cursor: default;
+  cursor: not-allowed;
+  text-shadow: none;
+  -webkit-transition: none;
+  -moz-transition: none;
+  -o-transition: none;
+  transition: none;
+}
+[disabled].action-item-alternate:active,
+[disabled].action-item-small-alternate:active,
+[disabled].action-item-large-alternate:active, [disabled].action-item-alternate:focus,
+[disabled].action-item-small-alternate:focus,
+[disabled].action-item-large-alternate:focus, [type="submit"][disabled].action-item-alternate:active,
+[type="submit"][disabled].action-item-small-alternate:active,
+[type="submit"][disabled].action-item-large-alternate:active, [type="submit"][disabled].action-item-alternate:focus,
+[type="submit"][disabled].action-item-small-alternate:focus,
+[type="submit"][disabled].action-item-large-alternate:focus {
+  -webkit-box-shadow: none;
+  -moz-box-shadow: none;
+  box-shadow: none;
+  color: #c2bbb8;
+  background: #928682;
+}
+
+.action-item-alternate-active, .action-item-alternate-active[type="reset"], .action-item-alternate-active[type="submit"], .action-item-alternate-active[type="button"],
+.action-item-small-alternate-active,
+.action-item-small-alternate-active[type="reset"],
+.action-item-small-alternate-active[type="submit"],
+.action-item-small-alternate-active[type="button"],
+.action-item-large-alternate-active,
+.action-item-large-alternate-active[type="reset"],
+.action-item-large-alternate-active[type="submit"],
+.action-item-large-alternate-active[type="button"] {
+  background: #dc3700;
+  text-shadow: 0 1px 0 #421000;
+}
+.action-item-alternate-active, .action-item-alternate-active[type="reset"], .action-item-alternate-active[type="submit"], .action-item-alternate-active[type="button"],
+.action-item-small-alternate-active,
+.action-item-small-alternate-active[type="reset"],
+.action-item-small-alternate-active[type="submit"],
+.action-item-small-alternate-active[type="button"],
+.action-item-large-alternate-active,
+.action-item-large-alternate-active[type="reset"],
+.action-item-large-alternate-active[type="submit"],
+.action-item-large-alternate-active[type="button"], .action-item-alternate-active:link,
+.action-item-small-alternate-active:link,
+.action-item-large-alternate-active:link, .action-item-alternate-active:visited,
+.action-item-small-alternate-active:visited,
+.action-item-large-alternate-active:visited {
+  color: white;
+}
+.action-item-alternate-active:hover,
+.action-item-small-alternate-active:hover,
+.action-item-large-alternate-active:hover {
+  color: white;
+  background: #e35f33;
+  text-shadow: 0 1px 0 #441c0f;
+}
+.action-item-alternate-active:focus,
+.action-item-small-alternate-active:focus,
+.action-item-large-alternate-active:focus, .action-item-alternate-active:active,
+.action-item-small-alternate-active:active,
+.action-item-large-alternate-active:active {
+  background: #dc3700;
+}
+[disabled].action-item-alternate-active,
+[disabled].action-item-small-alternate-active,
+[disabled].action-item-large-alternate-active, [type="submit"][disabled].action-item-alternate-active,
+[type="submit"][disabled].action-item-small-alternate-active,
+[type="submit"][disabled].action-item-large-alternate-active {
+  color: #b4988e;
+  background: #846358;
+  cursor: default;
+  cursor: not-allowed;
+  text-shadow: none;
+  -webkit-transition: none;
+  -moz-transition: none;
+  -o-transition: none;
+  transition: none;
+}
+[disabled].action-item-alternate-active:active,
+[disabled].action-item-small-alternate-active:active,
+[disabled].action-item-large-alternate-active:active, [disabled].action-item-alternate-active:focus,
+[disabled].action-item-small-alternate-active:focus,
+[disabled].action-item-large-alternate-active:focus, [type="submit"][disabled].action-item-alternate-active:active,
+[type="submit"][disabled].action-item-small-alternate-active:active,
+[type="submit"][disabled].action-item-large-alternate-active:active, [type="submit"][disabled].action-item-alternate-active:focus,
+[type="submit"][disabled].action-item-small-alternate-active:focus,
+[type="submit"][disabled].action-item-large-alternate-active:focus {
+  -webkit-box-shadow: none;
+  -moz-box-shadow: none;
+  box-shadow: none;
+  color: #b4988e;
+  background: #846358;
+}
+
+button,
+input[type="reset"],
+input[type="submit"],
+input[type="button"],
+[class*="action-item"] {
+  max-width: 100%;
+}
+button[class*="action-item-large"],
+input[type="reset"][class*="action-item-large"],
+input[type="submit"][class*="action-item-large"],
+input[type="button"][class*="action-item-large"],
+[class*="action-item"][class*="action-item-large"] {
+  text-shadow: none;
+  font-weight: 400;
+}
+
+body {
+  background: #f5f5f5;
+}
+
+p,
+blockquote,
+pre,
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+article,
+aside,
+details,
+figcaption,
+figure,
+footer,
+header,
+hgroup,
+nav,
+section,
+summary,
+dt,
+dd,
+li,
+.more-help-link,
+.more-link {
+  max-width: 85ex;
+}
+
+h2,
+h3 {
+  color: #555;
+  font-weight: 300;
+}
+
+/* =============================================================================
+
+   DRUPAL ADDMIN INTERACTION PATTERNS
+
+   ========================================================================== */
+/* SKIP LINK */
+#skip-link {
+  left: 50%;
+  /* LTR */
+  margin-left: -5.25em;
+  /* LTR */
+  margin-top: 0;
+  position: absolute;
+  width: auto;
+  z-index: 50;
+}
+#skip-link a, #skip-link a:link, #skip-link a:visited {
+  background: #444;
+  border-radius: 0 0 10px 10px;
+  color: white;
+  display: block;
+  font-size: 0.88em;
+  padding: 1px 10px 2px 10px;
+  /* LTR */
+  text-decoration: none;
+}
+#skip-link a:hover, #skip-link a:focus, #skip-link a:active {
+  outline: 0;
+}
+
+/* FORM ELEMENTS */
+/* Make fake buttons inherit the given styles. */
+.form-select, .form-select:focus, .form-select:active {
+  background: white url('../images/select_sprite.svg?1396547846') no-repeat;
+}
+[dir="ltr"] .form-select {
+  padding-right: 3.51961em;
+  background-position: right -5px center;
+}
+[dir="rtl"] .form-select {
+  padding-left: 3.51961em;
+  background-position: left -5px center;
+}
+
+.machine-name-label {
+  margin-left: 10px;
+}
+
+.form-managed-file .form-file,
+.form-managed-file .form-submit {
+  vertical-align: middle;
+}
+.form-managed-file .form-file {
+  display: inline-block;
+  margin-right: .5em;
+  line-height: 1em;
+  /* corrects vertical alignment of default filename text */
+}
+.form-managed-file .form-submit {
+  margin: 0;
+}
+
+.tips,
+.description {
+  font-size: 0.88em;
+  opacity: .5;
+  background-color: transparent;
+}
+.tips:hover,
+.description:hover {
+  opacity: 1;
+}
+
+/* ADMIN LISTS */
+div.admin {
+  padding: 0;
+}
+
+.block .body ul {
+  margin: 0;
+}
+
+div.admin-panel {
+  margin: 0 0 2em;
+  padding: 0 20px 0 0;
+}
+div.admin-panel .body {
+  padding: 0;
+}
+div.admin-panel h3 {
+  font-size: 1.5em;
+  margin: 0 0 .5em 0;
+  padding: 0 0 5px;
+  border-bottom: 1px solid #ddd;
+  text-transform: uppercase;
+  font-weight: 200;
+}
+
+ul.admin-list {
+  margin: 0 0 2em;
+  padding: 0;
+}
+ul.admin-list li {
+  background: url('../images/list-item.png?1396547846') no-repeat scroll 0 0 transparent;
+  background-size: 18px;
+  background-position: 0 1px;
+  list-style-image: none;
+  list-style-type: none;
+  margin: 0 0 1em;
+  padding: 0 0 0 2em;
+}
+ul.admin-list li a {
+  font-size: 1em;
+  font-weight: 900;
+}
+ul.admin-list .label {
+  color: #555;
+  font-size: 1.25em;
+}
+
+.compact-link {
+  text-align: right;
+  margin: -1em 0 0;
+  /* pushes link up into the padding of #content so list has an even margin all around */
+}
+
+/* CONTEXTUAL LINKS */
+.contextual-links-trigger {
+  -webkit-transition: none;
+  -moz-transition: none;
+  -o-transition: none;
+  transition: none;
+}
+
+/* SHORTCUTS */
+div.add-or-remove-shortcuts {
+  float: right;
+  margin-top: -50px;
+}
+div.add-or-remove-shortcuts a span.icon {
+  display: block;
+  width: 24px;
+  background: transparent url('../images/no_shortcut.svg?1396547846') no-repeat scroll 0 0;
+  height: 24px;
+  float: right;
+  margin-left: 8px;
+}
+
+div.add-shortcut a:focus span.icon, div.add-shortcut a:hover span.icon {
+  background: transparent url('../images/shortcut.svg?1396547846') no-repeat scroll 0 0;
+  -webkit-transition: all 1s;
+  -moz-transition: all 1s;
+  -o-transition: all 1s;
+  transition: all 1s;
+}
+
+div.remove-shortcut a span.icon {
+  background: transparent url('../images/no_shortcut.svg?1396547846') no-repeat scroll 0 0;
+}
+div.remove-shortcut a:focus span.icon, div.remove-shortcut a:hover span.icon {
+  background: transparent url('../images/no_shortcut.svg?1396547846') no-repeat scroll 0 0;
+  -webkit-transition: all 1s;
+  -moz-transition: all 1s;
+  -o-transition: all 1s;
+  transition: all 1s;
+}
+
+div.add-or-remove-shortcuts a span.text {
+  padding-top: 8px;
+}
+div.add-or-remove-shortcuts a:focus span.text, div.add-or-remove-shortcuts a:hover span.text {
+  background-color: inherit;
+  font-size: 0.88em;
+  color: #cccccc;
+  -webkit-transition: all 1s;
+  -moz-transition: all 1s;
+  -o-transition: all 1s;
+  transition: all 1s;
+}
+
+/* ACTION LINKS */
+ul.action-links {
+  margin: 0;
+  padding-left: 0;
+  padding-right: 0;
+}
+
+.action-links li {
+  display: inline-block;
+  margin-right: .5em;
+  margin-left: 0;
+  font-size: 1.2em;
+  font-weight: 900;
+}
+.action-links li a:hover {
+  text-decoration: none;
+}
+.action-links li:before {
+  content: "+";
+  font-size: 1.5em;
+  top: .0em;
+  color: #2fa6e5;
+  position: relative;
+  margin-right: .1em;
+}
+
+/* SECONDARY LINKS */
+#secondary-links ul.links li {
+  padding: 0 10px 10px 0;
+  /* LTR */
+}
+#secondary-links ul.links li a {
+  font-size: 0.88em;
+  color: white;
+  text-align: center;
+  padding: 5px;
+  overflow: hidden;
+}
+
+ul.links li, ul.inline li {
+  padding-right: 1em;
+  /* LTR */
+}
+ul.inline li {
+  display: inline;
+}
+
+/* SUMMARY AND DETAILS */
+summary {
+  background: url("../misc/menu-expanded.png") no-repeat scroll 0 100% #eeeeee;
+  height: 2em;
+  border: 0px solid transparent;
+  padding: 0 10px;
+  background: #f5f5f5;
+  border-radius: 4px 4px 0 0;
+  line-height: 2em;
+}
+summary:focus {
+  outline: 0px solid transparent;
+  /*hides browser focus border on this element since it contains no user action. Should not effect a11y.*/
+}
+summary::-webkit-details-marker {
+  display: none;
+}
+
+.collapse-processed > summary {
+  padding-left: 0.75em;
+  padding-right: 0.75em;
+}
+.collapse-processed > summary:before {
+  background-position: 0 70%;
+  height: 1.6em;
+  width: 1em;
+}
+
+details {
+  border: 0px solid transparent;
+}
+
+details > .details-wrapper, .container-inline .details-wrapper {
+  padding: 10px;
+  border: solid #eee;
+  border-width: 0px 1px 1px 1px;
+  margin: 0 0 1em;
+}
+
+div.item-list ul.current-filters {
+  margin: .5em 0;
+  padding: 0;
+  margin-bottom: 1rem;
+}
+ul.current-filters li {
+  margin: 1em 0;
+  display: inline;
+}
+
+/* position and style edit filters neatly inline and floated left above tables they filter. */
+#edit-filters {
+  float: left;
+  display: inline-block;
+  margin-top: 0;
+  padding-left: 0;
+  width: 65%;
+}
+#edit-filters div.fieldset-wrapper {
+  margin-top: 1rem;
+}
+#edit-filters div.exposed-filters {
+  display: inline-block;
+}
+#edit-filters div.exposed-filters .form-select {
+  width: 100%;
+}
+#edit-filters div.exposed-filters .form-item {
+  width: 25%;
+  float: none;
+  margin-bottom: 1rem;
+  display: inline-block;
+  position: relative;
+  vertical-align: top;
+}
+#edit-filters div.exposed-filters .form-item label {
+  font-weight: bold;
+  position: absolute;
+  top: -1rem;
+}
+#edit-filters div.exposed-filters .filters {
+  float: none;
+  margin-right: 0;
+  display: inline;
+}
+#edit-filters div.exposed-filters .current-filters ul,
+#edit-filters div.exposed-filters .block ul,
+#edit-filters div.exposed-filters .item-list ul {
+  margin-bottom: 1rem;
+}
+#edit-filters div.exposed-filters .additional-filters {
+  padding: 12px 0 0 0;
+  margin-right: 1em;
+  font-weight: bold;
+}
+#edit-filters div.exposed-filters div#edit-actions {
+  display: inline-block;
+  width: auto;
+}
+#edit-filters div.exposed-filters div#edit-actions .form-submit {
+  width: auto;
+  padding: .47em 1em;
+  vertical-align: middle;
+  margin-left: 0;
+  font-weight: bold;
+  letter-spacing: 0em;
+}
+
+/* position and style edit options neatly inline (with form items vertically alined with those in edit filters) 
+   and float the whole group to the right  */
+#edit-options {
+  float: right;
+  display: inline-block;
+  width: 35%;
+  margin-top: 0;
+  padding-left: 0;
+}
+#edit-options div.fieldset-wrapper {
+  display: inline-block;
+  margin-top: 1rem;
+}
+#edit-options div.form-item.form-type-select.form-item-operation {
+  width: 67%;
+  float: left;
+}
+#edit-options .form-submit {
+  width: 28%;
+  float: right;
+  padding: .47em 1em;
+  vertical-align: middle;
+  font-weight: bold;
+}
+#edit-options div.fieldset-wrapper,
+#edit-options #edit-options legend {
+  width: 100%;
+  float: right;
+}
+#edit-options .form-select {
+  width: 100%;
+}
+
+/* TIPS */
+ul.tips, div.description, div.admin-panel div.description, .form-item div.description {
+  font-size: 0.88em;
+  margin: 0.35355em 0;
+}
+
+ul.tips li {
+  margin: 0.35355em 0;
+  list-style: none;
+}
+
+body div.form-type-radio div.description, body div.form-type-checkbox div.description {
+  margin-left: 1.5em;
+  /* LTR */
+}
+
+#system-modules label {
+  font-weight: normal;
+}
+#system-modules .expand .inner {
+  outline: 0px solid transparent;
+}
+
+/* Preview */
+.preview .node {
+  background-color: white;
+}
+
+/**
+ * Ember table styles
+ */
+table,
+thead,
+tfoot,
+tbody,
+tr,
+th,
+td {
+  overflow: hidden;
+  white-space: normal;
+  text-align: left;
+}
+
+table {
+  /* Firefox has issues with tables aligning to the right and off the page. */
+  clear: both;
+  display: block;
+  width: 100%;
+  max-width: 100%;
+  border-spacing: 0;
+  margin: 0 0 2em;
+  overflow: scroll;
+}
+
+table thead {
+  border-top: 1px solid #dddddd;
+}
+table tfoot {
+  border-bottom: 1px solid #dddddd;
+}
+table tbody {
+  border-collapse: collapse;
+  border-top: 1px solid #dddddd;
+}
+
+tr {
+  /* Exception for webkit bug with the right border of the last cell in some
+  * tables, since it's webkit only, we can use :last-child */
+}
+tr.odd, tr.even {
+  background-color: transparent;
+}
+tr.odd .form-item,
+tr.odd .form-actions, tr.even .form-item,
+tr.even .form-actions {
+  margin: 0;
+  padding: 0;
+}
+tr.region-title {
+  background-color: transparent;
+  border: 0px solid transparent;
+}
+tr:hover td {
+  background-color: white;
+}
+tr.selected td {
+  background-color: #ffffee;
+}
+tr:last-child {
+  border-right: none;
+  /* LTR */
+}
+tr.active, tr.dblog-access-denied .active, tr.dblog-page-not-found .active {
+  background: white;
+}
+
+td > a:hover,
+th > a:hover,
+th.active > a:hover {
+  cursor: pointer;
+  text-decoration: none;
+  color: #007ec0;
+}
+
+th.active {
+  white-space: nowrap;
+}
+th.active > a {
+  color: #333333;
+}
+
+td,
+th {
+  padding: 0.5rem 3rem;
+}
+td:last-child,
+th:last-child {
+  width: 100%;
+}
+
+th a {
+  padding: 0 2rem 0 0;
+}
+
+th.active a img {
+  position: absolute;
+  top: 25%;
+  right: 1em;
+  margin: 0;
+}
+
+/* :before pseudo-classes create the border bottom and background that will be altered for affordances for sortable columns. 
+ * :before is used bacause we can't change attributes on the parent of the link */
+th:before,
+th a:hover:before, th.active a:before {
+  content: "";
+  position: absolute;
+  width: 100%;
+  left: 0px;
+}
+th:before {
+  top: -2px;
+  height: 100%;
+  background-color: #fafafa;
+  z-index: -1;
+}
+th a:hover:before {
+  border-bottom: 2px solid #2fa6e5;
+  top: 0px;
+  background-color: white;
+  height: 95%;
+  z-index: -1;
+}
+th.active a:before {
+  border-bottom: 2px solid #f05724;
+  top: -2px;
+  background-color: white;
+  height: 100%;
+  z-index: -1;
+}
+
+th {
+  font-size: .9em;
+  font-weight: 600;
+  color: #999999;
+  text-transform: uppercase;
+  letter-spacing: .05em;
+  margin: 0;
+  position: relative;
+  white-space: nowrap;
+}
+
+td {
+  vertical-align: top;
+  border-bottom: 1px solid #dddddd;
+  overflow: hidden;
+}
+a td {
+  color: #2fa6e5;
+  cursor: pointer;
+}
+a td:hover {
+  color: #007ec0;
+}
+td.status, td.ok {
+  background-color: transparent;
+}
+td ul.inline {
+  margin: 0;
+}
+td.description {
+  opacity: 1;
+  background-color: inherit;
+  transition: none;
+}
+
+th a,
+td a {
+  text-decoration: none;
+}
+
+td ul,
+td ol,
+td li.first,
+td li.last,
+td li {
+  padding: 0;
+  margin: 0;
+  line-height: normal;
+}
+
+/* Remove padding from lists inside tables */
+[dir="ltr"] td ul,
+[dir="ltr"] td ol {
+  padding-left: 0;
+}
+
+[dir="rtl"] td ul,
+[dir="rtl"] td ol {
+  padding-right: 0;
+}
+
+.sticky-header {
+  z-index: 2;
+}
+
+@media (max-width: 680px) {
+  table {
+    display: block;
+  }
+
+  tr {
+    position: relative;
+  }
+
+  th:nth-child(2),
+  td:nth-child(2) {
+    position: absolute;
+    left: 0;
+    display: block;
+    width: 30%;
+    margin: 0;
+    overflow: hidden;
+    background-color: white;
+    border-right: 1px solid #dddddd;
+    z-index: 2;
+  }
+
+  td:nth-child(1),
+  th:nth-child(1) {
+    padding-left: 250px;
+  }
+}
+/* overrides */
+/* on these forms/pages make column 1 widest */
+#permissions th:first-child,
+#permissions td:first-child,
+.page-admin-structure-menu th:first-child,
+.page-admin-structure-menu td:first-child,
+.page-admin-reports-updates th:first-child,
+.page-admin-reports-updates td:first-child,
+form#block-admin-display-form table th:first-child,
+form#block-admin-display-form table td:first-child,
+table#shortcuts th:first-child,
+table#shortcuts td:first-child {
+  width: 100%;
+}
+
+/* on these forms/pages make column 4 widest */
+form#system-modules th:nth-child(4),
+form#system-modules td:nth-child(4) {
+  width: 100%;
+  min-width: 300px;
+}
+
+/* for these types of tables and on these pages make the last column widest */
+.table-select-processed td:last-child,
+.table-select-processed th:last-child,
+#user-admin-account td:last-child,
+#user-admin-account th:last-child,
+#comment-admin-overview td:last-child,
+#comment-admin-overview th:last-child,
+.view-id-workbench_recent_content td:last-child,
+.view-id-workbench_recent_content th:last-child,
+#dashboard_main td:last-child,
+#dashboard_main th:last-child,
+table #admin-dblog td:last-child,
+table #admin-dblog th:last-child,
+.page-admin-reports-fields table td:last-child,
+.page-admin-reports-fields table th:last-child,
+.page-admin-reports-access-denied table td:last-child,
+.page-admin-reports-access-denied table th:last-child {
+  width: 100%;
+}
+
+.view-workbench-edited th.views-field.views-field-timestamp {
+  width: 100%;
+}
+
+/* on these pages align last child left */
+#node-admin-content td:last-child,
+#node-admin-content th:last-child,
+#block-admin-display-form td:last-child,
+#block-admin-display-form th:last-child,
+#user-admin-account td:last-child,
+#user-admin-account th:last-child {
+  text-align: left;
+}
+
+/* on these pages align last child column right */
+#node-admin-content td:last-child,
+#node-admin-content th:last-child,
+#user-admin-account td:last-child,
+#user-admin-account th:last-child,
+#comment-admin-overview td:last-child,
+#comment-admin-overview th:last-child {
+  text-align: right;
+}
+
+/* on multi-select tables the second column is primary, thus nth child 2 is used to emphasize the primary column */
+.table-select-processed td,
+.table-select-processed th {
+  white-space: nowrap;
+}
+.table-select-processed td:first-child,
+.table-select-processed th:first-child {
+  padding: 0.5rem 1rem;
+}
+.table-select-processed td:nth-child(2),
+.table-select-processed th:nth-child(2) {
+  font-weight: bold;
+}
+
+#dashboard_main th:first-child,
+#dashboard_main td:first-child {
+  font-weight: bold;
+}
+
+.view-workbench-edited td.views-field-changed,
+.view-workbench-edited td.views-field-type,
+.view-workbench-edited td.views-field-title,
+.view-workbench-edited td.views-field-status,
+.view-workbench-recent-content td.views-field-changed,
+.view-workbench-recent-content td.views-field-type,
+.view-workbench-recent-content td.views-field-title,
+.view-workbench-recent-content td.views-field-status {
+  white-space: nowrap;
+}
+.view-workbench-edited th.views-field-edit-node,
+.view-workbench-edited td.views-field-edit-node,
+.view-workbench-recent-content th.views-field-edit-node,
+.view-workbench-recent-content td.views-field-edit-node {
+  text-align: right;
+}
+
+td ul.links li, ul.inline li {
+  padding-right: 0;
+}
+
+/* vertical tabs component styles */
+h3, h4, th, h1, h2, h5, h6, dt, label, button,
+input[type="reset"],
+input[type="submit"],
+input[type="button"],
+[class*="action-item"], .button,
+[id^="edit-cancel"], input[id^="edit-submit"],
+input[id^="edit-next"],
+.fake-submit {
+  font-family: "Helvetica Neue", helvetica, "Segoe UI", segoe, "Ubuntu", "Droid Sans", "Arial", sans-serif;
+}
+
+h3, h4, th {
+  font-weight: 400;
+}
+
+h1, h2 {
+  font-weight: 200;
+}
+
+h5, h6, dt, label, button,
+input[type="reset"],
+input[type="submit"],
+input[type="button"],
+[class*="action-item"], .button,
+[id^="edit-cancel"], input[id^="edit-submit"],
+input[id^="edit-next"],
+.fake-submit {
+  font-weight: 700;
+}
+h5 b, h6 b, dt b, label b, button b,
+input[type="reset"] b,
+input[type="submit"] b,
+input[type="button"] b,
+[class*="action-item"] b, .button b,
+[id^="edit-cancel"] b, input[id^="edit-submit"] b,
+input[id^="edit-next"] b,
+.fake-submit b,
+h5 strong,
+h6 strong,
+dt strong,
+label strong,
+button strong,
+input[type="reset"] strong,
+input[type="submit"] strong,
+input[type="button"] strong,
+[class*="action-item"] strong,
+.button strong,
+[id^="edit-cancel"] strong,
+input[id^="edit-submit"] strong,
+input[id^="edit-next"] strong,
+.fake-submit strong {
+  font-weight: 400;
+}
+
+blockquote, caption,
+tfoot {
+  font-family: Constantia, "Lucida Bright", Lucidabright, "Lucida Serif", Lucida, "DejaVu Serif", "Bitstream Vera Serif", "Liberation Serif", Georgia, serif;
+}
+
+blockquote, caption,
+tfoot {
+  font-style: italic;
+}
+blockquote i, caption i,
+tfoot i,
+blockquote em,
+caption em,
+tfoot em {
+  font-style: normal;
+}
+
+pre,
+code {
+  font-family: Consolas, "Andale Mono WT", "Andale Mono", "Lucida Console", "Lucida Sans Typewriter", "DejaVu Sans Mono", "Bitstream Vera Sans Mono", "Liberation Mono", "Nimbus Mono L", Monaco, "Courier New", Courier, monospace;
+}
+pre i,
+code i,
+pre em,
+code em {
+  font-style: normal;
+}
+pre b,
+code b,
+pre strong,
+code strong {
+  font-weight: 400;
+}
+
+.vertical-tabs:focus, .vertical-tabs-list:focus, li.selected:focus {
+  outline: 0px solid transparent;
+}
+
+.vertical-tabs details > .details-wrapper {
+  border: 1px solid transparent;
+  padding: 10px 20px;
+}
+
+div.vertical-tabs {
+  background: #fff;
+}
+div.vertical-tabs fieldset {
+  -webkit-box-shadow: none;
+  -moz-box-shadow: none;
+  box-shadow: none;
+}
+div.vertical-tabs ul li.vertical-tab-button a:hover, div.vertical-tabs ul li.vertical-tab-button a:focus {
+  background: #e9e9e9;
+  outline: 0px solid transparent;
+}
+
+.vertical-tabs-pane div.form-item {
+  display: block;
+}
+
+.vertical-tabs fieldset.vertical-tabs-pane {
+  padding: 2em;
+}
+
+/* Ember styles for the dropbutton component */
+h3, h4, th, h1, h2, h5, h6, dt, label, button,
+input[type="reset"],
+input[type="submit"],
+input[type="button"],
+[class*="action-item"], .button,
+[id^="edit-cancel"], input[id^="edit-submit"],
+input[id^="edit-next"],
+.fake-submit {
+  font-family: "Helvetica Neue", helvetica, "Segoe UI", segoe, "Ubuntu", "Droid Sans", "Arial", sans-serif;
+}
+
+h3, h4, th {
+  font-weight: 400;
+}
+
+h1, h2 {
+  font-weight: 200;
+}
+
+h5, h6, dt, label, button,
+input[type="reset"],
+input[type="submit"],
+input[type="button"],
+[class*="action-item"], .button,
+[id^="edit-cancel"], input[id^="edit-submit"],
+input[id^="edit-next"],
+.fake-submit {
+  font-weight: 700;
+}
+h5 b, h6 b, dt b, label b, button b,
+input[type="reset"] b,
+input[type="submit"] b,
+input[type="button"] b,
+[class*="action-item"] b, .button b,
+[id^="edit-cancel"] b, input[id^="edit-submit"] b,
+input[id^="edit-next"] b,
+.fake-submit b,
+h5 strong,
+h6 strong,
+dt strong,
+label strong,
+button strong,
+input[type="reset"] strong,
+input[type="submit"] strong,
+input[type="button"] strong,
+[class*="action-item"] strong,
+.button strong,
+[id^="edit-cancel"] strong,
+input[id^="edit-submit"] strong,
+input[id^="edit-next"] strong,
+.fake-submit strong {
+  font-weight: 400;
+}
+
+blockquote, caption,
+tfoot {
+  font-family: Constantia, "Lucida Bright", Lucidabright, "Lucida Serif", Lucida, "DejaVu Serif", "Bitstream Vera Serif", "Liberation Serif", Georgia, serif;
+}
+
+blockquote, caption,
+tfoot {
+  font-style: italic;
+}
+blockquote i, caption i,
+tfoot i,
+blockquote em,
+caption em,
+tfoot em {
+  font-style: normal;
+}
+
+pre,
+code {
+  font-family: Consolas, "Andale Mono WT", "Andale Mono", "Lucida Console", "Lucida Sans Typewriter", "DejaVu Sans Mono", "Bitstream Vera Sans Mono", "Liberation Mono", "Nimbus Mono L", Monaco, "Courier New", Courier, monospace;
+}
+pre i,
+code i,
+pre em,
+code em {
+  font-style: normal;
+}
+pre b,
+code b,
+pre strong,
+code strong {
+  font-weight: 400;
+}
+
+.js .dropbutton-widget {
+  background: #f5f5f5;
+  border: 0px solid transparent;
+  border-radius: 4px;
+  -webkit-box-shadow: 0px 1px 2px rgba(0, 0, 0, 0.3);
+  -moz-box-shadow: 0px 1px 2px rgba(0, 0, 0, 0.3);
+  box-shadow: 0px 1px 2px rgba(0, 0, 0, 0.3);
+}
+.js .dropbutton-widget a {
+  color: #555;
+}
+.js .dropbutton-widget a:hover {
+  color: #000;
+}
+tr.selected > .dropbutton-widget {
+  background: white;
+}
+
+.dropbutton-widget .dropbutton {
+  line-height: 1.8em;
+}
+.dropbutton-multiple .dropbutton {
+  border-right: 1px solid #ddd;
+}
+.dropbutton .secondary-action {
+  border-top: 1px solid #ddd;
+}
+
+.dropbutton-toggle button {
+  background: none;
+}
+
+/* Ember styles for OVERLAY (not recommended for use with Ember theme) */
+h3, h4, th, h1, h2, h5, h6, dt, label, button,
+input[type="reset"],
+input[type="submit"],
+input[type="button"],
+[class*="action-item"], .button,
+[id^="edit-cancel"], input[id^="edit-submit"],
+input[id^="edit-next"],
+.fake-submit {
+  font-family: "Helvetica Neue", helvetica, "Segoe UI", segoe, "Ubuntu", "Droid Sans", "Arial", sans-serif;
+}
+
+h3, h4, th {
+  font-weight: 400;
+}
+
+h1, h2 {
+  font-weight: 200;
+}
+
+h5, h6, dt, label, button,
+input[type="reset"],
+input[type="submit"],
+input[type="button"],
+[class*="action-item"], .button,
+[id^="edit-cancel"], input[id^="edit-submit"],
+input[id^="edit-next"],
+.fake-submit {
+  font-weight: 700;
+}
+h5 b, h6 b, dt b, label b, button b,
+input[type="reset"] b,
+input[type="submit"] b,
+input[type="button"] b,
+[class*="action-item"] b, .button b,
+[id^="edit-cancel"] b, input[id^="edit-submit"] b,
+input[id^="edit-next"] b,
+.fake-submit b,
+h5 strong,
+h6 strong,
+dt strong,
+label strong,
+button strong,
+input[type="reset"] strong,
+input[type="submit"] strong,
+input[type="button"] strong,
+[class*="action-item"] strong,
+.button strong,
+[id^="edit-cancel"] strong,
+input[id^="edit-submit"] strong,
+input[id^="edit-next"] strong,
+.fake-submit strong {
+  font-weight: 400;
+}
+
+blockquote, caption,
+tfoot {
+  font-family: Constantia, "Lucida Bright", Lucidabright, "Lucida Serif", Lucida, "DejaVu Serif", "Bitstream Vera Serif", "Liberation Serif", Georgia, serif;
+}
+
+blockquote, caption,
+tfoot {
+  font-style: italic;
+}
+blockquote i, caption i,
+tfoot i,
+blockquote em,
+caption em,
+tfoot em {
+  font-style: normal;
+}
+
+pre,
+code {
+  font-family: Consolas, "Andale Mono WT", "Andale Mono", "Lucida Console", "Lucida Sans Typewriter", "DejaVu Sans Mono", "Bitstream Vera Sans Mono", "Liberation Mono", "Nimbus Mono L", Monaco, "Courier New", Courier, monospace;
+}
+pre i,
+code i,
+pre em,
+code em {
+  font-style: normal;
+}
+pre b,
+code b,
+pre strong,
+code strong {
+  font-weight: 400;
+}
+
+div#overlay {
+  min-width: 200px;
+}
+
+#overlay-content {
+  padding: 0 0 1em;
+}
+
+#overlay-titlebar {
+  display: block;
+}
+
+.overlay #branding {
+  display: none;
+}
+.overlay #page {
+  padding: 0;
+}
+
+/* =============================================================================
+
+   STYLING SPECIFIC TO REGIONS
+
+   ========================================================================== */
+/* Branding region (includes page title, shortcut, contextual links and breadcrumb) */
+#branding {
+  -webkit-box-sizing: border-box;
+  -moz-box-sizing: border-box;
+  box-sizing: border-box;
+  background-color: #444444;
+  padding: 1em 2.25em 0;
+  width: 100%;
+  color: #cccccc;
+  border-top: 50px solid #444444;
+  /* removes ugly white gap when you scroll past the top */
+  margin-top: -50px;
+}
+#branding .breadcrumb {
+  color: #777;
+  margin: 0;
+}
+#branding .breadcrumb a {
+  color: #777;
+  font-size: 90%;
+}
+#branding .breadcrumb a:hover {
+  color: #FFF;
+  text-decoration: none;
+}
+#branding h1.page-title {
+  margin: 0 0 .25em;
+  font-size: 2.75em;
+  font-weight: 200;
+}
+
+/* CONSOLE REGION */
+#console {
+  margin: 9px 0 10px;
+}
+
+/* HELP REGION */
+#help {
+  margin: 1em 0;
+  line-height: 1.6em;
+}
+#help div.more-help-link {
+  text-align: right;
+  /* LTR */
+}
+
+.region-help {
+  margin-bottom: 1em;
+}
+.region .region-help ul {
+  margin: 0 0 20px 0;
+}
+.region-help p {
+  font-size: 1.1em;
+  color: #555;
+}
+
+/* PAGE REGION */
+#content {
+  clear: left;
+}
+
+#page {
+  margin: 1.5rem 2.25em 0;
+  position: relative;
+}
+
+/* Update status */
+.versions table.version {
+  border: none;
+}
+
+/* MAINTENANCE PAGE */
+body.in-maintenance #sidebar-first {
+  float: left;
+  /* LTR */
+  width: 200px;
+}
+body.in-maintenance #content {
+  clear: none;
+  float: right;
+  /* LTR */
+  padding-right: 20px;
+  /* LTR */
+  width: 550px;
+}
+body.in-maintenance #page {
+  margin: 0 auto;
+  overflow: auto;
+  padding-top: 2em;
+  width: 770px;
+}
+body.in-maintenance #branding h1 {
+  float: none;
+  margin: 0 auto;
+  width: 770px;
+}
+body.in-maintenance .form-radios .form-type-radio {
+  padding: 2px 0;
+}
+body.in-maintenance div.form-item:after {
+  clear: none;
+  content: "";
+  display: none;
+}
+body.in-maintenance .form-submit {
+  display: block;
+}
+body.in-maintenance #logo {
+  margin-bottom: 1.5em;
+}
+
+ol.task-list {
+  list-style-type: none;
+  list-style-image: none;
+  margin-left: 0;
+  /* LTR */
+}
+ol.task-list li {
+  color: #adadad;
+  padding: 0.5em 1em 0.5em 20px;
+  /* LTR */
+}
+ol.task-list li.active {
+  background: transparent url('../images/task-item.png?1396547846') no-repeat 3px 50%;
+  /* LTR */
+  color: #000;
+  padding: 0.5em 1em 0.5em 20px;
+  /* LTR */
+}
+ol.task-list li.done {
+  background: transparent url('../images/task-check.png?1396547846') no-repeat 0 50%;
+  color: green;
+}
+
+/* DASHBOARD PAGE */
+#dashboard .region {
+  margin: 0;
+}
+#dashboard div.block h2 {
+  font-size: 1.5em;
+  margin: 0;
+  padding: 3px 10px;
+}
+#dashboard div.block div.content {
+  padding: 10px 10px 20px;
+  /* LTR */
+}
+#dashboard div.block div.content ul.menu {
+  margin-left: 20px;
+  /* LTR */
+}
+#dashboard .dashboard-region .block {
+  border: 1px solid #ddd;
+}
+#dashboard div#dashboard_main {
+  margin-right: 1.5%;
+  width: 48%;
+}
+#dashboard div#dashboard_sidebar {
+  width: 48%;
+}
+#dashboard .canvas-content a.button {
+  color: white;
+  margin: 10px 0 0;
+  text-decoration: none;
+}
+#dashboard .ui-sortable {
+  border: 2px dotted #ccc;
+  border-color: #2fa6e5;
+  padding: 10px 10px 0;
+}
+#dashboard #disabled-blocks .region {
+  background-color: transparent;
+  border: none;
+  padding: 0;
+}
+#dashboard #disabled-blocks .block {
+  background-color: transparent;
+  border-radius: 3px;
+}
+#dashboard #disabled-blocks .block,
+#dashboard .block-placeholder {
+  background-color: #ccc;
+  border-radius: 3px;
+  float: left;
+  margin: 3px 6px 3px 0;
+  padding: 5px 4px 5px 8px;
+}
+
+#block-node-recent table,
+#block-node-recent tr {
+  border: none;
+}
+#block-node-recent .more-link {
+  padding: 0 5px 5px 0;
+  /* LTR */
+}
+#dashboard #block-node-recent div.content {
+  padding: 0;
+}
+
+/* CONTENT TYPES PAGE */
+#field-display-overview input.field-formatter-settings-edit {
+  margin: 0;
+  padding: 1px 8px;
+}
+#field-display-overview tr.field-formatter-settings-changed {
+  background: #ffb;
+}
+#field-display-overview tr.field-formatter-settings-editing {
+  background: #D5E9F2;
+}
+#field-display-overview .field-formatter-settings-edit-form .form-item {
+  margin: 10px 0 0;
+}
+
+/* PEOPLE PAGE */
+#permissions td.module {
+  background-color: #f5f5f5;
+  background-image: none;
+  font-weight: bold;
+}
+
+em.permission-warning,
+.permission .description .placeholder em {
+  color: #f79521;
+  font-weight: bold;
+  display: block;
+}
+
+#edit-cancel-account {
+  background: inherit;
+  text-align: inherit;
+  font-weight: inherit;
+}
+
+/* APPEARANCE PAGE */
+.theme-selector .no-screenshot {
+  background: #ddd;
+}
+
+.theme-default h3 {
+  font-weight: normal;
+  color: #f05724;
+}
+
+.theme-default .screenshot, .theme-selector .screenshot {
+  border: 2px solid #999;
+  padding: 0px;
+}
+
+img.screenshot {
+  margin: 0;
+}
+
+.system-themes-list h2 {
+  font-size: 2.25em;
+}
+
+.theme-info h3 {
+  font-size: 1.77778em;
+}
+
+/* MODULES PAGE */
+#module-filter-squeeze table,
+#module-filter-modules table {
+  clear: none;
+}
+
+/* =============================================================================
+
+   STYLING SPECIFIC TO BLOCKS
+
+   ========================================================================== */
+/* User login */
+#user-login-form .openid-links {
+  margin-left: 0;
+  /* LTR */
+}
+#user-login-form .openid-links .user-link {
+  margin-left: 1.5em;
+  /* LTR */
+}
+
+/* Disable overlay message */
+#overlay-disable-message {
+  background-color: #addafc;
+}
+#overlay-disable-message a, #overlay-disable-message a:visited {
+  color: #000;
+}
+#overlay-disable-message a:focus, #overlay-disable-message a:active {
+  outline: none;
+  text-decoration: underline;
+}
+
+.overlay-disable-message-focused a {
+  padding: 0.4em 0.6em;
+}
+.overlay-disable-message-focused #overlay-dismiss-message {
+  background-color: #59a0d8;
+  border-radius: 8px;
+  color: white;
+}
+
+.search-block-form {
+  margin-top: 20px;
+  margin-bottom: 20px;
+}
+
+/* Ember overrides of ctools CSS */
+h3, h4, th, h1, h2, h5, h6, dt, label, button,
+input[type="reset"],
+input[type="submit"],
+input[type="button"],
+[class*="action-item"], .button,
+[id^="edit-cancel"], input[id^="edit-submit"],
+input[id^="edit-next"],
+.fake-submit {
+  font-family: "Helvetica Neue", helvetica, "Segoe UI", segoe, "Ubuntu", "Droid Sans", "Arial", sans-serif;
+}
+
+h3, h4, th {
+  font-weight: 400;
+}
+
+h1, h2 {
+  font-weight: 200;
+}
+
+h5, h6, dt, label, button,
+input[type="reset"],
+input[type="submit"],
+input[type="button"],
+[class*="action-item"], .button,
+[id^="edit-cancel"], input[id^="edit-submit"],
+input[id^="edit-next"],
+.fake-submit {
+  font-weight: 700;
+}
+h5 b, h6 b, dt b, label b, button b,
+input[type="reset"] b,
+input[type="submit"] b,
+input[type="button"] b,
+[class*="action-item"] b, .button b,
+[id^="edit-cancel"] b, input[id^="edit-submit"] b,
+input[id^="edit-next"] b,
+.fake-submit b,
+h5 strong,
+h6 strong,
+dt strong,
+label strong,
+button strong,
+input[type="reset"] strong,
+input[type="submit"] strong,
+input[type="button"] strong,
+[class*="action-item"] strong,
+.button strong,
+[id^="edit-cancel"] strong,
+input[id^="edit-submit"] strong,
+input[id^="edit-next"] strong,
+.fake-submit strong {
+  font-weight: 400;
+}
+
+blockquote, caption,
+tfoot {
+  font-family: Constantia, "Lucida Bright", Lucidabright, "Lucida Serif", Lucida, "DejaVu Serif", "Bitstream Vera Serif", "Liberation Serif", Georgia, serif;
+}
+
+blockquote, caption,
+tfoot {
+  font-style: italic;
+}
+blockquote i, caption i,
+tfoot i,
+blockquote em,
+caption em,
+tfoot em {
+  font-style: normal;
+}
+
+pre,
+code {
+  font-family: Consolas, "Andale Mono WT", "Andale Mono", "Lucida Console", "Lucida Sans Typewriter", "DejaVu Sans Mono", "Bitstream Vera Sans Mono", "Liberation Mono", "Nimbus Mono L", Monaco, "Courier New", Courier, monospace;
+}
+pre i,
+code i,
+pre em,
+code em {
+  font-style: normal;
+}
+pre b,
+code b,
+pre strong,
+code strong {
+  font-weight: 400;
+}
+
+.ctools-button-processed {
+  text-align: left;
+  /* LTR */
+  border: 1px solid #ddd;
+  background: white;
+}
+.ctools-button-processed input {
+  color: #2fa6e5;
+  margin-top: 0;
+}
+.ctools-button-processed input:hover {
+  color: #2fa6e5;
+}
+.ctools-button-processed li {
+  line-height: 1em;
+  background-color: white;
+  border: 0px solid transparent;
+}
+
+.actions.right {
+  margin: 0;
+}
+
+/* Keep the initial state of the ctools dropbutton in the document flow. */
+.ctools-dropbutton-wrapper {
+  position: relative;
+  min-height: 2.3em;
+}
+.ctools-dropbutton-wrapper ul {
+  padding: 0;
+}
+
+/**
+ * Adjust dropbutton arrow
+ */
+.ctools-twisty {
+  border-width: 5px 5px 0;
+  right: 5px;
+  top: 10px;
+  -webkit-transition: none;
+  -moz-transition: none;
+  -o-transition: none;
+  transition: none;
+}
+.ctools-dropbutton-processed.open .ctools-twisty {
+  border-bottom: 6px solid;
+  top: 0.3em;
+}
+
+/* Ember overrides of views CSS */
+h3, h4, th, h1, h2, h5, h6, dt, label, button,
+input[type="reset"],
+input[type="submit"],
+input[type="button"],
+[class*="action-item"], .button,
+[id^="edit-cancel"], input[id^="edit-submit"],
+input[id^="edit-next"],
+.fake-submit {
+  font-family: "Helvetica Neue", helvetica, "Segoe UI", segoe, "Ubuntu", "Droid Sans", "Arial", sans-serif;
+}
+
+h3, h4, th {
+  font-weight: 400;
+}
+
+h1, h2 {
+  font-weight: 200;
+}
+
+h5, h6, dt, label, button,
+input[type="reset"],
+input[type="submit"],
+input[type="button"],
+[class*="action-item"], .button,
+[id^="edit-cancel"], input[id^="edit-submit"],
+input[id^="edit-next"],
+.fake-submit {
+  font-weight: 700;
+}
+h5 b, h6 b, dt b, label b, button b,
+input[type="reset"] b,
+input[type="submit"] b,
+input[type="button"] b,
+[class*="action-item"] b, .button b,
+[id^="edit-cancel"] b, input[id^="edit-submit"] b,
+input[id^="edit-next"] b,
+.fake-submit b,
+h5 strong,
+h6 strong,
+dt strong,
+label strong,
+button strong,
+input[type="reset"] strong,
+input[type="submit"] strong,
+input[type="button"] strong,
+[class*="action-item"] strong,
+.button strong,
+[id^="edit-cancel"] strong,
+input[id^="edit-submit"] strong,
+input[id^="edit-next"] strong,
+.fake-submit strong {
+  font-weight: 400;
+}
+
+blockquote, caption,
+tfoot {
+  font-family: Constantia, "Lucida Bright", Lucidabright, "Lucida Serif", Lucida, "DejaVu Serif", "Bitstream Vera Serif", "Liberation Serif", Georgia, serif;
+}
+
+blockquote, caption,
+tfoot {
+  font-style: italic;
+}
+blockquote i, caption i,
+tfoot i,
+blockquote em,
+caption em,
+tfoot em {
+  font-style: normal;
+}
+
+pre,
+code {
+  font-family: Consolas, "Andale Mono WT", "Andale Mono", "Lucida Console", "Lucida Sans Typewriter", "DejaVu Sans Mono", "Bitstream Vera Sans Mono", "Liberation Mono", "Nimbus Mono L", Monaco, "Courier New", Courier, monospace;
+}
+pre i,
+code i,
+pre em,
+code em {
+  font-style: normal;
+}
+pre b,
+code b,
+pre strong,
+code strong {
+  font-weight: 400;
+}
+
+.views-admin ul,
+.views-admin menu,
+.views-admin dir {
+  padding: 0;
+}
+.views-admin pre {
+  margin-bottom: inherit;
+  margin-top: inherit;
+  white-space: inherit;
+}
+.views-admin .icon.linked {
+  background-position: center -157px;
+}
+.views-admin .icon.unlinked {
+  background-position: center -199px;
+}
+.views-admin .icon.add {
+  background-position: center 7px;
+}
+.views-admin .icon.delete {
+  background-position: center -56px;
+}
+.views-admin .icon.rearrange {
+  background-position: center -115px;
+}
+.views-admin a.icon.add {
+  background-position: center 7px, left top;
+}
+.views-admin a.icon.delete {
+  background-position: center -56px, left top;
+}
+.views-admin a.icon.rearrange {
+  background-position: center -115px, left top;
+}
+.views-admin span.icon {
+  float: none;
+}
+.views-admin .form-type-checkbox + .form-wrapper {
+  margin-left: 0;
+}
+.views-admin .form-type-checkbox label,
+.views-admin .form-type-radio label {
+  line-height: inherit;
+}
+.views-admin h1.unit-title {
+  font-size: 2.5em;
+  line-height: normal;
+  margin-top: 0em;
+}
+
+.views-group-box .form-item {
+  margin-left: inherit;
+  margin-right: inherit;
+}
+
+.views-displays .secondary {
+  border-bottom: 0 none;
+  margin: 0;
+  overflow: visible;
+  padding: 0;
+}
+.views-displays .secondary > li {
+  border-right: 0 none;
+  padding: 0;
+}
+.views-displays .secondary .action-list {
+  top: inherit;
+}
+
+.views-display-tab .fieldset-legend {
+  left: 0;
+}
+.views-display-tab .fieldset-wrapper > .views-ui-display-tab-bucket .actions {
+  right: 0;
+  top: 0;
+}
+
+.views-display-columns > * {
+  margin-left: 0;
+  padding-left: 0;
+  padding-right: 1em;
+}
+.views-display-columns > *:first-child {
+  margin-left: 0;
+  padding-left: 0;
+}
+
+.views-ui-dialog .ui-dialog-titlebar-close {
+  border: 0px solid transparent;
+  top: 0;
+}
+.views-ui-dialog .views-messages {
+  padding: 0 1em;
+}
+
+.box-padding {
+  padding-left: 0;
+  padding-right: 0;
+}
+
+.box-margin {
+  margin: 0;
+}
+
+.views-admin-dependent .form-item {
+  margin-bottom: 0;
+  margin-top: 0;
+}
+
+.horizontal > * + * {
+  margin-left: 0;
+  padding-left: 0;
+}
+
+.views-ui-view-title {
+  font-weight: inherit;
+}
+
+.view-changed {
+  margin-bottom: 0;
+}
+
+.form-item-description-enable label {
+  font-weight: inherit;
+}
+
+.form-item-page-create,
+.form-item-block-create {
+  margin-top: inherit;
+}
+.form-item-page-create label,
+.form-item-block-create label {
+  font-weight: inherit;
+}
+
+.views-attachment .options-set label {
+  font-weight: inherit;
+}
+
+td.group-title {
+  font-weight: inherit;
+}
+.views-ui-dialog td.group-title span {
+  height: inherit;
+}
+
+.views-operator-label {
+  font-weight: 500;
+}
+
+.grouped-description,
+.exposed-description {
+  padding-top: 0;
+  padding-right: 0;
+}
+
+.views-displays {
+  border: 0px solid transparent;
+  padding-bottom: 0;
+}
+
+.views-display-top {
+  background-color: transparent;
+  border: 0px solid transparent;
+  padding: 0;
+  border-bottom: 1px solid #999;
+  margin-bottom: 1em;
+  height: 2.8em;
+}
+.views-display-top .ctools-button-processed {
+  right: 0;
+}
+.views-display-top .secondary {
+  margin-right: 0;
+}
+.views-display-top .secondary > li {
+  margin-right: 1em;
+}
+
+#views-display-extra-actions li {
+  padding: 0;
+}
+
+ul#views-display-menu-tabs li {
+  padding: 0;
+  margin: 0 1em 0 0;
+  color: #333333;
+  line-height: 2.5em;
+  text-shadow: none;
+  background-color: #3b3b3b;
+  border-radius: 0;
+}
+
+.views-displays .secondary a {
+  border: 0px solid transparent;
+  font-size: inherit;
+  line-height: inherit;
+  padding: 0;
+  color: white;
+}
+.views-displays .secondary a:hover > .icon.add {
+  background-position: center 7px;
+}
+.views-displays ul.secondary li.active a.active.error,
+.views-displays .secondary a.error {
+  border: 0;
+  color: #cb2026;
+}
+.views-displays .secondary a:hover,
+.views-displays .secondary .active a {
+  background-color: inherit;
+  color: #333333;
+  border: 0px solid transparent;
+}
+.views-displays .secondary .open > a {
+  background-color: inherit;
+  border: 0px solid transparent;
+}
+.views-displays .secondary .open > a:hover {
+  background-color: inherit;
+}
+.views-displays .secondary .open a:hover > .icon.add {
+  background-position: center 7px;
+}
+.views-displays .secondary .action-list li {
+  background-color: inherit;
+  border: 0px solid transparent;
+  padding: 0px;
+}
+
+#edit-display-settings-title {
+  font-size: 14px;
+  line-height: inherit;
+  margin: 0;
+}
+
+#edit-display-settings-top {
+  padding-bottom: 0px;
+}
+
+#edit-display-settings-content {
+  margin-top: 0px;
+}
+
+#edit-display-settings-main {
+  margin-top: 0px;
+}
+
+.views-display-column + .views-display-column {
+  margin-top: 0;
+}
+
+#views-ui-preview-form .form-type-checkbox {
+  margin-top: 0px;
+  margin-left: 0px;
+  float: none;
+}
+#views-ui-preview-form .arguments-preview,
+#views-ui-preview-form .form-type-textfield {
+  margin-left: 0px;
+}
+#views-ui-preview-form .form-type-textfield {
+  margin-top: 0;
+  display: inline-block;
+}
+#views-ui-preview-form .form-type-textfield label {
+  float: none;
+  font-weight: normal;
+  height: inherit;
+  margin-right: 0;
+}
+#views-ui-preview-form .form-type-textfield .description {
+  white-space: normal;
+  max-width: 300px;
+}
+#views-ui-preview-form .arguments-preview {
+  font-size: inherit;
+}
+
+.views-ui-display-tab-bucket {
+  border: 0px solid transparent;
+  line-height: inherit;
+  padding-top: 0px;
+}
+
+.views-ui-display-tab-bucket + .views-ui-display-tab-bucket {
+  border-top: 0px solid transparent;
+}
+.views-ui-display-tab-bucket > h3,
+.views-ui-display-tab-bucket > .views-display-setting {
+  padding: inherit;
+}
+.views-ui-display-tab-bucket h3 {
+  font-size: inherit;
+  margin: .5em 0;
+  font-weight: 900;
+  border-top: 1px solid #ddd;
+  padding: .5em 0 0;
+}
+.views-ui-display-tab-bucket .horizontal.actions {
+  margin-right: 0px;
+}
+.views-ui-display-tab-bucket .horizontal.actions li + li {
+  margin-left: 0px;
+  padding-left: 0px;
+}
+.views-ui-display-tab-bucket.access {
+  padding-top: 0;
+}
+.views-ui-display-tab-bucket.page-settings {
+  border-bottom: medium none;
+}
+.views-ui-display-tab-bucket .views-display-setting {
+  color: inherit;
+  font-size: inherit;
+  padding-bottom: 0px;
+}
+.views-ui-display-tab-bucket .even {
+  background-color: transparent;
+}
+.views-ui-display-tab-bucket .views-group-text {
+  margin-top: 0px;
+  margin-bottom: 0px;
+}
+
+.views-display-setting .views-ajax-link {
+  margin-left: 0em;
+  margin-right: 0em;
+}
+.views-display-setting .label {
+  margin-right: .5em;
+}
+
+#edit-displays-preview-controls .fieldset-wrapper > .form-item {
+  margin-top: 0em;
+  display: block;
+}
+#edit-displays-preview-controls .form-submit {
+  margin-right: 0em;
+  display: block;
+}
+
+#views-ui-preview-form > div > div {
+  display: block;
+  margin: 2.2em .5em 0 0;
+}
+
+#edit-displays-preview-controls .form-type-textfield {
+  margin-left: 0em;
+}
+#edit-displays-preview-controls .form-type-textfield label {
+  border-left: 0px solid transparent;
+  padding-left: 0em;
+}
+#edit-displays-preview-controls .form-type-textfield label:after {
+  content: ":";
+}
+
+.views-filterable-options {
+  border-top: 0px solid transparent;
+}
+.views-filterable-options .form-type-checkbox {
+  border: 0px solid transparent;
+  padding: 0;
+}
+.views-filterable-options .even .form-type-checkbox {
+  background-color: transparent;
+}
+
+#views-filterable-options-controls {
+  margin: 0em 0;
+}
+
+.views-ui-dialog {
+  font-size: inherit;
+  padding: 0;
+}
+.views-ui-dialog .form-buttons {
+  padding: 1.5em;
+  background-color: #F3F4EE;
+  width: 100%;
+  position: absolute;
+  bottom: 0;
+}
+.views-ui-dialog #edit-cancel {
+  margin: 0 .5em 0 0;
+  font-size: inherit;
+}
+.views-ui-dialog #edit-submit {
+  margin: 0 .5em 0 0;
+}
+.views-ui-dialog .ui-dialog-titlebar-close {
+  display: none;
+}
+.views-ui-dialog .ui-dialog-titlebar-close span {
+  display: block;
+}
+.views-ui-dialog .views-filterable-options {
+  margin-bottom: 0px;
+  line-height: 2em;
+}
+.views-ui-dialog .views-ui-dialog #edit-selected {
+  margin: 0;
+  padding: 0;
+}
+.views-ui-dialog #views-ajax-title,
+.views-ui-dialog .views-override {
+  background-color: transparent;
+}
+.views-ui-dialog .views-override {
+  padding: 0 2em 1em;
+  border-bottom: 1px solid #ccc;
+}
+.views-ui-dialog .views-override > * {
+  margin: 0;
+}
+.views-ui-dialog #views-ajax-title {
+  font-size: 2em;
+  padding: .5em;
+  display: block;
+  margin: 0;
+  background: #444444;
+  color: white;
+}
+.views-ui-dialog #views-progress-indicator {
+  font-size: inherit;
+  right: 0;
+  top: 0px;
+}
+.views-ui-dialog #views-progress-indicator:before {
+  content: "\003C\00A0";
+}
+.views-ui-dialog #views-progress-indicator:after {
+  content: "\00A0\003E";
+}
+.views-ui-dialog .scroll {
+  border: 1px solid #CCC;
+  border-width: 0;
+  padding: 1em 2em 3em;
+}
+.views-ui-dialog #edit-options {
+  float: none;
+  display: block;
+  width: auto;
+}
+
+.form-type-checkboxes #edit-options-value,
+.form-type-checkboxes #edit-options-validate-options-node-types {
+  border: 0px solid transparent;
+  margin-top: inherit;
+  padding: inherit;
+}
+
+#views-ui-rearrange-filter-form {
+  /*tr {
+    td[rowspan] {
+      border: 0px solid transparent;
+    }
+
+    &[id^="views-row"] {
+      border-right: 0px solid transparent;
+
+      &.even {
+        td {
+          background-color: transparent;
+        }
+      }
+    }
+  }*/
+}
+#views-ui-rearrange-filter-form .views-group-title {
+  border-top: 0px solid transparent;
+}
+#views-ui-rearrange-filter-form .group-empty {
+  border-bottom: 0px solid transparent;
+}
+
+.form-item-options-expose-required,
+.form-item-options-expose-label,
+.form-item-options-expose-description {
+  margin-bottom: 0px;
+  margin-left: 0px;
+  margin-top: 0px;
+}
+
+#views-preview-wrapper {
+  border: 0px solid transparent;
+  padding: 0px;
+}
+
+#views-ui-preview-form {
+  margin: 0px;
+}
+
+#views-live-preview {
+  margin: 0px;
+}
+#views-live-preview h1.section-title {
+  color: inherit;
+  font-size: inherit;
+  font-weight: inherit;
+  line-height: inherit;
+}
+#views-live-preview .view > * {
+  margin-top: 0px;
+}
+#views-live-preview .preview-section {
+  border: 1px dashed #DEDEDE;
+  margin: 0px;
+  padding: 0px;
+}
+#views-live-preview li.views-row + li.views-row {
+  margin-top: 0px;
+}
+#views-live-preview div.views-row + div.views-row {
+  margin-top: 0px;
+}
+#views-live-preview .view-content > .item-list > ul {
+  padding-left: 0px;
+}
+
+/*.views-query-info {
+  table {
+    border-color: inherit;
+    border-spacing: 0;
+    margin: inherit;
+
+    tr {
+      background-color: inherit;
+    }
+
+    th,
+    td {
+      color: inherit;
+      padding: 0px;
+    }
+  }
+}*/
+#edit-options-exception.collapsible {
+  margin-top: 0;
+}
+
+/* Hide the drupal system throbber image */
+.ajax-progress .throbber {
+  display: none;
+}
+
+#views-ajax-body form {
+  margin: 1em 0;
+}
+
+.views-exposed-form .views-exposed-widget {
+  float: none;
+  display: inline-block;
+  padding: 0;
+}
+.views-exposed-form .views-exposed-widget .form-submit {
+  margin-top: 2.4em;
+}
+
+ul#views-display-menu-tabs {
+  margin-top: .5em;
+}
+ul#views-display-menu-tabs li {
+  background-color: transparent;
+  color: #333333;
+  border-bottom: 4px solid transparent;
+  border-radius: 0;
+}
+
+.action-list input.form-submit {
+  color: #2fa6e5;
+  padding: 0;
+  margin: 0;
+}
+
+.views-displays .secondary a {
+  color: #333333;
+}
+.views-displays .secondary .active a, .views-displays .secondary .active a:hover {
+  color: #333333;
+  border-bottom: 4px solid;
+  border-color: #f05724;
+}
+.views-displays .secondary .action-list {
+  background: #fff;
+  border: 1px solid #ddd;
+  padding: .5em;
+}
+.views-displays .secondary .action-list input.form-submit {
+  color: #333333;
+  text-shadow: none;
+  font-weight: normal;
+}
+
+/* Ember overrides of panels CSS */
+h3, h4, th, h1, h2, h5, h6, dt, label, button,
+input[type="reset"],
+input[type="submit"],
+input[type="button"],
+[class*="action-item"], .button,
+[id^="edit-cancel"], input[id^="edit-submit"],
+input[id^="edit-next"],
+.fake-submit {
+  font-family: "Helvetica Neue", helvetica, "Segoe UI", segoe, "Ubuntu", "Droid Sans", "Arial", sans-serif;
+}
+
+h3, h4, th {
+  font-weight: 400;
+}
+
+h1, h2 {
+  font-weight: 200;
+}
+
+h5, h6, dt, label, button,
+input[type="reset"],
+input[type="submit"],
+input[type="button"],
+[class*="action-item"], .button,
+[id^="edit-cancel"], input[id^="edit-submit"],
+input[id^="edit-next"],
+.fake-submit {
+  font-weight: 700;
+}
+h5 b, h6 b, dt b, label b, button b,
+input[type="reset"] b,
+input[type="submit"] b,
+input[type="button"] b,
+[class*="action-item"] b, .button b,
+[id^="edit-cancel"] b, input[id^="edit-submit"] b,
+input[id^="edit-next"] b,
+.fake-submit b,
+h5 strong,
+h6 strong,
+dt strong,
+label strong,
+button strong,
+input[type="reset"] strong,
+input[type="submit"] strong,
+input[type="button"] strong,
+[class*="action-item"] strong,
+.button strong,
+[id^="edit-cancel"] strong,
+input[id^="edit-submit"] strong,
+input[id^="edit-next"] strong,
+.fake-submit strong {
+  font-weight: 400;
+}
+
+blockquote, caption,
+tfoot {
+  font-family: Constantia, "Lucida Bright", Lucidabright, "Lucida Serif", Lucida, "DejaVu Serif", "Bitstream Vera Serif", "Liberation Serif", Georgia, serif;
+}
+
+blockquote, caption,
+tfoot {
+  font-style: italic;
+}
+blockquote i, caption i,
+tfoot i,
+blockquote em,
+caption em,
+tfoot em {
+  font-style: normal;
+}
+
+pre,
+code {
+  font-family: Consolas, "Andale Mono WT", "Andale Mono", "Lucida Console", "Lucida Sans Typewriter", "DejaVu Sans Mono", "Bitstream Vera Sans Mono", "Liberation Mono", "Nimbus Mono L", Monaco, "Courier New", Courier, monospace;
+}
+pre i,
+code i,
+pre em,
+code em {
+  font-style: normal;
+}
+pre b,
+code b,
+pre strong,
+code strong {
+  font-weight: 400;
+}
+
+.dashboard-content {
+  padding: 0;
+}
+
+.dashboard-title {
+  font-weight: 300;
+  font-size: 2em;
+  margin-bottom: .5em;
+}
+
+.dashboard-entry .dashboard-link {
+  font-size: 120%;
+  font-weight: normal;
+}
+
+.dashboard-block {
+  border-bottom: none;
+  margin-bottom: 0;
+  padding-bottom: 0;
+}
+
+.panels-dashboard .links {
+  margin-top: 0;
+}
+
+div.dashboard-block {
+  /* panels dashboard, not dashboard */
+  padding: 0;
+  background: transparent;
+  border: 0px solid transparent;
+  margin-bottom: 0;
+}
+
+dl.page-manager-wizards {
+  background: url('../images/list-item.png?1396547846') no-repeat scroll 0 0 transparent;
+  margin: 0 0 1em;
+  padding: 0 0 0 2.5em;
+}
+dl.page-manager-wizards dt {
+  font-size: 1em;
+  font-weight: 500;
+}
+
+dl.page-manager-wizards dd {
+  margin-left: 0;
+}
+
+#page-manager-edit .page-manager-wrapper,
+#page-manager-edit .page-manager-tabs,
+#page-manager-edit .page-manager-edit-operations ul,
+#page-manager-edit .page-manager-edit-operations ul li {
+  background-color: transparent;
+  border: 0px solid transparent;
+}
+#page-manager-edit .page-manager-edit-operations .inside {
+  border: 0px solid transparent;
+}
+#page-manager-edit .page-manager-edit-operations li {
+  background: transparent;
+  border: 0px solid transparent;
+}
+#page-manager-edit .page-manager-edit-operations li.changed,
+#page-manager-edit .page-manager-edit-operations li.changed-group .page-manager-group-title {
+  background-color: transparent;
+  border: 0px solid transparent;
+}
+#page-manager-edit table tr.even {
+  background-color: transparent;
+  border: 0px solid transparent;
+}
+#page-manager-edit .page-manager-ajax-pad {
+  background: transparent;
+  border-left: 1px solid #ddd;
+}
+#page-manager-edit .actions li a {
+  color: inherit;
+  background-color: transparent;
+  border: 0px solid transparent;
+}
+#page-manager-edit .page-manager-changed {
+  float: left;
+  /* LTR */
+  font-style: italic;
+  color: inherit;
+  padding-left: 1em;
+  padding-right: 22px;
+  background-color: transparent;
+  background-image: none;
+  border: 0px solid transparent;
+}
+
+#page-manager-list-pages-form .form-select,
+#page-manager-list-pages-form input,
+#ctools-export-ui-list-form .form-select,
+#ctools-export-ui-list-form input {
+  display: inline-block;
+}
+#page-manager-list-pages-form .form-item,
+#ctools-export-ui-list-form .form-item {
+  padding-right: .25em;
+  float: none;
+  display: inline-block;
+}
+
+#edit-pages-apply,
+#edit-pages-reset,
+#ctools-export-ui-list-form .form-submit {
+  margin-top: 0;
+  float: none;
+}
+
+body form#page-manager-list-pages-form, body form#ctools-export-ui-list-form {
+  margin: 1em 0;
+}
+
+/* Ember overrides of Media module CSS */
+h3, h4, th, h1, h2, h5, h6, dt, label, button,
+input[type="reset"],
+input[type="submit"],
+input[type="button"],
+[class*="action-item"], .button,
+[id^="edit-cancel"], input[id^="edit-submit"],
+input[id^="edit-next"],
+.fake-submit {
+  font-family: "Helvetica Neue", helvetica, "Segoe UI", segoe, "Ubuntu", "Droid Sans", "Arial", sans-serif;
+}
+
+h3, h4, th {
+  font-weight: 400;
+}
+
+h1, h2 {
+  font-weight: 200;
+}
+
+h5, h6, dt, label, button,
+input[type="reset"],
+input[type="submit"],
+input[type="button"],
+[class*="action-item"], .button,
+[id^="edit-cancel"], input[id^="edit-submit"],
+input[id^="edit-next"],
+.fake-submit {
+  font-weight: 700;
+}
+h5 b, h6 b, dt b, label b, button b,
+input[type="reset"] b,
+input[type="submit"] b,
+input[type="button"] b,
+[class*="action-item"] b, .button b,
+[id^="edit-cancel"] b, input[id^="edit-submit"] b,
+input[id^="edit-next"] b,
+.fake-submit b,
+h5 strong,
+h6 strong,
+dt strong,
+label strong,
+button strong,
+input[type="reset"] strong,
+input[type="submit"] strong,
+input[type="button"] strong,
+[class*="action-item"] strong,
+.button strong,
+[id^="edit-cancel"] strong,
+input[id^="edit-submit"] strong,
+input[id^="edit-next"] strong,
+.fake-submit strong {
+  font-weight: 400;
+}
+
+blockquote, caption,
+tfoot {
+  font-family: Constantia, "Lucida Bright", Lucidabright, "Lucida Serif", Lucida, "DejaVu Serif", "Bitstream Vera Serif", "Liberation Serif", Georgia, serif;
+}
+
+blockquote, caption,
+tfoot {
+  font-style: italic;
+}
+blockquote i, caption i,
+tfoot i,
+blockquote em,
+caption em,
+tfoot em {
+  font-style: normal;
+}
+
+pre,
+code {
+  font-family: Consolas, "Andale Mono WT", "Andale Mono", "Lucida Console", "Lucida Sans Typewriter", "DejaVu Sans Mono", "Bitstream Vera Sans Mono", "Liberation Mono", "Nimbus Mono L", Monaco, "Courier New", Courier, monospace;
+}
+pre i,
+code i,
+pre em,
+code em {
+  font-style: normal;
+}
+pre b,
+code b,
+pre strong,
+code strong {
+  font-weight: 400;
+}
+
+/* Media - Field widget */
+.media-widget {
+  padding: 9px 0;
+  margin: 0 10px 10px 0;
+}
+.media-widget:after {
+  content: ".";
+  display: block;
+  height: 0;
+  clear: both;
+  visibility: hidden;
+}
+.media-widget .form-item {
+  margin: 0;
+  padding-bottom: 0;
+}
+.media-widget .preview {
+  background: #CCC;
+  min-height: 110px;
+  min-width: 110px;
+  margin-right: 10px;
+  border: 1px solid #CCC;
+  float: left;
+}
+.media-widget .preview .media-item {
+  margin: 0;
+  border: 0;
+}
+
+.media-thumbnails-select {
+  float: left;
+  margin: 1em 0;
+  clear: both;
+}
+
+#media-browser-library-list {
+  clear: both;
+  float: left;
+}
+
+.media-list-thumbnails .form-type-checkbox {
+  bottom: 138px;
+  left: 2px;
+}
+.media-list-thumbnails img,
+.media-list-thumbnails label {
+  margin: 0;
+}
+
+.media-item {
+  background: #eee;
+  border: 1px solid #ccc;
+  padding: 18px;
+}
+.media-item .label-wrapper {
+  text-align: left;
+  bottom: 0;
+  left: 5px;
+  margin: 0;
+  width: 90%;
+  overflow: hidden;
+}
+
+/* Ember overrides of workbench CSS */
+h3, h4, th, h1, h2, h5, h6, dt, label, button,
+input[type="reset"],
+input[type="submit"],
+input[type="button"],
+[class*="action-item"], .button,
+[id^="edit-cancel"], input[id^="edit-submit"],
+input[id^="edit-next"],
+.fake-submit {
+  font-family: "Helvetica Neue", helvetica, "Segoe UI", segoe, "Ubuntu", "Droid Sans", "Arial", sans-serif;
+}
+
+h3, h4, th {
+  font-weight: 400;
+}
+
+h1, h2 {
+  font-weight: 200;
+}
+
+h5, h6, dt, label, button,
+input[type="reset"],
+input[type="submit"],
+input[type="button"],
+[class*="action-item"], .button,
+[id^="edit-cancel"], input[id^="edit-submit"],
+input[id^="edit-next"],
+.fake-submit {
+  font-weight: 700;
+}
+h5 b, h6 b, dt b, label b, button b,
+input[type="reset"] b,
+input[type="submit"] b,
+input[type="button"] b,
+[class*="action-item"] b, .button b,
+[id^="edit-cancel"] b, input[id^="edit-submit"] b,
+input[id^="edit-next"] b,
+.fake-submit b,
+h5 strong,
+h6 strong,
+dt strong,
+label strong,
+button strong,
+input[type="reset"] strong,
+input[type="submit"] strong,
+input[type="button"] strong,
+[class*="action-item"] strong,
+.button strong,
+[id^="edit-cancel"] strong,
+input[id^="edit-submit"] strong,
+input[id^="edit-next"] strong,
+.fake-submit strong {
+  font-weight: 400;
+}
+
+blockquote, caption,
+tfoot {
+  font-family: Constantia, "Lucida Bright", Lucidabright, "Lucida Serif", Lucida, "DejaVu Serif", "Bitstream Vera Serif", "Liberation Serif", Georgia, serif;
+}
+
+blockquote, caption,
+tfoot {
+  font-style: italic;
+}
+blockquote i, caption i,
+tfoot i,
+blockquote em,
+caption em,
+tfoot em {
+  font-style: normal;
+}
+
+pre,
+code {
+  font-family: Consolas, "Andale Mono WT", "Andale Mono", "Lucida Console", "Lucida Sans Typewriter", "DejaVu Sans Mono", "Bitstream Vera Sans Mono", "Liberation Mono", "Nimbus Mono L", Monaco, "Courier New", Courier, monospace;
+}
+pre i,
+code i,
+pre em,
+code em {
+  font-style: normal;
+}
+pre b,
+code b,
+pre strong,
+code strong {
+  font-weight: 400;
+}
+
+div.admin.my-workbench .left,
+div.admin.my-workbench .right {
+  margin: 0;
+}
+
+@media (max-width: 30em) {
+  div.admin.my-workbench .left,
+  div.admin.my-workbench .right {
+    float: none;
+    width: 100%;
+  }
+  div.admin.my-workbench .left {
+    margin-bottom: 20px;
+  }
+  div.admin.my-workbench .left .views-field-picture {
+    float: left;
+  }
+  div.admin.my-workbench .left .views-field-name,
+  div.admin.my-workbench .left .views-field-edit-node {
+    text-align: right;
+  }
+}
+/* Ember overrides of features CSS */
+h3, h4, th, h1, h2, h5, h6, dt, label, button,
+input[type="reset"],
+input[type="submit"],
+input[type="button"],
+[class*="action-item"], .button,
+[id^="edit-cancel"], input[id^="edit-submit"],
+input[id^="edit-next"],
+.fake-submit {
+  font-family: "Helvetica Neue", helvetica, "Segoe UI", segoe, "Ubuntu", "Droid Sans", "Arial", sans-serif;
+}
+
+h3, h4, th {
+  font-weight: 400;
+}
+
+h1, h2 {
+  font-weight: 200;
+}
+
+h5, h6, dt, label, button,
+input[type="reset"],
+input[type="submit"],
+input[type="button"],
+[class*="action-item"], .button,
+[id^="edit-cancel"], input[id^="edit-submit"],
+input[id^="edit-next"],
+.fake-submit {
+  font-weight: 700;
+}
+h5 b, h6 b, dt b, label b, button b,
+input[type="reset"] b,
+input[type="submit"] b,
+input[type="button"] b,
+[class*="action-item"] b, .button b,
+[id^="edit-cancel"] b, input[id^="edit-submit"] b,
+input[id^="edit-next"] b,
+.fake-submit b,
+h5 strong,
+h6 strong,
+dt strong,
+label strong,
+button strong,
+input[type="reset"] strong,
+input[type="submit"] strong,
+input[type="button"] strong,
+[class*="action-item"] strong,
+.button strong,
+[id^="edit-cancel"] strong,
+input[id^="edit-submit"] strong,
+input[id^="edit-next"] strong,
+.fake-submit strong {
+  font-weight: 400;
+}
+
+blockquote, caption,
+tfoot {
+  font-family: Constantia, "Lucida Bright", Lucidabright, "Lucida Serif", Lucida, "DejaVu Serif", "Bitstream Vera Serif", "Liberation Serif", Georgia, serif;
+}
+
+blockquote, caption,
+tfoot {
+  font-style: italic;
+}
+blockquote i, caption i,
+tfoot i,
+blockquote em,
+caption em,
+tfoot em {
+  font-style: normal;
+}
+
+pre,
+code {
+  font-family: Consolas, "Andale Mono WT", "Andale Mono", "Lucida Console", "Lucida Sans Typewriter", "DejaVu Sans Mono", "Bitstream Vera Sans Mono", "Liberation Mono", "Nimbus Mono L", Monaco, "Courier New", Courier, monospace;
+}
+pre i,
+code i,
+pre em,
+code em {
+  font-style: normal;
+}
+pre b,
+code b,
+pre strong,
+code strong {
+  font-weight: 400;
+}
+
+form div.buttons {
+  text-align: left;
+}
+
+div.features-components table td {
+  line-height: 2.25;
+}
+
+div.features-components table th span {
+  background: none;
+}
+
+a.admin-update,
+a.features-storage,
+span.features-storage,
+span.features-component-list span {
+  white-space: nowrap;
+  margin-right: 0;
+  padding: .25em .5em;
+  background: #ddd;
+  -moz-border-radius: 0;
+  -webkit-border-radius: 0;
+}
+
+#features-export-wrapper .component-included .form-type-checkbox {
+  margin: 0;
+  padding: .25em;
+}
+
+div.features-export-list {
+  border: 0;
+}
+
+div.features-components h3,
+#features-filter h3,
+fieldset.features-export-component h3,
+div.features-components div.column div.info h3 {
+  font-weight: 300;
+  font-size: 2.25em;
+  line-height: normal;
+}
+
+fieldset.features-export-component, fieldset.features-export-component.collapsed {
+  background: none;
+}
+
+#features-filter label,
+#features-filter #input {
+  display: inline;
+  width: auto;
+}
+#features-filter span {
+  display: inline;
+  float: left;
+  padding: 0 1em 0 0;
+  background: inherit;
+}
+#features-filter .form-item {
+  float: none;
+  margin: inherit;
+  padding: inherit;
+}
+#features-filter .form-item.form-type-checkbox {
+  margin: inherit;
+}
+
+/* =============================================================================
+
+   MEDIA QUERIES
+
+   ========================================================================== */
+@media (max-width: 60em) {
+  /* dashboard */
+  div#dashboard_sidebar {
+    clear: both;
+    margin: 0;
+    width: 100% !important;
+  }
+
+  #dashboard div#dashboard_main {
+    clear: both;
+    margin-right: 0%;
+    width: 100%;
+  }
+
+  /* configuration page */
+  div.admin .right,
+  div.admin .left {
+    margin: 0;
+    width: 100%;
+  }
+}
+@media (max-width: 30em) {
+  #page {
+    margin: 0;
+    padding: 1em;
+  }
+
+  #branding {
+    padding-right: 1em;
+    padding-left: 1em;
+  }
+
+  #overlay {
+    padding: 1em;
+  }
+  #overlay #page {
+    margin: 0;
+    padding: 1em;
+  }
+
+  div#overlay {
+    width: 100%;
+  }
+
+  body.admin-expanded {
+    margin-left: 0;
+  }
+  body.admin-expanded div#admin-toolbar {
+    width: 100%;
+  }
+  body.admin-expanded div#admin-toolbar.vertical div.admin-blocks {
+    width: 100% !important;
+  }
+
+  #toolbar .screen-reader-text {
+    display: none;
+  }
+
+  #tab-bar {
+    display: none;
+  }
+
+  /* dashboard */
+  #dashboard div#dashboard_main {
+    clear: both;
+    margin-right: 0%;
+    width: 100%;
+  }
+
+  div#dashboard_sidebar {
+    clear: both;
+    margin: 0;
+    width: 100% !important;
+  }
+
+  /* configuration page */
+  div.admin .right,
+  div.admin .left {
+    margin: 0;
+    width: 100%;
+  }
+
+  /* appearance page */
+  .system-themes-list-enabled .theme-selector .screenshot,
+  .system-themes-list-enabled .theme-selector .no-screenshot {
+    clear: both;
+    margin: 0 40px 20px 0;
+  }
+
+  .system-themes-list-disabled .theme-selector {
+    float: left;
+    padding: 0 20px 20px 0;
+    width: 300px;
+  }
+
+  .color-form #placeholder {
+    position: relative;
+  }
+
+  html.js #preview {
+    margin-left: -15px;
+  }
+
+  /* vertical tabs */
+  div.vertical-tabs {
+    background: url('../images/fc.png?1396547846') repeat-y scroll -97px 0 white;
+    border: 1px solid #ddd;
+  }
+  div.vertical-tabs .vertical-tabs-list {
+    width: 143px;
+  }
+  div.vertical-tabs .vertical-tabs-panes {
+    margin: 0 0 0 163px;
+  }
+}
+/* responsive filters and edit options */
+@media (max-width: 960px) {
+  #edit-options,
+  #edit-filters {
+    float: none;
+    width: 100%;
+  }
+
+  #edit-options .form-submit,
+  div.form-item.form-type-select.form-item-operation,
+  div.exposed-filters .form-item,
+  div.exposed-filters div#edit-actions {
+    float: none;
+    width: auto;
+  }
+
+  #edit-options div.fieldset-wrapper {
+    margin: 0;
+  }
+}
+@media (max-width: 680px) {
+  #edit-options .form-submit,
+  #edit-options div.form-item.form-type-select.form-item-operation,
+  #edit-filters div.exposed-filters .form-item,
+  #edit-filters div.exposed-filters div#edit-actions {
+    width: 100%;
+    float: left;
+    margin-left: 0;
+    margin-top: 0;
+  }
+}
+/* =============================================================================
+
+   FADE IN ON PAGELOAD
+
+   ========================================================================== */
+@-webkit-keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+@-moz-keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+.fade-in {
+  opacity: 0;
+  -webkit-animation: fadeIn ease-in 1;
+  -moz-animation: fadeIn ease-in 1;
+  animation: fadeIn ease-in 1;
+  -webkit-animation-fill-mode: forwards;
+  -moz-animation-fill-mode: forwards;
+  animation-fill-mode: forwards;
+  -webkit-animation-duration: .3s;
+  -moz-animation-duration: .3s;
+  animation-duration: .3s;
+  -webkit-animation-delay: 0.5s;
+  -moz-animation-delay: 0.5s;
+  animation-delay: 0.5s;
+}
+
+/* overrides of UX styleguide
+ * TODO move to proper place in UX styleguide
+ */
+[dir="ltr"] fieldset {
+  padding-left: 0em;
+}
+
+label {
+  color: #555;
+  margin: 0 .1em;
+}
+
+div.fieldset-description {
+  margin-bottom: 1em;
+}
+
+legend {
+  font-size: 1.3em;
+  font-weight: normal;
+  margin-bottom: .5em;
+}
+
+[dir="ltr"] div.admin .left {
+  margin-left: 0;
+}
+
+[dir="rtl"] div.admin .right {
+  margin-right: 0;
+}
+
+#branding h1.page-title {
+  font-size: 2.5em;
+}
+
+#branding {
+  background: #444;
+  color: #BBB;
+}
+
+div#branding ul.secondary {
+  background-color: #fff;
+  border-bottom: 1px solid #DDD;
+}
+div#branding ul.secondary a,
+div#branding ul.secondary a:link,
+div#branding ul.secondary a:visited {
+  font-weight: 700;
+  color: #333333;
+}
+div#branding ul.secondary a:hover,
+div#branding ul.secondary a:active,
+div#branding ul.secondary a.active {
+  color: #f05724;
+}
+
+a.active {
+  cursor: default;
+}
+
+th,
+td {
+  padding: 0.5rem 1.5rem;
+}

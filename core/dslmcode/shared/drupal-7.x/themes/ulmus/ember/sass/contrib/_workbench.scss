@@ -1,0 +1,33 @@
+/* Ember overrides of workbench CSS */
+
+// Import the common includes for all files.
+@import "base";
+
+div.admin.my-workbench {
+  .left,
+  .right {
+    margin: 0;
+  }
+}
+
+@include breakpoint(max-width $breakpoint-small) {
+  div.admin.my-workbench {
+    .left,
+    .right {
+      float: none;
+      width: 100%;
+    }
+    .left {
+      margin-bottom: 20px;
+
+      .views-field-picture {
+        float: left;
+      }
+
+      .views-field-name,
+      .views-field-edit-node {
+        text-align: right;
+      }
+    }
+  }
+} 

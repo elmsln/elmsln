@@ -1,0 +1,94 @@
+//
+// @file
+// Declare fonts for use.
+//
+
+// Set font families and styles in variables so they can be overriden.
+$font-sansserif: "Helvetica Neue", helvetica, "Segoe UI", segoe, "Ubuntu", "Droid Sans", "Arial", sans-serif !default;
+$font-serif: Constantia, "Lucida Bright", Lucidabright, "Lucida Serif", Lucida, "DejaVu Serif", "Bitstream Vera Serif", "Liberation Serif", Georgia, serif !default;
+$font-monospace: Consolas, "Andale Mono WT", "Andale Mono", "Lucida Console", "Lucida Sans Typewriter", "DejaVu Sans Mono", "Bitstream Vera Sans Mono", "Liberation Mono", "Nimbus Mono L", Monaco, "Courier New", Courier, monospace !default;
+$font-regular: 400 !default;
+$font-light: 200 !default;
+$font-bold: 700 !default;
+
+%font-sansserif {
+  font-family: $font-sansserif;
+}
+
+%font-sansserif-regular {
+  @extend %font-sansserif;
+  font-weight: $font-regular;
+}
+
+%font-sansserif-light {
+  @extend %font-sansserif;
+  font-weight: $font-light;
+}
+
+%font-sansserif-bold {
+  @extend %font-sansserif;
+  font-weight: $font-bold;
+
+  b,
+  strong {
+    font-weight: $font-regular;
+  }
+}
+
+%font-sansserif-italic {
+  @extend %font-sansserif;
+  font-style: italic;
+
+  i,
+  em {
+    font-style: normal;
+  }
+}
+
+%font-serif {
+  font-family: $font-serif;
+}
+
+%font-serif-regular {
+  @extend %font-serif;
+  font-weight: $font-regular;
+}
+
+%font-serif-light {
+  @extend %font-serif;
+  font-weight: $font-light;
+}
+
+%font-serif-bold {
+  @extend %font-serif;
+  font-weight: $font-bold;
+
+  b,
+  strong {
+    font-weight: $font-regular;
+  }
+}
+
+%font-serif-italic {
+  @extend %font-serif;
+  font-style: italic;
+
+  i,
+  em {
+    font-style: normal;
+  }
+}
+
+%font-monospace {
+  font-family: $font-monospace;
+
+  i,
+  em {
+    font-style: normal;
+  }
+
+  b,
+  strong {
+    font-weight: $font-regular;
+  }
+}

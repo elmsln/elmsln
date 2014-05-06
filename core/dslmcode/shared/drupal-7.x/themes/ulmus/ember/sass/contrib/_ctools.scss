@@ -1,0 +1,61 @@
+/* Ember overrides of ctools CSS */
+
+// Import the common includes for all files.
+@import "base";
+
+.ctools-button-processed {
+  @extend %button-common;
+    text-align: left; /* LTR */
+    border: 1px solid #ddd;
+    background: $color-background;
+
+  input {
+    color: $color-link;
+    margin-top: 0;
+
+    &:hover {
+      color: $color-link;
+    }
+  }
+
+  li {
+    line-height: 1em;
+    background-color: $color-background;
+    border: 0px solid transparent;
+  }
+
+}
+
+.ctools-auto-submit-click {
+  @extend %button-primary;
+}
+
+.actions.right {
+  margin: 0;
+}
+
+/* Keep the initial state of the ctools dropbutton in the document flow. */
+.ctools-dropbutton-wrapper {
+  position: relative;
+  min-height: 2.3em;
+
+  ul {
+    padding: 0;
+  }
+}
+
+/**
+ * Adjust dropbutton arrow
+ */
+
+.ctools-twisty {
+  border-width: 5px 5px 0;
+  right: 5px;
+  top: 10px;
+  @include transition(none);
+
+  .ctools-dropbutton-processed.open & {
+    border-bottom: 6px solid;
+    top: 0.3em;
+  }
+}

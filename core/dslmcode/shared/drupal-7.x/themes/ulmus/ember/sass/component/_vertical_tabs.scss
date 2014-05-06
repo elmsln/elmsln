@@ -1,0 +1,62 @@
+/* vertical tabs component styles */
+
+// Import the common includes for all files.
+@import "base";
+
+%vertical-tabs-focus {
+  outline: 0px solid transparent;
+}
+
+.vertical-tabs {
+  &:focus {
+    @extend %vertical-tabs-focus;
+  }
+
+  details {
+    > .details-wrapper {
+      border: 1px solid transparent;
+      padding: 10px 20px;
+    }
+  }
+}
+
+div.vertical-tabs {
+  background: #fff;
+  fieldset {
+    @include box-shadow(none);
+  }
+
+  ul {
+    li.vertical-tab-button {
+      a {
+        &:hover,
+        &:focus {
+          background: #e9e9e9;
+          outline:0px solid transparent;
+        }
+      }
+    }
+  }
+}
+
+.vertical-tabs-pane {
+  div.form-item {
+    display: block;
+  }
+}
+
+.vertical-tabs fieldset.vertical-tabs-pane {
+  padding: 2em;
+}
+
+.vertical-tabs-list {
+  &:focus {
+    @extend %vertical-tabs-focus;
+  }
+}
+
+li.selected {
+  &:focus {
+    @extend %vertical-tabs-focus;
+  }
+} 

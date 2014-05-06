@@ -1,0 +1,97 @@
+//
+// @file
+// Generate invisible classes for css arrows.
+//
+
+$default-arrow-base: 1em !default;
+$default-arrow-altitude: $default-arrow-base !default;
+$default-arrow-direction: right !default;
+$default-arrow-color: $color-text !default;
+$default-arrow-name: arrow !default;
+
+%arrow-base {
+  content: "";
+  display: inline-block;
+  width: 0;
+  height: 0;
+  border: {
+    style: solid;
+    color: transparent;
+  }
+  vertical-align: middle;
+}
+
+@mixin arrow($base: $default-arrow-base, $altitude: $default-arrow-altitude, $direction: $default-arrow-direction, $color: $default-arrow-color, $name: $default-arrow-name) {
+  %#{$name}-#{$direction} {
+    @extend %arrow-base;
+
+    @if $direction == up {
+      border: {
+        bottom: {
+          color: $color;
+          width: $altitude;
+        }
+        left: {
+          width: $base / 2;
+          color: transparent;
+        }
+        right: {
+          width: $base / 2;
+          color: transparent;
+        }
+        top-width: 0;
+      }
+    }
+    @elseif $direction == right {
+      border: {
+        left: {
+          color: $color;
+          width: $altitude;
+        }
+        top: {
+          width: $base / 2;
+          color: transparent;
+        }
+        bottom: {
+          width: $base / 2;
+          color: transparent;
+        }
+        right-width: 0;
+      }
+    }
+    @elseif $direction == down {
+      border: {
+        top: {
+          color: $color;
+          width: $altitude;
+        }
+        left: {
+          width: $base / 2;
+          color: transparent;
+        }
+        right: {
+          width: $base / 2;
+          color: transparent;
+        }
+        bottom-width: 0;
+      }
+    }
+    @elseif $direction == left {
+      border: {
+        right: {
+          color: $color;
+          width: $altitude;
+        }
+        top: {
+          width: $base / 2;
+          color: transparent;
+        }
+        bottom: {
+          width: $base / 2;
+          color: transparent;
+        }
+        left-width: 0;
+      }
+    }
+  }
+}

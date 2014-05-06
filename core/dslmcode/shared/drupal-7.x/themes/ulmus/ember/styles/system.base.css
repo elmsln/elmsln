@@ -1,0 +1,359 @@
+/**
+ * @file
+ * Replaces Drupal core's system.base.css.
+ */
+/**
+ * Autocomplete.
+ *
+ * @see autocomplete.js
+ */
+/* Suggestion list */
+#autocomplete {
+  border: 1px solid;
+  overflow: hidden;
+  position: absolute;
+  z-index: 100;
+}
+#autocomplete ul {
+  list-style: none;
+  list-style-image: none;
+  margin: 0;
+  padding: 0;
+}
+#autocomplete li {
+  margin: 0;
+  padding: 0.35355em;
+  cursor: default;
+  white-space: pre;
+  zoom: 1;
+  /* IE7 */
+}
+
+/* Animated throbber */
+html.js .form-autocomplete {
+  background-image: url('../images/throbber.gif?1388162849');
+  background-repeat: no-repeat;
+  background-size: 2em;
+  -webkit-transition: background-color 0.2s;
+  -moz-transition: background-color 0.2s;
+  -o-transition: background-color 0.2s;
+  transition: background-color 0.2s;
+}
+html.js[dir="ltr"] .form-autocomplete {
+  background-position: 100% .6em;
+  /* LTR */
+}
+html.js[dir="rtl"] .form-autocomplete {
+  background-position: 0.70711em 0.6em;
+  /* LTR */
+}
+html.js .throbbing {
+  background-color: #e9f6fc;
+}
+html.js[dir="ltr"] .throbbing {
+  background-position: 100% -2em;
+  /* LTR */
+}
+html.js[dir="rtl"] .throbbing {
+  background-position: 0.70711em -2em;
+  /* LTR */
+}
+
+/**
+ * Collapsible fieldsets.
+ *
+ * @see collapse.js
+ */
+html.js .collapsed {
+  height: 0.70711em;
+  margin-bottom: 1.41421em;
+  border-color: transparent;
+}
+html.js .collapsed .fieldset-wrapper {
+  display: none;
+}
+html.js .collapsible {
+  position: relative;
+  -webkit-transition: border-color 0.4s;
+  -moz-transition: border-color 0.4s;
+  -o-transition: border-color 0.4s;
+  transition: border-color 0.4s;
+}
+html.js .collapsible .fieldset-legend {
+  display: block;
+}
+
+/**
+ * Resizable textareas.
+ *
+ * @see textarea.js
+ */
+.form-textarea-wrapper textarea {
+  display: block;
+  margin: 0;
+  width: 100%;
+  -webkit-box-sizing: border-box;
+  -moz-box-sizing: border-box;
+  box-sizing: border-box;
+}
+.form-textarea-wrapper .grippie {
+  background: #eeeeee url('../images/grippie.png?1388162849') no-repeat center 2px;
+  border: 1px solid #ddd;
+  border-top-width: 0;
+  cursor: s-resize;
+  height: 9px;
+  overflow: hidden;
+}
+
+/**
+ * TableDrag behavior.
+ *
+ * @see tabledrag.js
+ */
+body.drag {
+  cursor: move;
+}
+
+.draggable td:first-child {
+  padding-left: 0;
+}
+
+.tabledrag-handle {
+  text-decoration: none;
+}
+.tabledrag-handle, .tabledrag-handle:link, .tabledrag-handle:visited {
+  color: #dddddd;
+}
+.tabledrag-handle:hover, .tabledrag-handle:active, .tabledrag-handle:focus {
+  color: #f05724;
+}
+.draggable .tabledrag-handle {
+  cursor: move;
+  text-decoration: none;
+}
+.tabledrag-handle .handle {
+  display: inline-block;
+  vertical-align: middle;
+}
+[dir="ltr"] .tabledrag-handle .handle {
+  margin-right: 0.35355em;
+  margin-left: 0.70711em;
+}
+[dir="rtl"] .tabledrag-handle .handle {
+  margin-right: 0.70711em;
+  margin-left: 0.35355em;
+}
+.tabledrag-handle .handle:before {
+  line-height: 1em;
+  font-size: 1.5em;
+  content: "\2261";
+}
+
+.tabledrag-handle-hover .handle {
+  background-position: 6px -11px;
+}
+
+.indentation {
+  display: inline-block;
+  width: 1em;
+  vertical-align: baseline;
+  font-family: Times, serif;
+  color: #dddddd;
+}
+[dir="ltr"] .indentation {
+  text-align: left;
+}
+[dir="rtl"] .indentation {
+  text-align: right;
+}
+
+[dir="ltr"] .tree-child:after {
+  content: "\251c";
+}
+[dir="rtl"] .tree-child:after {
+  content: "\2524";
+}
+
+[dir="ltr"] .tree-child-last:after {
+  content: "\2514";
+}
+[dir="rtl"] .tree-child-last:after {
+  content: "\2518";
+}
+
+.tree-child-horizontal:after {
+  content: "\2500";
+}
+
+[dir="ltr"] .tabledrag-toggle-weight-wrapper {
+  text-align: right;
+  /* LTR */
+}
+[dir="rtl"] .tabledrag-toggle-weight-wrapper {
+  text-align: left;
+  /* LTR */
+}
+
+/**
+ * TableHeader behavior.
+ *
+ * @see tableheader.js
+ */
+.sticky-header {
+  background-color: white;
+  margin-top: 0;
+}
+
+/**
+ * Progress behavior.
+ *
+ * @see progress.js
+ */
+/* Bar */
+.progress {
+  position: relative;
+}
+.progress .bar,
+.progress .message {
+  margin: 0.70711em 0;
+}
+.progress .bar {
+  border: 1px solid #dddddd;
+}
+.progress .filled {
+  background-color: #f9f9f9;
+  height: 2.82843em;
+  width: 0.35355em;
+}
+.progress .percentage {
+  position: absolute;
+  top: 0;
+  width: 100%;
+  line-height: 2.82843em;
+  text-align: center;
+}
+
+/* Throbber */
+.ajax-progress {
+  display: inline-block;
+}
+.ajax-progress .throbber {
+  background: transparent url('../images/throbber.gif?1388162849') no-repeat 0px -18px;
+  height: 15px;
+  margin: 0.35355em;
+  width: 15px;
+}
+[dir="ltr"] .ajax-progress .throbber {
+  float: left;
+  /* LTR */
+}
+[dir="rtl"] .ajax-progress .throbber {
+  float: right;
+  /* LTR */
+}
+[dir="ltr"] .ajax-progress .message {
+  padding-left: 0.70711em;
+}
+[dir="rtl"] .ajax-progress .message {
+  padding-right: 0.70711em;
+}
+tr .ajax-progress .throbber {
+  margin: 0 0.35355em;
+}
+
+.ajax-progress-bar {
+  width: 16em;
+}
+
+/**
+ * Inline items.
+ */
+.container-inline {
+  /* Fieldset contents always need to be rendered as block. */
+}
+.container-inline label {
+  display: block;
+}
+.container-inline div,
+.container-inline input {
+  display: inline-block;
+}
+.container-inline .fieldset-wrapper {
+  display: block;
+}
+
+/**
+ * Prevent text wrapping.
+ */
+.nowrap {
+  white-space: nowrap;
+}
+
+/**
+ * For anything you want to hide on page load when JS is enabled, so
+ * that you can use the JS to control visibility and avoid flicker.
+ */
+html.js .js-hide {
+  display: none;
+}
+
+/**
+ * Hide elements from all users.
+ *
+ * Used for elements which should not be immediately displayed to any user. An
+ * example would be a collapsible fieldset that will be expanded with a click
+ * from a user. The effect of this class can be toggled with the jQuery show()
+ * and hide() functions.
+ */
+.element-hidden {
+  display: none;
+}
+
+/**
+ * Hide elements visually, but keep them available for screen-readers.
+ *
+ * Used for information required for screen-reader users to understand and use
+ * the site where visual display is undesirable. Information provided in this
+ * manner should be kept concise, to avoid unnecessary burden on the user.
+ * "!important" is used to prevent unintentional overrides.
+ */
+.element-invisible {
+  position: absolute !important;
+  clip: rect(1px 1px 1px 1px);
+  /* IE6, IE7 */
+  clip: rect(1px, 1px, 1px, 1px);
+  overflow: hidden;
+  height: 1px;
+}
+
+/**
+ * The .element-focusable class extends the .element-invisible class to allow
+ * the element to be focusable when navigated to via the keyboard.
+ */
+.element-invisible.element-focusable:active, .element-invisible.element-focusable:focus {
+  position: static !important;
+  clip: auto;
+  overflow: visible;
+  height: auto;
+}
+
+/**
+ * Markup free clearing.
+ *
+ * @see http://perishablepress.com/press/2009/12/06/new-clearfix-hack
+ */
+.clearfix {
+  /* for IE 6/7 */
+  *zoom: expression(this.runtimeStyle.zoom="1", this.appendChild(document.createElement("br")).style.cssText="clear:both;font:0/0 serif");
+  /* non-JS fallback */
+  *zoom: 1;
+}
+.clearfix:before, .clearfix:after {
+  content: ".";
+  display: block;
+  height: 0;
+  overflow: hidden;
+}
+.clearfix:after {
+  clear: both;
+}

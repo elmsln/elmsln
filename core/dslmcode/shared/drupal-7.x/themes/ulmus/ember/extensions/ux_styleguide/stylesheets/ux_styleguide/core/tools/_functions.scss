@@ -1,0 +1,35 @@
+//
+// @file
+// A set of additional useful functions.
+//
+
+// Strip units from a value.
+@function remove-units($value: 0) {
+  @if not unitless($value) {
+    $unit: unit($value);
+    $divisor: '';
+
+    // Dividing a number by a number with the same unit type will result in a
+    // unitless number.
+    @if $unit == 'px' {
+      $divisor: 1px;
+    }
+    @else if $unit == 'em' {
+      $divisor: 1em;
+    }
+    @else if $unit == '%' {
+      $divisor: 1%;
+    }
+
+    @return $value / $divisor;
+  }
+  @else {
+    @return $value;
+  }
+}
+
+// Translates pixel units to em units based on the $base-font-size variable.
+@function px-to-em($pixels, $factor: 1, $base: $base-font-size) {
+  // Make sure the numbers are unitless and then find the em value.
+  @return remove-units($pixels) / remove-units($base-font-size) * $factor * 1em;
+}
