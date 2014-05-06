@@ -805,17 +805,10 @@ function _cis_connector_request($url, $options = array(), $bucket = 'cis', $cach
  */
 function _cis_connector_cache_clear($cid = NULL, $wildcard = FALSE) {
   if (empty($cid)) {
-    db_delete('cache_cis_connector')->execute();
+    cache_clear_all('*', 'cache_cis_connector', TRUE);
   }
   else {
-    $query = db_delete('cache_cis_connector');
-    if ($wildcard) {
-      $query->condition('cid', $cid . '%', 'LIKE');
-    }
-    else {
-      $query->condition('cid', $cid);
-    }
-    $query->execute();
+    cache_clear_all($cid, 'cache_cis_connector', $wildcard);
   }
 }
 
