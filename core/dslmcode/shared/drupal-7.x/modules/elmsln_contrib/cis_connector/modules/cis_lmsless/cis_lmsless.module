@@ -107,7 +107,7 @@ function _cis_lmsless_assemble() {
     }
   }
   $vars['services'] = $list;
-  //drupal_add_css(drupal_get_path('module', 'cis_lmsless') . '/css/cis_lmsless.css');
+  drupal_add_css(drupal_get_path('module', 'cis_lmsless') . '/css/cis_lmsless.css');
   drupal_add_js(drupal_get_path('module', 'cis_lmsless') . '/js/cis_lmsless.js');
   return theme('cis_lmsless_bar', $vars);
 }
