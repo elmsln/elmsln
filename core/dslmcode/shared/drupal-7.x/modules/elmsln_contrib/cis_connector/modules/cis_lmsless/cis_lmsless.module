@@ -31,7 +31,6 @@ function cis_lmsless_block_info() {
 
   return $blocks;
 }
-
 /**
  * Implements hook_block_view().
  */
@@ -40,6 +39,7 @@ function cis_lmsless_block_view($delta = '') {
   if (user_access('view lmsless bar') && !path_is_admin(current_path())) {
     switch ($delta) {
       case 'cis_lmsless':
+        $block['subject'] = t('CIS lmsless');
         $block['content'] = _cis_lmsless_assemble();
       break;
     }
