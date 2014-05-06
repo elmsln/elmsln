@@ -130,7 +130,8 @@ body.page-batch div.message {
 }
 
 .views-exposed-widgets #edit-title-wrapper {
-  border-bottom:solid 1em #ffffff;
+  border-bottom: solid .5em #ffffff;
+  padding: .5em;
 }
 .views-exposed-widgets #edit-title-wrapper input {
   margin:0em;
@@ -383,7 +384,7 @@ html.js input.form-autocomplete {
 html.js .courses-overview-filters fieldset.collapse-processed.collapsed .fieldset-legend {
   background-image: url(../images/arrow8.png);
   background-repeat:none;
-  background-position:0px 50%;
+  background-position:.75em 50%;
 }
 
 html.js .courses-overview-filters fieldset.collapse-processed .fieldset-legend {
@@ -408,14 +409,13 @@ html.js .courses-overview-filters fieldset.collapse-processed .fieldset-legend {
   padding:0em;
   margin:0em;
 }
-.courses-overview-filters .fieldset-legend {
-}
+
 .courses-overview-filters a.fieldset-title {
   color:#8f8f90;
   font-weight:lighter;
   font-family: 'Open Sans', sans-serif;
   padding-left:1.5em;
-  margin-left:-1.5em;
+  margin-left:0;
   line-height:2em;
 }
 
