@@ -305,7 +305,9 @@ html.js input.form-autocomplete {
 }
 
 .about-our-people li.views-fluid-grid-item img{
-  width:100%;
+  width: 17em;
+  height: 14.5em;
+  border: .4em solid #334e8f;
 }
 
 .about_display_name a{
