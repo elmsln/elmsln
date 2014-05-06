@@ -21,9 +21,37 @@ function cis_lmsless_permission() {
 }
 
 /**
+ * Implements hook_block_info().
+ */
+function cis_lmsless_block_info() {
+  $blocks['cis_lmsless'] = array(
+    'info' => t('CIS LMSLess'),
+    'cache' => DRUPAL_NO_CACHE
+  );
+
+  return $blocks;
+}
+
+/**
+ * Implements hook_block_view().
+ */
+function cis_lmsless_block_view($delta = '') {
+  $block = array();
+  if (user_access('view lmsless bar') && !path_is_admin(current_path())) {
+    switch ($delta) {
+      case 'cis_lmsless':
+        $block['content'] = _cis_lmsless_assemble();
+      break;
+    }
+}
+  return $block;
+
+}
+
+/**
  * Implements hook_page_alter().
  */
-function cis_lmsless_page_alter(&$page) {
+/*function cis_lmsless_page_alter(&$page) {
   if (user_access('view lmsless bar') && !path_is_admin(current_path())) {
     // append output to page via normal page rendering
     $page['page_bottom']['lmsless'] = array(
@@ -32,7 +60,7 @@ function cis_lmsless_page_alter(&$page) {
       '#weight' => 1000,
     );
   }
-}
+}*/
 
 /**
  * Callback to assemble the bar
