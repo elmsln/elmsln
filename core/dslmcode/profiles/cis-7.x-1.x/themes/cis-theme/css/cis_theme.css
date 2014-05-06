@@ -390,9 +390,12 @@ html.js .courses-overview-filters fieldset.collapse-processed.collapsed .fieldse
 html.js .courses-overview-filters fieldset.collapse-processed .fieldset-legend {
   background-image: url(../images/x2.png);
   background-repeat:none;
-  background-position:0px 50%;
+  background-position:.9em 50%;
 }
 
+html.js .courses-overview-filters fieldset.collapse-processed div.fieldset-wrapper {
+  margin-left:2.5em;
+}
 .courses-overview-filters fieldset {
   border:none;
   padding:0em;
