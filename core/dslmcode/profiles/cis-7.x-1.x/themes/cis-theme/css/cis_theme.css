@@ -367,6 +367,13 @@ html.js input.form-autocomplete {
 .courses-overview-filters .views-exposed-widget {
   float:none;
 }
+.courses-overview-filters .views-reset-button {
+  margin: 1em 2em;
+}
+.courses-overview-filters .views-exposed-widget button {
+  margin:0;
+  padding:0;
+}
 
 .courses-overview-filters .views-submit-button.views-exposed-widget {
   float:none;
@@ -394,7 +401,7 @@ html.js .courses-overview-filters fieldset.collapse-processed .fieldset-legend {
 }
 
 html.js .courses-overview-filters fieldset.collapse-processed div.fieldset-wrapper {
-  margin-left:2.5em;
+  margin:1em 2.5em;
 }
 .courses-overview-filters fieldset {
   border:none;
