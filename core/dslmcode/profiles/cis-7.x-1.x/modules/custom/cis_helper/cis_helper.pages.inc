@@ -99,7 +99,7 @@ function cis_helper_add_offering_page($form, $form_state) {
   );
   $form['actions']['submit'] = array(
     '#type' => 'submit',
-    '#value' => t('Create'),
+    '#value' => t('Add offering'),
   );
   return $form;
 }
@@ -113,14 +113,26 @@ function cis_helper_add_offering_page_submit($form, $form_state) {
   $state['values']['semester'] = check_plain($form_state['values']['semester']);
   $state['values']['year'] = check_plain($form_state['values']['year']);
   $state['values']['access_string'] = check_plain($form_state['values']['access_string']);
-  // set these to empty so they pass validation
   $state['values']['course'] = check_plain($form_state['values']['courses']);
-  $state['values']['instructional_outline'] = '';
-  $state['values']['xml_manifest_import'] = '';
-  $state['values']['number'] = '';
-  $state['values']['campus'] = check_plain($form_state['values']['campus']);;
-  $state['values']['services'] = array();
-  drupal_form_submit('cis-helper-quick-setup-page', $state);
+  $state['values']['campus'] = check_plain($form_state['values']['campus']);
+  $state['triggering_element']['#parents'][0] = 'submit';
+
+  // fake submit form
+  drupal_form_submit('cis_helper_quick_setup_page', $state);
+  // if told to just Add
+  if ($form_state['values']['op'] == 'Add offering') {
+    drupal_goto(check_plain($form_state['values']['courses']) . '/offerings');
+  }
+  else {
+    $vars = array(
+      '@string' => $form_state['values']['access_string'],
+      '@course' => $form_state['values']['courses'],
+      '@semester' => $form_state['values']['semester'],
+      '@year' => $form_state['values']['year'],
+      '@campus' => $form_state['values']['campus'],
+      );
+    drupal_set_message(t('Successfully created @course @semester @year @campus offering with access ID @string!', $vars), 'info');
+  }
 }
 
 /**
@@ -533,7 +545,7 @@ function cis_helper_quick_setup_page() {
   $form['details']['instructional_outline'] = array(
     '#type' => 'select',
     '#options' => $options,
-    '#required' => TRUE,
+    '#required' => FALSE,
     '#title' => t('Instructional outline'),
     '#description' => t('This helps in creating a default instructional flow for the course, this just helps provide a starting point.'),
     '#default_value' => drupal_get_path('module', 'cis_helper') . '/instructional_models/' . CIS_HELPER_DEFAULT_CONTENT_OUTLINE,
@@ -566,7 +578,7 @@ function cis_helper_quick_setup_page() {
   }
   $form['details']['services'] = array(
     '#multiple' => TRUE,
-    '#required' => TRUE,
+    '#required' => FALSE,
     '#key_type_toggled' => '1',
     '#description' => t('The service to deploy for this course'),
     '#type' => 'checkboxes',
@@ -690,10 +702,11 @@ function cis_helper_quick_setup_page_submit($form, $form_state) {
   $offering = NULL;
   $semester = $form_state['values']['semester'];
   $year = $form_state['values']['year'];
+  $campus = $form_state['values']['campus'];
   $instructional_outline = $form_state['values']['instructional_outline'];
   // check for admin settings
   $xml_manifest_import = FALSE;
-  if (user_access('cis setup admin options') && $form_state['values']['xml_manifest_import'] != '') {
+  if (user_access('cis setup admin options') && $form_state['values']['xml_manifest_import'] != '' && $form_state['values']['xml_manifest_import']['fid'] != 0) {
     // load the file into an object
     $xml_manifest_import = file_load($form_state['values']['xml_manifest_import']);
     // save file
@@ -910,7 +923,7 @@ function cis_helper_quick_setup_page_submit($form, $form_state) {
   $file_check = array('syllabus', 'welcome_letter');
   foreach ($file_check as $file_name) {
     // make sure the file came across
-    if ($form_state['values'][$file_name] != '') {
+    if ($form_state['values'][$file_name] != '' && $form_state['values'][$file_name]['fid'] != 0) {
       // load the file into an object
       $file = file_load($form_state['values'][$file_name]);
       // Change status to permanent so it isn't killed on cron clean up
