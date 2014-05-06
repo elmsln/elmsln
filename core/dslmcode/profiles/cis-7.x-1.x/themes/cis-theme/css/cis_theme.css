@@ -372,7 +372,6 @@ html.js input.form-autocomplete {
 }
 .courses-overview-filters .views-exposed-widget button {
   margin:0;
-  padding:0;
 }
 
 .courses-overview-filters .views-submit-button.views-exposed-widget {
@@ -546,12 +545,12 @@ html.js .courses-overview-filters fieldset.collapse-processed div.fieldset-wrapp
 html.js .faculty-overview-filters fieldset.collapse-processed.collapsed .fieldset-legend {
   background-image: url(../images/arrow8.png);
   background-repeat:none;
-  background-position:0px 50%;
+  background-position:.25em 50%;
 }
 html.js .faculty-overview-filters fieldset.collapse-processed .fieldset-legend {
   background-image: url(../images/x2.png);
   background-repeat:none;
-  background-position:0px 50%;
+  background-position:.25em 50%;
 }
 
 .faculty-overview-filters fieldset {
@@ -566,7 +565,7 @@ html.js .faculty-overview-filters fieldset.collapse-processed .fieldset-legend {
 .faculty-overview-filters a.fieldset-title {
   color:#ffffff;
   padding-left:2em;
-  margin-left:-2em;
+  margin-left:-1em;
 }
 
 
