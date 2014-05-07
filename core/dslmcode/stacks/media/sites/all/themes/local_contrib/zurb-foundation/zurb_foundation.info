@@ -1,0 +1,72 @@
+name = ZURB Foundation
+description = Drupal implementation of the Zurb Foundation 5 framework.
+core = 7.x
+engine = phptemplate
+
+; Image appears on admin/appearance
+screenshot = images/screenshot.jpg
+
+; Reset styles with normalize
+stylesheets[all][] = css/normalize.css
+
+; Foundation framework stylesheets
+stylesheets[all][] = css/foundation.min.css
+
+; Modernizr acts as a shim for HTML5 elements for older browsers
+; as well as detection for mobile devices.
+scripts[] = js/vendor/custom.modernizr.js
+
+; Foundation framework scripts.
+scripts[] = js/foundation.min.js
+
+; Source order:
+; http://foundation.zurb.com/docs/index.html#basicHTMLMarkup
+
+; Regions are output in the page.tpl.php
+regions[header]         = Header
+regions[navigation]     = Navigation
+regions[help]           = Help
+regions[highlighted]    = Highlighted
+regions[content]        = Content
+regions[sidebar_first]  = Left Sidebar
+regions[sidebar_second] = Right Sidebar
+regions[footer_first]   = Footer first
+regions[footer_middle]  = Footer middle
+regions[footer_last]    = Footer last
+
+; Panel Layouts
+plugins[panels][layouts] = layouts
+
+; Theme settings:
+
+; Top Bar.
+settings[zurb_foundation_top_bar_enable] = 1
+settings[zurb_foundation_top_bar_grid] = 0
+settings[zurb_foundation_top_bar_sticky] = 0
+settings[zurb_foundation_top_bar_menu_text] = 'Menu'
+settings[zurb_foundation_top_bar_custom_back_text] = 1
+settings[zurb_foundation_top_bar_back_text] = 'Back'
+settings[zurb_foundation_top_bar_is_hover] = 1
+settings[zurb_foundation_top_bar_scrolltop] = 1
+
+; Tooltips.
+settings[zurb_foundation_tooltip_enable] = 1
+settings[zurb_foundation_tooltip_position] = 'top'
+settings[zurb_foundation_tooltip_mode] = 'text'
+settings[zurb_foundation_tooltip_text] = 'More information?'
+settings[zurb_foundation_tooltip_touch] = 0
+
+; Styles and Scripts.
+settings[zurb_foundation_disable_core_css] = 0
+
+; Misc.
+settings[zurb_foundation_html_tags] = 1
+settings[zurb_foundation_messages_modal] = 0
+settings[zurb_foundation_pager_center] = 1
+
+; Information added by Drupal.org packaging script on 2014-04-27
+version = "7.x-5.0-alpha4"
+core = "7.x"
+project = "zurb-foundation"
+datestamp = "1398632628"
+
