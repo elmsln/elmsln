@@ -76,12 +76,15 @@ function uuid_get_core_entity_info() {
  */
 
 /**
- * Implements of hook_entity_info_alter().
+ * Implements hook_entity_info_alter().
  *
- * @see uuid_core_entity_info().
+ * @see uuid_core_entity_info()
  */
 function uuid_entity_info_alter(&$info) {
   foreach (uuid_get_core_entity_info() as $entity_type => $core_info) {
+    if (!isset($info[$entity_type])) {
+      continue;
+    }
     $info[$entity_type]['uuid'] = TRUE;
     $info[$entity_type]['entity keys']['uuid'] = $core_info['entity keys']['uuid'];
     if (!empty($core_info['entity keys']['revision uuid'])) {
@@ -91,21 +94,24 @@ function uuid_entity_info_alter(&$info) {
 }
 
 /**
- * Implements of hook_entity_property_info_alter().
+ * Implements hook_entity_property_info_alter().
  *
  * This adds the UUID as an entity property for all UUID-enabled entities
  * which automatically gives us token and Rules integration.
  */
 function uuid_entity_property_info_alter(&$info) {
   foreach (entity_get_info() as $entity_type => $entity_info) {
-    if (isset($entity_info['uuid']) && $entity_info['uuid'] == TRUE && !empty($entity_info['entity keys']['uuid'])) {
+    if (isset($entity_info['uuid']) && $entity_info['uuid'] == TRUE
+      && !empty($entity_info['entity keys']['uuid'])
+      && empty($info[$entity_type]['properties'][$entity_info['entity keys']['uuid']])) {
       $info[$entity_type]['properties'][$entity_info['entity keys']['uuid']] = array(
         'label' => t('UUID'),
         'type' => 'text',
         'description' => t('The universally unique ID.'),
         'schema field' => $entity_info['entity keys']['uuid'],
       );
-      if (!empty($entity_info['entity keys']['revision uuid'])) {
+      if (!empty($entity_info['entity keys']['revision uuid'])
+        && empty($info[$entity_type]['properties'][$entity_info['entity keys']['revision uuid']])) {
         $info[$entity_type]['properties'][$entity_info['entity keys']['revision uuid']] = array(
           'label' => t('Revision UUID'),
           'type' => 'text',
@@ -118,7 +124,7 @@ function uuid_entity_property_info_alter(&$info) {
 }
 
 /**
- * Implements of hook_entity_presave().
+ * Implements hook_entity_presave().
  *
  * This is where all UUID-enabled entities get their UUIDs.
  */
@@ -131,7 +137,19 @@ function uuid_entity_presave($entity, $entity_type) {
     }
     if (!empty($info['entity keys']['revision uuid'])) {
       $vuuid_key = $info['entity keys']['revision uuid'];
-      if ((isset($entity->revision) && $entity->revision == TRUE) || empty($entity->{$vuuid_key})) {
+      // If this entity comes from a remote environment and have a revision UUID
+      // that exists locally we should not create a new revision. Because
+      // otherwise revisions won't be tracked universally.
+      // TODO: Move code dependent on the uuid_services module into it's own
+      // implementation of hook_entity_presave().
+      if (!empty($entity->uuid_services) && isset($entity->{$vuuid_key})) {
+        $vuuid_exists = (bool) entity_get_id_by_uuid($entity_type, array($entity->{$vuuid_key}), TRUE);
+        if ($vuuid_exists) {
+          $entity->revision = FALSE;
+        }
+      }
+
+      if ((isset($entity->revision) && $entity->revision == TRUE && empty($entity->uuid_services)) || empty($entity->{$vuuid_key})) {
         $entity->{$vuuid_key} = uuid_generate();
       }
     }
@@ -151,12 +169,26 @@ function uuid_entity_presave($entity, $entity_type) {
 /**
  * Load entities by their UUID, that only should containing UUID references.
  *
+ * Optionally load revisions by their VUUID by passing it into $conditions.
+ * Ex. $conditions['vuuid'][$vuuid]
+ *
  * This function is mostly useful if you want to load an entity from the local
  * database that only should contain UUID references.
  *
  * @see entity_load()
  */
 function entity_uuid_load($entity_type, $uuids = array(), $conditions = array(), $reset = FALSE) {
+  // Allow Revision UUID to be passed in $conditions and translate.
+  $entity_info[$entity_type] = entity_get_info($entity_type);
+  $revision_key = $entity_info[$entity_type]['entity keys']['revision'];
+  if (isset($entity_info[$entity_type]['entity keys']['revision uuid'])) {
+    $revision_uuid_key = $entity_info[$entity_type]['entity keys']['revision uuid'];
+  }
+  if (isset($revision_uuid_key) && isset($conditions[$revision_uuid_key])) {
+    $revision_id = entity_get_id_by_uuid($entity_type, array($conditions[$revision_uuid_key]), TRUE);
+    $conditions[$revision_key] = $revision_id[$conditions[$revision_uuid_key]];
+    unset($conditions[$revision_uuid_key]);
+  }
   $ids = entity_get_id_by_uuid($entity_type, $uuids);
   $results = entity_load($entity_type, $ids, $conditions, $reset);
   $entities = array();
@@ -209,6 +241,23 @@ function entity_uuid_save($entity_type, $entity) {
     throw new UuidEntityException(t('Calling %function requires the Entity API module (!link).', array('%function' => __FUNCTION__, '!link' => 'http://drupal.org/project/entity')));
   }
 
+  $info = entity_get_info($entity_type);
+  $uuid_key = $info['entity keys']['uuid'];
+  if (empty($entity->{$uuid_key}) || !uuid_is_valid($entity->{$uuid_key})) {
+    watchdog('Entity UUID', 'Attempted to save an entity with an invalid UUID', array(), WATCHDOG_ERROR);
+    return FALSE;
+  }
+
+  // Falling back on the variable node_options_[type] is not something an API
+  // function should take care of. With normal (non UUID) nodes this is dealt
+  // with in the form submit handler, i.e. not in node_save().
+  // But since using entity_uuid_save() usually means you're trying to manage
+  // entities remotely we do respect this variable here to make it work as the
+  // node form, but only if we explicitly haven't set $node->revision already.
+  if ($entity_type == 'node' && !isset($entity->revision) && in_array('revision', variable_get('node_options_' . $entity->type, array()))) {
+    $entity->revision = 1;
+  }
+
   entity_make_entity_local($entity_type, $entity);
 
   // Save the entity.
@@ -259,6 +308,10 @@ function entity_make_entity_local($entity_type, $entity) {
       $vid = NULL;
       // Fetch the local revision ID by its UUID.
       if (isset($entity->{$vuuid_key})) {
+        // It's important to note that the revision UUID might be set here but
+        // there might not exist a correspondant local revision ID in which case
+        // we should unset the assigned revision ID to not confuse anyone with
+        // revision IDs that might come from other environments.
         $vids = entity_get_id_by_uuid($entity_type, array($entity->{$vuuid_key}), TRUE);
         $vid = reset($vids);
       }
@@ -268,9 +321,10 @@ function entity_make_entity_local($entity_type, $entity) {
       elseif (!empty($vid)) {
         $entity->{$vid_key} = $vid;
       }
-      // Nodes need this when trying to save an existing node without a vid.
+      // If the revision ID was unset before this (or just missing for some
+      // reason) we fetch the current revision ID to build a better
+      // representation of the node object we're working with.
       if ($entity_type == 'node' && !isset($entity->vid) && !$entity->is_new) {
-        $entity->revision = 0;
         $entity->vid = db_select('node', 'n')
           ->condition('n.nid', $entity->nid)
           ->fields('n', array('vid'))
@@ -312,6 +366,7 @@ function entity_uuid_delete($entity_type, $uuid) {
     // Fetch the local ID by its UUID.
     $ids = entity_get_id_by_uuid($entity_type, array($uuid));
     $id = reset($ids);
+    $entity = entity_load($entity_type, array($id));
 
     // Let other modules transform UUID references to local ID references.
     $hook = 'entity_uuid_delete';
@@ -322,6 +377,9 @@ function entity_uuid_delete($entity_type, $uuid) {
       }
     }
 
+    if (empty($entity)) {
+      return FALSE;
+    }
     // Delete the entity.
     return entity_delete($entity_type, $id);
   }
@@ -353,7 +411,7 @@ function entity_get_id_by_uuid($entity_type, $uuids, $revision = FALSE) {
   }
   $info = entity_get_info($entity_type);
   // Find out what entity keys to use.
-  if (!$revision) {
+  if (!$revision && isset($info['entity keys']['uuid'])) {
     $table = $info['base table'];
     $id_key = $info['entity keys']['id'];
     $uuid_key = $info['entity keys']['uuid'];
@@ -399,7 +457,7 @@ function entity_get_uuid_by_id($entity_type, $ids, $revision = FALSE) {
   }
   $info = entity_get_info($entity_type);
   // Find out what entity keys to use.
-  if (!$revision) {
+  if (!$revision && isset($info['entity keys']['uuid'])) {
     $table = $info['base table'];
     $id_key = $info['entity keys']['id'];
     $uuid_key = $info['entity keys']['uuid'];

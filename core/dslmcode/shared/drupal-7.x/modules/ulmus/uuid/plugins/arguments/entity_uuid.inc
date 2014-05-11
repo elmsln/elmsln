@@ -17,11 +17,17 @@ $plugin = array(
   'get children' => 'uuid_entity_uuid_get_children',
 );
 
+/**
+ * @todo document me properly
+ */
 function uuid_entity_uuid_get_child($plugin, $parent, $child) {
   $plugins = uuid_entity_uuid_get_children($plugin, $parent);
   return $plugins[$parent . ':' . $child];
 }
 
+/**
+ * @todo document me properly
+ */
 function uuid_entity_uuid_get_children($original_plugin, $parent) {
   $entities = entity_get_info();
   $plugins = array();

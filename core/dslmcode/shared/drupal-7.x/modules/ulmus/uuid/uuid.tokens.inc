@@ -29,7 +29,7 @@ function uuid_token_info() {
 }
 
 /**
- * Implements hook_token_info_alter()
+ * Implements hook_token_info_alter().
  */
 function uuid_token_info_alter(&$data) {
   foreach (entity_get_info() as $entity_type => $info) {

@@ -121,14 +121,14 @@ function hook_uuid_entities_post_rebuild($plan_name) {
 /**
  * Let other modules do things before default entities are created on revert.
  */
-function hook_uuid_entities_pre_rebuild($plan_name) {
+function hook_uuid_entities_pre_revert($plan_name) {
 
 }
 
 /**
  * Let other modules do things after default entities are created on revert.
  */
-function hook_uuid_entities_post_rebuild($plan_name) {
+function hook_uuid_entities_post_revert($plan_name) {
 
 }
 
@@ -144,12 +144,6 @@ function hook_uuid_entities_features_export_entity_alter(&$entity, $entity_type)
  */
 function hook_uuid_entities_features_export_field_alter($entity_type, &$entity, $field, $instance, $langcode, &$items) {
 
-}
-
-/**
- * Alter UUID URI data after processing.
- */
-function hook_uuid_uri_data($data) {
 }
 
 /**

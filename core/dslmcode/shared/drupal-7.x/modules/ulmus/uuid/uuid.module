@@ -25,7 +25,7 @@ module_load_include('inc', 'uuid', 'uuid.entity');
 module_load_include('inc', 'uuid', 'uuid.core');
 
 /**
- * Implements of hook_menu().
+ * Implements hook_menu().
  */
 function uuid_menu() {
   $items = array();
@@ -72,7 +72,7 @@ function uuid_menu() {
 }
 
 /**
- * Implements of hook_ctools_plugin_directory().
+ * Implements hook_ctools_plugin_directory().
  */
 function uuid_ctools_plugin_directory($module, $plugin) {
   if ($module == 'ctools') {
@@ -81,7 +81,7 @@ function uuid_ctools_plugin_directory($module, $plugin) {
 }
 
 /**
- * Implements of hook_permission().
+ * Implements hook_permission().
  */
 function uuid_permission() {
   return array(
@@ -125,7 +125,7 @@ function uuid_hook_info() {
 
 
 /**
- * Implementation of hook_views_api().
+ * Implements hook_views_api().
  */
 function uuid_views_api() {
   return array(
@@ -135,24 +135,24 @@ function uuid_views_api() {
 }
 
 /**
- * Implements of hook_module_implements_alter().
+ * Implements hook_module_implements_alter().
  *
- * Moves implementation of hook_entity_info_alter() to the bottom so it is
+ * Moves hook_entity_info_alter() implementation to the bottom so it is
  * invoked after all modules relying on the entity API.
  *
  * @see uuid_entity_info_alter()
  */
-function uuid_module_implements_alter(&$Implementss, $hook) {
+function uuid_module_implements_alter(&$implementss, $hook) {
   if ($hook == 'entity_info_alter') {
     // Move our hook Implements to the bottom.
-    $group = $Implementss['uuid'];
-    unset($Implementss['uuid']);
-    $Implementss['uuid'] = $group;
+    $group = $implementss['uuid'];
+    unset($implementss['uuid']);
+    $implementss['uuid'] = $group;
   }
 }
 
 /**
- * Implements of hook_uuid_sync().
+ * Implements hook_uuid_sync().
  */
 function uuid_uuid_sync() {
   foreach (entity_get_info() as $entity_type => $info) {
@@ -185,7 +185,7 @@ function _uuid_sync_table($table, $id_field, $uuid_field) {
 }
 
 /**
- * Implementation of hook_features_api().
+ * Implements hook_features_api().
  *
  * The Features support consists of exporting entities from a Deploy
  * <em>fetch-only</em> plan. Deploy is only required to generate the feature
@@ -202,7 +202,7 @@ function uuid_features_api() {
       'default_hook' => 'uuid_default_entities',
       'default_file' => FEATURES_DEFAULTS_INCLUDED,
       'feature_source' => TRUE,
-      'file' => drupal_get_path('module', 'uuid') .'/uuid.features.inc',
+      'file' => drupal_get_path('module', 'uuid') . '/uuid.features.inc',
     ),
   );
 }
@@ -212,7 +212,7 @@ function uuid_features_api() {
  */
 function uuid_redirector() {
   $entity_data = uuid_uri_array_to_data(arg());
-  
+
   $entity_info = entity_get_info($entity_data['entity_type']);
   if (empty($entity_info['uuid'])) {
     return drupal_not_found();

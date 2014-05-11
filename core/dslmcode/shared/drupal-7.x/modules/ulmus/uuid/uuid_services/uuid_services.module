@@ -126,6 +126,7 @@ function _uuid_services_entity_update($entity_type, $uuid, $entity) {
     else {
       $entity = (object) $entity;
     }
+    $entity->uuid_services = TRUE;
     entity_uuid_save($entity_type, $entity);
     return $entity;
   }

@@ -166,8 +166,8 @@ function _uuid_generate_pecl() {
 
 /**
  * Generates a UUID v4 using PHP code.
- * 
- * Based on code from @see http://php.net/uniqid#65879 , but corrected.
+ *
+ * Based on code from http://php.net/uniqid#65879, but corrected.
  */
 function _uuid_generate_php() {
   // The field names refer to RFC 4122 section 4.1.2.
@@ -188,16 +188,16 @@ function _uuid_generate_php() {
 
 
 // This is wrapped in an if block to avoid conflicts with PECL's uuid_is_valid().
-/**
- * Check that a string appears to be in the format of a UUID.
- *
- * @param $uuid
- *  The string to test.
- *
- * @return
- *   TRUE if the string is well formed.
- */
 if (!function_exists('uuid_is_valid')) {
+  /**
+   * Check that a string appears to be in the format of a UUID.
+   *
+   * @param $uuid
+   *  The string to test.
+   *
+   * @return
+   *   TRUE if the string is well formed.
+   */
   function uuid_is_valid($uuid) {
     return preg_match('/^' . UUID_PATTERN . '$/', $uuid);
   }

@@ -368,7 +368,7 @@ function node_uuid_entities_features_export_entity_alter(&$entity, $entity_type)
 }
 
 /**
- * Implementation of hook_uuid_entities_features_export_entity_alter().
+ * Implementations hook_uuid_entities_features_export_entity_alter().
  */
 function user_uuid_entities_features_export_entity_alter(&$entity, $entity_type) {
   if ($entity_type == 'user') {
