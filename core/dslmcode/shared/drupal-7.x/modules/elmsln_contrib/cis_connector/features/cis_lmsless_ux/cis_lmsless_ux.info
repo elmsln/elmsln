@@ -1,0 +1,9 @@
+name = CIS LMSLess UX
+description = Places CIS LMSless in a cross-theme compliant manner for themes not implementing it.
+core = 7.x
+package = CIS Connector
+dependencies[] = cis_lmsless
+dependencies[] = context
+features[context][] = cis-lmsless
+features[ctools][] = context:context:3
+features[features_api][] = api:2
