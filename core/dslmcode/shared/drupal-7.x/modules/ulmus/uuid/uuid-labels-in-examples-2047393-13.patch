@@ -1,0 +1,33 @@
+diff --git a/uuid.install b/uuid.install
+index 4fa4c78..9bbfd63 100644
+--- a/uuid.install
++++ b/uuid.install
+@@ -239,12 +239,8 @@ function uuid_update_7102() {
+ function uuid_update_7103() {
+   // These are UUIDs of all the example entities that might exist after having
+   // installed uuid_default_entities_example.module.
++  $info = entity_get_info();
+   $uuids = array(
+-    'taxonomy_term' => array(
+-      'bcb92ce8-2236-e264-65c8-0c163ae716d1',
+-      '4293a15c-531a-6164-7d1b-668ed019a6bd',
+-      'af738a46-f278-cf84-d94d-9e03879fd71e',
+-    ),
+     'node' => array(
+       'b0558664-c94b-3674-d9df-3e1696b2e471',
+       '5e3d8bbe-a1f2-f2d4-fdc0-71e6c23aa837',
+@@ -253,6 +249,14 @@ function uuid_update_7103() {
+       '7cf875e6-dc15-4404-f190-5a7c3e91d14c',
+     ),
+   );
++  // we can't assume taxonomy is enabled
++  if (isset($info['taxonomy_term'])) {
++    $uuids['taxonomy_term'] = array(
++      'bcb92ce8-2236-e264-65c8-0c163ae716d1',
++      '4293a15c-531a-6164-7d1b-668ed019a6bd',
++      'af738a46-f278-cf84-d94d-9e03879fd71e',
++    );
++  }
+   foreach (array_keys($uuids) as $entity_type) {
+     $info = entity_get_info($entity_type);
+     $entity_ids = entity_get_id_by_uuid($entity_type, $uuids[$entity_type]);
