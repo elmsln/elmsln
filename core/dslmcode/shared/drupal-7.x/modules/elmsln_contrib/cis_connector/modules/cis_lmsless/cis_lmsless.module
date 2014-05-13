@@ -104,6 +104,7 @@ function _cis_lmsless_assemble() {
       $tmp['url'] = '#';
       unset($list[$key]);
       array_unshift($list, $tmp);
+      $vars['active'] = $item;
     }
   }
   $vars['services'] = $list;
@@ -122,6 +123,7 @@ function cis_lmsless_theme() {
         'front_page' => 'node',
         'site_name' => t('Service'),
         'section' => t('Master Section'),
+        'active' => '',
         'services' => array(),
       ),
       'render element' => 'element',
