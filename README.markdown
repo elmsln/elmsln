@@ -17,6 +17,11 @@ Anything that’s included in the enclosed core directory should not be updated 
 
 This is to ensure that all sites function properly after upgrades.  This package will be updated on versions once they are tested, any modules that you install in your config directory is on you to manage.  The general rule in Drupal is don’t hack core and the same is true with ELMSLN, don’t hack ELMSLN core; apply all your changes you want inside the config directory.
 
+###Q. config is empty, what do I put there?
+There is an example config repo so you can see how to construct one and build from it. You can check that out here https://github.com/btopro/elmsln-config-example .
+
+The Vagrant instance also has a config location that's managed on its own. Its only useful inside vagrant but if you want to see some ways you can add modules and change settings it's another good example: https://github.com/btopro/elmsln-config-vagrant/
+
 ###Q. Where can I add new modules / themes?
 All changes should be made inside the config directory in a location that aligns with its counterpart in the core directory.  For example, to add a new module for use in all sites, you’ll want to place it in elmsln/config/shared/drupal-7.x/modules.  This is the same area for themes and libraries.  Note: libraries support may be buggy because of how those are symlink over.
 
