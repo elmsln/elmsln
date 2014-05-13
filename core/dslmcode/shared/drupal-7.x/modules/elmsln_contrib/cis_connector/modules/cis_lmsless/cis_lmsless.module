@@ -123,7 +123,7 @@ function cis_lmsless_theme() {
         'front_page' => 'node',
         'site_name' => t('Service'),
         'section' => t('Master Section'),
-        'active' => '',
+        'active' => array(),
         'services' => array(),
       ),
       'render element' => 'element',
