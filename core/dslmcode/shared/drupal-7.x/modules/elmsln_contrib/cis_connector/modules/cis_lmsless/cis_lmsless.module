@@ -84,12 +84,6 @@ function _cis_lmsless_assemble() {
   // add in link to the CIS location if permission exists
   // @ignore druplart_conditional_assignment
   if (user_access('view lmsless cis link') && $settings = _cis_connector_build_registry('cis')) {
-    // space it out since this is not to be accessed frequently
-    $list['_'] = array(
-      'title' => t('_________________________'),
-      'url' => '#_blank',
-      'machine_name' => '_',
-    );
     $list['cis'] = array(
       'title' => t('Course information system'),
       'url' => _cis_connector_format_address($settings, base_path(), 'front'),
