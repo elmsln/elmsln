@@ -13,20 +13,20 @@ function elmslnapi_drupalapi_add_projects() {
       'name' => 'CIS',
       'version' => '7',
     ),
-    'ulmus' => array(
-      'name' => 'Ulmus',
-      'version' => '7',
-    ),
     'mooc' => array(
       'name' => 'MOOC',
       'version' => '7',
     ),
     'elmsmedia' => array(
-      'name' => 'ELMS Media',
+      'name' => 'Media',
       'version' => '7',
     ),
     'cle' => array(
       'name' => 'CLE',
+      'version' => '7',
+    ),
+    'icor' => array(
+      'name' => 'ICOR',
       'version' => '7',
     ),
     'remote_watchdog' => array(
