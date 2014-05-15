@@ -155,7 +155,9 @@ function cis_section_all_sections($active_only = FALSE) {
   if ($active_only) {
     $query->fieldCondition('field_cis_active', 'value', 1, '=');
   }
-  $query->propertyOrderBy('title');
+  // order by status, then by title
+  $query->fieldOrderBy('field_cis_active', 'value', 'DESC')
+  ->propertyOrderBy('title');
   // store results
   $result = $query->execute();
   // ensure we have results
