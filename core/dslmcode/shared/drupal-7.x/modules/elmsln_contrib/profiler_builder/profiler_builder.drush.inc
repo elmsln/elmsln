@@ -46,7 +46,7 @@ function drush_profiler_builder_generate_distro($name) {
   $machine_name = $name;
   $description = variable_get('site_slogan', $name);
   $exclusive = TRUE;
-  $profiler = TRUE;
+  $profiler = FALSE;
   // allow for definitions of other things to export
   $profiler_includes = _profiler_builder_get_includes();
   foreach ($profiler_includes as $key => $include) {
