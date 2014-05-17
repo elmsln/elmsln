@@ -126,6 +126,7 @@ function textbook_textbook_style() {
           $tpath .'reset.css',
         ),
         'js' => array(
+          'misc/form.js',
           'misc/collapse.js',
         )
       ),
