@@ -8,6 +8,8 @@ function elmsmedia_install() {
   // Enable some elmsmedia blocks.
   $default_theme = 'zurb_foundation';
   $admin_theme = 'rubik';
+  // fix jquery update rubrik admin theme issue
+  variable_set('theme_rubik_settings', array('rubik_disable_sidebar_in_form' => 1));
   // disable all themes
   db_update('system')
     ->fields(array('status' => 0))
