@@ -56,6 +56,7 @@ function _cis_lmsless_assemble() {
   $vars = array(
     'front_page' => variable_get('site_frontpage','node'),
     'site_name' => variable_get('site_name', t('Service')),
+    'slogan' => variable_get('site_slogan', ''),
   );
   // build in section context if we have one we can pull
   if ($section = _cis_connector_section_context()) {
