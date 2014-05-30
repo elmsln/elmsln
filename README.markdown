@@ -5,7 +5,7 @@ This is the entire ELMS Learning Network as a repository.  It includes installat
 FAQ
 ==============
 ###Q. How can I get more involved?
-The easiest way is to spin up the [ELMSLN Vagrant](http://github.com/btopro/elmsln-vagrant). Test, ask, jump in on the issue queues on github, drupal.org, twitter, email, PHONE or anywhere else that you can find pieces that will help build upon this work. We always welcome more issue reports.
+The easiest way is to setup an [ELMSLN Developer](http://github.com/btopro/elmsln-developer) envrionment and run [ELMSLN Vagrant](http://github.com/btopro/elmsln-vagrant). Test, ask, jump in on the issue queues on github, drupal.org, twitter, email, PHONE or anywhere else that you can find pieces that will help build upon this work. We always welcome more issue reports.
 
 ###Q. Why doesn’t this look like Drupal?
 Because it’s Drupal and other packages setup in an optimal format for a network of deployed distributions. This as an enterprise Drupal based application that is more "Drupal inside" then Drupal proper. Everything is still done in a completely core compliant way, it's just structured to maximize needed efficencies of a heavily networked ecosystem.
@@ -35,16 +35,14 @@ The domains directory is structured in the optimal way for managing sites.  The 
 You can use this as a starting point and self manage from there but sticking as closely as possible to the structure of ELMSLN will help ensure upgrades down the road take correctly.
 
 ###Q. When will there be a stable release?
-Very soon, there has been substancial progress made towards a point release thanks to investment in the [ELMSLN Vagrant](http://github.com/btopro/elmsln-vagrant) installer.
-
-If it helps you sleep at night, we run dev in production. That's not to say you should yet, but the package is far more stable then the "dev" moniker.
+As soon as the blockers below are resolved (basically just time). If it helps you sleep at night, we run this in production and have been actively building off of this framework since May 2013. The package is far more stable then the "dev" moniker might otherwise suggest. Point releases require a differnet mindset from a developer / management perspective so we'll get there when the time is right.
 
 ###Q. If that's true, what are the blockers for a stable release?
-1. Additional testing, probably about a month's worth, particularly around the install script to get the whole thing automatically installed.
+1. Additional testing, particularly around the install script to get the whole thing automatically installed in different environments. this is used in production multiple places as is but additional UI and broader based user testing is always helpful.
 2. Merging the automation present in the ELMSLN Vagrant project back into elmsln-install.sh as an optional flag
-3. Installing default content (via optional flag or vagrant) for the CIS distribution so that you immediately don't go "ok, now what do I do?"
-4. Repackaging Nodequeues for CIS (right now they don't export from original source site and are well designed)
-5. Doing additional testing on the `vagrant provision` command to ensure that it only updates the state of the currently developed ELMSLN test-bed and not overwrites critical components.  Again, this is just for the development and testing harness but still critical to long term success of this project.
+3. Repackaging Nodequeues for CIS (right now they don't export from original source site and are well designed)
+4. Doing additional testing on the `vagrant provision` command to ensure that it only updates the state of the currently developed ELMSLN test-bed and not overwrite critical components.
+5. Bash / drush script to automatically spider all sites and perform well structure updb and feature revert commands where it makes sense, as well as a plan for 1 project to have update hooks to apply network wide updates (Like all sites now require module A to be enabled and module B is depricated).
 
 ###Q. How would you classify a first release?
 Stable. Most likely jumping straight from dev to 1.0.  The many distributions of ELMS have been in beta usage for several months now.
