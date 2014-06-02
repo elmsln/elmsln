@@ -332,9 +332,9 @@ do
 
   ##add drupal_priv directories, set permissions
   if [ ! -d $drupal_priv/$course ]; then
-    mkdir $drupal_priv/$course
-    chown $wwwuser:$webgroup $drupal_priv/$course
-    chmod g+w $drupal_priv/$course
+    mkdir -p $drupal_priv/$service/$course
+    chown $wwwuser:$webgroup $drupal_priv/$service/$course
+    chmod g+w $drupal_priv/$service/$course
   fi
 
   echo "$course was added by $requester on $date" | mail -s "$course has been added to $hostname" $admin
