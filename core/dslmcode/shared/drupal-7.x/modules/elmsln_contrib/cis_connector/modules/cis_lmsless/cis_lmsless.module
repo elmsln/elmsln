@@ -43,9 +43,8 @@ function cis_lmsless_block_view($delta = '') {
         $block['content'] = _cis_lmsless_assemble();
       break;
     }
-}
+  }
   return $block;
-
 }
 
 /**
