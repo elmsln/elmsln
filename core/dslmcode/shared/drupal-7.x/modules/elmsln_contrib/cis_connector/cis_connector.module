@@ -779,15 +779,14 @@ function _cis_connector_request($url, $options = array(), $bucket = 'cis', $cach
       cache_set($cid, $data->data, 'cache_cis_connector');
     }
   }
-  /*
+
   // debug all calls
   // @ignore production_code
-  if (module_exists('devel') && $GLOBALS['user']->uid == 1) {
+  if (module_exists('devel') && CIS_CONNECTOR_DEVELOPMENT && CIS_CONNECTOR_ROOT_USER_DEVELOPMENT) {
     // @ignore production_code
     dpm($data);
   // @ignore production_code
   }
-  */
 
   return $data;
 }
