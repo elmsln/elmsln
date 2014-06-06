@@ -28,7 +28,8 @@ function tinynav_requirements($phase) {
     case 'runtime':
       $lib = tinynav_get_library();
       if (!$lib) {
-        $requirements['tinynav']['description'] = 'Tinynav: Could not locate the tinynav.min.js library. Please download the latest version of the library from ' . l(TINYNAV_URL, TINYNAV_URL) . ', unzip the package and place it in your libraries directory under the name tinynav.';
+        $requirements['tinynav']['value'] = 'Library error';
+        $requirements['tinynav']['description'] = 'Could not locate the tinynav.min.js library. Please download the latest version of the library from ' . l(TINYNAV_URL, TINYNAV_URL) . ', unzip the package and place it in your libraries directory under the name tinynav.';
         $requirements['tinynav']['severity'] = REQUIREMENT_ERROR;
       }
       else {
