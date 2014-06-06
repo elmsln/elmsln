@@ -1,0 +1,54 @@
+.role-staff,
+.role-administrator,
+.navbar-administration {
+	background:#333333;
+	
+	.l-main {
+		background:#fff;
+	}
+	.breakpoint-indicator {
+		@include border-radius (3px);
+		padding:0.5em;
+		text-transform: uppercase;
+		text-align: center;
+		display:inherit;
+		margin:1em auto;
+		color:#fff;
+		background-color:#222;
+		
+
+		@media #{$small-only} {
+			&:before {
+				content:"Breakpoint: small";
+		 	}
+		 }	 
+
+		@media #{$medium-only} { 
+			&:before {
+				content:"Breakpoint: medium";
+			}
+		 }
+
+		@media #{$large-only} { 
+			&:before {
+				content:"Breakpoint: large";
+			}
+		 }
+
+		@media #{$xlarge-up} {
+			&:before {
+				content:"Breakpoint: xlarge";
+			}
+		 }
+
+		@media #{$xxlarge-up} {
+			&:before {
+				content:"Breakpoint: xxlarge";
+			}
+		 }
+	}
+}
+
+.breakpoint-indicator {
+	display:none;
+}

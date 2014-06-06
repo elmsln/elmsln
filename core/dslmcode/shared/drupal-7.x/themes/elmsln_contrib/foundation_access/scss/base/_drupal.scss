@@ -1,0 +1,31 @@
+// Drupal comes with CSS quirks (Drupalisms). Unravel or override them here.
+
+// Make the "sticky" Top Bar play nice with the "fixed" Admin Menu.
+.admin-menu .fixed {
+  top: emCalc(29px);
+}
+
+// Remove the bottom padding on status messages when displayed inside a Zurb
+// Foundation Reveal modal.
+#status-messages.reveal-modal {
+  .alert-box {
+    margin-bottom: 0;
+  }
+}
+
+// Fix Zurb Foundation Reveal Modal z-index and make it play nice with dropdown
+// menus, lightboxes, etc.
+.reveal-modal {
+  z-index: 999;
+}
+
+// Override Drupal Core pager styles. This is necessary because we need to keep
+// the .pager class on pagers for Views AJAX to work. If you are disabling
+// Drupal Core CSS you can safely comment the following lines.
+.item-list .pager {
+  clear: none;
+}
+
+.item-list .pager li {
+  padding: 0;
+}

@@ -1,0 +1,131 @@
+/**
+ * To use, enable the the block called CIS LMSless 
+ */
+
+div.cis-lmsless {
+  .split.button span {
+    border-left-color: #efefef;
+    background:#fff;
+    &:hover {
+      background:#efefef;
+    }
+    &:before {
+      border-top-color: rgba(0, 123, 160, 1);
+      border-bottom-color: transparent;
+      border-left-color: transparent;
+      border-right-color: transparent;
+    }
+  }
+
+  a {
+    text-transform: uppercase;
+    font-size: 1.3em;
+    text-align: right;
+    margin-bottom:0;
+
+    .slogan-lmsless-button {
+      text-transform: uppercase;
+      font-size: 0.5em;
+    }
+
+    &.button {
+      background:#fff;
+      // border-bottom: solid 1px #fff;
+      // border-left: solid 1px #fff;
+      color:#007ba0;
+      &:hover {
+        background:#fff;
+      // border-bottom: solid 1px #efefef;
+      // border-left: solid 1px #efefef;
+      }
+    }
+  }
+  .f-dropdown {
+    a {
+      text-align: left;
+      font-size: 1em;
+      text-transform: none;
+    }  
+  }
+}
+// .block-cis-lmsless {
+//   h2.block-title {
+//     display:none;
+//   }
+// }
+// .cis-lmsless-bar {
+//   color:#eeeeee;
+//   background-color: #222222;
+//   width: 100%;
+//   // top: 0;
+//   padding: 0;
+//   height: 28px;
+//   line-height: 28px;
+//   font-size: 18px;
+//   left:0;
+//   // position: fixed;
+//   z-index: 101;
+//   // font-family: Tahoma, Geneva, sans-serif;
+//   // 
+// 	a, a:link, a:visited, a:active {
+// 		color:#eee;
+// 	}
+
+// 	.active{
+// 	  color:#eee;
+// 	}
+// }
+
+// .cis-lmsless-item {
+//   margin:4px 16px;
+//   height: 20px;
+//   line-height: 20px;
+//   font-size: 18px;
+// }
+
+// .cis-lmsless-home,
+// .cis-lmsless-site-name,
+// .cis-lmsless-active-section,
+// .cis-lmsless-bar-services {
+//   float:left;
+// }
+
+// .cis-lmsless-bar-services {
+//   width: auto;
+//   background-color: #222222;
+//   color:#eeeeee;
+//   height: 22px;
+//   font-size: 16px;
+//   margin: 2px;
+// }
+
+/* hide the bar when on a phone */
+// @media screen and (max-width: 739px) {
+//   .cis-lmsless-bar {
+//     display:none;
+//   }
+//   .cis-lmsless-margin {
+//     margin-top:none;
+//   }
+// }
+
+/**
+ * Minor fixes for accessibility module
+ */
+
+.accessibility-content-toggle,
+.accessibility-content-toggle a {
+  color:#eeeeee;
+  background-color: #222222;
+  font-size: 18px;
+  font-family: Tahoma, Geneva, sans-serif;
+}
+
+.accessibility-content-toggle a,
+.accessibility-content-toggle a:link,
+.accessibility-content-toggle a:visited,
+.accessibility-content-toggle a:active {
+  color:#eeeeee;
+  font-size: 18px;
+  font-family: Tahoma, Geneva, sans-serif;
+}

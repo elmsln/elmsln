@@ -1,0 +1,34 @@
+.top-bar.expanded .toggle-topbar a span {
+-webkit-box-shadow: none;
+box-shadow: none;
+}
+
+.top-bar-container {
+	padding:0 0 0 0;
+	margin-bottom:3em;
+	border-bottom:1px solid #efefef;
+
+	.top-bar {
+		background:#008cba;
+
+		.top-bar-section {
+			ul {
+				li {
+					a {
+						background:#008cba;
+						&:hover {
+							background:#e7e7e7;
+						}
+					}
+				}
+			}
+		}
+	}
+}
+.top-bar-section {
+	text-align:center;
+	ul.main-menu {
+		display: inline-block;
+		background:#ccc;
+	}
+}

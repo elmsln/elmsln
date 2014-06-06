@@ -1,0 +1,7 @@
+// Disable admin menu
+.page-admin-appearance-styleguide #admin-menu,
+#toolbar {
+}
+body.navbar-fixed #navbar-administration.navbar-oriented .navbar-bar {
+	position: relative;
+}

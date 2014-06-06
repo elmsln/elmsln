@@ -1,0 +1,42 @@
+.book-outline ul {
+	&.nav-list {
+		border-right: 1px solid #efefef;
+		padding: 10px;
+		li {
+			list-style: none;
+			
+			a {
+				display: block;
+				padding: 5px 10px;
+				margin: 2px;
+				background: transparent;
+
+				&.active {
+					background: #e7e7e7;
+				}
+				&:hover {
+					text-decoration: underline;
+					background: #e7e7e7;
+					
+				}
+			}
+			ul {
+				li{
+					a {
+						display: inline-block;
+						background: transparent;
+						padding: 2px;
+						margin: 2px;
+
+						&:hover {
+							text-decoration: underline;
+							background:transparent;
+						}
+					}
+				}
+			}
+
+
+		}
+	}
+}

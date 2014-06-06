@@ -1,0 +1,13 @@
+a.user-profile-dropdown {
+	margin-bottom:0;
+	background:#fff;
+	color: #007ba0;
+	
+	&:hover {
+		background:#e7e7e7;
+		color: #007ba0;
+	}
+	&:before {
+		border-top-color: #007ba0;
+	}
+}

@@ -1,0 +1,84 @@
+// To Do: Add backup font classes al la Jason Pamental's technique
+
+//Vollkorn Google Font
+%vollkorn-normal {
+	font-family: "Vollkorn", "Georgia", serif;
+	 font-style: normal;
+	 font-weight: 400;
+}
+%vollkorn-bold {
+	font-family: "Vollkorn", "Georgia", serif;
+	 font-style: normal;
+	 font-weight: 700;
+}
+%vollkorn-italic {
+	font-family: "Vollkorn", "Georgia", serif;
+	 font-style: normal;
+	 font-weight: 400;
+	 font-style: italic;
+}
+//Asap Google Font
+%asap-normal {
+	 font-family: "Asap", "Helvetica Neue", "Helvetica", sans-serif;
+	 font-style: normal;
+	 font-weight: 400;
+}
+%asap-bold {
+	 font-family: "Asap", "Helvetica Neue", "Helvetica", sans-serif;
+	 font-style: normal;
+	 font-weight: 700;
+}
+%asap-italic {
+	 font-family: "Asap", "Helvetica Neue", "Helvetica", sans-serif;
+	 font-style: normal;
+	 font-weight: 400;
+	 font-style: italic;
+}
+
+// Applied fonts
+
+body {
+	 @extend %vollkorn-normal;
+}
+
+h1 {
+	 @extend %asap-bold;
+}
+
+h2 {
+	 @extend %asap-bold;
+}
+
+p {
+	 @extend %vollkorn-normal;
+
+	&.txtbk-intro {
+		 @extend %asap-normal;
+	}
+
+	 &.txtbk-pullquote {
+		 @extend %vollkorn-italic;
+		 
+		 @media #{$small-only} {
+			font-family: "Georgia", sans-serif;
+		 }
+	}
+}
+
+span.dropcap {
+	 @extend %asap-bold;
+}
+
+.image-media {
+	h3 {
+		 @extend %asap-bold;
+	}
+}
+
+h4.testimonial-name {
+	 @extend %asap-bold;
+}
+
+p.testimonial-title {
+	 @extend %vollkorn-italic;
+}

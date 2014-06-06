@@ -1,0 +1,28 @@
+div.content-manage-btns {
+	padding:0;
+	background:#333;
+}
+ul.local-task-tabs-1 {
+	display: inline-block;
+
+	&.button-group.round > * .button {
+		border-top:3px solid #888;
+		border-bottom:3px solid #888;
+	}
+	&.button-group.round > *:first-child>.button {
+		border-left:3px solid #888;
+	}
+	&.button-group.round > *:last-child>.button {
+		border-right:3px solid #888;
+	}
+	li {
+		a.button {
+			margin:0;
+		}
+	}
+}
+div.local-task-tabs-1 {
+	margin-top:2em;
+	margin-bottom:2em;
+	text-align:center;
+}
