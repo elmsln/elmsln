@@ -375,7 +375,7 @@ function foundation_access_menu_link__cis_service_connection_active_outline($var
   $element = $variables['element'];
   $sub_menu = '';
   if ($element['#below']) {
-    $sub_menu = '<ul class="left active dropdown">' . drupal_render($element['#below']) . '</ul>';
+    $sub_menu = '<ul class="active dropdown">' . drupal_render($element['#below']) . '</ul>';
     $element['#attributes']['class'][] = 'has-dropdown';
   }
   $output = l($element['#title'], $element['#href'], $element['#localized_options']);
