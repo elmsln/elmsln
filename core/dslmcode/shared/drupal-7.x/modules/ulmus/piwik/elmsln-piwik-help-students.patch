@@ -1,0 +1,19 @@
+diff --git a/piwik.admin.inc b/piwik.admin.inc
+index 2c85ece..f23c53b 100644
+--- a/piwik.admin.inc
++++ b/piwik.admin.inc
+@@ -541,11 +541,11 @@ function _piwik_contains_forbidden_token($token_string) {
+     ':author:edit-url]',
+     ':author:url]',
+     ':author:path]',
+-    ':current-user]',
+-    ':current-user:original]',
++    //':current-user]',
++    //':current-user:original]',
+     ':fid]',
+     ':mail]',
+-    ':name]',
++    //':name]',
+     ':uid]',
+     ':one-time-login-url]',
+     ':owner]',
