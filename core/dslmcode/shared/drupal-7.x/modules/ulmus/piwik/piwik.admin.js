@@ -75,7 +75,18 @@ Drupal.behaviors.trackingSettingsSummary = {
       }
       return Drupal.t('@items enabled', {'@items' : vals.join(', ')});
     });
-    
+
+    $('fieldset#edit-messagetracking', context).drupalSetSummary(function (context) {
+      var vals = [];
+      $('input[type="checkbox"]:checked', context).each(function () {
+        vals.push($.trim($(this).next('label').text()));
+      });
+      if (!vals.length) {
+        return Drupal.t('Not tracked');
+      }
+      return Drupal.t('@items enabled', {'@items' : vals.join(', ')});
+    });
+
     $('fieldset#edit-search', context).drupalSetSummary(function (context) {
       var vals = [];
       if ($('input#edit-piwik-site-search', context).is(':checked')) {

@@ -38,6 +38,7 @@ function piwik_uninstall() {
   variable_del('piwik_site_search');
   variable_del('piwik_track'); // interrims solution
   variable_del('piwik_trackfiles_extensions');
+  variable_del('piwik_trackmessages');
   variable_del('piwik_translation_set');
   variable_del('piwik_url_http');
   variable_del('piwik_url_https');

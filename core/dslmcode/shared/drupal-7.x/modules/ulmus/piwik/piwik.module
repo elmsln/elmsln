@@ -5,7 +5,7 @@
  * Drupal Module: Piwik
  *
  * Adds the required Javascript to all your Drupal pages to allow tracking by
- * the Google Analytics statistics package.
+ * the Piwik statistics package.
  *
  * @author: Alexander Hass <http://drupal.org/user/85918>
  */
@@ -128,6 +128,26 @@ function piwik_page_alter(&$page) {
       }
     }
 
+    // Add messages tracking.
+    $message_events = '';
+    if ($message_types = variable_get('piwik_trackmessages', array())) {
+      $message_types = array_values(array_filter($message_types));
+      $status_heading = array(
+        'status' => t('Status message'),
+        'warning' => t('Warning message'),
+        'error' => t('Error message'),
+      );
+
+      foreach (drupal_get_messages(NULL, FALSE) as $type => $messages) {
+        // Track only the selected message types.
+        if (in_array($type, $message_types)) {
+          foreach ($messages as $message) {
+            $message_events .= '_paq.push(["trackEvent", ' . drupal_json_encode(t('Messages')) . ', ' . drupal_json_encode($status_heading[$type]) . ', ' . drupal_json_encode(strip_tags($message)) . ']);';
+          }
+        }
+      }
+    }
+
     // If this node is a translation of another node, pass the original
     // node instead.
     if (module_exists('translation') && variable_get('piwik_translation_set', 0)) {
@@ -143,10 +163,10 @@ function piwik_page_alter(&$page) {
 
     // Track access denied (403) and file not found (404) pages.
     if ($status == '403 Forbidden') {
-      $set_document_title = '"403/URL = " + String(document.location.pathname + document.location.search).replace(/\//g,"%2f") + "/From = " + String(document.referrer).replace(/\//g,"%2f")';
+      $set_document_title = '"403/URL = " + encodeURIComponent(document.location.pathname+document.location.search) + "/From = " + encodeURIComponent(document.referrer)';
     }
     elseif ($status == '404 Not Found') {
-      $set_document_title = '"404/URL = " + String(document.location.pathname + document.location.search).replace(/\//g,"%2f") + "/From = " + String(document.referrer).replace(/\//g,"%2f")';
+      $set_document_title = '"404/URL = " + encodeURIComponent(document.location.pathname+document.location.search) + "/From = " + encodeURIComponent(document.referrer)';
     }
 
     // Add custom variables.
@@ -154,7 +174,6 @@ function piwik_page_alter(&$page) {
     $custom_variable = '';
     for ($i = 1; $i < 6; $i++) {
       $custom_var_name = !empty($piwik_custom_vars['slots'][$i]['name']) ? $piwik_custom_vars['slots'][$i]['name'] : '';
-
       if (!empty($custom_var_name)) {
         $custom_var_value = !empty($piwik_custom_vars['slots'][$i]['value']) ? $piwik_custom_vars['slots'][$i]['value'] : '';
         $custom_var_scope = !empty($piwik_custom_vars['slots'][$i]['scope']) ? $piwik_custom_vars['slots'][$i]['scope'] : 'visit';
@@ -169,11 +188,9 @@ function piwik_page_alter(&$page) {
 
         // Suppress empty custom names and/or variables.
         if (!drupal_strlen(trim($custom_var_name)) || !drupal_strlen(trim($custom_var_value))) {
-          if ($user->uid == 1) {
-            print 'fail';
-          }
           continue;
         }
+
         // Custom variables names and values are limited to 200 characters in
         // length. It is recommended to store values that are as small as
         // possible to ensure that the Piwik Tracking request URL doesn't go
@@ -187,6 +204,7 @@ function piwik_page_alter(&$page) {
         $custom_variable .= "_paq.push(['setCustomVariable', $i, $custom_var_name, $custom_var_value, $custom_var_scope]);";
       }
     }
+
     // Add any custom code snippets if specified.
     $codesnippet_before = variable_get('piwik_codesnippet_before', '');
     $codesnippet_after = variable_get('piwik_codesnippet_after', '');
@@ -263,6 +281,9 @@ function piwik_page_alter(&$page) {
     // Add link tracking.
     if (variable_get('piwik_track', 1)) {
       $script .= '_paq.push(["enableLinkTracking"]);';
+    }
+    if (!empty($message_events)) {
+      $script .= $message_events;
     }
     if (!empty($codesnippet_after)) {
       $script .= $codesnippet_after;
