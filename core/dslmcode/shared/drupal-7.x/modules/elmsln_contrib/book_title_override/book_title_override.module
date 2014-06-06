@@ -8,16 +8,16 @@ function book_title_override_form_alter(&$form, &$form_state, $form_id) {
     // provide a checkbox for selecting whether or not to override things
     $form['book_title_override_override'] = array(
       '#type' => 'checkbox',
-      '#title' => 'Override book title',
-      '#description' => 'Check this box to override the way this is presented in book outlines',
+      '#title' => t('Override book title'),
+      '#description' => t('Check this box to override the way this is presented in book outlines'),
       '#default_value' => (isset($form['#node']->book['link_title']) && $form['#node']->title != $form['#node']->book['link_title'] && $form['#node']->title != ''),
       '#weight' => -10,
     );
     // provide a title field for the overridden title
     $form['book_title_override_title'] = array(
       '#type' => 'textfield',
-      '#title' => 'Override title',
-      '#description' => 'Way to present this in menus',
+      '#title' => t('Override title'),
+      '#description' => t('Way to present this in menus'),
       '#default_value' => isset($form['#node']->book['link_title']) ? $form['#node']->book['link_title'] : '',
       '#weight' => -10,
     );
