@@ -556,7 +556,8 @@ function _cis_helper_add_service_instance($course, $service, $service_instance, 
   // title to set for the site name value
   $content .= $site_title . "\n";
   // slogan value for the course
-  $content .= str_replace('&', 'and', $course->field_course_title[LANGUAGE_NONE][0]['value']) . "\n";
+  $course_title = (isset($course->field_course_title[LANGUAGE_NONE]) ? $course->field_course_title[LANGUAGE_NONE][0]['value'] : $site_title);
+  $content .= str_replace('&', 'and', $course_title) . "\n";
   // email / user requesting account
   $content .= $account->mail . "\n";
   // add distribution to create
