@@ -6,19 +6,19 @@
       $( ".accessibility-content-toggle a" ).appendTo( ".action-links-bar ul" ).wrap("<li></li>");
       $( ".accessibility-content-toggle").hide();
 
-      //sticky stuff from http://andrewhenderson.me/tutorial/jquery-sticky-sidebar/
-      var stickyTop = $('.sticky-nav').offset().top; // returns number
-
       $(window).scroll(function(){ // scroll event  
- 
+		//sticky stuff from http://andrewhenderson.me/tutorial/jquery-sticky-sidebar/
+	    var topOffset = $('.book-outline.main-a').offset().top; // returns number
+	    var bottomOffset = $('.book-outline.main-a').outerHeight(true) + topOffset;
 	    var windowTop = $(window).scrollTop(); // returns number
 	 
-	    if (stickyTop < windowTop) {
-	      $('.sticky-nav').css({ position: 'fixed', top: 0 });
-		  $('.book-outline.main-a').hide;
+	    if (bottomOffset < windowTop) {
+	      $('.book-outline.sticky-book-outline').css({ position: 'fixed', top: 0 });
+		  $('.book-outline.main-a').show;
 	    }
 	    else {
-	      $('.sticky-nav').css('position','static');
+	      $('.book-outline.sticky-book-outline').css('position','static');
+		  $('.book-outline.main-a').hide;
 	    }
 	 
 	  });
