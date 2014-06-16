@@ -1,0 +1,59 @@
+#!/bin/bash
+#where am i? move to where I am. This ensures source is properly sourced
+DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+cd $DIR
+
+source ../../config/scripts/drush-create-site/config.cfg
+
+#test for empty vars. if empty required var -- exit
+if [ -z $fileloc ]; then
+  echo "please update your config.cfg file"
+  exit 1
+fi
+if [ -z $site_email ]; then
+  echo "please update your config.cfg file"
+  exit 1
+fi
+if [ -z $admin ]; then
+  echo "please update your config.cfg file"
+  exit 1
+fi
+if [ -z $webdir ]; then
+  echo "please update your config.cfg file"
+  exit 1
+fi
+
+
+#prevent the script from being run more than once
+if [ -f /tmp/drush-lock ]; then
+  exit 1
+fi
+touch /tmp/drush-lock
+
+# issue the git pull to master
+#cd ../..
+#git pull origin master
+
+# stacks we currently support spidering against
+stacklist=('online' 'courses' 'studio' 'interact' 'media' 'blog')
+for stack in "${stacklist[@]}"
+  do
+    # array built up to password
+    echo "working against $stack"
+    # alias to take each site offline
+    echo "$stack: sites currently offline to avoid write issues"
+    drush @${stack}-all offline --y
+    echo "$stack: rebuilding registry to avoid file location issues"
+    drush @${stack}-all rr --y
+    echo "$stack: running potential database updates"
+    drush @${stack}-all updb --y
+    echo "$stack: clearing caches, though previous should have but to be safe"
+    drush @${stack}-all cc all --y
+    echo "$stack: execute cron"
+    drush @${stack}-all cron --y
+    # alias to bring them all back online
+    echo "$stack: sites should be back online"
+    drush @${stack}-all online --y
+ done
+
+rm /tmp/drush-lock
