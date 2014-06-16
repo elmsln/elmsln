@@ -59,15 +59,16 @@ do
   drush @${stack}-all rr --y
   elmslnecho "$stack: running potential database updates"
   drush @${stack}-all updb --y
-  elmslnecho "$stack: execute cron"
-  drush @${stack}-all cron --y
-  elmslnecho "$stack: clearing caches, though previous should have but to be safe"
-  drush @${stack}-all cc all --y
-  elmslnecho "$stack: seed entity cache"
-  drush @${stack}-all hss --y
   # alias to bring them all back online
   elmslnecho "$stack: sites should be back online"
   drush @${stack}-all online --y
+  # run these post bringing back online to avoid cache hits of offline pages
+  elmslnecho "$stack: execute cron"
+  drush @${stack}-all cron --y
+  elmslnecho "$stack: clearing caches"
+  drush @${stack}-all cc all --y
+  elmslnecho "$stack: seed entity cache"
+  drush @${stack}-all hss --y
 done
 
 # stacks we currently support spidering against individual networks
@@ -120,6 +121,13 @@ then
         elmslnecho "${stack}"
         drush @${stack}.${coursemachinename} updb --y
       done
+      elmslnecho "$coursemachinename: bring network back online"
+      for stack in "${stacklist[@]}"
+      do
+        # alias to bring site back online
+        elmslnecho "${stack}"
+        drush @${stack}.${coursemachinename} online --y
+      done
       elmslnecho "$coursemachinename: executing cron"
       for stack in "${stacklist[@]}"
       do
@@ -137,13 +145,6 @@ then
       do
         elmslnecho "${stack}"
         drush @${stack}.${coursemachinename} ecl --y
-      done
-      elmslnecho "$coursemachinename: bring network back online"
-      for stack in "${stacklist[@]}"
-      do
-        # alias to bring site back online
-        elmslnecho "${stack}"
-        drush @${stack}.${coursemachinename} online --y
       done
       elmslnecho "$coursemachinename network upgrade complete"
     fi
