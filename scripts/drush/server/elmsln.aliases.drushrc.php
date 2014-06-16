@@ -63,6 +63,6 @@ foreach ($aliases as $key => $values) {
   }
   else {
     // something is group-able
-    $aliases[$key . $modifier] = array('site-list' => array('@' . $key));
+    $aliases[$key . $modifier] = array('site-list' => array());
   }
 }
