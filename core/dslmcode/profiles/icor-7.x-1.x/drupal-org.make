@@ -103,6 +103,9 @@ projects[restws][subdir] = "contrib"
 projects[strongarm][version] = "2.0"
 projects[strongarm][subdir] = "contrib"
 
+projects[sco_node][version] = "1.x-dev"
+projects[sco_node][subdir] = "contrib"
+
 projects[transliteration][version] = "3.1"
 projects[transliteration][subdir] = "contrib"
 

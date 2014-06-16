@@ -1,0 +1,174 @@
+<?php
+
+/**
+ * @file
+ *   SCO Node module install/schema hooks.
+ */
+
+/**
+ * Implementation of hook_install
+ */
+function sco_node_install() {
+
+  // start attempt id at a higher number
+  db_query("ALTER TABLE {sco_node_attempt} AUTO_INCREMENT = 10000;");
+  
+  // Ensure the sco node type is available.
+  node_types_rebuild();
+  $types = node_type_get_types();
+  node_add_body_field($types['sco_node'], 'Body');
+  
+  // setup default upload folder
+  $folder = 'public://sco';
+  $settings = array();
+  $settings['upload_path'] = $folder;
+  variable_set('sco_node_settings', $settings);
+  
+  if (!file_prepare_directory($folder, FILE_CREATE_DIRECTORY)) {
+     drupal_set_message('Unable to create and/or verify write permissions on SCO upload folder - ' . $folder . '. The folder may need to be created manually and given write permissions by the system admin.', 'error');
+  }
+  
+  drupal_set_message('The SCO module was successfully installed.');
+}
+
+/**
+ * Implementation of hook_uninstall
+ */
+function sco_node_uninstall() {
+
+  // remove upload folder
+  $settings = variable_get('sco_node_settings', array());
+  $folder = isset($settings['upload_path']) ? $settings['upload_path'] : '';
+  if ($folder != '') {
+    file_unmanaged_delete_recursive($folder);
+  }
+  
+  // remove settings
+  variable_del('sco_node_settings');
+
+  drupal_set_message('The SCO module was successfully uninstalled.');
+}
+
+/**
+ * Implementation of hook_schema
+ */
+function sco_node_schema() {
+
+  $schema['sco_node'] = array(
+    'fields' => array(
+      'nid' => array(
+        'type' => 'int', 
+        'unsigned' => TRUE, 
+        'not null' => TRUE
+      ),
+      'sco_path' => array(
+        'type' => 'varchar', 
+        'length' => 250, 
+        'not null' => TRUE,
+        'default' => ''
+      ),
+      'sco_manifest' => array(
+        'type' => 'text',
+        'size' => 'big',
+        'not null' => TRUE
+      ),
+      'sco_options' => array(
+        'type' => 'text',
+        'size' => 'big',
+        'not null' => TRUE
+      ),
+    ),
+    'primary key' => array('nid')
+  );
+
+  $schema['sco_node_attempt'] = array(
+    'fields' => array(
+      'id' => array(
+        'type' => 'serial', 
+        'unsigned' => TRUE, 
+        'not null' => TRUE
+      ),
+      'nid' => array(
+        'type' => 'int', 
+        'unsigned' => TRUE, 
+        'not null' => TRUE,
+        'default' => 0
+      ),
+      'uid' => array(
+        'type' => 'int', 
+        'unsigned' => TRUE, 
+        'not null' => TRUE,
+        'default' => 0
+      ),
+      'started' => array(
+        'type' => 'datetime',
+        'mysql_type' => 'DATETIME',
+        'not null' => TRUE
+      ),
+      'updated' => array(
+        'type' => 'datetime',
+        'mysql_type' => 'DATETIME',
+        'not null' => FALSE,
+        'default' => NULL
+      ),
+      'completed' => array(
+        'type' => 'datetime',
+        'mysql_type' => 'DATETIME',
+        'not null' => FALSE,
+        'default' => NULL
+      ),
+      'total_time' => array(
+        'type' => 'int', 
+        'unsigned' => TRUE, 
+        'not null' => TRUE,
+        'default' => 0
+      ),
+      'score' => array(
+        'type' => 'float', 
+        'not null' => TRUE,
+        'default' => 0
+      ),
+      'status' => array(
+        'type' => 'varchar', 
+        'length' => 250, 
+        'not null' => TRUE,
+        'default' => ''
+      ),
+      'outcome' => array(
+        'type' => 'varchar', 
+        'length' => 250, 
+        'not null' => TRUE,
+        'default' => ''
+      ),
+      'exit_status' => array(
+        'type' => 'varchar', 
+        'length' => 250, 
+        'not null' => TRUE,
+        'default' => ''
+      ),
+      'session_time' => array(
+        'type' => 'int', 
+        'unsigned' => TRUE, 
+        'not null' => TRUE,
+        'default' => 0
+      ),
+      'log' => array(
+        'type' => 'text',
+        'size' => 'big',
+        'not null' => TRUE
+      ),
+      'cmi_data' => array(
+        'type' => 'text',
+        'size' => 'big',
+        'not null' => TRUE
+      ),
+    ),
+    'indexes' => array(
+      'nid' => array('nid'),
+      'uid' => array('uid'),
+    ),
+    'primary key' => array('id')
+  );
+
+  return $schema;
+}

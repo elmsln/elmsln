@@ -1,0 +1,1397 @@
+<?php
+/**
+ * This module allow SCO packages to be uploaded, played and scored on a Drupal site.
+ *
+ * @author Jim Bullington <jimb@jrbcs.com>
+ */
+ 
+include_once("sco_node_package.inc");
+include_once("sco_node_toc.inc");
+include_once("sco_node_nav.inc");
+include_once("sco_node_content.inc");
+include_once("sco_node_api.inc");
+
+//=========================================================================
+// drupal hooks
+//=========================================================================
+/**
+ * Implementation of hook_help
+ */
+function sco_node_help($path) {
+
+  switch ($path) {
+    case 'admin/modules#description':
+      return t('Implements SCO nodes.');
+  }
+}
+
+/**
+ * Implementation of hook_permission().
+ */
+function sco_node_permission() {
+
+  return array(
+    'view sco' => array(
+      'title' => t('View SCO'), 
+      'description' => t('Allows the user to view an SCO node'),
+    ),
+    'view own sco attempt' => array(
+      'title' => t('View Own SCO Attempts'), 
+      'description' => t('Allows the user to view their own attempts of an SCO node'),
+    ),
+    'view sco attempt' => array(
+      'title' => t('View SCO Attempts'), 
+      'description' => t('Allows the user to view any attempt of an SCO node'),
+    ),
+    'create sco' => array(
+      'title' => t('Create SCO'), 
+      'description' => t('Allows the user to create an SCO node.'),
+    ),
+    'edit sco' => array(
+      'title' => t('Edit SCO'), 
+      'description' => t('Allows the user to edit any SCO node.'),
+    ),
+    'edit own sco' => array(
+      'title' => t('Edit Own SCO'), 
+      'description' => t('Allows the user to edit SCO nodes they have created.'),
+    ),
+    'delete own sco attempt' => array(
+      'title' => t('Delete Own SCO Attempt'), 
+      'description' => t('Allows the user to delete their own SCO attempts.'),
+    ),
+    'delete sco attempt' => array(
+      'title' => t('Delete SCO Attempt'), 
+      'description' => t('Allows the user to delete any SCO attempt.'),
+    ),
+    'view sco attempt log' => array(
+      'title' => t('View SCO Attempt Log'), 
+      'description' => t('Allows the user to view SCO attempt logs.'),
+    ),
+  );
+}
+
+/**
+ * Implementation of hook_node_info().
+ */
+function sco_node_node_info() {
+
+  $info = array(
+    'sco_node' => array(
+      'name' => t('SCO'),
+      'base' => 'sco_node',
+      'description' => t('Create an SCO.'),
+      'has_title' => TRUE,
+      'has_body' => TRUE,
+     )
+   );
+   
+   return $info;
+}
+
+/**
+ * Implementation of hook_node_access
+ */
+function sco_node_node_access($node, $op, $account) {
+
+  $result = NODE_ACCESS_IGNORE;
+  $type = is_string($node) ? $node : $node->type;
+  if ($type == 'sco_node') {  
+    $result = NODE_ACCESS_DENY;
+    switch ($op) {
+      case 'view':
+        // if node is published, return view access
+        if (is_object($node) && $node->status) {
+          if (user_access('view sco', $account)) {
+            $result = NODE_ACCESS_ALLOW;
+          }
+        }
+        // if unpublished, return update access - users who can update the node should be able to view it
+        else  {
+          if (node_access('update', $node, $account)) {
+            $result = NODE_ACCESS_ALLOW;
+          }
+        }
+        break;
+      case 'create':
+        if (user_access('create sco', $account)) {
+          $result = NODE_ACCESS_ALLOW;
+        }
+        break;
+      case 'update':
+      case 'delete':
+        if (user_access('edit sco', $account) || (user_access('edit own sco', $account) && (is_object($node) && $account->uid == $node->uid))) {
+          $result = NODE_ACCESS_ALLOW;
+        }
+        break;
+    }
+  }
+  return $result;
+}
+
+/**
+ * Implementation of hook_menu
+ */
+function sco_node_menu() {
+
+  $items = array();
+
+  $items['admin/config/content/sco_node'] = array(
+    'title' => 'SCO Settings',
+    'description' => 'Modify SCO module settings.',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('sco_node_settings_form'),
+    'access callback' => 'user_access',
+    'access arguments' => array('administer site configuration'),
+    'type' => MENU_NORMAL_ITEM
+  );
+  
+  $items['node/%sco_node_menu/api/%'] = array(
+    'page callback' => 'sco_node_api',
+    'page arguments' => array(1, 3),
+    'access callback' => 'user_access',
+    'access arguments' => array('view sco'),
+    'type' => MENU_CALLBACK
+  );
+  
+  $items['node/%sco_node_menu/api/%/%'] = array(
+    'page callback' => 'sco_node_api',
+    'page arguments' => array(1, 3, 4),
+    'access callback' => 'user_access',
+    'access arguments' => array('view sco'),
+    'type' => MENU_CALLBACK
+  );
+  
+  $items['node/%sco_node_menu/review'] = array(
+    'page callback' => 'sco_node_play',
+    'page arguments' => array(1),
+    'access callback' => 'user_access',
+    'access arguments' => array('view sco'),
+    'type' => MENU_CALLBACK
+  );
+  
+  $items['node/%sco_node_menu/play'] = array(
+    'page callback' => 'sco_node_play',
+    'page arguments' => array(1),
+    'access callback' => 'user_access',
+    'access arguments' => array('view sco'),
+    'type' => MENU_CALLBACK
+  );
+  
+  $items['node/%sco_node_menu/play/%'] = array(
+    'page callback' => 'sco_node_play',
+    'page arguments' => array(1, 3),
+    'access callback' => 'user_access',
+    'access arguments' => array('view sco'),
+    'type' => MENU_CALLBACK
+  );
+  
+  $items['node/%sco_node_menu/attempts'] = array(
+    'title' => 'Attempts',
+    'page callback' => 'sco_node_attempt_list',
+    'page arguments' => array(1),
+    'access callback' => 'sco_node_attempt_access',
+    'access arguments' => array(1, 'view'),
+    'type' => MENU_LOCAL_TASK,
+  );
+  
+  $items['node/%sco_node_menu/delete-all-attempts'] = array(
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('sco_node_delete_all_attempts_form', 1),
+    'access callback' => 'sco_node_attempt_access',
+    'access arguments' => array(1, 'delete'),
+    'type' => MENU_CALLBACK
+  );
+  
+  $items['node/%sco_node_menu/delete-attempt/%'] = array(
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('sco_node_delete_attempt_form', 1, 3),
+    'access callback' => 'sco_node_attempt_access',
+    'access arguments' => array(1, 'delete', 3),
+    'type' => MENU_CALLBACK
+  );
+  
+  $items['node/%sco_node_menu/attempt/%/log'] = array(
+    'title' => 'Attempt Log',
+    'page callback' => 'sco_node_attempt_log',
+    'page arguments' => array(1, 3),
+    'access callback' => 'user_access',
+    'access arguments' => array('view sco attempt log'),
+    'type' => MENU_CALLBACK,
+  );
+  
+  return $items;
+}
+
+function sco_node_attempt_access($node, $op, $attid = FALSE) {
+
+  global $user;
+  
+  $result = FALSE;
+  
+  if ($op == 'view') {
+    if (user_access('view sco attempt')) {
+      // user can view any sco attempt
+      $result = TRUE;
+    }
+    else {
+      if (user_access('view own sco attempt')) {
+        // user can only view their own attempts, check further if attid given
+        if ($attid) {
+          $att = sco_node_get_attempt($attid);
+          if ($att) {
+            if ($att->nid == $node->nid && $att->uid == $user->uid) {
+              $result = TRUE;
+            }
+          }
+        }
+        // otherwise return access - list will be filtered by access
+        else {
+          $result = TRUE;
+        }
+      }
+    }
+  }
+  
+  else if ($op == 'delete') {
+    if (user_access('delete sco attempt')) {
+      // user can delete all sco attempts
+      $result = TRUE;
+    }
+    else {
+      if (user_access('delete own sco attempt')) {
+        // user can only delete their own attempts, check further
+        if ($attid) {
+          $att = sco_node_get_attempt($attid);
+          if ($att) {
+            if ($att->nid == $node->nid && $att->uid == $user->uid) {
+              $result = TRUE;
+            }
+          }
+        }
+      }
+    }
+  }
+  
+  return $result;
+}
+
+/**
+ * Menu loader callback; Load a node if the given nid is an sco_node
+ */
+function sco_node_menu_load($nid) {
+
+  if (!is_numeric($nid)) {
+    return FALSE;
+  }
+  $node = node_load($nid);
+  if (empty($node->type) || $node->type != 'sco_node') {
+    return FALSE;
+  }
+  return $node;
+}
+
+/**
+ * Implementation of hook_theme
+ */
+function sco_node_theme() {
+
+  $path = drupal_get_path('module', 'sco_node') . '/tpl';
+  $theme = array();
+  
+
+  $theme['sco_node'] = array(
+    'template' => 'sco_node',
+    'variables' => array('node' => NULL),
+    'path' => $path,
+  );
+
+  return $theme;  
+}
+
+/** 
+ * Implementation of hook_views_api(). 
+ */ 
+function sco_node_views_api() { 
+
+  return array( 
+    'api' => 3, 
+    'path' => drupal_get_path('module', 'sco_node'),
+  ); 
+}
+
+/**
+ * Implementation of hook_user_delete
+ */
+function sco_node_user_delete($account) {
+  
+  // user being deleted - delete user from our table
+  db_delete('sco_node_attempt')->condition('uid', $account->uid)->execute();
+}
+
+//=========================================================================
+// settings
+//=========================================================================
+function sco_node_settings_form($form, $form_state) {
+
+  drupal_set_title(t('SCO Settings'));
+
+  $settings = variable_get('sco_node_settings', array());
+
+  $form = array();
+
+  $form['general'] = array(
+    '#type' => 'fieldset',
+    '#title' => t('SCO Module Settings'),
+    '#collapsible' => FALSE,
+    '#collapsed' => FALSE,
+  );
+
+  $form['general']['upload_path'] = array(
+    '#type' => 'textfield',
+    '#title' => t('SCO Upload Path'),
+    '#default_value' => isset($settings['upload_path']) ? $settings['upload_path'] : '',
+    '#description' => t('This is the path where SCO packages will be uploaded - if not specified, the default file path will be used.
+                         This path must be writable by the user uploading the SCO.  A valid stream wrapper prefix (public://, etc) may be required on some systems.'),
+    '#required' => FALSE,
+  );
+
+  $form['general']['intro'] = array(
+    '#type' => 'textarea',
+    '#title' => t('SCO Intro'),
+    '#default_value' => isset($settings['intro']) ? $settings['intro'] : '',
+    '#description' => t('Displayed on all SCO views.'),
+    '#required' => FALSE,
+  );
+  
+  $form['submit'] = array(
+    '#type' => 'submit',
+    '#value' => t('Save Configuration Settings'),
+  );
+    
+  return $form;    
+}
+
+function sco_node_settings_form_submit($form_id, $form_state) {
+
+  // create an array to save setup values
+  $settings = array();
+  
+  $settings['upload_path'] = trim($form_state['values']['upload_path']);
+  $settings['intro'] = trim($form_state['values']['intro']);
+
+  // save all settings
+  variable_set('sco_node_settings', $settings);
+
+  drupal_set_message('Configuration settings were saved.', 'info');
+}
+
+//=========================================================================
+// node hooks
+//=========================================================================
+
+function sco_node_form($node, $form_state) {
+
+  $type = node_type_get_type($node);
+
+  $form = array();
+
+  $form['title'] = array(
+    '#type' => 'textfield',
+    '#title' => check_plain($type->title_label),
+    '#default_value' => !empty($node->title) ? $node->title : '',
+    '#required' => TRUE,
+  );  
+  
+ $form['sco_info'] = array(
+   '#type' => 'fieldset',
+   '#title' => t('SCO Info'),
+  );
+ 
+  $form['sco_info']['sco_upload'] = array(
+    '#type' => 'file',
+    '#title' => t('Upload SCO Zip File'),
+    '#description' => t('Click "Browse..." to select the SCO zip file to upload.
+                         The maximum file size per upload is %size MB.', array('%size' => round(file_upload_max_size()/(1024*1024), 0))),
+  );
+  
+  if ($node->sco_path) {
+
+    $archive = sco_node_enumerate_sco($node->sco_path);
+    $form['sco_info']['sco_path'] = array(
+      '#type' => 'markup',
+      '#markup' => '<p><strong>Current SCO Path: </strong><i>' . $node->sco_path . ' (' . count($archive) . ' files.)</i></p>',
+    );
+  }
+  
+ $form['sco_info']['sco_options'] = array(
+    '#type' => 'fieldset',
+    '#title' => t('Options'),
+    '#tree' => TRUE,
+  );
+ 
+  $opt_value = sco_node_get_option_value($node, 'show_toc', FALSE);
+  $form['sco_info']['sco_options']['show_toc'] = array(
+    '#type' => 'checkbox',
+    '#title' => t('Show SCO Table of Contents - for multi-SCO packages'),
+    '#default_value' => $opt_value,
+  );
+
+  $opt_value = sco_node_get_option_value($node, 'show_nav', FALSE);
+  $form['sco_info']['sco_options']['show_nav'] = array(
+    '#type' => 'checkbox',
+    '#title' => t('Show SCO Navigation Buttons - for multi-SCO packages'),
+    '#default_value' => $opt_value,
+  );
+ 
+  $opt_value = sco_node_get_option_value($node, 'width', FALSE);
+  $form['sco_info']['sco_options']['width'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Presentation Width'),
+    '#description' => t('CSS Width value - pixels (px) or percent (%)'),
+    '#default_value' => $opt_value,
+    '#size' => 10,
+  );
+  
+  $opt_value = sco_node_get_option_value($node, 'height', FALSE);
+  $form['sco_info']['sco_options']['height'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Presentation Height'),
+    '#description' => t('CSS Height value - pixels (px) or percent (%)'),
+    '#default_value' => $opt_value,
+    '#size' => 10,
+  );
+  
+  $opt_value = sco_node_get_option_value($node, 'show_border', FALSE);
+  $form['sco_info']['sco_options']['show_border'] = array(
+    '#type' => 'checkbox',
+    '#title' => t('Show Border around SCO'),
+    '#default_value' => $opt_value,
+  );
+ 
+  $opt_value = sco_node_get_option_value($node, 'debug', FALSE);
+  $form['sco_info']['sco_options']['debug'] = array(
+    '#type' => 'checkbox',
+    '#title' => t('Display Debug Info'),
+    '#description' => t('Display LMS messages when playing.'),
+    '#default_value' => $opt_value,
+  );
+ 
+  $options = array(
+    'SCO Score' => t('Score Reported by SCO'),
+  );
+  $opt_value = sco_node_get_option_value($node, 'scoring', 'SCO Score');
+  $form['sco_info']['sco_options']['scoring'] = array(
+    '#type' => 'select',
+    '#title' => t('Scoring'),
+    '#options' => $options,
+    '#description' => t('Scoring method for an individual attempt.'),
+    '#default_value' => $opt_value,
+  );
+  
+  $options = array(
+    '0' => t('Unlimited Attempts'), 
+    '1' => t('1 Attempt'), 
+    '2' => t('2 Attempts'), 
+    '3' => t('3 Attempts'),
+    '4' => t('4 Attempts'),
+    '5' => t('5 Attempts'),
+    '6' => t('6 Attempts'),
+    '7' => t('7 Attempts'),
+    '8' => t('8 Attempts'),
+    '9' => t('9 Attempts'),
+    '10' => t('10 Attempts'),
+  );
+  $opt_value = sco_node_get_option_value($node, 'attempts', '0');
+  $form['sco_info']['sco_options']['attempts'] = array(
+    '#type' => 'select',
+    '#title' => t('Attempts Allowed'),
+    '#options' => $options,
+    '#description' => t('Number of attempts allowed.'),
+    '#default_value' => $opt_value,
+  );
+  
+  $options = array(
+    'Highest Attempt' => t('Highest Attempt'), 
+    'Average Attempt' => t('Average Attempt'), 
+    'First Attempt' => t('First Attempt'), 
+    'Last Attempt' => t('Last Attempt'),
+  );
+  $opt_value = sco_node_get_option_value($node, 'attempt_scoring', 'Highest Attempt');
+  $form['sco_info']['sco_options']['attempt_scoring'] = array(
+    '#type' => 'select',
+    '#title' => t('Attempts Scoring'),
+    '#options' => $options,
+    '#description' => t('Scoring method for all attempts.'),
+    '#default_value' => $opt_value,
+  );
+  
+  $options = array(
+    'Display Score and Outcome' => t('Display Score and Outcome'), 
+    'Display Score Only' => t('Display Score Only'), 
+    'Display Outcome Only' => t('Display Outcome Only'), 
+    'Display None' => t('Display None'),
+  );
+  $opt_value = sco_node_get_option_value($node, 'attempt_display', 'Display Score and Outcome');
+  $form['sco_info']['sco_options']['attempt_display'] = array(
+    '#type' => 'select',
+    '#title' => t('Attempt Display'),
+    '#options' => $options,
+    '#description' => t('Which values to display to the user. Some SCOs do not report a score and/or outcome.'),
+    '#default_value' => $opt_value,
+  );
+
+  $opt_value = sco_node_get_option_value($node, 'hide_attempt_summary', FALSE);
+  $form['sco_info']['sco_options']['hide_attempt_summary'] = array(
+    '#type' => 'checkbox',
+    '#title' => t('Hide Attempt Summary'),
+    '#description' => t('Do not display attempt summary to user on view.'),
+    '#default_value' => $opt_value,
+  );
+  
+  $opt_value = sco_node_get_option_value($node, 'disable_resume', FALSE);
+  $form['sco_info']['sco_options']['disable_resume'] = array(
+    '#type' => 'checkbox',
+    '#title' => t('Disable Resume'),
+    '#description' => t('Always start a new attempt when SCO is played.'),
+    '#default_value' => $opt_value,
+  );
+ 
+  $opt_value = sco_node_get_option_value($node, 'show_exit_link', FALSE);
+  $form['sco_info']['sco_options']['show_exit_link'] = array(
+    '#type' => 'checkbox',
+    '#title' => t('Show Exit Link'),
+    '#description' => t('Show Exit link when SCO is played.'),
+    '#default_value' => $opt_value,
+  );
+ 
+  $opt_value = sco_node_get_option_value($node, 'auto_exit_when_completed', FALSE);
+  $form['sco_info']['sco_options']['auto_exit_when_completed'] = array(
+    '#type' => 'checkbox',
+    '#title' => t('Automatically Exit SCO When Completed'),
+    '#description' => t('Automatically navigate away from the SCO when completion is detected.'),
+    '#default_value' => $opt_value,
+  );
+
+  $opt_value = sco_node_get_option_value($node, 'completed_url', '');
+  $form['sco_info']['sco_options']['completed_url'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Completion URL'),
+    '#description' => t('On Auto-Exit, navigate to this url (node/123, http://foo.com/bar, etc).  Leave blank to navigate to the SCO start page.'),
+    '#default_value' => $opt_value,
+  );
+ 
+  $opt_value = sco_node_get_option_value($node, 'completed_url_delay', '');
+  $form['sco_info']['sco_options']['completed_url_delay'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Completion Navigation Delay (ms)'),
+    '#description' => t('Delay for completion navigation - when completion URL is given - in milliseconds (1000 = 1 second).  Leave blank for default of 5 seconds.'),
+    '#default_value' => $opt_value,
+  );
+  
+  $opt_value = sco_node_get_option_value($node, 'comm_check', FALSE);
+  $form['sco_info']['sco_options']['comm_check'] = array(
+    '#type' => 'checkbox',
+    '#title' => t('Perform Communication Checks'),
+    '#description' => t('Perform some communication checks to determine if the SCO is communicating with the site.'),
+    '#default_value' => $opt_value,
+  );
+ 
+  return $form;
+}
+
+function sco_node_validate($node, $form, &$form_state) {
+
+  $field = 'sco_upload';
+  $validators = array(
+    'file_validate_extensions' => array('zip'),
+  );
+  if ($file = file_save_upload($field, $validators, 'temporary://', FILE_EXISTS_REPLACE)) {
+    $sco = sco_node_process_sco($file);
+    if (!$sco->sco_path) {
+      form_set_error($field, t('Error unpacking upload'));
+    }
+    else {
+      if (!$sco->sco_manifest) {
+        form_set_error($field, t('imsmanifest.xml file not found or is invalid.'));
+      }
+    }
+    // delete archive if any errors
+    if (count(form_get_errors()) && $sco->sco_path) {
+      file_unmanaged_delete_recursive($sco->sco_path);
+    }
+  } // - end if ($file = ...
+}
+
+function sco_node_load($nodes) {
+
+  foreach ($nodes as $nid => $node) {
+    $row = db_query("SELECT * FROM {sco_node} WHERE nid = :nid", array(':nid' => $nid))->fetchObject();
+    if ($row) {
+      $nodes[$nid]->sco_path = $row->sco_path;
+      $nodes[$nid]->sco_manifest = unserialize($row->sco_manifest);
+      $nodes[$nid]->sco_options = unserialize($row->sco_options);
+    }
+  }
+}
+
+function sco_node_prepare($node) {
+
+  if (arg(1) == 'add') {
+    $node->sco_path = '';
+    $node->sco_manifest = new StdClass();
+    $node->sco_options = array();
+  }
+}
+
+function sco_node_node_presave($node) {
+}
+
+function sco_node_insert($node) {
+
+  $sco = FALSE;
+  if (arg(2) == 'edit' || arg(1) == 'add') {
+    $sco = sco_node_process_sco();
+    if ($sco) {
+      $sco->sco_manifest = serialize($sco->sco_manifest);
+    }
+  }
+  if (!$sco) {
+    $sco = new StdClass();
+    $sco->sco_path = $node->sco_path;
+    $sco->sco_manifest = serialize($node->sco_manifest);
+  }
+  if (isset($node->sco_options)) {
+    $sco->sco_options = serialize($node->sco_options);
+  }
+  else {
+    $sco->sco_options = '';
+  }
+  $sco->nid = $node->nid;
+  drupal_write_record('sco_node', $sco);
+
+  // call hooks after insert
+  $hook = 'sco_node_insert';
+  foreach (module_implements($hook) as $mod) {
+    $function = $mod . '_' . $hook;
+    $function($node);
+  }
+}
+
+function sco_node_update($node) {
+
+  if (arg(2) == 'edit') {
+    $sco = sco_node_process_sco();
+    if ($sco) {
+      if ($node->sco_path) {
+        file_unmanaged_delete_recursive($node->sco_path);
+      }
+      $sco->sco_manifest = serialize($sco->sco_manifest);
+    }
+    else {
+      $sco = new StdClass();
+      $sco->sco_path = $node->sco_path;
+      $sco->sco_manifest = serialize($node->sco_manifest);
+    }
+  }
+  $sco->sco_options = serialize($node->sco_options);
+  $sco->nid = $node->nid;
+  drupal_write_record('sco_node', $sco, 'nid');
+  
+  // call hooks after update
+  $hook = 'sco_node_update';
+  foreach (module_implements($hook) as $mod) {
+    $function = $mod . '_' . $hook;
+    $function($node);
+  }
+}
+
+function sco_node_delete($node) {
+
+  // call hooks before delete
+  $hook = 'sco_node_delete';
+  foreach (module_implements($hook) as $mod) {
+    $function = $mod . '_' . $hook;
+    $function($node);
+  }
+  
+  if ($node->sco_path) {
+    file_unmanaged_delete_recursive($node->sco_path);
+  }
+  db_delete('sco_node_attempt')->condition('nid', $node->nid)->execute();
+  db_delete('sco_node')->condition('nid', $node->nid)->execute();
+}
+
+function sco_node_view($node, $view_mode) {
+
+  if ($view_mode == 'full') {
+
+    $form = drupal_get_form('sco_node_view_form', $node);
+    
+    $node->content['sco_node'] = array(
+      '#type' => 'markup',
+      '#markup' => drupal_render($form),
+    );  
+  }
+  
+  return $node;
+}
+
+function sco_node_view_form($form, $form_state, $node) {
+
+  $path = drupal_get_path('module', 'sco_node');
+  drupal_add_css($path . '/css/sco_node.css');
+  
+  $settings = variable_get('sco_node_settings', array());
+  
+  $form = array();
+
+  $html = isset($settings['intro']) ? $settings['intro'] : '';
+  
+  $form['intro'] = array(
+    '#type' => 'markup',
+    '#markup' => '<div id="sco-node-intro">' . filter_xss($html) . '</div>',
+  );
+
+  $hide_attempt_summary = sco_node_get_option_value($node, 'hide_attempt_summary', FALSE);
+  
+  $att = sco_node_get_latest_attempt($node->nid);
+  $rs = sco_node_get_user_attempts($node->nid);
+  $attempts = $rs->rowCount();
+  
+  $completed = 0;
+  foreach ($rs as $row) {
+    if ($row->completed != NULL) {
+      $completed++;
+    }
+  }
+  $attempt_display = sco_node_get_option_value($node, 'attempt_display', 'Display Score and Outcome');
+  $html = '<div id="sco-node-attempt-status">';
+  $html .= t('Total Attempts: ') . $attempts . '<br />';
+  $html .= t('Completed Attempts: ') . $completed . '<br />';
+  if ($attempt_display == 'Display Score and Outcome' || $attempt_display == 'Display Score Only') {
+    $html .= t('Score: ') . ($completed > 0 ? sco_node_score_all_attempts($node) : '') . '<br />';
+  }
+  $html .= t('Last Attempt: ') . ($att != NULL ? $att->started : t('Not Attempted')) . '<br />';
+  $html .= t('Last Attempt Status: ') . ($att != NULL ? $att->status : '');
+  $html .= '</div>';
+
+  if (!$hide_attempt_summary) {
+
+    $form['attempts'] = array(
+      '#type' => 'fieldset',
+      '#title' => t('Attempt Summary'),
+    );
+  
+    $form['attempts']['markup'] = array(
+      '#type' => 'markup',
+      '#markup' => $html,
+    );
+  }
+  
+  $btnpfx = '<div id="sco-node-view-button">';
+  $btnsfx = '</div>';
+
+  // get allowed states
+  $allowed = sco_node_play_allowed($node);
+
+  // display appropriate buttons
+  if ($allowed->resume) {
+    $form['submit'] = array(
+      '#type' => 'submit', 
+      '#value' => t('Resume'),
+      '#submit' => array('sco_node_view_form_resume_submit'),
+      '#prefix' => $btnpfx,
+      '#suffix' => $btnsfx,
+    );
+  }
+  else if ($allowed->start) {
+    $form['submit'] = array(
+      '#type' => 'submit', 
+      '#value' => t('Start'),
+      '#submit' => array('sco_node_view_form_start_submit'),
+      '#prefix' => $btnpfx,
+      '#suffix' => $btnsfx,
+    );
+  }
+  else if ($allowed->review) {
+    $form['review'] = array(
+      '#type' => 'submit', 
+      '#value' => t('Review'),
+      '#submit' => array('sco_node_view_form_review_submit'),
+      '#prefix' => $btnpfx,
+      '#suffix' => $btnsfx,
+    );
+  }
+  
+  // call hooks before delete
+  $hook = 'sco_node_view';
+  foreach (module_implements($hook) as $mod) {
+    $function = $mod . '_' . $hook;
+    $function($node, $form);
+  }
+  
+  return $form;
+}
+
+function sco_node_view_form_review_submit($form_id, $form_state) {
+  
+  drupal_goto('node/' . arg(1) . '/review');
+}
+
+function sco_node_view_form_start_submit($form_id, $form_state) {
+  
+  $att = sco_node_add_attempt(arg(1));
+  drupal_goto('node/' . arg(1) . '/play/' . $att->id);
+}
+
+function sco_node_view_form_resume_submit($form_id, $form_state) {
+  
+  $att = sco_node_get_latest_attempt(arg(1));
+  drupal_goto('node/' . arg(1) . '/play/' . $att->id);
+}
+
+function sco_node_play($node, $attid = FALSE) {
+
+  global $user;
+  
+  // don't start attempt if completed or is not valid
+  if ($attid) {
+    $attempt = sco_node_get_attempt($attid);
+    if ($attempt == NULL || $attempt->completed || $attempt->nid != $node->nid || $attempt->uid != $user->uid) {
+      drupal_goto('node/' . $node->nid);
+    }
+  }
+  // no attempt supplied - see if one can be started or resumed
+  else {
+
+    // get allowed states
+    $allowed = sco_node_play_allowed($node);
+    
+    // review wanted
+    if (arg(2) == 'review') {
+
+      // review must be allowed
+      if (!$allowed->review) {
+        drupal_goto('node/' . arg(1));
+      }
+    }
+    
+    // otherwise start or resume if allowed
+    else {
+
+      // if start only, add new attempt
+      if ($allowed->start && !$allowed->resume) {
+        $att = sco_node_add_attempt(arg(1));
+        if ($att) {
+          $allowed->attid = $att->id;
+        }
+      }
+      
+      // start or resume attempt
+      if (($allowed->start || $allowed->resume) && $allowed->attid) {
+        drupal_goto('node/' . arg(1) . '/play/' . $allowed->attid);
+      }
+      
+      // start or resume not allowed - return to view
+      drupal_goto('node/' . arg(1));
+    }
+  }
+  
+  drupal_set_title($node->title);
+
+  $path = drupal_get_path('module', 'sco_node');
+  drupal_add_js($path . '/js/sco_node_api_1_2.js');
+  drupal_add_js($path . '/js/sco_node_api_2004.js');
+  drupal_add_js($path . '/js/sco_node_datamodel.js');
+  drupal_add_js($path . '/js/sco_node_debug.js');
+  drupal_add_js($path . '/js/sco_node_toc.js');
+  drupal_add_js($path . '/js/sco_node_nav.js');
+  drupal_add_js($path . '/js/flash_detect.js');
+  drupal_add_css($path . '/css/sco_node.css');
+    
+  return theme('sco_node', array(
+    'node' => $node,
+  ));
+}
+
+function sco_node_play_allowed($node) {
+
+  // init findings
+  $allowed = new StdClass();
+  $allowed->start = FALSE;
+  $allowed->resume = FALSE;
+  $allowed->review = FALSE;
+  $allowed->attid = FALSE;    // last attempt id
+  
+  // get attempt data and settings
+  $att = sco_node_get_latest_attempt($node->nid);
+  if ($att != NULL) {
+    $allowed->attid = $att->id;
+  }
+  $rs = sco_node_get_user_attempts($node->nid);
+  $attempts = $rs->rowCount();
+  $disable_resume = sco_node_get_option_value($node, 'disable_resume', FALSE);
+  $attempts_allowed = (int) sco_node_get_option_value($node, 'attempts', 0);
+    
+  // if not yet at max attempts
+  if ($attempts_allowed == 0 || $attempts < $attempts_allowed) {
+    // start is allowed
+    $allowed->start = TRUE;
+    // if attempt in progress - set resume if allowed
+    if ($att != NULL && $att->completed == NULL && !$disable_resume) {
+      $allowed->resume = TRUE;
+    }
+  }
+  // at last attempt?
+  else if ($attempts == $attempts_allowed) {
+    // if last attempt is incomplete - set resume if allowed
+    if ($att != NULL && $att->completed == NULL && !$disable_resume) {
+      $allowed->resume = TRUE;
+    }
+  }
+  
+  // review is allowed if last attempt completed
+  if ($att != NULL && $att->completed != NULL) {
+    $allowed->review = TRUE;
+  }
+  
+  // return findings
+  return $allowed;
+}
+
+//=========================================================================
+// attempt list
+//=========================================================================
+
+function sco_node_attempt_list($node) {
+
+  $path = drupal_get_path('module', 'sco_node');
+  drupal_add_css($path . '/css/sco_node.css');
+  
+  $attempt_display = sco_node_get_option_value($node, 'attempt_display', 'Display Score and Outcome');
+  $can_delete = user_access('delete own sco attempt') || user_access('delete sco attempt');
+  $can_view_log = user_access('view sco attempt log');
+
+  $header = array();
+  $header[] = 'Started';
+  $header[] = 'Completed';
+  $header[] = 'Status';
+  if ($attempt_display == 'Display Score and Outcome' || $attempt_display == 'Display Score Only') {
+    $header[] = 'Score';
+  }
+  if ($attempt_display == 'Display Score and Outcome' || $attempt_display == 'Display Outcome Only') {
+    $header[] = 'Outcome';
+  }
+  if ($can_delete) {
+    $header[] = 'Operations';
+  }
+  
+  $rows = array();
+  $rs = sco_node_get_user_attempts($node->nid);
+  foreach ($rs as $att) {
+    $row = array(
+      $att->started,
+      $att->completed,
+      $att->status,
+    );
+    if ($attempt_display == 'Display Score and Outcome' || $attempt_display == 'Display Score Only') {
+      $row[] = ($att->completed != NULL) ? $att->score : '';
+    }
+    if ($attempt_display == 'Display Score and Outcome' || $attempt_display == 'Display Outcome Only') {
+      $row[] = $att->outcome;
+    }
+    
+    $op = '';
+    if ($can_delete) {
+      $op .= l('delete', 'node/' . $node->nid . '/delete-attempt/' . $att->id);
+    }
+    if ($can_view_log) {
+      if ($op != '') {
+       $op .= '&nbsp;&nbsp;';
+      }
+      $op .= l('view log', 'node/' . $node->nid . '/attempt/' . $att->id . '/log');
+    }
+    $row[] = $op;
+    
+    $rows[] = $row;
+  }
+  
+  $html = theme('table', array('header' => $header, 'rows' => $rows, 'empty' => t('No attempts were found')));
+  if ($can_delete && count($rows) > 0) {
+    $html .= '<p>' . l('Delete All Attempts', 'node/' . $node->nid . '/delete-all-attempts') . '</p>';
+  }
+  
+  return $html;
+}
+
+//=========================================================================
+// attempt delete
+//=========================================================================
+
+function sco_node_delete_attempt_form($form, $form_state, $node, $attid) {
+
+  $attempt = sco_node_get_attempt($attid);
+  if ($attempt == NULL || $attempt->nid != $node->nid) {
+    drupal_set_message(t('Unable to delete this attempt'), 'error');
+    drupal_goto('node/' . $node->nid);
+  }
+  
+  $form = array();
+  $form['markup'] = array(
+    '#type' => 'markup',
+    '#markup' => '<p>' . t('Started: ') . $attempt->started . '<br />' . t('Status: ') . $attempt->status . '</p>',
+  );
+  
+  return confirm_form($form,
+                      t('Delete Attempt'),
+                      'node/' . $node->nid . '/attempts',
+                      t('Delete this attempt? Are you sure? <br />This action cannot be undone.'),
+                      t('Delete'),
+                      t('Cancel'));
+}
+
+function sco_node_delete_attempt_form_submit($form, $form_state) {
+
+  sco_node_delete_attempt(arg(3));
+  drupal_set_message(t('Attempt was deleted'));
+  drupal_goto('/node/' . arg(1) . '/attempts');
+}
+
+function sco_node_delete_all_attempts_form($form, $form_state, $node) {
+
+  return confirm_form(array(),
+                      'Delete ALL Attempts',
+                      'node/' . $node->nid . '/attempts',
+                      t('Delete ALL attempts? Are you sure? <br />This action cannot be undone.'),
+                      t('Delete'),
+                      t('Cancel'));
+}
+
+function sco_node_delete_all_attempts_form_submit($form, $form_state) {
+
+  sco_node_delete_all_attempts(arg(1));
+  drupal_set_message(t('All attempts have been deleted'));
+  drupal_goto('/node/' . arg(1));
+}
+
+//=========================================================================
+// attempt log
+//=========================================================================
+
+function sco_node_attempt_log($node, $attid) {
+
+  $path = drupal_get_path('module', 'sco_node');
+  drupal_add_css($path . '/css/sco_node.css');
+
+  $att = sco_node_get_attempt($attid);
+  
+  if ($att == NULL) {
+    drupal_set_message(t('Attempt was not found'));
+    drupal_goto('node/' . $node->nid);
+  }
+  
+  $account = user_load($att->uid);
+  
+  drupal_set_title(t('Attempt Log for - ') . $account->name);
+  
+  $html = '<div id="sco-node-admin-attempt-log">';
+  
+  $html .= t('SCO: ') . l(t($node->title), 'node/' . $node->nid) . '<br />';
+  $html .= '<br />';
+  
+  $html .= t('Attempt Started: ') . $att->started . '<br />';
+  $html .= t('Attempt Completed: ') . $att->completed . '<br />';
+  $html .= t('Last Update: ') . $att->updated . '<br />';
+  $html .= '<br />';
+  
+  $html .= t('Attempt Status: ') . $att->status . '<br />';
+  $html .= t('Attempt Score: ') . $att->score . '<br />';
+  $html .= t('Attempt Outcome: ') . $att->outcome . '<br />';
+  $html .= t('Attempt Total Time: ') . $att->total_time . '<br />';
+  $html .= t('Attempt Last Exit Status: ') . $att->exit_status . '<br />';
+  $html .= t('Attempt Last Session Time: ') . $att->session_time . '<br />';
+  $html .= '<br />';
+  
+  $html .= t('Attempt Log') . '<br />';
+  $html .= '<pre>';
+  $html .= $att->log;
+  $html .= '</pre>';
+
+  $html .= t('Attempt CMI Data') . '<br />';
+  $html .= '<pre>';
+  $html .= print_r(unserialize($att->cmi_data), TRUE);
+  $html .= '</pre>';
+  
+  $html .= '</div>';
+  
+  return $html;
+}
+
+//=========================================================================
+// common functions
+//=========================================================================
+
+// return the number of attempts for the given node
+function sco_node_get_attempt_count_node($nid) {
+
+  return db_query("SELECT count(*) 
+                   FROM {sco_node_attempt}
+                   WHERE nid = :nid", array(':nid' => $nid))->fetchField();
+}
+
+// return the number of completed attempts for the given node
+function sco_node_get_completed_attempt_count_node($nid) {
+
+  return db_query("SELECT count(*) 
+                   FROM {sco_node_attempt}
+                   WHERE nid = :nid AND completed IS NOT NULL", array(':nid' => $nid))->fetchField();
+}
+
+// return the number of users that attempted the given node
+function sco_node_get_attempted_user_count_node($nid) {
+
+  return db_query("SELECT COUNT(DISTINCT a.uid) AS ucount
+                   FROM {users} 
+                   JOIN {sco_node_attempt} a ON a.uid = users.uid
+                   WHERE a.nid = :nid", array(':nid' => $nid))->fetchField();
+}
+
+// return the number of users that completed the given node
+function sco_node_get_completed_user_count_node($nid) {
+
+  return db_query("SELECT COUNT(DISTINCT a.uid) AS ucount
+                   FROM {users} 
+                   JOIN {sco_node_attempt} a ON a.uid = users.uid
+                   WHERE a.nid = :nid AND a.completed IS NOT NULL", array(':nid' => $nid))->fetchField();
+}
+
+// return the number of attempts for the given node and user
+function sco_node_get_attempt_count_user($nid, $uid) {
+
+  return db_query("SELECT count(*) 
+                   FROM {sco_node_attempt}
+                   WHERE nid = :nid AND uid = :uid", array(':nid' => $nid, ':uid' => $uid))->fetchField();
+}
+
+// return the attempt record for the latest SCO attempt for the current user
+function sco_node_get_latest_attempt($nid) {
+
+  global $user;
+  
+  $att = db_query("SELECT * 
+                   FROM {sco_node_attempt}
+                   WHERE nid = :nid AND uid = :uid 
+                   ORDER BY started DESC", array(':nid' => $nid, ':uid' => $user->uid))->fetchObject();
+  return $att;                   
+}
+
+// return the attempt record for the given attempt id
+function sco_node_get_attempt($attid) {
+
+  $att = db_query("SELECT * 
+                   FROM {sco_node_attempt} 
+                   WHERE id = :id", array(':id' => $attid))->fetchObject();
+  return $att;                   
+}
+
+// return a recordset with all SCO attempts for the current user
+function sco_node_get_user_attempts($nid) {
+
+  global $user;
+  
+  $rs = db_query("SELECT * 
+                  FROM {sco_node_attempt} 
+                  WHERE nid = :nid AND uid = :uid 
+                  ORDER BY started", array(':nid' => $nid, ':uid' => $user->uid));
+  return $rs;                   
+}
+
+// return the current user status for the SCO
+function sco_node_get_user_status($nid) {
+
+  $status = 'not attempted';
+  
+  $rs = sco_node_get_user_attempts($nid);
+  
+  // if any records exist, then change status to incomplete
+  if ($rs->rowCount() > 0) {
+    $status = 'incomplete';
+  }
+  foreach ($rs as $att) {
+    // if any completed records exist, update status to complete
+    if ($att->completed != NULL) {
+      $status = 'completed';
+      break;
+    }
+  }
+  
+  return $status;                   
+}
+
+// return the attempt record for the first completed attempt for the current user for the given SCO
+function sco_node_get_user_completion_attempt($nid) {
+
+  $attempt = NULL;
+  
+  $rs = sco_node_get_user_attempts($nid);
+  
+  foreach ($rs as $att) {
+    // if any completed records exist, update status to complete
+    if ($att->completed != NULL) {
+      $attempt = $att;
+      break;
+    }
+  }
+  
+  return $attempt;                   
+}
+
+// return the completed timestamp for the current user for the SCO
+function sco_node_get_user_completed($nid) {
+
+  $completed = NULL;
+  
+  $att = sco_node_get_user_completion_attempt($nid);
+  
+  if ($att != NULL) {
+    $completed = $att->completed;
+  }
+  
+  return $completed;                   
+}
+
+// add an SCO attempt for the current user
+function sco_node_add_attempt($nid) {
+
+  global $user;
+  
+  $att = new StdClass();
+  $att->nid = $nid;
+  $att->uid = $user->uid;
+  $att->started = date('Y-m-d H:i:s');
+  $att->total_time = 0;
+  $att->session_time = 0;
+  $att->score = 0;
+  $att->status = 'incomplete';
+  $att->outcome = 'unknown';
+  $att->exit_status = '';
+  $att->log = '';
+  $att->cmi_data = '';
+  
+  drupal_write_record('sco_node_attempt', $att);
+  
+  // call hooks after add
+  $hook = 'sco_node_add_attempt';
+  foreach (module_implements($hook) as $mod) {
+    $function = $mod . '_' . $hook;
+    $function($att);
+  }
+  
+  return $att;
+}
+
+// delete all attempt records for the given node and the current user
+function sco_node_delete_all_attempts($nid) {
+
+  $rs = sco_node_get_user_attempts($nid);
+  foreach ($rs as $att) {
+    sco_node_delete_attempt($att->id);
+  }
+}
+
+// delete the attempt record for the given attempt id
+function sco_node_delete_attempt($attid) {
+
+  $att = sco_node_get_attempt($attid);
+  
+  if ($att != NULL) {
+  
+    // call hooks before delete
+    $hook = 'sco_node_delete_attempt';
+    foreach (module_implements($hook) as $mod) {
+      $function = $mod . '_' . $hook;
+      $function($att);
+    }
+  
+    db_query("DELETE FROM {sco_node_attempt} 
+              WHERE id = :id", array(':id' => $attid));
+  }
+}
+
+
+// return an option value or the given default
+function sco_node_get_option_value($node, $opt, $default) {
+
+  return isset($node->sco_options[$opt]) ? $node->sco_options[$opt] : $default;
+}
+
+// return the score for the given SCO attempt
+function sco_node_score_attempt($node, $attempt) {
+
+  $score = 0;
+  $scoring = sco_node_get_option_value($node, 'scoring', 'SCO Score');
+  
+  $cmi = unserialize($attempt->cmi_data);
+  
+  if ($scoring == 'SCO Score') {
+    $score = $cmi['score_raw'];
+  }
+
+  // call hooks to override score
+  $hook = 'sco_node_score_attempt';
+  foreach (module_implements($hook) as $mod) {
+    $function = $mod . '_' . $hook;
+    $function($node, $attempt, $score);
+  }
+
+  return $score;
+}
+
+// return the score for all SCO attempts
+function sco_node_score_all_attempts($node) {
+
+  $score = 0;
+  $scoring = sco_node_get_option_value($node, 'attempt_scoring', 'Highest Score');
+
+  $rs = sco_node_get_user_attempts($node->nid);
+  $tscore = 0;
+  $rc = 0;
+  
+  foreach ($rs as $row) {
+    // only completed attempts are considered
+    if ($row->completed != NULL) {
+      $rc++;
+      if ($scoring == 'Average Attempt') {
+        $tscore += $row->score;
+      }
+      else if ($scoring == 'Highest Attempt') {
+        if ($row->score > $score) {
+          $score = $row->score;
+        }
+      }
+      else if ($scoring == 'First Attempt') {
+        if ($rc == 1) {
+          $score = $row->score;
+          break;
+        }
+      }
+      else if ($scoring == 'Last Attempt') {
+        $score = $row->score;
+      }
+    }
+  }
+  
+  if ($scoring == 'Average Attempt') {
+    $score = $tscore / $rc;
+  }
+
+  // call hooks to override score
+  $hook = 'sco_node_score_all_attempts';
+  foreach (module_implements($hook) as $mod) {
+    $function = $mod . '_' . $hook;
+    $function($node, $score);
+  }
+
+  return $score;
+}
+

@@ -1,0 +1,121 @@
+pre {
+ white-space: pre-wrap;       /* css-3 */
+ white-space: -moz-pre-wrap;  /* Mozilla, since 1999 */
+ white-space: -pre-wrap;      /* Opera 4-6 */
+ white-space: -o-pre-wrap;    /* Opera 7 */
+ word-wrap: break-word;       /* Internet Explorer 5.5+ */
+}
+#sco-node-wrapper {
+  font: 12px verdana, sans-serif;
+  margin: 0;
+  padding: 0;
+  color: #444;
+  background: none;
+  background-color: #fff;
+  border: none;
+  line-height: 1.1;
+  height: 700px;
+  clear: none;
+}
+#sco-node-wrapper a {
+  text-decoration: none;
+}
+#sco-node-toc-wrapper {
+  width: 25%;
+  height: 100%;
+  overflow: auto;
+  position: relative;
+  border-top: 1px solid black;
+  border-left: 1px solid black;
+  border-bottom: 1px solid black;
+  float: left;
+}
+#sco-node-toc-title {
+  font-weight: bold;
+  color: #FFFFFF;
+  background-color: #0000FF;
+}
+#sco-node-toc a {
+  text-decoration:none;
+}
+.sco-node-toc-collapsed {
+  list-style-image:url(plus.gif);
+  cursor:pointer;
+}
+.sco-node-toc-expanded {
+  list-style-image:url(minus.gif);
+  cursor:pointer;
+}
+.sco-node-toc-item {
+  list-style-type:none;
+  list-style-image:none;
+}
+#sco-node-toc li {
+  -moz-user-select: none;
+}
+.sco-node-toc-active {
+  background-color: #CEE3F6;
+}
+#sco-node-content-wrapper {
+  margin-left: 25%;
+  height: 100%; 
+}
+#sco-node-content {
+  height: 90%; 
+  border: 1px solid black;
+}
+#sco-node-object {
+  width: 100%;
+  height: 100%;
+}
+#sco-node-iframe {
+  width: 100%;
+  height: 100%;
+}
+#sco-node-exit {
+  font-weight: bold;
+  text-align: right;
+  margin: 5px;
+}
+#sco-node-review {
+  font-weight: bold;
+  text-align: left;
+  margin: 5px;
+}
+#sco-node-nav-wrapper {
+  height: 10%; 
+  border-left: 1px solid black;
+  border-right: 1px solid black;
+  border-bottom: 1px solid black;
+  margin-top: -1px;
+  margin-left: 1px;
+}
+#sco-node-nav {
+  margin-top: auto;
+  margin-bottom; auto;
+  height: 50px;
+  padding: 5px;
+  overflow: hidden;
+}
+.sco-node-nav-button {
+  height: 30px;
+}
+#sco-node-log {
+  width: 800px; 
+  height: 200px; 
+  border: 1px solid; 
+  overflow: auto; 
+  margin-left: auto; 
+  margin-right: auto;
+}
+.sco-node-clear-fix {
+  clear: both;
+}
+#sco-node-view-button {
+  margin-top: 10px;
+  margin-bottom: 10px;
+}
+.sco-node-noscript {
+  margin-top: 20px;
+  font-weight: bold;
+}
