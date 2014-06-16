@@ -189,6 +189,23 @@ function piwik_admin_settings_form($form_state) {
     '#maxlength' => 255,
   );
 
+  // Message specific configurations.
+  $form['tracking']['messagetracking'] = array(
+    '#type' => 'fieldset',
+    '#title' => t('Messages'),
+  );
+  $form['tracking']['messagetracking']['piwik_trackmessages'] = array(
+    '#type' => 'checkboxes',
+    '#title' => t('Track messages of type'),
+    '#default_value' => variable_get('piwik_trackmessages', array()),
+    '#description' => t('This will track the selected message types shown to users. Tracking of form validation errors may help you identifying usability issues in your site. Every message is tracked as one individual event. Messages from excluded pages cannot tracked.'),
+    '#options' => array(
+      'status' => t('Status message'),
+      'warning' => t('Warning message'),
+      'error' => t('Error message'),
+    ),
+  );
+
   $form['tracking']['search'] = array(
     '#type' => 'fieldset',
     '#title' => t('Search'),
