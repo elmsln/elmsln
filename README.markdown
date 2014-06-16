@@ -42,7 +42,7 @@ As soon as the blockers below are resolved (basically just time). If it helps yo
 2. Merging the automation present in the ELMSLN Vagrant project back into elmsln-install.sh as an optional flag
 3. Repackaging Nodequeues for CIS (right now they don't export from original source site and are well designed)
 4. Doing additional testing on the `vagrant provision` command to ensure that it only updates the state of the currently developed ELMSLN test-bed and not overwrite critical components.
-5. Bash / drush script to automatically spider all sites and perform well structure updb and feature revert commands where it makes sense, as well as a plan for 1 project to have update hooks to apply network wide updates (Like all sites now require module A to be enabled and module B is depricated).
+5. A plan for 1 project to have update hooks to apply network wide updates (eg: module 1 disable everywhere, feature cis_connector revert all) but that happens on the backend so its all automated as part of the (new) elmsln-upgrade-sites script.
 
 ###Q. How would you classify a first release?
 Stable. Most likely jumping straight from dev to 1.0.  The many distributions of ELMS have been in beta usage for several months now.
