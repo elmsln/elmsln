@@ -5,30 +5,40 @@ cd $DIR
 
 source ../../config/scripts/drush-create-site/config.cfg
 
+txtbld=$(tput bold)             # Bold
+bldgrn=${txtbld}$(tput setaf 2) #  green
+bldred=${txtbld}$(tput setaf 1) #  green
+txtreset=$(tput sgr0)
+elmslnecho(){
+  echo "${bldgrn}$1${txtreset}"
+  return 1
+}
+elmslnwarn(){
+  echo "${bldred}$1${txtreset}"
+  return 1
+}
+
 #test for empty vars. if empty required var -- exit
 if [ -z $elmsln ]; then
-  echo "please update your config.cfg file"
+  elmslnwarn "please update your config.cfg file"
   exit 1
 fi
 if [ -z $host ]; then
-  echo "please update your config.cfg file"
+  elmslnwarn "please update your config.cfg file"
   exit 1
 fi
 
-echo "Are you sure you want to upgrade the entire network? (Type yes)"
+elmslnecho "Are you sure you want to upgrade the entire network? (Type yes)"
 read yesprompt
 if [ "$yesprompt" != "yes" ]; then
-  echo "please type yes to execute the script, exited early"
+  elmslnwarn "please type yes to execute the script, exited early"
   exit 1
 fi
-
-txtbld=$(tput bold)             # Bold
-bldgrn=${txtbld}$(tput setaf 2) #  green
-info=${bldgrn}*${txtrst}        # Feedback
 
 #prevent the script from being run more than once
 if [ -f /tmp/elmsln-upgrade-lock ]; then
-  echo 'elmsln-upgrade-lock is in place, this command must have failed previously or is currently already running'
+  elmslnwarn 'elmsln-upgrade-lock is in place, this command must have failed previously or is currently already running.'
+  elmslnwarn "in order to override this manually you'll have to run rm /tmp/elmsln-upgrade-lock"
   exit 1
 fi
 touch /tmp/elmsln-upgrade-lock
@@ -41,22 +51,22 @@ touch /tmp/elmsln-upgrade-lock
 standalone=('online')
 for stack in "${standalone[@]}"
 do
-  echo "working against $stack"
+  elmslnecho "working against $stack"
   # alias to take each site offline
-  echo "$stack: sites currently offline to avoid write issues"
+  elmslnecho "$stack: sites currently offline to avoid write issues"
   drush @${stack}-all offline --y
-  echo "$stack: rebuilding registry to avoid file location issues"
+  elmslnecho "$stack: rebuilding registry to avoid file location issues"
   drush @${stack}-all rr --y
-  echo "$stack: running potential database updates"
+  elmslnecho "$stack: running potential database updates"
   drush @${stack}-all updb --y
-  echo "$stack: execute cron"
+  elmslnecho "$stack: execute cron"
   drush @${stack}-all cron --y
-  echo "$stack: clearing caches, though previous should have but to be safe"
+  elmslnecho "$stack: clearing caches, though previous should have but to be safe"
   drush @${stack}-all cc all --y
-  echo "$stack: seed entity cache"
+  elmslnecho "$stack: seed entity cache"
   drush @${stack}-all hss --y
   # alias to bring them all back online
-  echo "$stack: sites should be back online"
+  elmslnecho "$stack: sites should be back online"
   drush @${stack}-all online --y
 done
 
@@ -71,7 +81,7 @@ then
   fullpath=$stackdir/$primarystack/sites/$primarystack/$host
   coursemachinename=""
   # do a find in this directory
-  for course in "$(find $stackdir/$primarystack/sites/$primarystack/$host -maxdepth 2 -name settings.php)"
+  for course in $stackdir/$primarystack/sites/$primarystack/$host/*/settings.php ;
   do
     # drop /settings.php from the path and split based on / for directories
     IFS='/' read -ra folder <<< "${course/\/settings.php/$empty}"
@@ -81,7 +91,7 @@ then
     done
     # make sure we found a course
     if [ "$coursemachinename" != "$empty" ]; then
-      echo "$(tput setaf 2)$coursemachinename: working against course network $(tput sgr0)"
+      elmslnecho "${bldgrn}$coursemachinename: working against course network ${txtreset}"
       # networks can be custom, lets see what tools this one uses
       stacklist=($primarystack)
       for stack in "${masterstacklist[@]}"
@@ -91,54 +101,54 @@ then
           stacklist=("${stacklist[@]}" "$stack")
         fi
       done
-      echo "$coursemachinename: take network offline to avoid write issues"
+      elmslnecho "$coursemachinename: take network offline to avoid write issues"
       for stack in "${stacklist[@]}"
       do
         # alias to take each site offline
-        echo "${stack}"
+        elmslnecho "${stack}"
         drush @${stack}.${coursemachinename} offline --y
       done
-      echo "$coursemachinename: rebuilding registry to avoid file location issues"
+      elmslnecho "$coursemachinename: rebuilding registry to avoid file location issues"
       for stack in "${stacklist[@]}"
       do
-        echo "${stack}"
+        elmslnecho "${stack}"
         drush @${stack}.${coursemachinename} rr --y
       done
-      echo "$coursemachinename: running potential database updates"
+      elmslnecho "$coursemachinename: running potential database updates"
       for stack in "${stacklist[@]}"
       do
-        echo "${stack}"
+        elmslnecho "${stack}"
         drush @${stack}.${coursemachinename} updb --y
       done
-      echo "$coursemachinename: executing cron"
+      elmslnecho "$coursemachinename: executing cron"
       for stack in "${stacklist[@]}"
       do
-        echo "${stack}"
+        elmslnecho "${stack}"
         drush @${stack}.${coursemachinename} cron --y
       done
-      echo "$coursemachinename: clearing caches"
+      elmslnecho "$coursemachinename: clearing caches"
       for stack in "${stacklist[@]}"
       do
-        echo "${stack}"
+        elmslnecho "${stack}"
         drush @${stack}.${coursemachinename} cc all --y
       done
-      echo "$coursemachinename:$stack seed caches"
+      elmslnecho "$coursemachinename:$stack seed caches"
       for stack in "${stacklist[@]}"
       do
-        echo "${stack}"
+        elmslnecho "${stack}"
         drush @${stack}.${coursemachinename} ecl --y
       done
-      echo "$coursemachinename: bring network back online"
+      elmslnecho "$coursemachinename: bring network back online"
       for stack in "${stacklist[@]}"
       do
         # alias to bring site back online
-        echo "${stack}"
+        elmslnecho "${stack}"
         drush @${stack}.${coursemachinename} online --y
       done
-      echo "$(tput setaf 2)$coursemachinename network upgrade complete $(tput sgr0)"
+      elmslnecho "$coursemachinename network upgrade complete"
     fi
   done
-  echo "$(tput setaf 2)ELMSLN network wide upgrade complete $(tput sgr0)"
+  elmslnecho "ELMSLN network wide upgrade complete"
 fi
 
 rm /tmp/elmsln-upgrade-lock
