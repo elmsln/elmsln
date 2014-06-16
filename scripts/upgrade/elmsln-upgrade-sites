@@ -6,54 +6,139 @@ cd $DIR
 source ../../config/scripts/drush-create-site/config.cfg
 
 #test for empty vars. if empty required var -- exit
-if [ -z $fileloc ]; then
+if [ -z $elmsln ]; then
   echo "please update your config.cfg file"
   exit 1
 fi
-if [ -z $site_email ]; then
-  echo "please update your config.cfg file"
-  exit 1
-fi
-if [ -z $admin ]; then
-  echo "please update your config.cfg file"
-  exit 1
-fi
-if [ -z $webdir ]; then
+if [ -z $host ]; then
   echo "please update your config.cfg file"
   exit 1
 fi
 
+echo "Are you sure you want to upgrade the entire network? (Type yes)"
+read yesprompt
+if [ "$yesprompt" != "yes" ]; then
+  echo "please type yes to execute the script, exited early"
+  exit 1
+fi
+
+txtbld=$(tput bold)             # Bold
+bldgrn=${txtbld}$(tput setaf 2) #  green
+info=${bldgrn}*${txtrst}        # Feedback
 
 #prevent the script from being run more than once
-if [ -f /tmp/drush-lock ]; then
+if [ -f /tmp/elmsln-upgrade-lock ]; then
+  echo 'elmsln-upgrade-lock is in place, this command must have failed previously or is currently already running'
   exit 1
 fi
-touch /tmp/drush-lock
+touch /tmp/elmsln-upgrade-lock
 
 # issue the git pull to master
 #cd ../..
 #git pull origin master
 
-# stacks we currently support spidering against
-stacklist=('online' 'courses' 'studio' 'interact' 'media' 'blog')
-for stack in "${stacklist[@]}"
-  do
-    # array built up to password
-    echo "working against $stack"
-    # alias to take each site offline
-    echo "$stack: sites currently offline to avoid write issues"
-    drush @${stack}-all offline --y
-    echo "$stack: rebuilding registry to avoid file location issues"
-    drush @${stack}-all rr --y
-    echo "$stack: running potential database updates"
-    drush @${stack}-all updb --y
-    echo "$stack: clearing caches, though previous should have but to be safe"
-    drush @${stack}-all cc all --y
-    echo "$stack: execute cron"
-    drush @${stack}-all cron --y
-    # alias to bring them all back online
-    echo "$stack: sites should be back online"
-    drush @${stack}-all online --y
- done
+# stacks we currently only care about as stand alone
+standalone=('online')
+for stack in "${standalone[@]}"
+do
+  echo "working against $stack"
+  # alias to take each site offline
+  echo "$stack: sites currently offline to avoid write issues"
+  drush @${stack}-all offline --y
+  echo "$stack: rebuilding registry to avoid file location issues"
+  drush @${stack}-all rr --y
+  echo "$stack: running potential database updates"
+  drush @${stack}-all updb --y
+  echo "$stack: execute cron"
+  drush @${stack}-all cron --y
+  echo "$stack: clearing caches, though previous should have but to be safe"
+  drush @${stack}-all cc all --y
+  echo "$stack: seed entity cache"
+  drush @${stack}-all hss --y
+  # alias to bring them all back online
+  echo "$stack: sites should be back online"
+  drush @${stack}-all online --y
+done
 
-rm /tmp/drush-lock
+# stacks we currently support spidering against individual networks
+masterstacklist=('studio' 'interact' 'blog' 'media')
+stackdir=$elmsln/core/dslmcode/stacks
+empty=""
+primarystack='courses'
+
+if [ -d $stackdir/$primarystack/sites/$primarystack/$host ];
+then
+  fullpath=$stackdir/$primarystack/sites/$primarystack/$host
+  coursemachinename=""
+  # do a find in this directory
+  for course in "$(find $stackdir/$primarystack/sites/$primarystack/$host -maxdepth 2 -name settings.php)"
+  do
+    # drop /settings.php from the path and split based on / for directories
+    IFS='/' read -ra folder <<< "${course/\/settings.php/$empty}"
+    for foldername in "${folder[@]}"; do
+      # the last one is gaurenteed to be the course!
+      coursemachinename=$foldername
+    done
+    # make sure we found a course
+    if [ "$coursemachinename" != "$empty" ]; then
+      echo "$(tput setaf 2)$coursemachinename: working against course network $(tput sgr0)"
+      # networks can be custom, lets see what tools this one uses
+      stacklist=($primarystack)
+      for stack in "${masterstacklist[@]}"
+      do
+        # if we found a settings.php here then we know we have a valid service
+        if [ -f $stackdir/$stack/sites/$stack/$host/$coursemachinename/settings.php ]; then
+          stacklist=("${stacklist[@]}" "$stack")
+        fi
+      done
+      echo "$coursemachinename: take network offline to avoid write issues"
+      for stack in "${stacklist[@]}"
+      do
+        # alias to take each site offline
+        echo "${stack}"
+        drush @${stack}.${coursemachinename} offline --y
+      done
+      echo "$coursemachinename: rebuilding registry to avoid file location issues"
+      for stack in "${stacklist[@]}"
+      do
+        echo "${stack}"
+        drush @${stack}.${coursemachinename} rr --y
+      done
+      echo "$coursemachinename: running potential database updates"
+      for stack in "${stacklist[@]}"
+      do
+        echo "${stack}"
+        drush @${stack}.${coursemachinename} updb --y
+      done
+      echo "$coursemachinename: executing cron"
+      for stack in "${stacklist[@]}"
+      do
+        echo "${stack}"
+        drush @${stack}.${coursemachinename} cron --y
+      done
+      echo "$coursemachinename: clearing caches"
+      for stack in "${stacklist[@]}"
+      do
+        echo "${stack}"
+        drush @${stack}.${coursemachinename} cc all --y
+      done
+      echo "$coursemachinename:$stack seed caches"
+      for stack in "${stacklist[@]}"
+      do
+        echo "${stack}"
+        drush @${stack}.${coursemachinename} ecl --y
+      done
+      echo "$coursemachinename: bring network back online"
+      for stack in "${stacklist[@]}"
+      do
+        # alias to bring site back online
+        echo "${stack}"
+        drush @${stack}.${coursemachinename} online --y
+      done
+      echo "$(tput setaf 2)$coursemachinename network upgrade complete $(tput sgr0)"
+    fi
+  done
+  echo "$(tput setaf 2)ELMSLN network wide upgrade complete $(tput sgr0)"
+fi
+
+rm /tmp/elmsln-upgrade-lock
