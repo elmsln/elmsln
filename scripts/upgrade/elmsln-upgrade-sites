@@ -5,6 +5,7 @@ cd $DIR
 
 source ../../config/scripts/drush-create-site/config.cfg
 
+#provide messaging colors for output to console
 txtbld=$(tput bold)             # Bold
 bldgrn=${txtbld}$(tput setaf 2) #  green
 bldred=${txtbld}$(tput setaf 1) #  green
@@ -17,6 +18,10 @@ elmslnwarn(){
   echo "${bldred}$1${txtreset}"
   return 1
 }
+# Define seconds timestamp
+timestamp(){
+  date +"%s"
+}
 
 #test for empty vars. if empty required var -- exit
 if [ -z $elmsln ]; then
@@ -25,6 +30,10 @@ if [ -z $elmsln ]; then
 fi
 if [ -z $host ]; then
   elmslnwarn "please update your config.cfg file"
+  exit 1
+fi
+if [ -z $1 ]; then
+  elmslnwarn "please select a branch you want to update too"
   exit 1
 fi
 
@@ -41,12 +50,13 @@ if [ -f /tmp/elmsln-upgrade-lock ]; then
   elmslnwarn "in order to override this manually you'll have to run rm /tmp/elmsln-upgrade-lock"
   exit 1
 fi
+start="$(timestamp)"
+echo "$(date +%T) job started"
+# issue the git pull to version selected at commandline
+cd ../..
+git pull origin $1 || elmslnwarn "git pull failed, make sure you sync correctly"
+
 touch /tmp/elmsln-upgrade-lock
-
-# issue the git pull to master
-#cd ../..
-#git pull origin master
-
 # stacks we currently only care about as stand alone
 standalone=('online')
 for stack in "${standalone[@]}"
@@ -80,10 +90,10 @@ primarystack='courses'
 if [ -d $stackdir/$primarystack/sites/$primarystack/$host ];
 then
   fullpath=$stackdir/$primarystack/sites/$primarystack/$host
-  coursemachinename=""
   # do a find in this directory
   for course in $stackdir/$primarystack/sites/$primarystack/$host/*/settings.php ;
   do
+    coursemachinename=""
     # drop /settings.php from the path and split based on / for directories
     IFS='/' read -ra folder <<< "${course/\/settings.php/$empty}"
     for foldername in "${folder[@]}"; do
@@ -151,5 +161,6 @@ then
   done
   elmslnecho "ELMSLN network wide upgrade complete"
 fi
-
+end="$(timestamp)"
+elmslnecho "job took $(expr $end - $start) seconds to run"
 rm /tmp/elmsln-upgrade-lock
