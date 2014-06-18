@@ -1,0 +1,6 @@
+; $Id: profiler_builder_extras
+name = "Profiler Builder Extras"
+description = "Extra tools for use with profiler builder, more experimental."
+package = "Development"
+core = "7.x"
+configure = admin/config/development/profiler_builder/extras

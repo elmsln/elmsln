@@ -255,6 +255,8 @@ function _profiler_builder_settings_form_submit($form, &$form_state) {
  * Helper to build a profile
  */
 function _profiler_builder_build_profile($name, $machine_name, $description, $exclusive, $profiler, $profiler_includes, $standard_profile_default, $create_admin, $libraries, $patches) {
+  // allow operations to be triggered just prior to us building a profile / distro
+  module_invoke_all('profiler_builder_profile_prebuild', $name, $machine_name, $description, $exclusive, $profiler, $profiler_includes, $standard_profile_default, $create_admin, $libraries, $patches);
   // assemble profiler components
   $features = _profiler_builder_list_features();
   // build initial info file
@@ -310,6 +312,8 @@ function _profiler_builder_build_profile($name, $machine_name, $description, $ex
     // write file to tar package
     $output .= profiler_builder_tar_create("{$machine_name}/{$file_name}", $file_contents);
   }
+  // allow operations to be triggered just after we build a profile / distro
+  module_invoke_all('profiler_builder_profile_postbuild', $name, $machine_name, $description, $exclusive, $profiler, $profiler_includes, $standard_profile_default, $create_admin, $libraries, $patches);
   // end tar file output
   $output .= pack("a1024", "");
   if (!function_exists('drush_main')) {
@@ -464,6 +468,7 @@ function ' . $machine_name . '_install() {
   // ignore any other install messages
   drupal_get_messages();
 }';
+  drupal_alter('profiler_builder_install_file', $output, $machine_name);
   return $output;
 }
 

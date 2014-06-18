@@ -1,0 +1,232 @@
+<?php
+/**
+ * @file
+ * Crazier add-ons for profiler builder
+ */
+
+/**
+ * Implements hook_menu().
+ */
+function profiler_builder_extras_menu() {
+  $items = array();
+  $items['admin/config/development/profiler_builder/extras'] = array(
+    'title' => 'Extras',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('_profiler_builder_extras_settings'),
+    'description' => 'Extra settings',
+    'access arguments' => array('administer profiler builder'),
+    'file' => 'profiler_builder_extras.admin.inc',
+    'type' => MENU_LOCAL_TASK,
+    'weight' => 10,
+  );
+  return $items;
+}
+
+/**
+ * Implements hook_menu_alter().
+ */
+function profiler_builder_extras_menu_alter(&$items) {
+  // add in additional local task so we get a nice tab on the display
+  $items['admin/config/development/profiler_builder/build'] = $items['admin/config/development/profiler_builder'];
+  $items['admin/config/development/profiler_builder/build']['type'] = MENU_DEFAULT_LOCAL_TASK;
+  return $items;
+}
+
+/**
+ * Returns whether query logging is enabled.
+ */
+function _profiler_builder_extras_query_enabled($active = FALSE) {
+  // test for active query logging
+  if ($active) {
+    return method_exists('Database', 'getLog') && variable_get('profiler_builder_extras_ql', FALSE) && variable_get('profiler_builder_extras_aql', FALSE);
+  }
+  return method_exists('Database', 'getLog') && variable_get('profiler_builder_extras_ql', FALSE);
+}
+
+/**
+ * Build a list of items that can be ignored
+ */
+function _profiler_builder_extras_db_ignore_list() {
+  // allow other modules to jump in as to what we should actively ignore
+  $list = module_invoke_all('profiler_builder_extras_db_ignore');
+  // allow for altering if we overstep what to ignore
+  drupal_alter('profiler_builder_extras_db_ignore', $list);
+  return $list;
+}
+
+/**
+ * Implements hook_profiler_builder_extras_db_ignore().
+ * @return [array] array of the starts of queries to ignore completely
+ */
+function profiler_builder_extras_profiler_builder_extras_db_ignore() {
+  $ignore_list = array(
+    // ignore all select statements as they add nothing
+    '__select'             => 'SELECT',
+    // last user access is stupid to track
+    '__update_user_access' => 'UPDATE users SET access'
+  );
+  // tables to ignore all update and insert statements
+  $ignore_tables = array(
+    'advagg_',
+    'history',
+    'cache',
+    'queue',
+    'search_',
+    'semaphore',
+    'sessions',
+    'watchdog',
+  );
+  // build insert and update statements to ignore dynamically
+  foreach ($ignore_tables as $table) {
+    $ignore_list['insert_' . $table] = 'INSERT INTO ' . $table;
+    $ignore_list['update_' . $table] = 'UPDATE ' . $table;
+  }
+  return $ignore_list;
+}
+
+/**
+ * Implements hook_boot().
+ *
+ * Runs even for cached pages.
+ */
+function profiler_builder_extras_boot() {
+  if (_profiler_builder_extras_query_enabled(TRUE)) {
+    @include_once DRUPAL_ROOT . '/includes/database/log.inc';
+    Database::startLog('profiler_builder');;
+    drupal_register_shutdown_function('profiler_builder_extras_shutdown');
+  }
+}
+
+/**
+ * Returns the rendered query log.
+ */
+function profiler_builder_extras_shutdown() {
+  $queries = _profiler_builder_extras_load_queries();
+  if (!empty($queries)) {
+    // Save all queries to a file in temp directory for later use
+    profiler_builder_extras_query_put_contents($queries);
+  }
+  // ensure we aren't trying to write a profile for output to the buffer
+  if (current_path() != 'admin/config/development/profiler_builder') {
+    print '<div class="profiler_builder_extras_active_query_enabled">QUERIES ARE BEING ACTIVELY MONITORED (' . l(t('Profiler Builder Settings'), 'admin/config/development/profiler_builder/extras') . ')</div>';
+  }
+}
+
+/**
+ * Load the queries that we've been logging.
+ */
+function _profiler_builder_extras_load_queries() {
+  $queries = (_profiler_builder_extras_query_enabled(TRUE) ? Database::getLog('profiler_builder', 'default') : array());
+  foreach ($queries as $key => $query) {
+    $queries[$key] = array(
+      'query' => $query['query'],
+      'args' => $query['args'],
+    );
+    $check_keys = array(
+      ':db_insert_placeholder_0',
+      ':db_update_placeholder_0'
+    );
+    $ignore_list = _profiler_builder_extras_db_ignore_list();
+    // check these keys to see if we care about this query
+    if (count (array_intersect($check_keys, array_keys($query['args']))) >= 1) {
+      foreach ($ignore_list as $query_type => $ignore) {
+        // see if anything in the ignore list matches the start of the query
+        if (strpos($query['query'], $ignore) === 0) {
+          // ignore query, so we unset it from the list
+          unset($queries[$key]);
+        }
+      }
+      // drop settings related to this project itself or on/off will be recorded
+      if (strpos($query['query'], 'UPDATE variable') === 0 && strpos($query['args'][':db_condition_placeholder_0'], 'profiler_builder') === 0) {
+        unset($queries[$key]);
+      }
+    }
+    else {
+      // this wasn't an update or insert query, unset it
+      unset($queries[$key]);
+    }
+  }
+  // allow other projects to modify further if they know what they are doing
+  drupal_alter('profiler_builder_extras_load_queries', $queries);
+  return $queries;
+}
+
+/**
+ * Writes the variables information to a file.
+ *
+ * It will be retrieved on demand via AJAX.
+ */
+function profiler_builder_extras_query_put_contents($queries) {
+  $request_id = time();
+  $path = "temporary://profiler_builder_extras_querylog";
+  // Create the profiler_builder_extras_querylog within the temp folder, if needed.
+  file_prepare_directory($path, FILE_CREATE_DIRECTORY);
+
+  $path .= "/$request_id.json";
+  $path = file_stream_wrapper_uri_normalize($path);
+  // Save queries as a json array. Suppress errors due to recursion ()
+  file_put_contents($path, @json_encode($queries));
+}
+
+/**
+ * Implements hook_profiler_builder_profile_prebuild().
+ */
+function profiler_builder_extras_profiler_builder_profile_prebuild($name, $machine_name, $description, $exclusive, $profiler, $profiler_includes, $standard_profile_default, $create_admin, $libraries, $patches) {
+  // ensure fb is enabled and we are asking for it to be used
+  if (module_exists('features_builder') && variable_get('profiler_builder_extras_fb', FALSE)) {
+    // @todo replicate the way this function works in the future so we can pull it
+    // for now, just generate the features automatically from the site as we
+    // go about building the distribution / profile.
+    // right now it doesn't seem to actually work but it sure thinks a lot.
+    features_builder_build();
+  }
+}
+
+/**
+ * Implements hook_profiler_builder_install_file_alter().
+ */
+function profiler_builder_extras_profiler_builder_install_file_alter(&$output, $machine_name) {
+  // test for query logging auto update hook generation
+  if (_profiler_builder_extras_query_enabled(FALSE)) {
+    $output .= '
+
+/**
+ * Implements hook_update_N().
+ *
+ * Automatically generated profiler builder queries to achieve this version.
+ */
+function ' . $machine_name . '_update_' . PROIFLER_BUILDER_ACTIVE_CORE . PROIFLER_BUILDER_DISTRO_BRANCH . '01(&$sandbox) {
+';
+    $files = _profiler_builder_extras_load_query_files();
+    // per query in the array, write it to the order in which it happened
+    // this should ensure a perfect record of what happened
+    foreach ($files as $queries) {
+      foreach ($queries as $query) {
+        $output .= '  $query_args = ' . var_export($query['args'], true) . ";\n";
+        $output .= '  db_query("' . $query['query'] . '", $query_args);' . "\n\n";
+      }
+    }
+    $output .= "\n}\n\n";
+  }
+}
+
+/**
+ * Load saved queries from our file store in temp
+ * @param  boolean $dropfiles   if we should delete the files after reading them
+ * @return [array]              array of queries that we stored along the way
+ */
+function _profiler_builder_extras_load_query_files($dropfiles = TRUE) {
+  $queries = array();
+  $path = "temporary://profiler_builder_extras_querylog";
+  foreach (new DirectoryIterator($path) as $file_info) {
+    if ($file_info->isFile()) {
+      // load the file contents in as a json array
+      $queries[] = json_decode(file_get_contents($file_info->getPathname()), TRUE);
+      if ($dropfiles) {
+        // delete it after we've got it
+        unlink($file_info->getPathname());
+      }
+    }
+  }
+  return $queries;
+}

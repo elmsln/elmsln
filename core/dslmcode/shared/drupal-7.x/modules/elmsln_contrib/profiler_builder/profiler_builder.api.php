@@ -164,3 +164,58 @@ function hook_profiler_builder_patch_locations_alter(&$locations) {
     }
   }
 }
+
+/**
+ * Implements hook_profiler_builder_install_file_alter().
+ *
+ * modify the .install file after profiler builder has assembled it.
+ *
+ * @param  [string] $output       text of the php file to be created
+ * @param  [string] $machine_name Machine name of the profile being requested.
+ * @return [null]                 No returned data is expected.
+ */
+function hook_profiler_builder_install_file_alter($output, $machine_name) {
+  // see the profiler_builder_extras module for example usage.
+}
+
+/**
+ * Implements hook_profiler_builder_profile_prebuild().
+ *
+ * Allow developers to act just prior to a profile being created.
+ *
+ * @param  [string] $name                     name of the profile
+ * @param  [string] $machine_name             machine name to build
+ * @param  [string] $description              description of what's written
+ * @param  [bool] $exclusive                  if the profile is exclusive
+ * @param  [bool] $profiler                   if we should use profiler library
+ * @param  [array] $profiler_includes         whats being included modules, variables, etc
+ * @param  [bool] $standard_profile_default   if to use standard profile defaults
+ * @param  [bool] $create_admin               if to auto create admin role
+ * @param  [array] $libraries                 what libraries to include
+ * @param  [array] $patches                   what patches to apply
+ * @return [null]                           no return is expected
+ */
+function hook_profiler_builder_profile_prebuild($name, $machine_name, $description, $exclusive, $profiler, $profiler_includes, $standard_profile_default, $create_admin, $libraries, $patches) {
+  // you can act on a profile about to be built. see extras for an example
+}
+
+/**
+ * Implements hook_profiler_builder_profile_postbuild().
+ *
+ * Allow developers to act just prior to a profile being delivered to user.
+ *
+ * @param  [string] $name                     name of the profile
+ * @param  [string] $machine_name             machine name to build
+ * @param  [string] $description              description of what's written
+ * @param  [bool] $exclusive                  if the profile is exclusive
+ * @param  [bool] $profiler                   if we should use profiler library
+ * @param  [array] $profiler_includes         whats being included modules, variables, etc
+ * @param  [bool] $standard_profile_default   if to use standard profile defaults
+ * @param  [bool] $create_admin               if to auto create admin role
+ * @param  [array] $libraries                 what libraries to include
+ * @param  [array] $patches                   what patches to apply
+ * @return [null]                           no return is expected
+ */
+function hook_profiler_builder_profile_postbuild($name, $machine_name, $description, $exclusive, $profiler, $profiler_includes, $standard_profile_default, $create_admin, $libraries, $patches) {
+  // you can act on a profile that is about to be delivered to the user / drush
+}
