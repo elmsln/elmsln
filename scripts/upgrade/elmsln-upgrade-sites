@@ -54,7 +54,7 @@ start="$(timestamp)"
 echo "$(date +%T) job started"
 # issue the git pull to version selected at commandline
 cd ../..
-git pull origin $1 || elmslnwarn "git pull failed, make sure you sync correctly"
+git pull origin $1 || (elmslnwarn "git pull failed, make sure you sync correctly" && exit 1)
 
 touch /tmp/elmsln-upgrade-lock
 # stacks we currently only care about as stand alone
