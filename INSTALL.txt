@@ -1,49 +1,51 @@
-ELMSLN - Installation Guide
+#ELMSLN - Installation Guide
 
-These steps will help you setup ELMSLN on an Apache / Unix environment.
+#These steps will help you setup ELMSLN on an Apache / Unix environment.
 
-Using git for version control is recommended due to the sheer volume of files Suggested .gitignores are included but generally all changes you make after deploying should happen inside the config directory.  All scripts, Drupal core files, and piwik files that need configuration changes are referenced to symlinks in the config directory.
+#Using git for version control is recommended due to the sheer volume of files Suggested .gitignore are included but generally all changes you make #after deploying should happen inside the config directory.  All scripts, Drupal core files, and piwik files that need configuration changes are #referenced to symlinks in the config directory.
 
-=== DOWNLOAD ===
-First, get elmsln and put it in /var/www:
+# # is used to comment out all of this, eventually you’ll be able to execute this file or step through it manually.
+
+#=== DOWNLOAD ===
+#First, get elmsln and put it in /var/www:
 
 cd /var/www
 sudo mkdir elmsln
 sudo chown {you}:{group} elmsln
 git clone https://github.com/btopro/elmsln.git
 
-Next you’ll want to replace the included config directory with an example one.
+#Next you’ll want to replace the included config directory with an example one.
 cd /var/www/elmsln
 rm -rf config
 git clone https://github.com/btopro/elmsln-config-example.git config
 
-=== MODIFY CONFIG ===
+#=== MODIFY CONFIG ===
 cd /var/www/elmsln/config/scripts/drush-create-site/
 cp config.cfg.example config.cfg
 vi config.cfg
 
-Modify these values to match your file system and implementation requirements. More often then not this is simply supplying default email addresses and mysql root user / pass.  There are additional options based on your configuration changes but those entered are recommended defaults.
+#Modify these values to match your file system and implementation requirements. More often then not this is simply supplying default email addresses #and mysql root user / pass.  There are additional options based on your configuration changes but those entered are recommended defaults.
 
-=== SELINUX (recommended) ===
-Next you need to modify selinux settings
+#=== SELINUX (recommended / optional) ===
+#Next you need to modify selinux settings
 sudo setsebool -P httpd_can_network connect
 sudo setsebool -P httpd_can_sendmail
 chcon -R --reference /var/www/html /dev/shm
 
-=== APC ===
-Apply the settings recommended in docs/apc.txt:
+#=== APC (optional) ===
+#Apply the settings recommended in docs/apc.txt:
 sudo vi /etc/php.d/apc.ini (/etc/php5/conf.d/apc.ini for ubuntu)
 
-=== PHP ===
-Apply the settings recommended in docs/php.txt
+#=== PHP (optional) ===
+#Apply the settings recommended in docs/php.txt
 sudo vi /etc/php.ini (/etc/php5/apache2/php.ini for ubuntu)
 
-=== MYSQL ===
-Apply the settings recommended in docs/mysql.txt
+#=== MYSQL (optional) ===
+#Apply the settings recommended in docs/mysql.txt
 sudo vi /etc/my.cnf (/etc/php5/conf.d/mysql.ini for ubuntu)
 
-=== BIN ===
-issue the following commands to place these scripts in scope of bin which will allow the crontab to pick up the job and process it.  There’s also an optional drush remove site command that’s listed too. (good for clean up of things accidentally created)
+#=== BIN ===
+#issue the following commands to place these scripts in scope of bin which will allow the crontab to pick up the job and process it.  There’s also an #optional drush remove site command that’s listed too. (good for clean up of things accidentally created)
 
 sudo ln -s /var/www/elmsln/scripts/drush-create-site /usr/local/bin/drush-create-site
 chmod 744 /usr/local/bin/drush-create-site/rm-site.sh
@@ -54,16 +56,16 @@ vi .bashrc
 alias drs='/usr/local/bin/drush-create-site/rm-site.sh'
 logout
 
-=== CRONTAB ===
-Apply the settings recommended in docs/crontab.txt
+#=== CRONTAB ===
+#Apply the settings recommended in docs/crontab.txt
 sudo vi /etc/crontab
 
-=== DOMAINS ===
-Apply similar settings to those recommended in docs/domains.txt
-sudo vi /etc/httpd/conf.d/domains.conf (/etc/apache2/sites-available/elmsln for ubuntu then symlink into sites-enabled)
+#=== DOMAINS ===
+#Apply similar settings to those recommended in docs/domains.txt
+sudo vi /etc/httpd/conf.d/domains.conf #(/etc/apache2/sites-available/elmsln for ubuntu then symlink into sites-enabled)
 
-=== DRUSH ===
-Install drush by following instructions at https://github.com/drush-ops/drush
+#=== DRUSH ===
+#Install drush by following instructions at https://github.com/drush-ops/drush
 sudo pear upgrade --force Console_Getopt
 sudo pear upgrade --force pear
 sudo pear upgrade-all
@@ -71,17 +73,20 @@ sudo pear channel-discover pear.drush.org
 sudo pear install drush/drush
 
 # copy the included drush packages (for root and you)
+mkdir ~/.drush/
 sudo cp -r /var/www/elmsln/scripts/drush/server/* ~/.drush/
 sudo chown -R {user}:{user} .drush
 vi ~/.drush/elmsln.aliases.drushrc.php
 # change the domain to your base domain and change the grouping to your config grouping identifier
+# now apply the same stuff for the root user so cron jobs run happy
 sudo -i
+mkdir ~/.drush/
 cp -r /var/www/elmsln/scripts/drush/server/* ~/.drush/
 vi ~/.drush/elmsln.aliases.drushrc.php
 # change the domain to your base domain and change the grouping to your config grouping identifier
 logout
 
-=== MBSTRING ===
+#=== MBSTRING (if not already installed) ===
 install mb_string package
 
 sudo apt-get install yum
@@ -93,51 +98,54 @@ yum install php-mbstring
 touch /etc/php.d/mbstring.ini
 vi  /etc/php.d/mbstring.ini
 
-(add the following to that file)
+#(add the following to that file)
 extension=mbstring.so
 
-=== CLEAN URLS ===
-This changes based on the server but for Ubuntu check https://drupal.org/node/134439
+#=== CLEAN URLS (if not already setup) ===
+#This changes based on the server but for Ubuntu check https://drupal.org/node/134439
 
-=== RESTART APACHE ===
+#=== RESTART APACHE ===
 sudo apachectl -k restart
 
-=== ELMSLN INSTALLER ===
-The last step is to invoke the elmsln-install.sh script to kick everything off.
-This will automatically take your default settings defined in 
-elmsln/config/scripts/drush-create-site/config.cfg and try and install all the
- drupal sites needed to get things started.It will also automatically author a 
- module with all of your private connection credentials using a randomly 
- generated cis_connector keychain.
+#=== ELMSLN INSTALLER ===
+#The last step is to invoke the elmsln-install.sh script to kick everything off.
+#This will automatically take your default settings defined in 
+#elmsln/config/scripts/drush-create-site/config.cfg and try and install all the
+#drupal sites needed to get things started.It will also automatically author a 
+#module with all of your private connection credentials using a randomly 
+#generated cis_connector keychain.
 
-You can find this module in elmsln/config/shared/drupal-7.x/modules and can 
-modify it as you see fit but it’s a great starting point for all of the web 
-service calls to work correctly between systems OOTB.  It’s also automatically 
-enabled on all the jobs kicked off by the script so everything can talk to 
-each other.
+#You can find this module in elmsln/config/shared/drupal-7.x/modules and can 
+#modify it as you see fit but it’s a great starting point for all of the web 
+#service calls to work correctly between systems OOTB.  It’s also automatically 
+#enabled on all the jobs kicked off by the script so everything can talk to 
+#each other.
 
-the command is:
+#the command is:
 sudo bash /var/www/elmsln/scripts/install/elmsln-install.sh
 
-At this point, ELMSLN should pick up files and start trying to build them and 
-hopefully you’ll get emails if it all worked! You can login with admin/admin
-to your online domain (CIS) or issue the following to get a fresh login link
+#At this point, ELMSLN should pick up files and start trying to build them and 
+#hopefully you’ll get emails if it all worked! You can login with admin/admin
+#to your online domain (CIS) or issue the following to get a fresh login link
 
 drush @online uli
 
-=== EASE OF DEV (optional) ===
+#=== EASE OF DEV ===
 symlink to elmsln
 ln -s /var/www/elmsln elmsln
 
-shorter commands for lazy people
-vi .bashrc
+#shorter commands for lazy people
+vi ~/.bashrc
+#type i
 alias g='git'
 alias d='drush'
 alias l='ls -laHD'
+#type esc
+#type :wq
 
-=== PIWIK (optional) ===
-Install the analytics package by pointing a domain to the 
-elmsln/domains/analytics.  This is running piwik and has config and tmp files 
-modified to point to the symlink directories in the config directory.
+#=== PIWIK (optional) ===
+#Install the analytics package by pointing a domain to the 
+#elmsln/domains/analytics.  This is running piwik and has config and tmp files 
+#modified to point to the symlink directories in the config directory.
 
-Stay thirsty my friends.
+#Stay thirsty my friends.
