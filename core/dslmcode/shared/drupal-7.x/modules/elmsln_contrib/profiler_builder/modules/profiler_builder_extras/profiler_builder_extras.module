@@ -221,12 +221,13 @@ function _profiler_builder_extras_load_query_files($dropfiles = TRUE) {
   foreach (new DirectoryIterator($path) as $file_info) {
     if ($file_info->isFile()) {
       // load the file contents in as a json array
-      $queries[] = json_decode(file_get_contents($file_info->getPathname()), TRUE);
+      $queries[str_replace('.json', '', $file_info->getFilename())] = json_decode(file_get_contents($file_info->getPathname()), TRUE);
       if ($dropfiles) {
         // delete it after we've got it
         unlink($file_info->getPathname());
       }
     }
   }
+  ksort($queries, SORT_NUMERIC);
   return $queries;
 }
