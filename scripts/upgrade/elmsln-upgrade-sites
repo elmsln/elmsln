@@ -63,10 +63,10 @@ for stack in "${standalone[@]}"
 do
   elmslnecho "working against $stack"
   # alias to take each site offline
-  elmslnecho "$stack: sites currently offline to avoid write issues"
-  drush @${stack}-all offline --y
   elmslnecho "$stack: rebuilding registry to avoid file location issues"
   drush @${stack}-all rr --y
+  elmslnecho "$stack: sites currently offline to avoid write issues"
+  drush @${stack}-all offline --y
   elmslnecho "$stack: running potential database updates"
   drush @${stack}-all updb --y
   # alias to bring them all back online
@@ -112,18 +112,18 @@ then
           stacklist=("${stacklist[@]}" "$stack")
         fi
       done
+      elmslnecho "$coursemachinename: rebuilding registry to avoid file location issues"
+      for stack in "${stacklist[@]}"
+      do
+        elmslnecho "${stack}"
+        drush @${stack}.${coursemachinename} rr --y
+      done
       elmslnecho "$coursemachinename: take network offline to avoid write issues"
       for stack in "${stacklist[@]}"
       do
         # alias to take each site offline
         elmslnecho "${stack}"
         drush @${stack}.${coursemachinename} offline --y
-      done
-      elmslnecho "$coursemachinename: rebuilding registry to avoid file location issues"
-      for stack in "${stacklist[@]}"
-      do
-        elmslnecho "${stack}"
-        drush @${stack}.${coursemachinename} rr --y
       done
       elmslnecho "$coursemachinename: running potential database updates"
       for stack in "${stacklist[@]}"
