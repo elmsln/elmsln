@@ -58,7 +58,7 @@ git pull origin $1 || (elmslnwarn "git pull failed, make sure you sync correctly
 
 touch /tmp/elmsln-upgrade-lock
 # stacks we currently only care about as stand alone
-standalone=('online')
+standalone=('online' 'media')
 for stack in "${standalone[@]}"
 do
   elmslnecho "working against $stack"
@@ -82,7 +82,7 @@ do
 done
 
 # stacks we currently support spidering against individual networks
-masterstacklist=('studio' 'interact' 'blog' 'media')
+masterstacklist=('studio' 'interact' 'blog')
 stackdir=$elmsln/core/dslmcode/stacks
 empty=""
 primarystack='courses'
