@@ -1,0 +1,24 @@
+<?php
+
+/**
+ * Implements hook_install().
+ */
+function extlink_install() {
+  // Weight needs to be 1 for compatibility with SpamSpan.
+  db_query("UPDATE {system} SET weight = 1 WHERE name = 'extlink'");
+}
+
+/**
+ * Implements hook_uninstall().
+ */
+function extlink_uninstall() {
+  db_query("DELETE FROM {variable} WHERE name LIKE 'extlink_%'");
+  cache_clear_all('variables', 'cache');
+}
+
+/**
+ * Delete "extlink_target_value" variable (now uses "extlink_target" directly).
+ */
+function extlink_update_7101(&$sandbox) {
+  variable_del('extlink_target_value');
+}

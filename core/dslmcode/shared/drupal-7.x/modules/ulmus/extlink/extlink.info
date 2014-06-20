@@ -1,0 +1,14 @@
+name = External Links
+description = Determine behavior and appearance for external links. Options include: Make external links open in a new window, add icons next to external links and email addresses, display pop-up warnings when users click external links.
+package = User interface
+core = 7.x
+configure = admin/config/user-interface/extlink
+stylesheets[all][] = extlink.css
+files[] = extlink.test
+
+; Information added by Drupal.org packaging script on 2014-05-01
+version = "7.x-1.17"
+core = "7.x"
+project = "extlink"
+datestamp = "1398928731"
+

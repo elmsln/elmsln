@@ -1,0 +1,22 @@
+span.ext {
+  background: url(extlink_s.png) 2px center no-repeat;
+  width: 10px;
+  height: 10px;
+  padding-right: 12px;
+  text-decoration: none;
+}
+span.mailto {
+  background: url(extlink_s.png) -20px center no-repeat;
+  width: 10px;
+  height: 10px;
+  padding-right: 12px;
+  text-decoration: none;
+}
+
+/* Hide the extra spans when printing. */
+@media print {
+  span.ext, span.mailto {
+    display: none;
+    padding: 0;
+  }
+}
