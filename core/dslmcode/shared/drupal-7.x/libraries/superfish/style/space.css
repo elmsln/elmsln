@@ -1,0 +1,102 @@
+.sf-menu.sf-style-space {
+  float: left;
+  margin-bottom: 1em;
+  padding: 0;
+}
+.sf-menu.sf-style-space.sf-navbar {
+  width: 100%;
+}
+.sf-menu.sf-style-space ul {
+  padding-left: 0;
+}
+.sf-menu.sf-style-space a {
+  border: 1px outset #000000;
+  color: #f1f1f1;
+  padding: 0.75em 1em;
+}
+.sf-menu.sf-style-space a.sf-with-ul {
+  padding-right: 2.25em;
+}
+.sf-menu.sf-style-space.rtl a.sf-with-ul {
+  padding-left: 2.25em;
+  padding-right: 1em;
+}
+.sf-menu.sf-style-space.sf-navbar a {
+  border: 0;
+}
+.sf-menu.sf-style-space span.sf-description {
+  color: #f1f1f1;
+  display: block;
+  font-size: 0.8em;
+  line-height: 1.5em;
+  margin: 5px 0 0 5px;
+  padding: 0;
+}
+.sf-menu.sf-style-space li,
+.sf-menu.sf-style-space li li,
+.sf-menu.sf-style-space li li li,
+.sf-menu.sf-style-space.sf-navbar {
+  background: #333333;
+}
+.sf-menu.sf-style-space li:hover,
+.sf-menu.sf-style-space li.sfHover,
+.sf-menu.sf-style-space li.active a,
+.sf-menu.sf-style-space a:focus,
+.sf-menu.sf-style-space a:hover,
+.sf-menu.sf-style-space a:active,
+.sf-menu.sf-style-space.sf-navbar li li {
+  background: #008ad2;
+  color: #ffffff;
+}
+.sf-menu.sf-style-space.sf-navbar li ul {
+  background-color: #008ad2;
+}
+.sf-menu.sf-style-space.sf-navbar li ul li ul {
+  background-color: transparent;
+}
+.sf-menu.sf-style-space ul.sf-megamenu li.sf-megamenu-wrapper ol,
+.sf-menu.sf-style-space ul.sf-megamenu li.sf-megamenu-wrapper ol li {
+  margin: 0;
+  padding: 0;
+}
+.sf-menu.sf-style-space ul.sf-megamenu li.sf-megamenu-wrapper a.menuparent {
+  font-weight: bold;
+}
+.sf-menu.sf-style-space ul.sf-megamenu li.sf-megamenu-wrapper ol li.sf-megamenu-column {
+  display: inline;
+  float: left;
+  width: 12em;
+}
+.sf-menu.sf-style-space.rtl ul.sf-megamenu li.sf-megamenu-wrapper ol li.sf-megamenu-column {
+  float: right;
+}
+.sf-menu.sf-style-space li.sf-parent-children-1 ul.sf-megamenu {
+  width: 12em;
+}
+.sf-menu.sf-style-space li.sf-parent-children-2 ul.sf-megamenu {
+  width: 24em;
+}
+.sf-menu.sf-style-space li.sf-parent-children-3 ul.sf-megamenu {
+  width: 36em;
+}
+.sf-menu.sf-style-space li.sf-parent-children-4 ul.sf-megamenu {
+  width: 48em;
+}
+.sf-menu.sf-style-space li.sf-parent-children-5 ul.sf-megamenu {
+  width: 60em;
+}
+.sf-menu.sf-style-space li.sf-parent-children-6 ul.sf-megamenu {
+  width: 72em;
+}
+.sf-menu.sf-style-space li.sf-parent-children-7 ul.sf-megamenu {
+  width: 84em;
+}
+.sf-menu.sf-style-space li.sf-parent-children-8 ul.sf-megamenu {
+  width: 96em;
+}
+.sf-menu.sf-style-space li.sf-parent-children-9 ul.sf-megamenu {
+  width: 108em;
+}
+.sf-menu.sf-style-space li.sf-parent-children-10 ul.sf-megamenu {
+  width: 120em;
+}

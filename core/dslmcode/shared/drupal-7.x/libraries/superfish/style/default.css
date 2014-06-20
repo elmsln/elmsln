@@ -1,0 +1,99 @@
+.sf-menu.sf-style-default {
+  float: left;
+  margin-bottom: 1em;
+  padding: 0;
+}
+.sf-menu.sf-style-default.sf-navbar {
+  width: 100%;
+}
+.sf-menu.sf-style-default ul {
+  padding-left: 0;
+}
+.sf-menu.sf-style-default a {
+  border-left: 1px solid #fff;
+  border-top: 1px solid #CFDEFF;
+  padding: 0.75em 1em;
+}
+.sf-menu.sf-style-default a,
+.sf-menu.sf-style-default a:visited  {
+  color: #13a;
+}
+.sf-menu.sf-style-default a.sf-with-ul {
+  padding-right: 2.25em;
+}
+.sf-menu.sf-style-default.rtl a.sf-with-ul {
+  padding-left: 2.25em;
+  padding-right: 1em;
+}
+.sf-menu.sf-style-default span.sf-description {
+  color: #13a;
+  display: block;
+  font-size: 0.8em;
+  line-height: 1.5em;
+  margin: 5px 0 0 5px;
+  padding: 0;
+}
+.sf-menu.sf-style-default li,
+.sf-menu.sf-style-default.sf-navbar {
+  background: #BDD2FF;
+}
+.sf-menu.sf-style-default li li {
+  background: #AABDE6;
+}
+.sf-menu.sf-style-default li li li {
+  background: #9AAEDB;
+}
+.sf-menu.sf-style-default li:hover,
+.sf-menu.sf-style-default li.sfHover,
+.sf-menu.sf-style-default a:focus,
+.sf-menu.sf-style-default a:hover,
+.sf-menu.sf-style-default a:active {
+  background: #CFDEFF;
+  outline: 0;
+}
+.sf-menu.sf-style-default ul.sf-megamenu li.sf-megamenu-wrapper ol,
+.sf-menu.sf-style-default ul.sf-megamenu li.sf-megamenu-wrapper ol li {
+  margin: 0;
+  padding: 0;
+}
+.sf-menu.sf-style-default ul.sf-megamenu li.sf-megamenu-wrapper a.menuparent {
+  font-weight: bold;
+}
+.sf-menu.sf-style-default ul.sf-megamenu li.sf-megamenu-wrapper ol li.sf-megamenu-column {
+  display: inline;
+  float: left;
+  width: 12em;
+}
+.sf-menu.sf-style-default.rtl ul.sf-megamenu li.sf-megamenu-wrapper ol li.sf-megamenu-column {
+  float: right;
+}
+.sf-menu.sf-style-default li.sf-parent-children-1 ul.sf-megamenu {
+  width: 12em;
+}
+.sf-menu.sf-style-default li.sf-parent-children-2 ul.sf-megamenu {
+  width: 24em;
+}
+.sf-menu.sf-style-default li.sf-parent-children-3 ul.sf-megamenu {
+  width: 36em;
+}
+.sf-menu.sf-style-default li.sf-parent-children-4 ul.sf-megamenu {
+  width: 48em;
+}
+.sf-menu.sf-style-default li.sf-parent-children-5 ul.sf-megamenu {
+  width: 60em;
+}
+.sf-menu.sf-style-default li.sf-parent-children-6 ul.sf-megamenu {
+  width: 72em;
+}
+.sf-menu.sf-style-default li.sf-parent-children-7 ul.sf-megamenu {
+  width: 84em;
+}
+.sf-menu.sf-style-default li.sf-parent-children-8 ul.sf-megamenu {
+  width: 96em;
+}
+.sf-menu.sf-style-default li.sf-parent-children-9 ul.sf-megamenu {
+  width: 108em;
+}
+.sf-menu.sf-style-default li.sf-parent-children-10 ul.sf-megamenu {
+  width: 120em;
+}

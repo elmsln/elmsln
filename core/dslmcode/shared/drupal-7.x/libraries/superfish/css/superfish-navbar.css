@@ -1,0 +1,62 @@
+.sf-navbar {
+  position: relative;
+}
+.sf-navbar li {
+  position: static;
+}
+.sf-navbar li li {
+  position: relative;
+}
+.sf-navbar li ul,
+.sf-navbar li li li {
+  width: 100%;
+}
+.sf-navbar li li {
+  width: auto;
+  float: left;
+}
+.sf-navbar li li:hover > ul,
+.sf-navbar li li.sfHover > ul,
+.sf-navbar > li.active-trail > ul {
+  left: 0;
+  top: 2.5em;
+}
+.sf-navbar li li li:hover > ul,
+.sf-navbar li li li.sfHover > ul {
+  left: 12em;
+  top: 0;
+}
+.sf-navbar ul .sf-sub-indicator {
+  background-position: -10px -100px;
+}
+.sf-navbar ul a > .sf-sub-indicator {
+  background-position: 0 -100px;
+}
+.sf-navbar ul a:focus > .sf-sub-indicator,
+.sf-navbar ul a:hover > .sf-sub-indicator,
+.sf-navbar ul a:active > .sf-sub-indicator,
+.sf-navbar ul li:hover > a > .sf-sub-indicator,
+.sf-navbar ul li.sfHover > a > .sf-sub-indicator {
+  background-position: -10px -100px;
+}
+.sf-navbar ul ul .sf-sub-indicator {
+  background-position: -10px 0;
+}
+.sf-navbar ul ul a > .sf-sub-indicator {
+  background-position: 0 0;
+}
+.sf-navbar ul ul a:focus > .sf-sub-indicator,
+.sf-navbar ul ul a:hover > .sf-sub-indicator,
+.sf-navbar ul ul a:active > .sf-sub-indicator,
+.sf-navbar ul ul li:hover > a > .sf-sub-indicator,
+.sf-navbar ul ul li.sfHover > a > .sf-sub-indicator {
+  background-position: -10px 0;
+}
+.sf-navbar > li > ul {
+  background: transparent;
+  padding: 0;
+  -moz-border-radius-bottomleft: 0;
+  -moz-border-radius-topright: 0;
+  -webkit-border-top-right-radius: 0;
+  -webkit-border-bottom-left-radius: 0;
+}

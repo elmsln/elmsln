@@ -1,0 +1,110 @@
+/*
+ * Sample CSS for adding new styles to the /style directory of the Superfish library.
+ * 
+ * Instructions:
+ *
+ * 1. Replace the STYLENAME (below) with the name of the new style.
+ *    For example, if the style name is drupal, the class will be sf-style-drupal .
+ *
+ * 2. Save the file as CSS with the style name as its name.
+ *    For example, if the style name is drupal the file will be drupal.css and therefore
+ *    libraries/superfish/style/drupal.css.
+ *
+ * 3. That's it! go to the block conifguration, use the new style, make sure everything is right :)
+ *
+ */
+
+.sf-menu.sf-style-STYLENAME {
+  float: left;
+  margin: 0;
+  padding: 0;
+}
+.sf-menu.sf-style-STYLENAME.sf-navbar {
+  width: 100%;
+}
+.sf-menu.sf-style-STYLENAME ul {
+  padding-left: 0;
+}
+.sf-menu.sf-style-STYLENAME a  {
+  color: #0000ff;
+  padding: 0.75em 1em;
+}
+.sf-menu.sf-style-STYLENAME a.sf-with-ul {
+  padding-right: 2.25em;
+}
+.sf-menu.sf-style-STYLENAME.rtl a.sf-with-ul {
+  padding-left: 2.25em;
+  padding-right: 1em;
+}
+.sf-menu.sf-style-STYLENAME span.sf-description {
+  color: #0000ff;
+  display: block;
+  font-size: 0.8em;
+  line-height: 1.5em;
+  margin: 5px 0 0 5px;
+  padding: 0;
+}
+.sf-menu.sf-style-STYLENAME li,
+.sf-menu.sf-style-STYLENAME.sf-navbar {
+  background: #f0f0f0;
+}
+.sf-menu.sf-style-STYLENAME li li {
+  background: #e0e0e0;
+}
+.sf-menu.sf-style-STYLENAME li li li {
+  background: #d0d0d0;
+}
+.sf-menu.sf-style-STYLENAME li:hover,
+.sf-menu.sf-style-STYLENAME li.sfHover,
+.sf-menu.sf-style-STYLENAME a:focus,
+.sf-menu.sf-style-STYLENAME a:hover,
+.sf-menu.sf-style-STYLENAME a:active {
+  background: #c0c0c0;
+  outline: 0;
+}
+.sf-menu.sf-style-STYLENAME ul.sf-megamenu li.sf-megamenu-wrapper ol,
+.sf-menu.sf-style-STYLENAME ul.sf-megamenu li.sf-megamenu-wrapper ol li {
+  margin: 0;
+  padding: 0;
+}
+.sf-menu.sf-style-STYLENAME ul.sf-megamenu li.sf-megamenu-wrapper a.menuparent {
+  font-weight: bold;
+}
+.sf-menu.sf-style-STYLENAME ul.sf-megamenu li.sf-megamenu-wrapper ol li.sf-megamenu-column {
+  display: inline;
+  float: left;
+  width: 12em;
+}
+.sf-menu.sf-style-STYLENAME.rtl ul.sf-megamenu li.sf-megamenu-wrapper ol li.sf-megamenu-column {
+  float: right;
+}
+.sf-menu.sf-style-STYLENAME li.sf-parent-children-1 ul.sf-megamenu {
+  width: 12em;
+}
+.sf-menu.sf-style-STYLENAME li.sf-parent-children-2 ul.sf-megamenu {
+  width: 24em;
+}
+.sf-menu.sf-style-STYLENAME li.sf-parent-children-3 ul.sf-megamenu {
+  width: 36em;
+}
+.sf-menu.sf-style-STYLENAME li.sf-parent-children-4 ul.sf-megamenu {
+  width: 48em;
+}
+.sf-menu.sf-style-STYLENAME li.sf-parent-children-5 ul.sf-megamenu {
+  width: 60em;
+}
+.sf-menu.sf-style-STYLENAME li.sf-parent-children-6 ul.sf-megamenu {
+  width: 72em;
+}
+.sf-menu.sf-style-STYLENAME li.sf-parent-children-7 ul.sf-megamenu {
+  width: 84em;
+}
+.sf-menu.sf-style-STYLENAME li.sf-parent-children-8 ul.sf-megamenu {
+  width: 96em;
+}
+.sf-menu.sf-style-STYLENAME li.sf-parent-children-9 ul.sf-megamenu {
+  width: 108em;
+}
+.sf-menu.sf-style-STYLENAME li.sf-parent-children-10 ul.sf-megamenu {
+  width: 120em;
+}

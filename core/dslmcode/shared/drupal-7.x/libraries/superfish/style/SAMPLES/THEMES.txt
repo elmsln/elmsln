@@ -1,0 +1,108 @@
+/*
+ * Sample CSS for adding Superfish styles to themes.
+ *
+ * Instructions:
+ * 
+ * 1. Change the #superfish-1 (below) to the ID of your Superfish menu.
+ *
+ * 2. Add the CSS to your theme, either as a separate CSS file or as a part of the main CSS file.
+ *
+ * 3. Note that by removing the .sf-style-none, the style will be applied to the menu regardless of
+ *    the Style selected in the block configuration.
+ *
+ */
+
+#superfish-1.sf-style-none {
+  float: left;
+  margin: 0;
+  padding: 0;
+}
+#superfish-1.sf-style-none.sf-navbar {
+  width: 100%;
+}
+#superfish-1.sf-style-none ul {
+  padding-left: 0;
+}
+#superfish-1.sf-style-none a  {
+  color: #0000ff;
+  padding: 0.75em 1em;
+}
+#superfish-1.sf-style-none a.sf-with-ul {
+  padding-right: 2.25em;
+}
+#superfish-1.sf-style-none.rtl a.sf-with-ul {
+  padding-left: 2.25em;
+  padding-right: 1em;
+}
+#superfish-1.sf-style-none span.sf-description {
+  color: #0000ff;
+  display: block;
+  font-size: 0.8em;
+  line-height: 1.5em;
+  margin: 5px 0 0 5px;
+  padding: 0;
+}
+#superfish-1.sf-style-none li,
+#superfish-1.sf-style-none.sf-navbar {
+  background: #f0f0f0;
+}
+#superfish-1.sf-style-none li li {
+  background: #e0e0e0;
+}
+#superfish-1.sf-style-none li li li {
+  background: #d0d0d0;
+}
+#superfish-1.sf-style-none li:hover,
+#superfish-1.sf-style-none li.sfHover,
+#superfish-1.sf-style-none a:focus,
+#superfish-1.sf-style-none a:hover,
+#superfish-1.sf-style-none a:active {
+  background: #c0c0c0;
+  outline: 0;
+}
+#superfish-1.sf-style-none ul.sf-megamenu li.sf-megamenu-wrapper ol,
+#superfish-1.sf-style-none ul.sf-megamenu li.sf-megamenu-wrapper ol li {
+  margin: 0;
+  padding: 0;
+}
+#superfish-1.sf-style-none ul.sf-megamenu li.sf-megamenu-wrapper a.menuparent {
+  font-weight: bold;
+}
+#superfish-1.sf-style-none ul.sf-megamenu li.sf-megamenu-wrapper ol li.sf-megamenu-column {
+  display: inline;
+  float: left;
+  width: 12em;
+}
+#superfish-1.sf-style-none.rtl ul.sf-megamenu li.sf-megamenu-wrapper ol li.sf-megamenu-column {
+  float: right;
+}
+#superfish-1.sf-style-none li.sf-parent-children-1 ul.sf-megamenu {
+  width: 12em;
+}
+#superfish-1.sf-style-none li.sf-parent-children-2 ul.sf-megamenu {
+  width: 24em;
+}
+#superfish-1.sf-style-none li.sf-parent-children-3 ul.sf-megamenu {
+  width: 36em;
+}
+#superfish-1.sf-style-none li.sf-parent-children-4 ul.sf-megamenu {
+  width: 48em;
+}
+#superfish-1.sf-style-none li.sf-parent-children-5 ul.sf-megamenu {
+  width: 60em;
+}
+#superfish-1.sf-style-none li.sf-parent-children-6 ul.sf-megamenu {
+  width: 72em;
+}
+#superfish-1.sf-style-none li.sf-parent-children-7 ul.sf-megamenu {
+  width: 84em;
+}
+#superfish-1.sf-style-none li.sf-parent-children-8 ul.sf-megamenu {
+  width: 96em;
+}
+#superfish-1.sf-style-none li.sf-parent-children-9 ul.sf-megamenu {
+  width: 108em;
+}
+#superfish-1.sf-style-none li.sf-parent-children-10 ul.sf-megamenu {
+  width: 120em;
+}

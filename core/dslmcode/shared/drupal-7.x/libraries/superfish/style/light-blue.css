@@ -1,0 +1,112 @@
+.sf-menu.sf-style-light-blue {
+  float: left;
+  margin-bottom: 1em;
+  padding: 0;
+}
+.sf-menu.sf-style-light-blue.sf-navbar {
+  width: 100%;
+}
+.sf-menu.sf-style-light-blue ul {
+  padding-left: 0;
+}
+.sf-menu.sf-style-light-blue a {
+  border: 1px solid #b7d5f3;
+  color: #00305f;
+  padding: 0.75em 1em;
+}
+.sf-menu.sf-style-light-blue a.sf-with-ul {
+  padding-right: 2.25em;
+}
+.sf-menu.sf-style-light-blue.rtl a.sf-with-ul {
+  padding-left: 2.25em;
+  padding-right: 1em;
+}
+.sf-menu.sf-style-light-blue.sf-navbar a {
+  border: 0;
+}
+.sf-menu.sf-style-light-blue span.sf-description {
+  color: #00305f;
+  display: block;
+  font-size: 0.8em;
+  line-height: 1.5em;
+  margin: 5px 0 0 5px;
+  padding: 0;
+}
+.sf-menu.sf-style-light-blue li,
+.sf-menu.sf-style-light-blue.sf-navbar {
+  background: #d9ecff;
+}
+.sf-menu.sf-style-light-blue li li {
+  background: #d1e8ff;
+}
+.sf-menu.sf-style-light-blue li li li {
+  background: #c6e3ff;
+}
+.sf-menu.sf-style-light-blue li:hover,
+.sf-menu.sf-style-light-blue li.sfHover,
+.sf-menu.sf-style-light-blue li.active a,
+.sf-menu.sf-style-light-blue a:focus,
+.sf-menu.sf-style-light-blue a:hover,
+.sf-menu.sf-style-light-blue a:active,
+.sf-menu.sf-style-light-blue.sf-navbar li li {
+  background: #b5d8fa;
+  color: #001020;
+}
+.sf-menu.sf-style-light-blue.sf-navbar li ul {
+  background-color: #b5d8fa;
+}
+.sf-menu.sf-style-light-blue.sf-navbar li ul li ul {
+  background-color: transparent;
+}
+.sf-menu.sf-style-light-blue .sf-sub-indicator {
+  background-image: url('../images/arrows-ffffff.png');
+}
+.sf-menu.rtl.sf-style-light-blue .sf-sub-indicator {
+  background-image: url('../images/arrows-ffffff-rtl.png');
+}
+.sf-menu.sf-style-light-blue ul.sf-megamenu li.sf-megamenu-wrapper ol,
+.sf-menu.sf-style-light-blue ul.sf-megamenu li.sf-megamenu-wrapper ol li {
+  margin: 0;
+  padding: 0;
+}
+.sf-menu.sf-style-light-blue ul.sf-megamenu li.sf-megamenu-wrapper a.menuparent {
+  font-weight: bold;
+}
+.sf-menu.sf-style-light-blue ul.sf-megamenu li.sf-megamenu-wrapper ol li.sf-megamenu-column {
+  display: inline;
+  float: left;
+  width: 12em;
+}
+.sf-menu.sf-style-light-blue.rtl ul.sf-megamenu li.sf-megamenu-wrapper ol li.sf-megamenu-column {
+  float: right;
+}
+.sf-menu.sf-style-light-blue li.sf-parent-children-1 ul.sf-megamenu {
+  width: 12em;
+}
+.sf-menu.sf-style-light-blue li.sf-parent-children-2 ul.sf-megamenu {
+  width: 24em;
+}
+.sf-menu.sf-style-light-blue li.sf-parent-children-3 ul.sf-megamenu {
+  width: 36em;
+}
+.sf-menu.sf-style-light-blue li.sf-parent-children-4 ul.sf-megamenu {
+  width: 48em;
+}
+.sf-menu.sf-style-light-blue li.sf-parent-children-5 ul.sf-megamenu {
+  width: 60em;
+}
+.sf-menu.sf-style-light-blue li.sf-parent-children-6 ul.sf-megamenu {
+  width: 72em;
+}
+.sf-menu.sf-style-light-blue li.sf-parent-children-7 ul.sf-megamenu {
+  width: 84em;
+}
+.sf-menu.sf-style-light-blue li.sf-parent-children-8 ul.sf-megamenu {
+  width: 96em;
+}
+.sf-menu.sf-style-light-blue li.sf-parent-children-9 ul.sf-megamenu {
+  width: 108em;
+}
+.sf-menu.sf-style-light-blue li.sf-parent-children-10 ul.sf-megamenu {
+  width: 120em;
+}
