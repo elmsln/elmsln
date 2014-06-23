@@ -1,0 +1,7 @@
+<?php
+/**
+ * @file
+ * Code for the MOOC theme foundation feature.
+ */
+
+include_once 'mooc_theme_foundation.features.inc';

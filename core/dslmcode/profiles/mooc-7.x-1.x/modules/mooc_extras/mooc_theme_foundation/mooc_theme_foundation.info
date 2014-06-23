@@ -1,0 +1,14 @@
+name = MOOC theme foundation
+description = Support for Foundation base theme block positions
+core = 7.x
+package = MOOC Extras
+dependencies[] = boxes
+dependencies[] = chamfer_defaults
+dependencies[] = cis_service_connection
+dependencies[] = context
+dependencies[] = ctools
+dependencies[] = menu
+features[context][] = mooc-themecompat-foundation-blocks
+features[ctools][] = boxes:box:1
+features[ctools][] = context:context:3
+features[features_api][] = api:2
