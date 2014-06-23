@@ -35,13 +35,13 @@ function mooc_cis_ux_context_default_contexts() {
           'module' => 'cis_service_connection',
           'delta' => 'active_outline',
           'region' => 'sidebar_first',
-          'weight' => '-10',
+          'weight' => '-9',
         ),
-        'cis_service_connection-section_context_changer' => array(
-          'module' => 'cis_service_connection',
-          'delta' => 'section_context_changer',
+        'menu-menu-course-tools-menu' => array(
+          'module' => 'menu',
+          'delta' => 'menu-course-tools-menu',
           'region' => 'regions_admin_left',
-          'weight' => '10',
+          'weight' => '-10',
         ),
       ),
     ),
