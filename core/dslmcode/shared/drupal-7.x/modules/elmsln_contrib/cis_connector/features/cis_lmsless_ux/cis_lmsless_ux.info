@@ -4,6 +4,7 @@ core = 7.x
 package = CIS Connector
 dependencies[] = cis_lmsless
 dependencies[] = context
+dependencies[] = menu
 features[context][] = cis-lmsless
 features[ctools][] = context:context:3
 features[features_api][] = api:2

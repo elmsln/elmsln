@@ -17,6 +17,11 @@ function cis_service_connection_ux_context_default_contexts() {
   $context->description = 'This helps display service connection blocks';
   $context->tag = 'Content';
   $context->conditions = array(
+    'context_all' => array(
+      'values' => array(
+        '~mooc-themecompat-*' => '~mooc-themecompat-*',
+      ),
+    ),
     'sitewide' => array(
       'values' => array(
         1 => 1,

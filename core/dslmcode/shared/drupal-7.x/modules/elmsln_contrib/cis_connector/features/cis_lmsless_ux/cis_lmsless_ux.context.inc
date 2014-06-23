@@ -32,6 +32,12 @@ function cis_lmsless_ux_context_default_contexts() {
           'region' => 'cis_lmsless',
           'weight' => '-10',
         ),
+        'menu-menu-cis-user-profile' => array(
+          'module' => 'menu',
+          'delta' => 'menu-cis-user-profile',
+          'region' => 'cis_user_profile',
+          'weight' => '-10',
+        ),
       ),
     ),
   );
