@@ -13,12 +13,12 @@
 	    var windowTop = $(window).scrollTop(); // returns number
 	 
 	    if (bottomOffset < windowTop) {
-	      $('.book-outline.sticky-book-outline').css({ position: 'fixed', top: 0 });
-		  $('.book-outline.main-a').show;
+	      $('.book-outline.sticky-book-outline').css({ position: 'fixed', top: 0, display:'block'});
+		  $('.book-outline.main-a').css({display:'none'});
 	    }
 	    else {
-	      $('.book-outline.sticky-book-outline').css('position','static');
-		  $('.book-outline.main-a').hide;
+	      $('.book-outline.sticky-book-outline').css({ position: 'static', display:'none'});
+		  $('.book-outline.main-a').css({display:'block'});
 	    }
 	 
 	  });
