@@ -70,3 +70,28 @@ function quiz_question_schema() {
  */
 function quiz_question_uninstall() {
 }
+
+/**
+ * Implements hook_update_N()
+ */
+
+/**
+ * Make the question body visible by default for the question view mode
+ */
+function quiz_question_update_7401() {
+  $question_types = array_keys(_quiz_question_get_implementations());
+  
+  foreach ($question_types as $question_type) {
+    $instance = field_read_instance('node', 'body', $question_type);
+    
+    $instance['display']['question'] = array(
+      'label' => 'hidden',
+      'type' => 'text_default',
+      'weight' => 1,
+      'settings' => array(),
+      'module' => 'text',
+    );
+
+    field_update_instance($instance);
+  }
+}

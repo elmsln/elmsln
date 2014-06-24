@@ -5,10 +5,7 @@
  *
  * @file
  */
-
-
 // QUIZ ADMIN
-
 // Quiz Admin Settings
 
 /**
@@ -139,8 +136,7 @@ function quiz_admin_settings($form, &$form_state) {
     '#type' => 'textfield',
     '#title' => t('Display name'),
     '#default_value' => QUIZ_NAME,
-    '#description' => t('Change the name of the quiz type. Do you call it <em>test</em> or <em>assessment</em> instead? Change the display name of the module to something else. Currently, it is called @quiz. By default, it is called <em>Quiz</em>.',
-      array('@quiz' => QUIZ_NAME)),
+    '#description' => t('Change the name of the quiz type. Do you call it <em>test</em> or <em>assessment</em> instead? Change the display name of the module to something else. Currently, it is called @quiz. By default, it is called <em>Quiz</em>.', array('@quiz' => QUIZ_NAME)),
     '#required' => TRUE,
   );
 
@@ -238,8 +234,8 @@ function quiz_settings_form_validate($form, &$form_state) {
     form_set_error('quiz_name', t('The quiz name must be plain text.'));
   }
 
-  /*if (!_quiz_is_plain($form_state['values']['quiz_action_type']))
-   form_set_error('quiz_action_type', t('The action type must be plain text.'));*/
+  /* if (!_quiz_is_plain($form_state['values']['quiz_action_type']))
+    form_set_error('quiz_action_type', t('The action type must be plain text.')); */
 }
 
 /**
@@ -277,15 +273,7 @@ function quiz_admin_node_form($form, &$form_state) {
   );
   // unset values we can't or won't let the user edit default values for
   unset(
-    $form['#quiz_check_revision_access'],
-    $form['title'],
-    $form['body_field'],
-    $form['taking']['aid'],
-    $form['taking']['addons'],
-    $form['quiz_availability']['quiz_open'],
-    $form['quiz_availability']['quiz_close'],
-    $form['resultoptions'],
-    $form['number_of_random_questions']
+    $form['#quiz_check_revision_access'], $form['title'], $form['body_field'], $form['taking']['aid'], $form['taking']['addons'], $form['quiz_availability']['quiz_open'], $form['quiz_availability']['quiz_close'], $form['resultoptions'], $form['number_of_random_questions']
   );
 
   $form['remember_settings']['#type'] = 'value';
@@ -359,22 +347,22 @@ function quiz_admin_quizzes() {
  *
  * @param $quiz
  *   The quiz node
- * @param $rid
+ * @param $result_id
  *   The result id
  */
-function quiz_admin_results($quiz, $rid) {
+function quiz_admin_results($quiz, $result_id) {
   $breadcrumb = drupal_get_breadcrumb();
   $breadcrumb[] = l(t('Quiz Results'), 'admin/quiz/reports/results');
 
   // Make sure we have the right version of the quiz
-  $result = db_query('SELECT vid, uid FROM {quiz_node_results} WHERE result_id = :result_id', array(':result_id' => $rid))->fetchObject();
+  $result = db_query('SELECT vid, uid FROM {quiz_node_results} WHERE result_id = :result_id', array(':result_id' => $result_id))->fetchObject();
   if ($quiz->vid != $result->vid) {
     $quiz = node_load($quiz->nid, $result->vid);
   }
 
   // Get all the data we need.
-  $questions = _quiz_get_answers($quiz, $rid);
-  $score = quiz_calculate_score($quiz, $rid);
+  $questions = _quiz_get_answers($quiz, $result_id);
+  $score = quiz_calculate_score($quiz, $result_id);
   $summary = _quiz_get_summary_text($quiz, $score);
 
   // Lets add the quiz title to the breadcrumb array.
@@ -385,36 +373,10 @@ function quiz_admin_results($quiz, $rid) {
     'questions' => $questions,
     'score' => $score,
     'summary' => $summary,
-    'rid' => $rid,
+    'result_id' => $result_id,
     'account' => user_load($result->uid)
   );
   return theme('quiz_admin_summary', $data);
-}
-
-/**
- * Store values for each browser filters in $_SESSION
- *
- * @param $filters
- *   array holding the values for each filter
- */
-function _quiz_results_mr_store_filters($form_state) {
-  $pre = 'quiz_results_mr_';
-  $filters = $form_state['values']['table']['header']['filters'];
-  $_SESSION[$pre . 'name'] = trim($filters['name']);
-  $_SESSION[$pre . 'started'] = $filters['started'];
-  $_SESSION[$pre . 'finished'] = $filters['finished'];
-  $_SESSION[$pre . 'score'] = $filters['score'];
-  $_SESSION[$pre . 'evaluated'] = $filters['evaluated'];
-  $_SESSION[$pre . 'best_results'] = $filters['best_results'];
-  $_SESSION[$pre . 'not_in_progress'] = $filters['not_in_progress'];
-}
-
-function quiz_browser_body_callback($form, $form_state) {
-  return $form['table']['body'];
-}
-
-function quiz_questions_browser_body_callback($form, $form_state) {
-  return $form['question_list']['browser']['table']['body'];
 }
 
 // MANAGE QUESTIONS
@@ -433,7 +395,25 @@ function quiz_questions($node) {
   // Set page title.
   drupal_set_title($node->title);
   if ($node->randomization < 3) {
-    $form = drupal_get_form('quiz_questions_form', $node);
+    $mq_form = drupal_get_form('quiz_questions_form', $node);
+    $manage_questions = drupal_render($mq_form);
+    $question_bank = views_get_view('quiz_question_bank')->preview();
+
+    // Insert into vert tabs
+    $form['vert_tabs'] = array(
+      '#type' => 'vertical_tabs',
+      '#weight' => 0,
+    );
+    $form['vert_tabs']['question_admin'] = array(
+      '#type' => 'fieldset',
+      '#title' => t('Manage questions'),
+      '#value' => $manage_questions,
+    );
+    $form['vert_tabs']['global_questions'] = array(
+      '#type' => 'fieldset',
+      '#title' => t('Question bank'),
+      '#value' => $question_bank,
+    );
   }
   else {
     $form = drupal_get_form('quiz_categorized_form', $node);
@@ -632,7 +612,9 @@ function _quiz_categorized_update_terms(&$form, &$form_state) {
         $existing['nid'] = $form_state['values']['nid'];
         $existing['vid'] = $form_state['values']['vid'];
         $existing['tid'] = $key;
-        $existing['weight'] = 1;
+        if (empty($existing['weight'])) {
+          $existing['weight'] = 1;
+        }
         $changed[] = $form[$key]['name']['#markup'];
         drupal_write_record('quiz_terms', $existing, array('vid', 'tid'));
         break;
@@ -641,7 +623,7 @@ function _quiz_categorized_update_terms(&$form, &$form_state) {
         db_delete('quiz_terms')
           ->condition('tid', $key)
           ->condition('vid', $form_state['values']['vid'])
-        ->execute();
+          ->execute();
         $removed[] = $form[$key]['name']['#markup'];
         break;
       }
@@ -714,7 +696,7 @@ function _quiz_search_terms($start, $all = FALSE) {
   }
   $query = db_select('taxonomy_term_data', 't')
     ->fields('t', array('name', 'tid'))
-    ->condition('t.vid', $sql_args , 'IN');
+    ->condition('t.vid', $sql_args, 'IN');
   if (!$all) {
     $query->condition('t.name', '%' . $start . '%', 'LIKE');
   }
@@ -741,11 +723,6 @@ function _quiz_search_terms($start, $all = FALSE) {
  *  HTML output to create page.
  */
 function quiz_questions_form($form, $form_state, $quiz) {
-  if ($form_state['rebuild']) {
-    // Save the active filters in $_SESSION
-    $filters = $form_state['values']['browser']['table']['header']['filters'];
-    _quiz_questions_store_filters($filters);
-  }
 
   $types = _quiz_get_question_types();
 
@@ -761,23 +738,12 @@ function quiz_questions_form($form, $form_state, $quiz) {
     'question_status' => array('#tree' => TRUE),
   );
 
-  $form['#attached']['js'] = array(drupal_get_path('module', 'quiz') .'/theme/quiz_question_browser.js');
-
   // Add randomization settings if this quiz allows randomized questions
   _quiz_add_fields_for_random_quiz($form, $quiz);
 
-  // Build up a list of questions
-  $questions_to_add = array();
-
-  // We use $form_state[post] to avoid validation failures when questions are added using AJAX
-  if (isset($form_state['post']['weights'])) {
-    $questions = _quiz_get_questions_from_form_state($form_state, $questions_to_add);
-  }
-  else {
-    // We are coming in fresh and fetches the questions currently on the quiz from the database...
-    $include_random = $quiz->randomization == 2;
-    $questions = quiz_get_questions($quiz->nid, $quiz->vid, TRUE, FALSE, FALSE, $include_random);
-  }
+  $include_random = $quiz->randomization == 2;
+  // @todo deal with $include_random
+  $questions = quiz_get_questions($quiz->nid, $quiz->vid);
 
   if (empty($questions)) {
     $form['question_list']['no_questions'] = array(
@@ -785,12 +751,6 @@ function quiz_questions_form($form, $form_state, $quiz) {
     );
   }
 
-  // We add the browser and allows the browser to give us information on what questions are displayed in the browser...
-  $hidden_questions = array();
-  $form['question_list']['browser'] = _quiz_question_browser_form($hidden_questions, $questions_to_add, $form_state, $quiz, $types);
-  // We add the questions from the browser as hidden question rows in the question list. Doing this we can have
-  // the question show up in the question list instantly when a question is chosen in the browser(using js).
-  _quiz_add_hidden_questions($questions, $hidden_questions, $form_state, $quiz);
   // We add the questions to the form array
   _quiz_add_questions_to_form($form, $questions, $quiz, $types);
 
@@ -899,7 +859,7 @@ function _quiz_add_fields_for_random_quiz(&$form, $quiz) {
     '#default_value' => isset($quiz->max_score_for_random) ? $quiz->max_score_for_random : 1,
   );
   if ($quiz->randomization == 3) {
-    $terms =  _quiz_taxonomy_select($quiz->tid);
+    $terms = _quiz_taxonomy_select($quiz->tid);
     if (!empty($terms) && function_exists('taxonomy_get_vocabularies')) {
       $form['question_list']['random_settings']['random_term_id'] = array(
         '#type' => 'select',
@@ -910,131 +870,6 @@ function _quiz_add_fields_for_random_quiz(&$form, $quiz) {
         '#description' => t('Randomly select from questions with this term, or choose from the question pool below'),
         '#weight' => -4,
       );
-    }
-  }
-}
-
-
-/**
- * Returns the questions that was in the question list when the form was submitted using ajax.
- *
- * @param $form_state
- *   FAPI form_state(array)
- * @return $questions
- *   Array of questions as objects
- */
-function _quiz_get_questions_from_form_state(&$form_state, &$questions_to_add) {
-  $questions = array();
-  // We first store all data from the post in a temporary array.
-  // Then we fetch more data for each question from the database.
-  $cur_questions = array();
-  $vids = array();
-  foreach ($form_state['post']['weights'] as $id => $value) {
-    $cur_question = new stdClass();
-
-    // Find nid and vid
-    $matches = array();
-    preg_match('/([0-9]+)-([0-9]+)/', $id, $matches);
-    $cur_question->nid = $matches[1];
-    if (!is_numeric($matches[2])) {
-      continue;
-    }
-    $vids[] = $cur_question->vid = $matches[2];
-    $cur_question->max_score = intval($form_state['post']['max_scores'][$id]);
-    $cur_question->auto_update_max_score = intval($form_state['post']['auto_update_max_scores'][$id]);
-    $cur_question->weight = intval($value);
-    $cur_question->staying = $form_state['post']['stayers'][$id] === '1';
-    $cur_question->question_status = QUESTION_ALWAYS;
-    if ($cur_question->staying == TRUE) {
-      $questions_to_add[] = $id;
-    }
-    $cur_questions[$cur_question->nid] = $cur_question;
-  }
-
-  $query = db_select('node_revision', 'r');
-  $table_alias = $query->join('node', 'n', 'n.nid = r.nid');
-  $res = $query->addField('n', 'nid')
-    ->addTag('node_access')
-    ->addField('n', 'type')
-    ->addField('n', 'vid', 'latest_vid')
-    ->addField('r', 'title')
-    ->condition('r.vid', $vids, 'IN')
-  ->execute();
-  // TODO: Don't use db_fetch_object
-  while ($res_o = $res->fetch()) {
-    $cur_questions[$res_o->nid]->type = $res_o->type;
-    $cur_questions[$res_o->nid]->title = $res_o->title;
-    $cur_questions[$res_o->nid]->latest_vid = $res_o->latest_vid;
-    $questions[] = $cur_questions[$res_o->nid];
-  }
-  return $questions;
-}
-
-/**
- * Adds all information about the hidden questions to the questions array.
- *
- * Hidden questions are used to avoid unnecessary ajax calls.
- *
- * @see quiz_questions_form
- *
- * @param $questions
- *   The questions already added to the question list(array)
- * @param $hidden_questions
- *   The questions added to the browser(array)
- * @param $form_state
- *   FAPI form_state(array)
- * @param $quiz
- *   The quiz node
- */
-function _quiz_add_hidden_questions(&$questions, &$hidden_questions, &$form_state, &$quiz) {
-  $cur_questions = array();
-  $vids = array();
-  foreach ($hidden_questions as $key => $id) {
-    $cur_question = new stdClass();
-    $matches = array();
-
-    // Find nid and vid
-    preg_match('/([0-9]+)-([0-9]+)/', $id, $matches);
-    $nid = $matches[1];
-    $vid = $matches[2];
-
-    // If a question already exists in the $questions array we won't add a new one...
-    $continue = FALSE;
-    foreach ($questions as $question) {
-      if ($question->vid == $vid) {
-        $continue = TRUE;
-        break;
-      }
-    }
-    if (!is_numeric($nid) || !is_numeric($vid) || $continue) {
-      continue;
-    }
-
-    $cur_question->nid = $nid;
-    $vids[] = $cur_question->vid = $vid;
-    $cur_question->weight = 0;
-    $cur_question->question_status = ($quiz->randomization == 2) ? QUESTION_RANDOM : QUESTION_ALWAYS;
-    $cur_question->staying = isset($form_state['values']['stayers'][$id]) ? $form_state['values']['stayers'][$id] === '1' : FALSE;
-    $cur_questions[$cur_question->nid] = $cur_question;
-  }
-  if (count($vids) > 0) {
-    // We fetch the rest of the information for each question and adds node access security
-    $res = db_select('node', 'n');
-    $res->fields('n', array('nid', 'type'));
-    $res->fields('r', array('title'));
-    $res->fields('p', array('max_score'));
-    $res->addField('n', 'vid', 'latest_vid');
-    $res->join('node_revision', 'r', 'n.nid = r.nid');
-    $res->join('quiz_question_properties', 'p', 'r.vid = p.vid');
-    $res->condition('r.vid', $vids, 'in');
-
-    // TODO: Don't user db_fetch_object
-    foreach ($res->execute() as $res_o) {
-      $cur_questions[$res_o->nid]->type = $res_o->type;
-      $cur_questions[$res_o->nid]->title = $res_o->title;
-      $cur_questions[$res_o->nid]->max_score = $res_o->type == 'scale' ? 0 : $res_o->max_score;
-      $cur_questions[$res_o->nid]->latest_vid = $res_o->latest_vid;
-      $questions[] = $cur_questions[$res_o->nid];
     }
   }
 }
@@ -1053,6 +888,8 @@ function _quiz_add_hidden_questions(&$questions, &$hidden_questions, &$form_stat
  */
 function _quiz_add_questions_to_form(&$form, &$questions, &$quiz, &$question_types) {
   $form['question_list']['weights'] = array('#tree' => TRUE);
+  $form['question_list']['qnr_ids'] = array('#tree' => TRUE);
+  $form['question_list']['qnr_pids'] = array('#tree' => TRUE);
   $form['question_list']['max_scores'] = array('#tree' => TRUE);
   $form['question_list']['auto_update_max_scores'] = array('#tree' => TRUE);
   $form['question_list']['stayers'] = array('#tree' => TRUE);
@@ -1061,8 +898,10 @@ function _quiz_add_questions_to_form(&$form, &$questions, &$quiz, &$question_typ
     $form['question_list']['compulsories'] = array('#tree' => TRUE);
   }
 
-  $my_dest = $_GET['q'];
   foreach ($questions as $question) {
+    // @todo replace entire form with usage of question instance
+    $question_node = node_load($question->nid, $question->vid);
+    $instance = _quiz_question_get_instance($question_node);
     $fieldset = 'question_list';
     $id = $question->nid . '-' . $question->vid;
 
@@ -1072,32 +911,44 @@ function _quiz_add_questions_to_form(&$form, &$questions, &$quiz, &$question_typ
       '#maxlength' => 4,
       '#default_value' => isset($question->weight) ? $question->weight : 0,
     );
+
+    $form[$fieldset]['qnr_pids'][$id] = array(
+      '#type' => 'textfield',
+      '#size' => 3,
+      '#maxlength' => 4,
+      '#default_value' => $question->qnr_pid,
+    );
+
+    $form[$fieldset]['qnr_ids'][$id] = array(
+      '#type' => 'textfield',
+      '#size' => 3,
+      '#maxlength' => 4,
+      '#default_value' => $question->qnr_id,
+    );
+
     // Quiz directions don't have scoring...
-    if ($question->type != 'quiz_directions') {
-      $form[$fieldset]['max_scores'][$id] = array(
-        '#type' => 'textfield',
-        '#size' => 2,
-        '#maxlength' => 2,
-        '#disabled' => isset($question->auto_update_max_score) ? $question->auto_update_max_score : FALSE,
-        '#default_value' => isset($question->max_score) ? $question->max_score : 0,
-      );
-    }
-    else {
-      $form[$fieldset]['max_scores'][$id] = array(
-        '#type' => 'value',
-        '#value' => isset($question->max_score) ? $question->max_score : 0,
-      );
-    }
+    $form[$fieldset]['max_scores'][$id] = array(
+      '#type' => $instance->isGraded() ? 'textfield' : 'hidden',
+      '#size' => 2,
+      '#maxlength' => 2,
+      '#disabled' => isset($question->auto_update_max_score) ? $question->auto_update_max_score : FALSE,
+      '#default_value' => isset($question->max_score) ? $question->max_score : 0,
+      '#states' => array(
+        'disabled' => array(
+          "#edit-auto-update-max-scores-$id" => array('checked' => TRUE),
+        )
+      ),
+    );
 
     $form[$fieldset]['auto_update_max_scores'][$id] = array(
-      '#type' => 'checkbox',
+      '#type' => $instance->isGraded() ? 'checkbox' : 'hidden',
       '#default_value' => isset($question->auto_update_max_score) ? $question->auto_update_max_score : 0,
     );
 
     // Add checkboxes to remove questions in js disabled browsers...
     $form[$fieldset]['stayers'][$id] = array(
       '#type' => 'checkbox',
-      '#default_value' => (isset($question->staying) && $question->staying === FALSE) ? 0 : 1,
+      '#default_value' => 0,
       '#attributes' => array('class' => array('q-staying')),
     );
 
@@ -1125,15 +976,14 @@ function _quiz_add_questions_to_form(&$form, &$questions, &$quiz, &$question_typ
 
     $form[$fieldset]['types'][$id] = array(
       '#markup' => $question_types[$question->type]['name'],
+      '#question_type' => $question->type,
     );
 
     $form[$fieldset]['view_links'][$id] = array(
       '#markup' => l(
-        t('Edit'),
-        'node/' . $question->nid . '/edit',
-        array(
-          'query' => array('destination' => $my_dest),
-          'attributes' => array('class' => array('handle-changes')),
+        t('Edit'), 'node/' . $question->nid . '/edit', array(
+        'query' => drupal_get_destination(),
+        'attributes' => array('class' => array('handle-changes')),
         )
       ),
       '#access' => node_access('update', node_load($question->nid, $question->vid)),
@@ -1150,11 +1000,11 @@ function _quiz_add_questions_to_form(&$form, &$questions, &$quiz, &$question_typ
     }
     else {
       $update_cell = array(
-      '#type' => 'checkbox',
-      '#title' => (l(t('Latest'), 'node/' . $question->nid . '/revisions/' .$question->latest_vid . '/view')
-                  . ' of ' .
-                  l(t('revisions'), 'node/' . $question->nid . '/revisions')
-                  ),
+        '#type' => 'checkbox',
+        '#title' => (l(t('Latest'), 'node/' . $question->nid . '/revisions/' . $question->latest_vid . '/view')
+        . ' of ' .
+        l(t('revisions'), 'node/' . $question->nid . '/revisions')
+        ),
       );
     }
     $form[$fieldset]['revision'][$id] = $update_cell;
@@ -1196,247 +1046,6 @@ function _quiz_add_revision_checkbox(&$form, &$quiz) {
 }
 
 /**
- * Creates the browser part of the quiz_questions_form
- *
- * @param $hidden_questions
- *   Array where we add the questions in the browser
- * @param $questions
- *   Questions already added to the question list(array)
- * @param $form_state
- *   FAPI form_state(array)
- * @param $quiz
- *   Quiz node(object)
- * @return form
- *   FAPI form(array)
- */
-function _quiz_question_browser_form(&$hidden_questions, $questions, $form_state, $quiz, $question_types) {
-  if (!is_array($question_types) || count($question_types) == 0) {
-    return $form['no_questions'] = array(
-      '#markup' => t('No question types are enabled'),
-    );
-  }
-  $form = array(
-    '#type' => 'fieldset',
-    '#title' => t('Browse for questions to add'),
-    '#description' => t('Mark all the questions you want to add.') . ' '
-    . t('You can filter questions by using the textfields and select boxes.') . ' '
-    . t('You can sort by pressing the table headers.'),
-    '#collapsible' => FALSE,
-    '#collapsed' => FALSE,
-    '#tree' => TRUE,
-    '#prefix' => '<div id="quiz-browser-target">',
-    '#suffix' => '</div>',
-  );
-  $form['table'] = array('#theme' => 'quiz_browser');
-  $browser = &$form['table'];
-
-  // Ajax use this field to send extra query strings to drupal
-  $browser['add_to_get'] = array(
-    '#type' => 'hidden',
-    '#default_value' => '',
-  );
-
-  $browser['header'] = array('#theme' => 'quiz_questions_browser_header');
-  $browser['body'] = array('#theme' => 'quiz_questions_browser_body');
-
-  //Build filter part of form:
-  _quiz_question_browser_add_filter_fields($browser['header'], $question_types, $quiz);
-
-  // Add querystring recieved via ajax to the $_GET array...
-  if (isset($form_state['values'])) {
-    _quiz_add_to_get($form_state['values']['browser']['table']['add_to_get']);
-  }
-
-  // Browsers table header
-  $browser['header']['#header'] = array(
-    NULL,
-    array('data' => t('Title'), 'field' => 'n.title'),
-    array('data' => t('Type'), 'field' => 'n.type'),
-    array('data' => t('Changed'), 'field' => 'n.changed', 'sort' => 'desc'),
-    array('data' => t('Username'), 'field' => 'u.name'),
-  );
-
-  $child_nid = db_query('SELECT child_nid FROM {quiz_node_relationship}
-      WHERE parent_vid = :parent_vid',
-      array(':parent_vid' => $quiz->vid)
-    )
-    ->fetchCol();
-
-  $query = db_select('node', 'n')->extend('PagerDefault')->extend('TableSort');
-  $query->fields('n', array('nid', 'type', 'vid', 'title', 'changed'));
-  $query->fields('u', array('name'));
-  $query->leftJoin('users', 'u', 'n.uid = u.uid');
-  $query->condition('type', array_keys($question_types), 'IN');
-  $query->condition('n.language', $quiz->language, '=');
-  if (count($child_nid)) {
-    $query->condition('nid', $child_nid, 'NOT IN');
-  }
-
-  // Apply filter conditions
-  // _quiz_question_browser_prepare_filter_sql($query);
-  $pre = 'quiz_question_browser_';
-  $changed_timestamps = _quiz_get_interval_timestamps('changed');
-  $filter_sql = '';
-  if (isset($_SESSION[$pre . 'title']) && !empty($_SESSION[$pre . 'title'])) {
-    $query->condition('n.title', '%' . db_like($_SESSION[$pre . 'title']) . '%', 'LIKE');
-  }
-
-  if (isset($_SESSION[$pre . 'name']) && !empty($_SESSION[$pre . 'name'])) {
-    $query->condition('u.name', '%' . db_like($_SESSION[$pre . 'name']) . '%', 'LIKE');
-  }
-
-  if (isset($_SESSION[$pre . 'type']) && ($_SESSION[$pre . 'type'] !== '0')) {
-    $query->condition('type', array($_SESSION[$pre . 'type']), 'IN');
-  }
-
-  if (isset($_SESSION[$pre . 'changed'])) {
-    $changed_timestamps = _quiz_get_interval_timestamps('changed');
-    if ($changed_timestamps[$_SESSION[$pre . 'changed']][0]) {
-      $query->condition('changed', $changed_timestamps[$_SESSION[$pre . 'changed']][0], '>');
-    }
-    if ($changed_timestamps[$_SESSION[$pre . 'changed']][1]) {
-      $query->condition('changed', $changed_timestamps[$_SESSION[$pre . 'changed']][1], '<');
-    }
-  }
-  $query->limit(10);
-  $query->orderByHeader($browser['header']['#header']);
-  $options = array();
-
-  foreach ($query->execute() as $res_o) {
-    $id = $res_o->nid . '-' . $res_o->vid;
-    // Add $id to hidden_questions, this way quiz_questions_form knows that it has to add a invisible row for this question.
-    $hidden_questions[] = $id;
-
-    $options[$id] = check_plain($res_o->title);
-    $browser['body']['changed'][$id]['#value'] = format_date($res_o->changed, 'short');
-    $browser['body']['types'][$id]['#value'] = $question_types[$res_o->type]['name'];
-    $browser['body']['names'][$id]['#value'] = check_plain($res_o->name);
-  }
-
-  $browser['body']['titles'] = array(
-    '#title' => t('Titles'),
-    '#type' => 'checkboxes',
-    '#options' => $options,
-    '#attributes' => array('class' => array('quiz-browser-checkbox')),
-    '#default_value' => $questions,
-  );
-
-  $browser['pager'] = array(
-    '#markup' => '<div id="browser-pager">' . theme('pager', array('tags' => NULL)) . '</div>',
-  );
-  return $form;
-}
-
-
-/**
- * adds filter fields to the question browser form
- *
- * @param $browser
- *   FAPI form(array)
- * @param $question_types
- *   Array of question types
- */
-function _quiz_question_browser_add_filter_fields(&$browser, &$question_types, $quiz) {
-  // Create options array for the type filter(select field)
-  $type_options = array(t('No filter'));
-  foreach (array_keys($question_types) as $type) {
-    $type_options[$type] = $question_types[$type]['name'];
-  }
-
-  // Create options array for the changed filter
-  $changed_options = _quiz_get_time_interval_options();
-
-  // Create the filter form items
-  $browser['filters'] = array();
-  $filters = &$browser['filters'];
-
-  $filters['all'] = array(
-    '#type' => 'checkbox',
-  );
-
-  $pre = 'quiz_question_browser_';
-
-  $filters['title'] = array(
-    '#type' => 'textfield',
-    '#size' => 20,
-    '#default_value' => isset($_SESSION[$pre . 'title']) ? $_SESSION[$pre . 'title'] : '',
-    '#ajax' => array(
-      'callback' => 'quiz_questions_browser_body_callback',
-      'effect' => 'slide',
-      'wrapper' => 'quiz-browser-body',
-      'method' => 'replace',
-      'event' => 'doneTyping', // custom event
-    ),
-  );
-  $filters['type'] = array(
-    '#type' => 'select',
-    '#options' => $type_options,
-    '#default_value' => isset($_SESSION[$pre . 'type']) ? $_SESSION[$pre . 'type'] : '',
-    '#ajax' => array(
-      'callback' => 'quiz_questions_browser_body_callback',
-      'effect' => 'slide',
-      'wrapper' => 'quiz-browser-body',
-      'method' => 'replace',
-    ),
-  );
-  $filters['changed'] = array(
-    '#type' => 'select',
-    '#options' => $changed_options,
-    '#default_value' => isset($_SESSION[$pre . 'changed']) ? $_SESSION[$pre . 'changed'] : '',
-    '#ajax' => array(
-      'callback' => 'quiz_questions_browser_body_callback',
-      'effect' => 'slide',
-      'wrapper' => 'quiz-browser-body',
-      'method' => 'replace',
-    ),
-  );
-  $filters['name'] = array(
-    '#type' => 'textfield',
-    '#size' => 10,
-    '#default_value' => isset($_SESSION[$pre . 'name']) ? $_SESSION[$pre . 'name'] : '',
-    '#ajax' => array(
-      'callback' => 'quiz_questions_browser_body_callback',
-      'effect' => 'slide',
-      'wrapper' => 'quiz-browser-body',
-      'method' => 'replace',
-      'event' => 'doneTyping', // custom event
-    ),
-  );
-}
-
-/**
- * Returns sql to be added in where clause in the browsers select statement
- *
- * @see _quiz_questions_browser_form()
- *
- * @param $filter_params
- *   params to be sent as parameter to db_query. (array)
- * @return $filter_sql
- *   sql to be added to where statement in browser(string)
- */
-function _quiz_question_browser_prepare_filter_sql(&$filter_params) {
-  $pre = 'quiz_question_browser_';
-  $changed_timestamps = _quiz_get_interval_timestamps('changed');
-  $filter_sql = '';
-  if (isset($_SESSION[$pre .'title']) && drupal_strlen($_SESSION[$pre .'title']) > 0) {
-    $filter_sql .= ' AND n.title LIKE \'%s%%\'';
-    $filter_params[] = $_SESSION[$pre . 'title'];
-  }
-  if (isset($_SESSION[$pre .'name']) && drupal_strlen($_SESSION[$pre .'name']) > 0) {
-    $filter_sql .= ' AND u.name LIKE \'%s%%\'';
-    $filter_params[] = $_SESSION[$pre . 'name'];
-  }
-  if (isset($_SESSION[$pre . 'type']) && ($_SESSION[$pre . 'type'] !== '0')) {
-    $filter_sql .= ' AND n.type = \'%s\'';
-    $filter_params[] = $_SESSION[$pre . 'type'];
-  }
-  if (isset($_SESSION[$pre . 'changed'])) {
-    $filter_sql .= $changed_timestamps[$_SESSION[$pre . 'changed']]['sql'];
-  }
-  return $filter_sql;
-}
-
-/**
  * Validate that the supplied questions are real.
  */
 function quiz_questions_form_validate($form, $form_state) {
@@ -1471,20 +1080,17 @@ function quiz_questions_form_validate($form, $form_state) {
   $question_types = array_keys(_quiz_get_question_types());
 
   foreach ($weight_map as $id => $weight) {
-    if ($form_state['values']['stayers'][$id] == 0) {
-      continue;
-    } // The question isn't to be added...
 
     list($nid, $vid) = explode('-', $id, 2);
 
     // If a node isn't one of the questionstypes we remove it from the question list
     $has_questions = (Boolean) db_select('node', 'n')
-      ->fields('n', array('nid'))
-      ->condition('type', $question_types, 'IN')
-      ->addTag('node_access')
-      ->condition('n.nid', $nid)
-      ->execute()
-      ->fetchField();
+        ->fields('n', array('nid'))
+        ->condition('type', $question_types, 'IN')
+        ->addTag('node_access')
+        ->condition('n.nid', $nid)
+        ->execute()
+        ->fetchField();
     if (!$has_questions) {
       form_set_error('none', 'One of the supplied questions was invalid. It has been removed from the quiz.');
       unset($form_state['values']['weights'][$id]);
@@ -1503,9 +1109,6 @@ function quiz_questions_form_validate($form, $form_state) {
   // We make sure max score is a positive number
   $max_scores = $form_state['values']['max_scores'];
   foreach ($max_scores as $id => $max_score) {
-    if ($form_state['values']['stayers'][$id] == 0) {
-      continue;
-    }
     if (!_quiz_is_int($max_score, 0)) {
       form_set_error("max_scores][$id", t('Max score needs to be a positive number'));
     }
@@ -1530,11 +1133,10 @@ function quiz_questions_form_validate($form, $form_state) {
  *   Array of boolean values determining if the question is compulsory or not.
  * @return array set of questions after updating
  */
-function _quiz_update_items($quiz, $weight_map, $max_scores, $auto_update_max_scores, $is_new_revision, $refreshes, $stayers, $compulsories = NULL) {
+function _quiz_update_items($quiz, $weight_map, $max_scores, $auto_update_max_scores, $is_new_revision, $refreshes, $stayers, $qnr_ids, $qnr_pids, $compulsories = NULL) {
   $questions = array();
   foreach ($weight_map as $id => $weight) {
-    // Do not add hidden questions to $questions
-    if ($stayers[$id] == 0) {
+    if ($stayers[$id]) {
       continue;
     }
     list($nid, $vid) = explode('-', $id, 2);
@@ -1558,6 +1160,8 @@ function _quiz_update_items($quiz, $weight_map, $max_scores, $auto_update_max_sc
     $question->weight = $weight;
     $question->max_score = $max_scores[$id];
     $question->auto_update_max_score = $auto_update_max_scores[$id];
+    $question->qnr_pid = $qnr_pids[$id] > 0 ? $qnr_pids[$id] : NULL;
+    $question->qnr_id = $qnr_ids[$id] > 0 ? $qnr_ids[$id] : NULL;
     $question->refresh = (isset($refreshes[$id]) && $refreshes[$id] == 1);
 
     // Add item as an object in the questions array.
@@ -1576,10 +1180,6 @@ function _quiz_update_items($quiz, $weight_map, $max_scores, $auto_update_max_sc
  * Updates from the "manage questions" tab.
  */
 function quiz_questions_form_submit($form, &$form_state) {
-  if (isset($form_state['#from_ahah'])) {
-    return;
-  }
-
   // Load the quiz node
   $quiz = node_load(intval(arg(1)));
   // Update the refresh latest quizzes table so that we know what the users latest quizzes are
@@ -1593,6 +1193,8 @@ function quiz_questions_form_submit($form, &$form_state) {
   _quiz_question_browser_submit($form, $form_state);
 
   $weight_map = $form_state['values']['weights'];
+  $qnr_pids_map = $form_state['values']['qnr_pids'];
+  $qnr_ids_map = $form_state['values']['qnr_ids'];
   $max_scores = $form_state['values']['max_scores'];
   $auto_update_max_scores = $form_state['values']['auto_update_max_scores'];
   $refreshes = isset($form_state['values']['revision']) ? $form_state['values']['revision'] : NULL;
@@ -1607,7 +1209,7 @@ function quiz_questions_form_submit($form, &$form_state) {
 
 
   // Store what questions belong to the quiz
-  $questions = _quiz_update_items($quiz, $weight_map, $max_scores, $auto_update_max_scores, $is_new_revision, $refreshes, $stayers, $compulsories);
+  $questions = _quiz_update_items($quiz, $weight_map, $max_scores, $auto_update_max_scores, $is_new_revision, $refreshes, $stayers, $qnr_ids_map, $qnr_pids_map, $compulsories, $stayers);
 
   // If using random questions and no term ID is specified, make sure we have enough.
   if (empty($term_id)) {
@@ -1687,9 +1289,6 @@ function _quiz_question_browser_submit($form, &$form_state) {
   if (isset($form_state['values']['browser']['table']['titles'])) {
     foreach ($form_state['values']['browser']['table']['titles'] as $id) {
       if ($id !== 0) {
-        if ($form_state['values']['stayers'][$id] == 1) {
-          continue;
-        }
         $matches = array();
         preg_match('/([0-9]+)-([0-9]+)/', $id, $matches);
         $nid = $matches[1];
@@ -1700,20 +1299,6 @@ function _quiz_question_browser_submit($form, &$form_state) {
       }
     }
   }
-}
-
-/**
- * Store values for each browser filter in $_SESSION
- *
- * @param $filters
- *   array holding the values for each filter
- */
-function _quiz_questions_store_filters($filters) {
-  $pre = 'quiz_question_browser_';
-  $_SESSION[$pre . 'title'] = trim($filters['title']);
-  $_SESSION[$pre . 'type'] = $filters['type'];
-  $_SESSION[$pre . 'changed'] = $filters['changed'];
-  $_SESSION[$pre . 'name'] = trim($filters['name']);
 }
 
 // THEME FUNCTIONS
@@ -1744,16 +1329,16 @@ function theme_quiz_admin_quizzes($variables) {
 
   while (list($key, $result) = each($results)) {
     $cols = array(
-      l($result['title'], 'node/' . $result['nid'] . '/results'),
+      l($result['title'], 'node/' . $result['nid'] . '/quiz/results'),
       check_plain($result['name']),
       format_date($result['created'], 'short'),
     );
     // Add export links if the results export module is enabled
     if ($exp) {
       $cols[] = l($png['html'], 'admin/quiz/results_export_teaser_view/' . $result['nid'] . '/html', array('html' => TRUE))
-              . l($png['xml'], 'admin/quiz/results_export_teaser_view/' . $result['nid'] . '/xml', array('html' => TRUE))
-              . l($png['csv'], 'admin/quiz/results_export_teaser_view/' . $result['nid'] . '/csv', array('html' => TRUE))
-              . l($png['csv_full'], 'admin/quiz/results_export_full_view/' . $result['nid'] . '/csv', array('html' => TRUE));
+        . l($png['xml'], 'admin/quiz/results_export_teaser_view/' . $result['nid'] . '/xml', array('html' => TRUE))
+        . l($png['csv'], 'admin/quiz/results_export_teaser_view/' . $result['nid'] . '/csv', array('html' => TRUE))
+        . l($png['csv_full'], 'admin/quiz/results_export_full_view/' . $result['nid'] . '/csv', array('html' => TRUE));
     }
     $rows[] = $cols;
   }
@@ -1809,11 +1394,12 @@ function theme_quiz_node_form($variables) {
  * @ingroup themeable
  */
 function theme_quiz_admin_summary($variables) {
+  global $user;
   $quiz = $variables['quiz'];
   $questions = $variables['questions'];
   $score = $variables['score'];
   $summary = $variables['summary'];
-  $rid = $variables['rid'];
+  $result_id = $variables['result_id'];
   $account = $variables['account'];
   // To adjust the title uncomment and edit the line below:
   // drupal_set_title(check_plain($quiz->title));
@@ -1835,7 +1421,8 @@ function theme_quiz_admin_summary($variables) {
 
   // Get the feedback for all questions.
   require_once DRUPAL_ROOT . '/' . drupal_get_path('module', 'quiz') . '/quiz.pages.inc';
-  $report_form = drupal_get_form('quiz_report_form', $questions, TRUE, TRUE, TRUE);
+  $allow_scoring = quiz_allow_score_access($quiz);
+  $report_form = drupal_get_form('quiz_report_form', $questions, TRUE, TRUE, $allow_scoring);
   $output .= drupal_render($report_form);
   return $output;
 }
@@ -1845,26 +1432,33 @@ function theme_quiz_admin_summary($variables) {
  */
 function theme_question_selection_table($variables) {
   $form = $variables['form'];
-  drupal_add_tabledrag('question-list', 'order', 'sibling', 'question-list-weight', NULL, NULL, TRUE);
+  drupal_add_tabledrag('question-list', 'match', 'parent', 'qnr-pid', 'qnr-pid', 'qnr-id', TRUE, 1);
+  drupal_add_tabledrag('question-list', 'order', 'sibling', 'question-list-weight');
 
   // Building headers
-  $headers = array(t('Question'), t('Type'), t('Actions'), t('Update'), t('Max score'), t('Auto update max score'));
+  $headers = array(t('Question'), t('Type'), t('Actions'), t('Update'), t('Max score'), t('Auto update max score'), t('Delete'));
   if (isset($form['compulsories'])) {
     $headers[] = t('Compulsory');
   }
   $headers[] = t('Weight');
+  $headers[] = t('Parent ID');
+  $headers[] = array(
+    'data' => t('ID'),
+    'class' => array('tabledrag-hide'),
+  );
 
   // Building table body
   $rows = array();
   if (!empty($form['titles'])) {
     foreach (element_children($form['titles']) as $id) {
       $form['weights'][$id]['#attributes']['class'] = array('question-list-weight');
-
+      $form['qnr_ids'][$id]['#attributes']['class'] = array('qnr-id');
+      $form['qnr_pids'][$id]['#attributes']['class'] = array('qnr-pid');
       $rows[] = _quiz_get_question_row($form, $id);
     }
     // Make sure the same fields aren't rendered twice
     unset($form['types'], $form['view_links'], $form['remove_links'], $form['stayers']);
-    unset($form['max_scores'], $form['auto_update_max_scores'], $form['revision'], $form['weights'], $form['titles'], $form['compulsories']);
+    unset($form['max_scores'], $form['auto_update_max_scores'], $form['revision'], $form['weights'], $form['titles'], $form['compulsories'], $form['qnr_ids'], $form['qnr_pids']);
   }
   $html_attr = array('id' => 'question-list');
 
@@ -1876,460 +1470,20 @@ function theme_question_selection_table($variables) {
   $table = theme('table', array('header' => $headers, 'rows' => $rows, 'attributes' => $html_attr));
 
   return drupal_render($form['random_settings'])
-       . $table
-       . drupal_render_children($form);
-}
-
-// RESULT MANAGEMENT
-
-/**
- * Form for searching after and manipulating results for a quiz
- *
- * @param $form_state
- *   FAPI form_state
- * @param $quiz
- *   The quiz node
- * @return
- *   FAPI-array
- */
-function quiz_results_manage_results_form($form, &$form_state, $quiz) {
-  global $user;
-  if ($form_state['rebuild']) {
-    // We remember the filters for the next time the same user visits the result browser
-    _quiz_results_mr_store_filters($form_state);
-  }
-  $form = array();
-  $pre = 'quiz_results_mr_';
-
-  $form['#attached']['js'] = array(drupal_get_path('module', 'quiz') .'/theme/quiz_results_browser.js');
-  /* not_in_progress is a filter to filter away questions that are in progress...
-   By default we don't want to show questions in progress... */
-  if (!isset($_SESSION[$pre . 'not_in_progress'])) {
-    $_SESSION[$pre . 'not_in_progress'] = 1;
-  }
-
-  // We hide the update fieldset if we are to delete results
-  if (user_access('delete any quiz results') || (user_access('delete results for own quiz') && ($user->uid == $quiz->uid))) {
-    $display = isset($_GET['del']) || isset($form_state['storage']['del']) ? 'none' : 'block';
-    $form['update'] = array(
-      '#type' => 'fieldset',
-      '#title' => t('Options'),
-      '#collapsible' => FALSE,
-      '#collapsed' => FALSE,
-      '#attributes' => array(
-        'class' => array('container-inline'),
-        'id' => 'quiz-results-update',
-        'style' => "display:$display;"
-      ),
-    );
-
-    $form['update']['bulk_action'] = array(
-      '#type' => 'select',
-      '#options' => array(
-        'def' => '',
-        'del' => t('delete'),
-        // In later versions we will be adding score as a third option here
-      ),
-    );
-    $form['update']['update'] = array(
-      '#type' => 'submit',
-      '#value' => t('Update'),
-    );
-
-    // We show the delete confirmation fieldset if we are to delete results
-    $display = isset($_GET['del']) || isset($form_state['storage']['del']) ? 'block' : 'none';
-    $form['confirm_delete'] = array(
-      '#type' => 'fieldset',
-      '#title' => t('Confirm deletion'),
-      '#collapsible' => FALSE,
-      '#collapsed' => FALSE,
-      '#attributes' => array(
-        'style' => "display:$display;",
-        'id' => 'quiz-results-confirm-delete'
-      ),
-    );
-    $form['confirm_delete']['help'] = array(
-      '#type' => 'item',
-      '#value' => t('Are you sure you want to delete all of these results?'),
-      '#description' => t('This action cannot be undone'),
-    );
-    $form['confirm_delete']['confirm_delete'] = array(
-      '#type' => 'submit',
-      '#value' => t('Delete all marked results'),
-    );
-    $form['confirm_delete']['cancel'] = array(
-      '#markup' => l(t('cancel'), $_GET['q'], array('attributes' => array('id' => 'quiz-results-cancel-delete'))),
-    );
-  }
-
-  $form['special_filters'] = array(
-    '#type' => 'fieldset',
-    '#title' => t('Special filters'),
-    '#collapsible' => TRUE,
-    '#collapsed' => TRUE,
-  );
-  if (!isset($_SESSION[$pre . 'best_results'])) {
-    $_SESSION[$pre . 'best_results'] = 1;
-  }
-  $form['special_filters']['best_results'] = array(
-    '#type' => 'checkbox',
-    '#title' => t('Only show each users best result'),
-    '#parents' => array('table', 'header', 'filters', 'best_results'),
-    '#default_value' => $_SESSION[$pre . 'best_results'],
-    '#ajax' => array(
-      'callback' => 'quiz_browser_body_callback',
-      'effect' => 'slide',
-      'wrapper' => 'quiz-browser-body',
-      'method' => 'replace',
-    ),
-  );
-
-  if (!isset($_SESSION[$pre . 'not_in_progress'])) {
-    $_SESSION[$pre . 'not_in_progress'] = 1;
-  }
-  $form['special_filters']['not_in_progress'] = array(
-    '#type' => 'checkbox',
-    '#title' => t('Do not show quizzes in progress'),
-    '#parents' => array('table', 'header', 'filters', 'not_in_progress'),
-    '#default_value' => $_SESSION[$pre . 'not_in_progress'],
-    '#ajax' => array(
-      'callback' => 'quiz_browser_body_callback',
-      'effect' => 'slide',
-      'wrapper' => 'quiz-browser-body',
-      'method' => 'replace',
-    ),
-  );
-
-  $form['table'] = array('#theme' => 'quiz_browser', '#tree' => TRUE);
-  $browser = &$form['table'];
-
-  // js use this field to send extra query strings to drupal(sorting, paging etc)
-  $browser['add_to_get'] = array(
-    '#type' => 'hidden',
-    '#default_value' => '',
-  );
-
-  // Build filter part of form:
-  $browser['header'] = array('#theme' => 'quiz_results_browser_header');
-
-  // Browsers table header
-  $browser['header']['#header'] = array(
-    array('data' => t('Username'), 'field' => 'u.uid'),
-    array('data' => t('Started'), 'field' => 'started'),
-    array('data' => t('Finished'), 'field' => 'finished'),
-    array('data' => t('Score'), 'field' => 'score'),
-    array('data' => t('Evaluated'), 'field' => 'evaluated'),
-  );
-
-  _quiz_results_mr_add_filter_fields($browser['header'], $quiz);
-
-  // Add querystring recieved via ajax to the $_GET array...
-  if (isset($form_state['values'])) {
-    _quiz_add_to_get($form_state['values']['table']['add_to_get']);
-  }
-
-  $browser['body'] = array('#theme' => 'quiz_results_browser_body');
-
-  $res = _quiz_results_mr_data_provider($browser['header']['#header'], $quiz);
-
-  // build data part of form
-  $options = array();
-  //while ($res_o = db_fetch_object($res)) {
-  foreach ($res as $res_o) {
-    $id = $quiz->nid . '-' . $res_o->result_id;
-
-    // build options array for checkboxes for item
-    if (empty($res_o->name)) {
-      if ($res_o->uid == '0') {
-        $options[$id] = variable_get('anonymous', t('Anonymous'));
-      }
-      else {
-        $options[$id] = t('ORPHAN %uid', array('%uid' => '#' . $res_o->uid));
-      }
-    }
-    else {
-      $options[$id] = check_plain($res_o->name);
-    }
-
-    // Build hover menu for users who want to act on a single result
-    $browser['body']['hover_menu'][$id]['#value'] = _quiz_results_mr_get_hover($quiz, $res_o->result_id);
-
-    // Add data for the table columns
-    $browser['body']['started'][$id]['#value'] = format_date($res_o->started, 'short');
-    $browser['body']['finished'][$id]['#value'] = $res_o->finished == 0 ? t('In progress') : format_date($res_o->finished, 'short');
-    $browser['body']['duration'][$id]['#value'] = $res_o->finished == 0 ? t('In progress') : _quiz_format_duration($res_o->duration);
-    $browser['body']['score'][$id]['#value'] = $res_o->finished == 0 ? t('In progress') : check_plain($res_o->score);
-    $browser['body']['evaluated'][$id]['#value'] = $res_o->evaluated == 0 ? t('No') : t('Yes');
-    $browser['body']['pass_rate'][$id]['#value'] = $res_o->pass_rate;
-  }
-
-  // We copy the checkboxes that have been chosen in the previous stage, and unset them to avoid having them loaded again.
-  $default_value = isset($form_state['storage']['del']) ? $form_state['storage']['del'] : array($quiz->nid . '-' . (isset($_GET['del']) ? $_GET['del'] : ''));
-  unset($form_state['storage']['del']);
-
-  $browser['body']['name'] = array(
-    '#title' => t('Name'),
-    '#type' => 'checkboxes',
-    '#options' => $options,
-    '#attributes' => array('class' => array('quiz-browser-checkbox')),
-    '#default_value' => $default_value,
-  );
-
-  $form['pager'] = array(
-    '#markup' => '<DIV ID ="browser-pager">' . theme('pager', array('tags' => NULL)) . '</DIV>',
-  );
-  $form['#submit'][] = 'quiz_results_mr_form_submit';
-
-  return $form;
-}
-
-/**
- *
- * @param $header
- *   header array for theme_table
- * @param $quiz
- *   The quiz node
- * @return
- *   Query result set
- */
-function _quiz_results_mr_data_provider($header, $quiz) {
-  $filter = _quiz_results_mr_prepare_filter($quiz);
-  $sql = "SELECT u.name, qnrs.uid, qnrs.result_id, qnrs.score, qnrs.is_evaluated AS evaluated, qnrs.time_start as started, qnrs.time_end as finished, qnp.pass_rate, qnrs.time_end - qnrs.time_start as duration
-          FROM {quiz_node_results} qnrs
-          LEFT JOIN {users} u ON u.uid = qnrs.uid
-          LEFT JOIN {quiz_node_properties} qnp ON qnrs.vid = qnp.vid
-          " . $filter['join'] . "
-          WHERE qnrs.nid = :quiz_nid " . $filter['where'] . $filter['group'];// . tablesort_sql($header) . ', qnrs.result_id DESC';
-  //echo $sql;exit;
-  return db_query($sql, $filter['params']);
-  /*
-  // We remove the links to the last page and use a custom query to fetch the number of pages
-  // Doing this we wastly improve performance
-  $page = isset($_GET['page']) ? intval($_GET['page']) : 0;
-  $num = 50;
-  $pager_sql = "SELECT COUNT(*) FROM (
-                SELECT qnrs.result_id
-                FROM {quiz_node_results} qnrs
-                LEFT JOIN {users} u ON u.uid = qnrs.uid
-                LEFT JOIN {quiz_node_properties} qnp ON qnrs.vid = qnp.vid
-                " . $filter['join'] . "
-                WHERE  qnrs.nid = %d " . $filter['where'] . $filter['group'] . ' LIMIT 0, ' . max($page * $num + $num * 7, $num * 10) . ") tbl";
-
-  return pager_query($sql, $num, 0, $pager_sql, $filter['params']);
-  */
-}
-
-/**
- * Returns sql and parameters to be added in join, where and group clauses in the
- * _quiz_results_mr_data_provider select statement
- *
- * TODO: Rewrite to use db_select
- *
- * @see _quiz_results_mr_data_provider()
- *
- * @param $filter_params
- *   params to be sent as parameter to db_query. (array)
- * @return $filter_sql
- *   sql to be added to where statement in browser(string)
- */
-function _quiz_results_mr_prepare_filter($quiz) {
-  $pre = 'quiz_results_mr_';
-
-  // Get all the intervals we need
-  $started_intervals = _quiz_get_interval_timestamps('time_start');
-  $finished_intervals = _quiz_get_interval_timestamps('time_end');
-  $duration_intervals = _quiz_get_duration_intervals();
-  $score_intervals = _quiz_get_score_intervals($quiz);
-
-  // Prepare the filter array
-  $filter = array(
-    'params' => array(':quiz_nid' => $quiz->nid),
-    'join' => '',
-    'where' => '',
-    'group' => '',
-  );
-  if (isset($_SESSION[$pre . 'name']) && drupal_strlen($_SESSION[$pre . 'name']) > 0) {
-    $filter['where'] .= ' AND u.name LIKE :name';
-    $filter['params'][':name'] = '%' . $_SESSION[$pre . 'name'] . '%';
-  }
-  if (isset($_SESSION[$pre . 'started']) && isset($started_intervals[$_SESSION[$pre . 'started']]['sql'])) {
-    $filter['where'] .= $started_intervals[$_SESSION[$pre . 'started']]['sql'];
-  }
-  if (isset($_SESSION[$pre . 'finished']) && isset($finished_intervals[$_SESSION[$pre . 'finished']]['sql'])) {
-    $filter['where'] .= $finished_intervals[$_SESSION[$pre . 'finished']]['sql'];
-  }
-  if (isset($_SESSION[$pre . 'score']) && isset($score_intervals[$_SESSION[$pre . 'score']])) {
-    $filter['where'] .= $score_intervals[$_SESSION[$pre . 'score']];
-  }
-  if (isset($_SESSION[$pre . 'evaluated'])) {
-    switch ($_SESSION[$pre . 'evaluated']) {
-      case '0':
-        $filter['where'] .= ' AND is_evaluated = 0';
-        break;
-      case '1':
-        $filter['where'] .= ' AND is_evaluated = 1';
-        break;
-    }
-  }
-  if ($_SESSION[$pre . 'not_in_progress'] == 1) {
-    $filter['where'] .= " AND time_end <> 0";
-  }
-  if ($_SESSION[$pre . 'best_results'] == 1) {
-    $filter['join'] .= " INNER JOIN (
-                           SELECT qnrs.uid, MAX(qnrs.score) AS top_score
-                           FROM {quiz_node_results} qnrs
-                           LEFT JOIN {users} u ON u.uid = qnrs.uid
-                           LEFT JOIN {quiz_node_properties} qnp ON qnrs.vid = qnp.vid
-                           WHERE qnrs.nid = :quiz_nid " . $filter['where'] . "
-                           GROUP BY qnrs.uid
-                         ) AS qnrc ON qnrs.uid = qnrc.uid AND qnrs.score = qnrc.top_score";
-    $filter['group'] .= " GROUP BY qnrs.uid";
-    if (db_driver() == 'pgsql') {
-      $filter['group'] .= ", u.uid, u.name, qnrs.result_id, qnrs.score, qnrs.is_evaluated, qnrs.time_start, qnrs.time_end, qnp.pass_rate";
-    }
-  }
-  return $filter;
-}
-
-/**
- * Adds form items for the filters to the browser form.
- *
- * @param $browser
- *   FAPI form array
- */
-function _quiz_results_mr_add_filter_fields(&$browser, $quiz) {
-  // Create options array for the changed filter
-  $browser['filters'] = array();
-  $filters = &$browser['filters'];
-  $filters['all'] = array(
-    '#type' => 'checkbox',
-  );
-
-  $pre = 'quiz_results_mr_';
-  $filters['name'] = array(
-    '#type' => 'textfield',
-    '#size' => 12,
-    '#default_value' => isset($_SESSION[$pre . 'name']) ? $_SESSION[$pre . 'name'] : '',
-    '#ajax' => array(
-      'callback' => 'quiz_browser_body_callback',
-      'effect' => 'slide',
-      'wrapper' => 'quiz-browser-body',
-      'method' => 'replace',
-      'event' => 'doneTyping', // custom event
-    ),
-  );
-  $filters['started'] = array(
-    '#type' => 'select',
-    '#options' => _quiz_get_time_interval_options(),
-    '#default_value' => isset($_SESSION[$pre . 'started']) ? $_SESSION[$pre . 'started'] : '',
-    '#ajax' => array(
-      'callback' => 'quiz_browser_body_callback',
-      'effect' => 'slide',
-      'wrapper' => 'quiz-browser-body',
-      'method' => 'replace',
-    ),
-  );
-  $filters['finished'] = array(
-    '#type' => 'select',
-    '#options' => _quiz_get_time_interval_options(),
-    '#default_value' => isset($_SESSION[$pre . 'finished']) ? $_SESSION[$pre . 'finished'] : '',
-    '#ajax' => array(
-      'callback' => 'quiz_browser_body_callback',
-      'effect' => 'slide',
-      'wrapper' => 'quiz-browser-body',
-      'method' => 'replace',
-    ),
-  );
-  $filters['score'] = array(
-    '#type' => 'select',
-    '#options' => _quiz_get_score_options(),
-    '#default_value' => isset($_SESSION[$pre . 'score']) ? $_SESSION[$pre . 'score'] : '',
-    '#ajax' => array(
-      'callback' => 'quiz_browser_body_callback',
-      'effect' => 'slide',
-      'wrapper' => 'quiz-browser-body',
-      'method' => 'replace',
-    ),
-  );
-  $filters['evaluated'] = array(
-    '#type' => 'select',
-    '#options' => array('def' => t('No filter'), '1' => t('Yes'), '0' => t('No')),
-    '#default_value' => isset($_SESSION[$pre . 'evaluated']) ? $_SESSION[$pre . 'evaluated'] : '',
-    '#ajax' => array(
-      'callback' => 'quiz_browser_body_callback',
-      'effect' => 'slide',
-      'wrapper' => 'quiz-browser-body',
-      'method' => 'replace',
-    ),
-  );
-}
-
-/**
- * Submit function for the result browser form
- */
-function quiz_results_mr_form_submit($form, &$form_state) {
-  // If we are confirming the deltion of results.
-  if ($form_state['values']['op'] == t('Delete all marked results')) {
-    foreach ($form_state['values']['table']['body']['name'] as $value) {
-      if ($value !== 0) {
-        // Find nid and rid
-        $matches = array();
-        preg_match('/([0-9]+)-([0-9]+)/', $value, $matches);
-        $res_nid = $matches[1];
-        $res_rid = $matches[2];
-        // If we only showing the best results we still want to delete all results for this user
-        if ($form_state['values']['table']['header']['filters']['best_results'] == 1) {
-          _quiz_delete_results($res_rid, $res_nid);
-        }
-        else {
-          _quiz_delete_results($res_rid);
-        }
-      }
-    }
-    if (isset($res_rid)) {
-      drupal_set_message(t('Results have been deleted.'));
-    }
-  }
-  else {
-    // If we are deleting quizzes
-    if ($form_state['values']['bulk_action'] == 'del') {
-      $form_state['storage']['del'] = $form_state['values']['table']['body']['name'];
-    }
-  }
-}
-
-/**
- * Returns links to be placed on the quiz results browser.
- *
- * The links will be made visible when the user hovers over them.
- *
- * @param $quiz
- *   The quiz node
- * @param $rid
- *   Result id
- * @return Html string with links.
- */
-function _quiz_results_mr_get_hover($quiz, $rid) {
-  $to_return = array(l(t('view'), 'node/' . $quiz->nid . '/results/' . $rid));
-  if (user_access('delete any quiz results') || user_access('delete results for own quiz')) {
-    $to_return[] = l(t('delete'), 'admin/quiz/reports/results/' . $quiz->nid, array(
-      'query' => array('del' => $rid),
-      'attributes' => array('class' => 'hover-del', 'id' => $quiz->nid . '-' . $rid . '-del'),
-    ));
-  }
-  return implode(' | ', $to_return);
+    . $table
+    . drupal_render_children($form);
 }
 
 /**
  * Delete a single result, or all results for a given user and a given quiz.
  *
- * @param $rid
+ * @param $result_id
  *   result if for the result to be deleted
  * @param $nid
  *   Node id for the quiz the result belongs to. If set all the users results for this quiz will be deleted.
  */
-function _quiz_delete_results($rid, $nid = NULL) {
-  $rids = array();
+function _quiz_delete_results($result_id, $nid = NULL) {
+  $result_ids = array();
 
   // We are to delete all results for a certain user on a certain quiz.
   if (isset($nid)) {
@@ -2340,35 +1494,20 @@ function _quiz_delete_results($rid, $nid = NULL) {
               SELECT uid
               FROM {quiz_node_results}
               WHERE result_id = :result_id
-            )', array(':nid' => $nid, ':result_id' => $rid));
+            )', array(':nid' => $nid, ':result_id' => $result_id));
 
     while ($result = $res->fetchField()) {
-      $rids[] = $result;
+      $result_ids[] = $result;
     }
   }
   // We are only to delete one specific result
   else {
-    $rids[] = $rid;
+    $result_ids[] = $result_id;
   }
-  quiz_delete_results($rids);
+  quiz_delete_results($result_ids);
 }
 
 // HELPER FUNCTIONS
-
-/**
- * Recursive helper function to set the validated property. (Taken from the skip validation module.)
- *
- * TODO: DELETE
- *
- * @param &$elements
- *   The elements that are currently being processed.
- */
-function _quiz_skip_validation(&$elements) {
-  $elements['#validated'] = TRUE;
-  foreach (element_children($elements) as $key) {
-    _quiz_skip_validation($elements[$key]);
-  }
-}
 
 /**
  * Helper function for theme_question_selection_table
@@ -2389,9 +1528,6 @@ function _quiz_get_question_row($sub_form, $id) {
   $question_types = _quiz_get_question_types();
   $type = $sub_form['types'][$id]['#markup'];
 
-  // We add the class "hidden-class" to hide questions that haven't been added to the quiz yet.
-  $hidden_class = ($sub_form['stayers'][$id]['#default_value'] === 0) ? ' hidden-question' : '';
-
   $action = theme('item_list', array(
     'items' => array(
       drupal_render($sub_form['view_links'][$id]),
@@ -2401,93 +1537,34 @@ function _quiz_get_question_row($sub_form, $id) {
       'class' => array('links', 'inline'),
     ),
   ));
+  $qnr_pid = $sub_form['qnr_pids'][$id]['#default_value'];
   $data_array = array(
     // The checkbox and the title
-    drupal_render($sub_form['stayers'][$id]) . drupal_render($sub_form['titles'][$id]),
+    ($qnr_pid ? theme('indentation', array('size' => 1)) : NULL) . drupal_render($sub_form['titles'][$id]),
     $type,
     $action,
     isset($sub_form['revision'][$id]) ? drupal_render($sub_form['revision'][$id]) : t("Up to date"),
     drupal_render($sub_form['max_scores'][$id]),
     drupal_render($sub_form['auto_update_max_scores'][$id]),
+    drupal_render($sub_form['stayers'][$id]),
   );
   if (isset($sub_form['compulsories'])) {
     $data_array[] = drupal_render($sub_form['compulsories'][$id]);
   }
   $data_array[] = drupal_render($sub_form['weights'][$id]);
+  $data_array[] = drupal_render($sub_form['qnr_pids'][$id]);
+  $data_array[] = array(
+    'class' => array('tabledrag-hide'),
+    'data' => drupal_render($sub_form['qnr_ids'][$id]),
+  );
+
+  $leaf_class = $sub_form['types'][$id]['#question_type'] != 'quiz_page' ? 'tabledrag-leaf' : '';
+
   return array(
-    'class' => array('q-row draggable' . $hidden_class),
+    'class' => array('q-row', 'draggable', $leaf_class),
     'id' => 'q-' . $id,
     'data' => $data_array
   );
-}
-
-/**
- * Finds and returns the last table rows(HTML) in a table(HTML)
- *
- * TODO: DELETE
- *
- * @param $table
- *   HTML string with a table
- * @param $num_rows
- *   The number of rows to return(int)
- * @return
- *   last table row in the table(html string)
- */
-function _quiz_get_last_table_rows($table, $num_rows = 1) {
-  $matches = array();
-  $num_matches = preg_match_all('/<tr.*?<\/tr>/is', $table, $matches);
-  $to_return = '';
-  $num_rows_to_return = ($num_matches > $num_rows) ? $num_rows : $num_matches;
-  for ($i = $num_matches - 1; $i > $num_matches - 1 - $num_rows_to_return; $i--) {
-    $to_return .= $matches[0][$i];
-  }
-  return $to_return;
-}
-
-/**
- * Finds and returns all table rows with a certain class(HTML) in a table(HTML)
- *
- * TODO: DELETE
- *
- * @param $table
- *   HTML string with a table
- * @return
- *   all table rows with a certain class in a table(html string)
- */
-function _quiz_get_browser_content($table, $class) {
-  $matches = array();
-  $n_matches = preg_match('/<tr class="' . $class . '.*<\/tr>/is', $table, $matches);
-  return $matches[0];
-}
-
-/**
- * Adds variables from a querystring to $_GET
- *
- * This is to help the pager system work with ajax
- *
- * @see quiz_browser_ahah()
- *
- * @param $to_add
- *   query string
- */
-function _quiz_add_to_get($to_add) {
-  $pre = 'quiz_question_browser_';
-  parse_str($to_add, $output);
-  $vars = array('sort', 'order', 'page');
-  if (empty($to_add)) {
-    unset($_SESSION[$pre . 'page']);
-  }
-  foreach ($vars as $value) {
-    if (isset($output[$value])) {
-      $_GET[$value] = $_SESSION[$pre . $value] = $output[$value];
-    }
-    elseif (isset($_GET[$value])) {
-      continue;
-    }
-    elseif (isset($_SESSION[$pre . $value])) {
-      $_GET[$value] = $_SESSION[$pre . $value];
-    }
-  }
 }
 
 /**
@@ -2586,193 +1663,6 @@ function quiz_set_auto_title() {
 }
 
 /**
- * Returns list of options for the changed select box
- *
- * @see _quiz_questions_browser_form()
- *
- * @return $changed_options
- *   Options for the changed select box.
- */
-function _quiz_get_time_interval_options() {
-  return array(
-    t('No filter'),
-    t('Today'),
-    t('Yesterday'),
-    t('Two days ago'),
-    t('This week'),
-    t('Last week'),
-    t('This month'),
-    t('Last month'),
-    t('This year'),
-    t('Last year'),
-    t('Long ago'),
-  );
-}
-
-/**
- * Returns an array with sql where clauses correscponding to the options in the time filters.
- *
- * @see _quiz_questions_browser_form()
- *
- * @return $changed_timestamps
- *   array of timestamps and sql filters
- */
-function _quiz_get_interval_timestamps($fieldname) {
-  // Create datastructure to help create where clause in the sql for the changed filter...
-  $now = REQUEST_TIME;
-  $one_day = 86400;
-  $one_week = 604800;
-  $timestamp_today = mktime(0, 0, 0, date('n'), date('j'), date('Y'));
-  $weekday = date('N', $now);
-  $timestamp_week = $timestamp_today - ((int) $weekday -1) * $one_day;
-  $timestamp_month = mktime(0, 0, 0, date('n'), 1, date('Y'));
-  $timestamp_last_month = mktime(0, 0, 0, date('n', $timestamp_month - 1), 1, date('Y', $timestamp_month - 1));
-  $timestamp_year = mktime(0, 0, 0, 1, 1, date('Y'));
-  $timestamp_last_year = mktime(0, 0, 0, 1, 1, date('Y', $timestamp_year - 1));
-  $changed_timestamps = array(
-    NULL,
-    array($timestamp_today, $now),
-    array($timestamp_today - $one_day * 1, $timestamp_today),
-    array($timestamp_today - $one_day * 2, $timestamp_today - $one_day * 1),
-    array($timestamp_week, $now),
-    array($timestamp_week - $one_week, $timestamp_week),
-    array($timestamp_month, $now),
-    array($timestamp_last_month, $timestamp_month),
-    array($timestamp_year, $now),
-    array($timestamp_last_year, $timestamp_year),
-    array(0, $timestamp_last_year),
-  );
-
-  foreach ($changed_timestamps as $key => &$val) {
-    if ($val == NULL) {
-      continue;
-    }
-    $val['sql'] = " AND $fieldname > " . $val[0] . " AND $fieldname < " . $val[1];
-  }
-  return $changed_timestamps;
-}
-
-/**
- * Returns an array with sql where clauses correscponding to the options in the duration filters.
- *
- * @see _quiz_questions_browser_form()
- *
- * @return $changed_timestamps
- *   array of timestamps and sql filters
- */
-function _quiz_get_duration_intervals() {
-  // Create datastructure to help create where clause in the sql for the changed filter...
-  $durations = array(
-    NULL,
-    '> 60',
-    '> 300',
-    '> 600',
-    '> 3600',
-    '> 28800',
-    '> 86400',
-    '< 60',
-    '< 300',
-    '< 600',
-    '< 3600',
-    '< 28800',
-    '< 86400',
-  );
-
-  foreach ($durations as $key => &$val) {
-    if ($val == NULL) {
-      continue;
-    }
-    $durations[$key] = ' AND (time_end - time_start) ' . $val;
-  }
-  return $durations;
-}
-
-/**
- * Returns an array with options for the time filters.
- *
- * @see _quiz_get_duration_intervals()
- *
- * @return $options
- *   array of options for the duration filter
- */
-function _quiz_get_duration_options() {
-  return array(
-    t('No filter'),
-    t('> 1 m'),
-    t('> 5 m'),
-    t('> 10 m'),
-    t('> 1 h'),
-    t('> 8 h'),
-    t('> 24 h'),
-    t('< 1 m'),
-    t('< 5 m'),
-    t('< 10 m'),
-    t('< 1 h'),
-    t('< 8 h'),
-    t('< 24 h'),
-  );
-}
-
-/**
- * Returns an array with options for the score filters.
- *
- * @see _quiz_get_score_intervals()
- *
- * @return $options
- *   array of options for the score filter
- */
-function _quiz_get_score_options() {
-  return array(
-    t('No filter'),
-    t('Passed'),
-    t('Failed'),
-    t('= 100 %'),
-    t('> 90 %'),
-    t('> 75 %'),
-    t('> 50 %'),
-    t('> 25 %'),
-    t('< 90 %'),
-    t('< 75 %'),
-    t('< 50 %'),
-    t('< 25 %'),
-  );
-}
-
-/**
- * Returns an array with sql where clauses correscponding to the options in the score filters.
- *
- * @see _quiz_questions_browser_form()
- *
- * @return $changed_timestamps
- *   array of timestamps and sql filters
- */
-function _quiz_get_score_intervals($quiz) {
-  // Create datastructure to help create where clause in the sql for the changed filter...
-  $scores = array(
-    NULL,
-    '>= qnp.pass_rate',
-    '< qnp.pass_rate',
-    '= 100',
-    '> 90',
-    '> 75',
-    '> 50',
-    '> 25',
-    '< 90',
-    '< 75',
-    '< 50',
-    '< 25',
-  );
-
-  foreach ($scores as $key => &$val) {
-    if ($val == NULL) {
-      continue;
-    }
-    $scores[$key] = ' AND score ' . $val;
-  }
-  return $scores;
-}
-
-/**
  * Themes a categorized quiz form
  */
 function theme_quiz_categorized_form($variables) {
@@ -2822,8 +1712,4 @@ function theme_quiz_categorized_form($variables) {
     }};}(jQuery));"
     , array('type' => 'inline', 'group' => JS_DEFAULT));
   return $output;
-}
-
-function theme_quiz_browser($variables) {
-  return '<table>' . drupal_render($variables['form']['header']) . drupal_render($variables['form']['body']) . '</table>';
 }

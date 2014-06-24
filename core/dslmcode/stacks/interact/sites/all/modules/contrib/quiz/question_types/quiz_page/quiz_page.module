@@ -1,0 +1,38 @@
+<?php
+
+/**
+ * @file quiz_page.module
+ *
+ * Pages are implemented as a question type. They do not affect the score.
+ */
+
+/**
+ * Implements hook_help().
+ */
+function quiz_page_help($path, $args) {
+  if ($path == 'admin/help#quiz_pages') {
+    return t('Provides pages which can contain questions in a quiz.');
+  }
+}
+
+/**
+ * Implements hook_quiz_question_info().
+ */
+function quiz_page_quiz_question_info() {
+  return array(
+    'quiz_page' => array(
+      'name' => t('Quiz page'),
+      'description' => t('Quiz pages allow you display questions across multiple pages.'),
+      'question provider' => 'QuizPagesQuestion',
+      'response provider' => 'QuizPagesResponse',
+      'module' => 'quiz_question', // All wrapper functions are in that module.
+    ),
+  );
+}
+
+/**
+ * Implements hook_quiz_question_config().
+ */
+function quiz_page_quiz_question_config() {
+  return FALSE;
+}

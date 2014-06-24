@@ -79,7 +79,15 @@ function theme_matching_response($variables) {
   $data = $variables['data'];
   if (isset($data[0]['is_correct'])) {
     foreach ($data as $id => $match_data) {
-      $theme = $match_data['is_correct'] ? 'quiz_score_correct' : 'quiz_score_incorrect';
+      if ($match_data['is_correct'] == 0) {
+        $theme = 'quiz_score_incorrect';
+      }
+      if ($match_data['is_correct'] == 1) {
+        $theme = 'quiz_score_correct';
+      }
+      if ($match_data['is_correct'] == 2) {
+        $theme = 'quiz_score_unknown';
+      }
       // TODO Please change this theme call to use an associative array for the $variables parameter.
       $data[$id]['is_correct'] = array(
         'data' => theme($theme),

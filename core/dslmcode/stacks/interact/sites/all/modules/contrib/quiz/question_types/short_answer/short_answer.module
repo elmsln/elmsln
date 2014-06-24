@@ -75,9 +75,9 @@ function short_answer_quiz_question_info() {
 }
 
 /**
- * Implements hook_config().
+ * Implements hook_quiz_question_config().
  */
-function short_answer_config() {
+function short_answer_quiz_question_config() {
   $form['short_answer_default_max_score'] = array(
     '#type' => 'textfield',
     '#title' => t('Default max score'),
@@ -139,7 +139,7 @@ function short_answer_theme($existing, $type, $theme, $path) {
  *  Node ID of question.
  * @param $vid
  *  Version ID of question.
- * @param $rid
+ * @param $result_id
  *  Result ID for the quiz results.
  * @param $score
  *  The numeric score to assign the result.
@@ -160,11 +160,12 @@ function short_answer_score_an_answer($values, $update_total = TRUE) {
     ->fields(array(
       'score' => $score * $question_max_score / $quiz_max_score,
       'is_evaluated' => 1,
-      'answer_feedback' => empty($answer_feedback) ? '' : $answer_feedback
+      'answer_feedback' => empty($answer_feedback['value']) ? '' : $answer_feedback['value'],
+      'answer_feedback_format' => empty($answer_feedback['format']) ? '' : $answer_feedback['format'],
     ))
     ->condition('question_nid', $nid)
     ->condition('question_vid', $vid)
-    ->condition('result_id', $rid)
+    ->condition('result_id', $result_id)
     ->execute();
   // Now the short answer user data has been updated. We also need to update the data in the quiz tables
   if ($changed > 0) {
@@ -184,12 +185,12 @@ function short_answer_score_an_answer($values, $update_total = TRUE) {
         'is_correct' => $is_correct,
       ))
       ->condition('question_vid', $vid)
-      ->condition('result_id', $rid)
+      ->condition('result_id', $result_id)
       ->execute();
 
     // Third, we update the main quiz results table
     if ($update_total) {
-      quiz_update_total_score($quiz, $rid);
+      quiz_update_total_score($quiz, $result_id);
     }
   }
   return $changed;
@@ -236,7 +237,7 @@ function short_answer_report_submit($values) {
  *  </code>
  */
 function short_answer_get_answer($question_nid, $question_vid, $result_id) {
-  $results = db_query('SELECT sa.answer_id, sa.answer, sa.is_evaluated, sa.score, sa.question_vid, sa.question_nid, sa.result_id, sa.answer_feedback, rel.max_score AS rel_max_score
+  $results = db_query('SELECT sa.answer_id, sa.answer, sa.is_evaluated, sa.score, sa.question_vid, sa.question_nid, sa.result_id, sa.answer_feedback, sa.answer_feedback_format, rel.max_score AS rel_max_score
     FROM {quiz_short_answer_user_answers} sa
     JOIN {quiz_node_results} qnr ON (sa.result_id = qnr.result_id)
     JOIN {quiz_node_relationship} rel ON (qnr.vid = rel.parent_vid AND rel.child_vid = sa.question_vid)

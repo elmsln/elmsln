@@ -28,7 +28,7 @@ function quiz_stats_revision_selector_page($quiz) {
   }
   elseif ($count == 1) {
     // If there is only one revision we jump directly to that revision
-    drupal_goto("node/{$quiz->nid}/statistics/{$vids[0]}");
+    drupal_goto("node/{$quiz->nid}/quiz/statistics/{$vids[0]}");
   }
   else {
     $content = array();
@@ -37,7 +37,7 @@ function quiz_stats_revision_selector_page($quiz) {
     Because of this you have to choose the revision you want to see statistics from.', array('!num' => $count));
     $content['links'] = array();
     foreach ($vids as $key => $value) {
-      $content['links'][] = 'node/' . $quiz->nid . '/statistics/' . $value;
+      $content['links'][] = 'node/' . $quiz->nid . '/quiz/statistics/' . $value;
     }
     return theme('quiz_stats_revision_selector', array('content' => $content));
   }
@@ -466,7 +466,7 @@ function theme_quiz_stats_get_basic_stats($variables) {
   $p = drupal_get_path('module', 'quiz_stats');
   $chart_icon = theme('image', array('path' => "$p/chart.png", 'width' => t('Charts'), 'height' => t('See charts')));
   foreach ($results as $result) {
-    $title_link = user_access('access author stats') ? 'node/' . $result['nid'] . '/statistics' : 'user/' . arg(1) . '/stats/';
+    $title_link = user_access('access author stats') ? 'node/' . $result['nid'] . '/quiz/statistics' : 'user/' . arg(1) . '/stats/';
     $row = array(
       'title' => l($chart_icon . ' ' . $result['title'], $title_link, array('html' => TRUE)),
       'creator' => l($result['name'], 'user/' . $result['uid']),

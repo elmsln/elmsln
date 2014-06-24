@@ -39,11 +39,11 @@ function matching_quiz_question_info() {
 }
 
 /**
- * hook_config
+ * Implements hook_quiz_question_config().
  *
  * @return FAPI array
  */
-function matching_config() {
+function matching_quiz_question_config() {
   $form['quiz_matching_form_size'] = array(
     '#type' => 'textfield',
     '#title' => t('Match Question Size'),
@@ -109,6 +109,11 @@ function matching_theme() {
 function matching_field_extra_fields() {
   $extra['node']['matching'] = array(
     'form' => array(
+      'settings' => array(
+        'label' => t('Settings'),
+        'description' => t('The settings for the matching question.'),
+        'weight' => -5,
+      ),
       'match' => array(
         'label' => t('Answer'),
         'description' => t('The sets of matches for this question.'),

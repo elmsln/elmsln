@@ -197,13 +197,13 @@ function quiz_question_revision_actions_submit($form, &$form_state) {
       $res_relationship = db_query('SELECT max_score, auto_update_max_score FROM {quiz_node_relationship}
               WHERE parent_vid = :parent_vid AND child_nid = :child_nid',
               array(':parent_vid' => $quiz_vid, ':child_nid' => $form_state['values']['q_nid']))->fetch();
-      
-      $auto_update_max_score = isset($res_relationship->auto_update_max_score) ? $res_relationship->auto_update_max_score : 0; 
-      
+
+      $auto_update_max_score = isset($res_relationship->auto_update_max_score) ? $res_relationship->auto_update_max_score : 0;
+
       if($res_relationship) {
         $max_score = $res_relationship->max_score;
       }
-      
+
       if (!$res_relationship || $auto_update_max_score) {
         $res = db_query('SELECT max_score FROM {quiz_question_properties}
                 WHERE vid = :vid', array(':vid' => $form_state['values']['q_vid']));
@@ -238,7 +238,7 @@ function quiz_question_revision_actions_submit($form, &$form_state) {
       }
       // Insert the newest revision of the question into the quiz
       $insert_qnr = db_insert('quiz_node_relationship')
-        ->fields(array('parent_nid', 'parent_vid', 'child_nid', 'child_vid', 'max_score', 'weight', 'question_status', 'auto_update_max_score'))
+        ->fields(array('parent_nid', 'parent_vid', 'child_nid', 'child_vid', 'max_score', 'weight', 'question_status', 'auto_update_max_score', 'qnr_id'))
         ->values(array(
           'parent_nid' => $quiz_nid,
           'parent_vid' => $quiz_vid,

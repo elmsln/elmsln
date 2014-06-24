@@ -67,9 +67,9 @@ function long_answer_quiz_question_info() {
 }
 
 /**
- * Implements hook_config().
+ * Implements hook_quiz_question_config().
  */
-function long_answer_config() {
+function long_answer_quiz_question_config() {
   $form['long_answer_default_max_score'] = array(
     '#type' => 'textfield',
     '#title' => t('Default max score'),
@@ -125,7 +125,7 @@ function long_answer_theme() {
  *  Node ID of question.
  * @param $vid
  *  Version ID of question.
- * @param $rid
+ * @param $result_id
  *  Result ID for the quiz results.
  * @param $score
  *  The numeric score to assign the result.
@@ -144,7 +144,6 @@ function long_answer_score_an_answer($values, $update_total = TRUE) {
   //    questions on the quiz.
   //
   // We update all three.
-
   // First, we update the long answer table
   $question_max_score = db_query('SELECT max_score FROM {quiz_question_properties} WHERE nid = :nid AND vid = :vid', array(':nid' => $nid, ':vid' => $vid))->FetchField();
 
@@ -154,15 +153,15 @@ function long_answer_score_an_answer($values, $update_total = TRUE) {
     ->fields(array(
       'score' => $score * $question_max_score / $quiz_max_score,
       'is_evaluated' => 1,
-      'answer_feedback' => $answer_feedback
+      'answer_feedback' => isset($answer_feedback['value']) ? $answer_feedback['value'] : '',
+      'answer_feedback_format' => empty($answer_feedback['format']) ? '' : $answer_feedback['format'],
     ))
     ->condition('question_nid', $nid)
     ->condition('question_vid', $vid)
-    ->condition('result_id', $rid)
+    ->condition('result_id', $result_id)
     ->execute();
   if ($changed > 0) {
     // Second, we update the main quiz answers table
-
     // What do we do about the quiz_node_results_answers table? It assumes strict
     // bivalence (is_correct). I guess we consider any essay with over 50% to be correct?
     $max = db_query('SELECT max_score FROM {quiz_question_properties} WHERE vid = :vid', array(':vid' => $vid))->fetchField();
@@ -181,12 +180,12 @@ function long_answer_score_an_answer($values, $update_total = TRUE) {
         'is_correct' => $is_correct,
       ))
       ->condition('question_vid', $vid)
-      ->condition('result_id', $rid)
+      ->condition('result_id', $result_id)
       ->execute();
 
     // Third, we update the main quiz results table
     if ($update_total) {
-      quiz_update_total_score($quiz, $rid);
+      quiz_update_total_score($quiz, $result_id);
     }
   }
 
@@ -201,7 +200,7 @@ function long_answer_score_an_answer($values, $update_total = TRUE) {
  *  Node ID of question.
  * @param $vid
  *  Version ID of question.
- * @param $rid
+ * @param $result_id
  *  Result ID for the quiz results.
  *
  * @return Assoc array
@@ -217,7 +216,7 @@ function long_answer_score_an_answer($values, $update_total = TRUE) {
  *  </code>
  */
 function long_answer_get_answer($question_nid, $question_vid, $result_id) {
-  $result = db_query('SELECT answer_id, answer, la.is_evaluated, la.score, question_vid, question_nid, la.result_id, la.answer_feedback, rel.max_score AS rel_max_score FROM {quiz_long_answer_user_answers} la
+  $result = db_query('SELECT answer_id, answer, la.is_evaluated, la.score, question_vid, question_nid, la.result_id, la.answer_feedback, la.answer_feedback_format, rel.max_score AS rel_max_score FROM {quiz_long_answer_user_answers} la
     JOIN {quiz_node_results} qnr ON (la.result_id = qnr.result_id)
     JOIN {quiz_node_relationship} rel ON (qnr.vid = rel.parent_vid AND rel.child_vid = la.question_vid)
     WHERE question_nid = :qnid AND question_vid = :qvid AND la.result_id = :rid', array(':qnid' => $question_nid, ':qvid' => $question_vid, ':rid' => $result_id))->fetchAssoc();
@@ -249,7 +248,6 @@ function long_answer_get_unscored_answers_by_question($nid, $vid, $count = 50, $
   }
   return $unscored;
 }
-
 
 /**
  * Get all quiz scores that have not yet been evaluated.

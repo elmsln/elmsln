@@ -94,9 +94,9 @@ function scale_quiz_question_info() {
 }
 
 /**
- * Implements hook_config().
+ * Implements hook_quiz_question_config().
  */
-function scale_config() {
+function scale_quiz_question_config() {
   $form['manage'] = array('#markup' => l(t('Manage presets'), 'scale/collection/manage'));
   $form['scale_max_num_of_alts'] = array(
     '#type' => 'textfield',

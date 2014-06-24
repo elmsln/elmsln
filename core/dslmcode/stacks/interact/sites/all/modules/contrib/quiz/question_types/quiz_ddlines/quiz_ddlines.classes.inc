@@ -140,9 +140,9 @@ class DDLinesQuestion extends QuizQuestion {
    * This is called whenever a question is rendered, either
    * to an administrator or to a quiz taker.
    */
-  public function getAnsweringForm(array $form_state = NULL, $rid) {
+  public function getAnsweringForm(array $form_state = NULL, $result_id) {
     
-    $form = parent::getAnsweringForm($form_state, $rid);
+    $form = parent::getAnsweringForm($form_state, $result_id);
     
     $form['helptext'] = array(
       '#markup' => t('Answer this question by dragging each rectangular label to the correct circular hotspot.'),
@@ -342,7 +342,7 @@ class DDLinesResponse extends QuizQuestionResponse {
       ->fields(array(
         'question_nid' => $this->question->nid,
         'question_vid' => $this->question->vid,
-        'result_id' => $this->rid,
+        'result_id' => $this->result_id,
       ))
       ->execute();
       
@@ -362,7 +362,7 @@ class DDLinesResponse extends QuizQuestionResponse {
   public function delete() {
 
     $user_answer_ids = array();
-    $query = db_query('SELECT id FROM {quiz_ddlines_user_answers} WHERE question_nid = :nid AND question_vid = :vid AND result_id = :result_id', array(':nid' => $this->question->nid, ':vid' => $this->question->vid, ':result_id' => $this->rid));
+    $query = db_query('SELECT id FROM {quiz_ddlines_user_answers} WHERE question_nid = :nid AND question_vid = :vid AND result_id = :result_id', array(':nid' => $this->question->nid, ':vid' => $this->question->vid, ':result_id' => $this->result_id));
     while ($answer = $query->fetch()) {
       $user_answer_ids[] = $answer->id;
     }
@@ -374,7 +374,7 @@ class DDLinesResponse extends QuizQuestionResponse {
     }
 
     db_delete('quiz_ddlines_user_answers')
-      ->condition('result_id', $this->rid)
+      ->condition('result_id', $this->result_id)
       ->condition('question_nid', $this->question->nid)
       ->condition('question_vid', $this->question->vid)
       ->execute();

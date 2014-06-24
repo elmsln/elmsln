@@ -54,7 +54,7 @@ function theme_multichoice_answer_node_view($variables) {
   drupal_add_css($p .'/theme/multichoice.css');
 
   foreach ($alternatives as $i => $short) {
-    $answer_markup = check_markup($short['answer'], $short['answer_format']);
+    $answer_markup = check_markup($short['answer']['value'], $short['answer']['format']);
     // Find the is_correct status
     $is_correct = ($short['score_if_chosen'] > $short['score_if_not_chosen']);
     $image = $is_correct ? 'correct' : 'wrong';
@@ -100,7 +100,7 @@ function theme_multichoice_response($variables) {
     drupal_add_css(drupal_get_path('module', 'multichoice') . '/theme/multichoice.css');
     $css_added = TRUE;
   }
-  
+
   $rows = array();
   foreach ($variables['data'] as &$alternative) {
     if ($alternative['is_chosen']) {
@@ -113,6 +113,10 @@ function theme_multichoice_response($variables) {
           break;
         case 2:
           $icon = '<span class="multichoice-icon correct" title="' . t('This option is correct.') . '"></span>';
+          break;
+        case 3:
+          // The answer is unknown.
+          $icon = '<span class="multichoice-icon unknown" title="' . t('This option is unknown.') . '"></span>';
           break;
       }
     }

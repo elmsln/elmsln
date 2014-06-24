@@ -1,7 +1,7 @@
 (function ($) {
-  Drupal.behaviors.confirm = {
+  Drupal.behaviors.quizAnswerConfirm = {
     attach : function(context, settings) {
-      $('form.confirm').each(function() {
+      $('form.quiz-answer-confirm #edit-submit').once(function() {
         var $form = $(this);
         $form.submit(function(){
           // Return false to avoid submitting if user aborts

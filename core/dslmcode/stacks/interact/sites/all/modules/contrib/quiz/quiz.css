@@ -151,16 +151,12 @@ div.quiz-score-submit {
   background-color: #FFFFDD;
 }
 
-input#edit-op, input#edit-back {
-  background: 0 none;
-  border: 0 none;
-  color: #666699;
-}
-
-input.q-skip-button:hover, input#edit-back:hover {
-  color: #6666ff;
-  cursor: pointer;
-  text-decoration: underline;
+input#edit-submit-hidden {
+  height: 0;
+  width: 0;
+  overflow: hidden;
+  padding: 0;
+  border: none;
 }
 
 .quiz-passed {
@@ -240,8 +236,8 @@ input.q-skip-button:hover, input#edit-back:hover {
   font-style: italic;
 }
 
-#quiz-jumper {
-  display: none;
+#quiz-jumper .form-item-question-number {
+  display: inline;
 }
 
 #quiz-categorized-form #autocomplete {

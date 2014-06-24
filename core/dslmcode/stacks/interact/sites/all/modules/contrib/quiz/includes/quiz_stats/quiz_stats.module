@@ -43,7 +43,7 @@ function quiz_stats_menu() {
     'access arguments' => array('access author stats'),
     'type' => MENU_NORMAL_ITEM,
   );
-  $items['node/%node/statistics'] = array(
+  $items['node/%node/quiz/statistics'] = array(
     'title' => 'Statistics',
     'description' => 'Generates a report on quiz results for quiz creators.',
     'file' => 'quiz_stats.admin.inc',
@@ -54,14 +54,14 @@ function quiz_stats_menu() {
     'type' => MENU_LOCAL_TASK,
     'weight' => 4,
   );
-  $items['node/%node/statistics/%'] = array(
+  $items['node/%node/quiz/statistics/%'] = array(
     'title' => 'Statistics',
     'description' => 'Generates a report on quiz results for quiz creators.',
     'file' => 'quiz_stats.admin.inc',
     'page callback' => 'quiz_stats_get_adv_stats',
-    'page arguments' => array(3),
+    'page arguments' => array(4),
     'access callback' => 'quiz_stats_validate_vid',
-    'access arguments' => array(1, 3),
+    'access arguments' => array(1, 4),
     'type' => MENU_CALLBACK,
     'weight' => 4,
   );

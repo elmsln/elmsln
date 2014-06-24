@@ -1,0 +1,43 @@
+<?php
+
+/**
+ * @file
+ * Unit tests for the quiz question Module.
+ */
+
+/**
+ * Base test class for Quiz questions.
+ */
+abstract class QuizQuestionTestCase extends QuizTestCase {
+
+   var $question_node_type = 'quiz_question';
+
+  /**
+   * Set up a question test case.
+   *
+   * @param array $modules
+   *   Array of modules to enable.
+   * @param array $admin_permissions
+   *   Array of admin permissions to add.
+   * @param array $user_permissions
+   *   Array of user permissions to add.
+   */
+  function setUp($modules = array(), $admin_permissions = array(), $user_permissions = array()) {
+    $modules[] = 'quiz_question';
+    $admin_permissions[] = "create {$this->question_node_type} content";
+    $admin_permissions[] = "edit any {$this->question_node_type} content";
+
+    $user_permissions[] = 'access quiz';
+
+    parent::setUp($modules, $admin_permissions, $user_permissions);
+  }
+
+  /**
+   * Test the subclass's quiz question implementation.
+   */
+  public function testQuizQuestionImplementation() {
+    $qq = _quiz_question_get_implementations();
+    $this->assertTrue(isset($qq[$this->question_node_type]), t('Check that the question implementation is correct.'));
+  }
+
+}

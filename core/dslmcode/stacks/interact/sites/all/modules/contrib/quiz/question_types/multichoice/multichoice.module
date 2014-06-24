@@ -49,9 +49,9 @@ function multichoice_quiz_question_info() {
   );
 }
 /**
- * Implements hook_config().
+ * Implements hook_quiz_question_config().
  */
-function multichoice_config() {
+function multichoice_quiz_question_config() {
   $form['multichoice_def_num_of_alts'] = array(
     '#type' => 'textfield',
     '#title' => t('Default number of alternatives'),
@@ -158,18 +158,6 @@ function multichoice_more_choices_submit($form, &$form_state) {
   }
   $form_state['rebuild'] = TRUE;
 }
-/**
- * Recursive helper function to set the validated property. (Taken from the skip validation module.)
- *
- * @param &$elements
- *   The elements that are currently being processed.
- */
-function _multichoice_skip_validation(&$elements) {
-  $elements['#validated'] = TRUE;
-  foreach (element_children($elements) as $key) {
-    _multichoice_skip_validation($elements[$key]);
-  }
-}
 
 /**
  * Implements hook_user_cancel().
@@ -179,11 +167,6 @@ function multichoice_user_cancel($edit, $account, $method) {
   ->condition('uid', $account->uid)
   ->execute();
 }
-
-/**
- * Implementation of hook user.
- */
-function multichoice_user_OLD($op, &$edit, &$account, $category = NULL) { }
 
 /**
  * Implements hook_field_extra_fields().
@@ -199,4 +182,14 @@ function multichoice_field_extra_fields() {
     ),
   );
   return $extra;
+}
+
+/**
+ * Implements hook_views_api().
+ */
+function multichoice_views_api() {
+  return array(
+    'api' => 3,
+    'path' => drupal_get_path('module', 'multichoice'),
+  );
 }

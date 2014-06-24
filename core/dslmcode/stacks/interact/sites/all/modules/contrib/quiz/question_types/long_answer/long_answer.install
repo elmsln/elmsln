@@ -15,7 +15,6 @@ function long_answer_install() {
   // TODO The drupal_(un)install_schema functions are called automatically in D7.
   // drupal_install_schema('long_answer')
   variable_set('node_options_long_answer', array('status'));
-  cache_clear_all('autoload:', 'cache');
 }
 
 /**
@@ -101,6 +100,10 @@ function long_answer_schema() {
       'answer_feedback' => array(
         'type' => 'text'
       ),
+      'answer_feedback_format' => array(
+        'type' => 'varchar',
+        'length' => 255,
+      ),
     ),
     'primary key' => array('answer_id'),
     'unique keys' => array(
@@ -120,4 +123,17 @@ function long_answer_update_7401() {
     'not null' => FALSE,
   );
   db_add_field('quiz_long_answer_user_answers', 'answer_feedback', $spec);
+}
+
+/**
+ * Adding feedback format field to table {quiz_long_answer_user_answers}
+ */
+function long_answer_update_7402() {
+  if (!db_field_exists('quiz_long_answer_user_answers', 'answer_feedback_format')) {
+    $spec = array(
+        'type' => 'varchar',
+        'length' => 255,
+    );
+    db_add_field('quiz_long_answer_user_answers', 'answer_feedback_format', $spec);
+  }
 }

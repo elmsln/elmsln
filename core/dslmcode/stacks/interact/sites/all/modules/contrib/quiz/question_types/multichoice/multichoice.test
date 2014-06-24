@@ -1,66 +1,216 @@
 <?php
 
-
-/*
+/**
  * @file
  * Test suite for choice Questions type module.
- *
  */
 
-class ChoiceTestCase extends DrupalWebTestCase {
-  /*
-   * The getInfo() method provides information about the test.
-   * In order for the test to be run, the getInfo() method needs
-   * to be implemented.
-   */
+/**
+ * Test class for multichoice questions.
+ */
+class MultichoiceTestCase extends QuizQuestionTestCase {
+
   public static function getInfo() {
     return array(
-      'name' => t('Choice unit test'),
-      'description' => t('Unit test for true or false question type.'),
+      'name' => t('Multichoice'),
+      'description' => t('Unit test for the multichoice question type.'),
       'group' => t('Quiz'),
     );
   }
 
-  /*
-   * @function
-   *   generates a rand integer between the specified range
-   *
-   * @return
-   *   random Integer value
-   */
-  public function getRandSize() {
-    return mt_rand($this->min, $this->max);
-  }
+  var $question_node_type = 'multichoice';
 
-  /*
-   * Implementing setUp() to enable truefalse module testing
-   */
   function setUp() {
-    parent::setUp('taxonomy', 'quiz', 'views', 'autoload', 'multichoice',
-    'quiz_directions', 'quiz_question', 'querypath', 'questions_import',
-    'short_answer', 'truefalse', 'long_answer',  'matching', 'questions_export');
-
-    // Create and log in our test user. Should be cleaned up as I something
-    // was wrong with permissions and I basically kept adding potentially
-    // useful ones until it worked.
-
-    // array of drupal permission
-    $permission = array('administer site configuration', 'access administration pages',
-    'administer quiz', 'access quiz', 'administer blocks', 'import questions', 'create quiz content',
-    'administer quiz configuration', 'use PHP for block visibility', 'administer blocks',
-    'create multichoice', 'edit any multichoice', 'administer taxonomy', 'allow multiple correct answers',
-    'allow any number of answers', 'export questions');
-
-    // create a drupal test user with specified permissions
-    $user = $this->drupalCreateUser($permission);
-    $this->drupalLogin($user);
-
-    // create one quiz, which will be the default in the import form
-    $quiz_settings = array();
-    $quiz_settings['title'] = $this->randomName($this->getRandSize());
-    $quiz_settings['comment'] = $this->randomName($this->getRandSize());
-    $quiz_settings['type'] = 'quiz';
-    // $this->drupalCreateNode($quiz_settings);
-    // don't' create a questions node here.
+    parent::setUp(array('multichoice'));
   }
+
+  /**
+   * Create a default MCQ with default settings.
+   */
+  public function testCreateQuizQuestion($settings = array()) {
+    $settings += array(
+      'title' => 'MCQ 1 Title',
+      'type' => 'multichoice',
+      'choice_multi' => 0,
+      'choice_random' => 0,
+      'choice_boolean' => 0,
+      'body' => array(LANGUAGE_NONE => array(array('value' => 'MCQ 1 body text'))),
+    );
+
+    // Set up some alternatives.
+    $settings['alternatives'][0]['answer']['value'] = 'A';
+    $settings['alternatives'][0]['answer']['format'] = 'filtered_html';
+    $settings['alternatives'][0]['feedback_if_chosen']['value'] = 'You chose A';
+    $settings['alternatives'][0]['feedback_if_chosen']['format'] = 'filtered_html';
+    $settings['alternatives'][0]['feedback_if_not_chosen']['value'] = 'You did not choose A';
+    $settings['alternatives'][0]['feedback_if_not_chosen']['format'] = 'filtered_html';
+    $settings['alternatives'][0]['score_if_chosen'] = 1;
+    $settings['alternatives'][0]['score_if_not_chosen'] = 0;
+
+    $settings['alternatives'][1]['answer']['value'] = 'B';
+    $settings['alternatives'][1]['answer']['format'] = 'filtered_html';
+    $settings['alternatives'][1]['feedback_if_chosen']['value'] = 'You chose B';
+    $settings['alternatives'][1]['feedback_if_chosen']['format'] = 'filtered_html';
+    $settings['alternatives'][1]['feedback_if_not_chosen']['value'] = 'You did not choose B';
+    $settings['alternatives'][1]['feedback_if_not_chosen']['format'] = 'filtered_html';
+    $settings['alternatives'][1]['score_if_chosen'] = 0;
+    $settings['alternatives'][1]['score_if_not_chosen'] = 0;
+
+    $settings['alternatives'][2]['answer']['value'] = 'C';
+    $settings['alternatives'][2]['answer']['format'] = 'filtered_html';
+    $settings['alternatives'][2]['feedback_if_chosen']['value'] = 'You chose C';
+    $settings['alternatives'][2]['feedback_if_chosen']['format'] = 'filtered_html';
+    $settings['alternatives'][2]['feedback_if_not_chosen']['value'] = 'You did not choose C';
+    $settings['alternatives'][2]['feedback_if_not_chosen']['format'] = 'filtered_html';
+    $settings['alternatives'][2]['score_if_chosen'] = 0;
+    $settings['alternatives'][2]['score_if_not_chosen'] = 0;
+
+    $node = $this->drupalCreateNode($settings);
+    $node = node_load($node->nid);
+
+    $this->assertNotNull($node->alternatives[0]['id'], 'Alternative A was created as part of question save.');
+    $this->assertNotNull($node->alternatives[1]['id'], 'Alternative B was created as part of question save.');
+    $this->assertNotNull($node->alternatives[2]['id'], 'Alternative C was created as part of question save.');
+
+    $this->assertEqual($node->alternatives[0]['answer']['value'], 'A', 'Alternative text A was saved and loaded correctly.');
+    $this->assertEqual($node->alternatives[1]['answer']['value'], 'B', 'Alternative text B was saved and loaded correctly.');
+    $this->assertEqual($node->alternatives[2]['answer']['value'], 'C', 'Alternative text C was saved and loaded correctly.');
+
+    $this->assertEqual($node->alternatives[0]['answer']['format'], 'filtered_html', 'Alternative format A was saved and loaded correctly.');
+    $this->assertEqual($node->alternatives[1]['answer']['format'], 'filtered_html', 'Alternative format B was saved and loaded correctly.');
+    $this->assertEqual($node->alternatives[1]['answer']['format'], 'filtered_html', 'Alternative format C was saved and loaded correctly.');
+
+    return $node;
+  }
+
+  public function testQuestionFeedback() {
+    $this->drupalLogin($this->admin);
+
+    $question_node = $this->testCreateQuizQuestion();
+    $quiz_node = $this->linkQuestionToQuiz($question_node);
+
+    // Login as non-admin.
+    $this->drupalLogin($this->user);
+
+    // Test incorrect question. No feedback, no answer.
+    $quiz_node->feedback_time = QUIZ_FEEDBACK_NEVER;
+    $quiz_node->display_feedback = 0;
+    node_save($quiz_node);
+    $this->drupalGet("node/$quiz_node->nid/take");
+    $this->drupalPost(NULL, array(
+      "question[$question_node->nid][user_answer]" => $question_node->alternatives[1]['id'],
+      ), t('Finish'));
+    $this->assertNoPattern('/multichoice-icon correct/', 'Did not find correct answer.');
+    $this->assertNoPattern('/multichoice-icon should/', 'Did not find correct suggestion.');
+    $this->assertNoPattern('/multichoice-icon almost/', 'Did not find partial correct answer.');
+    $this->assertNoText('You did not choose A');
+    $this->assertNoText('You chose B');
+    $this->assertNoText('You did not choose C');
+
+    // Test incorrect question. Feedback, no answer.
+    $quiz_node->feedback_time = QUIZ_FEEDBACK_END;
+    $quiz_node->display_feedback = 0;
+    node_save($quiz_node);
+    $this->drupalGet("node/$quiz_node->nid/take");
+    $this->drupalPost(NULL, array(
+      "question[$question_node->nid][user_answer]" => $question_node->alternatives[1]['id'],
+      ), t('Finish'));
+    $this->assertNoPattern('/multichoice-icon correct/', 'Did not find correct answer.');
+    $this->assertNoPattern('/multichoice-icon should/', 'Did not find correct suggestion.');
+    $this->assertNoPattern('/multichoice-icon almost/', 'Did not find partial correct answer.');
+    $this->assertText('You did not choose A');
+    $this->assertText('You chose B');
+    $this->assertText('You did not choose C');
+
+    // Test incorrect question. Feedback, answer.
+    // This is really "Display solution"
+    $quiz_node->feedback_time = QUIZ_FEEDBACK_END;
+    $quiz_node->display_feedback = 1;
+    node_save($quiz_node);
+    $this->drupalGet("node/$quiz_node->nid/take");
+    $this->drupalPost(NULL, array(
+      "question[$question_node->nid][user_answer]" => $question_node->alternatives[1]['id'],
+      ), t('Finish'));
+    $this->assertPattern('/multichoice-icon correct/', 'Found correct answer.');
+    $this->assertText('You did not choose A');
+    $this->assertText('You chose B');
+    $this->assertText('You did not choose C');
+  }
+
+  /**
+   * Test multiple answers.
+   */
+  function testMultipleAnswers() {
+    $this->drupalLogin($this->admin);
+    $question_node = $this->testCreateQuizQuestion(array('choice_multi' => 1));
+    $quiz_node = $this->linkQuestionToQuiz($question_node);
+
+    $this->drupalLogin($this->user);
+    $this->drupalGet("node/$quiz_node->nid/take");
+    $this->drupalPost(NULL, array(
+      "question[$question_node->nid][user_answer][1]" => 1,
+      "question[$question_node->nid][user_answer][3]" => 3,
+      ), t('Finish'));
+    // 0 of 1, because user picked a correct answer and an incorrect answer.
+    $this->assertText('You got 0 of 1 possible points.');
+    $this->assertText('Your score: 0%');
+
+    $this->drupalGet("node/$quiz_node->nid/take");
+    $this->drupalPost(NULL, array(
+      "question[$question_node->nid][user_answer][1]" => 1,
+      ), t('Finish'));
+    // 1 of 1, because user picked a correct answer and not an incorrect answer.
+    $this->assertText('You got 1 of 1 possible points.');
+    $this->assertText('Your score: 100%');
+  }
+
+  /**
+   * Test random order of choices.
+   * @todo I don't know how we would test random questions.
+   */
+  function testRandomOrder() {
+    $this->drupalLogin($this->admin);
+    $question_node = $this->testCreateQuizQuestion(array('choice_random' => 1));
+    $quiz_node = $this->linkQuestionToQuiz($question_node);
+
+    $this->drupalLogin($this->user);
+
+    $this->drupalGet("node/$quiz_node->nid/take");
+    $this->drupalPost(NULL, array(
+      "question[$question_node->nid][user_answer]" => $question_node->alternatives[0]['id'],
+      ), t('Finish'));
+  }
+
+  /**
+   * Test simple scoring.
+   */
+  function testSimpleScoring() {
+    $this->drupalLogin($this->admin);
+    $settings = array();
+    $settings['alternatives'][1]['score_if_chosen'] = 0;
+    $settings['alternatives'][1]['score_if_not_chosen'] = 0;
+    $settings['choice_multi'] = 1;
+    $settings['choice_boolean'] = 1;
+
+    $question_node = $this->testCreateQuizQuestion($settings);
+    $quiz_node = $this->linkQuestionToQuiz($question_node);
+
+    $this->drupalLogin($this->user);
+
+    $this->drupalGet("node/$quiz_node->nid/take");
+    $this->drupalPost(NULL, array(
+      "question[$question_node->nid][user_answer][1]" => 1,
+      "question[$question_node->nid][user_answer][3]" => 3,
+      ), t('Finish'));
+    $this->assertText('You got 0 of 1 possible points.');
+    $this->assertText('Your score: 0%');
+
+    $this->drupalGet("node/$quiz_node->nid/take");
+    $this->drupalPost(NULL, array(
+      "question[$question_node->nid][user_answer][1]" => 1,
+      ), t('Finish'));
+    $this->assertText('You got 1 of 1 possible points.');
+    $this->assertText('Your score: 100%');
+  }
+
 }

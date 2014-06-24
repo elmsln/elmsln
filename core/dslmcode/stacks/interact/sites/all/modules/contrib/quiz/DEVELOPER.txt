@@ -2,9 +2,9 @@ NOTES ON DEVELOPING EXTENSIONS FOR QUIZ
 =======================================
 
 Hooks for interacting with a quiz:
- - hook_quiz_begin($quiz, $rid): This hook is called when a user first begins a quiz.
- - hook_quiz_finished($quiz, $score, $rid): This hook is called immediately after a user finishes taking a quiz.
- - hook_quiz_scored($quiz, $score, $rid): This is called when a quiz score is updated. See http://drupal.org/node/460456
+ - hook_quiz_begin($quiz, $result_id): This hook is called when a user first begins a quiz.
+ - hook_quiz_finished($quiz, $score, $result_id): This hook is called immediately after a user finishes taking a quiz.
+ - hook_quiz_scored($quiz, $score, $result_id): This is called when a quiz score is updated. See http://drupal.org/node/460456
  
 
 DEVELOPING NEW QUESTION TYPES:

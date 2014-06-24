@@ -41,16 +41,16 @@ drupal_add_js(
 })(jQuery);", 'inline');
 
 // We want to have the checkbox in one table cell, and the title in the next. We store the checkbox and the titles
-$options = $form['#options'];
+$options = $form['user_answer']['#options'];
 $fullOptions = array();
 $titles = array();
 foreach ($options as $key => $value) {
-  $fullOptions[$key] = $form[$key];
-  $titles[$key] = $form[$key]['#title'];
+  $fullOptions[$key] = $form['user_answer'][$key];
+  $titles[$key] = $form['user_answer'][$key]['#title'];
   $fullOptions[$key]['#title'] = '';
-  unset($form[$key]);
+  unset($form['user_answer'][$key]);
 }
-unset($form['#options']);
+unset($form['user_answer']['#options']);
 print drupal_render_children($form);
 
 // We use the stored checkboxes and titles to generate a table for the alternatives

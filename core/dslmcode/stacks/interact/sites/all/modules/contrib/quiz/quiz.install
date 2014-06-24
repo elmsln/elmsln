@@ -247,6 +247,19 @@ function quiz_schema() {
   $schema['quiz_node_relationship'] = array(
     'description' => 'Table storing what questions belong to what quizzes',
     'fields' => array(
+      'qnr_id' => array(
+        'type' => 'serial',
+        'size' => 'normal',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ),
+      'qnr_pid' => array(
+        'type' => 'int',
+        'size' => 'normal',
+        'unsigned' => TRUE,
+        'not null' => FALSE,
+        'default' => NULL,
+      ),
       'parent_nid' => array(
         'type' => 'int',
         'unsigned' => TRUE,
@@ -291,7 +304,10 @@ function quiz_schema() {
         'default' => 0,
       ),
     ),
-    'primary key' => array('parent_nid', 'parent_vid', 'child_nid', 'child_vid'),
+    'primary key' => array('qnr_id'),
+    'unique keys' => array(
+      'parent_child' => array('parent_nid', 'parent_vid', 'child_nid', 'child_vid'),
+    ),
     'indexes' => array(
       'parent_id' => array('parent_vid'),
       'child_id' => array('child_vid'),
@@ -329,12 +345,10 @@ function quiz_schema() {
       'time_start' => array(
         'type' => 'int',
         'unsigned' => FALSE,
-        'default' => 0,
       ),
       'time_end' => array(
         'type' => 'int',
         'unsigned' => FALSE,
-        'default' => 0,
       ),
       'released' => array(
         'type' => 'int',
@@ -366,6 +380,12 @@ function quiz_schema() {
         'not null' => TRUE,
         'default' => 0
       ),
+      'layout' => array(
+        'serialize' => TRUE,
+        'type' => 'text',
+        'description' => "Serialized layout data.",
+        'size' => 'medium',
+      ),
     ),
     'primary key' => array('result_id'),
     'indexes' => array(
@@ -380,6 +400,12 @@ function quiz_schema() {
   $schema['quiz_node_results_answers'] = array(
     'description' => 'Table storing information about the results for the questions',
     'fields' => array(
+      'result_answer_id' => array(
+        'description' => 'The result answer ID',
+        'type' => 'serial',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ),
       'result_id' => array(
         'type' => 'int',
         'unsigned' => TRUE,
@@ -433,13 +459,16 @@ function quiz_schema() {
         'default' => 1,
       ),
       'is_doubtful' => array(
-	'type' => 'int',
-	'not null' => TRUE,
-	'default'=> 0,
-	'size'=> 'tiny'
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0,
+        'size' => 'tiny'
       ),
     ),
-    'primary key' => array('result_id', 'question_nid', 'question_vid'),
+    'primary key' => array('result_answer_id'),
+    'unique keys' => array(
+      'result_answer' => array('result_id', 'question_nid', 'question_vid'),
+    ),
     'indexes' => array(
       'result_id' => array('result_id'),
     ),
@@ -692,19 +721,19 @@ function quiz_schema() {
   );
   return $schema;
 }
+
 /**
  * Implements hook_update_N()
  */
-
 // should have been named quiz_update_7400
 function quiz_update_7100(&$sandbox) {
-  db_add_field('quiz_node_properties', 'show_passed', array('type' => 'int', 'not null' => TRUE,'default' => 1,'size' => 'tiny'));
+  db_add_field('quiz_node_properties', 'show_passed', array('type' => 'int', 'not null' => TRUE, 'default' => 1, 'size' => 'tiny'));
   return t('Show passed field added to quiz config.');
 }
 
 // should have been named quiz_update_7401
 function quiz_update_7101(&$sandbox) {
-  db_add_field('quiz_user_settings', 'show_passed', array('type' => 'int', 'not null' => TRUE,'default' => 1,'size' => 'tiny'));
+  db_add_field('quiz_user_settings', 'show_passed', array('type' => 'int', 'not null' => TRUE, 'default' => 1, 'size' => 'tiny'));
   return t('Done !');
 }
 
@@ -717,7 +746,7 @@ function quiz_update_7402(&$sandbox) {
     db_add_field('quiz_node_properties', 'summary_default_format', array('type' => 'varchar', 'length' => 255));
     db_add_field('quiz_node_result_options', 'option_summary_format', array('type' => 'varchar', 'length' => 255));
     db_add_field('quiz_user_settings', 'summary_pass_format', array('type' => 'varchar', 'length' => 255));
-    db_add_field('quiz_user_settings', 'summary_default_format', array('type' => 'varchar','length' => 255));
+    db_add_field('quiz_user_settings', 'summary_default_format', array('type' => 'varchar', 'length' => 255));
   }
   return t("Added new format fields to the tables if they didn't already exist.");
 }
@@ -773,10 +802,10 @@ function quiz_update_7406(&$sandbox) {
   $spec = array(
     'type' => 'int',
     'not null' => TRUE,
-    'default'=> 0,
-    'size'=> 'tiny'
+    'default' => 0,
+    'size' => 'tiny'
   );
-  db_add_field('quiz_node_results_answers','is_doubtful', $spec);
+  db_add_field('quiz_node_results_answers', 'is_doubtful', $spec);
   db_add_field('quiz_node_properties', 'mark_doubtful', $spec);
   return t('Added new format fields to the tables');
 }
@@ -791,7 +820,7 @@ function quiz_update_7407(&$sandbox) {
     'not null' => TRUE,
     'default' => 0,
   );
-  db_add_field('quiz_node_relationship','auto_update_max_score', $spec);
+  db_add_field('quiz_node_relationship', 'auto_update_max_score', $spec);
   return t('Added new auto update max score field to the quiz_node_relationship table');
 }
 
@@ -807,7 +836,6 @@ function quiz_update_7409(&$sandbox) {
   return t('Adding userpoints tid column to quiz_node_properties');
 }
 
-
 /**
  * Implements hook_uninstall().
  */
@@ -815,4 +843,80 @@ function quiz_uninstall() {
   db_delete('variable')
     ->condition('name', "quiz_%", 'like')
     ->execute();
+}
+
+/**
+ * Add new layout field to the quiz_node_results table.
+ */
+function quiz_update_7500() {
+  $spec = array(
+    'serialize' => TRUE,
+    'type' => 'text',
+    'description' => "Serialized layout data.",
+    'size' => 'medium',
+  );
+  db_add_field('quiz_node_results', 'layout', $spec);
+  return t('Added new layout field to the quiz_node_results table');
+}
+
+/**
+ * Add new result_answer_id field to the quiz_node_results_answers table.
+ */
+function quiz_update_7501() {
+  db_drop_primary_key('quiz_node_results_answers');
+  db_add_unique_key('quiz_node_results_answers', 'result_answer', array('result_id', 'question_nid', 'question_vid'));
+  $spec = array(
+    'description' => 'The result answer ID.',
+    'type' => 'serial',
+    'unsigned' => TRUE,
+    'not null' => TRUE,
+  );
+  db_add_field('quiz_node_results_answers', 'result_answer_id', $spec, array('primary key' => array('result_answer_id')));
+  return t('Added new result_answer_id field to the quiz_node_results_answers table.');
+}
+
+/**
+ * Add new qnr_id field to the quiz_node_relationship table.
+ */
+function quiz_update_7502() {
+  db_drop_primary_key('quiz_node_relationship');
+  db_add_unique_key('quiz_node_relationship', 'parent_child', array('parent_nid', 'parent_vid', 'child_nid', 'child_vid'));
+  $spec = array(
+    'type' => 'serial',
+    'size' => 'normal',
+    'unsigned' => TRUE,
+    'not null' => TRUE,
+  );
+  db_add_field('quiz_node_relationship', 'qnr_id', $spec, array('primary key' => array('qnr_id')));
+  return t('Added new qnr_id field to the quiz_node_relationship table.');
+}
+
+/**
+ * Add new qnr_pid field to the quiz_node_relationship table.
+ */
+function quiz_update_7503() {
+  $spec = array(
+    'type' => 'int',
+    'size' => 'normal',
+    'unsigned' => TRUE,
+    'not null' => FALSE,
+    'default' => NULL,
+  );
+  db_add_field('quiz_node_relationship', 'qnr_pid', $spec);
+  return t('Added new qnr_pid field to the quiz_node_relationship table.');
+}
+
+/**
+ * Allow time_start and time_end to be NULL. The time "0" is still a valid time.
+ * This lets us do better filtering in Views (where NULL).
+ */
+function quiz_update_7504() {
+  $spec = array(
+    'type' => 'int',
+    'unsigned' => FALSE,
+  );
+  db_change_field('quiz_node_results', 'time_start', 'time_start', $spec);
+  db_change_field('quiz_node_results', 'time_end', 'time_end', $spec);
+  db_query("UPDATE {quiz_node_results} SET time_end = NULL WHERE time_end = 0");
+  return t('Removed default attribute from field time_start and time_end in quiz_node_results table.');
 }

@@ -39,9 +39,9 @@ function truefalse_quiz_question_info() {
 }
 
 /**
- * Implements hook_config().
+ * Implements hook_quiz_question_config().
  */
-function truefalse_config() {
+function truefalse_quiz_question_config() {
   return FALSE;
 }
 

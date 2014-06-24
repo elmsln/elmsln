@@ -1,0 +1,71 @@
+<?php
+
+/**
+ * @file
+ * Unit tests for the quiz question Module.
+ */
+
+/**
+ * Base test class for Quiz questions.
+ */
+abstract class QuizTestCase extends DrupalWebTestCase {
+
+  /**
+   * Set up a question test case.
+   *
+   * @param array $modules
+   *   Array of modules to enable.
+   * @param array $admin_permissions
+   *   Array of admin permissions to add.
+   * @param array $user_permissions
+   *   Array of user permissions to add.
+   */
+  function setUp($modules = array(), $admin_permissions = array(), $user_permissions = array()) {
+    $modules[] = 'quiz';
+    $modules[] = 'quiz_question';
+    parent::setUp($modules);
+
+    $admin_permissions[] = 'create quiz content';
+    $admin_permissions[] = 'edit any quiz content';
+    $admin_permissions[] = 'edit question titles';
+    $admin_permissions[] = 'access quiz';
+    $user_permissions[] = 'access quiz';
+
+    $this->admin = $this->drupalCreateUser(array_unique($admin_permissions));
+    $this->user = $this->drupalCreateUser(array_unique($user_permissions));
+  }
+
+  /**
+   * Link a question to a new or provided quiz.
+   */
+  public function linkQuestionToQuiz($question_node, $quiz_node = NULL) {
+    if (!$quiz_node) {
+      // Create a new quiz with defaults.
+      $quiz_node = $this->drupalCreateNode(array(
+        'type' => 'quiz',
+      ));
+    }
+
+    $question_node->quiz_nid = $quiz_node->nid;
+    $question_node->quiz_vid = $quiz_node->vid;
+    $qq = _quiz_question_get_instance($question_node);
+    $qq->saveRelationships();
+    return $quiz_node;
+  }
+
+  public function drupalCreateQuiz($settings = array()) {
+    $settings += array(
+      'type' => 'quiz',
+    );
+    return $this->drupalCreateNode($settings);
+  }
+
+  public function testQuizNodeSettings() {
+
+  }
+
+  public function quizDeleteAllResults() {
+    db_query('DELETE FROM {quiz_node_results}');
+  }
+
+}
