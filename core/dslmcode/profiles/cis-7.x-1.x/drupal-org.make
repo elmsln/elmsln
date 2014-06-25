@@ -1,6 +1,6 @@
 ; cis make file for d.o. usage
-core = "7.x"
-api = "2"
+api = 2
+core = 7.x
 
 ; +++++ Modules +++++
 

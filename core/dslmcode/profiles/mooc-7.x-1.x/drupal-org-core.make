@@ -1,5 +1,5 @@
-core = "7.x"
-api = "2"
+api = 2
+core = 7.x
 
 ; Drupal Core
 projects[drupal][type] = core
