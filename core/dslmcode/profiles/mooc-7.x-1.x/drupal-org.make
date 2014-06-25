@@ -313,9 +313,9 @@ projects[tao][version] = "3.1"
 projects[tao][subdir] = "contrib"
 
 ; zurb-foundation
-projects[zurb_foundation][type] = "theme"
-projects[zurb_foundation][version] = "5.x-dev"
-projects[zurb_foundation][subdir] = "contrib"
+projects[zurb-foundation][type] = "theme"
+projects[zurb-foundation][version] = "5.x-dev"
+projects[zurb-foundation][subdir] = "contrib"
 
 ; foundation_access
 projects[foundation_access][type] = "theme"
