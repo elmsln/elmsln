@@ -14,11 +14,11 @@
 	 
 	    if (bottomOffset < windowTop) { // Go into sticky mode
 				$('.book-outline.sticky-book-outline').css({ position: 'fixed', top: 0, display:'block'});
-				$('.book-outline.main-a').css({display:'none'});
+				$('.book-outline.main-a');
 			}
 	    else { // Do not go into sticky mode
 	      $('.book-outline.sticky-book-outline').css({ position: 'static', display:'none'});
-				$('.book-outline.main-a').css({display:'block'});
+				$('.book-outline.main-a');
 	    }
 	  });
 		}

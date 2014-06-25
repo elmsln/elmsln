@@ -1,4 +1,5 @@
 .book-outline ul {
+	
 	&.nav-list {
 		border-right: 1px solid #efefef;
 		padding: 10px;
@@ -37,6 +38,44 @@
 			}
 
 
+		}
+	}
+}
+.book-outline.sticky-book-outline {
+	width: 30%;
+	left: 0px;
+
+	a.button {
+		display: block;
+		height:48px;
+	}
+
+	ul#book-sticky-nav {
+		width: 100%;
+		max-width: 100%;
+
+		@include p-column(3);
+		@media #{$small-only} {
+			@include p-column(1);
+		 }
+		 @media #{$medium-only} {
+			@include p-column(2);
+		 }
+		 @media #{$large-up} {
+			@include p-column(3);
+		 }
+	
+		li {
+			a {
+				&.active {
+				}
+				&:hover {	
+				}
+			}
+
+			ul {
+				display: none;
+			}
 		}
 	}
 }
