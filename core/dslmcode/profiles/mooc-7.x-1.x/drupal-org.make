@@ -16,7 +16,7 @@ projects[admin_theme][subdir] = "contrib"
 projects[module_filter][version] = "2.0-alpha1"
 projects[module_filter][subdir] = "contrib"
 
-projects[advagg][version] = "2.3"
+projects[advagg][version] = "2.7"
 projects[advagg][subdir] = "contrib"
 
 projects[ctools][version] = "1.4"
@@ -31,7 +31,7 @@ projects[context_condition_theme][subdir] = "contrib"
 projects[joyride][version] = "1.0-alpha3"
 projects[joyride][subdir] = "contrib"
 
-projects[replicate][version] = "1.0"
+projects[replicate][version] = "1.1"
 projects[replicate][subdir] = "contrib"
 
 projects[features][version] = "2.0"
@@ -52,7 +52,7 @@ projects[feeds_xpathparser][subdir] = "contrib"
 projects[entityreference][version] = "1.1"
 projects[entityreference][subdir] = "contrib"
 
-projects[entityreference_prepopulate][version] = "1.3"
+projects[entityreference_prepopulate][version] = "1.5"
 projects[entityreference_prepopulate][subdir] = "contrib"
 
 projects[typogrify][version] = "1.0-rc8"
@@ -67,10 +67,10 @@ projects[jammer][subdir] = "contrib"
 projects[lti_tool_provider][version] = "1.x-dev"
 projects[lti_tool_provider][subdir] = "contrib"
 
-projects[imce][version] = "1.7"
+projects[imce][version] = "1.9"
 projects[imce][subdir] = "contrib"
 
-projects[imce_crop][version] = "1.0"
+projects[imce_crop][version] = "1.1"
 projects[imce_crop][subdir] = "contrib"
 
 projects[imce_mkdir][version] = "1.0"
@@ -79,7 +79,7 @@ projects[imce_mkdir][subdir] = "contrib"
 projects[nodeformcols][version] = "1.x-dev"
 projects[nodeformcols][subdir] = "contrib"
 
-projects[og][version] = "2.6"
+projects[og][version] = "2.7"
 projects[og][subdir] = "contrib"
 
 projects[og_clone][version] = "1.x-dev"
@@ -103,19 +103,19 @@ projects[diff][subdir] = "contrib"
 projects[entity][version] = "1.5"
 projects[entity][subdir] = "contrib"
 
-projects[fitvids][version] = "1.14"
+projects[fitvids][version] = "1.15"
 projects[fitvids][subdir] = "contrib"
 
 projects[job_scheduler][version] = "2.0-alpha3"
 projects[job_scheduler][subdir] = "contrib"
 
-projects[libraries][version] = "2.1"
+projects[libraries][version] = "2.2"
 projects[libraries][subdir] = "contrib"
 
 projects[masquerade][version] = "1.0-rc7"
 projects[masquerade][subdir] = "contrib"
 
-projects[node_clone][version] = "1.0-rc1"
+projects[node_clone][version] = "1.0-rc2"
 projects[node_clone][subdir] = "contrib"
 
 projects[prepopulate][version] = "2.x-dev"
@@ -139,7 +139,7 @@ projects[token][subdir] = "contrib"
 projects[token_filter][version] = "1.x-dev"
 projects[token_filter][subdir] = "contrib"
 
-projects[transliteration][version] = "3.1"
+projects[transliteration][version] = "3.2"
 projects[transliteration][subdir] = "contrib"
 
 projects[typo][version] = "1.3"
@@ -157,7 +157,7 @@ projects[entitycache][subdir] = "contrib"
 projects[filecache][version] = "1.0-beta2"
 projects[filecache][subdir] = "contrib"
 
-projects[httprl][version] = "1.13"
+projects[httprl][version] = "1.14"
 projects[httprl][subdir] = "contrib"
 
 projects[piwik][version] = "2.x-dev"
@@ -190,13 +190,13 @@ projects[wysiwyg][subdir] = "contrib"
 projects[wysiwyg_template][version] = "2.x-dev"
 projects[wysiwyg_template][subdir] = "contrib"
 
-projects[views][version] = "3.7"
+projects[views][version] = "3.8"
 projects[views][subdir] = "contrib"
 
-projects[views_bulk_operations][version] = "3.1"
+projects[views_bulk_operations][version] = "3.2"
 projects[views_bulk_operations][subdir] = "contrib"
 
-projects[views_data_export][version] = "3.0-beta6"
+projects[views_data_export][version] = "3.0-beta7"
 projects[views_data_export][subdir] = "contrib"
 
 projects[views_xml_backend][version] = "1.0-alpha4"
@@ -252,9 +252,14 @@ projects[tinynav][subdir] = "contrib"
 
 ; +++++ Themes +++++
 
+; aurora
+projects[chamfer][type] = "theme"
+projects[chamfer][version] = "1.1"
+projects[chamfer][subdir] = "contrib"
+
 ; rubik
 projects[rubik][type] = "theme"
-projects[rubik][version] = "4.0-rc1"
+projects[rubik][version] = "4.1"
 projects[rubik][subdir] = "contrib"
 
 ; adaptivetheme
@@ -304,13 +309,18 @@ projects[skeletontheme][subdir] = "contrib"
 
 ; tao
 projects[tao][type] = "theme"
-projects[tao][version] = "3.0-beta4"
+projects[tao][version] = "3.1"
 projects[tao][subdir] = "contrib"
 
 ; zurb-foundation
-projects[zurb-foundation][type] = "theme"
-projects[zurb-foundation][version] = "4.0-beta1"
-projects[zurb-foundation][subdir] = "contrib"
+projects[zurb_foundation][type] = "theme"
+projects[zurb_foundation][version] = "5.x-dev"
+projects[zurb_foundation][subdir] = "contrib"
+
+; foundation_access
+projects[foundation_access][type] = "theme"
+projects[foundation_access][version] = "5.x-dev"
+projects[foundation_access][subdir] = "contrib"
 
 ; +++++ Libraries +++++
 ; CKEditor

@@ -7,7 +7,7 @@ api = "2"
 projects[admin_menu][version] = "3.0-rc4"
 projects[admin_menu][subdir] = "contrib"
 
-projects[module_filter][version] = "2.0-alpha1"
+projects[module_filter][version] = "2.0-alpha2"
 projects[module_filter][subdir] = "contrib"
 
 projects[ctools][version] = "1.4"
@@ -19,7 +19,7 @@ projects[google_chart_tools][subdir] = "contrib"
 projects[field_redirection][version] = "2.5"
 projects[field_redirection][subdir] = "contrib"
 
-projects[context][version] = "3.1"
+projects[context][version] = "3.2"
 projects[context][subdir] = "contrib"
 
 projects[data][version] = "1.x-dev"
@@ -28,10 +28,10 @@ projects[data][subdir] = "contrib"
 projects[schema][version] = "1.0-rc1"
 projects[schema][subdir] = "contrib"
 
-projects[date][version] = "2.6"
+projects[date][version] = "2.7"
 projects[date][subdir] = "contrib"
 
-projects[replicate][version] = "1.0"
+projects[replicate][version] = "1.1"
 projects[replicate][subdir] = "contrib"
 
 projects[replicate_field_collection][version] = "1.x-dev"
@@ -46,22 +46,22 @@ projects[features_override][subdir] = "contrib"
 projects[features_extra][version] = "1.x-dev"
 projects[features_extra][subdir] = "contrib"
 
-projects[email][version] = "1.2"
+projects[email][version] = "1.3"
 projects[email][subdir] = "contrib"
 
 projects[entityreference][version] = "1.1"
 projects[entityreference][subdir] = "contrib"
 
-projects[entityreference_prepopulate][version] = "1.3"
+projects[entityreference_prepopulate][version] = "1.5"
 projects[entityreference_prepopulate][subdir] = "contrib"
 
 projects[field_collection][version] = "1.x-dev"
 projects[field_collection][subdir] = "contrib"
 
-projects[field_group][version] = "1.3"
+projects[field_group][version] = "1.4"
 projects[field_group][subdir] = "contrib"
 
-projects[field_hidden][version] = "1.5"
+projects[field_hidden][version] = "1.6"
 projects[field_hidden][subdir] = "contrib"
 
 projects[field_permissions][version] = "1.0-beta2"
@@ -94,10 +94,10 @@ projects[lazyloader][subdir] = "contrib"
 projects[lti_tool_provider][version] = "1.x-dev"
 projects[lti_tool_provider][subdir] = "contrib"
 
-projects[imce][version] = "1.7"
+projects[imce][version] = "1.9"
 projects[imce][subdir] = "contrib"
 
-projects[video_embed_field][version] = "2.0-beta5"
+projects[video_embed_field][version] = "2.0-beta7"
 projects[video_embed_field][subdir] = "contrib"
 
 projects[nodeformcols][version] = "1.x-dev"
@@ -115,7 +115,7 @@ projects[backup_migrate][subdir] = "contrib"
 projects[boxes][version] = "1.1"
 projects[boxes][subdir] = "contrib"
 
-projects[breakpoints][version] = "1.1"
+projects[breakpoints][version] = "1.2"
 projects[breakpoints][subdir] = "contrib"
 
 projects[dhtml_menu][version] = "1.0-beta1"
@@ -130,7 +130,7 @@ projects[field_collection_table][subdir] = "contrib"
 projects[file_formatters][version] = "1.0"
 projects[file_formatters][subdir] = "contrib"
 
-projects[fitvids][version] = "1.14"
+projects[fitvids][version] = "1.15"
 projects[fitvids][subdir] = "contrib"
 
 projects[imagefield_focus][version] = "1.x-dev"
@@ -139,7 +139,7 @@ projects[imagefield_focus][subdir] = "contrib"
 projects[jquery_colorpicker][version] = "1.0-rc2"
 projects[jquery_colorpicker][subdir] = "contrib"
 
-projects[libraries][version] = "2.1"
+projects[libraries][version] = "2.2"
 projects[libraries][subdir] = "contrib"
 
 projects[masquerade][version] = "1.0-rc7"
@@ -148,7 +148,7 @@ projects[masquerade][subdir] = "contrib"
 projects[menu_attributes][version] = "1.0-rc2"
 projects[menu_attributes][subdir] = "contrib"
 
-projects[menu_block][version] = "2.3"
+projects[menu_block][version] = "2.4"
 projects[menu_block][subdir] = "contrib"
 
 projects[menu_position][version] = "1.1"
@@ -157,7 +157,7 @@ projects[menu_position][subdir] = "contrib"
 projects[nocurrent_pass][version] = "1.0"
 projects[nocurrent_pass][subdir] = "contrib"
 
-projects[node_clone][version] = "1.0-rc1"
+projects[node_clone][version] = "1.0-rc2"
 projects[node_clone][subdir] = "contrib"
 
 projects[nodeaccess_nodereference][version] = "1.22"
@@ -190,19 +190,19 @@ projects[subpathauto][subdir] = "contrib"
 projects[token][version] = "1.5"
 projects[token][subdir] = "contrib"
 
-projects[transliteration][version] = "3.1"
+projects[transliteration][version] = "3.2"
 projects[transliteration][subdir] = "contrib"
 
 projects[unique_field][version] = "1.0-rc1"
 projects[unique_field][subdir] = "contrib"
 
-projects[path_breadcrumbs][version] = "3.0-beta6"
+projects[path_breadcrumbs][version] = "3.0"
 projects[path_breadcrumbs][subdir] = "contrib"
 
 projects[apc][version] = "1.x-dev"
 projects[apc][subdir] = "contrib"
 
-projects[boost][version] = "1.0-beta2"
+projects[boost][version] = "1.0"
 projects[boost][subdir] = "contrib"
 
 projects[entitycache][version] = "1.2"
@@ -211,13 +211,13 @@ projects[entitycache][subdir] = "contrib"
 projects[filecache][version] = "1.0-beta2"
 projects[filecache][subdir] = "contrib"
 
-projects[httprl][version] = "1.13"
+projects[httprl][version] = "1.14"
 projects[httprl][subdir] = "contrib"
 
-projects[imageinfo_cache][version] = "3.1"
+projects[imageinfo_cache][version] = "3.3"
 projects[imageinfo_cache][subdir] = "contrib"
 
-projects[seckit][version] = "1.8"
+projects[seckit][version] = "1.9"
 projects[seckit][subdir] = "contrib"
 
 projects[uuid][version] = "1.0-alpha5"
@@ -232,28 +232,28 @@ projects[imce_wysiwyg][subdir] = "contrib"
 projects[jquery_update][version] = "2.4"
 projects[jquery_update][subdir] = "contrib"
 
-projects[options_element][version] = "1.10"
+projects[options_element][version] = "1.12"
 projects[options_element][subdir] = "contrib"
 
 projects[wysiwyg][version] = "2.x-dev"
 projects[wysiwyg][subdir] = "contrib"
 
-projects[better_exposed_filters][version] = "3.0-beta3"
+projects[better_exposed_filters][version] = "3.0-beta4"
 projects[better_exposed_filters][subdir] = "contrib"
 
-projects[editableviews][version] = "1.0-beta7"
+projects[editableviews][version] = "1.0-beta8"
 projects[editableviews][subdir] = "contrib"
 
-projects[views][version] = "3.7"
+projects[views][version] = "3.8"
 projects[views][subdir] = "contrib"
 
-projects[views_autocomplete_filters][version] = "1.0"
+projects[views_autocomplete_filters][version] = "1.1"
 projects[views_autocomplete_filters][subdir] = "contrib"
 
-projects[views_bulk_operations][version] = "3.1"
+projects[views_bulk_operations][version] = "3.2"
 projects[views_bulk_operations][subdir] = "contrib"
 
-projects[views_data_export][version] = "3.0-beta6"
+projects[views_data_export][version] = "3.0-beta7"
 projects[views_data_export][subdir] = "contrib"
 
 projects[views_fluid_grid][version] = "3.0"
@@ -281,7 +281,7 @@ projects[textbook][subdir] = "contrib"
 
 ; rubik
 projects[rubik][type] = "theme"
-projects[rubik][version] = "4.0-rc1"
+projects[rubik][version] = "4.1"
 projects[rubik][subdir] = "contrib"
 
 ; adaptivetheme
@@ -322,13 +322,13 @@ projects[respond][subdir] = "contrib"
 
 ; tao
 projects[tao][type] = "theme"
-projects[tao][version] = "3.0-beta4"
+projects[tao][version] = "3.1"
 projects[tao][subdir] = "contrib"
 
 ; zurb-foundation
-projects[zurb-foundation][type] = "theme"
-projects[zurb-foundation][version] = "4.0-beta1"
-projects[zurb-foundation][subdir] = "contrib"
+projects[zurb_foundation][type] = "theme"
+projects[zurb_foundation][version] = "4.x-dev"
+projects[zurb_foundation][subdir] = "contrib"
 
 ; +++++ Libraries +++++
 
