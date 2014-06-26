@@ -160,7 +160,7 @@ projects[ckeditor_link][subdir] = "contrib"
 projects[imce_wysiwyg][version] = "1.0"
 projects[imce_wysiwyg][subdir] = "contrib"
 
-projects[jquery_update][version] = "2.3"
+projects[jquery_update][version] = "2.4"
 projects[jquery_update][subdir] = "contrib"
 
 projects[masonry][version] = "2.0"
@@ -272,7 +272,5 @@ libraries[oauth][download][url] = "https://github.com/juampy72/OAuth-PHP/archive
 projects[og_clone][patch][] = "http://drupal.org/files/og_clone-menu-cloning-none-1940982-1.patch"
 ; allow for altering what can be cloned
 projects[og_clone][patch][] = "http://drupal.org/files/og_clone-item-id-alter-1941054-1.patch"
-; allow multiple versions of jquery
-projects[jquery_update][patch][] = "http://drupal.org/files/jquery_update-1524944-78.patch"
 ; infinite scroll to work with masonry
 projects[views_infinite_scroll][patch][] = "http://drupal.org/files/views_infinite_scroll-1806628-13.patch"
