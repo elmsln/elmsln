@@ -183,6 +183,7 @@ dependencies[] = textbook_editor
 dependencies[] = cis_users
 dependencies[] = cis_roles
 
+; Information intentionally kept here to have a version w/ ELMSLN
 ; Information added by Drupal.org packaging script on 2014-06-26
 version = "7.x-1.0-beta4"
 core = "7.x"
