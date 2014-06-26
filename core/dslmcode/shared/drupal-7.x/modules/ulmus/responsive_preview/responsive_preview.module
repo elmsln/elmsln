@@ -1,0 +1,632 @@
+<?php
+
+/**
+ * @file
+ * Provides a component that previews the a page in various device dimensions.
+ */
+
+/**
+ * Implements hook_help().
+ */
+function responsive_preview_help($path, $arg) {
+
+  switch ($path) {
+    case 'admin/help#responsive_preview':
+      $output = '<h3>' . t('About') . '</h3>';
+      $output .= '<p>' . t('The Responsive Preview module provides a quick way to preview a page on your site within the dimensions of many popular device and screen sizes.') . '</p>';
+      $output .= '<h3>' . t('Uses') . '</h3>';
+      $output .= '<p>' . t('To launch a preview, first click the navbar tab with the small device icon. The tab has the title "@title". A list of devices will appear. Selecting a device name will launch a preview of the current page within the dimensions of that device.', array('@title' => t('Preview page layout'))) . '</p>';
+      $output .= '<p>' . t('To close the preview, click the close button signified visually by an x.') . '</p>';
+      return $output;
+  }
+}
+
+/**
+ * Implements hook_menu().
+ */
+function responsive_preview_menu() {
+  $items['admin/config/content/responsive-preview'] = array(
+    'title' => 'Responsive preview',
+    'description' => "Configure responsive preview device definitions.",
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('responsive_preview_admin_form'),
+    'access arguments' => array('administer site configuration'),
+    'file' => 'responsive_preview.admin.inc',
+  );
+  $items['admin/config/content/responsive-preview/add'] = array(
+    'title' => 'Add device',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('responsive_preview_device_add_form'),
+    'access arguments' => array('administer site configuration'),
+    'type' => MENU_LOCAL_ACTION,
+    'file' => 'responsive_preview.admin.inc',
+  );
+  $items['admin/config/content/responsive-preview/%'] = array(
+    'title' => 'Edit',
+    'title callback' => 'responsive_preview_title_callback',
+    'title arguments' => array(4),
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('responsive_preview_device_edit_form', 4),
+    'access arguments' => array('administer site configuration'),
+    'file' => 'responsive_preview.admin.inc',
+  );
+  $items['admin/config/content/responsive-preview/%/edit'] = array(
+    'title' => 'Edit',
+    'title callback' => 'responsive_preview_title_callback',
+    'title arguments' => array(4),
+    'type' => MENU_DEFAULT_LOCAL_TASK,
+  );
+  $items['admin/config/content/responsive-preview/%/delete'] = array(
+    'title' => 'Delete',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('responsive_preview_device_delete_form', 4),
+    'access arguments' => array('administer site configuration'),
+    'type' => MENU_CALLBACK,
+    'file' => 'responsive_preview.admin.inc',
+  );
+
+  return $items;
+}
+
+/**
+ * Implements hook_theme().
+ */
+function responsive_preview_theme() {
+  return array(
+    'responsive_preview_admin_form' => array(
+      'template' => 'templates/responsive-preview-admin-form',
+      'file' => 'responsive_preview.admin.inc',
+      'render element' => 'form',
+    ),
+  );
+}
+
+/**
+ * Returns a list of devices and their properties from configuration.
+ */
+function responsive_preview_get_devices_list() {
+  $devices = array();
+  try {
+    $devices = db_select('responsive_preview', 'rp')
+      ->fields('rp')
+      ->condition('status', 1)
+      ->orderBy('weight', 'ASC')
+      ->execute()
+      ->fetchAllAssoc('name', PDO::FETCH_ASSOC);
+  }
+  catch (Exception $e) {
+    watchdog_exception('responsive_preview', $e);
+    throw $e;
+  }
+
+  $links = array();
+
+  foreach($devices as $name => $info) {
+    $item = array(
+      '#theme' => 'html_tag',
+      '#tag' => 'button',
+      '#value' => $info['label'],
+      '#attributes' => array(
+        'class' => array('responsive-preview-device', 'responsive-preview-icon', 'responsive-preview-icon-active'),
+        'data-responsive-preview-name' => $name,
+        'data-responsive-preview-width' => (!empty($info['width'])) ? $info['width'] : '',
+        'data-responsive-preview-height' => (!empty($info['height'])) ? $info['height'] : '',
+        'data-responsive-preview-dppx' => (!empty($info['dppx'])) ? $info['dppx'] : '1',
+      ),
+    );
+    $links[$name] = array(
+      // theme_item_list() doesn't work in D7 like it does in D8. You have to render items before
+      // passing them in.
+      'data' => drupal_render($item),
+    );
+  }
+
+  // Add a configuration link.
+  $configlink = array(
+    '#theme' => 'link',
+    '#text' => t('Configure devices'),
+    '#path' => 'admin/config/content/responsive-preview',
+    '#options' => array(
+      'attributes' => array(
+        'class' => array('responsive-preview-configure'),
+      ),
+      'html' => FALSE,
+    )
+  );
+  $links['configure_link'] = array(
+    'data' => drupal_render($configlink),
+  );
+
+  return $links;
+}
+
+/**
+ * Prevents the preview tab from rendering on administration pages.
+ */
+function responsive_preview_access() {
+  return !path_is_admin(current_path());
+}
+
+/**
+ * Implements hook_block_info().
+ */
+function responsive_preview_block_info() {
+  $blocks['controls'] = array(
+    'info' => t('Responsive page preview controls'),
+    'properties' => array(
+      'administrative' => FALSE,
+    ),
+  );
+  return $blocks;
+}
+
+/**
+ * Implements hook_block_view().
+ */
+function responsive_preview_block_view($delta = '') {
+  $block = array();
+
+  if ($delta = 'controls') {
+    $block['subject'] = t('Device preview');
+    $block['content'] = array(
+      'device_options' => array(
+        '#cache' => array(
+          'cid' => 'responsive_preview_device_options',
+          'bin' => 'cache',
+        ),
+        '#theme' => 'item_list',
+        '#items' => responsive_preview_get_devices_list(),
+        '#attributes' => array(
+          'class' => array('responsive-preview-options'),
+        ),
+        '#attached' => array(
+          'library' => array(
+            array('responsive_preview', 'responsive-preview'),
+          ),
+        ),
+      ),
+    );
+  }
+
+  return $block;
+}
+
+/**
+ * Implements hook_navbar().
+ */
+function responsive_preview_navbar() {
+
+  $items['responsive_preview'] = array(
+    '#type' => 'navbar_item',
+    'tab' => array(
+      'trigger' => array(
+        '#theme' => 'html_tag',
+        '#tag' => 'button',
+        '#value' => t('Layout preview'),
+        '#value_prefix' => '<span class="element-invisible">',
+        '#value_suffix' => '</span>',
+        '#attributes' => array(
+          'title' => t('Preview page layout'),
+          'class' => array('responsive-preview-icon', 'responsive-preview-icon-responsive-preview', 'responsive-preview-trigger'),
+        ),
+      ),
+      'device_options' => array(
+        '#theme' => 'item_list',
+        '#items' => responsive_preview_get_devices_list(),
+        '#attributes' => array(
+          'class' => array('responsive-preview-options'),
+        ),
+      ),
+    ),
+    '#wrapper_attributes' => array(
+      'id' => 'responsive-preview-navbar-tab',
+      'class' => array('navbar-tab-responsive-preview'),
+    ),
+    '#attached' => array(
+      'library' => array(
+        array('responsive_preview', 'responsive-preview'),
+      ),
+    ),
+    '#weight' => 200,
+    '#access' => responsive_preview_access(),
+  );
+
+  return $items;
+}
+
+/**
+ * Implements hook_library().
+ */
+function responsive_preview_library() {
+  $path = drupal_get_path('module', 'responsive_preview');
+  $options = array(
+    'scope' => 'footer',
+    'defer' => TRUE,
+  );
+
+  $libraries['responsive-preview'] = array(
+    'title' => 'Preview layouts',
+    'version' => VERSION,
+    'css' => array(
+      $path . '/css/responsive-preview.base.css',
+      $path . '/css/responsive-preview.theme.css',
+      $path . '/css/responsive-preview.icons.css',
+    ),
+    'js' => array(
+      // Monkey-patch in jQuery UI 1.10 Position at $.fn.position_responsive_preview.
+      $path . '/js/jquery/ducktape.position.js' => $options,
+      $path . '/js/responsive-preview.js' => $options,
+    ),
+    'dependencies' => array(
+      array('system', 'jquery'),
+      array('responsive_preview', 'debounce'),
+      array('responsive_preview', 'displace'),
+      array('responsive_preview', 'underscore'),
+      array('responsive_preview', 'backbone'),
+    ),
+  );
+
+  // A utility function to avoid stampeding function invocations.
+  $libraries['debounce'] = array(
+    'title' => 'Debounce',
+    'version' => VERSION,
+    'js' => array(
+      $path . '/js/debounce.js' => array('group' => JS_LIBRARY, 'weight' => -19),
+    ),
+  );
+
+  // A utility function determine viewport offset distances.
+  $libraries['displace'] = array(
+    'title' => 'Responsive preview displace',
+    'version' => VERSION,
+    'js' => array(
+      $path . '/js/displace.js' => array('group' => JS_LIBRARY),
+    ),
+    'dependencies' => array(
+      array('system', 'jquery'),
+      array('responsive_preview', 'debounce'),
+    ),
+  );
+
+  // Underscore
+  $libraries['underscore'] = _responsive_preview_convert_libraries_to_library(libraries_detect('underscore'), array(
+    'group' => JS_LIBRARY,
+    'weight' => -20,
+  ));
+
+  // Backbone
+  $libraries['backbone'] = _responsive_preview_convert_libraries_to_library(libraries_detect('backbone'), array(
+    'group' => JS_LIBRARY,
+    'weight' => -19,
+  ));
+
+  return $libraries;
+}
+
+/**
+ * Implements hook_library_alter().
+ *
+ * Backport a couple of things from jQuery that are required.
+ */
+function responsive_preview_library_alter(&$libraries, $module) {
+  $jquery_version = &drupal_static(__FUNCTION__, NULL);
+  if ($module == 'system') {
+    $jquery_version = $libraries['jquery']['version'];
+  }
+  if ($jquery_version && $module == 'responsive_preview') {
+    $path = drupal_get_path('module', 'responsive_preview');
+    // If the version of jQuery is old, we need to add `on` and `off`.
+    if ($jquery_version < '1.7') {
+      $libraries['responsive-preview']['js'][$path . '/js/jquery/ducktape.events.js'] = array('group' => JS_LIBRARY);
+    }
+  }
+}
+
+/**
+ * Implements hook_libraries_info().
+ *
+ * @see Libraries module.
+ */
+function responsive_preview_libraries_info() {
+  $libraries = array();
+
+  $common = array(
+    'version callback' => '_responsive_preview_libraries_get_version',
+    'variant order' => array('minified', 'source'),
+  );
+
+  $libraries['underscore'] = array(
+    'name' => 'Underscore',
+    'vendor url' => 'http://documentcloud.github.io/backbone/',
+    'download url' => 'https://github.com/jashkenas/underscore/archive/1.5.2.zip',
+    'version arguments' => array(
+      'variants' => array(
+        'source' => array(
+          'file' => 'underscore.js',
+          // @todo Document an actual example version string.
+          'pattern' => '#VERSION *\W *[\'\"]{1}(.*?)[\'\"]{1}#',
+          // In the unminified Underscore.js 1.5.2, the version is defined on
+          // line 68.
+          'lines' => 100,
+        ),
+        'minified' => array(
+          'file' => 'underscore-min.js',
+          'pattern' => '#Underscore.js\s([\d\.]+)#',
+        ),
+      ),
+    ),
+    'versions' => array(
+      // Means ">=1.5.0": matches 1.5.0, 1.5.2, etc.
+      '1.5.0' => array(
+        'variants' => array(
+          'source' => array(
+            'name' => 'Underscore',
+            'files' => array(
+              'js' => array(
+                'underscore.js',
+              ),
+            ),
+            // Without a variant callback, the variant is assumed to be
+            // installed.
+            'variant callback' => '_responsive_preview_libraries_variant_exists',
+            'variant arguments' => array('underscore.js'),
+          ),
+          'minified' => array(
+            'name' => 'Underscore',
+            'files' => array(
+              'js' => array(
+                'underscore-min.js',
+              ),
+            ),
+            // Without a variant callback, the variant is assumed to be
+            // installed.
+            'variant callback' => '_responsive_preview_libraries_variant_exists',
+            'variant arguments' => array('underscore-min.js'),
+          ),
+        ),
+      ),
+    ),
+  );
+  $libraries['underscore'] += $common;
+
+  $libraries['backbone'] = array(
+    'name' => 'Backbone',
+    'vendor url' => 'http://documentcloud.github.io/backbone/',
+    'download url' => 'https://github.com/jashkenas/backbone/archive/1.1.0.zip',
+    'version arguments' => array(
+      'variants' => array(
+        'source' => array(
+          'file' => 'backbone.js',
+          // @todo Document an actual example version string.
+          'pattern' => '#VERSION *\W *[\'\"]{1}(.*?)[\'\"]{1}#',
+          // In the unminified Backbone.js 1.1.0, the version is defined on line
+          // 38.
+          'lines' => 50,
+        ),
+        'minified' => array(
+          'file' => 'backbone-min.js',
+          'pattern' => '#Backbone.js\s([\d\.]+)#',
+        ),
+      ),
+    ),
+    'versions' => array(
+      // Means ">=1.0.0": matches 1.0.0, 1.1.0, etc.
+      '1.0.0' => array(
+        'variants' => array(
+          'source' => array(
+            'name' => 'Backbone',
+            'files' => array(
+              'js' => array(
+                'backbone.js',
+              ),
+            ),
+            // Without a variant callback, the variant is assumed to be
+            // installed.
+            'variant callback' => '_responsive_preview_libraries_variant_exists',
+            'variant arguments' => array('backbone.js'),
+            'dependencies' => array('underscore (>=1.5.0)'),
+          ),
+          'minified' => array(
+            'name' => 'Backbone',
+            'files' => array(
+              'js' => array(
+                'backbone-min.js',
+              ),
+            ),
+            // Without a variant callback, the variant is assumed to be
+            // installed.
+            'variant callback' => '_responsive_preview_libraries_variant_exists',
+            'variant arguments' => array('backbone-min.js'),
+            'dependencies' => array('underscore (>=1.5.0)'),
+          ),
+        ),
+      ),
+    ),
+  );
+  $libraries['backbone'] += $common;
+
+  return $libraries;
+}
+
+/**
+ * Determines the version of a responsive preview library.
+ *
+ * This is used in case different variants of the library are shipped separately
+ * and, thus, different variants can contain different versions.
+ *
+ * @param array $library
+ *   An associative array containing all information about the library. The
+ *   library is assumed to have the following non-standard keys:
+ *   - variant order: An array of variant names, ordered from the most preferred
+ *     variant to the least preferred.
+ * @param array $options
+ *   An associative array with the following keys:
+ *   - variants: An array of options for libraries_get_version() keyed by
+ *     variant name.
+ *
+ */
+function _responsive_preview_libraries_get_version(&$library, $options = array()) {
+  $versions = array();
+  foreach ($library['variant order'] as $variant_name) {
+    $variant = $library['version arguments']['variants'][$variant_name];
+    // Use the libraries get version function to determine the version string.
+    $versions[$variant_name] = libraries_get_version($library, $variant);
+  }
+
+  // If no versions could be found for any of the variant, there is no version
+  // to return. If different versions have been found, there is no way to
+  // determine the correct one. We cannot use the information on the preferred
+  // variants because we cannot guarantee that a less preferred variant will not
+  // be loaded. Null values are fine. Either that variant file doesn't exist
+  // or id doesn't contain version information. As long as the there is no
+  // conflicting version information, the check should pass.
+  $versions = array_filter($versions, '_responsive_preview_libraries_filter_null_values');
+  $version = array_unique($versions);
+  $vcount = count($version);
+  if ($vcount == 1) {
+    // A version number exists, so suppress any errors that any individual
+    // variant might have raised.
+    unset($library['error']);
+    unset($library['error message']);
+    return array_shift($version);
+  }
+  elseif ($vcount > 1) {
+    $output = array();
+    foreach ($versions as $name => $v) {
+      $output[] = t('@name (@v)', array(
+        '@name' => $name,
+        '@v' => $v,
+      ));
+    }
+
+    $library['error'] = 'inconsistent versions';
+    $library['error message'] = t('The library\'s variants returned inconsistent versions: @variant_info', array(
+      '@variant_info' => implode(', ', $output),
+    ));
+  }
+  // If the version count is zero, then let the error from libraries_get_version
+  // propagate through.
+}
+
+/**
+ * Determines if an item is empty or not.
+ *
+ * @param string $item
+ *   A version number string.
+ * @return boolean
+ *   Whether the $item's value is empty or not.
+ */
+function _responsive_preview_libraries_filter_null_values($item) {
+  return !empty($item);
+}
+
+/**
+ * Libraries API variant callback.
+ */
+function _responsive_preview_libraries_variant_exists($library, $variant_name, $required_file) {
+  return file_exists($library['library path'] . '/' . $required_file);;
+}
+
+/**
+ * Converts a libraries module array to a hook_library array.
+ *
+ * What is this necessary? I don't see any way from the Libraries module API
+ * to get an array that corresponds to what hook_library expects.
+ */
+function _responsive_preview_convert_libraries_to_library($library, $options = array()) {
+  // If the library wasn't installed, don't bother converting it.
+  if (!$library['installed']) {
+    return array();
+  }
+
+  $converted = array();
+  $files = array();
+
+  // Get the library files from one of the installed variants.
+  if ($name = _responsive_preview_libraries_get_preferred_variant_name($library)) {
+    $files = $library['variants'][$name]['files'];
+  }
+
+  // Define the library if files exist for it.
+  if (!empty($files)) {
+    // This is the basic structure expected by hook_library().
+    $converted = array(
+      'title' => $library['name'],
+      'website' => $library['vendor url'],
+      'version' => $library['version'],
+    );
+    foreach ($files as $type => $paths) {
+      foreach($paths as $filename => $data) {
+        $converted[$type][$library['library path'] . '/' . $filename] = $options;
+      }
+    }
+  }
+
+  return $converted;
+}
+
+/**
+ * Returns the variant that should be loaded based on order preference.
+ *
+ * @param array $library
+ *   A libraries module library definition array.
+ * @return string
+ *   The name of the variant that should be loaded.
+ */
+function _responsive_preview_libraries_get_preferred_variant_name($library) {
+  if (!empty($library['variant order'])) {
+    foreach ($library['variant order'] as $name) {
+      if ($variant = $library['variants'][$name]) {
+        if ($variant['installed']) {
+          return $name;
+        }
+      }
+    }
+  }
+  return NULL;
+}
+
+/**
+ * Implements hook_testswarm_tests().
+ */
+function responsive_preview_testswarm_tests() {
+
+  $path = drupal_get_path('module', 'responsive_preview');
+
+  return array(
+    'responsivePreview' => array(
+      'module' => 'responsive_preview',
+      'description' => 'Test the responsive preview module.',
+      'js' => array(
+        $path . '/tests/testswarm/responsive_preview.tests.js' => array(),
+        array(
+          'data' => array(
+            'responsive_preview' => array(
+              'devices' => config('responsive_preview.devices')->get()
+            ),
+          ),
+          'type' => 'setting',
+        ),
+      ),
+      'dependencies' => array(
+        array('system', 'jquery'),
+        array('system', 'drupalSettings'),
+        array('testswarm', 'jquery.simulate'),
+      ),
+      'path' => '',
+      'permissions' => array()
+    ),
+    'responsivePreviewAdmin' => array(
+      'module' => 'responsive_preview',
+      'description' => 'Test the responsive preview module admin.',
+      'js' => array(
+        $path . '/tests/testswarm/responsive_preview.admin.tests.js' => array(),
+      ),
+      'dependencies' => array(
+        array('system', 'jquery'),
+      ),
+      'path' => 'admin',
+      'permissions' => array()
+    ),
+  );
+}

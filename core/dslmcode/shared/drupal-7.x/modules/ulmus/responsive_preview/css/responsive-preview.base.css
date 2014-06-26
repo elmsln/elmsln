@@ -1,0 +1,134 @@
+/**
+ * @file
+ * Base styling for responsive preview.
+ */
+
+/**
+ * Constrain the window height to the client height when the preview is active.
+ */
+.responsive-preview-active {
+  height: 100%;
+  overflow: hidden;
+}
+
+/**
+ * navbar tab.
+ */
+#navbar-administration .navbar-tab-responsive-preview {
+  display: none;
+}
+/* At narrow screen widths, float the tab to the left so it falls in line with
+ * the rest of the navbar tabs. */
+#navbar-administration.navbar-oriented .navbar-bar .navbar-tab-responsive-preview.navbar-tab {
+  display: block;
+  float: right; /* LTR */
+  position: relative;
+}
+[dir="rtl"] #navbar-administration.navbar-oriented .navbar-bar .navbar-tab-responsive-preview.navbar-tab {
+  float: left;
+}
+#navbar-administration .navbar-tab-responsive-preview .responsive-preview-trigger {
+  display: block;
+}
+/* Device preview options. */
+#navbar-administration .navbar-tab-responsive-preview .item-list {
+  display: none;
+  min-width: 10em;
+  padding: 0;
+  position: absolute;
+  white-space: nowrap;
+  z-index: 1;
+}
+#navbar-administration .navbar-tab-responsive-preview.open .item-list {
+  display: block;
+}
+#navbar-administration .navbar-tab-responsive-preview.navbar-tab .responsive-preview-options li {
+  display: block;
+  float: none;
+  position: relative;
+}
+
+/**
+ * Preview container.
+ *
+ * The container is kept offscreen after it is built and has been disabled.
+ */
+.responsive-preview {
+  bottom: 0;
+  height: 100%;
+  left: -200%; /* LTR */
+  position: relative;
+  top: 0;
+  width: 100%;
+  z-index: 500;
+}
+[dir="rtl"] .responsive-preview {
+  left: auto;
+  right: -200%;
+}
+.responsive-preview.active {
+  left: 0; /* LTR */
+  position: fixed;
+}
+[dir="rtl"] .responsive-preview.active {
+  left: auto;
+  right: 0;
+}
+.responsive-preview-control {
+  position: absolute;
+}
+.responsive-preview-modal-background {
+  bottom: 0;
+  left: 0;
+  position: absolute;
+  right: 0;
+  top: 0;
+  z-index: 1;
+}
+
+/**
+ * Preview iframe.
+ */
+.responsive-preview-frame-container {
+  position: absolute;
+  z-index: 100;
+}
+.responsive-preview-frame-container iframe {
+  display: block;
+  position: relative;
+}
+
+/**
+ * Scroll container.
+ */
+#responsive-preview-scroll-track {
+  bottom: 0;
+  left: 0;
+  overflow: visible;
+  position: absolute;
+  right: 0;
+  top: 0;
+  z-index: 1;
+}
+#responsive-preview-scroll-pane {
+  min-height: 100%;
+  position: relative;
+  width: 100%;
+}
+
+/**
+ * Override navbar styling in the preview iframe.
+ */
+body.navbar-tray-open.responsive-preview-frame {
+  margin-left: 0 !important;
+  margin-right: 0 !important;
+}
+.responsive-preview-frame {
+  overflow-x: hidden !important;
+}
+.responsive-preview-frame #navbar-administration {
+  display: none !important;
+}
+.responsive-preview-frame .contextual {
+  display: none !important;
+}

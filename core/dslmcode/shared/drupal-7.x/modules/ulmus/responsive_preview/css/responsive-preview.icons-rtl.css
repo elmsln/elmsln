@@ -1,0 +1,38 @@
+/**
+ * @file
+ * RTL icon styling for responsive preview.
+ */
+.drupal-navbar .navbar-bar .navbar-tab-responsive-preview .responsive-preview-icon-responsive-preview:before {
+  left: auto;
+  right: 6px;
+}
+.drupal-navbar .navbar-tab-responsive-preview.navbar-tab .responsive-preview-options .responsive-preview-device.responsive-preview-icon-active.active {
+  padding-left: 1.333em;
+  padding-right: 2.25em;
+}
+.drupal-navbar .navbar-tab-responsive-preview.navbar-tab .responsive-preview-options .responsive-preview-device.responsive-preview-icon-active:before {
+  left: auto;
+  right: 0.667em;
+}
+
+/**
+ * Responsive preview controls icons.
+ */
+.responsive-preview-icon-close:before {
+  left: 9px;
+  right: auto;
+}
+.responsive-preview-icon-orientation:before {
+  background-position: left -155px;
+  left: auto;
+  right: 9px;
+}
+.responsive-preview-icon-orientation:hover:before {
+  background-position: left -167px;
+}
+.responsive-preview-icon-orientation.rotated:before {
+  background-position: left -131px;
+}
+.responsive-preview-icon-orientation.rotated:hover:before {
+  background-position: left -143px;
+}

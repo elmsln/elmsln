@@ -1,0 +1,275 @@
+/**
+ * @file
+ * Styling for responsive preview.
+ */
+
+/**
+ * navbar tab.
+ */
+#navbar-administration .navbar-tab-responsive-preview .responsive-preview-options {
+  background-color: white;
+  margin: 0;
+  padding: 0.5em 0;
+}
+/* Device preview options. */
+#navbar-administration .navbar-tab-responsive-preview .responsive-preview-options {
+  box-shadow: 0 0.8em 2.5em -0.8em rgba(0, 0, 0, 0.75);
+}
+/* [dir] is needed to override Bartik's .item-list li padding */
+[dir] #navbar-administration .navbar-tab-responsive-preview .responsive-preview-options li {
+  margin: 0;
+  padding: 0;
+}
+#navbar-administration .navbar-tab-responsive-preview .responsive-preview-trigger {
+  cursor: pointer;
+  line-height: 1;
+  height: 3em;
+  margin: 0;
+}
+#navbar-administration .navbar-tab-responsive-preview .responsive-preview-trigger:hover {
+  background-image: -webkit-linear-gradient(rgba(255, 255, 255, 0.125) 20%, transparent 200%);
+  background-image: -moz-linear-gradient(rgba(255, 255, 255, 0.125) 20%, transparent 200%);
+  background-image: linear-gradient(rgba(255, 255, 255, 0.125) 20%, transparent 200%);
+}
+#navbar-administration .navbar-tab-responsive-preview .responsive-preview-trigger.active,
+#navbar-administration .navbar-tab-responsive-preview .responsive-preview-trigger.active:hover {
+  background-image: -webkit-linear-gradient(top, rgb(78,159,234) 0%, rgb(69,132,221) 100%);
+  background-image: -moz-linear-gradient(rgb(78,159,234) 0%,rgb(69,132,221) 100%);
+  background-image: linear-gradient(rgb(78,159,234) 0%,rgb(69,132,221) 100%);
+}
+#navbar-administration .navbar-tab-responsive-preview .responsive-preview-trigger,
+#navbar-administration .navbar-tab-responsive-preview .responsive-preview-options .responsive-preview-device {
+  padding-bottom: 1em;
+  padding-top: 1em;
+}
+#navbar-administration .navbar-tab-responsive-preview .responsive-preview-options .responsive-preview-device {
+  background: none;
+  border: none;
+  cursor: pointer;
+  display: block;
+  font-family: inherit;
+  font-size: 1em;
+  padding: 0.5em 1.3333em
+}
+#navbar-administration .navbar-tab-responsive-preview.navbar-tab .responsive-preview-options .responsive-preview-device {
+  color: #0074BD;
+  text-align: left;
+  width: 100%;
+}
+#navbar-administration .navbar-tab-responsive-preview.navbar-tab .responsive-preview-options .responsive-preview-device:hover,
+#navbar-administration .navbar-tab-responsive-preview.navbar-tab .responsive-preview-options .responsive-preview-device.active {
+  color: black;
+}
+#navbar-administration .navbar-tab-responsive-preview.navbar-tab .responsive-preview-options .responsive-preview-device[disabled] {
+  color: #ccc;
+  cursor: default;
+}
+/* Configuration link. */
+#navbar-administration .navbar-tab-responsive-preview.navbar-tab .responsive-preview-configure {
+  color: #777;
+  display: block;
+  font-weight: normal;
+  margin-top: 0.5em;
+  padding: 0.5em 0.6667em;
+}
+#navbar-administration .navbar-tab-responsive-preview.navbar-tab .responsive-preview-configure:hover {
+  color: #000;
+}
+
+/* navbar tab triangle toggle. */
+#navbar-administration .navbar-tab-responsive-preview .responsive-preview-trigger:after {
+  border-bottom-color: transparent;
+  border-left-color: transparent;
+  border-right-color: transparent;
+  border-style: solid;
+  border-width: 0.4545em 0.4em 0;
+  color: #a0a0a0;
+  content: ' ';
+  display: block;
+  height: 0;
+  line-height: 0;
+  overflow: hidden;
+  position: absolute;
+  right: 1.6667em; /* LTR */
+  top: 50%;
+  margin-top: -0.1666em;
+  width: 0;
+  z-index: 1
+}
+[dir="rtl"] #navbar-administration .navbar-tab-responsive-preview .responsive-preview-trigger:after {
+  left: 1em;
+  right: auto;
+}
+#navbar-administration .navbar-tab-responsive-preview.open:before {
+  background-color: white;
+  bottom: 0;
+  content: ' ';
+  display: block;
+  position: absolute;
+  right: 0; /* LTR */
+  top: 0;
+  width: 2em;
+  z-index: 1;
+}
+[dir="rtl"] #navbar-administration .navbar-tab-responsive-preview.open:before {
+  left: 0;
+  right: auto;
+}
+#navbar-administration .navbar-tab-responsive-preview.open .responsive-preview-trigger:after {
+  border-bottom: 0.4545em solid;
+  border-top-color: transparent;
+  color: black;
+  right: 0.7em; /* LTR */
+  top: 1.25em;
+}
+[dir="rtl"] #navbar-administration .navbar-tab-responsive-preview.open .responsive-preview-trigger:after {
+  left: 0.7em;
+  right: auto;
+}
+#navbar-administration .navbar-tab-responsive-preview:hover .responsive-preview-trigger:after,
+#navbar-administration .navbar-tab-responsive-preview .responsive-preview-trigger.active:after,
+#navbar-administration .navbar-tab-responsive-preview:hover .responsive-preview-trigger.active:after {
+  color: white;
+}
+#navbar-administration .navbar-tab-responsive-preview.open:hover .responsive-preview-trigger:after {
+  color: black;
+}
+
+/**
+ * Preview container.
+ */
+.responsive-preview {
+  opacity: 1;
+  -moz-transition: opacity 450ms;
+  -webkit-transition: opacity 450ms;
+  transition: opacity 450ms;
+}
+.responsive-preview .responsive-preview-frame-container {
+  opacity: 0;
+  -moz-transition: all 250ms;
+  -webkit-transition: all 250ms;
+  transition: all 250ms;
+}
+.responsive-preview.active .responsive-preview-frame-container {
+  opacity: 1;
+}
+.responsive-preview-modal-background {
+  background-color: black;
+  background-color: rgba(0,0,0,0.92);
+  background-image: -webkit-linear-gradient(left, rgb(20,20,20),rgb(50,50,50) 25%, rgb(100,100,100) 40%, rgb(100,100,100) 60%, rgb(50,50,50) 75%, rgb(20,20,20));
+  background-image: -moz-linear-gradient(left, rgb(20,20,20),rgb(50,50,50) 25%, rgb(100,100,100) 40%, rgb(100,100,100) 60%, rgb(50,50,50) 75%, rgb(20,20,20));
+  background-image: linear-gradient(left, rgb(20,20,20),rgb(50,50,50) 25%, rgb(100,100,100) 40%, rgb(100,100,100) 60%, rgb(50,50,50) 75%, rgb(20,20,20));
+}
+
+/**
+ * Responsive preview control placement.
+ */
+.responsive-preview-control {
+  cursor: pointer;
+  height: 40px;
+  position: absolute;
+  top: 0;
+  width: 40px;
+}
+.responsive-preview-control.responsive-preview-close {
+  right: 0; /* LTR */
+}
+[dir="rtl"] .responsive-preview-control.responsive-preview-close {
+  left: 0;
+  right: auto;
+}
+.responsive-preview-control.responsive-preview-orientation {
+  left: 0; /* LTR */
+}
+[dir="rtl"] .responsive-preview-control.responsive-preview-orientation {
+  left: auto;
+  right: 0;
+}
+.responsive-preview-device-label {
+  color: #909090;
+  cursor: pointer;
+  font-family: sans-serif;
+  font-size: 0.9286em;
+  font-weight: normal;
+  left: 30px;
+  line-height: 2.25;
+  margin: 0;
+  overflow: hidden;
+  position: absolute;
+  right: 30px;
+  text-align: center;
+  text-overflow: ellipsis;
+  top: 0;
+  white-space: nowrap;
+}
+.responsive-preview-device-label-text:after {
+  border-bottom-color: transparent;
+  border-right-color: transparent;
+  border-top-color: transparent;
+  border-style: solid;
+  border-width: 0.8ex 0 0.8ex 0.9ex;
+  color: #909090;
+  content: '';
+  display: inline-block;
+  line-height: 0;
+  margin-left: 0.75ex;
+  margin-right: 0.75ex;
+  width: 0;
+}
+[dir="rtl"] .responsive-preview-device-label-text:after {
+  border-left-color: transparent;
+  border-right-color: inherit;
+  border-width: 0.8ex 0.9ex 0.8ex 0;
+}
+.responsive-preview-device-label-text:hover:after {
+  color: inherit;
+}
+.responsive-preview-expanded .responsive-preview-device-label-text:after {
+  border-left-color: transparent;
+  border-right-color: inherit;
+  border-width: 0.8ex 0.9ex 0.8ex 0;
+}
+[dir="rtl"] .responsive-preview-expanded .responsive-preview-device-label-text:after {
+  border-left-color: inherit;
+  border-right-color: transparent;
+  border-width: 0.8ex 0 0.8ex 0.9ex;
+}
+
+/**
+ * Responsive preview frame.
+ */
+.responsive-preview-frame-container {
+  background-color: #212121;
+  border-radius: 20px;
+  box-shadow:
+    0 0 0px 1px #777,
+    1px 1px 60px 0px #000;
+  -webkit-transition: left 150ms ease-out;
+  -moz-transition: left 150ms ease-out;
+  transition: left 150ms ease-out;
+}
+.responsive-preview-frame-container iframe {
+  box-shadow: 0 0 0 1px #808080;
+  -webkit-transition: all 150ms ease-out;
+  -moz-transition: all 150ms ease-out;
+  -o-transition: all 150ms ease-out;
+  transition: all 150ms ease-out;
+}
+
+/**
+ * Control block styling.
+ */
+#block-responsive-preview-controls .content .responsive-preview-device {
+  background: none;
+  border: none;
+  color: inherit;
+  cursor: pointer;
+  font: inherit;
+  line-height: 1;
+  margin: 0;
+  padding: 0.25em 0;
+}
+#block-responsive-preview-controls .content .responsive-preview-device[disabled] {
+  color: #ccc;
+  cursor: default;
+}
