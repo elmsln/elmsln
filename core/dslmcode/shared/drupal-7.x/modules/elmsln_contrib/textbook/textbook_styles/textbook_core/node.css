@@ -20,6 +20,13 @@ span.textbook_color6{color:#909;}
   border: .125em solid #cccccc;
 }
 
+html.js fieldset.textbook_collapse.collapsed .fieldset-legend {
+  background-position: 2px 20%;
+}
+html.js fieldset.textbook_collapse.collapsible .fieldset-legend {
+  background-position: 5px 20%;
+}
+
 .textbook_collapse-text {
   font-weight:bold;
   color:#333;
