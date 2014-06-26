@@ -79,7 +79,7 @@ do
   drush @${stack}-all cc all --y
 done
 # this only makes sense for online
-elmslnecho "$stack: seed entity cache"
+elmslnecho "online: seed entity / front facing caches"
 drush @online-all hss --y
 
 # stacks we currently support spidering against individual networks
