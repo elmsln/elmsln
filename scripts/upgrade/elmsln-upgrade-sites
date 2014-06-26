@@ -77,9 +77,10 @@ do
   drush @${stack}-all cron --y
   elmslnecho "$stack: clearing caches"
   drush @${stack}-all cc all --y
-  elmslnecho "$stack: seed entity cache"
-  drush @${stack}-all hss --y
 done
+# this only makes sense for online
+elmslnecho "$stack: seed entity cache"
+drush @online-all hss --y
 
 # stacks we currently support spidering against individual networks
 masterstacklist=('studio' 'interact' 'blog')
