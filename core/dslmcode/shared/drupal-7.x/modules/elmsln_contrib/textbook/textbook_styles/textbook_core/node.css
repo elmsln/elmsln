@@ -32,12 +32,9 @@ html.js fieldset.textbook_collapse.collapsible .fieldset-legend {
   color:#333;
   background-color:transparent;
 }
-.textbook_collapse span .fieldset-title,
-.textbook_collapse span .fieldset-title:link,
-.textbook_collapse span .fieldset-title:visited,
-.textbook_collapse-text a,
-.textbook_collapse-text a:link,
-.textbook_collapse-text a:visited {
+.textbook_collapse span.fieldset-legend .fieldset-title,
+.textbook_collapse span.fieldset-legend .fieldset-title:link,
+.textbook_collapse span.fieldset-legend .fieldset-title:visited {
   text-decoration:none;
   background-color:transparent;
   font-size:1.2em;
