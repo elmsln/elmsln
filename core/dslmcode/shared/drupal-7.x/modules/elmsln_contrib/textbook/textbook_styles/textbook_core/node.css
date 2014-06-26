@@ -16,6 +16,8 @@ span.textbook_color6{color:#909;}
 
 /* Collapse fieldset/legend templates */
 .textbook_collapse {
+  padding: .25em;
+  border: .125em solid #cccccc;
 }
 
 .textbook_collapse-text {
