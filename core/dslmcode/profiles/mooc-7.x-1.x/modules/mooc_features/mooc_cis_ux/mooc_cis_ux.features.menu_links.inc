@@ -90,25 +90,6 @@ function mooc_cis_ux_menu_default_menu_links() {
     'weight' => -44,
     'customized' => 0,
   );
-  // Exported menu link: menu-course-tools-menu_analytics:https://courses.elms.psu.edu/sing100/admin/reports/course-analytics
-  $menu_links['menu-course-tools-menu_analytics:https://courses.elms.psu.edu/sing100/admin/reports/course-analytics'] = array(
-    'menu_name' => 'menu-course-tools-menu',
-    'link_path' => 'https://courses.elms.psu.edu/sing100/admin/reports/course-analytics',
-    'router_path' => '',
-    'link_title' => 'Analytics',
-    'options' => array(
-      'attributes' => array(),
-      'identifier' => 'menu-course-tools-menu_analytics:https://courses.elms.psu.edu/sing100/admin/reports/course-analytics',
-    ),
-    'module' => 'menu',
-    'hidden' => 0,
-    'external' => 1,
-    'has_children' => 0,
-    'expanded' => 0,
-    'weight' => -47,
-    'customized' => 1,
-    'parent_identifier' => 'menu-course-tools-menu_course-tools:<nolink>',
-  );
   // Exported menu link: menu-course-tools-menu_content-tool:<nolink>
   $menu_links['menu-course-tools-menu_content-tool:<nolink>'] = array(
     'menu_name' => 'menu-course-tools-menu',
@@ -229,27 +210,6 @@ function mooc_cis_ux_menu_default_menu_links() {
     'customized' => 1,
     'parent_identifier' => 'menu-course-tools-menu_content-tool:<nolink>',
   );
-  // Exported menu link: menu-course-tools-menu_sections-list:https://courses.elms.psu.edu/sing100/cis/section-list
-  $menu_links['menu-course-tools-menu_sections-list:https://courses.elms.psu.edu/sing100/cis/section-list'] = array(
-    'menu_name' => 'menu-course-tools-menu',
-    'link_path' => 'https://courses.elms.psu.edu/sing100/cis/section-list',
-    'router_path' => '',
-    'link_title' => 'Sections List',
-    'options' => array(
-      'attributes' => array(
-        'title' => 'Listing of all sections in this area',
-      ),
-      'identifier' => 'menu-course-tools-menu_sections-list:https://courses.elms.psu.edu/sing100/cis/section-list',
-    ),
-    'module' => 'menu',
-    'hidden' => 0,
-    'external' => 1,
-    'has_children' => 0,
-    'expanded' => 0,
-    'weight' => -50,
-    'customized' => 1,
-    'parent_identifier' => 'menu-course-tools-menu_service-tools:<nolink>',
-  );
   // Exported menu link: menu-course-tools-menu_service-tools:<nolink>
   $menu_links['menu-course-tools-menu_service-tools:<nolink>'] = array(
     'menu_name' => 'menu-course-tools-menu',
@@ -333,7 +293,6 @@ function mooc_cis_ux_menu_default_menu_links() {
   );
   // Translatables
   // Included for use with string extractors like potx.
-  t('Analytics');
   t('Content tool');
   t('Course tools');
   t('Footer');
@@ -342,7 +301,6 @@ function mooc_cis_ux_menu_default_menu_links() {
   t('Instructional outline');
   t('Performance');
   t('Search / Replace');
-  t('Sections List');
   t('Service Tools');
   t('Settings');
   t('Theme');

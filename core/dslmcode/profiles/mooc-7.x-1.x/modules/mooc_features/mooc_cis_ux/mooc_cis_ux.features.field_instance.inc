@@ -27,6 +27,18 @@ function mooc_cis_ux_field_default_field_instances() {
         'type' => 'entityreference_label',
         'weight' => 3,
       ),
+      'mooc_fieldset' => array(
+        'label' => 'above',
+        'settings' => array(),
+        'type' => 'hidden',
+        'weight' => 0,
+      ),
+      'mooc_tabs' => array(
+        'label' => 'above',
+        'settings' => array(),
+        'type' => 'hidden',
+        'weight' => 0,
+      ),
     ),
     'entity_type' => 'node',
     'field_name' => 'field_instructional_outlines',
