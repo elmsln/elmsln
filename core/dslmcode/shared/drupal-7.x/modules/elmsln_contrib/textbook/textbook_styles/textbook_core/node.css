@@ -1,5 +1,5 @@
 /*
-  Textbook Style Guide - base styles 
+  Textbook Style Guide - base styles
 */
 
 /* Minor text positioning */
@@ -16,6 +16,7 @@ span.textbook_color6{color:#909;}
 
 /* Collapse fieldset/legend templates */
 .textbook_collapse {
+  height:2em;
 }
 
 .textbook_collapse-text {
@@ -23,12 +24,15 @@ span.textbook_color6{color:#909;}
   color:#333;
   background-color:transparent;
 }
-div.node .textbook_collapse-text a,div.node .textbook_collapse-text a:link,div.node .textbook_collapse-text a:visited{
+.textbook_collapse-text a,
+.textbook_collapse-text a:link,
+.textbook_collapse-text a:visited {
   text-decoration:none;
   background-color:transparent;
-  font-size:1.2em;
+  font-size:1.5em;
   font-weight:bold;
 }
+
 .textbook_collapse-body {
     color:#222;
 }
