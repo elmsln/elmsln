@@ -4,7 +4,7 @@ api = "2"
 
 ; +++++ Modules +++++
 
-projects[fastclick][version] = "1.2"
+projects[fastclick][version] = "1.3"
 projects[fastclick][subdir] = "contrib"
 
 projects[admin_menu][version] = "3.0-rc4"
@@ -13,10 +13,10 @@ projects[admin_menu][subdir] = "contrib"
 projects[ctools][version] = "1.4"
 projects[ctools][subdir] = "contrib"
 
-projects[context][version] = "3.1"
+projects[context][version] = "3.2"
 projects[context][subdir] = "contrib"
 
-projects[devel][version] = "1.3"
+projects[devel][version] = "1.5"
 projects[devel][subdir] = "contrib"
 
 projects[profiler_builder][version] = "1.x-dev"
@@ -37,22 +37,22 @@ projects[typogrify][subdir] = "contrib"
 projects[video_filter][version] = "3.1"
 projects[video_filter][subdir] = "contrib"
 
-projects[imce][version] = "1.7"
+projects[imce][version] = "1.9"
 projects[imce][subdir] = "contrib"
 
-projects[og][version] = "2.6"
+projects[og][version] = "2.7"
 projects[og][subdir] = "contrib"
 
 projects[entity][version] = "1.5"
 projects[entity][subdir] = "contrib"
 
-projects[fitvids][version] = "1.14"
+projects[fitvids][version] = "1.15"
 projects[fitvids][subdir] = "contrib"
 
 projects[imagefield_focus][version] = "1.0"
 projects[imagefield_focus][subdir] = "contrib"
 
-projects[libraries][version] = "2.1"
+projects[libraries][version] = "2.2"
 projects[libraries][subdir] = "contrib"
 
 projects[masquerade][version] = "1.0-rc7"
@@ -73,16 +73,16 @@ projects[strongarm][subdir] = "contrib"
 projects[token][version] = "1.5"
 projects[token][subdir] = "contrib"
 
-projects[transliteration][version] = "3.1"
+projects[transliteration][version] = "3.2"
 projects[transliteration][subdir] = "contrib"
 
-projects[httprl][version] = "1.12"
+projects[httprl][version] = "1.14"
 projects[httprl][subdir] = "contrib"
 
-projects[regions][version] = "1.6"
+projects[regions][version] = "1.7"
 projects[regions][subdir] = "contrib"
 
-projects[textbook][version] = "4.0-alpha1"
+projects[textbook][version] = "4.1"
 projects[textbook][subdir] = "contrib"
 
 projects[restws][version] = "2.1"
@@ -94,22 +94,22 @@ projects[ckeditor_link][subdir] = "contrib"
 projects[imce_wysiwyg][version] = "1.0"
 projects[imce_wysiwyg][subdir] = "contrib"
 
-projects[jquery_update][version] = "2.x-dev"
+projects[jquery_update][version] = "2.4"
 projects[jquery_update][subdir] = "contrib"
 
 projects[wysiwyg][version] = "2.2"
 projects[wysiwyg][subdir] = "contrib"
 
-projects[better_exposed_filters][version] = "3.0-beta3"
+projects[better_exposed_filters][version] = "3.0-beta4"
 projects[better_exposed_filters][subdir] = "contrib"
 
-projects[views][version] = "3.7"
+projects[views][version] = "3.8"
 projects[views][subdir] = "contrib"
 
-projects[views_autocomplete_filters][version] = "1.0"
+projects[views_autocomplete_filters][version] = "1.1"
 projects[views_autocomplete_filters][subdir] = "contrib"
 
-projects[views_bulk_operations][version] = "3.1"
+projects[views_bulk_operations][version] = "3.2"
 projects[views_bulk_operations][subdir] = "contrib"
 
 projects[views_fluid_grid][version] = "3.0"
@@ -124,17 +124,17 @@ projects[entity_iframe_theme][subdir] = "contrib"
 
 ; zurb-foundation
 projects[zurb-foundation][type] = "theme"
-projects[zurb-foundation][version] = "4.0-beta1"
+projects[zurb-foundation][version] = "4.0"
 projects[zurb-foundation][subdir] = "contrib"
 
 ; rubik
 projects[rubik][type] = "theme"
-projects[rubik][version] = "4.0-beta9"
+projects[rubik][version] = "4.1"
 projects[rubik][subdir] = "contrib"
 
 ; tao
 projects[tao][type] = "theme"
-projects[tao][version] = "3.0-beta4"
+projects[tao][version] = "3.1"
 projects[tao][subdir] = "contrib"
 
 ; +++++ Libraries +++++
