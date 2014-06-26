@@ -226,7 +226,7 @@ projects[feeds_node_helper][subdir] = "contrib"
 projects[book_copy][version] = "2.x-dev"
 projects[book_copy][subdir] = "contrib"
 
-projects[footnotes][version] = "1.x-dev"
+projects[footnotes][version] = "2.x-dev"
 projects[footnotes][subdir] = "contrib"
 
 projects[outline_designer][version] = "2.x-dev"
