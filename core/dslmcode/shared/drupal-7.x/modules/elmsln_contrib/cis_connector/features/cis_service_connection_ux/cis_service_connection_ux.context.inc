@@ -17,7 +17,7 @@ function cis_service_connection_ux_context_default_contexts() {
   $context->description = 'This helps display service connection blocks';
   $context->tag = 'Content';
   $context->conditions = array(
-    'context_all' => array(
+    'context' => array(
       'values' => array(
         '~mooc-themecompat-*' => '~mooc-themecompat-*',
       ),
@@ -31,11 +31,11 @@ function cis_service_connection_ux_context_default_contexts() {
   $context->reactions = array(
     'block' => array(
       'blocks' => array(
-        'menu-menu-cis-toolkit' => array(
-          'module' => 'menu',
-          'delta' => 'menu-cis-toolkit',
+        'cis_service_connection-section_context_changer' => array(
+          'module' => 'cis_service_connection',
+          'delta' => 'section_context_changer',
           'region' => 'regions_admin_left',
-          'weight' => '-21',
+          'weight' => '22',
         ),
       ),
     ),
