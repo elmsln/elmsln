@@ -16,7 +16,6 @@ span.textbook_color6{color:#909;}
 
 /* Collapse fieldset/legend templates */
 .textbook_collapse {
-  height:2em;
 }
 
 .textbook_collapse-text {
@@ -24,6 +23,9 @@ span.textbook_color6{color:#909;}
   color:#333;
   background-color:transparent;
 }
+.textbook_collapse a.fieldset-title,
+.textbook_collapse a.fieldset-title:link,
+.textbook_collapse a.fieldset-title:visited,
 .textbook_collapse-text a,
 .textbook_collapse-text a:link,
 .textbook_collapse-text a:visited {
