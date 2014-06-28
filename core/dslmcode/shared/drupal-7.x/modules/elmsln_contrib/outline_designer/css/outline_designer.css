@@ -400,7 +400,9 @@
 #book-admin-edit .sticky-header {
   display:none;
 }
-
+#book-admin-edit div.tabledrag-toggle-weight-wrapper a.tabledrag-toggle-weight {
+  display:none;
+}
 .ahah-progress-throbber {
   float:left
 }

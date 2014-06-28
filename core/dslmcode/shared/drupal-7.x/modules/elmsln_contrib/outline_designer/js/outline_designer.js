@@ -6,15 +6,18 @@ Drupal.outline_designer_ops = Drupal.outline_designer_ops || { functions: {} };
 
 /**
  * Get rid of tabledrag messages about needing to save
- */ 
-Drupal.theme.tableDragChangedWarning = function () { 
+ */
+Drupal.theme.tableDragChangedWarning = function () {
   return '<div></div>';
 };
-  
+
 /**
  * events to update interface
  */
 $(document).ready(function() {
+  // account for cookie that could break the UI
+  // always set it to not show the weights
+  $.cookie('Drupal.tableDrag.showWeight', 0);
   //if everything's been told to close, close it all
   if (Drupal.settings.outline_designer.collapseToggle == 1) {
     Drupal.outline_designer.collapseAll();
@@ -39,7 +42,7 @@ Drupal.outline_designer.ajax_call = function(type, action, param1, param2, param
   // make standard ajax call
   $.ajax({
     type: "POST",
-    url: Drupal.settings.outline_designer.ajaxPath + Drupal.settings.outline_designer.token + query,    
+    url: Drupal.settings.outline_designer.ajaxPath + Drupal.settings.outline_designer.token + query,
     success: function(msg){
       // make sure this is a valid callback
       if (callback != null && callback != 'none') {
@@ -61,7 +64,7 @@ Drupal.outline_designer.ajax_call = function(type, action, param1, param2, param
 // popup event listeners
 Drupal.behaviors.outlineDesignerCancelButton = {
     attach: function (context, settings) {
-      $('.od_cancel_button', context).click(function(){ 
+      $('.od_cancel_button', context).click(function(){
         Drupal.outline_designer.ui_reset();
       });
     }
@@ -132,7 +135,7 @@ Drupal.outline_designer.ui_reset = function() {
   // allow hooked in items to reset themselves
   var functionName = 'Drupal.outline_designer_ops.'+ Drupal.settings.outline_designer.activeAction +'_reset';
   // ensure one is set
-  if ( typeof functionName == 'function' ) { 
+  if ( typeof functionName == 'function' ) {
     // call "user defined" function
     Drupal.outline_designer.executeFunctionByName(functionName, window);
   }
