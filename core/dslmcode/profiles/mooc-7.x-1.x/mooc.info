@@ -163,7 +163,9 @@ dependencies[] = textbook_templates
 dependencies[] = mooc_page
 dependencies[] = mooc_perms
 
-; Information added for Drupal.org usage stats while in dev
-version = "7.x-1.x-dev"
+; Information intentionally kept here to have a version w/ ELMSLN
+; Information added by Drupal.org packaging script on 2014-04-14
+version = "7.x-1.0-beta4"
+core = "7.x"
 project = "mooc"
-datestamp = "1398114533"
+datestamp = "1397509268"
