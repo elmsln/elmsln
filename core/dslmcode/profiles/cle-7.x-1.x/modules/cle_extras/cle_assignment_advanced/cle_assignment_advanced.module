@@ -5,3 +5,90 @@
  */
 
 include_once 'cle_assignment_advanced.features.inc';
+
+/**
+ * Implements hook_node_grants().
+ */
+function cle_assignment_advanced_node_grants($account, $op) {
+  $grants = array();
+  $assignments = _cle_assignent_advanced_assignments_submitted($account);
+  // If operation is to view and they have view hidden nodes perm.
+  if ($op == 'view' && !empty($assignments)) {
+    $grants['cle_assignment_advanced'] = array_keys($assignments);
+  }
+  return $grants;
+}
+
+/**
+ * Get an array of the assignments submitted by this user.
+ */
+function _cle_assignent_advanced_assignments_submitted($account = NULL) {
+  $assignments = array();
+  if ($account == NULL) {
+    global $user;
+    $account = $user;
+  }
+  // query for submissions by the current user
+  $query = new EntityFieldQuery();
+  // load all nodes
+  $query->entityCondition('entity_type', 'node')
+  // that are submissions
+  ->entityCondition('bundle', 'cle_submission')
+  // and are published
+  ->propertyCondition('status', 1)
+  // created by the current account
+  ->propertyCondition('uid', $account->uid)
+  // run as user 1 to avoid permission issues
+  ->addMetaData('account', user_load(1));
+  $result = $query->execute();
+  // test for results and turn those submissions into associated assignments
+  if (isset($result['node'])) {
+    $items_nids = array_keys($result['node']);
+    $items = entity_load('node', $items_nids);
+    foreach ($items as $submission) {
+      // test that this is associated to an assignment, should be required!
+      // set to array key cause we could have multiple submissions to same
+      // assignment and don't need even more bloat on this one!
+      if (isset($submission->field_assignment['und'][0]['target_id'])) {
+        $assignments[$submission->field_assignment['und'][0]['target_id']] = $submission->field_assignment['und'][0]['target_id'];
+      }
+    }
+  }
+  return $assignments;
+}
+
+/**
+ * Implements hook_node_access_records().
+ */
+function cle_assignment_advanced_node_access_records($node) {
+  $grants = array();
+  // Check if the node type is able to be hidden.
+  if ($node->type == 'cle_submission') {
+    // load the assignment node referenced
+    if (isset($node->field_assignment['und'][0]['target_id'])) {
+      $assignment = node_load($node->field_assignment['und'][0]['target_id']);
+      // Only return grants if assignemnt is told to be dependent on grants
+      if (isset($assignment->field_cle_require_submission['und'][0]['value']) && $assignment->field_cle_require_submission['und'][0]['value'] == 'yes') {
+        $grants[] = array(
+          'realm' => 'cle_assignment_advanced',
+          'gid' => $assignment->nid,
+          'grant_view' => 1,
+          'grant_update' => 0,
+          'grant_delete' => 0,
+          // Set priority very high in hopes it is always first.
+          'priority' => 1000,
+        );
+        return $grants;
+      }
+    }
+  }
+}
+
+/**
+ * Implements hook_node_access_explain().
+ */
+function cle_assignment_advanced_node_access_explain($row) {
+  if ($row->realm == 'cle_assignment_advanced') {
+    return t('Users that make submissions to assignments marked as hide to submitted, will now be able to see submission of the same assignment.');
+  }
+}
