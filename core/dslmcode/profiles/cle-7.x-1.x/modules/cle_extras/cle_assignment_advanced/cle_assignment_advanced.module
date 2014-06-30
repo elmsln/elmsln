@@ -1,0 +1,7 @@
+<?php
+/**
+ * @file
+ * Code for the CLE Assignment Advanced feature.
+ */
+
+include_once 'cle_assignment_advanced.features.inc';
