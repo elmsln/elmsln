@@ -12,7 +12,7 @@ include_once 'cle_assignment_advanced.features.inc';
 function cle_assignment_advanced_node_grants($account, $op) {
   $grants = array();
   $assignments = _cle_assignent_advanced_assignments_submitted($account);
-  // If operation is to view and they have view hidden nodes perm.
+  // If operation is to view and that we have assignments submitted
   if ($op == 'view' && !empty($assignments)) {
     $grants['cle_assignment_advanced'] = array_keys($assignments);
   }
@@ -62,7 +62,7 @@ function _cle_assignent_advanced_assignments_submitted($account = NULL) {
  */
 function cle_assignment_advanced_node_access_records($node) {
   $grants = array();
-  // Check if the node type is able to be hidden.
+  // Check if the node type is a submission
   if ($node->type == 'cle_submission') {
     // load the assignment node referenced
     if (isset($node->field_assignment['und'][0]['target_id'])) {
@@ -89,6 +89,6 @@ function cle_assignment_advanced_node_access_records($node) {
  */
 function cle_assignment_advanced_node_access_explain($row) {
   if ($row->realm == 'cle_assignment_advanced') {
-    return t('Users that make submissions to assignments marked as hide to submitted, will now be able to see submission of the same assignment.');
+    return t('Show users other submissions only after they submit the assignment.');
   }
 }
