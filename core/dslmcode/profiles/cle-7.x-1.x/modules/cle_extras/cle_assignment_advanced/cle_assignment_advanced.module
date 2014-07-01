@@ -7,6 +7,52 @@
 include_once 'cle_assignment_advanced.features.inc';
 
 /**
+ * Implementation of hook_form_FORM_ID_alter().
+ */
+function cle_assignment_advanced_form_cle_submission_node_form_alter(&$form, &$form_state, $form_id) {
+  /* Your code here */
+  dpm($form);
+  dpm($form_state);
+  // make sure prerequisits aren't an issue
+}
+
+/**
+ * Implements hook_node_validate().
+ */
+function cle_assignment_advanced_node_validate($node, $form, &$form_state) {
+  // skip validation if deleting a node or if override value is set
+  if ((!empty($node->op) && !empty($node->delete) && $node->op === $node->delete)) {
+    return;
+  }
+
+  // only validate if we are looking at a submission w/ assignment
+  if ($node->type == 'cle_submission' && isset($node->field_assignment['und'][0]['target_id'])) {
+    // load the assignment related to this submission
+    $assignment = node_load($node->field_assignment['und'][0]['target_id']);
+    // pull out just the requirements from the assignment
+    $requirements = $assignment->field_cle_assign_depend['und'];
+    // grab a list of everything this user has submitted
+    $submitted = _cle_assignent_advanced_assignments_submitted();
+    $fail = '';
+    // compare requirements to things submitted
+    foreach ($requirements as $requirement) {
+      // if its in the array then capture this
+      if (!in_array($requirement['target_id'], $submitted)) {
+        // load required node we are missing and provide a link
+        $reqnode = node_load($requirement['target_id']);
+        $fail .= '<p>' . l($reqnode->title, 'node/' . $reqnode->nid) . '</p>';
+      }
+    }
+    // if we don't have an equal number of requirements vs items found
+    // then that means that we haven't met all the requirements
+    if (!empty($fail)) {
+      $fail = t('You haven\'t completed the following prerequisit assignments:') . '<br/>' . $fail;
+      form_set_error($field, $fail);
+    }
+  }
+}
+
+/**
  * Implements hook_node_grants().
  */
 function cle_assignment_advanced_node_grants($account, $op) {
