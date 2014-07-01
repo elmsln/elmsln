@@ -30,7 +30,7 @@ function cle_assignment_advanced_form_cle_submission_node_form_alter(&$form, &$f
     }
     if (!empty($fail)) {
       $fail = t('You haven\'t completed the following prerequisit assignments:') . '<br/>' . $fail;
-      drupal_set_message('warning', $fail);
+      drupal_set_message($fail, 'warning');
       // return to previous page automatically if this happens
       if (isset($_REQUEST['destination'])) {
         drupal_goto($_REQUEST['destination']);
