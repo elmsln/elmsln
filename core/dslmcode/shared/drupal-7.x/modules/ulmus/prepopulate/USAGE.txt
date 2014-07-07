@@ -66,7 +66,7 @@ then try this URL:
 
   http://www.example.com/node/add/content?edit[title]=Automatic filled in title
 
-CCK fields are a bit more complicated:
+Field API fields are a bit more complicated:
 
   <input id="edit-field-office-0-node-name" class="form-text
   form-autocomplete" type="text" value="" size="60"
@@ -91,7 +91,7 @@ and, again, for non-clean URLs, it's:
   http://www.example.com?q=node/add/content&edit[field_content][0][value]=A long text string
 
 
-CCK fields will vary a bit depending on how the input widgets are
+Field API  fields will vary a bit depending on how the input widgets are
 configured. Here are some examples.
 
 	Date fields with a separate time entry would look like:
@@ -99,8 +99,12 @@ configured. Here are some examples.
 		edit[field_date][0][value][date]=11%20Aug%202010&edit[field_date][0][value][time]=12:00PM
 
 	Select Lists:
-	
-		edit[field_selectList][value]=1
+
+	<select name="aselect[list]" class="form-select required" id="edit-aselect-list">
+
+	Would be:
+
+		edit[aselect][list][value]=1
 
 	Note that in this example "1" is the key value for the select field.
 		
