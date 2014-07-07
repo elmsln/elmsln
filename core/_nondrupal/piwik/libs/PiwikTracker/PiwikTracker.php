@@ -1,6 +1,6 @@
 <?php
 /**
- * Piwik - Open source web analytics
+ * Piwik - free/libre analytics platform
  *
  * Client to record visits, page views, Goals, Ecommerce activity (product views, add to carts, Ecommerce orders) in a Piwik server.
  * This is a PHP Version of the piwik.js standard Tracking API.
@@ -148,6 +148,8 @@ class PiwikTracker
     const CVAR_INDEX_ECOMMERCE_ITEM_NAME = 4;
     const CVAR_INDEX_ECOMMERCE_ITEM_CATEGORY = 5;
 
+    const DEFAULT_COOKIE_PATH = '/';
+
     /**
      * Builds a PiwikTracker object, used to track visits, pages and Goal conversions
      * for a specific website, by using the Piwik Tracking API.
@@ -168,6 +170,7 @@ class PiwikTracker
         $this->eventCustomVar = false;
         $this->customData = false;
         $this->forcedDatetime = false;
+        $this->forcedNewVisit = false;
         $this->token_auth = false;
         $this->attributionInfo = false;
         $this->ecommerceLastOrderTimestamp = false;
@@ -200,7 +203,7 @@ class PiwikTracker
         $this->setNewVisitorId();
 
         $this->configCookiesDisabled = false;
-        $this->configCookiePath = '/';
+        $this->configCookiePath = self::DEFAULT_COOKIE_PATH;
         $this->configCookieDomain = '';
 
         $this->currentTs = time();
@@ -358,6 +361,20 @@ class PiwikTracker
     }
 
     /**
+     * Clears any Custom Variable that may be have been set.
+     *
+     * This can be useful when you have enabled bulk requests,
+     * and you wish to clear Custom Variables of 'visit' scope.
+     */
+    public function clearCustomVariables()
+    {
+        $this->visitorCustomVar = array();
+        $this->pageCustomVar = array();
+        $this->eventCustomVar = array();
+    }
+
+
+    /**
      * Sets the current visitor ID to a random new one.
      */
     public function setNewVisitorId()
@@ -461,6 +478,7 @@ class PiwikTracker
     /**
      * Enables the bulk request feature. When used, each tracking action is stored until the
      * doBulkTrack method is called. This method will send all tracking data at once.
+     *
      */
     public function enableBulkTracking()
     {
@@ -496,7 +514,7 @@ class PiwikTracker
         }
         return $domain;
     }
-    
+
     /**
      * Get cookie name with prefix and domain hash
      */
@@ -625,15 +643,16 @@ class PiwikTracker
      */
     public function doBulkTrack()
     {
-        if (empty($this->token_auth)) {
-            throw new Exception("Token auth is required for bulk tracking.");
-        }
-
         if (empty($this->storedTrackingActions)) {
             throw new Exception("Error:  you must call the function doTrackPageView or doTrackGoal from this class, before calling this method doBulkTrack()");
         }
 
-        $data = array('requests' => $this->storedTrackingActions, 'token_auth' => $this->token_auth);
+        $data = array('requests' => $this->storedTrackingActions);
+
+        // token_auth is not required by default, except if bulk_requests_require_authentication=1
+        if(!empty($this->token_auth)) {
+            $data['token_auth'] = $this->token_auth;
+        }
 
         $postData = json_encode($data);
         $response = $this->sendRequest($this->getBaseUrl(), 'POST', $postData, $force = true);
@@ -900,6 +919,21 @@ class PiwikTracker
     }
 
     /**
+     * Forces Piwik to create a new visit for the tracking request.
+     *
+     * By default, Piwik will create a new visit if the last request by this user was more than 30 minutes ago.
+     * If you call setForceNewVisit() before calling doTrack*, then a new visit will be created for this request.
+     *
+     * Allowed only for Super User, must be used along with setTokenAuth()
+     *
+     * @see setTokenAuth()
+     */
+    public function setForceNewVisit()
+    {
+        $this->forcedNewVisit = true;
+    }
+
+    /**
      * Overrides IP address
      *
      * Allowed only for Super User, must be used along with setTokenAuth()
@@ -966,10 +1000,10 @@ class PiwikTracker
 
     /**
      * Loads values from the VisitorId Cookie
-     * 
+     *
      * @return bool True if cookie exists and is valid, False otherwise
      */
-    protected function loadVisitorIdCookie() 
+    protected function loadVisitorIdCookie()
     {
         $idCookie = $this->getCookieMatchingName('id');
         if ($idCookie === false) {
@@ -993,7 +1027,7 @@ class PiwikTracker
     /**
      * Deletes all first party cookies from the client
      */
-    public function deleteCookies() 
+    public function deleteCookies()
     {
         $expire = $this->currentTs - 86400;
         $cookies = array('id', 'ses', 'cvar', 'ref');
@@ -1001,7 +1035,7 @@ class PiwikTracker
             $this->setCookie($cookie, '', $expire);
         }
     }
-    
+
     /**
      * Returns the currently assigned Attribution Information stored in a first party cookie.
      *
@@ -1163,6 +1197,11 @@ class PiwikTracker
                 = $url
                 . (!empty($this->userAgent) ? ('&ua=' . urlencode($this->userAgent)) : '')
                 . (!empty($this->acceptLanguage) ? ('&lang=' . urlencode($this->acceptLanguage)) : '');
+
+            // Clear custom variables so they don't get copied over to other users in the bulk request
+            $this->clearCustomVariables();
+            $this->userAgent = false;
+            $this->acceptLanguage = false;
             return true;
         }
 
@@ -1271,6 +1310,7 @@ class PiwikTracker
             (!empty($this->ip) ? '&cip=' . $this->ip : '') .
             (!empty($this->forcedVisitorId) ? '&cid=' . $this->forcedVisitorId : '&_id=' . $this->getVisitorId()) .
             (!empty($this->forcedDatetime) ? '&cdt=' . urlencode($this->forcedDatetime) : '') .
+            (!empty($this->forcedNewVisit) ? '&new_visit=1' : '') .
             ((!empty($this->token_auth) && !$this->doBulkRequests) ? '&token_auth=' . urlencode($this->token_auth) : '') .
 
             // Values collected from cookie
@@ -1278,7 +1318,7 @@ class PiwikTracker
             '&_idvc=' . $this->visitCount .
             (!empty($this->lastVisitTs) ? '&_viewts=' . $this->lastVisitTs : '' ) .
             (!empty($this->lastEcommerceOrderTs) ? '&_ects=' . $this->lastEcommerceOrderTs : '' ) .
-            
+
             // These parameters are set by the JS, but optional when using API
             (!empty($this->plugins) ? $this->plugins : '') .
             (($this->localHour !== false && $this->localMinute !== false && $this->localSecond !== false) ? '&h=' . $this->localHour . '&m=' . $this->localMinute . '&s=' . $this->localSecond : '') .
@@ -1317,9 +1357,14 @@ class PiwikTracker
 
             // DEBUG
             $this->DEBUG_APPEND_URL;
+
+
         // Reset page level custom variables after this page view
-        $this->pageCustomVar = false;
-        $this->eventCustomVar = false;
+        $this->pageCustomVar = array();
+        $this->eventCustomVar = array();
+
+        // force new visit only once, user must call again setForceNewVisit()
+        $this->forcedNewVisit = false;
 
         return $url;
     }
@@ -1487,7 +1532,7 @@ class PiwikTracker
      */
     protected function setCookie($cookieName, $cookieValue, $cookieTTL)
     {
-        $cookieExpire = $this->createTs + $cookieTTL;
+        $cookieExpire = $this->currentTs + $cookieTTL;
         if(!headers_sent()) {
             setcookie($this->getCookieName($cookieName), $cookieValue, $cookieExpire, $this->configCookiePath, $this->configCookieDomain);
         }

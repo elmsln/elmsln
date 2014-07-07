@@ -2,16 +2,14 @@
   margin: 0 -7px;
 }
 
+#root>.top_controls {
+  margin-left:15px;
+  margin-right:15px;
+}
 .top_controls {
   position: relative;
   height: 32px;
-}
-
-.top_controls_inner {
   clear: left;
-  position: relative;
-  height: 32px;
-  padding-bottom: 20px;
 }
 
 @media all and (max-width: 749px) {
@@ -20,7 +18,7 @@
   }
 
   .top_controls #periodString,
-  .top_controls #dashboardSettings,
+  .top_controls .dashboardSettings,
   .top_controls #segmentEditorPanel {
     position: static;
     margin: 0 0 10px;
@@ -77,8 +75,8 @@
   background: #fff;
   border: 1px solid #bbb6ad;
   margin: 10px 7px;
-  overflow: hidden;
   border-radius: 4px;
+  overflow: hidden;
   font-size: 14px;
   z-index: 1;
 }
@@ -102,7 +100,7 @@
 
 .widgetContent.loading {
   opacity: 0.5;
-  background: url(plugins/Zeitgeist/images/loading-blue.gif) no-repeat top right;
+  background: url(plugins/Morpheus/images/loading-blue.gif) no-repeat top right;
 }
 
 .widget h2 {
@@ -116,7 +114,6 @@
 }
 
 .widgetTop {
-  background: #b5b0a7 url(plugins/Zeitgeist/images/dashboard_h_bg.png) repeat-x 0 0;
   cursor: move;
   font-size: 10pt;
   font-weight: bold;
@@ -124,7 +121,6 @@
 }
 
 .widgetTopHover {
-  background: #C4BBAD url(plugins/Zeitgeist/images/dashboard_h_bg_hover.png) repeat-x 0 0;
 }
 
 .widgetName {
@@ -140,13 +136,9 @@
   width: 100% !important;
 }
 
-.button {
+.widgetTop .button {
   cursor: pointer;
-}
-
-#close.button, #maximise.button, #minimise.button, #refresh.button {
   float: right;
-  display: none;
   margin: 6px 6px 0 0;
 }
 
@@ -154,16 +146,19 @@
   display: none;
   width: 630px;
   background: #fff;
-  color: #444;
+  color: @theme-color-text-light;
   cursor: default;
   font-size: 12px !important;
-  font-family: Arial, Verdana, Arial, Helvetica, sans-serif;
   border-radius: 4px;
   padding: 20px 10px;
   border-radius: 4px;
   min-height: 0 !important;
 }
 
+.ui-confirm p {
+  margin-top:10px;
+
+}
 .ui-confirm h2 {
   text-align: center;
   font-weight: bold;
@@ -180,7 +175,6 @@
 }
 
 .ui-dialog-buttonset input[type=button], .ui-dialog-buttonset button {
-  background: #B5B0A7 url(plugins/Zeitgeist/images/dashboard_h_bg_hover.png) repeat-x 0 0 !important;
   color: #fff !important;
   border: 0 !important;
   font-size: 12px !important;
@@ -228,53 +222,54 @@
   height: 30px;
 }
 
-#dashboardSettings {
+.dashboardSettings {
   position: absolute;
   z-index: 120;
   background: #f7f7f7;
   border: 1px solid #e4e5e4;
   padding: 5px 10px 6px 10px;
   border-radius: 4px;
-  color: #444;
+  color: @theme-color-text-light;
   font-size: 14px;
   cursor: pointer;
   overflow: hidden;
 }
 
-#dashboardSettings:hover {
+.dashboardSettings:hover {
   background: #f1f0eb;
   border-color: #a9a399;
 }
 
-#dashboardSettings.visible {
+.dashboardSettings.visible {
   z-index: 1020; /* More than .jqplot-seriespicker-popover (1010) */
+  min-width: 700px;
 }
 
-#dashboardSettings > span {
-  background: url(plugins/Zeitgeist/images/sort_subtable_desc.png) right center no-repeat;
+.dashboardSettings > span {
+  background: url(plugins/Morpheus/images/sort_subtable_desc.png) right center no-repeat;
   padding-right: 20px;
   display: block;
 }
 
-#dashboardSettings ul.submenu {
+.dashboardSettings ul.submenu {
   padding-top: 5px;
   display: none;
   float: left;
 }
 
-#dashboardSettings.visible ul.submenu {
+.dashboardSettings.visible ul.submenu {
   display: block;
   list-style: square outside none;
   margin-left: 15px;
 }
 
-#dashboardSettings > ul.submenu > li {
+.dashboardSettings > ul.submenu > li {
   padding: 5px 0;
   clear: both;
 }
 
-#dashboardSettings > ul.submenu > li:hover {
-  color: #e87500;
+.dashboardSettings > ul.submenu > li:hover {
+  color:@theme-color-link;
 }
 
 #changeDashboardLayout h2 {
@@ -360,7 +355,7 @@
   -height: 600px;
 }
 
-#addWidget, #manageDashboard {
+.addWidget, .manageDashboard {
   cursor: default;
 }
 
@@ -386,7 +381,7 @@ ul.widgetpreview-widgetlist li {
 }
 
 .widgetpreview-base li.widgetpreview-choosen {
-  background: #e4e2d7 url(plugins/Zeitgeist/images/arr_r.png) no-repeat right 6px;
+  background: #e4e2d7 url(plugins/Morpheus/images/arr_r.png) no-repeat right 6px;
   color: #255792;
   font-weight: bold;
 }
@@ -411,18 +406,18 @@ div.widgetpreview-preview {
   width: 500px;
 }
 
-#dashboardSettings {
+.dashboardSettings {
   min-height: 0;
   height: auto;
   margin-right: 10px;
 }
 
-#dashboardSettings .submenu {
+.dashboardSettings .submenu {
   font-weight: bold;
   color: #255792;
 }
 
-#dashboardSettings .submenu ul {
+.dashboardSettings .submenu ul {
   float: none;
   font-weight: normal;
   padding-top: 10px;
@@ -434,32 +429,32 @@ div.widgetpreview-preview {
   margin-right: 20px;
 }
 
-#dashboardSettings .submenu ul li {
+.dashboardSettings .submenu ul li {
   line-height: 20px;
   padding: 0 25px 0 5px;
-  color: #444;
+  color: @theme-color-text-light;
 }
 
-#dashboardSettings .submenu ul li:hover {
-  color: #e87500;
+.dashboardSettings .submenu ul li:hover {
+  color: @theme-color-link;
 }
 
-#dashboardSettings .widgetpreview-widgetlist {
+.dashboardSettings .widgetpreview-widgetlist {
   width: 228px;
   font-weight: normal;
 }
 
-#dashboardSettings .widgetTop {
+.dashboardSettings .widgetTop {
   cursor: pointer;
 }
 
-#dashboardSettings .widgetpreview-widgetlist,
-#dashboardSettings .widgetpreview-preview {
+.dashboardSettings .widgetpreview-widgetlist,
+.dashboardSettings .widgetpreview-preview {
   display: none;
 }
 
-#dashboardSettings.visible .widgetpreview-widgetlist,
-#dashboardSettings.visible .widgetpreview-preview {
+.dashboardSettings.visible .widgetpreview-widgetlist,
+.dashboardSettings.visible .widgetpreview-preview {
   display: block;
 }
 
@@ -519,4 +514,24 @@ div.widgetpreview-preview {
     }
   }
 
+}
+
+.widgetTop .button {
+  display:none;
+}
+
+.widgetTop.widgetTopHover .button {
+  display:block;
+}
+
+.widget.hiddenContent .widgetTop.widgetTopHover {
+  .button#minimise,.button#refresh {
+    display:none;
+  }
+}
+
+.ui-dialog .widget {
+  .button#close,.button#maximise {
+    display:none;
+  }
 }

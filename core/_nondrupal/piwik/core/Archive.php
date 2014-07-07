@@ -1,20 +1,17 @@
 <?php
 /**
- * Piwik - Open source web analytics
+ * Piwik - free/libre analytics platform
  *
  * @link http://piwik.org
  * @license http://www.gnu.org/licenses/gpl-3.0.html GPL v3 or later
  *
- * @category Piwik
- * @package Piwik
  */
 namespace Piwik;
 
 use Piwik\Archive\Parameters;
-
 use Piwik\ArchiveProcessor\Rules;
 use Piwik\DataAccess\ArchiveSelector;
-use Piwik\Period\Range;
+use Piwik\Period\Factory;
 
 /**
  * The **Archive** class is used to query cached analytics statistics
@@ -103,11 +100,8 @@ use Piwik\Period\Range;
  * 
  * <a name="footnote-1"></a>
  * [1]: The archiving process will not be launched if browser archiving is disabled
- *      and the current request came from a browser (and not the **archive.php** cron
- *      script).
+ *      and the current request came from a browser.
  *
- * @package Piwik
- * @subpackage Archive
  *
  * @api
  */
@@ -196,24 +190,26 @@ class Archive
      *                             or date range (ie, 'YYYY-MM-DD,YYYY-MM-DD').
      * @param bool|false|string $segment Segment definition or false if no segment should be used. {@link Piwik\Segment}
      * @param bool|false|string $_restrictSitesToLogin Used only when running as a scheduled task.
+     * @param bool $skipAggregationOfSubTables Whether the archive, when it is processed, should also aggregate all sub-tables
      * @return Archive
      */
-    public static function build($idSites, $period, $strDate, $segment = false, $_restrictSitesToLogin = false)
+    public static function build($idSites, $period, $strDate, $segment = false, $_restrictSitesToLogin = false, $skipAggregationOfSubTables = false)
     {
         $websiteIds = Site::getIdSitesFromIdSitesString($idSites, $_restrictSitesToLogin);
 
+        $timezone = count($websiteIds) == 1 ? Site::getTimezoneFor($websiteIds[0]) : false;
+
         if (Period::isMultiplePeriod($strDate, $period)) {
-            $oPeriod = new Range($period, $strDate);
+            $oPeriod = Factory::build($period, $strDate, $timezone);
             $allPeriods = $oPeriod->getSubperiods();
         } else {
-            $timezone = count($websiteIds) == 1 ? Site::getTimezoneFor($websiteIds[0]) : false;
-            $oPeriod = Period::makePeriodFromQueryParams($timezone, $period, $strDate);
+            $oPeriod = Factory::makePeriodFromQueryParams($timezone, $period, $strDate);
             $allPeriods = array($oPeriod);
         }
         $segment = new Segment($segment, $websiteIds);
         $idSiteIsAll = $idSites == self::REQUEST_ALL_WEBSITES_FLAG;
         $isMultipleDate = Period::isMultiplePeriod($strDate, $period);
-        return Archive::factory($segment, $allPeriods, $websiteIds, $idSiteIsAll, $isMultipleDate);
+        return Archive::factory($segment, $allPeriods, $websiteIds, $idSiteIsAll, $isMultipleDate, $skipAggregationOfSubTables);
     }
 
     /**
@@ -235,9 +231,11 @@ class Archive
      * @param bool $isMultipleDate Whether multiple dates are being queried or not. If true, then
      *                             the result of querying functions will be indexed by period,
      *                             regardless of whether `count($periods) == 1`.
+     * @param bool $skipAggregationOfSubTables Whether the archive should skip aggregation of all sub-tables
+     *
      * @return Archive
      */
-    public static function factory(Segment $segment, array $periods, array $idSites, $idSiteIsAll = false, $isMultipleDate = false)
+    public static function factory(Segment $segment, array $periods, array $idSites, $idSiteIsAll = false, $isMultipleDate = false, $skipAggregationOfSubTables = false)
     {
         $forceIndexedBySite = false;
         $forceIndexedByDate = false;
@@ -248,7 +246,7 @@ class Archive
             $forceIndexedByDate = true;
         }
 
-        $params = new Parameters($idSites, $periods, $segment);
+        $params = new Parameters($idSites, $periods, $segment, $skipAggregationOfSubTables);
 
         return new Archive($params, $forceIndexedBySite, $forceIndexedByDate);
     }
@@ -436,16 +434,21 @@ class Archive
      * @param string $segment @see {@link build()}
      * @param bool $expanded If true, loads all subtables. See {@link getDataTableExpanded()}
      * @param int|null $idSubtable See {@link getDataTableExpanded()}
+     * @param bool $skipAggregationOfSubTables Whether or not we should skip the aggregation of all sub-tables and only aggregate parent DataTable.
      * @param int|null $depth See {@link getDataTableExpanded()}
      * @return DataTable|DataTable\Map See {@link getDataTable()} and
      *                                 {@link getDataTableExpanded()} for more
      *                                 information
      */
     public static function getDataTableFromArchive($name, $idSite, $period, $date, $segment, $expanded,
-                                                   $idSubtable = null, $depth = null)
+                                                   $idSubtable = null, $skipAggregationOfSubTables = false, $depth = null)
     {
         Piwik::checkUserHasViewAccess($idSite);
-        $archive = Archive::build($idSite, $period, $date, $segment);
+
+        if($skipAggregationOfSubTables && ($expanded || $idSubtable)) {
+            throw new \Exception("Not expected to skipAggregationOfSubTables when expanded=1 or idSubtable is set.");
+        }
+        $archive = Archive::build($idSite, $period, $date, $segment, $_restrictSitesToLogin = false, $skipAggregationOfSubTables);
         if ($idSubtable === false) {
             $idSubtable = null;
         }
@@ -549,8 +552,7 @@ class Archive
 
         // cache id archives for plugins we haven't processed yet
         if (!empty($archiveGroups)) {
-            if (!Rules::isArchivingDisabledFor($this->params->getSegment(), $this->getPeriodLabel())) {
-
+            if (!Rules::isArchivingDisabledFor($this->params->getIdSites(), $this->params->getSegment(), $this->getPeriodLabel())) {
                 $this->cacheArchiveIdsAfterLaunching($archiveGroups, $plugins);
             } else {
                 $this->cacheArchiveIdsWithoutLaunching($plugins);
@@ -624,7 +626,7 @@ class Archive
     private function cacheArchiveIdsWithoutLaunching($plugins)
     {
         $idarchivesByReport = ArchiveSelector::getArchiveIds(
-            $this->params->getIdSites(), $this->params->getPeriods(), $this->params->getSegment(), $plugins);
+            $this->params->getIdSites(), $this->params->getPeriods(), $this->params->getSegment(), $plugins, $this->params->isSkipAggregationOfSubTables());
 
         // initialize archive ID cache for each report
         foreach ($plugins as $plugin) {
@@ -648,7 +650,13 @@ class Archive
      */
     private function getDoneStringForPlugin($plugin)
     {
-        return Rules::getDoneStringFlagFor($this->params->getSegment(), $this->getPeriodLabel(), $plugin);
+        return Rules::getDoneStringFlagFor(
+                    $this->params->getIdSites(),
+                    $this->params->getSegment(),
+                    $this->getPeriodLabel(),
+                    $plugin,
+                    $this->params->isSkipAggregationOfSubTables()
+        );
     }
 
     private function getPeriodLabel()
@@ -759,16 +767,16 @@ class Archive
         } // Goal_* metrics are processed by the Goals plugin (HACK)
         else if (strpos($report, 'Goal_') === 0) {
             $report = 'Goals_Metrics';
+        } else if (strrpos($report, '_returning') === strlen($report) - strlen('_returning')) { // HACK
+            $report = 'VisitFrequency_Metrics';
         }
 
         $plugin = substr($report, 0, strpos($report, '_'));
         if (empty($plugin)
             || !\Piwik\Plugin\Manager::getInstance()->isPluginActivated($plugin)
         ) {
-            $pluginStr = empty($plugin) ? '' : "($plugin)";
-            throw new \Exception("Error: The report '$report' was requested but it is not available "
-                . "at this stage. You may also disable the related plugin $pluginStr "
-                . "to avoid this error.");
+            throw new \Exception("Error: The report '$report' was requested but it is not available at this stage."
+                               . " (Plugin '$plugin' is not activated.)");
         }
         return $plugin;
     }
@@ -780,7 +788,7 @@ class Archive
      */
     private function prepareArchive(array $archiveGroups, Site $site, Period $period)
     {
-        $parameters = new ArchiveProcessor\Parameters($site, $period, $this->params->getSegment());
+        $parameters = new ArchiveProcessor\Parameters($site, $period, $this->params->getSegment(), $this->params->isSkipAggregationOfSubTables());
         $archiveLoader = new ArchiveProcessor\Loader($parameters);
 
         $periodString = $period->getRangeString();

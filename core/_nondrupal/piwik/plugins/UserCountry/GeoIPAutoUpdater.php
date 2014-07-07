@@ -1,12 +1,10 @@
 <?php
 /**
- * Piwik - Open source web analytics
+ * Piwik - free/libre analytics platform
  *
  * @link http://piwik.org
  * @license http://www.gnu.org/licenses/gpl-3.0.html GPL v3 or later
  *
- * @category Piwik_Plugins
- * @package UserCountry
  */
 namespace Piwik\Plugins\UserCountry;
 
@@ -19,9 +17,9 @@ use Piwik\Http;
 use Piwik\Log;
 use Piwik\Option;
 use Piwik\Piwik;
-use Piwik\Plugins\UserCountry\LocationProvider;
-use Piwik\Plugins\UserCountry\LocationProvider\GeoIp;
 use Piwik\Plugins\UserCountry\LocationProvider\GeoIp\Php;
+use Piwik\Plugins\UserCountry\LocationProvider\GeoIp;
+use Piwik\Plugins\UserCountry\LocationProvider;
 use Piwik\ScheduledTask;
 use Piwik\ScheduledTaskTimetable;
 use Piwik\ScheduledTime\Monthly;
@@ -672,15 +670,13 @@ class GeoIPAutoUpdater extends ScheduledTask
 
     private function getPreviousScheduledTime($rescheduledTime)
     {
-        $updaterPeriod = Option::get(self::SCHEDULE_PERIOD_OPTION_NAME);
+        $updaterPeriod = self::getSchedulePeriod();
 
-        if ($updaterPeriod == 'week') {
+        if ($updaterPeriod == self::SCHEDULE_PERIOD_WEEKLY) {
             return Date::factory($rescheduledTime)->subWeek(1);
-        } else if ($updaterPeriod == 'month') {
+        } else if ($updaterPeriod == self::SCHEDULE_PERIOD_MONTHLY) {
             return Date::factory($rescheduledTime)->subMonth(1);
-        } else {
-            Log::warning("Unknown GeoIP updater period found in database: %s", $updaterPeriod);
-            return Date::factory(0);
         }
+        throw new Exception("Unknown GeoIP updater period found in database: %s", $updaterPeriod);
     }
 }

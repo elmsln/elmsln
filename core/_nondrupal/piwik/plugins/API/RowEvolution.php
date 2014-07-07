@@ -1,12 +1,10 @@
 <?php
 /**
- * Piwik - Open source web analytics
+ * Piwik - free/libre analytics platform
  *
  * @link http://piwik.org
  * @license http://www.gnu.org/licenses/gpl-3.0.html GPL v3 or later
  *
- * @category Piwik_Plugins
- * @package Piwik_API
  */
 namespace Piwik\Plugins\API;
 
@@ -15,19 +13,18 @@ use Piwik\API\DataTableManipulator\LabelFilter;
 use Piwik\API\Request;
 use Piwik\API\ResponseBuilder;
 use Piwik\Common;
+use Piwik\DataTable;
 use Piwik\DataTable\Filter\CalculateEvolutionFilter;
 use Piwik\DataTable\Filter\SafeDecodeLabel;
 use Piwik\DataTable\Row;
-use Piwik\DataTable;
 use Piwik\Period;
 use Piwik\Piwik;
-use Piwik\Url;
 use Piwik\Site;
+use Piwik\Url;
 
 /**
  * This class generates a Row evolution dataset, from input request
  *
- * @package Piwik_API
  */
 class RowEvolution
 {
@@ -168,7 +165,7 @@ class RowEvolution
                 // this removes the label as well (which is desired for two reasons: (1) it was passed
                 // in the request, (2) it would cause the evolution graph to show the label in the legend).
                 foreach ($row->getColumns() as $column => $value) {
-                    if (!in_array($column, $metricNames)) {
+                    if (!in_array($column, $metricNames) && $column != 'label_html') {
                         $row->deleteColumn($column);
                     }
                 }
@@ -425,6 +422,11 @@ class RowEvolution
                     $actualLabels[$labelIdx] = $this->getRowUrlForEvolutionLabel(
                         $labelRow, $apiModule, $apiAction, $labelUseAbsoluteUrl);
 
+                    $prettyLabel = $labelRow->getColumn('label_html');
+                    if($prettyLabel !== false) {
+                        $actualLabels[$labelIdx] = $prettyLabel;
+                    }
+
                     $logos[$labelIdx] = $labelRow->getMetadata('logo');
 
                     if (!empty($actualLabels[$labelIdx])) {
@@ -434,7 +436,8 @@ class RowEvolution
             }
 
             if (empty($actualLabels[$labelIdx])) {
-                $actualLabels[$labelIdx] = $this->cleanOriginalLabel($label);
+                $cleanLabel = $this->cleanOriginalLabel($label);
+                $actualLabels[$labelIdx] = $cleanLabel;
             }
         }
 
@@ -480,7 +483,7 @@ class RowEvolution
                 $label .= ' (' . $metadata['columns'][$column] . ')';
             }
             $metricName = $column . '_' . $labelIndex;
-            $metadata['metrics'][$metricName] = SafeDecodeLabel::decodeLabelSafe($label);
+            $metadata['metrics'][$metricName] = $label;
 
             if (!empty($logos[$labelIndex])) {
                 $metadata['logos'][$metricName] = $logos[$labelIndex];
@@ -515,11 +518,12 @@ class RowEvolution
     }
 
     /**
-     * Returns a prettier, more comprehensible version of a row evolution label
-     * for display.
+     * Returns a prettier, more comprehensible version of a row evolution label for display.
      */
     private function cleanOriginalLabel($label)
     {
-        return str_replace(LabelFilter::SEPARATOR_RECURSIVE_LABEL, ' - ', $label);
+        $label = str_replace(LabelFilter::SEPARATOR_RECURSIVE_LABEL, ' - ', $label);
+        $label = SafeDecodeLabel::decodeLabelSafe($label);
+        return $label;
     }
 }

@@ -1,12 +1,10 @@
 <?php
 /**
- * Piwik - Open source web analytics
+ * Piwik - free/libre analytics platform
  *
  * @link http://piwik.org
  * @license http://www.gnu.org/licenses/gpl-3.0.html GPL v3 or later
  *
- * @category Piwik_Plugins
- * @package Actions
  */
 namespace Piwik\Plugins\Actions;
 
@@ -19,7 +17,6 @@ use Piwik\Tracker\ActionSiteSearch;
 /**
  * Class encapsulating logic to process Day/Period Archiving for the Actions reports
  *
- * @package Actions
  */
 class Archiver extends \Piwik\Plugin\Archiver
 {
@@ -513,12 +510,6 @@ class Archiver extends \Piwik\Plugin\Archiver
         );
         $dataTable->deleteColumns($columnsToDelete);
     }
-
-    // archiveDayReportFromLogs
-    // archiveMultipleReportsSum
-
-    // aggregateDayReportFromLogs
-    // aggregateMultipleReports
 
     public function aggregateMultipleReports()
     {

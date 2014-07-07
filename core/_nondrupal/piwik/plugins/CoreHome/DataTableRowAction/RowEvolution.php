@@ -1,12 +1,10 @@
 <?php
 /**
- * Piwik - Open source web analytics
+ * Piwik - free/libre analytics platform
  *
  * @link http://piwik.org
  * @license http://www.gnu.org/licenses/gpl-3.0.html GPL v3 or later
  *
- * @category Piwik_Plugins
- * @package CoreHome
  */
 namespace Piwik\Plugins\CoreHome\DataTableRowAction;
 
@@ -14,6 +12,7 @@ use Exception;
 use Piwik\API\Request;
 use Piwik\API\ResponseBuilder;
 use Piwik\Common;
+use Piwik\DataTable;
 use Piwik\Date;
 use Piwik\Metrics;
 use Piwik\Piwik;
@@ -24,7 +23,6 @@ use Piwik\ViewDataTable\Factory;
 /**
  * ROW EVOLUTION
  * The class handles the popover that shows the evolution of a singe row in a data table
- * @package CoreHome
  */
 class RowEvolution
 {
@@ -88,6 +86,9 @@ class RowEvolution
         if (empty($this->apiMethod)) throw new Exception("Parameter apiMethod not set.");
 
         $this->label = ResponseBuilder::getLabelFromRequest($_GET);
+        if(!is_array($this->label)) {
+            throw new Exception("Expected label to be an array, got instead: " . $this->label);
+        }
         $this->label = $this->label[0];
 
         if ($this->label === '') throw new Exception("Parameter label not set.");
@@ -110,7 +111,7 @@ class RowEvolution
 
     /**
      * Render the popover
-     * @param Piwik_CoreHome_Controller
+     * @param \Piwik\Plugins\CoreHome\Controller $controller
      * @param View (the popover_rowevolution template)
      */
     public function renderPopover($controller, $view)
@@ -128,9 +129,8 @@ class RowEvolution
         $popoverTitle = '';
         if ($this->rowLabel) {
             $icon = $this->rowIcon ? '<img src="' . $this->rowIcon . '" alt="">' : '';
-            $rowLabel = str_replace('/', '<wbr>/', str_replace('&', '<wbr>&', $this->rowLabel));
-            $metricsText = sprintf(Piwik::translate('RowEvolution_MetricsFor'), $this->dimension . ': ' . $icon . ' ' . $rowLabel);
-            $popoverTitle = $icon . ' ' . $rowLabel;
+            $metricsText = sprintf(Piwik::translate('RowEvolution_MetricsFor'), $this->dimension . ': ' . $icon . ' ' . $this->rowLabel);
+            $popoverTitle = $icon . ' ' . $this->rowLabel;
         }
 
         $view->availableMetricsText = $metricsText;
@@ -173,7 +173,7 @@ class RowEvolution
     protected function extractEvolutionReport($report)
     {
         $this->dataTable = $report['reportData'];
-        $this->rowLabel = Common::sanitizeInputValue($report['label']);
+        $this->rowLabel = $this->extractPrettyLabel($report);
         $this->rowIcon = !empty($report['logo']) ? $report['logo'] : false;
         $this->availableMetrics = $report['metadata']['metrics'];
         $this->dimension = $report['metadata']['dimension'];
@@ -319,5 +319,27 @@ class RowEvolution
         }
 
         return array($first, $last);
+    }
+
+    /**
+     * @param $report
+     * @return string
+     */
+    protected function extractPrettyLabel($report)
+    {
+        // By default, use the specified label
+        $rowLabel = Common::sanitizeInputValue($report['label']);
+        $rowLabel = str_replace('/', '<wbr>/', str_replace('&', '<wbr>&', $rowLabel ));
+
+        // If the dataTable specifies a label_html, use this instead
+        /** @var $dataTableMap \Piwik\DataTable\Map */
+        $dataTableMap = $report['reportData'];
+        $labelPretty = $dataTableMap->getColumn('label_html');
+        $labelPretty = array_filter($labelPretty, 'strlen');
+        $labelPretty = current($labelPretty);
+        if(!empty($labelPretty)) {
+            return $labelPretty;
+        }
+        return $rowLabel;
     }
 }

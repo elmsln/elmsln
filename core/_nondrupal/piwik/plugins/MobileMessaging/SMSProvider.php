@@ -1,12 +1,10 @@
 <?php
 /**
- * Piwik - Open source web analytics
+ * Piwik - free/libre analytics platform
  *
  * @link http://piwik.org
  * @license http://www.gnu.org/licenses/gpl-3.0.html GPL v3 or later
  *
- * @category Piwik_Plugins
- * @package MobileMessaging
  */
 namespace Piwik\Plugins\MobileMessaging;
 
@@ -17,8 +15,6 @@ use Piwik\Piwik;
 /**
  * The SMSProvider abstract class is used as a base class for SMS provider implementations.
  *
- * @package MobileMessaging
- * @subpackage SMSProvider
  */
 abstract class SMSProvider
 {
@@ -118,7 +114,7 @@ abstract class SMSProvider
             $subStrSize = self::sizeOfSMSContent($subStrToTruncate, $smsContentContainsUCS2Chars);
         }
 
-        return preg_replace('/' . preg_quote($subStrToTruncate) . '$/', $appendedString, $string);
+        return preg_replace('/' . preg_quote($subStrToTruncate, '/') . '$/', $appendedString, $string);
     }
 
     static private function mb_str_split($string)

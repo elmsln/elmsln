@@ -1,5 +1,5 @@
 /*!
- * Piwik - Web Analytics
+ * Piwik - free/libre analytics platform
  *
  * @link http://piwik.org
  * @license http://www.gnu.org/licenses/gpl-3.0.html GPL v3 or later
@@ -212,7 +212,8 @@
          */
         _getTransparentColor: function () {
             if (!this.transparentColor) {
-                this.transparentColor = $('<div style="color:transparent;"></div>').appendTo($('body')).css('color');
+                this.transparentColor =
+                    $('<div style="color:transparent;display:none;"></div>').appendTo($('body')).css('color');
             }
 
             return this.transparentColor;

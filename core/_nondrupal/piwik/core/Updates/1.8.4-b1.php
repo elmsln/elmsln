@@ -1,12 +1,10 @@
 <?php
 /**
- * Piwik - Open source web analytics
+ * Piwik - free/libre analytics platform
  *
  * @link http://piwik.org
  * @license http://www.gnu.org/licenses/gpl-3.0.html GPL v3 or later
  *
- * @category Piwik
- * @package Updates
  */
 
 namespace Piwik\Updates;
@@ -16,7 +14,6 @@ use Piwik\Updater;
 use Piwik\Updates;
 
 /**
- * @package Updates
  */
 class Updates_1_8_4_b1 extends Updates
 {
@@ -26,7 +23,7 @@ class Updates_1_8_4_b1 extends Updates
         return true;
     }
 
-    static function getSql($schema = 'Myisam')
+    static function getSql()
     {
         $action = Common::prefixTable('log_action');
         $duplicates = Common::prefixTable('log_action_duplicates');
@@ -75,7 +72,7 @@ class Updates_1_8_4_b1 extends Updates
 				 `before` int(10) unsigned NOT NULL,
 				 `after` int(10) unsigned NOT NULL,
 				 KEY `mainkey` (`before`)
-				) ENGINE=MyISAM;
+				) ENGINE=InnoDB;
 			"                                                            => false,
 
             // grouping by name only would be case-insensitive, so we GROUP BY name,hash

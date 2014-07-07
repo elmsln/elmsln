@@ -1,12 +1,10 @@
 <?php
 /**
- * Piwik - Open source web analytics
+ * Piwik - free/libre analytics platform
  *
  * @link http://piwik.org
  * @license http://www.gnu.org/licenses/gpl-3.0.html GPL v3 or later
  *
- * @category Piwik
- * @package Piwik
  */
 namespace Piwik\API\DataTableManipulator;
 
@@ -22,9 +20,6 @@ use Piwik\DataTable\Row;
  *
  * The labels passed to this class should be urlencoded.
  * Some reports use recursive labels (e.g. action reports). Use > to join them.
- *
- * @package Piwik
- * @subpackage Piwik_API
  */
 class LabelFilter extends DataTableManipulator
 {
@@ -116,15 +111,15 @@ class LabelFilter extends DataTableManipulator
      * Note: The HTML Encoded version must be tried first, since in ResponseBuilder the $label is unsanitized
      * via Common::unsanitizeLabelParameter.
      *
-     * @param string $label
+     * @param string $originalLabel
      * @return array
      */
-    private function getLabelVariations($label)
+    private function getLabelVariations($originalLabel)
     {
         static $pageTitleReports = array('getPageTitles', 'getEntryPageTitles', 'getExitPageTitles');
 
         $variations = array();
-        $label = urldecode($label);
+        $label = urldecode($originalLabel);
         $label = trim($label);
 
         $sanitizedLabel = Common::sanitizeInputValue($label);
@@ -133,10 +128,17 @@ class LabelFilter extends DataTableManipulator
         if ($this->apiModule == 'Actions'
             && in_array($this->apiMethod, $pageTitleReports)
         ) {
-            // special case: the Actions.getPageTitles report prefixes some labels with a blank.
-            // the blank might be passed by the user but is removed in Request::getRequestArrayFromString.
-            $variations[] = ' ' . $sanitizedLabel;
-            $variations[] = ' ' . $label;
+            // temporary workaround for #4363, if a '+' is at the end of this label, we assume it is a
+            // terminal label and only check for a terminal row.
+            if (substr($originalLabel, -1) == '+') {
+                array_unshift($variations, ' ' . $sanitizedLabel);
+                array_unshift($variations, ' ' . $label);
+            } else {
+                // special case: the Actions.getPageTitles report prefixes some labels with a blank.
+                // the blank might be passed by the user but is removed in Request::getRequestArrayFromString.
+                $variations[] = ' ' . $sanitizedLabel;
+                $variations[] = ' ' . $label;
+            }
         }
         $variations[] = $label;
 

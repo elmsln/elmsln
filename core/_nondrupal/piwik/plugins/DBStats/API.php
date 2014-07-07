@@ -1,12 +1,10 @@
 <?php
 /**
- * Piwik - Open source web analytics
+ * Piwik - free/libre analytics platform
  *
  * @link http://piwik.org
  * @license http://www.gnu.org/licenses/gpl-3.0.html GPL v3 or later
  *
- * @category Piwik_Plugins
- * @package DBStats
  */
 namespace Piwik\Plugins\DBStats;
 
@@ -22,7 +20,6 @@ require_once PIWIK_INCLUDE_PATH . '/plugins/DBStats/MySQLMetadataProvider.php';
 /**
  * DBStats API is used to request the overall status of the Mysql tables in use by Piwik.
  *
- * @package DBStats
  * @method static \Piwik\Plugins\DBStats\API getInstance()
  */
 class API extends \Piwik\Plugin\API
@@ -48,7 +45,7 @@ class API extends \Piwik\Plugin\API
      */
     public function getGeneralInformation()
     {
-        Piwik::checkUserIsSuperUser();
+        Piwik::checkUserHasSuperUserAccess();
         // calculate total size
         $totalSpaceUsed = 0;
         foreach ($this->metadataProvider->getAllTablesStatus() as $status) {
@@ -71,7 +68,7 @@ class API extends \Piwik\Plugin\API
      */
     public function getDBStatus()
     {
-        Piwik::checkUserIsSuperUser();
+        Piwik::checkUserHasSuperUserAccess();
         return $this->metadataProvider->getDBStatus();
     }
 
@@ -85,7 +82,7 @@ class API extends \Piwik\Plugin\API
      */
     public function getDatabaseUsageSummary()
     {
-        Piwik::checkUserIsSuperUser();
+        Piwik::checkUserHasSuperUserAccess();
 
         $emptyRow = array('data_size' => 0, 'index_size' => 0, 'row_count' => 0);
         $rows = array(
@@ -121,7 +118,7 @@ class API extends \Piwik\Plugin\API
      */
     public function getTrackerDataSummary()
     {
-        Piwik::checkUserIsSuperUser();
+        Piwik::checkUserHasSuperUserAccess();
         return $this->getTablesSummary($this->metadataProvider->getAllLogTableStatus());
     }
 
@@ -133,7 +130,7 @@ class API extends \Piwik\Plugin\API
      */
     public function getMetricDataSummary()
     {
-        Piwik::checkUserIsSuperUser();
+        Piwik::checkUserHasSuperUserAccess();
         return $this->getTablesSummary($this->metadataProvider->getAllNumericArchiveStatus());
     }
 
@@ -145,7 +142,7 @@ class API extends \Piwik\Plugin\API
      */
     public function getMetricDataSummaryByYear()
     {
-        Piwik::checkUserIsSuperUser();
+        Piwik::checkUserHasSuperUserAccess();
 
         $dataTable = $this->getMetricDataSummary();
 
@@ -162,7 +159,7 @@ class API extends \Piwik\Plugin\API
      */
     public function getReportDataSummary()
     {
-        Piwik::checkUserIsSuperUser();
+        Piwik::checkUserHasSuperUserAccess();
         return $this->getTablesSummary($this->metadataProvider->getAllBlobArchiveStatus());
     }
 
@@ -174,7 +171,7 @@ class API extends \Piwik\Plugin\API
      */
     public function getReportDataSummaryByYear()
     {
-        Piwik::checkUserIsSuperUser();
+        Piwik::checkUserHasSuperUserAccess();
 
         $dataTable = $this->getReportDataSummary();
 
@@ -193,7 +190,7 @@ class API extends \Piwik\Plugin\API
      */
     public function getAdminDataSummary()
     {
-        Piwik::checkUserIsSuperUser();
+        Piwik::checkUserHasSuperUserAccess();
         return $this->getTablesSummary($this->metadataProvider->getAllAdminTableStatus());
     }
 
@@ -209,7 +206,7 @@ class API extends \Piwik\Plugin\API
      */
     public function getIndividualReportsSummary($forceCache = false)
     {
-        Piwik::checkUserIsSuperUser();
+        Piwik::checkUserHasSuperUserAccess();
         return $this->metadataProvider->getRowCountsAndSizeByBlobName($forceCache);
     }
 
@@ -225,7 +222,7 @@ class API extends \Piwik\Plugin\API
      */
     public function getIndividualMetricsSummary($forceCache = false)
     {
-        Piwik::checkUserIsSuperUser();
+        Piwik::checkUserHasSuperUserAccess();
         return $this->metadataProvider->getRowCountsAndSizeByMetricName($forceCache);
     }
 

@@ -1,21 +1,19 @@
 <?php
 /**
- * Piwik - Open source web analytics
+ * Piwik - free/libre analytics platform
  *
  * @link http://piwik.org
  * @license http://www.gnu.org/licenses/gpl-3.0.html GPL v3 or later
  *
- * @category Piwik_Plugins
- * @package Actions
  */
 namespace Piwik\Plugins\Actions;
 
 use PDOStatement;
 use Piwik\Config;
+use Piwik\DataTable\Row\DataTableSummaryRow;
+use Piwik\DataTable;
 use Piwik\DataTable\Manager;
 use Piwik\DataTable\Row;
-use Piwik\DataTable;
-use Piwik\DataTable\Row\DataTableSummaryRow;
 use Piwik\Metrics;
 use Piwik\Piwik;
 use Piwik\Tracker\Action;
@@ -27,7 +25,6 @@ use Zend_Db_Statement;
  * - logic to parse/cleanup Action names,
  * - logic to efficiently process aggregate the array data during Archiving
  *
- * @package Actions
  */
 class ArchivingHelper
 {

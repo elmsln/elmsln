@@ -1,20 +1,16 @@
 <?php
 /**
- * Piwik - Open source web analytics
+ * Piwik - free/libre analytics platform
  *
  * @link http://piwik.org
  * @license http://www.gnu.org/licenses/gpl-3.0.html GPL v3 or later
  *
- * @category Piwik_Plugins
- * @package PrivacyManager
  */
 namespace Piwik\Plugins\PrivacyManager;
 
 use Piwik\Common;
 use Piwik\Tracker\IgnoreCookie;
 use Piwik\Tracker\Request;
-use Piwik\Tracker\Cache;
-use Piwik\Option;
 
 /**
  * Excludes visits where user agent's request contains either:
@@ -22,20 +18,21 @@ use Piwik\Option;
  * - X-Do-Not-Track header (used by AdBlockPlus and NoScript)
  * - DNT header (used by Mozilla)
  * 
- * @package PrivacyManager
  */
 class DoNotTrackHeaderChecker
 {
-    const OPTION_NAME = "PrivacyManager.doNotTrackEnabled";
-
     /**
      * Checks for DoNotTrack headers and if found, sets `$exclude` to `true`.
      */
     public function checkHeaderInTracker(&$exclude)
     {
-        if (!$this->isActiveInTracker()
-            || $exclude
-        ) {
+        if($exclude) {
+            Common::printDebug("Visit is already excluded, no need to check DoNotTrack support.");
+            return;
+        }
+
+        if (!$this->isActive()) {
+            Common::printDebug("DoNotTrack support is not enabled, skip check");
             return;
         }
 
@@ -44,14 +41,15 @@ class DoNotTrackHeaderChecker
         ) {
             $request = new Request($_REQUEST);
             $ua = $request->getUserAgent();
-            if (strpos($ua, 'MSIE 10') !== false
-                || strpos($ua, 'Trident/7') !== false) {
-                Common::printDebug("INTERNET EXPLORER 10 and 11 enable DoNotTrack by default; so Piwik ignores DNT for all IE10 + IE11 browsers...");
+            if (strpos($ua, 'MSIE') !== false
+                || strpos($ua, 'Trident') !== false) {
+                Common::printDebug("INTERNET EXPLORER enable DoNotTrack by default; so Piwik ignores DNT IE browsers...");
                 return;
             }
 
+            Common::printDebug("DoNotTrack header found!");
+
             $exclude = true;
-            Common::printDebug("DoNotTrack found.");
 
             $trackingCookie = IgnoreCookie::getTrackingCookie();
             $trackingCookie->delete();
@@ -60,25 +58,9 @@ class DoNotTrackHeaderChecker
             //     /.well-known/dnt
             // per Tracking Preference Expression (draft)
             header('Tk: 1');
+        } else {
+            Common::printDebug("DoNotTrack header not found");
         }
-    }
-
-    /**
-     * Returns true if DoNotTrack header checking is enabled. This function is called by the
-     * Tracker.
-     */
-    private function isActiveInTracker()
-    {
-        $cache = Cache::getCacheGeneral();
-        return !empty($cache[self::OPTION_NAME]);
-    }
-
-    /**
-     * Caches the status of DoNotTrack checking (whether it is enabled or not).
-     */
-    public function setTrackerCacheGeneral(&$cacheContent)
-    {
-        $cacheContent[self::OPTION_NAME] = Option::get(self::OPTION_NAME);
     }
 
     /**
@@ -86,8 +68,8 @@ class DoNotTrackHeaderChecker
      */
     public static function deactivate()
     {
-        Option::set(self::OPTION_NAME, 0);
-        Cache::clearCacheGeneral();
+        $config = new Config();
+        $config->doNotTrackEnabled = false;
     }
 
     /**
@@ -95,8 +77,8 @@ class DoNotTrackHeaderChecker
      */
     public static function activate()
     {
-        Option::set(self::OPTION_NAME, 1);
-        Cache::clearCacheGeneral();
+        $config = new Config();
+        $config->doNotTrackEnabled = true;
     }
 
     /**
@@ -106,7 +88,7 @@ class DoNotTrackHeaderChecker
      */
     public static function isActive()
     {
-        $active = Option::get(self::OPTION_NAME);
-        return !empty($active);
+        $config = new Config();
+        return $config->doNotTrackEnabled;
     }
 }

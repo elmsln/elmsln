@@ -1,12 +1,10 @@
 <?php
 /**
- * Piwik - Open source web analytics
+ * Piwik - free/libre analytics platform
  *
  * @link http://piwik.org
  * @license http://www.gnu.org/licenses/gpl-3.0.html GPL v3 or later
  *
- * @category Piwik
- * @package Piwik
  */
 namespace Piwik;
 
@@ -52,7 +50,6 @@ use Piwik\Plugins\API\API;
  *     $segment = new Segment('', $idSites);
  *     // $segment->getSelectQuery will return a query that selects all visits
  * 
- * @package Piwik
  * @api
  */
 class Segment
@@ -319,8 +316,6 @@ class Segment
                 // first table
                 $sql .= $tableSql;
             } else {
-                $join = "";
-
                 if ($actionsAvailable && $table == "log_conversion") {
                     // have actions, need conversions => join on idlink_va
                     $join = "log_conversion.idlink_va = log_link_visit_action.idlink_va "
@@ -351,8 +346,10 @@ class Segment
                     $join = "log_conversion_item.idvisit = log_visit.idvisit";
                 } elseif ($conversionItemAvailable && $table === 'log_link_visit_action') {
                     $join = "log_conversion_item.idvisit = log_link_visit_action.idvisit";
+                } elseif ($conversionItemAvailable && $table === 'log_conversion') {
+                    $join = "log_conversion_item.idvisit = log_conversion.idvisit";
                 } else {
-                    throw new Exception("Table '$table', can't be joined for segmentation");
+                    throw new Exception("Table '$table' can't be joined for segmentation");
                 }
 
                 // the join sql the default way
@@ -367,10 +364,12 @@ class Segment
             $conversionItemAvailable = ($conversionItemAvailable || $table == "log_conversion_item");
         }
 
-        return array(
+        $return = array(
             'sql'               => $sql,
             'joinWithSubSelect' => $joinWithSubSelect
         );
+        return $return;
+
     }
 
     /**
@@ -424,7 +423,8 @@ class Segment
      */
     private function buildWrappedSelectQuery($select, $from, $where, $orderBy, $groupBy)
     {
-        preg_match_all("/(log_visit|log_conversion|log_action).[a-z0-9_\*]+/", $select, $matches);
+        $matchTables = "(log_visit|log_conversion_item|log_conversion|log_action)";
+        preg_match_all("/". $matchTables ."\.[a-z0-9_\*]+/", $select, $matches);
         $neededFields = array_unique($matches[0]);
 
         if (count($neededFields) == 0) {
@@ -432,9 +432,9 @@ class Segment
                 . "Please use a table prefix.");
         }
 
-        $select = preg_replace('/(log_visit|log_conversion|log_action)\./', 'log_inner.', $select);
-        $orderBy = preg_replace('/(log_visit|log_conversion|log_action)\./', 'log_inner.', $orderBy);
-        $groupBy = preg_replace('/(log_visit|log_conversion|log_action)\./', 'log_inner.', $groupBy);
+        $select = preg_replace('/'.$matchTables.'\./', 'log_inner.', $select);
+        $orderBy = preg_replace('/'.$matchTables.'\./', 'log_inner.', $orderBy);
+        $groupBy = preg_replace('/'.$matchTables.'\./', 'log_inner.', $groupBy);
 
         $from = "(
 			SELECT
@@ -448,6 +448,7 @@ class Segment
 				) AS log_inner";
 
         $where = false;
-        return $this->buildSelectQuery($select, $from, $where, $orderBy, $groupBy);
+        $query = $this->buildSelectQuery($select, $from, $where, $orderBy, $groupBy);
+        return $query;
     }
 }

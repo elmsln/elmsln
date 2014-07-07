@@ -1,20 +1,16 @@
 <?php
 /**
- * Piwik - Open source web analytics
+ * Piwik - free/libre analytics platform
  *
  * @link http://piwik.org
  * @license http://www.gnu.org/licenses/gpl-3.0.html GPL v3 or later
  *
- * @category Piwik
- * @package Piwik
  */
 namespace Piwik;
 
 /**
  * Load and execute all relevant, incremental update scripts for Piwik core and plugins, and bump the component version numbers for completed updates.
  *
- * @package Piwik
- * @subpackage Updater
  */
 class Updater
 {
@@ -130,9 +126,9 @@ class Updater
                 $this->hasMajorDbUpdate = $this->hasMajorDbUpdate || call_user_func(array($className, 'isMajorUpdate'));
             }
             // unfortunately had to extract this query from the Option class
-            $queries[] = 'UPDATE `' . Common::prefixTable('option') . '`
-    				SET option_value = \'' . $fileVersion . '\'
-    				WHERE option_name = \'' . self::getNameInOptionTable($componentName) . '\';';
+            $queries[] = 'UPDATE `' . Common::prefixTable('option') . '` '.
+    				'SET option_value = \'' . $fileVersion . '\' '.
+    				'WHERE option_name = \'' . self::getNameInOptionTable($componentName) . '\';';
         }
         return $queries;
     }
@@ -256,26 +252,21 @@ class Updater
                     throw $e;
                 }
             }
-            if ($currentVersion === false) {
-                if ($name === 'core') {
-                    // This should not happen
-                    $currentVersion = Version::VERSION;
-                } else {
-                    // When plugins have been installed since Piwik 2.0 this should not happen
-                    // We "fix" the data for any plugin that may have been ported from Piwik 1.x
-                    $currentVersion = $version;
-                }
+
+            if ($name === 'core' && $currentVersion === false) {
+                // This should not happen
+                $currentVersion = Version::VERSION;
                 self::recordComponentSuccessfullyUpdated($name, $currentVersion);
             }
 
-            $versionCompare = version_compare($currentVersion, $version);
-            if ($versionCompare == -1) {
+            // note: when versionCompare == 1, the version in the DB is newer, we choose to ignore
+            $currentVersionIsOutdated = version_compare($currentVersion, $version) == -1;
+            $isComponentOutdated = $currentVersion === false || $currentVersionIsOutdated;
+            if ($isComponentOutdated) {
                 $componentsToUpdate[$name] = array(
                     self::INDEX_CURRENT_VERSION => $currentVersion,
                     self::INDEX_NEW_VERSION     => $version
                 );
-            } else if ($versionCompare == 1) {
-                // the version in the DB is newest.. we choose to ignore
             }
         }
         return $componentsToUpdate;
@@ -291,16 +282,41 @@ class Updater
     static function updateDatabase($file, $sqlarray)
     {
         foreach ($sqlarray as $update => $ignoreError) {
-            try {
-                Db::exec($update);
-            } catch (\Exception $e) {
-                if (($ignoreError === false)
-                    || !Db::get()->isErrNo($e, $ignoreError)
-                ) {
-                    $message = $file . ":\nError trying to execute the query '" . $update . "'.\nThe error was: " . $e->getMessage();
-                    throw new UpdaterErrorException($message);
-                }
-            }
+            self::executeMigrationQuery($update, $ignoreError, $file);
+        }
+    }
+
+    /**
+     * Executes a database update query.
+     *
+     * @param string $updateSql Update SQL query.
+     * @param int|false $errorToIgnore A MySQL error code to ignore.
+     * @param string $file The Update file that's calling this method.
+     */
+    public static function executeMigrationQuery($updateSql, $errorToIgnore, $file)
+    {
+        try {
+            Db::exec($updateSql);
+        } catch (\Exception $e) {
+            self::handleQueryError($e, $updateSql, $errorToIgnore, $file);
+        }
+    }
+
+    /**
+     * Handle an error that is thrown from a database query.
+     *
+     * @param \Exception $e the exception thrown.
+     * @param string $updateSql Update SQL query.
+     * @param int|false $errorToIgnore A MySQL error code to ignore.
+     * @param string $file The Update file that's calling this method.
+     */
+    public static function handleQueryError($e, $updateSql, $errorToIgnore, $file)
+    {
+        if (($errorToIgnore === false)
+            || !Db::get()->isErrNo($e, $errorToIgnore)
+        ) {
+            $message = $file . ":\nError trying to execute the query '" . $updateSql . "'.\nThe error was: " . $e->getMessage();
+            throw new UpdaterErrorException($message);
         }
     }
 }
@@ -308,8 +324,6 @@ class Updater
 /**
  * Exception thrown by updater if a non-recoverable error occurs
  *
- * @package Piwik
- * @subpackage Updater
  */
 class UpdaterErrorException extends \Exception
 {

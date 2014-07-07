@@ -1,12 +1,10 @@
 <?php
 /**
- * Piwik - Open source web analytics
+ * Piwik - free/libre analytics platform
  *
  * @link http://piwik.org
  * @license http://www.gnu.org/licenses/gpl-3.0.html GPL v3 or later
  *
- * @category Piwik
- * @package Piwik
  */
 namespace Piwik\API;
 
@@ -67,9 +65,6 @@ use Piwik\UrlHelper;
  *     echo "This DataTable has " . $dataTable->getRowsCount() . " rows.";
  *
  * @see http://piwik.org/docs/analytics-api
- * @package Piwik
- * @subpackage Piwik_API
- *
  * @api
  */
 class Request
@@ -348,7 +343,7 @@ class Request
         // unless the filter param was in $queryParams
         $genericFiltersInfo = DataTableGenericFilter::getGenericFiltersInformation();
         foreach ($genericFiltersInfo as $filter) {
-            foreach ($filter as $queryParamName => $queryParamInfo) {
+            foreach ($filter[1] as $queryParamName => $queryParamInfo) {
                 if (!isset($params[$queryParamName])) {
                     $params[$queryParamName] = null;
                 }
@@ -371,7 +366,15 @@ class Request
         // we have to load all the child subtables.
         return Common::getRequestVar('filter_column_recursive', false) !== false
             && Common::getRequestVar('filter_pattern_recursive', false) !== false
-            && Common::getRequestVar('flat', false) === false;
+            && !self::shouldLoadFlatten();
+    }
+
+    /**
+     * @return bool
+     */
+    public static function shouldLoadFlatten()
+    {
+        return Common::getRequestVar('flat', false) == 1;
     }
 
     /**

@@ -1,12 +1,10 @@
 <?php
 /**
- * Piwik - Open source web analytics
+ * Piwik - free/libre analytics platform
  *
  * @link http://piwik.org
  * @license http://www.gnu.org/licenses/gpl-3.0.html GPL v3 or later
  *
- * @category Piwik
- * @package Piwik
  */
 namespace Piwik\DataTable\Filter;
 
@@ -25,8 +23,6 @@ use Piwik\DataTable\Row;
  * 
  *     $dataTable->queueFilter('ColumnCallbackAddColumnQuotient', array('bounce_rate', 'bounce_count', 'nb_visits', $precision = 2));
  * 
- * @package Piwik
- * @subpackage DataTable
  * @api
  */
 class ColumnCallbackAddColumnQuotient extends BaseFilter
@@ -56,7 +52,7 @@ class ColumnCallbackAddColumnQuotient extends BaseFilter
      *                                       row iteration.
      */
     public function __construct($table, $columnNameToAdd, $columnValueToRead, $divisorValueOrDivisorColumnName,
-                                $quotientPrecision = 0,$shouldSkipRows = false, $getDivisorFromSummaryRow = false)
+                                $quotientPrecision = 0, $shouldSkipRows = false, $getDivisorFromSummaryRow = false)
     {
         parent::__construct($table);
         $this->table = $table;

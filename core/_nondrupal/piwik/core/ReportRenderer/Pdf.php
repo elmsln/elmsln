@@ -1,12 +1,10 @@
 <?php
 /**
- * Piwik - Open source web analytics
+ * Piwik - free/libre analytics platform
  *
  * @link http://piwik.org
  * @license http://www.gnu.org/licenses/gpl-3.0.html GPL v3 or later
  *
- * @category Piwik
- * @package ReportRenderer
  */
 namespace Piwik\ReportRenderer;
 
@@ -26,7 +24,6 @@ require_once PIWIK_INCLUDE_PATH . '/core/TCPDF.php';
 
 /**
  *
- * @package ReportRenderer
  */
 class Pdf extends ReportRenderer
 {
@@ -525,5 +522,18 @@ class Pdf extends ReportRenderer
         $message = $this->formatText($message);
         $this->TCPDF->Write("1em", $message);
         $this->TCPDF->Ln();
+    }
+
+    /**
+     * Get report attachments, ex. graph images
+     *
+     * @param $report
+     * @param $processedReports
+     * @param $prettyDate
+     * @return array
+     */
+    public function getAttachments($report, $processedReports, $prettyDate)
+    {
+        return array();
     }
 }

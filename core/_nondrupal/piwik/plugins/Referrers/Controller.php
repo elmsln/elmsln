@@ -1,12 +1,10 @@
 <?php
 /**
- * Piwik - Open source web analytics
+ * Piwik - free/libre analytics platform
  *
  * @link http://piwik.org
  * @license http://www.gnu.org/licenses/gpl-3.0.html GPL v3 or later
  *
- * @category Piwik_Plugins
- * @package Referrers
  */
 namespace Piwik\Plugins\Referrers;
 
@@ -16,13 +14,11 @@ use Piwik\DataTable\Map;
 use Piwik\Metrics;
 use Piwik\Period\Range;
 use Piwik\Piwik;
-use Piwik\Url;
+use Piwik\SettingsPiwik;
 use Piwik\View;
-use Piwik\ViewDataTable\Factory;
 
 /**
  *
- * @package Referrers
  */
 class Controller extends \Piwik\Plugin\Controller
 {
@@ -30,7 +26,7 @@ class Controller extends \Piwik\Plugin\Controller
     {
         $view = new View('@Referrers/index');
 
-        $view->graphEvolutionReferrers = $this->getEvolutionGraph(true, Common::REFERRER_TYPE_DIRECT_ENTRY, array('nb_visits'));
+        $view->graphEvolutionReferrers = $this->getEvolutionGraph(Common::REFERRER_TYPE_DIRECT_ENTRY, array(), array('nb_visits'));
         $view->nameGraphEvolutionReferrers = 'Referrers.getEvolutionGraph';
 
         // building the referrers summary report
@@ -256,7 +252,7 @@ class Controller extends \Piwik\Plugin\Controller
         Common::REFERRER_TYPE_CAMPAIGN      => 'Referrers_Campaigns',
     );
 
-    public function getEvolutionGraph($fetch = false, $typeReferrer = false, array $columns = array())
+    public function getEvolutionGraph($typeReferrer = false, array $columns = array(), array $defaultColumns = array())
     {
         $view = $this->getLastUnitGraph($this->pluginName, __FUNCTION__, 'Referrers.getReferrerType');
 
@@ -264,11 +260,20 @@ class Controller extends \Piwik\Plugin\Controller
 
         // configure displayed columns
         if (empty($columns)) {
-            $columns = Common::getRequestVar('columns');
-            $columns = Piwik::getArrayFromApiParameter($columns);
+            $columns = Common::getRequestVar('columns', false);
+            if (false !== $columns) {
+                $columns = Piwik::getArrayFromApiParameter($columns);
+            }
         }
-        $columns = !is_array($columns) ? array($columns) : $columns;
-        $view->config->columns_to_display = $columns;
+        if (false !== $columns) {
+            $columns = !is_array($columns) ? array($columns) : $columns;
+        }
+
+        if (!empty($columns)) {
+            $view->config->columns_to_display = $columns;
+        } elseif (empty($view->config->columns_to_display) && !empty($defaultColumns)) {
+            $view->config->columns_to_display = $defaultColumns;
+        }
 
         // configure selectable columns
         if (Common::getRequestVar('period', false) == 'day') {
@@ -293,7 +298,13 @@ class Controller extends \Piwik\Plugin\Controller
             }
             $label = self::getTranslatedReferrerTypeLabel($typeReferrer);
             $total = Piwik::translate('General_Total');
-            $visibleRows = array($label, $total);
+
+            if (!empty($view->config->rows_to_display)) {
+                $visibleRows = $view->config->rows_to_display;
+            } else {
+                $visibleRows = array($label, $total);
+            }
+
             $view->requestConfig->request_parameters_to_modify['rows'] = $label . ',' . $total;
         }
         $view->config->row_picker_match_rows_by = 'label';
@@ -370,7 +381,7 @@ class Controller extends \Piwik\Plugin\Controller
         $url = $topPageUrl;
 
         // HTML
-        $api = Url::getCurrentUrlWithoutFileName()
+        $api = SettingsPiwik::getPiwikUrl()
             . '?module=API&method=Referrers.getKeywordsForPageUrl'
             . '&format=php'
             . '&filter_limit=10'
@@ -398,7 +409,7 @@ function DisplayTopKeywords($url = "")
 	$url = htmlspecialchars($url, ENT_QUOTES);
 	$output = "<h2>Top Keywords for <a href=\'$url\'>$url</a></h2><ul>";
 	foreach($keywords as $keyword) {
-		$output .= "<li>". $keyword[0]. "</li>";
+		$output .= "<li>". $keyword . "</li>";
 	}
 	if(empty($keywords)) { $output .= "Nothing yet..."; }
 	$output .= "</ul>";
@@ -435,7 +446,7 @@ function DisplayTopKeywords($url = "")
             $url = htmlspecialchars($url, ENT_QUOTES);
             $output = "<h2>Top Keywords for <a href=\'$url\'>$url</a></h2><ul>";
             foreach ($keywords as $keyword) {
-                $output .= "<li>" . $keyword[0] . "</li>";
+                $output .= "<li>" . $keyword . "</li>";
             }
             if (empty($keywords)) {
                 $output .= "Nothing yet...";

@@ -1,22 +1,20 @@
 <?php
 /**
- * Piwik - Open source web analytics
+ * Piwik - free/libre analytics platform
  *
  * @link http://piwik.org
  * @license http://www.gnu.org/licenses/gpl-3.0.html GPL v3 or later
  *
- * @category Piwik
- * @package Piwik
  */
 namespace Piwik;
 
 use Exception;
+use Piwik\Plugins\Installation\ServerFilesGenerator;
 use Piwik\Tracker\Cache;
 
 /**
  * Contains helper functions that deal with the filesystem.
  * 
- * @package Piwik
  */
 class Filesystem
 {
@@ -39,25 +37,6 @@ class Filesystem
     public static function getPathToPiwikRoot()
     {
         return realpath(dirname(__FILE__) . "/..");
-    }
-
-    /**
-     * Create .htaccess file in specified directory
-     *
-     * Apache-specific; for IIS @see web.config
-     *
-     * @param string $path without trailing slash
-     * @param bool $overwrite whether to overwrite an existing file or not
-     * @param string $content
-     */
-    public static function createHtAccess($path, $overwrite = true, $content = "<Files \"*\">\n<IfModule mod_access.c>\nDeny from all\n</IfModule>\n<IfModule !mod_access_compat>\n<IfModule mod_authz_host.c>\nDeny from all\n</IfModule>\n</IfModule>\n<IfModule mod_access_compat>\nDeny from all\n</IfModule>\n</Files>\n")
-    {
-        if (SettingsServer::isApache()) {
-            $file = $path . '/.htaccess';
-            if ($overwrite || !file_exists($file)) {
-                @file_put_contents($file, $content);
-            }
-        }
     }
 
     /**
@@ -95,15 +74,13 @@ class Filesystem
      * _Note: This function does **not** create directories recursively._
      *
      * @param string $path The path of the directory to create.
-     * @param bool $denyAccess Whether to deny browser access to this new folder by
-     *                         creating an **.htaccess** file.
      * @api
      */
-    public static function mkdir($path, $denyAccess = true)
+    public static function mkdir($path)
     {
         if (!is_dir($path)) {
             // the mode in mkdir is modified by the current umask
-            @mkdir($path, $mode = 0755, $recursive = true);
+            @mkdir($path, self::getChmodForPath($path), $recursive = true);
         }
 
         // try to overcome restrictive umask (mis-)configuration
@@ -113,10 +90,6 @@ class Filesystem
                 @chmod($path, 0775);
                 // enough! we're not going to make the directory world-writeable
             }
-        }
-
-        if ($denyAccess) {
-            self::createHtAccess($path, $overwrite = false);
         }
     }
 
@@ -277,7 +250,7 @@ class Filesystem
     public static function copyRecursive($source, $target, $excludePhp = false)
     {
         if (is_dir($source)) {
-            self::mkdir($target, false);
+            self::mkdir($target);
             $d = dir($source);
             while (false !== ($entry = $d->read())) {
                 if ($entry == '.' || $entry == '..') {
@@ -296,5 +269,37 @@ class Filesystem
         } else {
             self::copy($source, $target, $excludePhp);
         }
+    }
+
+    /**
+     * Deletes the given file if it exists.
+     *
+     * @param  string $pathToFile
+     * @return bool   true in case of success or if file does not exist, false otherwise. It might fail in case the
+     *                file is not writeable.
+     * @api
+     */
+    public static function deleteFileIfExists($pathToFile)
+    {
+        if (!file_exists($pathToFile)) {
+            return true;
+        }
+
+        return @unlink($pathToFile);
+    }
+
+    /**
+     * @param $path
+     * @return int
+     */
+    private static function getChmodForPath($path)
+    {
+        $pathIsTmp = self::getPathToPiwikRoot() . '/tmp';
+        if (strpos($path, $pathIsTmp) === 0) {
+            // tmp/* folder
+            return 0750;
+        }
+        // plugins/* and all others
+        return 0755;
     }
 }

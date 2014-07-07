@@ -1,5 +1,5 @@
 /*!
- * Piwik - Web Analytics
+ * Piwik - free/libre analytics platform
  *
  * @link http://piwik.org
  * @license http://www.gnu.org/licenses/gpl-3.0.html GPL v3 or later
@@ -26,12 +26,12 @@
 
     // helper function for ActionDataTable
     function setImageMinus(domElem) {
-        $('img.plusMinus', domElem).attr('src', 'plugins/Zeitgeist/images/minus.png');
+        $('img.plusMinus', domElem).attr('src', 'plugins/Morpheus/images/minus.png');
     }
 
     // helper function for ActionDataTable
     function setImagePlus(domElem) {
-        $('img.plusMinus', domElem).attr('src', 'plugins/Zeitgeist/images/plus.png');
+        $('img.plusMinus', domElem).attr('src', 'plugins/Morpheus/images/plus.png');
     }
 
     /**
@@ -67,7 +67,6 @@
                     self.onClickActionSubDataTable(this)
                 }).size();
             }
-
             self.applyCosmetics(domElem, rows);
             self.handleColumnHighlighting(domElem);
             self.handleRowActions(domElem, rows);
@@ -86,10 +85,11 @@
             }
 
             self.handleColumnDocumentation(domElem);
-            self.handleReportDocumentation(domElem);
             self.handleRelatedReports(domElem);
             self.handleTriggeredEvents(domElem);
             self.handleCellTooltips(domElem);
+            self.handleExpandFooter(domElem);
+            self.setFixWidthToMakeEllipsisWork(domElem);
         },
 
         //see dataTable::applyCosmetics
@@ -100,7 +100,6 @@
             rowsWithSubtables.css('font-weight', 'bold');
 
             $("th:first-child", domElem).addClass('label');
-            $('td span.label', domElem).each(function () { self.truncate($(this)); });
             var imagePlusMinusWidth = 12;
             var imagePlusMinusHeight = 12;
             $('td:first-child', rowsWithSubtables)
@@ -133,14 +132,22 @@
                 $(this).prop('parent', function () {
                     return self.parentAttributeParent + ' ' + self.parentId;
                 });
-
-                // Add some styles on the cells even/odd
-                // label (first column of a data row) or not
-                $("td:first-child:odd", this).addClass('label labeleven');
-                $("td:first-child:even", this).addClass('label labelodd');
-                $("tr:odd td", domElem).slice(1).addClass('column columnodd');
-                $("tr:even td", domElem).slice(1).addClass('column columneven');
             });
+            
+            self.addOddAndEvenClasses(domElem);
+        },
+        
+        addOddAndEvenClasses: function(domElem) {
+            // Add some styles on the cells even/odd
+            // label (first column of a data row) or not
+            $("tr:not(.hidden):odd td:first-child", domElem)
+                .removeClass('labeleven').addClass('label labelodd');
+            $("tr:not(.hidden):even td:first-child", domElem)
+                .removeClass('labelodd').addClass('label labeleven');
+            $("tr:not(.hidden):odd td", domElem).slice(1)
+                .removeClass('columneven').addClass('column columnodd');
+            $("tr:not(.hidden):even td", domElem).slice(1)
+                .removeClass('columnodd').addClass('column columneven');
         },
 
         handleRowActions: function (domElem, rows) {
@@ -174,7 +181,7 @@
                 $(domElem).after('\
                 <tr id="' + divIdToReplaceWithSubTable + '" class="cellSubDataTable">\
                     <td colspan="' + numberOfColumns + '">\
-                            <span class="loadingPiwik" style="display:inline"><img src="plugins/Zeitgeist/images/loading-blue.gif" /> Loading...</span>\
+                            <span class="loadingPiwik" style="display:inline"><img src="plugins/Morpheus/images/loading-blue.gif" /> Loading...</span>\
                     </td>\
                 </tr>\
                 ');
@@ -204,15 +211,17 @@
             // else we toggle all these rows
             else {
                 var plusDetected = $('td img.plusMinus', domElem).attr('src').indexOf('plus') >= 0;
-
+                var stripingNeeded = false;
+                
                 $(domElem).siblings().each(function () {
                     var parents = $(this).prop('parent').split(' ');
                     if (parents) {
                         if (parents.indexOf(idSubTable) >= 0
                             || parents.indexOf('subDataTable_' + idSubTable) >= 0) {
                             if (plusDetected) {
-                                $(this).css('display', '');
-
+                                $(this).css('display', '').removeClass('hidden');
+                                stripingNeeded = !stripingNeeded;
+                                
                                 //unroll everything and display '-' sign
                                 //if the row is already opened
                                 var NextStyle = $(this).next().attr('class');
@@ -225,12 +234,23 @@
                                     setImageMinus(this);
                             }
                             else {
-                                $(this).css('display', 'none');
+                                $(this).css('display', 'none').addClass('hidden');
+                                stripingNeeded = !stripingNeeded;
                             }
                             self.repositionRowActions($(domElem));
                         }
                     }
                 });
+
+                var table = $(domElem);
+                if (!table.hasClass('dataTable')) {
+                    table = table.closest('.dataTable');
+                }
+                if (stripingNeeded) {
+                    self.addOddAndEvenClasses(table);
+                }
+
+                self.$element.trigger('piwik:actionsSubTableToggled');
             }
 
             // toggle the +/- image
@@ -259,6 +279,9 @@
             $('.datatableRelatedReports', content).replaceWith(oldReportsElem);
 
             dataTableSel.replaceWith(content);
+
+            content.trigger('piwik:dataTableLoaded');
+
             piwikHelper.lazyScrollTo(content[0], 400);
 
             return content;
@@ -291,6 +314,8 @@
 
             // we execute the bindDataTableEvent function for the new DIV
             self.bindEventsAndApplyStyle($('#' + self.workingDivId), response);
+
+            self.$element.trigger('piwik:actionsSubDataTableLoaded');
 
             //bind back the click event (disabled to avoid double-click problem)
             self.disabledRowDom.click(

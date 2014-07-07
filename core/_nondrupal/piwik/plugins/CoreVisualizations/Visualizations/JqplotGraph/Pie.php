@@ -1,12 +1,10 @@
 <?php
 /**
- * Piwik - Open source web analytics
+ * Piwik - free/libre analytics platform
  *
  * @link http://piwik.org
  * @license http://www.gnu.org/licenses/gpl-3.0.html GPL v3 or later
  *
- * @category Piwik_Plugins
- * @package CoreVisualizations
  */
 
 namespace Piwik\Plugins\CoreVisualizations\Visualizations\JqplotGraph;
@@ -20,7 +18,7 @@ use Piwik\Plugins\CoreVisualizations\Visualizations\JqplotGraph;
 class Pie extends JqplotGraph
 {
     const ID = 'graphPie';
-    const FOOTER_ICON       = 'plugins/Zeitgeist/images/chart_pie.png';
+    const FOOTER_ICON       = 'plugins/Morpheus/images/chart_pie.png';
     const FOOTER_ICON_TITLE = 'General_Piechart';
 
     public static function getDefaultConfig()

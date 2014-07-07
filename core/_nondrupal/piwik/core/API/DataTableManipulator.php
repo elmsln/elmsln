@@ -1,17 +1,16 @@
 <?php
 /**
- * Piwik - Open source web analytics
+ * Piwik - free/libre analytics platform
  *
  * @link http://piwik.org
  * @license http://www.gnu.org/licenses/gpl-3.0.html GPL v3 or later
  *
- * @category Piwik
- * @package Piwik
  */
 namespace Piwik\API;
 
 use Exception;
 use Piwik\Archive\DataTableFactory;
+use Piwik\Common;
 use Piwik\DataTable\Row;
 use Piwik\DataTable;
 use Piwik\Period\Range;
@@ -28,9 +27,6 @@ use Piwik\Plugins\API\API;
  * of using expanded=1. Another difference between manipulators and filters
  * is that filters keep the overall structure of the table intact while
  * manipulators can change the entire thing.
- *
- * @package Piwik
- * @subpackage Piwik_API
  */
 abstract class DataTableManipulator
 {
@@ -184,8 +180,11 @@ abstract class DataTableManipulator
         $dataTable = Proxy::getInstance()->call($class, $method, $request);
         $response = new ResponseBuilder($format = 'original', $request);
         $dataTable = $response->getResponse($dataTable);
-        if (method_exists($dataTable, 'applyQueuedFilters')) {
-            $dataTable->applyQueuedFilters();
+
+        if (Common::getRequestVar('disable_queued_filters', 0, 'int', $request) == 0) {
+            if (method_exists($dataTable, 'applyQueuedFilters')) {
+                $dataTable->applyQueuedFilters();
+            }
         }
 
         return $dataTable;

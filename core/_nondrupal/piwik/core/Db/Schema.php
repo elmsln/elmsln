@@ -1,12 +1,10 @@
 <?php
 /**
- * Piwik - Open source web analytics
+ * Piwik - free/libre analytics platform
  *
  * @link http://piwik.org
  * @license http://www.gnu.org/licenses/gpl-3.0.html GPL v3 or later
  *
- * @category Piwik
- * @package Piwik
  */
 namespace Piwik\Db;
 
@@ -18,12 +16,11 @@ use Piwik\Singleton;
  *
  * Note: no relation to the ZF proposals for Zend_Db_Schema_Manager
  *
- * @package Piwik
- * @subpackage Piwik_Db
  * @method static \Piwik\Db\Schema getInstance()
  */
 class Schema extends Singleton
 {
+    const DEFAULT_SCHEMA = 'Mysql';
 
     /**
      * Type of database schema
@@ -41,7 +38,14 @@ class Schema extends Singleton
      */
     private static function getSchemaClassName($schemaName)
     {
-        return '\Piwik\Db\Schema\\' . str_replace(' ', '\\', ucwords(str_replace('_', ' ', strtolower($schemaName))));
+        // Upgrade from pre 2.0.4
+        if(strtolower($schemaName) == 'myisam'
+            || empty($schemaName)) {
+            $schemaName = self::DEFAULT_SCHEMA;
+        }
+
+        $class = str_replace(' ', '\\', ucwords(str_replace('_', ' ', strtolower($schemaName))));
+        return '\Piwik\Db\Schema\\' . $class;
     }
 
     /**
@@ -53,11 +57,9 @@ class Schema extends Singleton
     public static function getSchemas($adapterName)
     {
         static $allSchemaNames = array(
-            // MySQL storage engines
             'MYSQL' => array(
-                'Myisam',
-//				'Innodb',
-//				'Infinidb',
+                self::DEFAULT_SCHEMA,
+                // InfiniDB
             ),
 
             // Microsoft SQL Server
@@ -75,6 +77,7 @@ class Schema extends Singleton
 
         $adapterName = strtoupper($adapterName);
         switch ($adapterName) {
+            case 'PDO\MYSQL':
             case 'PDO_MYSQL':
             case 'MYSQLI':
                 $adapterName = 'MYSQL';
@@ -116,11 +119,8 @@ class Schema extends Singleton
     {
         $config = Config::getInstance();
         $dbInfos = $config->database;
-        if (isset($dbInfos['schema'])) {
-            $schemaName = $dbInfos['schema'];
-        } else {
-            $schemaName = 'Myisam';
-        }
+        $schemaName = trim($dbInfos['schema']);
+
         $className = self::getSchemaClassName($schemaName);
         $this->schema = new $className();
     }
@@ -160,6 +160,17 @@ class Schema extends Singleton
     }
 
     /**
+     * Creates a new table in the database.
+     *
+     * @param string $nameWithoutPrefix   The name of the table without any piwik prefix.
+     * @param string $createDefinition    The table create definition
+     */
+    public function createTable($nameWithoutPrefix, $createDefinition)
+    {
+        $this->getSchema()->createTable($nameWithoutPrefix, $createDefinition);
+    }
+
+    /**
      * Create database
      *
      * @param null|string $dbName database name to create
@@ -172,9 +183,9 @@ class Schema extends Singleton
     /**
      * Drop database
      */
-    public function dropDatabase()
+    public function dropDatabase($dbName = null)
     {
-        $this->getSchema()->dropDatabase();
+        $this->getSchema()->dropDatabase($dbName);
     }
 
     /**
@@ -199,16 +210,6 @@ class Schema extends Singleton
     public function truncateAllTables()
     {
         $this->getSchema()->truncateAllTables();
-    }
-
-    /**
-     * Drop specific tables
-     *
-     * @param array $doNotDelete
-     */
-    public function dropTables($doNotDelete = array())
-    {
-        $this->getSchema()->dropTables($doNotDelete);
     }
 
     /**

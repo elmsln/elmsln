@@ -1,21 +1,16 @@
 <?php
 /**
- * Piwik - Open source web analytics
+ * Piwik - free/libre analytics platform
  *
  * @link http://piwik.org
  * @license http://www.gnu.org/licenses/gpl-3.0.html GPL v3 or later
  *
- * @category Piwik
- * @package Piwik
  */
 
 namespace Piwik\Db;
 
 /**
  * Database schema interface
- *
- * @package Piwik
- * @subpackage Piwik_Db
  */
 interface SchemaInterface
 {
@@ -40,6 +35,14 @@ interface SchemaInterface
      * @return array  array of strings containing SQL
      */
     public function getTablesCreateSql();
+
+    /**
+     * Creates a new table in the database.
+     *
+     * @param string $nameWithoutPrefix   The name of the table without any piwik prefix.
+     * @param string $createDefinition    The table create definition
+     */
+    public function createTable($nameWithoutPrefix, $createDefinition);
 
     /**
      * Create database
@@ -67,13 +70,6 @@ interface SchemaInterface
      * Truncate all tables
      */
     public function truncateAllTables();
-
-    /**
-     * Drop specific tables
-     *
-     * @param array $doNotDelete Names of tables to not delete
-     */
-    public function dropTables($doNotDelete = array());
 
     /**
      * Names of all the prefixed tables in piwik

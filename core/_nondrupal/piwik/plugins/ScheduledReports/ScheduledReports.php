@@ -1,42 +1,33 @@
 <?php
 /**
- * Piwik - Open source web analytics
+ * Piwik - free/libre analytics platform
  *
  * @link http://piwik.org
  * @license http://www.gnu.org/licenses/gpl-3.0.html GPL v3 or later
  *
- * @category Piwik_Plugins
- * @package ScheduledReports
  */
 namespace Piwik\Plugins\ScheduledReports;
 
 use Exception;
 use Piwik\Common;
-use Piwik\Config;
-use Piwik\Date;
 use Piwik\Db;
+use Piwik\DbHelper;
 use Piwik\Mail;
-use Piwik\Menu\MenuTop;
 use Piwik\Piwik;
-use Piwik\Plugins\MobileMessaging\API as APIMobileMessaging;
 use Piwik\Plugins\MobileMessaging\MobileMessaging;
-use Piwik\Plugins\SegmentEditor\API as APISegmentEditor;
 use Piwik\Plugins\UsersManager\API as APIUsersManager;
+use Piwik\Plugins\UsersManager\Model as UserModel;
 use Piwik\ReportRenderer;
-use Piwik\ScheduledTask;
 use Piwik\ScheduledTime;
-use Piwik\Site;
 use Piwik\View;
 use Zend_Mime;
+use Piwik\Config;
 
 /**
  *
- * @package ScheduledReports
  */
 class ScheduledReports extends \Piwik\Plugin
 {
-    const MOBILE_MESSAGING_TOP_MENU_TRANSLATION_KEY = 'MobileMessaging_TopMenu';
-    const PDF_REPORTS_TOP_MENU_TRANSLATION_KEY = 'ScheduledReports_EmailReports';
 
     const DISPLAY_FORMAT_GRAPHS_ONLY_FOR_KEY_METRICS = 1; // Display Tables Only (Graphs only for key metrics)
     const DISPLAY_FORMAT_GRAPHS_ONLY = 2; // Display Graphs Only for all reports
@@ -65,22 +56,21 @@ class ScheduledReports extends \Piwik\Plugin
     );
 
     static private $managedReportTypes = array(
-        self::EMAIL_TYPE => 'plugins/Zeitgeist/images/email.png'
+        self::EMAIL_TYPE => 'plugins/Morpheus/images/email.png'
     );
 
     static private $managedReportFormats = array(
-        ReportRenderer::HTML_FORMAT => 'plugins/Zeitgeist/images/html_icon.png',
-        ReportRenderer::PDF_FORMAT  => 'plugins/UserSettings/images/plugins/pdf.gif'
+        ReportRenderer::HTML_FORMAT => 'plugins/Morpheus/images/html_icon.png',
+        ReportRenderer::PDF_FORMAT  => 'plugins/UserSettings/images/plugins/pdf.gif',
+        ReportRenderer::CSV_FORMAT  => 'plugins/Morpheus/images/export.png',
     );
 
     /**
-     * @see Piwik_Plugin::getListHooksRegistered
+     * @see Piwik\Plugin::getListHooksRegistered
      */
     public function getListHooksRegistered()
     {
         return array(
-            'Menu.Top.addItems'                         => 'addTopMenu',
-            'TaskScheduler.getScheduledTasks'           => 'getScheduledTasks',
             'AssetManager.getJavaScriptFiles'           => 'getJsFiles',
             'MobileMessaging.deletePhoneNumber'         => 'deletePhoneNumber',
             'ScheduledReports.getReportParameters'      => 'getReportParameters',
@@ -96,7 +86,8 @@ class ScheduledReports extends \Piwik\Plugin
             'Template.reportParametersScheduledReports' => 'template_reportParametersScheduledReports',
             'UsersManager.deleteUser'                   => 'deleteUserReport',
             'SitesManager.deleteSite.end'               => 'deleteSiteReport',
-            APISegmentEditor::DEACTIVATE_SEGMENT_EVENT  => 'segmentDeactivation',
+            'SegmentEditor.deactivate'                  => 'segmentDeactivation',
+            'SegmentEditor.update'                      => 'segmentUpdated',
             'Translate.getClientSideTranslationKeys'    => 'getClientSideTranslationKeys',
         );
     }
@@ -274,13 +265,11 @@ class ScheduledReports extends \Piwik\Plugin
             $subject = Piwik::translate('General_Report') . ' ' . $reportTitle . " - " . $prettyDate;
 
             $mail = new Mail();
+            $mail->setDefaultFromPiwik();
             $mail->setSubject($subject);
-            $fromEmailName = Config::getInstance()->branding['use_custom_logo']
-                ? Piwik::translate('CoreHome_WebAnalyticsReports')
-                : Piwik::translate('ScheduledReports_PiwikReports');
-            $fromEmailAddress = Config::getInstance()->General['noreply_email_address'];
             $attachmentName = $subject;
-            $mail->setFrom($fromEmailAddress, $fromEmailName);
+
+            $this->setReplyToAsSender($mail, $report);
 
             $displaySegmentInfo = false;
             $segmentInfo = null;
@@ -302,6 +291,24 @@ class ScheduledReports extends \Piwik\Plugin
                     }
 
                     $mail->setBodyHtml($message . "<br/><br/>" . $contents);
+                    break;
+
+
+                case 'csv':
+                    $message .= "\n" . Piwik::translate('ScheduledReports_PleaseFindAttachedFile', array($periods[$report['period']], $reportTitle));
+
+                    if ($displaySegmentInfo) {
+                        $message .= " " . $segmentInfo;
+                    }
+
+                    $mail->setBodyText($message);
+                    $mail->createAttachment(
+                        $contents,
+                        'application/csv',
+                        Zend_Mime::DISPOSITION_INLINE,
+                        Zend_Mime::ENCODING_BASE64,
+                        $attachmentName . '.csv'
+                    );
                     break;
 
                 default:
@@ -348,8 +355,6 @@ class ScheduledReports extends \Piwik\Plugin
             if ($reportParameters[self::EMAIL_ME_PARAMETER] == 1) {
                 if (Piwik::getCurrentUserLogin() == $report['login']) {
                     $emails[] = Piwik::getCurrentUserEmail();
-                } elseif ($report['login'] == Piwik::getSuperUserLogin()) {
-                    $emails[] = Piwik::getSuperUserEmail();
                 } else {
                     try {
                         $user = APIUsersManager::getInstance()->getUser($report['login']);
@@ -390,7 +395,7 @@ class ScheduledReports extends \Piwik\Plugin
             $idSite = false,
             $period = false,
             $idReport = false,
-            $ifSuperUserReturnOnlySuperUserReports = APIMobileMessaging::getInstance()->getDelegatedManagement()
+            $ifSuperUserReturnOnlySuperUserReports = false
         );
 
         foreach ($reports as $report) {
@@ -458,100 +463,65 @@ class ScheduledReports extends \Piwik\Plugin
         return in_array($reportType, array_keys(self::$managedReportTypes));
     }
 
-    public function getScheduledTasks(&$tasks)
+    public function segmentUpdated($idSegment, $updatedSegment)
     {
-        $arbitraryDateInUTC = Date::factory('2011-01-01');
-        foreach (API::getInstance()->getReports() as $report) {
-            if (!$report['deleted'] && $report['period'] != ScheduledTime::PERIOD_NEVER) {
-                $midnightInSiteTimezone =
-                    date(
-                        'H',
-                        Date::factory(
-                            $arbitraryDateInUTC,
-                            Site::getTimezoneFor($report['idsite'])
-                        )->getTimestamp()
-                    );
+        $reportsUsingSegment = API::getInstance()->getReports(false, false, false, false, $idSegment);
 
-                $hourInUTC = (24 - $midnightInSiteTimezone + $report['hour']) % 24;
+        $reportsNeedSegment = array();
 
-                $schedule = ScheduledTime::getScheduledTimeForPeriod($report['period']);
-                $schedule->setHour($hourInUTC);
-                $tasks[] = new ScheduledTask (
-                    API::getInstance(),
-                    'sendReport',
-                    $report['idreport'], $schedule
-                );
+        if(!$updatedSegment['enable_all_users']) {
+            // which reports would become invisible to other users?
+            foreach($reportsUsingSegment as $report) {
+                if($report['login'] == Piwik::getCurrentUserLogin()) {
+                    continue;
+                }
+                $reportsNeedSegment[] = $report;
             }
         }
+
+        if($updatedSegment['enable_only_idsite']) {
+            // which reports from other websites are set to use this segment restricted to one website?
+            foreach($reportsUsingSegment as $report) {
+                if($report['idsite'] == $updatedSegment['enable_only_idsite']) {
+                    continue;
+                }
+                $reportsNeedSegment[] = $report;
+            }
+        }
+
+        if(empty($reportsNeedSegment)) {
+            return;
+        }
+
+        $this->throwExceptionReportsAreUsingSegment($reportsNeedSegment);
+
     }
 
     public function segmentDeactivation($idSegment)
     {
         $reportsUsingSegment = API::getInstance()->getReports(false, false, false, false, $idSegment);
-
-        if (count($reportsUsingSegment) > 0) {
-
-            $reportList = '';
-            $reportNameJoinText = ' ' . Piwik::translate('General_And') . ' ';
-            foreach ($reportsUsingSegment as $report) {
-                $reportList .= '\'' . $report['description'] . '\'' . $reportNameJoinText;
-            }
-            $reportList = rtrim($reportList, $reportNameJoinText);
-
-            $errorMessage = Piwik::translate('ScheduledReports_Segment_Deletion_Error', $reportList);
-            throw new Exception($errorMessage);
+        if (empty($reportsUsingSegment)) {
+            return;
         }
+
+        $this->throwExceptionReportsAreUsingSegment($reportsUsingSegment);
     }
 
-    function addTopMenu()
+    /**
+     * @param $reportsUsingSegment
+     * @throws \Exception
+     */
+    protected function throwExceptionReportsAreUsingSegment($reportsUsingSegment)
     {
-        MenuTop::addEntry(
-            $this->getTopMenuTranslationKey(),
-            array('module' => 'ScheduledReports', 'action' => 'index', 'segment' => false),
-            true,
-            13,
-            $isHTML = false,
-            $tooltip = Piwik::translate(
-                \Piwik\Plugin\Manager::getInstance()->isPluginActivated('MobileMessaging')
-                    ? 'MobileMessaging_TopLinkTooltip' : 'ScheduledReports_TopLinkTooltip'
-            )
-        );
-    }
-
-    function getTopMenuTranslationKey()
-    {
-        // if MobileMessaging is not activated, display 'Email reports'
-        if (!\Piwik\Plugin\Manager::getInstance()->isPluginActivated('MobileMessaging'))
-            return self::PDF_REPORTS_TOP_MENU_TRANSLATION_KEY;
-
-        if (Piwik::isUserIsAnonymous()) {
-            return self::MOBILE_MESSAGING_TOP_MENU_TRANSLATION_KEY;
+        $reportList = '';
+        $reportNameJoinText = ' ' . Piwik::translate('General_And') . ' ';
+        foreach ($reportsUsingSegment as $report) {
+            $reportList .= '\'' . $report['description'] . '\'' . $reportNameJoinText;
         }
+        $reportList = rtrim($reportList, $reportNameJoinText);
 
-        $reports = API::getInstance()->getReports();
-        $reportCount = count($reports);
-
-        // if there are no reports and the mobile account is
-        //  not configured, display 'Email reports'
-        //  configured, display 'Email & SMS reports'
-        if ($reportCount == 0)
-            return APIMobileMessaging::getInstance()->areSMSAPICredentialProvided() ?
-                self::MOBILE_MESSAGING_TOP_MENU_TRANSLATION_KEY : self::PDF_REPORTS_TOP_MENU_TRANSLATION_KEY;
-
-        $anyMobileReport = false;
-        foreach ($reports as $report) {
-            if ($report['type'] == MobileMessaging::MOBILE_TYPE) {
-                $anyMobileReport = true;
-                break;
-            }
-        }
-
-        // if there is at least one sms report, display 'Email & SMS reports'
-        if ($anyMobileReport) {
-            return self::MOBILE_MESSAGING_TOP_MENU_TRANSLATION_KEY;
-        }
-
-        return self::PDF_REPORTS_TOP_MENU_TRANSLATION_KEY;
+        $errorMessage = Piwik::translate('ScheduledReports_Segment_Deletion_Error', $reportList);
+        throw new Exception($errorMessage);
     }
 
     public function deleteUserReport($userLogin)
@@ -561,33 +531,23 @@ class ScheduledReports extends \Piwik\Plugin
 
     public function install()
     {
-        $queries[] = '
-                CREATE TABLE `' . Common::prefixTable('report') . '` (
-					`idreport` INT(11) NOT NULL AUTO_INCREMENT,
-					`idsite` INTEGER(11) NOT NULL,
-					`login` VARCHAR(100) NOT NULL,
-					`description` VARCHAR(255) NOT NULL,
-					`idsegment` INT(11),
-					`period` VARCHAR(10) NOT NULL,
-					`hour` tinyint NOT NULL default 0,
-					`type` VARCHAR(10) NOT NULL,
-					`format` VARCHAR(10) NOT NULL,
-					`reports` TEXT NOT NULL,
-					`parameters` TEXT NULL,
-					`ts_created` TIMESTAMP NULL,
-					`ts_last_sent` TIMESTAMP NULL,
-					`deleted` tinyint(4) NOT NULL default 0,
-					PRIMARY KEY (`idreport`)
-				) DEFAULT CHARSET=utf8';
-        try {
-            foreach ($queries as $query) {
-                Db::exec($query);
-            }
-        } catch (Exception $e) {
-            if (!Db::get()->isErrNo($e, '1050')) {
-                throw $e;
-            }
-        }
+        $reportTable = "`idreport` INT(11) NOT NULL AUTO_INCREMENT,
+					    `idsite` INTEGER(11) NOT NULL,
+					    `login` VARCHAR(100) NOT NULL,
+					    `description` VARCHAR(255) NOT NULL,
+					    `idsegment` INT(11),
+					    `period` VARCHAR(10) NOT NULL,
+					    `hour` tinyint NOT NULL default 0,
+					    `type` VARCHAR(10) NOT NULL,
+					    `format` VARCHAR(10) NOT NULL,
+					    `reports` TEXT NOT NULL,
+					    `parameters` TEXT NULL,
+					    `ts_created` TIMESTAMP NULL,
+					    `ts_last_sent` TIMESTAMP NULL,
+					    `deleted` tinyint(4) NOT NULL default 0,
+					    PRIMARY KEY (`idreport`)";
+
+        DbHelper::createTable('report', $reportTable);
     }
 
     private static function checkAdditionalEmails($additionalEmails)
@@ -645,5 +605,17 @@ class ScheduledReports extends \Piwik\Plugin
             ScheduledTime::PERIOD_YEAR  => Piwik::translate('General_YearlyReport'),
             ScheduledTime::PERIOD_RANGE => Piwik::translate('General_RangeReports'),
         );
+    }
+
+    protected function setReplyToAsSender(Mail $mail, array $report)
+    {
+        if (Config::getInstance()->General['scheduled_reports_replyto_is_user_email_and_alias']) {
+            if (isset($report['login'])) {
+                $userModel = new UserModel();
+                $user = $userModel->getUser($report['login']);
+
+                $mail->setReplyTo($user['email'], $user['alias']);
+            }
+        }
     }
 }

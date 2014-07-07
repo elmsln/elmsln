@@ -1,12 +1,10 @@
 <?php
 /**
- * Piwik - Open source web analytics
+ * Piwik - free/libre analytics platform
  *
  * @link http://piwik.org
  * @license http://www.gnu.org/licenses/gpl-3.0.html GPL v3 or later
  *
- * @category Piwik_Plugins
- * @package UserSettings
  */
 namespace Piwik\Plugins\UserSettings;
 
@@ -24,7 +22,6 @@ require_once PIWIK_INCLUDE_PATH . '/plugins/UserSettings/functions.php';
  * The UserSettings API lets you access reports about your Visitors technical settings: browsers, browser types (rendering engine),
  * operating systems, plugins supported in their browser, Screen resolution and Screen types (normal, widescreen, dual screen or mobile).
  *
- * @package UserSettings
  * @method static \Piwik\Plugins\UserSettings\API getInstance()
  */
 class API extends \Piwik\Plugin\API
@@ -68,7 +65,7 @@ class API extends \Piwik\Plugin\API
 
     /**
      * Gets a DataTable displaying number of visits by operating system family. The operating
-     * system families are listed in /libs/UserAgentParser/UserAgentParser.php.
+     * system families are listed in vendor piwik/device-detector.
      */
     public function getOSFamily($idSite, $period, $date, $segment = false)
     {

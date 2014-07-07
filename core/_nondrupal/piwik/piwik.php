@@ -1,6 +1,6 @@
 <?php
 /**
- * Piwik - Open source web analytics
+ * Piwik - free/libre analytics platform
  *
  * @link http://piwik.org
  * @license http://www.gnu.org/licenses/gpl-3.0.html GPL v3 or later
@@ -12,11 +12,16 @@ use Piwik\Common;
 use Piwik\Timer;
 use Piwik\Tracker;
 
-$GLOBALS['PIWIK_TRACKER_DEBUG'] = false;
+// Note: if you wish to debug the Tracking API please see this documentation:
+// http://developer.piwik.org/api-reference/tracking-api#debugging-the-tracker
+
 $GLOBALS['PIWIK_TRACKER_DEBUG_FORCE_SCHEDULED_TASKS'] = false;
 define('PIWIK_ENABLE_TRACKING', true);
 
-define('PIWIK_DOCUMENT_ROOT', dirname(__FILE__) == '/' ? '' : dirname(__FILE__));
+if (!defined('PIWIK_DOCUMENT_ROOT')) {
+    define('PIWIK_DOCUMENT_ROOT', dirname(__FILE__) == '/' ? '' : dirname(__FILE__));
+}
+
 if (file_exists(PIWIK_DOCUMENT_ROOT . '/bootstrap.php')) {
     require_once PIWIK_DOCUMENT_ROOT . '/bootstrap.php';
 }
@@ -34,6 +39,18 @@ if (!defined('PIWIK_INCLUDE_PATH')) {
 }
 
 @ignore_user_abort(true);
+
+if (file_exists(PIWIK_INCLUDE_PATH . '/vendor/autoload.php')) {
+    $vendorDirectory = PIWIK_INCLUDE_PATH . '/vendor';
+} else {
+    $vendorDirectory = PIWIK_INCLUDE_PATH . '/../..';
+}
+require_once $vendorDirectory . '/autoload.php';
+
+require_once PIWIK_INCLUDE_PATH . '/core/Plugin/Controller.php';
+require_once PIWIK_INCLUDE_PATH . '/core/Plugin/ControllerAdmin.php';
+
+\Piwik\Plugin\ControllerAdmin::disableEacceleratorIfEnabled();
 
 require_once PIWIK_INCLUDE_PATH . '/libs/upgradephp/upgrade.php';
 require_once PIWIK_INCLUDE_PATH . '/core/testMinimumPhpVersion.php';
@@ -70,6 +87,7 @@ require_once PIWIK_INCLUDE_PATH . '/core/Tracker/VisitorNotFoundInDb.php';
 require_once PIWIK_INCLUDE_PATH . '/core/CacheFile.php';
 require_once PIWIK_INCLUDE_PATH . '/core/Filesystem.php';
 require_once PIWIK_INCLUDE_PATH . '/core/Cookie.php';
+require_once PIWIK_INCLUDE_PATH . '/core/Loader.php';
 
 session_cache_limiter('nocache');
 @date_default_timezone_set('UTC');
@@ -77,6 +95,10 @@ session_cache_limiter('nocache');
 if (!defined('PIWIK_ENABLE_TRACKING') || PIWIK_ENABLE_TRACKING) {
     ob_start();
 }
+
+\Piwik\FrontController::createConfigObject();
+
+$GLOBALS['PIWIK_TRACKER_DEBUG'] = (bool) \Piwik\Config::getInstance()->Tracker['debug'];
 if ($GLOBALS['PIWIK_TRACKER_DEBUG'] === true) {
     require_once PIWIK_INCLUDE_PATH . '/core/Loader.php';
 
@@ -86,10 +108,10 @@ if ($GLOBALS['PIWIK_TRACKER_DEBUG'] === true) {
     \Piwik\ExceptionHandler::setUp();
 
     $timer = new Timer();
-    Common::printDebug("Debug enabled - Input parameters: <br/>" . var_export($_GET, true));
+    Common::printDebug("Debug enabled - Input parameters: ");
+    Common::printDebug(var_export($_GET, true));
 
     \Piwik\Tracker\Db::enableProfiling();
-    \Piwik\FrontController::createConfigObject();
 }
 
 if (!defined('PIWIK_ENABLE_TRACKING') || PIWIK_ENABLE_TRACKING) {
@@ -99,10 +121,11 @@ if (!defined('PIWIK_ENABLE_TRACKING') || PIWIK_ENABLE_TRACKING) {
         $process->main();
     } catch (Exception $e) {
         echo "Error:" . $e->getMessage();
+        exit(1);
     }
     ob_end_flush();
     if ($GLOBALS['PIWIK_TRACKER_DEBUG'] === true) {
         Common::printDebug($_COOKIE);
-        Common::printDebug($timer);
+        Common::printDebug((string)$timer);
     }
 }

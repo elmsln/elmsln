@@ -2,13 +2,16 @@
 # vim: et sw=4 ts=4:
 # -*- coding: utf-8 -*-
 #
-# Piwik - Open source web analytics
+# Piwik - free/libre analytics platform
 #
 # @link http://piwik.org
 # @license http://www.gnu.org/licenses/gpl-3.0.html GPL v3 or later
 # @version $Id$
 #
-# For more info see: http://piwik.org/log-analytics/
+# For more info see: http://piwik.org/log-analytics/ and http://piwik.org/docs/log-analytics-tool-how-to/
+#
+# Requires Python 2.6 or greater.
+#
 
 import base64
 import bz2
@@ -32,6 +35,7 @@ import time
 import urllib
 import urllib2
 import urlparse
+import subprocess
 
 try:
     import json
@@ -43,29 +47,38 @@ except ImportError:
             print >> sys.stderr, 'simplejson (http://pypi.python.org/pypi/simplejson/) is required.'
             sys.exit(1)
 
+try:
+    from collections import OrderedDict
+except ImportError:
+    try:
+        from ordereddict import OrderedDict
+    except ImportError:
+        pass
 
 
 ##
 ## Constants.
 ##
 
-STATIC_EXTENSIONS = (
+STATIC_EXTENSIONS = set((
     'gif jpg jpeg png bmp ico svg ttf eot woff class swf css js xml robots.txt'
-).split()
+).split())
 
 
-DOWNLOAD_EXTENSIONS = (
+DOWNLOAD_EXTENSIONS = set((
     '7z aac arc arj asf asx avi bin csv deb dmg doc exe flv gz gzip hqx '
     'jar mpg mp2 mp3 mp4 mpeg mov movie msi msp odb odf odg odp '
     'ods odt ogg ogv pdf phps ppt qt qtm ra ram rar rpm sea sit tar tbz '
-    'bz2 tbz tgz torrent txt wav wma wmv wpd xls xml xsd z zip'
-).split()
+    'bz2 tbz tgz torrent txt wav wma wmv wpd xls xml xsd z zip '
+    'azw3 epub mobi'
+).split())
 
 
 # A good source is: http://phpbb-bots.blogspot.com/
 EXCLUDED_USER_AGENTS = (
     'adsbot-google',
     'ask jeeves',
+    'baidubot',
     'bot-',
     'bot/',
     'ccooter/',
@@ -378,6 +391,14 @@ class Configuration(object):
             help="Each line from this file is a path to exclude"
         )
         option_parser.add_option(
+            '--include-path', dest='included_paths', action='append', default=[],
+            help="Paths to include. Can be specified multiple times. If not specified, all paths are included."
+        )
+        option_parser.add_option(
+            '--include-path-from', dest='include_path_from',
+            help="Each line from this file is a path to include"
+        )
+        option_parser.add_option(
             '--useragent-exclude', dest='excluded_useragents',
             action='append', default=[],
             help="User agents to exclude (in addition to the standard excluded "
@@ -451,7 +472,7 @@ class Configuration(object):
         option_parser.add_option(
             '--replay-tracking', dest='replay_tracking',
             action='store_true', default=False,
-            help="Replay piwik.php requests found in custom logs (only piwik.php requests expected)"
+            help="Replay piwik.php requests found in custom logs (only piwik.php requests expected). \nSee http://piwik.org/faq/how-to/faq_17033/"
         )
         option_parser.add_option(
             '--output', dest='output',
@@ -480,6 +501,10 @@ class Configuration(object):
             help="Make URL path lowercase so paths with the same letters but different cases are "
                  "treated the same."
         )
+        option_parser.add_option(
+            '--enable-testmode', dest='enable_testmode', default=False, action='store_true',
+            help="If set, it will try to get the token_auth from the piwik_tests directory"
+        )
         return option_parser
 
 
@@ -502,13 +527,21 @@ class Configuration(object):
             level=logging.DEBUG if self.options.debug >= 1 else logging.INFO,
         )
 
-        self.options.excluded_useragents = [s.lower() for s in self.options.excluded_useragents]
+        self.options.excluded_useragents = set([s.lower() for s in self.options.excluded_useragents])
 
         if self.options.exclude_path_from:
             paths = [path.strip() for path in open(self.options.exclude_path_from).readlines()]
             self.options.excluded_paths.extend(path for path in paths if len(path) > 0)
         if self.options.excluded_paths:
+            self.options.excluded_paths = set(self.options.excluded_paths)
             logging.debug('Excluded paths: %s', ' '.join(self.options.excluded_paths))
+
+        if self.options.include_path_from:
+            paths = [path.strip() for path in open(self.options.include_path_from).readlines()]
+            self.options.included_paths.extend(path for path in paths if len(path) > 0)
+        if self.options.included_paths:
+            self.options.included_paths = set(self.options.included_paths)
+            logging.debug('Included paths: %s', ' '.join(self.options.included_paths))
 
         if self.options.hostnames:
             logging.debug('Accepted hostnames: %s', ', '.join(self.options.hostnames))
@@ -557,6 +590,27 @@ class Configuration(object):
         if self.options.login and self.options.password:
             piwik_login = self.options.login
             piwik_password = hashlib.md5(self.options.password).hexdigest()
+
+            logging.debug('Using credentials: (login = %s, password = %s)', piwik_login, piwik_password)
+            try:
+                api_result = piwik.call_api('UsersManager.getTokenAuth',
+                    userLogin=piwik_login,
+                    md5Password=piwik_password,
+                    _token_auth='',
+                    _url=self.options.piwik_url,
+                )
+            except urllib2.URLError, e:
+                fatal_error('error when fetching token_auth from the API: %s' % e)
+
+            try:
+                return api_result['value']
+            except KeyError:
+                # Happens when the credentials are invalid.
+                message = api_result.get('message')
+                fatal_error(
+                    'error fetching authentication token token_auth%s' % (
+                    ': %s' % message if message else '')
+                )
         else:
             # Fallback to the given (or default) configuration file, then
             # get the token from the API.
@@ -568,32 +622,45 @@ class Configuration(object):
             success = len(config_file.read(self.options.config_file)) > 0
             if not success:
                 fatal_error(
-                    "couldn't open the configuration file, "
-                    "required to get the authentication token"
+                    "the configuration file" + self.options.config_file + " could not be read. Please check permission. This file must be readable to get the authentication token"
                 )
-            piwik_login = config_file.get('superuser', 'login').strip('"')
-            piwik_password = config_file.get('superuser', 'password').strip('"')
 
-        logging.debug('Using credentials: (login = %s, password = %s)', piwik_login, piwik_password)
-        try:
-            api_result = piwik.call_api('UsersManager.getTokenAuth',
-                userLogin=piwik_login,
-                md5Password=piwik_password,
-                _token_auth='',
-                _url=self.options.piwik_url,
+            updatetokenfile = os.path.abspath(
+                os.path.join(os.path.dirname(__file__),
+                    '../../misc/cron/updatetoken.php'),
             )
-        except urllib2.URLError, e:
-            fatal_error('error when fetching token_auth from the API: %s' % e)
 
-        try:
-            return api_result['value']
-        except KeyError:
-            # Happens when the credentials are invalid.
-            message = api_result.get('message')
-            fatal_error(
-                'error fetching authentication token token_auth%s' % (
-                ': %s' % message if message else '')
-            )
+            phpBinary = 'php'
+
+            is_windows = sys.platform.startswith('win')
+            if is_windows:
+                try:
+                    processWin = subprocess.Popen('where php.exe', stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+                    [stdout, stderr] = processWin.communicate()
+                    if processWin.returncode == 0:
+                        phpBinary = stdout.strip()
+                    else:
+                        fatal_error("We couldn't detect PHP. It might help to add your php.exe to the path or alternatively run the importer using the --login and --password option")
+                except:
+                    fatal_error("We couldn't detect PHP. You can run the importer using the --login and --password option to fix this issue")
+
+
+            command = [phpBinary, updatetokenfile]
+            if self.options.enable_testmode:
+                command.append('--testmode')
+
+            command = subprocess.list2cmdline(command)
+            process = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
+            [stdout, stderr] = process.communicate()
+            if process.returncode != 0:
+                fatal_error("`" + command + "` failed with error: " + stderr + ".\nReponse code was: " + str(process.returncode) + ". You can alternatively run the importer using the --login and --password option")
+
+
+            filename = stdout
+            credentials = open(filename, 'r').readline()
+            credentials = credentials.split('\t')
+            return credentials[1]
+
 
     def get_resolver(self):
         if self.options.site_id:
@@ -880,7 +947,7 @@ class Piwik(object):
         try:
             return json.loads(res)
         except ValueError:
-            truncate_after = 1100
+            truncate_after = 4000
             raise urllib2.URLError('Piwik returned an invalid response: ' + res[:truncate_after])
 
 
@@ -897,7 +964,7 @@ class Piwik(object):
                     if on_failure is not None:
                         error_message = on_failure(response, kwargs.get('data'))
                     else:
-                        truncate_after = 1100
+                        truncate_after = 4000
                         truncated_response = (response[:truncate_after] + '..') if len(response) > truncate_after else response
                         error_message = "didn't receive the expected response. Response was %s " % truncated_response
 
@@ -1223,22 +1290,30 @@ class Recorder(object):
         if config.options.replay_tracking:
             # prevent request to be force recorded when option replay-tracking
             args['rec'] = '0'
+
         args.update(hit.args)
 
         if hit.is_download:
             args['download'] = args['url']
-        if hit.is_robot:
-            args['_cvar'] = '{"1":["Bot","%s"]}' % hit.user_agent
-        elif config.options.enable_bots:
-            args['_cvar'] = '{"1":["Not-Bot","%s"]}' % hit.user_agent
+
+        if config.options.enable_bots:
             args['bots'] = '1'
-        if hit.is_error or hit.is_redirect:
+            if hit.is_robot:
+                args['_cvar'] = '{"1":["Bot","%s"]}' % hit.user_agent
+            else:
+                args['_cvar'] = '{"1":["Not-Bot","%s"]}' % hit.user_agent
+
+        # do not overwrite custom variables if it's already set (eg. when replaying ecommerce logs)
+        if 'cvar' not in args:
             args['cvar'] = '{"1":["HTTP-code","%s"]}' % hit.status
-            args['action_name'] = '%s/URL = %s%s' % (
-                hit.status,
-                urllib.quote(args['url'], ''),
-                ("/From = %s" % urllib.quote(args['urlref'], '') if args['urlref'] != ''  else '')
-            )
+
+        if hit.is_error or hit.is_redirect:
+			args['action_name'] = '%s/URL = %s%s' % (
+				hit.status,
+				urllib.quote(args['url'], ''),
+				("/From = %s" % urllib.quote(args['urlref'], '') if args['urlref'] != ''  else '')
+			)
+
         if hit.generation_time_milli > 0:
             args['gt_ms'] = hit.generation_time_milli
         return args
@@ -1247,12 +1322,11 @@ class Recorder(object):
         """
         Inserts several hits into Piwik.
         """
-        data = {
-            'token_auth': config.options.piwik_token_auth,
-            'requests': [self._get_hit_args(hit) for hit in hits]
-        }
-
         if not config.options.dry_run:
+            data = {
+                'token_auth': config.options.piwik_token_auth,
+                'requests': [self._get_hit_args(hit) for hit in hits]
+            }
             piwik.call(
                 '/piwik.php', args={},
                 expected_content=None,
@@ -1275,7 +1349,7 @@ class Recorder(object):
             return response
 
         # remove the successfully tracked hits from payload
-        succeeded = response['tracked']
+        tracked = response['tracked']
         data['requests'] = data['requests'][tracked:]
 
         return response['message']
@@ -1290,17 +1364,15 @@ class Recorder(object):
         else:
             dates = [date.strftime('%Y-%m-%d') for date in stats.dates_recorded]
         if dates:
-            print 'Purging Piwik archives for dates: ' + ' '.join(dates)
+            print '\nPurging Piwik archives for dates: ' + ' '.join(dates)
             result = piwik.call_api(
                 'CoreAdminHome.invalidateArchivedReports',
                 dates=','.join(dates),
                 idSites=','.join(str(site_id) for site_id in stats.piwik_sites),
             )
-            print('To re-process these reports with your new update data, execute the '
-                  'piwik/misc/cron/archive.php script, or see: http://piwik.org/setup-auto-archiving/ '
-                  'for more info.')
-
-
+            print('\nTo re-process these reports with your newly imported data, execute the following command: \n'
+                  '$ /path/to/piwik/console core:archive --url=http://example/piwik/\n'
+                  '\nReference: http://piwik.org/docs/setup-auto-archiving/ ')
 
 
 class Hit(object):
@@ -1346,8 +1418,7 @@ class Parser(object):
         return result
 
     def check_static(self, hit):
-        extension = hit.path.rsplit('.')[-1].lower()
-        if extension in STATIC_EXTENSIONS:
+        if hit.extension in STATIC_EXTENSIONS:
             if config.options.enable_static:
                 hit.is_download = True
                 return True
@@ -1357,8 +1428,7 @@ class Parser(object):
         return True
 
     def check_download(self, hit):
-        extension = hit.path.rsplit('.')[-1].lower()
-        if extension in DOWNLOAD_EXTENSIONS:
+        if hit.extension in DOWNLOAD_EXTENSIONS:
             stats.count_lines_downloads.increment()
             hit.is_download = True
         return True
@@ -1399,6 +1469,12 @@ class Parser(object):
         for excluded_path in config.options.excluded_paths:
             if fnmatch.fnmatch(hit.path, excluded_path):
                 return False
+        # By default, all paths are included.
+        if config.options.included_paths:
+           for included_path in config.options.included_paths:
+               if fnmatch.fnmatch(hit.path, included_path):
+                   return True
+           return False
         return True
 
     @staticmethod
@@ -1457,11 +1533,14 @@ class Parser(object):
             logging.debug("Detecting format against line %i" % lineno)
             format = Parser.check_format(line)
 
-        file.seek(0)
+        try:
+            file.seek(0)
+        except IOError:
+            pass
 
         if not format:
             fatal_error("cannot automatically determine the log format using the first %d lines of the log file. " % limit +
-                        "\Maybe try specifying the format with the --log-format-name command line argument." )
+                        "\nMaybe try specifying the format with the --log-format-name command line argument." )
             return
 
         logging.debug('Format %s is the best match', format.name)
@@ -1503,7 +1582,10 @@ class Parser(object):
             data = file.read(100)
             if len(data.strip()) == 0:
                 return
-            file.seek(0)
+            try:
+                file.seek(0)
+            except IOError:
+                pass
 
             format = self.detect_format(file)
             if format is None:
@@ -1515,6 +1597,10 @@ class Parser(object):
         resolver.check_format(format)
 
         hits = []
+        try:
+            cache_dates = OrderedDict()
+        except NameError:
+            cache_dates = None
         for lineno, line in enumerate(file):
             try:
                 line = line.decode(config.options.encoding)
@@ -1540,6 +1626,7 @@ class Parser(object):
                 is_robot=False,
                 is_error=False,
                 is_redirect=False,
+                date=None,
                 args={},
             )
 
@@ -1548,6 +1635,8 @@ class Parser(object):
                 hit.path = hit.full_path
             except BaseFormatException:
                 hit.path, _, hit.query_string = hit.full_path.partition(config.options.query_string_delimiter)
+
+            hit.extension = hit.path.rsplit('.')[-1].lower()
 
             try:
                 hit.referrer = format.get('referrer')
@@ -1592,27 +1681,43 @@ class Parser(object):
             # Parse date.
             # We parse it after calling check_methods as it's quite CPU hungry, and
             # we want to avoid that cost for excluded hits.
-            date_string = format.get('date')
-            try:
-                hit.date = datetime.datetime.strptime(date_string, format.date_format)
-            except ValueError:
-                invalid_line(line, 'invalid date')
-                continue
+            if cache_dates is not None:
+                # To mitigate CPU usage, parsed dates are cached.
+                try:
+                    timezone_key = format.get('timezone')
+                except BaseFormatException:
+                    timezone_key = ''
+                date_key = (format.get('date'), timezone_key)
+                hit.date = cache_dates.get(date_key)
+            if not hit.date:
+                date_string = format.get('date')
+                try:
+                    hit.date = datetime.datetime.strptime(date_string, format.date_format)
+                except ValueError:
+                    invalid_line(line, 'invalid date')
+                    continue
 
-            # Parse timezone and substract its value from the date
-            try:
-                timezone = float(format.get('timezone'))
-            except BaseFormatException:
-                timezone = 0
-            except ValueError:
-                invalid_line(line, 'invalid timezone')
-                continue
+                # Parse timezone and substract its value from the date
+                try:
+                    timezone = float(format.get('timezone'))
+                except BaseFormatException:
+                    timezone = 0
+                except ValueError:
+                    invalid_line(line, 'invalid timezone')
+                    continue
 
-            if timezone:
-                hit.date -= datetime.timedelta(hours=timezone/100)
+                if timezone:
+                    hit.date -= datetime.timedelta(hours=timezone/100)
+
+                if cache_dates is not None:
+                    if len(cache_dates) > 3600:
+                        cache_dates.popitem(False)
+                    cache_dates[date_key] = hit.date
+
             if config.options.replay_tracking:
                 # we need a query string and we only consider requests with piwik.php
                 if not hit.query_string or not hit.path.lower().endswith('piwik.php'):
+                    invalid_line(line, 'no query string, or ' + hit.path.lower() + ' does not end with piwik.php')
                     continue
 
                 query_arguments = urlparse.parse_qs(hit.query_string)
@@ -1626,13 +1731,11 @@ class Parser(object):
                     invalid_line(line, 'invalid encoding')
                     continue
 
-            # Check if the hit must be excluded.
-            if all((method(hit) for method in self.check_methods)):
-                hits.append(hit)
+            hits.append(hit)
 
-                if len(hits) >= config.options.recorder_max_payload_size * len(Recorder.recorders):
-                    Recorder.add_hits(hits)
-                    hits = []
+            if len(hits) >= config.options.recorder_max_payload_size * len(Recorder.recorders):
+                Recorder.add_hits(hits)
+                hits = []
 
         # add last chunk of hits
         if len(hits) > 0:

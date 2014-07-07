@@ -1,18 +1,15 @@
 <?php
 /**
- * Piwik - Open source web analytics
+ * Piwik - free/libre analytics platform
  *
  * @link http://piwik.org
  * @license http://www.gnu.org/licenses/gpl-3.0.html GPL v3 or later
  *
- * @category Piwik
- * @package Piwik
  */
 namespace Piwik;
 
 use Exception;
 use Piwik\ArchiveProcessor\Parameters;
-
 use Piwik\DataAccess\ArchiveWriter;
 use Piwik\DataAccess\LogAggregator;
 use Piwik\DataTable\Manager;
@@ -75,8 +72,6 @@ use Piwik\Period;
  *         $archiveProcessor->aggregateDataTableRecords('MyPlugin_myFancyReport');
  *     }
  * 
- * @package Piwik
- * @subpackage ArchiveProcessor
  */
 class ArchiveProcessor
 {
@@ -194,23 +189,31 @@ class ArchiveProcessor
                                               &$columnsAggregationOperation = null,
                                               $columnsToRenameAfterAggregation = null)
     {
-        // We clean up below all tables created during this function call (and recursive calls)
-        $latestUsedTableId = Manager::getInstance()->getMostRecentTableId();
         if (!is_array($recordNames)) {
             $recordNames = array($recordNames);
         }
         $nameToCount = array();
         foreach ($recordNames as $recordName) {
+            $latestUsedTableId = Manager::getInstance()->getMostRecentTableId();
+
             $table = $this->aggregateDataTableRecord($recordName, $columnsAggregationOperation, $columnsToRenameAfterAggregation);
 
-            $nameToCount[$recordName]['level0'] = $table->getRowsCount();
-            $nameToCount[$recordName]['recursive'] = $table->getRowsCountRecursive();
+            $rowsCount = $table->getRowsCount();
+            $nameToCount[$recordName]['level0'] = $rowsCount;
+
+            $rowsCountRecursive = $rowsCount;
+            if($this->isAggregateSubTables()) {
+                $rowsCountRecursive = $table->getRowsCountRecursive();
+            }
+            $nameToCount[$recordName]['recursive'] = $rowsCountRecursive;
 
             $blob = $table->getSerialized($maximumRowsInDataTableLevelZero, $maximumRowsInSubDataTable, $columnToSortByBeforeTruncation);
             Common::destroy($table);
             $this->insertBlobRecord($recordName, $blob);
+
+            unset($blob);
+            DataTable\Manager::getInstance()->deleteAll($latestUsedTableId);
         }
-        Manager::getInstance()->deleteAll($latestUsedTableId);
 
         return $nameToCount;
     }
@@ -324,7 +327,23 @@ class ArchiveProcessor
      */
     protected function aggregateDataTableRecord($name, $columnsAggregationOperation = null, $columnsToRenameAfterAggregation = null)
     {
-        $dataTable = $this->getArchive()->getDataTableExpanded($name, $idSubTable = null, $depth = null, $addMetadataSubtableId = false);
+        if($this->isAggregateSubTables()) {
+            // By default we shall aggregate all sub-tables.
+            $dataTable = $this->getArchive()->getDataTableExpanded($name, $idSubTable = null, $depth = null, $addMetadataSubtableId = false);
+        } else {
+            // In some cases (eg. Actions plugin when period=range),
+            // for better performance we will only aggregate the parent table
+            $dataTable = $this->getArchive()->getDataTable($name, $idSubTable = null);
+        }
+
+        if ($dataTable instanceof Map) {
+            // see http://dev.piwik.org/trac/ticket/4377
+            $self = $this;
+            $dataTable->filter(function ($table) use ($self, $columnsToRenameAfterAggregation) {
+                $self->renameColumnsAfterAggregation($table, $columnsToRenameAfterAggregation);
+            });
+        }
+
         $dataTable = $this->getAggregatedDataTableMap($dataTable, $columnsAggregationOperation);
         $this->renameColumnsAfterAggregation($dataTable, $columnsToRenameAfterAggregation);
         return $dataTable;
@@ -404,7 +423,7 @@ class ArchiveProcessor
             // as $date => $tableToSum
             $this->aggregatedDataTableMapsAsOne($data, $table);
         } else {
-            $table->addDataTable($data);
+            $table->addDataTable($data, $this->isAggregateSubTables());
         }
         return $table;
     }
@@ -420,19 +439,22 @@ class ArchiveProcessor
             if($tableToAggregate instanceof Map) {
                 $this->aggregatedDataTableMapsAsOne($tableToAggregate, $aggregated);
             } else {
-                $aggregated->addDataTable($tableToAggregate);
+                $aggregated->addDataTable($tableToAggregate, $this->isAggregateSubTables());
             }
         }
     }
 
-    protected function renameColumnsAfterAggregation(DataTable $table, $columnsToRenameAfterAggregation = null)
+    /**
+     * Note: public only for use in closure in PHP 5.3.
+     */
+    public function renameColumnsAfterAggregation(DataTable $table, $columnsToRenameAfterAggregation = null)
     {
         // Rename columns after aggregation
         if (is_null($columnsToRenameAfterAggregation)) {
             $columnsToRenameAfterAggregation = self::$columnsToRenameAfterAggregation;
         }
         foreach ($columnsToRenameAfterAggregation as $oldName => $newName) {
-            $table->renameColumn($oldName, $newName);
+            $table->renameColumn($oldName, $newName, $this->isAggregateSubTables());
         }
     }
 
@@ -465,5 +487,13 @@ class ArchiveProcessor
             }
         }
         return $metrics;
+    }
+
+    /**
+     * @return bool
+     */
+    protected function isAggregateSubTables()
+    {
+        return !$this->getParams()->isSkipAggregationOfSubTables();
     }
 }

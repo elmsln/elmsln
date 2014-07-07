@@ -1,12 +1,10 @@
 <?php
 /**
- * Piwik - Open source web analytics
+ * Piwik - free/libre analytics platform
  *
  * @link http://piwik.org
  * @license http://www.gnu.org/licenses/gpl-3.0.html GPL v3 or later
  *
- * @category Piwik
- * @package Piwik
  */
 namespace Piwik\AssetManager;
 
@@ -97,8 +95,9 @@ abstract class UIAssetMerger
 
     protected function getConcatenatedAssets()
     {
-        if(empty($this->mergedContent))
+        if (empty($this->mergedContent)) {
             $this->concatenateAssets();
+        }
 
         return $this->mergedContent;
     }
@@ -142,12 +141,7 @@ abstract class UIAssetMerger
         if(!$this->mergedAsset->exists())
             return true;
 
-        if($this->shouldCompareExistingVersion()) {
-
-            return !$this->isFileUpToDate();
-        }
-
-        return false;
+        return !$this->isFileUpToDate();
     }
 
     /**

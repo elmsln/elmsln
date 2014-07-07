@@ -1,5 +1,5 @@
 /*!
- * Piwik - Web Analytics
+ * Piwik - free/libre analytics platform
  *
  * @link http://piwik.org
  * @license http://www.gnu.org/licenses/gpl-3.0.html GPL v3 or later
@@ -616,7 +616,7 @@ Piwik_Transitions.prototype.renderClosedGroup = function (groupName, side, onlyB
         boxText: self.model.getGroupTitle(groupName),
         boxTextNumLines: 1,
         boxTextCssClass: 'SingleLine',
-        boxIcon: 'plugins/Zeitgeist/images/plus_blue.png',
+        boxIcon: 'plugins/Morpheus/images/plus_blue.png',
         smallBox: true,
         onClick: function () {
             self.unHighlightGroup(groupName, side);
@@ -707,6 +707,11 @@ Piwik_Transitions.prototype.unHighlightGroup = function (groupName, side) {
 
 /** Open a link in a new tab */
 Piwik_Transitions.prototype.openExternalUrl = function (url) {
+    if (url.substring(0, 4) != 'http') {
+        // internal pages don't have the protocol
+        // external links / downloads have the protocol
+        url = 'http://' + url;
+    }
     url = piwik.piwik_url + '?module=Proxy&action=redirect&url=' + encodeURIComponent(url);
     window.open(url, '_newtab');
 };

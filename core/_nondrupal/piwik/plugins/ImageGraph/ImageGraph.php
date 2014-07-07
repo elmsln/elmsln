@@ -1,12 +1,10 @@
 <?php
 /**
- * Piwik - Open source web analytics
+ * Piwik - free/libre analytics platform
  *
  * @link http://piwik.org
  * @license http://www.gnu.org/licenses/gpl-3.0.html GPL v3 or later
  *
- * @category Piwik_Plugins
- * @package ImageGraph
  */
 namespace Piwik\Plugins\ImageGraph;
 
@@ -15,6 +13,7 @@ use Piwik\Config;
 use Piwik\Period;
 use Piwik\Period\Range;
 use Piwik\Site;
+use Piwik\TaskScheduler;
 use Piwik\Url;
 
 class ImageGraph extends \Piwik\Plugin
@@ -38,7 +37,7 @@ class ImageGraph extends \Piwik\Plugin
     );
 
     /**
-     * @see Piwik_Plugin::getListHooksRegistered
+     * @see Piwik\Plugin::getListHooksRegistered
      */
     public function getListHooksRegistered()
     {
@@ -135,6 +134,10 @@ class ImageGraph extends \Piwik\Plugin
             $idSubtable = Common::getRequestVar('idSubtable', false);
             if ($idSubtable !== false) {
                 $parameters['idSubtable'] = $idSubtable;
+            }
+
+            if (!empty($_GET['_restrictSitesToLogin']) && TaskScheduler::isTaskBeingExecuted()) {
+                $parameters['_restrictSitesToLogin'] = $_GET['_restrictSitesToLogin'];
             }
 
             $report['imageGraphUrl'] = $urlPrefix . Url::getQueryStringFromParameters($parameters);

@@ -1,37 +1,32 @@
 <?php
 /**
- * Piwik - Open source web analytics
+ * Piwik - free/libre analytics platform
  *
  * @link http://piwik.org
  * @license http://www.gnu.org/licenses/gpl-3.0.html GPL v3 or later
  *
- * @category Piwik_Plugins
- * @package UserCountryMap
  */
 namespace Piwik\Plugins\UserCountryMap;
 
 use Piwik\FrontController;
-use Piwik\Menu\MenuMain;
 use Piwik\Piwik;
 use Piwik\Version;
 use Piwik\WidgetsList;
 
 /**
- * @package UserCountryMap
  */
 class UserCountryMap extends \Piwik\Plugin
 {
     /**
-     * @see Piwik_Plugin::getInformation
+     * @see Piwik\Plugin::getInformation
      */
     public function getInformation()
     {
         return array(
-            'name'            => 'User Country Map',
-            'description'     => 'This plugin provides the widgets Visitor Map and Real-time Map. Note: Requires the UserCountry plugin enabled.',
-            'author'          => 'Piwik',
-            'author_homepage' => 'http://piwik.org/',
-            'version'         => Version::VERSION,
+            'name'             => 'User Country Map',
+            'description'      => 'This plugin provides the widgets Visitor Map and Real-time Map. Note: Requires the UserCountry plugin enabled.',
+            'authors'          => array(array('name' => 'Piwik', 'homepage' => 'http://piwik.org/')),
+            'version'          => Version::VERSION,
             'license'          => 'GPL v3+',
             'license_homepage' => 'http://www.gnu.org/licenses/gpl.html'
         );
@@ -55,15 +50,9 @@ class UserCountryMap extends \Piwik\Plugin
     {
         $hooks = array(
             'AssetManager.getJavaScriptFiles' => 'getJsFiles',
-            'AssetManager.getStylesheetFiles' => 'getStylesheetFiles',
-            'Menu.Reporting.addItems'         => 'addMenu',
+            'AssetManager.getStylesheetFiles' => 'getStylesheetFiles'
         );
         return $hooks;
-    }
-
-    public function addMenu()
-    {
-        MenuMain::getInstance()->add('General_Visitors', 'UserCountryMap_RealTimeMap', array('module' => 'UserCountryMap', 'action' => 'realtimeWorldMap'), true, $order = 70);
     }
 
     public function getJsFiles(&$jsFiles)

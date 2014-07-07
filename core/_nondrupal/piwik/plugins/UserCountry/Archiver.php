@@ -1,12 +1,10 @@
 <?php
 /**
- * Piwik - Open source web analytics
+ * Piwik - free/libre analytics platform
  *
  * @link http://piwik.org
  * @license http://www.gnu.org/licenses/gpl-3.0.html GPL v3 or later
  *
- * @category Piwik_Plugins
- * @package UserCountry
  */
 
 namespace Piwik\Plugins\UserCountry;
@@ -178,5 +176,4 @@ class Archiver extends \Piwik\Plugin\Archiver
             }
         }
     }
-
 }

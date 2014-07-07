@@ -1,12 +1,10 @@
 <?php
 /**
- * Piwik - Open source web analytics
+ * Piwik - free/libre analytics platform
  *
  * @link http://piwik.org
  * @license http://www.gnu.org/licenses/gpl-3.0.html GPL v3 or later
  *
- * @category Piwik
- * @package Piwik
  */
 namespace Piwik\API\DataTableManipulator;
 
@@ -20,9 +18,6 @@ use Piwik\DataTable\Row;
  *
  * It loads subtables and combines them into a single table by concatenating the labels.
  * This manipulator is triggered by using flat=1 in the API request.
- *
- * @package Piwik
- * @subpackage Piwik_API
  */
 class Flattener extends DataTableManipulator
 {
@@ -70,11 +65,13 @@ class Flattener extends DataTableManipulator
         // apply filters now since subtables have their filters applied before generic filters. if we don't do this
         // now, we'll try to apply filters to rows that have already been manipulated. this results in errors like
         // 'column ... already exists'.
+        $keepFilters = true;
         if (Common::getRequestVar('disable_queued_filters', 0, 'int', $this->request) == 0) {
             $dataTable->applyQueuedFilters();
+            $keepFilters = false;
         }
 
-        $newDataTable = $dataTable->getEmptyClone($keepFilters = false);
+        $newDataTable = $dataTable->getEmptyClone($keepFilters);
         foreach ($dataTable->getRows() as $row) {
             $this->flattenRow($row, $newDataTable);
         }

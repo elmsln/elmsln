@@ -1,12 +1,10 @@
 <?php
 /**
- * Piwik - Open source web analytics
+ * Piwik - free/libre analytics platform
  *
  * @link http://piwik.org
  * @license http://www.gnu.org/licenses/gpl-3.0.html GPL v3 or later
  *
- * @category Piwik
- * @package Piwik
  */
 namespace Piwik\DataTable\Filter;
 
@@ -27,8 +25,6 @@ use Piwik\Site;
  * 
  *     ((currentValue - pastValue) / pastValue) * 100
  *
- * @package Piwik
- * @subpackage DataTable
  * @api
  */
 class CalculateEvolutionFilter extends ColumnCallbackAddColumnPercentage
@@ -38,12 +34,12 @@ class CalculateEvolutionFilter extends ColumnCallbackAddColumnPercentage
      *
      * @var DataTable
      */
-    private $pastDataTable;
+    protected $pastDataTable;
 
     /**
      * Tells if column being added is the revenue evolution column.
      */
-    private $isRevenueEvolution = null;
+    protected $isRevenueEvolution = null;
 
     /**
      * Constructor.
@@ -134,7 +130,7 @@ class CalculateEvolutionFilter extends ColumnCallbackAddColumnPercentage
      * @param Row $row The row in the 'current' DataTable.
      * @return bool|Row
      */
-    private function getPastRowFromCurrent($row)
+    protected function getPastRowFromCurrent($row)
     {
         return $this->pastDataTable->getRowFromLabel($row->getColumn('label'));
     }

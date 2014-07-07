@@ -1,12 +1,10 @@
 <?php
 /**
- * Piwik - Open source web analytics
+ * Piwik - free/libre analytics platform
  *
  * @link http://piwik.org
  * @license http://www.gnu.org/licenses/gpl-3.0.html GPL v3 or later
  *
- * @category Piwik
- * @package Piwik
  */
 
 namespace Piwik;
@@ -14,7 +12,6 @@ namespace Piwik;
 use Closure;
 use Exception;
 use Piwik\DataTable\DataTableInterface;
-use Piwik\DataTable\BaseFilter;
 use Piwik\DataTable\Manager;
 use Piwik\DataTable\Renderer\Html;
 use Piwik\DataTable\Row;
@@ -141,7 +138,7 @@ require_once PIWIK_INCLUDE_PATH . '/core/Common.php';
  * 
  *     $dataTable = \Piwik\Plugins\Referrers\API::getInstance()->getSearchEngines($idSite = 1, $period = 'day', $date = '2007-07-24');
  *     $oldPeriod = $dataTable->metadata['period'];
- *     $dataTable->metadata['period'] = Period::factory('week', Date::factory('2013-10-18'));
+ *     $dataTable->metadata['period'] = Period\Factory::build('week', Date::factory('2013-10-18'));
  * 
  * **Serializing & unserializing**
  * 
@@ -165,8 +162,6 @@ require_once PIWIK_INCLUDE_PATH . '/core/Common.php';
  *         return $dataTable;
  *     }
  * 
- * @package Piwik
- * @subpackage DataTable
  *
  * @api
  */
@@ -406,7 +401,9 @@ class DataTable implements DataTableInterface
      */
     public function filter($className, $parameters = array())
     {
-        if ($className instanceof \Closure) {
+        if ($className instanceof \Closure
+            || is_array($className)
+        ) {
             array_unshift($parameters, $this);
             call_user_func_array($className, $parameters);
             return;
@@ -473,7 +470,7 @@ class DataTable implements DataTableInterface
      * 
      * @param \Piwik\DataTable $tableToSum
      */
-    public function addDataTable(DataTable $tableToSum)
+    public function addDataTable(DataTable $tableToSum, $doAggregateSubTables = true)
     {
         if($tableToSum instanceof Simple) {
             if($tableToSum->getRowsCount() > 1) {
@@ -483,7 +480,7 @@ class DataTable implements DataTableInterface
             $this->aggregateRowFromSimpleTable($row);
         } else {
             foreach ($tableToSum->getRows() as $row) {
-                $this->aggregateRowWithLabel($row);
+                $this->aggregateRowWithLabel($row, $doAggregateSubTables);
             }
         }
     }
@@ -895,12 +892,15 @@ class DataTable implements DataTableInterface
      * @param string $oldName Old column name.
      * @param string $newName New column name.
      */
-    public function renameColumn($oldName, $newName)
+    public function renameColumn($oldName, $newName, $doRenameColumnsOfSubTables = true)
     {
         foreach ($this->getRows() as $row) {
             $row->renameColumn($oldName, $newName);
-            if (($idSubDataTable = $row->getIdSubDataTable()) !== null) {
-                Manager::getInstance()->getTable($idSubDataTable)->renameColumn($oldName, $newName);
+
+            if($doRenameColumnsOfSubTables) {
+                if (($idSubDataTable = $row->getIdSubDataTable()) !== null) {
+                    Manager::getInstance()->getTable($idSubDataTable)->renameColumn($oldName, $newName);
+                }
             }
         }
         if (!is_null($this->summaryRow)) {
@@ -1307,8 +1307,9 @@ class DataTable implements DataTableInterface
     public static function makeFromIndexedArray($array, $subtablePerLabel = null)
     {
         $table = new DataTable();
-        $cleanRow = array();
         foreach ($array as $label => $row) {
+            $cleanRow = array();
+
             // Support the case of an $array of single values
             if (!is_array($row)) {
                 $row = array('value' => $row);
@@ -1586,7 +1587,7 @@ class DataTable implements DataTableInterface
      * @param $row
      * @throws \Exception
      */
-    protected function aggregateRowWithLabel(Row $row)
+    protected function aggregateRowWithLabel(Row $row, $doAggregateSubTables = true)
     {
         $labelToLookFor = $row->getColumn('label');
         if ($labelToLookFor === false) {
@@ -1602,15 +1603,17 @@ class DataTable implements DataTableInterface
         } else {
             $rowFound->sumRow($row, $copyMeta = true, $this->getMetadata(self::COLUMN_AGGREGATION_OPS_METADATA_NAME));
 
-            // if the row to add has a subtable whereas the current row doesn't
-            // we simply add it (cloning the subtable)
-            // if the row has the subtable already
-            // then we have to recursively sum the subtables
-            if (($idSubTable = $row->getIdSubDataTable()) !== null) {
-                $subTable = Manager::getInstance()->getTable($idSubTable);
-                $subTable->metadata[self::COLUMN_AGGREGATION_OPS_METADATA_NAME]
-                    = $this->getMetadata(self::COLUMN_AGGREGATION_OPS_METADATA_NAME);
-                $rowFound->sumSubtable($subTable);
+            if($doAggregateSubTables) {
+                // if the row to add has a subtable whereas the current row doesn't
+                // we simply add it (cloning the subtable)
+                // if the row has the subtable already
+                // then we have to recursively sum the subtables
+                if (($idSubTable = $row->getIdSubDataTable()) !== null) {
+                    $subTable = Manager::getInstance()->getTable($idSubTable);
+                    $subTable->metadata[self::COLUMN_AGGREGATION_OPS_METADATA_NAME]
+                        = $this->getMetadata(self::COLUMN_AGGREGATION_OPS_METADATA_NAME);
+                    $rowFound->sumSubtable($subTable);
+                }
             }
         }
     }

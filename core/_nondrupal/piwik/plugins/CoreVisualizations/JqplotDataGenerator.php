@@ -1,18 +1,15 @@
 <?php
 /**
- * Piwik - Open source web analytics
+ * Piwik - free/libre analytics platform
  *
  * @link http://piwik.org
  * @license http://www.gnu.org/licenses/gpl-3.0.html GPL v3 or later
  *
- * @category Piwik_Plugins
- * @package CoreVisualizations
  */
 
 namespace Piwik\Plugins\CoreVisualizations;
 
 use Exception;
-
 use Piwik\Common;
 use Piwik\DataTable;
 use Piwik\Metrics;
@@ -29,7 +26,7 @@ require_once PIWIK_INCLUDE_PATH . '/plugins/CoreVisualizations/JqplotDataGenerat
 class JqplotDataGenerator
 {
     /**
-     * View properties. @see Piwik_ViewDataTable for more info.
+     * View properties. @see Piwik\ViewDataTable for more info.
      *
      * @var array
      */

@@ -1,12 +1,10 @@
 <?php
 /**
- * Piwik - Open source web analytics
+ * Piwik - free/libre analytics platform
  *
  * @link http://piwik.org
  * @license http://www.gnu.org/licenses/gpl-3.0.html GPL v3 or later
  *
- * @category Piwik_Plugins
- * @package VisitTime
  */
 namespace Piwik\Plugins\VisitTime;
 
@@ -24,7 +22,6 @@ require_once PIWIK_INCLUDE_PATH . '/plugins/VisitTime/functions.php';
 /**
  * VisitTime API lets you access reports by Hour (Server time), and by Hour Local Time of your visitors.
  *
- * @package VisitTime
  * @method static \Piwik\Plugins\VisitTime\API getInstance()
  */
 class API extends \Piwik\Plugin\API
@@ -79,7 +76,7 @@ class API extends \Piwik\Plugin\API
         }
 
         // get metric data for every day within the supplied period
-        $oPeriod = Period::makePeriodFromQueryParams(Site::getTimezoneFor($idSite), $period, $date);
+        $oPeriod = Period\Factory::makePeriodFromQueryParams(Site::getTimezoneFor($idSite), $period, $date);
         $dateRange = $oPeriod->getDateStart()->toString() . ',' . $oPeriod->getDateEnd()->toString();
         $archive = Archive::build($idSite, 'day', $dateRange, $segment);
 

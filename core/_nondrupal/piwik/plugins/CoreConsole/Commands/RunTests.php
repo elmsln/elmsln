@@ -1,12 +1,10 @@
 <?php
 /**
- * Piwik - Open source web analytics
+ * Piwik - free/libre analytics platform
  *
  * @link http://piwik.org
  * @license http://www.gnu.org/licenses/gpl-3.0.html GPL v3 or later
  *
- * @category Piwik_Plugins
- * @package CoreConsole
  */
 
 namespace Piwik\Plugins\CoreConsole\Commands;
@@ -18,7 +16,6 @@ use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 
 /**
- * @package CoreConsole
  */
 class RunTests extends ConsoleCommand
 {
@@ -39,7 +36,7 @@ class RunTests extends ConsoleCommand
         $groups = array_map('ucfirst', $groups);
         $groups = array_filter($groups, 'strlen');
 
-        $command = 'phpunit';
+        $command = '../../vendor/phpunit/phpunit/phpunit';
 
         // force xdebug usage for coverage options
         if (false !== strpos($options, '--coverage') && !extension_loaded('xdebug')) {

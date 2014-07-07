@@ -1,12 +1,10 @@
 <?php
 /**
- * Piwik - Open source web analytics
+ * Piwik - free/libre analytics platform
  *
  * @link http://piwik.org
  * @license http://www.gnu.org/licenses/gpl-3.0.html GPL v3 or later
  *
- * @category Piwik
- * @package Piwik
  */
 namespace Piwik;
 
@@ -17,7 +15,6 @@ use Exception;
  *
  * It is for example used by the Tracker process to cache various settings and websites attributes in tmp/cache/tracker/*
  *
- * @package Piwik
  */
 class CacheFile
 {
@@ -46,7 +43,7 @@ class CacheFile
     public function __construct($directory, $timeToLiveInSeconds = 300)
     {
         $cachePath = PIWIK_USER_PATH . '/tmp/cache/' . $directory . '/';
-        $this->cachePath = SettingsPiwik::rewriteTmpPathWithHostname($cachePath);
+        $this->cachePath = SettingsPiwik::rewriteTmpPathWithInstanceId($cachePath);
 
         if ($timeToLiveInSeconds < self::MINIMUM_TTL) {
             $timeToLiveInSeconds = self::MINIMUM_TTL;

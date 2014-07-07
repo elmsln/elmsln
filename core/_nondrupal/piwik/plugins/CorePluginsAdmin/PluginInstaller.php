@@ -1,24 +1,22 @@
 <?php
 /**
- * Piwik - Open source web analytics
+ * Piwik - free/libre analytics platform
  *
  * @link http://piwik.org
  * @license http://www.gnu.org/licenses/gpl-3.0.html GPL v3 or later
  *
- * @category Piwik_Plugins
- * @package CorePluginsAdmin
  */
 namespace Piwik\Plugins\CorePluginsAdmin;
 
 use Piwik\Filechecks;
 use Piwik\Filesystem;
 use Piwik\Piwik;
+use Piwik\Plugin\Dependency as PluginDependency;
 use Piwik\SettingsPiwik;
 use Piwik\Unzip;
 
 /**
  *
- * @package CorePluginsAdmin
  */
 class PluginInstaller
 {
@@ -37,8 +35,8 @@ class PluginInstaller
         $tmpPluginZip = PIWIK_USER_PATH . self::PATH_TO_DOWNLOAD . $this->pluginName . '.zip';
         $tmpPluginFolder = PIWIK_USER_PATH . self::PATH_TO_DOWNLOAD . $this->pluginName;
 
-        $tmpPluginZip = SettingsPiwik::rewriteTmpPathWithHostname($tmpPluginZip);
-        $tmpPluginFolder = SettingsPiwik::rewriteTmpPathWithHostname($tmpPluginFolder);
+        $tmpPluginZip = SettingsPiwik::rewriteTmpPathWithInstanceId($tmpPluginZip);
+        $tmpPluginFolder = SettingsPiwik::rewriteTmpPathWithInstanceId($tmpPluginFolder);
 
         try {
             $this->makeSureFoldersAreWritable();
@@ -65,7 +63,7 @@ class PluginInstaller
     public function installOrUpdatePluginFromFile($pathToZip)
     {
         $tmpPluginFolder = PIWIK_USER_PATH . self::PATH_TO_DOWNLOAD . $this->pluginName;
-        $tmpPluginFolder = SettingsPiwik::rewriteTmpPathWithHostname($tmpPluginFolder);
+        $tmpPluginFolder = SettingsPiwik::rewriteTmpPathWithInstanceId($tmpPluginFolder);
 
         try {
             $this->makeSureFoldersAreWritable();
@@ -152,7 +150,10 @@ class PluginInstaller
 
     private function makeSureThereAreNoMissingRequirements($metadata)
     {
-        $requires = (array) $metadata->require;
+        $requires = array();
+        if(!empty($metadata->require)) {
+            $requires = (array) $metadata->require;
+        }
 
         $dependency = new PluginDependency();
         $missingDependencies = $dependency->getMissingDependencies($requires);

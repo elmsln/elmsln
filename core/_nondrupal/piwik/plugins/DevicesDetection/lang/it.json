@@ -1,18 +1,29 @@
 {
     "DevicesDetection": {
         "BrowserVersions": "Versioni browser",
+        "Camera": "Fotocamera",
+        "CarBrowser": "Browser in auto",
+        "Console": "Console",
         "dataTableLabelBrands": "Marca",
         "dataTableLabelBrowserFamily": "Famiglia browser",
         "dataTableLabelModels": "Modello",
         "dataTableLabelSystemVersion": "Versione Sistema Operativo",
         "dataTableLabelTypes": "Tipo",
+        "Device": "Dispositivo",
         "DeviceBrand": "Marca dispositivo",
+        "DeviceDetection": "Rilevamento dispositivo",
         "DeviceModel": "Modello dispositivo",
         "DevicesDetection": "Dispositivi visitatore",
         "DeviceType": "Tipo dispositivo",
+        "FeaturePhone": "Feature phone",
         "OperatingSystemFamilies": "Famiglie Sistema Operativo",
         "OperatingSystemVersions": "Versioni Sistema Operativo",
         "PluginDescription": "Questo plugin fornisce informazioni estese sui dispositivi mobili, come Marca (costruttore), Modello (versione dispositivo), una migliore individuazione del dispositivo (tv, console, smartphone, desktop, ecc) e altro. Questo plugin aggiunge un nuovo report in 'Visitatori > Dispositivi'.",
-        "submenu": "Dispositivi"
+        "SmartDisplay": "Smart display",
+        "Smartphone": "Smartphone",
+        "submenu": "Dispositivi",
+        "Tablet": "Tablet",
+        "TV": "Apparecchio TV",
+        "UserAgent": "User-Agent"
     }
 }

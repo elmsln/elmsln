@@ -1,24 +1,22 @@
 <?php
 /**
- * Piwik - Open source web analytics
+ * Piwik - free/libre analytics platform
  *
  * @link http://piwik.org
  * @license http://www.gnu.org/licenses/gpl-3.0.html GPL v3 or later
  *
- * @category Piwik_Plugins
- * @package Annotations
  */
 namespace Piwik\Plugins\Annotations;
 
 use Piwik\API\Request;
 use Piwik\Common;
+use Piwik\Date;
 use Piwik\Piwik;
 use Piwik\View;
 
 /**
  * Controller for the Annotations plugin.
  *
- * @package Annotations
  */
 class Controller extends \Piwik\Plugin\Controller
 {
@@ -73,6 +71,7 @@ class Controller extends \Piwik\Plugin\Controller
         list($startDate, $endDate) = API::getDateRangeForPeriod($date, $period, $lastN);
         $view->startDate = $startDate->toString();
         $view->endDate = $endDate->toString();
+        $view->today = Date::today()->toString();
 
         $dateFormat = Piwik::translate('CoreHome_ShortDateFormatWithYear');
         $view->startDatePretty = $startDate->getLocalized($dateFormat);

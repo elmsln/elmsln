@@ -1,12 +1,10 @@
 <?php
 /**
- * Piwik - Open source web analytics
+ * Piwik - free/libre analytics platform
  *
  * @link http://piwik.org
  * @license http://www.gnu.org/licenses/gpl-3.0.html GPL v3 or later
  *
- * @category Piwik_Plugins
- * @package Actions
  */
 namespace Piwik\Plugins\Actions;
 
@@ -14,40 +12,43 @@ use Piwik\API\Request;
 use Piwik\ArchiveProcessor;
 use Piwik\Common;
 use Piwik\Db;
-use Piwik\Menu\MenuMain;
 use Piwik\MetricsFormatter;
 use Piwik\Piwik;
 use Piwik\Plugin\ViewDataTable;
 use Piwik\Plugins\CoreVisualizations\Visualizations\HtmlTable;
 use Piwik\Site;
-use Piwik\WidgetsList;
 
 /**
  * Actions plugin
  *
  * Reports about the page views, the outlinks and downloads.
  *
- * @package Actions
  */
 class Actions extends \Piwik\Plugin
 {
     const ACTIONS_REPORT_ROWS_DISPLAY = 100;
 
     /**
-     * @see Piwik_Plugin::getListHooksRegistered
+     * @see Piwik\Plugin::getListHooksRegistered
      */
     public function getListHooksRegistered()
     {
         $hooks = array(
-            'WidgetsList.addWidgets'          => 'addWidgets',
-            'Menu.Reporting.addItems'         => 'addMenus',
             'API.getReportMetadata'           => 'getReportMetadata',
             'API.getSegmentDimensionMetadata' => 'getSegmentsMetadata',
             'ViewDataTable.configure'         => 'configureViewDataTable',
             'AssetManager.getStylesheetFiles' => 'getStylesheetFiles',
-            'AssetManager.getJavaScriptFiles' => 'getJsFiles'
+            'AssetManager.getJavaScriptFiles' => 'getJsFiles',
+            'Insights.addReportToOverview'    => 'addReportToInsightsOverview'
         );
         return $hooks;
+    }
+
+    public function addReportToInsightsOverview(&$reports)
+    {
+        $reports['Actions_getPageUrls']   = array();
+        $reports['Actions_getPageTitles'] = array();
+        $reports['Actions_getDownloads']  = array('flat' => 1);
     }
 
     public function getStylesheetFiles(&$stylesheets)
@@ -457,51 +458,27 @@ class Actions extends \Piwik\Plugin
         }
     }
 
-    function addWidgets()
+    public function isSiteSearchEnabled()
     {
-        WidgetsList::add('General_Actions', 'General_Pages', 'Actions', 'getPageUrls');
-        WidgetsList::add('General_Actions', 'Actions_WidgetPageTitles', 'Actions', 'getPageTitles');
-        WidgetsList::add('General_Actions', 'General_Outlinks', 'Actions', 'getOutlinks');
-        WidgetsList::add('General_Actions', 'General_Downloads', 'Actions', 'getDownloads');
-        WidgetsList::add('General_Actions', 'Actions_WidgetPagesEntry', 'Actions', 'getEntryPageUrls');
-        WidgetsList::add('General_Actions', 'Actions_WidgetPagesExit', 'Actions', 'getExitPageUrls');
-        WidgetsList::add('General_Actions', 'Actions_WidgetEntryPageTitles', 'Actions', 'getEntryPageTitles');
-        WidgetsList::add('General_Actions', 'Actions_WidgetExitPageTitles', 'Actions', 'getExitPageTitles');
+        $idSite  = Common::getRequestVar('idSite', 0, 'int');
+        $idSites = Common::getRequestVar('idSites', '', 'string');
+        $idSites = Site::getIdSitesFromIdSitesString($idSites, true);
 
-        if ($this->isSiteSearchEnabled()) {
-            WidgetsList::add('Actions_SubmenuSitesearch', 'Actions_WidgetSearchKeywords', 'Actions', 'getSiteSearchKeywords');
-
-            if (self::isCustomVariablesPluginsEnabled()) {
-                WidgetsList::add('Actions_SubmenuSitesearch', 'Actions_WidgetSearchCategories', 'Actions', 'getSiteSearchCategories');
-            }
-            WidgetsList::add('Actions_SubmenuSitesearch', 'Actions_WidgetSearchNoResultKeywords', 'Actions', 'getSiteSearchNoResultKeywords');
-            WidgetsList::add('Actions_SubmenuSitesearch', 'Actions_WidgetPageUrlsFollowingSearch', 'Actions', 'getPageUrlsFollowingSiteSearch');
-            WidgetsList::add('Actions_SubmenuSitesearch', 'Actions_WidgetPageTitlesFollowingSearch', 'Actions', 'getPageTitlesFollowingSiteSearch');
+        if (!empty($idSite)) {
+            $idSites[] = $idSite;
         }
-    }
 
-    function addMenus()
-    {
-        MenuMain::getInstance()->add('General_Actions', '', array('module' => 'Actions', 'action' => 'indexPageUrls'), true, 15);
-        MenuMain::getInstance()->add('General_Actions', 'General_Pages', array('module' => 'Actions', 'action' => 'indexPageUrls'), true, 1);
-        MenuMain::getInstance()->add('General_Actions', 'Actions_SubmenuPagesEntry', array('module' => 'Actions', 'action' => 'indexEntryPageUrls'), true, 2);
-        MenuMain::getInstance()->add('General_Actions', 'Actions_SubmenuPagesExit', array('module' => 'Actions', 'action' => 'indexExitPageUrls'), true, 3);
-        MenuMain::getInstance()->add('General_Actions', 'Actions_SubmenuPageTitles', array('module' => 'Actions', 'action' => 'indexPageTitles'), true, 4);
-        MenuMain::getInstance()->add('General_Actions', 'General_Outlinks', array('module' => 'Actions', 'action' => 'indexOutlinks'), true, 6);
-        MenuMain::getInstance()->add('General_Actions', 'General_Downloads', array('module' => 'Actions', 'action' => 'indexDownloads'), true, 7);
-
-        if ($this->isSiteSearchEnabled()) {
-            MenuMain::getInstance()->add('General_Actions', 'Actions_SubmenuSitesearch', array('module' => 'Actions', 'action' => 'indexSiteSearch'), true, 5);
-        }
-    }
-
-    protected function isSiteSearchEnabled()
-    {
-        $idSite = Common::getRequestVar('idSite', 0, 'int');
-        if ($idSite == 0) {
+        if (empty($idSites)) {
             return false;
         }
-        return Site::isSiteSearchEnabledFor($idSite);
+
+        foreach ($idSites as $idSite) {
+            if (!Site::isSiteSearchEnabledFor($idSite)) {
+                return false;
+            }
+        }
+
+        return true;
     }
 
     static public function checkCustomVariablesPluginEnabled()
@@ -511,11 +488,10 @@ class Actions extends \Piwik\Plugin
         }
     }
 
-    static protected function isCustomVariablesPluginsEnabled()
+    static public function isCustomVariablesPluginsEnabled()
     {
         return \Piwik\Plugin\Manager::getInstance()->isPluginActivated('CustomVariables');
     }
-
 
     public function configureViewDataTable(ViewDataTable $view)
     {
@@ -583,10 +559,6 @@ class Actions extends \Piwik\Plugin
         if ($view->isViewDataTableId(HtmlTable::ID)) {
             $view->config->show_embedded_subtable = true;
         }
-
-        // if the flat parameter is not provided, make sure it is set to 0 in the URL,
-        // so users can see that they can set it to 1 (see #3365)
-        $view->config->custom_parameters = array('flat' => 0);
 
         if (Request::shouldLoadExpanded()) {
 

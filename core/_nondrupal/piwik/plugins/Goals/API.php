@@ -1,12 +1,10 @@
 <?php
 /**
- * Piwik - Open source web analytics
+ * Piwik - free/libre analytics platform
  *
  * @link http://piwik.org
  * @license http://www.gnu.org/licenses/gpl-3.0.html GPL v3 or later
  *
- * @category Piwik_Plugins
- * @package Goals
  */
 namespace Piwik\Plugins\Goals;
 
@@ -39,7 +37,6 @@ use Piwik\Tracker\GoalManager;
  *
  * See also the documentation about <a href='http://piwik.org/docs/tracking-goals-web-analytics/' target='_blank'>Tracking Goals</a> in Piwik.
  *
- * @package Goals
  * @method static \Piwik\Plugins\Goals\API getInstance()
  */
 class API extends \Piwik\Plugin\API
@@ -195,7 +192,7 @@ class API extends \Piwik\Plugin\API
 										WHERE idsite = ?
 											AND idgoal = ?",
             array($idSite, $idGoal));
-        Db::deleteAllRows(Common::prefixTable("log_conversion"), "WHERE idgoal = ?", "idvisit", 100000, array($idGoal));
+        Db::deleteAllRows(Common::prefixTable("log_conversion"), "WHERE idgoal = ? AND idsite = ?", "idvisit", 100000, array($idGoal, $idSite));
         Cache::regenerateCacheWebsiteAttributes($idSite);
     }
 
@@ -215,7 +212,7 @@ class API extends \Piwik\Plugin\API
 
         $dataTable->filter('Sort', array(Metrics::INDEX_ECOMMERCE_ITEM_REVENUE));
 
-        $this->enrichItemsTableWithViewMetrics($dataTable, $recordName, $idSite, $period, $date);
+        $this->enrichItemsTableWithViewMetrics($dataTable, $recordName, $idSite, $period, $date, $segment);
 
         // First rename the avg_price_viewed column
         $renameColumn = array(self::AVG_PRICE_VIEWED => 'avg_price');
@@ -258,9 +255,9 @@ class API extends \Piwik\Plugin\API
         }
     }
 
-    protected function enrichItemsDataTableWithItemsViewMetrics($dataTable, $idSite, $period, $date, $idSubtable)
+    protected function enrichItemsDataTableWithItemsViewMetrics($dataTable, $idSite, $period, $date, $segment, $idSubtable)
     {
-        $ecommerceViews = \Piwik\Plugins\CustomVariables\API::getInstance()->getCustomVariablesValuesFromNameId($idSite, $period, $date, $idSubtable, $segment = false, $_leavePriceViewedColumn = true);
+        $ecommerceViews = \Piwik\Plugins\CustomVariables\API::getInstance()->getCustomVariablesValuesFromNameId($idSite, $period, $date, $idSubtable, $segment, $_leavePriceViewedColumn = true);
 
         // For Product names and SKU reports, and for Category report
         // Use the Price (tracked on page views)
@@ -516,11 +513,12 @@ class API extends \Piwik\Plugin\API
      * @param $idSite
      * @param $period
      * @param $date
+     * @param $segment
      */
-    protected function enrichItemsTableWithViewMetrics($dataTable, $recordName, $idSite, $period, $date)
+    protected function enrichItemsTableWithViewMetrics($dataTable, $recordName, $idSite, $period, $date, $segment)
     {
         // Enrich the datatable with Product/Categories views, and conversion rates
-        $customVariables = \Piwik\Plugins\CustomVariables\API::getInstance()->getCustomVariables($idSite, $period, $date, $segment = false, $expanded = false,
+        $customVariables = \Piwik\Plugins\CustomVariables\API::getInstance()->getCustomVariables($idSite, $period, $date, $segment, $expanded = false,
             $_leavePiwikCoreVariables = true);
         $mapping = array(
             'Goals_ItemsSku'      => '_pks',
@@ -551,7 +549,7 @@ class API extends \Piwik\Plugin\API
                     $row = $customVariableTableForDate->getRowFromLabel($customVarNameToLookFor);
                     if ($row) {
                         $idSubtable = $row->getIdSubDataTable();
-                        $this->enrichItemsDataTableWithItemsViewMetrics($dataTableForDate, $idSite, $period, $dateRewrite, $idSubtable);
+                        $this->enrichItemsDataTableWithItemsViewMetrics($dataTableForDate, $idSite, $period, $dateRewrite, $segment, $idSubtable);
                     }
                     $dataTable->addTable($dataTableForDate, $key);
                 }
@@ -561,7 +559,7 @@ class API extends \Piwik\Plugin\API
             $row = $customVariables->getRowFromLabel($customVarNameToLookFor);
             if ($row) {
                 $idSubtable = $row->getIdSubDataTable();
-                $this->enrichItemsDataTableWithItemsViewMetrics($dataTable, $idSite, $period, $date, $idSubtable);
+                $this->enrichItemsDataTableWithItemsViewMetrics($dataTable, $idSite, $period, $date, $segment, $idSubtable);
             }
             $this->renameNotDefinedRow($dataTable, $notDefinedStringPretty);
         }

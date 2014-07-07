@@ -1,20 +1,17 @@
 <?php
 /**
- * Piwik - Open source web analytics
+ * Piwik - free/libre analytics platform
  *
  * @link http://piwik.org
  * @license http://www.gnu.org/licenses/gpl-3.0.html GPL v3 or later
  *
- * @category Piwik_Plugins
- * @package Annotations
  */
 namespace Piwik\Plugins\Annotations;
 
 use Exception;
-
 use Piwik\Date;
-use Piwik\Period;
 use Piwik\Period\Range;
+use Piwik\Period;
 use Piwik\Piwik;
 use Piwik\Plugins\CoreVisualizations\Visualizations\JqplotGraph\Evolution as EvolutionViz;
 
@@ -27,7 +24,6 @@ require_once PIWIK_INCLUDE_PATH . '/plugins/Annotations/AnnotationList.php';
  * API for annotations plugin. Provides methods to create, modify, delete & query
  * annotations.
  *
- * @package Annotations
  * @method static \Piwik\Plugins\Annotations\API getInstance()
  */
 class API extends \Piwik\Plugin\API
@@ -112,7 +108,7 @@ class API extends \Piwik\Plugin\API
      */
     public function delete($idSite, $idNote)
     {
-        $this->checkSingleIdSite($idSite, $extraMessage = "Note: Cannot delete multiple notes.");
+        $this->checkSingleIdSite($idSite, $extraMessage = "Note: Cannot delete annotations from multiple sites.");
 
         $annotations = new AnnotationList($idSite);
 
@@ -121,6 +117,23 @@ class API extends \Piwik\Plugin\API
 
         // remove the note & save the list
         $annotations->remove($idSite, $idNote);
+        $annotations->save($idSite);
+    }
+
+    /**
+     * Removes all annotations for a single site. Only super users can use this method.
+     *
+     * @param string $idSite The ID of the site to remove annotations for.
+     */
+    public function deleteAll($idSite)
+    {
+        $this->checkSingleIdSite($idSite, $extraMessage = "Note: Cannot delete annotations from multiple sites.");
+        Piwik::checkUserHasSuperUserAccess();
+
+        $annotations = new AnnotationList($idSite);
+
+        // remove the notes & save the list
+        $annotations->removeAll($idSite);
         $annotations->save($idSite);
     }
 
@@ -312,7 +325,7 @@ class API extends \Piwik\Plugin\API
             if ($period == 'range') {
                 $oPeriod = new Range('day', $date);
             } else {
-                $oPeriod = Period::factory($period, Date::factory($date));
+                $oPeriod = Period\Factory::build($period, Date::factory($date));
             }
 
             $startDate = $oPeriod->getDateStart();

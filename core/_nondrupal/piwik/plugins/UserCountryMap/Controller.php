@@ -1,12 +1,10 @@
 <?php
 /**
- * Piwik - Open source web analytics
+ * Piwik - free/libre analytics platform
  *
  * @link http://piwik.org
  * @license http://www.gnu.org/licenses/gpl-3.0.html GPL v3 or later
  *
- * @category Piwik_Plugins
- * @package UserCountryMap
  */
 namespace Piwik\Plugins\UserCountryMap;
 
@@ -21,7 +19,6 @@ use Piwik\View;
 
 /**
  *
- * @package UserCountryMap
  */
 class Controller extends \Piwik\Plugin\Controller
 {
@@ -134,7 +131,7 @@ class Controller extends \Piwik\Plugin\Controller
         $hasGoals = !empty($goals) || $site->isEcommerceEnabled();
 
         // maximum number of visits to be displayed in the map
-        $maxVisits = Common::getRequestVar('format_limit', 100, 'int');
+        $maxVisits = Common::getRequestVar('filter_limit', 100, 'int');
 
         // some translations
         $locale = array(

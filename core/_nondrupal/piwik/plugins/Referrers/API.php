@@ -1,12 +1,10 @@
 <?php
 /**
- * Piwik - Open source web analytics
+ * Piwik - free/libre analytics platform
  *
  * @link http://piwik.org
  * @license http://www.gnu.org/licenses/gpl-3.0.html GPL v3 or later
  *
- * @category Piwik_Plugins
- * @package Referrers
  */
 namespace Piwik\Plugins\Referrers;
 
@@ -28,7 +26,6 @@ use Piwik\Piwik;
  *
  * The methods "getKeywordsForPageUrl" and "getKeywordsForPageTitle" are used to output the top keywords used to find a page.
  * Check out the widget <a href='http://demo.piwik.org/index.php?module=Widgetize&action=iframe&moduleToWidgetize=Referrers&actionToWidgetize=getKeywordsForPage&idSite=7&period=day&date=2011-02-15&disableLink=1' target='_blank'>"Top keywords used to find this page"</a> that you can easily re-use on your website.
- * @package Referrers
  * @method static \Piwik\Plugins\Referrers\API getInstance()
  */
 class API extends \Piwik\Plugin\API
@@ -316,13 +313,11 @@ class API extends \Piwik\Plugin\API
      */
     public function getSocials($idSite, $period, $date, $segment = false, $expanded = false)
     {
-        require PIWIK_INCLUDE_PATH . '/core/DataFiles/Socials.php';
-
         $dataTable = $this->getDataTable(Archiver::WEBSITES_RECORD_NAME, $idSite, $period, $date, $segment, $expanded);
 
         $dataTable->filter('ColumnCallbackDeleteRow', array('label', function ($url) { return !isSocialUrl($url); }));
 
-        $dataTable->filter('ColumnCallbackAddMetadata', array('label', 'url', __NAMESPACE__ . '\cleanSocialUrl'));
+        $dataTable->filter('ColumnCallbackAddMetadata', array('label', 'url', __NAMESPACE__ . '\getSocialMainUrl'));
         $dataTable->filter('GroupBy', array('label', __NAMESPACE__ . '\getSocialNetworkFromDomain'));
 
         $this->setSocialIdSubtables($dataTable);
@@ -349,21 +344,21 @@ class API extends \Piwik\Plugin\API
      */
     public function getUrlsForSocial($idSite, $period, $date, $segment = false, $idSubtable = false)
     {
-        require PIWIK_INCLUDE_PATH . '/core/DataFiles/Socials.php';
-
         $dataTable = $this->getDataTable(Archiver::WEBSITES_RECORD_NAME, $idSite, $period, $date, $segment, $expanded = true);
 
         // get the social network domain referred to by $idSubtable
+        $socialNetworks = Common::getSocialUrls();
+
         $social = false;
         if ($idSubtable !== false) {
             --$idSubtable;
 
-            reset($GLOBALS['Piwik_socialUrl']);
+            reset($socialNetworks);
             for ($i = 0; $i != (int)$idSubtable; ++$i) {
-                next($GLOBALS['Piwik_socialUrl']);
+                next($socialNetworks);
             }
 
-            $social = current($GLOBALS['Piwik_socialUrl']);
+            $social = current($socialNetworks);
         }
 
         // filter out everything but social network indicated by $idSubtable
@@ -457,7 +452,7 @@ class API extends \Piwik\Plugin\API
                 $socialName = $row->getColumn('label');
 
                 $i = 1; // start at one because idSubtable=0 is equivalent to idSubtable=false
-                foreach ($GLOBALS['Piwik_socialUrl'] as $domain => $name) {
+                foreach (Common::getSocialUrls() as $domain => $name) {
                     if ($name == $socialName) {
                         $row->c[Row::DATATABLE_ASSOCIATED] = $i;
                         break;

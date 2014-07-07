@@ -1,12 +1,10 @@
 <?php
 /**
- * Piwik - Open source web analytics
+ * Piwik - free/libre analytics platform
  *
  * @link http://piwik.org
  * @license http://www.gnu.org/licenses/gpl-3.0.html GPL v3 or later
  *
- * @category Piwik
- * @package PluginsFunctions
  */
 namespace Piwik;
 
@@ -31,7 +29,6 @@ use Piwik\Tracker;
  * 
  *     Db::query("DELETE FROM mytable WHERE id < ?", array(23));
  * 
- * @package PluginsFunctions
  * @api
  */
 class Db
@@ -45,7 +42,7 @@ class Db
      */
     public static function get()
     {
-        if (!empty($GLOBALS['PIWIK_TRACKER_MODE'])) {
+        if (SettingsServer::isTrackerApiRequest()) {
             return Tracker::getDatabase();
         }
 
@@ -56,30 +53,22 @@ class Db
         return self::$connection;
     }
 
-    /**
-     * Connects to the database.
-     * 
-     * Shouldn't be called directly, use {@link get()} instead.
-     * 
-     * @param array|null $dbInfos Connection parameters in an array. Defaults to the `[database]`
-     *                            INI config section.
-     */
-    public static function createDatabaseObject($dbInfos = null)
+    public static function getDatabaseConfig($dbConfig = null)
     {
         $config = Config::getInstance();
 
-        if (is_null($dbInfos)) {
-            $dbInfos = $config->database;
+        if (is_null($dbConfig)) {
+            $dbConfig = $config->database;
         }
 
         /**
          * Triggered before a database connection is established.
-         * 
+         *
          * This event can be used to change the settings used to establish a connection.
-         * 
+         *
          * @param array *$dbInfos Reference to an array containing database connection info,
          *                        including:
-         * 
+         *
          *                        - **host**: The host name or IP address to the MySQL database.
          *                        - **username**: The username to use when connecting to the
          *                                        database.
@@ -87,16 +76,42 @@ class Db
          *                                       database.
          *                        - **dbname**: The name of the Piwik MySQL database.
          *                        - **port**: The MySQL database port to use.
-         *                        - **adapter**: either `'PDO_MYSQL'` or `'MYSQLI'`
+         *                        - **adapter**: either `'PDO\MYSQL'` or `'MYSQLI'`
+         *                        - **type**: The MySQL engine to use, for instance 'InnoDB'
          */
-        Piwik::postEvent('Reporting.getDatabaseConfig', array(&$dbInfos));
+        Piwik::postEvent('Db.getDatabaseConfig', array(&$dbConfig));
 
-        $dbInfos['profiler'] = $config->Debug['enable_sql_profiler'];
+        $dbConfig['profiler'] = $config->Debug['enable_sql_profiler'];
 
-        $adapter = $dbInfos['adapter'];
-        $db      = @Adapter::factory($adapter, $dbInfos);
+        return $dbConfig;
+    }
+
+    /**
+     * Connects to the database.
+     * 
+     * Shouldn't be called directly, use {@link get()} instead.
+     * 
+     * @param array|null $dbConfig Connection parameters in an array. Defaults to the `[database]`
+     *                             INI config section.
+     */
+    public static function createDatabaseObject($dbConfig = null)
+    {
+        $dbConfig = self::getDatabaseConfig($dbConfig);
+
+        $db = @Adapter::factory($dbConfig['adapter'], $dbConfig);
 
         self::$connection = $db;
+    }
+
+    /**
+     * Disconnects and destroys the database connection.
+     *
+     * For tests.
+     */
+    public static function destroyDatabaseObject()
+    {
+        DbHelper::disconnectDatabase();
+        self::$connection = null;
     }
 
     /**
@@ -293,21 +308,21 @@ class Db
         }
 
         // filter out all InnoDB tables
-        $nonInnoDbTables = array();
+        $myisamDbTables = array();
         foreach (Db::fetchAll("SHOW TABLE STATUS") as $row) {
-            if (strtolower($row['Engine']) != 'innodb'
+            if (strtolower($row['Engine']) == 'myisam'
                 && in_array($row['Name'], $tables)
             ) {
-                $nonInnoDbTables[] = $row['Name'];
+                $myisamDbTables[] = $row['Name'];
             }
         }
 
-        if (empty($nonInnoDbTables)) {
+        if (empty($myisamDbTables)) {
             return false;
         }
 
         // optimize the tables
-        return self::query("OPTIMIZE TABLE " . implode(',', $nonInnoDbTables));
+        return self::query("OPTIMIZE TABLE " . implode(',', $myisamDbTables));
     }
 
     /**
@@ -324,6 +339,33 @@ class Db
         }
 
         return self::query("DROP TABLE " . implode(',', $tables));
+    }
+
+    /**
+     * Drops all tables
+     */
+    static public function dropAllTables()
+    {
+        $tablesAlreadyInstalled = DbHelper::getTablesInstalled();
+        self::dropTables($tablesAlreadyInstalled);
+    }
+
+    /**
+     * Get columns information from table
+     *
+     * @param string|array $table The name of the table you want to get the columns definition for.
+     * @return \Zend_Db_Statement
+     */
+    static public function getColumnNamesFromTable($table)
+    {
+        $columns = self::fetchAll("SHOW COLUMNS FROM " . $table);
+
+        $columnNames = array();
+        foreach ($columns as $column) {
+            $columnNames[] = $column['Field'];
+        }
+
+        return $columnNames;
     }
 
     /**
@@ -530,6 +572,17 @@ class Db
                 self::query($sql, $currentParams);
             }
         }
+    }
+
+    /**
+     * Returns `true` if a table in the database, `false` if otherwise.
+     *
+     * @param string $tableName The name of the table to check for. Must be prefixed.
+     * @return bool
+     */
+    static public function tableExists($tableName)
+    {
+        return self::query("SHOW TABLES LIKE ?", $tableName)->rowCount() > 0;
     }
 
     /**

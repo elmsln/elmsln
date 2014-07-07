@@ -1,12 +1,10 @@
 <?php
 /**
- * Piwik - Open source web analytics
+ * Piwik - free/libre analytics platform
  *
  * @link http://piwik.org
  * @license http://www.gnu.org/licenses/gpl-3.0.html GPL v3 or later
  *
- * @category Piwik
- * @package Piwik
  */
 namespace Piwik\DataTable;
 
@@ -18,8 +16,6 @@ use Piwik\DataTable;
  * Simple DataTables are only used to slightly alter the output of some renderers
  * (notably the XML renderer).
  *
- * @package Piwik
- * @subpackage DataTable
  * @api
  */
 class Simple extends DataTable

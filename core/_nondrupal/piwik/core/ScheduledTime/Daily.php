@@ -1,12 +1,10 @@
 <?php
 /**
- * Piwik - Open source web analytics
+ * Piwik - free/libre analytics platform
  *
  * @link http://piwik.org
  * @license http://www.gnu.org/licenses/gpl-3.0.html GPL v3 or later
  *
- * @category Piwik
- * @package Piwik
  */
 namespace Piwik\ScheduledTime;
 
@@ -17,8 +15,6 @@ use Piwik\ScheduledTime;
  * Daily class is used to schedule tasks every day.
  *
  * @see ScheduledTask
- * @package Piwik
- * @subpackage ScheduledTime
  */
 class Daily extends ScheduledTime
 {
@@ -42,6 +38,7 @@ class Daily extends ScheduledTime
 
         // Adjusts the scheduled hour
         $rescheduledTime = $this->adjustHour($rescheduledTime);
+        $rescheduledTime = $this->adjustTimezone($rescheduledTime);
 
         return $rescheduledTime;
     }

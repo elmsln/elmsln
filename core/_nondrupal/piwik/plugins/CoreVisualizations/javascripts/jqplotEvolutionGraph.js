@@ -1,5 +1,5 @@
 /**
- * Piwik - Web Analytics
+ * Piwik - free/libre analytics platform
  *
  * DataTable UI class for JqplotGraph/Evolution.
  *
@@ -119,6 +119,8 @@
                         $(this).css('cursor', 'pointer');
                     }
                 });
+
+            this.setYTicks();
         },
 
         _destroyDataPointTooltip: function () {
@@ -126,7 +128,6 @@
         },
 
         render: function () {
-            this.setYTicks();
             JqplotGraphDataTablePrototype.render.call(this);
         }
     });

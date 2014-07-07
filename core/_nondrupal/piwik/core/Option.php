@@ -1,12 +1,10 @@
 <?php
 /**
- * Piwik - Open source web analytics
+ * Piwik - free/libre analytics platform
  *
  * @link http://piwik.org
  * @license http://www.gnu.org/licenses/gpl-3.0.html GPL v3 or later
  *
- * @category Piwik
- * @package Piwik
  */
 namespace Piwik;
 
@@ -33,7 +31,6 @@ namespace Piwik;
  * 
  *     Option::deleteLike('MyPlugin.MyOptionName.%');
  *
- * @package Piwik
  * @api
  */
 class Option
@@ -47,6 +44,18 @@ class Option
     public static function get($name)
     {
         return self::getInstance()->getValue($name);
+    }
+
+    /**
+     * Returns option values for options whose names are like a given pattern.
+     *
+     * @param string $namePattern The pattern used in the SQL `LIKE` expression
+     *                            used to SELECT options.
+     * @return array Array mapping option names with option values.
+     */
+    public static function getLike($namePattern)
+    {
+        return self::getInstance()->getNameLike($namePattern);
     }
 
     /**
@@ -83,6 +92,11 @@ class Option
     public static function deleteLike($namePattern, $value = null)
     {
         return self::getInstance()->deleteNameLike($namePattern, $value);
+    }
+
+    public static function clearCachedOption($name)
+    {
+        self::getInstance()->clearCachedOptionByName($name);
     }
 
     /**
@@ -135,6 +149,13 @@ class Option
     {
     }
 
+    protected function clearCachedOptionByName($name)
+    {
+        if (isset($this->all[$name])) {
+            unset($this->all[$name]);
+        }
+    }
+
     protected function getValue($name)
     {
         $this->autoload();
@@ -142,7 +163,7 @@ class Option
             return $this->all[$name];
         }
         $value = Db::fetchOne('SELECT option_value ' .
-            'FROM `' . Common::prefixTable('option') . '`' .
+            'FROM `' . Common::prefixTable('option') . '` ' .
             'WHERE option_name = ?', $name);
         if ($value === false) {
             return false;
@@ -189,6 +210,18 @@ class Option
         Db::query($sql, $bind);
 
         $this->clearCache();
+    }
+
+    protected function getNameLike($name)
+    {
+        $sql = 'SELECT option_name, option_value FROM `' . Common::prefixTable('option') . '` WHERE option_name LIKE ?';
+        $bind = array($name);
+
+        $result = array();
+        foreach (Db::fetchAll($sql, $bind) as $row) {
+            $result[$row['option_name']] = $row['option_value'];
+        }
+        return $result;
     }
 
     /**

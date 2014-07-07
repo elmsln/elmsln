@@ -1,12 +1,10 @@
 <?php
 /**
- * Piwik - Open source web analytics
+ * Piwik - free/libre analytics platform
  *
  * @link http://piwik.org
  * @license http://www.gnu.org/licenses/gpl-3.0.html GPL v3 or later
  *
- * @category Piwik
- * @package Piwik
  */
 namespace Piwik\Plugin;
 
@@ -139,8 +137,6 @@ use Piwik\ViewDataTable\RequestConfig as VizRequest;
  *         }
  *     }
  * 
- * @package Piwik
- * @subpackage ViewDataTable
  *
  * @api
  */
@@ -179,7 +175,7 @@ abstract class ViewDataTable implements ViewInterface
      * Posts the {@hook ViewDataTable.configure} event which plugins can use to configure the
      * way reports are displayed.
      */
-    public function __construct($controllerAction, $apiMethodToRequestDataTable)
+    public function __construct($controllerAction, $apiMethodToRequestDataTable, $overrideParams = array())
     {
         list($controllerName, $controllerAction) = explode('.', $controllerAction);
 
@@ -219,6 +215,8 @@ abstract class ViewDataTable implements ViewInterface
          */
         Piwik::postEvent('ViewDataTable.configure', array($this));
 
+        $this->assignRelatedReportsTitle();
+
         $this->config->show_footer_icons = (false == $this->requestConfig->idSubtable);
 
         // the exclude low population threshold value is sometimes obtained by requesting data.
@@ -231,7 +229,21 @@ abstract class ViewDataTable implements ViewInterface
             $this->requestConfig->filter_excludelowpop_value = $function();
         }
 
+        $this->overrideViewPropertiesWithParams($overrideParams);
         $this->overrideViewPropertiesWithQueryParams();
+    }
+
+    protected function assignRelatedReportsTitle()
+    {
+        if(!empty($this->config->related_reports_title)) {
+            // title already assigned by a plugin
+            return;
+        }
+        if(count($this->config->related_reports) == 1) {
+            $this->config->related_reports_title = Piwik::translate('General_RelatedReport') . ':';
+        } else {
+            $this->config->related_reports_title = Piwik::translate('General_RelatedReports') . ':';
+        }
     }
 
     /**
@@ -388,7 +400,7 @@ abstract class ViewDataTable implements ViewInterface
             if (property_exists($this->requestConfig, $name)) {
                 $this->requestConfig->$name = $this->getPropertyFromQueryParam($name, $this->requestConfig->$name);
             } elseif (property_exists($this->config, $name)) {
-                $this->config->$name  = $this->getPropertyFromQueryParam($name, $this->config->$name);
+                $this->config->$name = $this->getPropertyFromQueryParam($name, $this->config->$name);
             }
         }
 
@@ -445,4 +457,22 @@ abstract class ViewDataTable implements ViewInterface
     {
         return $view->config->show_all_views_icons;
     }
+
+    private function overrideViewPropertiesWithParams($overrideParams)
+    {
+        if (empty($overrideParams)) {
+            return;
+        }
+
+        foreach ($overrideParams as $key => $value) {
+            if (property_exists($this->requestConfig, $key)) {
+                $this->requestConfig->$key = $value;
+            } elseif (property_exists($this->config, $key)) {
+                $this->config->$key = $value;
+            } elseif ($key != 'enable_filter_excludelowpop') {
+                $this->config->custom_parameters[$key] = $value;
+            }
+        }
+    }
+
 }

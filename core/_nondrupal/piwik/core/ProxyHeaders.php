@@ -1,12 +1,10 @@
 <?php
 /**
- * Piwik - Open source web analytics
+ * Piwik - free/libre analytics platform
  *
  * @link http://piwik.org
  * @license http://www.gnu.org/licenses/gpl-3.0.html GPL v3 or later
  *
- * @category Piwik
- * @package Piwik
  */
 namespace Piwik;
 
@@ -14,7 +12,6 @@ namespace Piwik;
 /**
  * Proxy headers
  *
- * @package Piwik
  */
 class ProxyHeaders
 {
@@ -25,10 +22,6 @@ class ProxyHeaders
      */
     public static function getProtocolInformation()
     {
-        if (Common::getRequestVar('clientProtocol', 'http', 'string') == 'https') {
-            return 'https';
-        }
-
         if (isset($_SERVER['SERVER_PORT']) && $_SERVER['SERVER_PORT'] == 443) {
             return 'SERVER_PORT=443';
         }

@@ -1,20 +1,18 @@
 <?php
 /**
- * Piwik - Open source web analytics
+ * Piwik - free/libre analytics platform
  *
  * @link http://piwik.org
  * @license http://www.gnu.org/licenses/gpl-3.0.html GPL v3 or later
  *
- * @category Piwik
- * @package Piwik
  */
 
 namespace Piwik\ArchiveProcessor;
 
 use Piwik\Archive;
 use Piwik\ArchiveProcessor;
-use Piwik\DataAccess\ArchiveSelector;
 use Piwik\DataAccess\ArchiveWriter;
+use Piwik\DataTable\Manager;
 use Piwik\Metrics;
 use Piwik\Plugin\Archiver;
 
@@ -87,9 +85,16 @@ class PluginsArchiver
         $archivers = $this->getPluginArchivers();
 
         foreach($archivers as $pluginName => $archiverClass) {
+
+            // We clean up below all tables created during this function call (and recursive calls)
+            $latestUsedTableId = Manager::getInstance()->getMostRecentTableId();
+
             /** @var Archiver $archiver */
             $archiver = new $archiverClass($this->archiveProcessor);
 
+            if(!$archiver->isEnabled()) {
+                continue;
+            }
             if($this->shouldProcessReportsForPlugin($pluginName)) {
                 if($this->isSingleSiteDayArchive) {
                     $archiver->aggregateDayReport();
@@ -97,6 +102,9 @@ class PluginsArchiver
                     $archiver->aggregateMultipleReports();
                 }
             }
+
+            Manager::getInstance()->deleteAll($latestUsedTableId);
+            unset($archiver);
         }
     }
 
@@ -115,7 +123,7 @@ class PluginsArchiver
     protected function getPluginArchivers()
     {
         if (empty(static::$archivers)) {
-            $pluginNames = \Piwik\Plugin\Manager::getInstance()->getLoadedPluginsName();
+            $pluginNames = \Piwik\Plugin\Manager::getInstance()->getActivatedPlugins();
             $archivers = array();
             foreach ($pluginNames as $pluginName) {
                 $archivers[$pluginName] = self::getPluginArchiverClass($pluginName);
@@ -146,6 +154,7 @@ class PluginsArchiver
             return true;
         }
         if (Rules::shouldProcessReportsAllPlugins(
+                            $this->params->getIdSites(),
                             $this->params->getSegment(),
                             $this->params->getPeriod()->getLabel())) {
             return true;

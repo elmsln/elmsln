@@ -1,21 +1,15 @@
 <?php
 /**
- * Piwik - Open source web analytics
+ * Piwik - free/libre analytics platform
  *
  * @link http://piwik.org
  * @license http://www.gnu.org/licenses/gpl-3.0.html GPL v3 or later
  *
- * @category Piwik_Plugins
- * @package SitesManager
  */
 namespace Piwik\Plugins\SitesManager;
 
-use Piwik\Menu\MenuAdmin;
-use Piwik\Piwik;
-
 /**
  *
- * @package SitesManager
  */
 class SitesManager extends \Piwik\Plugin
 {
@@ -24,25 +18,16 @@ class SitesManager extends \Piwik\Plugin
     const KEEP_URL_FRAGMENT_NO = 2;
 
     /**
-     * @see Piwik_Plugin::getListHooksRegistered
+     * @see Piwik\Plugin::getListHooksRegistered
      */
     public function getListHooksRegistered()
     {
         return array(
             'AssetManager.getJavaScriptFiles'        => 'getJsFiles',
             'AssetManager.getStylesheetFiles'        => 'getStylesheetFiles',
-            'Menu.Admin.addItems'                    => 'addMenu',
             'Tracker.Cache.getSiteAttributes'        => 'recordWebsiteDataInCache',
             'Translate.getClientSideTranslationKeys' => 'getClientSideTranslationKeys',
         );
-    }
-
-    function addMenu()
-    {
-        MenuAdmin::getInstance()->add('CoreAdminHome_MenuManage', 'SitesManager_Sites',
-            array('module' => 'SitesManager', 'action' => 'index'),
-            Piwik::isUserHasSomeAdminAccess(),
-            $order = 1);
     }
 
     /**
@@ -51,7 +36,7 @@ class SitesManager extends \Piwik\Plugin
     public function getStylesheetFiles(&$stylesheets)
     {
         $stylesheets[] = "plugins/SitesManager/stylesheets/SitesManager.less";
-        $stylesheets[] = "plugins/Zeitgeist/stylesheets/base.less";
+        $stylesheets[] = "plugins/Morpheus/stylesheets/base.less";
     }
 
     /**

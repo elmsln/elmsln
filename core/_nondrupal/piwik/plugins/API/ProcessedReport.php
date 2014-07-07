@@ -1,12 +1,10 @@
 <?php
 /**
- * Piwik - Open source web analytics
+ * Piwik - free/libre analytics platform
  *
  * @link http://piwik.org
  * @license http://www.gnu.org/licenses/gpl-3.0.html GPL v3 or later
  *
- * @category Piwik_Plugins
- * @package Piwik_API
  */
 namespace Piwik\Plugins\API;
 
@@ -14,9 +12,9 @@ use Exception;
 use Piwik\API\Request;
 use Piwik\Archive\DataTableFactory;
 use Piwik\Common;
+use Piwik\DataTable;
 use Piwik\DataTable\Row;
 use Piwik\DataTable\Simple;
-use Piwik\DataTable;
 use Piwik\Date;
 use Piwik\Metrics;
 use Piwik\MetricsFormatter;
@@ -68,14 +66,13 @@ class ProcessedReport
      * Verfies whether the given report exists for the given site.
      *
      * @param int $idSite
-     * @param string $apiModule  For example 'MultiSites'
-     * @param string $apiAction  For example 'getAll'
+     * @param string $apiMethodUniqueId  For example 'MultiSites_getAll'
      *
      * @return bool
      */
-    public function isValidReportForSite($idSite, $apiModule, $apiAction)
+    public function isValidReportForSite($idSite, $apiMethodUniqueId)
     {
-        $report = $this->getSingleReportMetadata($idSite, $apiModule, $apiAction);
+        $report = $this->getReportMetadataByUniqueId($idSite, $apiMethodUniqueId);
 
         return !empty($report);
     }
@@ -85,27 +82,26 @@ class ProcessedReport
      *
      * @param int $idSite
      * @param string $metric     For example 'nb_visits'
-     * @param string $apiModule  For example 'MultiSites'
-     * @param string $apiAction  For example 'getAll'
+     * @param string $apiMethodUniqueId  For example 'MultiSites_getAll'
      *
      * @return bool
      */
-    public function isValidMetricForReport($metric, $idSite, $apiModule, $apiAction)
+    public function isValidMetricForReport($metric, $idSite, $apiMethodUniqueId)
     {
-        $translation = $this->translateMetric($metric, $idSite, $apiModule, $apiAction);
+        $translation = $this->translateMetric($metric, $idSite, $apiMethodUniqueId);
 
         return !empty($translation);
     }
 
-    private function getSingleReportMetadata($idSite, $apiModule, $apiAction)
+    public function getReportMetadataByUniqueId($idSite, $apiMethodUniqueId)
     {
-        $metadata = $this->getMetadata($idSite, $apiModule, $apiAction);
+        $metadata = $this->getReportMetadata(array($idSite));
 
-        if (empty($metadata)) {
-            return false;
+        foreach ($metadata as $report) {
+            if ($report['uniqueId'] == $apiMethodUniqueId) {
+                return $report;
+            }
         }
-
-        return array_shift($metadata);
     }
 
     /**
@@ -113,14 +109,13 @@ class ProcessedReport
      *
      * @param string $metric     For example 'nb_visits'
      * @param int    $idSite
-     * @param string $apiModule  For example 'MultiSites'
-     * @param string $apiAction  For example 'getAll'
+     * @param string $apiMethodUniqueId  For example 'MultiSites_getAll'
      *
      * @return null|string
      */
-    public function translateMetric($metric, $idSite, $apiModule, $apiAction)
+    public function translateMetric($metric, $idSite, $apiMethodUniqueId)
     {
-        $report = $this->getSingleReportMetadata($idSite, $apiModule, $apiAction);
+        $report = $this->getReportMetadataByUniqueId($idSite, $apiMethodUniqueId);
 
         if (empty($report)) {
             return;
@@ -331,6 +326,7 @@ class ProcessedReport
                 Piwik::translate('VisitsSummary_VisitsSummary'),
                 Piwik::translate('Goals_Ecommerce'),
                 Piwik::translate('General_Actions'),
+                Piwik::translate('Events_Events'),
                 Piwik::translate('Actions_SubmenuSitesearch'),
                 Piwik::translate('Referrers_Referrers'),
                 Piwik::translate('Goals_Goals'),
@@ -397,6 +393,7 @@ class ProcessedReport
         if (empty($reportMetadata)) {
             throw new Exception("Requested report $apiModule.$apiAction for Website id=$idSite not found in the list of available reports. \n");
         }
+
         $reportMetadata = reset($reportMetadata);
 
         // Generate Api call URL passing custom parameters
@@ -408,8 +405,17 @@ class ProcessedReport
                                                        'format'     => 'original',
                                                        'serialize'  => '0',
                                                        'language'   => $language,
-                                                       'idSubtable' => $idSubtable,
+                                                       'idSubtable' => $idSubtable
                                                   ));
+
+        if (isset($reportMetadata['processedMetrics'])) {
+            $deleteRowsWithNoVisit = '1';
+            if (!empty($reportMetadata['constantRowsCount'])) {
+                $deleteRowsWithNoVisit = '0';
+            }
+            $parameters['filter_add_columns_when_show_all_columns'] = $deleteRowsWithNoVisit;
+        }
+
         if (!empty($segment)) $parameters['segment'] = $segment;
 
         $url = Url::getQueryStringFromParameters($parameters);
@@ -422,12 +428,13 @@ class ProcessedReport
         }
 
         list($newReport, $columns, $rowsMetadata, $totals) = $this->handleTableReport($idSite, $dataTable, $reportMetadata, $showRawMetrics);
+
         foreach ($columns as $columnId => &$name) {
             $name = ucfirst($name);
         }
         $website = new Site($idSite);
 
-        $period = Period::factory($period, $date);
+        $period = Period\Factory::build($period, $date);
         $period = $period->getLocalizedLongString();
 
         $return = array(
@@ -490,11 +497,6 @@ class ProcessedReport
                         $columns[$goalMetricId] = $reportMetadata['metricsGoal'][$goalMetricId];
                     }
                 }
-            }
-
-            if (isset($reportMetadata['processedMetrics'])) {
-                // Add processed metrics
-                $dataTable->filter('AddColumnsProcessedMetrics', array($deleteRowsWithNoVisit = false));
             }
         }
 
@@ -645,28 +647,39 @@ class ProcessedReport
             $enhancedDataTable = new Simple();
         }
 
-        // add missing metrics
         foreach ($simpleDataTable->getRows() as $row) {
             $rowMetrics = $row->getColumns();
+
+            // add missing metrics
             foreach ($metadataColumns as $id => $name) {
                 if (!isset($rowMetrics[$id])) {
-                    $row->addColumn($id, 0);
+                    $row->setColumn($id, 0);
+                    $rowMetrics[$id] = 0;
                 }
             }
-        }
 
-        foreach ($simpleDataTable->getRows() as $row) {
             $enhancedRow = new Row();
             $enhancedDataTable->addRow($enhancedRow);
-            $rowMetrics = $row->getColumns();
+
             foreach ($rowMetrics as $columnName => $columnValue) {
                 // filter metrics according to metadata definition
                 if (isset($metadataColumns[$columnName])) {
                     // generate 'human readable' metric values
-                    $prettyValue = MetricsFormatter::getPrettyValue($idSite, $columnName, $columnValue, $htmlAllowed = false);
+
+                    // if we handle MultiSites.getAll we do not always have the same idSite but different ones for
+                    // each site, see http://dev.piwik.org/trac/ticket/5006
+                    $idSiteForRow = $idSite;
+                    if ($row->getMetadata('idsite') && is_numeric($row->getMetadata('idsite'))) {
+                        $idSiteForRow = (int) $row->getMetadata('idsite');
+                    }
+
+                    $prettyValue = MetricsFormatter::getPrettyValue($idSiteForRow, $columnName, $columnValue, $htmlAllowed = false);
                     $enhancedRow->addColumn($columnName, $prettyValue);
                 } // For example the Maps Widget requires the raw metrics to do advanced datavis
                 elseif ($returnRawMetrics) {
+                    if (!isset($columnValue)) {
+                        $columnValue = 0;
+                    }
                     $enhancedRow->addColumn($columnName, $columnValue);
                 }
             }

@@ -1,12 +1,10 @@
 <?php
 /**
- * Piwik - Open source web analytics
+ * Piwik - free/libre analytics platform
  *
  * @link http://piwik.org
  * @license http://www.gnu.org/licenses/gpl-3.0.html GPL v3 or later
  *
- * @category Piwik_Plugins
- * @package Transitions
  */
 namespace Piwik\Plugins\Transitions;
 
@@ -14,11 +12,9 @@ use Piwik\Piwik;
 use Piwik\View;
 
 /**
- * @package Transitions
  */
 class Controller extends \Piwik\Plugin\Controller
 {
-
     /**
      * Since the metric translations are taken from different plugins,
      * it makes the rest of the code easier to read and maintain when we
@@ -55,7 +51,6 @@ class Controller extends \Piwik\Plugin\Controller
 
     /**
      * Translations that are added to JS
-     * (object Piwik_Transitions_Translations)
      */
     private static $jsTranslations = array(
         'XOfY'                   => 'Transitions_XOutOfYVisits',

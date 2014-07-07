@@ -1,17 +1,16 @@
 <?php
 /**
- * Piwik - Open source web analytics
+ * Piwik - free/libre analytics platform
  *
  * @link http://piwik.org
  * @license http://www.gnu.org/licenses/gpl-3.0.html GPL v3 or later
  *
- * @category Piwik
- * @package Piwik
  */
 
 namespace Piwik;
 
 use Exception;
+use Piwik\Plugin\Manager as PluginManager;
 
 // When set to true, all scheduled tasks will be triggered in all requests (careful!)
 define('DEBUG_FORCE_SCHEDULED_TASKS', false);
@@ -23,7 +22,7 @@ define('DEBUG_FORCE_SCHEDULED_TASKS', false);
  * weekly, monthly, etc.). They are registered with **TaskScheduler** through the
  * {@hook TaskScheduler.getScheduledTasks} event.
  * 
- * Tasks are executed when the cron archive.php script is executed.
+ * Tasks are executed when the cron core:archive command is executed.
  * 
  * ### Examples
  * 
@@ -49,12 +48,12 @@ define('DEBUG_FORCE_SCHEDULED_TASKS', false);
  *     $task1Output = $task1Result['output'];
  * 
  *     echo "Executed task '$task1Name'. Task output:\n$task1Output";
- * 
- * @package Piwik
+ *
+ * @method static \Piwik\TaskScheduler getInstance()
  */
 class TaskScheduler extends Singleton
 {
-    const GET_TASKS_EVENT = "TaskScheduler.getScheduledTasks";
+    const GET_TASKS_EVENT  = 'TaskScheduler.getScheduledTasks';
 
     private $isRunning = false;
 
@@ -83,34 +82,43 @@ class TaskScheduler extends Singleton
         return self::getInstance()->doRunTasks();
     }
 
-    private function doRunTasks()
+
+    // for backwards compatibility
+    private function collectTasksRegisteredViaEvent()
     {
-        // collect tasks
         $tasks = array();
 
         /**
-         * Triggered during scheduled task execution. Collects all the tasks to run.
-         * 
-         * Subscribe to this event to schedule code execution on an hourly, daily, weekly or monthly
-         * basis.
-         *
-         * **Example**
-         * 
-         *     public function getScheduledTasks(&$tasks)
-         *     {
-         *         $tasks[] = new ScheduledTask(
-         *             'Piwik\Plugins\CorePluginsAdmin\MarketplaceApiClient',
-         *             'clearAllCacheEntries',
-         *             null,
-         *             ScheduledTime::factory('daily'),
-         *             ScheduledTask::LOWEST_PRIORITY
-         *         );
-         *     }
-         * 
-         * @param ScheduledTask[] &$tasks List of tasks to run periodically.
+         * @ignore
+         * @deprecated
          */
         Piwik::postEvent(self::GET_TASKS_EVENT, array(&$tasks));
-        /** @var ScheduledTask[] $tasks */
+
+        return $tasks;
+    }
+
+    private function getScheduledTasks()
+    {
+        /** @var \Piwik\ScheduledTask[] $tasks */
+        $tasks = $this->collectTasksRegisteredViaEvent();
+
+        /** @var \Piwik\Plugin\Tasks[] $pluginTasks */
+        $pluginTasks = PluginManager::getInstance()->findComponents('Tasks', 'Piwik\\Plugin\\Tasks');
+        foreach ($pluginTasks as $pluginTask) {
+
+            $pluginTask->schedule();
+
+            foreach ($pluginTask->getScheduledTasks() as $task) {
+                $tasks[] = $task;
+            }
+        }
+
+        return $tasks;
+    }
+
+    private function doRunTasks()
+    {
+        $tasks = $this->getScheduledTasks();
 
         // remove from timetable tasks that are not active anymore
         $this->timetable->removeInactiveTasks($tasks);
@@ -128,16 +136,18 @@ class TaskScheduler extends Singleton
                 }
 
                 $taskName = $task->getName();
-                if ($this->timetable->shouldExecuteTask($taskName)) {
+                $shouldExecuteTask = $this->timetable->shouldExecuteTask($taskName);
+
+                if ($this->timetable->taskShouldBeRescheduled($taskName)) {
+                    $this->timetable->rescheduleTask($task);
+                }
+
+                if ($shouldExecuteTask) {
                     $this->isRunning = true;
                     $message = self::executeTask($task);
                     $this->isRunning = false;
 
                     $executionResults[] = array('task' => $taskName, 'output' => $message);
-                }
-
-                if ($this->timetable->taskShouldBeRescheduled($taskName)) {
-                    $this->timetable->rescheduleTask($task);
                 }
             }
         }

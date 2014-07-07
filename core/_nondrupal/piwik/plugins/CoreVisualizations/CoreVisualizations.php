@@ -1,15 +1,15 @@
 <?php
 /**
- * Piwik - Open source web analytics
+ * Piwik - free/libre analytics platform
  *
  * @link http://piwik.org
  * @license http://www.gnu.org/licenses/gpl-3.0.html GPL v3 or later
  *
- * @category Piwik_Plugins
- * @package CoreVisualizations
  */
 
 namespace Piwik\Plugins\CoreVisualizations;
+
+use Piwik\ViewDataTable\Manager as ViewDataTableManager;
 
 require_once PIWIK_INCLUDE_PATH . '/plugins/CoreVisualizations/JqplotDataGenerator.php';
 require_once PIWIK_INCLUDE_PATH . '/plugins/CoreVisualizations/Visualizations/Cloud.php';
@@ -23,7 +23,7 @@ require_once PIWIK_INCLUDE_PATH . '/plugins/CoreVisualizations/Visualizations/Jq
 class CoreVisualizations extends \Piwik\Plugin
 {
     /**
-     * @see Piwik_Plugin::getListHooksRegistered
+     * @see Piwik\Plugin::getListHooksRegistered
      */
     public function getListHooksRegistered()
     {
@@ -31,8 +31,14 @@ class CoreVisualizations extends \Piwik\Plugin
             'AssetManager.getStylesheetFiles'        => 'getStylesheetFiles',
             'AssetManager.getJavaScriptFiles'        => 'getJsFiles',
             'ViewDataTable.addViewDataTable'         => 'getAvailableDataTableVisualizations',
-            'Translate.getClientSideTranslationKeys' => 'getClientSideTranslationKeys'
+            'Translate.getClientSideTranslationKeys' => 'getClientSideTranslationKeys',
+            'UsersManager.deleteUser'                => 'deleteUser'
         );
+    }
+
+    public function deleteUser($userLogin)
+    {
+        ViewDataTableManager::clearUserViewDataTableParameters($userLogin);
     }
 
     public function getAvailableDataTableVisualizations(&$visualizations)

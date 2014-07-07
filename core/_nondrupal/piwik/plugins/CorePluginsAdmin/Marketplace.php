@@ -1,22 +1,19 @@
 <?php
 /**
- * Piwik - Open source web analytics
+ * Piwik - free/libre analytics platform
  *
  * @link http://piwik.org
  * @license http://www.gnu.org/licenses/gpl-3.0.html GPL v3 or later
  *
- * @category Piwik_Plugins
- * @package CorePluginsAdmin
  */
 namespace Piwik\Plugins\CorePluginsAdmin;
 
 use Piwik\Date;
 use Piwik\Piwik;
-use Piwik\Version;
+use Piwik\Plugin\Dependency as PluginDependency;
 
 /**
  *
- * @package CorePluginsAdmin
  */
 class Marketplace
 {
@@ -54,6 +51,14 @@ class Marketplace
         }
 
         return $names;
+    }
+
+    public function getAllAvailablePluginNames()
+    {
+        return array_merge(
+            $this->getAvailablePluginNames(true),
+            $this->getAvailablePluginNames(false)
+        );
     }
 
     public function searchPlugins($query, $sort, $themesOnly)
