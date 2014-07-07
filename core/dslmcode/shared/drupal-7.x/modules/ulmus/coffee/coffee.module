@@ -1,0 +1,230 @@
+<?php
+
+/**
+ * @file
+ * Coffee primary module file
+ *
+ * Implements hook_perm, hook_menu, hook_init
+ * and a function to handle the result for Coffee.
+ */
+
+/**
+ * Implements hook_permission().
+ */
+function coffee_permission() {
+  return array(
+    'access coffee' => array(
+      'title' => t('Access Coffee'),
+      'description' => t('Access the Coffee search box to navigate fast between admin pages'),
+    ),
+    'administer coffee' => array(
+      'title' => t('Administer Coffee'),
+      'description' => t('Administer the Coffee search module'),
+    ),
+  );
+}
+
+/**
+ * Implements hook_menu().
+ */
+function coffee_menu() {
+  $items = array();
+  $path = drupal_get_path('module', 'coffee');
+
+  // Define callback for menu structure callback.
+  $items['admin/coffee/menu'] = array(
+    'title' => 'Coffee Menu Response',
+    'page callback' => 'coffee_get_menu_response',
+    'access arguments' => array('access coffee'),
+    'type' => MENU_CALLBACK,
+  );
+
+  $items['admin/config/user-interface/coffee'] = array(
+    'title' => 'Coffee',
+    'description' => 'Configuration for the Coffee module.',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('coffee_admin_settings'),
+    'access arguments' => array('administer coffee'),
+    'type' => MENU_NORMAL_ITEM,
+    'file' => 'coffee.admin.inc',
+    'file path' => $path,
+  );
+
+  return $items;
+}
+
+/**
+ * Implements hook_page_build().
+ */
+function coffee_page_build() {
+  // Only users with the permission "access coffee" can use Coffee.
+  if (user_access('access coffee')) {
+    // Add the javascript and css files.
+    drupal_add_library('system', 'ui.autocomplete');
+    drupal_add_js(drupal_get_path('module', 'coffee') . '/js/coffee.js', array('type' => 'file'));
+    drupal_add_css(drupal_get_path('module', 'coffee') . '/css/coffee.css', array('type' => 'file'));
+  }
+}
+
+/**
+ * Implements hook_hook_info().
+ */
+function coffee_hook_info() {
+  $hooks = array(
+    'coffee_commands' => array(
+      'group' => 'coffee',
+    ),
+  );
+
+  return $hooks;
+}
+
+/**
+ * Function coffee_traverse_below().
+ *
+ * Helper function to traverse down through a menu structure.
+ */
+function coffee_traverse_below($link, &$output, $command = NULL) {
+  $l = isset($link['link']) ? $link['link'] : array();
+
+  // Only add if user has access.
+  if (isset($l['access']) && $l['access']) {
+    $label = (!empty($l['title']) ? $l['title'] : $l['link_title']);
+    $output[] = array(
+      'value' => $l['link_path'],
+      'label' => $label,
+      'command' => $command,
+    );
+  }
+
+  if (isset($link['below']) && is_array($link['below'])) {
+    foreach ($link['below'] as $below_link) {
+      coffee_traverse_below($below_link, $output);
+    }
+  }
+}
+
+/**
+ * Function coffee_get_menu_response().
+ *
+ * Menu callback function which outputs the menu structure as JSON ready for
+ * populating the autocomplete data source.
+ */
+function coffee_get_menu_response() {
+  global $user, $language;
+  $output = array();
+
+  // Get the commands list from the cache if possible.
+  $cid = 'coffee_commands:' . $user->uid . ':' . $language->language;
+  if ($cache = cache_get($cid, 'cache_coffee')) {
+    if (isset($cache->data)) {
+      $output = $cache->data;
+    }
+  }
+
+  // Nothing from cache, rebuild and then cache.
+  if (empty($output)) {
+    // Grab menu data.
+    $menus = variable_get('coffee_settings_menus', array('management', 'user-menu'));
+    foreach ($menus as $v) {
+      if ($v == '0') {
+        continue;
+      }
+
+      $menu = menu_tree_all_data($v);
+
+      foreach ($menu as $k => $link) {
+        $command = $v == 'user-menu' ? ':user' : NULL ;
+
+        coffee_traverse_below($link, $output, $command);
+      }
+    }
+
+    // Include the commands.
+    // Include the default hooks for Coffee.
+    module_load_include('inc', 'coffee', 'coffee.hooks');
+
+    // Invoke all implementations of hook_coffee_commands().
+    $commands = array();
+
+    foreach (module_implements('coffee_commands') as $module) {
+      $commands = array_merge($commands, module_invoke($module, 'coffee_commands', ''));
+    }
+
+    if (!empty($commands)) {
+      $output = array_merge($output, $commands);
+    }
+
+    foreach ($output as $k => $v) {
+      // If there are links to <front> remove them.
+      if ($v['value'] === '<front>') {
+        unset($output[$k]);
+
+        continue;
+      }
+
+      // Prevent any nasty commands from getting through.
+      $output[$k]['label'] = filter_xss($output[$k]['label']);
+
+      // If clean URLs are turned off, alter the command URLs.
+      if (empty($GLOBALS['conf']['clean_url'])) {
+        $output[$k]['value'] = '?q=' . $output[$k]['value'];
+      }
+    }
+
+    // Re-index the array, it matters to jQuery if we've removed items.
+    $output = array_values($output);
+
+    // Set the cache for this user.
+    cache_set($cid, $output, 'cache_coffee');
+  }
+
+  drupal_json_output($output);
+  drupal_exit();
+}
+
+/**
+ * Implements hook_flush_caches().
+ *
+ * The following caching implemented is lifted from the
+ * awesome admin_menu module.
+ */
+function coffee_flush_caches($uid = NULL) {
+  $cid = 'coffee_commands:';
+  if (isset($uid)) {
+    $cid .= $uid . ':';
+  }
+
+  // db_table_exists() required for SimpleTest.
+  if (db_table_exists('cache_coffee')) {
+    cache_clear_all(isset($uid) ? $cid : '*', 'cache_coffee', TRUE);
+  }
+}
+
+/**
+ * Implements hook_menu_alter().
+ */
+function coffee_menu_alter(&$items) {
+  coffee_flush_caches();
+}
+
+/**
+ * Implements hook_menu_link_insert().
+ */
+function coffee_menu_link_insert($link) {
+  coffee_flush_caches();
+}
+
+/**
+ * Implements hook_menu_link_update().
+ */
+function coffee_menu_link_update($link) {
+  coffee_flush_caches();
+}
+
+/**
+ * Implements hook_menu_link_delete().
+ */
+function coffee_menu_link_delete($link) {
+  coffee_flush_caches();
+}

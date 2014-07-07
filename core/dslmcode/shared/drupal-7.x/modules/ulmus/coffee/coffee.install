@@ -1,0 +1,37 @@
+<?php
+/**
+ * @file
+ * Provides installation details for Coffee.
+ */
+
+/**
+ * Implements hook_schema().
+ */
+function coffee_schema() {
+  $schema['cache_coffee'] = drupal_get_schema_unprocessed('system', 'cache');
+  $schema['cache_coffee']['description'] = 'Cache table for Coffee to store pre-built command lists.';
+
+  return $schema;
+}
+
+/**
+ * Implements hook_enable().
+ */
+function coffee_enable() {
+  // Clear the menu cache so our new AJAX path can respond.
+  cache_clear_all(NULL, 'cache_menu');
+
+  // Let users know how to use the module!
+  drupal_set_message(t('The Coffee module was succesfully enabled, press alt+d to start Coffee.'), 'status');
+}
+
+/**
+ * Make sure that the cache bin exists when upgrading from 1.x.
+ */
+function coffee_update_7200() {
+  // Create the Coffee cache bin.
+  if (!db_table_exists('cache_coffee')) {
+    $schema = drupal_get_schema_unprocessed('system', 'cache');
+    db_create_table('cache_coffee', $schema);
+  }
+}
