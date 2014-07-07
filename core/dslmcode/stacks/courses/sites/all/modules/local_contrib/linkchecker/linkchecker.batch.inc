@@ -313,7 +313,7 @@ function _linkchecker_batch_single_comment_import_finished($success, $results, $
 function _linkchecker_batch_import_single_block_custom($bid, $missing_links_count) {
   $operations = array();
   for ($i = 0; $i <= $missing_links_count; $i = $i + LINKCHECKER_SCAN_MAX_LINKS_PER_RUN) {
-    $operations[] = array('_linkchecker_batch_single_block_custom_import_op', array($nid));
+    $operations[] = array('_linkchecker_batch_single_block_custom_import_op', array($bid));
   }
   $batch = array(
     'file' => drupal_get_path('module', 'linkchecker') . '/linkchecker.batch.inc',

@@ -9,8 +9,8 @@ class LinkCheckerLinkExtractionTest extends DrupalWebTestCase {
 
   public static function getInfo() {
     return array(
-      'name' => t('Link checker link extraction tests'),
-      'description' => t('Test Link checker module link extraction functionality.'),
+      'name' => 'Link checker link extraction tests',
+      'description' => 'Test Link checker module link extraction functionality.',
       'group' => 'Link checker',
     );
   }
@@ -196,11 +196,11 @@ EOT;
     // Verify path input field appears on add "Basic page" form.
     $this->drupalGet('node/add/page');
     // Verify path input is present.
-    $this->assertFieldByName('path[alias]', '', t('Path input field present on add Basic page form.'));
+    $this->assertFieldByName('path[alias]', '', 'Path input field present on add Basic page form.');
 
     // Save node.
     $this->drupalPost('node/add/page', $edit, t('Save'));
-    $this->assertText(t('@type @title has been created.', array('@type' => 'Basic page', '@title' => $edit['title'])), t('Node was created.'));
+    $this->assertText(t('@type @title has been created.', array('@type' => 'Basic page', '@title' => $edit['title'])), 'Node was created.');
 
     // Verify if the content links are extracted properly.
     $urls_fqdn = array(
@@ -232,10 +232,10 @@ EOT;
     foreach ($urls_fqdn as $org_url => $check_url) {
       $link = $this->getLinkCheckerLink($check_url);
       if ($link) {
-        $this->assertIdentical($link->url, $check_url, t('Absolute URL %org_url matches expected result %check_url.', array('%org_url' => $org_url, '%check_url' => $check_url)));
+        $this->assertIdentical($link->url, $check_url, format_string('Absolute URL %org_url matches expected result %check_url.', array('%org_url' => $org_url, '%check_url' => $check_url)));
       }
       else {
-        $this->fail(t('URL %check_url not found.', array('%check_url' => $check_url)));
+        $this->fail(format_string('URL %check_url not found.', array('%check_url' => $check_url)));
       }
     }
 
@@ -244,19 +244,19 @@ EOT;
     // - Verifies that the linkchecker filter blacklist works well.
     $urls_in_database = $this->getLinkCheckerLinksCount();
     $urls_expected_count = count($urls_fqdn);
-    $this->assertEqual($urls_in_database, $urls_expected_count, t('Found @urls_in_database URLs in database matches expected result of @urls_expected_count.', array('@urls_in_database' => $urls_in_database, '@urls_expected_count' => $urls_expected_count)));
+    $this->assertEqual($urls_in_database, $urls_expected_count, format_string('Found @urls_in_database URLs in database matches expected result of @urls_expected_count.', array('@urls_in_database' => $urls_in_database, '@urls_expected_count' => $urls_expected_count)));
 
     // Extract all URLs including relative path.
     variable_set('clean_url', 1);
     variable_set('linkchecker_check_links_types', 0);
 
     $node = $this->drupalGetNodeByTitle($edit['title']);
-    $this->assertTrue($node, t('Node found in database.'));
+    $this->assertTrue($node, 'Node found in database.');
     $this->drupalPost('node/' . $node->nid . '/edit', $edit, t('Save'));
     $this->assertRaw(t('@type %title has been updated.', array('@type' => 'Basic page', '%title' => $edit['title'])));
 
     // @todo Path alias seems not saved!???
-    // $this->assertIdentical($node->path, $edit['path'], t('URL alias "@node-path" matches path "@edit-path".', array('@node-path' => $node->path, '@edit-path' => $edit['path'])));
+    // $this->assertIdentical($node->path, $edit['path'], format_string('URL alias "@node-path" matches path "@edit-path".', array('@node-path' => $node->path, '@edit-path' => $edit['path'])));
 
     // Verify if the content links are extracted properly.
     global $base_root, $base_path;
@@ -289,17 +289,17 @@ EOT;
     foreach ($urls_relative as $org_url => $check_url) {
       $link = $this->getLinkCheckerLink($check_url);
       if ($link) {
-        $this->assertIdentical($link->url, $check_url, t('Relative URL %org_url matches expected result %check_url.', array('%org_url' => $org_url, '%check_url' => $check_url)));
+        $this->assertIdentical($link->url, $check_url, format_string('Relative URL %org_url matches expected result %check_url.', array('%org_url' => $org_url, '%check_url' => $check_url)));
       }
       else {
-        $this->fail(t('URL %check_url not found.', array('%check_url' => $check_url)));
+        $this->fail(format_string('URL %check_url not found.', array('%check_url' => $check_url)));
       }
     }
 
     // Check if the number of links is correct.
     $urls_in_database = $this->getLinkCheckerLinksCount();
     $urls_expected_count = count($urls_fqdn + $urls_relative);
-    $this->assertEqual($urls_in_database, $urls_expected_count, t('Found @urls_in_database URLs in database matches expected result of @urls_expected_count.', array('@urls_in_database' => $urls_in_database, '@urls_expected_count' => $urls_expected_count)));
+    $this->assertEqual($urls_in_database, $urls_expected_count, format_string('Found @urls_in_database URLs in database matches expected result of @urls_expected_count.', array('@urls_in_database' => $urls_in_database, '@urls_expected_count' => $urls_expected_count)));
 
     // Verify if link check has been enabled for normal URLs.
     $urls = array(
@@ -330,7 +330,7 @@ EOT;
     );
 
     foreach ($urls as $url) {
-      $this->assertTrue($this->getLinkcheckerLink($url)->status, t('Link check for %url is enabled.', array('%url' => $url)));
+      $this->assertTrue($this->getLinkcheckerLink($url)->status, format_string('Link check for %url is enabled.', array('%url' => $url)));
     }
 
     // Verify if link check has been disabled for example.com/net/org URLs.
@@ -352,7 +352,7 @@ EOT;
     );
 
     foreach ($documentation_urls as $documentation_url) {
-      $this->assertFalse($this->getLinkcheckerLink($documentation_url)->status, t('Link check for %url is disabled.', array('%url' => $documentation_url)));
+      $this->assertFalse($this->getLinkcheckerLink($documentation_url)->status, format_string('Link check for %url is disabled.', array('%url' => $documentation_url)));
     }
 
   }
@@ -383,8 +383,8 @@ class LinkCheckerInterfaceTest extends DrupalWebTestCase {
 
   public static function getInfo() {
     return array(
-      'name' => t('Link checker interface tests'),
-      'description' => t('Test the interface functionality.'),
+      'name' => 'Link checker interface tests',
+      'description' => 'Test the interface functionality.',
       'group' => 'Link checker',
     );
   }
@@ -457,22 +457,22 @@ class LinkCheckerInterfaceTest extends DrupalWebTestCase {
     // Verify path input field appears on add "Basic page" form.
     $this->drupalGet('node/add/page');
     // Verify path input is present.
-    $this->assertFieldByName('path[alias]', '', t('Path input field present on add Basic page form.'));
+    $this->assertFieldByName('path[alias]', '', 'Path input field present on add Basic page form.');
 
     // Save node.
     $this->drupalPost('node/add/page', $edit, t('Save'));
-    $this->assertText(t('@type @title has been created.', array('@type' => 'Basic page', '@title' => $edit['title'])), t('Node was created.'));
+    $this->assertText(t('@type @title has been created.', array('@type' => 'Basic page', '@title' => $edit['title'])), 'Node was created.');
 
     $node = $this->drupalGetNodeByTitle($edit['title']);
-    $this->assertTrue($node, t('Node found in database.'));
+    $this->assertTrue($node, 'Node found in database.');
 
     // Verify if the content link is extracted properly.
     $link = $this->getLinkCheckerLink($url1);
     if ($link) {
-      $this->assertIdentical($link->url, $url1, t('URL %url found.', array('%url' => $url1)));
+      $this->assertIdentical($link->url, $url1, format_string('URL %url found.', array('%url' => $url1)));
     }
     else {
-      $this->fail(t('URL %url not found.', array('%url' => $url1)));
+      $this->fail(format_string('URL %url not found.', array('%url' => $url1)));
     }
 
     // Set link as failed once.
@@ -480,14 +480,14 @@ class LinkCheckerInterfaceTest extends DrupalWebTestCase {
     $status = '301';
     $this->setLinkAsBroken($url1, $status, $fail_count);
     $this->drupalGet('node/' . $node->nid . '/edit');
-    $this->assertRaw(format_plural($fail_count, 'Link check of <a href="@url">@url</a> failed once (status code: @code).', 'Link check of <a href="@url">@url</a> failed @count times (status code: @code).', array('@url' => $url1, '@code' => $status)), t('Link check failed once found.'));
+    $this->assertRaw(format_plural($fail_count, 'Link check of <a href="@url">@url</a> failed once (status code: @code).', 'Link check of <a href="@url">@url</a> failed @count times (status code: @code).', array('@url' => $url1, '@code' => $status)), 'Link check failed once found.');
 
     // Set link as failed multiple times.
     $fail_count = 4;
     $status = '404';
     $this->setLinkAsBroken($url1, $status, $fail_count);
     $this->drupalGet('node/' . $node->nid . '/edit');
-    $this->assertRaw(format_plural($fail_count, 'Link check of <a href="@url">@url</a> failed once (status code: @code).', 'Link check of <a href="@url">@url</a> failed @count times (status code: @code).', array('@url' => $url1, '@code' => $status)), t('Link check failed multiple times found.'));
+    $this->assertRaw(format_plural($fail_count, 'Link check of <a href="@url">@url</a> failed once (status code: @code).', 'Link check of <a href="@url">@url</a> failed @count times (status code: @code).', array('@url' => $url1, '@code' => $status)), 'Link check failed multiple times found.');
   }
 
   public function testLinkCheckerCreateBlockWithBrokenLinks() {
@@ -496,7 +496,7 @@ class LinkCheckerInterfaceTest extends DrupalWebTestCase {
 
     // Confirm that the add block link appears on block overview pages.
     $this->drupalGet('admin/structure/block');
-    $this->assertRaw(l(t('Add block'), 'admin/structure/block/add'), t('Add block link is present on block overview page for default theme.'));
+    $this->assertRaw(l(t('Add block'), 'admin/structure/block/add'), 'Add block link is present on block overview page for default theme.');
 
     $url1 = 'http://example.com/block/broken/link';
     $body = 'Lorem ipsum dolor sit amet <a href="' . $url1 . '">broken link</a> sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat';
@@ -510,19 +510,19 @@ class LinkCheckerInterfaceTest extends DrupalWebTestCase {
     $this->drupalPost('admin/structure/block/add', $custom_block, t('Save block'));
 
     // Confirm that the custom block has been created, and then query the created bid.
-    $this->assertText(t('The block has been created.'), t('Custom block successfully created.'));
+    $this->assertText(t('The block has been created.'), 'Custom block successfully created.');
     $bid = db_query("SELECT bid FROM {block_custom} WHERE info = :info", array(':info' => $custom_block['info']))->fetchField();
 
     // Check to see if the custom block was created by checking that it's in the database.
-    $this->assertNotNull($bid, t('Custom block found in database'));
+    $this->assertNotNull($bid, 'Custom block found in database');
 
     // Verify if the content link is extracted properly.
     $link = $this->getLinkCheckerLink($url1);
     if ($link) {
-      $this->assertIdentical($link->url, $url1, t('URL %url found.', array('%url' => $url1)));
+      $this->assertIdentical($link->url, $url1, format_string('URL %url found.', array('%url' => $url1)));
     }
     else {
-      $this->fail(t('URL %url not found.', array('%url' => $url1)));
+      $this->fail(format_string('URL %url not found.', array('%url' => $url1)));
     }
 
     // Set link as failed once.
@@ -530,14 +530,14 @@ class LinkCheckerInterfaceTest extends DrupalWebTestCase {
     $status = '301';
     $this->setLinkAsBroken($url1, $status, $fail_count);
     $this->drupalGet('admin/structure/block/manage/block/' . $bid . '/configure');
-    $this->assertRaw(format_plural($fail_count, 'Link check of <a href="@url">@url</a> failed once (status code: @code).', 'Link check of <a href="@url">@url</a> failed @count times (status code: @code).', array('@url' => $url1, '@code' => $status)), t('Link check failed once found.'));
+    $this->assertRaw(format_plural($fail_count, 'Link check of <a href="@url">@url</a> failed once (status code: @code).', 'Link check of <a href="@url">@url</a> failed @count times (status code: @code).', array('@url' => $url1, '@code' => $status)), 'Link check failed once found.');
 
     // Set link as failed multiple times.
     $fail_count = 4;
     $status = '404';
     $this->setLinkAsBroken($url1, $status, $fail_count);
     $this->drupalGet('admin/structure/block/manage/block/' . $bid . '/configure');
-    $this->assertRaw(format_plural($fail_count, 'Link check of <a href="@url">@url</a> failed once (status code: @code).', 'Link check of <a href="@url">@url</a> failed @count times (status code: @code).', array('@url' => $url1, '@code' => $status)), t('Link check failed multiple times found.'));
+    $this->assertRaw(format_plural($fail_count, 'Link check of <a href="@url">@url</a> failed once (status code: @code).', 'Link check of <a href="@url">@url</a> failed @count times (status code: @code).', array('@url' => $url1, '@code' => $status)), 'Link check failed multiple times found.');
   }
 
   /**
@@ -609,12 +609,12 @@ class LinkCheckerImpersonatingUserTestCase extends DrupalWebTestCase {
 
     // Verify that the active user has changed, and that session saving is
     // disabled.
-    $this->assertEqual($user->uid, ($original_user->uid == 0 ? 1 : 0), t('User switched'));
-    $this->assertFalse(drupal_save_session(), t('Session saving is disabled.'));
+    $this->assertEqual($user->uid, ($original_user->uid == 0 ? 1 : 0), 'User switched');
+    $this->assertFalse(drupal_save_session(), 'Session saving is disabled.');
 
     // Perform a second (nested) impersonation.
     linkchecker_impersonate_user(1);
-    $this->assertEqual($user->uid, 1, t('User switched.'));
+    $this->assertEqual($user->uid, 1, 'User switched.');
 
     // Revert to the user which was active between the first and second
     // impersonation attempt.
@@ -622,8 +622,8 @@ class LinkCheckerImpersonatingUserTestCase extends DrupalWebTestCase {
 
     // Since we are still impersonating the user from the first attempt,
     // session handling still needs to be disabled.
-    $this->assertEqual($user->uid, ($original_user->uid == 0 ? 1 : 0), t('User switched.'));
-    $this->assertFalse(drupal_save_session(), t('Session saving is disabled.'));
+    $this->assertEqual($user->uid, ($original_user->uid == 0 ? 1 : 0), 'User switched.');
+    $this->assertFalse(drupal_save_session(), 'Session saving is disabled.');
 
     // Revert to the original user which was active before the first
     // impersonation attempt.
@@ -631,12 +631,12 @@ class LinkCheckerImpersonatingUserTestCase extends DrupalWebTestCase {
 
     // Assert that the original user is the active user again, and that session
     // saving has been re-enabled.
-    $this->assertEqual($user->uid, $original_user->uid, t('Original user successfully restored.'));
+    $this->assertEqual($user->uid, $original_user->uid, 'Original user successfully restored.');
 
     // Simpletest uses linkchecker_impersonate_user() too, revert the impersonation by
     // Simpletest to enable session saving again. This is safe because calling
     // linkchecker_revert_user() too often simply results in returning the active user.
     linkchecker_revert_user();
-    $this->assertTrue(drupal_save_session(), t('Session saving is enabled.'));
+    $this->assertTrue(drupal_save_session(), 'Session saving is enabled.');
   }
 }

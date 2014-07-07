@@ -33,14 +33,19 @@ Required:
 
 Known issues:
 
-1. drupal_http_request() does handle (invalid) non-absolute redirects. The
-   main issue is a broken webserver configuration and you can try to notify
-   the site owner about doing non-rfc compliant redirections.
-   This is a very common administration fault from past days and core should
-   implement a workaround. See http://drupal.org/node/164365 for more details.
-   
-   Until this issue is fixed in core the permanently moved links are not
-   automatically fixed/updated by the "Update permanently moved links" feature
-   to the newly provided URL.
-   
-   -> Workaround: Manually fix these links or try the patch.
+There are a lot of known issues in drupal_http_request(). These have been solved
+in HTTPRL. As a workaround it's recommended to use HTTPRL in linkchecker.
+
+Issues list:
+ 
+* #997648: drupal_http_request() always calls fread() one more time than necessary
+* #164365-12: drupal_http_request() does handle (invalid) non-absolute redirects
+* #205969-11: drupal_http_request() assumes presence of Reason-Phrase in response Status-Line
+* #371495: Error message from drupal_http_request() not UTF8 encoded
+* #193073-11: drupal_http_request - socket not initialized
+* #106506-8: drupal_http_request() does not handle 'chunked' responses - Make it support HTTP 1.1
+* #1096890-15: drupal_http_request should return error if reaches max allowed redirects
+* #875342-21: drupal_http_request() should pick up X-Drupal-Assertion-* HTTP headers
+* #965078-31: HTTP request checking is unreliable and should be removed in favor of watchdog() calls
+* #336367: HTTP client should protect commas when folding (compatibility with legacy HTTP/1.0)
+* #45338: log fsockopen errors to watchdog
