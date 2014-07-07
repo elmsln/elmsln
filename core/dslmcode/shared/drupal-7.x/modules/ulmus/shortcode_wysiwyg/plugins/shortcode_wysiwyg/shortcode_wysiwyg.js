@@ -40,7 +40,6 @@
       Drupal.wysiwyg.plugins.shortcode_wysiwyg.insert_form(data, settings, instanceId);
     },
 
-
     insert_form:function (data, settings, instanceId) {
       var form_id = Drupal.settings.shortcode_wysiwyg.current_form;
       // Location, where to fetch the dialog.
@@ -57,8 +56,7 @@
           }
           catch (e) {
           }
-          ;
-        };
+        }
         var btns = {};
         btns[Drupal.t('Insert shortcode')] = function () {
 
@@ -71,7 +69,7 @@
             .each(function () {
               var name = $(this).attr('name'), val = $(this).val();
               if (val.length) {
-                options.push(name + '=' + '"' + val + '"');
+                options.push(name + '="' + val + '"');
               }
             });
 
@@ -94,13 +92,13 @@
           autoresize:true,
           namespace:'jquery_ui_dialog_default_ns',
           dialogClass:'jquery_ui_dialog-dialog',
-          title:Drupal.t('Insert shortcode'),
+          title:Drupal.t('Insert Shortcode'),
           buttons:btns,
           width:700,
           close:dialogClose
         });
         dialogdiv.dialog("open");
-        // TODO: add context there
+        // fixme: Add context there!
         Drupal.attachBehaviors();
       });
     },

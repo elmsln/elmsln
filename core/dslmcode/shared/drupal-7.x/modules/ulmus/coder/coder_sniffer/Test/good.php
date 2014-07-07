@@ -24,7 +24,7 @@ $foo = 'bar';
 define('FOO_BAR', 5);
 
 // Global variable names.
-global $user, $is_https, $_mymodule_myvar;
+global $argc, $argv, $user, $is_https, $_mymodule_myvar;
 
 /*
  * Multiline comment
@@ -253,6 +253,7 @@ do {
  * @see example_reference()
  * @see Example::exampleMethod()
  * @see http://drupal.org
+ * @see http://example.com/see/documentation/is/allowed/to/exceed/eighty/characters
  */
 function foo_bar($field1, $field2, $field3 = NULL, &$field4 = NULL) {
   $system["description"] = t("This module inserts funny text into posts randomly.");
@@ -296,7 +297,10 @@ $var = foo(
  */
 class Bar {
 
-  // Public properties don't have a prefix.
+  // Private properties have no prefix.
+  private $secret = 1;
+
+  // Protected properties also don't have a prefix.
   protected $foo = 1;
 
   // Longer properties use camelCase naming.
@@ -535,6 +539,13 @@ function mymodule_foo_bar() {
 }
 
 /**
+ * Implements drush_hook_foo_bar().
+ */
+function drush_mymodule_foo_bar() {
+
+}
+
+/**
  * Not documenting all parameters is allowed.
  *
  * @param Node $node
@@ -594,4 +605,14 @@ class Foo implements FooInterface {
    * Some additional documentation here.
    */
   public function test2() {}
+
+  /**
+   * Returns the string representatuion of this object.
+   */
+  public function __toString() {
+    return 'foo';
+  }
 }
+
+t('Some long mulit-line 
+  text is weird, but allowed.');

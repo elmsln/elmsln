@@ -12,6 +12,11 @@
 define('BOOST_CACHEABILITY_PAGES', '');
 
 /**
+ * Whether the host supports gzip
+ */
+define('BOOST_GZIP', function_exists('gzencode'));
+
+/**
  * Default cookie name.
  */
 define('BOOST_COOKIE', 'DRUPAL_UID');
@@ -81,6 +86,12 @@ define('BOOST_VISIBILITY_LISTED', 1);
  * Shows this block if the associated PHP code returns TRUE.
  */
 define('BOOST_VISIBILITY_PHP', 2);
+
+/**
+ * Default Setting for .htaccess files +FollowSymLinks, some ISP's require
+ * +SymlinksIfOwnerMatch to avoid http 500 error.
+ */
+define('BOOST_MATCH_SYMLINKS_OPTIONS', 1);
 
 /**
  * Implements hook_menu().
@@ -156,6 +167,16 @@ function boost_menu() {
     'type' => MENU_LOCAL_TASK,
     'file' => 'boost.admin.expiration.inc',
     'file path' => $path,
+  );
+  $items['admin/config/system/boost/listmodules'] = array(
+    'title' => 'Related Modules',
+    'description' => ' Compatible Modules that add features to Boost.',
+    'page callback' => 'boost_admin_modules_theme',
+    'page callback' => 'boost_compatible_output',
+    'access arguments' => array('administer site configuration'),
+    'type' => MENU_LOCAL_TASK,
+    'file' => 'boost.admin.modules.inc',
+    'weight' => 100,
   );
 
   return $items;
@@ -302,6 +323,12 @@ function boost_exit($destination = NULL) {
     $_boost['filename'] .= '.' . $_boost['matched_header_info']['extension'];
     // Write to file.
     boost_write_file($_boost['filename'], $data);
+
+    // Gzip support.
+    if (BOOST_GZIP && $_boost['matched_header_info']['gzip']) {
+      // #1416214
+      // boost_write_file($_boost['filename'] . '.gz', gzencode($data, 9));
+    }
   }
 }
 
@@ -318,7 +345,9 @@ function boost_cron() {
 
   if (isset($_boost['base_dir']) && variable_get('boost_expire_cron', BOOST_EXPIRE_CRON)) {
     $count = _boost_rmdir($_boost['base_dir'], FALSE);
-    watchdog('boost', 'Expired %count stale files from static page cache.', array('%count' => $count), WATCHDOG_NOTICE);
+    if (variable_get('boost_message_debug', BOOST_MESSAGE_DEBUG)) {
+      watchdog('boost', 'Expired %count stale files from static page cache.', array('%count' => $count), WATCHDOG_NOTICE);
+    }
   }
 }
 
@@ -350,12 +379,19 @@ function boost_expire_cache($urls) {
 
   foreach ($urls as $url) {
     // Check if the URL to be flushed matches our base URL
-    if (strpos($base_root, $url) == 0) {
+    // base_root: http://www.example.org
+    // url: http://www.example.org/node/123
+    if (strpos($url, $base_root) === 0) {
       $boost = boost_transform_url($url);
 
       // We need the extention for the filename
       $boost['header_info'] = boost_get_header_info();
       $boost['matched_header_info'] = boost_match_header_attributes($boost['header_info']);
+
+      // Issue #2135835 Cache may not be enabled for this type (html/xml/ajax)
+      if (! $boost['matched_header_info']['enabled']) {
+        continue;
+      }
 
       $filename = (isset($boost['filename']) ? $boost['filename'] . '.' . $boost['matched_header_info']['extension'] : NULL);
 
@@ -476,7 +512,7 @@ function boost_parse_url($url = NULL, $b_path = NULL) {
   if (!isset($parts['query'])) {
     $parts['query'] = '';
   }
-  $parts['path'] = $parts['full_path'] = urldecode(preg_replace('/^' . preg_quote($b_path, '/') .'/i', '', $parts['path']));
+  $parts['path'] = $parts['full_path'] = urldecode(preg_replace('/^' . preg_quote($b_path, '/') . '/i', '', $parts['path']));
   $parts['base_path'] = $b_path;
   $parts['query_array'] = array();
   parse_str($parts['query'], $parts['query_array']);
@@ -1012,6 +1048,7 @@ function boost_match_header_attributes($header_info) {
 
   $keys = array(
     'enabled',
+    'gzip',
     'extension',
     'lifetime_max',
     'lifetime_min',
@@ -1271,7 +1308,7 @@ function boost_write_file($filename, $data) {
 
   // Move temp file to real filename; windows can not do a rename replace.
   if (@rename($tempname, $filename) === FALSE) {
-    $oldname = $tempname. 'old';
+    $oldname = $tempname . 'old';
     if (@rename($filename, $oldname) !== FALSE) {
       if (@rename($tempname, $filename) === FALSE) {
         watchdog('boost', 'Could not rename the file %file on your system', array('%file' => $filename), WATCHDOG_ERROR);
@@ -1511,7 +1548,7 @@ function boost_htaccess_cache_dir_generate() {
   $string .= "\n";
   $string .= "SetHandler Drupal_Security_Do_Not_Remove_See_SA_2006_006\n";
   $string .= "Options None\n";
-  $string .= "Options +FollowSymLinks\n";
+  $string .= "Options +" . ( variable_get('boost_match_symlinks_options', BOOST_MATCH_SYMLINKS_OPTIONS) ? "FollowSymLinks" : "SymLinksIfOwnerMatch" ) . "\n";
   $string .= "\n";
 
   return $string;

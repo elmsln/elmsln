@@ -23,9 +23,9 @@ $plugin = array(
 
   // Define the names of the functions that provide the add/edit forms.
   'form' => array(
-    'settings' => 'environment_indicator_ctools_export_ui_form',
-    'validate' => 'environment_indicator_ctools_export_ui_validate',
-    'submit' => 'environment_indicator_ctools_export_ui_form_submit',
+    'settings' => 'environment_indicator_ui_form',
+    'validate' => 'environment_indicator_ui_validate',
+    'submit' => 'environment_indicator_ui_form_submit',
   ),
   'handler' => array(
     'class' => 'ctools_export_ui_environment_indicator',

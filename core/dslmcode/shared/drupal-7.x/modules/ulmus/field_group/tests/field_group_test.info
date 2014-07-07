@@ -1,12 +1,13 @@
-name = "Fieldgroup Test"
-description = "Test module for fieldgroup"
+name = "Field Group Test"
+description = "Test module for Field Group"
 core = "7.x"
-package = "Fieldgroup"
+package = Fields
+hidden = TRUE
 
 
-; Information added by drupal.org packaging script on 2013-09-25
-version = "7.x-1.3"
+; Information added by Drupal.org packaging script on 2014-06-04
+version = "7.x-1.4"
 core = "7.x"
 project = "field_group"
-datestamp = "1380124361"
+datestamp = "1401918529"
 

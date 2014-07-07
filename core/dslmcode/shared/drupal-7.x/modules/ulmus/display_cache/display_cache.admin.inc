@@ -22,7 +22,7 @@ function display_cache_flush_caches_form($form, $form_state) {
  * Submit handler for display_cache_flush_caches_form().
  */
 function display_cache_flush_caches_form_submit($form, $form_state) {
-  cache_clear_all('*', 'cache_display_cache', TRUE);
+  cache_clear_all('*', DISPLAY_CACHE_CACHE_BIN, TRUE);
   drupal_set_message(t('Display cache cleared.'));
 }
 

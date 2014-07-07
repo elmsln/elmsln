@@ -7,9 +7,9 @@ dependencies[] = replicate
 dependencies[] = field_collection
 dependencies[] = entity
 
-; Information added by drupal.org packaging script on 2013-04-26
-version = "7.x-1.0+2-dev"
+; Information added by Drupal.org packaging script on 2014-06-24
+version = "7.x-1.1"
 core = "7.x"
 project = "replicate_field_collection"
-datestamp = "1366983728"
+datestamp = "1403622228"
 

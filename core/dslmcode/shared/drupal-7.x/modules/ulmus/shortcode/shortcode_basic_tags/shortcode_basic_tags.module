@@ -10,7 +10,7 @@ function shortcode_basic_tags_shortcode_info() {
     'description' => t('Replace the given text formatted like as a quote.'),
     'process callback' => 'shortcode_basic_tags_shortcode_quote',
     //'settings callback' => '_shortcode_settings_form', TODO
-    'attributes callback' => "shortcode_basic_tags_quote_attributes",
+    'attributes callback' => 'shortcode_basic_tags_quote_attributes',
     'tips callback' => 'shortcode_basic_tags_shortcode_quote_tip',
   );
   $shortcodes['img'] = array(

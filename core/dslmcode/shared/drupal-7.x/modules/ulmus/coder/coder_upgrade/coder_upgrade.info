@@ -24,9 +24,9 @@ files[] = coder_upgrade.test
 
 configure = admin/config/development/coder/upgrade/settings
 
-; Information added by drupal.org packaging script on 2013-08-11
-version = "7.x-2.0"
+; Information added by Drupal.org packaging script on 2014-02-23
+version = "7.x-2.2"
 core = "7.x"
 project = "coder"
-datestamp = "1376244716"
+datestamp = "1393152812"
 

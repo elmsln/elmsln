@@ -284,7 +284,7 @@ function devel_themer_catch_function() {
       foreach ($meta['suggestions'] as $delta => $suggestion) {
         $meta['suggestions'][$delta] = "{$theme}_{$suggestion}()";
       }
-
+      $meta['search'] = 'theme_' . $meta['suggested_hook'];
     }
     else {
       // If the template hasn't been overwritten by the theme, add it as a
@@ -295,6 +295,7 @@ function devel_themer_catch_function() {
       foreach ($meta['suggestions'] as $delta => $suggestion) {
         $meta['suggestions'][$delta] = strtr($suggestion, '_', '-') . $meta['extension'];
       }
+      $meta['search'] = strtr($meta['suggested_hook'], '_', '-') . $meta['extension'];
     }
 
     $GLOBALS['devel_theme_calls'][$key] = array(
@@ -306,6 +307,7 @@ function devel_themer_catch_function() {
       'candidates' => $meta['suggestions'],
       'preprocessors' => $meta['preprocess functions'],
       'processors' => $meta['process functions'],
+      'search' => $meta['search'],
       // Variables are stored on the server and sent to browser via Ajax.
       'variables' => devel_themer_store_krumo($meta['variables']),
     );

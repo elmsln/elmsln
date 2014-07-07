@@ -58,12 +58,11 @@ class Drupal_Sniffs_NamingConventions_ValidFunctionNameSniff extends PEAR_Sniffs
         $className = $phpcsFile->getDeclarationName($currScope);
         $errorData = array($className.'::'.$methodName);
 
-        // Is this a magic method. IE. is prefixed with "__".
+        // Is this a magic method. i.e., is prefixed with "__" ?
         if (preg_match('|^__|', $methodName) !== 0) {
-            $magicPart = substr($methodName, 2);
+            $magicPart = strtolower(substr($methodName, 2));
             if (in_array($magicPart, $this->magicMethods) === false) {
                  $error = 'Method name "%s" is invalid; only PHP magic methods should be prefixed with a double underscore';
-
                  $phpcsFile->addError($error, $stackPtr, 'MethodDoubleUnderscore', $errorData);
             }
 

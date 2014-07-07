@@ -6,6 +6,19 @@
  */
 
 /**
+ * Determines the administration path for a bundle.
+ */
+function imageinfo_cache_bundle_admin_path($entity_type, $bundle_name, $field_name) {
+  $bundles = field_info_bundles($entity_type);
+  $bundle_info = $bundles[$bundle_name];
+  if (isset($bundle_info['admin'])) {
+    $return = isset($bundle_info['admin']['real path']) ? $bundle_info['admin']['real path'] : $bundle_info['admin']['path'];
+    $return .= '/fields/' . $field_name;
+    return $return;
+  }
+}
+
+/**
  * Form builder; Configure advagg settings.
  *
  * @ingroup forms
@@ -23,6 +36,26 @@ function imageinfo_cache_admin_settings_form($form, $form_state) {
     '#description' => t('If <a href="@link">HTTPRL</a> is installed, image styles will be generated in a background parallel process, thus not slowing down entity saves and image file uploads.', array('@link' => 'http://drupal.org/project/httprl')),
     '#disabled' => module_exists('httprl') ? FALSE : TRUE,
   );
+  $form['imageinfo_cache_pseudo_image_toolkit'] = array(
+    '#type' => 'checkbox',
+    '#title' => t('Cache calls to getimagesize()'),
+    '#default_value' => variable_get('imageinfo_cache_pseudo_image_toolkit', IMAGEINFO_CACHE_PSEUDO_IMAGE_TOOLKIT),
+    '#description' => t('Useful if your filesystem is not local. Uses a wrapper around calls to the real image toolkit; putting caching in optimal places.'),
+  );
+  $form['imageinfo_cache_disable_on_demand_generation'] = array(
+    '#type' => 'checkbox',
+    '#title' => t('Disable on-demand generation'),
+    '#default_value' => variable_get('imageinfo_cache_disable_on_demand_generation', IMAGEINFO_CACHE_DISABLE_ON_DEMAND_GENERATION),
+    '#description' => t('Disable image style generation from the URL. Images can be generated from the URL only if you have the "administer image styles" permission.'),
+  );
+  if (variable_get('image_allow_insecure_derivatives', FALSE)) {
+    $form['imageinfo_cache_strip_image_token'] = array(
+      '#type' => 'checkbox',
+      '#title' => t('Remove itok from images'),
+      '#default_value' => variable_get('imageinfo_cache_strip_image_token', IMAGEINFO_CACHE_STRIP_IMAGE_TOKEN),
+      '#description' => t('Sometimes the ?itok=___ query parameter can cause issues. Enabling this will remove itok from image style output.'),
+    );
+  }
 
   $form['pre_generation'] = array(
     '#type' => 'fieldset',
@@ -30,14 +63,34 @@ function imageinfo_cache_admin_settings_form($form, $form_state) {
     '#description' => t('Styles that end with * are enabled by default as they are being used for that field.'),
   );
 
+  $instances = field_info_instances();
+  $field_types = field_info_field_types();
+  $bundles = field_info_bundles();
+  $field_admin_paths = array();
+  foreach ($instances as $entity_type => $type_bundles) {
+    foreach ($type_bundles as $bundle => $bundle_instances) {
+      foreach ($bundle_instances as $field_name => $instance) {
+        $admin_path = imageinfo_cache_bundle_admin_path($entity_type, $bundle, $field_name);
+        if (!empty($admin_path)) {
+          if (empty($field_admin_paths[$field_name])) {
+            $field_admin_paths[$field_name] = l($bundles[$entity_type][$bundle]['label'], $admin_path);
+          }
+          else {
+            $field_admin_paths[$field_name] .= ', ' . l($bundles[$entity_type][$bundle]['label'], $admin_path);
+          }
+        }
+      }
+    }
+  }
+
   // Get image styles.
   $image_styles = array_keys(image_styles());
   $image_styles = array_combine($image_styles, $image_styles);
   ksort($image_styles);
 
   // Get image fields.
-  $image_field_defaults = imageinfo_cache_get_image_fields(FALSE);
-  $image_fields = imageinfo_cache_get_image_fields();
+  $image_field_defaults = imageinfo_cache_get_image_fields(FALSE, FALSE);
+  $image_fields = imageinfo_cache_get_image_fields(TRUE, FALSE);
   $all_image_styles_used = array();
   foreach ($image_fields as $field_name => $image_styles_used) {
     if (isset($image_styles_used['#field_info'])) {
@@ -48,13 +101,29 @@ function imageinfo_cache_admin_settings_form($form, $form_state) {
     // Create the fieldset.
     $form['pre_generation']['field_' . $field_name] = array(
       '#type' => 'fieldset',
-      '#title' => t('@field_name: @styles_checked', array(
+      '#title' => t('@field_name: @styles_checked_count in use', array(
         '@field_name' => strpos($field_name, 'field_') === 0 ? substr($field_name, 6) : $field_name,
-        '@styles_checked' => implode(', ', $image_styles_used),
+        '@styles_checked_count' => format_plural(count($image_styles_used), '1 style', '@count styles'),
       )),
       '#collapsible' => TRUE,
       '#collapsed' => TRUE,
     );
+    if (!empty($field_admin_paths[$field_name])) {
+      $form['pre_generation']['field_' . $field_name]['field_definition'] = array(
+        '#markup' => '<div>' . t('Field defined in these entity bundles: !bundles.', array(
+          '!bundles' => $field_admin_paths[$field_name],
+          )) . '</div>',
+      );
+    }
+    $views = imageinfo_cache_get_image_styles_in_views($field_name, TRUE);
+    if (!empty($views)) {
+      $form['pre_generation']['field_' . $field_name]['used_in_views'] = array(
+        '#markup' => '<div>' . t('Views used for display: !views.', array(
+          '!views' => $views,
+          )) . '</div>',
+      );
+    }
+
 
     // Add a * to the end of default styles.
     if (isset($image_field_defaults[$field_name]['#field_info'])) {
@@ -82,9 +151,9 @@ function imageinfo_cache_admin_settings_form($form, $form_state) {
   $styles_not_used = array_diff($image_styles, $all_image_styles_used);
 
   $form['pre_generation']['styles_not_in_use'] = array(
-    '#type' => 'textfield',
-    '#title' => 'Image Styles Not in Use',
-    '#value' => implode(', ', $styles_not_used),
+    '#type' => 'markup',
+    '#markup' => '<div><strong>' . t('Image styles not in use') . "</strong></br>\n" . implode("</br>\n", $styles_not_used) . '</div>',
+    '#disabled' => TRUE,
   );
 
   $form['buttons']['reset'] = array(
@@ -110,10 +179,23 @@ function imageinfo_cache_admin_settings_form($form, $form_state) {
  * Only record the non-default presets.
  */
 function imageinfo_cache_admin_settings_form_submit($form, &$form_state) {
+  // Flush the menu cache if imageinfo_cache_disable_on_demand_generation is
+  // changing state.
+  $new = $form_state['values']['imageinfo_cache_disable_on_demand_generation'];
+  $old = variable_get('imageinfo_cache_disable_on_demand_generation', IMAGEINFO_CACHE_DISABLE_ON_DEMAND_GENERATION);
+  if ($new != $old) {
+    drupal_set_message('Rebuilding the menu cache.');
+    $GLOBALS['conf']['imageinfo_cache_disable_on_demand_generation'] = $new;
+    drupal_register_shutdown_function('menu_rebuild');
+  }
+
   $op = isset($form_state['values']['op']) ? $form_state['values']['op'] : '';
   if ($op == t('Reset to defaults')) {
     foreach ($form_state['values'] as $key => $value) {
       if (is_array($value)) {
+        variable_del($key);
+      }
+      elseif (strpos($key, 'imageinfo_cache_') === 0) {
         variable_del($key);
       }
     }
@@ -128,7 +210,7 @@ function imageinfo_cache_admin_settings_form_submit($form, &$form_state) {
 
   // Get the default values.
   $default_values = array();
-  $image_fields = imageinfo_cache_get_image_fields(FALSE);
+  $image_fields = imageinfo_cache_get_image_fields(FALSE, FALSE);
   foreach ($image_fields as $field_name => &$image_styles_used) {
     if (isset($image_styles_used['#field_info'])) {
       unset($image_styles_used['#field_info']);
@@ -155,6 +237,9 @@ function imageinfo_cache_admin_settings_form_submit($form, &$form_state) {
     if (is_array($selection) && isset($default_values[$field_name])) {
       ksort($selection);
       $values[$field_name] = $selection;
+    }
+    elseif (strpos($field_name, 'imageinfo_cache_') === 0) {
+      variable_set($field_name, $selection);
     }
   }
 

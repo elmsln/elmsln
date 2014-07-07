@@ -11,6 +11,13 @@ define('DISPLAY_CACHE_ENABLED', '1');
 define('DISPLAY_CACHE_FIELDS', '2');
 
 /**
+ * Name of the display cache cache bin.
+ *
+ * @var string
+ */
+define('DISPLAY_CACHE_CACHE_BIN', 'cache_display_cache');
+
+/**
  * Implements hook_form_FORM_ID_alter().
  */
 function display_cache_form_field_ui_display_overview_form_alter(&$form, &$form_state) {
@@ -24,7 +31,7 @@ function display_cache_form_field_ui_display_overview_form_alter(&$form, &$form_
  * Implements hook_flush_caches().
  */
 function display_cache_flush_caches() {
-  return array('cache_display_cache');
+  return array(DISPLAY_CACHE_CACHE_BIN);
 }
 
 /**
@@ -53,17 +60,10 @@ function display_cache_menu() {
 function display_cache_admin_menu_cache_info() {
   $links['display_cache'] = array(
     'title' => 'Display Caches',
-    'callback' => '_display_cache_flush_cache_callback',
+    'callback' => '_display_cache_clear_cache',
   );
 
   return $links;
-}
-
-/**
- * Menu callback to clear the cache table.
- */
-function _display_cache_flush_cache_callback() {
-  cache_clear_all('*', 'cache_display_cache', TRUE);
 }
 
 /**
@@ -107,7 +107,7 @@ function display_cache_flush_cache($entity_type, $entity = NULL, $view_mode = NU
   $keys = display_cache_get_cache_keys($entity_type, $entity, $view_mode, $element);
 
   $cache_id = implode(':', $keys);
-  cache_clear_all($cache_id, 'cache_display_cache', TRUE);
+  cache_clear_all($cache_id, DISPLAY_CACHE_CACHE_BIN, TRUE);
 }
 
 
@@ -168,6 +168,10 @@ function display_cache_get_settings($entity_type, $bundle, $view_mode) {
  * Implements hook_entity_view_alter().
  */
 function display_cache_entity_view_alter(&$build, $entity_type) {
+  // Disable display_cache by global setting.
+  if (variable_get('display_cache_disable', FALSE) === TRUE) {
+    return;
+  }
 
   $view_mode = $build['#view_mode'];
   $bundle = $build['#bundle'];
@@ -198,7 +202,7 @@ function display_cache_entity_view_alter(&$build, $entity_type) {
 
     $build['#cache'] = array(
       'keys' => $keys,
-      'bin' => 'cache_display_cache',
+      'bin' => DISPLAY_CACHE_CACHE_BIN,
       'granularity' => $display_settings['granularity'],
     );
   }
@@ -208,6 +212,10 @@ function display_cache_entity_view_alter(&$build, $entity_type) {
  * Implements hook_field_attach_view_alter().
  */
 function display_cache_field_attach_view_alter(&$output, $context) {
+  // Disable display_cache by global setting.
+  if (variable_get('display_cache_disable', FALSE) === TRUE) {
+    return;
+  }
 
   $entity_type = $context['entity_type'];
   $entity_id = entity_id($entity_type, $context['entity']);
@@ -270,32 +278,36 @@ function display_cache_view_entity($entities, $view_mode, $langcode, $entity_typ
   $return = array();
 
   foreach ($entities as $entity_id => $entity) {
-    $entity_info = entity_get_info($entity_type);
-    if (!empty($entity_info['bundle keys']['bundle'])) {
-      $bundle_key = $entity_info['bundle keys']['bundle'];
-    }
-    else {
-      $bundle_key = $entity_info['entity keys']['bundle'];
-    }
-    $bundle = $entity->{$bundle_key};
-    $settings = display_cache_get_settings($entity_type, $bundle, $view_mode);
     $render_array = array();
 
-    if ($settings['default']['use'] == DISPLAY_CACHE_ENABLED) {
-      // Get rendered HTML from cache.
-      $keys = display_cache_get_cache_keys($entity_type, $entity_id, $view_mode, 'entity');
-      $cid_parts = array(
-        '#cache' => array(
-          'keys' => $keys,
-          'granularity' => $settings['default']['granularity'],
-        ),
-      );
+    // Disable display_cache by global setting.
+    if (variable_get('display_cache_disable', FALSE) === FALSE) {
+      $entity_info = entity_get_info($entity_type);
+      if (!empty($entity_info['entity keys']['bundle'])) {
+        $bundle_key = $entity_info['entity keys']['bundle'];
+      }
+      else {
+        $bundle_key = $entity_info['bundle keys']['bundle'];
+      }
 
-      $cid = drupal_render_cid_create($cid_parts);
+      $bundle = $entity->{$bundle_key};
+      $settings = display_cache_get_settings($entity_type, $bundle, $view_mode);
 
-      $data = cache_get($cid, 'cache_display_cache');
-      if (!empty($data->data)) {
-        $render_array = $data->data;
+      if ($settings['default']['use'] == DISPLAY_CACHE_ENABLED) {
+        // Get rendered HTML from cache.
+        $keys = display_cache_get_cache_keys($entity_type, $entity_id, $view_mode, 'entity');
+        $cid_parts = array(
+          '#cache' => array(
+            'keys' => $keys,
+            'granularity' => $settings['default']['granularity'],
+          ),
+        );
+
+        $cid = drupal_render_cid_create($cid_parts);
+        $data = cache_get($cid, DISPLAY_CACHE_CACHE_BIN);
+        if (!empty($data->data)) {
+          $render_array = $data->data;
+        }
       }
     }
     if (empty($render_array)) {
@@ -367,4 +379,11 @@ function display_cache_get_cache_keys($entity_type, $entity_id = NULL, $view_mod
   drupal_alter('display_cache_cache_keys', $keys);
 
   return $keys;
+}
+
+/**
+ * Clears cache of display_cache module.
+ */
+function _display_cache_clear_cache() {
+  cache_clear_all('*', DISPLAY_CACHE_CACHE_BIN, TRUE);
 }

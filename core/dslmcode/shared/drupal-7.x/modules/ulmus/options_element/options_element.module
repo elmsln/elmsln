@@ -275,7 +275,6 @@ function options_element_field_instance_settings_validate($form, &$form_state) {
 function _options_element_add_allowed_values_element(&$form, $element) {
   $default_element = array(
     '#type' => 'options',
-    '#options' => array(),
     '#key_type' => 'mixed', // Optimal for now.
     '#key_type_toggle' => t('Custom keys'),
     '#key_type_toggled' => TRUE,

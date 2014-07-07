@@ -18,7 +18,14 @@ function addanother_uninstall() {
     variable_del('addanother_tab_edit_' . $typeid);
     variable_del('addanother_button_' . $typeid);
   }
+
+  variable_del('addanother_default_message'); // can't put the word default at the end of this variable name in the rare case that there is a content type with a machine name of 'default'
+  variable_del('addanother_default_tab');
+  variable_del('addanother_default_tab_edit');
+  variable_del('addanother_default_button');
+
 }
+
 
 function addanother_update_last_removed() {
   // All 5.x update functions have been removed.

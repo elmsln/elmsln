@@ -8,11 +8,10 @@
   display: none;
   height: 30px;
   line-height: 30px;
-  padding: 5px;
+  padding: 5px 10px;
   position: fixed;
   right: 10px;
   text-align: center;
-  width: 100px;
   z-index: 1;
   -moz-border-radius: 5px;
   -webkit-border-radius: 5px;

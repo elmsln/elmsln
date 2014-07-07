@@ -75,7 +75,7 @@ function aurora_preprocess_html(&$vars) {
     '#tag' => 'meta',
     '#attributes' => array(
       'name' => 'viewport',
-      'content' => 'initial-scale=1.0',
+      'content' => 'width=device-width, initial-scale=1.0',
     ),
   );
   drupal_add_html_head($viewport, 'viewport');
@@ -228,8 +228,8 @@ function aurora_process_html_tag(&$vars) {
  * Backports the following variable changes to Drupal 8:
  * - #1189816: Convert comment.tpl.php to HTML5.
  */
-function aurora_preprocess_comment(&$variables) {
-  $variables['user_picture'] = theme_get_setting('toggle_comment_user_picture') ? theme('user_picture', array('account' => $variables['comment'])) : '';
+function aurora_preprocess_comment(&$vars) {
+  $vars['user_picture'] = theme_get_setting('toggle_comment_user_picture') ? theme('user_picture', array('account' => $vars['comment'])) : '';
 }
 
 /**
@@ -238,8 +238,18 @@ function aurora_preprocess_comment(&$variables) {
  * Backports the following changes to made Drupal 8:
  * - #1190218: Convert user-profile-category.tpl.php to HTML5.
  */
-function aurora_preprocess_user_profile_category(&$variables) {
-  $variables['classes_array'][] = 'user-profile-category-' . drupal_html_class($variables['title']);
+function aurora_preprocess_user_profile_category(&$vars) {
+  $vars['classes_array'][] = 'user-profile-category-' . drupal_html_class($vars['title']);
+
+  // We want to add some basic template suggestions, in case we are using
+  // different view modes within our user display.
+  $view_mode = $vars['elements']['#view_mode'];
+  $user = $vars['elements']['#account'];
+
+  $vars['theme_hook_suggestions'][] = 'user_profile';
+  $vars['theme_hook_suggestions'][] = 'user_profile__' . $view_mode;
+  $vars['theme_hook_suggestions'][] = 'user_profile__' . $user->uid;
+  $vars['theme_hook_suggestions'][] = 'user_profile__' . $view_mode . '__' . $user->uid;
 }
 
 /**
@@ -280,6 +290,13 @@ function aurora_css_alter(&$css) {
     $css[$color . '/color-rtl.css']['data'] = $dir . '/color/color.admin-rtl.css';
   }
 
+  // Force CSS to be added with link tags, rather than @import. This prevents
+  // crashing Chrome when using the inspector while livereload is enabled.
+  if (theme_get_setting('aurora_livereload')) {
+    foreach ($css as $key => $value) {
+      $css[$key]['preprocess'] = FALSE;
+    }
+  }
 }
 
 /**
@@ -288,17 +305,24 @@ function aurora_css_alter(&$css) {
  * Backports the following changes made to Drupal 8:
  * - #1077602: Convert node.tpl.php to HTML5.
  */
-function aurora_preprocess_node(&$variables) {
+function aurora_preprocess_node(&$vars) {
   // Add article ARIA role.
-  $variables['attributes_array']['role'] = 'article';
+  $vars['attributes_array']['role'] = 'article';
 }
 
 function aurora_preprocess_panels_pane(&$vars) {
-  $subtype = $vars['pane']->subtype;
-  $layout = $vars['display']->layout;
-  $vars['theme_hook_suggestions'][] = 'panels_pane__' . $layout;
-  $vars['theme_hook_suggestions'][] = 'panels_pane__' . $subtype;
-  $vars['theme_hook_suggestions'][] = 'panels_pane__' . $layout . '__' . $subtype;
+  $subtype = isset($vars['pane']->subtype) ? $vars['pane']->subtype : FALSE;
+  $layout = isset($vars['display']->layout) ? $vars['display']->layout : FALSE;
+
+  if ($subtype) {
+    $vars['theme_hook_suggestions'][] = 'panels_pane__' . $subtype;
+  }
+  if ($layout) {
+    $vars['theme_hook_suggestions'][] = 'panels_pane__' . $layout;
+  }
+  if ($subtype && $layout) {
+    $vars['theme_hook_suggestions'][] = 'panels_pane__' . $layout . '__' . $subtype;
+  }
 }
 
 function aurora_panels_default_style_render_region($vars) {
@@ -339,6 +363,7 @@ function aurora_preprocess_block(&$vars) {
 
     $vars['logo'] = $image;
     $vars['sitename'] = $site_name;
+    $vars['sitepath'] = url('<front>');
   }
   // Site Name Block
   else if ($vars['block']->delta == 'blockify-site-name') {
@@ -347,6 +372,7 @@ function aurora_preprocess_block(&$vars) {
     $site_name = filter_xss_admin(variable_get('site_name', 'Drupal'));
 
     $vars['sitename'] = $site_name;
+    $vars['sitepath'] = url('<front>');
   }
   // Site Slogan Block
   else if ($vars['block']->delta == 'blockify-site-slogan') {

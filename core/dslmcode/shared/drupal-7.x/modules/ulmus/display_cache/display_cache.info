@@ -5,9 +5,9 @@ core = "7.x"
 
 dependencies[] = entity
 
-; Information added by drupal.org packaging script on 2013-08-19
-version = "7.x-1.0-beta1"
+; Information added by Drupal.org packaging script on 2014-05-08
+version = "7.x-1.0"
 core = "7.x"
 project = "display_cache"
-datestamp = "1376902624"
+datestamp = "1399555728"
 

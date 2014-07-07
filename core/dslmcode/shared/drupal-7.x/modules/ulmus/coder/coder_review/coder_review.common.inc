@@ -1595,7 +1595,13 @@ function _cache_set($cid, $data, $bin = 'default') {
  * @see drupal_substr()
  */
 function _substr($text, $start, $length = NULL) {
-  return function_exists('drupal_substr') ? drupal_substr($text, $start, $length) : substr($text, $start, $length);
+  if (function_exists('drupal_substr')) {
+    return drupal_substr($text, $start, $length);
+  }
+  if ($length === NULL) {
+    $length = strlen($text) - $start;
+  }
+  return substr($text, $start, $length);
 }
 
 /**

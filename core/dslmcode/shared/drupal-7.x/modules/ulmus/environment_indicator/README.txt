@@ -26,8 +26,9 @@ Bug reports, feature suggestions and latest developments:
 You may configure the environment at /admin/settings/environment-indicator
 
 You can also override settings in settings.php, allowing you to have different
-settings for each of your environments. If you choose to detect your environment using settings.php, then all configuration variables can be
-overridden in settings.php, but the most common three are:
+settings for each of your environments. If you choose to detect your environment
+using settings.php, then all configuration variables can be overridden in
+settings.php, but the most common three are:
 
   - environment_indicator_overwrite
       A boolean value indicating whether the Environment Indicator should use
@@ -48,6 +49,17 @@ overridden in settings.php, but the most common three are:
       A boolean value indicating whether the Environment Indicator should be
       fixed at the top/bottom of the screen. e.g:
       $conf['environment_indicator_overwritten_fixed'] = FALSE
+
+-- ACQUIA CLOUD INTEGRATION --
+
+Copy the file in samples/environment-indicator.sh to your
+hooks/[your-environment]/post-code-deploy folder and give it execution
+permissions. Replace [your-environment] by your environment site alias or use
+'common' to use it in all your environments (recommended). This integration
+relies on the presence of the environment variable AH_SITE_ENVIRONMENT.
+
+You can read more about Cloud Hooks in
+https://github.com/acquia/cloud-hooks/blob/master/README.md
 
 -- CONTACT --
 

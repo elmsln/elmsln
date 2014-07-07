@@ -208,7 +208,7 @@ function fontfolio_preprocess_block(&$vars) {
 /**
  * Implements hook_form_FORM_ID_alter.
  */
-function fontfolio_form_search_block_form_alter(&$form, &$form_state) {
+function fontfolio_form_search_block_form_alter(&$form, &$form_state, $form_id) {
   // Change the text on the label element.
   $form['search_block_form']['#title'] = t('Search');
   // Toggle label visibilty.

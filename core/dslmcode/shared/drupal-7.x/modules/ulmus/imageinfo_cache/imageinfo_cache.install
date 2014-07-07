@@ -1,0 +1,42 @@
+<?php
+
+/**
+ * @file
+ * Handles Imageinfo Cache installation and upgrade tasks.
+ */
+
+/**
+ * Implements hook_uninstall().
+ */
+function imageinfo_cache_uninstall() {
+  // Remove imageinfo_cache* variables.
+  db_delete('variable')
+    ->condition('name', 'imageinfo_cache%', 'LIKE')
+    ->execute();
+}
+
+/**
+ * Implements hook_schema().
+ */
+function imageinfo_cache_schema() {
+  // Define cache table.
+  $schema['cache_imageinfo'] = drupal_get_schema_unprocessed('system', 'cache');
+  $schema['cache_imageinfo']['description'] = 'Cache table for Imageinfo Cache. Used to cache information contained in image_get_info().';
+
+  return $schema;
+}
+
+/**
+ * Implements hook_update_N().
+ *
+ * Create the cache_imageinfo cache bin.
+ */
+function imageinfo_cache_update_7101(&$sandbox) {
+  // Define cache table.
+  $schema = array();
+  $schema['cache_imageinfo'] = drupal_get_schema_unprocessed('system', 'cache');
+  $schema['cache_imageinfo']['description'] = 'Cache table for Imageinfo Cache. Used to cache information contained in image_get_info().';
+
+  // Create cache table.
+  db_create_table('cache_imageinfo', $schema['cache_imageinfo']);
+}

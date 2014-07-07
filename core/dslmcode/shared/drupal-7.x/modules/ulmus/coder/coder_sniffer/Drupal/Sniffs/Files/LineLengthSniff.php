@@ -56,6 +56,11 @@ class Drupal_Sniffs_Files_LineLengthSniff extends Generic_Sniffs_Files_LineLengt
                 return;
             }
 
+            if (preg_match('/^[[:space:]]*((\/\*)?\*|\/\/)[[:space:]]*@see.*/', $lineContent) === 1) {
+                // Allow @see documentation to exceed the 80 character limit.
+                return;
+            }
+
             parent::checkLineLength($phpcsFile, $stackPtr, $lineContent);
         }
 

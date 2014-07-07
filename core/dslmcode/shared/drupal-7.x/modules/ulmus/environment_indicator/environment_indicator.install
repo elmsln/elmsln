@@ -10,16 +10,19 @@
  */
 function environment_indicator_schema() {
   $schema['environment_indicator_environment'] = array(
-    'description' => t('Table storing preset definitions.'),
+    'description' => 'Table storing preset definitions.',
     'export' => array(
       'key' => 'machine',
       'key name' => 'Machine name',
       'primary key' => 'envid',
-      'identifier' => 'environment', // Exports will be defined as $environment
-      'default hook' => 'default_environment_indicator_environment',  // Function hook name.
+      // Exports will be defined as $environment.
+      'identifier' => 'environment',
+      // Function hook name.
+      'default hook' => 'default_environment_indicator_environment',
       'api' => array(
         'owner' => 'environment_indicator',
-        'api' => 'default_environment_indicator_environments',  // Base name for api include files.
+        // Base name for api include files.
+        'api' => 'default_environment_indicator_environments',
         'minimum_version' => 1,
         'current_version' => 1,
       ),
@@ -40,7 +43,8 @@ function environment_indicator_schema() {
         'unsigned' => TRUE,
         'not null' => TRUE,
         'description' => 'Primary ID field for the table. Not used for anything except internal lookups.',
-        'no export' => TRUE, // Do not export database-only keys.
+        // Do not export database-only keys.
+        'no export' => TRUE,
       ),
       'regexurl' => array(
         'type' => 'varchar',
@@ -63,7 +67,72 @@ function environment_indicator_schema() {
 }
 
 /**
- * Add table when updating from 1.x
+ * Implements hook_uninstall().
+ */
+function environment_indicator_uninstall() {
+  variable_del('environment_indicator_suppress_pages');
+  variable_del('environment_indicator_integration');
+  variable_del('environment_indicator_git_support');
+  // Delete environment_indicator_remote_release.*
+  $query = "SELECT name FROM {variable} WHERE name LIKE 'environment_indicator_remote_release.%'";
+  $results = db_query($query);
+  foreach ($results as $row) {
+    // Use variable_del to allow appropriate hooks to run.
+    variable_del($row->name);
+  }
+}
+
+/**
+ * Implements hook_requirements().
+ */
+function environment_indicator_requirements($phase) {
+  $requirements = array();
+  // Ensure translations don't break at install time.
+  $t = get_t();
+
+  // Report Drupal version.
+  if ($phase == 'runtime') {
+    if (_environment_indicator_has_old_vars()) {
+      $requirements['environment_indicator'] = array(
+        'title' => $t('Environment indicator'),
+        'value' => $t('You are using old environment indicator variables. Please check the !help on how to upgrade your variables for the new release, and then remove the old ones.', array('!help' => l(t('help pages'), 'admin/help/environment_indicator'))),
+        'severity' => REQUIREMENT_ERROR,
+      );
+    }
+    if (
+      !empty($_ENV['AH_SITE_ENVIRONMENT']) &&
+      variable_get('environment_indicator_git_support', TRUE)
+    ) {
+      $severity = REQUIREMENT_WARNING;
+      $env = $_ENV['AH_SITE_ENVIRONMENT'];
+      if (environment_indicator_ah_valid_post_deploy_hook($env)) {
+        // If there is no value in the release variable it can mean that the
+        // hook never run. Tell the user to check execute permisions on the
+        // script.
+        $release = variable_get('environment_indicator_remote_release.' . $env, NULL);
+        if ($release) {
+          $message = $t('The Acquia Cloud hook is installed and reports release: ' . $release);
+          $severity = REQUIREMENT_INFO;
+        }
+        else {
+          $message = $t('The Acquia Cloud hook is installed but there is no information about the release. This is normal if you never deployed your code. Otherwise check if the hook script has the execution permisions.');
+        }
+      }
+      else {
+        $message = $t('Missing Acquia Cloud hook for environment indicator integration. Please look at the <code>samples/environment-indicator.sh</code> folder and copy it to your <code>hooks/[your-environment]/post-code-deploy</code> directory. See the README.txt for more information.');
+      }
+      $requirements['environment_indicator_ah'] = array(
+        'title' => $t('Environment indicator'),
+        'value' => $message,
+        'severity' => $severity,
+      );
+    }
+  }
+  return $requirements;
+}
+
+/**
+ * Add table when updating from 1.x.
  */
 function environment_indicator_update_7200(&$sandbox) {
   if (!db_table_exists('environment_indicator_environment')) {
@@ -118,6 +187,7 @@ function environment_indicator_update_7202(&$sandbox) {
           // This variable is no longer used. Remove it.
           variable_del($row['name']);
           break;
+
         case 'environment_indicator_suppress_pages':
           // This variable is still used, keep it.
           break;

@@ -8,8 +8,17 @@
  * Forms administration page.
  */
 function seckit_admin_form() {
-  // get default/set options
-  $options = _seckit_get_options();
+  // Get default/configured (and unaltered) options.
+  if ($hooks = module_implements('seckit_options_alter')) {
+    foreach ($hooks as $key => $module) {
+      $hooks[$key] = $module . '_seckit_options_alter()';
+    }
+    drupal_set_message(t("Some settings may be overridden at runtime. See @hooks.", array('@hooks' => implode(', ', $hooks))), 'status', FALSE);
+    $options = _seckit_get_options(TRUE, FALSE);
+  }
+  else {
+    $options = _seckit_get_options();
+  }
 
   // main description
   $args['!browserscope'] = l(t('Browserscope'), 'http://www.browserscope.org/?category=security');
@@ -73,6 +82,7 @@ function seckit_admin_form() {
   // CSP default-src directive
   $form['seckit_xss']['csp']['default-src'] = array(
     '#type' => 'textfield',
+    '#maxlength'=> 1024,
     '#default_value' => $options['seckit_xss']['csp']['default-src'],
     '#title' => 'default-src',
     '#description' => t("Specify security policy for all types of content, which are not specified further (frame-ancestors excepted). Default is 'self'."),
@@ -80,6 +90,7 @@ function seckit_admin_form() {
   // CSP script-src directive
   $form['seckit_xss']['csp']['script-src'] = array(
     '#type' => 'textfield',
+    '#maxlength'=> 1024,
     '#default_value' => $options['seckit_xss']['csp']['script-src'],
     '#title' => 'script-src',
     '#description' => t('Specify trustworthy sources for &lt;script&gt; elements.'),
@@ -87,6 +98,7 @@ function seckit_admin_form() {
   // CSP object-src directive
   $form['seckit_xss']['csp']['object-src'] = array(
     '#type' => 'textfield',
+    '#maxlength'=> 1024,
     '#default_value' => $options['seckit_xss']['csp']['object-src'],
     '#title' => 'object-src',
     '#description' => t('Specify trustworthy sources for &lt;object&gt;, &lt;embed&gt; and &lt;applet&gt; elements.'),
@@ -94,6 +106,7 @@ function seckit_admin_form() {
   // CSP style-src directive
   $form['seckit_xss']['csp']['style-src'] = array(
     '#type' => 'textfield',
+    '#maxlength'=> 1024,
     '#default_value' => $options['seckit_xss']['csp']['style-src'],
     '#title' => 'style-src',
     '#description' => t('Specify trustworthy sources for stylesheets. Note, that inline stylesheets and style attributes of HTML elements are allowed.'),
@@ -101,6 +114,7 @@ function seckit_admin_form() {
   // CSP img-src directive
   $form['seckit_xss']['csp']['img-src'] = array(
     '#type' => 'textfield',
+    '#maxlength'=> 1024,
     '#default_value' => $options['seckit_xss']['csp']['img-src'],
     '#title' => 'img-src',
     '#description' => t('Specify trustworthy sources for &lt;img&gt; elements.'),
@@ -108,6 +122,7 @@ function seckit_admin_form() {
   // CSP media-src directive
   $form['seckit_xss']['csp']['media-src'] = array(
     '#type' => 'textfield',
+    '#maxlength'=> 1024,
     '#default_value' => $options['seckit_xss']['csp']['media-src'],
     '#title' => 'media-src',
     '#description' => t('Specify trustworthy sources for &lt;audio&gt; and &lt;video&gt; elements.'),
@@ -115,6 +130,7 @@ function seckit_admin_form() {
   // CSP frame-src directive
   $form['seckit_xss']['csp']['frame-src'] = array(
     '#type' => 'textfield',
+    '#maxlength'=> 1024,
     '#default_value' => $options['seckit_xss']['csp']['frame-src'],
     '#title' => 'frame-src',
     '#description' => t('Specify trustworthy sources for &lt;iframe&gt; and &lt;frame&gt; elements.'),
@@ -122,6 +138,7 @@ function seckit_admin_form() {
   // CSP font-src directive
   $form['seckit_xss']['csp']['font-src'] = array(
     '#type' => 'textfield',
+    '#maxlength'=> 1024,
     '#default_value' => $options['seckit_xss']['csp']['font-src'],
     '#title' => 'font-src',
     '#description' => t('Specify trustworthy sources for @font-src CSS loads.'),
@@ -129,6 +146,7 @@ function seckit_admin_form() {
   // CSP connect-src directive
   $form['seckit_xss']['csp']['connect-src'] = array(
     '#type' => 'textfield',
+    '#maxlength'=> 1024,
     '#default_value' => $options['seckit_xss']['csp']['connect-src'],
     '#title' => 'connect-src',
     '#description' => t('Specify trustworthy sources for XMLHttpRequest, WebSocket and EventSource connections.'),
@@ -136,6 +154,7 @@ function seckit_admin_form() {
   // CSP report-uri directive
   $form['seckit_xss']['csp']['report-uri'] = array(
     '#type' => 'textfield',
+    '#maxlength'=> 1024,
     '#default_value' => $options['seckit_xss']['csp']['report-uri'],
     '#title' => 'report-uri',
     '#description' => t('Specify a URL (relative to the Drupal root) to which user-agents will report CSP violations. Use the default value, unless you have set up an alternative handler for these reports. Defaults to <code>admin/config/system/seckit/csp-report</code> which logs the report data in watchdog.'),
@@ -143,6 +162,7 @@ function seckit_admin_form() {
   // CSP policy-uri directive
   $form['seckit_xss']['csp']['policy-uri'] = array(
     '#type' => 'textfield',
+    '#maxlength'=> 1024,
     '#default_value' => $options['seckit_xss']['csp']['policy-uri'],
     '#title' => 'policy-uri',
     '#description' => t("Specify a URL (relative to the Drupal root) for a file containing the (entire) policy. <strong>All other directives will be omitted</strong> by Security Kit, as <code>policy-uri</code> may only be defined in the <em>absence</em> of other policy definitions in the <code>X-Content-Security-Policy</code> HTTP header. The MIME type for this URI <strong>must</strong> be <code>text/x-content-security-policy</code>, otherwise user-agents will enforce the policy <code>allow 'none'</code>  instead."),
@@ -246,12 +266,13 @@ function seckit_admin_form() {
     '#default_value' => $options['seckit_clickjacking']['x_frame'],
     '#description' => $description,
   );
-  // source for "Allow-From" option
+
+  // Origin value for "Allow-From" option.
   $form['seckit_clickjacking']['x_frame_allow_from'] = array(
-    '#type' => 'textfield',
+    '#type' => 'textarea',
     '#title' => t('Allow-From'),
-    '#default_value' => $options['seckit_clickjacking']['x_frame_allow_from'],
-    '#description' => t('URI of source for "X-Frame-Options: Allow-From" value. Example, http://domain.com'),
+    '#default_value' => implode("\n", $options['seckit_clickjacking']['x_frame_allow_from']),
+    '#description' => t('Origin URIs (as specified by RFC 6454) for the "X-Frame-Options: Allow-From" value. One per line. Example, http://domain.com'),
   );
 
   // enable/disable JS + CSS + Noscript protection
@@ -340,11 +361,14 @@ function seckit_admin_form() {
     '#description' => t('Trustworthy destination. Possible variants are: !items', $args),
   );
 
-  // validation and submit
+  // Execute the default handlers first.
+  $form = system_settings_form($form);
+
+  // Run custom validation and submission handlers afterwards.
   $form['#validate'][] = 'seckit_admin_form_validate';
   $form['#submit'][] = 'seckit_admin_form_submit';
 
-  return system_settings_form($form);
+  return $form;
 }
 
 /**
@@ -359,9 +383,11 @@ function seckit_admin_form_validate($form, &$form_state) {
   }
   // if X-Frame-Options is set to Allow-From, it should be explicitly set
   $x_frame_value = $form_state['values']['seckit_clickjacking']['x_frame'];
-  $x_frame_allow_from = $form_state['values']['seckit_clickjacking']['x_frame_allow_from'];
-  if (($x_frame_value == SECKIT_X_FRAME_ALLOW_FROM) && (!$x_frame_allow_from)) {
-    form_error($form['seckit_clickjacking']['x_frame_allow_from'], t('You have to set up trustworthy destination for X-Frame-Options: Allow-From HTTP response header.'));
+  if ($x_frame_value == SECKIT_X_FRAME_ALLOW_FROM) {
+    $x_frame_allow_from = $form_state['values']['seckit_clickjacking']['x_frame_allow_from'];
+    if (!_seckit_explode_value($x_frame_allow_from)) {
+      form_error($form['seckit_clickjacking']['x_frame_allow_from'], t('You must specify a trusted Origin for the Allow-From value of the X-Frame-Options HTTP response header.'));
+    }
   }
   // if HTTP Strict Transport Security is enabled, max-age must be specified.
   // HSTS max-age should only contain digits.
@@ -397,4 +423,8 @@ function seckit_admin_form_submit($form, &$form_state) {
     $msg = 'X-Content-Type-Options HTTP response header will not be served for files because of public file system. It is recommended to enable private file system to ensure provided by X-Content-Type-Options security.';
     drupal_set_message($msg, 'warning');
   }
+
+  // Our depencency on seckit_boot() may have changed, so reset the
+  // bootstrap module settings and cache.
+  _system_update_bootstrap_status();
 }

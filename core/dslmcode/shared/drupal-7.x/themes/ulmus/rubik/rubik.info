@@ -26,9 +26,22 @@ settings[rubik_disable_sidebar_in_form] = 0
 ; By default field placement in the sidebar is disabled
 settings[rubik_sidebar_field_ui] = 0
 
-; Information added by Drupal.org packaging script on 2014-03-18
-version = "7.x-4.0"
+; Rubik does not utilize any of the standard theme features, such as logo,
+; favicon, user pictures for nodes/comments, etc. If the "features[]" item is
+; left empty, Drupal will automatically display all default theme settings,
+; which are completely ignored and not used by Rubik.
+; 
+; This makes it confusing for administrators because those fields can be
+; configured in the admin, but have no effect.
+; 
+; Leaving the "features[]" key empty will prevent all of those default features
+; to be displayed and only the fieldset with custom theme settings defined in
+; theme-settings.php file will be shown.
+features[] = 
+
+; Information added by Drupal.org packaging script on 2014-06-02
+version = "7.x-4.1"
 core = "7.x"
 project = "rubik"
-datestamp = "1395127757"
+datestamp = "1401728328"
 

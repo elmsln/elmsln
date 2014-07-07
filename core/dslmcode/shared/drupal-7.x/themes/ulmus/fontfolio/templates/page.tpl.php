@@ -52,7 +52,7 @@
     </div></header> <!-- /.section, /#header -->
   <div id="header_top">
     <div class="header_top_border"></div>
-    <a class="home-icon toggle" href="/"><img src="<?php print $base_path . $directory ?>/styles/images/glyphicons_020_home.png"></a>
+    <a class="home-icon toggle" href="<?php print $front_page; ?>"><img src="<?php print $base_path . $directory ?>/styles/images/glyphicons_020_home.png"></a>
   <?php if ($social_links): ?>
     <div class="social">
       <?php print $social_links; ?>

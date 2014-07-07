@@ -79,6 +79,15 @@ function boost_admin_settings() {
         '#default_value' => $values['enabled'],
       );
 
+      // Enable gzip?
+      $form['cache_types'][$title][$type]['boost_gzip_' . $type] = array(
+        '#type'          => 'checkbox',
+        '#title'         => t('Enable gzip compression'),
+        '#description'   => (BOOST_GZIP ? t('Avoids having to compress the content by the web server on every request (recommended).') : t('Your host does not support zlib. See: !url', array('!url' => 'http://www.php.net/manual/en/zlib.installation.php'))),
+        '#default_value' => (BOOST_GZIP ? $values['gzip'] : 0),
+        '#disabled'      => ! BOOST_GZIP,
+      );
+
       // Content type extension
       $form['cache_types'][$title][$type]['boost_extension_' . $type] = array(
         '#type'          => 'textfield',

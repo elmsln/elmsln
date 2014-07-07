@@ -1,6 +1,7 @@
 <?php
 
 /**
+ * @file
  * Prints the cache status of the currently displayed page.
  *
  * see @boost_block_view()
@@ -58,8 +59,10 @@ function boost_block_view_status() {
   );
 
   if (file_exists($filename) && user_access('boost flush pages')) {
+    // 1922532 - Variable required to remove warning under PHP 5.4
+    $form = drupal_get_form('boost_block_flush_form');
     $block['content']['flush'] = array(
-      '#markup' => drupal_render(drupal_get_form('boost_block_flush_form')),
+      '#markup' => drupal_render($form),
     );
   }
 

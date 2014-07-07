@@ -43,7 +43,6 @@ function tao_css_alter(&$css) {
     'modules/system/system.base.css' => FALSE,
     'modules/system/system.maintenance.css' => FALSE,
     'modules/system/system.menus.css' => FALSE,
-    'modules/system/system.messages.css' => FALSE,
     'modules/system/system.theme.css' => FALSE,
     'modules/taxonomy/taxonomy.css' => FALSE,
     'modules/tracker/tracker.css' => FALSE,
@@ -98,6 +97,23 @@ function tao_theme() {
  */
 function tao_preprocess_html(&$vars) {
   $vars['classes_array'][] = 'tao';
+
+  // Add IE from theme file.
+  $tao_path = drupal_get_path('theme', 'tao');
+  $info = drupal_parse_info_file($tao_path.'/tao.info');
+  $ie = $info['stylesheets']['ie'];
+  foreach ($ie as $key => $value) {
+    drupal_add_css(
+      $tao_path.'/'.$value,
+      array(
+        'browsers' => array(
+          'IE' => $key,
+          '!IE' => FALSE
+        )
+      )
+    );
+  }
+
 }
 
 /**
@@ -119,11 +135,12 @@ function tao_preprocess_block(&$vars) {
   $vars['hook'] = 'block';
 
   $vars['attributes_array']['id'] = $vars['block_html_id'];
+  $vars['attributes_array']['class'] = $vars['classes_array'];
 
-  $vars['title_attributes_array']['class'][] = 'block-title';
+  $vars['title_attributes_array']['class'][] = $vars['hook'] . '-title';
   $vars['title_attributes_array']['class'][] = 'clearfix';
 
-  $vars['content_attributes_array']['class'][] = 'block-content';
+  $vars['content_attributes_array']['class'][] = $vars['hook'] . '-content';
   $vars['content_attributes_array']['class'][] = 'clearfix';
   if ($vars['block']->module == 'block') {
     $vars['content_attributes_array']['class'][] = 'prose';
@@ -148,12 +165,14 @@ function tao_preprocess_block(&$vars) {
 function tao_preprocess_node(&$vars) {
   $vars['hook'] = 'node';
 
+  $vars['classes_array'][] = 'clearfix';
+
   $vars['attributes_array']['id'] = "node-{$vars['node']->nid}";
 
-  $vars['title_attributes_array']['class'][] = 'node-title';
+  $vars['title_attributes_array']['class'][] = $vars['hook'] . '-title';
   $vars['title_attributes_array']['class'][] = 'clearfix';
 
-  $vars['content_attributes_array']['class'][] = 'node-content';
+  $vars['content_attributes_array']['class'][] = $vars['hook'] . '-content';
   $vars['content_attributes_array']['class'][] = 'clearfix';
   $vars['content_attributes_array']['class'][] = 'prose';
 
@@ -181,10 +200,12 @@ function tao_preprocess_node(&$vars) {
 function tao_preprocess_comment(&$vars) {
   $vars['hook'] = 'comment';
 
-  $vars['title_attributes_array']['class'][] = 'comment-title';
+  $vars['classes_array'][] = 'clearfix';
+
+  $vars['title_attributes_array']['class'][] = $vars['hook'] . '-title';
   $vars['title_attributes_array']['class'][] = 'clearfix';
 
-  $vars['content_attributes_array']['class'][] = 'comment-content';
+  $vars['content_attributes_array']['class'][] = $vars['hook'] . '-content';
   $vars['content_attributes_array']['class'][] = 'clearfix';
 
   $vars['submitted'] = t('Submitted by !username on !datetime', array(
@@ -210,7 +231,11 @@ function tao_preprocess_fieldset(&$vars) {
     $vars['attributes']['class'][] = 'titled';
   }
   if (!empty($element['#id'])) {
-    $vars['attributes']['id'] = $element['#id'];
+    if (!empty($element["#attributes"]["id"])) {
+      $vars['attributes']['id'] = $element["#attributes"]["id"];
+    } else {
+      $vars['attributes']['id'] = $element['#id'];
+    }
   }
 
   $description = !empty($element['#description']) ? "<div class='description'>{$element['#description']}</div>" : '';
@@ -239,8 +264,8 @@ function tao_preprocess_field(&$vars) {
  * Override of theme('textarea').
  * Deprecate misc/textarea.js in favor of using the 'resize' CSS3 property.
  */
-function tao_textarea($variables) {
-  $element = $variables['element'];
+function tao_textarea($vars) {
+  $element = $vars['element'];
   $element['#attributes']['name'] = $element['#name'];
   $element['#attributes']['id'] = $element['#id'];
   $element['#attributes']['cols'] = $element['#cols'];
@@ -305,7 +330,7 @@ function tao_pager($vars) {
     'attributes' => array('class' => 'links pager pager-links')
   ));
   if ($pager_list) {
-    return "<div class='pager clearfix'>$pager_list $pager_links</div>";
+    return '<div class="pager clearfix">' . $pager_list . ' ' . $pager_links . '</div>';
   }
 }
 

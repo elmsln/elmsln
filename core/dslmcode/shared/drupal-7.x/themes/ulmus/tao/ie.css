@@ -1,0 +1,3 @@
+.element-invisible {clip:rect(1px 1px 1px 1px); /* IE6, IE7 */}
+* html .clearfix { height: 1%; } /* IE6 */
+*:first-child + html .clearfix { min-height: 1%; } /* IE7 */

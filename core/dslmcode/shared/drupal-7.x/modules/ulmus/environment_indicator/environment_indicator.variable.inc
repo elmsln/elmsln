@@ -24,10 +24,10 @@ function environment_indicator_variable_info() {
   );
 
   $variables['environment_indicator_overwritten_text_color'] = array(
-      'title' => t('Color'),
-      'description' => t('Text color for the indicator. Ex: #ffffff.'),
-      'default' => '#ffffff',
-      'group' => 'environment_indicator',
+    'title' => t('Color'),
+    'description' => t('Text color for the indicator. Ex: #ffffff.'),
+    'default' => '#ffffff',
+    'group' => 'environment_indicator',
   );
 
   $variables['environment_indicator_overwritten_fixed'] = array(

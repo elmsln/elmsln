@@ -20,6 +20,8 @@ class Drupal_Sniffs_NamingConventions_ValidGlobalSniff implements PHP_CodeSniffe
 {
 
     public $coreGlobals = array(
+                           '$argc',
+                           '$argv',
                            '$base_insecure_url',
                            '$base_path',
                            '$base_root',

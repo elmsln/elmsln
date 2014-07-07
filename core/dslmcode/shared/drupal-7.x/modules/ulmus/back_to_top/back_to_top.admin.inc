@@ -25,6 +25,12 @@ function back_to_top_settings($form_state) {
     '#description' => t('Do you want to prevent Back To Top on admin pages?'),
     '#default_value' => variable_get('back_to_top_prevent_in_admin', TRUE),
   );
+  $form['back_to_top_prevent_in_front'] = array(
+    '#type' => 'checkbox',
+    '#title' => t('Prevent on front page'),
+    '#description' => t('Do you want to prevent Back To Top on front page?'),
+    '#default_value' => variable_get('back_to_top_prevent_in_front', FALSE),
+  );
   $form['back_to_top_button_trigger'] = array(
     '#type' => 'textfield',
     '#title' => t('Trigger'),
@@ -49,6 +55,14 @@ function back_to_top_settings($form_state) {
       9 => t('Mid center'),
     ),
     '#default_value' => variable_get('back_to_top_button_place', 1),
+  );
+  $form['back_to_top_button_text'] = array(
+    '#type' => 'textfield',
+    '#title' => 'Button text',
+    '#description' => 'Set the text of the Back To Top button',
+    '#default_value' => variable_get('back_to_top_button_text', "Back to top"),
+    '#size' => 30,
+    '#maxlength' => 30,
   );
   $form['back_to_top_button_type'] = array(
     '#type' => 'radios',

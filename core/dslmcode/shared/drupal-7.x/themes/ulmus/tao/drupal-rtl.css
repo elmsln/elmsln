@@ -23,8 +23,8 @@ div.teaser-button-wrapper {
 
 .progress .percentage { float:left; }
 .progess-disabled { float:right; }
-.ahah-progress { float:right; }
-.ahah-progress .throbber { float:right; }
+.ajax-progress { float:right; }
+.ajax-progress .throbber { float:right; }
 
 .draggable a.tabledrag-handle {
   float: right;
