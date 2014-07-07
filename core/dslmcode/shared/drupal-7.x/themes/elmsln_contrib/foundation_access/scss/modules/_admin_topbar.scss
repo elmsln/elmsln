@@ -1,0 +1,15 @@
+.admin-tools-region {
+	background:#333;
+	border-bottom:1px solid #333;
+	.top-bar {
+		&.sticky {
+			position: fixed;
+			top: 0;
+			z-index: 1005;
+			width: 100%;
+		}
+	}
+	.contain-to-grid {
+			background:transparent;
+		}
+}

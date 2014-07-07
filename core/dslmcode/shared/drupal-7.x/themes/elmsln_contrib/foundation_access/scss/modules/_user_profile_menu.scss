@@ -1,13 +1,17 @@
 a.user-profile-dropdown {
 	margin-bottom:0;
-	background:#fff;
+	background:transparent;
 	color: #007ba0;
-	
+	border-right: solid 1px #d8d8d8;
+	height:74px;
+	padding-top: 1.7em;
 	&:hover {
-		background:#e7e7e7;
+		background:#fff;
 		color: #007ba0;
 	}
-	&:before {
-		border-top-color: #007ba0;
+	&.button {
+		&:before {
+			border-top-color: #007ba0;
+		}
 	}
 }

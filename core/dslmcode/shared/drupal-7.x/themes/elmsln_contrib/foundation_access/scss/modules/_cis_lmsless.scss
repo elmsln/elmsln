@@ -1,13 +1,25 @@
 /**
  * To use, enable the the block called CIS LMSless 
  */
-
+.lmsless-bar {
+  background-color: #efefef;
+  border-bottom: 1px solid #d8d8d8;
+  float: left;
+  width: 100%;
+  &.sticky {
+    position: fixed;
+    top: 30px;
+    z-index: 9999;
+    width: 100%;
+    height: 40px;
+  }
+}
 div.cis-lmsless {
   .split.button span {
-    border-left-color: #efefef;
-    background:#fff;
+    border-left-color: #d8d8d8;
+    background:transparent;
     &:hover {
-      background:#efefef;
+      background:#ffffff;
     }
     &:before {
       border-top-color: rgba(0, 123, 160, 1);
@@ -23,20 +35,22 @@ div.cis-lmsless {
     text-align: right;
     margin-bottom:0;
 
+
     .slogan-lmsless-button {
       text-transform: uppercase;
       font-size: 0.5em;
     }
 
     &.button {
-      background:#fff;
+      background-color:transparent;
       // border-bottom: solid 1px #fff;
-      // border-left: solid 1px #fff;
+      border-left: solid 1px #d8d8d8;
       color:#007ba0;
+      height:74px;
       &:hover {
         background:#fff;
       // border-bottom: solid 1px #efefef;
-      // border-left: solid 1px #efefef;
+      border-left: solid 1px #d8d8d8;
       }
     }
   }

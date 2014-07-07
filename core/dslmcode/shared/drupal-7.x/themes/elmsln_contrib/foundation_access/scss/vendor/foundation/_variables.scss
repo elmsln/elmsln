@@ -1,4 +1,15 @@
 //
+// FOUNDATION ACCESS SETTINGS
+//
+
+// Colors
+$background-color: #f4f4f4;
+$text-color: #313131;
+$pullquote-color:#333;
+$link-color: #E6566E;
+$admin-color: #54a901;
+
+//
 // FOUNDATION SETTINGS
 //
 
@@ -38,7 +49,7 @@ $include-html-global-classes: $include-html-classes;
 // We use these to control various global styles
 // $body-bg: #fff;
 // $body-font-color: #222;
-// $body-font-family: "Helvetica Neue", "Helvetica", Helvetica, Arial, sans-serif;
+$body-font-family: "Asap", "Helvetica Neue", "Helvetica", sans-serif;
 // $body-font-weight: normal;
 // $body-font-style: normal;
 
@@ -1123,7 +1134,7 @@ $include-html-global-classes: $include-html-classes;
 $include-html-top-bar-classes: $include-html-classes;
 
 // Background color for the top bar
-// $topbar-bg-color: #333;
+$topbar-bg-color:  $admin-color;
 // $topbar-bg: $topbar-bg-color;
 
 // Height and margin
@@ -1135,7 +1146,7 @@ $include-html-top-bar-classes: $include-html-classes;
 // $topbar-title-font-size: rem-calc(17);
 
 // Style the top bar dropdown elements
-// $topbar-dropdown-bg: #333;
+$topbar-dropdown-bg: $admin-color;
 // $topbar-dropdown-link-color: #fff;
 // $topbar-dropdown-link-bg: #333;
 // $topbar-dropdown-link-weight: normal;
@@ -1192,9 +1203,3 @@ $topbar-arrows: true; //Set false to remove the triangle icon from the menu item
 //
 
 $include-html-visibility-classes: $include-html-classes;
-
-// Colors
-$background-color: #f4f4f4;
-$text-color: #313131;
-$pullquote-color:#333;
-$link-color: #E6566E;

@@ -4,19 +4,23 @@ div.content-manage-btns {
 }
 ul.local-task-tabs-1 {
 	display: inline-block;
+	.button.secondary {
+		background-color: #54a901;
+	}
 
-	&.button-group.round > * .button {
-		border-top:3px solid #888;
-		border-bottom:3px solid #888;
-	}
-	&.button-group.round > *:first-child>.button {
-		border-left:3px solid #888;
-	}
-	&.button-group.round > *:last-child>.button {
-		border-right:3px solid #888;
-	}
+	// &.button-group.round > * .button {
+	// 	border-top:3px solid #888;
+	// 	border-bottom:3px solid #888;
+	// }
+	// &.button-group.round > *:first-child>.button {
+	// 	border-left:3px solid #888;
+	// }
+	// &.button-group.round > *:last-child>.button {
+	// 	border-right:3px solid #888;
+	// }
 	li {
 		a.button {
+			color:#fff;
 			margin:0;
 		}
 	}

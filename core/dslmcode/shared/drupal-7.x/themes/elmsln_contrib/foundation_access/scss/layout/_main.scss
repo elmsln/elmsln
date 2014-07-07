@@ -14,12 +14,12 @@
 // @media #{$xxlarge-only} { }
 
 // Non-modular or client styles for the .l-content region.
-body {
-	 font-size: 18px;
-	 font-family: Vollkorn;
-	 font-weight: 400;
-	 font-style: normal;
-}
+// body {
+// 	 font-size: 18px;
+// 	 font-family: "Vollkorn";
+// 	 font-weight: 400;
+// 	 font-style: normal;
+// }
 
 // article {
 // 	 margin: 0 auto;
@@ -29,12 +29,12 @@ body {
 
 
 h1 {
-	 font-family: "Asap";
+	 //font-family: "Asap";
 	 font-size: 5.5em;
 	 text-align: center;
 	 text-transform: inherit;
-	 font-weight: 700;
-	 font-style: normal;
+	 //font-weight: 700;
+	 //font-style: normal;
 	 letter-spacing: -1px;
 
 	 @media #{$small-up} {
@@ -56,7 +56,7 @@ h1 {
 
 h2 {
 	 font-size: 1.526em;
-	 font-family: "Asap";
+	 //font-family: "Asap";
 	 line-height: 0.931em;
 	 margin-bottom: 1em;
 	 font-weight: 700;
@@ -82,12 +82,12 @@ h2 {
 
 .main h2 {
 	@media #{$small-only} {
-		width:100%;
 		padding-left:4%;
+		//width:100%;
 	 }
 	 @media #{$medium-only} {
 		padding-left:8%;
-		width: 100%;
+		//width: 100%;
 	 }
 }
 
@@ -155,7 +155,7 @@ p {
 			line-height: 1.4em;
    			margin: 0em 1em 1.421em 1em;
    			padding: 0.313em 0px 0.313em 0.625em;
-   			font-family: "Vollkorn";
+   			font-family: "Vollkorn", "Georgia", serif;
 		 }
 
 		 @media #{$large-up} { 
@@ -174,7 +174,7 @@ p {
 		 font-size: 13px;
 		 letter-spacing: 2px;
 		 margin: 2.077em 0px 3.077em 0px;
-		 font-family: Vollkorn;
+		 font-family: "Vollkorn", "Georgia", serif;
 		 font-weight: 400;
 		 font-style: normal;
 	}

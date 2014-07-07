@@ -1,20 +1,17 @@
 .role-staff,
 .role-administrator,
 .navbar-administration {
-	background:#333333;
-	
+	// background:#333333;
 	.l-main {
 		background:#fff;
 	}
 	.breakpoint-indicator {
-		@include border-radius (3px);
 		padding:0.5em;
 		text-transform: uppercase;
 		text-align: center;
 		display:inherit;
-		margin:1em auto;
+		margin:0;
 		color:#fff;
-		background-color:#222;
 		
 
 		@media #{$small-only} {

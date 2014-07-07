@@ -438,3 +438,33 @@ function foundation_access_menu_local_task(&$variables) {
   $output .= "</li>\n";
   return  $output;
 }
+// Add Icons to menu - Add code to other menus.
+
+// function foundation_access_menu_link(array $variables) {
+//   $element = $variables['element'];
+//   $sub_menu = '';
+//   $element['#attributes']['class'][] = 'level-' . $element['#original_link']['depth'];
+//   if (isset($element['#original_link']['options']['attributes']['class'])) {
+//     $array_class = $element['#original_link']['options']['attributes']['class'];
+//     $count = count($array_class);
+//     for ($i=0; $i <= $count; $i++){
+//       if (substr($array_class[$i], 0, 5) == 'icon-' ){
+//         $icon = '<i class="' . $array_class[$i] . '"></i>';
+//         $output = '<a href="';
+//         if (isset($element['#original_link']['options']['attributes']['rel']) != 'nofollow') {
+//           $output .= $element['#href']; // If rel is set to 'nofollow' I don't need the link because I use it to activate Javascript. Remove these line if not a needed function...
+//         }
+//         $output .= '" title="' . $element['#title'] . '">' . $icon . '</a>';
+//         return '<li' . drupal_attributes($element['#attributes']) . '>' . $output . $sub_menu . "</li>\n";
+//       }
+//     }
+//   }
+//   else {
+//     $output = l($element['#title'], $element['#href'], $element['#localized_options']);
+//     if ($element['#below']) {
+//         $sub_menu = drupal_render($element['#below']);
+//       }
+//     return '<li' . drupal_attributes($element['#attributes']) . '>' . $output . $sub_menu . "</li>\n";
+//   }
+// }
+

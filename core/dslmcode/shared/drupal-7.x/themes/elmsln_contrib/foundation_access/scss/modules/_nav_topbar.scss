@@ -1,0 +1,77 @@
+$top-bar-height: 57px;
+.top-bar.expanded .toggle-topbar a span {
+-webkit-box-shadow: none;
+box-shadow: none;
+}
+
+.top-bar-container {
+	padding:0 0 0 0;
+	margin-bottom:3em;
+	border-bottom:1px solid #efefef;
+	padding-top: 240px;
+	padding-bottom:20px;
+	background-image: url('../images/test-banner.jpg');
+	background-color:#434343;
+	background-repeat: no-repeat;
+	background-position: center center;
+	-webkit-background-size: cover;
+	-moz-background-size: cover;
+	background-size: cover;
+
+	@media #{$small-only} {
+	 	padding-bottom:0px;
+	 }
+
+	.top-bar {
+		background:#fff;
+		height:$top-bar-height;
+
+		.top-bar-section {
+			ul {
+				background:transparent;
+				li {
+					a {
+						background:transparent;
+						color:#008cba;
+						line-height: $top-bar-height;
+						font-size:0.85em;
+						&:hover {
+							background:#e7e7e7;
+						}
+					}
+				}
+			}
+		}
+	}
+	&.sticky {
+		position: fixed;
+		width: 100%;
+		top: 0;
+		padding-top: 115px;
+		z-index: 997;
+		left:0;
+		.top-bar {
+			position: fixed;
+			width: 100%;
+			top: 90px;
+			z-index: 1001;
+			left:0;
+		}
+	}
+}
+.top-bar-section {
+	text-align:center;
+	ul.main-menu {
+		display: inline-block;
+		background:#ccc;
+
+		li>a {
+			font-size: 0.875rem;
+			text-transform: uppercase;
+		}
+	}
+	
+	.has-dropdown {
+		border-right: #333 1px solid;
+	}
+}
