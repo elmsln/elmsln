@@ -1,0 +1,118 @@
+<?php
+
+/**
+ * @file
+ * Generate a PDF for the print_pdf module using the TCPDF library.
+ *
+ * @ingroup print
+ */
+
+define('PRINT_PDF_TCPDF_FONT_FAMILY_DEFAULT', 'dejavusans');
+define('PRINT_PDF_TCPDF_FONT_SIZE_DEFAULT', 10);
+define('PRINT_PDF_TCPDF_FONT_SUBSETTING_DEFAULT', FALSE);
+
+/**
+ * Implements hook_pdf_tool_info().
+ */
+function print_pdf_tcpdf_pdf_tool_info() {
+  return array(
+    'name' => 'TCPDF',
+    'min_version' => '5.9.001',
+    'url' => 'http://sourceforge.net/projects/tcpdf/files/latest',
+    'expand_css' => TRUE,
+    'public_dirs' => array(
+      'cache',
+    ),
+    'tool_dirs' => array(
+      'images',
+    ),
+  );
+}
+
+/**
+ * Implements hook_theme().
+ */
+function print_pdf_tcpdf_theme() {
+  return array(
+    'print_pdf_tcpdf_header' => array(
+      'variables' => array('pdf' => NULL, 'html' => '', 'font' => array()),
+      'file' => 'print_pdf_tcpdf.pages.inc',
+    ),
+    'print_pdf_tcpdf_page' => array(
+      'variables' => array('pdf' => NULL),
+      'file' => 'print_pdf_tcpdf.pages.inc',
+    ),
+    'print_pdf_tcpdf_content' => array(
+      'variables' => array('pdf' => NULL, 'html' => '', 'font' => array()),
+      'file' => 'print_pdf_tcpdf.pages.inc',
+    ),
+    'print_pdf_tcpdf_footer' => array(
+      'variables' => array('pdf' => NULL, 'html' => '', 'font' => array()),
+      'file' => 'print_pdf_tcpdf.pages.inc',
+    ),
+    'print_pdf_tcpdf_footer2' => array(
+      'variables' => array('pdf' => NULL),
+      'file' => 'print_pdf_tcpdf.pages.inc',
+    ),
+  );
+}
+
+/**
+ * Implements hook_menu().
+ */
+function print_pdf_tcpdf_menu() {
+  $items = array();
+
+  $items['admin/config/user-interface/print/pdf/tcpdf'] = array(
+    'title' => 'TCPDF',
+    'description' => 'Configure the TCPDF options.',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('print_pdf_tcpdf_settings'),
+    'access arguments'  => array('administer print'),
+    'type' => MENU_LOCAL_TASK,
+    'file' => 'print_pdf_tcpdf.admin.inc',
+  );
+
+  return $items;
+}
+
+/**
+ * Implements hook_pdf_tool_version().
+ */
+function print_pdf_tcpdf_pdf_tool_version($pdf_tool) {
+  if (variable_get('print_pdf_autoconfig', PRINT_PDF_AUTOCONFIG_DEFAULT)) {
+    // prevent TCPDF default configs
+    define('K_TCPDF_EXTERNAL_CONFIG', TRUE);
+  }
+  require_once(DRUPAL_ROOT . '/' . $pdf_tool);
+
+  // Hide warnings, as some TCPDF constants may still be undefined
+  if (class_exists('TCPDF')) {
+    @$pdf = new TCPDF();
+
+    if (class_exists('TCPDF_STATIC')) {
+      return TCPDF_STATIC::getTCPDFVersion();
+    }
+    elseif (method_exists($pdf, 'getTCPDFVersion')) {
+      return $pdf->getTCPDFVersion();
+    }
+    elseif (defined('PDF_PRODUCER')) {
+      sscanf(PDF_PRODUCER, "TCPDF %s", $version);
+
+      return $version;
+    }
+  }
+  return 'unknown';
+}
+
+/**
+ * Implements hook_print_pdf_available_libs_alter().
+ */
+function print_pdf_tcpdf_print_pdf_available_libs_alter(&$pdf_tools) {
+  module_load_include('inc', 'print', 'includes/print');
+  $tools = _print_scan_libs('tcpdf', '!^tcpdf.php$!');
+
+  foreach ($tools as $tool) {
+    $pdf_tools['print_pdf_tcpdf|' . $tool] = 'TCPDF (' . dirname($tool) . ')';
+  }
+}

@@ -1,0 +1,95 @@
+<?php
+
+/**
+ * @file
+ * Generate a PDF for the print_pdf module using the dompdf library.
+ *
+ * @ingroup print
+ */
+
+define('PRINT_PDF_DOMPDF_UNICODE_DEFAULT', 0);
+define('PRINT_PDF_DOMPDF_FONT_SUBSETTING_DEFAULT', FALSE);
+
+/**
+ * Implements hook_pdf_tool_info().
+ */
+function print_pdf_dompdf_pdf_tool_info() {
+  return array(
+    'name' => 'dompdf',
+    'url' => 'http://code.google.com/p/dompdf/downloads/list',
+    'expand_css' => FALSE,
+    'public_dirs' => array(
+      'fonts',
+    ),
+  );
+}
+
+/**
+ * Implements hook_theme().
+ */
+function print_pdf_dompdf_theme() {
+  return array(
+    'print_pdf_dompdf_footer' => array(
+      'variables' => array('html' => ''),
+      'file' => 'print_pdf_dompdf.pages.inc',
+    ),
+  );
+}
+
+/**
+ * Implements hook_menu().
+ */
+function print_pdf_dompdf_menu() {
+  $items = array();
+
+  $items['admin/config/user-interface/print/pdf/dompdf'] = array(
+    'title' => 'dompdf',
+    'description' => 'Configure the dompdf options.',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('print_pdf_dompdf_settings'),
+    'access arguments'  => array('administer print'),
+    'type' => MENU_LOCAL_TASK,
+    'file' => 'print_pdf_dompdf.admin.inc',
+  );
+
+  return $items;
+}
+
+/**
+ * Implements hook_pdf_tool_version().
+ */
+function print_pdf_dompdf_pdf_tool_version($pdf_tool) {
+  require_once(DRUPAL_ROOT . '/' . $pdf_tool);
+
+  // Poor man's way to find dompdf version
+  if (!defined('DOMPDF_DIR')) {
+    return 'unknown';
+  }
+  elseif (!defined('DOMPDF_CHROOT')) {
+    return '0.5.1';
+  }
+  elseif (!defined('DOMPDF_FONT_CACHE')) {
+    return '0.5.2';
+  }
+  elseif (!defined('DOMPDF_LOG_OUTPUT_FILE')) {
+    return '0.6.0 beta1';
+  }
+  elseif (!defined('DOMPDF_ADMIN_USERNAME')) {
+    return '0.6.0 beta2';
+  }
+  else {
+    return '0.6.0 beta3';
+  }
+}
+
+/**
+ * Implements hook_print_pdf_available_libs_alter().
+ */
+function print_pdf_dompdf_print_pdf_available_libs_alter(&$pdf_tools) {
+  module_load_include('inc', 'print', 'includes/print');
+  $tools = _print_scan_libs('dompdf', '!^dompdf_config.inc.php$!');
+
+  foreach ($tools as $tool) {
+    $pdf_tools['print_pdf_dompdf|' . $tool] = 'dompdf (' . dirname($tool) . ')';
+  }
+}

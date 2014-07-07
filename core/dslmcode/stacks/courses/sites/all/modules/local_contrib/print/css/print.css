@@ -1,4 +1,3 @@
-
 body {
   margin: 1em;
   background-color: #fff;
@@ -9,21 +8,11 @@ th {
   color: #006;
   border-bottom: 1px solid #ccc;
 }
-tr.odd {
-  background-color: #ddd;
-}
-tr.even {
-  background-color: #fff;
-}
-td {
-  padding: 5px;
-}
-#menu {
-  visibility: hidden;
-}
-#main {
-  margin: 1em;
-}
+tr.odd {background-color: #ddd;}
+tr.even {background-color: #fff;}
+td {padding: 5px;}
+#menu {visibility: hidden;}
+#main {margin: 1em;}
 a:link {color: #000;}
 a:visited {color: #000;}
 a:hover {color: #00f;}
@@ -35,9 +24,7 @@ img.print-logo {border: 0;}
 .print-title {}
 .print-submitted {font-size: small;}
 .print-created {font-size: small;}
-.print-taxonomy {
-  text-align: right;
-}
+.print-taxonomy {text-align: right;}
 .print-taxonomy li {display: inline;}
 .print-content {}
 .print-hr {

@@ -13,7 +13,7 @@
 
 #wrapper-inside { border-top:5px solid #4565be; }
 
-#preview {  margin:0 0 20px 0; padding:20px; color: #444444; outline:0 none; vertical-align:baseline; width:650px;  }
+#preview {  margin:0; padding:20px; color: #444444; outline:0 none; vertical-align:baseline; width:650px;  }
 
 #preview a { color:#2883DE; }
 
@@ -26,6 +26,10 @@
 #preview #site-name a:hover { color:#3253ad; }
 
 #preview #site-slogan { color:#7d7d7d; font-size:120%; }
+
+#preview-footer { background-color:#f2f2f2; border-top:1px solid #d6d6d6; display:block; overflow:hidden; clear:both; }
+
+#preview-footer-inside { padding:20px; width:610px; display:block; overflow:hidden; }
 
 /* 
 * Layout 

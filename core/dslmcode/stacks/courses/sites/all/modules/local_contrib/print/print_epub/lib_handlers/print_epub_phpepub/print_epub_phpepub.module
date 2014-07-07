@@ -1,0 +1,65 @@
+<?php
+
+/**
+ * @file
+ * Generate a EPUB for the print_epub module using the PHPePub library.
+ *
+ * @ingroup print
+ */
+
+/**
+ * Implements hook_requirements().
+ */
+function print_epub_phpepub_requirements($phase) {
+  $requirements = array();
+  $t = get_t();
+  switch ($phase) {
+    // At runtime, make sure that a EPUB generation tool is selected
+    case 'runtime':
+      $print_epub_epub_tool = variable_get('print_epub_epub_tool', PRINT_EPUB_EPUB_TOOL_DEFAULT);
+
+      if (!empty($print_epub_epub_tool)) {
+        $tool = explode('|', $print_epub_epub_tool);
+
+        if (is_file($tool[1]) && is_readable($tool[1])) {
+          if (basename($tool[1]) == 'EPub.php') {
+            $version = _print_epub_phpepub_version($tool[1]);
+
+            $requirements['print_epub_tool_version'] = array(
+              'title' => $t('Printer, email and EPUB versions - EPUB generation library'),
+              'value' => $t('PHPePub') . ' ' . $version,
+            );
+          }
+        }
+      }
+      break;
+  }
+  return $requirements;
+}
+
+/**
+ * Find out the version of the PHPePub library
+ *
+ * @param string $epub_tool
+ *   Filename of the tool to be analysed.
+ *
+ * @return string
+ *   version number of the library
+ */
+function _print_epub_phpepub_version($epub_tool) {
+  require_once(DRUPAL_ROOT . '/' . $epub_tool);
+
+  return EPub::VERSION;
+}
+
+/**
+ * Implements hook_print_epub_available_libs_alter().
+ */
+function print_epub_phpepub_print_epub_available_libs_alter(&$epub_tools) {
+  module_load_include('inc', 'print', 'includes/print');
+  $tools = _print_scan_libs('phpepub', '!^EPub.php$!');
+
+  foreach ($tools as $tool) {
+    $epub_tools['print_epub_phpepub|' . $tool] = 'PHPePub (' . dirname($tool) . ')';
+  }
+}

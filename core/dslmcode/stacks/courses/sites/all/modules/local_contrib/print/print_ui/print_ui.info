@@ -1,0 +1,13 @@
+name = "Printer-friendly pages UI"
+description = "Manages the printer-friendly versions link display conditions. Without this module, those links are not displayed."
+core = 7.x
+package = "Printer, email and PDF versions"
+dependencies[] = print
+configure = admin/config/user-interface/print/ui
+
+; Information added by Drupal.org packaging script on 2014-04-02
+version = "7.x-2.0"
+core = "7.x"
+project = "print"
+datestamp = "1396426766"
+

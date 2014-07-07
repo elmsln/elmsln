@@ -66,10 +66,11 @@ box-shadow: 1px 1px 0 #fff inset, -1px -1px 0 #fff inset; -moz-box-shadow: 1px 1
 .aligncenter { display:block; margin:0 auto; }
 
 /* Header */
+#header-top { padding:20px 0 4px 0; }
 
-#header { clear: both; margin-top: 16px; }
+#header, #header-right { margin-top: 16px; }
 
-#header .inner { padding-top: 15px; padding-bottom: 20px; }
+#header .inner, #header-right .inner { padding-top: 15px; padding-bottom: 20px; }
 
 #logo { float: left; padding: 0 20px; }
 
@@ -80,7 +81,7 @@ letter-spacing: -2px; text-shadow: 0px 1px 0px #FFF; }
 
 #header #site-name a:hover { color: #3253ad; }
 
-#header #site-slogan { margin: 0; padding: 0; font-size: 24px; line-height: 28px; cletter-spacing: -1px; }	
+#header #site-slogan { margin: 0; padding: 0; font-size: 24px; line-height: 28px; letter-spacing: -1px; }	
 
 /* Breadcrumb */
 
@@ -103,7 +104,7 @@ text-shadow: 1px 1px 0px #fff; }
 
 #wrap { border-top:5px solid; }
 
-#wrap #content { float:right; }
+#wrap #content { float:left; }
 
 #main { margin-bottom: 20px; }
 
@@ -117,7 +118,7 @@ text-shadow: 1px 1px 0px #fff; }
 
 /* Footer */
 
-#footer { clear: both; padding: 20px 0; border-top: 1px solid #d6d6d6; font-size: .9em; }
+#footer { clear: both; padding: 20px 0; border-top: 1px solid; font-size: .9em; }
 
 #credits { text-align: center; }
 
@@ -193,6 +194,8 @@ background: url(../images/light/arrow_bullet.png) no-repeat 10px; text-decoratio
 
 .block ul.menu ul li a:hover { color:#333333; background:none; }
 
+.block.block-superfish ul.menu li a { background:none; }
+
 /* Comments */
 
 .comment h2.title { margin-bottom: 1em; }
@@ -228,9 +231,9 @@ border-left: 1px solid; border-right: 1px solid; height: 40px; margin-left: -36p
 
 /* Sidebar */
 
-#wrap #sidebar { float:left; }
+#wrap #sidebar-first, #wrap #sidebar-second { float:left; }
 
-#sidebar .block { padding: 0 0 20px 0; }
+#sidebar-first .block, #sidebar-second .block { padding: 0 0 20px 0; }
 
 /* Messages */
 
@@ -469,7 +472,9 @@ display: block; font-weight: bold; text-shadow: 1px 1px 0px #fff; outline:none; 
 
 #navigation ul.sf-menu li:hover ul,
 #navigation ul.sf-menu li.sfHover ul,
-#navigation ul li:hover ul { left: 0; top: 46px; z-index: 999; }
+#navigation ul li:hover ul { left: 0; top: 48px; z-index: 999; }
+
+#navigation ul li:hover ul { top:46px; }
 
 #navigation ul.sf-menu li:hover li ul,
 #navigation ul.sf-menu li.sfHover li ul,
@@ -512,7 +517,6 @@ background: #f0f0f0 url('../images/light/arrow_bullet.png') no-repeat 90% 50%; }
 #navigation li.expanded:hover > a, #menu li.expanded:active > a,
 #navigation li.menuparent:hover > a, #menu li.menuparent:active > a {    
 background: #f0f0f0 url('../images/dark/arrow_bullet.png') no-repeat 90% 50%; }  
-/* 
 	
 /* 
 * Superfish support: Reset background/border
@@ -539,4 +543,27 @@ background: #f0f0f0 url('../images/dark/arrow_bullet.png') no-repeat 90% 50%; }
 /* Mobile/Browser */
 @media only screen and (max-width: 767px) {
 select.mnav { width:100%; padding:5px;}
+}
+
+#header-right ul.menu, #header-top ul.menu { padding:0; margin:0; display:block; overflow:hidden; text-align:right; padding:20px 0 0 0; }
+
+#header-top ul.menu { text-align:left; padding:0; }
+
+#header-top .region-header-top-left ul.menu { text-align:left; }
+
+#header-top .region-header-top-right ul.menu { text-align:right; }
+
+#header-right ul.menu li, #header-top ul.menu li  { border-right:1px solid #e3e3e3; display:inline; list-style-type:none; overflow:hidden; padding:0 10px; margin:0; }
+
+#header-right ul.menu li a, #header-top ul.menu li a  { background:none; display:inline; border:none; padding:0; }
+
+#header-right ul.menu li.first, #header-top ul.menu li.first { padding-left:0; margin:0; }
+
+#header-right ul.menu li.last, #header-top ul.menu li.last { border-right:none; padding-right:0; margin:0; }
+
+#header-right ul.menu ul.menu, #header-top ul.menu ul.menu  { display:none; }
+
+/* Mobile/Browser */
+@media only screen and (max-width: 767px) {
+#header-right ul.menu li, #header-top ul.menu li { display:block; text-align:left; border-bottom:1px solid #e3e3e3; border-right:none; padding:10px 0; }
 }

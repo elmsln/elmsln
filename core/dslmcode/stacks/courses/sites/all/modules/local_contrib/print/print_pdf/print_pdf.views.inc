@@ -33,7 +33,7 @@ function print_pdf_views_data() {
     'left_field' => 'nid',
     'field' => 'path',
 //    'type' => 'INNER',
-    'handler' => 'print_pdf_join_page_counter',
+    'handler' => 'print_join_page_counter',
   );
 
   // print_pdf_node_conf fields
@@ -80,6 +80,34 @@ function print_pdf_views_data() {
       'handler' => 'views_handler_filter_boolean_operator',
       'label' => t('Active'),
       'type' => 'yes-no',
+    ),
+    'sort' => array(
+      'handler' => 'views_handler_sort',
+    ),
+  );
+  $data['print_pdf_node_conf']['size'] = array(
+    'title' => t('PDF: Paper size'),
+    'help' => t('Configured PDF paper size'),
+    'field' => array(
+      'handler' => 'views_handler_field',
+      'click sortable' => TRUE,
+    ),
+    'filter' => array(
+      'handler' => 'views_handler_filter_string',
+    ),
+    'sort' => array(
+      'handler' => 'views_handler_sort',
+    ),
+  );
+  $data['print_pdf_node_conf']['orientation'] = array(
+    'title' => t('PDF: Page orientation'),
+    'help' => t('Configured PDF page orientation.'),
+    'field' => array(
+      'handler' => 'views_handler_field',
+      'click sortable' => TRUE,
+    ),
+    'filter' => array(
+      'handler' => 'views_handler_filter_string',
     ),
     'sort' => array(
       'handler' => 'views_handler_sort',

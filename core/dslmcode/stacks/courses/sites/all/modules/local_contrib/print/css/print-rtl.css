@@ -1,10 +1,5 @@
-
-body {
-  direction: rtl;
-}
-th {
-  text-align: right;
-}
+body {direction: rtl;}
+th {text-align: right;}
 .print-links,
 .print-source_url,
 .print-taxonomy {

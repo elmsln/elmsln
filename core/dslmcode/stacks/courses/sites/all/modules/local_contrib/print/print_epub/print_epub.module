@@ -1,0 +1,254 @@
+<?php
+
+/**
+ * @file
+ * Displays Printer-friendly versions of Drupal pages.
+ *
+ * @ingroup print
+ */
+
+define('PRINT_EPUB_EPUB_TOOL_DEFAULT', 0);
+define('PRINT_EPUB_IMAGES_VIA_FILE_DEFAULT', 0);
+define('PRINT_EPUB_FILENAME_DEFAULT', '[site:name] - [node:title] - [node:changed:custom:Y-m-d]');
+
+/**
+ * Implements hook_print_link().
+ */
+function print_epub_print_link() {
+  return array(
+    'format' => 'epub',
+    'text' => t('EPUB version'),
+    'description' => t('Display a EPUB version of this page.'),
+    'path' => 'printepub',
+    'class' => 'print-epub',
+    'icon' => 'epub_icon.png',
+    'module' => 'print_epub',
+  );
+}
+
+/**
+ * Implements hook_permission().
+ */
+function print_epub_permission() {
+  return array(
+    'access EPUB version' => array(
+      'title' => t('Access the EPUB version'),
+      'description' => t('View the EPUB versions and the links to them in the original pages.'),
+    ),
+  );
+}
+
+/**
+ * Implements hook_menu().
+ */
+function print_epub_menu() {
+  $link = print_epub_print_link();
+  $items = array();
+
+  $items[$link['path']] = array(
+    'title' => 'Printer-friendly EPUB',
+    'page callback' => 'print_epub_controller',
+    'access arguments' => array('access EPUB version'),
+    'type' => MENU_CALLBACK,
+    'file' => 'print_epub.pages.inc',
+  );
+  $items[$link['path'] . '/' . $link['path']] = array(
+    'access callback' => FALSE,
+  );
+  $items['admin/config/user-interface/print/epub'] = array(
+    'title' => 'EPUB',
+    'description' => 'Configure the settings of the EPUB generation functionality.',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('print_epub_settings'),
+    'access arguments'  => array('administer print'),
+    'weight' => 3,
+    'type' => MENU_LOCAL_TASK,
+    'file' => 'print_epub.admin.inc',
+  );
+  $items['admin/config/user-interface/print/epub/options'] = array(
+    'title' => 'Options',
+    'weight' => -1,
+    'type' => MENU_DEFAULT_LOCAL_TASK,
+  );
+
+  return $items;
+}
+
+/**
+ * Implements hook_variable_info().
+ */
+function print_epub_variable_info($options) {
+  $link = print_epub_print_link();
+
+  $variable['print_epub_link_text'] = array(
+    'title' => t('EPUB version'),
+    'description' => t('Text used in the link to the EPUB version.'),
+    'type' => 'string',
+    'default' => t($link['text']),
+  );
+
+  return $variable;
+}
+
+/**
+ * Implements hook_block_info().
+ */
+function print_epub_block_info() {
+  $block['print_epub-top']['info'] = t('Most EPUBed');
+  $block['print_epub-top']['cache'] = DRUPAL_CACHE_GLOBAL;
+  return $block;
+}
+
+/**
+ * Implements hook_block_view().
+ */
+function print_epub_block_view($delta = 0) {
+  switch ($delta) {
+    case 'print_epub-top':
+      $block['subject'] = t('Most EPUBd');
+      $result = db_query_range("SELECT path FROM {print_epub_page_counter} LEFT JOIN {node} n ON path = CONCAT('node/', n.nid) WHERE status <> 0 OR status IS NULL ORDER BY totalcount DESC", 0, 3)
+                  ->fetchAll();
+      if (count($result)) {
+        $items = array();
+        foreach ($result as $obj) {
+          $items[] = l(_print_get_title($obj->path), $obj->path);
+        }
+        $block['content'] = theme('item_list', array('items' => $items, 'type' => 'ul'));
+      }
+      break;
+  }
+  return $block;
+}
+
+/**
+ * Implements hook_requirements().
+ */
+function print_epub_requirements($phase) {
+  $requirements = array();
+  $t = get_t();
+  switch ($phase) {
+    // At runtime, make sure that a EPUB generation tool is selected
+    case 'runtime':
+      $print_epub_epub_tool = variable_get('print_epub_epub_tool', PRINT_EPUB_EPUB_TOOL_DEFAULT);
+      if (empty($print_epub_epub_tool)) {
+        $requirements['print_epub_tool'] = array(
+          'title' => $t('Printer, email and EPUB versions - EPUB generation library'),
+          'value' => $t('No EPUB tool selected'),
+          'description' => $t('Please configure it in the !url.', array('!url' => l($t('EPUB settings page'), 'admin/config/user-interface/print/epub'))),
+          'severity' => REQUIREMENT_ERROR,
+        );
+      }
+      else {
+        $tool = explode('|', $print_epub_epub_tool);
+
+        if (!is_file($tool[1]) || !is_readable($tool[1])) {
+          $requirements['print_epub_tool'] = array(
+            'title' => $t('Printer, email and EPUB versions - EPUB generation library'),
+            'value' => $t('File not found'),
+            'description' => $t('The currently selected EPUB generation library (%file) is no longer accessible.', array('%file' => $tool[1])),
+            'severity' => REQUIREMENT_ERROR,
+          );
+        }
+      }
+      break;
+  }
+  return $requirements;
+}
+
+/**
+ * Implements hook_node_delete().
+ */
+function print_epub_node_delete($node) {
+  db_delete('print_epub_page_counter')
+    ->condition('path', 'node/' . $node->nid)
+    ->execute();
+}
+
+/**
+ * Auxiliary function to display a formatted EPUB version link
+ *
+ * Function made available so that developers may call this function from
+ * their defined pages/blocks.
+ *
+ * @param string $path
+ *   path to be used in the link. If not specified, the current URL is used.
+ * @param object $node
+ *   node object, to be used in checking node access. If the path argument is
+ *   not provided, the path used will be node/nid.
+ * @param string $location
+ *   where in the page where the link is being inserted ('link', 'corner',
+ *   'block', 'help').
+ *
+ * @return bool
+ *   string with the HTML link to the printer-friendly page
+ *
+ * @ingroup print_api
+ */
+function print_epub_insert_link($path = NULL, $node = NULL, $location = '') {
+  if (function_exists('print_ui_insert_link')) {
+    return print_ui_insert_link(print_epub_print_link(), array('path' => $path, 'node' => $node, 'location' => $location));
+  }
+  else {
+    return FALSE;
+  }
+}
+
+/**
+ * Check if the link to the EPUB version is allowed depending on the settings
+ *
+ * @param array $args
+ *   array containing the possible parameters:
+ *    view_mode, node, type, path
+ *
+ * @return bool
+ *   FALSE if not allowed, TRUE otherwise
+ */
+function print_epub_link_allowed($args) {
+  $print_epub_epub_tool = variable_get('print_epub_epub_tool', PRINT_EPUB_EPUB_TOOL_DEFAULT);
+
+  return (user_access('access EPUB version') && (!empty($print_epub_epub_tool)));
+}
+
+/**
+ * Generate a EPUB version of the provided HTML.
+ *
+ * @param string $html
+ *   HTML content of the EPUB
+ * @param array $meta
+ *   Meta information to be used in the EPUB
+ *   - url: original URL
+ *   - name: author's name
+ *   - title: Page title
+ *   - node: node object
+ * @param string $filename
+ *   (optional) Filename of the generated EPUB
+ *
+ * @return
+ *   generated EPUB page, or NULL in case of error
+ *
+ * @see print_epub_controller()
+ *
+ * @ingroup print_api
+ */
+function print_epub_generate_html($html, $meta, $filename = NULL) {
+  $epub_tool = explode('|', variable_get('print_epub_epub_tool', PRINT_EPUB_EPUB_TOOL_DEFAULT));
+
+  module_load_include('inc', $epub_tool[0], $epub_tool[0] . '.pages');
+
+  $function = $epub_tool[0] . '_print_epub_generate';
+  if (function_exists($function)) {
+    return $function($html, $meta, $filename);
+  }
+
+  return NULL;
+}
+
+/**
+ * Implements hook_views_api().
+ */
+function print_epub_views_api() {
+  return array(
+    'api' => 2.0,
+    'path' => drupal_get_path('module', 'print_epub'),
+  );
+}

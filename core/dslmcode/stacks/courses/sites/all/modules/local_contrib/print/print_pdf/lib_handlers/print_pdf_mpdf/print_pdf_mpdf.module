@@ -1,0 +1,52 @@
+<?php
+
+/**
+ * @file
+ * Generate a PDF for the print_pdf module using the mPDF library.
+ *
+ * @ingroup print
+ */
+
+/**
+ * Implements hook_pdf_tool_info().
+ */
+function print_pdf_mpdf_pdf_tool_info() {
+  return array(
+    'name' => 'mPDF',
+    'url' => 'http://www.mpdf1.com/mpdf/download',
+    'expand_css' => FALSE,
+    'public_dirs' => array(
+      'ttfontdata',
+      'tmp',
+    ),
+    'tool_dirs' => array(
+      'graph_cache',
+    ),
+  );
+}
+
+/**
+ * Implements hook_pdf_tool_version().
+ */
+function print_pdf_mpdf_pdf_tool_version($pdf_tool) {
+  require_once(DRUPAL_ROOT . '/' . $pdf_tool);
+
+  if (defined('mPDF_VERSION')) {
+    return mPDF_VERSION;
+  }
+  else {
+    return 'unknown';
+  }
+}
+
+/**
+ * Implements hook_print_pdf_available_libs_alter().
+ */
+function print_pdf_mpdf_print_pdf_available_libs_alter(&$pdf_tools) {
+  module_load_include('inc', 'print', 'includes/print');
+  $tools = _print_scan_libs('mpdf', '!^mpdf.php$!');
+
+  foreach ($tools as $tool) {
+    $pdf_tools['print_pdf_mpdf|' . $tool] = 'mPDF (' . dirname($tool) . ')';
+  }
+}
