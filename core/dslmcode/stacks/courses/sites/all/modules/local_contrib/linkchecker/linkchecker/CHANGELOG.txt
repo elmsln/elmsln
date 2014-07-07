@@ -1,0 +1,275 @@
+linkchecker 7.x-1.2, June 7, 2014
+---------------------------------
+
+* Issue #2280827: Notice: Undefined index: content-type in _linkchecker_status_handling()
+* Issue #2146127 by hass: Notice: Undefined variable: format in_linkchecker_parse_fields()
+* Issue #1334056 by Alan D., hass: Undefined indices in linkchecker_parse_fields() and _linkchecker_add_node_links()
+* Issue #2088461 by fonant, hass: PDF link with #page= results in "URL fragment identifier not found in content"
+* Issue #500866 by hass: Remove t() from assertion messages in tests
+* Added Smiley module and Web Links modules to filter blacklist. 
+* Issue #1923328 by larowlan: Fragment check fails when source page contains spaces between attribute name, equals and value.
+* Issue #1923328 by hass: Notice: Undefined property: stdClass::$field_tags
+* Issue #1948782 by jlscott: Linkchecker does not handle link cleanup on 'link' fields
+* Issue #1926558 by hass: Block extraction re-scans fail.
+
+linkchecker 7.x-1.1, February 14, 2013
+--------------------------------------
+
+* Code style review and fixes (minor level)
+* No need to check comment/block enable variables in auto update.
+* Issue #1901018 by hass: ERROR - __clone method called on non-object.
+* Issue #1901014 by hass: ERROR - Cannot use object of type stdClass as array.
+* Code style: indent secondary line of comment one space
+* #1891900: Uninstall of variable 'linkchecker_check_connections_max' failed.
+* Use #empty in empty table.
+* #1882602: Compatible with Drupal <7.15
+* #1850210 followup: _linkchecker_unpublish_nodes() may run out of memory by loading all nodes at once.
+* #1719174: Editing node throws "Undefined property" stdClass::$nid in hook_node_prepare().
+* #1879316: Support Workbench Moderation workflow (forward revisons handling)
+* Fixed a test to use LANGUAGE_NONE constant.
+* #1880652: Refactor _linkchecker_parse_fields() and _linkchecker_replace_fields() to be less expensive, see #1040790 for more details.
+* #1875602: Check URL fragment identifiers in content
+* Minor code style fixes
+
+linkchecker 7.x-1.0, December 24, 2012
+--------------------------------------
+
+* Fixed some typos.
+* #1850210: Autorepair may run out of memory by loading all nodes/comments at once.
+* #1210606: Limited argument length in entity_load() and other functions.
+* Upgraded outdated HTTP user agents.
+* #380052: Add support with non-blocking parallel link checking.
+* #1867460: Prevent save on automatic updates, if content has not changed.
+* #1804842 follow up: Exit if all node types are disabled
+* #1450672: Cron task does not impersonate to admin user on automatic content updates.
+* Remove documentation leftover from readme about a setting not available.
+* #1727552: Notice: Undefined property: stdClass::$language in linkchecker_parse_fields(). Core follow up of #1495648: Introduce entity language support
+* Notice: Undefined variable: is_https in _linkchecker_extract_links()
+* #1804842: Lots of warnings when comment/block modules are not installed
+* Set full HTML format in block test
+* Added interface tests to verify drupal_set_message()
+* #1857620: hook_form_alter() fails on BASE_FORM_ID 'comment_form'
+* #1811908: Allow extracting protocol relative url's
+* #1831630: Array being presented to Status report page
+* #1441574: Port D6 access bypass bugfixes to D7.
+* #1678812: Notice: Undefined property: stdClass::$module in _linkchecker_add_block_custom_links()
+* #1678812: Refactored blocks extraction/replacement
+* #1678812: Added linkchecker_block_custom_block_get() for a more consistent block_custom object.
+* #1586022: linkchecker generating bad User-Agent string
+* Status code 500 on HEAD/GET does not increase fail_count
+* #1524732: Notice on blocks save / Blocks body cannot exists
+
+linkchecker 7.x-1.0-beta1, February 15, 2012
+--------------------------------------------
+
+* #1438376: D7 Upgrade failed with PHP 5 < 5.3.0, array_replace() missing
+* #1429284: Don't follow redirects
+* #1416830: Link fields are not being extracted
+* #1410376: Cannot open blocks to edit from the broken links report
+* #1410388: Cannot open comment to edit from links in the broken links report
+* #1410402: After deleting comments, Links are still displayed as Broken
+* #1405512: After deleting blocks, Links are still displayed as Broken
+* #1405504: Re-check link after creating redirect
+* #1350926: Added Drush support
+* HTML5: Added support for <track> tags in <audio> and <video> tags
+* Replace links with 301 redirections in all supported fields.
+* #1388760: Use (node|comment)_load_multiple() where possible.
+* Upgraded README.txt to D7
+* Core upgrade.php destroys text
+* #909504: D7 port - Upgrade blacklisted internal filter names.
+* Removed obsolete linkchecker_extract_from_source variable
+* Removed wysiwyg textarea exclusion hacks from D6 times.
+* #1021384: New link checker mode : internal only
+* #909504: D7 port - run _filter_url() on link module fields as linkchecker requires html code links to extact links via dom.
+* #909504: CamelCase removal (code style)
+* #1334056: Undefined indices in linkchecker_parse_fields()
+* #1334056: Undefined index: und in _linkchecker_add_node_links() & _linkchecker_add_comment_links()
+* Coder code style review, 95% of invalid errors/warnings skipped.
+* Fixed wrong variable name in .test
+* #1212748: Unprocessed redirect links
+* Change to theme() function and reduce code.
+* Upgrade theme('item_list') to D7.
+* Re-use some constants from D7 core for future.
+* Unique variable names
+* db_truncate() is ***much*** more faster than db_delete().
+* Stop suppressing errors. If there are errors we need to catch them.
+* Block module is optional in D7.
+* node_load() now only takes nid and vid as parameters.
+* Remove more tabs and indent bugs
+* Replace tabs with spaces
+* Upgrade "Remove dead links without references" query to new DB API.
+* Remove obsolete comment about a core DB API bug that has been fixed long time ago.
+* Removed coding debugging from test
+* Upgrade theme_item_list()
+* Upgraded linkchecker_link_edit_form()
+* Updated tests
+* Updated _linkchecker_status_handling()
+* Added _linkchecker_replace_fields()
+* Fixed some warnings
+* Fixed a bug in link replace regex
+* Upgraded theme('item_list') with items array.
+* Upgraded comment link extraction
+* Upgraded hook_comment_insert/update/delete.
+* Minor code change for SQL statement consistency
+* Upgrade to D7 code style - Implements hook_foo()
+* Upgrade hook_node_insert/update/delete
+* Code restructuring
+* Fixed broken extractor code
+* Block module is optional in D7. Added dependency message.
+* D7 code style fixes
+* Re-calulate 1000 links per batch
+* Upgrade urlhashes from md5 to drupal_hash_base64.
+* block_box_get() is now block_custom_block_get()
+* Added field extraction support for nodes
+* Blacklisted insert_block module
+* node_load() now only takes nid and vid as parameters.
+* drupal_set_title() automatically uses check_plain() in D7.
+* Updated "Implements hook_foo()".
+* New string concatenation rules in D7
+* drupal_set_message() should be enclosed within t() so that it is translatable
+* Translations have been moved to l.d.o
+* Update functions cleanup, prepare filter name updates. Added some text.
+* New description, cck is now fields
+* files[] is no longer required, except for files that define classes.
+* Remove $ret from update hook
+* Follow D7 update hook changes.
+* Port D6 .test to D7
+* #801584 by hass: Extract "longdesc" from "img" tags
+* Added configure link
+* #788392 by Gábor: hook_perm() name not updated
+
+* Removed block 'title' for consitency reasons. It's only a title in administration and should not contain URLs
+* Show a recommendation next to blacklisted filter names.
+* #1149596: Links with spaces are not extracted
+* Backported some documentation fixes
+* Batch redirect URL added for blocks
+* #860700: Disable all non-http(s) links for link checking until we have curl implemented
+* #1054118: After batch scan the target url is not pointing to the node view
+* #1075390: Added HTTP range support (Performance)
+* Links disabled for checking (blacklist, never checked) will be counted as as unchecked and the number of unchecked links will therefore never become zero.
+* #1321378: Improve performance of queries
+* #953958: User able to see other user broken links
+* #725398: variable_get() may not be available in the install.php run
+* First decode, than filter as URLs could theoretically consist of encoded blanks only.
+* #1067160 by somimi: Minor grammar fixes to some of the descriptions in linkchecker.pages.inc
+* Removing translation directories
+* #903318: Internal Links in cck, weblinks and links fields are not extracted.
+* Remove locale module setUp as notices in _linkchecker_add_node_links() has been fixed.
+* Prevent notices if tests run without locale module.
+* #780242 by AlexisWilke: Several E_NOTICE when dealing with the URLs
+* #500090 by hass: Block removal of RFC domains in exclude links
+* #685580 by wheyse: CCK field_name need to be checked with empty() as the value could be empty
+* Upgrade line break converter from D5 filter/2 to D6 filter/1.
+* #661484: Empty URL exclusion list disables link checking
+
+
+linkchecker 6.x-2.4, November 24, 2009
+--------------------------------------
+
+* #566388 by wimh, hass: Re-check link status on next cron run
+* #632732 by sleepcamel, hass: Add a message to $node->log when saving a new revision
+* #627774 by charmer: Linkchecker Czech Translation
+* Replace word "node" in text with "content" for easier translation
+* #580248: Prevent link check failure if 'max_execution_time' = 0 (unlimited).
+* Blacklisted "smileys/0" filter as the URLs are maintained in the Smiley module settings
+* Fixed wrong variable name in single comment import function
+* Updated README.txt
+* Cleanup / refactoring _linkchecker_extract_links()
+* #563464: Internal links reported as broken incorrectly on SSL only site. Use $base_root as site URL for prefixing absolute internal URLs.
+* E_ALL saver...
+* Better menu item description, D7 backport.
+* Dynamic destination for user broken links page
+* Use theme function for item_list
+* Dynamic colspan for no data
+* Joined wrong fields in user report with comments enabled
+* Filters do not run on content as expected.
+* db_last_insert_id('boxes', 'bid') could return a wrong value if other contrib modules add block hooks and insert something in other tables.
+* Make all count() upper case
+* Show items in a list
+* Filter $link->error for arbitrary code
+* #532178 by hass: Database update #6209 failed
+* #196862 by hass: COUNT(*) is an expensive query in InnoDB.
+* Added links extraction .test
+* E_ALL: Fixed notice for undefined $node->language.
+* E_ALL: Fixed notice caused by array_map(md5, $links)
+* Typo fixed
+* Changed unique key and column name 'token' into 'urlhash'.
+* Added filter blacklist for link extraction.
+* Remove reference to $form_state in hook_form_alter()
+* Fix comments
+* Add $node->type check
+* Added support for node type 'weblinks' from 'weblinks' modules
+* D5: check_plain() all '@' string values for the use with strtr().
+
+
+linkchecker 6.x-2.3, August 1, 2009
+-----------------------------------
+
+By this release linkchecker no longer depends on job_queue!
+
+* by wimh: Copy an paste error, used _linkchecker_node_links_missing() in _linkchecker_add_comment_links()
+* #536744 by wimh, hass: Add broken links warning message to block edit page on view, but not after save.
+* #536744 by wimh, hass: Fix comment edit form to show the broken links warning message only on 'view' and 'preview', but not after save.
+* Fix inline documenation typos
+* Code style, variable names, constant for limit, doc fixes, others
+* #536672 by wimh, hass: Link references not updated when last link of a node/comment/block is removed
+* More comments added.
+* Updated translation files
+* Use update_sql() for permission updates
+* Save form settings on link scan and clear.
+* #497096: Support links generated by input filter
+* Remove duplicate lid's in SQL results
+* #465414: Followup for relative links extracted incorrectly
+* Note that custom link settings are lost on every clean and re-analyse task
+* Added GUI for link check URL filter
+* #524380: Do not check example.com/net/org domain links
+* Updated installation steps in README.txt
+* Added sample URLs for internal and external to description
+* Changed permission name "access linkchecker" to "access broken links report"
+* Added the status code 302 to the list of ignored response codes.
+* Select from comment table only, if comment modules is active.
+* Remove ignored links from broken links view
+
+
+linkchecker 6.x-2.2, July 14, 2009
+----------------------------------
+
+* Removed confusing watchdog message.
+* Use default node type revision setting and save a revision on 301 auto-update.
+* UX: Provide more descriptive help what the HTML tags are for.
+* #451456: 301 auto-update could break links
+* #452080: Update permanently moved internal links is broken
+* Removed duplicate _linkchecker_add_xxx_links() calls. node_save automaticallly calls hook_nodeapi and comment_save automatically calls hook_comment with 'update'.
+* Added a link to the job_queue module project page
+* #465414: Stop incorrect extraction of relative links
+* Typo fixed in batch finished message
+* Removed unused default case
+* Removed UI setting no longer having a real use case (and reduce complexity)
+* Deleted the associated variable.
+* One more chance to extract a URL (for e.g. Java Applet)
+* Added support for HTML5 tags (video|audio|source)
+* Uncomment cURL requirement until implemented.
+* #402742: Integration with path_redirect
+* #427906, #417354: Extract links from various configurable HTML tags (a|area|img|iframe|object|param|embed)
+* #504332: Cannot install, HTTP request status fails
+* Show edit link only if user have permission to change settings
+* New permission to edit link settings
+* Add UI to change request method
+* Add ignore filter for links pointing to buggy servers
+
+
+linkchecker 6.x-2.1, March 26, 2009
+-----------------------------------
+
+* #409324 by Dave Reid: _linkchecker_delete_node_links() expects a nid, but passed a node object
+* #386612 by hass: Prevent possible cron failures caused by too many link checks
+* #408860 by Dave Reid: PHP notice: Undefined property: stdClass::$moderate in linkchecker.module on line 428.
+* #373485 by hass: DB errors when adding a new node
+* #387228: linkchecker.module fails in PHP4 on line 910
+* #375767: Wrong table aliases and column names for comments and boxes
+* Added MySQL 5.0 requirement check
+* Show broken link message on node prepare, not view
+* #380548: No results after configuration changes
+* #380476: Descriptive text in Admin confusing
+* #381986: Broken link does not immediately disappear in broken links list after link has been fixed in content
+* #380872 by hass: Show informative message about current check status on reports page.
