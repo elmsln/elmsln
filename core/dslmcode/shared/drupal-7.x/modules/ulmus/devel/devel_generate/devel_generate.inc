@@ -11,8 +11,10 @@
  *  The max age of each randomly-generated user, in seconds.
  * @param $roles
  *  An array of role IDs that the users should receive.
+ * @param $pass
+ *  A string to be used as common password for all generated users.
  */
-function devel_create_users($num, $kill, $age = 0, $roles = array()) {
+function devel_create_users($num, $kill, $age = 0, $roles = array(), $pass = NULL) {
   $url = parse_url($GLOBALS['base_url']);
   if ($kill) {
     $uids = db_select('users', 'u')
@@ -45,8 +47,8 @@ function devel_create_users($num, $kill, $age = 0, $roles = array()) {
       $edit = array(
         'uid'     => NULL,
         'name'    => $name,
-        'pass'    => NULL, // No password avoids user_hash_password() which is expensive.
-        'mail'    => $name . '@' . $url['host'],
+        'pass'    => $pass,
+        'mail'    => $name . '@' . $url['host'].'.invalid',
         'status'  => 1,
         'created' => REQUEST_TIME - mt_rand(0, $age),
         'roles' => drupal_map_assoc($roles),
@@ -103,6 +105,7 @@ function devel_create_users($num, $kill, $age = 0, $roles = array()) {
         // Save the user record with the new picture.
         $edit = (array) $account;
         $edit['picture'] = $file;
+        $edit['pass'] = $pass; // Reassign password as it is replaced with the hashed version in $account
         user_save($account, $edit);
       }
     }
@@ -114,8 +117,11 @@ function devel_create_users($num, $kill, $age = 0, $roles = array()) {
 /**
  * The main API function for creating content.
  *
- * See devel_generate_content_form() for the supported keys in $form_state['values'].
- * Other modules may participate by form_alter() on that form and then handling their data during hook_nodeapi('pre_save') or in own submit handler for the form.
+ * See devel_generate_content_form() for the supported keys in
+ * $form_state['values'].
+ * Other modules may participate by form_alter() on that form and then handling
+ * their data during hook_node_insert() or in their own submit handler for the
+ * form.
  *
  * @param string $form_state
  * @return void
@@ -205,6 +211,18 @@ function devel_generate_vocabs($records, $maxlength = 12, $types = array('page',
   return $vocs;
 }
 
+/**
+ * Generates taxonomy terms for a list of given vocabularies.
+ *
+ * @param $records
+ *   int number of terms to create in total.
+ * @param $vocabs
+ *   array list of vocabs to populate.
+ * @param $maxlength
+ *   int maximum length per term.
+ * @return
+ *   array the list of names of the created terms.
+ */
 function devel_generate_terms($records, $vocabs, $maxlength = 12) {
   $terms = array();
 
@@ -255,7 +273,7 @@ function devel_generate_terms($records, $vocabs, $maxlength = 12) {
 
     // Populate all core fields on behalf of field.module
     module_load_include('inc', 'devel_generate', 'devel_generate.fields');
-    devel_generate_fields($term, 'term', $term->vocabulary_machine_name);
+    devel_generate_fields($term, 'taxonomy_term', $term->vocabulary_machine_name);
 
     if ($status = taxonomy_term_save($term)) {
       $max += 1;
@@ -289,69 +307,49 @@ function devel_generate_get_terms($vids) {
            ->fetchCol('tid');
 }
 
-function devel_generate_term_data($vocabs, $num_terms, $title_length, $kill) {
-  if ($kill) {
-    foreach (devel_generate_get_terms(array_keys($vocabs)) as $tid) {
-      taxonomy_term_delete($tid);
-    }
-    drupal_set_message(t('Deleted existing terms.'));
-  }
-
-  $new_terms = devel_generate_terms($num_terms, $vocabs, $title_length);
-  if (!empty($new_terms)) {
-    drupal_set_message(t('Created the following new terms: !terms', array('!terms' => theme('item_list', array('items' => $new_terms)))));
+/**
+ * Deletes all terms of a vocabulary.
+ *
+ * @param $vid
+ *   int a vocabulary vid.
+ */
+function devel_generate_delete_vocabulary_terms($vid) {
+  foreach (taxonomy_get_tree($vid) as $term) {
+    taxonomy_term_delete($term->tid);
   }
 }
 
-function devel_generate_vocab_data($num_vocab, $title_length, $kill) {
-
-  if ($kill) {
-    foreach (taxonomy_get_vocabularies() as $vid => $vocab) {
-      taxonomy_vocabulary_delete($vid);
-    }
-    drupal_set_message(t('Deleted existing vocabularies.'));
-  }
-
-  $new_vocs = devel_generate_vocabs($num_vocab, $title_length);
-  if (!empty($new_vocs)) {
-    drupal_set_message(t('Created the following new vocabularies: !vocs', array('!vocs' => theme('item_list', array('items' => $new_vocs)))));
+/**
+ * Deletes all vocabularies.
+ */
+function devel_generate_delete_vocabularies() {
+  foreach (taxonomy_vocabulary_load_multiple(FALSE) as $vid => $vocab) {
+    taxonomy_vocabulary_delete($vid);
   }
 }
 
-function devel_generate_menu_data($num_menus, $existing_menus, $num_links, $title_length, $link_types, $max_depth, $max_width, $kill) {
-  // Delete menus and menu links.
-  if ($kill) {
-    if (module_exists('menu')) {
-      foreach (menu_get_menus(FALSE) as $menu => $menu_title) {
-        if (strpos($menu, 'devel-') === 0) {
-          $menu = menu_load($menu);
-          menu_delete($menu);
-        }
+/**
+ * Deletes custom generated menus
+ */
+function devel_generate_delete_menus() {
+  if (module_exists('menu')) {
+    foreach (menu_get_menus(FALSE) as $menu => $menu_title) {
+      if (strpos($menu, 'devel-') === 0) {
+        $menu = menu_load($menu);
+        menu_delete($menu);
       }
     }
-    // Delete menu links generated by devel.
-    $result = db_select('menu_links', 'm')
-      ->fields('m', array('mlid'))
-      ->condition('m.menu_name', 'devel', '<>')
-      // Look for the serialized version of 'devel' => TRUE.
-      ->condition('m.options', '%' . db_like('s:5:"devel";b:1') . '%', 'LIKE')
-      ->execute();
-    foreach ($result as $link) {
-      menu_link_delete($link->mlid);
-    }
-    drupal_set_message(t('Deleted existing menus and links.'));
   }
-
-  // Generate new menus.
-  $new_menus = devel_generate_menus($num_menus, $title_length);
-  if (!empty($new_menus)) {
-    drupal_set_message(t('Created the following new menus: !menus', array('!menus' => theme('item_list', array('items' => $new_menus)))));
+  // Delete menu links generated by devel.
+  $result = db_select('menu_links', 'm')
+    ->fields('m', array('mlid'))
+    ->condition('m.menu_name', 'devel', '<>')
+    // Look for the serialized version of 'devel' => TRUE.
+    ->condition('m.options', '%' . db_like('s:5:"devel";b:1') . '%', 'LIKE')
+    ->execute();
+  foreach ($result as $link) {
+    menu_link_delete($link->mlid);
   }
-
-  // Generate new menu links.
-  $menus = $new_menus + $existing_menus;
-  $new_links = devel_generate_links($num_links, $menus, $title_length, $link_types, $max_depth, $max_width);
-  drupal_set_message(t('Created @count new menu links.', array('@count' => count($new_links))));
 }
 
 /**
@@ -366,7 +364,7 @@ function devel_generate_menus($num_menus, $title_length = 12) {
 
   for ($i = 1; $i <= $num_menus; $i++) {
     $menu = array();
-    $menu['title'] = devel_generate_word(mt_rand(2, $title_length));
+    $menu['title'] = devel_generate_word(mt_rand(2, max(2, $title_length)));
     $menu['menu_name'] = 'devel-' . drupal_strtolower($menu['title']);
     $menu['description'] = t('Description of @name', array('@name' => $menu['title']));
     menu_save($menu);
@@ -394,7 +392,7 @@ function devel_generate_links($num_links, $menus, $title_length, $link_types, $m
       'options'     => array('devel' => TRUE),
       'weight'      => mt_rand(-50, 50),
       'mlid'        => 0,
-      'link_title'  => devel_generate_word(mt_rand(2, $title_length)),
+      'link_title'  => devel_generate_word(mt_rand(2, max(2, $title_length))),
     );
     $link['options']['attributes']['title'] = t('Description of @title.', array('@title' => $link['link_title']));
 
@@ -404,7 +402,7 @@ function devel_generate_links($num_links, $menus, $title_length, $link_types, $m
     }
     else {
       // Otherwise, get a random parent menu depth.
-      $depth = mt_rand(1, $max_depth - 1);
+      $depth = mt_rand(1, max(1, $max_depth - 1));
     }
     // Get a random parent link from the proper depth.
     do {
@@ -674,9 +672,19 @@ function devel_generate_content_add_node(&$results) {
   $users = $results['users'];
   $node->uid = $users[array_rand($users)];
   $type = node_type_get_type($node);
-  $node->title = $type->has_title ? devel_create_greeking(mt_rand(2, $results['title_length']), TRUE) : '';
   $node->revision = mt_rand(0,1);
   $node->promote = mt_rand(0, 1);
+
+  if ($type->has_title) {
+    // We should not use the random function if the value is not random
+    if ($results['title_length'] < 2) {
+      $node->title = devel_create_greeking(1, TRUE);
+    }
+    else {
+      $node->title = devel_create_greeking(mt_rand(1, $results['title_length']), TRUE);
+    }
+  }
+
   // Avoid NOTICE.
   if (!isset($results['time_range'])) {
     $results['time_range'] = 0;
@@ -686,14 +694,16 @@ function devel_generate_content_add_node(&$results) {
 
   $node->created = REQUEST_TIME - mt_rand(0, $results['time_range']);
 
-  // A flag to let hook_nodeapi() implementations know that this is a generated node.
+  // A flag to let hook_node_insert() implementations know that this is a
+  // generated node.
   $node->devel_generate = $results;
 
   // Populate all core fields on behalf of field.module
   module_load_include('inc', 'devel_generate', 'devel_generate.fields');
   devel_generate_fields($node, 'node', $node->type);
 
-  // See devel_generate_nodeapi() for actions that happen before and after this save.
+  // See devel_generate_node_insert() for actions that happen before and after
+  // this save.
   node_save($node);
 }
 

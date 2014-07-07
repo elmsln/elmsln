@@ -27,7 +27,10 @@ class DevelMailLog extends DefaultMailSystem {
 
     $line_endings = variable_get('mail_line_endings', MAIL_LINE_ENDINGS);
     $output = join($line_endings, $mimeheaders) . $line_endings;
-    $output .= $message['subject'] . $line_endings;
+    // 'Subject:' is a mail header and should not be translated.
+    $output .= 'Subject: ' . $message['subject'] . $line_endings;
+    // Blank line to separate headers from body.
+    $output .= $line_endings;
     $output .= preg_replace('@\r?\n@', $line_endings, $message['body']);
     return $output;
   }

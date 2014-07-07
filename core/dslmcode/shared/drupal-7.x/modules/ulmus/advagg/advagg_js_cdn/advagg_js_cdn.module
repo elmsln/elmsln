@@ -43,6 +43,9 @@ function advagg_js_cdn_js_alter(&$javascript) {
   // JQuery.
   $jquery_version = variable_get('advagg_js_cdn_jquery_version', ADVAGG_JS_CDN_JQUERY_VERSION);
   $min = variable_get('advagg_js_cdn_compression', ADVAGG_JS_CDN_COMPRESSION) ? '.min' : '';
+  if (variable_get('advagg_cache_level', ADVAGG_CACHE_LEVEL) < 0) {
+    $min = '';
+  }
   // JQuery ui.
   $jquery_ui_version = variable_get('advagg_js_cdn_jquery_ui_version', ADVAGG_JS_CDN_JQUERY_UI_VERSION);
   $ui_mapping = advagg_js_cdn_get_ui_mapping();

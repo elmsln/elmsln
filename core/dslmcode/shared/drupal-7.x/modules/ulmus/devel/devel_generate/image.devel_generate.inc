@@ -23,7 +23,7 @@ function _image_devel_generate($object, $field, $instance, $bundle) {
 
   $min_resolution = empty($instance['settings']['min_resolution']) ? '100x100' : $instance['settings']['min_resolution'];
   $max_resolution = empty($instance['settings']['max_resolution']) ? '600x600' : $instance['settings']['max_resolution'];
-  $extensions = array_intersect(explode(' ', $instance['settings']['file_extensions']), array('png', 'jpg'));
+  $extensions = array_intersect(explode(' ', $instance['settings']['file_extensions']), array('png', 'gif', 'jpg', 'jpeg'));
   $extension = array_rand(drupal_map_assoc($extensions));
 
   // Generate a max of 5 different images.
@@ -33,7 +33,7 @@ function _image_devel_generate($object, $field, $instance, $bundle) {
       $source->uri = $path;
       $source->uid = 1; // TODO: randomize? Use case specific.
       $source->filemime = 'image/' . pathinfo($path, PATHINFO_EXTENSION);
-      $source->filename = array_pop(explode("//", $path));
+      $source->filename = basename($path);
       $destination_dir = $field['settings']['uri_scheme'] . '://' . $instance['settings']['file_directory'];
       file_prepare_directory($destination_dir, FILE_CREATE_DIRECTORY);
       $destination = $destination_dir . '/' . basename($path);
@@ -89,8 +89,6 @@ function devel_generate_image($extension = 'png', $min_resolution, $max_resoluti
 
     $save_function = 'image'. ($extension == 'jpg' ? 'jpeg' : $extension);
     $save_function($im, drupal_realpath($destination));
-
-    $images[$extension][$min_resolution][$max_resolution][$destination] = $destination;
   }
   return $destination;
 }

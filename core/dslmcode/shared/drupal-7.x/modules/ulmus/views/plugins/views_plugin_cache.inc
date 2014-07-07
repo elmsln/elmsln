@@ -200,25 +200,28 @@ class views_plugin_cache extends views_plugin {
       $this->storage['head'] = '';
     }
 
+    // Check if the advanced mapping function of D 7.23 is available.
+    $array_mapping_func = function_exists('drupal_array_diff_assoc_recursive') ? 'drupal_array_diff_assoc_recursive' : 'array_diff_assoc';
+
     // Slightly less simple for CSS:
     $css = drupal_add_css();
     $css_start = isset($this->storage['css']) ? $this->storage['css'] : array();
-    $this->storage['css'] = array_diff_assoc($css, $css_start);
+    $this->storage['css'] = $array_mapping_func($css, $css_start);
 
     // Get javascript after/before views renders.
     $js = drupal_add_js();
     $js_start = isset($this->storage['js']) ? $this->storage['js'] : array();
     // If there are any differences between the old and the new javascript then
     // store them to be added later.
-    $this->storage['js'] = array_diff_assoc($js, $js_start);
+    $this->storage['js'] = $array_mapping_func($js, $js_start);
 
     // Special case the settings key and get the difference of the data.
     $settings = isset($js['settings']['data']) ? $js['settings']['data'] : array();
     $settings_start = isset($js_start['settings']['data']) ? $js_start['settings']['data'] : array();
-    $this->storage['js']['settings'] = array_diff_assoc($settings, $settings_start);
+    $this->storage['js']['settings'] = $array_mapping_func($settings, $settings_start);
 
     // Get difference of HTTP headers.
-    $this->storage['headers'] = array_diff_assoc(drupal_get_http_header(), $this->storage['headers']);
+    $this->storage['headers'] = $array_mapping_func(drupal_get_http_header(), $this->storage['headers']);
   }
 
   /**
@@ -253,58 +256,60 @@ class views_plugin_cache extends views_plugin {
   }
 
   function get_results_key() {
-    global $user;
-
     if (!isset($this->_results_key)) {
-
-      $build_info = $this->view->build_info;
-
-      $query_plugin = $this->view->display_handler->get_plugin('query');
-
-      foreach (array('query','count_query') as $index) {
-        // If the default query back-end is used generate SQL query strings from
-        // the query objects.
-        if ($build_info[$index] instanceof SelectQueryInterface) {
-          $query = clone $build_info[$index];
-          $query->preExecute();
-          $build_info[$index] = (string) $query;
-        }
-      }
-      $key_data = array(
-        'build_info' => $build_info,
-        'roles' => array_keys($user->roles),
-        'super-user' => $user->uid == 1, // special caching for super user.
-        'language' => $GLOBALS['language']->language,
-        'base_url' => $GLOBALS['base_url'],
-      );
-      foreach (array('exposed_info', 'page', 'sort', 'order', 'items_per_page', 'offset') as $key) {
-        if (isset($_GET[$key])) {
-          $key_data[$key] = $_GET[$key];
-        }
-      }
-
-      $this->_results_key = $this->view->name . ':' . $this->display->id . ':results:' . md5(serialize($key_data));
+      $this->_results_key = $this->view->name . ':' . $this->display->id . ':results:' . $this->get_cache_key();
     }
 
     return $this->_results_key;
   }
 
   function get_output_key() {
-    global $user;
     if (!isset($this->_output_key)) {
       $key_data = array(
-        'result' => $this->view->result,
-        'roles' => array_keys($user->roles),
-        'super-user' => $user->uid == 1, // special caching for super user.
         'theme' => $GLOBALS['theme'],
-        'language' => $GLOBALS['language']->language,
-        'base_url' => $GLOBALS['base_url'],
       );
-
-      $this->_output_key = $this->view->name . ':' . $this->display->id . ':output:' . md5(serialize($key_data));
+      $this->_output_key = $this->view->name . ':' . $this->display->id . ':output:' . $this->get_cache_key($key_data);
     }
 
     return $this->_output_key;
+  }
+
+  /**
+   * Returns cache key.
+   *
+   * @param array $key_data
+   *   Additional data for cache segmentation and/or overrides for default
+   *   segmentation.
+   *
+   * @return string
+   */
+  function get_cache_key($key_data = array()) {
+    global $user;
+
+    $key_data += array(
+      'roles' => array_keys($user->roles),
+      'super-user' => $user->uid == 1, // special caching for super user.
+      'language' => $GLOBALS['language']->language,
+      'base_url' => $GLOBALS['base_url'],
+    );
+
+    if (empty($key_data['build_info'])) {
+      $build_info = $this->view->build_info;
+      foreach (array('query','count_query') as $index) {
+        // If the default query back-end is used generate SQL query strings from
+        // the query objects.
+        if ($build_info[$index] instanceof SelectQueryInterface) {
+          $query = clone $build_info[$index];
+          $query->preExecute();
+          $key_data['build_info'][$index] = array(
+            'sql' => (string) $query,
+            'arguments' => $query->getArguments(),
+          );
+        }
+      }
+    }
+    $key = md5(serialize($key_data));
+    return $key;
   }
 }
 

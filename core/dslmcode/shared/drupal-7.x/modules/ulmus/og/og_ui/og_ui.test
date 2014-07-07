@@ -261,7 +261,7 @@ class OgUiManagePeopleTestCase extends DrupalWebTestCase {
     $this->drupalPost('group/entity_test/' . $this->entity->pid . '/admin/people/add-user', $edit, t('Add users'));
 
     // Reload user.
-    og_membership_invalidate_cache();
+    og_invalidate_cache();
     $this->assertTrue(og_is_member('entity_test', $this->entity->pid, 'user', $this->user2), 'User was added to the group.');
 
     // Add the same user twice.

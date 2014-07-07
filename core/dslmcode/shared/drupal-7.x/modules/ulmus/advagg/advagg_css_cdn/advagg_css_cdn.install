@@ -15,7 +15,7 @@ function advagg_css_cdn_requirements($phase) {
 
   // If not at runtime, return here.
   if ($phase != 'runtime') {
-    return;
+    return $requirements;
   }
 
   if (module_exists('jquery_update')) {

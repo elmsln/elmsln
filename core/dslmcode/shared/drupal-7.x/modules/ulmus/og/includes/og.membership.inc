@@ -23,8 +23,8 @@ class OgMembership extends Entity {
       throw new OgException('OG membership can not be created for anonymous user.');
     }
 
-    $wrapper = entity_metadata_wrapper($entity_type, $etid);
-    $bundle = $wrapper->getBundle();
+    $entity = !empty($this->entity) ? $this->entity : entity_load_single($entity_type, $etid);
+    list(,, $bundle) = entity_extract_ids($entity_type, $entity);
 
     $group_type = $this->group_type;
     $gid = $this->gid;
@@ -75,7 +75,7 @@ class OgMembership extends Entity {
 
     // We can now safely save the entity.
     parent::save();
-    og_membership_invalidate_cache();
+    og_invalidate_cache();
     // Clear the group content entity field cache.
     cache_clear_all('field:'. $entity_type . ':' . $etid, 'cache_field');
 
@@ -88,7 +88,7 @@ class OgMembership extends Entity {
   public function delete() {
     parent::delete();
 
-    og_membership_invalidate_cache();
+    og_invalidate_cache();
     // Clear the group content entity field cache.
     cache_clear_all('field:'. $this->entity_type . ':' . $this->etid, 'cache_field');
 

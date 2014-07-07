@@ -1,4 +1,8 @@
 <?php
+/**
+ * @file
+ * Core functionality for boxes module.
+ */
 
 /**
  *  Edit locations.
@@ -181,7 +185,7 @@ function boxes_block_view($delta) {
       if (variable_get('boxes_edit_location', BOXES_EDIT_IN_PLACE) == BOXES_EDIT_IN_PLACE) {
         $edit_link = array(
           'title' => t('Edit Box'),
-          'href' => $_GET['q'],
+          'href' => drupal_is_front_page() ? '<front>' : $_GET['q'],
           'query' => array(
             'plugin_key' => $box->plugin_key,
             'boxes_delta' => $block['delta'],
@@ -202,7 +206,7 @@ function boxes_block_view($delta) {
           'edit' => $edit_link,
           'cancel' => array(
             'title' => t('Cancel'),
-            'href' => $_GET['q'],
+            'href' => drupal_is_front_page() ? '<front>' : $_GET['q'],
           ),
         ),
       ));
@@ -235,13 +239,13 @@ function boxes_page_alter(&$page) {
  */
 function boxes_footer() {
 
-   // if ckeditor is used, the base path needs to be set on the original
-   // page load, or ckeditor will set it incorrectly to the root.
-   // while this is loaded on every page it is just a single set of a variable.
-   if (module_exists("wysiwyg") && ($editor = wysiwyg_get_editor('ckeditor'))) {
-     $base = base_path();
-     drupal_add_js("window.CKEDITOR_BASEPATH = '$base{$editor['library path']}/'", 'inline');
-   }
+  // If ckeditor is used, the base path needs to be set on the original
+  // page load, or ckeditor will set it incorrectly to the root.
+  // while this is loaded on every page it is just a single set of a variable.
+  if (module_exists("wysiwyg") && ($editor = wysiwyg_get_editor('ckeditor'))) {
+    $base = base_path();
+    drupal_add_js("window.CKEDITOR_BASEPATH = '$base{$editor['library path']}/'", 'inline');
+  }
 
   // Besure the page isn't a 404 or 403.
   $headers = drupal_get_http_header();
@@ -281,20 +285,20 @@ function boxes_footer() {
       if (!empty($errors)) { /* validation error */
         $msg_and_form = theme('status_messages') . drupal_render($form);
         $output[] = array(
-          'command' => 'showBoxForm', 
-          'method' => 'html', 
-          'selector' => '#block-boxes-' . $delta, 
-          'data' => $msg_and_form, 
+          'command' => 'showBoxForm',
+          'method' => 'html',
+          'selector' => '#block-boxes-' . $delta,
+          'data' => $msg_and_form,
           'settings' => NULL,
         );
       }
       //  if we are comming from a init form and need to continue then lets render the form again
-      else if (empty($form_state['submitted']) || isset($_GET['init_form_continue'])) {
+      elseif (empty($form_state['submitted']) || isset($_GET['init_form_continue'])) {
         $output[] = array(
-          'command' => 'showBoxForm', 
-          'method' => 'html', 
-          'selector' => '#boxes-box-' . $delta, 
-          'data' => drupal_render($form), 
+          'command' => 'showBoxForm',
+          'method' => 'html',
+          'selector' => '#boxes-box-' . $delta,
+          'data' => drupal_render($form),
           'settings' => NULL,
         );
       }
@@ -304,7 +308,7 @@ function boxes_footer() {
           'command' => 'getBlock',
           'method' => 'replaceWith',
           'delta' => $delta,
-          'url' => url($_GET['q'], array('absolute' => TRUE)),
+          'url' => url(drupal_is_front_page() ? '<front>' : $_GET['q'], array('absolute' => TRUE)),
         );
 
       }
@@ -375,7 +379,7 @@ function boxes_box_load($delta = NULL) {
   $boxes = array();
   foreach (ctools_export_load_object('box') as $box) {
     $box = boxes_box::load($box->delta);
-    if($box) {
+    if ($box) {
       drupal_alter('boxes_box_load', $box, $delta);
       $boxes[$box->delta] = $box;
     }
@@ -395,7 +399,7 @@ function boxes_box_load_reset() {
  */
 function boxes_box_form($form, &$form_state) {
   $box = $form_state['box'];
-  if(method_exists($box, "box_form")) {
+  if (method_exists($box, "box_form")) {
     return $box->box_form($form, $form_state);
   }
   // For hook_block_save()
@@ -428,7 +432,7 @@ function boxes_box_form($form, &$form_state) {
   $form['options']['#weight'] = -17;
 
   $form['boxes_adv'] = array(
-    '#type'=> 'fieldset',
+    '#type' => 'fieldset',
     '#collapsed' => TRUE,
     '#collapsible' => TRUE,
     '#title' => t('Advanced Settings'),
@@ -447,12 +451,13 @@ function boxes_box_form($form, &$form_state) {
   $form['cancel'] = array(
     '#type' => 'submit',
     '#value' => t('Cancel'),
+    '#submit' => array('boxes_box_form_cancel_submit'),
     '#limit_validation_errors' => array(),
     '#attributes' => array('class' => array('boxes-ajax', 'use-ajax-submit')),
   );
 
   if (!empty($form_state['custom_action'])) {
-    $form['#action'] = url($_GET['q'], array('query' => array(
+    $form['#action'] = url(drupal_is_front_page() ? '<front>' : $_GET['q'], array('query' => array(
         'boxes_delta' => $box->delta,
         'plugin_key' => $form_state['plugin_key'],
       )));
@@ -462,7 +467,7 @@ function boxes_box_form($form, &$form_state) {
     unset($form['cancel']);
     $form['submit']['#value'] = t('Continue');
     if (!empty($form_state['custom_action'])) {
-      $form['#action'] = url($_GET['q'], array(
+      $form['#action'] = url(drupal_is_front_page() ? '<front>' : $_GET['q'], array(
         'query' => array(
           'boxes_delta' => $box->delta,
           'init_form_continue' => TRUE,
@@ -472,7 +477,18 @@ function boxes_box_form($form, &$form_state) {
     }
   }
 
+  // Place wrapper DIV so we don't break in IE7/8 when jQuery UI tries to access the 'title' attribute on the form in a modal dialog
+  $form['#prefix'] = '<div id="boxes-box-form-wrapper">';
+  $form['#suffix'] = '</div>';
+
   return $form;
+}
+
+/**
+ * Submit handler for cancel on inline add box form
+ */
+function boxes_box_form_cancel_submit($form, &$form_state) {
+  return;
 }
 
 /**
@@ -480,15 +496,20 @@ function boxes_box_form($form, &$form_state) {
  */
 function boxes_form_alter(&$form, &$form_state, $form_id) {
   $path = implode('/', array_slice(arg(), 0, 5));
-  if (($form_id != 'block_admin_configure' || $path != 'admin/structure/block/manage/boxes') && 
+  if (($form_id != 'block_admin_configure' || $path != 'admin/structure/block/manage/boxes') &&
       ($form_id != 'boxes_add_form' || arg(3) != 'box-add')) {
     return;
   }
-  
-  // Use the Box form submit handler and properly redirect to the correct admin page
+
+  // Use the Box form submit handler.
   array_unshift($form['#submit'], 'boxes_box_form_submit');
-  $form['#action'] = '?destination=admin/structure/block';
-  
+
+  // Properly redirect to the correct admin page when a ?destination parameter
+  // is not already provided (Eg, by contextual links).
+  if (!empty($form['#action']) && (strpos($form['#action'], '?destination=') == FALSE)) {
+    $form['#action'] .= '?destination=admin/structure/block';
+  }
+
   // Cancel behavior is different here
   unset($form['cancel']['#attributes']);
   $form['cancel']['#submit'] = array('boxes_block_cancel_submit');
@@ -510,7 +531,7 @@ function boxes_box_form_submit($form, $form_state) {
   // Let's set the additional_classes as an option
   $box->options['additional_classes'] = isset($form_state['values']['additional_classes']) ?
     $form_state['values']['additional_classes'] : array();
-    
+
   if (module_exists('spaces') && $space = spaces_get_space()) {
     $space->controllers->boxes->set($box->delta, $box);
   }
@@ -539,20 +560,20 @@ function boxes_form_block_admin_configure_alter(&$form, &$form_state) {
         '#submit' => array('boxes_block_delete_submit'),
       );
     }
-    
+
     // Cancel behavior is different on admin/structure page
     unset($form['settings']['cancel']);
     $form['actions']['cancel'] = array(
       '#type' => 'submit',
       '#value' => t('Cancel'),
       '#submit' => array('boxes_block_cancel_submit'),
-    );    
+    );
   }
 }
 
 /**
  * Submit handler for box cancel from the block/manage/boxes/[MACHINE-NAME]/configure
- */ 
+ */
 function boxes_block_cancel_submit($form, &$form_state) {
   if (module_exists('overlay')) {
     overlay_close_dialog();
@@ -789,7 +810,7 @@ function boxes_add_js() {
 
   drupal_add_js(drupal_get_path('module', 'boxes') . '/boxes.js');
   drupal_add_css(drupal_get_path('module', 'boxes') . '/boxes.css');
-  drupal_add_js(array('getQ' => $_GET['q']), array('type' => 'setting', 'scope' => JS_DEFAULT));
+  drupal_add_js(array('getQ' => drupal_is_front_page() ? '' : $_GET['q']), array('type' => 'setting', 'scope' => JS_DEFAULT));
 }
 
 /**
@@ -826,14 +847,16 @@ function boxes_preprocess_block(&$vars) {
 function boxes_preprocess_panels_pane(&$vars) {
   if ($vars['pane']->type == 'block') {
     list($module, $delta) = explode('-', $vars['pane']->subtype, 2);
-    // Load up the actual box to check for additional classes.
-    $box = boxes_box_load($delta);
+    if ($module == 'boxes') {
+      // Load up the actual box to check for additional classes.
+      $box = boxes_box_load($delta);
 
-    if (isset($box->plugin_key)) {
-      $vars['classes_array'][] = 'block-boxes-' . $box->plugin_key;
-    }
-    if (isset($box->options['additional_classes'])) {
-      $vars['classes_array'] = array_merge($vars['classes_array'], explode(' ', $box->options['additional_classes']));
+      if (isset($box->plugin_key)) {
+        $vars['classes_array'][] = 'block-boxes-' . $box->plugin_key;
+      }
+      if (isset($box->options['additional_classes'])) {
+        $vars['classes_array'] = array_merge($vars['classes_array'], explode(' ', $box->options['additional_classes']));
+      }
     }
   }
 }

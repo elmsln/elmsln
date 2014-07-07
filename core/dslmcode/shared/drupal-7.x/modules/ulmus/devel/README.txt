@@ -22,9 +22,8 @@ Also a dpr() function is provided, which pretty prints arrays and strings.
 Useful during development. Many other nice functions like dpm(), dvm().
 
 AJAX developers in particular ought to install FirePHP Core from
-http://www.firephp.org/ and put it in the devel directory.
-This happens automatically when you enable via drush. You may also
-use a drush command to download the library. If downloading by hand,
+http://www.firephp.org/ and put it in the devel directory. You may
+use the devel-download drush command to download the library. If downloading by hand,
 your path to fb.php should look like devel/FirePHPCore/lib/FirePHPCore/fb.php.
 You can use svn checkout http://firephp.googlecode.com/svn/trunk/trunk/Libraries/FirePHPCore.
 Then you can log php variables to the Firebug console. Is quite useful.

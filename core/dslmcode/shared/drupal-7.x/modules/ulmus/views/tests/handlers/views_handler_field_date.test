@@ -34,6 +34,8 @@ class ViewsHandlerFieldDateTest extends ViewsSqlTest {
         'relationship' => 'none',
         // c is iso 8601 date format @see http://php.net/manual/en/function.date.php
         'custom_date_format' => 'c',
+        'second_date_format' => 'custom',
+        'second_date_format_custom' => 'c',
       ),
     ));
     $time = gmmktime(0, 0, 0, 1, 1, 2000);
@@ -51,6 +53,8 @@ class ViewsHandlerFieldDateTest extends ViewsSqlTest {
         'medium' => format_date($time, 'medium', '', $timezone),
         'large' => format_date($time, 'large', '', $timezone),
         'custom' => format_date($time, 'custom', 'c', $timezone),
+        'today time ago custom' => format_date($time, 'custom', 'c', $timezone),
+        'today time ago' => t('%time ago', array('%time' => format_interval(120, 2))),
       );
       $this->assertRenderedDatesEqual($view, $dates, $timezone);
     }
@@ -67,6 +71,17 @@ class ViewsHandlerFieldDateTest extends ViewsSqlTest {
 
   protected function assertRenderedDatesEqual($view, $map, $timezone = NULL) {
     foreach ($map as $date_format => $expected_result) {
+      $check_result_number = 0;
+
+      // If it's "today time ago" format we have to check the 6th element.
+      if ($date_format == 'today time ago') {
+        $check_result_number = 5;
+      }
+
+      // Correct the date format.
+      if ($date_format == 'today time ago custom') {
+        $date_format = 'today time ago';
+      }
       $view->field['created']->options['date_format'] = $date_format;
       $t_args = array(
         '%value' => $expected_result,
@@ -80,8 +95,23 @@ class ViewsHandlerFieldDateTest extends ViewsSqlTest {
       else {
         $message = t('Value %value in %format format matches.', $t_args);
       }
-      $actual_result = $view->field['created']->advanced_render($view->result[0]);
+      $actual_result = $view->field['created']->advanced_render($view->result[$check_result_number]);
       $this->assertEqual($expected_result, $actual_result, $message);
     }
+  }
+
+  /**
+   * Appends dataSet() with a data row for "today time ago" format testing.
+   */
+  protected function dataSet() {
+    $data = parent::dataSet();
+    $data[] = array(
+      'name' => 'David',
+      'age' => 25,
+      'job' => 'Singer',
+      'created' => REQUEST_TIME - 120,
+    );
+
+    return $data;
   }
 }

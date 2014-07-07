@@ -6,6 +6,28 @@
  */
 
 /**
+ * Implements hook_advagg_get_info_on_files_alter().
+ *
+ * Used to make sure the info is up to date in the cache.
+ */
+function advagg_mod_advagg_get_info_on_files_alter(&$return, $cached_data, $bypass_cache) {
+  foreach ($return as $filename => &$info) {
+    if (empty($info['fileext']) || $info['fileext'] != 'js') {
+      continue;
+    }
+    // New or updated data or no advagg_js_compress data.
+    // @ignore sniffer_whitespace_openbracketspacing_openingwhitespace
+    if (   empty($cached_data[$info['cache_id']])
+        || empty($info['advagg_mod'])
+        || $info['content_hash'] != $cached_data[$info['cache_id']]['content_hash']
+        ) {
+      // Check the cache.
+      $info['advagg_mod'] = advagg_mod_js_contains_jquery_drupal($info['data']);
+    }
+  }
+}
+
+/**
  * Implements hook_advagg_get_css_file_contents_alter().
  *
  * Used to run strings inside of quotes of the content attribute through the t

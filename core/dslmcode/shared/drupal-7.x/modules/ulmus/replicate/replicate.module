@@ -39,7 +39,7 @@ function replicate_entity($entity_type, $entity) {
   $clone = replicate_clone_entity($entity_type, $entity);
   if ($clone) {
     entity_save($entity_type, $clone);
-    $entity_id = array_shift(entity_extract_ids($entity_type, $clone));
+      list($entity_id) = entity_extract_ids($entity_type, $clone);
 
     if (isset($entity_id)) {
       return $entity_id;

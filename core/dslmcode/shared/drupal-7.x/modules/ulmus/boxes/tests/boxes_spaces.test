@@ -2,7 +2,7 @@
 
 class BoxesSpacesTestCase extends BoxesAjaxTestCase {
   /**
-   * Implementation of getInfo().
+   * Implements getInfo().
    */
   public static function getInfo() {
     return array(
@@ -13,7 +13,7 @@ class BoxesSpacesTestCase extends BoxesAjaxTestCase {
   }
 
   /**
-   * Implementation of setUp().
+   * Implements setUp().
    */
   function setUp() {
     parent::setUp('ctools', 'boxes', 'features', 'purl', 'spaces', 'spaces_ui', 'spaces_user', 'taxonomy', 'spaces_taxonomy');
@@ -41,7 +41,7 @@ class BoxesSpacesTestCase extends BoxesAjaxTestCase {
     );
     $this->drupalPost(NULL, $edit, t('Save'));
     $response = $this->parseJSON();
-    $delta = null;
+    $delta = NULL;
     foreach ($response as $command) {
       if ($command->command == 'getBlock') {
         $delta = $command->delta;

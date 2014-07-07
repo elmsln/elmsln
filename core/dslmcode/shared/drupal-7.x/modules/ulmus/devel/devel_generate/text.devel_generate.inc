@@ -19,7 +19,7 @@ function _text_devel_generate($object, $field, $instance, $bundle) {
     $format = filter_fallback_format();
   }
 
-  if ($instance['widget']['type'] != 'text_textfield') {
+  if (empty($field['settings']['max_length'])) {
     // Textarea handling
     $object_field['value'] = devel_create_content($format);
     if ($instance['widget']['type'] == 'text_textarea_with_summary' && !empty($instance['display_summary'])) {
@@ -28,11 +28,7 @@ function _text_devel_generate($object, $field, $instance, $bundle) {
   }
   else {
     // Textfield handling.
-    // Generate a value that respects max_length.
-    if (empty($field['settings']['max_length'])) {
-      $field['settings']['max_length'] = 12;
-    }
-    $object_field['value'] = user_password($field['settings']['max_length']);
+    $object_field['value'] = substr(devel_create_greeking(mt_rand(1, $field['settings']['max_length'] / 6), FALSE), 0, $field['settings']['max_length']);
   }
   $object_field['format'] = $format;
   return $object_field;

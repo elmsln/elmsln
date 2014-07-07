@@ -102,3 +102,23 @@ function imce_update_7001(&$sandbox) {
     return t('Migrated IMCE files.');
   }
 }
+
+/**
+ * Fixes misconfigurations where anonymous user is given User-1 profile
+ */
+function imce_update_7002() {
+  $roles = variable_get('imce_roles_profiles', array());
+  $rid = DRUPAL_ANONYMOUS_RID;
+  if (!empty($roles[$rid])) {
+    $update = FALSE;
+    foreach ($roles[$rid] as $key => $value) {
+      if ($value == 1 && substr($key, -4) == '_pid') {
+        $roles[$rid][$key] = '0';
+        $update = TRUE;
+      }
+    }
+    if ($update) {
+      variable_set('imce_roles_profiles', $roles);
+    }
+  }
+}

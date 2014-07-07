@@ -226,9 +226,13 @@ function dna_visible_nodes($nid = NULL) {
   if ($nid) {
     $nids[$nid] = $nid;
   }
-  elseif (empty($nids) && arg(0) == 'node' && is_numeric(arg(1)) && arg(2) == NULL) {
-    // show DNA information on node/NID even if access is denied (IF the user has the 'view devel_node_access information' permission)!
-    return array(arg(1));
+  elseif (empty($nids)) {
+    $menu_item = menu_get_item();
+    $map = $menu_item['original_map'];
+    if ($map[0] == 'node' && isset($map[1]) && is_numeric($map[1]) && !isset($map[2])) {
+      // show DNA information on node/NID even if access is denied (IF the user has the 'view devel_node_access information' permission)!
+      return array($map[1]);
+    }
   }
   return $nids;
 }
@@ -368,6 +372,7 @@ function _devel_node_access_nar_alter(&$grants, $node) {
       }
       else {
         // it's an existing grant, check for changes
+        $view = $update = $delete = FALSE;
         foreach (array('view', 'update', 'delete') as $op) {
           $$op = $grant["grant_$op"] - $data[$grant['realm']][$grant['gid']]['current']["grant_$op"];
         }
@@ -496,6 +501,7 @@ function devel_node_access_block_info() {
   $blocks['dna_user'] = array(
     'info'   => t('Devel Node Access by User'),
     'region' => 'footer',
+    'status' => 0,
     'cache'  => DRUPAL_NO_CACHE,
   );
   return $blocks;
@@ -645,7 +651,7 @@ function devel_node_access_block_view($delta) {
               foreach (array('view', 'update', 'delete') as $op) {
                 $grants = _devel_node_access_module_invoke_all('node_grants', $user, $op);
                 // call all hook_node_grants_alter() implementations
-                $ng_alter_data = _devel_node_access_ng_alter($grants, $user, $op);
+                $ng_alter_datas[$op] = _devel_node_access_ng_alter($grants, $user, $op);
                 $checked_grants[$nid][$op] = array_merge(array('all' => array(0)), $grants);
               }
             }
@@ -788,7 +794,15 @@ function devel_node_access_block_view($delta) {
             'data'  => '<a href="#node-' . $grant['nid'] . '">' . $row['nid'] . '</a>',
             'title' => $grant['#title'],
           );
-          $row['realm'] = (empty($grant['#module']) || strpos($grant['realm'], $grant['#module']) === 0 ? '' : $grant['#module'] . ':<br />') . $grant['realm'];
+          if (empty($grant['#module']) || strpos($grant['realm'], $grant['#module']) === 0) {
+            $row['realm'] = $grant['realm'];
+          }
+          else {
+            $row['realm'] = array(
+              'data' => $grant['#module'] . ':<br />' . $grant['realm'],
+              'title' => t("The '@module' module fails to adhere to the best practice of naming its realm(s) after itself.", array('@module' => $grant['#module'])),
+            );
+          }
 
           // prepend information from the D7 hook_node_access_records_alter()
           $next_style = array();
@@ -906,7 +920,7 @@ function devel_node_access_block_view($delta) {
           );
         }
         else {
-          $variables['!list'] = '<div style="margin-left: 2em">' . _devel_node_access_get_grant_list($nid, $ng_alter_data) . '</div>';
+          $variables['!list'] = '<div style="margin-left: 2em">' . _devel_node_access_get_grant_list($nid, $ng_alter_datas['view']) . '</div>';
           $variables['%access'] = 'view';
           $output[] = array(
             '#prefix' => "\n<div style='text-align: left' title='" . t('These are the grants returned by hook_node_grants() for this user.') . "'>",
@@ -915,7 +929,10 @@ function devel_node_access_block_view($delta) {
           );
           $accounts[] = $user;
         }
-        if (arg(0) == 'node' && is_numeric(arg(1)) && !$block1_visible) {  // only for single nodes
+        $menu_item = menu_get_item();
+        $map = $menu_item['original_map'];
+        if ($map[0] == 'node' && isset($map[1]) && is_numeric($map[1]) && !isset($map[2]) && !$block1_visible) {
+          // only for single nodes
           if (user_is_logged_in()) {
             $accounts[] = user_load(0);  // Anonymous, too
           }
@@ -948,10 +965,11 @@ function devel_node_access_block_view($delta) {
                 '#suffix' => '</div>',
               );
             }
-            $variables['!username'] = theme('username', array('account' => $account));
+            $variables['!username'] = '<em class="placeholder">' . theme('username', array('account' => $account)) . '</em>';
             $output[] = array(
               '#prefix' => "\n<div style='text-align: left'>",
-              '#markup' => t("!username has the following access", $variables),
+              '#type'   => 'item',
+              'lead-in' => array('#markup' => t("!username has the following access", $variables) . ' '),
               'items'   => $account_items,
               '#suffix' => "\n</div>\n",
             );
@@ -971,9 +989,28 @@ function devel_node_access_block_view($delta) {
 
     case 'dna_user':
       // show which users can access this node
-      if (arg(0) == 'node' && is_numeric($nid = arg(1)) && arg(2) == NULL && $node = node_load($nid)) {
+      $menu_item = menu_get_item();
+      $map = $menu_item['original_map'];
+      if ($map[0] != 'node' || !isset($map[1]) || !is_numeric($map[1]) || isset($map[2])) {
+        // Ignore anything but node/%.
+        return;
+      }
+
+      if (isset($menu_item['map'][1]) && is_object($node = $menu_item['map'][1])) {
+        // We have the node.
+      }
+      elseif (is_numeric($menu_item['original_map'][1])) {
+        $node = node_load($menu_item['original_map'][1]);
+      }
+      if (isset($node)) {
+        $nid = $node->nid;
         $node_type = node_type_get_type($node);
-        $headers = array(t('username'), '<span title="' . t("Create nodes of the '@Node_type' type.", array('@Node_type' => $node_type->name)) . '">' . t('create') . '</span>', t('view'), t('update'), t('delete'));
+        $variables = array('@Node_type' => ($node_type ? $node_type->name : $node->type));
+        $create_header = '<span title="' . t("Create nodes of the '@Node_type' type.", $variables) . '">' . t('create') . '</span>';
+        if (!$node_type) {
+          $create_header .= '<br /><span class="error">' . t("(missing type: '@Node_type')", $variables) . '</span>';
+        }
+        $headers = array(t('username'), $create_header, t('view'), t('update'), t('delete'));
         $rows = array();
         // Determine whether to use Ajax or prepopulate the tables.
         if ($ajax = variable_get('devel_node_access_user_ajax', FALSE)) {

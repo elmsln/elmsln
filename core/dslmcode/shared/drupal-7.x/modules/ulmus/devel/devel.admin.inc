@@ -60,7 +60,7 @@ function devel_admin_settings() {
   $form['xhprof']['settings']['devel_xhprof_directory'] = array(
     '#type' => 'textfield',
     '#title' => 'xhprof directory',
-    '#description' => t('Location of the xhprof source code on your system, usually somewhere in /usr/local/share or /usr/share, include the leading forward slash.'),
+    '#description' => t('Location of the xhprof source code on your system, where the directory "xhprof_lib" can be found, usually somewhere in /usr/local/share or /usr/share, include the leading forward slash.'),
     '#default_value' => variable_get('devel_xhprof_directory', ''),
     '#states' => array(
       'invisible' => array(
@@ -90,9 +90,9 @@ function devel_admin_settings() {
     '#description' => t('Display page execution time in the query log box.'),
   );
 
-  $form['dev_mem'] = array('#type' => 'checkbox',
+  $form['devel_memory'] = array('#type' => 'checkbox',
     '#title' => t('Display memory usage'),
-    '#default_value' => variable_get('dev_mem', 0),
+    '#default_value' => variable_get('devel_memory', 0),
     '#description' => t('Display how much memory is used to generate the current page. This will show memory usage when devel_init() is called and when devel_exit() is called.'),
   );
   $form['devel_redirect_page'] = array('#type' => 'checkbox',
