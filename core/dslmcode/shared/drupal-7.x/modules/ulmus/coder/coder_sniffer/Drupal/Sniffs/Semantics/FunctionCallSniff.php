@@ -93,37 +93,12 @@ class Drupal_Sniffs_Semantics_FunctionCallSniff implements PHP_CodeSniffer_Sniff
             return;
         }
 
+        if ($this->isFunctionCall($phpcsFile, $stackPtr) === false) {
+            return;
+        }
+
         // Find the next non-empty token.
         $openBracket = $phpcsFile->findNext(PHP_CodeSniffer_Tokens::$emptyTokens, ($stackPtr + 1), null, true);
-
-        if ($tokens[$openBracket]['code'] !== T_OPEN_PARENTHESIS) {
-            // Not a function call.
-            return;
-        }
-
-        if (isset($tokens[$openBracket]['parenthesis_closer']) === false) {
-            // Not a function call.
-            return;
-        }
-
-        // Find the previous non-empty token.
-        $search   = PHP_CodeSniffer_Tokens::$emptyTokens;
-        $search[] = T_BITWISE_AND;
-        $previous = $phpcsFile->findPrevious($search, ($stackPtr - 1), null, true);
-        if ($tokens[$previous]['code'] === T_FUNCTION) {
-            // It's a function definition, not a function call.
-            return;
-        }
-
-        if ($tokens[$previous]['code'] === T_OBJECT_OPERATOR) {
-            // It's a method invocation, not a function call.
-            return;
-        }
-
-        if ($tokens[$previous]['code'] === T_DOUBLE_COLON) {
-            // It's a static method invocation, not a function call.
-            return;
-        }
 
         $this->phpcsFile    = $phpcsFile;
         $this->functionCall = $stackPtr;
@@ -136,6 +111,55 @@ class Drupal_Sniffs_Semantics_FunctionCallSniff implements PHP_CodeSniffer_Sniff
         }
 
     }//end process()
+
+
+    /**
+     * Checks if this is a function call.
+     *
+     * @param PHP_CodeSniffer_File $phpcsFile The file being scanned.
+     * @param int                  $stackPtr  The position of the current token
+     *                                        in the stack passed in $tokens.
+     *
+     * @return bool
+     */
+    protected function isFunctionCall(PHP_CodeSniffer_File $phpcsFile, $stackPtr)
+    {
+        $tokens = $phpcsFile->getTokens();
+        // Find the next non-empty token.
+        $openBracket = $phpcsFile->findNext(PHP_CodeSniffer_Tokens::$emptyTokens, ($stackPtr + 1), null, true);
+
+        if ($tokens[$openBracket]['code'] !== T_OPEN_PARENTHESIS) {
+            // Not a function call.
+            return false;
+        }
+
+        if (isset($tokens[$openBracket]['parenthesis_closer']) === false) {
+            // Not a function call.
+            return false;
+        }
+
+        // Find the previous non-empty token.
+        $search   = PHP_CodeSniffer_Tokens::$emptyTokens;
+        $search[] = T_BITWISE_AND;
+        $previous = $phpcsFile->findPrevious($search, ($stackPtr - 1), null, true);
+        if ($tokens[$previous]['code'] === T_FUNCTION) {
+            // It's a function definition, not a function call.
+            return false;
+        }
+
+        if ($tokens[$previous]['code'] === T_OBJECT_OPERATOR) {
+            // It's a method invocation, not a function call.
+            return false;
+        }
+
+        if ($tokens[$previous]['code'] === T_DOUBLE_COLON) {
+            // It's a static method invocation, not a function call.
+            return false;
+        }
+
+        return true;
+
+    }//end isFunctionCall()
 
 
     /**

@@ -2,6 +2,8 @@ name = Environment indicator
 description = Adds a color indicator for the different environments.
 core = 7.x
 
+configure = admin/config/development/environment-indicator
+
 dependencies[] = ctools
 
 scripts[] = tinycon.min.js
@@ -12,9 +14,9 @@ files[] = plugins/export_ui/ctools_export_ui_environment_indicator.class.php
 
 stylesheets[all][] = environment_indicator.css
 
-; Information added by  packaging script on 2013-12-01
-version = "7.x-2.2"
+; Information added by Drupal.org packaging script on 2014-06-22
+version = "7.x-2.5"
 core = "7.x"
 project = "environment_indicator"
-datestamp = "1385935410"
+datestamp = "1403432932"
 

@@ -1,12 +1,10 @@
 <?php
 /**
- * Piwik - Open source web analytics
+ * Piwik - free/libre analytics platform
  *
  * @link http://piwik.org
  * @license http://www.gnu.org/licenses/gpl-3.0.html GPL v3 or later
  *
- * @category Piwik
- * @package Piwik
  */
 namespace Piwik\DataTable;
 
@@ -28,8 +26,6 @@ use Piwik\DataTable\Row;
  * To see examples of Filters look at the existing ones in the Piwik\DataTable\BaseFilter
  * namespace.
  * 
- * @package Piwik
- * @subpackage DataTable
  * @api
  */
 abstract class BaseFilter

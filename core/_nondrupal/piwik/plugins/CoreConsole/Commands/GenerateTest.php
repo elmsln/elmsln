@@ -1,12 +1,10 @@
 <?php
 /**
- * Piwik - Open source web analytics
+ * Piwik - free/libre analytics platform
  *
  * @link http://piwik.org
  * @license http://www.gnu.org/licenses/gpl-3.0.html GPL v3 or later
  *
- * @category Piwik_Plugins
- * @package CoreConsole
  */
 
 namespace Piwik\Plugins\CoreConsole\Commands;
@@ -17,7 +15,6 @@ use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 
 /**
- * @package CoreConsole
  */
 class GenerateTest extends GeneratePluginBase
 {
@@ -34,10 +31,10 @@ class GenerateTest extends GeneratePluginBase
     {
         $pluginName = $this->getPluginName($input, $output);
         $testName   = $this->getTestName($input, $output);
-        $testType = $this->getTestType($input, $output);
+        $testType   = $this->getTestType($input, $output);
 
-        $exampleFolder  = PIWIK_INCLUDE_PATH . '/plugins/ExamplePlugin';
-        $replace        = array(
+        $exampleFolder = PIWIK_INCLUDE_PATH . '/plugins/ExamplePlugin';
+        $replace       = array(
             'ExamplePlugin'               => $pluginName,
             'SimpleTest'                  => $testName,
             'SimpleIntegrationTest'       => $testName,
@@ -113,7 +110,7 @@ class GenerateTest extends GeneratePluginBase
         $pluginNames = $this->getPluginNames();
         $invalidName = 'You have to enter the name of an existing plugin';
 
-        return parent::getPluginName($input, $output, $pluginNames, $invalidName);
+        return $this->askPluginNameAndValidate($input, $output, $pluginNames, $invalidName);
     }
 
     /**
@@ -156,7 +153,7 @@ class GenerateTest extends GeneratePluginBase
 
         if (empty($testtype)) {
             $dialog   = $this->getHelperSet()->get('dialog');
-            $testtype = $dialog->askAndValidate($output, 'Enter the type of the test to generate ('. implode(", ", $this->getValidTypes()).'): ', $validate);
+            $testtype = $dialog->askAndValidate($output, 'Enter the type of the test to generate ('. implode(", ", $this->getValidTypes()).'): ', $validate, false, null, $this->getValidTypes());
         } else {
             $validate($testtype);
         }

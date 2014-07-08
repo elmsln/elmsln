@@ -1,12 +1,10 @@
 <?php
 /**
- * Piwik - Open source web analytics
+ * Piwik - free/libre analytics platform
  *
  * @link http://piwik.org
  * @license http://www.gnu.org/licenses/gpl-3.0.html GPL v3 or later
  *
- * @category Piwik_Plugins
- * @package LanguagesManager
  *
  */
 namespace Piwik\Plugins\LanguagesManager;
@@ -14,60 +12,41 @@ namespace Piwik\Plugins\LanguagesManager;
 use Exception;
 use Piwik\Common;
 use Piwik\Config;
-
 use Piwik\Cookie;
 use Piwik\Db;
-use Piwik\Menu\MenuTop;
+use Piwik\DbHelper;
 use Piwik\Piwik;
 use Piwik\Translate;
 use Piwik\View;
 
 /**
  *
- * @package LanguagesManager
  */
 class LanguagesManager extends \Piwik\Plugin
 {
     /**
-     * @see Piwik_Plugin::getListHooksRegistered
+     * @see Piwik\Plugin::getListHooksRegistered
      */
     public function getListHooksRegistered()
     {
         return array(
             'AssetManager.getStylesheetFiles' => 'getStylesheetFiles',
             'AssetManager.getJavaScriptFiles' => 'getJsFiles',
-            'Menu.Top.addItems'               => 'showLanguagesSelector',
             'User.getLanguage'                => 'getLanguageToLoad',
             'UsersManager.deleteUser'         => 'deleteUserLanguage',
             'Template.topBar'                 => 'addLanguagesManagerToOtherTopBar',
-            'Console.addCommands'             => 'addConsoleCommands'
+            'Template.jsGlobalVariables'      => 'jsGlobalVariables'
         );
-    }
-
-    public function addConsoleCommands(&$commands)
-    {
-        $commands[] = 'Piwik\Plugins\LanguagesManager\Commands\CreatePull';
-        $commands[] = 'Piwik\Plugins\LanguagesManager\Commands\FetchFromOTrance';
-        $commands[] = 'Piwik\Plugins\LanguagesManager\Commands\LanguageCodes';
-        $commands[] = 'Piwik\Plugins\LanguagesManager\Commands\LanguageNames';
-        $commands[] = 'Piwik\Plugins\LanguagesManager\Commands\PluginsWithTranslations';
-        $commands[] = 'Piwik\Plugins\LanguagesManager\Commands\SetTranslations';
-        $commands[] = 'Piwik\Plugins\LanguagesManager\Commands\Update';
     }
 
     public function getStylesheetFiles(&$stylesheets)
     {
-        $stylesheets[] = "plugins/Zeitgeist/stylesheets/base.less";
+        $stylesheets[] = "plugins/Morpheus/stylesheets/base.less";
     }
 
     public function getJsFiles(&$jsFiles)
     {
-        $jsFiles[] = "plugins/LanguagesManager/javascripts/languageSelector.js";
-    }
-
-    public function showLanguagesSelector()
-    {
-        MenuTop::addEntry('LanguageSelector', $this->getLanguagesSelector(), true, $order = 30, true);
+        $jsFiles[] = "plugins/LanguagesManager/angularjs/languageselector/languageselector-directive.js";
     }
 
     /**
@@ -79,8 +58,20 @@ class LanguagesManager extends \Piwik\Plugin
     {
         // piwik object & scripts aren't loaded in 'other' topbars
         $str .= "<script type='text/javascript'>if (!window.piwik) window.piwik={};</script>";
-        $str .= "<script type='text/javascript' src='plugins/LanguagesManager/javascripts/languageSelector.js'></script>";
+        $str .= "<script type='text/javascript' src='plugins/CoreHome/angularjs/menudropdown/menudropdown-directive.js'></script>";
+        $str .= "<script type='text/javascript' src='plugins/LanguagesManager/angularjs/languageselector/languageselector-directive.js'></script>";
         $str .= $this->getLanguagesSelector();
+    }
+
+    /**
+     * Adds the languages drop-down list to topbars other than the main one rendered
+     * in CoreHome/templates/top_bar.twig. The 'other' topbars are on the Installation
+     * and CoreUpdater screens.
+     */
+    public function jsGlobalVariables(&$str)
+    {
+        // piwik object & scripts aren't loaded in 'other' topbars
+        $str .= "piwik.languageName = '" .  self::getLanguageNameForCurrentUser() . "';";
     }
 
     /**
@@ -88,7 +79,7 @@ class LanguagesManager extends \Piwik\Plugin
      *
      * @return string
      */
-    private function getLanguagesSelector()
+    public function getLanguagesSelector()
     {
         $view = new View("@LanguagesManager/getLanguagesSelector");
         $view->languages = API::getInstance()->getAvailableLanguageNames();
@@ -117,21 +108,10 @@ class LanguagesManager extends \Piwik\Plugin
      */
     public function install()
     {
-        // we catch the exception
-        try {
-            $sql = "CREATE TABLE " . Common::prefixTable('user_language') . " (
-					login VARCHAR( 100 ) NOT NULL ,
-					language VARCHAR( 10 ) NOT NULL ,
-					PRIMARY KEY ( login )
-					)  DEFAULT CHARSET=utf8 ";
-            Db::exec($sql);
-        } catch (Exception $e) {
-            // mysql code error 1050:table already exists
-            // see bug #153 http://dev.piwik.org/trac/ticket/153
-            if (!Db::get()->isErrNo($e, '1050')) {
-                throw $e;
-            }
-        }
+        $userLanguage = "login VARCHAR( 100 ) NOT NULL ,
+					     language VARCHAR( 10 ) NOT NULL ,
+					     PRIMARY KEY ( login )";
+        DbHelper::createTable('user_language', $userLanguage);
     }
 
     /**

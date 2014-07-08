@@ -1,12 +1,10 @@
 <?php
 /**
- * Piwik - Open source web analytics
+ * Piwik - free/libre analytics platform
  *
  * @link http://piwik.org
  * @license http://www.gnu.org/licenses/gpl-3.0.html GPL v3 or later
  *
- * @category Piwik
- * @package Piwik
  */
 
 namespace Piwik\DataTable;
@@ -21,8 +19,6 @@ use Piwik\Singleton;
  * easy way to access them. This is used to store all the DataTable during the archiving process.
  * At the end of archiving, the ArchiveProcessor will read the stored datatable and record them in the DB.
  *
- * @package Piwik
- * @subpackage DataTable
  * @method static \Piwik\DataTable\Manager getInstance()
  */
 class Manager extends Singleton
@@ -107,6 +103,24 @@ class Manager extends Singleton
         if (isset($this->tables[$id])) {
             Common::destroy($this->tables[$id]);
             $this->setTableDeleted($id);
+        }
+    }
+
+    /**
+     * Deletes all tables starting from the $firstTableId to the most recent table id except the ones that are
+     * supposed to be ignored.
+     *
+     * @param int[] $idsToBeIgnored
+     * @param int $firstTableId
+     */
+    public function deleteTablesExceptIgnored($idsToBeIgnored, $firstTableId = 0)
+    {
+        $lastTableId = $this->getMostRecentTableId();
+
+        for ($index = $firstTableId; $index <= $lastTableId; $index++) {
+            if (!in_array($index, $idsToBeIgnored)) {
+                $this->deleteTable($index);
+            }
         }
     }
 

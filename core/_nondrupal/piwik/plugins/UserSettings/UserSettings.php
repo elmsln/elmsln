@@ -1,27 +1,21 @@
 <?php
 /**
- * Piwik - Open source web analytics
+ * Piwik - free/libre analytics platform
  *
  * @link http://piwik.org
  * @license http://www.gnu.org/licenses/gpl-3.0.html GPL v3 or later
  *
- * @category Piwik_Plugins
- * @package UserSettings
  */
 namespace Piwik\Plugins\UserSettings;
 
-use Piwik\ArchiveProcessor;
-use Piwik\Menu\MenuMain;
 use Piwik\Piwik;
 use Piwik\Plugin\ViewDataTable;
 use Piwik\Plugins\CoreVisualizations\Visualizations\Graph;
 use Piwik\Plugins\CoreVisualizations\Visualizations\HtmlTable;
 use Piwik\Plugins\CoreVisualizations\Visualizations\JqplotGraph\Pie;
-use Piwik\WidgetsList;
 
 /**
  *
- * @package UserSettings
  */
 class UserSettings extends \Piwik\Plugin
 {
@@ -56,7 +50,7 @@ class UserSettings extends \Piwik\Plugin
               'resolution',
               'log_visit.config_resolution',
               '1280x1024, 800x600, etc.',
-              null,),
+              null),
 
         array('UserSettings_VisitorSettings',
               'UserSettings_WidgetBrowsers',
@@ -66,7 +60,7 @@ class UserSettings extends \Piwik\Plugin
               'browserCode',
               'log_visit.config_browser_name',
               'FF, IE, CH, SF, OP, etc.',
-              null,),
+              null),
 
         // browser version
         array('UserSettings_VisitorSettings',
@@ -77,7 +71,7 @@ class UserSettings extends \Piwik\Plugin
               'browserVersion',
               'log_visit.config_browser_version',
               '1.0, 8.0, etc.',
-              null,),
+              null),
 
         array('UserSettings_VisitorSettings',
               'UserSettings_WidgetBrowserFamilies',
@@ -87,7 +81,7 @@ class UserSettings extends \Piwik\Plugin
               null,
               null,
               null,
-              null,),
+              null),
 
         array('UserSettings_VisitorSettings',
               'UserSettings_WidgetPlugins',
@@ -97,7 +91,7 @@ class UserSettings extends \Piwik\Plugin
               null,
               null,
               null,
-              null,),
+              null),
 
         array('UserSettings_VisitorSettings',
               'UserSettings_WidgetWidescreen',
@@ -107,7 +101,7 @@ class UserSettings extends \Piwik\Plugin
               null,
               null,
               null,
-              null,),
+              null),
 
         array('UserSettings_VisitorSettings',
               'UserSettings_WidgetOperatingSystems',
@@ -117,7 +111,7 @@ class UserSettings extends \Piwik\Plugin
               'operatingSystemCode',
               'log_visit.config_os',
               'WXP, WI7, MAC, LIN, AND, IPD, etc.',
-              null,),
+              null),
 
         array('UserSettings_VisitorSettings',
               'UserSettings_WidgetGlobalVisitors',
@@ -164,13 +158,11 @@ class UserSettings extends \Piwik\Plugin
     );
 
     /**
-     * @see Piwik_Plugin::getListHooksRegistered
+     * @see Piwik\Plugin::getListHooksRegistered
      */
     public function getListHooksRegistered()
     {
         $hooks = array(
-            'WidgetsList.addWidgets'          => 'addWidgets',
-            'Menu.Reporting.addItems'         => 'addMenu',
             'API.getReportMetadata'           => 'getReportMetadata',
             'API.getSegmentDimensionMetadata' => 'getSegmentsMetadata',
             'ViewDataTable.configure'         => 'configureViewDataTable',
@@ -384,6 +376,11 @@ class UserSettings extends \Piwik\Plugin
         }
     }
 
+    public function getRawReportMetadata()
+    {
+        return $this->reportMetadata;
+    }
+
     /**
      * Registers reports metadata
      *
@@ -392,7 +389,7 @@ class UserSettings extends \Piwik\Plugin
     public function getReportMetadata(&$reports)
     {
         $i = 0;
-        foreach ($this->reportMetadata as $report) {
+        foreach ($this->getRawReportMetadata() as $report) {
             list($category, $name, $apiModule, $apiAction, $columnName) = $report;
             if ($category == false) continue;
 
@@ -409,6 +406,10 @@ class UserSettings extends \Piwik\Plugin
             $translated = Piwik::translate($translation, '<br />');
             if ($translated != $translation) {
                 $report['documentation'] = $translated;
+            }
+
+            if ($apiAction == 'getMobileVsDesktop') {
+                $report['constantRowsCount'] = true;
             }
 
             // getPlugin returns only a subset of metrics
@@ -443,27 +444,6 @@ class UserSettings extends \Piwik\Plugin
                 'sqlSegment'     => $sqlSegment
             );
         }
-    }
-
-    /**
-     * Adds the various User Settings widgets
-     */
-    function addWidgets()
-    {
-        // in this case, Widgets have same names as API reports
-        foreach ($this->reportMetadata as $report) {
-            list($category, $name, $controllerName, $controllerAction) = $report;
-            if ($category == false) continue;
-            WidgetsList::add($category, $name, $controllerName, $controllerAction);
-        }
-    }
-
-    /**
-     * Adds the User Settings menu
-     */
-    function addMenu()
-    {
-        MenuMain::getInstance()->add('General_Visitors', 'General_Settings', array('module' => 'UserSettings', 'action' => 'index'));
     }
 
 }

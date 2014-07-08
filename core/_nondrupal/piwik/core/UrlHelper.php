@@ -1,19 +1,16 @@
 <?php
 /**
- * Piwik - Open source web analytics
+ * Piwik - free/libre analytics platform
  *
  * @link http://piwik.org
  * @license http://www.gnu.org/licenses/gpl-3.0.html GPL v3 or later
  *
- * @category Piwik
- * @package Piwik
  */
 namespace Piwik;
 
 /**
  * Contains less commonly needed URL helper methods.
  * 
- * @package Piwik
  */
 class UrlHelper
 {
@@ -95,7 +92,7 @@ class UrlHelper
     }
 
     /**
-     * Returns true if the string passed may be a URL.
+     * Returns true if the string passed may be a URL ie. it starts with protocol://.
      * We don't need a precise test here because the value comes from the website
      * tracked source code and the URLs may look very strange.
      *
@@ -289,8 +286,18 @@ class UrlHelper
         $searchEngines = Common::getSearchEngineUrls();
 
         $hostPattern = self::getLossyUrl($referrerHost);
+        /*
+         * Try to get the best matching 'host' in definitions
+         * 1. check if host + path matches an definition
+         * 2. check if host only matches
+         * 3. check if host pattern + path matches
+         * 4. check if host pattern matches
+         * 5. special handling
+         */
         if (array_key_exists($referrerHost . $referrerPath, $searchEngines)) {
             $referrerHost = $referrerHost . $referrerPath;
+        } elseif (array_key_exists($referrerHost, $searchEngines)) {
+            // no need to change host
         } elseif (array_key_exists($hostPattern . $referrerPath, $searchEngines)) {
             $referrerHost = $hostPattern . $referrerPath;
         } elseif (array_key_exists($hostPattern, $searchEngines)) {
@@ -458,5 +465,42 @@ class UrlHelper
             'name'     => $searchEngineName,
             'keywords' => $key,
         );
+    }
+
+    /**
+     * Returns the query part from any valid url and adds additional parameters to the query part if needed.
+     *
+     * @param string $url    Any url eg `"http://example.com/piwik/?foo=bar"`
+     * @param array $additionalParamsToAdd    If not empty the given parameters will be added to the query.
+     *
+     * @return string eg. `"foo=bar&foo2=bar2"`
+     * @api
+     */
+    public static function getQueryFromUrl($url, array $additionalParamsToAdd = array())
+    {
+        $url = @parse_url($url);
+        $query = '';
+
+        if (!empty($url['query'])) {
+            $query .= $url['query'];
+        }
+
+        if (!empty($additionalParamsToAdd)) {
+            if (!empty($query)) {
+                $query .= '&';
+            }
+
+            $query .= Url::getQueryStringFromParameters($additionalParamsToAdd);
+        }
+
+        return $query;
+    }
+
+    public static function getHostFromUrl($url)
+    {
+        if (!UrlHelper::isLookLikeUrl($url)) {
+            $url = "http://" . $url;
+        }
+        return parse_url($url, PHP_URL_HOST);
     }
 }

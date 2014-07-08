@@ -1,12 +1,10 @@
 <?php
 /**
- * Piwik - Open source web analytics
+ * Piwik - free/libre analytics platform
  *
  * @link http://piwik.org
  * @license http://www.gnu.org/licenses/gpl-3.0.html GPL v3 or later
  *
- * @category Piwik
- * @package Piwik
  */
 
 namespace Piwik\ArchiveProcessor;
@@ -50,11 +48,12 @@ class Parameters
      * 
      * @ignore
      */
-    public function __construct(Site $site, Period $period, Segment $segment)
+    public function __construct(Site $site, Period $period, Segment $segment, $skipAggregationOfSubTables = false)
     {
         $this->site = $site;
         $this->period = $period;
         $this->segment = $segment;
+        $this->skipAggregationOfSubTables = $skipAggregationOfSubTables;
     }
 
     /**
@@ -168,6 +167,11 @@ class Parameters
     public function isSingleSite()
     {
         return count($this->getIdSites()) == 1;
+    }
+
+    public function isSkipAggregationOfSubTables()
+    {
+        return $this->skipAggregationOfSubTables;
     }
 
     public function logStatusDebug($isTemporary)

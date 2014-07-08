@@ -24,7 +24,12 @@ function advagg_css_compress_advagg_get_css_aggregate_contents_alter(&$data, $fi
     }
   }
 
+  // Do nothing if the compressor is disabled.
   if (empty($aggregate_settings['variables']['advagg_css_compressor'])) {
+    return;
+  }
+  // Do nothing if the cache settings are set to Development.
+  if (variable_get('advagg_cache_level', ADVAGG_CACHE_LEVEL) < 0) {
     return;
   }
 

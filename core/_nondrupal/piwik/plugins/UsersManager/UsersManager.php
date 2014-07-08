@@ -1,17 +1,15 @@
 <?php
 /**
- * Piwik - Open source web analytics
+ * Piwik - free/libre analytics platform
  *
  * @link http://piwik.org
  * @license http://www.gnu.org/licenses/gpl-3.0.html GPL v3 or later
  *
- * @category Piwik_Plugins
- * @package UsersManager
  */
 namespace Piwik\Plugins\UsersManager;
 
 use Exception;
-use Piwik\Menu\MenuAdmin;
+use Piwik\Db;
 use Piwik\Option;
 use Piwik\Piwik;
 use Piwik\SettingsPiwik;
@@ -19,7 +17,6 @@ use Piwik\SettingsPiwik;
 /**
  * Manage Piwik users
  *
- * @package UsersManager
  */
 class UsersManager extends \Piwik\Plugin
 {
@@ -27,18 +24,24 @@ class UsersManager extends \Piwik\Plugin
     const PASSWORD_MAX_LENGTH = 26;
 
     /**
-     * @see Piwik_Plugin::getListHooksRegistered
+     * @see Piwik\Plugin::getListHooksRegistered
      */
     public function getListHooksRegistered()
     {
         return array(
-            'Menu.Admin.addItems'                    => 'addMenu',
             'AssetManager.getJavaScriptFiles'        => 'getJsFiles',
             'AssetManager.getStylesheetFiles'        => 'getStylesheetFiles',
             'SitesManager.deleteSite.end'            => 'deleteSite',
             'Tracker.Cache.getSiteAttributes'        => 'recordAdminUsersInCache',
             'Translate.getClientSideTranslationKeys' => 'getClientSideTranslationKeys',
+            'Platform.initialized'                   => 'onPlatformInitialized'
         );
+    }
+
+    public function onPlatformInitialized()
+    {
+        $lastSeenTimeLogger = new LastSeenTimeLogger();
+        $lastSeenTimeLogger->logCurrentUserLastSeenTime();
     }
 
     /**
@@ -73,7 +76,7 @@ class UsersManager extends \Piwik\Plugin
     /**
      * Return list of plug-in specific JavaScript files to be imported by the asset manager
      *
-     * @see Piwik_AssetManager
+     * @see Piwik\AssetManager
      */
     public function getJsFiles(&$jsFiles)
     {
@@ -84,24 +87,9 @@ class UsersManager extends \Piwik\Plugin
     /**
      * Get CSS files
      */
-    function getStylesheetFiles(&$stylesheets)
+    public function getStylesheetFiles(&$stylesheets)
     {
         $stylesheets[] = "plugins/UsersManager/stylesheets/usersManager.less";
-    }
-
-    /**
-     * Add admin menu items
-     */
-    function addMenu()
-    {
-        MenuAdmin::getInstance()->add('CoreAdminHome_MenuManage', 'UsersManager_MenuUsers',
-            array('module' => 'UsersManager', 'action' => 'index'),
-            Piwik::isUserHasSomeAdminAccess(),
-            $order = 2);
-        MenuAdmin::getInstance()->add('CoreAdminHome_MenuManage', 'UsersManager_MenuUserSettings',
-            array('module' => 'UsersManager', 'action' => 'userSettings'),
-            Piwik::isUserHasSomeViewAccess(),
-            $order = 3);
     }
 
     /**
@@ -123,9 +111,27 @@ class UsersManager extends \Piwik\Plugin
 
     public static function checkPassword($password)
     {
+        /**
+         * Triggered before core password validator check password.
+         *
+         * This event exists for enable option to create custom password validation rules.
+         * It can be used to validate password (length, used chars etc) and to notify about checking password.
+         *
+         * **Example**
+         *
+         *     Piwik::addAction('UsersManager.checkPassword', function ($password) {
+         *         if (strlen($password) < 10) {
+         *             throw new Exception('Password is too short.');
+         *         }
+         *     });
+         *
+         * @param string $password Checking password in plain text.
+         */
+        Piwik::postEvent('UsersManager.checkPassword', array($password));
+
         if (!self::isValidPasswordString($password)) {
             throw new Exception(Piwik::translate('UsersManager_ExceptionInvalidPassword', array(self::PASSWORD_MIN_LENGTH,
-                                                                                                        self::PASSWORD_MAX_LENGTH)));
+                self::PASSWORD_MAX_LENGTH)));
         }
     }
 
@@ -142,5 +148,8 @@ class UsersManager extends \Piwik\Plugin
         $translationKeys[] = "General_Save";
         $translationKeys[] = "General_Done";
         $translationKeys[] = "UsersManager_DeleteConfirm";
+        $translationKeys[] = "UsersManager_ConfirmGrantSuperUserAccess";
+        $translationKeys[] = "UsersManager_ConfirmProhibitOtherUsersSuperUserAccess";
+        $translationKeys[] = "UsersManager_ConfirmProhibitMySuperUserAccess";
     }
 }

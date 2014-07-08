@@ -1,12 +1,10 @@
 <?php
 /**
- * Piwik - Open source web analytics
+ * Piwik - free/libre analytics platform
  *
  * @link http://piwik.org
  * @license http://www.gnu.org/licenses/gpl-3.0.html GPL v3 or later
  *
- * @category Piwik_Plugins
- * @package Annotations
  */
 namespace Piwik\Plugins\Annotations;
 
@@ -31,7 +29,6 @@ use Piwik\Site;
  * an annotation for the same site, it's possible one of their changes will
  * never get made (as it will be overwritten by the other's).
  *
- * @package Annotations
  */
 class AnnotationList
 {
@@ -87,6 +84,7 @@ class AnnotationList
     public function add($idSite, $date, $note, $starred = 0)
     {
         $this->checkIdSiteIsLoaded($idSite);
+        $date = Date::factory($date)->toString('Y-m-d');
 
         $this->annotations[$idSite][] = self::makeAnnotation($date, $note, $starred);
 
@@ -135,7 +133,7 @@ class AnnotationList
 
         $annotation =& $this->annotations[$idSite][$idNote];
         if ($date !== null) {
-            $annotation['date'] = $date;
+            $annotation['date'] = Date::factory($date)->toString('Y-m-d');
         }
         if ($note !== null) {
             $annotation['note'] = $note;
@@ -162,6 +160,22 @@ class AnnotationList
         $this->checkNoteExists($idSite, $idNote);
 
         unset($this->annotations[$idSite][$idNote]);
+    }
+
+    /**
+     * Removes all notes for a single site.
+     *
+     * Note: This method does not perist the change in the DB. The save method must
+     * be called for that.
+     *
+     * @param int $idSite The ID of the site to get an annotation for.
+     * @throws Exception if $idSite is not an ID that was supplied upon construction.
+     */
+    public function removeAll($idSite)
+    {
+        $this->checkIdSiteIsLoaded($idSite);
+
+        $this->annotations[$idSite] = array();
     }
 
     /**
@@ -316,7 +330,11 @@ class AnnotationList
             $serialized = Option::get($optionName);
 
             if ($serialized !== false) {
-                $result[$id] = unserialize($serialized);
+                $result[$id] = @unserialize($serialized);
+                if(empty($result[$id])) {
+                    // in case unserialize failed
+                    $result[$id] = array();
+                }
             } else {
                 $result[$id] = array();
             }

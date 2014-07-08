@@ -1,12 +1,10 @@
 <?php
 /**
- * Piwik - Open source web analytics
+ * Piwik - free/libre analytics platform
  *
  * @link http://piwik.org
  * @license http://www.gnu.org/licenses/gpl-3.0.html GPL v3 or later
  *
- * @category Piwik‚
- * @package Updates
  */
 
 namespace Piwik\Updates;
@@ -18,12 +16,11 @@ use Piwik\Updater;
 use Piwik\Updates;
 
 /**
- * @package Updates
  */
 class Updates_1_8_3_b1 extends Updates
 {
 
-    static function getSql($schema = 'Myisam')
+    static function getSql()
     {
         return array(
             'ALTER TABLE `' . Common::prefixTable('site') . '`
@@ -43,7 +40,7 @@ class Updates_1_8_3_b1 extends Updates
 					`ts_last_sent` TIMESTAMP NULL,
 					`deleted` tinyint(4) NOT NULL default 0,
 					PRIMARY KEY (`idreport`)
-				) DEFAULT CHARSET=utf8' => false,
+				) DEFAULT CHARSET=utf8' => 1050,
         );
     }
 

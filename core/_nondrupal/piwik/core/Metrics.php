@@ -1,12 +1,10 @@
 <?php
 /**
- * Piwik - Open source web analytics
+ * Piwik - free/libre analytics platform
  *
  * @link http://piwik.org
  * @license http://www.gnu.org/licenses/gpl-3.0.html GPL v3 or later
  *
- * @category Piwik
- * @package Piwik
  */
 namespace Piwik;
 
@@ -71,6 +69,13 @@ class Metrics
     const INDEX_PAGE_MIN_TIME_GENERATION = 32;
     const INDEX_PAGE_MAX_TIME_GENERATION = 33;
 
+    // Events
+    const INDEX_EVENT_NB_HITS = 34;
+    const INDEX_EVENT_SUM_EVENT_VALUE = 35;
+    const INDEX_EVENT_MIN_EVENT_VALUE = 36;
+    const INDEX_EVENT_MAX_EVENT_VALUE = 37;
+    const INDEX_EVENT_NB_HITS_WITH_VALUE = 38;
+
     // Goal reports
     const INDEX_GOAL_NB_CONVERSIONS = 1;
     const INDEX_GOAL_REVENUE = 2;
@@ -120,6 +125,14 @@ class Metrics
         Metrics::INDEX_ECOMMERCE_ITEM_PRICE                  => 'price',
         Metrics::INDEX_ECOMMERCE_ITEM_PRICE_VIEWED           => 'price_viewed',
         Metrics::INDEX_ECOMMERCE_ORDERS                      => 'orders',
+
+        // Events
+        Metrics::INDEX_EVENT_NB_HITS                         => 'nb_events',
+        Metrics::INDEX_EVENT_SUM_EVENT_VALUE                 => 'sum_event_value',
+        Metrics::INDEX_EVENT_MIN_EVENT_VALUE                 => 'min_event_value',
+        Metrics::INDEX_EVENT_MAX_EVENT_VALUE                 => 'max_event_value',
+        Metrics::INDEX_EVENT_NB_HITS_WITH_VALUE              => 'nb_events_with_value'
+
     );
 
     static public $mappingFromIdToNameGoal = array(
@@ -133,20 +146,6 @@ class Metrics
         Metrics::INDEX_GOAL_ECOMMERCE_ITEMS            => 'items',
     );
 
-    static public $mappingFromNameToId = array(
-        'nb_uniq_visitors'           => Metrics::INDEX_NB_UNIQ_VISITORS,
-        'nb_visits'                  => Metrics::INDEX_NB_VISITS,
-        'nb_actions'                 => Metrics::INDEX_NB_ACTIONS,
-        'max_actions'                => Metrics::INDEX_MAX_ACTIONS,
-        'sum_visit_length'           => Metrics::INDEX_SUM_VISIT_LENGTH,
-        'bounce_count'               => Metrics::INDEX_BOUNCE_COUNT,
-        'nb_visits_converted'        => Metrics::INDEX_NB_VISITS_CONVERTED,
-        'nb_conversions'             => Metrics::INDEX_NB_CONVERSIONS,
-        'revenue'                    => Metrics::INDEX_REVENUE,
-        'goals'                      => Metrics::INDEX_GOALS,
-        'sum_daily_nb_uniq_visitors' => Metrics::INDEX_SUM_DAILY_NB_UNIQ_VISITORS,
-    );
-    
     static protected $metricsAggregatedFromLogs = array(
         Metrics::INDEX_NB_UNIQ_VISITORS,
         Metrics::INDEX_NB_VISITS,
@@ -156,8 +155,6 @@ class Metrics
         Metrics::INDEX_BOUNCE_COUNT,
         Metrics::INDEX_NB_VISITS_CONVERTED,
     );
-
-    /* Used in DataTable Sort filter */
 
     static public function getVisitsMetricNames()
     {
@@ -222,7 +219,7 @@ class Metrics
 
     static public function getDefaultMetricTranslations()
     {
-        $trans = array(
+        $translations = array(
             'label'                         => 'General_ColumnLabel',
             'date'                          => 'General_Date',
             'avg_time_on_page'              => 'General_ColumnAverageTimeOnPage',
@@ -244,23 +241,30 @@ class Metrics
             'exit_nb_uniq_visitors'         => 'General_ColumnUniqueExits',
             'entry_bounce_count'            => 'General_ColumnBounces',
             'exit_bounce_count'             => 'General_ColumnBounces',
-            'exit_rate'                     => 'General_ColumnExitRate'
+            'exit_rate'                     => 'General_ColumnExitRate',
         );
-
-        $trans = array_map(array('\\Piwik\\Piwik','translate'), $trans);
 
         $dailySum = ' (' . Piwik::translate('General_DailySum') . ')';
         $afterEntry = ' ' . Piwik::translate('General_AfterEntry');
 
-        $trans['sum_daily_nb_uniq_visitors'] = Piwik::translate('General_ColumnNbUniqVisitors') . $dailySum;
-        $trans['sum_daily_entry_nb_uniq_visitors'] = Piwik::translate('General_ColumnUniqueEntrances') . $dailySum;
-        $trans['sum_daily_exit_nb_uniq_visitors'] = Piwik::translate('General_ColumnUniqueExits') . $dailySum;
-        $trans['entry_nb_actions'] = Piwik::translate('General_ColumnNbActions') . $afterEntry;
-        $trans['entry_sum_visit_length'] = Piwik::translate('General_ColumnSumVisitLength') . $afterEntry;
+        $translations['sum_daily_nb_uniq_visitors'] = Piwik::translate('General_ColumnNbUniqVisitors') . $dailySum;
+        $translations['sum_daily_entry_nb_uniq_visitors'] = Piwik::translate('General_ColumnUniqueEntrances') . $dailySum;
+        $translations['sum_daily_exit_nb_uniq_visitors'] = Piwik::translate('General_ColumnUniqueExits') . $dailySum;
+        $translations['entry_nb_actions'] = Piwik::translate('General_ColumnNbActions') . $afterEntry;
+        $translations['entry_sum_visit_length'] = Piwik::translate('General_ColumnSumVisitLength') . $afterEntry;
 
-        $trans = array_merge(self::getDefaultMetrics(), self::getDefaultProcessedMetrics(), $trans);
+        $translations = array_merge(self::getDefaultMetrics(), self::getDefaultProcessedMetrics(), $translations);
 
-        return $trans;
+        /**
+         * Use this event to register translations for metrics processed by your plugin.
+         *
+         * @param string $translations The array mapping of column_name => Plugin_TranslationForColumn
+         */
+        Piwik::postEvent('Metrics.getDefaultMetricTranslations', array(&$translations));
+
+        $translations = array_map(array('\\Piwik\\Piwik','translate'), $translations);
+
+        return $translations;
     }
 
     static public function getDefaultMetrics()
@@ -312,7 +316,8 @@ class Metrics
             self::INDEX_PAGE_ENTRY_NB_VISITS,
             self::INDEX_PAGE_ENTRY_NB_ACTIONS,
             self::INDEX_PAGE_EXIT_NB_VISITS,
-            self::INDEX_PAGE_EXIT_NB_UNIQ_VISITORS
+            self::INDEX_PAGE_EXIT_NB_UNIQ_VISITORS,
+            self::INDEX_REVENUE
         );
     }
 

@@ -15,7 +15,7 @@ function advagg_js_cdn_requirements($phase) {
 
   // If not at runtime, return here.
   if ($phase != 'runtime') {
-    return;
+    return $requirements;
   }
 
   if (module_exists('jquery_update')) {
@@ -44,11 +44,15 @@ function advagg_js_cdn_requirements($phase) {
   }
 
   if (empty($requirements)) {
+    $description = '';
+    if (variable_get('advagg_cache_level', ADVAGG_CACHE_LEVEL) < 0) {
+      $description = $t('Will be using the unminified version due to AdvAgg being in Development mode.');
+    }
     $requirements['advagg_js_cdn'] = array(
       'title' => $t('Adv JS CDN'),
       'severity' => REQUIREMENT_OK,
       'value' => $t('OK'),
-      'description' => $t('jQUery & jQuery UI JS should be coming from a CDN.'),
+      'description' => $t('jQuery & jQuery UI JS should be coming from a CDN.') . ' ' . $description,
     );
   }
 

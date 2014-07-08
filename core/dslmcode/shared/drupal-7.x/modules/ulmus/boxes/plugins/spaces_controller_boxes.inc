@@ -17,9 +17,9 @@ class spaces_controller_boxes extends spaces_controller {
         $this->values['original'] = $boxes;
         $this->loaded_all['original'] = TRUE;
       }
-      else if (!isset($this->loaded['original'][$id])) {
-        if ($box = array_pop(ctools_export_load_object('box', 'names', array($id)))) {
-          $this->values['original'][$id] = $box;
+      elseif (!isset($this->loaded['original'][$id])) {
+        if ($box = ctools_export_load_object('box', 'names', array($id))) {
+          $this->values['original'][$id] = reset($box);
           $this->loaded['original'][$id] = TRUE;
         }
       }

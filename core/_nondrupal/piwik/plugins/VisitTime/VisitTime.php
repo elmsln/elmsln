@@ -1,42 +1,34 @@
 <?php
 /**
- * Piwik - Open source web analytics
+ * Piwik - free/libre analytics platform
  *
  * @link http://piwik.org
  * @license http://www.gnu.org/licenses/gpl-3.0.html GPL v3 or later
  *
- * @category Piwik_Plugins
- * @package VisitTime
  */
 namespace Piwik\Plugins\VisitTime;
 
 use Exception;
-
 use Piwik\ArchiveProcessor;
 use Piwik\Common;
-use Piwik\Menu\MenuMain;
 use Piwik\Period;
 use Piwik\Piwik;
 use Piwik\Plugin\ViewDataTable;
 use Piwik\Plugins\CoreVisualizations\Visualizations\Graph;
 use Piwik\Plugins\CoreVisualizations\Visualizations\JqplotGraph\Bar;
 use Piwik\Site;
-use Piwik\WidgetsList;
 
 /**
  *
- * @package VisitTime
  */
 class VisitTime extends \Piwik\Plugin
 {
     /**
-     * @see Piwik_Plugin::getListHooksRegistered
+     * @see Piwik\Plugin::getListHooksRegistered
      */
     public function getListHooksRegistered()
     {
         $hooks = array(
-            'WidgetsList.addWidgets'          => 'addWidgets',
-            'Menu.Reporting.addItems'         => 'addMenu',
             'Goals.getReportsWithGoalMetrics' => 'getReportsWithGoalMetrics',
             'API.getReportMetadata'           => 'getReportMetadata',
             'API.getSegmentDimensionMetadata' => 'getSegmentsMetadata',
@@ -80,18 +72,6 @@ class VisitTime extends \Piwik\Plugin
             'constantRowsCount' => true,
             'order'             => 25,
         );
-    }
-
-    function addWidgets()
-    {
-        WidgetsList::add('VisitsSummary_VisitsSummary', 'VisitTime_WidgetLocalTime', 'VisitTime', 'getVisitInformationPerLocalTime');
-        WidgetsList::add('VisitsSummary_VisitsSummary', 'VisitTime_WidgetServerTime', 'VisitTime', 'getVisitInformationPerServerTime');
-        WidgetsList::add('VisitsSummary_VisitsSummary', 'VisitTime_VisitsByDayOfWeek', 'VisitTime', 'getByDayOfWeek');
-    }
-
-    function addMenu()
-    {
-        MenuMain::getInstance()->add('General_Visitors', 'VisitTime_SubmenuTimes', array('module' => 'VisitTime', 'action' => 'index'));
     }
 
     public function getReportsWithGoalMetrics(&$dimensions)
@@ -203,7 +183,7 @@ class VisitTime extends \Piwik\Plugin
 
         // create a period instance
         try {
-            $oPeriod = Period::makePeriodFromQueryParams(Site::getTimezoneFor($idSite), $period, $date);
+            $oPeriod = Period\Factory::makePeriodFromQueryParams(Site::getTimezoneFor($idSite), $period, $date);
         } catch (Exception $ex) {
             return ''; // if query params are incorrect, forget about the footer message
         }
@@ -226,6 +206,7 @@ class VisitTime extends \Piwik\Plugin
     {
         $view->requestConfig->filter_sort_column = 'label';
         $view->requestConfig->filter_sort_order = 'asc';
+        $view->requestConfig->addPropertiesThatShouldBeAvailableClientSide(array('filter_sort_column'));
         $view->config->show_search = false;
         $view->config->show_limit_control = false;
         $view->config->show_exclude_low_population = false;

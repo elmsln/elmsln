@@ -1,0 +1,8 @@
+label.printmail-label {
+  width: 175px;
+  float: left;
+}
+
+form#print-mail-form textarea#edit-txt-to-addrs {
+  width: auto;
+}

@@ -175,16 +175,8 @@
     // clear out the initial "click on any element" starter text
     $('#themer-popup div.starter').empty();
 
-    if (type == 'function') {
-      // populate the function name
-      $('#themer-popup dd.key').empty().prepend('<a href="'+ strs.api_site +'api/search/'+ strs.drupal_version +'/'+ key +'" title="'+ strs.drupal_api_docs +'">'+ key + '</a>');
-      $('#themer-popup dt.key-type').empty().prepend(strs.function_called);
-    }
-    else {
-      // populate the template name
-      $('#themer-popup dd.key').empty().prepend(key);
-      $('#themer-popup dt.key-type').empty().prepend(strs.template_called);
-    }
+    $('#themer-popup dd.key').empty().prepend('<a href="'+ strs.api_site +'api/search/'+ strs.drupal_version +'/'+ vars.search +'" title="'+ strs.drupal_api_docs +'">'+ key + '</a>');
+    $('#themer-popup dt.key-type').empty().prepend((type == 'function') ? strs.function_called : strs.template_called);
 
     // parents
     var parents = '';

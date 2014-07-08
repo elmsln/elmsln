@@ -1,19 +1,16 @@
 <?php
 /**
- * Piwik - Open source web analytics
+ * Piwik - free/libre analytics platform
  *
  * @link http://piwik.org
  * @license http://www.gnu.org/licenses/gpl-3.0.html GPL v3 or later
  *
- * @category Piwik
- * @package Piwik
  */
 namespace Piwik;
 
 use Exception;
 
 /**
- * @package Piwik
  */
 class Translate
 {
@@ -71,6 +68,9 @@ class Translate
 
     private static function loadCoreTranslationFile($language)
     {
+        if(empty($language)) {
+            return;
+        }
         $path = PIWIK_INCLUDE_PATH . '/lang/' . $language . '.json';
         if (!Filesystem::isValidFilename($language) || !is_readable($path)) {
             throw new Exception(Piwik::translate('General_ExceptionLanguageFileNotFound', array($language)));
@@ -86,6 +86,9 @@ class Translate
     {
         if (!isset($GLOBALS['Piwik_translations'])) {
             $GLOBALS['Piwik_translations'] = array();
+        }
+        if (empty($translation)) {
+            return;
         }
         // we could check that no string overlap here
         $GLOBALS['Piwik_translations'] = array_replace_recursive($GLOBALS['Piwik_translations'], $translation);
@@ -161,9 +164,6 @@ class Translate
         $js = 'var translations = ' . Common::json_encode($clientSideTranslations) . ';';
         $js .= "\n" . 'if(typeof(piwik_translations) == \'undefined\') { var piwik_translations = new Object; }' .
             'for(var i in translations) { piwik_translations[i] = translations[i];} ';
-        $js .= 'function _pk_translate(translationStringId) { ' .
-            'if( typeof(piwik_translations[translationStringId]) != \'undefined\' ){  return piwik_translations[translationStringId]; }' .
-            'return "The string "+translationStringId+" was not loaded in javascript. Make sure it is added in the Translate.getClientSideTranslationKeys hook.";}';
         return $js;
     }
 

@@ -1,43 +1,35 @@
 <?php
 /**
- * Piwik - Open source web analytics
+ * Piwik - free/libre analytics platform
  *
  * @link http://piwik.org
  * @license http://www.gnu.org/licenses/gpl-3.0.html GPL v3 or later
  *
- * @category Piwik_Plugins
- * @package Provider
  */
 namespace Piwik\Plugins\Provider;
 
 use Exception;
 use Piwik\ArchiveProcessor;
 use Piwik\Common;
-use Piwik\Config;
-
 use Piwik\Db;
 use Piwik\FrontController;
 use Piwik\IP;
-use Piwik\Menu\MenuMain;
 use Piwik\Piwik;
 use Piwik\Plugin\ViewDataTable;
-use Piwik\WidgetsList;
+use Piwik\Plugins\PrivacyManager\Config as PrivacyManagerConfig;
 
 /**
  *
- * @package Provider
  */
 class Provider extends \Piwik\Plugin
 {
     /**
-     * @see Piwik_Plugin::getListHooksRegistered
+     * @see Piwik\Plugin::getListHooksRegistered
      */
     public function getListHooksRegistered()
     {
         $hooks = array(
             'Tracker.newVisitorInformation'   => 'enrichVisitWithProviderInfo',
-            'WidgetsList.addWidgets'          => 'addWidget',
-            'Menu.Reporting.addItems'         => 'addMenu',
             'API.getReportMetadata'           => 'getReportMetadata',
             'API.getSegmentDimensionMetadata' => 'getSegmentsMetadata',
             'ViewDataTable.configure'         => 'configureViewDataTable',
@@ -92,17 +84,6 @@ class Provider extends \Piwik\Plugin
         Db::exec($query);
     }
 
-    public function addWidget()
-    {
-        WidgetsList::add('General_Visitors', 'Provider_WidgetProviders', 'Provider', 'getProvider');
-    }
-
-    public function addMenu()
-    {
-        MenuMain::getInstance()->rename('General_Visitors', 'UserCountry_SubmenuLocations',
-            'General_Visitors', 'Provider_SubmenuLocationsProvider');
-    }
-
     public function postLoad()
     {
         Piwik::addAction('Template.footerUserCountry', array('Piwik\Plugins\Provider\Provider', 'footerUserCountry'));
@@ -118,7 +99,8 @@ class Provider extends \Piwik\Plugin
             return;
         }
 
-        $ip = IP::N2P(Config::getInstance()->Tracker['use_anonymized_ip_for_visit_enrichment'] == 1 ? $visitorInfo['location_ip'] : $request->getIp());
+        $privacyConfig = new PrivacyManagerConfig();
+        $ip = IP::N2P($privacyConfig->useAnonymizedIpForVisitEnrichment ? $visitorInfo['location_ip'] : $request->getIp());
 
         // In case the IP was anonymized, we should not continue since the DNS reverse lookup will fail and this will slow down tracking
         if (substr($ip, -2, 2) == '.0') {

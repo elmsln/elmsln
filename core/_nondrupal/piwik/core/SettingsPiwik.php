@@ -1,12 +1,10 @@
 <?php
 /**
- * Piwik - Open source web analytics
+ * Piwik - free/libre analytics platform
  *
  * @link http://piwik.org
  * @license http://www.gnu.org/licenses/gpl-3.0.html GPL v3 or later
  *
- * @category Piwik
- * @package Piwik
  */
 namespace Piwik;
 
@@ -15,12 +13,12 @@ use Exception;
 /**
  * Contains helper methods that can be used to get common Piwik settings.
  * 
- * @package Piwik
  */
 class SettingsPiwik
 {
+    const OPTION_PIWIK_URL = 'piwikUrl';
     /**
-     * Get salt from [superuser] section
+     * Get salt from [General] section
      *
      * @return string
      */
@@ -28,7 +26,7 @@ class SettingsPiwik
     {
         static $salt = null;
         if (is_null($salt)) {
-            $salt = @Config::getInstance()->superuser['salt'];
+            $salt = @Config::getInstance()->General['salt'];
         }
         return $salt;
     }
@@ -150,14 +148,6 @@ class SettingsPiwik
     }
 
     /**
-     * Cache for result of getPiwikUrl.
-     * Can be overwritten for testing purposes only.
-     *
-     * @var string
-     */
-    static public $piwikUrlCache = null;
-
-    /**
      * Returns the URL to this Piwik instance, eg. **http://demo.piwik.org/** or **http://example.org/piwik/**.
      *
      * @return string
@@ -165,17 +155,14 @@ class SettingsPiwik
      */
     public static function getPiwikUrl()
     {
-        // Only set in tests
-        if (self::$piwikUrlCache !== null) {
-            return self::$piwikUrlCache;
-        }
+        $url = Option::get(self::OPTION_PIWIK_URL);
 
-        $key = 'piwikUrl';
-        $url = Option::get($key);
+        $isPiwikCoreDispatching = defined('PIWIK_ENABLE_DISPATCH') && PIWIK_ENABLE_DISPATCH;
         if (Common::isPhpCliMode()
-            // in case archive.php is triggered with domain localhost
+            // in case core:archive command is triggered (often with localhost domain)
             || SettingsServer::isArchivePhpTriggered()
-            || defined('PIWIK_MODE_ARCHIVE')
+            // When someone else than core is dispatching this request then we return the URL as it is read only
+            || !$isPiwikCoreDispatching
         ) {
             return $url;
         }
@@ -187,11 +174,47 @@ class SettingsPiwik
             || $currentUrl != $url
         ) {
             if (strlen($currentUrl) >= strlen('http://a/')) {
-                Option::set($key, $currentUrl, $autoLoad = true);
+                self::overwritePiwikUrl($currentUrl);
             }
             $url = $currentUrl;
         }
+
+        if(ProxyHttp::isHttps()) {
+            $url = str_replace("http://", "https://", $url);
+        }
         return $url;
+    }
+
+    /**
+     * Return true if Piwik is installed (installation is done).
+     * @return bool
+     */
+    public static function isPiwikInstalled()
+    {
+        $config = Config::getInstance()->getLocalConfigPath();
+        $exists = file_exists($config);
+
+        // Piwik is installed if the config file is found
+        if(!$exists) {
+            return false;
+        }
+
+        $general = Config::getInstance()->General;
+
+        $isInstallationInProgress = false;
+        if (array_key_exists('installation_in_progress', $general)) {
+            $isInstallationInProgress = (bool) $general['installation_in_progress'];
+        }
+        if($isInstallationInProgress) {
+            return false;
+        }
+
+        // Check that the database section is really set, ie. file is not empty
+        if(empty(Config::getInstance()->database['username'])) {
+            return false;
+        }
+        return true;
+
     }
 
     /**
@@ -234,15 +257,23 @@ class SettingsPiwik
     }
 
     /**
+     * @deprecated Use SettingsPiwik::rewriteTmpPathWithInstanceId instead
+     */
+    public static function rewriteTmpPathWithHostname($path)
+    {
+        return self::rewriteTmpPathWithInstanceId($path);
+    }
+
+    /**
      * If Piwik uses per-domain config file, also make tmp/ folder per-domain
      * @param $path
      * @return string
      * @throws \Exception
      */
-    public static function rewriteTmpPathWithHostname($path)
+    public static function rewriteTmpPathWithInstanceId($path)
     {
         $tmp = '/tmp/';
-        $path = self::rewritePathAppendHostname($path, $tmp);
+        $path = self::rewritePathAppendPiwikInstanceId($path, $tmp);
         return $path;
     }
 
@@ -251,20 +282,24 @@ class SettingsPiwik
      * @param $path
      * @return mixed
      */
-    public static function rewriteMiscUserPathWithHostname($path)
+    public static function rewriteMiscUserPathWithInstanceId($path)
     {
         $tmp = 'misc/user/';
-        $path = self::rewritePathAppendHostname($path, $tmp);
+        $path = self::rewritePathAppendPiwikInstanceId($path, $tmp);
         return $path;
     }
 
     /**
      * Returns true if the Piwik server appears to be working.
      *
+     * If the Piwik server is in an error state (eg. some directories are not writable and Piwik displays error message),
+     * or if the Piwik server is "offline",
+     * this will return false..
+     *
      * @param $piwikServerUrl
      * @return bool
      */
-    static public function checkPiwikServerWorking($piwikServerUrl)
+    static public function checkPiwikServerWorking($piwikServerUrl, $acceptInvalidSSLCertificates = false)
     {
         // Now testing if the webserver is running
         try {
@@ -276,17 +311,22 @@ class SettingsPiwik
                                                 $file = null,
                                                 $followDepth = 0,
                                                 $acceptLanguage = false,
-
-                                                // Accept self signed certificates for developers
-                                                $acceptInvalidSslCertificate = true
-        );
-
+                                                $acceptInvalidSSLCertificates
+            );
         } catch (Exception $e) {
             $fetched = "ERROR fetching: " . $e->getMessage();
         }
-        $expectedString = 'plugins/CoreHome/images/favicon.ico';
+        // this will match when Piwik not installed yet, or favicon not customised
+        $expectedStringAlt = 'plugins/CoreHome/images/favicon.ico';
 
-        if (strpos($fetched, $expectedString) === false) {
+        // this will match when Piwik is installed and favicon has been customised
+        $expectedString = 'misc/user/';
+
+        $expectedStringNotFound = strpos($fetched, $expectedString) === false && strpos($fetched, $expectedStringAlt) === false;
+
+        $hasError = false !== strpos($fetched, PAGE_TITLE_WHEN_ERROR);
+
+        if ($hasError || $expectedStringNotFound) {
             throw new Exception("\nPiwik should be running at: "
                 . $piwikServerUrl
                 . " but this URL returned an unexpected response: '"
@@ -320,10 +360,10 @@ class SettingsPiwik
      * @return mixed
      * @throws \Exception
      */
-    protected static function rewritePathAppendHostname($pathToRewrite, $leadingPathToAppendHostnameTo)
+    protected static function rewritePathAppendPiwikInstanceId($pathToRewrite, $leadingPathToAppendHostnameTo)
     {
-        $hostname = self::getConfigHostname();
-        if (empty($hostname)) {
+        $instanceId = self::getPiwikInstanceId();
+        if (empty($instanceId)) {
             return $pathToRewrite;
         }
 
@@ -331,7 +371,7 @@ class SettingsPiwik
             throw new Exception("The path $pathToRewrite was expected to contain the string  $leadingPathToAppendHostnameTo");
         }
 
-        $tmpToReplace = $leadingPathToAppendHostnameTo . $hostname . '/';
+        $tmpToReplace = $leadingPathToAppendHostnameTo . $instanceId . '/';
 
         // replace only the latest occurrence (in case path contains twice /tmp)
         $pathToRewrite = substr_replace($pathToRewrite, $tmpToReplace, $posTmp, strlen($leadingPathToAppendHostnameTo));
@@ -339,18 +379,45 @@ class SettingsPiwik
     }
 
     /**
-     * @return bool|string
+     * @throws \Exception
+     * @return string or False if not set
      */
-    protected static function getConfigHostname()
+    protected static function getPiwikInstanceId()
     {
-        $configByHost = false;
-        try {
-            $configByHost = Config::getInstance()->getConfigHostnameIfSet();
-            return $configByHost;
-        } catch (Exception $e) {
-            // Config file not found
+        // until Piwik is installed, we use hostname as instance_id
+        if(!self::isPiwikInstalled()
+            && Common::isPhpCliMode()) {
+            // enterprise:install use case
+            return Config::getHostname();
         }
-        return $configByHost;
+
+        // config.ini.php not ready yet, instance_id will not be set
+        if(!Config::getInstance()->existsLocalConfig()) {
+            return false;
+        }
+
+        $instanceId = @Config::getInstance()->General['instance_id'];
+        if(!empty($instanceId)) {
+            return $instanceId;
+        }
+
+        // do not rewrite the path as Piwik uses the standard config.ini.php file
+        return false;
     }
 
+    /**
+     * @param $currentUrl
+     */
+    public static function overwritePiwikUrl($currentUrl)
+    {
+        Option::set(self::OPTION_PIWIK_URL, $currentUrl, $autoLoad = true);
+    }
+
+    /**
+     * @return bool
+     */
+    public static function isHttpsForced()
+    {
+        return Config::getInstance()->General['force_ssl'] == 1;
+    }
 }

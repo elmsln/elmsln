@@ -1,5 +1,6 @@
 {
     "Actions": {
+        "AvgGenerationTimeTooltip": "Prosijek baziran na %s pogodak(a) %s između %s i %s",
         "ColumnClickedURL": "Kliknut URL",
         "ColumnClicks": "Klikovi",
         "ColumnClicksDocumentation": "Broj klikova na ovaj link",
@@ -55,14 +56,32 @@
         "WidgetPagesEntry": "Ulazne stranice",
         "WidgetPagesExit": "Izlazne stranice",
         "WidgetPageTitles": "Naslovi stranica",
-        "WidgetPageTitlesFollowingSearch": "Naslovi stranica kod pretraživanja"
+        "WidgetPageTitlesFollowingSearch": "Naslovi stranica kod pretraživanja",
+        "WidgetPageUrlsFollowingSearch": "Stranice koje slijede poslije pretrage sajta",
+        "WidgetSearchCategories": "Kategorije za pretrage",
+        "WidgetSearchKeywords": "Ključne riječi za pretragu na sajtu",
+        "WidgetSearchNoResultKeywords": "Ključne riječi za pretragu bez rezultata"
     },
     "Annotations": {
+        "AddAnnotationsFor": "Dodaj bilješku za %s...",
+        "AnnotationOnDate": "Bilješka za %1$s: %2$s",
         "Annotations": "Bilješke",
-        "EnterAnnotationText": "Unesite vašu bilješku..."
+        "ClickToDelete": "Kliknite da obrišete ovu bilješku.",
+        "ClickToEdit": "Kliknite da uredite ovu bilješku.",
+        "ClickToEditOrAdd": "Kliknite da uredite ili dodate novu bilješku.",
+        "ClickToStarOrUnstar": "Kliknite da markirate bilješku ili da uklonite markiranje.",
+        "CreateNewAnnotation": "Napravi novu bilješku...",
+        "EnterAnnotationText": "Unesite vašu bilješku...",
+        "HideAnnotationsFor": "Sakrij bilješke za %s...",
+        "IconDesc": "Prikaži bilješke za ovaj vremenski period.",
+        "IconDescHideNotes": "Sakrij bilješke za ovaj vremenski period.",
+        "InlineQuickHelp": "Možete napraviti bilješke kako bi markirali posebne događaje (kao na primjer pravljenje novog članka na blogu, ili ponovno dizajniranje internet stranice), sačuvali vašu analizu podataka ili da sačuvate bilo šta drugo što smatrate važnim.",
+        "LoginToAnnotate": "Prijavite se da napravite novu bilješku.",
+        "NoAnnotations": "Nema bilješki za ovaj vremenski period."
     },
     "API": {
         "GenerateVisits": "Ako nemate podataka za danas onda možete prvo generisati neke podatke sa dodatkom %s. Ovo možete uraditi ako uključite dodatak %s i zatim kliknete na 'Proizvođač posjetilaca' u meniju koja se nalazi u Piwik adminskom prostoru.",
+        "KeepTokenSecret": "Ovaj token_auth je povjerljiv podatak poput vašeg korisničkog imena i lozine. %s Nemojte ga dijeliti sa drugima%s!",
         "LoadedAPIs": "Uspješno učitani %s API(-ovi)"
     },
     "CoreAdminHome": {
@@ -112,11 +131,6 @@
         "Dashboard": "Kontrolna ploča",
         "Maximise": "Maksimiziraj",
         "Minimise": "Minimiziraj"
-    },
-    "Feedback": {
-        "MyEmailAddress": "Moja email adresa:",
-        "MyMessage": "Moja poruka:",
-        "ThePiwikTeam": "Piwik tim"
     },
     "General": {
         "AbandonedCarts": "Otkazane korpe",
@@ -236,7 +250,6 @@
         "EnglishLanguageName": "Bosnian",
         "Error": "Greška",
         "ErrorRequest": "Ups... problem prilikom zahtjeva, probaj ponovo.",
-        "ExceptionCheckUserIsSuperUserOrTheUser": "Korisnik nije super korisnik ili nije korisnik '%s'.",
         "ExceptionConfigurationFileNotFound": "Konfiguracijski fajl {%s} nije pronađen.",
         "ExceptionDatabaseVersion": "Vaša %1$s verzija je %2$s ali Piwik traži da bude barem %3$s.",
         "ExceptionFileIntegrity": "Integracijska provjera je zaustavljena: %s",
@@ -280,6 +293,7 @@
         "HoursMinutes": "%1$s sati %2$s minute",
         "Id": "Id",
         "IfArchivingIsFastYouCanSetupCronRunMoreOften": "Pretpostavimo da je arhiviranje brzo za tvoje postavke, mozete postaviti crontab da procesuira mnogo češće.",
+        "Installed": "Instalirano",
         "InvalidDateRange": "Nevažeći raspon datuma, pokusajte ponovo",
         "InvalidResponse": "Primljeni podacu su nevažeći.",
         "IP": "IP",
@@ -375,7 +389,6 @@
         "Password": "Lozinka",
         "Period": "Period",
         "Piechart": "Pita grafikon",
-        "PiwikXIsAvailablePleaseNotifyPiwikAdmin": "%s je dostupan. Molimo obavijestite administratora.",
         "PiwikXIsAvailablePleaseUpdateNow": "Piwik %1$s je važeća. %2$s Molimo nadogradite sada!%3$s (see %4$s promjene%5$s).",
         "PleaseSpecifyValue": "Molimo navedite vrijednost '%s'.",
         "PleaseUpdatePiwik": "Molimo nadogradite Piwik",

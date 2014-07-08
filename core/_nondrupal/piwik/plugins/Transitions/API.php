@@ -1,12 +1,10 @@
 <?php
 /**
- * Piwik - Open source web analytics
+ * Piwik - free/libre analytics platform
  *
  * @link http://piwik.org
  * @license http://www.gnu.org/licenses/gpl-3.0.html GPL v3 or later
  *
- * @category Piwik_Plugins
- * @package Transitions
  */
 
 namespace Piwik\Plugins\Transitions;
@@ -16,9 +14,9 @@ use Piwik\ArchiveProcessor;
 use Piwik\Common;
 use Piwik\DataAccess\LogAggregator;
 use Piwik\DataArray;
+use Piwik\DataTable;
 use Piwik\DataTable\Manager;
 use Piwik\DataTable\Row;
-use Piwik\DataTable;
 use Piwik\Metrics;
 use Piwik\Period;
 use Piwik\Piwik;
@@ -33,7 +31,6 @@ use Piwik\Tracker\PageUrl;
 use Piwik\Tracker\TableLogAction;
 
 /**
- * @package Transitions
  * @method static \Piwik\Plugins\Transitions\API getInstance()
  */
 class API extends \Piwik\Plugin\API
@@ -76,13 +73,13 @@ class API extends \Piwik\Plugin\API
         // prepare log aggregator
         $segment = new Segment($segment, $idSite);
         $site = new Site($idSite);
-        $period = Period::factory($period, $date);
+        $period = Period\Factory::build($period, $date);
         $params = new ArchiveProcessor\Parameters($site, $period, $segment);
         $logAggregator = new LogAggregator($params);
 
         // prepare the report
         $report = array(
-            'date' => Period::factory($period->getLabel(), $date)->getLocalizedShortString()
+            'date' => Period\Factory::build($period->getLabel(), $date)->getLocalizedShortString()
         );
 
         $partsArray = explode(',', $parts);

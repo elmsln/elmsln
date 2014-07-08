@@ -210,7 +210,7 @@ function advagg_validator_admin_form_generator($type, $run_client_side) {
           );
         }
         $point[$form_api_filename] = array(
-          '#markup' => check_plain($file) . ' ',
+          '#markup' => check_plain($file) . " </br>\n",
         );
         if (!isset($point['end'])) {
           $point['end'] = array(

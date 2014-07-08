@@ -1,12 +1,10 @@
 <?php
 /**
- * Piwik - Open source web analytics
+ * Piwik - free/libre analytics platform
  *
  * @link http://piwik.org
  * @license http://www.gnu.org/licenses/gpl-3.0.html GPL v3 or later
  *
- * @category Piwik
- * @package Piwik
  */
 namespace Piwik\DataTable\Filter;
 
@@ -21,8 +19,6 @@ use Piwik\Metrics;
  * 
  * It is possible to specify a natural sorting (see [php.net/natsort](http://php.net/natsort) for details).
  *
- * @package Piwik
- * @subpackage DataTable
  * @api
  */
 class Sort extends BaseFilter
@@ -75,21 +71,31 @@ class Sort extends BaseFilter
      */
     public function numberSort($a, $b)
     {
-        return !isset($a->c[Row::COLUMNS][$this->columnToSort])
-        && !isset($b->c[Row::COLUMNS][$this->columnToSort])
+        $valA = $a->getColumn($this->columnToSort);
+        $valB = $b->getColumn($this->columnToSort);
 
+        if ($valA === false) {
+            $valA = null;
+        }
+
+        if ($valB === false) {
+            $valB = null;
+        }
+
+        return !isset($valA)
+        && !isset($valB)
             ? 0
             : (
-            !isset($a->c[Row::COLUMNS][$this->columnToSort])
+            !isset($valA)
                 ? 1
                 : (
-            !isset($b->c[Row::COLUMNS][$this->columnToSort])
+            !isset($valB)
                 ? -1
-                : (($a->c[Row::COLUMNS][$this->columnToSort] != $b->c[Row::COLUMNS][$this->columnToSort]
+                : (($valA != $valB
                 || !isset($a->c[Row::COLUMNS]['label']))
                 ? ($this->sign * (
-                    $a->c[Row::COLUMNS][$this->columnToSort]
-                    < $b->c[Row::COLUMNS][$this->columnToSort]
+                    $valA
+                    < $valB
                         ? -1
                         : 1)
                 )
@@ -110,16 +116,27 @@ class Sort extends BaseFilter
      */
     function naturalSort($a, $b)
     {
-        return !isset($a->c[Row::COLUMNS][$this->columnToSort])
-        && !isset($b->c[Row::COLUMNS][$this->columnToSort])
+        $valA = $a->getColumn($this->columnToSort);
+        $valB = $b->getColumn($this->columnToSort);
+
+        if ($valA === false) {
+            $valA = null;
+        }
+
+        if ($valB === false) {
+            $valB = null;
+        }
+
+        return !isset($valA)
+        && !isset($valB)
             ? 0
-            : (!isset($a->c[Row::COLUMNS][$this->columnToSort])
+            : (!isset($valA)
                 ? 1
-                : (!isset($b->c[Row::COLUMNS][$this->columnToSort])
+                : (!isset($valB)
                     ? -1
                     : $this->sign * strnatcasecmp(
-                        $a->c[Row::COLUMNS][$this->columnToSort],
-                        $b->c[Row::COLUMNS][$this->columnToSort]
+                        $valA,
+                        $valB
                     )
                 )
             );
@@ -134,16 +151,27 @@ class Sort extends BaseFilter
      */
     function sortString($a, $b)
     {
-        return !isset($a->c[Row::COLUMNS][$this->columnToSort])
-        && !isset($b->c[Row::COLUMNS][$this->columnToSort])
+        $valA = $a->getColumn($this->columnToSort);
+        $valB = $b->getColumn($this->columnToSort);
+
+        if ($valA === false) {
+            $valA = null;
+        }
+
+        if ($valB === false) {
+            $valB = null;
+        }
+
+        return !isset($valA)
+        && !isset($valB)
             ? 0
-            : (!isset($a->c[Row::COLUMNS][$this->columnToSort])
+            : (!isset($valA)
                 ? 1
-                : (!isset($b->c[Row::COLUMNS][$this->columnToSort])
+                : (!isset($valB)
                     ? -1
                     : $this->sign *
-                    strcasecmp($a->c[Row::COLUMNS][$this->columnToSort],
-                        $b->c[Row::COLUMNS][$this->columnToSort]
+                    strcasecmp($valA,
+                        $valB
                     )
                 )
             );
@@ -220,6 +248,7 @@ class Sort extends BaseFilter
                 $methodToUse = "sortString";
             }
         }
+
         $table->sort(array($this, $methodToUse), $this->columnToSort);
     }
 }

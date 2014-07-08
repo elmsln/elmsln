@@ -1,5 +1,5 @@
 /*!
- * Piwik - Web Analytics
+ * Piwik - free/libre analytics platform
  *
  * @link http://piwik.org
  * @license http://www.gnu.org/licenses/gpl-3.0.html GPL v3 or later
@@ -35,6 +35,23 @@ function formSetEditReport(idReport) {
     $('#report_period').find('option[value=' + report.period + ']').prop('selected', 'selected');
     $('#report_hour').val(report.hour);
     $('[name=report_format].' + report.type + ' option[value=' + report.format + ']').prop('selected', 'selected');
+
+    var selectorReportFormat = 'select[name=report_format].' + $('#report_type').val();
+    $(selectorReportFormat).change( toggleDisplayOptionsByFormat );
+
+    // When CSV is selected, hide "Display options"
+    toggleDisplayOptionsByFormat();
+
+    function toggleDisplayOptionsByFormat() {
+        var format = $(selectorReportFormat).val();
+        var displayOptionsSelector = $('#row_report_display_options');
+        if (format == 'csv') {
+            displayOptionsSelector.hide();
+        } else {
+            displayOptionsSelector.show();
+        }
+    }
+
 
     $('[name=reportsList] input').prop('checked', false);
 

@@ -1,0 +1,29 @@
+{
+    "DevicesDetection": {
+        "BrowserVersions": "Browser-versioner",
+        "Camera": "Kamera",
+        "CarBrowser": "Bil browser",
+        "Console": "Konsol",
+        "dataTableLabelBrands": "Mærke",
+        "dataTableLabelBrowserFamily": "Browser familie",
+        "dataTableLabelModels": "Model",
+        "dataTableLabelSystemVersion": "Operativsystem-version",
+        "dataTableLabelTypes": "Type",
+        "Device": "Enhed",
+        "DeviceBrand": "Enhedsmærke",
+        "DeviceDetection": "Detektering af enheder",
+        "DeviceModel": "Enhedsmodel",
+        "DevicesDetection": "Besøgendes enheder",
+        "DeviceType": "Enhedstypen",
+        "FeaturePhone": "Telefonfunktioner",
+        "OperatingSystemFamilies": "Operativsystem familier",
+        "OperatingSystemVersions": "Operativsystem-versioner",
+        "PluginDescription": "Udvidelsen indeholderudvidet information om mobile enheder, såsom mærke (producent), model (enhed version) og bedre enhedstype detektion (tv, konsoller, smartphones, desktop, osv). Programudvidelsen tilføjer en ny rapport i 'Besøgende > Enheder'.",
+        "SmartDisplay": "Smart skærm",
+        "Smartphone": "Smartphone",
+        "submenu": "Enheder",
+        "Tablet": "Tablet",
+        "TV": "TV",
+        "UserAgent": "Brugeragent"
+    }
+}

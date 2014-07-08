@@ -1,12 +1,10 @@
 <?php
 /**
- * Piwik - Open source web analytics
+ * Piwik - free/libre analytics platform
  *
  * @link http://piwik.org
  * @license http://www.gnu.org/licenses/gpl-3.0.html GPL v3 or later
  *
- * @category Piwik
- * @package PluginsFunctions
  */
 namespace Piwik;
 
@@ -14,6 +12,9 @@ use Exception;
 use Piwik\Db\Adapter;
 use Piwik\Db\Schema;
 
+/**
+ * Contains database related helper functions.
+ */
 class DbHelper
 {
     /**
@@ -28,13 +29,24 @@ class DbHelper
     }
 
     /**
-     * Drop specific tables
+     * Creates a new table in the database.
      *
-     * @param array $doNotDelete Names of tables to not delete
+     * Example:
+     * ```
+     * $tableDefinition = "`age` INT(11) NOT NULL AUTO_INCREMENT,
+     *                     `name` VARCHAR(255) NOT NULL";
+     *
+     * DbHelper::createTable('tablename', $tableDefinition);
+     * ``
+     *
+     * @param string $nameWithoutPrefix   The name of the table without any piwik prefix.
+     * @param string $createDefinition    The table create definition
+     *
+     * @api
      */
-    public static function dropTables($doNotDelete = array())
+    public static function createTable($nameWithoutPrefix, $createDefinition)
     {
-        Schema::getInstance()->dropTables($doNotDelete);
+        Schema::getInstance()->createTable($nameWithoutPrefix, $createDefinition);
     }
 
     /**
@@ -80,10 +92,10 @@ class DbHelper
     /**
      * Drop database, used in tests
      */
-    public static function dropDatabase()
+    public static function dropDatabase($dbName = null)
     {
         if (defined('PIWIK_TEST_MODE') && PIWIK_TEST_MODE) {
-            Schema::getInstance()->dropDatabase();
+            Schema::getInstance()->dropDatabase($dbName);
         }
     }
 
@@ -148,4 +160,5 @@ class DbHelper
     {
         return Schema::getInstance()->getTableCreateSql($tableName);
     }
+
 }

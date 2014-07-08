@@ -1,12 +1,10 @@
 <?php
 /**
- * Piwik - Open source web analytics
+ * Piwik - free/libre analytics platform
  *
  * @link http://piwik.org
  * @license http://www.gnu.org/licenses/gpl-3.0.html GPL v3 or later
  *
- * @category Piwik
- * @package Piwik
  */
 namespace Piwik\Db\Adapter\Pdo;
 
@@ -22,8 +20,6 @@ use Zend_Db_Select;
 use Zend_Db_Statement_Interface;
 
 /**
- * @package Piwik
- * @subpackage Piwik_Db
  */
 class Mysql extends Zend_Db_Adapter_Pdo_Mysql implements AdapterInterface
 {
@@ -64,7 +60,9 @@ class Mysql extends Zend_Db_Adapter_Pdo_Mysql implements AdapterInterface
          * @see http://framework.zend.com/issues/browse/ZF-1398
          */
         $this->_connection->setAttribute(PDO::ATTR_EMULATE_PREPARES, true);
-        $this->_connection->setAttribute(PDO::MYSQL_ATTR_USE_BUFFERED_QUERY, true);
+
+        // MYSQL_ATTR_USE_BUFFERED_QUERY will use more memory when enabled
+        // $this->_connection->setAttribute(PDO::MYSQL_ATTR_USE_BUFFERED_QUERY, true);
 
         return $this->_connection;
     }

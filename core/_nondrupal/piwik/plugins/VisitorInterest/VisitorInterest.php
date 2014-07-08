@@ -1,42 +1,35 @@
 <?php
 /**
- * Piwik - Open source web analytics
+ * Piwik - free/libre analytics platform
  *
  * @link http://piwik.org
  * @license http://www.gnu.org/licenses/gpl-3.0.html GPL v3 or later
  *
- * @category Piwik_Plugins
- * @package VisitorInterest
  */
 namespace Piwik\Plugins\VisitorInterest;
 
 use Piwik\ArchiveProcessor;
 use Piwik\FrontController;
-use Piwik\Menu\MenuMain;
 use Piwik\Metrics;
 use Piwik\Piwik;
 use Piwik\Plugin\ViewDataTable;
 use Piwik\Plugins\CoreVisualizations\Visualizations\Cloud;
 use Piwik\Plugins\CoreVisualizations\Visualizations\Graph;
-use Piwik\WidgetsList;
 
 /**
  *
- * @package VisitorInterest
  */
 class VisitorInterest extends \Piwik\Plugin
 {
     /**
-     * @see Piwik_Plugin::getListHooksRegistered
+     * @see Piwik\Plugin::getListHooksRegistered
      */
     public function getListHooksRegistered()
     {
         $hooks = array(
-            'WidgetsList.addWidgets'           => 'addWidgets',
-            'Menu.Reporting.addItems'          => 'addMenu',
-            'API.getReportMetadata'            => 'getReportMetadata',
-            'ViewDataTable.configure'          => 'configureViewDataTable',
-            'ViewDataTable.getDefaultType'     => 'getDefaultTypeViewDataTable'
+            'API.getReportMetadata'        => 'getReportMetadata',
+            'ViewDataTable.configure'      => 'configureViewDataTable',
+            'ViewDataTable.getDefaultType' => 'getDefaultTypeViewDataTable'
         );
         return $hooks;
     }
@@ -100,20 +93,6 @@ class VisitorInterest extends \Piwik\Plugin
             'documentation'     => Piwik::translate('VisitorInterest_WidgetVisitsByDaysSinceLastDocumentation'),
             'order'             => 30
         );
-    }
-
-    public function addWidgets()
-    {
-        WidgetsList::add('General_Visitors', 'VisitorInterest_WidgetLengths', 'VisitorInterest', 'getNumberOfVisitsPerVisitDuration');
-        WidgetsList::add('General_Visitors', 'VisitorInterest_WidgetPages', 'VisitorInterest', 'getNumberOfVisitsPerPage');
-        WidgetsList::add('General_Visitors', 'VisitorInterest_visitsByVisitCount', 'VisitorInterest', 'getNumberOfVisitsByVisitCount');
-        WidgetsList::add('General_Visitors', 'VisitorInterest_WidgetVisitsByDaysSinceLast', 'VisitorInterest', 'getNumberOfVisitsByDaysSinceLast');
-    }
-
-    public function addMenu()
-    {
-        MenuMain::getInstance()->rename('General_Visitors', 'VisitFrequency_SubmenuFrequency',
-            'General_Visitors', 'VisitorInterest_Engagement');
     }
 
     function postLoad()

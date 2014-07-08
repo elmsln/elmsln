@@ -10,6 +10,22 @@
  */
 define('IMAGEINFO_CACHE_USE_HTTPRL', TRUE);
 
+/**
+ * Default value is to not cache getimagesize().
+ */
+define('IMAGEINFO_CACHE_PSEUDO_IMAGE_TOOLKIT', FALSE);
+
+/**
+ * Default value is to not strip the image token query parameter.
+ */
+define('IMAGEINFO_CACHE_STRIP_IMAGE_TOKEN', FALSE);
+
+/**
+ * Default value is to not restric access for image style generation.
+ */
+define('IMAGEINFO_CACHE_DISABLE_ON_DEMAND_GENERATION', FALSE);
+
+
 // Core Hooks.
 /**
  * Implements hook_menu().
@@ -34,6 +50,104 @@ function imageinfo_cache_menu() {
 }
 
 /**
+ * Implements hook_menu_alter().
+ */
+function imageinfo_cache_menu_alter(&$items) {
+  if (variable_get('imageinfo_cache_disable_on_demand_generation', IMAGEINFO_CACHE_DISABLE_ON_DEMAND_GENERATION)) {
+    if (isset($items['system/files/styles/%image_style'])) {
+      unset($items['system/files/styles/%image_style']['access callback']);
+      $items['system/files/styles/%image_style']['access arguments'] = array('administer image styles');
+    }
+    $directory_path = file_stream_wrapper_get_instance_by_scheme('public')->getDirectoryPath();
+    if (isset($items[$directory_path . '/styles/%image_style'])) {
+      unset($items[$directory_path . '/styles/%image_style']['access callback']);
+      $items[$directory_path . '/styles/%image_style']['access arguments'] = array('administer image styles');
+    }
+  }
+}
+
+/**
+ * Implements hook_init().
+ */
+function imageinfo_cache_init() {
+  // Do nothing if the cached toolkit is disabled.
+  if (!variable_get('imageinfo_cache_pseudo_image_toolkit', IMAGEINFO_CACHE_PSEUDO_IMAGE_TOOLKIT)) {
+    return;
+  }
+
+  $arg = arg();
+  // Do not capture the toolkit if on the admin/config/media/* path.
+  if (   $arg[0] == 'admin'
+      && !empty($arg[1]) && $arg[1] == 'config'
+      && !empty($arg[2]) && $arg[2] == 'media'
+      ) {
+//     return;
+  }
+
+  $toolkit = variable_get('image_toolkit', 'gd');
+  $GLOBALS['conf']['image_toolkit'] = 'imageinfo_cache';
+  $GLOBALS['conf']['image_toolkit_orginal'] = $toolkit;
+}
+
+/**
+ * Implements hook_image_toolkits().
+ */
+function imageinfo_cache_image_toolkits() {
+  // Do nothing if the cached toolkit is disabled.
+  if (!variable_get('imageinfo_cache_pseudo_image_toolkit', IMAGEINFO_CACHE_PSEUDO_IMAGE_TOOLKIT)) {
+    return;
+  }
+
+  module_load_include('inc', 'imageinfo_cache', 'imageinfo_cache.toolkit');
+  return array(
+    'imageinfo_cache' => array(
+      'title' => t('Imageinfo Cache'),
+      'available' => TRUE,
+    ),
+  );
+}
+
+/**
+ * Implements hook_form_FORM_ID_alter().
+ *
+ * Hide the imageinfo_cache pseudo toolkit.
+ */
+function imageinfo_cache_form_system_image_toolkit_settings_alter(&$form, &$form_state, $form_id) {
+  if (isset($form['image_toolkit']['#options']['imageinfo_cache'])) {
+    unset($form['image_toolkit']['#options']['imageinfo_cache']);
+  }
+}
+
+/**
+ * Implements hook_file_url_alter().
+ *
+ * Strip itok from image style images.
+ */
+function imageinfo_cache_file_url_alter(&$uri) {
+  // If filename does not contain itok=
+  // OR image_allow_insecure_derivatives is FALSE
+  // OR imageinfo_cache_strip_image_token is FALSE
+  if (   strpos($uri, IMAGE_DERIVATIVE_TOKEN . '=') === FALSE
+      || !variable_get('image_allow_insecure_derivatives', FALSE)
+      || !variable_get('imageinfo_cache_strip_image_token', IMAGEINFO_CACHE_STRIP_IMAGE_TOKEN)
+      ) {
+    return;
+  }
+  $parsed = @parse_url($uri);
+  $query = array();
+  parse_str($parsed['query'], $query);
+  if (!isset($query[IMAGE_DERIVATIVE_TOKEN])) {
+    return;
+  }
+  unset($query[IMAGE_DERIVATIVE_TOKEN]);
+  $parsed['query'] = http_build_query($query, '', '&');
+  if (empty($parsed['query'])) {
+    unset($parsed['query']);
+  }
+  $uri = imageinfo_cache_glue_url($parsed);
+}
+
+/**
  * Implements hook_field_widget_form_alter().
  *
  * Capture image on upload.
@@ -42,8 +156,25 @@ function imageinfo_cache_field_widget_form_alter(&$element, &$form_state, $conte
   // Add in a process function if widget is for images.
   $image_type = imageinfo_cache_detect_image_widget($context['instance']['widget']);
   if (!empty($image_type)) {
-    $element[0]['#process'][] = 'imageinfo_cache_widget_process';
+    if ($image_type != 'media module') {
+      $element[0]['#process'][] = 'imageinfo_cache_widget_process';
+    }
+    elseif (!empty($element['#media_options']['global']['types']) && in_array('image', $element['#media_options']['global']['types'])) {
+      if (isset($element['#process']) && !in_array('imageinfo_cache_widget_process', $element['#process'])) {
+        $element['#process'][] = 'imageinfo_cache_widget_process';
+      }
+    }
   }
+}
+
+/**
+ * Implements hook_entity_update().
+ *
+ * Capture image on entity save.
+ */
+function imageinfo_cache_entity_update($entity, $type) {
+  // Insert/Update is the same.
+  return imageinfo_cache_entity_insert($entity, $type);
 }
 
 /**
@@ -73,48 +204,79 @@ function imageinfo_cache_entity_insert($entity, $type) {
   }
 
   if (!empty($image_fields)) {
-    module_load_include('inc', 'imageinfo_cache', 'imageinfo_cache');
     // Go into each image field and generate image styles.
     foreach ($image_fields as $field_name) {
       if (   empty($entity->{$field_name})
           || empty($entity->language)
-          || empty($entity->{$field_name}[$entity->language])
           ) {
         continue;
       }
+
+      $field_language = field_language($type, $entity, $field_name, $entity->language);
+      if (empty($entity->{$field_name}[$field_language])) {
+        continue;
+      }
+
       $instance_field = $instances[$field_name];
-      foreach ($entity->{$field_name}[$entity->language] as $field_values) {
+      $fids = array();
+      foreach ($entity->{$field_name}[$field_language] as $field_values) {
         // Skip if no fid.
         if (empty($field_values['fid'])) {
           continue;
         }
-        $file = file_load($field_values['fid']);
-        // Skip if file object isn't what we are expecting.
-        if (empty($file->uri) || strpos($file->filemime, 'image') !== 0) {
-          continue;
-        }
-
-        // Get image styles used by this field.
-        $styles = imageinfo_cache_get_styles_in_use($instance_field);
-        // Generate Image styles.
-        $return[$field_name] = imageinfo_cache_create_image_styles($styles, $file->uri);
+        $fids[] = $field_values['fid'];
       }
+      // Generate Image styles.
+      $return[$field_name] = imageinfo_cache_create_image_styles_fids($fids, $instance_field);
     }
   }
+
   return $return;
 }
 
 /**
- * Implements hook_entity_update().
- *
- * Capture image on entity save.
+ * Implements hook_file_delete().
  */
-function imageinfo_cache_entity_update($entity, $type) {
-  // Insert/Update is the same.
-  return imageinfo_cache_entity_insert($entity, $type);
+function imageinfo_cache_file_delete($file) {
+  if (empty($file->uri)) {
+    return;
+  }
+
+  // Generate a list of cache ids from the uri.
+  $image_styles = image_styles();
+  $cids = array('ORIGINAL-FILE:' . drupal_hash_base64($file->uri));
+  foreach ($image_styles as $style_name => $style_info) {
+    $cids[] = $style_name . ':' . drupal_hash_base64(image_style_path($style_name, $file->uri));
+  }
+
+  // Clear the cache.
+  cache_clear_all($cids, 'cache_imageinfo');
+}
+
+/**
+ * Implements hook_flush_caches().
+ */
+function imageinfo_cache_flush_caches() {
+  return array('cache_imageinfo');
+}
+
+/**
+ * Implements hook_image_style_flush().
+ */
+function imageinfo_cache_image_style_flush($style) {
+  cache_clear_all($style->name . ':', 'cache_imageinfo', TRUE);
 }
 
 // Contrib hooks.
+/**
+ * Implements hook_views_invalidate_cache().
+ *
+ * Flush the imageinfo_cache_get_image_styles_in_views cache
+ */
+function imageinfo_cache_views_invalidate_cache() {
+  cache_clear_all('imageinfo_cache_get_image_styles_in_views', 'cache', TRUE);
+}
+
 /**
  * Implements hook_imageinfo_cache_styles_alter().
  *
@@ -182,12 +344,22 @@ function imageinfo_cache_detect_image_widget($widget) {
  */
 function imageinfo_cache_widget_process($element, &$form_state, $form) {
   // Adds in another #submit callback.
-  $element['upload_button']['#submit'][] = 'imageinfo_cache_file_submit';
+  if (isset($element['upload_button'])) {
+    $element['upload_button']['#submit'][] = 'imageinfo_cache_file_submit';
+  }
+  if (isset($element['add_more'])) {
+    $element['add_more']['#submit'][] = 'imageinfo_cache_file_submit';
+  }
   return $element;
 }
 
 /**
- * Gets the file object from the just uploaded file.
+ * Schedules a shutdown function to get the just uploaded file.
+ *
+ * @param array $form
+ *   Drupal form array.
+ * @param array $form_state
+ *   Form state for Drupal form.
  */
 function imageinfo_cache_file_submit($form, &$form_state) {
   // Determine whether it was the upload or the remove button that was clicked.
@@ -196,59 +368,160 @@ function imageinfo_cache_file_submit($form, &$form_state) {
   if ($button_key == 'remove_button') {
     return;
   }
-
   // Set $element to the managed_file element that contains that button.
   $element = drupal_array_get_nested_value($form, $parents);
-
   // Do nothing if element does not contain what we need.
   if (   empty($element['#entity_type'])
       || empty($element['#field_name'])
       || empty($element['#bundle'])
-      || empty($element['#file'])
-      || empty($element['#file']->uri)
         ) {
     return;
   }
+  module_load_include('inc', 'imageinfo_cache', 'imageinfo_cache');
+  register_shutdown_function('imageinfo_cache_file_submit_shutdown', $element, $form_state);
+}
 
+/**
+ * Calls the image style generation code.
+ *
+ * @param array $element
+ *   Form element array.
+ * @param array $form_state
+ *   Form state for drupal form.
+ */
+function imageinfo_cache_file_submit_shutdown($element, $form_state) {
   // Get field info.
   $instances = field_info_instances($element['#entity_type'], $element['#bundle']);
   $instance_field = $instances[$element['#field_name']];
 
-  module_load_include('inc', 'imageinfo_cache', 'imageinfo_cache');
-  // Get image styles used by this field.
-  $styles = imageinfo_cache_get_styles_in_use($instance_field);
-  // Generate Image styles.
-  $return = imageinfo_cache_create_image_styles($styles, $element['#file']->uri);
+  // Get all files on this field.
+  $file_uris = array();
+  if (!empty($element['#file']) && !empty($element['#file']->uri)) {
+    $file_uris[$element['#file']->fid] = $element['#file']->uri;
+  }
+  $key = 0;
+  while (array_key_exists($key, $element)) {
+    if (!empty($element[$key]['#file']) && !empty($element[$key]['#file']->uri)) {
+      $file_uris[$element[$key]['#file']->fid] = $element[$key]['#file']->uri;
+    }
+    $key++;
+  }
+
+  // Load any files by fid if uri is not availabe.
+  $fids = array();
+  foreach ($form_state['input'][$instance_field['field_name']][$element['#language']] as $delta => $values) {
+    if (empty($values['fid']) || !empty($file_uris[$values['fid']])) {
+      continue;
+    }
+    $fids[] = $values['fid'];
+  }
+
+  return imageinfo_cache_create_image_styles_fids($fids, $instance_field);
+}
+
+/**
+ * Generates all given presets given file ids.
+ *
+ * This is mainly used as a wrapper for httprl. $instance_field or $styles needs
+ * to be passed to this function as well.
+ *
+ * @param array $fids
+ *   Array of file IDs.
+ * @param array $instance_field
+ *   (optional) Field info from field_info_instances().
+ * @param array $styles
+ *   (optional) Styles to use from image_styles().
+ * @param bool $use_httprl
+ *   (optional) Use httprl if available. Default TRUE.
+ *
+ * @return array
+ *   An array of what was done.
+ */
+function imageinfo_cache_create_image_styles_fids($fids, $instance_field = array(), $styles = array(), $use_httprl = TRUE) {
+  $return = array();
+  if (   $use_httprl
+      && module_exists('httprl')
+      && variable_get('imageinfo_cache_use_httprl', IMAGEINFO_CACHE_USE_HTTPRL)
+      && httprl_is_background_callback_capable()
+        ) {
+    // Setup callback options array; call function in the background.
+    $callback_options = array(
+      array(
+        'function' => 'imageinfo_cache_create_image_styles_fids_call',
+        'blocking' => FALSE,
+      ),
+      $fids, $instance_field, $styles,
+    );
+    // Queue up the request.
+    httprl_queue_background_callback($callback_options);
+
+    // Execute request.
+    $return = httprl_send_request();
+  }
+  else {
+    $return = imageinfo_cache_create_image_styles_fids_call($fids, $instance_field, $styles);
+  }
   return $return;
 }
 
 /**
  * Generates all given presets given a file uri.
  *
+ * @param array $fids
+ *   Array of file ids.
+ * @param array $instance_field
+ *   Field info from field_info_instances().
  * @param array $styles
- *   Styles to use from image_styles().
- * @param string $uri
- *   URI from a file object.
+ *   (optional) Styles to use from image_styles().
  *
  * @return array
  *   An array of what was done.
  */
-function imageinfo_cache_create_image_styles_call($styles, $uri) {
-  $return = array();
-  foreach ($styles as $style_name => $style_info) {
-    $destination = image_style_path($style_name, $uri);
-
-    // If the file does not exist, create it.
-    if (!file_exists($destination)) {
-      // Don't start generating the image if the derivative already exists or if
-      // generation is in progress in another thread.
-      $lock_name = 'image_style_deliver:' . $style_name . ':' . drupal_hash_base64($uri);
-      $lock_acquired = lock_acquire($lock_name);
-      if ($lock_acquired && image_style_create_derivative($style_info, $uri, $destination)) {
-        lock_release($lock_name);
-        $return[$destination] = $style_name;
-      }
+function imageinfo_cache_create_image_styles_fids_call($fids, $instance_field = array(), $styles = array()) {
+  $files = file_load_multiple($fids);
+  foreach ($files as $file) {
+    if (empty($file->uri) || strpos($file->filemime, 'image') !== 0) {
+      continue;
     }
+    $file_uris[$file->fid] = $file->uri;
+  }
+
+  // Generate image styles.
+  $return = array();
+  if (!empty($file_uris)) {
+    module_load_include('inc', 'imageinfo_cache', 'imageinfo_cache');
+    $return = imageinfo_cache_create_image_styles($file_uris, $instance_field, $styles);
   }
   return $return;
+}
+
+/**
+ * Alt to http_build_url().
+ *
+ * @see http://php.net/parse-url#85963
+ *
+ * @param array $parsed
+ *   array from parse_url()
+ *
+ * @return string
+ *   URI is returned.
+ */
+function imageinfo_cache_glue_url($parsed) {
+  if (!is_array($parsed)) {
+    return FALSE;
+  }
+
+  $uri = isset($parsed['scheme']) ? $parsed['scheme'] . ':' . ((strtolower($parsed['scheme']) == 'mailto') ? '' : '//') : '';
+  $uri .= isset($parsed['user']) ? $parsed['user'] . (isset($parsed['pass']) ? ':' . $parsed['pass'] : '') . '@' : '';
+  $uri .= isset($parsed['host']) ? $parsed['host'] : '';
+  $uri .= !empty($parsed['port']) ? ':' . $parsed['port'] : '';
+
+  if (isset($parsed['path'])) {
+    $uri .= (substr($parsed['path'], 0, 1) == '/') ? $parsed['path'] : ((!empty($uri) ? '/' : '') . $parsed['path']);
+  }
+
+  $uri .= isset($parsed['query']) ? '?' . $parsed['query'] : '';
+  $uri .= isset($parsed['fragment']) ? '#' . $parsed['fragment'] : '';
+
+  return $uri;
 }

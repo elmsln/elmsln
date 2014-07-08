@@ -1,5 +1,19 @@
-linkchecker 7.x-dev, nightly
-----------------------------
+linkchecker 7.x-1.2, June 7, 2014
+---------------------------------
+
+* Issue #2280827: Notice: Undefined index: content-type in _linkchecker_status_handling()
+* Issue #2146127 by hass: Notice: Undefined variable: format in_linkchecker_parse_fields()
+* Issue #1334056 by Alan D., hass: Undefined indices in linkchecker_parse_fields() and _linkchecker_add_node_links()
+* Issue #2088461 by fonant, hass: PDF link with #page= results in "URL fragment identifier not found in content"
+* Issue #500866 by hass: Remove t() from assertion messages in tests
+* Added Smiley module and Web Links modules to filter blacklist. 
+* Issue #1923328 by larowlan: Fragment check fails when source page contains spaces between attribute name, equals and value.
+* Issue #1923328 by hass: Notice: Undefined property: stdClass::$field_tags
+* Issue #1948782 by jlscott: Linkchecker does not handle link cleanup on 'link' fields
+* Issue #1926558 by hass: Block extraction re-scans fail.
+
+linkchecker 7.x-1.1, February 14, 2013
+--------------------------------------
 
 * Code style review and fixes (minor level)
 * No need to check comment/block enable variables in auto update.

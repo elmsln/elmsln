@@ -54,10 +54,8 @@ function replicate_field_collection_clone_items(&$entity, $entity_type, $field_n
     unset($entity->{$field_name}[$language]);
 
     foreach ($field as $value) {
-      $old_item = entity_load('field_collection_item', array($value['value']));
+      $old_item = field_collection_field_get_entity($value);
       if (!empty($old_item)) {
-        // Select the last found item.
-        $old_item = end($old_item);
         $new_item = replicate_clone_entity('field_collection_item', $old_item);
         $new_item->setHostEntity($entity_type, $entity);
         // Don't save the new field collection,

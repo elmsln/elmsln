@@ -1,0 +1,13 @@
+/**
+ * @file
+ * This file can host your custom  RTL media queries CSS for FontFolio.
+ * 
+ * Rename this file by removing ".txt" extension from file name's end.
+ * Leaving only the ".css" extension.
+ *
+ * Rename it from:
+ *   "my-custom-ff-md-queries-rtl.css.txt"
+ * into:
+ *   "my-custom-ff-md-queries-rtl.css"
+ * 
+ */

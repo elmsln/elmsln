@@ -1,12 +1,10 @@
 <?php
 /**
- * Piwik - Open source web analytics
+ * Piwik - free/libre analytics platform
  *
  * @link http://piwik.org
  * @license http://www.gnu.org/licenses/gpl-3.0.html GPL v3 or later
  *
- * @category Piwik
- * @package Piwik
  */
 namespace Piwik\Tracker;
 
@@ -15,8 +13,6 @@ use Piwik\Piwik;
 use Piwik\UrlHelper;
 
 /**
- * @package Piwik
- * @subpackage Tracker
  */
 class Referrer
 {
@@ -289,10 +285,10 @@ class Referrer
         $this->detectReferrerCampaignFromLandingUrl();
         $this->detectCampaignKeywordFromReferrerUrl();
 
-        // if we detected a campaign but there is still no keyword set, we set the keyword to the Referrer host
         if ($this->typeReferrerAnalyzed != Common::REFERRER_TYPE_CAMPAIGN) {
             return false;
         }
+        // if we detected a campaign but there is still no keyword set, we set the keyword to the Referrer host
         if(empty($this->keywordReferrerAnalyzed)) {
             $this->keywordReferrerAnalyzed = $this->referrerHost;
         }

@@ -5,9 +5,9 @@ core = 7.x
 
 configure = admin/config/development/performance/advagg
 
-; Information added by Drupal.org packaging script on 2014-03-06
-version = "7.x-2.5"
+; Information added by Drupal.org packaging script on 2014-06-12
+version = "7.x-2.7"
 core = "7.x"
 project = "advagg"
-datestamp = "1394074705"
+datestamp = "1402608232"
 

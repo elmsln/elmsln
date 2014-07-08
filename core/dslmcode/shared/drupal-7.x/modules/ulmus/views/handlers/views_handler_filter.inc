@@ -91,7 +91,11 @@ class views_handler_filter extends views_handler {
     }
 
     if ($this->multiple_exposed_input()) {
-      $this->group_info = array_filter($options['group_info']['default_group_multiple']);
+      $this->group_info = NULL;
+      if (!empty($options['group_info']['default_group_multiple'])) {
+        $this->group_info = array_filter($options['group_info']['default_group_multiple']);
+      }
+
       $this->options['expose']['multiple'] = TRUE;
     }
 
@@ -116,6 +120,7 @@ class views_handler_filter extends views_handler {
         'label' => array('default' => '', 'translatable' => TRUE),
         'description' => array('default' => '', 'translatable' => TRUE),
         'use_operator' => array('default' => FALSE, 'bool' => TRUE),
+        'operator_label' => array('default' => '', 'translatable' => TRUE),
         'operator' => array('default' => ''),
         'identifier' => array('default' => ''),
         'required' => array('default' => FALSE, 'bool' => TRUE),
@@ -510,6 +515,16 @@ class views_handler_filter extends views_handler {
         '#description' => t('Allow the user to choose the operator.'),
         '#default_value' => !empty($this->options['expose']['use_operator']),
       );
+      $form['expose']['operator_label'] = array(
+        '#type' => 'textfield',
+        '#default_value' => $this->options['expose']['operator_label'],
+        '#title' => t('Operator label'),
+        '#size' => 40,
+        '#description' => t('This will appear before your operator select field.'),
+        '#dependency' => array(
+          'edit-options-expose-use-operator' => array(1)
+        ),
+      );
       $form['expose']['operator_id'] = array(
         '#type' => 'textfield',
         '#default_value' => $this->options['expose']['operator_id'],
@@ -754,10 +769,8 @@ class views_handler_filter extends views_handler {
       $operator = $this->options['expose']['operator_id'];
       $this->operator_form($form, $form_state);
       $form[$operator] = $form['operator'];
-
-      if (isset($form[$operator]['#title'])) {
-        unset($form[$operator]['#title']);
-      }
+      $form[$operator]['#title'] =  $this->options['expose']['operator_label'];
+      $form[$operator]['#title_display'] = 'invisible';
 
       $this->exposed_translate($form[$operator], 'operator');
 

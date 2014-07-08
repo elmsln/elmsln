@@ -1,18 +1,18 @@
 <?php
 /**
- * Piwik - Open source web analytics
+ * Piwik - free/libre analytics platform
  *
  * @link http://piwik.org
  * @license http://www.gnu.org/licenses/gpl-3.0.html GPL v3 or later
  *
- * @category Piwik
- * @package Piwik_Menu
  */
 namespace Piwik\Menu;
 
 use Piwik\Common;
+use Piwik\Log;
 use Piwik\Plugins\SitesManager\API;
 use Piwik\Singleton;
+use Piwik\Plugin\Manager as PluginManager;
 
 /**
  * Base class for classes that manage one of Piwik's menus.
@@ -21,7 +21,6 @@ use Piwik\Singleton;
  * Each menu has a class that manages the menu's content. Each class invokes
  * a different event to allow plugins to add new menu items.
  * 
- * @package Piwik_Menu
  * @static \Piwik\Menu\MenuAbstract getInstance()
  */
 abstract class MenuAbstract extends Singleton
@@ -33,6 +32,7 @@ abstract class MenuAbstract extends Singleton
     protected $edits = array();
     protected $renames = array();
     protected $orderingApplied = false;
+    protected static $menus = array();
 
     /**
      * Builds the menu, applies edits, renames
@@ -51,6 +51,22 @@ abstract class MenuAbstract extends Singleton
     }
 
     /**
+     * Returns a list of available plugin menu instances.
+     *
+     * @return \Piwik\Plugin\Menu[]
+     */
+    protected function getAvailableMenus()
+    {
+        if (!empty(self::$menus)) {
+            return self::$menus;
+        }
+
+        self::$menus = PluginManager::getInstance()->findComponents('Menu', 'Piwik\\Plugin\\Menu');
+
+        return self::$menus;
+    }
+
+    /**
      * Adds a new entry to the menu.
      *
      * @param string $menuName The menu's category name. Can be a translation token.
@@ -60,7 +76,7 @@ abstract class MenuAbstract extends Singleton
      * @param boolean $displayedForCurrentUser Whether this menu entry should be displayed for the
      *                                         current user. If false, the entry will not be added.
      * @param int $order The order hint.
-     * @param false|string $tooltip An optional tooltip to display.
+     * @param bool|string $tooltip An optional tooltip to display or false to display the tooltip.
      * @api
      */
     public function add($menuName, $subMenuName, $url, $displayedForCurrentUser = true, $order = 50, $tooltip = false)
@@ -84,6 +100,13 @@ abstract class MenuAbstract extends Singleton
         );
     }
 
+    /**
+     * Removes an existing entry from the menu.
+     *
+     * @param string      $menuName    The menu's category name. Can be a translation token.
+     * @param bool|string $subMenuName The menu item's name. Can be a translation token.
+     * @api
+     */
     public function remove($menuName, $subMenuName = false)
     {
         $this->menuEntriesToRemove[] = array(
@@ -116,6 +139,7 @@ abstract class MenuAbstract extends Singleton
             $this->menu[$menuName][$subMenuName]['_url'] = $url;
             $this->menu[$menuName][$subMenuName]['_order'] = $order;
             $this->menu[$menuName][$subMenuName]['_name'] = $subMenuName;
+            $this->menu[$menuName][$subMenuName]['_tooltip'] = $tooltip;
             $this->menu[$menuName]['_hasSubmenu'] = true;
             $this->menu[$menuName]['_tooltip'] = $tooltip;
         }
@@ -138,6 +162,7 @@ abstract class MenuAbstract extends Singleton
      * @param $subMenuOriginal
      * @param $mainMenuRenamed
      * @param $subMenuRenamed
+     * @api
      */
     public function rename($mainMenuOriginal, $subMenuOriginal, $mainMenuRenamed, $subMenuRenamed)
     {
@@ -151,6 +176,7 @@ abstract class MenuAbstract extends Singleton
      * @param $mainMenuToEdit
      * @param $subMenuToEdit
      * @param $newUrl
+     * @api
      */
     public function editUrl($mainMenuToEdit, $subMenuToEdit, $newUrl)
     {
@@ -166,10 +192,17 @@ abstract class MenuAbstract extends Singleton
             $mainMenuToEdit = $edit[0];
             $subMenuToEdit = $edit[1];
             $newUrl = $edit[2];
-            if (!isset($this->menu[$mainMenuToEdit][$subMenuToEdit])) {
+
+            if ($subMenuToEdit === null) {
+                $menuDataToEdit = @$this->menu[$mainMenuToEdit];
+            } else {
+                $menuDataToEdit = @$this->menu[$mainMenuToEdit][$subMenuToEdit];
+            }
+
+            if (empty($menuDataToEdit)) {
                 $this->buildMenuItem($mainMenuToEdit, $subMenuToEdit, $newUrl);
             } else {
-                $this->menu[$mainMenuToEdit][$subMenuToEdit]['_url'] = $newUrl;
+                $menuDataToEdit['_url'] = $newUrl;
             }
         }
     }

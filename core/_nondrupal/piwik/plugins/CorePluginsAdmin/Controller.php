@@ -1,15 +1,14 @@
 <?php
 /**
- * Piwik - Open source web analytics
+ * Piwik - free/libre analytics platform
  *
  * @link http://piwik.org
  * @license http://www.gnu.org/licenses/gpl-3.0.html GPL v3 or later
  *
- * @category Piwik_Plugins
- * @package CorePluginsAdmin
  */
 namespace Piwik\Plugins\CorePluginsAdmin;
 
+use Exception;
 use Piwik\API\Request;
 use Piwik\Common;
 use Piwik\Filechecks;
@@ -20,12 +19,10 @@ use Piwik\Piwik;
 use Piwik\Plugin;
 use Piwik\Settings\Manager as SettingsManager;
 use Piwik\Url;
-use Piwik\View;
 use Piwik\Version;
-use Exception;
+use Piwik\View;
 
 /**
- * @package CorePluginsAdmin
  */
 class Controller extends Plugin\ControllerAdmin
 {
@@ -86,7 +83,7 @@ class Controller extends Plugin\ControllerAdmin
     public function uploadPlugin()
     {
         static::dieIfPluginsAdminIsDisabled();
-        Piwik::checkUserIsSuperUser();
+        Piwik::checkUserHasSuperUserAccess();
 
         $nonce = Common::getRequestVar('nonce', null, 'string');
 
@@ -140,7 +137,7 @@ class Controller extends Plugin\ControllerAdmin
         try {
             $marketplace  = new Marketplace();
             $view->plugin = $marketplace->getPluginInfo($pluginName);
-            $view->isSuperUser  = Piwik::isUserIsSuperUser();
+            $view->isSuperUser  = Piwik::hasUserSuperUserAccess();
             $view->installNonce = Nonce::getNonce(static::INSTALL_NONCE);
             $view->updateNonce  = Nonce::getNonce(static::UPDATE_NONCE);
             $view->activeTab    = $activeTab;
@@ -190,7 +187,7 @@ class Controller extends Plugin\ControllerAdmin
         $view->sort = $sort;
         $view->installNonce = Nonce::getNonce(static::INSTALL_NONCE);
         $view->updateNonce = Nonce::getNonce(static::UPDATE_NONCE);
-        $view->isSuperUser = Piwik::isUserIsSuperUser();
+        $view->isSuperUser = Piwik::hasUserSuperUserAccess();
 
         return $view;
     }
@@ -213,14 +210,14 @@ class Controller extends Plugin\ControllerAdmin
 
         $view = $this->configureView('@CorePluginsAdmin/extend');
         $view->installNonce = Nonce::getNonce(static::INSTALL_NONCE);
-        $view->isSuperUser = Piwik::isUserIsSuperUser();
+        $view->isSuperUser = Piwik::hasUserSuperUserAccess();
 
         return $view->render();
     }
 
     private function createPluginsOrThemesView($template, $themesOnly)
     {
-        Piwik::checkUserIsSuperUser();
+        Piwik::checkUserHasSuperUserAccess();
 
         $view = $this->configureView('@CorePluginsAdmin/' . $template);
 
@@ -272,7 +269,11 @@ class Controller extends Plugin\ControllerAdmin
 
         $view = new View($template);
         $this->setBasicVariablesView($view);
-        $this->displayWarningIfConfigFileNotWritable();
+
+        // If user can manage plugins+themes, display a warning if config not writable
+        if (CorePluginsAdmin::isPluginsAdminEnabled()) {
+            $this->displayWarningIfConfigFileNotWritable();
+        }
 
         $view->errorMessage = '';
 
@@ -358,14 +359,18 @@ class Controller extends Plugin\ControllerAdmin
             return $message;
         }
 
+        if(Common::isPhpCliMode()) {
+            Piwik_ExitWithMessage("Error:" . var_export($lastError, true));
+        }
+
         $view = new View('@CorePluginsAdmin/safemode');
         $view->lastError   = $lastError;
-        $view->isSuperUser = Piwik::isUserIsSuperUser();
+        $view->isSuperUser = Piwik::hasUserSuperUserAccess();
         $view->isAnonymousUser = Piwik::isUserIsAnonymous();
         $view->plugins         = Plugin\Manager::getInstance()->returnLoadedPluginsInfo();
         $view->deactivateNonce = Nonce::getNonce(static::DEACTIVATE_NONCE);
         $view->uninstallNonce  = Nonce::getNonce(static::UNINSTALL_NONCE);
-        $view->emailSuperUser  = Piwik::getSuperUserEmail();
+        $view->emailSuperUser  = implode(',', Piwik::getAllSuperUserAccessEmailAddresses());
         $view->piwikVersion    = Version::VERSION;
         $view->showVersion     = !Common::getRequestVar('tests_hide_piwik_version', 0);
         $view->pluginCausesIssue = '';
@@ -446,7 +451,7 @@ class Controller extends Plugin\ControllerAdmin
 
     protected function initPluginModification($nonceName)
     {
-        Piwik::checkUserIsSuperUser();
+        Piwik::checkUserHasSuperUserAccess();
 
         $nonce = Common::getRequestVar('nonce', null, 'string');
 

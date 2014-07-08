@@ -1,12 +1,10 @@
 <?php
 /**
- * Piwik - Open source web analytics
+ * Piwik - free/libre analytics platform
  *
  * @link http://piwik.org
  * @license http://www.gnu.org/licenses/gpl-3.0.html GPL v3 or later
  *
- * @category Piwik_Plugins
- * @package Overlay
  */
 namespace Piwik\Plugins\Overlay;
 
@@ -128,7 +126,7 @@ class Controller extends \Piwik\Plugin\Controller
      */
     public function startOverlaySession()
     {
-        $idSite = Common::getRequestVar('idsite', 0, 'int');
+        $idSite = Common::getRequestVar('idSite', 0, 'int');
         Piwik::checkUserHasViewAccess($idSite);
 
         $sitesManager = APISitesManager::getInstance();
@@ -206,6 +204,7 @@ class Controller extends \Piwik\Plugin\Controller
         $message = nl2br(htmlentities($message));
 
         $view = new View('@Overlay/showErrorWrongDomain');
+        $this->addCustomLogoInfo($view);
         $view->message = $message;
 
         if (Piwik::isUserHasAdminAccess($idSite)) {

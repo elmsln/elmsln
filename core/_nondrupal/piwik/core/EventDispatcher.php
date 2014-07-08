@@ -1,12 +1,10 @@
 <?php
 /**
- * Piwik - Open source web analytics
+ * Piwik - free/libre analytics platform
  *
  * @link http://piwik.org
  * @license http://www.gnu.org/licenses/gpl-3.0.html GPL v3 or later
  *
- * @category Piwik
- * @package Piwik
  */
 
 namespace Piwik;
@@ -66,7 +64,7 @@ class EventDispatcher extends Singleton
         }
 
         if (empty($plugins)) {
-            $plugins = \Piwik\Plugin\Manager::getInstance()->getLoadedPlugins();
+            $plugins = \Piwik\Plugin\Manager::getInstance()->getPluginsLoadedAndActivated();
         }
 
         $callbacks = array();
@@ -128,13 +126,27 @@ class EventDispatcher extends Singleton
     }
 
     /**
-     * Removes all registered observers for an event name. Only used for testing.
+     * Removes all registered extra observers for an event name. Only used for testing.
      *
      * @param string $eventName
      */
     public function clearObservers($eventName)
     {
         $this->extraObservers[$eventName] = array();
+    }
+
+    /**
+     * Removes all registered extra observers. Only used for testing.
+     */
+    public function clearAllObservers()
+    {
+        foreach ($this->extraObservers as $eventName => $eventObservers) {
+            if (strpos($eventName, 'Log.format') === 0) {
+                continue;
+            }
+
+            $this->extraObservers[$eventName] = array();
+        }
     }
 
     /**

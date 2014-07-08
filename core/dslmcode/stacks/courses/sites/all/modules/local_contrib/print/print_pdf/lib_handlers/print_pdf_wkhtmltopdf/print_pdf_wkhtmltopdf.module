@@ -1,0 +1,106 @@
+<?php
+
+/**
+ * @file
+ * Generate a PDF for the print_pdf module using the wkhtmltopdf library.
+ *
+ * @ingroup print
+ */
+
+define('PRINT_PDF_WKHTMLTOPDF_OPTIONS', "--footer-font-size 7 --footer-right '[page]'");
+
+/**
+ * Implements hook_pdf_tool_info().
+ */
+function print_pdf_wkhtmltopdf_pdf_tool_info() {
+  return array(
+    'name' => 'wkhtmltopdf',
+    'min_version' => '0.9.6',
+    'url' => 'http://code.google.com/p/wkhtmltopdf/downloads/list',
+    'expand_css' => FALSE,
+  );
+}
+
+/**
+ * Implements hook_menu().
+ */
+function print_pdf_wkhtmltopdf_menu() {
+  $items = array();
+
+  $items['admin/config/user-interface/print/pdf/wkhtmltopdf'] = array(
+    'title' => 'wkhtmltopdf',
+    'description' => 'Configure the wkhtmltopdf options.',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('print_pdf_wkhtmltopdf_settings'),
+    'access arguments'  => array('administer print'),
+    'type' => MENU_LOCAL_TASK,
+    'file' => 'print_pdf_wkhtmltopdf.admin.inc',
+  );
+
+  return $items;
+}
+
+/**
+ * Implements hook_requirements().
+ */
+function print_pdf_wkhtmltopdf_requirements($phase) {
+  $requirements = array();
+  $t = get_t();
+  switch ($phase) {
+    // At runtime, make sure that a PDF generation tool is selected
+    case 'runtime':
+      $print_pdf_pdf_tool = variable_get('print_pdf_pdf_tool', PRINT_PDF_PDF_TOOL_DEFAULT);
+      if (!empty($print_pdf_pdf_tool)) {
+        $tool = explode('|', $print_pdf_pdf_tool);
+
+        if (is_file($tool[1]) && is_readable($tool[1])) {
+          if (drupal_substr(basename($tool[1], '.exe'), 0, 11) == 'wkhtmltopdf') {
+            if (function_exists('is_executable') && !is_executable($tool[1])) {
+              $requirements['print_pdf_wkhtmltopdf'] = array(
+                'title' => $t('wkhtmltopdf library'),
+                'value' => $t('Non-executable permissions'),
+                'description' => $t('You must modify the permissions of the wkhtmltopdf file (%file) to make it executable.', array('%file' => $tool[1])),
+                'severity' => REQUIREMENT_ERROR,
+              );
+            }
+          }
+        }
+      }
+      break;
+  }
+  return $requirements;
+}
+
+/**
+ * Implements hook_pdf_tool_version().
+ */
+function print_pdf_wkhtmltopdf_pdf_tool_version($pdf_tool) {
+  $descriptor = array(0 => array('pipe', 'r'), 1 => array('pipe', 'w'), 2 => array('pipe', 'w'));
+
+  $cmd = '"' . realpath($pdf_tool) . '" --version';
+  $process = proc_open($cmd, $descriptor, $pipes, NULL, NULL);
+  if (is_resource($process)) {
+    $content = stream_get_contents($pipes[1]);
+    $out = preg_match('!.*?(\d+\.\d+\.\d+).*$!m', $content, $matches);
+    fclose($pipes[0]);
+    fclose($pipes[1]);
+    fclose($pipes[2]);
+    $retval = proc_close($process);
+  }
+
+  return ($matches[1]);
+}
+
+/**
+ * Implements hook_print_pdf_available_libs_alter().
+ */
+function print_pdf_wkhtmltopdf_print_pdf_available_libs_alter(&$pdf_tools) {
+  module_load_include('inc', 'print', 'includes/print');
+  $tools = _print_scan_libs('wkhtmltopdf', '!^wkhtmltopdf!');
+
+  foreach ($tools as $tool) {
+    $version = print_pdf_wkhtmltopdf_pdf_tool_version($tool);
+
+    $pdf_tools['print_pdf_wkhtmltopdf|' . $tool] = 'wkhtmltopdf ' . $version . ' (' . $tool . ')';
+  }
+}

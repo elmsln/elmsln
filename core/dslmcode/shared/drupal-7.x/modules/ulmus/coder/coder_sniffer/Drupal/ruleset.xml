@@ -3,6 +3,13 @@
 <ruleset name="Drupal">
  <description>Drupal coding standard</description>
 
+ <rule ref="Internal.NoCodeFound">
+  <!-- Usually there is no code in txt or info files, so we suppress warnings about
+    PHP short tags and what not. -->
+  <exclude-pattern>*.txt</exclude-pattern>
+  <exclude-pattern>*.info</exclude-pattern>
+ </rule>
+
  <rule ref="Drupal.Commenting.FileComment">
   <!-- Do not run this sniff on txt files. -->
   <exclude-pattern>*.txt</exclude-pattern>

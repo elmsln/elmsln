@@ -1,12 +1,10 @@
 <?php
 /**
- * Piwik - Open source web analytics
+ * Piwik - free/libre analytics platform
  *
  * @link http://piwik.org
  * @license http://www.gnu.org/licenses/gpl-3.0.html GPL v3 or later
  *
- * @category Piwik
- * @package Piwik
  */
 namespace Piwik;
 
@@ -19,8 +17,6 @@ use Piwik\Tracker\Cache;
  * Contains helper methods used by both Piwik Core and the Piwik Tracking engine.
  *
  * This is the only non-Tracker class loaded by the **\/piwik.php** file.
- *
- * @package Piwik
  */
 class Common
 {
@@ -33,6 +29,7 @@ class Common
     // Flag used with htmlspecialchar. See php.net/htmlspecialchars.
     const HTML_ENCODING_QUOTE_STYLE = ENT_QUOTES;
 
+    public static $isCliMode = null;
 
     /*
      * Database
@@ -113,6 +110,11 @@ class Common
         return \Piwik\Plugin\Manager::getInstance()->isPluginActivated('Goals');
     }
 
+    public static function isActionsPluginEnabled()
+    {
+        return \Piwik\Plugin\Manager::getInstance()->isPluginActivated('Actions');
+    }
+
     /**
      * Returns true if PHP was invoked from command-line interface (shell)
      *
@@ -121,11 +123,44 @@ class Common
      */
     public static function isPhpCliMode()
     {
+        if (is_bool(self::$isCliMode)) {
+            return self::$isCliMode;
+        }
+
         $remoteAddr = @$_SERVER['REMOTE_ADDR'];
         return PHP_SAPI == 'cli' ||
-        (!strncmp(PHP_SAPI, 'cgi', 3) && empty($remoteAddr));
+        (self::isPhpCgiType() && empty($remoteAddr));
     }
 
+    /**
+     * Returns true if PHP is executed as CGI type.
+     *
+     * @since added in 0.4.4
+     * @return bool true if PHP invoked as a CGI
+     */
+    public static function isPhpCgiType()
+    {
+        $sapiType = php_sapi_name();
+
+        return substr($sapiType, 0, 3) === 'cgi';
+    }
+
+    /**
+     * Returns true if the current request is a console command, eg.
+     * ./console xx:yy
+     * or
+     * php console xx:yy
+     *
+     * @return bool
+     */
+    public static function isRunningConsoleCommand()
+    {
+        $searched = 'console';
+        $consolePos = strpos($_SERVER['SCRIPT_NAME'], $searched);
+        $expectedConsolePos = strlen($_SERVER['SCRIPT_NAME']) - strlen($searched);
+        $isScriptIsConsole = ($consolePos === $expectedConsolePos);
+        return self::isPhpCliMode() && $isScriptIsConsole;
+    }
 
     /*
      * String operations
@@ -731,6 +766,9 @@ class Common
         require_once PIWIK_INCLUDE_PATH . '/core/DataFiles/SearchEngines.php';
 
         $searchEngines = $GLOBALS['Piwik_SearchEngines'];
+
+        Piwik::postEvent('Referrer.addSearchEngineUrls', array(&$searchEngines));
+
         return $searchEngines;
     }
 
@@ -743,10 +781,34 @@ class Common
      */
     public static function getSearchEngineNames()
     {
-        require_once PIWIK_INCLUDE_PATH . '/core/DataFiles/SearchEngines.php';
+        $searchEngines = self::getSearchEngineUrls();
 
-        $searchEngines = $GLOBALS['Piwik_SearchEngines_NameToUrl'];
-        return $searchEngines;
+        $nameToUrl = array();
+        foreach ($searchEngines as $url => $info) {
+            if (!isset($nameToUrl[$info[0]])) {
+                $nameToUrl[$info[0]] = $url;
+            }
+        }
+
+        return $nameToUrl;
+    }
+
+    /**
+     * Returns list of social networks by URL
+     *
+     * @see core/DataFiles/Socials.php
+     *
+     * @return array  Array of ( URL => Social Network Name )
+     */
+    public static function getSocialUrls()
+    {
+        require_once PIWIK_INCLUDE_PATH . '/core/DataFiles/Socials.php';
+
+        $socialUrls = $GLOBALS['Piwik_socialUrl'];
+
+        Piwik::postEvent('Referrer.addSocialUrls', array(&$socialUrls));
+
+        return $socialUrls;
     }
 
     /**
@@ -937,9 +999,9 @@ class Common
             } else {
                 $list = array($list);
             }
+            $list = array_map('trim', $list);
         }
 
-        array_walk_recursive($return, 'trim');
         return $return;
     }
 
@@ -978,6 +1040,10 @@ class Common
      */
     public static function sendHeader($header, $replace = true)
     {
+        // don't send header in CLI mode
+        if(Common::isPhpCliMode()) {
+            return;
+        }
         if (isset($GLOBALS['PIWIK_TRACKER_LOCAL_TRACKING']) && $GLOBALS['PIWIK_TRACKER_LOCAL_TRACKING']) {
             @header($header, $replace);
         } else {
@@ -1016,17 +1082,23 @@ class Common
     static public function printDebug($info = '')
     {
         if (isset($GLOBALS['PIWIK_TRACKER_DEBUG']) && $GLOBALS['PIWIK_TRACKER_DEBUG']) {
-            if(is_object($info)) {
+
+            if (is_object($info)) {
                 $info = var_export($info, true);
             }
-            if (is_array($info)) {
-                print("<pre>");
+
+            Log::getInstance()->setLogLevel(Log::DEBUG);
+
+            if (is_array($info) || is_object($info)) {
                 $info = Common::sanitizeInputValues($info);
                 $out = var_export($info, true);
-                echo $out;
-                print("</pre>");
+                foreach (explode("\n", $out) as $line) {
+                    Log::debug($line);
+                }
             } else {
-                print(htmlspecialchars($info, ENT_QUOTES) . "<br />\n");
+                foreach (explode("\n", $info) as $line) {
+                    Log::debug(htmlspecialchars($line, ENT_QUOTES));
+                }
             }
         }
     }

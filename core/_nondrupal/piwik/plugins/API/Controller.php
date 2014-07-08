@@ -1,12 +1,10 @@
 <?php
 /**
- * Piwik - Open source web analytics
+ * Piwik - free/libre analytics platform
  *
  * @link http://piwik.org
  * @license http://www.gnu.org/licenses/gpl-3.0.html GPL v3 or later
  *
- * @category Piwik_Plugins
- * @package Piwik_API
  */
 namespace Piwik\Plugins\API;
 
@@ -20,7 +18,6 @@ use Piwik\View;
 
 /**
  *
- * @package Piwik_API
  */
 class Controller extends \Piwik\Plugin\Controller
 {
@@ -65,7 +62,10 @@ class Controller extends \Piwik\Plugin\Controller
                 $segment['type'] = 'dimension';
             }
 
-            $onlyDisplay = array('customVariableName1', 'customVariableName2', 'customVariableValue1', 'customVariableValue2', 'customVariablePageName1', 'customVariablePageValue1');
+            $onlyDisplay = array('customVariableName1', 'customVariableName2',
+                                 'customVariableValue1', 'customVariableValue2',
+                                 'customVariablePageName1', 'customVariablePageValue1');
+
             $customVariableWillBeDisplayed = in_array($segment['segment'], $onlyDisplay);
             // Don't display more than 4 custom variables name/value rows
             if ($segment['category'] == 'Custom Variables'

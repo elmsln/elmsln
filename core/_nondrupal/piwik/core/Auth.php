@@ -1,21 +1,16 @@
 <?php
 /**
- * Piwik - Open source web analytics
+ * Piwik - free/libre analytics platform
  *
  * @link http://piwik.org
  * @license http://www.gnu.org/licenses/gpl-3.0.html GPL v3 or later
  *
- * @category Piwik
- * @package Piwik
  */
 
 namespace Piwik;
 
 /**
  * Base for authentication modules
- *
- * @package Piwik
- * @subpackage Piwik_Auth
  */
 interface Auth
 {
@@ -37,13 +32,26 @@ interface Auth
      * Authenticates the user and initializes the session.
      */
     public function initSession($login, $md5Password, $rememberMe);
+
+    /**
+     * Accessor to set authentication token. If set, you can authenticate the tokenAuth by calling the authenticate()
+     * method afterwards.
+     *
+     * @param string $token_auth authentication token
+     */
+    public function setTokenAuth($token_auth);
+
+    /**
+     * Accessor to set login name
+     *
+     * @param string $login user login
+     */
+    public function setLogin($login);
 }
 
 /**
  * Authentication result
  *
- * @package Piwik
- * @subpackage Piwik_Auth
  */
 class AuthResult
 {
@@ -115,6 +123,16 @@ class AuthResult
     public function getCode()
     {
         return $this->code;
+    }
+
+    /**
+     * Returns true if the user has Super User access, false otherwise.
+     *
+     * @return bool
+     */
+    public function hasSuperUserAccess()
+    {
+        return $this->getCode() == self::SUCCESS_SUPERUSER_AUTH_CODE;
     }
 
     /**

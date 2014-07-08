@@ -12,21 +12,29 @@ function devel_drush_command() {
   $items['devel-download'] = array(
     'description' => dt('Downloads the FirePHP library from http://firephp.org/.'),
     'arguments' => array(
-      'path' => dt('Optional. A path to the download folder. If omitted Drush will use the default location (sites/all/libraries/firephp).'),
+      'path' => dt('Path to the download folder. This path is relative to the Drupal root. If omitted Drush will use the default location (sites/all/libraries/FirePHPCore).'),
     ),
   );
   $items['devel-reinstall'] = array(
     'description' => dt('Disable, Uninstall, and Install a list of projects.'),
+    'drush dependencies' => array('pm'),
     'arguments' => array(
       'projects' => dt('A space-separated list of project names.'),
     ),
+    'allow-additional-options' => array('pm-disable', 'pm-uninstall', 'pm-enable'),
+    'required-arguments' => 1,
     'aliases' => array('dre'),
   );
   $items['fn-hook'] = array(
-    'description' => 'List implementations of a given hook and explore source of specified one.',
+    'description' => 'List implementations of a given hook and explore the source of the selected one.',
     'arguments' => array(
-      'hook' => 'The name of the hook to explore.'
+      'hook' => 'The name of the hook to explore (e.g. "menu" for hook_menu()).'
     ),
+    'examples' => array(
+      'fn-hook cron' => 'List implementations of hook_cron().',
+    ),
+    'allow-additional-options' => array('fn-view'),
+    'required-arguments' => 1,
     'aliases' => array('fnh', 'hook'),
   );
   $items['fn-view'] = array(
@@ -44,11 +52,13 @@ function devel_drush_command() {
       'fn-view NodeController::load' => 'View the source code for method load in the class NodeController'
     ),
     'aliases' => array('fnv'),
+    'required-arguments' => 1,
   );
   $items['devel-token'] = array(
     'description' => dt('List available tokens'),
     'aliases' => array('token'),
     'core' => array(7), // Remove once 3.0 is released.
+    //@todo support --format option for json, csv, etc.
   );
   return $items;
 }
@@ -72,44 +82,32 @@ function drush_devel_reinstall() {
 /**
  * A command callback.
  */
-function drush_devel_download() {
-  $args = func_get_args();
-  if (isset($args[0])) {
-    $path = $args[0];
+function drush_devel_download($path = NULL) {
+  // If no path is provided by the user, set our default path.
+  if (is_null($path)) {
+    // We use devel folder for legacy reason.
+    $path = drupal_get_path('module', 'devel') . '/FirePHPCore';
   }
-  else {
-    $path = drush_get_context('DRUSH_DRUPAL_ROOT');
+  // If FirePHP is not installed and libraries module is enabled,
+  // try to find FirePHP by its own means.
+  if (!is_dir($path)) {
     if (module_exists('libraries')) {
-      $path .= '/' . libraries_get_path('FirePHPCore') . '/FirePHPCore';
-    }
-    else {
-      $path .= '/' . drupal_get_path('module', 'devel') . '/FirePHPCore';
+      // Libraries 1.x will return a path even if it doesn't exist
+      // while 2.x will return FALSE.
+      $path = libraries_get_path('FirePHPCore');
+      if (!$path) {
+        $path = 'sites/all/libraries/FirePHPCore';
+      }
     }
   }
-
   if (is_dir($path)) {
-    drush_log('FirePHP already present. No download required.', 'ok');
+    drush_log(dt('FirePHP already present at @path. No download required.', array('@path' => $path)), 'ok');
   }
-  elseif (drush_shell_exec('svn export http://firephp.googlecode.com/svn/branches/Library-FirePHPCore-0.3 ' . $path)) {
+  elseif (drush_shell_exec('svn export http://firephp.googlecode.com/svn/branches/Library-FirePHPCore-0.3 %s', $path)) {
     drush_log(dt('FirePHP has been exported via svn to @path.', array('@path' => $path)), 'success');
   }
   else {
     drush_log(dt('Drush was unable to export FirePHP to @path.', array('@path' => $path)), 'warning');
-  }
-}
-
-/**
- * Implements drush_MODULE_post_COMMAND().
- */
-function drush_devel_post_pm_enable() {
-  $extensions = func_get_args();
-  // Deal with comma delimited extension list.
-  if (strpos($extensions[0], ',') !== FALSE) {
-    $extensions = explode(',', $extensions[0]);
-  }
-
-  if (in_array('devel', $extensions) && !drush_get_option('skip')) {
-    drush_devel_download();
   }
 }
 

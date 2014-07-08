@@ -4,7 +4,7 @@ class BoxesTestCase extends DrupalWebTestCase {
   protected $profile = 'testing';
 
   /**
-   * Implementation of getInfo().
+   * Implements getInfo().
    */
   public static function getInfo() {
     return array(
@@ -15,7 +15,7 @@ class BoxesTestCase extends DrupalWebTestCase {
   }
 
   /**
-   * Implementation of setUp().
+   * Implements setUp().
    */
   function setUp() {
     parent::setUp(array('comment', 'ctools', 'block', 'boxes'));
@@ -42,13 +42,13 @@ class BoxesTestCase extends DrupalWebTestCase {
     $this->assertText(
       t('@description has been created.', array('@description' => $box['description'])),
       t('Box successfully created.'));
-    $delta = db_query("select delta from {box} where delta = :delta", array('delta' => $box['delta']))->fetchField();
+    $delta = db_query("SELECT delta FROM {box} WHERE delta = :delta", array('delta' => $box['delta']))->fetchField();
     $this->assertNotNull($delta, t('box found in database'));
 
     // Delete the created box & verify that it's been deleted and no longer appearing on the page.
     $this->drupalPost('admin/structure/block/manage/boxes/' . $delta . '/delete/', array(), t('Delete'));
     // TODO check confirmation message ...of course we'd need to show one first.
-    $delta = db_query("select delta from {box} where delta = :delta", array('delta' => $box['delta']))->fetchField();
+    $delta = db_query("SELECT delta FROM {box} WHERE delta = :delta", array('delta' => $box['delta']))->fetchField();
     $this->assertFalse($delta, t('box not found in database'));
   }
 
@@ -112,7 +112,7 @@ class BoxesAjaxTestCase extends DrupalWebTestCase {
 
 class BoxesBasicAjaxTestCase extends BoxesAjaxTestCase {
   /**
-   * Implementation of getInfo().
+   * Implements getInfo().
    */
   public static function getInfo() {
     return array(
@@ -123,7 +123,7 @@ class BoxesBasicAjaxTestCase extends BoxesAjaxTestCase {
   }
 
   /**
-   * Implementation of setUp().
+   * Implements setUp().
    */
   function setUp() {
     parent::setUp('ctools', 'context', 'boxes');

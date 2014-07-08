@@ -48,22 +48,26 @@ function _lazyloader_filter_filter_process($text) {
 }
 
 /**
- * Process the image tags found with preg_replace_callback()
+ * Process the image tags found with preg_replace_callback().
+ * Addapted from aamonkey's solution posted at http://www.sitepoint.com/forums/showthread.php?361137-Regular-expression-to-get-img-attributes&s=ec165cc8c55543bfd8820c20ba1d6b9c&p=2602886&viewfull=1#post2602886
  */
 function _lazyloader_filter_process_matches($matches) {
-  $img  = explode(' ', array_shift($matches)); // only need the first element due to the search pattern in use.
-  $attr = array();                             // where we store the attributes
-  $attr_str = '';                              // a compiled attribute string
-
-  foreach($img as $id => $part) {
-    $part = explode('=', $part);    // explode each img part
-    if (count($part) > 1) {         // if there was a '=' this is an attribute
-      $attr[$part[0]] = $part[1];   // all img tag atr are added to attr array for readding later
-      if ($part[0] != 'src') $attr_str .= $part[0].'='.$part[1].' ';  // recombine - leave out the src from the attr_str - added sep.
+  // Extract attributes from each img tag and place in $attributes array.
+  // $attributes_string is a string of all attributes EXCEPT src (passed to template for easy theming).
+  $attributes = array();
+  $attributes_string = '';
+  foreach ($matches as $m) {
+    preg_match_all("#(\w+)=['\"]{1}([^'\"]*)#", $m, $matches2);
+    foreach($matches2[1] as $key => $val) {
+      $attributes[$val] = $matches2[2][$key];
+      if ($val != 'src') {
+        $attributes_string .= $val . '="' . $matches2[2][$key] . '" ';
+      }
     }
   }
+
   // Return the themed image
-  return theme('lazyloader_filter_image', array('attr' => $attr, 'attr_str' => $attr_str));
+  return theme('lazyloader_filter_image', array('attr' => $attributes, 'attr_str' => $attributes_string));
 }
 
 /**

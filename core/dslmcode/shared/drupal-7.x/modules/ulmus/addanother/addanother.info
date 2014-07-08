@@ -5,9 +5,12 @@ package = User interface
 files[] = addanother.module
 files[] = addanother.install
 files[] = addanother.test
-; Information added by drupal.org packaging script on 2012-03-21
-version = "7.x-2.1"
+configure = admin/structure/types/addanother
+
+
+; Information added by Drupal.org packaging script on 2014-05-10
+version = "7.x-2.2"
 core = "7.x"
 project = "addanother"
-datestamp = "1332349237"
+datestamp = "1399687140"
 

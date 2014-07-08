@@ -1,12 +1,10 @@
 <?php
 /**
- * Piwik - Open source web analytics
+ * Piwik - free/libre analytics platform
  *
  * @link http://piwik.org
  * @license http://www.gnu.org/licenses/gpl-3.0.html GPL v3 or later
  *
- * @category Piwik
- * @package Piwik
  */
 namespace Piwik;
 
@@ -106,6 +104,18 @@ class DataArray
             return;
         }
 
+        // In case the existing Row had no action metrics (eg. Custom Variable XYZ with "visit" scope)
+        // but the new Row has action metrics (eg. same Custom Variable XYZ this time with a "page" scope)
+        if(!isset($oldRowToUpdate[Metrics::INDEX_MAX_ACTIONS])) {
+            $toZero = array(Metrics::INDEX_MAX_ACTIONS,
+                            Metrics::INDEX_SUM_VISIT_LENGTH,
+                            Metrics::INDEX_BOUNCE_COUNT,
+                            Metrics::INDEX_NB_VISITS_CONVERTED);
+            foreach($toZero as $metric) {
+                $oldRowToUpdate[$metric] = 0;
+            }
+        }
+
         $oldRowToUpdate[Metrics::INDEX_MAX_ACTIONS] = (float)max($newRowToAdd[Metrics::INDEX_MAX_ACTIONS], $oldRowToUpdate[Metrics::INDEX_MAX_ACTIONS]);
         $oldRowToUpdate[Metrics::INDEX_SUM_VISIT_LENGTH] += $newRowToAdd[Metrics::INDEX_SUM_VISIT_LENGTH];
         $oldRowToUpdate[Metrics::INDEX_BOUNCE_COUNT] += $newRowToAdd[Metrics::INDEX_BOUNCE_COUNT];
@@ -194,6 +204,55 @@ class DataArray
         );
     }
 
+    public function sumMetricsEvents($label, $row)
+    {
+        if (!isset($this->data[$label])) {
+            $this->data[$label] = self::makeEmptyEventRow();
+        }
+        $this->doSumEventsMetrics($row, $this->data[$label], $onlyMetricsAvailableInActionsTable = true);
+    }
+
+    static protected function makeEmptyEventRow()
+    {
+        return array(
+            Metrics::INDEX_NB_UNIQ_VISITORS         => 0,
+            Metrics::INDEX_NB_VISITS                => 0,
+            Metrics::INDEX_EVENT_NB_HITS            => 0,
+            Metrics::INDEX_EVENT_NB_HITS_WITH_VALUE => 0,
+            Metrics::INDEX_EVENT_SUM_EVENT_VALUE    => 0,
+            Metrics::INDEX_EVENT_MIN_EVENT_VALUE    => 0,
+            Metrics::INDEX_EVENT_MAX_EVENT_VALUE    => 0,
+        );
+    }
+
+    const EVENT_VALUE_PRECISION = 2;
+
+    /**
+     * @param array $newRowToAdd
+     * @param array $oldRowToUpdate
+     * @return void
+     */
+    protected function doSumEventsMetrics($newRowToAdd, &$oldRowToUpdate)
+    {
+        $oldRowToUpdate[Metrics::INDEX_NB_VISITS] += $newRowToAdd[Metrics::INDEX_NB_VISITS];
+        $oldRowToUpdate[Metrics::INDEX_NB_UNIQ_VISITORS] += $newRowToAdd[Metrics::INDEX_NB_UNIQ_VISITORS];
+        $oldRowToUpdate[Metrics::INDEX_EVENT_NB_HITS] += $newRowToAdd[Metrics::INDEX_EVENT_NB_HITS];
+        $oldRowToUpdate[Metrics::INDEX_EVENT_NB_HITS_WITH_VALUE] += $newRowToAdd[Metrics::INDEX_EVENT_NB_HITS_WITH_VALUE];
+
+        $newRowToAdd[Metrics::INDEX_EVENT_SUM_EVENT_VALUE] = round($newRowToAdd[Metrics::INDEX_EVENT_SUM_EVENT_VALUE], self::EVENT_VALUE_PRECISION);
+        $oldRowToUpdate[Metrics::INDEX_EVENT_SUM_EVENT_VALUE] += $newRowToAdd[Metrics::INDEX_EVENT_SUM_EVENT_VALUE];
+        $oldRowToUpdate[Metrics::INDEX_EVENT_MAX_EVENT_VALUE] = round(max($newRowToAdd[Metrics::INDEX_EVENT_MAX_EVENT_VALUE], $oldRowToUpdate[Metrics::INDEX_EVENT_MAX_EVENT_VALUE]), self::EVENT_VALUE_PRECISION);
+
+        // Update minimum only if it is set
+        if($newRowToAdd[Metrics::INDEX_EVENT_MIN_EVENT_VALUE] !== false) {
+            if($oldRowToUpdate[Metrics::INDEX_EVENT_MIN_EVENT_VALUE] === false) {
+                $oldRowToUpdate[Metrics::INDEX_EVENT_MIN_EVENT_VALUE] = round($newRowToAdd[Metrics::INDEX_EVENT_MIN_EVENT_VALUE], self::EVENT_VALUE_PRECISION);
+            } else {
+                $oldRowToUpdate[Metrics::INDEX_EVENT_MIN_EVENT_VALUE] = round(min($newRowToAdd[Metrics::INDEX_EVENT_MIN_EVENT_VALUE], $oldRowToUpdate[Metrics::INDEX_EVENT_MIN_EVENT_VALUE]), self::EVENT_VALUE_PRECISION);
+            }
+        }
+    }
+
     /**
      * Generic function that will sum all columns of the given row, at the specified label's row.
      *
@@ -242,6 +301,14 @@ class DataArray
         $this->doSumVisitsMetrics($row, $this->dataTwoLevels[$parentLabel][$label], $onlyMetricsAvailableInActionsTable = true);
     }
 
+    public function sumMetricsEventsPivot($parentLabel, $label, $row)
+    {
+        if (!isset($this->dataTwoLevels[$parentLabel][$label])) {
+            $this->dataTwoLevels[$parentLabel][$label] = $this->makeEmptyEventRow();
+        }
+        $this->doSumEventsMetrics($row, $this->dataTwoLevels[$parentLabel][$label]);
+    }
+
     public function setRowColumnPivot($parentLabel, $label, $column, $value)
     {
         $this->dataTwoLevels[$parentLabel][$label][$column] = $value;
@@ -287,6 +354,12 @@ class DataArray
                 $revenue = round($revenue);
             }
             $values[Metrics::INDEX_REVENUE] = $revenue;
+
+            // if there are no "visit" column, we force one to prevent future complications
+            // eg. This helps the setDefaultColumnsToDisplay() call
+            if(!isset($values[Metrics::INDEX_NB_VISITS])) {
+                $values[Metrics::INDEX_NB_VISITS] = 0;
+            }
         }
     }
 
@@ -320,5 +393,4 @@ class DataArray
         }
         return DataTable::makeFromIndexedArray($dataArray, $subtableByLabel);
     }
-
 }

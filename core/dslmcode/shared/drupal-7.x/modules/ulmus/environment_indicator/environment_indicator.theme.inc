@@ -8,7 +8,6 @@
 /**
  * Theme function for listing environments.
  */
-
 function theme_environment_indicator_switches($variables) {
   $items = $variables['switches'];
   $output = '<div class="item-list"><ul class="environment-switcher-container">';
@@ -26,7 +25,13 @@ function theme_environment_indicator_switches($variables) {
  * Theme function for the indicator name.
  */
 function theme_environment_indicator_indicator_name($variables) {
-  $output = '<div class="environment-indicator-name">' . t($variables['name']) . '</div>';
+  $title = t('You are seeing the @name environment', array('@name' => t($variables['name'])));
+  $branch_html = '';
+  if (!empty($variables['git_branch'])) {
+    $branch_html = '<span class="git-branch"> - ' . $variables['git_branch'] . '</span>';
+    $title = t('GIT is running @branch branch in this environment.', array('@branch' => $variables['git_branch']));
+  }
+  $output = '<div class="environment-indicator-name" title="' . $title . '">' . t($variables['name']) . $branch_html . '</div>';
   $environments = environment_indicator_get_all(TRUE);
   if (!empty($environments)) {
     foreach ($environments as $environment) {
@@ -71,13 +76,13 @@ function theme_environment_indicator_indicator_bar($variables) {
 }
 
 /**
- * Theme function for the overriden environment indicator in the header of the list.
+ * Theme function for overriden environment indicator in the header of the list.
  */
 function theme_environment_indicator_overwritten_header($variables) {
   $header = '<div class="overriden-indicator"><h2 class="label">' . t('Overriden indicator.') . '</h2>';
   $header .= '<div class="description">' . t('This indicator is in your settings.php file and will take precedence over any other indicator that matches a hostname. To properly set an indicator in your settings.php file, please visit the !help.', array('!help' => l(t('help pages'), 'admin/help/environment_indicator'))) . '</div></div>';
   $table = '<p>' . t('There is no overriden environment indicator in your settings.php file. You only need one in case you want your indicator to be stored in your settings.php file instead of matching against the hostname. The environment switcher is not supported for overriden environments.') . '</p>';
-  if (!is_null(variable_get('environment_indicator_overwrite', NULL)) || !is_null(variable_get('environment_indicator_enabled', NULL))) {
+  if (_environment_indicator_is_overwritten()) {
     $headers = array(
       t('Enabled'),
       t('Name'),

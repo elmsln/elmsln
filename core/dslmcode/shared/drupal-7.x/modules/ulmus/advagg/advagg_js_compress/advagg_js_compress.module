@@ -112,11 +112,13 @@ function advagg_js_compress_advagg_modify_js_pre_render_alter(&$children, &$elem
  *   Path and filename of the js file to test.
  * @param array $compressors
  *   List of compressors to test.
+ * @param string $cache_id
+ *   The cache ID for this file.
  *
  * @return array
  *   Array showing the results of the compression tests.
  */
-function advagg_js_compress_test_file($filename, $compressors) {
+function advagg_js_compress_test_file($filename, $compressors, $cache_id) {
   $contents = file_get_contents($filename);
   // Get the JS string length before the compression operation.
   $contents_before = $contents;
@@ -163,19 +165,22 @@ function advagg_js_compress_test_file($filename, $compressors) {
       );
     }
   }
-  return $results;
-}
 
-/**
- * Test a JS file to see if it compresses well; called from httprl background.
- *
- * @param string $filename
- *   Path and filename of JS file.
- *
- * @return array
- *   info about the file.
- */
-function advagg_js_compress_run_test_httprl($filename) {
-  module_load_include('inc', 'advagg_js_compress', 'advagg_js_compress.advagg');
-  return advagg_js_compress_run_test($filename);
+  $cache = cache_get($cache_id, 'cache_advagg_info');
+  // Merge in old cached data.
+  if (!empty($cache->data)) {
+    // Do not merge in -1 code.
+    foreach ($cache->data as $key => $value) {
+      if ($value['code'] == -1) {
+        unset($cache->data[$key]);
+      }
+    }
+    $results += $cache->data;
+  }
+
+  // CACHE_PERMANENT isn't good here. Use 2 weeks from now + 0-45 days.
+  // The random 0 to 45 day addition is to prevent a cache stampeed.
+  cache_set($cache_id, $results, 'cache_advagg_info', round(REQUEST_TIME + 1209600 + mt_rand(0, 3888000), -3));
+
+  return $results;
 }

@@ -1,12 +1,10 @@
 <?php
 /**
- * Piwik - Open source web analytics
+ * Piwik - free/libre analytics platform
  *
  * @link http://piwik.org
  * @license http://www.gnu.org/licenses/gpl-3.0.html GPL v3 or later
  *
- * @category Piwik
- * @package Piwik
  */
 namespace Piwik\Tracker\Db\Pdo;
 
@@ -20,8 +18,6 @@ use Piwik\Tracker\Db\DbException;
 /**
  * PDO MySQL wrapper
  *
- * @package Piwik
- * @subpackage Tracker
  */
 class Mysql extends Db
 {
@@ -33,6 +29,8 @@ class Mysql extends Db
     protected $username;
     protected $password;
     protected $charset;
+
+    protected $activeTransaction = false;
 
     /**
      * Builds the DB object
@@ -117,6 +115,28 @@ class Mysql extends Db
                 return false;
             }
             return $sth->fetchAll(PDO::FETCH_ASSOC);
+        } catch (PDOException $e) {
+            throw new DbException("Error query: " . $e->getMessage());
+        }
+    }
+
+    /**
+     * Fetches the first column of all SQL result rows as an array.
+     *
+     * @param string $sql An SQL SELECT statement.
+     * @param mixed $bind Data to bind into SELECT placeholders.
+     * @throws \Piwik\Tracker\Db\DbException
+     * @return string
+     */
+    public function fetchCol($sql, $bind = array())
+    {
+        try {
+            $sth = $this->query($sql, $bind);
+            if ($sth === false) {
+                return false;
+            }
+            $result = $sth->fetchAll(PDO::FETCH_COLUMN, 0);
+            return $result;
         } catch (PDOException $e) {
             throw new DbException("Error query: " . $e->getMessage());
         }
@@ -216,4 +236,55 @@ class Mysql extends Db
     {
         return $queryResult->rowCount();
     }
+
+	/**
+	 * Start Transaction
+	 * @return string TransactionID
+	 */
+
+	public function beginTransaction()
+	{
+		if(!$this->activeTransaction === false ) {
+			return;
+		}
+
+		if( $this->connection->beginTransaction() ) {
+			$this->activeTransaction = uniqid();
+			return $this->activeTransaction;
+		}
+	}
+
+	/**
+	 * Commit Transaction
+	 * @param string TransactionID from beginTransaction
+	 */
+
+	public function commit($xid)
+	{
+		if($this->activeTransaction != $xid || $this->activeTransaction === false ) {
+			return;
+		}
+		$this->activeTransaction = false;
+
+		if(!$this->connection->commit() ) {
+			throw new DbException("Commit failed"); 
+		}
+	}
+
+	/**
+	 * Rollback Transaction
+	 * @param string TransactionID from beginTransaction
+	 */
+
+	public function rollBack($xid)
+	{
+		if($this->activeTransaction != $xid || $this->activeTransaction === false ) {
+			return;
+		}
+		$this->activeTransaction = false;
+
+		if(!$this->connection->rollBack() ) {
+			throw new DbException("Rollback failed"); 
+		}
+	}
 }

@@ -1,0 +1,16 @@
+<?php
+
+/**
+ * @file
+ * Install, update and uninstall functions for the print_pdf_dompdf module.
+ *
+ * @ingroup print
+ */
+
+/**
+ * Implements hook_uninstall().
+ */
+function print_pdf_dompdf_uninstall() {
+  variable_del('print_pdf_dompdf_unicode');
+  variable_del('print_pdf_dompdf_font_subsetting');
+}

@@ -1,18 +1,18 @@
 <?php
 /**
- * Piwik - Open source web analytics
+ * Piwik - free/libre analytics platform
  *
  * @link http://piwik.org
  * @license http://www.gnu.org/licenses/gpl-3.0.html GPL v3 or later
  *
- * @category Piwik_Plugins
- * @package Dashboard
  */
 namespace Piwik\Plugins\Dashboard;
 
 use Exception;
 use Piwik\Common;
 use Piwik\Db;
+use Piwik\DbHelper;
+use Piwik\Menu\MenuAbstract;
 use Piwik\Menu\MenuMain;
 use Piwik\Menu\MenuTop;
 use Piwik\Piwik;
@@ -20,12 +20,11 @@ use Piwik\Site;
 use Piwik\WidgetsList;
 
 /**
- * @package Dashboard
  */
 class Dashboard extends \Piwik\Plugin
 {
     /**
-     * @see Piwik_Plugin::getListHooksRegistered
+     * @see Piwik\Plugin::getListHooksRegistered
      */
     public function getListHooksRegistered()
     {
@@ -33,8 +32,6 @@ class Dashboard extends \Piwik\Plugin
             'AssetManager.getJavaScriptFiles'        => 'getJsFiles',
             'AssetManager.getStylesheetFiles'        => 'getStylesheetFiles',
             'UsersManager.deleteUser'                => 'deleteDashboardLayout',
-            'Menu.Reporting.addItems'                => 'addMenus',
-            'Menu.Top.addItems'                      => 'addTopMenu',
             'Translate.getClientSideTranslationKeys' => 'getClientSideTranslationKeys'
         );
     }
@@ -67,7 +64,7 @@ class Dashboard extends \Piwik\Plugin
         $defaultLayout = $this->getLayoutForUser('', 1);
 
         if (empty($defaultLayout)) {
-            if (Piwik::isUserIsSuperUser()) {
+            if (Piwik::hasUserSuperUserAccess()) {
                 $topWidget = '{"uniqueId":"widgetCoreHomegetDonateForm",'
                     . '"parameters":{"module":"CoreHome","action":"getDonateForm"}},';
             } else {
@@ -95,6 +92,18 @@ class Dashboard extends \Piwik\Plugin
                 ]
             ]';
         }
+
+        /**
+         * Allows other plugins to modify the default dashboard layout.
+         *
+         * @param string &$defaultLayout JSON encoded string of the default dashboard layout. Contains an
+         *                               array of columns where each column is an array of widgets. Each
+         *                               widget is an associative array w/ the following elements:
+         *
+         *                               * **uniqueId**: The widget's unique ID.
+         *                               * **parameters**: The array of query parameters that should be used to get this widget's report.
+         */
+        Piwik::postEvent("Dashboard.changeDefaultDashboardLayout", array(&$defaultLayout));
 
         $defaultLayout = $this->removeDisabledPluginFromLayout($defaultLayout);
 
@@ -198,38 +207,6 @@ class Dashboard extends \Piwik\Plugin
         return Common::json_encode($layout);
     }
 
-    public function addMenus()
-    {
-        MenuMain::getInstance()->add('Dashboard_Dashboard', '', array('module' => 'Dashboard', 'action' => 'embeddedIndex', 'idDashboard' => 1), true, 5);
-
-        if (!Piwik::isUserIsAnonymous()) {
-            $login = Piwik::getCurrentUserLogin();
-
-            $dashboards = $this->getAllDashboards($login);
-            if (count($dashboards) > 1) {
-                $pos = 0;
-                foreach ($dashboards AS $dashboard) {
-                    MenuMain::getInstance()->add('Dashboard_Dashboard', $dashboard['name'], array('module' => 'Dashboard', 'action' => 'embeddedIndex', 'idDashboard' => $dashboard['iddashboard']), true, $pos);
-                    $pos++;
-                }
-            }
-        }
-    }
-
-    public function addTopMenu()
-    {
-        $tooltip = false;
-        try {
-            $idSite = Common::getRequestVar('idSite');
-            $tooltip = Piwik::translate('Dashboard_TopLinkTooltip', Site::getNameFor($idSite));
-        } catch (Exception $ex) {
-            // if no idSite parameter, show no tooltip
-        }
-
-        $urlParams = array('module' => 'CoreHome', 'action' => 'index');
-        MenuTop::addEntry('Dashboard_Dashboard', $urlParams, true, 1, $isHTML = false, $tooltip);
-    }
-
     public function getJsFiles(&$jsFiles)
     {
         $jsFiles[] = "plugins/Dashboard/javascripts/widgetMenu.js";
@@ -252,23 +229,13 @@ class Dashboard extends \Piwik\Plugin
 
     public function install()
     {
-        // we catch the exception
-        try {
-            $sql = "CREATE TABLE " . Common::prefixTable('user_dashboard') . " (
-					login VARCHAR( 100 ) NOT NULL ,
-					iddashboard INT NOT NULL ,
-					name VARCHAR( 100 ) NULL DEFAULT NULL ,
-					layout TEXT NOT NULL,
-					PRIMARY KEY ( login , iddashboard )
-					)  DEFAULT CHARSET=utf8 ";
-            Db::exec($sql);
-        } catch (Exception $e) {
-            // mysql code error 1050:table already exists
-            // see bug #153 http://dev.piwik.org/trac/ticket/153
-            if (!Db::get()->isErrNo($e, '1050')) {
-                throw $e;
-            }
-        }
+        $dashboard = "login VARCHAR( 100 ) NOT NULL ,
+					  iddashboard INT NOT NULL ,
+					  name VARCHAR( 100 ) NULL DEFAULT NULL ,
+					  layout TEXT NOT NULL,
+					  PRIMARY KEY ( login , iddashboard )";
+
+        DbHelper::createTable('user_dashboard', $dashboard);
     }
 
     public function uninstall()

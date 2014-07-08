@@ -599,7 +599,13 @@ function og_ui_field_formatter_view($entity_type, $entity, $field, $instance, $l
 
       if (!empty($entity->uid) && ($entity->uid == $account->uid)) {
         // User is the group manager.
-        $element[0] = array('#markup' => t('You are the group manager'));
+        $element[0] = array(
+          '#type' => 'html_tag',
+          '#tag' => 'span',
+          '#attributes' => array('title' => t('You are the group manager'), 'class' => 'group manager'),
+          '#value' => t('You are the group manager'),
+        );
+
         return $element;
       }
 
@@ -608,6 +614,7 @@ function og_ui_field_formatter_view($entity_type, $entity, $field, $instance, $l
         if (og_user_access($entity_type, $id, 'unsubscribe', $account)) {
           $links['title'] = t('Unsubscribe from group');
           $links['href'] = "group/$entity_type/$id/unsubscribe";
+          $links['class'] = 'group unsubscribe';
         }
       }
       else {
@@ -638,7 +645,12 @@ function og_ui_field_formatter_view($entity_type, $entity, $field, $instance, $l
         }
 
         if (!og_check_field_cardinality('user', $account, $settings['field_name'])) {
-          $element[0] = array('#markup' => format_plural($field_info['cardinality'], 'You are already registered to another group', 'You are already registered to @count groups'));
+          $element[0] = array(
+            '#type' => 'html_tag',
+            '#tag' => 'span',
+            '#attributes' => array('title' => format_plural($field_info['cardinality'], 'You are already registered to another group', 'You are already registered to @count groups'), 'class' => 'group other'),
+            '#value' => format_plural($field_info['cardinality'], 'You are already registered to another group', 'You are already registered to @count groups'),
+          );
           return $element;
         }
 
@@ -649,6 +661,7 @@ function og_ui_field_formatter_view($entity_type, $entity, $field, $instance, $l
 
         if (og_user_access($entity_type, $id, 'subscribe without approval', $account)) {
           $links['title'] = t('Subscribe to group');
+          $links['class'] = 'group subscribe';
           if ($account->uid) {
             $links['href'] = $url;
           }
@@ -659,6 +672,7 @@ function og_ui_field_formatter_view($entity_type, $entity, $field, $instance, $l
         }
         elseif (og_user_access($entity_type, $id, 'subscribe')) {
           $links['title'] = t('Request group membership');
+          $links['class'] = 'group subscribe request';
           if ($account->uid) {
             $links['href'] = $url;
           }
@@ -668,13 +682,19 @@ function og_ui_field_formatter_view($entity_type, $entity, $field, $instance, $l
           }
         }
         else {
-          $element[0] =  array('#markup' => t('This is a closed group. Only a group administrator can add you.'));
+          $element[0] = array(
+            '#type' => 'html_tag',
+            '#tag' => 'span',
+            '#attributes' => array('title' => t('This is a closed group. Only a group administrator can add you.'), 'class' => 'group closed'),
+            '#value' => t('This is a closed group. Only a group administrator can add you.'),
+          );
+
           return $element;
         }
       }
 
       if (!empty($links['title'])) {
-        $links += array('options' => array());
+        $links += array('options' => array('attributes' => array('title' => $links['title'], 'class' => array($links['class']))));
         $element[0] = array(
           '#type' => 'link',
           '#title' => $links['title'],
@@ -815,6 +835,12 @@ function og_ui_field_access($op, $field, $entity_type, $entity, $account) {
   }
 
   if ($entity_type != 'user') {
+    return;
+  }
+
+  list($id, $vid, $bundle_name) = entity_extract_ids($entity_type, $entity);
+  $instance = field_info_instance($entity_type, $field['field_name'], $bundle_name);
+  if (!empty($instance['settings']['behaviors']['og_widget']['access_override'])) {
     return;
   }
 

@@ -1,12 +1,10 @@
 <?php
 /**
- * Piwik - Open source web analytics
+ * Piwik - free/libre analytics platform
  *
  * @link http://piwik.org
  * @license http://www.gnu.org/licenses/gpl-3.0.html GPL v3 or later
  *
- * @category Piwik_Plugins
- * @package Goals
  */
 
 namespace Piwik\Plugins\Goals;
@@ -332,6 +330,7 @@ class Archiver extends \Piwik\Plugin\Archiver
 
         unset($row[Metrics::INDEX_NB_VISITS]);
         unset($row['label']);
+        unset($row['labelIdAction']);
         unset($row['ecommerceType']);
 
         return $label;

@@ -27,30 +27,28 @@ function print_pdf_enable() {
  * Implements hook_uninstall().
  */
 function print_pdf_uninstall() {
-  variable_del('print_pdf_settings');
-  variable_del('print_pdf_show_link');
+  variable_del('print_pdf_autoconfig');
+  variable_del('print_pdf_cache_enabled');
+  variable_del('print_pdf_cache_lifetime');
+  variable_del('print_pdf_content_disposition');
+  variable_del('print_pdf_display_sys_urllist');
+  variable_del('print_pdf_filename');
+  variable_del('print_pdf_images_via_file');
+  variable_del('print_pdf_link_text');
+  variable_del('print_pdf_link_text_enabled');
+  variable_del('print_pdf_page_orientation');
+  variable_del('print_pdf_paper_size');
+  variable_del('print_pdf_pdf_tool');
+
+  variable_del('print_pdf_book_link');
+  variable_del('print_pdf_link_class');
   variable_del('print_pdf_link_pos');
   variable_del('print_pdf_link_teaser');
-  variable_del('print_pdf_node_link_visibility');
-  variable_del('print_pdf_node_link_pages');
-  variable_del('print_pdf_link_class');
-  variable_del('print_pdf_sys_link_visibility');
-  variable_del('print_pdf_sys_link_pages');
-  variable_del('print_pdf_book_link');
-  variable_del('print_pdf_pdf_tool');
-  variable_del('print_pdf_content_disposition');
-  variable_del('print_pdf_paper_size');
-  variable_del('print_pdf_page_orientation');
-  variable_del('print_pdf_images_via_file');
-  variable_del('print_pdf_font_family');
-  variable_del('print_pdf_font_size');
-  variable_del('print_pdf_link_text');
   variable_del('print_pdf_link_use_alias');
-  variable_del('print_pdf_filename');
-  variable_del('print_pdf_autoconfig');
-  variable_del('print_pdf_dompdf_unicode');
-  variable_del('print_pdf_wkhtmltopdf_options');
-  variable_del('print_pdf_display_sys_urllist');
+  variable_del('print_pdf_show_link');
+  variable_del('print_pdf_sys_link_pages');
+  variable_del('print_pdf_sys_link_visibility');
+
   $settings = db_query("SELECT name FROM {variable} WHERE name LIKE 'print\_pdf\_display\_%'");
   foreach ($settings as $variable) {
     variable_del($variable->name);
@@ -94,6 +92,17 @@ function print_pdf_schema() {
         'size' => 'tiny',
         'description' => 'Show Printer-friendly URLs list',
       ),
+      'size' => array(
+        'type' => 'varchar',
+        'length' => 9,
+        'description' => 'Paper size',
+      ),
+      'orientation' => array(
+        'type' => 'varchar',
+        'length' => 9,
+        'description' => 'Page orientation',
+      ),
+
     ),
     'primary key' => array('nid'),
   );
@@ -103,7 +112,7 @@ function print_pdf_schema() {
     'fields' => array(
       'path' => array(
         'type' => 'varchar',
-        'length' => 128,
+        'length' => 255,
         'not null' => TRUE,
         'description' => 'Page path',
       ),
@@ -147,11 +156,86 @@ function print_pdf_update_7000(&$sandbox) {
 }
 
 /**
+ * Delete old variables
+ */
+function print_pdf_update_7200(&$sandbox) {
+  variable_del('print_pdf_settings');
+
+  variable_del('print_pdf_node_link_pages');
+  variable_del('print_pdf_node_link_visibility');
+}
+
+/**
+ * Update pdf_tool variable to new module|path format
+ */
+function print_pdf_update_7201(&$sandbox) {
+  $tool =  explode('|', variable_get('print_pdf_pdf_tool', PRINT_PDF_PDF_TOOL_DEFAULT));
+
+  if (count($tool) == 1) {
+    // Not an array yet, update variable to new format
+    if (preg_match('!dompdf_config.inc.php$!', $tool[0])) {
+      $tool[0] = 'print_pdf_dompdf|' . $tool[0];
+    }
+    elseif (preg_match('!tcpdf.php$!', $tool[0])) {
+      $tool[0] = 'print_pdf_tcpdf|' . $tool[0];
+    }
+    elseif (preg_match('!wkhtmltopdf!', $tool[0])) {
+      $tool[0] = 'print_pdf_wkhtmltopdf|' . $tool[0];
+    }
+    else {
+      $tool[0] = PRINT_PDF_PDF_TOOL_DEFAULT;
+    }
+
+    variable_set('print_pdf_pdf_tool', $tool[0]);
+  }
+}
+
+/**
  * Enable block and help area links
  */
-function print_pdf_update_7101(&$sandbox) {
+function print_pdf_update_7202(&$sandbox) {
   $link_pos = variable_get('print_pdf_link_pos', drupal_json_decode('{ "link": "link", "block": "block", "help": "help" }'));
   $link_pos['block'] = 'block';
   $link_pos['help'] = 'help';
   variable_set('print_pdf_link_pos', $link_pos);
+}
+
+/**
+ * Add Size and Orientation fields for per content type Size and Orientation
+ */
+function print_pdf_update_7203(&$sandbox) {
+  $spec = array(
+    'type' => 'varchar',
+    'length' => 9,
+    'description' => 'Paper size',
+  );
+  db_add_field('print_pdf_node_conf', 'size', $spec);
+  $spec = array(
+    'type' => 'varchar',
+    'length' => 9,
+    'description' => 'Page orientation',
+  );
+  db_add_field('print_pdf_node_conf', 'orientation', $spec);
+}
+
+/**
+ * Enable the PDF generation sub-module being used
+ */
+function print_pdf_update_7204(&$sandbox) {
+  // Since update_7201 already has stored the correct module in the array, use that
+  $tool =  explode('|', variable_get('print_pdf_pdf_tool', PRINT_PDF_PDF_TOOL_DEFAULT));
+
+  if (count($tool) == 2) {
+    module_enable(array($tool[0]), FALSE);
+  }
+}
+
+/**
+ * Increase size of the path field in the print_pdf_page_counter table
+ */
+function print_pdf_update_7205(&$sandbox) {
+  db_drop_primary_key('print_pdf_page_counter');
+  db_change_field('print_pdf_page_counter', 'path', 'path',
+    array('type' => 'varchar', 'length' => 255, 'not null' => TRUE, 'description' => 'Page path'),
+    array('primary key' => array('path')));
 }

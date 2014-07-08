@@ -3,7 +3,7 @@ reset($rows);
 $gridsize = count($rows[0]);
 ?>
 <?php if (!empty($title)) : ?>
-  <h3 class='grid-title'><?php print $title; ?></h3>
+  <h3 class="grid-title"><?php print $title; ?></h3>
 <?php endif; ?>
 <table class="views-view-grid grid-<?php print $gridsize ?>">
   <tbody>
@@ -20,7 +20,7 @@ $gridsize = count($rows[0]);
       <tr class="<?php print $row_class; ?>">
         <?php foreach ($columns as $column_number => $item): ?>
           <td class="<?php print 'col-'. ($column_number + 1); ?>">
-            <div class='grid-item'><?php print $item; ?></div>
+            <div class="grid-item"><?php print $item; ?></div>
           </td>
         <?php endforeach; ?>
       </tr>

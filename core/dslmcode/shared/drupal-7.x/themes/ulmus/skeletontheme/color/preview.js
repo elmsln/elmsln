@@ -14,6 +14,8 @@
 		$('#preview #site-slogan', form).css('color', $('#palette input[name="palette[slogan]"]', form).val());
 		$('#wrapper', form).css('border-color', $('#palette input[name="palette[bodyborder]"]', form).val());
 		$('#wrapper-inside', form).css('border-color', $('#palette input[name="palette[wrapborder]"]', form).val());
+		$('#preview-footer', form).css('border-color', $('#palette input[name="palette[footerborder]"]', form).val());
+		$('#preview-footer', form).css('background-color', $('#palette input[name="palette[footerbackground]"]', form).val());
 		
     }
   };

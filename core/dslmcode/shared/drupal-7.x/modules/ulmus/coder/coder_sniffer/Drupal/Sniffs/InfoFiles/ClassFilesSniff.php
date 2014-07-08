@@ -17,54 +17,71 @@
  * @package  PHP_CodeSniffer
  * @link     http://pear.php.net/package/PHP_CodeSniffer
  */
-class Drupal_Sniffs_InfoFiles_ClassFilesSniff implements PHP_CodeSniffer_MultiFileSniff
+class Drupal_Sniffs_InfoFiles_ClassFilesSniff implements PHP_CodeSniffer_Sniff
 {
 
 
     /**
-     * Called once per script run to allow for processing of this sniff.
+     * Returns an array of tokens this test wants to listen for.
      *
-     * @param array(PHP_CodeSniffer_File) $files The PHP_CodeSniffer files processed
-     *                                           during the script run.
+     * @return array
+     */
+    public function register()
+    {
+        return array(T_INLINE_HTML);
+
+    }//end register()
+
+
+    /**
+     * Processes this test, when one of its tokens is encountered.
+     *
+     * @param PHP_CodeSniffer_File $phpcsFile The file being scanned.
+     * @param int                  $stackPtr  The position of the current token in the
+     *                                        stack passed in $tokens.
      *
      * @return void
      */
-    public function process(array $files)
+    public function process(PHP_CodeSniffer_File $phpcsFile, $stackPtr)
     {
-        foreach ($files as $phpcsFile) {
-            // Execute only on *.info files.
-            $fileExtension = strtolower(substr($phpcsFile->getFilename(), -4));
-            if ($fileExtension === 'info') {
-                $contents = file_get_contents($phpcsFile->getFilename());
-                $info     = self::drupalParseInfoFormat($contents);
-                if (isset($info['files']) === true && is_array($info['files']) === true) {
-                    foreach ($info['files'] as $file) {
-                        $fileName = dirname($phpcsFile->getFilename()).'/'.$file;
-                        if (file_exists($fileName) === false) {
-                            // We need to find the position of the offending line in the
-                            // info file.
-                            $ptr   = self::getPtr('files[]', $file, $phpcsFile);
-                            $error = 'Declared file was not found';
-                            $phpcsFile->addError($error, $ptr, 'DeclaredFileNotFound');
-                            continue;
-                        }
+        $fileExtension = strtolower(substr($phpcsFile->getFilename(), -4));
+        if ($fileExtension !== 'info') {
+            return;
+        }
 
-                        foreach ($files as $searchFile) {
-                            if ($searchFile->getFilename() === $fileName) {
-                                $stackPtr = $searchFile->findNext(array(T_CLASS, T_INTERFACE), 0);
-                                if ($stackPtr === false) {
-                                    $ptr   = self::getPtr('files[]', $file, $phpcsFile);
-                                    $error = "It's only necessary to declare files[] if they declare a class or interface.";
-                                    $phpcsFile->addError($error, $ptr, 'UnecessaryFileDeclaration');
-                                }
+        $tokens = $phpcsFile->getTokens();
+        // Only run this sniff once per info file.
+        if ($tokens[$stackPtr]['line'] !== 1) {
+            return;
+        }
 
-                                continue 2;
-                            }
-                        }
-                    }//end foreach
-                }//end if
-            }//end if
-        }//end foreach
+        $contents = file_get_contents($phpcsFile->getFilename());
+        $info     = self::drupalParseInfoFormat($contents);
+        if (isset($info['files']) === true && is_array($info['files']) === true) {
+            foreach ($info['files'] as $file) {
+                $fileName = dirname($phpcsFile->getFilename()).'/'.$file;
+                if (file_exists($fileName) === false) {
+                    // We need to find the position of the offending line in the
+                    // info file.
+                    $ptr   = self::getPtr('files[]', $file, $phpcsFile);
+                    $error = 'Declared file was not found';
+                    $phpcsFile->addError($error, $ptr, 'DeclaredFileNotFound');
+                    continue;
+                }
+
+                // Read the file, parse its tokens and check if it actually contains
+                // a class or interface definition.
+                $searchTokens = token_get_all(file_get_contents($fileName));
+                foreach ($searchTokens as $token) {
+                    if (is_array($token) === true && ($token[0] === T_CLASS || $token[0] === T_INTERFACE)) {
+                        continue 2;
+                    }
+                }
+                $ptr   = self::getPtr('files[]', $file, $phpcsFile);
+                $error = "It's only necessary to declare files[] if they declare a class or interface.";
+                $phpcsFile->addError($error, $ptr, 'UnecessaryFileDeclaration');
+            }//end foreach
+        }//end if
 
     }//end process()
 

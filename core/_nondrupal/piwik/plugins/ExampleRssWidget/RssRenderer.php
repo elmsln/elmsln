@@ -1,12 +1,10 @@
 <?php
 /**
- * Piwik - Open source web analytics
+ * Piwik - free/libre analytics platform
  *
  * @link http://piwik.org
  * @license http://www.gnu.org/licenses/gpl-3.0.html GPL v3 or later
  *
- * @category Piwik_Plugins
- * @package ExampleRssWidget
  */
 
 namespace Piwik\Plugins\ExampleRssWidget;
@@ -14,7 +12,6 @@ use Piwik\Http;
 
 /**
  *
- * @package ExampleRssWidget
  */
 class RssRenderer
 {
@@ -57,7 +54,7 @@ class RssRenderer
         $i = 0;
 
         $items = array();
-        if(is_array($items)) {
+        if(!empty($rss->channel->item)) {
             $items = $rss->channel->item;
         }
         foreach ($items as $post) {

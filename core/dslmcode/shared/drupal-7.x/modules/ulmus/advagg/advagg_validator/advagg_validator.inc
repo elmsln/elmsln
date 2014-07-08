@@ -129,14 +129,14 @@ function advagg_validator_test_css_files($files, $options = array()) {
         'filename_hash' => $filename_hash,
         'content_hash' => $content_hash,
         'filetype' => 'css',
-        'data' => $output[$filename],
+        'data' => serialize($output[$filename]),
       );
-      if ($update) {
-        drupal_write_record('advagg_validator', $record, array('filename_hash'));
-      }
-      else {
-        drupal_write_record('advagg_validator', $record);
-      }
+      db_merge('advagg_validator')
+        ->key(array(
+          'filename_hash' => $record['filename_hash'],
+          ))
+        ->fields($record)
+        ->execute();
     }
   }
   return $output;

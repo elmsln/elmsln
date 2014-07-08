@@ -1,4 +1,3 @@
-
 (function($) {
 //implementation of imce.hookOpValidate
 imce.cropOpValidate = function() {
@@ -71,7 +70,7 @@ imce.hooks.load.push(function() {
   imce.ops['crop'].func = imce.cropSettle;
   
   //IE fix. position:relative & scroll:auto
-  $.browser.msie && parseFloat($.browser.version) < 8 && $('#preview-wrapper').css('position', 'relative');
+  navigator.userAgent.match(/msie 7/i) && $('#preview-wrapper').css('position', 'relative');
 });
 
 //make previewed images croppable
@@ -103,8 +102,8 @@ imce.cropDo = function(e) {
     var nX = e.pageX, nY = e.pageY, fX = nX - IO.left, fY = nY - IO.top, W = (nX - X)||1, H = (nY - Y)||1;
     if (W < 0) D.css('left', fX +'px');
     if (H < 0) D.css('top', fY +'px');
-    elX.value = (W < 0 ? fX : iX) + imce.cropperXextra;
-    elY.value = (H < 0 ? fY : iY) + imce.cropperYextra;
+    elX.value = parseInt((W < 0 ? fX : iX) + imce.cropperXextra);
+    elY.value = parseInt((H < 0 ? fY : iY) + imce.cropperYextra);
     D.width(elW.value = Math.abs(W));
     D.height(elH.value = Math.abs(H));
     return false;

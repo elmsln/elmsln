@@ -1,18 +1,13 @@
 name = "PDF version"
-description = "Adds the capability to export pages as PDF."
-core=7.x
+description = "Adds the capability to export pages as PDF. Requires a PDF library and the respective handler module."
+core = 7.x
 package = "Printer, email and PDF versions"
 dependencies[] = print
-files[] = print_pdf.module
-files[] = print_pdf.admin.inc
-files[] = print_pdf.pages.inc
-files[] = print_pdf.install
-files[] = print_pdf.views.inc
 configure = admin/config/user-interface/print/pdf
 
-; Information added by drupal.org packaging script on 2012-09-04
-version = "7.x-1.2"
+; Information added by Drupal.org packaging script on 2014-04-02
+version = "7.x-2.0"
 core = "7.x"
 project = "print"
-datestamp = "1346768900"
+datestamp = "1396426766"
 

@@ -31,7 +31,7 @@ function aurora_form_system_theme_settings_alter(&$form, &$form_state, $form_id 
       '#title' => t('Recommended Modules'),
       '#collapsible' => TRUE,
       '#collapsed' => $hide,
-      '#description' => t('Aurora was build in conjunction with several other modules to help streamline development. Some of these modules are not downloaded or enabled on your site. For maximum Aurora awesomesauce, you should take a look at the following modules. Modules marked as required should be download and enabled in order to get the most out of Aurora.'),
+      '#description' => t('Aurora was built in conjunction with several other modules to help streamline development. Some of these modules are not downloaded or enabled on your site. For maximum Aurora awesomesauce, you should take a look at the following modules. Modules marked as required should be download and enabled in order to get the most out of Aurora.'),
       '#weight' => -1000,
       '#attributes' => array('class' => array('aurora-recommended-modules')),
       '#prefix' => '<div class="messages warning aurora">',

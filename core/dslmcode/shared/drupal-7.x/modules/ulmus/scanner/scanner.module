@@ -231,8 +231,8 @@ function scanner_view() {
       // TODO Please change this theme call to use an associative array for the $variables parameter.
       $results = t('Your search yielded no results.');
     }
-    $scanner_form = drupal_get_form('scanner_form');
-    $output = drupal_render($scanner_form);
+    
+    $output = drupal_render(drupal_get_form('scanner_form'));
     $output .= $results;
 
     //clear any old search form input:
@@ -250,8 +250,8 @@ function scanner_view() {
 
     return $output;
   }
-  $scanner_form = drupal_get_form('scanner_form');
-  $output = drupal_render($scanner_form);
+   
+  $output .= drupal_render(drupal_get_form('scanner_form'));
   
   return $output;
 }

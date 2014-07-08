@@ -18,13 +18,20 @@ function environment_indicator_settings() {
   $integrations = array(
     'toolbar' => t('Toolbar module'),
     'admin_menu' => t('Admin Menu module'),
+    'navbar' => t('Mobile Friendly Navigation Toolbar'),
   );
   $form['environment_indicator_integration'] = array(
     '#type' => 'checkboxes',
     '#title' => t('Integrate with'),
     '#options' => $integrations,
-    '#default_value' => variable_get('environment_indicator_integration', array('toolbar' => 'toolbar', 'admin_menu' => 'admin_menu')),
+    '#default_value' => variable_get('environment_indicator_integration', array('toolbar' => 'toolbar', 'admin_menu' => 'admin_menu', 'navbar' => 'navbar')),
     '#description' => t("If you integrate with a module that provides a toolbar then that toolbar will be colorized and the environment name added to it instead of adding a new bar."),
+  );
+  $form['environment_indicator_git_support'] = array(
+    '#type' => 'checkbox',
+    '#title' => t('Add GIT support'),
+    '#description' => t('If this is checked, the GIT branch name will be displayed along with the environment indicator name.'),
+    '#default_value' => variable_get('environment_indicator_git_support', TRUE),
   );
   $form['#submit'][] = 'environment_indicator_settings_submit';
   return system_settings_form($form);

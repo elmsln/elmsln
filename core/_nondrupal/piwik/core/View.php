@@ -1,18 +1,15 @@
 <?php
 /**
- * Piwik - Open source web analytics
+ * Piwik - free/libre analytics platform
  *
  * @link http://piwik.org
  * @license http://www.gnu.org/licenses/gpl-3.0.html GPL v3 or later
  *
- * @category Piwik
- * @package Piwik
  */
 namespace Piwik;
 
 use Exception;
 use Piwik\AssetManager\UIAssetCacheBuster;
-use Piwik\Plugins\SitesManager\API as APISitesManager;
 use Piwik\Plugins\UsersManager\API as APIUsersManager;
 use Piwik\View\ViewInterface;
 use Twig_Environment;
@@ -102,7 +99,6 @@ if (!defined('PIWIK_USER_PATH')) {
  *         return $view->render();
  *     }
  * 
- * @package Piwik
  *
  * @api
  */
@@ -115,7 +111,7 @@ class View implements ViewInterface
      * @var Twig_Environment
      */
     private $twig;
-    private $templateVars = array();
+    protected $templateVars = array();
     private $contentType = 'text/html; charset=utf-8';
     private $xFrameOptions = null;
 
@@ -137,7 +133,14 @@ class View implements ViewInterface
         $this->initializeTwig();
 
         $this->piwik_version = Version::VERSION;
-        $this->piwikUrl = Common::sanitizeInputValue(Url::getCurrentUrlWithoutFileName());
+        $this->userLogin = Piwik::getCurrentUserLogin();
+        $this->isSuperUser = Access::getInstance()->hasSuperUserAccess();
+
+        try {
+            $this->piwikUrl = SettingsPiwik::getPiwikUrl();
+        } catch (Exception $ex) {
+            // pass (occurs when DB cannot be connected to, perhaps piwik URL cache should be stored in config file...)
+        }
     }
 
     /**
@@ -153,11 +156,13 @@ class View implements ViewInterface
     /**
      * Returns the variables to bind to the template when rendering.
      *
+     * @param array $override Template variable override values. Mainly useful
+     *                        when including View templates in other templates.
      * @return array
      */
-    public function getTemplateVars()
+    public function getTemplateVars($override = array())
     {
-        return $this->templateVars;
+        return $override + $this->templateVars;
     }
 
     /**
@@ -179,7 +184,7 @@ class View implements ViewInterface
      * @param string $key The variable name.
      * @return mixed The variable value.
      */
-    public function __get($key)
+    public function &__get($key)
     {
         return $this->templateVars[$key];
     }
@@ -201,32 +206,19 @@ class View implements ViewInterface
         try {
             $this->currentModule = Piwik::getModule();
             $this->currentAction = Piwik::getAction();
-            $userLogin = Piwik::getCurrentUserLogin();
-            $this->userLogin = $userLogin;
 
-            $count = SettingsPiwik::getWebsitesCountToDisplay();
-
-            $sites = APISitesManager::getInstance()->getSitesWithAtLeastViewAccess($count);
-            usort($sites, function ($site1, $site2) {
-                return strcasecmp($site1["name"], $site2["name"]);
-            });
-            $this->sites = $sites;
             $this->url = Common::sanitizeInputValue(Url::getCurrentUrl());
             $this->token_auth = Piwik::getCurrentUserTokenAuth();
             $this->userHasSomeAdminAccess = Piwik::isUserHasSomeAdminAccess();
-            $this->userIsSuperUser = Piwik::isUserIsSuperUser();
+            $this->userIsSuperUser = Piwik::hasUserSuperUserAccess();
             $this->latest_version_available = UpdateCheck::isNewestVersionAvailable();
             $this->disableLink = Common::getRequestVar('disableLink', 0, 'int');
             $this->isWidget = Common::getRequestVar('widget', 0, 'int');
-            if (Config::getInstance()->General['autocomplete_min_sites'] <= count($sites)) {
-                $this->show_autocompleter = true;
-            } else {
-                $this->show_autocompleter = false;
-            }
+            $this->cacheBuster = UIAssetCacheBuster::getInstance()->piwikVersionBasedCacheBuster();
 
             $this->loginModule = Piwik::getLoginPluginName();
 
-            $user = APIUsersManager::getInstance()->getUser($userLogin);
+            $user = APIUsersManager::getInstance()->getUser($this->userLogin);
             $this->userAlias = $user['alias'];
         } catch (Exception $e) {
             // can fail, for example at installation (no plugin loaded yet)
@@ -250,7 +242,7 @@ class View implements ViewInterface
 
     protected function renderTwigTemplate()
     {
-        $output = $this->twig->render($this->template, $this->templateVars);
+        $output = $this->twig->render($this->getTemplateFile(), $this->getTemplateVars());
         $output = $this->applyFilter_cacheBuster($output);
 
         $helper = new Theme;
@@ -260,8 +252,18 @@ class View implements ViewInterface
 
     protected function applyFilter_cacheBuster($output)
     {
-        $cacheBuster = UIAssetCacheBuster::getInstance()->piwikVersionBasedCacheBuster();
-        $tag = 'cb=' . $cacheBuster;
+        $assetManager = AssetManager::getInstance();
+
+        $stylesheet = $assetManager->getMergedStylesheetAsset();
+        if ($stylesheet->exists()) {
+            $content = $stylesheet->getContent();
+        } else {
+            $content = $assetManager->getMergedStylesheet()->getContent();
+        }
+
+        $cacheBuster = UIAssetCacheBuster::getInstance();
+        $tagJs       = 'cb=' . $cacheBuster->piwikVersionBasedCacheBuster();
+        $tagCss      = 'cb=' . $cacheBuster->md5BasedCacheBuster($content);
 
         $pattern = array(
             '~<script type=[\'"]text/javascript[\'"] src=[\'"]([^\'"]+)[\'"]>~',
@@ -272,9 +274,9 @@ class View implements ViewInterface
         );
 
         $replace = array(
-            '<script type="text/javascript" src="$1?' . $tag . '">',
-            '<script type="text/javascript" src="$1?' . $tag . '">',
-            '<link rel="stylesheet" type="text/css" href="$1?' . $tag . '" />',
+            '<script type="text/javascript" src="$1?' . $tagJs . '">',
+            '<script type="text/javascript" src="$1?' . $tagJs . '">',
+            '<link rel="stylesheet" type="text/css" href="$1?' . $tagCss . '" />',
             '$1="index.php?module=$2&amp;action=$3&amp;cb=',
         );
 
@@ -327,7 +329,6 @@ class View implements ViewInterface
 
     /**
      * Assign value to a variable for use in a template
-     * ToDo: This is ugly.
      * @param string|array $var
      * @param mixed $value
      * @ignore
@@ -344,13 +345,13 @@ class View implements ViewInterface
     }
 
     /**
-     * Clear compiled Smarty templates
+     * Clear compiled Twig templates
      * @ignore
      */
     static public function clearCompiledTemplates()
     {
-        $view = new View(null);
-        $view->twig->clearTemplateCache();
+        $twig = new Twig();
+        $twig->getTwigEnvironment()->clearTemplateCache();
     }
 
     /**
@@ -361,7 +362,6 @@ class View implements ViewInterface
      *
      * @param string $title The report title.
      * @param string $reportHtml The report body HTML.
-     * @param bool $fetch If true, return report contents as a string; otherwise echo to screen.
      * @return string|void The report contents if `$fetch` is true.
      */
     static public function singleReport($title, $reportHtml)
@@ -369,7 +369,6 @@ class View implements ViewInterface
         $view = new View('@CoreHome/_singleReport');
         $view->title = $title;
         $view->report = $reportHtml;
-
         return $view->render();
     }
 }

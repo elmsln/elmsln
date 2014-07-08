@@ -91,6 +91,66 @@ function seckit_init() {
 }
 
 /**
+ * Implements hook_boot().
+ *
+ * When multiple 'Allow-From' values are configured for X-Frame-Options,
+ * we dynamically set the header so that it is correct even when pages are
+ * served from the page cache.
+ *
+ * In other circumstances, Drupal does not see this implementation.
+ * @see seckit_module_implements_alter().
+ */
+function seckit_boot() {
+  $options = _seckit_get_options();
+  if ($options['seckit_clickjacking']['x_frame'] != SECKIT_X_FRAME_ALLOW_FROM) {
+    return;
+  }
+
+  // If this request's Origin is allowed, we specify that value.
+  // If the origin is not allowed, we can use any other value to prevent
+  // the client from framing the page.
+  $allowed = $options['seckit_clickjacking']['x_frame_allow_from'];
+  $origin = !empty($_SERVER['HTTP_ORIGIN']) ? $_SERVER['HTTP_ORIGIN'] : '';
+  if (!in_array($origin, $allowed, TRUE)) {
+    $origin = array_pop($allowed);
+  }
+
+  drupal_add_http_header('X-Frame-Options', "Allow-From: $origin");
+}
+
+/**
+ * Implements hook_module_implements_alter().
+ *
+ * The 'Allow-From' field of X-Frame-Options supports a single origin only.
+ * http://tools.ietf.org/html/rfc7034#section-2.3.2.3
+ *
+ * Consequently, when multiple values are configured we must resort to
+ * hook_boot() to dynamically set the header to the Origin of the current
+ * request, if that is one of the allowed values.
+ *
+ * Conversely, when we do not require hook_boot(), we unset our
+ * implementation, preventing _system_update_bootstrap_status() from
+ * registering it, and anything from invoking it.
+ *
+ * @see seckit_admin_form_submit().
+ */
+function seckit_module_implements_alter(&$implementations, $hook) {
+  if ($hook != 'boot') {
+    return;
+  }
+
+  $options = _seckit_get_options(TRUE);
+  if ($options['seckit_clickjacking']['x_frame'] != SECKIT_X_FRAME_ALLOW_FROM
+    || count($options['seckit_clickjacking']['x_frame_allow_from']) <= 1)
+  {
+    // seckit_boot() is not needed.
+    unset($implementations['seckit']);
+    // In this case, _seckit_x_frame() will generate the header
+    // (which will be cacheable), if it is required.
+  }
+}
+
+/**
  * Sends Content Security Policy HTTP headers.
  *
  * Header specifies Content Security Policy (CSP) for a website,
@@ -178,24 +238,39 @@ function _seckit_csp() {
  * Reports CSP violations to watchdog.
  */
 function _seckit_csp_report() {
-  // we should only allow POST data with application/json content type
-  $method = $_SERVER['REQUEST_METHOD'];
-  $json_type = strstr($_SERVER['CONTENT_TYPE'], 'application/json');
-  $length = $_SERVER['CONTENT_LENGTH'];
-  if (($method == 'POST') && ($json_type) && ($length > 0)) {
-    // get and parse report
-    $reports = file_get_contents('php://input');
-    $reports = json_decode($reports);
-    // log to watchdog
-    foreach ($reports as $report) {
-      $report = (array) $report; // convert object to array
-      $info = array(
-        '@directive'   => $report['violated-directive'],
-        '@blocked_uri' => $report['blocked-uri'],
-        '@data'        => print_r($report, TRUE),
-      );
-      watchdog('seckit', 'CSP: Directive @directive violated.<br /> Blocked URI: @blocked_uri.<br /> <pre>Data: @data</pre>', $info, WATCHDOG_WARNING);
+  // Only allow POST data with Content-Type application/csp-report
+  // or application/json (the latter to support older user agents).
+  // n.b. The CSP spec (1.0, 1.1) mandates this Content-Type header/value.
+  // n.b. Content-Length is optional, so we don't check it.
+  if (empty($_SERVER['CONTENT_TYPE']) || empty($_SERVER['REQUEST_METHOD'])) {
+    return;
+  }
+  if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+    return;
+  }
+  $pattern = '~^application/(csp-report|json)\h*(;|$)~';
+  if (!preg_match($pattern, $_SERVER['CONTENT_TYPE'])) {
+    return;
+  }
+
+  // Get and parse report.
+  $reports = file_get_contents('php://input');
+  $reports = json_decode($reports);
+  if (!is_object($reports)) {
+    return;
+  }
+
+  // Log the report data to watchdog.
+  foreach ($reports as $report) {
+    if (!isset($report->{'violated-directive'})) {
+      continue;
     }
+    $info = array(
+      '@directive'   => $report->{'violated-directive'},
+      '@blocked_uri' => $report->{'blocked-uri'},
+      '@data'        => print_r($report, TRUE),
+    );
+    watchdog('seckit', 'CSP: Directive @directive violated.<br /> Blocked URI: @blocked_uri.<br /> <pre>Data: @data</pre>', $info, WATCHDOG_WARNING);
   }
 }
 
@@ -267,16 +342,15 @@ function _seckit_origin() {
     return;
   }
   // Allow requests from localhost.
-  $remote_addr = $_SERVER['REMOTE_ADDR'];
-  if (in_array($remote_addr, array('localhost', '127.0.0.1', '::1'), TRUE)) {
+  if (in_array(ip_address(), array('localhost', '127.0.0.1', '::1'), TRUE)) {
     return;
   }
 
   // Allow requests from whitelisted Origins.
-  global $base_url;
+  global $base_root;
   $options = _seckit_get_options();
   $whitelist = explode(',', $options['seckit_csrf']['origin_whitelist']);
-  $whitelist[] = $base_url; // default origin is always allowed
+  $whitelist[] = $base_root; // default origin is always allowed
   if (in_array($origin, $whitelist, TRUE)) {
     return;
   }
@@ -287,10 +361,10 @@ function _seckit_origin() {
   $_POST = array();
   drupal_access_denied(); // send 403 response and show Access Denied page
   $args = array(
-    '@ip'     => $remote_addr,
+    '@ip'     => ip_address(),
     '@origin' => $origin,
   );
-  watchdog('seckit', 'Possible CSRF attack was blocked. IP address: @ip, Origin: @origin.', $args, WATCHDOG_ERROR);
+  watchdog('seckit', 'Possible CSRF attack was blocked. IP address: @ip, Origin: @origin.', $args, WATCHDOG_WARNING);
   drupal_exit(); // abort request
 }
 
@@ -316,8 +390,12 @@ function _seckit_x_frame($setting) {
 
     case SECKIT_X_FRAME_ALLOW_FROM:
       $options = _seckit_get_options();
-      $value = $options['seckit_clickjacking']['x_frame_allow_from'];
-      drupal_add_http_header('X-Frame-Options', "Allow-From: $value"); // set X-Frame-Options to Allow-From
+      $allowed = $options['seckit_clickjacking']['x_frame_allow_from'];
+      if (count($allowed) == 1) {
+        $value = array_pop($allowed);
+        drupal_add_http_header('X-Frame-Options', "Allow-From: $value");
+      }
+      // If there were multiple values, then seckit_boot() took care of it.
       break;
 
     case SECKIT_X_FRAME_DISABLE:
@@ -352,7 +430,7 @@ function _seckit_get_js_css_noscript_code() {
       </script>
       <script type="text/javascript" src="$path/js/seckit.document_write.js"></script>
       <link type="text/css" rel="stylesheet" id="seckit-clickjacking-no-body" media="all" href="$path/css/seckit.no_body.css" />
-      <! stop SecKit protection -->
+      <!-- stop SecKit protection -->
       <noscript>
       <link type="text/css" rel="stylesheet" id="seckit-clickjacking-noscript-tag" media="all" href="$path/css/seckit.noscript_tag.css" />
       <div id="seckit-noscript-tag">
@@ -402,11 +480,31 @@ function _seckit_hsts() {
 }
 
 /**
- * Sets default options.
+ * Converts a multi-line configuration option to an array.
+ * Sanitises by trimming whitespace, and filtering empty options.
  */
-function _seckit_get_options() {
+function _seckit_explode_value($string) {
+  $values = explode("\n", $string);
+  return array_values(array_filter(array_map('trim', $values)));
+}
+
+/**
+ * Sets default options.
+ *
+ * @param boolean $reset
+ *   If TRUE then re-generate (and re-cache) the options.
+ *
+ * @param boolean $alter
+ *   Whether to invoke hook_seckit_options_alter().
+ *   (Used internally to prevent altered values being used
+ *   in the admin settings form.)
+ */
+function _seckit_get_options($reset = FALSE, $alter = TRUE) {
   $result = &drupal_static(__FUNCTION__, array());
-  if ($result) {
+  if ($reset) {
+    $result = array();
+  }
+  elseif ($result) {
     return $result;
   }
 
@@ -472,6 +570,9 @@ function _seckit_get_options() {
   if (!isset($result['seckit_clickjacking']['x_frame'])) {
     $result['seckit_clickjacking']['x_frame'] = SECKIT_X_FRAME_SAMEORIGIN;
   }
+  $x_frame_allow_from =& $result['seckit_clickjacking']['x_frame_allow_from'];
+  $x_frame_allow_from = _seckit_explode_value($x_frame_allow_from);
+
   // set Custom text for disabled JavaScript message
   if (!isset($result['seckit_clickjacking']['noscript_message'])) {
     $result['seckit_clickjacking']['noscript_message'] = t('Sorry, you need to enable JavaScript to visit this website.');
@@ -483,6 +584,10 @@ function _seckit_get_options() {
   // set From-Origin to same
   if (!isset($result['seckit_various']['from_origin_destination'])) {
     $result['seckit_various']['from_origin_destination'] = 'same';
+  }
+
+  if ($alter) {
+    drupal_alter('seckit_options', $result);
   }
   return $result;
 }

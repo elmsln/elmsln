@@ -680,7 +680,6 @@ class OgPermissionsTestCase extends DrupalWebTestCase {
     $user1 = $this->drupalCreateUser();
 
     // Create an entity.
-    $property = OG_GROUP_FIELD;
     $entity = entity_create('entity_test', array('name' => 'main', 'uid' => $user1->uid));
     $wrapper = entity_metadata_wrapper('entity_test', $entity);
     $wrapper->{OG_GROUP_FIELD}->set(1);
@@ -720,6 +719,54 @@ class OgPermissionsTestCase extends DrupalWebTestCase {
 
     $this->assertTrue(og_user_access('entity_test', $entity->pid, 'delete own article content', $user2), t('User still has "delete own article content" as they have "administer group" permission.'));
     $this->assertTrue(og_user_access('entity_test', $entity->pid, 'administer group', $user2), t('User has "administer group" permission.'));
+  }
+
+  /**
+   * Assert blocked and pending roles influence the allowed permissions.
+   */
+  function testBlockedAndPendingRoles() {
+    // Create user.
+    $user1 = $this->drupalCreateUser();
+
+    // Create an entity.
+    $entity = entity_create('entity_test', array('name' => 'main', 'uid' => $user1->uid));
+    $wrapper = entity_metadata_wrapper('entity_test', $entity);
+    $wrapper->{OG_GROUP_FIELD}->set(1);
+    $wrapper->save();
+
+    // Associate user to the group, and grant "admin" role.
+    $user2 = $this->drupalCreateUser();
+    $values = array('entity_type' => 'user', 'entity' => $user2);
+    og_group('entity_test', $entity->pid, $values);
+    $og_roles = og_roles('entity_test', 'main');
+
+    $rid = array_search(OG_ADMINISTRATOR_ROLE, $og_roles);
+    og_role_grant('entity_test', $entity->pid, $user2->uid, $rid);
+
+    // Active member.
+    $roles = og_get_user_roles('entity_test', $entity->pid, $user2->uid);
+    $expected_result = array(
+      array_search(OG_AUTHENTICATED_ROLE, $og_roles) => OG_AUTHENTICATED_ROLE,
+      array_search(OG_ADMINISTRATOR_ROLE, $og_roles) => OG_ADMINISTRATOR_ROLE,
+    );
+    $this->assertEqual($roles, $expected_result, 'Active member has also the admin role.');
+    $this->assertTrue(og_user_access('entity_test', $entity->pid, 'update group', $user2), 'Active member has access.');
+
+    // Pending member.
+    $values['state'] = OG_STATE_PENDING;
+    og_group('entity_test', $entity->pid, $values);
+    $roles = og_get_user_roles('entity_test', $entity->pid, $user2->uid);
+    $rid = array_search(OG_ANONYMOUS_ROLE, $og_roles);
+    $expected_result = array($rid => OG_ANONYMOUS_ROLE);
+    $this->assertEqual($roles, $expected_result, 'Pending member has non-member role.');
+    $this->assertFalse(og_user_access('entity_test', $entity->pid, 'update group', $user2), 'Pending member has no access.');
+
+    // Blocked member.
+    $values['state'] = OG_STATE_BLOCKED;
+    og_group('entity_test', $entity->pid, $values);
+    $roles = og_get_user_roles('entity_test', $entity->pid, $user2->uid);
+    $this->assertEqual($roles,  array(), 'Blocked member has no roles.');
+    $this->assertFalse(og_user_access('entity_test', $entity->pid, 'update group', $user2), 'Blocked member has no access.');
   }
 }
 
@@ -954,7 +1001,7 @@ class OgMigrate7000TestCase extends UpgradePathTestCase {
       // Pass also pending state, so we make sure that even if the user
       // isn't active they are considered members, to check they get the
       // correct role.
-      $this->assertEqual(array_keys(og_get_user_roles('node', 10, $uid)), array_keys($roles), format_string('User @uid has the correct roles in group.', array('@uid' => $uid)));
+      $this->assertEqual(array_keys(og_get_user_roles('node', 10, $uid, TRUE, FALSE)), array_keys($roles), format_string('User @uid has the correct roles in group.', array('@uid' => $uid)));
     }
   }
 
@@ -1510,6 +1557,174 @@ class OgEntityFieldQueryTestCase extends DrupalWebTestCase {
 
     $this->assertEqual($result, 1, 'Count query is correct.');
   }
+}
+
+
+/**
+ * EntityFieldQuery FieldConditions with multiple group content entity types.
+ */
+class OgEntityFieldQueryFieldConditionTestCase extends DrupalWebTestCase {
+
+  public static function getInfo() {
+    return array(
+      'name' => 'OG field condition query',
+      'description' => 'Test querying field condition fields using entityFieldQuery.',
+      'group' => 'Organic groups',
+    );
+  }
+
+  function setUp() {
+    parent::setUp('og', 'entity_feature');
+
+    $user1 = $this->drupalCreateUser();
+    $user2 = $this->drupalCreateUser();
+    $type = $this->drupalCreateContentType();
+    $this->group_type = $type->type;
+
+    $type = $this->drupalCreateContentType();
+    $this->group_content_type = $type->type;
+
+    og_create_field(OG_GROUP_FIELD, 'node', $this->group_type);
+
+    // Add audience field to group content node type.
+    $og_field = og_fields_info(OG_AUDIENCE_FIELD);
+    og_create_field(OG_AUDIENCE_FIELD, 'node', $this->group_content_type, $og_field);
+    // Add audience field to group content test entity type.
+    $og_field = og_fields_info(OG_AUDIENCE_FIELD);
+    og_create_field(OG_AUDIENCE_FIELD, 'entity_test', 'main', $og_field);
+
+    // Create a simple text list field.
+    $field = array(
+      'entity_types' => array('node'),
+      'settings' => array(
+        'allowed_values' => array(
+          'red' => 'red',
+          'blue' => 'blue',
+        ),
+      ),
+      'field_name' => 'list_text',
+      'type' => 'list_text',
+      'cardinality' => 1,
+    );
+    $field = field_create_field($field);
+    $instance = array(
+      'field_name' => 'list_text',
+      'bundle' => $this->group_content_type,
+      'entity_type' => 'node',
+    );
+    field_create_instance($instance);
+
+    // Create groups.
+    $settings = array(
+      'type' => $this->group_type,
+      'uid' => $user1->uid,
+    );
+    $settings[OG_GROUP_FIELD][LANGUAGE_NONE][0]['value'] = 1;
+    $group1 = $this->drupalCreateNode($settings);
+
+    $settings = array(
+      'type' => $this->group_type,
+      'uid' => $user1->uid,
+    );
+    $settings[OG_GROUP_FIELD][LANGUAGE_NONE][0]['value'] = 1;
+    $group2 = $this->drupalCreateNode($settings);
+
+    // Create group-content.
+    // First content node.
+    $settings = array(
+      'type' => $this->group_content_type,
+      'uid' => $user1->uid,
+    );
+    $settings['list_text'][LANGUAGE_NONE][0]['value'] = 'red';
+
+    $node = $this->drupalCreateNode($settings);
+
+    $values = array(
+      'entity_type' => 'node',
+      'entity' => $node,
+    );
+    og_group('node', $group1, $values);
+
+    // Second content node.
+    $settings = array(
+      'type' => $this->group_content_type,
+      'uid' => $user1->uid,
+    );
+    $settings['list_text'][LANGUAGE_NONE][0]['value'] = 'red';
+
+    $node = $this->drupalCreateNode($settings);
+
+    $values = array(
+      'entity_type' => 'node',
+      'entity' => $node,
+    );
+    og_group('node', $group2, $values);
+
+    // Entity test content.
+    // We need to create enough test entities so that we get some whose IDs are
+    // the same as the group content nodes.
+    foreach (range(1, 5) as $i) {
+      $entity_test = entity_create('entity_test', array(
+        // Weirdly, 'name' is the bundle key.
+        'name' => 'main',
+        'uid' => $user1->uid,
+      ));
+      $entity_test->save();
+      $values = array(
+        'entity_type' => 'entity_test',
+        'entity' => $entity_test,
+      );
+      og_group('node', $group1, $values);
+    }
+
+    $this->group1 = $group1;
+    $this->group2 = $group2;
+  }
+
+  function testEntityFieldQueryFieldConditions() {
+    // Query for all nodes with a field value of 'red'.
+    $query = new EntityFieldQuery();
+    $query->entityCondition('entity_type', 'node');
+    $query->entityCondition('bundle', $this->group_content_type);
+    $query->fieldCondition('list_text', 'value', 'red');
+    $result = $query->execute();
+
+    $this->assertEqual(count($result['node']), 2, "The correct number of nodes was returned for the query with only the plain field.");
+
+    // Query for group content nodes.
+    $query = new EntityFieldQuery();
+    $query->entityCondition('entity_type', 'node');
+    $query->entityCondition('bundle', $this->group_content_type);
+    // Condition on the group audience field.
+    $query->fieldCondition(OG_AUDIENCE_FIELD, 'target_id', $this->group1->nid);
+    $result = $query->execute();
+
+    $this->assertEqual(count($result['node']), 1, "The correct number of nodes was returned for the query with only the OG field condition.");
+
+    // Query for nodes in group 1 with a field value of 'red'.
+    $query = new EntityFieldQuery();
+    $query->entityCondition('entity_type', 'node');
+    $query->entityCondition('bundle', $this->group_content_type);
+    // Condition on the group audience field.
+    $query->fieldCondition(OG_AUDIENCE_FIELD, 'target_id', $this->group1->nid);
+    $query->fieldCondition('list_text', 'value', 'red');
+    $result = $query->execute();
+
+    $this->assertEqual(count($result['node']), 1, "The correct number of nodes was returned for the query with the OG field condition first.");
+
+    // Query for nodes in group 1 with a field value of 'red', but this time
+    // with the field conditions the other way round.
+    $query = new EntityFieldQuery();
+    $query->entityCondition('entity_type', 'node');
+    $query->entityCondition('bundle', $this->group_content_type);
+    $query->fieldCondition('list_text', 'value', 'red');
+    // Condition on the group audience field.
+    $query->fieldCondition(OG_AUDIENCE_FIELD, 'target_id', $this->group1->nid);
+    $result = $query->execute();
+
+    $this->assertEqual(count($result['node']), 1, "The correct number of nodes was returned for the query with the OG field condition second.");
+  }
+
 }
 
 /**
@@ -2181,4 +2396,52 @@ class OgSelectAccessibleGroupsValidation extends DrupalWebTestCase {
     $this->drupalPost('node/add/group_content', array('title' => 'New group content 4', 'og_group_ref[und][0][default][]' => array($this->group_node_1->nid)), 'Save');
     $this->assertText('Group content New group content 4 has been created.', 'The group content created successfully');
   }
+}
+
+/**
+ * Test group-audience field access settings.
+ */
+class OgAudienceFieldAccessOverrideTestCase extends DrupalWebTestCase {
+
+  public static function getInfo() {
+    return array(
+      'name' => 'OG audience field access settings',
+      'description' => 'Test the ability to use entity access instead of field access for the audience field.',
+      'group' => 'Organic groups',
+    );
+  }
+
+  function setUp() {
+    parent::setUp('og');
+  }
+
+  /**
+   * Test auto-attaching group-audience fields to the user entity.
+   */
+  function testAutoAttach()  {
+    $type1 = $this->drupalCreateContentType();
+    og_create_field(OG_GROUP_FIELD, 'node', $type1->type);
+    $this->assertTrue(field_info_instance('user', 'og_user_node', 'user'), 'Field was added to the user entity.');
+
+    // Check that a normal user cannot access this field by default.
+    $permissions = array(
+      'access content',
+      "create $type1->type content",
+      'administer group',
+    );
+    $user1 = $this->drupalCreateUser();
+    $this->drupalLogin($user1);
+    $this->drupalGet('user/' . $user1->uid . '/edit');
+    $this->assertNoRaw('id="edit-og-user-node"');
+
+    // Change field to use entity access instead.
+    $instance = field_info_instance('user', 'og_user_node', 'user');
+    $instance['settings']['behaviors']['og_widget']['access_override'] = TRUE;
+    field_update_instance($instance);
+
+    // The field should now be present.
+    $this->drupalGet('user/' . $user1->uid . '/edit');
+    $this->assertRaw('id="edit-og-user-node"');
+  }
+
 }

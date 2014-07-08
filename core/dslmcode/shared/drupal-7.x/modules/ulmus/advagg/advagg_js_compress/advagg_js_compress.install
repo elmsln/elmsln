@@ -19,6 +19,7 @@ function advagg_js_compress_requirements($phase) {
   }
 
   // Make sure a compressor is being used.
+  // @ignore sniffer_whitespace_openbracketspacing_openingwhitespace
   if (   variable_get('advagg_js_compressor', ADVAGG_JS_COMPRESSOR) == 0
       && variable_get('advagg_js_inline_compressor', ADVAGG_JS_INLINE_COMPRESSOR) == 0
       ) {

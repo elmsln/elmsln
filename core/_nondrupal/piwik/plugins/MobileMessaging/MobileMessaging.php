@@ -1,16 +1,13 @@
 <?php
 /**
- * Piwik - Open source web analytics
+ * Piwik - free/libre analytics platform
  *
  * @link http://piwik.org
  * @license http://www.gnu.org/licenses/gpl-3.0.html GPL v3 or later
  *
- * @category Piwik_Plugins
- * @package MobileMessaging
  */
 namespace Piwik\Plugins\MobileMessaging;
 
-use Piwik\Menu\MenuAdmin;
 use Piwik\Option;
 use Piwik\Piwik;
 use Piwik\Plugins\API\API as APIPlugins;
@@ -22,7 +19,6 @@ use Piwik\View;
 
 /**
  *
- * @package MobileMessaging
  */
 class MobileMessaging extends \Piwik\Plugin
 {
@@ -64,12 +60,11 @@ class MobileMessaging extends \Piwik\Plugin
     );
 
     /**
-     * @see Piwik_Plugin::getListHooksRegistered
+     * @see Piwik\Plugin::getListHooksRegistered
      */
     public function getListHooksRegistered()
     {
         return array(
-            'Menu.Admin.addItems'                       => 'addMenu',
             'AssetManager.getJavaScriptFiles'           => 'getJsFiles',
             'AssetManager.getStylesheetFiles'           => 'getStylesheetFiles',
             'ScheduledReports.getReportParameters'      => 'getReportParameters',
@@ -82,15 +77,6 @@ class MobileMessaging extends \Piwik\Plugin
             'ScheduledReports.allowMultipleReports'     => 'allowMultipleReports',
             'ScheduledReports.sendReport'               => 'sendReport',
             'Template.reportParametersScheduledReports' => 'template_reportParametersScheduledReports',
-        );
-    }
-
-    function addMenu()
-    {
-        MenuAdmin::addEntry('MobileMessaging_SettingsMenu',
-            array('module' => 'MobileMessaging', 'action' => 'index'),
-            true,
-            $order = 12
         );
     }
 

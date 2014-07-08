@@ -12,6 +12,8 @@
 
 #admin-menu #environment-indicator { float: right; left: auto; right: auto; }
 
+#navbar-administration.navbar-oriented .navbar-tab.environment-indicator { float: right; left: auto; right: auto; }
+
 .fixed-yes { position: fixed; }
 .fixed-yes.position-bottom { bottom: 0; }
 .fixed-yes.position-top { top: 0; }
@@ -95,4 +97,28 @@ div#toolbar div.toolbar-menu { padding: 5px 20px 5px 10px; }
   left: 0;
   right: 0;
   margin-top: 5px;
+}
+
+#navbar-administration .navbar-menu-item.navbar-menu-item-indicator {
+  padding: 0.3em;
+  -moz-border-radius: 3px;
+  -webkit-border-radius: 3px;
+  -moz-border-radius: 3px;
+  border-radius: 3px;
+  margin: 0.7em 1.03333em;
+}
+
+.navbar-bar .navbar-icon-environment:before {
+  background-image: url("images/env-bebebe.svg");
+}
+.no-svg .navbar-bar .navbar-icon-environment:before {
+  background-image: url("images/env-bebebe.png");
+}
+.navbar-bar .navbar-icon-environment:active:before,
+.navbar-bar .navbar-icon-environment.navbar-active:before {
+  background-image: url("images/env-ffffff.svg");
+}
+.no-svg .navbar-bar .navbar-icon-environment:active:before,
+.no-svg .navbar-bar .navbar-icon-environment.navbar-active:before {
+  background-image: url("images/env-ffffff.png");
 }

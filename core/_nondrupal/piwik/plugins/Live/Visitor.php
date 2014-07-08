@@ -1,12 +1,10 @@
 <?php
 /**
- * Piwik - Open source web analytics
+ * Piwik - free/libre analytics platform
  *
  * @link http://piwik.org
  * @license http://www.gnu.org/licenses/gpl-3.0.html GPL v3 or later
  *
- * @category Piwik_Plugins
- * @package Live
  */
 namespace Piwik\Plugins\Live;
 
@@ -18,11 +16,12 @@ use Piwik\Db;
 use Piwik\IP;
 use Piwik\Piwik;
 use Piwik\Plugins\API\API as APIMetadata;
+use Piwik\Plugins\CustomVariables\CustomVariables;
 use Piwik\Plugins\Referrers\API as APIReferrers;
 use Piwik\Plugins\UserCountry\LocationProvider\GeoIp;
+use Piwik\Tracker;
 use Piwik\Tracker\Action;
 use Piwik\Tracker\GoalManager;
-use Piwik\Tracker;
 use Piwik\Tracker\Visit;
 use Piwik\UrlHelper;
 
@@ -39,11 +38,12 @@ require_once PIWIK_INCLUDE_PATH . '/plugins/UserSettings/functions.php';
 require_once PIWIK_INCLUDE_PATH . '/plugins/Provider/functions.php';
 
 /**
- * @package Live
  */
-class Visitor
+class Visitor implements VisitorInterface
 {
     const DELIMITER_PLUGIN_NAME = ", ";
+
+    const EVENT_VALUE_PRECISION = 3;
 
     function __construct($visitorRawData)
     {
@@ -339,10 +339,13 @@ class Visitor
     function getCustomVariables()
     {
         $customVariables = array();
-        for ($i = 1; $i <= Tracker::MAX_CUSTOM_VARIABLES; $i++) {
+
+        $maxCustomVariables = CustomVariables::getMaxCustomVariables();
+
+        for ($i = 1; $i <= $maxCustomVariables; $i++) {
             if (!empty($this->details['custom_var_k' . $i])) {
                 $customVariables[$i] = array(
-                    'customVariableName' . $i  => $this->details['custom_var_k' . $i],
+                    'customVariableName' .  $i => $this->details['custom_var_k' . $i],
                     'customVariableValue' . $i => $this->details['custom_var_v' . $i],
                 );
             }
@@ -577,9 +580,9 @@ class Visitor
         $status = $this->getVisitEcommerceStatus();
 
         if (in_array($status, array('ordered', 'orderedThenAbandonedCart'))) {
-            return "plugins/Zeitgeist/images/ecommerceOrder.gif";
+            return "plugins/Morpheus/images/ecommerceOrder.gif";
         } elseif ($status == 'abandonedCart') {
-            return "plugins/Zeitgeist/images/ecommerceAbandonedCart.gif";
+            return "plugins/Morpheus/images/ecommerceAbandonedCart.gif";
         }
         return null;
     }
@@ -592,7 +595,7 @@ class Visitor
     function getVisitorGoalConvertedIcon()
     {
         return $this->isVisitorGoalConverted()
-            ? "plugins/Zeitgeist/images/goal.png"
+            ? "plugins/Morpheus/images/goal.png"
             : null;
     }
 
@@ -603,7 +606,7 @@ class Visitor
 
     /**
      * Removes fields that are not meant to be displayed (md5 config hash)
-     * Or that the user should only access if he is super user or admin (cookie, IP)
+     * Or that the user should only access if he is Super User or admin (cookie, IP)
      *
      * @param array $visitorDetails
      * @return array
@@ -724,8 +727,10 @@ class Visitor
     {
         $idVisit = $visitorDetailsArray['idVisit'];
 
+        $maxCustomVariables = CustomVariables::getMaxCustomVariables();
+
         $sqlCustomVariables = '';
-        for ($i = 1; $i <= Tracker::MAX_CUSTOM_VARIABLES; $i++) {
+        for ($i = 1; $i <= $maxCustomVariables; $i++) {
             $sqlCustomVariables .= ', custom_var_k' . $i . ', custom_var_v' . $i;
         }
         // The second join is a LEFT join to allow returning records that don't have a matching page title
@@ -762,7 +767,10 @@ class Visitor
         foreach ($actionDetails as $actionIdx => &$actionDetail) {
             $actionDetail =& $actionDetails[$actionIdx];
             $customVariablesPage = array();
-            for ($i = 1; $i <= Tracker::MAX_CUSTOM_VARIABLES; $i++) {
+
+            $maxCustomVariables = CustomVariables::getMaxCustomVariables();
+
+            for ($i = 1; $i <= $maxCustomVariables; $i++) {
                 if (!empty($actionDetail['custom_var_k' . $i])) {
                     $cvarKey = $actionDetail['custom_var_k' . $i];
                     $cvarKey = static::getCustomVariablePrettyKey($cvarKey);
@@ -796,7 +804,7 @@ class Visitor
             // Event value / Generation time
             if($actionDetail['type'] == Action::TYPE_EVENT_CATEGORY) {
                 if(strlen($actionDetail['custom_float']) > 0) {
-                    $actionDetail['eventValue'] = $actionDetail['custom_float'];
+                    $actionDetail['eventValue'] = round($actionDetail['custom_float'], self::EVENT_VALUE_PRECISION);
                 }
             } elseif ($actionDetail['custom_float'] > 0) {
                 $actionDetail['generationTime'] = \Piwik\MetricsFormatter::getPrettyTimeFromSeconds($actionDetail['custom_float'] / 1000);
@@ -924,27 +932,27 @@ class Visitor
         foreach ($visitorDetailsArray['actionDetails'] as &$details) {
             switch ($details['type']) {
                 case 'goal':
-                    $details['icon'] = 'plugins/Zeitgeist/images/goal.png';
+                    $details['icon'] = 'plugins/Morpheus/images/goal.png';
                     break;
                 case Piwik::LABEL_ID_GOAL_IS_ECOMMERCE_ORDER:
                 case Piwik::LABEL_ID_GOAL_IS_ECOMMERCE_CART:
-                    $details['icon'] = 'plugins/Zeitgeist/images/' . $details['type'] . '.gif';
+                    $details['icon'] = 'plugins/Morpheus/images/' . $details['type'] . '.gif';
                     break;
                 case Action::TYPE_DOWNLOAD:
                     $details['type'] = 'download';
-                    $details['icon'] = 'plugins/Zeitgeist/images/download.png';
+                    $details['icon'] = 'plugins/Morpheus/images/download.png';
                     break;
                 case Action::TYPE_OUTLINK:
                     $details['type'] = 'outlink';
-                    $details['icon'] = 'plugins/Zeitgeist/images/link.gif';
+                    $details['icon'] = 'plugins/Morpheus/images/link.gif';
                     break;
                 case Action::TYPE_SITE_SEARCH:
                     $details['type'] = 'search';
-                    $details['icon'] = 'plugins/Zeitgeist/images/search_ico.png';
+                    $details['icon'] = 'plugins/Morpheus/images/search_ico.png';
                     break;
                 case Action::TYPE_EVENT_CATEGORY:
                     $details['type'] = 'event';
-                    $details['icon'] = 'plugins/Zeitgeist/images/event.png';
+                    $details['icon'] = 'plugins/Morpheus/images/event.png';
                     break;
                 default:
                     $details['type'] = 'action';

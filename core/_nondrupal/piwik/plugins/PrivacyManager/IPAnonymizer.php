@@ -1,30 +1,21 @@
 <?php
 /**
- * Piwik - Open source web analytics
+ * Piwik - free/libre analytics platform
  *
  * @link http://piwik.org
  * @license http://www.gnu.org/licenses/gpl-3.0.html GPL v3 or later
  *
- * @category Piwik_Plugins
- * @package PrivacyManager
  */
 namespace Piwik\Plugins\PrivacyManager;
 
 use Piwik\Common;
-use Piwik\Config;
 use Piwik\IP;
-use Piwik\Tracker\Cache;
-use Piwik\Option;
 
 /**
  * Anonymize visitor IP addresses to comply with the privacy laws/guidelines in countries, such as Germany.
- *
- * @package PrivacyManager
  */
 class IPAnonymizer
 {
-    const OPTION_NAME = "PrivacyManager.ipAnonymizerEnabled";
-
     /**
      * Internal function to mask portions of the visitor IP address
      *
@@ -61,33 +52,17 @@ class IPAnonymizer
      */
     public function setVisitorIpAddress(&$ip)
     {
-
-        if (!$this->isActiveInTracker()) {
+        if (!$this->isActive()) {
             Common::printDebug("Visitor IP was _not_ anonymized: ". IP::N2P($ip));
             return;
         }
 
         $originalIp = $ip;
-        $ip = self::applyIPMask($ip, Config::getInstance()->Tracker['ip_address_mask_length']);
+
+        $privacyConfig = new Config();
+
+        $ip = self::applyIPMask($ip, $privacyConfig->ipAddressMaskLength);
         Common::printDebug("Visitor IP (was: ". IP::N2P($originalIp) .") has been anonymized: ". IP::N2P($ip));
-    }
-
-    /**
-     * Returns true if IP anonymization is enabled. This function is called by the
-     * Tracker.
-     */
-    private function isActiveInTracker()
-    {
-        $cache = Cache::getCacheGeneral();
-        return !empty($cache[self::OPTION_NAME]);
-    }
-
-    /**
-     * Caches the status of IP anonymization (whether it is enabled or not).
-     */
-    public function setTrackerCacheGeneral(&$cacheContent)
-    {
-        $cacheContent[self::OPTION_NAME] = Option::get(self::OPTION_NAME);
     }
 
     /**
@@ -95,8 +70,8 @@ class IPAnonymizer
      */
     public static function deactivate()
     {
-        Option::set(self::OPTION_NAME, 0);
-        Cache::clearCacheGeneral();
+        $privacyConfig = new Config();
+        $privacyConfig->ipAnonymizerEnabled = false;
     }
 
     /**
@@ -104,8 +79,8 @@ class IPAnonymizer
      */
     public static function activate()
     {
-        Option::set(self::OPTION_NAME, 1);
-        Cache::clearCacheGeneral();
+        $privacyConfig = new Config();
+        $privacyConfig->ipAnonymizerEnabled = true;
     }
 
     /**
@@ -115,7 +90,7 @@ class IPAnonymizer
      */
     public static function isActive()
     {
-        $active = Option::get(self::OPTION_NAME);
-        return !empty($active);
+        $privacyConfig = new Config();
+        return $privacyConfig->ipAnonymizerEnabled;
     }
 }

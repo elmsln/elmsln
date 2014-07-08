@@ -1,12 +1,10 @@
 <?php
 /**
- * Piwik - Open source web analytics
+ * Piwik - free/libre analytics platform
  *
  * @link http://piwik.org
  * @license http://www.gnu.org/licenses/gpl-3.0.html GPL v3 or later
  *
- * @category Piwik
- * @package Piwik
  */
 namespace Piwik;
 
@@ -16,7 +14,6 @@ use Piwik\Plugins\SitesManager\API;
 /**
  * Class to check if a newer version of Piwik is available
  *
- * @package Piwik
  */
 class UpdateCheck
 {
@@ -85,6 +82,16 @@ class UpdateCheck
     }
 
     /**
+     * Returns the latest available version number. Does not perform a check whether a later version is available.
+     *
+     * @return false|string
+     */
+    public static function getLatestVersion()
+    {
+        return Option::get(self::LATEST_VERSION);
+    }
+
+    /**
      * Returns version number of a newer Piwik release.
      *
      * @return string|bool  false if current version is the latest available,
@@ -92,7 +99,7 @@ class UpdateCheck
      */
     public static function isNewestVersionAvailable()
     {
-        $latestVersion = Option::get(self::LATEST_VERSION);
+        $latestVersion = self::getLatestVersion();
         if (!empty($latestVersion)
             && version_compare(Version::VERSION, $latestVersion) == -1
         ) {

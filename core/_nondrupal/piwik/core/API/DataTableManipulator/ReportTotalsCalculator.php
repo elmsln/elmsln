@@ -1,32 +1,24 @@
 <?php
 /**
- * Piwik - Open source web analytics
+ * Piwik - free/libre analytics platform
  *
  * @link http://piwik.org
  * @license http://www.gnu.org/licenses/gpl-3.0.html GPL v3 or later
  *
- * @category Piwik
- * @package Piwik
  */
 namespace Piwik\API\DataTableManipulator;
 
 use Piwik\API\DataTableManipulator;
 use Piwik\DataTable;
 use Piwik\DataTable\Row;
-use Piwik\DataTable\BaseFilter;
-use Piwik\Period\Range;
-use Piwik\Period;
-use Piwik\Piwik;
 use Piwik\Metrics;
+use Piwik\Period;
 use Piwik\Plugins\API\API;
 
 /**
  * This class is responsible for setting the metadata property 'totals' on each dataTable if the report
  * has a dimension. 'Totals' means it tries to calculate the total report value for each metric. For each
  * the total number of visits, actions, ... for a given report / dataTable.
- *
- * @package Piwik
- * @subpackage Piwik_API
  */
 class ReportTotalsCalculator extends DataTableManipulator
 {
@@ -49,7 +41,14 @@ class ReportTotalsCalculator extends DataTableManipulator
             return $table;
         }
 
-        return $this->manipulate($table);
+        try {
+            return $this->manipulate($table);
+        } catch(\Exception $e) {
+            // eg. requests with idSubtable may trigger this exception
+            // (where idSubtable was removed in
+            // ?module=API&method=Events.getNameFromCategoryId&idSubtable=1&secondaryDimension=eventName&format=XML&idSite=1&period=day&date=yesterday&flat=0
+            return $table;
+        }
     }
 
     /**
@@ -197,14 +196,17 @@ class ReportTotalsCalculator extends DataTableManipulator
         $request['filter_limit']  = -1;
         $request['filter_offset'] = 0;
 
-        $parametersToRemove = array('flat', 'idSubtable');
+        $parametersToRemove = array('flat');
+
+        if (!array_key_exists('idSubtable', $this->request)) {
+            $parametersToRemove[] = 'idSubtable';
+        }
 
         foreach ($parametersToRemove as $param) {
             if (array_key_exists($param, $request)) {
                 unset($request[$param]);
             }
         }
-
         return $request;
     }
 

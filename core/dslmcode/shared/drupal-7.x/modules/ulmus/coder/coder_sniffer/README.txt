@@ -2,41 +2,58 @@
                             Drupal Code Sniffer
 -------------------------------------------------------------------------------
 
-Drupal Code Sniffer (drupalcs) is a coding standard validation tool for Drupal
-and contributed modules/themes.
+Drupal Code Sniffer is a coding standard validation tool for Drupal and contributed
+modules/themes.
 
-Online documentation: http://drupal.org/node/1419980
+Online documentation: https://drupal.org/node/1419980
 
 
-Installation
-------------
+Installation: PEAR
+------------------
 
 Requirements:
   - PEAR
-  - PHPCS 1.3.5 or newer
+  - PHPCS 1.4.1 or newer
 
 - Install PEAR  ( http://pear.php.net/manual/en/installation.php )
 - Install PHPCS ( http://pear.php.net/package/PHP_CodeSniffer )
 - Sym-link the drupalcs directory into the standards folder for PHP_CodeSniffer.
   The code for that looks like this:
 
-$> sudo ln -sv /path/to/drupalcs/Drupal $(pear config-get php_dir)/PHP/CodeSniffer/Standards 
+$> sudo ln -sv /path/to/coder/coder_sniffer/Drupal $(pear config-get php_dir)/PHP/CodeSniffer/Standards
 
 Please see the online documentation for more detailed instructions:
 
-  http://drupal.org/node/1419988
+  https://drupal.org/node/1419988
+
 
 Installation: Drush
 -------------------
 
-While drupalcs can be used as a standalone set of rules for PHP_CodeSniffer,
+While Coder Sniffer can be used as a standalone set of rules for PHP_CodeSniffer,
 drush command support is included to facilitate ease of use, installation,
 and leveraging of drush features such as site aliasing.
 
-Extract the contents of the drupalcs project into one of the locations specified
+Extract the contents of the Coder project into one of the locations specified
 in the drush README.txt COMMANDS section, such as the subdirectory of the
 .drush folder in your home directory.  For other alternatives, please see
 http://drupal.org/node/1419988
+
+
+Installation: Composer
+----------------------
+
+You can also use Coder Sniffer as a library with Composer:
+
+    "require": {
+        "drupal/coder": "*"
+    }
+
+"composer install" will fetch all necessary dependencies and you can then use/execute
+PHPCS locally in your project:
+
+./vendor/bin/phpcs --standard=coder_sniffer/Drupal /path/to/code/to/review
+
 
 Usage (running in a shell)
 --------------------------

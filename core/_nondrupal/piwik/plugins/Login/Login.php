@@ -1,18 +1,17 @@
 <?php
 /**
- * Piwik - Open source web analytics
+ * Piwik - free/libre analytics platform
  *
  * @link http://piwik.org
  * @license http://www.gnu.org/licenses/gpl-3.0.html GPL v3 or later
  *
- * @category Piwik_Plugins
- * @package Login
  */
 namespace Piwik\Plugins\Login;
 
 use Exception;
 use Piwik\Config;
 use Piwik\Cookie;
+use Piwik\FrontController;
 use Piwik\Option;
 use Piwik\Piwik;
 use Piwik\Plugins\UsersManager\UsersManager;
@@ -20,12 +19,11 @@ use Piwik\Session;
 
 /**
  *
- * @package Login
  */
 class Login extends \Piwik\Plugin
 {
     /**
-     * @see Piwik_Plugin::getListHooksRegistered
+     * @see Piwik\Plugin::getListHooksRegistered
      */
     public function getListHooksRegistered()
     {
@@ -33,8 +31,14 @@ class Login extends \Piwik\Plugin
             'Request.initAuthenticationObject' => 'initAuthenticationObject',
             'User.isNotAuthorized'             => 'noAccess',
             'API.Request.authenticate'         => 'ApiRequestAuthenticate',
+            'AssetManager.getJavaScriptFiles'  => 'getJsFiles'
         );
         return $hooks;
+    }
+
+    public function getJsFiles(&$jsFiles)
+    {
+        $jsFiles[] = "plugins/Login/javascripts/login.js";
     }
 
     /**
@@ -45,13 +49,11 @@ class Login extends \Piwik\Plugin
     {
         $exceptionMessage = $exception->getMessage();
 
-        $controller = new Controller();
-
-        echo $controller->login($exceptionMessage, '' /* $exception->getTraceAsString() */);
+        echo FrontController::getInstance()->dispatch('Login', 'login', array($exceptionMessage));
     }
 
     /**
-     * Set login name and autehntication token for authentication request.
+     * Set login name and authentication token for API request.
      * Listens to API.Request.authenticate hook.
      */
     public function ApiRequestAuthenticate($tokenAuth)
@@ -60,20 +62,30 @@ class Login extends \Piwik\Plugin
         \Piwik\Registry::get('auth')->setTokenAuth($tokenAuth);
     }
 
+    static protected function isModuleIsAPI()
+    {
+        return Piwik::getModule() === 'API'
+                && (Piwik::getAction() == '' || Piwik::getAction() == 'index');
+    }
+
     /**
      * Initializes the authentication object.
      * Listens to Request.initAuthenticationObject hook.
      */
-    function initAuthenticationObject($allowCookieAuthentication = false)
+    function initAuthenticationObject($activateCookieAuth = false)
     {
         $auth = new Auth();
         \Piwik\Registry::set('auth', $auth);
 
-        $action = Piwik::getAction();
-        if (Piwik::getModule() === 'API'
-            && (empty($action) || $action == 'index')
-            && $allowCookieAuthentication !== true
-        ) {
+        $this->initAuthenticationFromCookie($auth, $activateCookieAuth);
+    }
+
+    /**
+     * @param $auth
+     */
+    public static function initAuthenticationFromCookie(\Piwik\Auth $auth, $activateCookieAuth)
+    {
+        if(self::isModuleIsAPI() && !$activateCookieAuth) {
             return;
         }
 

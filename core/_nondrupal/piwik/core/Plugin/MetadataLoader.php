@@ -1,12 +1,10 @@
 <?php
 /**
- * Piwik - Open source web analytics
+ * Piwik - free/libre analytics platform
  *
  * @link http://piwik.org
  * @license http://www.gnu.org/licenses/gpl-3.0.html GPL v3 or later
  *
- * @category Piwik
- * @package Piwik
  */
 namespace Piwik\Plugin;
 
@@ -71,12 +69,12 @@ class MetadataLoader
         return array(
             'description'      => Piwik::translate($descriptionKey),
             'homepage'         => 'http://piwik.org/',
-            'author'           => 'Piwik',
-            'author_homepage'  => 'http://piwik.org/',
+            'authors'          => array(array('name' => 'Piwik', 'homepage'  => 'http://piwik.org/')),
             'license'          => 'GPL v3+',
             'license_homepage' => 'http://www.gnu.org/licenses/gpl.html',
             'version'          => Version::VERSION,
             'theme'            => false,
+            'require'          => array()
         );
     }
 

@@ -1,31 +1,26 @@
 <?php
 /**
- * Piwik - Open source web analytics
+ * Piwik - free/libre analytics platform
  *
  * @link http://piwik.org
  * @license http://www.gnu.org/licenses/gpl-3.0.html GPL v3 or later
  *
- * @category Piwik_Plugins
- * @package CoreAdminHome
  */
 namespace Piwik\Plugins\CoreAdminHome;
 
 use Exception;
-use Piwik\Config;
 use Piwik\DataAccess\ArchiveTableCreator;
 use Piwik\Date;
 use Piwik\Db;
 use Piwik\Option;
-use Piwik\Period;
 use Piwik\Period\Week;
+use Piwik\Period;
 use Piwik\Piwik;
-use Piwik\Plugins\SitesManager\SitesManager;
-use Piwik\SettingsPiwik;
+use Piwik\Plugins\PrivacyManager\PrivacyManager;
 use Piwik\Site;
 use Piwik\TaskScheduler;
 
 /**
- * @package CoreAdminHome
  * @method static \Piwik\Plugins\CoreAdminHome\API getInstance()
  */
 class API extends \Piwik\Plugin\API
@@ -37,18 +32,12 @@ class API extends \Piwik\Plugin\API
      */
     public function runScheduledTasks()
     {
-        Piwik::checkUserIsSuperUser();
+        Piwik::checkUserHasSuperUserAccess();
         return TaskScheduler::runTasks();
     }
 
-    public function getKnownSegmentsToArchive()
-    {
-        Piwik::checkUserIsSuperUser();
-        return SettingsPiwik::getKnownSegmentsToArchive();
-    }
-
     /*
-     * stores the list of websites IDs to re-reprocess in archive.php
+     * stores the list of websites IDs to re-reprocess in core:archive command
      */
     const OPTION_INVALIDATED_IDSITES = 'InvalidatedOldReports_WebsiteIds';
 
@@ -62,7 +51,7 @@ class API extends \Piwik\Plugin\API
      *      to be reprocessed by visiting the script as the Super User:
      *      http://example.net/piwik/misc/cron/archive.php?token_auth=$SUPER_USER_TOKEN_AUTH_HERE
      * REQUIREMENTS: On large piwik setups, you will need in PHP configuration: max_execution_time = 0
-     *    We recommend to use an hourly schedule of the script at misc/cron/archive.php
+     *    We recommend to use an hourly schedule of the script.
      *    More information: http://piwik.org/setup-auto-archiving/
      *
      * @param string $idSites Comma separated list of idSite that have had data imported for the specified dates
@@ -80,9 +69,10 @@ class API extends \Piwik\Plugin\API
 
         // Ensure the specified dates are valid
         $toInvalidate = $invalidDates = array();
-        $dates = explode(',', $dates);
+        $dates = explode(',', trim($dates));
         $dates = array_unique($dates);
         foreach ($dates as $theDate) {
+            $theDate = trim($theDate);
             try {
                 $date = Date::factory($theDate);
             } catch (Exception $e) {
@@ -97,8 +87,9 @@ class API extends \Piwik\Plugin\API
         }
 
         // If using the feature "Delete logs older than N days"...
-        $logsAreDeletedBeforeThisDate = Config::getInstance()->Deletelogs['delete_logs_schedule_lowest_interval'];
-        $logsDeleteEnabled = Config::getInstance()->Deletelogs['delete_logs_enable'];
+        $purgeDataSettings = PrivacyManager::getPurgeDataSettings();
+        $logsAreDeletedBeforeThisDate = $purgeDataSettings['delete_logs_schedule_lowest_interval'];
+        $logsDeleteEnabled = $purgeDataSettings['delete_logs_enable'];
         $minimumDateWithLogs = false;
         if ($logsDeleteEnabled
             && $logsAreDeletedBeforeThisDate
@@ -130,7 +121,7 @@ class API extends \Piwik\Plugin\API
 
             // but also weeks overlapping several months stored in the month where the week is starting
             /* @var $week Week */
-            $week = Period::factory('week', $date);
+            $week = Period\Factory::build('week', $date);
             $weekAsString = $week->getDateStart()->toString('Y_m');
             $datesByMonth[$weekAsString][] = $date->toString();
 
@@ -140,6 +131,10 @@ class API extends \Piwik\Plugin\API
             ) {
                 $minDate = $date;
             }
+        }
+
+        if(empty($minDate)) {
+            throw new Exception("Check the 'dates' parameter is a valid date.");
         }
 
         // In each table, invalidate day/week/month/year containing this date
@@ -170,7 +165,7 @@ class API extends \Piwik\Plugin\API
         }
         \Piwik\Plugins\SitesManager\API::getInstance()->updateSiteCreatedTime($idSites, $minDate);
 
-        // Force to re-process data for these websites in the next archive.php cron run
+        // Force to re-process data for these websites in the next cron core:archive command run
         $invalidatedIdSites = self::getWebsiteIdsToInvalidate();
         $invalidatedIdSites = array_merge($invalidatedIdSites, $idSites);
         $invalidatedIdSites = array_unique($invalidatedIdSites);
@@ -193,7 +188,7 @@ class API extends \Piwik\Plugin\API
     }
 
     /**
-     * Returns array of idSites to force re-process next time archive.php runs
+     * Returns array of idSites to force re-process next time core:archive command runs
      *
      * @ignore
      * @return mixed
@@ -201,6 +196,8 @@ class API extends \Piwik\Plugin\API
     static public function getWebsiteIdsToInvalidate()
     {
         Piwik::checkUserHasSomeAdminAccess();
+
+        Option::clearCachedOption(self::OPTION_INVALIDATED_IDSITES);
         $invalidatedIdSites = Option::get(self::OPTION_INVALIDATED_IDSITES);
         if ($invalidatedIdSites
             && ($invalidatedIdSites = unserialize($invalidatedIdSites))

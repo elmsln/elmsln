@@ -1,19 +1,16 @@
 <?php
 /**
- * Piwik - Open source web analytics
+ * Piwik - free/libre analytics platform
  *
  * @link http://piwik.org
  * @license http://www.gnu.org/licenses/gpl-3.0.html GPL v3 or later
  *
- * @category Piwik
- * @package DataFiles
  */
 
 /**
- * International currencies in circulation
+ * International currencies in circulation.
  *
  * @see http://en.wikipedia.org/wiki/List_of_circulating_currencies
- * @see http://www.iso.org/iso/currency_codes_list-1.html
  */
 if (!isset($GLOBALS['Piwik_CurrencyList'])) {
     $GLOBALS['Piwik_CurrencyList'] = array(
@@ -75,7 +72,6 @@ if (!isset($GLOBALS['Piwik_CurrencyList'])) {
         'XCD' => array('$', 'East Caribbean dollar'),
         'EGP' => array('ج.م', 'Egyptian pound'),
         'ERN' => array('Nfk', 'Eritrean nakfa'),
-        'EEK' => array('kr', 'Estonian kroon'),
         'ETB' => array('Br', 'Ethiopian birr'),
 //			'EUR' => array('€', 'Euro'),
         'FKP' => array('£', 'Falkland Islands pound'),
@@ -105,7 +101,6 @@ if (!isset($GLOBALS['Piwik_CurrencyList'])) {
         'KWD' => array('د.ك', 'Kuwaiti dinar'),
         'KGS' => array('лв', 'Kyrgyzstani som'),
         'LAK' => array('₭', 'Lao kip'),
-        'LVL' => array('Ls', 'Latvian lats'),
         'LBP' => array('ل.ل', 'Lebanese pound'),
         'LSL' => array('L', 'Lesotho loti'),
         'LRD' => array('$', 'Liberian dollar'),

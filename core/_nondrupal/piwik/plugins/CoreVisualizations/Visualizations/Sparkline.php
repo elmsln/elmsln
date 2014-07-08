@@ -1,12 +1,10 @@
 <?php
 /**
- * Piwik - Open source web analytics
+ * Piwik - free/libre analytics platform
  *
  * @link http://piwik.org
  * @license http://www.gnu.org/licenses/gpl-3.0.html GPL v3 or later
  *
- * @category Piwik
- * @package Piwik
  */
 namespace Piwik\Plugins\CoreVisualizations\Visualizations;
 
@@ -18,8 +16,6 @@ use Piwik\Plugin\ViewDataTable;
 /**
  * Reads the requested DataTable from the API and prepare data for the Sparkline view.
  *
- * @package Piwik
- * @subpackage ViewDataTable
  */
 class Sparkline extends ViewDataTable
 {

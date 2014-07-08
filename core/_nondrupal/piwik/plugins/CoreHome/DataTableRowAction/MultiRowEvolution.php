@@ -1,12 +1,10 @@
 <?php
 /**
- * Piwik - Open source web analytics
+ * Piwik - free/libre analytics platform
  *
  * @link http://piwik.org
  * @license http://www.gnu.org/licenses/gpl-3.0.html GPL v3 or later
  *
- * @category Piwik_Plugins
- * @package CoreHome
  */
 namespace Piwik\Plugins\CoreHome\DataTableRowAction;
 
@@ -16,7 +14,6 @@ use Piwik\Piwik;
 /**
  * MULTI ROW EVOLUTION
  * The class handles the popover that shows the evolution of a multiple rows in a data table
- * @package CoreHome
  */
 class MultiRowEvolution extends RowEvolution
 {

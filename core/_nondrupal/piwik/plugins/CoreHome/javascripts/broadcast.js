@@ -1,5 +1,5 @@
 /*!
- * Piwik - Web Analytics
+ * Piwik - free/libre analytics platform
  *
  * @link http://piwik.org
  * @license http://www.gnu.org/licenses/gpl-3.0.html GPL v3 or later
@@ -88,6 +88,10 @@ var broadcast = {
         }
 
         // hash doesn't contain the first # character.
+        if (hash && 0 === (''+hash).indexOf('/')) {
+            hash = (''+hash).substr(1);
+        }
+
         if (hash) {
 
             if (/^popover=/.test(hash)) {
@@ -128,7 +132,7 @@ var broadcast = {
                     broadcast.loadAjaxContent(hashUrl);
 
                     // make sure the "Widgets & Dashboard" is deleted on reload
-                    $('#dashboardSettings').hide();
+                    $('.top_controls .dashboard-manager').hide();
                     $('#dashboardWidgetsArea').dashboard('destroy');
 
                     // remove unused controls
@@ -156,7 +160,7 @@ var broadcast = {
             // start page
             Piwik_Popover.close();
 
-            $('#content:not(.admin)').empty();
+            $('.pageWrap #content:not(.admin)').empty();
         }
     },
 
@@ -365,7 +369,8 @@ var broadcast = {
             newHash = '#';
         }
 
-        window.location.href = 'index.php' + window.location.search + newHash;
+        broadcast.forceReload = false;
+        $.history.load(newHash);
     },
 
     /**
@@ -401,7 +406,7 @@ var broadcast = {
 
         piwikHelper.hideAjaxError('loadingError');
         piwikHelper.showAjaxLoading();
-        $('#content').hide();
+        $('#content').empty();
         $("object").remove();
 
         urlAjax = urlAjax.match(/^\?/) ? urlAjax : "?" + urlAjax;
@@ -420,9 +425,14 @@ var broadcast = {
 
             if (urlAjax == broadcast.lastUrlRequested) {
                 $('#content').html(content).show();
+                $(broadcast).trigger('locationChangeSuccess', {element: $('#content'), content: content});
                 piwikHelper.hideAjaxLoading();
                 broadcast.lastUrlRequested = null;
+
+                piwikHelper.compileAngularComponents('#content');
             }
+
+            initTopControls();
         }
 
         var ajax = new ajaxHelper();

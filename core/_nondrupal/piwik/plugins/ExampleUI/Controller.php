@@ -1,12 +1,10 @@
 <?php
 /**
- * Piwik - Open source web analytics
+ * Piwik - free/libre analytics platform
  *
  * @link http://piwik.org
  * @license http://www.gnu.org/licenses/gpl-3.0.html GPL v3 or later
  *
- * @category Piwik_Plugins
- * @package ExampleUI
  */
 namespace Piwik\Plugins\ExampleUI;
 
@@ -17,7 +15,6 @@ use Piwik\View;
 use Piwik\ViewDataTable\Factory as ViewDataTableFactory;
 
 /**
- * @package ExampleUI
  */
 class Controller extends \Piwik\Plugin\Controller
 {
@@ -49,7 +46,7 @@ class Controller extends \Piwik\Plugin\Controller
         $view = new View('@ExampleUI/evolutiongraph');
 
         $this->setPeriodVariablesView($view);
-        $view->evolutionGraph = $this->getEvolutionGraph(true, array('server1', 'server2'));
+        $view->evolutionGraph = $this->getEvolutionGraph(array(), array('server1', 'server2'));
 
         return $view->render();
     }
@@ -81,16 +78,22 @@ class Controller extends \Piwik\Plugin\Controller
         return $view->render();
     }
 
-    public function getEvolutionGraph($fetch = false, array $columns = array())
+    public function getEvolutionGraph(array $columns = array(), array $defaultColumns = array())
     {
         if (empty($columns)) {
-            $columns = Common::getRequestVar('columns');
-            $columns = Piwik::getArrayFromApiParameter($columns);
+            $columns = Common::getRequestVar('columns', false);
+            if (false !== $columns) {
+                $columns = Piwik::getArrayFromApiParameter($columns);
+            }
         }
 
         $view = $this->getLastUnitGraphAcrossPlugins($this->pluginName, __FUNCTION__, $columns,
             $selectableColumns = array('server1', 'server2'), 'My documentation', 'ExampleUI.getTemperaturesEvolution');
         $view->requestConfig->filter_sort_column = 'label';
+
+        if (empty($view->config->columns_to_display) && !empty($defaultColumns)) {
+            $view->config->columns_to_display = $defaultColumns;
+        }
 
         return $this->renderView($view);
     }

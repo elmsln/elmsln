@@ -12,6 +12,8 @@ $info = array(
 	'slogan' => t('Slogan color'),
 	'bodyborder' => t('Body border top color'),
     'wrapborder' => t('Content border top color'),
+	'footerborder' => t('Footer border top color'),
+	'footerbackground' => t('Footer background color'),
   ),
   // Pre-defined color schemes.
   'schemes' => array(
@@ -27,6 +29,8 @@ $info = array(
 		'slogan' => '#7d7d7d',
 		'bodyborder' => '#375199',
     	'wrapborder' => '#4565be',
+		'footerborder' => '#d6d6d6',
+    	'footerbackground' => '#ffffff',
       ),
     ),
 	'coronamusic' => array(
@@ -41,6 +45,8 @@ $info = array(
 		'slogan' => '#101010',
 		'bodyborder' => '#194973',
     	'wrapborder' => '#e29300',
+		'footerborder' => '#d6d6d6',
+    	'footerbackground' => '#ffffff',
       ),
     ),
 	'easycomeeasygo' => array(
@@ -55,6 +61,8 @@ $info = array(
 		'slogan' => '#161616',
 		'bodyborder' => '#de6846',
     	'wrapborder' => '#d9964b',
+		'footerborder' => '#d6d6d6',
+    	'footerbackground' => '#ffffff',
       ),
     ),
   ),

@@ -1,15 +1,14 @@
 <?php
 /**
- * Piwik - Open source web analytics
+ * Piwik - free/libre analytics platform
  *
  * @link http://piwik.org
  * @license http://www.gnu.org/licenses/gpl-3.0.html GPL v3 or later
  *
- * @category Piwik
- * @package Piwik
  */
 namespace Piwik;
 
+use Piwik\Plugin\Dependency;
 use Piwik\Plugin\MetadataLoader;
 
 /**
@@ -40,8 +39,7 @@ require_once PIWIK_INCLUDE_PATH . '/core/Plugin/MetadataLoader.php';
  * - **description**: An internationalized string description of what the plugin
  *                    does.
  * - **homepage**: The URL to the plugin's website.
- * - **author**: Author name.
- * - **author_homepage**: The URL to the author's website.
+ * - **authors**: A list of author arrays with keys for 'name', 'email' and 'homepage'
  * - **license**: The license the code uses (eg, GPL, MIT, etc.).
  * - **license_homepage**: URL to website describing the license used.
  * - **version**: The plugin version (eg, 1.0.1).
@@ -89,7 +87,6 @@ require_once PIWIK_INCLUDE_PATH . '/core/Plugin/MetadataLoader.php';
  *         }
  *     }
  * 
- * @package Piwik
  * @api
  */
 class Plugin
@@ -280,6 +277,72 @@ class Plugin
     }
 
     /**
+     * Tries to find a component such as a Menu or Tasks within this plugin.
+     *
+     * @param string $componentName      The name of the component you want to look for. In case you request a
+     *                                   component named 'Menu' it'll look for a file named 'Menu.php' within the
+     *                                   root of the plugin folder that implements a class named
+     *                                   Piwik\Plugin\$PluginName\Menu . If such a file exists but does not implement
+     *                                   this class it'll silently ignored.
+     * @param string $expectedSubclass   If not empty, a check will be performed whether a found file extends the
+     *                                   given subclass. If the requested file exists but does not extend this class
+     *                                   a warning will be shown to advice a developer to extend this certain class.
+     *
+     * @return \stdClass|null  Null if the requested component does not exist or an instance of the found
+     *                         component.
+     */
+    public function findComponent($componentName, $expectedSubclass)
+    {
+        $componentFile = sprintf('%s/plugins/%s/%s.php', PIWIK_INCLUDE_PATH, $this->pluginName, $componentName);
+
+        if (!file_exists($componentFile)) {
+            return;
+        }
+
+        $klassName = sprintf('Piwik\\Plugins\\%s\\%s', $this->pluginName, $componentName);
+
+        if (!class_exists($klassName)) {
+            return;
+        }
+
+        if (!empty($expectedSubclass) && !is_subclass_of($klassName, $expectedSubclass)) {
+            Log::warning(sprintf('Cannot use component %s for plugin %s, class %s does not extend %s',
+                                 $componentName, $this->pluginName, $klassName, $expectedSubclass));
+            return;
+        }
+
+        return new $klassName;
+    }
+
+    /**
+     * Detect whether there are any missing dependencies.
+     *
+     * @param null $piwikVersion Defaults to the current Piwik version
+     * @return bool
+     */
+    public function hasMissingDependencies($piwikVersion = null)
+    {
+        $requirements = $this->getMissingDependencies($piwikVersion);
+
+        return !empty($requirements);
+    }
+
+    public function getMissingDependencies($piwikVersion = null)
+    {
+        if (empty($this->pluginInformation['require'])) {
+            return array();
+        }
+
+        $dependency = new Dependency();
+
+        if (!is_null($piwikVersion)) {
+            $dependency->setPiwikVersion($piwikVersion);
+        }
+
+        return $dependency->getMissingDependencies($this->pluginInformation['require']);
+    }
+
+    /**
      * Extracts the plugin name from a backtrace array. Returns `false` if we can't find one.
      *
      * @param array $backtrace The result of {@link debug_backtrace()} or
@@ -290,12 +353,29 @@ class Plugin
     {
         foreach ($backtrace as $tracepoint) {
             // try and discern the plugin name
-            if (isset($tracepoint['class'])
-                && preg_match("/Piwik\\\\Plugins\\\\([a-zA-Z_0-9]+)\\\\/", $tracepoint['class'], $matches)
-            ) {
-                return $matches[1];
+            if (isset($tracepoint['class'])) {
+                $className = self::getPluginNameFromNamespace($tracepoint['class']);
+                if ($className) {
+                    return $className;
+                }
             }
         }
         return false;
+    }
+
+    /**
+     * Extracts the plugin name from a namespace name or a fully qualified class name. Returns `false`
+     * if we can't find one.
+     *
+     * @param string $namespaceOrClassName The namespace or class string.
+     * @return string|false
+     */
+    public static function getPluginNameFromNamespace($namespaceOrClassName)
+    {
+        if (preg_match("/Piwik\\\\Plugins\\\\([a-zA-Z_0-9]+)\\\\/", $namespaceOrClassName, $matches)) {
+            return $matches[1];
+        } else {
+            return false;
+        }
     }
 }

@@ -36,6 +36,15 @@ function addanother_permission() {
  */
 function addanother_menu() {
   $items = array();
+  $items['admin/structure/types/addanother'] = array(
+    'title' => 'Add another',
+    'description' => 'Modify which node types display the Add another message.',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('addanother_admin'),
+    'access arguments' => array('administer add another'),
+    'type' => MENU_NORMAL_ITEM,
+  );
+
   $items['node/%node/addanother'] = array(
     'title' => 'Add another',
     'page callback' => 'addanother_goto',
@@ -85,6 +94,40 @@ function addanother_access($node) {
   return FALSE;
 }
 
+
+/**
+ * This function sets up the administrative settings page.
+ */
+function addanother_admin() {
+  $form['addanother_display'] = array(
+    '#type' => 'fieldset',
+    '#title' => t('Default settings for newly created content types'),  
+  );
+  $form['addanother_display']['addanother_default_button'] = array(
+    '#type' => 'checkbox',
+    '#title' => t('Enable <i>Display Add another button on node add form</i> for new content types.'),
+    '#default_value' => variable_get('addanother_default_button', TRUE), // can't put the word default at the end of this variable name 
+                                                                         // in the rare case that there is a content type with a machine name of 'default'
+  );
+  $form['addanother_display']['addanother_default_message'] = array(
+    '#type' => 'checkbox',
+    '#title' => t('Enable <i>Display the Add another message after node creation</i> for new content types.'),
+    '#default_value' => variable_get('addanother_default_message', TRUE),
+  );
+  $form['addanother_display']['addanother_default_tab'] = array(
+    '#type' => 'checkbox',
+    '#title' => t('Enable <i>Display the Add another tab</i> for new content types.'),
+    '#default_value' => variable_get('addanother_default_tab', TRUE),
+  );
+  $form['addanother_display']['addanother_default_tab_edit'] = array(
+    '#type' => 'checkbox',
+    '#title' => t('Enable <i>Also display the Add another tab on edit page</i> for new content types.'),
+    '#default_value' => variable_get('addanother_default_tab_edit', TRUE),
+  );
+
+  return system_settings_form($form);
+}
+
 /**
  * Alter content type settings to add our options.
  */
@@ -99,26 +142,26 @@ function addanother_form_node_type_form_alter(&$form, &$form_state) {
     $form['addanother_display']['addanother_button'] = array(
       '#type' => 'checkbox',
       '#title' => t('Display Add another button on node add form.'),
-      '#default_value' => variable_get('addanother_button_' . $form['#node_type']->type, FALSE),
+      '#default_value' => variable_get('addanother_button_' . $form['#node_type']->type, variable_get('addanother_default_button', TRUE)),
       '#description' => t('Enable this checkbox if you want to provide a "Save and add another" button on the node add form for your users.'),
     );
     $form['addanother_display']['addanother_message'] = array(
       '#type' => 'checkbox',
       '#title' => t('Display the Add another message after node creation.'),
-      '#default_value' => variable_get('addanother_message_' . $form['#node_type']->type, FALSE),
+      '#default_value' => variable_get('addanother_message_' . $form['#node_type']->type, variable_get('addanother_default_message', TRUE)),
       '#description' => t('Enable this checkbox if you want to show a "Add another..." message after creating a new node.'),
     );
     $form['addanother_display']['addanother_tab'] = array(
       '#type' => 'checkbox',
       '#title' => t('Display the Add another tab.'),
-      '#default_value' => variable_get('addanother_tab_' . $form['#node_type']->type, FALSE),
+      '#default_value' => variable_get('addanother_tab_' . $form['#node_type']->type, variable_get('addanother_default_tab', TRUE)),
       '#description' => t('Enable this checkbox if you want to show a "Add another" tab on nodes of this type.'),
     );
     $form['addanother_display']['addanother_tab_edit'] = array(
       '#type' => 'checkbox',
       '#title' => t('Also Display Add another tab on edit page.'),
-      '#default_value' => variable_get('addanother_tab_edit_' . $form['#node_type']->type, FALSE),
-      '#description' => t('Enable this checkbox if you want to also show a "Add another" tab on node edit pages of this type. Tis option does nothing if the Add Another tab is disabled.'),
+      '#default_value' => variable_get('addanother_tab_edit_' . $form['#node_type']->type, variable_get('addanother_default_tab_edit', TRUE)),
+      '#description' => t('Enable this checkbox if you want to also show a "Add another" tab on node edit pages of this type. This option does nothing if the Add Another tab is disabled.'),
     );
   }
 }

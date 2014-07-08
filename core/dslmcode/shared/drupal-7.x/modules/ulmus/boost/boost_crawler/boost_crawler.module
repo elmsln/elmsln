@@ -62,7 +62,13 @@ function boost_crawler_expire_cache($urls) {
 function boost_crawler_run($url) {
   // Not doing async requests in order not to kill the server
   // and also for the 'time' limit of the queue to make sense.
-  httprl_request($url);
+  $options = array(
+    'headers' => array(
+      'Pragma' => 'no-cache',
+    ),
+  );
+
+  httprl_request($url, $options);
   $request = httprl_send_request();
 
   boost_log('Crawler fetched !url', array('!url' => $url), WATCHDOG_DEBUG);

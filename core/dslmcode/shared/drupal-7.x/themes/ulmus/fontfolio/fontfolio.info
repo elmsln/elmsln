@@ -4,7 +4,9 @@ core = 7.x
 
 stylesheets[all][] = styles/normalize.css
 stylesheets[all][] = styles/fontfolio.css
+stylesheets[all][] = styles/my-custom/my-custom-ff.css
 stylesheets[all][] = styles/fontfolio-md-queries.css
+stylesheets[all][] = styles/my-custom/my-custom-ff-md-queries.css
 
 scripts[] = js/fontfolio.js
 
@@ -18,9 +20,9 @@ regions[footer]    = Footer
 settings[show_lang_links] = 1
 settings[hide_page_tile]  = 1
 
-; Information added by drupal.org packaging script on 2012-11-29
-version = "7.x-2.3"
+; Information added by drupal.org packaging script on 2013-09-28
+version = "7.x-2.7"
 core = "7.x"
 project = "fontfolio"
-datestamp = "1354216013"
+datestamp = "1380410060"
 

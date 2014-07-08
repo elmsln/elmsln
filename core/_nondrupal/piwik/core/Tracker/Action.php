@@ -1,12 +1,10 @@
 <?php
 /**
- * Piwik - Open source web analytics
+ * Piwik - free/libre analytics platform
  *
  * @link http://piwik.org
  * @license http://www.gnu.org/licenses/gpl-3.0.html GPL v3 or later
  *
- * @category Piwik
- * @package Piwik
  */
 
 namespace Piwik\Tracker;
@@ -19,8 +17,6 @@ use Piwik\Tracker;
 /**
  * An action
  *
- * @package Piwik
- * @subpackage Tracker
  */
 abstract class Action
 {
@@ -194,9 +190,6 @@ abstract class Action
 
     public function writeDebugInfo()
     {
-        if (!isset($GLOBALS['PIWIK_TRACKER_DEBUG']) || !$GLOBALS['PIWIK_TRACKER_DEBUG']) {
-            return false;
-        }
         $type = self::getTypeAsString($this->getActionType());
         Common::printDebug("Action is a $type,
                 Action name =  " . $this->getActionName() . ",
@@ -257,27 +250,24 @@ abstract class Action
     {
         $this->loadIdsFromLogActionTable();
 
-        $idActionName = in_array($this->getActionType(), array(Tracker\Action::TYPE_PAGE_TITLE,
-                                                               Tracker\Action::TYPE_PAGE_URL,
-                                                               Tracker\Action::TYPE_SITE_SEARCH
-                                                         ))
-            ? (int)$this->getIdActionName()
-            : null;
-
         $visitAction = array(
             'idvisit'               => $idVisit,
             'idsite'                => $this->request->getIdSite(),
             'idvisitor'             => $visitorIdCookie,
             'server_time'           => Tracker::getDatetimeFromTimestamp($this->request->getCurrentTimestamp()),
             'idaction_url'          => $this->getIdActionUrl(),
-            'idaction_name'         => $idActionName,
             'idaction_url_ref'      => $idReferrerActionUrl,
             'idaction_name_ref'     => $idReferrerActionName,
             'time_spent_ref_action' => $timeSpentReferrerAction
         );
 
+        // idaction_name is NULLable. we only set it when applicable
+        if($this->isActionHasActionName()) {
+            $visitAction['idaction_name'] = (int)$this->getIdActionName();
+        }
+
         foreach($this->actionIdsCached as $field => $idAction) {
-            $visitAction[$field] = $idAction;
+            $visitAction[$field] = ($idAction === false) ? 0 : $idAction;
         }
 
         $customValue = $this->getCustomFloatValue();
@@ -313,5 +303,15 @@ abstract class Action
          *                           [this](/guides/persistence-and-the-mysql-backend#visit-actions) to see what it contains.
          */
         Piwik::postEvent('Tracker.recordAction', array($trackerAction = $this, $visitAction));
+    }
+
+    /**
+     * @return bool
+     */
+    protected function isActionHasActionName()
+    {
+        return in_array($this->getActionType(), array(Tracker\Action::TYPE_PAGE_TITLE,
+                                                      Tracker\Action::TYPE_PAGE_URL,
+                                                      Tracker\Action::TYPE_SITE_SEARCH));
     }
 }

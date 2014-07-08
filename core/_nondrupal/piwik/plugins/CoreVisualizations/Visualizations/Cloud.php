@@ -1,12 +1,10 @@
 <?php
 /**
- * Piwik - Open source web analytics
+ * Piwik - free/libre analytics platform
  *
  * @link http://piwik.org
  * @license http://www.gnu.org/licenses/gpl-3.0.html GPL v3 or later
  *
- * @category Piwik_Plugins
- * @package CoreVisualizations
  */
 namespace Piwik\Plugins\CoreVisualizations\Visualizations;
 
@@ -23,14 +21,12 @@ use Piwik\View;
  *
  * @property Cloud\Config $config
  *
- * @package Piwik
- * @subpackage Piwik_Visualization
  */
 class Cloud extends Visualization
 {
     const ID = 'cloud';
     const TEMPLATE_FILE     = "@CoreVisualizations/_dataTableViz_tagCloud.twig";
-    const FOOTER_ICON       = 'plugins/Zeitgeist/images/tagcloud.png';
+    const FOOTER_ICON       = 'plugins/Morpheus/images/tagcloud.png';
     const FOOTER_ICON_TITLE = 'General_TagCloud';
 
     /** Used by integration tests to make sure output is consistent. */

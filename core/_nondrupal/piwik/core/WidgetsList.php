@@ -1,14 +1,14 @@
 <?php
 /**
- * Piwik - Open source web analytics
+ * Piwik - free/libre analytics platform
  *
  * @link http://piwik.org
  * @license http://www.gnu.org/licenses/gpl-3.0.html GPL v3 or later
  *
- * @category Piwik
- * @package PluginsFunctions
  */
 namespace Piwik;
+
+use Piwik\Plugin\Manager as PluginManager;
 
 /**
  * Manages the global list of reports that can be displayed as dashboard widgets.
@@ -16,17 +16,17 @@ namespace Piwik;
  * Reports are added as dashboard widgets through the {@hook WidgetsList.addWidgets}
  * event. Observers for this event should call the {@link add()} method to add reports.
  * 
- * @package PluginsFunctions
  * @api
+ * @method static \Piwik\WidgetsList getInstance()
  */
-class WidgetsList
+class WidgetsList extends Singleton
 {
     /**
      * List of widgets
      *
      * @var array
      */
-    static protected $widgets = null;
+    static protected $widgets = array();
 
     /**
      * Indicates whether the hook was posted or not
@@ -74,20 +74,18 @@ class WidgetsList
             self::$hookCalled = true;
 
             /**
-             * Used to collect all available dashboard widgets.
-             * 
-             * Subscribe to this event to make your plugin's reports or other controller actions available
-             * as dashboard widgets. Event handlers should call the {@link WidgetsList::add()} method for each
-             * new dashboard widget.
-             *
-             * **Example**
-             * 
-             *     public function addWidgets()
-             *     {
-             *         WidgetsList::add('General_Actions', 'General_Pages', 'Actions', 'getPageUrls');
-             *     }
+             * @ignore
+             * @deprecated
              */
             Piwik::postEvent('WidgetsList.addWidgets');
+
+            /** @var \Piwik\Plugin\Widgets[] $widgets */
+            $widgets     = PluginManager::getInstance()->findComponents('Widgets', 'Piwik\\Plugin\\Widgets');
+            $widgetsList = self::getInstance();
+
+            foreach ($widgets as $widget) {
+                $widget->configure($widgetsList);
+            }
         }
     }
 
@@ -107,6 +105,7 @@ class WidgetsList
             'UserSettings_VisitorSettings',
             'DevicesDetection_DevicesDetection',
             'General_Actions',
+            'Events_Events',
             'Actions_SubmenuSitesearch',
             'Referrers_Referrers',
             'Goals_Goals',
@@ -147,6 +146,11 @@ class WidgetsList
             }
             $widgetUniqueId .= $name . $value;
         }
+
+        if (!array_key_exists($widgetCategory, self::$widgets)) {
+            self::$widgets[$widgetCategory] = array();
+        }
+
         self::$widgets[$widgetCategory][] = array(
             'name'       => $widgetName,
             'uniqueId'   => $widgetUniqueId,
@@ -166,6 +170,10 @@ class WidgetsList
      */
     static public function remove($widgetCategory, $widgetName = false)
     {
+        if (!isset(self::$widgets[$widgetCategory])) {
+            return;
+        }
+
         if (empty($widgetName)) {
             unset(self::$widgets[$widgetCategory]);
             return;
@@ -207,7 +215,7 @@ class WidgetsList
      */
     public static function _reset()
     {
-        self::$widgets = null;
+        self::$widgets    = array();
         self::$hookCalled = false;
     }
 }

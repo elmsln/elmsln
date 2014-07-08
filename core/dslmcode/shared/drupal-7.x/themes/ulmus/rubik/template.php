@@ -168,16 +168,17 @@ function rubik_preprocess_form_confirm(&$vars) {
  */
 function rubik_preprocess_form_node(&$vars) {
   $vars['sidebar'] = isset($vars['sidebar']) ? $vars['sidebar'] : array();
+  $map = array();
   // Support field_group if present.
   if (module_exists('field_group')) {
-    $map = array(
+    $map += array(
       'group_sidebar' => 'sidebar',
       'group_footer' => 'footer',
     );
   }
   // Support nodeformcols if present.
-  elseif (module_exists('nodeformcols')) {
-    $map = array(
+  if (module_exists('nodeformcols')) {
+    $map += array(
       'nodeformcols_region_right' => 'sidebar',
       'nodeformcols_region_footer' => 'footer',
       'nodeformcols_region_main' => NULL,

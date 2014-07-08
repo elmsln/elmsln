@@ -51,7 +51,7 @@ function coder_review_druplart_reviews() {
   $rules['unary'] = array(
     '#type' => 'regex',
     '#value' => '\$\w+(\+\+|--)\s*;',
-    '#warning' => 'Consider using $++foo instead of $foo++ when simply incrementing or decrementing.',
+    '#warning' => 'Consider using ++$foo instead of $foo++ when simply incrementing or decrementing.',
     '#severity' => 'minor',
   );
 

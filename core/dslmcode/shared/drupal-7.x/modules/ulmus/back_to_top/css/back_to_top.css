@@ -25,3 +25,13 @@ html {
   position:absolute;
 }
 <![endif]-->
+
+@media (-webkit-min-device-pixel-ratio: 2), 
+(min-resolution: 192dpi) { 
+
+  #backtotop {
+    background: url(../backtotop2x.png) no-repeat center center;
+    background-size: 70px 70px;
+  }
+
+}

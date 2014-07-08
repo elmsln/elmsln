@@ -1,18 +1,14 @@
 name = "Printer-friendly pages"
-description = "Adds a printer-friendly version link to content and administrative pages."
-core=7.x
+description = "Generates a printer-friendly version of Drupal pages."
+core = 7.x
 package = "Printer, email and PDF versions"
-files[] = print.module
-files[] = print.admin.inc
-files[] = print.pages.inc
-files[] = print.install
-files[] = print.views.inc
 files[] = print_join_page_counter.inc
+dependencies[] = node
 configure = admin/config/user-interface/print
 
-; Information added by drupal.org packaging script on 2012-09-04
-version = "7.x-1.2"
+; Information added by Drupal.org packaging script on 2014-04-02
+version = "7.x-2.0"
 core = "7.x"
 project = "print"
-datestamp = "1346768900"
+datestamp = "1396426766"
 

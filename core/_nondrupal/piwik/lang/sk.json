@@ -153,10 +153,7 @@
     },
     "Feedback": {
         "IWantTo": "Chcem:",
-        "MyEmailAddress": "Moja emailová adresa:",
-        "MyMessage": "Moja správa",
-        "SendFeedback": "Odoslať spätnú väzbu",
-        "ThePiwikTeam": "Piwik tím"
+        "SendFeedback": "Odoslať spätnú väzbu"
     },
     "General": {
         "AbandonedCarts": "Opustené košíky",
@@ -433,7 +430,6 @@
         "Password": "Heslo",
         "Period": "Obdobie",
         "Piechart": "Koláčový graf",
-        "PiwikXIsAvailablePleaseNotifyPiwikAdmin": "%s je k dispozícii. Notifikujte, prosím, administrátora webu.",
         "PiwikXIsAvailablePleaseUpdateNow": "Piwik %1$s je k dispozícií. %2$s Prosím vykonajte aktualizáciu!%3$s (pozrieť %4$s zmeny%5$s).",
         "PleaseSpecifyValue": "Špecifikujte, prosím, hodnotu pre %s.",
         "PleaseUpdatePiwik": "Prosím aktualizujte svoj Piwik",
@@ -591,7 +587,6 @@
         "Manually": "ručne",
         "ManuallyTriggeredUsingJavascriptFunction": "Cieľom je ručne spúšťa pomocou JavaScript API trackGoal()",
         "NewVisitorsConversionRateIs": "Noví návštevníci miera konverzie %s",
-        "NoGoalsNeedAccess": "Len správca alebo Super Užívateľ môže pridať ciele pre dané webové stránky. Prosím, opýtajte sa svojho správcu ako nastaviť ciele pre vaše webové stránky. <br> sledovanie cieľov je skvelý spôsob, ako pomôcť pochopiť a maximalizovať svoje webové stránky!",
         "Optional": "(nepovinné)",
         "OverallConversionRate": "%s celková miera konverzie (návštevy s cieľom dokončenia)",
         "OverallRevenue": "%s celkové príjmy",
@@ -610,12 +605,10 @@
         "WhereThe": "kde"
     },
     "Installation": {
-        "CommunityNewsletter": "posielať informácie o komunitných aktualizáciách (nové moduly, vlastnosti atď.)",
         "ConfirmDeleteExistingTables": "Ste si istý, že chcete zmazať tabuľky: %s z Vašej databázy? VAROVANIE: DÁTA Z TÝCHTO TABULIEK NEBUDE MOŽNÉ OBNOVIŤ!",
         "Congratulations": "Blahoželanie",
         "CongratulationsHelp": "<p>Blahoželáme Vám! Inštalácia Piwik je dokončená.<\/p><p>Uistite sa, že Váš javascript kód je vložený od Vašich stránok a počkajte si na prvých návštevníkov!<\/p>",
         "Email": "e-mail",
-        "ErrorInvalidState": "Chyba: zdá sa, že sa pokúšate preskočiť krok v inštalačnom procese, alebo máte zakázané „cookies“, alebo je Piwik konfiguračný súbor už vytvorený. %1$sUistite sa, že máte povolené „cookies“%2$s a potom choďte späť %3$s na prvú stránku inštalácie %4$s.",
         "GoBackAndDefinePrefix": "Choďte späť a zadefinujte predponu pre Piwik tabuľky",
         "Installation": "Inštalácia",
         "InstallationStatus": "Stav inštalácie",
@@ -625,7 +618,6 @@
         "PasswordDoNotMatch": "heslo nie je zhodné",
         "PasswordRepeat": "heslo (zopakovať)",
         "PercentDone": "%s %% Dokončené",
-        "SecurityNewsletter": "posielať informácie o hlavných aktualizáciách projektu Piwik a bezpečnostné varovania",
         "SetupWebsite": "Nastavenie webstránky",
         "SetupWebsiteError": "Vyskytla sa chyba pridávaní webstránky",
         "SetupWebSiteName": "názov webovej stránky",
@@ -666,7 +658,6 @@
     },
     "Login": {
         "ContactAdmin": "Možné dôvody: Váš server ma zakázanú funkciu mail().<br \/> Skontaktujte svojho administrátora Piwik.",
-        "ExceptionInvalidSuperUserAuthenticationMethod": "Super používateľ nemôže overiť pomocou '%s' mechanizmu.",
         "ExceptionPasswordMD5HashExpected": "Očakávajte že heslo bude v MD5 hash.",
         "InvalidOrExpiredToken": "Token je neplatný, alebo už vypršal.",
         "InvalidUsernameEmail": "Neplatné meno používateľa alebo e-mailová adresa",
@@ -676,7 +667,6 @@
         "LostYourPassword": "Zabudli ste heslo?",
         "PasswordRepeat": "Heslo (znovu)",
         "PasswordsDoNotMatch": "Heslá sa nezhodujú.",
-        "PluginDescription": "Prihlásiť pre overenie pluginu, čítanie poverenia z config \/ config.inc.php súbor pre super užívateľa, a z databázy pre ostatných užívateľov. Môže byť ľahko nahradený s cieľom vytvoriť nový mechanizmus autentifikácie (OpenID, htaccess, vlastné Auth, atď).",
         "RememberMe": "Zapamätať si ma"
     },
     "Mobile": {
@@ -1285,7 +1275,6 @@
         "ExceptionInvalidEmail": "E-mailová adresa nemá platný formát.",
         "ExceptionInvalidLoginFormat": "Počet znakov pre Používateľ (login) musí byť medzi %1$s a %2$s a obsahovať iba písmená, číslice alebo znaky '_', '-', a '.'",
         "ExceptionLoginExists": "Používateľ (login) '%s' už existuje.",
-        "ExceptionSuperUser": "Požadovaný používateľ je superpoužívateľ, na ktorého nemôže byť odoslaná požiadavka, nemôže byť upravený alebo zmazaný cez API. Manuálne môžete upraviť detaily superpoužívateľa v Piwik konfiguračnom súbore.",
         "ExceptionUserDoesNotExist": "Používateľ '%s' neexistuje.",
         "MainDescription": "Rozhodnite sa, ktorí používatelia budú môcť pristupovať k jednotlivým stránkam. Tiež im môžete umožniť prístup na všetky vaše stránky.",
         "ManageAccess": "Správa prístupov",

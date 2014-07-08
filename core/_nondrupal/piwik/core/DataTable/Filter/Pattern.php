@@ -1,12 +1,10 @@
 <?php
 /**
- * Piwik - Open source web analytics
+ * Piwik - free/libre analytics platform
  *
  * @link http://piwik.org
  * @license http://www.gnu.org/licenses/gpl-3.0.html GPL v3 or later
  *
- * @category Piwik
- * @package Piwik
  */
 namespace Piwik\DataTable\Filter;
 
@@ -21,8 +19,6 @@ use Piwik\DataTable\BaseFilter;
  *     // filter out all rows whose labels doesn't start with piwik
  *     $dataTable->filter('Pattern', array('label', '^piwik'));
  *
- * @package Piwik
- * @subpackage DataTable
  * @api
  */
 class Pattern extends BaseFilter
@@ -65,16 +61,15 @@ class Pattern extends BaseFilter
     /**
      * Performs case insensitive match
      *
-     * @param string $pattern
      * @param string $patternQuoted
      * @param string $string
      * @param bool $invertedMatch
      * @return int
      * @ignore
      */
-    static public function match($pattern, $patternQuoted, $string, $invertedMatch)
+    static public function match($patternQuoted, $string, $invertedMatch = false)
     {
-        return @preg_match($patternQuoted . "i", $string) == 1 ^ $invertedMatch;
+        return preg_match($patternQuoted . "i", $string) == 1 ^ $invertedMatch;
     }
 
     /**
@@ -93,7 +88,7 @@ class Pattern extends BaseFilter
             if ($value === false) {
                 $value = $row->getMetadata($this->columnToFilter);
             }
-            if (!self::match($this->patternToSearch, $this->patternToSearchQuoted, $value, $this->invertedMatch)) {
+            if (!self::match($this->patternToSearchQuoted, $value, $this->invertedMatch)) {
                 $table->deleteRow($key);
             }
         }

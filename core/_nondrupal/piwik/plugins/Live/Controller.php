@@ -1,12 +1,10 @@
 <?php
 /**
- * Piwik - Open source web analytics
+ * Piwik - free/libre analytics platform
  *
  * @link http://piwik.org
  * @license http://www.gnu.org/licenses/gpl-3.0.html GPL v3 or later
  *
- * @category Piwik_Plugins
- * @package Live
  */
 namespace Piwik\Plugins\Live;
 
@@ -18,10 +16,8 @@ use Piwik\Piwik;
 use Piwik\Plugins\Goals\API as APIGoals;
 use Piwik\Url;
 use Piwik\View;
-use Piwik\ViewDataTable\Factory;
 
 /**
- * @package Live
  */
 class Controller extends \Piwik\Plugin\Controller
 {
@@ -108,7 +104,9 @@ class Controller extends \Piwik\Plugin\Controller
     {
         // hack, ensure we load today's visits by default
         $_GET['date'] = 'today';
+        \Piwik\Period\Factory::checkPeriodIsEnabled('day');
         $_GET['period'] = 'day';
+
         $view = new View('@Live/getLastVisitsStart');
         $view->idSite = $this->idSite;
         $api = new Request("method=Live.getLastVisitsDetails&idSite={$this->idSite}&filter_limit=10&format=php&serialize=0&disable_generic_filters=1");
@@ -146,7 +144,7 @@ class Controller extends \Piwik\Plugin\Controller
         $view->exportLink = $this->getVisitorProfileExportLink();
 
         if (Common::getRequestVar('showMap', 1) == 1
-            && $view->visitorData['hasLatLong']
+            && !empty($view->visitorData['hasLatLong'])
             && \Piwik\Plugin\Manager::getInstance()->isPluginLoaded('UserCountryMap')
         ) {
             $view->userCountryMapUrl = $this->getUserCountryMapUrlForVisitorProfile();
@@ -175,10 +173,11 @@ class Controller extends \Piwik\Plugin\Controller
 
     public function getVisitList()
     {
+        $startCounter = Common::getRequestVar('filter_offset', 0, 'int');
         $nextVisits = Request::processRequest('Live.getLastVisitsDetails', array(
                                                                                 'segment'                 => self::getSegmentWithVisitorId(),
                                                                                 'filter_limit'            => API::VISITOR_PROFILE_MAX_VISITS_TO_SHOW,
-                                                                                'disable_generic_filters' => 1,
+                                                                                'filter_offset'           => $startCounter,
                                                                                 'period'                  => false,
                                                                                 'date'                    => false
                                                                            ));
@@ -189,7 +188,7 @@ class Controller extends \Piwik\Plugin\Controller
 
         $view = new View('@Live/getVisitList.twig');
         $view->idSite = Common::getRequestVar('idSite', null, 'int');
-        $view->startCounter = Common::getRequestVar('filter_offset', 0, 'int') + 1;
+        $view->startCounter = $startCounter + 1;
         $view->visits = $nextVisits;
         return $view->render();
     }

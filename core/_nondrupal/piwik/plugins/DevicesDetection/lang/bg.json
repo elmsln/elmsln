@@ -1,18 +1,27 @@
 {
     "DevicesDetection": {
         "BrowserVersions": "Версии на браузъра",
+        "Camera": "Камера",
+        "CarBrowser": "Браузър, който се използва в кола",
+        "Console": "Конзола",
         "dataTableLabelBrands": "Марка",
         "dataTableLabelBrowserFamily": "Вид браузър",
         "dataTableLabelModels": "Модел",
         "dataTableLabelSystemVersion": "Версия на операционната система",
         "dataTableLabelTypes": "Тип",
+        "Device": "Устройство",
         "DeviceBrand": "Марка на устройството",
+        "DeviceDetection": "Определяне на устройство",
         "DeviceModel": "Модел на устройството",
         "DevicesDetection": "Устройства, които използва посетителят",
         "DeviceType": "Вид устройство",
         "OperatingSystemFamilies": "Вид операционна система",
         "OperatingSystemVersions": "Версия на операционната система",
         "PluginDescription": "Тази добавка предоставя допълнителна информация относно мобилните устройства: марка (производител), модел (версия на устройството), подобрен механизъм за установяване на типа устройство (телевизор, конзола, смартфон, компютър и др.) и т.н. Тази добавка добавя нов отчет „Посетители > Устройства“.",
-        "submenu": "Устройства"
+        "SmartDisplay": "„Умен“ дисплей",
+        "Smartphone": "Смартфон",
+        "submenu": "Устройства",
+        "Tablet": "Таблет",
+        "TV": "ТВ"
     }
 }

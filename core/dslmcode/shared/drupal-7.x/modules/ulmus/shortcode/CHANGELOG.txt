@@ -1,5 +1,8 @@
 Shortcode 7.x-2.x, xxxx-xx-xx
 ------------------------------
+Shortcode 7.x-2.x, 2014-04-10
+  Reformat according to the Drupal coding standard
+
 Shortcode 7.x-2.x, 7.x-2.0, 2013-08-20
   #1879712 by BarisW: Implement hook_shortcode_info()
   #2042645 by mrupal: fix in default value handling

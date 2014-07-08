@@ -1,12 +1,10 @@
 <?php
 /**
- * Piwik - Open source web analytics
+ * Piwik - free/libre analytics platform
  *
  * @link http://piwik.org
  * @license http://www.gnu.org/licenses/gpl-3.0.html GPL v3 or later
  *
- * @category Piwik
- * @package Piwik
  */
 
 namespace Piwik\ViewDataTable;
@@ -78,8 +76,6 @@ use Piwik\Common;
  *         }
  *     }
  * 
- * @package Piwik
- * @subpackage Piwik_Visualization
  * @api
  */
 class RequestConfig
@@ -92,7 +88,9 @@ class RequestConfig
         'filter_excludelowpop_value',
         'filter_pattern',
         'filter_column',
-        'filter_offset'
+        'filter_offset',
+        'flat',
+        'expanded'
     );
 
     /**
@@ -108,7 +106,9 @@ class RequestConfig
         'filter_excludelowpop',
         'filter_excludelowpop_value',
         'disable_generic_filters',
-        'disable_queued_filters'
+        'disable_queued_filters',
+        'flat',
+        'expanded'
     );
 
     /**
@@ -133,6 +133,21 @@ class RequestConfig
      * Default value: false
      */
     public $filter_limit = false;
+
+    /**
+     * If set to true, the returned data will contain the flattened view of the table data set.
+     * The children of all first level rows will be aggregated under one row.
+     *
+     * Default value: false
+     */
+    public $flat = false;
+
+    /**
+     * If set to true, the returned data will contain the first level results, as well as all sub-tables.
+     *
+     * Default value: false
+     */
+    public $expanded = false;
 
     /**
      * The number of items from the start of the data set that should be ignored.
@@ -187,7 +202,7 @@ class RequestConfig
     /**
      * Whether to run generic filters on the DataTable before rendering or not.
      *
-     * @see Piwik_API_DataTableGenericFilter
+     * @see Piwik\API\DataTableGenericFilter
      *
      * Default value: false
      */
@@ -202,6 +217,12 @@ class RequestConfig
      */
     public $disable_queued_filters = false;
 
+    /**
+     * returns 'Plugin.apiMethodName' used for this ViewDataTable,
+     * eg. 'Actions.getPageUrls'
+     *
+     * @var string
+     */
     public $apiMethodToRequestDataTable = '';
 
     /**

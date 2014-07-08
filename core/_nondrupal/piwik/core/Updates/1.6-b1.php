@@ -1,12 +1,10 @@
 <?php
 /**
- * Piwik - Open source web analytics
+ * Piwik - free/libre analytics platform
  *
  * @link http://piwik.org
  * @license http://www.gnu.org/licenses/gpl-3.0.html GPL v3 or later
  *
- * @category Piwik
- * @package Updates
  */
 
 namespace Piwik\Updates;
@@ -16,11 +14,10 @@ use Piwik\Updater;
 use Piwik\Updates;
 
 /**
- * @package Updates
  */
 class Updates_1_6_b1 extends Updates
 {
-    static function getSql($schema = 'Myisam')
+    static function getSql()
     {
         return array(
             'ALTER TABLE `' . Common::prefixTable('log_conversion_item') . '`
@@ -38,7 +35,7 @@ class Updates_1_6_b1 extends Updates
 				 CHANGE custom_var_k4 custom_var_k4 VARCHAR(200) DEFAULT NULL,
 				 CHANGE custom_var_v4 custom_var_v4 VARCHAR(200) DEFAULT NULL,
 				 CHANGE custom_var_k5 custom_var_k5 VARCHAR(200) DEFAULT NULL,
-				 CHANGE custom_var_v5 custom_var_v5 VARCHAR(200) DEFAULT NULL'             => false,
+				 CHANGE custom_var_v5 custom_var_v5 VARCHAR(200) DEFAULT NULL' => 1060,
             'ALTER TABLE `' . Common::prefixTable('log_conversion') . '`
 				 CHANGE custom_var_k1 custom_var_k1 VARCHAR(200) DEFAULT NULL,
 				 CHANGE custom_var_v1 custom_var_v1 VARCHAR(200) DEFAULT NULL,
@@ -49,7 +46,7 @@ class Updates_1_6_b1 extends Updates
 				 CHANGE custom_var_k4 custom_var_k4 VARCHAR(200) DEFAULT NULL,
 				 CHANGE custom_var_v4 custom_var_v4 VARCHAR(200) DEFAULT NULL,
 				 CHANGE custom_var_k5 custom_var_k5 VARCHAR(200) DEFAULT NULL,
-				 CHANGE custom_var_v5 custom_var_v5 VARCHAR(200) DEFAULT NULL'        => false,
+				 CHANGE custom_var_v5 custom_var_v5 VARCHAR(200) DEFAULT NULL' => 1060,
             'ALTER TABLE `' . Common::prefixTable('log_link_visit_action') . '`
 				 CHANGE custom_var_k1 custom_var_k1 VARCHAR(200) DEFAULT NULL,
 				 CHANGE custom_var_v1 custom_var_v1 VARCHAR(200) DEFAULT NULL,
@@ -60,7 +57,7 @@ class Updates_1_6_b1 extends Updates
 				 CHANGE custom_var_k4 custom_var_k4 VARCHAR(200) DEFAULT NULL,
 				 CHANGE custom_var_v4 custom_var_v4 VARCHAR(200) DEFAULT NULL,
 				 CHANGE custom_var_k5 custom_var_k5 VARCHAR(200) DEFAULT NULL,
-				 CHANGE custom_var_v5 custom_var_v5 VARCHAR(200) DEFAULT NULL' => false,
+				 CHANGE custom_var_v5 custom_var_v5 VARCHAR(200) DEFAULT NULL' => 1060,
         );
     }
 

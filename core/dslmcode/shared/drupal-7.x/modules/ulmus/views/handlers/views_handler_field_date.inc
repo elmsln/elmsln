@@ -16,6 +16,8 @@ class views_handler_field_date extends views_handler_field {
 
     $options['date_format'] = array('default' => 'small');
     $options['custom_date_format'] = array('default' => '');
+    $options['second_date_format_custom'] = array('default' => '');
+    $options['second_date_format'] = array('default' => 'small');
     $options['timezone'] = array('default' => '');
 
     return $options;
@@ -36,6 +38,7 @@ class views_handler_field_date extends views_handler_field {
         'custom' => t('Custom'),
         'raw time ago' => t('Time ago'),
         'time ago' => t('Time ago (with "ago" appended)'),
+        'today time ago' => t('Time ago (with "ago" appended) for today\'s date, but not for other dates'),
         'raw time hence' => t('Time hence'),
         'time hence' => t('Time hence (with "hence" appended)'),
         'raw time span' => t('Time span (future dates have "-" prepended)'),
@@ -49,8 +52,39 @@ class views_handler_field_date extends views_handler_field {
       '#title' => t('Custom date format'),
       '#description' => t('If "Custom", see the <a href="@url" target="_blank">PHP manual</a> for date formats. Otherwise, enter the number of different time units to display, which defaults to 2.', array('@url' => 'http://php.net/manual/function.date.php')),
       '#default_value' => isset($this->options['custom_date_format']) ? $this->options['custom_date_format'] : '',
-      '#dependency' => array('edit-options-date-format' => array('custom', 'raw time ago', 'time ago', 'raw time hence', 'time hence', 'raw time span', 'time span', 'raw time span', 'inverse time span', 'time span')),
+      '#dependency' => array('edit-options-date-format' => array('custom', 'raw time ago', 'time ago', 'today time ago', 'raw time hence', 'time hence', 'raw time span', 'time span', 'raw time span', 'inverse time span', 'time span')),
     );
+    $form['second_date_format'] = array(
+     '#type' => 'select',
+     '#title' => t('Second date format'),
+     '#options' => $date_formats + array(
+       'custom' => t('Custom'),
+     ),
+     '#description' => t('The date format which will be used for rendering dates other than today.'),
+     '#default_value' => isset($this->options['second_date_format']) ? $this->options['second_date_format'] : 'small',
+     '#dependency' => array('edit-options-date-format' => array('today time ago')),
+   );
+   $form['second_date_format_custom'] = array(
+     '#type' => 'textfield',
+     '#title' => t('Custom date format of second date'),
+     '#description' => t('If "Custom" is selected in "Second date format", see the <a href="@url" target="_blank">PHP manual</a> for date formats. Otherwise, enter the number of different time units to display, which defaults to 2.', array('@url' => 'http://php.net/manual/function.date.php')),
+     '#default_value' => isset($this->options['second_date_format_custom']) ? $this->options['second_date_format_custom'] : '',
+     // We have to use states instead of ctools dependency because dependency
+     // doesn't handle multiple conditions.
+     '#states' => array(
+       'visible' => array(
+         '#edit-options-date-format' => array('value' => 'today time ago'),
+         '#edit-options-second-date-format' => array('value' => 'custom'),
+       ),
+     ),
+     // We have to use ctools dependency too because states doesn't add the
+     // correct left margin to the element's wrapper.
+     '#dependency' => array(
+       // This condition is handled by form API's states.
+//        'edit-options-date-format' => array('today time ago'),
+       'edit-options-second-date-format' => array('custom'),
+     ),
+   );
     $form['timezone'] = array(
       '#type' => 'select',
       '#title' => t('Timezone'),
@@ -66,7 +100,7 @@ class views_handler_field_date extends views_handler_field {
   function render($values) {
     $value = $this->get_value($values);
     $format = $this->options['date_format'];
-    if (in_array($format, array('custom', 'raw time ago', 'time ago', 'raw time hence', 'time hence', 'raw time span', 'time span', 'raw time span', 'inverse time span', 'time span'))) {
+    if (in_array($format, array('custom', 'raw time ago', 'time ago', 'today time ago', 'raw time hence', 'time hence', 'raw time span', 'time span', 'raw time span', 'inverse time span', 'time span'))) {
       $custom_format = $this->options['custom_date_format'];
     }
 
@@ -78,6 +112,21 @@ class views_handler_field_date extends views_handler_field {
           return format_interval($time_diff, is_numeric($custom_format) ? $custom_format : 2);
         case 'time ago':
           return t('%time ago', array('%time' => format_interval($time_diff, is_numeric($custom_format) ? $custom_format : 2)));
+        case 'today time ago':
+          $second_format = $this->options['second_date_format'];
+          $second_custom_format = $this->options['second_date_format_custom'];
+          if (format_date(REQUEST_TIME, 'custom', 'Y-m-d', $timezone) == format_date($value, 'custom', 'Y-m-d', $timezone)) {
+            return t('%time ago', array('%time' => format_interval($time_diff, is_numeric($custom_format) ? $custom_format : 2)));
+          }
+          elseif ($second_format == 'custom') {
+            if ($second_custom_format == 'r') {
+              return format_date($value, $second_format, $second_custom_format, $timezone, 'en');
+            }
+            return format_date($value, $second_format, $second_custom_format, $timezone);
+          }
+          else {
+            return format_date($value, $this->options['second_date_format'], '', $timezone);
+          }
         case 'raw time hence':
           return format_interval(-$time_diff, is_numeric($custom_format) ? $custom_format : 2);
         case 'time hence':

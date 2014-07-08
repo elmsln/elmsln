@@ -1,8 +1,37 @@
 <div id="wrap">
     <div class="container">
         
+        <?php if ($page['header_top_left'] || $page['header_top_right']): ?>
+        <!-- #header-top -->
+        <div id="header-top" class="sixteen columns clearfix">
+            
+            <?php if ($page['header_top_left'] && $page['header_top_right']) { ?>
+            <div class="one_half">
+            <?php print render($page['header_top_left']); ?>
+            </div>
+            
+            <div class="one_half last">
+            <?php print render($page['header_top_right']); ?>
+            </div>
+            <?php } else { ?>
+                
+            <?php print render($page['header_top_left']); ?>
+            <?php print render($page['header_top_right']); ?>
+            
+            <?php } ?>
+            
+        </div><!-- /#header-top -->
+        <?php endif; ?>
+        
+        <div class="clear"></div>
+        
         <!-- #header -->
-        <div id="header" class="sixteen columns clearfix">
+        <?php if ($page['header_right']) { ?>
+        <div id="header" class="five columns clearfix">
+		<?php } else { ?>
+        <div id="header" class="sixteen columns clearfix">   
+        <?php } ?>
+        
             <div class="inner">
     
                 <?php if ($logo): ?>
@@ -31,6 +60,19 @@
             </div>
         </div><!-- /#header -->
         
+        <?php if ($page['header_right']) : ?>
+        <!-- #header-right -->
+        <div id="header-right" class="eleven columns clearfix">
+        
+        	 <div class="inner">
+			<?php print render($page['header_right']); ?>
+        	</div>
+            
+        </div><!-- /#header-right -->
+        <?php endif; ?>
+        
+        <div class="clear"></div>
+        
         <!-- #navigation -->
         <div id="navigation" class="sixteen columns clearfix">
         
@@ -52,15 +94,24 @@
             
         </div><!-- /#navigation -->
         
-        <?php if ($page['sidebar_first']) { ?>
+        <?php if ($page['sidebar_first']): ?>
+        <!-- #sidebar-first -->
+        <div id="sidebar-first" class="five columns">
+            <?php print render($page['sidebar_first']); ?>
+        </div><!-- /#sidebar-first -->
+        <?php endif; ?>
+        
+        <?php if ($page['sidebar_first'] && $page['sidebar_second']) { ?>
+        <div id="content" class="six columns">
+        <?php } elseif ($page['sidebar_first'] || $page['sidebar_second']) { ?>
         <div id="content" class="eleven columns">
-        <?php } else { ?>
-        <div id="content" class="sixteen columns clearfix">
+		<?php } else { ?>
+        <div id="content" class="sixteen columns clearfix">    
         <?php } ?>
         
             <?php if ($messages): ?>
                 <div id="messages">
-                  <?php print $messages; ?>
+                <?php print $messages; ?>
                 </div><!-- /#messages -->
             <?php endif; ?>
         
@@ -103,10 +154,10 @@
         
         </div><!-- /#content -->
         
-        <?php if ($page['sidebar_first']): ?>
+        <?php if ($page['sidebar_second']): ?>
         <!-- #sidebar-first -->
-        <div id="sidebar" class="five columns">
-            <?php print render($page['sidebar_first']); ?>
+        <div id="sidebar-second" class="five columns">
+            <?php print render($page['sidebar_second']); ?>
         </div><!-- /#sidebar-first -->
         <?php endif; ?>
         
@@ -134,36 +185,39 @@
         </div><!-- /#featured -->
         <?php endif; ?>
         
-        <div class="clear"></div>
+	</div>
         
-        <div id="footer" class="sixteen columns clearfix">
+	<div id="footer" >
+        <div class="container">
+        	<div class="sixteen columns clearfix">
         
-            <div class="one_third">
-            <?php if ($page['footer_first']): ?><?php print render($page['footer_first']); ?><?php endif; ?>
-            </div>
-            
-            <div class="one_third">
-            <?php if ($page['footer_second']): ?><?php print render($page['footer_second']); ?><?php endif; ?>
-            </div>
-            
-            <div class="one_third last">
-            <?php if ($page['footer_third']): ?><?php print render($page['footer_third']); ?><?php endif; ?>
-            </div>
-    
-            <div class="clear"></div>
-            
-            <?php if ($page['footer']): print render($page['footer']); endif; ?>
-            
-            <div class="clear"></div>
-            
-            <div id="credits">
-			<?php print(date('Y') . ' ');?>
-            <?php if (!empty($site_name)):?>
-            <?php print $site_name;?>- This is a Free Drupal Theme<br/>
-            <?php endif;?>
-            Ported to Drupal for the Open Source Community by <a href="http://www.drupalizing.com" target="_blank">Drupalizing</a>, a Project of <a href="http://www.morethanthemes.com" target="_blank">More than (just) Themes</a>. Original design by <a href="http://www.simplethemes.com/" target="_blank">Simple Themes</a>.
-            </div>
+                <div class="one_third">
+                <?php if ($page['footer_first']): ?><?php print render($page['footer_first']); ?><?php endif; ?>
+                </div>
+                
+                <div class="one_third">
+                <?php if ($page['footer_second']): ?><?php print render($page['footer_second']); ?><?php endif; ?>
+                </div>
+                
+                <div class="one_third last">
+                <?php if ($page['footer_third']): ?><?php print render($page['footer_third']); ?><?php endif; ?>
+                </div>
         
+                <div class="clear"></div>
+                
+                <?php if ($page['footer']): print render($page['footer']); endif; ?>
+                
+                <div class="clear"></div>
+                
+                <div id="credits">
+                <?php print(date('Y') . ' ');?>
+                <?php if (!empty($site_name)):?>
+                <?php print $site_name;?>- This is a Free Drupal Theme<br/>
+                <?php endif;?>
+                Ported to Drupal for the Open Source Community by <a href="http://www.drupalizing.com" target="_blank">Drupalizing</a>, a Project of <a href="http://www.morethanthemes.com" target="_blank">More than (just) Themes</a>. Original design by <a href="http://www.simplethemes.com/" target="_blank">Simple Themes</a>.
+                </div>
+        	</div>
         </div>
     </div>
+    
 </div> <!-- /#wrap -->

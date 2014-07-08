@@ -1,0 +1,22 @@
+<?php
+
+/**
+ * @file
+ * Install, update and uninstall functions for the print UI module.
+ *
+ * @ingroup print
+ */
+
+/**
+ * Implements hook_enable().
+ */
+function print_ui_enable() {
+  // Module weight
+  db_update('system')
+    ->fields(array(
+      'weight' => 1,
+    ))
+    ->condition('type', 'module')
+    ->condition('name', 'print_ui')
+    ->execute();
+}

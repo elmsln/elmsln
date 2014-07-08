@@ -1,0 +1,22 @@
+.print-link {
+  /* Use these for links above the content */
+  text-align: left;
+  /* Use these for links in a corner of the content */
+  /*
+  float: left;
+  */
+}
+
+.print_html, .print_mail, .print_pdf, .print_epub {
+  margin-left: 0;
+  margin-right: 1em;
+}
+
+.print-syslink {
+  margin-right: 0;
+  margin-left: 1em;
+}
+
+img.print-icon-margin {
+  padding-left: 4px;
+}

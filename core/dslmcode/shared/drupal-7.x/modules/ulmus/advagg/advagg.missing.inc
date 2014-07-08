@@ -462,6 +462,9 @@ function advagg_get_css_aggregate_contents($files, $aggregate_settings) {
   if (!empty($aggregate_settings['settings']['no_alters'])) {
     $optimize = FALSE;
   }
+  if (variable_get('advagg_cache_level', ADVAGG_CACHE_LEVEL) < 0) {
+    $optimize = FALSE;
+  }
 
   $data = '';
   if (!empty($files)) {
@@ -568,6 +571,9 @@ function advagg_get_css_aggregate_contents($files, $aggregate_settings) {
 
       // Close any open comment blocks.
       $contents .= '/**/';
+      if (variable_get('advagg_cache_level', ADVAGG_CACHE_LEVEL) < 0) {
+        $contents .= "\n/* Above code came from $file */\n\n";
+      }
 
       $data .= $contents;
     }
@@ -622,6 +628,9 @@ function advagg_get_js_aggregate_contents($files, $aggregate_settings) {
       // running together. Also close any comment blocks.
       if (file_exists($filename)) {
         $contents .= file_get_contents($filename) . ";/**/\n";
+        if (variable_get('advagg_cache_level', ADVAGG_CACHE_LEVEL) < 0) {
+          $contents .= "/* Above code came from $filename */\n\n";
+        }
       }
       // Allow other modules to modify this files contents.
       // Call hook_advagg_get_js_file_contents_alter().
@@ -668,6 +677,9 @@ function advagg_save_aggregate($filename, $files, $type, $aggregate_settings) {
   elseif ($type == 'js') {
     $contents = advagg_get_js_aggregate_contents($files, $aggregate_settings);
     $uri = $js_path[0] . '/' . $filename;
+  }
+  if (variable_get('advagg_cache_level', ADVAGG_CACHE_LEVEL) < 0) {
+    $contents = "/* This aggregate contains the following files:\n" . implode(",\n", array_keys($files)) . ". */\n\n" . $contents;
   }
 
   // List of files to save.
@@ -725,6 +737,9 @@ function advagg_save_aggregate($filename, $files, $type, $aggregate_settings) {
  *   (optional) Bool, set to TRUE to overwrite a file.
  */
 function advagg_save_data($uri, $data, $overwrite = FALSE) {
+  // Clear the stat cache.
+  module_load_include('inc', 'advagg', 'advagg');
+  advagg_clearstatcache($uri);
   // File already exists.
   if (!$overwrite && file_exists($uri) && filesize($uri) > 0) {
     return;

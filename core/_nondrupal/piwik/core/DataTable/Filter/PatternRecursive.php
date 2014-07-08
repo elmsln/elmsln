@@ -1,12 +1,10 @@
 <?php
 /**
- * Piwik - Open source web analytics
+ * Piwik - free/libre analytics platform
  *
  * @link http://piwik.org
  * @license http://www.gnu.org/licenses/gpl-3.0.html GPL v3 or later
  *
- * @category Piwik
- * @package Piwik
  */
 namespace Piwik\DataTable\Filter;
 
@@ -24,8 +22,6 @@ use Piwik\DataTable\Manager;
  *     // only display index pageviews in Actions.getPageUrls
  *     $dataTable->filter('PatternRecursive', array('label', 'index'));
  *
- * @package Piwik
- * @subpackage DataTable
  * @api
  */
 class PatternRecursive extends BaseFilter
@@ -81,7 +77,7 @@ class PatternRecursive extends BaseFilter
             }
 
             if ($patternNotFoundInChildren
-                && !Pattern::match($this->patternToSearch, $this->patternToSearchQuoted, $row->getColumn($this->columnToFilter), $invertedMatch = false)
+                && !Pattern::match($this->patternToSearchQuoted, $row->getColumn($this->columnToFilter), $invertedMatch = false)
             ) {
                 $table->deleteRow($key);
             }

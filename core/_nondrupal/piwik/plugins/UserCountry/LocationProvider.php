@@ -1,12 +1,10 @@
 <?php
 /**
- * Piwik - Open source web analytics
+ * Piwik - free/libre analytics platform
  *
  * @link http://piwik.org
  * @license http://www.gnu.org/licenses/gpl-3.0.html GPL v3 or later
  *
- * @category Piwik_Plugins
- * @package UserCountry
  */
 namespace Piwik\Plugins\UserCountry;
 
@@ -32,8 +30,8 @@ require_once PIWIK_INCLUDE_PATH . '/plugins/UserCountry/LocationProvider/GeoIp.p
 /**
  * The base class of all LocationProviders.
  *
- * LocationProviders attempt to determine a visitor's location using other
- * visitor info. All LocationProviders require a visitor's IP address, some
+ * LocationProviders attempt to determine a visitor's location using
+ * visit information. All LocationProviders require a visitor's IP address, some
  * require more, such as the browser language.
  */
 abstract class LocationProvider

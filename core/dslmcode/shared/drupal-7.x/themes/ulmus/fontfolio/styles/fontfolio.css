@@ -363,7 +363,7 @@ ul.menu {
 
 .blog-box img,
 .blog_box img {
-  height: 209px;
+  height: auto;
   width: 699px;
 }
 
@@ -514,6 +514,8 @@ h1#site-name {
 
 #header_menu ul li {
   margin: 0;
+  padding: 0;
+  list-style: none;
 }
 
 #header_menu a.active {
@@ -555,17 +557,8 @@ h1#site-name {
 /*
  * Node types
  */
-.blog_box img,
-.blog_box img {
-  height: auto;
-}
-
+.node-page .field-type-image .field-item,
 .page-blog .node-blog .field-type-image .field-item {
-  height: 209px;
-  overflow: hidden;
-}
-
-.node-page .field-type-image .field-item {
   height: 209px;
   overflow: hidden;
 }

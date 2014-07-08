@@ -1,17 +1,16 @@
 <?php
 /**
- * Piwik - Open source web analytics
+ * Piwik - free/libre analytics platform
  *
  * @link http://piwik.org
  * @license http://www.gnu.org/licenses/gpl-3.0.html GPL v3 or later
  *
- * @category Piwik
- * @package Piwik
  */
 namespace Piwik\ArchiveProcessor;
 use Piwik\Archive;
 use Piwik\ArchiveProcessor;
 use Piwik\Config;
+use Piwik\DataAccess\ArchivePurger;
 use Piwik\DataAccess\ArchiveSelector;
 use Piwik\Date;
 use Piwik\Period;
@@ -121,17 +120,13 @@ class Loader
         }
         $idArchive = $pluginsArchiver->finalizeArchive();
 
-        if (!$this->params->isSingleSiteDayArchive() && $visits) {
-            ArchiveSelector::purgeOutdatedArchives($this->params->getPeriod()->getDateStart());
-        }
-
         return array($idArchive, $visits);
     }
 
     protected function doesRequestedPluginIncludeVisitsSummary()
     {
         $processAllReportsIncludingVisitsSummary =
-                Rules::shouldProcessReportsAllPlugins($this->params->getSegment(), $this->params->getPeriod()->getLabel());
+                Rules::shouldProcessReportsAllPlugins($this->params->getIdSites(), $this->params->getSegment(), $this->params->getPeriod()->getLabel());
         $doesRequestedPluginIncludeVisitsSummary = $processAllReportsIncludingVisitsSummary
                                                         || $this->params->getRequestedPlugin() == 'VisitsSummary';
         return $doesRequestedPluginIncludeVisitsSummary;
@@ -165,12 +160,8 @@ class Loader
         if ($this->isArchivingForcedToTrigger()) {
             return $noArchiveFound;
         }
-        $site = $this->params->getSite();
-        $period = $this->params->getPeriod();
-        $segment = $this->params->getSegment();
-        $requestedPlugin = $this->params->getRequestedPlugin();
 
-        $idAndVisits = ArchiveSelector::getArchiveIdAndVisits($site, $period, $segment, $minDatetimeArchiveProcessedUTC, $requestedPlugin);
+        $idAndVisits = ArchiveSelector::getArchiveIdAndVisits($this->params, $minDatetimeArchiveProcessedUTC);
         if (!$idAndVisits) {
             return $noArchiveFound;
         }

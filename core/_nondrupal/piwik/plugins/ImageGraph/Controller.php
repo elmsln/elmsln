@@ -1,12 +1,10 @@
 <?php
 /**
- * Piwik - Open source web analytics
+ * Piwik - free/libre analytics platform
  *
  * @link http://piwik.org
  * @license http://www.gnu.org/licenses/gpl-3.0.html GPL v3 or later
  *
- * @category Piwik_Plugins
- * @package ImageGraph
  */
 namespace Piwik\Plugins\ImageGraph;
 
@@ -46,7 +44,7 @@ class Controller extends \Piwik\Plugin\Controller
     // Draw graphs for all sizes (DEBUG)
     public function testAllSizes()
     {
-        Piwik::checkUserIsSuperUser();
+        Piwik::checkUserHasSuperUserAccess();
 
         $view = new View('@ImageGraph/testAllSizes');
         $this->setGeneralVariablesView($view);

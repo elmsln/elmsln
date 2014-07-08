@@ -1,6 +1,5 @@
 core = 7.x
 description = Tao is a base theme that is all about going with the flow. It takes care of key reset and utility tasks so that sub-themes can get on with their job.
-engine = phptemplate
 name = Tao
 
 ; Regions =====================================================================
@@ -20,10 +19,11 @@ regions[highlighted] = Highlighted
 stylesheets[all][] = reset.css
 stylesheets[all][] = base.css
 stylesheets[screen][] = drupal.css
+stylesheets[ie][lte IE 7] = ie.css
 
-; Information added by drupal.org packaging script on 2011-09-21
-version = "7.x-3.0-beta4"
+; Information added by Drupal.org packaging script on 2014-03-18
+version = "7.x-3.1"
 core = "7.x"
 project = "tao"
-datestamp = "1316616407"
+datestamp = "1395127156"
 

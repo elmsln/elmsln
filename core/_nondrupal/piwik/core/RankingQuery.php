@@ -1,12 +1,10 @@
 <?php
 /**
- * Piwik - Open source web analytics
+ * Piwik - free/libre analytics platform
  *
  * @link http://piwik.org
  * @license http://www.gnu.org/licenses/gpl-3.0.html GPL v3 or later
  *
- * @category Piwik
- * @package Piwik
  */
 
 namespace Piwik;
@@ -15,7 +13,7 @@ use Exception;
 
 /**
  * The ranking query class wraps an arbitrary SQL query with more SQL that limits
- * the number of results while aggregating the rest in an a new "Others" row. It als
+ * the number of results while aggregating the rest in an a new "Others" row. It also
  * allows for some more fancy things that can be configured via method calls of this
  * class. The advanced use cases are explained in the doc comments of the methods.
  *
@@ -39,7 +37,6 @@ use Exception;
  *
  * For more examples, see RankingQueryTest.php
  *
- * @package Piwik
  * @api
  */
 class RankingQuery

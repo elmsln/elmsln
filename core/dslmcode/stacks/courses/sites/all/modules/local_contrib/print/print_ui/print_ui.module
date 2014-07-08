@@ -1,0 +1,770 @@
+<?php
+
+/**
+ * @file
+ * Printer-friendly pages User Interface module.
+ *
+ * This module handles the display of the printer-friendly sub-module links.
+ *
+ * @ingroup print
+ */
+
+define('PRINT_UI_LINK_POS_DEFAULT', '{ "link": "link", "block": "block", "help": "help" }');
+define('PRINT_UI_LINK_TEASER_DEFAULT', 0);
+define('PRINT_UI_SHOW_LINK_DEFAULT', 1);
+define('PRINT_UI_SYS_LINK_VISIBILITY_DEFAULT', 1);
+define('PRINT_UI_SYS_LINK_PAGES_DEFAULT', '');
+define('PRINT_UI_LINK_USE_ALIAS_DEFAULT', 0);
+define('PRINT_UI_BOOK_LINK_DEFAULT', 1);
+
+define('PRINT_UI_ALLOW_NORMAL_LINK', 1);
+define('PRINT_UI_ALLOW_BOOK_LINK', 2);
+define('PRINT_UI_TYPE_FIELDS_WEIGHT', 30);
+
+define('PRINT_UI_TYPE_SHOW_LINK_DEFAULT', 1);
+define('PRINT_UI_TYPE_COMMENT_LINK_DEFAULT', 0);
+
+/**
+ * Implements hook_permission().
+ */
+function print_ui_permission() {
+  return array(
+    'node-specific print configuration' => array(
+      'title' => t('Node-specific configuration'),
+      'description' => t('Enable access to the per-node settings.'),
+    ),
+  );
+}
+
+/**
+ * Implements hook_theme().
+ */
+function print_ui_theme() {
+  return array(
+    'print_ui_format_link' => array(
+      'variables' => array('format' => '', 'location' => ''),
+    ),
+    'print_ui_settings' => array(
+      'render element' => 'form',
+      'file' => 'print_ui.admin.inc',
+    ),
+  );
+}
+
+/**
+ * Implements hook_menu().
+ */
+function print_ui_menu() {
+  $items = array();
+  $items['admin/config/user-interface/print/ui'] = array(
+    'title' => 'Links',
+    'description' => 'Configure the print module links.',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('print_ui_settings'),
+    'access arguments'  => array('administer print'),
+    'weight' => 9,
+    'type' => MENU_LOCAL_TASK,
+    'file' => 'print_ui.admin.inc',
+  );
+
+  return $items;
+}
+
+/**
+ * Implements hook_block_info().
+ */
+function print_ui_block_info() {
+  $block['print-links']['info'] = t('Printer, email and PDF versions');
+  $block['print-links']['cache'] = DRUPAL_CACHE_PER_PAGE;
+  return $block;
+}
+
+/**
+ * Implements hook_block_view().
+ */
+function print_ui_block_view($delta = '') {
+  $block = array();
+
+  switch ($delta) {
+    case 'print-links':
+      $nid = preg_replace('!^node/!', '', $_GET['q']);
+      if (ctype_digit($nid)) {
+        $node = node_load($nid);
+        if (!node_access('view', $node)) {
+          // If the user doesn't have access to the node, don't show any links
+          $block['content'] = '';
+          return;
+        }
+      }
+      else {
+        $node = NULL;
+      }
+
+      $block['content'] = '';
+      foreach (module_implements('print_link') as $module) {
+        $function = $module . '_print_link';
+        if (function_exists($function)) {
+          $link = call_user_func_array($function, array());
+
+          $link_pos = variable_get('print_' . $link['format'] . '_link_pos', drupal_json_decode(PRINT_UI_LINK_POS_DEFAULT));
+
+          if (!(empty($link_pos['block']))) {
+            $links = print_ui_insert_link($link, array('node' => $node, 'location' => 'block'));
+            if (!empty($links)) {
+              $block['content'] .= $links;
+            }
+          }
+        }
+      }
+      break;
+  }
+  return $block;
+}
+
+/**
+ * Implements hook_help().
+ */
+function print_ui_help($path, $arg) {
+  $links = '';
+
+  if (($path !== 'node/%') && ($path !== 'node/%/revisions/%/view')) {
+    static $output = FALSE;
+
+    if ($output === FALSE) {
+      $output = TRUE;
+
+      foreach (module_implements('print_link') as $module) {
+        $function = $module . '_print_link';
+        if (function_exists($function)) {
+          $link = call_user_func_array($function, array());
+
+          $link_pos = variable_get('print_' . $link['format'] . '_link_pos', drupal_json_decode(PRINT_UI_LINK_POS_DEFAULT));
+
+          if (!empty($link_pos['help'])) {
+            $links .= print_ui_insert_link($link, array('location' => 'help'));
+          }
+        }
+      }
+      if ($links) {
+        return "<span class='print-syslink'>$links</span>";
+      }
+    }
+  }
+}
+
+/**
+ * Implements hook_node_view_alter().
+ */
+function print_ui_node_view_alter(&$build) {
+  if (isset($build['links']['book']['#links']['book_printer'])) {
+    $book_link = variable_get('print_html_book_link', PRINT_UI_BOOK_LINK_DEFAULT);
+
+    if ($book_link) {
+      $link = print_print_link();
+      $link_pos = variable_get('print_html_link_pos', drupal_json_decode(PRINT_UI_LINK_POS_DEFAULT));
+
+      if (!empty($link_pos['link'])) {
+        $format = theme('print_ui_format_link', array('format' => 'html', 'location' => 'link'));
+
+        switch ($book_link) {
+          case 1:
+            $path = $build['links']['book']['#links']['book_printer']['href'];
+            break;
+          case 2:
+            $link_use_alias = variable_get('print_html_link_use_alias', PRINT_UI_LINK_USE_ALIAS_DEFAULT);
+            $path = ($link_use_alias && ($alias = drupal_lookup_path('alias', 'node/' . $build['#node']->nid))) ? $alias : $build['#node']->nid;
+            break;
+        }
+
+        $build['links']['book']['#links']['book_printer'] = array(
+          'href' => $link['path'] . '/' . $path,
+          'title' => $format['text'],
+          'attributes' => $format['attributes'],
+          'html' => $format['html'],
+        );
+      }
+      else {
+        unset($build['links']['book']['#links']['book_printer']);
+      }
+    }
+  }
+}
+
+/**
+ * Implements hook_node_view().
+ */
+function print_ui_node_view($node, $view_mode) {
+  $corner_markup = '';
+
+  foreach (module_implements('print_link') as $module) {
+    $function = $module . '_print_link';
+    if (function_exists($function)) {
+      $link = call_user_func_array($function, array());
+
+      $link_pos = variable_get('print_' . $link['format'] . '_link_pos', drupal_json_decode(PRINT_UI_LINK_POS_DEFAULT));
+      $link_use_alias = variable_get('print_' . $link['format'] . '_link_use_alias', PRINT_UI_LINK_USE_ALIAS_DEFAULT);
+
+      if (!preg_match('!^node/[\d]*/revisions/[\d]*/view$!', $_GET['q'])) {
+        // Not a revision, use node->nid to build the path
+        $path = (($link_use_alias) && ($alias = drupal_lookup_path('alias', 'node/' . $node->nid))) ? $alias : $node->nid;
+      }
+      else {
+        // This is a node revision, replace only the node component
+        $path = preg_replace('!^node/!', '', $_GET['q']);
+      }
+      $path = $link['path'] . '/' . $path;
+
+      foreach (array('node', 'comment') as $type) {
+        $allowed_type = print_ui_link_allowed($link, array('type' => $type, 'node' => $node, 'view_mode' => $view_mode));
+        if ($allowed_type) {
+          drupal_add_css(drupal_get_path('module', 'print_ui') . '/css/print_ui.theme.css');
+          $links = array();
+          $format = theme('print_ui_format_link', array('format' => $link['format'], 'location' => 'link'));
+
+          // Show book link
+          if ($allowed_type === PRINT_UI_ALLOW_BOOK_LINK) {
+            $path = $link['path'] . '/book/export/html/' . $node->nid;
+
+            $links['book_' . $link['format']] = array(
+              'href' => $path,
+              'title' => $format['text'],
+              'attributes' => $format['attributes'],
+              'html' => $format['html'],
+            );
+          }
+          elseif ($allowed_type === PRINT_UI_ALLOW_NORMAL_LINK) {
+            $links['print_' . $link['format']] = array(
+              'href' => $path,
+              'title' => $format['text'],
+              'attributes' => $format['attributes'],
+              'html' => $format['html'],
+              'query' =>  _print_ui_query_string_encode($_GET, array('q')),
+            );
+          }
+
+          $link_content = array(
+            '#theme' => 'links',
+            '#links' => $links,
+            '#attributes' => array('class' => array('links', 'inline')),
+          );
+
+          // If it's a node, and configured to show the link, but it's not the html version of a book then show it
+          if (($type == 'node') && !empty($link_pos['link']) && !(isset($node->book) && ($link['format'] == 'html'))) {
+            $node->content['links']['print_' . $link['format']] = $link_content;
+          }
+          elseif (($type == 'comment') && isset($node->content['comments']['comments'])) {
+            foreach ($node->content['comments']['comments'] as $cid => $comment) {
+              if (is_numeric($cid)) {
+                $link_content['#links']['print_' . $link['format']]['query']['comment'] = $cid;
+                $node->content['comments']['comments'][$cid]['links']['print_' . $link['format']] = $link_content;
+              }
+            }
+          }
+        }
+      }
+
+      if (!empty($link_pos['corner'])) {
+        $corner_markup .= print_ui_insert_link($link, array('node' => $node, 'path' => $path, 'location' => 'corner'));
+      }
+    }
+  }
+
+  if (($view_mode == 'full') && (!empty($corner_markup))) {
+    // Insert content corner links
+    $node->content['print_links'] = array(
+      '#prefix' => '<span class="print-link">',
+      '#markup' => $corner_markup,
+      '#suffix' => '</span>',
+      '#weight' => -101,
+    );
+  }
+}
+
+/**
+ * Implements hook_node_load().
+ */
+function print_ui_node_load($nodes, $types) {
+  $ids = array();
+  foreach ($nodes as $node) {
+    $ids[] = $node->nid;
+  }
+
+  foreach (module_implements('print_link') as $module) {
+    $function = $module . '_print_link';
+    if (function_exists($function)) {
+      $link = call_user_func_array($function, array());
+
+      $display = 'print_' . $link['format'] . '_display';
+      $display_comment = 'print_' . $link['format'] . '_display_comment';
+      $display_urllist =  'print_' . $link['format'] . '_display_urllist';
+
+      $result = db_query('SELECT nid, link, comments, url_list FROM {' . $module . '_node_conf} WHERE nid IN (:nids)', array(':nids' => $ids))->fetchAllAssoc('nid');
+
+      foreach ($nodes as $node) {
+        $node->{$display} = isset($result[$node->nid]) ? intval($result[$node->nid]->link) : variable_get($display . '_' . $node->type, PRINT_UI_TYPE_SHOW_LINK_DEFAULT);
+        $node->{$display_comment} = isset($result[$node->nid]) ? intval($result[$node->nid]->comments) : variable_get($display_comment . '_' . $node->type, PRINT_UI_TYPE_COMMENT_LINK_DEFAULT);
+        $node->{$display_urllist} = isset($result[$node->nid]) ? intval($result[$node->nid]->url_list) : variable_get($display_urllist . '_' . $node->type, PRINT_TYPE_URLLIST_DEFAULT);
+      }
+    }
+  }
+}
+
+/**
+ * Implements hook_node_insert().
+ */
+function print_ui_node_insert($node) {
+  return print_ui_node_update($node);
+}
+
+/**
+ * Implements hook_node_update().
+ */
+function print_ui_node_update($node) {
+  if (user_access('administer print') || user_access('node-specific print configuration')) {
+    foreach (module_implements('print_link') as $module) {
+      $function = $module . '_print_link';
+      if (function_exists($function)) {
+        $link = call_user_func_array($function, array());
+
+        $display = 'print_' . $link['format'] . '_display';
+        $display_comment = 'print_' . $link['format'] . '_display_comment';
+        $display_urllist =  'print_' . $link['format'] . '_display_urllist';
+
+        if (!isset($node->{$display}) || $node->{$display} === NULL) {
+          $node->{$display} = variable_get($display . '_' . $node->type, PRINT_UI_TYPE_SHOW_LINK_DEFAULT);
+        }
+        if (!isset($node->{$display_comment}) || $node->{$display_comment} === NULL) {
+          $node->{$display_comment} = variable_get($display_comment . '_' . $node->type, PRINT_UI_TYPE_COMMENT_LINK_DEFAULT);
+        }
+        if (!isset($node->{$display_urllist}) || $node->{$display_urllist} === NULL) {
+          $node->{$display_urllist} = variable_get($display_urllist . '_' . $node->type, PRINT_TYPE_URLLIST_DEFAULT);
+        }
+
+        db_merge($module . '_node_conf')
+          ->key(array('nid' => $node->nid))
+          ->fields(array(
+            'link' => $node->{$display},
+            'comments' => $node->{$display_comment},
+            'url_list' => $node->{$display_urllist},
+          ))
+          ->execute();
+      }
+    }
+  }
+}
+
+/**
+ * Implements hook_node_delete().
+ */
+function print_ui_node_delete($node) {
+  foreach (module_implements('print_link') as $module) {
+    $function = $module . '_print_link';
+    if (function_exists($function)) {
+      $link = call_user_func_array($function, array());
+
+      db_delete($module . '_node_conf')
+        ->condition('nid', $node->nid)
+        ->execute();
+    }
+  }
+}
+
+/**
+ * Implements hook_form_alter().
+ */
+function print_ui_form_alter(&$form, &$form_state, $form_id) {
+  // Add the node-type settings option to activate the printer-friendly version link
+  if ((user_access('administer print') || user_access('node-specific print configuration')) &&
+      (($form_id == 'node_type_form') || !empty($form['#node_edit_form']))) {
+    $form['print'] = array(
+      '#type' => 'fieldset',
+      '#title' => t('Printer, email and PDF versions'),
+      '#collapsible' => TRUE,
+      '#collapsed' => TRUE,
+      '#weight' => PRINT_UI_TYPE_FIELDS_WEIGHT,
+      '#group' => 'additional_settings',
+    );
+
+    foreach (module_implements('print_link') as $module) {
+      $function = $module . '_print_link';
+      if (function_exists($function)) {
+        $link = call_user_func_array($function, array());
+
+        $form['print']['print_' . $link['format']] = array(
+          '#type' => 'fieldset',
+          '#title' => check_plain($link['text']),
+          '#collapsible' => TRUE,
+        );
+
+        $display = 'print_' . $link['format'] . '_display';
+        $display_comment = 'print_' . $link['format'] . '_display_comment';
+        $display_urllist =  'print_' . $link['format'] . '_display_urllist';
+
+        $form['print']['print_' . $link['format']][$display] = array(
+          '#type' => 'checkbox',
+          '#title' => t('Show link'),
+        );
+        $form['print']['print_' . $link['format']][$display_comment] = array(
+          '#type' => 'checkbox',
+          '#title' => t('Show link in individual comments'),
+        );
+        $form['print']['print_' . $link['format']][$display_urllist] = array(
+          '#type' => 'checkbox',
+          '#title' => t('Show Printer-friendly URLs list'),
+        );
+
+        if ($form_id == 'node_type_form') {
+          $form['print']['print_' . $link['format']][$display]['#default_value'] = variable_get($display . '_' . $form['#node_type']->type, PRINT_UI_TYPE_SHOW_LINK_DEFAULT);
+          $form['print']['print_' . $link['format']][$display_comment]['#default_value'] = variable_get($display_comment . '_' . $form['#node_type']->type, PRINT_UI_TYPE_COMMENT_LINK_DEFAULT);
+          $form['print']['print_' . $link['format']][$display_urllist]['#default_value'] = variable_get($display_urllist . '_' . $form['#node_type']->type, PRINT_TYPE_URLLIST_DEFAULT);
+        }
+        else {
+          $node = $form['#node'];
+          $form['print']['print_' . $link['format']][$display]['#default_value'] = isset($node->{$display}) ? $node->{$display} : variable_get($display . '_' . $node->type, PRINT_UI_TYPE_SHOW_LINK_DEFAULT);
+          $form['print']['print_' . $link['format']][$display_comment]['#default_value'] = isset($node->{$display_comment}) ? $node->{$display_comment} : variable_get($display_comment . '_' . $node->type, PRINT_UI_TYPE_COMMENT_LINK_DEFAULT);
+          $form['print']['print_' . $link['format']][$display_urllist]['#default_value'] = isset($node->{$display_urllist}) ? $node->{$display_urllist} : variable_get($display_urllist . '_' . $node->type, PRINT_TYPE_URLLIST_DEFAULT);
+        }
+      }
+    }
+  }
+}
+
+/**
+ * Auxiliary function to fill the Printer-friendly link attributes
+ *
+ * @param string $title
+ *   text to displayed by the link when hovering over it with the mouse
+ * @param string $class
+ *   class attribute to be used in the link
+ * @param bool $new_window
+ *   if TRUE opens the target page in a new window
+ *
+ * @return array
+ *   An associative array containing:
+ *   - title: text to be used when hovering over the link.
+ *   - class: CSS class of the link tag.
+ *   - target: used for opening a new window with the non-javascript method
+ *   - onclick: open a new window, with the javascript method
+ *   - rel: SEO-related attribute indicating that the printer-friendly version
+ *     should not be indexed by search engine robots.
+ */
+function _print_ui_fill_attributes($title = '', $class = '', $new_window = FALSE) {
+  $print_newwindow = variable_get('print_newwindow', PRINT_NEWWINDOW_DEFAULT);
+  $print_robots_noindex = variable_get('print_robots_noindex', PRINT_ROBOTS_NOINDEX_DEFAULT);
+
+  $attributes = array();
+  $attributes['title'] = $title;
+  if (!empty($class)) {
+    $attributes['class'] = array($class);
+  }
+
+  if ($new_window) {
+    switch ($print_newwindow) {
+    case 0:
+      $attributes['target'] = '_blank';
+      break;
+    case 1:
+      $attributes['onclick'] = 'window.open(this.href); return false';
+      break;
+    }
+  }
+  if (!empty($print_robots_noindex)) {
+    $attributes['rel'] = 'nofollow';
+  }
+  return $attributes;
+}
+
+/**
+ * Format the Printer-friendly link
+ *
+ * @return array
+ *   An associative array containing:
+ *   - text: The content of the link
+ *   - html: TRUE if the text contains HTML tags, FALSE if it's plain text
+ *   - attributes: several attributes of the link tag (title, class, target,
+ *     onclick, rel)
+ *
+ * @see _print_ui_fill_attributes()
+ * @ingroup themeable
+ * @ingroup print_themeable
+ */
+function theme_print_ui_format_link($vars) {
+  $format = $vars['format'];
+
+  foreach (module_implements('print_link') as $module) {
+    $function = $module . '_print_link';
+    if (function_exists($function)) {
+      $link = call_user_func_array($function, array());
+
+      if ($link['format'] == $format) {
+        $link_class = variable_get('print_' . $link['format'] . '_link_class', $link['class']);
+
+        $new_window = FALSE;
+        $func = $module . '_print_new_window_alter';
+        if (function_exists($func)) {
+          $func($new_window, $link['format']);
+        }
+
+        $show_link = variable_get('print_' . $link['format'] . '_show_link', PRINT_UI_SHOW_LINK_DEFAULT);
+        $link_text = filter_xss(variable_get('print_' . $link['format'] . '_link_text', $link['text']));
+
+        if ($show_link >= 2) {
+          $img = drupal_get_path('module', $module) . '/icons/' . $link['icon'];
+          switch ($show_link) {
+            case 2:
+              $text = theme('image', array('path' => $img, 'width' => '16px', 'height' => '16px', 'alt' => $link_text, 'title' => $link_text, 'attributes' => array('class' => array('print-icon'))));
+              break;
+            case 3:
+              $text = theme('image', array('path' => $img, 'width' => '16px', 'height' => '16px', 'alt' => $link_text, 'title' => $link_text, 'attributes' => array('class' => array('print-icon', 'print-icon-margin')))) . $link_text;
+              break;
+          }
+          $html = TRUE;
+        }
+        else {
+          $text = $link_text;
+          $html = FALSE;
+        }
+
+        return array(
+          'text' => $text,
+          'html' => $html,
+          'attributes' => _print_ui_fill_attributes($link['description'], strip_tags($link_class), $new_window),
+        );
+      }
+    }
+  }
+}
+
+/**
+ * Auxiliary function to display a formatted Printer-friendly link
+ *
+ * Function made available so that developers may call this function from
+ * their defined pages/blocks.
+ *
+ * @param array $link
+ *    array returned by the hook_print_link() call.
+ * @param array $args
+ *   Array of optional arguments:
+ *   - node: node object, to be used in checking node access. If the path
+ *     argument is not provided, the path used will be node/nid.
+ *   - path: path to be used in the link. If not specified, the current URL
+ *     is used.
+ *   - location: the location in the page where the link is being inserted
+ *     ('link', 'corner', 'block', 'help').
+ *
+ * @return string
+ *   string with the HTML link to the printer-friendly page
+ */
+function print_ui_insert_link($link, $args = array()) {
+  $node = isset($args['node']) ? $args['node'] : NULL;
+  $path = isset($args['path']) ? $args['path'] : NULL;
+  $location = isset($args['location']) ? $args['location'] : '';
+
+  if ($node !== NULL) {
+    $nid = $node->nid;
+    if ($path === NULL) {
+      $path = 'node/' . $nid;
+    }
+    $allowed_type = print_ui_link_allowed($link, array('node' => $node));
+  }
+  else {
+    if ($path === NULL) {
+      $nid = preg_replace('!^node/([\d]+)!', '$1', $_GET['q']);
+      $path = $_GET['q'];
+    }
+    else {
+      $nid = NULL;
+    }
+    $allowed_type = print_ui_link_allowed($link, array('path' => $path));
+  }
+
+  if ($allowed_type) {
+    if ($nid !== NULL) {
+      if ($allowed_type === PRINT_UI_ALLOW_BOOK_LINK) {
+        $path = 'book/export/html/' . $nid;
+      }
+      else {
+        if (variable_get('print_' . $link['format'] . '_link_use_alias', PRINT_UI_LINK_USE_ALIAS_DEFAULT) && ($alias = drupal_lookup_path('alias', $path))) {
+          $path = $alias;
+        }
+        else {
+          $path = $nid;
+        }
+      }
+      $path = $link['path'] . '/' . $path;
+      $query = _print_ui_query_string_encode($_GET, array('q'));
+    }
+    else {
+      $query = NULL;
+    }
+    drupal_add_css(drupal_get_path('module', 'print_ui') . '/css/print_ui.theme.css');
+    $format = theme('print_ui_format_link', array('format' => $link['format'], 'location' => $location));
+    return '<span class="print_' . $link['format'] . '">' . l($format['text'], $path, array('attributes' => $format['attributes'], 'query' => $query, 'absolute' => TRUE, 'html' => $format['html'])) . '</span>';
+  }
+  else {
+    return FALSE;
+  }
+}
+
+/**
+ * Check if the link to the PF version is allowed depending on the settings
+ *
+ * @param array $link
+ *    array returned by the hook_print_link() call.
+ * @param array $args
+ *   array containing the possible parameters:
+ *    view_mode, node, type, path
+ *
+ * @return
+ *   FALSE if not allowed
+ *   PRINT_UI_ALLOW_NORMAL_LINK if a normal link is allowed
+ *   PRINT_UI_ALLOW_BOOK_LINK if a link is allowed in a book node
+ */
+function print_ui_link_allowed($link, $args) {
+  if (isset($args['view_mode'])) {
+    $view_mode = $args['view_mode'];
+    if ((($view_mode == 'teaser') && !variable_get('print_' . $link['format'] . '_link_teaser', PRINT_UI_LINK_TEASER_DEFAULT))
+      || !in_array($view_mode, array('full', 'teaser'))) {
+      // If the teaser link is disabled
+      return FALSE;
+    }
+  }
+  $link_allowed_func = $link['module'] . '_link_allowed';
+  if (function_exists($link_allowed_func)) {
+    if (!$link_allowed_func($args)) {
+      // If the format-specific function disallows the link
+      return FALSE;
+    }
+  }
+  if (!empty($args['path'])) {
+    $nid = preg_replace('!^node/!', '', drupal_get_normal_path($args['path']));
+    if (ctype_digit($nid)) {
+      $args['node'] = node_load($nid);
+    }
+  }
+  if (!empty($args['node'])) {
+    static $node_type = '';
+
+    $node = $args['node'];
+    if (isset($node->type)) {
+      $node_type = $node->type;
+    }
+    // Node
+    if (isset($args['type']) && ($args['type'] == 'comment') && isset($node_type)) {
+      // Link is for a comment, return the configured setting
+      // Cache this statically to avoid duplicate queries for every comment.
+      static $res = array();
+      if (!isset($res[$link['format']][$node->nid])) {
+        $res[$link['format']][$node->nid] = db_query("SELECT comments FROM {" . $link['module'] . "_node_conf} WHERE nid = :nid", array(':nid' => $node->nid))->fetchField();
+      }
+      $display_comment = ($res && ($res[$link['format']][$node->nid] !== FALSE)) ? $res[$link['format']][$node->nid] : variable_get('print_' . $link['format'] . '_display_comment_' . $node_type, PRINT_UI_TYPE_COMMENT_LINK_DEFAULT);
+      if ($display_comment) {
+        return PRINT_UI_ALLOW_NORMAL_LINK;
+      }
+    }
+    else {
+      // Node link
+      $display = 'print_' . $link['format'] . '_display';
+      if (isset($node->{$display}) && !$node->{$display}) {
+        // Link for this node is disabled
+        return FALSE;
+      }
+      elseif (isset($node->book)) {
+        // Node is a book;
+        $book_link = variable_get('print_' . $link['format'] . '_book_link', PRINT_UI_BOOK_LINK_DEFAULT);
+        switch ($book_link) {
+          case 1:
+            if (user_access('access printer-friendly version')) {
+              return PRINT_UI_ALLOW_BOOK_LINK;
+            }
+            break;
+          case 2:
+            return PRINT_UI_ALLOW_NORMAL_LINK;
+        }
+      }
+      else {
+        return PRINT_UI_ALLOW_NORMAL_LINK;
+      }
+    }
+  }
+  else {
+    // 'System' page
+    $sys_link_visibility = variable_get('print_' . $link['format'] . '_sys_link_visibility', PRINT_UI_SYS_LINK_VISIBILITY_DEFAULT);
+    $sys_link_pages = variable_get('print_' . $link['format'] . '_sys_link_pages', PRINT_UI_SYS_LINK_PAGES_DEFAULT);
+
+    return _print_ui_page_match($sys_link_visibility, $_GET['q'], $sys_link_pages);
+  }
+  return FALSE;
+}
+
+/**
+ * Check if the provided page is enabled according to the visibility settings
+ *
+ * @param int $visibility
+ *   current visibility settings:
+ *    0 for show on every page except the listed pages
+ *    1 for show on only the listed pages
+ * @param string $path
+ *   current path
+ * @param string $pages
+ *   list of pages
+ *
+ * @return bool
+ *   TRUE if it is enabled, FALSE otherwise
+ */
+function _print_ui_page_match($visibility, $path, $pages) {
+  if ($pages) {
+    if ($visibility == 2) {
+      if (module_exists('php')) {
+        return php_eval($pages);
+      }
+      else {
+        return FALSE;
+      }
+    }
+    $alias = drupal_get_path_alias($path);
+    $page_match = drupal_match_path($path, $pages);
+    if ($alias != $path) {
+      $page_match = $page_match || drupal_match_path($alias, $pages);
+    }
+
+    return !($visibility xor $page_match);
+  }
+  else {
+    return !$visibility;
+  }
+}
+
+/**
+ * Parse an array into a valid urlencoded query string.
+ *
+ * Modified from drupal_query_string_encode to prevent re-encoding of
+ * encoded original. (see #301192)
+ *
+ * @param array $query
+ *   The array to be processed e.g. $_GET
+ * @param array $exclude
+ *   The array filled with keys to be excluded.
+ * @param string $parent
+ *   The be used in recursive calls.
+ *
+ * @return string
+ *   urlencoded string which can be appended to/as the URL query string
+ */
+function _print_ui_query_string_encode($query, $exclude = array(), $parent = '') {
+  $params = array();
+  foreach ($query as $key => $value) {
+    if (in_array($key, $exclude, TRUE)) {
+      continue;
+    }
+
+    if (is_array($value)) {
+      $params[$key] = _print_ui_query_string_encode($value, $exclude, $key);
+    }
+    else {
+      $params[$key] = $value;
+    }
+  }
+
+  return empty($params) ? NULL : $params;
+}

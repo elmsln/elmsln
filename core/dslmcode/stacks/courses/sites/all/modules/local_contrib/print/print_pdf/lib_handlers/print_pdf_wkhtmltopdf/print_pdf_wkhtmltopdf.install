@@ -1,0 +1,15 @@
+<?php
+
+/**
+ * @file
+ * Install, update and uninstall functions for the print_pdf_wkhtmltopdf module.
+ *
+ * @ingroup print
+ */
+
+/**
+ * Implements hook_uninstall().
+ */
+function print_pdf_wkhtmltopdf_uninstall() {
+  variable_del('print_pdf_wkhtmltopdf_options');
+}

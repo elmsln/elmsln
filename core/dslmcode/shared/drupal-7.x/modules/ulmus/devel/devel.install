@@ -31,18 +31,27 @@ function devel_enable() {
  * Implements hook_uninstall().
  */
 function devel_uninstall() {
-  variable_del('devel_form_weights');
   variable_del('devel_execution');
   variable_del('dev_timer');
   variable_del('devel_query_display');
   variable_del('devel_redirect_page');
   variable_del('devel_api_url');
-  variable_del('dev_mem');
+  variable_del('devel_memory');
   variable_del('devel_error_handlers');
   variable_del('devel_raw_names');
   variable_del('devel_switch_user_list_size');
   variable_del('devel_switch_user_include_anon');
   variable_del('devel_switch_user_show_form');
+  variable_del('devel_krumo_skin');
+  variable_del('devel_page_alter');
+  variable_del('devel_query_sort');
+  variable_del('devel_rebuild_theme_registry');
+  variable_del('devel_use_uncompressed_jquery');
+  variable_del('devel_xhprof_directory');
+  variable_del('devel_xhprof_enabled');
+  variable_del('devel_xhprof_url');
+  variable_del('devel_debug_mail_file_format');
+  variable_del('devel_debug_mail_directory');
 
   // Delete the development menu.
   if (module_exists('menu')) {
@@ -105,4 +114,22 @@ function devel_update_7004() {
     variable_del('devel_error_handler');
     variable_set('devel_error_handlers', drupal_map_assoc($error_handlers));
   }
+}
+
+/**
+ * Delete variable 'devel_form_weights' from database as it was removed from code.
+ */
+function devel_update_7005() {
+  variable_del('devel_form_weights');
+}
+
+/**
+ * Change variable 'dev_mem' to 'devel_memory'.
+ */
+function devel_update_7006() {
+  if (variable_get('dev_mem', NULL) !== NULL) {
+    variable_set('devel_memory', variable_get('dev_mem'));
+  }
+
+  variable_del('dev_mem');
 }

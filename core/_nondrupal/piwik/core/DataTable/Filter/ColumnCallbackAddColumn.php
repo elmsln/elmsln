@@ -1,12 +1,10 @@
 <?php
 /**
- * Piwik - Open source web analytics
+ * Piwik - free/libre analytics platform
  *
  * @link http://piwik.org
  * @license http://www.gnu.org/licenses/gpl-3.0.html GPL v3 or later
  *
- * @category Piwik
- * @package Piwik
  */
 namespace Piwik\DataTable\Filter;
 
@@ -24,8 +22,6 @@ use Piwik\DataTable\BaseFilter;
  *     
  *     $dataTable->filter('ColumnCallbackAddColumn', array(array('nb_visits', 'sum_time_spent'), 'avg_time_on_site', $callback));
  *
- * @package Piwik
- * @subpackage DataTable
  * @api
  */
 class ColumnCallbackAddColumn extends BaseFilter
@@ -83,16 +79,23 @@ class ColumnCallbackAddColumn extends BaseFilter
      */
     public function filter($table)
     {
+        $columns = $this->columns;
+        $functionParams  = $this->functionParameters;
+        $functionToApply = $this->functionToApply;
+
         foreach ($table->getRows() as $row) {
-            $columnValues = array();
-            foreach ($this->columns as $column) {
-                $columnValues[] = $row->getColumn($column);
-            }
 
-            $parameters = array_merge($columnValues, $this->functionParameters);
-            $value = call_user_func_array($this->functionToApply, $parameters);
+            $row->setColumn($this->columnToAdd, function (DataTable\Row $row) use ($columns, $functionParams, $functionToApply) {
 
-            $row->setColumn($this->columnToAdd, $value);
+                $columnValues = array();
+                foreach ($columns as $column) {
+                    $columnValues[] = $row->getColumn($column);
+                }
+
+                $parameters = array_merge($columnValues, $functionParams);
+                
+                return call_user_func_array($functionToApply, $parameters);
+            });
 
             $this->filterSubTable($row);
         }
