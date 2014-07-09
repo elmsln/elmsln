@@ -123,7 +123,7 @@
         <div class="large-12 lmsless-bar">
           <?php if (!empty($page['cis_user_profile'])): ?>
           <!--.l-header-cis_user_profile -->
-            <div class="left">
+            <div class="left cis-user-profile">
               <?php print render($page['cis_user_profile']); ?>
             </div>
           <!--/.l-header-cis_user_profile -->
