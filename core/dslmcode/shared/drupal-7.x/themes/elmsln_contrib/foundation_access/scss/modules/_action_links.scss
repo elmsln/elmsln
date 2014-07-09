@@ -60,7 +60,7 @@ ul{
 			 display:inline-block;
 			a{
 				background-color: $primary-color;
-				padding: 0.2em 0.5em 0;
+				padding: 0.3em 0.5em;
 				color:#c2efff;
 				display:block;
 				@include border-top-radius(6px);

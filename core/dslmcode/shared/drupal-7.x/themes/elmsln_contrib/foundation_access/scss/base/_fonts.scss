@@ -48,15 +48,23 @@ h1 {
 h2 {
 	 @extend %asap-bold;
 }
-
+a {
+	@extend %asap-normal;
+}
 p {
-	 @extend %vollkorn-normal;
+	@extend %vollkorn-normal;
+	a {
+		@extend %vollkorn-normal;
+	}
 
 	&.txtbk-intro {
 		 @extend %asap-normal;
+		 a{
+		 	@extend %asap-normal;
+		 }
 	}
 
-	 &.txtbk-pullquote {
+	&.txtbk-pullquote {
 		 @extend %vollkorn-italic;
 		 
 		 @media #{$small-only} {

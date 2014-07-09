@@ -2,7 +2,9 @@
  * To use, enable the the block called CIS LMSless 
  */
 .cis-user-profile {
-
+  @media #{$small-only} {
+    
+   }
 }
 .lmsless-bar {
   background-color: #efefef;
@@ -15,6 +17,35 @@
     z-index: 9999;
     width: 100%;
     height: 40px;
+  }
+  .f-dropdown{
+    background: #efefef;
+    border: solid 1px #d8d8d8;
+    max-width: 300px;
+
+    &.open {
+      margin-top:0;
+      
+      @media #{$small-only} {
+        left: 0 !important;
+        width:100% !important;
+      }
+      &.right:before, &.right:after, &:before, &:after {
+        content:none;
+      }
+
+      li {
+        a {
+          color:$link-color;
+          text-align: left;
+          text-transform: none; 
+          
+          &:hover {
+            background: #ffffff;
+          }
+        }
+      }
+    }
   }
 }
 div.cis-lmsless {
@@ -56,13 +87,6 @@ div.cis-lmsless {
       border-left: solid 1px #d8d8d8;
       }
     }
-  }
-  .f-dropdown {
-    a {
-      text-align: left;
-      font-size: 1em;
-      text-transform: none;
-    }  
   }
 }
 // .block-cis-lmsless {
