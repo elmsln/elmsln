@@ -137,7 +137,12 @@
             <?php endif; ?>
           </div>
           <!--/ .lmsless-bar -->
-          <!-- content nav  -->
+          
+        <!-- .banner-image-container -->
+        <div class="large-12 columns banner-image-container">
+        </div>
+        <!--/ .banner-image-container -->
+        <!-- content nav  -->
         <div class="large-12 columns top-bar-container">
         <?php if ($top_bar): ?>
           <!--.top-bar -->

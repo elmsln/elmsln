@@ -1,0 +1,43 @@
+.top-bar.expanded .toggle-topbar a span {
+-webkit-box-shadow: none;
+box-shadow: none;
+}
+
+.top-bar-container {
+	padding:0 0 0 0;
+	margin-bottom:3em;
+	border-bottom:1px solid #efefef;
+	padding-top: 240px;
+	.top-bar {
+		background:#008cba;
+
+		.top-bar-section {
+			ul {
+				li {
+					a {
+						background:#008cba;
+						&:hover {
+							background:#e7e7e7;
+						}
+					}
+				}
+			}
+		}
+	}
+}
+.top-bar-section {
+	text-align:center;
+	ul.main-menu {
+		display: inline-block;
+		background:#ccc;
+
+		li>a {
+			font-size: 0.875rem;
+			text-transform: uppercase;
+		}
+	}
+	
+	.has-dropdown {
+		border-right: #333 1px solid;
+	}
+}

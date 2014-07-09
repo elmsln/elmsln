@@ -2,6 +2,16 @@
 	background:#333;
 	border-bottom:1px solid #333;
 	.top-bar {
+		.top-bar-section {
+			color:$link-color;
+			ul {
+				li>a {
+					font-size: 0.875rem;
+					text-transform: uppercase;
+					border-right: #333 1px solid;
+				}
+			}
+		}
 		&.sticky {
 			position: fixed;
 			top: 0;
