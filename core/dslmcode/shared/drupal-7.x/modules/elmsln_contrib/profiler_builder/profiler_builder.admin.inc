@@ -294,6 +294,8 @@ function _profiler_builder_build_profile($name, $machine_name, $description, $ex
     $drush_file_name => $drush_file,
     $local_file_name => $local_file,
   );
+  // allow for other projects to integrate with modification of the file repo
+  drupal_alter('profiler_builder_build_files', $files);
   // Generate download file name
   $filename =  $machine_name . '.tar';
   // Clear out output buffer to remove any garbage from tar output.

@@ -152,11 +152,33 @@ function _profiler_builder_extras_load_queries() {
 }
 
 /**
+ * Implements hook_profiler_builder_extras_load_queries_alter().
+ *
+ * @param  [array] $queries queries with associated arguments to be assembled
+ */
+function profiler_builder_extras_profiler_builder_extras_load_queries_alter(&$queries) {
+  foreach ($queries as $key => $query) {
+    // let's use that nice big list of defined variables we don't like!
+    $kill = _profiler_builder_ignore_list();
+    // remove on update
+    if (in_array($query['args'][':db_condition_placeholder_0'], $kill)) {
+      unset($queries[$key]);
+    }
+    // remove on insert
+    if (in_array($query['args'][':db_insert_placeholder_0'], $kill)) {
+      unset($queries[$key]);
+    }
+  }
+}
+
+/**
  * Writes the variables information to a file.
  *
  * It will be retrieved on demand via AJAX.
  */
 function profiler_builder_extras_query_put_contents($queries) {
+  // allow other projects to act on this operation
+  module_invoke_all('profiler_builder_extras_query_put_contents', $queries);
   $request_id = time();
   $path = "temporary://profiler_builder_extras_querylog";
   // Create the profiler_builder_extras_querylog within the temp folder, if needed.

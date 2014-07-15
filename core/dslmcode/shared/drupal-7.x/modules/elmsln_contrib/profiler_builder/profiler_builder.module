@@ -65,6 +65,7 @@ function _profiler_builder_ignore_list() {
     'profiler_builder_codecache',
     'drupal_css_cache_files',
     'drupal_js_cache_files',
+    'drupal_http_request_fails',
     'preprocess_js',
     'preprocess_css',
     'views_block_hashes',
