@@ -223,10 +223,11 @@ function textbook_wysiwyg_editor_settings_alter(&$settings, $context) {
           switch ($item) {
             case 'css':
               // add these items as low as possible in page render
-              $locations[] = $item_location;
+              $locations[] = base_path() . $item_location;
             break;
             case 'reset':
-            $locations[] = $item_location;
+              $locations[] = base_path() . $item_location;
+            break;
           }
         }
       }
