@@ -206,6 +206,7 @@ function textbook_wysiwyg_editor_settings_alter(&$settings, $context) {
     $active_style = _textbook_active_style();
     // load default style
     $type = 'node';
+    $locations = array();
     $style = $styles[$active_style];
     $api_items = array('css');
     // include reset if site allows it
