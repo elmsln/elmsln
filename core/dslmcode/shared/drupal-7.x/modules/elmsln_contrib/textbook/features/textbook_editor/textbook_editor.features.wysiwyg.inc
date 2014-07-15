@@ -66,7 +66,7 @@ function textbook_editor_wysiwyg_default_profiles() {
       'paste_auto_cleanup_on_paste' => 1,
       'block_formats' => 'p,h2,h3,h4,div,blockquote',
       'css_setting' => 'self',
-      'css_path' => base_path() . drupal_get_path('module', 'textbook') . '/textbook_styles/textbook_core/node_tables.css,' . base_path() . drupal_get_path('module', 'textbook') . '/textbook_styles/textbook_core/node_lists.css',
+      'css_path' => '',
       'css_classes' => '',
       'stylesSet' => '',
       'advanced__active_tab' => 'edit-basic',

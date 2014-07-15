@@ -200,6 +200,36 @@ function textbook_wysiwyg_editor_settings_alter(&$settings, $context) {
     // compatibility w/ 4.x of ckeditor and template style plugins
     // see: https://drupal.org/node/1956778
     $settings['allowedContent'] = TRUE;
+    // load all styles from hook
+    $styles = _textbook_load_styles();
+    // load active style
+    $active_style = _textbook_active_style();
+    // load default style
+    $style = $styles[$active_style];
+    $api_items = array('css');
+    // include reset if site allows it
+    if (variable_get('textbook_reset', TEXTBOOK_RESET_DEFAULT)) {
+      $api_items[] = 'reset';
+    }
+    // loop through defined items
+    foreach ($api_items as $item) {
+      // verify the item is available
+      if (isset($style[$type][$item])) {
+        // loop through
+        foreach ($style[$type][$item] as $item_location) {
+          // assemble all found locations
+          switch ($item) {
+            case 'css':
+              // add these items as low as possible in page render
+              $locations[] = $item_location;
+            break;
+            case 'reset':
+            $locations[] = $item_location;
+          }
+        }
+      }
+    }
+    $settings['contentsCss'] = implode(',', $locations);
     // apply our custom textbook style list
     $settings['stylesSet'] = _textbook_styles();
     // Specify the custom config file that defines our font styles
