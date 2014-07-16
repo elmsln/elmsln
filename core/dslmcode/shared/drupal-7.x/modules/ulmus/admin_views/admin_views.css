@@ -1,0 +1,20 @@
+
+.admin-views-view .views-exposed-form .form-text {
+  width: 10em;
+}
+
+.admin-views-view .views-exposed-form .description {
+  display: none;
+}
+
+.admin-views-view .views-exposed-form .views-submit-button,
+.admin-views-view .views-exposed-form .views-reset-button {
+  padding-right: 0;
+}
+
+.admin-views-view .form-item-operation {
+  float: left;
+  margin-top: 0;
+  margin-bottom: 0;
+  margin-right: 1em;
+}

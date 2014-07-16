@@ -1,0 +1,29 @@
+<?php
+
+/**
+ * @file
+ * Administration views test module.
+ */
+
+/**
+ * Implements hook_menu().
+ */
+function admin_views_test_menu() {
+  $items = array();
+
+  $items['admin/content/admin_views_test'] = array(
+    'title' => 'Administration views test',
+    'description' => 'Administration views test',
+    'page callback' => 'admin_views_test_page_callback',
+    'access callback' => TRUE,
+  );
+
+  return $items;
+}
+
+/**
+ * Test page callback.
+ */
+function admin_views_test_page_callback() {
+  return 'Administration views test page callback';
+}

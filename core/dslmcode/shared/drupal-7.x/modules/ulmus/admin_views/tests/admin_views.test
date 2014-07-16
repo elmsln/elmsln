@@ -1,0 +1,251 @@
+<?php
+
+/**
+ * @file
+ * Tests for the Administration Views module.
+ */
+
+/**
+ * Base class for all Administration Views web test cases.
+ */
+class AdminViewsWebTestCase extends DrupalWebTestCase {
+  protected $profile = 'testing';
+
+  protected $permissionMap = array(
+    'user' => array('administer users', 'administer permissions'),
+    'node' => array('access content overview'),
+    'comment' => array('administer comments'),
+    'taxonomy' => array('administer taxonomy'),
+  );
+
+  function setUp() {
+    // Setup site and modules.
+    $modules = func_get_args();
+    $modules = isset($modules[0]) && is_array($modules[0]) ? $modules[0] : $modules;
+    $modules[] = 'admin_views';
+    parent::setUp($modules);
+
+    // Fix testing environment.
+    theme_enable(array('stark'));
+    variable_set('theme_default', 'stark');
+
+    // Setup permissions.
+    $permissions = array(
+      'access administration pages',
+    );
+    foreach ($this->permissionMap as $module => $module_permissions) {
+      if (module_exists($module)) {
+        $permissions = array_merge($permissions, $module_permissions);
+      }
+    }
+    $this->admin_user = $this->drupalCreateUser($permissions);
+
+    // Setup default configuration.
+    if (in_array('node', $modules)) {
+      $this->node_type = $this->drupalCreateContentType(array(
+        'type' => 'article',
+        'name' => 'Article',
+        // 2 == COMMENT_NODE_OPEN.
+        'comment' => 2,
+      ));
+    }
+    if (in_array('comment', $modules)) {
+      variable_set('comment_preview_article', DRUPAL_OPTIONAL);
+    }
+  }
+
+  protected function assertOriginalRouterItem($module, $path) {
+    // Retrieve the original router item definition.
+    $items = module_invoke($module, 'menu');
+    $original_item = $items[$path];
+    // Retrieve the computed router item definition.
+    $item = menu_get_item($path);
+
+    // Verify that basic properties are identical.
+    $title = (isset($original_item['title callback']) ? $original_item['title callback']() : $original_item['title']);
+    $this->assertEqual($title, $item['title']);
+    if (isset($original_item['description'])) {
+      $this->assertEqual($original_item['description'], $item['description']);
+    }
+
+    // Verify that the title appears.
+    $this->assertResponse(200);
+    $this->assertText($original_item['title']);
+  }
+}
+
+/**
+ * Tests System display functionality.
+ */
+class AdminViewsSystemDisplayTestCase extends AdminViewsWebTestCase {
+  public static function getInfo() {
+    return array(
+      'name' => 'Views System display plugin',
+      'description' => 'Tests Views System display plugin functionality.',
+      'group' => 'Administration views',
+    );
+  }
+
+  function setUp() {
+    parent::setUp(array('node', 'comment', 'admin_views_test'));
+  }
+
+  /**
+   * Tests proper inheritance of router item properties.
+   */
+  function testRouterItemInheritance() {
+    $this->drupalLogin($this->admin_user);
+    $path = 'admin/people';
+    $out = $this->drupalGet($path);
+    $this->assertOriginalRouterItem('user', $path);
+
+    // Verify that local tasks and actions exist and can be accessed.
+    foreach (array(t('List'), t('Permissions'), t('Add user')) as $link) {
+      $this->drupalSetContent($out);
+      $this->assertLink($link);
+      $this->clickLink($link);
+      $this->assertResponse(200);
+    }
+
+    // Test that child page callbacks of a system display work.
+    $this->drupalGet('admin/content/admin_views_test');
+    $this->assertResponse(200);
+    $this->assertTitle('Administration views test | Drupal');
+    $this->assertText('Administration views test page callback');
+  }
+}
+
+/**
+ * Tests default views.
+ */
+class AdminViewsDefaultViewsTestCase extends AdminViewsWebTestCase {
+  public static function getInfo() {
+    return array(
+      'name' => 'Default views',
+      'description' => 'Tests default views.',
+      'group' => 'Administration views',
+    );
+  }
+
+  function setUp() {
+    parent::setUp(array('node', 'comment'));
+  }
+
+  /**
+   * Tests basic appearance and behavior of built-in default views.
+   */
+  function testComment() {
+    $this->drupalLogin($this->admin_user);
+
+    foreach (array('admin/content/comment', 'admin/content/comment/approval') as $path) {
+      $this->drupalGet($path);
+      $this->assertOriginalRouterItem('comment', $path);
+
+      // Verify that a view with its exposed filters appears.
+      $this->assertFieldByName('subject');
+      $this->assertFieldByName('author');
+      $this->assertFieldByName('nodeTitle');
+      $this->assertFieldByName('status');
+      $this->assertFieldByXPath('//select[@name="status"]/option', 'All', 'Published: All option found.');
+      $this->assertFieldByXPath('//select[@name="status"]/option', '1', 'Published: Yes option found.');
+      $this->assertFieldByXPath('//select[@name="status"]/option', '0', 'Published: No option found.');
+      $this->assertFieldByXPath('//input[@type="submit"]', t('Apply'), 'Apply button found.');
+      $this->assertFieldByXPath('//input[@type="submit"]', t('Reset'), 'Reset button found.');
+    }
+  }
+}
+
+/**
+ * Tests system child page display functionality.
+ *
+ * This is important, as any other page view menu items that are children of a
+ * system view can otherwise inherit item properties they don't want.
+ */
+class AdminViewsPageDisplayTestCase extends AdminViewsWebTestCase {
+  public static function getInfo() {
+    return array(
+      'name' => 'Views Page display plugin',
+      'description' => 'Tests views page functionality for children of system plugins.',
+      'group' => 'Administration views',
+    );
+  }
+
+  function setUp() {
+    parent::setUp(array('node'));
+
+    // Save the test page view.
+    $this->normalPageView()->save();
+
+    // Reset views static cache.
+    views_get_view('admin_views_test_normal', TRUE);
+
+    // Rebuild the menu.
+    // views_invalidate_cache only sets the rebuild variable.
+    menu_rebuild();
+  }
+
+  /**
+   * Tests creation of a view page display that is a child of "admin/content".
+   */
+  function testAddPageViewAdminContent() {
+    $this->drupalLogin($this->admin_user);
+
+    // Test the child view exists by checking for the page title.
+    $this->drupalGet('admin/content/test');
+    $this->assertText('admin_views_test_normal');
+  }
+
+  /**
+   * Returns a test page view with a path under "admin/content".
+   */
+  protected function normalPageView() {
+    $view = new view();
+    $view->name = 'admin_views_test_normal';
+    $view->description = '';
+    $view->tag = 'default';
+    $view->base_table = 'node';
+    $view->human_name = 'admin_views_test_normal';
+    $view->core = 7;
+    $view->api_version = '3.0';
+    $view->disabled = FALSE; /* Edit this to true to make a default view disabled initially */
+
+    /* Display: Master */
+    $handler = $view->new_display('default', 'Master', 'default');
+    $handler->display->display_options['title'] = 'admin_views_test_normal';
+    $handler->display->display_options['use_more_always'] = FALSE;
+    $handler->display->display_options['access']['type'] = 'perm';
+    $handler->display->display_options['cache']['type'] = 'none';
+    $handler->display->display_options['query']['type'] = 'views_query';
+    $handler->display->display_options['exposed_form']['type'] = 'basic';
+    $handler->display->display_options['pager']['type'] = 'full';
+    $handler->display->display_options['pager']['options']['items_per_page'] = '10';
+    $handler->display->display_options['style_plugin'] = 'default';
+    $handler->display->display_options['row_plugin'] = 'node';
+    /* Field: Content: Title */
+    $handler->display->display_options['fields']['title']['id'] = 'title';
+    $handler->display->display_options['fields']['title']['table'] = 'node';
+    $handler->display->display_options['fields']['title']['field'] = 'title';
+    $handler->display->display_options['fields']['title']['label'] = '';
+    $handler->display->display_options['fields']['title']['alter']['word_boundary'] = FALSE;
+    $handler->display->display_options['fields']['title']['alter']['ellipsis'] = FALSE;
+    /* Sort criterion: Content: Post date */
+    $handler->display->display_options['sorts']['created']['id'] = 'created';
+    $handler->display->display_options['sorts']['created']['table'] = 'node';
+    $handler->display->display_options['sorts']['created']['field'] = 'created';
+    $handler->display->display_options['sorts']['created']['order'] = 'DESC';
+    /* Filter criterion: Content: Published */
+    $handler->display->display_options['filters']['status']['id'] = 'status';
+    $handler->display->display_options['filters']['status']['table'] = 'node';
+    $handler->display->display_options['filters']['status']['field'] = 'status';
+    $handler->display->display_options['filters']['status']['value'] = 1;
+    $handler->display->display_options['filters']['status']['group'] = 1;
+    $handler->display->display_options['filters']['status']['expose']['operator'] = FALSE;
+
+    /* Display: Page */
+    $handler = $view->new_display('page', 'Page', 'page');
+    $handler->display->display_options['defaults']['hide_admin_links'] = FALSE;
+    $handler->display->display_options['path'] = 'admin/content/test';
+
+    return $view;
+  }
+}
