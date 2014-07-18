@@ -1,0 +1,16 @@
+<?php
+
+/**
+ * @file
+ * Administration views installation functions.
+ */
+
+/**
+ * Implementation of hook_install().
+ */
+function admin_views_install() {
+  // We need to run after Views module's hook_menu_alter() to fix the router
+  // item properties of overridden pages.
+  db_query("UPDATE {system} SET weight = 12 WHERE name = 'admin_views'");
+}
+

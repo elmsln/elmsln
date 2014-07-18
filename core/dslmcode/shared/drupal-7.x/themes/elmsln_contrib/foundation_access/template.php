@@ -365,25 +365,46 @@ function foundation_access_menu_link__menu_course_tools_menu(array $variables) {
  * Implements menu_tree__cis_service_connection_active_outline().
  */
 function foundation_access_menu_tree__cis_service_connection_active_outline($variables) {
-  return '<ul class="nav nav-list">' . $variables['tree'] . '</ul>';
+  return $variables['tree'];
 }
-
 /**
  * Implements menu_link__cis_service_connection_active_outline().
  */
 function foundation_access_menu_link__cis_service_connection_active_outline($variables) {
   $element = $variables['element'];
   $sub_menu = '';
+  $id = 'zfa-menu-panel-' . $element['#original_link']['mlid'];
   if ($element['#below']) {
-    $sub_menu = '<ul class="active dropdown">' . drupal_render($element['#below']) . '</ul>';
-    $element['#attributes']['class'][] = 'has-dropdown';
+    $sub_menu = drupal_render($element['#below']);
   }
   $output = l($element['#title'], $element['#href'], $element['#localized_options']);
   // account for no link'ed items
   if ($element['#href'] == '<nolink>') {
     $output = '<a href="#">' . $output . '</a>';
   }
-  return '<li' . drupal_attributes($element['#attributes']) . '>' . $output . $sub_menu . "</li>\n";
+  // account for sub menu things being rendered differently
+  if (empty($sub_menu)) {
+    $return = '<li' . drupal_attributes($element['#attributes']) . '>' . $output . "</li>\n";
+  }
+  else {
+    // highest level different from drill down
+    if ($element['#original_link']['p3'] == 0) {
+      $return = '<li>
+      <a class="accordion-btn">' . $element['#title'] . '</a>
+      <dl class="accordion" data-accordion="myAccordionGroup">' . $sub_menu .'</dl></li>';
+    }
+    else {
+      $return = '
+      <dd class="accordion-navigation">
+        <a href="#' . $id . '">' .
+          $element['#title'] .
+        '</a>' .
+        '<div id="' . $id . '" class="content">' . $sub_menu .
+        '</div>
+      </dd>';
+    }
+  }
+  return $return;
 }
 
 /**

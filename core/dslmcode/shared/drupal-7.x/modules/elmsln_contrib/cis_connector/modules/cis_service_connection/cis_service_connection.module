@@ -318,56 +318,26 @@ function cis_service_connection_block_section_outline() {
   if (!isset($block)) {
     // never load when on an edit form in case it gets called
     if (arg(2) != 'edit') {
-      $group = cis_service_connection_load_group();
-      // test that we've got a group from context
-      if (isset($group->nid)) {
-        $onid = NULL;
-        if (isset($group->field_instructional_outlines['und'])) {
-          $onid = $group->field_instructional_outlines['und'][0]['target_id'];
-        }
-        else {
-          // edge case where section is set and doesn't have an outline defined
-          // this really is only possible during initial setup of a system
-          // it helps improve ux substantially so you aren't confused
-          // mooc is the only thing using this currently
-          if (module_exists('mooc_helper')) {
-            $onid = variable_get('mooc_default_outline', '');
-            // edge case, default was never set
-            if ($onid == '') {
-              // load all books
-              $books = _mooc_helper_all_book_outlines('nid', 'created');
-              // make sure we at least have some books in here
-              if (is_array($books)) {
-                // move to 1st array position in iterator
-                reset($books);
-                // sort maintaining index which is the nid
-                asort($books);
-                // set default to first key in array
-                $onid = key($books);
-              }
-            }
-          }
-        }
-        // exit early cause we found nothing
-        if (is_null($onid)) {
-          return FALSE;
-        }
-        $node = node_load($onid);
-        // load the active outline
-        $active = menu_get_object();
-        // test for not being on a node as well as global setting overriding outline to use
-        if (!isset($active->book) || ($active->book['menu_name'] != $node->book['menu_name'])) {
-          $active = $node;
-        }
-        // only show the block if the user has view access for the top-level node.
-        if (entity_access('view', 'node', $active) && isset($active->book)) {
-          $tree = menu_tree_all_data($active->book['menu_name'], $active->book);
-          // There should only be one element at the top level.
-          $data = array_shift($tree);
-          $block['subject'] = '<none>';
-          $block['content'] = _cis_service_connection_section_outline_tree_output($data['below']);
-          return $block;
-        }
+      $node = _cis_service_connection_active_outline();
+      // exit early cause we found nothing
+      if (!$node) {
+        return FALSE;
+      }
+      // load the active outline
+      $active = menu_get_object();
+      // test for not being on a node as well as global setting overriding outline to use
+      if (!isset($active->book) || ($active->book['menu_name'] != $node->book['menu_name'])) {
+        $active = $node;
+      }
+      // only show the block if the user has view access for the top-level node.
+      if (entity_access('view', 'node', $active) && isset($active->book)) {
+        // menus can only be 9 deep so theoretical max is 9 for book depth
+        $tree = menu_tree_all_data($active->book['menu_name']);
+        // There should only be one element at the top level.
+        $data = array_shift($tree);
+        $block['subject'] = '<none>';
+        $block['content'] = _cis_service_connection_section_outline_tree_output($data['below']);
+        return $block;
       }
     }
   }
@@ -437,7 +407,7 @@ function _cis_service_connection_section_outline_tree_output($tree) {
     $element['#title'] = $data['link']['title'];
     $element['#href'] = $data['link']['href'];
     $element['#localized_options'] = !empty($data['link']['localized_options']) ? $data['link']['localized_options'] : array();
-    $element['#below'] = $data['below'] ? menu_tree_output($data['below']) : $data['below'];
+    $element['#below'] = $data['below'] ? _cis_service_connection_section_outline_tree_output($data['below']) : $data['below'];
     $element['#original_link'] = $data['link'];
     // Index using the link's unique mlid.
     $build[$data['link']['mlid']] = $element;
@@ -450,8 +420,53 @@ function _cis_service_connection_section_outline_tree_output($tree) {
     // Allow for generic overrides of the active class in the template name
     $build['#theme_wrappers'][] = 'menu_tree__cis_service_connection_active_outline';
   }
-
   return $build;
+}
+
+/**
+ * Return the active outline based on user context
+ * @return object the active outline node
+ */
+function _cis_service_connection_active_outline() {
+  $node = &drupal_static(__FUNCTION__);
+  if (!isset($node)) {
+    $onid = FALSE;
+    $node = FALSE;
+    $group = cis_service_connection_load_group();
+    // test that we've got a group from context
+    if (isset($group->nid)) {
+      if (isset($group->field_instructional_outlines['und'])) {
+        $onid = $group->field_instructional_outlines['und'][0]['target_id'];
+      }
+      else {
+        // edge case where section is set and doesn't have an outline defined
+        // this really is only possible during initial setup of a system
+        // it helps improve ux substantially so you aren't confused
+        // mooc is the only thing using this currently
+        if (module_exists('mooc_helper')) {
+          $onid = variable_get('mooc_default_outline', '');
+          // edge case, default was never set
+          if ($onid == '') {
+            // load all books
+            $books = _mooc_helper_all_book_outlines('nid', 'created');
+            // make sure we at least have some books in here
+            if (is_array($books)) {
+              // move to 1st array position in iterator
+              reset($books);
+              // sort maintaining index which is the nid
+              asort($books);
+              // set default to first key in array
+              $onid = key($books);
+            }
+          }
+        }
+      }
+    }
+    if ($onid) {
+      $node = node_load($onid);
+    }
+  }
+  return $node;
 }
 
 /**

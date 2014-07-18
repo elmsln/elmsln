@@ -52,17 +52,12 @@ function mooc_cis_ux_context_default_contexts() {
   $context->disabled = FALSE; /* Edit this to true to make a default context disabled initially */
   $context->api_version = 3;
   $context->name = 'mooc_cis_ux-blocks';
-  $context->description = 'This helps display the instructional content outline block';
+  $context->description = '';
   $context->tag = 'Content';
   $context->conditions = array(
     'context' => array(
       'values' => array(
         '~mooc-themecompat-*' => '~mooc-themecompat-*',
-      ),
-    ),
-    'sitewide' => array(
-      'values' => array(
-        1 => 1,
       ),
     ),
     'user' => array(
@@ -91,7 +86,6 @@ function mooc_cis_ux_context_default_contexts() {
   // Translatables
   // Included for use with string extractors like potx.
   t('Content');
-  t('This helps display the instructional content outline block');
   $export['mooc_cis_ux-blocks'] = $context;
 
   $context = new stdClass();
