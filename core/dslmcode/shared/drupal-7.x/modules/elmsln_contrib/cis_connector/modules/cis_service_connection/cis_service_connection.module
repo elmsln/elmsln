@@ -332,7 +332,8 @@ function cis_service_connection_block_section_outline() {
       // only show the block if the user has view access for the top-level node.
       if (entity_access('view', 'node', $active) && isset($active->book)) {
         // menus can only be 9 deep so theoretical max is 9 for book depth
-        $tree = menu_tree_all_data($active->book['menu_name']);
+        // @todo need to figure out how to achieve old and new ways of doing this..
+        $tree = menu_tree_all_data($active->book['menu_name'], $active->book);
         // There should only be one element at the top level.
         $data = array_shift($tree);
         $block['subject'] = '<none>';
