@@ -437,7 +437,7 @@ function _cis_service_connection_section_outline_tree_output($tree) {
     $element['#title'] = $data['link']['title'];
     $element['#href'] = $data['link']['href'];
     $element['#localized_options'] = !empty($data['link']['localized_options']) ? $data['link']['localized_options'] : array();
-    $element['#below'] = $data['below'] ? menu_tree_output($data['below']) : $data['below'];
+    $element['#below'] = $data['below'] ? _cis_service_connection_section_outline_tree_output($data['below']) : $data['below'];
     $element['#original_link'] = $data['link'];
     // Index using the link's unique mlid.
     $build[$data['link']['mlid']] = $element;
