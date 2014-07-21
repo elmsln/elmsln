@@ -92,6 +92,7 @@
 // }
 ul.menu.book-oultine.slide-panels {
 	li {
+		margin-bottom:5px;
 		a {//Unit Link
 			display: block;
 			text-align:center;
@@ -101,37 +102,75 @@ ul.menu.book-oultine.slide-panels {
 		}
 		dl {
 			dd {
+				float: left;
+				width: 100%;
+				margin: 5px 0;
+				border:1px solid $accent-color;
+
+				
+				h3 {
+					text-align: center;
+					font-size: 1em;
+					padding: 10px;
+				}
+				li {
+				}
 				a {//Lessons Link
-					text-align:left;
+					text-align:center;
 					padding:10px;
 					background:transparent;
 					color:$link-color;
-					border-left:1px solid $accent-color;
-					border-right:1px solid $accent-color;
-					border-bottom:1px solid $accent-color;
+					
+				
+					&.outline-sub-link {
+						display: block;
+						
+						width: 50%;
+						float:left;
+						margin-bottom:0;
+
+					}
+
+					&.expand {
+						padding-right: 20px;
+						background-color:$accent-color;
+					}
+					&:first-child {
+						
+					}
+
+					&:last-child {
+						
+					}	
 				}
+				
+				
 
 				div {
 					padding:0;
+					float: left;
+					width: 100%;
+					background:$accent-color;
 					li {
 						a {//Content Link
 							display: block;
 							padding: 12px 25px;
 							margin: 0px;
 							border:none;
+							text-align: left;
 						}
 
 						&:last-child {
-							border-bottom:1px solid $accent-color;
+							
 						}				
 					}
 				}
 				
 				&:last-child {
-					
-						a {//Last Lesson Link Remove Border
-							border-bottom: none;
-						}
+					// margin-bottom: 5px !important;
+					// a {//Last Lesson Link Remove Border
+					// 	border-bottom: none;
+					// }
 					
 				}
 			}
@@ -140,16 +179,16 @@ ul.menu.book-oultine.slide-panels {
 			dl {
 				dd:last-child {
 					a {//Last Unit and Lesson Link Add Border
-						border-bottom:1px solid $accent-color;
+						
 					}
 					div {
 						li {
 							a {
-								border-bottom: none;
+								
 							}
 						}
 						&:last-child {
-							border-bottom: none;
+							
 						}
 					}
 				}
