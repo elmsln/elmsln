@@ -3,7 +3,7 @@
 
 <!-- Active Outline -->
 <ul class="menu book-oultine slide-panels">
-  <li><a href='#unit-1' class="accordion-btn">Unit 1</a>
+  <li><a href='#unit-1' class="accordion-btn button radius">Unit 1</a>
     <dl class="accordion" data-accordion="myAccordionGroup">
       <dd class="accordion-navigation">
         <h3>Lesson 1</h3>
@@ -43,7 +43,7 @@
       </dd>
     </dl>
   </li>
-  <li><a href='#unit-1' class="accordion-btn">Unit 2</a>
+  <li><a href='#unit-1' class="accordion-btn button radius">Unit 2</a>
     <dl class="accordion" data-accordion="myAccordionGroup">
       <dd class="accordion-navigation">
         <h3>Lesson 4</h3>

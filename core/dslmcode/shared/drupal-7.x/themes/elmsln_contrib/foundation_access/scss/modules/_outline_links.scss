@@ -90,6 +90,9 @@
 // 		padding:0;
 // 	}
 // }
+.accordion-btn {
+	margin-bottom:0;
+}
 ul.menu.book-oultine.slide-panels {
 	li {
 		margin-bottom:5px;
@@ -106,7 +109,8 @@ ul.menu.book-oultine.slide-panels {
 				width: 100%;
 				margin: 5px 0;
 				border:1px solid $accent-color;
-
+				@include border-radius();
+				padding:2px;
 				
 				h3 {
 					text-align: center;
@@ -133,7 +137,8 @@ ul.menu.book-oultine.slide-panels {
 
 					&.expand {
 						padding-right: 20px;
-						background-color:$accent-color;
+						background-color:#efefef;
+						width:50%;
 					}
 					&:first-child {
 						
@@ -147,10 +152,11 @@ ul.menu.book-oultine.slide-panels {
 				
 
 				div {
-					padding:0;
+					padding: 1em 0.8em;
 					float: left;
 					width: 100%;
-					background:$accent-color;
+					background:#efefef;
+
 					li {
 						a {//Content Link
 							display: block;
@@ -158,6 +164,8 @@ ul.menu.book-oultine.slide-panels {
 							margin: 0px;
 							border:none;
 							text-align: left;
+							padding: 0.3em 0 0;
+							font-size: 0.9em;
 						}
 
 						&:last-child {
