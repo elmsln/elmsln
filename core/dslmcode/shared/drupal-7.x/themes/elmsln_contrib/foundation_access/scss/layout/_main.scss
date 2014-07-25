@@ -26,7 +26,12 @@
 // 	 width: 960px;
 // }
 // 
-
+.main {//to help center breadcrumbs
+	text-align:center;
+	article {
+		text-align:left;
+	}
+}
 
 h1 {
 	 //font-family: "Asap";
@@ -38,7 +43,7 @@ h1 {
 	 letter-spacing: -1px;
 
 	 @media #{$small-up} {
-	 	margin: 0em 0em 0.5em 0em;
+	 	margin: 0em 0em 0.2em 0em;
 	 	font-size: 2.778em;
 	 	line-height: 0.82em;
 	 }

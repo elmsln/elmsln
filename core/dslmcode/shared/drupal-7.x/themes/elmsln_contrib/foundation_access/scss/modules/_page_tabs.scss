@@ -22,6 +22,13 @@ ul.local-task-tabs-1 {
 		a.button {
 			color:#fff;
 			margin:0;
+			@media #{$small-only} {
+			 	padding: 0.5em 0.8em 0.7em;
+			 }
+			 @media #{$medium-only} {
+			 	padding: 1em 0.5em;
+			 }
+			
 		}
 	}
 }
