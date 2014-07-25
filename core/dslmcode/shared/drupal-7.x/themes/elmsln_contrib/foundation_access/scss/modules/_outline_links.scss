@@ -95,50 +95,75 @@
 }
 ul.menu.book-oultine.slide-panels {
 	li {
-		margin-bottom:5px;
+		//margin-bottom:5px;
 		a {//Unit Link
 			display: block;
 			text-align:center;
 			padding:10px;
-			background:#000;
-			color:#fff;
+			border-bottom:2px solid #007295;
+			
+
 		}
 		dl {
+			padding: 0px 0px 5px;
+			margin-top: 0px;
+			// @include border-radius(6px);
+			// border: 1px solid #ccc;
+			// background: #efefef;
+
 			dd {
 				float: left;
 				width: 100%;
 				margin: 5px 0;
 				border:1px solid $accent-color;
-				@include border-radius();
-				padding:2px;
+				padding:4px 6px;
+				background:#fff;
 				
 				h3 {
 					text-align: center;
 					font-size: 1em;
+					font-weight:600;
 					padding: 10px;
+					color:#444;
 				}
 				li {
 				}
+				&.active {
+					// border:1px solid $link-color;
+					a {
+						&.outline-sub-link, &.full, &.expand {
+							// background-color:#efefef;
+						}
+					}
+				}
 				a {//Lessons Link
-					text-align:center;
+					text-align:left;
 					padding:10px;
 					background:transparent;
 					color:$link-color;
+					font-size:0.8em;
 					
 				
 					&.outline-sub-link {
 						display: block;
-						
-						width: 50%;
-						float:left;
-						margin-bottom:0;
+						float: left;
+						margin-bottom: 2px;
+						border: 1px solid #efefef;
+						background-color: #fff;
+						width:100%;
 
+						&:before {
+							padding-right:0.5em;
+							font-size:1.5em;
+						}
 					}
-
 					&.expand {
-						padding-right: 20px;
-						background-color:#efefef;
-						width:50%;
+					}
+					&.half {
+						width: 50%;
+					}
+					&.full {
+						width:100%;
 					}
 					&:first-child {
 						
@@ -146,7 +171,7 @@ ul.menu.book-oultine.slide-panels {
 
 					&:last-child {
 						
-					}	
+					}
 				}
 				
 				
@@ -156,6 +181,7 @@ ul.menu.book-oultine.slide-panels {
 					float: left;
 					width: 100%;
 					background:#efefef;
+					margin-bottom:2px;
 
 					li {
 						a {//Content Link
@@ -183,7 +209,10 @@ ul.menu.book-oultine.slide-panels {
 				}
 			}
 		}
-		&:last-child {
+		&:last-child {//Last top level li
+			a {
+				border:none;
+			}
 			dl {
 				dd:last-child {
 					a {//Last Unit and Lesson Link Add Border
