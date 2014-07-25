@@ -29,6 +29,7 @@ base theme = zurb_foundation
 ; For CSS users, load the app.css file:
 ; stylesheets[all][] = css/app.css
 ; Comment the app.css file (above) if you're using sass to preprocess css:
+stylesheets[all][] = fonts/foundation-icons/foundation-icons.css
 stylesheets[all][] = css/foundation_access.css
 
 ; Block loading of foundation.min.css from the base theme. This file should either
