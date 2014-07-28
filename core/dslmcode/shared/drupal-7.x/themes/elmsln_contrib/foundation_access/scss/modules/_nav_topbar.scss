@@ -5,14 +5,29 @@ box-shadow: none;
 }
 
 .top-bar-container {
-	margin-top: -110px;
+	//margin-top: -110px;
+	padding: 0.9375rem;
+	margin-bottom:1em;
 	@media #{$small-only} {
 	 	padding-bottom:0px;
+	 	border-bottom: none;
+	 }
+	 @media #{$medium-up} {
+		text-align:center;
+		border-bottom: 1px solid $accent-border-color;
+		background-color:$bright-color;
 	 }
 
 	.top-bar {
-		background:#fff;
-
+		background-color:transparent;
+		@media #{$medium-up} {
+			display:inline-block;
+		}
+		.name {
+			@media #{$medium-up} {
+			 	height: 0;
+			 }
+		}
 		.toggle-topbar	{
 			&.menu-icon a {
 				color:$link-color;
@@ -26,9 +41,9 @@ box-shadow: none;
 		&.expanded {
 			.toggle-topbar	{
 				&.menu-icon a {
-					color:#ffffff;
+					color:$bright-color;
 					&::after {
-						box-shadow: 0 10px 0 1px #ffffff,0 16px 0 1px #ffffff,0 22px 0 1px #ffffff;
+						box-shadow: 0 10px 0 1px $bright-color,0 16px 0 1px $bright-color,0 22px 0 1px $bright-color;
 					}
 				}
 			}
@@ -47,34 +62,46 @@ box-shadow: none;
 				
 				@media #{$small-only} {
 				 	border: 1px solid $link-color;
+				 	background:$bright-color;
 				 }
 				li {
 					a, a.active {
 						background:transparent;
-						color:#008cba;
+						color:$link-color;
 						font-size:0.85em;
 
 						&:hover {
-							background:#e7e7e7;
+							background:$topbar-hover-color;
 						}
 					}
 				}
 			}
 		}
 	}
-	&.sticky {
-		position: fixed;
-		width: 100%;
-		top: 0;
-		padding-top: 115px;
-		z-index: 997;
-		left:0;
-		.top-bar {
+	&.sticky-bar {
+		display:block;
+		@media #{$small-only} {
+			display:none;
+		}
+		@media #{$medium-up} {
 			position: fixed;
 			width: 100%;
-			top: 90px;
-			z-index: 1001;
+			top: -80px;
+			//padding-top: 30px;
+			z-index: 997;
 			left:0;
+			transition: all 300ms ease-out;
+		}
+		
+		.top-bar {
+			// @media #{$medium-up} {
+			// 	position: fixed;
+			// 	width: 100%;
+			// 	top: 90px;
+			// 	z-index: 1001;
+			// 	left:0;
+
+			// }	
 		}
 	}
 }

@@ -1,7 +1,7 @@
 .banner-image-container {
 	padding:0 0 0 0;
-	margin-bottom:3em;
-	border-bottom:1px solid #efefef;
+	// margin-bottom:3em;
+	border-bottom:6px solid $dark-background-color;
 	padding-top: 240px;
 	padding-bottom:20px;
 	background-image: url('../images/test-banner.jpg');
@@ -11,4 +11,19 @@
 	-webkit-background-size: cover;
 	-moz-background-size: cover;
 	background-size: cover;
+
+	&.sticky-bar {
+		display:none;
+		@media #{$small-only} {
+			display:none;
+		}
+		@media #{$medium-up} {
+			position: fixed;
+			width: 100%;
+			top: -170px;
+			z-index: 999;
+			left:0;
+			//border-bottom:2px solid $dark-background-color;
+		}
+	}
 }

@@ -35,15 +35,19 @@
       <?php endif; ?> -->
       <!--/.l-off-canvas region -->
       <!-- Admin Tools Region -->
-      <div class="admin-tools-region">
-        <div class="large-12 breakpoint-indicator"></div>
-        <?php print render($page['admin_first']); ?>
-      </div>
+      <?php if (!empty($page['admin_first'])): ?>
+        <div class="admin-tools-region">
+          <div class="large-12 breakpoint-indicator"></div>
+          <?php print render($page['admin_first']); ?>
+        </div>
+      <?php endif; ?>
       <!-- Admin Tools Region -->
       <!-- Preheader Region -->
-      <div>
-        <?php print render($page['preheader']); ?>
-      </div>
+      <?php if (!empty($page['preheader'])): ?>
+        <div>
+          <?php print render($page['preheader']); ?>
+        </div>
+      <?php endif; ?>
       <!--/ Preheader Region -->
       <!--.l-header region -->
       <header role="banner" class="l-header">
@@ -120,7 +124,7 @@
         <!--/.l-help -->
       <?php endif; ?>
       <!-- lmsless-bar -->
-        <div class="large-12 lmsless-bar">
+        <div id='lmsless-bar' class="large-12 lmsless-bar">
           <?php if (!empty($page['cis_user_profile'])): ?>
           <!--.l-header-cis_user_profile -->
             <div class="left cis-user-profile">
@@ -134,22 +138,44 @@
                 <?php print render($page['cis_lmsless']); ?>
               </div>        
             <!--/.l-header-cis_lmsless -->
-            <?php endif; ?>
-          </div>
-          <!--/ .lmsless-bar -->
+          <?php endif; ?>
+        </div>
+        <!--/ .lmsless-bar -->
+
+        <!-- lmsless-bar STICKY-->
+        <div id='lmsless-bar-sticky' class="large-12 lmsless-bar sticky-bar">
+          <?php if (!empty($page['cis_user_profile'])): ?>
+          <!--.l-header-cis_user_profile -->
+            <div class="left cis-user-profile">
+              <?php print render($page['cis_user_profile']); ?>
+            </div>
+          <!--/.l-header-cis_user_profile -->
+          <?php endif; ?>
+          <?php if (!empty($page['cis_lmsless'])): ?>
+            <!--.l-header-cis_lmsless -->
+              <div class="cis-lmsless right">             
+                <?php print render($page['cis_lmsless']); ?>
+              </div>        
+            <!--/.l-header-cis_lmsless -->
+          <?php endif; ?>
+        </div>
+        <!--/ .lmsless-bar STICKY-->
+
           
         <!-- .banner-image-container -->
-        <div class="large-12 columns banner-image-container">
+        <div id="banner-image" class="large-12 columns banner-image-container">
+        </div>
+        <div id="banner-image-sticky" class="large-12 columns banner-image-container sticky-bar">
         </div>
         <!--/ .banner-image-container -->
         <!-- content nav  -->
-        <div class="large-12 columns top-bar-container">
+        <div id="topbarnav" class="large-12 columns top-bar-container">
         <?php if ($top_bar): ?>
           <!--.top-bar -->
           <?php if ($top_bar_classes): ?>
           <div class="<?php print $top_bar_classes; ?>">
           <?php endif; ?>
-            <nav class="top-bar content-top-nav row" data-options="is_hover: false" data-topbar <?php print $top_bar_options; ?>>
+            <nav class="top-bar content-top-nav" data-options="is_hover: false" data-topbar <?php print $top_bar_options; ?>>
               <ul class="title-area">
                 <li class="name">
                   <h1><a href="#"></a></h1>
@@ -173,6 +199,39 @@
         </div>
         <!--/.top-bar-container -->
         <!--/ content nav  -->
+
+<!-- content nav  -->
+        <div id="topbarnav-sticky" class="large-12 columns top-bar-container sticky-bar">
+        <?php if ($top_bar): ?>
+          <!--.top-bar -->
+          <?php if ($top_bar_classes): ?>
+          <div class="<?php print $top_bar_classes; ?>">
+          <?php endif; ?>
+            <nav class="top-bar content-top-nav" data-options="is_hover: false" data-topbar <?php print $top_bar_options; ?>>
+              <ul class="title-area">
+                <li class="name">
+                  <h1><a href="#"></a></h1>
+                </li>  
+                <!-- Remove the class "menu-icon" to get rid of menu icon. -->
+                <li class="toggle-topbar menu-icon"><a href="#"><span><?php print $top_bar_menu_text; ?></span></a></li>
+              </ul>
+              <section class="top-bar-section">
+                <?php if ($top_bar_main_menu) :?>
+                <!--.l-header-top_bar_main_menu -->
+                    <?php print $top_bar_main_menu; ?>
+                <!--/.l-header-top_bar_main_menu -->     
+                <?php endif; ?>
+              </section>
+            </nav>
+          <?php if ($top_bar_classes): ?>
+          </div>
+          <?php endif; ?>
+          <!--/.top-bar -->
+        <?php endif; ?>
+        </div>
+        <!--/.top-bar-container -->
+        <!--/ content nav  -->
+
       <main role="main" class="row l-main">
         
         

@@ -7,20 +7,23 @@
    }
 }
 .lmsless-bar {
-  background-color: #efefef;
-  border-bottom: 1px solid #d8d8d8;
+  background-color: $bright-color;
+  border-bottom: 1px solid $accent-border-color;
   float: left;
   width: 100%;
-  &.sticky {
-    position: fixed;
-    top: 30px;
-    z-index: 9999;
-    width: 100%;
-    height: 40px;
+  &.sticky-bar {
+    display:none;
+    @media #{$medium-up} {
+      position: fixed;
+      top: 0px;
+      z-index: 9999;
+      width: 100%;
+      // height: 40px; 
+    }
   }
   .f-dropdown{
     background: #efefef;
-    border: solid 1px #d8d8d8;
+    border: solid 1px $accent-border-color;
     max-width: 300px;
 
     &.open {
@@ -42,7 +45,7 @@
           font-size: 1em;
           padding:1em;
           &:hover {
-            background: #ffffff;
+            background-color: $bright-color;
           }
         }
       }
@@ -51,10 +54,10 @@
 }
 div.cis-lmsless {
   .split.button span {
-    border-left-color: #d8d8d8;
+    border-left-color: $accent-border-color;
     background:transparent;
     &:hover {
-      background:#ffffff;
+      background-color:$bright-color;
     }
     &:before {
       border-top-color: rgba(0, 123, 160, 1);
@@ -79,13 +82,13 @@ div.cis-lmsless {
     &.button {
       background-color:transparent;
       // border-bottom: solid 1px #fff;
-      border-left: solid 1px #d8d8d8;
+      border-left: solid 1px $accent-border-color;
       color:#007ba0;
       height:74px;
       &:hover {
-        background:#fff;
+        background-color:$bright-color;
       // border-bottom: solid 1px #efefef;
-      border-left: solid 1px #d8d8d8;
+      border-left: solid 1px $accent-border-color;
       }
     }
   }

@@ -16,14 +16,14 @@ div.action-links-bar {
 				border-top-style: solid;
 				border-width: 0.375rem;
 				top: 48%;
-				border-top-color: #008cba;
+				border-top-color: $admin-color;
 				content: "";
 				display:block;
 				width: 0;
 				height: 0;
 				border-style: solid;
 				border-width: 10px 10px 0 0;
-				border-color: $primary-color transparent transparent transparent;
+				border-color: $admin-color transparent transparent transparent;
 			}
 		}
 		&.point-b {
@@ -34,14 +34,14 @@ div.action-links-bar {
 				border-top-style: solid;
 				border-width: 0.375rem;
 				top: 48%;
-				border-top-color: #008cba;
+				border-top-color: $admin-color;
 				content: "";
 				display:block;
 				width: 0;
 				height: 0;
 				border-style: solid;
 				border-width: 0 10px 10px 0;
-				border-color: transparent $primary-color transparent transparent;
+				border-color: transparent $admin-color transparent transparent;
 			}
 		}
 	}
@@ -50,7 +50,7 @@ ul{
 	&.action-links {
 		text-align:center;
 		margin: 0 auto;
-	    border-bottom: 3px solid $primary-color;
+	    border-bottom: 3px solid $admin-color;
 	    padding: 0;
 	    display: block;
 		
@@ -59,14 +59,14 @@ ul{
 			 margin: 0 0.2em;
 			 display:inline-block;
 			a{
-				background-color: $primary-color;
+				background-color: $admin-color;
 				padding: 0.3em 0.5em;
-				color:#c2efff;
+				color:$bright-color;
 				display:block;
 				@include border-top-radius(6px);
 
 				&:hover {
-					color:#fff;
+					color:$bright-color;
 				}
 				&:focus {
 				

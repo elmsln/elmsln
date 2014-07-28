@@ -9,13 +9,13 @@ box-shadow: none;
 	border-bottom:1px solid #efefef;
 	padding-top: 240px;
 	.top-bar {
-		background:#008cba;
+		background:$topbar-link-color;
 
 		.top-bar-section {
 			ul {
 				li {
 					a {
-						background:#008cba;
+						background-color:$topbar-link-color;
 						&:hover {
 							background:#e7e7e7;
 						}
@@ -29,7 +29,7 @@ box-shadow: none;
 	text-align:center;
 	ul.main-menu {
 		display: inline-block;
-		background:#ccc;
+		background-color:#ccc;
 
 		li>a {
 			font-size: 0.875rem;
@@ -38,6 +38,6 @@ box-shadow: none;
 	}
 	
 	.has-dropdown {
-		border-right: #333 1px solid;
+		border-right: $dark-background-color 1px solid;
 	}
 }

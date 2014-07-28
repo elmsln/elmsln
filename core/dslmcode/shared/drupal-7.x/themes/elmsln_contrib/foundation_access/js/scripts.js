@@ -25,24 +25,62 @@
 
 			$(window).scroll(function(){ // scroll event  
 
-
 				// find width and position of .main and apply to .sticky-content-nav
-				//var mainWidth = $('.main').outerWidth(true);
+				// var mainWidth = $('.main').outerWidth(true);
 
+				// sticky stuff from http://andrewhenderson.me/tutorial/jquery-sticky-sidebar/
+				
+				var windowTop = $(window).scrollTop(); // returns number
+				
+				// Lmsless Bar
+				var topOffsetlmsless = $('#lmsless-bar').offset().top; // returns number
+				var heightlmsless = $('#lmsless-bar').outerHeight(true); // NOT USED DIRECTLY
+				var bottomOffsetlmsless = heightlmsless + topOffsetlmsless; // returns number NOT USED DIRECTLY
 
-				//sticky stuff from http://andrewhenderson.me/tutorial/jquery-sticky-sidebar/
-				var topOffset = $('.book-outline.main-a').offset().top; // returns number
-				var bottomOffset = $('.book-outline.main-a').outerHeight(true) + topOffset; // returns number
-			    var windowTop = $(window).scrollTop(); // returns number
-			 
-			    if (bottomOffset < windowTop) { // Go into sticky mode
-						$('.book-outline.sticky-book-outline').css({ position: 'fixed', top: 0, display:'block'});
-						$('.book-outline.main-a');
-					}
+				if (topOffsetlmsless < windowTop) { // Go into sticky mode
+					$('#lmsless-bar-sticky').css({display:'block'});
+				}
 			    else { // Do not go into sticky mode
-			      $('.book-outline.sticky-book-outline').css({ position: 'static', display:'none'});
-						$('.book-outline.main-a');
+					$('#lmsless-bar-sticky').css({display:'none'});
 			    }
+
+				// Banner Image
+				var topOffsetBanner = $('#banner-image').offset().top; // returns number
+				var heightBanner = $('#banner-image').outerHeight(true);
+				var bottomOffsetBanner = heightBanner + topOffsetBanner - heightlmsless - 20; // returns number
+
+				if (bottomOffsetBanner < windowTop) { // Go into sticky mode
+					$('#banner-image-sticky').css({display:'block'});
+				}
+			    else { // Do not go into sticky mode
+					$('#banner-image-sticky').css({display:'none'});
+			    }
+
+				// Topbar Nav
+				var topOffsetTopbarnav = $('#topbarnav').offset().top; // returns number
+				var heightTopbarnav = $('#topbarnav').outerHeight(true); // returns number NOT USED DIRECTLY
+				var bottomOffsetTopbarnav = heightTopbarnav + topOffsetTopbarnav; // returns number NOT USED DIRECTLY
+
+				if (bottomOffsetTopbarnav < windowTop) { // Go into sticky mode
+					$('#topbarnav-sticky').css({top: '96px'});
+				}
+			    else { // Do not go into sticky mode
+					$('#topbarnav-sticky').css({top: '-80px'});
+			    }
+
+				// Active Outline
+			// 	var topOffset = $('.book-outline.main-a').offset().top; // returns number
+			// 	var bottomOffset = $('.book-outline.main-a').outerHeight(true) + topOffset; // returns number
+			//     
+			//  
+			//     if (bottomOffset < windowTop) { // Go into sticky mode
+			// 		$('.book-outline.sticky-book-outline').css({ position: 'fixed', top: 0, display:'block'});
+			// 		$('.book-outline.main-a');
+			// 	}
+			//     else { // Do not go into sticky mode
+			//       	$('.book-outline.sticky-book-outline').css({ position: 'static', display:'none'});
+			// 		$('.book-outline.main-a');
+			//     }
 			
 			});
 		}

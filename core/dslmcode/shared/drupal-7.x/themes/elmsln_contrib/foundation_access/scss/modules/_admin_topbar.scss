@@ -1,6 +1,6 @@
 .admin-tools-region {
-	background:#333;
-	border-bottom:1px solid #333;
+	background-color:$dark-background-color;
+	border-bottom:1px solid $dark-background-color;
 	.top-bar {
 		.top-bar-section {
 			color:$link-color;
@@ -9,10 +9,11 @@
 					font-size: 0.875rem;
 					text-transform: uppercase;
 					border-right: #333 1px solid;
+					color:$bright-color;
 				}
 			}
 		}
-		&.sticky {
+		&.sticky-bar {
 			position: fixed;
 			top: 0;
 			z-index: 1005;

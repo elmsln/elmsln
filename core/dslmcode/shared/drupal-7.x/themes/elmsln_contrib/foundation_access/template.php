@@ -415,7 +415,7 @@ function foundation_access_menu_local_tasks(&$variables) {
 
   if (!empty($variables['primary'])) {
     $variables['primary']['#prefix'] = '<h2 class="element-invisible">' . t('Primary tabs') . '</h2>';
-    $variables['primary']['#prefix'] .= '<ul class="local-task-tabs-1 button-group round">';
+    $variables['primary']['#prefix'] .= '<ul class="local-task-tabs-1 button-group">';
     $variables['primary']['#suffix'] = '</ul>';
     $output .= drupal_render($variables['primary']);
   }

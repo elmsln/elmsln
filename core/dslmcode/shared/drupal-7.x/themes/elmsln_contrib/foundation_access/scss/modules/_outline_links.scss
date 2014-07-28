@@ -100,7 +100,7 @@ ul.menu.book-oultine.slide-panels {
 			display: block;
 			text-align:center;
 			padding:10px;
-			border-bottom:2px solid #007295;
+			border-bottom:2px solid $ao-button-lev1-border-bottom-color;
 			
 
 		}
@@ -115,7 +115,7 @@ ul.menu.book-oultine.slide-panels {
 				float: left;
 				width: 100%;
 				margin: 5px 0;
-				border:1px solid $accent-color;
+				border:1px solid $ao-border-main-color;
 				padding:4px 6px;
 				background:#fff;
 				
@@ -148,8 +148,8 @@ ul.menu.book-oultine.slide-panels {
 						display: block;
 						float: left;
 						margin-bottom: 2px;
-						border: 1px solid #efefef;
-						background-color: #fff;
+						border: 1px solid $ao-border-sec-color;
+						background-color: $bright-color;
 						width:100%;
 
 						&:before {

@@ -26,6 +26,12 @@
 // 	 width: 960px;
 // }
 // 
+body {
+	background-color:$background-color;
+}
+.l-main {
+	background-color:$background-color;
+}
 .main {//to help center breadcrumbs
 	text-align:center;
 	article {
