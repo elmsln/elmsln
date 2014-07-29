@@ -171,7 +171,7 @@
 </ul>
 
 <!-- Active Outline STICKY-->
-<!-- <ul id="activeoutline-sticky" class="menu book-oultine slide-panels sticky-bar">
+<ul id="activeoutline-sticky" class="menu book-oultine slide-panels sticky-bar">
   <li><a href='#unit-1' class="accordion-btn button">Unit 1</a>
     <dl class="accordion" data-accordion="myAccordionGroup">
       <dd class="accordion-navigation">
@@ -337,4 +337,4 @@
       </dd>
     </dl>
   </li>
-</ul> -->
+</ul>

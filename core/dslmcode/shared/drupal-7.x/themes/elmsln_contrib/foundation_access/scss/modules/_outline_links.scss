@@ -1,6 +1,5 @@
 // Default Menu
 .book-outline ul {
-	
 	&.nav-list {
 		border-right: 1px solid #efefef;
 		padding: 10px;
@@ -232,6 +231,11 @@ ul.menu.book-oultine.slide-panels {
 			}
 		}
 	}
+}
+#activeoutline-sticky {
+	 transition: all 500ms cubic-bezier(0.605, 0.075, 0.355, 0.960);
+	transition-delay: 500ms;
+	
 }
 //ul.menu.book-oultine.slide-panels li dl dd a
 // ul.menu.book-oultine.slide-panels li dl dd:last-child div li:last-child {
