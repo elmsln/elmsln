@@ -51,7 +51,17 @@ article.node, div.node {
   }
 }
 
-p, article.node li, article.node p, article.node p, div.node p {
+p,
+article.node li,
+article.node li ol li,
+article.node li ul li,
+article.node li ol li ol li,
+article.node li ol li ul li,
+article.node li ul li ul li,
+article.node li ul li ol li,
+article.node p,
+article.node div,
+div.node p {
   font-family: 'Open Sans', serif;
   font-size: 1.3em;
   line-height: 1.7em;
