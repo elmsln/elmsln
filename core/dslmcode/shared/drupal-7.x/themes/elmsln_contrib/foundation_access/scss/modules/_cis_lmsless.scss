@@ -12,13 +12,30 @@
   float: left;
   width: 100%;
   &.sticky-bar {
-    display:none;
+    @media #{$small-only} {
+      display:none;
+    }
     @media #{$medium-up} {
       position: fixed;
-      top: 0px;
+      top: -76px;
+      // top:0;
       z-index: 9999;
       width: 100%;
-      // height: 40px; 
+      transition: all 300ms ease-out;
+      // opacity:0;
+    }
+    &.locator {
+      top:0;
+      // opacity:1;
+      a.user-profile-dropdown {
+        height: 3em;
+        padding-top: 0.9em;
+      }
+      div.cis-lmsless a.button {
+        height: 1em;
+        font-size: 1.2em;
+        padding: 0.3em 3.2em 2.2em 0.5em;
+      }
     }
   }
   .f-dropdown{
@@ -53,17 +70,23 @@
   }
 }
 div.cis-lmsless {
-  .split.button span {
-    border-left-color: $accent-border-color;
-    background:transparent;
-    &:hover {
-      background-color:$bright-color;
+  .split.button {
+    @media #{$small-only} {
+        padding-right: 3em;
+        padding-left: 0.5em;
     }
-    &:before {
-      border-top-color: rgba(0, 123, 160, 1);
-      border-bottom-color: transparent;
-      border-left-color: transparent;
-      border-right-color: transparent;
+    span {
+      border-left: solid 1px $accent-border-color;
+      background:transparent;
+      &:hover {
+        background-color:$bright-color;
+      }
+      &:before {
+        border-top-color: rgba(0, 123, 160, 1);
+        border-bottom-color: transparent;
+        border-left-color: transparent;
+        border-right-color: transparent;
+      }
     }
   }
 
@@ -72,8 +95,7 @@ div.cis-lmsless {
     font-size: 1.4em;
     text-align: right;
     margin-bottom:0;
-
-
+     
     .slogan-lmsless-button {
       text-transform: uppercase;
       font-size: 0.5em;
@@ -82,13 +104,13 @@ div.cis-lmsless {
     &.button {
       background-color:transparent;
       // border-bottom: solid 1px #fff;
-      border-left: solid 1px $accent-border-color;
-      color:#007ba0;
+      //border-left: solid 1px $accent-border-color;
+      color:$primary-color;
       height:74px;
       &:hover {
         background-color:$bright-color;
       // border-bottom: solid 1px #efefef;
-      border-left: solid 1px $accent-border-color;
+      //border-left: solid 1px $accent-border-color;
       }
     }
   }

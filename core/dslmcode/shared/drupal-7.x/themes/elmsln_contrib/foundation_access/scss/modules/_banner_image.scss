@@ -1,29 +1,31 @@
 .banner-image-container {
 	padding:0 0 0 0;
-	// margin-bottom:3em;
 	border-bottom:6px solid $dark-background-color;
 	padding-top: 240px;
 	padding-bottom:20px;
 	background-image: url('../images/test-banner.jpg');
-	background-color:#434343;
 	background-repeat: no-repeat;
 	background-position: center center;
 	-webkit-background-size: cover;
 	-moz-background-size: cover;
 	background-size: cover;
+	display:block;
 
 	&.sticky-bar {
-		display:none;
+		
 		@media #{$small-only} {
 			display:none;
 		}
 		@media #{$medium-up} {
 			position: fixed;
 			width: 100%;
-			top: -170px;
+			top: -266px;
 			z-index: 999;
 			left:0;
 			//border-bottom:2px solid $dark-background-color;
+		}
+		&.locator {
+			top:-200px;
 		}
 	}
 }

@@ -80,6 +80,9 @@ box-shadow: none;
 	}
 	&.sticky-bar {
 		display:block;
+		height:auto;
+		font-size: 0;
+		padding:0;
 		@media #{$small-only} {
 			display:none;
 		}
@@ -92,16 +95,28 @@ box-shadow: none;
 			left:0;
 			transition: all 300ms ease-out;
 		}
-		
+		&.locator {
+			top:66px;
+		}
+		.top-bar-section {
+			padding:0;
+			
+			ul {
+				
+				// @media #{$small-only} {
+				
+				//  }
+				li {
+					a, a.active {
+						font-size:0.8em;
+						padding:0.4em 1em;
+						line-height: inherit;
+					}
+				}
+			}
+		}
 		.top-bar {
-			// @media #{$medium-up} {
-			// 	position: fixed;
-			// 	width: 100%;
-			// 	top: 90px;
-			// 	z-index: 1001;
-			// 	left:0;
-
-			// }	
+			height:auto;	
 		}
 	}
 }
