@@ -60,17 +60,47 @@
 				var heightTopbarnav = $('#topbarnav').outerHeight(true); // returns number
 				var bottomOffsetTopbarnav = heightTopbarnav + topOffsetTopbarnav; // returns number
 
-				if (windowHeight < totalHeightStickies) { // Hide!
-					$('#activeoutline-sticky').css({display:'none'});
+				// Active Outline Variables
+				var topOffsetOutlineNav = $('#activeoutline').offset().top;
+				var heightOutlineNav = $('#activeoutline').outerHeight(true);
+				var bottomOffsetOutlineNav = heightOutlineNav + topOffsetOutlineNav + 80; // TODO - figure out why I need 50px more
+
+				// Active Outline Sticky Variables
+				var topOffsetOutlineNavSticky = $('#activeoutline-sticky').offset().top;
+				var heightOutlineNavSticky = $('#activeoutline-sticky').outerHeight(true);
+				var bottomOffsetOutlineNavSticky = heightOutlineNavSticky + topOffsetOutlineNavSticky;
+
+
+				/////////
+				/// To Do:
+				/// Instead of hiding upon resize, just disable margin changes so users can scroll up and down :)
+				////////
+
+				if (windowHeight < totalHeightStickies && bottomOffsetOutlineNav < windowTop) { // if the height of the window is smaller than the total height of all stickies AND we are not scrolled to the top of the page
+					$('#activeoutline-sticky').css({display:'none'}); // Set sticky active outline to hidden
+					//$('#activeoutline').css({opacity: 1});
 					console.log("hide");
 				}
-				else if (windowHeight > totalHeightStickies) { // Show
-					$('#activeoutline-sticky').css({display: 'block', marginTop: windowTop - bottomOffsetTopbarnav });
+				else if (windowHeight > totalHeightStickies && bottomOffsetOutlineNav > windowTop) { // if the height of the window is larger than the total height of all stickies AND we are scrolled to the top of the page
+					$('#activeoutline-sticky').css({display:'none'}); // Set sticky active outline to visible
+					//$('#activeoutline').css({opacity: 1});
+					console.log("hide");
+				}
+				else if (windowHeight < totalHeightStickies && bottomOffsetOutlineNav < windowTop) { // if the height of the window is smaller than the total height of all stickies AND we are not scrolled to the top of the page
+					$('#activeoutline-sticky').css({display:'none'}); // Set sticky active outline to hidden
+					//$('#activeoutline').css({opacity: 1});
+					console.log("hide");
+				}
+				else if (windowHeight > totalHeightStickies && bottomOffsetOutlineNav < windowTop) { // if the height of the window is larger than the total height of all stickies AND we are not scrolled to the top of the page
+					$('#activeoutline-sticky').css({display: 'block', marginTop: windowTop - bottomOffsetTopbarnav }); // Set sticky active outline to visible
+					//$('#activeoutline').css({opacity: 0});
 					console.log("show");
 				}
-			    else { // Show!
-					$('#activeoutline-sticky').css({display: 'block', marginTop: windowTop - bottomOffsetTopbarnav });
-					console.log("show");
+				
+			    else { // Otherwise, make sure it's visible
+					$('#activeoutline-sticky').css({display:'none'}); // Set sticky active outline to hidden
+					//$('#activeoutline').css({opacity: 1});
+					console.log("hide otherwise");
 			    }
 			}
 
@@ -164,9 +194,9 @@
 				var bottomTopbarNavSticky = topOffsetTopbarNavSticky + heightTopbarNavSticky;
 
 				// Active Outline Variables
-				var topOffsetOutlineNav = $('#activeoutline').offset().top; // returns number
-				var heightOutlineNav = $('#activeoutline').outerHeight(true); // NOT USED DIRECTLY
-				var bottomOffsetOutlineNav = heightOutlineNav + topOffsetOutlineNav ; // returns number NOT USED DIRECTLY
+				var topOffsetOutlineNav = $('#activeoutline').offset().top;
+				var heightOutlineNav = $('#activeoutline').outerHeight(true);
+				var bottomOffsetOutlineNav = heightOutlineNav + topOffsetOutlineNav + 80; // TODO - figure out why I need 50px more
 
 				if (topOffsetOutlineNav < windowTop && windowHeight > totalHeightStickies) { // Go into sticky mode
 					
