@@ -108,7 +108,7 @@
 
 			function unCompactStickyOutline() {
 				$('#activeoutline-sticky').removeClass( "compact-mode" );
-				console.log("compactorize!");
+				console.log("un compactorize!");
 			}
 
 			function setLmsless() {
@@ -187,15 +187,7 @@
 
 				// if the height of the window is smaller than the total height of all stickies AND we are not scrolled within view of the original navigation
 				if (windowHeight < totalHeightStickies && bottomOffsetOutlineNav < windowTop) {
-					unCompactStickyOutline();
-					// If you scroll too far up past the top, adjust the sticky nav's topmmargin accordingly
-					if (bottomOffsetOutlineNavSticky > windowHeight + 10) {
-						console.log("scrolled past top");
-					}
-					// If you scroll too far past the buttom, adjust the margin accordingly
-					else if (topOffsetOutlineNavSticky < windowHeight + 10) {
-						console.log("scrolled past bottom");
-					}
+					compactStickyOutline();
 				}
 				// if the height of the window is larger than the total height of all stickies AND we are scrolled within view of the original navigation
 				else if (windowHeight > totalHeightStickies && bottomOffsetOutlineNav > windowTop) {
@@ -207,7 +199,21 @@
 				// }
 				// if the height of the window is larger than the total height of all stickies AND we are not scrolled within view of the original navigation
 				else if (windowHeight > totalHeightStickies && bottomOffsetOutlineNav < windowTop) {
-					showStickyOutline();
+					unCompactStickyOutline();
+					
+					// TO DO ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+					// If you scroll too far up past the top, adjust the sticky nav's topmmargin accordingly
+					if (bottomOffsetOutlineNavSticky -  insideHeightOutlineNavSticky > windowHeight + 10) {
+						console.log("scrolled past top");
+					}
+					// If you scroll too far past the buttom, adjust the margin accordingly
+					else if (bottomOffsetOutlineNavSticky < windowHeight + 10) {
+						console.log("scrolled past bottom");
+					}
+
+					// /TO DO ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 				}
 			    else { // Otherwise, compactorize!
 					compactStickyOutline();
