@@ -4,8 +4,19 @@
 		attach: function(context, settings) {
 			// Get your Yeti started.
 			
-			// Active Outline Accordion Menu
+			////////////
+			// sticky stuff from http://andrewhenderson.me/tutorial/jquery-sticky-sidebar/
+			////////////
+			
+			////////////
+			// Global Active Outline Accordion Menu
 			// block--cis-service-connection--active-outline.tpl.php
+			// 
+			// To Do:
+			// 1. Make separate menus for static and sticky
+			//////////// 
+			
+			
 			$('.accordion').hide(); //hide accordion items on page load
 			$('.accordion-btn').click(function() {//toggle the clicked dl item
 				var $this = $(this);
@@ -15,189 +26,128 @@
 				$this.next().toggle(); // open or close cliked item
 			});
 
-
-
-
+			////////////
+			// Action Menu Links
+			// page.tpl.php
+			//////////// 
 
 			// Move accessibility link to action-links menu
 			$( ".accessibility-content-toggle a" ).appendTo( ".action-links-bar ul" ).wrap("<li></li>");
 			$( ".accessibility-content-toggle").hide();
 
-			// Scroll to Top
+			////////////
+			// Scroll to top of page
+			// page.tpl.php
+			////////////
 			
 			$('#banner-image-sticky').click(function() {//toggle the clicked dl item
 				$('html, body').animate({scrollTop: "0px"}, 800); // close all items except for current clicked item
 			});
-
-			////////////
-			// Resize Content
-			////////////
-
-			$(window).resize(function() {
-		        resizeContent();
-		    });
-			function resizeContent() {
+						
+			// Window Height Variable
+			var windowHeight = $(window).height();
+			// var windowTop = $(window).scrollTop();
+			var topOffsetlmsless = $('#lmsless-bar').offset().top; // returns number
+			var heightlmsless = $('#lmsless-bar').outerHeight(true); // NOT USED DIRECTLY
+			var bottomOffsetlmsless = heightlmsless + topOffsetlmsless + 10; // returns number NOT USED DIRECTLY
+			// Banner Image Variables
+			var topOffsetBanner = $('#banner-image').offset().top; // returns number
+			var heightBanner = $('#banner-image').outerHeight(true);
+			var bottomOffsetBanner = heightBanner + topOffsetBanner - heightlmsless + 10; // returns number
+			// Topbar Nav Variables
+			var topOffsetTopbarnav = $('#topbarnav').offset().top; // returns number
+			var heightTopbarnav = $('#topbarnav').outerHeight(true); // returns number
+			var bottomOffsetTopbarnav = heightTopbarnav + topOffsetTopbarnav; // returns number
+			// Sticky Elements Height Variables
+			var heightTopbarNavSticky = $('#topbarnav-sticky').outerHeight(); // height of sticky topbar
+			var heightBannerImageSticky = $('#banner-image-sticky').outerHeight(); // height of sticky topbar
+			var heightlmslessSticky = $('#lmsless-bar-sticky').outerHeight(); // height of sticky LMSLess Bar
+			var topOffsetTopbarNavSticky = $('#topbarnav-sticky').offset().top;
+			var bottomTopbarNavSticky = topOffsetTopbarNavSticky + heightTopbarNavSticky;
+			// Active Outline Variables
+			var topOffsetOutlineNav = $('#activeoutline').offset().top;
+			var heightOutlineNav = $('#activeoutline').outerHeight(true);
+			var bottomOffsetOutlineNav = heightOutlineNav + topOffsetOutlineNav; // TODO - figure out why I need 50px more
+			// Height of space above visible area in window
+			// Active Outline Height Variable
+			var insideHeightOutlineNavSticky = $('#activeoutline-sticky').outerHeight();
+			// Total Height Sticky Elements Height Variables
 			
-				// Window Height Variable
-			    var windowHeight = $(window).height();
-			    
-			    // Height of space above visible area in window
-				var windowTop = $(window).scrollTop();
-				
-				// Sticky Elements Height Variables
-				var heightTopbarNavSticky = $('#topbarnav-sticky').height(); // height of sticky topbar
-				var heightBannerImageSticky = $('#banner-image-sticky').height(); // height of sticky topbar
-			    var heightlmslessSticky = $('#lmsless-bar-sticky').height(); // height of sticky LMSLess Bar
-			    
-			    // Active Outline Height Variable
-			    var heightOutlineNavSticky = $('#activeoutline-sticky').height();
-			    
-			    // Total Height Sticky Elements Height Variables
-			    var totalHeightStickies = heightOutlineNavSticky + heightTopbarNavSticky + heightBannerImageSticky + heightlmslessSticky;
-
-				// Topbar Nav Variables
-				var topOffsetTopbarnav = $('#topbarnav').offset().top; // returns number
-				var heightTopbarnav = $('#topbarnav').outerHeight(true); // returns number
-				var bottomOffsetTopbarnav = heightTopbarnav + topOffsetTopbarnav; // returns number
-
-				// Active Outline Variables
-				var topOffsetOutlineNav = $('#activeoutline').offset().top;
-				var heightOutlineNav = $('#activeoutline').outerHeight(true);
-				var bottomOffsetOutlineNav = heightOutlineNav + topOffsetOutlineNav + 80; // TODO - figure out why I need 50px more
-
-				// Active Outline Sticky Variables
-				var topOffsetOutlineNavSticky = $('#activeoutline-sticky').offset().top;
-				var heightOutlineNavSticky = $('#activeoutline-sticky').outerHeight(true);
-				var bottomOffsetOutlineNavSticky = heightOutlineNavSticky + topOffsetOutlineNavSticky;
+			var topOffsetOutlineNavSticky = $('#activeoutline-sticky').offset().top;
+			var heightOutlineNavSticky = $('#activeoutline-sticky').outerHeight(true);
+			var bottomOffsetOutlineNavSticky = heightOutlineNavSticky + topOffsetOutlineNavSticky;
 
 
-				/////////
-				/// To Do:
-				/// Instead of hiding upon resize, just disable margin changes so users can scroll up and down :)
-				////////
+			// TO DO ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-				if (windowHeight < totalHeightStickies && bottomOffsetOutlineNav < windowTop) { // if the height of the window is smaller than the total height of all stickies AND we are not scrolled to the top of the page
-					$('#activeoutline-sticky').css({display:'none'}); // Set sticky active outline to hidden
-					//$('#activeoutline').css({opacity: 1});
-					console.log("hide");
-				}
-				else if (windowHeight > totalHeightStickies && bottomOffsetOutlineNav > windowTop) { // if the height of the window is larger than the total height of all stickies AND we are scrolled to the top of the page
-					$('#activeoutline-sticky').css({display:'none'}); // Set sticky active outline to visible
-					//$('#activeoutline').css({opacity: 1});
-					console.log("hide");
-				}
-				else if (windowHeight < totalHeightStickies && bottomOffsetOutlineNav < windowTop) { // if the height of the window is smaller than the total height of all stickies AND we are not scrolled to the top of the page
-					$('#activeoutline-sticky').css({display:'none'}); // Set sticky active outline to hidden
-					//$('#activeoutline').css({opacity: 1});
-					console.log("hide");
-				}
-				else if (windowHeight > totalHeightStickies && bottomOffsetOutlineNav < windowTop) { // if the height of the window is larger than the total height of all stickies AND we are not scrolled to the top of the page
-					$('#activeoutline-sticky').css({display: 'block', marginTop: windowTop - bottomOffsetTopbarnav }); // Set sticky active outline to visible
-					//$('#activeoutline').css({opacity: 0});
-					console.log("show");
-				}
-				
-			    else { // Otherwise, make sure it's visible
-					$('#activeoutline-sticky').css({display:'none'}); // Set sticky active outline to hidden
-					//$('#activeoutline').css({opacity: 1});
-					console.log("hide otherwise");
-			    }
+			// This variable is reporting the wrong height. Fix.
+			var totalHeightStickies = insideHeightOutlineNavSticky + heightTopbarNavSticky + heightBannerImageSticky;
+
+
+
+			var scrollDiffBottom = bottomOffsetOutlineNavSticky + windowHeight;
+			// Figure out how to get this value
+			var scrollDiffTop = "distance between top of outline nav and bottom of Topbarnav" + bottomOffsetTopbarnav;
+
+			function activeOutlineDiffScroll() {
+				$('#activeoutline-sticky').css({marginTop: - scrollDiffTop}); // Subtract margin
 			}
 
-			////////////
-			// Sticky On Scroll
-			////////////
-			$(window).scroll(function(){ // scroll event  
-				
-				////////////
-				// sticky stuff from http://andrewhenderson.me/tutorial/jquery-sticky-sidebar/
-				////////////
-				
-				// Height of space above visible area in window
+			// /TO DO ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+			function showStickyOutline() {
 				var windowTop = $(window).scrollTop();
+				$('#activeoutline-sticky').css({display:'block', marginTop: windowTop - bottomOffsetTopbarnav }); // Set sticky active outline to visible and relocate within view // Set sticky active outline to visible
+				console.log("show");
+			}
 
-				////////////
-				// StickyLmsless Bar
-				////////////
-				
-				// LMSLess Bar Variables
-				var topOffsetlmsless = $('#lmsless-bar').offset().top; // returns number
-				var heightlmsless = $('#lmsless-bar').outerHeight(true); // NOT USED DIRECTLY
-				var bottomOffsetlmsless = heightlmsless + topOffsetlmsless + 10; // returns number NOT USED DIRECTLY
+			function compactStickyOutline() {
+				$('#activeoutline-sticky').removeClass( "compact-mode" ).addClass( "compact-mode" );
+				console.log("compactorize!");
+			}
 
+			function unCompactStickyOutline() {
+				$('#activeoutline-sticky').removeClass( "compact-mode" );
+				console.log("compactorize!");
+			}
+
+			function setLmsless() {
+				var windowTop = $(window).scrollTop();
+				console.log("setLmsless function reporting for duty!");
 				if (bottomOffsetlmsless < windowTop) { // Go into sticky mode
 					$('#lmsless-bar-sticky').addClass( "locator" );
+					
 				}
 			    else { // Do not go into sticky mode
 					$('#lmsless-bar-sticky').removeClass( "locator" );
 			    }
-				
-				////////////
-				// Banner Image
-				////////////
-				
-				// Banner Image Variables
-				var topOffsetBanner = $('#banner-image').offset().top; // returns number
-				var heightBanner = $('#banner-image').outerHeight(true);
-				var bottomOffsetBanner = heightBanner + topOffsetBanner - heightlmsless + 10; // returns number
+			}
 
+			function setBanner() {
+				var windowTop = $(window).scrollTop();
+				console.log("setBanner function reporting for duty!");
 				if (bottomOffsetBanner < windowTop) { // Go into sticky mode
 					$('#banner-image-sticky').addClass( "locator" );
 				}
 			    else { // Do not go into sticky mode
 					$('#banner-image-sticky').removeClass( "locator" );
 			    }
-				
-				////////////
-				// Topbar Nav
-				////////////
-				
-				// Topbar Nav Variables
-				var topOffsetTopbarnav = $('#topbarnav').offset().top; // returns number
-				var heightTopbarnav = $('#topbarnav').outerHeight(true); // returns number
-				var bottomOffsetTopbarnav = heightTopbarnav + topOffsetTopbarnav; // returns number
+			}
 
+			function setTopbarnav() {
+				var windowTop = $(window).scrollTop();
+				console.log("setTopbarnav function reporting for duty!");
 				if (bottomOffsetTopbarnav < windowTop) { // Go into sticky mode
 					$('#topbarnav-sticky').addClass( "locator" );
 				}
 			    else { // Do not go into sticky mode
 					$('#topbarnav-sticky').removeClass( "locator" );
 			    }
+			}
 
-				////////////
-				// Active Outline
-				////////////
-				
-				////////////////////////////////////
-			    // Exact Duplicate Variables from window resize
-			    ////////////////////////////////////
-			    
-			    // Window Height Variable
-			    var windowHeight = $(window).height();
-				
-				// Sticky Elements Height Variables
-				var heightTopbarNavSticky = $('#topbarnav-sticky').height(); // height of sticky topbar
-				var heightBannerImageSticky = $('#banner-image-sticky').height(); // height of sticky topbar
-			    var heightlmslessSticky = $('#lmsless-bar-sticky').height(); // height of sticky LMSLess Bar
-			    
-			    // Active Outline Height Variable
-			    var heightOutlineNavSticky = $('#activeoutline-sticky').height();
-			    
-			    // Total Height Sticky Elements Height Variables
-			    var totalHeightStickies = heightOutlineNavSticky + heightTopbarNavSticky + heightBannerImageSticky + heightlmslessSticky;
-			    
-			    ////////////////////////////////////
-			    
-				// Sticky Topbar Nav Variables
-				var heightTopbarNavSticky = $('#topbarnav-sticky').outerHeight(true); //height of sticky topbar
-				var topOffsetTopbarNavSticky = $('#topbarnav-sticky').offset().top;
-				var bottomTopbarNavSticky = topOffsetTopbarNavSticky + heightTopbarNavSticky;
-
-				// Active Outline Variables
-				var topOffsetOutlineNav = $('#activeoutline').offset().top;
-				var heightOutlineNav = $('#activeoutline').outerHeight(true);
-				var bottomOffsetOutlineNav = heightOutlineNav + topOffsetOutlineNav + 80; // TODO - figure out why I need 50px more
-
+			function setActiveOutline() {
+				var windowTop = $(window).scrollTop();
+				console.log("setActiveOutline function reporting for duty!");
 				if (topOffsetOutlineNav < windowTop && windowHeight > totalHeightStickies) { // Go into sticky mode
 					
 					$('#activeoutline-sticky').css({display: 'block', marginTop: windowTop - bottomOffsetTopbarnav });
@@ -205,8 +155,83 @@
 			    else { // Do not go into sticky mode
 					$('#activeoutline-sticky').css({display:'none', marginTop: 0});
 			    }
+			}
 
+			function resizeContent() {
+				/////////
+				/// To Do:
+				/// 1. Instead of hiding upon resize, disable dynamic top-margin so users can scroll the menu
+				/// 2. Transfer keyboard focus to equivelant button when changing to sticky menu for accessibility
+				////////
+				
+				// Reset these variables each time you resize the browser
+				var windowTop = $(window).scrollTop();
+				var windowHeight = $(window).height();
+				var insideHeightOutlineNavSticky = $('#activeoutline-sticky').outerHeight();
+				var heightBannerImageSticky = $('#banner-image-sticky').outerHeight();
+				var heightTopbarNavSticky = $('#topbarnav-sticky').outerHeight(); // height of sticky topbar
+				var totalHeightStickies = insideHeightOutlineNavSticky + heightTopbarNavSticky + heightBannerImageSticky;
+
+				console.log("windowHeight");
+				console.log(windowHeight);
+				console.log("Window Top");
+				console.log(windowTop);
+				console.log("totalHeightStickies");
+				console.log(totalHeightStickies);
+				console.log("insideHeightOutlineNavSticky");
+				console.log(insideHeightOutlineNavSticky);
+				console.log("heightOutlineNavSticky");
+				console.log(insideHeightOutlineNavSticky);
+				
+				
+
+				// if the height of the window is smaller than the total height of all stickies AND we are not scrolled within view of the original navigation
+				if (windowHeight < totalHeightStickies && bottomOffsetOutlineNav < windowTop) {
+					unCompactStickyOutline();
+					// If you scroll too far up past the top, adjust the sticky nav's topmmargin accordingly
+					if (bottomOffsetOutlineNavSticky > windowHeight + 10) {
+						console.log("scrolled past top");
+					}
+					// If you scroll too far past the buttom, adjust the margin accordingly
+					else if (topOffsetOutlineNavSticky < windowHeight + 10) {
+						console.log("scrolled past bottom");
+					}
+				}
+				// if the height of the window is larger than the total height of all stickies AND we are scrolled within view of the original navigation
+				else if (windowHeight > totalHeightStickies && bottomOffsetOutlineNav > windowTop) {
+					compactStickyOutline();
+				}
+				// if the height of the window is smaller than the total height of all stickies AND we are not scrolled within view of the original navigation
+				// else if (windowHeight < totalHeightStickies && bottomOffsetOutlineNav < windowTop) {
+				// compactStickyOutline();
+				// }
+				// if the height of the window is larger than the total height of all stickies AND we are not scrolled within view of the original navigation
+				else if (windowHeight > totalHeightStickies && bottomOffsetOutlineNav < windowTop) {
+					showStickyOutline();
+				}
+			    else { // Otherwise, compactorize!
+					compactStickyOutline();
+			    }
+			}
+			// When you resize the browser, do these things
+			$(window).resize(function() {
+				resizeContent();
 			});
+			// When you scroll the browser, do these things
+			$(window).scroll(function(){
+				setLmsless();
+				setBanner();
+				setTopbarnav();
+				setActiveOutline();
+				resizeContent();
+			});
+
+			// Let's kick things off right
+			resizeContent();
+			setLmsless();
+			setBanner();
+			setTopbarnav();
+			setActiveOutline();
 		}
 	};
 })(jQuery, Drupal);
