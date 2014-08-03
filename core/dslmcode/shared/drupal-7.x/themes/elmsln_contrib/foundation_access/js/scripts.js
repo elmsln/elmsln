@@ -148,10 +148,33 @@
 			function setActiveOutline() {
 				var windowTop = $(window).scrollTop();
 				console.log("setActiveOutline function reporting for duty!");
+				// If the top of the Active Outline is off screen to the top AND the height of the window is GREATER than the height of the stickies
 				if (topOffsetOutlineNav < windowTop && windowHeight > totalHeightStickies) { // Go into sticky mode
-					
+					console.log("normal sticky");
 					$('#activeoutline-sticky').css({display: 'block', marginTop: windowTop - bottomOffsetTopbarnav });
 				}
+
+// TO DO ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+				// If the top of the Active Outline is off screen to the top AND the height of the window is LESS than the height of the stickies
+				else if (topOffsetOutlineNav - 100 < windowTop && windowHeight < totalHeightStickies) { // Go into sticky mode
+					console.log("follow down sticky");
+					$('#activeoutline-sticky').css({marginTop: windowTop + bottomOffsetTopbarnav });
+					// Add top Margin so the top of the active outline is in view
+					// It should be allowed off screen by 30% before it moves itself into place
+				}
+				// If the bottom of the Active Outline is off screen to the top AND the height of the window is LESS than the height of the stickies
+				else if (bottomOffsetOutlineNav + 100 > windowTop + windowHeight && windowHeight < totalHeightStickies) { // Go into sticky mode
+					console.log("follow up sticky");
+					$('#activeoutline-sticky').css({marginTop: windowTop + totalHeightStickies });
+					// Reduce the top margin so the bottom of active outline is in view
+					// It should be allowed off screen by 30% before it moves itself into place
+					
+				}
+
+// /TO DO ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+				// if the window is smaller than the active outline, then do not adjust margin
+				// 
 			    else { // Do not go into sticky mode
 					$('#activeoutline-sticky').css({display:'none', marginTop: 0});
 			    }
@@ -201,18 +224,20 @@
 				else if (windowHeight > totalHeightStickies && bottomOffsetOutlineNav < windowTop) {
 					unCompactStickyOutline();
 					
-					// TO DO ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// TO DO ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+					// Merge into setActiveOutline function
+					
 					// If you scroll too far up past the top, adjust the sticky nav's topmmargin accordingly
-					if (bottomOffsetOutlineNavSticky -  insideHeightOutlineNavSticky > windowHeight + 10) {
-						console.log("scrolled past top");
-					}
-					// If you scroll too far past the buttom, adjust the margin accordingly
-					else if (bottomOffsetOutlineNavSticky < windowHeight + 10) {
-						console.log("scrolled past bottom");
-					}
+					// if (bottomOffsetOutlineNavSticky -  insideHeightOutlineNavSticky > windowHeight + 10) {
+					//	console.log("scrolled past top");
+					// }
+					// // If you scroll too far past the buttom, adjust the margin accordingly
+					// else if (bottomOffsetOutlineNavSticky < windowHeight + 10) {
+					//	console.log("scrolled past bottom");
+					// }
 
-					// /TO DO ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// /TO DO ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 				}
 			    else { // Otherwise, compactorize!
