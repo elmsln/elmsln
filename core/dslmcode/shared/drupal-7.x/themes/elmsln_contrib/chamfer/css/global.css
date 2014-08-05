@@ -421,3 +421,6 @@ video { max-width: 100%; height: auto; }
 article.node .field-name-body {
   padding-bottom: 3em;
 }
+.signature-media {
+  display:inline-block;
+}
