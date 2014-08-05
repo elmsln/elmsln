@@ -424,3 +424,6 @@ article.node .field-name-body {
 .signature-media {
   display:inline-block;
 }
+p {
+  font-size: 16px;
+}
