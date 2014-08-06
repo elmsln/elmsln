@@ -1,0 +1,12 @@
+TCPDF support:
+  TCPDF's support for CSS is considerably worse than the other tools.
+  Unicode is supported (use of Unicode fonts result in HUGE files).  Page
+  header and footer are supported. This module requires TCPDF >= 5.9.012.
+
+  1. Download TCPDF from http://sourceforge.net/projects/tcpdf/
+  2. Extract the contents of the downloaded package into one of the
+  supported paths.  There is no need to modify the config/tcpdf_config.php
+  file, as the module self-configures TCPDF.
+  3. Grant write access to the cache and images directories to your
+  webserver user.
+  4. Check http://tcpdf.sourceforge.net/ for further information.
