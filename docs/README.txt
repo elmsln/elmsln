@@ -1,6 +1,8 @@
 ELMSLN Documentation
 
-All Drupal and contributed module documentation can be found on drupal.org.  There’s also an API site for ELMSLN developers that can be found at http://api.drupal.psu.edu/
+ELMSLN has a dedicated site @ http://elmsln.org/ but there are other sources that info about the project can be found on.
+
+All Drupal and contributed module documentation can be found on drupal.org.  There’s also an API site for ELMSLN developers that can be found at http://api.elmsln.org/
 
 Check out the Drupal @ PSU blog — http://drupal.psu.edu/blog/1
 Check out the ELMS Blog — http://elms.psu.edu/blog
