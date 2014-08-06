@@ -4,9 +4,6 @@ _notes/
 .DS_Store
 config/*
 config
-README.txt
-INSTALL.txt
-LICENSE.txt
 .git
 
 core/dslmcode/shared/drupal-7.x/themes/elmsln_contrib/foundation_access/images/test-banner.jpg
