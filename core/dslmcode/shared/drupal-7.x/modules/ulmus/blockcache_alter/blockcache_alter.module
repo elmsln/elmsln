@@ -1,0 +1,114 @@
+<?php
+// $Id: blockcache_alter.module,v 1.2.2.17.2.3 2010/11/27 14:30:24 swentel Exp $
+
+/**
+ * @file
+ * Block cache alter module.
+ */
+
+/**
+ * Implementation of hook_form_alter().
+ */
+function blockcache_alter_form_alter(&$form, $form_state, $form_id) {
+
+  // Add caching fieldset to the block configure page.
+  if ($form_id == 'block_admin_configure') {
+
+    // Blockcache options.
+    $block_cache_options = array(
+      DRUPAL_NO_CACHE => t('Do not cache'),
+      DRUPAL_CACHE_GLOBAL => t('Cache once for everything (global)'),
+      DRUPAL_CACHE_PER_PAGE => t('Per page'),
+      DRUPAL_CACHE_PER_ROLE => t('Per role'),
+      DRUPAL_CACHE_PER_ROLE | DRUPAL_CACHE_PER_PAGE => t('Per role per page'),
+      DRUPAL_CACHE_PER_USER => t('Per user'),
+      DRUPAL_CACHE_PER_USER | DRUPAL_CACHE_PER_PAGE => t('Per user per page'),
+    );
+
+    // Retrieve current cache setting for this block.
+    $default_value = db_select('block', 'b')
+      ->fields('b', array('cache'))
+      ->condition('module', $form['module']['#value'])
+      ->condition('delta', $form['delta']['#value'])
+      ->execute()
+      ->fetchField();
+
+    // Blockcache fieldset.
+    $form['cache'] = array(
+      '#type' => 'fieldset',
+      '#title' => t('Cache settings'),
+      '#weight' => 1,
+      '#collapsible' => TRUE,
+    );
+
+    // Cache setting.
+    $form['cache']['cache_block'] = array(
+      '#type' => 'select',
+      '#title' => t('Cache setting'),
+      '#description' => t('Select the appropriate cache setting for this block.'),
+      '#options' => $block_cache_options,
+      '#default_value' => $default_value,
+    );
+
+    // Add own submit handler.
+    $form['#submit'][] = 'blockcache_alter_save_settings';
+
+  }
+}
+
+/**
+ * Submit callback. Saves cache settings per block.
+ */
+function blockcache_alter_save_settings($form, &$form_state) {
+
+  $bids = db_select('block', 'b')
+    ->fields('b', array('bid'))
+    ->condition('module', $form['module']['#value'])
+    ->condition('delta', $form['delta']['#value'])
+    ->execute()
+    ->fetchCol();
+
+  $blockcache_alter = db_select('blockcache_alter', 'b')
+    ->fields('b', array('bid'))
+    ->condition('module', $form['module']['#value'])
+    ->condition('delta', $form['delta']['#value'])
+    ->execute()
+    ->fetchCol();
+
+  $block = new StdClass();
+  $block->module = $form_state['values']['module'];
+  $block->delta = $form_state['values']['delta'];
+  $block->cache = $form_state['values']['cache_block'];
+
+  foreach($bids as $bid) {
+    $block->bid = $bid;
+    drupal_write_record('block', $block, array('bid'));
+    if (in_array($bid, $blockcache_alter)) {
+      drupal_write_record('blockcache_alter', $block, array('bid'));
+    }
+    else {
+      drupal_write_record('blockcache_alter', $block);
+    }
+  }
+
+}
+
+/**
+ * Implementation of hook_block_info_alter().
+ */
+function blockcache_alter_block_info_alter(&$blocks, $theme, $code_blocks) {
+
+  $blockcache_alter = db_select('blockcache_alter', 'b')
+    ->fields('b', array('bid', 'module', 'cache'))
+    ->execute()
+    ->fetchAll();
+
+  foreach($blockcache_alter as $bca) {
+    foreach($blocks[$bca->module] as $key => $module) {
+      if ($module['bid'] == $bca->bid) {
+        $blocks[$bca->module][$key]['cache'] = $bca->cache;
+      }
+    }
+  }
+
+}

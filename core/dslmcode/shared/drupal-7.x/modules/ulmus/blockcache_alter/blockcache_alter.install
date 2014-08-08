@@ -1,0 +1,50 @@
+<?php
+// $Id: blockcache_alter.install,v 1.1.2.5.2.1 2010/07/30 13:55:54 timleytens Exp $
+
+/**
+ * @file
+ * Install file.
+ */
+
+/**
+ * Implements hook_schema().
+ */
+function blockcache_alter_schema() {
+
+  $schema = array();
+
+  $schema['blockcache_alter'] = array(
+    'description' => 'Stores blockcache alter cache values',
+    'fields' => array(
+      'bid' => array(
+        'type' => 'serial',
+        'not null' => TRUE,
+        'description' => 'Primary Key: Unique block ID.',
+      ),
+      'module' => array(
+        'type' => 'varchar',
+        'length' => 64,
+        'not null' => TRUE,
+        'default' => '',
+        'description' => "The module from which the block originates; for example, 'user' for the Who's Online block, and 'block' for any custom blocks.",
+      ),
+      'delta' => array(
+        'type' => 'varchar',
+        'length' => 32,
+        'not null' => TRUE,
+        'default' => '0',
+        'description' => 'Unique ID for block within a module.',
+      ),
+      'cache' => array(
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 1,
+        'size' => 'tiny',
+        'description' => 'Binary flag to indicate block cache mode. (-2: Custom cache, -1: Do not cache, 1: Cache per role, 2: Cache per user, 4: Cache per page, 8: Block cache global) See DRUPAL_CACHE_* constants in ../includes/common.inc for more detailed information.',
+      ),
+    ),
+    'primary key' => array('bid'),
+  );
+
+  return $schema;
+}
