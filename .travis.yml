@@ -17,6 +17,11 @@ matrix:
     - env: UPGRADE=none
 
 install:
+  - export UPDATE TRAVIS_BUILD_DIR
+  - BUILD_TOP=`dirname $TRAVIS_BUILD_DIR`
+  - EXIT_VALUE=0
+
+  - export PATH="$HOME/.composer/vendor/bin:$PATH"
   - sudo apt-get update > /dev/null
 
   - composer global require --prefer-source --no-interaction drush/drush:6.*
