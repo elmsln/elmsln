@@ -19,7 +19,7 @@ matrix:
 install:
   - sudo apt-get update > /dev/null
 
-  - sudo composer global require --prefer-source --no-interaction drush/drush:6.*
+  - composer global require --prefer-source --no-interaction drush/drush:6.*
 
   - sudo mkdir -p /var/www
   - cd /var/www
@@ -33,20 +33,14 @@ install:
   - sudo mkdir ~/.drush/
   - sudo cp -r /var/www/elmsln/config/scripts/drush/server/* ~/.drush/
   - sudo chown -R root:root ~/.drush
-  - sudo drush cc drush
-
-  - sudo apachectl -k restart
 
   - sudo ln -s /var/www/elmsln elmsln
-
-#before_script:
-#  - $HOME/travis-ci.sh before-tests
 
 script:
   - sudo bash /var/www/elmsln/scripts/install/elmsln-install.sh
 
 after_script:
-  - sudo drush @online uli
+  - drush @online uli
 
 notifications:
   slack:
