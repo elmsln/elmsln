@@ -17,8 +17,8 @@ matrix:
     - env: UPGRADE=none
 
 install:
-  - mkdir -p /var/www
-  - cd /var/www
+  - sudo mkdir -p /var/www
+  - sudo cd /var/www
   - sudo mkdir elmsln
   - sudo chown root:root elmsln
   - git clone https://github.com/btopro/elmsln.git
