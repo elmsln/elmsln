@@ -19,7 +19,7 @@ matrix:
 install:
   - sudo apt-get update > /dev/null
 
-  - composer global require --prefer-source --no-interaction drush/drush:6.*
+  - sudo composer global require --prefer-source --no-interaction drush/drush:6.*
 
   - sudo mkdir -p /var/www
   - cd /var/www
