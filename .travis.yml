@@ -17,33 +17,23 @@ matrix:
     - env: UPGRADE=none
 
 install:
-  - sudo -i
-  - mkdir -p /var/www
+  - sudo mkdir -p /var/www
   - cd /var/www
-  - mkdir elmsln
-  - chown root:root elmsln
-  - git clone https://github.com/btopro/elmsln.git
+  - sudo mkdir elmsln
+  - sudo chown root:root elmsln
+  - sudo git clone https://github.com/btopro/elmsln.git
   - cd /var/www/elmsln
-  - rm -rf config
-  - git clone https://github.com/btopro/elmsln-config-vagrant.git config
+  - sudo rm -rf config
+  - sudo git clone https://github.com/btopro/elmsln-config-vagrant.git config
 
-  - pear upgrade --force Console_Getopt
-  - pear upgrade --force pear
+  - sudo pear upgrade --force Console_Getopt
+  - sudo pear upgrade --force pear
   - sudo pear upgrade-all
   - sudo pear channel-discover pear.drush.org
   - sudo pear install drush/drush
   - sudo mkdir ~/.drush/
   - sudo cp -r /var/www/elmsln/scripts/drush/server/* ~/.drush/
   - sudo chown -R root:root .drush
-
-  - install mb_string package
-
-  - sudo apt-get install yum
-  - yum repolist
-  - subscription-manager repos --enable rhel-6-server-optional-rpms
-  - yum repolist
-  - yum update
-  - yum install php-mbstring
 
   - sudo apachectl -k restart
 
