@@ -33,7 +33,7 @@ install:
   - sudo mkdir ~/.drush/
   - sudo cp -r /var/www/elmsln/config/scripts/drush/server/* ~/.drush/
   - sudo chown -R root:root ~/.drush
-  - drush cc drush
+  - sudo drush cc drush
 
   - sudo apachectl -k restart
 
@@ -46,11 +46,10 @@ script:
   - sudo bash /var/www/elmsln/scripts/install/elmsln-install.sh
 
 after_script:
-  - drush @online uli
+  - sudo drush @online uli
 
 notifications:
   slack:
     rooms:
-      - elmsln:WmKTRMe7k3IjprunaAVV3Jjg#general
       - elmsln:WmKTRMe7k3IjprunaAVV3Jjg#qa
       - elmsln:WmKTRMe7k3IjprunaAVV3Jjg#code
