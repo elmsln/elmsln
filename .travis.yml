@@ -17,6 +17,7 @@ matrix:
     - env: UPGRADE=none
 
 install:
+  - mkdir -p /var/www
   - cd /var/www
   - sudo mkdir elmsln
   - sudo chown root:root elmsln
