@@ -20,8 +20,7 @@ install:
   - sudo apt-get update > /dev/null
 
   - composer global require --prefer-source --no-interaction drush/drush:6.*
-  - drush dl -y drupalorg_drush-7.x-1.x-dev --destination=$HOME/.drush
-  - drush cc drush
+
   - sudo mkdir -p /var/www
   - cd /var/www
   - sudo mkdir elmsln
@@ -34,6 +33,7 @@ install:
   - sudo mkdir ~/.drush/
   - sudo cp -r /var/www/elmsln/config/scripts/drush/server/* ~/.drush/
   - sudo chown -R root:root .drush
+  - drush cc drush
 
   - sudo apachectl -k restart
 
