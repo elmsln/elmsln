@@ -32,7 +32,7 @@ install:
 
   - sudo mkdir ~/.drush/
   - sudo cp -r /var/www/elmsln/config/scripts/drush/server/* ~/.drush/
-  - sudo chown -R root:root .drush
+  - sudo chown -R root:root ~/.drush
   - drush cc drush
 
   - sudo apachectl -k restart
