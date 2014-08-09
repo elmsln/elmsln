@@ -1,0 +1,61 @@
+language: php
+
+php:
+  - 5.4
+
+mysql:
+  database: drupal
+  username: root
+  encoding: utf8
+
+env:
+  - UPGRADE=none
+
+matrix:
+  fast_finish: true
+  allow_failures:
+    - env: UPGRADE=none
+
+install:
+  - cd /var/www
+  - sudo mkdir elmsln
+  - sudo chown root:root elmsln
+  - git clone https://github.com/btopro/elmsln.git
+  - cd /var/www/elmsln
+  - rm -rf config
+  - git clone https://github.com/btopro/elmsln-config-vagrant.git config
+
+  - sudo pear upgrade --force Console_Getopt
+  - sudo pear upgrade --force pear
+  - sudo pear upgrade-all
+  - sudo pear channel-discover pear.drush.org
+  - sudo pear install drush/drush
+  - mkdir ~/.drush/
+  - sudo cp -r /var/www/elmsln/scripts/drush/server/* ~/.drush/
+  - sudo chown -R root:root .drush
+  - vi ~/.drush/elmsln.aliases.drushrc.php
+  - sudo -i
+  - mkdir ~/.drush/
+  - cp -r /var/www/elmsln/scripts/drush/server/* ~/.drush/
+
+  - install mb_string package
+
+  - sudo apt-get install yum
+  - yum repolist
+  - subscription-manager repos --enable rhel-6-server-optional-rpms
+  - yum repolist
+  - yum update
+  - yum install php-mbstring
+
+  - sudo apachectl -k restart
+
+  - ln -s /var/www/elmsln elmsln
+
+#before_script:
+#  - $HOME/travis-ci.sh before-tests
+
+script:
+  - sudo bash /var/www/elmsln/scripts/install/elmsln-install.sh
+
+after_script:
+  - drush @online uli
