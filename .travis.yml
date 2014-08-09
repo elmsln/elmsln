@@ -18,12 +18,12 @@ matrix:
 
 install:
   - sudo mkdir -p /var/www
-  - sudo cd /var/www
+  - cd /var/www
   - sudo mkdir elmsln
   - sudo chown root:root elmsln
   - git clone https://github.com/btopro/elmsln.git
   - cd /var/www/elmsln
-  - rm -rf config
+  - sudo rm -rf config
   - git clone https://github.com/btopro/elmsln-config-vagrant.git config
 
   - sudo pear upgrade --force Console_Getopt
@@ -31,13 +31,9 @@ install:
   - sudo pear upgrade-all
   - sudo pear channel-discover pear.drush.org
   - sudo pear install drush/drush
-  - mkdir ~/.drush/
+  - sudo mkdir ~/.drush/
   - sudo cp -r /var/www/elmsln/scripts/drush/server/* ~/.drush/
   - sudo chown -R root:root .drush
-  - vi ~/.drush/elmsln.aliases.drushrc.php
-  - sudo -i
-  - mkdir ~/.drush/
-  - cp -r /var/www/elmsln/scripts/drush/server/* ~/.drush/
 
   - install mb_string package
 
@@ -50,7 +46,7 @@ install:
 
   - sudo apachectl -k restart
 
-  - ln -s /var/www/elmsln elmsln
+  - sudo ln -s /var/www/elmsln elmsln
 
 #before_script:
 #  - $HOME/travis-ci.sh before-tests
