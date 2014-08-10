@@ -39,7 +39,7 @@ fi
 #fi
 
 # make sure drush is happy before we begin drush calls
-/usr/bin/drush cc drush
+drush cc drush
 
 core='7.x'
 distros=('cis' 'mooc' 'cle' 'icor' 'elmsmedia' 'meedjum_blog' 'remote_watchdog')
@@ -109,7 +109,7 @@ for build in "${buildlist[@]}"
   do
   # install default site for associated stacks in the build list
   cd $stacks/$build
-  /usr/bin/drush site-install -y --db-url=mysql://elmslndfltdbo:$dbpw@localhost/default_$build --db-su=$dbsu --db-su-pw=$dbsupw --account-mail="$admin" --site-mail="$site_email"
+  drush site-install -y --db-url=mysql://elmslndfltdbo:$dbpw@localhost/default_$build --db-su=$dbsu --db-su-pw=$dbsupw --account-mail="$admin" --site-mail="$site_email"
 done
 
 # install the CIS site
@@ -123,7 +123,7 @@ done
 cd $stacks/online
 sitedir=$stacks/online/sites
 
-/usr/bin/drush site-install cis -y --db-url=mysql://online_$host:$dbpw@localhost/online_$host --db-su=$dbsu --db-su-pw=$dbsupw  --account-mail="$admin" --site-mail="$site_email" --site-name="Online"
+drush site-install cis -y --db-url=mysql://online_$host:$dbpw@localhost/online_$host --db-su=$dbsu --db-su-pw=$dbsupw  --account-mail="$admin" --site-mail="$site_email" --site-name="Online"
 #move out of online site directory to host
 mkdir -p $sitedir/online/$host
 mkdir -p $sitedir/online/$host/files
@@ -149,38 +149,38 @@ printf "  '$online_service_domain' => 'online/services/$host',\n);\n" >> $sitedi
 printf "\n\$base_url= '$protocol://$online_domain';" >> $sitedir/online/$host/settings.php
 
 # clean up tasks
-/usr/bin/drush -y --uri=$protocol://$online_domain vset site_slogan 'Welcome to ELMSLN'
-/usr/bin/drush -y --uri=$protocol://$online_domain en $cissettings
-/usr/bin/drush -y --uri=$protocol://$online_domain en cis_restws
-/usr/bin/drush -y --uri=$protocol://$online_domain vset cron_safe_threshold 0
-/usr/bin/drush -y --uri=$protocol://$online_domain vset user_register 1
-/usr/bin/drush -y --uri=$protocol://$online_domain vset user_email_verification 0
-/usr/bin/drush -y --uri=$protocol://$online_domain vset preprocess_css 1
-/usr/bin/drush -y --uri=$protocol://$online_domain vset preprocess_js 1
-/usr/bin/drush -y --uri=$protocol://$online_domain vset cis_college_name $host
-/usr/bin/drush -y --uri=$protocol://$online_domain vset file_private_path ${drupal_priv}/online/online
-/usr/bin/drush -y --uri=$protocol://$online_domain vset cis_build_lms cis_account_required,cis_lms_required
-/usr/bin/drush -y --uri=$protocol://$online_domain vset cis_build_code cis_account_required,cis_lms_required
-/usr/bin/drush -y --uri=$protocol://$online_domain vset cis_build_authenticated cis_account_required
-/usr/bin/drush -y --uri=$protocol://$online_domain vdel update_notify_emails
+drush -y --uri=$protocol://$online_domain vset site_slogan 'Welcome to ELMSLN'
+drush -y --uri=$protocol://$online_domain en $cissettings
+drush -y --uri=$protocol://$online_domain en cis_restws
+drush -y --uri=$protocol://$online_domain vset cron_safe_threshold 0
+drush -y --uri=$protocol://$online_domain vset user_register 1
+drush -y --uri=$protocol://$online_domain vset user_email_verification 0
+drush -y --uri=$protocol://$online_domain vset preprocess_css 1
+drush -y --uri=$protocol://$online_domain vset preprocess_js 1
+drush -y --uri=$protocol://$online_domain vset cis_college_name $host
+drush -y --uri=$protocol://$online_domain vset file_private_path ${drupal_priv}/online/online
+drush -y --uri=$protocol://$online_domain vset cis_build_lms cis_account_required,cis_lms_required
+drush -y --uri=$protocol://$online_domain vset cis_build_code cis_account_required,cis_lms_required
+drush -y --uri=$protocol://$online_domain vset cis_build_authenticated cis_account_required
+drush -y --uri=$protocol://$online_domain vdel update_notify_emails
 
 # specialized job to automatically produce service nodes to match registry we made
-/usr/bin/drush -y --uri=$protocol://$online_domain cis-sync-reg
+drush -y --uri=$protocol://$online_domain cis-sync-reg
 # may seem odd but basically we want to import a default set of nodes then disable
 # everything required to do this because it can throw a lot of errors but does work
-/usr/bin/drush -y --uri=$protocol://$online_domain en cis_sample_content
+drush -y --uri=$protocol://$online_domain en cis_sample_content
 
 # uninstall all these now because they should be in correctly as sample nodes
-/usr/bin/drush -y --uri=$protocol://$online_domain dis cis_sample_content node_export node_export_features node_export_dependency
-/usr/bin/drush -y --uri=$protocol://$online_domain pm-uninstall cis_sample_content
-/usr/bin/drush -y --uri=$protocol://$online_domain pm-uninstall node_export_features node_export_dependency
-/usr/bin/drush -y --uri=$protocol://$online_domain pm-uninstall node_export
+drush -y --uri=$protocol://$online_domain dis cis_sample_content node_export node_export_features node_export_dependency
+drush -y --uri=$protocol://$online_domain pm-uninstall cis_sample_content
+drush -y --uri=$protocol://$online_domain pm-uninstall node_export_features node_export_dependency
+drush -y --uri=$protocol://$online_domain pm-uninstall node_export
 
 # run cron for the good of the order
-/usr/bin/drush -y --uri=$protocol://$online_domain cron
+drush -y --uri=$protocol://$online_domain cron
 
 # print out a reset password link for the online site so you can gain access
-/usr/bin/drush -y --uri=$protocol://$online_domain upwd admin --password=admin
+drush -y --uri=$protocol://$online_domain upwd admin --password=admin
 
 # add in our cache bins now that we know it built successfully
 printf "\n\n\$conf['cache_prefix'] = 'online_$host';" >> $sitedir/online/$host/settings.php
