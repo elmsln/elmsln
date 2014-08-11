@@ -69,14 +69,14 @@ if [ ! -d ${moduledir}/${university}/${cissettings} ];
   infofile=${moduledir}/${university}/${cissettings}/${cissettings}.info
   modulefile=${moduledir}/${university}/${cissettings}/${cissettings}.module
   # write the .info file
-  sudo printf "name = ${university} ${host} Settings\ndescription = This contains registry information for all ${host} connection details\ncore = ${core}\npackage = ${university}" >> $infofile
+  printf "name = ${university} ${host} Settings\ndescription = This contains registry information for all ${host} connection details\ncore = ${core}\npackage = ${university}" >> $infofile
   # write the .module file
-  sudo printf "<?php\n\n// service module that makes this implementation specific\n\n/**\n * Implements hook_cis_service_registry().\n */\nfunction ${university}_${host}_settings_cis_service_registry() {\n  \$items = array(\n" >> $modulefile
+  printf "<?php\n\n// service module that makes this implementation specific\n\n/**\n * Implements hook_cis_service_registry().\n */\nfunction ${university}_${host}_settings_cis_service_registry() {\n  \$items = array(\n" >> $modulefile
   # write the array of connection values dynamically
   for distro in "${distros[@]}"
   do
     # array built up to password
-    sudo printf "    // ${distro} distro instance called ${stacklist[$COUNTER]}\n    '${distro}' => array(\n      'protocol' => '${protocol}',\n      'service_address' => '${serviceprefix}${stacklist[$COUNTER]}.${serviceaddress}',\n      'address' => '${stacklist[$COUNTER]}.${address}',\n      'user' => 'SERVICE_${distro}_${host}',\n      'mail' => 'SERVICE_${distro}_${host}@${emailending}',\n      'pass' => '" >> $modulefile
+    printf "    // ${distro} distro instance called ${stacklist[$COUNTER]}\n    '${distro}' => array(\n      'protocol' => '${protocol}',\n      'service_address' => '${serviceprefix}${stacklist[$COUNTER]}.${serviceaddress}',\n      'address' => '${stacklist[$COUNTER]}.${address}',\n      'user' => 'SERVICE_${distro}_${host}',\n      'mail' => 'SERVICE_${distro}_${host}@${emailending}',\n      'pass' => '" >> $modulefile
     # generate a random 30 digit password
     pass=''
     for i in `seq 1 30`
@@ -85,17 +85,17 @@ if [ ! -d ${moduledir}/${university}/${cissettings} ];
       pass="${pass}${char[$rand]}"
     done
     # write password to file
-    sudo printf $pass >> $modulefile
+    printf $pass >> $modulefile
     # finish off array
-    sudo printf "',\n      'instance' => ${instances[$COUNTER]},\n" >> $modulefile
-    sudo printf "      'default_title' => '${defaulttitle[$COUNTER]}',\n" >> $modulefile
-    sudo printf "      'ignore' => ${ignorelist[$COUNTER]},\n    ),\n" >> $modulefile
+    printf "',\n      'instance' => ${instances[$COUNTER]},\n" >> $modulefile
+    printf "      'default_title' => '${defaulttitle[$COUNTER]}',\n" >> $modulefile
+    printf "      'ignore' => ${ignorelist[$COUNTER]},\n    ),\n" >> $modulefile
     COUNTER=$COUNTER+1
  done
   # close out function and file
-  sudo printf "  );\n\n  return \$items;\n}\n\n" >> $modulefile
+  printf "  );\n\n  return \$items;\n}\n\n" >> $modulefile
   # add the function to include this in build outs automatically
-  sudo printf "/**\n * Implements hook_cis_service_instance_options_alter().\n */\nfunction ${university}_${host}_settings_cis_service_instance_options_alter(&\$options, \$course, \$service) {\n  // modules we require for all builds\n  \$options['en'][] = '$cissettings';\n}\n" >> $modulefile
+  printf "/**\n * Implements hook_cis_service_instance_options_alter().\n */\nfunction ${university}_${host}_settings_cis_service_instance_options_alter(&\$options, \$course, \$service) {\n  // modules we require for all builds\n  \$options['en'][] = '$cissettings';\n}\n" >> $modulefile
 fi
 
 # generate a random 30 digit password
@@ -143,10 +143,10 @@ sudo chmod -R 755 $drupal_priv
 sudo cp $sitedir/default/settings.php $sitedir/online/$host/settings.php
 
 #add site to the sites array
-sudo printf "\$sites = array(\n  '$online_domain' => 'online/$host',\n" >> $sitedir/sites.php
-sudo printf "  '$online_service_domain' => 'online/services/$host',\n);\n" >> $sitedir/sites.php
+printf "\$sites = array(\n  '$online_domain' => 'online/$host',\n" >> $sitedir/sites.php
+printf "  '$online_service_domain' => 'online/services/$host',\n);\n" >> $sitedir/sites.php
 # set base_url
-sudo printf "\n\$base_url= '$protocol://$online_domain';" >> $sitedir/online/$host/settings.php
+printf "\n\$base_url= '$protocol://$online_domain';" >> $sitedir/online/$host/settings.php
 
 # clean up tasks
 drush -y --uri=$protocol://$online_domain vset site_slogan 'Welcome to ELMSLN'
@@ -183,8 +183,8 @@ drush -y --uri=$protocol://$online_domain cron
 drush -y --uri=$protocol://$online_domain upwd admin --password=admin
 
 # add in our cache bins now that we know it built successfully
-sudo printf "\n\n\$conf['cache_prefix'] = 'online_$host';" >> $sitedir/online/$host/settings.php
-sudo printf "\n\nrequire_once DRUPAL_ROOT . '/../../shared/drupal-7.x/settings/shared_settings.php';" >> $sitedir/online/$host/settings.php
+printf "\n\n\$conf['cache_prefix'] = 'online_$host';" >> $sitedir/online/$host/settings.php
+printf "\n\nrequire_once DRUPAL_ROOT . '/../../shared/drupal-7.x/settings/shared_settings.php';" >> $sitedir/online/$host/settings.php
 
 # adding servies conf file
 if [ ! -d $sitedir/online/services/$host ];
@@ -197,7 +197,7 @@ if [ ! -d $sitedir/online/services/$host ];
       sudo cp $sitedir/online/$host/settings.php $sitedir/online/services/$host/settings.php
     fi
     if [ -f $sitedir/online/services/$host/settings.php ]; then
-      sudo printf "\n\n\$conf['restws_basic_auth_user_regex'] = '/^SERVICE_.*/';" >> $sitedir/online/services/$host/settings.php
+      printf "\n\n\$conf['restws_basic_auth_user_regex'] = '/^SERVICE_.*/';" >> $sitedir/online/services/$host/settings.php
     fi
 fi
 
