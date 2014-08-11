@@ -44,7 +44,7 @@ drush cc drush
 
 source install-steps/commons.cfg
 
-sudo bash install-steps/step1.sh
+sudo sh ./install-steps/steps.sh step1
 
 # build the default sites
 for build in "${buildlist[@]}"
@@ -84,7 +84,7 @@ sudo chmod -R 755 $drupal_priv
 # of the system. most likely we'll always need a default to fall back on anyway
 sudo cp $sitedir/default/settings.php $sitedir/online/$host/settings.php
 
-sudo bash install-steps/step2.sh
+sudo sh ./install-steps/steps.sh step2
 
 # clean up tasks
 drush -y --uri=$protocol://$online_domain vset site_slogan 'Welcome to ELMSLN'
@@ -121,7 +121,7 @@ drush -y --uri=$protocol://$online_domain cron
 drush -y --uri=$protocol://$online_domain upwd admin --password=admin
 
 # run step 3
-sudo bash install-steps/step3.sh
+sudo sh ./install-steps/steps.sh step3
 
 # a message so you know where my head is at. you get candy if you reference this
 echo 'Welcome to the Singularity of edtech.. Go forth, build the future.'
