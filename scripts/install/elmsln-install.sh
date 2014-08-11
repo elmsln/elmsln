@@ -12,31 +12,31 @@ source ../../config/scripts/drush-create-site/config.cfg
 
 #test for empty vars. if empty required var -- exit
 if [ -z $fileloc ]; then
-echo "please update your config.cfg file"
-exit 1
+  echo "please update your config.cfg file"
+  exit 1
 fi
 if [ -z $site_email ]; then
-echo "please update your config.cfg file"
-exit 1
+  echo "please update your config.cfg file"
+  exit 1
 fi
 if [ -z $admin ]; then
-echo "please update your config.cfg file"
-exit 1
+  echo "please update your config.cfg file"
+  exit 1
 fi
 if [ -z $webdir ]; then
-echo "please update your config.cfg file"
-exit 1
+  echo "please update your config.cfg file"
+  exit 1
 fi
 if [ -z $hostfile ]; then
-echo "please update your config.cfg file"
-exit 1
+  echo "please update your config.cfg file"
+  exit 1
 fi
 
 #test mysql login
 #mysql -u$dbsu -p$dbsupw -e exit
 #if [[ $? > 0 ]];then
-#echo "mysql connection failed"
-#exit 1
+  #echo "mysql connection failed"
+  #exit 1
 #fi
 
 # make sure drush is happy before we begin drush calls
