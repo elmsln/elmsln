@@ -1,0 +1,84 @@
+language: php
+
+php:
+  - 5.3
+  - 5.4
+  - 5.5
+
+matrix:
+  allow-failures:
+    - php: 5.5
+
+  env:
+    global:
+      - ES_VER=1.0.1
+      - ES_MAPPER_ATTACHMENTS_VER=2.0.0.RC1
+      - ES_TRANSPORT_THRIFT_VER=2.0.0.RC1
+      - ES_GEOCLUSTER_FACET_VER=0.0.10
+      - ES_WAIT_ON_MAPPING_CHANGE=true
+      - DATABASE='drupal'
+      - DB_USERNAME='root'
+      - DB_ENCODE='utf8'
+    matrix:
+      - DRUPAL_3RD_PARTY='composer_manager'
+      - DRUPAL_3RD_PARTY='libraries'
+
+mysql:
+  database: $DATABASE
+  username: $DB_USERNAME
+  encoding: $DB_ENCODE
+
+before_install:
+  - export UPDATE TRAVIS_BUILD_DIR
+  - BUILD_TOP=`dirname $TRAVIS_BUILD_DIR`
+  - EXIT_VALUE=0
+
+  - sudo apt-get update > /dev/null
+
+  - composer self-update
+install:
+    # install php packages required for running a web server from drush on php 5.3
+  - sudo apt-get install -y --force-yes php5-cgi php5-mysql
+
+  # install drush globally
+  - composer global require drush/drush:6.*
+
+  # add composer's global bin directory to the path
+  # see: https://github.com/drush-ops/drush#install---composer
+  - export PATH="$HOME/.composer/vendor/bin:$PATH"
+before_script:
+  - echo 'sendmail_path = /bin/true' >> ~/.phpenv/versions/$(phpenv version-name)/etc/conf.d/travis.ini
+  # establish elmsln package put in place the right way
+  - sudo mkdir -p /var/www
+  - cd /var/www
+  - sudo mkdir elmsln
+  - sudo chown travis:travis elmsln
+  - sudo git clone https://github.com/btopro/elmsln.git
+  - cd /var/www/elmsln
+  - sudo rm -rf config
+  - sudo git clone https://github.com/btopro/elmsln-config-travis-ci.git config
+  - sudo chown -R travis:travis /var/www/elmsln
+  # drush functions
+  - sudo mkdir ~/.drush/
+  - sudo cp -r /var/www/elmsln/config/scripts/drush/server/* ~/.drush/
+  - sudo chown -R travis:travis ~/.drush
+
+  - sudo ln -s /var/www/elmsln ~/elmsln
+
+script:
+  # run the installer
+  - bash /var/www/elmsln/scripts/install/elmsln-install.sh
+  #- drush test-run 'Search API Elasticsearch' --debug
+
+after_script:
+  - drush sa
+  - drush @online uli
+
+notifications:
+  irc: irc.freenode.org#elmsln
+
+  email: false
+  slack:
+    rooms:
+      - elmsln:WmKTRMe7k3IjprunaAVV3Jjg#qa
+      - elmsln:WmKTRMe7k3IjprunaAVV3Jjg#code
