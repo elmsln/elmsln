@@ -168,6 +168,10 @@ body.page-batch div.message {
   color: #fff;
 }
 
+.views .item-list .pager li {
+  float: left;
+}
+
 h1#page-title {
   font-family: 'Bitter', serif;
   font-weight:bold;
