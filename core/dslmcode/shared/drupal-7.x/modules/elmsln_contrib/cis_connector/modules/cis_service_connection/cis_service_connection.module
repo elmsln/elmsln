@@ -183,7 +183,12 @@ function _cis_service_connection_page($request) {
   // apply traditional transaction for the request
   $body = _cis_connector_transaction($request);
   if (isset($body['value'])) {
-    $body['value'] = $suffix . $body['value'];
+    if ($request == 'help') {
+      $body['value'] = $body['help'] . $suffix . $body['value'];
+    }
+    else {
+      $body['value'] = $suffix . $body['value'];
+    }
     // check the markup of the format
     $output .= check_markup($body['value'], $body['format']);
   }

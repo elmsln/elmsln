@@ -582,15 +582,15 @@ function _cis_connector_transaction($request, $format = 'default', $query = arra
         // render text applying the input filter requested
         // this is for special case Bill
         if ($request == 'help') {
-          // do it the way Bill wants it to be displayed
-          $resource_page['list'][0]['body']['value'] = $list . $resource_page['list'][0]['body']['value'];
+          $output = $resource_page['list'][0]['body'];
+          $output['help'] = $list;
         }
         else {
           // do it the normal way that everyone wants usually except Bill
           $resource_page['list'][0]['body']['value'] .= $list;
+          // send the text with format for processing
+          $output = $resource_page['list'][0]['body'];
         }
-        // send the text with format for processing
-        $output = $resource_page['list'][0]['body'];
       }
     break;
     case 'section_dates':
