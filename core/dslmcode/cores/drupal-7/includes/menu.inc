@@ -784,8 +784,12 @@ function _menu_translate(&$router_item, $map, $to_arg = FALSE) {
     }
   }
   $router_item['href'] = implode('/', $link_map);
-  $router_item['tab_root_href'] = implode('/', $tab_root_map);
-  $router_item['tab_parent_href'] = implode('/', $tab_parent_map);
+  if (isset($tab_root_map)) {
+    $router_item['tab_root_href'] = implode('/', $tab_root_map);
+  }
+  if (isset($tab_parent_map)) {
+    $router_item['tab_parent_href'] = implode('/', $tab_parent_map);
+  }
   $router_item['options'] = array();
   _menu_check_access($router_item, $map);
 
