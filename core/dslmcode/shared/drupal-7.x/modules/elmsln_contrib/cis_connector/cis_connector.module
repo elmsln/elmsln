@@ -550,8 +550,8 @@ function _cis_connector_transaction($request, $format = 'default', $query = arra
         $list = '';
         if ($request == 'help') {
           foreach ($cis_section_item['list'][0]['field_resources'] as $reid) {
-            if (strpos($reid, 'tech_support') === 0) {
-              $resource = _cis_connection_object($reid['id'], $reid['resource']);
+            $resource = _cis_connection_object($reid['id'], $reid['resource']);
+            if (strpos($resource['field_machine_name'], 'tech_support') === 0) {
               $list .= '<h2>' . $resource['title'] . '</h2>';
               $list .= $resource['body']['value'];
             }
