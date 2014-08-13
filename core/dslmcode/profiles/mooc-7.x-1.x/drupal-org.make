@@ -28,9 +28,6 @@ projects[context][subdir] = "contrib"
 projects[context_condition_theme][version] = "1.0"
 projects[context_condition_theme][subdir] = "contrib"
 
-projects[joyride][version] = "1.0-alpha3"
-projects[joyride][subdir] = "contrib"
-
 projects[replicate][version] = "1.1"
 projects[replicate][subdir] = "contrib"
 
@@ -313,9 +310,9 @@ projects[tao][version] = "3.1"
 projects[tao][subdir] = "contrib"
 
 ; zurb-foundation
-projects[zurb-foundation][type] = "theme"
-projects[zurb-foundation][version] = "5.x-dev"
-projects[zurb-foundation][subdir] = "contrib"
+projects[zurb_foundation][type] = "theme"
+projects[zurb_foundation][version] = "5.x-dev"
+projects[zurb_foundation][subdir] = "contrib"
 
 ; foundation_access
 projects[foundation_access][type] = "theme"
