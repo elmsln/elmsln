@@ -66,6 +66,7 @@ function _profiler_builder_ignore_list() {
     'drupal_css_cache_files',
     'drupal_js_cache_files',
     'drupal_http_request_fails',
+    'advagg_cron_timestamp',
     'preprocess_js',
     'preprocess_css',
     'views_block_hashes',
@@ -109,9 +110,11 @@ function _profiler_builder_ignore_list() {
     'reset_accesslog',
     'reset_counter',
     'save_continue_photo',
+    'statistics_day_timestamp',
     'file_default_scheme',
     'file_directory_path',
     'file_public_path',
+    'file_private_path',
     'form_build_id_blog',
     'twitter_global_password',
     'wipe',
@@ -130,6 +133,9 @@ function _profiler_builder_ignore_list() {
     'cache_flush_cache_path',
     'cache_flush_cache_views',
     'cache_flush_cache_views_data',
+    'cis_service_connection_monthly_last_sync',
+    'cis_service_connection_weekly_last_sync',
+    'cis_service_connection_yearly_last_sync',
     'ldap_authentication_conf',
     'ldap_profile_conf',
     'ldap_servers_encryption',
@@ -151,6 +157,7 @@ function _profiler_builder_ignore_list() {
     'user_mail_status_blocked_subject',
     'user_mail_status_canceled_body',
     'user_mail_status_canceled_subject',
+    'update_last_email_notification',
   );
   // allow modification via profiler_builder_ignore_alter
   drupal_alter('profiler_builder_ignore', $ignore_list);

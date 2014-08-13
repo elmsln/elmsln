@@ -157,9 +157,9 @@ function _profiler_builder_extras_load_queries() {
  * @param  [array] $queries queries with associated arguments to be assembled
  */
 function profiler_builder_extras_profiler_builder_extras_load_queries_alter(&$queries) {
+  // let's use that nice big list of defined variables we don't like!
+  $kill = _profiler_builder_ignore_list();
   foreach ($queries as $key => $query) {
-    // let's use that nice big list of defined variables we don't like!
-    $kill = _profiler_builder_ignore_list();
     // remove on update
     if (in_array($query['args'][':db_condition_placeholder_0'], $kill)) {
       unset($queries[$key]);
