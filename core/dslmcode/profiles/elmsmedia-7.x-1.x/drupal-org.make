@@ -123,9 +123,9 @@ projects[entity_iframe_theme][version] = "1.x-dev"
 projects[entity_iframe_theme][subdir] = "contrib"
 
 ; zurb-foundation
-projects[zurb-foundation][type] = "theme"
-projects[zurb-foundation][version] = "4.0"
-projects[zurb-foundation][subdir] = "contrib"
+projects[zurb_foundation][type] = "theme"
+projects[zurb_foundation][version] = "5.x-dev"
+projects[zurb_foundation][subdir] = "contrib"
 
 ; rubik
 projects[rubik][type] = "theme"
