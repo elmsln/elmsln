@@ -11,7 +11,7 @@ include_once 'cis_lmsless_ux.features.inc';
  */
 function cis_lmsless_ux_define_regions() {
   $region['cis_lmsless'] = array(
-    'title' => 'Left admin region',
+    'title' => 'LMSLess region',
     'render_callback' => '_cis_lmsless_ux_render_region',
   );
   return $region;
