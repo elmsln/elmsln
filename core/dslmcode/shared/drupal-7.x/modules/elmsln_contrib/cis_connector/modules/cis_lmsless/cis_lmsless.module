@@ -67,7 +67,7 @@ function _cis_lmsless_assemble() {
     $distro = variable_get('install_profile', 'standard');
     $reg = _cis_connector_build_registry($distro);
     $list[$distro] = array(
-      'title' => $reg['default_title'],
+      'title' => (isset($reg['default_title']) ? $reg['default_title'] : ''),
       'url' => '#',
       'machine_name' => $distro,
     );
