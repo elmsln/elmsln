@@ -93,5 +93,5 @@ step3() {
   # make sure everything in that folder is as it should be ownerwise
   sudo chown -R $wwwuser:$webgroup $sitedir/online/$host/files
   # make sure webserver owns the files
-  sudo find $configsdir/stacks/ -type d -name files | xargs chown ) -R $wwwuser:$webgroup
+  sudo find $configsdir/stacks/ -type d -name files | xargs chown -R $wwwuser:$webgroup
 }
