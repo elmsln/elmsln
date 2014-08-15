@@ -6,6 +6,7 @@
 40 05 * * * root /usr/bin/php /var/www/elmsln/core/dslmcode/stacks/interact/sites/cron.php
 50 05 * * * root /usr/bin/php /var/www/elmsln/core/dslmcode/stacks/blog/sites/cron.php
 #ELMSLN flush pac caches nightly to prevent overfragmentation
+#if ubuntu run this command instead service apache2 restart
 00 05 * * * root /etc/init.d/httpd reload
 #ELMSLN drush-create-site activation for site request processing
 * * * * * root  /usr/local/bin/drush-create-site/drush-create-site >> /var/log/drush.log
