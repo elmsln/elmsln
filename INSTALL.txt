@@ -65,28 +65,45 @@ sudo vi /etc/crontab
 sudo vi /etc/httpd/conf.d/domains.conf #(/etc/apache2/sites-available/elmsln for ubuntu then symlink into sites-enabled)
 
 #=== DRUSH ===
-#Install drush by following instructions at https://github.com/drush-ops/drush
-sudo pear upgrade --force Console_Getopt
-sudo pear upgrade --force pear
-sudo pear upgrade-all
-sudo pear channel-discover pear.drush.org
-sudo pear install drush/drush
+# Install drush by following instructions at https://github.com/drush-ops/drush
+# Install composer, makes drush installation easier
+sudo -i
+curl -sS https://getcomposer.org/installer | php
+mv composer.phar /usr/local/bin/composer
+logout
+# establish for normal users
+# ensure composer is in PATH
+sed -i '1i export PATH="$HOME/.composer/vendor/bin:$PATH"' $HOME/.bashrc
+source $HOME/.bashrc
+# now install drush
+composer global require drush/drush:6.*
+
+# now do the same things except for root
+sudo -i
+# ensure composer is in PATH
+sed -i '1i export PATH="$HOME/.composer/vendor/bin:$PATH"' $HOME/.bashrc
+source $HOME/.bashrc
+# now install drush
+composer global require drush/drush:6.*
+logout
 
 # copy the included drush packages (for root and you)
 mkdir ~/.drush/
 sudo cp -r /var/www/elmsln/scripts/drush/server/* ~/.drush/
-sudo chown -R {user}:{user} .drush
+sudo chown -R {user}:{user} ~/.drush
 vi ~/.drush/elmsln.aliases.drushrc.php
 # change the domain to your base domain and change the grouping to your config grouping identifier
+
 # now apply the same stuff for the root user so cron jobs run happy
 sudo -i
 mkdir ~/.drush/
 cp -r /var/www/elmsln/scripts/drush/server/* ~/.drush/
 vi ~/.drush/elmsln.aliases.drushrc.php
 # change the domain to your base domain and change the grouping to your config grouping identifier
+
 logout
 
-#=== MBSTRING (if not already installed) ===
+#=== MBSTRING (if not already installed, pretty specific to RHEL) ===
 install mb_string package
 
 sudo apt-get install yum
@@ -106,6 +123,7 @@ extension=mbstring.so
 
 #=== RESTART APACHE ===
 sudo apachectl -k restart
+#for ubuntu run sudo service apache2 restart
 
 #=== ELMSLN INSTALLER ===
 #The last step is to invoke the elmsln-install.sh script to kick everything off.
