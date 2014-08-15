@@ -1,6 +1,6 @@
 skip-locking
 
-# From real world testing #
+; From real world testing ;
 table_definition_cache = 4000
 table_cache = 512
 sort_buffer_size = 2M
@@ -9,20 +9,20 @@ read_rnd_buffer_size = 8M
 myisam_sort_buffer_size = 16M
 thread_concurrency = 2
 
-# Recommendations from Percona #
-# MyISAM #
+; Recommendations from Percona ;
+; MyISAM ;
 key-buffer-size                = 32M
 myisam-recover                 = FORCE,BACKUP
 
-# SAFETY #
+; SAFETY ;
 max-allowed-packet             = 16M
 max-connect-errors             = 1000000
 
-# BINARY LOGGING #
+; BINARY LOGGING ;
 expire-logs-days               = 14
 sync-binlog                    = 1
 
-# CACHES AND LIMITS #
+; CACHES AND LIMITS ;
 tmp-table-size                 = 32M
 max-heap-table-size            = 32M
 query-cache-type               = 0
@@ -34,7 +34,7 @@ open-files-limit               = 65535
 table-definition-cache         = 4096
 table-open-cache               = 4096
 
-# INNODB #
+; INNODB ;
 innodb-flush-method            = O_DIRECT
 innodb-log-files-in-group      = 2
 innodb-log-file-size           = 128M
@@ -42,23 +42,23 @@ innodb-flush-log-at-trx-commit = 1
 innodb-file-per-table          = 1
 innodb-buffer-pool-size        = 256M
 
-# LOGGING #
+; LOGGING ;
 log-error                      = /var/lib/mysql/mysql-error.log
 log-queries-not-using-indexes  = 1
 slow-query-log                 = 1
 slow-query-log-file            = /var/lib/mysql/mysql-slow.log
 
-# Taken from my built in mysql commented out file
-# Uncomment the following if you are using InnoDB tables
+; Taken from my built in mysql commented out file
+; Uncomment the following if you are using InnoDB tables
 innodb_data_home_dir = /var/lib/mysql/
 innodb_data_file_path = ibdata1:2000M;ibdata2:10M:autoextend
 innodb_log_group_home_dir = /var/lib/mysql/
 innodb_log_arch_dir = /var/lib/mysql/
-# You can set .._buffer_pool_size up to 50 - 80 %
-# of RAM but beware of setting memory usage too high
+; You can set .._buffer_pool_size up to 50 - 80 %
+; of RAM but beware of setting memory usage too high
 innodb_buffer_pool_size = 384M
 innodb_additional_mem_pool_size = 20M
-# Set .._log_file_size to 25 % of buffer pool size
+; Set .._log_file_size to 25 % of buffer pool size
 innodb_log_file_size = 100M
 innodb_log_buffer_size = 8M
 innodb_flush_log_at_trx_commit = 1
