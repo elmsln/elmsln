@@ -1,0 +1,18 @@
+name = Real name
+description = Provides token-based name displays for users.
+core = 7.x
+dependencies[] = token
+files[] = realname.module
+files[] = realname.admin.inc
+files[] = realname.pages.inc
+files[] = realname.tokens.inc
+files[] = realname.test
+files[] = realname.install
+configure = admin/config/people/realname
+
+; Information added by drupal.org packaging script on 2013-02-25
+version = "7.x-1.1"
+core = "7.x"
+project = "realname"
+datestamp = "1361820451"
+

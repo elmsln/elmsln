@@ -1,0 +1,78 @@
+<?php
+
+/**
+ * Implements hook_schema().
+ */
+function realname_schema() {
+  $schema['realname'] = array(
+    'description' => 'Computed Real Names to reduce overhead.',
+    'fields' => array(
+      'uid' => array(
+        'description' => 'User ID, links to User table.',
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'realname' => array(
+        'description' => 'The generated real name of the user.',
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => TRUE,
+        'default' => '',
+      ),
+      'created' => array(
+        'description' => 'The UNIX timestamp of when the real name was created.',
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+    ),
+    'primary key' => array('uid'),
+    'indexes' => array(
+      'realname' => array('realname')
+    ),
+    'foreign keys' => array(
+      'users' => array(
+        'table' => 'users',
+        'columns' => array('uid' => 'uid'),
+      ),
+    ),
+  );
+
+  return $schema;
+}
+
+/**
+ * Implements hook_uninstall().
+ */
+function realname_uninstall() {
+  variable_del('realname_pattern');
+}
+
+/**
+ * Update the {realname} table for Drupal 7.
+ */
+function realname_update_7000() {
+  // Add the {realname}.created field if it doesn't already exist.
+  if (!db_field_exists('realname', 'created')) {
+    $fields['created'] = array(
+      'description' => 'The UNIX timestamp of when the real name was created.',
+      'type' => 'int',
+      'unsigned' => TRUE,
+      'not null' => TRUE,
+      'default' => 0,
+    );
+    db_add_field('realname', 'created', $fields['created']);
+  }
+
+  $fields['realname'] = array(
+    'description' => 'The generated real name of the user.',
+    'type' => 'varchar',
+    'length' => '255',
+    'not null' => TRUE,
+    'default' => '',
+  );
+  db_change_field('realname', 'realname', 'realname', $fields['realname']);
+}

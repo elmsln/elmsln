@@ -1,0 +1,341 @@
+<?php
+
+/**
+ * @file
+ * Provides token-based name displays for users.
+ *
+ * @todo Add a 'view realname' permission enabled by default
+ * @todo Allow users to login with their real name
+ * @todo Disable the username field
+ */
+
+/**
+ * @defgroup realname Real name API
+ */
+
+/**
+ * Implements hook_permission().
+ */
+function realname_permission() {
+  $permissions['administer realname'] = array(
+    'title' => t('Administer Real Name configuration.'),
+  );
+  return $permissions;
+}
+
+/**
+ * Implements hook_menu().
+ */
+function realname_menu() {
+  $items['admin/config/people/realname'] = array(
+    'title' => 'Real name',
+    'description' => 'Use tokens to configure how user names are displayed.',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('realname_settings_form'),
+    'access arguments' => array('administer realname'),
+    'file' => 'realname.admin.inc',
+  );
+
+  $items['realname/autocomplete'] = array(
+    'page callback' => 'realname_autocomplete',
+    'access arguments' => array('access user profiles'),
+    'type' => MENU_CALLBACK,
+  );
+
+  return $items;
+}
+
+/**
+ * Implements hook_menu_alter().
+ */
+function realname_menu_alter(&$items) {
+  // Implement realname autocomplete.
+  $items['user/autocomplete']['page callback'] = 'realname_autocomplete';
+}
+
+/**
+ * Implements hook_username_alter().
+ */
+function realname_username_alter(&$name, $account) {
+  static $in_username_alter = FALSE;
+
+  if (empty($account->uid)) {
+    // Don't alter anonymous users or objects that do not have any user ID.
+    return;
+  }
+
+  // Real name was loaded/generated via hook_user_load(), so re-use it.
+  if (isset($account->realname)) {
+    if (drupal_strlen($account->realname)) {
+      // Only if the real name is a non-empty string is $name actually altered.
+      $name = $account->realname;
+    }
+    return;
+  }
+
+  // Real name was not yet available for the account so we need to generate it.
+  // Because tokens may call format_username() we need to prevent recursion.
+  if (!$in_username_alter) {
+    $in_username_alter = TRUE;
+
+    // If $account->realname was undefined, then the user account object was
+    // not properly loaded. We must enforce calling user_load().
+    if ($realname_account = user_load($account->uid)) {
+      realname_username_alter($name, $realname_account);
+    }
+
+    $in_username_alter = FALSE;
+  }
+}
+
+/**
+ * Implements hook_user_load().
+ */
+function realname_user_load(array $accounts) {
+  $realnames = realname_load_multiple($accounts);
+  foreach ($realnames as $uid => $realname) {
+    $accounts[$uid]->realname = $realname;
+  }
+}
+
+/**
+ * Implements hook_user_update().
+ */
+function realname_user_update(array &$edit, stdClass $account, $category) {
+  // Since user data may have changed, delete the existing realname.
+  realname_delete($account->uid);
+}
+
+/**
+ * Implements hook_user_delete().
+ */
+function realname_user_delete(stdClass $account) {
+  realname_delete($account->uid);
+}
+
+/**
+ * Implements hook_user_operations().
+ */
+function realname_user_operations() {
+  $operations['realname_update'] = array(
+    'label' => t('Update real name'),
+    'callback' => 'realname_user_operations_realname_update',
+  );
+  return $operations;
+}
+
+/**
+ * Callback function for admin mass generating user real names.
+ *
+ * @param $uids
+ *   An array of user IDs.
+ */
+function realname_user_operations_realname_update(array $uids) {
+  $accounts = user_load_multiple($uids);
+  foreach ($accounts as $account) {
+    realname_delete($account->uid);
+  }
+}
+
+/**
+ * Implements hook_action_info().
+ */
+function realname_action_info() {
+  $info['realname_action_realname_update'] = array(
+    'type' => 'user',
+    'label' => t('Update real name'),
+    'configurable' => FALSE,
+  );
+
+  return $info;
+}
+
+/**
+ * Implements hook_rules_action_info().
+ */
+function realname_rules_action_info() {
+  $items['user_realname_update'] = array(
+    'label' => t('Update real name'),
+    'base' => 'realname_action_realname_update',
+    'parameter' => array(
+      'account' => array(
+        'type' => 'user',
+        'label' => t('User'),
+        'save' => FALSE,
+      ),
+    ),
+    'group' => t('User'),
+    'access callback' => 'rules_user_integration_access',
+  );
+  return $items;
+}
+
+/**
+ * Action callback to update a user's realname.
+ */
+function realname_action_realname_update($account, $context = array()) {
+  realname_delete($account->uid);
+}
+
+/**
+ * Implements hook_views_api().
+ */
+function realname_views_api() {
+  return array('api' => 3);
+}
+
+/**
+ * @addtogroup realname
+ * @{
+ */
+
+/**
+ * Loads a real name.
+ *
+ * @param $uid
+ *   A user account object.
+ * @return
+ *   The user's generated real name.
+ */
+function realname_load(stdClass $account) {
+  $realnames = realname_load_multiple(array($account->uid => $account));
+  return reset($realnames);
+}
+
+/**
+ * Loads multiple real names.
+ *
+ * @param $accounts
+ *   An array of user account objects keyed by user ID.
+ * @return
+ *   An array of real names keyed by user ID.
+ */
+function realname_load_multiple(array $accounts) {
+  $realnames = &drupal_static(__FUNCTION__, array());
+
+  if ($new_accounts = array_diff_key($accounts, $realnames)) {
+    // Attempt to fetch realnames from the database first.
+    $realnames += db_query("SELECT uid, realname FROM {realname} WHERE uid IN (:uids)", array(':uids' => array_keys($new_accounts)))->fetchAllKeyed();
+
+    // For each account that was not present in the database, generate its
+    // real name.
+    foreach ($new_accounts as $uid => $account) {
+      if (!isset($realnames[$uid])) {
+        $realnames[$uid] = realname_update($account);
+      }
+    }
+  }
+
+  return array_intersect_key($realnames, $accounts);
+}
+
+/**
+ * Update the realname for a user account.
+ *
+ * @param $account
+ *   A user account object.
+ *
+ * @see hook_realname_pattern_alter()
+ * @see hook_realname_alter()
+ * @see hook_realname_update()
+ */
+function realname_update($account) {
+  // Get the default pattern and allow other modules to alter it.
+  $pattern = variable_get('realname_pattern', '[user:name-raw]');
+  drupal_alter('realname_pattern', $pattern, $account);
+
+  // Perform token replacement on the real name pattern.
+  $realname = token_replace($pattern, array('user' => $account), array('clear' => TRUE, 'sanitize' => FALSE));
+
+  // Remove any HTML tags.
+  $realname = strip_tags(decode_entities($realname));
+
+  // Remove double spaces (if a token had no value).
+  $realname = preg_replace('/ {2,}/', ' ', $realname);
+
+  // The name must be trimmed to 255 characters before inserting into the database.
+  $realname = truncate_utf8(trim($realname), 255);
+
+  // Allow other modules to alter the generated realname.
+  drupal_alter('realname', $realname, $account);
+
+  // Save to the database and the static cache.
+  db_merge('realname')
+    ->key(array('uid' => $account->uid))
+    ->fields(array(
+      'realname' => $realname,
+      'created' => REQUEST_TIME,
+    ))
+    ->execute();
+
+  // Allow modules to react to the realname being updated.
+  module_invoke_all('realname_update', $realname, $account);
+
+  $account->realname = $realname;
+  return $realname;
+}
+
+/**
+ * Delete a real name.
+ *
+ * @param $uid
+ *   A user ID.
+ */
+function realname_delete($uid) {
+  return realname_delete_multiple(array($uid));
+}
+
+/**
+ * Delete multiple real names.
+ *
+ * @param $uids
+ *   An array of user IDs.
+ */
+function realname_delete_multiple(array $uids) {
+  db_delete('realname')->condition('uid', $uids, 'IN')->execute();
+  drupal_static_reset('realname_load_multiple');
+  entity_get_controller('user')->resetCache($uids);
+}
+
+/**
+ * Delete all real names.
+ */
+function realname_delete_all() {
+  db_delete('realname')->execute();
+  drupal_static_reset('realname_load_multiple');
+  entity_get_controller('user')->resetCache();
+}
+
+/**
+ * @} End of "addtogroup realname".
+ */
+
+/**
+ * Menu callback; Retrieve a JSON object containing autocomplete suggestions
+ * for existing users based on their generated real names.
+ */
+function realname_autocomplete($string = '') {
+  $matches = array();
+
+  if ($string) {
+    $query = db_select('users', 'u');
+    $query->leftJoin('realname', 'rn', 'u.uid = rn.uid');
+    $query->fields('u', array('uid'));
+    $name_like = db_or();
+    $name_like->condition('rn.realname', db_like($string) . '%', 'LIKE');
+    $name_like->condition('u.name', db_like($string) . '%', 'LIKE');
+    $query->condition($name_like);
+    $query->range(0, 10);
+    $uids = $query->execute()->fetchCol();
+    $accounts = user_load_multiple($uids);
+
+    foreach ($accounts as $account) {
+      $matches[$account->name] = format_username($account);
+      if ($matches[$account->name] != $account->name) {
+        $matches[$account->name] .= ' (' . check_plain($account->name) . ')';
+      }
+    }
+  }
+
+  drupal_json_output($matches);
+}
