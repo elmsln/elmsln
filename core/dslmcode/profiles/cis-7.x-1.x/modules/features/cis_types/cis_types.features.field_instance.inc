@@ -3979,58 +3979,7 @@ function cis_types_field_default_field_instances() {
         'available_options' => 'Instructor
 Senior Instructional Designer
 Instructional Web Technologist
-Assistant Professor of Music
-DAC Lead Faculty
-Visiting Associate Professor of Architecture
-Associate Professor of Architecture
-Instructor of Art History
-Assistant Director
-Instructional Multimedia Specialist
-Program Manager
-Instructional Designer
-Administrative Coordinator
-Administrative Assistant
-Interim Director
-Instructional Multimedia Producer
-Instructional Systems Architect
-Head, Bachelor of Arts Program
-Curator of Education, Palmer Museum of Art
-Curator of Education, Palmer Museum of Art
-Geodesign Program Manager
-Associate Professor of Art
-Affiliate Assistant Professor of Art History
-Professor-in-Charge
-Associate Professor, Music Technology
-Professor of Art Education
-Assistant Professor, School of Visual Arts
-Research Associate
-Associate Professor Emeritus, Art Education
-Associate Professor of Art Education
-Associate Professor of Art 
-Visiting Assistant Professor of Art
-Assistant Professor of Graphic Design
-Associate Professor, Department Head, Graphic Design
-Associate Professor of Landscape Architecture 
-Associate Professor of Landscape Architecture 
-Associate Professor of Landscape Architecture 
-Associate Professor & Director, Hamer Center
-Associate Professor & Director, Hamer Center
-Professor Emeritus of Music Education 
-Associate Professor of Music Education
-Assistant Professor of Music Education
-Assistant Professor of Theatre 
-Professor of Art 
-Associate Professor of Music
-Associate Professor of Music Theory
-Associate Professor in Choreography and Performance
-Associate Professor in Choreography and Performance
-Associate Professor in Choreography and Performance
-Associate Professor, Head of Dance
-Instructor of Landscape Architecture
-Practitioner Instructor of Landscape Architecture
-Visiting Instructor, GeoDesign
-Associate Professor 
-Professor of Architecture and Integrative Arts, Emeritus',
+',
         'available_options_php' => '',
         'markup_available_options_php' => '&lt;none&gt;',
         'other' => 'New Title',
