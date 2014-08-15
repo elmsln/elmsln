@@ -440,6 +440,7 @@ function cis_roles_user_default_permissions() {
   $permissions['create field_machine_name'] = array(
     'name' => 'create field_machine_name',
     'roles' => array(
+      'Staff' => 'Staff',
       'administrator' => 'administrator',
     ),
     'module' => 'field_permissions',
@@ -966,6 +967,7 @@ function cis_roles_user_default_permissions() {
   $permissions['edit field_machine_name'] = array(
     'name' => 'edit field_machine_name',
     'roles' => array(
+      'Staff' => 'Staff',
       'administrator' => 'administrator',
     ),
     'module' => 'field_permissions',
@@ -1250,6 +1252,7 @@ function cis_roles_user_default_permissions() {
   $permissions['edit own field_machine_name'] = array(
     'name' => 'edit own field_machine_name',
     'roles' => array(
+      'Staff' => 'Staff',
       'administrator' => 'administrator',
     ),
     'module' => 'field_permissions',

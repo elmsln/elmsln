@@ -1654,7 +1654,7 @@ function cis_displays_views_default_views() {
   $handler->display->display_options['fields']['field_section_number_editable']['widget_type'] = '0';
   $handler->display->display_options['fields']['field_section_number_editable']['suppress_label'] = 1;
   $handler->display->display_options['fields']['field_section_number_editable']['suppress_description'] = 1;
-  /* Field: Field: Services in use (editable) */
+  /* Field: Field: Service (editable) */
   $handler->display->display_options['fields']['field_services_editable']['id'] = 'field_services_editable';
   $handler->display->display_options['fields']['field_services_editable']['table'] = 'field_data_field_services';
   $handler->display->display_options['fields']['field_services_editable']['field'] = 'field_services_editable';
@@ -2144,6 +2144,31 @@ function cis_displays_views_default_views() {
   $handler->display->display_options['fields']['nothing']['field'] = 'nothing';
   $handler->display->display_options['fields']['nothing']['label'] = '';
   $handler->display->display_options['fields']['nothing']['element_label_colon'] = FALSE;
+  /* Field: Field collection item: Course Start */
+  $handler->display->display_options['fields']['field_course_start']['id'] = 'field_course_start';
+  $handler->display->display_options['fields']['field_course_start']['table'] = 'field_data_field_course_start';
+  $handler->display->display_options['fields']['field_course_start']['field'] = 'field_course_start';
+  $handler->display->display_options['fields']['field_course_start']['relationship'] = 'field_sections_value';
+  $handler->display->display_options['fields']['field_course_start']['label'] = 'Course dates';
+  $handler->display->display_options['fields']['field_course_start']['settings'] = array(
+    'format_type' => 'short',
+    'fromto' => 'both',
+    'multiple_number' => '',
+    'multiple_from' => '',
+    'multiple_to' => '',
+  );
+  /* Field: Field collection item: Access duration */
+  $handler->display->display_options['fields']['field_access_dates']['id'] = 'field_access_dates';
+  $handler->display->display_options['fields']['field_access_dates']['table'] = 'field_data_field_access_dates';
+  $handler->display->display_options['fields']['field_access_dates']['field'] = 'field_access_dates';
+  $handler->display->display_options['fields']['field_access_dates']['relationship'] = 'field_sections_value';
+  $handler->display->display_options['fields']['field_access_dates']['settings'] = array(
+    'format_type' => 'short',
+    'fromto' => 'both',
+    'multiple_number' => '',
+    'multiple_from' => '',
+    'multiple_to' => '',
+  );
   $handler->display->display_options['path'] = 'cis/offerings/verification';
   $handler->display->display_options['menu']['type'] = 'tab';
   $handler->display->display_options['menu']['title'] = 'Verification';
@@ -3548,7 +3573,7 @@ function cis_displays_views_default_views() {
   $handler->display->display_options['fields']['title_1']['field'] = 'title';
   $handler->display->display_options['fields']['title_1']['alter']['alter_text'] = TRUE;
   $handler->display->display_options['fields']['title_1']['alter']['text'] = '[field_course]';
-  /* Field: Field: Services in use */
+  /* Field: Field: Service */
   $handler->display->display_options['fields']['field_services']['id'] = 'field_services';
   $handler->display->display_options['fields']['field_services']['table'] = 'field_data_field_services';
   $handler->display->display_options['fields']['field_services']['field'] = 'field_services';
@@ -3627,7 +3652,7 @@ function cis_displays_views_default_views() {
   /* Display: Courses */
   $handler = $view->new_display('page', 'Courses', 'page_1');
   $handler->display->display_options['defaults']['fields'] = FALSE;
-  /* Field: Field: Services in use */
+  /* Field: Field: Service */
   $handler->display->display_options['fields']['field_services']['id'] = 'field_services';
   $handler->display->display_options['fields']['field_services']['table'] = 'field_data_field_services';
   $handler->display->display_options['fields']['field_services']['field'] = 'field_services';
@@ -3969,7 +3994,7 @@ function cis_displays_views_default_views() {
   $handler->display->display_options['fields']['field_course_1']['settings'] = array(
     'link' => 1,
   );
-  /* Field: Field: Services in use */
+  /* Field: Field: Service */
   $handler->display->display_options['fields']['field_services']['id'] = 'field_services';
   $handler->display->display_options['fields']['field_services']['table'] = 'field_data_field_services';
   $handler->display->display_options['fields']['field_services']['field'] = 'field_services';
@@ -4042,7 +4067,7 @@ function cis_displays_views_default_views() {
     3 => 0,
     13 => 0,
   );
-  /* Filter criterion: Field: Services in use (field_services) */
+  /* Filter criterion: Field: Service (field_services) */
   $handler->display->display_options['filters']['field_services_target_id']['id'] = 'field_services_target_id';
   $handler->display->display_options['filters']['field_services_target_id']['table'] = 'field_data_field_services';
   $handler->display->display_options['filters']['field_services_target_id']['field'] = 'field_services_target_id';
@@ -4111,14 +4136,12 @@ function cis_displays_views_default_views() {
   $handler->display->display_options['relationships']['field_course_target_id']['field'] = 'field_course_target_id';
   $handler->display->display_options['relationships']['field_course_target_id']['label'] = 'course';
   $handler->display->display_options['relationships']['field_course_target_id']['required'] = TRUE;
-  /* Field: Content: Machine name */
-  $handler->display->display_options['fields']['field_machine_name_1']['id'] = 'field_machine_name_1';
-  $handler->display->display_options['fields']['field_machine_name_1']['table'] = 'field_data_field_machine_name';
-  $handler->display->display_options['fields']['field_machine_name_1']['field'] = 'field_machine_name';
-  $handler->display->display_options['fields']['field_machine_name_1']['relationship'] = 'field_services_target_id';
-  $handler->display->display_options['fields']['field_machine_name_1']['label'] = '';
-  $handler->display->display_options['fields']['field_machine_name_1']['exclude'] = TRUE;
-  $handler->display->display_options['fields']['field_machine_name_1']['element_label_colon'] = FALSE;
+  /* Field: Content: Title */
+  $handler->display->display_options['fields']['title']['id'] = 'title';
+  $handler->display->display_options['fields']['title']['table'] = 'node';
+  $handler->display->display_options['fields']['title']['field'] = 'title';
+  $handler->display->display_options['fields']['title']['alter']['word_boundary'] = FALSE;
+  $handler->display->display_options['fields']['title']['alter']['ellipsis'] = FALSE;
   /* Field: Content: Location */
   $handler->display->display_options['fields']['field_location']['id'] = 'field_location';
   $handler->display->display_options['fields']['field_location']['table'] = 'field_data_field_location';
@@ -4134,17 +4157,15 @@ function cis_displays_views_default_views() {
   $handler->display->display_options['fields']['field_machine_name']['relationship'] = 'field_course_target_id';
   $handler->display->display_options['fields']['field_machine_name']['exclude'] = TRUE;
   $handler->display->display_options['fields']['field_machine_name']['type'] = 'text_plain';
-  /* Field: Content: Title */
-  $handler->display->display_options['fields']['title_1']['id'] = 'title_1';
-  $handler->display->display_options['fields']['title_1']['table'] = 'node';
-  $handler->display->display_options['fields']['title_1']['field'] = 'title';
-  $handler->display->display_options['fields']['title_1']['relationship'] = 'field_services_target_id';
-  $handler->display->display_options['fields']['title_1']['alter']['alter_text'] = TRUE;
-  $handler->display->display_options['fields']['title_1']['alter']['text'] = '[title_1] ([field_machine_name_1])';
-  $handler->display->display_options['fields']['title_1']['alter']['make_link'] = TRUE;
-  $handler->display->display_options['fields']['title_1']['alter']['path'] = '[field_location]/[field_machine_name]';
-  $handler->display->display_options['fields']['title_1']['alter']['external'] = TRUE;
-  $handler->display->display_options['fields']['title_1']['link_to_node'] = FALSE;
+  /* Field: Global: Custom text */
+  $handler->display->display_options['fields']['nothing']['id'] = 'nothing';
+  $handler->display->display_options['fields']['nothing']['table'] = 'views';
+  $handler->display->display_options['fields']['nothing']['field'] = 'nothing';
+  $handler->display->display_options['fields']['nothing']['label'] = 'Link';
+  $handler->display->display_options['fields']['nothing']['alter']['text'] = 'Access service';
+  $handler->display->display_options['fields']['nothing']['alter']['make_link'] = TRUE;
+  $handler->display->display_options['fields']['nothing']['alter']['path'] = '[field_location]/[field_machine_name]';
+  $handler->display->display_options['fields']['nothing']['alter']['external'] = TRUE;
   /* Field: Content: Cron key */
   $handler->display->display_options['fields']['field_cron_key']['id'] = 'field_cron_key';
   $handler->display->display_options['fields']['field_cron_key']['table'] = 'field_data_field_cron_key';
@@ -4159,17 +4180,11 @@ function cis_displays_views_default_views() {
   $handler->display->display_options['fields']['nothing_1']['alter']['make_link'] = TRUE;
   $handler->display->display_options['fields']['nothing_1']['alter']['path'] = '[field_location]/[field_machine_name]/cron.php?cron_key=[field_cron_key]&force_roster_sync';
   $handler->display->display_options['fields']['nothing_1']['alter']['external'] = TRUE;
-  /* Field: Content: Edit link */
-  $handler->display->display_options['fields']['edit_node']['id'] = 'edit_node';
-  $handler->display->display_options['fields']['edit_node']['table'] = 'views_entity_node';
-  $handler->display->display_options['fields']['edit_node']['field'] = 'edit_node';
-  $handler->display->display_options['fields']['edit_node']['label'] = ' service instance';
-  $handler->display->display_options['fields']['edit_node']['text'] = 'edit (admin)';
   /* Sort criterion: Content: Title */
   $handler->display->display_options['sorts']['title']['id'] = 'title';
   $handler->display->display_options['sorts']['title']['table'] = 'node';
   $handler->display->display_options['sorts']['title']['field'] = 'title';
-  $handler->display->display_options['sorts']['title']['relationship'] = 'field_services_target_id';
+  $handler->display->display_options['sorts']['title']['order'] = 'DESC';
   /* Contextual filter: Content: Course (field_course) */
   $handler->display->display_options['arguments']['field_course_target_id']['id'] = 'field_course_target_id';
   $handler->display->display_options['arguments']['field_course_target_id']['table'] = 'field_data_field_course';
