@@ -140,7 +140,7 @@ sudo apachectl -k restart
 #each other.
 
 #the command is:
-sudo bash /var/www/elmsln/scripts/install/elmsln-install.sh
+bash /var/www/elmsln/scripts/install/elmsln-install.sh
 
 #At this point, ELMSLN should pick up files and start trying to build them and 
 #hopefully you’ll get emails if it all worked! You can login with admin/admin
