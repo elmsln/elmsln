@@ -1,4 +1,5 @@
 #!/bin/bash
+#TODO this is failing in travis, seems like Vagrant too
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 # include our config settings
 source $DIR/../../../config/scripts/drush-create-site/config.cfg
