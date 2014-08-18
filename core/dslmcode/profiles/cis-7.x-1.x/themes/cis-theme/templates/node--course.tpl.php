@@ -141,16 +141,18 @@
       </div>
       <div class="course_author_profile">
       <?php
-        $headshot = $author->field_headshot['und'][0];
-        $hero_image = array(
-          'style_name' => 'course_author_thumb',
-          'path' => $headshot['uri'],
-          'width' => '95px',
-          'height' => '95px',
-          'alt' => $headshot['alt'],
-          'title' => $headshot['title'],
-        );
-        print theme('image_style',$hero_image);
+        if (isset($author->field_headshot['und'])) {
+          $headshot = $author->field_headshot['und'][0];
+          $hero_image = array(
+            'style_name' => 'course_author_thumb',
+            'path' => $headshot['uri'],
+            'width' => '95px',
+            'height' => '95px',
+            'alt' => $headshot['alt'],
+            'title' => $headshot['title'],
+          );
+          print theme('image_style',$hero_image);
+        }
       ?>
         <?php print $author->body['und'][0]['summary']; ?>
       </div>
