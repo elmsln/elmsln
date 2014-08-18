@@ -1,9 +1,11 @@
 #!/bin/bash
 #TODO this is failing in travis, seems like Vagrant too
-DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+#DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+# @todo make this reference locations of things, for now this is causing issues
+# so lets just do it this way so that things work!
 # include our config settings
-source $DIR/../../../config/scripts/drush-create-site/config.cfg
-source $DIR/commons.cfg
+source /var/www/elmsln/config/scripts/drush-create-site/config.cfg
+source /var/www/elmsln/scripts/install/install-steps/commons.cfg
 
 # Step 1
 step1() {
