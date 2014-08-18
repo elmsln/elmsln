@@ -98,3 +98,15 @@ step3() {
   # make sure webserver owns the files
   sudo find $configsdir/stacks/ -type d -name files | xargs chown -R $wwwuser:$webgroup
 }
+
+case "$1" in
+  step1)
+          step1
+          ;;
+  step2)
+          step2
+          ;;
+  step3)
+          step3
+          ;;
+esac
