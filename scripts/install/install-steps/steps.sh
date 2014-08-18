@@ -2,6 +2,7 @@
 
 # Step 1
 step1() {
+  source commons.cfg
   # generate a scripted directory
   if [ ! -d ${moduledir} ];
     then
@@ -47,6 +48,7 @@ step1() {
 
 # Step 2
 step2() {
+  source commons.cfg
   #add site to the sites array
   printf "\$sites = array(\n  '$online_domain' => 'online/$host',\n" >> $sitedir/sites.php
   printf "  '$online_service_domain' => 'online/services/$host',\n);\n" >> $sitedir/sites.php
@@ -56,6 +58,7 @@ step2() {
 
 # Step 3
 step3() {
+  source commons.cfg
   # add in our cache bins now that we know it built successfully
   printf "\n\n\$conf['cache_prefix'] = 'online_$host';" >> $sitedir/online/$host/settings.php
   printf "\n\nrequire_once DRUPAL_ROOT . '/../../shared/drupal-7.x/settings/shared_settings.php';" >> $sitedir/online/$host/settings.php
