@@ -8,8 +8,69 @@
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 cd $DIR
 # include our config settings
-source $DIR/../../config/scripts/drush-create-site/config.cfg
-source $DIR/install-steps/commons.cfg
+source ../../config/scripts/drush-create-site/config.cfg
+
+core='7.x'
+distros=('cis' 'mooc' 'cle' 'icor' 'elmsmedia' 'meedjum_blog' 'remote_watchdog')
+stacklist=('online' 'courses' 'studio' 'interact' 'media' 'blog' 'remote_watchdog')
+buildlist=('courses' 'studio' 'interact' 'media' 'blog')
+# array of instance definitions for the distro type
+instances=('FALSE' 'TRUE' 'TRUE' 'TRUE' 'TRUE' 'TRUE' 'FALSE')
+ignorelist=('TRUE' 'FALSE' 'FALSE' 'FALSE' 'FALSE' 'FALSE' 'TRUE')
+defaulttitle=('Course information system' 'Course outline' 'Collaborative studio' 'Interactive object repository' 'Media asset management' 'Course Blog' 'Remote logging')
+moduledir=$elmsln/config/shared/drupal-${core}/modules/_elmsln_scripted
+cissettings=${university}_${host}_settings
+
+# used for random password generation
+COUNTER=0
+char=(0 1 2 3 4 5 6 7 8 9 a b c d e f g h i j k l m n o p q r s t u v w x y z A B C D E F G H I J K L M N O P Q R S T U V X W Y Z)
+max=${#char[*]}
+
+# generate a scripted directory
+if [ ! -d ${moduledir} ];
+  then
+  sudo mkdir ${moduledir}
+  sudo mkdir ${moduledir}/${university}
+fi
+# work on authoring the connector module automatically
+if [ ! -d ${moduledir}/${university}/${cissettings} ];
+  then
+  sudo mkdir ${moduledir}/${university}/${cissettings}
+  infofile=${moduledir}/${university}/${cissettings}/${cissettings}.info
+  modulefile=${moduledir}/${university}/${cissettings}/${cissettings}.module
+  sudo touch $infofile
+  sudo chmod 744 $infofile
+  sudo touch $modulefile
+  sudo chmod 744 $modulefile
+  # write the .info file
+  sudo echo -e "name = ${university} ${host} Settings\ndescription = This contains registry information for all ${host} connection details\ncore = ${core}\npackage = ${university}" >> $infofile
+  # write the .module file
+  sudo echo -e "<?php\n\n// service module that makes this implementation specific\n\n/**\n * Implements hook_cis_service_registry().\n */\nfunction ${university}_${host}_settings_cis_service_registry() {\n  \$items = array(\n" >> $modulefile
+  # write the array of connection values dynamically
+  for distro in "${distros[@]}"
+  do
+    # array built up to `word
+    sudo echo -e "    // ${distro} distro instance called ${stacklist[$COUNTER]}\n    '${distro}' => array(\n      'protocol' => '${protocol}',\n      'service_address' => '${serviceprefix}${stacklist[$COUNTER]}.${serviceaddress}',\n      'address' => '${stacklist[$COUNTER]}.${address}',\n      'user' => 'SERVICE_${distro}_${host}',\n      'mail' => 'SERVICE_${distro}_${host}@${emailending}',\n" >> $modulefile
+    # generate a random 30 digit password
+    pass=''
+    for i in `seq 1 30`
+    do
+      let "rand=$RANDOM % 62"
+      pass="${pass}${char[$rand]}"
+    done
+    # write password to file
+    sudo echo -e "      'pass' ='$pass',\n" >> $modulefile
+    # finish off array
+    sudo echo -e "      'instance' => ${instances[$COUNTER]}," >> $modulefile
+    sudo echo -e "      'default_title' => '${defaulttitle[$COUNTER]}'," >> $modulefile
+    sudo echo -e "      'ignore' => ${ignorelist[$COUNTER]},\n    ),\n" >> $modulefile
+    COUNTER=$COUNTER+1
+ done
+  # close out function and file
+  sudo echo -e "  );\n\n  return \$items;\n}\n\n" >> $modulefile
+  # add the function to include this in build outs automatically
+  sudo echo -e "/**\n * Implements hook_cis_service_instance_options_alter().\n */\nfunction ${university}_${host}_settings_cis_service_instance_options_alter(&\$options, \$course, \$service) {\n  // modules we require for all builds\n  \$options['en'][] = '$cissettings';\n}\n" >> $modulefile
+fi
 
 #test for empty vars. if empty required var -- exit
 if [ -z $fileloc ]; then
@@ -42,8 +103,7 @@ fi
 
 # make sure drush is happy before we begin drush calls
 drush cc drush
-
-sudo sh $DIR/install-steps/steps.sh step1
+sudo chown -R $USER:$USER $HOME/.drush
 
 # build the default sites
 for build in "${buildlist[@]}"
@@ -81,9 +141,16 @@ sudo chmod -R 755 $drupal_priv
 # copy the default settings file to this location
 # we leave the original for the time being because this is the first instace
 # of the system. most likely we'll always need a default to fall back on anyway
-sudo cp $sitedir/default/settings.php $sitedir/online/$host/settings.php
+sudo cp "$sitedir/default/settings.php" "$sitedir/online/$host/settings.php"
 
-sudo sh $DIR/install-steps/steps.sh step2
+#add site to the sites array
+sudo echo "\$sites = array(" >> $sitedir/sites.php
+sudo echo "  '$online_domain' => 'online/$host'," >> $sitedir/sites.php
+sudo echo "  '$online_service_domain' => 'online/services/$host'," >> $sitedir/sites.php
+sudo echo ");" >> $sitedir/sites.php
+# set base_url
+sudo echo "\$base_url= '$protocol://$online_domain';" >> $sitedir/online/$host/settings.php
+
 
 # clean up tasks
 drush -y --uri=$protocol://$online_domain vset site_slogan 'Welcome to ELMSLN'
@@ -119,8 +186,49 @@ drush -y --uri=$protocol://$online_domain cron
 # print out a reset password link for the online site so you can gain access
 drush -y --uri=$protocol://$online_domain upwd admin --password=admin
 
-# run step 3
-sudo sh $DIR/install-steps/steps.sh step3
+# add in our cache bins now that we know it built successfully
+sudo echo "" >> $sitedir/online/$host/settings.php
+sudo echo "" >> $sitedir/online/$host/settings.php
+sudo echo "\$conf['cache_prefix'] = 'online_$host';" >> $sitedir/online/$host/settings.php
+sudo echo "" >> $sitedir/online/$host/settings.php
+sudo echo "require_once DRUPAL_ROOT . '/../../shared/drupal-7.x/settings/shared_settings.php';" >> $sitedir/online/$host/settings.php
+
+# adding servies conf file
+if [ ! -d $sitedir/online/services/$host ];
+  then
+    sudo mkdir -p $sitedir/online/services/$host
+    sudo mkdir -p $sitedir/online/services/$host/files
+    sudo chown -R $wwwuser:$webgroup $sitedir/online/services/$host/files
+    sudo chmod -R 755 $sitedir/online/services/$host/files
+    if [ -f $sitedir/online/$host/settings.php ]; then
+      sudo cp "$sitedir/online/$host/settings.php" "$sitedir/online/services/$host/settings.php"
+    fi
+    if [ -f $sitedir/online/services/$host/settings.php ]; then
+      sudo echo "" >> $sitedir/online/services/$host/settings.php
+      sudo echo "" >> $sitedir/online/services/$host/settings.php
+      sudo echo "\$conf['restws_basic_auth_user_regex'] = '/^SERVICE_.*/';" >> $sitedir/online/services/$host/settings.php
+    fi
+fi
+
+# perform some clean up tasks
+# piwik directories
+sudo chown -R $wwwuser:$webgroup $elmsln/config/_nondrupal/piwik
+sudo chmod -R 755 $elmsln/config/_nondrupal/piwik
+sudo chown -R $wwwuser:$webgroup $elmsln/core/_nondrupal/piwik
+# check for tmp directory in config area
+if [ ! -d $elmsln/config/_nondrupal/piwik/tmp ];
+then
+  sudo mkdir $elmsln/config/_nondrupal/piwik/tmp
+  sudo chown -R $wwwuser:$webgroup $elmsln/config/_nondrupal/piwik/tmp
+fi
+sudo chmod -R 0755 $elmsln/config/_nondrupal/piwik/tmp
+# jobs file directory
+sudo chown -R $wwwuser:$webgroup $elmsln/config/jobs
+sudo chmod -R 755 $elmsln/config/jobs
+# make sure everything in that folder is as it should be ownerwise
+sudo chown -R $wwwuser:$webgroup $sitedir/online/$host/files
+# make sure webserver owns the files
+sudo find $configsdir/stacks/ -type d -name files | xargs chown -R $wwwuser:$webgroup
 
 # a message so you know where my head is at. you get candy if you reference this
 echo 'Welcome to the Singularity of edtech.. Go forth, build the future.'
