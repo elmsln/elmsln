@@ -231,4 +231,26 @@ sudo chown -R $wwwuser:$webgroup $sitedir/online/$host/files
 sudo find $configsdir/stacks/ -type d -name files | xargs chown -R $wwwuser:$webgroup
 
 # a message so you know where my head is at. you get candy if you reference this
-echo 'Welcome to the Singularity of edtech.. Go forth, build the future.'
+  echo "╔═══════════════════════════════════════════════════════════════╗"
+  echo "║           ____  Welcome to      ____                          ║"
+  echo "║          |     |      /\  /\   /     |     |\   |             ║"
+  echo "║          |____ |     |  \/  |  \___  |     | \  |             ║"
+  echo "║          |     |     |      |      \ |     |  \ |             ║"
+  echo "║          |____ |____ |      |  ____/ |____ |   \|             ║"
+  echo "║                                                               ║"
+  echo "╟───────────────────────────────────────────────────────────────╢"
+  echo "║ If you are still having problems you may submit an issue at   ║"
+  echo "║   http://github.com/btopro/elmsln/issues                      ║"
+  echo "╟───────────────────────────────────────────────────────────────╢"
+  echo "║ NOTES                                                         ║"
+  echo "║ There is a module that was authored during installation at    ║"
+  echo "║ config/shared/drupal-7.x/modules/_elmsln_scripted             ║"
+  echo "║ You may want to open this up and review it but it is your     ║"
+  echo "║ connection keychain for how all the webservices talk.         ║"
+  echo "║                                                               ║"
+  echo "╠═══════════════════════════════════════════════════════════════╣"
+  echo "║ Use this link to access the Course Information System:        ║"
+  echo "║ $protocol://$online_domain                                    ║"
+  echo "║                                                               ║"
+  echo "║Welcome to the Singularity of edtech.. build the future..      ║"
+  echo "╚═══════════════════════════════════════════════════════════════╝"
