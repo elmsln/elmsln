@@ -68,7 +68,6 @@ before_script:
 script:
   # run the installer
   - bash /var/www/elmsln/scripts/install/elmsln-install.sh
-  #- drush test-run 'Search API Elasticsearch' --debug
 
 after_script:
   - drush sa
