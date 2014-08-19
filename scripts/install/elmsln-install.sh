@@ -50,7 +50,7 @@ if [ ! -d ${moduledir}/${university}/${cissettings} ];
   for distro in "${distros[@]}"
   do
     # array built up to `word
-    sudo echo -e "    // ${distro} distro instance called ${stacklist[$COUNTER]}\n    '${distro}' => array(\n      'protocol' => '${protocol}',\n      'service_address' => '${serviceprefix}${stacklist[$COUNTER]}.${serviceaddress}',\n      'address' => '${stacklist[$COUNTER]}.${address}',\n      'user' => 'SERVICE_${distro}_${host}',\n      'mail' => 'SERVICE_${distro}_${host}@${emailending}',\n" >> $modulefile
+    sudo echo -e "    // ${distro} distro instance called ${stacklist[$COUNTER]}\n    '${distro}' => array(\n      'protocol' => '${protocol}',\n      'service_address' => '${serviceprefix}${stacklist[$COUNTER]}.${serviceaddress}',\n      'address' => '${stacklist[$COUNTER]}.${address}',\n      'user' => 'SERVICE_${distro}_${host}',\n      'mail' => 'SERVICE_${distro}_${host}@${emailending}'," >> $modulefile
     # generate a random 30 digit password
     pass=''
     for i in `seq 1 30`
@@ -59,7 +59,7 @@ if [ ! -d ${moduledir}/${university}/${cissettings} ];
       pass="${pass}${char[$rand]}"
     done
     # write password to file
-    sudo echo -e "      'pass' ='$pass',\n" >> $modulefile
+    sudo echo -e "      'pass' => '$pass'," >> $modulefile
     # finish off array
     sudo echo -e "      'instance' => ${instances[$COUNTER]}," >> $modulefile
     sudo echo -e "      'default_title' => '${defaulttitle[$COUNTER]}'," >> $modulefile
