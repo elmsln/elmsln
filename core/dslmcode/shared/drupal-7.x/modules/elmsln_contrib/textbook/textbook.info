@@ -4,3 +4,10 @@ description = "Provides reset style guide and classes for a standard approach to
 package = "Textbook"
 core = "7.x"
 project = "textbook"
+
+; Information added by Drupal.org packaging script on 2014-08-20
+version = "7.x-4.1+4-dev"
+core = "7.x"
+project = "textbook"
+datestamp = "1408544031"
+
