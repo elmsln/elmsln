@@ -254,7 +254,7 @@ sudo find $configsdir/stacks/ -type d -name files | xargs chown -R $wwwuser:$web
   echo "║                                                               ║"
   echo "╠═══════════════════════════════════════════════════════════════╣"
   echo "║ Use this link to access the Course Information System:        ║"
-  echo "║ $protocol://$online_domain                                    ║"
+  echo "          $protocol://$online_domain                             "
   echo "║                                                               ║"
   echo "║Welcome to the Singularity of edtech.. build the future..      ║"
   echo "╚═══════════════════════════════════════════════════════════════╝"
