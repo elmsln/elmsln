@@ -146,7 +146,6 @@ function breakpoints_schema() {
       'admin_title' => 'label',
       'default hook' => 'default_breakpoint_group',
       'export type string' => 'ctools_type',
-      'export callback' => 'breakpoints_breakpoint_group_export',
       'api' => array(
         'owner' => 'breakpoints',
         'api' => 'default_breakpoint_group',

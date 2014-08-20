@@ -49,6 +49,7 @@ function breakpoints_admin_breakpoints($form, &$form_state, $breakpoint_group_na
     $info[] = t("For each breakpoint you can define what multipliers have to be available (needed to support 'retina' displays).");
     $info[] = t("Breakpoints you created yourself can be deleted.");
     $info[] = t("You can group multiple breakpoints in a group by using '!add', so other modules can easily interact with them.", array('!add' => l(t('Add a new group'), 'admin/config/media/breakpoints/groups/add')));
+    $info[] = t("If you do not see the breakpoint group for your theme, make sure your theme is enabled and !clear_cache or click the \"Scan this theme for breakpoints\" button on the bottom of the settings page of your theme.", array('!clear_cache' => l(t('clear your cache'), 'admin/config/development/performance')));
 
     $form['more_info'] = array(
       '#type' => 'container',
@@ -116,7 +117,7 @@ function breakpoints_admin_breakpoints($form, &$form_state, $breakpoint_group_na
       'breakpoint' => array(
         '#type' => 'textfield',
         '#default_value' => $breakpoint->breakpoint,
-        '#disabled' => $breakpoint->source_type === 'theme' || !$global,
+        '#disabled' => $breakpoint->source_type === BREAKPOINTS_SOURCE_TYPE_THEME || !$global,
         '#size' => empty($multipliers) ? 60 : 30,
         '#maxlength' => 255,
       ),
@@ -133,6 +134,7 @@ function breakpoints_admin_breakpoints($form, &$form_state, $breakpoint_group_na
         '#type' => 'checkboxes',
         '#default_value' => (isset($breakpoint->multipliers) && is_array($breakpoint->multipliers)) ? $breakpoint->multipliers : array(),
         '#options' => $multipliers,
+        '#disabled' => $breakpoint->source_type === BREAKPOINTS_SOURCE_TYPE_THEME || !$global,
       );
     }
     // Add global weight if needed.
@@ -422,7 +424,7 @@ function _breakpoints_admin_breakpoints_table_new_row(&$element) {
  */
 function breakpoints_admin_breakpoints_validate($form, &$form_state) {
   if (strpos($form_state['triggering_element']['#id'], 'remove') === FALSE) {
-    $breakpoints = $form_state['values']['breakpoints'];
+    $breakpoints = isset($form_state['values']['breakpoints']) ? $form_state['values']['breakpoints'] : array();
     if (!empty($breakpoints)) {
       foreach ($breakpoints as $key => $breakpointdata) {
         if (!empty($breakpointdata['name'])) {
@@ -431,9 +433,6 @@ function breakpoints_admin_breakpoints_validate($form, &$form_state) {
             if (empty($breakpointdata['machine_name'])) {
               form_set_error('breakpoints][' . $key . '][machine_name', 'Machine name field is required');
             }
-          }
-          if (empty($breakpointdata['breakpoint']) && $breakpointdata['breakpoint'] !== '0') {
-            form_set_error('breakpoints][' . $key . '][breakpoint', 'Breakpoint field is required');
           }
         }
       }
@@ -467,7 +466,7 @@ function breakpoints_admin_breakpoints_submit($form, &$form_state) {
             $breakpoint->weight = $breakpointdata['global_weight'];
           }
           $breakpoint->breakpoint = $breakpointdata['breakpoint'];
-          $breakpoint->multipliers = $breakpointdata['multipliers'];
+          $breakpoint->multipliers = isset($breakpointdata['multipliers']) ? $breakpointdata['multipliers'] : array();
           breakpoints_breakpoint_save($breakpoint);
           $saved_breakpoints[] = $breakpointname;
         }
@@ -479,7 +478,7 @@ function breakpoints_admin_breakpoints_submit($form, &$form_state) {
           $breakpoint->source_type = 'custom';
           $breakpoint->weight = $breakpointdata['weight'];
           $breakpoint->status = TRUE;
-          $breakpoint->multipliers = $breakpointdata['multipliers'];
+          $breakpoint->multipliers = isset($breakpointdata['multipliers']) ? $breakpointdata['multipliers'] : array();
           $breakpoint->machine_name = 'custom.user.' . $breakpointdata['machine_name'];
           breakpoints_breakpoint_save($breakpoint);
           $saved_breakpoints[] = breakpoints_breakpoint_config_name($breakpoint);
@@ -674,8 +673,17 @@ function breakpoints_add_style_form($form, &$form_state) {
 
 function breakpoints_add_style_form_validate($form, &$form_state) {
   foreach (array_filter($form_state['values']['breakpoints']) as $breakpoint) {
+    if (drupal_strlen($form_state['values']['base_name'] . $breakpoint) > 64) {
+      form_set_error(
+        'breakpoints',
+        t(
+          'Could not generate image styles because the generated name @name is longer than the maximum allowed length of 64 characters for image style names (@length characters).',
+          array('@name' => $form_state['values']['base_name'] . $breakpoint, '@length' => drupal_strlen($form_state['values']['base_name'] . $breakpoint))
+        )
+      );
+    }
     if (image_style_load($form_state['values']['base_name'] . $breakpoint)) {
-      form_set_error('breakpoints', t('An image style with the name !name already exists', array('!name' => $form_state['values']['base_name'] . $breakpoint)));
+      form_set_error('breakpoints', t('An image style with the name @name already exists', array('@name' => $form_state['values']['base_name'] . $breakpoint)));
     }
   }
 }
@@ -848,7 +856,7 @@ function breakpoints_admin_breakpoint_group_export_form($form, &$form_state, $ma
   if (!$group || !$machine_name) {
     $group = new stdClass();
   }
-  $group_export = breakpoints_breakpoint_group_export($group);
+  $group_export = ctools_export_crud_export('breakpoint_group', $group);
 
   $form['group_export'] = array(
     '#type' => 'textarea',

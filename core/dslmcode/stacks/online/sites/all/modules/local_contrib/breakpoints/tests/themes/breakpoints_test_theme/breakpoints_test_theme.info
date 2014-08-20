@@ -9,9 +9,9 @@ breakpoints[narrow] = (min-width: 560px)
 breakpoints[wide] = (min-width: 851px)
 breakpoints[tv] = only screen and (min-width: 3456px)
 
-; Information added by drupal.org packaging script on 2013-06-15
-version = "7.x-1.1"
+; Information added by Drupal.org packaging script on 2014-08-08
+version = "7.x-1.3"
 core = "7.x"
 project = "breakpoints"
-datestamp = "1371310550"
+datestamp = "1407507528"
 

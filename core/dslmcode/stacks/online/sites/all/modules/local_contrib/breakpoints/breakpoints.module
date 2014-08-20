@@ -64,6 +64,9 @@ function breakpoints_themes_enabled($theme_list) {
     if (isset($themes[$theme_key]->info['breakpoints'])) {
       $weight = 0;
       $theme_settings = $themes[$theme_key]->info['breakpoints'];
+      $multipliers = isset($themes[$theme_key]->info['multipliers']) ? $themes[$theme_key]->info['multipliers'] : array();
+      $settings = breakpoints_settings();
+      $current_multipliers = drupal_map_assoc($settings->multipliers);
       // Build a group for each theme
       $breakpoint_group = breakpoints_breakpoint_group_empty_object();
       $breakpoint_group->machine_name = $theme_key;
@@ -82,9 +85,12 @@ function breakpoints_themes_enabled($theme_list) {
           $breakpoint->machine_name = breakpoints_breakpoint_config_name($breakpoint);
         }
         $breakpoint->breakpoint = $media_query;
+        $breakpoint->multipliers = isset($multipliers[$name]) ? drupal_map_assoc($multipliers[$name]) : array();
+        $current_multipliers += drupal_map_assoc($breakpoint->multipliers);
         breakpoints_breakpoint_save($breakpoint);
         $breakpoint_group->breakpoints[] = $breakpoint->machine_name;
       }
+      breakpoints_settings_save($current_multipliers);
       breakpoints_breakpoint_group_save($breakpoint_group);
       $message = t('The breakpoints from theme %theme are imported and !grouplink.', array(
         '%theme' => check_plain($themes[$theme_key]->info['name']),
@@ -464,8 +470,11 @@ function breakpoints_breakpoint_save(&$breakpoint) {
   $update = (isset($breakpoint->id) && is_numeric($breakpoint->id)) ? array('id') : array();
   // Remove unused multipliers.
   $breakpoint->multipliers = array_filter($breakpoint->multipliers);
+  if(is_null($breakpoint->multipliers)){
+    $breakpoint->multipliers = array();
+  }
   // Add the '1x' multiplier.
-  $breakpoint->multipliers = array('1x' => '1x') + $breakpoint->multipliers;
+  $breakpoint->multipliers = array_merge($breakpoint->multipliers, array('1x' => '1x'));
   $result = drupal_write_record('breakpoints', $breakpoint, $update);
   // Reset CTools cache.
   ctools_export_load_object_reset('breakpoints');
@@ -627,28 +636,6 @@ function breakpoints_breakpoint_group_save(&$breakpoint_group) {
 }
 
 /**
- * Export a single breakpoint group.
- */
-function breakpoints_breakpoint_group_export($group, $indent = '') {
-  if (is_string($group)) {
-    $group = breakpoints_breakpoint_group_load($group);
-  }
-  $export = $indent . "// Breakpoints.\n" . $indent . '$breakpoints = array();' . "\n";
-  if (isset($group->breakpoints)) {
-    foreach ($group->breakpoints as $breakpoint) {
-      if (!is_array($breakpoint) && !is_object($breakpoint)) {
-        $breakpoint = breakpoints_breakpoint_load_by_fullkey($breakpoint);
-      }
-      $export .= $indent . '$breakpoints[] = \'' . $breakpoint->machine_name . '\';' . "\n";
-    }
-    $export .= "\n";
-  }
-  $export .= $indent . "// Breakpoint group.\n";
-  $export .= ctools_export_object('breakpoint_group', $group, $indent);
-  return $export;
-}
-
-/**
  * Delete a single breakpoint group.
  */
 function breakpoints_breakpoint_group_delete($breakpoint_group) {
@@ -696,17 +683,26 @@ function breakpoints_theme() {
 
 /**
  * Export callback.
- * @see breakpoints_schema(), breakpoints_breakpoint_group_export()
+ * @see breakpoints_schema()
  */
 function breakpoint_group_export_breakpoints($object, $field, $value, $indent) {
-  $export = '$breakpoints';
-  return $export;
+  ctools_include('export');
+  $export = array();
+  if (isset($object->breakpoints)) {
+    foreach ($object->breakpoints as $breakpoint) {
+      if (!is_array($breakpoint) && !is_object($breakpoint)) {
+        $breakpoint = breakpoints_breakpoint_load_by_fullkey($breakpoint);
+      }
+      $export[] = $breakpoint->machine_name;
+    }
+  }
+  return ctools_var_export($export, $indent);
 }
 
 /**
  * Reload the breakpoints as defined by the group.
  */
-function breakpoints_breakpoints_group_reload(&$group) {
+function breakpoints_breakpoints_group_reload(&$group, $force = TRUE) {
   switch ($group->type) {
     case BREAKPOINTS_SOURCE_TYPE_THEME:
       // delete all breakpoints defined by this theme.
@@ -715,10 +711,14 @@ function breakpoints_breakpoints_group_reload(&$group) {
         breakpoints_breakpoint_delete($breakpoint);
       }
 
-      // reload all breakpoints from theme.info.
+      // Reload all breakpoints from theme.info.
       $reloaded_group = breakpoints_breakpoints_group_reload_from_theme($group->machine_name);
-      $group->breakpoints = $reloaded_group->breakpoints;
-      breakpoints_breakpoint_group_save($group);
+
+      // Reset the breakpoints for this group.
+      if ($force) {
+        $group->breakpoints = $reloaded_group->breakpoints;
+        breakpoints_breakpoint_group_save($group);
+      }
       break;
   }
 }
@@ -732,6 +732,9 @@ function breakpoints_breakpoints_group_reload_from_theme($theme_key) {
   if (isset($themes[$theme_key]->info['breakpoints'])) {
     $weight = 0;
     $theme_settings = $themes[$theme_key]->info['breakpoints'];
+    $multipliers = isset($themes[$theme_key]->info['multipliers']) ? $themes[$theme_key]->info['multipliers'] : array();
+    $settings = breakpoints_settings();
+    $current_multipliers = drupal_map_assoc($settings->multipliers);
     // Build a group for each theme
     $breakpoint_group = breakpoints_breakpoint_group_empty_object();
     $breakpoint_group->machine_name = $theme_key;
@@ -750,9 +753,12 @@ function breakpoints_breakpoints_group_reload_from_theme($theme_key) {
         $breakpoint->machine_name = breakpoints_breakpoint_config_name($breakpoint);
       }
       $breakpoint->breakpoint = $media_query;
+      $breakpoint->multipliers = isset($multipliers[$name]) ? drupal_map_assoc($multipliers[$name]) : array();
+      $current_multipliers += drupal_map_assoc($breakpoint->multipliers);
       breakpoints_breakpoint_save($breakpoint);
       $breakpoint_group->breakpoints[] = $breakpoint->machine_name;
     }
+    breakpoints_settings_save($current_multipliers);
     return $breakpoint_group;
   }
 }
@@ -854,5 +860,41 @@ function breakpoints_form_system_theme_settings_alter_submit(&$form, &$form_stat
   }
   else {
     breakpoints_themes_enabled(array($theme));
+  }
+}
+
+/**
+ * Implements hook_features_export().
+ */
+function breakpoint_group_features_export($data, &$export, $module_name = '') {
+  features_include();
+  $pipe = ctools_component_features_export('breakpoint_group', $data, $export, $module_name);
+  foreach ($data as $group_name) {
+    $group = breakpoints_breakpoint_group_load($group_name);
+    foreach ($group->breakpoints as $breakpoint_name) {
+      $breakpoint = breakpoints_breakpoint_load_by_fullkey($breakpoint_name);
+      if ($breakpoint->source_type != BREAKPOINTS_SOURCE_TYPE_THEME) {
+        $pipe['breakpoints'][] = $breakpoint_name;
+      }
+    }
+  }
+  return $pipe;
+}
+
+/**
+ * Implements hook_flush_caches().
+ */
+function breakpoints_flush_caches() {
+  $themes = list_themes();
+  foreach ($themes as $theme_key => $theme) {
+    if ($theme->status) {
+      $group = breakpoints_breakpoint_group_load($theme_key);
+      if ($group) {
+        breakpoints_breakpoints_group_reload($group, FALSE);
+      }
+      else {
+        breakpoints_themes_enabled(array($theme_key));
+      }
+    }
   }
 }
