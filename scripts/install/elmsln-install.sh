@@ -205,7 +205,7 @@ if [ ! -d $sitedir/online/services/$host ];
     sudo chown -R $wwwuser:$webgroup $sitedir/online/services/$host/files
     sudo chmod -R 755 $sitedir/online/services/$host/files
     if [ -f $sitedir/online/$host/settings.php ]; then
-      sudo cp "$sitedir/online/$host/settings.php" "$sitedir/online/services/$host/settings.php"
+      sudo cp $sitedir/online/$host/settings.php $sitedir/online/services/$host/settings.php
     fi
     if [ -f $sitedir/online/services/$host/settings.php ]; then
       sudo echo "" >> $sitedir/online/services/$host/settings.php
