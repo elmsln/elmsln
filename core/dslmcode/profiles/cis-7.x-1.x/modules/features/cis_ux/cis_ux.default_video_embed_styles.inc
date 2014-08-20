@@ -14,6 +14,7 @@ function cis_ux_default_video_embed_styles() {
   $video_embed_style->disabled = FALSE; /* Edit this to true to make a default video_embed_style disabled initially */
   $video_embed_style->api_version = 1;
   $video_embed_style->name = 'cis_course_video';
+  $video_embed_style->title = '';
   $video_embed_style->data = array(
     'youtube' => array(
       'width' => '640px',
