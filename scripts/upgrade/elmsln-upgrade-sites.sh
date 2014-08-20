@@ -37,8 +37,14 @@ if [ -z $1 ]; then
   exit 1
 fi
 
-elmslnecho "Are you sure you want to upgrade the entire network? (Type yes)"
-read yesprompt
+# allow for lazy, dangerous people like btopro who enter yes via commandline
+if [ -z $2 ]; then
+  yesprompt=$2
+else
+  elmslnecho "Are you sure you want to upgrade the entire network? (Type yes)"
+  read yesprompt
+fi
+# ensure they type yes, this is a big deal command
 if [ "$yesprompt" != "yes" ]; then
   elmslnwarn "please type yes to execute the script, exited early"
   exit 1
