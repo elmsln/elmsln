@@ -8,5 +8,5 @@
 # read in file and execute commands against ssh'ed hosts
 while read line
 do
-    $line "cd /var/www/elmsln && git pull origin master && drush @online status;" < /dev/null
+    $line "bash ~/elmsln/scripts/upgrade/elmsln-upgrade-sites.sh master yes && drush @online status;" < /dev/null
 done < "$1"
