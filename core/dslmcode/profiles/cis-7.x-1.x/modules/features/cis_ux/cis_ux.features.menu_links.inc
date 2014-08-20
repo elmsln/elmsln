@@ -11,7 +11,7 @@ function cis_ux_menu_default_menu_links() {
   $menu_links = array();
 
   // Exported menu link: management_add-course:node/add/course
-  $menu_links['management_add-course:node/add/course'] = array(
+  /*$menu_links['management_add-course:node/add/course'] = array(
     'menu_name' => 'management',
     'link_path' => 'node/add/course',
     'router_path' => 'node/add/course',
@@ -228,7 +228,7 @@ function cis_ux_menu_default_menu_links() {
     'expanded' => 0,
     'weight' => -49,
     'customized' => 1,
-  );
+  );*/
   // Translatables
   // Included for use with string extractors like potx.
   t('Add Course');
