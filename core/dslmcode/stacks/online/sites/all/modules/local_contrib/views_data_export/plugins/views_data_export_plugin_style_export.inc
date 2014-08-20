@@ -165,6 +165,9 @@ class views_data_export_plugin_style_export extends views_plugin_style {
     if ($this->options['parent_sort']) {
       $query['attach'] = $display_id;
     }
+    if (!isset($this->view->feed_icon)) {
+      $this->view->feed_icon = '';
+    }
     $this->view->feed_icon .= theme($theme_pattern, array(
         'image_path' => $this->definition['export feed icon'],
         'url' => $this->view->get_url(NULL, $path),
@@ -291,7 +294,6 @@ class views_data_export_plugin_style_export extends views_plugin_style {
    * Add any HTTP headers that this style plugin wants to.
    */
   function add_http_headers() {
-    $view = &$this->view;
 
     drupal_add_http_header('Cache-Control', 'max-age=60, must-revalidate');
 
@@ -300,6 +302,22 @@ class views_data_export_plugin_style_export extends views_plugin_style {
         drupal_add_http_header($name, $value);
       }
     }
+
+    if (isset($this->options['filename']) && !empty($this->options['provide_file'])) {
+      $filename = $this->generate_filename();
+
+      if ($filename) {
+        drupal_add_http_header('Content-Disposition', 'attachment; filename="'. $filename .'"');
+      }
+    }
+  }
+
+  /**
+   * Generate the filename for the export.
+   */
+  function generate_filename() {
+    $view = $this->view;
+    $filename = '';
 
     if (isset($this->options['filename']) && !empty($this->options['provide_file'])) {
       // General tokens.
@@ -322,7 +340,14 @@ class views_data_export_plugin_style_export extends views_plugin_style {
           continue;
         }
         if (!empty($view->exposed_input[$handler->options['expose']['identifier']])) {
-          $exposed[] = check_plain($handler->options['expose']['identifier']) . '_' . check_plain($view->exposed_input[$handler->options['expose']['identifier']]);
+          $identifier = $handler->options['expose']['identifier'];
+          $option = $view->exposed_input[$identifier];
+          // The option may be a string or an array, depending on whether the
+          // widget is a text box/area or a select box.
+          if (is_array($option)) {
+            $option = implode('--', $option);
+          }
+          $exposed[] = check_plain($identifier) . '_' . check_plain($option);
         }
       }
       if (!empty($exposed)) {
@@ -351,11 +376,8 @@ class views_data_export_plugin_style_export extends views_plugin_style {
       }
 
       $filename = strtr($this->options['filename'], $tokens);
-
-
-      if ($filename) {
-        drupal_add_http_header('Content-Disposition', 'attachment; filename="'. $filename .'"');
-      }
     }
+
+    return $filename;
   }
 }

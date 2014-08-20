@@ -1,0 +1,164 @@
+<?php
+
+class TXTExportViewsDataExportTests extends ViewsDataExportSimpleExportTest {
+
+  protected $profile = 'testing';
+
+  public static function getInfo() {
+    return array(
+      'name' => 'TXT Export',
+      'description' => 'Various tests for exporting to TXT.',
+      'group' => 'Views Data Export',
+    );
+  }
+
+  protected $vde_export_type = 'TXT';
+
+  protected function getStylePluginName() {
+    return 'views_data_export_txt';
+  }
+
+  protected function getExportView($path = 'vde_test') {
+    // Create the basic view.
+    $view = $this->getBasicExportView();
+
+    $display = $view->new_display('views_data_export', 'Data export', 'vde_test');
+    $display->override_option('style_plugin', $this->getStylePluginName());
+    $display->override_option('path', $path);
+
+    $expected = '[ID]
+
+1
+[Name]
+
+John
+[Age]
+
+25
+----------------------------------------
+
+[ID]
+
+2
+[Name]
+
+George
+[Age]
+
+27
+----------------------------------------
+
+[ID]
+
+3
+[Name]
+
+Ringo
+[Age]
+
+28
+----------------------------------------
+
+[ID]
+
+4
+[Name]
+
+Paul
+[Age]
+
+26
+----------------------------------------
+
+[ID]
+
+5
+[Name]
+
+Meredith
+[Age]
+
+30
+----------------------------------------';
+
+    return array(&$view, $expected);
+  }
+
+  /**
+   * Test to check if empty fields are correctly hidden.
+   */
+  protected function testHideEmptySupport() {
+    $view = $this->getHideIfEmptyExportView();
+
+    // We need to ensure that the test fields are actually empty/0.
+    db_update('views_test')
+      ->fields(array('age' => 0,))
+      ->condition('name', 'Paul')
+      ->execute();
+
+    db_update('views_test')
+      ->fields(array('name' => '',))
+      ->condition('name', 'George')
+      ->execute();
+
+    db_update('views_test')
+      ->fields(array('name' => 0,))
+      ->condition('name', 'John')
+      ->execute();
+
+    $expected = '[ID]
+
+1
+[Name]
+
+0
+[Age]
+
+25
+----------------------------------------
+
+[ID]
+
+2
+[Age]
+
+27
+----------------------------------------
+
+[ID]
+
+3
+[Name]
+
+Ringo
+[Age]
+
+28
+----------------------------------------
+
+[ID]
+
+4
+[Name]
+
+Paul
+----------------------------------------
+
+[ID]
+
+5
+[Name]
+
+Meredith
+[Age]
+
+30
+----------------------------------------';
+
+    $message = 'Hide if empty support for ' . $this->vde_export_type . ' export matched expected output.';
+
+    $this->executeAndCompareGivenView($view, $expected, $message);
+
+  }
+
+}

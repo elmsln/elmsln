@@ -1,0 +1,48 @@
+<?php
+
+class XLSExportViewsDataExportTests extends ViewsDataExportSimpleExportTest {
+
+  protected $profile = 'testing';
+
+  public static function getInfo() {
+    return array(
+      'name' => 'XLS Export',
+      'description' => 'Various tests for exporting to XLS.',
+      'group' => 'Views Data Export',
+    );
+  }
+
+  protected $vde_export_type = 'XLS';
+
+  protected function getStylePluginName() {
+    return 'views_data_export_xls';
+  }
+
+  protected function getExportView($path = 'vde_test') {
+    // Create the basic view.
+    $view = $this->getBasicExportView();
+
+    $display = $view->new_display('views_data_export', 'Data export', 'vde_test');
+    $display->override_option('style_plugin', $this->getStylePluginName());
+    $display->override_option('path', $path);
+
+    $expected = '<html>
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  </head>
+  <body>
+    <table>
+    <thead><tr><th>ID</th><th>Name</th><th>Age</th></tr></thead>    <tbody> <tr class="odd"><td>1</td><td>John</td><td>25</td> </tr>
+ <tr class="even"><td>2</td><td>George</td><td>27</td> </tr>
+ <tr class="odd"><td>3</td><td>Ringo</td><td>28</td> </tr>
+ <tr class="even"><td>4</td><td>Paul</td><td>26</td> </tr>
+ <tr class="odd"><td>5</td><td>Meredith</td><td>30</td> </tr>
+      </tbody>
+    </table>
+  </body>
+</html>';
+
+    return array(&$view, $expected);
+  }
+
+}

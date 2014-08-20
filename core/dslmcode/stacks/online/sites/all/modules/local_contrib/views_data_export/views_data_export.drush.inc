@@ -17,6 +17,7 @@ function views_data_export_drush_command() {
       'output_file' => 'The file to write the results to - will be overwritten if it already exists',
     ),
     'options' => array (
+      '--arguments' => 'Comma separated list of arguments to be passed to the view.',
       '--format' => 'csv,doc,txt,xls or xml. These options are ignored if the display_id passed is a "views_data_export" display.',
       '--separator' => 'csv only: What character separates the fields (default:,)',
       '--trim-whitespace' => 'csv only: Trim whitespace from either side of fields (default:1)',
@@ -111,7 +112,7 @@ function drush_views_data_export($view_name, $display_id, $output_file) {
     return;
   }
   $already_run = TRUE;
-  
+
   // Set the display to the one that we computed earlier.
   $display_id = drush_get_option('views_data_export_display_id', 'default');
 
@@ -161,8 +162,32 @@ function drush_views_data_export($view_name, $display_id, $output_file) {
   $options = array (
     'output_file' => realpath(drush_get_context('DRUSH_OLDCWD', getcwd())) . '/' . $output_file,
   );
-  _drush_views_data_export_override_batch($view_name, $display_id, $options);
-  $view->execute_display($display_id);
+  if ($view->display_handler->is_batched()) {
+    // This is a batched export, and needs to be handled as such.
+    _drush_views_data_export_override_batch($view_name, $display_id, $options);
+
+    $arguments = drush_get_option('arguments', '');
+    $arguments = explode(',', $arguments);
+    $view->execute_display($display_id, $arguments);
+  }
+  else {
+    // This export isn't batched.
+    ob_start();
+    $view->execute_display($display_id);
+    // Get the results, and clean the output buffer.
+    $result = ob_get_contents();
+    // Clean the buffer.
+    ob_end_clean();
+    // Save the results to file.
+    // Copy file over
+    if (file_put_contents($options['output_file'], $result)) {
+      drush_log("Data export saved to " . $options['output_file'], 'success');
+    }
+    else {
+      drush_set_error('VIEWS_DATA_EXPORT_COPY_ERROR', dt("The file could not be copied to the selected destination"));
+    }
+  }
+
 }
 
 
