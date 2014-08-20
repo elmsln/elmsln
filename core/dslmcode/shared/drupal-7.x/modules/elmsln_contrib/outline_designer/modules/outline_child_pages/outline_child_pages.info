@@ -5,3 +5,10 @@ package = Outline Designer
 core = 7.x
 project = "outline_designer"
 
+
+; Information added by Drupal.org packaging script on 2014-06-28
+version = "7.x-2.1+1-dev"
+core = "7.x"
+project = "outline_designer"
+datestamp = "1403990629"
+
