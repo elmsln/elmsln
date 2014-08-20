@@ -33,16 +33,16 @@ if [ -z $host ]; then
   exit 1
 fi
 if [ -z $1 ]; then
-  elmslnwarn "please select a branch you want to update too"
+  elmslnwarn "please select a branch you want to update too (like master)"
   exit 1
 fi
 
 # allow for lazy, dangerous people like btopro who enter yes via commandline
 if [ -z $2 ]; then
-  yesprompt=$2
-else
   elmslnecho "Are you sure you want to upgrade the entire network? (Type yes)"
   read yesprompt
+else
+  yesprompt=$2
 fi
 # ensure they type yes, this is a big deal command
 if [ "$yesprompt" != "yes" ]; then
