@@ -17,3 +17,10 @@ features[variable][] = menu_parent_nrhi_person
 features[variable][] = node_options_nrhi_person
 features[variable][] = node_preview_nrhi_person
 features[variable][] = node_submitted_nrhi_person
+
+; Information added by Drupal.org packaging script on 2014-01-27
+version = "7.x-1.0+7-dev"
+core = "7.x"
+project = "nodereference_highlight"
+datestamp = "1390859981"
+

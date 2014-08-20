@@ -6,3 +6,10 @@ dependencies[] = "prepopulate"
 dependencies[] = "tipsy"
 package = "Entity"
 core = 7.x
+
+; Information added by Drupal.org packaging script on 2014-01-27
+version = "7.x-1.0+7-dev"
+core = "7.x"
+project = "nodereference_highlight"
+datestamp = "1390859981"
+
