@@ -139,8 +139,13 @@ sudo apachectl -k restart
 #enabled on all the jobs kicked off by the script so everything can talk to 
 #each other.
 
+#from many user reports, this generally runs with less issues when you can
+#run it with sudo -i.
+sudo -i
 #the command is:
-sudo bash /var/www/elmsln/scripts/install/elmsln-install.sh
+bash /var/www/elmsln/scripts/install/elmsln-install.sh
+
+logout
 
 #At this point, ELMSLN should pick up files and start trying to build them and 
 #hopefully you’ll get emails if it all worked! You can login with admin/admin
