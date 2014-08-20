@@ -6,10 +6,11 @@ dependencies[] = token
 files[] = token_insert.inc
 files[] = token_insert.module
 files[] = token_insert.js
+configure = admin/config/content/formats
 
-; Information added by drupal.org packaging script on 2012-08-09
-version = "7.x-2.1"
+; Information added by Drupal.org packaging script on 2014-07-02
+version = "7.x-2.4"
 core = "7.x"
 project = "token_insert"
-datestamp = "1344501143"
+datestamp = "1404308328"
 

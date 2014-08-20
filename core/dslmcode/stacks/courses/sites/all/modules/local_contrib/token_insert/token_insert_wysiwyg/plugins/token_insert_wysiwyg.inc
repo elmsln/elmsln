@@ -6,7 +6,7 @@
  */
 
 /**
- * Implementation of hook_wysiwyg_plugin().
+ * Implementats of hook_wysiwyg_plugin().
  */
 function token_insert_wysiwyg_token_insert_wysiwyg_plugin() {
   $plugins['token_insert_wysiwyg'] = array(

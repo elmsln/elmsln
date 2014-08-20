@@ -1,0 +1,37 @@
+<?php
+/**
+ * @file
+ * Install and update hooks for the Token Insert module.
+ */
+
+/**
+ * Update variable keys to support list tokens.
+ */
+function token_insert_update_7001() {
+  $roles = user_roles();
+  $roles['global'] = 'global';
+  $all_tokens = token_get_info();
+  foreach ($roles as $rid => $role) {
+    foreach ($all_tokens['tokens'] as $category => $tokens) {
+      // Check to see if all tokens are enabled for this category.
+      $allow_all = variable_get('token_insert_' . $rid . '_all_tokens_' . $category, FALSE);
+      if (!$allow_all) {
+        $allowed_options = variable_get('token_insert_' . $rid . '_used_tokens_' . $category, array());
+      }
+      else {
+        variable_set('token_insert_' . $rid . '_used_tokens_' . $category, array());
+        continue;
+      }
+      foreach ($tokens as $token => $description) {
+        $full_token = '[' . $category . ':' . $token . ']';
+        if (!empty ($allowed_options)) {
+          if (isset($allowed_options[$token]) ) {
+            $allowed_options[$full_token] = $allowed_options[$token] ? $full_token : 0;
+            unset($allowed_options[$token]);
+          }
+        }
+      }
+      variable_set('token_insert_' . $rid . '_used_tokens_' . $category, $allowed_options);
+    }
+  }
+}

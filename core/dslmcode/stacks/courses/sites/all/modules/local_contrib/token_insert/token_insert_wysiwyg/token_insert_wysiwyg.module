@@ -11,39 +11,59 @@ function token_insert_wysiwyg_wysiwyg_include_directory($type) {
   }
 }
 
-function token_insert_wysiwyg_form_alter(&$form, $form_state, $form_id) {
-  if (strpos($form_id, 'node_form') !== FALSE || strpos($form_id, 'comment') !== FALSE) {
-    drupal_add_library('system', 'ui.dialog');
-    drupal_add_library('system', 'ui.draggable');
-    drupal_add_js(array('token_insert_wysiwyg' => array('current_form' => $form['form_build_id']['#value'])), 'setting');
+/**
+ * Implements hook_element_info_alter().
+ */
+function token_insert_wysiwyg_element_info_alter(&$types) {
+  $types['text_format']['#pre_render'][] = 'token_insert_wysiwyg_pre_render_text_format';
+}
+
+function token_insert_wysiwyg_pre_render_text_format($element) {
+  // filter_process_format() copies properties to the expanded 'value' child
+  // element. Skip this text format widget, if it contains no 'format' or when
+  // the current user does not have access to edit the value.
+  if (!isset($element['format']) || !empty($element['value']['#disabled'])) {
+    return $element;
   }
+  // WYSIWYG module allows modules to programmatically enforce no client-side
+  // editor by setting the #wysiwyg property to FALSE.
+  if (isset($element['#wysiwyg']) && !$element['#wysiwyg']) {
+    return $element;
+  }
+  $element['#attached']['library'][] = array('system', 'ui.dialog');
+  $element['#attached']['library'][] = array('system', 'ui.draggable');
+  $element['#attached']['library'][] = array('system', 'drupal.ajax');
+  return $element;
 }
 
 function token_insert_wysiwyg_menu() {
 
   $items = array();
   $items['token_insert_wysiwyg/insert/%'] = array(
-    'page callback' => 'drupal_get_form',
-    'page arguments' => array('token_insert_wysiwyg_form', 3),
+    'page callback' => 'token_insert_wysiwyg_page',
+    'page arguments' => array(2),
     'access callback' => TRUE,
+    'delivery callback' => 'ajax_deliver',
     'type' => MENU_CALLBACK,
   );
 
   return $items;
 }
 
-function token_insert_wysiwyg_form($form_state, $form_id) {
-  module_load_include('inc', 'token_insert', 'token_insert');
-  drupal_set_title(t('Insert token'));
-  $options = token_insert_get_tokens();
-
-  $form = array();
-  $form['insert'] = array(
-    '#type' => 'select',
-    '#title' => t('Choose the token you want to insert.'),
-    '#options' => $options,
-    '#description' => t('This token will be inserted in your textfield')
+function token_insert_wysiwyg_page($wysiwyg_instance_id) {
+  $commands = array();
+  $id = '#token-insert-dialog-' . $wysiwyg_instance_id;
+  $commands[] = ajax_command_insert($id, theme('token_insert_tree'));
+  $commands[] = array(
+    'command' => 'tokenInsertTable',
+    'selector' => $id,
+    'instance_id' => $wysiwyg_instance_id,
   );
+  return array('#type' => 'ajax', '#commands' => $commands);
+}
 
-  return $form;
+function token_insert_wysiwyg_custom_theme() {
+  if (strpos(current_path(), 'token_insert_wysiwyg/insert') === 0) {
+    return 'seven';
+  }
 }

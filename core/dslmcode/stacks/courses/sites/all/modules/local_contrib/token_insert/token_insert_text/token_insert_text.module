@@ -56,48 +56,47 @@ function token_insert_text_post_render($content, $element) {
 }
 
 function _token_insert_add_token_insert($content, $element) {
-  module_load_include('inc', 'token_insert', 'token_insert');
-  drupal_add_js(drupal_get_path('module', 'token_insert') . '/token_insert.js');
-  drupal_add_js(drupal_get_path('module', 'token_insert_text') . '/token_insert_text.js');
-  if (!isset($element['summary'])) {
-    $contentarray = token_insert_text_combobox($element);
-    $content .= drupal_render($contentarray);
-  }
-  if (isset($element['#name'])) {
-   $content .= drupal_render(drupal_get_form('token_insert_text_combobox', $element['#name']));
-  }
+  $contentarray = token_insert_text_table($element);
+  $content .= drupal_render($contentarray);
   return $content;
 }
 
-function token_insert_text_combobox($element) {
+function token_insert_text_table($element) {
   $form = array();
   if (isset($element['#title'])) {
-    $options = token_insert_get_tokens();
-    $name = isset($element['#field_name']) ? $element['#field_name'] : $element['#name'];
-    $settings['token_insert']['buttons']["token-insert-text-button-$name"] = $element['#id'];
-    drupal_add_js($settings, array('type' => 'setting')) ;
-    $form['token_insert_text_combobox'] = array(
-      '#type' => 'fieldset',
-      '#collapsible' => TRUE,
-      '#title' => t('Insert token'),
-    );
-    $form['token_insert_text_combobox']['token_insert_text_select'] = array(
-      '#type' => 'select',
-      '#options' => $options,
-      '#attributes' => array(
-        'id' => array("token-insert-text-select-$name"),
+    $name = md5(print_r($element, TRUE));
+    $table_id = drupal_html_id("token-insert-text-table-$name");
+    $name = md5(print_r($element, TRUE));
+    $settings = array(
+      'token_insert' => array(
+        'tables' => array(
+          $table_id => $element['#id'],
+        ),
       ),
     );
-
-    $form['token_insert_text_combobox']['token_insert_text_button'] = array(
-      '#type' => 'button',
-      '#value' => t('Insert'),
-      '#executes_submit_callback' => FALSE,
+    $form['token_insert_text_table_wrapper'] = array(
+      '#type' => 'container',
       '#attributes' => array(
-        'class' => array('token-insert-text-button'),
-        'rel' => $name,
-        'id' => array("token-insert-text-button-$name"),
+        'id' => $table_id,
+        'class' => array('token-insert-text-table'),
       ),
+      '#attached' => array(
+        'js' => array(
+          array(
+            'data' => $settings,
+            'type' => 'setting',
+          ),
+          array(
+            'data' => drupal_get_path('module', 'token_insert') . '/token_insert.js',
+          ),
+          array(
+            'data' => drupal_get_path('module', 'token_insert_text') . '/token_insert_text.js',
+          )
+        ),
+      ),
+    );
+    $form['token_insert_text_table_wrapper']['token_insert_text_table'] = array(
+      '#theme' => 'token_insert_tree',
     );
   }
   return $form;

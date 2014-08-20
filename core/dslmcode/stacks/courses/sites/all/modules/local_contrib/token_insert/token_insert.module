@@ -16,7 +16,7 @@ function token_insert_permission() {
 }
 
 function token_insert_menu() {
-  
+
   $items['admin/config/content/token_insert'] = array(
     'title' => 'Token insert',
     'description' => 'Change the token users can insert.',
@@ -25,38 +25,55 @@ function token_insert_menu() {
     'page arguments' => array('token_insert_settings_form'),
     'access arguments' => array('administer token insert settings'),
   );
-  
+
   return $items;
+}
+
+/**
+ * Implements hook_theme().
+ */
+function token_insert_theme() {
+  $info['token_insert_tree'] = array(
+    'variables' => array(
+    ),
+  );
+
+  return $info;
 }
 
 function token_insert_settings_form($form_state) {
   $form = array();
-  $form['tokens'] = array(
-      '#type' => 'vertical_tabs',
-  );
-  $form['tokens_per_role'] = array(
-      '#type' => 'fieldset',
-      '#title' => t('Token Insert per role'),
-      '#description' => t('Configure available tokens per user role'),
-      '#collapsible' => FALSE,
+  $form['general'] = array(
+    '#type' => 'fieldset',
+    '#title' => t('General settings'),
+    '#description' => t('Configure general token insert settings'),
+    '#collapsible' => FALSE,
   );
 
-  $form['tokens_per_role']['token_insert_use_tokens_per_role'] = array(
-      '#type' => 'checkbox',
-      '#title' => t('Use tokens per role'),
-      '#default_value' => variable_get('token_insert_use_tokens_per_role', 0),
+  $form['general']['token_insert_use_tokens_per_role'] = array(
+    '#type' => 'checkbox',
+    '#title' => t('Use tokens per role'),
+    '#default_value' => variable_get('token_insert_use_tokens_per_role', 0),
+  );
+
+  $form['general']['token_insert_max_depth'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Maximum depth'),
+    '#default_value' => variable_get('token_insert_max_depth', 1),
+    '#description' => t('An integer with the maximum number of token levels to recurse'),
+    '#element_validate' => array('element_validate_integer_positive'),
   );
 
   $roles ['global'] = 'global';
-  if(variable_get('token_insert_use_tokens_per_role', 0)){
+  if (variable_get('token_insert_use_tokens_per_role', 0)) {
     $roles += user_roles(TRUE, 'use token insert');
   }
   $all_tokens = token_get_info();
 
-  foreach($roles as $rid => $role){
-    $title = t("Available tokens for $role");
-    $description = t("Available tokens for users with the '$role' role");
-    if($rid == 'global'){
+  foreach ($roles as $rid => $role) {
+    $title = t("Available tokens for @role", array('@role' => $role));
+    $description = t("Available tokens for users with the '@role' role", array('@role' => $role));
+    if ($rid == 'global') {
       $title = t('Globally available tokens');
       $description = t('Tokens available for every user');
     }
@@ -67,39 +84,55 @@ function token_insert_settings_form($form_state) {
       '#collapsible' => TRUE,
       '#collapsed' => TRUE,
     );
+    $form[$rid . '_available_tokens'][$rid . '_tokens'] = array(
+      '#type' => 'vertical_tabs',
+    );
     foreach ($all_tokens['tokens'] as $category => $tokens) {
-
-      $form[$rid . '_available_tokens'][$category] = array(
+      $form[$rid . '_available_tokens']['tokens'][$category] = array(
         '#type' => 'fieldset',
-        '#title' => t($category),
+        '#title' => t($all_tokens['types'][$category]['name']),
         '#collapsible' => TRUE,
         '#collapsed' => TRUE,
+        '#group' => $rid . '_tokens',
+        '#description' => t('Select ' . $all_tokens['types'][$category]['name'] . ' tokens available for insertion.'),
       );
 
       $options = array();
       $defaults = array();
 
       foreach ($tokens as $token => $description) {
-        $options[$token] = $category . ' : [' . $token . '] : ' . t($description['description']);
-        $defaults[$token] = 0;
+        $full_token = '[' . $category . ':' . $token . ']';
+        $options[$full_token] = $category . ' : [' . $token . '] : ' . t($description['description']);
+        $defaults[$full_token] = 0;
       }
 
+      $form[$rid . '_available_tokens']['tokens'][$category]['token_insert_' . $rid . '_all_tokens_' . $category] = array(
+        '#type' => 'checkbox',
+        '#title' => t('All tokens'),
+        '#default_value' => variable_get('token_insert_' . $rid . '_all_tokens_' . $category, FALSE),
+        '#description' => t('Make all ' . $all_tokens['types'][$category]['name'] . ' tokens available for insertion.'),
+      );
 
-      $form[$rid . '_available_tokens'][$category]['token_insert_' . $rid . '_used_tokens_' . $category] = array(
+      $form[$rid . '_available_tokens']['tokens'][$category]['token_insert_' . $rid . '_used_tokens_' . $category] = array(
         '#type' => 'checkboxes',
         '#title' => t('Select tokens'),
         '#default_value' => variable_get('token_insert_' . $rid . '_used_tokens_' . $category, array()),
         '#options' => $options,
-        '#description' => t('Select ' . $category . ' tokens available for insert.')
+        '#states' => array(
+          'visible' => array(   // action to take.
+            ':input[name=token_insert_' . $rid . '_all_tokens_' . $category . ']' => array('checked' => FALSE),
+          ),
+        ),
+
       );
     }
   }
-  
+
   return system_settings_form($form);
 }
 
-function token_insert_help($path, $arg){
-  if($path == 'admin/help#token_insert'){
+function token_insert_help($path, $arg) {
+  if ($path == 'admin/help#token_insert') {
     $output = <<<EOT
     <h3>Description</h3>
     <p>This module allows you to insert tokens into a textarea. It supports both plain text and wysiwyg textareas. The format used for the insert is compatible with Token filter.</p>
@@ -126,4 +159,51 @@ EOT;
   return $output;
   }
 
+}
+
+function theme_token_insert_tree() {
+  module_load_include('pages.inc', 'token');
+  module_load_include('inc', 'token_insert');
+  $info = token_get_info();
+
+  $options = array(
+    'flat' => FALSE,
+    'restricted' => FALSE,
+    'depth' => variable_get('token_insert_max_depth', 1) <= 0 ? 1 : variable_get('token_insert_max_depth', 1),
+  );
+  $tokens = token_insert_get_tokens(TRUE);
+  foreach (token_insert_get_allowed_token_types() as $token_type) {
+    $row = _token_token_tree_format_row($token_type, $info['types'][$token_type], TRUE);
+    unset($row['data']['value']);
+    $rows[] = $row;
+    $tree = token_flatten_tree(array_intersect_key(token_build_tree($token_type, $options), $tokens));
+    foreach ($tree as $token => $token_info) {
+      if (!isset($token_info['parent'])) {
+        $token_info['parent'] = $token_type;
+      }
+      $row = _token_token_tree_format_row($token, $token_info);
+      unset($row['data']['value']);
+      $rows[] = $row;
+    }
+  }
+  $element = array(
+    '#theme' => 'tree_table',
+    '#header' => array(
+      t('Name'),
+      t('Token'),
+      t('Description'),
+    ),
+    '#rows' => $rows,
+    '#attributes' => array('class' => array('token-tree', 'token-insert-table')),
+    '#empty' => t('No tokens available'),
+    '#attached' => array(
+      'js' => array(drupal_get_path('module', 'token') . '/token.js'),
+      'css' => array(drupal_get_path('module', 'token') . '/token.css'),
+      'library' => array(array('token', 'treeTable')),
+    ),
+    '#caption' => t('Click a token to insert it into the field.'),
+    '#click_insert' => FALSE,
+  );
+  $output = drupal_render($element);
+  return $output;
 }

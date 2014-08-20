@@ -10,10 +10,12 @@
  */
 function token_insert_ckeditor_menu() {
   $items = array();
-  $items['token_insert_ckeditor/insert'] = array(
+  $items['token_insert_ckeditor/insert/%'] = array(
     'page callback' => '_token_insert_ckeditor_tokens_output',
+    'page arguments' => array(2),
     'access arguments' => array('access content'),
     'type' => MENU_CALLBACK,
+    'delivery callback' => 'ajax_deliver',
   );
 
   return $items;
@@ -39,15 +41,34 @@ function token_insert_ckeditor_ckeditor_plugin() {
 /**
  * Print out the tokens in a CKEditor-readable format.
  */
-function _token_insert_ckeditor_tokens_output() {
-  module_load_include('inc', 'token_insert', 'token_insert');
-  $options = token_insert_get_tokens();
+function _token_insert_ckeditor_tokens_output($id) {
+  $html = theme('token_insert_tree');
+  $commands = array();
+  $commands[] = array(
+    'command' => 'insert',
+    'method' => 'html',
+    'selector' => '#' . $id,
+    'data' => $html,
+    'settings' => NULL,
+  );
+  $commands[] = ajax_command_invoke('#' . $id, 'trigger', array('token-insert-table-loaded'));
+  return array('#type' => 'ajax', '#commands' => $commands);
+}
 
-  $tokens = array();
+/**
+ * Implements hook_element_info_alter().
+ */
+function token_insert_ckeditor_element_info_alter(&$types) {
+  $types['text_format']['#pre_render'][] = 'token_insert_ckeditor_pre_render_text_format';
+}
 
-  foreach ($options as $token_key => $description) {
-    $tokens[] = array($description, $token_key);
+function token_insert_ckeditor_pre_render_text_format($element) {
+  $element['#attached']['library'][] = array('system', 'drupal.ajax');
+  return $element;
+}
+
+function token_insert_ckeditor_custom_theme() {
+  if (strpos(current_path(), 'token_insert_ckeditor/insert') === 0) {
+    return 'seven';
   }
-
-  print json_encode($tokens);
 }
