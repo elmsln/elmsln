@@ -101,6 +101,14 @@ fi
 drush cc drush
 sudo chown -R $USER:$USER $HOME/.drush
 
+# random password for defaultdbo
+dbpw=''
+for j in `seq 1 30`
+do
+  let "rand=$RANDOM % 62"
+  dbpw="${dbpw}${char[$rand]}"
+done
+
 # build the default sites
 for build in "${buildlist[@]}"
   do
@@ -111,11 +119,11 @@ done
 
 # install the CIS site
 # generate a random 30 digit password
-pass=''
-for i in `seq 1 30`
+dbpw=''
+for k in `seq 1 30`
 do
   let "rand=$RANDOM % 62"
-  dbpw="${pass}${char[$rand]}"
+  dbpw="${dbpw}${char[$rand]}"
 done
 cd $stacks/online
 sitedir=$stacks/online/sites
