@@ -11,3 +11,10 @@ features[ctools][] = feeds_tamper:feeds_tamper_default:2
 features[features_api][] = api:1
 features[feeds_importer][] = feeds_node_helper_book_import
 features[feeds_tamper][] = feeds_node_helper_book_import-xpathparser_3-current_user_id
+
+; Information added by Drupal.org packaging script on 2014-06-09
+version = "7.x-1.5"
+core = "7.x"
+project = "feeds_node_helper"
+datestamp = "1402321431"
+

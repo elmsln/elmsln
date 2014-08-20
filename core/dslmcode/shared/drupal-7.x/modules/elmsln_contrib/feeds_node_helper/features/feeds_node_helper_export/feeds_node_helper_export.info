@@ -10,3 +10,10 @@ dependencies[] = views_data_export
 features[ctools][] = views:views_default:3.0
 features[features_api][] = api:2
 features[views_view][] = feeds_node_helper_export
+
+; Information added by Drupal.org packaging script on 2014-06-09
+version = "7.x-1.5"
+core = "7.x"
+project = "feeds_node_helper"
+datestamp = "1402321431"
+

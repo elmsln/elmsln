@@ -7,3 +7,10 @@ dependencies[] = feeds
 dependencies[] = uuid
 project = "feeds_node_helper"
 
+
+; Information added by Drupal.org packaging script on 2014-06-09
+version = "7.x-1.5"
+core = "7.x"
+project = "feeds_node_helper"
+datestamp = "1402321431"
+
