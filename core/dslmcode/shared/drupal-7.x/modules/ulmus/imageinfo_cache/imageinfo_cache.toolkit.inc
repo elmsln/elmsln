@@ -5,7 +5,6 @@
  * Imageinfo Cache module. Pseudo image toolkit functions.
  */
 
-
 /**
  * Get details about an image.
  *
@@ -18,10 +17,16 @@
  *   - height: Height in pixels.
  *   - extension: Commonly used file extension for the image.
  *   - mime_type: MIME type ('image/jpeg', 'image/gif', 'image/png').
+ *   - file_size: Image size in bytes.
  *
  * @see image_get_info()
  */
 function image_imageinfo_cache_get_info(stdClass $image) {
+  // If not using the cache, bypass it.
+  if (!variable_get('imageinfo_cache_getimagesize', IMAGEINFO_CACHE_GETIMAGESIZE)) {
+    return _image_imageinfo_cache_get_details($image);
+  }
+
   if (strpos($image->source, '/styles/') === FALSE) {
     $cid = 'ORIGINAL-FILE:';
   }
@@ -47,36 +52,34 @@ function image_imageinfo_cache_get_info(stdClass $image) {
   }
 
   // Try the database next.
-  $results = db_query("
-    SELECT
-      file_metadata_width.value AS width,
-      file_metadata_height.value AS height,
-      SUBSTRING_INDEX(file_managed.uri, '.', -1) AS extension,
-      file_managed.filemime AS mime_type,
-      file_managed.filesize AS file_size
-    FROM file_managed AS file_managed
-    INNER JOIN file_metadata AS file_metadata_width
-      ON file_metadata_width.fid = file_managed.fid
-      AND file_metadata_width.name = 'width'
-    INNER JOIN file_metadata AS file_metadata_height
-      ON file_metadata_height.fid = file_managed.fid
-      AND file_metadata_height.name = 'height'
-    WHERE file_managed.uri = :uri
-  ", array(':uri' => $image->source))->fetchAll();
-  if (!empty($results) && !empty($results[0])) {
-    $details['width'] = unserialize($results[0]->width);
-    $details['height'] = unserialize($results[0]->height);
-    $details += (array) $results[0];
+  if (db_table_exists('file_metadata')) {
+    $results = db_query("
+      SELECT
+        file_metadata_width.value AS width,
+        file_metadata_height.value AS height,
+        SUBSTRING_INDEX(file_managed.uri, '.', -1) AS extension,
+        file_managed.filemime AS mime_type,
+        file_managed.filesize AS file_size
+      FROM {file_managed} AS file_managed
+      INNER JOIN {file_metadata} AS file_metadata_width
+        ON file_metadata_width.fid = file_managed.fid
+        AND file_metadata_width.name = 'width'
+      INNER JOIN {file_metadata} AS file_metadata_height
+        ON file_metadata_height.fid = file_managed.fid
+        AND file_metadata_height.name = 'height'
+      WHERE file_managed.uri = :uri
+    ", array(':uri' => $image->source))->fetchAll();
+    if (!empty($results) && !empty($results[0])) {
+      $details['width'] = unserialize($results[0]->width);
+      $details['height'] = unserialize($results[0]->height);
+      $details += (array) $results[0];
+    }
   }
 
   // Change toolkit back to the original value and get the info from the file
   // system.
   if (empty($details)) {
-    $image->toolkit = variable_get('image_toolkit_original', 'gd');
-    $details = image_toolkit_invoke('get_info', $image);
-    if (isset($details) && is_array($details)) {
-      $details['file_size'] = filesize($image->source);
-    }
+    $details = _image_imageinfo_cache_get_details($image);
   }
 
   // Write to the cache.
@@ -89,6 +92,35 @@ function image_imageinfo_cache_get_info(stdClass $image) {
     cache_set($cid, $details, 'cache_imageinfo', round(REQUEST_TIME + 1209600 + mt_rand(0, 3888000), -3));
   }
 
+  return $details;
+}
+
+/**
+ * Get details about an image.
+ *
+ * @param $image
+ *   An image object.
+ * @return
+ *   FALSE, if the file could not be found or is not an image. Otherwise, a
+ *   keyed array containing information about the image:
+ *   - width: Width in pixels.
+ *   - height: Height in pixels.
+ *   - extension: Commonly used file extension for the image.
+ *   - mime_type: MIME type ('image/jpeg', 'image/gif', 'image/png').
+ *   - file_size: Image size in bytes.
+ *
+ * @see image_get_info()
+ */
+function _image_imageinfo_cache_get_details(stdClass $image) {
+  // Change toolkit back to the original value.
+  $image->toolkit = variable_get('image_toolkit_original', 'gd');
+  $details = image_toolkit_invoke('get_info', $image);
+  // Change toolkit to the pseudo value again.
+  $image->toolkit = variable_get('image_toolkit', 'gd');
+
+  if (isset($details) && is_array($details)) {
+    $details['file_size'] = filesize($image->source);
+  }
   return $details;
 }
 
@@ -115,7 +147,10 @@ function image_imageinfo_cache_get_info(stdClass $image) {
 function image_imageinfo_cache_crop(stdClass $image, $x, $y, $width, $height) {
   // Change toolkit back to the original value.
   $image->toolkit = variable_get('image_toolkit_original', 'gd');
-  return image_toolkit_invoke('crop', $image, array($x, $y, $width, $height));
+  $return = image_toolkit_invoke('crop', $image, array($x, $y, $width, $height));
+  // Change toolkit to the pseudo value again.
+  $image->toolkit = variable_get('image_toolkit', 'gd');
+  return $return;
 }
 
 /**
@@ -132,7 +167,10 @@ function image_imageinfo_cache_crop(stdClass $image, $x, $y, $width, $height) {
 function image_imageinfo_cache_desaturate(stdClass $image) {
   // Change toolkit back to the original value.
   $image->toolkit = variable_get('image_toolkit_original', 'gd');
-  return image_toolkit_invoke('desaturate', $image);
+  $return = image_toolkit_invoke('desaturate', $image);
+  // Change toolkit to the pseudo value again.
+  $image->toolkit = variable_get('image_toolkit', 'gd');
+  return $return;
 }
 
 /**
@@ -149,7 +187,10 @@ function image_imageinfo_cache_desaturate(stdClass $image) {
 function image_imageinfo_cache_load(stdClass $image) {
   // Change toolkit back to the original value.
   $image->toolkit = variable_get('image_toolkit_original', 'gd');
-  return image_toolkit_invoke('load', $image);
+  $return = image_toolkit_invoke('load', $image);
+  // Change toolkit to the pseudo value again.
+  $image->toolkit = variable_get('image_toolkit', 'gd');
+  return $return;
 }
 
 /**
@@ -171,7 +212,10 @@ function image_imageinfo_cache_load(stdClass $image) {
 function image_imageinfo_cache_resize(stdClass $image, $width, $height) {
   // Change toolkit back to the original value.
   $image->toolkit = variable_get('image_toolkit_original', 'gd');
-  return image_toolkit_invoke('resize', $image, array($width, $height));
+  $return = image_toolkit_invoke('resize', $image, array($width, $height));
+  // Change toolkit to the pseudo value again.
+  $image->toolkit = variable_get('image_toolkit', 'gd');
+  return $return;
 }
 
 /**
@@ -197,7 +241,10 @@ function image_imageinfo_cache_resize(stdClass $image, $width, $height) {
 function image_imageinfo_cache_rotate(stdClass $image, $degrees, $background = NULL) {
   // Change toolkit back to the original value.
   $image->toolkit = variable_get('image_toolkit_original', 'gd');
-  return image_toolkit_invoke('rotate', $image, array($degrees, $background));
+  $return = image_toolkit_invoke('rotate', $image, array($degrees, $background));
+  // Change toolkit to the pseudo value again.
+  $image->toolkit = variable_get('image_toolkit', 'gd');
+  return $return;
 }
 
 /**
@@ -217,9 +264,11 @@ function image_imageinfo_cache_save(stdClass $image, $destination) {
   // Change toolkit back to the original value.
   $image->toolkit = variable_get('image_toolkit_original', 'gd');
   $return = image_toolkit_invoke('save', $image, array($destination));
-
   // Call hook_image_imageinfo_cache_save($image, $destination, $return);
   module_invoke_all('image_imageinfo_cache_save', $image, $destination, $return);
+
+  // Change toolkit to the pseudo value again.
+  $image->toolkit = variable_get('image_toolkit', 'gd');
   return $return;
 }
 

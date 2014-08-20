@@ -111,13 +111,13 @@ function menu_block_menu_tree_content_type_edit_form($form, &$form_state) {
 
   // Set the options to a simple list of menu links for the configured menu.
   $menus = menu_block_get_all_menus();
-  $form['parent_mlid']['#options'] = menu_parent_options(array($conf['menu_name'] => $menus[$conf['menu_name']]), array('mlid' => 0));
+  $form['parent']['#options'] = menu_parent_options(array($conf['menu_name'] => $menus[$conf['menu_name']]), array('mlid' => 0));
   // Hide the Parent item option for the special "active" menu.
   if ($conf['menu_name'] == MENU_TREE__CURRENT_PAGE_MENU) {
-    $form['parent_mlid']['#type'] = 'hidden';
+    $form['parent']['#type'] = 'hidden';
   }
   // Remove CSS class hooks for jQuery script on parent select.
-  unset($form['parent_mlid']['#attributes']);
+  unset($form['parent']['#attributes']);
 
   return $form;
 }
@@ -127,9 +127,7 @@ function menu_block_menu_tree_content_type_edit_form($form, &$form_state) {
  */
 function menu_block_menu_tree_content_type_edit_form_submit(&$form, &$form_state) {
   foreach (array_keys($form_state['subtype']['defaults']) as $key) {
-    if (!empty($form_state['values'][$key])) {
-      $form_state['conf'][$key] = $form_state['values'][$key];
-    }
+    $form_state['conf'][$key] = $form_state['values'][$key];
   }
 }
 

@@ -36,10 +36,10 @@ function imageinfo_cache_admin_settings_form($form, $form_state) {
     '#description' => t('If <a href="@link">HTTPRL</a> is installed, image styles will be generated in a background parallel process, thus not slowing down entity saves and image file uploads.', array('@link' => 'http://drupal.org/project/httprl')),
     '#disabled' => module_exists('httprl') ? FALSE : TRUE,
   );
-  $form['imageinfo_cache_pseudo_image_toolkit'] = array(
+  $form['imageinfo_cache_getimagesize'] = array(
     '#type' => 'checkbox',
     '#title' => t('Cache calls to getimagesize()'),
-    '#default_value' => variable_get('imageinfo_cache_pseudo_image_toolkit', IMAGEINFO_CACHE_PSEUDO_IMAGE_TOOLKIT),
+    '#default_value' => variable_get('imageinfo_cache_getimagesize', IMAGEINFO_CACHE_GETIMAGESIZE),
     '#description' => t('Useful if your filesystem is not local. Uses a wrapper around calls to the real image toolkit; putting caching in optimal places.'),
   );
   $form['imageinfo_cache_disable_on_demand_generation'] = array(

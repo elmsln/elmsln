@@ -22,13 +22,17 @@ function menu_block_uninstall() {
   variable_del('menu_block_ids');
   variable_del('menu_block_suppress_core');
   variable_del('menu_block_menu_order');
+
   // Remove block configurations.
-  db_delete('block')
-    ->condition('module', 'menu_block')
-    ->execute();
-  db_delete('block_role')
-    ->condition('module', 'menu_block')
-    ->execute();
+  if (module_exists('block')) {
+    db_delete('block')
+      ->condition('module', 'menu_block')
+      ->execute();
+    db_delete('block_role')
+      ->condition('module', 'menu_block')
+      ->execute();
+  }
+
   cache_clear_all();
 }
 

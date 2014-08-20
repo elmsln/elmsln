@@ -6,9 +6,9 @@ dependencies[] = image
 core = 7.x
 configure = admin/config/media/imageinfo_cache
 
-; Information added by Drupal.org packaging script on 2014-06-21
-version = "7.x-3.3"
+; Information added by Drupal.org packaging script on 2014-07-12
+version = "7.x-3.4"
 core = "7.x"
 project = "imageinfo_cache"
-datestamp = "1403321628"
+datestamp = "1405127929"
 

@@ -232,6 +232,7 @@ function drush_features_list() {
 function drush_features_components() {
   $args = func_get_args();
   $components = _drush_features_component_list();
+  ksort($components);
   // If no args supplied, prompt with a list.
   if (empty($args)) {
     $types = array_keys($components);
@@ -568,11 +569,9 @@ function _drush_features_export($info, $module_name = NULL, $directory = NULL) {
     $destination = drush_get_option(array('destination'), variable_get('features_default_export_path', FEATURES_DEFAULT_EXPORT_PATH));
     $directory = isset($directory) ? $directory : $destination . '/' . $module_name;
     if (is_dir($directory)) {
-      $warning = dt('Module appears to already exist in !dir', array('!dir' => $directory));
-      drush_log($warning, 'warning');
       // If we aren't skipping confirmation and the directory already exists,
-      // prompt the user.
-      if (!$skip_confirmation && !drush_confirm(dt('Do you really want to continue?'))) {
+      // prompt the user. This message most make sense for but fe and fu.
+      if (!$skip_confirmation && !drush_confirm(dt('Module located at !dir will be updated. Do you want to continue?', array('!dir' => $directory)))) {
         drush_die('Aborting.');
       }
     }
@@ -725,8 +724,13 @@ function drush_features_revert() {
             $dt_args['@component'] = $component;
             $confirmation_message = 'Do you really want to revert @module.@component?';
             if ($skip_confirmation || drush_confirm(dt($confirmation_message, $dt_args))) {
-              features_revert(array($module => array($component)));
-              drush_log(dt('Reverted @module.@component.', $dt_args), 'ok');
+              if (features_feature_is_locked($module, $component)) {
+                drush_log(dt('Skipping locked @module.@component.', $dt_args), 'ok');
+              }
+              else {
+                features_revert(array($module => array($component)));
+                drush_log(dt('Reverted @module.@component.', $dt_args), 'ok');
+              }
             }
             else {
               drush_log(dt('Skipping @module.@component.', $dt_args), 'ok');

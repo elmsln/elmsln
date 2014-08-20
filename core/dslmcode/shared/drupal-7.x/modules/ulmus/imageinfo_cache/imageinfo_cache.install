@@ -32,6 +32,10 @@ function imageinfo_cache_schema() {
  * Create the cache_imageinfo cache bin.
  */
 function imageinfo_cache_update_7101(&$sandbox) {
+  if (db_table_exists('cache_imageinfo')) {
+    return;
+  }
+
   // Define cache table.
   $schema = array();
   $schema['cache_imageinfo'] = drupal_get_schema_unprocessed('system', 'cache');

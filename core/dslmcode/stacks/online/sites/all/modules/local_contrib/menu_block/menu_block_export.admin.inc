@@ -66,15 +66,21 @@ function menu_block_export_form_submit(&$form, &$form_state) {
       // If it's not the constant, wrap value in quotes.
       $config['menu_name'] = "'" . $config['menu_name'] . "'";
     }
+
+    $id = "$module-$delta";
+    if (strlen($id) > 32) {
+      $id = md5($id);
+    }
+
     $output .= <<<END_OF_CONFIG
 
-    '$module-$delta' => array(
+    '$id' => array(
       'menu_name'   => {$config['menu_name']},
       'parent_mlid' => {$config['parent_mlid']},
       'title_link'  => {$config['title_link']},
       'admin_title' => '{$config['admin_title']}',
       'level'       => {$config['level']},
-      'follow'      => {$config['follow']},
+      'follow'      => '{$config['follow']}',
       'depth'       => {$config['depth']},
       'expanded'    => {$config['expanded']},
       'sort'        => {$config['sort']},

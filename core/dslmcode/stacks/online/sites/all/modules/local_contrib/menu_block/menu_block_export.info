@@ -1,4 +1,3 @@
-
 name = "Menu Block Export"
 description = "Provides export interface for Menu block module."
 
@@ -10,9 +9,9 @@ files[] = menu_block_export.admin.inc
 
 configure = admin/config/user-interface/menu-block/export
 
-; Information added by drupal.org packaging script on 2012-02-03
-version = "7.x-2.3"
+; Information added by Drupal.org packaging script on 2014-05-04
+version = "7.x-2.4"
 core = "7.x"
 project = "menu_block"
-datestamp = "1328286646"
+datestamp = "1399238030"
 

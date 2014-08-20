@@ -36,6 +36,16 @@ function menu_block_ctools_plugin_directory($module, $plugin) {
 }
 
 /**
+ * Implements hook_ctools_block_info().
+ *
+ * @see ctools_block_content_type_content_types().
+ */
+function menu_block_ctools_block_info($module, $delta, &$info) {
+  $info['icon'] = 'icon_contrib_menu.png';
+  $info['category'] = t('Menus');
+}
+
+/**
  * Implements hook_menu().
  */
 function menu_block_menu() {
@@ -46,7 +56,7 @@ function menu_block_menu() {
       'description' => 'Add a new menu block.',
       'page callback' => 'drupal_get_form',
       'page arguments' => array('menu_block_add_block_form'),
-      'access arguments' => array('administer blocks'),
+      'access callback' => 'menu_block_access',
       'type' => MENU_LOCAL_ACTION,
       'file' => 'menu_block.admin.inc',
     );
@@ -58,7 +68,7 @@ function menu_block_menu() {
           'description' => 'Add a new menu block.',
           'page callback' => 'drupal_get_form',
           'page arguments' => array('menu_block_add_block_form'),
-          'access arguments' => array('administer blocks'),
+          'access callback' => 'menu_block_access',
           'type' => MENU_LOCAL_ACTION,
           'file' => 'menu_block.admin.inc',
         );
@@ -68,7 +78,7 @@ function menu_block_menu() {
       'title' => 'Delete menu block',
       'page callback' => 'drupal_get_form',
       'page arguments' => array('menu_block_delete'),
-      'access arguments' => array('administer blocks'),
+      'access callback' => 'menu_block_access',
       'type' => MENU_CALLBACK,
       'file' => 'menu_block.admin.inc',
     );
@@ -79,11 +89,18 @@ function menu_block_menu() {
     'description' => 'Configure menu block.',
     'page callback' => 'drupal_get_form',
     'page arguments' => array('menu_block_admin_settings_form'),
-    'access arguments' => array('administer blocks'),
+    'access callback' => 'menu_block_access',
     'type' => MENU_NORMAL_ITEM,
     'file' => 'menu_block.admin.inc',
   );
   return $items;
+}
+
+/**
+ * Determine whether the user has permission to use menu_block module.
+ */
+function menu_block_access($account = NULL) {
+  return user_access('administer blocks', $account) && user_access('administer menu', $account);
 }
 
 /**
@@ -185,6 +202,7 @@ function menu_block_get_config($delta = NULL) {
     'delta'       => $delta,
     'menu_name'   => 'main-menu',
     'parent_mlid' => 0,
+    'parent'      => '',
     'title_link'  => 0,
     'admin_title' => '',
     'level'       => 1,
@@ -216,102 +234,37 @@ function menu_block_get_config($delta = NULL) {
     $config['depth']       = variable_get("menu_block_{$delta}_depth",       $config['depth']);
     $config['expanded']    = variable_get("menu_block_{$delta}_expanded",    $config['expanded']);
     $config['sort']        = variable_get("menu_block_{$delta}_sort",        $config['sort']);
-    list($config['menu_name'], $config['parent_mlid']) = explode(':', variable_get("menu_block_{$delta}_parent", $config['menu_name'] . ':' . $config['parent_mlid']));
+    $config['parent']      = variable_get("menu_block_{$delta}_parent",      $config['menu_name'] . ':' . $config['parent_mlid']);
+    list($config['menu_name'], $config['parent_mlid']) = explode(':', $config['parent']);
   }
 
   return $config;
 }
 
 /**
- * Build a menu tree based on the provided configuration.
+ * Gets the data structure representing a menu tree for the given configuration.
  *
  * @param $config
- *   array An array of configuration options that specifies how to build the
- *   menu tree and its title.
- *   - delta: (string) The menu_block's block delta.
- *   - menu_name: (string) The machine name of the requested menu. Can also be
- *     set to MENU_TREE__CURRENT_PAGE_MENU to use the menu selected by the page.
- *   - parent_mlid: (int) The mlid of the item that should root the tree. Use 0
- *     to use the menu's root.
- *   - title_link: (boolean) Specifies if the title should be rendered as a link
- *     or a simple string.
- *   - admin_title: (string) An optional title to uniquely identify the block on
- *     the administer blocks page.
- *   - level: (int) The starting level of the tree.
- *   - follow: (string) Specifies if the starting level should follow the
- *     active menu item. Should be set to 0, 'active' or 'child'.
- *   - depth: (int) The maximum depth the tree should contain, relative to the
- *     starting level.
- *   - expanded: (boolean) Specifies if the entire tree be expanded or not.
- *   - sort: (boolean) Specifies if the tree should be sorted with the active
- *     trail at the top of the tree.
- * @return
- *   array An associative array containing several pieces of data.
- *   - content: The tree as a renderable array.
- *   - subject: The title rendered as HTML.
- *   - subject_array: The title as a renderable array.
+ *   See the $config param of menu_tree_build().
  */
-function menu_tree_build($config) {
-  // Retrieve the active menu item from the database.
-  if ($config['menu_name'] == MENU_TREE__CURRENT_PAGE_MENU) {
-    // Retrieve the list of available menus.
-    $menu_order = variable_get('menu_block_menu_order', array('main-menu' => '', 'user-menu' => ''));
-
-    // Check for regular expressions as menu keys.
-    $patterns = array();
-    foreach (array_keys($menu_order) as $pattern) {
-      if ($pattern[0] == '/') {
-        $patterns[$pattern] = NULL;
-      }
-    }
-
-    // Retrieve all the menus containing a link to the current page.
-    $result = db_query("SELECT menu_name FROM {menu_links} WHERE link_path = :link_path", array(':link_path' => $_GET['q'] ? $_GET['q'] : '<front>'));
-    foreach ($result as $item) {
-      // Check if the menu is in the list of available menus.
-      if (isset($menu_order[$item->menu_name])) {
-        // Mark the menu.
-        $menu_order[$item->menu_name] = MENU_TREE__CURRENT_PAGE_MENU;
-      }
-      else {
-        // Check if the menu matches one of the available patterns.
-        foreach (array_keys($patterns) as $pattern) {
-          if (preg_match($pattern, $item->menu_name)) {
-            // Mark the menu.
-            $menu_order[$pattern] = MENU_TREE__CURRENT_PAGE_MENU;
-            // Store the actual menu name.
-            $patterns[$pattern] = $item->menu_name;
-          }
-        }
-      }
-    }
-    // Find the first marked menu.
-    $config['menu_name'] = array_search(MENU_TREE__CURRENT_PAGE_MENU, $menu_order);
-    // If a pattern was matched, use the actual menu name instead of the pattern.
-    if (!empty($patterns[$config['menu_name']])) {
-      $config['menu_name'] = $patterns[$config['menu_name']];
-    }
-    $config['parent_mlid'] = 0;
-
-    // If no menu link was found, don't display the block.
-    if (empty($config['menu_name'])) {
-      return array();
-    }
-  }
-
-  // Get the default block name.
-  $menu_names = menu_block_get_all_menus();
-  menu_block_set_title(t($menu_names[$config['menu_name']]));
+function menu_tree_block_data(&$config) {
+  // Determine the max depth based on level and depth setting.
+  $max_depth = ($config['depth'] == 0) ? NULL : min($config['level'] + $config['depth'] - 1, MENU_MAX_DEPTH);
 
   if ($config['expanded'] || $config['parent_mlid']) {
     // Get the full, un-pruned tree.
-    $tree = menu_tree_all_data($config['menu_name']);
+    if ($config['parent_mlid']) {
+      $tree = menu_tree_all_data($config['menu_name']);
+    }
+    else {
+      $tree = menu_tree_all_data($config['menu_name'], NULL, $max_depth);
+    }
     // And add the active trail data back to the full tree.
     menu_tree_add_active_path($tree);
   }
   else {
     // Get the tree pruned for just the active trail.
-    $tree = menu_tree_page_data($config['menu_name']);
+    $tree = menu_tree_page_data($config['menu_name'], $max_depth);
   }
 
   // Allow alteration of the tree and config before we begin operations on it.
@@ -353,9 +306,118 @@ function menu_tree_build($config) {
     menu_tree_sort_active_path($tree);
   }
 
-  // Render the tree.
-  $data = array();
+  return $tree;
+}
+
+/**
+ * Returns the current page's menu.
+ */
+function menu_block_get_current_page_menu() {
+  // Retrieve the list of available menus.
+  $menu_order = variable_get('menu_block_menu_order', array('main-menu' => '', 'user-menu' => ''));
+
+  // Check for regular expressions as menu keys.
+  $patterns = array();
+  foreach (array_keys($menu_order) as $pattern) {
+    if ($pattern[0] == '/') {
+      $patterns[$pattern] = NULL;
+    }
+  }
+
+  // Extract the "current" path from the request, or from the active menu
+  // trail if applicable.
+  $link_path = $_GET['q'] ? $_GET['q'] : '<front>';
+  $trail = menu_get_active_trail();
+  $last_item = end($trail);
+  if (!empty($last_item['link_path'])) {
+    $link_path = $last_item['link_path'];
+  }
+
+  // Retrieve all the menus containing a link to the current page.
+  $result = db_query("SELECT menu_name FROM {menu_links} WHERE link_path = :link_path", array(':link_path' => $link_path));
+  foreach ($result as $item) {
+    // Check if the menu is in the list of available menus.
+    if (isset($menu_order[$item->menu_name])) {
+      // Mark the menu.
+      $menu_order[$item->menu_name] = MENU_TREE__CURRENT_PAGE_MENU;
+    }
+    else {
+      // Check if the menu matches one of the available patterns.
+      foreach (array_keys($patterns) as $pattern) {
+        if (preg_match($pattern, $item->menu_name)) {
+          // Mark the menu.
+          $menu_order[$pattern] = MENU_TREE__CURRENT_PAGE_MENU;
+          // Store the actual menu name.
+          $patterns[$pattern] = $item->menu_name;
+        }
+      }
+    }
+  }
+  // Find the first marked menu.
+  $menu_name = array_search(MENU_TREE__CURRENT_PAGE_MENU, $menu_order);
+  // If a pattern was matched, use the actual menu name instead of the pattern.
+  if (!empty($patterns[$menu_name])) {
+    $menu_name = $patterns[$menu_name];
+  }
+
+  return $menu_name;
+}
+
+/**
+ * Build a menu tree based on the provided configuration.
+ *
+ * @param $config
+ *   array An array of configuration options that specifies how to build the
+ *   menu tree and its title.
+ *   - delta: (string) The menu_block's block delta.
+ *   - menu_name: (string) The machine name of the requested menu. Can also be
+ *     set to MENU_TREE__CURRENT_PAGE_MENU to use the menu selected by the page.
+ *   - parent_mlid: (int) The mlid of the item that should root the tree. Use 0
+ *     to use the menu's root.
+ *   - title_link: (boolean) Specifies if the title should be rendered as a link
+ *     or a simple string.
+ *   - admin_title: (string) An optional title to uniquely identify the block on
+ *     the administer blocks page.
+ *   - level: (int) The starting level of the tree.
+ *   - follow: (string) Specifies if the starting level should follow the
+ *     active menu item. Should be set to 0, 'active' or 'child'.
+ *   - depth: (int) The maximum depth the tree should contain, relative to the
+ *     starting level.
+ *   - expanded: (boolean) Specifies if the entire tree be expanded or not.
+ *   - sort: (boolean) Specifies if the tree should be sorted with the active
+ *     trail at the top of the tree.
+ * @return
+ *   array An associative array containing several pieces of data.
+ *   - content: The tree as a renderable array.
+ *   - subject: The title rendered as HTML.
+ *   - subject_array: The title as a renderable array.
+ */
+function menu_tree_build(&$config) {
+  // Retrieve the active menu item from the database.
+  if ($config['menu_name'] == MENU_TREE__CURRENT_PAGE_MENU) {
+    $config['menu_name'] = menu_block_get_current_page_menu();
+    $config['parent_mlid'] = 0;
+
+    // If no menu link was found, don't display the block.
+    if (empty($config['menu_name'])) {
+      return array(
+        'subject' => t('The menu selected by the page'),
+        'subject_array' => array(),
+        'content' => array(),
+      );
+    }
+  }
+
+  // Get the default block name.
+  $menu_names = menu_block_get_all_menus();
+  menu_block_set_title($menu_names[$config['menu_name']]);
+
+  // Get the raw menu tree data.
+  $tree = menu_tree_block_data($config);
   $title = menu_block_get_title($config['title_link'], $config);
+
+  // Create a renderable tree.
+  $data = array();
   $data['subject_array'] = $title;
   $data['subject'] = drupal_render($title);
   $data['content']['#content'] = menu_block_tree_output($tree, $config);
@@ -456,7 +518,7 @@ function menu_tree_add_active_path(&$tree) {
   // Find each key in the active trail.
   while ($tree_with_trail) {
     foreach ($tree_with_trail AS $key => &$value) {
-      if ($tree_with_trail[$key]['link']['in_active_trail']) {
+      if ($tree_with_trail[$key]['link']['in_active_trail'] && isset($subtree_pointer[$key])) {
         // Set the active trail info in the original tree.
         $subtree_pointer[$key]['link']['in_active_trail'] = TRUE;
         // Continue in the subtree, if it exists.
@@ -543,12 +605,14 @@ function menu_tree_prune_tree(&$tree, $level, $parent_item = FALSE) {
     }
   }
 
+  $is_front_page = drupal_is_front_page();
   // Trim the upper levels down to the one desired.
   for ($i = 1; $i < $level; $i++) {
     $found_active_trail = FALSE;
     // Examine each element at this level for the active trail.
     foreach ($tree AS $key => &$value) {
-      if ($tree[$key]['link']['in_active_trail']) {
+      // Also include the children of the front page.
+      if ($tree[$key]['link']['in_active_trail'] || ($tree[$key]['link']['link_path'] == '<front>' && $is_front_page)) {
         // Get the title for the pruned tree.
         menu_block_set_title($tree[$key]['link']);
         // Prune the tree to the children of the item in the active trail.
@@ -616,7 +680,7 @@ function menu_tree_depth_trim(&$tree, $depth_limit) {
 }
 
 /**
- * Returns a rendered menu tree.
+ * Returns a renderable menu tree.
  *
  * This is a copy of menu_tree_output() with additional classes added to the
  * output.
@@ -640,14 +704,15 @@ function menu_block_tree_output(&$tree, $config = array()) {
   $hook_delta = str_replace('-', '_', $config['delta']);
   $hook_menu_name = str_replace('-', '_', $config['menu_name']);
 
-  // Pull out just the menu items we are going to render so that we
+  // Pull out just the menu links we are going to render so that we
   // get an accurate count for the first/last classes.
   foreach ($tree as $key => &$value) {
-    if (!$tree[$key]['link']['hidden']) {
+    if ($tree[$key]['link']['access'] && !$tree[$key]['link']['hidden']) {
       $items[] = $tree[$key];
     }
   }
 
+  $router_item = menu_get_item();
   $num_items = count($items);
   foreach ($items as $i => &$data) {
     $class = array();
@@ -657,8 +722,10 @@ function menu_block_tree_output(&$tree, $config = array()) {
     if ($i == $num_items - 1) {
       $class[] = 'last';
     }
-    // Set a class if the link has children.
-    if ($data['below']) {
+    // Set a class for the <li>-tag. Since $data['below'] may contain local
+    // tasks, only set 'expanded' class if the link also has children within
+    // the current menu.
+    if ($data['link']['has_children'] && $data['below']) {
       $class[] = 'expanded';
     }
     elseif ($data['link']['has_children']) {
@@ -680,6 +747,13 @@ function menu_block_tree_output(&$tree, $config = array()) {
     }
     // Set a menu link ID class.
     $class[] = 'menu-mlid-' . $data['link']['mlid'];
+    // Normally, l() compares the href of every link with $_GET['q'] and sets
+    // the active class accordingly. But local tasks do not appear in menu
+    // trees, so if the current path is a local task, and this link is its
+    // tab root, then we have to set the class manually.
+    if ($data['link']['href'] == $router_item['tab_root_href'] && $data['link']['href'] != $_GET['q']) {
+      $data['link']['localized_options']['attributes']['class'][] = 'active';
+    }
 
     // Allow menu-specific theme overrides.
     $element['#theme'] = array(

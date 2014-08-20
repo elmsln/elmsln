@@ -362,11 +362,13 @@ function imageinfo_cache_get_image_styles_in_views($field_name, $view_links = FA
  *   Field info from field_info_instances().
  * @param array $styles
  *   (optional) Styles to use from image_styles().
+ * @param bool $entity_available
+ *   (optional) TRUE if coming from entity save.
  *
  * @return array
  *   An array of what was done.
  */
-function imageinfo_cache_create_image_styles($uri, $instance_field = array(), $styles = array()) {
+function imageinfo_cache_create_image_styles($uri, $instance_field = array(), $styles = array(), $entity_available = TRUE) {
   $return = array();
 
   // Use files array.
@@ -382,6 +384,15 @@ function imageinfo_cache_create_image_styles($uri, $instance_field = array(), $s
     // Get image styles used by this field.
     $styles = imageinfo_cache_get_styles_in_use($instance_field);
   }
+  // Skip styles that need context.
+  if (!$entity_available) {
+    foreach ($styles as $style_name => $style_info) {
+      if (!empty($style_info['#needs_context'])) {
+        unset($styles[$style_name]);
+      }
+    }
+  }
+  // Do nothing if no styles are here for the image.
   if (empty($styles)) {
     return $return;
   }
@@ -400,7 +411,7 @@ function imageinfo_cache_create_image_styles($uri, $instance_field = array(), $s
           lock_release($lock_name);
           $return[$destination] = $style_name;
 
-          if (variable_get('imageinfo_cache_pseudo_image_toolkit', IMAGEINFO_CACHE_PSEUDO_IMAGE_TOOLKIT)) {
+          if (variable_get('imageinfo_cache_getimagesize', IMAGEINFO_CACHE_GETIMAGESIZE)) {
             // Prime get_info cache.
             image_get_info($destination);
           }
@@ -410,7 +421,7 @@ function imageinfo_cache_create_image_styles($uri, $instance_field = array(), $s
         $return[$destination] = FALSE;
       }
     }
-    if (variable_get('imageinfo_cache_pseudo_image_toolkit', IMAGEINFO_CACHE_PSEUDO_IMAGE_TOOLKIT)) {
+    if (variable_get('imageinfo_cache_getimagesize', IMAGEINFO_CACHE_GETIMAGESIZE)) {
       // Prime get_info cache.
       image_get_info($uri);
     }

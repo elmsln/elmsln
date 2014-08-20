@@ -167,6 +167,17 @@ function features_menu() {
       'file' => 'features.admin.inc',
     );
   }
+
+  $items['admin/structure/features/%feature/lock'] = array(
+    'title' => 'Lock',
+    'description' => 'Lock a feature or components.',
+    'page callback' => 'features_admin_lock',
+    'page arguments' => array(3, 5, 6),
+    'load arguments' => array(3, TRUE, TRUE),
+    'access arguments' => array('administer features'),
+    'type' => MENU_CALLBACK,
+    'file' => 'features.admin.inc',
+  );
   $items['admin/structure/features/%feature/status'] = array(
     'title' => 'Status',
     'description' => 'Javascript status call back.',
@@ -214,11 +225,11 @@ function features_theme() {
 
   $items = array();
   $items['features_module_status'] = array(
-    'variables' => array('module' => null, 'status' => null)
+    'variables' => array('module' => NULL, 'status' => NULL)
   ) + $base;
 
   $items['features_components'] = array(
-    'variables' => array('info' => null, 'sources' => null),
+    'variables' => array('info' => NULL, 'sources' => NULL),
   ) + $base;
 
   $items['features_component_key'] = $base;
@@ -227,7 +238,11 @@ function features_theme() {
   ) + $base;
 
   $items['features_storage_link'] = array(
-    'variables' => array('storage' => null, 'text' => null, 'path' => null, 'options' => array()),
+    'variables' => array('storage' => NULL, 'text' => NULL, 'path' => NULL, 'options' => array()),
+  ) + $base;
+
+  $items['features_lock_link'] = array(
+    'variables' => array('feature' => NULL, 'component' => NULL, 'locked' => FALSE),
   ) + $base;
 
   $items['features_form_components'] =
@@ -290,6 +305,11 @@ function features_permission() {
       'description' => t('Allow feature exports to be generated and written directly to site.'),
       'restrict access' => TRUE,
     ),
+    'rename features' => array(
+      'title' => t('Edit feature machine name'),
+      'description' => t('Allows editing machine name of a disabled feature'),
+      'restrict access' => TRUE,
+    ),
   );
 }
 
@@ -299,10 +319,10 @@ function features_permission() {
 function features_help($path, $arg) {
   switch ($path) {
     case 'admin/help#features':
-      $output = file_get_contents(drupal_get_path('module', 'features') .'/README.txt');
-      return module_exists('markdown') ? filter_xss_admin(module_invoke('markdown', 'filter', 'process', 0, -1, $output)) : '<pre>'. check_plain($output) .'</pre>';
+      $output = file_get_contents(drupal_get_path('module', 'features') . '/README.txt');
+      return module_exists('markdown') ? filter_xss_admin(module_invoke('markdown', 'filter', 'process', 0, -1, $output)) : '<pre>' . check_plain($output) . '</pre>';
     case 'admin/build/features':
-      return '<p>'. t('A "Feature" is a certain type of Drupal module which contains a package of configuration that, when enabled, provides a new set of functionality for your Drupal site. Enable features by selecting the checkboxes below and clicking the Save configuration button. If the configuration of the feature has been changed its "State" will be either "overridden" or "needs review", otherwise it will be "default", indicating that the configuration has not been changed. Click on the state to see more details about the feature and its components.') .'</p>';
+      return '<p>' . t('A "Feature" is a certain type of Drupal module which contains a package of configuration that, when enabled, provides a new set of functionality for your Drupal site. Enable features by selecting the checkboxes below and clicking the Save configuration button. If the configuration of the feature has been changed its "State" will be either "overridden" or "needs review", otherwise it will be "default", indicating that the configuration has not been changed. Click on the state to see more details about the feature and its components.') . '</p>';
   }
 }
 
@@ -654,7 +674,7 @@ function features_get_info($type = 'module', $name = NULL, $reset = FALSE) {
       if (!empty($row->info['features'])) {
         // Fix css/js paths
         if (!empty($row->info['stylesheets'])) {
-          foreach($row->info['stylesheets'] as $media => $css) {
+          foreach ($row->info['stylesheets'] as $media => $css) {
             $row->info['stylesheets'][$media] = array_keys($css);
           }
         }
@@ -789,7 +809,7 @@ function features_get_conflicts($reset = FALSE) {
         if (isset($component_info[$type]['duplicates']) && $component_info[$type]['duplicates'] == FEATURES_DUPLICATES_ALLOWED) {
           continue;
         }
-        else if (count($modules) > 1) {
+        elseif (count($modules) > 1) {
           foreach ($modules as $module) {
             if (!isset($conflicts[$module])) {
               $conflicts[$module] = array();
@@ -840,7 +860,7 @@ function features_get_module_status($module) {
   if (module_exists($module)) {
     return FEATURES_MODULE_ENABLED;
   }
-  else if (features_get_modules($module)) {
+  elseif (features_get_modules($module)) {
     return FEATURES_MODULE_DISABLED;
   }
   else {
@@ -886,6 +906,7 @@ function features_form_system_modules_alter(&$form) {
  * Restore the specified modules to the default state.
  */
 function _features_restore($op, $items = array()) {
+  $lockable = FALSE;
   // Set this variable in $conf if having timeout issues during install/rebuild.
   if (variable_get('features_restore_time_limit_' . $op, FALSE) !== FALSE) {
     drupal_set_time_limit(variable_get('features_restore_time_limit_' . $op, FALSE));
@@ -899,11 +920,13 @@ function _features_restore($op, $items = array()) {
       $restore_states = array(FEATURES_OVERRIDDEN, FEATURES_REBUILDABLE, FEATURES_NEEDS_REVIEW);
       $restore_hook = 'features_revert';
       $log_action = 'Revert';
+      $lockable = TRUE;
       break;
     case 'rebuild':
       $restore_states = array(FEATURES_REBUILDABLE);
       $restore_hook = 'features_rebuild';
       $log_action = 'Rebuild';
+      $lockable = variable_get('features_lock_mode', 'all') == 'all';
       break;
     case 'disable':
       $restore_hook = 'features_disable_feature';
@@ -932,8 +955,20 @@ function _features_restore($op, $items = array()) {
     }
   }
 
+  // Invoke global pre restore hook.
+  module_invoke_all('features_pre_restore', $op, $items);
   foreach ($items as $module_name => $components) {
+    // If feature is totally locked, do not execute past this stage.
+    if ($lockable && features_feature_is_locked($module_name)) {
+      watchdog('features', 'Tried @actioning a locked @module_name, aborted.', array('@action' => $log_action, '@module_name' => $module_name));
+      continue;
+    }
     foreach ($components as $component) {
+      // If feature is totally locked, do not execute past this stage.
+      if ($lockable && features_feature_is_locked($module_name, $component)) {
+        watchdog('features', 'Tried @actioning a locked @module_name / @component, aborted.', array('@action' => $log_action, '@component' => $component, '@module_name' => $module_name));
+        continue;
+      }
       // Invoke pre hook
       $pre_hook = 'pre_' . $restore_hook;
       module_invoke($module_name, $pre_hook, $component);
@@ -955,6 +990,8 @@ function _features_restore($op, $items = array()) {
       module_invoke($module_name, $post_hook, $component);
     }
   }
+  // Invoke global post restore hook.
+  module_invoke_all('features_post_restore', $op, $items);
 }
 
 /**
@@ -1108,4 +1145,54 @@ function features_get_deprecated($components = array()) {
     }
   }
   return $deprecated;
+}
+
+/**
+ * Returns whether a feature or it's component is locked.
+ */
+function features_feature_is_locked($feature, $component = NULL, $check_global_component_setting = TRUE) {
+  $locked = variable_get('features_feature_locked', array());
+  if ($component) {
+    return ($check_global_component_setting && features_component_is_locked($component)) || !empty($locked[$feature][$component]);
+  }
+  else {
+    return !empty($locked[$feature]['_all']);
+  }
+}
+
+/**
+ * Returns whether a component is locked.
+ */
+function features_component_is_locked($component) {
+  return variable_get('features_component_locked_' . $component, FALSE);
+}
+
+/**
+ * Locks a feature or it's component.
+ */
+function features_feature_lock($feature, $component = NULL) {
+  $locked = variable_get('features_feature_locked', array());
+  $locked[$feature] = !empty($locked[$feature]) ? $locked[$feature] : array();
+  if ($component) {
+    $locked[$feature][$component] = TRUE;
+  }
+  else {
+    $locked[$feature]['_all'] = TRUE;
+  }
+  variable_set('features_feature_locked', $locked);
+}
+
+
+/**
+ * Unlocks a feature or it's component.
+ */
+function features_feature_unlock($feature, $component = NULL) {
+  $locked = variable_get('features_feature_locked', array());
+  if ($component) {
+    unset($locked[$feature][$component]);
+  }
+  else {
+    unset($locked[$feature]['_all']);
+  }
+  variable_set('features_feature_locked', $locked);
 }

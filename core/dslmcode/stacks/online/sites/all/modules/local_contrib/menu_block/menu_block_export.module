@@ -16,7 +16,7 @@ function menu_block_export_menu() {
   $items['admin/config/user-interface/menu-block/export'] = array(
     'title' => 'export',
     'description' => 'Export menu blocks.',
-    'access arguments' => array('administer blocks'),
+    'access callback' => 'menu_block_access',
     'page callback' => 'menu_block_export_export',
     'type' => MENU_LOCAL_TASK,
     'file' => 'menu_block_export.admin.inc',
@@ -24,7 +24,7 @@ function menu_block_export_menu() {
   $items['admin/config/user-interface/menu-block/export/results'] = array(
     'title' => 'Menu block bulk export results',
     'description' => 'Exported menu blocks.',
-    'access arguments' => array('administer blocks'),
+    'access callback' => 'menu_block_access',
     'page callback' => 'menu_block_export_export',
     'type' => MENU_CALLBACK,
     'file' => 'menu_block_export.admin.inc',

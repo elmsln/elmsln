@@ -1,3 +1,21 @@
+Menu Block 7.x-2.x-dev, xxxx-xx-xx (development release)
+----------------------------------
+- #1420180 by jweowu: Assign the panel panes for menu block blocks to the "Menus" category
+- #1937038: Use $max_depth parameter of menu_tree_all_data() and menu_tree_page_data()
+- #907292: Add API to obtain raw menu data (not the render element)
+- #1327472 by tim.plunkett, pjcdawkins and giginos: Child menu items don't appear when current page is front page
+- #1698992: hook_uninstall assumes block module dependency
+- #1594684 by pfournier: Menu block export ids may be too long, plus unquoted string
+- #1812824 by gabriel.achille: Incompatibility with modules like menu_position
+- #1203646 by jweowu: Pane generates illegal choice error when editing
+- #1909366 by lund.mikkel: Menu block names get translated twice
+- #1910420 by simongeorges: Remove useless files[] directive from .info files
+- #1204064 by MrHaroldA, pjcdawkins and BartK: Fix undefined index notices in menu_tree_add_active_path()
+- #810362: Make Menu Block require 'administer menus' permission
+- #1524674 by Crell: Use of $_GET['q'] ignores menu_position module
+- #1688168 by tim.plunkett: Undefined index errors when using CTools content type and '_active' menu
+- #1701702: Disabled menu items still trigger "the menu selected by the page"
+
 Menu Block 7.x-2.3, 2012-02-04
 ------------------------------
 - #1105372 by mikl, fabsor and JohnAlbin: Add menu tree ctools content type to D7

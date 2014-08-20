@@ -11,9 +11,14 @@
 define('IMAGEINFO_CACHE_USE_HTTPRL', TRUE);
 
 /**
- * Default value is to not cache getimagesize().
+ * Default value is to use the fake image toolkit.
  */
-define('IMAGEINFO_CACHE_PSEUDO_IMAGE_TOOLKIT', FALSE);
+define('IMAGEINFO_CACHE_PSEUDO_IMAGE_TOOLKIT', TRUE);
+
+/**
+ * Default value is to not cache calls to getimagesize().
+ */
+define('IMAGEINFO_CACHE_GETIMAGESIZE', FALSE);
 
 /**
  * Default value is to not strip the image token query parameter.
@@ -70,7 +75,7 @@ function imageinfo_cache_menu_alter(&$items) {
  * Implements hook_init().
  */
 function imageinfo_cache_init() {
-  // Do nothing if the cached toolkit is disabled.
+  // Do nothing if the pseudo toolkit is disabled.
   if (!variable_get('imageinfo_cache_pseudo_image_toolkit', IMAGEINFO_CACHE_PSEUDO_IMAGE_TOOLKIT)) {
     return;
   }
@@ -81,19 +86,18 @@ function imageinfo_cache_init() {
       && !empty($arg[1]) && $arg[1] == 'config'
       && !empty($arg[2]) && $arg[2] == 'media'
       ) {
-//     return;
+    return;
   }
 
-  $toolkit = variable_get('image_toolkit', 'gd');
+  $GLOBALS['conf']['image_toolkit_original'] = variable_get('image_toolkit', 'gd');
   $GLOBALS['conf']['image_toolkit'] = 'imageinfo_cache';
-  $GLOBALS['conf']['image_toolkit_orginal'] = $toolkit;
 }
 
 /**
  * Implements hook_image_toolkits().
  */
 function imageinfo_cache_image_toolkits() {
-  // Do nothing if the cached toolkit is disabled.
+  // Do nothing if the pseudo toolkit is disabled.
   if (!variable_get('imageinfo_cache_pseudo_image_toolkit', IMAGEINFO_CACHE_PSEUDO_IMAGE_TOOLKIT)) {
     return;
   }
@@ -227,7 +231,7 @@ function imageinfo_cache_entity_insert($entity, $type) {
         $fids[] = $field_values['fid'];
       }
       // Generate Image styles.
-      $return[$field_name] = imageinfo_cache_create_image_styles_fids($fids, $instance_field);
+      $return[$field_name] = imageinfo_cache_create_image_styles_fids($fids, $instance_field, TRUE);
     }
   }
 
@@ -264,7 +268,42 @@ function imageinfo_cache_flush_caches() {
  * Implements hook_image_style_flush().
  */
 function imageinfo_cache_image_style_flush($style) {
-  cache_clear_all($style->name . ':', 'cache_imageinfo', TRUE);
+  cache_clear_all($style['name'] . ':', 'cache_imageinfo', TRUE);
+}
+
+/**
+ * Implements hook_hook_info().
+ */
+function imageinfo_cache_hook_info() {
+  // List of hooks that can be inside of *.imageinfocache.inc files.
+  $imageinfo_cache_hooks = array(
+    'image_imageinfo_cache_save',
+  );
+  $hooks = array();
+  foreach ($imageinfo_cache_hooks as $hook) {
+    $hooks[$hook] = array('group' => 'imageinfocache');
+  }
+  return $hooks;
+}
+
+/**
+ * Implements hook_image_effect_info_alter().
+ */
+function imageinfo_cache_image_styles_alter(&$styles) {
+  // Use an effect callback router so that the correct toolkit is used.
+  foreach ($styles as &$style) {
+    $context_needed = FALSE;
+    foreach ($style['effects'] as &$effect) {
+      $effect['data']['#imageinfo_cache_effect_callback'] = $effect['effect callback'];
+      $effect['effect callback'] = 'imageinfo_cache_effect_router';
+      if (empty($context_needed)) {
+        $context_needed = imageinfo_cache_context_effect($effect, $style['name']);
+      }
+    }
+    if (!empty($context_needed)) {
+      $style['#needs_context'] = TRUE;
+    }
+  }
 }
 
 // Contrib hooks.
@@ -407,16 +446,29 @@ function imageinfo_cache_file_submit_shutdown($element, $form_state) {
     $key++;
   }
 
-  // Load any files by fid if uri is not availabe.
+  // Get fids.
   $fids = array();
-  foreach ($form_state['input'][$instance_field['field_name']][$element['#language']] as $delta => $values) {
-    if (empty($values['fid']) || !empty($file_uris[$values['fid']])) {
-      continue;
+  if (isset($form_state['input'][$instance_field['field_name']][$element['#language']])) {
+    foreach ($form_state['input'][$instance_field['field_name']][$element['#language']] as $delta => $values) {
+      if (empty($values['fid']) || !empty($file_uris[$values['fid']])) {
+        continue;
+      }
+      $fids[] = $values['fid'];
     }
-    $fids[] = $values['fid'];
+  }
+  elseif (isset($form_state['values'][$instance_field['field_name']][$element['#language']])) {
+    foreach ($form_state['values'][$instance_field['field_name']][$element['#language']] as $delta => $values) {
+      if (empty($values['fid'])) {
+        continue;
+      }
+      $fids[] = $values['fid'];
+    }
   }
 
-  return imageinfo_cache_create_image_styles_fids($fids, $instance_field);
+  if (!empty($fids)) {
+    $fids = array_unique($fids);
+    return imageinfo_cache_create_image_styles_fids($fids, $instance_field, FALSE);
+  }
 }
 
 /**
@@ -429,18 +481,17 @@ function imageinfo_cache_file_submit_shutdown($element, $form_state) {
  *   Array of file IDs.
  * @param array $instance_field
  *   (optional) Field info from field_info_instances().
- * @param array $styles
- *   (optional) Styles to use from image_styles().
- * @param bool $use_httprl
- *   (optional) Use httprl if available. Default TRUE.
+ * @param bool $entity_available
+ *   (optional) TRUE if coming from entity save.
  *
  * @return array
  *   An array of what was done.
  */
-function imageinfo_cache_create_image_styles_fids($fids, $instance_field = array(), $styles = array(), $use_httprl = TRUE) {
+function imageinfo_cache_create_image_styles_fids($fids, $instance_field = array(), $entity_available = TRUE) {
   $return = array();
-  if (   $use_httprl
-      && module_exists('httprl')
+  $styles = array();
+
+  if (   module_exists('httprl')
       && variable_get('imageinfo_cache_use_httprl', IMAGEINFO_CACHE_USE_HTTPRL)
       && httprl_is_background_callback_capable()
         ) {
@@ -450,7 +501,7 @@ function imageinfo_cache_create_image_styles_fids($fids, $instance_field = array
         'function' => 'imageinfo_cache_create_image_styles_fids_call',
         'blocking' => FALSE,
       ),
-      $fids, $instance_field, $styles,
+      $fids, $instance_field, $styles, $entity_available,
     );
     // Queue up the request.
     httprl_queue_background_callback($callback_options);
@@ -459,7 +510,7 @@ function imageinfo_cache_create_image_styles_fids($fids, $instance_field = array
     $return = httprl_send_request();
   }
   else {
-    $return = imageinfo_cache_create_image_styles_fids_call($fids, $instance_field, $styles);
+    $return = imageinfo_cache_create_image_styles_fids_call($fids, $instance_field, $styles, $entity_available);
   }
   return $return;
 }
@@ -473,11 +524,13 @@ function imageinfo_cache_create_image_styles_fids($fids, $instance_field = array
  *   Field info from field_info_instances().
  * @param array $styles
  *   (optional) Styles to use from image_styles().
+ * @param bool $entity_available
+ *   (optional) TRUE if coming from entity save.
  *
  * @return array
  *   An array of what was done.
  */
-function imageinfo_cache_create_image_styles_fids_call($fids, $instance_field = array(), $styles = array()) {
+function imageinfo_cache_create_image_styles_fids_call($fids, $instance_field = array(), $styles = array(), $entity_available = TRUE) {
   $files = file_load_multiple($fids);
   foreach ($files as $file) {
     if (empty($file->uri) || strpos($file->filemime, 'image') !== 0) {
@@ -490,7 +543,7 @@ function imageinfo_cache_create_image_styles_fids_call($fids, $instance_field = 
   $return = array();
   if (!empty($file_uris)) {
     module_load_include('inc', 'imageinfo_cache', 'imageinfo_cache');
-    $return = imageinfo_cache_create_image_styles($file_uris, $instance_field, $styles);
+    $return = imageinfo_cache_create_image_styles($file_uris, $instance_field, $styles, $entity_available);
   }
   return $return;
 }
@@ -524,4 +577,94 @@ function imageinfo_cache_glue_url($parsed) {
   $uri .= isset($parsed['fragment']) ? '#' . $parsed['fragment'] : '';
 
   return $uri;
+}
+
+/**
+ * Image effect callback router.
+ *
+ * Used to switch the toolkit back to the original one & then call the correct
+ * effect.
+ *
+ * @param stdClass $image
+ *   Image object.
+ * @param array $data
+ *   Data array used for the effect callback.
+ *
+ * @return boolean
+ *   TRUE on success, FALSE otherwise.
+ *
+ * @see image_effect_apply()
+ * @see image_style_create_derivative()
+ * @see imageinfo_cache_image_styles_alter()
+ */
+function imageinfo_cache_effect_router(stdClass &$image, array $data) {
+  // Grab real toolkit callback function.
+  $function = $data['#imageinfo_cache_effect_callback'];
+  unset($data['#imageinfo_cache_effect_callback']);
+
+  // Change toolkit back to the original value.
+  $changed = FALSE;
+  if ($image->toolkit == 'imageinfo_cache') {
+    $image->toolkit = variable_get('image_toolkit_original', 'gd');
+    $changed = TRUE;
+  }
+
+  // Call toolkit effect.
+  if (function_exists($function)) {
+    $return = $function($image, $data);
+  }
+  else {
+    $return = FALSE;
+  }
+
+  // Change toolkit to the pseudo value again.
+  if ($changed) {
+    $image->toolkit = variable_get('image_toolkit', 'gd');
+  }
+  return $return;
+}
+
+/**
+ * Check to see if the image effect needs the entity to work correctly.
+ *
+ * Currently scans for tokens and bails out if it finds one.
+ *
+ * @param array $effect
+ *   Array of parameters for the image effect.
+ * @param string $style_name
+ *   Name of the image style where this effect is found.
+ *
+ * @return boolean
+ *   FALSE if no context is needed.
+ *
+ * @see imageinfo_cache_image_styles_alter()
+ */
+function imageinfo_cache_context_effect($effect, $style_name) {
+  $context_needed = FALSE;
+
+  // Assume all imagecache_customactions need context.
+  if ($effect['name'] == 'imagecache_customactions') {
+    $context_needed = TRUE;
+  }
+  // If the text source is not text, context is needed.
+  if (!empty($effect['data']['text_source']) && $effect['data']['text_source'] !== 'text') {
+    $context_needed = TRUE;
+  }
+  if (!$context_needed) {
+    foreach ($effect['data'] as $key => $value) {
+      // Check for tokens in the text; if tokens found context is needed.
+      if (is_string($value)) {
+        $results = token_scan($value);
+        if (!empty($results)) {
+          $context_needed = TRUE;
+          break;
+        }
+      }
+    }
+  }
+
+  // Allow other modules to say that this needs context.
+  // Run hook_imageinfo_cache_context_effect_alter().
+  drupal_alter('imageinfo_cache_context_effect', $context_needed, $effect, $style_name);
+  return $context_needed;
 }

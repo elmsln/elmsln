@@ -75,10 +75,14 @@ function jquery_colorpicker_theme() {
 function theme_jquery_colorpicker($variables) {
   $element = $variables['element'];
 
-  $element['#id'] = isset($element['#id']) ? $element['#id'] : 'edit-' . rand(0, 9999);
+  if (!isset($element['#id'])) {
+    $element['#id'] = drupal_html_id('edit-' . implode('-', $element['#parents']));
+  }
 
   $class = array('form-colorpicker');
   $output = '';
+  unset($element['#prefix']);
+  unset($element['#suffix']);
 
   $path = libraries_get_path('colorpicker');
 
@@ -118,11 +122,6 @@ function theme_jquery_colorpicker($variables) {
       $path . '/js/colorpicker.js',
       // Add the module js files.
       drupal_get_path('module', 'jquery_colorpicker') . '/js/jquery_colorpicker.js',
-      // Add the settings.
-      array(
-        'data' => $settings,
-        'type' => 'setting',
-      ),
     ),
   );
   // If IE6 support is enabled, attach the inline CSS and JS that will reside in conditional comments.
@@ -147,14 +146,14 @@ function theme_jquery_colorpicker($variables) {
   }
 
   // And we pass the settings in a namespace to the Javascript.
-  drupal_add_js(array('jqueryColorpicker' => $settings), 'setting');
+  $element['#attached']['js'][] = array(
+    'data' => array('jqueryColorpicker' => $settings),
+    'type' => 'setting',
+  );
   // Over the next few lines we build the output of the element in HTML and to send to the browser.
   _form_set_class($element, $class);
 
-  if (isset($element['#field_prefix'])) {
-    $output .= '<span class="field-prefix">' . $element['#field_prefix'] . '</span> ';
-  }
-  $output .= '<div id="' . $element['#id'] . '" class="jquery_colorpicker">';
+  $output .= '<div class="jquery_colorpicker">';
   $output .= '<div id="' . $element['#id'] . '-inner_wrapper" class="inner_wrapper">';
   $output .= '<div class="color_picker" style="background-color:' . $default_color . '">';
   $output .= '<span class="hash">#</span>';
@@ -166,17 +165,14 @@ function theme_jquery_colorpicker($variables) {
   $output .= '</div>';
   if (isset($element['#cardinality'])) {
     if ($element['#cardinality'] == FIELD_CARDINALITY_UNLIMITED) {
-      $output .= '<div>' . l(t('Remove'), '#', array('html' => TRUE, 'attributes' => array('onclick' => 'jQuery(\'#' . $element['#id'] . '\').find(\'input\').val(\'\'); jQuery(\'#' . $element['#id'] . '\').parent().parent().parent().hide(); return false;'))) . '</div>';
+      $output .= '<div>' . l(t('Remove'), '#', array('html' => TRUE, 'attributes' => array('onclick' => 'jQuery(\'#' . $element['#id'] . '\').val(\'\'); jQuery(\'#' . $element['#id'] . '\').parents(\'tr\').hide(); return false;'))) . '</div>';
     }
     else {
-      $output .= '<div>' . l(t('Clear'), '#', array('html' => TRUE, 'attributes' => array('onclick' => 'jQuery(\'#' . $element['#id'] . '\').find(\'input\').val(\'\'); jQuery(\'#' . $element['#id'] . ' .color_picker\').css("backgroundColor", "#FFF"); return false'))) . '</div>';
+      $output .= '<div>' . l(t('Clear'), '#', array('html' => TRUE, 'attributes' => array('onclick' => 'jQuery(\'#' . $element['#id'] . '\').val(\'\'); jQuery(\'#' . $element['#id'] . '\').parents(\'.color_picker\').css("backgroundColor", "#FFF"); return false'))) . '</div>';
     }
   }
   $output .= '</div>';
 
-  if (isset($element['#field_suffix'])) {
-    $output .= '<span class="field-suffix">' . $element['#field_suffix'] . '</span>';
-  }
   $element['#children'] = $output;
   $element['#theme'] = 'form_element';
   return drupal_render($element);
@@ -316,10 +312,10 @@ function jquery_colorpicker_field_formatter_view($entity_type, $entity, $field, 
   foreach ($items as $delta => $item) {
     switch ($display['type']) {
       case 'jquery_colorpicker_color_display':
-        $entity_ids = entity_extract_ids($entity_type, $entity);
+        list($id, , ) = entity_extract_ids($entity_type, $entity);
         $element[$delta] = array(
           '#theme' => 'jquery_colorpicker_color_display',
-          '#entity_id' => $entity_ids[0],
+          '#entity_id' => $id,
           '#instance_id' => $instance['id'],
           '#entity_delta' => $delta,
           '#item' => $item['jquery_colorpicker'],

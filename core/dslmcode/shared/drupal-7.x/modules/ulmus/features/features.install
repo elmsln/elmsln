@@ -25,6 +25,12 @@ function features_uninstall() {
   variable_del('features_default_export_path');
   variable_del('features_semaphore');
   variable_del('features_ignored_orphans');
+  variable_del('features_feature_locked');
+  variable_del('features_lock_mode');
+  foreach (array_keys(features_get_components()) as $component) {
+    variable_del('features_admin_show_component_' . $component);
+    variable_del('features_component_locked_' . $component);
+  }
   if (db_table_exists('menu_custom')) {
     db_delete('menu_custom')
       ->condition('menu_name', 'features')
@@ -53,7 +59,7 @@ function _features_install_menu() {
 
 /**
  * Update 6100: Set module on all feature node types to 'features'.
-
+ *
  * This update can be re-run as needed to repair any node types that are not
  * removed after disabling the associated feature.
  *
