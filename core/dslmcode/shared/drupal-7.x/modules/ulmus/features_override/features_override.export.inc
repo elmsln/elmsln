@@ -65,7 +65,7 @@ function features_get_ignore_keys($component) {
 }
 
 /**
- * Calculautes what overrides exist for by component/element.
+ * Calculates what overrides exist for by component/element.
  *
  * @param $component_key
  *   A component key that's defined via hook_features_api.
@@ -107,6 +107,35 @@ function features_override_get_overrides($component_key = FALSE, $element_key = 
   return $cache;
 }
 
+/**
+ * Helper function in determining equality of arrays. Credit to http://stackoverflow.com/a/4263181
+ *
+ * @see _features_override_remove_recursion()
+ *
+ * @param $a
+ *  object a
+ * @param $b
+ *  object b
+ * @return bool
+ *  
+ */
+function _features_override_is_ref_to(&$a, &$b, $uniqid) {
+  if (is_object($a) && is_object($b)) {
+    return ($a === $b);
+  }
+
+  $temp_a = $a;
+  $temp_b = $b;
+
+  $b = $uniqid;
+
+  if ($a === $uniqid) $return = true;
+  else $return = false;
+
+  $a = $temp_a;
+  $b = $temp_b;
+  return $return;
+}
 
 /**
  * Get overrides for specific module/component.
@@ -350,8 +379,12 @@ function features_override_export_keys($keys) {
   $line = '';
   if (is_array($keys)) {
     foreach ($keys as $key) {
-      if ($key['type'] == 'object') {
-        $line .= "->{$key['key']}";
+      $key_value = $key['key'];
+      if (is_numeric($key_value)) {
+        $line .= '[' . $key_value . ']';
+      }
+      elseif ($key['type'] == 'object') {
+        $line .= '->' . $key_value;
       }
       else {
         $line .= "['{$key['key']}']";
@@ -368,7 +401,9 @@ function features_override_export_keys($keys) {
  *   An object or array passed by reference.
  */
 function features_override_remove_recursion(&$item) {
-  _features_override_remove_recursion($item);
+  $uniqid = __FUNCTION__ . mt_rand(); // use of uniqid() here impacts performance
+  $stack = array();
+  _features_override_remove_recursion($item, $stack, $uniqid);
 }
 
 /**
@@ -377,22 +412,28 @@ function features_override_remove_recursion(&$item) {
  * @param $item
  *   An object or array passed by reference.
  */
-function _features_override_remove_recursion(&$object, &$stack = array()) {
+function _features_override_remove_recursion(&$object, &$stack = array(), $uniqid) {
   if ((is_object($object) || is_array($object)) && $object) {
-    if (!in_array($object, $stack, true)) {
+    $in_stack = FALSE;
+    foreach($stack as &$item) {
+      if(_features_override_is_ref_to($object, $item, $uniqid)) {
+        $in_stack = TRUE;
+        break;
+      }
+    }
+    if(!$in_stack) {
       $stack[] = $object;
       foreach ($object as $key => &$subobject) {
-        if (_features_override_remove_recursion($subobject, $stack)) {
+        if (_features_override_remove_recursion($subobject, $stack, $uniqid)) {
           if (is_object($object)) {
             unset($object->$key);
-        }
-        else {
+          }
+          else {
             unset($object[$key]);
-    }
-  }
-}
+          }
+        }
       }
-      else {
+    } else {
       return TRUE;
     }
   }
@@ -412,6 +453,9 @@ function _features_override_remove_recursion(&$object, &$stack = array()) {
  */
 function _features_override_remove_ignores(&$item, $ignore_keys, $level = -1) {
   $is_object = is_object($item);
+  if (!is_array($item) && !is_object($item)) {
+    return;
+  }
   foreach ($item as $key => $value) {
     if (isset($ignore_keys[$key]) && ($ignore_keys[$key] == $level)) {
       if ($is_object) {
@@ -497,11 +541,12 @@ function features_override_features_export_render_addition($alter, $element, $co
     $component_start = "\$data['$element']";
     $code_line = features_override_export_keys($alter['keys']);
     $value_export = features_override_var_export($alter['value'], '    ');
-    if ($is_change) {
-      $original_export = (isset($alter['original'])) ? ' /* WAS: ' . features_override_var_export($alter['original'], '    ') . ' */' : '';
-    }
-    else {
-      $original_export = '';
+    $original_export = '';
+    if ($is_change && isset($alter['original'])) {
+      $original_export = features_override_var_export($alter['original'], '    ');
+      $original_export = str_replace('/*', '\/*', $original_export);
+      $original_export = str_replace('*/', '*\/', $original_export);
+      $original_export = ' /* WAS: ' . $original_export . ' */';
     }
     $code[] = "    " . $component_start . $code_line . ' = ' . $value_export . ';' . $original_export;
     return $code;
