@@ -169,3 +169,10 @@ version = "7.x-1.0-beta4"
 core = "7.x"
 project = "mooc"
 datestamp = "1397509268"
+
+; Information added by Drupal.org packaging script on 2014-08-13
+version = "7.x-1.0-beta7+5-dev"
+core = "7.x"
+project = "mooc"
+datestamp = "1407970136"
+

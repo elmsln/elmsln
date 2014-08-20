@@ -189,3 +189,10 @@ version = "7.x-1.0-beta4"
 core = "7.x"
 project = "cis"
 datestamp = "1403746501"
+
+; Information added by Drupal.org packaging script on 2014-08-13
+version = "7.x-1.0-beta4+3-dev"
+core = "7.x"
+project = "cis"
+datestamp = "1407970739"
+
