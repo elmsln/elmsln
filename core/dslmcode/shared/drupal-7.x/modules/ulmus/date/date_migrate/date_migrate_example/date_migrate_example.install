@@ -12,3 +12,12 @@ function date_migrate_example_disable() {
   Migration::deregisterMigration('DateExample');
 }
 
+/**
+ * Implements hook_uninstall().
+ */
+function date_migrate_example_uninstall() {
+  node_type_delete('date_migrate_example');
+  variable_del('node_preview_date_migrate_example');
+  node_types_rebuild();
+  menu_rebuild();
+}

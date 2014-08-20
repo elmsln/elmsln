@@ -173,7 +173,7 @@ function _date_repeat_calc($rrule, $start, $end, $exceptions, $timezone, $additi
       }
       if ($rrule['FREQ'] == 'YEARLY') {
         // Back up to first of year and jump.
-        $current_day = date_repeat_set_year_day($current_day, NULL, 1, '+', $timezone, $modify_time);
+        $current_day = date_repeat_set_year_day($current_day, NULL, NULL, 1, '+', $timezone, $modify_time);
         date_modify($current_day, '+' . $jump . $modify_time);
       }
       $finished = date_repeat_is_finished($current_day, $days, $count, $end_date);
@@ -223,18 +223,42 @@ function _date_repeat_calc($rrule, $start, $end, $exceptions, $timezone, $additi
     $ordered = date_repeat_days_ordered($week_start_rule);
     $ordered_keys = array_flip($ordered);
 
-    foreach ($rrule['BYDAY'] as $day) {
-      preg_match("@(-)?([0-9]+)?([SU|MO|TU|WE|TH|FR|SA]{2})@", trim($day), $regs);
-      if (!empty($regs[2])) {
-        // Convert parameters into full day name, count, and direction.
-        $direction_days[] = array(
-          'day' => $day_names[$regs[3]],
-          'direction' => !empty($regs[1]) ? $regs[1] : '+',
-          'direction_count' => $regs[2],
-          );
+    if ($rrule['FREQ'] == 'YEARLY' && !empty($rrule['BYMONTH'])) {
+      // Additional cycle to apply month preferences.
+      foreach ($rrule['BYMONTH'] as $month) {
+        foreach ($rrule['BYDAY'] as $day) {
+          preg_match("@(-)?([0-9]+)?([SU|MO|TU|WE|TH|FR|SA]{2})@", trim($day), $regs);
+          // Convert parameters into full day name, count, and direction.
+          // Add leading zero to first 9 months.
+          if (!empty($regs[2])) {
+            $direction_days[] = array(
+              'day' => $day_names[$regs[3]],
+              'direction' => !empty($regs[1]) ? $regs[1] : '+',
+              'direction_count' => $regs[2],
+              'month' => strlen($month) > 1 ? $month : '0' . $month,
+            );
+          }
+          else {
+            $week_days[$ordered_keys[$regs[3]]] = $day_names[$regs[3]];
+          }
+        }
       }
-      else {
-        $week_days[$ordered_keys[$regs[3]]] = $day_names[$regs[3]];
+    }
+    else {
+      foreach ($rrule['BYDAY'] as $day) {
+        preg_match("@(-)?([0-9]+)?([SU|MO|TU|WE|TH|FR|SA]{2})@", trim($day), $regs);
+        if (!empty($regs[2])) {
+          // Convert parameters into full day name, count, and direction.
+          $direction_days[] = array(
+            'day' => $day_names[$regs[3]],
+            'direction' => !empty($regs[1]) ? $regs[1] : '+',
+            'direction_count' => $regs[2],
+            'month' => NULL,
+          );
+        }
+        else {
+          $week_days[$ordered_keys[$regs[3]]] = $day_names[$regs[3]];
+        }
       }
     }
     ksort($week_days);
@@ -251,7 +275,7 @@ function _date_repeat_calc($rrule, $start, $end, $exceptions, $timezone, $additi
             $current_day = date_repeat_set_month_day($current_day, $day['day'], $day['direction_count'], $day['direction'], $timezone, $modify_time);
           }
           else {
-            $current_day = date_repeat_set_year_day($current_day, $day['day'], $day['direction_count'], $day['direction'], $timezone, $modify_time);
+            $current_day = date_repeat_set_year_day($current_day, $day['month'], $day['day'], $day['direction_count'], $day['direction'], $timezone, $modify_time);
           }
           date_repeat_add_dates($days, $current_day, $start_date, $end_date, $exceptions, $rrule);
         }
@@ -543,24 +567,42 @@ function date_repeat_set_month_day($date_in, $day, $count = 1, $direction = '+',
  *   If $day is empty, will set to the number of days from the
  *   beginning or end of the year.
  */
-function date_repeat_set_year_day($date_in, $day, $count = 1, $direction = '+', $timezone = 'UTC', $modify_time) {
+function date_repeat_set_year_day($date_in, $month, $day, $count = 1, $direction = '+', $timezone = 'UTC', $modify_time) {
   if (is_object($date_in)) {
     $current_year = date_format($date_in, 'Y');
 
     // Reset to the start of the month.
     // See note above.
     $datetime = date_format($date_in, DATE_FORMAT_DATETIME);
-    $datetime = substr_replace($datetime, '01-01', 5, 5);
+    $month_key = isset($month) ? $month : '01';
+    $datetime = substr_replace($datetime, $month_key . '-01', 5, 5);
     $date = new DateObject($datetime, $timezone);
-    if ($direction == '-') {
-      // For negative search, start from the end of the year.
-      date_modify($date, '+1 year' . $modify_time);
+
+    if (isset($month)) {
+      if ($direction == '-') {
+        // For negative search, start from the end of the month.
+        $modifier = '+1 month';
+      }
+      else {
+        // For positive search, back up one day to get outside the
+        // current month, so we can catch the first of the month.
+        $modifier = '-1 day';
+      }
     }
     else {
-      // For positive search, back up one day to get outside the
-      // current year, so we can catch the first of the year.
-      date_modify($date, '-1 day' . $modify_time);
+      if ($direction == '-') {
+        // For negative search, start from the end of the year.
+        $modifier = '+1 year';
+      }
+      else {
+        // For positive search, back up one day to get outside the
+        // current year, so we can catch the first of the year.
+        $modifier = '-1 day';
+      }
     }
+
+    date_modify($date, $modifier . $modify_time);
+
     if (empty($day)) {
       date_modify($date, $direction . $count . ' days' . $modify_time);
     }

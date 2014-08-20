@@ -219,7 +219,7 @@ function theme_date_display_combination($variables) {
  * Template preprocess function for displaying a single date.
  */
 function template_preprocess_date_display_single(&$variables) {
-  if ($variables['add_rdf'] || $variables['add_microdata']) {
+  if ($variables['add_rdf'] || !empty($variables['add_microdata'])) {
     // Pass along the rdf mapping for this field, if any. Add some default rdf
     // attributes that will be used if not overridden by attributes passed in.
     $rdf_mapping = $variables['rdf_mapping'];
@@ -261,7 +261,7 @@ function theme_date_display_single($variables) {
   // Wrap the result with the attributes.
   $output = '<span class="date-display-single"' . drupal_attributes($attributes) . '>' . $date . $timezone . '</span>';
 
-  if ($variables['add_microdata']) {
+  if (!empty($variables['add_microdata'])) {
     $output .= '<meta' . drupal_attributes($variables['microdata']['value']['#attributes']) . '/>';
   }
 
@@ -372,7 +372,7 @@ function theme_date_combo($variables) {
 
   // Group start/end items together in fieldset.
   $fieldset = array(
-    '#title' => t($element['#title']) . ' ' . ($element['#delta'] > 0 ? intval($element['#delta'] + 1) : ''),
+    '#title' => field_filter_xss(t($element['#title'])) . ' ' . ($element['#delta'] > 0 ? intval($element['#delta'] + 1) : ''),
     '#value' => '',
     '#description' => !empty($element['#fieldset_description']) ? $element['#fieldset_description'] : '',
     '#attributes' => array(),

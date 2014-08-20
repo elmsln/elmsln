@@ -1,6 +1,28 @@
 Date Module 7.x
 =================
 
+======================
+Version 7.x-2.8
+======================
+- Issue #106713 by vijaycs85, heddn: Date Field title XSS(SA)
+- Issue #2310123 by Temoor: Fixed Fatal error in Migrate UI by Date Migrate Example.
+- Issue #2142277 by Temoor | lliss: Fixed Infinite Loop When Using Repeating Dates.
+- Issue #1871136 by Temoor | funkimunky: Fixed Cannot remove migrate example content type.
+- Issue #2261395 by minorOffense | kristofferwiklund: Fixed date_now is not respecting changes to timezone.
+- Issue #1832400 by imot3k, balintk: Fixed "The year/month/... is missing" error message is not translatable.
+- Issue #998076 by coredumperror, joelcollinsdc, brenk28: Fixed Problem with timezone handling (caused by date_get_timezone_db returning only UTC).
+- Issue #1976014 by Harmageddon: Remove unnecessary &nbsp; in date views pager.
+- Issue #2198807 by stickywes: Refactor field tests to utilize DateFieldBasic.
+- Issue #2146461 by vijaycs85 | Razia_b: Fixed Translated field's label is not used in its validation messages.
+- Issue #1874422 by bluetegu, brockfanning, rv0: Fixed Week pager may cause incorrect "next" link on year change.
+- Issue #2167015 by schifazl: HTML output breaks validation and accessibility.
+- Issue #2200513 by scor: Fix encoding issues in CHANGELOG.txt.
+- Issue #2115377 by coredumperror: Notice: Undefined index: add_microdata in theme_date_display_single().
+- Issue #2178299 by sandykadam | joachim: Incorrect variable name in hook_views_data_alter().
+- Issue #1431952 by Cadila | Shawn DeArmond: Date field will only set in Rules if it already has a value.
+- Issue #355058 by Grimreaper | prunelle: Hardcoded day/month/week output format for theme_date_nav_title().
+- Issue #1968828 by pjcdawkins: Replace field_info_fields() with field_info_field_map() for Drupal >= 7.22.
+- Issue #2167033 by podarok, vijaycs85: Fixing tests in 2014 .
 
 ======================
 Version 7.x-2.7
@@ -26,18 +48,18 @@ Version 7.x-2.7
 - Issue #1659466 by artkon: Fixed Date filter does not remember value in views if the identifier is something other than date_filter().
 - Issue #1905096 by gielfeldt: Fixed Wrong usage of database API.
 - Issue #1791804 by 5n00py: Errors on form validation if date field placed in sub-form.
-- Issue [#636208] Date range: Expose a single filter to select events that start before the chosen date and end after the chosen date by anrikun.
-- Issue [#2024269] Date popup documentation fix by RoySegall.
-- Issue [#1835184] by Steven Jones, das-peter, jwhat: Fixed date_limit_format() can have poor performance.
-- Issue [#991830] by milesw | restyler: Fixed validation errors when date_popup() date is localized.
-- Issue [#2098715] by jhodgdon: Fixed Date field not obeying widget alters for #required.
-- Issue [#1266688] by linclark, rbayliss, fago, colette: Support microdata in date fields.
-- Issue [#1863610] by maximpodorov: Fixed Invalid date formatting.
-- META [#2034231] [#1832544] Class registration for Migrate 2.5 or later - mikeryan, [#1835214] Automated tests failing - Exception thrown in Date2 migration - PatchRanger, [#
-- Issue [#1350604] by Alan D., johaziel: Added Diff support for Date fields.
-- Issue [#2086313] by dooug: Fixed Wrong path in date_popup() README.txt
-- Issue [#1455558] by BTMash | mediameriquat: Fixed Missing file in date_views().info causes error 500.
-- Issue [#1697322] by Alan D., ianmthomasuk | pandikamal: Fixed Call to a member function getName() on a non-object in date api.
+- Issue #636208 Date range: Expose a single filter to select events that start before the chosen date and end after the chosen date by anrikun.
+- Issue #2024269 Date popup documentation fix by RoySegall.
+- Issue #1835184 by Steven Jones, das-peter, jwhat: Fixed date_limit_format() can have poor performance.
+- Issue #991830 by milesw | restyler: Fixed validation errors when date_popup() date is localized.
+- Issue #2098715 by jhodgdon: Fixed Date field not obeying widget alters for #required.
+- Issue #1266688 by linclark, rbayliss, fago, colette: Support microdata in date fields.
+- Issue #1863610 by maximpodorov: Fixed Invalid date formatting.
+- META #2034231 #1832544 Class registration for Migrate 2.5 or later - mikeryan, [#1835214] Automated tests failing - Exception thrown in Date2 migration - PatchRanger, [#
+- Issue #1350604 by Alan D., johaziel: Added Diff support for Date fields.
+- Issue #2086313 by dooug: Fixed Wrong path in date_popup() README.txt
+- Issue #1455558 by BTMash | mediameriquat: Fixed Missing file in date_views().info causes error 500.
+- Issue #1697322 by Alan D., ianmthomasuk | pandikamal: Fixed Call to a member function getName() on a non-object in date api.
 - Code cleanup, remove #prev values that were never used in repeat functionality.
 - Small fix needed to ensure cardinality gets set correctly if repeat option is changed in the UI.
 
@@ -146,7 +168,7 @@ Version 7.x-2.1
 
 - Issue #1437242 by zerbash, Remove extraneous leading slashes in module_load_include().
 - Issue #1436722 by hefox: Fixed Undefined variable $form_set_error() used as function.
-- Issue #1250626 by G�bor Hojtsy, B-Prod, hefox: Added start date and end date labels.
+- Issue #1250626 by Gábor Hojtsy, B-Prod, hefox: Added start date and end date labels.
 - Issue #1253482, Make sure $argument->is_default gets reset by the Date pager when altering results.
 - Adjust Date Tools to work with changes to use Views templates to create calendars.
 - Issue #1398584 by dhalbert and , Make sure groupby times is initialized.
@@ -255,7 +277,7 @@ New Features/Major Changes
 Bugfixes
 
 - Fix to new default date handling, the default date has to set a date in the database timezone, not the display timezone.
-- Issue #1245106 by G�bor Hojtsy, Hide the option to add the delta into the view for single value fields.
+- Issue #1245106 by Gábor Hojtsy, Hide the option to add the delta into the view for single value fields.
 - Issue #1370876, Make sure new Date All Day code does not try to set the popup values if Date Popup is disabled.
 - Issue #874322, Add back the date_field_all_day() function to avoid breaking other modules that are using it.
 - Fix Date text placeholder to display a formatted date instead of a format. Follow up to Date repeat UI changes.
@@ -386,7 +408,7 @@ field settings. Previous versions did not always honor those settings, this one 
 
 New Features/UX Improvements
 
-- Issue #1249724 by KarenS, G�bor Hojtsy, David_Rothstein, Improve usability of date and time input configuration.
+- Issue #1249724 by KarenS, Gábor Hojtsy, David_Rothstein, Improve usability of date and time input configuration.
 - Issue #1250784 by David_Rothstein, Add user-friendly labels for start and end date values in Views.
 - Issue #742146, Add option to remove X-WR-CALNAME if VEVENT is not a feed.
 - Add option to change method from PUBLISH to REQUEST in VCALENDAR.
@@ -396,8 +418,8 @@ New Features/UX Improvements
 - Issue #1249724 by David_Rothstein: Improve usability of date and time input configuration
 - Issue #1177198 by tim.plunkett: Allow CTools to process #dependency for date elements.
 - Issue #1245562 by David_Rothstein, Rename the default date display format to something friendlier
-- Issue #1239934 by David_Rothstein and G�bor Hojtsy, Reuse the "years back and forward" dropdown widget on the Views filter settings page.
-- Issue #1239228 by G�bor Hojtsy, Date Views filter form UI improvements, clarify the way absolute and relative dates work.
+- Issue #1239934 by David_Rothstein and Gábor Hojtsy, Reuse the "years back and forward" dropdown widget on the Views filter settings page.
+- Issue #1239228 by Gábor Hojtsy, Date Views filter form UI improvements, clarify the way absolute and relative dates work.
 - Issue #233047 by ksenzee and David_Rothstein, Add the Vegas jQuery timepicker as a new time selector option.
 - Issue #1145976 by tim.plunkett and KarenS, Add 'is date' identifier to all date handlers.
 - Issue #1234140 by arlinsundbulte, Change terminology in user-facing text from 'From/To Date' to 'Start/End Date'.
@@ -444,10 +466,10 @@ Bugfixes
 - Issue #1254582 Repeat additions need to be adjusted to use the same time as the original date.
 - Move vcalendar and vevent templates from Date Views to Date API modules.
 - Follow up to Issue #1250344, We don't need extra space when there is a description, only when there is not.
-- Issue #1239228 by G�bor Hojtsy, More tweaks to filter css.
-- Issue #1244924 by G�bor Hojtsy, Minor text improvements in date filter configuration
+- Issue #1239228 by Gábor Hojtsy, More tweaks to filter css.
+- Issue #1244924 by Gábor Hojtsy, Minor text improvements in date filter configuration
 - Issue #1245556 by David_Rothstein, Date granularity description incorrectly implies that it affects the date attributes that are displayed
-- Issue #1247444 by G�bor Hojtsy, Give a little breathing space to the date year range "other" field
+- Issue #1247444 by Gábor Hojtsy, Give a little breathing space to the date year range "other" field
 - Issue #1250344 by jessebeach, Fix padding around date fields by adding clearfix class.
 - Issue #1249116 by yched, Fix various glitches with D6 migration code.
 - Issue #1243022 by fmosca and KarenS, Make sure all_day #states visibility is only set when there is a value for all_day.
@@ -455,7 +477,7 @@ Bugfixes
 - Issue #1246416, Test whether libraries_get_path() returns a valid path before using it.
 - Issue #1235994, Don't display 'All Day' when using a format that has no time.
 - Issue #1245690 by mikeryan, Migration plugin missing seconds from date formats
-- Issue #1229406 by David Rothstein, G�bor Hojtsy, and tim.plunkett Fix broken timepicker in Chrome and Safari.
+- Issue #1229406 by David Rothstein, Gábor Hojtsy, and tim.plunkett Fix broken timepicker in Chrome and Safari.
 - Issue #1239412 by keithm, Fix validation error when #access is false.
 - Issue #1232522, Don't alter field_ui_field_edit form except on date fields.
 - Issue #1243842, Make sure the All Day and Show End Date flags work correctly in unlimited value fields that use ajax.

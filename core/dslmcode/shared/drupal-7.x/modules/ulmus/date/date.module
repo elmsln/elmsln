@@ -536,6 +536,7 @@ function date_entity_metadata_property_info_alter(&$info, $entity_type, $field, 
   if (!empty($field['settings']['todate'])) {
     // Define a simple data structure containing both dates.
     $property['type'] = ($field['cardinality'] != 1) ? 'list<struct>' : 'struct';
+    $property['auto creation'] = 'date_entity_metadata_struct_create';
     $property['getter callback'] = 'entity_metadata_field_verbatim_get';
     $property['setter callback'] = 'entity_metadata_field_verbatim_set';
     $property['property info'] = array(
@@ -643,6 +644,16 @@ function date_entity_metadata_field_setter(&$entity, $name, $value, $langcode, $
   // Empty the static field language cache, so the field system picks up any
   // possible new languages.
   drupal_static_reset('field_language');
+}
+
+/**
+ * Auto creation callback for fields which contain two date values in one
+ */
+function date_entity_metadata_struct_create($name, $property_info) {
+  return array(
+    'date_type' => $property_info['field']['columns'][$name]['type'],
+    'timezone_db' => $property_info['field']['settings']['timezone_db'],
+  );
 }
 
 /**

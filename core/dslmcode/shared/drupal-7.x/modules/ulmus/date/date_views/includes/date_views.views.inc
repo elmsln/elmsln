@@ -128,7 +128,7 @@ function date_views_views_data_alter(&$data) {
   // Mark all the core date handlers as date fields.
   // This will identify all handlers that directly use the _date handlers,
   // will not pick up any that extend those handlers.
-  foreach ($data as $module => &$table) {
+  foreach ($data as $base_table => &$table) {
     foreach ($table as $id => &$field) {
       foreach (array('field', 'sort', 'filter', 'argument') as $type) {
         if (isset($field[$type]) && isset($field[$type]['handler']) && ($field[$type]['handler'] == 'views_handler_' . $type . '_date')) {

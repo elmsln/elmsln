@@ -371,7 +371,7 @@ class date_views_filter_handler_simple extends views_handler_filter_date {
         '#date_label_position' => 'within',
         '#date_year_range' => $this->options['year_range'],
         '#process' => array($type . '_element_process'),
-        '#prefix' => '<div id="' . $id . '-wrapper"><div id="' . $id . '">',
+        '#prefix' => '<div id="' . $id . '-wrapper"><div id="' . $id . '-inside-wrapper">',
         '#suffix' => '</div></div>',
       );
       if ($which == 'all') {
@@ -406,7 +406,7 @@ class date_views_filter_handler_simple extends views_handler_filter_date {
         '#date_label_position' => 'within',
         '#date_year_range' => $this->options['year_range'],
         '#process' => array($type . '_element_process'),
-        '#prefix' => '<div id="' . $id . '-wrapper"><div id="' . $id . '">',
+        '#prefix' => '<div id="' . $id . '-wrapper"><div id="' . $id . '-inside-wrapper">',
         '#suffix' => '</div></div>',
         '#states' => array(
           'visible' => array(

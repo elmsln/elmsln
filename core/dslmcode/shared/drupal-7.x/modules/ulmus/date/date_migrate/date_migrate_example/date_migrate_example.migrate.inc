@@ -13,8 +13,8 @@ class DateExampleMigration extends XMLMigration {
   /**
    * Sets up the migration.
    */
-  public function __construct($arguments = array()) {
-    parent::__construct($arguments);
+  public function __construct() {
+    parent::__construct();
     $this->description = t('Example migration into date fields');
 
     $this->map = new MigrateSQLMap($this->machineName,

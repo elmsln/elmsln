@@ -6,9 +6,9 @@ core = 7.x
 configure = admin/config/date/tools
 files[] = tests/date_tools.test
 
-; Information added by Drupal.org packaging script on 2013-12-21
-version = "7.x-2.7"
+; Information added by Drupal.org packaging script on 2014-07-29
+version = "7.x-2.8"
 core = "7.x"
 project = "date"
-datestamp = "1387659206"
+datestamp = "1406653438"
 

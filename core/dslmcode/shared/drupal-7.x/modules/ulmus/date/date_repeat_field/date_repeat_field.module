@@ -115,16 +115,38 @@ function date_repeat_field_permission() {
 }
 
 /**
- * See if the user can access repeat date info for this field.
+ * See if the user can access repeat date info for this entity.
+ *
+ * @param string $entity_type
+ *   The entity type.
+ * @param string $entity
+ *   The specific entity to check (optional).
+ *
+ * @return bool
+ *   Return TRUE if there is at least one date field attached to this entity,
+ *   and the current user has the permission 'view date repeats'; FALSE otherwise.
  */
 function date_repeat_field_show($entity_type = 'node', $entity = NULL) {
+  if (!user_access('view date repeats')) {
+    return FALSE;
+  }
+
   $bundle = date_get_entity_bundle($entity_type, $entity);
-  foreach (field_info_fields() as $field_name => $field) {
-    if (in_array($field['type'], array('date', 'datestamp', 'datetime'))
-        && array_key_exists($entity_type, $field['bundles'])
-        && in_array($bundle, $field['bundles'][$entity_type])
-        && date_is_repeat_field($field)) {
-      return user_access('view date repeats');
+
+  // In Drupal 7.22 the field_info_field_map() function was added, which is more
+  // memory-efficient in certain cases than field_info_fields().
+  // @see https://drupal.org/node/1915646
+  $field_map_available = version_compare(VERSION, '7.22', '>=');
+  $field_list = $field_map_available ? field_info_field_map() : field_info_fields();
+
+  foreach ($field_list as $field_name => $data) {
+    if (in_array($data['type'], array('date', 'datestamp', 'datetime'))
+        && array_key_exists($entity_type, $data['bundles'])
+        && in_array($bundle, $data['bundles'][$entity_type])) {
+      $field_info = $field_map_available ? field_info_field($field_name) : $data;
+      if (date_is_repeat_field($field_info)) {
+        return TRUE;
+      }
     }
   }
   return FALSE;

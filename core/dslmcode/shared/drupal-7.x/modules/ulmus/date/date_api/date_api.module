@@ -459,7 +459,26 @@ class DateObject extends DateTime {
     if (!$true && $granularity) {
       foreach ((array) $granularity as $part) {
         if (!$this->hasGranularity($part) && in_array($part, array('second', 'minute', 'hour', 'day', 'month', 'year'))) {
-          $this->errors[$part] = t("The $part is missing.");
+          switch ($part) {
+            case 'second':
+              $this->errors[$part] = t('The second is missing.');
+              break;
+            case 'minute':
+              $this->errors[$part] = t('The minute is missing.');
+              break;
+            case 'hour':
+              $this->errors[$part] = t('The hour is missing.');
+              break;
+            case 'day':
+              $this->errors[$part] = t('The day is missing.');
+              break;
+            case 'month':
+              $this->errors[$part] = t('The month is missing.');
+              break;
+            case 'year':
+              $this->errors[$part] = t('The year is missing.');
+              break;
+          }
         }
       }
     }
@@ -1727,14 +1746,23 @@ function date_format_interval($date, $granularity = 2, $display_ago = TRUE) {
  *   The current time as a date object.
  */
 function date_now($timezone = NULL, $reset = FALSE) {
-  $now = &drupal_static(__FUNCTION__);
+  if ($reset) {
+    drupal_static_reset(__FUNCTION__ . $timezone);
+  }
 
-  if (!isset($now) || $reset) {
+  $now = &drupal_static(__FUNCTION__ . $timezone);
+
+  if (!isset($now)) {
     $now = new DateObject('now', $timezone);
   }
 
-  return $now;
+  // Avoid unexpected manipulation of cached $now object
+  // by subsequent code execution
+  // @see https://drupal.org/node/2261395
+  $clone = clone $now;
+  return $clone;
 }
+
 /**
  * Determines if a timezone string is valid.
  *
@@ -2357,26 +2385,38 @@ function date_get_timezone($handling, $timezone = '') {
 }
 
 /**
- * Function to figure out which db timezone applies to a date and select it.
+ * Function to figure out which db timezone applies to a date.
  *
  * @param string $handling
  *   The timezone handling.
  * @param string $timezone
- *   (optional) A timezone string. Defaults to an empty string.
+ *   (optional) When $handling is 'date', date_get_timezone_db() returns this
+ *   value.
  *
  * @return string
  *   The timezone string.
  */
-function date_get_timezone_db($handling, $timezone = '') {
+function date_get_timezone_db($handling, $timezone = NULL) {
   switch ($handling) {
-    case 'none':
-      $timezone = date_default_timezone();
-      break;
-    default:
+    case ('utc'):
+    case ('site'):
+    case ('user'):
+      // These handling modes all convert to UTC before storing in the DB.
       $timezone = 'UTC';
       break;
+    case ('date'):
+      if ($timezone == NULL) {
+        // This shouldn't happen, since it's meaning is undefined. But we need
+        // to fall back to *something* that's a legal timezone.
+        $timezone = date_default_timezone();
+      }
+      break;
+    case ('none'):
+    default:
+      $timezone = date_default_timezone();
+      break;
   }
-  return $timezone > '' ? $timezone : 'UTC';
+  return $timezone;
 }
 
 /**

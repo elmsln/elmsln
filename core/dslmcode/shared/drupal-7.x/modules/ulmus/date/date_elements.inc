@@ -401,7 +401,7 @@ function date_combo_element_process($element, &$form_state, $form) {
     $element[$to_field]['#date_title'] = t('@field_name End date', array('@field_name' => $instance['label']));
   }
   else {
-    $element[$from_field]['#date_title'] = $instance['label'];
+    $element[$from_field]['#date_title'] = t('@field_name', array('@field_name' => $instance['label']));
   }
 
   $context = array(

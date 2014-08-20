@@ -195,20 +195,22 @@ class DateRepeatFormTestCase extends DrupalWebTestCase {
     $edit = array();
     $edit['title'] = $this->randomName(8);
     $edit['body[und][0][value]'] = $this->randomName(16);
+    $current_year = date('Y');
+
 
     switch ($options) {
       case 'select':
-        $edit['field_test[und][0][value][year]'] = '2010';
+        $edit['field_test[und][0][value][year]'] = $current_year;
         $edit['field_test[und][0][value][month]'] = '10';
         $edit['field_test[und][0][value][day]'] = '7';
         $edit['field_test[und][0][value][hour]'] = '10';
         $edit['field_test[und][0][value][minute]'] = '30';
         break;
       case 'text':
-        $edit['field_test[und][0][value][date]'] = '2010-10-07 10:30';
+        $edit['field_test[und][0][value][date]'] = format_string('!year-10-07 10:30', array('!year' => $current_year));
         break;
       case 'popup':
-        $edit['field_test[und][0][value][date]'] = '2010-10-07';
+        $edit['field_test[und][0][value][date]'] = format_string('!year-10-07', array('!year' => $current_year));
         $edit['field_test[und][0][value][time]'] = '10:30';
         break;
     }
@@ -378,7 +380,7 @@ class DateRepeatFormTestCase extends DrupalWebTestCase {
       else {
         $edit['field_test[und][0][rrule][range_of_repeat]'] = 'UNTIL';
         $date = array(
-          'year' => '2011',
+          'year' => $current_year + 1,
           'month' => '10',
           'day' => '07'
         );
@@ -392,7 +394,7 @@ class DateRepeatFormTestCase extends DrupalWebTestCase {
           case 'exclude':
             $exclude_include_edit['field_test[und][0][rrule][show_exceptions]'] = TRUE;
             $date = array(
-              'year' => '2010',
+              'year' => $current_year,
               'month' => '10',
               'day' => '07'
             );
@@ -401,7 +403,7 @@ class DateRepeatFormTestCase extends DrupalWebTestCase {
           case 'include':
             $exclude_include_edit['field_test[und][0][rrule][show_additions]'] = TRUE;
             $date = array(
-              'year' => '2013',
+              'year' => $current_year + 3,
               'month' => '10',
               'day' => '07'
             );
@@ -410,7 +412,7 @@ class DateRepeatFormTestCase extends DrupalWebTestCase {
           case 'exclude_include':
             $exclude_include_edit['field_test[und][0][rrule][show_exceptions]'] = TRUE;
             $date = array(
-              'year' => '2010',
+              'year' => $current_year,
               'month' => '10',
               'day' => '07'
             );
@@ -418,7 +420,7 @@ class DateRepeatFormTestCase extends DrupalWebTestCase {
 
             $exclude_include_edit['field_test[und][0][rrule][show_additions]'] = TRUE;
             $date = array(
-              'year' => '2013',
+              'year' => $current_year + 3,
               'month' => '10',
               'day' => '07'
             );
@@ -510,7 +512,6 @@ class DateRepeatFormTestCase extends DrupalWebTestCase {
         break;
       case 'text':
       case 'popup':
-        //$return["{$field_name}[datetime][date]"] = '2011-10-07';
         $return["{$form_field_name}[datetime][date]"] = "{$date['year']}-{$date['month']}-{$date['day']}";
         break;
     }

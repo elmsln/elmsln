@@ -377,6 +377,19 @@ class DateRepeatTestCase extends DrupalWebTestCase {
     $result = implode(', ', $dates);
     $this->assertEqual($result, $shouldbe, $rule . '; Starting ' . $start . ';  results: ' . $result);
 
+    //Every Last Thursday in November, every year, five times:
+    $start = "2014-11-27 00:00:00";
+    $rule = 'FREQ=YEARLY;INTERVAL=1;BYDAY=-1TH;BYMONTH=11;COUNT=5;WKST=SU';
+    //  ==> (2014 00:00 AM EDT)November 27
+    //      (2015 00:00 AM EDT)November 26
+    //      (2016 00:00 AM EDT)November 24
+    //      (2017 00:00 AM EDT)November 30
+    //      (2018 00:00 AM EDT)November 29
+    $dates = date_repeat_calc($rule, $start, NULL, array());
+    $shouldbe = '2014-11-27 00:00:00, 2015-11-26 00:00:00, 2016-11-24 00:00:00, 2017-11-30 00:00:00, 2018-11-29 00:00:00';
+    $result = implode(', ', $dates);
+    $this->assertEqual($result, $shouldbe, $rule . '; Starting ' . $start . ';  results: ' . $result);
+
 return;
 
     //Every Thanksgiving, forever:

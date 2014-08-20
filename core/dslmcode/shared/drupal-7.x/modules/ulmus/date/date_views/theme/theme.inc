@@ -75,8 +75,8 @@ function template_preprocess_date_views_pager(&$vars) {
       case 'week':
         $next_week = date_week(date_format($next_date, 'Y-m-d'));
         $prev_week = date_week(date_format($prev_date, 'Y-m-d'));
-        $next_arg = date_format($next_date, 'Y-\W') . date_pad($next_week);
-        $prev_arg = date_format($prev_date, 'Y-\W') . date_pad($prev_week);
+        $next_arg = date_format($next_date, 'o-\W') . date_pad($next_week);
+        $prev_arg = date_format($prev_date, 'o-\W') . date_pad($prev_week);
         break;
       default:
         $next_arg = date_format($next_date, $format[$granularity]);
@@ -165,23 +165,25 @@ function theme_date_nav_title($params) {
   $date_info = $view->date_info;
   $link = !empty($params['link']) ? $params['link'] : FALSE;
   $format = !empty($params['format']) ? $params['format'] : NULL;
+  $format_with_year = variable_get('date_views_' . $granularity . 'format_with_year', 'l, F j, Y');
+  $format_without_year = variable_get('date_views_' . $granularity . 'format_without_year', 'l, F j');
   switch ($granularity) {
     case 'year':
       $title = $date_info->year;
       $date_arg = $date_info->year;
       break;
     case 'month':
-      $format = !empty($format) ? $format : (empty($date_info->mini) ? 'F Y' : 'F');
+      $format = !empty($format) ? $format : (empty($date_info->mini) ? $format_with_year : $format_without_year);
       $title = date_format_date($date_info->min_date, 'custom', $format);
       $date_arg = $date_info->year . '-' . date_pad($date_info->month);
       break;
     case 'day':
-      $format = !empty($format) ? $format : (empty($date_info->mini) ? 'l, F j, Y' : 'l, F j');
+      $format = !empty($format) ? $format : (empty($date_info->mini) ? $format_with_year : $format_without_year);
       $title = date_format_date($date_info->min_date, 'custom', $format);
       $date_arg = $date_info->year . '-' . date_pad($date_info->month) . '-' . date_pad($date_info->day);
       break;
     case 'week':
-      $format = !empty($format) ? $format : (empty($date_info->mini) ? 'F j, Y' : 'F j');
+      $format = !empty($format) ? $format : (empty($date_info->mini) ? $format_with_year : $format_without_year);
       $title = t('Week of @date', array('@date' => date_format_date($date_info->min_date, 'custom', $format)));
       $date_arg = $date_info->year . '-W' . date_pad($date_info->week);
       break;
