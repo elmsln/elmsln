@@ -189,7 +189,7 @@ do
 
   cd $drupalroot
   #Install site with drush
-  /usr/bin/drush -y site-install $insprofile --db-url=mysql://$dbprefix$college$course:$dbpw@localhost/$coursedb --sites-subdir=$course --db-su=$dbsu --db-su-pw=$dbsupw --site-name="$sitename" --account-name=$drupaluid --account-pass=$drupalpw --account-mail=$admin --site-mail=$site_email > /dev/null
+  drush -y site-install $insprofile --db-url=mysql://$dbprefix$college$course:$dbpw@localhost/$coursedb --sites-subdir=$course --db-su=$dbsu --db-su-pw=$dbsupw --site-name="$sitename" --account-name=$drupaluid --account-pass=$drupalpw --account-mail=$admin --site-mail=$site_email > /dev/null
 
 
   echo "3" > $fileloc/$course.$service.progress
@@ -246,9 +246,9 @@ do
     else
       requesterpw=`</dev/urandom tr -dc A-Za-z0-9 | head -c14`
       requesterid=`echo $requester | cut -d@ -f1`
-      /usr/bin/drush -y --uri=http://$hostname.$course user-create $requesterid --mail="$requester"
-      #/usr/bin/drush -y --uri=http://$hostname.$course user-add-role administrator $requesterid
-      /usr/bin/drush -y --uri=http://$hostname.$course user-password $requesterid --password="$requesterpw"
+      drush -y --uri=http://$hostname.$course user-create $requesterid --mail="$requester"
+      #drush -y --uri=http://$hostname.$course user-add-role administrator $requesterid
+      drush -y --uri=http://$hostname.$course user-password $requesterid --password="$requesterpw"
       if [[ $send_requester_pw ]]; then
          echo " $protocol://$hostname/$course has been created!  id: $requesterid  password: $requesterpw" | mail -s "$course has been added to $hostname" $requester
       else
@@ -258,7 +258,7 @@ do
   fi
 
   if [[ $slogan ]]; then
-    /usr/bin/drush -y --uri=http://$hostname.$course vset site_slogan "$slogan"
+    drush -y --uri=http://$hostname.$course vset site_slogan "$slogan"
   fi
 
   #progress
@@ -320,7 +320,7 @@ do
     rm /tmp/drush-lock
     exit 1
   fi
-    /usr/bin/drush -y --uri=http://$hostname.$course $drushcommand
+    drush -y --uri=http://$hostname.$course $drushcommand
   done
   fi
   echo "5" >> $fileloc/$course.$service.progress
