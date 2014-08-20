@@ -4,3 +4,9 @@ name = "Book Title Override"
 package = "Book"
 project = "book_title_override"
 dependencies[] = "book"
+; Information added by Drupal.org packaging script on 2014-06-09
+version = "7.x-1.0-rc1"
+core = "7.x"
+project = "book_title_override"
+datestamp = "1402319035"
+
