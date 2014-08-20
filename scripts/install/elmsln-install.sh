@@ -10,6 +10,24 @@ cd $DIR
 # include our config settings
 source ../../config/scripts/drush-create-site/config.cfg
 
+#test for empty vars. if empty required var -- exit
+if [ -z $fileloc ]; then
+  echo "please update your config.cfg file, file location variable missing"
+  exit 1
+fi
+if [ -z $site_email ]; then
+  echo "please update your config.cfg file, site email variable missing"
+  exit 1
+fi
+if [ -z $admin ]; then
+  echo "please update your config.cfg file, admin email variable missing"
+  exit 1
+fi
+if [ -z $webdir ]; then
+  echo "please update your config.cfg file, webdir variable missing"
+  exit 1
+fi
+
 core='7.x'
 distros=('cis' 'mooc' 'cle' 'icor' 'elmsmedia' 'meedjum_blog' 'remote_watchdog')
 stacklist=('online' 'courses' 'studio' 'interact' 'media' 'blog' 'remote_watchdog')
@@ -70,28 +88,6 @@ if [ ! -d ${moduledir}/${university}/${cissettings} ];
   sudo echo -e "  );\n\n  return \$items;\n}\n\n" >> $modulefile
   # add the function to include this in build outs automatically
   sudo echo -e "/**\n * Implements hook_cis_service_instance_options_alter().\n */\nfunction ${university}_${host}_settings_cis_service_instance_options_alter(&\$options, \$course, \$service) {\n  // modules we require for all builds\n  \$options['en'][] = '$cissettings';\n}\n" >> $modulefile
-fi
-
-#test for empty vars. if empty required var -- exit
-if [ -z $fileloc ]; then
-  echo "please update your config.cfg file"
-  exit 1
-fi
-if [ -z $site_email ]; then
-  echo "please update your config.cfg file"
-  exit 1
-fi
-if [ -z $admin ]; then
-  echo "please update your config.cfg file"
-  exit 1
-fi
-if [ -z $webdir ]; then
-  echo "please update your config.cfg file"
-  exit 1
-fi
-if [ -z $hostfile ]; then
-  echo "please update your config.cfg file"
-  exit 1
 fi
 
 #test mysql login
