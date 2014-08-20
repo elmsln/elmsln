@@ -9,7 +9,6 @@
  */
 function cis_ux_menu_default_menu_links() {
   $menu_links = array();
-
   // Exported menu link: management_add-course:node/add/course
   $menu_links['management_add-course:node/add/course'] = array(
     'menu_name' => 'management',
@@ -189,27 +188,6 @@ function cis_ux_menu_default_menu_links() {
     'weight' => -50,
     'customized' => 1,
   );
-  // Exported menu link: user-menu_setup-a-course:cis-quick-setup
-  $menu_links['user-menu_setup-a-course:cis-quick-setup'] = array(
-    'menu_name' => 'user-menu',
-    'link_path' => 'cis-quick-setup',
-    'router_path' => 'cis-quick-setup',
-    'link_title' => 'Setup a course',
-    'options' => array(
-      'attributes' => array(
-        'title' => 'Use this to Build a course, associate an offering and section to it, and then go and request the setup of webservices that will be used by the course.',
-      ),
-      'identifier' => 'user-menu_setup-a-course:cis-quick-setup',
-    ),
-    'module' => 'menu',
-    'hidden' => 0,
-    'external' => 0,
-    'has_children' => 0,
-    'expanded' => 0,
-    'weight' => -48,
-    'customized' => 1,
-    'parent_identifier' => 'user-menu_user-account:user',
-  );
   // Exported menu link: user-menu_user-account:user
   $menu_links['user-menu_user-account:user'] = array(
     'menu_name' => 'user-menu',
@@ -240,9 +218,7 @@ function cis_ux_menu_default_menu_links() {
   t('Log out');
   t('Login');
   t('Manage Semester');
-  t('Setup a course');
   t('User account');
-
 
   return $menu_links;
 }

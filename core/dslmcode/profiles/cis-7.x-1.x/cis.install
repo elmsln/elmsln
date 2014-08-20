@@ -115,11 +115,11 @@ function cis_install() {
     'textbook_editor',
     'cis_data',
     'cis_types',
-    'cis_ux',
     'cis_displays',
     'regions_admin_example',
     'cis_users',
     'cis_roles',
+    'cis_ux',
   );
   features_revert($features);
   // ignore any rebuild messages

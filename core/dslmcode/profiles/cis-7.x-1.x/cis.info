@@ -176,19 +176,12 @@ dependencies[] = features
 dependencies[] = cis_data
 dependencies[] = cis_displays
 dependencies[] = cis_types
-dependencies[] = cis_ux
 dependencies[] = cis_breakpoints
 dependencies[] = regions_admin_example
 dependencies[] = textbook_editor
 dependencies[] = cis_users
 dependencies[] = cis_roles
-
-; Information intentionally kept here to have a version w/ ELMSLN
-; Information added by Drupal.org packaging script on 2014-06-26
-version = "7.x-1.0-beta4"
-core = "7.x"
-project = "cis"
-datestamp = "1403746501"
+dependencies[] = cis_ux
 
 ; Information added by Drupal.org packaging script on 2014-08-13
 version = "7.x-1.0-beta4+3-dev"
