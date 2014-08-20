@@ -1,10 +1,11 @@
-name = "Video Embed Facebook"
-description = "Provides Facebook handler for Video Embed Fields.  This module also serves as an example of how to add handlers to video embed field."
+name = "Video Embed Brightcove"
+description = "Provides Brightcove handler for Video Embed Fields."
 core = 7.x
 package = Media
 configure = admin/config/media/vef_video_styles
 
 dependencies[] = "video_embed_field"
+
 ; Information added by Drupal.org packaging script on 2014-08-16
 version = "7.x-2.0-beta8"
 core = "7.x"
