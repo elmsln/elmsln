@@ -267,11 +267,11 @@ function path_breadcrumbs_ui_add_form_validate($form, $form_state) {
 
   $machine_name = '';
 
-  if (isset($form_state['storage']['machine_name'])) {
-    $machine_name = $form_state['storage']['machine_name'];
-  }
-  elseif (isset($values['machine_name'])) {
+  if (isset($values['machine_name'])) {
     $machine_name = $values['machine_name'];
+  }
+  elseif (isset($form_state['storage']['machine_name'])) {
+    $machine_name = $form_state['storage']['machine_name'];
   }
 
   // Don't allow to use existing machine name for new breadcrumbs.
@@ -1055,7 +1055,19 @@ function path_breadcrumbs_ui_argument_context_form($form, &$form_state) {
       // Apply plugin's settings form to previously builded form.
       if ($function = (string) ctools_plugin_get_function($plugin, 'settings form')) {
         $settings_form = $settings_form_state = array();
-        $function($settings_form, $settings_form_state);
+
+        // Load default plugin settings.
+        $settings_default = array();
+        if (isset($plugin['default'])) {
+          if (is_array($plugin['default'])) {
+            $settings_default = $plugin['default'];
+          }
+          elseif (function_exists($plugin['default'])) {
+            $settings_default = $plugin['default']();
+          }
+        }
+
+        $function($settings_form, $settings_form_state, $settings_default);
         $form['settings'] += $settings_form['settings'];
       }
 

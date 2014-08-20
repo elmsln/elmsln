@@ -102,14 +102,17 @@ Drupal.pathBreadcrumbsUI = Drupal.pathBreadcrumbsUI || {};
       });
     });
 
+    // Newer versions of jQuery UI use 'ui-autocomplete', older - 'autocomplete'.
+    var autocompleteDataKey = typeof(this.jqObject.data('autocomplete')) === 'object' ? 'autocomplete' : 'ui-autocomplete';
+
     // Since jquery autocomplete by default strips html text by using .text()
     // we need our own _renderItem function to display html content.
-      this.jqObject.data("autocomplete")._renderItem = function(ul, item) {
+    this.jqObject.data(autocompleteDataKey)._renderItem = function(ul, item) {
       return $("<li></li>").data("item.autocomplete", item).append("<a>" + item.label + "</a>").appendTo(ul);
     };
 
     // Override close function
-    this.jqObject.data("autocomplete").close = function (event) {
+    this.jqObject.data(autocompleteDataKey).close = function (event) {
       var value = this.element.val();
       // If the selector is not a group, then trigger the close event an and
       // hide the menu.
@@ -118,7 +121,10 @@ Drupal.pathBreadcrumbsUI = Drupal.pathBreadcrumbsUI || {};
         if (this.menu.element.is(":visible")) {
           this._trigger("close", event);
           this.menu.element.hide();
-          this.menu.deactivate();
+          // Use deactivate method for older versions of jQuery UI.
+          if (typeof(this.menu.deactivate) === 'function') {
+            this.menu.deactivate();
+          }
         }
       }
       else {

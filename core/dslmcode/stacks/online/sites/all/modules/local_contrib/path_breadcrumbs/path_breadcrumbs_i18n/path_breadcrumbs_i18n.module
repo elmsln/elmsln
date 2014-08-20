@@ -59,6 +59,11 @@ function path_breadcrumbs_i18n_i18n_object_info() {
 function path_breadcrumbs_i18n_path_breadcrumbs_save($path_breadcrumbs) {
   if ($path_breadcrumbs->translatable) {
     i18n_string_object_update('path_breadcrumbs', $path_breadcrumbs);
+
+    if (!empty($path_breadcrumbs->clone_from)) {
+      $path_breadcrumbs_source = path_breadcrumbs_load_by_name($path_breadcrumbs->clone_from);
+      path_breadcrumbs_i18n_clone($path_breadcrumbs_source, $path_breadcrumbs);
+    }
   }
   else {
     i18n_string_object_remove('path_breadcrumbs', $path_breadcrumbs);
@@ -124,4 +129,33 @@ function path_breadcrumbs_i18n_load_all() {
   }
 
   return $path_breadcrumbs_translatable;
+}
+
+/**
+ * Copy translations from source to destination.
+ */
+function path_breadcrumbs_i18n_clone($path_breadcrumbs_source, $path_breadcrumbs_destination) {
+  $object_s = i18n_object('path_breadcrumbs', $path_breadcrumbs_source);
+  $object_d = i18n_object('path_breadcrumbs', $path_breadcrumbs_destination);
+
+  $strings_s = $object_s->get_strings(array('empty' => TRUE));
+  $strings_d = $object_d->get_strings(array('empty' => TRUE));
+  $cnt = count($strings_s);
+
+  if (!$cnt || (count($strings_s) != count($strings_d))) {
+   return FALSE;
+  }
+
+  $languages = i18n_language_list('language');
+  unset($languages[i18n_string_source_language()]);
+
+  for ($i = 0; $i < $cnt; $i++) {
+    $pair_s = each($strings_s);
+    $pair_d = each($strings_d);
+
+    foreach ($languages as $lang) {
+      $translation = $pair_s['value']->get_translation($lang);
+      i18n_string_translation_update($pair_d['key'], $pair_s['value']->get_translation($lang), $lang);
+    }
+  }
 }

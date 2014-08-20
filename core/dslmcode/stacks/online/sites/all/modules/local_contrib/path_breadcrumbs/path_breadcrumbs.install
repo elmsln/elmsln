@@ -31,6 +31,7 @@ function path_breadcrumbs_uninstall() {
   variable_del('path_breadcrumbs_url_cleaning_method');
   variable_del('path_breadcrumbs_truncate_title_length');
   variable_del('path_breadcrumbs_internal_render_themes');
+  variable_del('path_breadcrumbs_decode_entities');
 }
 
 /**
@@ -277,5 +278,12 @@ function path_breadcrumbs_update_7302() {
  * Clear Path Breadcrumbs cache to use new Path Breadcrumbs cache object structure.
  */
 function path_breadcrumbs_update_7303() {
-  cache_clear_all('*', PATH_BREADCRUMBS_CACHE_STORAGE, TRUE);
+  cache_clear_all('*', 'cache_path_breadcrumbs', TRUE);
+}
+
+/**
+ * Clear Entity API cache to register new Path Breadcrumbs taxonomy token.
+ */
+function path_breadcrumbs_update_7304() {
+  entity_property_info_cache_clear();
 }

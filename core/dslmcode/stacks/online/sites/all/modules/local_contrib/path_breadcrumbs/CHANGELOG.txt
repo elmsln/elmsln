@@ -1,5 +1,34 @@
 Path Breadcrumbs 7.x-3.x, xxxx-xx-xx
+
+
+Path Breadcrumbs 7.x-3.0, 2014-06-24
+by kalabro: Fixed PHP Warning implode(): Invalid arguments passed in _path_breadcrumbs_menu_token_generate().
+#2246181 by maximpodorov, kalabro: Cache empty results to prevent heavy variant lookup process. hook_path_breadcrumbs_view_alter() now works for cached items too.
+#2261911 by Nicolas Bouteille, kalabro: Clone translations when cloning Path Breadcrumbs item.
+#2290447 by R-H, kalabro: Allow to create empty breadcrumbs (disabling).
+
+
+Path Breadcrumbs 7.x-3.0-rc2, 2014-02-16
+#2178169 by kalabro | audealexandre: Added *:pb-join:none token for empty strings.
+#2184389 by maximpodorov: Fixed New Panels module code generates warnings in Path Breadcrumbs.
+#2068619 by FreekVR, halefx, kalabro: Fixed PHP Warning Missing argument 3 for ctools argument settings form.
+#2189149 by korgik | kalabro: Added option to build breadcrumbs for custom URL via path_breadcrumbs_set_breadcrumb() function.
+
+
+Path Breadcrumbs 7.x-3.0-rc1, 2014-01-26
 ------------------------------
+#2178565 by kalabro | Fina Bluma: Fixed warnings when using Bootstrap theme.
+#2175751 by kalabro | VasilyKraev: Fixed strict warning when using RESTWS module.
+#2171769 by kalabro | FortEZ: Fixed Profile2 token not replaced from Ctools User context.
+
+
+Path Breadcrumbs 7.x-3.0-beta7, 2014-01-08
+#2122051 by kalabro | zniki.ru: Fixed Machine name validation error when clone PB item.
+#2118329 by kalabro | klim_: Improved URL query support (?&=).
+#2066223 by sylus, OnkelTem: Add partial jquery_update-dev support.
+#2153755 by bkosborne: Fixed Variable "path_breadcrumbs_decode_entities" not deleted on uninstall.
+#2149763 by kalabro, manuelBS | Spleshka: Added 'pb-join' token for node menus, current page menu item and Book hierarchy.
+#2160011 by kalabro | VasilyKraev: Added "Configuration Management" module support.
 
 
 Path Breadcrumbs 7.x-3.0-beta6, 2013-10-25
@@ -27,7 +56,7 @@ Path Breadcrumbs 7.x-3.0-beta4, 2013-08-06
 #2033169 by kalabro: Added new option "URL path cleaning method" with CTools and Pathauto support.
 #1929110 by samhassell, VasilyKraev, kalabro: Added new option "Maximum title length" for truncating long strings.
 #1959890 by rimen, grient, kalabro: Link/title fields maxlength increased to 256.
-By kalabro: Added new "bp-join" token for hierarchical taxonomy breadcrumbs.
+By kalabro: Added new "pb-join" token for hierarchical taxonomy breadcrumbs.
 #2035365 by lecler, kalabro: Fixed Translations lost after reverting path breadcrumbs.
 #2018979 by mmikitka, kalabro: Sort breadcrumbs export by natural order for better file diffing.
 

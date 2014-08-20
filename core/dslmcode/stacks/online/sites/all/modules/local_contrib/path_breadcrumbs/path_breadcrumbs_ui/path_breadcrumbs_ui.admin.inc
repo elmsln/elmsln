@@ -331,6 +331,7 @@ function path_breadcrumbs_ui_settings_submit($form, &$form_state) {
  * Form for path breadcrumbs clone.
  */
 function path_breadcrumbs_clone_breadcrumb($path_breadcrumb) {
+  $path_breadcrumb->clone_from = $path_breadcrumb->machine_name;
   $path_breadcrumb->machine_name .= '_clone';
   $path_breadcrumb->export_type = NULL;
   unset($path_breadcrumb->path_id);

@@ -8,9 +8,9 @@ dependencies[] = path_breadcrumbs
 
 files[] = includes/path_breadcrumbs_ui.autocomplete.inc
 
-; Information added by drupal.org packaging script on 2013-10-24
-version = "7.x-3.0-beta6"
+; Information added by Drupal.org packaging script on 2014-06-24
+version = "7.x-3.0"
 core = "7.x"
 project = "path_breadcrumbs"
-datestamp = "1382650227"
+datestamp = "1403641128"
 
