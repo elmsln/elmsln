@@ -108,7 +108,7 @@ function cis_install() {
   db_insert('users_roles')
     ->fields(array('uid' => 1, 'rid' => $admin_role->rid))
     ->execute();
-  // Update the menu router information.
+  // update the menu router information as we just did a lot of stuff.
   menu_rebuild();
   // revert features to ensure they are all installed
   $features = array(
