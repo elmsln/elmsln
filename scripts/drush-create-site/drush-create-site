@@ -46,9 +46,9 @@ do
   course=`sed -n '1p' $coursefile`
   service=${coursefile#*.}
   if [ -z $stacks ]; then
-  drupalroot=$webdir/$service
+    drupalroot=$webdir/$service
   else
-  drupalroot=$stacks/$service
+    drupalroot=$stacks/$service
   fi
   echo $drupalroot
   coursedb=$service"_"$college"_"$course
@@ -189,7 +189,7 @@ do
 
   cd $drupalroot
   #Install site with drush
-  drush -y site-install $insprofile --db-url=mysql://$dbprefix$college$course:$dbpw@localhost/$coursedb --sites-subdir=$course --db-su=$dbsu --db-su-pw=$dbsupw --site-name="$sitename" --account-name=$drupaluid --account-pass=$drupalpw --account-mail=$admin --site-mail=$site_email > /dev/null
+  drush -y --root=$drupalroot site-install $insprofile --db-url=mysql://$dbprefix$college$course:$dbpw@localhost/$coursedb --sites-subdir=$course --db-su=$dbsu --db-su-pw=$dbsupw --site-name="$sitename" --account-name=$drupaluid --account-pass=$drupalpw --account-mail=$admin --site-mail=$site_email > /dev/null
 
 
   echo "3" > $fileloc/$course.$service.progress
@@ -246,9 +246,9 @@ do
     else
       requesterpw=`</dev/urandom tr -dc A-Za-z0-9 | head -c14`
       requesterid=`echo $requester | cut -d@ -f1`
-      drush -y --uri=$protocol://$hostname.$course user-create $requesterid --mail="$requester"
+      drush -y --root=$drupalroot --uri=$protocol://$hostname.$course user-create $requesterid --mail="$requester"
       #drush -y --uri=$protocol://$hostname.$course user-add-role administrator $requesterid
-      drush -y --uri=$protocol://$hostname.$course user-password $requesterid --password="$requesterpw"
+      drush -y --root=$drupalroot --uri=$protocol://$hostname.$course user-password $requesterid --password="$requesterpw"
       if [[ $send_requester_pw ]]; then
          echo " $protocol://$hostname/$course has been created!  id: $requesterid  password: $requesterpw" | mail -s "$course has been added to $hostname" $requester
       else
@@ -258,7 +258,7 @@ do
   fi
 
   if [[ $slogan ]]; then
-    drush -y --uri=$protocol://$hostname.$course vset site_slogan "$slogan"
+    drush -y --root=$drupalroot --uri=$protocol://$hostname.$course vset site_slogan "$slogan"
   fi
 
   #progress
@@ -320,7 +320,7 @@ do
     rm /tmp/drush-lock
     exit 1
   fi
-    drush -y --uri=$protocol://$hostname.$course $drushcommand
+    drush -y --root=$drupalroot --uri=$protocol://$hostname.$course $drushcommand
   done
   fi
   echo "5" >> $fileloc/$course.$service.progress
