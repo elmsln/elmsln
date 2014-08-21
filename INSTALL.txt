@@ -167,8 +167,31 @@ alias l='ls -laHD'
 #type :wq
 
 #=== PIWIK (optional) ===
-#Install the analytics package by pointing a domain to the 
-#elmsln/domains/analytics.  This is running piwik and has config and tmp files 
+#Install the analytics package by pointing a domain to the
+#elmsln/domains/analytics.  This is running piwik and has config and tmp files
 #modified to point to the symlink directories in the config directory.
+
+#Create a database named analytics_{host} to match the rest of your systems.
+#You'll need to create a user / password and then  run through the installation
+#at analytics.{domain}. There are examples in the cis_example modules included
+#with this package as to how that might look.
+
+#elmsln-config-vagrant also includes a working analytics example to see how
+#a feature might be created to help make hooking in new systems easier.
+
+#=== Single Sign On ===
+#There are examples included with elmsln-config-vagrant to provide SSO via
+#the drupal bakery module. This relationship is similar to PIWIK in that you
+#you install the master module on the source and the service module to talk
+#to it on each instance. This is being worked on as an optional install
+#routine since the entire system depends on it.
+
+#Regardless of that being finished, it is still recommended that you use
+#LDAP, Shibboleth, Cosign, or some other single sign on system as drupal's
+#bakery is rather limitted and ELMSLN really shines when integrated with
+#the rest of your organizations systems anyway!
+
+#Bakery can conflict with (a lot of stuff) as one reason to potentially not use it. To correctly use it (til we formally support it on install) you'll need to add the following to your /service/ based domains so that webservices work (cause it will intercept them unfortunately).
+$conf['bakery_is_master'] = TRUE;
 
 #Stay thirsty my friends.
