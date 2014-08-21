@@ -1188,7 +1188,7 @@ function _bakery_bake_chocolatechip_cookie($name, $mail, $init) {
     $data = bakery_bake_data($cookie);
     // Allow cookies to expire when the browser closes.
     $expire = (variable_get('bakery_freshness', '3600') > 0) ? $_SERVER['REQUEST_TIME'] + variable_get('bakery_freshness', '3600') : '0';
-    setcookie($type, $data, $expire, '/', variable_get('bakery_domain', ''), $cookie_secure);
+    setcookie($type, $data, $expire, '/', variable_get('bakery_domain', ''), $cookie_secure, TRUE);
   }
 }
 
@@ -1231,7 +1231,7 @@ function bakery_bake_oatmeal_cookie($name, $data) {
     $data = bakery_bake_data($cookie);
     // Allow cookies to expire when the browser closes.
     $expire = (variable_get('bakery_freshness', '3600') > 0) ? $_SERVER['REQUEST_TIME'] + variable_get('bakery_freshness', '3600') : '0';
-    setcookie($type, $data, $expire, '/', variable_get('bakery_domain', ''), (empty($cookie_secure) ? FALSE : TRUE));
+    setcookie($type, $data, $expire, '/', variable_get('bakery_domain', ''), (empty($cookie_secure) ? FALSE : TRUE), TRUE);
   }
 }
 
@@ -1495,8 +1495,8 @@ function bakery_eat_gingerbread_cookie() {
 function _bakery_eat_cookie($type = 'CHOCOLATECHIP') {
   $cookie_secure = ini_get('session.cookie_secure');
   $type = _bakery_cookie_name($type);
-  setcookie($type, '', $_SERVER['REQUEST_TIME'] - 3600, '/', '', (empty($cookie_secure) ? FALSE : TRUE));
-  setcookie($type, '', $_SERVER['REQUEST_TIME'] - 3600, '/', variable_get('bakery_domain', ''), (empty($cookie_secure) ? FALSE : TRUE));
+  setcookie($type, '', $_SERVER['REQUEST_TIME'] - 3600, '/', '', (empty($cookie_secure) ? FALSE : TRUE), TRUE);
+  setcookie($type, '', $_SERVER['REQUEST_TIME'] - 3600, '/', variable_get('bakery_domain', ''), (empty($cookie_secure) ? FALSE : TRUE), TRUE);
 }
 
 /**

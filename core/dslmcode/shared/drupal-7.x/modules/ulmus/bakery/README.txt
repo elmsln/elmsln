@@ -198,3 +198,4 @@ information.
 
 Please use the public issue queue of Bakery for all bugs and feature requests:
 http://drupal.org/project/issues/bakery
+

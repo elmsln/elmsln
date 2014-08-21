@@ -4,9 +4,9 @@ core = 7.x
 files[] = bakery.module
 php = 5.1.2
 
-; Information added by Drupal.org packaging script on 2014-03-05
-version = "7.x-2.0-alpha4+9-dev"
+; Information added by Drupal.org packaging script on 2014-05-05
+version = "7.x-2.0-alpha4+11-dev"
 core = "7.x"
 project = "bakery"
-datestamp = "1394057008"
+datestamp = "1399303727"
 
