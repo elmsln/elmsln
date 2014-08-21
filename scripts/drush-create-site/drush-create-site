@@ -173,7 +173,7 @@ do
 
   #if errors are found, back out
   if [ $error = 1 ]; then
-    /bin/mv $coursefile $coursefile.$date.error
+    mv $coursefile $coursefile.$date.error
     echo "there was an error processing $coursefile. please check the logs" | mail -s "error creating site" $admin
     echo "there was an error processing site, please contact your admin" | mail -s "error creating site" $requester
     echo "error" > $fileloc/$course.$service.progress
@@ -182,7 +182,7 @@ do
   fi
 
   #start processing
-  /bin/mv $coursefile $coursefile.processing
+  mv $coursefile $coursefile.processing
 
   #makeshift progress bar
   echo "2" > $fileloc/$course.$service.progress
@@ -196,7 +196,7 @@ do
 
   #create symlink for subdir
   cd $webdir/$service
-  /bin/ln -s $drupalroot $course
+  ln -s $drupalroot $course
 
   mkdir -p $drupalroot/sites/$subdir
   mv  $drupalroot/sites/$course $drupalroot/sites/$subdir/$course
@@ -205,17 +205,17 @@ do
 
 
   if [ -f $configsdir/stacks/$service/sites/sites.php ]; then
-    arraytest=`/bin/grep -e "^\\$sites" $configsdir/stacks/$service/sites/sites.php`
+    arraytest=`grep -e "^\\$sites" $configsdir/stacks/$service/sites/sites.php`
     if [[ -z $arraytest ]]; then
       echo "\$sites = array(" >> $configsdir/stacks/$service/sites/sites.php
       echo "" >> $configsdir/stacks/$service/sites/sites.php
       echo ");" >> $configsdir/stacks/$service/sites/sites.php
     fi
-    /bin/sed -i "/^\$sites = array/a \ \t \'$hostname.$course\' =\> \'$subdir\/$course\'\," $configsdir/stacks/$service/sites/sites.php
+    sed -i "/^\$sites = array/a \ \t \'$hostname.$course\' =\> \'$subdir\/$course\'\," $configsdir/stacks/$service/sites/sites.php
   	if [[ $datahostname ]]; then
-  		/bin/sed -i "/^\$sites = array/a \ \t \'$datahostname.$course\' =\> \'$service\/services\/$college\/$course\'\," $configsdir/stacks/$service/sites/sites.php
+  		sed -i "/^\$sites = array/a \ \t \'$datahostname.$course\' =\> \'$service\/services\/$college\/$course\'\," $configsdir/stacks/$service/sites/sites.php
   	else
-  		/bin/sed -i "/^\$sites = array/a \ \t \'data.$hostname.$course\' =\> \'$service\/services\/$college\/$course\'\," $configsdir/stacks/$service/sites/sites.php
+  		sed -i "/^\$sites = array/a \ \t \'$serviceprefix.$hostname.$course\' =\> \'$service\/services\/$college\/$course\'\," $configsdir/stacks/$service/sites/sites.php
   	fi
   fi
 
@@ -229,7 +229,7 @@ do
       mkdir $drupalroot/sites/$service/services/$college/$course/files
       chown -R $wwwuser:$webgroup $drupalroot/sites/$service/services/$college/$course/files
       if [ -f $drupalroot/sites/$service/$college/$course/settings.php ]; then
-        /bin/cp $drupalroot/sites/$service/$college/$course/settings.php $drupalroot/sites/$service/services/$college/$course/settings.php
+        cp $drupalroot/sites/$service/$college/$course/settings.php $drupalroot/sites/$service/services/$college/$course/settings.php
       fi
       if [ -f $drupalroot/sites/$service/services/$college/$course/settings.php ]; then
         echo "\$conf['restws_basic_auth_user_regex'] = '/^SERVICE_.*/';" >> $drupalroot/sites/$service/services/$college/$course/settings.php
@@ -246,9 +246,9 @@ do
     else
       requesterpw=`</dev/urandom tr -dc A-Za-z0-9 | head -c14`
       requesterid=`echo $requester | cut -d@ -f1`
-      drush -y --uri=http://$hostname.$course user-create $requesterid --mail="$requester"
-      #drush -y --uri=http://$hostname.$course user-add-role administrator $requesterid
-      drush -y --uri=http://$hostname.$course user-password $requesterid --password="$requesterpw"
+      drush -y --uri=$protocol://$hostname.$course user-create $requesterid --mail="$requester"
+      #drush -y --uri=$protocol://$hostname.$course user-add-role administrator $requesterid
+      drush -y --uri=$protocol://$hostname.$course user-password $requesterid --password="$requesterpw"
       if [[ $send_requester_pw ]]; then
          echo " $protocol://$hostname/$course has been created!  id: $requesterid  password: $requesterpw" | mail -s "$course has been added to $hostname" $requester
       else
@@ -258,7 +258,7 @@ do
   fi
 
   if [[ $slogan ]]; then
-    drush -y --uri=http://$hostname.$course vset site_slogan "$slogan"
+    drush -y --uri=$protocol://$hostname.$course vset site_slogan "$slogan"
   fi
 
   #progress
@@ -266,7 +266,7 @@ do
   #echo ${PWD}
 
   if [[ $options ]]; then
-    /bin/grep ^drush $coursefile.processing | while read drush; do
+    grep ^drush $coursefile.processing | while read drush; do
       #echo "things"
       drushcommand=`echo $drush | awk '{print $2}'`
       case $drushcommand in
@@ -320,7 +320,7 @@ do
     rm /tmp/drush-lock
     exit 1
   fi
-    drush -y --uri=http://$hostname.$course $drushcommand
+    drush -y --uri=$protocol://$hostname.$course $drushcommand
   done
   fi
   echo "5" >> $fileloc/$course.$service.progress
@@ -343,11 +343,11 @@ do
   echo "6" > $fileloc/$course.$service.progress
 
   if [[ -f  $coursefile.processing ]]; then
-    /bin/mv $coursefile.processing $coursefile.processed
+    mv $coursefile.processing $coursefile.processed
   fi
 
   if [[ -f $fileloc/$course.$service.progress ]]; then
-    /bin/rm $fileloc/$course.$service.progress
+    rm $fileloc/$course.$service.progress
   fi
 done
 rm /tmp/drush-lock
