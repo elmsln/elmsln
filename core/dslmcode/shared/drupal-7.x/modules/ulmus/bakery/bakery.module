@@ -328,9 +328,21 @@ function bakery_form_alter(&$form, $form_state, $form_id) {
         $form['#submit'] = array('_bakery_login_submit');
       }
       break;
+    // support for masquerade
+    case 'masquerade_block_1':
+      $form['#submit'] = array_merge(array('_bakery_masquerade_block_1_submit'), $form['#submit']);
+      break;
     default:
       break;
   }
+}
+
+/**
+ * Submit handler for a masqurade request
+ */
+function _bakery_masquerade_block_1_submit($form, &$form_state) {
+  global $user;
+  $user->about_to_masquerade = TRUE;
 }
 
 /**
@@ -1124,6 +1136,11 @@ function _bakery_taste_chocolatechip_cookie() {
     if ($user->uid > 1) {
       // This runs for logged in users. Those folks are going to get a full bootstrap anyway so this isn't a problem.
       drupal_bootstrap(DRUPAL_BOOTSTRAP_FULL);
+      // last second support for masquerade
+      if (module_exists('masquerade') && (isset($_SESSION['masquerading']) || (isset($user->about_to_masquerade) && $user->about_to_masquerade))) {
+        unset($user->about_to_masquerade);
+        return FALSE;
+      }
       if (!user_access('bypass bakery')) {
         watchdog('bakery', 'Logging out the user with the bad cookie.');
         _bakery_user_logout();
