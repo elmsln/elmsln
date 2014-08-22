@@ -1,0 +1,12 @@
+diff --git a/core/dslmcode/stacks/online/sites/all/modules/local_contrib/video_embed_field/video_embed_field.install b/core/dslmcode/stacks/online/sites/all/modules/local_contrib/video_embed_field/video_embed_field.install
+index c6b1dd8..b3274da 100644
+--- a/core/dslmcode/stacks/online/sites/all/modules/local_contrib/video_embed_field/video_embed_field.install
++++ b/core/dslmcode/stacks/online/sites/all/modules/local_contrib/video_embed_field/video_embed_field.install
+@@ -232,7 +232,6 @@ function video_embed_field_update_7005() {
+  */
+ function video_embed_field_update_7006() {
+   // Convert the table structure.
+-  db_drop_primary_key('vef_video_styles');
+   db_drop_field('vef_video_styles', 'vsid');
+   db_add_primary_key('vef_video_styles', array('name'));
+   db_drop_unique_key('vef_video_styles', 'name');

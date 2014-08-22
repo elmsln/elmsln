@@ -232,7 +232,6 @@ function video_embed_field_update_7005() {
  */
 function video_embed_field_update_7006() {
   // Convert the table structure.
-  db_drop_primary_key('vef_video_styles');
   db_drop_field('vef_video_styles', 'vsid');
   db_add_primary_key('vef_video_styles', array('name'));
   db_drop_unique_key('vef_video_styles', 'name');
