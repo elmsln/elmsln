@@ -33,7 +33,7 @@ function thumbnav_init() {
       drupal_add_js($lib[$active_lib]['location']);
     }
     // add default thumbnav library
-    drupal_add_js(drupal_get_path('module', 'thumbnav') . '/js/thumbnav.js');
+    drupal_add_js(drupal_get_path('module', 'thumbnav') . '/js/thumbnav.js', array('weight' => -10));
     // add included js files if they exist
     foreach ($widget_items as $item) {
       if (isset($item['inc'])) {
