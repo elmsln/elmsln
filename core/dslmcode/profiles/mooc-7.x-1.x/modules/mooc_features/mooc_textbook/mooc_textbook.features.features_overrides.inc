@@ -31,11 +31,6 @@ function mooc_textbook_features_override_default_overrides() {
     'status' => 1,
     'weight' => -44,
   );
-  $overrides["filter.textbook_editor.filters|nrhi"] = array(
-    'settings' => array(),
-    'status' => 1,
-    'weight' => -42,
-  );
   $overrides["filter.textbook_editor.filters|typogrify|weight"] = -43;
 
   // Exported overrides for: wysiwyg

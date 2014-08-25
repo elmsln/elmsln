@@ -37,11 +37,6 @@ function mooc_textbook_filter_default_formats_alter(&$data) {
       'status' => 1,
       'weight' => -44,
     ); /* WAS: '' */
-    $data['textbook_editor']['filters']['nrhi'] = array(
-      'settings' => array(),
-      'status' => 1,
-      'weight' => -42,
-    ); /* WAS: '' */
     $data['textbook_editor']['filters']['typogrify']['weight'] = -43; /* WAS: 0 */
   }
 }
