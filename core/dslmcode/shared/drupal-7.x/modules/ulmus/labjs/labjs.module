@@ -1,0 +1,364 @@
+<?php
+
+/**
+ * @file
+ *   LABjs module
+ */
+
+define('LABJS_EXCLUDE', '// LABjs exclusion');
+
+/**
+ * Implements hook_init().
+ */
+function labjs_init() {
+  // Loads our loader first
+  // Normally we use JS_LIBRARY, but Google Analytics module uses JS_LIBRARY-1,
+  // then we use JS_LIBRARY-10. We should look for a more proper approach.
+  drupal_add_js(labjs_get_path(), array('group' => JS_LIBRARY-10, 'weight' => -50, 'every_page' => 1, 'inline' => TRUE, 'preprocess' => FALSE));
+
+  if (module_exists('advagg')) {
+    // Add in LAB.js init function.
+    drupal_add_js(LABJS_EXCLUDE . "\n" . 'var $L = $LAB.setGlobalDefaults({AlwaysPreserveOrder:true});', array('group' => JS_LIBRARY-10, 'weight' => -49, 'every_page' => 1, 'type' => 'inline', 'preprocess' => TRUE));
+
+    // Makes Google Analytics work.
+    drupal_add_js(LABJS_EXCLUDE . "\n" . '$L = $L.wait(function() {Drupal.scriptsready=true;jQuery(document).trigger("scripts-ready");});', array('group' => JS_THEME+101, 'weight' => 20, 'every_page' => 1, 'type' => 'inline', 'preprocess' => TRUE, 'scope' => 'footer'));
+  }
+}
+
+/**
+ * Implements hook_menu().
+ */
+function labjs_menu() {
+  $items = array();
+  $file_path = drupal_get_path('module', 'labjs') . '/includes';
+
+  $items['admin/config/development/labjs'] = array(
+    'title' => 'LABjs',
+    'description' => 'Configure the settings used to wrap JS blocks.',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('labjs_admin_settings_form'),
+    'access arguments' => array('administer site configuration'),
+    'file path' => $file_path,
+    'file' => 'labjs.admin.inc',
+  );
+
+  return $items;
+}
+
+/**
+ * Implements hook_module_implements_alter().
+ */
+function labjs_module_implements_alter(&$implementations, $hook) {
+  // Move labjs to the top.
+  if ($hook === 'advagg_modify_js_pre_render_alter' && array_key_exists('labjs', $implementations)) {
+    $item = array('labjs' => $implementations['labjs']);
+    unset($implementations['labjs']);
+    $implementations = array_merge($item, $implementations);
+  }
+}
+
+/**
+ * Implements hook_js_alter().
+ */
+function labjs_js_alter(&$javascript) {
+  if (labjs_suppress()) {
+    return;
+  }
+
+  // Replaces the original misc/drupal.js with a new one, without using
+  // $(document).ready(...);
+  $javascript['misc/drupal.js']['data'] = drupal_get_path('module', 'labjs') . '/replace/drupal.js';
+
+  // Overlay thinks that DOM is ready when it is loaded.
+  // With LABjs enabled, it is no longer correct. We need to patch it, too.
+  if (isset($javascript['modules/overlay/overlay-parent.js'])) {
+    $javascript['modules/overlay/overlay-parent.js']['data'] = drupal_get_path('module', 'labjs') . '/replace/overlay-parent.js';
+  }
+
+  if (module_exists('advagg')) {
+    return;
+  }
+
+  $scripts = array();
+  $files = array();
+  $preprocess_js = (variable_get('preprocess_js', FALSE) && (!defined('MAINTENANCE_MODE') || MAINTENANCE_MODE != 'update'));
+  // The index counter is used to keep aggregated and non-aggregated files in
+  // order by weight.
+  $index = 1;
+
+  // Sorts the scripts into correct order
+  // Drupal assigns different weight for each scripts, thus we can't determine
+  // if two scripts can be executed in parallel. However, they are all loaded in
+  // parallel.
+  uasort($javascript, 'drupal_sort_css_js');
+
+  // Provide the page with information about the individual JavaScript files
+  // used, information not otherwise available when aggregation is enabled.
+  $setting['ajaxPageState']['js'] = array_fill_keys(array_keys($javascript), 1);
+  unset($setting['ajaxPageState']['js']['settings']);
+  drupal_add_js($setting, 'setting');
+
+  foreach ($javascript as $key => $item) {
+    if (empty($item['inline'])) {
+      if (!isset($item['type']) || $item['type'] == 'file' || $item['type'] == 'external') {
+        if ($item['type'] == 'external' || !$item['preprocess'] || !$preprocess_js) {
+          $src = $item['type'] == 'external' ? $item['data'] : file_create_url($item['data']);
+          $scripts[$item['scope']][$index++] = $src;
+        }
+        else {
+          $filekey = 'aggregate_' . $item['group'] . '_' . $item['every_page'] . '_' . $index;
+          $scripts[$item['scope']][$filekey] = '';
+          $files[$item['scope']][$filekey][$item['data']] = $item;
+        }
+        unset($javascript[$key]);
+      }
+    }
+    elseif ($item['type'] == 'inline') {
+      $javascript[$key]['data'] = LABJS_EXCLUDE . "\n" . $javascript[$key]['data'];
+    }
+  }
+
+  // Aggregates any remaining JS files
+  if ($preprocess_js && count($files) > 0) {
+    foreach ($files as $scope => $items) {
+      foreach ($items as $key => $file_set) {
+        $uri = drupal_build_js_cache($file_set);
+        // Only include the file if was written successfully. Errors are logged
+        // using watchdog.
+        if ($uri) {
+          $scripts[$scope][$key] = file_create_url($uri);
+        }
+      }
+    }
+  }
+
+  // Adds the JS function call
+  $base = array(
+    'defer' => FALSE,
+    'type' => 'inline',
+    'group' => JS_LIBRARY,
+    'every_page' => 1,
+  );
+  $javascript['labjs--init'] = $base + array(
+    'scope' => 'header',
+    'data' => LABJS_EXCLUDE . "\nvar \$L = \$LAB.setGlobalDefaults({AlwaysPreserveOrder:true});",
+    'weight' => -20,
+  );
+  // Makes Google Analytics work.
+  $javascript['labjs--init']['group']--;
+  $javascript['labjs--execute'] = $base + array(
+    'scope' => 'footer',
+    'data' => LABJS_EXCLUDE . "\n\$L = \$L.wait(function() {Drupal.scriptsready=true;jQuery(document).trigger('scripts-ready');});",
+    'weight' => 20,
+  );
+  foreach ($scripts as $scope => $items) {
+    if (! $items) continue;
+    $javascript['labjs-' . $scope] = $base + array(
+      'scope' => $scope,
+      'data' => LABJS_EXCLUDE . "\n\$L = \$L.script([\"" . implode("\",\n\"", $items) . "\"]);",
+      'weight' => 10,
+    );
+  }
+}
+
+/**
+ * Convert inline script.
+ *
+ * It also fixes some exceptions.
+ *
+ * @return boolean
+ *   FALSE if LabJS should not be enabled, TRUE otherwise.
+ */
+function _labjs_fix_inline(&$value) {
+  // Some JavaScripts do not support LABjs
+  if (strpos($value, 'rpxnow.com') !== FALSE || strpos($value, 'fbcdn.net') !== FALSE) {
+    return FALSE;
+  }
+
+  // Google Analytics compatibility
+  $value = str_replace('var _gaq = _gaq || [];', 'if (typeof(_gaq)=="undefined") _gaq=[];', $value);
+
+  // Piwik compatibility
+  $value = str_replace('var _paq = _paq || [];', 'if (typeof(_paq)=="undefined") _paq=[];', $value);
+
+  $value = "\$L = \$L.wait(function() {\n" . $value . "\n});";
+
+  return TRUE;
+}
+
+/**
+ * Implements hook_preprocess_html_tag().
+ *
+ * Inline JavaScript blocks must be executed in order. In the blocking script load,
+ * this is the default behavior. With LAB, we must wrap them in wait() to preserve
+ * this behavior
+ */
+function labjs_preprocess_html_tag(&$variables) {
+  if (labjs_suppress()) {
+    return;
+  }
+
+  if (module_exists('advagg')) {
+    return;
+  }
+
+  if ($variables['element']['#tag'] == 'script' && !empty($variables['element']['#value']) && strpos($variables['element']['#value'], LABJS_EXCLUDE) !== 0) {
+    _labjs_fix_inline($variables['element']['#value']);
+  }
+}
+
+// AdvAgg hook implementations.
+/**
+ * Implements hook_advagg_modify_js_pre_render_alter().
+ */
+function labjs_advagg_modify_js_pre_render_alter(&$children, &$elements) {
+  if (labjs_suppress()) {
+    return;
+  }
+
+  static $init_encountered = FALSE;
+  $labjs_ready_key = FALSE;
+  $drupal_settings_key = FALSE;
+  foreach ($children as $key => &$values) {
+    // Do not LAB.js anything until "$LAB.setGlobalDefaults" has been seen.
+    if (!$init_encountered && !empty($values['#value']) && strpos($values['#value'], '$LAB.setGlobalDefaults')) {
+      $init_encountered = TRUE;
+    }
+    if (!$init_encountered) {
+      continue;
+    }
+
+    // Inline JS.
+    if (!empty($values['#value']) && strpos($values['#value'], LABJS_EXCLUDE) === FALSE) {
+      if (!_labjs_fix_inline($values['#value'])) {
+        continue;
+      }
+    }
+
+    // JS src files.
+    if (!empty($values['#attributes']['src'])) {
+      $values['#value'] = "\n" . LABJS_EXCLUDE . "\n" . '$L = $L.script(["' . $values['#attributes']['src'] . '"]);';
+      $values['#value_prefix'] = "\n" . '<!--//--><![CDATA[//><!--';
+      $values['#value_suffix'] = "\n" . '//--><!]]>';
+
+      $values['#attributes']['src'] = NULL;
+      unset($values['#attributes']['src']);
+    }
+
+    if (!empty($values['#value'])) {
+      // LAB.js ready script key value.
+      if (strpos($values['#value'], 'Drupal.scriptsready=true;jQuery(document).trigger("scripts-ready")') !== FALSE) {
+        $labjs_ready_key = $key;
+      }
+      // Drupal.settings script key value.
+      if (strpos($values['#value'], 'jQuery.extend(Drupal.settings') !== FALSE) {
+        $drupal_settings_key = $key;
+      }
+    }
+  }
+
+  // If settings is in the footer, make sure trigger("scripts-ready") happens
+  // after Drupal.settings has been loaded.
+  if (   $labjs_ready_key !== FALSE
+      && $drupal_settings_key !== FALSE
+      && $labjs_ready_key < $drupal_settings_key
+        ) {
+    $settings = $children[$drupal_settings_key];
+    $children[$drupal_settings_key] = $children[$labjs_ready_key];
+    $children[$labjs_ready_key] = $settings;
+  }
+}
+
+/**
+ * Implements hook_advagg_js_groups_alter().
+ */
+function labjs_advagg_js_groups_alter(&$js_groups, $preprocess_js) {
+  if (!$preprocess_js) {
+    return;
+  }
+  $labjs_location = labjs_get_path();
+
+  foreach ($js_groups as &$data) {
+    foreach ($data['items'] as &$values) {
+      if ($values['data'] == $labjs_location) {
+        // Strictly enforce preprocess = FALSE for labjs.
+        $values['preprocess'] = FALSE;
+        $data['preprocess'] = FALSE;
+        break 2;
+      }
+    }
+  }
+}
+
+/**
+ * Helper for search for LAB.min.js file.
+ *
+ * If our system does not have libraries module, that file must reside at
+ * sites/all/libraries/labjs/LAB.min.js.
+ * If Libraries API is available, there are more choices.
+ */
+function labjs_get_path() {
+  return drupal_get_path('module', 'labjs') . '/labjs.min.js';
+}
+
+/**
+ * Disable LABjs for the current page.
+ *
+ * This function should be called from within another module's page callback
+ * (preferably using module_invoke()) when the taskbar should not be enabled.
+ * This is useful for modules that implement popup pages or other special
+ * pages where LABjs could break the layout.
+ *
+ * @param $set
+ *   If FALSE is passed, the suppression state is returned.
+ */
+function labjs_suppress($set = FALSE) {
+  static $suppress;
+
+  if ($set) {
+    $suppress = TRUE;
+  }
+  elseif (!isset($suppress)) {
+    // First, check the global enable settings and the maintenance mode,
+    // we should disable LABjs in those cases.
+    $suppress = !variable_get('labjs_enabled', TRUE) || defined('MAINTENANCE_MODE');
+
+    // Match path if necessary
+    if (!$suppress && $pages = variable_get('labjs_pages_list', '')) {
+      $path = drupal_get_path_alias($_GET['q']);
+      // Compare with the internal and path alias (if any).
+      $page_match = drupal_match_path($path, $pages);
+      if ($path != $_GET['q']) {
+        $page_match = $page_match || drupal_match_path($_GET['q'], $pages);
+      }
+      $suppress = (variable_get('labjs_pages_choice', 0) xor $page_match);
+    }
+  }
+
+  return $suppress;
+}
+
+/**
+ * Implements hook_page_delivery_callback_alter().
+ *
+ * It's too late to call labjs_suppress(). We have no choice but create our own callback.
+ */
+function labjs_page_delivery_callback_alter(&$callback) {
+  if (module_exists('overlay') && overlay_display_empty_page() && !labjs_suppress()) {
+    $callback = 'labjs_deliver_empty_page';
+  }
+}
+
+/**
+ * Delivery callback to display an empty page.
+ *
+ * This function is used to print out a bare minimum empty page which still has
+ * the scripts and styles necessary in order to trigger the overlay to close.
+ * Clone from overlay_deliver_empty_page with LABjs enabled.
+ */
+function labjs_deliver_empty_page() {
+  $empty_page = '<html><head><title></title>' . drupal_get_css() . drupal_get_js() . '</head><body class="overlay"><script>$L = $L.wait(function() {Drupal.scriptsready=true;jQuery(document).trigger("scripts-ready");});</script></body></html>';
+  print $empty_page;
+  drupal_exit();
+}
+
