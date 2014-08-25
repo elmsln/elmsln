@@ -212,17 +212,27 @@ function advagg_url_inbound_alter(&$path, $original_path, $path_language) {
  */
 function advagg_hook_info() {
   // List of hooks that can be inside of *.advagg.inc files.
+  // All advagg hooks except for:
+  //  advagg_current_hooks_hash_array_alter
+  //  advagg_hooks_implemented_alter
+  //  advagg_get_root_files_dir_alter
+  // because these 3 hooks are used on most requests.
   $advagg_hooks = array(
     'advagg_get_css_file_contents_alter',
-    'advagg_get_css_aggregate_contents_alter',
     'advagg_get_js_file_contents_alter',
+    'advagg_get_css_aggregate_contents_alter',
     'advagg_get_js_aggregate_contents_alter',
     'advagg_save_aggregate_alter',
     'advagg_build_aggregate_plans_alter',
+    'advagg_css_groups_alter',
+    'advagg_js_groups_alter',
+    'advagg_modify_css_pre_render_alter',
+    'advagg_modify_js_pre_render_alter',
     'advagg_changed_files',
+    'advagg_removed_aggregates',
     'advagg_scan_for_changes',
-    'advagg_context_alter',
     'advagg_get_info_on_files_alter',
+    'advagg_context_alter',
   );
   $hooks = array();
   foreach ($advagg_hooks as $hook) {
@@ -295,7 +305,7 @@ function advagg_system_info_alter(&$info, $file, $type) {
           !empty($info['dependencies'])
         && is_array($info['dependencies'])
         && in_array('advagg', $info['dependencies'])
-        ) || $file->name == 'advagg' )
+        ) || $file->name === 'advagg' )
       ) {
     $pos = strpos($info['configure'], '/advagg') + 7;
     $substr = substr($info['configure'], 0, $pos);
@@ -554,7 +564,7 @@ function advagg_ajax_render_alter(&$commands) {
     // @ignore sniffer_whitespace_closebracketspacing_closingwhitespace:25
     // @ignore sniffer_commenting_inlinecomment_spacingafter
 
-    if (   $values['command'] == 'settings'
+    if (   $values['command'] === 'settings'
         && is_array($values['settings'])
         && !empty($values['merge'])
         ) {
@@ -562,18 +572,18 @@ function advagg_ajax_render_alter(&$commands) {
       unset($commands[$key]);
       continue;
     }
-    if (   $values['command'] == 'insert'
+    if (   $values['command'] === 'insert'
         && is_null($values['settings'])
-        && $values['method'] == 'prepend'
+        && $values['method'] === 'prepend'
         && $values['data'] == $core_scripts_header
         ) {
       // Remove JS header.
       unset($commands[$key]);
       continue;
     }
-    if (   $values['command'] == 'insert'
+    if (   $values['command'] === 'insert'
         && is_null($values['settings'])
-        && $values['method'] == 'append'
+        && $values['method'] === 'append'
         && $values['data'] == $core_scripts_footer
         ) {
       // Remove JS footer.
@@ -617,18 +627,18 @@ function advagg_js_alter(&$js) {
     }
 
     // If type is external but doesn't start with http or // change it to file.
-    if ($value['type'] == 'external' && stripos($value['data'], 'http://') !== 0 && stripos($value['data'], 'https://') !== 0 && stripos($value['data'], '//') !== 0) {
+    if ($value['type'] === 'external' && stripos($value['data'], 'http://') !== 0 && stripos($value['data'], 'https://') !== 0 && stripos($value['data'], '//') !== 0) {
       $value['type'] = 'file';
     }
 
     // If type is file but it starts with http or // change it to external.
-    if ((stripos($value['data'], 'http://') === 0 || stripos($value['data'], 'https://') === 0 || stripos($value['data'], '//') === 0) && $value['type'] == 'file') {
+    if ((stripos($value['data'], 'http://') === 0 || stripos($value['data'], 'https://') === 0 || stripos($value['data'], '//') === 0) && $value['type'] === 'file') {
       $value['type'] = 'external';
     }
 
     // If type is external & starts with http or // but points to this host
     // change it to file, but move it to the top of the aggregation stack.
-    if ($value['type'] == 'external' && stripos($value['data'], $mod_base_url) !== FALSE && (stripos($value['data'], 'http://') === 0 || stripos($value['data'], 'https://') === 0 || stripos($value['data'], '//') === 0)) {
+    if ($value['type'] === 'external' && stripos($value['data'], $mod_base_url) !== FALSE && (stripos($value['data'], 'http://') === 0 || stripos($value['data'], 'https://') === 0 || stripos($value['data'], '//') === 0)) {
       $value['type'] = 'file';
       $value['group'] = JS_LIBRARY;
       $value['every_page'] = TRUE;
@@ -653,12 +663,12 @@ function advagg_css_alter(&$css) {
     }
 
     // If type is external but doesn't start with http or // change it to file.
-    if ($value['type'] == 'external' && stripos($value['data'], 'http://') !== 0 && stripos($value['data'], 'https://') !== 0 && stripos($value['data'], '//') !== 0) {
+    if ($value['type'] === 'external' && stripos($value['data'], 'http://') !== 0 && stripos($value['data'], 'https://') !== 0 && stripos($value['data'], '//') !== 0) {
       $value['type'] = 'file';
     }
 
     // If type is file but it starts with http or // change it to external.
-    if ((stripos($value['data'], 'http://') === 0 || stripos($value['data'], 'https://') === 0 || stripos($value['data'], '//') === 0) && $value['type'] == 'file') {
+    if ((stripos($value['data'], 'http://') === 0 || stripos($value['data'], 'https://') === 0 || stripos($value['data'], '//') === 0) && $value['type'] === 'file') {
       $value['type'] = 'external';
     }
   }
@@ -939,7 +949,7 @@ function _advagg_aggregate_js(&$js_groups) {
         case 'file':
           if ($group['preprocess']) {
             // Special handing for when all JS is in the footer.
-            if ($all_in_footer && $group['scope'] == 'footer' && $group['group'] > 9000) {
+            if ($all_in_footer && $group['scope'] === 'footer' && $group['group'] > 9000) {
               ++$gap_counter;
               $all_in_footer = FALSE;
             }
@@ -1164,12 +1174,12 @@ function _advagg_process_html(&$variables) {
         // correct order.
         $scripts = advagg_get_js($scope, $javascript);
         // Header scripts.
-        if ($scope == 'header') {
+        if ($scope === 'header') {
           $variables['scripts'] = $scripts . $variables['scripts'];
           $js_cache['scripts'] = $scripts . $js_cache['scripts'];
         }
         // Footer scripts.
-        elseif ($scope == 'footer') {
+        elseif ($scope === 'footer') {
           $variables['page_bottom'] .= $scripts;
           $js_cache['page_bottom'] = $scripts;
         }
@@ -1316,11 +1326,11 @@ function advagg_get_js($scope = 'header', $javascript = NULL, $skip_alter = FALS
   // without that group. We do not use the $key => $item type of iteration,
   // because PHP uses an internal array pointer for that, and we're modifying
   // the array order inside the loop.
-  if ($scope == 'footer' && $js_in_footer) {
+  if ($scope === 'footer' && $js_in_footer) {
     // Get all settings from the items array.
     $settings_js = array();
     foreach (array_keys($items) as $key) {
-      if ($items[$key]['type'] == 'setting') {
+      if ($items[$key]['type'] === 'setting') {
         if (isset($settings_js[$key])) {
           $settings_js[$key] += $items[$key];
         }
@@ -1351,7 +1361,7 @@ function advagg_get_js($scope = 'header', $javascript = NULL, $skip_alter = FALS
   }
   else {
     foreach (array_keys($items) as $key) {
-      if ($items[$key]['type'] == 'setting') {
+      if ($items[$key]['type'] === 'setting') {
         $item = $items[$key];
         unset($items[$key]);
         $items[$key] = $item;
@@ -1367,7 +1377,7 @@ function advagg_get_js($scope = 'header', $javascript = NULL, $skip_alter = FALS
   drupal_add_js($setting, 'setting');
 
   // Move 'settings' javascript to the header region.
-  if (!empty($javascript_settings_data) && (($scope == 'header' && !$js_in_footer) || ($scope == 'footer' && $js_in_footer))) {
+  if (!empty($javascript_settings_data) && (($scope === 'header' && !$js_in_footer) || ($scope === 'footer' && $js_in_footer))) {
     foreach ($javascript_settings_data as $js_data) {
       $items['settings']['data'][] = $js_data;
     }
@@ -1384,7 +1394,7 @@ function advagg_get_js($scope = 'header', $javascript = NULL, $skip_alter = FALS
   // stripped of settings, potentially in order to override how settings get
   // output, so in this case, do not add the setting to this output.
   // Also output the settings if we have pushed all javascript to the footer.
-  if (isset($items['settings']) && (($scope == 'header' && !$js_in_footer) || ($scope == 'footer' && $js_in_footer))) {
+  if (isset($items['settings']) && (($scope === 'header' && !$js_in_footer) || ($scope === 'footer' && $js_in_footer))) {
     $items['settings']['data'][] = $setting;
   }
 
@@ -1418,7 +1428,7 @@ function advagg_get_js($scope = 'header', $javascript = NULL, $skip_alter = FALS
   // Aurora & Omega themes uses alter without checking previous value.
   if (variable_get('advagg_enforce_scripts_callback', TRUE)) {
     $element_info = &drupal_static('element_info');
-    if (empty($element_info['scripts']) || $element_info['scripts']['#aggregate_callback'] != '_advagg_aggregate_js') {
+    if (empty($element_info['scripts']) || $element_info['scripts']['#aggregate_callback'] !== '_advagg_aggregate_js') {
       advagg_element_info_alter($element_info);
     }
   }
@@ -1870,6 +1880,9 @@ function advagg_hooks_implemented($all = TRUE) {
       'advagg_modify_css_pre_render_alter' => array(),
       'advagg_modify_js_pre_render_alter' => array(),
       'advagg_get_info_on_files_alter' => array(),
+      'advagg_hooks_implemented_alter' => array(),
+      'advagg_removed_aggregates' => array(),
+      'advagg_scan_for_changes' => array(),
       'js_alter' => array(),
       'css_alter' => array(),
     );
@@ -1982,10 +1995,10 @@ function advagg_build_aggregates($filenames, $type) {
   $return = array();
   foreach ($filenames as $filename) {
     // Skip if the file exists.
-    if ($type == 'css') {
+    if ($type === 'css') {
       $uri = $css_path[0] . '/' . $filename;
     }
-    elseif ($type == 'js') {
+    elseif ($type === 'js') {
       $uri = $js_path[0] . '/' . $filename;
     }
     if (file_exists($uri)) {
@@ -2034,6 +2047,7 @@ function advagg_build_ajax_js_css() {
     else {
       $function = 'drupal_add_' . $type;
       $items[$type] = $function();
+      // Call hook_js_alter() OR hook_css_alter().
       drupal_alter($type, $items[$type]);
       // @todo Inline CSS and JS items are indexed numerically. These can't be
       //   reliably diffed with array_diff_key(), since the number can change
@@ -2076,16 +2090,16 @@ function advagg_build_ajax_js_css() {
  *   TRUE or FALSE
  */
 function advagg_file_aggregation_enabled($type) {
-  if (defined('MAINTENANCE_MODE') && MAINTENANCE_MODE == 'update') {
+  if (defined('MAINTENANCE_MODE') && MAINTENANCE_MODE === 'update') {
     return FALSE;
   }
   if (isset($_GET['advagg']) && $_GET['advagg'] == 0 && user_access('bypass advanced aggregation')) {
     return FALSE;
   }
-  if ($type == 'css') {
+  if ($type === 'css') {
     return variable_get('preprocess_css', FALSE);
   }
-  if ($type == 'js') {
+  if ($type === 'js') {
     return variable_get('preprocess_js', FALSE);
   }
 }
@@ -2241,7 +2255,7 @@ function advagg_pre_render_scripts($elements) {
     // If a group of files has been aggregated into a single file,
     // $group['data'] contains the URI of the aggregate file. Add a single
     // script element for this file.
-    if (isset($group['type']) && $group['type'] == 'file' && isset($group['data'])) {
+    if (isset($group['type']) && $group['type'] === 'file' && isset($group['data'])) {
       $element = $element_defaults;
       $element['#attributes']['src'] = file_create_url($group['data']) . ($group['cache'] ? '' : '?' . REQUEST_TIME);
       $element['#browsers'] = $group['browsers'];
@@ -2379,7 +2393,7 @@ function advagg_group_js($javascript) {
       $item['browsers'] = array();
     }
 
-    if (empty($item['type']) && $key == 'settings') {
+    if (empty($item['type']) && $key === 'settings') {
       $item['type'] = 'setting';
     }
 
@@ -2511,7 +2525,7 @@ function advagg_agressive_cache_conflicts() {
     'logintoboggan',
   );
   // Allow other modules to modify the $whitelist.
-  // Call hook_advagg_modify_js_pre_render_alter()
+  // Call hook_advagg_agressive_cache_conflicts_alter()
   drupal_alter('advagg_agressive_cache_conflicts', $whitelist);
 
   $questionable_modules = array();
@@ -2581,7 +2595,8 @@ function advagg_json_encode($data) {
   }
   // Uses json_last_error if in development mode and php >= 5.3.0.
   if ($php530 && variable_get('advagg_cache_level', ADVAGG_CACHE_LEVEL) < 0) {
-    switch (json_last_error()) {
+    $error_number = json_last_error();
+    switch ($error_number) {
       case JSON_ERROR_NONE:
         $error_message = '';
         break;
@@ -2607,7 +2622,7 @@ function advagg_json_encode($data) {
         break;
 
       default:
-        $error_message = 'Unknown error';
+        $error_message = 'Unknown error: ' . $error_number;
         break;
     }
     if (!empty($error_message)) {
@@ -2615,13 +2630,15 @@ function advagg_json_encode($data) {
         $pretty_data = httprl_pr($data);
       }
       elseif (module_exists('devel') && function_exists('kprint_r')) {
-        // @ignore sniffer_functions_discouragedfunctions_discouraged
-        $pretty_data = kprint_r($data, TRUE);
+        $pretty_data = kprint_r($data);
       }
       else {
-        $pretty_data = '<pre>' . print_r($data, TRUE) . '</pre>';
+        $pretty_data = '<pre>' . filter_xss(print_r($data, TRUE)) . '</pre>';
       }
-      watchdog('advagg', 'Error with json encoding the Drupal.settings value. Error Message: %error_message. JSON Data: @data', array('%error_message' => $error_message, '@data' => $pretty_data), WATCHDOG_ERROR);
+      watchdog('advagg_json', 'Error with json encoding the Drupal.settings value. Error Message: %error_message. JSON Data: !data', array(
+        '%error_message' => $error_message,
+        '!data' => $pretty_data,
+      ), WATCHDOG_ERROR);
     }
   }
   return $json_data;

@@ -28,7 +28,7 @@ function labjs_init() {
       'weight' => -49,
       'every_page' => 1,
       'type' => 'inline',
-      'moveable' => FALSE,
+      'movable' => FALSE,
     ));
 
     // Makes Google Analytics work.
@@ -38,7 +38,7 @@ function labjs_init() {
       'every_page' => 1,
       'type' => 'inline',
       'scope' => 'footer',
-      'moveable' => FALSE,
+      'movable' => FALSE,
     ));
   }
 }

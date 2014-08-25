@@ -84,7 +84,7 @@ function hook_advagg_changed_files($files, $types) {
   foreach ($files as $filename => $meta_data) {
     // Only care about js files.
     $ext = pathinfo($filename, PATHINFO_EXTENSION);
-    if ($ext != 'js') {
+    if ($ext !== 'js') {
       continue;
     }
 
@@ -220,8 +220,8 @@ function hook_advagg_get_css_aggregate_contents_alter(&$data, $files, $aggregate
  * @param array $aggregate_settings
  *   An associative array of hooks and settings used.
  *
- * @see advagg_get_css_aggregate_contents()
- * @see advagg_css_compress_advagg_get_css_aggregate_contents_alter()
+ * @see advagg_get_js_aggregate_contents()
+ * @see advagg_js_compress_advagg_get_js_aggregate_contents_alter()
  */
 function hook_advagg_get_js_aggregate_contents_alter(&$data, $files, $aggregate_settings) {
   // Do nothing if js file compression is disabled.
@@ -314,7 +314,7 @@ function hook_advagg_css_groups_alter(&$css_groups, $preprocess_css) {
   }
   $match = FALSE;
   foreach ($theme_keys as $name) {
-    if ($name == 'seven') {
+    if ($name === 'seven') {
       $match = TRUE;
     }
   }
@@ -329,9 +329,9 @@ function hook_advagg_css_groups_alter(&$css_groups, $preprocess_css) {
   $replaced = FALSE;
   foreach ($css_groups as $key => $group) {
     if (empty($target)) {
-      if ($group['type'] == 'external' && $group['preprocess'] && $preprocess_css) {
+      if ($group['type'] === 'external' && $group['preprocess'] && $preprocess_css) {
         foreach ($group['items'] as $k => $value) {
-          if ($value['data'] == 'themes/seven/jquery.ui.theme.css') {
+          if ($value['data'] === 'themes/seven/jquery.ui.theme.css') {
             // Type should be file and not external (core bug).
             $value['type'] = 'file';
             $target = $value;
@@ -521,7 +521,7 @@ function hook_advagg_modify_js_pre_render_alter(&$children, &$elements) {
 }
 
 /**
- * Allow other modules to modify $css_groups right before it is processed.
+ * Allow other modules to swap important contextual information on generation.
  *
  * @param array $original
  *   array of original settings.
@@ -565,6 +565,128 @@ function hook_advagg_context_alter(&$original, $aggregate_settings, $mode) {
     }
     if (isset($original['is_https'])) {
       $GLOBALS['is_https'] = $original['is_https'];
+    }
+  }
+}
+
+/**
+ * Let other modules know about the aggregate files that have been removed.
+ *
+ * @param array $files
+ *   An array of aggregate files that have been removed.
+ *
+ * @see advagg_delete_files_if_stale()
+ */
+function hook_advagg_removed_aggregates($kill_list) {
+  foreach ($kill_list as $uri) {
+    // Do something else.
+  }
+}
+
+/**
+ * Let other modules tell advagg that a file has changed.
+ *
+ * Useful for things like embedded images in CSS; generating a new aggregate
+ * when the image in the CSS file has changed.
+ *
+ * @param string $filename
+ *   Name of the root CSS or JavaScript file.
+ *
+ * @return bool
+ *   Set to TRUE to trigger a rebuild of the aggregates that contain this file.
+ *
+ * @see advagg_scan_for_changes()
+ * @see css_emimage_advagg_scan_for_changes()
+ */
+function hook_advagg_scan_for_changes($filename) {
+  if ($filename) {
+    return FALSE;
+  }
+}
+
+/**
+ * Let other modules add/alter additional information about files passed in.
+ *
+ * @param array $return
+ *   An associative array; filename -> data.
+ * @param array $cached_data
+ *   What data was found in the cache; cache_id -> data.
+ * @param $bypass_cache
+ *  If TRUE the loaded data did not come from the cache.
+ *
+ * @see advagg_get_info_on_files()
+ * @see advagg_advagg_get_info_on_files_alter()
+ */
+function hook_advagg_get_info_on_files_alter(&$return, $cached_data, $bypass_cache) {
+  if (!variable_get('advagg_ie_css_selector_limiter', ADVAGG_IE_CSS_SELECTOR_LIMITER)) {
+    return;
+  }
+  $limit_value = variable_get('advagg_ie_css_selector_limiter_value', ADVAGG_IE_CSS_SELECTOR_LIMITER_VALUE);
+  list($css_path, $js_path) = advagg_get_root_files_dir();
+  $parts_path = $css_path[1] . '/parts';
+
+  foreach ($return as $filename => &$info) {
+    if (empty($info['fileext']) || $info['fileext'] !== 'css') {
+      continue;
+    }
+
+    // Break large file into multiple small files.
+    if ($info['linecount'] > $limit_value) {
+      advagg_split_css_file($info);
+    }
+    elseif (strpos($info['data'], $parts_path) === 0) {
+      $info['split'] = TRUE;
+    }
+  }
+}
+
+/**
+ * Tell advagg about other hooks related to advagg.
+ *
+ * @param array $hooks
+ *   Array of hooks related to advagg.
+ * @param bool $all
+ *   If FALSE get only the subset of hooks that alter the filename/contents.
+ *
+ * @see advagg_hooks_implemented()
+ * @see advagg_bundler_advagg_hooks_implemented_alter()
+ */
+function hook_advagg_hooks_implemented_alter(&$hooks, $all) {
+  if ($all) {
+    $hooks['advagg_bundler_analysis_alter'] = array();
+  }
+}
+
+/**
+ * Let other modules whitelist them self's for the advagg agressive cache.
+ *
+ * Prevents warnings from being displayed on the admin page if a module safely
+ * uses hook_js_alter and/or hook_css_alter.
+ *
+ * @param array $whitelist
+ *   Array of hooks related to advagg.
+ *
+ * @see advagg_admin_settings_form()
+ * @see advagg_agressive_cache_conflicts()
+ */
+function hook_advagg_agressive_cache_conflicts_alter(&$whitelist) {
+  $whitelist[] = 'jquery_update';
+}
+
+/**
+ * Let other modules modify the analysis array before it is used.
+ *
+ * @param array $analysis
+ *   An associative array; filename -> data.
+ *
+ * @see advagg_bundler_analysis()
+ */
+function hook_advagg_bundler_analysis_alter(&$analysis) {
+  foreach ($analysis as $filename => &$data) {
+    // This changes often; 604800 is 1 week.
+    if ($data['changes'] > 10 && $data['mtime'] >= REQUEST_TIME - 604800) {
+      // Modify the group hash so this doesn't end up in a big aggregate.
+      $data['group_hash'];
     }
   }
 }

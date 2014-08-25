@@ -369,7 +369,7 @@ function advagg_mod_admin_test_css_files() {
 
     foreach ($matches[1] as $value) {
       // Skip if equal to ; or }.
-      if ($value == ';' || $value == '}') {
+      if ($value === ';' || $value === '}') {
         continue;
       }
       // Remove quotes for t function.

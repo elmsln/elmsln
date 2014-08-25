@@ -472,7 +472,7 @@ function advagg_get_info_on_files($files, $bypass_cache = FALSE, $run_alter = TR
     $file_contents = file_get_contents($file);
 
     $ext = pathinfo($file, PATHINFO_EXTENSION);
-    if ($ext == 'css') {
+    if ($ext === 'css') {
       // Get the number of selectors.
       // @ignore sniffer_files_linelength_toolong
       // http://stackoverflow.com/questions/12567000/regex-matching-for-counting-css-selectors/12567381#12567381
@@ -688,7 +688,7 @@ function advagg_generate_groups($files_to_aggregate) {
           $file_info += $files_info[$file_info['data']];
           // Prevent CSS rules exceeding 4095 due to limits with IE9 and below.
           $ext = isset($file_info['fileext']) ? $file_info['fileext'] : pathinfo($file_info['data'], PATHINFO_EXTENSION);
-          if ($ext == 'css') {
+          if ($ext === 'css') {
             $selector_count += $file_info['linecount'];
             if ($selector_count > $limit_value) {
               $changed = TRUE;
@@ -1001,7 +1001,7 @@ function advagg_build_aggregate_plans($files_to_aggregate, $type) {
   $plans = array();
 
   foreach ($files as $agg_filename => $values) {
-    if ($type == 'css') {
+    if ($type === 'css') {
       $mixed_media = FALSE;
       $media = NULL;
       foreach ($values['files'] as $key => $value) {
@@ -1021,8 +1021,8 @@ function advagg_build_aggregate_plans($files_to_aggregate, $type) {
     if (!empty($mixed_media)) {
       $first['media'] = 'all';
     }
-    $url = ($type == 'css') ? $css_path[0] : $js_path[0];
-    $path = ($type == 'css') ? $css_path[1] : $js_path[1];
+    $url = ($type === 'css') ? $css_path[0] : $js_path[0];
+    $path = ($type === 'css') ? $css_path[1] : $js_path[1];
     $plans[] = array(
       'data' => $url . '/' . $agg_filename,
       'media' => isset($first['media']) ? $first['media'] : '',
@@ -1073,10 +1073,10 @@ function advagg_create_aggregate_files($plans, $type) {
     if (variable_get('advagg_fast_filesystem', ADVAGG_FAST_FILESYSTEM)) {
       list($css_path, $js_path) = advagg_get_root_files_dir();
       foreach ($filenames as $key => $filename) {
-        if ($type == 'css') {
+        if ($type === 'css') {
           $uri = $css_path[0] . '/' . $filename;
         }
-        elseif ($type == 'js') {
+        elseif ($type === 'js') {
           $uri = $js_path[0] . '/' . $filename;
         }
         if (file_exists($uri)) {

@@ -487,7 +487,7 @@ function advagg_requirements($phase) {
     if (!function_exists($function_name)) {
       $requirements['advagg_function_' . $function_name] = array(
         'title' => $t('Adv CSS/JS Agg - Function Disabled'),
-        'value' => $phase == 'install' ? FALSE : $function_name,
+        'value' => $phase === 'install' ? FALSE : $function_name,
         'severity' => REQUIREMENT_ERROR,
         'description' => $t('<a href="!url">%name()</a> is disabled on this server. Please contact your hosting provider or server administrator and see if they can re-enable this function for you.', array(
           '!url' => 'http://php.net/' . str_replace('_', '-', $function_name),
@@ -501,7 +501,7 @@ function advagg_requirements($phase) {
     $requirements['advagg_module_agrcache'] = array(
       'title' => $t('Adv CSS/JS Agg - Aggregate cache module'),
       'severity' => REQUIREMENT_ERROR,
-      'value' => $phase == 'install' ? FALSE : $t('The Aggregate cache module is incompatible with AdvAgg.'),
+      'value' => $phase === 'install' ? FALSE : $t('The Aggregate cache module is incompatible with AdvAgg.'),
       'description' => $t('You need to uninstall the agrcache module or uninstall AdvAgg.'),
     );
   }
@@ -509,7 +509,7 @@ function advagg_requirements($phase) {
     $requirements['advagg_module_bundle_aggregation'] = array(
       'title' => $t('Adv CSS/JS Agg - Bundle aggregation module'),
       'severity' => REQUIREMENT_ERROR,
-      'value' => $phase == 'install' ? FALSE : $t('The Bundle aggregation module is incompatible with AdvAgg.'),
+      'value' => $phase === 'install' ? FALSE : $t('The Bundle aggregation module is incompatible with AdvAgg.'),
       'description' => $t('You need to uninstall the bundle_aggregation module or uninstall AdvAgg.'),
     );
   }
@@ -517,13 +517,13 @@ function advagg_requirements($phase) {
     $requirements['advagg_module_core_library'] = array(
       'title' => $t('Adv CSS/JS Agg - Core Library module'),
       'severity' => REQUIREMENT_ERROR,
-      'value' => $phase == 'install' ? FALSE : $t('The Core Library module is incompatible with AdvAgg.'),
+      'value' => $phase === 'install' ? FALSE : $t('The Core Library module is incompatible with AdvAgg.'),
       'description' => $t('You need to uninstall the core_library module or uninstall AdvAgg.'),
     );
   }
 
   // If not at runtime, return here.
-  if ($phase != 'runtime') {
+  if ($phase !== 'runtime') {
     return $requirements;
   }
 
@@ -664,9 +664,9 @@ function advagg_requirements($phase) {
   // Check that https is correct.
   // @ignore sniffer_whitespace_openbracketspacing_openingwhitespace:2
   if (  empty($GLOBALS['is_https']) &&
-        (  (isset($_SERVER['HTTPS']) &&  strtolower($_SERVER['HTTPS']) == 'on')
-        || (isset($_SERVER['HTTP_X_FORWARDED_PROTO']) && $_SERVER['HTTP_X_FORWARDED_PROTO'] == 'https')
-        || (isset($_SERVER['HTTP_HTTPS']) && $_SERVER['HTTP_HTTPS'] == 'on')
+        (  (isset($_SERVER['HTTPS']) &&  strtolower($_SERVER['HTTPS']) === 'on')
+        || (isset($_SERVER['HTTP_X_FORWARDED_PROTO']) && $_SERVER['HTTP_X_FORWARDED_PROTO'] === 'https')
+        || (isset($_SERVER['HTTP_HTTPS']) && $_SERVER['HTTP_HTTPS'] === 'on')
           )
     ) {
     $requirements['advagg_is_https_check'] = array(
@@ -745,10 +745,10 @@ function advagg_install_check_via_http(&$requirements) {
   $mod_url = FALSE;
   if (!variable_get('maintenance_mode', FALSE) && !variable_get('advagg_skip_404_check', FALSE)) {
     foreach ($types as $type) {
-      if ($type == 'css') {
+      if ($type === 'css') {
         $path = $css_path[0];
       }
-      elseif ($type == 'js') {
+      elseif ($type === 'js') {
         $path = $js_path[0];
       }
       // Set arguments for drupal_http_request().
@@ -806,7 +806,7 @@ function advagg_install_check_via_http(&$requirements) {
         // Replace @path in the variable with the page path.
         $fast_404_html = trim(strtr($fast_404_html, array('@path' => check_plain($url_path_404))));
         if (!empty($request->data) && $fast_404_html == trim($request->data) && !empty($exclude_paths) && strpos($exclude_paths, 'advagg_') === FALSE) {
-          if ($exclude_paths == '/\/(?:styles)\//') {
+          if ($exclude_paths === '/\/(?:styles)\//') {
             $description = $t('Change it from <code>/\/(?:styles)\//</code> to <code>/\/(?:styles|advagg_(cs|j)s)\//</code> Current value: %value', array('%value' => $exclude_paths));
           }
           else {
@@ -882,11 +882,11 @@ function advagg_install_check_via_http(&$requirements) {
 
   // Check gzip encoding.
   foreach ($types as $type) {
-    if ($type == 'css') {
+    if ($type === 'css') {
       $url_path = $css_path[0];
       $file_path = $css_path[1];
     }
-    elseif ($type == 'js') {
+    elseif ($type === 'js') {
       $url_path = $js_path[0];
       $file_path = $js_path[1];
     }
@@ -986,7 +986,7 @@ function advagg_install_chk_urls(&$requirements, $urls, $options, $mod_url, $typ
     // @ignore sniffer_whitespace_openbracketspacing_openingwhitespace
     if (   $request->code != 200
         || empty($request->headers['content-encoding'])
-        || ($request->headers['content-encoding'] != 'gzip' && $request->headers['content-encoding'] != 'deflate')
+        || ($request->headers['content-encoding'] !== 'gzip' && $request->headers['content-encoding'] !== 'deflate')
         ) {
       $config_path = advagg_admin_config_root_path();
       // Gzip failed.
@@ -1046,7 +1046,7 @@ function advagg_install_chk_urls(&$requirements, $urls, $options, $mod_url, $typ
       }
     }
     $content_type = $type;
-    if ($content_type == 'js') {
+    if ($content_type === 'js') {
       $content_type = 'javascript';
     }
     if ($request->code == 200) {
@@ -1070,7 +1070,7 @@ function advagg_install_chk_urls(&$requirements, $urls, $options, $mod_url, $typ
         $modules = apache_get_modules();
       }
 
-      if ($type == 'css' && (empty($request->headers['content-type']) || strpos($request->headers['content-type'], 'text/' . $content_type) === FALSE)) {
+      if ($type === 'css' && (empty($request->headers['content-type']) || strpos($request->headers['content-type'], 'text/' . $content_type) === FALSE)) {
         // Recommend servers configuration be adjusted.
         $requirements['advagg_' . $type . '_type' . $key] = array(
           'title' => $t('Adv CSS/JS Agg - Content-Type'),
@@ -1083,7 +1083,7 @@ function advagg_install_chk_urls(&$requirements, $urls, $options, $mod_url, $typ
         );
       }
 
-      if ($type == 'js' && (empty($request->headers['content-type']) || strpos($request->headers['content-type'], 'application/' . $content_type) === FALSE)) {
+      if ($type === 'js' && (empty($request->headers['content-type']) || strpos($request->headers['content-type'], 'application/' . $content_type) === FALSE)) {
         // Recommend servers configuration be adjusted.
         $requirements['advagg_' . $type . '_type' . $key] = array(
           'title' => $t('Adv CSS/JS Agg - Content-Type'),
@@ -1224,7 +1224,7 @@ function advagg_install_get_first_advagg_file($file_path) {
   $filename = '';
   while (FALSE !== ($filename = readdir($handle))) {
     // Skip over . and ..
-    if ($filename == '.' || $filename == '..') {
+    if ($filename === '.' || $filename === '..') {
       continue;
     }
 
@@ -1343,13 +1343,13 @@ function advagg_install_glue_url($parsed) {
     return FALSE;
   }
 
-  $uri = isset($parsed['scheme']) ? $parsed['scheme'] . ':' . ((strtolower($parsed['scheme']) == 'mailto') ? '' : '//') : '';
+  $uri = isset($parsed['scheme']) ? $parsed['scheme'] . ':' . ((strtolower($parsed['scheme']) === 'mailto') ? '' : '//') : '';
   $uri .= isset($parsed['user']) ? $parsed['user'] . (isset($parsed['pass']) ? ':' . $parsed['pass'] : '') . '@' : '';
   $uri .= isset($parsed['host']) ? $parsed['host'] : '';
   $uri .= !empty($parsed['port']) ? ':' . $parsed['port'] : '';
 
   if (isset($parsed['path'])) {
-    $uri .= (substr($parsed['path'], 0, 1) == '/') ? $parsed['path'] : ((!empty($uri) ? '/' : '') . $parsed['path']);
+    $uri .= (substr($parsed['path'], 0, 1) === '/') ? $parsed['path'] : ((!empty($uri) ? '/' : '') . $parsed['path']);
   }
 
   $uri .= isset($parsed['query']) ? '?' . $parsed['query'] : '';

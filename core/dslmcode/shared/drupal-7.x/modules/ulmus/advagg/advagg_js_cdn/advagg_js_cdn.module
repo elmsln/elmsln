@@ -59,8 +59,8 @@ function advagg_js_cdn_js_alter(&$javascript) {
     //  name is misc/jquery.js,
     //  and type is file.
     if (   variable_get('advagg_js_cdn_jquery', ADVAGG_JS_CDN_JQUERY)
-        && $name == 'misc/jquery.js'
-        && $javascript[$name]['type'] == 'file'
+        && $name === 'misc/jquery.js'
+        && $javascript[$name]['type'] === 'file'
         ) {
       // Add in backup.
       $values['weight'] += 0.00001;
@@ -81,7 +81,7 @@ function advagg_js_cdn_js_alter(&$javascript) {
     //  and type is file.
     if (   variable_get('advagg_js_cdn_jquery_ui', ADVAGG_JS_CDN_JQUERY_UI)
         && array_key_exists($name, $ui_mapping)
-        && $javascript[$name]['type'] == 'file'
+        && $javascript[$name]['type'] === 'file'
         ) {
       // We only need one file.
       if (!$add_in_ui) {

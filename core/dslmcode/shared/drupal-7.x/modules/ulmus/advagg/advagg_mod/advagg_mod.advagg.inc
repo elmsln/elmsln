@@ -12,7 +12,7 @@
  */
 function advagg_mod_advagg_get_info_on_files_alter(&$return, $cached_data, $bypass_cache) {
   foreach ($return as $filename => &$info) {
-    if (empty($info['fileext']) || $info['fileext'] != 'js') {
+    if (empty($info['fileext']) || $info['fileext'] !== 'js') {
       continue;
     }
     // New or updated data or no advagg_js_compress data.
@@ -64,7 +64,7 @@ function advagg_mod_advagg_get_css_file_contents_alter(&$contents, $filename, $a
  */
 function advagg_mod_advagg_css_content_t_replace_callback($matches) {
   // Skip if equal to ; or }.
-  if ($matches[1] == ';' || $matches[1] = '}') {
+  if ($matches[1] === ';' || $matches[1] === '}') {
     return $matches[0];
   }
   // Remove quotes for t function.

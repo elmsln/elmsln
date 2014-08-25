@@ -140,22 +140,18 @@ function advagg_push_new_changes() {
  *   array of aggregates that use this file.
  */
 function advagg_get_aggregates_using_file($filename_hash) {
-  // Create join query for the advagg_aggregates_versions table.
-  $subquery_aggregates_versions = db_select('advagg_aggregates_versions', 'aav')
-    ->fields('aav')
-    ->condition('aav.atime', 0, '>');
-
   // Create main query for the advagg_aggregates table.
   $query = db_select('advagg_aggregates', 'aa')
     ->condition('aa.filename_hash', $filename_hash);
-  $query->join($subquery_aggregates_versions, 'aav', 'aa.aggregate_filenames_hash=aav.aggregate_filenames_hash');
+  // Create join query for the advagg_aggregates_versions table.
+  $query->join('advagg_aggregates_versions', 'aav', 'aa.aggregate_filenames_hash = aav.aggregate_filenames_hash AND aav.atime > 0');
+  $query = $query->fields('aav', array('aggregate_filenames_hash', 'aggregate_contents_hash'));
   $query->comment('Query called from ' . __FUNCTION__ . '()');
-  $query = $query->fields('aav', array('aggregate_filenames_hash', 'aggregate_contents_hash'))
-    ->execute();
+  $results = $query->execute();
 
   // Put results into $aggregates array.
   $aggregates = array();
-  foreach ($query as $row) {
+  foreach ($results as $row) {
     $row = (array) $row;
     $row['cid'] = 'advagg:db:' . $row['aggregate_filenames_hash'] . ADVAGG_SPACE . $row['aggregate_contents_hash'];
     $aggregates[] = $row;
@@ -233,6 +229,9 @@ function advagg_delete_files_if_stale($files) {
       $kill_list[] = $uri;
     }
   }
+  // Let other modules know about the removed files.
+  // Call hook_advagg_removed_aggregates().
+  module_invoke_all('advagg_removed_aggregates', $kill_list);
   return $kill_list;
 }
 
@@ -385,14 +384,12 @@ function advagg_remove_old_unused_aggregates() {
   $advagg_aggregates_del = 0;
 
   // Find orphaned aggregate versions entries.
-  // Create join query.
-  $subquery_aggregates = db_select('advagg_aggregates', 'aa')
-    ->fields('aa', array('aggregate_filenames_hash'));
   // Create main query.
   $query = db_select('advagg_aggregates_versions', 'aav')
     ->fields('aav', array('aggregate_filenames_hash'))
     ->groupBy('aav.aggregate_filenames_hash');
-  $query->leftjoin($subquery_aggregates, 'aa', 'aa.aggregate_filenames_hash=aav.aggregate_filenames_hash');
+  // Create join & add in query comment.
+  $query->leftjoin('advagg_aggregates', 'aa', 'aa.aggregate_filenames_hash=aav.aggregate_filenames_hash');
   $query->isNull('aa.aggregate_filenames_hash');
   $query->comment('Query called from ' . __FUNCTION__ . '()');
   $results = $query->execute();
@@ -411,14 +408,12 @@ function advagg_remove_old_unused_aggregates() {
     ->execute();
 
   // See if any aggregates are orphaned now.
-  // Create join query.
-  $subquery_aggregates_versions = db_select('advagg_aggregates_versions', 'aav')
-    ->fields('aav', array('aggregate_filenames_hash'));
   // Create main query.
   $query = db_select('advagg_aggregates', 'aa')
     ->fields('aa', array('aggregate_filenames_hash'))
     ->groupBy('aa.aggregate_filenames_hash');
-  $query->leftjoin($subquery_aggregates_versions, 'aav', 'aa.aggregate_filenames_hash=aav.aggregate_filenames_hash');
+  // Create join & add in query comment.
+  $query->leftjoin('advagg_aggregates_versions', 'aav', 'aa.aggregate_filenames_hash=aav.aggregate_filenames_hash');
   $query->isNull('aav.aggregate_filenames_hash');
   $query->comment('Query called from ' . __FUNCTION__ . '()');
   $results = $query->execute();

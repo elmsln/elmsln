@@ -339,8 +339,9 @@ Modify file contents:
    aggregate before it gets written to a file. Useful for minification.
  - advagg_get_js_aggregate_contents_alter. Modify the data of the complete
    aggregate before it gets written to a file.Useful for minification.
- - advagg_save_aggregate. Modify the data of the complete aggregate allowing one
-   create multiple files from one base file. Useful for gzip compression.
+ - advagg_save_aggregate_alter. Modify the data of the complete aggregate
+   allowing one create multiple files from one base file. Useful for gzip
+   compression. Also useful for mirroring data.
 
 Modify file names and aggregate bundles:
  - advagg_current_hooks_hash_array_alter. Add in your own settings and hooks
@@ -354,13 +355,22 @@ Modify file names and aggregate bundles:
 Others:
  - advagg_hooks_implemented_alter. Tell advagg about other hooks related to
    advagg.
- - advagg_changed_files. Let other modules know about the changed files.
  - advagg_get_root_files_dir_alter. Allow other modules to alter css and js
    paths.
  - advagg_modify_css_pre_render_alter. Allow other modules to modify $children
    & $elements before they are rendered.
  - advagg_modify_js_pre_render_alter. Allow other modules to modify $children
    & $elements before they are rendered.
+ - advagg_changed_files. Let other modules know about the changed files.
+ - advagg_removed_aggregates. Let other modules know about removed aggregates.
+ - advagg_scan_for_changes. Let other modules see if files related to this file
+   has changed. Useful for decting changes to referenced images in css.
+ - advagg_get_info_on_files_alter. Let other modules modify information about
+   the base CSS/JS files.
+ - advagg_context_alter. Allow other modules to swap important contextual
+   information on generation.
+ - advagg_bundler_analysis. If the bundler module is installed allow for other
+   modules to change the bundler analysis.
 
 
 HOW TO GET A HIGH PAGESPEED SCORE

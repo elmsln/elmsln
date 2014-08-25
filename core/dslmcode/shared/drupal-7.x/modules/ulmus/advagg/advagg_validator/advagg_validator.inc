@@ -220,7 +220,7 @@ function advagg_validator_parse_soap_response_w3c($xml) {
 
   // Handle the element validity and get errors if not valid.
   $element = $doc->getElementsByTagName('validity');
-  if ($element->length && $element->item(0)->nodeValue == 'true') {
+  if ($element->length && $element->item(0)->nodeValue === 'true') {
     $response['validity'] = TRUE;
   }
   else {
@@ -314,7 +314,7 @@ function advagg_validator_file_scan_directory($dir, $mask, $options = array(), $
   // @ignore druplart_andor_assignment
   if (is_dir($dir) && $handle = opendir($dir)) {
     while (FALSE !== ($filename = readdir($handle))) {
-      if (!preg_match($options['nomask'], $filename) && $filename[0] != '.') {
+      if (!preg_match($options['nomask'], $filename) && $filename[0] !== '.') {
         $uri = "$dir/$filename";
         $uri = file_stream_wrapper_uri_normalize($uri);
         if (is_dir($uri) && $options['recurse'] && !preg_match($options['nodirmask'], $uri)) {

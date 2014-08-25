@@ -19,7 +19,7 @@ function advagg_js_compress_advagg_get_info_on_files_alter(&$return, $cached_dat
 
   $cache_ids = array();
   foreach ($return as $filename => &$info) {
-    if (empty($info['fileext']) || $info['fileext'] != 'js') {
+    if (empty($info['fileext']) || $info['fileext'] !== 'js') {
       continue;
     }
     // New or updated data or no advagg_js_compress data.
@@ -135,7 +135,7 @@ function advagg_js_compress_advagg_save_aggregate_alter(&$files_to_save, $aggreg
   // @ignore sniffer_whitespace_openbracketspacing_openingwhitespace
   if (   empty($aggregate_settings['variables']['advagg_gzip'])
       || empty($aggregate_settings['variables']['advagg_js_compress_packer'])
-      || $type != 'js'
+      || $type !== 'js'
       ) {
     return;
   }

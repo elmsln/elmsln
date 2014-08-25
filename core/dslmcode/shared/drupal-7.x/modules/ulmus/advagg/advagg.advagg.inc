@@ -166,7 +166,7 @@ function advagg_advagg_get_info_on_files_alter(&$return, $cached_data, $bypass_c
   $parts_path = $css_path[1] . '/parts';
 
   foreach ($return as $filename => &$info) {
-    if (empty($info['fileext']) || $info['fileext'] != 'css') {
+    if (empty($info['fileext']) || $info['fileext'] !== 'css') {
       continue;
     }
 

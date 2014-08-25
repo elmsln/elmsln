@@ -22,7 +22,7 @@ index 4000a2d..b742fe9 100644
 +      'weight' => -49,
 +      'every_page' => 1,
 +      'type' => 'inline',
-+      'moveable' => FALSE,
++      'movable' => FALSE,
 +    ));
  
      // Makes Google Analytics work.
@@ -33,7 +33,7 @@ index 4000a2d..b742fe9 100644
 +      'every_page' => 1,
 +      'type' => 'inline',
 +      'scope' => 'footer',
-+      'moveable' => FALSE,
++      'movable' => FALSE,
 +    ));
    }
  }

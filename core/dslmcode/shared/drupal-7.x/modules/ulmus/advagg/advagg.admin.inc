@@ -100,7 +100,7 @@ function advagg_admin_settings_form($form, $form_state) {
 
   // Show msg about the jquery update compression setting.
   if (module_exists('jquery_update')) {
-    if (variable_get('jquery_update_compression_type', 'min') == 'min') {
+    if (variable_get('jquery_update_compression_type', 'min') === 'min') {
       $form['global']['dev_container']['advagg_jquery_update_development'] = array(
         '#markup' => '<p>' . t('You might want to change the <a href="!url">jQuery update compression level</a> to "Development" as well.', array(
           '!url' => url('admin/config/development/jquery_update'),
@@ -471,7 +471,7 @@ function advagg_admin_info_form($form, $form_state) {
       ->condition('filetype', $type)
       ->execute();
     while ($row = $results->fetchAssoc()) {
-      if (empty($css_file) && $type == 'css') {
+      if (empty($css_file) && $type === 'css') {
         $css_file = basename($row['filename']);
       }
 

@@ -187,16 +187,16 @@ function advagg_mod_js_alter(&$js) {
       }
 
       // Do not move modernizr js to the footer.
-      if ($values['type'] != 'inline' && $values['type'] != 'setting' && stripos($values['data'], '/modernizr.') !== FALSE) {
+      if ($values['type'] !== 'inline' && $values['type'] !== 'setting' && stripos($values['data'], '/modernizr.') !== FALSE) {
         continue;
       }
 
       // If JS is not in the header increase group by 10000.
-      if ($values['scope'] != 'header') {
+      if ($values['scope'] !== 'header') {
         $values['group'] += 10000;
       }
       // If JS is already in the footer increase group by 10000.
-      if ($values['scope'] == 'footer') {
+      if ($values['scope'] === 'footer') {
         $values['group'] += 10000;
       }
       $values['scope'] = 'footer';
@@ -224,7 +224,7 @@ function advagg_mod_js_alter(&$js) {
       || variable_get('advagg_mod_js_async', ADVAGG_MOD_JS_ASYNC)
       ) {
     foreach ($js as $name => &$values) {
-      if ($values['type'] != 'file' && $values['type'] != 'external') {
+      if ($values['type'] !== 'file' && $values['type'] !== 'external') {
         continue;
       }
       if (variable_get('advagg_mod_js_defer', ADVAGG_MOD_JS_DEFER)) {
@@ -266,7 +266,7 @@ function advagg_mod_js_alter(&$js) {
       }
 
       // Drupal settings.
-      if ($name == 'misc/drupal.js') {
+      if ($name === 'misc/drupal.js') {
         $values['onload'] = "if (typeof window.init_drupal_core_settings === 'function') {init_drupal_core_settings();}";
         if (variable_get('advagg_mod_js_defer', ADVAGG_MOD_JS_DEFER)) {
           $values['defer'] = FALSE;
@@ -275,7 +275,7 @@ function advagg_mod_js_alter(&$js) {
           $values['async'] = FALSE;
         }
       }
-      if ($name == 'misc/jquery.once.js') {
+      if ($name === 'misc/jquery.once.js') {
         if (variable_get('advagg_mod_js_defer', ADVAGG_MOD_JS_DEFER)) {
           $values['defer'] = FALSE;
         }
@@ -327,9 +327,9 @@ function advagg_mod_html_head_alter(&$head_elements) {
     // @ignore sniffer_whitespace_openbracketspacing_openingwhitespace
     if (   variable_get('advagg_mod_css_head_extract', ADVAGG_MOD_CSS_HEAD_EXTRACT)
         && !empty($element['#tag'])
-        && $element['#tag'] == 'link'
+        && $element['#tag'] === 'link'
         && !empty($element['#attributes']['type'])
-        && $element['#attributes']['type'] == 'text/css'
+        && $element['#attributes']['type'] === 'text/css'
         && !empty($element['#attributes']['href'])
         ) {
       $type = 'file';
@@ -352,9 +352,9 @@ function advagg_mod_html_head_alter(&$head_elements) {
     // @ignore sniffer_whitespace_openbracketspacing_openingwhitespace
     if (   variable_get('advagg_mod_js_head_extract', ADVAGG_MOD_JS_HEAD_EXTRACT)
         && !empty($element['#tag'])
-        && $element['#tag'] == 'script'
+        && $element['#tag'] === 'script'
         && !empty($element['#attributes']['type'])
-        && $element['#attributes']['type'] == 'text/javascript'
+        && $element['#attributes']['type'] === 'text/javascript'
         && !empty($element['#attributes']['src'])
         ) {
       $type = 'file';
@@ -507,7 +507,7 @@ function advagg_mod_advagg_modify_js_pre_render_alter(&$children, &$elements) {
 
   if (variable_get('advagg_mod_js_async_shim', ADVAGG_MOD_JS_ASYNC_SHIM)) {
     foreach ($children as &$values) {
-      if (isset($values['#attributes']) && isset($values['#attributes']['async']) && $values['#attributes']['async'] == 'async' && !empty($values['#attributes']['src'])) {
+      if (isset($values['#attributes']) && isset($values['#attributes']['async']) && $values['#attributes']['async'] === 'async' && !empty($values['#attributes']['src'])) {
         $source = $values['#attributes']['src'];
         // @ignore sniffer_whitespace_openbracketspacing_openingwhitespace
         if (   strpos($source, 'http://') !== 0
@@ -687,8 +687,8 @@ advagg_mod_check_if_drupal_settings_loaded$counter();";
  */
 function advagg_mod_sort_css_js(&$array, $type) {
   // @ignore sniffer_whitespace_openbracketspacing_openingwhitespace:3
-  if (   ($type == 'js' && variable_get('advagg_mod_js_adjust_sort_external', ADVAGG_MOD_JS_ADJUST_SORT_EXTERNAL))
-      || ($type == 'css' && variable_get('advagg_mod_css_adjust_sort_external', ADVAGG_MOD_CSS_ADJUST_SORT_EXTERNAL))
+  if (   ($type === 'js' && variable_get('advagg_mod_js_adjust_sort_external', ADVAGG_MOD_JS_ADJUST_SORT_EXTERNAL))
+      || ($type === 'css' && variable_get('advagg_mod_css_adjust_sort_external', ADVAGG_MOD_CSS_ADJUST_SORT_EXTERNAL))
       ) {
     // Find all external items.
     $external = array();
@@ -718,12 +718,12 @@ function advagg_mod_sort_css_js(&$array, $type) {
         $weight = $value['weight'];
       }
 
-      if (!empty($value['type']) && $value['type'] == 'external') {
+      if (!empty($value['type']) && $value['type'] === 'external') {
         $external[$key] = $value;
         unset($array[$key]);
       }
 
-      if (!empty($value['type']) && $value['type'] == 'inline') {
+      if (!empty($value['type']) && $value['type'] === 'inline') {
         // Move jQuery fallback as well.
         if (strpos($value['data'], 'window.jQuery') === 0) {
           $external[$key] = $value;
@@ -747,8 +747,18 @@ function advagg_mod_sort_css_js(&$array, $type) {
     // Group all external together.
     $offset = 0.0001;
     $weight += -1;
+    $found_jquery = FALSE;
     foreach ($external as $key => $value) {
       if (isset($value['movable']) && empty($value['movable'])) {
+        $array[$key] = $value;
+        continue;
+      }
+      // If bootstrap is used, it must be loaded after jquery. Don't move
+      // bootstrap if jquery is not above it.
+      if (strpos($value['data'], 'jquery.min.js') !== FALSE || strpos($value['data'], 'jquery.js') !== FALSE ) {
+        $found_jquery = TRUE;
+      }
+      if (!$found_jquery && (strpos($value['data'], 'bootstrap.min.js') !== FALSE || strpos($value['data'], 'bootstrap.js') !== FALSE)) {
         $array[$key] = $value;
         continue;
       }
@@ -761,8 +771,8 @@ function advagg_mod_sort_css_js(&$array, $type) {
   }
 
   // @ignore sniffer_whitespace_openbracketspacing_openingwhitespace:3
-  if (   ($type == 'js' && variable_get('advagg_mod_js_adjust_sort_inline', ADVAGG_MOD_JS_ADJUST_SORT_INLINE))
-      || ($type == 'css' && variable_get('advagg_mod_css_adjust_sort_inline', ADVAGG_MOD_CSS_ADJUST_SORT_INLINE))
+  if (   ($type === 'js' && variable_get('advagg_mod_js_adjust_sort_inline', ADVAGG_MOD_JS_ADJUST_SORT_INLINE))
+      || ($type === 'css' && variable_get('advagg_mod_css_adjust_sort_inline', ADVAGG_MOD_CSS_ADJUST_SORT_INLINE))
       ) {
     // Find all inline items.
     $inline = array();
@@ -792,7 +802,7 @@ function advagg_mod_sort_css_js(&$array, $type) {
         $weight = $value['weight'];
       }
 
-      if (!empty($value['type']) && $value['type'] == 'inline') {
+      if (!empty($value['type']) && $value['type'] === 'inline') {
         // Do not move jQuery fallback.
         if (strpos($value['data'], 'window.jQuery') === 0) {
           continue;
@@ -830,8 +840,8 @@ function advagg_mod_sort_css_js(&$array, $type) {
   }
 
   // @ignore sniffer_whitespace_openbracketspacing_openingwhitespace:3
-  if (   ($type == 'js' && variable_get('advagg_mod_js_adjust_sort_browsers', ADVAGG_MOD_JS_ADJUST_SORT_BROWSERS))
-      || ($type == 'css' && variable_get('advagg_mod_css_adjust_sort_browsers', ADVAGG_MOD_CSS_ADJUST_SORT_BROWSERS))
+  if (   ($type === 'js' && variable_get('advagg_mod_js_adjust_sort_browsers', ADVAGG_MOD_JS_ADJUST_SORT_BROWSERS))
+      || ($type === 'css' && variable_get('advagg_mod_css_adjust_sort_browsers', ADVAGG_MOD_CSS_ADJUST_SORT_BROWSERS))
       ) {
     // Get a list of browsers.
     $browsers_list = array();
@@ -927,7 +937,7 @@ function advagg_mod_inline_js(&$js) {
 
   foreach ($js as $name => &$values) {
     // Only process files.
-    if ($values['type'] != 'file') {
+    if ($values['type'] !== 'file') {
       continue;
     }
     $filename = $values['data'];
@@ -959,7 +969,7 @@ function advagg_mod_inline_css(&$css) {
 
   foreach ($css as $name => &$values) {
     // Only process files.
-    if ($values['type'] != 'file') {
+    if ($values['type'] !== 'file') {
       continue;
     }
 
@@ -1040,9 +1050,9 @@ function advagg_mod_match_path($pages, $visibility) {
  * See if JavaScript file contains drupal and/or jquery.
  *
  * @param string $filename
- *   filename or full URL.
+ *   inline css, full URL, or filename.
  * @param string $type
- *   (optional) file or external
+ *   (optional) inline, external, or file.
  *
  * @return array
  *   Returns an array stating if this JS file contains drupal or jquery.
@@ -1050,19 +1060,24 @@ function advagg_mod_match_path($pages, $visibility) {
  * @see block_block_list_alter()
  */
 function advagg_mod_js_contains_jquery_drupal($filename, $type = '') {
-  // @ignore sniffer_whitespace_openbracketspacing_openingwhitespace
-  if (   $type == 'external'
-      || strpos($filename, 'http://') === 0
-      || strpos($filename, 'https://') === 0
-      || strpos($filename, '//') === 0
-      ) {
-    $result = drupal_http_request($filename);
-    if (($result->code == 200 || (isset($result->redirect_code) && $result->redirect_code == 200)) && !empty($result->data)) {
-      $contents = $result->data;
+  if (is_string($filename)) {
+    // @ignore sniffer_whitespace_openbracketspacing_openingwhitespace:4
+    if ($type === 'inline') {
+      $contents = $filename;
     }
-  }
-  elseif (file_exists($filename)) {
-    $contents = file_get_contents($filename);
+    elseif (   $type === 'external'
+            || strpos($filename, 'http://') === 0
+            || strpos($filename, 'https://') === 0
+            || strpos($filename, '//') === 0
+            ) {
+      $result = drupal_http_request($filename);
+      if (($result->code == 200 || (isset($result->redirect_code) && $result->redirect_code == 200)) && !empty($result->data)) {
+        $contents = $result->data;
+      }
+    }
+    elseif (file_exists($filename)) {
+      $contents = file_get_contents($filename);
+    }
   }
 
   $results = array();
@@ -1113,54 +1128,46 @@ function advagg_remove_js_if_not_used(&$js) {
     'jquery.min.js',
     'jquery.once.js',
   );
-  $inline_skiplist = array(
-    '/jquery_update/replace/jquery/1.5/jquery.min.js',
-    'var $L = $LAB.setGlobalDefaults',
-  );
+  $inline_skiplist = array();
+  if (module_exists('jquery_update')) {
+    $inline_skiplist[] = 'document.write("<script src=\'' . $GLOBALS['base_path'] . drupal_get_path('module', 'jquery_update') . '/replace/jquery/' . variable_get('jquery_update_jquery_version', '1.10') . '/jquery' . (variable_get('jquery_update_compression_type', 'min') === 'none' ? '' : '.min') . ".js'>";
+  }
+  if (module_exists('labjs')) {
+    $inline_skiplist[] = 'var $L = $LAB.setGlobalDefaults';
+  }
+
   $include_jquery = FALSE;
   $include_drupal = FALSE;
-
   module_load_include('inc', 'advagg', 'advagg');
 
   // Look at each JavaScript entry.
   foreach ($js as $name => &$values) {
-    if ($values['type'] == 'file' || $values['type'] == 'external') {
-      $skip = FALSE;
+    $info = array();
+    if ($values['type'] === 'file' || $values['type'] === 'external') {
       foreach ($files_skiplist as $skip_name) {
-        if (substr_compare($name, $skip_name, -strlen($skip_name), strlen($skip_name)) === 0) {
-          $skip = TRUE;
-          break;
+        if (substr_compare($values['data'], $skip_name, -strlen($skip_name), strlen($skip_name)) === 0) {
+          continue 2;
         }
       }
-      if (!$skip) {
-        $info = advagg_get_info_on_file($name);
-        if (!isset($info['advagg_mod'])) {
-          $info['advagg_mod'] = advagg_mod_js_contains_jquery_drupal($name, $values['type']);
-        }
-        $drupal = $info['advagg_mod']['contents']['drupal'];
-        $jquery = $info['advagg_mod']['contents']['jquery'];
-
-        if ($drupal) {
-          $include_jquery = TRUE;
-          $include_drupal = TRUE;
-        }
-        elseif ($jquery) {
-          $include_jquery = TRUE;
+      $info = advagg_get_info_on_file($values['data']);
+    }
+    if ($values['type'] === 'inline' && !empty($inline_skiplist)) {
+      foreach ($inline_skiplist as $skip_string) {
+        if (stripos($values['data'], $skip_string) !== FALSE) {
+          continue 2;
         }
       }
     }
-    if ($values['type'] == 'inline') {
-      $skip = FALSE;
-      foreach ($inline_skiplist as $skip_string) {
-        if (stripos($values['data'], $skip_string) !== FALSE) {
-          $skip = TRUE;
-          break;
-        }
-      }
-      if (!$skip) {
-        $include_jquery = TRUE;
-        $include_drupal = TRUE;
-      }
+    // Get advagg_mod info if not set.
+    if (!isset($info['advagg_mod'])) {
+      $info['advagg_mod'] = advagg_mod_js_contains_jquery_drupal($values['data'], $values['type']);
+    }
+    if ($info['advagg_mod']['contents']['drupal']) {
+      $include_jquery = TRUE;
+      $include_drupal = TRUE;
+    }
+    elseif ($info['advagg_mod']['contents']['jquery']) {
+      $include_jquery = TRUE;
     }
   }
 
@@ -1177,14 +1184,14 @@ function advagg_remove_js_if_not_used(&$js) {
     // Kill all default JavaScript.
     if (!$include_jquery) {
       foreach ($js as $name => &$values) {
-        if ($values['type'] == 'file' || $values['type'] == 'external') {
+        if ($values['type'] === 'file' || $values['type'] === 'external') {
           foreach ($files_skiplist as $skip_name) {
             if (substr_compare($name, $skip_name, -strlen($skip_name), strlen($skip_name)) === 0) {
               unset($js[$name]);
             }
           }
         }
-        elseif ($values['type'] == 'inline') {
+        elseif ($values['type'] === 'inline') {
           foreach ($inline_skiplist as $skip_string) {
             if (stripos($values['data'], $skip_string) !== FALSE) {
               unset($js[$name]);

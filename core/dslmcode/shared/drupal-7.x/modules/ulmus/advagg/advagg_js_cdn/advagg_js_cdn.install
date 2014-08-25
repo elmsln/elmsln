@@ -14,13 +14,13 @@ function advagg_js_cdn_requirements($phase) {
   $t = get_t();
 
   // If not at runtime, return here.
-  if ($phase != 'runtime') {
+  if ($phase !== 'runtime') {
     return $requirements;
   }
 
   if (module_exists('jquery_update')) {
     $jquery_cdn = variable_get('jquery_update_jquery_cdn', 'none');
-    if ($jquery_cdn == 'none') {
+    if ($jquery_cdn === 'none') {
       $jquery_description = $t('The jquery update module has support for CDNs. Go to the <a href="@settings">jquery update settings page</a> and select a CDN instead of using this module.', array(
         '@settings' => url('admin/config/development/jquery_update', array(
           'fragment' => 'edit-jquery-update-jquery-cdn',

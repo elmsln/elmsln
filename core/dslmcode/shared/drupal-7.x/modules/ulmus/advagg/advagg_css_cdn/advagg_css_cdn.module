@@ -39,7 +39,7 @@ function advagg_css_cdn_css_alter(&$css) {
     //  and type is file.
     if (   variable_get('advagg_css_cdn_jquery_ui', ADVAGG_CSS_CDN_JQUERY_UI)
         && array_key_exists($name, $ui_mapping)
-        && $css[$name]['type'] == 'file'
+        && $css[$name]['type'] === 'file'
         ) {
       $css[$name]['data'] = '//ajax.googleapis.com/ajax/libs/jqueryui/' . $jquery_ui_version . '/themes/base/jquery.' . $ui_mapping[$name] . '.css';
       $css[$name]['type'] = 'external';
@@ -85,7 +85,7 @@ function advagg_css_cdn_advagg_css_groups_alter(&$css_groups, $preprocess_css) {
   }
   $match = FALSE;
   foreach ($theme_keys as $name) {
-    if ($name == 'seven') {
+    if ($name === 'seven') {
       $match = TRUE;
     }
   }
@@ -100,9 +100,9 @@ function advagg_css_cdn_advagg_css_groups_alter(&$css_groups, $preprocess_css) {
   $replaced = FALSE;
   foreach ($css_groups as $key => $group) {
     if (empty($target)) {
-      if ($group['type'] == 'external' && $group['preprocess'] && $preprocess_css) {
+      if ($group['type'] === 'external' && $group['preprocess'] && $preprocess_css) {
         foreach ($group['items'] as $k => $value) {
-          if ($value['data'] == 'themes/seven/jquery.ui.theme.css') {
+          if ($value['data'] === 'themes/seven/jquery.ui.theme.css') {
             // Type should be file and not external (core bug).
             $value['type'] = 'file';
             $target = $value;

@@ -10,10 +10,10 @@
  */
 function advagg_bundler_advagg_build_aggregate_plans_alter(&$files, &$modified, $type) {
   // Get max number of sub aggregates to create.
-  if ($type == 'css') {
+  if ($type === 'css') {
     $max = variable_get('advagg_bundler_max_css', ADVAGG_BUNDLER_MAX_CSS);
   }
-  if ($type == 'js') {
+  if ($type === 'js') {
     $max = variable_get('advagg_bundler_max_js', ADVAGG_BUNDLER_MAX_JS);
   }
   // If bundles are disabled then do not do any more processing.

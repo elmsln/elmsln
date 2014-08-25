@@ -107,7 +107,7 @@ function advagg_bundler_analysis($filename = '', $force = FALSE) {
     // See if we have a cached version of this. Generate cache ID.
     $query = db_select('advagg_aggregates_versions', 'aav')
       ->condition('aav.root', 1)
-      ->condition('aav.atime', REQUEST_TIME - ADVAGG_BUNDLER_OUTDATED, '>');
+      ->condition('aav.atime', REQUEST_TIME - max(172800, variable_get('advagg_bundler_outdated', ADVAGG_BUNDLER_OUTDATED), '>'), '>');
     $query->addExpression('COUNT(aggregate_filenames_hash)', 'counter');
     $count = $query->execute()->fetchField();
     $ideal_cid = 'advagg:bundler_analysis:' . $count;
@@ -165,25 +165,25 @@ function advagg_bundler_analysis($filename = '', $force = FALSE) {
       // return a lot of rows;
       // @ignore sniffer_commenting_inlinecomment_spacingafter
 
-      // Create join query for the advagg_aggregates_versions table.
-      // 1209600 = 2 weeks.
-      $subquery_aggregates_versions = db_select('advagg_aggregates_versions', 'aav')
-        ->fields('aav')
-        ->condition('aav.root', 1)
-        ->condition('aav.atime', REQUEST_TIME - ADVAGG_BUNDLER_OUTDATED, '>');
+
+
 
       // Create join query for the advagg_aggregates table.
       $subquery_aggregates = db_select('advagg_aggregates', 'aa');
-      $subquery_aggregates->join($subquery_aggregates_versions, 'aav', 'aav.aggregate_filenames_hash=aa.aggregate_filenames_hash');
       $subquery_aggregates->addExpression("LPAD(CAST(COUNT(aav.aggregate_filenames_hash) AS char(8)), 8, '0')", 'counter');
 
       $fields = array('counter');
       $db_type = Database::getConnection()->databaseType();
-      if ($db_type == 'mysql') {
+      if ($db_type === 'mysql') {
         db_query('SET SESSION group_concat_max_len = 65535');
         $fields = array('counter', 'hashlist');
         $subquery_aggregates->addExpression('GROUP_CONCAT(DISTINCT aa.aggregate_filenames_hash ORDER BY aa.aggregate_filenames_hash ASC)', 'hashlist');
       }
+
+      // Create join for the advagg_aggregates_versions table.
+      // 1209600 = 2 weeks.
+      $time = REQUEST_TIME - max(172800, variable_get('advagg_bundler_outdated', ADVAGG_BUNDLER_OUTDATED), '>');
+      $subquery_aggregates->join('advagg_aggregates_versions', 'aav', "aav.aggregate_filenames_hash=aa.aggregate_filenames_hash AND aav.root=1 AND aav.atime > $time");
 
       $subquery_aggregates = $subquery_aggregates->fields('aa', array('filename_hash'))
         ->groupBy('aa.filename_hash');
@@ -199,8 +199,7 @@ function advagg_bundler_analysis($filename = '', $force = FALSE) {
           'linecount',
           'filename_hash',
         ))
-        ->fields('aa', $fields)
-        ->orderBy('aa.counter', 'DESC');
+        ->fields('aa', $fields);
       $query->comment('Query called from ' . __FUNCTION__ . '()');
       $results = $query->execute();
 
@@ -211,7 +210,7 @@ function advagg_bundler_analysis($filename = '', $force = FALSE) {
           $subquery_aggregates_versions = db_select('advagg_aggregates_versions', 'aav')
             ->fields('aav')
             ->condition('aav.root', 1)
-            ->condition('aav.atime', REQUEST_TIME - ADVAGG_BUNDLER_OUTDATED, '>');
+            ->condition('aav.atime', REQUEST_TIME - max(172800, variable_get('advagg_bundler_outdated', ADVAGG_BUNDLER_OUTDATED), '>'), '>');
 
           $subquery_aggregates = db_select('advagg_aggregates', 'aa');
           $subquery_aggregates->join($subquery_aggregates_versions, 'aav', 'aav.aggregate_filenames_hash=aa.aggregate_filenames_hash');

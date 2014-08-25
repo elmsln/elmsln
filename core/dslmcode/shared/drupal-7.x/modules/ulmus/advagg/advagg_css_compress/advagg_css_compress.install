@@ -14,7 +14,7 @@ function advagg_css_compress_requirements($phase) {
   $t = get_t();
 
   // If not at runtime, return here.
-  if ($phase != 'runtime') {
+  if ($phase !== 'runtime') {
     return $requirements;
   }
 

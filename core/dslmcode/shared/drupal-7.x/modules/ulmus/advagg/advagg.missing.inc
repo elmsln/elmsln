@@ -161,10 +161,10 @@ function advagg_missing_send_saved_file($files_to_save, $uri, $created, $type, $
       header('Last-Modified: ' . gmdate('D, d M Y H:i:s \G\M\T', $filemtime));
     }
 
-    if ($type == 'css') {
+    if ($type === 'css') {
       header("Content-Type: text/css");
     }
-    elseif ($type == 'js') {
+    elseif ($type === 'js') {
       header("Content-Type: application/javascript; charset=UTF-8");
     }
     header('X-AdvAgg: Generated file at ' . REQUEST_TIME);
@@ -284,7 +284,7 @@ function advagg_missing_create_file($filename, $no_alters = FALSE, $data = array
  */
 function advagg_htaccess_check_generate($files_to_save, $type, $force = FALSE) {
   $content_type = $type;
-  if ($content_type == 'js') {
+  if ($content_type === 'js') {
     $content_type = 'javascript';
   }
 
@@ -314,7 +314,7 @@ function advagg_htaccess_check_generate($files_to_save, $type, $force = FALSE) {
   $data .= "    # Do not use etags for cache validation.\n";
   $data .= "    Header unset ETag\n";
   $data .= "    # Serve correct content type.\n";
-  if ($type == 'css') {
+  if ($type === 'css') {
     $data .= "    Header set Content-Type text/${content_type}\n";
   }
   else {
@@ -328,7 +328,7 @@ function advagg_htaccess_check_generate($files_to_save, $type, $force = FALSE) {
   $data .= "      Header append Cache-Control \"no-transform, public\"\n";
   $data .= "    </IfModule>\n";
   $data .= "  </IfModule>\n";
-  if ($type == 'css') {
+  if ($type === 'css') {
     $data .= "  ForceType text/${content_type}\n";
   }
   else {
@@ -368,12 +368,12 @@ function advagg_get_hashes_from_filename($filename) {
   $ext = substr($filename, strpos($filename, '.', 131 + strlen(ADVAGG_SPACE) * 3) + 1);
 
   // Set extraction points.
-  if ($ext == 'css') {
+  if ($ext === 'css') {
     $aggregate_filenames_start = 3 + strlen(ADVAGG_SPACE);
     $aggregate_contents_start = 46 + strlen(ADVAGG_SPACE) * 2;
     $hooks_hashes_start = 89 + strlen(ADVAGG_SPACE) * 3;
   }
-  elseif ($ext == 'js') {
+  elseif ($ext === 'js') {
     $aggregate_filenames_start = 2 + strlen(ADVAGG_SPACE);
     $aggregate_contents_start = 45 + strlen(ADVAGG_SPACE) * 2;
     $hooks_hashes_start = 88 + strlen(ADVAGG_SPACE) * 3;
@@ -415,30 +415,27 @@ function advagg_get_hashes_from_filename($filename) {
  *   List of files in the order they should be included.
  */
 function advagg_get_files_from_hashes($type, $aggregate_filenames_hash, $aggregate_contents_hash) {
-  // Create join query for the advagg_files table.
-  $subquery_files = db_select('advagg_files', 'af')
-    ->fields('af')
-    ->condition('af.filetype', $type);
-  // Create join query for the advagg_aggregates table.
-  $subquery_aggregates = db_select('advagg_aggregates', 'aa')
-    ->condition('aa.aggregate_filenames_hash', $aggregate_filenames_hash)
-    ->fields('aa');
-
   // Create main query for the advagg_aggregates_versions table.
   $query = db_select('advagg_aggregates_versions', 'aav')
     ->condition('aav.aggregate_filenames_hash', $aggregate_filenames_hash)
     ->condition('aav.aggregate_contents_hash', $aggregate_contents_hash);
-  $query->join($subquery_aggregates, 'aa', 'aa.aggregate_filenames_hash=aav.aggregate_filenames_hash');
-  $query->join($subquery_files, 'af', 'af.filename_hash=aa.filename_hash');
-  $query->comment('Query called from ' . __FUNCTION__ . '()');
+  // Create join query for the advagg_aggregates table.
+  $subquery_aggregates = $query->join('advagg_aggregates', 'aa', 'aa.aggregate_filenames_hash =
+    aav.aggregate_filenames_hash AND aa.aggregate_filenames_hash = :aggregate_filenames_hash',
+    array(':aggregate_filenames_hash' => $aggregate_filenames_hash));
+  // Create join query for the advagg_files table.
+  $subquery_files = $query->join('advagg_files', 'af', 'af.filename_hash = aa.filename_hash AND
+    af.filetype = :type', array(':type' => $type));
+  // Select fields and ordering of the query; add in query comment as well.
   $query = $query->fields('af', array('filename'))
-    ->fields('aa', array('settings'))
-    ->orderBy('porder', 'ASC')
-    ->execute();
+    ->fields($subquery_aggregates, array('settings'))
+    ->orderBy('porder', 'ASC');
+  $query->comment('Query called from ' . __FUNCTION__ . '()');
+  $results = $query->execute();
 
   // Add in files that are included in this aggregate.
   $files = array();
-  foreach ($query as $value) {
+  foreach ($results as $value) {
     $files[$value->filename] = unserialize($value->settings);
   }
   return $files;
@@ -670,11 +667,11 @@ function advagg_save_aggregate($filename, $files, $type, $aggregate_settings) {
 
   // Build the aggregates contents.
   $contents = '';
-  if ($type == 'css') {
+  if ($type === 'css') {
     $contents = advagg_get_css_aggregate_contents($files, $aggregate_settings);
     $uri = $css_path[0] . '/' . $filename;
   }
-  elseif ($type == 'js') {
+  elseif ($type === 'js') {
     $contents = advagg_get_js_aggregate_contents($files, $aggregate_settings);
     $uri = $js_path[0] . '/' . $filename;
   }
@@ -697,10 +694,10 @@ function advagg_save_aggregate($filename, $files, $type, $aggregate_settings) {
   foreach ($files_to_save as $uri => $data) {
     advagg_save_data($uri, $data);
     if (!file_exists($uri) || filesize($uri) == 0) {
-      if ($type == 'css') {
+      if ($type === 'css') {
         $full_dir = DRUPAL_ROOT . '/' . $css_path[1];
       }
-      elseif ($type == 'js') {
+      elseif ($type === 'js') {
         $full_dir = DRUPAL_ROOT . '/' . $js_path[1];
       }
       $free_space = @disk_free_space($full_dir);
@@ -766,7 +763,7 @@ function advagg_save_data($uri, $data, $overwrite = FALSE) {
   // name. Preserves the mime type in different stream wrapper implementations.
   $parts = pathinfo($uri);
   $extension = '.' . $parts['extension'];
-  if ($extension == '.gz') {
+  if ($extension === '.gz') {
     $parts = pathinfo($parts['filename']);
     $extension = '.' . $parts['extension'] . $extension;
   }
