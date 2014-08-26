@@ -332,11 +332,6 @@ function _outline_designer_book_settings_submit($form, &$form_state) {
     }
   }
   variable_set('outline_designer_context_menu_exclusion_matrix', array_filter($items_unchecked));
-
-  // take into account outline child pages
-  if (function_exists('outline_child_pages_menu')) {
-    variable_set('outline_child_pages_type', $form_state['values']["outline_child_pages_type"]);
-  }
   // the rest is for files
   $dir = drupal_realpath(file_default_scheme() . '://outline_designer');
   $is_writable = file_prepare_directory($dir, 1);
