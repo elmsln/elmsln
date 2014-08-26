@@ -1,0 +1,12 @@
+name = CSS Embedded Images
+description = Replaces image URLs in CSS files with embedded images when CSS optimization is enabled.
+core = 7.x
+package = Performance and scalability
+configure = admin/config/development/performance
+
+; Information added by drupal.org packaging script on 2013-04-19
+version = "7.x-1.3"
+core = "7.x"
+project = "css_emimage"
+datestamp = "1366404011"
+

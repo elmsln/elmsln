@@ -1,0 +1,38 @@
+<?php
+
+/**
+ * @file
+ * Install, update, and uninstall functions for the css_emimage module.
+ */
+
+/**
+ * Implements hook_disable().
+ */
+function css_emimage_disable() {
+  // Clear CSS cache.
+  _drupal_flush_css_js();
+  drupal_clear_css_cache();
+
+  // Remove empty css files.
+  file_scan_directory('public://css', '/.*/', array('callback' => 'css_emimage_delete_file_if_empty'));
+}
+
+/**
+ * Implements hook_uninstall().
+ */
+function css_emimage_uninstall() {
+  // Remove variables.
+  db_delete('variable')
+    ->condition('name', 'css_emimage%', 'LIKE')
+    ->execute();
+}
+
+/**
+ * Callback to delete files if they are empty.
+ */
+function css_emimage_delete_file_if_empty($uri) {
+  // Empty gzip files ahve a size of 20.
+  if (filesize($uri) == 0 || (strpos($uri, '.css.gz') !== FALSE && filesize($uri) == 20)) {
+    file_unmanaged_delete($uri);
+  }
+}

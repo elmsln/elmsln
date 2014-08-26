@@ -1,0 +1,423 @@
+<?php
+
+/**
+ * @file
+ * CSS Embedded Images module.
+ */
+
+/**
+ * Internet Explorer limits data URIs to 32KB.
+ */
+define('CSS_EMIMAGE_IE_DATAURI_LIMIT', 32768);
+
+/**
+ * Limit the total data (in bytes) duplicate images can add to the CSS. If
+ * embedding a duplicate image exceeds this, it will not be embedded.
+ */
+define('CSS_EMIMAGE_DUPLICATE_EMBED_LIMIT', 10240);
+
+/**
+ * Limit the total size allowed for inline data URIs. Once this limit is
+ * exceeded, data URIs are placed in a separate CSS file.
+ */
+define('CSS_EMIMAGE_INLINE_DATAURI_LIMIT', 4096);
+
+/**
+ * What type of css to generate. orginal, base, & emimage are the options.
+ */
+define('CSS_EMIMAGE_MODE', 'orginal');
+
+/**
+ * Default value to see if css_emimage is enabled for files.
+ */
+define('CSS_EMIMAGE_FILES', TRUE);
+
+/**
+ * Default value to see if css_emimage is enabled for inline css.
+ */
+define('CSS_EMIMAGE_INLINE', FALSE);
+
+// Core Hooks.
+/**
+ * Implements hook_help().
+ */
+function css_emimage_help($path, $arg) {
+
+  switch ($path) {
+    case 'admin/help#css_emimage':
+      if (module_exists('advagg')) {
+        $config_path = advagg_admin_config_root_path();
+        $output = '<p>' . t('Replaces image URLs in AdvAgg aggregated CSS files with embedded images when <em>CSS optimization</em> has been enabled in the <a href="@performance">Performance settings</a>; <a href="@config">configuration for the CSS embedded images</a> module.', array(
+          '@performance' => url('admin/config/development/performance'),
+          '@config' => url($config_path . '/advagg/css-emimage'),
+        )) . '</p>';
+      }
+      else {
+        $output = '<p>' . t('Replaces image URLs in aggregated CSS files with embedded images when <em>CSS optimization</em> has been enabled in the <a href="@performance">Performance settings</a>.', array('@performance' => url('admin/config/development/performance'))) . '</p>';
+      }
+      return $output;
+  }
+}
+
+/**
+ * Implements hook_menu().
+ */
+function css_emimage_menu() {
+  $items = array();
+  // Do not add in configuration page if advagg is not installed.
+  if (!module_exists('advagg')) {
+    return $items;
+  }
+
+  $file_path = drupal_get_path('module', 'css_emimage');
+  $config_path = advagg_admin_config_root_path();
+
+  $items[$config_path . '/advagg/css-emimage'] = array(
+    'title' => 'CSS Embedded Images',
+    'description' => 'Adjust settings for CSS Embedded Images',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('css_emimage_admin_info_form'),
+    'type' => MENU_LOCAL_TASK,
+    'access arguments' => array('administer site configuration'),
+    'file path' => $file_path,
+    'file' => 'css_emimage.admin.inc',
+  );
+  return $items;
+}
+
+/**
+ * Implements hook_module_implements_alter().
+ */
+function css_emimage_module_implements_alter(&$implementations, $hook) {
+  // Move css_emimage to the top.
+  if ($hook === 'advagg_get_css_aggregate_contents_alter' && array_key_exists('css_emimage', $implementations)) {
+    $item = array('css_emimage' => $implementations['css_emimage']);
+    unset($implementations['css_emimage']);
+    $implementations = array_merge($item, $implementations);
+  }
+
+  // Move css_emimage to the bottom.
+  if ($hook === 'advagg_build_aggregate_plans_alter' && array_key_exists('css_emimage', $implementations)) {
+    $item = $implementations['css_emimage'];
+    unset($implementations['css_emimage']);
+    $implementations['css_emimage'] = $item;
+  }
+
+  // Move css_emimage to the bottom.
+  if ($hook === 'theme_registry_alter' && array_key_exists('css_emimage', $implementations)) {
+    $item = $implementations['css_emimage'];
+    unset($implementations['css_emimage']);
+    // Add in back in if advagg is not installed.
+    if (!module_exists('advagg')) {
+      $implementations['css_emimage'] = $item;
+    }
+  }
+}
+
+/**
+ * Implements hook_form_FORM_ID_alter().
+ */
+function css_emimage_form_system_performance_settings_alter(&$form, &$form_state, $form_id) {
+  // Do not alter the system_performance_settings form if advagg is installed.
+  if (module_exists('advagg')) {
+    return;
+  }
+
+  $form['bandwidth_optimization']['css_emimage'] = array(
+    '#type' => 'fieldset',
+    '#title' => t('CSS Embedded Images'),
+    'css_emimage_force_inline' => array(
+      '#type' => 'checkbox',
+      '#title' => t('Always inline embedded images'),
+      '#description' => t('By default CSS Embedded Images places image data exceeding !limit in a CSS file separate from the rest of the site styles. This allows for parallel rendering of site styles while the relatively large image data is in transit, providing an improved user experience (especially for visitors with slow connections). Enabling this option will force images to always be embedded inline, similar to the 6.x-1.x behavior; however, this is not recommended.', array('!limit' => format_size(variable_get('css_emimage_inline_datauri_limit', CSS_EMIMAGE_INLINE_DATAURI_LIMIT)))),
+      '#default_value' => variable_get('css_emimage_force_inline', 0),
+    ),
+    'css_emimage_ielimit' => array(
+      '#type' => 'checkbox',
+      '#title' => t('Only embed images less than 32KB'),
+      '#description' => t('Internet Explorer does not support embedded images larger than 32KB. If you are not concerned about IE support you can ignore this limitation; otherwise, it is best to leave this checked.'),
+      '#default_value' => variable_get('css_emimage_ielimit', 1),
+    ),
+  );
+}
+
+/**
+ * Implements hook_theme_registry_alter().
+ *
+ * Make css_emimage's page process function run after everything else.
+ */
+function css_emimage_theme_registry_alter(&$theme_registry) {
+  // Do not alter the theme_registry if advagg is installed.
+  if (module_exists('advagg')) {
+    return;
+  }
+
+  if (isset($theme_registry['html'])) {
+    // Move our process function after everything else.
+    $key = array_search('_css_emimage_process_html', $theme_registry['html']['process functions']);
+    if ($key !== FALSE) {
+      unset($theme_registry['html']['process functions'][$key]);
+    }
+    $theme_registry['html']['process functions'][] = '_css_emimage_process_html';
+  }
+}
+
+/**
+ * Implements hook_system_info_alter().
+ */
+function css_emimage_system_info_alter(&$info, $file, $type) {
+  static $config_path;
+  if ($file->name != 'css_emimage') {
+    return;
+  }
+  if (!module_exists('advagg')) {
+    return;
+  }
+
+  $info['configure'] = advagg_admin_config_root_path() . '/advagg/css-emimage';
+  $info['package'] = 'Advanced CSS/JS Aggregation';
+}
+
+// AdvAgg Hooks.
+/**
+ * Implement hook_advagg_current_hooks_hash_array_alter().
+ */
+function css_emimage_advagg_current_hooks_hash_array_alter(&$aggregate_settings) {
+  $aggregate_settings['variables']['css_emimage_inline_datauri_limit'] = variable_get('css_emimage_inline_datauri_limit', CSS_EMIMAGE_INLINE_DATAURI_LIMIT);
+  $aggregate_settings['variables']['css_emimage_mode'] = variable_get('css_emimage_mode', CSS_EMIMAGE_MODE);
+  $aggregate_settings['variables']['css_emimage_files'] = variable_get('css_emimage_files', CSS_EMIMAGE_FILES);
+}
+
+/**
+ * Implements hook_advagg_css_groups_alter().
+ *
+ * Process inline CSS.
+ */
+function css_emimage_advagg_css_groups_alter(&$css_groups, $preprocess_css) {
+  if (!$preprocess_css) {
+    return;
+  }
+  if (!variable_get('css_emimage_inline', CSS_EMIMAGE_INLINE)) {
+    return;
+  }
+  $force_inline = variable_get('css_emimage_force_inline', 0);
+  $GLOBALS['conf']['css_emimage_force_inline'] = TRUE;
+
+  module_load_include('inc', 'css_emimage', 'css_emimage.advagg');
+
+  $new_css = array();
+  foreach ($css_groups as $key => $group) {
+    // Only run on inline css.
+    if ($group['type'] != 'inline') {
+      $new_css[$key] = $group;
+      continue;
+    }
+
+    // Only run if css is not browser specific.
+    if (!empty($fileinfo['browsers']) && ($fileinfo['browsers']['!IE'] !== TRUE || $fileinfo['browsers']['IE'] !== TRUE)) {
+      $new_css[$key] = $group;
+      continue;
+    }
+
+    $group_has_images = FALSE;
+    foreach ($group['items'] as $k => $value) {
+      $images = css_emimage_string_contains_images($value['data']);
+      // If css has images recored it and break out of loop.
+      if (!empty($images)) {
+        $group_has_images = TRUE;
+        break;
+      }
+    }
+    // If this group has no images, skip.
+    if (!$group_has_images) {
+      $new_css[$key] = $group;
+      continue;
+    }
+
+    // Add in the css embedded images.
+    $new_group = array();
+    $new_group = $group;
+    $new_group['browsers'] = array('IE' => 'gte IE 8');
+    foreach ($new_group['items'] as $k => $fileinfo) {
+      // Change the browser.
+      $new_group['items'][$k]['browsers'] = array('IE' => 'gte IE 8');
+
+      // Inline the files.
+      $contents = $fileinfo['data'];
+      $hash = drupal_hash_base64($contents);
+      _css_emimage_text_processor($contents, $hash, 'emimage');
+      $new_group['items'][$k]['data'] = $contents;
+    }
+    $key = (string) floatval($key) + 0.1;
+    $new_css[(string) $key] = $new_group;
+
+    // Add in the base css.
+    $new_group = array();
+    $new_group = $group;
+    $new_group['browsers'] = array('IE' => 'gte IE 8');
+    foreach ($new_group['items'] as $k => $fileinfo) {
+      // Change the browser.
+      $new_group['items'][$k]['browsers'] = array('IE' => 'gte IE 8');
+
+      // Inline the files.
+      $contents = $fileinfo['data'];
+      $hash = drupal_hash_base64($contents);
+      _css_emimage_text_processor($contents, $hash, 'base');
+      if (!empty($contents)) {
+        $new_group['items'][$k]['data'] = $contents;
+      }
+      else {
+        unset($new_group['items'][$k]);
+      }
+    }
+    if (!empty($new_group['items'])) {
+      $key = (string) floatval($key) + 0.1;
+      $new_css[(string) $key] = $new_group;
+    }
+
+    // Add in the IE fallback file (orginal file).
+    $new_group = array();
+    $new_group = $group;
+    $new_group['browsers'] = array('!IE' => FALSE, 'IE' => 'lte IE 7');
+    foreach ($new_group['items'] as $k => $fileinfo) {
+      $new_group['items'][$k]['browsers'] = array('!IE' => FALSE, 'IE' => 'lte IE 7');
+    }
+    $key = (string) floatval($key) + 0.1;
+    $new_css[(string) $key] = $new_group;
+
+  }
+  $new_css = array_values($new_css);
+  $GLOBALS['conf']['css_emimage_force_inline'] = $force_inline;
+  $css_groups = $new_css;
+}
+
+// Processing functions.
+/**
+ * Replace URLs with data URIs in aggregated CSS if optimization is enabled.
+ */
+function _css_emimage_process_html(&$variables, $hook) {
+  // Do not alter the styles if advagg is installed.
+  if (module_exists('advagg')) {
+    return;
+  }
+
+  if (!empty($variables['styles']) && variable_get('preprocess_css', 0)) {
+    $variables['styles'] = _css_emimage_process($variables['styles']);
+  }
+}
+
+/**
+ * Helper function to replace URLs with data URIs.
+ */
+function _css_emimage_process($styles) {
+  module_load_include('inc', 'css_emimage', 'css_emimage');
+
+  $files_base_url = file_create_url('public://');
+  $files_realpath = drupal_realpath('public://') . '/';
+  $pattern = '/<link(.*?)href=".*?' . preg_quote($files_base_url, '/') . '(.*?)(\?[^"]*)?"(.*?)\\/>/';
+  if (preg_match_all($pattern, $styles, $matches) > 0) {
+    foreach ($matches[2] as $i => $aggregated_file_name) {
+      $emimage_file_name = str_replace('.css', '.emimage.css', $aggregated_file_name);
+      $orig_file_name = str_replace('.css', '.orig.css', $aggregated_file_name);
+      $emimage_file_realpath = $files_realpath . $emimage_file_name;
+      $orig_file_realpath = $files_realpath . $orig_file_name;
+      $aggregated_file_realpath = $files_realpath . $aggregated_file_name;
+
+      // Save the processed CSS file if it doesn't exist yet.
+      if (!file_exists($emimage_file_realpath) || filemtime($aggregated_file_realpath) > filemtime($emimage_file_realpath)) {
+        _css_emimage_collect_static(array(array(), array())); // Reset the processed declarations.
+        $contents = $orig_contents = file_get_contents($aggregated_file_realpath);
+        $datauri_css = '';
+        $gzip_enabled = variable_get('css_gzip_compression', TRUE) && variable_get('clean_url', 0) && extension_loaded('zlib');
+
+        $pattern = '/([^{}]+){([^{}]*?(background(?:-image)?|list-style(?:-image)?):[^{};)]*?(?:none|url\([\'"]?.+?[\'"]?\))[^{}]*)}/i';
+        $contents = preg_replace_callback($pattern, '_css_emimage_replace', $contents);
+        $media_blocks = parse_media_blocks($contents);
+
+        if (!is_null($contents)) {
+          list($declarations, $file_stats) = _css_emimage_collect_static();
+
+          // Check for duplicate images and exclude those exceeding our duplication limit.
+          // Sum the amount of data being embedded.
+          $datauri_total_length = 0;
+          foreach ($file_stats as $fs) {
+            if (count($fs['indices']) > 1 && $fs['total_length'] > variable_get('css_emimage_duplicate_embed_limit', CSS_EMIMAGE_DUPLICATE_EMBED_LIMIT)) {
+              foreach ($fs['indices'] as $fsi) {
+                $declarations[$fsi]['base64'] = '';
+              }
+            }
+            else {
+              $datauri_total_length += $fs['total_length'];
+            }
+          }
+
+          // Handle media queries.
+          if (!empty($media_blocks)) {
+            foreach ($declarations as $a => $b) {
+              foreach ($media_blocks as $c) {
+                // Skip if token is not in the media block.
+                if (strpos($c, $b['token']) === FALSE) {
+                  continue;
+                }
+                $declarations[$a]['media_query'] = substr($c, 0, strpos($c, '{'));
+                break;
+              }
+            }
+          }
+
+          list($ext_contents, $ext_data) = _css_emimage_build_external($contents, $declarations);
+
+          // If the amount of data being embedded is within the inline limit, inline the data URIs;
+          // otherwise, store the data URIs in a separate CSS file.
+          if (variable_get('css_emimage_force_inline', 0) || ($datauri_total_length && $datauri_total_length <= variable_get('css_emimage_inline_datauri_limit', CSS_EMIMAGE_INLINE_DATAURI_LIMIT))) {
+            $inline = _css_emimage_build_inline($contents, $declarations);
+            if (strlen($inline) < (strlen($ext_contents) + strlen($ext_data))) {
+              $datauri_css = $inline;
+            }
+            else {
+              $datauri_css = "$ext_contents\n$ext_data";
+            }
+            $contents = '';
+          }
+          else {
+            $contents = $ext_contents;
+            $datauri_css = $ext_data;
+          }
+
+          // Save the modified aggregated CSS file.
+          file_unmanaged_save_data($contents, "public://$aggregated_file_name", FILE_EXISTS_REPLACE);
+          // Save a copy of the original aggregated CSS for IE < 8 fallback.
+          file_unmanaged_save_data($orig_contents, "public://$orig_file_name", FILE_EXISTS_REPLACE);
+          if ($gzip_enabled) {
+            file_unmanaged_save_data(gzencode($contents, 9, FORCE_GZIP), "public://$aggregated_file_name.gz", FILE_EXISTS_REPLACE);
+            file_unmanaged_save_data(gzencode($orig_contents, 9, FORCE_GZIP), "public://$orig_file_name.gz", FILE_EXISTS_REPLACE);
+          }
+        }
+        else {
+          $error_code = preg_last_error();
+          $error_messages = array(PREG_NO_ERROR => 'NO_ERROR', PREG_INTERNAL_ERROR => 'INTERNAL_ERROR', PREG_BACKTRACK_LIMIT_ERROR => 'BACKTRACK_LIMIT_ERROR', PREG_RECURSION_LIMIT_ERROR => 'RECURSION_LIMIT_ERROR', PREG_BAD_UTF8_ERROR => 'BAD_UTF8_ERROR', PREG_BAD_UTF8_OFFSET_ERROR => 'BAD_UTF8_OFFSET_ERROR');
+          watchdog('css_emimage', 'Error while trying to embed images in your CSS, falling back to unmodified CSS. PCRE error was: !error.',
+            array('!error' => array_key_exists($error_code, $error_messages) ? $error_messages[$error_code] : $error_code), WATCHDOG_ERROR);
+        }
+
+        // Save the CSS file containing the embedded images.
+        // This may be empty, but we use the file as a flag to prevent
+        // processing the CSS on every uncached request.
+        file_unmanaged_save_data($datauri_css, "public://$emimage_file_name", FILE_EXISTS_REPLACE);
+        if ($gzip_enabled) {
+          file_unmanaged_save_data(gzencode($datauri_css, 9, FORCE_GZIP), "public://$emimage_file_name.gz", FILE_EXISTS_REPLACE);
+        }
+      }
+
+      // Replace the aggregated file with the processed CSS file.
+      if (file_exists($emimage_file_realpath) && filesize($emimage_file_realpath)) {
+        $styles = str_replace($matches[0][$i],
+          "<!--[if gte IE 8]><!-->\n" . (filesize($aggregated_file_realpath) ? $matches[0][$i] . "\n" : '') . str_replace($aggregated_file_name, $emimage_file_name, $matches[0][$i]) . "\n<!--<![endif]-->\n"
+          . "<!--[if lt IE 8]>\n" . str_replace($aggregated_file_name, $orig_file_name, $matches[0][$i]) . "\n<![endif]-->",
+          $styles);
+      }
+    }
+  }
+
+  return $styles;
+}
