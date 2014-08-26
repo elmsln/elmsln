@@ -28,12 +28,12 @@ function tinynav_init() {
     // add default state
     $css = ".tinynav { display: none; }
       " . $css_selector . " { display: block; }";
-    drupal_add_css($css, array('type' => 'inline'));
+    drupal_add_css($css, array('group' => CSS_THEME, 'weight' => '9999', 'type' => 'inline'));
     $media_query = variable_get('tinynav_media_query',  TINYNAV_MEDIA_QUERY);
     // add media query
     $css = ".tinynav { display: block; }
       " . $css_selector . " { display: none; }";
-    drupal_add_css($css, array('type' => 'inline', 'media' => $media_query));
+    drupal_add_css($css, array('group' => CSS_THEME, 'weight' => '9999', 'type' => 'inline', 'media' => $media_query));
     // Add drupal settings
     $header = variable_get('tinynav_header', TINYNAV_HEADER);
     $active_class = variable_get('tinynav_active_class', TINYNAV_ACTIVE_CLASS);

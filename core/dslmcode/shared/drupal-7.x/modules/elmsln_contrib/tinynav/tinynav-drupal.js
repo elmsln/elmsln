@@ -9,7 +9,7 @@
         active: 'active-trail'
       }
       // Add the class to the selectors so we can access it later
-      $(settings.tinynav.selector).addClass('tinyjs');
+      $(settings.tinynav.selector, context).addClass('tinyjs');
 
       // Build the Settings array
       var tinyNavSettings = {
@@ -20,9 +20,9 @@
       }
 
       // Tinynav (<-- new verb) them all
-      $('.tinyjs').tinyNav(tinyNavSettings);
+      $('.tinyjs', context).tinyNav(tinyNavSettings);
       // Add a wrapper to the select element
-      $('select.tinynav').wrap('<div class="tinynav-wrapper"/>');
+      $('select.tinynav', context).wrap('<div class="tinynav-wrapper"/>');
     },
     weight: 99
   };
