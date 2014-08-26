@@ -232,20 +232,20 @@ function profiler_builder_tar_create($name, $contents) {
     '100644 ', // File permissions
     '   765 ', // UID,
     '   765 ', // GID,
-    sprintf("%11s ", decoct(drupal_strlen($contents))), // Filesize,
+    sprintf("%11s ", decoct(strlen($contents))), // Filesize,
     sprintf("%11s", decoct(REQUEST_TIME)) // Creation time
   );
   $binary_data_last = pack("a1a100a6a2a32a32a8a8a155a12", '', '', '', '', '', '', '', '', '', '');
 
   $checksum = 0;
   for ($i = 0; $i < 148; $i++) {
-    $checksum += ord(drupal_substr($binary_data_first, $i, 1));
+    $checksum += ord(substr($binary_data_first, $i, 1));
   }
   for ($i = 148; $i < 156; $i++) {
     $checksum += ord(' ');
   }
   for ($i = 156, $j = 0; $i < 512; $i++, $j++) {
-    $checksum += ord(drupal_substr($binary_data_last, $j, 1));
+    $checksum += ord(substr($binary_data_last, $j, 1));
   }
 
   $tar .= $binary_data_first;
