@@ -352,10 +352,67 @@ function _profiler_builder_export_dependencies() {
 }
 
 /**
+ * @param $input
+ * @param $prefix
+ * @return array
+ */
+function _profiler_builder_flatten_array($input, $prefix) {
+  if(is_array($input)) {
+    $results = array();
+
+    foreach($input as $k => $v) {
+      if (strlen($prefix)) {
+        $k = $prefix . '[' . $k . ']';
+      }
+      $flattened = _profiler_builder_flatten_array($v, $k);
+      $results = array_merge($results, $flattened);
+    }
+
+    return $results;
+  } else {
+    $value = $input;
+    return array(
+        $prefix => $value
+    );
+  }
+}
+
+/**
+ * @param $vals
+ * @return string
+ */
+function _profiler_builder_stringify_variables($vals) {
+  $output = array();
+  foreach($vals as $var_name => $val) {
+    if(is_array($val)) {
+      // get $prefix before
+      $output = array_merge($output, _profiler_builder_flatten_array($val, 'variables[' . $var_name . ']'));
+    }
+    else {
+      if (is_object($val)) {
+        drupal_set_message(t("The variable '@name' could not be evaluated during 'Profiler builder'. Please add it manually if it is needed.", array('@name' => $var_name)), 'error');
+      }
+      else {
+        $output['variables[' . $var_name . ']'] = $val;
+      }
+    }
+  }
+
+  $outstr = '';
+  foreach($output as $k => $v) {
+    $outstr .= strtr("{k} = {v}\n", array(
+        '{k}' => $k,
+        '{v}' => var_export($v, true),
+    ));
+  }
+
+  return $outstr;
+}
+
+/**
  * Callback to build out variables portion of .info file.
  */
 function _profiler_builder_export_variables() {
-  $output = '';
   // array of values we know to ignore automatically
   $ignore_list = _profiler_builder_ignore_list();
   // ignore list as well as all theme settings
@@ -375,50 +432,7 @@ function _profiler_builder_export_variables() {
   // allow for overriding of variable values
   drupal_alter('profiler_builder_variables', $vals);
   // loop through and rebuild array values
-  foreach ($vals as $var_name => $val) {
-    if (is_array($val)) {
-      foreach ($val as $key => $ary_val) {
-        if (is_array($ary_val)) {
-          foreach ($ary_val as $key2 => $ary_val2) {
-            if (is_array($ary_val2)) {
-              foreach ($ary_val2 as $key3 => $ary_val3) {
-                if (is_array($ary_val3)) {
-                  foreach ($ary_val3 as $key4 => $ary_val4) {
-                    $output .= 'variables[' . $var_name . '][' . $key . '][' . $key2 . '][' . $key3 . '][' . $key4 . '] = ' . var_export($ary_val4, TRUE) . "\n";
-                  }
-                }
-                else {
-                  $output .= 'variables[' . $var_name . '][' . $key . '][' . $key2 . '][' . $key3 . '] = ' . var_export($ary_val3, TRUE) . "\n";
-                }
-              }
-            }
-            else {
-              $output .= 'variables[' . $var_name . '][' . $key . '][' . $key2 . '] = ' . var_export($ary_val2, TRUE) . "\n";
-            }
-          }
-        }
-        else {
-          // ensure this isn't an object
-          if (is_object($ary_val)) {
-            drupal_set_message(t("The variable '@name' could not be evaluated. Please add it manually if it is needed.", array('@name' => $var_name . ' - ' . $key)), 'error');
-          }
-          else {
-            $output .= 'variables[' . $var_name . '][' . $key . '] = ' . var_export($ary_val, TRUE) . "\n";
-          }
-        }
-      }
-    }
-    else {
-      // ensure this isn't an object
-      if (is_object($val)) {
-        drupal_set_message(t("The variable '@name' could not be evaluated. Please add it manually if it is needed.", array('@name' => $var_name)), 'error');
-      }
-      else {
-        $output .= 'variables[' . $var_name . '] = ' . var_export($val, TRUE) . "\n";
-      }
-    }
-  }
-  return $output;
+  return _profiler_builder_stringify_variables($vals);
 }
 
 /**
