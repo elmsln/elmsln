@@ -53,12 +53,9 @@
   <?php print $styles; ?>
   <?php print $scripts; ?>
   <!--[if lt IE 9]>
-		<script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+		<script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
 	<![endif]-->
-  <!-- Fonts -->
 
-    <link href='https://fonts.googleapis.com/css?family=Asap:400,700,400italic,700italic|Vollkorn:400italic,400' rel='stylesheet' type='text/css'>
- 
 </head>
 <body class="<?php print $classes; ?>" <?php print $attributes;?>>
   <div class="skip-link">
