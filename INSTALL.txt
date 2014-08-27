@@ -166,6 +166,13 @@ alias l='ls -laHD'
 #type esc
 #type :wq
 
+#=== APACHE PERFORMANCE TUNING (optional) ===
+#This is an included zzz_performance.conf file in the docs directory. This can
+#be used to do additional recommended performance optimization for the way
+#resources are delivered to end users. This is recommended and used in prod
+#ELMSLN and other stacks already but is optional in the event you are doing
+#this differently.
+
 #=== PIWIK (optional) ===
 #Install the analytics package by pointing a domain to the
 #elmsln/domains/analytics.  This is running piwik and has config and tmp files
