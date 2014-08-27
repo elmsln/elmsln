@@ -219,14 +219,16 @@ function textbook_wysiwyg_editor_settings_alter(&$settings, $context) {
       if (isset($style[$type][$item])) {
         // loop through
         foreach ($style[$type][$item] as $item_location) {
+          // check for remote protocols
+          if (strpos($item_location, '//') !== 0) {
+            $item_location = base_path() . $item_location;
+          }
           // assemble all found locations and add to $settings['contentsCss']
           switch ($item) {
+            case 'reset':
             case 'css':
               // add these items as low as possible in page render
-              $settings['contentsCss'][] = base_path() . $item_location;
-            break;
-            case 'reset':
-              $settings['contentsCss'][] = base_path() . $item_location;
+              $settings['contentsCss'][] = $item_location;
             break;
           }
         }
