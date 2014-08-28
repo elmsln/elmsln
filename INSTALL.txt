@@ -18,11 +18,24 @@ git clone https://github.com/btopro/elmsln.git
 cd /var/www/elmsln
 rm -rf config
 git clone https://github.com/btopro/elmsln-config-example.git config
+#Now kill off the original repo connection
+cd /var/www/elmsln/config
+sudo rm -rf .git
+
+#Init as a new repo for use with your internal repository to associate this with
+git init
+git add -A
+git commit -m "initial ELMSLN config"
+git remote add origin {user}@{YOURPRIVATEREPO}:YOU/elmsln-config-YOURUNIT.git
+git push origin master
 
 #=== MODIFY CONFIG ===
 cd /var/www/elmsln/config/scripts/drush-create-site/
 cp config.cfg.example config.cfg
 vi config.cfg
+#type :%s/YOURUNIT/your.actual.subdomain/ to quickly replace the filler with real addresses in the network
+
+#Note: this file has private info in it for issueing commands so it is ignored in version control as to avoid any potential issues of this data leaking elsewhere into version control systems and being recovered down the line.
 
 #Modify these values to match your file system and implementation requirements. More often then not this is simply supplying default email addresses #and mysql root user / pass.  There are additional options based on your configuration changes but those entered are recommended defaults.
 
@@ -32,129 +45,65 @@ sudo setsebool -P httpd_can_network connect
 sudo setsebool -P httpd_can_sendmail
 chcon -R --reference /var/www/html /dev/shm
 
+sudo -i
+
 #=== APC (optional) ===
 #Apply the settings recommended in docs/apc.txt:
-sudo vi /etc/php.d/apc.ini (/etc/php5/conf.d/apc.ini for ubuntu)
+#sudo vi /etc/php.d/apc.ini (/etc/php5/conf.d/apc.ini for ubuntu)
+cat /var/www/elmsln/docs/apc.txt >> /etc/php.d/apc.ini
 
 #=== PHP (optional) ===
 #Apply the settings recommended in docs/php.txt
-sudo vi /etc/php.ini (/etc/php5/apache2/php.ini for ubuntu)
+#sudo vi /etc/php.ini (/etc/php5/apache2/php.ini for ubuntu)
+cat /var/www/elmsln/docs/php.txt >> /etc/php.ini
 
 #=== MYSQL (optional) ===
 #Apply the settings recommended in docs/mysql.txt
-sudo vi /etc/my.cnf (/etc/php5/conf.d/mysql.ini for ubuntu)
+#sudo vi /etc/my.cnf (/etc/php5/conf.d/mysql.ini for ubuntu)
+cat /var/www/elmsln/docs/my.txt >> /etc/my.cnf
 
 #=== BIN ===
 #issue the following commands to place these scripts in scope of bin which will allow the crontab to pick up the job and process it.  There’s also an #optional drush remove site command that’s listed too. (good for clean up of things accidentally created)
 
-sudo ln -s /var/www/elmsln/scripts/drush-create-site /usr/local/bin/drush-create-site
+ln -s /var/www/elmsln/scripts/drush-create-site /usr/local/bin/drush-create-site
 chmod 744 /usr/local/bin/drush-create-site/rm-site.sh
 
 # add the following command for drush remove site shorthand
-sudo -i
-vi .bashrc
+ln -s /var/www/elmsln elmsln
+
+#shorter commands for lazy people
+vi ~/.bashrc
+#type i
+alias g='git'
+alias d='drush'
+alias l='ls -laHD'
 alias drs='/usr/local/bin/drush-create-site/rm-site.sh'
-logout
+#type esc
+#type :wq
 
 #=== CRONTAB ===
 #Apply the settings recommended in docs/crontab.txt
-sudo vi /etc/crontab
+#sudo vi /etc/crontab
+cat /var/www/elmsln/docs/crontab.txt >> /etc/crontab
 
 #=== DOMAINS ===
 #Apply similar settings to those recommended in docs/domains.txt
-sudo vi /etc/httpd/conf.d/domains.conf #(/etc/apache2/sites-available/elmsln for ubuntu then symlink into sites-enabled)
+#vi /etc/httpd/conf.d/domains.conf #(/etc/apache2/sites-available/elmsln for ubuntu then symlink into sites-enabled)
+cp /var/www/elmsln/docs/domains.txt /etc/httpd/conf.d/domains.conf
+
+#=== APACHE PERFORMANCE TUNING (optional) ===
+cp /var/www/elmsln/docs/zzz_performance.conf /etc/httpd/conf.d/zzz_performance.conf
 
 #=== DRUSH ===
 # Install drush by following instructions at https://github.com/drush-ops/drush
 # Install composer, makes drush installation easier
-sudo -i
 curl -sS https://getcomposer.org/installer | php
 mv composer.phar /usr/local/bin/composer
-logout
-# establish for normal users
-# ensure composer is in PATH
-sed -i '1i export PATH="$HOME/.composer/vendor/bin:$PATH"' $HOME/.bashrc
-source $HOME/.bashrc
-# now install drush
-composer global require drush/drush:6.*
-
-# now do the same things except for root
-sudo -i
-# ensure composer is in PATH
-sed -i '1i export PATH="$HOME/.composer/vendor/bin:$PATH"' $HOME/.bashrc
-source $HOME/.bashrc
-# now install drush
-composer global require drush/drush:6.*
-logout
-
-# copy the included drush packages (for root and you)
-mkdir ~/.drush/
-sudo cp -r /var/www/elmsln/scripts/drush/server/* ~/.drush/
-sudo chown -R {user}:{user} ~/.drush
-vi ~/.drush/elmsln.aliases.drushrc.php
-# change the domain to your base domain and change the grouping to your config grouping identifier
-
-# now apply the same stuff for the root user so cron jobs run happy
-sudo -i
-mkdir ~/.drush/
-cp -r /var/www/elmsln/scripts/drush/server/* ~/.drush/
-vi ~/.drush/elmsln.aliases.drushrc.php
-# change the domain to your base domain and change the grouping to your config grouping identifier
 
 logout
-
-#=== MBSTRING (if not already installed, pretty specific to RHEL) ===
-install mb_string package
-
-sudo apt-get install yum
-yum repolist
-subscription-manager repos --enable rhel-6-server-optional-rpms
-yum repolist
-yum update
-yum install php-mbstring
-touch /etc/php.d/mbstring.ini
-vi  /etc/php.d/mbstring.ini
-
-#(add the following to that file)
-extension=mbstring.so
-
-#=== CLEAN URLS (if not already setup) ===
-#This changes based on the server but for Ubuntu check https://drupal.org/node/134439
-
-#=== RESTART APACHE ===
-sudo apachectl -k restart
-#for ubuntu run sudo service apache2 restart
-
-#=== ELMSLN INSTALLER ===
-#The last step is to invoke the elmsln-install.sh script to kick everything off.
-#This will automatically take your default settings defined in 
-#elmsln/config/scripts/drush-create-site/config.cfg and try and install all the
-#drupal sites needed to get things started.It will also automatically author a 
-#module with all of your private connection credentials using a randomly 
-#generated cis_connector keychain.
-
-#You can find this module in elmsln/config/shared/drupal-7.x/modules and can 
-#modify it as you see fit but it’s a great starting point for all of the web 
-#service calls to work correctly between systems OOTB.  It’s also automatically 
-#enabled on all the jobs kicked off by the script so everything can talk to 
-#each other.
-
-#from many user reports, this generally runs with less issues when you can
-#run it with sudo -i.
-sudo -i
-#the command is:
-bash /var/www/elmsln/scripts/install/elmsln-install.sh
-
-logout
-
-#At this point, ELMSLN should pick up files and start trying to build them and 
-#hopefully you’ll get emails if it all worked! You can login with admin/admin
-#to your online domain (CIS) or issue the following to get a fresh login link
-
-drush @online uli
 
 #=== EASE OF DEV ===
-symlink to elmsln
+#symlink to elmsln
 ln -s /var/www/elmsln elmsln
 
 #shorter commands for lazy people
@@ -166,12 +115,87 @@ alias l='ls -laHD'
 #type esc
 #type :wq
 
-#=== APACHE PERFORMANCE TUNING (optional) ===
-#This is an included zzz_performance.conf file in the docs directory. This can
-#be used to do additional recommended performance optimization for the way
-#resources are delivered to end users. This is recommended and used in prod
-#ELMSLN and other stacks already but is optional in the event you are doing
-#this differently.
+# establish for normal users
+# ensure composer is in PATH
+sed -i '1i export PATH="$HOME/.composer/vendor/bin:$PATH"' $HOME/.bashrc
+source $HOME/.bashrc
+# now install drush
+composer global require drush/drush:6.*
+
+# now do the same things except for root
+sudo -i
+sed -i '1i export PATH="$HOME/.composer/vendor/bin:$PATH"' $HOME/.bashrc
+source $HOME/.bashrc
+composer global require drush/drush:6.*
+
+# now apply stuff to the root user
+mkdir ~/.drush/
+cp -r /var/www/elmsln/scripts/drush/server/* ~/.drush/
+vi ~/.drush/elmsln.aliases.drushrc.php
+#type :%s/YOURUNIT/your.actual.subdomain/ to quickly replace the filler with real addresses in the network. Change the domain to your base domain and change the grouping to your config grouping identifier
+
+#=== MBSTRING (if not already installed, pretty specific to RHEL) ===
+#potentially how to do this in Ubuntu
+#install mb_string package
+#sudo apt-get install yum
+
+yum repolist
+subscription-manager repos --enable rhel-6-server-optional-rpms
+yum update
+yum install php-mbstring
+
+#if not already installed
+#touch /etc/php.d/mbstring.ini
+#vi  /etc/php.d/mbstring.ini
+#(add the following to that file)
+#extension=mbstring.so
+
+logout
+
+# copy the included drush packages (for you this time)
+mkdir ~/.drush/
+sudo cp -r /var/www/elmsln/scripts/drush/server/* ~/.drush/
+sudo chown -R {user}:{user} ~/.drush
+vi ~/.drush/elmsln.aliases.drushrc.php
+#type :%s/YOURUNIT/your.actual.subdomain/ to quickly replace the filler with real addresses in the network. Change the domain to your base domain and change the grouping to your config grouping identifier
+
+#=== CLEAN URLS (if not already setup) ===
+#This changes based on the server but for Ubuntu check https://drupal.org/node/134439
+
+#=== RESTART APACHE ===
+#test the config then restart it
+httpd -t
+sudo apachectl -k restart
+#for ubuntu run sudo service apache2 restart
+
+#=== ELMSLN INSTALLER ===
+#The last step is to invoke the elmsln-install.sh script to kick everything off.
+#This will automatically take your default settings defined in
+#elmsln/config/scripts/drush-create-site/config.cfg and try and install all the
+#drupal sites needed to get things started.It will also automatically author a
+#module with all of your private connection credentials using a randomly
+#generated cis_connector keychain.
+
+#You can find this module in elmsln/config/shared/drupal-7.x/modules and can
+#modify it as you see fit but it’s a great starting point for all of the web
+#service calls to work correctly between systems OOTB.  It’s also automatically
+
+#enabled on all the jobs kicked off by the script so everything can talk to
+#each other.
+
+#from many user reports, this generally runs with less issues when you can
+#run it with sudo -i.
+sudo -i
+#the command is:
+bash /var/www/elmsln/scripts/install/elmsln-install.sh
+
+logout
+
+#At this point, ELMSLN should pick up files and start trying to build them and
+#hopefully you’ll get emails if it all worked! You can login with admin/admin
+#to your online domain (CIS) or issue the following to get a fresh login link
+
+drush @online uli
 
 #=== PIWIK (optional) ===
 #Install the analytics package by pointing a domain to the
@@ -201,4 +225,4 @@ alias l='ls -laHD'
 #Bakery can conflict with (a lot of stuff) as one reason to potentially not use it. To correctly use it (til we formally support it on install) you'll need to add the following to your /service/ based domains so that webservices work (cause it will intercept them unfortunately).
 $conf['bakery_is_master'] = TRUE;
 
-#Stay thirsty my friends.
+#Welcome to the Singularity of Edtech.
