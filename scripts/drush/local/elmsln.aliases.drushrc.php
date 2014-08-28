@@ -6,8 +6,8 @@
 $group = 'ex';
 $server = array(
   'remote-user' => 'example',
-  'ssh-options' => '-p 1234',
-  'remote-host' => 'example.com',
+  'ssh-options' => '-p 2222',
+  'remote-host' => 'YOURUNIT.edu',
 );
 // execute a remote command via SSH
 // this helps improve performance when dealing with lots of alias files

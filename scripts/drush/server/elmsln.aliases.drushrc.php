@@ -1,7 +1,7 @@
 <?php
   $aliases = array();
   // base address of all domains
-  $address = 'example.com';
+  $address = 'YOURUNIT.edu';
   // your web root
   $root = '/var/www/elmsln/core/dslmcode/stacks/';
   // grouping item for your stack

@@ -34,7 +34,7 @@ function _build_aliases($group, $server) {
   static $aliases = array();
 
   if (!empty($aliases)) {
-    return $aliases;   
+    return $aliases;
   }
   // build remote connection object
   $connection = new ExecuteRemote();
