@@ -2,37 +2,37 @@
 NameVirtualHost *:80
 <VirtualHost *:80>
     DocumentRoot /var/www/elmsln/domains/online
-    ServerName online.example.edu
-    ServerAlias online.services.example.edu
+    ServerName online.YOURUNIT.edu
+    ServerAlias online.services.YOURUNIT.edu
 </VirtualHost>
 <VirtualHost *:80>
     DocumentRoot /var/www/elmsln/domains/courses
-    ServerName courses.example.edu
-    ServerAlias courses.services.example.edu
+    ServerName courses.YOURUNIT.edu
+    ServerAlias courses.services.YOURUNIT.edu
 </VirtualHost>
 <VirtualHost *:80>
     DocumentRoot /var/www/elmsln/domains/media
-    ServerName media.example.edu
-    ServerAlias media.services.example.edu
+    ServerName media.YOURUNIT.edu
+    ServerAlias media.services.YOURUNIT.edu
 </VirtualHost>
 <VirtualHost *:80>
     DocumentRoot /var/www/elmsln/domains/interact
-    ServerName interact.example.edu
-    ServerAlias interact.services.example.edu
+    ServerName interact.YOURUNIT.edu
+    ServerAlias interact.services.YOURUNIT.edu
 </VirtualHost>
 <VirtualHost *:80>
     DocumentRoot /var/www/elmsln/domains/blog
-    ServerName blog.example.edu
-    ServerAlias blog.services.example.edu
+    ServerName blog.YOURUNIT.edu
+    ServerAlias blog.services.YOURUNIT.edu
 </VirtualHost>
 <VirtualHost *:80>
     DocumentRoot /var/www/elmsln/domains/studio
-    ServerName studio.example.edu
-    ServerAlias studio.services.example.edu
+    ServerName studio.YOURUNIT.edu
+    ServerAlias studio.services.YOURUNIT.edu
 </VirtualHost>
 <VirtualHost *:80>
     DocumentRoot /var/www/elmsln/domains/analytics
-    ServerName analytics.example.edu
+    ServerName analytics.YOURUNIT.edu
 </VirtualHost> 
 
 <Directory /var/www/elmsln/domains/online>
