@@ -47,12 +47,14 @@ max=${#char[*]}
 # generate a scripted directory
 if [ ! -d ${moduledir} ];
   then
-  mkdir -p ${moduledir}/${university}
+  sudo mkdir -p ${moduledir}
+  sudo mkdir -p ${moduledir}/${university}
 fi
 # work on authoring the connector module automatically
 if [ ! -d ${moduledir}/${university}/${cissettings} ];
   then
-  mkdir ${moduledir}/${university}/${cissettings}
+  sudo mkdir -p ${moduledir}/${university}/${cissettings}
+  sudo chown -R $USER:$USER ${moduledir}
   infofile=${moduledir}/${university}/${cissettings}/${cissettings}.info
   modulefile=${moduledir}/${university}/${cissettings}/${cissettings}.module
   touch $infofile
