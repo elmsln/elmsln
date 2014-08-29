@@ -147,8 +147,9 @@ sudo chmod -R 755 $drupal_priv
 # we leave the original for the time being because this is the first instace
 # of the system. most likely we'll always need a default to fall back on anyway
 sudo cp "$sitedir/default/settings.php" "$sitedir/online/$host/settings.php"
-sudo chown $USER:$webgroup $sitedir/default/settings.php
-sudo chown $USER:$webgroup $sitedir/online/$host/settings.php
+sudo chown $USER:$USER $sitedir/default/settings.php
+sudo chown $USER:$USER $sitedir/online/$host/settings.php
+sudo chmod -R 755 $sitedir/online/$host/settings.php
 
 #add site to the sites array
 echo "\$sites = array(" >> $sitedir/sites.php
