@@ -47,8 +47,7 @@ max=${#char[*]}
 # generate a scripted directory
 if [ ! -d ${moduledir} ];
   then
-  mkdir ${moduledir}
-  mkdir ${moduledir}/${university}
+  mkdir -p ${moduledir}/${university}
 fi
 # work on authoring the connector module automatically
 if [ ! -d ${moduledir}/${university}/${cissettings} ];
