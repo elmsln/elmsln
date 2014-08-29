@@ -146,14 +146,16 @@ sudo chmod -R 755 $drupal_priv
 # we leave the original for the time being because this is the first instace
 # of the system. most likely we'll always need a default to fall back on anyway
 sudo cp "$sitedir/default/settings.php" "$sitedir/online/$host/settings.php"
+sudo chown $USER:$webgroup $sitedir/default/settings.php
+sudo chown $USER:$webgroup $sitedir/$host/settings.php
 
 #add site to the sites array
-sudo echo "\$sites = array(" >> $sitedir/sites.php
-sudo echo "  '$online_domain' => 'online/$host'," >> $sitedir/sites.php
-sudo echo "  '$online_service_domain' => 'online/services/$host'," >> $sitedir/sites.php
-sudo echo ");" >> $sitedir/sites.php
+echo "\$sites = array(" >> $sitedir/sites.php
+echo "  '$online_domain' => 'online/$host'," >> $sitedir/sites.php
+echo "  '$online_service_domain' => 'online/services/$host'," >> $sitedir/sites.php
+echo ");" >> $sitedir/sites.php
 # set base_url
-sudo echo "\$base_url= '$protocol://$online_domain';" >> $sitedir/online/$host/settings.php
+echo "\$base_url= '$protocol://$online_domain';" >> $sitedir/online/$host/settings.php
 
 
 # clean up tasks
@@ -191,11 +193,11 @@ drush -y --uri=$protocol://$online_domain cron
 drush -y --uri=$protocol://$online_domain upwd admin --password=admin
 
 # add in our cache bins now that we know it built successfully
-sudo echo "" >> $sitedir/online/$host/settings.php
-sudo echo "" >> $sitedir/online/$host/settings.php
-sudo echo "\$conf['cache_prefix'] = 'online_$host';" >> $sitedir/online/$host/settings.php
-sudo echo "" >> $sitedir/online/$host/settings.php
-sudo echo "require_once DRUPAL_ROOT . '/../../shared/drupal-7.x/settings/shared_settings.php';" >> $sitedir/online/$host/settings.php
+echo "" >> $sitedir/online/$host/settings.php
+echo "" >> $sitedir/online/$host/settings.php
+echo "\$conf['cache_prefix'] = 'online_$host';" >> $sitedir/online/$host/settings.php
+echo "" >> $sitedir/online/$host/settings.php
+echo "require_once DRUPAL_ROOT . '/../../shared/drupal-7.x/settings/shared_settings.php';" >> $sitedir/online/$host/settings.php
 
 # adding servies conf file
 if [ ! -d $sitedir/online/services/$host ];
@@ -208,9 +210,10 @@ if [ ! -d $sitedir/online/services/$host ];
       sudo cp $sitedir/online/$host/settings.php $sitedir/online/services/$host/settings.php
     fi
     if [ -f $sitedir/online/services/$host/settings.php ]; then
-      sudo echo "" >> $sitedir/online/services/$host/settings.php
-      sudo echo "" >> $sitedir/online/services/$host/settings.php
-      sudo echo "\$conf['restws_basic_auth_user_regex'] = '/^SERVICE_.*/';" >> $sitedir/online/services/$host/settings.php
+      sudo chown $USER:$webgroup $sitedir/online/services/$host/settings.php
+      echo "" >> $sitedir/online/services/$host/settings.php
+      echo "" >> $sitedir/online/services/$host/settings.php
+      echo "\$conf['restws_basic_auth_user_regex'] = '/^SERVICE_.*/';" >> $sitedir/online/services/$host/settings.php
     fi
 fi
 
@@ -232,7 +235,7 @@ sudo chmod -R 755 $elmsln/config/jobs
 # make sure everything in that folder is as it should be ownerwise
 sudo chown -R $wwwuser:$webgroup $sitedir/online/$host/files
 # make sure webserver owns the files
-sudo find $configsdir/stacks/ -type d -name files | xargs chown -R $wwwuser:$webgroup
+sudo find $configsdir/stacks/ -type d -name files | sudo xargs chown -R $wwwuser:$webgroup
 
 # a message so you know where my head is at. you get candy if you reference this
   echo "╔═══════════════════════════════════════════════════════════════╗"
