@@ -1,0 +1,43 @@
+diff --git a/lazyloader.module b/lazyloader.module
+index 91aaeb3..1ac27fc 100644
+--- a/lazyloader.module
++++ b/lazyloader.module
+@@ -154,23 +154,28 @@ function lazyloader_image($variables) {
+ 
+ 
+ /**
+- * Implements hook_process_html().
++ * Implements hook_page_build().
+  *
+  * Initialize the trigger for lazyloader
+  *
+  */
+-function lazyloader_process_html(&$vars) {
++function lazyloader_page_build(&$vars) {
+   $settings = lazyloader_get_settings();
+ 
+   if ($settings['enabled'] && !drupal_match_path($_GET['q'], $settings['exclude'])) {
+-
++    // inline load this js with ajax / page compatability in mind
+     $lazyloader_init = '
+-      <noscript><style type="text/css" media="all">img[data-src] { display: none; }</style></noscript>
+-      <script type="text/javascript">
+-        jQuery(function($){
+-          $("img[data-src]").lazyloader({distance: ' . trim($settings['distance']) . ', icon: "' . $settings['icon'] . '" });
+-        });
+-      </script>';
+-    $vars['page_bottom'] .= $lazyloader_init;
++    (function ($) {
++      Drupal.behaviors.lazyloader = {
++        attach: function (context, settings) {
++          $("img[data-src]").lazyloader({distance: ' . trim($settings['distance']) . ', icon: "' . base_path() . $settings['icon'] . '" });
++        }
++      };
++    }(jQuery));';
++    $options = array('type' => 'inline');
++    drupal_add_js($lazyloader_init, $options);
++    // add noscript markup as a fallback
++    $noscript = '<noscript><style type="text/css" media="all">img[data-src] { display: none; }</style></noscript>';
++    $vars['page_bottom']['lazyload'] = array('#markup' => $noscript);
+   }
+ }

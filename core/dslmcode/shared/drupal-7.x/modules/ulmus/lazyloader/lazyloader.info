@@ -13,9 +13,9 @@ scripts[] = jquery.lazyloader.js
 stylesheets[all][] = lazyloader.css
 configure = admin/config/media/lazyloader
 
-; Information added by drupal.org packaging script on 2013-03-31
+; Information added by drupal.org packaging script on 2013-09-30
 version = "7.x-1.3+2-dev"
 core = "7.x"
 project = "lazyloader"
-datestamp = "1364735030"
+datestamp = "1380584672"
 
