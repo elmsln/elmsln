@@ -47,28 +47,28 @@ max=${#char[*]}
 # generate a scripted directory
 if [ ! -d ${moduledir} ];
   then
-  sudo mkdir ${moduledir}
-  sudo mkdir ${moduledir}/${university}
+  mkdir ${moduledir}
+  mkdir ${moduledir}/${university}
 fi
 # work on authoring the connector module automatically
 if [ ! -d ${moduledir}/${university}/${cissettings} ];
   then
-  sudo mkdir ${moduledir}/${university}/${cissettings}
+  mkdir ${moduledir}/${university}/${cissettings}
   infofile=${moduledir}/${university}/${cissettings}/${cissettings}.info
   modulefile=${moduledir}/${university}/${cissettings}/${cissettings}.module
-  sudo touch $infofile
-  sudo chmod 744 $infofile
-  sudo touch $modulefile
-  sudo chmod 744 $modulefile
+  touch $infofile
+  chmod 744 $infofile
+  touch $modulefile
+  chmod 744 $modulefile
   # write the .info file
-  sudo echo -e "name = ${university} ${host} Settings\ndescription = This contains registry information for all ${host} connection details\ncore = ${core}\npackage = ${university}" >> $infofile
+  echo -e "name = ${university} ${host} Settings\ndescription = This contains registry information for all ${host} connection details\ncore = ${core}\npackage = ${university}" >> $infofile
   # write the .module file
-  sudo echo -e "<?php\n\n// service module that makes this implementation specific\n\n/**\n * Implements hook_cis_service_registry().\n */\nfunction ${university}_${host}_settings_cis_service_registry() {\n  \$items = array(\n" >> $modulefile
+  echo -e "<?php\n\n// service module that makes this implementation specific\n\n/**\n * Implements hook_cis_service_registry().\n */\nfunction ${university}_${host}_settings_cis_service_registry() {\n  \$items = array(\n" >> $modulefile
   # write the array of connection values dynamically
   for distro in "${distros[@]}"
   do
     # array built up to `word
-    sudo echo -e "    // ${distro} distro instance called ${stacklist[$COUNTER]}\n    '${distro}' => array(\n      'protocol' => '${protocol}',\n      'service_address' => '${serviceprefix}${stacklist[$COUNTER]}.${serviceaddress}',\n      'address' => '${stacklist[$COUNTER]}.${address}',\n      'user' => 'SERVICE_${distro}_${host}',\n      'mail' => 'SERVICE_${distro}_${host}@${emailending}'," >> $modulefile
+    echo -e "    // ${distro} distro instance called ${stacklist[$COUNTER]}\n    '${distro}' => array(\n      'protocol' => '${protocol}',\n      'service_address' => '${serviceprefix}${stacklist[$COUNTER]}.${serviceaddress}',\n      'address' => '${stacklist[$COUNTER]}.${address}',\n      'user' => 'SERVICE_${distro}_${host}',\n      'mail' => 'SERVICE_${distro}_${host}@${emailending}'," >> $modulefile
     # generate a random 30 digit password
     pass=''
     for i in `seq 1 30`
@@ -77,17 +77,17 @@ if [ ! -d ${moduledir}/${university}/${cissettings} ];
       pass="${pass}${char[$rand]}"
     done
     # write password to file
-    sudo echo -e "      'pass' => '$pass'," >> $modulefile
+    echo -e "      'pass' => '$pass'," >> $modulefile
     # finish off array
-    sudo echo -e "      'instance' => ${instances[$COUNTER]}," >> $modulefile
-    sudo echo -e "      'default_title' => '${defaulttitle[$COUNTER]}'," >> $modulefile
-    sudo echo -e "      'ignore' => ${ignorelist[$COUNTER]},\n    ),\n" >> $modulefile
+    echo -e "      'instance' => ${instances[$COUNTER]}," >> $modulefile
+    echo -e "      'default_title' => '${defaulttitle[$COUNTER]}'," >> $modulefile
+    echo -e "      'ignore' => ${ignorelist[$COUNTER]},\n    ),\n" >> $modulefile
     COUNTER=$COUNTER+1
  done
   # close out function and file
-  sudo echo -e "  );\n\n  return \$items;\n}\n\n" >> $modulefile
+  echo -e "  );\n\n  return \$items;\n}\n\n" >> $modulefile
   # add the function to include this in build outs automatically
-  sudo echo -e "/**\n * Implements hook_cis_service_instance_options_alter().\n */\nfunction ${university}_${host}_settings_cis_service_instance_options_alter(&\$options, \$course, \$service) {\n  // modules we require for all builds\n  \$options['en'][] = '$cissettings';\n}\n" >> $modulefile
+  echo -e "/**\n * Implements hook_cis_service_instance_options_alter().\n */\nfunction ${university}_${host}_settings_cis_service_instance_options_alter(&\$options, \$course, \$service) {\n  // modules we require for all builds\n  \$options['en'][] = '$cissettings';\n}\n" >> $modulefile
 fi
 
 #test mysql login
