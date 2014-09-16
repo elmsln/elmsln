@@ -154,6 +154,21 @@ function icor_timeline_type_views_default_views() {
   $handler->display->display_options['relationships']['field_time_points_target_id']['label'] = 'Timeline Date';
   $handler->display->display_options['relationships']['field_time_points_target_id']['required'] = TRUE;
   $handler->display->display_options['defaults']['fields'] = FALSE;
+  /* Field: Content: Dates */
+  $handler->display->display_options['fields']['field_timeline_dates']['id'] = 'field_timeline_dates';
+  $handler->display->display_options['fields']['field_timeline_dates']['table'] = 'field_data_field_timeline_dates';
+  $handler->display->display_options['fields']['field_timeline_dates']['field'] = 'field_timeline_dates';
+  $handler->display->display_options['fields']['field_timeline_dates']['relationship'] = 'field_time_points_target_id';
+  $handler->display->display_options['fields']['field_timeline_dates']['label'] = '';
+  $handler->display->display_options['fields']['field_timeline_dates']['exclude'] = TRUE;
+  $handler->display->display_options['fields']['field_timeline_dates']['element_label_colon'] = FALSE;
+  $handler->display->display_options['fields']['field_timeline_dates']['settings'] = array(
+    'format_type' => 'long',
+    'fromto' => 'both',
+    'multiple_number' => '',
+    'multiple_from' => '',
+    'multiple_to' => '',
+  );
   /* Field: Content: Question */
   $handler->display->display_options['fields']['body']['id'] = 'body';
   $handler->display->display_options['fields']['body']['table'] = 'field_data_body';
@@ -169,18 +184,6 @@ function icor_timeline_type_views_default_views() {
   $handler->display->display_options['fields']['field_timeline_credit_text']['table'] = 'field_data_field_timeline_credit_text';
   $handler->display->display_options['fields']['field_timeline_credit_text']['field'] = 'field_timeline_credit_text';
   $handler->display->display_options['fields']['field_timeline_credit_text']['relationship'] = 'field_time_points_target_id';
-  /* Field: Content: Dates */
-  $handler->display->display_options['fields']['field_timeline_dates']['id'] = 'field_timeline_dates';
-  $handler->display->display_options['fields']['field_timeline_dates']['table'] = 'field_data_field_timeline_dates';
-  $handler->display->display_options['fields']['field_timeline_dates']['field'] = 'field_timeline_dates';
-  $handler->display->display_options['fields']['field_timeline_dates']['relationship'] = 'field_time_points_target_id';
-  $handler->display->display_options['fields']['field_timeline_dates']['settings'] = array(
-    'format_type' => 'long',
-    'fromto' => 'both',
-    'multiple_number' => '',
-    'multiple_from' => '',
-    'multiple_to' => '',
-  );
   /* Field: Content: Media Image */
   $handler->display->display_options['fields']['field_timeline_media_image']['id'] = 'field_timeline_media_image';
   $handler->display->display_options['fields']['field_timeline_media_image']['table'] = 'field_data_field_timeline_media_image';
