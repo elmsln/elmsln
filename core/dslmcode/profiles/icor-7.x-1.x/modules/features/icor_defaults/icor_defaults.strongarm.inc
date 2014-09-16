@@ -13,15 +13,8 @@ function icor_defaults_strongarm() {
   $strongarm = new stdClass();
   $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
   $strongarm->api_version = 1;
-  $strongarm->name = 'menu_breadcrumb_hide_on_single_item';
-  $strongarm->value = 1;
-  $export['menu_breadcrumb_hide_on_single_item'] = $strongarm;
-
-  $strongarm = new stdClass();
-  $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
-  $strongarm->api_version = 1;
   $strongarm->name = 'jquery_update_compression_type';
-  $strongarm->value = 'none';
+  $strongarm->value = 'min';
   $export['jquery_update_compression_type'] = $strongarm;
 
   $strongarm = new stdClass();
@@ -48,22 +41,9 @@ function icor_defaults_strongarm() {
   $strongarm = new stdClass();
   $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
   $strongarm->api_version = 1;
-  $strongarm->name = 'jquery_update_pages';
-  $strongarm->value = 'admin
-admin/*
-ajax
-ajax/*
-ctools/*
-system/*
-file/*';
-  $export['jquery_update_pages'] = $strongarm;
-
-  $strongarm = new stdClass();
-  $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
-  $strongarm->api_version = 1;
-  $strongarm->name = 'jquery_update_visibility';
-  $strongarm->value = '2';
-  $export['jquery_update_visibility'] = $strongarm;
+  $strongarm->name = 'menu_breadcrumb_hide_on_single_item';
+  $strongarm->value = 1;
+  $export['menu_breadcrumb_hide_on_single_item'] = $strongarm;
 
   return $export;
 }

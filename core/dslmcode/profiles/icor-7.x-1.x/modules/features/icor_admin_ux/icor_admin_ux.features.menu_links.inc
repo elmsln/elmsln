@@ -118,7 +118,7 @@ function icor_admin_ux_menu_default_menu_links() {
   $menu_links['menu-cis-toolkit_quiz:node/add/quiz'] = array(
     'menu_name' => 'menu-cis-toolkit',
     'link_path' => 'node/add/quiz',
-    'router_path' => 'node/add/quiz',
+    'router_path' => 'node/add',
     'link_title' => 'Quiz',
     'options' => array(
       'attributes' => array(

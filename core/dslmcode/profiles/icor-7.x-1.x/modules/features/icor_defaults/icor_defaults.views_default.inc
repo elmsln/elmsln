@@ -140,8 +140,10 @@ function icor_defaults_views_default_views() {
   $handler->display->display_options['filters']['type']['field'] = 'type';
   $handler->display->display_options['filters']['type']['value'] = array(
     'icor_interactive_player' => 'icor_interactive_player',
+    'h5p_content' => 'h5p_content',
     'poll' => 'poll',
-    'quiz' => 'quiz',
+    'timeline' => 'timeline',
+    'timeline_date' => 'timeline_date',
   );
   /* Filter criterion: Content: Type */
   $handler->display->display_options['filters']['type_1']['id'] = 'type_1';
@@ -149,8 +151,10 @@ function icor_defaults_views_default_views() {
   $handler->display->display_options['filters']['type_1']['field'] = 'type';
   $handler->display->display_options['filters']['type_1']['value'] = array(
     'icor_interactive_player' => 'icor_interactive_player',
+    'h5p_content' => 'h5p_content',
     'poll' => 'poll',
-    'quiz' => 'quiz',
+    'timeline' => 'timeline',
+    'timeline_date' => 'timeline_date',
   );
   $handler->display->display_options['filters']['type_1']['exposed'] = TRUE;
   $handler->display->display_options['filters']['type_1']['expose']['operator_id'] = 'type_1_op';
@@ -160,13 +164,14 @@ function icor_defaults_views_default_views() {
   $handler->display->display_options['filters']['type_1']['expose']['remember_roles'] = array(
     2 => '2',
     1 => 0,
-    6 => 0,
-    4 => 0,
-    8 => 0,
-    9 => 0,
     5 => 0,
-    7 => 0,
     3 => 0,
+    7 => 0,
+    8 => 0,
+    4 => 0,
+    9 => 0,
+    6 => 0,
+    10 => 0,
   );
   $handler->display->display_options['filters']['type_1']['expose']['reduce'] = TRUE;
 
