@@ -1,0 +1,35 @@
+{
+    "name": "Setup textbook",
+    "drush_recipes_api": "1.0",
+    "weight": "0",
+    "core": "7",
+    "recipe": [
+        {
+            "command": "dl",
+            "arguments": [
+                "textbook-7.x-4.x-dev",
+                "wysiwyg",
+                "wysiwyg_template",
+                "video_filter",
+                "typogrify",
+                "transliteration",
+                "imce_wysiwyg",
+                "imce",
+                "ckeditor_link",
+                "accessibility"
+            ]
+        },
+        {
+            "command": "en",
+            "arguments": [
+                "textbook_editor"
+            ]
+        }
+    ],
+    "metadata": {
+        "type": "add-on",
+        "description": "Setup textbook modules and dependencies",
+        "version": "4.x",
+        "author": null
+    }
+}
