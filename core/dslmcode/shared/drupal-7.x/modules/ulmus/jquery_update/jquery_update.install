@@ -18,7 +18,7 @@ function jquery_update_requirements($phase) {
     $requirements['jquery_update'] = array(
       'title' => $t('jQuery Update'),
       'severity' => REQUIREMENT_OK,
-      'value' => t('jQuery %jquery and jQuery UI %ui', array('%jquery' => $jquery['version'], '%ui' => $ui['version'])),
+      'value' => t('jQuery %jquery (<a href="@link">configure</a>) and jQuery UI %ui', array('%jquery' => $jquery['version'], '%ui' => $ui['version'], '@link' => url('admin/config/development/jquery_update'))),
     );
   }
 

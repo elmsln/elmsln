@@ -94,6 +94,13 @@ function jquery_update_library_alter(&$javascript, $module) {
         $version = $admin_version;
       }
     }
+    // If the ajax version is set then that one always win.
+    if (!empty($_POST['ajax_page_state']['jquery_version'])) {
+      $ajax_version = $_POST['ajax_page_state']['jquery_version'];
+      if (in_array($ajax_version, array('default', '1.5', '1.6', '1.7', '1.8', '1.9', '1.10'))) {
+        $version = $ajax_version;
+      }
+    }
 
     // Always add a new jquery_version array to ajaxPageState.
     // This is what we used to determine which version to use
@@ -103,6 +110,12 @@ function jquery_update_library_alter(&$javascript, $module) {
       'type' => 'setting',
     );
     $javascript['drupal.ajax']['dependencies'][] = array('jquery_update', 'jquery_update.ajax.fix');
+
+    // Don't replace anything if Drupal provided jQuery should be used
+    if ('default' == $version) {
+      return;
+    }
+
     jquery_update_jquery_replace($javascript, $cdn, $path, $min, $version);
 
     // Replace jQuery UI with CDN or local files. If from a CDN include all of
@@ -163,6 +176,7 @@ function jquery_update_settings_form() {
     '#type' => 'select',
     '#title' => t('Default jQuery Version'),
     '#options' => array(
+      'default' => t('Default (provided by Drupal)'),
       '1.5' => '1.5',
       '1.7' => '1.7',
       '1.8' => '1.8',
@@ -177,7 +191,8 @@ function jquery_update_settings_form() {
     '#type' => 'select',
     '#title' => t('Alternate jQuery version for administrative pages'),
     '#options' => array(
-      '' => t('Use the default'),
+      '' => t('Default jQuery Version'),
+      'default' => t('Default (provided by Drupal)'),
       '1.5' => '1.5',
       '1.7' => '1.7',
       '1.8' => '1.8',
@@ -194,6 +209,12 @@ function jquery_update_settings_form() {
       'min' => t('Production (minified)'),
       'none' => t('Development (uncompressed)'),
     ),
+    // Do not show this field if jQuery version is default
+    '#states' => array(
+      'invisible' => array(
+        ':input[name=jquery_update_jquery_version]' => array('value' => "default"),
+      ),
+    ),
     '#default_value' => variable_get('jquery_update_compression_type', 'min'),
   );
   $form['jquery_update_jquery_cdn'] = array(
@@ -204,6 +225,12 @@ function jquery_update_settings_form() {
       'google' => t('Google'),
       'microsoft' => t('Microsoft'),
       'jquery' => t('jQuery'),
+    ),
+    // Do not show this field if jQuery version is default
+    '#states' => array(
+      'invisible' => array(
+        ':input[name=jquery_update_jquery_version]' => array('value' => "default"),
+      ),
     ),
     '#default_value' => variable_get('jquery_update_jquery_cdn', 'none'),
     '#description' => t('Use jQuery and jQuery UI from a CDN. If the CDN is not available the local version of jQuery and jQuery UI will be used.'),
@@ -231,13 +258,6 @@ function jquery_update_settings_form() {
  *   The version of jQuery to use.
  */
 function jquery_update_jquery_replace(&$javascript, $cdn, $path, $min, $version) {
-  // If the ajax version is set then that one always win.
-  if (!empty($_POST['ajax_page_state']['jquery_version'])) {
-    $ajax_version = $_POST['ajax_page_state']['jquery_version'];
-    if (in_array($ajax_version, array('1.5', '1.6', '1.7', '1.8', '1.9', '1.10'))) {
-      $version = $ajax_version;
-    }
-  }
 
   // Make sure to use the latest version in given branch.
   $trueversion = NULL;
@@ -267,19 +287,19 @@ function jquery_update_jquery_replace(&$javascript, $cdn, $path, $min, $version)
   // Check for CDN support.
   switch ($cdn) {
     case 'google':
-      $javascript['jquery']['js']['misc/jquery.js']['data'] = 'https://ajax.googleapis.com/ajax/libs/jquery/' . $trueversion . '/jquery' . $min . '.js';
+      $javascript['jquery']['js']['misc/jquery.js']['data'] = '//ajax.googleapis.com/ajax/libs/jquery/' . $trueversion . '/jquery' . $min . '.js';
       $javascript['jquery']['js']['misc/jquery.js']['type'] = 'external';
       jquery_update_jquery_backup($javascript, $path, $min, $version);
       break;
 
     case 'microsoft':
-      $javascript['jquery']['js']['misc/jquery.js']['data'] = 'http://ajax.aspnetcdn.com/ajax/jQuery/jquery-' . $trueversion . $min . '.js';
+      $javascript['jquery']['js']['misc/jquery.js']['data'] = '//ajax.aspnetcdn.com/ajax/jQuery/jquery-' . $trueversion . $min . '.js';
       $javascript['jquery']['js']['misc/jquery.js']['type'] = 'external';
       jquery_update_jquery_backup($javascript, $path, $min, $version);
       break;
 
     case 'jquery':
-      $javascript['jquery']['js']['misc/jquery.js']['data'] = 'http://code.jquery.com/jquery-' . $trueversion . $min . '.js';
+      $javascript['jquery']['js']['misc/jquery.js']['data'] = '//code.jquery.com/jquery-' . $trueversion . $min . '.js';
       $javascript['jquery']['js']['misc/jquery.js']['type'] = 'external';
       jquery_update_jquery_backup($javascript, $path, $min, $version);
       break;
@@ -377,22 +397,26 @@ function jquery_update_jqueryui_replace(&$javascript, $cdn, $path, $min) {
     'ui.accordion', 'ui.autocomplete', 'ui.button', 'ui.datepicker', 'ui.dialog', 'ui.draggable',
     'ui.droppable', 'ui.mouse', 'ui.position', 'ui.progressbar', 'ui.resizable', 'ui.selectable',
     'ui.slider', 'ui.sortable', 'ui.tabs', 'ui.widget', 'ui.spinner', 'ui.menu', 'ui.tooltip',
-    'effects.blind', 'effects.bounce', 'effects.clip', 'effects.drop', 'effects.explode', 'effects.fade',
-    'effects.fold', 'effects.highlight', 'effects.pulsate', 'effects.scale', 'effects.shake', 'effects.slide',
-    'effects.transfer',
   ));
   $names['ui'] = 'ui.core';
-  $names['effects'] = 'ui.effect';
+  $names['effects'] = array('effects.core', 'ui.effect'); // map[library_hook] = array(core_fn, updated_fn)
+  $names = jquery_update_make_library_hook_to_file_name_segment_map_for_effects($names);
 
   switch ($cdn) {
     case 'google':
-      $cdn = 'https://ajax.googleapis.com/ajax/libs/jqueryui/1.10.2/jquery-ui' . $min . '.js';
+      $cdn = '//ajax.googleapis.com/ajax/libs/jqueryui/1.10.2/jquery-ui' . $min . '.js';
       jquery_update_jqueryui_cdn($cdn, $javascript, $path, $min, $names);
       jquery_update_jqueryui_backup($javascript, $path, $min);
       break;
 
     case 'microsoft':
-      $cdn = 'http://ajax.aspnetcdn.com/ajax/jquery.ui/1.10.2/jquery-ui' . $min . '.js';
+      $cdn = '//ajax.aspnetcdn.com/ajax/jquery.ui/1.10.2/jquery-ui' . $min . '.js';
+      jquery_update_jqueryui_cdn($cdn, $javascript, $path, $min, $names);
+      jquery_update_jqueryui_backup($javascript, $path, $min);
+      break;
+
+    case 'jquery':
+      $cdn = '//code.jquery.com/ui/1.10.2/jquery-ui' . $min . '.js';
       jquery_update_jqueryui_cdn($cdn, $javascript, $path, $min, $names);
       jquery_update_jqueryui_backup($javascript, $path, $min);
       break;
@@ -401,6 +425,30 @@ function jquery_update_jqueryui_replace(&$javascript, $cdn, $path, $min) {
       jquery_update_jqueryui_local($javascript, $path, $min, $names);
       break;
   }
+}
+
+/**
+ * Create a mapping from system.module library hooks to file name segments.
+ *
+ * @param array $map Optional. If given, append to it.
+ * @return array The keys are library hooks  and the values are each arrays of
+ * 2 file name segments as values. The first file name segment can be used to
+ * reach Drupal core's jQuery UI effect files, and the second file name segment
+ * can be used to construct a path to the equivalent replacement
+ * jQuery UI effect file provided by jquery_update.module.
+ */
+function jquery_update_make_library_hook_to_file_name_segment_map_for_effects($map = array()) {
+  $effect_names = array(
+    'blind', 'bounce', 'clip', 'drop', 'explode', 'fade', 'fold',
+    'highlight', 'pulsate', 'scale', 'shake', 'slide', 'transfer',
+  );
+  foreach ($effect_names as $effect_name) {
+    $library_hook = 'effects.' . $effect_name;
+    $file_name_segment_core = $library_hook; // Yes, for the effect files, this is indeed identical.
+    $file_name_segment_updated = 'ui.effect-' . $effect_name;
+    $map[$library_hook] = array($file_name_segment_core, $file_name_segment_updated);
+  }
+  return $map;
 }
 
 /**
@@ -447,7 +495,8 @@ function jquery_update_jqueryui_cdn($cdn, &$javascript, $path, $min, $names) {
   // Construct the jQuery UI path and replace the JavaScript.
   $jspath = $path . '/replace/ui/ui/' . ($min == '.min' ? 'minified/' : '');
   foreach ($names as $name => $file) {
-    $corefile = 'misc/ui/jquery.' . $file . '.min.js';
+    list($file_core, $file_updated) = is_array($file) ? $file : array($file, $file);
+    $corefile = 'misc/ui/jquery.' . $file_core . '.min.js';
     // Remove the core files.
     unset($javascript[$name]['js'][$corefile]);
     $javascript[$name]['version'] = '1.10.2';
@@ -487,8 +536,9 @@ function jquery_update_jqueryui_local(&$javascript, $path, $min, $names) {
   // Construct the jQuery UI path and replace the JavaScript.
   $jspath = $path . '/replace/ui/ui/' . ($min == '.min' ? 'minified/' : '');
   foreach ($names as $name => $file) {
-    $corefile = 'misc/ui/jquery.' . $file . '.min.js';
-    $javascript[$name]['js'][$corefile]['data'] = $jspath . 'jquery.' . $file . $min . '.js';
+    list($file_core, $file_updated) = is_array($file) ? $file : array($file, $file);
+    $corefile = 'misc/ui/jquery.' . $file_core . '.min.js';
+    $javascript[$name]['js'][$corefile]['data'] = $jspath . 'jquery.' . $file_updated . $min . '.js';
     $javascript[$name]['version'] = '1.10.2';
   }
 }
