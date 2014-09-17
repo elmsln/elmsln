@@ -5,3 +5,33 @@
  */
 
 include_once 'icor_timeline_type.features.inc';
+
+/**
+ * Implements hook_menu().
+ */
+function icor_timeline_type_menu() {
+  $items = array();
+  $path = drupal_get_path('module', 'icor_timeline_type');
+  $items['admin/config/system/legacy-activation-codes'] = array(
+    'title' => 'Timeline tweaks',
+    'description' => 'Options for tweaking the display of timelines',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('icor_timeline_type_admin_settings'),
+    'access arguments' => array('administer site configuration'),
+    'type' => MENU_NORMAL_ITEM,
+    'file' => 'icor_timeline_type.admin.inc',
+    'file path' => $path,
+  );
+  return $items;
+}
+
+/**
+ * Implements hook_page_build().
+ */
+function icor_timeline_type_page_build(&$page) {
+  if (variable_get('icor_timeline_type_bce', FALSE)) {
+    // @todo make it add it later in the page build so it overrides the timeline css file
+    drupal_add_css(drupal_get_path('module', 'icor_timeline_type') . '/css/bce_dates.css', array('group' => 'CSS_THEME', 'weight' => 100));
+  }
+}
+

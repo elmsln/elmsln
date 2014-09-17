@@ -1,0 +1,13 @@
+/* Overrides to CSS to fake BCE dates */
+.vco-timeline .vco-navigation .timenav .time .time-interval-major div {
+  display:none !important;
+}
+.vco-timeline .vco-navigation .timenav .time .time-interval div {
+  display:none !important;
+}
+.vco-slider .nav-previous .date, .vco-slider .nav-next .date {
+  display:none !important;
+}
+.vco-slider .slider-item .content .content-container .text .container h2.date {
+  display:none !important;
+}
