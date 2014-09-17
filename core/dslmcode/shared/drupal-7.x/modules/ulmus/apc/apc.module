@@ -1,4 +1,48 @@
 <?php
+/**
+ * Implements hook_xmlrpc().
+ */
+function apc_xmlrpc() {
+  $methods[] =  array(
+    'apc_drush_flush', // Method name.
+    'apc_drush_flush', // Callback.
+    array(
+      'array', // Return variable.
+      'array', // Input variable.
+    ),
+    t('XMLRPC callback to enable cache clear from Drush/CLI.'), // Description
+  );
+
+  return $methods;
+}
+
+/**
+ * XMLRPC callback to enable cache clear from Drush/CLI.
+ */
+function apc_drush_flush($variables) {
+  $cron_key = isset($variables['cron_key']) ? $variables['cron_key'] : NULL;
+  $clears = isset($variables['clears']) ? $variables['clears'] : array();
+
+  if (empty($cron_key) || variable_get('cron_key', 'drupal') != $cron_key) {
+    watchdog('apc', 'APC could not flush cache(s) because an invalid key was used.', array(), WATCHDOG_ERROR);
+    return array(
+      'success' => FALSE,
+      'message' => t('APC could not flush cache(s) because an invalid key was used.'),
+    );
+  }
+  else {
+    foreach ($clears as $bin => $cids) {
+      $cache = _cache_get_object($bin);
+      foreach ($cids as $serialized_cid => $wildcard) {
+        $cache->clear(unserialize($serialized_cid), $wildcard);
+      }
+    }
+    return array(
+      'success' => TRUE,
+      'message' => t('APC all requested flushes done.'),
+    );
+  }
+}
 
 /**
  * Implementation of hook_init().
@@ -7,18 +51,6 @@
  */
 function apc_init() {
   global $user;
-
-  // Clear out any caches that an external actor (i.e drush) would like cleared.
-  // Someday this queue could be popuplated externally to support propagating
-  // Cache clearing events across multiple web heads.
-  if (!function_exists('drush_main')) {
-    $queue = DrupalQueue::get('apc_cache_queue');
-
-    while ($item = $queue->claimItem()) {
-      cache_clear_all($item->data['cid'], $item->data['bin'], $item->data['wildcard']);
-      $queue->deleteItem($item);
-    }
-  }
 
   if (($user->uid == 0) || !variable_get('apc_show_debug', FALSE)
       || !user_access('access apc statistics') || strstr($_SERVER['PHP_SELF'], 'update.php')

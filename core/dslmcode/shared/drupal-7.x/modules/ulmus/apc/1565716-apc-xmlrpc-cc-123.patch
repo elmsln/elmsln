@@ -1,0 +1,155 @@
+diff --git a/apc.drush.inc b/apc.drush.inc
+new file mode 100644
+index 0000000..17ed16d
+--- /dev/null
++++ b/apc.drush.inc
+@@ -0,0 +1,11 @@
++<?php
++
++
++/**
++ * Implements hook_drush_exit().
++ */
++function apc_drush_exit() {
++  if (class_exists('DrupalAPCCache')){
++    DrupalAPCCache::remoteFlush();
++  }
++}
+diff --git a/apc.module b/apc.module
+index 31c5f2c..27b3067 100644
+--- a/apc.module
++++ b/apc.module
+@@ -1,4 +1,48 @@
+ <?php
++/**
++ * Implements hook_xmlrpc().
++ */
++function apc_xmlrpc() {
++  $methods[] =  array(
++    'apc_drush_flush', // Method name.
++    'apc_drush_flush', // Callback.
++    array(
++      'array', // Return variable.
++      'array', // Input variable.
++    ),
++    t('XMLRPC callback to enable cache clear from Drush/CLI.'), // Description
++  );
++
++  return $methods;
++}
++
++/**
++ * XMLRPC callback to enable cache clear from Drush/CLI.
++ */
++function apc_drush_flush($variables) {
++  $cron_key = isset($variables['cron_key']) ? $variables['cron_key'] : NULL;
++  $clears = isset($variables['clears']) ? $variables['clears'] : array();
++
++  if (empty($cron_key) || variable_get('cron_key', 'drupal') != $cron_key) {
++    watchdog('apc', 'APC could not flush cache(s) because an invalid key was used.', array(), WATCHDOG_ERROR);
++    return array(
++      'success' => FALSE,
++      'message' => t('APC could not flush cache(s) because an invalid key was used.'),
++    );
++  }
++  else {
++    foreach ($clears as $bin => $cids) {
++      $cache = _cache_get_object($bin);
++      foreach ($cids as $serialized_cid => $wildcard) {
++        $cache->clear(unserialize($serialized_cid), $wildcard);
++      }
++    }
++    return array(
++      'success' => TRUE,
++      'message' => t('APC all requested flushes done.'),
++    );
++  }
++}
+ 
+ /**
+  * Implementation of hook_init().
+diff --git a/drupal_apc_cache.inc b/drupal_apc_cache.inc
+index 2099c55..9066ce0 100644
+--- a/drupal_apc_cache.inc
++++ b/drupal_apc_cache.inc
+@@ -37,6 +37,12 @@ class DrupalAPCCache implements DrupalCacheInterface {
+   protected $prefix;
+ 
+   /**
++   * @var boolean
++   */
++  protected $drush;
++
++  protected static $remoteClears = array();
++  /**
+    * Get prefix for bin using the configuration.
+    *
+    * @param string $bin
+@@ -73,12 +79,15 @@ class DrupalAPCCache implements DrupalCacheInterface {
+   }
+ 
+   function __construct($bin) {
++
+     $this->bin = $bin;
++    $this->drush = (drupal_is_cli() && function_exists('drush_log'));
+ 
+     // First we determine the prefix from a setting.
+     $prefix = self::getPrefixSettingForBin($this->bin);
+ 
+     // If we do not have a configured prefix we use the HTTP_HOST.
++
+     if (empty($prefix) && isset($_SERVER['HTTP_HOST'])) {
+       // Provide a fallback for multisite. This is on purpose not inside the
+       // getPrefixForBin() function in order to decouple the unified prefix
+@@ -255,8 +264,10 @@ class DrupalAPCCache implements DrupalCacheInterface {
+   }
+ 
+   function clear($cid = NULL, $wildcard = FALSE) {
+-    if (drupal_is_cli() && function_exists('drush_log')) {
+-      drush_log($this->bin . '(' . $cid . ') was not cleared. APC cli uses a different memory storage than the webserver. For more info see: http://drupal.org/node/1278232', 'warning');
++    if ($this->drush) {
++      self::$remoteClears[$this->bin][serialize($cid)] = $wildcard;
++      // APC uses separate storage for CLI mode, bounce the clear request back
++      // into this method on all server nodes via XMLRPC.
+       return;
+     }
+ 
+@@ -288,4 +299,38 @@ class DrupalAPCCache implements DrupalCacheInterface {
+     $iterator = new APCIterator('user', '/^' . $match . '/', APC_ITER_KEY);
+     return 0 === $iterator->getTotalCount();
+   }
++
++  public static function remoteFlush() {
++    global $base_url;
++    if (!empty(self::$remoteClears)) {
++      // optimize '*' clears.
++      $star = serialize('*');
++      foreach (self::$remoteClears as $bin => $clears) {
++        if (!empty($clears[$star])) {
++          self::$remoteClears[$bin] = array($star => TRUE);
++        }
++      }
++      $args = array(
++        'apc_drush_flush' => array(array(
++          'clears' => self::$remoteClears,
++          'cron_key' => variable_get('cron_key', 'drupal'),
++        )),
++      );
++      $uri = $base_url . '/xmlrpc.php';
++      $response = xmlrpc($uri, $args);
++
++      if ($response === FALSE) {
++        drush_log('xmlrpc() error: (' . xmlrpc_errno() . ') ' . xmlrpc_error_msg(), 'error');
++        if ($base_url == 'http://' . basename(conf_path())) {
++          drush_log('The base_url might not be set correctly try using the -l/--uri option for drush.', 'warning');
++        }
++      }
++      elseif (!$response['success']) {
++        drush_log('APC could not flush cache(s) because ' . $apc_node . ' returned code ' . $response['message'], 'error');
++      }
++      else {
++        drush_log("APC-Remote $apc_node: {$response['message']}", 'success');
++      }
++    }
++  }
+ }
