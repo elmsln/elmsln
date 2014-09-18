@@ -473,7 +473,14 @@ function hidden_nodes_action_info() {
  */
 function hidden_nodes_hide_action(&$node, $context) {
   $node->hidden = 1;
-  hidden_nodes_node_update($node);
+  // menu object not loaded into node to avoid cache rebuild; the very thing
+  // that we are trying to accomplish as part of this action
+  menu_node_prepare($node);
+  // Need this check because menu['enabled'] is not set unless specified by  ui.
+  // This allows for updates to be made from other modules.
+  if (isset($node->menu)) {
+    $node->menu['enabled'] = (int) (bool) $node->menu['mlid'];
+  }
 }
 
 /**
@@ -483,5 +490,12 @@ function hidden_nodes_hide_action(&$node, $context) {
  */
 function hidden_nodes_unhide_action(&$node, $context) {
   $node->hidden = 0;
-  hidden_nodes_node_update($node);
+  // menu object not loaded into node to avoid cache rebuild; the very thing
+  // that we are trying to accomplish as part of this action
+  menu_node_prepare($node);
+  // Need this check because menu['enabled'] is not set unless specified by  ui.
+  // This allows for updates to be made from other modules.
+  if (isset($node->menu)) {
+    $node->menu['enabled'] = (int) (bool) $node->menu['mlid'];
+  }
 }
