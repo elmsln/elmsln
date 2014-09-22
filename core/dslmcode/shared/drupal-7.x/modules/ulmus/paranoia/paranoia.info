@@ -1,0 +1,11 @@
+name = Paranoia
+description = Protects a site from some insecure configurations.
+core = 7.x
+
+
+; Information added by  packaging script on 2013-11-12
+version = "7.x-1.3"
+core = "7.x"
+project = "paranoia"
+datestamp = "1384278805"
+

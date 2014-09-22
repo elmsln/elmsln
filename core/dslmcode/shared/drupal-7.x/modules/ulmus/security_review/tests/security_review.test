@@ -1,0 +1,193 @@
+<?php
+
+/**
+ * @file security_review.test.
+ * Drupal test cases for Security Review.
+ */
+
+/**
+* Tests the functionality of the Security Review module.
+*/
+class SecurityReviewTestCase extends DrupalWebTestCase {
+
+  public static function getInfo() {
+    return array(
+      'name' => 'Security Review tests',
+      'description' => 'Test the Security Review module.',
+      'group' => 'Security Review',
+    );
+  }
+
+  public function setUp() {
+    // Enable the Security Review module.
+    parent::setUp('security_review');
+    module_load_include('inc', 'security_review');
+    $this->privileged_user = $this->drupalCreateUser(array(
+      'run security checks',
+      'access security review list',
+      'access administration pages',
+      'administer filters',
+      'administer site configuration',
+      'create article content',
+      'administer nodes',
+      'administer content types',
+    ));
+    $this->drupalLogin($this->privileged_user);
+  }
+
+  public function testUI() {
+    $checklist = security_review_get_checklist();
+    $secrev_checks = $checklist['security_review'];
+
+    $this->drupalGet('admin/reports/security-review');
+    $this->assertText('Click the button below to run the security checklist and review the results.');
+
+    $this->assertText('Before running the checklist please review the settings page at', 'First time message appears before checklist has been run.');
+    $settings_path = 'admin/reports/security-review/settings';
+    $this->assertLinkByHref($settings_path, 0, 'Link to settings appears');
+    $this->drupalGet($settings_path);
+    $this->assertText('Untrusted roles', 'Untrusted roles header appears');
+    $this->assertFieldChecked('edit-security-review-untrusted-roles-1', 'Anonymous users are marked as untrusted');
+    $this->assertFieldChecked('edit-security-review-untrusted-roles-2', 'Authenticated users are marked as untrusted');
+    $this->assertNoFieldChecked('edit-security-review-untrusted-roles-3', 'Adminitrator users are not marked as untrusted');
+    $this->assertFieldChecked('edit-security-review-log', 'Log results is checked');
+    $this->assertText('Base URL check method');
+
+    // Confirm checks are available for skipping here.
+    foreach ($secrev_checks as $name => $check) {
+      $this->assertText($check['title'], "Skip option appears for $name check");
+      $field = 'edit-security-review-skip-' . str_replace('_', '-', $name);
+      $this->assertNoFieldChecked($field, 'Adminitrator users are not marked as untrusted');
+    }
+
+    // Confirm check-specific help pages are working.
+    foreach ($secrev_checks as $name => $check) {
+      $path = 'admin/reports/security-review/help/security_review/' . $name;
+      $this->drupalGet($path);
+      $this->assertNoText('Check-specfic help', 'The top-level help text does not appear on check-specific pages');
+    }
+
+    // Run the checklist
+    $this->runChecklist();
+    $this->assertText('Review results from last run');
+    $this->assertText('Details');
+    $this->assertText('Skip');
+
+    // Test status page test.
+    $this->drupalGet('admin/reports/status');
+    $this->assertText('There are failed Security Review checks');
+    $this->assertLinkByHref('admin/reports/security-review', 0, 'Link to checklist appears');
+  }
+
+  /**
+   * Helper function for running the checklist.
+   *
+   */
+  protected function runChecklist() {
+    $run_path = 'admin/reports/security-review';
+    $edit = array();
+    $this->drupalPost($run_path, $edit, t('Run checklist'));
+  }
+
+  public function testCheckResults() {
+    $checklist = security_review_get_checklist();
+    $secrev_checks = $checklist['security_review'];
+    // Assert that all checks return expected format.
+    foreach ($secrev_checks as $name => $check) {
+      $callback = $check['callback'];
+      $return = $callback();
+      $this->assertTrue(is_array($return), "Check $name returns an array");
+      $this->assertTrue(array_key_exists('result', $return), "Check $name has key 'result'");
+    }
+    // Note, not all checks can be tested (such as file permission checks)
+    // because of the shared dependencies of simpletest with the host.
+
+    // Test text formats check.
+    $check = security_review_check_input_formats();
+    $this->assertTrue($check['result'], 'Text formats check passes');
+
+    // No content yet submitted.
+    $check = security_review_check_field();
+    $this->assertTrue($check['result'], 'Unsafe content in fields check passes');
+
+    // Error reporting defaults to screen.
+    $check = security_review_check_error_reporting();
+    $this->assertFalse($check['result'], 'Error reporting check fails');
+
+    // Failed logins is null.
+    $check = security_review_check_failed_logins();
+    $this->assertTrue(is_null($check['result']), 'Failed logins check is null');
+
+    // Upload extensions passes.
+    $check = security_review_check_upload_extensions();
+    $this->assertTrue($check['result'], 'Upload extensions check passes');
+
+    // No admin permissions granted.
+    $check = security_review_check_admin_permissions();
+    $this->assertTrue($check['result'], 'Admin permission check passes');
+  }
+
+  public function testChecksUI() {
+    $this->runChecklist();
+    $this->assertText('Untrusted users are not allowed to input dangerous HTML tags.');
+    $this->assertText('Errors are written to the screen.');
+    $this->assertText('Dangerous tags were not found in any submitted content (fields).');
+    $this->assertText('Only safe extensions are allowed for uploaded files and images.');
+    // Alter text formats.
+    $edit = array('filters[filter_html][status]' => FALSE);
+    $submit_button = 'Save configuration';
+    $this->drupalPost('admin/config/content/formats/filtered_html', $edit, $submit_button);
+    $this->runChecklist();
+    $this->assertText('Untrusted users are allowed to input dangerous HTML tags.');
+    // Confirm some other checks haven't changed.
+    $this->assertText('Errors are written to the screen.');
+    $this->assertText('Dangerous tags were not found in any submitted content (fields).');
+    $this->assertText('Only safe extensions are allowed for uploaded files and images.');
+    // Alter error reporting.
+    $edit = array('error_level' => 0);
+    $this->drupalPost('admin/config/development/logging', $edit, $submit_button);
+    $this->runChecklist();
+    $this->assertText('Error reporting set to log only.');
+    // Confirm some other checks haven't changed.
+    $this->assertText('Untrusted users are allowed to input dangerous HTML tags.');
+    $this->assertText('Dangerous tags were not found in any submitted content (fields).');
+    $this->assertText('Only safe extensions are allowed for uploaded files and images.');
+    // Create node with JS.
+    $edit = array(
+      'title' => 'test node',
+      'body[und][0][value]' => '<script>alert("testing!");</script>',
+    );
+    $this->drupalPost('node/add/article', $edit, 'Save');
+    $this->runChecklist();
+    $this->assertText('Dangerous tags were found in submitted content (fields).');
+    // Confirm some other checks haven't changed.
+    $this->assertText('Error reporting set to log only.');
+    $this->assertText('Untrusted users are allowed to input dangerous HTML tags.');
+    $this->assertText('Only safe extensions are allowed for uploaded files and images.');
+    // Alter article image upload extensions.
+    $edit = array('instance[settings][file_extensions]' => 'exe, php');
+    $this->drupalPost('admin/structure/types/manage/article/fields/field_image', $edit, 'Save settings');
+    $this->runChecklist();
+    $this->assertText('Unsafe file extensions are allowed in uploads.');
+    // Confirm some other checks haven't changed.
+    $this->assertText('Dangerous tags were found in submitted content (fields).');
+    $this->assertText('Error reporting set to log only.');
+    $this->assertText('Untrusted users are allowed to input dangerous HTML tags.');
+  }
+
+  public function testCheckSkippingUI() {
+    $submit_button = 'Save configuration';
+    // Skip error reporting, change setting and test check result.
+    $edit = array('security_review_skip[error_reporting]' => TRUE);
+    $this->drupalPost('admin/reports/security-review/settings', $edit, $submit_button);
+    $this->runChecklist();
+    $this->assertText('Errors are written to the screen.');
+    // Alter error reporting.
+    $edit = array('error_level' => 0);
+    $this->drupalPost('admin/config/development/logging', $edit, $submit_button);
+    $this->runChecklist();
+    // Result still the same.
+    $this->assertText('Errors are written to the screen.');
+  }
+
+}

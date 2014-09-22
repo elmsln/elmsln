@@ -1,0 +1,252 @@
+<?php
+/**
+ * @file
+ * - Disables PHP block visibility permission and gives status error if a role
+ *   has this permission.
+ * - Disables the PHP module.
+ * - Hides the PHP and paranoia modules from the modules page.
+ * - Prevents user/1 editing which could give access to abitrary contrib module
+ *   php execution.
+ */
+
+/**
+ * Implements hook_form_FORM_ID_alter().
+ *
+ * Hide Paranoia and PHP modules from module admin form.
+ */
+function paranoia_form_system_modules_alter(&$form, &$form_state) {
+  $hidden_modules = module_invoke_all('paranoia_hide_modules');
+  foreach ($hidden_modules as $module => $package) {
+    // Unset instead of using #access because #access => FALSE shows an empty
+    // table row.
+    if (isset($form['modules'][$module])) {
+      unset($form['modules'][$module]);
+    }
+    // Adds support for module_filter.
+    if (isset($form['modules'][$package][$module])) {
+      unset($form['modules'][$package][$module]);
+    }
+  }
+  // Invoke custom validation function to disable banned modules on submit
+  $form['#validate'][] = 'paranoia_module_validate';
+}
+
+/**
+ * Implements hook_form_FORM_ID_alter().
+ *
+ * Disable executing PHP setting in VBO.
+ */
+function paranoia_form_views_ui_config_item_form_alter(&$form, &$form_state) {
+  if ($form['#section'] == 'page-field-views_bulk_operations') {
+    $form['options']['vbo']['operations']['action::views_bulk_operations_script_action']['selected']['#default_value'] = FALSE;
+    $form['options']['vbo']['operations']['action::views_bulk_operations_script_action']['selected']['#value'] = FALSE;
+    $form['options']['vbo']['operations']['action::views_bulk_operations_script_action']['selected']['#disabled'] = TRUE;
+
+  }
+}
+
+/**
+ * Implements hook_form_FORM_ID_alter().
+ */
+function paranoia_form_user_profile_form_alter(&$form, &$form_state) {
+  if ($form_state['user']->uid === '1') {
+    global $user;
+    // Allow user/1 to edit own details.
+    if ($user->uid != 1) {
+      drupal_set_message(t('You must login as this user (user/1) to modify the name, email address, and password for this account.'), 'warning');
+      $form['account']['name']['#access'] = FALSE;
+      $form['account']['mail']['#access'] = FALSE;
+      $form['account']['pass']['#access'] = FALSE;
+      $form['account']['current_pass']['#access'] = FALSE;
+    }
+  }
+}
+
+/**
+ * Implements hook_requirements().
+ */
+function paranoia_requirements($phase) {
+  $requirements = array();
+  if ($phase == 'runtime') {
+    // Ensure the PHP module is not enabled.
+    if (module_exists('php')) {
+      $requirements['paranoia_php'] = array(
+        'title' => t('Paranoia'),
+        'description' => t('The PHP module is enabled. This module should be disabled (but paranoia module prevents it from showing in the module admin form).  It may have been enabled in the database, circumventing the effectiveness of paranoia module.'),
+        'severity' => REQUIREMENT_ERROR,
+        );
+    }
+  }
+  return $requirements;
+}
+
+/**
+ * Implements hook_form_FORM_ID_alter().
+ *
+ * Hides permissions considered risky by hook_paranoia_hide_permissions().
+ */
+function paranoia_form_user_admin_permissions_alter(&$form, &$form_state) {
+  $banned_permissions = module_invoke_all('paranoia_hide_permissions');
+  foreach ($banned_permissions as $permission) {
+    if (isset($form['permission'][$permission])) {
+      $form['permission'][$permission]['#markup'] .= ' ' . t('<strong>Disabled by paranoia module.<strong>');
+    }
+    foreach ($form['checkboxes'] as $index => $elements) {
+      if (isset($elements['#options'][$permission])) {
+       unset($form['checkboxes'][$index]['#options'][$permission]);
+      }
+    }
+  }
+  $form['#validate'][] = 'paranoia_permissions_validate';
+  $form['#submit'][] = 'paranoia_permissions_submit';
+}
+
+/**
+ * Form validate function to prevent granting risky permissions to
+ * anonymous/authenticated roles.
+ *
+ * @see paranoia_form_user_admin_permissions_alter().
+ */
+function paranoia_permissions_validate($form, &$form_state) {
+  $permissions = module_invoke_all('permission');
+  foreach ($permissions as $machine_name => $attributes) {
+    if (!empty($attributes['restrict access'])) {
+      if (!empty($form_state['values'][1][$machine_name])) {
+        form_set_error('1][' . $machine_name, t('The permission %name can affect site security and should not be granted to anonymous users.', array('%name' => $attributes['title'])));
+      }
+      if (!empty($form_state['values'][2][$machine_name])) {
+        form_set_error('2][' . $machine_name, t('The permission %name can affect site security and should not be granted to authenticated users.', array('%name' => $attributes['title'])));
+      }
+
+    }
+  }
+}
+
+/**
+ * Helper function to remove all risky permissions from any role.
+ *
+ * Separated out from paranoia_permissions_submit so that there is
+ * clearly no dependency on a form or form state.
+ */
+function _paranoia_remove_risky_permissions() {
+  $banned_permissions = module_invoke_all('paranoia_hide_permissions');
+  foreach ($banned_permissions as $permission) {
+    db_query("DELETE FROM {role_permission} WHERE permission = :permission", array(':permission' => $permission));
+  }
+}
+
+/**
+ * Remove extremely-risky permissions from any role.
+ */
+function paranoia_permissions_submit($form, &$form_state) {
+  _paranoia_remove_risky_permissions();
+}
+
+/**
+ * Implements hook_paranoia_disable_modules().
+ */
+function paranoia_paranoia_disable_modules() {
+  return array(
+    'php',
+  );
+}
+
+/**
+ * Implements hook_paranoia_hide_permissions().
+ *
+ * On behalf of Drupal Core.
+ */
+function paranoia_paranoia_hide_permissions() {
+  return array(
+    'use PHP for settings',
+    'use text format php_code',
+  );
+}
+
+/**
+ * Implements hook_paranoia_hide().
+ */
+function paranoia_paranoia_hide_modules() {
+  return array(
+    'php' => 'Core',
+    'paranoia' => 'Other',
+  );
+}
+
+/**
+ * Implements hook_paranoia_hide_permissions().
+ * On behalf of rules.module.
+ */
+function rules_paranoia_hide_permissions() {
+  return array('bypass rules access');
+}
+
+/**
+ * Implements hook_paranoia_hide_permissions().
+ * On behalf of cck.module.
+ */
+function cck_paranoia_hide_permissions() {
+  return array('Use PHP input for field settings (dangerous - grant with care)');
+}
+
+/**
+ * Implements hook_paranoia_hide_permissions().
+ * On behalf of devel.module.
+ */
+function devel_paranoia_hide_permissions() {
+  return array('execute php code');
+}
+
+/**
+ * Implements hook_paranoia_hide_permissions().
+ * On behalf of googleanalytics.module.
+ */
+function googleanalytics_paranoia_hide_permissions() {
+  return array('use PHP for tracking visibility');
+}
+
+/**
+ * Implements hook_paranoia_hide_permissions().
+ * On behalf of bueditor.module.
+ */
+function bueditor_paranoia_hide_permissions() {
+  return array('administer bueditor');
+}
+
+/**
+ * Implements hook_paranoia_hide_permissions().
+ * On behalf of auto_nodetitle.module.
+ */
+function auto_nodetitle_paranoia_hide_permissions() {
+  return array('use PHP for title patterns');
+}
+
+/**
+ * Custom validation function to make sure php_filter can't be enabled.
+ */
+function paranoia_module_validate($form, &$form_state) {
+  $disabled_modules = module_invoke_all('paranoia_disable_modules');
+  foreach ($disabled_modules as $module) {
+    if (module_exists($module)) {
+      drupal_set_message(t('You attempted to enable %module which is not allowed on this site.',
+        array('%module' => $module)));
+      module_disable(array($module));
+    }
+  }
+}
+
+/**
+ * Implements hook_paranoia_hide_permissions().
+ * On behalf of visual_website_optimizer.module.
+ */
+function visual_website_optimizer_paranoia_hide_permissions() {
+  return array('use PHP for filtering condition');
+}
+
+/**
+  * Implements hook_paranoia_hide_permissions().
+  * On behalf of live_person.module.
+  */
+function live_person_paranoia_hide_permissions() {
+  return array('use PHP for live person visibility');
+}

@@ -1,0 +1,76 @@
+## Security Review API
+
+* hook_security_checks() and check returns
+* Check help
+* Standalone use of the checklist
+* Drush
+
+### hook_security_checks()
+
+Checks returned from an implementation of hook_security_checks() look like the
+following.
+
+array(
+  $namespace => array(
+    $check_name => array(
+     'title' => 'Simple title of this check',
+     'callback' => 'function to invoke for check, see section on check returns',
+     'success' => 'One-line description of a successful check',
+     'failure' => 'One-line description of a failed check listing what the risk is',
+    )
+  )
+)
+
+The top level index is often the module name. Each check name (not title) should
+attempt to be unique.
+
+### Check return values
+
+A check can return a boolean or NULL. A return value of TRUE means the check
+passed and the 'success' description will be used. FALSE means failure. A return
+value of NULL is used in case the check can not run for any reason, an example
+being if a dependency is nesecessary to run the check and that depenency is not
+met.
+
+### Check help
+
+Implement $callback . '_help' to provide help for a check.
+
+Help functions should return an array like so:
+
+array(
+  'title' => '',
+  'descriptions' => array('Check descriptions', 'Link off to something'),
+  'findings' => array(
+    'descriptions' => array('Descriptions of findings'),
+    'items' => array('Specific findings'),
+  )
+)
+
+Consult security_review.help.inc for details.
+
+## Standalone use of the checklist
+
+The Security Review module need not be installed to use the checklist, though
+no logging, UI, or check result storage will be available.
+
+To run the checklist include the following code in your own module.
+
+  include_once('security_review.inc');
+  $checklist = security_review_get_checklist();
+  $checklist_results = security_review_run($checklist);
+
+Note that the some checks may take long to complete, so it is advised that you
+plan accordingly or unset those checks.
+
+## Drush
+
+Run the checklist via Drush with the following command
+
+drush security-review
+
+Consult the Drush help on the security-review command for more information.
+
+You can also run the drush command without installing the module so long as the
+the security_review.drush.inc and security_review.inc files can be found by
+drush. For instance you could place these files in your ~/.drush/ directory.

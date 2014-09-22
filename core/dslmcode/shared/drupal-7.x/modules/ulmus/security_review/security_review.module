@@ -1,0 +1,278 @@
+<?php
+
+/**
+ * @file
+ * Site security review and reporting Drupal module.
+ *
+ */
+
+/**
+ * Implements hook_permission().
+ */
+function security_review_permission() {
+  return array(
+    'access security review list' => array(
+      'title' => t('Access security review pages'),
+      'description' => t('View security review checks and output. Give only to trusted users.'),
+    ),
+    'run security checks' => array(
+      'title' => t('Run security review checks'),
+      'description' => t('Run the security review checks'),
+    ),
+  );
+}
+
+/**
+ * Implements hook_menu().
+ */
+function security_review_menu() {
+  $items = array();
+  $items['admin/reports/security-review'] = array(
+    'title' => 'Security review',
+    'description' => 'Perform a review of the security of your site.',
+    'page callback' => 'security_review_page',
+    'access arguments' => array('access security review list'),
+    'file' => 'security_review.pages.inc',
+    'type' => MENU_NORMAL_ITEM,
+  );
+  $items['admin/reports/security-review/run'] = array(
+    'title' => 'Run & review',
+    'access arguments' => array('access security review list'),
+    'type' => MENU_DEFAULT_LOCAL_TASK,
+  );
+  $items['admin/reports/security-review/toggle/%'] = array(
+    'title' => 'Security review toggle',
+    'page callback' => 'security_review_toggle_check',
+    'page arguments' => array(4),
+    'access arguments' => array('access security review list'),
+    'file' => 'security_review.pages.inc',
+    'type' => MENU_CALLBACK,
+  );
+  $items['admin/reports/security-review/help'] = array(
+    'title' => 'Help',
+    'page callback' => 'security_review_check_help',
+    'access arguments' => array('access security review list'),
+    'file' => 'security_review.pages.inc',
+    'type' => MENU_LOCAL_TASK,
+    'weight' => 10,
+  );
+  $items['admin/reports/security-review/settings'] = array(
+    'title' => 'Settings',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('security_review_settings'),
+    'access arguments' => array('access security review list'),
+    'file' => 'security_review.pages.inc',
+    'type' => MENU_LOCAL_TASK,
+    'weight' => 15,
+  );
+
+  return $items;
+}
+
+/**
+ * Implements hook_theme().
+ */
+function security_review_theme($existing, $type, $theme, $path) {
+  return array(
+    'security_review_reviewed' => array(
+      'variables' => array('items' => array(), 'header' => '', 'description' => ''),
+      'file' => 'security_review.pages.inc',
+      ),
+    'security_review_help_options' => array(
+      'variables' => array('element' => array()),
+      'file' => 'security_review.pages.inc',
+      ),
+    'security_review_check_help' => array(
+      'variables' => array('element' => array()),
+      'file' => 'security_review.pages.inc',
+      ),
+  );
+}
+
+/**
+ * Retrieve stored checks and results.
+ *
+ * @return array Array of checks with keys:
+ *     namespace - string Check namespace
+ *     reviewcheck - string Check name
+ *     result - bool Whether check passed or not
+ *     lastrun - UNIX timestamp of last time check ran
+ *     skip - bool Whether check is being skipped or not
+ *     skiptime - UNIX timestamp of when check was skipped, if set
+ *     skipuid - UID of user who skipped the check, if set
+ */
+function security_review_get_stored_results() {
+  $checks = array();
+  // Retrieve results from last run of the checklist.
+  $result = db_query("SELECT namespace, reviewcheck, result, lastrun, skip, skiptime, skipuid FROM {security_review}");
+  foreach ($result as $record) {
+    $checks[] = array(
+      'namespace'   => $record->namespace,
+      'reviewcheck' => $record->reviewcheck,
+      'result'      => $record->result === '1' ? TRUE : FALSE,
+      'lastrun'     => $record->lastrun,
+      'skip'        => $record->skip === '1' ? TRUE : FALSE,
+      'skiptime'    => $record->skiptime,
+      'skipuid'     => $record->skipuid,
+    );
+  }
+  return $checks;
+}
+
+/**
+ * Retrieve the result from the last run of a security check.
+ *
+ * @return array
+ *   @see security_review_get_stored_results() for format
+ */
+function security_review_get_last_check($namespace, $check_name) {
+  $fields = array('namespace', 'reviewcheck', 'result', 'lastrun', 'skip', 'skiptime', 'skipuid');
+  $result = db_select('security_review', 'sr')->fields('sr', $fields)
+    ->condition('namespace', $namespace)
+    ->condition('reviewcheck', $check_name)
+    ->execute()->fetchAssoc();
+  if (!empty($result)) {
+    $result['result'] = $result['result'] === '1' ? TRUE : FALSE;
+    $result['skip'] = $result['skip'] === '1' ? TRUE : FALSE;
+    return $result;
+  }
+  return FALSE;
+}
+
+/**
+ * Run the security review checklist and store the results.
+ */
+function security_review_run_store($checklist, $log = NULL) {
+  // Allow callers, like our drush command, to decide not to log.
+  if (is_null($log)) {
+    $log = variable_get('security_review_log', TRUE);
+  }
+  // Call our private function to perform the actual review.
+  $results = _security_review_run($checklist, $log);
+  variable_set('security_review_last_run', time());
+  // Store results and return.
+  return security_review_store_results($results);
+}
+
+/**
+ * Store checklist results.
+ */
+function security_review_store_results($results) {
+  $log = variable_get('security_review_log', TRUE);
+  $saved = $to_save = 0;
+  foreach ($results as $module => $checks) {
+    foreach ($checks as $check_name => $check) {
+      $num_deleted = db_delete('security_review')
+        ->condition('namespace', $module)
+        ->condition('reviewcheck', $check_name)
+        ->execute();
+      if ($num_deleted == 1 && is_null($check['result']) && $log) {
+        // Last check was deleted and current check returns null so check is
+        // no longer applicable.
+        $message = '!name no longer applicable for checking';
+        _security_review_log($module, $check_name, $message, array('!name' => $check['title']), WATCHDOG_INFO);
+      }
+      // Only save checks that have a boolean result.
+      elseif (!is_null($check['result'])) {
+        $to_save++;
+        $record = array(
+          'namespace' => $module,
+          'reviewcheck' => $check_name,
+          'result' => $check['result'],
+          'lastrun' => $check['lastrun'] ? $check['lastrun'] : REQUEST_TIME,
+        );
+
+        if (drupal_write_record('security_review', $record) == SAVED_NEW) {
+          $saved++;
+        }
+        elseif ($log) {
+          _security_review_log($module, $check_name, 'Unable to store check !reviewcheck for !namespace', array('!reviewcheck' => $check_name, '!namespace' => $module), WATCHDOG_ERROR);
+        }
+      }
+    }
+  }
+  return ($to_save == $saved) ? TRUE : FALSE;
+}
+
+/**
+ * Run the security review checklist and return the full results.
+ */
+function security_review_run_full($checklist, $log = NULL) {
+  module_load_include('inc', 'security_review');
+  // Allow callers, like our drush command, to decide not to log.
+  if (is_null($log)) {
+    $log = variable_get('security_review_log', TRUE);
+  }
+  // Call our private function to perform the actual review.
+  $results = _security_review_run($checklist, $log);
+
+  // Fill out the descriptions of the results.
+  foreach ($results as $module => $checks) {
+    foreach ($checks as $check_name => $check) {
+      $function = $check['callback'] . '_help';
+      // We should have loaded all necessary include files.
+      if (function_exists($function)) {
+        $element = call_user_func($function, $check);
+        // @todo run through theme?
+        $results[$module][$check_name]['help'] = $element;
+      }
+    }
+  }
+  return $results;
+}
+
+/**
+ * Operation function called by Batch.
+ */
+function _security_review_batch_op($module, $check_name, $check, $log, &$context) {
+  module_load_include('inc', 'security_review');
+  $context['message'] = $check['title'];
+  // Run the check.
+  $check_result = _security_review_run_check($module, $check_name, $check, $log);
+  if (!empty($check_result)) {
+    $context['results'][$module][$check_name] = $check_result;
+  }
+}
+
+/**
+ * Finished callback for Batch processing the checklist.
+ */
+function _security_review_batch_finished($success, $results, $operations) {
+  variable_set('security_review_last_run', time());
+  module_load_include('inc', 'security_review');
+  if ($success) {
+    if (!empty($results)) {
+      // Store results in our present table.
+      $storage_result = security_review_store_results($results);
+    }
+    drupal_set_message(t('Review complete'));
+  }
+  else {
+   $error_operation = reset($operations);
+   $message = 'An error occurred while processing ' . $error_operation[0] . ' with arguments :' . print_r($error_operation[0], TRUE);
+   _security_review_log('', '', $message, array(), WATCHDOG_ERROR);
+    drupal_set_message(t('The review did not store all results, please run again or check the logs for details.'));
+  }
+}
+
+/**
+ * Helper function returns skipped checks.
+ */
+function security_review_skipped_checks() {
+  $skipped = array();
+
+  $results = db_query("SELECT namespace, reviewcheck, result, lastrun, skip, skiptime, skipuid FROM {security_review} WHERE skip = 1");
+  while ($record = $results->fetchAssoc()) {
+    $skipped[$record['namespace']][$record['reviewcheck']] = $record;
+  }
+
+  return $skipped;
+}
+
+/**
+ * Implementation of hook_security_review_log().
+ */
+function security_review_security_review_log($module, $check_name, $message, $variables, $type) {
+  // Log using watchdog().
+  watchdog('security_review', $message, $variables, $type);
+}

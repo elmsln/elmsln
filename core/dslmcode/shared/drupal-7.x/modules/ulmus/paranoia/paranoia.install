@@ -1,0 +1,23 @@
+<?php
+
+/**
+ * @file
+ * Disable php module & set install message for Paranoia.
+ *
+ * @ingroup paranoia
+ */
+
+/**
+ * Implements hook_enable().
+ */
+function paranoia_enable() {
+  // Disable the php module if it is enabled.
+  if (module_exists('php')) {
+    module_disable(array('php'));
+    drupal_set_message(t('The Paranoia module has disabled the PHP module.'));
+  }
+
+  // Manually remove any enabled risky permissions
+  _paranoia_remove_risky_permissions();
+  drupal_set_message(t('Risky permissions have been automatically disabled.'));
+}

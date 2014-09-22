@@ -1,0 +1,121 @@
+<?php
+
+/**
+ * @file
+ * Install, update and uninstall functions for the security_review module.
+ *
+ */
+
+/**
+ * Implements hook_enable().
+ */
+function security_review_enable() {
+  drupal_set_message(t('Security Review module enabled. You should first set the module access permissions at !link. Be sure to grant permissions to trusted users only as this module can show senstive site information.', array('!link' => l('admin/people/permissions', 'admin/people/permissions'))));
+}
+
+/**
+ * Implements hook_schema().
+ */
+function security_review_schema() {
+  $schema['security_review'] = array(
+    'fields' => array(
+      'namespace' => array(
+        'type' => 'varchar',
+        'length' => 160,
+        'not null' => TRUE,
+        'default' => '',
+      ),
+      'reviewcheck' => array(
+        'type' => 'varchar',
+        'length' => 160,
+        'not null' => TRUE,
+        'default' => '',
+      ),
+      'result' => array(
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'lastrun' => array(
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'skip' => array(
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'skiptime' => array(
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'skipuid' => array(
+        'type' => 'int',
+        'default' => NULL
+      ),
+    ),
+    'primary key' => array('namespace', 'reviewcheck'),
+  );
+
+  return $schema;
+}
+
+/**
+ * Implements hook_uninstall().
+ */
+function security_review_uninstall() {
+  variable_del('security_review_untrusted_roles');
+  variable_del('security_review_log');
+  variable_del('security_review_last_run');
+}
+
+/**
+ * Empty Security Review check result table for a fresh start on Drupal 7.
+ */
+function security_review_update_7000(&$sandbox) {
+  db_truncate('security_review')->execute();
+  return t('Security Review table truncated.');
+}
+
+/**
+ * Implements hook_requirements().
+ */
+function security_review_requirements($phase) {
+
+  $requirements = array();
+
+  switch ($phase) {
+    case 'runtime':
+    $failed_checks = FALSE;
+      $checks = security_review_get_stored_results();
+      foreach ($checks as $check) {
+        if ($check['result'] === FALSE && !$check['skip']) {
+          $failed_checks = TRUE;
+          break;
+        }
+      }
+      $url = url('admin/reports/security-review');
+      if (empty($checks)) {
+        $severity = REQUIREMENT_WARNING;
+        $value = t('The Security Review checklist has not been run. <a href="!url">Run the checklist</a>', array('!url' => $url));
+      }
+      elseif ($failed_checks) {
+        $severity = REQUIREMENT_WARNING;
+        $value = t('There are failed Security Review checks. <a href="!url">Review the checklist</a>', array('!url' => $url));
+      }
+      else {
+        $severity = REQUIREMENT_OK;
+        $value = t('Passing all non-ignored Security Review checks. <a href="!url">Review the checklist</a>', array('!url' => $url));
+      }
+      $requirements['security_review'] = array(
+        'title' => t('Security Review'),
+        'severity' => $severity,
+        'value' => $value,
+      );
+      break;
+  }
+
+  return $requirements;
+}
