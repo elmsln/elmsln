@@ -4,10 +4,12 @@ php:
   - 5.3
   - 5.4
   - 5.5
+  - hhvm
 
 matrix:
   allow-failures:
     - php: 5.5
+    - php: hhvm
 
   env:
     global:
