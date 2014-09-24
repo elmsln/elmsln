@@ -221,7 +221,7 @@ function hidden_nodes_form_alter(&$form, $form_state, $form_id) {
         // If the attributes for the menu item have been set, add the classes.
         if (isset($row['#item']['options']['attributes']) && isset($row['#item']['options']['attributes']['class'])) {
           // If class is found, apply styling.
-          if (strpos((string) $row['#item']['options']['attributes']['class'], 'node_is_hidden') !== FALSE) {
+          if (array_search('node_is_hidden', $row['#item']['options']['attributes']['class']) !== FALSE) {
             $form['table'][$key]['#attributes']['class'][] = 'node_is_hidden';
             // List this as a hidden parent if node_is_hidden is found.
             $hidden_parents[$key] = $row['mlid']['#default_value'];
