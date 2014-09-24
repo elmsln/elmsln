@@ -287,6 +287,20 @@ function hidden_nodes_node_access_explain($row) {
  * Implements hook_menu_link_alter().
  */
 function hidden_nodes_menu_link_alter(&$item) {
+  // taken from menu_attributes to do the same type of processing first
+  if (isset($item['options']['attributes']) && is_array($item['options']['attributes'])) {
+    // Filter out blank attributes.
+    foreach ($item['options']['attributes'] as $key => $value) {
+      if ((is_array($value) && empty($value)) || is_string($value) && !drupal_strlen($value)) {
+        unset($item['options']['attributes'][$key]);
+      }
+    }
+
+    // Convert classes to an array.
+    if (isset($item['options']['attributes']['class']) && is_string($item['options']['attributes']['class'])) {
+      $item['options']['attributes']['class'] = explode(' ', $item['options']['attributes']['class']);
+    }
+  }
   $nid = FALSE;
   // Try and pull from book based menu item, the easiest to account for.
   if (isset($item['nid'])) {
@@ -307,16 +321,26 @@ function hidden_nodes_menu_link_alter(&$item) {
     // This happens because page save would change the value of hidden.
     if (_hidden_nodes_get_status($nid)) {
       if (!isset($item['options']['attributes'])) {
-        $item['options']['attributes'] = array('class' => ' node_is_hidden');
+        $item['options']['attributes'] = array(
+          'class' => array(
+            'node_is_hidden'
+          )
+        );
       }
       else {
-        $item['options']['attributes']['class'] = ' node_is_hidden';
+        $item['options']['attributes']['class'] = array(
+          'node_is_hidden'
+        );
       }
     }
     else {
       // Avoid potential conflicts with menu attributes modules.
       if (isset($item['options']['attributes']['class'])) {
-        $item['options']['attributes']['class'] = str_replace(' node_is_hidden', '', $item['options']['attributes']['class']);
+        foreach ($item['options']['attributes']['class'] as $key => $class) {
+          if ($class == 'node_is_hidden') {
+            unset($item['options']['attributes']['class'][$key]);
+          }
+        }
       }
     }
   }
