@@ -220,6 +220,10 @@ function hidden_nodes_form_alter(&$form, $form_state, $form_id) {
       if (is_array($row)) {
         // If the attributes for the menu item have been set, add the classes.
         if (isset($row['#item']['options']['attributes']) && isset($row['#item']['options']['attributes']['class'])) {
+          // Convert classes to an array.
+          if (is_string($row['#item']['options']['attributes']['class'])) {
+            $row['#item']['options']['attributes']['class'] = explode(' ', $row['#item']['options']['attributes']['class']);
+          }
           // If class is found, apply styling.
           if (array_search('node_is_hidden', $row['#item']['options']['attributes']['class']) !== FALSE) {
             $form['table'][$key]['#attributes']['class'][] = 'node_is_hidden';
