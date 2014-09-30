@@ -1015,7 +1015,21 @@ function drush_drush_recipes_drush_cook_recipes($list = '', $recurse = FALSE, $r
               $option_out .= ' --' . $key . '=' . $val;
             }
             drush_log(dt('Adding Madlib ingredient: drush ') . $command['target'] . ' ' . $command['command'] . ' ' . implode(' ', $command['arguments']) . ' ' . $option_out, 'ok');
-            drush_invoke_process($command['target'], $command['command'], $command['arguments'], $command['options']);
+            // special exception for commands that run batch jobs as they will
+            // exit into the background process silently
+            if (!in_array($command['command'], array('httprl-self-spider', 'httprl-self-request', 'entitycache-load', 'hss', 'hsr', 'ecl'))) {
+              drush_invoke_process($command['target'], $command['command'], $command['arguments'], $command['options']);
+            }
+            else {
+              // this is the simple method for running when non interactive
+              $smash_command = 'drush ' . $command['target'] . ' ' . $command['command'] . ' ' . implode(' ', $command['arguments']) . ' ' . $option_out;
+              drush_print($smash_command);
+              drush_shell_exec($smash_command);
+              $shell_output = drush_shell_exec_output();
+              foreach ($shell_output as $shell) {
+                drush_print($shell);
+              }
+            }
           }
           else if (isset($command[DRUSH_RECIPES_FORMAT_TARGET])) {
             // allow for super simple uncooking of recipe
@@ -1033,7 +1047,21 @@ function drush_drush_recipes_drush_cook_recipes($list = '', $recurse = FALSE, $r
               $option_out .= ' --' . $key . '=' . $val;
             }
             drush_log(dt('Adding ingredient: drush ') . $command['target'] . ' ' . $command['command'] . ' ' . implode(' ', $command['arguments']) . ' ' . $option_out, 'ok');
-            drush_invoke_process($command['target'], $command['command'], $command['arguments'], $command['options']);
+            // special exception for commands that run batch jobs as they will
+            // exit into the background process silently
+            if (!in_array($command['command'], array('httprl-self-spider', 'httprl-self-request', 'entitycache-load', 'hss', 'hsr', 'ecl'))) {
+              drush_invoke_process($command['target'], $command['command'], $command['arguments'], $command['options']);
+            }
+            else {
+              // this is the simple method for running when non interactive
+              $smash_command = 'drush ' . $command['target'] . ' ' . $command['command'] . ' ' . implode(' ', $command['arguments']) . ' ' . $option_out;
+              drush_print($smash_command);
+              drush_shell_exec($smash_command);
+              $shell_output = drush_shell_exec_output();
+              foreach ($shell_output as $shell) {
+                drush_print($shell);
+              }
+            }
           }
           else if (isset($command[DRUSH_RECIPES_FORMAT_CONDITIONAL])) {
             $default = FALSE;
@@ -1125,11 +1153,11 @@ function _drush_recipes_command_defaults(&$command) {
   );
   // test if these are set as options globally
   foreach ($options as $key => $short) {
-    if (($val = drush_get_option($key, NULL)) !== NULL) {
+    if (($val = drush_get_option($key, NULL)) !== NULL && !isset($command['options'][$key])) {
       $command['options'][$key] = $val;
     }
-    if (($val = drush_get_option($short, NULL)) !== NULL) {
-      $command['options'][$key] = $val;
+    if (($val = drush_get_option($short, NULL)) !== NULL && !isset($command['options'][$short])) {
+      $command['options'][$short] = $val;
     }
   }
 }
