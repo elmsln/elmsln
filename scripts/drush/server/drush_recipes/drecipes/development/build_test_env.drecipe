@@ -1,0 +1,92 @@
+{
+  "name": "Build a test environment",
+  "drush_recipes_api": "1.0",
+  "weight": "0",
+  "core": "7",
+  "recipe": [
+    [
+      "dl",
+      "drush-vagrant"
+    ],
+    [
+      "dl",
+      "drupal-up-7.x-1.x-dev"
+    ],
+    [
+      "cc",
+      "drush"
+    ],
+    {
+      "command": "vb",
+      "options": {
+        "project-name": "drupal7site",
+        "blueprint": "drupal7",
+        "hosts": "1",
+        "y": "1"
+      }
+    },
+    [
+      "vsh",
+      "\"drush",
+      "dl",
+      "drush_recipes",
+      "--y\"",
+      "--default-user=vagrant",
+      "--vm-name=drupal7site"
+    ],
+    [
+      "vsh",
+      "\"cd",
+      "\/var\/www",
+      "|",
+      "drush",
+      "dl",
+      "drupal-7",
+      "--drupal-project-rename='drupal7'\"",
+      "--default-user=vagrant",
+      "--vm-name=drupal7site"
+    ],
+    [
+      "vsh",
+      "\"cd",
+      "\/var\/www/drupal7",
+      "|",
+      "drush",
+      "cook",
+      "dr_si",
+      "--mlt-profile=minimal",
+      "--mlt-db-url=mysql:\/\/root:root@localhost\/drupal7",
+      "--y\"",
+      "--default-user=vagrant",
+      "--vm-name=drupal7site"
+    ],
+    [
+      "vsh",
+      "\"cd",
+      "\/var\/www/drupal7",
+      "|",
+      "drush",
+      "cook",
+      "standard_baseline",
+      "--y\"",
+      "--default-user=vagrant",
+      "--vm-name=drupal7site"
+    ],
+    [
+      "vsh",
+      "\"cd",
+      "\/var\/www/drupal7",
+      "|",
+      "drush",
+      "uli\"",
+      "--default-user=vagrant",
+      "--vm-name=drupal7site"
+    ]
+  ],
+  "metadata": {
+    "type": 3,
+    "description": "This is an example of how you can build a new vagrant site.",
+    "version": "0.1",
+    "author": null
+  }
+}

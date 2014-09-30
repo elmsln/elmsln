@@ -1,0 +1,91 @@
+{
+  "name": "OWASP security modules",
+  "drush_recipes_api": "1.0",
+  "core": "7",
+  "weight": 0,
+  "recipe": [
+      "dr_security.drecipe",
+      {
+        "command": "en",
+        "arguments": [
+          "security_review,autologout,honeypot,session_limit,username_enumeration_prevention"
+        ]
+      },
+      {
+        "command": "vset",
+        "arguments": [
+          "autologout_timeout",
+          "1800"
+        ]
+      },
+      {
+        "command": "vset",
+        "arguments": [
+          "autologout_max_timeout",
+          "1800"
+        ]
+      },
+      {
+        "command": "vset",
+        "arguments": [
+          "autologout_padding",
+          "30"
+        ]
+      },
+      {
+        "command": "vset",
+        "arguments": [
+          "autologout_use_watchdog",
+          "1"
+        ]
+      },
+      {
+        "command": "vset",
+        "arguments": [
+          "honeypot_protect_all_forms",
+          "0"
+       ]
+      },
+      {
+        "command": "vset",
+        "arguments": [
+          "honeypot_log",
+          "1"
+        ]
+      },
+      {
+        "command": "vset",
+        "arguments": [
+          "honeypot_form_user_register_form",
+          "1"
+        ]
+      },
+      {
+        "command": "vset",
+        "arguments": [
+          "honeypot_form_user_pass",
+          "1"
+        ]
+      },
+      {
+        "command": "vset",
+        "arguments": [
+          "honeypot_form_contact_site_form",
+          "1"
+        ]
+      },
+      {
+        "command": "vset",
+        "arguments": [
+          "honeypot_form_contact_personal_form",
+          "1"
+        ]
+      }
+  ],
+  "metadata": {
+    "type": "add-on",
+    "description": "Enables and sets modules necessary to mitigate OWASP top 10",
+    "version": "1.0",
+    "author": "kristat"
+  }
+}

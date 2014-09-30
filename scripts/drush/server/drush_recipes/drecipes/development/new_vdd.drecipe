@@ -1,0 +1,47 @@
+{
+    "name": "VDD Wrapper",
+    "drush_recipes_api": "1.0",
+    "weight": "-10",
+    "core": "7",
+    "recipe": [
+        [
+            "dl",
+            "drush-vagrant"
+        ],
+        [
+            "cc",
+            "drush"
+        ],
+        {
+            "madlib": "TRUE",
+            "command": "vb",
+            "options": {
+                "git-repo": "[git-repo]",
+                "git-branch": "[git-branch]",
+                "project-name": "[project-name]",
+                "up": "[up]",
+                "hosts": "[hosts]"
+            },
+            "tokens": {
+                "[git-repo]": "Git repo to check out",
+                "[git-branch]": "Branch to check out",
+                "[project-name]": "Project name for the space",
+                "[up]": "Should we run vagrant up?",
+                "[hosts]": "Should we author the /etc/hosts file?"
+            },
+            "defaults": {
+                "[git-branch]": "8.x-1.x",
+                "[git-repo]": "http://git.drupal.org/project/vdd.git",
+                "[project-name]": "vddplayspace",
+                "[up]": "1",
+                "[hosts]": "1"
+            }
+        }
+    ],
+    "metadata": {
+        "type": "utility",
+        "description": "Setup a standard VDD instance and then some!",
+        "version": "0.2",
+        "author": "btopro"
+    }
+}

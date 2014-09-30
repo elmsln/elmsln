@@ -1,0 +1,109 @@
+language: php
+
+php:
+  - 5.3
+  - 5.4
+  - 5.5
+  - hhvm
+
+matrix:
+  allow-failures:
+    - php: hhvm
+
+  env:
+    global:
+      - ES_VER=1.0.1
+      - ES_MAPPER_ATTACHMENTS_VER=2.0.0.RC1
+      - ES_TRANSPORT_THRIFT_VER=2.0.0.RC1
+      - ES_GEOCLUSTER_FACET_VER=0.0.10
+      - ES_WAIT_ON_MAPPING_CHANGE=true
+      - DATABASE='drupal'
+      - DB_USERNAME='root'
+      - DB_ENCODE='utf8'
+    matrix:
+      - DRUPAL_3RD_PARTY='composer_manager'
+      - DRUPAL_3RD_PARTY='libraries'
+
+mysql:
+  database: $DATABASE
+  username: $DB_USERNAME
+  encoding: $DB_ENCODE
+
+before_install:
+  - export UPDATE TRAVIS_BUILD_DIR
+  - BUILD_TOP=`dirname $TRAVIS_BUILD_DIR`
+  - EXIT_VALUE=0
+
+  - sudo apt-get update > /dev/null
+
+  - composer self-update
+install:
+    # install php packages required for running a web server from drush on php 5.3
+  - sudo apt-get install -y --force-yes php5-cgi php5-mysql
+
+  # install drush globally
+  - composer global require drush/drush:6.*
+
+  # add composer's global bin directory to the path
+  # see: https://github.com/drush-ops/drush#install---composer
+  - export PATH="$HOME/.composer/vendor/bin:$PATH"
+before_script:
+  #- echo 'sendmail_path = /bin/true' >> ~/.phpenv/versions/$(phpenv version-name)/etc/conf.d/travis.ini
+  # establish elmsln package put in place the right way
+  - sudo mkdir -p /var/www
+  - sudo chown travis:travis /var/www
+  - drush dl drupal --destination=/var/www --default-major=7 --drupal-project-rename=site1 --y
+  - cp -r /var/www/site1 /var/www/site2
+  # get drush recipes setup functions
+  - sudo chown -R travis:travis ~/.drush
+  - cd ~/.drush/
+  - git clone https://github.com/drupalprojects/drush_recipes.git
+  - drush cc drush
+
+script:
+  # run build scripts against site1
+  - cd /var/www/site1
+  - drush dvr start
+  - drush site-install -y --db-url=mysql://root@localhost/travisdb --db-su='root' --db-su-pw=''
+  # run included recipes
+  - drush cook --y core_performance
+  - drush cook --y simple_performance_pack
+  - drush cook --y dr_security_core_settings
+  - drush cook --y dr_security
+  - drush cook --y dr_security_owasp
+  - drush cook --y dr_security_corp
+  - drush cook --y core_above_core
+  - drush cook --y crufty_core_off
+  - drush cook --y d7adminux
+  - drush cook --y d8ind7adminux
+  - drush dl registry_rebuild --y
+  - drush dl drush_ecl --y
+  - drush cook --y dr_safe_upgrade
+  # build site2 via recipes
+  - cd /var/www/site2
+  - drush cook dr_si,standard_baseline --y --mlt-profile=standard --mlt-db-url=mysql://root@localhost/travisdb --mlt-site-name="Site2"
+  # test some other commands
+  - drush ddt --test-run --y
+  - drush dvr watch
+  - drush dvr delete --command=si
+  - drush dvr watch
+  - drush dvr pause
+  - drush status
+  - drush dvr start
+  - drush cc all
+  - drush dvr watch
+  - drush dvr save --test-run
+  - drush dvr delete --y
+  - drush dvr watch
+  - drush dvr stop --test-run
+after_script:
+  - drush dlr
+
+notifications:
+  irc: irc.freenode.org#elmsln
+
+  email: false
+  slack:
+    rooms:
+      - elmsln:WmKTRMe7k3IjprunaAVV3Jjg#qa
+      - elmsln:WmKTRMe7k3IjprunaAVV3Jjg#code

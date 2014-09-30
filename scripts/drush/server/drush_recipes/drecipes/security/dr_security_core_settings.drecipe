@@ -1,0 +1,51 @@
+{
+  "name": "Drupal secure core settings",
+  "drush_recipes_api": "1.0",
+  "core": "7",
+  "weight": 0,
+  "dependencies": [
+    "@site"
+  ],
+  "recipe": [
+    {
+      "command": "ev",
+      "arguments": [
+        "variable_set(\"user_register\", USER_REGISTER_ADMINISTRATORS_ONLY);"
+      ]
+    },
+    {
+      "command": "vset",
+      "arguments": [
+        "error_level",
+        "0"
+      ]
+    },
+    {
+      "command": "vset",
+      "arguments": [
+        "contact_default_status",
+        "0"
+      ]
+    },
+    {
+      "command": "vset",
+      "arguments": [
+        "anonymous",
+        "Guest"
+      ]
+    },
+    {
+      "command": "vset",
+      "arguments": [
+        "user_email_verification",
+        "0"
+      ]
+    }
+  ],
+  "metadata": {
+    "type": "add-on",
+    "description": "Applies secure settings to drupal core modules",
+    "version": "1.0",
+    "author": "kristat"
+  }
+}

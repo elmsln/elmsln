@@ -1,0 +1,26 @@
+{
+	"name": "Crufty Core Off!",
+	"drush_recipes_api": "1.0",
+	"core": "7",
+	"weight": 0,
+	"recipe": [
+		{
+      "command": "dis",
+      "arguments": [
+        "toolbar,shortcut,overlay"
+      ]
+    },
+    {
+      "command": "pm-uninstall",
+      "arguments": [
+        "toolbar,shortcut,overlay"
+      ]
+    }
+	],
+	"metadata": {
+		"type": "add-on",
+		"description": "Disable core modules that most people don't like for admin ux",
+		"version": "1.0",
+		"author": "btopro"
+	}
+}

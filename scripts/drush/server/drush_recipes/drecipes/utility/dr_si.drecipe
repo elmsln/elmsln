@@ -1,0 +1,63 @@
+{
+  "name": "Site Install",
+  "drush_recipes_api": "1.0",
+  "weight": -10,
+  "recipe": {
+    "0": {
+      "madlib": "TRUE",
+      "command": "si",
+      "arguments": [
+        "[profile]"
+      ],
+      "options": {
+        "db-url": "[db-url]",
+        "db-prefix": "[db-prefix]",
+        "db-su": "[db-su]",
+        "db-su-pw": "[db-su-pw]",
+        "account-name": "[account-name]",
+        "account-pass": "[account-pass]",
+        "account-mail": "[account-mail]",
+        "locale": "[locale]",
+        "clean-url": "[clean-url]",
+        "site-name": "[site-name]",
+        "site-mail": "[site-mail]",
+        "sites-subdir": "[sites-subdir]"
+      },
+      "tokens": {
+        "[profile]": "the install profile you wish to run",
+        "[db-prefix]": "table prefix",
+        "[db-url]": "Enter the database url in the format of mysql://dbusername:dbpassword@localhost:port/dbname",
+        "[db-su]": "Root level mysql user (this information is not saved)",
+        "[db-su-pw]": "account password (this information is not saved)",
+        "[account-name]": "uid 1 name",
+        "[account-pass]": "uid 1 pass",
+        "[account-mail]": "uid 1 email",
+        "[locale]": "location",
+        "[clean-url]": "Clean URL support",
+        "[site-name]": "Name of the site",
+        "[site-mail]": "From: for system mailings.",
+        "[sites-subdir]": "Name of directory under sites which should be created. Only needed when the subdirectory does not already exist."
+      },
+      "defaults": {
+        "[profile]": "minimal",
+        "[db-prefix]": "",
+        "[db-su]": "root",
+        "[db-su-pw]": "",
+        "[account-name]": "admin",
+        "[account-pass]": "admin",
+        "[account-mail]": "admin@example.com",
+        "[locale]": "",
+        "[clean-url]": "1",
+        "[site-name]": "'Your new drupal site'",
+        "[site-mail]": "admin@example.com",
+        "[sites-subdir]": "default"
+      }
+    }
+  },
+  "metadata": {
+    "type": "routine",
+    "description": "Wrapper for Drush SI call so it can be madlib'ed",
+    "version": "1.0",
+    "author": "btopro"
+  }
+}

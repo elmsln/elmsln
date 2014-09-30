@@ -1,0 +1,26 @@
+{
+  "name": "Core above Core",
+  "drush_recipes_api": "1.0",
+  "core": "7",
+  "weight": 0,
+  "recipe": [
+    {
+      "command": "dl",
+      "arguments": [
+        "ctools,entity,module_filter,features,views_bulk_operations,libraries,jquery_update,pathauto,strongarm,prepopulate,token,field_group,date,link,entityreference,options_element,filefield_paths,uuid,rubik,tao,views"
+      ]
+    },
+    {
+      "command": "en",
+      "arguments": [
+        "ctools,entity,module_filter,features,views_bulk_operations,libraries,pathauto,token,field_group,date,link,entityreference,options_element,uuid,views"
+      ]
+    }
+  ],
+  "metadata": {
+    "description": "Enable projects you can not live without!",
+    "version": "1.0",
+    "type": "add-on",
+    "author": "btopro"
+  }
+}

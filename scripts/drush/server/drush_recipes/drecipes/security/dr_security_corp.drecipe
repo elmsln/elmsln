@@ -1,0 +1,105 @@
+{
+  "name": "Drupal corporate security",
+  "drush_recipes_api": "1.0",
+  "core": "7",
+  "weight": 0,
+  "recipe": [
+      "dr_security_owasp.drecipe",
+      {
+        "command": "en",
+        "arguments": [
+          "genpass,login_security,password_policy"
+        ]
+      },
+      {
+        "command": "vset",
+        "arguments": [
+          "genpass_length",
+          "14"
+        ]
+      },
+      {
+        "command": "vset",
+        "arguments": [
+          "genpass_mode",
+          "2"
+        ]
+      },
+      {
+        "command": "vset",
+        "arguments": [
+          "genpass_display",
+          "1"
+        ]
+      },
+      {
+        "command": "vset",
+        "arguments": [
+          "login_security_track_time",
+          "2"
+        ]
+      },
+      {
+        "command": "vset",
+        "arguments": [
+          "login_security_user_wrong_count",
+          "10"
+        ]
+      },
+      {
+        "command": "vset",
+        "arguments": [
+          "login_security_host_wrong_count",
+          "15"
+        ]
+      },
+      {
+        "command": "vset",
+        "arguments": [
+          "login_security_host_wrong_count_hard",
+          "25"
+        ]
+      },
+      {
+        "command": "vset",
+        "arguments": [
+          "login_security_activity_threshold",
+          "26"
+        ]
+      },
+      {
+        "command": "vset",
+        "arguments": [
+          "login_security_disable_core_login_error",
+          "1"
+        ]
+      },
+      {
+        "command": "vset",
+        "arguments": [
+          "password_policy_block",
+          "1"
+        ]
+      },
+      {
+        "command": "vset",
+        "arguments": [
+          "session_limit_behaviour",
+          "1"
+        ]
+      },
+      {
+        "command": "vset",
+        "arguments": [
+          "session_limit_masquerade_ignore",
+          "1"
+        ]
+      }
+  ],
+  "metadata": {
+    "type": "add-on",
+    "description": "Sets up modules for corporate security; this applies all over security recipes.",
+    "version": "1.0",
+    "author": "kristat"
+  }
+}

@@ -1,0 +1,24 @@
+{
+	"name": "D8 UX in D7",
+	"drush_recipes_api": "1.0",
+	"core": "7",
+	"weight": 0,
+	"conflicts": [
+		"d7adminux"
+  ],
+	"recipe": [
+		{
+      "command": "en",
+      "arguments": [
+        "navbar,module_filter"
+      ]
+    },
+		"crufty_core_off.drecipe"
+	],
+	"metadata": {
+		"type": 2,
+		"description": "Enables modules that backport parts of D8 Admin UX to D7",
+		"version": "1.0",
+		"author": "btopro"
+	}
+}
