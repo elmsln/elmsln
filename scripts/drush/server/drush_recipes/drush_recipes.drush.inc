@@ -1111,9 +1111,24 @@ function _drush_recipes_command_defaults(&$command) {
   if (!isset($command['options'])) {
     $command['options'] = array();
   }
-  $options = drush_get_global_options();
-  foreach ($options as $key => $details) {
+  // these are the options that we support passing down
+  $options = array(
+    'uri' => 'l',
+    'root' => 'r',
+    'verbose' => 'v',
+    'debug' => 'd',
+    'yes' => 'y',
+    'no' => 'n',
+    'simulate' => 's',
+    'pipe' => 'p',
+    'interactive' => 'ia',
+  );
+  // test if these are set as options globally
+  foreach ($options as $key => $short) {
     if (($val = drush_get_option($key, NULL)) !== NULL) {
+      $command['options'][$key] = $val;
+    }
+    if (($val = drush_get_option($short, NULL)) !== NULL) {
       $command['options'][$key] = $val;
     }
   }
