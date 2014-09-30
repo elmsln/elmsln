@@ -8,7 +8,7 @@
             "command": "dl",
             "arguments": [
                 "textbook-7.x-4.x-dev",
-                "wysiwyg",
+                "wysiwyg-7.x-2.x-dev",
                 "wysiwyg_template",
                 "video_filter",
                 "typogrify",
