@@ -169,6 +169,20 @@ function drush_recipes_drush_command() {
     ),
     'bootstrap' => DRUSH_BOOTSTRAP_MAX,
   );
+  $items['drush-recipes-upgrade'] = array(
+    'description' => dt('Search for recipes to execute against targets'),
+    'arguments' => array(
+      'pattern' => dt("Pattern of recipes to find"),
+      'location' => dt("Location to search against for matching recipes"),
+    ),
+    'allow-additional-options' => TRUE,
+    'aliases' => array('drup'),
+    'examples' => array(
+      'drush @courses-all drup /var/www/elmsln/upgrade/drush_recipes/' =>
+        'Run the dr_security recipe',
+    ),
+    'bootstrap' => DRUSH_BOOTSTRAP_MAX,
+  );
   return $items;
 }
 
@@ -187,6 +201,8 @@ function drush_recipes_drush_help($section) {
       return dt('Create a recipe to calculate the diff between systems.');
     case 'drush:drush-cook-recipes':
       return dt('Perform a series of drush recipes');
+    case 'drush:drush-recipes-upgrade':
+      return dt('Apply upgrades by spidering for aliases that match');
   /*  case 'drush:drush-dl':
       return dt('Download a file from a url');*/
     case 'drush:drush-validate-recipes':
@@ -194,6 +210,87 @@ function drush_recipes_drush_help($section) {
     case 'drush-recipe-recorder':
       return dt('Activate the Drush Recipe DVR to never miss a call again!');
   }
+}
+
+/**
+ * Drush command callback for drush-recipes-upgrade.
+ */
+function drush_drush_recipes_upgrade($pattern, $location) {
+  if (is_null($pattern) || is_null($location)) {
+    drush_log(dt('A partial file name and location must be supplied.'), 'error');
+    return FALSE;
+  }
+  // ensure we at least reached a drupal site bootstrap
+  $bootstrap = drush_get_context('DRUSH_BOOTSTRAP_PHASE');
+  if ($bootstrap == DRUSH_BOOTSTRAP_DRUSH) {
+    drush_log(dt('You must have a fully loaded site to use this command.'), 'error');
+    return FALSE;
+  }
+  $command = array(
+    'command' => 'cook',
+  );
+  _drush_recipes_command_defaults($command);
+  if (empty($command['target'])) {
+    drush_log(dt('You must define a site alias to use this command.'), 'error');
+    return FALSE;
+  }
+  $recipe_pattern = '/^' . DRUPAL_PHP_FUNCTION_PATTERN . '\.' . DRUSH_RECIPE_EXTENSION . '/';
+  // find recipes in the drecipes directory
+  $recipes = _drush_recipes_drupal_system_listing($recipe_pattern, $location);
+  // see if we've upgraded anything previously
+  $last = variable_get('drup_last_upgrade', array());
+  // alert the user upgrades of this nature have never run previously
+  if (empty($last)) {
+    drush_log(dt('Drush upgrade command has never been run on this site, just letting you know!'), 'ok');
+    $last = array($pattern => 999);
+  }
+  else {
+    // alert them they've never run upgrades of this pattern previously
+    if (!isset($last[$pattern])) {
+      drush_log(dt('Drush upgrades of this pattern have never run previously, just letting you know!'), 'ok');
+      $last[$pattern] = 999;
+    }
+  }
+  $matches = array();
+  // scan each and match it against the alias if we can
+  foreach ($recipes as $recipe) {
+    // look for the alias in the recipe name
+    if (strpos($recipe->name, $pattern) !== FALSE) {
+      $basename = $recipe->basename;
+      $num = array_pop(explode('_', str_replace('.' . DRUSH_RECIPE_EXTENSION, '', $basename)));
+      // if num is higher then stored value, we have new recipes to run!
+      if ($num > $last[$pattern]) {
+        $matches[$recipe->name] = array(
+          'name' => $recipe->name,
+          'path' => str_replace($recipe->basename, '', $recipe->filename),
+          'num' => $num,
+          'basename' => $recipe->basename,
+        );
+      }
+    }
+  }
+  ksort($matches);
+  // drop out if nothing matched this upgrade pattern
+  if (empty($matches)) {
+    drush_log(dt('No recipes matched the supplied pattern for site upgrade'), 'warning');
+    return TRUE;
+  }
+  // confirm they want to do this
+  drush_print_r($matches);
+  if (drush_confirm(dt('You are about to execute the above recipes as part of this upgrade'))) {
+    foreach ($matches as $recipe_info){
+      $tmpcommand = $command;
+      $tmpcommand['arguments'][] = $recipe_info['name'];
+      $tmpcommand['options']['dr-locations'] = $recipe_info['path'];
+      $last[$pattern] = $recipe_info['num'];
+      // invoke this process for the command
+      drush_invoke_process($tmpcommand['target'], $tmpcommand['command'], $tmpcommand['arguments'], $tmpcommand['options']);
+      variable_set('drup_last_upgrade', $last);
+    }
+    drush_log(dt('Upgrade complete!'), 'ok');
+    return TRUE;
+  }
+  return drush_user_abort();
 }
 
 /**
@@ -678,7 +775,7 @@ function _drush_drush_recipes_drush_write_recipe($items = NULL, $test_run = FALS
       3 => 'utility',
     );
     // prompt for the user with the default option
-    while (!$type = drush_choice_with_custom_defaults($recipe_types, 'add-on', dt('What type of recipe is this?'), '!value'))
+    while (!$type = drush_choice_with_custom_defaults($recipe_types, 'add-on', dt('What type of recipe is this?'), '!value'));
     // author is optional
     $author = drush_prompt(dt('Recipe author'), NULL, FALSE);
   }
@@ -768,11 +865,16 @@ function _drush_drush_recipes_drush_write_recipe($items = NULL, $test_run = FALS
     'recipe' => $items,
     'metadata' => array(
       'type' => $type,
-      'description' => $description,
       'version' => $version,
-      'author' => $author,
     )
   );
+  // ensure that author and description aren't set to null
+  if (!is_null($author)) {
+    $recipe['metadata']['author'] = $author;
+  }
+  if (!is_null($description)) {
+    $recipe['metadata']['description'] = $description;
+  }
 
   $formats = array(
     'json' => 'json',
