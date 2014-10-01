@@ -175,11 +175,10 @@ function drush_recipes_drush_command() {
       'pattern' => dt("Pattern of recipes to find"),
       'location' => dt("Location to search against for matching recipes"),
     ),
-    'allow-additional-options' => TRUE,
     'aliases' => array('drup'),
     'examples' => array(
-      'drush @courses-all drup /var/www/elmsln/upgrade/drush_recipes/' =>
-        'Run the dr_security recipe',
+      'drush @devsite drup d7_dev /var/www/deployments/' =>
+        'Search in /var/www/deployments/ for .drecipe files that include d7_dev in the name and then execute them against @devsite. Wow.',
     ),
     'bootstrap' => DRUSH_BOOTSTRAP_MAX,
   );
