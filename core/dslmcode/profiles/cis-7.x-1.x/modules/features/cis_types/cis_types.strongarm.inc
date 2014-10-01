@@ -1207,7 +1207,7 @@ function cis_types_strongarm() {
   $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
   $strongarm->api_version = 1;
   $strongarm->name = 'pathauto_node_course_pattern';
-  $strongarm->value = '[node:title]';
+  $strongarm->value = '[node:field_machine_name]';
   $export['pathauto_node_course_pattern'] = $strongarm;
 
   $strongarm = new stdClass();
@@ -1221,7 +1221,7 @@ function cis_types_strongarm() {
   $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
   $strongarm->api_version = 1;
   $strongarm->name = 'pathauto_node_resource_pattern';
-  $strongarm->value = 'resources/[node:title]';
+  $strongarm->value = 'resources/[node:field_machine_name]';
   $export['pathauto_node_resource_pattern'] = $strongarm;
 
   $strongarm = new stdClass();
@@ -1235,7 +1235,7 @@ function cis_types_strongarm() {
   $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
   $strongarm->api_version = 1;
   $strongarm->name = 'pathauto_node_service_pattern';
-  $strongarm->value = 'service/[node:nid]';
+  $strongarm->value = 'service/[node:field_machine_name]';
   $export['pathauto_node_service_pattern'] = $strongarm;
 
   $strongarm = new stdClass();
