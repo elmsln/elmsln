@@ -238,16 +238,21 @@ function drush_drush_recipes_upgrade($pattern, $location) {
   $recipes = _drush_recipes_drupal_system_listing($recipe_pattern, $location);
   // see if we've upgraded anything previously
   $last = variable_get('drup_last_upgrade', array());
+  $install_time = variable_get('install_time', 0);
+  if ($install_time == 0) {
+    drush_log(dt("install_time is not set for the site which means that if any updates are found, ALL of them will be applied. This is only possible on an installation that's corrupted in some way. Just letting you know!"), 'warning');
+  }
   // alert the user upgrades of this nature have never run previously
   if (empty($last)) {
     drush_log(dt('Drush upgrade command has never been run on this site, just letting you know!'), 'ok');
-    $last = array($pattern => 999);
+    // default the last time updates were applied to the site's install time
+    $last = array($pattern => $install_time);
   }
   else {
     // alert them they've never run upgrades of this pattern previously
     if (!isset($last[$pattern])) {
       drush_log(dt('Drush upgrades of this pattern have never run previously, just letting you know!'), 'ok');
-      $last[$pattern] = 999;
+      $last[$pattern] = $install_time;
     }
   }
   $matches = array();

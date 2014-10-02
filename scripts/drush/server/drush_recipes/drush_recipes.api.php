@@ -13,6 +13,39 @@
 // or
 // $options['dr_locations'] = array('/drushstuff', '/drecipes');
 
+// drush recipes upgrade spidering (drup)
+
+// drup allows for spidering a directory and abstracting recipes to run
+// based on the name that's been passed in. The basic structure of the file
+// name should match the aliases that you have (recommended not required):
+//   folder structure:
+//   /upgrades/{version}/{alias with . changed to /}/
+//   file name to match:
+//   {version}_{alias with . changed to _}_{timestamp}.drecipe
+//
+//   examples:
+//
+//   alias: @ourwebsite.dev
+//   path : /upgrades/d7/ourwebsite/dev/
+//   file : d7_ourwebsite_dev_1390936501.drecipe
+//   drush: drush @ourwebsite.dev drup d7_ourwebsite_dev /upgrades
+//
+//   alias: @elmsln.courses-all
+//   path : elmsln/scripts/upgrade/drush_recipes/d7/elmsln/courses-all/
+//   file : d7_elmsln_courses-all_1630936501.drecipe
+//   drush: drush @courses-all drup d7_elmsln_courses-all elmsln/scripts/upgrade/drush_recipes
+//
+//   alias: @elmsln.courses.art010
+//   path : elmsln/scripts/upgrade/drush_recipes/d7/elmsln/courses-all/
+//   file : d7_elmsln_courses_art010_1630936991.drecipe
+//   drush: drush @courses.art010 drup d7_elmsln_courses_art010 elmsln/scripts/upgrade/drush_recipes
+//
+// while you can use other conventions for your project, the above ensures
+// that your drecipe files never conflict between builds even if you would
+// accidentally save one to the wrong location. The name matching in the initial
+// call helps ensure this, though the convention has admittedly been produced
+// to help with the long term management and maintenance of distributions.
+
 // HOOKS
 
 /**
