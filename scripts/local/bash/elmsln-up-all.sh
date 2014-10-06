@@ -35,6 +35,8 @@ else
   elmslnecho "going to start working against $line"
   # setup line, not required but can help w/ upgrades that hang
   $line "cd ~/elmsln && git pull origin master && rm /tmp/elmsln-upgrade-lock" < /dev/null
+  # reup the config directory
+  $line "cd ~/elmsln/config && git pull origin master" < /dev/null
   # things are in place, run the actual command
   $line "bash ~/elmsln/scripts/upgrade/elmsln-upgrade-sites.sh master yes && drush @online status;" < /dev/null
 fi
