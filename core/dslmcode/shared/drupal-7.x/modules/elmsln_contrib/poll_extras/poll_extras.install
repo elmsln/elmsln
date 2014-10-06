@@ -2,17 +2,13 @@
 /**
  * @file
  * Install, update and uninstall functions for the poll_extras module.
- *
  */
-
 
 /**
  * Implements hook_install().
  */
 function poll_extras_install() {
   db_query("ALTER TABLE {poll} ADD COLUMN message text AFTER active");
-  // TODO Please review the conversion of this statement to the D7 database API syntax.
-  /* db_query("UPDATE {system} SET weight = 10 WHERE name = 'poll_extras' AND type = 'module'") */
   db_update('system')
   ->fields(array(
     'weight' => 10,
@@ -20,19 +16,6 @@ function poll_extras_install() {
   ->condition('name', 'poll_extras')
   ->condition('type', 'module')
   ->execute();
-}
-
-/**
- * Increate the weight of spaces_og_clone.
- */
-function poll_extras_update_6101() {
-  $ret = array();
-  // TODO update_sql has been removed. Use the database API for any schema or data changes.
-  $ret[] = array() /* update_sql("UPDATE {system} SET weight = 10 WHERE name = 'poll_extras' AND type ='module'") */;
-  // hook_update_N() no longer returns a $ret array. Instead, return
-  // nothing or a translated string indicating the update ran successfully.
-  // See http://drupal.org/node/224333#update_sql.
-  return t('TODO Add a descriptive string here to show in the UI.') /* $ret */;
 }
 
 /**
@@ -46,7 +29,7 @@ function poll_extras_uninstall() {
  * Implements hook_schema_alter().
  */
 function poll_extras_schema_alter(&$schema) {
-  //add support for custom message to display if unable to view a poll
+  // add support for custom message to display if unable to view a poll
   $schema['poll']['fields']['message'] = array(
     'description' => 'The message to display if the user is not allowed to view results',
     'type' => 'text',
