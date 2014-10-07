@@ -70,6 +70,8 @@ before_script:
 script:
   # run the installer
   - bash /var/www/elmsln/scripts/install/elmsln-install.sh
+  - drush @online cc drush
+  - drush @online uli
   - drush @online cis-ci sing100 fakesection001
   - sudo bash /var/www/elmsln/scripts/drush-create-site/drush-create-site
 
@@ -77,7 +79,6 @@ after_script:
   - ls /var/www/elmsln/config/jobs
   - ls /var/www/elmsln/config/stacks/courses/sites/courses/tc/
   - drush sa
-  - drush @online uli
 
 notifications:
   irc: irc.freenode.org#elmsln
