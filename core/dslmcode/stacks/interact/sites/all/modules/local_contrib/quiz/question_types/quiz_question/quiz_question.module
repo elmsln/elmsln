@@ -49,7 +49,7 @@ function quiz_question_menu() {
  * Implements hook_theme().
  */
 function quiz_question_theme() {
-  return array(
+  $hooks = array(
     'quiz_question_creation_form' => array(
       'render element' => 'form',
       'file' => 'quiz_question.theme.inc',
@@ -59,6 +59,13 @@ function quiz_question_theme() {
       'file' => 'quiz_question.theme.inc',
     ),
   );
+
+  $hooks['quiz_question_feedback'] = array(
+    'variables' => NULL,
+    'pattern' => 'quiz_question_feedback__',
+  );
+
+  return $hooks;
 }
 
 /**
@@ -176,10 +183,12 @@ function quiz_question_answering_form($form, $form_state, $nodes, $result_id) {
     // Hide the label of the body field if this is an informative question.
     $options = !$question->isGraded() ? array('label' => 'hidden') : array();
 
+    node_build_content($node);
+    unset($node->content['answers']);
     $form['questions'][$node->nid] = array(
       '#attributes' => array('class' => array($class)),
       '#type' => 'container',
-      'header' => field_view_field('node', $node, 'body', $options),
+      'header' => $node->content,
       'question' => array('#tree' => TRUE, $node->nid => $element),
     );
 
@@ -259,8 +268,9 @@ function quiz_question_answering_form($form, $form_state, $nodes, $result_id) {
  */
 function quiz_question_answering_form_submit_blank($form, &$form_state) {
   $quiz = node_load(arg(1));
-  $questions = quiz_build_question_list($quiz);
   $result_id = $_SESSION['quiz'][$quiz->nid]['result_id'];
+  $quiz_result = quiz_result_load($result_id);
+  $questions = $quiz_result->layout;
   foreach ($form_state['input']['question'] as $nid => $input) {
     // Loop over all question inputs provided, and record them as skipped.
     $question = node_load($nid);
@@ -280,7 +290,7 @@ function quiz_question_answering_form_submit_blank($form, &$form_state) {
 
   // Advance to next question.
   quiz_question_goto($quiz, $_SESSION['quiz'][$quiz->nid]['current'] + 1);
-  $form_state['redirect'] = "node/{$quiz->nid}/take/" . ($_SESSION['quiz'][$quiz->nid]['current'] + 1);
+  $form_state['redirect'] = "node/{$quiz->nid}/take/" . $_SESSION['quiz'][$quiz->nid]['current'];
 }
 
 /**
@@ -753,10 +763,8 @@ function _quiz_question_response_get_instance($result_id, $question, $answer = N
   }
   // If the question node isn't set we fetch it from the QuizQuestion instance this responce belongs to
   if (!isset($question)) {
-    $dummy_node = new stdClass();
-    $dummy_node->nid = $nid;
-    $dummy_node->vid = $vid;
-    $question = _quiz_question_get_instance($dummy_node, TRUE)->node;
+    $question_node = node_load($nid, $vid);
+    $question = _quiz_question_get_instance($question_node, TRUE)->node;
   }
   if (!$question) {
     return FALSE;
@@ -906,6 +914,8 @@ function quiz_question_report_form($question, $showpoints, $showfeedback, $allow
     $response_instance->question->score_weight = ($qnr_max_score == 0 || $response_instance->question->max_score == 0) ? 0 : ($qnr_max_score / $response_instance->question->max_score);
   }
 
+  $showpoints = $response_instance->canReview('score');
+  $showfeedback = $response_instance->canReview('answer_feedback');
   return $response_instance->getReportForm($showpoints, $showfeedback, $allow_scoring);
 }
 
@@ -942,7 +952,8 @@ function quiz_question_add_body_field($type) {
  * Return a form with question feedback.
  */
 function quiz_question_feedback($quiz, $question) {
-  if (!empty($_SESSION['quiz']['temp']['result_id'])) {
+
+  if (empty($_SESSION['quiz'][$quiz->nid]['result_id'])) {
     $result_id = $_SESSION['quiz']['temp']['result_id'];
   }
   else {
@@ -993,7 +1004,7 @@ function quiz_question_answering_form_submit(&$form, &$form_state) {
   }
 
   // Wat do?
-  if ($quiz->feedback_time == QUIZ_FEEDBACK_QUESTION) {
+  if (!empty($quiz->review_options['question']) && array_filter($quiz->review_options['question'])) {
     // We have question feedback.
     $form_state['redirect'] = "node/$quiz->nid/take/" . ($_SESSION['quiz'][$quiz->nid]['current'] - 1) . '/feedback';
   }
@@ -1004,11 +1015,11 @@ function quiz_question_answering_form_submit(&$form, &$form_state) {
 
   if (!isset($quiz_result->layout[$_SESSION['quiz'][$quiz->nid]['current']])) {
     // No more questions. Score quiz.
-    $score = quiz_end_scoring($quiz, $_SESSION['quiz'][$quiz->nid]['result_id']);
+    $score = quiz_end_scoring($_SESSION['quiz'][$quiz->nid]['result_id']);
 
     // Delete old results if necessary.
     _quiz_maintain_results($quiz, $quiz_result->result_id);
-    if ($quiz->feedback_time != QUIZ_FEEDBACK_QUESTION) {
+    if (empty($quiz->review_options['question']) || !array_filter($quiz->review_options['question'])) {
       // Only redirect to question results if there is not question feedback.
       $form_state['redirect'] = "node/{$quiz->nid}/quiz-results/{$quiz_result->result_id}/view";
     }
@@ -1035,7 +1046,7 @@ function quiz_question_answering_form_submit_back(&$form, &$form_state) {
   quiz_question_goto($quiz, $_SESSION['quiz'][$quiz->nid]['current'] - 1);
   $quiz_result = quiz_result_load($_SESSION['quiz'][$quiz->nid]['result_id']);
   $question = $quiz_result->layout[$_SESSION['quiz'][$quiz->nid]['current']];
-  if ($question['qnr_pid']) {
+  if (!empty($question['qnr_pid'])) {
     foreach ($quiz_result->layout as $question2) {
       if ($question2['qnr_id'] == $question['qnr_pid']) {
         quiz_question_goto($quiz, $question2['number']);
@@ -1114,9 +1125,28 @@ function quiz_question_element_validate(&$element, &$form_state) {
   if ($quiz->repeat_until_correct && !$result->isCorrect()) {
     form_set_error('', t('The answer was incorrect. Please try again.'));
 
+    $feedback = quiz_question_feedback($quiz, $current_question);
     $element['feedback'] = array(
       '#weight' => 100,
-      '#markup' => drupal_render(quiz_question_feedback($quiz, $current_question)),
+      '#markup' => drupal_render($feedback),
     );
   }
+}
+
+/**
+ * Theme the feedback for any question type.
+ */
+function theme_quiz_question_feedback($variables) {
+  $rows = $variables['data'];
+  $headers = array_intersect_key($variables['labels'], $rows[0]);
+
+  return theme('table', array('header' => $headers, 'rows' => $rows));
+
+}
+
+/**
+ * Helper function to faciliate icon display, like "correct" or "selected".
+ */
+function quiz_icon($icon) {
+  return theme('quiz_answer_result', array('type' => $icon));
 }

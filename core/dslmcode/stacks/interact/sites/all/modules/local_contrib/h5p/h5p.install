@@ -39,6 +39,7 @@ function h5p_uninstall() {
   variable_del('h5p_library_whitelist_extras');
   variable_del('h5p_whitelist');
   variable_del('h5p_icon_in_action_bar');
+  variable_del('h5p_unsupported_libraries');
 }
 
 /**
@@ -58,6 +59,13 @@ function _h5p_recursive_unlink($file) {
   elseif (file_exists($file)) {
     unlink($file); // TODO: Remove from file_managed!!
   }
+}
+
+function h5p_enable() {
+  if (function_exists('views_invalidate_cache')) {
+    views_invalidate_cache();
+  }
+  h5p_validate_library_support();
 }
 
 /**
@@ -540,6 +548,12 @@ function h5p_update_6105(&$sandbox) {
   }
 }
 
+/**
+ * Implementation of hook_update_N().
+ *
+ * Adds the h5p_points-table, which stores user statistics.
+ * 
+ */
 function h5p_update_7100(&$sandbox) {
   db_create_table('h5p_points', array(
     'description' => 'Stores user statistics.',
@@ -587,6 +601,42 @@ function h5p_update_7100(&$sandbox) {
 }
 
 /**
+ * Implementation of hook_update_N().
+ *
+ * Invalidates views cache so that the new default views will be installed
+ *
+ */
+function h5p_update_7101() {
+  if (function_exists('views_invalidate_cache')) {
+    views_invalidate_cache();
+  }
+}
+
+/**
+ * Implementation of hook_update_N().
+ *
+ * Check if any of the installed H5P libraries are not supported by the current 
+ * H5P core version
+ *
+ */
+function h5p_update_7102() {
+  h5p_validate_library_support();
+}
+
+/**
+ * Check if any library installed is unsupported by core
+ */
+function h5p_validate_library_support() {
+  require_once drupal_get_path('module', 'h5p') . '/library/h5p-development.class.php';
+  require_once drupal_get_path('module', 'h5p') . '/library/h5p.classes.php';
+  require_once drupal_get_path('module', 'h5p') . '/h5p.classes.inc';
+  
+  $core = _h5p_get_instance('core');
+  // Force check
+  $core->validateLibrarySupport(true);
+}
+
+/**
  * (re)Save all dependencies for given content.
  * This will given content nodes a relation to all libraries used by it's main library.
  *
@@ -605,5 +655,18 @@ function h5p_save_content_dependencies($content) {
   $dependencies = array();
   $core->findLibraryDependencies($dependencies, $library);
   
-  $i->saveLibraryUsage($content->id, $dependencies);
+  $dropLibraryCssList = array();
+  foreach ($dependencies as $dependency) {
+    if (!empty($dependency['library']['dropLibraryCss'])) {
+      $dropLibraryCssList = array_merge($dropLibraryCssList, explode(', ', $dependency['library']['dropLibraryCss']));
+    }
+  }
+  
+  foreach ($dependencies as $dependency) {
+    $dropCss = in_array($dependency['library']['machineName'], $dropLibraryCssList) ? 1 : 0;
+    db_merge('h5p_nodes_libraries')
+    ->key(array('content_id' => $content->id, 'library_id' => $dependency['library']['libraryId'], 'dependency_type' => $dependency['type']))
+    ->fields(array('drop_css' => $dropCss))
+    ->execute();
+  }
 }

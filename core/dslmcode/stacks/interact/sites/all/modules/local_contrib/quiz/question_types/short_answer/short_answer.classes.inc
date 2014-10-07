@@ -433,88 +433,31 @@ class ShortAnswerResponse extends QuizQuestionResponse {
 
   /**
    * Implementation of getReportFormResponse
-   *
-   * @see QuizQuestionResponse#getReportFormResponse($showpoints, $showfeedback, $allow_scoring)
    */
-  public function getReportFormResponse($showpoints = TRUE, $showfeedback = TRUE, $allow_scoring = FALSE) {
-    $form = array();
-    $form['#theme'] = 'short_answer_response_form';
-    if ($this->question && !empty($this->question->answers)) {
-      $answer = (object) current($this->question->answers);
-    }
-    else {
-      return $form;
-    }
+  public function getReportFormResponse() {
+    $data = array();
 
-    if (!$this->getQuizQuestion()->viewCanRevealCorrect()) {
-      $this->question->correct_answer = t('Answer hidden');
-    }
-
-    $form['answer'] = array(
-      '#markup' => theme('short_answer_user_answer', array('answer' => check_plain($answer->answer), 'correct' => check_plain($this->question->correct_answer))),
+    $data[] = array(
+      'choice' => '',
+      'attempt' => $this->answer,
+      'correct' => !$this->evaluated ? t('This answer has not yet been scored.') : '',
+      'score' => $this->getScore(),
+      'answer_feedback' => check_markup($this->answer_feedback, $this->answer_feedback_format),
+      'question_feedback' => '',
+      'solution' => '',
     );
 
-    if ($answer->is_evaluated == 1) {
-      // Show feedback, if any.
-      if ($showfeedback && !empty($answer->feedback)) { // @todo: Feedback doesn't seem to be in use anymore...
-        $feedback = check_markup($answer->feedback);
-      }
-    }
-    else {
-      $feedback = t('This answer has not yet been scored.') .
-        '<br/>' .
-        t('Until the answer is scored, the total score will not be correct.');
-    }
-
-    if (!$allow_scoring && !empty($this->answer_feedback)) {
-      $form['answer_feedback'] = array(
-        '#title' => t('Feedback'),
-        '#type' => 'item',
-        '#markup' => '<span class="quiz_answer_feedback">' . check_markup($this->answer_feedback, $this->answer_feedback_format) . '</span>',
-      );
-    }
-    if (!empty($feedback)) {
-      $form['feedback'] = array(
-        '#markup' => '<span class="quiz_answer_feedback">' . $feedback . '</span>',
-      );
-    }
-    return $form;
+    return $data;
   }
 
-  /**
-   * Implementation of getReportFormScore
-   *
-   * @see QuizQuestionResponse#getReportFormScore($showpoints, $showfeedback, $allow_scoring)
-   */
-  public function getReportFormScore($showfeedback = TRUE, $showpoints = TRUE, $allow_scoring = FALSE) {
-    $score = ($this->isEvaluated()) ? $this->getScore() : '?';
-    if (quiz_access_to_score() && $allow_scoring) {
-      return array(
-        '#type' => 'textfield',
-        '#default_value' => $score,
-        '#size' => 3,
-        '#maxlength' => 3,
-        '#attributes' => array('class' => array('quiz-report-score')),
-      );
-    }
-    else {
-      return array(
-        '#markup' => $score,
-      );
-    }
-  }
-
-  public function getReportFormAnswerFeedback($showpoints = TRUE, $showfeedback = TRUE, $allow_scoring = FALSE) {
-    if (quiz_access_to_score() && $allow_scoring && $this->question->correct_answer_evaluation == ShortAnswerQuestion::ANSWER_MANUAL) {
-      return array(
-        '#title' => t('Enter feedback'),
-        '#type' => 'text_format',
-        '#default_value' => $this->answer_feedback,
-        '#format' => isset($this->answer_feedback_format) ? $this->answer_feedback_format : NULL,
-        '#attributes' => array('class' => array('quiz-report-score')),
-      );
-    }
-    return FALSE;
+  public function getReportFormAnswerFeedback() {
+    return array(
+      '#title' => t('Enter feedback'),
+      '#type' => 'text_format',
+      '#default_value' => $this->answer_feedback,
+      '#format' => isset($this->answer_feedback_format) ? $this->answer_feedback_format : filter_default_format(),
+      '#attributes' => array('class' => array('quiz-report-score')),
+    );
   }
 
   /**
@@ -522,23 +465,18 @@ class ShortAnswerResponse extends QuizQuestionResponse {
    *
    * @see QuizQuestionResponse#getReportFormSubmit($showfeedback, $showpoints, $allow_scoring)
    */
-  public function getReportFormSubmit($showfeedback = TRUE, $showpoints = TRUE, $allow_scoring = FALSE) {
-    if (quiz_access_to_score() && $allow_scoring) {
-      return $allow_scoring ? 'short_answer_report_submit' : FALSE;
-    }
-    return FALSE;
+  public function getReportFormSubmit() {
+    return 'short_answer_report_submit';
   }
 
   /**
-   * Implementation of getReportFormValidate
-   *
-   * @see QuizQuestionResponse#getReportFormValidate($showfeedback, $showpoints, $allow_scoring)
+   * Implements QuizQuestionResponse::getReportFormValidate().
    */
-  public function getReportFormValidate($showfeedback = TRUE, $showpoints = TRUE, $allow_scoring = FALSE) {
-    if (quiz_access_to_score() && $allow_scoring) {
-      return $allow_scoring ? 'short_answer_report_validate' : FALSE;
+  public function getReportFormValidate(&$element, &$form_state) {
+    // Check to make sure that entered score is not higher than max allowed score.
+    if ($element['score']['#value'] > $this->question->max_score) {
+      form_error($element['score'], t('The score needs to be a number between 0 and @max', array('@max' => $this->question->max_score)));
     }
-    return FALSE;
   }
 
 }

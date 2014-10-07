@@ -1,6 +1,5 @@
 <?php
 
-
 /**
  * @file
  * Administration file for Quiz stats Module
@@ -182,9 +181,9 @@ function _get_quiz_status_chart($vid, $uid = 0) {
     return;
   }
   // get the count value of results row above and below pass rate
-  $quiz = db_query("SELECT SUM(score > $pass_rate) AS no_pass, SUM(score < $pass_rate) AS no_fail, SUM(score = 0) AS no_incomplete FROM {quiz_node_results} WHERE vid = :vid", array(':vid' => $vid))
+  $quiz = db_query("SELECT SUM(score >= $pass_rate) AS no_pass, SUM(score < $pass_rate) AS no_fail, SUM(is_evaluated = 0) AS no_incomplete FROM {quiz_node_results} WHERE vid = :vid", array(':vid' => $vid))
     ->fetchAssoc();
-  if (($quiz['no_pass'] + $quiz['no_fail'] + $quiz['no_incomplete']) < 3) {
+  if (($quiz['no_pass'] + $quiz['no_fail'] + $quiz['no_incomplete']) < 1) {
     return FALSE; // no sufficient data
   }
   // generates quiz status chart 3D pie chart
@@ -286,48 +285,44 @@ function _quiz_get_attempt_count($nid, $uid = 0) {
  */
 function theme_quiz_grade_range($variables) {
   $range = $variables['range'];
-  $chart_width = 600;
-  $chart_height = 400;
+
+  $max = max((array) $range);
+  $count = array_sum((array) $range);
 
   $chart = array(
-    '#chart_id' => 'quiz_grade_range',
-    '#type' => CHART_TYPE_BAR_V_GROUPED,
-    '#size' => chart_size($chart_width, $chart_height),
-    '#grid_lines' => chart_grid_lines(10, 10),
-    '#bar_size' => chart_bar_size(20, 15),
-    '#adjust_resolution' => TRUE,
-    '#title' => '',
+    '#type' => 'chart',
+    '#chart_type' => 'column',
+    '#title' => t('Score distribution'),
   );
-  // chart data
-  $chart['#data'][][] = $range->eighty_to_hundred;
-  $chart['#data'][][] = $range->sixty_to_eighty;
-  $chart['#data'][][] = $range->fourty_to_sixty;
-  $chart['#data'][][] = $range->twenty_to_fourty;
-  $chart['#data'][][] = $range->zero_to_twenty;
-
-  $max = max($range->zero_to_twenty,
-             $range->twenty_to_fourty,
-             $range->fourty_to_sixty,
-             $range->sixty_to_eighty,
-             $range->eighty_to_hundred);
-  // chart color
-  $chart['#data_colors'][] = '00ff00';
-  $chart['#data_colors'][] = '66ff00';
-  $chart['#data_colors'][] = 'ffff00';
-  $chart['#data_colors'][] = 'ff6600';
-  $chart['#data_colors'][] = 'ff0000';
-  // chart x-axis label
-  $chart['#mixed_axis_labels'][CHART_AXIS_X_BOTTOM][2][] = chart_mixed_axis_label(t('Quiz Grade Range'), 50);
-  // chart y-axis label and data
-  $chart['#mixed_axis_labels'][CHART_AXIS_Y_LEFT][1][] = chart_mixed_axis_label(t('Attempts'), 100);
-  $chart['#mixed_axis_labels'][CHART_AXIS_Y_LEFT][0][] = chart_mixed_axis_range_label(0, $max);
-  // chart description on the right side
-  $chart['#legends'][] = t('80 to 100 % - ') . $range->eighty_to_hundred;
-  $chart['#legends'][] = t('60 to 80 % - ') . $range->sixty_to_eighty;
-  $chart['#legends'][] = t('40 to 60 % - ') . $range->fourty_to_sixty;
-  $chart['#legends'][] = t('20 to 40 % - ') . $range->twenty_to_fourty;
-  $chart['#legends'][] = t('0 to 20 % - ') . $range->zero_to_twenty;
-  return theme('chart', array('chart' => $chart));
+  $chart['range'] = array(
+    '#type' => 'chart_data',
+    '#title' => t('% of quiz takers'),
+    '#data' => array(
+      ($range->zero_to_twenty / $count) * 100,
+      $range->twenty_to_fourty / $count * 100,
+      $range->fourty_to_sixty / $count * 100,
+      $range->sixty_to_eighty / $count * 100,
+      $range->eighty_to_hundred / $count * 100,
+    ),
+    '#suffix' => '%',
+  );
+  $chart['xaxis'] = array(
+    '#title' => 'Score',
+    '#type' => 'chart_xaxis',
+    '#labels' => array(
+      '0-20%',
+      '20-40%',
+      '40-60%',
+      '60-80%',
+      '80-100%',
+    ),
+  );
+  $chart['yaxis'] = array(
+    '#title' => 'Distribution',
+    '#type' => 'chart_yaxis',
+    '#max' => $max * 100,
+  );
+  return drupal_render($chart);
 }
 
 /**
@@ -372,30 +367,24 @@ function theme_quiz_top_scorers($variables) {
 function theme_get_quiz_status_chart($variables) {
   $quiz = $variables['quiz'];
   $quiz['total'] = $quiz['no_pass'] + $quiz['no_fail'] + $quiz['no_incomplete'];
+
   $chart = array(
-    '#chart_id' => 'quiz_status_chart',
-    '#title' => t('Quiz Status Chart'),
-    '#type' => CHART_TYPE_PIE_3D,
-    '#size' => chart_size(500, 200),
-    '#adjust_resolution' => TRUE,
+    '#type' => 'chart',
+    '#title' => t('Quiz results'),
+    '#chart_type' => 'pie',
   );
-  $chart['#data'] = array(
-    'pass' => $quiz['no_pass'],
-    'incomplete' => $quiz['no_incomplete'],
-    'fail' => $quiz['no_fail'],
+
+  $chart['pie_data'] = array(
+    '#type' => 'chart_data',
+    '#title' => t('Result'),
+    '#labels' => array('Pass', 'Incomplete', 'Fail'),
+    '#data' => array(
+      ($quiz['no_pass'] / $quiz['total']) * 100,
+      ($quiz['no_incomplete'] / $quiz['total']) * 100,
+      ($quiz['no_fail'] / $quiz['total']) * 100,
+    ),
   );
-  $chart['#data_colors'] = array(
-    'pass' => '00ff00',
-    'incomplete' => 'ffff00',
-    'fail' => 'ff0000',
-  );
-  ini_set('precision', '3');
-  $chart['#legends'] = array(
-    'pass' => ($quiz['no_pass'] / $quiz['total']) * 100 . t('% pass'),
-    'incomplete' => ($quiz['no_incomplete'] / $quiz['total']) * 100 . t('% incomplete'),
-    'fail' => ($quiz['no_fail'] / $quiz['total']) * 100 . t('% fail'),
-  );
-  return theme('chart', array('chart' => $chart));
+  return drupal_render($chart);
 }
 
 /**

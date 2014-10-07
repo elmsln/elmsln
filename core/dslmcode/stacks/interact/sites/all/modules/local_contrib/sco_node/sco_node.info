@@ -9,9 +9,9 @@ files[] = sco_node.views.inc
 
 
 
-; Information added by Drupal.org packaging script on 2014-04-18
+; Information added by Drupal.org packaging script on 2014-07-29
 version = "7.x-1.x-dev"
 core = "7.x"
 project = "sco_node"
-datestamp = "1397838608"
+datestamp = "1406640228"
 

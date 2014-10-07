@@ -124,6 +124,7 @@ $handler->display->display_options['fields']['nid']['id'] = 'nid';
 $handler->display->display_options['fields']['nid']['table'] = 'quiz_node_results';
 $handler->display->display_options['fields']['nid']['field'] = 'nid';
 $handler->display->display_options['fields']['nid']['exclude'] = TRUE;
+$handler->display->display_options['fields']['nid']['separator'] = '';
 /* Field: Quiz result: Quiz result ID */
 $handler->display->display_options['fields']['result_id']['id'] = 'result_id';
 $handler->display->display_options['fields']['result_id']['table'] = 'quiz_node_results';

@@ -88,7 +88,11 @@ function SCORM_API_1_2() {
             errorCode = "301";  // not initialized
         }
 
-        LogSCOAPICall("LMSGetValue", element, result, errorCode);
+        logresult = result;
+        if (!cmi.log_suspend && element == "cmi.suspend_data") {
+            logresult = "(Value Omitted)";
+        }        
+        LogSCOAPICall("LMSGetValue", element, logresult, errorCode);
         return result;
     }
 
@@ -115,7 +119,11 @@ function SCORM_API_1_2() {
             errorCode = "301";      // not initialized
         }
 
-        LogSCOAPICall("LMSSetValue", element, value, errorCode);
+        logvalue = value;
+        if (!cmi.log_suspend && element == "cmi.suspend_data") {
+            logvalue = "(Value Omitted)";
+        }        
+        LogSCOAPICall("LMSSetValue", element, logvalue, errorCode);
         return result;
     }
 

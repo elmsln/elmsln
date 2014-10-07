@@ -1,0 +1,39 @@
+<?php
+
+/**
+ * @file
+ * Unit tests for the quiz question Module.
+ */
+
+/**
+ * Test aspects of quiz creation including global and user defaults.
+ */
+class QuizCreation extends QuizTestCase {
+
+  function setUp($modules = array(), $admin_permissions = array(), $user_permissions = array()) {
+    $modules[] = 'quiz';
+    parent::setUp($modules);
+  }
+
+  public static function getInfo() {
+    return array(
+      'name' => t('Quiz creation'),
+      'description' => t('Unit test for Quiz creation.'),
+      'group' => t('Quiz'),
+    );
+  }
+
+  /**
+   * Test basic quiz creation.
+   */
+  public function testQuizCreation() {
+    $this->drupalLogin($this->admin);
+    $this->drupalGet("node/add/quiz");
+    $this->drupalPost(NULL, array(
+      'title' => 'Test quiz creation',
+      'remember_global' => 0,
+      'remember_settings' => 0,
+    ), t('Save'));
+    $this->assertText('has been created');
+  }
+}

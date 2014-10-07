@@ -24,14 +24,9 @@ class QuizFeedback extends QuizTestCase {
   }
 
   /**
-   * Test question feedback. Note that we are only testing if the feedback
+   * Test question feedback. Note that we are only testing if any feedback
    * displays, each question type has its own tests for testing feedback
    * returned from that question type.
-   *
-   * @todo we may even remove the question-type tests that use the Feedback
-   * times, since Quiz questions cannot set when feedback can be displayed.
-   *
-   * @todo this is also going to get refactored because of
    */
   public function testFeedback() {
     $this->drupalLogin($this->admin);
@@ -42,74 +37,60 @@ class QuizFeedback extends QuizTestCase {
     $this->linkQuestionToQuiz($question_node1, $quiz_node);
     $question_node2 = $this->drupalCreateNode(array('type' => 'truefalse', 'correct_answer' => 1, 'feedback' => 'Q2Feedback'));
     $this->linkQuestionToQuiz($question_node2, $quiz_node);
-    $question_node3 = $this->drupalCreateNode(array('type' => 'truefalse', 'correct_answer' => 1, 'feedback' => 'Q3Feedback'));
-    $this->linkQuestionToQuiz($question_node3, $quiz_node);
+
+    // This is a dynamic test that only tests the feedback columns showing up.
+    variable_set('quiz_auto_revisioning', 0);
+
+    $review_options = array(
+      'attempt' => t('Your answer'),
+      'correct' => t('Correct?'),
+      'score' => t('Score'),
+      'answer_feedback' => t('Feedback'),
+      'solution' => t('Correct answer'),
+    );
 
     $this->drupalLogin($this->user);
 
-    // Feedback only after each question.
-    // @todo when feedback is only after the question, the results of Q3
-    // aren't visible.
-    $quiz_node->feedback_time = QUIZ_FEEDBACK_QUESTION;
-    node_save($quiz_node);
+    // Answer the first question.
     $this->drupalGet("node/{$quiz_node->nid}/take");
     $this->drupalPost(NULL, array(
       "question[$question_node1->nid]" => 1,
       ), t('Next'));
-    $this->assertText('Q1Feedback');
-    $this->drupalPost(NULL, array(
-      ), t('Next question'));
-    $this->drupalPost(NULL, array(
-      "question[$question_node2->nid]" => 1,
-      ), t('Next'));
-    $this->assertText('Q2Feedback');
-    $this->drupalPost(NULL, array(
-      ), t('Next question'));
-    $this->drupalPost(NULL, array(
-      "question[$question_node3->nid]" => 1,
-      ), t('Finish'));
-    // Last question feedback, with another "Finish" button.
-    $this->assertText('Q3Feedback');
-    $this->drupalPost(NULL, array(
-      ), t('Finish'));
-    // Results page
-    $this->assertNoText('Q1Feedback');
-    $this->assertNoText('Q2Feedback');
-    $this->assertNoText('Q3Feedback');
+
+    // Check feedback after the Question
+    foreach ($review_options as $option => $text) {
+      $quiz_node->review_options = array('question' => array($option => $option));
+      node_save($quiz_node);
+
+      $this->drupalGet("node/{$quiz_node->nid}/take/1/feedback");
+      $this->assertRaw('<th>' . $text . '</th>');
+      foreach ($review_options as $option2 => $text2) {
+        if ($option != $option2) {
+          $this->assertNoRaw('<th>' . $text2 . '</th>');
+        }
+      }
+    }
 
     // Feedback only after the quiz.
-    $quiz_node->feedback_time = QUIZ_FEEDBACK_END;
-    node_save($quiz_node);
-    $this->drupalGet("node/{$quiz_node->nid}/take");
-    $this->drupalPost(NULL, array(
-      "question[$question_node1->nid]" => 1,
-      ), t('Next'));
+    $this->drupalGet("node/{$quiz_node->nid}/take/1/feedback");
+    $this->drupalPost(NULL, array(), t('Next question'));
     $this->drupalPost(NULL, array(
       "question[$question_node2->nid]" => 1,
-      ), t('Next'));
-    $this->drupalPost(NULL, array(
-      "question[$question_node3->nid]" => 1,
       ), t('Finish'));
-    $this->assertText('Q1Feedback');
-    $this->assertText('Q2Feedback');
-    $this->assertText('Q3Feedback');
 
-    // No feedback at any time.
-    $quiz_node->feedback_time = QUIZ_FEEDBACK_NEVER;
-    node_save($quiz_node);
-    $this->drupalGet("node/{$quiz_node->nid}/take");
-    $this->drupalPost(NULL, array(
-      "question[$question_node1->nid]" => 1,
-      ), t('Next'));
-    $this->drupalPost(NULL, array(
-      "question[$question_node2->nid]" => 1,
-      ), t('Next'));
-    $this->drupalPost(NULL, array(
-      "question[$question_node3->nid]" => 1,
-      ), t('Finish'));
-    $this->assertNoText('Q1Feedback');
-    $this->assertNoText('Q2Feedback');
-    $this->assertNoText('Q3Feedback');
+    // Check feedback after the Quiz
+    foreach ($review_options as $option => $text) {
+      $quiz_node->review_options = array('end' => array($option => $option));
+      node_save($quiz_node);
+
+      $this->drupalGet("node/{$quiz_node->nid}/quiz-results/1/view");
+      $this->assertRaw('<th>' . $text . '</th>');
+      foreach ($review_options as $option2 => $text2) {
+        if ($option != $option2) {
+          $this->assertNoRaw('<th>' . $text2 . '</th>');
+        }
+      }
+    }
   }
 
 }

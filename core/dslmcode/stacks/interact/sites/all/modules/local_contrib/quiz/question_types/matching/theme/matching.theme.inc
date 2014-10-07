@@ -91,7 +91,7 @@ function theme_matching_response($variables) {
       // TODO Please change this theme call to use an associative array for the $variables parameter.
       $data[$id]['is_correct'] = array(
         'data' => theme($theme),
-        'class' => 'quiz_summary_qcell',
+        'class' => 'quiz-summary-qcell',
       );
     }
   }

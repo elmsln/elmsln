@@ -14,8 +14,8 @@ ns.LibrarySelector = function (libraries, defaultLibrary, defaultParams) {
   var firstTime = true;
   var options = '<option value="-">-</option>';
 
-  this.defaultParams = defaultParams;
-  this.defaultLibrary = defaultLibrary;
+  this.defaultParams = JSON.parse(defaultParams);
+  this.defaultLibrary = this.currentLibrary = defaultLibrary;
   this.defaultLibraryParameterized = defaultLibrary ? defaultLibrary.replace('.', '-').toLowerCase() : undefined;
 
   for (var i = 0; i < libraries.length; i++) {
@@ -33,12 +33,20 @@ ns.LibrarySelector = function (libraries, defaultLibrary, defaultParams) {
   }
 
   this.$selector = ns.$('<select name="h5peditor-library" title="' + ns.t('core', 'selectLibrary') + '">' + options + '</select>').change(function () {
-    if (firstTime || confirm(H5PEditor.t('core', 'confirmChangeLibrary'))) {
+    var changeLibrary = true;
+    if (!firstTime) {
+      changeLibrary = confirm(H5PEditor.t('core', 'confirmChangeLibrary'));
+    }
+    if (changeLibrary) {
       var library = that.$selector.val();
-      if (library !== '-') {
-        firstTime = false;
-      }
       that.loadSemantics(library);
+      that.currentLibrary = library;
+    }
+    else {
+      that.$selector.val(that.currentLibrary);
+    }
+    if (library !== '-') {
+      firstTime = false;
     }
   });
 };
@@ -78,7 +86,7 @@ ns.LibrarySelector.prototype.loadSemantics = function (library) {
   this.$parent.attr('class', 'h5peditor ' + library.split(' ')[0].toLowerCase().replace('.', '-') + '-editor');
 
   // Display loading message
-  var $loading = ns.$('<div class="h5peditor-loading">' + ns.t('core', 'loading', {':type': 'semantics'}) + '</div>').appendTo(this.$parent);
+  var $loading = ns.$('<div class="h5peditor-loading h5p-throbber">' + ns.t('core', 'loading', {':type': 'semantics'}) + '</div>').appendTo(this.$parent);
 
   this.$selector.attr('disabled', true);
 

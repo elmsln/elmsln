@@ -1,47 +1,61 @@
-/* line 11, ../scss/application.scss */
+/* line 10, ../scss/application.scss */
+html, body {
+  margin: 0;
+  padding: 0;
+  font-family: 'Open Sans', sans-serif;
+  max-width: 960px;
+}
+
+/* line 16, ../scss/application.scss */
+a {
+  text-decoration: none;
+}
+
+/* line 20, ../scss/application.scss */
 .h5peditor {
   font-size: 16px;
 }
-/* line 14, ../scss/application.scss */
+/* line 23, ../scss/application.scss */
 .h5peditor .h5p-more-libraries {
   font-size: 0.875em;
 }
-/* line 18, ../scss/application.scss */
+/* line 27, ../scss/application.scss */
 .h5peditor .field {
   margin: 16px 0;
   padding: 0;
 }
-/* line 21, ../scss/application.scss */
+/* line 30, ../scss/application.scss */
 .h5peditor .field:first-child {
   margin-top: 0;
 }
-/* line 24, ../scss/application.scss */
+/* line 33, ../scss/application.scss */
 .h5peditor .field:last-child {
   margin-bottom: 0;
 }
-/* line 28, ../scss/application.scss */
+/* line 37, ../scss/application.scss */
 .h5peditor .field.boolean .h5peditor-label {
   display: inline;
 }
-/* line 31, ../scss/application.scss */
+/* line 40, ../scss/application.scss */
 .h5peditor .field.video, .h5peditor .field.image, .h5peditor .field.file, .h5peditor .field.audio {
   position: relative;
 }
-/* line 35, ../scss/application.scss */
+/* line 44, ../scss/application.scss */
 .h5peditor .field .library {
   border: 1px solid #666;
   padding: 8px;
+  overflow: hidden;
 }
-/* line 41, ../scss/application.scss */
+/* line 51, ../scss/application.scss */
 .h5peditor .errors p {
   margin: 0 0 4px 0;
   color: #f00;
 }
-/* line 45, ../scss/application.scss */
+/* line 55, ../scss/application.scss */
 .h5peditor textarea {
   resize: vertical;
 }
-/* line 48, ../scss/application.scss */
+/* line 58, ../scss/application.scss */
 .h5peditor textarea, .h5peditor .h5peditor-text, .h5peditor .ckeditor {
   width: 90%;
   padding: 4px 8px;
@@ -56,39 +70,39 @@
   -o-border-radius: 3px;
   border-radius: 3px;
 }
-/* line 58, ../scss/application.scss */
+/* line 68, ../scss/application.scss */
 .h5peditor select {
   padding: 2px;
 }
-/* line 61, ../scss/application.scss */
+/* line 71, ../scss/application.scss */
 .h5peditor a:focus {
   outline: none;
 }
-/* line 65, ../scss/application.scss */
+/* line 75, ../scss/application.scss */
 .h5peditor textarea:focus,
 .h5peditor .h5peditor-text:focus {
   outline: none;
   background-color: #fff;
   border-color: #53a0ff;
 }
-/* line 70, ../scss/application.scss */
+/* line 80, ../scss/application.scss */
 .h5peditor iframe {
   width: 100%;
   height: 0;
   border: 0;
   overflow: hidden;
 }
-/* line 75, ../scss/application.scss */
+/* line 85, ../scss/application.scss */
 .h5peditor iframe.cke_wysiwyg_frame {
   overflow: auto;
 }
-/* line 79, ../scss/application.scss */
+/* line 89, ../scss/application.scss */
 .h5peditor .h5p-ul {
   padding: 0;
   margin: 0;
   list-style: none;
 }
-/* line 84, ../scss/application.scss */
+/* line 94, ../scss/application.scss */
 .h5peditor .h5p-ul .h5p-li {
   padding: 0 8px;
   margin: 8px 0;
@@ -96,57 +110,60 @@
   background: #fff;
   border: 1px solid #ccc;
 }
-/* line 91, ../scss/application.scss */
+/* line 101, ../scss/application.scss */
 .h5peditor .h5p-ul .h5p-li > .content {
   margin: 0 24px;
 }
-/* line 94, ../scss/application.scss */
+/* line 104, ../scss/application.scss */
 .h5peditor .h5p-ul .h5p-li > .remove, .h5peditor .h5p-ul .h5p-li > .order {
   cursor: pointer;
   width: 14px;
   height: 14px;
   margin: 13px 3px 0 1px;
   float: right;
+  font-size: 1.75em;
+  line-height: 1em;
+  text-indent: -0.35em;
 }
-/* line 101, ../scss/application.scss */
+/* line 114, ../scss/application.scss */
 .h5peditor .h5p-ul .h5p-li > .remove:hover, .h5peditor .h5p-ul .h5p-li > .order:hover {
   opacity: 1;
   text-decoration: none;
 }
-/* line 107, ../scss/application.scss */
+/* line 120, ../scss/application.scss */
 .h5peditor .h5p-ul .h5p-li > .remove:after {
-  font-family: H5PFontAwesome4;
-  content: "\f057";
+  font-family: "H5P";
+  content: "\e890";
   color: #666;
 }
-/* line 115, ../scss/application.scss */
+/* line 126, ../scss/application.scss */
 .h5peditor .h5p-ul .h5p-li > .remove:hover:after {
   color: #c33f62;
 }
-/* line 119, ../scss/application.scss */
+/* line 130, ../scss/application.scss */
 .h5peditor .h5p-ul .h5p-li > .order {
   float: left;
 }
-/* line 122, ../scss/application.scss */
+/* line 133, ../scss/application.scss */
 .h5peditor .h5p-ul .h5p-li > .order:after {
-  font-family: H5PFontAwesome4;
-  content: "\f0dc";
+  font-family: "H5P";
+  content: "\e88d";
   color: #666;
 }
-/* line 129, ../scss/application.scss */
+/* line 140, ../scss/application.scss */
 .h5peditor .h5p-ul .h5p-li > .order:hover:after {
   color: #027AC6;
 }
-/* line 133, ../scss/application.scss */
+/* line 144, ../scss/application.scss */
 .h5peditor .h5p-ul .h5p-li:hover {
   background: #e9edf4;
   text-decoration: none;
 }
-/* line 139, ../scss/application.scss */
+/* line 150, ../scss/application.scss */
 .h5peditor .content > .field {
   margin: 8px 0 20px 0;
 }
-/* line 142, ../scss/application.scss */
+/* line 153, ../scss/application.scss */
 .h5peditor .group {
   margin: 16px 0;
   border: 1px solid #676767;
@@ -160,17 +177,17 @@
   -moz-box-shadow: 0 0 4px #a7a7a7;
   box-shadow: 0 0 4px #a7a7a7;
 }
-/* line 150, ../scss/application.scss */
+/* line 161, ../scss/application.scss */
 .h5peditor .group > .title {
   padding: 4px 8px;
   overflow: hidden;
   background: #f4f4f4;
 }
-/* line 155, ../scss/application.scss */
+/* line 166, ../scss/application.scss */
 .h5peditor .group > .title:first-letter {
   text-transform: uppercase;
 }
-/* line 158, ../scss/application.scss */
+/* line 169, ../scss/application.scss */
 .h5peditor .group > .title .expand {
   cursor: pointer;
   float: left;
@@ -180,92 +197,92 @@
   background: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAA0AAAANCAYAAABy6+R8AAAABmJLR0QA/wD/AP+gvaeTAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAB3RJTUUH3QIGDAQOtxG4igAAAFZJREFUKM+d0kEOADEEBdBfhy1H0rmsWY8WNRKbnzwRMcwM3SIfiMhsIwCrghTkKaRkYAipWP8I6eJYG7xBrKpPB22gQkeQoRAAAMzs08w8feZ7/Pm9F6gcQ10PZX8SAAAAAElFTkSuQmCC') no-repeat;
   opacity: 0.8;
 }
-/* line 167, ../scss/application.scss */
+/* line 178, ../scss/application.scss */
 .h5peditor .group > .title .expand:hover {
   opacity: 1;
 }
-/* line 171, ../scss/application.scss */
+/* line 182, ../scss/application.scss */
 .h5peditor .group > .title .text {
   overflow: hidden;
   padding: 0 8px;
 }
-/* line 176, ../scss/application.scss */
+/* line 187, ../scss/application.scss */
 .h5peditor .group > .content {
   display: none;
 }
-/* line 179, ../scss/application.scss */
+/* line 190, ../scss/application.scss */
 .h5peditor .group .h5p-li {
   background: #fff;
 }
-/* line 181, ../scss/application.scss */
+/* line 192, ../scss/application.scss */
 .h5peditor .group .h5p-li:hover {
   background: #e9edf4;
 }
-/* line 184, ../scss/application.scss */
+/* line 195, ../scss/application.scss */
 .h5peditor .group .h5p-li .group {
   background: #fff;
 }
-/* line 186, ../scss/application.scss */
+/* line 197, ../scss/application.scss */
 .h5peditor .group .h5p-li .group .h5p-li {
   background: #fff;
 }
-/* line 188, ../scss/application.scss */
+/* line 199, ../scss/application.scss */
 .h5peditor .group .h5p-li .group .h5p-li:hover {
   background: #e9edf4;
 }
-/* line 191, ../scss/application.scss */
+/* line 202, ../scss/application.scss */
 .h5peditor .group .h5p-li .group .h5p-li .group {
   background: #feedff;
 }
-/* line 195, ../scss/application.scss */
+/* line 206, ../scss/application.scss */
 .h5peditor .group .h5p-li .group .group {
   background: #feedff;
 }
-/* line 200, ../scss/application.scss */
+/* line 211, ../scss/application.scss */
 .h5peditor .group .group {
   background: #ebfffa;
 }
-/* line 205, ../scss/application.scss */
+/* line 216, ../scss/application.scss */
 .h5peditor .expanded > .title {
   border-bottom: 1px solid #676767;
 }
-/* line 208, ../scss/application.scss */
+/* line 219, ../scss/application.scss */
 .h5peditor .expanded > .title .expand {
   background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAA0AAAANCAYAAABy6+R8AAAABmJLR0QA/wD/AP+gvaeTAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAB3RJTUUH3QIGDAIpREGqZwAAAFhJREFUKM/N0tEKgDAIheF/o2edPtJpL2t3wdpGq4tI8Eo/UDFFBE8j8yK+QxuAuxdgX+g3STUDSKqArYBmvBt4gm6nCWzA8BAX2AEAImKYZlZmtfTvjzgAmV5G0p8UwOwAAAAASUVORK5CYII=');
 }
-/* line 212, ../scss/application.scss */
+/* line 223, ../scss/application.scss */
 .h5peditor .expanded > .content {
   padding: 4px 8px;
   display: block;
   background: #fff;
   margin: 0;
 }
-/* line 219, ../scss/application.scss */
+/* line 230, ../scss/application.scss */
 .h5peditor input[type="button"] {
   width: auto;
   margin: 0;
   padding: 4px 8px;
 }
-/* line 224, ../scss/application.scss */
+/* line 235, ../scss/application.scss */
 .h5peditor .dimensions input, .h5peditor .coordinates input, .h5peditor .number input {
   width: 75px;
 }
-/* line 227, ../scss/application.scss */
+/* line 238, ../scss/application.scss */
 .h5peditor .number input[type="range"] {
   width: 300px;
   float: left;
   margin: 7px 8px 0 0;
 }
-/* line 232, ../scss/application.scss */
+/* line 243, ../scss/application.scss */
 .h5peditor .h5p-errors {
   clear: both;
 }
-/* line 235, ../scss/application.scss */
+/* line 246, ../scss/application.scss */
 .h5peditor .file {
   position: relative;
   float: left;
 }
-/* line 239, ../scss/application.scss */
+/* line 250, ../scss/application.scss */
 .h5peditor .file .thumbnail {
   display: inline-block;
   margin: 10px;
@@ -275,7 +292,7 @@
   border: 1px solid #fff;
   cursor: pointer;
 }
-/* line 246, ../scss/application.scss */
+/* line 257, ../scss/application.scss */
 .h5peditor .file .add {
   display: block;
   cursor: pointer;
@@ -283,84 +300,82 @@
   height: 44px;
   background: url('data:image/png;base64,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');
 }
-/* line 253, ../scss/application.scss */
+/* line 264, ../scss/application.scss */
 .h5peditor .file .remove {
   display: block;
-  width: 14px;
-  height: 14px;
   position: absolute;
   top: 13px;
   right: 16px;
   cursor: pointer;
 }
-/* line 262, ../scss/application.scss */
+/* line 271, ../scss/application.scss */
 .h5peditor .file .remove:before {
-  font-family: H5PFontAwesome4;
-  font-size: 1.2em;
+  font-family: "H5P";
+  font-size: 1.4em;
   color: #fff;
-  content: "\f057";
+  content: "\e890";
   filter: progid:DXImageTransform.Microsoft.Alpha(Opacity=80);
   opacity: 0.8;
   text-shadow: rgba(0, 0, 0, 0.4) 0 0 4px, rgba(0, 0, 0, 0.4) 0 0 4px, rgba(0, 0, 0, 0.4) 0 0 4px;
 }
-/* line 270, ../scss/application.scss */
+/* line 279, ../scss/application.scss */
 .h5peditor .file .remove:hover {
   text-decoration: none;
 }
-/* line 273, ../scss/application.scss */
+/* line 282, ../scss/application.scss */
 .h5peditor .file .remove:hover:before {
   filter: progid:DXImageTransform.Microsoft.Alpha(Opacity=100);
   opacity: 1;
   color: #c33f62;
 }
-/* line 277, ../scss/application.scss */
+/* line 286, ../scss/application.scss */
 .h5peditor .file img {
   vertical-align: bottom;
 }
-/* line 281, ../scss/application.scss */
+/* line 290, ../scss/application.scss */
 .h5peditor .video .file, .h5peditor .audio .file {
   overflow: hidden;
 }
-/* line 283, ../scss/application.scss */
+/* line 292, ../scss/application.scss */
 .h5peditor .video .file .thumbnail, .h5peditor .video .file .add, .h5peditor .audio .file .thumbnail, .h5peditor .audio .file .add {
   float: left;
 }
-/* line 286, ../scss/application.scss */
+/* line 295, ../scss/application.scss */
 .h5peditor .video .file .add, .h5peditor .audio .file .add {
   margin-top: 8px;
 }
-/* line 289, ../scss/application.scss */
+/* line 298, ../scss/application.scss */
 .h5peditor .video .file .thumbnail, .h5peditor .audio .file .thumbnail {
   overflow: hidden;
   position: relative;
   cursor: auto;
 }
-/* line 294, ../scss/application.scss */
+/* line 303, ../scss/application.scss */
 .h5peditor .video .file .remove, .h5peditor .audio .file .remove {
-  top: 2px;
-  right: 5px;
+  top: -7px;
+  right: -5px;
 }
-/* line 298, ../scss/application.scss */
+/* line 307, ../scss/application.scss */
 .h5peditor .video .file .type, .h5peditor .audio .file .type {
   padding: 16px 8px 4px;
   background: #000;
   color: #fff;
   font-size: 10px;
 }
-/* line 304, ../scss/application.scss */
+/* line 313, ../scss/application.scss */
 .h5peditor .video .file .h5peditor-uploading, .h5peditor .audio .file .h5peditor-uploading {
   float: left;
 }
-/* line 308, ../scss/application.scss */
+/* line 317, ../scss/application.scss */
 .h5peditor .libwrap {
   margin-top: 16px;
 }
-/* line 311, ../scss/application.scss */
+/* line 320, ../scss/application.scss */
 .h5peditor input[type="checkbox"] {
   margin: 4px 4px 4px 0;
   vertical-align: bottom;
 }
-/* line 315, ../scss/application.scss */
+/* line 324, ../scss/application.scss */
 .h5peditor .common {
   margin-top: 1em;
   background: #fff;
@@ -368,18 +383,18 @@
   min-height: 2em;
   border: 1px solid #ccc;
 }
-/* line 322, ../scss/application.scss */
+/* line 331, ../scss/application.scss */
 .h5peditor .common > .h5peditor-label {
   font-size: 1em;
   font-weight: normal;
   padding: 0.5em 1em 0.4em;
   background: #ddd;
 }
-/* line 328, ../scss/application.scss */
+/* line 337, ../scss/application.scss */
 .h5peditor .common > .field {
   margin: 1em 0.5em;
 }
-/* line 332, ../scss/application.scss */
+/* line 341, ../scss/application.scss */
 .h5peditor .moving {
   position: absolute;
   z-index: 1;
@@ -387,18 +402,18 @@
   opacity: 0.8;
   -webkit-transform: translateZ(0);
 }
-/* line 339, ../scss/application.scss */
+/* line 348, ../scss/application.scss */
 .h5peditor .h5peditor-uploading, .h5peditor .h5peditor-loading {
-  background: url('data:image/gif;base64,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') no-repeat 10px 7px;
-  padding-top: 40px;
+  padding-top: 10px;
+  padding-bottom: 6px;
   font-size: 14px;
 }
-/* line 344, ../scss/application.scss */
+/* line 353, ../scss/application.scss */
 .h5peditor .h5peditor-loading {
   padding: 0.875em 0 1em 3.25em;
   font-style: italic;
 }
-/* line 348, ../scss/application.scss */
+/* line 357, ../scss/application.scss */
 .h5peditor .h5p-copyright-button {
   float: left;
   display: block;
@@ -409,21 +424,22 @@
   font-size: 0.875em;
   padding: 0.1875em 0.5625em 0.1875em 0.5em;
 }
-/* line 358, ../scss/application.scss */
+/* line 367, ../scss/application.scss */
 .h5peditor .h5p-copyright-button:before {
-  font-family: H5P;
-  content: "\e668";
+  font-family: "H5P";
+  content: "\e88f";
   padding-right: 0.25em;
   vertical-align: bottom;
   font-size: 1.5em;
+  line-height: 1em;
 }
-/* line 365, ../scss/application.scss */
+/* line 375, ../scss/application.scss */
 .h5peditor .h5p-copyright-button:hover {
   color: #555;
   text-decoration: none;
   border-color: #555;
 }
-/* line 372, ../scss/application.scss */
+/* line 382, ../scss/application.scss */
 .h5peditor .h5p-editor-dialog {
   position: absolute;
   z-index: 1;
@@ -442,7 +458,7 @@
   -o-transition: visibility 0s 0.2s, opacity 0.2s, margin-top 0.2s;
   transition: visibility 0s 0.2s, opacity 0.2s, margin-top 0.2s;
 }
-/* line 384, ../scss/application.scss */
+/* line 394, ../scss/application.scss */
 .h5peditor .h5p-editor-dialog.h5p-open {
   margin-top: 3.5em;
   visibility: visible;
@@ -453,29 +469,31 @@
   -o-transition: visibility 0s 0s, opacity 0.2s, margin-top 0.2s;
   transition: visibility 0s 0s, opacity 0.2s, margin-top 0.2s;
 }
-/* line 391, ../scss/application.scss */
+/* line 401, ../scss/application.scss */
 .h5peditor .h5p-editor-dialog > .field {
   margin: 0 0 10px;
   border: 0;
   box-shadow: none;
 }
-/* line 397, ../scss/application.scss */
+/* line 407, ../scss/application.scss */
 .h5peditor .h5p-editor-dialog .h5p-close {
   color: #494949;
 }
-/* line 400, ../scss/application.scss */
+/* line 410, ../scss/application.scss */
 .h5peditor .h5p-editor-dialog .h5p-close:before {
   font-size: 2em;
-  right: 13px;
+  right: -0.125em;
+  top: 0;
   position: absolute;
-  font-family: H5PFontAwesome4;
-  content: "\f00d";
+  font-family: "H5P";
+  content: "\e894";
+  line-height: 1em;
   -webkit-transition: scale 0.2s;
   -moz-transition: scale 0.2s;
   -o-transition: scale 0.2s;
   transition: scale 0.2s;
 }
-/* line 409, ../scss/application.scss */
+/* line 421, ../scss/application.scss */
 .h5peditor .h5p-editor-dialog .h5p-close:hover:before {
   -webkit-transform: scale(1.1, 1.1);
   -moz-transform: scale(1.1, 1.1);
@@ -484,23 +502,22 @@
   transform: scale(1.1, 1.1);
 }
 
-/* line 416, ../scss/application.scss */
+/* line 428, ../scss/application.scss */
 .h5peditor-field-description {
   font-size: 10px;
   color: #555555;
 }
 
-/* line 421, ../scss/application.scss */
+/* line 433, ../scss/application.scss */
 .h5peditor-form {
   position: relative;
   margin: 0.5em 0 1em;
   background: #fff;
   padding: 8px;
   border: 1px solid #ccc;
-  max-width: 960px;
 }
 
-/* line 430, ../scss/application.scss */
+/* line 441, ../scss/application.scss */
 .h5peditor-label {
   display: block;
   font-weight: bold;
@@ -509,7 +526,7 @@
   padding-top: 4px;
 }
 
-/* line 438, ../scss/application.scss */
+/* line 449, ../scss/application.scss */
 #h5peditor-uploader {
   position: absolute;
   width: 1px;

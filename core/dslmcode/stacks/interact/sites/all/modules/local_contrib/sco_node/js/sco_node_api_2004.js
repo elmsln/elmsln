@@ -120,7 +120,12 @@ function SCORM_API_2004() {
                 errorCode = "122";      // get value before init
             }
         }
-        LogSCOAPICall("GetValue", element, result, errorCode);
+        
+        logresult = result;
+        if (!cmi.log_suspend && element == "suspend_data") {
+            logresult = "(Value Omitted)";
+        }
+        LogSCOAPICall("GetValue", element, logresult, errorCode);
         return result;
     }
 
@@ -154,7 +159,11 @@ function SCORM_API_2004() {
             }
         }
 
-        LogSCOAPICall("SetValue", element, value, errorCode);
+        logvalue = value;
+        if (!cmi.log_suspend && element == "cmi.suspend_data") {
+            logvalue = "(Value Omitted)";
+        }        
+        LogSCOAPICall("SetValue", element, logvalue, errorCode);
         return result;
     }
 

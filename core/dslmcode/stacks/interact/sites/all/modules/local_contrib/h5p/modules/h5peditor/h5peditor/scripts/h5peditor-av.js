@@ -128,7 +128,7 @@ H5PEditor.widgets.video = H5PEditor.widgets.audio = H5PEditor.AV = (function ($)
     this.$errors.html('');
 
     H5PEditor.File.changeCallback = function () {
-      that.$uploading = $('<div class="h5peditor-uploading">' + H5PEditor.t('core', 'uploading') + '</div>').insertAfter(that.$add.hide());
+      that.$uploading = $('<div class="h5peditor-uploading h5p-throbber">' + H5PEditor.t('core', 'uploading') + '</div>').insertAfter(that.$add.hide());
     };
 
     H5PEditor.File.callback = function (json) {

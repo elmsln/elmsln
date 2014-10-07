@@ -791,7 +791,7 @@ class MultichoiceQuestion extends QuizQuestion {
    * Question response validator.
    */
   public function getAnsweringFormValidate(array &$form, array &$form_state = NULL) {
-    if (!$this->node->choice_multi && is_null($form_state['values']['question'][$this->node->nid])) {
+    if (!$this->node->choice_multi && is_null($form_state['values']['question'][$this->node->nid]['user_answer'])) {
       form_set_error('', t('You must provide an answer.'));
     }
   }
@@ -966,71 +966,28 @@ class MultichoiceResponse extends QuizQuestionResponse {
 
   /**
    * Implementation of getReportFormResponse
-   *
-   * @see getReportFormResponse($showpoints, $showfeedback, $allow_scoring)
    */
-  public function getReportFormResponse($showpoints = TRUE, $showfeedback = TRUE, $allow_scoring = FALSE) {
-    $i = 0;
+  public function getReportFormResponse() {
     $this->orderAlternatives($this->question->alternatives);
 
-    // Find the alternative with the highest score
-    if ($this->question->choice_multi == 0) {
-      $max_score_if_chosen = -999;
-      while (isset($this->question->alternatives[$i]) && is_array($this->question->alternatives[$i])) {
-        $short = $this->question->alternatives[$i];
-        if ($short['score_if_chosen'] > $max_score_if_chosen) {
-          $max_score_if_chosen = $short['score_if_chosen'];
-        }
-        $i++;
-      }
-      $i = 0;
-    }
-    // Fetch all data for the report
     $data = array();
-    while (isset($this->question->alternatives[$i])) {
-      $short = $this->question->alternatives[$i];
-      if (drupal_strlen($this->checkMarkup($short['answer']['value'], $short['answer']['format'])) > 0) {
-        $alternative = array();
+    foreach ($this->question->alternatives as $alternative) {
+      $chosen = in_array($alternative['id'], $this->user_answer_ids);
+      $not = $chosen ? '' : 'not_';
 
-        // Did the user choose the alternative?
-        $alternative['is_chosen'] = in_array($short['id'], $this->user_answer_ids);
-
-        // Questions where multiple answers isn't allowed are scored differently...
-        if ($this->question->choice_multi == 0) {
-
-          if ($this->question->choice_boolean == 0) {
-            if ($short['score_if_chosen'] > $short['score_if_not_chosen']) {
-              $alternative['is_correct'] = $short['score_if_chosen'] < $max_score_if_chosen ? 1 : 2;
-            }
-            else {
-              $alternative['is_correct'] = 0;
-            }
-          }
-          else {
-            $alternative['is_correct'] = $short['score_if_chosen'] > $short['score_if_not_chosen'] ? 2 : 0;
-          }
-        }
-
-        // Questions where multiple answers are allowed
-        else {
-          $alternative['is_correct'] = $short['score_if_chosen'] > $short['score_if_not_chosen'] ? 2 : 0;
-        }
-
-        $alternative['answer'] = $this->checkMarkup($short['answer']['value'], $short['answer']['format'], FALSE);
-
-        $not = $alternative['is_chosen'] ? '' : '_not';
-        $alternative['feedback'] = $this->checkMarkup($short['feedback_if' . $not . '_chosen']['value'], $short['feedback_if' . $not . '_chosen']['format'], FALSE);
-
-        if (!$this->getQuizQuestion()->viewCanRevealCorrect()) {
-          // Answer unknown.
-          $alternative['is_correct'] = 3;
-        }
-        $data[] = $alternative;
-      }
-      $i++;
+      $data[] = array(
+        'choice' => check_markup($alternative['answer']['value'], $alternative['answer']['format']),
+        'attempt' => $chosen ? quiz_icon('selected') : '',
+        'correct' => $chosen ? $alternative['score_if_chosen'] > 0 ? quiz_icon('correct') : quiz_icon('incorrect') : '',
+        'score' => $alternative["score_if_{$not}chosen"],
+        'answer_feedback' => check_markup($alternative["feedback_if_{$not}chosen"]['value'], $alternative["feedback_if_{$not}chosen"]['format'], FALSE),
+        'question_feedback' => 'Question feedback',
+        'solution' => $alternative['score_if_chosen'] > 0 ? quiz_icon('should') : '',
+        'quiz_feedback' => "Quiz feedback",
+      );
     }
-    // Return themed report
-    return array('#markup' => theme('multichoice_response', array('data' => $data)));
+
+    return $data;
   }
 
   /**
@@ -1059,25 +1016,6 @@ class MultichoiceResponse extends QuizQuestionResponse {
       }
     }
     $alternatives = $newAlternatives;
-  }
-
-  /**
-   * Run check_markup() on the field of the specified choice alternative
-   *
-   * @param $alternative
-   *  String to be checked
-   * @param $format
-   *  The input format to be used
-   * @param $check_user_access
-   *  Whether or not we are to check the users access to the chosen format
-   * @return HTML markup
-   */
-  private function checkMarkup($alternative, $format, $check_user_access = FALSE) {
-    // If the string is empty we don't run it through input filters(They might add empty tags).
-    if (drupal_strlen($alternative) == 0) {
-      return '';
-    }
-    return check_markup($alternative, $format, $langcode = '' /* TODO Set this variable. */, $check_user_access);
   }
 
 }

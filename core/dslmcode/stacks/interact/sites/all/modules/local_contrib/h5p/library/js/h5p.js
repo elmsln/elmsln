@@ -1,3 +1,4 @@
+// TODO: Should we split up the generic parts needed by the editor(and others), and the parts needed to "run" H5Ps?
 var H5P = H5P || {};
 
 // Determine if we're inside an iframe.
@@ -12,9 +13,14 @@ if (document.documentElement.requestFullScreen) {
 }
 else if (document.documentElement.webkitRequestFullScreen
     && navigator.userAgent.indexOf('Android') === -1 // Skip Android
-    && navigator.userAgent.indexOf('Version/') === -1 // Skip Safari
     ) {
-  H5P.fullScreenBrowserPrefix = 'webkit';
+  H5P.safariBrowser = navigator.userAgent.match(/Version\/(\d)/);
+  H5P.safariBrowser = (H5P.safariBrowser === null ? 0 : parseInt(H5P.safariBrowser[1]));
+  
+  // Do not allow fullscreen for safari < 7.
+  if (H5P.safariBrowser === 0 || H5P.safariBrowser > 6) {
+    H5P.fullScreenBrowserPrefix = 'webkit';
+  }
 }
 else if (document.documentElement.mozRequestFullScreen) {
   H5P.fullScreenBrowserPrefix = 'moz';
@@ -29,13 +35,13 @@ else if (document.documentElement.msRequestFullscreen) {
  */
 H5P.init = function () {
   // Useful jQuery object.
-  H5P.$body = H5P.jQuery('body');
+  H5P.$body = H5P.jQuery(document.body);
 
   // Prepare internal resizer for content.
-  var $window = H5P.jQuery(window.top);
+  var $window = H5P.jQuery(window.parent);
 
   // H5Ps added in normal DIV.
-  var $containers = H5P.jQuery(".h5p-content").each(function () { 
+  var $containers = H5P.jQuery(".h5p-content").each(function () {
     var $element = H5P.jQuery(this);
     var $container = H5P.jQuery('<div class="h5p-container"></div>').appendTo($element);
     var contentId = $element.data('content-id');
@@ -45,12 +51,11 @@ H5P.init = function () {
     }
     var library = {
       library: contentData.library,
-      params: H5P.jQuery.parseJSON(contentData.jsonContent)
+      params: JSON.parse(contentData.jsonContent)
     };
 
     // Create new instance.
-    var instance = H5P.newRunnable(library, contentId);
-    instance.attach($container); // Not sent to newRunnable to avoid resize.
+    var instance = H5P.newRunnable(library, contentId, $container, true);
     
     // Check if we should add and display a fullscreen button for this H5P.
     if (contentData.fullScreen == 1) {
@@ -60,10 +65,10 @@ H5P.init = function () {
     };
     
     var $actions = H5P.jQuery('<ul class="h5p-actions"></ul>');
-    if (contentData.export !== '') {
+    if (contentData.exportUrl !== '') {
       // Display export button
       H5P.jQuery('<li class="h5p-button h5p-export" role="button" tabindex="1" title="' + H5P.t('downloadDescription') + '">' + H5P.t('download') + '</li>').appendTo($actions).click(function () {
-        window.location.href = contentData.export;
+        window.location.href = contentData.exportUrl;
       });
     }
     if (instance.getCopyrights !== undefined) {
@@ -87,68 +92,52 @@ H5P.init = function () {
       // Make it possible to resize the iframe when the content changes size. This way we get no scrollbars.
       var iframe = window.parent.document.getElementById('h5p-iframe-' + contentId);
       var resizeIframe = function () {
-        // Use timeout to make sure the iframe is resized
-        setTimeout(function () {
-          var fullscreen = $container.hasClass('h5p-fullscreen') || $container.hasClass('h5p-semi-fullscreen');
-          if (!fullscreen) {
-            // Retain parent size to avoid jumping/scrolling
-            var parentHeight = iframe.parentElement.style.height;
-            iframe.parentElement.style.height = iframe.parentElement.clientHeight + 'px'; 
-            
-            // Reset iframe height, incase content has shrinked.
-            iframe.style.height = '1px';
-            
-            // Resize iframe so all content is visible.
-            iframe.style.height = (iframe.contentDocument.body.scrollHeight) + 'px';
-            
-            // Free parent
-            iframe.parentElement.style.height = parentHeight;
-          }
-        }, 1);
+        if (window.parent.H5P.isFullscreen) {
+          return; // Skip if full screen.
+        }
+        
+        // Retain parent size to avoid jumping/scrolling
+        var parentHeight = iframe.parentElement.style.height;
+        iframe.parentElement.style.height = iframe.parentElement.clientHeight + 'px'; 
+
+        // Reset iframe height, in case content has shrinked.
+        iframe.style.height = '1px';
+
+        // Resize iframe so all content is visible.
+        iframe.style.height = (iframe.contentDocument.body.scrollHeight) + 'px';
+
+        // Free parent
+        iframe.parentElement.style.height = parentHeight;
       };
       
-      if (instance.$ !== undefined) {
-        instance.$.on('resize', resizeIframe);
-      }
+      var resizeDelay;
+      instance.$.on('resize', function () {
+        // Use a delay to make sure iframe is resized to the correct size.
+        clearTimeout(resizeDelay);
+        resizeDelay = setTimeout(function () {
+          resizeIframe();
+        }, 1);
+      });
     }
     
-    var resize = function () {
-      if (instance.$ !== undefined) {
-        // Resize content.
+    // Resize everything when window is resized.
+    $window.resize(function () {
+      if (window.parent.H5P.isFullscreen) {
+        // Use timeout to avoid bug in certain browsers when exiting fullscreen. Some browser will trigger resize before the fullscreenchange event.
+          instance.$.trigger('resize');
+      }
+      else {
         instance.$.trigger('resize');
       }
-    };
-    resize();
+    });
     
-    // Resize everything when window is resized.
-    $window.resize(resize);
+    // Resize content.
+    instance.$.trigger('resize');
   });
 
   // Insert H5Ps that should be in iframes.
   H5P.jQuery("iframe.h5p-iframe").each(function () {
-    var $iframe = H5P.jQuery(this);
-    var contentId = $iframe.data('content-id');
-
-    // DEPRECATED AND WILL BE REMOVED. MAKE SURE YOUR H5Ps EXPOSES A $ AND A resize FUNCTION.
-    $iframe.ready(function () {
-      resizeIframeInterval = setInterval(function () {
-        if (H5P.isFullscreen) {
-          return; 
-        }
-        
-        var $doc = $iframe.contents(); 
-        var contentHeight = $doc.height();
-        var frameHeight = $iframe.innerHeight();
-       
-
-        if (frameHeight !== contentHeight) {
-          $iframe.css('height', contentHeight + 'px');
-          $doc[0].documentElement.style.overflow = 'hidden';
-        }
-      }, 500);
-    });
-    // END DEPRECATION
-
+    var contentId = H5P.jQuery(this).data('content-id');
     this.contentDocument.open();
     this.contentDocument.write('<!doctype html><html class="h5p-iframe"><head>' + H5PIntegration.getHeadTags(contentId) + '</head><body><div class="h5p-content" data-content-id="' + contentId + '"/></body></html>');
     this.contentDocument.close();
@@ -187,37 +176,59 @@ H5P.fullScreen = function ($element, instance, exitCallback, body) {
   
   $classes = $element.add(H5P.$body).add($classes);
   
-  var done = function (c) {
-    H5P.isFullscreen = false;
-    $classes.removeClass(c);
+  /**
+   * Prepare for resize by setting the correct styles.
+   * 
+   * @param {String} classes CSS
+   */
+  var before = function (classes) {
+    $classes.addClass(classes);
     
-    if (H5P.fullScreenBrowserPrefix === undefined) {
-      // Resize content.
-      if (instance.$ !== undefined) {
-        instance.$.trigger('resize');
-      }
-      else if (instance.resize !== undefined) {
-        instance.resize();
-      }
+    if ($iframe !== undefined) {
+      // Set iframe to its default size(100%).
+      $iframe.css('height', '');
     }
+  };
+  
+  /**
+   * Gets called when fullscreen mode has been entered.
+   * Resizes and sets focus on content.
+   */
+  var entered = function () {
+    // Do not rely on window resize events.
+    instance.$.trigger('resize');
+    instance.$.trigger('focus');
+  };
+  
+  /**
+   * Gets called when fullscreen mode has been exited.
+   * Resizes and sets focus on content.
+   * 
+   * @param {String} classes CSS
+   */
+  var done = function (classes) {
+    H5P.isFullscreen = false;
+    $classes.removeClass(classes);
+    
+    // Do not rely on window resize events.
+    instance.$.trigger('resize');
+    instance.$.trigger('focus');
 
     if (exitCallback !== undefined) {
       exitCallback();
     }
   };
 
+  H5P.isFullscreen = true;
   if (H5P.fullScreenBrowserPrefix === undefined) {
     // Create semi fullscreen.
     
-    $classes.addClass('h5p-semi-fullscreen');
-    H5P.isFullscreen = true;
-
-    var $disable = $container.prepend('<a href="#" class="h5p-disable-fullscreen" title="Disable fullscreen"></a>').children(':first');
+    before('h5p-semi-fullscreen');
+    var $disable = H5P.jQuery('<div role="button" tabindex="1" class="h5p-disable-fullscreen" title="' + H5P.t('disableFullscreen') + '"></div>').appendTo($container.find('.h5p-content-controls'));
     var keyup, disableSemiFullscreen = function () {
       $disable.remove();      
       $body.unbind('keyup', keyup);
       done('h5p-semi-fullscreen');
-      return false;
     };
     keyup = function (event) {
       if (event.keyCode === 27) {
@@ -226,17 +237,22 @@ H5P.fullScreen = function ($element, instance, exitCallback, body) {
     };
     $disable.click(disableSemiFullscreen);
     $body.keyup(keyup);
+    entered();
   }
   else {
     // Create real fullscreen.
     
+    before('h5p-fullscreen');
     var first, eventName = (H5P.fullScreenBrowserPrefix === 'ms' ? 'MSFullscreenChange' : H5P.fullScreenBrowserPrefix + 'fullscreenchange');
-    H5P.isFullscreen = true;
     document.addEventListener(eventName, function () {
       if (first === undefined) {
+        // We are entering fullscreen mode
         first = false;
+        entered();
         return;
       }
+      
+      // We are exiting fullscreen
       done('h5p-fullscreen');
       document.removeEventListener(eventName, arguments.callee, false);
     });
@@ -246,31 +262,9 @@ H5P.fullScreen = function ($element, instance, exitCallback, body) {
     }
     else {
       var method = (H5P.fullScreenBrowserPrefix === 'ms' ? 'msRequestFullscreen' : H5P.fullScreenBrowserPrefix + 'RequestFullScreen');
-      var params = (H5P.fullScreenBrowserPrefix === 'webkit' ? Element.ALLOW_KEYBOARD_INPUT : undefined);
+      var params = (H5P.fullScreenBrowserPrefix === 'webkit' && H5P.safariBrowser === 0 ? Element.ALLOW_KEYBOARD_INPUT : undefined);
       $element[0][method](params);
     }
-
-    $classes.addClass('h5p-fullscreen');
-  }
-  
-  if ($iframe !== undefined) {
-    // Set iframe to its default size(100%).
-    $iframe.css('height', '');
-  }
-  
-  if (H5P.fullScreenBrowserPrefix === undefined) {
-    // Resize content.
-    if (instance.$ !== undefined) {
-      instance.$.trigger('resize');
-    }
-    else if (instance.resize !== undefined) {
-      instance.resize();
-    }
-  }
-
-  // Allow H5P to set focus when entering fullscreen mode
-  if (instance.focus !== undefined) {
-    instance.focus();
   }
 };
 
@@ -285,11 +279,29 @@ H5P.fullScreen = function ($element, instance, exitCallback, body) {
  *  Id of the content requesting a path
  */
 H5P.getPath = function (path, contentId) {
-  if (path.substr(0, 7) === 'http://' || path.substr(0, 8) === 'https://') {
+  var hasProtocol = function (path) {
+    return path.match(/^[a-z0-9]+:\/\//i);
+  };
+  
+  if (hasProtocol(path)) {
     return path;
   }
   
-  return H5PIntegration.getContentPath(contentId) + path;
+  if (contentId !== undefined) {
+    prefix = H5PIntegration.getContentPath(contentId);
+  }
+  else if (window['H5PEditor'] !== undefined) {
+    prefix = H5PEditor.filesPath;
+  }
+  else {
+    return;
+  }
+  
+  if (!hasProtocol(prefix)) {
+    prefix = window.parent.location.protocol + "//" + window.parent.location.host + prefix;
+  }
+  
+  return prefix + '/' + path; 
 };
 
 /**
@@ -327,10 +339,11 @@ H5P.classFromName = function (name) {
  * 
  * @param {Object} library Library/action object form params.
  * @param {Number} contentId 
- * @param {jQuery} $attachTo The element to attach the new instance to.
+ * @param {jQuery} $attachTo An optional element to attach the instance to.
+ * @param {Boolean} skipResize Optionally skip triggering of the resize event after attaching.
  * @return {Object} Instance.
  */
-H5P.newRunnable = function (library, contentId, $attachTo) {
+H5P.newRunnable = function (library, contentId, $attachTo, skipResize) {
   try {
     var nameSplit = library.library.split(' ', 2);
     var versionSplit = nameSplit[1].split('.', 2);
@@ -360,9 +373,15 @@ H5P.newRunnable = function (library, contentId, $attachTo) {
   }
   
   var instance = new constructor(library.params, contentId);
+  
+  if (instance.$ === undefined) {
+    instance.$ = H5P.jQuery(instance);
+  }
+  
   if ($attachTo !== undefined) {
     instance.attach($attachTo);
-    if (instance.$ !== undefined) {
+    
+    if (skipResize === undefined || !skipResize) {
       // Resize content.
       instance.$.trigger('resize');
     }
@@ -380,7 +399,7 @@ H5P.error = function (err) {
   if (window['console'] !== undefined && console.error !== undefined) {
     console.error(err);
   }
-}
+};
 
 /**
  * Translate text strings.
@@ -563,7 +582,7 @@ H5P.ContentCopyrights = function () {
     
     return html;
   };
-}
+};
 
 /**
  * A ordered list of copyright fields for media.
@@ -674,7 +693,7 @@ H5P.MediaCopyright = function (copyright, labels, order, extraFields) {
     
     return html;
   };
-}
+};
 
 // Translate table for copyright license codes.
 H5P.copyrightLicenses = {
@@ -713,7 +732,7 @@ H5P.Thumbnail = function (source, width, height) {
   this.toString = function () {
     return '<img src="' + source + '" alt="' + H5P.t('thumbnail') + '" class="h5p-thumbnail" height="' + thumbHeight + '"' + (thumbWidth === undefined ? '' : ' width="' + thumbWidth + '"') + '/>';
   };
-}
+};
 
 /**
  * Simple data class for storing a single field.
@@ -736,7 +755,7 @@ H5P.Field = function (label, value) {
   this.getValue = function () {
     return value;
   };
-}
+};
 
 /**
  * Simple class for creating a definition list.
@@ -785,7 +804,7 @@ H5P.DefinitionList = function () {
     }
     return (html === '' ? html : '<dl class="h5p-definition-list">' + html + '</dl>');
   };
-}
+};
 
 /**
  * THIS FUNCTION/CLASS IS DEPRECATED AND WILL BE REMOVED.
@@ -886,6 +905,8 @@ H5P.cloneObject = function (object, recursive) {
 /**
  * Remove all empty spaces before and after the value.
  * TODO: Only include this or String.trim(). What is best?
+ * I'm leaning towards implementing the missing ones: http://kangax.github.io/compat-table/es5/
+ * So should we make this function deprecated?
  *
  * @param {String} value
  * @returns {@exp;value@call;replace}
@@ -901,13 +922,8 @@ H5P.trim = function (value) {
  * @returns {Boolean}
  */
 H5P.jsLoaded = function (path) {
-  for (var i = 0; i < H5P.loadedJs.length; i++) {
-    if (H5P.loadedJs[i] === path) {
-      return true;
-    }
-  }
-
-  return false;
+  H5P.loadedJs = H5P.loadedJs || [];
+  return H5P.jQuery.inArray(path, H5P.loadedJs) !== -1;
 };
 
 /**
@@ -917,13 +933,8 @@ H5P.jsLoaded = function (path) {
  * @returns {Boolean}
  */
 H5P.cssLoaded = function (path) {
-  for (var i = 0; i < H5P.loadedCss.length; i++) {
-    if (H5P.loadedCss[i] === path) {
-      return true;
-    }
-  }
-
-  return false;
+  H5P.loadedCss = H5P.loadedCss || [];
+  return H5P.jQuery.inArray(path, H5P.loadedCss) !== -1;
 };
 
 /**
@@ -984,8 +995,8 @@ if (String.prototype.trim === undefined) {
   };
 }
 
-// Finally, we want to run init when document is ready. But not if we're
-// in an iFrame. Then we wait for parent to start init().
+// Finally, we want to run init when document is ready.
+// TODO: Move to integration. Systems like Moodle using YUI cannot get its translations set before this starts!
 if (H5P.jQuery) {
   H5P.jQuery(document).ready(function () {
     if (!H5P.initialized) {

@@ -26,14 +26,19 @@ function quiz_user_results($result_id) {
       'score' => $score,
       'summary' => $summary,
       'result_id' => $result_id,
+      'account' => user_load($result->uid),
     );
-    if (user_access('view own quiz results') || $current_quiz->feedback_time == QUIZ_FEEDBACK_END) {
+    if (user_access('view own quiz results') || (!empty($current_quiz->review_options['end']) && array_filter($current_quiz->review_options['end']))) {
       // User can view own quiz results OR the current quiz has "display solution".
-      return theme('quiz_user_summary', $data);
+      $data['show_feedback'] = TRUE;
+      $data['show_points'] = TRUE;
+      return theme('quiz_result', $data);
     }
     else {
       // User cannot view own results or show solution. Show summary.
-      return theme('quiz_take_summary', $data);
+      $data['show_feedback'] = FALSE;
+      $data['show_points'] = FALSE;
+      return theme('quiz_result', $data);
     }
   }
 }
@@ -68,6 +73,7 @@ function quiz_report_form($form, $form_state, $questions, $showpoints = TRUE, $s
     if (isset($form_to_add['submit'])) {
       $show_submit = TRUE;
     }
+    $form_to_add['#element_validate'][] = 'quiz_report_form_element_validate';
     $form[] = $form_to_add;
   }
   $form['#theme'] = 'quiz_report_form';
@@ -78,7 +84,6 @@ function quiz_report_form($form, $form_state, $questions, $showpoints = TRUE, $s
     $form['submit'] = array(
       '#type' => 'submit',
       '#submit' => array('quiz_report_form_submit'),
-      '#validate' => array('quiz_report_form_validate'),
       '#value' => t('Save Score'),
     );
   }
@@ -107,28 +112,12 @@ function quiz_report_form($form, $form_state, $questions, $showpoints = TRUE, $s
 }
 
 /**
- * Validate the report form
+ * Validate a single question sub-form.
  */
-function quiz_report_form_validate($form, &$form_state) {
-  /* We go through the form state values and validates all
-   * questiontypes with validation functions declared.
-   */
-  foreach ($form_state['values'] as $key => $q_values) {
-    // Questions has numeric keys in the report form
-    if (!is_numeric($key)) {
-      continue;
-    }
-    // Questions store the name of the validation function with the key 'validate'
-    if (!isset($q_values['validate'])) {
-      continue;
-    }
-    // The validation function must exist
-    if (!function_exists($q_values['validate'])) {
-      continue;
-    }
-    // We call the validation function provided by the question
-    call_user_func($q_values['validate'], $q_values, $key);
-  }
+function quiz_report_form_element_validate(&$element, &$form_state) {
+  $question = node_load($element['nid']['#value'], $element['vid']['#value']);
+  $quizQuestionResponse = _quiz_question_response_get_instance($element['result_id']['#value'], $question);
+  $quizQuestionResponse->getReportFormValidate($element, $form_state);
 }
 
 /**
@@ -274,41 +263,9 @@ function quiz_get_score_array($result_id, $quiz_vid, $is_evaluated) {
  *
  * @ingroup themeable
  */
-function theme_quiz_score_correct() {
-  $variables = array(
-    'path' => drupal_get_path('module', 'quiz') . '/images/correct.gif',
-    'alt' => t('correct'),
-    'title' => t('correct'),
-  );
-  return theme('image', $variables);
-}
-
-/**
- * Pass the incorrect mark to the theme so that theme authors can use an image.
- *
- * @ingroup themeable
- */
-function theme_quiz_score_incorrect() {
-  $variables = array(
-    'path' => drupal_get_path('module', 'quiz') . '/images/incorrect.gif',
-    'alt' => t('incorrect'),
-    'title' => t('incorrect'),
-  );
-  return theme('image', $variables);
-}
-
-/**
- * Pass the unknown mark to the theme so that theme authors can use an image.
- *
- * @ingroup themeable
- */
-function theme_quiz_score_unknown() {
-  $variables = array(
-    'path' => drupal_get_path('module', 'quiz') . '/images/unselected.gif',
-    'alt' => t('unknown'),
-    'title' => t('unknown'),
-  );
-  return theme('image', $variables);
+function theme_quiz_answer_result($variables) {
+  $type = $variables['type'];
+  return '<div class="quiz-score-icon ' . $type . '"></div>';
 }
 
 /**
@@ -325,7 +282,7 @@ function theme_quiz_score_unknown() {
  */
 function theme_quiz_progress($variables) {
   $output = '';
-  $output .= '<div id="quiz_progress">';
+  $output .= '<div id="quiz-progress">';
 
   if ($variables['allow_jumping']) {
     // Show jump form.
@@ -366,117 +323,6 @@ function theme_quiz_jumper($variables) {
 }
 
 /**
- * Theme the summary page after the quiz has been completed.
- *
- * @param $quiz
- *  The quiz node object.
- * @param $questions
- *  The questions array as defined by _quiz_get_answers.
- * @param $score
- *  Array of score information as returned by quiz_calculate_score().
- * @param $summary
- *  Filtered text of the summary.
- * @return
- *  Themed html.
- *
- * @ingroup themeable
- */
-function theme_quiz_take_summary($variables) {
-  $quiz = $variables['quiz'];
-  $questions = $variables['questions'];
-  $score = $variables['score'];
-  $summary = $variables['summary'];
-  $result_id = $variables['result_id'];
-  // Set the title here so themers can adjust.
-  drupal_set_title($quiz->title);
-
-  // Display overall result.
-  $output = '';
-  if (!empty($score['possible_score'])) {
-    if (!$score['is_evaluated']) {
-      if (user_access('score taken quiz answer')) {
-        $msg = t('Parts of this @quiz have not been evaluated yet. The score below is not final. <a class="self-score" href="!result_url">Click here</a> to give scores on your own.', array('@quiz' => QUIZ_NAME, '!result_url' => url('node/' . $quiz->nid . '/results/' . $result_id)));
-      }
-      else {
-        $msg = t('Parts of this @quiz have not been evaluated yet. The score below is not final.', array('@quiz' => QUIZ_NAME));
-      }
-      drupal_set_message($msg, 'warning');
-    }
-    $output .= '<div id="quiz_score_possible">' . t('You got %num_correct of %question_count possible points.', array('%num_correct' => $score['numeric_score'], '%question_count' => $score['possible_score'])) . '</div>' . "\n";
-    $output .= '<div id="quiz_score_percent">' . t('Your score: %score %', array('%score' => $score['percentage_score'])) . '</div>' . "\n";
-  }
-  if (isset($summary['passfail'])) {
-    $output .= '<div id="quiz_summary">' . $summary['passfail'] . '</div>' . "\n";
-  }
-  if (isset($summary['result'])) {
-    $output .= '<div id="quiz_summary">' . $summary['result'] . '</div>' . "\n";
-  }
-  // Get the feedback for all questions. These are included here to provide maximum flexibility for themers
-  if ($quiz->feedback_time == QUIZ_FEEDBACK_END) {
-    $form = drupal_get_form('quiz_report_form', $questions);
-    $output .= drupal_render($form);
-  }
-  return $output;
-}
-
-/**
- * Theme the summary page for user results.
- *
- * @param $quiz
- *  The quiz node object.
- * @param $questions
- *  The questions array as defined by _quiz_get_answers.
- * @param $score
- *  Array of score information as returned by quiz_calculate_score().
- * @param $summary
- *  Filtered text of the summary.
- * @return
- *  Themed html.
- *
- * @ingroup themeable
- */
-function theme_quiz_user_summary($variables) {
-  global $user;
-  $quiz = $variables['quiz'];
-  $questions = $variables['questions'];
-  $score = $variables['score'];
-  $summary = $variables['summary'];
-  $result_id = $variables['result_id'];
-  // Set the title here so themers can adjust.
-  drupal_set_title($quiz->title);
-
-  if (!$score['is_evaluated']) {
-    if (user_access('score taken quiz answer')) {
-      $msg = t('Parts of this @quiz have not been evaluated yet. The score below is not final. <a class="self-score" href="!result_url">Click here</a> to give scores on your own.', array('@quiz' => QUIZ_NAME, '!result_url' => url('node/' . $quiz->nid . '/results/' . $result_id)));
-    }
-    else {
-      $msg = t('Parts of this @quiz have not been evaluated yet. The score below is not final.', array('@quiz' => QUIZ_NAME));
-    }
-  }
-
-  // Display overall result.
-  $output = '';
-  $output .= '<div id="quiz_score_possible">' .
-    t('You got %num_correct of %question_count possible points.', array('%num_correct' => $score['numeric_score'], '%question_count' => $score['possible_score'])) .
-    '</div>';
-  $output .= '<div id="quiz_score_percent">' .
-    t('Your score: @score%', array('@score' => $score['percentage_score'])) .
-    '</div>';
-
-  if (isset($summary['passfail'])) {
-    $output .= '<div id="quiz_summary">' . $summary['passfail'] . '</div>' . "\n";
-  }
-  if (isset($summary['result'])) {
-    $output .= '<div id="quiz_summary">' . $summary['result'] . '</div>' . "\n";
-  }
-  // Get the feedback for all questions.
-  $allow_scoring = quiz_allow_score_access($quiz);
-  $form = drupal_get_form('quiz_report_form', $questions, FALSE, TRUE, $allow_scoring);
-  $output .= drupal_render($form);
-  return $output;
-}
-
-/**
  * Theme the "no feedback" option.
  *
  * @return
@@ -486,21 +332,6 @@ function theme_quiz_user_summary($variables) {
  */
 function theme_quiz_no_feedback() {
   return t('Thanks for taking the quiz!');
-}
-
-/**
- * Theme the single question node
- *
- * @param $node
- *  The question node
- * @return
- *  Themed html feedback
- */
-function theme_quiz_single_question_node($variables) {
-  $node = $variables['question_node'];
-  // This might seem meaningless, but it is designed this way to allow themes to add more
-  // meaningful stuff here...
-  return drupal_render($node->content);
 }
 
 /**
@@ -564,4 +395,66 @@ function theme_quiz_view_stats($variables) {
   }
   $out .= '</table>' . "\n";
   return $out;
+}
+
+/**
+ * Theme the result page.
+ *
+ * @param $quiz
+ *  The quiz node object.
+ * @param $questions
+ *  The questions array as defined by _quiz_get_answers.
+ * @param $score
+ *  Array of score information as returned by quiz_calculate_score().
+ * @param $summary
+ *  Filtered text of the summary.
+ * @return
+ *  Themed html.
+ *
+ * @ingroup themeable
+ */
+function theme_quiz_result($variables) {
+  global $user;
+  $quiz = $variables['quiz'];
+  $questions = $variables['questions'];
+  $score = $variables['score'];
+  $summary = $variables['summary'];
+  $quiz_result = quiz_result_load($variables['result_id']);
+  $account = $variables['account'];
+
+  if (!$score['is_evaluated']) {
+    $msg = t('Parts of this @quiz have not been evaluated yet. The score below is not final.', array('@quiz' => QUIZ_NAME));
+    drupal_set_message($msg, 'warning');
+  }
+
+  // Display overall result.
+  $output = '';
+  $params = array(
+    '%num_correct' => $score['numeric_score'],
+    '%question_count' => $score['possible_score'],
+    '!username' => ($user->uid == $account->uid) ? t('You') : theme('username', array('account' => $account)),
+    '@score' => $score['percentage_score'],
+    '!yourtotal' => ($user->uid == $account->uid) ? t('Your') : t('Total'),
+  );
+
+  // @todo should use quiz_feedback_can_review but we dont have the quiz result here.
+  if (quiz_feedback_can_review('score', $quiz_result)) {
+    // Show score.
+    $output .= '<div id="quiz_score_possible">' . t('!username got %num_correct of %question_count possible points.', $params) . '</div>' . "\n";
+    $output .= '<div id="quiz_score_percent">' . t('!yourtotal score: @score%', $params) . '</div>' . "\n";
+  }
+
+  if (quiz_feedback_can_review('quiz_feedback', $quiz_result)) {
+    // Show quiz feedback.
+    if (isset($summary['passfail'])) {
+      $output .= '<div id="quiz_summary">' . $summary['passfail'] . '</div>' . "\n";
+    }
+    if (isset($summary['result'])) {
+      $output .= '<div id="quiz_summary">' . $summary['result'] . '</div>' . "\n";
+    }
+  }
+
+  $report_form = drupal_get_form('quiz_report_form', $questions);
+  $output .= drupal_render($report_form);
+  return $output;
 }

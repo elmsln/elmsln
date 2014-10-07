@@ -142,7 +142,7 @@ ns.File.prototype.uploadFile = function () {
   this.$errors.html('');
 
   ns.File.changeCallback = function () {
-    that.$file.html('<div class="h5peditor-uploading">' + ns.t('core', 'uploading') + '</div>');
+    that.$file.html('<div class="h5peditor-uploading h5p-throbber">' + ns.t('core', 'uploading') + '</div>');
   };
 
   ns.File.callback = function (json) {
@@ -241,7 +241,7 @@ ns.File.addIframe = function () {
     }
 
     $body.html('');
-    var $form = ns.$('<form method="post" enctype="multipart/form-data" action="' + ns.ajaxPath + 'files"><input name="file" type="file"/><input name="field" type="hidden"/><input name="contentId" type="hidden" value="' + (ns.contentId === undefined ? 0 : ns.contentId) + '"/></form>').appendTo($body);
+    var $form = ns.$('<form method="post" enctype="multipart/form-data" action="' + ns.getAjaxUrl('files') + '"><input name="file" type="file"/><input name="field" type="hidden"/><input name="contentId" type="hidden" value="' + (ns.contentId === undefined ? 0 : ns.contentId) + '"/></form>').appendTo($body);
 
     ns.File.$field = $form.children('input[name="field"]');
     ns.File.$file = $form.children('input[name="file"]');

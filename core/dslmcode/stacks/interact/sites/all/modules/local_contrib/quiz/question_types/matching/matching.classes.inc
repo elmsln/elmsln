@@ -290,7 +290,7 @@ class MatchingQuestion extends QuizQuestion {
    * @return
    *  Array with two arrays, matches and selected options
    */
-  private function getSubquestions() {
+  public function getSubquestions() {
     $matches = $select_option = array();
     //$sql = "SELECT match_id, question, answer, feedback FROM {quiz_matching_node} WHERE nid = %d AND vid = %d";
     $query = db_query('SELECT match_id, question, answer, feedback FROM {quiz_matching_node} WHERE nid = :nid AND vid = :vid', array(':nid' => $this->node->nid, ':vid' => $this->node->vid));
@@ -532,60 +532,26 @@ class MatchingResponse extends QuizQuestionResponse {
 
   /**
    * Implementation of getReportFormResponse
-   *
-   * @see QuizQuestionResponse#getReportFormResponse($showpoints, $showfeedback, $allow_scoring)
    */
-  public function getReportFormResponse($showpoints = TRUE, $showfeedback = TRUE, $allow_scoring = FALSE) {
-    $data = $metadata = array();
-    // Build the question answers header (add blank space for IE).
-    $metadata[] = t('Match');
-    if ($showpoints) {
-      $metadata[] = t('Correct Answer');
-    }
-    $metadata[] = t('User answer');
+  public function getReportFormResponse() {
+    $data = array();
+    $answers = $this->question->answers[0]['answer'];
+    $solution = $this->quizQuestion->getSubquestions();
+    foreach ($this->question->match as $match) {
 
-    $MatchingQuestion = new MatchingQuestion($this->question);
-    $correct_answers = $MatchingQuestion->getCorrectAnswer();
-    $user_answers = isset($this->answer['answer']) ? $this->answer['answer'] : $this->answer;
-    $has_feedback = FALSE;
-    foreach ($correct_answers as $correct_answer) {
-      $answer_data = array();
-      $correct = FALSE;
-      $id = NULL;
-      $answer_data['question'] = check_markup($correct_answer['question'], $this->getFormat());
-      if ($showpoints) {
-        $answer_data['correct_answer'] = $correct_answer['answer'];
-      }
-      if (isset($user_answers[$correct_answer['match_id']])) {
-        $id = $user_answers[$correct_answer['match_id']];
-        $correct = isset($correct_answers[$id]) && $correct_answer['answer'] == $correct_answers[$id]['answer'];
-        $answer_data['user_answer'] = isset($correct_answers[$id]) ? check_markup($correct_answers[$id]['answer'], $this->getFormat()) : NULL;
-      }
-      if ($showfeedback && !empty($correct_answer['feedback'])) {
-        $answer_data['feedback'] = check_markup($correct_answer['feedback'], $this->getFormat());
-        $has_feedback = TRUE;
-      }
-      else {
-        if ($showfeedback) {
-          //$answer_data['feedback'] = '';
-        }
-      }
-      if ($this->getQuizQuestion()->viewCanRevealCorrect()) {
-        $answer_data['is_correct'] = $correct;
-      }
-      else {
-        $answer_data['is_correct'] = 2;
-      }
-      $data[] = $answer_data;
+      $data[] = array(
+        'choice' => $match['question'],
+        'attempt' => $solution[1][$answers[$match['match_id']]],
+        'correct' => $answers[$match['match_id']] == $match['match_id'] ? theme('quiz_answer_result', array('type' => 'correct')) : theme('quiz_answer_result', array('type' => 'incorrect')),
+        'score' => $answers[$match['match_id']] == $match['match_id'] ? 1 : 0,
+        'answer_feedback' => $match['feedback'],
+        'question_feedback' => 'Question feedback',
+        'solution' => $solution[1][$match['match_id']],
+        'quiz_feedback' => "Quiz feedback",
+      );
     }
 
-    if ($showfeedback && $has_feedback) {
-      $metadata[] = t('Feedback');
-    }
-    $metadata[] = t('Valuation');
-    return array(
-      '#markup' => theme('matching_response', array('metadata' => $metadata, 'data' => $data)),
-    );
+    return $data;
   }
 
 }

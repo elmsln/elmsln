@@ -24,27 +24,31 @@ class QuizPageTestCase extends QuizQuestionTestCase {
   function testQuizPageParentage() {
     $this->drupalLogin($this->admin);
 
-    // Create questions
+    // Create Quiz with review of score.
     $quiz_node = $this->drupalCreateQuiz();
+
+    // Create the questions.
     $question_node1 = $this->drupalCreateNode(array('type' => 'truefalse', 'correct_answer' => 1, 'body' => array(LANGUAGE_NONE => array(array('value' => 'TF 1 body text')))));
     $this->linkQuestionToQuiz($question_node1, $quiz_node); // QNR ID 1
     $question_node2 = $this->drupalCreateNode(array('type' => 'truefalse', 'correct_answer' => 1, 'body' => array(LANGUAGE_NONE => array(array('value' => 'TF 2 body text')))));
     $this->linkQuestionToQuiz($question_node2, $quiz_node); // QNR ID 2
     $question_node3 = $this->drupalCreateNode(array('type' => 'truefalse', 'correct_answer' => 1, 'body' => array(LANGUAGE_NONE => array(array('value' => 'TF 3 body text')))));
     $this->linkQuestionToQuiz($question_node3, $quiz_node);  // QNR ID 3
-    // Create pages.
+
+    // Create the pages.
     $page_node1 = $this->drupalCreateNode(array('type' => 'quiz_page'));
     $this->linkQuestionToQuiz($page_node1, $quiz_node); // QNR ID 4
     $page_node2 = $this->drupalCreateNode(array('type' => 'quiz_page'));
     $this->linkQuestionToQuiz($page_node2, $quiz_node); // QNR ID 5
 
+    // Go to the manage questions form.
     $this->drupalGet("node/$quiz_node->nid/quiz/questions");
     $post = array(
       // Make the questions have parents.
       "qnr_pids[{$question_node1->nid}-{$question_node1->vid}]" => 4,
       "qnr_pids[{$question_node2->nid}-{$question_node2->vid}]" => 4,
       "qnr_pids[{$question_node3->nid}-{$question_node3->vid}]" => 5,
-      // Mirror what JS would have done.
+      // Mirror what JS would have done by adjusting the weights.
       "weights[{$page_node1->nid}-{$page_node1->vid}]" => 2,
       "weights[{$question_node1->nid}-{$question_node1->vid}]" => 3,
       "weights[{$question_node2->nid}-{$question_node2->vid}]" => 4,
@@ -55,7 +59,7 @@ class QuizPageTestCase extends QuizQuestionTestCase {
 
     $sql = "SELECT * FROM {quiz_node_relationship}";
     $data = db_query($sql)->fetchAllAssoc('qnr_id');
-    // Check the relationships.
+    // Check the relationships properly saved.
     foreach ($data as $qnr_id => $rel) {
       switch ($qnr_id) {
         case 1:

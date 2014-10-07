@@ -9,9 +9,9 @@ dependencies[] = quiz_question
 files[] = quiz_directions.classes.inc
 
 
-; Information added by Drupal.org packaging script on 2014-06-01
-version = "7.x-5.0-alpha1"
+; Information added by Drupal.org packaging script on 2014-09-19
+version = "7.x-5.0-alpha4"
 core = "7.x"
 project = "quiz"
-datestamp = "1401662628"
+datestamp = "1411144145"
 

@@ -18,6 +18,8 @@ cmi.save_log = true;
 cmi.log = "";           // WO
 
 cmi.comm_check = false;
+cmi.commit_async = false;
+cmi.log_suspend = false;
 
 cmi.children = new Object();
 
@@ -1029,11 +1031,13 @@ cmi.commit = function() {
 
     // post cmi data to host
     if (cmi.lms_commit_url != '') {
+        var json = cmi.formatData();
         var resp = jQuery.ajax({
                        type: 'POST',
+                       contentType: 'application/json; charset=utf-8',
                        url: cmi.lms_commit_url,
-                       async: false,
-                       data: "&cmidata=" + cmi.formatData(),
+                       async: cmi.commit_async,
+                       data: json,
                        complete: function(jqXHR, textStatus) {
                            if (textStatus != 'success') {
                                result = false;
@@ -1856,12 +1860,17 @@ var _json_sub = { // table of character substitutions
 
 function _json_quote(string) {
 
-    _json_escapable.lastIndex = 0;
-    return _json_escapable.test(string) ? '"' + string.replace(_json_escapable, function (a) {
-        var c = _json_sub[a];
-        return typeof c === 'string'
-            ? c
-            : '\\u' + ('0000' + a.charCodeAt(0).toString(16)).slice(-4);
-    }) + '"' : '"' + string + '"';
+    if (typeof (JSON.stringify) === "function") {
+        return JSON.stringify(string);
+    }
+    else {
+        _json_escapable.lastIndex = 0;
+        return _json_escapable.test(string) ? '"' + string.replace(_json_escapable, function (a) {
+            var c = _json_sub[a];
+            return typeof c === 'string'
+                ? c
+                : '\\u' + ('0000' + a.charCodeAt(0).toString(16)).slice(-4);
+        }) + '"' : '"' + string + '"';
+    }
 }
 

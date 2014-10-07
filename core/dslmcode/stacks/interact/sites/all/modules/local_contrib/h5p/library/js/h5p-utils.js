@@ -17,7 +17,7 @@ var H5PUtils = H5PUtils || {};
         $tr.append('<th>' + value + '</th>');
       });
       
-      $table.append($thead.append($tr))
+      $table.append($thead.append($tr));
     }
     
     return $table;
@@ -51,7 +51,7 @@ var H5PUtils = H5PUtils || {};
     $field.append('<div class="h5p-value">' + value + '</div>');
     
     return $field;
-  }
+  };
   
   /**
    * Replaces placeholder fields in translation strings
@@ -61,9 +61,60 @@ var H5PUtils = H5PUtils || {};
    */
   H5PUtils.translateReplace = function (template, replacors) {
     $.each(replacors, function (key, value) {
-      template = template.replace(new RegExp('\\'+key, 'g'), value)
+      template = template.replace(new RegExp('\\'+key, 'g'), value);
     });
     return template;
-  }
+  };
+  
+  /**
+   * Get throbber with given text.
+   * 
+   * @param {String} text
+   * @returns {$}
+   */
+  H5PUtils.throbber = function (text) {
+    return $('<div/>', {
+      class: 'h5p-throbber',
+      text: text
+    });
+  };
+  
+  /**
+   * Makes it possbile to rebuild all content caches from admin UI.
+   * @param {Object} notCached
+   * @returns {$}
+   */
+  H5PUtils.getRebuildCache = function (notCached) {
+    var $container = $('<div class="h5p-admin-rebuild-cache"><p>' + notCached.message + '</p></div>');
+    var $button = $('<button>' + notCached.button + '</button>').appendTo($container).click(function () {
+      var $spinner = $('<div/>', {class: 'h5p-spinner'}).replaceAll($button);
+      var parts = ['|', '/', '-', '\\'];
+      var current = 0;
+      var spinning = setInterval(function () {
+        $spinner.text(parts[current]);
+        current++;
+        if (current === parts.length) current = 0;
+      }, 100);
+      
+      var $counter = $container.find('.placeholder');
+      var build = function () {
+        $.post(notCached.url, function (left) {
+          if (left === '0') {
+            clearInterval(spinning);
+            $container.remove();
+            location.reload();
+          }
+          else {
+            var counter = $counter.text().split(' ', 2);
+            $counter.text(left + ' ' + counter[1]);
+            build();
+          }
+        });
+      };
+      build();
+    });
+    
+    return $container;
+  };
   
 })(H5P.jQuery);

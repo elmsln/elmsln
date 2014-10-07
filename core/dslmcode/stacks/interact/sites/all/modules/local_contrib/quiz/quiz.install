@@ -40,15 +40,26 @@ function quiz_schema() {
   $schema['quiz_node_properties'] = array(
     'description' => 'The base table for quiz nodes',
     'fields' => array(
+      'qnp_id' => array(
+        'type' => 'serial',
+      ),
       'vid' => array(
         'type' => 'int',
         'unsigned' => TRUE,
         'not null' => TRUE,
+        'default' => 0,
       ),
       'nid' => array(
         'type' => 'int',
         'unsigned' => TRUE,
         'not null' => TRUE,
+        'default' => 0,
+      ),
+      'uid' => array(
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 0,
       ),
       'aid' => array(
         'type' => 'varchar',
@@ -102,12 +113,14 @@ function quiz_schema() {
         'size' => 'tiny',
         'unsigned' => TRUE,
         'not null' => TRUE,
+        'default' => 1,
       ),
       'keep_results' => array(
         'type' => 'int',
         'size' => 'tiny',
         'unsigned' => TRUE,
         'not null' => TRUE,
+        'default' => QUIZ_KEEP_ALL,
       ),
       'repeat_until_correct' => array(
         'type' => 'int',
@@ -115,19 +128,6 @@ function quiz_schema() {
         'unsigned' => TRUE,
         'not null' => TRUE,
         'default' => 0,
-      ),
-      'feedback_time' => array(
-        'type' => 'int',
-        'size' => 'tiny',
-        'unsigned' => TRUE,
-        'not null' => TRUE,
-      ),
-      'display_feedback' => array(
-        'type' => 'int',
-        'size' => 'tiny',
-        'unsigned' => TRUE,
-        'not null' => TRUE,
-        'default' => 1,
       ),
       'quiz_open' => array(
         'type' => 'int',
@@ -146,6 +146,7 @@ function quiz_schema() {
         'size' => 'tiny',
         'unsigned' => TRUE,
         'not null' => TRUE,
+        'default' => 0,
       ),
       'show_attempt_stats' => array(
         'type' => 'int',
@@ -228,8 +229,12 @@ function quiz_schema() {
         'not null' => TRUE,
         'default' => 0,
       ),
+      'review_options' => array(
+        'type' => 'text',
+        'serialize' => TRUE,
+      ),
     ),
-    'primary key' => array('vid'),
+    'primary key' => array('qnp_id'),
     // 'unique keys' => array('vid'),
     'indexes' => array('quiz_id' => array('vid', 'nid')),
   );
@@ -527,151 +532,6 @@ function quiz_schema() {
     )
   );
 
-  $schema['quiz_user_settings'] = array(
-    'description' => 'Table storing the user settings for the quiz node form',
-    'fields' => array(
-      'uid' => array(
-        'type' => 'int',
-        'unsigned' => TRUE,
-        'not null' => TRUE,
-      ),
-      'nid' => array(
-        'description' => 'nid for the last node the user edited',
-        'type' => 'int',
-        'unsigned' => TRUE,
-        'not null' => TRUE,
-      ),
-      'vid' => array(
-        'description' => 'vid for the last node the user edited',
-        'type' => 'int',
-        'unsigned' => TRUE,
-        'not null' => TRUE,
-      ),
-      'aid' => array(
-        'type' => 'varchar',
-        'length' => 255,
-        'not null' => TRUE,
-      ),
-      'pass_rate' => array(
-        'type' => 'int',
-        'size' => 'tiny',
-        'unsigned' => TRUE,
-        'not null' => TRUE,
-      ),
-      'summary_pass' => array(
-        'type' => 'text',
-      ),
-      'summary_pass_format' => array(
-        'type' => 'varchar',
-        'length' => 255,
-        'not null' => TRUE,
-      ),
-      'summary_default' => array(
-        'type' => 'text',
-      ),
-      'summary_default_format' => array(
-        'type' => 'varchar',
-        'length' => 255,
-        'not null' => TRUE,
-      ),
-      'randomization' => array(
-        'type' => 'int',
-        'size' => 'small',
-        'not null' => TRUE,
-        'default' => 0
-      ),
-      'backwards_navigation' => array(
-        'type' => 'int',
-        'size' => 'tiny',
-        'unsigned' => TRUE,
-        'not null' => TRUE,
-      ),
-      'keep_results' => array(
-        'type' => 'int',
-        'size' => 'tiny',
-        'unsigned' => TRUE,
-        'not null' => TRUE,
-      ),
-      'repeat_until_correct' => array(
-        'type' => 'int',
-        'size' => 'tiny',
-        'unsigned' => TRUE,
-        'not null' => TRUE,
-        'default' => 0,
-      ),
-      'feedback_time' => array(
-        'type' => 'int',
-        'size' => 'tiny',
-        'unsigned' => TRUE,
-        'not null' => TRUE,
-      ),
-      'display_feedback' => array(
-        'type' => 'int',
-        'size' => 'tiny',
-        'unsigned' => TRUE,
-        'not null' => TRUE,
-        'default' => 1,
-      ),
-      'takes' => array(
-        'type' => 'int',
-        'size' => 'tiny',
-        'unsigned' => TRUE,
-        'not null' => TRUE,
-      ),
-      'show_attempt_stats' => array(
-        'type' => 'int',
-        'size' => 'tiny',
-        'unsigned' => FALSE,
-        'not null' => TRUE,
-        'default' => 1,
-      ),
-      'time_limit' => array(
-        'type' => 'int',
-        'unsigned' => TRUE,
-        'not null' => TRUE,
-        'default' => 0,
-      ),
-      'quiz_always' => array(
-        'type' => 'int',
-        'size' => 'tiny',
-        'not null' => TRUE,
-        'default' => 0
-      ),
-      'has_userpoints' => array(
-        'type' => 'int',
-        'size' => 'tiny',
-        'unsigned' => TRUE,
-        'not null' => TRUE,
-        'default' => 0
-      ),
-      'allow_skipping' => array(
-        'type' => 'int',
-        'size' => 'small',
-        'not null' => TRUE,
-        'default' => 0,
-      ),
-      'allow_resume' => array(
-        'type' => 'int',
-        'size' => 'small',
-        'not null' => TRUE,
-        'default' => 1,
-      ),
-      'allow_jumping' => array(
-        'type' => 'int',
-        'size' => 'tiny',
-        'not null' => TRUE,
-        'default' => 0,
-      ),
-      'show_passed' => array(
-        'type' => 'int',
-        'size' => 'tiny',
-        'not null' => TRUE,
-        'default' => 1,
-      ),
-    ),
-    'primary key' => array('uid'),
-  );
-
   $schema['quiz_terms'] = array(
     'description' => 'Table storing what terms belongs to what quiz for categorized random quizzes',
     'fields' => array(
@@ -919,4 +779,61 @@ function quiz_update_7504() {
   db_change_field('quiz_node_results', 'time_end', 'time_end', $spec);
   db_query("UPDATE {quiz_node_results} SET time_end = NULL WHERE time_end = 0");
   return t('Removed default attribute from field time_start and time_end in quiz_node_results table.');
+}
+
+/**
+ * Revamping quiz feedback options.
+ */
+function quiz_update_7505() {
+  db_add_field('quiz_node_properties', 'review_options', array(
+    'type' => 'text',
+    'serialize' => TRUE,
+  ));
+
+  drupal_get_schema(NULL, TRUE);
+
+  $sql = "SELECT * FROM {quiz_node_properties}";
+  $result = db_query($sql);
+  while ($row = $result->fetch()) {
+    if ($row->feedback_time == 0) {
+      $row->review_options['end']['answer_feedback'] = 'answer_feedback';
+      if ($row->show_feedback) {
+        $row->review_options['end']['solution'] = 'solution';
+      }
+    }
+    if ($row->feedback_time == 1) {
+      $row->review_options['question']['answer_feedback'] = 'answer_feedback';
+      if ($row->show_feedback) {
+        $row->review_options['question']['solution'] = 'solution';
+      }
+    }
+    if ($row->feedback_time == 2) {
+      $row->review_options = array();
+    }
+    drupal_write_record('quiz_node_properties', $row, array('nid', 'vid'));
+  }
+
+  db_drop_field('quiz_node_properties', 'feedback_time');
+  db_drop_field('quiz_node_properties', 'display_feedback');
+}
+
+/**
+ * Add qnp_id and uid so we can have better quiz node defaults.
+ */
+function quiz_update_7506() {
+  db_drop_primary_key('quiz_node_properties');
+  db_add_field('quiz_node_properties', 'qnp_id', array(
+    'type' => 'serial',
+    ), array('primary key' => array('qnp_id')));
+
+  db_add_field('quiz_node_properties', 'uid', array(
+      'type' => 'int',
+      'unsigned' => TRUE,
+      'not null' => TRUE,
+      'default' => 0,
+  ));
+
+  // We could do this, but we should really migrate user settings from 4.x.
+  // Patches welcome.
+  // db_drop_table('quiz_user_settings');
 }

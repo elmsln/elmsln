@@ -1,0 +1,143 @@
+[
+  {
+    "machineName": "H5P.CoursePresentation",
+    "downloadUrl": "http://h5p.org/presentation",
+    "minimumVersions": [
+      {
+        "major": 1,
+        "minor": 0,
+        "patch": 64
+      },
+      {
+        "major": 1,
+        "minor": 1,
+        "patch": 10
+      }
+    ]
+  },
+  {
+    "machineName": "H5P.Blanks",
+    "downloadUrl": "http://h5p.org/fill-in-the-blanks",
+    "minimumVersions": [
+      {
+        "major": 1,
+        "minor": 0,
+        "patch": 65
+      }
+    ]
+  },
+  {
+    "machineName": "H5P.Dialogcards",
+    "downloadUrl": "http://h5p.org/dialog-cards",
+    "minimumVersions": [
+      {
+        "major": 1,
+        "minor": 0,
+        "patch": 28
+      }
+    ]
+  },
+  {
+    "machineName": "H5P.DragQuestion",
+    "downloadUrl": "http://h5p.org/drag-and-drop",
+    "minimumVersions": [
+      {
+        "major": 1,
+        "minor": 0,
+        "patch": 61
+      }
+    ]
+  },
+  {
+    "machineName": "H5P.InteractiveVideo",
+    "downloadUrl": "http://h5p.org/interactive-video",
+    "minimumVersions": [
+      {
+        "major": 1,
+        "minor": 0,
+        "patch": 31
+      },
+      {
+        "major": 1,
+        "minor": 1,
+        "patch": 10
+      },
+      {
+        "major": 1,
+        "minor": 2,
+        "patch": 10
+      }
+    ]
+  },
+  {
+    "machineName": "H5P.Flashcards",
+    "downloadUrl": "http://h5p.org/flashcards",
+    "minimumVersions": [
+      {
+        "major": 1,
+        "minor": 0,
+        "patch": 37
+      }
+    ]
+  },
+  {
+    "machineName": "H5P.ImageHotspots",
+    "downloadUrl": "http://h5p.org/image-hotspots",
+    "minimumVersions": [
+      {
+        "major": 1,
+        "minor": 0,
+        "patch": 5
+      }
+    ]
+  },
+  {
+    "machineName": "H5P.JoubelUI",
+    "downloadUrl": "http://h5p.org/fill-in-the-blanks",
+    "minimumVersions": [
+      {
+        "major": 1,
+        "minor": 0,
+        "patch": 6
+      }
+    ]
+  },
+  {
+    "machineName": "H5P.MultiChoice",
+    "downloadUrl": "http://h5p.org/multichoice",
+    "minimumVersions": [
+      {
+        "major": 1,
+        "minor": 0,
+        "patch": 51
+      }
+    ]
+  },
+  {
+    "machineName": "H5P.QuestionSet",
+    "downloadUrl": "http://h5p.org/question-set",
+    "minimumVersions": [
+      {
+        "major": 1,
+        "minor": 0,
+        "patch": 53
+      }
+    ]
+  },
+  {
+    "machineName": "H5P.Summary",
+    "downloadUrl": "http://h5p.org/summary",
+    "minimumVersions": [
+      {
+        "major": 1,
+        "minor": 0,
+        "patch": 38
+      },
+      {
+        "major": 1,
+        "minor": 1,
+        "patch": 4
+      }
+    ]
+  }
+]

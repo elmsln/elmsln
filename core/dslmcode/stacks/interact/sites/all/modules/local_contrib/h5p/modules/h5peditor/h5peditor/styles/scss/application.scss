@@ -5,8 +5,17 @@
 @import "compass/css3/transition";
 @import "compass/css3/transform";
 
-$fa: H5PFontAwesome4;
-$i: H5P;
+$i: 'H5P';
+
+html, body {
+  margin: 0;
+  padding: 0;
+  font-family: 'Open Sans', sans-serif;  
+  max-width: 960px;
+}
+a {
+  text-decoration: none;
+}
 
 .h5peditor {
   font-size: 16px;
@@ -35,6 +44,7 @@ $i: H5P;
     .library {
       border: 1px solid #666;
       padding: 8px;
+      overflow: hidden; // Create a new block formatting context to avoid float related issues with vertical tabs
     }
   }
   
@@ -61,7 +71,7 @@ $i: H5P;
   a:focus {
     outline: none;
   }
-  textarea:focus, 
+  textarea:focus,
   .h5peditor-text:focus {
     outline: none;
     background-color: #fff;
@@ -97,6 +107,9 @@ $i: H5P;
         height: 14px;
         margin: 13px 3px 0 1px;
         float: right;
+        font-size: 1.75em;
+        line-height: 1em;
+        text-indent: -0.35em;
 
         &:hover {
           opacity: 1;
@@ -105,11 +118,9 @@ $i: H5P;
       }
       
       & > .remove:after {
-          font-family: $fa;
-          content: "\f057";
+          font-family: $i;
+          content: "\e890";
           color: #666;
-          
-          
         }
         
       & > .remove:hover:after {
@@ -120,8 +131,8 @@ $i: H5P;
         float: left;
           
         &:after {
-          font-family: $fa;
-          content: "\f0dc";
+          font-family: $i;
+          content: "\e88d";
           color: #666;
           
         }
@@ -252,18 +263,16 @@ $i: H5P;
     }
     .remove {
       display: block;
-      width: 14px;
-      height: 14px;
       position: absolute;
       top: 13px;
       right: 16px;
       cursor: pointer;
     }
     .remove:before {
-      font-family: $fa;
-      font-size: 1.2em;
+      font-family: $i;
+      font-size: 1.4em;
       color: #fff;
-      content: "\f057";
+      content: "\e890";
       @include opacity(0.8);
       @include text-shadow(rgba(black, 0.4) 0 0 4px, rgba(black, 0.4) 0 0 4px, rgba(black, 0.4) 0 0 4px);
     }
@@ -292,8 +301,8 @@ $i: H5P;
       cursor: auto;
     }
     .remove {
-      top: 2px;
-      right: 5px;
+      top: -7px;
+      right: -5px;
     }
     .type {
       padding: 16px 8px 4px;
@@ -337,8 +346,8 @@ $i: H5P;
   }
 
   .h5peditor-uploading, .h5peditor-loading {
-    background: inline-image("uploading.gif") no-repeat 10px 7px;
-    padding-top: 40px;
+    padding-top: 10px;
+    padding-bottom: 6px;
     font-size: 14px;
   }
   .h5peditor-loading {
@@ -357,10 +366,11 @@ $i: H5P;
     
     &:before {
       font-family: $i;
-      content: "\e668";
+      content: "\e88f";
       padding-right: 0.25em;
       vertical-align: bottom;
       font-size: 1.5em;
+      line-height: 1em;
     }
     &:hover {
       color: #555;
@@ -399,10 +409,12 @@ $i: H5P;
     
       &:before {
         font-size: 2em;
-        right: 13px;
+        right: -0.125em;
+        top: 0;
         position: absolute;
-        font-family: H5PFontAwesome4;
-        content: "\f00d";
+        font-family: "H5P";
+        content: "\e894";
+        line-height: 1em;
         @include transition(scale 0.2s);
       }
       
@@ -424,7 +436,6 @@ $i: H5P;
   background: #fff;
   padding: 8px;
   border: 1px solid #ccc;
-  max-width: 960px;
 }
 
 .h5peditor-label {

@@ -15,7 +15,7 @@ var H5P = H5P || (function () {
       result += prefix + content[i] + suffix;
     }
     return result;
-  }
+  };
   
   /**
    * 
@@ -25,7 +25,7 @@ var H5P = H5P || (function () {
     var data, callback = 'H5P' + id;
     
     // Prevent duplicate loading.
-    script.removeAttribute('data-h5p')
+    script.removeAttribute('data-h5p');
     
     // Callback for when content data is loaded.
     window[callback] = function (content) {
@@ -64,13 +64,13 @@ var H5P = H5P || (function () {
       parent.removeChild(script);
       head.removeChild(data);
       delete window[callback];
-    }
+    };
     
     // Create data script
     data = document.createElement('script');
     data.src = url + (url.indexOf('?') === -1 ? '?' : '&') + 'callback=' + callback;
     head.appendChild(data);
-  }
+  };
   
   /**
    * Go throught all script tags with the data-h5p attribute and load content.
@@ -113,7 +113,7 @@ var H5P = H5P || (function () {
           library: content.library,
           jsonContent: content.params,
           fullScreen: content.fullscreen,
-          export: content.export,
+          exportUrl: content.exportUrl,
           embedCode: content.embedCode
         };
       },
@@ -126,15 +126,20 @@ var H5P = H5P || (function () {
   };
   
   // Detect if we support fullscreen, and what prefix to use.
-  var fullScreenBrowserPrefix;
+  var fullScreenBrowserPrefix, safariBrowser;
   if (document.documentElement.requestFullScreen) {
     fullScreenBrowserPrefix = '';
   }
   else if (document.documentElement.webkitRequestFullScreen
       && navigator.userAgent.indexOf('Android') === -1 // Skip Android
-      && navigator.userAgent.indexOf('Version/') === -1 // Skip Safari
       ) {
-    fullScreenBrowserPrefix = 'webkit';
+    safariBrowser = navigator.userAgent.match(/Version\/(\d)/);
+    safariBrowser = (safariBrowser === null ? 0 : parseInt(safariBrowser[1]));
+
+    // Do not allow fullscreen for safari < 7.
+    if (safariBrowser === 0 || safariBrowser > 6) {
+      fullScreenBrowserPrefix = 'webkit';
+    }
   }
   else if (document.documentElement.mozRequestFullScreen) {
     fullScreenBrowserPrefix = 'moz';
@@ -151,30 +156,55 @@ var H5P = H5P || (function () {
     var $classes = $element.add(body);
     var $body = $classes.eq(1);
     
-    var done = function (c) {
-      $classes.removeClass(c);
-      
-      if (H5P.fullScreenBrowserPrefix === undefined) {
-        // Resize content.
-        if (instance.$ !== undefined) {
-          instance.$.trigger('resize');
-        }
-      }
+    /**
+      * Prepare for resize by setting the correct styles.
+      * 
+      * @param {String} classes CSS
+      */
+     var before = function (classes) {
+       $classes.addClass(classes);
+       iframe.style.height = '100%';
+     };
 
-      if (exitCallback !== undefined) {
-        exitCallback();
-      }
-    };
+     /**
+      * Gets called when fullscreen mode has been entered.
+      * Resizes and sets focus on content.
+      */
+     var entered = function () {
+       // Do not rely on window resize events.
+       instance.$.trigger('resize');
+       instance.$.trigger('focus');
+     };
 
+     /**
+      * Gets called when fullscreen mode has been exited.
+      * Resizes and sets focus on content.
+      * 
+      * @param {String} classes CSS
+      */
+     var done = function (classes) {
+       H5P.isFullscreen = false;
+       $classes.removeClass(classes);
+
+       // Do not rely on window resize events.
+       instance.$.trigger('resize');
+       instance.$.trigger('focus');
+
+       if (exitCallback !== undefined) {
+         exitCallback();
+       }
+     };
+
+    H5P.isFullscreen = true;
     if (fullScreenBrowserPrefix === undefined) {
       // Create semi fullscreen.
-      
-      $classes.addClass('h5p-semi-fullscreen');
-      iframe.style.position = 'fixed';
 
+      before('h5p-semi-fullscreen');
+      iframe.style.position = 'fixed';
+      
       var $disable = $element.prepend('<a href="#" class="h5p-disable-fullscreen" title="Disable fullscreen"></a>').children(':first');
       var keyup, disableSemiFullscreen = function () {
-        $disable.remove();
+        $disable.remove();      
         $body.unbind('keyup', keyup);
         iframe.style.position = 'static';
         done('h5p-semi-fullscreen');
@@ -187,17 +217,22 @@ var H5P = H5P || (function () {
       };
       $disable.click(disableSemiFullscreen);
       $body.keyup(keyup); // TODO: Does not work with iframe's $!
-      
+      entered();
     }
     else {
       // Create real fullscreen.
-      
+
+      before('h5p-fullscreen');
       var first, eventName = (fullScreenBrowserPrefix === 'ms' ? 'MSFullscreenChange' : fullScreenBrowserPrefix + 'fullscreenchange');
       document.addEventListener(eventName, function () {
         if (first === undefined) {
+          // We are entering fullscreen mode
           first = false;
+          entered();
           return;
         }
+
+        // We are exiting fullscreen
         done('h5p-fullscreen');
         document.removeEventListener(eventName, arguments.callee, false);
       });
@@ -207,24 +242,9 @@ var H5P = H5P || (function () {
       }
       else {
         var method = (fullScreenBrowserPrefix === 'ms' ? 'msRequestFullscreen' : fullScreenBrowserPrefix + 'RequestFullScreen');
-        var params = (fullScreenBrowserPrefix === 'webkit' ? Element.ALLOW_KEYBOARD_INPUT : undefined);
+        var params = (fullScreenBrowserPrefix === 'webkit' && safariBrowser === 0 ? Element.ALLOW_KEYBOARD_INPUT : undefined);
         iframe[method](params);
       }
-
-      $classes.addClass('h5p-fullscreen');
-    }
-    
-    iframe.style.height = '100%';
-    if (H5P.fullScreenBrowserPrefix === undefined) {
-      // Resize content.
-      if (instance.$ !== undefined) {
-        instance.$.trigger('resize', [true]);
-      }
-    }
-    
-    // Allow H5P to set focus when entering fullscreen mode
-    if (instance.focus !== undefined) {
-      instance.focus();
     }
   };
   

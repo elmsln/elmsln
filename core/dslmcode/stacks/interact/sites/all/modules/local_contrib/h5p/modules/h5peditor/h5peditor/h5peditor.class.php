@@ -29,16 +29,20 @@ class H5peditor {
   private $h5p, $storage, $files_directory, $basePath;
 
   /**
-   * Constructor.
-   *
-   * @param object $storage
-   * @param string $files_directory
+   * Constructor for the core editor library.
+   * 
+   * @param \H5PCore $h5p Instance of core.
+   * @param mixed $storage Instance of h5peditor storage.
+   * @param string $basePath Url path to prefix assets with.
+   * @param string $filesDir H5P files directory.
+   * @param string $editorFilesDir Optional custom editor files directory outside h5p files directory.
    */
-  function __construct($h5p, $storage, $filesDirectory, $basePath) {
+  function __construct($h5p, $storage, $basePath, $filesDir, $editorFilesDir = NULL) {
     $this->h5p = $h5p;
     $this->storage = $storage;
-    $this->files_directory = $filesDirectory;
     $this->basePath = $basePath;
+    $this->contentFilesDir = $filesDir . DIRECTORY_SEPARATOR . 'content';
+    $this->editorFilesDir = ($editorFilesDir === NULL ? $filesDir . DIRECTORY_SEPARATOR . 'editor' : $editorFilesDir);
   }
   
   /**
@@ -104,7 +108,7 @@ class H5peditor {
    * @return boolean
    */
   public function createDirectories($id) {
-    $this->content_directory = $this->files_directory . '/h5p/content/' . $id . '/';
+    $this->content_directory = $this->contentFilesDir . DIRECTORY_SEPARATOR . $id . DIRECTORY_SEPARATOR;
 
     $sub_directories = array('', 'files', 'images', 'videos', 'audios');
     foreach ($sub_directories AS $sub_directory) {
@@ -128,29 +132,21 @@ class H5peditor {
   public function processParameters($contentId, $newLibrary, $newParameters, $oldLibrary = NULL, $oldParameters = NULL) {
     $newFiles = array();
     $oldFiles = array();
-    $newLibraries = array($newLibrary['machineName'] => $newLibrary);
-    $oldLibraries = array($oldLibrary);
 
-    // Find new libraries and files.
-    $this->processSemantics($newFiles, $newLibraries, $this->h5p->loadLibrarySemantics($newLibrary['machineName'], $newLibrary['majorVersion'], $newLibrary['minorVersion']), $newParameters);
+    // Find new libraries/content dependencies and files.
+    // Start by creating a fake library field to process. This way we get all the dependencies of the main library as well.
+    $field = (object) array(
+      'type' => 'library'
+    );
+    $libraryParams = (object) array(
+      'library' => H5PCore::libraryToString($newLibrary),
+      'params' => $newParameters
+    );
+    $this->processField($field, $libraryParams, $newFiles);
 
-    $librariesUsed = $newLibraries; // Copy
-
-    foreach ($newLibraries as $library) {
-      $libraryFull = $this->h5p->loadLibrary($library['machineName'], $library['majorVersion'], $library['minorVersion']);
-      $librariesUsed[$library['machineName']]['library'] = $libraryFull;
-      $librariesUsed[$library['machineName']]['type'] = 'preloaded';
-      $this->h5p->findLibraryDependencies($librariesUsed, $libraryFull);
-    }
-
-    // TODO: Prevent usage of Drupal here.
-    $h5pStorage = _h5p_get_instance('storage');
-    $h5pStorage->h5pF->deleteLibraryUsage($contentId);
-    $h5pStorage->h5pF->saveLibraryUsage($contentId, $librariesUsed);
-
-    if ($oldLibrary) {
+    if ($oldLibrary !== NULL) {
       // Find old files and libraries.
-      $this->processSemantics($oldFiles, $oldLibraries, $this->h5p->loadLibrarySemantics($oldLibrary['name'], $oldLibrary['majorVersion'], $oldLibrary['minorVersion']), $oldParameters);
+      $this->processSemantics($oldFiles, $this->h5p->loadLibrarySemantics($oldLibrary['name'], $oldLibrary['majorVersion'], $oldLibrary['minorVersion']), $oldParameters);
 
       // Remove old files.
       for ($i = 0, $s = count($oldFiles); $i < $s; $i++) {
@@ -169,16 +165,16 @@ class H5peditor {
    *
    * @param array $files
    * @param array $libraries
-   * @param array $schema
+   * @param array $semantics
    * @param array $params
    */
-  private function processSemantics(&$files, &$libraries, $semantics, &$params) {
+  private function processSemantics(&$files, $semantics, &$params) {
     for ($i = 0, $s = count($semantics); $i < $s; $i++) {
       $field = $semantics[$i];
       if (!isset($params->{$field->name})) {
         continue;
       }
-      $this->processField($field, $params->{$field->name}, $files, $libraries);
+      $this->processField($field, $params->{$field->name}, $files);
     }
   }
 
@@ -191,10 +187,10 @@ class H5peditor {
    * @param array $files
    * @param array $libraries
    */
-  private function processField(&$field, &$params, &$files, &$libraries) {
+  private function processField(&$field, &$params, &$files) {
     static $h5peditor_path;
     if (!$h5peditor_path) {
-      $h5peditor_path = $this->files_directory . '/h5peditor/';
+      $h5peditor_path = $this->editorFilesDir . DIRECTORY_SEPARATOR;
     }
     switch ($field->type) {
       case 'file':
@@ -234,9 +230,11 @@ class H5peditor {
 
       case 'library':
         if (isset($params->library) && isset($params->params)) {
-          $libraryData = h5peditor_get_library_property($params->library);
-          $libraries[$libraryData['machineName']] = $libraryData;
-          $this->processSemantics($files, $libraries, $this->h5p->loadLibrarySemantics($libraryData['machineName'], $libraryData['majorVersion'], $libraryData['minorVersion']), $params->params);
+          $library = H5PCore::libraryFromString($params->library);
+          $semantics = $this->h5p->loadLibrarySemantics($library['machineName'], $library['majorVersion'], $library['minorVersion']);
+            
+          // Process parameters for the library.
+          $this->processSemantics($files, $semantics, $params->params);
         }
         break;
 
@@ -245,14 +243,14 @@ class H5peditor {
           if (count($field->fields) == 1) {
             $params = (object) array($field->fields[0]->name => $params);
           }
-          $this->processSemantics($files, $libraries, $field->fields, $params);
+          $this->processSemantics($files, $field->fields, $params);
         }
         break;
 
       case 'list':
         if (is_array($params)) {
           for ($j = 0, $t = count($params); $j < $t; $j++) {
-            $this->processField($field->field, $params[$j], $files, $libraries);
+            $this->processField($field->field, $params[$j], $files);
           }
         }
         break;
@@ -317,18 +315,15 @@ class H5peditor {
     // Javascripts
     if (!empty($files['scripts'])) {
       foreach ($files['scripts'] as $script) {
-        if (!isset($libraryData->javascript[$script])) {
-          $libraryData->javascript[$script] = '';
-        }
-        $libraryData->javascript[$script] .= "\n" . file_get_contents($script);
+        $libraryData->javascript[$script->path . $script->version] = "\n" . file_get_contents($script->path);
       }
     }
     
     // Stylesheets
     if (!empty($files['styles'])) {
       foreach ($files['styles'] as $css) {
-        H5peditor::buildCssPath(NULL, $this->basePath . dirname($css) . '/');
-        $libraryData->css[$css] = preg_replace_callback('/url\([\'"]?(?![a-z]+:|\/+)([^\'")]+)[\'"]?\)/i', 'H5peditor::buildCssPath', file_get_contents($css));
+        H5peditor::buildCssPath(NULL, $this->basePath . dirname($css->path) . '/');
+        $libraryData->css[$css->path . $css->version] = preg_replace_callback('/url\([\'"]?(?![a-z]+:|\/+)([^\'")]+)[\'"]?\)/i', 'H5peditor::buildCssPath', file_get_contents($css->path));
       }
     }
 

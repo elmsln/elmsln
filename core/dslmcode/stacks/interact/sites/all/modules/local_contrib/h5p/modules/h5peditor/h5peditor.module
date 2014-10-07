@@ -42,6 +42,8 @@ function h5peditor_menu() {
  */
 function h5peditor_form_h5p_content_node_form_alter(&$form, &$form_state) {
   $node = h5peditor_get_source_node($form['#node']);
+  $library = isset($node->main_library) ? H5PCore::libraryToString($node->main_library) : (isset($node->h5p_library) ? $node->h5p_library : 0);
+  
   $form['h5p_type'] = array(
     '#type' => 'radios',
     '#title' => t('HTML5 Content'),
@@ -49,7 +51,7 @@ function h5peditor_form_h5p_content_node_form_alter(&$form, &$form_state) {
       'upload' => t('Upload'),
       'create' => isset($node->nid) ? t('Edit') : t('Create'),
     ),
-    '#default_value' => 'upload',
+    '#default_value' => $library ? 'create' : 'upload',
     '#weight' => $form['h5p']['#weight'] - 1,
   );
   
@@ -63,21 +65,7 @@ function h5peditor_form_h5p_content_node_form_alter(&$form, &$form_state) {
 
   $form['h5p_library'] = array(
     '#type' => 'hidden',
-    '#default_value' => isset($node->main_library) ? H5PCore::libraryToString($node->main_library) : (isset($node->h5p_library) ? $node->h5p_library : 0),
-  );
-
-  // Get validated JSON for editor too.
-  if (isset($node->json_content)) {
-    $h5p_params = h5p_filter_json_content($node);
-  }
-  else {
-    $h5p_params = '{}';
-  }
-
-  $form['h5p_params'] = array(
-    '#type' => 'hidden',
-    '#attributes' => array('id' => 'edit-h5p-params'),
-    '#default_value' => $h5p_params,
+    '#default_value' => $library,
   );
 
   $form['#submit'][] = 'h5peditor_h5p_content_node_form_submit';
@@ -101,21 +89,32 @@ function h5peditor_h5p_content_node_form_after_build($form) {
   $done = TRUE;
 
   $node = h5peditor_get_source_node($form['#node']);
-  h5p_add_core_assets();
+  $assets = h5p_add_core_assets();
 
   $h5peditor_module_path = drupal_get_path('module', 'h5peditor');
+  $cache_buster = '?' . variable_get('css_js_query_string', '');
 
   // Add our own styles
   foreach (H5peditor::$styles as $style) {
-    drupal_add_css($h5peditor_module_path . '/h5peditor/' . $style);
+    $assets['css'][] = $h5peditor_module_path . '/h5peditor/' . $style . $cache_buster;
   }
-
+  
+  // Remove integration from the equation.
+  for ($i = 0, $s = count($assets['js']); $i < $s; $i++) {
+    if (preg_match('/\/h5pintegration\.js/', $assets['js'][$i])) {
+      array_splice($assets['js'], $i, 1);
+      break;
+    }
+  }
+  
   // Add our own scripts
   foreach (H5peditor::$scripts as $script) {
-    // Make sure ckeditor doesn't get aggregated.
-    $preprocess = $script !== 'ckeditor/ckeditor.js';
-    drupal_add_js($h5peditor_module_path . '/h5peditor/' . $script, array('preprocess' => $preprocess));
+    // We do not want the creator of the iframe inside the iframe
+    if ($script !== 'scripts/h5peditor-editor.js') {
+      $assets['js'][] = $h5peditor_module_path . '/h5peditor/' . $script . $cache_buster;
+    }
   }
+  drupal_add_js($h5peditor_module_path . '/h5peditor/scripts/h5peditor-editor.js');
   drupal_add_js($h5peditor_module_path . '/scripts/application.js');
 
   // Add translation
@@ -124,11 +123,13 @@ function h5peditor_h5p_content_node_form_after_build($form) {
     $language_file = $h5peditor_module_path . '/h5peditor/language/en.js';
   }
   drupal_add_js($language_file);
+  
+  // TODO: If we're going to preprocess the assets one day, remember to skip ckeditor.
+  
   $file_path = file_stream_wrapper_get_instance_by_uri('public://')->getDirectoryPath();
-
   $settings = array(
     'h5peditor' => array(
-      'filesPath' => base_path() . $file_path,
+      'filesPath' => base_path() . $file_path . '/h5peditor',
       'fileIcon' => array(
         'path' => base_path() . $h5peditor_module_path . '/h5peditor/images/binary-file.png',
         'width' => 50,
@@ -138,6 +139,7 @@ function h5peditor_h5p_content_node_form_after_build($form) {
       'modulePath' => $h5peditor_module_path,
       'libraryPath' => _h5p_get_h5p_path() . '/libraries/',
       'copyrightSemantics' => H5PContentValidator::getCopyrightSemantics(),
+      'assets' => $assets,
     ),
   );
 
@@ -159,7 +161,27 @@ function h5peditor_h5p_content_node_form_validate($form, $form_state) {
     h5p_form_validate($form, $form_state);
     return;
   }
-  // TODO: Validate new parameters.
+  else {
+    $library_data = H5PCore::libraryFromString($form_state['values']['h5p_library']);
+    if ($library_data === FALSE) {
+      form_set_error('h5p_editor', t('You must choose an H5P content type or upload an H5P file.'));
+    }
+    else {
+      $is_runnable = db_query(
+        "SELECT runnable
+        FROM {h5p_libraries}
+        WHERE machine_name = :machine_name
+        AND major_version = :major_version
+        AND minor_version = :minor_version", array(
+          ':machine_name' => $library_data['machineName'],
+          ':major_version' => $library_data['majorVersion'],
+          ':minor_version' => $library_data['minorVersion'],
+        ))->fetchField();
+      if (!$is_runnable) {
+        form_set_error('h5p_editor', t('Invalid H5P content type'));
+      }
+    }
+  }
 }
 
 /**
@@ -175,7 +197,6 @@ function h5peditor_h5p_content_node_form_submit($form, &$form_state) {
     $form_state['values']['h5p_params_old'] = $form['#node']->json_content;
   }
   $form_state['values']['main_library_id'] = h5peditor_get_library_property($form_state['values']['h5p_library'], 'libraryId');
-  $form_state['values']['json_content'] = $form_state['values']['h5p_params'];
 }
 
 /**
@@ -256,7 +277,7 @@ function h5peditor_files_callback() {
     $files_directory .= '/h5peditor';
   }
 
-  $file = new H5peditorFile($files_directory);
+  $file = new H5peditorFile(_h5p_get_instance('interface'), $files_directory);
 
   if (!$file->isLoaded()) {
     drupal_not_found();
@@ -290,8 +311,9 @@ function h5peditor_get_instance() {
     $instance = new H5peditor(
       _h5p_get_instance('core'),
       new H5peditorDrupalStorage(), 
-      file_stream_wrapper_get_instance_by_uri('public://')->getDirectoryPath(), // TODO: Refactor and use h5p_get_path()?
-      base_path()
+      base_path(),
+      _h5p_get_h5p_path(),
+      file_stream_wrapper_get_instance_by_uri('public://')->getDirectoryPath() . DIRECTORY_SEPARATOR . 'h5peditor'
     );
   }
 
@@ -299,12 +321,12 @@ function h5peditor_get_instance() {
 }
 
 /**
- * TODO: Move to core. It's used in core.
+ * TODO: Rather use core functions than this?
  */
 function h5peditor_get_library_property($library, $property = 'all') {
   $matches = array();
   preg_match_all('/(.+)\s(\d)+\.(\d)$/', $library, $matches);
-  if ($matches) {
+  if (count($matches) == 4) {
     $library_data = array(
       'machineName' => $matches[1][0],
       'majorVersion' => $matches[2][0],
@@ -323,7 +345,7 @@ function h5peditor_get_library_property($library, $property = 'all') {
           array(':name' => $library_data['machineName'], ':major_version' => $library_data['majorVersion'], ':minor_version' => $library_data['minorVersion']))->fetchField();
         return $temp;
       default:
-        return $libraryData[$property];
+        return $library_data[$property];
     }
   }
   else {
@@ -348,7 +370,7 @@ function h5peditor_get_source_node($node) {
 }
 
 /**
- * Implements of hook_field_extra_fields().
+ * Implements hook_field_extra_fields().
  */
 function h5peditor_field_extra_fields() {
   $extra['node']['h5p_content'] = array(

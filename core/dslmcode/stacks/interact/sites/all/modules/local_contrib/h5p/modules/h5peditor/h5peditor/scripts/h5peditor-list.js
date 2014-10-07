@@ -150,37 +150,76 @@ ns.List.prototype.addItem = function (i) {
   };
   var up = function () {
     // Stop tracking mouse
-    ns.$body.unbind('mousemove', move).unbind('mouseup', up).unbind('mouseleave', up).attr('unselectable', 'off').css({'-moz-user-select': '', '-webkit-user-select': '', 'user-select': '', '-ms-user-select': ''})[0].onselectstart = ns.$body[0].ondragstart = null;    
-    $item.removeClass('moving').css({width: 'auto', height: 'auto'});
+    H5P.$body
+      .unbind('mousemove', move)
+      .unbind('mouseup', up)
+      .unbind('mouseleave', up)
+      .attr('unselectable', 'off')
+      .css({
+        '-moz-user-select': '', 
+        '-webkit-user-select': '', 
+        'user-select': '', 
+        '-ms-user-select': ''
+      })
+      [0].onselectstart = H5P.$body[0].ondragstart = null;
+      
+    $item.removeClass('moving').css({
+      width: 'auto', 
+      height: 'auto'
+    });
     $placeholder.remove();
   };
 
-  $item = ns.$('<li class="h5p-li"><a href="#" class="order"></a><a href="#" class="remove"></a><div class="content"></div></li>').appendTo(this.$list).children('.order').mousedown(function (event) {
-    // Start tracking mouse
-    ns.$body.attr('unselectable', 'on').mouseup(up).bind('mouseleave', up).css({'-moz-user-select': 'none', '-webkit-user-select': 'none', 'user-select': 'none', '-ms-user-select': 'none'}).mousemove(move)[0].onselectstart = ns.$body[0].ondragstart = function () {
-      return false;
-    };
+  $item = ns.$('<li class="h5p-li"><a href="#" class="order"></a><a href="#" class="remove"></a><div class="content"></div></li>')
+    .appendTo(this.$list)
+    .children('.order')
+      .mousedown(function (event) {
+        if (event.which !== 1) {
+          return; // Only allow left mouse button
+        }
+        
+        // Start tracking mouse
+        H5P.$body
+          .attr('unselectable', 'on')
+          .mouseup(up)
+          .bind('mouseleave', up)
+          .css({
+            '-moz-user-select': 'none', 
+            '-webkit-user-select': 'none', 
+            'user-select': 'none', 
+            '-ms-user-select': 'none'
+          })
+          .mousemove(move)
+          [0].onselectstart = H5P.$body[0].ondragstart = function () {
+            return false;
+          };
 
-    var offset = $item.offset();
-    that.adjustX = event.pageX - offset.left;
-    that.adjustY = event.pageY - offset.top;
-    that.marginTop = parseInt($item.css('marginTop'));
-    that.formOffset = that.$list.offsetParent().offset();
+        var offset = $item.offset();
+        that.adjustX = event.pageX - offset.left;
+        that.adjustY = event.pageY - offset.top;
+        that.marginTop = parseInt($item.css('marginTop'));
+        that.formOffset = that.$list.offsetParent().offset();
 
-    var width = $item.width();
-    var height = $item.height();
+        var width = $item.width();
+        var height = $item.height();
 
-    $item.addClass('moving').css({width: width, height: height});
-    $placeholder = ns.$('<li class="placeholder h5p-li" style="width:' + width + 'px;height:' + height + 'px"></li>').insertBefore($item);
+        $item.addClass('moving').css({width: width, height: height});
+        $placeholder = ns.$('<li class="placeholder h5p-li" style="width:' + width + 'px;height:' + height + 'px"></li>').insertBefore($item);
 
-    move(event);
-    return false;
-  }).click(function () {
-    return false;
-  }).next().click(function () {
-    that.removeItem(that.getIndex($item));
-    return false;
-  }).end().end();
+        move(event);
+        return false;
+      })
+      .click(function () {
+        console.log('click');
+        return false;
+      })
+        .next()
+        .click(function () {
+          that.removeItem(that.getIndex($item));
+          return false;
+        })
+        .end()
+      .end();
 
   if (!this.passReadies) {
     this.readies = [];

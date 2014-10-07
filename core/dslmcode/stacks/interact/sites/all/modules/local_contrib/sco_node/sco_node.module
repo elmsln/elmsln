@@ -351,7 +351,7 @@ function sco_node_settings_form($form, $form_state) {
     '#title' => t('SCO Upload Path'),
     '#default_value' => isset($settings['upload_path']) ? $settings['upload_path'] : '',
     '#description' => t('This is the path where SCO packages will be uploaded - if not specified, the default file path will be used.
-                         This path must be writable by the user uploading the SCO.  A valid stream wrapper prefix (public://, etc) may be required on some systems.'),
+                         This path must be writable by the user uploading the SCO.'),
     '#required' => FALSE,
   );
 
@@ -468,14 +468,6 @@ function sco_node_form($node, $form_state) {
     '#default_value' => $opt_value,
   );
  
-  $opt_value = sco_node_get_option_value($node, 'debug', FALSE);
-  $form['sco_info']['sco_options']['debug'] = array(
-    '#type' => 'checkbox',
-    '#title' => t('Display Debug Info'),
-    '#description' => t('Display LMS messages when playing.'),
-    '#default_value' => $opt_value,
-  );
- 
   $options = array(
     'SCO Score' => t('Score Reported by SCO'),
   );
@@ -588,6 +580,14 @@ function sco_node_form($node, $form_state) {
     '#default_value' => $opt_value,
   );
   
+  $opt_value = sco_node_get_option_value($node, 'debug', FALSE);
+  $form['sco_info']['sco_options']['debug'] = array(
+    '#type' => 'checkbox',
+    '#title' => t('Display Debug Info'),
+    '#description' => t('Display LMS messages when playing.'),
+    '#default_value' => $opt_value,
+  );
+ 
   $opt_value = sco_node_get_option_value($node, 'comm_check', FALSE);
   $form['sco_info']['sco_options']['comm_check'] = array(
     '#type' => 'checkbox',
@@ -596,6 +596,22 @@ function sco_node_form($node, $form_state) {
     '#default_value' => $opt_value,
   );
  
+  $opt_value = sco_node_get_option_value($node, 'commit_async', FALSE);
+  $form['sco_info']['sco_options']['commit_async'] = array(
+    '#type' => 'checkbox',
+    '#title' => t('Perform LMS Commits Asyncronously'),
+    '#description' => t('Perform LMS updates (commits) using Asyncronous AJAX calls.  May improve performance, but updates may be behind presentation.'),
+    '#default_value' => $opt_value,
+  );
+  
+  $opt_value = sco_node_get_option_value($node, 'log_suspend', FALSE);
+  $form['sco_info']['sco_options']['log_suspend'] = array(
+    '#type' => 'checkbox',
+    '#title' => t('Log Suspend Data'),
+    '#description' => t('Log suspend data from presentation.  This data is usually compressed and meaningless.'),
+    '#default_value' => $opt_value,
+  );
+  
   return $form;
 }
 
@@ -724,13 +740,10 @@ function sco_node_delete($node) {
 function sco_node_view($node, $view_mode) {
 
   if ($view_mode == 'full') {
-
-    $form = drupal_get_form('sco_node_view_form', $node);
-    
     $node->content['sco_node'] = array(
       '#type' => 'markup',
-      '#markup' => drupal_render($form),
-    );  
+      '#markup' => drupal_render(drupal_get_form('sco_node_view_form', $node)),
+    );
   }
   
   return $node;
@@ -752,7 +765,7 @@ function sco_node_view_form($form, $form_state, $node) {
     '#markup' => '<div id="sco-node-intro">' . filter_xss($html) . '</div>',
   );
 
-  $hide_attempt_summary = sco_node_get_option_value($node, 'hide_attempt_summary', FALSE);
+  $hide_attempt_summary = sco_node_get_option_value($node, 'hide_attempt_display', FALSE);
   
   $att = sco_node_get_latest_attempt($node->nid);
   $rs = sco_node_get_user_attempts($node->nid);

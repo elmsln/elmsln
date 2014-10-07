@@ -11,7 +11,6 @@
 ?>
 <?php
 $p = drupal_get_path('module', 'multichoice');
-drupal_add_css($p .'/theme/multichoice.css');
 
 // Add script for using the entire alternative row as a button
 drupal_add_js(

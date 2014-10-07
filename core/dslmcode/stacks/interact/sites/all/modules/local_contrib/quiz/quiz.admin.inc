@@ -326,23 +326,6 @@ function quiz_admin_node_form_submit($form, &$form_state) {
 // QUIZ RESULTS ADMIN
 
 /**
- * Displays the quizzes by title with a link to the appropriate results
- * for that specific quiz.
- *
- * @return
- *  Formatted data.
- */
-function quiz_admin_quizzes() {
-  global $user;
-  $uid = $user->uid;
-  if (user_access('view any quiz results')) {
-    $uid = NULL;
-  }
-  $results = _quiz_get_quizzes($uid);
-  return theme('quiz_admin_quizzes', array('results' => $results));
-}
-
-/**
  * Quiz result report page for the quiz admin section
  *
  * @param $quiz
@@ -374,9 +357,11 @@ function quiz_admin_results($quiz, $result_id) {
     'score' => $score,
     'summary' => $summary,
     'result_id' => $result_id,
-    'account' => user_load($result->uid)
+    'account' => user_load($result->uid),
+    'show_feedback' => TRUE,
+    'show_points' => TRUE,
   );
-  return theme('quiz_admin_summary', $data);
+  return theme('quiz_result', $data);
 }
 
 // MANAGE QUESTIONS
@@ -418,7 +403,7 @@ function quiz_questions($node) {
   else {
     $form = drupal_get_form('quiz_categorized_form', $node);
   }
-  return drupal_render($form);
+  return $form;
 }
 
 /**
@@ -459,6 +444,11 @@ function quiz_categorized_form($form, $form_state, $quiz) {
 
 function _quiz_categorized_existing_terms_form(&$form, $form_state, $quiz) {
   $terms = _quiz_get_terms($quiz->vid);
+  if ($terms) {
+    if (empty($form_state['input']) && !_quiz_build_categorized_question_list($quiz)) {
+      drupal_set_message(t('There are not enough questions in the requested categories.'), 'error');
+    }
+  }
   foreach ($terms as $term) {
     $form[$term->tid]['name'] = array(
       '#markup' => check_plain($term->name),
@@ -755,12 +745,7 @@ function quiz_questions_form($form, $form_state, $quiz) {
   _quiz_add_questions_to_form($form, $questions, $quiz, $types);
 
   // Show the number of questions in the table header.
-  $always_count = 0;
-  foreach ($form['question_list']['stayers'] as $stayer) {
-    if ($stayer['#default_value'] === 1) {
-      $always_count++;
-    }
-  }
+  $always_count = isset($form['question_list']['titles']) ? count($form['question_list']['titles']) : 0;
   $form['question_list']['#title'] .= ' (' . $always_count . ')';
 
   // Give the user the option to create a new revision of the quiz
@@ -769,7 +754,9 @@ function quiz_questions_form($form, $form_state, $quiz) {
   // Timestamp is needed to avoid multiple users editing the same quiz at the same time.
   $form['timestamp'] = array('#type' => 'hidden', '#default_value' => REQUEST_TIME);
 
-  $form['submit'] = array(
+  $form['actions']['#type'] = 'actions';
+
+  $form['actions']['submit'] = array(
     '#type' => 'submit',
     '#value' => t('Submit'),
     '#submit' => array('quiz_questions_form_submit'),
@@ -1304,65 +1291,6 @@ function _quiz_question_browser_submit($form, &$form_state) {
 // THEME FUNCTIONS
 
 /**
- * Theme the admin quizzes table.
- *
- * @param $results
- *  As returned by _quiz_get_quizzes().
- *
- * @ingroup themeable
- */
-function theme_quiz_admin_quizzes($variables) {
-  $results = $variables['results'];
-  $output = '';
-
-  // The export images
-  $path_to_module_quiz = drupal_get_path('module', 'quiz');
-  $png = array(
-    'html' => theme('image', array('path' => $path_to_module_quiz . '/images/html.png', 'width' => t('Export as HTML'), 'height' => t('Export as HTML'))),
-    'xml' => theme('image', array('path' => $path_to_module_quiz . '/images/xml.png', 'width' => t('Export as XML'), 'height' => t('Export as XML'))),
-    'csv' => theme('image', array('path' => $path_to_module_quiz . '/images/csv.png', 'width' => t('Export as CSV'), 'height' => t('Export as CSV'))),
-    'csv_full' => theme('image', array('path' => $path_to_module_quiz . '/images/csv_complete.png', 'width' => t('Export full data as CSV'), 'height' => t('Export full data as CSV'))),
-  );
-  $rows = array();
-
-  $exp = module_exists('results_export');
-
-  while (list($key, $result) = each($results)) {
-    $cols = array(
-      l($result['title'], 'node/' . $result['nid'] . '/quiz/results'),
-      check_plain($result['name']),
-      format_date($result['created'], 'short'),
-    );
-    // Add export links if the results export module is enabled
-    if ($exp) {
-      $cols[] = l($png['html'], 'admin/quiz/results_export_teaser_view/' . $result['nid'] . '/html', array('html' => TRUE))
-        . l($png['xml'], 'admin/quiz/results_export_teaser_view/' . $result['nid'] . '/xml', array('html' => TRUE))
-        . l($png['csv'], 'admin/quiz/results_export_teaser_view/' . $result['nid'] . '/csv', array('html' => TRUE))
-        . l($png['csv_full'], 'admin/quiz/results_export_full_view/' . $result['nid'] . '/csv', array('html' => TRUE));
-    }
-    $rows[] = $cols;
-  }
-
-  $header = array(
-    t('@quiz title', array('@quiz' => QUIZ_NAME)),
-    t('Created by'),
-    t('Created on')
-  );
-  if ($exp) {
-    $header[] = t('Export');
-  }
-  // Message if there are no quizzes available
-  if (!user_access('view any quiz results')) {
-    $no_quizzes = '<p>' . t('No @quiz that you have created was found. You do not have permission to see any other results.', array('@quiz' => QUIZ_NAME)) . '</p>';
-  }
-  else {
-    $no_quizzes = '<p>' . t('No @quiz found.', array('@quiz' => QUIZ_NAME)) . '</p>';
-  }
-  $output = (!empty($rows)) ? theme('table', array('header' => $header, 'rows' => $rows)) : $no_quizzes;
-  return $output;
-}
-
-/**
  * Theme the quiz node form
  *
  * Adds js to enhance the ux.
@@ -1375,56 +1303,6 @@ function theme_quiz_node_form($variables) {
   $path = drupal_get_path('module', 'quiz') . '/theme/quiz_node_form.js';
   drupal_add_js($path);
   return theme('node_form', array('form' => $form));
-}
-
-/**
- * Theme the summary page for admins.
- *
- * @param $quiz
- *  The quiz node object.
- * @param $questions
- *  The questions array as defined by _quiz_get_answers.
- * @param $score
- *  Array of score information as returned by quiz_calculate_score().
- * @param $summary
- *  Filtered text of the summary.
- * @return
- *  Themed html.
- *
- * @ingroup themeable
- */
-function theme_quiz_admin_summary($variables) {
-  global $user;
-  $quiz = $variables['quiz'];
-  $questions = $variables['questions'];
-  $score = $variables['score'];
-  $summary = $variables['summary'];
-  $result_id = $variables['result_id'];
-  $account = $variables['account'];
-  // To adjust the title uncomment and edit the line below:
-  // drupal_set_title(check_plain($quiz->title));
-  if (!$score['is_evaluated']) {
-    drupal_set_message(t('This quiz has not been scored yet.'), 'warning');
-  }
-  // Display overall result.
-  $output = '';
-  $params = array('%num_correct' => $score['numeric_score'], '%question_count' => $score['possible_score'], '!username' => theme('username', array('account' => $account)));
-  $output .= '<div id="quiz_score_possible">' . t('!username got %num_correct of %question_count possible points.', $params) . '</div>' . "\n";
-  $output .= '<div id="quiz_score_percent">' . t('Total score: @score %', array('@score' => $score['percentage_score'])) . '</div>' . "\n";
-  $quiz_format = (isset($quiz->body[LANGUAGE_NONE][0]['format'])) ? $quiz->body[LANGUAGE_NONE][0]['format'] : NULL;
-  if (isset($summary['passfail'])) {
-    $output .= '<div id="quiz_summary">' . check_markup($summary['passfail'], $quiz_format) . '</div>' . "\n";
-  }
-  if (isset($summary['result'])) {
-    $output .= '<div id="quiz_summary">' . check_markup($summary['result'], $quiz_format) . '</div>' . "\n";
-  }
-
-  // Get the feedback for all questions.
-  require_once DRUPAL_ROOT . '/' . drupal_get_path('module', 'quiz') . '/quiz.pages.inc';
-  $allow_scoring = quiz_allow_score_access($quiz);
-  $report_form = drupal_get_form('quiz_report_form', $questions, TRUE, TRUE, $allow_scoring);
-  $output .= drupal_render($report_form);
-  return $output;
 }
 
 /**

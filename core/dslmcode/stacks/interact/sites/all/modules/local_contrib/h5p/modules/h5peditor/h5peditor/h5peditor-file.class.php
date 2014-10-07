@@ -2,16 +2,20 @@
 
 class H5peditorFile {
 
-  private $result, $field, $files_directory;
+  private $result, $field, $files_directory, $interface;
 
   public $type, $name, $path, $mime, $size;
 
-  function __construct($files_directory) {
+  function __construct($interface, $files_directory) {
+    $field = filter_input(INPUT_POST, 'field', FILTER_SANITIZE_STRING, FILTER_FLAG_NO_ENCODE_QUOTES);
+    
     // Check for file upload.
-    if (empty($_POST) || !isset($_POST['field']) || empty($_FILES) || !isset($_FILES['file'])) {
+    if ($field === NULL || empty($_FILES) || !isset($_FILES['file'])) {
       return;
     }
 
+    $this->interface = $interface;
+    
     // Create a new result object.
     $this->result = new stdClass();
 
@@ -25,14 +29,14 @@ class H5peditorFile {
       if (!is_dir($dir)) {
         if (!mkdir($dir)) {
           // TODO: Move all t-s out of here.
-          $this->result->error = t('Unable to create directory.');
+          $this->result->error = $this->interface->t('Unable to create directory.');
           return;
         }
       }
     }
 
     // Get the field.
-    $this->field = json_decode($_POST['field']);
+    $this->field = json_decode($field);
 
     if (function_exists('finfo_file')) {
       $finfo = finfo_open(FILEINFO_MIME_TYPE);
@@ -51,7 +55,7 @@ class H5peditorFile {
 
     $this->size = $_FILES['file']['size'];
   }
-
+  
   /**
    *
    * @return boolean
@@ -90,20 +94,20 @@ class H5peditorFile {
 
     // Check for field type.
     if (!isset($this->field->type)) {
-      $this->result->error = t('Unable to get field type.');
+      $this->result->error = $this->interface->t('Unable to get field type.');
       return FALSE;
     }
 
     // Check if mime type is allowed.
     if ((isset($this->field->mimes) && !in_array($this->type, $this->field->mimes)) || substr($this->extension, 0, 3) === 'php') {
-      $this->result->error = t("File type isn't allowed.");
+      $this->result->error = $this->interface->t("File type isn't allowed.");
       return FALSE;
     }
 
     // Type specific validations.
     switch ($this->field->type) {
       default:
-        $this->result->error = t('Invalid field type.');
+        $this->result->error = $this->interface->t('Invalid field type.');
         return FALSE;
 
       case 'image':
@@ -113,13 +117,13 @@ class H5peditorFile {
           'image/gif' => 'gif',
         );
         if (!$this->check($allowed)) {
-          $this->result->error = t('Invalid image file format. Use jpg, png or gif.');
+          $this->result->error = $this->interface->t('Invalid image file format. Use jpg, png or gif.');
           return FALSE;
         }
 
         $image = @getimagesize($_FILES['file']['tmp_name']);
         if (!$image) {
-          $this->result->error = t('File is not an image.');
+          $this->result->error = $this->interface->t('File is not an image.');
           return FALSE;
         }
 
@@ -139,7 +143,7 @@ class H5peditorFile {
           //'video/ogg' => 'ogg',
         );
         if (!$this->check($allowed)) {
-          $this->result->error = t('Invalid audio file format. Use mp3 or wav.');
+          $this->result->error = $this->interface->t('Invalid audio file format. Use mp3 or wav.');
           return FALSE;
 
         }
@@ -155,7 +159,7 @@ class H5peditorFile {
           'video/ogg' => 'ogv',
         );
         if (!$this->check($allowed)) {
-          $this->result->error = t('Invalid video file format. Use mp4 or webm.');
+          $this->result->error = $this->interface->t('Invalid video file format. Use mp4 or webm.');
           return FALSE;
         }
 
@@ -182,7 +186,7 @@ class H5peditorFile {
 
     $this->path = $this->files_directory . '/' . $this->name;
     if (!copy($_FILES['file']['tmp_name'], $this->path)) {
-      $this->result->error = t('Could not copy file.');
+      $this->result->error = $this->interface->t('Could not copy file.');
       return FALSE;
     }
 

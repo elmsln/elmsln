@@ -25,15 +25,16 @@ files[] = includes/views/handlers/quiz_views_handler_filter_user_quiz_state.inc
 files[] = includes/views/handlers/quiz_views_handler_relationship_quiz_nid.inc
 files[] = includes/views/handlers/quiz_views_handler_filter_quiz_question_type.inc
 files[] = includes/views/handlers/quiz_views_handler_filter_quiz_question.inc
+files[] = tests/QuizCreation.test
 files[] = tests/QuizNavigation.test
 files[] = tests/QuizTestCase.test
 files[] = tests/QuizResult.test
 files[] = tests/QuizTaking.test
 files[] = tests/QuizFeedback.test
 
-; Information added by Drupal.org packaging script on 2014-06-01
-version = "7.x-5.0-alpha1"
+; Information added by Drupal.org packaging script on 2014-09-19
+version = "7.x-5.0-alpha4"
 core = "7.x"
 project = "quiz"
-datestamp = "1401662628"
+datestamp = "1411144145"
 

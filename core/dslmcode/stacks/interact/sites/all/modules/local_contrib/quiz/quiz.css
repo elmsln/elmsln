@@ -1,41 +1,41 @@
 /*
  * Definitions that apply while viewing questions
  */
-.question_type_name {
+.question-type-name {
   font-style: italic;
 }
 
 /*
  * Definitions that apply while taking the quiz.
  */
-#quiz_progress {
+#quiz-progress {
   font-style: italic;
   font-size: 80%;
 }
 
-#quiz_score_possible, #quiz_score_percent {
+#quiz-score-possible, #quiz-score-percent {
   font-weight: bold;
 }
 
-td.quiz_summary_qcell {
+td.quiz-summary-qcell {
   vertical-align: top;
   padding: 1em 1em 0em 0em;
 }
 
-td.quiz_summary_qcell table tr {
+td.quiz-summary-qcell table tr {
   background: transparent;
 }
 
-td.quiz_summary_qcell table td {
+td.quiz-summary-qcell table td {
   vertical-align: top;
   padding: .5em;
 }
 
-.quiz_answer_feedback {
+.quiz-answer-feedback {
   font-style: italic;
 }
 
-.quiz_summary_text {
+.quiz-summary-text {
 
 }
 
@@ -125,10 +125,6 @@ div.quiz-report .dt div.quiz-report-score-container {
 
 div.quiz-report .dt div.quiz-report-score-container span div.form-item {
   display: inline;
-}
-
-div.quiz-report .dd {
-  margin: 10px 0 50px 0;
 }
 
 div.quiz-score-submit {
@@ -322,3 +318,43 @@ input#edit-submit-hidden {
   left: 48px;
 }
 
+/*
+  Icons
+*/
+.quiz-score-icon {
+  display: inline-block;
+  width: 32px;
+  height: 32px;
+  background-size: cover
+}
+.quiz-score-icon.correct {
+  background-image: url('images/check_008000_64.png');
+}
+.quiz-score-icon.incorrect {
+  background-image: url('images/times_ff0000_64.png');
+}
+.quiz-score-icon.unknown {
+  background-image: url('images/question_808080_64.png');
+}
+.quiz-score-icon.should {
+  background-image: url('images/check_808080_64.png');
+}
+.quiz-score-icon.almost {
+  background-image: url('images/check_ffff00_64.png');
+}
+.quiz-score-icon.selected {
+  background-image: url('images/circle_808080_64.png');
+}
+.quiz-score-icon.unselected {
+  background-image: url('images/circle-o_808080_64.png');
+}
+
+/*
+Fun
+
+#quiz-question-answering-form {
+  background-image: url('theme/question_bg.png');
+  background-repeat: no-repeat;
+  background-position: top left;
+}
+*/

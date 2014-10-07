@@ -10,10 +10,16 @@ if (window.parent !== window) {
 }
 
 jQuery(document).ready(function () {
-  H5P.loadedJs = Drupal.settings.h5p !== undefined && Drupal.settings.h5p.loadedJs !== undefined ? Drupal.settings.h5p.loadedJs : [];
-  H5P.loadedCss = Drupal.settings.h5p !== undefined && Drupal.settings.h5p.loadedCss !== undefined ? Drupal.settings.h5p.loadedCss : [];
-  H5P.postUserStatistics = Drupal.settings.h5p !== undefined && Drupal.settings.h5p.postUserStatistics !== undefined ? Drupal.settings.h5p.postUserStatistics : false;
-  H5P.ajaxPath = Drupal.settings.h5p !== undefined && Drupal.settings.h5p.ajaxPath !== undefined ? Drupal.settings.h5p.ajaxPath : '';
+  if (Drupal.settings.h5p !== undefined) {
+    if (Drupal.settings.h5p.loadedJs !== undefined) {
+      H5P.loadedJs = Drupal.settings.h5p.loadedJs;
+    }
+    if (Drupal.settings.h5p.loadedCss !== undefined) {
+      H5P.loadedCss = Drupal.settings.h5p.loadedCss;
+    }
+    H5P.postUserStatistics = (Drupal.settings.h5p.postUserStatistics !== undefined ? Drupal.settings.h5p.postUserStatistics : false);
+    H5P.ajaxPath = (Drupal.settings.h5p.ajaxPath !== undefined ? Drupal.settings.h5p.ajaxPath : '');
+  }
 });
 
 H5PIntegration.getContentData = function (id) {
@@ -29,15 +35,12 @@ H5PIntegration.getJsonContent = function (contentId) {
   }
 };
 
-// Window parent is always available.
-var locationOrigin = window.parent.location.protocol + "//" + window.parent.location.host;
 H5PIntegration.getContentPath = function (contentId) {
-  if (Drupal.settings.h5p !== undefined && contentId !== undefined) {
-    return locationOrigin + Drupal.settings.h5p.contentPath + contentId + '/';
+  if (Drupal.settings.h5p === undefined) {
+    return;
   }
-  else if (Drupal.settings.h5peditor !== undefined)  {
-    return Drupal.settings.h5peditor.filesPath + '/h5peditor/';
-  }
+  
+  return Drupal.settings.h5p.contentPath + contentId;
 };
 
 /**
@@ -51,7 +54,7 @@ H5PIntegration.getContentPath = function (contentId) {
  */
 H5PIntegration.getLibraryPath = function (library) {
   // TODO: Does the h5peditor really need its own namespace for these things?
-  var libraryPath = Drupal.settings.h5p !== undefined ? Drupal.settings.h5p.libraryPath : Drupal.settings.h5peditor.libraryPath
+  var libraryPath = Drupal.settings.h5p !== undefined ? Drupal.settings.h5p.libraryPath : Drupal.settings.h5peditor.libraryPath;
 
   return Drupal.settings.basePath + libraryPath + library;
 };
@@ -82,11 +85,11 @@ H5PIntegration.getHeadTags = function (contentId) {
 
   var createUrl = function (path) {
     if (path.substring(0,7) !== 'http://') {
-      // Not external, add base path and cache buster.
-      path = basePath + path + '?' + Drupal.settings.h5p.cacheBuster;
+      // Not external, add base path.
+      path = basePath + path;
     }
     return path;
-  }
+  };
 
   var createStyleTags = function (styles) {
     var tags = '';
@@ -116,6 +119,7 @@ H5PIntegration.getHeadTags = function (contentId) {
 H5PIntegration.i18n = {
   H5P: {
     fullscreen: Drupal.t('Fullscreen'),
+    disableFullscreen: Drupal.t('Disable fullscreen'),
     download: Drupal.t('Download'),
     copyrights: Drupal.t('Rights of use'),
     embed: Drupal.t('Embed'),
@@ -131,7 +135,11 @@ H5PIntegration.i18n = {
     downloadDescription: Drupal.t('Download this content as a H5P file.'),
     copyrightsDescription: Drupal.t('View copyright information for this content.'),
     embedDescription: Drupal.t('View the embed code for this content.'),
-    h5pDescription: Drupal.t('Visit H5P.org to check out more cool content.')
+    h5pDescription: Drupal.t('Visit H5P.org to check out more cool content.'),
+    upgradeLibrary: Drupal.t('Upgrade library content'),
+    viewLibrary: Drupal.t('View library details'),
+    deleteLibrary: Drupal.t('Delete library'),
+    NA: Drupal.t('N/A')
   }
 };
 

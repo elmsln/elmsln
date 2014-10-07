@@ -1,25 +1,19 @@
-/* Font Awesome font licensed under SIL OFL 1.1 · Code licensed under MIT License */
-@font-face {
-  font-family: 'H5PFontAwesome4'; /* Named so to avoid collisions and preserve backwards compatibility! */
-  src: url('../fonts/fontawesome-webfont.eot?v=4.0.3');
-  src: url('../fonts/fontawesome-webfont.eot?#iefix&v=4.0.3') format('embedded-opentype'), url('../fonts/fontawesome-webfont.woff?v=4.0.3') format('woff'), url('../fonts/fontawesome-webfont.ttf?v=4.0.3') format('truetype'), url('../fonts/fontawesome-webfont.svg?v=4.0.3#fontawesomeregular') format('svg');
-  font-weight: normal;
-  font-style: normal;
-}
+/* General CSS for H5P. Licensed under the MIT License.*/
 
+/* Custom H5P font to use for icons. */
 @font-face {
   font-family: 'H5P';
-  src:url('../fonts/h5p.eot?-r12eb7');
-  src:url('../fonts/h5p.eot?#iefix-r12eb7') format('embedded-opentype'),
-    url('../fonts/h5p.woff?-r12eb7') format('woff'),
-    url('../fonts/h5p.ttf?-r12eb7') format('truetype'),
-    url('../fonts/h5p.svg?-r12eb7#h5p_toolbar') format('svg');
+  src: url('../fonts/h5p.eot?ver=1.2.1');
+  src: url('../fonts/h5p.eot?#iefix&ver=1.2.1') format('embedded-opentype'), 
+    url('data:application/font-woff;base64,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') format('woff'),
+    url('../fonts/h5p.ttf?ver=1.2.1') format('truetype'), 
+    url('../fonts/h5p.svg?ver=1.2.1#h5pregular') format('svg');
   font-weight: normal;
   font-style: normal;
 }
 
 html.h5p-iframe, html.h5p-iframe > body {
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: Sans-Serif; /* Use the browser's default sans-serif font. (Since Heletica doesn't look nice on Windows, and Arial on OS X.) */
   width: 100%;
   height: 100%;
   margin: 0;
@@ -31,14 +25,14 @@ html.h5p-iframe, html.h5p-iframe > body {
 .h5p-content {
   position: relative;
   background: #fefefe;
-  font-size: 16px;
-  line-height: 1.5em;
   border: 1px solid #EEE;
   border-bottom: none;
   box-sizing: border-box;
   -moz-box-sizing: border-box;
 }
 html.h5p-iframe .h5p-content {
+  font-size: 16px;
+  line-height: 1.5em;
   width: 100%;
   height: 100%;
 }
@@ -71,45 +65,35 @@ html.h5p-iframe .h5p-content {
   color: #e5eef6;
 }
 
-.h5p-enable-fullscreen:before, .h5p-disable-fullscreen:before {
-  font-family: H5PFontAwesome4;
-  
-  font-size: 25px;
-}
 .h5p-enable-fullscreen:before {
-  content: "\f065";
+  font-family: 'H5P';
+  content: "\e88c";
 }
 .h5p-disable-fullscreen:before {
-  content: "\f066";
+  font-family: 'H5P';
+  content: "\e891";
 }
-
 .h5p-enable-fullscreen, .h5p-disable-fullscreen {
-  display: inline-block;
-  line-height: 25px;
-  width: 25px;
-  height: 25px;
-  padding: 6px 6px;
   cursor: pointer;
   color: #EEE;
   background: rgb(0,0,0);
   background: rgba(0,0,0,0.3);
-  text-decoration: none;
-  text-align: center;
+  line-height: 0.975em;
+  font-size: 2em;
+  width: 1.125em;
+  height: 0.925em;
+  text-indent: -0.0875em;
+  outline: none;
 }
 .h5p-disable-fullscreen {
-  position: absolute;
-  right: 10px;
-  top: 10px;
-  z-index: 201;
-  background: rgb(0,0,0);
-  background: rgba(0,0,0,0.7);
+  line-height: 0.925em;
+  width: 1.1em;
+  height: 0.9em;
 }
 .h5p-enable-fullscreen:hover, .h5p-disable-fullscreen:hover {
-  text-decoration: none;
   background: rgba(0,0,0,0.5);
 }
-
-.h5p-semi-fullscreen .h5p-content-controls {
+.h5p-semi-fullscreen .h5p-enable-fullscreen {
   display: none;
 }
 
@@ -149,35 +133,7 @@ div.h5p-fullscreen {
   z-index: 10;
   overflow: hidden;
   border: 0;
-}
-.h5p-iframe-wrapper.h5p-semi-fullscreen .buttons button:before {
-  content: 'Exit ';
-}
-.h5p-iframe-wrapper button.fullscreen {
-  color: #e5eef6;
-  text-decoration: none;
-  padding: 6px 12px;
-  background: #539ad7;
-  background-image: -webkit-linear-gradient(top,#4584ba,#539ad7);
-  background-image: -moz-linear-gradient(top,#4584ba,#539ad7);
-  background-image: -o-linear-gradient(top,#4584ba,#539ad7);
-  background-image: -ms-linear-gradient(top,#4584ba,#539ad7);
-  background-image: linear-gradient(to bottom,#4584ba,#539ad7);
-  filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#4584ba',endColorstr='#539ad7',GradientType=0);
-  box-shadow: 0 0 8px #bebebe;
-  border: none;
-  opacity: 0.8;
-}
-.h5p-iframe-wrapper button.fullscreen:hover {
-  opacity: 1;
-  background: #539ad7;
-  background-image: -webkit-linear-gradient(top,#539ad7,#4584ba);
-  background-image: -moz-linear-gradient(top,#539ad7,#4584ba);
-  background-image: -o-linear-gradient(top,#539ad7,#4584ba);
-  background-image: -ms-linear-gradient(top,#539ad7,#4584ba);
-  background-image: linear-gradient(to bottom,#539ad7,#4584ba);
-  filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#539ad7',endColorstr='#4584ba',GradientType=0);
-  cursor: pointer;
+  display: block;
 }
 
 .h5p-content ul.h5p-actions {
@@ -193,7 +149,7 @@ div.h5p-fullscreen {
   border-top: 1px solid #EEE;
   border-bottom: 1px solid #EEE;
   clear: both;
-  font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  font-family: Sans-Serif;
 }
 .h5p-fullscreen .h5p-actions, .h5p-semi-fullscreen .h5p-actions {
   display: none;
@@ -213,35 +169,38 @@ div.h5p-fullscreen {
   color: #666;
 }
 .h5p-actions > .h5p-button:before {
-  font-family: H5PFontAwesome4;
+  font-family: 'H5P';
   font-size: 1em;
-  padding-right: 0.3em;
+  padding-right: 0;
+  font-size: 1.7em;
+  line-height: 1.125em;
+  vertical-align: middle;
 }
 .h5p-actions > .h5p-button.h5p-export:before {
-  content: "\f019";
+  content: "\e893";
 }
 .h5p-actions > .h5p-button.h5p-copyrights:before {
-  font-family: H5P;
-  content: "\e668";
-  font-size: 1.7em;
-  padding-right: 0;
-  vertical-align: bottom;
+  content: "\e88f";
 }
 .h5p-actions > .h5p-button.h5p-embed:before {
-  content: "\f121";
+  content: "\e892";
 }
 .h5p-actions .h5p-link {
   float: right;
   margin-right: 0;
   font-size: 2.0em;
+  line-height: 1;
   overflow: hidden;
   color: #999;
   text-decoration: none;
   outline: none;
 }
 .h5p-actions .h5p-link:before {
-  font-family: H5P;
-  content: "\e667";
+  font-family: 'H5P';
+  content: "\e88e";
+}
+.h5p-actions > li {
+  margin: 0;
 }
 .h5p-popup-dialog {
   position: absolute;
@@ -253,7 +212,6 @@ div.h5p-fullscreen {
   padding: 2em;
   box-sizing: border-box;
   -moz-box-sizing: border-box;
-/*  background: rgba(50,50,50,0.5);*/
   opacity: 0;
   -webkit-transition: opacity 0.2s;
   -moz-transition: opacity 0.2s;
@@ -314,8 +272,8 @@ div.h5p-fullscreen {
   outline:none
 }
 .h5p-popup-dialog .h5p-close:after {
-  font-family: H5PFontAwesome4;
-  content: "\f00d";
+  font-family: 'H5P';
+  content: "\e894";
   font-size: 2em;
   position: absolute;
   right: 0.5em;
@@ -358,4 +316,10 @@ div.h5p-fullscreen {
   border-left: 0.25em solid #d0d0d0;
   margin-left: 0.25em;
   padding-left: 0.25em;
+}
+.h5p-throbber {
+  background: url('../images/throbber.gif?ver=1.2.1') 10px center no-repeat;
+  padding-left: 38px;
+  min-height: 30px;
+  line-height: 30px;
 }

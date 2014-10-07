@@ -47,7 +47,7 @@ class H5peditorDrupalStorage implements H5peditorStorage {
         'uri' => $path,
         'filemime' => $file->type,
         'filesize' => $file->size,
-        'status' => ~ FILE_STATUS_PERMANENT,
+        'status' => 0,
         'timestamp' => REQUEST_TIME,
       ))
       ->execute();
@@ -83,6 +83,7 @@ class H5peditorDrupalStorage implements H5peditorStorage {
   public function getLibraries($libraries = NULL) {
     if ($libraries !== NULL) {
       // Get details for the specified libraries only.
+      $librariesWithDetails = array();
       foreach ($libraries as $library) {
         $details = db_query(
           "SELECT title, runnable 
@@ -100,27 +101,31 @@ class H5peditorDrupalStorage implements H5peditorStorage {
         if ($details !== FALSE) {
           $library->title = $details->title;
           $library->runnable = $details->runnable;
+          $librariesWithDetails[] = $library;
         }
       }
       
-      return $libraries;
+      return $librariesWithDetails;
     }
     
     $libraries = array();
 
     $libraries_result = db_query(
-      "SELECT machine_name AS machineName, 
+      "SELECT machine_name AS name, 
               title, 
-              major_version as majorVersion, 
-              minor_version as minorVersion 
+              major_version, 
+              minor_version
        FROM {h5p_libraries} 
        WHERE runnable = 1 
        AND semantics IS NOT NULL 
        ORDER BY title");
     foreach ($libraries_result as $library) {
+      // Convert result object properties to camelCase.
+      $library = H5PCore::snakeToCamel($library, true);
+      
       // Make sure we only display the newest version of a library.
-      foreach ($libraries as $key => $existingLibrary) {
-        if ($library->machineName === $existingLibrary->machineName) {
+      foreach ($libraries as $existingLibrary) {
+        if ($library->name === $existingLibrary->name) {
           
           // Mark old ones
           // This is the newest

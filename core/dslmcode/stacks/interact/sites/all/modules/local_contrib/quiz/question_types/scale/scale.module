@@ -27,8 +27,8 @@ function scale_help($path, $args) {
 function scale_menu() {
   $items['scale/collection/manage'] = array(
     'title' => 'Manage your preset collections',
-    'access callback' => 'user_access',
-    'access arguments' => array('create quiz content'),
+    'access callback' => 'node_access',
+    'access arguments' => array('create', 'scale'),
     'type' => MENU_SUGGESTED_ITEM,
     'page callback' => 'drupal_get_form',
     'page arguments' => array('scale_manage_collection_form'),

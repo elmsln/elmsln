@@ -197,16 +197,6 @@ function short_answer_score_an_answer($values, $update_total = TRUE) {
 }
 
 /**
- * Validate the result report for short answer
- */
-function short_answer_report_validate($values, $form_key) {
-  // Check to make sure that entered score is not higher than max allowed score.
-  if (!_quiz_is_int($values['score'], 0, (int) $values['max_score'])) {
-    form_set_error($form_key . '][score', t('The score needs to be a number between 0 and @max', array('@max' => (int) $values['max_score'])));
-  }
-}
-
-/**
  * Submit the result report for short answer
  */
 function short_answer_report_submit($values) {

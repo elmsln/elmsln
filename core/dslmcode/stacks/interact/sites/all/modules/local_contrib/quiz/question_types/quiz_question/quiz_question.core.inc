@@ -406,9 +406,6 @@ abstract class QuizQuestion {
 
     $reveal_correct[] = user_access('view any quiz question correct response');
     $reveal_correct[] = ($user->uid == $this->node->uid);
-    // display_feedback is actually "display solution" @todo should change since
-    // we have a "feedback time" as well
-    $reveal_correct[] = ($quiz_node->type == 'quiz') ? $quiz_node->display_feedback : FALSE;
     if (array_filter($reveal_correct)) {
       return TRUE;
     }
@@ -659,29 +656,75 @@ abstract class QuizQuestionResponse {
       '#type' => 'value',
       '#value' => $this->result_id,
     );
-    if ($submit = $this->getReportFormSubmit($showpoints, $showfeedback, $allow_scoring)) {
+    if ($submit = $this->getReportFormSubmit()) {
       $form['submit'] = array(
         '#type' => 'value',
         '#value' => $submit,
       );
     }
-    if ($validate = $this->getReportFormValidate($showpoints, $showfeedback, $allow_scoring)) {
-      $form['validate'] = array(
-        '#type' => 'value',
-        '#value' => $validate,
-      );
-    }
     $form['question'] = $this->getReportFormQuestion($showpoints, $showfeedback);
-    $form['score'] = $this->getReportFormScore($showpoints, $showfeedback, $allow_scoring);
+
     $form['answer_feedback'] = $this->getReportFormAnswerFeedback($showpoints, $showfeedback, $allow_scoring);
+
     $form['max_score'] = array(
       '#type' => 'value',
-      '#value' => $this->getMaxScore(),
+      '#value' => ($this->canReview('score') || $allow_scoring) ? $this->getMaxScore() : '?',
     );
-    $form['response'] = $this->getReportFormResponse($showpoints, $showfeedback, $allow_scoring);
+
+    $rows = array();
+
+    $labels = array(
+      'choice' => t('Choice'),
+      'attempt' => t('Your answer'),
+      'correct' => t('Correct?'),
+      'score' => t('Score'),
+      'answer_feedback' => t('Feedback'),
+      'solution' => t('Correct answer'),
+    );
+    drupal_alter('quiz_feedback_labels', $labels);
+
+    foreach ($this->getReportFormResponse() as $idx => $row) {
+      foreach ($labels as $reviewType => $label) {
+        if (in_array($reviewType, array('choice')) || (isset($row[$reviewType]) && $this->canReview($reviewType))) {
+          $rows[$idx][$reviewType] = $row[$reviewType];
+        }
+      }
+    }
+
+    if ($this->isEvaluated()) {
+      $score = $this->getScore();
+      if ($this->isCorrect()) {
+        $class = 'q-correct';
+      }
+      else {
+        $class = 'q-wrong';
+      }
+    }
+    else {
+      $score = t('?');
+      $class = 'q-waiting';
+    }
+
+    if (quiz_access_to_score() && $submit) {
+      $form['score'] = $this->getReportFormScore();
+    }
+
+    if ($this->canReview('score') || quiz_access_to_score()) {
+      $form['score_display']['#markup'] = theme('quiz_question_score', array('score' => $score, 'max_score' => $this->getMaxScore(), 'class' => $class));
+    }
+
+    $headers = array_intersect_key($labels, $rows[0]);
+    $type = $this->getQuizQuestion()->node->type;
+    $form['response']['#markup'] = theme('quiz_question_feedback__' . $type, array('labels' => $headers, 'data' => $rows));
 
     $form['#theme'] = $this->getReportFormTheme($showpoints, $showfeedback);
-    $form['#is_correct'] = $this->isCorrect();
+    $form['#is_evaluated'] = $this->isEvaluated();
+    if ($this->canReview('correct')) {
+      $form['#is_correct'] = $this->isCorrect();
+    }
+    else {
+      $form['#is_correct'] = 2;
+    }
     $form['#is_evaluated'] = $this->isEvaluated();
     $form['#is_skipped'] = $this->is_skipped;
     $form['#is_doubtful'] = $this->is_doubtful;
@@ -705,31 +748,28 @@ abstract class QuizQuestionResponse {
 
   /**
    * Get the response part of the report form
-   *
-   * @param $showpoints
-   * @param $showfeedback
-   * @param $allow_scoring
+
    * @return
-   *  FAPI form array holding the response part
+   *  Array of choices
    */
-  public function getReportFormResponse($showpoints = TRUE, $showfeedback = TRUE, $allow_scoring = FALSE) {
-    return array('#markup' => '');
+  public function getReportFormResponse() {
+    $data = array();
+
+    $data[] = array(
+      'choice' => 'True',
+      'attempt' => 'Did the user choose this?',
+      'correct' => 'Was their answer correct?',
+      'score' => 'Points earned for this answer',
+      'answer_feedback' => 'Feedback specific to the answer',
+      'question_feedback' => 'General question feedback for any answer',
+      'solution' => 'Is this choice the correct solution?',
+      'quiz_feedback' => 'Quiz feedback at this time',
+    );
+
+    return $data;
   }
 
-  /**
-   * Get the score part of the report form
-   *
-   * @param $showpoints
-   * @param $showfeedback
-   * @param $allow_scoring
-   * @return
-   *  FAPI form array holding the score part
-   */
-  public function getReportFormScore($showpoints = TRUE, $showfeedback = TRUE, $allow_scoring = FALSE) {
-    return array('#markup' => '<span class="quiz-report-score">' . $this->getScore() . '</span>');
-  }
-
-  public function getReportFormAnswerFeedback($showpoints, $showfeedback, $allow_scoring) {
+  public function getReportFormAnswerFeedback() {
     return FALSE;
   }
 
@@ -739,7 +779,7 @@ abstract class QuizQuestionResponse {
    * @return
    *  Submit function as a string, or FALSE if no submit function
    */
-  public function getReportFormSubmit($showfeedback = TRUE, $showpoints = TRUE, $allow_scoring = FALSE) {
+  public function getReportFormSubmit() {
     return FALSE;
   }
 
@@ -749,7 +789,7 @@ abstract class QuizQuestionResponse {
    * @return
    *  Validate function as a string, or FALSE if no validate function
    */
-  public function getReportFormValidate($showfeedback = TRUE, $showpoints = TRUE, $allow_scoring = FALSE) {
+  public function getReportFormValidate() {
     return FALSE;
   }
 
@@ -759,7 +799,7 @@ abstract class QuizQuestionResponse {
    * @return
    *  Theme key as a string, or FALSE if no submit function
    */
-  public function getReportFormTheme($showfeedback = TRUE, $showpoints = TRUE) {
+  public function getReportFormTheme() {
     return FALSE;
   }
 
@@ -799,4 +839,41 @@ abstract class QuizQuestionResponse {
    * Get the user's response.
    */
   abstract public function getResponse();
+
+  /**
+   * Can the quiz taker view the requested review?
+   */
+  public function canReview($option) {
+    $quiz_result = quiz_result_load($this->result_id);
+    return quiz_feedback_can_review($option, $quiz_result);
+  }
+
+  /**
+   * Implementation of getReportFormScore
+   *
+   * @see QuizQuestionResponse#getReportFormScore($showpoints, $showfeedback, $allow_scoring)
+   */
+  public function getReportFormScore() {
+    $score = ($this->isEvaluated()) ? $this->getScore() : '';
+    return array(
+      '#title' => 'Enter score',
+      '#type' => 'textfield',
+      '#default_value' => $score,
+      '#size' => 3,
+      '#maxlength' => 3,
+      '#attributes' => array('class' => array('quiz-report-score')),
+      '#element_validate' => array('element_validate_integer'),
+      '#required' => TRUE,
+      '#field_suffix' => '/ ' . $this->getMaxScore(),
+    );
+  }
+
+  /**
+   * Set the target result ID for this Question response.
+   *
+   * Useful for cloning entire result sets.
+   */
+  public function setResultId($result_id) {
+    $this->result_id = $result_id;
+  }
 }

@@ -4,9 +4,21 @@
  * @file
  *  h5p.module php file
  *  Drupal module h5p. A HTML5 Package manager for Drupal.
- *
- * TODO: Check js aggr.
  */
+
+// Views support is included in views/quiz.views.inc
+define('H5P_VIEWS_DIR', drupal_get_path('module', 'h5p') . '/views');
+
+/**
+ * Implements hook_init()
+ */
+function h5p_init() {
+  if (path_is_admin(current_path()) && empty($_POST) && user_access('access administration pages')) {
+    $core = _h5p_get_instance('core');
+    $core->validateLibrarySupport();
+    _h5p_display_unsupported_libraries(arg(2) === 'h5p');
+  }
+}
 
 /**
  * Implements hook_menu().
@@ -42,6 +54,14 @@ function h5p_menu() {
     'type' => MENU_NORMAL_ITEM,
     'file' => 'h5p.admin.inc',
   );
+  $items['admin/content/h5p/libraries/%/upgrade'] = array(
+    'title' => 'Upgrade H5P Content',
+    'page callback' => 'h5p_content_upgrade',
+    'page arguments' => array(4),
+    'access arguments' => array('administer site configuration'),
+    'type' => MENU_NORMAL_ITEM,
+    'file' => 'h5p.admin.inc',
+  );
   $items['admin/content/h5p/libraries/%/delete'] = array(
     'title' => 'Delete H5P Library',
     'description' => 'Delete an unused H5P library',
@@ -51,6 +71,29 @@ function h5p_menu() {
     'type' => MENU_NORMAL_ITEM,
     'file' => 'h5p.admin.inc',
   );
+  $items['admin/content/h5p/upgrade/library/%/%/%'] = array(
+    'title' => 'H5P Content Upgrade Library',
+    'page callback' => 'h5p_content_upgrade_library',
+    'page arguments' => array(5, 6, 7),
+    'access arguments' => array('administer site configuration'),
+    'type' => MENU_CALLBACK,
+    'file' => 'h5p.admin.inc',
+  );
+  $items['admin/content/h5p/libraries/upgrade-all'] = array(
+    'title' => 'Upgrade All H5P Libraries',
+    'page callback' => 'h5p_upgrade_all_libraries',
+    'access arguments' => array('administer site configuration'),
+    'type' => MENU_NORMAL_ITEM,
+    'file' => 'h5p.admin.inc',
+  );
+  $items['admin/content/h5p/rebuild-cache'] = array(
+    'title' => 'H5P Rebuild Content Cache',
+    'page callback' => 'h5p_rebuild_cache',
+    'access arguments' => array('administer site configuration'),
+    'type' => MENU_CALLBACK,
+    'file' => 'h5p.admin.inc',
+  );
+  
   $items['h5p/embed/%node'] = array(
     'title' => 'H5P Embed Data',
     'page callback' => 'h5p_embed',
@@ -59,7 +102,7 @@ function h5p_menu() {
     'access arguments' => array('view', 2),
     'type' => MENU_CALLBACK,
   );
-
+  
   // TODO: Should we stick to url conventions? http://moz.com/blog/11-best-practices-for-urls
   // If we want to hint on return type we should call this //h5p/set-finished.json
   $items['h5p-ajax/setFinished'] = array(
@@ -78,62 +121,86 @@ function h5p_menu() {
  * @param array $remove Optional urls to skip.
  * @return array absolute urls.
  */
-function _h5p_make_urls_absolute($urls, $remove = array()) {
+function _h5p_make_urls_absolute($urls, $remove = NULL) {
   global $base_url;
   for ($i = 0, $s = count($urls); $i < $s; $i++) {
-    if (in_array($urls[$i], $remove)) {
+    if ($remove !== NULL && preg_match($remove, $urls[$i])) {
       array_splice($urls, $i, 1);
       $i--;
       $s--;
       continue;
     }
 
-    $urls[$i] =  $base_url . '/' . $urls[$i];
+    // Skip URLs who already have a base, like aggregated assets.
+    if (substr($urls[$i], 0, strlen($base_url)) !== $base_url) {
+      $urls[$i] =  $base_url . '/' . $urls[$i];
+    }
   }
   return $urls;
 }
 
 /**
+ * Get path to HTML5 Package.
+ * 
+ * @param int $content_id
+ * @return string
+ */
+function h5p_get_export_path($content_id) {
+  return variable_get('h5p_export', 1) ? base_path() . _h5p_get_h5p_path() . '/exports/' . $content_id . '.h5p' : '';
+}
+
+/**
  * Embed data.
  *
- * Caching this in DB probably won't have much to say? Since the
+ * Caching this in DB probably won't have much to say? Since the 
  * node needs to be loaded first. Varnish or other page cache
  * will work much better.
  *
- * Embed code example:
+ * Embed code example: 
  * <script src="//127.0.0.1/sites/all/modules/h5p/library/js/h5p-embed.js" data-h5p="//127.0.0.1/h5p/embed/1" async></script>
  */
 function h5p_embed($node) {
   global $base_url;
   $callback = filter_input(INPUT_GET, 'callback');
-
+  
   if ($callback === NULL) {
     drupal_not_found();
     module_invoke_all('exit');
     exit();
   }
-
-  $id = h5p_get_content_id($node);
-  $settings = array();
-  h5p_add_iframe_assets($settings, $id, _h5p_get_instance('core')->loadContentDependencies($id, 'preloaded'), 'h5p-' . $node->nid . '-' . $node->vid);
-
-  if (variable_get('h5p_export', 1)) {
-    $h5p_path = $base_url . '/' . _h5p_get_instance('export')->getExportPath($id, $node->title, $node->language);
-  }
-
+  
   $content = array(
-    'id' => intval($id),
+    'id' => h5p_get_content_id($node),
+    'title' => $node->title,
+    'params' => $node->json_content,
+    'language' => $node->language,
+    'library' => $node->main_library,
+    'embedType' => 'div',
+  );
+  $core = _h5p_get_instance('core');
+  // Important! Params must be filtered before content dependencies are loaded.
+  $params = $core->filterParameters($content);
+  
+  $preloaded_dependencies = $core->loadContentDependencies($content['id'], 'preloaded');
+  $files = $core->getDependenciesFiles($preloaded_dependencies);
+  
+  $assets = array();
+  h5p_add_iframe_assets($assets, $content['id'], $files);
+
+  $settings = array(
+    'id' => intval($content['id']),
     'path' => $base_url . '/' . _h5p_get_h5p_path() . '/',
     'library' => $node->main_library['name'] . ' ' . $node->main_library['majorVersion'] . '.' . $node->main_library['minorVersion'],
     'fullscreen' => intval($node->main_library['fullscreen']),
-    'export' => (isset($h5p_path) ? $h5p_path : ''),
+    'exportUrl' => h5p_get_export_path($content['id']),
     'embedCode' => _h5p_generate_embed_code($node->nid),
-    'styles' => _h5p_make_urls_absolute(array_merge($settings['h5p']['core']['styles'], $settings['h5p']['cid-' . $id]['styles'])),
-    'scripts' => _h5p_make_urls_absolute(array_merge($settings['h5p']['core']['scripts'], $settings['h5p']['cid-' . $id]['scripts']), array(drupal_get_path('module', 'h5p') . '/js/h5pintegration.js')),
-    'params' => h5p_filter_json_content($node),
+    'styles' => _h5p_make_urls_absolute(array_merge($assets['h5p']['core']['styles'], $assets['h5p']['cid-' . $content['id']]['styles'])),
+    'scripts' => _h5p_make_urls_absolute(array_merge($assets['h5p']['core']['scripts'], $assets['h5p']['cid-' . $content['id']]['scripts']), '/\/h5pintegration\.js/'),
+    'params' => $params,
     'i18n' => array(
       'H5P' => array(
         'fullscreen' => t('Fullscreen'),
+        'disableFullscreen' => t('Disable fullscreen'),
         'download' => t('Download H5P'),
         'copyrights' => t('Rights of use'),
         'embed' => t('Embed'),
@@ -153,13 +220,13 @@ function h5p_embed($node) {
       ),
     ),
   );
-
-  print $callback . '(' . json_encode($content) . ');';
+  
+  print $callback . '(' . json_encode($settings) . ');';
 }
 
 /**
  * Generate embed code for a given node
- *
+ * 
  * @param integer $nid
  * @return string
  */
@@ -168,17 +235,17 @@ function _h5p_generate_embed_code($nid) {
   $module_path = drupal_get_path('module', 'h5p');
   $embed_js_url = $base_url . '/' . $module_path . '/library/js/h5p-embed.js';
   $data_url = url('h5p/embed/' . $nid, array('absolute' => TRUE));
-
+  
   return '<script src="' . $embed_js_url .'" data-h5p="' . $data_url . '" async></script>';
 }
 
 /**
- * Creates the title for the library details page
- *
+ * Creates the title for the library details page 
+ * 
  * @param integer $library_id
  */
 function _h5p_library_details_title($library_id) {
-  return db_result(db_query('SELECT title FROM {h5p_libraries} where library_id = %d', $library_id));
+  return db_query('SELECT title FROM {h5p_libraries} where library_id = :id', array(':id' => $library_id))->fetchField();
 }
 
 /**
@@ -201,7 +268,19 @@ function h5p_permission() {
   return array(
     'update h5p libraries' => array(
       'title' => t('Update libraries'),
-      'description' => t("The user is allowed to update H5P libraries. Only give this permission to trusted users who knows what they are doing."),
+      'description' => t('The user is allowed to update H5P libraries. Only give this permission to trusted users who knows what they are doing.'),
+    ),
+    'access all h5p results' => array(
+      'title' => t('Access all H5P results'),
+      'description' => t('Access all H5P results stored in the system'),
+    ),
+    'access own h5p results' => array(
+      'title' => t('Access own H5P results'),
+      'description' => t('Access own H5P results from user profile.'),
+    ),
+    'access h5p results for own content' => array(
+      'title' => t('Access h5p results for own content'),
+      'description' => t('The user is allowed to see all results for content he has created. Available as a tab on each node.'),
     ),
   );
 }
@@ -236,7 +315,7 @@ function h5p_form(&$node, $form_state) {
 
   $form['json_content'] = array(
     '#type' => 'hidden',
-    '#default_value' => isset($node->json_content) ? $node->json_content : '',
+    '#default_value' => isset($node->json_content) ? $node->json_content : '{}',
   );
 
   $form['main_library_id'] = array(
@@ -300,19 +379,17 @@ function h5p_insert($node) {
   if (isset($_SESSION['h5p_upload'])) {
     $h5p_core = _h5p_get_instance('storage');
     $h5p_core->savePackage(h5p_get_content_id($node), $node->nid);
-
-    _h5p_clear_js_and_css_cache();
   }
   else {
-    $id = db_insert('h5p_nodes')
-      ->fields(array(
-        'content_id' => h5p_get_content_id($node),
-        'nid' => $node->nid,
-        'json_content' => $node->json_content,
-        'embed_type' => $node->embed_type,
-        'main_library_id' => $node->main_library_id,
-      ))
-      ->execute();
+    $core = _h5p_get_instance('core');
+    $core->saveContent(array(
+      'id' => h5p_get_content_id($node),
+      'params' => $node->json_content,
+      'embed_type' => $node->embed_type,
+      'library' => array(
+        'libraryId' => $node->main_library_id
+      )
+    ), $node->nid);
   }
 }
 
@@ -320,44 +397,30 @@ function h5p_insert($node) {
  * Implements hook_update().
  */
 function h5p_update($node) {
-  $content_id = h5p_get_content_id($node);
-
-  if (isset($_SESSION['h5p_upload'])) {
-    if ($node->revision && variable_get('h5p_revisioning', 1)) {
-      h5p_insert($node);
+  if ($node->revision && variable_get('h5p_revisioning', 1)) {
+    // Create new revision
+    $h5p_storage = _h5p_get_instance('storage');
+    if (isset($_SESSION['h5p_upload'])) {
+      // Use newly uploaded package
+      $h5p_storage->savePackage($node->vid, $node->nid);
     }
     else {
-      _h5p_get_instance('storage')->updatePackage($content_id, $node->nid);
-      _h5p_clear_js_and_css_cache();
+      // Copy old package
+      $h5p_storage->copyPackage($node->vid, $node->old_vid, $node->nid);
+      // Insert content:
+      h5p_insert($node);
     }
-  }
-  elseif ($node->revision && variable_get('h5p_revisioning', 1)) {
-    _h5p_get_instance('storage')->copyPackage($node->vid, $node->old_vid, $node->nid);
-    h5p_insert($node);
   }
   else {
-    // Make sure a row exists before we try updating it.
-    $content_id = db_query("SELECT content_id FROM {h5p_nodes} WHERE content_id = :content_id", array(':content_id' => $content_id))->fetchField();
-
-    if ($content_id !== FALSE) {
-      db_update('h5p_nodes')
-        ->fields(array(
-          'json_content' => $node->json_content,
-          'embed_type' => $node->embed_type,
-          'main_library_id' => $node->main_library_id,
-        ))
-        ->condition('content_id', $content_id)
-        ->execute();
+    if (isset($_SESSION['h5p_upload'])) {
+      // Replace old package
+      $h5p_storage = _h5p_get_instance('storage');
+      $h5p_storage->updatePackage(h5p_get_content_id($node), $node->nid);
     }
     else {
-      // No rows, insert new row. (this happens if the module is reinstalled)
       h5p_insert($node);
     }
-
-    _h5p_clear_js_and_css_cache();
   }
-
-  _h5p_get_instance('export')->deleteExport($content_id);
 }
 
 /**
@@ -382,7 +445,7 @@ function h5p_delete($node) {
  */
 function h5p_load($nodes) {
   $h5p = _h5p_get_instance('core');
-  foreach ($nodes as $nid => &$node) {
+  foreach ($nodes as $nid => &$node) {  
     $content = $h5p->loadContent(h5p_get_content_id($node));
 
     if ($content !== NULL) {
@@ -399,6 +462,7 @@ function h5p_load($nodes) {
  */
 function h5p_view($node, $view_mode = 'full') {
   node_object_prepare($node);
+
   if (!isset($node->in_preview) && isset($node->main_library_id)) {
     $content_id = h5p_get_content_id($node);
     $embed = H5PCore::determineEmbedType($node->embed_type, $node->main_library['embedTypes']);
@@ -409,7 +473,7 @@ function h5p_view($node, $view_mode = 'full') {
       $html = '<div class="h5p-content" data-content-id="' .  $content_id . '"></div>';
     }
     else {
-      $html = '<div class="h5p-iframe-wrapper"><iframe id="h5p-iframe-' . $content_id . '" class="h5p-iframe" data-content-id="' . $content_id . '" style="width: 100%; height: 1px; border: none; display: block;" src="about:blank" frameBorder="0"></iframe></div>';
+      $html = '<div class="h5p-iframe-wrapper"><iframe id="h5p-iframe-' . $content_id . '" class="h5p-iframe" data-content-id="' . $content_id . '" style="height:1px" src="about:blank" frameBorder="0" scrolling="no"></iframe></div>';
     }
   }
 
@@ -419,6 +483,11 @@ function h5p_view($node, $view_mode = 'full') {
   else {
     h5p_set_started(h5p_get_content_id($node));
   }
+  
+  // Check if any unsupported libraries. Only users which may update this node will get the warning message
+  if (node_access('update', $node)) {
+    _h5p_display_unsupported_libraries();
+  }
 
   $node->content['h5p'] = array(
     '#markup' => $html,
@@ -426,6 +495,27 @@ function h5p_view($node, $view_mode = 'full') {
   );
 
   return $node;
+}
+
+/**
+ * If unsupported libraries, display a message
+ */
+function _h5p_display_unsupported_libraries($display_details = FALSE) {
+  // Check if any unsupported libraries. Only users which may update this node will get the warning message
+  $unsupported_libraries = variable_get('h5p_unsupported_libraries');
+  if ($unsupported_libraries !== NULL) {
+    if ($display_details) {
+      $core = _h5p_get_instance('core');
+      $message = $core->createMarkupForUnsupportedLibraryList($unsupported_libraries);
+    }
+    else {
+      $message = t('You have %num_libs H5P libraries with versions not supported anymore. ', array('%num_libs' => sizeof($unsupported_libraries)));
+    }
+    
+    $message .= t('Please upgrade all H5P libraries <a href="@url">here</a>', array('@url' => url('admin/content/h5p/libraries/upgrade-all')));
+    
+    drupal_set_message($message, 'warning', FALSE);
+  }
 }
 
 /**
@@ -446,7 +536,7 @@ function h5p_access_set_finished() {
   }
   $nid = $_POST['contentId'];
   if (variable_get('h5p_revisioning', 1)) {
-    $nid = db_result(db_query('SELECT nid FROM {node_revisions} WHERE vid = %d', $nid));
+    $nid = db_query('SELECT nid FROM {node_revision} WHERE vid = :vid', array(':vid' => $nid))->fetchField();
   }
   return node_access('view', node_load((int) $nid));
 }
@@ -508,40 +598,41 @@ function h5p_add_core_assets() {
   global $user;
 
   if ($assets === NULL) {
+    $cache_buster = '?' . variable_get('css_js_query_string', '');
     $module_path = drupal_get_path('module', 'h5p');
     $assets = array(
       'css' => array(),
       'js' => array()
     );
-
+    
     foreach (H5PCore::$styles as $style) {
       $css = $module_path . '/library/' . $style;
       drupal_add_css($css);
-      $assets['css'][] = $css;
+      $assets['css'][] = $css . $cache_buster;
     }
-
+    
     $js = $module_path . '/js/h5pintegration.js';
     drupal_add_js($js);
-    $assets['js'][] = $js;
+    $assets['js'][] = $js . $cache_buster;
+      
     foreach (H5PCore::$scripts as $script) {
       $js = $module_path . '/library/' . $script;
       drupal_add_js($js);
-      $assets['js'][] = $js;
+      $assets['js'][] = $js . $cache_buster;
     }
-
+    
     drupal_add_js(array(
       'h5p' => array(
         'contentPath' => base_path() . _h5p_get_h5p_path() . '/content/',
-        'exportEnabled' => _h5p_get_instance('interface')->isExportEnabled(),
+        'exportEnabled' => (bool) variable_get('h5p_export', 1),
         'h5pIconInActionBar' => variable_get('h5p_icon_in_action_bar', '1') == 1,
-        'cacheBuster' => variable_get('css_js_query_string', ''),
         'libraryPath' => _h5p_get_h5p_path() . '/libraries/',
         'postUserStatistics' => $user->uid > 0,
         'ajaxPath' => url('h5p-ajax') . '/',
       )
     ), 'setting');
   }
-
+    
   return $assets;
 }
 
@@ -552,56 +643,61 @@ function h5p_add_core_assets() {
  */
 function h5p_add_files_and_settings($node, $embed_type) {
   static $added_content, $added_js, $added_css;
-
+  
   h5p_add_core_assets();
-
+  
   if (!isset($node->json_content) || !isset($node->nid)) {
     return; // Not content.
   }
-
+  
   $content_id = h5p_get_content_id($node);
   if (isset($added_content[$content_id])) {
     return; // Already added.
   }
   $added_content[$content_id] = TRUE;
-
-  $h5p_params = h5p_filter_json_content($node);
-  if ($h5p_params === NULL) {
-    return; // Failure in validation.
-  }
-
-  if (variable_get('h5p_export', 1)) {
-    $h5p_path = base_path() . _h5p_get_instance('export')->getExportPath($content_id, $node->title, $node->language);
-  }
-
+  
+  $content = array(
+    'id' => $content_id,
+    'title' => $node->title,
+    'params' => $node->json_content,
+    'language' => $node->language,
+    'library' => $node->main_library,
+    'embedType' => 'div',
+  );
+  $core = _h5p_get_instance('core');
+  
   $settings = array(
     'h5p' => array(
       'content' => array(
         "cid-$content_id" => array(
           'library' => $node->main_library['name'] . ' ' . $node->main_library['majorVersion'] . '.' . $node->main_library['minorVersion'],
-          'jsonContent' => $h5p_params,
+          'jsonContent' => $core->filterParameters($content),
           'fullScreen' => $node->main_library['fullscreen'],
-          'export' => (isset($h5p_path) ? $h5p_path : ''),
+          'exportUrl' => h5p_get_export_path($content['id']),
           'embedCode' => _h5p_generate_embed_code($node->nid)
         )
       )
     )
   );
-
-  $files = _h5p_get_instance('core')->loadContentDependencies($content_id, 'preloaded');
+  
+  $preloaded_dependencies = $core->loadContentDependencies($content_id, 'preloaded');
+  $files = $core->getDependenciesFiles($preloaded_dependencies);
+  
   if ($embed_type === 'div') {
-    foreach ($files['scripts'] as $js_path) {
-      if (!isset($added_js[$js_path])) {
-        drupal_add_js($js_path);
-        $settings['h5p']['loadedJs'][] = $js_path;
-        $added_js[$js_path] = TRUE;
+    foreach ($files['scripts'] as $script) {
+      $url = $script->path . $script->version;
+      if (!isset($added_js[$url])) {
+        drupal_add_js($script->path);
+        $settings['h5p']['loadedJs'][] = $url;
+        $added_js[$url] = TRUE;
       }
     }
-    foreach ($files['styles'] as $css_path) {
-      if (!isset($added_css[$css_path])) {
-        drupal_add_css($css_path);
-        $settings['h5p']['loadedCss'][] = $css_path;
-        $added_css[$css_path] = TRUE;
+    foreach ($files['styles'] as $style) {
+      $url = $style->path . $style->version;
+      if (!isset($added_css[$url])) {
+        drupal_add_css($style->path);
+        $settings['h5p']['loadedCss'][] = $url;
+        $added_css[$url] = TRUE;
       }
     }
   }
@@ -616,18 +712,18 @@ function h5p_add_files_and_settings($node, $embed_type) {
 /**
  * Add the necessary assets for content to run in an iframe.
  *
- * @param array $settings
+ * @param array $settings 
  * @param int $content_id
  * @param array $files
  * @param string $cache_file_prefix
  */
 function h5p_add_iframe_assets(&$settings, $content_id, $files) {
   static $core_added;
-
+  
   if ($core_added === NULL) {
     $core_added = TRUE;
     $core_assets = h5p_add_core_assets();
-
+  
     $settings['h5p']['core']['scripts'] = $core_assets['js'];
     $settings['h5p']['core']['styles'] = $core_assets['css'];
   }
@@ -636,99 +732,58 @@ function h5p_add_iframe_assets(&$settings, $content_id, $files) {
   $preprocess_js = (variable_get('preprocess_js', FALSE) && (!defined('MAINTENANCE_MODE') || MAINTENANCE_MODE != 'update'));
   $directory = file_stream_wrapper_get_instance_by_uri('public://')->realpath();
   $is_writable = is_dir($directory) && is_writable($directory);
-  // TODO: && (variable_get('file_downloads', FILE_DOWNLOADS_PUBLIC) == FILE_DOWNLOADS_PUBLIC); ?
+  // TODO: && (variable_get('file_downloads', FILE_DOWNLOADS_PUBLIC) == FILE_DOWNLOADS_PUBLIC); ? 
 
-  // Aggregate library styles and scripts for faster loading when using iframe.
+  // Aggregate library styles and scripts for faster loading when using iframe. 
   // Core files are not included to leverage browser caching! See http://css-tricks.com/one-two-three
+  $core = _h5p_get_instance('core');
 
   if ($is_writable && $preprocess_css) {
     // Refactor styles array to Drupal eatable format.
     $styles = array();
     foreach ($files['styles'] as $style) {
       $styles[] = array(
-        'data' => $style,
+        'data' => $style->path,
         'type' => 'file'
       );
     }
-
+    
     $css_url = file_create_url(drupal_build_css_cache($styles));
     $settings['h5p']['cid-' . $content_id]['styles'] = array($css_url);
   }
   else {
-    $settings['h5p']['cid-' . $content_id]['styles'] = $files['styles'];
+    $settings['h5p']['cid-' . $content_id]['styles'] = $core->getAssetsUrls($files['styles']);
   }
-
+  
   if ($is_writable && $preprocess_js) {
     // Refactor scripts array to Drupal eatable format.
     $scripts = array();
     foreach ($files['scripts'] as $script) {
-      $scripts[$script] = array(
-        'data' => $script,
+      $scripts[$script->path] = array(
+        'data' => $script->path,
         'type' => 'file',
         'preprocess' => TRUE,
       );
     }
-
+    
     $js_url = file_create_url(drupal_build_js_cache($scripts));
     $settings['h5p']['cid-' . $content_id]['scripts'] = array($js_url);
   }
   else {
-    $settings['h5p']['cid-' . $content_id]['scripts'] = $files['scripts'];
+    $settings['h5p']['cid-' . $content_id]['scripts'] = $core->getAssetsUrls($files['scripts']);
   }
-}
-
-/**
- * Get filtered json content for node.
- *
- * @param $node
- *  Node object to filter json
- * @return string
- *  Returns the filtered JSON string.
- */
-function h5p_filter_json_content($node) {
-  if (isset($node->vid)) {
-    $cid = 'validated_json_' . $node->vid;
-    $cache = cache_get($cid);
-    if (isset($cache->data) && !variable_get('h5p_content_dev_mode', 0) && !variable_get('h5p_library_development', 0)) {
-      return $cache->data;
-    }
-  }
-
-  // Get semantics.
-  $semantics = _h5p_get_instance('core')->loadLibrarySemantics($node->main_library['name'], $node->main_library['majorVersion'], $node->main_library['minorVersion']);
-
-  if ($semantics === NULL) {
-    $params = NULL;
-  }
-  else {
-    // Get params as object
-    $params = json_decode($node->json_content);
-
-    $validator = _h5p_get_instance('contentvalidator');
-    // Validate and filter against main library semantics.
-    $validator->validateBySemantics($params, $semantics);
-
-    $params = json_encode($params);
-  }
-
-  if (isset($cid)) {
-    // Cache results
-    cache_set($cid, $params);
-  }
-
-  return $params;
 }
 
 /**
  * Verify that the libraries H5P needs exists
- *
+ * 
  * @return boolean
  *  TRUE if the settings validate, FALSE otherwise
  */
 function _h5p_check_settings() {
   $file_path = file_stream_wrapper_get_instance_by_uri('public://')->getDirectoryPath();
   $path = $file_path . '/' . variable_get('h5p_default_path', 'h5p');
-
+  
   // Creating directories - the first empty string is for creating the parent H5P directory
   foreach (array('', 'temp', 'libraries', 'content', 'exports', 'development') as $directory) {
     $directory = $path . '/' . $directory;
@@ -736,7 +791,7 @@ function _h5p_check_settings() {
       return FALSE;
     }
   }
-
+  
   return TRUE;
 }
 
@@ -775,24 +830,24 @@ function _h5p_get_instance($type) {
     $interface = new H5PDrupal();
 
     $development_mode = H5PDevelopment::MODE_NONE;
-    if (variable_get('h5p_content_dev_mode', '0') === 1) {
-      $development_mode |= H5PDevelopment::MODE_CONTENT;
-      drupal_set_message(t('H5P content development mode is enabled. Change <a href="@settings-page">settings</a>.', array('@settings-page' => url('admin/settings/h5p'))), 'warning', FALSE);
-    }
+//    if (variable_get('h5p_content_dev_mode', '0') === 1) {
+//      $development_mode |= H5PDevelopment::MODE_CONTENT;
+//      drupal_set_message(t('H5P content development mode is enabled. Change <a href="@settings-page">settings</a>.', array('@settings-page' => url('admin/config/system/h5p'))), 'warning', FALSE);
+//    }
     if (variable_get('h5p_library_development', 0) === 1) {
       $development_mode |= H5PDevelopment::MODE_LIBRARY;
       $preprocess_css_or_js = variable_get('preprocess_css', 0) === '1' || variable_get('preprocess_js', 0) === '1';
-
-      $message = t('H5P library development directory is enabled. Change <a href="@settings-page">settings</a>.', array('@settings-page' => url('admin/settings/h5p')));
-
+      
+      $message = t('H5P library development directory is enabled. Change <a href="@settings-page">settings</a>.', array('@settings-page' => url('admin/config/system/h5p')));
+      
       if ($preprocess_css_or_js) {
         $message .= '<br/>' . t('Preprocessing of css and/or js files is enabled. This is not supported when using the development directory option. Please disable preprocessing, and clear the cache');
       }
-
+      
       drupal_set_message($message, 'warning', FALSE);
     }
-
-    $core = new H5PCore($interface, _h5p_get_h5p_path(), $language->language, $development_mode);
+    
+    $core = new H5PCore($interface, _h5p_get_h5p_path(), $language->language, (variable_get('h5p_export', '1') ? TRUE : FALSE), $development_mode);
   }
 
   switch ($type) {
@@ -820,20 +875,6 @@ function _h5p_get_instance($type) {
 function _h5p_get_h5p_path() {
   $file_path = file_stream_wrapper_get_instance_by_uri('public://')->getDirectoryPath();
   return $file_path . '/' . variable_get('h5p_default_path', 'h5p');
-}
-
-/**
- * Clears the js and css cache. Needed when updating and
- * adding libraries
- */
-function _h5p_clear_js_and_css_cache() {
-  // Clear caches to make sure new versions are used.
-  _drupal_flush_css_js();
-  drupal_clear_js_cache();
-  drupal_clear_css_cache();
-
-  // Need to clear JSON content cache too.
-  cache_clear_all('validated_json_', 'cache', TRUE);
 }
 
 /**
@@ -874,7 +915,7 @@ function h5p_field_extra_fields() {
       )
     )
   );
-
+  
   return $extra;
 }
 
@@ -882,24 +923,32 @@ function h5p_field_extra_fields() {
 /**
  * TODO
  */
-function h5p_library_delete_form(&$form_state, $library_id, $library_name) {
-
+function h5p_library_delete_form($form, &$form_state, $library_id, $library_name) {
   $form['library_id'] = array(
-      '#type' => 'hidden',
-      '#value' => $library_id
+    '#type' => 'hidden',
+    '#value' => $library_id
   );
-
+  
   $form['info'] = array(
-    '#type' => 'markup',
-    '#value' => '<span>' . t('Are you sure you would like to delete the @library_name H5P library?', array('@library_name' => $library_name)) . '</span>'
+    '#markup' => '<div>' . t('Are you sure you would like to delete the @library_name H5P library?', array('@library_name' => $library_name)) . '</div>'
   );
-
+  
   $form['submit'] = array(
     '#type' => 'submit',
     '#value' => t('Delete')
   );
-
+  
   return $form;
+}
+
+/**
+ * Implements hook_views_api().
+ */
+function h5p_views_api() {
+  return array(
+    'api' => 3,
+    'path' => H5P_VIEWS_DIR,
+  );
 }
 
 /**
@@ -907,5 +956,53 @@ function h5p_library_delete_form(&$form_state, $library_id, $library_name) {
  */
 function h5p_library_delete_form_submit($form, &$form_state) {
   // Do the actual deletion:
-  _h5p_get_instance('interface')->deleteLibrary($form_state['values']['library_id']);
+  _h5p_get_instance('core')->deleteLibrary($form_state['values']['library_id']);
+}
+
+/**
+ * Handler for the custom node points access check
+ *
+ * @param stdObject $account
+ */
+function h5p_access_node_points($account = NULL) {
+  global $user;
+
+  if (arg(0) === 'node' && is_numeric(arg(1))) {
+    $node = node_load(arg(1));
+    if ($node !== FALSE && $node->type == 'h5p_content') {
+      if (user_access('access all h5p results')) {
+        return TRUE;
+      }
+      
+      // menu_get_object isn't working, so we load it manually...
+      if (user_access('access h5p results for own content') && $user->uid === $node->uid) {
+        return TRUE;
+      }
+    }
+  }
+  return FALSE;
+}
+
+/**
+ * Handler for the custom user points access check
+ *
+ * @param stdObject $account
+ */
+function h5p_access_user_points($account = NULL) {
+  global $user;
+
+  if (user_access('access all h5p results')) {
+    return TRUE;
+  }
+
+  // menu_get_object isn't working, so we load it manually...
+  if (arg(0) === 'user' && is_numeric(arg(1))) {
+    $accessed_user = user_load(arg(1));
+    if ($accessed_user !== FALSE) {
+      if (user_access('access own h5p results') && $user->uid === $accessed_user->uid) {
+        return TRUE;
+      }
+    }
+  }
+  return FALSE;
 }

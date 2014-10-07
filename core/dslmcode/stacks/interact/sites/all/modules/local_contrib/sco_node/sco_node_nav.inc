@@ -37,6 +37,14 @@ function sco_node_nav_info($node) {
   if ($check) {
     $html .= 'cmi.comm_check = true;';
   }
+  $commit_async = sco_node_get_option_value($node, 'commit_async', FALSE);
+  if ($commit_async) {
+    $html .= 'cmi.commit_async = true;';
+  }
+  $log_suspend = sco_node_get_option_value($node, 'log_suspend', FALSE);
+  if ($log_suspend) {
+    $html .= 'cmi.log_suspend = true;';
+  }
 
   $html .= '}';
 

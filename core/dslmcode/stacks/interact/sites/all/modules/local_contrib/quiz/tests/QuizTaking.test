@@ -21,7 +21,10 @@ class QuizTaking extends QuizTestCase {
    */
   public function testQuestionRepeatUntilCorrect() {
     $this->drupalLogin($this->admin);
-    $quiz_node = $this->drupalCreateQuiz(array('repeat_until_correct' => 1));
+    $quiz_node = $this->drupalCreateQuiz(array(
+      'repeat_until_correct' => 1,
+      'review_options' => array('question' => array('answer_feedback' => 'answer_feedback')),
+    ));
 
     $question_node = $this->drupalCreateNode(array(
       'type' => 'truefalse',

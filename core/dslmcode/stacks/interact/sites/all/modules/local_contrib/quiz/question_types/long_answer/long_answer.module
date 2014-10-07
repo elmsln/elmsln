@@ -291,22 +291,6 @@ function long_answer_report_submit($values) {
 }
 
 /**
- * Validation function for the report form
- *
- * @param $values
- *  The FAPI $form_state['values']
- * @param $form_key
- *  Array key to add errors to
- */
-function long_answer_report_validate($values, $form_key) {
-  $max = (int) $values['max_score'];
-  // Check to make sure that entered score is not higher than max allowed score.
-  if (!_quiz_is_int($values['score'], 0, $max)) {
-    form_set_error($form_key . '][score', t('The score needs to be a number between @min and @max', array('@min' => 0, '@max' => $max)));
-  }
-}
-
-/**
  * Implements hook_field_extra_fields().
  */
 function long_answer_field_extra_fields() {

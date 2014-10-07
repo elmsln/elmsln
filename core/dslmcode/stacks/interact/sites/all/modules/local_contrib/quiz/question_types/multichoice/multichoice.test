@@ -92,46 +92,14 @@ class MultichoiceTestCase extends QuizQuestionTestCase {
     // Login as non-admin.
     $this->drupalLogin($this->user);
 
-    // Test incorrect question. No feedback, no answer.
-    $quiz_node->feedback_time = QUIZ_FEEDBACK_NEVER;
-    $quiz_node->display_feedback = 0;
-    node_save($quiz_node);
-    $this->drupalGet("node/$quiz_node->nid/take");
-    $this->drupalPost(NULL, array(
-      "question[$question_node->nid][user_answer]" => $question_node->alternatives[1]['id'],
-      ), t('Finish'));
-    $this->assertNoPattern('/multichoice-icon correct/', 'Did not find correct answer.');
-    $this->assertNoPattern('/multichoice-icon should/', 'Did not find correct suggestion.');
-    $this->assertNoPattern('/multichoice-icon almost/', 'Did not find partial correct answer.');
-    $this->assertNoText('You did not choose A');
-    $this->assertNoText('You chose B');
-    $this->assertNoText('You did not choose C');
-
-    // Test incorrect question. Feedback, no answer.
-    $quiz_node->feedback_time = QUIZ_FEEDBACK_END;
-    $quiz_node->display_feedback = 0;
-    node_save($quiz_node);
-    $this->drupalGet("node/$quiz_node->nid/take");
-    $this->drupalPost(NULL, array(
-      "question[$question_node->nid][user_answer]" => $question_node->alternatives[1]['id'],
-      ), t('Finish'));
-    $this->assertNoPattern('/multichoice-icon correct/', 'Did not find correct answer.');
-    $this->assertNoPattern('/multichoice-icon should/', 'Did not find correct suggestion.');
-    $this->assertNoPattern('/multichoice-icon almost/', 'Did not find partial correct answer.');
-    $this->assertText('You did not choose A');
-    $this->assertText('You chose B');
-    $this->assertText('You did not choose C');
-
     // Test incorrect question. Feedback, answer.
-    // This is really "Display solution"
-    $quiz_node->feedback_time = QUIZ_FEEDBACK_END;
-    $quiz_node->display_feedback = 1;
-    node_save($quiz_node);
     $this->drupalGet("node/$quiz_node->nid/take");
     $this->drupalPost(NULL, array(
       "question[$question_node->nid][user_answer]" => $question_node->alternatives[1]['id'],
       ), t('Finish'));
-    $this->assertPattern('/multichoice-icon correct/', 'Found correct answer.');
+    $this->assertPattern('/quiz-score-icon selected/', 'Found selected answer.');
+    $this->assertPattern('/quiz-score-icon should/', 'Found should answer.');
+    $this->assertPattern('/quiz-score-icon incorrect/', 'Found incorrect answer.');
     $this->assertText('You did not choose A');
     $this->assertText('You chose B');
     $this->assertText('You did not choose C');

@@ -2,15 +2,17 @@
  * This file contains helper functions for the editor.
  */
 
-var H5PEditor = H5PEditor || {};
-var ns = H5PEditor;
+// Use resources set in parent window
+var ns = H5PEditor = window.parent.H5PEditor;
+ns.$ = H5P.jQuery;
+
+// Load needed resources from parent. 
+H5PIntegration = window.parent.H5PIntegration;
 
 /**
  * Keep track of our widgets.
  */
 ns.widgets = {};
-
-ns.language = {};
 
 /**
  * Keeps track of which semantics are loaded.
@@ -26,41 +28,6 @@ ns.semanticsLoaded = {};
  * Indiciates if the user is using Internet Explorer.
  */
 ns.isIE = navigator.userAgent.match(/; MSIE \d+.\d+;/) !== null;
-
-/**
- * Translate text strings.
- *
- * @param {String} library
- *  library machineName, or "core"
- * @param {String} key
- * @param {Object} vars
- * @returns {String|@exp;H5peditor@call;t}
- */
-ns.t = function (library, key, vars) {
-  if (ns.language[library] === undefined) {
-    return 'Missing translations for library ' + library;
-  }
-
-  if (library === 'core') {
-    if (ns.language[library][key] === undefined) {
-      return 'Missing translation for ' + key;
-    }
-    var translation = ns.language[library][key];
-  }
-  else {
-    if (ns.language[library]['libraryStrings'] === undefined || ns.language[library]['libraryStrings'][key] === undefined) {
-      return ns.t('core', 'missingTranslation', {':key': key});
-    }
-    var translation = ns.language[library]['libraryStrings'][key];
-  }
-
-  // Replace placeholder with variables.
-  for (var placeholder in vars) {
-    translation = translation.replace(placeholder, vars[placeholder]);
-  }
-
-  return translation;
-};
 
 /**
  * Extremely advanced function that loads the given library, inserts any css and js and
@@ -89,7 +56,7 @@ ns.loadLibrary = function (libraryName, callback) {
       ns.semanticsLoaded[libraryName] = []; // Other callbacks to run once loaded.
       var library = ns.libraryFromString(libraryName);
       ns.$.ajax({
-        url: ns.ajaxPath + 'libraries/' + library.machineName + '/' + library.majorVersion + '/' + library.minorVersion,
+        url: ns.getAjaxUrl('libraries', library),
         success: function (libraryData) {
           var semantics = libraryData.semantics;
           if (libraryData.language !== null) {
@@ -510,7 +477,7 @@ ns.checkErrors = function ($errors, $input, value) {
  *  Concatinated version of the library
  */
 ns.libraryToString = function (library) {
-  return library.machineName + ' ' + library.majorVersion + '.' + library.minorVersion;
+  return library.name + ' ' + library.majorVersion + '.' + library.minorVersion;
 };
 
 /**

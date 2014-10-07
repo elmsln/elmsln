@@ -60,16 +60,8 @@ class ScaleTestCase extends QuizQuestionTestCase {
   function testTakeQuestion() {
     $question_node = $this->testCreateQuizQuestion();
 
-    // Create the quiz and question.
-    $quiz_node = $this->drupalCreateNode(array(
-      'type' => 'quiz',
-    ));
-
     // Link the question.
-    $question_node->quiz_nid = $quiz_node->nid;
-    $question_node->quiz_vid = $quiz_node->vid;
-    $qq = _quiz_question_get_instance($question_node);
-    $qq->saveRelationships();
+    $quiz_node = $this->linkQuestionToQuiz($question_node);
 
     // Test that question appears in lists.
     $this->drupalGet("node/$quiz_node->nid/quiz/questions");

@@ -302,43 +302,34 @@ class TrueFalseResponse extends QuizQuestionResponse {
 
   /**
    * Implementation of getReportFormResponse
-   *
-   * @see QuizQuestionResponse#getReportFormResponse($showpoints, $showfeedback, $allow_scoring)
    */
-  public function getReportFormResponse($showpoints = TRUE, $showfeedback = TRUE, $allow_scoring = FALSE) {
-    if (empty($this->question->answers)) {
-      return array(
-        '#markup' => t('Missing question.'),
-      );
-    }
-    $metadata = array();
+  public function getReportFormResponse() {
+
+    $answer = $this->question->answers[0]['answer'];
+    $correct_answer = $this->question->correct_answer;
+
     $data = array();
-    // Build the question answers header (add blank space for IE).
-    if ($showpoints) {
-      $metadata[] = t('Correct Answer');
-    }
-    $metadata[] = t('User answer');
-    if ($showfeedback && !empty($this->question->feedback)) {
-      $metadata[] = 'Feedback';
-    }
-
-    $answer = $this->question->answers[0];
-    $correct_answer = $answer['is_correct'] ? $answer['answer'] : !$answer['answer'];
-    $user_answer = $answer['answer'];
-
-    if ($showpoints) {
-      $data[0]['correct_answer'] = ($correct_answer ? t('True') : t('False'));
-    }
-    $data[0]['user_answer'] = (($user_answer === NULL) ? '' : ($user_answer ? t('True') : t('False')));
-
-    if ($showfeedback && !empty($this->question->feedback)) {
-      $data[0]['feedback'] = check_markup($this->question->feedback, $this->getFormat());
-    }
-
-    // Return themed output
-    return array(
-      '#markup' => theme('truefalse_response', array('metadata' => $metadata, 'data' => $data)),
+    $data[] = array(
+      'choice' => 'True',
+      'attempt' => $answer ? quiz_icon('selected') : '',
+      'correct' => $answer == 1 ? quiz_icon($correct_answer ? 'correct' : 'incorrect') : '',
+      'score' => intval($correct_answer == 1 && $answer == 1),
+      'answer_feedback' => $answer ? check_markup($this->question->feedback, $this->getFormat()) : '',
+      'solution' => $correct_answer == 1 ? quiz_icon('should') : '',
+      'quiz_feedback' => "Quiz feedback",
     );
+
+    $data[] = array(
+      'choice' => 'False',
+      'attempt' => !$answer ? quiz_icon('selected') : '',
+      'correct' => $answer == 0 ? (quiz_icon(!$correct_answer ? 'correct' : 'incorrect')) : '',
+      'score' => intval($correct_answer == 0 && $answer == 0),
+      'answer_feedback' => !$answer ? check_markup($this->question->feedback, $this->getFormat()) : '',
+      'solution' => $correct_answer == 0 ? quiz_icon('should') : '',
+      'quiz_feedback' => "Quiz feedback",
+    );
+
+    return $data;
   }
 
 }

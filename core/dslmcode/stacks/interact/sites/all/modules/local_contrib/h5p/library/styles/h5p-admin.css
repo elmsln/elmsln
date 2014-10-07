@@ -1,11 +1,4 @@
-/* Font Awesome font licensed under SIL OFL 1.1 · Code licensed under MIT License */
-@font-face {
-  font-family: 'H5PFontAwesome4'; /* Named so to avoid collisions and preserve backwards compatibility! */
-  src: url('../fonts/fontawesome-webfont.eot?v=4.0.3');
-  src: url('../fonts/fontawesome-webfont.eot?#iefix&v=4.0.3') format('embedded-opentype'), url('../fonts/fontawesome-webfont.woff?v=4.0.3') format('woff'), url('../fonts/fontawesome-webfont.ttf?v=4.0.3') format('truetype'), url('../fonts/fontawesome-webfont.svg?v=4.0.3#fontawesomeregular') format('svg');
-  font-weight: normal;
-  font-style: normal;
-}
+/* Administration interface styling */
 
 .h5p-content {
   border: 1px solid #DDD;
@@ -36,35 +29,56 @@
   text-align: right;
 }
 
+.h5p-admin-buttons-wrapper {
+  white-space: nowrap;  
+}
+
 .h5p-admin-table.libraries button {
-  font-family: H5PFontAwesome4;
-  font-size: 1.6em;
-  font-style: normal;
-  font-weight: normal;
-  margin-right: 10px;
+  font-size: 2em;
   cursor: pointer;
   border: 1px solid #AAA;
   border-radius: .2em;
-  line-height: 1.6em;
-  width: 1.6em;
   background-color: #e0e0e0;
   text-shadow: 0 0 0.5em #fff;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+  padding: 0;
+  line-height: 1em;
+  width: 1.125em;
+  height: 1.05em;
+  text-indent: -0.125em;
+  margin: 0.125em 0.125em 0 0.125em;
 }
-.h5p-admin-table.libraries button:hover,
-.h5p-admin-table.libraries .h5p-admin-delete-library:hover {
+.h5p-admin-upgrade-library:before {
+  font-family: 'H5P';
+  content: "\e888";
+}
+.h5p-admin-view-library:before {
+  font-family: 'H5P';
+  content: "\e889";
+}
+.h5p-admin-delete-library:before {
+  font-family: 'H5P';
+  content: "\e890";
+}
+
+.h5p-admin-table.libraries button:hover {
   background-color: #d0d0d0;
 }
-
-.h5p-admin-table.libraries .h5p-admin-delete-library:disabled:hover {
+.h5p-admin-table.libraries button:disabled:hover {
   background-color: #e0e0e0;
+  cursor: default;
 }
 
-.h5p-admin-table.libraries .h5p-admin-delete-library {
-  color: #f9010f; 
+.h5p-admin-upgrade-library {
+  color: #339900; 
 }
-.h5p-admin-table.libraries .h5p-admin-delete-library:disabled {
+.h5p-admin-view-library {
+  color: #0066cc; 
+}
+.h5p-admin-delete-library {
+  color: #990000; 
+}
+.h5p-admin-delete-library:disabled,
+.h5p-admin-upgrade-library:disabled {
   cursor: default;
   color: #c0c0c0;
 }
@@ -114,10 +128,11 @@
   box-shadow: 2px 2px 5px #888888; 
 }
 .h5p-content-search:before {
-  font-family: H5PFontAwesome4;
-  margin: 0 10px;
-  content: "\f002";
-  font-size: 1.4em;
+  font-family: 'H5P';
+  vertical-align: bottom;
+  content: "\e88a";
+  font-size: 2em;
+  line-height: 1.25em;
 }
 .h5p-content-search input {
   font-size: 120%;
@@ -187,7 +202,7 @@ button.h5p-admin.disabled:hover {
   line-height: 130%;
   border: none;
   background: none;
-  font-family: H5PFontAwesome4;
+  font-family: 'H5P'; /* TODO: Find content */
   font-size: 1.4em;
 }
 .h5p-content-pager > button:focus {
@@ -224,4 +239,9 @@ button.h5p-admin.disabled:hover {
   position: absolute;
   top: 0;
   right: 0;
+}
+.h5p-spinner {
+  padding: 0 0.5em;
+  font-size: 1.5em;
+  font-weight: bold;
 }
