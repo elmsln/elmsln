@@ -64,6 +64,8 @@ before_script:
   - sudo mkdir ~/.drush/
   - sudo cp -r /var/www/elmsln/config/scripts/drush/server/* ~/.drush/
   - sudo chown -R travis:travis ~/.drush
+  # special accounting for stupid ubuntu! :p
+  - sudo ln -s /root/.composer/vendor/drush/drush /usr/share/drush
 
   - sudo ln -s /var/www/elmsln ~/elmsln
 

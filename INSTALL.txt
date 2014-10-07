@@ -99,7 +99,6 @@ cp /var/www/elmsln/docs/zzz_performance.conf /etc/httpd/conf.d/zzz_performance.c
 # Install composer, makes drush installation easier
 curl -sS https://getcomposer.org/installer | php
 mv composer.phar /usr/local/bin/composer
-
 logout
 
 #=== EASE OF DEV ===
@@ -158,6 +157,18 @@ sudo cp -r /var/www/elmsln/scripts/drush/server/* ~/.drush/
 sudo chown -R {user}:{user} ~/.drush
 vi ~/.drush/elmsln.aliases.drushrc.php
 #type :%s/YOURUNIT/your.actual.subdomain/ to quickly replace the filler with real addresses in the network. Change the domain to your base domain and change the grouping to your config grouping identifier
+
+#=== DRUSH FOR UBUNTU ===
+#There is 1 command, drush-create-site that utilizes root / sudo in order to
+#issue commands without issue. This has known issues in ubuntu unless you do
+#the following to install drush for sudo correctly. Its also possible that
+#other commands have issues under these circumstances (accidentally running
+#drush as sudo) and haven't been discovered yet. Below should remedy this
+#situation.
+# log in as root
+sudo -i
+# create a symlink from composer to ubuntu share used w/ sudo commands
+ln -s /root/.composer/vendor/drush/drush /usr/share/drush
 
 #=== CLEAN URLS (if not already setup) ===
 #This changes based on the server but for Ubuntu check https://drupal.org/node/134439
