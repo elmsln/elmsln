@@ -74,7 +74,7 @@ script:
   - bash /var/www/elmsln/scripts/install/elmsln-install.sh
   - drush sa
   - drush @online cc drush
-  - drush cis-release-kraken --root=/var/www/elmsln/domains/online/ --uri=http://online.elmsln.local --y
+  - drush cis-release-kraken --actually_run --root=/var/www/elmsln/domains/online/ --uri=http://online.elmsln.local --y
   #- bash /var/www/elmsln/scripts/drush-create-site/drush-create-site
 
 after_script:
