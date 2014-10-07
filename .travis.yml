@@ -70,8 +70,8 @@ before_script:
 script:
   # run the installer
   - bash /var/www/elmsln/scripts/install/elmsln-install.sh
-  - drush cis-ci sing100 fakesection001
-  - bash /var/www/elmsln/scripts/drush-create-site/drush-create-site
+  - drush @online cis-ci sing100 fakesection001
+  - sudo bash /var/www/elmsln/scripts/drush-create-site/drush-create-site
 
 after_script:
   - ls /var/www/elmsln/config/jobs
