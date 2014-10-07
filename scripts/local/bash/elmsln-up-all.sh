@@ -23,6 +23,19 @@ timestamp(){
   date +"%s"
 }
 
+if [ -z $1 ]; then
+  elmslnwarn "define the location of your elmsln-hosts file"
+  exit 1
+fi
+if [ -z $2 ]; then
+  elmslnwarn "please select a branch you want to update on (master)"
+  exit 1
+fi
+if [ -z $3 ]; then
+  elmslnwarn "select branch you want config directory to update on (master)"
+  exit 1
+fi
+
 start="$(timestamp)"
 elmslnecho "$(date +%T) job started"
 # read in file and execute commands against ssh'ed hosts
@@ -34,11 +47,11 @@ then
 else
   elmslnecho "going to start working against $line"
   # setup line, not required but can help w/ upgrades that hang
-  $line "cd ~/elmsln && git pull origin master && rm /tmp/elmsln-upgrade-lock" < /dev/null
+  $line "cd ~/elmsln && git pull origin $2 && rm /tmp/elmsln-upgrade-lock" < /dev/null
   # reup the config directory
-  $line "cd ~/elmsln/config && git pull origin master" < /dev/null
+  $line "cd ~/elmsln/config && git pull origin $3" < /dev/null
   # things are in place, run the actual command
-  $line "bash ~/elmsln/scripts/upgrade/elmsln-upgrade-sites.sh master yes && drush @online status;" < /dev/null
+  $line "bash ~/elmsln/scripts/upgrade/elmsln-upgrade-sites.sh $2 yes && drush @online status;" < /dev/null
 fi
 done < "$1"
 
