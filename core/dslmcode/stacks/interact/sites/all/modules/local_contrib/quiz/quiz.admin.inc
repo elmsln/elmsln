@@ -358,8 +358,6 @@ function quiz_admin_results($quiz, $result_id) {
     'summary' => $summary,
     'result_id' => $result_id,
     'account' => user_load($result->uid),
-    'show_feedback' => TRUE,
-    'show_points' => TRUE,
   );
   return theme('quiz_result', $data);
 }

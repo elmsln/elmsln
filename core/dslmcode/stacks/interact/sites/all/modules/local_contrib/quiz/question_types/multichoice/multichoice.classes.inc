@@ -969,6 +969,7 @@ class MultichoiceResponse extends QuizQuestionResponse {
    */
   public function getReportFormResponse() {
     $this->orderAlternatives($this->question->alternatives);
+    $simple_scoring = $this->question->choice_boolean;
 
     $data = array();
     foreach ($this->question->alternatives as $alternative) {
@@ -982,7 +983,7 @@ class MultichoiceResponse extends QuizQuestionResponse {
         'score' => $alternative["score_if_{$not}chosen"],
         'answer_feedback' => check_markup($alternative["feedback_if_{$not}chosen"]['value'], $alternative["feedback_if_{$not}chosen"]['format'], FALSE),
         'question_feedback' => 'Question feedback',
-        'solution' => $alternative['score_if_chosen'] > 0 ? quiz_icon('should') : '',
+        'solution' => $alternative['score_if_chosen'] > 0 ? quiz_icon('should') : ($simple_scoring ? quiz_icon('should-not') : ''),
         'quiz_feedback' => "Quiz feedback",
       );
     }
@@ -996,7 +997,7 @@ class MultichoiceResponse extends QuizQuestionResponse {
    * @param array $alternatives
    *  The alternatives to be ordered
    */
-  private function orderAlternatives(array &$alternatives) {
+  protected function orderAlternatives(array &$alternatives) {
     if (!$this->question->choice_random) {
       return;
     }

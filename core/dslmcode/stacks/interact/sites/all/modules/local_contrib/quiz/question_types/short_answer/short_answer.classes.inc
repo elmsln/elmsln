@@ -463,7 +463,7 @@ class ShortAnswerResponse extends QuizQuestionResponse {
   /**
    * Implementation of getReportFormSubmit
    *
-   * @see QuizQuestionResponse#getReportFormSubmit($showfeedback, $showpoints, $allow_scoring)
+   * @see QuizQuestionResponse#getReportFormSubmit()
    */
   public function getReportFormSubmit() {
     return 'short_answer_report_submit';

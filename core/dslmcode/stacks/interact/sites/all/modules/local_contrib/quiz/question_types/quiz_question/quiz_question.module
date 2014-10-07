@@ -802,6 +802,7 @@ function _quiz_question_get_implementations($name = NULL, $reset = FALSE) {
         $info[$type] = $definition;
       }
     }
+    drupal_alter('quiz_question_info', $info);
   }
   return $info;
 }
@@ -884,13 +885,10 @@ function quiz_question_get_max_score($nid, $vid) {
  *
  * @param $question
  *  The question node
- * @param $showpoints
- * @param $showfeedback
- * @param $allow_scoring
  * @return
  *  FAPI form array
  */
-function quiz_question_report_form($question, $showpoints, $showfeedback, $allow_scoring = FALSE) {
+function quiz_question_report_form($question) {
   $answer = $question->answers[0];
   $response_instance = _quiz_question_response_get_instance($answer['result_id'], $question, $answer);
   // If need to specify the score weight if it isn't already specified.
@@ -914,9 +912,7 @@ function quiz_question_report_form($question, $showpoints, $showfeedback, $allow
     $response_instance->question->score_weight = ($qnr_max_score == 0 || $response_instance->question->max_score == 0) ? 0 : ($qnr_max_score / $response_instance->question->max_score);
   }
 
-  $showpoints = $response_instance->canReview('score');
-  $showfeedback = $response_instance->canReview('answer_feedback');
-  return $response_instance->getReportForm($showpoints, $showfeedback, $allow_scoring);
+  return $response_instance->getReportForm();
 }
 
 /**
@@ -967,8 +963,7 @@ function quiz_question_feedback($quiz, $question) {
   $path = drupal_get_path('module', 'quiz');
   require_once DRUPAL_ROOT . '/' . $path . '/quiz.pages.inc';
   if ($report) {
-    $allow_scoring = quiz_allow_score_access($quiz);
-    $report_form = drupal_get_form('quiz_report_form', array($report), TRUE, TRUE, $allow_scoring);
+    $report_form = drupal_get_form('quiz_report_form', array($report));
     return $report_form;
   }
 }

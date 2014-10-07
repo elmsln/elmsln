@@ -633,13 +633,10 @@ abstract class QuizQuestionResponse {
    *
    * The report is a form to allow editing scores and the likes while viewing the report form
    *
-   * @param $showpoints
-   * @param $showfeedback
-   * @param $allow_scoring
    * @return $form
    *  Drupal form array
    */
-  public function getReportForm($showpoints = TRUE, $showfeedback = TRUE, $allow_scoring = FALSE) {
+  public function getReportForm() {
     /*
      * Add general data, and data from the question type implementation
      */
@@ -662,20 +659,20 @@ abstract class QuizQuestionResponse {
         '#value' => $submit,
       );
     }
-    $form['question'] = $this->getReportFormQuestion($showpoints, $showfeedback);
+    $form['question'] = $this->getReportFormQuestion();
 
-    $form['answer_feedback'] = $this->getReportFormAnswerFeedback($showpoints, $showfeedback, $allow_scoring);
+    $form['answer_feedback'] = $this->getReportFormAnswerFeedback();
 
     $form['max_score'] = array(
       '#type' => 'value',
-      '#value' => ($this->canReview('score') || $allow_scoring) ? $this->getMaxScore() : '?',
+      '#value' => ($this->canReview('score')) ? $this->getMaxScore() : '?',
     );
 
     $rows = array();
 
     $labels = array(
-      'choice' => t('Choice'),
       'attempt' => t('Your answer'),
+      'choice' => t('Choice'),
       'correct' => t('Correct?'),
       'score' => t('Score'),
       'answer_feedback' => t('Feedback'),
@@ -717,29 +714,17 @@ abstract class QuizQuestionResponse {
     $type = $this->getQuizQuestion()->node->type;
     $form['response']['#markup'] = theme('quiz_question_feedback__' . $type, array('labels' => $headers, 'data' => $rows));
 
-    $form['#theme'] = $this->getReportFormTheme($showpoints, $showfeedback);
-    $form['#is_evaluated'] = $this->isEvaluated();
-    if ($this->canReview('correct')) {
-      $form['#is_correct'] = $this->isCorrect();
-    }
-    else {
-      $form['#is_correct'] = 2;
-    }
-    $form['#is_evaluated'] = $this->isEvaluated();
-    $form['#is_skipped'] = $this->is_skipped;
-    $form['#is_doubtful'] = $this->is_doubtful;
+    $form['#theme'] = $this->getReportFormTheme();
     return $form;
   }
 
   /**
    * get the question part of the reportForm
    *
-   * @param $showpoints
-   * @param $showfeedback
    * @return
    *  FAPI form array holding the question
    */
-  public function getReportFormQuestion($showpoints = TRUE, $showfeedback = TRUE) {
+  public function getReportFormQuestion() {
     $node = node_load($this->question->nid);
     $node->no_answer_form = TRUE;
     node_build_content($node, 'question');
@@ -789,7 +774,7 @@ abstract class QuizQuestionResponse {
    * @return
    *  Validate function as a string, or FALSE if no validate function
    */
-  public function getReportFormValidate() {
+  public function getReportFormValidate(&$element, &$form_state) {
     return FALSE;
   }
 
@@ -851,7 +836,7 @@ abstract class QuizQuestionResponse {
   /**
    * Implementation of getReportFormScore
    *
-   * @see QuizQuestionResponse#getReportFormScore($showpoints, $showfeedback, $allow_scoring)
+   * @see QuizQuestionResponse#getReportFormScore()
    */
   public function getReportFormScore() {
     $score = ($this->isEvaluated()) ? $this->getScore() : '';
@@ -876,4 +861,5 @@ abstract class QuizQuestionResponse {
   public function setResultId($result_id) {
     $this->result_id = $result_id;
   }
+
 }

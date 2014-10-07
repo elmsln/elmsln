@@ -339,11 +339,14 @@ input#edit-submit-hidden {
 .quiz-score-icon.should {
   background-image: url('images/check_808080_64.png');
 }
+.quiz-score-icon.should-not {
+  background-image: url('images/times_808080_64.png');
+}
 .quiz-score-icon.almost {
   background-image: url('images/check_ffff00_64.png');
 }
 .quiz-score-icon.selected {
-  background-image: url('images/circle_808080_64.png');
+  background-image: url('images/arrow-right_808080_64.png');
 }
 .quiz-score-icon.unselected {
   background-image: url('images/circle-o_808080_64.png');

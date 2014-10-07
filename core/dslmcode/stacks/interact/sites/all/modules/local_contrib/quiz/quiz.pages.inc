@@ -30,14 +30,10 @@ function quiz_user_results($result_id) {
     );
     if (user_access('view own quiz results') || (!empty($current_quiz->review_options['end']) && array_filter($current_quiz->review_options['end']))) {
       // User can view own quiz results OR the current quiz has "display solution".
-      $data['show_feedback'] = TRUE;
-      $data['show_points'] = TRUE;
       return theme('quiz_result', $data);
     }
     else {
       // User cannot view own results or show solution. Show summary.
-      $data['show_feedback'] = FALSE;
-      $data['show_points'] = FALSE;
       return theme('quiz_result', $data);
     }
   }
@@ -50,16 +46,10 @@ function quiz_user_results($result_id) {
  *   FAPI form state(array)
  * @param $questions
  *   array of questions to inclide in the report
- * @param $showpoints
- *   Should points be included in the report? (Boolean)
- * @param $showfeedback
- *   Should feedback be included in the report? (Boolean)
- * @param $allow_scoring
- *   Should we allow the user to score results that needs manual scoring? (Boolean)
  * @return $form
  *   FAPI form array
  */
-function quiz_report_form($form, $form_state, $questions, $showpoints = TRUE, $showfeedback = TRUE, $allow_scoring = FALSE) {
+function quiz_report_form($form, $form_state, $questions) {
   $form = array();
   // The submit button is only shown if one or more of the questions has input elements
   $show_submit = FALSE;
@@ -69,7 +59,7 @@ function quiz_report_form($form, $form_state, $questions, $showpoints = TRUE, $s
       return array();
     }
     $function = $module . '_report_form';
-    $form_to_add = $function($question, $showpoints, $showfeedback, $allow_scoring);
+    $form_to_add = $function($question);
     if (isset($form_to_add['submit'])) {
       $show_submit = TRUE;
     }
@@ -77,8 +67,6 @@ function quiz_report_form($form, $form_state, $questions, $showpoints = TRUE, $s
     $form[] = $form_to_add;
   }
   $form['#theme'] = 'quiz_report_form';
-  $form['#showpoints'] = $showpoints;
-  $form['#showfeedback'] = $showfeedback;
   $form['#tree'] = TRUE;
   if ($show_submit) {
     $form['submit'] = array(

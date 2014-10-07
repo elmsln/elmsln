@@ -403,7 +403,7 @@ class DDLinesResponse extends QuizQuestionResponse {
     return $this->user_answers;
   }
   
-  public function getReportFormResponse($showpoints = TRUE, $showfeedback = TRUE, $allow_scoring = FALSE) {
+  public function getReportFormResponse() {
     // Have to do node_load, since quiz does not do this. Need the field_image... 
     $img_field = field_get_items('node', node_load($this->question->nid), 'field_image');
     $img_rendered = theme('image', array('path' => image_style_url('large',$img_field[0]['uri'])));
