@@ -6,7 +6,6 @@ dependencies[] = cis_connector
 dependencies[] = ctools
 dependencies[] = features
 dependencies[] = list
-dependencies[] = lti_tool_provider_og
 dependencies[] = node
 dependencies[] = og
 dependencies[] = options
