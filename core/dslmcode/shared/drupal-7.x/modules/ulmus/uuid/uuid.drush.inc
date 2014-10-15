@@ -14,6 +14,10 @@ function uuid_drush_command() {
     'description' => 'Create missing UUIDs for enabled entities.',
     'aliases' => array('uuid-create'),
   );
+  $items['uuid-recreate-all'] = array(
+    'description' => 'Recreates UUIDs for all enabled entities.',
+    'aliases' => array('uuid-recreate'),
+  );
   return $items;
 }
 
@@ -24,6 +28,8 @@ function uuid_drush_help($section) {
   switch ($section) {
     case 'drush:uuid-create-missing':
       return dt("This command will create missing UUIDs for those content types specified in the module settings for automatic generation.");
+    case 'drush:uuid-recreate-all':
+      return dt("This command will drop all current UUIDs and recreate them for those content types specified in the module settings for automatic generation.");
   }
 }
 
@@ -38,4 +44,17 @@ function drush_uuid_create_missing() {
 
   drush_log(dt('Beginning bulk creation of UUIDs.'), 'ok');
   uuid_sync_all();
+}
+
+/**
+ * Drush command callback.
+ */
+function drush_uuid_recreate_all() {
+  if (!drush_confirm(dt('Are you sure?'))) {
+    return drush_user_abort();
+  }
+  module_load_include('inc', 'uuid', 'uuid');
+
+  drush_log(dt('Beginning bulk rebuilding of all UUIDs.'), 'ok');
+  uuid_resync_all();
 }

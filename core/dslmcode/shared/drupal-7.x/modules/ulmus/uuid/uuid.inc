@@ -45,6 +45,15 @@ function uuid_sync_all() {
 }
 
 /**
+ * Regenerate all missing UUIDs.
+ */
+function uuid_resync_all() {
+  module_invoke_all('uuid_resync');
+  // call sync to rebuild all as core resync wipes them all
+  module_invoke_all('uuid_sync');
+}
+
+/**
  * Generates a UUID URI for an entity.
  *
  * @param object $entity

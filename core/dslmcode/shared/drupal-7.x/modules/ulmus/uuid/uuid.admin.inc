@@ -21,6 +21,11 @@ function uuid_admin_form() {
     '#value' => t('Create missing UUIDs'),
     '#submit' => array('uuid_admin_sync_submit'),
   );
+  $form['sync']['resync_submit'] = array(
+    '#type' => 'submit',
+    '#value' => t('Rebuild all UUIDs'),
+    '#submit' => array('uuid_admin_resync_submit'),
+  );
 
   return system_settings_form($form);
 }
@@ -31,6 +36,14 @@ function uuid_admin_form() {
 function uuid_admin_sync_submit() {
   uuid_sync_all();
   drupal_set_message(t('Generated missing UUIDs.'));
+}
+
+/**
+ * Submit handler for the UUID resync.
+ */
+function uuid_admin_resync_submit() {
+  uuid_resync_all();
+  drupal_set_message(t('Recreated all UUIDs.'));
 }
 
 /**

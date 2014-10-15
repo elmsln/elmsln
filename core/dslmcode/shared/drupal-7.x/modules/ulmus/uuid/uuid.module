@@ -185,6 +185,39 @@ function _uuid_sync_table($table, $id_field, $uuid_field) {
 }
 
 /**
+ * Implements hook_uuid_resync().
+ */
+function uuid_uuid_resync() {
+  foreach (entity_get_info() as $entity_type => $info) {
+    if (isset($info['uuid']) && $info['uuid'] == TRUE && !empty($info['entity keys']['uuid'])) {
+      _uuid_empty_table($info['base table'], $info['entity keys']['id'], $info['entity keys']['uuid']);
+      if (!empty($info['entity keys']['revision uuid'])) {
+        _uuid_empty_table($info['revision table'], $info['entity keys']['revision'], $info['entity keys']['revision uuid']);
+      }
+    }
+  }
+}
+
+/**
+ * Helper function that updates a table to wipe UUIDs
+ */
+function _uuid_empty_table($table, $id_field, $uuid_field) {
+  // Fetch empty records.
+  $result = db_select($table, 't')
+    ->fields('t', array($id_field))
+    ->condition(db_or()->condition($uuid_field, '')->isNotNull($uuid_field))
+    ->execute();
+
+  // Update empty records.
+  foreach ($result as $record) {
+    db_update($table)
+      ->fields(array($uuid_field => ''))
+      ->condition($id_field, $record->{$id_field})
+      ->execute();
+  }
+}
+
+/**
  * Implements hook_features_api().
  *
  * The Features support consists of exporting entities from a Deploy
