@@ -631,6 +631,21 @@ function _cis_helper_add_service_instance($course, $service, $service_instance, 
   $handle = fopen(variable_get('cis_job_path', CIS_HELPER_JOB_PATH) . '/' . $filename, 'x+');
   fwrite($handle, $content);
   fclose($handle);
+
+  // as well as altering the process entirely so that it can be hijacked by
+  // cloud based implementations...
+  $distro_settings = _cis_connector_build_registry($service->field_machine_name[LANGUAGE_NONE][0]['value']);
+  if (isset($distro_settings['ssh'])) {
+    $ssh = $distro_settings['ssh'];
+    // build connection string
+    $connection = $ssh['options'] . ' ' . $ssh['user'] . '@' . $ssh['host'];
+    // execute the command
+    exec("scp $jobfile $connection:$jobfile");
+    // @todo need a way of validating it worked for now lets delete local version
+    // this would require appending something to the filename of the local job
+    // that means it needs to monitor the status of the file by loading it via ssh
+    unlink(variable_get('cis_job_path', CIS_HELPER_JOB_PATH) . '/' . $filename);
+  }
   // tell user about the service
   drupal_set_message(t('The "@service" service will be asked to create @space momentarily. You will be emailed when the job is complete.', array('@service' => $service->title, '@space' => $space_name)), 'status');
   // log service creation

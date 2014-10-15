@@ -51,6 +51,15 @@ function hook_cis_service_registry() {
       'mail' => 'account@example.com',
       'instance' => TRUE,
       'default_title' => 'Course Outline',
+      // optional: jobs for this distro should be ssh'ed into another server
+      // this allows for multiple ELMSLN deployments to act as one!
+      // you'll need to establish SSH key binding between the systems
+      // ahead of time in order to take advantage of this capability
+      'ssh' => array(
+        'options' => '-p 22', // options to use for the server
+        'user' => 'username', // username to use for the connection
+        'host' => 'courses.example.com', // server address to ssh into
+      ),
     ),
   );
 }
