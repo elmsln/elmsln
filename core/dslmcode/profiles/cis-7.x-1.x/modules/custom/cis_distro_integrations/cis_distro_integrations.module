@@ -16,6 +16,18 @@ function cis_distro_integrations_cis_service_instance_courses_options_alter(&$op
 /**
  * Implements hook_cis_service_instance_TOOL_options_alter().
  */
+function cis_distro_integrations_cis_service_instance_courses_job_file_alter(&$content, $course, $service, $service_instance) {
+  // only apply default content import for course based service
+  if ($service->field_machine_name[LANGUAGE_NONE][0]['value'] == CIS_HELPER_COURSE_SERVICE && !empty($service_instance->field_service_data[LANGUAGE_NONE][0]['value'])) {
+    // allow for on creation population of material
+    $content .= 'drush feeds-import feeds_node_helper_book_import --file=' . $service_instance->field_service_data[LANGUAGE_NONE][0]['value'] . "\n";
+    $content .= 'drush uuid-recreate' . "\n";
+  }
+}
+
+/**
+ * Implements hook_cis_service_instance_TOOL_options_alter().
+ */
 function cis_distro_integrations_cis_service_instance_blog_options_alter(&$options, $course, $service) {
   // account for jquery update issues
   $options['vset'][] = 'jquery_update_jquery_admin_version 1.5';

@@ -616,19 +616,14 @@ function _cis_helper_add_service_instance($course, $service, $service_instance, 
   // push feature revert requests off til the end
   // this way they actually revert instead of vset / en disrupting them
   $content .= $fr . $un;
-  // only apply default content import for course based service
-  if ($service->field_machine_name[LANGUAGE_NONE][0]['value'] == CIS_HELPER_COURSE_SERVICE && !empty($service_instance->field_service_data[LANGUAGE_NONE][0]['value'])) {
-    // allow for on creation population of material
-    $content .= 'drush feeds-import feeds_node_helper_book_import --file=' . $service_instance->field_service_data[LANGUAGE_NONE][0]['value'] . "\n";
-  }
-  // run the cron as a final clean up mechanism
-  $content .= 'drush cron' . "\n";
-  // run ecl to help seed caches for all entities
-  $content .= 'drush ecl' . "\n";
-  // may seem odd but double running cron can prime syncing
-  $content .= 'drush cron' . "\n";
+  // allow for custom last minute additions per service type
+  drupal_alter('cis_service_instance_' . $service->field_machine_name[LANGUAGE_NONE][0]['value'] . '_job_file', $content, $course, $service, $service_instance);
+  // allow for custom last minute additions to all instances
+  drupal_alter('cis_service_instance_job_file', $content, $course, $service, $service_instance);
+
   // write the structured file to a lower directory
-  $handle = fopen(variable_get('cis_job_path', CIS_HELPER_JOB_PATH) . '/' . $filename, 'x+');
+  $jobfile = variable_get('cis_job_path', CIS_HELPER_JOB_PATH) . '/' . $filename;
+  $handle = fopen($jobfile, 'x+');
   fwrite($handle, $content);
   fclose($handle);
 
@@ -650,6 +645,23 @@ function _cis_helper_add_service_instance($course, $service, $service_instance, 
   drupal_set_message(t('The "@service" service will be asked to create @space momentarily. You will be emailed when the job is complete.', array('@service' => $service->title, '@space' => $space_name)), 'status');
   // log service creation
   watchdog('cis_service', 'Service ' . $service->title . ' was told to be built for ' . $space_name);
+}
+
+/**
+ * Implements hook_cis_service_instance_job_file_alter().
+ *
+ * @param  string $content          the content of the jobs file
+ * @param  object $course           the course node
+ * @param  object $service          the service node
+ * @param  object $service_instance the service_instance node
+ */
+function cis_helper_cis_service_instance_job_file_alter(&$content, $course, $service, $service_instance) {
+  // run the cron as a final clean up mechanism
+  $content .= 'drush cron' . "\n";
+  // run ecl to help seed caches for all entities
+  $content .= 'drush ecl' . "\n";
+  // may seem odd but double running cron can prime syncing
+  $content .= 'drush cron' . "\n";
 }
 
 /**

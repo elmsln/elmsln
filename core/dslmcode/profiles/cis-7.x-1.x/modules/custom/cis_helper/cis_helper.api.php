@@ -50,6 +50,58 @@ function hook_cis_service_instance_TOOL_options_alter(&$options, $course, $servi
 }
 
 /**
+ * Implements hook_cis_service_instance_job_file_alter().
+ *
+ * This allows for the altering of job file content
+ * just prior to creation of the service based on a course.
+ * Course / service are also passed in for context
+ *
+ * @param $options
+ *   array of drush commands
+ * @param $course
+ *   node object
+ * @param $service
+ *   node object
+ * @param $service_instance
+ *   node object
+ */
+function hook_cis_service_instance_job_file_alter(&$content, $course, $service, $service_instance) {
+  // run the cron as a final clean up mechanism
+  $content .= 'drush cron' . "\n";
+  // run ecl to help seed caches for all entities
+  $content .= 'drush ecl' . "\n";
+  // may seem odd but double running cron can prime syncing
+  $content .= 'drush cron' . "\n";
+}
+
+/**
+ * Implements hook_cis_service_instance_TOOL_job_file_alter().
+ *
+ * This allows for the altering of the actual file for the job
+ * just prior to creation of the service based on a course.
+ * This hook is specific to the machine_name of the tool being produced.
+ *
+ * To integrate with home-grown distributions you can replace TOOL with the
+ * machine_name of the service, such as courses, blog, interact, etc.
+ *
+ * @param $content
+ *   string of drush commands, the full output of the file
+ * @param $course
+ *   node object
+ * @param $service
+ *   node object
+ * @param $service_instance
+ *   node object
+ */
+function hook_cis_service_instance_TOOL_job_file_alter(&$content, $course, $service, $service_instance) {
+  // only apply default content import for course based service
+  if ($service->field_machine_name[LANGUAGE_NONE][0]['value'] == CIS_HELPER_COURSE_SERVICE && !empty($service_instance->field_service_data[LANGUAGE_NONE][0]['value'])) {
+    // allow for on creation population of material
+    $content .= 'drush feeds-import feeds_node_helper_book_import --file=' . $service_instance->field_service_data[LANGUAGE_NONE][0]['value'] . "\n";
+  }
+}
+
+/**
  * Implements hook_cis_instructional_outlines_alter().
  *
  * This allows for the altering of listed instructional outlines
