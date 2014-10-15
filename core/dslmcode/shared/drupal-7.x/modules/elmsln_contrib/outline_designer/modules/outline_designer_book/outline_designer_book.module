@@ -581,6 +581,7 @@ function outline_designer_book_outline_designer_ops_js($ajax_path, $nid = NULL) 
  */
 function outline_designer_book_process_add_content($title, $type, $parent_nid) {
   global $user;
+  $title = html_entity_decode(urldecode($title), ENT_QUOTES);
   // need to account for the 3 weird characters in URLs
   $title = str_replace("@2@F@", '/', $title);
   $title = str_replace("@2@3@", '#', $title);
@@ -622,6 +623,7 @@ function outline_designer_book_process_add_content($title, $type, $parent_nid) {
  * Callback for rename ajax call from outline designer.
  */
 function outline_designer_book_process_rename($nid, $newtitle, $var3) {
+  $newtitle = html_entity_decode(urldecode($newtitle), ENT_QUOTES);
   // need to account for the 3 weird characters in URLs
   $newtitle = str_replace("@2@F@", '/', $newtitle);
   $newtitle = str_replace("@2@3@", '#', $newtitle);
@@ -637,7 +639,7 @@ function outline_designer_book_process_rename($nid, $newtitle, $var3) {
     $node->revision = 1;
     node_save($node);
     drupal_set_message(t("Content renamed from %title to %newtitle", array('%title' => $oldtitle, '%newtitle' => $newtitle)));
-    return 1;
+    return drupal_json_encode($node->title);
   }
   else {
     drupal_set_message(t("You don't have permissions to rename this content"));

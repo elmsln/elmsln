@@ -225,7 +225,17 @@ Drupal.outline_designer.render_popup = function(render_title) {
       title = title.replace(/%23/g,"@2@3@"); //weird escape for ajax with #
       title = title.replace(/%2B/g,"@2@B@"); //weird escape for ajax with +
       title = title.replace(/%26/g,"@2@6@"); // Fix ampersand issue &
-      Drupal.outline_designer.ajax_call(Drupal.settings.outline_designer.type, 'rename', Drupal.settings.outline_designer.activeNid, title, null);
+      Drupal.outline_designer.ajax_call(Drupal.settings.outline_designer.type, 'rename', Drupal.settings.outline_designer.activeNid, title, null, 'Drupal.outline_designer_ops.rename_submit_success');
+    }
+  };
+  // callback function for add_content submit
+  Drupal.outline_designer_ops.rename_submit_success = function(msg) {
+    // if message isn't 0 then we were successful
+    if (msg != 0) {
+      msg = jQuery.parseJSON(msg);
+      Drupal.outline_designer_ops.active('span').html(msg);
+      Drupal.outline_designer_ops.active('input').val(msg);
+      $("#reload_table").trigger('change');
     }
   };
   // submit handler for change type
@@ -241,6 +251,7 @@ Drupal.outline_designer.render_popup = function(render_title) {
     title = title.replace(/%2F/g,"@2@F@"); //weird escape for ajax with /
     title = title.replace(/%23/g,"@2@3@"); //weird escape for ajax with #
     title = title.replace(/%2B/g,"@2@B@"); //weird escape for ajax with +
+    title = title.replace(/%26/g,"@2@6@"); // Fix ampersand issue &
     title = title.substr(1);
     if (title == "") {
       alert(Drupal.t("You must enter a title in order to add content!"));
