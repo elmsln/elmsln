@@ -300,13 +300,19 @@ do
       fr)
       drushcommand=`echo "$drush" | cut -f 2- -d ' '`
       ;;
-  pm-uninstall)
+      pm-uninstall)
       drushcommand=`echo "$drush" | cut -f 2- -d ' '`
-  ;;
-  vdel)
+      ;;
+      vdel)
       drushcommand=`echo "$drush" | cut -f 2- -d ' '`
-  ;;
-  ecl)
+      ;;
+      cook)
+      drushcommand=`echo "$drush" | cut -f 2- -d ' '`
+      ;;
+      uuid-recreate)
+      drushcommand=`echo "$drush" | cut -f 2- -d ' '`
+      ;;
+      ecl)
       drushcommand=`echo "$drush" | cut -f 2- -d ' '`
       ;;
       *)
