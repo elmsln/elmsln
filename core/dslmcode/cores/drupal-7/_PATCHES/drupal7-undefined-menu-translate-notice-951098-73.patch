@@ -1,5 +1,5 @@
 diff --git a/includes/menu.inc b/includes/menu.inc
-index 2be0903..f648c28 100644
+index fa5a71e..9198e18 100644
 --- a/includes/menu.inc
 +++ b/includes/menu.inc
 @@ -784,8 +784,12 @@ function _menu_translate(&$router_item, $map, $to_arg = FALSE) {
