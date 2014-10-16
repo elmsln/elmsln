@@ -18,10 +18,9 @@ function mooc_ux_defaults_field_default_field_instances() {
     'description' => '',
     'display' => array(
       'default' => array(
-        'label' => 'above',
-        'module' => 'text',
+        'label' => 'hidden',
+        'type' => 'hidden',
         'settings' => array(),
-        'type' => 'text_default',
         'weight' => 1,
       ),
       'teaser' => array(
