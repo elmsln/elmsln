@@ -1,0 +1,25 @@
+<?php
+/**
+ * @file
+ * Code for the MOOC content theming feature.
+ */
+
+include_once 'mooc_content_theming.features.inc';
+
+/**
+ * Implements hook_preprocess_page().
+ */
+function mooc_content_theming_preprocess_page(&$variables) {
+  // override the logo in the event that that mooc_image isset
+  if (!empty($variables['node']->field_mooc_image)) {
+    $variables['logo'] = file_create_url($variables['node']->field_mooc_image['und'][0]['uri']);
+  }
+  // override the thumbnail in the event that that mooc_thumbnail isset
+  if (!empty($variables['node']->field_mooc_thumbnail)) {
+    $variables['zurb_thumbnail'] = file_create_url($variables['node']->field_mooc_thumbnail['und'][0]['uri']);
+  }
+  // support for the foundation_access zurb_color property
+  if (!empty($variables['node']->field_mooc_color)) {
+    $variables['zurb_color'] = $variables['node']->field_mooc_color['und'][0]['jquery_colorpicker'];
+  }
+}
