@@ -27,9 +27,9 @@ define('ELMSLN_D7_SHARED', ELMSLN_DSLMCODE . '/shared/drupal-7.x');
 /**
  * Implements hook_drush_command().
  */
-function elmsln_pm_drush_command() {
+function elmsln_drush_command() {
   $items = array();
-  $items['elmsln-pm-dl'] = array(
+  $items['elmsln-dl'] = array(
     'description' => dt('download a project into the correct location in elmsln\'s setup'),
     'arguments' => array(
       'type' => dt('Type of project (core, module, theme, profile, drush)'),
@@ -60,20 +60,20 @@ function elmsln_pm_drush_command() {
 /**
  * Implements hook_drush_help().
  */
-function elmsln_pm_drush_help($section) {
+function elmsln_drush_help($section) {
   switch ($section) {
-    case 'drush:elmsln-pm-dl':
+    case 'drush:elmsln-dl':
       return dt('Download projects into the correct part of the ELMSLN setup.');
   }
 }
 
 /**
- * Drush command callback for elmsln-pm-dl.
+ * Drush command callback for elmsln-dl.
  */
-function drush_elmsln_pm_dl($type, $stack, $project) {
+function drush_elmsln_dl($type = NULL, $stack = NULL, $project = NULL) {
   // sanity check
   if (empty($type) || empty($stack) || empty($project)) {
-    drush_log(dt('ELMSLN PM dl requires all three properties in order to function correctly'), 'error');
+    drush_log(dt('ELMSLN dl requires all three properties in order to function correctly. run drush edl --help for details.'), 'error');
     return FALSE;
   }
   // ensure we know where the elmsln-developer git repo is
@@ -118,7 +118,7 @@ function drush_elmsln_pm_dl($type, $stack, $project) {
     'command' => 'dl',
     'arguments' => array($project),
     'options' => array(
-      'destination' => $path
+      'destination' => $elmsln_dev . $path,
     ),
   );
   drush_invoke_process($cmd['target'], $cmd['command'], $cmd['arguments'], $cmd['options']);
