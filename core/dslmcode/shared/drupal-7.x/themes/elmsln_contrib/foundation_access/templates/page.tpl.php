@@ -134,9 +134,9 @@
           <?php endif; ?>
           <?php if (!empty($page['cis_lmsless'])): ?>
             <!--.l-header-cis_lmsless -->
-              <div class="cis-lmsless right">             
+              <div class="cis-lmsless right">
                 <?php print render($page['cis_lmsless']); ?>
-              </div>        
+              </div>
             <!--/.l-header-cis_lmsless -->
           <?php endif; ?>
         </div>
@@ -147,26 +147,28 @@
           <?php if (!empty($page['cis_user_profile'])): ?>
           <!--.l-header-cis_user_profile -->
             <div class="left cis-user-profile">
-              <?php print render($page['cis_user_profile']); ?>
+              <?php print str_replace('user-profile-dropdown', 'user-profile-dropdown-sticky', render($page['cis_user_profile'])); ?>
             </div>
           <!--/.l-header-cis_user_profile -->
           <?php endif; ?>
           <?php if (!empty($page['cis_lmsless'])): ?>
             <!--.l-header-cis_lmsless -->
-              <div class="cis-lmsless right">             
-                <?php print render($page['cis_lmsless']); ?>
-              </div>        
+              <div class="cis-lmsless right">
+                <?php print str_replace('lmsless-button', 'lmsless-button-sticky', render($page['cis_lmsless'])); ?>
+              </div>
             <!--/.l-header-cis_lmsless -->
           <?php endif; ?>
         </div>
         <!--/ .lmsless-bar STICKY-->
 
-          
+
         <!-- .banner-image-container -->
-        <div id="banner-image" class="large-12 columns banner-image-container">
+        <?php if ($logo_state): ?>
+        <div id="banner-image" class="large-12 columns banner-image-container" style="border-color:#<?php print $zurb_color; ?>;background-image:url(<?php print $logo; ?>)">
         </div>
-        <div id="banner-image-sticky" class="large-12 columns banner-image-container sticky-bar">
+        <div id="banner-image-sticky" class="large-12 columns banner-image-container sticky-bar" style="border-color:#<?php print $zurb_color; ?>;background-image:url(<?php print $logo; ?>)">
         </div>
+        <?php endif; ?>
         <!--/ .banner-image-container -->
         <!-- content nav  -->
         <div id="topbarnav" class="large-12 columns top-bar-container">
@@ -179,7 +181,7 @@
               <ul class="title-area">
                 <li class="name">
                   <h1><a href="#"></a></h1>
-                </li>  
+                </li>
                 <!-- Remove the class "menu-icon" to get rid of menu icon. -->
                 <li class="toggle-topbar menu-icon"><a href="#"><span><?php print $top_bar_menu_text; ?></span></a></li>
               </ul>
@@ -187,7 +189,7 @@
                 <?php if ($top_bar_main_menu) :?>
                 <!--.l-header-top_bar_main_menu -->
                     <?php print $top_bar_main_menu; ?>
-                <!--/.l-header-top_bar_main_menu -->     
+                <!--/.l-header-top_bar_main_menu -->
                 <?php endif; ?>
               </section>
             </nav>
@@ -211,7 +213,7 @@
               <ul class="title-area">
                 <li class="name">
                   <h1><a href="#"></a></h1>
-                </li>  
+                </li>
                 <!-- Remove the class "menu-icon" to get rid of menu icon. -->
                 <li class="toggle-topbar menu-icon"><a href="#"><span><?php print $top_bar_menu_text; ?></span></a></li>
               </ul>
@@ -219,7 +221,7 @@
                 <?php if ($top_bar_main_menu) :?>
                 <!--.l-header-top_bar_main_menu -->
                     <?php print $top_bar_main_menu; ?>
-                <!--/.l-header-top_bar_main_menu -->     
+                <!--/.l-header-top_bar_main_menu -->
                 <?php endif; ?>
               </section>
             </nav>
@@ -233,9 +235,9 @@
         <!--/ content nav  -->
 
       <main role="main" class="row l-main">
-        
-        
-        
+
+
+
         <div class="<?php print $main_grid; ?> main columns">
           <?php if (!empty($page['highlighted'])): ?>
             <div class="highlight panel callout">
@@ -258,8 +260,8 @@
               </ul>
               <div class="large-12 action-links-ui"><span class="point-a"></span><span class="point-b"></span></div>
             </div>
-            <?php endif; ?> 
-          
+            <?php endif; ?>
+
           <?php if ($title && !$is_front): ?>
             <?php print render($title_prefix); ?>
             <h1 id="page-title" class="title"><?php print $title; ?></h1>

@@ -1,8 +1,10 @@
 <!-- Default Menu -->
-<!-- <div class="sticky-nav book-outline main-a"><?php print $content; ?></div> -->
-
-<!-- Active Outline -->
-<ul id="activeoutline" class="menu book-oultine slide-panels">
+<?php if ($elements['#outline_style'] == 'default') : ?>
+<ul id="activeoutline" class="menu book-oultine slide-panels"><?php print $content; ?></ul>
+<ul id="activeoutline-sticky" class="menu book-oultine slide-panels sticky-bar"><?php print $content; ?></ul>
+<?php endif; ?>
+<!-- Stacked Outline
+<ul id="activeoutline2" class="menu book-oultine slide-panels">
   <li><a href='#unit-1' class="accordion-btn button">Unit 1</a>
     <dl class="accordion" data-accordion="myAccordionGroup">
       <dd class="accordion-navigation">
@@ -169,8 +171,8 @@
     </dl>
   </li>
 </ul>
-
-<!-- Active Outline STICKY-->
+ -->
+<!-- Active Outline STICKY
 <ul id="activeoutline-sticky" class="menu book-oultine slide-panels sticky-bar">
   <li><a href='#unit-1' class="accordion-btn button">Unit 1</a>
     <dl class="accordion" data-accordion="myAccordionGroup">
@@ -338,3 +340,4 @@
     </dl>
   </li>
 </ul>
+ -->
