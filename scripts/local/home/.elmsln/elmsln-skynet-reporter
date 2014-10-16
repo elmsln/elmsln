@@ -1,0 +1,57 @@
+#!/bin/bash
+
+#provide messaging colors for output to console
+txtbld=$(tput bold)             # Bold
+bldgrn=${txtbld}$(tput setaf 2) #  green
+bldred=${txtbld}$(tput setaf 1) #  green
+txtreset=$(tput sgr0)
+elmslnecho(){
+  echo "${bldgrn}$1${txtreset}"
+  return 1
+}
+elmslnwarn(){
+  echo "${bldred}$1${txtreset}"
+  return 1
+}
+
+#require input for the tweet in question
+if [ -z "${1}" ]; then
+  elmslnwarn "[FAIL] No message recieved to broadcast"
+  exit 1
+fi
+#SLACK INTEGRATION
+#Modify these variables for your environment
+SLACK_HOSTNAME="" #FILL WITH YOUR HOSTNAME
+SLACK_TOKEN="" #FILL WITH YOUR TOKEN
+SLACK_CHANNEL="#qa" #CHANNEL TO WRITE TO
+SLACK_CHANNEL2="#skynet" #OPTIONAL SECOND CHANNEL TO WRITE TO
+SLACK_USERNAME="ELMSLN-Skynet" #NAME OF THE BOT
+SLACK_ICON="http://elmsln.org/sites/default/files/elms_blackleaf_1.png" #ICON LOGO FOR BOT
+SLACK_MESSAGE="${1}" #MESSAGE TO SEND, TAKES IN THE FIRST ARGUMENT TO DO THIS
+#allow for attachments json to be passed in
+if [ -z "${2}" ]; then
+  SLACK_ATTACHMENTS=''
+else
+  SLACK_ATTACHMENTS="${2}"
+fi
+#Send message to Slack
+payload="payload={
+  \"channel\": \"${SLACK_CHANNEL}\",
+  \"username\": \"${SLACK_USERNAME}\",
+  \"text\": \"${SLACK_MESSAGE}\",
+  \"icon_url\": \"${SLACK_ICON}\"
+  ${SLACK_ATTACHMENTS}
+  }"
+rep=$(curl -X POST --data-urlencode "${payload}" https://${SLACK_HOSTNAME}/services/hooks/incoming-webhook?token=${SLACK_TOKEN} 2>&1)
+elmslnecho "${rep}"
+#now against the second location specific to this command running
+payload="payload={
+  \"channel\": \"${SLACK_CHANNEL2}\",
+  \"username\": \"${SLACK_USERNAME}\",
+  \"text\": \"${SLACK_MESSAGE}\",
+  \"icon_url\": \"${SLACK_ICON}\"
+  ${SLACK_ATTACHMENTS}
+  }"
+rep=$(curl -X POST --data-urlencode "${payload}" https://${SLACK_HOSTNAME}/services/hooks/incoming-webhook?token=${SLACK_TOKEN} 2>&1)
+elmslnecho "${rep}"
+exit 1
