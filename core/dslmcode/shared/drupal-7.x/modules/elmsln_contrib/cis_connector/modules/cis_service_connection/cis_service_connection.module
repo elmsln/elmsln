@@ -33,6 +33,44 @@ function cis_service_connection_block_info() {
   );
   return $blocks;
 }
+
+/**
+ * Implements hook_block_configure().
+ */
+function cis_service_connection_block_configure($delta = '') {
+  $form = array();
+  if ($delta == 'active_outline') {
+    $outline_styles = variable_get('cis_service_connection_active_outline_styles', array());
+    $section = _cis_connector_section_context();
+    if (isset($outline_styles[$section])) {
+      $default = $outline_styles[$section];
+    }
+    else {
+      $default = 'default';
+    }
+    $form['cis_service_connection_active_outline_styles'] = array(
+      '#type' => 'select',
+      '#title' => t('Display style'),
+      '#description' => t('This setting is set on a per section basis'),
+      '#default_value' => $default,
+      '#options' => array('default' => t('Default'), 'stacked' => t('Stacked')),
+    );
+  }
+  return $form;
+}
+
+/**
+ * Implementation of hook_block_save().
+ */
+function cis_service_connection_block_save($delta = '', $edit = array()) {
+  if ($delta == 'active_outline') {
+    $outline_styles = variable_get('cis_service_connection_active_outline_styles', array());
+    $section = _cis_connector_section_context();
+    $outline_styles[$section] = $edit['cis_service_connection_active_outline_styles'];
+    variable_set('cis_service_connection_active_outline_styles', $outline_styles);
+  }
+}
+
 /**
  * Implements hook_block_view().
  */
@@ -423,6 +461,12 @@ function _cis_service_connection_section_outline_tree_output($tree) {
     $build['#sorted'] = TRUE;
     // Add the theme wrapper for outer markup.
     // FORKED
+    // allow for our custom block setting for how to render to come into play
+    $outline_styles = variable_get('cis_service_connection_active_outline_styles', array());
+    $section = _cis_connector_section_context();
+    if (isset($outline_styles[$section])) {
+      $build['#outline_style'] = $outline_styles[$section];
+    }
     // Allow for generic overrides of the active class in the template name
     $build['#theme_wrappers'][] = 'menu_tree__cis_service_connection_active_outline';
   }
