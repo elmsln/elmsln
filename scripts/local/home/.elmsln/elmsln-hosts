@@ -1,0 +1,9 @@
+#
+# Location
+#
+# Name for deployment location 1
+ssh -p 22 you@yourserver.com
+# Name for deployment location 2
+ssh -p 22 you@yourclient1.com
+# Name for deployment location 3
+ssh -p 22 you@yourclient2.com
