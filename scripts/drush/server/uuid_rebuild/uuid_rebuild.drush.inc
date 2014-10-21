@@ -30,7 +30,7 @@ function uuid_rebuild_drush_help($section) {
 /**
  * Drush command callback.
  */
-function drush_uuid_rebuild_recreate_all() {
+function drush_uuid_rebuild_uuid_recreate_all() {
   if (!drush_confirm(dt('Are you sure?'))) {
     return drush_user_abort();
   }
