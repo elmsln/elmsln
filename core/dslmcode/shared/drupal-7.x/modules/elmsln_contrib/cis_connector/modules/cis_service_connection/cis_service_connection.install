@@ -10,6 +10,10 @@
 function cis_service_connection_install() {
   // set front page to welcome-letter
   variable_set('site_frontpage', CIS_SERVICE_CONNECTION_HOMEPAGE);
+  // set some sane defaults for httprl, required to use this module
+  variable_set('drupal_http_request_function', 'httprl_override_core');
+  variable_set('httprl_server_addr', '-1');
+  variable_set('httprl_background_callback', '1');
 }
 
 /**
