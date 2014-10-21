@@ -68,7 +68,16 @@ standalone=('online' 'media' 'courses' 'studio' 'interact' 'blog')
 for stack in "${standalone[@]}"
 do
   elmslnecho "working against $stack"
+  # run the safe upgrade of projects by taking the site offline then back on
   drush @${stack}-all cook dr_safe_upgrade --y
+  # run global upgrades
+  drush @${stack}-all drup d7_elmsln_global /var/www/elmsln/scripts/upgrade/drush_recipes/d7/elmsln/global --y
+  # run stack specific upgrades
+  drush @${stack}-all drup d7_elmsln_${stack}-all /var/www/elmsln/scripts/upgrade/drush_recipes/d7/elmsln/${stack}-all --y
+  # run config specific, global upgrades
+  drush @${stack}-all drup d7_elmsln_global /var/www/elmsln/config/scripts/upgrade/drush_recipes/d7/elmsln/global --y
+  # run config specific, stack upgrades
+  drush @${stack}-all drup d7_elmsln_${stack}-all /var/www/elmsln/config/scripts/upgrade/drush_recipes/d7/elmsln/${stack}-all --y
 done
 # this only makes sense for online
 elmslnecho "online: seed entity / front facing caches"
