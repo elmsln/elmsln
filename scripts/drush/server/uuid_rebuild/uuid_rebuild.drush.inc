@@ -42,26 +42,16 @@ function drush_uuid_rebuild_uuid_recreate_all() {
  * Regenerate all missing UUIDs.
  */
 function uuid_rebuild_resync_all() {
-  module_invoke_all('uuid_resync');
-  // call sync to rebuild all as core resync wipes them all
-  module_invoke_all('uuid_sync');
-}
-
-/**
- * Implements hook_uuid_resync().
- */
-function uuid_rebuild_uuid_resync() {
-  // check for UI project and ignore as it'll pick this call up if it exists
-  if (!function_exists('uuid_rebuild_ui_uuid_resync')) {
-    foreach (entity_get_info() as $entity_type => $info) {
-      if (isset($info['uuid']) && $info['uuid'] == TRUE && !empty($info['entity keys']['uuid'])) {
-        _uuid_rebuild_empty_table($info['base table'], $info['entity keys']['id'], $info['entity keys']['uuid']);
-        if (!empty($info['entity keys']['revision uuid'])) {
-          _uuid_rebuild_empty_table($info['revision table'], $info['entity keys']['revision'], $info['entity keys']['revision uuid']);
-        }
+  foreach (entity_get_info() as $entity_type => $info) {
+    if (isset($info['uuid']) && $info['uuid'] == TRUE && !empty($info['entity keys']['uuid'])) {
+      _uuid_rebuild_empty_table($info['base table'], $info['entity keys']['id'], $info['entity keys']['uuid']);
+      if (!empty($info['entity keys']['revision uuid'])) {
+        _uuid_rebuild_empty_table($info['revision table'], $info['entity keys']['revision'], $info['entity keys']['revision uuid']);
       }
     }
   }
+  // call sync to rebuild all as core resync wipes them all
+  module_invoke_all('uuid_sync');
 }
 
 /**
