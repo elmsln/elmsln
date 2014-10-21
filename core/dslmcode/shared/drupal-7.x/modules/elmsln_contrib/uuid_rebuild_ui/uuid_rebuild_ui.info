@@ -1,0 +1,7 @@
+name = Universally Unique ID REBUILD UI
+description = Adds a button to rebuild all UUIDs in the system to the admin page
+core = 7.x
+package = UUID
+configure = admin/config/system/uuid
+files[] = uuid_rebuild_ui.test
+dependencies[] = uuid
