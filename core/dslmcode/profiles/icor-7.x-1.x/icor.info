@@ -86,21 +86,6 @@ dependencies[] = strongarm
 dependencies[] = transliteration
 ; Performance and scalability
 dependencies[] = entitycache
-; Quiz Core
-dependencies[] = quiz
-dependencies[] = quiz_question
-; Quiz Question
-dependencies[] = cloze
-dependencies[] = grouping_question
-dependencies[] = image_target_question
-dependencies[] = long_answer
-dependencies[] = matching
-dependencies[] = multichoice
-dependencies[] = quiz_ddlines
-dependencies[] = quiz_directions
-dependencies[] = scale
-dependencies[] = short_answer
-dependencies[] = truefalse
 ; Regions
 dependencies[] = regions
 dependencies[] = regions_admin_left
