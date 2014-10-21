@@ -36,6 +36,22 @@ function node_entity_uuid_presave(&$entity, $entity_type) {
 }
 
 /**
+ * Implements hook_entity_uuid_save().
+ */
+function node_entity_uuid_save(&$entity, $entity_type) {
+  // When a node is translated, the source node's tnid is set to it's own nid. When deploying
+  // the node for the first time the tnid can't be translated to an nid until after the node has been saved.
+  // So if the entity's tnid is still a uuid at this point it needs to be translated to an nid.
+  if ($entity_type == 'node' && uuid_is_valid($entity->tnid)) {
+    entity_property_uuid_to_id($entity, 'node', 'tnid');
+    db_update('node')
+      ->fields(array('tnid' => $entity->tnid))
+      ->condition('nid', $entity->nid)
+      ->execute();
+  }
+}
+
+/**
  * Implements hook_entity_uuid_load().
  */
 function book_uuid_entities_features_export_entity_alter(&$entity, $entity_type) {
@@ -125,10 +141,52 @@ function file_entity_uuid_load(&$entities, $entity_type) {
 function file_entity_uuid_presave(&$entity, $entity_type) {
   if ($entity_type == 'file') {
     entity_property_uuid_to_id($entity, 'user', 'uid');
+
+    // Write the new file to the local filesystem.
     if (isset($entity->file_contents)) {
-      $directory = drupal_dirname($entity->uri);
+      // Don't try to write it if it uses a stream wrapper that isn't writeable
+      // (for example, if it is a remotely-hosted video).
+      $scheme = file_uri_scheme($entity->uri);
+      $wrappers = file_get_stream_wrappers(STREAM_WRAPPERS_WRITE);
+      if (empty($wrappers[$scheme])) {
+        return;
+      }
+
+      // Check for an existing file with the same URI.
+      $existing_files = file_load_multiple(array(), array('uri' => $entity->uri));
+      $existing = (object) array('uri' => NULL, 'uuid' => NULL);
+      if (count($existing_files)) {
+        $existing = reset($existing_files);
+      }
+
+      // If this is a new file and there is an existing file with the same URI,
+      // but a different uuid then rename this file.
+      if ($entity->is_new && $entity->uri == $existing->uri && $entity->uuid != $existing->uuid) {
+        $uri = $entity->uri;
+        $replace = FILE_EXISTS_RENAME;
+      }
+      // If this has an id, meaning UUID has already matched the uuid to an
+      // existing file, but it has a URI that matches a file with a different
+      // uuid, then load the file with the matching uuid and use the URI from
+      // that file. The existing file with the matching uuid is most likely a
+      // file that was previously renamed, e.g. as in the condition above, to
+      // avoid conflict. The uuid matches because they are the same file, but
+      // the URI does not because an incrementing number was added as part of
+      // the renaming.
+      elseif ($entity->uri == $existing->uri && $entity->uuid != $existing->uuid) {
+        $file = file_load($entity->fid);
+        $uri = $file->uri;
+        $replace = FILE_EXISTS_REPLACE;
+      }
+      // Otherwise create a new file or replace the existing file contents.
+      else {
+        $uri = $entity->uri;
+        $replace = FILE_EXISTS_REPLACE;
+      }
+
+      $directory = drupal_dirname($uri);
       file_prepare_directory($directory, FILE_CREATE_DIRECTORY);
-      file_unmanaged_save_data(base64_decode($entity->file_contents), $entity->uri, FILE_EXISTS_REPLACE);
+      $entity->uri = file_unmanaged_save_data(base64_decode($entity->file_contents), $uri, $replace);
     }
   }
 }
@@ -269,34 +327,7 @@ function image_field_uuid_presave($entity_type, $entity, $field, $instance, $lan
 
 /**
  * Implements hook_field_uuid_load().
- */
-function node_reference_field_uuid_load($entity_type, $entity, $field, $instance, $langcode, &$items) {
-  entity_property_id_to_uuid($items, 'node', 'nid');
-}
-
-/**
- * Implements hook_field_uuid_presave().
- */
-function node_reference_field_uuid_presave($entity_type, $entity, $field, $instance, $langcode, &$items) {
-  entity_property_uuid_to_id($items, 'node', 'nid');
-}
-
-/**
- * Implements hook_field_uuid_load().
- */
-function user_reference_field_uuid_load($entity_type, $entity, $field, $instance, $langcode, &$items) {
-  entity_property_id_to_uuid($items, 'user', 'uid');
-}
-
-/**
- * Implements hook_field_uuid_presave().
- */
-function user_reference_field_uuid_presave($entity_type, $entity, $field, $instance, $langcode, &$items) {
-  entity_property_uuid_to_id($items, 'user', 'uid');
-}
-
-/**
- * Implements hook_field_uuid_load().
+ * Kept here because it is in D8 core.
  */
 function entityreference_field_uuid_load($entity_type, $entity, $field, $instance, $langcode, &$items) {
   // TODO: This is not really good, but as of now 'entity_property_id_to_uuid()'
@@ -306,43 +337,12 @@ function entityreference_field_uuid_load($entity_type, $entity, $field, $instanc
 
 /**
  * Implements hook_field_uuid_presave().
+ * Kept here because it is in D8 core.
  */
 function entityreference_field_uuid_presave($entity_type, $entity, $field, $instance, $langcode, &$items) {
   // TODO: This is not really good, but as of now 'entity_property_id_to_uuid()'
   // can't handle a single $item.
   entity_property_uuid_to_id($items, $field['settings']['target_type'], 'target_id');
-}
-
-/**
- * Implements hook_entity_uuid_load().
- */
-function field_collection_entity_uuid_load(&$entities, $entity_type) {
-  if ($entity_type == 'field_collection_item') {
-    entity_property_id_to_uuid($entities, 'field_collection_item', 'value');
-  }
-}
-
-/**
- * Implements hook_entity_uuid_presave().
- */
-function field_collection_entity_uuid_presave(&$entity, $entity_type) {
-  if ($entity_type == 'field_collection_item') {
-    entity_property_uuid_to_id($entity, 'field_collection_item', 'value');
-  }
-}
-
-/**
- * Implements hook_field_uuid_load().
- */
-function field_collection_field_uuid_load($entity_type, $entity, $field, $instance, $langcode, &$items) {
-  entity_property_id_to_uuid($items, 'field_collection_item', 'value');
-}
-
-/**
- * Implements hook_field_uuid_presave().
- */
-function field_collection_field_uuid_presave($entity_type, $entity, $field, $instance, $langcode, &$items) {
-  entity_property_uuid_to_id($items, 'field_collection_item', 'value');
 }
 
 /**
@@ -387,17 +387,6 @@ function file_uuid_entities_features_export_field_alter($entity_type, $entity, $
   foreach ($items as &$item) {
     if (isset($item['timestamp'])) {
       unset($item['timestamp']);
-    }
-  }
-}
-
-/**
- * Implements hook_uuid_entities_features_export_entity_alter().
- */
-function workbench_uuid_entities_features_export_entity_alter(&$entity, $entity_type) {
-  foreach (array('workbench_moderation', 'my_revision', 'workbench_access', 'workbench_access_scheme', 'workbench_access_by_role') as $property) {
-    if (isset($entity->{$property})) {
-      unset($entity->{$property});
     }
   }
 }

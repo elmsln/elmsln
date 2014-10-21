@@ -134,14 +134,14 @@ function uuid_entities_features_export_render($module_name, $components, $export
 }
 
 /**
- * Implements [component]_features_export_rebuild().
+ * Implements [component]_features_rebuild().
  */
 function uuid_entities_features_rebuild($module_name) {
   uuid_entities_rebuild($module_name, 'rebuild');
 }
 
 /**
- * Implements [component]_features_export_revert().
+ * Implements [component]_features_revert().
  */
 function uuid_entities_features_revert($module_name) {
   uuid_entities_rebuild($module_name, 'revert');

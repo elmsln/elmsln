@@ -82,9 +82,6 @@ function uuid_get_core_entity_info() {
  */
 function uuid_entity_info_alter(&$info) {
   foreach (uuid_get_core_entity_info() as $entity_type => $core_info) {
-    if (!isset($info[$entity_type])) {
-      continue;
-    }
     $info[$entity_type]['uuid'] = TRUE;
     $info[$entity_type]['entity keys']['uuid'] = $core_info['entity keys']['uuid'];
     if (!empty($core_info['entity keys']['revision uuid'])) {
@@ -101,7 +98,7 @@ function uuid_entity_info_alter(&$info) {
  */
 function uuid_entity_property_info_alter(&$info) {
   foreach (entity_get_info() as $entity_type => $entity_info) {
-    if (isset($entity_info['uuid']) && $entity_info['uuid'] == TRUE
+    if (isset($entity_info['uuid']) && $entity_info['uuid'] == TRUE 
       && !empty($entity_info['entity keys']['uuid'])
       && empty($info[$entity_type]['properties'][$entity_info['entity keys']['uuid']])) {
       $info[$entity_type]['properties'][$entity_info['entity keys']['uuid']] = array(
@@ -110,7 +107,7 @@ function uuid_entity_property_info_alter(&$info) {
         'description' => t('The universally unique ID.'),
         'schema field' => $entity_info['entity keys']['uuid'],
       );
-      if (!empty($entity_info['entity keys']['revision uuid'])
+      if (!empty($entity_info['entity keys']['revision uuid']) 
         && empty($info[$entity_type]['properties'][$entity_info['entity keys']['revision uuid']])) {
         $info[$entity_type]['properties'][$entity_info['entity keys']['revision uuid']] = array(
           'label' => t('Revision UUID'),
@@ -261,7 +258,7 @@ function entity_uuid_save($entity_type, $entity) {
   entity_make_entity_local($entity_type, $entity);
 
   // Save the entity.
-  entity_save($entity_type, $entity);
+  $result = entity_save($entity_type, $entity);
 
   $hook = 'entity_uuid_save';
   foreach (module_implements($hook) as $module) {
@@ -270,6 +267,7 @@ function entity_uuid_save($entity_type, $entity) {
       $function($entity, $entity_type);
     }
   }
+  return $result;
 }
 
 /**
@@ -392,7 +390,7 @@ function entity_uuid_delete($entity_type, $uuid) {
  * Helper function that retrieves entity IDs by their UUIDs.
  *
  * @todo
- *   Statically cache as many IDs as possible and limit the query.
+ *   Limit the query.
  *
  * @param $entity_type
  *   The entity type we should be dealing with.
@@ -409,9 +407,18 @@ function entity_get_id_by_uuid($entity_type, $uuids, $revision = FALSE) {
   if (empty($uuids)) {
     return array();
   }
+  $cached_ids = entity_uuid_id_cache($entity_type, $uuids, $revision);
+  if (count($cached_ids) == count($uuids)) {
+    return $cached_ids;
+  }
+  $uuids = array_diff($uuids, $cached_ids);
   $info = entity_get_info($entity_type);
+  // Some contrib entities has no support for UUID, let's skip them.
+  if (empty($info['uuid'])) {
+    return array();
+  }
   // Find out what entity keys to use.
-  if (!$revision && isset($info['entity keys']['uuid'])) {
+  if (!$revision) {
     $table = $info['base table'];
     $id_key = $info['entity keys']['id'];
     $uuid_key = $info['entity keys']['uuid'];
@@ -427,18 +434,33 @@ function entity_get_id_by_uuid($entity_type, $uuids, $revision = FALSE) {
   }
 
   // Get all UUIDs in one query.
-  return db_select($table, 't')
+  $result = db_select($table, 't')
     ->fields('t', array($uuid_key, $id_key))
     ->condition($uuid_key, array_values($uuids), 'IN')
-    ->execute()
-    ->fetchAllKeyed();
+    ->execute();
+    $result = $result->fetchAllKeyed();
+  $cache = &drupal_static('entity_uuid_id_cache', array());
+  $cache[$entity_type][(int) $revision] += $result;
+  return $result + $cached_ids;
+}
+
+/**
+ * Helper caching function.
+ */
+function entity_uuid_id_cache($entity_type, $ids, $revision) {
+  $cache = &drupal_static(__FUNCTION__, array());
+  if (empty($cache[$entity_type][(int) $revision])) {
+    $cache[$entity_type][(int) $revision] = array();
+  }
+  $cached_ids = $cache[$entity_type][(int) $revision];
+  return array_intersect_key($cached_ids, array_flip($ids));
 }
 
 /**
  * Helper function that retrieves UUIDs by their entity IDs.
  *
  * @todo
- *   Statically cache as many IDs as possible and limit the query.
+ *   Limit the query.
  *
  * @param $entity_type
  *   The entity type we should be dealing with.
@@ -455,9 +477,19 @@ function entity_get_uuid_by_id($entity_type, $ids, $revision = FALSE) {
   if (empty($ids)) {
     return array();
   }
+  $cached_ids = array_flip(entity_uuid_id_cache($entity_type, $ids, $revision));
+  if (count($cached_ids) == count($ids)) {
+    return $cached_ids;
+  }
+  $ids = array_diff($ids, $cached_ids);
+
   $info = entity_get_info($entity_type);
+  // Some contrib entities has no support for UUID, let's skip them.
+  if (empty($info['uuid'])) {
+    return array();
+  }
   // Find out what entity keys to use.
-  if (!$revision && isset($info['entity keys']['uuid'])) {
+  if (!$revision) {
     $table = $info['base table'];
     $id_key = $info['entity keys']['id'];
     $uuid_key = $info['entity keys']['uuid'];
@@ -473,11 +505,14 @@ function entity_get_uuid_by_id($entity_type, $ids, $revision = FALSE) {
   }
 
   // Get all UUIDs in one query.
-  return db_select($table, 't')
+  $result = db_select($table, 't')
     ->fields('t', array($id_key, $uuid_key))
     ->condition($id_key, array_values($ids), 'IN')
     ->execute()
     ->fetchAllKeyed();
+  $cache = &drupal_static('entity_uuid_id_cache', array());
+  $cache[$entity_type][(int) $revision]+= array_flip($result);
+  return $result + $cached_ids;
 }
 
 /**
