@@ -1,0 +1,32 @@
+{
+  "name": "ELMSLN global upgrade 1413916953",
+  "drush_recipes_api": "1.0",
+  "weight": "0",
+  "core": "7",
+  "recipe": [
+    {
+      "command": "ev",
+      "arguments": [
+        "\"variable_set(\\\"drupal_http_request_function\\\", 'httprl_override_core');\""
+      ]
+    },
+    {
+      "command": "ev",
+      "arguments": [
+        "\"variable_set(\\\"httprl_server_addr\\\", '-1');\""
+      ]
+    },
+    {
+      "command": "ev",
+      "arguments": [
+        "\"variable_set(\\\"httprl_background_callback\\\", 1);\""
+      ]
+    }
+  ],
+  "metadata": {
+    "type": "upgrade",
+    "description": "Upgrade to establish correct settings for httprl. This is global to all systems ever in ELMSLN.",
+    "version": "1413916953",
+    "author": "elmsln"
+  }
+}
