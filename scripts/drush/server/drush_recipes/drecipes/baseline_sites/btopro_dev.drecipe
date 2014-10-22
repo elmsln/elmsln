@@ -1,0 +1,45 @@
+{
+    "name": "btopro baseline",
+    "drush_recipes_api": "1.0",
+    "weight": "0",
+    "core": "7",
+    "recipe": [
+        {
+            "command": "si",
+            "arguments": [
+                "standard"
+            ],
+            "options": {
+                "y": true
+            }
+        },
+        {
+            "command": "cook",
+            "arguments": [
+                "standard_unsuck,dr_security_core_settings,core_above_core,d7adminux"
+            ],
+            "options": {
+                "y": true
+            }
+        },
+        {
+            "command": "cook",
+            "arguments": [
+                "simple_performance_pack"
+            ],
+            "options": {
+                "y": true,
+                "mlt-global": 0
+            }
+        },
+        {
+            "command": "uli"
+        }
+    ],
+    "metadata": {
+        "description": "Standard btopro development starting point. Wipes any site and resets it back to the point that I always start building from. Never waste time again.",
+        "version": "1.0",
+        "type": "routine",
+        "author": "btopro"
+    }
+}
