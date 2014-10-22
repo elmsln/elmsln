@@ -10,7 +10,7 @@
     {
       "command": "ev",
       "arguments": [
-        "variable_set(\"user_register\", USER_REGISTER_ADMINISTRATORS_ONLY);"
+          "\"variable_set(\\\"user_register\\\", USER_REGISTER_ADMINISTRATORS_ONLY);\""
       ]
     },
     {
