@@ -86,6 +86,9 @@ function drush_recipes_drush_command() {
   $items['drush-write-recipe'] = array(
     'description' => dt('Interactive prompt to create a new recipe'),
     'aliases' => array('dwr'),
+    'options' => array(
+      'for-drup' => dt('Flag to indicate that this is an upgrade routine for use with the drup command.'),
+    ),
     'examples' => array(
       'drush dwr' =>
         'An interactive prompt will follow',
@@ -175,6 +178,9 @@ function drush_recipes_drush_command() {
       'pattern' => dt("Pattern of recipes to find"),
       'location' => dt("Location to search against for matching recipes"),
     ),
+    'options' => array(
+      'replay-from' => dt("Replay from a certain timestamp forward. This is useful if an update fails to apply for some reason."),
+    ),
     'aliases' => array('drup'),
     'examples' => array(
       'drush @devsite drup d7_dev /var/www/deployments/' =>
@@ -255,6 +261,11 @@ function drush_drush_recipes_upgrade($pattern, $location) {
       $last[$pattern] = $install_time;
     }
   }
+  // allow for replaying from a certain point in time via flag
+  $replay = drush_get_option('replay-from', FALSE);
+  if ($replay !== FALSE) {
+    $last[$pattern] = $replay;
+  }
   $matches = array();
   // scan each and match it against the alias if we can
   foreach ($recipes as $recipe) {
@@ -263,7 +274,7 @@ function drush_drush_recipes_upgrade($pattern, $location) {
       $basename = $recipe->basename;
       $num = array_pop(explode('_', str_replace('.' . DRUSH_RECIPE_EXTENSION, '', $basename)));
       // if num is higher then stored value, we have new recipes to run!
-      if ($num > $last[$pattern]) {
+      if (is_numeric($num) && $num > $last[$pattern]) {
         $matches[$recipe->name] = array(
           'name' => $recipe->name,
           'path' => str_replace($recipe->basename, '', $recipe->filename),
@@ -479,7 +490,7 @@ function drush_drush_recipes_drush_diff_targets_recipe($source = NULL, $destinat
   // Like if you were doing dev to prod target diffing and don't care about
   // permissions differences for the admin user role.
   drush_command_invoke_all_ref('drush_recipes_target_diff_drush_alter', $drush, $source_settings, $destination_settings);
-  $calls = $end_calls = array();
+  $calls = $end_calls = $role_calls = $perm_calls = array();
   // now we convert these into drush calls and feed it to its own recipe
   foreach ($drush as $call => $items) {
     switch ($call) {
@@ -528,8 +539,11 @@ function drush_drush_recipes_drush_diff_targets_recipe($source = NULL, $destinat
       break;
       // create roles
       case 'rcrt':
+        // remove the built in roles
+        unset($items['anonymous user']);
+        unset($items['authenticated user']);
         foreach ($items as $rid => $name) {
-          $calls['aaa_create_role' . $rid] = array(
+          $role_calls[] = array(
             'command' => 'rcrt',
             'arguments' => array(
               "'$rid'",
@@ -553,7 +567,7 @@ function drush_drush_recipes_drush_diff_targets_recipe($source = NULL, $destinat
       case 'rap':
         foreach ($items as $rid => $permissions) {
           foreach ($permissions as $permission => $bool) {
-            $calls['zzz_add_perm' . $rid . $permission] = array(
+            $perm_calls[$rid . $permission] = array(
               'command' => 'rap',
               'arguments' => array(
                 "'$rid'",
@@ -567,7 +581,7 @@ function drush_drush_recipes_drush_diff_targets_recipe($source = NULL, $destinat
       case 'rmp':
         foreach ($items as $rid => $permissions) {
           foreach ($permissions as $permission => $bool) {
-            $calls['zzz_add_perm' . $rid . $permission] = array(
+            $calls[$rid . $permission] = array(
               'command' => 'rmp',
               'arguments' => array(
                 "'$rid'",
@@ -592,7 +606,13 @@ function drush_drush_recipes_drush_diff_targets_recipe($source = NULL, $destinat
       break;
     }
   }
-  // allow for late calls to be added to the end
+  // shift roles to end but before perms and _last at the end
+  foreach ($role_calls as $rcall) {
+    array_push($calls, $rcall);
+  }
+  foreach ($perm_calls as $pcall) {
+    array_push($calls, $pcall);
+  }
   foreach ($end_calls as $end) {
     array_push($calls, $end);
   }
@@ -773,13 +793,18 @@ function _drush_drush_recipes_drush_write_recipe($items = NULL, $test_run = FALS
       $major_version = DRUSH_RECIPES_CORE_COMPATIBILITY;
     }
     $core = drush_prompt(dt('Drupal core'), $major_version);
-    $recipe_types = array(
-      1 => 'add-on',
-      2 => 'routine',
-      3 => 'utility',
-    );
-    // prompt for the user with the default option
-    while (!$type = drush_choice_with_custom_defaults($recipe_types, 'add-on', dt('What type of recipe is this?'), '!value'));
+    if (drush_get_option('for-drup', FALSE)) {
+      $type = 'upgrade';
+    }
+    else {
+      $recipe_types = array(
+        1 => 'add-on',
+        2 => 'routine',
+        3 => 'utility',
+      );
+      // prompt for the user with the default option
+      while (!$type = drush_choice_with_custom_defaults($recipe_types, 'add-on', dt('What type of recipe is this?'), '!value'));
+    }
     // author is optional
     $author = drush_prompt(dt('Recipe author'), NULL, FALSE);
   }
@@ -902,6 +927,10 @@ function _drush_drush_recipes_drush_write_recipe($items = NULL, $test_run = FALS
   );
   // start writing to file if they selected that
   if (!$test_run && drush_choice_with_custom_defaults($output_locations, 'write to file', dt('Write to file or print to screen?')) === 'write to file') {
+    // allow for-drup flag to auto append timestamp
+    if (drush_get_option('for-drup', FALSE)) {
+      $machine_name .= '_' . time();
+    }
     $file = $machine_name . '.' . DRUSH_RECIPE_EXTENSION;
     $location = drush_prompt(dt('Location to write recipe'), drush_get_context('DRUSH_PER_USER_CONFIGURATION') . '/drecipes');
     // test directory exists / create it if we can
@@ -1123,7 +1152,7 @@ function drush_drush_recipes_drush_cook_recipes($list = '', $recurse = FALSE, $r
             drush_log(dt('Adding Madlib ingredient: drush ') . $command['target'] . ' ' . $command['command'] . ' ' . implode(' ', $command['arguments']) . ' ' . $option_out, 'ok');
             // special exception for commands that run batch jobs as they will
             // exit into the background process silently
-            if (!in_array($command['command'], array('httprl-self-spider', 'httprl-self-request', 'entitycache-load', 'hss', 'hsr', 'ecl'))) {
+            if (!in_array($command['command'], _drush_recipes_require_shell_exec())) {
               drush_invoke_process($command['target'], $command['command'], $command['arguments'], $command['options']);
             }
             else {
@@ -1155,7 +1184,7 @@ function drush_drush_recipes_drush_cook_recipes($list = '', $recurse = FALSE, $r
             drush_log(dt('Adding ingredient: drush ') . $command['target'] . ' ' . $command['command'] . ' ' . implode(' ', $command['arguments']) . ' ' . $option_out, 'ok');
             // special exception for commands that run batch jobs as they will
             // exit into the background process silently
-            if (!in_array($command['command'], array('httprl-self-spider', 'httprl-self-request', 'entitycache-load', 'hss', 'hsr', 'ecl'))) {
+            if (!in_array($command['command'], _drush_recipes_require_shell_exec())) {
               drush_invoke_process($command['target'], $command['command'], $command['arguments'], $command['options']);
             }
             else {
@@ -1227,6 +1256,37 @@ function drush_drush_recipes_drush_cook_recipes($list = '', $recurse = FALSE, $r
 }
 
 /**
+ * Helper function to list commands that require exec in order to finish
+ * @return array  drush commands that require shell to run correctly.
+ */
+function _drush_recipes_require_shell_exec() {
+  // core commands with known issues
+  $exec = array(
+    'php-eval',
+    'eval',
+    'ev'
+  );
+  // hook for commands that require background execution
+  drush_command_invoke_all_ref('drush_recipes_require_shell_exec_alter', $exec);
+  return $exec;
+}
+
+/**
+ * Implements hook_drush_recipes_require_shell_exec_alter().
+ * @param  array $exec drush commands that require shell to run correctly.
+ */
+function drush_recipes_drush_recipes_require_shell_exec_alter(&$exec) {
+  // contrib commands I know that have issues otherwise
+  // these require batch processing which fails if interactive
+  $exec[] = 'httprl-self-spider';
+  $exec[] = 'hss';
+  $exec[] = 'httprl-self-request';
+  $exec[] = 'hsr';
+  $exec[] = 'entitycache-load';
+  $exec[] = 'ecl';
+}
+
+/**
  * Ensure that defaults are set for the command object
  * @param  array $command The command about to be executed
  */
@@ -1264,6 +1324,28 @@ function _drush_recipes_command_defaults(&$command) {
     }
     if (($val = drush_get_option($short, NULL)) !== NULL && !isset($command['options'][$short])) {
       $command['options'][$short] = $val;
+    }
+  }
+  // pull in the context of the operation to get the appropriate root/uri
+  // this can be missed in the event that a command calls for two aliases
+  // such as a ddt command which wants to execute the command against the
+  // first target but drush pulls the options from the 2nd, effectively
+  // making the command compare A to B but then always applying the command
+  // to B and A was the intended target.
+  // This is required to allow the --make-it-so option flag on ddt function
+  // correctly, but would potentially trip up other complex calls; hence this
+  // windy explaination
+  $context = drush_get_context();
+  if (in_array($context['arguments'][0], array('drush-diff-targets-recipe', 'ddt')) && drush_get_option('make-it-so', FALSE)) {
+    if (isset($context['site-aliases'][$command['target']])) {
+      if (isset($context['site-aliases'][$command['target']]['root'])) {
+        unset($command['options']['r']);
+        $command['options']['root'] = $context['site-aliases'][$command['target']]['root'];
+      }
+      if (isset($context['site-aliases'][$command['target']]['uri'])) {
+        unset($command['options']['l']);
+        $command['options']['uri'] = $context['site-aliases'][$command['target']]['uri'];
+      }
     }
   }
 }

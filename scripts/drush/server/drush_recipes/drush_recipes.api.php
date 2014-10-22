@@ -268,6 +268,17 @@ function CUSTOMPLUGIN_drush_recipes_btools_command_invoke_alter(&$command) {
   drush_log($call['superadvancedcallstructureforthesakeofbeingadvanced']['name'] . ' probably didn\'t complete but developers everywhere would be wow\'ed that you event attempted those sweet lines of code!', 'warning');
 }
 
+// allows for defining of commands that have known issues with running
+// interactively in a list of ingredients. This includes the core php-eval
+// command as well as anything that requires the batch_api as that requires
+// a more sophisticated handling of drush commands then recipes is capable
+// of stringing together as a single command. shell_exec will allow the drush
+// command to effectively open another process, complete, and then report back
+// what happened. exec is just an array of commands that require this processing
+function hook_drush_recipes_require_shell_exec_alter(&$exec) {
+  $exec[] = 'httprl-self-spider';
+}
+
 /**
  * Drush Recipe 1.0
  *
