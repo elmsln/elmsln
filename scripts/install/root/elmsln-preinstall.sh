@@ -16,7 +16,7 @@ cd $DIR
 # provide messaging colors for output to console
 txtbld=$(tput bold)             # Bold
 bldgrn=${txtbld}$(tput setaf 2) #  green
-bldred=${txtbld}$(tput setaf 1) #  green
+bldred=${txtbld}$(tput setaf 1) #  red
 txtreset=$(tput sgr0)
 elmslnecho(){
   echo "${bldgrn}$1${txtreset}"
