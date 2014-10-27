@@ -1,0 +1,13 @@
+diff --git a/core/dslmcode/shared/drupal-7.x/modules/ulmus/piwik/piwik.admin.inc b/core/dslmcode/shared/drupal-7.x/modules/ulmus/piwik/piwik.admin.inc
+index f23c53b..dff9c92 100644
+--- a/core/dslmcode/shared/drupal-7.x/modules/ulmus/piwik/piwik.admin.inc
++++ b/core/dslmcode/shared/drupal-7.x/modules/ulmus/piwik/piwik.admin.inc
+@@ -566,7 +566,7 @@ function _piwik_contains_forbidden_token($token_string) {
+     ':thoroughfare]',
+     ':premise]',
+     // realname.module
+-    ':name-raw]',
++    //':name-raw]',
+     // token.module
+     ':ip-address]',
+   );
