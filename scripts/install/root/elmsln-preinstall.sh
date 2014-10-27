@@ -109,22 +109,22 @@ else
   elmslnecho "www user, what does apache run as? (www-data and apache are common)"
   read wwwuser
 
-  elmslnecho "where is apc.ini? ex: /etc/php.d/apc.ini"
+  elmslnecho "where is apc.ini? ex: /etc/php.d/apc.ini (empty to skip)"
   read apcini
 
-  elmslnecho "where is php.ini? ex: /etc/php.ini"
+  elmslnecho "where is php.ini? ex: /etc/php.ini (empty to skip)"
   read phpini
 
-  elmslnecho "where is my.cnf? ex: /etc/my.cnf"
+  elmslnecho "where is my.cnf? ex: /etc/my.cnf (empty to skip)"
   read mycnf
 
-  elmslnecho "where is crontab? ex: /etc/crontab"
+  elmslnecho "where is crontab? ex: /etc/crontab (empty to skip)"
   read crontab
 
-  elmslnecho "where should elmsln apache domains.conf files live? ex: /etc/httpd/conf.d/domains.conf"
+  elmslnecho "where should elmsln apache domains.conf files live? ex: /etc/httpd/conf.d/domains.conf (empty to skip)"
   read domains
 
-  elmslnecho "where should elmsln apache performance tweaks live? ex: /etc/httpd/conf.d/zzz_performance.conf"
+  elmslnecho "where should elmsln apache performance tweaks live? ex: /etc/httpd/conf.d/zzz_performance.conf (empty to skip)"
   read zzz_performance
 
   elmslnecho "Is this some flavor of linux like Ubuntu? (yes for travis, vagrant, etc)"
@@ -247,16 +247,55 @@ else
 fi
 
 # performance / recommended settings
-cat /var/www/elmsln/docs/apc.txt >> $apcini
-cat /var/www/elmsln/docs/php.txt >> $phpini
-cat /var/www/elmsln/docs/my.txt >> $mycnf
-cat /var/www/elmsln/docs/crontab.txt >> $crontab
-cp /var/www/elmsln/docs/zzz_performance.conf $zzz_performance
+if [[ -n "$apcini" ]]; then
+  cat /var/www/elmsln/docs/apc.txt >> $apcini
+fi
+if [[ -n "$phpini" ]]; then
+  cat /var/www/elmsln/docs/php.txt >> $phpini
+fi
+if [[ -n "$mycnf" ]]; then
+  cat /var/www/elmsln/docs/my.txt >> $mycnf
+fi
+if [[ -n "$crontab" ]]; then
+  cat /var/www/elmsln/docs/crontab.txt >> $crontab
+fi
 
-# account for ubuntu being a little different here when it comes to apache
-if [ $os == '2' ]; then
-  ln -s /etc/apache2/sites-available/elmsln.conf /etc/apache2/sites-enabled/elmsln.conf
-  ln -s /etc/apache2/sites-available/zzz_performance.conf /etc/apache2/sites-enabled/zzz_performance.conf
+if [[ -n "$domains" ]]; then
+  # try to automatically author the domains file(s)
+  cp /var/www/elmsln/docs/domains.txt $domains
+  # replace servicedomain partial with what was entered above
+  sed 's/SERVICEYOURUNIT.edu/${serviceaddress}/g' $domains > $domains
+  # replace domain partial with what was entered above
+  sed 's/YOURUNIT.edu/${address}/g' $domains > $domains
+  # replace servicedomain prefix if available with what was entered above
+  sed 's/DATA./${serviceprefix}/g' $domains > $domains
+
+  # attempt to author the https domain if they picked it, let's hope everyone does
+  if [[ $protocol == 'https' ]]; then
+    sec=${domains/.conf/_secure.conf}
+    cp $domains $sec
+    # replace referencese to port :80 w/ 443
+    sed 's/<VirtualHost *:80>/<VirtualHost *:443>/g' $sec > $sec
+    elmslnecho "${sec} was automatically generated since you said you are using https. please verify this file."
+      # account for ubuntu being a little different here when it comes to apache
+    if [ $os == '2' ]; then
+      ln -s $sec /etc/apache2/sites-enabled/elmsln.conf
+    fi
+  else
+    elmslnwarn "You really should use https and invest in certs... seriously do it!"
+  fi
+    # account for ubuntu being a little different here when it comes to apache
+  if [ $os == '2' ]; then
+    ln -s $domains /etc/apache2/sites-enabled/elmsln.conf
+  fi
+fi
+
+if [[ -n "$zzz_performance" ]]; then
+  cp /var/www/elmsln/docs/zzz_performance.conf $zzz_performance
+  # account for ubuntu being a little different here when it comes to apache
+  if [ $os == '2' ]; then
+    ln -s $zzz_performance /etc/apache2/sites-enabled/zzz_performance.conf
+  fi
 fi
 
 # setup site removal admin tool
@@ -286,26 +325,6 @@ if [[ $os == '2' ]]; then
   ln -s /root/.composer/vendor/drush/drush /usr/share/drush
 fi
 drush cc drush
-
-# try to automatically author the domains file(s)
-cp /var/www/elmsln/docs/domains.txt $domains
-# replace servicedomain partial with what was entered above
-sed 's/SERVICEYOURUNIT.edu/${serviceaddress}/g' $domains > $domains
-# replace domain partial with what was entered above
-sed 's/YOURUNIT.edu/${address}/g' $domains > $domains
-# replace servicedomain prefix if available with what was entered above
-sed 's/DATA./${serviceprefix}/g' $domains > $domains
-
-# attempt to author the https domain if they picked it, let's hope everyone does
-if [[ $protocol == 'https' ]]; then
-  sec=${domains/.conf/_secure.conf}
-  cp $domains $sec
-  # replace referencese to port :80 w/ 443
-  sed 's/<VirtualHost *:80>/<VirtualHost *:443>/g' $sec > $sec
-  elmslnecho "${sec} was automatically generated since you said you are using https. please verify this file."
-else
-  elmslnwarn "You really should use https and invest in certs... seriously do it!"
-fi
 
 # ubuntu restarts differently
 if [[ $os == '2' ]]; then
