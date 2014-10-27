@@ -230,6 +230,18 @@ uuid="$(getuuid)"
 # a uuid which data can be related on
 cat "elmsln_uuid='${uuid}'" >> config.cfg
 
+# allow for opt in participation in our impact program
+elmslnecho "Would you like to send anonymous usage statistics to http://elmsln.org for data visualization purposes? (type yes or anything else to opt out)"
+read yesprompt
+# ensure they type yes, this is a big deal command
+if [ "$yesprompt" == "yes" ]; then
+  # include this instance in our statistics program
+  cat "elmsln_stats_program='yes'" >> config.cfg
+else
+  # we respect privacy even if it leads to less cool visualizations :)
+  cat "elmsln_stats_program='no'" >> config.cfg
+fi
+
 # performance / recommended settings
 cat /var/www/elmsln/docs/apc.txt >> $apcini
 cat /var/www/elmsln/docs/php.txt >> $phpini
@@ -301,5 +313,3 @@ fi
 elmslnecho "${domains} was automatically generated but you may want to verify the file regardless of configtest saying everything is ok or not."
 elmslnecho "Everything should be in place, we are going to log you out now. Log back in and run the following:"
 elmslnecho "bash /var/www/elmsln/scripts/install/elmsln-install.sh"
-
-logout

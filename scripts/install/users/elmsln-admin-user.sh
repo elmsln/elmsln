@@ -47,5 +47,3 @@ drush sa
 
 elmslnecho "if you see targets listed above other then @none then you are good to go (otherwise elmsln still needs to be fully installed). We are going to log you out but issue the following after you log back in to play with your new super powers:"
 elmslnecho "d @online status"
-
-logout

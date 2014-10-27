@@ -2,15 +2,8 @@ language: php
 
 php:
   - 5.3
-  - 5.4
-  - 5.5
-  - hhvm
 
 matrix:
-  allow-failures:
-    - php: 5.5
-    - php: hhvm
-
   env:
     global:
       - ES_VER=1.0.1
@@ -51,24 +44,17 @@ install:
 before_script:
   #- echo 'sendmail_path = /bin/true' >> ~/.phpenv/versions/$(phpenv version-name)/etc/conf.d/travis.ini
   # establish elmsln package put in place the right way
+  - cd /home/travis
+  - sudo git clone https://github.com/btopro/elmsln-config-travis-ci.git legacy
   - sudo mkdir -p /var/www
   - cd /var/www
   - sudo mkdir elmsln
   - sudo chown travis:travis elmsln
   - sudo git clone https://github.com/btopro/elmsln.git
   - cd /var/www/elmsln
-  - sudo rm -rf config
-  - sudo git clone https://github.com/btopro/elmsln-config-travis-ci.git config
-  - sudo chown -R travis:travis /var/www/elmsln
-  # drush functions
-  - sudo mkdir ~/.drush/
-  - sudo cp -r /var/www/elmsln/config/scripts/drush/server/* ~/.drush/
-  - sudo chown -R travis:travis ~/.drush
-  # special accounting for stupid ubuntu! :p
-  - sudo ln -s /root/.composer/vendor/drush/drush /usr/share/drush
-
-  - sudo ln -s /var/www/elmsln ~/elmsln
-
+  - git pull origin crazystuff
+  - cat /home/travis/legacy/scripts/preinstall/values.sh | bash /var/www/elmsln/scripts/install/root/elmsln-preinstall.sh
+  - bash /var/www/elmsln/scripts/install/users/elmsln-admin-user.sh
 script:
   # run the installer
   - bash /var/www/elmsln/scripts/install/elmsln-install.sh
