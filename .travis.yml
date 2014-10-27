@@ -55,6 +55,9 @@ before_script:
   - git pull origin crazystuff
   - cat /home/travis/legacy/scripts/preinstall/values.sh | bash /var/www/elmsln/scripts/install/root/elmsln-preinstall.sh
   - bash /var/www/elmsln/scripts/install/users/elmsln-admin-user.sh
+  - ls /home/travis/.drush
+  - cat /home/travis/.bashrc
+  - cat /var/www/elmsln/config/scripts/drush-create-site/config.cfg
 script:
   # run the installer
   - bash /var/www/elmsln/scripts/install/elmsln-install.sh
