@@ -28,9 +28,9 @@ fi
 # modify the user's home directory to run drush and make life lazy
 ln -s /var/www/elmsln $HOME/elmsln
 touch $HOME/.bashrc
-cat "alias g='git'" >> $HOME/.bashrc
-cat "alias d='drush'" >> $HOME/.bashrc
-cat "alias l='ls -laHD'" >> $HOME/.bashrc
+echo "alias g='git'" >> $HOME/.bashrc
+echo "alias d='drush'" >> $HOME/.bashrc
+echo "alias l='ls -laHD'" >> $HOME/.bashrc
 
 # setup drush
 sed -i '1i export PATH="$HOME/.composer/vendor/bin:$PATH"' $HOME/.bashrc

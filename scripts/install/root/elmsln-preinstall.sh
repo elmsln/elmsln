@@ -66,10 +66,10 @@ fi
 
 # detect what OS this is on and make suggestions for settings
 cat /etc/*-release
-elmslnecho "The above should list information about the systemt this is being installed on. We currently support semi-automated install routines for RHEL, CentOS and Ubuntu. Please verify the above and select one of the following options:"
+elmslnecho "The above should list information about the system this is being installed on. We currently support semi-automated install routines for RHEL, CentOS and Ubuntu. Please verify the above and select one of the following options:"
 elmslnecho "1. RHEL / CentOS"
 elmslnecho "2. Ubuntu"
-elmslnecho "3. other"
+elmslnecho "3. other / manual"
 read os
 if [ $os == '1' ]; then
   elmslnecho "treating this like a RHEL / CentOS install"
@@ -126,6 +126,12 @@ else
 
   elmslnecho "where should elmsln apache performance tweaks live? ex: /etc/httpd/conf.d/zzz_performance.conf"
   read zzz_performance
+
+  elmslnecho "Is this some flavor of linux like Ubuntu? (yes for travis, vagrant, etc)"
+  read likeubuntu
+  if [[ $likeubuntu == 'yes' ]]; then
+    $os='2'
+  fi
 fi
 
 # based on where things commonly are. This would allow for non-interactive
@@ -136,97 +142,97 @@ fi
 config='/var/www/elmsln/config/scripts/drush-create-site/config.cfg'
 touch $config
 # step through creation of the config.cfg file
-cat "#university / institution deploying this instance" >> $config
+echo "#university / institution deploying this instance" >> $config
 elmslnecho "what is your uniersity abbreviation? (ex psu)"
 read university
-cat "university='${university}'" >> $config
+echo "university='${university}'" >> $config
 
 elmslnecho "two letter abbreviation for deployment? (ex aa for arts / architecture)"
 read host
-cat "host='${host}'" >> $config
+echo "host='${host}'" >> $config
 
 elmslnecho "default email ending? (ex @psu.edu)"
 read emailending
-cat "emailending='${emailending}'" >> $config
+echo "emailending='${emailending}'" >> $config
 
 elmslnecho "base address for deployment? (ex aanda.psu.edu)"
 read address
-cat "address='${address}'" >> $config
+echo "address='${address}'" >> $config
 
 elmslnecho "web service based address for deployment? (ex otherpath.psu.edu. this can be the same as the previous address but for increased security it is recommended you use a different one.)"
 read serviceaddress
-cat "serviceaddress='${serviceaddress}'" >> $config
+echo "serviceaddress='${serviceaddress}'" >> $config
 
 elmslnecho "web service prefix? (if calls come from data.courses.otherpath.psu.edu then this would be 'data.' if you don't create domains this way then leave this blank)"
 read serviceprefix
-cat "serviceprefix='${serviceprefix}'" >> $config
+echo "serviceprefix='${serviceprefix}'" >> $config
 
 elmslnecho "protocol for web traffic? (think long and hard before you type anything other then 'https'. there's a lot of crazy stuff out there so its better to encrypt everything.. EVERYTHING!)"
 read protocol
-cat "protocol='${protocol}'" >> $config
+echo "protocol='${protocol}'" >> $config
 
-cat "#email that the site uses to send mail" >> $config
+echo "#email that the site uses to send mail" >> $config
 elmslnecho "site email address to use? (ex siteaddress@you.edu)"
 read site_email
-cat "site_email='${site_email}'" >> $config
+echo "site_email='${site_email}'" >> $config
 
-cat "#administrator e-mail or alias" >> $config
+echo "#administrator e-mail or alias" >> $config
 elmslnecho "administrator e-mail or alias? (ex admin@you.edu)"
 read admin
-cat "admin='${admin}'" >> $config
+echo "admin='${admin}'" >> $config
 
 # if there's a scary part it's right in here for some I'm sure
-cat "#database superuser credentials" >> $config
+echo "#database superuser credentials" >> $config
 elmslnecho "database superuser credentials? (this is only stored in the config.cfg file. it is recommended you create an alternate super user other then true root. user needs full permissions including grant since this is what requests new drupal sites to be produced)"
 read dbsu
-cat "dbsu='${dbsu}'" >> $config
+echo "dbsu='${dbsu}'" >> $config
 
 elmslnecho "database superuser password? (same notice as above)"
 read dbsupw
-cat "dbsupw='${dbsupw}'" >> $config
+echo "dbsupw='${dbsupw}'" >> $config
 
 # this was read in from above or automatically supplied based on the system type
-cat "#www user, what does apache run as? www-data and apache are common" >> $config
-cat "wwwuser='${wwwuser}'" >> $config
+echo "#www user, what does apache run as? www-data and apache are common" >> $config
+echo "wwwuser='${wwwuser}'" >> $config
 
-cat "#webgroup, usually admin if sharing with other developers else leave root" >> $config
+echo "#webgroup, usually admin if sharing with other developers else leave root" >> $config
 elmslnecho "webgroup? (usually admin if sharing with other developers else leave root)"
 read webgroup
-cat "webgroup='${webgroup}'" >> $config
+echo "webgroup='${webgroup}'" >> $config
 
 # append all these settings that we tell people NOT to modify
-cat "\n" >> $config
-cat "# uncomment the following if you are not using SSO" >> $config
-cat "#send_requester_pw=yes" >> $config
-cat "# where is elmsln installed, not recommended to move from here" >> $config
-cat "elmsln=/var/www/elmsln" >> $config
-cat "\n" >> $config
-cat "# these vars shouldn't need changing if $elmsln is set properly" >> $config
-cat "webdir=$elmsln/domains" >> $config
-cat "# jobs location where job files write to" >> $config
-cat "fileloc=$elmsln/config/jobs" >> $config
-cat "# hosts to allow split groups of elmsln based on college / group" >> $config
-cat "hostfile=$elmsln/config/scripts/drush-create-site/hosts" >> $config
-cat "# compiled drupal \"stacks\"" >> $config
-cat "stacks=$elmsln/core/dslmcode/stacks" >> $config
-cat "# location of drupal private files" >> $config
-cat "drupal_priv=$elmsln/config/private_files" >> $config
-cat "# configsdir" >> $config
-cat "configsdir=$elmsln/config" >> $config
+echo "\n" >> $config
+echo "# uncomment the following if you are not using SSO" >> $config
+echo "#send_requester_pw=yes" >> $config
+echo "# where is elmsln installed, not recommended to move from here" >> $config
+echo "elmsln=/var/www/elmsln" >> $config
+echo "\n" >> $config
+echo "# these vars shouldn't need changing if $elmsln is set properly" >> $config
+echo "webdir=$elmsln/domains" >> $config
+echo "# jobs location where job files write to" >> $config
+echo "fileloc=$elmsln/config/jobs" >> $config
+echo "# hosts to allow split groups of elmsln based on college / group" >> $config
+echo "hostfile=$elmsln/config/scripts/drush-create-site/hosts" >> $config
+echo "# compiled drupal \"stacks\"" >> $config
+echo "stacks=$elmsln/core/dslmcode/stacks" >> $config
+echo "# location of drupal private files" >> $config
+echo "drupal_priv=$elmsln/config/private_files" >> $config
+echo "# configsdir" >> $config
+echo "configsdir=$elmsln/config" >> $config
 # capture automatically generated values that can be used to reference this
 # exact deployment of ELMSLN in the future
-cat "\n\n" >> $config
-cat "# ELMSLN INSTALLER GENERATED VALUES" >> $config
-cat "# Do not modify below this line" >> $config
+echo "\n\n" >> $config
+echo "# ELMSLN INSTALLER GENERATED VALUES" >> $config
+echo "# Do not modify below this line" >> $config
 # capture install time; this could be used in the future similar to the
 # drup timestamping to see if there are structural upgrade .sh commands needed
 # contextually based on when we are installed. This will start to allow for
 # hook_update_n style updates but at a bash / deployment level.
 installed="$(timestamp)"
-cat "elmsln_installed='${installed}'" >> $config
+echo "elmsln_installed='${installed}'" >> $config
 uuid="$(getuuid)"
 # a uuid which data can be related on
-cat "elmsln_uuid='${uuid}'" >> $config
+echo "elmsln_uuid='${uuid}'" >> $config
 
 # allow for opt in participation in our impact program
 elmslnecho "Would you like to send anonymous usage statistics to http://elmsln.org for data visualization purposes? (type yes or anything else to opt out)"
@@ -234,10 +240,10 @@ read yesprompt
 # ensure they type yes, this is a big deal command
 if [[ $yesprompt == 'yes' ]]; then
   # include this instance in our statistics program
-  cat "elmsln_stats_program='yes'" >> $config
+  echo "elmsln_stats_program='yes'" >> $config
 else
   # we respect privacy even if it leads to less cool visualizations :)
-  cat "elmsln_stats_program='no'" >> $config
+  echo "elmsln_stats_program='no'" >> $config
 fi
 
 # performance / recommended settings
@@ -261,10 +267,10 @@ chmod 744 /usr/local/bin/drush-create-site/rm-site.sh
 homebash="${HOME}/.bashrc"
 touch $homebash
 ln -s /var/www/elmsln ~/elmsln
-cat "alias g='git'" >> $homebash
-cat "alias d='drush'" >> $homebash
-cat "alias l='ls -laHD'" >> $homebash
-cat "alias drs='/usr/local/bin/drush-create-site/rm-site.sh'" >> $homebash
+echo "alias g='git'" >> $homebash
+echo "alias d='drush'" >> $homebash
+echo "alias l='ls -laHD'" >> $homebash
+echo "alias drs='/usr/local/bin/drush-create-site/rm-site.sh'" >> $homebash
 
 # setup drush
 curl -sS https://getcomposer.org/installer | php
@@ -291,7 +297,7 @@ sed 's/YOURUNIT.edu/${address}/g' $domains > $domains
 sed 's/DATA./${serviceprefix}/g' $domains > $domains
 
 # attempt to author the https domain if they picked it, let's hope everyone does
-if [[ $protocol == 'https']]; then
+if [[ $protocol == 'https' ]]; then
   sec=${domains/.conf/_secure.conf}
   cp $domains $sec
   # replace referencese to port :80 w/ 443
