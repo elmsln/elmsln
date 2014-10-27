@@ -4,6 +4,20 @@
 # Only user this to initially setup the system as it will add in jobs
 # that would fail after the fact.
 
+# provide messaging colors for output to console
+txtbld=$(tput bold)             # Bold
+bldgrn=${txtbld}$(tput setaf 2) #  green
+bldred=${txtbld}$(tput setaf 1) #  red
+txtreset=$(tput sgr0)
+elmslnecho(){
+  echo "${bldgrn}$1${txtreset}"
+  return 1
+}
+elmslnwarn(){
+  echo "${bldred}$1${txtreset}"
+  return 1
+}
+
 # where am i? move to where I am. This ensures source is properly sourced
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 cd $DIR
@@ -12,19 +26,19 @@ source ../../config/scripts/drush-create-site/config.cfg
 
 #test for empty vars. if empty required var -- exit
 if [ -z $fileloc ]; then
-  echo "please update your config.cfg file, file location variable missing"
+  elmslnwarn "please update your config.cfg file, file location variable missing"
   exit 1
 fi
 if [ -z $site_email ]; then
-  echo "please update your config.cfg file, site email variable missing"
+  elmslnwarn "please update your config.cfg file, site email variable missing"
   exit 1
 fi
 if [ -z $admin ]; then
-  echo "please update your config.cfg file, admin email variable missing"
+  elmslnwarn "please update your config.cfg file, admin email variable missing"
   exit 1
 fi
 if [ -z $webdir ]; then
-  echo "please update your config.cfg file, webdir variable missing"
+  elmslnwarn "please update your config.cfg file, webdir variable missing"
   exit 1
 fi
 
@@ -151,6 +165,9 @@ sudo chown $USER:$USER $sitedir/default/settings.php
 sudo chown $USER:$USER $sitedir/online/$host/settings.php
 sudo chmod -R 755 $sitedir/online/$host/settings.php
 
+# establish these values real quick so its more readable below
+online_domain="online.${address}"
+online_service_domain="${serviceprefix}online.${serviceaddress}"
 #add site to the sites array
 echo "\$sites = array(" >> $sitedir/sites.php
 echo "  '$online_domain' => 'online/$host'," >> $sitedir/sites.php
@@ -240,26 +257,26 @@ sudo chown -R $wwwuser:$webgroup $sitedir/online/$host/files
 sudo find $configsdir/stacks/ -type d -name files | sudo xargs chown -R $wwwuser:$webgroup
 
 # a message so you know where my head is at. you get candy if you reference this
-  echo "╔═══════════════════════════════════════════════════════════════╗"
-  echo "║           ____  Welcome to      ____                          ║"
-  echo "║          |     |      /\  /\   /     |     |\   |             ║"
-  echo "║          |____ |     |  \/  |  \___  |     | \  |             ║"
-  echo "║          |     |     |      |      \ |     |  \ |             ║"
-  echo "║          |____ |____ |      |  ____/ |____ |   \|             ║"
-  echo "║                                                               ║"
-  echo "╟───────────────────────────────────────────────────────────────╢"
-  echo "║ If you are still having problems you may submit an issue at   ║"
-  echo "║   http://github.com/btopro/elmsln/issues                      ║"
-  echo "╟───────────────────────────────────────────────────────────────╢"
-  echo "║ NOTES                                                         ║"
-  echo "║ There is a module that was authored during installation at    ║"
-  echo "║ config/shared/drupal-7.x/modules/_elmsln_scripted             ║"
-  echo "║ You may want to open this up and review it but it is your     ║"
-  echo "║ connection keychain for how all the webservices talk.         ║"
-  echo "║                                                               ║"
-  echo "╠═══════════════════════════════════════════════════════════════╣"
-  echo "║ Use this link to access the Course Information System:        ║"
-  echo "          $protocol://$online_domain                             "
-  echo "║                                                               ║"
-  echo "║Welcome to the Singularity of edtech.. build the future..      ║"
-  echo "╚═══════════════════════════════════════════════════════════════╝"
+  elmslnecho "╔═══════════════════════════════════════════════════════════════╗"
+  elmslnecho "║           ____  Welcome to      ____                          ║"
+  elmslnecho "║          |     |      /\  /\   /     |     |\   |             ║"
+  elmslnecho "║          |____ |     |  \/  |  \___  |     | \  |             ║"
+  elmslnecho "║          |     |     |      |      \ |     |  \ |             ║"
+  elmslnecho "║          |____ |____ |      |  ____/ |____ |   \|             ║"
+  elmslnecho "║                                                               ║"
+  elmslnecho "╟───────────────────────────────────────────────────────────────╢"
+  elmslnecho "║ If you are still having problems you may submit issues to     ║"
+  elmslnecho "║   http://github.com/btopro/elmsln/issues                      ║"
+  elmslnecho "╟───────────────────────────────────────────────────────────────╢"
+  elmslnecho "║ NOTES                                                         ║"
+  elmslnecho "║ There is a module that was authored during installation at    ║"
+  elmslnecho "║ config/shared/drupal-7.x/modules/_elmsln_scripted             ║"
+  elmslnecho "║ You may want to open this up and review it but it is your     ║"
+  elmslnecho "║ connection keychain for how all the webservices talk.         ║"
+  elmslnecho "║                                                               ║"
+  elmslnecho "╠═══════════════════════════════════════════════════════════════╣"
+  elmslnecho "║ Use this link to access the Course Information System:        ║"
+  elmslnecho "          $protocol://$online_domain                             "
+  elmslnecho "║                                                               ║"
+  elmslnecho "║Welcome to the Singularity of edtech.. build the future..      ║"
+  elmslnecho "╚═══════════════════════════════════════════════════════════════╝"
