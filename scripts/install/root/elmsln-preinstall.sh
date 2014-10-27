@@ -37,7 +37,7 @@ getuuid(){
 # check that we are the root user
 if [ "$EUID" -ne 0 ] then
   elmslnwarn "Please run as root"
-  exit
+  exit 0
 fi
 # we assume you install it in the place that we like
 cd /var/www/elmsln

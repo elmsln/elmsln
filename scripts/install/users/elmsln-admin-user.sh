@@ -20,9 +20,9 @@ elmslnwarn(){
   return 1
 }
 # check that we are NOT root user
-if [[ $EUID -eq 0 ]]; then
+if [[ $EUID -eq 0 ]] then
   elmslnwarn "Don't run this as root!"
-  exit
+  exit 0
 fi
 
 # modify the user's home directory to run drush and make life lazy
