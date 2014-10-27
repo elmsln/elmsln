@@ -49,8 +49,8 @@ before_script:
   - sudo mkdir -p /var/www
   - cd /var/www
   - sudo mkdir elmsln
-  - sudo chown travis:travis elmsln
   - sudo git clone https://github.com/btopro/elmsln.git
+  - sudo chown -R travis:travis elmsln
   - cd /var/www/elmsln
   - git pull origin crazystuff
   - cat /home/travis/legacy/scripts/preinstall/values.sh | bash /var/www/elmsln/scripts/install/root/elmsln-preinstall.sh
