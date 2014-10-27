@@ -130,7 +130,7 @@ else
   elmslnecho "Is this some flavor of linux like Ubuntu? (yes for travis, vagrant, etc)"
   read likeubuntu
   if [[ $likeubuntu == 'yes' ]]; then
-    $os='2'
+    os='2'
   fi
 fi
 
