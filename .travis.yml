@@ -29,7 +29,7 @@ before_install:
   - EXIT_VALUE=0
 
   - sudo apt-get update > /dev/null
-  - sudo apt-get install uuid -y --force-yes
+  - sudo apt-get install -y --force-yes uuid uuid-runtime
   - composer self-update
 install:
     # install php packages required for running a web server from drush on php 5.3
