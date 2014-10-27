@@ -35,7 +35,7 @@ getuuid(){
   uuidgen -rt
 }
 # check that we are the root user
-if [ "$EUID" -ne 0 ] then
+if [[ $EUID -ne 0 ]]; then
   elmslnwarn "Please run as root"
   exit 0
 fi
@@ -56,7 +56,7 @@ git commit -m "initial ELMSLN config"
 elmslnecho "Enter the git repo you want to keep config in sync with: (ex: {user}@{YOURPRIVATEREPO}:YOU/elmsln-config-YOURUNIT.git)"
 read gitrepo
 # ensure they type yes, this is a big deal command
-if [ "$gitrepo" != "" ] then
+if [ "$gitrepo" != "" ]; then
   elmslnecho "attempting to push current structure to the repo listed"
   git remote add origin $gitrepo
   git push origin master
@@ -71,7 +71,7 @@ elmslnecho "1. RHEL / CentOS"
 elmslnecho "2. Ubuntu"
 elmslnecho "3. other"
 read os
-if [ $os == '1' ] then
+if [ $os == '1' ]; then
   elmslnecho "treating this like a RHEL / CentOS install"
   wwwuser='apache'
   elmslnecho "www user automatically set to ${wwwuser}"
@@ -87,7 +87,7 @@ if [ $os == '1' ] then
   elmslnecho "domains automatically set to ${domains}"
   zzz_performance="/etc/httpd/conf.d/zzz_performance.conf"
   elmslnecho "apache perforamnce tuning automatically set to ${zzz_performance}"
-elif [ $os == '2' ] then
+elif [ $os == '2' ]; then
   elmslnecho "treating this like ubuntu"
   wwwuser='www-data'
   elmslnecho "www user automatically set to ${wwwuser}"
@@ -232,7 +232,7 @@ cat "elmsln_uuid='${uuid}'" >> $config
 elmslnecho "Would you like to send anonymous usage statistics to http://elmsln.org for data visualization purposes? (type yes or anything else to opt out)"
 read yesprompt
 # ensure they type yes, this is a big deal command
-if [ $yesprompt == 'yes' ] then
+if [ $yesprompt == 'yes' ]; then
   # include this instance in our statistics program
   cat "elmsln_stats_program='yes'" >> $config
 else
@@ -248,7 +248,7 @@ cat /var/www/elmsln/docs/crontab.txt >> $crontab
 cp /var/www/elmsln/docs/zzz_performance.conf $zzz_performance
 
 # account for ubuntu being a little different here when it comes to apache
-if [ $os == '2' ] then
+if [ $os == '2' ]; then
   ln -s /etc/apache2/sites-available/elmsln.conf /etc/apache2/sites-enabled/elmsln.conf
   ln -s /etc/apache2/sites-available/zzz_performance.conf /etc/apache2/sites-enabled/zzz_performance.conf
 fi
@@ -274,7 +274,7 @@ mkdir $HOME/.drush/
 # copy in the elmsln server stuff as the baseline for .drush
 cp -r /var/www/elmsln/scripts/drush/server/* $HOME/.drush/
 # stupid ubuntu drush thing to work with sudo
-if [ $os == '2' ] then
+if [ $os == '2' ]; then
   ln -s /root/.composer/vendor/drush/drush /usr/share/drush
 fi
 drush cc drush
@@ -289,7 +289,7 @@ sed 's/YOURUNIT.edu/${address}/g' $domains > $domains
 sed 's/DATA./${serviceprefix}/g' $domains > $domains
 
 # attempt to author the https domain if they picked it, let's hope everyone does
-if [ $protocol == 'https'] then
+if [ $protocol == 'https']; then
   sec=${domains/.conf/_secure.conf}
   cp $domains $sec
   # replace referencese to port :80 w/ 443
@@ -302,7 +302,7 @@ fi
 # test apache
 apachectl configtest
 # ubuntu restarts differently
-if [ $os == '2' ] then
+if [ $os == '2' ]; then
   service apache2 restart
 else
   /etc/init.d/httpd restart

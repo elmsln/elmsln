@@ -20,7 +20,7 @@ elmslnwarn(){
   return 1
 }
 # check that we are NOT root user
-if [[ $EUID -eq 0 ]] then
+if [[ $EUID -eq 0 ]]; then
   elmslnwarn "Don't run this as root!"
   exit 0
 fi
