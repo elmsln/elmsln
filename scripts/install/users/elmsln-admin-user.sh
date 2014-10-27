@@ -27,6 +27,7 @@ fi
 
 # modify the user's home directory to run drush and make life lazy
 ln -s /var/www/elmsln $HOME/elmsln
+touch $HOME/.bashrc
 cat "alias g='git'" >> $HOME/.bashrc
 cat "alias d='drush'" >> $HOME/.bashrc
 cat "alias l='ls -laHD'" >> $HOME/.bashrc

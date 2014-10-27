@@ -29,12 +29,11 @@ before_install:
   - EXIT_VALUE=0
 
   - sudo apt-get update > /dev/null
-
+  - sudo apt-get install uuid -y --force-yes
   - composer self-update
 install:
     # install php packages required for running a web server from drush on php 5.3
   - sudo apt-get install -y --force-yes php5-cgi php5-mysql
-
   # install drush globally
   - composer global require drush/drush:6.*
 

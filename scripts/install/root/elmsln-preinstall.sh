@@ -232,7 +232,7 @@ cat "elmsln_uuid='${uuid}'" >> $config
 elmslnecho "Would you like to send anonymous usage statistics to http://elmsln.org for data visualization purposes? (type yes or anything else to opt out)"
 read yesprompt
 # ensure they type yes, this is a big deal command
-if [ $yesprompt == 'yes' ]; then
+if [[ $yesprompt == 'yes' ]]; then
   # include this instance in our statistics program
   cat "elmsln_stats_program='yes'" >> $config
 else
@@ -258,23 +258,25 @@ ln -s /var/www/elmsln/scripts/drush-create-site /usr/local/bin/drush-create-site
 chmod 744 /usr/local/bin/drush-create-site/rm-site.sh
 
 # shortcuts for ease of use
-ln -s /var/www/elmsln $HOME/elmsln
-cat "alias g='git'" >> $HOME/.bashrc
-cat "alias d='drush'" >> $HOME/.bashrc
-cat "alias l='ls -laHD'" >> $HOME/.bashrc
-cat "alias drs='/usr/local/bin/drush-create-site/rm-site.sh'" >> $HOME/.bashrc
+homebash="${HOME}/.bashrc"
+touch $homebash
+ln -s /var/www/elmsln ~/elmsln
+cat "alias g='git'" >> $homebash
+cat "alias d='drush'" >> $homebash
+cat "alias l='ls -laHD'" >> $homebash
+cat "alias drs='/usr/local/bin/drush-create-site/rm-site.sh'" >> $homebash
 
 # setup drush
 curl -sS https://getcomposer.org/installer | php
 mv composer.phar /usr/local/bin/composer
-sed -i '1i export PATH="$HOME/.composer/vendor/bin:$PATH"' $HOME/.bashrc
-source $HOME/.bashrc
+sed -i '1i export PATH="$HOME/.composer/vendor/bin:$PATH"' $homebash
+source $homebash
 composer global require drush/drush:6.*
 mkdir $HOME/.drush/
 # copy in the elmsln server stuff as the baseline for .drush
 cp -r /var/www/elmsln/scripts/drush/server/* $HOME/.drush/
 # stupid ubuntu drush thing to work with sudo
-if [ $os == '2' ]; then
+if [[ $os == '2' ]]; then
   ln -s /root/.composer/vendor/drush/drush /usr/share/drush
 fi
 drush cc drush
@@ -289,7 +291,7 @@ sed 's/YOURUNIT.edu/${address}/g' $domains > $domains
 sed 's/DATA./${serviceprefix}/g' $domains > $domains
 
 # attempt to author the https domain if they picked it, let's hope everyone does
-if [ $protocol == 'https']; then
+if [[ $protocol == 'https']]; then
   sec=${domains/.conf/_secure.conf}
   cp $domains $sec
   # replace referencese to port :80 w/ 443
@@ -299,12 +301,12 @@ else
   elmslnwarn "You really should use https and invest in certs... seriously do it!"
 fi
 
-# test apache
-apachectl configtest
 # ubuntu restarts differently
-if [ $os == '2' ]; then
+if [[ $os == '2' ]]; then
+  apache2ctl configtest
   service apache2 restart
 else
+  apachectl configtest
   /etc/init.d/httpd restart
 fi
 
