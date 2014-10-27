@@ -35,7 +35,7 @@ getuuid(){
   uuidgen -rt
 }
 # check that we are the root user
-if [ "$EUID" -ne 0 ]; then
+if [ "$EUID" -ne 0 ] then
   elmslnwarn "Please run as root"
   exit
 fi
@@ -56,7 +56,7 @@ git commit -m "initial ELMSLN config"
 elmslnecho "Enter the git repo you want to keep config in sync with: (ex: {user}@{YOURPRIVATEREPO}:YOU/elmsln-config-YOURUNIT.git)"
 read gitrepo
 # ensure they type yes, this is a big deal command
-if [ "$gitrepo" != "" ]; then
+if [ "$gitrepo" != "" ] then
   elmslnecho "attempting to push current structure to the repo listed"
   git remote add origin $gitrepo
   git push origin master
@@ -71,8 +71,7 @@ elmslnecho "1. RHEL / CentOS"
 elmslnecho "2. Ubuntu"
 elmslnecho "3. other"
 read os
-if [ $os == '1' ]
-then
+if [ $os == '1' ] then
   elmslnecho "treating this like a RHEL / CentOS install"
   wwwuser='apache'
   elmslnecho "www user automatically set to ${wwwuser}"
@@ -88,8 +87,7 @@ then
   elmslnecho "domains automatically set to ${domains}"
   zzz_performance="/etc/httpd/conf.d/zzz_performance.conf"
   elmslnecho "apache perforamnce tuning automatically set to ${zzz_performance}"
-elif [ $os == '2' ]
-then
+elif [ $os == '2' ] then
   elmslnecho "treating this like ubuntu"
   wwwuser='www-data'
   elmslnecho "www user automatically set to ${wwwuser}"
@@ -135,7 +133,7 @@ fi
 # do an automatic creation flag to establish this stuff without any input!
 
 # work against the config file
-$config='/var/www/elmsln/config/scripts/drush-create-site/config.cfg'
+config='/var/www/elmsln/config/scripts/drush-create-site/config.cfg'
 touch $config
 # step through creation of the config.cfg file
 cat "#university / institution deploying this instance" >> $config
@@ -237,7 +235,7 @@ read yesprompt
 if [ $yesprompt == 'yes' ] then
   # include this instance in our statistics program
   cat "elmsln_stats_program='yes'" >> $config
-  else
+else
   # we respect privacy even if it leads to less cool visualizations :)
   cat "elmsln_stats_program='no'" >> $config
 fi
@@ -291,7 +289,7 @@ sed 's/YOURUNIT.edu/${address}/g' $domains > $domains
 sed 's/DATA./${serviceprefix}/g' $domains > $domains
 
 # attempt to author the https domain if they picked it, let's hope everyone does
-if [ $protocol == 'https']; then
+if [ $protocol == 'https'] then
   sec=${domains/.conf/_secure.conf}
   cp $domains $sec
   # replace referencese to port :80 w/ 443

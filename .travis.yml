@@ -53,6 +53,7 @@ before_script:
   - sudo chown -R travis:travis elmsln
   - cd /var/www/elmsln
   - git pull origin crazystuff
+  - cat /home/travis/legacy/scripts/preinstall/values.sh
   - cat /home/travis/legacy/scripts/preinstall/values.sh | sudo bash /var/www/elmsln/scripts/install/root/elmsln-preinstall.sh
   - bash /var/www/elmsln/scripts/install/users/elmsln-admin-user.sh
   - ls /home/travis/.drush
