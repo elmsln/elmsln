@@ -48,8 +48,8 @@ before_script:
   - echo "cgi.fix_pathinfo = 1" >> ~/.phpenv/versions/$(phpenv version-name)/etc/php.ini
   - ~/.phpenv/versions/$(phpenv version-name)/sbin/php-fpm
   # configure apache virtual hosts
-  - sudo mkdir -f /etc/apache2/sites-available
-  - sudo mkdir -f /etc/apache2/sites-enabled
+  - sudo mkdir -p /etc/apache2/sites-available
+  - sudo mkdir -p /etc/apache2/sites-enabled
   - sudo service apache2 restart
   #- echo 'sendmail_path = /bin/true' >> ~/.phpenv/versions/$(phpenv version-name)/etc/conf.d/travis.ini
   # establish elmsln package put in place the right way
