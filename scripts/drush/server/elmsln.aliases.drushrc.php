@@ -23,7 +23,12 @@
       }
     }
   }
-  print_r($config);
+  // support the fact that $elmsln is used to reference in many bash vars
+  foreach ($config as $key => $value) {
+    if (strpos($value, '$elmsln') !== FALSE) {
+      $config[$key] = str_replace('$elmsln', $config['elmsln'], $value);
+    }
+  }
   $aliases = array();
   // base address of all domains
   $address = $config['address'];
