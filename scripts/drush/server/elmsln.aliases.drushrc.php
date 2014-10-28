@@ -19,8 +19,11 @@
       $tmp = explode('=', $line);
       // ensure we have 2 settings before doing this
       if (count($tmp) == 2) {
-        // strip encapsulation if it exists
-        $config[$tmp[0]] = str_replace("'", '', $tmp[1]);
+        // never pass around the dbsu
+        if (!in_array($tmp[0], array('dbsu', 'dbsupw')) {
+          // strip encapsulation if it exists
+          $config[$tmp[0]] = str_replace("'", '', $tmp[1]);
+        }
       }
     }
   }
