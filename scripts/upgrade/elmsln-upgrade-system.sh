@@ -13,11 +13,9 @@ bldred=${txtbld}$(tput setaf 1) #  red
 txtreset=$(tput sgr0)
 elmslnecho(){
   echo "${bldgrn}$1${txtreset}"
-  return 1
 }
 elmslnwarn(){
   echo "${bldred}$1${txtreset}"
-  return 1
 }
 # Define seconds timestamp
 timestamp(){

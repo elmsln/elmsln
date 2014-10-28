@@ -13,11 +13,9 @@ bldred=${txtbld}$(tput setaf 1) #  red
 txtreset=$(tput sgr0)
 elmslnecho(){
   echo "${bldgrn}$1${txtreset}"
-  return 1
 }
 elmslnwarn(){
   echo "${bldred}$1${txtreset}"
-  return 1
 }
 # check that we are NOT root user
 if [[ $EUID -eq 0 ]]; then
@@ -41,10 +39,9 @@ mkdir $HOME/.drush/
 
 # copy in the elmsln server stuff as the baseline for .drush
 cp -r /var/www/elmsln/scripts/drush/server/* $HOME/.drush/
-
+# clear caches to force a rebuild of the functions in there
 drush cc drush
-
+# list the available aliases
 drush sa
-
-elmslnecho "if you see targets listed above other then @none then you are good to go (otherwise elmsln still needs to be fully installed). We are going to log you out but issue the following after you log back in to play with your new super powers:"
+elmslnecho "if you see targets listed above other then @none then you are good to go (otherwise elmsln still needs to be fully installed via bash /var/www/elmsln/scripts/install/elmsln-install.sh). Log out, then issue the following after you log back in to play with your new super powers:"
 elmslnecho "d @online status"

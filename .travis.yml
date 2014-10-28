@@ -64,6 +64,8 @@ before_script:
   - git pull origin crazystuff
   - cat /home/travis/legacy/scripts/preinstall/values.sh
   - cat /home/travis/legacy/scripts/preinstall/values.sh | sudo bash /var/www/elmsln/scripts/install/root/elmsln-preinstall.sh
+  # need to destroy the .drush directory so we can test this function too
+  - sudo rm -rf /home/travis/.drush
   - bash /var/www/elmsln/scripts/install/users/elmsln-admin-user.sh
   - ls /home/travis/.drush
   - cat /home/travis/.bashrc
