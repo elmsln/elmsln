@@ -23,6 +23,7 @@
       }
     }
   }
+  print_r($config);
   $aliases = array();
   // base address of all domains
   $address = $config['address'];
