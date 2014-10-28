@@ -68,6 +68,7 @@ before_script:
   - ls /home/travis/.drush
   - cat /home/travis/.bashrc
   - cat /var/www/elmsln/config/scripts/drush-create-site/config.cfg
+  - cat /var/www/elmsln/docs/php.txt >> ~/.phpenv/versions/$(phpenv version-name)/etc/php.ini
 script:
   # run the installer
   - bash /var/www/elmsln/scripts/install/elmsln-install.sh
