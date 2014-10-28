@@ -67,10 +67,13 @@ before_script:
   # need to destroy the .drush directory so we can test this function too
   - sudo rm -rf /home/travis/.drush
   - bash /var/www/elmsln/scripts/install/users/elmsln-admin-user.sh
+  # list whats in .drush, .bashrc and the generated config file to verify they worked
   - ls /home/travis/.drush
   - cat /home/travis/.bashrc
   - cat /var/www/elmsln/config/scripts/drush-create-site/config.cfg
+  # due to weirdness in travis w/ php versions we have to do it this way
   - cat /var/www/elmsln/docs/php.txt >> ~/.phpenv/versions/$(phpenv version-name)/etc/php.ini
+  - sudo service apache2 restart
 script:
   # run the installer
   - bash /var/www/elmsln/scripts/install/elmsln-install.sh
