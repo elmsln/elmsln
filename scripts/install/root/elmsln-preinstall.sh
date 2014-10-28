@@ -37,7 +37,7 @@ getuuid(){
 # check that we are the root user
 if [[ $EUID -ne 0 ]]; then
   elmslnwarn "Please run as root"
-  exit 0
+  exit 1
 fi
 # we assume you install it in the place that we like
 cd /var/www/elmsln
@@ -336,4 +336,3 @@ fi
 elmslnecho "${domains} was automatically generated but you may want to verify the file regardless of configtest saying everything is ok or not."
 elmslnecho "Everything should be in place, we are going to log you out now. Log back in and run the following:"
 elmslnecho "bash /var/www/elmsln/scripts/install/elmsln-install.sh"
-return 1
