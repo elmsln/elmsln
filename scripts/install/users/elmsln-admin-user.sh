@@ -43,5 +43,5 @@ cp -r /var/www/elmsln/scripts/drush/server/* $HOME/.drush/
 drush cc drush
 # list the available aliases
 drush sa
-elmslnecho "if you see targets listed above other then @none then you are good to go (otherwise elmsln still needs to be fully installed via bash /var/www/elmsln/scripts/install/elmsln-install.sh). Log out, then issue the following after you log back in to play with your new super powers:"
+elmslnecho "if you see targets listed above other then 'none' then you are good to go (otherwise elmsln still needs to be fully installed via bash /var/www/elmsln/scripts/install/elmsln-install.sh). Log out, then issue the following after you log back in to play with your new super powers:"
 elmslnecho "d @online status"

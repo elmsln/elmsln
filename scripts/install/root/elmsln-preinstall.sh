@@ -199,12 +199,12 @@ read webgroup
 echo "webgroup='${webgroup}'" >> $config
 
 # append all these settings that we tell people NOT to modify
-echo "\n" >> $config
+echo "" >> $config
 echo "# uncomment the following if you are not using SSO" >> $config
 echo "#send_requester_pw=yes" >> $config
 echo "# where is elmsln installed, not recommended to move from here" >> $config
 echo "elmsln=/var/www/elmsln" >> $config
-echo "\n" >> $config
+echo "" >> $config
 echo "# these vars shouldn't need changing if $elmsln is set properly" >> $config
 echo "webdir=$elmsln/domains" >> $config
 echo "# jobs location where job files write to" >> $config
@@ -219,7 +219,7 @@ echo "# configsdir" >> $config
 echo "configsdir=$elmsln/config" >> $config
 # capture automatically generated values that can be used to reference this
 # exact deployment of ELMSLN in the future
-echo "\n\n" >> $config
+echo "" >> $config
 echo "# ELMSLN INSTALLER GENERATED VALUES" >> $config
 echo "# Do not modify below this line" >> $config
 # capture install time; this could be used in the future similar to the
