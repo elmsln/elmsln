@@ -328,10 +328,8 @@ drush cc drush
 
 # ubuntu restarts differently
 if [[ $os == '2' ]]; then
-  apache2ctl configtest
   service apache2 restart
 else
-  apachectl configtest
   /etc/init.d/httpd restart
 fi
 
