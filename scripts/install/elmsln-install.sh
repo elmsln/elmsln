@@ -113,6 +113,8 @@ fi
 # make sure drush is happy before we begin drush calls
 drush cc drush
 sudo chown -R $USER:$USER $HOME/.drush
+# make sure the entire directory is writable by the current user
+sudo chown -R $USER:$USER $elmsln
 
 # random password for defaultdbo
 dbpw=''
@@ -255,26 +257,26 @@ sudo chown -R $wwwuser:$webgroup $sitedir/online/$host/files
 sudo find $configsdir/stacks/ -type d -name files | sudo xargs chown -R $wwwuser:$webgroup
 
 # a message so you know where my head is at. you get candy if you reference this
-  elmslnecho "╔═══════════════════════════════════════════════════════════════╗"
-  elmslnecho "║           ____  Welcome to      ____                          ║"
-  elmslnecho "║          |     |      /\  /\   /     |     |\   |             ║"
-  elmslnecho "║          |____ |     |  \/  |  \___  |     | \  |             ║"
-  elmslnecho "║          |     |     |      |      \ |     |  \ |             ║"
-  elmslnecho "║          |____ |____ |      |  ____/ |____ |   \|             ║"
-  elmslnecho "║                                                               ║"
-  elmslnecho "╟───────────────────────────────────────────────────────────────╢"
-  elmslnecho "║ If you are still having problems you may submit issues to     ║"
-  elmslnecho "║   http://github.com/btopro/elmsln/issues                      ║"
-  elmslnecho "╟───────────────────────────────────────────────────────────────╢"
-  elmslnecho "║ NOTES                                                         ║"
-  elmslnecho "║ There is a module that was authored during installation at    ║"
-  elmslnecho "║ config/shared/drupal-7.x/modules/_elmsln_scripted             ║"
-  elmslnecho "║ You may want to open this up and review it but it is your     ║"
-  elmslnecho "║ connection keychain for how all the webservices talk.         ║"
-  elmslnecho "║                                                               ║"
-  elmslnecho "╠═══════════════════════════════════════════════════════════════╣"
-  elmslnecho "║ Use this link to access the Course Information System:        ║"
-  elmslnecho "          $protocol://$online_domain                             "
-  elmslnecho "║                                                               ║"
-  elmslnecho "║Welcome to the Singularity of edtech.. build the future..      ║"
-  elmslnecho "╚═══════════════════════════════════════════════════════════════╝"
+elmslnecho "╔═══════════════════════════════════════════════════════════════╗"
+elmslnecho "║           ____  Welcome to      ____                          ║"
+elmslnecho "║          |     |      /\  /\   /     |     |\   |             ║"
+elmslnecho "║          |____ |     |  \/  |  \___  |     | \  |             ║"
+elmslnecho "║          |     |     |      |      \ |     |  \ |             ║"
+elmslnecho "║          |____ |____ |      |  ____/ |____ |   \|             ║"
+elmslnecho "║                                                               ║"
+elmslnecho "╟───────────────────────────────────────────────────────────────╢"
+elmslnecho "║ If you are still having problems you may submit issues to     ║"
+elmslnecho "║   http://github.com/btopro/elmsln/issues                      ║"
+elmslnecho "╟───────────────────────────────────────────────────────────────╢"
+elmslnecho "║ NOTES                                                         ║"
+elmslnecho "║ There is a module that was authored during installation at    ║"
+elmslnecho "║ config/shared/drupal-7.x/modules/_elmsln_scripted             ║"
+elmslnecho "║ You may want to open this up and review it but it is your     ║"
+elmslnecho "║ connection keychain for how all the webservices talk.         ║"
+elmslnecho "║                                                               ║"
+elmslnecho "╠═══════════════════════════════════════════════════════════════╣"
+elmslnecho "║ Use this link to access the Course Information System:        ║"
+elmslnecho "          $protocol://$online_domain                             "
+elmslnecho "║                                                               ║"
+elmslnecho "║Welcome to the Singularity of edtech.. build the future..      ║"
+elmslnecho "╚═══════════════════════════════════════════════════════════════╝"
