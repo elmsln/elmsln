@@ -19,7 +19,8 @@
       $tmp = explode('=', $line);
       // ensure we have 2 settings before doing this
       if (count($tmp) == 2) {
-        $config[$tmp[0]] = $tmp[1];
+        // strip encapsulation if it exists
+        $config[$tmp[0]] = str_replace("'", '', $tmp[1]);
       }
     }
   }

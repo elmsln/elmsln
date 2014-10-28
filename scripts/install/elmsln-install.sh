@@ -257,7 +257,7 @@ sudo chown -R $wwwuser:$webgroup $sitedir/online/$host/files
 sudo find $configsdir/stacks/ -type d -name files | sudo xargs chown -R $wwwuser:$webgroup
 
 # a message so you know where my head is at. you get candy if you reference this
-echo "╔═══════════════════════════════════════════════════════════════╗"
+echo "╔───────────────────────────────────────────────────────────────╗"
 elmslnecho "║           ____  Welcome to      ____                          ║"
 elmslnecho "║          |     |      /\  /\   /     |     |\   |             ║"
 elmslnecho "║          |____ |     |  \/  |  \___  |     | \  |             ║"
@@ -274,9 +274,9 @@ elmslnecho "║ config/shared/drupal-7.x/modules/_elmsln_scripted             �
 elmslnecho "║ You may want to open this up and review it but it is your     ║"
 elmslnecho "║ connection keychain for how all the webservices talk.         ║"
 elmslnecho "║                                                               ║"
-echo "╠═══════════════════════════════════════════════════════════════╣"
+echo "╠───────────────────────────────────────────────────────────────╣"
 elmslnecho "║ Use this link to access the Course Information System:        ║"
 elmslnecho "          $protocol://$online_domain                             "
 elmslnecho "║                                                               ║"
 elmslnecho "║Welcome to the Singularity of edtech.. build the future..      ║"
-echo "╚═══════════════════════════════════════════════════════════════╝"
+echo "╚───────────────────────────────────────────────────────────────╝"
