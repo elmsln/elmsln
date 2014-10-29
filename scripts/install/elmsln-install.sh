@@ -262,8 +262,7 @@ sudo rm /tmp/.htaccess
 # forcibly apply 1st ELMSLN global update since it isn't fixed in CIS
 # this makes it so that we don't REQUIRE multi-sites to run CIS (stupid)
 # while still fixing the issue with httprl when used in multisites
-drush -y --uri=$protocol://$online_domain cook d7_elmsln_global_1413916953
-
+drush -y --uri=$protocol://$online_domain cook d7_elmsln_global_1413916953 --dr-locations=/var/www/elmsln/scripts/upgrade/drush_recipes/d7/global
 # a message so you know where our head is at. you get candy if you reference this
 elmslnecho "╔───────────────────────────────────────────────────────────────╗"
 elmslnecho "║           ____  Welcome to      ____                          ║"

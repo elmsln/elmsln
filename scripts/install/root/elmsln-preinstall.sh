@@ -191,19 +191,19 @@ echo "dbsupw='${dbsupw}'" >> $config
 
 # this was read in from above or automatically supplied based on the system type
 echo "#www user, what does apache run as? www-data and apache are common" >> $config
-echo "wwwuser=${wwwuser}" >> $config
+echo "wwwuser='${wwwuser}'" >> $config
 
 echo "#webgroup, usually admin if sharing with other developers else leave root" >> $config
 elmslnecho "webgroup? (usually admin if sharing with other developers else leave root)"
 read webgroup
-echo "webgroup=${webgroup}" >> $config
+echo "webgroup='${webgroup}'" >> $config
 
 # append all these settings that we tell people NOT to modify
 echo "" >> $config
 echo "# uncomment the following if you are not using SSO" >> $config
 echo "#send_requester_pw=yes" >> $config
 echo "# where is elmsln installed, not recommended to move from here" >> $config
-echo "elmsln=/var/www/elmsln" >> $config
+echo "elmsln='/var/www/elmsln'" >> $config
 echo "" >> $config
 echo "# these vars shouldn't need changing if $elmsln is set properly" >> $config
 echo 'webdir=$elmsln/domains' >> $config
