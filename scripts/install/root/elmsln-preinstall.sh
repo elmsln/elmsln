@@ -306,7 +306,7 @@ touch .bashrc
 ln -s /var/www/elmsln elmsln
 echo "alias g='git'" >> .bashrc
 echo "alias d='drush'" >> .bashrc
-echo "alias l='ls -laHD'" >> .bashrc
+echo "alias l='ls -laHF'" >> .bashrc
 echo "alias drs='/usr/local/bin/drush-create-site/rm-site.sh'" >> .bashrc
 
 # setup drush
