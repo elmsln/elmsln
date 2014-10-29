@@ -2,11 +2,14 @@
 
 # Automated installation -- run the following for all prerequisits
 sudo -i
+
 mkdir -p /var/www/elmsln
 cd /var/www
 git clone https://github.com/btopro/elmsln.git
+cd elmsln
 git pull origin crazystuff
 bash /var/www/elmsln/scripts/install/root/elmsln-preinstall.sh
+
 logout
 
 # back to the normal user; you
