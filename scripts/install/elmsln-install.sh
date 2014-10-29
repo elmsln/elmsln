@@ -6,7 +6,7 @@
 
 # provide messaging colors for output to console
 txtbld=$(tput bold)             # Bold
-bldgrn=${txtbld}$(tput setaf 2) #  green
+bldgrn=$(tput setaf 2) #  green
 bldred=${txtbld}$(tput setaf 1) #  red
 txtreset=$(tput sgr0)
 elmslnecho(){
@@ -255,6 +255,13 @@ sudo chmod -R 755 $elmsln/config/jobs
 sudo chown -R $wwwuser:$webgroup $sitedir/online/$host/files
 # make sure webserver owns the files
 sudo find $configsdir/stacks/ -type d -name files | sudo xargs chown -R $wwwuser:$webgroup
+
+# clean up tmp directory .htaccess to make drupal happy
+sudo rm /tmp/.htaccess
+# forcibly apply 1st ELMSLN global update since it isn't fixed in CIS
+# this makes it so that we don't REQUIRE multi-sites to run CIS (stupid)
+# while still fixing the issue with httprl when used in multisites
+drush -y --uri=$protocol://$online_domain cook d7_elmsln_global_1413916953
 
 # a message so you know where our head is at. you get candy if you reference this
 elmslnecho "╔───────────────────────────────────────────────────────────────╗"
