@@ -1,6 +1,14 @@
+Version | PHP | Includes | Code Status
+------------- | ------  | --- | -------------------------- | -----------
+master | [master](https://travis-ci.org/btopro/elmsln)  | 5.3.0+ | Drupal 7.x, Piwik 2.x | <img src="https://travis-ci.org/btopro/elmsln.svg?branch=master">
+
 ELMSLN
 ==============
-This is the entire ELMS Learning Network as a repository.  It includes installation instructions for getting it stood up on your server as well as multiple git repositories for optimal management downstream.
+This is the ELMS Learning Network (ELMSLN) as a repository.  It includes installation instructions for getting it stood up on your server as well as multiple git repositories for optimal management downstream.
+
+ELMSLN is a network based approach to educational technology design and implementation. The notion is that its no longer about the next products, it's that you will always be needing to produce and innovate in new products. This is a platform to spur innovation while providing an easy to use system that can be integrated into any existing institution.
+
+Learn more about ELMSLN @ [elmsln.org](http://elmsln.org/)
 
 FAQ
 ==============
@@ -42,16 +50,13 @@ As soon as the blockers below are resolved (basically just time). If it helps yo
 Oct 16, 2014 - This time is fast approaching as the project is now a team of people distributed across institutions. There are 2 full time, 2 part time, and soon to be another 1-2 part time and 1-2 full time members involved. I anticipate this happening by the end of 2014 purely based on installed usage.
 
 ###Q. If that's true, what are the blockers for a stable release?
-1. Additional testing, particularly around the install script to get the whole thing automatically installed in different environments. this is used in production multiple places as is but additional UI and broader based user testing is always helpful. Currently we have installs on Ubuntu 12/14 (the install can be finicky sometimes) and RHEL 6.x / CentOS (working well) but we'd also like to support Debian.
-2. An expanded test plan run by travis-ci (minimal at the moment) as well as full test coverage for the cis_connector module.
-3. An enhanced / unified UX; we have a dedicated UX lead working on this in the MOOC / CIS platforms. Once these two stabilize the rest will fall into place (UX wise, platform wise they have been solid since early 2013).
-4. Additional testing and support for fractal networks (multiple ELMSLN deployments that act as 1). This is critical to hitting higher scale.
-5. Redesigned developer / project hub at http://elmsln.org website. This may sound silly but being able to find everything and keep up on the project is important for sustainability!
-6. Fix a known issue w/ nodes "calling home" in certain network configurations.
-7. General bug fix / QA as capabilities expand.
+1. An expanded test plan run by travis-ci (minimal at the moment) as well as full test coverage for the cis_connector module.
+2. An enhanced / unified UX; we have a dedicated UX lead working on this in the MOOC / CIS platforms. Once these two stabilize the rest will fall into place (UX wise, platform wise they have been solid since early 2013).
+3. Additional testing and support for fractal networks (multiple ELMSLN deployments that act as 1). This is critical to hitting higher scale.
+4. Redesigned developer / project hub at http://elmsln.org website. This may sound silly but being able to find everything and keep up on the project is important for sustainability!
 
 ###Q. How would you classify a first release?
-Stable. master has been stable with maybe 2 push exceptions in all of 2014. The many distributions of ELMS have been in usage for several months / years now. This ain't our first rodeo.
+Stable. master has been stable with maybe 2 exceptions in all of 2014. The many distributions of ELMS have been in usage for several months / years now. This ain't our first rodeo though we understand the desire for people to not be chasing the master branch.
 
 ###Q. How awesome is it to try and solve the edtech spaces biggest problem every day you walk into work?
 You have no idea and it is what attracts us to this work atmosphere. It rocks. Also who said anything about walking into work to solve these problems.. isn't it the weekend or late night or something right now?
