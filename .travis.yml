@@ -68,6 +68,7 @@ before_script:
   - bash /var/www/elmsln/scripts/install/users/elmsln-admin-user.sh
   # list whats in .drush, .bashrc and the generated config file to verify they worked
   - ls /home/travis/.drush
+  - sudo chown -R travis:travis /home/travis/.drush
   - cat /home/travis/.bashrc
   - cat /var/www/elmsln/config/scripts/drush-create-site/config.cfg
   # due to weirdness in travis w/ php versions we have to do it this way
