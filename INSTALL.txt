@@ -2,10 +2,15 @@
 
 # Automated installation -- run the following for all prerequisits
 sudo mkdir -p /var/www/elmsln
+cd /var/www
 sudo git clone https://github.com/btopro/elmsln.git
-sudo bash /var/www/elmsln/scripts/install/root/elmsln-preinstall.sh
-sudo rm -rf ~/.drush
-sudo chown -R $USER:$USER elmsln
+
+# login as root user
+sudo -i
+bash /var/www/elmsln/scripts/install/root/elmsln-preinstall.sh
+rm -rf ~/.drush
+chown -R $USER:$USER elmsln
+logout
 
 # run this to establish elmsln packages for the current user
 bash /var/www/elmsln/scripts/install/users/elmsln-admin-user.sh
