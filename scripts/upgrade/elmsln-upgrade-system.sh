@@ -63,8 +63,7 @@ cp -R ${elmsln}/scripts/drush/server/* ~/.drush/
 drush cc drush
 
 # check for log file in existance so we can track what happened after the fact
-if [ -f ${configsdir}/logs/elmsln-upgrade.log ]; then
-  else
+if [ ! -f ${configsdir}/logs/elmsln-upgrade.log ]; then
     mkdir -p ${configsdir}/logs
     touch ${configsdir}/logs/elmsln-upgrade.log
 fi
