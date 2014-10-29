@@ -57,7 +57,9 @@ git pull origin $1 || (elmslnwarn "git pull failed, you are out of sync with wha
 
 # make sure we are running off of the correct drush plugins and what not
 # since they could change or be upgraded
-cp -R ${elmsln}/scripts/drush/server/* ~/.drush
+rm -rf ~/.drush
+mkdir ~/.drush
+cp -R ${elmsln}/scripts/drush/server/* ~/.drush/
 drush cc drush
 
 # check for log file in existance so we can track what happened after the fact
