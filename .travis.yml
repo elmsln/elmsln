@@ -64,8 +64,7 @@ before_script:
   - git pull origin crazystuff
   - cat /home/travis/legacy/scripts/preinstall/values.sh
   - cat /home/travis/legacy/scripts/preinstall/values.sh | sudo bash /var/www/elmsln/scripts/install/root/elmsln-preinstall.sh
-  # need to destroy the .drush directory so we can test this function too
-  - sudo rm -rf /home/travis/.drush
+  # establish this as an admin user
   - bash /var/www/elmsln/scripts/install/users/elmsln-admin-user.sh
   # list whats in .drush, .bashrc and the generated config file to verify they worked
   - ls /home/travis/.drush
@@ -83,8 +82,6 @@ script:
   #- bash /var/www/elmsln/scripts/drush-create-site/drush-create-site
 
 after_script:
-  - ls /var/www/elmsln/config/jobs
-  - ls /var/www/elmsln/config/stacks/courses/sites/courses/tc
   - drush @online status
 
 notifications:

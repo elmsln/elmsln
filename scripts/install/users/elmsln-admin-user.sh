@@ -36,7 +36,8 @@ source $HOME/.bashrc
 php /usr/local/bin/composer global require drush/drush:6.*
 
 # copy in the elmsln server stuff as the baseline for .drush
-rm -rf .drush
+rm -rf $HOME/.drush
+mkdir $HOME/.drush
 cp -r /var/www/elmsln/scripts/drush/server/* $HOME/.drush/
 # clear caches to force a rebuild of the functions in there
 drush cc drush
