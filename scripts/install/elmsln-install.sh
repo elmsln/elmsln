@@ -245,6 +245,10 @@ then
 fi
 sudo chown -R $wwwuser:$wwwuser $elmsln/config/_nondrupal/piwik
 sudo chmod -R 0755 $elmsln/config/_nondrupal/piwik
+# exotic install issue w/ file integrity check on piwik
+if [ -f $elmsln/core/_nondrupal/piwik/plugins/DevicesDetection/images/brand/unknown.ico ]; then
+  mv unknown.ico Unknown.ico
+fi
 # jobs file directory
 sudo chown -R $wwwuser:$webgroup $elmsln/config/jobs
 sudo chmod -R 755 $elmsln/config/jobs
