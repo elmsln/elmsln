@@ -20,11 +20,9 @@ bldred=${txtbld}$(tput setaf 1) #  red
 txtreset=$(tput sgr0)
 elmslnecho(){
   echo "${bldgrn}$1${txtreset}"
-  return 1
 }
 elmslnwarn(){
   echo "${bldred}$1${txtreset}"
-  return 1
 }
 # Define seconds timestamp
 timestamp(){
@@ -35,9 +33,9 @@ getuuid(){
   uuidgen -rt
 }
 # check that we are the root user
-if [ "$EUID" -ne 0 ]; then
+if [[ $EUID -ne 0 ]]; then
   elmslnwarn "Please run as root"
-  exit
+  exit 1
 fi
 # we assume you install it in the place that we like
 cd /var/www/elmsln
@@ -66,13 +64,12 @@ fi
 
 # detect what OS this is on and make suggestions for settings
 cat /etc/*-release
-elmslnecho "The above should list information about the systemt this is being installed on. We currently support semi-automated install routines for RHEL, CentOS and Ubuntu. Please verify the above and select one of the following options:"
+elmslnecho "The above should list information about the system this is being installed on. We currently support semi-automated install routines for RHEL, CentOS and Ubuntu. Please verify the above and select one of the following options:"
 elmslnecho "1. RHEL / CentOS"
 elmslnecho "2. Ubuntu"
-elmslnecho "3. other"
+elmslnecho "3. other / manual"
 read os
-if [ $os == '1' ]
-then
+if [ $os == '1' ]; then
   elmslnecho "treating this like a RHEL / CentOS install"
   wwwuser='apache'
   elmslnecho "www user automatically set to ${wwwuser}"
@@ -88,8 +85,7 @@ then
   elmslnecho "domains automatically set to ${domains}"
   zzz_performance="/etc/httpd/conf.d/zzz_performance.conf"
   elmslnecho "apache perforamnce tuning automatically set to ${zzz_performance}"
-elif [ $os == '2' ]
-then
+elif [ $os == '2' ]; then
   elmslnecho "treating this like ubuntu"
   wwwuser='www-data'
   elmslnecho "www user automatically set to ${wwwuser}"
@@ -111,23 +107,29 @@ else
   elmslnecho "www user, what does apache run as? (www-data and apache are common)"
   read wwwuser
 
-  elmslnecho "where is apc.ini? ex: /etc/php.d/apc.ini"
+  elmslnecho "where is apc.ini? ex: /etc/php.d/apc.ini (empty to skip)"
   read apcini
 
-  elmslnecho "where is php.ini? ex: /etc/php.ini"
+  elmslnecho "where is php.ini? ex: /etc/php.ini (empty to skip)"
   read phpini
 
-  elmslnecho "where is my.cnf? ex: /etc/my.cnf"
+  elmslnecho "where is my.cnf? ex: /etc/my.cnf (empty to skip)"
   read mycnf
 
-  elmslnecho "where is crontab? ex: /etc/crontab"
+  elmslnecho "where is crontab? ex: /etc/crontab (empty to skip)"
   read crontab
 
-  elmslnecho "where should elmsln apache domains.conf files live? ex: /etc/httpd/conf.d/domains.conf"
+  elmslnecho "where should elmsln apache domains.conf files live? ex: /etc/httpd/conf.d/domains.conf (empty to skip)"
   read domains
 
-  elmslnecho "where should elmsln apache performance tweaks live? ex: /etc/httpd/conf.d/zzz_performance.conf"
+  elmslnecho "where should elmsln apache performance tweaks live? ex: /etc/httpd/conf.d/zzz_performance.conf (empty to skip)"
   read zzz_performance
+
+  elmslnecho "Is this some flavor of linux like Ubuntu? (yes for travis, vagrant, etc)"
+  read likeubuntu
+  if [[ $likeubuntu == 'yes' ]]; then
+    os='2'
+  fi
 fi
 
 # based on where things commonly are. This would allow for non-interactive
@@ -135,112 +137,163 @@ fi
 # do an automatic creation flag to establish this stuff without any input!
 
 # work against the config file
-cd /var/www/elmsln/config/scripts/drush-create-site/
-touch config.cfg
+config='/var/www/elmsln/config/scripts/drush-create-site/config.cfg'
+touch $config
 # step through creation of the config.cfg file
-cat "#university / institution deploying this instance" >> config.cfg
+echo "#university / institution deploying this instance" >> $config
 elmslnecho "what is your uniersity abbreviation? (ex psu)"
 read university
-cat "university='${university}'" >> config.cfg
+echo "university='${university}'" >> $config
 
 elmslnecho "two letter abbreviation for deployment? (ex aa for arts / architecture)"
 read host
-cat "host='${host}'" >> config.cfg
+echo "host='${host}'" >> $config
 
 elmslnecho "default email ending? (ex @psu.edu)"
 read emailending
-cat "emailending='${emailending}'" >> config.cfg
+echo "emailending='${emailending}'" >> $config
 
 elmslnecho "base address for deployment? (ex aanda.psu.edu)"
 read address
-cat "address='${address}'" >> config.cfg
+echo "address='${address}'" >> $config
 
 elmslnecho "web service based address for deployment? (ex otherpath.psu.edu. this can be the same as the previous address but for increased security it is recommended you use a different one.)"
 read serviceaddress
-cat "serviceaddress='${serviceaddress}'" >> config.cfg
+echo "serviceaddress='${serviceaddress}'" >> $config
 
 elmslnecho "web service prefix? (if calls come from data.courses.otherpath.psu.edu then this would be 'data.' if you don't create domains this way then leave this blank)"
 read serviceprefix
-cat "serviceprefix='${serviceprefix}'" >> config.cfg
+echo "serviceprefix='${serviceprefix}'" >> $config
 
 elmslnecho "protocol for web traffic? (think long and hard before you type anything other then 'https'. there's a lot of crazy stuff out there so its better to encrypt everything.. EVERYTHING!)"
 read protocol
-cat "protocol='${protocol}'" >> config.cfg
+echo "protocol='${protocol}'" >> $config
 
-cat "#email that the site uses to send mail" >> config.cfg
+echo "#email that the site uses to send mail" >> $config
 elmslnecho "site email address to use? (ex siteaddress@you.edu)"
 read site_email
-cat "site_email='${site_email}'" >> config.cfg
+echo "site_email='${site_email}'" >> $config
 
-cat "#administrator e-mail or alias" >> config.cfg
+echo "#administrator e-mail or alias" >> $config
 elmslnecho "administrator e-mail or alias? (ex admin@you.edu)"
 read admin
-cat "admin='${admin}'" >> config.cfg
+echo "admin='${admin}'" >> $config
 
 # if there's a scary part it's right in here for some I'm sure
-cat "#database superuser credentials" >> config.cfg
+echo "#database superuser credentials" >> $config
 elmslnecho "database superuser credentials? (this is only stored in the config.cfg file. it is recommended you create an alternate super user other then true root. user needs full permissions including grant since this is what requests new drupal sites to be produced)"
-read dbsu
-cat "dbsu='${dbsu}'" >> config.cfg
+read -s dbsu
+echo "dbsu='${dbsu}'" >> $config
 
 elmslnecho "database superuser password? (same notice as above)"
-read dbsupw
-cat "dbsupw='${dbsupw}'" >> config.cfg
+read -s dbsupw
+echo "dbsupw='${dbsupw}'" >> $config
 
 # this was read in from above or automatically supplied based on the system type
-cat "#www user, what does apache run as? www-data and apache are common" >> config.cfg
-cat "wwwuser='${wwwuser}'" >> config.cfg
+echo "#www user, what does apache run as? www-data and apache are common" >> $config
+echo "wwwuser='${wwwuser}'" >> $config
 
-cat "#webgroup, usually admin if sharing with other developers else leave root" >> config.cfg
+echo "#webgroup, usually admin if sharing with other developers else leave root" >> $config
 elmslnecho "webgroup? (usually admin if sharing with other developers else leave root)"
 read webgroup
-cat "webgroup='${webgroup}'" >> config.cfg
+echo "webgroup='${webgroup}'" >> $config
 
 # append all these settings that we tell people NOT to modify
-cat "\n" >> config.cfg
-cat "# uncomment the following if you are not using SSO" >> config.cfg
-cat "#send_requester_pw=yes" >> config.cfg
-cat "# where is elmsln installed, not recommended to move from here" >> config.cfg
-cat "elmsln=/var/www/elmsln" >> config.cfg
-cat "\n" >> config.cfg
-cat "# these vars shouldn't need changing if $elmsln is set properly" >> config.cfg
-cat "webdir=$elmsln/domains" >> config.cfg
-cat "# jobs location where job files write to" >> config.cfg
-cat "fileloc=$elmsln/config/jobs" >> config.cfg
-cat "# hosts to allow split groups of elmsln based on college / group" >> config.cfg
-cat "hostfile=$elmsln/config/scripts/drush-create-site/hosts" >> config.cfg
-cat "# compiled drupal \"stacks\"" >> config.cfg
-cat "stacks=$elmsln/core/dslmcode/stacks" >> config.cfg
-cat "# location of drupal private files" >> config.cfg
-cat "drupal_priv=$elmsln/config/private_files" >> config.cfg
-cat "# configsdir" >> config.cfg
-cat "configsdir=$elmsln/config" >> config.cfg
+echo "" >> $config
+echo "# uncomment the following if you are not using SSO" >> $config
+echo "#send_requester_pw=yes" >> $config
+echo "# where is elmsln installed, not recommended to move from here" >> $config
+echo "elmsln='/var/www/elmsln'" >> $config
+echo "" >> $config
+echo "# these vars shouldn't need changing if $elmsln is set properly" >> $config
+echo 'webdir=$elmsln/domains' >> $config
+echo "# jobs location where job files write to" >> $config
+echo 'fileloc=$elmsln/config/jobs' >> $config
+echo "# hosts to allow split groups of elmsln based on college / group" >> $config
+echo 'hostfile=$elmsln/config/scripts/drush-create-site/hosts' >> $config
+echo "# compiled drupal \"stacks\"" >> $config
+echo 'stacks=$elmsln/core/dslmcode/stacks' >> $config
+echo "# location of drupal private files" >> $config
+echo 'drupal_priv=$elmsln/config/private_files' >> $config
+echo "# configsdir" >> $config
+echo 'configsdir=$elmsln/config' >> $config
 # capture automatically generated values that can be used to reference this
 # exact deployment of ELMSLN in the future
-cat "\n\n" >> config.cfg
-cat "# ELMSLN INSTALLER GENERATED VALUES" >> config.cfg
-cat "# Do not modify below this line" >> config.cfg
+echo "" >> $config
+echo "# ELMSLN INSTALLER GENERATED VALUES" >> $config
+echo "# Do not modify below this line" >> $config
 # capture install time; this could be used in the future similar to the
 # drup timestamping to see if there are structural upgrade .sh commands needed
 # contextually based on when we are installed. This will start to allow for
 # hook_update_n style updates but at a bash / deployment level.
 installed="$(timestamp)"
-cat "elmsln_installed='${installed}'" >> config.cfg
+echo "elmsln_installed='${installed}'" >> $config
 uuid="$(getuuid)"
 # a uuid which data can be related on
-cat "elmsln_uuid='${uuid}'" >> config.cfg
+echo "elmsln_uuid='${uuid}'" >> $config
+
+# allow for opt in participation in our impact program
+elmslnecho "Would you like to send anonymous usage statistics to http://elmsln.org for data visualization purposes? (type yes or anything else to opt out)"
+read yesprompt
+# ensure they type yes, this is a big deal command
+if [[ $yesprompt == 'yes' ]]; then
+  # include this instance in our statistics program
+  echo "elmsln_stats_program='yes'" >> $config
+else
+  # we respect privacy even if it leads to less cool visualizations :)
+  echo "elmsln_stats_program='no'" >> $config
+fi
 
 # performance / recommended settings
-cat /var/www/elmsln/docs/apc.txt >> $apcini
-cat /var/www/elmsln/docs/php.txt >> $phpini
-cat /var/www/elmsln/docs/my.txt >> $mycnf
-cat /var/www/elmsln/docs/crontab.txt >> $crontab
-cp /var/www/elmsln/docs/zzz_performance.conf $zzz_performance
+if [[ -n "$apcini" ]]; then
+  cat /var/www/elmsln/docs/apc.txt >> $apcini
+fi
+if [[ -n "$phpini" ]]; then
+  cat /var/www/elmsln/docs/php.txt >> $phpini
+fi
+if [[ -n "$mycnf" ]]; then
+  cat /var/www/elmsln/docs/my.txt >> $mycnf
+fi
+if [[ -n "$crontab" ]]; then
+  cat /var/www/elmsln/docs/crontab.txt >> $crontab
+fi
 
-# account for ubuntu being a little different here when it comes to apache
-if [ $os == '2' ] then
-  ln -s /etc/apache2/sites-available/elmsln.conf /etc/apache2/sites-enabled/elmsln.conf
-  ln -s /etc/apache2/sites-available/zzz_performance.conf /etc/apache2/sites-enabled/zzz_performance.conf
+if [[ -n "$domains" ]]; then
+  # try to automatically author the domains file(s)
+  cp /var/www/elmsln/docs/domains.txt $domains
+  # replace servicedomain partial with what was entered above
+  sed 's/SERVICEYOURUNIT.edu/${serviceaddress}/g' $domains > $domains
+  # replace domain partial with what was entered above
+  sed 's/YOURUNIT.edu/${address}/g' $domains > $domains
+  # replace servicedomain prefix if available with what was entered above
+  sed 's/DATA./${serviceprefix}/g' $domains > $domains
+  elmslnecho "${domains} was automatically generated but you may want to verify the file regardless of configtest saying everything is ok or not."
+  # attempt to author the https domain if they picked it, let's hope everyone does
+  if [[ $protocol == 'https' ]]; then
+    sec=${domains/.conf/_secure.conf}
+    cp $domains $sec
+    # replace referencese to port :80 w/ 443
+    sed 's/<VirtualHost *:80>/<VirtualHost *:443>/g' $sec > $sec
+    elmslnecho "${sec} was automatically generated since you said you are using https. please verify this file."
+      # account for ubuntu being a little different here when it comes to apache
+    if [ $os == '2' ]; then
+      ln -s $sec /etc/apache2/sites-enabled/elmsln.conf
+    fi
+  else
+    elmslnwarn "You really should use https and invest in certs... seriously do it!"
+  fi
+    # account for ubuntu being a little different here when it comes to apache
+  if [ $os == '2' ]; then
+    ln -s $domains /etc/apache2/sites-enabled/elmsln.conf
+  fi
+fi
+
+if [[ -n "$zzz_performance" ]]; then
+  cp /var/www/elmsln/docs/zzz_performance.conf $zzz_performance
+  # account for ubuntu being a little different here when it comes to apache
+  if [ $os == '2' ]; then
+    ln -s $zzz_performance /etc/apache2/sites-enabled/zzz_performance.conf
+  fi
 fi
 
 # setup site removal admin tool
@@ -248,58 +301,36 @@ ln -s /var/www/elmsln/scripts/drush-create-site /usr/local/bin/drush-create-site
 chmod 744 /usr/local/bin/drush-create-site/rm-site.sh
 
 # shortcuts for ease of use
-ln -s /var/www/elmsln $HOME/elmsln
-cat "alias g='git'" >> $HOME/.bashrc
-cat "alias d='drush'" >> $HOME/.bashrc
-cat "alias l='ls -laHD'" >> $HOME/.bashrc
-cat "alias drs='/usr/local/bin/drush-create-site/rm-site.sh'" >> $HOME/.bashrc
+cd ~
+touch .bashrc
+ln -s /var/www/elmsln elmsln
+echo "alias g='git'" >> .bashrc
+echo "alias d='drush'" >> .bashrc
+echo "alias l='ls -laHF'" >> .bashrc
+echo "alias drs='/usr/local/bin/drush-create-site/rm-site.sh'" >> .bashrc
 
 # setup drush
 curl -sS https://getcomposer.org/installer | php
 mv composer.phar /usr/local/bin/composer
-sed -i '1i export PATH="$HOME/.composer/vendor/bin:$PATH"' $HOME/.bashrc
-source $HOME/.bashrc
-composer global require drush/drush:6.*
-mkdir $HOME/.drush/
+sed -i '1i export PATH="$HOME/.composer/vendor/bin:$PATH"' .bashrc
+source .bashrc
+# full path to execute in case root needs to log out before it picks it up
+php /usr/local/bin/composer global require drush/drush:6.*
 # copy in the elmsln server stuff as the baseline for .drush
+mkdir $HOME/.drush/
 cp -r /var/www/elmsln/scripts/drush/server/* $HOME/.drush/
 # stupid ubuntu drush thing to work with sudo
-if [ $os == '2' ] then
+if [[ $os == '2' ]]; then
   ln -s /root/.composer/vendor/drush/drush /usr/share/drush
 fi
 drush cc drush
 
-# try to automatically author the domains file(s)
-cp /var/www/elmsln/docs/domains.txt $domains
-# replace servicedomain partial with what was entered above
-sed 's/SERVICEYOURUNIT.edu/${serviceaddress}/g' $domains > $domains
-# replace domain partial with what was entered above
-sed 's/YOURUNIT.edu/${address}/g' $domains > $domains
-# replace servicedomain prefix if available with what was entered above
-sed 's/DATA./${serviceprefix}/g' $domains > $domains
-
-# attempt to author the https domain if they picked it, let's hope everyone does
-if [ $protocol == 'https']; then
-  sec=${domains/.conf/_secure.conf}
-  cp $domains $sec
-  # replace referencese to port :80 w/ 443
-  sed 's/<VirtualHost *:80>/<VirtualHost *:443>/g' $sec > $sec
-  elmslnecho "${sec} was automatically generated since you said you are using https. please verify this file."
-else
-  elmslnwarn "You really should use https and invest in certs... seriously do it!"
-fi
-
-# test apache
-apachectl configtest
 # ubuntu restarts differently
-if [ $os == '2' ] then
+if [[ $os == '2' ]]; then
   service apache2 restart
 else
   /etc/init.d/httpd restart
 fi
 
-elmslnecho "${domains} was automatically generated but you may want to verify the file regardless of configtest saying everything is ok or not."
 elmslnecho "Everything should be in place, we are going to log you out now. Log back in and run the following:"
 elmslnecho "bash /var/www/elmsln/scripts/install/elmsln-install.sh"
-
-logout

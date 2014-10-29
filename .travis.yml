@@ -2,15 +2,8 @@ language: php
 
 php:
   - 5.3
-  - 5.4
-  - 5.5
-  - hhvm
 
 matrix:
-  allow-failures:
-    - php: 5.5
-    - php: hhvm
-
   env:
     global:
       - ES_VER=1.0.1
@@ -36,12 +29,11 @@ before_install:
   - EXIT_VALUE=0
 
   - sudo apt-get update > /dev/null
-
+  - sudo apt-get install -y --force-yes uuid uuid-runtime
   - composer self-update
 install:
     # install php packages required for running a web server from drush on php 5.3
   - sudo apt-get install -y --force-yes php5-cgi php5-mysql
-
   # install drush globally
   - composer global require drush/drush:6.*
 
@@ -49,37 +41,53 @@ install:
   # see: https://github.com/drush-ops/drush#install---composer
   - export PATH="$HOME/.composer/vendor/bin:$PATH"
 before_script:
+  - sudo apt-get install apache2 libapache2-mod-fastcgi
+  # enable php-fpm
+  - sudo cp ~/.phpenv/versions/$(phpenv version-name)/etc/php-fpm.conf.default ~/.phpenv/versions/$(phpenv version-name)/etc/php-fpm.conf
+  - sudo a2enmod rewrite actions fastcgi alias
+  - echo "cgi.fix_pathinfo = 1" >> ~/.phpenv/versions/$(phpenv version-name)/etc/php.ini
+  - ~/.phpenv/versions/$(phpenv version-name)/sbin/php-fpm
+  # configure apache virtual hosts
+  - sudo mkdir -p /etc/apache2/sites-available
+  - sudo mkdir -p /etc/apache2/sites-enabled
+  - sudo service apache2 restart
   #- echo 'sendmail_path = /bin/true' >> ~/.phpenv/versions/$(phpenv version-name)/etc/conf.d/travis.ini
   # establish elmsln package put in place the right way
+  - cd /home/travis
+  - sudo git clone https://github.com/btopro/elmsln-config-travis-ci.git
   - sudo mkdir -p /var/www
   - cd /var/www
   - sudo mkdir elmsln
-  - sudo chown travis:travis elmsln
   - sudo git clone https://github.com/btopro/elmsln.git
+  - sudo chown -R travis:travis elmsln
   - cd /var/www/elmsln
-  - sudo rm -rf config
-  - sudo git clone https://github.com/btopro/elmsln-config-travis-ci.git config
-  - sudo chown -R travis:travis /var/www/elmsln
-  # drush functions
-  - sudo mkdir ~/.drush/
-  - sudo cp -r /var/www/elmsln/config/scripts/drush/server/* ~/.drush/
-  - sudo chown -R travis:travis ~/.drush
-  # special accounting for stupid ubuntu! :p
-  - sudo ln -s /root/.composer/vendor/drush/drush /usr/share/drush
-
-  - sudo ln -s /var/www/elmsln ~/elmsln
-
+  - git pull origin crazystuff
+  - cat /home/travis/elmsln-config-travis-ci/elmsln-preinstall-values
+  - cat /home/travis/elmsln-config-travis-ci/elmsln-preinstall-values | sudo bash /var/www/elmsln/scripts/install/root/elmsln-preinstall.sh
+  # establish this as an admin user
+  - bash /var/www/elmsln/scripts/install/users/elmsln-admin-user.sh
+  # list whats in .drush, .bashrc and the generated config file to verify they worked
+  - ls /home/travis/.drush
+  - sudo chown -R travis:travis /home/travis/.drush
+  - cat /home/travis/.bashrc
+  - cat /var/www/elmsln/config/scripts/drush-create-site/config.cfg
+  # due to weirdness in travis w/ php versions we have to do it this way
+  - cat /var/www/elmsln/docs/php.txt >> ~/.phpenv/versions/$(phpenv version-name)/etc/php.ini
+  - sudo service apache2 restart
 script:
   # run the installer
   - bash /var/www/elmsln/scripts/install/elmsln-install.sh
   - drush sa
   - drush @online cc drush
+  # now run through the upgrade routine
+  - bash /var/www/elmsln/scripts/upgrade/elmsln-upgrade-system.sh crazystuff yes
+  # eventually we want to create all this stuff automatically
   #- drush cis-release-kraken --actually_run --root=/var/www/elmsln/domains/online/ --uri=http://online.elmsln.local --y
   #- bash /var/www/elmsln/scripts/drush-create-site/drush-create-site
+  # force upgrades to be replayed against everything
+  - drush @online drup d7_elmsln_global /var/www/elmsln/scripts/upgrade/drush_recipes/d7/global --y --replay-from=0
 
 after_script:
-  - ls /var/www/elmsln/config/jobs
-  - ls /var/www/elmsln/config/stacks/courses/sites/courses/tc
   - drush @online status
 
 notifications:

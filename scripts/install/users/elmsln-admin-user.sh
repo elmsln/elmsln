@@ -13,39 +13,35 @@ bldred=${txtbld}$(tput setaf 1) #  red
 txtreset=$(tput sgr0)
 elmslnecho(){
   echo "${bldgrn}$1${txtreset}"
-  return 1
 }
 elmslnwarn(){
   echo "${bldred}$1${txtreset}"
-  return 1
 }
 # check that we are NOT root user
 if [[ $EUID -eq 0 ]]; then
   elmslnwarn "Don't run this as root!"
-  exit
+  exit 0
 fi
 
 # modify the user's home directory to run drush and make life lazy
 ln -s /var/www/elmsln $HOME/elmsln
-cat "alias g='git'" >> $HOME/.bashrc
-cat "alias d='drush'" >> $HOME/.bashrc
-cat "alias l='ls -laHD'" >> $HOME/.bashrc
+touch $HOME/.bashrc
+echo "alias g='git'" >> $HOME/.bashrc
+echo "alias d='drush'" >> $HOME/.bashrc
+echo "alias l='ls -laHF'" >> $HOME/.bashrc
 
 # setup drush
 sed -i '1i export PATH="$HOME/.composer/vendor/bin:$PATH"' $HOME/.bashrc
 source $HOME/.bashrc
-composer global require drush/drush:6.*
-
-mkdir $HOME/.drush/
+php /usr/local/bin/composer global require drush/drush:6.*
 
 # copy in the elmsln server stuff as the baseline for .drush
+rm -rf $HOME/.drush
+mkdir $HOME/.drush
 cp -r /var/www/elmsln/scripts/drush/server/* $HOME/.drush/
-
+# clear caches to force a rebuild of the functions in there
 drush cc drush
-
+# list the available aliases
 drush sa
-
-elmslnecho "if you see targets listed above other then @none then you are good to go (otherwise elmsln still needs to be fully installed). We are going to log you out but issue the following after you log back in to play with your new super powers:"
+elmslnecho "if you see targets listed above other then 'none' then you are good to go (otherwise elmsln still needs to be fully installed via bash /var/www/elmsln/scripts/install/elmsln-install.sh). Log out, then issue the following after you log back in to play with your new super powers:"
 elmslnecho "d @online status"
-
-logout
