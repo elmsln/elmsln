@@ -267,7 +267,7 @@ if [[ -n "$domains" ]]; then
   sed 's/YOURUNIT.edu/${address}/g' $domains > $domains
   # replace servicedomain prefix if available with what was entered above
   sed 's/DATA./${serviceprefix}/g' $domains > $domains
-
+  elmslnecho "${domains} was automatically generated but you may want to verify the file regardless of configtest saying everything is ok or not."
   # attempt to author the https domain if they picked it, let's hope everyone does
   if [[ $protocol == 'https' ]]; then
     sec=${domains/.conf/_secure.conf}
@@ -301,22 +301,23 @@ ln -s /var/www/elmsln/scripts/drush-create-site /usr/local/bin/drush-create-site
 chmod 744 /usr/local/bin/drush-create-site/rm-site.sh
 
 # shortcuts for ease of use
-homebash="${HOME}/.bashrc"
-touch $homebash
-ln -s /var/www/elmsln ~/elmsln
-echo "alias g='git'" >> $homebash
-echo "alias d='drush'" >> $homebash
-echo "alias l='ls -laHD'" >> $homebash
-echo "alias drs='/usr/local/bin/drush-create-site/rm-site.sh'" >> $homebash
+cd ~
+touch .bashrc
+ln -s /var/www/elmsln elmsln
+echo "alias g='git'" >> .bashrc
+echo "alias d='drush'" >> .bashrc
+echo "alias l='ls -laHD'" >> .bashrc
+echo "alias drs='/usr/local/bin/drush-create-site/rm-site.sh'" >> .bashrc
 
 # setup drush
 curl -sS https://getcomposer.org/installer | php
 mv composer.phar /usr/local/bin/composer
-sed -i '1i export PATH="$HOME/.composer/vendor/bin:$PATH"' $homebash
-source $homebash
-composer global require drush/drush:6.*
-mkdir $HOME/.drush/
+sed -i '1i export PATH="$HOME/.composer/vendor/bin:$PATH"' .bashrc
+source .bashrc
+# full path to execute in case root needs to log out before it picks it up
+php /usr/local/bin/composer global require drush/drush:6.*
 # copy in the elmsln server stuff as the baseline for .drush
+mkdir $HOME/.drush/
 cp -r /var/www/elmsln/scripts/drush/server/* $HOME/.drush/
 # stupid ubuntu drush thing to work with sudo
 if [[ $os == '2' ]]; then
@@ -331,6 +332,5 @@ else
   /etc/init.d/httpd restart
 fi
 
-elmslnecho "${domains} was automatically generated but you may want to verify the file regardless of configtest saying everything is ok or not."
 elmslnecho "Everything should be in place, we are going to log you out now. Log back in and run the following:"
 elmslnecho "bash /var/www/elmsln/scripts/install/elmsln-install.sh"
