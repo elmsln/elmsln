@@ -2,32 +2,31 @@
 
 # Automated installation -- run the following for all prerequisits
 sudo -i
-
+# copy and paste below
+cd ~
 mkdir -p /var/www/elmsln
 cd /var/www
 git clone https://github.com/btopro/elmsln.git
 cd elmsln
 git pull origin crazystuff
+cd ~
 bash /var/www/elmsln/scripts/install/root/elmsln-preinstall.sh
 
+# log out as root so you can finish install as you
 logout
 
-# back to the normal user; you
+# copy and paste this
 cd ~
 rm -rf ~/.drush
-chown -R $USER:$USER elmsln
-
-# run this to establish elmsln packages for the current user
+sudo chown -R $USER:$USER /var/www/elmsln
 bash /var/www/elmsln/scripts/install/users/elmsln-admin-user.sh
-# run this to actually install elmsln
 bash /var/www/elmsln/scripts/install/elmsln-install.sh
-
-# You can then test that it installed correctly with the following
 drush sa
 drush @online status
 
-# Step by step (old routine)
 
+
+# LEGACY INSTALLATION INSTRUCTIONS / MANUAL INSTALL
 #These steps will help you setup ELMSLN on an Apache / Unix environment.
 
 #Using git for version control is recommended due to the sheer volume of files Suggested .gitignore are included but generally all changes you make #after deploying should happen inside the config directory.  All scripts, Drupal core files, and piwik files that need configuration changes are #referenced to symlinks in the config directory.
