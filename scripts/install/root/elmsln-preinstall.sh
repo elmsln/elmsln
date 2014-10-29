@@ -182,11 +182,11 @@ echo "admin='${admin}'" >> $config
 # if there's a scary part it's right in here for some I'm sure
 echo "#database superuser credentials" >> $config
 elmslnecho "database superuser credentials? (this is only stored in the config.cfg file. it is recommended you create an alternate super user other then true root. user needs full permissions including grant since this is what requests new drupal sites to be produced)"
-read dbsu
+read dbsu -s
 echo "dbsu='${dbsu}'" >> $config
 
 elmslnecho "database superuser password? (same notice as above)"
-read dbsupw
+read dbsupw -s
 echo "dbsupw='${dbsupw}'" >> $config
 
 # this was read in from above or automatically supplied based on the system type
