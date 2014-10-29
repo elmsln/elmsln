@@ -54,7 +54,7 @@ before_script:
   #- echo 'sendmail_path = /bin/true' >> ~/.phpenv/versions/$(phpenv version-name)/etc/conf.d/travis.ini
   # establish elmsln package put in place the right way
   - cd /home/travis
-  - sudo git clone https://github.com/btopro/elmsln-config-travis-ci.git legacy
+  - sudo git clone https://github.com/btopro/elmsln-config-travis-ci.git
   - sudo mkdir -p /var/www
   - cd /var/www
   - sudo mkdir elmsln
@@ -62,8 +62,8 @@ before_script:
   - sudo chown -R travis:travis elmsln
   - cd /var/www/elmsln
   - git pull origin crazystuff
-  - cat /home/travis/legacy/scripts/preinstall/values.sh
-  - cat /home/travis/legacy/scripts/preinstall/values.sh | sudo bash /var/www/elmsln/scripts/install/root/elmsln-preinstall.sh
+  - cat /home/travis/elmsln-config-travis-ci/elmsln-preinstall-values
+  - cat /home/travis/elmsln-config-travis-ci/elmsln-preinstall-values | sudo bash /var/www/elmsln/scripts/install/root/elmsln-preinstall.sh
   # establish this as an admin user
   - bash /var/www/elmsln/scripts/install/users/elmsln-admin-user.sh
   # list whats in .drush, .bashrc and the generated config file to verify they worked
