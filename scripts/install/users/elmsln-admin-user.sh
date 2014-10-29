@@ -33,11 +33,10 @@ echo "alias l='ls -laHF'" >> $HOME/.bashrc
 # setup drush
 sed -i '1i export PATH="$HOME/.composer/vendor/bin:$PATH"' $HOME/.bashrc
 source $HOME/.bashrc
-composer global require drush/drush:6.*
-
-mkdir $HOME/.drush/
+php /usr/local/bin/composer global require drush/drush:6.*
 
 # copy in the elmsln server stuff as the baseline for .drush
+rm -rf .drush
 cp -r /var/www/elmsln/scripts/drush/server/* $HOME/.drush/
 # clear caches to force a rebuild of the functions in there
 drush cc drush

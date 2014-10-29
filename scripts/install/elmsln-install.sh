@@ -256,7 +256,7 @@ sudo chown -R $wwwuser:$webgroup $sitedir/online/$host/files
 # make sure webserver owns the files
 sudo find $configsdir/stacks/ -type d -name files | sudo xargs chown -R $wwwuser:$webgroup
 
-# a message so you know where my head is at. you get candy if you reference this
+# a message so you know where our head is at. you get candy if you reference this
 elmslnecho "╔───────────────────────────────────────────────────────────────╗"
 elmslnecho "║           ____  Welcome to      ____                          ║"
 elmslnecho "║          |     |      /\  /\   /     |     |\   |             ║"
@@ -276,7 +276,7 @@ elmslnecho "║ connection keychain for how all the webservices talk.         �
 elmslnecho "║                                                               ║"
 elmslnecho "╠───────────────────────────────────────────────────────────────╣"
 elmslnecho "║ Use this link to access the Course Information System:        ║"
-elmslnecho "          $protocol://$online_domain                             "
+elmslnecho "║   $protocol://$online_domain                                   "
 elmslnecho "║                                                               ║"
 elmslnecho "║Welcome to the Singularity of edtech.. build the future..      ║"
 elmslnecho "╚───────────────────────────────────────────────────────────────╝"
