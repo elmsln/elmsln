@@ -1,6 +1,6 @@
 Version | PHP | Includes | Code Status
-------- | ---  | -------- | ----------
-[master](https://travis-ci.org/btopro/elmsln)  | 5.3.0+ | Drupal 7.x,Piwik 2.x | <img src="https://travis-ci.org/btopro/elmsln.svg?branch=master">
+------------- | ------  | --- | -------------------------- | -----------
+[master](https://travis-ci.org/btopro/elmsln)  | 5.3.0+ | Drupal 7.x, Piwik 2.x | <img src="https://travis-ci.org/btopro/elmsln.svg?branch=master">
 
 ELMSLN
 ==============
