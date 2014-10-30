@@ -566,7 +566,7 @@ function _piwik_contains_forbidden_token($token_string) {
     ':thoroughfare]',
     ':premise]',
     // realname.module
-    ':name-raw]',
+    //':name-raw]',
     // token.module
     ':ip-address]',
   );

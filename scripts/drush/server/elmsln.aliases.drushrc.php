@@ -1,11 +1,45 @@
 <?php
+  // @todo look into pulling the stacks array from config.cfg
+  // @todo look into static storing of this value since the file
+  // appears to be running up to 3x for some reason
+  // @todo run a simple increment command so that we take a bs variable
+  // and increment it every time this is currently run under a @stack-all
+  // target. I get the feeling that these sites are run 2-3x per site.
+  // While not a problem, we could be much more efficient then currently.
+  // assumption here is that it lives where we expect
+  // change this line if that's not the case though we really don't
+  // support changes to that part of the install routine
+  $cfg = file_get_contents('/var/www/elmsln/config/scripts/drush-create-site/config.cfg');
+  $lines = explode("\n", $cfg);
+  $config = array();
+  // read each line of the config file
+  foreach ($lines as $line) {
+    // make sure this line isn't a comment and has a=
+    if (strpos($line, '#') !== 0 && strpos($line, '=')) {
+      $tmp = explode('=', $line);
+      // ensure we have 2 settings before doing this
+      if (count($tmp) == 2) {
+        // never pass around the dbsu
+        if (!in_array($tmp[0], array('dbsu', 'dbsupw'))) {
+          // strip encapsulation if it exists
+          $config[$tmp[0]] = str_replace("'", '', $tmp[1]);
+        }
+      }
+    }
+  }
+  // support the fact that $elmsln is used to reference in many bash vars
+  foreach ($config as $key => $value) {
+    if (strpos($value, '$elmsln') !== FALSE) {
+      $config[$key] = str_replace('$elmsln', $config['elmsln'], $value);
+    }
+  }
   $aliases = array();
   // base address of all domains
-  $address = 'YOURUNIT.edu';
+  $address = $config['address'];
   // your web root
-  $root = '/var/www/elmsln/core/dslmcode/stacks/';
+  $root = $config['stacks'] . '/';
   // grouping item for your stack
-  $group = 'ex';
+  $group = $config['host'];
   // stacks you have
   $stacks = array(
     'online',

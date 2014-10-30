@@ -1,10 +1,40 @@
 #ELMSLN - Installation Guide
 
-#These steps will help you setup ELMSLN on an Apache / Unix environment.
+# Automated installation -- run the following for all prerequisits
+sudo -i
+# copy and paste this
+cd ~
+mkdir -p /var/www/elmsln
+cd /var/www
+git clone https://github.com/btopro/elmsln.git
+cd elmsln
+git pull origin crazystuff
+cd ~
+bash /var/www/elmsln/scripts/install/root/elmsln-preinstall.sh
+# answer the questions in the pre-installation routine
+# log out as root so you can finish install as you
+logout
 
-#Using git for version control is recommended due to the sheer volume of files Suggested .gitignore are included but generally all changes you make #after deploying should happen inside the config directory.  All scripts, Drupal core files, and piwik files that need configuration changes are #referenced to symlinks in the config directory.
+# copy and paste this
+cd ~
+rm -rf ~/.drush
+sudo chown -R $USER:$USER /var/www/elmsln
+# copy and paste these lines to setup your user and install the system
+bash /var/www/elmsln/scripts/install/users/elmsln-admin-user.sh
+bash /var/www/elmsln/scripts/install/elmsln-install.sh
 
-# # is used to comment out all of this, eventually you’ll be able to execute this file or step through it manually.
+# to verify that it worked you should be able to do the following
+drush sa
+drush @online status
+
+# to set up ease of use and standard development for other users that need to administer the system run the following as them
+bash /var/www/elmsln/scripts/install/users/elmsln-admin-user.sh
+
+# LEGACY INSTALLATION INSTRUCTIONS / MANUAL INSTALL
+# you don't need these if you did the above successfully, this is now mostly in the event that people want to understand a bit more about what's going on in the automated install and preinstall
+# These steps will help you setup ELMSLN on an Apache / Unix environment.
+
+# Using git for version control is recommended due to the sheer volume of files Suggested .gitignore are included but generally all changes you make #after deploying should happen inside the config directory.  All scripts, Drupal core files, and piwik files that need configuration changes are #referenced to symlinks in the config directory.
 
 #=== DOWNLOAD ===
 #First, get elmsln and put it in /var/www:
@@ -68,8 +98,8 @@ cat /var/www/elmsln/docs/my.txt >> /etc/my.cnf
 ln -s /var/www/elmsln/scripts/drush-create-site /usr/local/bin/drush-create-site
 chmod 744 /usr/local/bin/drush-create-site/rm-site.sh
 
-# add the following command for drush remove site shorthand
-ln -s /var/www/elmsln elmsln
+# add the following command to home directory for ease of use
+ln -s /var/www/elmsln ~/elmsln
 
 #shorter commands for lazy people
 vi ~/.bashrc

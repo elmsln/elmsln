@@ -3,32 +3,32 @@ NameVirtualHost *:80
 <VirtualHost *:80>
     DocumentRoot /var/www/elmsln/domains/online
     ServerName online.YOURUNIT.edu
-    ServerAlias online.services.YOURUNIT.edu
+    ServerAlias DATA.online.SERVICEYOURUNIT.edu
 </VirtualHost>
 <VirtualHost *:80>
     DocumentRoot /var/www/elmsln/domains/courses
     ServerName courses.YOURUNIT.edu
-    ServerAlias courses.services.YOURUNIT.edu
+    ServerAlias DATA.courses.SERVICEYOURUNIT.edu
 </VirtualHost>
 <VirtualHost *:80>
     DocumentRoot /var/www/elmsln/domains/media
     ServerName media.YOURUNIT.edu
-    ServerAlias media.services.YOURUNIT.edu
+    ServerAlias DATA.media.SERVICEYOURUNIT.edu
 </VirtualHost>
 <VirtualHost *:80>
     DocumentRoot /var/www/elmsln/domains/interact
     ServerName interact.YOURUNIT.edu
-    ServerAlias interact.services.YOURUNIT.edu
+    ServerAlias DATA.interact.SERVICEYOURUNIT.edu
 </VirtualHost>
 <VirtualHost *:80>
     DocumentRoot /var/www/elmsln/domains/blog
     ServerName blog.YOURUNIT.edu
-    ServerAlias blog.services.YOURUNIT.edu
+    ServerAlias DATA.blog.SERVICEYOURUNIT.edu
 </VirtualHost>
 <VirtualHost *:80>
     DocumentRoot /var/www/elmsln/domains/studio
     ServerName studio.YOURUNIT.edu
-    ServerAlias studio.services.YOURUNIT.edu
+    ServerAlias DATA.studio.SERVICEYOURUNIT.edu
 </VirtualHost>
 <VirtualHost *:80>
     DocumentRoot /var/www/elmsln/domains/analytics
