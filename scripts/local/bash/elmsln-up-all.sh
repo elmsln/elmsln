@@ -50,13 +50,13 @@ then
   #elmslnwarn "skipping this line as it is commented out: $line";
   prevline=$line
 else
-  msg="$(timestamp) going to start working against '${prevline}'"
+  tmpstart="$(timestamp)"
+  msg="${tmpstart} going to start working against '${prevline}'"
   if [ $4 ]; then
     attachments=",\"attachments\": [{\"fallback\": \"ELMSLN instance found, beginning upgrade\",\"pretext\": \"ELMSLN instance found, beginning upgrade\",\"color\": \"warning\",\"fields\": [{\"title\": \"start\",\"value\": \"$tmpstart\",\"short\": false}]}]"
     bash $4 "${msg}" "${attachments}"
   fi
   elmslnecho "${msg}"
-  tmpstart="$(timestamp)"
   # setup line, not required but can help w/ upgrades that hang
   $line "cd ~/elmsln && git pull origin $2 && rm /tmp/elmsln-upgrade-lock" < /dev/null
   # reup the config directory
