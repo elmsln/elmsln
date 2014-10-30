@@ -60,8 +60,6 @@ before_script:
   - sudo mkdir elmsln
   - sudo git clone https://github.com/btopro/elmsln.git
   - sudo chown -R travis:travis elmsln
-  - cd /var/www/elmsln
-  - git pull origin crazystuff
   - cat /home/travis/elmsln-config-travis-ci/elmsln-preinstall-values
   - cat /home/travis/elmsln-config-travis-ci/elmsln-preinstall-values | sudo bash /var/www/elmsln/scripts/install/root/elmsln-preinstall.sh
   # establish this as an admin user
@@ -80,7 +78,7 @@ script:
   - drush sa
   - drush @online cc drush
   # now run through the upgrade routine
-  - bash /var/www/elmsln/scripts/upgrade/elmsln-upgrade-system.sh crazystuff yes
+  - bash /var/www/elmsln/scripts/upgrade/elmsln-upgrade-system.sh master yes
   # eventually we want to create all this stuff automatically
   #- drush cis-release-kraken --actually_run --root=/var/www/elmsln/domains/online/ --uri=http://online.elmsln.local --y
   #- bash /var/www/elmsln/scripts/drush-create-site/drush-create-site
