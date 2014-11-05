@@ -1,0 +1,69 @@
+7.x-1.7 -> 7.x-1.8
+
+  * Phpseclib: Integrated AES with the libraries API. PHPSeclib now preferable to be placed into libraries.
+
+  * Fixed major bug with changing location of key file, thanks to digitalRoots. Issue: https://drupal.org/node/2188325 .
+
+  * Minor: storing boolean data as a real boolean instead of string, by jurgenhaas.
+
+7.x-1.6 -> 7.x-1.7
+
+  * Fixed critical issue preventing module to normal usage by Aegir hosting system.
+
+7.x-1.4 -> 7.x-1.6
+
+ * By default functionality to tracking and showing user passwords is turned off.
+
+ * Various fixes.
+
+6.x-1.4 -> 7.x-1.4
+
+ * Ported the module to Drupal 7.
+
+6.x-1.3 -> 6.x-1.4
+
+ * This module now supports the AES implementation provided by PHP Secure Communications Library (phpseclib). Which means that this module no longer requires PHP's Mcrypt extension (although it still supports it alongside phpseclib). Thanks to queen.zeal for bringing this library to my attention. Issue: http://drupal.org/node/579858 and of course many thanks to Jim Wigginton for writing this great library, which can be found here http://phpseclib.sourceforge.net/.
+
+ * There's now an automatic trim() on decrypting data. This change is partly because the phpseclib implementation does this, so it's now also done in the mcrypt implementaton to maintain consistency between implementations, and partly because it has caused to some confusion/concern among several users (though it was not actually a bug).
+
+ * Fixed a faulty implemented form. Thanks to rjmackay. Issue: http://drupal.org/node/507892
+
+ * aes_encrypt and aes_decrypt will now return false if passed empty strings instead of raising errors. (Several issues has been discussing this and I believe there has been various reasons to it happening depending on your site settings and installed modules).
+
+ * Requirements are now checked at install, thanks AlexisWilke. Issue: http://drupal.org/node/436368
+
+ * Plus other minor changes which shouldn't affect the function/behavior of this module in any significant way.
+
+5.x-1.2 -> 6.x-1.3
+ 
+ * Ported the module to Drupal 6.
+ 
+ * AES no longer alerts the user about a missing key if the user does not have the administer aes permission. This alert is now also logged in the watchdog.
+ 
+ * Fixed a bug which caused AES encrypted passwords to be created even when this feature was turned off if an existing account was given a new password.
+
+5.x-1.1 -> 5.x-1.2
+ 
+ * Fixed a faulty use of preg_match which caused a warning in PHP 5.2.x.
+ 
+ * A users encrypted password is now deleted along with the user.
+ 
+ * Removed a redundant write to file when saving a key using the file storage method.
+ 
+ * Fixed the anonymous account receiving an encrypted password in some situations.
+ 
+ * Removed an unused menu item.
+
+5.x-1.0 -> 5.x-1.1
+ 
+ * Added option to use 192 or 256 bit versions of the Rijndael algorithms.
+ 
+ * Drupals database abstraction layer is now used properly.
+ 
+ * Added (untested) support for Windows.
+ 
+ * AES-encrypted passwords are now stored separately in their own table instead of replacing the MD5 passwords in the users table.
+ 
+ * Added option to show the decrypted password on another page.
+ 
+ * Plus some other minor changes.

@@ -1,0 +1,14 @@
+name = AES
+description = Provides AES encryption.
+core = 7.x
+configure = admin/config/system/aes
+
+files[] = aes.module
+files[] = aes.install
+
+; Information added by Drupal.org packaging script on 2014-03-28
+version = "7.x-1.8"
+core = "7.x"
+project = "aes"
+datestamp = "1396027146"
+

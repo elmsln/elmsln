@@ -1,0 +1,136 @@
+
+Here's a brief and simple run-through of the functions which might be interesting from a developers point of view. Most (see exceptions below) of the functions are implementation independant, so behaviour should be consistent regardless of which implementation (mcrypt or phpseclib) is used.
+
+Implementation independence exceptions:
+
+1. aes_make_iv is mute when using phpseclib since that implementation handle its own IV internally.
+
+2. The $custom_cipher and $custom_iv arguments to aes_encrypt and aes_decrypt are ignored when using phpseclib, since that implementation doesn't support changing these values. Passing these arguments as anything else than null will generate warnings in the watchdog when using phpseclib.
+
+---------------------------------------------------------------------------------
+Function:
+string|false aes_encrypt($string, $base64encode = true, $custom_key = null, $custom_cipher = null, $custom_iv = null, $custom_implementation = null)
+
+Description:
+Encrypts a string.
+
+Arguments:
+string $string The string to encrypt.
+(optional) bool $base64encode Whether to return the string base64 encoded (recommended for database insertion).
+(optional) string $custom_key Use this as the key rather than the stored one for this operation.
+(optional) string $custom_cipher Use this cipher rather than the default one. (only with Mcrypt - ignored with phpseclib)
+(optional) string $custom_iv Use this initialization vector instead of the default one.
+(optional) string $custom_implementation Can be "phpseclib" or "mcrypt". Warning: Does not check if the requested implementation actually exists.
+
+Returns:
+The encrypted string on success, false on error.
+
+---------------------------------------------------------------------------------
+Function:
+string|false aes_decrypt($string, $base64encoded = true, $custom_key = null, $custom_cipher = null, $custom_iv = null, $custom_implementation = null)
+
+Description:
+Decrypts a string of encrypted data.
+
+Arguments:
+string $string The string to decrypt.
+(optional) bool $base64encode Whether this encrypted string is base64 encoded or not.
+(optional) string $custom_key Use this as the key rather than the stored one for this operation.
+(optional) string $custom_cipher Use this cipher rather than the default one. (only with Mcrypt - ignored with phpseclib)
+(optional) string $custom_iv Use this initialization vector instead of the default one.
+(optional) string $custom_implementation Can be "phpseclib" or "mcrypt". Warning: Does not check if the requested implementation actually exists.
+
+Returns:
+The decrypted string on success, false on error.
+
+---------------------------------------------------------------------------------
+Function:
+bool aes_password_exists($uid)
+
+Description:
+Checks if a users password exists.
+
+Arguments:
+int $uid The user ID.
+
+Returns:
+True or false.
+
+---------------------------------------------------------------------------------
+Function:
+string|false aes_get_password($uid, $decrypt = false)
+
+Description:
+Gets a users password, in plain text, or in it's encrypted form.
+
+Arguments:
+int $uid The user ID.
+(optional) bool $decrypt Whether to decrypt the password before returning it, or not. Defaults to false.
+
+Returns:
+The password on success, false on failure.
+
+---------------------------------------------------------------------------------
+Function:
+string aes_get_key()
+
+Description:
+Gets the current key used for the encryption system. If there's currently no key defined, this function will generate one, store it, and return it.
+
+Arguments:
+none
+
+Returns:
+The key.
+
+---------------------------------------------------------------------------------
+Function:
+bool aes_store_key($key)
+
+Description:
+Stores the key given by writing it to the storage method currently used (database or file).
+
+Arguments:
+string $key The key.
+
+Returns:
+True on success, false on failure.
+
+---------------------------------------------------------------------------------
+Function:
+void aes_delete_key($storage_method)
+
+Description:
+Deletes the encryption system key.
+
+Arguments:
+string $storage_method The storage method used to store the key. "Database" or "File".
+
+Returns:
+nothing
+
+---------------------------------------------------------------------------------
+Function:
+string aes_make_key()
+
+Description:
+Generates a new key.
+
+Arguments:
+none
+
+Returns:
+The newly generated key.
+
+---------------------------------------------------------------------------------
+Function:
+void aes_make_iv($ignore_implementation = false)
+
+Description:
+Generates a new initialization vector and stores it (overwrites old IV!). NOTE: Only use this with the Mcrypt implementation, phpseclib has its own IV management.
+
+Arguments:
+(optional) bool $ignore_implementation Forces aes_make_iv to create and store a new IV even if the phpseclib implementation is used.
+
+Returns:
+nothing
