@@ -1,0 +1,15 @@
+name = Drupal Remote Dashboard - Server
+description = The server component for the DRD which is required on every server that gets remotely managed.
+package = Administration
+core = 7.x
+
+dependencies[] = aes
+
+configure = admin/config/system/drd_settings
+
+; Information added by Drupal.org packaging script on 2014-08-16
+version = "7.x-2.5+2-dev"
+core = "7.x"
+project = "drd_server"
+datestamp = "1408183739"
+

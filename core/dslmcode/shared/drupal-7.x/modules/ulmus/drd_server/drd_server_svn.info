@@ -1,0 +1,13 @@
+name = Drupal Remote Dashboard - Server: Subversion
+description = A subversion extension for Drupal Remote Dashboard's server which allows you to perform certain svn actions from your DRD dashboard
+package = Administration
+core = 7.x
+
+dependencies[] = drd_server
+
+; Information added by Drupal.org packaging script on 2014-08-16
+version = "7.x-2.5+2-dev"
+core = "7.x"
+project = "drd_server"
+datestamp = "1408183739"
+
