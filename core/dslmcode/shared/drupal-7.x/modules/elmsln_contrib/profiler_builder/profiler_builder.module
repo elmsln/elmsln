@@ -58,10 +58,25 @@ function _profiler_builder_list_features() {
 }
 
 /**
- * Helper function to gather ignored values
+ * Helper function to gather ignored variable values
  */
 function _profiler_builder_ignore_list() {
   $ignore_list = array(
+    'aes_cipher',
+    'aes_encryption_iv',
+    'aes_implementation',
+    'aes_key_path',
+    'cache_class_cache_drd',
+    'date_api_version',
+    'drd_cluster_mode_token',
+    'securesite_digest_script',
+    'securesite_guest_name',
+    'securesite_guest_pass',
+    'securesite_password_script',
+    'securesite_realm',
+    'maintenance_mode',
+    'menu_expanded',
+    'module_filter_recent_modules',
     'profiler_builder_codecache',
     'drupal_css_cache_files',
     'drupal_js_cache_files',
