@@ -1,0 +1,128 @@
+language: php
+
+php:
+  - 5.3
+  - 5.4
+  - 5.5
+  - hhvm
+
+matrix:
+  allow-failures:
+    - php: hhvm
+
+  env:
+    global:
+      - ES_VER=1.0.1
+      - ES_MAPPER_ATTACHMENTS_VER=2.0.0.RC1
+      - ES_TRANSPORT_THRIFT_VER=2.0.0.RC1
+      - ES_GEOCLUSTER_FACET_VER=0.0.10
+      - ES_WAIT_ON_MAPPING_CHANGE=true
+      - DATABASE='drupal'
+      - DB_USERNAME='root'
+      - DB_ENCODE='utf8'
+    matrix:
+      - DRUPAL_3RD_PARTY='composer_manager'
+      - DRUPAL_3RD_PARTY='libraries'
+
+mysql:
+  database: $DATABASE
+  username: $DB_USERNAME
+  encoding: $DB_ENCODE
+
+before_install:
+  - export UPDATE TRAVIS_BUILD_DIR
+  - BUILD_TOP=`dirname $TRAVIS_BUILD_DIR`
+  - EXIT_VALUE=0
+
+  - sudo apt-get update > /dev/null
+
+  - composer self-update
+install:
+    # install php packages required for running a web server from drush on php 5.3
+    # see new test
+  - sudo apt-get install -y --force-yes php5-cgi php5-mysql
+
+  # install drush globally
+  - composer global require drush/drush:6.*
+
+  # add composer's global bin directory to the path
+  # see: https://github.com/drush-ops/drush#install---composer
+  - export PATH="$HOME/.composer/vendor/bin:$PATH"
+before_script:
+  #- echo 'sendmail_path = /bin/true' >> ~/.phpenv/versions/$(phpenv version-name)/etc/conf.d/travis.ini
+  # establish elmsln package put in place the right way
+  - sudo mkdir -p /var/www
+  - sudo chown travis:travis /var/www
+  - drush dl drupal --destination=/var/www --default-major=7 --drupal-project-rename=site1 --y
+  # get drush recipes setup functions
+  - sudo chown -R travis:travis ~/.drush
+  - cd ~/.drush/
+  - git clone https://github.com/drupalprojects/drush_recipes.git
+  - drush cc drush
+
+script:
+  # run build scripts against site1
+  - drush dvr start
+  - cd /var/www/site1
+  - drush cook dr_si,standard_baseline --y --mlt-profile=standard --mlt-db-url=mysql://root@localhost/travisdb --mlt-site-name="Site1"
+  # test some other commands
+  - git clone https://github.com/mmilutinovic1313/profiler_builder.git
+  - drush en profiler_builder
+  - drush cc drush
+  # make changes to .profile
+  - drush distro testdistro --untar --y
+  - cd /var/www/site1/profiles/testdistro
+  - git config --global user.email "you@example.com"
+  - git config --global user.name "Your Name"
+  - git init
+  - git add -A
+  - git commit -m "this is the commit message!"
+  - drush si testdistro --y
+  - drush distro testdistro --untar --y
+  - ls -la
+  - git status
+  # Begin test for changes to .profile file
+  - echo "// this is a comment" >> testdistro.profile
+  - git status
+  - drush distro testdistro --untar --y
+  - git status
+  # Begin test for changes to .make file
+  - echo "// this is a comment" >> drupal-org.make
+  - git status
+  - drush distro testdistro --untar --y
+  - git status
+  # Begin test for changes to .example file
+  - echo "// this is a comment" >> local.make.example
+  - git status
+  - drush distro testdistro --untar --y
+  - git status
+  # Begin test for changes to .install file
+  - echo "// this is a comment" >> testdistro.install
+  - git status
+  - drush distro testdistro --untar --y
+  - git status
+  # End test
+  - drush ddt --test-run --y
+  - drush dvr watch
+  - drush dvr delete --command=si
+  - drush dvr watch
+  - drush dvr pause
+  - drush status
+  - drush dvr start
+  - drush cc all
+  - drush dvr watch
+  - drush dvr save --test-run
+  - drush dvr delete --y
+  - drush dvr watch
+  - drush dvr stop --test-run
+after_script:
+  - drush dlr
+
+notifications:
+  irc: irc.freenode.org#elmsln
+
+  email: false
+  slack:
+    rooms:
+      - elmsln:WmKTRMe7k3IjprunaAVV3Jjg#qa
+      - elmsln:WmKTRMe7k3IjprunaAVV3Jjg#code
