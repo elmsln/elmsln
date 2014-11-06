@@ -12,7 +12,7 @@
  * @ingroup backup_migrate_destinations
  */
 class backup_migrate_destination_s3 extends backup_migrate_destination_remote {
-  var $supported_ops = array('scheduled backup', 'manual backup', 'restore', 'list files', 'configure', 'delete');
+  var $supported_ops = array('scheduled backup', 'manual backup', 'remote backup', 'restore', 'list files', 'configure', 'delete');
   var $s3 = NULL;
   var $cache_files = TRUE;
 
@@ -84,7 +84,8 @@ class backup_migrate_destination_s3 extends backup_migrate_destination_remote {
     $form = parent::edit_form();
     $form['scheme']['#type'] = 'value';
     $form['scheme']['#value'] = 'https';
-    $form['host']['#default_value'] = 's3.amazonaws.com';
+    $form['host']['#type'] = 'value';
+    $form['host']['#value'] = 's3.amazonaws.com';
 
     $form['path']['#title'] = 'S3 Bucket';
     $form['path']['#default_value'] = $this->get_bucket();
@@ -172,14 +173,12 @@ class backup_migrate_destination_s3 extends backup_migrate_destination_remote {
       if (file_exists($path . '/S3.php')) {
         require_once $path . '/S3.php';
         if (!$this->s3 && !empty($this->dest_url['user'])) {
-          $this->s3 = new S3($this->dest_url['user'], $this->dest_url['pass'], FALSE, $this->dest_url['host']);
+          $this->s3 = new S3($this->dest_url['user'], $this->dest_url['pass']);
         }
         return $this->s3;
       }
     }
-
-    drupal_set_message(t('To back up to S3 you must download version 0.4 of the PHP S3 library from !link. Extract the S3.php file and add it the directory %dir.', 
-      array('!link' => l('http://undesigned.org.za/2007/10/22/amazon-s3-php-class', 'http://undesigned.org.za/2007/10/22/amazon-s3-php-class'), '%dir' => 'sites/all/libraries/s3-php5-curl')), 'error', FALSE);
+    drupal_set_message(t('Due to drupal.org code hosting policies, the S3 library needed to use an S3 destination is no longer distributed with this module. You must download the library from !link and place it in one of these locations: %locations.', array('%locations' => implode(', ', $library_paths), '!link' => l('http://undesigned.org.za/2007/10/22/amazon-s3-php-class', 'http://undesigned.org.za/2007/10/22/amazon-s3-php-class'))), 'error', FALSE);
     return NULL;
   }
 }

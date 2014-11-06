@@ -17,14 +17,14 @@ class backup_migrate_filter_encryption extends backup_migrate_filter {
   /**
    * This function is called on a backup file after the backup has been completed.
    */
-  function backup($file, &$settings) {
+  function backup($file, $settings) {
     return $this->file_encrypt($file, $settings);
   }
 
   /**
    * This function is called on a backup file before importing it.
    */
-  function restore($file, &$settings) {
+  function restore($file, $settings) {
     return $this->file_decrypt($file);
   }
 
@@ -44,10 +44,10 @@ class backup_migrate_filter_encryption extends backup_migrate_filter {
     if (count($options) > 1) {
       $form['file']['encryption'] = array(
         "#type" => "select",
-        "#title" => t("File Encryption (EXPERIMENTAL)"),
+        "#title" => t("File Encryption"),
         "#options" => $options,
         "#default_value" => @$settings['encryption'],
-        '#description' => t('Encrypted files can only be restored by Backup and Migrate and only on sites with the same encryption key. <strong>This functionality is experimental, and should only be used for testing.</strong>'),
+        '#description' => t('Encrypted files can only be restored by Backup and Migrate and only on sites with the same encryption key.'),
       );
     }
     else {

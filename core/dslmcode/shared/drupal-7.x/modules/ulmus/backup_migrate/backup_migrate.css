@@ -1,4 +1,5 @@
-.schedule-list-disabled {
+.schedule-list-disabled
+{
   filter:alpha(opacity=50);
   -moz-opacity: .50;
   opacity: .50;
@@ -9,9 +10,6 @@
 }
 
 .backup-migrate-tables-checkboxes .form-item {
-  margin: 0;
-}
-.backup-migrate-tables-checkboxes .form-item label {
   width: 15em;
   float: left;
   overflow: hidden;
@@ -19,24 +17,51 @@
   height: 1.75em;
   margin: .25em .25em 0 0;
 }
-.backup-migrate-tables-checkboxes .form-item label.checked {
-  background-color: #eee;
-}
 .backup-migrate-tables-checkboxes .form-item label input {
-  margin-right: .25em;
+  margin-right: .5em;
 }
 
 div.backup-migrate-tables-checkboxes {
-  max-height: 40em;
+  height: 20em;
   overflow: auto;
 }
-div.backup-migrate-description {
+div.backup-migrate-tags,
+div.backup-migrate-description,
+div.backup-migrate-date
+{
   font-size: smaller;
 }
-
+span.backup-migrate-label {
+  font-weight: bold;
+}
+table.backup-migrate-listing td {
+  vertical-align: top;
+}
 
 div.row-error {
   color: #FF0000;
   font-weight: bold;
 }
 
+.backup-migrate-listing {
+  margin-bottom: 2em;
+}
+.backup-migrate-actions {
+  text-align: right;
+}
+
+html.js #backup-migrate-ui-manual-quick-backup-form fieldset.collapsed,
+.backup-migrate-inline {
+  margin-bottom: 1em;
+}
+
+.backup-migrate-form-dependent {
+  padding-left: 2em;
+  padding-bottom: 1em;
+}
+.backup-migrate-form-dependent .form-item {
+  margin-top: 0;
+}
+.backup-migrate-footer-message {
+  margin-bottom: 1em;
+}

@@ -25,28 +25,90 @@ function backup_migrate_temp_files_add($filepath = NULL) {
  * Delete all temporary files.
  */
 function _backup_migrate_temp_files_delete() {
-  // Delete the temp files created during this run.
-  foreach (backup_migrate_temp_files_add() as $file) {
-    $file = drupal_realpath($file);
-    if (file_exists($file) && is_writable($file)) {
+  if (variable_get('backup_migrate_cleanup_temp_files', TRUE)) {
+    // Delete the temp files created during this run.
+    foreach (backup_migrate_temp_files_add() as $file) {
+      if (file_exists($file) && is_writable($file)) {
+        _backup_migrate_temp_files_delete_file($file);
+      }
+    }
+
+    // Delete temp files abandoned for 6 or more hours.
+    $dir = file_directory_temp();
+    $expire = time() - variable_get('backup_migrate_cleanup_time', 21600);
+    if (file_exists($dir) && is_dir($dir) && is_readable($dir) && $handle = opendir($dir)) {
+      while (FALSE !== ($file = @readdir($handle))) {
+        // Delete 'backup_migrate_' files in the temp directory that are older than the expire time.
+        // We should only attempt to delete writable files to prevent errors in shared environments.
+        // This could still cause issues in shared environments with poorly configured file permissions.
+        if (strpos($file, 'backup_migrate_') === 0 && is_writable("$dir/$file") && @filectime("$dir/$file") < $expire) {
+          _backup_migrate_temp_files_delete_file("$dir/$file");
+        }
+      }
+      closedir($handle);
+    }
+  }
+}
+
+/**
+ * Delete a temporary file or folder
+ */
+function _backup_migrate_temp_files_delete_file($file) {
+  if (file_exists($file) && (is_writable($file) || is_link($file))) {
+    if (!is_link($file) && is_dir($file) && is_readable($file) && $handle = opendir($file)) {
+      $dir = $file;
+      while (FALSE !== ($file = @readdir($handle))) {
+        if ($file != '..' && $file != '.') {
+          _backup_migrate_temp_files_delete_file("$dir/$file");
+        }
+      }
+      rmdir($dir);
+    }
+    else {
       unlink($file);
     }
   }
+}
 
-  // Delete temp files abandoned for 6 or more hours.
-  $dir = file_stream_wrapper_get_instance_by_scheme('temporary')->getDirectoryPath();
-  $expire = time() - variable_get('backup_migrate_cleanup_time', 21600);
-  if (file_exists($dir) && is_dir($dir) && is_readable($dir) && $handle = opendir($dir)) {
-    while (FALSE !== ($file = @readdir($handle))) {
-      // Delete 'backup_migrate_' files in the temp directory that are older than the expire time.
-      // We should only attempt to delete writable files to prevent errors in shared environments.
-      // This could still cause issues in shared environments with poorly configured file permissions.
-      if (strpos($file, 'backup_migrate_') === 0 && is_writable("$dir/$file") && @filectime("$dir/$file") < $expire) {
-        unlink("$dir/$file");
+/**
+ * Move files recursively.
+ */
+function _backup_migrate_move_files($from, $to) {
+  if (is_readable($from)) {
+    if (is_dir($from) && is_readable($from) && $handle = opendir($from)) {
+      if (!file_exists($to)) {
+        mkdir($to);
+      }
+      while (FALSE !== ($file = @readdir($handle))) {
+        if ($file != '..' && $file != '.') {
+          _backup_migrate_move_files("$from/$file", "$to/$file");
+        }
       }
     }
-    closedir($handle);
+    else {
+      rename($from, $to);
+    }
   }
+  return FALSE;
+}
+
+
+
+/**
+ * Create a temporary directory.
+ */
+function backup_migrate_temp_directory() {
+  $tmp = realpath(file_directory_temp());
+  // Check the writability of the temp directory.
+  if (!is_writable(realpath(file_directory_temp()))) {
+    _backup_migrate_message('Your temporary directory %tmp is not writable. Backup and migrate needs to be able to create temporary files.', array('%tmp' => $tmp), 'error');
+  }
+
+  // Use a full path so that the files can be deleted during the shutdown function if needed.
+  $file = $tmp .'/'. uniqid('backup_migrate_');
+  mkdir($file);
+  backup_migrate_temp_files_add($file);
+  return $file;
 }
 
 /**
@@ -74,23 +136,37 @@ function _backup_migrate_filename_append_prepare($filename, $append_str) {
   }
   return $filename;
 }
-
+  
 /**
  * Construct a filename using token and some cleaning.
  */
-function _backup_migrate_construct_filename($filename, $timestamp='') {
-  if (module_exists('token')) {
+function _backup_migrate_construct_filename($settings) {
+  // Get the raw filename from the settings.
+  $filename = $settings->filename;
+
+  // Replace any tokens
+  if (module_exists('token') && function_exists('token_replace')) {
     $filename = token_replace($filename);
   }
-  $filename = preg_replace("/[^a-zA-Z0-9\.\-_]/", "", $filename);
+
+  // Remove illegal characters
+  $filename = _backup_migrate_clean_filename($filename);
+
+  // Generate a timestamp if needed.
+  $timestamp = '';
+  if ($settings->append_timestamp && $settings->timestamp_format) {
+    $timestamp = format_date(time(), 'custom', $settings->timestamp_format);
+  }
+
+  // Trim to length if needed to allow the timestamp to fit into the max filename.
   $filename = _backup_migrate_filename_append_prepare($filename, $timestamp);
   $filename .= '-' . $timestamp;
   $filename = trim($filename, '-');
 
+  // If there is no filename, then just call it untitled.
   if (drupal_strlen($filename) == 0) {
     $filename = 'untitled';
   }
-
   return $filename;
 }
 
@@ -103,8 +179,16 @@ function _backup_migrate_default_filename() {
   }
   else {
     // Cleaning the string isn't strictly necessary but it looks better in the settings field.
-    return variable_get('site_name', 'backup_migrate');
+    return _backup_migrate_clean_filename(variable_get('site_name', "backup_migrate"));
   }
+}
+
+/**
+ * Clean up a filename to remove unsafe characters.
+ */
+function _backup_migrate_clean_filename($filename) {
+  $filename = preg_replace("/[^a-zA-Z0-9\.\-_]/", "", $filename);
+  return $filename;
 }
 
 /**
@@ -161,7 +245,9 @@ class backup_file {
     if ($name) {
       $this->name = $name;
     }
-    return $this->name .'.'. $this->extension();
+    $extension_str = '.' . $this->extension();
+    $this->name = _backup_migrate_filename_append_prepare($this->name, $extension_str);
+    return $this->name . $extension_str;
   }
 
   /**
@@ -171,10 +257,11 @@ class backup_file {
     $this->path = $path;
     $params = array(
       'filename' => basename($path),
+      'file_id' => basename($path)
     );
     if (file_exists($path)) {
       $params['filesize'] = filesize($path);
-      $params['filetime'] = filemtime($path);
+      $params['filetime'] = filectime($path);
     }
     $this->set_file_info($params);
   }
@@ -189,6 +276,13 @@ class backup_file {
     return $this->file_info;
   }
 
+
+  /**
+   * Get one or all pieces of info for the file.
+   */
+  function info_set($key, $value) {
+    $this->file_info[$key] = $value;
+  }
   /**
    * Get the file extension.
    */
@@ -217,6 +311,19 @@ class backup_file {
     return @$this->type['id'];
   }
 
+  function filesize() {
+    if (empty($this->file_info['filesize'])) {
+      $this->calculate_filesize();
+    }
+    return $this->file_info['filesize'];
+  }
+
+  function calculate_filesize() {
+    $this->file_info['filesize'] = '';
+    if (!empty($this->path) && file_exists($this->path)) {
+      $this->file_info['filesize'] = filesize($this->path);
+    }
+  }
 
   /**
    * Can this file be used to backup to.
@@ -323,7 +430,7 @@ class backup_file {
     // In some circumstances, web-servers will double compress gzipped files.
     // This may help aleviate that issue by disabling mod-deflate.
     if ($this->mimetype() == 'application/x-gzip') {
-      $headers[] = 'Content-Encoding: gzip';
+      $headers[] = array('key' => 'Content-Encoding', 'value' => 'gzip');
     }
     if ($size = $this->info('filesize')) {
       $headers[] = array('key' => 'Content-Length', 'value' => $size);

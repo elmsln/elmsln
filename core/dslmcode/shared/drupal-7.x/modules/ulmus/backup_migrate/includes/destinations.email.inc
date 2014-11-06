@@ -12,7 +12,7 @@
  * @ingroup backup_migrate_destinations
  */
 class backup_migrate_destination_email extends backup_migrate_destination {
-  var $supported_ops = array('scheduled backup', 'manual backup', 'configure');
+  var $supported_ops = array('scheduled backup', 'manual backup', 'remote backup', 'configure');
 
   /**
    * Save to (ie. email the file) to the email destination.
@@ -41,7 +41,7 @@ class backup_migrate_destination_email extends backup_migrate_destination {
       "#title" => t("Email Address"),
       "#default_value" => $this->get_location(),
       "#required" => TRUE,
-      "#description" => t('Enter the email address to send the backup files to. Make sure the email server can handle large file attachments.'),
+      "#description" => t('Enter the email address to send the backup files to. Make sure the email sever can handle large file attachments'),
     );
     return $form;
   }

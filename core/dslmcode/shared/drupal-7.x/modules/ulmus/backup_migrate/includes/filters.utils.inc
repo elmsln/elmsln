@@ -7,11 +7,12 @@
  */
 
 /**
- * A filter to send a notification email on success or failure of backup.
+ * A filter to run some basic utility functions.
  *
  * @ingroup backup_migrate_filters
  */
 class backup_migrate_filter_utils extends backup_migrate_filter {
+  var $op_weights = array('pre_backup' => -1000, 'post_backup' => 1000);
   var $saved_devel_query = NULL;
 
   /**
@@ -54,17 +55,35 @@ class backup_migrate_filter_utils extends backup_migrate_filter {
       '#default_value' => !empty($settings['utils_site_offline']) ? $settings['utils_site_offline'] : NULL,
       '#description' => t('Take the site offline during backup and show a maintenance message. Site will be taken back online once the backup is complete.'),
     );
-    $form['advanced']['utils_site_offline_message'] = array(
+    $form['advanced']['utils_site_offline_message_wrapper'] = array(
+      '#type' => 'backup_migrate_dependent',
+      '#dependencies' => array(
+        'filters[utils_site_offline]' => TRUE,
+      ),
+    );
+    $form['advanced']['utils_site_offline_message_wrapper']['utils_site_offline_message'] = array(
       '#type' => 'textarea',
       '#title' => t('Site off-line message'),
-      '#default_value' => !empty($settings['utils_site_offline_message']) ? $settings['utils_site_offline_message'] : variable_get('maintenance_mode_message', t('@site is currently under maintenance. We should be back shortly. Thank you for your patience.', array('@site' => variable_get('site_name', 'Drupal')))),
+      '#default_value' => !empty($settings['utils_site_offline_message']) ? $settings['utils_site_offline_message'] : variable_get('site_offline_message', t('@site is currently under maintenance. We should be back shortly. Thank you for your patience.', array('@site' => variable_get('site_name', 'Drupal')))),
       '#description' => t('Message to show visitors when the site is in off-line mode.')
     );
     $form['advanced']['utils_description'] = array(
       '#type' => 'textarea',
-      '#title' => t('Description'),
+      '#title' => t('Add a note'),
       '#default_value' => !empty($settings['utils_description']) ? $settings['utils_description'] : NULL,
-      '#description' => t('Add a short description to the backup file.'),
+      '#description' => t('Add a short note to the backup file.'),
+    );
+    $form['advanced']['use_cli'] = array(
+      "#type" => "checkbox",
+      "#title" => t("Use cli commands"),
+      "#default_value" => !empty($settings['use_cli']),
+      "#description" => t("Use the command line tools (mysqldump, tar, gzip etc.) if available. This can be faster for large sites but will not work on all servers. EXPERIMENTAL"),
+    );
+    $form['advanced']['ignore_errors'] = array(
+      "#type" => "checkbox",
+      "#title" => t("Ignore errors"),
+      "#default_value" => !empty($settings['ignore_errors']),
+      "#description" => t("Will attempt to complete backup even if certain recoverable errors occur. This may make the backup files invalid. Enable this if you have unreadable files that you want to ignore during backup."),
     );
 
     return $form;
@@ -89,24 +108,44 @@ class backup_migrate_filter_utils extends backup_migrate_filter {
       '#default_value' => !empty($settings['utils_site_offline']) ? $settings['utils_site_offline'] : NULL,
       '#description' => t('Take the site offline during restore and show a maintenance message. Site will be taken back online once the restore is complete.'),
     );
-    $form['advanced']['utils_site_offline_message'] = array(
+    $form['advanced']['utils_site_offline_message_wrapper'] = array(
+      '#type' => 'backup_migrate_dependent',
+      '#dependencies' => array(
+        'filters[utils_site_offline]' => TRUE,
+      ),
+    );
+    $form['advanced']['utils_site_offline_message_wrapper']['utils_site_offline_message'] = array(
       '#type' => 'textarea',
       '#title' => t('Site off-line message'),
-      '#default_value' => !empty($settings['utils_site_offline_message']) ? $settings['utils_site_offline_message'] : variable_get('maintenance_mode_message', t('@site is currently under maintenance. We should be back shortly. Thank you for your patience.', array('@site' => variable_get('site_name', 'Drupal')))),
+      '#default_value' => !empty($settings['utils_site_offline_message']) ? $settings['utils_site_offline_message'] : variable_get('site_offline_message', t('@site is currently under maintenance. We should be back shortly. Thank you for your patience.', array('@site' => variable_get('site_name', 'Drupal')))),
       '#description' => t('Message to show visitors when the site is in off-line mode.')
     );
+    $form['advanced']['use_cli'] = array(
+      "#type" => "checkbox",
+      "#title" => t("Use cli commands"),
+      "#default_value" => !empty($settings['use_cli']),
+      "#description" => t("Use the command line tools (mysqldump, tar, gzip etc.) if available. This can be faster for large sites but will not work on all servers. EXPERIMENTAL"),
+    );
+    // $form['advanced']['ignore_errors'] = array(
+    //   "#type" => "checkbox",
+    //   "#title" => t("Ignore errors"),
+    //   "#default_value" => !empty($settings['ignore_errors']),
+    //   "#description" => t("Will attempt to complete restore even if certain recoverable errors occur. This may could corrupt your site."),
+    // );
     return $form;
   }
 
-  function pre_backup($source, $file, $settings) {
+  function pre_backup($file, $settings) {
     $this->take_site_offline($settings);
     $this->disable_devel_query($settings);
   }
 
-  function post_backup($source, $file, $settings) {
+  function post_backup($file, $settings) {
     $this->enable_devel_query($settings);
     $this->take_site_online($settings);
-    $this->add_file_info($file, $settings);
+    if ($file) {
+      $this->add_file_info($file, $settings);    
+    }
   }
 
   function pre_restore($file, $settings) {
@@ -146,14 +185,20 @@ class backup_migrate_filter_utils extends backup_migrate_filter {
     $file->file_info['datestamp']         = time();
     $file->file_info['generator']         = 'Backup and Migrate (http://drupal.org/project/backup_migrate)';
     $file->file_info['generatorversion']  = BACKUP_MIGRATE_VERSION;
-    $file->file_info['sites'] = array(
-        '0' => array(
-          'version' => VERSION,
-          'name' => variable_get('site_name', ''),
-          'url' => url('', array('absolute' => TRUE)),
-        ),
-      );
-    
+    $file->file_info['siteurl']           = url('', array('absolute' => TRUE));
+    $file->file_info['sitename']          = variable_get('site_name', '');
+    $file->file_info['drupalversion']     = VERSION;
+    $file->calculate_filesize();
+
+    $source = $settings->get('source');
+    $file->file_info['bam_sourceid']      = $source->get('id');
+    $file->file_info['bam_sourcetype']    = $source->get('subtype');
+    $file->file_info['bam_sourcename']    = $source->get('name');
+
+    // Add any additional info that has been added to the settings by other plugins.
+    if (!empty($settings->file_info)) {
+      $file->file_info += $settings->file_info;
+    }
   }
 
   /**
