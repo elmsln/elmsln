@@ -29,7 +29,7 @@ if [ -z $elmsln ]; then
 fi
 
 # thx to bradallenfisher for this bit of funness
-BACKUP_DIR="/var/www/elmsln-config-backups/$(timestamp)/"
+BACKUP_DIR="/var/www/config-elmsln-backups/$(timestamp)/"
 
 TAR_PATH="$(which tar)"
 
