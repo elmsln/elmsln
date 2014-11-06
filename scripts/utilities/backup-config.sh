@@ -25,7 +25,7 @@ if [ -z $elmsln ]; then
 fi
 
 # thx to bradallenfisher for this bit of funness
-BACKUP_DIR="/var/www/elmsln-config-backups"
+BACKUP_DIR="/var/www/elmsln-config-backups/$(date)/"
 
 TAR_PATH="$(which tar)"
 
@@ -49,7 +49,7 @@ do
 elmslnecho "Archiving $d..."
 if [[ ! -d $BACKUP_DIR$d ]]
 then
-mkdir -p "$BACKUP_DIR/$d/"
+mkdir -p "$BACKUP_DIR$d/"
 fi
 
 $TAR_PATH --exclude="*/log" -C $configsdir -czf $BACKUP_DIR$d/$d.tgz $d
