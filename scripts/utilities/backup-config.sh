@@ -17,6 +17,10 @@ elmslnecho(){
 elmslnwarn(){
   echo "${bldred}$1${txtreset}"
 }
+# Define seconds timestamp
+timestamp(){
+  date +"%s"
+}
 
 #test for empty vars. if empty required var -- exit
 if [ -z $elmsln ]; then
@@ -25,14 +29,14 @@ if [ -z $elmsln ]; then
 fi
 
 # thx to bradallenfisher for this bit of funness
-BACKUP_DIR="/var/www/elmsln-config-backups/$(date)/"
+BACKUP_DIR="/var/www/elmsln-config-backups/$(timestamp)/"
 
 TAR_PATH="$(which tar)"
 
 # END CONFIGURATION ============================================================
 
 # Announce the backup time
-elmslnecho "Backup Started: $(date)"
+elmslnecho "Backup Started: $(timestamp)"
 
 # Create the backup dirs if they don't exist
 if [[ ! -d $BACKUP_DIR ]]
@@ -57,4 +61,4 @@ done
 
 # Announce the completion time
 elmslnecho "------------------------------------"
-elmslnecho "Backup Completed: $(date)"
+elmslnecho "Backup Completed: $(timestamp)"
