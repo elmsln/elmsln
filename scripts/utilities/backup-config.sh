@@ -46,7 +46,7 @@ fi
 elmslnecho "------------------------------------"
 cd $SITES_DIR
 cd ..
-$TAR_PATH --exclude="*/log" -C $SITES_DIR -czf $BACKUP_DIR$d.tgz 'config'
+$TAR_PATH --exclude="*/log" -C $SITES_DIR -czf $BACKUP_DIR$d.tgz $SITES_DIR
 
 # Announce the completion time
 elmslnecho "------------------------------------"
