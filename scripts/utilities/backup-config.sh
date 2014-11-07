@@ -29,36 +29,25 @@ if [ -z $elmsln ]; then
 fi
 
 # thx to bradallenfisher for this bit of funness
-BACKUP_DIR="/var/www/config-elmsln-backups/$(timestamp)/"
-
+SITES_DIR=$configsdir
+BACKUP_DIR="/var/backups/elmsln-config/"
+d="$(timestamp)"
 TAR_PATH="$(which tar)"
-
 # END CONFIGURATION ============================================================
 
 # Announce the backup time
-elmslnecho "Backup Started: $(timestamp)"
+elmslnecho "Backup Started: $(date)"
 
 # Create the backup dirs if they don't exist
 if [[ ! -d $BACKUP_DIR ]]
-then
-mkdir -p "$BACKUP_DIR"
+  then
+  mkdir -p "$BACKUP_DIR"
 fi
-
-# Get a list of files in the sites directory and tar them one by one
 elmslnecho "------------------------------------"
-
-cd $configsdir
-for d in *
-do
-elmslnecho "Archiving $d..."
-if [[ ! -d $BACKUP_DIR$d ]]
-then
-mkdir -p "$BACKUP_DIR$d/"
-fi
-
-$TAR_PATH --exclude="*/log" -C $configsdir -czf $BACKUP_DIR$d/$d.tgz $d
-done
+cd $SITES_DIR
+cd ..
+$TAR_PATH --exclude="*/log" -C $SITES_DIR -czf $BACKUP_DIR$d.tgz $d
 
 # Announce the completion time
 elmslnecho "------------------------------------"
-elmslnecho "Backup Completed: $(timestamp)"
+elmslnecho "Backup Completed: $(date)"
