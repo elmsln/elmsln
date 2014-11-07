@@ -48,6 +48,12 @@ cd $SITES_DIR
 cd ..
 $TAR_PATH --exclude="*/log" -C $SITES_DIR -czf $BACKUP_DIR$d.tgz $SITES_DIR
 
+# todo look for a way of checking for # of files in this directory
+# if # of files in BACKUP_DIR is > 10
+# then remove files starting w/ the oldest
+# This helps ensure we don't cripple outselves w/ file size of
+# backups being stored on a different part of the same system
+
 # Announce the completion time
 elmslnecho "------------------------------------"
 elmslnecho "Backup Completed: $(date)"
