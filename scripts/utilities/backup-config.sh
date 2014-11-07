@@ -31,7 +31,7 @@ fi
 # thx to bradallenfisher for this bit of funness
 SITES_DIR=$configsdir
 BACKUP_DIR="/var/backups/elmsln-config/"
-d="config"
+d="$(timestamp)"
 TAR_PATH="$(which tar)"
 # END CONFIGURATION ============================================================
 
@@ -46,7 +46,7 @@ fi
 elmslnecho "------------------------------------"
 cd $SITES_DIR
 cd ..
-$TAR_PATH --exclude="*/log" -C $SITES_DIR -czf "${BACKUP_DIR}$(timestamp)-${d}.tgz" $d
+$TAR_PATH --exclude="*/log" -C $SITES_DIR -czf $BACKUP_DIR$d.tgz 'config'
 
 # Announce the completion time
 elmslnecho "------------------------------------"
