@@ -24,7 +24,9 @@ if [[ $EUID -eq 0 ]]; then
 fi
 
 # modify the user's home directory to run drush and make life lazy
-ln -s /var/www/elmsln $HOME/elmsln
+if [[ ! -d "${HOME}/elmsln" ]] ; then
+  ln -s /var/www/elmsln $HOME/elmsln
+fi
 touch $HOME/.bashrc
 echo "alias g='git'" >> $HOME/.bashrc
 echo "alias d='drush'" >> $HOME/.bashrc
