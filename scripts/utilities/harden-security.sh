@@ -27,9 +27,6 @@ fi
 # make the default config backup location owned by root
 mkdir /var/www/elmsln-config-backups
 chown -R root:root /var/www/elmsln-config-backups
-# harden logs
-mkdir $configsdir/logs
-chown -R root:root $configsdir/logs
 # set all settings.php's to be root and READ ONLY
 chown root:root "$configsdir/stacks/*/sites/*/*/*/settings.php"
 chmod 444 "$configsdir/stacks/*/sites/*/*/*/settings.php"
@@ -48,6 +45,10 @@ chmod 774 "$drupal_priv"
 # set web server perms correctly for jobs
 chown -R $wwwuser:$webgroup "$configsdir/jobs"
 chmod 774 "$configsdir/jobs"
+# set upgrade log permissions
+mkdir "$configsdir/logs"
+chown -R root:$USER "$configsdir/logs"
+chmod 770 "$configsdir/logs"
 # ensure piwik is happy
 chown -R $wwwuser:$wwwuser "$configsdir/_nondrupal/piwik"
 chmod 744 "$configsdir/_nondrupal/piwik"
