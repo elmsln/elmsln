@@ -496,6 +496,12 @@ function _cis_connector_transaction($request, $format = 'default', $query = arra
   if (is_null($section)) {
     $section = _cis_connector_section_context();
   }
+  // account for FAKE master sections that have been auto generated
+  if (strpos($section, 'master_') === 0) {
+    // return an empty array. this is what happened when there is a query for
+    // a section that doesn't exist. this avoids it throwing an error
+    return array();
+  }
   // form the commonly used base query
   $base_query = array('field_access_string' => $section, 'archived' => 0);
   // process request
