@@ -130,6 +130,25 @@ function mooc_cis_ux_menu_default_menu_links() {
     'customized' => 1,
     'parent_identifier' => 'menu-course-tools-menu_content-tool:<nolink>',
   );
+  // Exported menu link: menu-course-tools-menu_sections:cis/section-list
+  $menu_links['menu-course-tools-menu_sections:cis/section-list'] = array(
+    'menu_name' => 'menu-course-tools-menu',
+    'link_path' => 'cis/section-list',
+    'router_path' => 'cis/section-list',
+    'link_title' => 'Sections',
+    'options' => array(
+      'attributes' => array(),
+      'identifier' => 'menu-course-tools-menu_sections:cis/section-list',
+    ),
+    'module' => 'menu',
+    'hidden' => 0,
+    'external' => 0,
+    'has_children' => 0,
+    'expanded' => 0,
+    'weight' => 0,
+    'customized' => 1,
+    'parent_identifier' => 'menu-course-tools-menu_service-tools:<nolink>',
+  );
   // Exported menu link: menu-course-tools-menu_service-tools:<nolink>
   $menu_links['menu-course-tools-menu_service-tools:<nolink>'] = array(
     'menu_name' => 'menu-course-tools-menu',
@@ -219,6 +238,7 @@ function mooc_cis_ux_menu_default_menu_links() {
   t('Instructional Outline');
   t('Performance');
   t('Search / Replace');
+  t('Sections');
   t('Service Tools');
   t('Settings');
   t('Theme');
