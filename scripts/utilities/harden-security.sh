@@ -48,6 +48,9 @@ chmod 774 "$drupal_priv"
 # set web server perms correctly for jobs
 chown -R $wwwuser:$webgroup "$configsdir/jobs"
 chmod 774 "$configsdir/jobs"
+# ensure piwik is happy
+chown -R $wwwuser:$wwwuser "$configsdir/_nondrupal/piwik"
+chmod 744 "$configsdir/_nondrupal/piwik"
 # set files directories to be owned by apache
 chown -R $wwwuser:$webgroup "$configsdir/stacks/*/sites/*/*/*/files"
 chmod 774 "$configsdir/stacks/*/sites/*/*/*/files"
