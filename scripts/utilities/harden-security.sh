@@ -37,16 +37,16 @@ chown root:root "$configsdir/stacks/*/sites/*/*/settings.php"
 chmod 444 "$configsdir/stacks/*/sites/*/*/settings.php"
 # set all sites.php to be root and writable only by root
 chown -R root:root "$configsdir/stacks/*/sites/sites.php"
-chmod 744 "$configsdir/stacks/*/sites/sites.php"
+chmod 644 "$configsdir/stacks/*/sites/sites.php"
 # ensure script settings are secure and READ ONLY, NEVER globally
 chown root:$webgroup "$configsdir/scripts/drush-create-site/config.cfg"
 chmod 440 "$configsdir/scripts/drush-create-site/config.cfg"
 
 # set web server perms correctly for private files
 chown -R $wwwuser:$webgroup "$drupal_priv"
-chmod 664 "$drupal_priv"
+chmod 774 "$drupal_priv"
 # set files directories to be owned by apache
 chown -R $wwwuser:$webgroup "$configsdir/stacks/*/sites/*/*/*/files"
-chmod 664 "$configsdir/stacks/*/sites/*/*/*/files"
+chmod 774 "$configsdir/stacks/*/sites/*/*/*/files"
 chown -R $wwwuser:$webgroup "$configsdir/stacks/*/sites/*/*/files"
-chmod 664 "$configsdir/stacks/*/sites/*/*/files"
+chmod 774 "$configsdir/stacks/*/sites/*/*/files"
