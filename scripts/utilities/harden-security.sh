@@ -47,7 +47,7 @@ chown -R $wwwuser:$webgroup "$configsdir/jobs"
 chmod 774 "$configsdir/jobs"
 # set upgrade log permissions
 mkdir "$configsdir/logs"
-chown -R root:$USER "$configsdir/logs"
+chown -R root:$webgroup "$configsdir/logs"
 chmod 770 "$configsdir/logs"
 # ensure piwik is happy
 chown -R $wwwuser:$wwwuser "$configsdir/_nondrupal/piwik"
