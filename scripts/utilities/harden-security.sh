@@ -45,6 +45,9 @@ chmod 440 "$configsdir/scripts/drush-create-site/config.cfg"
 # set web server perms correctly for private files
 chown -R $wwwuser:$webgroup "$drupal_priv"
 chmod 774 "$drupal_priv"
+# set web server perms correctly for jobs
+chown -R $wwwuser:$webgroup "$configsdir/jobs"
+chmod 774 "$configsdir/jobs"
 # set files directories to be owned by apache
 chown -R $wwwuser:$webgroup "$configsdir/stacks/*/sites/*/*/*/files"
 chmod 774 "$configsdir/stacks/*/sites/*/*/*/files"
