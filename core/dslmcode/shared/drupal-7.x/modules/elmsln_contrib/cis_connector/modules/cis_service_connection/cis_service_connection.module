@@ -567,10 +567,14 @@ function cis_service_connection_block_section_context_changer_form_submit($form,
   // set global state or unset the context switch
   if ($form_state['input']['op'] == 'Reset') {
     unset($_SESSION['cis_section_context']);
+    drupal_set_message(t('Section context reset to default.'));
   }
   else {
     $_SESSION['cis_section_context'] = $form_state['values']['section'];
+    drupal_set_message(t('Section context set to @section. You will now experience the course the same way students of this section do.', array('@section' => $form_state['values']['section'])));
   }
+  // when state changes redirect to the homepage and reflect a message
+  $form_state['redirect'] = '<front>';
 }
 
 /**
