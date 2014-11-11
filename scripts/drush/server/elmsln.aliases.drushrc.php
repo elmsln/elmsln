@@ -1,5 +1,4 @@
 <?php
-  // @todo look into pulling the stacks array from config.cfg
   // @todo look into static storing of this value since the file
   // appears to be running up to 3x for some reason
   // @todo run a simple increment command so that we take a bs variable
@@ -85,18 +84,18 @@
     }
   }
 
-/**
- * Magic to auto produce additional alias sub-groups
- */
-$modifier = '-all';
-foreach ($aliases as $key => $values) {
-  $parts = explode('.', $key);
-  if (count($parts) >= 2) {
-    // something that's in a subgroup
-    array_push($aliases[$parts[0] . $modifier]['site-list'], '@' . $key);
+  /**
+   * Magic to auto produce additional alias sub-groups
+   */
+  $modifier = '-all';
+  foreach ($aliases as $key => $values) {
+    $parts = explode('.', $key);
+    if (count($parts) >= 2) {
+      // something that's in a subgroup
+      array_push($aliases[$parts[0] . $modifier]['site-list'], '@' . $key);
+    }
+    else {
+      // something is group-able
+      $aliases[$key . $modifier] = array('site-list' => array());
+    }
   }
-  else {
-    // something is group-able
-    $aliases[$key . $modifier] = array('site-list' => array());
-  }
-}

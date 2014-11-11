@@ -1,55 +1,51 @@
 <?php
-/**
- * Class for remote execution over SSH
- */
-class ExecuteRemote {
-  private static $host;
-  private static $options;
-  private static $username;
-  private static $error;
-  private static $output;
-  // password is not allowed, use SSH key gens for secure bind
-  public static function setup($host, $options, $username) {
-    self::$host = $host;
-    self::$options = $options;
-    self::$username = $username;
-  }
 
-  public static function executeScriptSSH($script) {
-    // Setup connection string
-    $connectionString = self::$options . ' ' . self::$username. '@' . self::$host;
-    // Execute script
-    $cmd = "ssh $connectionString $script 2>&1";
-    self::$output['command'] = $cmd;
-    exec($cmd, self::$output, self::$error);
-    if (self::$error) {
-      //throw new Exception ("\nError sshing: ".print_r(self::$output, true));
-    }
-    return self::$output;
+function _elmsln_alias_execute($server, $script) {
+  $output = array();
+  $error = FALSE;
+  // Setup connection string
+  $string = $server['ssh-options'] . ' ' . $server['remote-user'] . '@' . $server['remote-host'];
+  // Execute script
+  $cmd = "ssh $string $script 2>&1";
+  $output['command'] = $cmd;
+  exec($cmd, $output, $error);
+  if ($error) {
+    print 'ERROR IN SSH CONNECTION';
   }
+  return $output;
 }
 
-function _build_aliases($group, $server) {
-  // Create an array to hold the cache, this prevents unneeded ssh connections
-  static $aliases = array();
+/**
+ * convert a server name into an alias bucket
+ * @param  string $key url to a server to remote connect to
+ * @return string         cleaned up to avoid grouping issues
+ */
+function _elmsln_alias_server_name($key) {
+  return ereg_replace("[^a-z]", '', strtolower($key));
+}
 
-  if (!empty($aliases)) {
-    return $aliases;
+/**
+ * build aliases by running the remote alias generator
+ * @param  string $key    server/alias group
+ * @param  string $server url to a server to remote connect to
+ * @return array         list of aliases w/ their connection credentials
+ */
+function _elmsln_alias_build_aliases($key, $server) {
+  // Create an array to hold the cache, this prevents unneeded ssh connections
+  static $systems = array();
+  if (!empty($systems[$key])) {
+    return $systems[$key];
   }
-  // build remote connection object
-  $connection = new ExecuteRemote();
-  // pass same settings we're append for connection
-  $connection->setup($server['remote-host'], $server['ssh-options'], $server['remote-user']);
-  // return output of the remote execution of our script, serialized
   // change home directory location if not running linux
-  $return = $connection->executeScriptSSH("php /home/{$server['remote-user']}/.drush/$group.remoteconnect.php");
+  $return = _elmsln_alias_execute($server, "php /home/{$server['remote-user']}/.drush/elmsln.remoteconnect.php");
   // unserialize directly into our expected aliases array
-  $aliases = unserialize($return[0]);
+  $system = unserialize($return[0]);
   // append remote connection settings
-  foreach ($aliases as &$alias) {
+  foreach ($system as &$alias) {
     if (isset($alias['root'])) {
       $alias += $server;
     }
   }
-  return $aliases;
+  $systems[$key] = $system;
+  return $systems[$key];
 }
