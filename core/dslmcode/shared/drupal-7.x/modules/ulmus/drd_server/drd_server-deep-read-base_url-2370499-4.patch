@@ -1,0 +1,33 @@
+diff --git a/drd_server.module b/drd_server.module
+index 0fa6e2a..9eeb36d 100644
+--- a/drd_server.module
++++ b/drd_server.module
+@@ -813,6 +813,28 @@ function drd_server_read_sites() {
+     catch (Exception $e) {
+       // Ignore.
+     }
++    // deeper scan of sites.php defined files looking for base_url
++    // this helps account for nested multisites and symlinked multisites
++    // as well as specialized port responses
++    if (!empty($sites)) {
++      foreach ($sites as $key => $shortname) {
++        if (is_dir(DRUPAL_ROOT . '/sites/' . $shortname)) {
++          $file = DRUPAL_ROOT . '/sites/' . $shortname . '/settings.php';
++          if (file_exists($file)) {
++            list($base_url, $databases) = _drd_server_read_settings($shortname, $file);
++            $pos = strpos($base_url, '://');
++            if ($pos > 0) {
++              $base_url = substr($base_url, $pos + 3);
++            }
++            // if we have a more accurate base_url go by that
++            if ($base_url != $key && $base_url != $shortname) {
++              $sites[$base_url] = $shortname;
++              unset($sites[$key]);
++            }
++          }
++        }
++      }
++    }
+   }
+   if (empty($sites)) {
+     foreach (scandir(DRUPAL_ROOT . '/sites') as $shortname) {
