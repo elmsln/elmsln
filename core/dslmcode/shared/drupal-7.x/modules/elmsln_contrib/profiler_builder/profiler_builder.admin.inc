@@ -406,27 +406,32 @@ function ' . $machine_name . '_install() {
       \'pages\' => \'\',
       \'cache\' => -1,
     ),
-    array(
-      \'module\' => \'system\',
-      \'delta\' => \'main\',
-      \'theme\' => $admin_theme,
-      \'status\' => 1,
-      \'weight\' => 0,
-      \'region\' => \'content\',
-      \'pages\' => \'\',
-      \'cache\' => -1,
-    ),
-    array(
-      \'module\' => \'system\',
-      \'delta\' => \'help\',
-      \'theme\' => $admin_theme,
-      \'status\' => 1,
-      \'weight\' => 0,
-      \'region\' => \'help\',
-      \'pages\' => \'\',
-      \'cache\' => -1,
-    ),
   );
+  if ($default_theme !== $admin_theme) {
+    $admin_blocks = array(
+      array(
+        \'module\' => \'system\',
+        \'delta\' => \'main\',
+        \'theme\' => $admin_theme,
+        \'status\' => 1,
+        \'weight\' => 0,
+        \'region\' => \'content\',
+        \'pages\' => \'\',
+        \'cache\' => -1,
+      ),
+      array(
+        \'module\' => \'system\',
+        \'delta\' => \'help\',
+        \'theme\' => $admin_theme,
+        \'status\' => 1,
+        \'weight\' => 0,
+        \'region\' => \'help\',
+        \'pages\' => \'\',
+        \'cache\' => -1,
+      ),
+    );
+    $blocks = array_merge($blocks, $admin_blocks);
+  }
   // drop system / user blocks to ensure correct building
   db_delete(\'block\')->condition(\'module\', \'system\')->execute();
   db_delete(\'block\')->condition(\'module\', \'user\')->execute();
