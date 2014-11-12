@@ -16,50 +16,58 @@
 function _elmsln_alises_build(&$aliases) {
   // static cache assembled aliases as this can get tripped often
   static $pulledaliases = array();
-  if (empty($pulledaliases)) {    // read off the .elmsln/elmsln-hosts manifest
-    $pulledaliases = array();
-    $home = getenv("HOME");
-    // if somehow that isn't set..
-    if (empty($home)) {
-      $usr = posix_getpwuid(posix_getuid());
-      $home = $user['dir'];
-    }
-    $file = "$home/.elmsln/elmsln-hosts";
-    $hosts = file_get_contents($file);
-    $lines = explode("\n", $hosts);
-    // read each line of the config file
-    foreach ($lines as $key => $line) {
-      // make sure this line isn't a comment and has a=
-      if (strpos($line, 'ssh') === 0) {
-        $server = array();
-        $line = str_replace('ssh ', '', $line);
-        $tmp = explode(' ', $line);
-        foreach ($tmp as $item) {
-          if (strpos($item, '@')) {
-            $tmp2 = explode('@', $item);
-            if (count($tmp2) == 2) {
-              $server['remote-user'] = $tmp2[0];
-              $server['remote-host'] = $tmp2[1];
+  // check for pervasive cache if static is empty
+  if (empty($pulledaliases)) {
+    $cache = drush_cache_get(drush_get_cid('elmsln_remote_aliases'));
+    $pulledaliases = $cache->data;
+    if (empty($pulledaliases)) {    // read off the .elmsln/elmsln-hosts manifest
+      $pulledaliases = array();
+      $home = getenv("HOME");
+      // if somehow that isn't set..
+      if (empty($home)) {
+        $usr = posix_getpwuid(posix_getuid());
+        $home = $user['dir'];
+      }
+      $file = "$home/.elmsln/elmsln-hosts";
+      $hosts = file_get_contents($file);
+      $lines = explode("\n", $hosts);
+      // read each line of the config file
+      foreach ($lines as $key => $line) {
+        // make sure this line isn't a comment and has a=
+        if (strpos($line, 'ssh') === 0) {
+          $server = array();
+          $line = str_replace('ssh ', '', $line);
+          $tmp = explode(' ', $line);
+          foreach ($tmp as $item) {
+            if (strpos($item, '@')) {
+              $tmp2 = explode('@', $item);
+              if (count($tmp2) == 2) {
+                $server['remote-user'] = $tmp2[0];
+                $server['remote-host'] = $tmp2[1];
+              }
+            }
+            else {
+              $server['ssh-options'] .= $item . ' ';
             }
           }
-          else {
-            $server['ssh-options'] .= $item . ' ';
+          // ensure we have 2 settings before doing this
+          if (count($server) == 3) {
+            // try for a nice name
+            if ($key > 0 && strpos($lines[$key-1], '#') === 0) {
+              $aliaskey = _elmsln_alias_server_name($lines[$key-1]);
+            }
+            else {
+              $aliaskey = _elmsln_alias_server_name($server['remote-host']);
+            }
+            $pulledaliases[$aliaskey] = _elmsln_alias_build_aliases($aliaskey, $server);
           }
-        }
-        // ensure we have 2 settings before doing this
-        if (count($server) == 3) {
-          // try for a nice name
-          if ($key > 0 && strpos($lines[$key-1], '#') === 0) {
-            $aliaskey = _elmsln_alias_server_name($lines[$key-1]);
-          }
-          else {
-            $aliaskey = _elmsln_alias_server_name($server['remote-host']);
-          }
-          $pulledaliases[$aliaskey] = _elmsln_alias_build_aliases($aliaskey, $server);
         }
       }
+      // write this back to the cache
+      drush_cache_set(drush_get_cid('elmsln_remote_aliases'), $pulledaliases);
     }
   }
+  //print_r($pulledaliases);
   // @todo add support for bundled stacks across deployments
   // for example: elmsln-courses-all which trips all the courses-all
   // stacks found across known hosts. This could allow for applying
@@ -71,20 +79,22 @@ function _elmsln_alises_build(&$aliases) {
     $aliases[$system] = array('site-list' => array());
     array_push($aliases['elmsln-all']['site-list'], '@' . $system);
     foreach ($onsystem as $alias => $settings) {
-      array_push($aliases[$system]['site-list'], '@' . $system . '.' . $alias);
+      // don't double push -all targets to larger -all target buckets
+      if (!strpos($alias, '-all')) {
+        array_push($aliases[$system]['site-list'], '@' . $system . '.' . $alias);
+      }
       // deep load and repair parents to point into the system
       if (isset($settings['parent'])) {
         $settings['parent'] = str_replace('@', '@' . $system . '.', $settings['parent']);
       }
       // same but for site listings
       if (isset($settings['site-list'])) {
-        foreach ($settings['site-list'] as &$item) {
-          $item = str_replace('@', '@' . $system . '.', $item);
+        foreach ($settings['site-list'] as $sitekey => $site) {
+          $settings['site-list'][$sitekey] = str_replace('@', '@' . $system . '.', $site);
         }
       }
       $aliases[$system . '.' . $alias] = $settings;
     }
-    sort($aliases[$system]['site-list']);
   }
 }
 
