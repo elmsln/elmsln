@@ -79,18 +79,24 @@ function _elmsln_alises_build(&$aliases) {
     $aliases[$system] = array('site-list' => array());
     array_push($aliases['elmsln-all']['site-list'], '@' . $system);
     foreach ($onsystem as $alias => $settings) {
+      $alias = str_replace('elmsln.', '', $alias);
+      if ($alias == 'elmsln') {
+        continue;
+      }
       // don't double push -all targets to larger -all target buckets
-      if (!strpos($alias, '-all')) {
+      if (!strpos($alias, '-all') && $alias != 'none') {
         array_push($aliases[$system]['site-list'], '@' . $system . '.' . $alias);
       }
       // deep load and repair parents to point into the system
       if (isset($settings['parent'])) {
         $settings['parent'] = str_replace('@', '@' . $system . '.', $settings['parent']);
+        $settings['parent'] = str_replace('.elmsln', '', $settings['parent']);
       }
       // same but for site listings
       if (isset($settings['site-list'])) {
         foreach ($settings['site-list'] as $sitekey => $site) {
           $settings['site-list'][$sitekey] = str_replace('@', '@' . $system . '.', $site);
+          $settings['site-list'][$sitekey] = str_replace('.elmsln', '', $settings['site-list'][$sitekey]);
         }
       }
       $aliases[$system . '.' . $alias] = $settings;
@@ -140,12 +146,14 @@ function _elmsln_alias_build_aliases($key, $server) {
   if (!empty($systems[$key])) {
     return $systems[$key];
   }
-  // change home directory location if not running linux
-  $return = _elmsln_alias_execute($server, "php /home/{$server['remote-user']}/.drush/elmsln.remoteconnect.php");
+  // execute the drush sa command and return it in json
+  $return = _elmsln_alias_execute($server, "drush sa --format=json");
   // unserialize directly into our expected aliases array
-  $system = unserialize($return[0]);
+  $system = json_decode($return[0]);
+  $system = (array) $system;
   // append remote connection settings
   foreach ($system as &$alias) {
+    $alias = (array) $alias;
     if (isset($alias['root'])) {
       $alias += $server;
     }
