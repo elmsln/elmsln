@@ -19,8 +19,13 @@ elmslnwarn(){
 }
 # check that we are NOT root user
 if [[ $EUID -eq 0 ]]; then
-  elmslnwarn "Don't run this as root!"
-  exit 0
+  # option to allow people to run as root but block by default
+  if [[ $1 -eq "root" ]]; then
+    elmslnecho "Preventing root running this script overridden.."
+  else
+    elmslnwarn "Don't run this as root unless you know why you are ding so! To force this to run anyway enter the command again and pass it the argument root"
+    exit 0
+  fi
 fi
 
 # modify the user's home directory to run drush and make life lazy
