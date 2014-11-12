@@ -92,6 +92,7 @@ function _elmsln_alises_build_server(&$aliases) {
    */
   $modifier = '-all';
   foreach ($pulledaliases as $key => $values) {
+    $aliases[$key] = $values;
     $parts = explode('.', $key);
     if (count($parts) >= 2) {
       // something that's in a subgroup
