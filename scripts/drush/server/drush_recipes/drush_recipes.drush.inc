@@ -671,6 +671,10 @@ function _drush_recipes_db_set_active($alias_settings) {
   sitealias_get_databases_from_record($alias_settings);
   // bootstrap to the max possible for this alias
   drush_bootstrap_max_to_sitealias($alias_settings);
+  // @todo look into drush core sql-sync commands for how we might
+  // be able to set an active db connection without needing to do
+  // the Database:: object since it will fail
+  // drush_sitealias_get_db_spec may also have the answer
   Database::addConnectionInfo($alias_settings['#name'], 'default', $alias_settings['databases']['default']['default']);
   db_set_active($alias_settings['#name']);
   return 1;
