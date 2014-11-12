@@ -57,18 +57,18 @@ char=(0 1 2 3 4 5 6 7 8 9 a b c d e f g h i j k l m n o p q r s t u v w x y z A 
 max=${#char[*]}
 
 # generate a scripted directory
-if [ ! -d ${moduledir} ];
+if [ ! -d "${moduledir}" ];
   then
-  sudo mkdir -p ${moduledir}
-  sudo mkdir -p ${moduledir}/${university}
+  sudo mkdir -p "${moduledir}"
+  sudo mkdir -p "${moduledir}/${university}"
 fi
 # work on authoring the connector module automatically
-if [ ! -d ${moduledir}/${university}/${cissettings} ];
+if [ ! -d "${moduledir}/${university}/${cissettings}" ];
   then
-  sudo mkdir -p ${moduledir}/${university}/${cissettings}
-  sudo chown -R $USER:$USER ${moduledir}
-  infofile=${moduledir}/${university}/${cissettings}/${cissettings}.info
-  modulefile=${moduledir}/${university}/${cissettings}/${cissettings}.module
+  sudo mkdir -p "${moduledir}/${university}/${cissettings}"
+  sudo chown -R $USER:$webgroup "${moduledir}"
+  infofile="${moduledir}/${university}/${cissettings}/${cissettings}.info"
+  modulefile="${moduledir}/${university}/${cissettings}/${cissettings}.module"
   touch $infofile
   chmod 744 $infofile
   touch $modulefile
@@ -112,9 +112,9 @@ fi
 
 # make sure drush is happy before we begin drush calls
 drush cc drush
-sudo chown -R $USER:$USER $HOME/.drush
+sudo chown -R $USER $HOME/.drush
 # make sure the entire directory is writable by the current user
-sudo chown -R $USER:$USER $elmsln
+sudo chown -R $USER:$webgroup $elmsln
 
 # random password for defaultdbo
 dbpw=''
@@ -161,8 +161,8 @@ sudo chmod -R 755 $drupal_priv
 # we leave the original for the time being because this is the first instace
 # of the system. most likely we'll always need a default to fall back on anyway
 sudo cp "$sitedir/default/settings.php" "$sitedir/online/$host/settings.php"
-sudo chown $USER:$USER $sitedir/default/settings.php
-sudo chown $USER:$USER $sitedir/online/$host/settings.php
+sudo chown $USER:$webgroup $sitedir/default/settings.php
+sudo chown $USER:$webgroup $sitedir/online/$host/settings.php
 sudo chmod -R 755 $sitedir/online/$host/settings.php
 
 # establish these values real quick so its more readable below
@@ -255,6 +255,8 @@ sudo find $configsdir/stacks/ -type d -name files | sudo xargs chown -R $wwwuser
 
 # clean up tmp directory .htaccess to make drupal happy
 sudo rm /tmp/.htaccess
+# last second security hardening as clean up
+sudo bash /var/www/elmsln/scripts/utilities/harden-security.sh
 # forcibly apply 1st ELMSLN global update since it isn't fixed in CIS
 # this makes it so that we don't REQUIRE multi-sites to run CIS (stupid)
 # while still fixing the issue with httprl when used in multisites
