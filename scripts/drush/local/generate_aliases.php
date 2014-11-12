@@ -72,13 +72,17 @@ function _elmsln_alises_build(&$aliases) {
     array_push($aliases['elmsln-all']['site-list'], '@' . $system);
     foreach ($onsystem as $alias => $settings) {
       array_push($aliases[$system]['site-list'], '@' . $system . '.' . $alias);
-      // @todo need to deep load and repair parents
+      // deep load and repair parents to point into the system
       if (isset($settings['parent'])) {
-        $settings['parent'] = str_replace('@', '@' . $system . '.' . $alias . '.', $settings['parent']);
-        //print $settings['parent'] . "\n";
+        $settings['parent'] = str_replace('@', '@' . $system . '.', $settings['parent']);
+      }
+      // same but for site listings
+      if (isset($settings['site-list'])) {
+        foreach ($settings['site-list'] as &$item) {
+          $item = str_replace('@', '@' . $system . '.', $item);
+        }
       }
       $aliases[$system . '.' . $alias] = $settings;
-
     }
     sort($aliases[$system]['site-list']);
   }
