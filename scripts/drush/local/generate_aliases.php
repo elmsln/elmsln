@@ -147,7 +147,7 @@ function _elmsln_alias_build_aliases($key, $server) {
     return $systems[$key];
   }
   // execute the drush sa command and return it in json
-  $return = _elmsln_alias_execute($server, "drush sa --format=json");
+  $return = _elmsln_alias_execute($server, "drush sa --with-db --format=json");
   // unserialize directly into our expected aliases array
   $system = json_decode($return[0]);
   $system = (array) $system;
