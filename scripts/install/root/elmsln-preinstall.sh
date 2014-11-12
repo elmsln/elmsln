@@ -206,17 +206,17 @@ echo "# where is elmsln installed, not recommended to move from here" >> $config
 echo "elmsln='/var/www/elmsln'" >> $config
 echo "" >> $config
 echo "# these vars shouldn't need changing if $elmsln is set properly" >> $config
-echo 'webdir=$elmsln/domains' >> $config
+echo 'webdir="${elmsln}/domains"' >> $config
 echo "# jobs location where job files write to" >> $config
-echo 'fileloc=$elmsln/config/jobs' >> $config
+echo 'fileloc="${elmsln}/config/jobs"' >> $config
 echo "# hosts to allow split groups of elmsln based on college / group" >> $config
-echo 'hostfile=$elmsln/config/scripts/drush-create-site/hosts' >> $config
+echo 'hostfile="${elmsln}/config/scripts/drush-create-site/hosts"' >> $config
 echo "# compiled drupal \"stacks\"" >> $config
-echo 'stacks=$elmsln/core/dslmcode/stacks' >> $config
+echo 'stacks="${elmsln}/core/dslmcode/stacks"' >> $config
 echo "# location of drupal private files" >> $config
-echo 'drupal_priv=$elmsln/config/private_files' >> $config
+echo 'drupal_priv="${elmsln}/config/private_files"' >> $config
 echo "# configsdir" >> $config
-echo 'configsdir=$elmsln/config' >> $config
+echo 'configsdir="${elmsln}/config"' >> $config
 # capture automatically generated values that can be used to reference this
 # exact deployment of ELMSLN in the future
 echo "" >> $config

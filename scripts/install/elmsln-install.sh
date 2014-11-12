@@ -57,18 +57,18 @@ char=(0 1 2 3 4 5 6 7 8 9 a b c d e f g h i j k l m n o p q r s t u v w x y z A 
 max=${#char[*]}
 
 # generate a scripted directory
-if [ ! -d "${moduledir}" ];
+if [ ! -d ${moduledir} ];
   then
-  sudo mkdir -p "${moduledir}"
-  sudo mkdir -p "${moduledir}/${university}"
+  sudo mkdir -p ${moduledir}
+  sudo mkdir -p ${moduledir}/${university}
 fi
 # work on authoring the connector module automatically
-if [ ! -d "${moduledir}/${university}/${cissettings}" ];
+if [ ! -d ${moduledir}/${university}/${cissettings} ];
   then
-  sudo mkdir -p "${moduledir}/${university}/${cissettings}"
-  sudo chown -R $USER:$webgroup "${moduledir}"
-  infofile="${moduledir}/${university}/${cissettings}/${cissettings}.info"
-  modulefile="${moduledir}/${university}/${cissettings}/${cissettings}.module"
+  sudo mkdir -p ${moduledir}/${university}/${cissettings}
+  sudo chown -R $USER:$webgroup ${moduledir}
+  infofile=${moduledir}/${university}/${cissettings}/${cissettings}.info
+  modulefile=${moduledir}/${university}/${cissettings}/${cissettings}.module
   touch $infofile
   chmod 744 $infofile
   touch $modulefile
