@@ -1,0 +1,100 @@
+{
+    "name": "Make B like A",
+    "drush_recipes_api": "1.0",
+    "weight": "0",
+    "core": "7",
+    "recipe": [
+        {
+            "madlib": "true",
+            "command": "si",
+            "target": "[target1]",
+            "arguments": [
+                "minimal"
+            ],
+            "tokens": {
+                "[target1]": "new site you want to install / reimage"
+            },
+            "defaults": {
+                "[target1]": "@self"
+            }
+        },
+        {
+            "madlib": "true",
+            "command": "en",
+            "target": "[target1]",
+            "arguments": [
+                "profiler_builder"
+            ],
+            "tokens": {
+                "[target1]": "new site you want to install / reimage"
+            },
+            "defaults": {
+                "[target1]": "@self"
+            }
+        },
+        {
+            "madlib": "true",
+            "command": "en",
+            "target": "[target2]",
+            "arguments": [
+                "profiler_builder"
+            ],
+            "tokens": {
+                "[target1]": "new site you want to install / reimage"
+            },
+            "defaults": {
+                "[target1]": "@self"
+            }
+        },
+        {
+            "madlib": "true",
+            "command": "ddt",
+            "target": "[target1]",
+            "arguments": [
+                "[target2]"
+            ],
+            "options": {
+                "make-it-so": true,
+                "components": "[components]"
+            },
+            "tokens": {
+                "[target1]": "new site you want to install / reimage",
+                "[target2]": "site you are patterning target1 off of",
+                "[components]": "what components do you want to compare in the diff"
+            },
+            "defaults": {
+                "[target1]": "@self",
+                "[target2]": "@none",
+                "[components]": "modules,variables"
+            }
+        },
+        {
+            "madlib": "true",
+            "command": "status",
+            "target": "[target1]",
+            "tokens": {
+                "[target1]": "new site you want to install / reimage"
+            },
+            "defaults": {
+                "[target1]": "@self"
+            }
+        },
+        {
+            "madlib": "true",
+            "command": "uli",
+            "target": "[target1]",
+            "tokens": {
+                "[target1]": "new site you want to install / reimage"
+            },
+            "defaults": {
+                "[target1]": "@self"
+            }
+        }
+    ],
+    "metadata": {
+        "type": 2,
+        "version": "1.0",
+        "author": "btopro",
+        "description": "madlib wrapper for ddt that re-images a new site to be like an existing one"
+    }
+}

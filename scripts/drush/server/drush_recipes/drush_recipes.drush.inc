@@ -546,8 +546,8 @@ function drush_drush_recipes_drush_diff_targets_recipe($source = NULL, $destinat
           $role_calls[] = array(
             'command' => 'rcrt',
             'arguments' => array(
-              "'$rid'",
-              "'$name'"
+              "$rid",
+              "$name" // only used in D8
             )
           );
         }
@@ -570,8 +570,8 @@ function drush_drush_recipes_drush_diff_targets_recipe($source = NULL, $destinat
             $perm_calls[$rid . $permission] = array(
               'command' => 'rap',
               'arguments' => array(
-                "'$rid'",
-                "'$permission'"
+                "$rid",
+                "$permission"
               )
             );
           }
@@ -584,8 +584,8 @@ function drush_drush_recipes_drush_diff_targets_recipe($source = NULL, $destinat
             $calls[$rid . $permission] = array(
               'command' => 'rmp',
               'arguments' => array(
-                "'$rid'",
-                "'$permission'"
+                "$rid",
+                "$permission"
               )
             );
           }
