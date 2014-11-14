@@ -26,7 +26,7 @@ All of this could be done in 1 recipe which a user could run drush cook setup-bo
 
 For the full list of commands check out the homepage and some of the video tutorials.
 
-==== Target "Diffing" ====
+==== Target "Diff" ====
 You can also use the target diff'ing engine to have drush recipes calculate
 what drush calls would be required to take a site from one state to another. This is then used to generate a recipe which *should* be able to get it
 reasonable close to the other system as far as modules, themes, settings,
