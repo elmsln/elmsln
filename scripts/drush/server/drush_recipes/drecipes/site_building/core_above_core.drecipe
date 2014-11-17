@@ -7,13 +7,20 @@
     {
       "command": "en",
       "arguments": [
-        "profiler_builder,ctools,entity,module_filter,features,views_bulk_operations,libraries,jquery_update,pathauto,strongarm,prepopulate,token,field_group,date,link,entityreference,options_element,filefield_paths,uuid,views"
+        "profiler_builder,ctools,entity,module_filter,features,views_bulk_operations,libraries,jquery_update,pathauto,strongarm,prepopulate,token,field_group,date,link,entityreference,options_element,filefield_paths,uuid,views,image,file,field_ui"
       ]
     },
     {
       "command": "en",
       "arguments": [
         "views_ui"
+      ]
+    },
+    {
+      "command": "vset",
+      "arguments": [
+        "jquery_update_jquery_admin_version",
+        "default"
       ]
     }
   ],

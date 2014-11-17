@@ -1,0 +1,62 @@
+{
+    "name": "Create a new complex content type",
+    "drush_recipes_api": "1.0",
+    "weight": "0",
+    "core": "7",
+    "recipe": [
+        {
+            "madlib": "true",
+            "command": "cook",
+            "arguments": [
+                "ccr_add_type"
+            ],
+            "options": {
+                "mlt-ccr_machine_name": "[ccr_machine_name]",
+                "mlt-ccr_human_name": "[ccr_human_name]",
+                "y": true
+            },
+            "tokens": {
+                "[ccr_machine_name]": "Content type machine name",
+                "[ccr_human_name]": "Human readable name"
+            },
+            "defaults": {
+                "[ccr_machine_name]": "page",
+                "[ccr_human_name]": "Page"
+            }
+        },
+        {
+            "loop": "x",
+            "madlib": "true",
+            "command": "cook",
+            "arguments": [
+                "ccr_add_field"
+            ],
+            "options": {
+                "mlt-ccr_machine_name": "[ccr_machine_name]",
+                "mlt-ccr_field_machine_name": "[ccr_field_machine_name]",
+                "mlt-ccr_field_type": "[ccr_field_type]",
+                "mlt-ccr_field_widget": "[ccr_field_widget]",
+                "entity_type": "node",
+                "y": true
+            },
+            "tokens": {
+                "[ccr_machine_name]": "content type",
+                "[ccr_field_machine_name]": "field type machine name",
+                "[ccr_field_type]": "field type",
+                "[ccr_field_widget]": "type of widget"
+            },
+            "defaults": {
+                "[ccr_machine_name]": "page",
+                "[ccr_field_machine_name]": "body",
+                "[ccr_field_type]": "text_with_summary",
+                "[ccr_field_widget]": "text_textarea_with_summary"
+            }
+        }
+    ],
+    "metadata": {
+        "type": "add-on",
+        "version": "1.0",
+        "author": "bto108",
+        "description": "Generate a new content type with an unlimited number of fields"
+    }
+}

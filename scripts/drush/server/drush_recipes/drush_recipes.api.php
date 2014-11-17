@@ -13,6 +13,23 @@
 // or
 // $options['dr_locations'] = array('/drushstuff', '/drecipes');
 
+// MadLib token prepopulation
+// you can seed any madlib automatically by looking at the token name
+// appending mlt- and pushing it through
+// Example:
+//   "drush [target] status" is found in a status.drecipe
+//   drush cook status --mlt-target=@coolstuff --y
+// The above will automatically set the default value of the token on-demand!
+
+// LOOPING
+// ingredients support looping as an option in the ingredient API
+// This means you can tell something to run X number of times
+// Why is this useful: running the same command multiple times is NOT useful
+// passing things in dynamically via a madlib token array IS useful
+// Example:
+//  "drush [target] status" is found in a status.drecipe
+//  drush cook status --looping-mlt-target=@none,@stuff,@things
+
 // drush recipes upgrade spidering (drup)
 
 // drup allows for spidering a directory and abstracting recipes to run
