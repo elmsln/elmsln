@@ -1,0 +1,4 @@
+/* special border to apply for privledged users */
+.cis_token_dynamic_value {
+  border: 2px solid #66FF66;
+}

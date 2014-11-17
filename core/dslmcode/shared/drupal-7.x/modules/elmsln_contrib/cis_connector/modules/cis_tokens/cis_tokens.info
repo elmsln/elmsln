@@ -1,0 +1,13 @@
+name = CIS Tokens
+description = Expose ELMSLN tokens to the end user like CIS / Section context.
+core = 7.x
+package = ELMSLN
+files[] = cis_tokens.module
+dependencies[] = cis_service_connection
+dependencies[] = cis_section
+dependencies[] = token
+dependencies[] = features
+dependencies[] = text
+features[features_api][] = api:2
+features[field_base][] = field_cis_tokens
+features[field_instance][] = node-section-field_cis_tokens
