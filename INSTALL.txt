@@ -225,7 +225,8 @@ sudo apachectl -k restart
 #from many user reports, this generally runs with less issues when you can
 #run it with sudo -i.
 sudo -i
-#the command is:
+
+# the command is:
 bash /var/www/elmsln/scripts/install/elmsln-install.sh
 
 logout
@@ -235,6 +236,18 @@ logout
 #to your online domain (CIS) or issue the following to get a fresh login link
 
 drush @online uli
+
+# === MCRYPT (optional) ===
+# Some users may use DRD for remote management or encryption packages
+# here's some help getting mcrypt on your host
+# Go here: https://mirrors.fedoraproject.org/publiclist/EPEL/6/x86_64/#US
+# find a mirror that you want to use
+
+# this example is 64 bit  RHEL 6 building the rpm
+wget http://ftp.linux.ncsu.edu/pub/epel/6/x86_64/epel-release-6-8.noarch.rpm
+rpm -Uvh epel-release-6-8.noarch.rpm
+# install it
+yum -y install php-mcrypt
 
 #=== PIWIK (optional) ===
 #Install the analytics package by pointing a domain to the
