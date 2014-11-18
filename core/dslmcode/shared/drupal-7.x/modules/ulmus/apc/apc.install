@@ -10,29 +10,53 @@ function apc_requirements($phase) {
 
   // Test APC.
   $apc_enabled = (function_exists('apc_cache_info') && ($cache = @apc_cache_info('user', TRUE)));
-  $meets_version = version_compare(phpversion('apc'), '3.1.1')>= 0;
+
+  if (extension_loaded('apcu')) {
+    $version = phpversion('apcu');
+    $name = $t('APCu');
+    $description = $t('APC needs APCu version >=4.0.2.');
+
+    $meets_version = version_compare($version, '4.0.2') >= 0;
+
+    // APCu reports cache info with keys that differ from APC.
+    // This has been fixed upstream, but has not made it into a release.
+    // @see https://github.com/krakjoe/apcu/issues/41
+    // @see https://github.com/krakjoe/apcu/pull/42
+    $cache['num_entries'] = isset($cache['num_entries']) ? $cache['num_entries'] : $cache['nentries'];
+    $cache['start_time'] = isset($cache['start_time']) ? $cache['start_time'] : $cache['stime'];
+
+  }
+  else {
+    $version = phpversion('apc');
+    $name = $t('APCu');
+    $description = $t('APC needs version >=3.1.1.');
+
+    $meets_version = version_compare($version, '3.1.1') >= 0;
+  }
 
   $requirements['apc'] = array(
-    'title' => $t('APC'),
-    'value' => $apc_enabled ? ($meets_version ? phpversion('apc') : $t('APC needs version >=3.1.1')) : $t('Not available'),
+    'title' => $name,
+    'value' => $apc_enabled ? ($meets_version ? $version : $description) : $t('Not available'),
     'severity' => $apc_enabled && $meets_version ? ($cache['num_entries'] ? REQUIREMENT_OK : REQUIREMENT_WARNING) : REQUIREMENT_ERROR,
   );
 
   if ($apc_enabled) {
-    $requirements['apc']['description'] = $t('APC has been running for !duration. Currently caching !num_entries entries (!memory_size).',
+    $requirements['apc']['description'] = $t('!name has been running for !duration. Currently caching !num_entries entries (!memory_size).',
       array(
+        '!name' => $name,
         '!duration' => format_interval(time() - $cache['start_time']),
         '!num_entries' => $cache['num_entries'],
         '!memory_size' => format_size($cache['mem_size']),
       )
     );
   }
-  elseif (drupal_is_cli() && function_exists('drush_log')) {
-    $requirements['apc']['severity'] = REQUIREMENT_WARNING;
-    drupal_set_message($t('The APC module needs the apc extension see: <a href="!link">!link</a>.', array('!link' => 'http://www.php.net/apc')), 'warning');
-  }
   else {
-    $requirements['apc']['description'] = $t('The APC module needs the apc extension see: <a href="!link">!link</a>.', array('!link' => 'http://www.php.net/apc'));
+    $requirements['apc']['description'] = $t('The APC module needs the <a href="!apc_link">APC</a> or the <a href="!apcu_link">APCu</a> extension.',
+      array(
+        '!apc_link' => 'http://www.php.net/apc',
+        '!apcu_link' => 'https://github.com/krakjoe/apcu',
+      )
+    );
   }
 
   return $requirements;
