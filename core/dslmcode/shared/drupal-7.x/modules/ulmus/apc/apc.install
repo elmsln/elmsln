@@ -26,6 +26,10 @@ function apc_requirements($phase) {
     $cache['start_time'] = isset($cache['start_time']) ? $cache['start_time'] : $cache['stime'];
 
   }
+  elseif (drupal_is_cli() && function_exists('drush_log')) {
+    $requirements['apc']['severity'] = REQUIREMENT_WARNING;
+    drupal_set_message($t('The APC module needs the apc extension see: <a href="!link">!link</a>.', array('!link' => 'http://www.php.net/apc')), 'warning');
+  }
   else {
     $version = phpversion('apc');
     $name = $t('APCu');

@@ -169,3 +169,18 @@ function apc_clear_opcode_cache() {
     drupal_set_message(t('Unable to clear APC opcode cache.'), 'error');
   }
 }
+
+/**
+ * Implements hook_admin_menu_cache_info()
+ */
+function apc_admin_menu_cache_info() {
+  $caches['apc_opcode'] = array(
+    'title' => t('APC opcode cache'),
+    'callback' => 'apc_clear_opcode_cache',
+  );
+  $caches['apc_user'] = array(
+    'title' => t('APC user cache'),
+    'callback' => 'apc_clear_user_cache',
+  );
+  return $caches;
+}
