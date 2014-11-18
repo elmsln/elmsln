@@ -199,11 +199,6 @@ function _cis_tokens_get_token_scope($scope = FALSE) {
           $tokens[filter_xss($pair[0])] = filter_xss($pair[1]);
         }
       }
-      else {
-        if ($GLOBALS['user']->uid == 1 || array_intersect(array('administrator', 'instructor', 'staff'), array_values($GLOBALS['user']->roles))) {
-          drupal_set_message(t("Global token could not be understood: @line", array('@line' => $tmppair)),'warning');
-        }
-      }
     }
   }
   // allow for section to work its magic if we have one
