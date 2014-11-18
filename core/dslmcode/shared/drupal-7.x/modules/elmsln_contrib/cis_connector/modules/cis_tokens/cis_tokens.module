@@ -9,7 +9,7 @@
  */
 function cis_tokens_page_build(&$page) {
   // display token highlighting for privledged users
-  if ($GLOBALS['user']->uid == 1 || array_intersect(array('administrator', 'instructor', 'staff'), array_values($GLOBALS->roles))) {
+  if ($GLOBALS['user']->uid == 1 || array_intersect(array('administrator', 'instructor', 'staff'), array_values($GLOBALS['user']->roles))) {
     drupal_add_css(drupal_get_path('module', 'cis_tokens') . '/cis_tokens.css');
     drupal_add_js(drupal_get_path('module', 'cis_tokens') . '/cis_tokens.js');
   }
