@@ -5,6 +5,17 @@
  */
 
 /**
+ * Implements hook_page_build().
+ */
+function cis_tokens_page_build(&$page) {
+  // display token highlighting for privledged users
+  if ($GLOBALS['user']->uid == 1 || array_intersect(array('administrator', 'instructor', 'staff'), array_values($GLOBALS->roles))) {
+    drupal_add_css(drupal_get_path('module', 'cis_tokens') . '/cis_tokens.css');
+    drupal_add_js(drupal_get_path('module', 'cis_tokens') . '/cis_tokens.js');
+  }
+}
+
+/**
  * Provide replacement values for placeholder tokens.
  *
  * @see http://api.drupal.org/api/drupal/modules--system--system.api.php/function/hook_tokens/7
@@ -33,16 +44,18 @@ function cis_tokens_tokens($type, $tokens, $data = array(), $options = array()) 
   // tokens from section
   if ($type == 'elmsln_section') {
     $section_tokens = _cis_tokens_get_token_scope();
+    $section_scope = _cis_tokens_get_token_scope(TRUE);
     foreach ($tokens as $name => $original) {
       // elements we know about ahead of time
       switch ($name) {
         case 'section_context':
           $replacements[$original] = _cis_connector_section_context();
+          $replacements[$original] = '<span data-cis-token-value="' . $replacements[$original] . '" data-cis-token-scope="Current section" data-cis-token="' . $original . '"  class="cis_token_dynamic_value">' . $replacements[$original] . '</span>';
         break;
         default:
           // see if one of our global tokens is matched
           if (isset($section_tokens[$name])) {
-            $replacements[$original] = '<span class="cis_token_dynamic_value">' . $section_tokens[$name] . '</span>';
+            $replacements[$original] = '<span data-cis-token-value="' . $section_tokens[$name] . '" data-cis-token-scope="' . $section_scope[$name] . '" data-cis-token="' . $original . '"  class="cis_token_dynamic_value">' . $section_tokens[$name] . '</span>';
           }
         break;
       }
@@ -59,12 +72,12 @@ function cis_tokens_tokens($type, $tokens, $data = array(), $options = array()) 
         case 'help':
         case 'resources':
           $data = _cis_connector_transaction($name);
-          $replacements[$original] = '<span class="cis_token_dynamic_value">' . $data['value'] . '</span>';
+          $replacements[$original] = '<span data-cis-token-value="' . $data['value'] . '" data-cis-token-scope="CIS" data-cis-token="' . $original . '"  class="cis_token_dynamic_value">' . $data['value'] . '</span>';
         break;
         case 'welcome_letter':
         case 'syllabus':
           $data = _cis_connector_transaction($name);
-          $replacements[$original] = '<span class="cis_token_dynamic_value">' . $data . '</span>';
+          $replacements[$original] = '<span data-cis-token-value="' . $data . '" data-cis-token-scope="CIS" data-cis-token="' . $original . '"  class="cis_token_dynamic_value">' . $data . '</span>';
         break;
       }
     }
@@ -134,8 +147,8 @@ function cis_tokens_token_info() {
   );
   // dynamically generate the global tokens based on those defined globally
   // as well as per the section. Section always takes priority in this value
-  $global = _cis_tokens_get_token_scope();
-  foreach ($global as $key => $val) {
+  $scope = _cis_tokens_get_token_scope();
+  foreach ($scope as $key => $val) {
     $tokens['elmsln_section'][$key] = array(
       'name' => str_replace('_', ' ', $key),
       'description' => t('Global token whose value is currently @val', array('@val' => $val)),
@@ -161,28 +174,54 @@ function cis_tokens_node_prepare($node) {
  * Return the correct tokens as a merger of global and other alters
  * @return  array an array of sanitized key => value pairs
  */
-function _cis_tokens_get_token_scope() {
-  // @todo allow sections to override the default list
+function _cis_tokens_get_token_scope($scope = FALSE) {
   $tokens = array();
   $tmp = variable_get('cis_tokens_global', _cis_tokens_sane_defaults());
-  $section = _cis_section_load_section_by_id(_cis_connector_section_context());
-  if (is_numeric($section)) {
-    $section = node_load($section);
-    // allow for active section overrides
-    if (isset($section->field_cis_tokens[LANGUAGE_NONE]) && !empty($section->field_cis_tokens[LANGUAGE_NONE][0]['safe_value'])) {
-      $tmp = $section->field_cis_tokens[LANGUAGE_NONE][0]['safe_value'];
-    }
-  }
+  // convert global settings into an array
   $tmp = explode("\n", $tmp);
   foreach ($tmp as $tmppair) {
     $pair = explode("|", $tmppair, 2);
     if (count($pair) === 2) {
-      $tokens[check_plain(filter_xss($pair[0]))] = check_plain(filter_xss($pair[1]));
+      // see if we are sending along the scope instead of the replacement
+      if ($scope) {
+        $tokens[filter_xss($pair[0])] = 'global';
+      }
+      else {
+        $tokens[filter_xss($pair[0])] = filter_xss($pair[1]);
+      }
     }
     else {
-      drupal_set_message(t("Section token course not be understood: @line", array('@line' => $tmppair)),'warning');
+      drupal_set_message(t("Global token could not be understood: @line", array('@line' => $tmppair)),'warning');
     }
   }
+  // allow for section to work its magic if we have one
+  $section = _cis_section_load_section_by_id(_cis_connector_section_context());
+  // if we have a section then we'll need to merge settings
+  if ($section !== FALSE) {
+    $section = node_load($section);
+    // allow for active section overrides
+    if (isset($section->field_cis_tokens[LANGUAGE_NONE]) && !empty($section->field_cis_tokens[LANGUAGE_NONE][0]['safe_value'])) {
+      $tmp2 = $section->field_cis_tokens[LANGUAGE_NONE][0]['safe_value'];
+      // convert to a usable array format
+      $tmp2 = explode("\n", $tmp2);
+      foreach ($tmp2 as $tmppair2) {
+        $pair2 = explode("|", $tmppair2, 2);
+        if (count($pair) === 2 && !empty($pair2[1])) {
+          // see if we are sending along the scope instead of the replacement
+          if ($scope) {
+            $tokens[filter_xss($pair2[0])] = $section->title;
+          }
+          else {
+            $tokens[filter_xss($pair2[0])] = filter_xss($pair2[1]);
+          }
+        }
+        else {
+          drupal_set_message(t("Section token could not be understood: @line . Go to @url to fix this", array('@line' => $tmppair2, '@url' => l('node/' . $section->nid . '/edit', 'node/' . $section->nid . '/edit'))), 'warning');
+        }
+      }
+    }
+  }
+
   return $tokens;
 }
 
