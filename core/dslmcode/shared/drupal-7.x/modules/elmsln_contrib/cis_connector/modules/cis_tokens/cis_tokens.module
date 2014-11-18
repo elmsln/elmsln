@@ -188,18 +188,22 @@ function _cis_tokens_get_token_scope($scope = FALSE) {
   // convert global settings into an array
   $tmp = explode("\n", $tmp);
   foreach ($tmp as $tmppair) {
-    $pair = explode("|", $tmppair, 2);
-    if (count($pair) === 2) {
-      // see if we are sending along the scope instead of the replacement
-      if ($scope) {
-        $tokens[filter_xss($pair[0])] = 'global';
+    if ($tmppair != "\n") {
+      $pair = explode("|", $tmppair, 2);
+      if (count($pair) === 2) {
+        // see if we are sending along the scope instead of the replacement
+        if ($scope) {
+          $tokens[filter_xss($pair[0])] = 'global';
+        }
+        else {
+          $tokens[filter_xss($pair[0])] = filter_xss($pair[1]);
+        }
       }
       else {
-        $tokens[filter_xss($pair[0])] = filter_xss($pair[1]);
+        if ($GLOBALS['user']->uid == 1 || array_intersect(array('administrator', 'instructor', 'staff'), array_values($GLOBALS['user']->roles))) {
+          drupal_set_message(t("Global token could not be understood: @line", array('@line' => $tmppair)),'warning');
+        }
       }
-    }
-    else {
-      drupal_set_message(t("Global token could not be understood: @line", array('@line' => $tmppair)),'warning');
     }
   }
   // allow for section to work its magic if we have one
