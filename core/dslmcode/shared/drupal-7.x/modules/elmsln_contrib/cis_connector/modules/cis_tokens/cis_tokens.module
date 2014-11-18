@@ -72,12 +72,12 @@ function cis_tokens_tokens($type, $tokens, $data = array(), $options = array()) 
         case 'help':
         case 'resources':
           $data = _cis_connector_transaction($name);
-          $replacements[$original] = '<span data-cis-token-value="' . $data['value'] . '" data-cis-token-scope="CIS" data-cis-token="' . $original . '"  class="cis_token_dynamic_value">' . $data['value'] . '</span>';
+          $replacements[$original] = '<span data-cis-token-value="CIS" data-cis-token-scope="CIS" data-cis-token="' . $original . '"  class="cis_token_dynamic_value">' . $data['value'] . '</span>';
         break;
         case 'welcome_letter':
         case 'syllabus':
           $data = _cis_connector_transaction($name);
-          $replacements[$original] = '<span data-cis-token-value="' . $data . '" data-cis-token-scope="CIS" data-cis-token="' . $original . '"  class="cis_token_dynamic_value">' . $data . '</span>';
+          $replacements[$original] = '<span data-cis-token-value="CIS" data-cis-token-scope="CIS" data-cis-token="' . $original . '"  class="cis_token_dynamic_value">' . $data . '</span>';
         break;
       }
     }
