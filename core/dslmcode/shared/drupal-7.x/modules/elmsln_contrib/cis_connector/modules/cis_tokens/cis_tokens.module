@@ -54,8 +54,13 @@ function cis_tokens_tokens($type, $tokens, $data = array(), $options = array()) 
         break;
         default:
           // see if one of our global tokens is matched
-          if (isset($section_tokens[$name])) {
-            $replacements[$original] = '<span data-cis-token-value="' . $section_tokens[$name] . '" data-cis-token-scope="' . $section_scope[$name] . '" data-cis-token="' . $original . '"  class="cis_token_dynamic_value">' . $section_tokens[$name] . '</span>';
+          if (isset($section_tokens[$name]) || isset($tokens[$name])) {
+            if (strpos($tokens[$name], '-data') !== FALSE) {
+              $replacements[$original] = $section_tokens[str_replace('-data', '', $name)];
+            }
+            else {
+              $replacements[$original] = '<span data-cis-token-value="' . $section_tokens[$name] . '" data-cis-token-scope="' . $section_scope[$name] . '" data-cis-token="' . $original . '"  class="cis_token_dynamic_value">' . $section_tokens[$name] . '</span>';
+            }
           }
         break;
       }
@@ -153,6 +158,10 @@ function cis_tokens_token_info() {
     $tokens['elmsln_section'][$key] = array(
       'name' => str_replace('_', ' ', $key),
       'description' => t('Global token whose value is currently @val', array('@val' => $val)),
+    );
+    $tokens['elmsln_section'][$key . '-data'] = array(
+      'name' => str_replace('_', ' ', $key),
+      'description' => t('Global token whose value is currently @val, just the value.', array('@val' => $val)),
     );
   }
 
