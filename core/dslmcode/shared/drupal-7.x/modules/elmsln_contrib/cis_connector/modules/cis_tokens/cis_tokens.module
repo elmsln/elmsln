@@ -11,7 +11,6 @@ function cis_tokens_page_build(&$page) {
   // display token highlighting for privledged users
   if ($GLOBALS['user']->uid == 1 || array_intersect(array('administrator', 'instructor', 'staff'), array_values($GLOBALS['user']->roles))) {
     drupal_add_css(drupal_get_path('module', 'cis_tokens') . '/cis_tokens.css');
-    drupal_add_js(drupal_get_path('module', 'cis_tokens') . '/cis_tokens.js');
   }
 }
 
@@ -50,12 +49,12 @@ function cis_tokens_tokens($type, $tokens, $data = array(), $options = array()) 
       switch ($name) {
         case 'section_context':
           $replacements[$original] = _cis_connector_section_context();
-          $replacements[$original] = '<span data-cis-token-value="' . $replacements[$original] . '" data-cis-token-scope="Current section" data-cis-token="' . $original . '"  class="cis_token_dynamic_value">' . $replacements[$original] . '</span>';
+          $replacements[$original] = '<span data-cis-token="' . t('Scope: Current section') . '<br/>' . t('Token: @token', array('@token' => strip_tags($original))) . '"  class="cis_token_dynamic_value">' . $replacements[$original] . '</span>';
         break;
         default:
           // see if one of our global tokens is matched
           if (isset($section_tokens[$name])) {
-            $replacements[$original] = '<span data-cis-token-value="' . $section_tokens[$name] . '" data-cis-token-scope="' . $section_scope[$name] . '" data-cis-token="' . $original . '"  class="cis_token_dynamic_value">' . $section_tokens[$name] . '</span>';
+            $replacements[$original] = '<span data-cis-token="' . t('Scope: @section', array('@section' => $section_scope[$name])) . '<br/>' . t('Token: @token', array('@token' => strip_tags($original))) . '"  class="cis_token_dynamic_value">' . $section_tokens[$name] . '</span>';
           }
           else if (isset($tokens[$name]) && strpos($tokens[$name], '-data') !== FALSE && isset($section_tokens[str_replace('-data', '', $name)])) {
             $replacements[$original] = $section_tokens[str_replace('-data', '', $name)];
