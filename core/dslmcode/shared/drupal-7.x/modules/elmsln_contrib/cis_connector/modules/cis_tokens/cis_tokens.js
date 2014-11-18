@@ -11,15 +11,11 @@
       // On option change, switch location
       $('span.cis_token_dynamic_value').mouseover(function(event) {
         /* Act on the event */
-        if ($(this).attr('data-cis-token-value') != 'CIS' ) {
-          $(this).html('Token: ' + $(this).attr('data-cis-token') + '&nbsp;&nbsp;&nbsp;Scope: ' + $(this).attr('data-cis-token-scope'));
-        }
+        $(this).html('Token: ' + $(this).attr('data-cis-token') + '&nbsp;&nbsp;&nbsp;Scope: ' + $(this).attr('data-cis-token-scope'));
       });
       $('span.cis_token_dynamic_value').mouseout(function(event) {
         /* Act on the event */
-        if ($(this).attr('data-cis-token-value') != 'CIS' ) {
-          $(this).html($(this).attr('data-cis-token-value'));
-        }
+        $(this).html($(this).attr('data-cis-token-value'));
       });
     }
   };

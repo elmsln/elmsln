@@ -65,6 +65,7 @@ function cis_tokens_tokens($type, $tokens, $data = array(), $options = array()) 
   if ($type == 'elmsln_cis') {
     foreach ($tokens as $name => $original) {
       // elements we know about ahead of time
+      // @todo make this NOT pull in the whole HTML page, just these elements
       switch ($name) {
         case 'welcome_page':
         case 'contact_info':
@@ -72,12 +73,12 @@ function cis_tokens_tokens($type, $tokens, $data = array(), $options = array()) 
         case 'help':
         case 'resources':
           $data = _cis_connector_transaction($name);
-          $replacements[$original] = '<span data-cis-token-value="CIS" data-cis-token-scope="CIS" data-cis-token="' . $original . '"  class="cis_token_dynamic_value">' . $data['value'] . '</span>';
+          $replacements[$original] = $data['value'];
         break;
         case 'welcome_letter':
         case 'syllabus':
           $data = _cis_connector_transaction($name);
-          $replacements[$original] = '<span data-cis-token-value="CIS" data-cis-token-scope="CIS" data-cis-token="' . $original . '"  class="cis_token_dynamic_value">' . $data . '</span>';
+          $replacements[$original] = $data;
         break;
       }
     }
