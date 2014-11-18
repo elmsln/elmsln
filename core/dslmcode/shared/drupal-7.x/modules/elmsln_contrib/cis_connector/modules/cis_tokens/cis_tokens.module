@@ -54,13 +54,11 @@ function cis_tokens_tokens($type, $tokens, $data = array(), $options = array()) 
         break;
         default:
           // see if one of our global tokens is matched
-          if (isset($section_tokens[$name]) || isset($tokens[$name])) {
-            if (strpos($tokens[$name], '-data') !== FALSE) {
-              $replacements[$original] = $section_tokens[str_replace('-data', '', $name)];
-            }
-            else {
-              $replacements[$original] = '<span data-cis-token-value="' . $section_tokens[$name] . '" data-cis-token-scope="' . $section_scope[$name] . '" data-cis-token="' . $original . '"  class="cis_token_dynamic_value">' . $section_tokens[$name] . '</span>';
-            }
+          if (isset($tokens[$name]) && strpos($tokens[$name], '-data') !== FALSE && isset($section_tokens[str_replace('-data', '', $name)])) {
+            $replacements[$original] = $section_tokens[str_replace('-data', '', $name)];
+          }
+          if (isset($section_tokens[$name])) {
+            $replacements[$original] = '<span data-cis-token-value="' . $section_tokens[$name] . '" data-cis-token-scope="' . $section_scope[$name] . '" data-cis-token="' . $original . '"  class="cis_token_dynamic_value">' . $section_tokens[$name] . '</span>';
           }
         break;
       }
