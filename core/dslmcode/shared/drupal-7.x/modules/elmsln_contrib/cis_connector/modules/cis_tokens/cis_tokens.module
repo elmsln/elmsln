@@ -56,10 +56,16 @@ function cis_tokens_tokens($type, $tokens, $data = array(), $options = array()) 
           if (isset($section_tokens[$name])) {
             $replacements[$original] = '<span data-cis-token="' . t('Scope: @section', array('@section' => $section_scope[$name])) . '<br/>' . t('Token: @token', array('@token' => strip_tags($original))) . '"  class="cis_token_dynamic_value">' . $section_tokens[$name] . '</span>';
           }
-          else if (isset($tokens[$name]) && strpos($tokens[$name], '-data') !== FALSE && isset($section_tokens[str_replace('-data', '', $name)])) {
-            $replacements[$original] = $section_tokens[str_replace('-data', '', $name)];
-          }
         break;
+      }
+    }
+  }
+  if ($type == 'elmsln_section_data') {
+    $section_tokens = _cis_tokens_get_token_scope();
+    foreach ($tokens as $name => $original) {
+      // elements we know about ahead of time
+      if (isset($section_tokens[$name])) {
+        $replacements[$original] = $section_tokens[$name];
       }
     }
   }
@@ -106,7 +112,11 @@ function cis_tokens_token_info() {
     'elmsln_section' => array(
       'name' => t('ELMSLN: Section'),
       'description' => t('Data related to the section context, which is related but not the same as og context.'),
-    )
+    ),
+    'elmsln_section_data' => array(
+      'name' => t('ELMSLN: Section (data)'),
+      'description' => t('Only use these if you know why you need them.'),
+    ),
   );
   // tokens per type
   $tokens = array(
@@ -156,7 +166,7 @@ function cis_tokens_token_info() {
       'name' => str_replace('_', ' ', $key),
       'description' => t('Global token whose value is currently @val', array('@val' => $val)),
     );
-    $tokens['elmsln_section'][$key . '-data'] = array(
+    $tokens['elmsln_section_data'][$key] = array(
       'name' => str_replace('_', ' ', $key),
       'description' => t('Global token whose value is currently @val, just the value.', array('@val' => $val)),
     );
