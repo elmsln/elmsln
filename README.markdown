@@ -4,6 +4,7 @@ Version | PHP | Includes | Code Status
 
 [![Dependency Status](https://gemnasium.com/btopro/elmsln.svg)](https://gemnasium.com/btopro/elmsln)
 [![Bitdeli Badge](https://d2weczhvl823v0.cloudfront.net/btopro/elmsln/trend.png)](https://bitdeli.com/free "Bitdeli Badge")
+[![Coverage Status](https://coveralls.io/repos/btopro/elmsln/badge.png)](https://coveralls.io/r/btopro/elmsln)
 
 ELMSLN
 ==============
