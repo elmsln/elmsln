@@ -1,6 +1,9 @@
-Version | PHP | Includes | Code Status
+Version | PHP | Includes | Code Status 
 ------------- | ------  | --- | -------------------------- | -----------
 [master](https://travis-ci.org/btopro/elmsln)  | 5.3.0+ | Drupal 7.x, Piwik 2.x | <img src="https://travis-ci.org/btopro/elmsln.svg?branch=master">
+
+[![Dependency Status](https://gemnasium.com/btopro/elmsln.svg)](https://gemnasium.com/btopro/elmsln)
+[![Bitdeli Badge](https://d2weczhvl823v0.cloudfront.net/btopro/elmsln/trend.png)](https://bitdeli.com/free "Bitdeli Badge")
 
 ELMSLN
 ==============
@@ -62,7 +65,3 @@ Stable. master has been stable with maybe 2 exceptions in all of 2014. The many 
 You have no idea and it is what attracts us to this work atmosphere. It rocks. Also who said anything about walking into work to solve these problems.. isn't it the weekend or late night or something right now?
 
 Enjoy!
-
-
-[![Bitdeli Badge](https://d2weczhvl823v0.cloudfront.net/btopro/elmsln/trend.png)](https://bitdeli.com/free "Bitdeli Badge")
-
