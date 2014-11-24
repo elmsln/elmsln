@@ -16,6 +16,9 @@ projects[ctools][subdir] = "contrib"
 projects[context][version] = "3.2"
 projects[context][subdir] = "contrib"
 
+projects[cis_connector][version] = "1.x-dev"
+projects[cis_connector][subdir] = "contrib"
+
 projects[devel][version] = "1.5"
 projects[devel][subdir] = "contrib"
 
