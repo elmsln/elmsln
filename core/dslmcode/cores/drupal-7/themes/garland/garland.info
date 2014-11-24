@@ -7,8 +7,8 @@ stylesheets[all][] = style.css
 stylesheets[print][] = print.css
 settings[garland_width] = fluid
 
-; Information added by Drupal.org packaging script on 2014-10-15
-version = "7.32"
+; Information added by Drupal.org packaging script on 2014-11-19
+version = "7.34"
 project = "drupal"
-datestamp = "1413387510"
+datestamp = "1416429488"
 
