@@ -1,6 +1,6 @@
 Version | PHP | Includes | Code Status 
 ------------- | ------  | --- | -------------------------- | -----------
-[master](https://travis-ci.org/btopro/elmsln)  | 5.3.0+ | Drupal 7.x, Piwik 2.x | <img src="https://travis-ci.org/btopro/elmsln.svg?branch=master">
+[master](https://travis-ci.org/btopro/elmsln)  | 5.3.0+ | Drupal 7.x, Piwik 2.x | [![Build Status](https://travis-ci.org/btopro/elmsln.svg?branch=master)](https://travis-ci.org/btopro/elmsln)
 
 [![Dependency Status](https://gemnasium.com/btopro/elmsln.svg)](https://gemnasium.com/btopro/elmsln)
 [![Bitdeli Badge](https://d2weczhvl823v0.cloudfront.net/btopro/elmsln/trend.png)](https://bitdeli.com/free "Bitdeli Badge")
