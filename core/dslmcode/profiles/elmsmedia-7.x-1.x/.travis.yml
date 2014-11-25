@@ -1,0 +1,78 @@
+language: php
+
+php:
+  - 5.3
+  - 5.4
+  - 5.5
+  - hhvm
+
+matrix:
+  allow-failures:
+    - php: hhvm
+
+  env:
+    global:
+      - ES_VER=1.0.1
+      - ES_MAPPER_ATTACHMENTS_VER=2.0.0.RC1
+      - ES_TRANSPORT_THRIFT_VER=2.0.0.RC1
+      - ES_GEOCLUSTER_FACET_VER=0.0.10
+      - ES_WAIT_ON_MAPPING_CHANGE=true
+      - DATABASE='drupal'
+      - DB_USERNAME='root'
+      - DB_ENCODE='utf8'
+    matrix:
+      - DRUPAL_3RD_PARTY='composer_manager'
+      - DRUPAL_3RD_PARTY='libraries'
+
+mysql:
+  database: $DATABASE
+  username: $DB_USERNAME
+  encoding: $DB_ENCODE
+
+before_install:
+  - export UPDATE TRAVIS_BUILD_DIR
+  - BUILD_TOP=`dirname $TRAVIS_BUILD_DIR`
+  - EXIT_VALUE=0
+
+  - sudo apt-get update > /dev/null
+
+  - composer self-update
+install:
+    # install php packages required for running a web server from drush on php 5.3
+  - sudo apt-get install -y --force-yes php5-cgi php5-mysql
+
+  # install drush globally
+  - composer global require drush/drush:6.*
+
+  # add composer's global bin directory to the path
+  # see: https://github.com/drush-ops/drush#install---composer
+  - export PATH="$HOME/.composer/vendor/bin:$PATH"
+before_script:
+  #- echo 'sendmail_path = /bin/true' >> ~/.phpenv/versions/$(phpenv version-name)/etc/conf.d/travis.ini
+  # establish drupal package put in place the right way
+  - sudo mkdir -p /var/www
+  - sudo chown travis:travis /var/www
+  - drush dl drupal --destination=/var/www --default-major=7 --drupal-project-rename=drupal --y
+  # get drush recipes setup functions
+  - sudo chown -R travis:travis ~/.drush
+  - cd ~/.drush/
+  - git clone https://github.com/drupalprojects/drush_recipes.git
+  - drush cc drush
+
+script:
+  # stand up drupal
+  - drush site-install -y --db-url=mysql://root@localhost/travisdb --db-su='root' --db-su-pw=''
+  # @todo put the other stuff here to build but this should give us a site
+  - cd /var/www/drupal/sites/all/modules
+  - git clone https://github.com/drupalprojects/elmsmedia.git elmsmedia
+after_script:
+  - drush status
+
+notifications:
+  irc: irc.freenode.org#elmsln
+
+  email: false
+  slack:
+    rooms:
+      - elmsln:WmKTRMe7k3IjprunaAVV3Jjg#qa
+      - elmsln:WmKTRMe7k3IjprunaAVV3Jjg#code
