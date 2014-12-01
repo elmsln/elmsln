@@ -1,0 +1,17 @@
+<?php
+
+/**
+ * Implements hook_install().
+ */
+function visual_select_file_install() {
+  variable_set('elms_media_public_is_public', 1);
+}
+
+/**
+ * Implements hook_uninstall().
+ */
+function visual_select_file_uninstall() {
+  variable_del('elms_media_public_submit_button_selector');
+  variable_del('elms_media_public_remove_absolute');
+  variable_del('elms_media_public_default_style');
+}
