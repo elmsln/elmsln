@@ -50,6 +50,7 @@ features[variable][] = node_options_section
 features[variable][] = node_preview_section
 features[variable][] = node_submitted_section
 features[views_view][] = cis_section_list
+features[views_view][] = cis_user_list
 features_exclude[field][node-section-field_section_id] = node-section-field_section_id
 features_exclude[field][node-section-group_access] = node-section-group_access
 features_exclude[field][node-section-group_group] = node-section-group_group
