@@ -376,7 +376,14 @@ function cis_service_connection_block_section_outline() {
       if (entity_access('view', 'node', $active) && isset($active->book)) {
         // menus can only be 9 deep so theoretical max is 9 for book depth
         // @todo need to figure out how to achieve old and new ways of doing this..
-        $tree = menu_tree_all_data($active->book['menu_name'], $active->book);
+        $outline_styles = variable_get('cis_service_connection_active_outline_styles', array());
+        $section = _cis_connector_section_context();
+        if (isset($outline_styles[$section]) && $outline_styles[$section] == 'stacked') {
+          $tree = menu_tree_all_data($active->book['menu_name']);
+        }
+        else {
+          $tree = menu_tree_all_data($active->book['menu_name'], $active->book);
+        }
         // There should only be one element at the top level.
         $data = array_shift($tree);
         $block['subject'] = '<none>';
@@ -466,6 +473,9 @@ function _cis_service_connection_section_outline_tree_output($tree) {
     $section = _cis_connector_section_context();
     if (isset($outline_styles[$section])) {
       $build['#outline_style'] = $outline_styles[$section];
+    }
+    else {
+      $build['#outline_style'] = 'default';
     }
     // Allow for generic overrides of the active class in the template name
     $build['#theme_wrappers'][] = 'menu_tree__cis_service_connection_active_outline';
