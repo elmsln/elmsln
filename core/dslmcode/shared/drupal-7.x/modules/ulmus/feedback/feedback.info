@@ -1,0 +1,17 @@
+name = Feedback
+description = Allows site visitors and users to report issues about this site.
+package = Development
+core = 7.x
+configure = admin/config/user-interface/feedback
+files[] = feedback.controller.inc
+files[] = views/feedback_handler_field_feedback_link.inc
+files[] = views/feedback_handler_field_feedback_link_delete.inc
+files[] = views/feedback_handler_field_feedback_link_edit.inc
+files[] = tests/feedback.test
+
+; Information added by Drupal.org packaging script on 2014-01-01
+version = "7.x-2.x-dev"
+core = "7.x"
+project = "feedback"
+datestamp = "1388597605"
+

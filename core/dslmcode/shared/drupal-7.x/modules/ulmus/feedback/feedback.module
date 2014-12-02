@@ -1,0 +1,604 @@
+<?php
+
+/**
+ * @file
+ * Allows site visitors and users to report issues about this site.
+ */
+
+/**
+ * Open state (unprocessed) for feedback entries.
+ */
+define('FEEDBACK_OPEN', 0);
+
+/**
+ * Processed state for feedback entries.
+ */
+define('FEEDBACK_PROCESSED', 1);
+
+/**
+ * Implements hook_theme().
+ */
+function feedback_theme() {
+  return array(
+    'feedback_admin_view_form' => array(
+      'render element' => 'form',
+    ),
+    'feedback_entry' => array(
+      'render element' => 'elements',
+      'template' => 'feedback-entry',
+      'file' => 'feedback.admin.inc',
+    ),
+    'feedback_form_display' => array(
+      'template' => 'feedback-form-display',
+      'variables' => array('title' => NULL, 'content' => NULL),
+    ),
+  );
+}
+
+/**
+ * Implements hook_entity_info().
+ */
+function feedback_entity_info() {
+  $return = array(
+    'feedback' => array(
+      'label' => t('Feedback'),
+      'controller class' => 'FeedbackController',
+      'base table' => 'feedback',
+      'uri callback' => 'feedback_uri',
+      'fieldable' => TRUE,
+      'entity keys' => array(
+        'id' => 'fid',
+      ),
+      'bundles' => array(
+        'feedback' => array(
+          'label' => t('Feedback'),
+          'admin' => array(
+            'path' => 'admin/config/user-interface/feedback',
+            'access arguments' => array('administer feedback'),
+          ),
+        ),
+      ),
+      'view modes' => array(
+        'full' => array(
+          'label' => t('Full feedback entry'),
+          'custom settings' => FALSE,
+        ),
+        'teaser' => array(
+          'label' => t('Teaser'),
+          'custom settings' => FALSE,
+        ),
+        'widget' => array(
+          'label' => t('Widget'),
+          'custom settings' => FALSE,
+        ),
+      ),
+      // Disable Metatags (metatag) module's entity form additions.
+      'metatags' => FALSE,
+    ),
+  );
+
+  return $return;
+}
+
+/**
+ * Implements hook_field_extra_fields().
+ */
+function feedback_field_extra_fields() {
+  $extras['feedback']['feedback']['form']['help'] = array(
+    'label' => t('Help'),
+    'description' => t('Feedback submission guidelines'),
+    'weight' => -10,
+  );
+  $extras['feedback']['feedback']['form']['messages'] = array(
+    'label' => t('Entries'),
+    'description' => t('Existing feedback entries for the current page'),
+    'weight' => -5,
+  );
+  $extras['feedback']['feedback']['form']['message'] = array(
+    'label' => t('Message'),
+    'description' => t('Feedback message form text field'),
+    'weight' => 0,
+  );
+
+  $extras['feedback']['feedback']['display']['location'] = array(
+    'label' => t('Location'),
+    'description' => t('The URL of the page the message was submitted on'),
+    'weight' => -15,
+  );
+  $extras['feedback']['feedback']['display']['date'] = array(
+    'label' => t('Date'),
+    'description' => t('The submission date of the message'),
+    'weight' => -10,
+  );
+  $extras['feedback']['feedback']['display']['user'] = array(
+    'label' => t('User'),
+    'description' => t('The name of the user who submitted the message'),
+    'weight' => -5,
+  );
+  $extras['feedback']['feedback']['display']['message'] = array(
+    'label' => t('Message'),
+    'description' => t('The main feedback message'),
+    'weight' => 0,
+  );
+  return $extras;
+}
+
+/**
+ * Entity uri callback.
+ */
+function feedback_uri($entry) {
+  return array(
+    'path' => 'admin/reports/feedback/' . $entry->fid,
+  );
+}
+
+/**
+ * Implements hook_permission().
+ */
+function feedback_permission() {
+  return array(
+    'access feedback form' => array(
+      'title' => t('Access feedback form'),
+      'description' => t('Submit feedback messages.'),
+    ),
+    'view feedback messages' => array(
+      'title' => t('View feedback messages'),
+      'description' => t('View, process, and delete submitted feedback messages.'),
+    ),
+    'administer feedback' => array(
+      'title' => t('Administer feedback settings'),
+    ),
+  );
+}
+
+/**
+ * Implements hook_menu().
+ */
+function feedback_menu() {
+  $items['admin/reports/feedback'] = array(
+    'title' => 'Feedback messages',
+    'description' => 'View feedback messages.',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('feedback_admin_view_form'),
+    'access arguments' => array('view feedback messages'),
+    'file' => 'feedback.admin.inc',
+  );
+  $items['admin/reports/feedback/%feedback'] = array(
+    'title' => 'Feedback entry',
+    'page callback' => 'feedback_view',
+    'page arguments' => array(3),
+    'access arguments' => array('view feedback messages'),
+    'file' => 'feedback.admin.inc',
+  );
+  $items['admin/reports/feedback/%feedback/view'] = array(
+    'title' => 'View',
+    'type' => MENU_DEFAULT_LOCAL_TASK,
+    'weight' => -10,
+  );
+  $items['admin/reports/feedback/%feedback/edit'] = array(
+    'title' => 'Edit',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('feedback_entry_form', 3),
+    'access arguments' => array('view feedback messages'),
+    'type' => MENU_LOCAL_TASK,
+    'file' => 'feedback.admin.inc',
+  );
+  $items['admin/reports/feedback/%feedback/delete'] = array(
+    'title' => 'Delete feedback entry',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('feedback_delete_confirm', 3),
+    'access arguments' => array('view feedback messages'),
+    'type' => MENU_CALLBACK,
+    'file' => 'feedback.admin.inc',
+  );
+  $items['admin/config/user-interface/feedback'] = array(
+    'title' => 'Feedback',
+    'description' => 'Administer feedback settings.',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('feedback_admin_settings_form'),
+    'access arguments' => array('administer feedback'),
+    'file' => 'feedback.admin.inc',
+  );
+  $items['admin/config/user-interface/feedback/settings'] = array(
+    'title' => 'Settings',
+    'type' => MENU_DEFAULT_LOCAL_TASK,
+    'weight' => -10,
+  );
+
+  return $items;
+}
+
+/**
+ * Implements hook_page_build().
+ */
+function feedback_page_build(&$page) {
+  if (user_access('access feedback form') && !feedback_match_path(variable_get('feedback_excluded_paths', 'admin/reports/feedback'))) {
+    $page['page_bottom']['feedback'] = array(
+      '#theme' => 'feedback_form_display',
+      '#title' => t('Feedback'),
+      '#content' => drupal_get_form('feedback_form'),
+    );
+    $path = drupal_get_path('module', 'feedback');
+    $page['page_bottom']['feedback']['#attached']['css'][] = $path . '/feedback.css';
+    $page['page_bottom']['feedback']['#attached']['js'][] = $path . '/feedback.js';
+  }
+}
+
+/**
+ * Check if the current path matches any pattern in a set of patterns.
+ *
+ * @param $patterns
+ *   String containing a set of patterns separated by \n, \r or \r\n.
+ *
+ * @return
+ *   Boolean value: TRUE if the current path or alias matches a pattern.
+ */
+function feedback_match_path($patterns) {
+  // Convert path to lowercase. This allows comparison of the same path
+  // with different case. Ex: /Page, /page, /PAGE.
+  $patterns = drupal_strtolower($patterns);
+
+  // Convert the current path to lowercase.
+  $path = drupal_strtolower(drupal_get_path_alias($_GET['q']));
+
+  // Compare the lowercase internal and lowercase path alias (if any).
+  $page_match = drupal_match_path($path, $patterns);
+  if ($path != $_GET['q']) {
+    $page_match = $page_match || drupal_match_path($_GET['q'], $patterns);
+  }
+
+  return $page_match;
+}
+
+/**
+ * Form constructor for the feedback form.
+ *
+ * @see feedback_form_submit()
+ * @ingroup forms
+ */
+function feedback_form($form, &$form_state) {
+  $form['#attributes']['class'] = array('feedback-form');
+
+  // Store the path on which this form is displayed.
+  if (!isset($form_state['inline']['location'])) {
+    $form_state['inline']['location'] = $_GET['q'];
+  }
+  $form['location'] = array(
+    '#type' => 'value',
+    '#value' => $form_state['inline']['location'],
+  );
+
+  $form['help'] = array(
+    '#prefix' => '<div class="feedback-help">',
+    '#markup' => t('If you experience a bug or would like to see an addition on the current page, feel free to leave us a message.'),
+    '#suffix' => '</div>',
+  );
+  if (user_access('view feedback messages')) {
+    if (arg(0) != 'node') {
+      $feedbacks = feedback_load_multiple(array(), array('status' => FEEDBACK_OPEN, 'location_masked' => feedback_mask_path($_GET['q'])));
+    }
+    else {
+      $feedbacks = feedback_load_multiple(array(), array('status' => FEEDBACK_OPEN, 'location' => $_GET['q']));
+    }
+    if ($feedbacks) {
+      form_load_include($form_state, 'inc', 'feedback', 'feedback.admin');
+      $form['messages'] = array(
+        '#prefix' => '<div class="feedback-messages">',
+        '#suffix' => '</div>',
+      );
+      foreach ($feedbacks as $fid => $feedback) {
+        $form['messages'][$fid] = array(
+          '#type' => 'container',
+          '#attributes' => array('class' => array('feedback-entry')),
+          '#feedback' => $feedback,
+        );
+        $form['messages'][$fid]['submitted'] = array(
+          '#markup' => t('@feedback-author !feedback-date:', array(
+            '@feedback-author' => format_username($feedback),
+            '!feedback-date' => format_date($feedback->timestamp, 'small'),
+          )),
+        );
+        $form['messages'][$fid]['submitted']['#prefix'] = '<div class="feedback-submitted">';
+        $form['messages'][$fid]['submitted']['#suffix'] = '</div>';
+        feedback_build_content($feedback, 'widget');
+        $form['messages'][$fid]['body'] = $feedback->content;
+        unset($feedback->content);
+        $form['messages'][$fid]['body']['#prefix'] = '<div class="feedback-body">';
+        $form['messages'][$fid]['body']['#suffix'] = '</div>';
+      }
+    }
+  }
+  $form['message'] = array(
+    '#type' => 'textarea',
+    '#attributes' => array('class' => array('feedback-message')),
+    '#cols' => 20,
+    '#title' => t('Message'),
+    '#required' => TRUE,
+    '#wysiwyg' => FALSE,
+  );
+
+  $entry = new stdClass();
+  field_attach_form('feedback', $entry, $form, $form_state);
+
+  $form['actions'] = array(
+    '#type' => 'actions',
+    // Without clearfix, the AJAX throbber wraps in an ugly way.
+    // @todo Patch #type actions in core?
+    '#attributes' => array('class' => array('clearfix')),
+  );
+  $form['actions']['submit'] = array(
+    '#type' => 'submit',
+    '#value' => t('Send feedback'),
+    '#id' => 'feedback-submit',
+    '#ajax' => array(
+      'wrapper' => 'feedback-form',
+      'callback' => 'feedback_form_ajax_callback',
+      'progress' => array(
+        'type' => 'throbber',
+        'message' => '',
+      ),
+    ),
+  );
+
+  return $form;
+}
+
+/**
+ * Form submission handler for feedback_form().
+ */
+function feedback_form_submit($form, &$form_state) {
+  $entry = new stdClass();
+  entity_form_submit_build_entity('feedback', $entry, $form, $form_state);
+  $entry->message = $form_state['values']['message'];
+  $entry->location = $form_state['values']['location'];
+  feedback_save($entry);
+
+  drupal_set_message(t('Thanks for your feedback!'));
+}
+
+/**
+ * AJAX callback for feedback_form() submissions.
+ */
+function feedback_form_ajax_callback($form, &$form_state) {
+  // If there was a form validation error, re-render the entire form.
+  if (!$form_state['executed']) {
+    return $form;
+  }
+
+  // Otherwise, return a fresh copy of the form, so the user may post additional
+  // feedback.
+  // Reset the static cache of drupal_html_id().
+  // @see drupal_process_form()
+  // @see drupal_html_id()
+  $seen_ids = &drupal_static('drupal_html_id');
+  $seen_ids = array();
+
+  // Prevent the form from being processed again.
+  // @see drupal_build_form()
+  list($form, $new_form_state) = ajax_get_form();
+  $new_form_state['input'] = array();
+  drupal_process_form($form['#form_id'], $form, $new_form_state);
+
+  // Return AJAX commands in order to output the special success message.
+  // @see ajax_deliver()
+  $build = array('#type' => 'ajax');
+  $html = drupal_render($form);
+  $build['#commands'][] = ajax_command_insert(NULL, $html);
+
+  // A successful form submission normally means that there were no errors, so
+  // we only render status messages.
+  $messages = drupal_get_messages();
+  $messages += array('status' => array());
+  $messages = implode('<br />', $messages['status']);
+  $html = '<div id="feedback-status-message">' . $messages . '</div>';
+  $build['#commands'][] = ajax_command_append('#block-feedback-form', $html);
+  return $build;
+}
+
+/**
+ * Loads a feedback entry from the database.
+ *
+ * @param $fid
+ *   Integer specifying the feedback ID to load.
+ *
+ * @return
+ *   A loaded feedback entry object upon successful load, or FALSE if the entry
+ *   cannot be loaded.
+ *
+ * @see feedback_load_multiple()
+ */
+function feedback_load($fid) {
+  $entries = feedback_load_multiple(array($fid));
+  return (isset($entries[$fid]) ? $entries[$fid] : FALSE);
+}
+
+/**
+ * Loads feedback entries from the database.
+ *
+ * @param $fids
+ *   An array of feedback entry IDs.
+ * @param $conditions
+ *   An associative array of conditions on the {feedback} table, where the keys
+ *   are the database fields and the values are the values those fields
+ *   must have.
+ *
+ * @return
+ *   An array of feedback entry objects indexed by fid.
+ *
+ * @see hook_feedback_load()
+ * @see feedback_load()
+ * @see entity_load()
+ * @see EntityFieldQuery
+ */
+function feedback_load_multiple($fids = array(), $conditions = array()) {
+  return entity_load('feedback', $fids, $conditions);
+}
+
+/**
+ * Saves changes to a feedback entry or adds a new feedback entry.
+ *
+ * @param $entry
+ *   The feedback entry object to modify or add. If $entry->fid is omitted, a
+ *   new entry will be added.
+ *
+ * @see hook_feedback_insert()
+ * @see hook_feedback_update()
+ */
+function feedback_save($entry) {
+  global $user;
+
+  // Load the stored entity, if any.
+  if (!empty($entry->fid) && !isset($entry->original)) {
+    $entry->original = entity_load_unchanged('feedback', $entry->fid);
+  }
+
+  field_attach_presave('feedback', $entry);
+
+  // Allow modules to alter the feedback entry before saving.
+  module_invoke_all('feedback_presave', $entry);
+  module_invoke_all('entity_presave', $entry, 'feedback');
+
+  if (empty($entry->fid)) {
+    $entry->message = trim($entry->message);
+
+    $defaults = array(
+      'uid' => $user->uid,
+      'location_masked' => feedback_mask_path($entry->location),
+      'url' => url($entry->location, array('absolute' => TRUE)),
+      'timestamp' => REQUEST_TIME,
+      'useragent' => $_SERVER['HTTP_USER_AGENT'],
+    );
+    foreach ($defaults as $key => $default) {
+      if (!isset($entry->$key)) {
+        $entry->$key = $default;
+      }
+    }
+
+    $status = drupal_write_record('feedback', $entry);
+    field_attach_insert('feedback', $entry);
+    module_invoke_all('feedback_insert', $entry);
+    module_invoke_all('entity_insert', $entry, 'feedback');
+  }
+  else {
+    $status = drupal_write_record('feedback', $entry, 'fid');
+
+    field_attach_update('feedback', $entry);
+    module_invoke_all('feedback_update', $entry);
+    module_invoke_all('entity_update', $entry, 'feedback');
+  }
+  unset($entry->original);
+
+  return $status;
+}
+
+/**
+ * Deletes a feedback entry.
+ *
+ * @param $fid
+ *   A feedback entry ID.
+ */
+function feedback_delete($fid) {
+  feedback_delete_multiple(array($fid));
+}
+
+/**
+ * Deletes multiple feedback entries.
+ *
+ * @param $fids
+ *   An array of feedback entry IDs.
+ */
+function feedback_delete_multiple($fids) {
+  if (!empty($fids)) {
+    $entries = feedback_load_multiple($fids);
+    foreach ($entries as $fid => $entry) {
+      field_attach_delete('feedback', $entry);
+      module_invoke_all('feedback_delete', $entry);
+      module_invoke_all('entity_delete', $entry, 'feedback');
+    }
+    db_delete('feedback')
+      ->condition('fid', $fids, 'IN')
+      ->execute();
+  }
+}
+
+/**
+ * 'Mask' a path, i.e. replace all numeric arguments in a path with '%' placeholders.
+ *
+ * Please note that only numeric arguments with a preceding slash will be
+ * replaced.
+ *
+ * @param $path
+ *   An internal Drupal path, f.e. 'user/123/edit'.
+ * @return
+ *   A 'masked' path, for above example 'user/%/edit'.
+ *
+ * @todo Use the untranslated patch of menu_get_item() instead.
+ */
+function feedback_mask_path($path) {
+  return preg_replace('@/\d+@', '/%', $path);
+}
+
+/**
+ * Implements hook_user_cancel().
+ */
+function feedback_user_cancel($edit, $account, $method) {
+  switch ($method) {
+    case 'user_cancel_reassign':
+      db_update('feedback')
+        ->fields(array('uid' => 0))
+        ->condition('uid', $account->uid)
+        ->execute();
+      break;
+  }
+}
+
+/**
+ * Implements hook_user_delete().
+ */
+function feedback_user_delete($account) {
+  $fids = db_query('SELECT fid FROM {feedback} WHERE uid = :uid', array(':uid' => $account->uid))->fetchCol();
+  feedback_delete_multiple($fids);
+}
+
+/**
+ * Implements hook_mollom_form_list().
+ */
+function feedback_mollom_form_list() {
+  $forms['feedback_form'] = array(
+    'title' => t('Feedback form'),
+    'entity' => 'feedback',
+    'bundle' => 'feedback',
+    'entity delete multiple callback' => 'feedback_delete_multiple',
+    'delete form' => 'feedback_delete_confirm',
+    'delete form file' => array(
+      'name' => 'feedback.admin',
+    ),
+    'report access' => array('view feedback messages'),
+  );
+  return $forms;
+}
+
+/**
+ * Implements hook_mollom_form_info().
+ */
+function feedback_mollom_form_info($form_id) {
+  $form_info = array(
+    'mode' => MOLLOM_MODE_ANALYSIS,
+    'bypass access' => array('administer feedback'),
+    'elements' => array(
+      'message' => t('Message'),
+    ),
+  );
+  mollom_form_info_add_fields($form_info, 'feedback', 'feedback');
+  return $form_info;
+}
+
+/**
+ * Implements hook_views_api();
+ */
+function feedback_views_api() {
+  return array(
+    'api' => 3.0,
+    'path' => drupal_get_path('module', 'feedback') . '/views',
+  );
+}
