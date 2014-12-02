@@ -8,10 +8,10 @@ projects[admin_menu][subdir] = "contrib"
 projects[admin_menu][version] = "3.0-rc4"
 
 projects[ctools][subdir] = "contrib"
-projects[ctools][version] = "1.3"
+projects[ctools][version] = "1.4"
 
 projects[features][subdir] = "contrib"
-projects[features][version] = "2.0-rc3"
+projects[features][version] = "2.0"
 
 projects[markdown][subdir] = "contrib"
 projects[markdown][version] = "1.2"
