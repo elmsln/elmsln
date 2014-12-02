@@ -1,0 +1,38 @@
+.ief-cardinality-count {
+  text-align: right;
+  font-size: 0.9em;
+}
+
+.ief-tabledrag-header {
+  border-right: none;
+}
+
+.ief-sort-order-header {
+  border-left: none;
+}
+
+.ief-first-column-header {
+  border-left: none;
+}
+
+.ief-tabledrag-handle {
+  padding-right: 0;
+  width: 20px;
+}
+
+.ief-tabledrag-handle a.tabledrag-handle {
+  padding-right: .5em;
+}
+
+fieldset.ief-entity-fieldset {
+  margin: 0;
+}
+
+.ief-row-form > td {
+  padding: 0;
+}
+
+.ief-row-form .ief-form-row {
+  border-bottom: 10px solid #ccc;
+  padding: 20px;
+}

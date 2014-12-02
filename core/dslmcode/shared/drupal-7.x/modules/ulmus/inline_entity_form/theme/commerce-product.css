@@ -1,0 +1,11 @@
+
+.ief-product-attributes .fieldset-wrapper {
+  margin-top: 15px;
+}
+.ief-product-attributes .fieldset-wrapper > div {
+  margin-right: 20px;
+}
+
+.ief-product-details .field-type-commerce-price .form-item {
+  margin-right: 15px;
+}
