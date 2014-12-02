@@ -38,21 +38,6 @@ function cle_perms_user_default_permissions() {
     'module' => 'node',
   );
 
-  // Exported permission: access overlay.
-  $permissions['access overlay'] = array(
-    'name' => 'access overlay',
-    'roles' => array(
-      'administrator' => 'administrator',
-      'guest' => 'guest',
-      'instructor' => 'instructor',
-      'past student' => 'past student',
-      'staff' => 'staff',
-      'student' => 'student',
-      'teaching assistant' => 'teaching assistant',
-    ),
-    'module' => 'overlay',
-  );
-
   // Exported permission: administer site configuration.
   $permissions['administer site configuration'] = array(
     'name' => 'administer site configuration',
