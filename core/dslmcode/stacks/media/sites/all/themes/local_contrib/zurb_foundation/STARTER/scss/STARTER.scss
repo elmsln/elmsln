@@ -1,0 +1,80 @@
+/* @file
+ * This file is a custom file that loads all files. Each non-base layer
+ * can be disabled.
+ *
+ * Do not name this file "STARTER.scss". This file should be named
+ * THEMENAME.scss. If you used the drush command to generate this subtheme,
+ * it should be named for you.
+ *
+ * This application file (THEMENAME.scss) is where all the partials are
+ * imported.
+ *
+ * Theme styles are categorized using SMACSS standards. They utilize
+ * categorization of styles into various categories. Those categories are the
+ * following:
+ *
+ * - Base: CSS reset/normalize plus HTML element styling.
+ * - Layout: Macro arrangement of a web page, including any grid systems.
+ * - Modules: Dictate minor layout modules or reusable elements.
+ * - States: Describe the appearance of a module in various states.
+ * - Theme: Specific customizations for your subtheme.
+ * For more information about this new Drupal css file standard, please review
+ * the following:
+ * - https://drupal.org/node/1887922
+ * - http://smacss.com/
+ */
+
+// Make sure the charset is set appropriately
+@charset "UTF-8";
+
+// Core
+// The following imports bootstrap the theme.
+// You may comment out bourbon if you don't want to use its library of mixins.
+// The theme will have compilation errors if Foundation is not imported.
+
+// Global Zurb Foundation variables.
+@import "vendor/foundation/variables";
+// Comment out this import if you don't want to use normalize.
+@import "vendor/foundation/normalize";
+// Comment out this import below if you are customizing you imports below.
+@import "vendor/foundation/foundation";
+// Comment out this import if you don't want to use Bourbon, a replacement for Compass mixins.
+@import "bourbon";
+
+
+// Import our mixins early so they can be used by other partials.
+// Optional.
+//@import "base/mixins";
+
+// Common file is where you place common utility classes to extend or
+// parametrics.
+// Optional.
+// @import "base/common";
+
+// Fix for some Drupal CSS quirks (Drupalisms).
+@import "base/drupal";
+
+// Styling for elements.
+// Optional.
+// @import "base/elements";
+
+// Layout
+// Each section of the document has it's own partial seperated out to improve
+// developer experience. Additionally, grids can be declared in layouts as well.
+@import "layout/header";
+@import "layout/main";
+@import "layout/aside";
+@import "layout/footer";
+
+// Modules
+// @import "modules/block";
+// @import "modules/button";
+
+// States
+// @import "states/collapse";
+
+// Themes
+// @import "theme/button-light";
+
+// Older IE support
+// @import "vendor/ie";
