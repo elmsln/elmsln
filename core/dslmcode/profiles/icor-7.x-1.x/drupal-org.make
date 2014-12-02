@@ -19,7 +19,7 @@ projects[google_chart_tools][subdir] = "contrib"
 projects[context][version] = "3.2"
 projects[context][subdir] = "contrib"
 
-projects[date][version] = "2.6"
+projects[date][version] = "2.8"
 projects[date][subdir] = "contrib"
 
 projects[devel][version] = "1.3"
@@ -97,7 +97,7 @@ projects[node_clone][subdir] = "contrib"
 projects[profile2][version] = "1.3"
 projects[profile2][subdir] = "contrib"
 
-projects[restws][version] = "2.1"
+projects[restws][version] = "2.x-dev"
 projects[restws][subdir] = "contrib"
 
 projects[strongarm][version] = "2.0"
@@ -220,6 +220,8 @@ libraries[oauth][type] = "library"
 libraries[oauth][destination] = "libraries"
 libraries[oauth][download][type] = "get"
 libraries[oauth][download][url] = "https://github.com/juampy72/OAuth-PHP/archive/master.zip"
+
+; +++++ Patches +++++
 
 ; allow for custom meta controllers to enable deep querying
 projects[restws][patch][] = "http://drupal.org/files/restws_meta_controls-2053147-1.patch"

@@ -28,7 +28,7 @@ projects[data][subdir] = "contrib"
 projects[schema][version] = "1.0-rc1"
 projects[schema][subdir] = "contrib"
 
-projects[date][version] = "2.7"
+projects[date][version] = "2.8"
 projects[date][subdir] = "contrib"
 
 projects[replicate][version] = "1.1"
@@ -384,5 +384,3 @@ libraries[colorpicker][download][url] = "http://www.eyecon.ro/colorpicker/colorp
 ; +++++ Patches +++++
 
 projects[apc][patch][] = "http://drupal.org/files/1567440_apc_drush_enable.patch"
-
-projects[apc][patch][] = "http://drupal.org/files/apc_drush_flush.1565716.70.patch"

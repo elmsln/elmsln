@@ -279,11 +279,6 @@ projects[aurora][type] = "theme"
 projects[aurora][version] = "3.2"
 projects[aurora][subdir] = "contrib"
 
-; bootstrap
-projects[bootstrap][type] = "theme"
-projects[bootstrap][version] = "2.2"
-projects[bootstrap][subdir] = "contrib"
-
 ; corolla
 projects[corolla][type] = "theme"
 projects[corolla][version] = "3.0"
@@ -291,7 +286,7 @@ projects[corolla][subdir] = "contrib"
 
 ; fontfolio
 projects[fontfolio][type] = "theme"
-projects[fontfolio][version] = "2.3"
+projects[fontfolio][version] = "2.7"
 projects[fontfolio][subdir] = "contrib"
 
 ; respond
@@ -301,7 +296,7 @@ projects[respond][subdir] = "contrib"
 
 ; skeletontheme
 projects[skeletontheme][type] = "theme"
-projects[skeletontheme][version] = "1.2"
+projects[skeletontheme][version] = "1.4"
 projects[skeletontheme][subdir] = "contrib"
 
 ; tao
@@ -371,6 +366,9 @@ libraries[colorpicker][download][url] = "http://www.eyecon.ro/colorpicker/colorp
 
 ; +++++ Patches +++++
 
+; allow for custom meta controllers to enable deep querying
+projects[restws][patch][] = "http://drupal.org/files/restws_meta_controls-2053147-1.patch"
+
 projects[og_clone][patch][] = "http://drupal.org/files/og_clone-menu-cloning-none-1940982-1.patch"
 
 projects[og_clone][patch][] = "http://drupal.org/files/og_clone-item-id-alter-1941054-1.patch"
@@ -380,5 +378,3 @@ projects[footnotes][patch][] = "http://drupal.org/files/footnotes-wysiwyg_fix_js
 projects[feeds][patch][] = "http://drupal.org/files/608408-feeds_drush_d7-57.patch"
 
 projects[apc][patch][] = "http://drupal.org/files/1567440_apc_drush_enable.patch"
-
-projects[apc][patch][] = "http://drupal.org/files/apc_drush_flush.1565716.70.patch"

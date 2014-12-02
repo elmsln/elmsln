@@ -139,6 +139,9 @@ projects[radioactivity][subdir] = "contrib"
 projects[regions][version] = "1.x-dev"
 projects[regions][subdir] = "contrib"
 
+projects[restws][version] = "2.x-dev"
+projects[restws][subdir] = "contrib"
+
 projects[rules][version] = "2.2"
 projects[rules][subdir] = "contrib"
 
