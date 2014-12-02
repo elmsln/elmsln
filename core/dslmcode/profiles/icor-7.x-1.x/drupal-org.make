@@ -193,6 +193,11 @@ projects[entity_iframe][type] = "theme"
 projects[entity_iframe][version] = "1.x-dev"
 projects[entity_iframe][subdir] = "contrib"
 
+; zurb-foundation
+projects[zurb_foundation][type] = "theme"
+projects[zurb_foundation][version] = "5.x-dev"
+projects[zurb_foundation][subdir] = "contrib"
+
 ; +++++ Libraries +++++
 
 ; CKEditor
