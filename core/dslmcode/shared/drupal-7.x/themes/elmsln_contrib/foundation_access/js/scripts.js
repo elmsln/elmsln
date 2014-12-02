@@ -29,6 +29,8 @@
         $('.accordion-btn').not($this.next()).removeClass('active');
         $this.next().toggle(); // open or close cliked item
       });
+      // deep active trail make sure its open if needed
+      $('#activeoutline .accordion .content a.active-trail').parent().parent().prev().click();
 
       ////////////
       // Action Menu Links

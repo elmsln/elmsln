@@ -368,20 +368,25 @@ function cis_service_connection_block_section_outline() {
       }
       // load the active outline
       $active = menu_get_object();
-      // test for not being on a node as well as global setting overriding outline to use
+      // test for not being on a node as well as global setting overriding
+      // outline to use
       if (!isset($active->book) || ($active->book['menu_name'] != $node->book['menu_name'])) {
         $active = $node;
       }
       // only show the block if the user has view access for the top-level node.
       if (entity_access('view', 'node', $active) && isset($active->book)) {
-        // load in the style in question for rendering this content for this section
+        // load in the style in question for rendering this content for this
+        // section based on how they want it displayed in the block settings
+        // default is to load like it normally would in drupal books (active)
         $outline_styles = variable_get('cis_service_connection_active_outline_styles', array());
         $section = _cis_connector_section_context();
         $pre = array();
         // stacked allows for loading ALL items and displaying them
         if (isset($outline_styles[$section]) && $outline_styles[$section] == 'stacked') {
+          // load the tree of the book
           $tree = menu_tree_all_data($active->book['menu_name']);
           $data = array_shift($tree);
+          // only render things below the highest book level
           $output = _cis_service_connection_section_outline_tree_output($data['below']);
         }
         // in context will load everything IF there is no context
@@ -389,6 +394,10 @@ function cis_service_connection_block_section_outline() {
         // at the highest level into a drop down menu and then JUST the context
         // in question. This is far more complicated then the other two.
         elseif ($outline_styles[$section] == 'in-context') {
+          // we split this into two different loads for now
+
+          // @todo reduce this into 1 output style once collins gets us the
+          // nesting in question
           $tree = menu_tree_all_data($active->book['menu_name'], $active->book);
           $data2 = $data = array_shift($tree);
           foreach ($data2['below'] as $key => $item) {
@@ -396,20 +405,23 @@ function cis_service_connection_block_section_outline() {
               unset($data2['below'][$key]);
             }
           }
+          $tree = menu_tree_all_data($active->book['menu_name']);
+          $data = array_shift($tree);
+          // load the whole thing like in stacked
+          $post = _cis_service_connection_section_outline_tree_output($data['below']);
+          $post['#outline_style'] = 'stacked';
+          // make sure that we have an item that's active but not the 1st thing
+          // in question.
           if (!empty($data2['below'])) {
-            $pre = _cis_service_connection_section_outline_tree_output($data['below']);
-            $post = _cis_service_connection_section_outline_tree_output($data2['below']);
-            $post['#outline_style'] = 'stacked';
-            // hate doing it this way but rendering two menus as one here
-
-            // @todo Collins needs to get me the wrapper to use
-            $output = '<ul id="fulloutline" class="cis-outline-incontext cis-outline-back  menu book-oultine slide-panels">' . drupal_render($pre) . '</ul>';
-            $output .= '<ul id="activeoutline" class="cis-outline-incontext cis-outline-active menu book-oultine slide-panels">' . drupal_render($post) . '</ul>';
+            // load the pruned of empty container items
+            $active = _cis_service_connection_section_outline_tree_output($data2['below']);
+            // @todo Collins needs to get me the wrapper to use for the
+            // hamburger menu
+            $output = '<ul id="activeoutline" class="cis-outline-incontext cis-outline-active menu book-oultine slide-panels">' . drupal_render($active) . '</ul>';
+            $output .= '<ul id="fulloutline" class="cis-outline-incontext cis-outline-back  menu book-oultine slide-panels">' . drupal_render($post) . '</ul>';
           }
           else {
-            $tree = menu_tree_all_data($active->book['menu_name']);
-            $data = array_shift($tree);
-            $output = _cis_service_connection_section_outline_tree_output($data['below']);
+            $output = $post;
           }
         }
         // we didn't have one of those so just use default. This means that what
