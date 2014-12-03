@@ -1,6 +1,6 @@
 ; Packaging information for elmsmedia
 name = "ELMSMedia"
-description = "ELMS Media distribution for asset management in CIS Network"
+description = "ELMS Media distribution for asset management"
 exclusive = "1"
 core = "7.x"
 ; ----------
@@ -8,17 +8,12 @@ core = "7.x"
 ; ----------
 ; Fast click
 dependencies[] = fastclick
-; Accessibility
-dependencies[] = accessibility
-dependencies[] = accessibility_wysiwyg
 ; Administration
 dependencies[] = admin_devel
 dependencies[] = admin_menu
 dependencies[] = admin_menu_toolbar
 ; Chaos tool suite
 dependencies[] = ctools
-; CIS
-dependencies[] = cis_connector
 ; Context
 dependencies[] = context
 dependencies[] = context_ui
@@ -94,12 +89,9 @@ dependencies[] = views_fluid_grid
 dependencies[] = views_ui
 ; Features
 dependencies[] = features
-dependencies[] = cis_section
-dependencies[] = cis_service_roles
 dependencies[] = regions_admin_example
 dependencies[] = textbook_editor
 dependencies[] = elmsmedia_feature
-dependencies[] = elmsmedia_cis_ux
 
 ; Information added for Drupal.org usage stats while in dev
 version = "7.x-1.x-dev"
