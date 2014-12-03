@@ -1,4 +1,4 @@
-name = Visual Select File WYSIWYG support
+name = ELMS Media service WYSIWYG support
 description = Adds WYSIWYG support to ELMS Media service.
 core = 7.x
 

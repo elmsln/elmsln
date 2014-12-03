@@ -1,7 +1,0 @@
-name = Elms Media Browser
-description = Upload images from remote server using the filefield_sources module. 
-core = 7.x
-dependencies[] = image
-dependencies[] = filefield_sources
-dependencies[] = views
-dependencies[] = views_xml_backend
