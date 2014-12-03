@@ -1,4 +1,10 @@
 <?php
+/**
+ * @file
+ * Code for the CIS Service ELMSMedia feature.
+ */
+
+include_once 'cis_service_elmsmedia.features.inc';
 
 define('cis_service_elmsmedia_VIEW_TAG', 'cis_service_elmsmedia');
 define('cis_service_elmsmedia_SUBMIT_BUTTON_SELECTOR', 'input[type="submit"]');
@@ -7,7 +13,7 @@ define('cis_service_elmsmedia_SUBMIT_BUTTON_SELECTOR', 'input[type="submit"]');
  * Implements hook_init().
  */
 function cis_service_elmsmedia_init() {
-  if ('elms_media_image_library' == $_GET['q']) {
+  if ('cis/elmsmedia/library' == current_path()) {
     module_invoke('admin_menu', 'suppress');
 
     $path = drupal_get_path('module', 'cis_service_elmsmedia');
@@ -36,7 +42,7 @@ function cis_service_elmsmedia_module_implements_alter(&$implementations, $hook)
  * Implements hook_menu().
  */
 function cis_service_elmsmedia_menu() {
-  $items['admin/config/media/elms-media-browser'] = array(
+  $items['admin/config/media/cis-service-elmsmedia-browser'] = array(
     'title' => 'ELMS Media Browser Settings',
     'page callback' => 'drupal_get_form',
     'page arguments' => array('cis_service_elmsmedia_settings_form'),
@@ -51,8 +57,8 @@ function cis_service_elmsmedia_menu() {
  * Implements hook_menu_alter().
  */
 function cis_service_elmsmedia_menu_alter(&$items) {
-  if (isset($items['elms_media_image_library'])) {
-    $items['elms_media_image_library']['delivery callback'] = 'cis_service_elmsmedia_return_view';
+  if (isset($items['cis/elmsmedia/library'])) {
+    $items['cis/elmsmedia/library']['delivery callback'] = 'cis_service_elmsmedia_return_view';
   }
 
 }
@@ -239,13 +245,6 @@ function cis_service_elmsmedia_form_field_ui_field_edit_form_alter(&$form, &$for
       '#description' => t('Checked, this will hide the textfield & submit button and only show the &quot;Choose file&quot; button.'),
     );
   }
-}
-
-/**
- * Implements hook_views_api().
- */
-function cis_service_elmsmedia_views_api() {
-  return array('api' => 3);
 }
 
 /**

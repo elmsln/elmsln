@@ -22,26 +22,26 @@ function cis_service_elmsmedia_views_data() {
 function cis_service_elmsmedia_views_default_views() {
 
   $view = new view();
-  $view->name = 'image_library';
+  $view->name = 'cis_service_elmsmedia_library';
   $view->description = '';
   $view->tag = 'cis_service_elmsmedia';
   $view->base_table = 'xml';
-  $view->human_name = 'Image Library';
+  $view->human_name = 'ELMS Media Library';
   $view->core = 7;
   $view->api_version = '3.0';
   $view->disabled = FALSE; /* Edit this to true to make a default view disabled initially */
 
   /* Display: Master */
   $handler = $view->new_display('default', 'Master', 'default');
-  $handler->display->display_options['title'] = 'Image Library';
-  $handler->display->display_options['css_class'] = 'elms-media-browser';
+  $handler->display->display_options['title'] = 'Media Library';
+  $handler->display->display_options['css_class'] = 'cis-service-elmsmedia-browser';
   $handler->display->display_options['use_ajax'] = TRUE;
   $handler->display->display_options['use_more_always'] = FALSE;
   $handler->display->display_options['access']['type'] = 'none';
   $handler->display->display_options['cache']['type'] = 'none';
   $handler->display->display_options['query']['type'] = 'views_query';
-  $handler->display->display_options['query']['options']['xml_file'] = 'sites/all/modules/custom/cis_service_elmsmedia/example.xml';
-  $handler->display->display_options['query']['options']['row_xpath'] = 'node';
+  $handler->display->display_options['query']['options']['xml_file'] = 'node.xml';
+  $handler->display->display_options['query']['options']['row_xpath'] = '/list/node';
   $handler->display->display_options['query']['options']['show_errors'] = 1;
   $handler->display->display_options['exposed_form']['type'] = 'basic';
   $handler->display->display_options['exposed_form']['options']['autosubmit'] = TRUE;
@@ -116,13 +116,14 @@ function cis_service_elmsmedia_views_default_views() {
       'value' => '',
     ),
   );
+  $handler->display->display_options['cis_bucket'] = 'elmsmedia';
+  $handler->display->display_options['cis_instance'] = 1;
   $handler->display->display_options['filters']['text']['xpath_selector'] = 'tags';
 
   /* Display: ELMS Media Browser */
   $handler = $view->new_display('page', 'ELMS Media Browser', 'cis_service_elmsmedia');
   $handler->display->display_options['display_description'] = 'The view that will open in the pop-up dialog.';
-  $handler->display->display_options['path'] = 'elms_media_image_library';
-
+  $handler->display->display_options['path'] = 'cis/elmsmedia/library';
 
   $views[$view->name] = $view;
 
