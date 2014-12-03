@@ -47,11 +47,6 @@ dependencies[] = typogrify
 dependencies[] = video_filter
 ; Media
 dependencies[] = imce
-; Organic groups
-dependencies[] = og
-dependencies[] = og_access
-dependencies[] = og_context
-dependencies[] = og_ui
 ; Other
 dependencies[] = elmsmedia_helper
 dependencies[] = entity

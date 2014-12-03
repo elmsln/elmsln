@@ -13,7 +13,11 @@
         "cis_service_roles",
         "cis_section",
         "cis_connector",
-        "elmsmedia_cis_ux"
+        "elmsmedia_cis_ux",
+        "og",
+        "og_access",
+        "og_context",
+        "og_ui"
       ]
     }
   ],
