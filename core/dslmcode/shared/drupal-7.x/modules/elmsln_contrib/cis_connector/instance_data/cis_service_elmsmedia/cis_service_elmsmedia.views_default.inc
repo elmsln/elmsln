@@ -1,25 +1,14 @@
 <?php
-
 /**
- * Implements hook_views_data().
+ * @file
+ * cis_service_elmsmedia.views_default.inc
  */
-function cis_service_elmsmedia_views_data() {
-  $data['file_managed']['image'] = array(
-    'title' => 'File as image',
-    'help' => 'Render this file as an image. Make sure it actually is.',
-    'real field' => 'uri',
-    'field' => array(
-      'real field' => 'uri',
-      'handler' => 'cis_service_elmsmedia_views_handler_field_image',
-    ),
-  );
 
-  return $data;
-}
 /**
  * Implements hook_views_default_views().
  */
 function cis_service_elmsmedia_views_default_views() {
+  $export = array();
 
   $view = new view();
   $view->name = 'cis_service_elmsmedia_library';
@@ -116,17 +105,15 @@ function cis_service_elmsmedia_views_default_views() {
       'value' => '',
     ),
   );
+  $handler->display->display_options['filters']['text']['xpath_selector'] = 'tags';
   $handler->display->display_options['cis_bucket'] = 'elmsmedia';
   $handler->display->display_options['cis_instance'] = 1;
-  $handler->display->display_options['filters']['text']['xpath_selector'] = 'tags';
 
   /* Display: ELMS Media Browser */
   $handler = $view->new_display('page', 'ELMS Media Browser', 'cis_service_elmsmedia');
   $handler->display->display_options['display_description'] = 'The view that will open in the pop-up dialog.';
   $handler->display->display_options['path'] = 'cis/elmsmedia/library';
+  $export['cis_service_elmsmedia_library'] = $view;
 
-  $views[$view->name] = $view;
-
-  return $views;
-
+  return $export;
 }

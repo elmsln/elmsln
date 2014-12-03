@@ -269,3 +269,21 @@ function cis_service_elmsmedia_query_views_cis_service_elmsmedia_alter(QueryAlte
     }
   }
 }
+
+/**
+ * Implements hook_views_data().
+ */
+function cis_service_elmsmedia_views_data() {
+  // add a views handler for a file as an image based on its URI
+  $data['file_managed']['image'] = array(
+    'title' => 'File as image',
+    'help' => 'Render this file as an image. Make sure it actually is.',
+    'real field' => 'uri',
+    'field' => array(
+      'real field' => 'uri',
+      'handler' => 'cis_service_elmsmedia_views_handler_field_image',
+    ),
+  );
+
+  return $data;
+}
