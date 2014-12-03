@@ -68,8 +68,6 @@ dependencies[] = httprl
 ; Regions
 dependencies[] = regions
 dependencies[] = regions_admin_left
-; Textbook
-dependencies[] = textbook
 ; User interface
 dependencies[] = ckeditor_link
 dependencies[] = imce_wysiwyg
@@ -85,7 +83,6 @@ dependencies[] = views_ui
 ; Features
 dependencies[] = features
 dependencies[] = regions_admin_example
-dependencies[] = textbook_editor
 dependencies[] = elmsmedia_feature
 
 ; Information added for Drupal.org usage stats while in dev

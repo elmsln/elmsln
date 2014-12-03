@@ -17,7 +17,9 @@
         "og",
         "og_access",
         "og_context",
-        "og_ui"
+        "og_ui",
+        "textbook",
+        "textbook_editor"
       ]
     }
   ],
