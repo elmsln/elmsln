@@ -66,3 +66,14 @@ Stable. master has been stable with maybe 2 exceptions in all of 2014. The many 
 You have no idea and it is what attracts us to this work atmosphere. It rocks. Also who said anything about walking into work to solve these problems.. isn't it the weekend or late night or something right now?
 
 Enjoy!
+
+LICENSE
+=======
+ELMSLN is a collection of many, many projects, all individually licensed, all open source. The myiad of License files is why this section is added to avoid confusion.
+
+* ELMSLN code on github (and not referenced or pulled in from other sources) is GPLv3.
+* ELMS contributed modules from drupal.org are GPLv2 due to licensing requirements of the drupal.org community.
+* Drupal and Drupal contributed modules and themes are GPLv2 due to licensing requirements of the drupal.org community.
+* Piwik is GPLv3 via it's original repo (https://github.com/piwik/piwik)
+* CKEditor 4.x is GPLv3
+* Other included libraries are their respective LICENSE.txt files included local to those pieces of code
