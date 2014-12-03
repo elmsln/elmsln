@@ -6,10 +6,3 @@ package = User interface
 
 dependencies[] = cis_service_elmsmedia
 dependencies[] = wysiwyg
-
-; Information added by Drupal.org packaging script on 2014-08-11
-version = "7.x-1.5"
-core = "7.x"
-project = "cis_service_elmsmedia"
-datestamp = "1407769729"
-
