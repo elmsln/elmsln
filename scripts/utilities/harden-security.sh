@@ -75,7 +75,7 @@ done
 # much easier things to target :)
 # ensure script settings are secure and READ ONLY, NEVER globally
 chown root:$webgroup "$configsdir/scripts/drush-create-site/config.cfg" -v
-chmod 2440 "$configsdir/scripts/drush-create-site/config.cfg" -v
+chmod 0444 "$configsdir/scripts/drush-create-site/config.cfg" -v
 # set web server perms correctly for private files
 chown -R $wwwuser:$webgroup "$drupal_priv"
 chown $wwwuser:$webgroup "$drupal_priv" -v
