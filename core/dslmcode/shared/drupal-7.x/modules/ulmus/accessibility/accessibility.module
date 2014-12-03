@@ -87,7 +87,7 @@ function accessibility_entity_info() {
       ),
     )
   );
-  
+
   return $entities;
 }
 
@@ -95,7 +95,7 @@ function accessibility_entity_info() {
  * Accessibility test entity controller.
  */
 class AccessibilityTestController extends EntityAPIController {
-  
+
   public function save($test) {
     if ((property_exists($test, 'is_new') && $test->is_new) || !isset($test->test_id)) {
       $test->changed = $test->created = time();
@@ -120,10 +120,10 @@ class AccessibilityTestController extends EntityAPIController {
     }
     cache_clear_all('accessibility_tests_json', 'cache');
   }
-  
+
   public function create(array $values = array()) {
     // Add values that are specific to our Model
-    $values += array( 
+    $values += array(
       'test_id' => '',
       'is_new' => TRUE,
       'name' => '',
@@ -134,11 +134,11 @@ class AccessibilityTestController extends EntityAPIController {
       'status' => 1,
       'data' => array()
     );
-    
+
     $test = parent::create($values);
     return $test;
   }
-    
+
 };
 
 /**
@@ -223,7 +223,7 @@ function accessibility_menu() {
     'access arguments' => array('administer accessibility tests'),
     'type' => MENU_LOCAL_TASK
   );
-  
+
   $items['accessibility-test/%accessibility_test/json'] = array(
     'title callback' => 'accessibility_test_page_title',
     'title arguments' => array(1),
@@ -240,7 +240,7 @@ function accessibility_menu() {
     'page arguments' => array(1),
     'access arguments' => array('view accessibility tests'),
   );
-  
+
   $items['accessibility-test/%accessibility_test/view'] = array(
     'title' => 'View',
     'page callback' => 'accessibility_test_page_view',
@@ -249,7 +249,7 @@ function accessibility_menu() {
     'type' => MENU_DEFAULT_LOCAL_TASK,
     'weight' => -10
   );
-  
+
   $items['accessibility-test/%accessibility_test/edit'] = array(
     'title' => 'Edit',
     'page callback' => 'drupal_get_form',
@@ -257,19 +257,19 @@ function accessibility_menu() {
     'access arguments' => array('administer accessibility tests'),
     'type' => MENU_LOCAL_TASK,
   );
-  
+
   $items['accessibility-test/%accessibility_test/delete'] = array(
     'page callback' => 'drupal_get_form',
     'page arguments' => array('accessibility_test_delete_form', 1),
     'access arguments' => array('administer accessibility tests'),
   );
-  
+
    $items['accessibility-test/add'] = array(
     'title' => 'Add accessibility test',
     'page callback' => 'accessibility_test_add',
     'access arguments' => array('administer accessibility tests'),
   );
-  
+
   $items['js/accessibility/tests.json'] = array(
     'title' => 'Accessibility tests',
     'page callback' => 'accessibility_tests_json',
@@ -277,7 +277,7 @@ function accessibility_menu() {
     'file' => 'accessibility.pages.inc',
     'type' => MENU_CALLBACK
   );
-  
+
   return $items;
 }
 
@@ -289,7 +289,7 @@ function accessibility_test_add() {
     'test_id' => '',
     'quail_name' => '',
   );
-  
+
   return drupal_get_form('accessibility_test_add_form', $test);
 }
 
@@ -306,7 +306,7 @@ function accessibility_test_edit_form($form, &$form_state, $test) {
     '#required' => TRUE,
     '#weight' => -5,
   );
-  
+
   $form['quail_name'] = array(
     '#type' => 'textfield',
     '#title' => t('Machine name'),
@@ -315,7 +315,7 @@ function accessibility_test_edit_form($form, &$form_state, $test) {
     '#required' => TRUE,
     '#weight' => -5,
   );
-  
+
   $form['severity'] = array(
     '#type' => 'select',
     '#title' => t('Severity'),
@@ -327,8 +327,8 @@ function accessibility_test_edit_form($form, &$form_state, $test) {
       ACCESSIBILITY_TEST_SUGGESTION => t('Suggestion'),
     ),
   );
-  
-  
+
+
   $form['status'] = array(
     '#type' => 'checkbox',
     '#title' => t('Test is active'),
@@ -357,7 +357,7 @@ function accessibility_test_edit_form($form, &$form_state, $test) {
     '#value' => t('Save test'),
     '#submit' => $submit + array('accessibility_test_edit_form_submit'),
   );
-  
+
   if (!empty($test->name)) {
     $form['actions']['delete'] = array(
       '#type' => 'submit',
@@ -376,7 +376,7 @@ function accessibility_test_edit_form($form, &$form_state, $test) {
 
 function accessibility_test_edit_form_validate(&$form, &$form_state) {
   $test = $form_state['accessibility_test'];
-  
+
   // Notify field widgets to validate their data.
   field_attach_form_validate('accessibility_test', $test, $form, $form_state);
 }
@@ -384,13 +384,13 @@ function accessibility_test_edit_form_validate(&$form, &$form_state) {
 
 /**
  * Form API submit callback for the model form.
- * 
+ *
  * @todo remove hard-coded link
  */
 function accessibility_test_edit_form_submit(&$form, &$form_state) {
   $test = $form_state['accessibility_test'];
   $test->changed = time();
-  
+
   field_attach_submit('accessibility_test', $test, $form, $form_state);
   $test->name       = $form_state['values']['name'];
   $test->quail_name = $form_state['values']['quail_name'];
@@ -403,7 +403,7 @@ function accessibility_test_edit_form_submit(&$form, &$form_state) {
 
 /**
  * Form API submit callback for the delete button.
- * 
+ *
  * @todo Remove hard-coded path
  */
 function accessibility_test_form_submit_delete(&$form, &$form_state) {
@@ -432,7 +432,7 @@ function accessibility_test_delete_form($form, &$form_state, $test) {
     t('Cancel'),
     'confirm'
   );
-  
+
   return $form;
 }
 
@@ -459,13 +459,13 @@ function accessibility_test_add_form($form, &$form_state, $test) {
     '#title' => t('Test Name'),
     '#required' => TRUE,
   );
-  
+
   $form['quail_name'] = array(
     '#type' => 'textfield',
     '#title' => t('QUAIL Name'),
     '#required' => TRUE,
   );
-  
+
   $form['severity'] = array(
     '#type' => 'select',
     '#title' => t('Severity'),
@@ -476,22 +476,22 @@ function accessibility_test_add_form($form, &$form_state, $test) {
       ACCESSIBILITY_TEST_SUGGESTION => t('Suggestion'),
     ),
   );
-  
+
   $form['status'] = array(
     '#type' => 'checkbox',
     '#title' => t('Test is active'),
   );
-  
+
   $form['submit'] = array(
     '#type' => 'submit',
     '#value' => t('Save'),
   );
-  
+
   $test = new stdClass();
   $test->type = 'accessibility_test';
-  
+
   field_attach_form('accessibility_test', $test, $form, $form_state);
-  
+
   return $form;
 }
 
@@ -570,7 +570,7 @@ function accessibility_test_page_title($test) {
  */
 function accessibility_test_page_view($test, $view_mode = 'default') {
   accessibility_test_render($test, $view_mode);
-  
+
   return $test->content;
 }
 
@@ -750,6 +750,7 @@ function accessibility_views_api() {
 function accessibility_features_api() {
   return array(
     'accessibility_test' => array(
+      'name' => t('Accessibility Test'),
       'default_hook' => 'accessibility_test_default',
       'default_file' => FEATURES_DEFAULTS_CUSTOM,
       'feature_source' => TRUE,
@@ -774,7 +775,7 @@ function accessibility_get_active_tests($load = TRUE) {
     }
   }
   return $tests;
-                      
+
 }
 
 /**
