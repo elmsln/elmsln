@@ -3,21 +3,21 @@
 /**
  * Implements hook_element_info_alter().
  */
-function cis_service_elmsmedia_element_info_alter(&$types) {
+function cis_service_elmsmedia_wysiwyg_element_info_alter(&$types) {
   if (isset($types['text_format']['#process'])) {
-    $types['text_format']['#process'][] = '_cis_service_elmsmedia_pre_render_wysiwyg_element';
+    $types['text_format']['#process'][] = '_cis_service_elmsmedia_wysiwyg_pre_render_wysiwyg_element';
   }
 }
 
 /**
  * Implements hook_form_FORM_ID_alter() for views_exposed_form().
  */
-function cis_service_elmsmedia_form_views_exposed_form_alter(&$form, &$form_state) {
+function cis_service_elmsmedia_wysiwyg_form_views_exposed_form_alter(&$form, &$form_state) {
   if (isset($_GET['ckeditor'], $_GET['elmsmedia_field'])) {
     $view = $form_state['view'];
     $field = $_GET['elmsmedia_field'];
 
-    $options = _cis_service_elmsmedia_default_image_style_options();
+    $options = _cis_service_elmsmedia_wysiwyg_default_image_style_options();
     $context = compact('form', 'form_state', 'view', 'field');
     drupal_alter('cis_service_elmsmedia_formatter_options', $options, $context);
 
@@ -32,7 +32,7 @@ function cis_service_elmsmedia_form_views_exposed_form_alter(&$form, &$form_stat
 /**
  * Implements hook_wywiwyg_plugin().
  */
-function cis_service_elmsmedia_wysiwyg_plugin($editor, $version) {
+function cis_service_elmsmedia_wysiwyg_wysiwyg_plugin($editor, $version) {
   return array(
     'cis_service_elmsmedia' => array(
       'url' => 'https://drupal.org/project/elmsmedia',
@@ -48,7 +48,7 @@ function cis_service_elmsmedia_wysiwyg_plugin($editor, $version) {
 /**
  * Implements hook_wysiwyg_include_directory().
  */
-function cis_service_elmsmedia_wysiwyg_include_directory($type) {
+function cis_service_elmsmedia_wysiwyg_wysiwyg_include_directory($type) {
   switch ($type) {
     case 'plugins':
       // You can just return $type, if you place your Wysiwyg plugins into a
@@ -61,7 +61,7 @@ function cis_service_elmsmedia_wysiwyg_include_directory($type) {
 /**
  * Add field instance settings for other parts of the machine to pick up.
  */
-function _cis_service_elmsmedia_pre_render_wysiwyg_element($element) {
+function _cis_service_elmsmedia_wysiwyg_pre_render_wysiwyg_element($element) {
   if (isset($element['#entity_type'], $element['#bundle'], $element['#field_name'])) {
     $field = $element['#entity_type'] . '.' . $element['#bundle'] . '.' . $element['#field_name'];
 
@@ -69,7 +69,7 @@ function _cis_service_elmsmedia_pre_render_wysiwyg_element($element) {
     $element['value']['#attributes']['data-elmsmedia-field'] = $field;
 
     // Load necessary resources for this page/form.
-    _cis_service_elmsmedia_load_resources_ckeditor();
+    _cis_service_elmsmedia_wysiwyg_load_resources_ckeditor();
   }
 
   return $element;
@@ -78,7 +78,7 @@ function _cis_service_elmsmedia_pre_render_wysiwyg_element($element) {
 /**
  * Helper to get the default image style + link options for the wysiwyg image selection.
  */
-function _cis_service_elmsmedia_default_image_style_options() {
+function _cis_service_elmsmedia_wysiwyg_default_image_style_options() {
   $options = array('' => t('- Choose -'), 'original' => t('Original'));
   $styles = image_style_options(FALSE);
   $options += $styles;
@@ -94,7 +94,7 @@ function _cis_service_elmsmedia_default_image_style_options() {
 /**
  * Helper to load necessary JS and CSS for ckeditor elements.
  */
-function _cis_service_elmsmedia_load_resources_ckeditor() {
+function _cis_service_elmsmedia_wysiwyg_load_resources_ckeditor() {
   static $loaded = 0;
   if (!$loaded) {
     $loaded = 1;
