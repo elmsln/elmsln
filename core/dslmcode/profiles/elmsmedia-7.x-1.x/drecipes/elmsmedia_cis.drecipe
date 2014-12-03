@@ -19,7 +19,16 @@
         "og_context",
         "og_ui",
         "textbook",
-        "textbook_editor"
+        "textbook_editor",
+        "cis_unique_tag",
+        "cis_shortcodes"
+      ]
+    },
+    {
+      "command": "vset",
+      "arguments": [
+        "site_frontpage",
+        "media-overview"
       ]
     }
   ],
