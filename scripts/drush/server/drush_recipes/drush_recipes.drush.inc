@@ -1300,7 +1300,9 @@ function _drush_recipes_require_shell_exec() {
   $exec = array(
     'php-eval',
     'eval',
-    'ev'
+    'ev',
+    'updb',
+    'updatedb'
   );
   // hook for commands that require background execution
   drush_command_invoke_all_ref('drush_recipes_require_shell_exec_alter', $exec);
