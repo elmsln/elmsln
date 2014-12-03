@@ -290,14 +290,16 @@ function imageinfo_cache_hook_info() {
  * Implements hook_image_effect_info_alter().
  */
 function imageinfo_cache_image_styles_alter(&$styles) {
-  // Use an effect callback router so that the correct toolkit is used.
+  // Use an effect callback router so that the correct toolkit is used
   foreach ($styles as &$style) {
     $context_needed = FALSE;
     foreach ($style['effects'] as &$effect) {
-      $effect['data']['#imageinfo_cache_effect_callback'] = $effect['effect callback'];
-      $effect['effect callback'] = 'imageinfo_cache_effect_router';
-      if (empty($context_needed)) {
-        $context_needed = imageinfo_cache_context_effect($effect, $style['name']);
+      if (isset($effect['effect callback'])) {
+        $effect['data']['#imageinfo_cache_effect_callback'] = $effect['effect callback'];
+        $effect['effect callback'] = 'imageinfo_cache_effect_router';
+        if (empty($context_needed)) {
+          $context_needed = imageinfo_cache_context_effect($effect, $style['name']);
+        }
       }
     }
     if (!empty($context_needed)) {
