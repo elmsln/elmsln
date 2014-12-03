@@ -1,4 +1,4 @@
-name = Elms Media Browser
+name = CIS Service ELMS Media
 description = Upload images from remote server using the filefield_sources module.
 core = 7.x
 package = CIS Service Instance

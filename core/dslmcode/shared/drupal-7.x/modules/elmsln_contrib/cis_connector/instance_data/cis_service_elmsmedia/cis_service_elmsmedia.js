@@ -17,7 +17,7 @@
       $button = $('<input>')
         .attr('type', 'button')
         .attr('style', 'margin-left: 0.25em;')
-        .addClass('elms-media-browser-open-link')
+        .addClass('cis-service-elmsmedia-browser-open-link')
         .addClass('form-submit')
         .val(Drupal.elmsMediaBrowser.openButtonLabel);
 
@@ -42,7 +42,7 @@
   Drupal.elmsMediaBrowser.insertOpenButton = function($div, $button) {
     $div
       // Mark this instance as processed.
-      .addClass('elms-media-browser-processed')
+      .addClass('cis-service-elmsmedia-browser-processed')
       // Insert button right after FileField Sources' "Select" button.
       .find(Drupal.settings.elmsMediaBrowser.submitButtonSelector).after($button);
   };
@@ -229,7 +229,7 @@
       if (location.hash && owner && owner != window) {
         var
           $context = $(context),
-          tds = $context.is('.elms-media-browser') ? $context.find('td') : $context.find('.elms-media-browser td');
+          tds = $context.is('.cis-service-elmsmedia-browser') ? $context.find('td') : $context.find('.cis-service-elmsmedia-browser td');
         tds.click(function(e) {
           // CKEditor context: insert image?
           if (location.hash == '#modal') {
@@ -259,7 +259,7 @@
        */
 
       // Get file fields.
-      var fileFields = $('div.filefield-source-remote:not(.elms-media-browser-processed)', context);
+      var fileFields = $('div.filefield-source-remote:not(.cis-service-elmsmedia-browser-processed)', context);
       fileFields.each(function(i, div) {
         var $div = $(div);
 

@@ -36,23 +36,23 @@ html .form-item-emb-formatter {
   background: #eee;
 }
 
-.elms-media-browser td {
+.cis-service-elmsmedia-browser td {
   vertical-align: top;
   cursor: pointer;
 }
-.elms-media-browser td:hover {
+.cis-service-elmsmedia-browser td:hover {
   background: rgba(0, 0, 0, 0.05);
 }
-.elms-media-browser-5col td {
+.cis-service-elmsmedia-browser-5col td {
   width: 20%;
 }
-.elms-media-browser-4col td {
+.cis-service-elmsmedia-browser-4col td {
   width: 25%;
 }
-.elms-media-browser-3col td {
+.cis-service-elmsmedia-browser-3col td {
   width: 33.33%;
 }
-.elms-media-browser-name {
+.cis-service-elmsmedia-browser-name {
   display: block;
   word-break: break-all;
   word-wrap: break-word;
