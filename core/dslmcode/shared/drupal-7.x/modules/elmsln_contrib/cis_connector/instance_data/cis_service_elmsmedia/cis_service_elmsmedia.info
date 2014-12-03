@@ -1,6 +1,7 @@
 name = Elms Media Browser
-description = Upload images from remote server using the filefield_sources module. 
+description = Upload images from remote server using the filefield_sources module.
 core = 7.x
+package = CIS Service Instance
 dependencies[] = image
 dependencies[] = filefield_sources
 dependencies[] = views

@@ -5,7 +5,7 @@
  */
 function cis_service_elmsmedia_element_info_alter(&$types) {
   if (isset($types['text_format']['#process'])) {
-    $types['text_format']['#process'][] = 'cis_service_elmsmedia_pre_render_wysiwyg_element';
+    $types['text_format']['#process'][] = '_cis_service_elmsmedia_pre_render_wysiwyg_element';
   }
 }
 
@@ -46,7 +46,7 @@ function cis_service_elmsmedia_wysiwyg_plugin($editor, $version) {
 }
 
 /**
- * Implements hook_wywiwyg_plugin().
+ * Implements hook_wysiwyg_include_directory().
  */
 function cis_service_elmsmedia_wysiwyg_include_directory($type) {
   switch ($type) {
@@ -61,7 +61,7 @@ function cis_service_elmsmedia_wysiwyg_include_directory($type) {
 /**
  * Add field instance settings for other parts of the machine to pick up.
  */
-function cis_service_elmsmedia_pre_render_wysiwyg_element($element) {
+function _cis_service_elmsmedia_pre_render_wysiwyg_element($element) {
   if (isset($element['#entity_type'], $element['#bundle'], $element['#field_name'])) {
     $field = $element['#entity_type'] . '.' . $element['#bundle'] . '.' . $element['#field_name'];
 
@@ -98,10 +98,7 @@ function _cis_service_elmsmedia_load_resources_ckeditor() {
   static $loaded = 0;
   if (!$loaded) {
     $loaded = 1;
-
     drupal_add_library('system', 'ui.dialog');
-
-    $path = drupal_get_path('module', 'cis_service_elmsmedia');
-    drupal_add_js($path . '/cis_service_elmsmedia.js');
+    drupal_add_js(drupal_get_path('module', 'cis_service_elmsmedia') . '/cis_service_elmsmedia.js');
   }
 }

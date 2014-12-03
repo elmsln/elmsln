@@ -1,8 +1,6 @@
 name = ELMS Media service WYSIWYG support
 description = Adds WYSIWYG support to ELMS Media service.
 core = 7.x
-
-package = User interface
-
+package = CIS Service Instance
 dependencies[] = cis_service_elmsmedia
 dependencies[] = wysiwyg
