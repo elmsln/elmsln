@@ -21,6 +21,7 @@ define ('CIS_CONNECTOR_ENTITY_REMOTE_ONLY', 1);
  */
 function cis_connector_restws_meta_controls_alter(&$controls) {
   $controls['deep-load-refs'] = 'deep-load-refs';
+  $controls['xml-out'] = 'xml-out';
 }
 
 /**
