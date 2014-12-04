@@ -850,6 +850,25 @@ function cis_helper_restws_response_alter(&$response, $function, $format_name) {
     else {
       _cis_helper_restws_deep_load($response);
     }
+    // @sillyhack to convert json object to xml quickly and deliver
+    // the page prior to drupal trying to do so
+    if (isset($_GET['xml-out'])) {
+      // figure out the entity type
+      $arg0 = explode('.', arg(0));
+      $entity = $arg0[0];
+      // bump this up a level so its similar to .xml request method
+      $response[$entity] = $response['list'];
+      // unset the old
+      unset($response['list']);
+      // wrap the whole thing in a list
+      print _cis_helper_getxml(array ('list' => $response));
+      // set content type to XML so browser / others read it as XML
+      drupal_add_http_header('Content-Type', 'application/xml');
+      // end-cap and exit early this way we don't get the callback
+      // that fires off traditional serialization
+      drupal_page_footer();
+      exit;
+    }
   }
 }
 
@@ -1121,4 +1140,60 @@ function cis_helper_httprl_spider_other_paths_alter(&$paths) {
   $paths[] = 'courses';
   $paths[] = 'programs';
   $paths[] = 'faculty';
+}
+
+/**
+ * Converts an array to XML
+ *  http://www.devexp.eu/2009/04/11/php-domdocument-convert-array-to-xml/
+ *  @param  <array> $array  The associative array you want to convert; nested numeric indices are OK!
+ */
+function _cis_helper_getxml( array $array ) {
+  $array2XmlConverter  = new CISXmlDomConstructor('1.0', 'utf-8');
+  $array2XmlConverter->xmlStandalone   = TRUE;
+  $array2XmlConverter->formatOutput    = TRUE;
+  try {
+    $array2XmlConverter->fromMixed( $array );
+    $array2XmlConverter->normalizeDocument ();
+    $xml    = $array2XmlConverter->saveXML();
+    return  $xml;
+  }
+  catch( Exception $ex )  {
+    return  $ex;
+  }
+}
+
+/**
+ * Extends the DOMDocument to implement personal (utility) methods.
+ * - From: http://www.devexp.eu/2009/04/11/php-domdocument-convert-array-to-xml/
+ * - parent:: See http://www.php.net/manual/en/class.domdocument.php
+ *
+ * @throws   DOMException   http://www.php.net/manual/en/class.domexception.php
+ *
+ * @author Toni Van de Voorde
+ */
+class CISXmlDomConstructor extends DOMDocument {
+  public function fromMixed($mixed, DOMElement $domElement = null) {
+    $domElement = is_null($domElement) ? $this : $domElement;
+    if (is_array($mixed)) {
+      foreach ($mixed as $index => $mixedElement) {
+        if ( is_int($index) ) {
+          if ( $index == 0 ) {
+            $node = $domElement;
+          }
+          else {
+            $node = $this->createElement($domElement->tagName);
+            $domElement->parentNode->appendChild($node);
+          }
+        }
+        else {
+          $node = $this->createElement($index);
+          $domElement->appendChild($node);
+        }
+        $this->fromMixed($mixedElement, $node);
+      }
+    }
+    else {
+      $domElement->appendChild($this->createTextNode($mixed));
+    }
+  }
 }
