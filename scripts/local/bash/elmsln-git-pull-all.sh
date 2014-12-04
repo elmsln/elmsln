@@ -60,7 +60,7 @@ else
   # reup normal location and config
   $line "cd ~/elmsln && git pull origin $2 && cd ~/elmsln/config && git pull origin $3" < /dev/null
   # print an sa to ensure health
-  $line "drush sa;" < /dev/null
+  $line "drush sa" < /dev/null
   tmpend="$(timestamp)"
   msg="Finished working on '${prevline}' in $(expr $tmpend - $tmpstart) seconds"
   elmslnecho "${msg}"
