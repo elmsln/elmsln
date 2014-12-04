@@ -393,7 +393,7 @@ function cis_service_connection_block_section_outline() {
         // if there is a context (page in the book) then we should load everything
         // at the highest level into a drop down menu and then JUST the context
         // in question. This is far more complicated then the other two.
-        elseif ($outline_styles[$section] == 'in-context') {
+        elseif (isset($outline_styles[$section]) && $outline_styles[$section] == 'in-context') {
           // we split this into two different loads for now
 
           // @todo reduce this into 1 output style once collins gets us the
