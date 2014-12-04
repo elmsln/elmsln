@@ -18,7 +18,7 @@ include_once 'cis_service_restws.features.inc';
  *
  * related issue https://drupal.org/node/2024603
  */
-function cis_service_restws_restws_response_alter(&$response, $function, $format_name, $resourceController) {
+function cis_service_restws_restws_response_alter(&$response, $function, $format_name) {
   // specific modifications based common request type
   if (($function == 'viewResource' || $function == 'queryResource') && $format_name == 'json' && isset($_GET['deep-load-refs'])) {
     // query response is nested, direct access is not
@@ -30,7 +30,7 @@ function cis_service_restws_restws_response_alter(&$response, $function, $format
     else {
       _cis_service_restws_restws_deep_load($response);
     }
-    // @hack to convert json object to xml quickly and deliver
+    // @sillyhack to convert json object to xml quickly and deliver
     // the page prior to drupal trying to do so
     if (isset($_GET['xml-out'])) {
       // figure out the entity type
@@ -112,6 +112,44 @@ function _cis_service_restws_restws_deep_load(&$response) {
           }
           // add values based on wrapper passing correctly
           $val = $eary;
+        }
+      }
+    }
+    // special case for files cause they nest differently
+    elseif (is_array($val) && isset($val['file']['id'])) {
+      if (in_array($val['file']['resource'], $allowed)) {
+        // load the entity
+        $entity = entity_load_single($val['file']['resource'], $val['file']['id']);
+        // ensure they can view this specific item
+        if (entity_access('view', $val['file']['resource'], $entity)) {
+          // create a meta wrapper to act on for entity
+          $wrapper = entity_metadata_wrapper($val['file']['resource'], $entity);
+          // filter out fields
+          $wrap = restws_property_access_filter($wrapper);
+          // typecast entity as array for property evaluation
+          $eary = (array) $entity;
+          // these properties don't cause security issues but file entity is
+          // really tricky, especially without file_entity... and even then with
+          // it it can be a pain
+          $file_fix = array(
+            'fid' => 'fid',
+            'uid' => 'uid',
+            'uri' => 'uri',
+            'filename' => 'filename',
+            'filemime' => 'filemime',
+            'filesize' => 'filesize',
+            'status' => 'status',
+            'timestamp' => 'timestamp',
+          );
+          foreach ($eary as $property => $value) {
+            // value needs to be removed as it didn't pass wrapper validation
+            if (!isset($wrap[$property]) && !isset($file_fix[$property])) {
+              unset($eary[$property]);
+            }
+          }
+          $eary['url'] = file_create_url($eary['uri']);
+          // add values based on wrapper passing correctly
+          $val['file'] = $eary;
         }
       }
     }
