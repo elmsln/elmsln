@@ -6,9 +6,9 @@ files[] = LTIToolProviderOutcomesEntityController.class.php
 files[] = LTIToolProviderOutcomesResourceEntityController.class.php
 dependencies[] = lti_tool_provider
 
-; Information added by drupal.org packaging script on 2013-06-05
+; Information added by drupal.org packaging script on 2013-09-30
 version = "7.x-1.x-dev"
 core = "7.x"
 project = "lti_tool_provider"
-datestamp = "1370446594"
+datestamp = "1380585452"
 

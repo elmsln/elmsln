@@ -332,6 +332,8 @@ function lti_tool_provider_get_lti_roles() {
     'Mentor',
     'Administrator',
     'TeachingAssistant',
+    'Else',
+    'Alumni'
   );
 }
 
