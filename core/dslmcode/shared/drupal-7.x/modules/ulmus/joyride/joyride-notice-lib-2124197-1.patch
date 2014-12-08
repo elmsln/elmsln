@@ -1,0 +1,12 @@
+diff --git a/joyride.install b/joyride.install
+index a9608b0..b0061f5 100644
+--- a/joyride.install
++++ b/joyride.install
+@@ -1,5 +1,7 @@
+ <?php
+ 
++define('JOYRIDE_LIBRARY_VERSION', '2.0.3');
++
+ /**
+  * Implements hook_requirements().
+  * Check installation requirements and do status reporting.
