@@ -26,14 +26,24 @@ function lti_tool_provider_launch() {
   global $user;
   // If not an LTI launch request, then ignore.
   if (!lti_tool_provider_is_basic_lti_request()) {
-    drupal_set_message(t('Not a LTI request.'), 'info');
-    return t('Error: Not a LTI request.');
+    if (isset($launch_info['launch_presentation_return_url'])) {
+      lti_tool_provider_goto(url($launch_info['launch_presentation_return_url'], array('query' => array('lti_errormsg' => t(t('Error: Not a LTI request.'))))));
+    }
+    else {
+      drupal_set_message(t('Error: Not a LTI request.'), 'error');
+      return t('Error: Not a LTI request.');
+    }
   }
   // Insure we have a valid context.
   if (empty($_REQUEST['oauth_consumer_key'])) {
     unset($_SESSION['lti_tool_provider_context_info']);
-    drupal_set_message(t('Not a valid LTI context.'), 'info');
-    return t('Error: Invalid context. Missing oauth_consumer_key in request.');
+    if (isset($launch_info['launch_presentation_return_url'])) {
+      lti_tool_provider_goto(url($launch_info['launch_presentation_return_url'], array('query' => array('lti_errormsg' => t(t('Not a valid LTI context.'))))));
+    }
+    else {
+      drupal_set_message(t('Error: Invalid context. Missing oauth_consumer_key in request.'), 'error');
+      return t('Error: Invalid context. Missing oauth_consumer_key in request.');
+    }
   }
   // Begin a new session based on this LTI launch request.
   drupal_session_start();
@@ -48,19 +58,24 @@ function lti_tool_provider_launch() {
     $server->verify_request($request);
     // This is a LTI launch request.
   } catch (Exception $e) {
-    drupal_set_message(check_plain($e->getMessage()), 'error');
-    return t('Error: Invalid context, OAuth failure.');
+    if (isset($launch_info['launch_presentation_return_url'])) {
+      lti_tool_provider_goto(url($launch_info['launch_presentation_return_url'], array('query' => array('lti_errormsg' => t('Error: Invalid context, OAuth failure.')))));
+    }
+    else {
+      drupal_set_message(check_plain($e->getMessage()), 'error');
+      return t('Error: Invalid context, OAuth failure.');
+    }
   }
   // Collect the launch information for later storage in the session.
   $launch_info = $request->get_parameters();
-  if (empty($launch_info['context_id'])) {
+  /*if (empty($launch_info['context_id'])) {
     if (isset($launch_info['launch_presentation_return_url'])) {
       lti_tool_provider_goto(url($launch_info['launch_presentation_return_url'], array('query' => array('lti_errormsg' => t('Error: Invalid context, No context Id.')))));
     }
     else {
       return t('Error: Invalid context, No context Id.');
     }
-  }
+  }*/
   $consumer = lti_tool_provider_get_consumer_by_key($oauth_consumer_key);
   $launch_info['consumer_id'] = $consumer->lti_tool_provider_consumer_id;
   $launch_info['consumer_domain'] = $consumer->lti_tool_provider_consumer_domain;

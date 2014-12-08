@@ -307,10 +307,10 @@ function lti_tool_provider_unassign_global_roles_from_user($lti_roles, $uid) {
  *   to meet the protocol.
  */
 function lti_tool_provider_is_basic_lti_request() {
-  $good_message_type = array_key_exists('lti_message_type', $_REQUEST) ? $_REQUEST["lti_message_type"] : "basic-lti-launch-request";
-  $good_lti_version = array_key_exists('lti_version', $_REQUEST) ? $_REQUEST["lti_version"] : "LTI-1p0";
+  $good_message_type = array_key_exists('lti_message_type', $_REQUEST) ? $_REQUEST["lti_message_type"] : NULL;
+  $good_lti_version = array_key_exists('lti_version', $_REQUEST) ? $_REQUEST["lti_version"] : NULL;
   $resource_link_id = array_key_exists('resource_link_id', $_REQUEST) ? $_REQUEST["resource_link_id"] : NULL;
-  if ($good_message_type and $good_lti_version and isset($resource_link_id)) {
+  if ($good_message_type == 'basic-lti-launch-request' && in_array($good_lti_version, array('LTI-1p0', 'LTI-1p2')) && isset($resource_link_id)) {
     return TRUE;
   }
   return FALSE;
