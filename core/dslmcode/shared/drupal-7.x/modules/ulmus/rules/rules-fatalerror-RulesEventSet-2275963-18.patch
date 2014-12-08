@@ -1,0 +1,15 @@
+diff --git a/rules.module b/rules.module
+index 74077c8..3928996 100644
+--- a/rules.module
++++ b/rules.module
+@@ -352,7 +352,9 @@ function &rules_get_cache($cid = 'data') {
+       }
+       elseif (strpos($cid, 'event_') === 0) {
+         $cache[$cid] = FALSE;
+-        RulesEventSet::rebuildEventCache();
++        if (class_exists('RulesEventSet')) {
++          RulesEventSet::rebuildEventCache();
++        }
+       }
+       else {
+         $cache[$cid] = FALSE;
