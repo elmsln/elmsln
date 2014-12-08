@@ -1,0 +1,25 @@
+From 4c9c113909d77a3cfa3e5ac8dce17e1081b76f2c Mon Sep 17 00:00:00 2001
+From: "[Freshbyte] Laurentiu Lese" <laurentiu.lese@freshbyte.ro>
+Date: Fri, 22 Aug 2014 13:23:59 +0300
+Subject: [PATCH] Issue #2090511: Fix update issues when drush or update
+ manager is used.
+
+---
+ rules.module |    1 +
+ 1 files changed, 1 insertions(+), 0 deletions(-)
+
+diff --git a/rules.module b/rules.module
+index 16e2ee3..977b22e 100644
+--- a/rules.module
++++ b/rules.module
+@@ -7,6 +7,7 @@
+ // Include our hook implementations early, as they can be called even before
+ // hook_init().
+ require_once dirname(__FILE__) . '/modules/events.inc';
++require_once dirname(__FILE__) . '/includes/rules.event.inc';
+ 
+ /**
+  * Implements hook_init().
+-- 
+1.7.6.msysgit.0
+
