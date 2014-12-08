@@ -301,6 +301,23 @@ class RulesDataUIInteger extends RulesDataUIText {
 }
 
 /**
+ * UI for IP addresses.
+ */
+class RulesDataUIIPAddress extends RulesDataUIText {
+
+  public static function inputForm($name, $info, $settings, RulesPlugin $element) {
+    $form = parent::inputForm($name, $info, $settings, $element);
+    if (empty($info['options list'])) {
+      $form[$name]['#type'] = 'textfield';
+      $form[$name]['#description'] = t('If not provided, the IP address of the current user will be used.');
+    }
+    $form[$name]['#element_validate'][] = 'rules_ui_element_ip_address_validate';
+    $form[$name]['#rows'] = 1;
+    return $form;
+  }
+}
+
+/**
  * UI for boolean data.
  */
 class RulesDataUIBoolean extends RulesDataUI implements RulesDataDirectInputFormInterface {

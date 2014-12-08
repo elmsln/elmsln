@@ -40,6 +40,11 @@ function rules_scheduler_cron_queue_info() {
  */
 function rules_scheduler_run_task(array $task) {
   try {
+    // BC support for tasks that have been already queued, before update
+    // rules_scheduler_update_7204() ran.
+    if (isset($task['state'])) {
+      $task['data'] = $task['state'];
+    }
     rules_scheduler_task_handler($task)->runTask();
   }
   catch (RulesEvaluationException $e) {
@@ -189,10 +194,13 @@ function rules_scheduler_queue_tasks() {
  * Implements hook_rules_config_delete().
  */
 function rules_scheduler_rules_config_delete($rules_config) {
-  // Delete all tasks scheduled for this config.
-  db_delete('rules_scheduler')
-    ->condition('config', $rules_config->name)
-    ->execute();
+  // Only react on real delete, not revert.
+  if (!$rules_config->hasStatus(ENTITY_IN_CODE)) {
+    // Delete all tasks scheduled for this config.
+    db_delete('rules_scheduler')
+      ->condition('config', $rules_config->name)
+      ->execute();
+  }
 }
 
 /**

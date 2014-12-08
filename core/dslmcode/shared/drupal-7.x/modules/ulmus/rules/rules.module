@@ -4,11 +4,14 @@
  * @file Rules engine module
  */
 
+// Include our hook implementations early, as they can be called even before
+// hook_init().
+require_once dirname(__FILE__) . '/modules/events.inc';
+
 /**
  * Implements hook_init().
  */
 function rules_init() {
-  module_load_include('inc', 'rules', 'modules/events');
   rules_invoke_event('init');
 }
 

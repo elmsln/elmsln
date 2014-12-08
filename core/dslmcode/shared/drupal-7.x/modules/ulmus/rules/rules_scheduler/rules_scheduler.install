@@ -144,12 +144,14 @@ function rules_scheduler_update_7203() {
  * Rename rules_scheduler.state into rules_scheduler.data.
  */
 function rules_scheduler_update_7204() {
-  db_change_field('rules_scheduler', 'state', 'data', array(
-    'type' => 'text',
-    'not null' => FALSE,
-    'serialize' => TRUE,
-    'description' => 'The whole, serialized evaluation data.',
-  ));
+  if (db_field_exists('rules_scheduler', 'state')) {
+    db_change_field('rules_scheduler', 'state', 'data', array(
+      'type' => 'text',
+      'not null' => FALSE,
+      'serialize' => TRUE,
+      'description' => 'The whole, serialized evaluation data.',
+    ));
+  }
 }
 
 /**

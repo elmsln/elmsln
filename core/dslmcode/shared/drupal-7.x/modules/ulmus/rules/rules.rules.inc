@@ -10,7 +10,6 @@
  */
 foreach (rules_core_modules() as $module) {
   module_load_include('inc', 'rules', "modules/$module.rules");
-  module_load_include('inc', 'rules', 'modules/events');
 }
 
 /**

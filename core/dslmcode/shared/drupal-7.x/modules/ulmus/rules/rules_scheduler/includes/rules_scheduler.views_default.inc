@@ -86,7 +86,7 @@ function rules_scheduler_views_default_views() {
   $handler->display->display_options['fields']['config']['field'] = 'config';
   $handler->display->display_options['fields']['config']['alter']['alter_text'] = 0;
   $handler->display->display_options['fields']['config']['alter']['make_link'] = 1;
-  $handler->display->display_options['fields']['config']['alter']['path'] = 'admin/config/workflow/rules/config/[config]';
+  $handler->display->display_options['fields']['config']['alter']['path'] = 'admin/config/workflow/rules/components/manage/[config]';
   $handler->display->display_options['fields']['config']['alter']['absolute'] = 0;
   $handler->display->display_options['fields']['config']['alter']['trim'] = 0;
   $handler->display->display_options['fields']['config']['alter']['word_boundary'] = 1;
@@ -163,7 +163,7 @@ function rules_scheduler_views_default_views() {
     t('No tasks have been scheduled.'),
     t('Tid'),
     t('Component name'),
-    t('admin/config/workflow/rules/config/[config]'),
+    t('admin/config/workflow/rules/components/manage/[config]'),
     t('Scheduled date'),
     t('User provided identifier'),
     t('Operations'),

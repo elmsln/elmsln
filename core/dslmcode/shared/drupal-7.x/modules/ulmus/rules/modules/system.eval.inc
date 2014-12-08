@@ -151,6 +151,17 @@ function rules_mail($key, &$message, $params) {
 }
 
 /**
+ * Action: Block an IP address.
+ */
+function rules_action_block_ip($ip_address = NULL) {
+  if (empty($ip_address)) {
+    $ip_address = ip_address();
+  }
+  db_insert('blocked_ips')->fields(array('ip' => $ip_address))->execute();
+  watchdog('rules', 'Banned IP address %ip', array('%ip' => $ip_address));
+}
+
+/**
  * A class implementing a rules input evaluator processing tokens.
  */
 class RulesTokenEvaluator extends RulesDataInputEvaluator {

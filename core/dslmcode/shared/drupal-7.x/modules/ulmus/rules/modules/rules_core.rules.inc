@@ -120,6 +120,12 @@ function rules_rules_core_data_info() {
       'group' => t('Entity'),
       'is wrapped' => TRUE,
     ),
+    'ip_address' => array(
+      'label' => t('IP Address'),
+      'parent' => 'text',
+      'ui class' => 'RulesDataUIIPAddress',
+      'token type' => 'rules_text',
+    ),
   );
   foreach (entity_get_info() as $type => $info) {
     if (!empty($info['label'])) {

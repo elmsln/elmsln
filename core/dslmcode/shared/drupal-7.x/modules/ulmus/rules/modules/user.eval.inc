@@ -103,6 +103,7 @@ function rules_action_user_unblock($account) {
 function rules_action_user_send_account_email($account, $email_type) {
   // If we received an authenticated user account...
   if (!empty($account->uid)) {
+    module_load_include('inc', 'rules', 'modules/user.rules');
     $types = rules_user_account_email_options_list();
 
     // Attempt to send the account e-mail.

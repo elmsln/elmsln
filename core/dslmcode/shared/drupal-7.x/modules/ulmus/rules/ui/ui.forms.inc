@@ -685,6 +685,16 @@ function rules_ui_element_decimal_validate($element, &$form_state) {
 }
 
 /**
+ * FAPI callback to validate an IP address.
+ */
+function rules_ui_element_ip_address_validate($element, &$form_state) {
+  $value = $element['#value'];
+  if ($value != '' && !filter_var($value, FILTER_VALIDATE_IP)) {
+    form_error($element, t('%name is not a valid IP address.', array('%name' => $element['#title'])));
+  }
+}
+
+/**
  * FAPI validation of a date element. Makes sure the specified date format is
  * correct and converts date values specifiy a fixed (= non relative) date to
  * a timestamp. Relative dates are handled by the date input evaluator.

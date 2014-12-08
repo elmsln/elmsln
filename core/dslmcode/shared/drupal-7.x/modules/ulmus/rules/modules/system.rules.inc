@@ -242,6 +242,21 @@ function rules_system_action_info() {
       'base' => 'rules_action_mail_to_users_of_role',
       'access callback' => 'rules_system_integration_access',
     ),
+    'block_ip' => array(
+      'label' => t('Block IP address'),
+      'group' => t('System'),
+      'parameter' => array(
+        'ip_address' => array(
+          'type' => 'ip_address',
+          'label' => t('IP address'),
+          'description' => t('If not provided, the IP address of the current user will be used.'),
+          'optional' => TRUE,
+          'default value' => NULL,
+        ),
+      ),
+      'base' => 'rules_action_block_ip',
+      'access callback' => 'rules_system_integration_access',
+    ),
   );
 }
 

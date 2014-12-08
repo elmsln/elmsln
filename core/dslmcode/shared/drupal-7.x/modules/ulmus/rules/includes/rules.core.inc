@@ -1622,7 +1622,7 @@ abstract class RulesAbstractPlugin extends RulesPlugin {
   public function dependencies() {
     $modules = array_flip(parent::dependencies());
     $modules += array_flip((array) $this->__call('dependencies'));
-    return array_keys($modules + (isset($this->info['module']) ? array($this->info['module'] => 1) : array()));
+    return array_keys($modules + (!empty($this->info['module']) ? array($this->info['module'] => 1) : array()));
   }
 
   public function executeByArgs($args = array()) {

@@ -294,6 +294,7 @@ function rules_action_data_create_info_alter(&$element_info, RulesAbstractPlugin
         $element_info['parameter']['param_' . $property] = array_intersect_key($property_info, array_flip(array('type', 'label', 'allow null')));
         if (empty($property_info['required'])) {
           $element_info['parameter']['param_' . $property]['optional'] = TRUE;
+          $element_info['parameter']['param_' . $property]['allow null'] = TRUE;
         }
       }
     }
@@ -364,6 +365,20 @@ function rules_condition_data_list_contains($list, $item, $settings, $state) {
     return FALSE;
   }
   return in_array($item, $list);
+}
+
+/**
+* Condition: List count comparison.
+*/
+function rules_condition_data_list_count_is($list, $op = '==', $value) {
+  switch ($op) {
+    case '==':
+      return count($list) == $value;
+    case '<';
+      return count($list) < $value;
+    case '>';
+      return count($list) > $value;
+  }
 }
 
 /**
