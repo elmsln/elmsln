@@ -25,7 +25,7 @@ function lti_tool_provider_memberships_menu() {
     'description' => 'Configure LTI Memberships groups.',
     'page callback' => 'drupal_get_form',
     'page arguments' => array('lti_tool_provider_memberships_subgroup_mapping'),
-    'access callback' => 'lti_tool_provider_memberships_access_and_og', 
+    'access callback' => 'lti_tool_provider_memberships_access_and_og',
     'access arguments' => array('administer lti_tool_provider module'),
     'file' => 'lti_tool_provider_memberships.admin.inc',
     'weight' => -3,
@@ -911,18 +911,25 @@ function lti_tool_provider_memberships_lti_tool_provider_launch_alter(&$launch_i
   // If user does not have a membership, create one
   global $user;
   $query = new EntityFieldQuery();
-  $result = $query
-  -> entityCondition('entity_type', 'lti_tool_provider_memberships')
-  -> propertyCondition('lti_tool_provider_memberships_context_id', $launch_info['context_id'])
-  -> propertyCondition('lti_tool_provider_memberships_user_id', $launch_info['user_id'])
-  -> execute();
+  $result = $query->entityCondition('entity_type', 'lti_tool_provider_memberships');
+  // can't assume context_id isset, not required by IMS specification
+  if (isset($launch_info['context_id'])) {
+    $result->propertyCondition('lti_tool_provider_memberships_context_id', $launch_info['context_id']);
+  }
+  // can't assume user_id is set when working with guest access
+  if (isset($launch_info['user_id'])) {
+    $result->propertyCondition('lti_tool_provider_memberships_user_id', $launch_info['user_id']);
+  }
+  $result->execute();
   if (empty($result)) {
     $entity = entity_get_controller('lti_tool_provider_memberships')->create();
     $entity->lti_tool_provider_memberships_context_id = $launch_info['context_id'];
     $entity->lti_tool_provider_memberships_uid = isset($account->uid) ? $account->uid : NULL;
     $entity->lti_tool_provider_memberships_user_id = $launch_info['user_id'];
     $entity->lti_tool_provider_memberships_role = $launch_info['roles'];
-    $entity->lti_tool_provider_memberships_person_name_full = $launch_info['lis_person_name_full'];
+    if (isset($launch_info['lis_person_name_full'])) {
+      $entity->lti_tool_provider_memberships_person_name_full = $launch_info['lis_person_name_full'];
+    }
     lti_tool_provider_memberships_save($entity);
   }
 }

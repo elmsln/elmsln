@@ -26,8 +26,8 @@ function lti_tool_provider_launch() {
   global $user;
   // If not an LTI launch request, then ignore.
   if (!lti_tool_provider_is_basic_lti_request()) {
-    if (isset($launch_info['launch_presentation_return_url'])) {
-      lti_tool_provider_goto(url($launch_info['launch_presentation_return_url'], array('query' => array('lti_errormsg' => t(t('Error: Not a LTI request.'))))));
+    if (isset($_REQUEST['launch_presentation_return_url'])) {
+      lti_tool_provider_goto(url($_REQUEST['launch_presentation_return_url'], array('query' => array('lti_errormsg' => t('Error: Not a LTI request.')))));
     }
     else {
       drupal_set_message(t('Error: Not a LTI request.'), 'error');
@@ -37,8 +37,8 @@ function lti_tool_provider_launch() {
   // Insure we have a valid context.
   if (empty($_REQUEST['oauth_consumer_key'])) {
     unset($_SESSION['lti_tool_provider_context_info']);
-    if (isset($launch_info['launch_presentation_return_url'])) {
-      lti_tool_provider_goto(url($launch_info['launch_presentation_return_url'], array('query' => array('lti_errormsg' => t(t('Not a valid LTI context.'))))));
+    if (isset($_REQUEST['launch_presentation_return_url'])) {
+      lti_tool_provider_goto(url($_REQUEST['launch_presentation_return_url'], array('query' => array('lti_errormsg' => t(t('Not a valid LTI context.'))))));
     }
     else {
       drupal_set_message(t('Error: Invalid context. Missing oauth_consumer_key in request.'), 'error');
@@ -58,8 +58,8 @@ function lti_tool_provider_launch() {
     $server->verify_request($request);
     // This is a LTI launch request.
   } catch (Exception $e) {
-    if (isset($launch_info['launch_presentation_return_url'])) {
-      lti_tool_provider_goto(url($launch_info['launch_presentation_return_url'], array('query' => array('lti_errormsg' => t('Error: Invalid context, OAuth failure.')))));
+    if (isset($_REQUEST['launch_presentation_return_url'])) {
+      lti_tool_provider_goto(url($_REQUEST['launch_presentation_return_url'], array('query' => array('lti_errormsg' => t('Error: Invalid context, OAuth failure.')))));
     }
     else {
       drupal_set_message(check_plain($e->getMessage()), 'error');

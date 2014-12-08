@@ -127,7 +127,7 @@ function lti_tool_provider_og_lti_tool_provider_launch_alter(&$launch_info, $acc
     foreach (og_get_all_group($group_entity) as $key => $group_id) {
       $group_wrapper = entity_metadata_wrapper($group_entity, $group_id);
       $fields = $group_wrapper->getPropertyInfo();
-      if (isset($fields[$mapping_field]) && $group_wrapper->{$mapping_field}->value() == $launch_info['context_id']) {
+      if (isset($fields[$mapping_field]) && isset($launch_info['context_id']) && $group_wrapper->{$mapping_field}->value() == $launch_info['context_id']) {
         // Found the group that matches the context_id.
         $course_found = TRUE;
         $launch_info['course_entity_type'] = $group_entity;
@@ -152,7 +152,7 @@ function lti_tool_provider_og_lti_tool_provider_launch_alter(&$launch_info, $acc
     }
     // Provision group.
     // FIX THIS does not cope with non-node group bundles.
-    if (!$course_found && ($launch_info['context_id'] != NULL) &&
+    if (!$course_found && isset($launch_info['context_id']) && ($launch_info['context_id'] != NULL) &&
       (variable_get('lti_tool_provider_og_provision_groups') == 1) &&
       ((variable_get('lti_tool_provider_og_provision_groups_anon') == 1) || (user_access('create ' . $group_bundle . ' content', $account)))) {
       $node = new stdClass();
@@ -189,7 +189,13 @@ function lti_tool_provider_og_lti_tool_provider_launch_alter(&$launch_info, $acc
       $launch_info['destination'] = $launch_info['course_entity_type'] . '/' . $launch_info['course_entity_eid'];
     }
     else {
-      drupal_set_message(t('No course corresponding to @label exists.', array('@label' => $launch_info['context_label'])));
+      if (isset($launch_info['context_label'])) {
+        $label = $launch_info['context_label'];
+      }
+      else {
+        $label = '<none>';
+      }
+      drupal_set_message(t('No course corresponding to @label exists.', array('@label' => $label)));
     }
   }
 }
