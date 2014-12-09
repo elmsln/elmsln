@@ -98,7 +98,7 @@ class Controller extends \Piwik\Plugin\Controller
     {
         $saveGET = $_GET;
         $filterEcommerce = Common::getRequestVar('filterEcommerce', self::ECOMMERCE_LOG_SHOW_ORDERS, 'int');
-        if($filterEcommerce == self::ECOMMERCE_LOG_SHOW_ORDERS) {
+        if ($filterEcommerce == self::ECOMMERCE_LOG_SHOW_ORDERS) {
             $segment = urlencode('visitEcommerceStatus==ordered,visitEcommerceStatus==orderedThenAbandonedCart');
         } else {
             $segment = urlencode('visitEcommerceStatus==abandonedCart,visitEcommerceStatus==orderedThenAbandonedCart');
@@ -168,7 +168,7 @@ class Controller extends \Piwik\Plugin\Controller
                 $goal['pattern'] = Common::unsanitizeInputValue($goal['pattern']);
             }
         }
-        $view->goalsJSON = Common::json_encode($goals);
+        $view->goalsJSON = json_encode($goals);
 
         $view->userCanEditGoals = Piwik::isUserHasAdminAccess($this->idSite);
         $view->ecommerceEnabled = $this->site->isEcommerceEnabled();
@@ -458,7 +458,7 @@ class Controller extends \Piwik\Plugin\Controller
             foreach ($allReports as $category => $reports) {
                 $categoryText = Piwik::translate('Goals_ViewGoalsBy', $category);
                 foreach ($reports as $report) {
-                    if(empty($report['viewDataTable'])) {
+                    if (empty($report['viewDataTable'])) {
                         $report['viewDataTable'] = 'tableGoals';
                     }
                     $customParams['viewDataTable'] = $report['viewDataTable'];
@@ -470,34 +470,5 @@ class Controller extends \Piwik\Plugin\Controller
         }
 
         return $goalReportsByDimension->render();
-    }
-
-    //
-    // Report rendering actions
-    //
-
-    public function getItemsSku()
-    {
-        return $this->renderReport(__FUNCTION__);
-    }
-
-    public function getItemsName()
-    {
-        return $this->renderReport(__FUNCTION__);
-    }
-
-    public function getItemsCategory()
-    {
-        return $this->renderReport(__FUNCTION__);
-    }
-
-    public function getVisitsUntilConversion()
-    {
-        return $this->renderReport(__FUNCTION__);
-    }
-
-    public function getDaysToConversion()
-    {
-        return $this->renderReport(__FUNCTION__);
     }
 }

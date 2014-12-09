@@ -11,11 +11,13 @@ namespace Piwik\Plugins\LanguagesManager;
 
 use Piwik\Common;
 use Piwik\DbHelper;
+use Piwik\Piwik;
 use Piwik\Url;
+use Piwik\View;
 
 /**
  */
-class Controller extends \Piwik\Plugin\Controller
+class Controller extends \Piwik\Plugin\ControllerAdmin
 {
     /**
      * anonymous = in the session
@@ -32,5 +34,12 @@ class Controller extends \Piwik\Plugin\Controller
 
         LanguagesManager::setLanguageForSession($language);
         Url::redirectToReferrer();
+    }
+
+    public function searchTranslation()
+    {
+        Piwik::checkUserHasSomeAdminAccess();
+
+        return $this->renderTemplate('searchTranslation');
     }
 }

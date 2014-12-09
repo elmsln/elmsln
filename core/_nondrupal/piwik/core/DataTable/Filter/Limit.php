@@ -13,9 +13,9 @@ use Piwik\DataTable\BaseFilter;
 
 /**
  * Delete all rows from the table that are not in the given [offset, offset+limit) range.
- * 
+ *
  * **Basic example usage**
- * 
+ *
  *     // delete all rows from 5 -> 15
  *     $dataTable->filter('Limit', array(5, 10));
  *
@@ -34,9 +34,9 @@ class Limit extends BaseFilter
     public function __construct($table, $offset, $limit = -1, $keepSummaryRow = false)
     {
         parent::__construct($table);
-        $this->offset = $offset;
 
-        $this->limit = $limit;
+        $this->offset = $offset;
+        $this->limit  = $limit;
         $this->keepSummaryRow = $keepSummaryRow;
     }
 

@@ -40,7 +40,7 @@ class API extends \Piwik\Plugin\API
     const PREFERENCE_DEFAULT_REPORT = 'defaultReport';
     const PREFERENCE_DEFAULT_REPORT_DATE = 'defaultReportDate';
 
-    static private $instance = null;
+    private static $instance = null;
 
     protected function __construct()
     {
@@ -57,7 +57,7 @@ class API extends \Piwik\Plugin\API
      * @throws Exception
      * @return \Piwik\Plugins\UsersManager\API
      */
-    static public function getInstance()
+    public static function getInstance()
     {
         try {
             $instance = \Piwik\Registry::get('UsersManager_API');
@@ -66,10 +66,12 @@ class API extends \Piwik\Plugin\API
                 throw new Exception('UsersManager_API must inherit API');
             }
             self::$instance = $instance;
+            
         } catch (Exception $e) {
             self::$instance = new self;
             \Piwik\Registry::set('UsersManager_API', self::$instance);
         }
+
         return self::$instance;
     }
 
@@ -97,9 +99,11 @@ class API extends \Piwik\Plugin\API
         Piwik::checkUserHasSuperUserAccessOrIsTheUser($userLogin);
 
         $optionValue = Option::get($this->getPreferenceId($userLogin, $preferenceName));
+
         if ($optionValue !== false) {
             return $optionValue;
         }
+
         return $this->getDefaultUserPreference($preferenceName, $userLogin);
     }
 
@@ -217,6 +221,7 @@ class API extends \Piwik\Plugin\API
         }
 
         $logins = implode(',', $logins);
+
         return $this->getUsers($logins);
     }
 
@@ -300,6 +305,7 @@ class API extends \Piwik\Plugin\API
         if (empty($alias)) {
             $alias = $userLogin;
         }
+
         return $alias;
     }
 
@@ -318,7 +324,7 @@ class API extends \Piwik\Plugin\API
      *
      * @exception in case of an invalid parameter
      */
-    public function addUser($userLogin, $password, $email, $alias = false)
+    public function addUser($userLogin, $password, $email, $alias = false, $_isPasswordHashed = false)
     {
         Piwik::checkUserHasSuperUserAccess();
 
@@ -326,10 +332,16 @@ class API extends \Piwik\Plugin\API
         $this->checkEmail($email);
 
         $password = Common::unsanitizeInputValue($password);
-        UsersManager::checkPassword($password);
+
+        if (!$_isPasswordHashed) {
+            UsersManager::checkPassword($password);
+
+            $passwordTransformed = UsersManager::getPasswordHash($password);
+        } else {
+            $passwordTransformed = $password;
+        }
 
         $alias = $this->getCleanAlias($alias, $userLogin);
-        $passwordTransformed = UsersManager::getPasswordHash($password);
 
         $token_auth = $this->getTokenAuth($userLogin, $passwordTransformed);
 
@@ -341,10 +353,10 @@ class API extends \Piwik\Plugin\API
 
         /**
          * Triggered after a new user is created.
-         * 
+         *
          * @param string $userLogin The new user's login handle.
          */
-        Piwik::postEvent('UsersManager.addUser.end', array($userLogin));
+        Piwik::postEvent('UsersManager.addUser.end', array($userLogin, $email, $password, $alias));
     }
 
     /**
@@ -392,7 +404,14 @@ class API extends \Piwik\Plugin\API
     {
         Piwik::checkUserIsNotAnonymous();
 
-        return $this->model->getUsersHavingSuperUserAccess();
+        $users = $this->model->getUsersHavingSuperUserAccess();
+
+        foreach($users as &$user) {
+            // remove token_auth in API response
+            unset($user['token_auth']);
+        }
+
+        return $users;
     }
 
     /**
@@ -435,7 +454,7 @@ class API extends \Piwik\Plugin\API
             $this->checkEmail($email);
         }
 
-        $alias = $this->getCleanAlias($alias, $userLogin);
+        $alias      = $this->getCleanAlias($alias, $userLogin);
         $token_auth = $this->getTokenAuth($userLogin, $password);
 
         $this->model->updateUser($userLogin, $password, $email, $alias, $token_auth);
@@ -445,11 +464,11 @@ class API extends \Piwik\Plugin\API
         /**
          * Triggered after an existing user has been updated.
          * Event notify about password change.
-         * 
+         *
          * @param string $userLogin The user's login handle.
          * @param boolean $passwordHasBeenUpdated Flag containing information about password change.
          */
-        Piwik::postEvent('UsersManager.updateUser.end', array($userLogin, $passwordHasBeenUpdated));
+        Piwik::postEvent('UsersManager.updateUser.end', array($userLogin, $passwordHasBeenUpdated, $email, $password, $alias));
     }
 
     /**
@@ -465,6 +484,7 @@ class API extends \Piwik\Plugin\API
     {
         Piwik::checkUserHasSuperUserAccess();
         $this->checkUserIsNotAnonymous($userLogin);
+
         if (!$this->userExists($userLogin)) {
             throw new Exception(Piwik::translate("UsersManager_ExceptionDeleteDoesNotExist", $userLogin));
         }
@@ -567,6 +587,12 @@ class API extends \Piwik\Plugin\API
         // when no access are specified
         if ($access != 'noaccess') {
             $this->model->addUserAccess($userLogin, $access, $idSites);
+        } else {
+            if (!empty($idSites) && !is_array($idSites)) {
+                $idSites = array($idSites);
+            }
+
+            Piwik::postEvent('UsersManager.removeSiteAccess', array($userLogin, $idSites));
         }
 
         // we reload the access list which doesn't yet take in consideration this new user access
@@ -646,6 +672,7 @@ class API extends \Piwik\Plugin\API
         if (strlen($md5Password) != 32) {
             throw new Exception(Piwik::translate('UsersManager_ExceptionPasswordMD5HashExpected'));
         }
+
         return md5($userLogin . $md5Password);
     }
 }

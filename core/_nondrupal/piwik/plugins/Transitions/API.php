@@ -128,7 +128,6 @@ class API extends \Piwik\Plugin\API
      */
     private function deriveIdAction($actionName, $actionType)
     {
-        $actionsPlugin = new Actions;
         switch ($actionType) {
             case 'url':
                 $originalActionName = $actionName;
@@ -173,7 +172,6 @@ class API extends \Piwik\Plugin\API
      */
     private function addInternalReferrers($logAggregator, &$report, $idaction, $actionType, $limitBeforeGrouping)
     {
-
         $data = $this->queryInternalReferrers($idaction, $actionType, $logAggregator, $limitBeforeGrouping);
 
         if ($data['pageviews'] == 0) {
@@ -199,7 +197,6 @@ class API extends \Piwik\Plugin\API
      */
     private function addFollowingActions($logAggregator, &$report, $idaction, $actionType, $limitBeforeGrouping, $includeLoops = false)
     {
-
         $data = $this->queryFollowingActions(
             $idaction, $actionType, $logAggregator, $limitBeforeGrouping, $includeLoops);
 
@@ -226,7 +223,7 @@ class API extends \Piwik\Plugin\API
         if ($actionType != 'title') {
             // specific setup for page urls
             $types[Action::TYPE_PAGE_URL] = 'followingPages';
-            $dimension = 'IF( idaction_url IS NULL, idaction_name, idaction_url )';
+            $dimension = 'if ( idaction_url IS NULL, idaction_name, idaction_url )';
             // site search referrers are logged with url=NULL
             // when we find one, we have to join on name
             $joinLogActionColumn = $dimension;
@@ -409,7 +406,7 @@ class API extends \Piwik\Plugin\API
         if ($dimension == 'idaction_url_ref') {
             // site search referrers are logged with url_ref=NULL
             // when we find one, we have to join on name_ref
-            $dimension = 'IF( idaction_url_ref IS NULL, idaction_name_ref, idaction_url_ref )';
+            $dimension = 'if ( idaction_url_ref IS NULL, idaction_name_ref, idaction_url_ref )';
             $joinLogActionOn = $dimension;
         } else {
             $joinLogActionOn = $dimension;
@@ -515,7 +512,6 @@ class API extends \Piwik\Plugin\API
      */
     private function addExternalReferrers($logAggregator, &$report, $idaction, $actionType, $limitBeforeGrouping)
     {
-
         $data = $this->queryExternalReferrers(
             $idaction, $actionType, $logAggregator, $limitBeforeGrouping);
 

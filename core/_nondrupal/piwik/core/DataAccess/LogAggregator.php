@@ -9,6 +9,7 @@
 namespace Piwik\DataAccess;
 
 use Piwik\ArchiveProcessor\Parameters;
+use Piwik\Common;
 use Piwik\DataArray;
 use Piwik\Db;
 use Piwik\Metrics;
@@ -17,43 +18,43 @@ use Piwik\Tracker\GoalManager;
 /**
  * Contains methods that calculate metrics by aggregating log data (visits, actions, conversions,
  * ecommerce items).
- * 
+ *
  * You can use the methods in this class within {@link Piwik\Plugin\Archiver Archiver} descendants
  * to aggregate log data without having to write SQL queries.
- * 
+ *
  * ### Aggregation Dimension
- * 
+ *
  * All aggregation methods accept a **dimension** parameter. These parameters are important as
  * they control how rows in a table are aggregated together.
- * 
+ *
  * A **_dimension_** is just a table column. Rows that have the same values for these columns are
  * aggregated together. The result of these aggregations is a set of metrics for every recorded value
  * of a **dimension**.
- * 
+ *
  * _Note: A dimension is essentially the same as a **GROUP BY** field._
- * 
+ *
  * ### Examples
- * 
+ *
  * **Aggregating visit data**
- * 
+ *
  *     $archiveProcessor = // ...
  *     $logAggregator = $archiveProcessor->getLogAggregator();
- *     
+ *
  *     // get metrics for every used browser language of all visits by returning visitors
  *     $query = $logAggregator->queryVisitsByDimension(
  *         $dimensions = array('log_visit.location_browser_lang'),
  *         $where = 'log_visit.visitor_returning = 1',
- * 
+ *
  *         // also count visits for each browser language that are not located in the US
  *         $additionalSelects = array('sum(case when log_visit.location_country <> 'us' then 1 else 0 end) as nonus'),
- * 
+ *
  *         // we're only interested in visits, unique visitors & actions, so don't waste time calculating anything else
  *         $metrics = array(Metrics::INDEX_NB_UNIQ_VISITORS, Metrics::INDEX_NB_VISITS, Metrics::INDEX_NB_ACTIONS),
  *     );
  *     if ($query === false) {
  *         return;
  *     }
- * 
+ *
  *     while ($row = $query->fetch()) {
  *         $uniqueVisitors = $row[Metrics::INDEX_NB_UNIQ_VISITORS];
  *         $visits = $row[Metrics::INDEX_NB_VISITS];
@@ -128,15 +129,15 @@ class LogAggregator
     /** @var \Piwik\Date */
     protected $dateEnd;
 
-    /** @var \Piwik\Site */
-    protected $site;
+    /** @var int[] */
+    protected $sites;
 
     /** @var \Piwik\Segment */
     protected $segment;
 
     /**
      * Constructor.
-     * 
+     *
      * @param \Piwik\ArchiveProcessor\Parameters $params
      */
     public function __construct(Parameters $params)
@@ -144,12 +145,12 @@ class LogAggregator
         $this->dateStart = $params->getDateStart();
         $this->dateEnd = $params->getDateEnd();
         $this->segment = $params->getSegment();
-        $this->site = $params->getSite();
+        $this->sites = $params->getIdSites();
     }
 
     public function generateQuery($select, $from, $where, $groupBy, $orderBy)
     {
-        $bind = $this->getBindDatetimeSite();
+        $bind = $this->getGeneralQueryBindParams();
         $query = $this->segment->getSelectQuery($select, $from, $where, $bind, $orderBy, $groupBy);
         return $query;
     }
@@ -164,10 +165,11 @@ class LogAggregator
             Metrics::INDEX_SUM_VISIT_LENGTH    => "sum(" . self::LOG_VISIT_TABLE . ".visit_total_time)",
             Metrics::INDEX_BOUNCE_COUNT        => "sum(case " . self::LOG_VISIT_TABLE . ".visit_total_actions when 1 then 1 when 0 then 1 else 0 end)",
             Metrics::INDEX_NB_VISITS_CONVERTED => "sum(case " . self::LOG_VISIT_TABLE . ".visit_goal_converted when 1 then 1 else 0 end)",
+            Metrics::INDEX_NB_USERS            => "count(distinct " . self::LOG_VISIT_TABLE . ".user_id)",
         );
     }
 
-    static public function getConversionsMetricFields()
+    public static function getConversionsMetricFields()
     {
         return array(
             Metrics::INDEX_GOAL_NB_CONVERSIONS             => "count(*)",
@@ -181,12 +183,12 @@ class LogAggregator
         );
     }
 
-    static private function getSqlConversionRevenueSum($field)
+    private static function getSqlConversionRevenueSum($field)
     {
         return self::getSqlRevenue('SUM(' . self::LOG_CONVERSION_TABLE . '.' . $field . ')');
     }
 
-    static public function getSqlRevenue($field)
+    public static function getSqlRevenue($field)
     {
         return "ROUND(" . $field . "," . GoalManager::REVENUE_PRECISION . ")";
     }
@@ -268,7 +270,7 @@ class LogAggregator
      *                                 clause. These can be aggregate expressions, eg, `SUM(somecol)`.
      * @param bool|array $metrics The set of metrics to calculate and return. If false, the query will select
      *                            all of them. The following values can be used:
-     * 
+     *
      *                            - {@link Piwik\Metrics::INDEX_NB_UNIQ_VISITORS}
      *                            - {@link Piwik\Metrics::INDEX_NB_VISITS}
      *                            - {@link Piwik\Metrics::INDEX_NB_ACTIONS}
@@ -290,52 +292,61 @@ class LogAggregator
         $tableName = self::LOG_VISIT_TABLE;
         $availableMetrics = $this->getVisitsMetricFields();
 
-        $select = $this->getSelectStatement($dimensions, $tableName, $additionalSelects, $availableMetrics, $metrics);
-        $from = array($tableName);
-        $where = $this->getWhereStatement($tableName, self::VISIT_DATETIME_FIELD, $where);
+        $select  = $this->getSelectStatement($dimensions, $tableName, $additionalSelects, $availableMetrics, $metrics);
+        $from    = array($tableName);
+        $where   = $this->getWhereStatement($tableName, self::VISIT_DATETIME_FIELD, $where);
         $groupBy = $this->getGroupByStatement($dimensions, $tableName);
         $orderBy = false;
 
         if ($rankingQuery) {
             $orderBy = '`' . Metrics::INDEX_NB_VISITS . '` DESC';
         }
+
         $query = $this->generateQuery($select, $from, $where, $groupBy, $orderBy);
 
         if ($rankingQuery) {
             unset($availableMetrics[Metrics::INDEX_MAX_ACTIONS]);
             $sumColumns = array_keys($availableMetrics);
+
             if ($metrics) {
                 $sumColumns = array_intersect($sumColumns, $metrics);
             }
+
             $rankingQuery->addColumn($sumColumns, 'sum');
             if ($this->isMetricRequested(Metrics::INDEX_MAX_ACTIONS, $metrics)) {
                 $rankingQuery->addColumn(Metrics::INDEX_MAX_ACTIONS, 'max');
             }
+
             return $rankingQuery->execute($query['sql'], $query['bind']);
         }
+
         return $this->getDb()->query($query['sql'], $query['bind']);
     }
 
     protected function getSelectsMetrics($metricsAvailable, $metricsRequested = false)
     {
         $selects = array();
+
         foreach ($metricsAvailable as $metricId => $statement) {
             if ($this->isMetricRequested($metricId, $metricsRequested)) {
-                $aliasAs = $this->getSelectAliasAs($metricId);
+                $aliasAs   = $this->getSelectAliasAs($metricId);
                 $selects[] = $statement . $aliasAs;
             }
         }
+
         return $selects;
     }
 
     protected function getSelectStatement($dimensions, $tableName, $additionalSelects, array $availableMetrics, $requestedMetrics = false)
     {
         $dimensionsToSelect = $this->getDimensionsToSelect($dimensions, $additionalSelects);
+
         $selects = array_merge(
             $this->getSelectDimensions($dimensionsToSelect, $tableName),
             $this->getSelectsMetrics($availableMetrics, $requestedMetrics),
             !empty($additionalSelects) ? $additionalSelects : array()
         );
+
         $select = implode(self::FIELDS_SEPARATOR, $selects);
         return $select;
     }
@@ -352,6 +363,7 @@ class LogAggregator
         if (empty($additionalSelects)) {
             return $dimensions;
         }
+
         $dimensionsToSelect = array();
         foreach ($dimensions as $selectAs => $dimension) {
             $asAlias = $this->getSelectAliasAs($dimension);
@@ -361,6 +373,7 @@ class LogAggregator
                 }
             }
         }
+
         $dimensionsToSelect = array_unique($dimensionsToSelect);
         return $dimensionsToSelect;
     }
@@ -379,6 +392,7 @@ class LogAggregator
     {
         foreach ($dimensions as $selectAs => &$field) {
             $selectAsString = $field;
+
             if (!is_numeric($selectAs)) {
                 $selectAsString = $selectAs;
             } else {
@@ -387,16 +401,18 @@ class LogAggregator
                     $selectAsString = $appendSelectAs = false;
                 }
             }
+
             $isKnownField = !in_array($field, array('referrer_data'));
-            if ($selectAsString == $field
-                && $isKnownField
-            ) {
+
+            if ($selectAsString == $field && $isKnownField) {
                 $field = $this->prefixColumn($field, $tableName);
             }
+
             if ($appendSelectAs && $selectAsString) {
                 $field = $this->prefixColumn($field, $tableName) . $this->getSelectAliasAs($selectAsString);
             }
         }
+
         return $dimensions;
     }
 
@@ -419,7 +435,7 @@ class LogAggregator
     protected function isFieldFunctionOrComplexExpression($field)
     {
         return strpos($field, "(") !== false
-        || strpos($field, "CASE") !== false;
+            || strpos($field, "CASE") !== false;
     }
 
     protected function getSelectAliasAs($metricId)
@@ -430,31 +446,43 @@ class LogAggregator
     protected function isMetricRequested($metricId, $metricsRequested)
     {
         return $metricsRequested === false
-        || in_array($metricId, $metricsRequested);
+            || in_array($metricId, $metricsRequested);
     }
 
     protected function getWhereStatement($tableName, $datetimeField, $extraWhere = false)
     {
         $where = "$tableName.$datetimeField >= ?
 				AND $tableName.$datetimeField <= ?
-				AND $tableName.idsite = ?";
+				AND $tableName.idsite IN (". Common::getSqlStringFieldsArray($this->sites) . ")";
+
         if (!empty($extraWhere)) {
             $extraWhere = sprintf($extraWhere, $tableName, $tableName);
-            $where .= ' AND ' . $extraWhere;
+            $where     .= ' AND ' . $extraWhere;
         }
+
         return $where;
     }
 
     protected function getGroupByStatement($dimensions, $tableName)
     {
         $dimensions = $this->getSelectDimensions($dimensions, $tableName, $appendSelectAs = false);
-        $groupBy = implode(", ", $dimensions);
+        $groupBy    = implode(", ", $dimensions);
+
         return $groupBy;
     }
 
-    protected function getBindDatetimeSite()
+    /**
+     * Returns general bind parameters for all log aggregation queries. This includes the datetime
+     * start of entities, datetime end of entities and IDs of all sites.
+     *
+     * @return array
+     */
+    protected function getGeneralQueryBindParams()
     {
-        return array($this->dateStart->getDateStartUTC(), $this->dateEnd->getDateEndUTC(), $this->site->getId());
+        $bind = array($this->dateStart->getDateStartUTC(), $this->dateEnd->getDateEndUTC());
+        $bind = array_merge($bind, $this->sites);
+
+        return $bind;
     }
 
     /**
@@ -484,7 +512,7 @@ class LogAggregator
      *
      * @param string $dimension One or more **log\_conversion\_item** columns to group aggregated data by.
      *                          Eg, `'idaction_sku'` or `'idaction_sku, idaction_category'`.
-     * @return Zend_Db_Statement A statement object that can be used to iterate through the query's
+     * @return \Zend_Db_Statement A statement object that can be used to iterate through the query's
      *                           result set. See [above](#queryEcommerceItems-result-set) to learn more
      *                           about what this query selects.
      * @api
@@ -544,7 +572,7 @@ class LogAggregator
                 array(
                     'log_conversion_item.server_time >= ?',
                     'log_conversion_item.server_time <= ?',
-                    'log_conversion_item.idsite = ?',
+                    'log_conversion_item.idsite IN (' . Common::getSqlStringFieldsArray($this->sites) . ')',
                     'log_conversion_item.deleted = 0'
                 )
             ),
@@ -590,7 +618,7 @@ class LogAggregator
      *                                 clause. These can be aggregate expressions, eg, `SUM(somecol)`.
      * @param bool|array $metrics The set of metrics to calculate and return. If `false`, the query will select
      *                            all of them. The following values can be used:
-     * 
+     *
      *                              - {@link Piwik\Metrics::INDEX_NB_UNIQ_VISITORS}
      *                              - {@link Piwik\Metrics::INDEX_NB_VISITS}
      *                              - {@link Piwik\Metrics::INDEX_NB_ACTIONS}
@@ -601,7 +629,7 @@ class LogAggregator
      *                                           log_action should be joined on. The table alias used for each join
      *                                           is `"log_action$i"` where `$i` is the index of the column in this
      *                                           array.
-     * 
+     *
      *                                           If a string is used for this parameter, the table alias is not
      *                                           suffixed (since there is only one column).
      * @return mixed A Zend_Db_Statement if `$rankingQuery` isn't supplied, otherwise the result of
@@ -614,9 +642,9 @@ class LogAggregator
         $tableName = self::LOG_ACTIONS_TABLE;
         $availableMetrics = $this->getActionsMetricFields();
 
-        $select = $this->getSelectStatement($dimensions, $tableName, $additionalSelects, $availableMetrics, $metrics);
-        $from = array($tableName);
-        $where = $this->getWhereStatement($tableName, self::ACTION_DATETIME_FIELD, $where);
+        $select  = $this->getSelectStatement($dimensions, $tableName, $additionalSelects, $availableMetrics, $metrics);
+        $from    = array($tableName);
+        $where   = $this->getWhereStatement($tableName, self::ACTION_DATETIME_FIELD, $where);
         $groupBy = $this->getGroupByStatement($dimensions, $tableName);
         $orderBy = false;
 
@@ -628,12 +656,14 @@ class LogAggregator
 
             foreach ($joinLogActionOnColumn as $i => $joinColumn) {
                 $tableAlias = 'log_action' . ($multiJoin ? $i + 1 : '');
+
                 if (strpos($joinColumn, ' ') === false) {
                     $joinOn = $tableAlias . '.idaction = ' . $tableName . '.' . $joinColumn;
                 } else {
-                    // more complex join column like IF(...)
+                    // more complex join column like if (...)
                     $joinOn = $tableAlias . '.idaction = ' . $joinColumn;
                 }
+
                 $from[] = array(
                     'table'      => 'log_action',
                     'tableAlias' => $tableAlias,
@@ -653,7 +683,9 @@ class LogAggregator
             if ($metrics) {
                 $sumColumns = array_intersect($sumColumns, $metrics);
             }
+
             $rankingQuery->addColumn($sumColumns, 'sum');
+
             return $rankingQuery->execute($query['sql'], $query['bind']);
         }
 
@@ -662,7 +694,7 @@ class LogAggregator
 
     protected function getActionsMetricFields()
     {
-        return $availableMetrics = array(
+        return array(
             Metrics::INDEX_NB_VISITS        => "count(distinct " . self::LOG_ACTIONS_TABLE . ".idvisit)",
             Metrics::INDEX_NB_UNIQ_VISITORS => "count(distinct " . self::LOG_ACTIONS_TABLE . ".idvisitor)",
             Metrics::INDEX_NB_ACTIONS       => "count(*)",
@@ -688,32 +720,32 @@ class LogAggregator
      * - **{@link Piwik\Metrics::INDEX_GOAL_ECOMMERCE_REVENUE_SUBTOTAL}**: The total cost of all ecommerce items sold
      *                                                                     within these conversions. This value does not
      *                                                                     include tax, shipping or any applied discount.
-     * 
+     *
      *                                                                     _This metric is only applicable to the special
      *                                                                     **ecommerce** goal (where `idGoal == 'ecommerceOrder'`)._
      * - **{@link Piwik\Metrics::INDEX_GOAL_ECOMMERCE_REVENUE_TAX}**: The total tax applied to every transaction in these
      *                                                                conversions.
-     * 
+     *
      *                                                                _This metric is only applicable to the special
      *                                                                **ecommerce** goal (where `idGoal == 'ecommerceOrder'`)._
      * - **{@link Piwik\Metrics::INDEX_GOAL_ECOMMERCE_REVENUE_SHIPPING}**: The total shipping cost for every transaction
      *                                                                     in these conversions.
-     * 
+     *
      *                                                                     _This metric is only applicable to the special
      *                                                                     **ecommerce** goal (where `idGoal == 'ecommerceOrder'`)._
      * - **{@link Piwik\Metrics::INDEX_GOAL_ECOMMERCE_REVENUE_DISCOUNT}**: The total discount applied to every transaction
      *                                                                     in these conversions.
-     * 
+     *
      *                                                                     _This metric is only applicable to the special
      *                                                                     **ecommerce** goal (where `idGoal == 'ecommerceOrder'`)._
      * - **{@link Piwik\Metrics::INDEX_GOAL_ECOMMERCE_ITEMS}**: The total number of ecommerce items sold in each transaction
      *                                                          in these conversions.
-     * 
+     *
      *                                                          _This metric is only applicable to the special
      *                                                          **ecommerce** goal (where `idGoal == 'ecommerceOrder'`)._
-     * 
+     *
      * Additional data can be selected through the `$additionalSelects` parameter.
-     * 
+     *
      * _Note: This method will only query the **log_conversion** table. Other tables cannot be joined
      * using this method._
      *
@@ -723,21 +755,22 @@ class LogAggregator
      * @param bool|string $where An optional SQL expression used in the SQL's **WHERE** clause.
      * @param array $additionalSelects Additional SELECT fields that are not included in the group by
      *                                 clause. These can be aggregate expressions, eg, `SUM(somecol)`.
-     * @return Zend_Db_Statement
+     * @return \Zend_Db_Statement
      */
     public function queryConversionsByDimension($dimensions = array(), $where = false, $additionalSelects = array())
     {
         $dimensions = array_merge(array(self::IDGOAL_FIELD), $dimensions);
+        $tableName  = self::LOG_CONVERSION_TABLE;
         $availableMetrics = $this->getConversionsMetricFields();
-        $tableName = self::LOG_CONVERSION_TABLE;
 
         $select = $this->getSelectStatement($dimensions, $tableName, $additionalSelects, $availableMetrics);
 
-        $from = array($tableName);
-        $where = $this->getWhereStatement($tableName, self::CONVERSION_DATETIME_FIELD, $where);
+        $from    = array($tableName);
+        $where   = $this->getWhereStatement($tableName, self::CONVERSION_DATETIME_FIELD, $where);
         $groupBy = $this->getGroupByStatement($dimensions, $tableName);
         $orderBy = false;
-        $query = $this->generateQuery($select, $from, $where, $groupBy, $orderBy);
+        $query   = $this->generateQuery($select, $from, $where, $groupBy, $orderBy);
+
         return $this->getDb()->query($query['sql'], $query['bind']);
     }
 
@@ -747,9 +780,9 @@ class LogAggregator
      *
      * **Note:** The result of this function is meant for use in the `$additionalSelects` parameter
      * in one of the query... methods (for example {@link queryVisitsByDimension()}).
-     * 
+     *
      * **Example**
-     * 
+     *
      *     // summarize one column
      *     $visitTotalActionsRanges = array(
      *         array(1, 1),
@@ -757,7 +790,7 @@ class LogAggregator
      *         array(10)
      *     );
      *     $selects = LogAggregator::getSelectsFromRangedColumn('visit_total_actions', $visitTotalActionsRanges, 'log_visit', 'vta');
-     * 
+     *
      *     // summarize another column in the same request
      *     $visitCountVisitsRanges = array(
      *         array(1, 1),
@@ -768,17 +801,17 @@ class LogAggregator
      *         $selects,
      *         LogAggregator::getSelectsFromRangedColumn('visitor_count_visits', $visitCountVisitsRanges, 'log_visit', 'vcv')
      *     );
-     * 
+     *
      *     // perform the query
      *     $logAggregator = // get the LogAggregator somehow
      *     $query = $logAggregator->queryVisitsByDimension($dimensions = array(), $where = false, $selects);
      *     $tableSummary = $query->fetch();
-     *     
+     *
      *     $numberOfVisitsWithOneAction = $tableSummary['vta0'];
      *     $numberOfVisitsBetweenTwoAnd10 = $tableSummary['vta1'];
-     * 
+     *
      *     $numberOfVisitsWithVisitCountOfOne = $tableSummary['vcv0'];
-     * 
+     *
      * @param string $column The name of a column in `$table` that will be summarized.
      * @param array $ranges The array of ranges over which the data in the table
      *                      will be summarized. For example,
@@ -814,14 +847,16 @@ class LogAggregator
     {
         $selects = array();
         $extraCondition = '';
+
         if ($restrictToReturningVisitors) {
             // extra condition for the SQL SELECT that makes sure only returning visits are counted
             // when creating the 'days since last visit' report
             $extraCondition = 'and log_visit.visitor_returning = 1';
-            $extraSelect = "sum(case when log_visit.visitor_returning = 0 then 1 else 0 end) "
-                . " as `" . $selectColumnPrefix . 'General_NewVisits' . "`";
+            $extraSelect    = "sum(case when log_visit.visitor_returning = 0 then 1 else 0 end) "
+                            . " as `" . $selectColumnPrefix . 'General_NewVisits' . "`";
             $selects[] = $extraSelect;
         }
+
         foreach ($ranges as $gap) {
             if (count($gap) == 2) {
                 $lowerBound = $gap[0];
@@ -830,12 +865,11 @@ class LogAggregator
                 $selectAs = "$selectColumnPrefix$lowerBound-$upperBound";
 
                 $selects[] = "sum(case when $table.$column between $lowerBound and $upperBound $extraCondition" .
-                    " then 1 else 0 end) as `$selectAs`";
+                             " then 1 else 0 end) as `$selectAs`";
             } else {
                 $lowerBound = $gap[0];
 
-                $selectAs = $selectColumnPrefix . ($lowerBound + 1) . urlencode('+');
-
+                $selectAs  = $selectColumnPrefix . ($lowerBound + 1) . urlencode('+');
                 $selects[] = "sum(case when $table.$column > $lowerBound $extraCondition then 1 else 0 end) as `$selectAs`";
             }
         }
@@ -856,9 +890,10 @@ class LogAggregator
      *                                 value is used.
      * @return array
      */
-    static public function makeArrayOneColumn($row, $columnName, $lookForThisPrefix = false)
+    public static function makeArrayOneColumn($row, $columnName, $lookForThisPrefix = false)
     {
         $cleanRow = array();
+
         foreach ($row as $label => $count) {
             if (empty($lookForThisPrefix)
                 || strpos($label, $lookForThisPrefix) === 0
@@ -867,6 +902,7 @@ class LogAggregator
                 $cleanRow[$cleanLabel] = array($columnName => $count);
             }
         }
+
         return $cleanRow;
     }
 

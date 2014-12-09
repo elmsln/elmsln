@@ -19,6 +19,10 @@ use Piwik\Plugins\UserCountry\LocationProvider\GeoIp;
 use Piwik\Plugins\UserCountry\LocationProvider;
 use Piwik\Plugins\UserCountry\LocationProvider\DefaultProvider;
 use Piwik\Plugins\UserCountry\LocationProvider\GeoIp\Pecl;
+use Piwik\Plugins\UserCountry\Reports\GetCity;
+use Piwik\Plugins\UserCountry\Reports\GetContinent;
+use Piwik\Plugins\UserCountry\Reports\GetCountry;
+use Piwik\Plugins\UserCountry\Reports\GetRegion;
 use Piwik\View;
 
 /**
@@ -33,10 +37,10 @@ class Controller extends \Piwik\Plugin\ControllerAdmin
         $view->urlSparklineCountries = $this->getUrlSparkline('getLastDistinctCountriesGraph');
         $view->numberDistinctCountries = $this->getNumberOfDistinctCountries(true);
 
-        $view->dataTableCountry = $this->getCountry(true);
-        $view->dataTableContinent = $this->getContinent(true);
-        $view->dataTableRegion = $this->getRegion(true);
-        $view->dataTableCity = $this->getCity(true);
+        $view->dataTableCountry = $this->renderReport(new GetCountry());
+        $view->dataTableContinent = $this->renderReport(new GetContinent());
+        $view->dataTableRegion = $this->renderReport(new GetRegion());
+        $view->dataTableCity = $this->renderReport(new GetCity());
 
         return $view->render();
     }
@@ -131,9 +135,9 @@ class Controller extends \Piwik\Plugin\ControllerAdmin
                     $result['next_screen'] = $this->getGeoIpUpdaterManageScreen();
                 }
 
-                return Common::json_encode($result);
+                return json_encode($result);
             } catch (Exception $ex) {
-                return Common::json_encode(array('error' => $ex->getMessage()));
+                return json_encode(array('error' => $ex->getMessage()));
             }
         }
     }
@@ -203,15 +207,15 @@ class Controller extends \Piwik\Plugin\ControllerAdmin
                 // the browser so it can download it next
                 $info = $this->getNextMissingDbUrlInfo();
                 if ($info !== false) {
-                    return Common::json_encode($info);
+                    return json_encode($info);
                 } else {
                     $view = new View("@UserCountry/_updaterNextRunTime");
                     $view->nextRunTime = GeoIPAutoUpdater::getNextRunTime();
                     $nextRunTimeHtml = $view->render();
-                    return Common::json_encode(array('nextRunTime' => $nextRunTimeHtml));
+                    return json_encode(array('nextRunTime' => $nextRunTimeHtml));
                 }
             } catch (Exception $ex) {
-                return Common::json_encode(array('error' => $ex->getMessage()));
+                return json_encode(array('error' => $ex->getMessage()));
             }
         }
     }
@@ -266,13 +270,13 @@ class Controller extends \Piwik\Plugin\ControllerAdmin
 
                     $info = $this->getNextMissingDbUrlInfo();
                     if ($info !== false) {
-                        return Common::json_encode($info);
+                        return json_encode($info);
                     }
                 }
 
-                return Common::json_encode($result);
+                return json_encode($result);
             } catch (Exception $ex) {
-                return Common::json_encode(array('error' => $ex->getMessage()));
+                return json_encode(array('error' => $ex->getMessage()));
             }
         }
     }
@@ -328,36 +332,6 @@ class Controller extends \Piwik\Plugin\ControllerAdmin
         return $location;
     }
 
-    public function getCountry()
-    {
-        return $this->renderReport(__FUNCTION__);
-    }
-
-    public function getContinent()
-    {
-        return $this->renderReport(__FUNCTION__);
-    }
-
-    /**
-     * Echo's or returns an HTML view of the visits by region report.
-     *
-     * @return string
-     */
-    public function getRegion()
-    {
-        return $this->renderReport(__FUNCTION__);
-    }
-
-    /**
-     * Echo's or returns an HTML view of the visits by city report.
-     *
-     * @return string
-     */
-    public function getCity()
-    {
-        return $this->renderReport(__FUNCTION__);
-    }
-
     public function getNumberOfDistinctCountries()
     {
         return $this->getNumericValue('UserCountry.getNumberOfDistinctCountries');
@@ -395,7 +369,7 @@ class Controller extends \Piwik\Plugin\ControllerAdmin
 
     private function dieIfGeolocationAdminIsDisabled()
     {
-        if(!UserCountry::isGeoLocationAdminEnabled()) {
+        if (!UserCountry::isGeoLocationAdminEnabled()) {
             throw new \Exception('Geo location setting page has been disabled.');
         }
     }

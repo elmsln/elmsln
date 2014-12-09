@@ -41,7 +41,7 @@ class VisitorLog extends Visualization
             $this->requestConfig->filter_limit = 20;
         }
 
-        $this->requestConfig->filter_sort_column = 'idVisit';
+        $this->requestConfig->filter_sort_column = 'lastActionTimestamp';
         $this->requestConfig->disable_generic_filters = true;
 
         $offset = Common::getRequestVar('filter_offset', 0);
@@ -105,7 +105,7 @@ class VisitorLog extends Visualization
                                        && $filterEcommerce == \Piwik\Plugins\Goals\Controller::ECOMMERCE_LOG_SHOW_ORDERS;
                             $isAbandonedCart = $action['type'] == 'ecommerceAbandonedCart'
                                        && $filterEcommerce == \Piwik\Plugins\Goals\Controller::ECOMMERCE_LOG_SHOW_ABANDONED_CARTS;
-                            if($isAbandonedCart || $isEcommerceOrder) {
+                            if ($isAbandonedCart || $isEcommerceOrder) {
                                 return true;
                             }
                         }

@@ -14,6 +14,7 @@ use Piwik\API\Request;
 use Piwik\Common;
 use Piwik\Config;
 use Piwik\Piwik;
+use Piwik\Url;
 use Piwik\View;
 
 /**
@@ -27,6 +28,7 @@ class Controller extends \Piwik\Plugin\Controller
         if (!isset($_GET['filter_limit'])) {
             $_GET['filter_limit'] = Config::getInstance()->General['API_datatable_default_limit'];
         }
+
         $request = new Request('token_auth=' . Common::getRequestVar('token_auth', 'anonymous', 'string'));
         return $request->process();
     }
@@ -58,7 +60,7 @@ class Controller extends \Piwik\Plugin\Controller
         foreach ($segments as $segment) {
             // Eg. Event Value is a metric, not in the Visit metric category,
             // we make sure it is displayed along with the Events dimensions
-            if($segment['type'] == 'metric' && $segment['category'] != Piwik::translate('General_Visit')) {
+            if ($segment['type'] == 'metric' && $segment['category'] != Piwik::translate('General_Visit')) {
                 $segment['type'] = 'dimension';
             }
 

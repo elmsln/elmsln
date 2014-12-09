@@ -110,7 +110,6 @@ DataTable_RowActions_Registry.register({
 
 });
 
-
 /**
  * DataTable Row Actions
  *
@@ -124,7 +123,6 @@ DataTable_RowActions_Registry.register({
  *
  * The two template methods are performAction and doOpenPopover
  */
-
 
 //
 // BASE CLASS
@@ -187,7 +185,7 @@ DataTable_RowAction.prototype.trigger = function (tr, e, subTableLabel) {
             var findLevel = 'level' + (level - 1);
             var ptr = tr;
             while ((ptr = ptr.prev()).size() > 0) {
-                if (!ptr.hasClass(findLevel)) {
+                if (!ptr.hasClass(findLevel) || ptr.hasClass('nodata')) {
                     continue;
                 }
                 ptr.trigger(this.trEventName, {
@@ -215,11 +213,9 @@ DataTable_RowAction.prototype.getLabelFromTr = function (tr) {
     value = value.trim();
     value = encodeURIComponent(value);
 
-    // if tr is a terminal node, we add a '+' to signfy this. Piwik will notice this and make sure to
-    // look for a terminal, even if there's a sibling branch node w/ the same label. this is a workaround
-    // for #4363. when a real fix is implemented, this should be kept for backwards compatibility.
+    // if tr is a terminal node, we use the @ operator to distinguish it from branch nodes w/ the same name
     if (!tr.hasClass('subDataTable')) {
-        value = value + '+';
+        value = '@' + value;
     }
 
     return value;
@@ -250,7 +246,6 @@ DataTable_RowAction.prototype.performAction = function (label, tr, e) {
 };
 DataTable_RowAction.prototype.doOpenPopover = function (parameter) {
 };
-
 
 //
 // ROW EVOLUTION

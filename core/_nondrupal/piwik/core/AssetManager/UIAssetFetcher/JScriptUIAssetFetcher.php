@@ -10,7 +10,6 @@ namespace Piwik\AssetManager\UIAssetFetcher;
 
 use Piwik\AssetManager\UIAssetFetcher;
 use Piwik\Piwik;
-use string;
 
 class JScriptUIAssetFetcher extends UIAssetFetcher
 {
@@ -18,7 +17,7 @@ class JScriptUIAssetFetcher extends UIAssetFetcher
     protected function retrieveFileLocations()
     {
 
-        if(!empty($this->plugins)) {
+        if (!empty($this->plugins)) {
 
             /**
              * Triggered when gathering the list of all JavaScript files needed by Piwik
@@ -31,7 +30,7 @@ class JScriptUIAssetFetcher extends UIAssetFetcher
              * plugin's root directory.
              *
              * _Note: While you are developing your plugin you should enable the config setting
-             * `[Debug] disable_merged_assets` so JavaScript files will be reloaded immediately
+             * `[Development] disable_merged_assets` so JavaScript files will be reloaded immediately
              * after every change._
              *
              * **Example**
@@ -53,14 +52,14 @@ class JScriptUIAssetFetcher extends UIAssetFetcher
     protected function addThemeFiles()
     {
         $theme = $this->getTheme();
-        if(!$theme) {
+        if (!$theme) {
             return;
         }
-        if(in_array($theme->getThemeName(), $this->plugins)) {
+        if (in_array($theme->getThemeName(), $this->plugins)) {
 
             $jsInThemes = $this->getTheme()->getJavaScriptFiles();
 
-            if(!empty($jsInThemes)) {
+            if (!empty($jsInThemes)) {
 
                 foreach($jsInThemes as $jsFile) {
 
@@ -73,8 +72,8 @@ class JScriptUIAssetFetcher extends UIAssetFetcher
     protected function getPriorityOrder()
     {
         return array(
-            'libs/jquery/jquery.js',
-            'libs/jquery/jquery-ui.js',
+            'libs/bower_components/jquery/dist/jquery.min.js',
+            'libs/bower_components/jquery-ui/ui/minified/jquery-ui.min.js',
             'libs/jquery/jquery.browser.js',
             'libs/',
             'plugins/CoreHome/javascripts/require.js',

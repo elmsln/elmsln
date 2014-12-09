@@ -3,7 +3,7 @@
  * Device Detector - The Universal Device Detection library for parsing User Agents
  *
  * @link http://piwik.org
- * @license http://www.gnu.org/licenses/gpl-3.0.html GPL v3 or later
+ * @license http://www.gnu.org/licenses/lgpl.html LGPL v3 or later
  */
 namespace DeviceDetector\Cache;
 
@@ -62,6 +62,7 @@ class CacheFile extends CacheStatic implements CacheInterface
 
             if (!@rename($tmp_filename, $id)) {
                 // On some systems rename() doesn't overwrite destination
+                // @codeCoverageIgnoreStart
                 @unlink($id);
                 if (!@rename($tmp_filename, $id)) {
                     // Make sure that no temporary file is left over
@@ -70,6 +71,7 @@ class CacheFile extends CacheStatic implements CacheInterface
                     return false;
                 }
             }
+            // @codeCoverageIgnoreEnd
 
             // invalidate opcache for file if opcache is active
             $this->opCacheInvalidate($id);
@@ -109,12 +111,15 @@ class CacheFile extends CacheStatic implements CacheInterface
         return sprintf('%s/%s.php', $this->cachePath, $id);
     }
 
+    /**
+     * @codeCoverageIgnore
+     */
     protected function opCacheInvalidate($filepath)
     {
         if (function_exists('opcache_invalidate')
             && is_file($filepath)
         ) {
-            opcache_invalidate($filepath, $force = true);
+            @opcache_invalidate($filepath, $force = true);
         }
     }
 }

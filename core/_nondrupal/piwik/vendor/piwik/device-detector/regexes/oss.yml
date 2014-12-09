@@ -2,7 +2,7 @@
 # Device Detector - The Universal Device Detection library for parsing User Agents
 #
 # @link http://piwik.org
-# @license http://www.gnu.org/licenses/gpl-3.0.html GPL v3 or later
+# @license http://www.gnu.org/licenses/lgpl.html LGPL v3 or later
 ###############
 
 ##########
@@ -60,11 +60,15 @@
   name: 'Arch Linux'
   version: '$1'
 
-- regex: 'Linux; .*((?:Debian|Knoppix|Mint|Ubuntu|Kubuntu|Xubuntu|Lubuntu|Fedora|Red Hat|Mandriva|Gentoo|Sabayon|Slackware|SUSE|Puppy|CentOS|BackTrack|Presto))[ /](\d+[\.\d]+)'
+- regex: 'VectorLinux(?: package)?(?:[ /\-](\d+[\.\d]+))?'
+  name: 'VectorLinux'
+  version: '$1'
+
+- regex: 'Linux; .*((?:Debian|Knoppix|Mint|Ubuntu|Kubuntu|Xubuntu|Lubuntu|Fedora|Red Hat|Mandriva|Gentoo|Sabayon|Slackware|SUSE|CentOS|BackTrack))[ /](\d+[\.\d]+)'
   name: '$1'
   version: '$2'
 
-- regex: '(Debian|Knoppix|Mint|Ubuntu|Kubuntu|Xubuntu|Lubuntu|Fedora|Red Hat|Mandriva|Gentoo|Sabayon|Slackware|SUSE|Puppy|CentOS|BackTrack)(?:(?: Enterprise)? Linux)?(?:[ /\-](\d+[\.\d]+))?'
+- regex: '(Debian|Knoppix|Mint|Ubuntu|Kubuntu|Xubuntu|Lubuntu|Fedora|Red Hat|Mandriva|Gentoo|Sabayon|Slackware|SUSE|CentOS|BackTrack)(?:(?: Enterprise)? Linux)?(?:[ /\-](\d+[\.\d]+))?'
   name: '$1'
   version: '$2'
 
@@ -118,7 +122,16 @@
 ##########
 # Windows
 ##########
-- regex: 'CYGWIN_NT-6.2|Windows NT 6.2|Windows NT 6.3|Windows 8'
+- regex: 'CYGWIN_NT-6.4|Windows NT 6.4|Windows 10'
+  name: 'Windows 10'
+  version: '10'
+  
+- regex: 'CYGWIN_NT-6.3|Windows NT 6.3|Windows 8.1'
+  name: 'Windows 8.1'
+  version: '8.1'
+
+
+- regex: 'CYGWIN_NT-6.2|Windows NT 6.2|Windows 8'
   name: 'Windows 8'
   version: '8'
   
@@ -199,6 +212,10 @@
   name: 'Mac'
   version: '$1'
   
+- regex: 'Mac (\d+(?:[_\.]\d+)+)'
+  name: 'Mac'
+  version: '$1'
+
 - regex: 'Darwin|Macintosh|Mac_PowerPC|PPC|Mac PowerPC'
   name: 'Mac'
   version: ''

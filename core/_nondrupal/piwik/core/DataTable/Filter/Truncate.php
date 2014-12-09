@@ -16,26 +16,26 @@ use Piwik\Piwik;
 /**
  * Truncates a {@link DataTable} by merging all rows after a certain index into a new summary
  * row. If the count of rows is less than the index, nothing happens.
- * 
+ *
  * The {@link ReplaceSummaryRowLabel} filter will be queued after the table is truncated.
- * 
+ *
  * ### Examples
- * 
+ *
  * **Basic usage**
- * 
+ *
  *     $dataTable->filter('Truncate', array($truncateAfter = 500));
- * 
+ *
  * **Using a custom summary row label**
- * 
+ *
  *     $dataTable->filter('Truncate', array($truncateAfter = 500, $summaryRowLabel = Piwik::translate('General_Total')));
- * 
+ *
  * @api
  */
 class Truncate extends BaseFilter
 {
     /**
      * Constructor.
-     * 
+     *
      * @param DataTable $table The table that will be filtered eventually.
      * @param int $truncateAfter The row index to truncate at. All rows passed this index will
      *                           be removed.
@@ -69,6 +69,10 @@ class Truncate extends BaseFilter
      */
     public function filter($table)
     {
+        if ($this->truncateAfter < 0) {
+            return;
+        }
+
         $this->addSummaryRow($table);
         $table->queueFilter('ReplaceSummaryRowLabel', array($this->labelSummaryRow));
 
@@ -89,9 +93,10 @@ class Truncate extends BaseFilter
             return;
         }
 
-        $rows = $table->getRows();
-        $count = $table->getRowsCount();
+        $rows   = $table->getRows();
+        $count  = $table->getRowsCount();
         $newRow = new Row(array(Row::COLUMNS => array('label' => DataTable::LABEL_SUMMARY_ROW)));
+
         for ($i = $this->truncateAfter; $i < $count; $i++) {
             if (!isset($rows[$i])) {
                 // case when the last row is a summary row, it is not indexed by $cout but by DataTable::ID_SUMMARY_ROW

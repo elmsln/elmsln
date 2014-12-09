@@ -8,6 +8,8 @@
  */
 namespace Piwik;
 
+use Piwik\Exception\MissingFilePermissionException;
+
 class Filechecks
 {
     /**
@@ -43,7 +45,7 @@ class Filechecks
                 $directoryToCheck = PIWIK_USER_PATH . $directoryToCheck;
             }
 
-            if(strpos($directoryToCheck, '/tmp/') !== false) {
+            if (strpos($directoryToCheck, '/tmp/') !== false) {
                 $directoryToCheck = SettingsPiwik::rewriteTmpPathWithInstanceId($directoryToCheck);
             }
 
@@ -87,14 +89,14 @@ class Filechecks
             $directoryList = "<code>chown -R ". self::getUserAndGroup() ." " . $realpath . "</code><br />" . $directoryList;
         }
 
-        if(function_exists('shell_exec')) {
+        if (function_exists('shell_exec')) {
             $currentUser = self::getUser();
-            if(!empty($currentUser)) {
+            if (!empty($currentUser)) {
                 $optionalUserInfo = " (running as user '" . $currentUser . "')";
             }
         }
 
-        $directoryMessage = "<p><b>Piwik couldn't write to some directories $optionalUserInfo</b>.</p>";
+        $directoryMessage  = "<p><b>Piwik couldn't write to some directories $optionalUserInfo</b>.</p>";
         $directoryMessage .= "<p>Try to Execute the following commands on your server, to allow Write access on these directories"
             . ":</p>"
             . "<blockquote>$directoryList</blockquote>"
@@ -102,7 +104,10 @@ class Filechecks
             . "<p>After applying the modifications, you can <a href='index.php'>refresh the page</a>.</p>"
             . "<p>If you need more help, try <a href='?module=Proxy&action=redirect&url=http://piwik.org'>Piwik.org</a>.</p>";
 
-        Piwik_ExitWithMessage($directoryMessage, false, true);
+        $ex = new MissingFilePermissionException($directoryMessage);
+        $ex->setIsHtmlMessage();
+
+        throw $ex;
     }
 
     /**
@@ -116,7 +121,6 @@ class Filechecks
         $messages[] = true;
 
         $manifest = PIWIK_INCLUDE_PATH . '/config/manifest.inc.php';
-
 
         if (file_exists($manifest)) {
             require_once $manifest;
@@ -212,13 +216,13 @@ class Filechecks
     private static function getUserAndGroup()
     {
         $user = self::getUser();
-        if(!function_exists('shell_exec')) {
+        if (!function_exists('shell_exec')) {
             return $user . ':' . $user;
         }
 
         $group = trim(shell_exec('groups '. $user .' | cut -f3 -d" "'));
 
-        if(empty($group)) {
+        if (empty($group)) {
             $group = 'www-data';
         }
         return $user . ':' . $group;
@@ -226,7 +230,7 @@ class Filechecks
 
     private static function getUser()
     {
-        if(!function_exists('shell_exec')) {
+        if (!function_exists('shell_exec')) {
             return 'www-data';
         }
         return trim(shell_exec('whoami'));

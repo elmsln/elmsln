@@ -1,10 +1,8 @@
 <?php
 use Piwik\Common;
-use Piwik\Config;
 use Piwik\Db;
-use Piwik\FrontController;
-use Piwik\IP;
 use Piwik\Log;
+use Piwik\Network\IPUtils;
 use Piwik\Piwik;
 use Piwik\Plugins\UserCountry\LocationProvider\GeoIp\Pecl;
 use Piwik\Plugins\UserCountry\LocationProvider;
@@ -12,7 +10,7 @@ use Piwik\Plugins\UserCountry\LocationProvider\GeoIp\Php;
 
 require_once './cli-script-bootstrap.php';
 
-ini_set("memory_limit", "512M");
+@ini_set("memory_limit", "512M");
 
 $query = "SELECT count(*) FROM " . Common::prefixTable('log_visit');
 $count = Db::fetchOne($query);
@@ -33,7 +31,7 @@ if (!Common::isPhpCliMode()) {
         <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
         <html>
         <head>
-            <script type="text/javascript" src="../../libs/jquery/jquery.js"></script>
+            <script type="text/javascript" src="../../libs/jquery/dist/jquery.min.js"></script>
             <script type="text/javascript">
                 (function ($) {
                     var count = <?php echo $count; ?>;
@@ -89,9 +87,7 @@ if (!Common::isPhpCliMode()) {
 function geoipUpdateError($message)
 {
     Log::error($message);
-    if (!Common::isPhpCliMode()) {
-        @header('HTTP/1.1 500 Internal Server Error', $replace = true, $responseCode = 500);
-    }
+    Common::sendResponseCode(500);
     exit;
 }
 
@@ -172,7 +168,7 @@ for (; $start < $end; $start += $limit) {
         continue;
     }
 
-    foreach ($rows as $i => $row) {
+    foreach ($rows as $row) {
         $fieldsToSet = array();
         foreach ($logVisitFieldsToUpdate as $field => $ignore) {
             if (empty($fieldsToSet[$field])) {
@@ -185,7 +181,7 @@ for (; $start < $end; $start += $limit) {
             continue;
         }
 
-        $ip = IP::N2P($row['location_ip']);
+        $ip = IPUtils::binaryToStringIP($row['location_ip']);
         $location = $provider->getLocation(array('ip' => $ip));
 
         if (!empty($location[LocationProvider::COUNTRY_CODE_KEY])) {

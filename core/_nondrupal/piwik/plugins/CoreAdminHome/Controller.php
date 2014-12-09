@@ -53,12 +53,13 @@ class Controller extends \Piwik\Plugin\ControllerAdmin
             $view->trustedHosts = Url::getTrustedHostsFromConfig();
 
             $logo = new CustomLogo();
-            $view->branding       = array('use_custom_logo' => $logo->isEnabled());
-            $view->logosWriteable = $logo->isCustomLogoWritable();
-            $view->pathUserLogo      = CustomLogo::getPathUserLogo();
-            $view->pathUserFavicon   = CustomLogo::getPathUserFavicon();
-            $view->pathUserLogoSmall = CustomLogo::getPathUserLogoSmall();
-            $view->pathUserLogoSVG   = CustomLogo::getPathUserSvgLogo();
+            $view->branding              = array('use_custom_logo' => $logo->isEnabled());
+            $view->fileUploadEnabled     = $logo->isFileUploadEnabled();
+            $view->logosWriteable        = $logo->isCustomLogoWritable();
+            $view->pathUserLogo          = CustomLogo::getPathUserLogo();
+            $view->pathUserFavicon       = CustomLogo::getPathUserFavicon();
+            $view->pathUserLogoSmall     = CustomLogo::getPathUserLogoSmall();
+            $view->pathUserLogoSVG       = CustomLogo::getPathUserSvgLogo();
             $view->pathUserLogoDirectory = realpath(dirname($view->pathUserLogo) . '/');
         }
 
@@ -73,14 +74,13 @@ class Controller extends \Piwik\Plugin\ControllerAdmin
 
         $settings = $this->getPluginSettings();
 
-        $view = new View('@CoreAdminHome/pluginSettings');
-        $view->nonce          = Nonce::getNonce(static::SET_PLUGIN_SETTINGS_NONCE);
-        $view->pluginSettings = $settings;
-        $view->firstSuperUserSettingNames = $this->getFirstSuperUserSettingNames($settings);
+        $vars = array(
+            'nonce'                      => Nonce::getNonce(static::SET_PLUGIN_SETTINGS_NONCE),
+            'pluginSettings'             => $settings,
+            'firstSuperUserSettingNames' => $this->getFirstSuperUserSettingNames($settings)
+        );
 
-        $this->setBasicVariablesView($view);
-
-        return $view->render();
+        return $this->renderTemplate('pluginSettings', $vars);
     }
 
     private function getPluginSettings()
@@ -149,7 +149,7 @@ class Controller extends \Piwik\Plugin\ControllerAdmin
             $message = html_entity_decode($e->getMessage(), ENT_QUOTES, 'UTF-8');
             return json_encode(array('result' => 'error', 'message' => $message));
         }
-        
+
         Nonce::discardNonce(static::SET_PLUGIN_SETTINGS_NONCE);
         return json_encode(array('result' => 'success'));
     }
@@ -166,7 +166,13 @@ class Controller extends \Piwik\Plugin\ControllerAdmin
 
         foreach ($settings as $setting) {
             if ($setting['name'] == $settingKey) {
-                return $setting['value'];
+                $value = $setting['value'];
+
+                if (is_string($value)) {
+                    return Common::unsanitizeInputValue($value);
+                }
+
+                return $value;
             }
         }
     }
@@ -241,7 +247,7 @@ class Controller extends \Piwik\Plugin\ControllerAdmin
     {
         $trackVisits = !IgnoreCookie::isIgnoreCookieFound();
 
-        $nonce = Common::getRequestVar('nonce', false);
+        $nonce    = Common::getRequestVar('nonce', false);
         $language = Common::getRequestVar('language', '');
         if ($nonce !== false && Nonce::verifyNonce('Piwik_OptOut', $nonce)) {
             Nonce::discardNonce('Piwik_OptOut');
@@ -249,12 +255,18 @@ class Controller extends \Piwik\Plugin\ControllerAdmin
             $trackVisits = !$trackVisits;
         }
 
-        $view = new View('@CoreAdminHome/optOut');
-        $view->trackVisits = $trackVisits;
-        $view->nonce = Nonce::getNonce('Piwik_OptOut', 3600);
-        $view->language = APILanguagesManager::getInstance()->isLanguageAvailable($language)
+        $lang = APILanguagesManager::getInstance()->isLanguageAvailable($language)
             ? $language
             : LanguagesManager::getLanguageCodeForCurrentUser();
+
+        // should not use self::renderTemplate since that uses setBasicVariablesView. this will cause
+        // an error when setBasicVariablesAdminView is called, and MenuTop is requested (the idSite query
+        // parameter is required)
+        $view = new View("@CoreAdminHome/optOut");
+        $view->setXFrameOptions('allow');
+        $view->trackVisits = $trackVisits;
+        $view->nonce = Nonce::getNonce('Piwik_OptOut', 3600);
+        $view->language = $lang;
         return $view->render();
     }
 
@@ -266,20 +278,20 @@ class Controller extends \Piwik\Plugin\ControllerAdmin
         $successLogo    = $logo->copyUploadedLogoToFilesystem();
         $successFavicon = $logo->copyUploadedFaviconToFilesystem();
 
-        if($successLogo || $successFavicon) {
+        if ($successLogo || $successFavicon) {
             return '1';
         }
         return '0';
     }
 
-    static public function isGeneralSettingsAdminEnabled()
+    public static function isGeneralSettingsAdminEnabled()
     {
         return (bool) Config::getInstance()->General['enable_general_settings_admin'];
     }
 
     private function saveGeneralSettings()
     {
-        if(!self::isGeneralSettingsAdminEnabled()) {
+        if (!self::isGeneralSettingsAdminEnabled()) {
             // General settings + Beta channel + SMTP settings is disabled
             return;
         }
@@ -312,6 +324,7 @@ class Controller extends \Piwik\Plugin\ControllerAdmin
         if ($trustedHosts !== false) {
             Url::saveTrustedHostnameInConfig($trustedHosts);
         }
+
         Config::getInstance()->forceSave();
 
         $pluginUpdateCommunication = new UpdateCommunication();
@@ -326,7 +339,7 @@ class Controller extends \Piwik\Plugin\ControllerAdmin
     {
         // Whether to display or not the general settings (cron, beta, smtp)
         $view->isGeneralSettingsAdminEnabled = self::isGeneralSettingsAdminEnabled();
-        if($view->isGeneralSettingsAdminEnabled) {
+        if ($view->isGeneralSettingsAdminEnabled) {
             $this->displayWarningIfConfigFileNotWritable();
         }
 
@@ -340,6 +353,7 @@ class Controller extends \Piwik\Plugin\ControllerAdmin
         }
         $view->showWarningCron = $showWarningCron;
         $view->todayArchiveTimeToLive = $todayArchiveTimeToLive;
+        $view->todayArchiveTimeToLiveDefault = Rules::getTodayArchiveTimeToLiveDefault();
         $view->enableBrowserTriggerArchiving = $enableBrowserTriggerArchiving;
 
         $view->enableBetaReleaseCheck = Config::getInstance()->Debug['allow_upgrades_to_beta'];
@@ -349,6 +363,5 @@ class Controller extends \Piwik\Plugin\ControllerAdmin
         $view->canUpdateCommunication              = $pluginUpdateCommunication->canBeEnabled();
         $view->enableSendPluginUpdateCommunication = $pluginUpdateCommunication->isEnabled();
     }
-
 
 }

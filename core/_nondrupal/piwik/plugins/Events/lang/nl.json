@@ -11,16 +11,19 @@
         "EventNames": "Gebeurtenis Namen",
         "Events": "Gebeurtenissen",
         "EventsWithValue": "Gebeurtenissen met een waarde",
+        "EventsWithValueDocumentation": "Aantal events waar een Event waarde is bepaald",
         "EventValue": "Gebeurtenis Waarde",
         "MaxValue": "Maximale waarde",
         "MaxValueDocumentation": "De maximale waarde voor deze gebeurtenis",
         "MinValue": "Minimale waarde",
         "MinValueDocumentation": "De minimale waarde voor deze gebeurtenis",
+        "SecondaryDimension": "Tweede dimensie is %s.",
         "SwitchToSecondaryDimension": "Omschakelen naar %s",
         "TopEvents": "Top Gebeurtenissen",
         "TotalEvents": "Totaal gebeurtenissen",
         "TotalEventsDocumentation": "Totaal aantal gebeurtenissen",
         "TotalValue": "Totale waarde",
-        "TotalValueDocumentation": "De som van gebeurtenis waardes"
+        "TotalValueDocumentation": "De som van gebeurtenis waardes",
+        "ViewEvents": "Bekijk gebeurtenissen"
     }
 }

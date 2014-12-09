@@ -13,26 +13,26 @@ use Piwik\Plugins\API\API;
 
 /**
  * Limits the set of visits Piwik uses when aggregating analytics data.
- * 
+ *
  * A segment is a condition used to filter visits. They can, for example,
  * select visits that have a specific browser or come from a specific
  * country, or both.
- * 
+ *
  * Individual segment dimensions (such as `browserCode` and `countryCode`)
  * are defined by plugins. Read about the {@hook API.getSegmentDimensionMetadata}
  * event to learn more.
- * 
+ *
  * Plugins that aggregate data stored in Piwik can support segments by
  * using this class when generating aggregation SQL queries.
- * 
+ *
  * ### Examples
- * 
+ *
  * **Basic usage**
- * 
+ *
  *     $idSites = array(1,2,3);
  *     $segmentStr = "browserCode==ff;countryCode==CA";
  *     $segment = new Segment($segmentStr, $idSites);
- * 
+ *
  *     $query = $segment->getSelectQuery(
  *         $select = "table.col1, table2.col2",
  *         $from = array("table", "table2"),
@@ -41,15 +41,15 @@ use Piwik\Plugins\API\API;
  *         $orderBy = "table.col1 DESC",
  *         $groupBy = "table2.col2"
  *     );
- *     
+ *
  *     Db::fetchAll($query['sql'], $query['bind']);
- * 
+ *
  * **Creating a _null_ segment**
- * 
+ *
  *     $idSites = array(1,2,3);
  *     $segment = new Segment('', $idSites);
  *     // $segment->getSelectQuery will return a query that selects all visits
- * 
+ *
  * @api
  */
 class Segment
@@ -66,10 +66,11 @@ class Segment
 
     /**
      * Constructor.
-     * 
+     *
      * @param string $segmentCondition The segment condition, eg, `'browserCode=ff;countryCode=CA'`.
      * @param array $idSites The list of sites the segment will be used with. Some segments are
      *                       dependent on the site, such as goal segments.
+     * @throws Exception
      */
     public function __construct($segmentCondition, $idSites)
     {
@@ -99,7 +100,7 @@ class Segment
         // As a preventive measure, we restrict the filter size to a safe limit
         $string = substr($string, 0, self::SEGMENT_TRUNCATE_LIMIT);
 
-        $this->string = $string;
+        $this->string  = $string;
         $this->idSites = $idSites;
         $segment = new SegmentExpression($string);
         $this->segment = $segment;
@@ -117,6 +118,7 @@ class Segment
             $expression[SegmentExpression::INDEX_OPERAND] = $cleanedExpression;
             $cleanedExpressions[] = $expression;
         }
+
         $segment->setSubExpressionsAfterCleanup($cleanedExpressions);
     }
 
@@ -155,10 +157,10 @@ class Segment
                 throw new Exception("You do not have enough permission to access the segment " . $name);
             }
 
-            if($matchType != SegmentExpression::MATCH_IS_NOT_NULL_NOR_EMPTY
+            if ($matchType != SegmentExpression::MATCH_IS_NOT_NULL_NOR_EMPTY
                 && $matchType != SegmentExpression::MATCH_IS_NULL_OR_EMPTY) {
 
-                if(isset($segment['sqlFilterValue'])) {
+                if (isset($segment['sqlFilterValue'])) {
                     $value = call_user_func($segment['sqlFilterValue'], $value);
                 }
 
@@ -186,7 +188,7 @@ class Segment
 
     /**
      * Returns the segment condition.
-     * 
+     *
      * @return string
      */
     public function getString()
@@ -197,7 +199,7 @@ class Segment
     /**
      * Returns a hash of the segment condition, or the empty string if the segment
      * condition is empty.
-     * 
+     *
      * @return string
      */
     public function getHash()
@@ -450,5 +452,15 @@ class Segment
         $where = false;
         $query = $this->buildSelectQuery($select, $from, $where, $orderBy, $groupBy);
         return $query;
+    }
+
+    /**
+     * Returns the segment string.
+     *
+     * @return string
+     */
+    public function __toString()
+    {
+        return (string) $this->getString();
     }
 }

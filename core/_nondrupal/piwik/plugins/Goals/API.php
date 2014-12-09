@@ -54,14 +54,15 @@ class API extends \Piwik\Plugin\API
         //TODO calls to this function could be cached as static
         // would help UI at least, since some UI requests would call this 2-3 times..
         $idSite = Site::getIdSitesFromIdSitesString($idSite);
+
         if (empty($idSite)) {
             return array();
         }
+
         Piwik::checkUserHasViewAccess($idSite);
-        $goals = Db::fetchAll("SELECT *
-								FROM " . Common::prefixTable('goal') . "
-								WHERE idsite IN (" . implode(", ", $idSite) . ")
-									AND deleted = 0");
+
+        $goals = $this->getModel()->getActiveGoals($idSite);
+
         $cleanedGoals = array();
         foreach ($goals as &$goal) {
             if ($goal['match_attribute'] == 'manually') {
@@ -71,6 +72,7 @@ class API extends \Piwik\Plugin\API
             }
             $cleanedGoals[$goal['idgoal']] = $goal;
         }
+
         return $cleanedGoals;
     }
 
@@ -79,7 +81,7 @@ class API extends \Piwik\Plugin\API
      *
      * @param int $idSite
      * @param string $name
-     * @param string $matchAttribute 'url', 'title', 'file', 'external_website' or 'manually'
+     * @param string $matchAttribute 'url', 'title', 'file', 'external_website', 'manually', 'event_action', 'event_category' or 'event_name'
      * @param string $pattern eg. purchase-confirmation.htm
      * @param string $patternType 'regex', 'contains', 'exact'
      * @param bool $caseSensitive
@@ -91,33 +93,33 @@ class API extends \Piwik\Plugin\API
     public function addGoal($idSite, $name, $matchAttribute, $pattern, $patternType, $caseSensitive = false, $revenue = false, $allowMultipleConversionsPerVisit = false)
     {
         Piwik::checkUserHasAdminAccess($idSite);
-        $this->checkPatternIsValid($patternType, $pattern);
-        $name = $this->checkName($name);
+
+        $this->checkPatternIsValid($patternType, $pattern, $matchAttribute);
+        $name    = $this->checkName($name);
         $pattern = $this->checkPattern($pattern);
 
-        // save in db
-        $db = Db::get();
-        $idGoal = $db->fetchOne("SELECT max(idgoal) + 1
-								FROM " . Common::prefixTable('goal') . "
-								WHERE idsite = ?", $idSite);
-        if ($idGoal == false) {
-            $idGoal = 1;
-        }
-        $db->insert(Common::prefixTable('goal'),
-            array(
-                 'idsite'          => $idSite,
-                 'idgoal'          => $idGoal,
-                 'name'            => $name,
-                 'match_attribute' => $matchAttribute,
-                 'pattern'         => $pattern,
-                 'pattern_type'    => $patternType,
-                 'case_sensitive'  => (int)$caseSensitive,
-                 'allow_multiple'  => (int)$allowMultipleConversionsPerVisit,
-                 'revenue'         => (float)$revenue,
-                 'deleted'         => 0,
-            ));
+        $revenue = Common::forceDotAsSeparatorForDecimalPoint((float)$revenue);
+
+        $goal = array(
+            'name'            => $name,
+            'match_attribute' => $matchAttribute,
+            'pattern'         => $pattern,
+            'pattern_type'    => $patternType,
+            'case_sensitive'  => (int)$caseSensitive,
+            'allow_multiple'  => (int)$allowMultipleConversionsPerVisit,
+            'revenue'         => $revenue,
+            'deleted'         => 0,
+        );
+
+        $idGoal = $this->getModel()->createGoalForSite($idSite, $goal);
+
         Cache::regenerateCacheWebsiteAttributes($idSite);
         return $idGoal;
+    }
+
+    private function getModel()
+    {
+        return new Model();
     }
 
     /**
@@ -139,28 +141,31 @@ class API extends \Piwik\Plugin\API
     public function updateGoal($idSite, $idGoal, $name, $matchAttribute, $pattern, $patternType, $caseSensitive = false, $revenue = false, $allowMultipleConversionsPerVisit = false)
     {
         Piwik::checkUserHasAdminAccess($idSite);
-        $name = $this->checkName($name);
+
+        $name    = $this->checkName($name);
         $pattern = $this->checkPattern($pattern);
-        $this->checkPatternIsValid($patternType, $pattern);
-        Db::get()->update(Common::prefixTable('goal'),
-            array(
-                 'name'            => $name,
-                 'match_attribute' => $matchAttribute,
-                 'pattern'         => $pattern,
-                 'pattern_type'    => $patternType,
-                 'case_sensitive'  => (int)$caseSensitive,
-                 'allow_multiple'  => (int)$allowMultipleConversionsPerVisit,
-                 'revenue'         => (float)$revenue,
-            ),
-            "idsite = '$idSite' AND idgoal = '$idGoal'"
-        );
+        $this->checkPatternIsValid($patternType, $pattern, $matchAttribute);
+
+        $revenue = Common::forceDotAsSeparatorForDecimalPoint((float)$revenue);
+
+        $this->getModel()->updateGoal($idSite, $idGoal, array(
+            'name'            => $name,
+            'match_attribute' => $matchAttribute,
+            'pattern'         => $pattern,
+            'pattern_type'    => $patternType,
+            'case_sensitive'  => (int) $caseSensitive,
+            'allow_multiple'  => (int) $allowMultipleConversionsPerVisit,
+            'revenue'         => $revenue,
+        ));
+
         Cache::regenerateCacheWebsiteAttributes($idSite);
     }
 
-    private function checkPatternIsValid($patternType, $pattern)
+    private function checkPatternIsValid($patternType, $pattern, $matchAttribute)
     {
         if ($patternType == 'exact'
             && substr($pattern, 0, 4) != 'http'
+            && substr($matchAttribute, 0, 6) != 'event_'
         ) {
             throw new Exception(Piwik::translate('Goals_ExceptionInvalidMatchingString', array("http:// or https://", "http://www.yourwebsite.com/newsletter/subscribed.html")));
         }
@@ -187,12 +192,10 @@ class API extends \Piwik\Plugin\API
     public function deleteGoal($idSite, $idGoal)
     {
         Piwik::checkUserHasAdminAccess($idSite);
-        Db::query("UPDATE " . Common::prefixTable('goal') . "
-										SET deleted = 1
-										WHERE idsite = ?
-											AND idgoal = ?",
-            array($idSite, $idGoal));
-        Db::deleteAllRows(Common::prefixTable("log_conversion"), "WHERE idgoal = ? AND idsite = ?", "idvisit", 100000, array($idGoal, $idSite));
+
+        $this->getModel()->deleteGoal($idSite, $idGoal);
+        $this->getModel()->deleteGoalConversions($idSite, $idGoal);
+
         Cache::regenerateCacheWebsiteAttributes($idSite);
     }
 
@@ -203,11 +206,13 @@ class API extends \Piwik\Plugin\API
     protected function getItems($recordName, $idSite, $period, $date, $abandonedCarts, $segment)
     {
         Piwik::checkUserHasViewAccess($idSite);
+
         $recordNameFinal = $recordName;
         if ($abandonedCarts) {
             $recordNameFinal = Archiver::getItemRecordNameAbandonedCart($recordName);
         }
-        $archive = Archive::build($idSite, $period, $date, $segment);
+
+        $archive   = Archive::build($idSite, $period, $date, $segment);
         $dataTable = $archive->getDataTable($recordNameFinal);
 
         $dataTable->filter('Sort', array(Metrics::INDEX_ECOMMERCE_ITEM_REVENUE));
@@ -249,6 +254,7 @@ class API extends \Piwik\Plugin\API
             }
             return;
         }
+
         $rowNotDefined = $dataTable->getRowFromLabel(\Piwik\Plugins\CustomVariables\Archiver::LABEL_CUSTOM_VALUE_NOT_DEFINED);
         if ($rowNotDefined) {
             $rowNotDefined->setColumn('label', $notDefinedStringPretty);

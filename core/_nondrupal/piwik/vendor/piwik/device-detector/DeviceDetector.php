@@ -3,7 +3,7 @@
  * Device Detector - The Universal Device Detection library for parsing User Agents
  *
  * @link http://piwik.org
- * @license http://www.gnu.org/licenses/gpl-3.0.html GPL v3 or later
+ * @license http://www.gnu.org/licenses/lgpl.html LGPL v3 or later
  */
 
 namespace DeviceDetector;
@@ -96,21 +96,48 @@ class DeviceDetector
      *
      * @param string $userAgent  UA to parse
      */
-    public function __construct($userAgent)
+    public function __construct($userAgent='')
     {
-        $this->userAgent = $userAgent;
+        if ($userAgent != '') {
+            $this->setUserAgent($userAgent);
+        }
 
         $this->addClientParser('FeedReader');
         $this->addClientParser('MobileApp');
         $this->addClientParser('MediaPlayer');
         $this->addClientParser('PIM');
         $this->addClientParser('Browser');
+        $this->addClientParser('Library');
 
         $this->addDeviceParser('HbbTv');
         $this->addDeviceParser('Console');
         $this->addDeviceParser('CarBrowser');
         $this->addDeviceParser('Camera');
         $this->addDeviceParser('Mobile');
+    }
+
+    /**
+     * Sets the useragent to be parsed
+     *
+     * @param string $userAgent
+     */
+    public function setUserAgent($userAgent)
+    {
+        if ($this->userAgent != $userAgent) {
+            $this->reset();
+        }
+        $this->userAgent = $userAgent;
+    }
+
+    protected function reset()
+    {
+        $this->bot    = null;
+        $this->client = null;
+        $this->device = null;
+        $this->os     = null;
+        $this->brand  = '';
+        $this->model  = '';
+        $this->parsed = false;
     }
 
     /**
@@ -211,7 +238,12 @@ class DeviceDetector
 
     public function isMobile()
     {
-        return !$this->isDesktop();
+        $osShort = $this->getOs('short_name');
+        if (empty($osShort) || self::UNKNOWN == $osShort) {
+            return false;
+        }
+
+        return !$this->isBot() && !$this->isDesktop();
     }
 
     /**
@@ -225,7 +257,7 @@ class DeviceDetector
     public function isDesktop()
     {
         $osShort = $this->getOs('short_name');
-        if (empty($osShort)) {
+        if (empty($osShort) || self::UNKNOWN == $osShort) {
             return false;
         }
 
@@ -360,11 +392,19 @@ class DeviceDetector
         return $this->bot;
     }
 
+    protected $parsed = false;
+
     /**
      * Triggers the parsing of the current user agent
      */
     public function parse()
     {
+        if ($this->parsed) {
+            return;
+        }
+
+        $this->parsed = true;
+
         // skip parsing for empty useragents or those not containing any letter
         if (empty($this->userAgent) || preg_match('[a-z]', $this->userAgent)) {
             return;
@@ -456,7 +496,7 @@ class DeviceDetector
          * As most touch enabled devices are tablets and only a smaller part are desktops/notebooks we assume that
          * all Windows 8 touch devices are tablets.
          */
-        if (is_null($this->device) && in_array($this->getOs('short_name'), array('WI8', 'WRT')) && $this->isTouchEnabled()) {
+        if (is_null($this->device) && in_array($this->getOs('short_name'), array('WI8', 'W81', 'WRT')) && $this->isTouchEnabled()) {
             $this->device = DeviceParserAbstract::DEVICE_TYPE_TABLET;
         }
 
@@ -502,17 +542,8 @@ class DeviceDetector
 
         $processed = array(
             'user_agent'     => $deviceDetector->getUserAgent(),
-            'os'             => array(
-                'name'       => $deviceDetector->getOs('name'),
-                'short_name' => $deviceDetector->getOs('short_name'),
-                'version'    => $deviceDetector->getOs('version'),
-            ),
-            'client'        => array(
-                'type'       => $deviceDetector->getClient('type'),
-                'name'       => $deviceDetector->getClient('name'),
-                'short_name' => $deviceDetector->getClient('short_name'),
-                'version'    => $deviceDetector->getClient('version'),
-            ),
+            'os'             => $deviceDetector->getOs(),
+            'client'        => $deviceDetector->getClient(),
             'device'         => array(
                 'type'       => $deviceDetector->getDeviceName(),
                 'brand'      => $deviceDetector->getBrand(),

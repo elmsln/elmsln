@@ -11,7 +11,6 @@ namespace Piwik\DataAccess;
 use Exception;
 use Piwik\ArchiveProcessor\Rules;
 use Piwik\ArchiveProcessor;
-use Piwik\Common;
 use Piwik\Db;
 use Piwik\Db\BatchInsert;
 use Piwik\Period;
@@ -23,7 +22,6 @@ use Piwik\Period;
  */
 class ArchiveWriter
 {
-    const PREFIX_SQL_LOCK = "locked_";
     /**
      * Flag stored at the end of the archiving
      *
@@ -45,21 +43,29 @@ class ArchiveWriter
      */
     const DONE_OK_TEMPORARY = 3;
 
+    /**
+     * Flag indicated that archive is done but was marked as invalid later and needs to be re-processed during next archiving process
+     *
+     * @var int
+     */
+    const DONE_INVALIDATED = 4;
+
     protected $fields = array('idarchive',
-                              'idsite',
-                              'date1',
-                              'date2',
-                              'period',
-                              'ts_archived',
-                              'name',
-                              'value');
+        'idsite',
+        'date1',
+        'date2',
+        'period',
+        'ts_archived',
+        'name',
+        'value');
 
     public function __construct(ArchiveProcessor\Parameters $params, $isArchiveTemporary)
     {
         $this->idArchive = false;
-        $this->idSite = $params->getSite()->getId();
-        $this->segment = $params->getSegment();
-        $this->period = $params->getPeriod();
+        $this->idSite    = $params->getSite()->getId();
+        $this->segment   = $params->getSegment();
+        $this->period    = $params->getPeriod();
+
         $idSites = array($this->idSite);
         $this->doneFlag = Rules::getDoneStringFlagFor($idSites, $this->segment, $this->period->getLabel(), $params->getRequestedPlugin(), $params->isSkipAggregationOfSubTables());
         $this->isArchiveTemporary = $isArchiveTemporary;
@@ -85,7 +91,7 @@ class ArchiveWriter
                     $newName = $name . '_' . $id;
                 }
 
-                $value = $this->compress($value);
+                $value   = $this->compress($value);
                 $clean[] = array($newName, $value);
             }
             $this->insertBulkRecords($clean);
@@ -101,6 +107,7 @@ class ArchiveWriter
         if ($this->idArchive === false) {
             throw new Exception("Must call allocateNewArchiveId() first");
         }
+
         return $this->idArchive;
     }
 
@@ -112,108 +119,49 @@ class ArchiveWriter
 
     public function finalizeArchive()
     {
-        $this->deletePreviousArchiveStatus();
+        $numericTable = $this->getTableNumeric();
+        $idArchive    = $this->getIdArchive();
+
+        $this->getModel()->deletePreviousArchiveStatus($numericTable, $idArchive, $this->doneFlag);
+
         $this->logArchiveStatusAsFinal();
     }
 
-    static protected function compress($data)
+    protected static function compress($data)
     {
         if (Db::get()->hasBlobDataType()) {
             return gzcompress($data);
         }
+
         return $data;
-    }
-
-    protected function getArchiveLockName()
-    {
-        $numericTable = $this->getTableNumeric();
-        $dbLockName = "allocateNewArchiveId.$numericTable";
-        return $dbLockName;
-    }
-
-    protected function acquireArchiveTableLock()
-    {
-        $dbLockName = $this->getArchiveLockName();
-        if (Db::getDbLock($dbLockName, $maxRetries = 30) === false) {
-            throw new Exception("allocateNewArchiveId: Cannot get named lock $dbLockName.");
-        }
-    }
-
-    protected function releaseArchiveTableLock()
-    {
-        $dbLockName = $this->getArchiveLockName();
-        Db::releaseDbLock($dbLockName);
     }
 
     protected function allocateNewArchiveId()
     {
-        $this->idArchive = $this->insertNewArchiveId();
+        $numericTable = $this->getTableNumeric();
+
+        $this->idArchive = $this->getModel()->allocateNewArchiveId($numericTable);
         return $this->idArchive;
     }
 
-    /**
-     * Locks the archive table to generate a new archive ID.
-     *
-     * We lock to make sure that
-     * if several archiving processes are running at the same time (for different websites and/or periods)
-     * then they will each use a unique archive ID.
-     *
-     * @return int
-     */
-    protected function insertNewArchiveId()
+    private function getModel()
     {
-        $numericTable = $this->getTableNumeric();
-        $idSite = $this->idSite;
-
-        $this->acquireArchiveTableLock();
-
-        $locked = self::PREFIX_SQL_LOCK . Common::generateUniqId();
-        $date = date("Y-m-d H:i:s");
-        $insertSql = "INSERT INTO $numericTable "
-            . " SELECT IFNULL( MAX(idarchive), 0 ) + 1,
-								'" . $locked . "',
-								" . (int)$idSite . ",
-								'" . $date . "',
-								'" . $date . "',
-								0,
-								'" . $date . "',
-								0 "
-            . " FROM $numericTable as tb1";
-        Db::get()->exec($insertSql);
-
-        $this->releaseArchiveTableLock();
-
-        $selectIdSql = "SELECT idarchive FROM $numericTable WHERE name = ? LIMIT 1";
-        $id = Db::get()->fetchOne($selectIdSql, $locked);
-        return $id;
+        return new Model();
     }
 
     protected function logArchiveStatusAsIncomplete()
     {
-        $statusWhileProcessing = self::DONE_ERROR;
-        $this->insertRecord($this->doneFlag, $statusWhileProcessing);
-    }
-
-    protected function deletePreviousArchiveStatus()
-    {
-        // without advisory lock here, the DELETE would acquire Exclusive Lock
-        $this->acquireArchiveTableLock();
-
-        Db::query("DELETE FROM " . $this->getTableNumeric() . "
-					WHERE idarchive = ? AND (name = '" . $this->doneFlag
-                    . "' OR name LIKE '" . self::PREFIX_SQL_LOCK . "%')",
-            array($this->getIdArchive())
-        );
-
-        $this->releaseArchiveTableLock();
+        $this->insertRecord($this->doneFlag, self::DONE_ERROR);
     }
 
     protected function logArchiveStatusAsFinal()
     {
         $status = self::DONE_OK;
+
         if ($this->isArchiveTemporary) {
             $status = self::DONE_OK_TEMPORARY;
         }
+
         $this->insertRecord($this->doneFlag, $status);
     }
 
@@ -226,27 +174,37 @@ class ArchiveWriter
             foreach ($records as $record) {
                 $this->insertRecord($record[0], $record[1]);
             }
+
             return true;
         }
+
         $bindSql = $this->getInsertRecordBind();
-        $values = array();
+        $values  = array();
 
         $valueSeen = false;
         foreach ($records as $record) {
             // don't record zero
-            if (empty($record[1])) continue;
+            if (empty($record[1])) {
+                continue;
+            }
 
-            $bind = $bindSql;
-            $bind[] = $record[0]; // name
-            $bind[] = $record[1]; // value
+            $bind     = $bindSql;
+            $bind[]   = $record[0]; // name
+            $bind[]   = $record[1]; // value
             $values[] = $bind;
 
             $valueSeen = $record[1];
         }
-        if (empty($values)) return true;
+
+        if (empty($values)) {
+            return true;
+        }
 
         $tableName = $this->getTableNameToInsert($valueSeen);
-        BatchInsert::tableInsertBatch($tableName, $this->getInsertFields(), $values);
+        $fields    = $this->getInsertFields();
+
+        BatchInsert::tableInsertBatch($tableName, $fields, $values);
+
         return true;
     }
 
@@ -265,26 +223,22 @@ class ArchiveWriter
         }
 
         $tableName = $this->getTableNameToInsert($value);
+        $fields    = $this->getInsertFields();
+        $record    = $this->getInsertRecordBind();
 
-        // duplicate idarchives are Ignored, see http://dev.piwik.org/trac/ticket/987
-        $query = "INSERT IGNORE INTO " . $tableName . "
-					(" . implode(", ", $this->getInsertFields()) . ")
-					VALUES (?,?,?,?,?,?,?,?)";
-        $bindSql = $this->getInsertRecordBind();
-        $bindSql[] = $name;
-        $bindSql[] = $value;
-        Db::query($query, $bindSql);
+        $this->getModel()->insertRecord($tableName, $fields, $record, $name, $value);
+
         return true;
     }
 
     protected function getInsertRecordBind()
     {
         return array($this->getIdArchive(),
-                     $this->idSite,
-                     $this->dateStart->toString('Y-m-d'),
-                     $this->period->getDateEnd()->toString('Y-m-d'),
-                     $this->period->getId(),
-                     date("Y-m-d H:i:s"));
+            $this->idSite,
+            $this->dateStart->toString('Y-m-d'),
+            $this->period->getDateEnd()->toString('Y-m-d'),
+            $this->period->getId(),
+            date("Y-m-d H:i:s"));
     }
 
     protected function getTableNameToInsert($value)
@@ -292,6 +246,7 @@ class ArchiveWriter
         if (is_numeric($value)) {
             return $this->getTableNumeric();
         }
+
         return ArchiveTableCreator::getBlobTable($this->dateStart);
     }
 

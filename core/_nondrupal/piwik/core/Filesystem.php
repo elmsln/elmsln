@@ -9,12 +9,11 @@
 namespace Piwik;
 
 use Exception;
-use Piwik\Plugins\Installation\ServerFilesGenerator;
 use Piwik\Tracker\Cache;
 
 /**
  * Contains helper functions that deal with the filesystem.
- * 
+ *
  */
 class Filesystem
 {
@@ -27,6 +26,7 @@ class Filesystem
         AssetManager::getInstance()->removeMergedAssets($pluginName);
         View::clearCompiledTemplates();
         Cache::deleteTrackerCache();
+        self::clearPhpCaches();
     }
 
     /**
@@ -70,7 +70,7 @@ class Filesystem
 
     /**
      * Attempts to create a new directory. All errors are silenced.
-     * 
+     *
      * _Note: This function does **not** create directories recursively._
      *
      * @param string $path The path of the directory to create.
@@ -143,7 +143,7 @@ class Filesystem
 
     /**
      * Recursively find pathnames that match a pattern.
-     * 
+     *
      * See {@link http://php.net/manual/en/function.glob.php glob} for more info.
      *
      * @param string $sDir directory The directory to glob in.
@@ -205,6 +205,77 @@ class Filesystem
     }
 
     /**
+     * Removes all files and directories that are present in the target directory but are not in the source directory.
+     *
+     * @param string $source Path to the source directory
+     * @param string $target Path to the target
+     */
+    public static function unlinkTargetFilesNotPresentInSource($source, $target)
+    {
+        $diff = self::directoryDiff($source, $target);
+        $diff = self::sortFilesDescByPathLength($diff);
+
+        foreach ($diff as $file) {
+            $remove = $target . $file;
+
+            if (is_dir($remove)) {
+                @rmdir($remove);
+            } else {
+                self::deleteFileIfExists($remove);
+            }
+        }
+    }
+
+    /**
+     * Sort all given paths/filenames by its path length. Long path names will be listed first. This method can be
+     * useful if you have for instance a bunch of files/directories to delete. By sorting them by lengh you can make
+     * sure to delete all files within the folders before deleting the actual folder.
+     *
+     * @param string[] $files
+     * @return string[]
+     */
+    public static function sortFilesDescByPathLength($files)
+    {
+        usort($files, function ($a, $b) {
+            // sort by filename length so we kinda make sure to remove files before its directories
+            if ($a == $b) {
+                return 0;
+            }
+
+            return (strlen($a) > strlen($b) ? -1 : 1);
+        });
+
+        return $files;
+    }
+
+    /**
+     * Computes the difference of directories. Compares $target against $source and returns a relative path to all files
+     * and directories in $target that are not present in $source.
+     *
+     * @param $source
+     * @param $target
+     *
+     * @return string[]
+     */
+    public static function directoryDiff($source, $target)
+    {
+        $sourceFiles = self::globr($source, '*');
+        $targetFiles = self::globr($target, '*');
+
+        $sourceFiles = array_map(function ($file) use ($source) {
+            return str_replace($source, '', $file);
+        }, $sourceFiles);
+
+        $targetFiles = array_map(function ($file) use ($target) {
+            return str_replace($target, '', $file);
+        }, $targetFiles);
+
+        $diff = array_diff($targetFiles, $sourceFiles);
+
+        return array_values($diff);
+    }
+
+    /**
      * Copies a file from `$source` to `$dest`.
      *
      * @param string $source A path to a file, eg. './tmp/latest/index.php'. The file must exist.
@@ -217,29 +288,43 @@ class Filesystem
      */
     public static function copy($source, $dest, $excludePhp = false)
     {
-        static $phpExtensions = array('php', 'tpl', 'twig');
-
         if ($excludePhp) {
-            $path_parts = pathinfo($source);
-            if (in_array($path_parts['extension'], $phpExtensions)) {
+            if (self::hasPHPExtension($source)) {
                 return true;
             }
         }
 
-        if (!@copy($source, $dest)) {
-            @chmod($dest, 0755);
-            if (!@copy($source, $dest)) {
-                $message = "Error while creating/copying file to <code>$dest</code>. <br />"
-                    . Filechecks::getErrorMessageMissingPermissions(self::getPathToPiwikRoot());
-                throw new Exception($message);
-            }
+        $success = self::tryToCopyFileAndVerifyItWasCopied($source, $dest);
+
+        if (!$success) {
+            $success = self::tryToCopyFileAndVerifyItWasCopied($source, $dest);
         }
+
+        if (!$success) {
+            throw new Exception("Error while creating/copying file from $source to <code>$dest</code>. Content of copied file is different.");
+        }
+
         return true;
+    }
+
+    private static function hasPHPExtension($file)
+    {
+        static $phpExtensions = array('php', 'tpl', 'twig');
+
+        $path_parts = pathinfo($file);
+
+        if (!empty($path_parts['extension'])
+            && in_array($path_parts['extension'], $phpExtensions)) {
+
+            return true;
+        }
+
+        return false;
     }
 
     /**
      * Copies the contents of a directory recursively from `$source` to `$target`.
-     * 
+     *
      * @param string $source A directory or file to copy, eg. './tmp/latest'.
      * @param string $target A directory to copy to, eg. '.'.
      * @param bool $excludePhp Whether to avoid copying files if the file is related to PHP
@@ -289,6 +374,40 @@ class Filesystem
     }
 
     /**
+     * Get the size of a file in the specified unit.
+     *
+     * @param string $pathToFile
+     * @param string $unit eg 'B' for Byte, 'KB', 'MB', 'GB', 'TB'.
+     *
+     * @return float|null Returns null if file does not exist or the size of the file in the specified unit
+     *
+     * @throws Exception In case the unit is invalid
+     */
+    public static function getFileSize($pathToFile, $unit = 'B')
+    {
+        $unit  = strtoupper($unit);
+        $units = array('TB' => pow(1024, 4),
+                       'GB' => pow(1024, 3),
+                       'MB' => pow(1024, 2),
+                       'KB' => 1024,
+                       'B' => 1);
+
+        if (!array_key_exists($unit, $units)) {
+            throw new Exception('Invalid unit given');
+        }
+
+        if (!file_exists($pathToFile)) {
+            return;
+        }
+
+        $filesize  = filesize($pathToFile);
+        $factor    = $units[$unit];
+        $converted = $filesize / $factor;
+
+        return $converted;
+    }
+
+    /**
      * @param $path
      * @return int
      */
@@ -302,4 +421,60 @@ class Filesystem
         // plugins/* and all others
         return 0755;
     }
+
+    public static function clearPhpCaches()
+    {
+        if (function_exists('apc_clear_cache')) {
+            apc_clear_cache(); // clear the system (aka 'opcode') cache
+        }
+
+        if (function_exists('opcache_reset')) {
+            @opcache_reset(); // reset the opcode cache (php 5.5.0+)
+        }
+
+        if (function_exists('wincache_refresh_if_changed')) {
+            @wincache_refresh_if_changed(); // reset the wincache
+        }
+
+        if (function_exists('xcache_clear_cache') && defined('XC_TYPE_VAR')) {
+
+            if (ini_get('xcache.admin.enable_auth')) {
+                // XCache will not be cleared because "xcache.admin.enable_auth" is enabled in php.ini.
+            } else {
+                @xcache_clear_cache(XC_TYPE_VAR);
+            }
+        }
+    }
+
+    private static function havePhpFilesSameContent($file1, $file2)
+    {
+        if (self::hasPHPExtension($file1)) {
+
+            $sourceMd5 = md5_file($file1);
+            $destMd5   = md5_file($file2);
+
+            return $sourceMd5 === $destMd5;
+        }
+
+        return true;
+    }
+
+    private static function tryToCopyFileAndVerifyItWasCopied($source, $dest)
+    {
+        if (!@copy($source, $dest)) {
+            @chmod($dest, 0755);
+            if (!@copy($source, $dest)) {
+                $message = "Error while creating/copying file to <code>$dest</code>. <br />"
+                    . Filechecks::getErrorMessageMissingPermissions(self::getPathToPiwikRoot());
+                throw new Exception($message);
+            }
+        }
+
+        if (file_exists($source) && file_exists($dest)) {
+            return self::havePhpFilesSameContent($source, $dest);
+        }
+
+        return true;
+    }
+
 }

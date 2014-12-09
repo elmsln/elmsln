@@ -22,7 +22,7 @@ class Controller extends \Piwik\Plugin\Controller
     public function index()
     {
         $view = new View('@Widgetize/index');
-        $view->availableWidgets = Common::json_encode(WidgetsList::get());
+        $view->availableWidgets = json_encode(WidgetsList::get());
         $this->setGeneralVariablesView($view);
         return $view->render();
     }
@@ -48,17 +48,20 @@ class Controller extends \Piwik\Plugin\Controller
     {
         Request::reloadAuthUsingTokenAuth();
         $this->init();
+
         $controllerName = Common::getRequestVar('moduleToWidgetize');
-        $actionName = Common::getRequestVar('actionToWidgetize');
-        $outputDataTable = FrontController::getInstance()->fetchDispatch($controllerName, $actionName);
+        $actionName     = Common::getRequestVar('actionToWidgetize');
+
         if ($controllerName == 'Dashboard' && $actionName == 'index') {
             $view = new View('@Widgetize/iframe_empty');
         } else {
             $view = new View('@Widgetize/iframe');
         }
+
         $this->setGeneralVariablesView($view);
         $view->setXFrameOptions('allow');
-        $view->content = $outputDataTable;
+        $view->content = FrontController::getInstance()->fetchDispatch($controllerName, $actionName);
+
         return $view->render();
     }
 }

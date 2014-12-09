@@ -9,7 +9,6 @@
 
 namespace Piwik\Plugins\LanguagesManager\Commands;
 
-use Piwik\Plugin\ConsoleCommand;
 use Piwik\Plugins\LanguagesManager\API;
 use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Input\InputInterface;
@@ -19,7 +18,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 /**
  */
-class Update extends ConsoleCommand
+class Update extends TranslationBase
 {
     protected function configure()
     {
@@ -47,7 +46,7 @@ class Update extends ConsoleCommand
         $languages = API::getInstance()->getAvailableLanguageNames();
 
         $languageCodes = array();
-        foreach ($languages AS $languageInfo) {
+        foreach ($languages as $languageInfo) {
             $languageCodes[] = $languageInfo['code'];
         }
 
@@ -65,7 +64,7 @@ class Update extends ConsoleCommand
 
         $progress->start($output, count($files));
 
-        foreach ($files AS $filename) {
+        foreach ($files as $filename) {
 
             $progress->advance();
 
@@ -106,7 +105,7 @@ class Update extends ConsoleCommand
             // update core modules that aren't in their own repo
             if (empty($plugin)) {
 
-                foreach (self::getPluginsInCore() AS $pluginName) {
+                foreach (self::getPluginsInCore() as $pluginName) {
 
                     // update translation files
                     $command = $this->getApplication()->find('translations:set');

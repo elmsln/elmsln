@@ -15,6 +15,7 @@ use Piwik\DataAccess\ArchiveWriter;
 use Piwik\DataTable\Manager;
 use Piwik\Metrics;
 use Piwik\Plugin\Archiver;
+use Piwik\Log;
 
 /**
  * This class creates the Archiver objects found in plugins and will trigger aggregation,
@@ -56,7 +57,7 @@ class PluginsArchiver
      */
     public function callAggregateCoreMetrics()
     {
-        if($this->isSingleSiteDayArchive) {
+        if ($this->isSingleSiteDayArchive) {
             $metrics = $this->aggregateDayVisitsMetrics();
         } else {
             $metrics = $this->aggregateMultipleVisitsMetrics();
@@ -80,27 +81,37 @@ class PluginsArchiver
      */
     public function callAggregateAllPlugins($visits, $visitsConverted)
     {
+        Log::debug("PluginsArchiver::%s: Initializing archiving process for all plugins [visits = %s, visits converted = %s]",
+            __FUNCTION__, $visits, $visitsConverted);
+
         $this->archiveProcessor->setNumberOfVisits($visits, $visitsConverted);
 
         $archivers = $this->getPluginArchivers();
 
-        foreach($archivers as $pluginName => $archiverClass) {
-
+        foreach ($archivers as $pluginName => $archiverClass) {
             // We clean up below all tables created during this function call (and recursive calls)
             $latestUsedTableId = Manager::getInstance()->getMostRecentTableId();
 
             /** @var Archiver $archiver */
             $archiver = new $archiverClass($this->archiveProcessor);
 
-            if(!$archiver->isEnabled()) {
+            if (!$archiver->isEnabled()) {
+                Log::verbose("PluginsArchiver::%s: Skipping archiving for plugin '%s'.", __FUNCTION__, $pluginName);
                 continue;
             }
-            if($this->shouldProcessReportsForPlugin($pluginName)) {
-                if($this->isSingleSiteDayArchive) {
+
+            if ($this->shouldProcessReportsForPlugin($pluginName)) {
+                if ($this->isSingleSiteDayArchive) {
+                    Log::debug("PluginsArchiver::%s: Archiving day reports for plugin '%s'.", __FUNCTION__, $pluginName);
+
                     $archiver->aggregateDayReport();
                 } else {
+                    Log::debug("PluginsArchiver::%s: Archiving period reports for plugin '%s'.", __FUNCTION__, $pluginName);
+
                     $archiver->aggregateMultipleReports();
                 }
+            } else {
+                Log::verbose("PluginsArchiver::%s: Not archiving reports for plugin '%s'.", __FUNCTION__, $pluginName);
             }
 
             Manager::getInstance()->deleteAll($latestUsedTableId);

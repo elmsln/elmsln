@@ -25,16 +25,17 @@ class CacheFile
     /**
      * @var string
      */
-    protected $cachePath;
-    /**
-     * @var
-     */
-    protected $cachePrefix;
+    private $cachePath;
 
     /**
      * Minimum enforced TTL in seconds
      */
     const MINIMUM_TTL = 60;
+
+    /**
+     * @var \Callable[]
+     */
+    private static $onDeleteCallback = array();
 
     /**
      * @param string $directory directory to use
@@ -62,11 +63,12 @@ class CacheFile
         if (empty($id)) {
             return false;
         }
+
         $id = $this->cleanupId($id);
 
         $cache_complete = false;
-        $content = '';
-        $expires_on = false;
+        $content        = '';
+        $expires_on     = false;
 
         // We are assuming that most of the time cache will exists
         $cacheFilePath = $this->cachePath . $id . '.php';
@@ -83,6 +85,7 @@ class CacheFile
             ) {
                 return false;
             }
+
             return $content;
         }
 
@@ -99,6 +102,7 @@ class CacheFile
         if (!Filesystem::isValidFilename($id)) {
             throw new Exception("Invalid cache ID request $id");
         }
+
         return $id;
     }
 
@@ -115,25 +119,23 @@ class CacheFile
         if (empty($id)) {
             return false;
         }
+
         if (!is_dir($this->cachePath)) {
             Filesystem::mkdir($this->cachePath);
         }
+
         if (!is_writable($this->cachePath)) {
             return false;
         }
-        $id = $this->cleanupId($id);
 
+        $id = $this->cleanupId($id);
         $id = $this->cachePath . $id . '.php';
 
         if (is_object($content)) {
             throw new \Exception('You cannot use the CacheFile to cache an object, only arrays, strings and numbers.');
         }
 
-        $cache_literal = "<" . "?php\n";
-        $cache_literal .= "$" . "content   = " . var_export($content, true) . ";\n";
-        $cache_literal .= "$" . "expires_on   = " . $this->getExpiresTime() . ";\n";
-        $cache_literal .= "$" . "cache_complete   = true;\n";
-        $cache_literal .= "?" . ">";
+        $cache_literal = $this->buildCacheLiteral($content);
 
         // Write cache to a temp file, then rename it, overwriting the old cache
         // On *nix systems this should guarantee atomicity
@@ -157,6 +159,7 @@ class CacheFile
 
             return true;
         }
+
         return false;
     }
 
@@ -171,15 +174,23 @@ class CacheFile
         if (empty($id)) {
             return false;
         }
+
         $id = $this->cleanupId($id);
 
         $filename = $this->cachePath . $id . '.php';
+
         if (file_exists($filename)) {
             $this->opCacheInvalidate($filename);
             @unlink($filename);
             return true;
         }
+
         return false;
+    }
+
+    public function addOnDeleteCallback($onDeleteCallback)
+    {
+        self::$onDeleteCallback[] = $onDeleteCallback;
     }
 
     /**
@@ -193,14 +204,34 @@ class CacheFile
         };
 
         Filesystem::unlinkRecursive($this->cachePath, $deleteRootToo = false, $beforeUnlink);
+
+        if (!empty(self::$onDeleteCallback)) {
+            foreach (self::$onDeleteCallback as $callback) {
+                $callback();
+            }
+        }
     }
 
     public function opCacheInvalidate($filepath)
     {
-        if (function_exists('opcache_invalidate')
-            && is_file($filepath)
-        ) {
-            opcache_invalidate($filepath, $force = true);
+        if (is_file($filepath)) {
+            if (function_exists('opcache_invalidate')) {
+                @opcache_invalidate($filepath, $force = true);
+            }
+            if (function_exists('apc_delete_file')) {
+                @apc_delete_file($filepath);
+            }
         }
+    }
+
+    private function buildCacheLiteral($content)
+    {
+        $cache_literal  = "<" . "?php\n";
+        $cache_literal .= "$" . "content   = " . var_export($content, true) . ";\n";
+        $cache_literal .= "$" . "expires_on   = " . $this->getExpiresTime() . ";\n";
+        $cache_literal .= "$" . "cache_complete   = true;\n";
+        $cache_literal .= "?" . ">";
+
+        return $cache_literal;
     }
 }

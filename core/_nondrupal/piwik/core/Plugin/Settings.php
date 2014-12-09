@@ -17,12 +17,12 @@ use Piwik\SettingsServer;
 /**
  * Base class of all plugin settings providers. Plugins that define their own configuration settings
  * can extend this class to easily make their settings available to Piwik users.
- * 
+ *
  * Descendants of this class should implement the {@link init()} method and call the
  * {@link addSetting()} method for each of the plugin's settings.
- * 
+ *
  * For an example, see the {@link Piwik\Plugins\ExampleSettingsPlugin\ExampleSettingsPlugin} plugin.
- * 
+ *
  * @api
  */
 abstract class Settings implements StorageInterface
@@ -60,15 +60,31 @@ abstract class Settings implements StorageInterface
 
     /**
      * Constructor.
-     * 
-     * @param string $pluginName The name of the plugin these settings are for.
      */
-    public function __construct($pluginName)
+    public function __construct($pluginName = null)
     {
-        $this->pluginName = $pluginName;
+        if (!empty($pluginName)) {
+            $this->pluginName = $pluginName;
+        } else {
+
+            $classname    = get_class($this);
+            $parts        = explode('\\', $classname);
+
+            if (3 <= count($parts)) {
+                $this->pluginName = $parts[2];
+            }
+        }
 
         $this->init();
         $this->loadSettings();
+    }
+
+    /**
+     * @ignore
+     */
+    public function getPluginName()
+    {
+        return $this->pluginName;
     }
 
     /**
@@ -90,7 +106,7 @@ abstract class Settings implements StorageInterface
 
     /**
      * Returns the introduction text for this plugin's settings.
-     * 
+     *
      * @return string
      */
     public function getIntroduction()
@@ -109,11 +125,14 @@ abstract class Settings implements StorageInterface
             return $setting->isWritableByCurrentUser();
         });
 
-        uasort($settings, function ($setting1, $setting2) use ($settings) {
+        $settings2 = $settings;
+        
+        uasort($settings, function ($setting1, $setting2) use ($settings2) {
+
             /** @var Setting $setting1 */ /** @var Setting $setting2 */
             if ($setting1->getOrder() == $setting2->getOrder()) {
                 // preserve order for settings having same order
-                foreach ($settings as $setting) {
+                foreach ($settings2 as $setting) {
                     if ($setting1 === $setting) {
                         return -1;
                     }
@@ -148,6 +167,22 @@ abstract class Settings implements StorageInterface
     public function save()
     {
         Option::set($this->getOptionKey(), serialize($this->settingsValues));
+
+        $pluginName = $this->getPluginName();
+
+        /**
+         * Triggered after a plugin settings have been updated.
+         *
+         * **Example**
+         *
+         *     Piwik::addAction('Settings.MyPlugin.settingsUpdated', function (Settings $settings) {
+         *         $value = $settings->someSetting->getValue();
+         *         // Do something with the new setting value
+         *     });
+         *
+         * @param Settings $settings The plugin settings object.
+         */
+        Piwik::postEvent(sprintf('Settings.%s.settingsUpdated', $pluginName), array($this));
     }
 
     /**
@@ -187,7 +222,7 @@ abstract class Settings implements StorageInterface
     /**
      * Sets (overwrites) the value of a setting in memory. To persist the change, {@link save()} must be
      * called afterwards, otherwise the change has no effect.
-     * 
+     *
      * Before the setting is changed, the {@link Piwik\Settings\Setting::$validate} and
      * {@link Piwik\Settings\Setting::$transform} closures will be invoked (if defined). If there is no validation
      * filter, the setting value will be casted to the appropriate data type.

@@ -13,13 +13,13 @@ use Exception;
 
 /**
  * Singleton that provides read & write access to Piwik's INI configuration.
- * 
+ *
  * This class reads and writes to the `config/config.ini.php` file. If config
  * options are missing from that file, this class will look for their default
  * values in `config/global.ini.php`.
- * 
+ *
  * ### Examples
- * 
+ *
  * **Getting a value:**
  *
  *     // read the minimum_memory_limit option under the [General] section
@@ -30,13 +30,13 @@ use Exception;
  *     // set the minimum_memory_limit option
  *     Config::getInstance()->General['minimum_memory_limit'] = 256;
  *     Config::getInstance()->forceSave();
- * 
+ *
  * **Setting an entire section:**
- * 
+ *
  *     Config::getInstance()->MySection = array('myoption' => 1);
  *     Config::getInstance()->forceSave();
- * 
- * @method static \Piwik\Config getInstance()
+ *
+ * @method static Config getInstance()
  */
 class Config extends Singleton
 {
@@ -135,7 +135,6 @@ class Config extends Singleton
 
         // Ensure local mods do not affect tests
         if (empty($pathGlobal)) {
-            $this->configCache['log'] = $this->configGlobal['log'];
             $this->configCache['Debug'] = $this->configGlobal['Debug'];
             $this->configCache['mail'] = $this->configGlobal['mail'];
             $this->configCache['General'] = $this->configGlobal['General'];
@@ -143,6 +142,7 @@ class Config extends Singleton
             $this->configCache['Tracker'] = $this->configGlobal['Tracker'];
             $this->configCache['Deletelogs'] = $this->configGlobal['Deletelogs'];
             $this->configCache['Deletereports'] = $this->configGlobal['Deletereports'];
+            $this->configCache['Development'] = $this->configGlobal['Development'];
         }
 
         // for unit tests, we set that no plugin is installed. This will force
@@ -314,13 +314,13 @@ class Config extends Singleton
 
         // read defaults from global.ini.php
         if (!is_readable($this->pathGlobal) && $reportError) {
-            Piwik_ExitWithMessage(Piwik::translate('General_ExceptionConfigurationFileNotFound', array($this->pathGlobal)));
+            throw new Exception(Piwik::translate('General_ExceptionConfigurationFileNotFound', array($this->pathGlobal)));
         }
 
         $this->configGlobal = _parse_ini_file($this->pathGlobal, true);
 
         if (empty($this->configGlobal) && $reportError) {
-            Piwik_ExitWithMessage(Piwik::translate('General_ExceptionUnreadableFileDisabledMethod', array($this->pathGlobal, "parse_ini_file()")));
+            throw new Exception(Piwik::translate('General_ExceptionUnreadableFileDisabledMethod', array($this->pathGlobal, "parse_ini_file()")));
         }
 
         $this->configCommon = _parse_ini_file($this->pathCommon, true);
@@ -330,7 +330,7 @@ class Config extends Singleton
 
         $this->configLocal = _parse_ini_file($this->pathLocal, true);
         if (empty($this->configLocal) && $reportError) {
-            Piwik_ExitWithMessage(Piwik::translate('General_ExceptionUnreadableFileDisabledMethod', array($this->pathLocal, "parse_ini_file()")));
+            throw new Exception(Piwik::translate('General_ExceptionUnreadableFileDisabledMethod', array($this->pathLocal, "parse_ini_file()")));
         }
     }
 
@@ -382,7 +382,12 @@ class Config extends Singleton
                 $value = $this->encodeValues($value);
             }
         } else {
+            if (is_float($values)) {
+                $values = Common::forceDotAsSeparatorForDecimalPoint($values);
+            }
+
             $values = htmlentities($values, ENT_COMPAT, 'UTF-8');
+            $values = str_replace('$', '&#36;', $values);
         }
         return $values;
     }
@@ -415,9 +420,9 @@ class Config extends Singleton
 
         $section = $this->getFromGlobalConfig($name);
         $sectionCommon = $this->getFromCommonConfig($name);
-        if(empty($section) && !empty($sectionCommon)) {
+        if (empty($section) && !empty($sectionCommon)) {
             $section = $sectionCommon;
-        } elseif(!empty($section) && !empty($sectionCommon)) {
+        } elseif (!empty($section) && !empty($sectionCommon)) {
             $section = $this->array_merge_recursive_distinct($section, $sectionCommon);
         }
 
@@ -428,11 +433,11 @@ class Config extends Singleton
                 : $this->configLocal[$name];
         }
 
-        if ($section === null && $name = 'superuser') {
+        if ($section === null && $name == 'superuser') {
             $user = $this->getConfigSuperUserForBackwardCompatibility();
             return $user;
         } else if ($section === null) {
-            throw new Exception("Error while trying to read a specific config file entry <strong>'$name'</strong> from your configuration files.</b>If you just completed a Piwik upgrade, please check that the file config/global.ini.php was overwritten by the latest Piwik version.");
+            $section = array();
         }
 
         // cache merged section for later
@@ -458,6 +463,7 @@ class Config extends Singleton
                 $user['bridge'] = 1;
                 return $user;
             }
+
         } catch (Exception $e) {}
 
         return array();
@@ -558,7 +564,7 @@ class Config extends Singleton
         }
 
         // If there is a common.config.ini.php, this will ensure config.ini.php does not duplicate its values
-        if(!empty($configCommon)) {
+        if (!empty($configCommon)) {
             $configGlobal = $this->array_merge_recursive_distinct($configGlobal, $configCommon);
         }
 
@@ -634,7 +640,6 @@ class Config extends Singleton
         }
         return false;
     }
-
 
     /**
      * Write user configuration file
@@ -724,5 +729,4 @@ class Config extends Singleton
         }
         return $merged;
     }
-
 }

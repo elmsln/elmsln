@@ -17,8 +17,8 @@ use Piwik\DataTable\BaseFilter;
  */
 class RangeCheck extends BaseFilter
 {
-    static public $minimumValue = 0.00;
-    static public $maximumValue = 100.0;
+    public static $minimumValue = 0.00;
+    public static $maximumValue = 100.0;
 
     /**
      * @param DataTable $table
@@ -32,7 +32,7 @@ class RangeCheck extends BaseFilter
 
         $this->columnToFilter = $columnToFilter;
 
-        if ($minimumValue < $maximumValue) {
+        if ((float) $minimumValue < (float) $maximumValue) {
             self::$minimumValue = $minimumValue;
             self::$maximumValue = $maximumValue;
         }
@@ -48,9 +48,9 @@ class RangeCheck extends BaseFilter
         foreach ($table->getRows() as $row) {
             $value = $row->getColumn($this->columnToFilter);
             if ($value !== false) {
-                if ($value < self::$minimumValue) {
+                if ($value < (float) self::$minimumValue) {
                     $row->setColumn($this->columnToFilter, self::$minimumValue);
-                } elseif ($value > self::$maximumValue) {
+                } elseif ($value > (float) self::$maximumValue) {
                     $row->setColumn($this->columnToFilter, self::$maximumValue);
                 }
             }

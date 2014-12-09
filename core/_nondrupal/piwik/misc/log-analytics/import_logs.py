@@ -47,13 +47,6 @@ except ImportError:
             print >> sys.stderr, 'simplejson (http://pypi.python.org/pypi/simplejson/) is required.'
             sys.exit(1)
 
-try:
-    from collections import OrderedDict
-except ImportError:
-    try:
-        from ordereddict import OrderedDict
-    except ImportError:
-        pass
 
 
 ##
@@ -64,15 +57,13 @@ STATIC_EXTENSIONS = set((
     'gif jpg jpeg png bmp ico svg ttf eot woff class swf css js xml robots.txt'
 ).split())
 
-
 DOWNLOAD_EXTENSIONS = set((
-    '7z aac arc arj asf asx avi bin csv deb dmg doc exe flv gz gzip hqx '
+    '7z aac arc arj asf asx avi bin csv deb dmg doc docx exe flv gz gzip hqx '
     'jar mpg mp2 mp3 mp4 mpeg mov movie msi msp odb odf odg odp '
-    'ods odt ogg ogv pdf phps ppt qt qtm ra ram rar rpm sea sit tar tbz '
-    'bz2 tbz tgz torrent txt wav wma wmv wpd xls xml xsd z zip '
-    'azw3 epub mobi'
+    'ods odt ogg ogv pdf phps ppt pptx qt qtm ra ram rar rpm sea sit tar tbz '
+    'bz2 tbz tgz torrent txt wav wma wmv wpd xls xlsx xml xsd z zip '
+    'azw3 epub mobi apk'
 ).split())
-
 
 # A good source is: http://phpbb-bots.blogspot.com/
 EXCLUDED_USER_AGENTS = (
@@ -104,15 +95,12 @@ EXCLUDED_USER_AGENTS = (
     'yandex',
 )
 
-
 PIWIK_MAX_ATTEMPTS = 3
 PIWIK_DELAY_AFTER_FAILURE = 2
 
 PIWIK_EXPECTED_IMAGE = base64.b64decode(
     'R0lGODlhAQABAIAAAAAAAAAAACH5BAEAAAAALAAAAAABAAEAAAICRAEAOw=='
 )
-
-
 
 ##
 ## Formats.
@@ -134,13 +122,12 @@ class BaseFormat(object):
     def check_format_line(self, line):
         return False
 
-
 class JsonFormat(BaseFormat):
     def __init__(self, name):
         super(JsonFormat, self).__init__(name)
         self.json = None
         self.date_format = '%Y-%m-%dT%H:%M:%S'
-    
+
     def check_format_line(self, line):
         try:
             self.json = json.loads(line)
@@ -160,7 +147,7 @@ class JsonFormat(BaseFormat):
         # Some ugly patchs ...
         if key == 'generation_time_milli':
             self.json[key] =  int(self.json[key] * 1000)
-        # Patch date format ISO 8601 
+        # Patch date format ISO 8601
         elif key == 'date':
             tz = self.json[key][19:]
             self.json['timezone'] = tz.replace(':', '')
@@ -170,11 +157,9 @@ class JsonFormat(BaseFormat):
             return self.json[key]
         except KeyError:
             raise BaseFormatException()
-    
+
     def get_all(self,):
         return self.json
-
-
 
 class RegexFormat(BaseFormat):
 
@@ -201,9 +186,6 @@ class RegexFormat(BaseFormat):
 
     def get_all(self,):
         return self.matched.groupdict()
-            
-
-
 
 class IisFormat(RegexFormat):
 
@@ -248,8 +230,6 @@ class IisFormat(RegexFormat):
         file.seek(start_pos)
         return self.check_format_line(nextline)
 
-
-
 _HOST_PREFIX = '(?P<host>[\w\-\.]*)(?::\d+)? '
 _COMMON_LOG_FORMAT = (
     '(?P<ip>\S+) \S+ \S+ \[(?P<date>.*?) (?P<timezone>.*?)\] '
@@ -278,13 +258,9 @@ FORMATS = {
     'nginx_json': JsonFormat('nginx_json'),
 }
 
-
-
-
 ##
 ## Code.
 ##
-
 
 class Configuration(object):
     """
@@ -384,11 +360,11 @@ class Configuration(object):
         )
         option_parser.add_option(
             '--exclude-path', dest='excluded_paths', action='append', default=[],
-            help="Paths to exclude. Can be specified multiple times"
+            help="Any URL path matching this exclude-path will not be imported in Piwik. Can be specified multiple times"
         )
         option_parser.add_option(
             '--exclude-path-from', dest='exclude_path_from',
-            help="Each line from this file is a path to exclude"
+            help="Each line from this file is a path to exclude (see: --exclude-path)"
         )
         option_parser.add_option(
             '--include-path', dest='included_paths', action='append', default=[],
@@ -407,7 +383,7 @@ class Configuration(object):
         option_parser.add_option(
             '--enable-static', dest='enable_static',
             action='store_true', default=False,
-            help="Track static files (images, css, js, etc.)"
+            help="Track static files (images, css, js, ico, ttf, etc.)"
         )
         option_parser.add_option(
             '--enable-bots', dest='enable_bots',
@@ -505,8 +481,11 @@ class Configuration(object):
             '--enable-testmode', dest='enable_testmode', default=False, action='store_true',
             help="If set, it will try to get the token_auth from the piwik_tests directory"
         )
+        option_parser.add_option(
+            '--download-extensions', dest='download_extensions', default=None,
+            help="By default Piwik tracks as Downloads the most popular file extensions. If you set this parameter (format: pdf,doc,...) then files with an extension found in the list will be imported as Downloads, other file extensions downloads will be skipped."
+        )
         return option_parser
-
 
     def _parse_args(self, option_parser):
         """
@@ -575,10 +554,13 @@ class Configuration(object):
         if self.options.recorders < 1:
             self.options.recorders = 1
 
+        if self.options.download_extensions:
+            self.options.download_extensions = set(self.options.download_extensions.split(','))
+        else:
+            self.options.download_extensions = DOWNLOAD_EXTENSIONS
 
     def __init__(self):
         self._parse_args(self._create_parser())
-
 
     def _get_token_auth(self):
         """
@@ -644,10 +626,12 @@ class Configuration(object):
                 except:
                     fatal_error("We couldn't detect PHP. You can run the importer using the --login and --password option to fix this issue")
 
-
             command = [phpBinary, updatetokenfile]
             if self.options.enable_testmode:
                 command.append('--testmode')
+
+            hostname = urlparse.urlparse( self.options.piwik_url ).hostname
+            command.append('--piwik-domain=' + hostname )
 
             command = subprocess.list2cmdline(command)
             process = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
@@ -655,12 +639,10 @@ class Configuration(object):
             if process.returncode != 0:
                 fatal_error("`" + command + "` failed with error: " + stderr + ".\nReponse code was: " + str(process.returncode) + ". You can alternatively run the importer using the --login and --password option")
 
-
             filename = stdout
             credentials = open(filename, 'r').readline()
             credentials = credentials.split('\t')
             return credentials[1]
-
 
     def get_resolver(self):
         if self.options.site_id:
@@ -669,8 +651,6 @@ class Configuration(object):
         else:
             logging.debug('Resolver: dynamic')
             return DynamicResolver()
-
-
 
 class Statistics(object):
     """
@@ -699,7 +679,6 @@ class Statistics(object):
         def __str__(self):
             return str(int(self.value))
 
-
     def __init__(self):
         self.time_start = None
         self.time_stop = None
@@ -727,11 +706,12 @@ class Statistics(object):
         self.count_lines_skipped_http_redirects = self.Counter()
         # Downloads
         self.count_lines_downloads = self.Counter()
+        # Ignored downloads when --download-extensions is used
+        self.count_lines_skipped_downloads = self.Counter()
 
         # Misc
         self.dates_recorded = set()
         self.monitor_stop = False
-
 
     def set_time_start(self):
         self.time_start = time.time()
@@ -773,13 +753,14 @@ Logs import summary
     %(count_lines_recorded)d requests imported successfully
     %(count_lines_downloads)d requests were downloads
     %(total_lines_ignored)d requests ignored:
-        %(count_lines_invalid)d invalid log lines
-        %(count_lines_skipped_user_agent)d requests done by bots, search engines, ...
         %(count_lines_skipped_http_errors)d HTTP errors
         %(count_lines_skipped_http_redirects)d HTTP redirects
-        %(count_lines_static)d requests to static resources (css, js, ...)
+        %(count_lines_invalid)d invalid log lines
         %(count_lines_no_site)d requests did not match any known site
-        %(count_lines_hostname_skipped)d requests did not match any requested hostname
+        %(count_lines_hostname_skipped)d requests did not match any --hostname
+        %(count_lines_skipped_user_agent)d requests done by bots, search engines...
+        %(count_lines_static)d requests to static resources (css, js, images, ico, ttf...)
+        %(count_lines_skipped_downloads)d requests to file downloads did not match any --download-extensions
 
 Website import summary
 ----------------------
@@ -807,6 +788,7 @@ Performance summary
             self.count_lines_skipped_http_errors.value,
             self.count_lines_skipped_http_redirects.value,
             self.count_lines_static.value,
+            self.count_lines_skipped_downloads.value,
             self.count_lines_no_site.value,
             self.count_lines_hostname_skipped.value,
         ]),
@@ -815,6 +797,7 @@ Performance summary
     'count_lines_skipped_http_errors': self.count_lines_skipped_http_errors.value,
     'count_lines_skipped_http_redirects': self.count_lines_skipped_http_redirects.value,
     'count_lines_static': self.count_lines_static.value,
+    'count_lines_skipped_downloads': self.count_lines_skipped_downloads.value,
     'count_lines_no_site': self.count_lines_no_site.value,
     'count_lines_hostname_skipped': self.count_lines_hostname_skipped.value,
     'total_sites': len(self.piwik_sites),
@@ -848,7 +831,6 @@ Performance summary
         )),
 }
 
-
     ##
     ## The monitor is a thread that prints a short summary each second.
     ##
@@ -874,8 +856,6 @@ Performance summary
 
     def stop_monitor(self):
         self.monitor_stop = True
-
-
 
 class Piwik(object):
     """
@@ -917,7 +897,7 @@ class Piwik(object):
         """
         args = {
             'module' : 'API',
-            'format' : 'json',
+            'format' : 'json2',
             'method' : method,
         }
         # token_auth, by default, is taken from config.
@@ -933,7 +913,7 @@ class Piwik(object):
             args.update(kwargs)
 
         # Convert lists into appropriate format.
-        # See: http://dev.piwik.org/trac/wiki/API/Reference#PassinganArrayParameter
+        # See: http://developer.piwik.org/api-reference/reporting-api#passing-an-array-of-data-as-a-parameter
         # Warning: we have to pass the parameters in order: foo[0], foo[1], foo[2]
         # and not foo[1], foo[0], foo[2] (it will break Piwik otherwise.)
         final_args = []
@@ -949,7 +929,6 @@ class Piwik(object):
         except ValueError:
             truncate_after = 4000
             raise urllib2.URLError('Piwik returned an invalid response: ' + res[:truncate_after])
-
 
     @staticmethod
     def _call_wrapper(func, expected_response, on_failure, *args, **kwargs):
@@ -994,7 +973,6 @@ class Piwik(object):
     def call_api(cls, method, **kwargs):
         return cls._call_wrapper(cls._call_api, None, None, method, **kwargs)
 
-
 ##
 ## Resolvers.
 ##
@@ -1009,17 +987,9 @@ class StaticResolver(object):
     def __init__(self, site_id):
         self.site_id = site_id
         # Go get the main URL
-        sites = piwik.call_api(
+        site = piwik.call_api(
             'SitesManager.getSiteFromId', idSite=self.site_id
         )
-        try:
-            site = sites[0]
-        except (IndexError, KeyError):
-            logging.debug('response for SitesManager.getSiteFromId: %s', str(sites))
-
-            fatal_error(
-                "cannot get the main URL of this site: invalid site ID: %s" % site_id
-            )
         if site.get('result') == 'error':
             fatal_error(
                 "cannot get the main URL of this site: %s" % site.get('message')
@@ -1032,7 +1002,6 @@ class StaticResolver(object):
 
     def check_format(self, format):
         pass
-
 
 class DynamicResolver(object):
     """
@@ -1144,7 +1113,6 @@ class DynamicResolver(object):
         else:
             return self._resolve_by_host(hit)
 
-
     def check_format(self, format):
         if config.options.replay_tracking:
             pass
@@ -1153,9 +1121,6 @@ class DynamicResolver(object):
                 "the selected log format doesn't include the hostname: you must "
                 "specify the Piwik site ID with the --idsite argument"
             )
-
-
-
 
 class Recorder(object):
     """
@@ -1197,7 +1162,7 @@ class Recorder(object):
         # We have to do this so visits from the same IP will be added in the right order.
         hits_by_client = [[] for r in cls.recorders]
         for hit in all_hits:
-            hits_by_client[abs(hash(hit.ip)) % len(cls.recorders)].append(hit)
+            hits_by_client[hit.get_visitor_id_hash() % len(cls.recorders)].append(hit)
 
         for i, recorder in enumerate(cls.recorders):
             recorder.queue.put(hits_by_client[i])
@@ -1371,9 +1336,8 @@ class Recorder(object):
                 idSites=','.join(str(site_id) for site_id in stats.piwik_sites),
             )
             print('\nTo re-process these reports with your newly imported data, execute the following command: \n'
-                  '$ /path/to/piwik/console core:archive --url=http://example/piwik/\n'
+                  '$ /path/to/piwik/console core:archive --url=http://example/piwik --force-all-websites --force-all-periods=315576000 --force-date-last-n=1000'
                   '\nReference: http://piwik.org/docs/setup-auto-archiving/ ')
-
 
 class Hit(object):
     """
@@ -1387,6 +1351,16 @@ class Hit(object):
         if config.options.force_lowercase_path:
             self.full_path = self.full_path.lower()
 
+    def get_visitor_id_hash(self):
+        visitor_id = self.ip
+
+        if config.options.replay_tracking:
+            for param_name_to_use in ['uid', 'cid', '_id', 'cip']:
+                if param_name_to_use in self.args:
+                    visitor_id = self.args[param_name_to_use]
+                    break
+
+        return abs(hash(visitor_id))
 
 class Parser(object):
     """
@@ -1398,7 +1372,6 @@ class Parser(object):
         self.check_methods = [method for name, method
                               in inspect.getmembers(self, predicate=inspect.ismethod)
                               if name.startswith('check_')]
-
 
     ## All check_* methods are called for each hit and must return True if the
     ## hit can be imported, False otherwise.
@@ -1428,9 +1401,15 @@ class Parser(object):
         return True
 
     def check_download(self, hit):
-        if hit.extension in DOWNLOAD_EXTENSIONS:
+        if hit.extension in config.options.download_extensions:
             stats.count_lines_downloads.increment()
             hit.is_download = True
+            return True
+        # the file is not in the white-listed downloads
+        # if it's a know download file, we shall skip it
+        elif hit.extension in DOWNLOAD_EXTENSIONS:
+            stats.count_lines_skipped_downloads.increment()
+            return False
         return True
 
     def check_user_agent(self, hit):
@@ -1503,12 +1482,12 @@ class Parser(object):
                     if format_groups < match_groups:
                         format = candidate_format
                         format_groups = match_groups
-                except AttributeError: 
+                except AttributeError:
                     format = candidate_format
 
             else:
                 logging.debug('Format %s does not match', name)
-        
+
         return format
 
     @staticmethod
@@ -1597,10 +1576,6 @@ class Parser(object):
         resolver.check_format(format)
 
         hits = []
-        try:
-            cache_dates = OrderedDict()
-        except NameError:
-            cache_dates = None
         for lineno, line in enumerate(file):
             try:
                 line = line.decode(config.options.encoding)
@@ -1626,7 +1601,6 @@ class Parser(object):
                 is_robot=False,
                 is_error=False,
                 is_redirect=False,
-                date=None,
                 args={},
             )
 
@@ -1681,38 +1655,24 @@ class Parser(object):
             # Parse date.
             # We parse it after calling check_methods as it's quite CPU hungry, and
             # we want to avoid that cost for excluded hits.
-            if cache_dates is not None:
-                # To mitigate CPU usage, parsed dates are cached.
-                try:
-                    timezone_key = format.get('timezone')
-                except BaseFormatException:
-                    timezone_key = ''
-                date_key = (format.get('date'), timezone_key)
-                hit.date = cache_dates.get(date_key)
-            if not hit.date:
-                date_string = format.get('date')
-                try:
-                    hit.date = datetime.datetime.strptime(date_string, format.date_format)
-                except ValueError:
-                    invalid_line(line, 'invalid date')
-                    continue
+            date_string = format.get('date')
+            try:
+                hit.date = datetime.datetime.strptime(date_string, format.date_format)
+            except ValueError:
+                invalid_line(line, 'invalid date')
+                continue
 
-                # Parse timezone and substract its value from the date
-                try:
-                    timezone = float(format.get('timezone'))
-                except BaseFormatException:
-                    timezone = 0
-                except ValueError:
-                    invalid_line(line, 'invalid timezone')
-                    continue
+            # Parse timezone and substract its value from the date
+            try:
+                timezone = float(format.get('timezone'))
+            except BaseFormatException:
+                timezone = 0
+            except ValueError:
+                invalid_line(line, 'invalid timezone')
+                continue
 
-                if timezone:
-                    hit.date -= datetime.timedelta(hours=timezone/100)
-
-                if cache_dates is not None:
-                    if len(cache_dates) > 3600:
-                        cache_dates.popitem(False)
-                    cache_dates[date_key] = hit.date
+            if timezone:
+                hit.date -= datetime.timedelta(hours=timezone/100)
 
             if config.options.replay_tracking:
                 # we need a query string and we only consider requests with piwik.php
@@ -1740,9 +1700,6 @@ class Parser(object):
         # add last chunk of hits
         if len(hits) > 0:
             Recorder.add_hits(hits)
-
-
-
 
 def main():
     """
@@ -1774,8 +1731,6 @@ def main():
         pass
     stats.print_summary()
 
-
-
 def fatal_error(error, filename=None, lineno=None):
     print >> sys.stderr, 'Fatal error: %s' % error
     if filename and lineno is not None:
@@ -1784,7 +1739,6 @@ def fatal_error(error, filename=None, lineno=None):
             'specifying --skip=%d on the command line.\n' % (filename, lineno)
         )
     os._exit(1)
-
 
 if __name__ == '__main__':
     try:

@@ -8,6 +8,7 @@
  */
 namespace Piwik\Plugins\PrivacyManager;
 
+use HTML_QuickForm2_DataSource_Array;
 use Piwik\Common;
 use Piwik\Config as PiwikConfig;
 use Piwik\DataTable\DataTableInterface;
@@ -17,10 +18,12 @@ use Piwik\Metrics;
 use Piwik\Option;
 use Piwik\Period;
 use Piwik\Period\Range;
+use Piwik\Piwik;
+use Piwik\Plugin;
 use Piwik\Plugins\Goals\Archiver;
+use Piwik\Plugins\Installation\FormDefaultSettings;
 use Piwik\Site;
 use Piwik\Tracker\GoalManager;
-
 
 require_once PIWIK_INCLUDE_PATH . '/plugins/PrivacyManager/LogDataPurger.php';
 require_once PIWIK_INCLUDE_PATH . '/plugins/PrivacyManager/ReportsPurger.php';
@@ -33,7 +36,7 @@ require_once PIWIK_INCLUDE_PATH . '/plugins/PrivacyManager/IPAnonymizer.php';
 
 /**
  */
-class PrivacyManager extends \Piwik\Plugin
+class PrivacyManager extends Plugin
 {
     const OPTION_LAST_DELETE_PIWIK_LOGS = "lastDelete_piwik_logs";
     const OPTION_LAST_DELETE_PIWIK_REPORTS = 'lastDelete_piwik_reports';
@@ -134,10 +137,12 @@ class PrivacyManager extends \Piwik\Plugin
     public function getListHooksRegistered()
     {
         return array(
-            'AssetManager.getJavaScriptFiles' => 'getJsFiles',
-            'Tracker.setTrackerCacheGeneral'  => 'setTrackerCacheGeneral',
-            'Tracker.isExcludedVisit'         => array($this->dntChecker, 'checkHeaderInTracker'),
-            'Tracker.setVisitorIp'            => array($this->ipAnonymizer, 'setVisitorIpAddress'),
+            'AssetManager.getJavaScriptFiles'         => 'getJsFiles',
+            'Tracker.setTrackerCacheGeneral'          => 'setTrackerCacheGeneral',
+            'Tracker.isExcludedVisit'                 => array($this->dntChecker, 'checkHeaderInTracker'),
+            'Tracker.setVisitorIp'                    => array($this->ipAnonymizer, 'setVisitorIpAddress'),
+            'Installation.defaultSettingsForm.init'   => 'installationFormInit',
+            'Installation.defaultSettingsForm.submit' => 'installationFormSubmit',
         );
     }
 
@@ -150,6 +155,53 @@ class PrivacyManager extends \Piwik\Plugin
     public function getJsFiles(&$jsFiles)
     {
         $jsFiles[] = "plugins/PrivacyManager/javascripts/privacySettings.js";
+    }
+
+    /**
+     * Customize the Installation "default settings" form.
+     *
+     * @param FormDefaultSettings $form
+     */
+    public function installationFormInit(FormDefaultSettings $form)
+    {
+        $form->addElement('checkbox', 'do_not_track', null,
+            array(
+                'content' => '&nbsp;&nbsp;' . Piwik::translate('PrivacyManager_DoNotTrack_Enable') . '<br>'
+                    . Piwik::translate('PrivacyManager_DoNotTrack_EnabledMoreInfo'),
+            ));
+        $form->addElement('checkbox', 'anonymise_ip', null,
+            array(
+                'content' => '&nbsp;&nbsp;' . Piwik::translate('PrivacyManager_AnonymizeIpInlineHelp') . '<br>'
+                    . Piwik::translate('PrivacyManager_AnonymizeIpExtendedHelp', array('213.34.51.91', '213.34.0.0')),
+            ));
+
+        // default values
+        $form->addDataSource(new HTML_QuickForm2_DataSource_Array(array(
+            'do_not_track' => DoNotTrackHeaderChecker::isActive(),
+            'anonymise_ip' => IPAnonymizer::isActive(),
+        )));
+    }
+
+    /**
+     * Process the submit on the Installation "default settings" form.
+     *
+     * @param FormDefaultSettings $form
+     */
+    public function installationFormSubmit(FormDefaultSettings $form)
+    {
+        $doNotTrack = (bool) $form->getSubmitValue('do_not_track');
+        if ($doNotTrack) {
+            DoNotTrackHeaderChecker::activate();
+        } else {
+            DoNotTrackHeaderChecker::deactivate();
+        }
+
+        $anonymiseIp = (bool) $form->getSubmitValue('anonymise_ip');
+        if ($anonymiseIp) {
+            IPAnonymizer::activate();
+        } else {
+            IPAnonymizer::deactivate();
+        }
     }
 
     /**
@@ -352,7 +404,7 @@ class PrivacyManager extends \Piwik\Plugin
      */
     private static function getMetricsToKeep()
     {
-        return array('nb_uniq_visitors', 'nb_visits', 'nb_actions', 'max_actions',
+        return array('nb_uniq_visitors', 'nb_visits', 'nb_users', 'nb_actions', 'max_actions',
                      'sum_visit_length', 'bounce_count', 'nb_visits_converted', 'nb_conversions',
                      'revenue', 'quantity', 'price', 'orders');
     }

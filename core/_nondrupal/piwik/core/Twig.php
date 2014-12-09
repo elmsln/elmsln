@@ -10,7 +10,6 @@ namespace Piwik;
 
 use Exception;
 use Piwik\DataTable\Filter\SafeDecodeLabel;
-use Piwik\Period\Range;
 use Piwik\Translate;
 use Piwik\View\RenderTokenParser;
 use Piwik\Visualization\Sparkline;
@@ -44,9 +43,9 @@ class Twig
 		$manager = Plugin\Manager::getInstance();
 		$theme   = $manager->getThemeEnabled();
 		$loaders = array();
-		
+
 		//create loader for custom theme to overwrite twig templates
-		if($theme && $theme->getPluginName() != \Piwik\Plugin\Manager::DEFAULT_THEME) {
+		if ($theme && $theme->getPluginName() != \Piwik\Plugin\Manager::DEFAULT_THEME) {
 			$customLoader = $this->getCustomThemeLoader($theme);
 			if ($customLoader) {
 				//make it possible to overwrite plugin templates
@@ -56,7 +55,7 @@ class Twig
 		}
 
 		$loaders[] = $loader;
-        
+
         $chainLoader = new Twig_Loader_Chain($loaders);
 
         // Create new Twig Environment and set cache dir
@@ -187,7 +186,7 @@ class Twig
 	 * @return \Twig_Loader_Filesystem
 	 */
 	protected function getCustomThemeLoader(Plugin $theme){
-		if(!file_exists(sprintf("%s/plugins/%s/templates/", PIWIK_INCLUDE_PATH, $theme->getPluginName()))){
+		if (!file_exists(sprintf("%s/plugins/%s/templates/", PIWIK_INCLUDE_PATH, $theme->getPluginName()))){
 			return false;
 		}
 		$themeLoader = new Twig_Loader_Filesystem(array(
@@ -245,7 +244,7 @@ class Twig
     protected function addFilter_prettyDate()
     {
         $prettyDate = new Twig_SimpleFilter('prettyDate', function ($dateString, $period) {
-            return Range::factory($period, $dateString)->getLocalizedShortString();
+            return Period\Factory::build($period, $dateString)->getLocalizedShortString();
         });
         $this->twig->addFilter($prettyDate);
     }

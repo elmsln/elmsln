@@ -8,6 +8,7 @@
  */
 namespace Piwik\Plugins\SegmentEditor;
 
+use Piwik\Config;
 use Piwik\Db;
 use Piwik\DbHelper;
 use Piwik\Version;
@@ -66,27 +67,17 @@ class SegmentEditor extends \Piwik\Plugin
     {
         $model = new Model();
         $segmentToAutoArchive = $model->getSegmentsToAutoArchive($idSite);
+
         foreach ($segmentToAutoArchive as $segmentInfo) {
             $segments[] = $segmentInfo['definition'];
         }
+
         $segments = array_unique($segments);
     }
 
     public function install()
     {
-        $segmentTable = "`idsegment` INT(11) NOT NULL AUTO_INCREMENT,
-					     `name` VARCHAR(255) NOT NULL,
-					     `definition` TEXT NOT NULL,
-					     `login` VARCHAR(100) NOT NULL,
-					     `enable_all_users` tinyint(4) NOT NULL default 0,
-					     `enable_only_idsite` INTEGER(11) NULL,
-					     `auto_archive` tinyint(4) NOT NULL default 0,
-					     `ts_created` TIMESTAMP NULL,
-					     `ts_last_edit` TIMESTAMP NULL,
-					     `deleted` tinyint(4) NOT NULL default 0,
-					     PRIMARY KEY (`idsegment`)";
-
-        DbHelper::createTable('segment', $segmentTable);
+        Model::install();
     }
 
     public function getJsFiles(&$jsFiles)
@@ -97,5 +88,15 @@ class SegmentEditor extends \Piwik\Plugin
     public function getStylesheetFiles(&$stylesheets)
     {
         $stylesheets[] = "plugins/SegmentEditor/stylesheets/segmentation.less";
+    }
+
+    /**
+     * Returns whether adding segments for all websites is enabled or not.
+     *
+     * @return bool
+     */
+    public static function isAddingSegmentsForAllWebsitesEnabled()
+    {
+        return Config::getInstance()->General['allow_adding_segments_for_all_websites'] == 1;
     }
 }

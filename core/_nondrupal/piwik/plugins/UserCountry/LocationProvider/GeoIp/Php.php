@@ -8,7 +8,6 @@
  */
 namespace Piwik\Plugins\UserCountry\LocationProvider\GeoIp;
 
-
 use Piwik\Log;
 use Piwik\Piwik;
 use Piwik\Plugins\UserCountry\LocationProvider\GeoIp;
@@ -136,7 +135,7 @@ class Php extends GeoIp
         }
 
         // NOTE: ISP & ORG require commercial dbs to test. this code has been tested manually,
-        // but not by integration tests.
+        // but not by system tests.
         $ispGeoIp = $this->getGeoIpInstance($key = 'isp');
         if ($ispGeoIp) {
             $isp = geoip_org_by_addr($ispGeoIp, $ip);

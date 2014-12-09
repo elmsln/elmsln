@@ -116,7 +116,7 @@ table.entityTable tr td a:hover {
                                 color: @theme-color-menu-contrast-textActive;
                                 font-weight: normal;
                             }
-               
+
                         }
                     }
                 }
@@ -223,19 +223,10 @@ table.entityTable tr td a:hover {
   padding: 8px 10px 8px 10px;
   .border-radius(0px);
   .segmentationTitle {
-    background: none;
+    background: url(plugins/Morpheus/images/segment-users.png) no-repeat right 0;
     text-transform: uppercase;
     .font-default(10px, 12px);
     position: relative;
-    &:after {
-      content: '';
-      border-left: 4px solid transparent;
-      border-right: 4px solid transparent;
-      border-top: 5px solid @theme-color-brand;
-      position: absolute;
-      top: 3px;
-      right: 0;
-    }
   }
   .dropdown-body {
     background:#fff;
@@ -449,7 +440,7 @@ table.dataTable {
           background-color: #fff !important;
         }
     }
-  
+
     &.entityTable tr {
         td  {
             background-color: #fff !important;
@@ -463,6 +454,28 @@ table.dataTable {
     &.dataTableVizVisitorLog {
 
     }
+}
+
+div.dataTableVizHtmlTable:not(.dataTableActions) {
+  tr.subDataTable > td:first-child:before {
+    display: inline-block;
+    float: left;
+    top: 0;
+    width: 12px;
+    height: 12px;
+    margin-left:-.5em;
+    margin-top:4px;
+    margin-right:8px;
+    content: '';
+  }
+
+  tr.subDataTable:not(.expanded) > td:first-child:before {
+    background-image: url(plugins/Morpheus/images/plus.png);
+  }
+
+  tr.subDataTable.expanded > td:first-child:before {
+    background-image: url(plugins/Morpheus/images/minus.png);
+  }
 }
 
 table.dataTable tr.subDataTable:hover > td, table.dataTable tr.subDataTable:hover > td .dataTableRowActions {
@@ -484,12 +497,8 @@ table.dataTable .dataTableRowActions {
 }
 
 .dataTableFooterIcons {
-  padding: 6px 8px;
+  padding: 6px 8px 0px;
   border-top: 1px solid @color-silver-l80;
-}
-
-#content .dataTableFooterIcons {
-    padding: 6px 8px 0px;
 }
 
 div.sparkline {
@@ -528,7 +537,6 @@ div.sparkline {
 .UserCountryMap-info-btn {
     z-index: 1;
 }
-
 
 .widget {
     background: @theme-color-background-base;
@@ -582,8 +590,8 @@ div.sparkline {
         .border-radius(0px);
         border: 0px;
         margin-left: 0;
-        padding: 8px 10px;  
-        min-height: 30px;  
+        padding: 8px 10px;
+        min-height: 30px;
         .box-sizing(border-box);
         border: 1px solid @color-silver-l80;
         .opacity(1);
@@ -676,7 +684,6 @@ div.sparkline {
                 margin-bottom: 12px;
             }
 
-
             ol {
                 background: #fff !important;
                 border-top: 0 !important;
@@ -691,7 +698,7 @@ div.sparkline {
                 }
             }
         }
-    } 
+    }
 }
 
 .visitor-profile-visit-title-row {
@@ -706,7 +713,6 @@ div.sparkline {
     min-width: 100% !important;
 }
 
-
 .visitor-profile {
     background: none;
     .box-shadow(none);
@@ -716,7 +722,7 @@ div.sparkline {
         .border-radius(0px);
         border: 0px;
         .box-shadow(none) !important;
-        
+
         > div {
             border: 0px !important;
         }
@@ -757,7 +763,6 @@ div.sparkline {
         }
     }
 
-
     .visitor-profile-avatar {
        ul {
         width: 100% !important;
@@ -786,9 +791,9 @@ div.sparkline {
                         margin-right: 5px;
                     }
                 }
-            } 
-        } 
-    }  
+            }
+        }
+    }
 
     .visitor-profile-avatar > div:nth-child(2n) {
         width: 376px;
@@ -798,7 +803,7 @@ div.sparkline {
         .visitor-profile-latest-visit-column {
             display: inline-block;
             margin-left: 0;
-        }      
+        }
 
         .visitor-profile-latest-visit-column:first-child {
             width: 50%;
@@ -855,7 +860,6 @@ div.sparkline {
     padding: 5px !important;
 }
 
-
 #piwik-promo-share {
     border: 0px;
     background: #f2f2f2;
@@ -877,13 +881,6 @@ table#users {
     }
 }
 
-table#editSites {
-    .editSite:hover > span,
-    .deleteSite:hover > span {
-        text-decoration: underline;
-    }
-}
-
 // previous style overrides
 #header_message a {
     text-decoration: underline;
@@ -892,7 +889,6 @@ table#editSites {
 #header_message a:hover {
     text-decoration: none;
 }
-
 
 #multisites table.dataTable {
     thead tr th {

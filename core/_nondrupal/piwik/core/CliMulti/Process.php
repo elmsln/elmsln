@@ -24,6 +24,7 @@ class Process
     private $pidFile = '';
     private $timeCreation = null;
     private $isSupported = null;
+    private $pid = null;
 
     public function __construct($pid)
     {
@@ -37,8 +38,14 @@ class Process
         $this->isSupported  = self::isSupported();
         $this->pidFile      = $pidDir . '/' . $pid . '.pid';
         $this->timeCreation = time();
+        $this->pid = $pid;
 
         $this->markAsNotStarted();
+    }
+
+    public function getPid()
+    {
+        return $this->pid;
     }
 
     private function markAsNotStarted()
@@ -97,6 +104,11 @@ class Process
             return false;
         }
 
+        if (!$this->pidFileSizeIsNormal()) {
+            $this->finishProcess();
+            return false;
+        }
+
         if ($this->isProcessStillRunning($content)) {
             return true;
         }
@@ -106,6 +118,13 @@ class Process
         }
 
         return false;
+    }
+
+    private function pidFileSizeIsNormal()
+    {
+        $size = Filesystem::getFileSize($this->pidFile);
+
+        return $size !== null && $size < 500;
     }
 
     public function finishProcess()
@@ -125,7 +144,7 @@ class Process
         }
 
         $lockedPID   = trim($content);
-        $runningPIDs = explode("\n", trim( `ps -e | awk '{print $1}'` ));
+        $runningPIDs = explode("\n", trim( `ps ex | awk '{print $1}'` ));
 
         return !empty($lockedPID) && in_array($lockedPID, $runningPIDs);
     }
@@ -154,7 +173,7 @@ class Process
             return false;
         }
 
-        if(!self::isProcFSMounted()) {
+        if (!self::isProcFSMounted()) {
             return false;
         }
 
@@ -167,8 +186,13 @@ class Process
 
     private static function isSystemNotSupported()
     {
-        $uname = shell_exec('uname -a');
-        if(strpos($uname, 'synology') !== false) {
+        $uname = @shell_exec('uname -a');
+
+        if (empty($uname)) {
+            $uname = php_uname();
+        }
+
+        if (strpos($uname, 'synology') !== false) {
             return true;
         }
         return false;
@@ -201,8 +225,15 @@ class Process
      * ps -e requires /proc
      * @return bool
      */
-    private static function isProcFSMounted() 
+    private static function isProcFSMounted()
     {
-        return is_resource(@fopen('/proc', 'r'));
+        if (is_resource(@fopen('/proc', 'r'))) {
+            return true;
+        }
+        // Testing if /proc is a resource with @fopen fails on systems with open_basedir set.
+        // by using stat we not only test the existance of /proc but also confirm it's a 'proc' filesystem
+        $type = @shell_exec('stat -f -c "%T" /proc 2>/dev/null');
+        return strpos($type, 'proc') === 0;
     }
+
 }

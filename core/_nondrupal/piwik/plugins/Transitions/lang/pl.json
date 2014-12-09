@@ -1,0 +1,12 @@
+{
+    "Transitions": {
+        "ExitsInline": "%s wyjść",
+        "FromPreviousSiteSearches": "Z wyszukiwarki wewnętrznej",
+        "FromSearchEngines": "Z wyszukiwarek",
+        "FromWebsites": "Ze stron",
+        "IncomingTraffic": "Ruch przychodzący",
+        "LoopsInline": "%s odświeżeń stron",
+        "OutgoingTraffic": "Ruch wychodzący",
+        "ToFollowingSiteSearchesInline": "%s wewnętrzne wyszukiwania"
+    }
+}

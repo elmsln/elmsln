@@ -18,6 +18,7 @@ use Piwik\Plugins\CoreVisualizations\Visualizations\JqplotGraph\Bar;
 use Piwik\Plugins\CoreVisualizations\Visualizations\JqplotGraph\Pie;
 use Piwik\Plugins\Goals\Visualizations\Goals;
 use Piwik\Plugins\Insights\Visualizations\Insight;
+use Piwik\Plugin\Manager as PluginManager;
 
 /**
  * ViewDataTable Manager.
@@ -62,23 +63,27 @@ class Manager
      */
     public static function getAvailableViewDataTables()
     {
+        $klassToExtend = '\\Piwik\\Plugin\\ViewDataTable';
+
         /** @var string[] $visualizations */
-        $visualizations = array();
+        $visualizations = PluginManager::getInstance()->findMultipleComponents('Visualizations', $klassToExtend);
 
         /**
          * Triggered when gathering all available DataTable visualizations.
-         * 
+         *
          * Plugins that want to expose new DataTable visualizations should subscribe to
          * this event and add visualization class names to the incoming array.
-         * 
+         *
          * **Example**
-         * 
+         *
          *     public function addViewDataTable(&$visualizations)
          *     {
          *         $visualizations[] = 'Piwik\\Plugins\\MyPlugin\\MyVisualization';
          *     }
-         * 
+         *
          * @param array &$visualizations The array of all available visualizations.
+         * @ignore
+         * @deprecated since 2.5.0 Place visualization in a "Visualizations" directory instead.
          */
         Piwik::postEvent('ViewDataTable.addViewDataTable', array(&$visualizations));
 
@@ -89,7 +94,7 @@ class Manager
                 throw new \Exception("Invalid visualization class '$viz' found in Visualization.getAvailableVisualizations.");
             }
 
-            if (!is_subclass_of($viz, '\\Piwik\\Plugin\\ViewDataTable')) {
+            if (!is_subclass_of($viz, $klassToExtend)) {
                 throw new \Exception("ViewDataTable class '$viz' does not extend Plugin/ViewDataTable");
             }
 
@@ -151,46 +156,7 @@ class Manager
     {
         $result = array();
 
-        // add normal view icons (eg, normal table, all columns, goals)
-        $normalViewIcons = array(
-            'class'   => 'tableAllColumnsSwitch',
-            'buttons' => array(),
-        );
-
-        if ($view->config->show_table) {
-            $normalViewIcons['buttons'][] = static::getFooterIconFor(HtmlTable::ID);
-        }
-
-        if ($view->config->show_table_all_columns) {
-            $normalViewIcons['buttons'][] = static::getFooterIconFor(HtmlTable\AllColumns::ID);
-        }
-
-        if ($view->config->show_goals) {
-            $goalButton = static::getFooterIconFor(Goals::ID);
-            if (Common::getRequestVar('idGoal', false) == 'ecommerceOrder') {
-                $goalButton['icon'] = 'plugins/Morpheus/images/ecommerceOrder.gif';
-            }
-
-            $normalViewIcons['buttons'][] = $goalButton;
-        }
-
-        if ($view->config->show_ecommerce) {
-            $normalViewIcons['buttons'][] = array(
-                'id'    => 'ecommerceOrder',
-                'title' => Piwik::translate('General_EcommerceOrders'),
-                'icon'  => 'plugins/Morpheus/images/ecommerceOrder.gif',
-                'text'  => Piwik::translate('General_EcommerceOrders')
-            );
-
-            $normalViewIcons['buttons'][] = array(
-                'id'    => 'ecommerceAbandonedCart',
-                'title' => Piwik::translate('General_AbandonedCarts'),
-                'icon'  => 'plugins/Morpheus/images/ecommerceAbandonedCart.gif',
-                'text'  => Piwik::translate('General_AbandonedCarts')
-            );
-        }
-
-        $normalViewIcons['buttons'] = array_filter($normalViewIcons['buttons']);
+        $normalViewIcons = self::getNormalViewIcons($view);
 
         if (!empty($normalViewIcons['buttons'])) {
             $result[] = $normalViewIcons;
@@ -202,25 +168,7 @@ class Manager
             'buttons' => array(),
         );
 
-        // add graph views
-        $graphViewIcons = array(
-            'class'   => 'tableGraphViews tableGraphCollapsed',
-            'buttons' => array(),
-        );
-
-        if ($view->config->show_all_views_icons) {
-            if ($view->config->show_bar_chart) {
-                $graphViewIcons['buttons'][] = static::getFooterIconFor(Bar::ID);
-            }
-
-            if ($view->config->show_pie_chart) {
-                $graphViewIcons['buttons'][] = static::getFooterIconFor(Pie::ID);
-            }
-
-            if ($view->config->show_tag_cloud) {
-                $graphViewIcons['buttons'][] = static::getFooterIconFor(Cloud::ID);
-            }
-        }
+        $graphViewIcons = self::getGraphViewIcons($view);
 
         $nonCoreVisualizations = static::getNonCoreViewDataTables();
 
@@ -325,5 +273,76 @@ class Manager
     private static function buildViewDataTableParametersOptionKey($login, $controllerAction)
     {
         return sprintf('viewDataTableParameters_%s_%s', $login, $controllerAction);
+    }
+
+    private static function getNormalViewIcons(ViewDataTable $view)
+    {
+        // add normal view icons (eg, normal table, all columns, goals)
+        $normalViewIcons = array(
+            'class'   => 'tableAllColumnsSwitch',
+            'buttons' => array(),
+        );
+
+        if ($view->config->show_table) {
+            $normalViewIcons['buttons'][] = static::getFooterIconFor(HtmlTable::ID);
+        }
+
+        if ($view->config->show_table_all_columns) {
+            $normalViewIcons['buttons'][] = static::getFooterIconFor(HtmlTable\AllColumns::ID);
+        }
+
+        if ($view->config->show_goals) {
+            $goalButton = static::getFooterIconFor(Goals::ID);
+            if (Common::getRequestVar('idGoal', false) == 'ecommerceOrder') {
+                $goalButton['icon'] = 'plugins/Morpheus/images/ecommerceOrder.gif';
+            }
+
+            $normalViewIcons['buttons'][] = $goalButton;
+        }
+
+        if ($view->config->show_ecommerce) {
+            $normalViewIcons['buttons'][] = array(
+                'id' => 'ecommerceOrder',
+                'title' => Piwik::translate('General_EcommerceOrders'),
+                'icon' => 'plugins/Morpheus/images/ecommerceOrder.gif',
+                'text' => Piwik::translate('General_EcommerceOrders')
+            );
+
+            $normalViewIcons['buttons'][] = array(
+                'id' => 'ecommerceAbandonedCart',
+                'title' => Piwik::translate('General_AbandonedCarts'),
+                'icon' => 'plugins/Morpheus/images/ecommerceAbandonedCart.gif',
+                'text' => Piwik::translate('General_AbandonedCarts')
+            );
+        }
+
+        $normalViewIcons['buttons'] = array_filter($normalViewIcons['buttons']);
+
+        return $normalViewIcons;
+    }
+
+    private static function getGraphViewIcons(ViewDataTable $view)
+    {
+        // add graph views
+        $graphViewIcons = array(
+            'class'   => 'tableGraphViews tableGraphCollapsed',
+            'buttons' => array(),
+        );
+
+        if ($view->config->show_all_views_icons) {
+            if ($view->config->show_bar_chart) {
+                $graphViewIcons['buttons'][] = static::getFooterIconFor(Bar::ID);
+            }
+
+            if ($view->config->show_pie_chart) {
+                $graphViewIcons['buttons'][] = static::getFooterIconFor(Pie::ID);
+            }
+
+            if ($view->config->show_tag_cloud) {
+                $graphViewIcons['buttons'][] = static::getFooterIconFor(Cloud::ID);
+            }
+        }
+
+        return $graphViewIcons;
     }
 }

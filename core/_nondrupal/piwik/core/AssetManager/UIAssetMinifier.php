@@ -23,7 +23,6 @@ class UIAssetMinifier extends Singleton
         parent::__construct();
     }
 
-
     /**
      * Indicates if the provided JavaScript content has already been minified or not.
      * The heuristic is based on a custom ratio : (size of file) / (number of lines).
@@ -37,6 +36,7 @@ class UIAssetMinifier extends Singleton
     public function isMinifiedJs($content)
     {
         $lineCount = substr_count($content, "\n");
+
         if ($lineCount == 0) {
             return true;
         }

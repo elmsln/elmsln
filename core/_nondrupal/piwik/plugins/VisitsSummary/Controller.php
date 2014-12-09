@@ -60,6 +60,9 @@ class Controller extends \Piwik\Plugin\Controller
             . '<b>' . Piwik::translate('General_ColumnNbActions') . ':</b> '
             . Piwik::translate('General_ColumnNbActionsDocumentation') . '<br />'
 
+            . '<b>' . Piwik::translate('General_ColumnNbUsers') . ':</b> '
+            . Piwik::translate('General_ColumnNbUsersDocumentation') . ' (<a target="_blank" href="http://piwik.org/docs/user-id/">User ID</a>)<br />'
+
             . '<b>' . Piwik::translate('General_ColumnActionsPerVisit') . ':</b> '
             . Piwik::translate('General_ColumnActionsPerVisitDocumentation');
 
@@ -67,6 +70,7 @@ class Controller extends \Piwik\Plugin\Controller
             // columns from VisitsSummary.get
             'nb_visits',
             'nb_uniq_visitors',
+            'nb_users',
             'avg_time_on_site',
             'bounce_rate',
             'nb_actions_per_visit',
@@ -100,19 +104,19 @@ class Controller extends \Piwik\Plugin\Controller
         return $this->renderView($view);
     }
 
-    static public function getVisitsSummary()
+    public static function getVisitsSummary()
     {
-        $requestString = "method=VisitsSummary.get" .
-            "&format=original" .
+        $result = Request::processRequest("VisitsSummary.get", array(
             // we disable filters for example "search for pattern", in the case this method is called
             // by a method that already calls the API with some generic filters applied
-            "&disable_generic_filters=1";
-        $request = new Request($requestString);
-        $result = $request->process();
+            'disable_generic_filters' => 1,
+            'columns' => false
+        ));
+
         return empty($result) ? new DataTable() : $result;
     }
 
-    static public function getVisits()
+    public static function getVisits()
     {
         $requestString = "method=VisitsSummary.getVisits" .
             "&format=original" .
@@ -124,6 +128,7 @@ class Controller extends \Piwik\Plugin\Controller
     protected function setSparklinesAndNumbers($view)
     {
         $view->urlSparklineNbVisits = $this->getUrlSparkline('getEvolutionGraph', array('columns' => $view->displayUniqueVisitors ? array('nb_visits', 'nb_uniq_visitors') : array('nb_visits')));
+        $view->urlSparklineNbUsers = $this->getUrlSparkline('getEvolutionGraph', array('columns' => array('nb_users')));
         $view->urlSparklineNbPageviews = $this->getUrlSparkline('getEvolutionGraph', array('columns' => array('nb_pageviews', 'nb_uniq_pageviews')));
         $view->urlSparklineNbDownloads = $this->getUrlSparkline('getEvolutionGraph', array('columns' => array('nb_downloads', 'nb_uniq_downloads')));
         $view->urlSparklineNbOutlinks = $this->getUrlSparkline('getEvolutionGraph', array('columns' => array('nb_outlinks', 'nb_uniq_outlinks')));
@@ -143,8 +148,8 @@ class Controller extends \Piwik\Plugin\Controller
         $dataTableVisit = self::getVisitsSummary();
         $dataRow = $dataTableVisit->getRowsCount() == 0 ? new Row() : $dataTableVisit->getFirstRow();
 
-
         $view->nbUniqVisitors = (int)$dataRow->getColumn('nb_uniq_visitors');
+        $view->nbUsers = (int)$dataRow->getColumn('nb_users');
         $nbVisits = (int)$dataRow->getColumn('nb_visits');
         $view->nbVisits = $nbVisits;
 
@@ -154,7 +159,7 @@ class Controller extends \Piwik\Plugin\Controller
         $view->maxActions = (int)$dataRow->getColumn('max_actions');
         $view->nbActionsPerVisit = $dataRow->getColumn('nb_actions_per_visit');
 
-        if(Common::isActionsPluginEnabled()) {
+        if (Common::isActionsPluginEnabled()) {
             $view->showActionsPluginReports = true;
             $dataTableActions = APIActions::getInstance()->get($idSite, Common::getRequestVar('period'), Common::getRequestVar('date'),
                 \Piwik\API\Request::getRawSegmentFromRequest());
@@ -168,7 +173,6 @@ class Controller extends \Piwik\Plugin\Controller
             $view->nbOutlinks = (int)$dataActionsRow->getColumn('nb_outlinks');
             $view->nbUniqueOutlinks = (int)$dataActionsRow->getColumn('nb_uniq_outlinks');
             $view->averageGenerationTime = $dataActionsRow->getColumn('avg_time_generation');
-
 
             if ($displaySiteSearch) {
                 $view->nbSearches = (int)$dataActionsRow->getColumn('nb_searches');

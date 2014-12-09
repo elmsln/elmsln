@@ -3,7 +3,7 @@
  * Device Detector - The Universal Device Detection library for parsing User Agents
  *
  * @link http://piwik.org
- * @license http://www.gnu.org/licenses/gpl-3.0.html GPL v3 or later
+ * @license http://www.gnu.org/licenses/lgpl.html LGPL v3 or later
  */
 namespace DeviceDetector\Parser\Device;
 
@@ -78,10 +78,13 @@ abstract class DeviceParserAbstract extends ParserAbstract
         'BU' => 'Blu',
         'BX' => 'bq',
         'CA' => 'Cat',
+        'CE' => 'Celkon',
+        'CC' => 'ConCorde',
         'CH' => 'Cherry Mobile',
         'CK' => 'Cricket',
         'CL' => 'Compal',
         'CN' => 'CnM',
+        'CM' => 'Crius Mea',
         'CR' => 'CreNova',
         'CT' => 'Capitel',
         'CO' => 'Coolpad',
@@ -96,8 +99,10 @@ abstract class DeviceParserAbstract extends ParserAbstract
         'DM' => 'DMM',
         'DO' => 'Doogee',
         'DP' => 'Dopod',
+        'EB' => 'E-Boda',
         'EC' => 'Ericsson',
         'EI' => 'Ezio',
+        'EP' => 'Easypix',
         'ER' => 'Ericy',
         'ET' => 'eTouch',
         'EV' => 'Evertek',
@@ -116,6 +121,7 @@ abstract class DeviceParserAbstract extends ParserAbstract
         'HX' => 'Humax',
         'IA' => 'Ikea',
         'IB' => 'iBall',
+        'IY' => 'iBerry',
         'IK' => 'iKoMo',
         'IM' => 'i-mate',
         'IF' => 'Infinix',
@@ -136,12 +142,14 @@ abstract class DeviceParserAbstract extends ParserAbstract
         'KH' => 'KT-Tech',
         'KY' => 'Kyocera',
         'KZ' => 'Kazam',
+        'LV' => 'Lava',
         'LA' => 'Lanix',
         'LC' => 'LCT',
         'LE' => 'Lenovo',
         'LN' => 'Lenco',
         'LG' => 'LG',
         'LO' => 'Loewe',
+        'LM' => 'Logicom',
         'LU' => 'LGUPlus',
         'LX' => 'Lexibook',
         'MA' => 'Manta Multimedia',
@@ -169,6 +177,7 @@ abstract class DeviceParserAbstract extends ParserAbstract
         'OR' => 'Orange',
         'OT' => 'O2',
         'OU' => 'OUYA',
+        'OO' => 'Opsson',
         'PA' => 'Panasonic',
         'PE' => 'PEAQ',
         'PH' => 'Philips',
@@ -180,6 +189,9 @@ abstract class DeviceParserAbstract extends ParserAbstract
         'PR' => 'Prestigio',
         'QI' => 'Qilive',
         'QT' => 'Qtek',
+        'QU' => 'Quechua',
+        'OY' => 'Oysters',
+        'RA' => 'Ramos',
         'RM' => 'RIM',
         'RO' => 'Rover',
         'SA' => 'Samsung',
@@ -208,6 +220,7 @@ abstract class DeviceParserAbstract extends ParserAbstract
         'TL' => 'Telefunken',
         'TM' => 'T-Mobile',
         'TN' => 'Thomson',
+        'T1' => 'Tolino',
         'TO' => 'Toplux',
         'TS' => 'Toshiba',
         'TT' => 'TechnoTrend',
@@ -226,12 +239,14 @@ abstract class DeviceParserAbstract extends ParserAbstract
         'WB' => 'Web TV',
         'WE' => 'WellcoM',
         'WI' => 'Wiko',
+        'WL' => 'Wolder',
         'WO' => 'Wonu',
         'WX' => 'Woxter',
         'XI' => 'Xiaomi',
         'XX' => 'Unknown',
         'YU' => 'Yuandao',
         'ZO' => 'Zonda',
+        'ZP' => 'Zopo',
         'ZT' => 'ZTE',
     );
 
@@ -324,7 +339,8 @@ abstract class DeviceParserAbstract extends ParserAbstract
 
         $brandId = array_search($brand, self::$deviceBrands);
         if($brandId === false) {
-            throw new \Exception("The brand with name '$brand' should be listed in the deviceBrands array.");
+            // This Exception should never be thrown. If so a defined brand name is missing in $deviceBrands
+            throw new \Exception("The brand with name '$brand' should be listed in the deviceBrands array."); // @codeCoverageIgnore
         }
         $this->brand = $brandId;
 
@@ -361,19 +377,7 @@ abstract class DeviceParserAbstract extends ParserAbstract
     {
         $model = $this->buildByMatch($model, $matches);
 
-        $model = $this->buildModelExceptions($model);
-
         $model = str_replace('_', ' ', $model);
-
-        return $model;
-    }
-
-    protected function buildModelExceptions($model)
-    {
-        if ($this->brand == 'O2') {
-            $model = preg_replace('/([a-z])([A-Z])/', '$1 $2', $model);
-            $model = ucwords(str_replace('_', ' ', $model));
-        }
 
         return $model;
     }

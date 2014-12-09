@@ -9,7 +9,6 @@
 namespace Piwik\Plugins\Installation;
 
 use Piwik\CliMulti;
-use Piwik\CliMulti\Process;
 use Piwik\Common;
 use Piwik\Config;
 use Piwik\Db;
@@ -131,6 +130,7 @@ class SystemCheck
             'mail',
             'parse_ini_file',
             'glob',
+            'gzopen',
         );
         $infos['missing_desired_functions'] = array();
         foreach ($desired_functions as $desired_function) {
@@ -140,7 +140,7 @@ class SystemCheck
         }
 
         $sessionAutoStarted = (int)ini_get('session.auto_start');
-        if($sessionAutoStarted) {
+        if ($sessionAutoStarted) {
             $infos['missing_desired_functions'][] = 'session.auto_start';
         }
 
@@ -192,7 +192,6 @@ class SystemCheck
         // check if filesystem is NFS, if it is file based sessions won't work properly
         $infos['is_nfs'] = Filesystem::checkIfFileSystemIsNFS();
         $infos = self::enrichSystemChecks($infos);
-
 
         return $infos;
     }
@@ -277,7 +276,6 @@ class SystemCheck
         return $result;
     }
 
-
     private static function checkGeolocation(&$result)
     {
         $currentProviderId = LocationProvider::getCurrentProviderId();
@@ -318,7 +316,6 @@ class SystemCheck
         Db::exec("DELETE FROM `$optionTable` WHERE option_name IN ('" . implode("','", $testOptionNames) . "')");
     }
 
-
     protected static function initServerFilesForSecurity()
     {
         ServerFilesGenerator::createWebConfigFiles();
@@ -335,7 +332,7 @@ class SystemCheck
     public static function isPhpVersionValid($phpVersion)
     {
         global $piwik_minimumPHPVersion;
-        return version_compare($piwik_minimumPHPVersion, $phpVersion) === -1;
+        return version_compare($piwik_minimumPHPVersion, $phpVersion) <= 0;
     }
 
 }
