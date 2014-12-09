@@ -1,7 +1,5 @@
 ; ELMSLN recommendations ;
 
-skip-locking
-
 ; From real world testing ;
 table_definition_cache = 4000
 table_cache = 512
