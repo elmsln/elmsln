@@ -141,7 +141,7 @@ done
 for tool in "${authoritylist[@]}"
   do
   COUNTER=0
-  dist=$authoritydistros[$COUNTER]
+  dist=${authoritydistros[$COUNTER]}
   # generate a random 30 digit password
   dbpw=''
   for k in `seq 1 30`
@@ -152,7 +152,7 @@ for tool in "${authoritylist[@]}"
   cd $stacks/$tool
   sitedir=$stacks/$tool/sites
 
-  drush site-install $dist -y --db-url=mysql://$tool_$host:$dbpw@localhost/$tool_$host --db-su=$dbsu --db-su-pw=$dbsupw  --account-mail="$admin" --site-mail="$site_email" --site-name="$tool"
+  drush site-install $dist -y --db-url=mysql://${tool}_${host}:$dbpw@localhost/${tool}_${host} --db-su=$dbsu --db-su-pw=$dbsupw  --account-mail="$admin" --site-mail="$site_email" --site-name="$tool"
   #move out of $tool site directory to host
   sudo mkdir -p $sitedir/$tool/$host
   sudo mkdir -p $sitedir/$tool/$host/files
