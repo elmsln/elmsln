@@ -148,9 +148,3 @@ libraries[fitvids][type] = "library"
 libraries[fitvids][destination] = "libraries"
 libraries[fitvids][download][type] = "get"
 libraries[fitvids][download][url] = "https://raw.github.com/davatron5000/FitVids.js/master/jquery.fitvids.js"
-
-; +++++ Patches +++++
-
-; allow for custom meta controllers to enable deep querying
-projects[restws][patch][] = "http://drupal.org/files/restws_meta_controls-2053147-1.patch"
-
