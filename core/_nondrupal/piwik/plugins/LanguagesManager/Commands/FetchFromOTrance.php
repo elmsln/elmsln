@@ -9,6 +9,7 @@
 
 namespace Piwik\Plugins\LanguagesManager\Commands;
 
+use Piwik\Plugin\ConsoleCommand;
 use Piwik\Unzip;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
@@ -16,7 +17,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 /**
  */
-class FetchFromOTrance extends TranslationBase
+class FetchFromOTrance extends ConsoleCommand
 {
     const DOWNLOADPATH = 'tmp/oTrance';
 
@@ -139,7 +140,7 @@ class FetchFromOTrance extends TranslationBase
         $progress = $this->getHelperSet()->get('progress');
 
         $progress->start($output, count($filesToConvert));
-        foreach ($filesToConvert as $filename) {
+        foreach ($filesToConvert AS $filename) {
 
             require_once $filename;
             $basename = explode(".", basename($filename));

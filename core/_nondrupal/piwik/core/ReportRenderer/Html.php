@@ -189,9 +189,10 @@ class Html extends ReportRenderer
 
         $additionalFile['filename'] =
             sprintf(
-                '%s - %s - %d - %s %d%s.png',
+                '%s - %s - %s %d - %s %d%s.png',
                 $processedReportMetadata['name'],
                 $prettyDate,
+                Piwik::translate('General_Website'),
                 $report['idsite'],
                 Piwik::translate('General_Report'),
                 $report['idreport'],

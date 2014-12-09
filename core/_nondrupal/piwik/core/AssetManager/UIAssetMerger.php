@@ -48,7 +48,7 @@ abstract class UIAssetMerger
 
     public function generateFile()
     {
-        if (!$this->shouldGenerate())
+        if(!$this->shouldGenerate())
             return;
 
         $this->mergedContent = $this->getMergedAssets();
@@ -138,9 +138,8 @@ abstract class UIAssetMerger
      */
     private function shouldGenerate()
     {
-        if (!$this->mergedAsset->exists()) {
+        if(!$this->mergedAsset->exists())
             return true;
-        }
 
         return !$this->isFileUpToDate();
     }
@@ -163,11 +162,19 @@ abstract class UIAssetMerger
         return false;
     }
 
+    /**
+     * @return boolean
+     */
+    private function isMergedAssetsDisabled()
+    {
+        return AssetManager::getInstance()->isMergedAssetsDisabled();
+    }
+
     private function adjustPaths()
     {
         $theme = $this->assetFetcher->getTheme();
         // During installation theme is not yet ready
-        if ($theme) {
+        if($theme) {
             $this->mergedContent = $this->assetFetcher->getTheme()->rewriteAssetsPathToTheme($this->mergedContent);
         }
     }
@@ -182,7 +189,7 @@ abstract class UIAssetMerger
      */
     protected function getCacheBusterValue()
     {
-        if (empty($this->cacheBusterValue))
+        if(empty($this->cacheBusterValue))
             $this->cacheBusterValue = $this->generateCacheBuster();
 
         return $this->cacheBusterValue;
@@ -191,5 +198,13 @@ abstract class UIAssetMerger
     private function addPreamble()
     {
         $this->mergedContent = $this->getPreamble() . $this->mergedContent;
+    }
+
+    /**
+     * @return boolean
+     */
+    private function shouldCompareExistingVersion()
+    {
+        return $this->isMergedAssetsDisabled();
     }
 }

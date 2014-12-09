@@ -14,11 +14,6 @@ use Piwik\DataTable\Map;
 use Piwik\Metrics;
 use Piwik\Period\Range;
 use Piwik\Piwik;
-use Piwik\Plugins\Referrers\Reports\GetKeywords;
-use Piwik\Plugins\Referrers\Reports\GetReferrerType;
-use Piwik\Plugins\Referrers\Reports\GetSearchEngines;
-use Piwik\Plugins\Referrers\Reports\GetSocials;
-use Piwik\Plugins\Referrers\Reports\GetWebsites;
 use Piwik\SettingsPiwik;
 use Piwik\View;
 
@@ -35,7 +30,7 @@ class Controller extends \Piwik\Plugin\Controller
         $view->nameGraphEvolutionReferrers = 'Referrers.getEvolutionGraph';
 
         // building the referrers summary report
-        $view->dataTableReferrerType = $this->renderReport(new GetReferrerType());
+        $view->dataTableReferrerType = $this->getReferrerType(true);
 
         $nameValues = $this->getReferrersVisitorsByType();
 
@@ -133,18 +128,91 @@ class Controller extends \Piwik\Plugin\Controller
     public function getSearchEnginesAndKeywords()
     {
         $view = new View('@Referrers/getSearchEnginesAndKeywords');
-        $view->searchEngines = $this->renderReport(new GetSearchEngines());
-        $view->keywords      = $this->renderReport(new GetKeywords());
+        $view->searchEngines = $this->getSearchEngines(true);
+        $view->keywords = $this->getKeywords(true);
         return $view->render();
+    }
+
+    public function getReferrerType()
+    {
+        return $this->renderReport(__FUNCTION__);
+    }
+
+    /**
+     * Returns or echo's a report that shows all search keyword, website and campaign
+     * referrer information in one report.
+     *
+     * @return string The report HTML or nothing if $fetch is set to false.
+     */
+    public function getAll()
+    {
+        return $this->renderReport(__FUNCTION__);
+    }
+
+    public function getKeywords()
+    {
+        return $this->renderReport(__FUNCTION__);
+    }
+
+    public function getSearchEnginesFromKeywordId()
+    {
+        return $this->renderReport(__FUNCTION__);
+    }
+
+    public function getSearchEngines()
+    {
+        return $this->renderReport(__FUNCTION__);
+    }
+
+    public function getKeywordsFromSearchEngineId()
+    {
+        return $this->renderReport(__FUNCTION__);
     }
 
     public function indexWebsites()
     {
         $view = new View('@Referrers/indexWebsites');
-        $view->websites = $this->renderReport(new GetWebsites());
-        $view->socials  = $this->renderReport(new GetSocials());
+        $view->websites = $this->getWebsites(true);
+        $view->socials = $this->getSocials(true);
 
         return $view->render();
+    }
+
+    public function getWebsites()
+    {
+        return $this->renderReport(__FUNCTION__);
+    }
+
+    public function getSocials()
+    {
+        return $this->renderReport(__FUNCTION__);
+    }
+
+    public function getUrlsForSocial()
+    {
+        return $this->renderReport(__FUNCTION__);
+    }
+
+    public function indexCampaigns()
+    {
+        return View::singleReport(
+            Piwik::translate('Referrers_Campaigns'),
+            $this->getCampaigns(true));
+    }
+
+    public function getCampaigns()
+    {
+        return $this->renderReport(__FUNCTION__);
+    }
+
+    public function getKeywordsFromCampaignId()
+    {
+        return $this->renderReport(__FUNCTION__);
+    }
+
+    public function getUrlsFromWebsiteId()
+    {
+        return $this->renderReport(__FUNCTION__);
     }
 
     protected function getReferrersVisitorsByType($date = false)
@@ -208,9 +276,8 @@ class Controller extends \Piwik\Plugin\Controller
         }
 
         // configure selectable columns
-        // todo: should use SettingsPiwik::isUniqueVisitorsEnabled
         if (Common::getRequestVar('period', false) == 'day') {
-            $selectable = array('nb_visits', 'nb_uniq_visitors', 'nb_users', 'nb_actions');
+            $selectable = array('nb_visits', 'nb_uniq_visitors', 'nb_actions');
         } else {
             $selectable = array('nb_visits', 'nb_actions');
         }
@@ -332,7 +399,7 @@ function DisplayTopKeywords($url = "")
 	$url = empty($url) ? "http://". $_SERVER["HTTP_HOST"] . $_SERVER["REQUEST_URI"] : $url;
 	$api = "' . $api . '&url=" . urlencode($url);
 	$keywords = @unserialize(file_get_contents($api));
-	if ($keywords === false || isset($keywords["result"])) {
+	if($keywords === false || isset($keywords["result"])) {
 		// DEBUG ONLY: uncomment for troubleshooting an empty output (the URL output reveals the token_auth)
 		// echo "Error while fetching the <a href=\'$api\'>Top Keywords from Piwik</a>";
 		return;
@@ -344,7 +411,7 @@ function DisplayTopKeywords($url = "")
 	foreach($keywords as $keyword) {
 		$output .= "<li>". $keyword . "</li>";
 	}
-	if (empty($keywords)) { $output .= "Nothing yet..."; }
+	if(empty($keywords)) { $output .= "Nothing yet..."; }
 	$output .= "</ul>";
 	echo $output;
 }

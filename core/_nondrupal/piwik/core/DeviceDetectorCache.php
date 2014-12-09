@@ -32,7 +32,6 @@ class DeviceDetectorCache extends CacheFile implements \DeviceDetector\Cache\Cac
         if (empty($id)) {
             return false;
         }
-
         $id = $this->cleanupId($id);
 
         if (array_key_exists($id, self::$staticCache)) {
@@ -41,6 +40,7 @@ class DeviceDetectorCache extends CacheFile implements \DeviceDetector\Cache\Cac
 
         return parent::get($id);
     }
+
 
     /**
      * A function to store content a cache entry.

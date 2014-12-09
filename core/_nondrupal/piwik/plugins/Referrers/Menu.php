@@ -14,9 +14,10 @@ class Menu extends \Piwik\Plugin\Menu
 {
     public function configureReportingMenu(MenuReporting $menu)
     {
-        $menu->addReferrersItem('', $this->urlForAction('index'), 20);
-        $menu->addReferrersItem('General_Overview', $this->urlForAction('index'), 1);
-        $menu->addReferrersItem('Referrers_SubmenuSearchEngines', $this->urlForAction('getSearchEnginesAndKeywords'), 2);
-        $menu->addReferrersItem('Referrers_SubmenuWebsites', $this->urlForAction('indexWebsites'), 3);
+        $menu->add('Referrers_Referrers', '', array('module' => 'Referrers', 'action' => 'index'), true, 20);
+        $menu->add('Referrers_Referrers', 'General_Overview', array('module' => 'Referrers', 'action' => 'index'), true, 1);
+        $menu->add('Referrers_Referrers', 'Referrers_SubmenuSearchEngines', array('module' => 'Referrers', 'action' => 'getSearchEnginesAndKeywords'), true, 2);
+        $menu->add('Referrers_Referrers', 'Referrers_SubmenuWebsites', array('module' => 'Referrers', 'action' => 'indexWebsites'), true, 3);
+        $menu->add('Referrers_Referrers', 'Referrers_Campaigns', array('module' => 'Referrers', 'action' => 'indexCampaigns'), true, 4);
     }
 }

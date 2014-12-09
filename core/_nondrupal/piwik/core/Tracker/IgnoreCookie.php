@@ -22,7 +22,7 @@ class IgnoreCookie
      *
      * @return Cookie
      */
-    public static function getTrackingCookie()
+    static public function getTrackingCookie()
     {
         $cookie_name = @Config::getInstance()->Tracker['cookie_name'];
         $cookie_path = @Config::getInstance()->Tracker['cookie_path'];
@@ -35,7 +35,7 @@ class IgnoreCookie
      *
      * @return Cookie
      */
-    public static function getIgnoreCookie()
+    static public function getIgnoreCookie()
     {
         $cookie_name = @Config::getInstance()->Tracker['ignore_visits_cookie_name'];
         $cookie_path = @Config::getInstance()->Tracker['cookie_path'];
@@ -46,7 +46,7 @@ class IgnoreCookie
     /**
      * Set ignore (visit) cookie or deletes it if already present
      */
-    public static function setIgnoreCookie()
+    static public function setIgnoreCookie()
     {
         $ignoreCookie = self::getIgnoreCookie();
         if ($ignoreCookie->isCookieFound()) {
@@ -65,7 +65,7 @@ class IgnoreCookie
      *
      * @return bool  True if ignore cookie found; false otherwise
      */
-    public static function isIgnoreCookieFound()
+    static public function isIgnoreCookieFound()
     {
         $cookie = self::getIgnoreCookie();
         return $cookie->isCookieFound() && $cookie->get('ignore') === '*';

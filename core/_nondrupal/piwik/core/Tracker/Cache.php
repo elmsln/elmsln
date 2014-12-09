@@ -8,7 +8,6 @@
  */
 namespace Piwik\Tracker;
 
-use Piwik\Access;
 use Piwik\ArchiveProcessor\Rules;
 use Piwik\CacheFile;
 use Piwik\Common;
@@ -27,9 +26,9 @@ class Cache
      * Public for tests only
      * @var CacheFile
      */
-    public static $trackerCache = null;
+    static public $trackerCache = null;
 
-    protected static function getInstance()
+    static protected function getInstance()
     {
         if (is_null(self::$trackerCache)) {
             $ttl = Config::getInstance()->Tracker['tracker_cache_file_ttl'];
@@ -46,61 +45,63 @@ class Cache
      */
     static function getCacheWebsiteAttributes($idSite)
     {
-        if ('all' == $idSite) {
+        if($idSite == 'all') {
             return array();
         }
-
         $idSite = (int)$idSite;
-        if ($idSite <= 0) {
+        if($idSite <= 0) {
             return array();
         }
 
-        $cache        = self::getInstance();
-        $cacheContent = $cache->get($idSite);
-
-        if (false !== $cacheContent) {
+        $cache = self::getInstance();
+        if (($cacheContent = $cache->get($idSite)) !== false) {
             return $cacheContent;
         }
 
         Tracker::initCorePiwikInTrackerMode();
 
+        // save current user privilege and temporarily assume Super User privilege
+        $isSuperUser = Piwik::hasUserSuperUserAccess();
+        Piwik::setUserHasSuperUserAccess();
+
         $content = array();
-        Access::doAsSuperUser(function () use (&$content, $idSite) {
-            /**
-             * Triggered to get the attributes of a site entity that might be used by the
-             * Tracker.
-             *
-             * Plugins add new site attributes for use in other tracking events must
-             * use this event to put those attributes in the Tracker Cache.
-             *
-             * **Example**
-             *
-             *     public function getSiteAttributes($content, $idSite)
-             *     {
-             *         $sql = "SELECT info FROM " . Common::prefixTable('myplugin_extra_site_info') . " WHERE idsite = ?";
-             *         $content['myplugin_site_data'] = Db::fetchOne($sql, array($idSite));
-             *     }
-             *
-             * @param array &$content Array mapping of site attribute names with values.
-             * @param int $idSite The site ID to get attributes for.
-             */
-            Piwik::postEvent('Tracker.Cache.getSiteAttributes', array(&$content, $idSite));
-            Common::printDebug("Website $idSite tracker cache was re-created.");
-        });
+        
+        /**
+         * Triggered to get the attributes of a site entity that might be used by the
+         * Tracker.
+         * 
+         * Plugins add new site attributes for use in other tracking events must
+         * use this event to put those attributes in the Tracker Cache.
+         * 
+         * **Example**
+         * 
+         *     public function getSiteAttributes($content, $idSite)
+         *     {
+         *         $sql = "SELECT info FROM " . Common::prefixTable('myplugin_extra_site_info') . " WHERE idsite = ?";
+         *         $content['myplugin_site_data'] = Db::fetchOne($sql, array($idSite));
+         *     }
+         * 
+         * @param array &$content Array mapping of site attribute names with values.
+         * @param int $idSite The site ID to get attributes for.
+         */
+        Piwik::postEvent('Tracker.Cache.getSiteAttributes', array(&$content, $idSite));
+        Common::printDebug("Website $idSite tracker cache was re-created.");
+
+        // restore original user privilege
+        Piwik::setUserHasSuperUserAccess($isSuperUser);
 
         // if nothing is returned from the plugins, we don't save the content
         // this is not expected: all websites are expected to have at least one URL
         if (!empty($content)) {
             $cache->set($idSite, $content);
         }
-
         return $content;
     }
 
     /**
      * Clear general (global) cache
      */
-    public static function clearCacheGeneral()
+    static public function clearCacheGeneral()
     {
         self::getInstance()->delete('general');
     }
@@ -111,14 +112,12 @@ class Cache
      *
      * @return array
      */
-    public static function getCacheGeneral()
+    static public function getCacheGeneral()
     {
-        $cache   = self::getInstance();
+        $cache = self::getInstance();
         $cacheId = 'general';
 
-        $cacheContent = $cache->get($cacheId);
-
-        if (false !== $cacheContent) {
+        if (($cacheContent = $cache->get($cacheId)) !== false) {
             return $cacheContent;
         }
 
@@ -131,20 +130,20 @@ class Cache
         /**
          * Triggered before the [general tracker cache](/guides/all-about-tracking#the-tracker-cache)
          * is saved to disk. This event can be used to add extra content to the cache.
-         *
+         * 
          * Data that is used during tracking but is expensive to compute/query should be
          * cached to keep tracking efficient. One example of such data are options
          * that are stored in the piwik_option table. Querying data for each tracking
          * request means an extra unnecessary database query for each visitor action. Using
          * a cache solves this problem.
-         *
+         * 
          * **Example**
-         *
+         * 
          *     public function setTrackerCacheGeneral(&$cacheContent)
          *     {
          *         $cacheContent['MyPlugin.myCacheKey'] = Option::get('MyPlugin_myOption');
          *     }
-         *
+         * 
          * @param array &$cacheContent Array of cached data. Each piece of data must be
          *                             mapped by name.
          */
@@ -160,12 +159,11 @@ class Cache
      * @param mixed $value
      * @return bool
      */
-    public static function setCacheGeneral($value)
+    static public function setCacheGeneral($value)
     {
-        $cache   = self::getInstance();
+        $cache = self::getInstance();
         $cacheId = 'general';
         $cache->set($cacheId, $value);
-
         return true;
     }
 
@@ -174,12 +172,11 @@ class Cache
      *
      * @param array|int $idSites Array of idSites to clear cache for
      */
-    public static function regenerateCacheWebsiteAttributes($idSites = array())
+    static public function regenerateCacheWebsiteAttributes($idSites = array())
     {
         if (!is_array($idSites)) {
             $idSites = array($idSites);
         }
-
         foreach ($idSites as $idSite) {
             self::deleteCacheWebsiteAttributes($idSite);
             self::getCacheWebsiteAttributes($idSite);
@@ -191,7 +188,7 @@ class Cache
      *
      * @param string $idSite (website ID of the site to clear cache for
      */
-    public static function deleteCacheWebsiteAttributes($idSite)
+    static public function deleteCacheWebsiteAttributes($idSite)
     {
         $idSite = (int)$idSite;
         self::getInstance()->delete($idSite);
@@ -200,7 +197,7 @@ class Cache
     /**
      * Deletes all Tracker cache files
      */
-    public static function deleteTrackerCache()
+    static public function deleteTrackerCache()
     {
         self::getInstance()->deleteAll();
     }

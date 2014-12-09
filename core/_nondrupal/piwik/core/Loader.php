@@ -9,30 +9,118 @@
 
 namespace Piwik;
 
+use Exception;
+
 /**
- * Initializes the Composer Autoloader
- * @package Piwik
+ * Piwik auto loader
+ *
  */
 class Loader
 {
-    public static function init()
+    // our class search path; current directory is intentionally excluded
+    protected static $dirs = array('/core/', '/plugins/');
+
+    /**
+     * Get class file name
+     *
+     * @param string $class Class name
+     * @return string Class file name
+     * @throws Exception if class name is invalid
+     */
+    protected static function  getClassFileName($class)
     {
-        return self::getLoader();
+        if (!preg_match('/^[A-Za-z0-9_\\\\]+$/D', $class)) {
+            throw new Exception("Invalid class name \"$class\".");
+        }
+
+        // prefixed class
+        $class = str_replace('_', '/', $class);
+
+        // namespace \Piwik\Common
+        $class = str_replace('\\', '/', $class);
+
+        if ($class == 'Piwik') {
+            return $class;
+        }
+
+        $class = self::removeFirstMatchingPrefix($class, array('/Piwik/', 'Piwik/'));
+        $class = self::removeFirstMatchingPrefix($class, array('/Plugins/', 'Plugins/'));
+
+        return $class;
+    }
+
+    protected static function removeFirstMatchingPrefix($class, $vendorPrefixesToRemove)
+    {
+        foreach ($vendorPrefixesToRemove as $prefix) {
+            if (strpos($class, $prefix) === 0) {
+                return substr($class, strlen($prefix));
+            }
+        }
+
+        return $class;
+    }
+
+    private static function isPluginClass($class)
+    {
+        return 0 === strpos($class, 'Piwik\Plugins') || 0 === strpos($class, '\Piwik\Plugins');
+    }
+
+    private static function usesPiwikNamespace($class)
+    {
+        return 0 === strpos($class, 'Piwik\\') || 0 === strpos($class, '\Piwik\\');
     }
 
     /**
-     * @return \Composer\Autoload\ClassLoader
+     * Load class by name
+     *
+     * @param string $class Class name
+     * @throws Exception if class not found
      */
-    private static function getLoader()
+    public static function loadClass($class)
     {
-        if (file_exists(PIWIK_INCLUDE_PATH . '/vendor/autoload.php')) {
-            $path = PIWIK_INCLUDE_PATH . '/vendor/autoload.php'; // Piwik is the main project
+        $classPath = self::getClassFileName($class);
+
+        if (static::isPluginClass($class)) {
+            static::tryToLoadClass($class, '/plugins/', $classPath);
+        } else if (static::usesPiwikNamespace($class)) {
+            static::tryToLoadClass($class, '/core/', $classPath);
         } else {
-            $path = PIWIK_INCLUDE_PATH . '/../../autoload.php'; // Piwik is installed as a dependency
+            // non-Piwik classes (e.g., Zend Framework) are in libs/
+            static::tryToLoadClass($class, '/libs/', $classPath);
+        }
+    }
+
+    private static function tryToLoadClass($class, $dir, $classPath)
+    {
+        $path = PIWIK_INCLUDE_PATH . $dir . $classPath . '.php';
+
+        if (file_exists($path)) {
+            require_once $path; // prefixed by PIWIK_INCLUDE_PATH
+
+            return class_exists($class, false) || interface_exists($class, false);
         }
 
-        $loader = require $path;
-
-        return $loader;
+        return false;
     }
+
+    /**
+     * Autoloader
+     *
+     * @param string $class Class name
+     */
+    public static function autoload($class)
+    {
+        try {
+            self::loadClass($class);
+        } catch (Exception $e) {
+        }
+    }
+}
+
+// use the SPL autoload stack
+spl_autoload_register(array('Piwik\Loader', 'autoload'));
+
+// preserve any existing __autoload
+if (function_exists('__autoload')) {
+    spl_autoload_register('__autoload');
 }

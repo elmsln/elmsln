@@ -38,9 +38,9 @@ class Twig_Token
     /**
      * Constructor.
      *
-     * @param int     $type   The type of the token
+     * @param integer $type   The type of the token
      * @param string  $value  The token value
-     * @param int     $lineno The line position in the source
+     * @param integer $lineno The line position in the source
      */
     public function __construct($type, $value, $lineno)
     {
@@ -67,10 +67,10 @@ class Twig_Token
      * * type and value (or array of possible values)
      * * just value (or array of possible values) (NAME_TYPE is used as type)
      *
-     * @param array|int         $type   The type to test
+     * @param array|integer     $type   The type to test
      * @param array|string|null $values The token value
      *
-     * @return bool
+     * @return Boolean
      */
     public function test($type, $values = null)
     {
@@ -89,7 +89,7 @@ class Twig_Token
     /**
      * Gets the line.
      *
-     * @return int     The source line
+     * @return integer The source line
      */
     public function getLine()
     {
@@ -99,7 +99,7 @@ class Twig_Token
     /**
      * Gets the token type.
      *
-     * @return int     The token type
+     * @return integer The token type
      */
     public function getType()
     {
@@ -119,8 +119,8 @@ class Twig_Token
     /**
      * Returns the constant representation (internal) of a given type.
      *
-     * @param int     $type  The type as an integer
-     * @param bool    $short Whether to return a short representation or not
+     * @param integer $type  The type as an integer
+     * @param Boolean $short Whether to return a short representation or not
      *
      * @return string The string representation
      */
@@ -176,7 +176,7 @@ class Twig_Token
     /**
      * Returns the english representation of a given type.
      *
-     * @param int     $type The type as an integer
+     * @param integer $type The type as an integer
      *
      * @return string The string representation
      */

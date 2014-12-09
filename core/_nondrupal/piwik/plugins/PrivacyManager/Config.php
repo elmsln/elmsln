@@ -28,9 +28,9 @@ class Config
 {
     private $properties = array(
         'useAnonymizedIpForVisitEnrichment' => array('type' => 'boolean', 'default' => true),
-        'ipAddressMaskLength'               => array('type' => 'integer', 'default' => 2),
+        'ipAddressMaskLength'               => array('type' => 'integer', 'default' => 1),
         'doNotTrackEnabled'                 => array('type' => 'boolean', 'default' => true),
-        'ipAnonymizerEnabled'               => array('type' => 'boolean', 'default' => true),
+        'ipAnonymizerEnabled'               => array('type' => 'boolean', 'default' => false),
     );
 
     public function __set($name, $value)
@@ -64,7 +64,6 @@ class Config
         if (array_key_exists($name, $cache)) {
             $value = $cache[$name];
             settype($value, $config['type']);
-
             return $value;
         }
 

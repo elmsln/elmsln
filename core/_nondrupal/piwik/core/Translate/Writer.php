@@ -71,7 +71,7 @@ class Writer
     protected $filterMessages = array();
 
     const UNFILTERED = 'unfiltered';
-    const FILTERED   = 'filtered';
+    const FILTERED = 'filtered';
 
     protected $currentState = self::UNFILTERED;
 
@@ -152,14 +152,12 @@ class Writer
     public function getTranslations($lang)
     {
         $path = $this->getTranslationPathBaseDirectory('lang', $lang);
-
         if (!is_readable($path)) {
             return array();
         }
 
         $data = file_get_contents($path);
         $translations = json_decode($data, true);
-
         return $translations;
     }
 
@@ -208,6 +206,7 @@ class Writer
 
         return sprintf('%s/%s/%s.json', PIWIK_INCLUDE_PATH, $base, $lang);
     }
+
 
     /**
      * Converts translations to a string that can be written to a file
@@ -293,7 +292,7 @@ class Writer
 
         $this->validationMessage = null;
 
-        foreach ($this->validators as $validator) {
+        foreach ($this->validators AS $validator) {
             if (!$validator->isValid($this->translations)) {
                 $this->validationMessage = $validator->getMessage();
                 return false;
@@ -363,7 +362,7 @@ class Writer
 
         $cleanedTranslations = $this->translations;
 
-        foreach ($this->filters as $filter) {
+        foreach ($this->filters AS $filter) {
 
             $cleanedTranslations = $filter->filter($cleanedTranslations);
             $filteredData = $filter->getFilteredData();

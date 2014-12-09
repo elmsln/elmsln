@@ -13,6 +13,8 @@ use Piwik\DataAccess\LogAggregator;
 use Piwik\DataArray;
 use Piwik\DataTable;
 use Piwik\Metrics;
+use Piwik\PluginsArchiver;
+use Piwik\PluginsManager;
 use Piwik\Tracker\GoalManager;
 
 class Archiver extends \Piwik\Plugin\Archiver
@@ -186,7 +188,7 @@ class Archiver extends \Piwik\Plugin\Archiver
      * @param int|bool $idGoal idGoal to return the metrics for, or false to return overall
      * @return string Archive record name
      */
-    public static function getRecordName($recordName, $idGoal = false)
+    static public function getRecordName($recordName, $idGoal = false)
     {
         $idGoalStr = '';
         if ($idGoal !== false) {
@@ -356,7 +358,7 @@ class Archiver extends \Piwik\Plugin\Archiver
         return array(GoalManager::IDGOAL_CART, GoalManager::IDGOAL_ORDER);
     }
 
-    public static function getItemRecordNameAbandonedCart($recordName)
+    static public function getItemRecordNameAbandonedCart($recordName)
     {
         return $recordName . '_Cart';
     }

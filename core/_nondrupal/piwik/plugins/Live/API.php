@@ -29,7 +29,6 @@ use Piwik\Tracker;
  * @see plugins/Live/Visitor.php
  */
 require_once PIWIK_INCLUDE_PATH . '/plugins/Live/Visitor.php';
-require_once PIWIK_INCLUDE_PATH . '/plugins/UserCountry/functions.php';
 
 /**
  * The Live! API lets you access complete visit level information about your visitors. Combined with the power of <a href='http://piwik.org/docs/analytics-api/segmentation/' target='_blank'>Segmentation</a>,
@@ -69,49 +68,34 @@ class API extends \Piwik\Plugin\API
     public function getCounters($idSite, $lastMinutes, $segment = false)
     {
         Piwik::checkUserHasViewAccess($idSite);
-        $lastMinutes = (int) $lastMinutes;
+        $lastMinutes = (int)$lastMinutes;
 
-        $counters = array(
-            'visits'   => 0,
-            'actions'  => 0,
-            'visitors' => 0,
-            'visitsConverted' => 0,
-        );
+        $select = "count(*) as visits,
+				SUM(log_visit.visit_total_actions) as actions,
+				SUM(log_visit.visit_goal_converted) as visitsConverted,
+				COUNT(DISTINCT log_visit.idvisitor) as visitors";
 
-        if (empty($lastMinutes)) {
-            return array($counters);
-        }
+        $from = "log_visit";
 
         list($whereIdSites, $idSites) = $this->getIdSitesWhereClause($idSite);
 
-        $select  = "count(*) as visits, COUNT(DISTINCT log_visit.idvisitor) as visitors";
-        $where   = $whereIdSites . "AND log_visit.visit_last_action_time >= ?";
-        $bind    = $idSites;
-        $bind[]  = Date::factory(time() - $lastMinutes * 60)->toString('Y-m-d H:i:s');
+        $where = $whereIdSites . "AND log_visit.visit_last_action_time >= ?";
+        $bind = $idSites;
+        $bind[] = Date::factory(time() - $lastMinutes * 60)->toString('Y-m-d H:i:s');
 
         $segment = new Segment($segment, $idSite);
-        $query   = $segment->getSelectQuery($select, 'log_visit', $where, $bind);
+        $query = $segment->getSelectQuery($select, $from, $where, $bind);
 
-        $data    = Db::fetchAll($query['sql'], $query['bind']);
+        $data = Db::fetchAll($query['sql'], $query['bind']);
 
-        $counters['visits']   = $data[0]['visits'];
-        $counters['visitors'] = $data[0]['visitors'];
-
-        $select = "count(*)";
-        $from   = 'log_link_visit_action';
-        list($whereIdSites) = $this->getIdSitesWhereClause($idSite, $from);
-        $where  = $whereIdSites . "AND log_link_visit_action.server_time >= ?";
-        $query  = $segment->getSelectQuery($select, $from, $where, $bind);
-        $counters['actions'] = Db::fetchOne($query['sql'], $query['bind']);
-
-        $select = "count(*)";
-        $from   = 'log_conversion';
-        list($whereIdSites) = $this->getIdSitesWhereClause($idSite, $from);
-        $where  = $whereIdSites . "AND log_conversion.server_time >= ?";
-        $query  = $segment->getSelectQuery($select, $from, $where, $bind);
-        $counters['visitsConverted'] = Db::fetchOne($query['sql'], $query['bind']);
-
-        return array($counters);
+        // These could be unset for some reasons, ensure they are set to 0
+        if (empty($data[0]['actions'])) {
+            $data[0]['actions'] = 0;
+        }
+        if (empty($data[0]['visitsConverted'])) {
+            $data[0]['visitsConverted'] = 0;
+        }
+        return $data;
     }
 
     /**
@@ -166,13 +150,6 @@ class API extends \Piwik\Plugin\API
         Piwik::checkUserHasViewAccess($idSite);
         $dataTable = $this->loadLastVisitorDetailsFromDatabase($idSite, $period, $date, $segment, $countVisitorsToFetch, $visitorId = false, $minTimestamp, $filterSortOrder);
         $this->addFilterToCleanVisitors($dataTable, $idSite, $flat, $doNotFetchActions);
-
-        $filterSortColumn = Common::getRequestVar('filter_sort_column', false, 'string');
-        $filterSortOrder  = Common::getRequestVar('filter_sort_order', 'desc', 'string');
-
-        if ($filterSortColumn) {
-            $dataTable->queueFilter('Sort', array($filterSortColumn, $filterSortOrder));
-        }
 
         return $dataTable;
     }
@@ -302,11 +279,11 @@ class API extends \Piwik\Plugin\API
             }
             ++$continents[$continentCode];
 
-            if ($countryCode && !array_key_exists($countryCode, $cities)) {
+            if (!array_key_exists($countryCode, $cities)) {
                 $cities[$countryCode] = array();
             }
             $city = $visit->getColumn('city');
-            if (!empty($city)) {
+            if(!empty($city)) {
                 $cities[$countryCode][] = $city;
             }
         }
@@ -325,7 +302,7 @@ class API extends \Piwik\Plugin\API
                                    'nb_visits'  => $nbVisits,
                                    'flag'       => \Piwik\Plugins\UserCountry\getFlagFromCode($countryCode),
                                    'prettyName' => \Piwik\Plugins\UserCountry\countryTranslate($countryCode));
-            if (!empty($cities[$countryCode])) {
+            if(!empty($cities[$countryCode])) {
                 $countryInfo['cities'] = array_unique($cities[$countryCode]);
             }
             $result['countries'][] = $countryInfo;
@@ -381,8 +358,6 @@ class API extends \Piwik\Plugin\API
             $dateTimePretty = $datePretty . ' ' . $visit->getColumn('serverTimePrettyFirstAction');
             $visit->setColumn('serverDateTimePrettyFirstAction', $dateTimePretty);
         }
-
-        $result['userId'] = $visit->getColumn('userId');
 
         // get visitor IDs that are adjacent to this one in log_visit
         // TODO: make sure order of visitor ids is not changed if a returning visitor visits while the user is
@@ -476,7 +451,8 @@ class API extends \Piwik\Plugin\API
         $segment = new Segment($segment, $idSite);
         $queryInfo = $segment->getSelectQuery($select, $from, $where, $whereBind, $orderBy, $groupBy);
 
-        $sql = "SELECT sub.idvisitor, sub.visit_last_action_time FROM ({$queryInfo['sql']}) as sub
+        $sql = "SELECT sub.idvisitor, sub.visit_last_action_time
+                  FROM ({$queryInfo['sql']}) as sub
                  WHERE $visitLastActionTimeCondition
                  LIMIT 1";
         $bind = array_merge($queryInfo['bind'], array($visitLastActionTime));
@@ -588,7 +564,7 @@ class API extends \Piwik\Plugin\API
                 $visitorDetailsArray['serverTimestamp'] = $visitorDetailsArray['lastActionTimestamp'];
 
                 $dateTimeVisit = Date::factory($visitorDetailsArray['lastActionTimestamp'], $timezone);
-                if ($dateTimeVisit) {
+                if($dateTimeVisit) {
                     $visitorDetailsArray['serverTimePretty'] = $dateTimeVisit->getLocalized('%time%');
                     $visitorDetailsArray['serverDatePretty'] = $dateTimeVisit->getLocalized(Piwik::translate('CoreHome_ShortDateFormat'));
                 }
@@ -702,7 +678,8 @@ class API extends \Piwik\Plugin\API
 
         // Group by idvisit so that a visitor converting 2 goals only appears once
         $sql = "
-			SELECT sub.* FROM (
+			SELECT sub.*
+			FROM (
 				" . $subQuery['sql'] . "
 				$sqlLimit
 			) AS sub
@@ -733,16 +710,15 @@ class API extends \Piwik\Plugin\API
 
     /**
      * @param $idSite
-     * @param string $table
      * @return array
      */
-    private function getIdSitesWhereClause($idSite, $table = 'log_visit')
+    private function getIdSitesWhereClause($idSite)
     {
         $idSites = array($idSite);
         Piwik::postEvent('Live.API.getIdSitesString', array(&$idSites));
 
         $idSitesBind = Common::getSqlStringFieldsArray($idSites);
-        $whereClause = $table . ".idsite in ($idSitesBind) ";
+        $whereClause = "log_visit.idsite in ($idSitesBind) ";
         return array($whereClause, $idSites);
     }
 }

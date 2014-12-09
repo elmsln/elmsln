@@ -26,7 +26,8 @@ class Live extends \Piwik\Plugin
         return array(
             'AssetManager.getJavaScriptFiles'        => 'getJsFiles',
             'AssetManager.getStylesheetFiles'        => 'getStylesheetFiles',
-            'Translate.getClientSideTranslationKeys' => 'getClientSideTranslationKeys'
+            'Translate.getClientSideTranslationKeys' => 'getClientSideTranslationKeys',
+            'ViewDataTable.getDefaultType'           => 'getDefaultTypeViewDataTable'
         );
     }
 
@@ -50,5 +51,10 @@ class Live extends \Piwik\Plugin
         $translationKeys[] = "Live_ShowMap";
         $translationKeys[] = "Live_HideMap";
         $translationKeys[] = "Live_PageRefreshed";
+    }
+
+    public function getDefaultTypeViewDataTable(&$defaultViewTypes)
+    {
+        $defaultViewTypes['Live.getLastVisitsDetails'] = VisitorLog::ID;
     }
 }

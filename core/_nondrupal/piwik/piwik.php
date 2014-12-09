@@ -15,6 +15,7 @@ use Piwik\Tracker;
 // Note: if you wish to debug the Tracking API please see this documentation:
 // http://developer.piwik.org/api-reference/tracking-api#debugging-the-tracker
 
+$GLOBALS['PIWIK_TRACKER_DEBUG_FORCE_SCHEDULED_TASKS'] = false;
 define('PIWIK_ENABLE_TRACKING', true);
 
 if (!defined('PIWIK_DOCUMENT_ROOT')) {
@@ -75,13 +76,18 @@ require_once PIWIK_INCLUDE_PATH . '/core/Tracker/GoalManager.php';
 require_once PIWIK_INCLUDE_PATH . '/core/Tracker/PageUrl.php';
 require_once PIWIK_INCLUDE_PATH . '/core/Tracker/TableLogAction.php';
 require_once PIWIK_INCLUDE_PATH . '/core/Tracker/Action.php';
+require_once PIWIK_INCLUDE_PATH . '/core/Tracker/ActionClickUrl.php';
+require_once PIWIK_INCLUDE_PATH . '/core/Tracker/ActionEvent.php';
 require_once PIWIK_INCLUDE_PATH . '/core/Tracker/ActionPageview.php';
+require_once PIWIK_INCLUDE_PATH . '/core/Tracker/ActionSiteSearch.php';
 require_once PIWIK_INCLUDE_PATH . '/core/Tracker/Request.php';
+require_once PIWIK_INCLUDE_PATH . '/core/Tracker/Referrer.php';
 require_once PIWIK_INCLUDE_PATH . '/core/Tracker/VisitExcluded.php';
 require_once PIWIK_INCLUDE_PATH . '/core/Tracker/VisitorNotFoundInDb.php';
 require_once PIWIK_INCLUDE_PATH . '/core/CacheFile.php';
 require_once PIWIK_INCLUDE_PATH . '/core/Filesystem.php';
 require_once PIWIK_INCLUDE_PATH . '/core/Cookie.php';
+require_once PIWIK_INCLUDE_PATH . '/core/Loader.php';
 
 session_cache_limiter('nocache');
 @date_default_timezone_set('UTC');
@@ -94,6 +100,8 @@ if (!defined('PIWIK_ENABLE_TRACKING') || PIWIK_ENABLE_TRACKING) {
 
 $GLOBALS['PIWIK_TRACKER_DEBUG'] = (bool) \Piwik\Config::getInstance()->Tracker['debug'];
 if ($GLOBALS['PIWIK_TRACKER_DEBUG'] === true) {
+    require_once PIWIK_INCLUDE_PATH . '/core/Loader.php';
+
     require_once PIWIK_INCLUDE_PATH . '/core/Error.php';
     \Piwik\Error::setErrorHandler();
     require_once PIWIK_INCLUDE_PATH . '/core/ExceptionHandler.php';

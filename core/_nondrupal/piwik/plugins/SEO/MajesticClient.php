@@ -65,7 +65,7 @@ class MajesticClient
             'referrer_domains_count' => false
         );
 
-        $apiResponse = json_decode($apiResponse, $assoc = true);
+        $apiResponse = Common::json_decode($apiResponse, $assoc = true);
         if (!empty($apiResponse)
             && !empty($apiResponse['Data'])
         ) {

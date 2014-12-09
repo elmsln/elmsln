@@ -14,6 +14,12 @@ class Menu extends \Piwik\Plugin\Menu
 {
     public function configureAdminMenu(MenuAdmin $menu)
     {
-        $menu->addSettingsItem('MobileMessaging_SettingsMenu', $this->urlForAction('index'), $order = 12);
+        $menu->add(
+            'General_Settings',
+            'MobileMessaging_SettingsMenu',
+            array('module' => 'MobileMessaging', 'action' => 'index'),
+            true,
+            $order = 12
+        );
     }
 }

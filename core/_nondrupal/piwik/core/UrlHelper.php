@@ -10,7 +10,7 @@ namespace Piwik;
 
 /**
  * Contains less commonly needed URL helper methods.
- *
+ * 
  */
 class UrlHelper
 {
@@ -108,9 +108,9 @@ class UrlHelper
     /**
      * Returns a URL created from the result of the [parse_url](http://php.net/manual/en/function.parse-url.php)
      * function.
-     *
+     * 
      * Copied from the PHP comments at [http://php.net/parse_url](http://php.net/parse_url).
-     *
+     * 
      * @param array $parsed Result of [parse_url](http://php.net/manual/en/function.parse-url.php).
      * @return false|string The URL or `false` if `$parsed` isn't an array.
      * @api
@@ -233,6 +233,7 @@ class UrlHelper
         }
         return $result;
     }
+
 
     /**
      * Extracts a keyword from a raw not encoded URL.
@@ -393,23 +394,20 @@ class UrlHelper
                     $key = self::getParameterFromQueryString($query, $variableName);
                     $key = trim(urldecode($key));
 
-                    // Special cases: empty or no keywords
+                    // Special case: Google & empty q parameter
                     if (empty($key)
+                        && $variableName == 'q'
+
                         && (
                             // Google search with no keyword
                             ($searchEngineName == 'Google'
-                                && (empty($query) && (empty($referrerPath) || $referrerPath == '/') && empty($referrerParsed['fragment']))
+                                && ( // First, they started putting an empty q= parameter
+                                    strpos($query, '&q=') !== false
+                                    || strpos($query, '?q=') !== false
+                                    // then they started sending the full host only (no path/query string)
+                                    || (empty($query) && (empty($referrerPath) || $referrerPath == '/') && empty($referrerParsed['fragment']))
+                                )
                             )
-
-                            // Yahoo search with no keyword
-                            || ($searchEngineName == 'Yahoo!'
-                                && ($referrerParsed['host'] == 'r.search.yahoo.com')
-                            )
-
-                            // empty keyword parameter
-                            || strpos($query, sprintf('&%s=', $variableName)) !== false
-                            || strpos($query, sprintf('?%s=', $variableName)) !== false
-
                             // search engines with no keyword
                             || $searchEngineName == 'Google Images'
                             || $searchEngineName == 'DuckDuckGo')

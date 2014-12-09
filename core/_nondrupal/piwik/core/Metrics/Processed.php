@@ -11,6 +11,8 @@ namespace Piwik\Metrics;
 use Piwik\Metrics;
 use Piwik\DataTable\Row;
 use Piwik\DataTable;
+use Piwik\Piwik;
+use Piwik\Tracker\GoalManager;
 
 class Processed extends Base
 {

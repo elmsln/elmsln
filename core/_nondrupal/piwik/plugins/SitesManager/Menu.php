@@ -15,10 +15,9 @@ class Menu extends \Piwik\Plugin\Menu
 {
     public function configureAdminMenu(MenuAdmin $menu)
     {
-        if (Piwik::isUserHasSomeAdminAccess()) {
-            $menu->addManageItem('SitesManager_Sites',
-                                 $this->urlForAction('index'),
-                                 $order = 1);
-        }
+        $menu->add('CoreAdminHome_MenuManage', 'SitesManager_Sites',
+                   array('module' => 'SitesManager', 'action' => 'index'),
+                   Piwik::isUserHasSomeAdminAccess(),
+                   $order = 1);
     }
 }

@@ -92,4 +92,4 @@ chown -R root:$webgroup "$configsdir/logs"
 chmod 2770 "$configsdir/logs" -v
 # ensure piwik is happy
 chown -R $wwwuser:$wwwuser "$configsdir/_nondrupal/piwik"
-chmod 0755 "$configsdir/_nondrupal/piwik" -v
+chmod 2744 "$configsdir/_nondrupal/piwik" -v

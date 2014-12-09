@@ -30,7 +30,7 @@ class API extends \Piwik\Plugin\API
      * @param string $provider
      * @return SMSProvider
      */
-    private static function getSMSProviderInstance($provider)
+    static private function getSMSProviderInstance($provider)
     {
         return SMSProvider::factory($provider);
     }
@@ -365,7 +365,7 @@ class API extends \Piwik\Plugin\API
     {
         Option::set(
             $user . MobileMessaging::USER_SETTINGS_POSTFIX_OPTION,
-            json_encode($settings)
+            Common::json_encode($settings)
         );
     }
 
@@ -392,7 +392,7 @@ class API extends \Piwik\Plugin\API
         if (empty($userSettings)) {
             $userSettings = array();
         } else {
-            $userSettings = json_decode($userSettings, true);
+            $userSettings = Common::json_decode($userSettings, true);
         }
 
         return $userSettings;

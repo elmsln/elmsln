@@ -8,7 +8,6 @@
  */
 namespace Piwik\Plugin;
 
-use Piwik\Development;
 use Piwik\ScheduledTask;
 use Piwik\ScheduledTime;
 
@@ -121,8 +120,6 @@ class Tasks
      */
     protected function custom($objectOrClassName, $methodName, $methodParameter, $time, $priority = self::NORMAL_PRIORITY)
     {
-        $this->checkIsValidTask($objectOrClassName, $methodName);
-
         if (is_string($time)) {
             $time = ScheduledTime::factory($time);
         }
@@ -145,10 +142,5 @@ class Tasks
     protected function scheduleTask(ScheduledTask $task)
     {
         $this->tasks[] = $task;
-    }
-
-    private function checkIsValidTask($objectOrClassName, $methodName)
-    {
-        Development::checkMethodIsCallable($objectOrClassName, $methodName, 'The registered task is not valid as the method');
     }
 }

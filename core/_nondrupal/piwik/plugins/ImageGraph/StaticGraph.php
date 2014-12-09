@@ -12,9 +12,9 @@ namespace Piwik\Plugins\ImageGraph;
 use Exception;
 use pData;
 use pImage;
+use Piwik\Loader;
 use Piwik\Piwik;
 use Piwik\SettingsPiwik;
-use Piwik\BaseFactory;
 
 require_once PIWIK_INCLUDE_PATH . "/libs/pChart2.1.3/class/pDraw.class.php";
 require_once PIWIK_INCLUDE_PATH . "/libs/pChart2.1.3/class/pImage.class.php";
@@ -24,7 +24,7 @@ require_once PIWIK_INCLUDE_PATH . "/libs/pChart2.1.3/class/pData.class.php";
  * The StaticGraph abstract class is used as a base class for different types of static graphs.
  *
  */
-abstract class StaticGraph extends BaseFactory
+abstract class StaticGraph
 {
     const GRAPH_TYPE_BASIC_LINE = "evolution";
     const GRAPH_TYPE_VERTICAL_BAR = "verticalBar";
@@ -32,7 +32,7 @@ abstract class StaticGraph extends BaseFactory
     const GRAPH_TYPE_3D_PIE = "3dPie";
     const GRAPH_TYPE_BASIC_PIE = "pie";
 
-    private static $availableStaticGraphTypes = array(
+    static private $availableStaticGraphTypes = array(
         self::GRAPH_TYPE_BASIC_LINE     => 'Evolution',
         self::GRAPH_TYPE_VERTICAL_BAR   => 'VerticalBar',
         self::GRAPH_TYPE_HORIZONTAL_BAR => 'HorizontalBar',
@@ -73,19 +73,29 @@ abstract class StaticGraph extends BaseFactory
 
     abstract public function renderGraph();
 
-    protected static function getClassNameFromClassId($graphType)
+    /**
+     * Return the StaticGraph according to the static graph type $graphType
+     *
+     * @throws Exception If the static graph type is unknown
+     * @param string $graphType
+     * @return \Piwik\Plugins\ImageGraph\StaticGraph
+     */
+    public static function factory($graphType)
     {
-        $className = self::$availableStaticGraphTypes[$graphType];
-        $className = __NAMESPACE__ . "\\StaticGraph\\" . $className;
-        return $className;
-    }
+        if (isset(self::$availableStaticGraphTypes[$graphType])) {
 
-    protected static function getInvalidClassIdExceptionMessage($graphType)
-    {
-        return Piwik::translate(
-            'General_ExceptionInvalidStaticGraphType',
-            array($graphType, implode(', ', self::getAvailableStaticGraphTypes()))
-        );
+            $className = self::$availableStaticGraphTypes[$graphType];
+            $className = __NAMESPACE__ . "\\StaticGraph\\" . $className;
+            Loader::loadClass($className);
+            return new $className;
+        } else {
+            throw new Exception(
+                Piwik::translate(
+                    'General_ExceptionInvalidStaticGraphType',
+                    array($graphType, implode(', ', self::getAvailableStaticGraphTypes()))
+                )
+            );
+        }
     }
 
     public static function getAvailableStaticGraphTypes()
@@ -301,7 +311,7 @@ abstract class StaticGraph extends BaseFactory
 
         $maxWidth = 0;
         $maxHeight = 0;
-        foreach ($values as $data) {
+        foreach ($values as $column => $data) {
             foreach ($data as $value) {
                 list($valueWidth, $valueHeight) = $this->getTextWidthHeight($value);
 

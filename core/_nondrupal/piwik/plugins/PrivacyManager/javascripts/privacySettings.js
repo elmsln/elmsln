@@ -93,10 +93,7 @@ $(document).ready(function () {
         toggleBlock("deleteLogSettings", $("input[name=deleteEnable]:checked").val());
         toggleBlock("anonymizeIPenabled", $("input[name=anonymizeIPEnable]:checked").val());
         toggleBlock("deleteReportsSettings", $("input[name=deleteReportsEnable]:checked").val());
-        // This one is in an AngularJS directive, so is generated later
-        setTimeout(function () {
-            toggleBlock("deleteOldReportsMoreInfo", $("input[name=deleteReportsEnable]:checked").val());
-        }, 500);
+        toggleBlock("deleteOldReportsMoreInfo", $("input[name=deleteReportsEnable]:checked").val());
         toggleOtherDeleteSections();
     });
 

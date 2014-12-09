@@ -9,11 +9,10 @@
  */
 namespace Piwik\Plugins\LanguagesManager;
 
-use Piwik\Cache\PersistentCache;
+use Piwik\Common;
 use Piwik\Db;
 use Piwik\Filesystem;
 use Piwik\Piwik;
-use Piwik\Plugin\Manager as PluginManager;
 
 /**
  * The LanguagesManager API lets you access existing Piwik translations, and change Users languages preferences.
@@ -91,7 +90,7 @@ class API extends \Piwik\Plugin\API
 
         // merge with plugin translations if any
         $pluginFiles = glob(sprintf('%s/plugins/*/lang/en.json', PIWIK_INCLUDE_PATH));
-        foreach ($pluginFiles as $file) {
+        foreach ($pluginFiles AS $file) {
 
             $data = file_get_contents($file);
             $pluginTranslations = json_decode($data, true);
@@ -106,7 +105,7 @@ class API extends \Piwik\Plugin\API
 
             // merge with plugin translations if any
             $pluginFiles = glob(sprintf('%s/plugins/*/lang/%s.json', PIWIK_INCLUDE_PATH, $filename));
-            foreach ($pluginFiles as $file) {
+            foreach ($pluginFiles AS $file) {
 
                 $data = file_get_contents($file);
                 $pluginTranslations = json_decode($data, true);
@@ -172,17 +171,6 @@ class API extends \Piwik\Plugin\API
                 );
             }
         }
-
-        foreach (PluginManager::getInstance()->getLoadedPluginsName() as $pluginName) {
-            $translations = $this->getPluginTranslationsForLanguage($pluginName, $languageCode);
-
-            if (!empty($translations)) {
-                foreach ($translations as $keys) {
-                    $languageInfo[] = $keys;
-                }
-            }
-        }
-
         return $languageInfo;
     }
 
@@ -229,20 +217,12 @@ class API extends \Piwik\Plugin\API
      */
     public function getLanguageForUser($login)
     {
-        if ($login == 'anonymous') {
+        if($login == 'anonymous') {
             return false;
         }
-
         Piwik::checkUserHasSuperUserAccessOrIsTheUser($login);
-
-        $lang = $this->getModel()->getLanguageForUser($login);
-
-        return $lang;
-    }
-
-    private function getModel()
-    {
-        return new Model();
+        return Db::fetchOne('SELECT language FROM ' . Common::prefixTable('user_language') .
+            ' WHERE login = ? ', array($login));
     }
 
     /**
@@ -256,13 +236,15 @@ class API extends \Piwik\Plugin\API
     {
         Piwik::checkUserHasSuperUserAccessOrIsTheUser($login);
         Piwik::checkUserIsNotAnonymous();
-
         if (!$this->isLanguageAvailable($languageCode)) {
             return false;
         }
-
-        $this->getModel()->setLanguageForUser($login, $languageCode);
-
+        $paramsBind = array($login, $languageCode, $languageCode);
+        Db::query('INSERT INTO ' . Common::prefixTable('user_language') .
+            ' (login, language)
+                VALUES (?,?)
+            ON DUPLICATE KEY UPDATE language=?',
+            $paramsBind);
         return true;
     }
 
@@ -272,26 +254,17 @@ class API extends \Piwik\Plugin\API
             return;
         }
 
-        $cache = new PersistentCache('availableLanguages');
-
-        if ($cache->has()) {
-            $languagesInfo = $cache->get();
-        } else {
-            $filenames = $this->getAvailableLanguages();
-            $languagesInfo = array();
-            foreach ($filenames as $filename) {
-                $data = file_get_contents(PIWIK_INCLUDE_PATH . "/lang/$filename.json");
-                $translations = json_decode($data, true);
-                $languagesInfo[] = array(
-                    'code'         => $filename,
-                    'name'         => $translations['General']['OriginalLanguageName'],
-                    'english_name' => $translations['General']['EnglishLanguageName']
-                );
-            }
-
-            $cache->set($languagesInfo);
+        $filenames = $this->getAvailableLanguages();
+        $languagesInfo = array();
+        foreach ($filenames as $filename) {
+            $data = file_get_contents(PIWIK_INCLUDE_PATH . "/lang/$filename.json");
+            $translations = json_decode($data, true);
+            $languagesInfo[] = array(
+                'code'         => $filename,
+                'name'         => $translations['General']['OriginalLanguageName'],
+                'english_name' => $translations['General']['EnglishLanguageName']
+            );
         }
-
         $this->availableLanguageNames = $languagesInfo;
     }
 }

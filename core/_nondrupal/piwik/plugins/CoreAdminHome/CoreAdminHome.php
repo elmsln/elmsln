@@ -9,7 +9,6 @@
 namespace Piwik\Plugins\CoreAdminHome;
 
 use Piwik\Db;
-use Piwik\Piwik;
 use Piwik\Settings\UserSetting;
 
 /**
@@ -25,8 +24,7 @@ class CoreAdminHome extends \Piwik\Plugin
         return array(
             'AssetManager.getStylesheetFiles' => 'getStylesheetFiles',
             'AssetManager.getJavaScriptFiles' => 'getJsFiles',
-            'UsersManager.deleteUser'         => 'cleanupUser',
-            'API.DocumentationGenerator.@hideExceptForSuperUser' => 'displayOnlyForSuperUser'
+            'UsersManager.deleteUser'         => 'cleanupUser'
         );
     }
 
@@ -37,7 +35,7 @@ class CoreAdminHome extends \Piwik\Plugin
 
     public function getStylesheetFiles(&$stylesheets)
     {
-        $stylesheets[] = "libs/jquery/themes/base/jquery-ui.min.css";
+        $stylesheets[] = "libs/jquery/themes/base/jquery-ui.css";
         $stylesheets[] = "plugins/CoreAdminHome/stylesheets/menu.less";
         $stylesheets[] = "plugins/Morpheus/stylesheets/base.less";
         $stylesheets[] = "plugins/Morpheus/stylesheets/theme.less";
@@ -47,10 +45,10 @@ class CoreAdminHome extends \Piwik\Plugin
 
     public function getJsFiles(&$jsFiles)
     {
-        $jsFiles[] = "libs/bower_components/jquery/dist/jquery.min.js";
-        $jsFiles[] = "libs/bower_components/jquery-ui/ui/minified/jquery-ui.min.js";
+        $jsFiles[] = "libs/jquery/jquery.js";
+        $jsFiles[] = "libs/jquery/jquery-ui.js";
         $jsFiles[] = "libs/jquery/jquery.browser.js";
-        $jsFiles[] = "libs/bower_components/sprintf/dist/sprintf.min.js";
+        $jsFiles[] = "libs/javascript/sprintf.js";
         $jsFiles[] = "plugins/Morpheus/javascripts/piwikHelper.js";
         $jsFiles[] = "plugins/Morpheus/javascripts/ajaxHelper.js";
         $jsFiles[] = "plugins/Morpheus/javascripts/jquery.icheck.min.js";
@@ -62,8 +60,4 @@ class CoreAdminHome extends \Piwik\Plugin
         $jsFiles[] = "plugins/CoreAdminHome/javascripts/pluginSettings.js";
     }
 
-    public function displayOnlyForSuperUser(&$hide)
-    {
-        $hide = !Piwik::hasUserSuperUserAccess();
-    }
 }

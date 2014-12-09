@@ -8,6 +8,8 @@
  */
 namespace Piwik\Db;
 
+
+use Piwik\Loader;
 use Zend_Db_Table;
 
 /**
@@ -38,7 +40,9 @@ class Adapter
         }
 
         $className = self::getAdapterClassName($adapterName);
-        $adapter   = new $className($dbInfos);
+        Loader::loadClass($className);
+
+        $adapter = new $className($dbInfos);
 
         if ($connect) {
             $adapter->getConnection();

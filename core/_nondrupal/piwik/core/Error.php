@@ -76,15 +76,9 @@ class Error
         $this->backtrace = $backtrace;
     }
 
-    /**
-     * Returns a string description of a PHP error number.
-     *
-     * @param int $errno `E_ERROR`, `E_WARNING`, `E_PARSE`, etc.
-     * @return string
-     */
-    public static function getErrNoString($errno)
+    public function getErrNoString()
     {
-        switch ($errno) {
+        switch ($this->errno) {
             case E_ERROR:
                 return "Error";
             case E_WARNING:
@@ -116,14 +110,14 @@ class Error
             case E_USER_DEPRECATED:
                 return "User Deprecated";
             default:
-                return "Unknown error ($errno)";
+                return "Unknown error ({$this->errno})";
         }
     }
 
     public static function formatFileAndDBLogMessage(&$message, $level, $tag, $datetime, $log)
     {
         if ($message instanceof Error) {
-            $message = $message->errfile . '(' . $message->errline . '): ' . Error::getErrNoString($message->errno)
+            $message = $message->errfile . '(' . $message->errline . '): ' . $message->getErrNoString()
                 . ' - ' . $message->errstr . "\n" . $message->backtrace;
 
             $message = $log->formatMessage($level, $tag, $datetime, $message);
@@ -143,14 +137,16 @@ class Error
                 return;
             }
 
-            Common::sendHeader('Content-Type: text/html; charset=utf-8');
+            if (!Common::isPhpCliMode()) {
+                @header('Content-Type: text/html; charset=utf-8');
+            }
 
             $htmlString = '';
             $htmlString .= "\n<div style='word-wrap: break-word; border: 3px solid red; padding:4px; width:70%; background-color:#FFFF96;'>
         <strong>There is an error. Please report the message (Piwik " . (class_exists('Piwik\Version') ? Version::VERSION : '') . ")
         and full backtrace in the <a href='?module=Proxy&action=redirect&url=http://forum.piwik.org' target='_blank'>Piwik forums</a> (please do a Search first as it might have been reported already!).<br /><br/>
         ";
-            $htmlString .= Error::getErrNoString($message->errno);
+            $htmlString .= $message->getErrNoString();
             $htmlString .= ":</strong> <em>{$message->errstr}</em> in <strong>{$message->errfile}</strong>";
             $htmlString .= " on line <strong>{$message->errline}</strong>\n";
             $htmlString .= "<br /><br />Backtrace --&gt;<div style=\"font-family:Courier;font-size:10pt\"><br />\n";

@@ -229,11 +229,7 @@ $(document).ready(function () {
             $(this)
                 .toggle()
                 .parent()
-                .prepend($('<a class="canceluser">' + _pk_translate('General_OrCancel', ['', '']) + '</a>')
-                    .click(function () {
-                        piwikHelper.redirect();
-                    })
-                ).prepend($('<input type="submit" class="submit updateuser"  value="' + _pk_translate('General_Save') + '" />')
+                .prepend($('<input type="submit" class="submit updateuser"  value="' + _pk_translate('General_Save') + '" />')
                     .click(function () {
                         var onValidate = function () {
                             sendUpdateUserAJAX($('tr#' + idRow));
@@ -244,7 +240,7 @@ $(document).ready(function () {
                             onValidate();
                         }
                     })
-            );
+                );
         });
 
     $('.editable').keypress(submitOnEnter);
@@ -301,14 +297,6 @@ $(document).ready(function () {
     $('#usersManagerSiteSelect').bind('change', function (e, site) {
         if (site.id != piwik.idSite) {
             piwik.broadcast.propagateNewPage('segment=&idSite=' + site.id, false);
-        }
-    });
-
-    // Show the token_auth
-    $('.token_auth').click(function () {
-        var token = $(this).data('token');
-        if ($(this).text() != token) {
-            $(this).text(token);
         }
     });
 });

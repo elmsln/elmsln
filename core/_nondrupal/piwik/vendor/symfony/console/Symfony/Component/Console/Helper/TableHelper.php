@@ -44,8 +44,6 @@ class TableHelper extends Helper
      * @param int $layout self::LAYOUT_*
      *
      * @return TableHelper
-     *
-     * @throws InvalidArgumentException when the table layout is not known
      */
     public function setLayout($layout)
     {

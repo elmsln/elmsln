@@ -95,7 +95,7 @@ class API extends \Piwik\Plugin\API
             'max_actions'
         );
         if (SettingsPiwik::isUniqueVisitorsEnabled($period)) {
-            $columns = array_merge(array('nb_uniq_visitors', 'nb_users'), $columns);
+            $columns = array_merge(array('nb_uniq_visitors'), $columns);
         }
         $columns = array_values($columns);
         return $columns;
@@ -116,16 +116,7 @@ class API extends \Piwik\Plugin\API
 
     public function getUniqueVisitors($idSite, $period, $date, $segment = false)
     {
-        $metric = 'nb_uniq_visitors';
-        $this->checkUniqueIsEnabledOrFail($period, $metric);
-        return $this->getNumeric($idSite, $period, $date, $segment, $metric);
-    }
-
-    public function getUsers($idSite, $period, $date, $segment = false)
-    {
-        $metric = 'nb_users';
-        $this->checkUniqueIsEnabledOrFail($period, $metric);
-        return $this->getNumeric($idSite, $period, $date, $segment, $metric);
+        return $this->getNumeric($idSite, $period, $date, $segment, 'nb_uniq_visitors');
     }
 
     public function getActions($idSite, $period, $date, $segment = false)
@@ -163,20 +154,5 @@ class API extends \Piwik\Plugin\API
             $table = MetricsFormatter::getPrettyTimeFromSeconds($table);
         }
         return $table;
-    }
-
-    /**
-     * @param $period
-     * @param $metric
-     * @throws \Exception
-     */
-    private function checkUniqueIsEnabledOrFail($period, $metric)
-    {
-        if (!SettingsPiwik::isUniqueVisitorsEnabled($period)) {
-            throw new \Exception(
-                "The metric " . $metric . " is not enabled for the requested period. " .
-                "Please see this FAQ: http://piwik.org/faq/how-to/faq_113/"
-            );
-        }
     }
 }

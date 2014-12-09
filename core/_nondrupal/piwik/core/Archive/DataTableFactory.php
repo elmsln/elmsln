@@ -154,7 +154,6 @@ class DataTableFactory
         }
 
         $this->transformMetadata($dataTable);
-
         return $dataTable;
     }
 

@@ -31,7 +31,7 @@ class Goals extends HtmlTable
     {
         parent::beforeLoadDataTable();
 
-        if ($this->config->disable_subtable_when_show_goals) {
+        if($this->config->disable_subtable_when_show_goals) {
             $this->config->subtable_controller_action = null;
         }
 
@@ -191,7 +191,7 @@ class Goals extends HtmlTable
 
         // set columns to display (columns of same type but different goals will be next to each other,
         // ie, goal_0_nb_conversions, goal_1_nb_conversions, etc.)
-        foreach ($goalColumnTemplates as $columnTemplate) {
+        foreach ($goalColumnTemplates as $idx => $columnTemplate) {
             foreach ($idGoals as $idGoal) {
                 $this->config->columns_to_display[] = sprintf($columnTemplate, $idGoal);
             }

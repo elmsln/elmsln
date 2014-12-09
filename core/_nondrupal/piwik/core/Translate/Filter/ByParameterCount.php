@@ -9,6 +9,7 @@
 
 namespace Piwik\Translate\Filter;
 
+
 /**
  */
 class ByParameterCount extends FilterAbstract
@@ -36,15 +37,14 @@ class ByParameterCount extends FilterAbstract
     {
         $cleanedTranslations = array();
 
-        foreach ($translations as $pluginName => $pluginTranslations) {
+        foreach ($translations AS $pluginName => $pluginTranslations) {
 
-            foreach ($pluginTranslations as $key => $translation) {
+            foreach ($pluginTranslations AS $key => $translation) {
 
                 if (isset($this->baseTranslations[$pluginName][$key])) {
                     $baseTranslation = $this->baseTranslations[$pluginName][$key];
                 } else {
-                    // english string was deleted, do not error
-                    continue;
+                    $baseTranslation = '';
                 }
 
                 // ensure that translated strings have the same number of %s as the english source strings

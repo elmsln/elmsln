@@ -307,19 +307,12 @@ abstract class LocationProvider
     public static function getProviderById($providerId)
     {
         foreach (self::getAvailableProviders() as $provider) {
-            if ($provider->getId() == $providerId) {
+            $info = $provider->getInfo();
+            if ($info['id'] == $providerId) {
                 return $provider;
             }
         }
-
         return false;
-    }
-
-    public function getId()
-    {
-        $info = $this->getInfo();
-
-        return $info['id'];
     }
 
     /**
@@ -444,17 +437,23 @@ abstract class LocationProvider
 
     /**
      * Returns an IP address from an array that was passed into getLocation. This
-     * will return an IPv4 address or null if the address is IPv6 (IPv6 is not
+     * will return an IPv4 address or false if the address is IPv6 (IPv6 is not
      * supported yet).
      *
      * @param  array $info Must have 'ip' key.
-     * @return string|null
+     * @return string|bool
      */
     protected function getIpFromInfo($info)
     {
-        $ip = \Piwik\Network\IP::fromStringIP($info['ip']);
-
-        return $ip->toIPv4String();
+        $ip = $info['ip'];
+        if (IP::isMappedIPv4($ip)) {
+            return IP::getIPv4FromMappedIPv6($ip);
+        } else if (IP::isIPv6($ip)) // IPv6 is not supported (yet)
+        {
+            return false;
+        } else {
+            return $ip;
+        }
     }
 }
 

@@ -31,7 +31,20 @@ class Console extends Renderer
      */
     public function render()
     {
+        $this->renderHeader();
         return $this->renderTable($this->table);
+    }
+
+    /**
+     * Computes the exception output and returns the string/binary
+     *
+     * @return string
+     */
+    public function renderException()
+    {
+        $this->renderHeader();
+        $exceptionMessage = $this->getExceptionMessage();
+        return 'Error: ' . $exceptionMessage;
     }
 
     /**
@@ -142,7 +155,7 @@ class Console extends Renderer
             foreach ($metadata as $id => $metadataIn) {
                 $output .= "<br />";
                 $output .= $prefix . " <b>$id</b><br />";
-                if (is_array($metadataIn)) {
+                if(is_array($metadataIn)) {
                     foreach ($metadataIn as $name => $value) {
                         $output .= $prefix . $prefix . "$name => $value";
                     }

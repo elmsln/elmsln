@@ -200,6 +200,7 @@
     });
 })(jQuery);
 
+
 $(function() {
     var refreshWidget = function (element, refreshAfterXSecs) {
         // if the widget has been removed from the DOM, abort
@@ -270,13 +271,18 @@ $(function() {
     };
 });
 
+
+var pauseImage = "plugins/Live/images/pause.gif";
+var pauseDisabledImage = "plugins/Live/images/pause_disabled.gif";
+var playImage = "plugins/Live/images/play.gif";
+var playDisabledImage = "plugins/Live/images/play_disabled.gif";
 function onClickPause() {
-    $('#pauseImage').hide();
-    $('#playImage').show();
+    $('#pauseImage').attr('src', pauseImage);
+    $('#playImage').attr('src', playDisabledImage);
     return $('#visitsLive').liveWidget('stop');
 }
 function onClickPlay() {
-    $('#playImage').hide();
-    $('#pauseImage').show();
+    $('#playImage').attr('src', playImage);
+    $('#pauseImage').attr('src', pauseDisabledImage);
     return $('#visitsLive').liveWidget('start');
 }

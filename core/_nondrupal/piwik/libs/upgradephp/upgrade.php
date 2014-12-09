@@ -130,8 +130,8 @@ if(function_exists('parse_ini_file')) {
 		if(!file_exists($filename)) {
             return false;
         }
-
-        return parse_ini_file($filename, $process_sections);
+        // Note: INI_SCANNER_RAW is important here!
+        return parse_ini_file($filename, $process_sections, INI_SCANNER_RAW);
 	}
 } else {
 	// we can't redefine parse_ini_file() if it has been disabled
@@ -349,7 +349,7 @@ function _safe_serialize( $value )
 	}
 	if(is_float($value))
 	{
-		return 'd:'.str_replace(',', '.', $value).';';
+		return 'd:'.$value.';';
 	}
 	if(is_string($value))
 	{
@@ -684,15 +684,4 @@ if(!function_exists('mb_strtolower')) {
 	function mb_strtolower($input, $charset) {
 		return strtolower($input);
 	}
-}
-
-/**
- * On ubuntu in some cases, there is a bug that gzopen does not exist and one must use gzopen64 instead
- */
-if (!function_exists('gzopen')
-    && function_exists('gzopen64')) {
-    function gzopen($filename , $mode = 'r', $use_include_path = 0 )
-    {
-        return gzopen64($filename , $mode, $use_include_path);
-    }
 }

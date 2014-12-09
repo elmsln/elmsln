@@ -9,54 +9,51 @@
 
 namespace Piwik\ViewDataTable;
 use Piwik\API\Request as ApiRequest;
-use Piwik\DataTable;
-use Piwik\DataTable\Filter\PivotByDimension;
 use Piwik\Metrics;
-use Piwik\Plugin\Report;
 use Piwik\Plugins\API\API;
 
 /**
  * Contains base display properties for {@link Piwik\Plugin\ViewDataTable}s. Manipulating these
  * properties in a ViewDataTable instance will change how its report will be displayed.
- *
+ * 
  * <a name="client-side-properties-desc"></a>
  * **Client Side Properties**
- *
+ * 
  * Client side properties are properties that should be passed on to the browser so
  * client side JavaScript can use them. Only affects ViewDataTables that output HTML.
  *
  * <a name="overridable-properties-desc"></a>
  * **Overridable Properties**
- *
+ * 
  * Overridable properties are properties that can be set via the query string.
  * If a request has a query parameter that matches an overridable property, the property
  * will be set to the query parameter value.
- *
+ * 
  * **Reusing base properties**
- *
+ * 
  * Many of the properties in this class only have meaning for the {@link Piwik\Plugin\Visualization}
- * class, but can be set for other visualizations that extend {@link Piwik\Plugin\ViewDataTable}
+ * class, but can be set for other visualizations that extend {@link Piwik\Plugin\ViewDataTable} 
  * directly.
- *
+ * 
  * Visualizations that extend {@link Piwik\Plugin\ViewDataTable} directly and want to re-use these
  * properties must make sure the properties are used in the exact same way they are used in
  * {@link Piwik\Plugin\Visualization}.
- *
+ * 
  * **Defining new display properties**
- *
+ * 
  * If you are creating your own visualization and want to add new display properties for
  * it, extend this class and add your properties as fields.
- *
+ * 
  * Properties are marked as client side properties by calling the
  * {@link addPropertiesThatShouldBeAvailableClientSide()} method.
- *
+ * 
  * Properties are marked as overridable by calling the
  * {@link addPropertiesThatCanBeOverwrittenByQueryParams()} method.
- *
+ * 
  * ### Example
- *
+ * 
  * **Defining new display properties**
- *
+ * 
  *     class MyCustomVizConfig extends Config
  *     {
  *         /**
@@ -68,11 +65,11 @@ use Piwik\Plugins\API\API;
  *          * Another custom property. It is available client side.
  *          *\/
  *         public $another_custom_property = true;
- *
+ * 
  *         public function __construct()
  *         {
  *             parent::__construct();
- *
+ * 
  *             $this->addPropertiesThatShouldBeAvailableClientSide(array('another_custom_property'));
  *             $this->addPropertiesThatCanBeOverwrittenByQueryParams(array('my_custom_property'));
  *         }
@@ -86,10 +83,7 @@ class Config
      * The list of ViewDataTable properties that are 'Client Side Properties'.
      */
     public $clientSideProperties = array(
-        'show_limit_control',
-        'pivot_by_dimension',
-        'pivot_by_column',
-        'pivot_dimension_name'
+        'show_limit_control'
     );
 
     /**
@@ -99,7 +93,6 @@ class Config
         'show_goals',
         'show_exclude_low_population',
         'show_flatten_table',
-        'show_pivot_by_subtable',
         'show_table',
         'show_table_all_columns',
         'show_footer',
@@ -190,28 +183,6 @@ class Config
      * 'cog' icon).
      */
     public $show_flatten_table = true;
-
-    /**
-     * Whether to show the 'Pivot by subtable' option (visible in the popup that displays after clicking
-     * the 'cog' icon).
-     */
-    public $show_pivot_by_subtable;
-
-    /**
-     * The ID of the dimension to pivot by when the 'pivot by subtable' option is clicked. Defaults
-     * to the subtable dimension of the report being displayed.
-     */
-    public $pivot_by_dimension;
-
-    /**
-     * The column to display in pivot tables. Defaults to the first non-label column if not specified.
-     */
-    public $pivot_by_column = '';
-
-    /**
-     * The human readable name of the pivot dimension.
-     */
-    public $pivot_dimension_name = false;
 
     /**
      * Controls whether the footer icon that allows users to switch to the 'normal' DataTable view
@@ -476,7 +447,6 @@ class Config
         $this->report_id        = $controllerName . '.' . $controllerAction;
 
         $this->loadDocumentation();
-        $this->setShouldShowPivotBySubtable();
     }
 
     /** Load documentation from the API */
@@ -499,7 +469,7 @@ class Config
     /**
      * Marks display properties as client side properties. [Read this](#client-side-properties-desc)
      * to learn more.
-     *
+     * 
      * @param array $propertyNames List of property names, eg, `array('show_limit_control', 'show_goals')`.
      */
     public function addPropertiesThatShouldBeAvailableClientSide(array $propertyNames)
@@ -512,7 +482,7 @@ class Config
     /**
      * Marks display properties as overridable. [Read this](#overridable-properties-desc) to
      * learn more.
-     *
+     * 
      * @param array $propertyNames List of property names, eg, `array('show_limit_control', 'show_goals')`.
      */
     public function addPropertiesThatCanBeOverwrittenByQueryParams(array $propertyNames)
@@ -525,7 +495,7 @@ class Config
     /**
      * Returns array of all property values in this config object. Property values are mapped
      * by name.
-     *
+     * 
      * @return array eg, `array('show_limit_control' => 0, 'show_goals' => 1, ...)`
      */
     public function getProperties()
@@ -585,7 +555,7 @@ class Config
      * Adds a related report to the {@link $related_reports} property. If the report
      * references the one that is currently being displayed, it will not be added to the related
      * report list.
-     *
+     * 
      * @param string $relatedReport The plugin and method of the report, eg, `'UserSettings.getBrowser'`.
      * @param string $title The report's display name, eg, `'Browsers'`.
      * @param array $queryParams Any extra query parameters to set in releated report's URL, eg,
@@ -598,7 +568,7 @@ class Config
         // don't add the related report if it references this report
         if ($this->controllerName == $module
             && $this->controllerAction == $action) {
-            if (empty($queryParams)) {
+            if(empty($queryParams)) {
                 return;
             }
         }
@@ -612,10 +582,10 @@ class Config
      * Adds several related reports to the {@link $related_reports} property. If
      * any of the reports references the report that is currently being displayed, it will not
      * be added to the list. All other reports will still be added though.
-     *
+     * 
      * If you need to make sure the related report URL has some extra query parameters,
      * use {@link addRelatedReport()}.
-     *
+     * 
      * @param array $relatedReports Array mapping report IDs with their internationalized display
      *                              titles, eg,
      *                              ```
@@ -634,9 +604,9 @@ class Config
 
     /**
      * Associates internationalized text with a metric. Overwrites existing mappings.
-     *
+     * 
      * See {@link $translations}.
-     *
+     * 
      * @param string $columnName The name of a column in the report data, eg, `'nb_visits'` or
      *                           `'goal_1_nb_conversions'`.
      * @param string $translation The internationalized text, eg, `'Visits'` or `"Conversions for 'My Goal'"`.
@@ -648,9 +618,9 @@ class Config
 
     /**
      * Associates multiple translations with metrics.
-     *
+     * 
      * See {@link $translations} and {@link addTranslation()}.
-     *
+     * 
      * @param array $translations An array of column name => text mappings, eg,
      *                            ```
      *                            array(
@@ -664,34 +634,5 @@ class Config
         foreach ($translations as $key => $translation) {
             $this->addTranslation($key, $translation);
         }
-    }
-
-    private function setShouldShowPivotBySubtable()
-    {
-        $report = Report::factory($this->controllerName, $this->controllerAction);
-
-        if (empty($report)) {
-            $this->show_pivot_by_subtable = false;
-            $this->pivot_by_dimension = false;
-        } else {
-            $this->show_pivot_by_subtable =  PivotByDimension::isPivotingReportBySubtableSupported($report);
-
-            $subtableDimension = $report->getSubtableDimension();
-            if (!empty($subtableDimension)) {
-                $this->pivot_by_dimension = $subtableDimension->getId();
-                $this->pivot_dimension_name = $subtableDimension->getName();
-            }
-        }
-    }
-
-    public function disablePivotBySubtableIfTableHasNoSubtables(DataTable $table)
-    {
-        foreach ($table->getRows() as $row) {
-            if ($row->getIdSubDataTable() !== null) {
-                return;
-            }
-        }
-
-        $this->show_pivot_by_subtable = false;
     }
 }

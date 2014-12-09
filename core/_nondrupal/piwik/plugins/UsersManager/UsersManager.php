@@ -21,7 +21,7 @@ use Piwik\SettingsPiwik;
 class UsersManager extends \Piwik\Plugin
 {
     const PASSWORD_MIN_LENGTH = 6;
-    const PASSWORD_MAX_LENGTH = 80;
+    const PASSWORD_MAX_LENGTH = 26;
 
     /**
      * @see Piwik\Plugin::getListHooksRegistered
@@ -34,8 +34,7 @@ class UsersManager extends \Piwik\Plugin
             'SitesManager.deleteSite.end'            => 'deleteSite',
             'Tracker.Cache.getSiteAttributes'        => 'recordAdminUsersInCache',
             'Translate.getClientSideTranslationKeys' => 'getClientSideTranslationKeys',
-            'Platform.initialized'                   => 'onPlatformInitialized',
-            'CronArchive.getTokenAuth'               => 'getCronArchiveTokenAuth'
+            'Platform.initialized'                   => 'onPlatformInitialized'
         );
     }
 
@@ -63,20 +62,7 @@ class UsersManager extends \Piwik\Plugin
         foreach ($users as $user) {
             $tokens[] = $user['token_auth'];
         }
-
         $attributes['admin_token_auth'] = $tokens;
-    }
-
-    public function getCronArchiveTokenAuth(&$token)
-    {
-        $model      = new Model();
-        $superUsers = $model->getUsersHavingSuperUserAccess();
-
-        if (!empty($superUsers)) {
-            $superUser = array_shift($superUsers);
-
-            $token = $superUser['token_auth'];
-        }
     }
 
     /**
@@ -119,9 +105,7 @@ class UsersManager extends \Piwik\Plugin
         ) {
             return true;
         }
-
         $l = strlen($input);
-
         return $l >= self::PASSWORD_MIN_LENGTH && $l <= self::PASSWORD_MAX_LENGTH;
     }
 

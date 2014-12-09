@@ -11,7 +11,6 @@ namespace Piwik\Plugins\CoreAdminHome;
 use Piwik\Config;
 use Piwik\Filesystem;
 use Piwik\Option;
-use Piwik\Plugin\Manager;
 use Piwik\SettingsPiwik;
 
 class CustomLogo
@@ -79,17 +78,9 @@ class CustomLogo
     /**
      * @return bool
      */
-    public function isFileUploadEnabled()
-    {
-        return ini_get('file_uploads') == 1;
-    }
-
-    /**
-     * @return bool
-     */
     public function isCustomLogoWritable()
     {
-        if (Config::getInstance()->General['enable_custom_logo_check'] == 0) {
+        if(Config::getInstance()->General['enable_custom_logo_check'] == 0) {
             return true;
         }
         $pathUserLogo = $this->getPathUserLogo();
@@ -104,7 +95,8 @@ class CustomLogo
             && is_writeable(PIWIK_DOCUMENT_ROOT . '/' . $this->getPathUserSvgLogo())
             && is_writeable(PIWIK_DOCUMENT_ROOT . '/' . $this->getPathUserLogoSmall());;
 
-        $isCustomLogoWritable = ($logoFilesWriteable || $directoryWritable) && $this->isFileUploadEnabled();
+        $serverUploadEnabled = ini_get('file_uploads') == 1;
+        $isCustomLogoWritable = ($logoFilesWriteable || $directoryWritable) && $serverUploadEnabled;
 
         return $isCustomLogoWritable;
     }
@@ -115,12 +107,7 @@ class CustomLogo
 
         $logo = $defaultLogo;
 
-        $theme = \Piwik\Plugin\Manager::getInstance()->getThemeEnabled();
-        if(!$theme) {
-            $themeName = Manager::DEFAULT_THEME;
-        } else {
-            $themeName = $theme->getPluginName();
-        }
+        $themeName = \Piwik\Plugin\Manager::getInstance()->getThemeEnabled()->getPluginName();
         $themeLogo = sprintf($themeLogo, $themeName);
 
         if (file_exists($pathToPiwikRoot . '/' . $themeLogo)) {
@@ -202,7 +189,7 @@ class CustomLogo
                 $image = imagecreatefrompng($file);
                 break;
             case 'image/gif':
-                $image = imagecreatefromgif ($file);
+                $image = imagecreatefromgif($file);
                 break;
             default:
                 return false;

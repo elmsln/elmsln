@@ -7,7 +7,6 @@
  *
  */
 namespace Piwik;
-use Piwik\Columns\Updater as ColumnUpdater;
 
 /**
  * Load and execute all relevant, incremental update scripts for Piwik core and plugins, and bump the component version numbers for completed updates.
@@ -22,7 +21,6 @@ class Updater
     public $pathUpdateFilePlugins;
     private $componentsToCheck = array();
     private $hasMajorDbUpdate = false;
-    private $updatedClasses = array();
 
     /**
      * Constructor
@@ -31,8 +29,6 @@ class Updater
     {
         $this->pathUpdateFileCore = PIWIK_INCLUDE_PATH . '/core/Updates/';
         $this->pathUpdateFilePlugins = PIWIK_INCLUDE_PATH . '/plugins/%s/Updates/';
-
-        ColumnUpdater::setUpdater($this);
     }
 
     /**
@@ -59,30 +55,6 @@ class Updater
         } catch (\Exception $e) {
             // case when the option table is not yet created (before 0.2.10)
         }
-    }
-
-    /**
-     * Retrieve the current version of a recorded component
-     * @param string $name
-     * @return false|string
-     * @throws \Exception
-     */
-    public static function getCurrentRecordedComponentVersion($name)
-    {
-        try {
-            $currentVersion = Option::get(self::getNameInOptionTable($name));
-        } catch (\Exception $e) {
-            // mysql error 1146: table doesn't exist
-            if (Db::get()->isErrNo($e, '1146')) {
-                // case when the option table is not yet created (before 0.2.10)
-                $currentVersion = false;
-            } else {
-                // failed for some other reason
-                throw $e;
-            }
-        }
-
-        return $currentVersion;
     }
 
     /**
@@ -139,8 +111,6 @@ class Updater
     public function getSqlQueriesToExecute()
     {
         $queries = array();
-        $classNames = array();
-
         foreach ($this->componentsWithUpdateFile as $componentName => $componentUpdateInfo) {
             foreach ($componentUpdateInfo as $file => $fileVersion) {
                 require_once $file; // prefixed by PIWIK_INCLUDE_PATH
@@ -149,13 +119,6 @@ class Updater
                 if (!class_exists($className, false)) {
                     throw new \Exception("The class $className was not found in $file");
                 }
-
-                if (in_array($className, $classNames)) {
-                    continue; // prevent from getting updates from Piwik\Columns\Updater multiple times
-                }
-
-                $classNames[] = $className;
-
                 $queriesForComponent = call_user_func(array($className, 'getSql'));
                 foreach ($queriesForComponent as $query => $error) {
                     $queries[] = $query . ';';
@@ -170,7 +133,7 @@ class Updater
         return $queries;
     }
 
-    public function getUpdateClassName($componentName, $fileVersion)
+    private function getUpdateClassName($componentName, $fileVersion)
     {
         $suffix = strtolower(str_replace(array('-', '.'), '_', $fileVersion));
         $className = 'Updates_' . $suffix;
@@ -178,11 +141,6 @@ class Updater
         if ($componentName == 'core') {
             return '\\Piwik\\Updates\\' . $className;
         }
-
-        if (ColumnUpdater::isDimensionComponent($componentName)) {
-            return '\\Piwik\\Columns\\Updater';
-        }
-
         return '\\Piwik\\Plugins\\' . $componentName . '\\' . $className;
     }
 
@@ -196,18 +154,14 @@ class Updater
     public function update($componentName)
     {
         $warningMessages = array();
-
         foreach ($this->componentsWithUpdateFile[$componentName] as $file => $fileVersion) {
             try {
                 require_once $file; // prefixed by PIWIK_INCLUDE_PATH
 
                 $className = $this->getUpdateClassName($componentName, $fileVersion);
-                if (!in_array($className, $this->updatedClasses) && class_exists($className, false)) {
+                if (class_exists($className, false)) {
                     // update()
                     call_user_func(array($className, 'update'));
-                    // makes sure to call Piwik\Columns\Updater only once as one call updates all dimensions at the same
-                    // time for better performance
-                    $this->updatedClasses[] = $className;
                 }
 
                 self::recordComponentSuccessfullyUpdated($componentName, $fileVersion);
@@ -231,34 +185,29 @@ class Updater
     private function loadComponentsWithUpdateFile()
     {
         $componentsWithUpdateFile = array();
-
         foreach ($this->componentsWithNewVersion as $name => $versions) {
             $currentVersion = $versions[self::INDEX_CURRENT_VERSION];
             $newVersion = $versions[self::INDEX_NEW_VERSION];
 
             if ($name == 'core') {
                 $pathToUpdates = $this->pathUpdateFileCore . '*.php';
-            } elseif (ColumnUpdater::isDimensionComponent($name)) {
-                $componentsWithUpdateFile[$name][PIWIK_INCLUDE_PATH . '/core/Columns/Updater.php'] = $newVersion;
             } else {
                 $pathToUpdates = sprintf($this->pathUpdateFilePlugins, $name) . '*.php';
             }
 
-            if (!empty($pathToUpdates)) {
-                $files = _glob($pathToUpdates);
-                if ($files == false) {
-                    $files = array();
-                }
+            $files = _glob($pathToUpdates);
+            if ($files == false) {
+                $files = array();
+            }
 
-                foreach ($files as $file) {
-                    $fileVersion = basename($file, '.php');
-                    if ( // if the update is from a newer version
-                        version_compare($currentVersion, $fileVersion) == -1
-                        // but we don't execute updates from non existing future releases
-                        && version_compare($fileVersion, $newVersion) <= 0
-                    ) {
-                        $componentsWithUpdateFile[$name][$file] = $fileVersion;
-                    }
+            foreach ($files as $file) {
+                $fileVersion = basename($file, '.php');
+                if ( // if the update is from a newer version
+                    version_compare($currentVersion, $fileVersion) == -1
+                    // but we don't execute updates from non existing future releases
+                    && version_compare($fileVersion, $newVersion) <= 0
+                ) {
+                    $componentsWithUpdateFile[$name][$file] = $fileVersion;
                 }
             }
 
@@ -270,7 +219,6 @@ class Updater
                 self::recordComponentSuccessfullyUpdated($name, $newVersion);
             }
         }
-
         return $componentsWithUpdateFile;
     }
 
@@ -291,24 +239,30 @@ class Updater
             $this->componentsToCheck = array_merge(array('core' => $coreVersions), $this->componentsToCheck);
         }
 
-        $recordedCoreVersion = self::getCurrentRecordedComponentVersion('core');
-        if ($recordedCoreVersion === false) {
-            // This should not happen
-            $recordedCoreVersion = Version::VERSION;
-            self::recordComponentSuccessfullyUpdated('core', $recordedCoreVersion);
-        }
-
         foreach ($this->componentsToCheck as $name => $version) {
-            $currentVersion = self::getCurrentRecordedComponentVersion($name);
-
-            if (ColumnUpdater::isDimensionComponent($name)) {
-                $isComponentOutdated = $currentVersion !== $version;
-            } else {
-                // note: when versionCompare == 1, the version in the DB is newer, we choose to ignore
-                $isComponentOutdated = version_compare($currentVersion, $version) == -1;
+            try {
+                $currentVersion = Option::get(self::getNameInOptionTable($name));
+            } catch (\Exception $e) {
+                // mysql error 1146: table doesn't exist
+                if (Db::get()->isErrNo($e, '1146')) {
+                    // case when the option table is not yet created (before 0.2.10)
+                    $currentVersion = false;
+                } else {
+                    // failed for some other reason
+                    throw $e;
+                }
             }
 
-            if ($isComponentOutdated || $currentVersion === false) {
+            if ($name === 'core' && $currentVersion === false) {
+                // This should not happen
+                $currentVersion = Version::VERSION;
+                self::recordComponentSuccessfullyUpdated($name, $currentVersion);
+            }
+
+            // note: when versionCompare == 1, the version in the DB is newer, we choose to ignore
+            $currentVersionIsOutdated = version_compare($currentVersion, $version) == -1;
+            $isComponentOutdated = $currentVersion === false || $currentVersionIsOutdated;
+            if ($isComponentOutdated) {
                 $componentsToUpdate[$name] = array(
                     self::INDEX_CURRENT_VERSION => $currentVersion,
                     self::INDEX_NEW_VERSION     => $version
@@ -355,34 +309,15 @@ class Updater
      * @param string $updateSql Update SQL query.
      * @param int|false $errorToIgnore A MySQL error code to ignore.
      * @param string $file The Update file that's calling this method.
-     * @throws UpdaterErrorException
      */
     public static function handleQueryError($e, $updateSql, $errorToIgnore, $file)
     {
         if (($errorToIgnore === false)
-            || !self::isDbErrorOneOf($e, $errorToIgnore)
+            || !Db::get()->isErrNo($e, $errorToIgnore)
         ) {
             $message = $file . ":\nError trying to execute the query '" . $updateSql . "'.\nThe error was: " . $e->getMessage();
             throw new UpdaterErrorException($message);
         }
-    }
-
-    /**
-     * Returns whether an exception is a DB error with a code in the $errorCodesToIgnore list.
-     *
-     * @param int $error
-     * @param int|int[] $errorCodesToIgnore
-     * @return boolean
-     */
-    public static function isDbErrorOneOf($error, $errorCodesToIgnore)
-    {
-        $errorCodesToIgnore = is_array($errorCodesToIgnore) ? $errorCodesToIgnore : array($errorCodesToIgnore);
-        foreach ($errorCodesToIgnore as $code) {
-            if (Db::get()->isErrNo($error, $code)) {
-                return true;
-            }
-        }
-        return false;
     }
 }
 

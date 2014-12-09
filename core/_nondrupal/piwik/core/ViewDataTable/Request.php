@@ -74,10 +74,7 @@ class Request
             'filter_column',
             'filter_pattern',
             'flat',
-            'expanded',
-            'pivotBy',
-            'pivotByColumn',
-            'pivotByColumnLimit'
+            'expanded'
         );
 
         foreach ($toSetEventually as $varToSet) {
@@ -119,8 +116,8 @@ class Request
         if (isset($_GET[$nameVar])) {
             return Common::sanitizeInputValue($_GET[$nameVar]);
         }
-
-        return $this->getDefault($nameVar);
+        $default = $this->getDefault($nameVar);
+        return $default;
     }
 
     /**

@@ -52,6 +52,7 @@ function formSetEditReport(idReport) {
         }
     }
 
+
     $('[name=reportsList] input').prop('checked', false);
 
     var key;
@@ -142,7 +143,6 @@ function initManagePdf() {
         var idReport = $(this).attr('idreport');
         var parameters = getReportAjaxRequest(idReport, 'ScheduledReports.sendReport');
         parameters.idReport = idReport;
-        parameters.force = true;
 
         var ajaxHandler = new ajaxHelper();
         ajaxHandler.addParams(parameters, 'POST');

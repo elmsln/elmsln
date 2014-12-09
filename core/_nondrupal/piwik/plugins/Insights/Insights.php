@@ -19,8 +19,14 @@ class Insights extends \Piwik\Plugin
     {
         return array(
             'AssetManager.getJavaScriptFiles' => 'getJsFiles',
-            'AssetManager.getStylesheetFiles' => 'getStylesheetFiles'
+            'AssetManager.getStylesheetFiles' => 'getStylesheetFiles',
+            'ViewDataTable.addViewDataTable' => 'getAvailableVisualizations'
         );
+    }
+
+    public function getAvailableVisualizations(&$visualizations)
+    {
+        $visualizations[] = __NAMESPACE__ . '\\Visualizations\\Insight';
     }
 
     public function getStylesheetFiles(&$stylesheets)

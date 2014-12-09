@@ -9,6 +9,7 @@
 
 namespace Piwik\Plugins\LanguagesManager\Commands;
 
+use Piwik\Plugin\ConsoleCommand;
 use Piwik\Plugins\LanguagesManager\API;
 use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Input\InputInterface;
@@ -17,7 +18,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 /**
  */
-class CreatePull extends TranslationBase
+class CreatePull extends ConsoleCommand
 {
     protected function configure()
     {
@@ -95,7 +96,7 @@ class CreatePull extends TranslationBase
         shell_exec('git add lang/. > /dev/null 2>&1');
 
         if (empty($plugin)) {
-            foreach (Update::getPluginsInCore() as $pluginName) {
+            foreach (Update::getPluginsInCore() AS $pluginName) {
                 shell_exec(sprintf('git add plugins/%s/lang/. > /dev/null 2>&1', $pluginName));
             }
         }
@@ -132,7 +133,7 @@ class CreatePull extends TranslationBase
 
         $languageCodesTouched = array();
         if (!empty($addedFiles[1])) {
-            foreach ($addedFiles[1] as $addedFile) {
+            foreach ($addedFiles[1] AS $addedFile) {
                 $languageInfo = $this->getLanguageInfoByIsoCode($addedFile);
                 $messages[$addedFile] = sprintf('- Added %s (%s changes / %s translated)\n', $languageInfo['english_name'], $linesSumByLang[$addedFile], $languageInfo['percentage_complete']);
             }
@@ -140,11 +141,11 @@ class CreatePull extends TranslationBase
         }
 
         if (!empty($modifiedFiles[1])) {
-            foreach ($modifiedFiles[1] as $modifiedFile) {
+            foreach ($modifiedFiles[1] AS $modifiedFile) {
                 $languageInfo = $this->getLanguageInfoByIsoCode($modifiedFile);
                 $messages[$modifiedFile] = sprintf('- Updated %s (%s changes / %s translated)\n', $languageInfo['english_name'], $linesSumByLang[$modifiedFile], $languageInfo['percentage_complete']);
             }
-            $languageCodesTouched = array_merge($languageCodesTouched, $modifiedFiles[1]);
+            $languageCodesTouched = $modifiedFiles[1];
         }
 
         $message = implode('', $messages);
@@ -168,7 +169,7 @@ class CreatePull extends TranslationBase
     private function getLanguageInfoByIsoCode($isoCode)
     {
         $languages = API::getInstance()->getAvailableLanguagesInfo();
-        foreach ($languages as $languageInfo) {
+        foreach ($languages AS $languageInfo) {
             if ($languageInfo['code'] == $isoCode) {
                 return $languageInfo;
             }

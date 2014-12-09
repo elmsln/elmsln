@@ -9,6 +9,7 @@
 
 namespace Piwik\Plugins\LanguagesManager\Commands;
 
+use Piwik\Plugin\ConsoleCommand;
 use Piwik\Translate;
 use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Input\InputInterface;
@@ -17,7 +18,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 /**
  */
-class CompareKeys extends TranslationBase
+class CompareKeys extends ConsoleCommand
 {
     protected function configure()
     {
@@ -29,6 +30,8 @@ class CompareKeys extends TranslationBase
 
     protected function execute(InputInterface $input, OutputInterface $output)
     {
+        $dialog = $this->getHelperSet()->get('dialog');
+
         $command = $this->getApplication()->find('translations:fetch');
         $arguments = array(
             'command'    => 'translations:fetch',
@@ -57,11 +60,11 @@ class CompareKeys extends TranslationBase
 
         $unnecessary = $outdated = $missing = array();
 
-        foreach ($categories as $category)
+        foreach ($categories AS $category)
         {
             if (!empty($englishFromOTrance[$category])) {
-                foreach ($englishFromOTrance[$category] as $key => $value) {
-                    if (!array_key_exists($category, $availableTranslations) || !array_key_exists($key, $availableTranslations[$category])) {
+                foreach ($englishFromOTrance[$category] AS $key => $value) {
+                    if(!array_key_exists($category, $availableTranslations) || !array_key_exists($key, $availableTranslations[$category])) {
                         $unnecessary[] = sprintf('%s_%s', $category, $key);
                         continue;
                     } else if (html_entity_decode($availableTranslations[$category][$key]) != html_entity_decode($englishFromOTrance[$category][$key])) {
@@ -71,8 +74,8 @@ class CompareKeys extends TranslationBase
                 }
             }
             if (!empty($availableTranslations[$category])) {
-                foreach ($availableTranslations[$category] as $key => $value) {
-                    if (!array_key_exists($category, $englishFromOTrance) || !array_key_exists($key, $englishFromOTrance[$category])) {
+                foreach ($availableTranslations[$category] AS $key => $value) {
+                    if(!array_key_exists($category, $englishFromOTrance) || !array_key_exists($key, $englishFromOTrance[$category])) {
                         $missing[] = sprintf('%s_%s', $category, $key);
                         continue;
                     }

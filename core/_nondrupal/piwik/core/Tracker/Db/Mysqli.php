@@ -27,6 +27,7 @@ class Mysqli extends Db
     protected $charset;
     protected $activeTransaction = false;
 
+
     /**
      * Builds the DB object
      *
@@ -73,14 +74,7 @@ class Mysqli extends Db
             $timer = $this->initProfiler();
         }
 
-        $this->connection = mysqli_init();
-
-        // Make sure MySQL returns all matched rows on update queries including
-        // rows that actually didn't have to be updated because the values didn't
-        // change. This matches common behaviour among other database systems.
-        // See #6296 why this is important in tracker
-        $flags = MYSQLI_CLIENT_FOUND_ROWS;
-        mysqli_real_connect($this->connection, $this->host, $this->username, $this->password, $this->dbname, $this->port, $this->socket, $flags);
+        $this->connection = mysqli_connect($this->host, $this->username, $this->password, $this->dbname, $this->port, $this->socket);
         if (!$this->connection || mysqli_connect_errno()) {
             throw new DbException("Connect failed: " . mysqli_connect_error());
         }
@@ -212,8 +206,8 @@ class Mysqli extends Db
             return $result;
         } catch (Exception $e) {
             throw new DbException("Error query: " . $e->getMessage() . "
-                                   In query: $query
-                                   Parameters: " . var_export($parameters, true));
+								In query: $query
+								Parameters: " . var_export($parameters, true));
         }
     }
 
@@ -285,58 +279,57 @@ class Mysqli extends Db
         return mysqli_affected_rows($this->connection);
     }
 
-    /**
-     * Start Transaction
-     * @return string TransactionID
-     */
-    public function beginTransaction()
-    {
-        if (!$this->activeTransaction === false ) {
-            return;
-        }
+	/**
+	 * Start Transaction
+	 * @return string TransactionID
+	 */
 
-        if ( $this->connection->autocommit(false) ) {
-            $this->activeTransaction = uniqid();
-            return $this->activeTransaction;
-        }
-    }
+	public function beginTransaction()
+	{
+		if(!$this->activeTransaction === false ) {
+			return;
+		}
 
-    /**
-     * Commit Transaction
-     * @param $xid
-     * @throws DbException
-     * @internal param TransactionID $string from beginTransaction
-     */
-    public function commit($xid)
-    {
-        if ($this->activeTransaction !=  $xid || $this->activeTransaction === false  ) {
+		if( $this->connection->autocommit(false) ) {
+			$this->activeTransaction = uniqid();
+			return $this->activeTransaction;
+		}
+	}
 
-            return;
-        }
-        $this->activeTransaction = false;
+	/**
+	 * Commit Transaction
+	 * @param string TransactionID from beginTransaction
+	 */
 
-        if (!$this->connection->commit() ) {
-            throw new DbException("Commit failed");
-        }
-        $this->connection->autocommit(true);
-    }
+	public function commit($xid)
+	{
+		if($this->activeTransaction !=  $xid || $this->activeTransaction === false  ) { 
+		
+			return;
+		}
+		$this->activeTransaction = false;
 
-    /**
-     * Rollback Transaction
-     * @param $xid
-     * @throws DbException
-     * @internal param TransactionID $string from beginTransaction
-     */
-    public function rollBack($xid)
-    {
-        if ($this->activeTransaction !=  $xid || $this->activeTransaction === false  ) {
-            return;
-        }
-        $this->activeTransaction = false;
+		if(!$this->connection->commit() ) {
+			throw new DbException("Commit failed"); 
+		}
+		$this->connection->autocommit(true);
+	}
 
-        if (!$this->connection->rollback() ) {
-            throw new DbException("Rollback failed");
-        }
-        $this->connection->autocommit(true);
-    }
+	/**
+	 * Rollback Transaction
+	 * @param string TransactionID from beginTransaction
+	 */
+
+	public function rollBack($xid)
+	{
+		if($this->activeTransaction !=  $xid || $this->activeTransaction === false  ) { 
+			return;
+		}
+		$this->activeTransaction = false;
+
+		if(!$this->connection->rollback() ) {
+			throw new DbException("Rollback failed"); 
+		}
+		$this->connection->autocommit(true); 
+	}
 }

@@ -48,8 +48,6 @@ class PluginInstaller
             $this->makeSureThereAreNoMissingRequirements($metadata);
             $this->copyPluginToDestination($tmpPluginFolder);
 
-            Filesystem::deleteAllCacheOnUpdate($this->pluginName);
-
         } catch (\Exception $e) {
 
             $this->removeFileIfExists($tmpPluginZip);
@@ -79,8 +77,6 @@ class PluginInstaller
 
             $this->fixPluginFolderIfNeeded($tmpPluginFolder);
             $this->copyPluginToDestination($tmpPluginFolder);
-
-            Filesystem::deleteAllCacheOnUpdate($this->pluginName);
 
         } catch (\Exception $e) {
 
@@ -155,7 +151,7 @@ class PluginInstaller
     private function makeSureThereAreNoMissingRequirements($metadata)
     {
         $requires = array();
-        if (!empty($metadata->require)) {
+        if(!empty($metadata->require)) {
             $requires = (array) $metadata->require;
         }
 
@@ -165,14 +161,8 @@ class PluginInstaller
         if (!empty($missingDependencies)) {
             $message = '';
             foreach ($missingDependencies as $dep) {
-                if (empty($dep['actualVersion'])) {
-                    $params   = array(ucfirst($dep['requirement']), $dep['requiredVersion'], $metadata->name);
-                    $message .= Piwik::translate('CorePluginsAdmin_MissingRequirementsPleaseInstallNotice', $params);
-                } else {
-                    $params   = array(ucfirst($dep['requirement']), $dep['actualVersion'], $dep['requiredVersion']);
-                    $message .= Piwik::translate('CorePluginsAdmin_MissingRequirementsNotice', $params);
-                }
-
+                $params   = array(ucfirst($dep['requirement']), $dep['actualVersion'], $dep['requiredVersion']);
+                $message .= Piwik::translate('CorePluginsAdmin_MissingRequirementsNotice', $params);
             }
 
             throw new PluginInstallerException($message);

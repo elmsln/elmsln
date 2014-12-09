@@ -12,7 +12,6 @@ use Piwik\Archive;
 use Piwik\DataTable;
 use Piwik\Metrics;
 use Piwik\Piwik;
-use Piwik\Plugins\DevicesDetection\Archiver AS DDArchiver;
 
 /**
  * @see plugins/UserSettings/functions.php
@@ -49,11 +48,6 @@ class API extends \Piwik\Plugin\API
         $dataTable = $this->getDataTable(Archiver::CONFIGURATION_RECORD_NAME, $idSite, $period, $date, $segment);
         $dataTable->queueFilter('ColumnCallbackReplace', array('label', __NAMESPACE__ . '\getConfigurationLabel'));
         return $dataTable;
-    }
-
-    protected function getDevicesDetectorApi()
-    {
-        return \Piwik\Plugins\DevicesDetection\API::getInstance();
     }
 
     public function getOS($idSite, $period, $date, $segment = false, $addShortLabel = true)
@@ -110,11 +104,11 @@ class API extends \Piwik\Plugin\API
         $dataTables = array($dataTable);
 
         if (!($dataTable instanceof DataTable\Map)) {
-            foreach ($dataTables as $table) {
+            foreach ($dataTables AS $table) {
                 if ($table->getRowsCount() == 0) {
                     continue;
                 }
-                foreach ($requiredRows as $requiredRow => $key) {
+                foreach ($requiredRows AS $requiredRow => $key) {
                     $row = $table->getRowFromLabel($requiredRow);
                     if (empty($row)) {
                         $table->addRowsFromSimpleArray(array(
@@ -152,12 +146,12 @@ class API extends \Piwik\Plugin\API
         return $dataTable;
     }
 
-    /**
-     * @deprecated since 2.7.1-b1   See {@link Piwik\Plugins\DevicesDetector\API} for new implementation.
-     */
     public function getBrowserType($idSite, $period, $date, $segment = false)
     {
-        return $this->getDevicesDetectorApi()->getBrowserEngines($idSite, $period, $date, $segment);
+        $dataTable = $this->getDataTable(Archiver::BROWSER_TYPE_RECORD_NAME, $idSite, $period, $date, $segment);
+        $dataTable->queueFilter('ColumnCallbackAddMetadata', array('label', 'shortLabel', 'ucfirst'));
+        $dataTable->queueFilter('ColumnCallbackReplace', array('label', __NAMESPACE__ . '\getBrowserTypeLabel'));
+        return $dataTable;
     }
 
     public function getWideScreen($idSite, $period, $date, $segment = false)
@@ -172,7 +166,7 @@ class API extends \Piwik\Plugin\API
     {
         // fetch all archive data required
         $dataTable = $this->getDataTable(Archiver::PLUGIN_RECORD_NAME, $idSite, $period, $date, $segment);
-        $browserTypes = $this->getDataTable(DDArchiver::BROWSER_ENGINE_RECORD_NAME, $idSite, $period, $date, $segment);
+        $browserTypes = $this->getDataTable(Archiver::BROWSER_TYPE_RECORD_NAME, $idSite, $period, $date, $segment);
         $archive = Archive::build($idSite, $period, $date, $segment);
         $visitsSums = $archive->getDataTableFromNumeric('nb_visits');
 
@@ -190,14 +184,14 @@ class API extends \Piwik\Plugin\API
         // walk through the results and calculate the percentage
         foreach ($dataTableMap as $key => $table) {
             // get according browserType table
-            foreach ($browserTypesArray as $k => $browsers) {
+            foreach ($browserTypesArray AS $k => $browsers) {
                 if ($k == $key) {
                     $browserType = $browsers;
                 }
             }
 
             // get according visitsSum
-            foreach ($visitSumsArray as $k => $visits) {
+            foreach ($visitSumsArray AS $k => $visits) {
                 if ($k == $key) {
                     if (is_object($visits)) {
                         if ($visits->getRowsCount() == 0) {
@@ -214,7 +208,7 @@ class API extends \Piwik\Plugin\API
             // Calculate percentage, but ignore IE users because plugin detection doesn't work on IE
             $ieVisits = 0;
 
-            $ieStats = $browserType->getRowFromLabel('Trident');
+            $ieStats = $browserType->getRowFromLabel('ie');
             if ($ieStats !== false) {
                 $ieVisits = $ieStats->getColumn(Metrics::INDEX_NB_VISITS);
             }
@@ -230,7 +224,7 @@ class API extends \Piwik\Plugin\API
             // The filter must be applied now so that the new column can
             // be sorted by the generic filters (applied right after this loop exits)
             $table->filter('ColumnCallbackAddColumnPercentage', array('nb_visits_percentage', Metrics::INDEX_NB_VISITS, $visitsSum, 1));
-            $table->filter('RangeCheck', array('nb_visits_percentage', '0.00%', '100.00%'));
+            $table->filter('RangeCheck', array('nb_visits_percentage'));
         }
 
         $dataTable->queueFilter('ColumnCallbackAddMetadata', array('label', 'logo', __NAMESPACE__ . '\getPluginsLogo'));
@@ -242,17 +236,8 @@ class API extends \Piwik\Plugin\API
     public function getLanguage($idSite, $period, $date, $segment = false)
     {
         $dataTable = $this->getDataTable(Archiver::LANGUAGE_RECORD_NAME, $idSite, $period, $date, $segment);
-        $dataTable->filter('GroupBy', array('label', __NAMESPACE__ . '\groupByLangCallback'));
         $dataTable->filter('ColumnCallbackReplace', array('label', __NAMESPACE__ . '\languageTranslate'));
-
-        return $dataTable;
-    }
-
-    public function getLanguageCode($idSite, $period, $date, $segment = false)
-    {
-        $dataTable = $this->getDataTable(Archiver::LANGUAGE_RECORD_NAME, $idSite, $period, $date, $segment);
-        $dataTable->filter('ColumnCallbackReplace', array('label', __NAMESPACE__ . '\languageTranslateWithCode'));
-
+        $dataTable->filter('ReplaceColumnNames');
         return $dataTable;
     }
 }

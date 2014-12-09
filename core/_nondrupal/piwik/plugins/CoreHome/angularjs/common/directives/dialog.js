@@ -15,33 +15,27 @@
  * </div>
  * Will execute the "executeMyFunction" function in the current scope once the yes button is pressed.
  */
-(function () {
-    angular.module('piwikApp.directive').directive('piwikDialog', piwikDialog);
+angular.module('piwikApp.directive').directive('piwikDialog', function(piwik) {
 
-    piwikDialog.$inject = ['piwik', '$parse'];
+    return {
+        restrict: 'A',
+        link: function(scope, element, attrs) {
 
-    function piwikDialog(piwik, $parse) {
+            element.css('display', 'none');
 
-        return {
-            restrict: 'A',
-            link: function(scope, element, attrs) {
+            element.on( "dialogclose", function() {
+                scope.$eval(attrs.piwikDialog+'=false');
+            });
 
-                element.css('display', 'none');
-
-                element.on( "dialogclose", function() {
-                    scope.$apply($parse(attrs.piwikDialog).assign(scope, false));
-                });
-
-                scope.$watch(attrs.piwikDialog, function(newValue, oldValue) {
-                    if (newValue) {
-                        piwik.helper.modalConfirm(element, {yes: function() {
-                            if (attrs.yes) {
-                                scope.$eval(attrs.yes);
-                            }
-                        }});
-                    }
-                });
-            }
-        };
-    }
-})();
+            scope.$watch(attrs.piwikDialog, function(newValue, oldValue) {
+                if (newValue) {
+                    piwik.helper.modalConfirm(element, {yes: function() {
+                        if (attrs.yes) {
+                            scope.$eval(attrs.yes);
+                        }
+                    }});
+                }
+            });
+        }
+    };
+});

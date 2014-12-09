@@ -20,25 +20,21 @@ class Menu extends \Piwik\Plugin\Menu
     {
         $hasAdminAccess = Piwik::isUserHasSomeAdminAccess();
 
-        if ($hasAdminAccess) {
-            $menu->addManageItem(null, "", $order = 1);
-            $menu->addSettingsItem(null, "", $order = 5);
-            $menu->addDiagnosticItem(null, "", $order = 10);
-            $menu->addDevelopmentItem(null, "", $order = 15);
-
-            $menu->addSettingsItem('CoreAdminHome_MenuGeneralSettings',
-                                   $this->urlForAction('generalSettings'),
-                                   $order = 6);
-            $menu->addManageItem('CoreAdminHome_TrackingCode',
-                                 $this->urlForAction('trackingCodeGenerator'),
-                                 $order = 4);
-        }
-
-        if (SettingsManager::hasPluginsSettingsForCurrentUser()) {
-            $menu->addSettingsItem('CoreAdminHome_PluginSettings',
-                                   $this->urlForAction('pluginSettings'),
-                                   $order = 7);
-        }
+        $menu->add('CoreAdminHome_MenuManage', null, "", $hasAdminAccess, $order = 1);
+        $menu->add('CoreAdminHome_MenuDiagnostic', null, "", $hasAdminAccess, $order = 10);
+        $menu->add('General_Settings', null, "", $hasAdminAccess, $order = 5);
+        $menu->add('General_Settings', 'CoreAdminHome_MenuGeneralSettings',
+                   array('module' => 'CoreAdminHome', 'action' => 'generalSettings'),
+                   $hasAdminAccess,
+                   $order = 6);
+        $menu->add('CoreAdminHome_MenuManage', 'CoreAdminHome_TrackingCode',
+                   array('module' => 'CoreAdminHome', 'action' => 'trackingCodeGenerator'),
+                   $hasAdminAccess,
+                   $order = 4);
+        $menu->add('General_Settings', 'CoreAdminHome_PluginSettings',
+                   array('module' => 'CoreAdminHome', 'action' => 'pluginSettings'),
+                   SettingsManager::hasPluginsSettingsForCurrentUser(),
+                   $order = 7);
     }
 
 }

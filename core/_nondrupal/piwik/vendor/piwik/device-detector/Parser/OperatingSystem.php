@@ -3,7 +3,7 @@
  * Device Detector - The Universal Device Detection library for parsing User Agents
  *
  * @link http://piwik.org
- * @license http://www.gnu.org/licenses/lgpl.html LGPL v3 or later
+ * @license http://www.gnu.org/licenses/gpl-3.0.html GPL v3 or later
  */
 namespace DeviceDetector\Parser;
 
@@ -56,7 +56,6 @@ class OperatingSystem extends ParserAbstract
         'KBT' => 'Kubuntu',
         'LIN' => 'GNU/Linux',
         'LBT' => 'Lubuntu',
-        'VLN' => 'VectorLinux',
         'MAC' => 'Mac',
         'MDR' => 'Mandriva',
         'SMG' => 'MeeGo',
@@ -69,6 +68,8 @@ class OperatingSystem extends ParserAbstract
         'OBS' => 'OpenBSD',
         'PSP' => 'PlayStation Portable',
         'PS3' => 'PlayStation',
+        'PRS' => 'Presto',
+        'PPY' => 'Puppy',
         'RHT' => 'Red Hat',
         'ROS' => 'RISC OS',
         'SAB' => 'Sabayon',
@@ -86,12 +87,10 @@ class OperatingSystem extends ParserAbstract
         'UBT' => 'Ubuntu',
         'WTV' => 'WebTV',
         'WIN' => 'Windows',
-        'W10' => 'Windows 10',
         'W2K' => 'Windows 2000',
         'W31' => 'Windows 3.1',
         'WI7' => 'Windows 7',
         'WI8' => 'Windows 8',
-        'W81' => 'Windows 8.1',
         'W95' => 'Windows 95',
         'W98' => 'Windows 98',
         'WCE' => 'Windows CE',
@@ -130,14 +129,14 @@ class OperatingSystem extends ParserAbstract
         'IBM'                   => array('OS2'),
         'iOS'                   => array('IOS'),
         'RISC OS'               => array('ROS'),
-        'GNU/Linux'             => array('LIN', 'ARL', 'DEB', 'KNO', 'MIN', 'UBT', 'KBT', 'XBT', 'LBT', 'FED', 'RHT', 'VLN', 'MDR', 'GNT', 'SAB', 'SLW', 'SSE', 'CES', 'BTR', 'YNS', 'SAF'),
+        'GNU/Linux'             => array('LIN', 'ARL', 'DEB', 'KNO', 'MIN', 'UBT', 'KBT', 'XBT', 'LBT', 'FED', 'RHT', 'MDR', 'GNT', 'SAB', 'SLW', 'SSE', 'PPY', 'CES', 'BTR', 'YNS', 'PRS', 'SAF'),
         'Mac'                   => array('MAC'),
         'Mobile Gaming Console' => array('PSP', 'NDS', 'XBX'),
         'Other Mobile'          => array('WOS', 'POS', 'SBA', 'TIZ', 'SMG'),
         'Symbian'               => array('SYM', 'SYS', 'SY3', 'S60', 'S40'),
         'Unix'                  => array('SOS', 'AIX', 'HPX', 'BSD', 'NBS', 'OBS', 'DFB', 'SYL', 'IRI', 'T64', 'INF'),
         'WebTV'                 => array('WTV'),
-        'Windows'               => array('WI7', 'WI8', 'W81', 'W10', 'WVI', 'WS3', 'WXP', 'W2K', 'WNT', 'WME', 'W98', 'W95', 'WRT', 'W31', 'WIN'),
+        'Windows'               => array('WI7', 'WI8', 'WVI', 'WS3', 'WXP', 'W2K', 'WNT', 'WME', 'W98', 'W95', 'WRT', 'W31', 'WIN'),
         'Windows Mobile'        => array('WPH', 'WMO', 'WCE')
     );
 

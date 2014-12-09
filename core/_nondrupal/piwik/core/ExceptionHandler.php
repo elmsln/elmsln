@@ -46,7 +46,9 @@ class ExceptionHandler
     public static function formatScreenMessage(&$message, $level, $tag, $datetime, $log)
     {
         if ($message instanceof \Exception) {
-            Common::sendHeader('Content-Type: text/html; charset=utf-8');
+            if (!Common::isPhpCliMode()) {
+                @header('Content-Type: text/html; charset=utf-8');
+            }
 
             $outputFormat = strtolower(Common::getRequestVar('format', 'html', 'string'));
             $response = new ResponseBuilder($outputFormat);

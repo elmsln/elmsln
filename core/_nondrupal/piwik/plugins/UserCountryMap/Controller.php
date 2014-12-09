@@ -63,7 +63,7 @@ class Controller extends \Piwik\Plugin\Controller
         $view->defaultMetric = 'nb_visits';
 
         // some translations
-        $view->localeJSON = json_encode(array(
+        $view->localeJSON = Common::json_encode(array(
                                                      'nb_visits'            => Piwik::translate('General_NVisits'),
                                                      'one_visit'            => Piwik::translate('General_OneVisit'),
                                                      'no_visit'             => Piwik::translate('UserCountryMap_NoVisit'),
@@ -73,8 +73,7 @@ class Controller extends \Piwik\Plugin\Controller
                                                      'avg_time_on_site'     => Piwik::translate('VisitsSummary_AverageVisitDuration'),
                                                      'and_n_others'         => Piwik::translate('UserCountryMap_AndNOthers'),
                                                      'no_data'              => Piwik::translate('CoreHome_ThereIsNoDataForThisReport'),
-                                                     'nb_uniq_visitors'     => Piwik::translate('VisitsSummary_NbUniqueVisitors'),
-                                                     'nb_users'             => Piwik::translate('VisitsSummary_NbUsers'),
+                                                     'nb_uniq_visitors'     => Piwik::translate('VisitsSummary_NbUniqueVisitors')
                                                 ));
 
         $view->reqParamsJSON = $this->getEnrichedRequest($params = array(
@@ -90,7 +89,7 @@ class Controller extends \Piwik\Plugin\Controller
         $view->metrics = $config['metrics'] = $this->getMetrics($idSite, $period, $date, $token_auth);
         $config['svgBasePath'] = 'plugins/UserCountryMap/svg/';
         $config['mapCssPath'] = 'plugins/UserCountryMap/stylesheets/map.css';
-        $view->config = json_encode($config);
+        $view->config = Common::json_encode($config);
         $view->noData = empty($config['visitsSummary']['nb_visits']);
 
         return $view->render();
@@ -198,7 +197,7 @@ class Controller extends \Piwik\Plugin\Controller
         }
 
         if ($encode) {
-            $params = json_encode($params);
+            $params = Common::json_encode($params);
         }
         return $params;
     }
@@ -221,11 +220,10 @@ class Controller extends \Piwik\Plugin\Controller
             . '&token_auth=' . $token_auth
             . '&filter_limit=-1'
         );
-        $metaData = unserialize($request->process());
+        $metaData = $request->process();
 
         $metrics = array();
         foreach ($metaData[0]['metrics'] as $id => $val) {
-            // todo: should use SettingsPiwik::isUniqueVisitorsEnabled ?
             if (Common::getRequestVar('period') == 'day' || $id != 'nb_uniq_visitors') {
                 $metrics[] = array($id, $val);
             }

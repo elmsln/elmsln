@@ -46,6 +46,7 @@ class Monthly extends ScheduledTime
         $day = Weekly::getDayIntFromString($dayNumberString) % 7;
 
         // get week number
+        $week = false;
         $weekNumberString = strtolower($weekNumberString);
         if (isset(self::$weekNumberStringToInt[$weekNumberString])) {
             $week = self::$weekNumberStringToInt[$weekNumberString];

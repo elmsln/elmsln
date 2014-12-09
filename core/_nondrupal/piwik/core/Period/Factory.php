@@ -27,7 +27,7 @@ class Factory
      * @throws Exception If `$strPeriod` is invalid.
      * @return \Piwik\Period
      */
-    public static function build($period, $date, $timezone = 'UTC')
+    static public function build($period, $date, $timezone = 'UTC')
     {
         self::checkPeriodIsEnabled($period);
 
@@ -38,6 +38,7 @@ class Factory
             }
             $date = Date::factory($date);
         }
+
 
         switch ($period) {
             case 'day':
@@ -60,7 +61,7 @@ class Factory
 
     public static function checkPeriodIsEnabled($period)
     {
-        if (!self::isPeriodEnabledForAPI($period)) {
+        if(!self::isPeriodEnabledForAPI($period)) {
             self::throwExceptionInvalidPeriod($period);
         }
     }
@@ -76,6 +77,7 @@ class Factory
         $message = Piwik::translate('General_ExceptionInvalidPeriod', array($strPeriod, $periods));
         throw new Exception($message);
     }
+
 
     /**
      * Creates a Period instance using a period, date and timezone.
@@ -123,7 +125,7 @@ class Factory
     /**
      * @return array
      */
-    public static function getPeriodsEnabledForAPI()
+    private static function getPeriodsEnabledForAPI()
     {
         $enabledPeriodsInAPI = Config::getInstance()->General['enabled_periods_API'];
         $enabledPeriodsInAPI = explode(",", $enabledPeriodsInAPI);

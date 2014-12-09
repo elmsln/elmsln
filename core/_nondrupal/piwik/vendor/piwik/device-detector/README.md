@@ -48,7 +48,7 @@ if ($dd->isBot()) {
 
 ### Hacking the library
 
-This is a free/libre library under license LGPL v3 or later.
+This is a free/libre library under license GPL v3 or later.
 
 Your pull requests and/or feedback is very welcome!
 
@@ -71,10 +71,6 @@ We are looking forward to your contributions and pull requests!
 ## Tests
 
 Build status (master branch) [![Build Status](https://travis-ci.org/piwik/device-detector.png?branch=master)](https://travis-ci.org/piwik/device-detector)
-
-Code Coverage [![Coverage Status](https://coveralls.io/repos/piwik/device-detector/badge.png)](https://coveralls.io/r/piwik/device-detector)
-
-Issue tracker metrics: [![Average time to resolve an issue](http://isitmaintained.com/badge/resolution/piwik/device-detector.svg)](http://isitmaintained.com/project/piwik/device-detector "Average time to resolve an issue") - [![Percentage of issues still open](http://isitmaintained.com/badge/open/piwik/device-detector.svg)](http://isitmaintained.com/project/piwik/device-detector "Percentage of issues still open")
 
 See also: [QA at Piwik](http://piwik.org/qa/)
 

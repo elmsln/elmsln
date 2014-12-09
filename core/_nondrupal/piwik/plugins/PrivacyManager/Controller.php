@@ -150,8 +150,6 @@ class Controller extends \Piwik\Plugin\ControllerAdmin
      */
     public function executeDataPurge()
     {
-        $this->checkDataPurgeAdminSettingsIsEnabled();
-
         Piwik::checkUserHasSuperUserAccess();
         $this->checkTokenInUrl();
 

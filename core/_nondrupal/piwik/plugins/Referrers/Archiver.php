@@ -71,6 +71,7 @@ class Archiver extends \Piwik\Plugin\Archiver
         );
     }
 
+
     protected function makeReferrerTypeNonEmpty(&$row)
     {
         if (empty($row['referer_type'])) {

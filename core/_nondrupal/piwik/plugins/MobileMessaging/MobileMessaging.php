@@ -9,7 +9,6 @@
 namespace Piwik\Plugins\MobileMessaging;
 
 use Piwik\Option;
-use Piwik\Period;
 use Piwik\Piwik;
 use Piwik\Plugins\API\API as APIPlugins;
 use Piwik\Plugins\MobileMessaging\API as APIMobileMessaging;
@@ -37,19 +36,19 @@ class MobileMessaging extends \Piwik\Plugin
     const MOBILE_TYPE = 'mobile';
     const SMS_FORMAT = 'sms';
 
-    private static $availableParameters = array(
+    static private $availableParameters = array(
         self::PHONE_NUMBERS_PARAMETER => true,
     );
 
-    private static $managedReportTypes = array(
+    static private $managedReportTypes = array(
         self::MOBILE_TYPE => 'plugins/MobileMessaging/images/phone.png'
     );
 
-    private static $managedReportFormats = array(
+    static private $managedReportFormats = array(
         self::SMS_FORMAT => 'plugins/MobileMessaging/images/phone.png'
     );
 
-    private static $availableReports = array(
+    static private $availableReports = array(
         array(
             'module' => 'MultiSites',
             'action' => 'getAll',
@@ -178,7 +177,7 @@ class MobileMessaging extends \Piwik\Plugin
     }
 
     public function sendReport($reportType, $report, $contents, $filename, $prettyDate, $reportSubject, $reportTitle,
-                               $additionalFiles, Period $period = null, $force)
+                               $additionalFiles)
     {
         if (self::manageEvent($reportType)) {
             $parameters = $report['parameters'];
@@ -200,7 +199,7 @@ class MobileMessaging extends \Piwik\Plugin
         }
     }
 
-    public static function template_reportParametersScheduledReports(&$out)
+    static public function template_reportParametersScheduledReports(&$out)
     {
         if (Piwik::isUserIsAnonymous()) {
             return;

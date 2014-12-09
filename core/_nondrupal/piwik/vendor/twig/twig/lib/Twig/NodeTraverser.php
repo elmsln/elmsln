@@ -70,7 +70,7 @@ class Twig_NodeTraverser
     protected function traverseForVisitor(Twig_NodeVisitorInterface $visitor, Twig_NodeInterface $node = null)
     {
         if (null === $node) {
-            return;
+            return null;
         }
 
         $node = $visitor->enterNode($node, $this->env);

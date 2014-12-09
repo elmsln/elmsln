@@ -17,7 +17,6 @@ use Piwik\Period\Range;
 use Piwik\Piwik;
 use Piwik\Plugins\Goals\Archiver;
 use Piwik\Plugins\SitesManager\API as APISitesManager;
-use Piwik\Plugins\SitesManager\Model as ModelSitesManager;
 use Piwik\Site;
 use Piwik\TaskScheduler;
 
@@ -41,7 +40,7 @@ class API extends \Piwik\Plugin\API
     const ECOMMERCE_ORDERS_METRIC = 'orders';
     const ECOMMERCE_REVENUE_METRIC = 'ecommerce_revenue';
 
-    private static $baseMetrics = array(
+    static private $baseMetrics = array(
         self::NB_VISITS_METRIC   => array(
             self::METRIC_TRANSLATION_KEY        => 'General_ColumnNbVisits',
             self::METRIC_EVOLUTION_COL_NAME_KEY => 'visits_evolution',
@@ -171,9 +170,6 @@ class API extends \Piwik\Plugin\API
             }
             // Both calls above have called Site::setSitesFromArray. We now get these sites:
             $sitesToProblablyAdd = Site::getSites();
-        } else if (is_array($idSitesOrIdSite)) {
-            $model = new ModelSitesManager();
-            $sitesToProblablyAdd = $model->getSitesFromIds($idSitesOrIdSite);
         } else {
             $sitesToProblablyAdd = array(APISitesManager::getInstance()->getSiteFromId($idSitesOrIdSite));
         }
@@ -292,13 +288,6 @@ class API extends \Piwik\Plugin\API
             );
         }
 
-        if ($multipleWebsitesRequested && $dataTable->getRowsCount() === 1 && $dataTable instanceof DataTable\Simple) {
-            $simpleTable = $dataTable;
-            $dataTable   = $simpleTable->getEmptyClone();
-            $dataTable->addRow($simpleTable->getFirstRow());
-            unset($simpleTable);
-        }
-
         return $dataTable;
     }
 
@@ -346,7 +335,7 @@ class API extends \Piwik\Plugin\API
     {
         $metrics = self::$baseMetrics;
 
-        if (Common::isActionsPluginEnabled()) {
+        if(Common::isActionsPluginEnabled()) {
             $metrics[self::NB_PAGEVIEWS_LABEL] = array(
                 self::METRIC_TRANSLATION_KEY        => 'General_ColumnPageviews',
                 self::METRIC_EVOLUTION_COL_NAME_KEY => 'pageviews_evolution',
@@ -409,6 +398,11 @@ class API extends \Piwik\Plugin\API
                 $this->setMetricsTotalsMetadata($table, $apiMetrics);
             }
         } else {
+            $revenueMetric = '';
+            if (Common::isGoalPluginEnabled()) {
+                $revenueMetric = Archiver::getRecordName(self::GOAL_REVENUE_METRIC);
+            }
+
             $totals = array();
             foreach ($apiMetrics as $label => $metricInfo) {
                 $totalMetadataName = self::getTotalMetadataName($label);

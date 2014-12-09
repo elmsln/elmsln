@@ -9,13 +9,14 @@
 
 namespace Piwik\Plugins\LanguagesManager\Commands;
 
+use Piwik\Plugin\ConsoleCommand;
 use Piwik\Plugins\LanguagesManager\API;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
 /**
  */
-class LanguageCodes extends TranslationBase
+class LanguageCodes extends ConsoleCommand
 {
     protected function configure()
     {
@@ -28,7 +29,7 @@ class LanguageCodes extends TranslationBase
         $languages = API::getInstance()->getAvailableLanguageNames();
 
         $languageCodes = array();
-        foreach ($languages as $languageInfo) {
+        foreach ($languages AS $languageInfo) {
             $languageCodes[] = $languageInfo['code'];
         }
 

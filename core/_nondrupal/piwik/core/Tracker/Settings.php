@@ -8,9 +8,11 @@
  */
 namespace Piwik\Tracker;
 
-use Piwik\Tracker;
+use Piwik\DeviceDetectorCache;
 use Piwik\DeviceDetectorFactory;
 use Piwik\SettingsPiwik;
+use Piwik\Tracker;
+use DeviceDetector\DeviceDetector;
 
 class Settings
 {
@@ -18,18 +20,17 @@ class Settings
 
     function __construct(Request $request, $ip)
     {
-        $this->request   = $request;
+        $this->request = $request;
         $this->ipAddress = $ip;
-        $this->configId  = null;
+        $this->params = array();
     }
 
-    function getConfigId()
+    function getInfo()
     {
-        if (empty($this->configId)) {
+        if(empty($this->params)) {
             $this->loadInfo();
         }
-
-        return $this->configId;
+        return $this->params;
     }
 
     protected function loadInfo()
@@ -37,17 +38,18 @@ class Settings
         list($plugin_Flash, $plugin_Java, $plugin_Director, $plugin_Quicktime, $plugin_RealPlayer, $plugin_PDF,
             $plugin_WindowsMedia, $plugin_Gears, $plugin_Silverlight, $plugin_Cookie) = $this->request->getPlugins();
 
+        $resolution = $this->request->getParam('res');
         $userAgent = $this->request->getUserAgent();
 
         $deviceDetector = DeviceDetectorFactory::getInstance($userAgent);
-        $aBrowserInfo   = $deviceDetector->getClient();
 
+        $aBrowserInfo = $deviceDetector->getClient();
         if ($aBrowserInfo['type'] != 'browser') {
             // for now only track browsers
             unset($aBrowserInfo);
         }
 
-        $browserName    = !empty($aBrowserInfo['short_name']) ? $aBrowserInfo['short_name'] : 'UNK';
+        $browserName = !empty($aBrowserInfo['short_name']) ? $aBrowserInfo['short_name'] : 'UNK';
         $browserVersion = !empty($aBrowserInfo['version']) ? $aBrowserInfo['version'] : '';
 
         if ($deviceDetector->isBot()) {
@@ -58,8 +60,7 @@ class Settings
         }
 
         $browserLang = substr($this->request->getBrowserLanguage(), 0, 20); // limit the length of this string to match db
-
-        $this->configId = $this->getConfigHash(
+        $configurationHash = $this->getConfigHash(
             $os,
             $browserName,
             $browserVersion,
@@ -75,7 +76,31 @@ class Settings
             $plugin_Cookie,
             $this->ipAddress,
             $browserLang);
+
+        $this->params = array(
+            'config_id'              => $configurationHash,
+            'config_os'              => $os,
+            'config_os_version'      => $deviceDetector->getOs('version'),
+            'config_browser_name'    => $browserName,
+            'config_browser_version' => $browserVersion,
+            'config_device_type'     => $deviceDetector->getDevice(),
+            'config_device_model'    => $deviceDetector->getModel(),
+            'config_device_brand'    => $deviceDetector->getBrand(),
+            'config_resolution'      => $resolution,
+            'config_pdf'             => $plugin_PDF,
+            'config_flash'           => $plugin_Flash,
+            'config_java'            => $plugin_Java,
+            'config_director'        => $plugin_Director,
+            'config_quicktime'       => $plugin_Quicktime,
+            'config_realplayer'      => $plugin_RealPlayer,
+            'config_windowsmedia'    => $plugin_WindowsMedia,
+            'config_gears'           => $plugin_Gears,
+            'config_silverlight'     => $plugin_Silverlight,
+            'config_cookie'          => $plugin_Cookie,
+            'location_browser_lang'  => $browserLang,
+        );
     }
+
 
     /**
      * Returns a 64-bit hash of all the configuration settings
@@ -114,4 +139,4 @@ class Settings
 
         return substr($hash, 0, Tracker::LENGTH_BINARY_ID);
     }
-}
+} 

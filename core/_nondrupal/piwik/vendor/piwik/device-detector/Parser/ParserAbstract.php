@@ -3,7 +3,7 @@
  * Device Detector - The Universal Device Detection library for parsing User Agents
  *
  * @link http://piwik.org
- * @license http://www.gnu.org/licenses/lgpl.html LGPL v3 or later
+ * @license http://www.gnu.org/licenses/gpl-3.0.html GPL v3 or later
  */
 namespace DeviceDetector\Parser;
 
@@ -155,7 +155,7 @@ abstract class ParserAbstract
      * Matches the useragent against the given regex
      *
      * @param $regex
-     * @return array|bool
+     * @return bool
      */
     protected function matchUserAgent($regex)
     {

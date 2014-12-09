@@ -9,6 +9,7 @@
 
 namespace Piwik\Translate\Filter;
 
+
 /**
  */
 class UnnecassaryWhitespaces extends FilterAbstract
@@ -34,8 +35,8 @@ class UnnecassaryWhitespaces extends FilterAbstract
      */
     public function filter($translations)
     {
-        foreach ($translations as $pluginName => $pluginTranslations) {
-            foreach ($pluginTranslations as $key => $translation) {
+        foreach ($translations AS $pluginName => $pluginTranslations) {
+            foreach ($pluginTranslations AS $key => $translation) {
 
                 $baseTranslation = '';
                 if (isset($this->baseTranslations[$pluginName][$key])) {

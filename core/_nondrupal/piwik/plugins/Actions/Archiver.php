@@ -12,7 +12,7 @@ use Piwik\DataTable;
 use Piwik\Metrics;
 use Piwik\RankingQuery;
 use Piwik\Tracker\Action;
-use Piwik\Plugins\Actions\Actions\ActionSiteSearch;
+use Piwik\Tracker\ActionSiteSearch;
 
 /**
  * Class encapsulating logic to process Day/Period Archiving for the Actions reports
@@ -56,12 +56,12 @@ class Archiver extends \Piwik\Plugin\Archiver
         Action::TYPE_PAGE_TITLE,
         Action::TYPE_SITE_SEARCH,
     );
-    protected static $columnsToRenameAfterAggregation = array(
+    static protected $columnsToRenameAfterAggregation = array(
         Metrics::INDEX_NB_UNIQ_VISITORS            => Metrics::INDEX_SUM_DAILY_NB_UNIQ_VISITORS,
         Metrics::INDEX_PAGE_ENTRY_NB_UNIQ_VISITORS => Metrics::INDEX_PAGE_ENTRY_SUM_DAILY_NB_UNIQ_VISITORS,
         Metrics::INDEX_PAGE_EXIT_NB_UNIQ_VISITORS  => Metrics::INDEX_PAGE_EXIT_SUM_DAILY_NB_UNIQ_VISITORS,
     );
-    public static $columnsToDeleteAfterAggregation = array(
+    static public $columnsToDeleteAfterAggregation = array(
         Metrics::INDEX_NB_UNIQ_VISITORS,
         Metrics::INDEX_PAGE_ENTRY_NB_UNIQ_VISITORS,
         Metrics::INDEX_PAGE_EXIT_NB_UNIQ_VISITORS,
@@ -121,7 +121,7 @@ class Archiver extends \Piwik\Plugin\Archiver
     /**
      * @return string
      */
-    public static function getWhereClauseActionIsNotEvent()
+    static public function getWhereClauseActionIsNotEvent()
     {
         return " AND log_link_visit_action.idaction_event_category IS NULL";
     }
@@ -241,7 +241,7 @@ class Archiver extends \Piwik\Plugin\Archiver
         // 1) No result Keywords
         // 2) For each page view, count number of times the referrer page was a Site Search
         if ($this->isSiteSearchEnabled()) {
-            $this->updateQuerySelectFromForSiteSearch($select, $from);
+                $this->updateQuerySelectFromForSiteSearch($select, $from);
         }
 
         $this->archiveDayQueryProcess($select, $from, $where, $orderBy, $groupBy, "idaction_name", $rankingQuery);
@@ -460,6 +460,7 @@ class Archiver extends \Piwik\Plugin\Archiver
         $report = $dataTable->getSerialized(ArchivingHelper::$maximumRowsInDataTableLevelZero, ArchivingHelper::$maximumRowsInSubDataTable, ArchivingHelper::$columnToSortByBeforeTruncation);
         $this->getProcessor()->insertBlobRecord($recordName, $report);
     }
+
 
     protected function insertDownloadsReports()
     {

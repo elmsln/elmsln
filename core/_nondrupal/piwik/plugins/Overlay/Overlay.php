@@ -9,6 +9,7 @@
 
 namespace Piwik\Plugins\Overlay;
 
+
 class Overlay extends \Piwik\Plugin
 {
     public function getInformation()

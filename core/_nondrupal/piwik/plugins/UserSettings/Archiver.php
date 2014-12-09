@@ -29,6 +29,7 @@ class Archiver extends \Piwik\Plugin\Archiver
     const SCREEN_TYPE_RECORD_NAME = 'UserSettings_wideScreen';
     const RESOLUTION_RECORD_NAME = 'UserSettings_resolution';
     const BROWSER_RECORD_NAME = 'UserSettings_browser';
+    const BROWSER_TYPE_RECORD_NAME = 'UserSettings_browserType';
     const OS_RECORD_NAME = 'UserSettings_os';
     const CONFIGURATION_RECORD_NAME = 'UserSettings_configuration';
 
@@ -62,6 +63,7 @@ class Archiver extends \Piwik\Plugin\Archiver
             self::CONFIGURATION_RECORD_NAME,
             self::OS_RECORD_NAME,
             self::BROWSER_RECORD_NAME,
+            self::BROWSER_TYPE_RECORD_NAME,
             self::RESOLUTION_RECORD_NAME,
             self::SCREEN_TYPE_RECORD_NAME,
             self::PLUGIN_RECORD_NAME,
@@ -85,6 +87,7 @@ class Archiver extends \Piwik\Plugin\Archiver
     protected function aggregateByBrowser()
     {
         $tableBrowser = $this->aggregateByBrowserVersion();
+        $this->aggregateByBrowserType($tableBrowser);
     }
 
     protected function aggregateByBrowserVersion()
@@ -93,6 +96,13 @@ class Archiver extends \Piwik\Plugin\Archiver
         $this->insertTable(self::BROWSER_RECORD_NAME, $tableBrowser);
         return $tableBrowser;
     }
+
+    protected function aggregateByBrowserType(DataTable $tableBrowser)
+    {
+        $tableBrowser->filter('GroupBy', array('label', __NAMESPACE__ . '\getBrowserFamily'));
+        $this->insertTable(self::BROWSER_TYPE_RECORD_NAME, $tableBrowser);
+    }
+
     protected function aggregateByResolutionAndScreenType()
     {
         $resolutions = $this->aggregateByResolution();
@@ -140,24 +150,16 @@ class Archiver extends \Piwik\Plugin\Archiver
     protected function aggregateByLanguage()
     {
         $query = $this->getLogAggregator()->queryVisitsByDimension(array("label" => self::LANGUAGE_DIMENSION));
-        $countryCodes = Common::getCountriesList($includeInternalCodes = true);
+        $languageCodes = array_keys(Common::getLanguagesList());
         $metricsByLanguage = new DataArray();
-
         while ($row = $query->fetch()) {
-            $langCode = Common::extractLanguageCodeFromBrowserLanguage($row['label']);
-            $countryCode = Common::extractCountryCodeFromBrowserLanguage($row['label'], $countryCodes, $enableLanguageToCountryGuess = true);
-
-            if ($countryCode == 'xx' || $countryCode == $langCode) {
-                $metricsByLanguage->sumMetricsVisits($langCode, $row);
-            } else {
-                $metricsByLanguage->sumMetricsVisits($langCode . '-' . $countryCode, $row);
-            }
+            $code = Common::extractLanguageCodeFromBrowserLanguage($row['label'], $languageCodes);
+            $metricsByLanguage->sumMetricsVisits($code, $row);
         }
 
         $report = $metricsByLanguage->asDataTable();
         $this->insertTable(self::LANGUAGE_RECORD_NAME, $report);
     }
-
 
     protected function insertTable($recordName, DataTable $table)
     {

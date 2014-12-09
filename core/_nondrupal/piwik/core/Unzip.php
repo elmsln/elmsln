@@ -4,17 +4,19 @@
  *
  * @link http://piwik.org
  * @license http://www.gnu.org/licenses/gpl-3.0.html GPL v3 or later
+ *
  */
 
 namespace Piwik;
 
-use Piwik\Decompress\Gzip;
-use Piwik\Decompress\PclZip;
-use Piwik\Decompress\Tar;
-use Piwik\Decompress\ZipArchive;
+use Piwik\Unzip\Gzip;
+use Piwik\Unzip\PclZip;
+use Piwik\Unzip\Tar;
+use Piwik\Unzip\ZipArchive;
 
 /**
- * Factory for Decompress adapters.
+ * Unzip wrapper around ZipArchive and PclZip
+ *
  */
 class Unzip
 {
@@ -23,9 +25,9 @@ class Unzip
      *
      * @param string $name Name of unarchiver
      * @param string $filename Name of .zip archive
-     * @return \Piwik\Decompress\DecompressInterface
+     * @return \Piwik\Unzip\UncompressInterface
      */
-    public static function factory($name, $filename)
+    static public function factory($name, $filename)
     {
         switch ($name) {
             case 'ZipArchive':

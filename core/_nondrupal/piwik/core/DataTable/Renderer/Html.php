@@ -29,9 +29,17 @@ class Html extends Renderer
      *
      * @param string $id
      */
-    public function setTableId($id)
+    function setTableId($id)
     {
         $this->tableId = str_replace('.', '_', $id);
+    }
+
+    /**
+     * Output HTTP Content-Type header
+     */
+    protected function renderHeader()
+    {
+        @header('Content-Type: text/html; charset=utf-8');
     }
 
     /**
@@ -39,13 +47,26 @@ class Html extends Renderer
      *
      * @return string
      */
-    public function render()
+    function render()
     {
+        $this->renderHeader();
         $this->tableStructure = array();
         $this->allColumns = array();
         $this->i = 0;
 
         return $this->renderTable($this->table);
+    }
+
+    /**
+     * Computes the exception output and returns the string/binary
+     *
+     * @return string
+     */
+    function renderException()
+    {
+        $this->renderHeader();
+        $exceptionMessage = $this->getExceptionMessage();
+        return nl2br($exceptionMessage);
     }
 
     /**

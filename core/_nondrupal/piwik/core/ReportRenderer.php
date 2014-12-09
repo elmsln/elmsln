@@ -14,13 +14,12 @@ use Piwik\DataTable\Row;
 use Piwik\DataTable\Simple;
 use Piwik\DataTable;
 use Piwik\Plugins\ImageGraph\API;
-use Piwik\BaseFactory;
 
 /**
  * A Report Renderer produces user friendly renderings of any given Piwik report.
  * All new Renderers must be copied in ReportRenderer and added to the $availableReportRenderers.
  */
-abstract class ReportRenderer extends BaseFactory
+abstract class ReportRenderer
 {
     const DEFAULT_REPORT_FONT = 'dejavusans';
     const REPORT_TEXT_COLOR = "68,68,68";
@@ -34,28 +33,38 @@ abstract class ReportRenderer extends BaseFactory
     const PDF_FORMAT = 'pdf';
     const CSV_FORMAT = 'csv';
 
-    private static $availableReportRenderers = array(
+    static private $availableReportRenderers = array(
         self::PDF_FORMAT,
         self::HTML_FORMAT,
         self::CSV_FORMAT,
     );
 
-    protected static function getClassNameFromClassId($rendererType)
+    /**
+     * Return the ReportRenderer associated to the renderer type $rendererType
+     *
+     * @throws exception If the renderer is unknown
+     * @param string $rendererType
+     * @return \Piwik\ReportRenderer
+     */
+    static public function factory($rendererType)
     {
-        return 'Piwik\ReportRenderer\\' . self::normalizeRendererType($rendererType);
-    }
+        $name = ucfirst(strtolower($rendererType));
+        $className = 'Piwik\ReportRenderer\\' . $name;
 
-    protected static function getInvalidClassIdExceptionMessage($rendererType)
-    {
-        return Piwik::translate(
-            'General_ExceptionInvalidReportRendererFormat',
-            array(self::normalizeRendererType($rendererType), implode(', ', self::$availableReportRenderers))
-        );
-    }
+        try {
+            Loader::loadClass($className);
+            return new $className;
+        } catch (Exception $e) {
 
-    protected static function normalizeRendererType($rendererType)
-    {
-        return ucfirst(strtolower($rendererType));
+            @header('Content-Type: text/html; charset=utf-8');
+
+            throw new Exception(
+                Piwik::translate(
+                    'General_ExceptionInvalidReportRendererFormat',
+                    array($name, implode(', ', self::$availableReportRenderers))
+                )
+            );
+        }
     }
 
     /**
@@ -157,10 +166,14 @@ abstract class ReportRenderer extends BaseFactory
         $filename = self::appendExtension($filename, $extension);
         $outputFilename = self::getOutputPath($filename);
 
-        $bytesWritten = file_put_contents($outputFilename, $content);
-        if ($bytesWritten === false) {
-            throw new Exception ("ReportRenderer: Could not write to file '" . $outputFilename . "'.");
+        $emailReport = @fopen($outputFilename, "w");
+
+        if (!$emailReport) {
+            throw new Exception ("The file : " . $outputFilename . " can not be opened in write mode.");
         }
+
+        fwrite($emailReport, $content);
+        fclose($emailReport);
 
         return $outputFilename;
     }

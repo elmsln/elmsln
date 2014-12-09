@@ -11,54 +11,54 @@ namespace Piwik;
 use Piwik\Archive\Parameters;
 use Piwik\ArchiveProcessor\Rules;
 use Piwik\DataAccess\ArchiveSelector;
-use Piwik\Period\Factory as PeriodFactory;
+use Piwik\Period\Factory;
 
 /**
  * The **Archive** class is used to query cached analytics statistics
  * (termed "archive data").
- *
+ * 
  * You can use **Archive** instances to get data that was archived for one or more sites,
  * for one or more periods and one optional segment.
- *
+ * 
  * If archive data is not found, this class will initiate the archiving process. [1](#footnote-1)
- *
+ * 
  * **Archive** instances must be created using the {@link build()} factory method;
  * they cannot be constructed.
- *
+ * 
  * You can search for metrics (such as `nb_visits`) using the {@link getNumeric()} and
  * {@link getDataTableFromNumeric()} methods. You can search for
  * reports using the {@link getBlob()}, {@link getDataTable()} and {@link getDataTableExpanded()} methods.
- *
+ * 
  * If you're creating an API that returns report data, you may want to use the
  * {@link getDataTableFromArchive()} helper function.
- *
+ * 
  * ### Learn more
- *
+ * 
  * Learn more about _archiving_ [here](/guides/all-about-analytics-data).
- *
+ * 
  * ### Limitations
- *
+ * 
  * - You cannot get data for multiple range periods in a single query.
  * - You cannot get data for periods of different types in a single query.
- *
+ * 
  * ### Examples
- *
+ * 
  * **_Querying metrics for an API method_**
- *
+ * 
  *     // one site and one period
  *     $archive = Archive::build($idSite = 1, $period = 'week', $date = '2013-03-08');
  *     return $archive->getDataTableFromNumeric(array('nb_visits', 'nb_actions'));
- *
+ *     
  *     // all sites and multiple dates
  *     $archive = Archive::build($idSite = 'all', $period = 'month', $date = '2013-01-02,2013-03-08');
  *     return $archive->getDataTableFromNumeric(array('nb_visits', 'nb_actions'));
- *
+ * 
  * **_Querying and using metrics immediately_**
- *
+ * 
  *     // one site and one period
  *     $archive = Archive::build($idSite = 1, $period = 'week', $date = '2013-03-08');
  *     $data = $archive->getNumeric(array('nb_visits', 'nb_actions'));
- *
+ *     
  *     $visits = $data['nb_visits'];
  *     $actions = $data['nb_actions'];
  *
@@ -67,37 +67,37 @@ use Piwik\Period\Factory as PeriodFactory;
  *     // multiple sites and multiple dates
  *     $archive = Archive::build($idSite = '1,2,3', $period = 'month', $date = '2013-01-02,2013-03-08');
  *     $data = $archive->getNumeric('nb_visits');
- *
+ *     
  *     $janSite1Visits = $data['1']['2013-01-01,2013-01-31']['nb_visits'];
  *     $febSite1Visits = $data['1']['2013-02-01,2013-02-28']['nb_visits'];
  *     // ... etc.
- *
+ *     
  * **_Querying for reports_**
- *
+ * 
  *     $archive = Archive::build($idSite = 1, $period = 'week', $date = '2013-03-08');
  *     $dataTable = $archive->getDataTable('MyPlugin_MyReport');
  *     // ... manipulate $dataTable ...
  *     return $dataTable;
- *
+ * 
  * **_Querying a report for an API method_**
- *
+ * 
  *     public function getMyReport($idSite, $period, $date, $segment = false, $expanded = false)
  *     {
  *         $dataTable = Archive::getDataTableFromArchive('MyPlugin_MyReport', $idSite, $period, $date, $segment, $expanded);
  *         $dataTable->queueFilter('ReplaceColumnNames');
  *         return $dataTable;
  *     }
- *
+ * 
  * **_Querying data for multiple range periods_**
- *
+ * 
  *     // get data for first range
  *     $archive = Archive::build($idSite = 1, $period = 'range', $date = '2013-03-08,2013-03-12');
  *     $dataTable = $archive->getDataTableFromNumeric(array('nb_visits', 'nb_actions'));
- *
+ *     
  *     // get data for second range
  *     $archive = Archive::build($idSite = 1, $period = 'range', $date = '2013-03-15,2013-03-20');
  *     $dataTable = $archive->getDataTableFromNumeric(array('nb_visits', 'nb_actions'));
- *
+ * 
  * <a name="footnote-1"></a>
  * [1]: The archiving process will not be launched if browser archiving is disabled
  *      and the current request came from a browser.
@@ -197,36 +197,31 @@ class Archive
     {
         $websiteIds = Site::getIdSitesFromIdSitesString($idSites, $_restrictSitesToLogin);
 
-        $timezone = false;
-        if (count($websiteIds) == 1) {
-            $timezone = Site::getTimezoneFor($websiteIds[0]);
-        }
+        $timezone = count($websiteIds) == 1 ? Site::getTimezoneFor($websiteIds[0]) : false;
 
         if (Period::isMultiplePeriod($strDate, $period)) {
-            $oPeriod    = PeriodFactory::build($period, $strDate, $timezone);
+            $oPeriod = Factory::build($period, $strDate, $timezone);
             $allPeriods = $oPeriod->getSubperiods();
         } else {
-            $oPeriod    = PeriodFactory::makePeriodFromQueryParams($timezone, $period, $strDate);
+            $oPeriod = Factory::makePeriodFromQueryParams($timezone, $period, $strDate);
             $allPeriods = array($oPeriod);
         }
-
-        $segment        = new Segment($segment, $websiteIds);
-        $idSiteIsAll    = $idSites == self::REQUEST_ALL_WEBSITES_FLAG;
+        $segment = new Segment($segment, $websiteIds);
+        $idSiteIsAll = $idSites == self::REQUEST_ALL_WEBSITES_FLAG;
         $isMultipleDate = Period::isMultiplePeriod($strDate, $period);
-
         return Archive::factory($segment, $allPeriods, $websiteIds, $idSiteIsAll, $isMultipleDate, $skipAggregationOfSubTables);
     }
 
     /**
      * Returns a new Archive instance that will query archive data for the given set of
      * sites and periods, using an optional segment.
-     *
+     * 
      * This method uses an array of Period instances and a Segment instance, instead of strings
      * like {@link build()}.
-     *
+     * 
      * If you want to create an Archive instance using data found in query parameters,
      * use {@link build()}.
-     *
+     * 
      * @param Segment $segment The segment to use. For no segment, use `new Segment('', $idSites)`.
      * @param array $periods An array of Period instances.
      * @param array $idSites An array of site IDs (eg, `array(1, 2, 3)`).
@@ -244,11 +239,9 @@ class Archive
     {
         $forceIndexedBySite = false;
         $forceIndexedByDate = false;
-
         if ($idSiteIsAll || count($idSites) > 1) {
             $forceIndexedBySite = true;
         }
-
         if (count($periods) > 1 || $isMultipleDate) {
             $forceIndexedByDate = true;
         }
@@ -260,19 +253,19 @@ class Archive
 
     /**
      * Queries and returns metric data in an array.
-     *
+     * 
      * If multiple sites were requested in {@link build()} or {@link factory()} the result will
      * be indexed by site ID.
-     *
+     * 
      * If multiple periods were requested in {@link build()} or {@link factory()} the result will
      * be indexed by period.
-     *
+     * 
      * The site ID index is always first, so if multiple sites & periods were requested, the result
      * will be indexed by site ID first, then period.
-     *
+     * 
      * @param string|array $names One or more archive names, eg, `'nb_visits'`, `'Referrers_distinctKeywords'`,
      *                            etc.
-     * @return false|integer|array `false` if there is no data to return, a single numeric value if we're not querying
+     * @return false|numeric|array `false` if there is no data to return, a single numeric value if we're not querying
      *                             for multiple sites/periods, or an array if multiple sites, periods or names are
      *                             queried for.
      */
@@ -296,17 +289,17 @@ class Archive
 
     /**
      * Queries and returns blob data in an array.
-     *
+     * 
      * Reports are stored in blobs as serialized arrays of {@link DataTable\Row} instances, but this
      * data can technically be anything. In other words, you can store whatever you want
      * as archive data blobs.
      *
      * If multiple sites were requested in {@link build()} or {@link factory()} the result will
      * be indexed by site ID.
-     *
+     * 
      * If multiple periods were requested in {@link build()} or {@link factory()} the result will
      * be indexed by period.
-     *
+     * 
      * The site ID index is always first, so if multiple sites & periods were requested, the result
      * will be indexed by site ID first, then period.
      *
@@ -324,20 +317,20 @@ class Archive
 
     /**
      * Queries and returns metric data in a DataTable instance.
-     *
+     * 
      * If multiple sites were requested in {@link build()} or {@link factory()} the result will
      * be a DataTable\Map that is indexed by site ID.
-     *
+     * 
      * If multiple periods were requested in {@link build()} or {@link factory()} the result will
      * be a {@link DataTable\Map} that is indexed by period.
-     *
+     * 
      * The site ID index is always first, so if multiple sites & periods were requested, the result
      * will be a {@link DataTable\Map} indexed by site ID which contains {@link DataTable\Map} instances that are
      * indexed by period.
-     *
+     * 
      * _Note: Every DataTable instance returned will have at most one row in it. The contents of each
      *        row will be the requested metrics for the appropriate site and period._
-     *
+     * 
      * @param string|array $names One or more archive names, eg, 'nb_visits', 'Referrers_distinctKeywords',
      *                            etc.
      * @return DataTable|DataTable\Map A DataTable if multiple sites and periods were not requested.
@@ -351,20 +344,20 @@ class Archive
 
     /**
      * Queries and returns one or more reports as DataTable instances.
-     *
+     * 
      * This method will query blob data that is a serialized array of of {@link DataTable\Row}'s and
      * unserialize it.
-     *
+     * 
      * If multiple sites were requested in {@link build()} or {@link factory()} the result will
      * be a {@link DataTable\Map} that is indexed by site ID.
-     *
+     * 
      * If multiple periods were requested in {@link build()} or {@link factory()} the result will
      * be a DataTable\Map that is indexed by period.
-     *
+     * 
      * The site ID index is always first, so if multiple sites & periods were requested, the result
      * will be a {@link DataTable\Map} indexed by site ID which contains {@link DataTable\Map} instances that are
      * indexed by period.
-     *
+     * 
      * @param string $name The name of the record to get. This method can only query one record at a time.
      * @param int|string|null $idSubtable The ID of the subtable to get (if any).
      * @return DataTable|DataTable\Map A DataTable if multiple sites and periods were not requested.
@@ -378,13 +371,13 @@ class Archive
 
     /**
      * Queries and returns one report with all of its subtables loaded.
-     *
+     * 
      * If multiple sites were requested in {@link build()} or {@link factory()} the result will
      * be a DataTable\Map that is indexed by site ID.
-     *
+     * 
      * If multiple periods were requested in {@link build()} or {@link factory()} the result will
      * be a DataTable\Map that is indexed by period.
-     *
+     * 
      * The site ID index is always first, so if multiple sites & periods were requested, the result
      * will be a {@link DataTable\Map indexed} by site ID which contains {@link DataTable\Map} instances that are
      * indexed by period.
@@ -406,18 +399,16 @@ class Archive
 
     /**
      * Returns the list of plugins that archive the given reports.
-     *
+     * 
      * @param array $archiveNames
      * @return array
      */
     private function getRequestedPlugins($archiveNames)
     {
         $result = array();
-
         foreach ($archiveNames as $name) {
             $result[] = self::getPluginForReport($name);
         }
-
         return array_unique($result);
     }
 
@@ -435,7 +426,7 @@ class Archive
     /**
      * Helper function that creates an Archive instance and queries for report data using
      * query parameter data. API methods can use this method to reduce code redundancy.
-     *
+     * 
      * @param string $name The name of the report to return.
      * @param int|string|array $idSite @see {@link build()}
      * @param string $period @see {@link build()}
@@ -445,7 +436,6 @@ class Archive
      * @param int|null $idSubtable See {@link getDataTableExpanded()}
      * @param bool $skipAggregationOfSubTables Whether or not we should skip the aggregation of all sub-tables and only aggregate parent DataTable.
      * @param int|null $depth See {@link getDataTableExpanded()}
-     * @throws \Exception
      * @return DataTable|DataTable\Map See {@link getDataTable()} and
      *                                 {@link getDataTableExpanded()} for more
      *                                 information
@@ -455,10 +445,9 @@ class Archive
     {
         Piwik::checkUserHasViewAccess($idSite);
 
-        if ($skipAggregationOfSubTables && ($expanded || $idSubtable)) {
+        if($skipAggregationOfSubTables && ($expanded || $idSubtable)) {
             throw new \Exception("Not expected to skipAggregationOfSubTables when expanded=1 or idSubtable is set.");
         }
-
         $archive = Archive::build($idSite, $period, $date, $segment, $_restrictSitesToLogin = false, $skipAggregationOfSubTables);
         if ($idSubtable === false) {
             $idSubtable = null;
@@ -506,7 +495,6 @@ class Archive
             $archiveNames, $archiveDataType, $this->params->getIdSites(), $this->params->getPeriods(), $defaultRow = null);
 
         $archiveIds = $this->getArchiveIds($archiveNames);
-
         if (empty($archiveIds)) {
             return $result;
         }
@@ -544,7 +532,7 @@ class Archive
 
         // figure out which archives haven't been processed (if an archive has been processed,
         // then we have the archive IDs in $this->idarchives)
-        $doneFlags     = array();
+        $doneFlags = array();
         $archiveGroups = array();
         foreach ($plugins as $plugin) {
             $doneFlag = $this->getDoneStringForPlugin($plugin);
@@ -553,7 +541,7 @@ class Archive
             if (!isset($this->idarchives[$doneFlag])) {
                 $archiveGroup = $this->getArchiveGroupOfPlugin($plugin);
 
-                if ($archiveGroup == self::ARCHIVE_ALL_PLUGINS_FLAG) {
+                if($archiveGroup == self::ARCHIVE_ALL_PLUGINS_FLAG) {
                     $archiveGroup = reset($plugins);
                 }
                 $archiveGroups[] = $archiveGroup;
@@ -571,7 +559,19 @@ class Archive
             }
         }
 
-        $idArchivesByMonth = $this->getIdArchivesByMonth($doneFlags);
+        // order idarchives by the table month they belong to
+        $idArchivesByMonth = array();
+        foreach (array_keys($doneFlags) as $doneFlag) {
+            if (empty($this->idarchives[$doneFlag])) {
+                continue;
+            }
+
+            foreach ($this->idarchives[$doneFlag] as $dateRange => $idarchives) {
+                foreach ($idarchives as $id) {
+                    $idArchivesByMonth[$dateRange][] = $id;
+                }
+            }
+        }
 
         return $idArchivesByMonth;
     }
@@ -800,29 +800,9 @@ class Archive
 
             $idArchive = $archiveLoader->prepareArchive($plugin);
 
-            if ($idArchive) {
+            if($idArchive) {
                 $this->idarchives[$doneFlag][$periodString][] = $idArchive;
             }
         }
-    }
-
-    private function getIdArchivesByMonth($doneFlags)
-    {
-        // order idarchives by the table month they belong to
-        $idArchivesByMonth = array();
-
-        foreach (array_keys($doneFlags) as $doneFlag) {
-            if (empty($this->idarchives[$doneFlag])) {
-                continue;
-            }
-
-            foreach ($this->idarchives[$doneFlag] as $dateRange => $idarchives) {
-                foreach ($idarchives as $id) {
-                    $idArchivesByMonth[$dateRange][] = $id;
-                }
-            }
-        }
-
-        return $idArchivesByMonth;
     }
 }

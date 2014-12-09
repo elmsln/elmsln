@@ -18,7 +18,7 @@ class ServerFilesGenerator
      */
     public static function createHtAccessFiles()
     {
-        if (!SettingsServer::isApache()) {
+        if(!SettingsServer::isApache()) {
             return;
         }
         $denyAll = self::getDenyAllHtaccessContent();
@@ -64,7 +64,7 @@ class ServerFilesGenerator
         }
     }
 
-    public static function createHtAccessDenyAll($path)
+    static public function createHtAccessDenyAll($path)
     {
         self::createHtAccess($path, $overwrite = false, self::getDenyAllHtaccessContent());
     }
@@ -201,6 +201,7 @@ class ServerFilesGenerator
 
         return $denyAll;
     }
+
 
     /**
      * @return string

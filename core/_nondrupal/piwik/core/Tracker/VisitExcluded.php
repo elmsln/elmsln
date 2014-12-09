@@ -8,6 +8,7 @@
  */
 namespace Piwik\Tracker;
 
+use DeviceDetector\Parser\Bot;
 use Piwik\Common;
 use Piwik\Config;
 use Piwik\DeviceDetectorFactory;
@@ -26,16 +27,16 @@ class VisitExcluded
      */
     public function __construct(Request $request, $ip = false, $userAgent = false)
     {
-        if (false === $ip) {
+        if ($ip === false) {
             $ip = $request->getIp();
         }
 
-        if (false === $userAgent) {
+        if ($userAgent === false) {
             $userAgent = $request->getUserAgent();
         }
 
-        $this->request   = $request;
-        $this->idSite    = $request->getIdSite();
+        $this->request = $request;
+        $this->idSite = $request->getIdSite();
         $this->userAgent = $userAgent;
         $this->ip = $ip;
     }
@@ -199,7 +200,6 @@ class VisitExcluded
             Common::printDebug('Piwik ignore cookie was found, visit not tracked.');
             return true;
         }
-
         return false;
     }
 
@@ -211,15 +211,12 @@ class VisitExcluded
     protected function isVisitorIpExcluded()
     {
         $websiteAttributes = Cache::getCacheWebsiteAttributes($this->idSite);
-
         if (!empty($websiteAttributes['excluded_ips'])) {
-            $ip = \Piwik\Network\IP::fromBinaryIP($this->ip);
-            if ($ip->isInRanges($websiteAttributes['excluded_ips'])) {
-                Common::printDebug('Visitor IP ' . $ip->toString() . ' is excluded from being tracked');
+            if (IP::isIpInRange($this->ip, $websiteAttributes['excluded_ips'])) {
+                Common::printDebug('Visitor IP ' . IP::N2P($this->ip) . ' is excluded from being tracked');
                 return true;
             }
         }
-
         return false;
     }
 
@@ -235,7 +232,6 @@ class VisitExcluded
     protected function isUserAgentExcluded()
     {
         $websiteAttributes = Cache::getCacheWebsiteAttributes($this->idSite);
-
         if (!empty($websiteAttributes['excluded_user_agents'])) {
             foreach ($websiteAttributes['excluded_user_agents'] as $excludedUserAgent) {
                 // if the excluded user agent string part is in this visit's user agent, this visit should be excluded
@@ -244,7 +240,6 @@ class VisitExcluded
                 }
             }
         }
-
         return false;
     }
 
@@ -259,14 +254,12 @@ class VisitExcluded
         $spamHosts = explode(",", $spamHosts);
 
         $referrerUrl = $this->request->getParam('urlref');
-
         foreach($spamHosts as $spamHost) {
-            if ( strpos($referrerUrl, $spamHost) !== false) {
+            if( strpos($referrerUrl, $spamHost) !== false) {
                 Common::printDebug('Referrer URL is a known spam: ' . $spamHost);
                 return true;
             }
         }
-
         return false;
     }
 }

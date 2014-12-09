@@ -161,13 +161,7 @@ class ReportTotalsCalculator extends DataTableManipulator
             }
         }
 
-        $table = $this->callApiAndReturnDataTable($module, $action, $request);
-
-        if ($table instanceof DataTable\Map) {
-            $table = $table->mergeChildren();
-        }
-
-        return $table;
+        return $this->callApiAndReturnDataTable($module, $action, $request);
     }
 
     private function sumColumnValueToTotal(Row $row, $metricId, $totalValues)
@@ -194,7 +188,6 @@ class ReportTotalsCalculator extends DataTableManipulator
      * Make sure to get all rows of the first level table.
      *
      * @param array $request
-     * @return array
      */
     protected function manipulateSubtableRequest($request)
     {

@@ -10,7 +10,6 @@ namespace Piwik\DataTable\Filter;
 
 use Piwik\DataTable;
 use Piwik\DataTable\BaseFilter;
-use Piwik\DataTable\Row;
 
 /**
  * DataTable filter that will group {@link DataTable} rows together based on the results
@@ -19,12 +18,12 @@ use Piwik\DataTable\Row;
  * _NOTE: This filter should never be queued, it must be applied directly on a {@link DataTable}._
  *
  * **Basic usage example**
- *
+ * 
  *     // group URLs by host
  *     $dataTable->filter('GroupBy', array('label', function ($labelUrl) {
  *         return parse_url($labelUrl, PHP_URL_HOST);
  *     }));
- *
+ * 
  * @api
  */
 class GroupBy extends BaseFilter
@@ -52,17 +51,17 @@ class GroupBy extends BaseFilter
      * @param DataTable $table The DataTable to filter.
      * @param string $groupByColumn The column name to reduce.
      * @param callable $reduceFunction The reduce function. This must alter the `$groupByColumn`
-     *                                 columng in some way. If not set then the filter will group by the raw column value.
+     *                                 columng in some way.
      * @param array $parameters deprecated - use an [anonymous function](http://php.net/manual/en/functions.anonymous.php)
      *                          instead.
      */
-    public function __construct($table, $groupByColumn, $reduceFunction = null, $parameters = array())
+    public function __construct($table, $groupByColumn, $reduceFunction, $parameters = array())
     {
         parent::__construct($table);
 
-        $this->groupByColumn  = $groupByColumn;
+        $this->groupByColumn = $groupByColumn;
         $this->reduceFunction = $reduceFunction;
-        $this->parameters     = $parameters;
+        $this->parameters = $parameters;
     }
 
     /**
@@ -72,7 +71,6 @@ class GroupBy extends BaseFilter
      */
     public function filter($table)
     {
-        /** @var Row[] $groupByRows */
         $groupByRows = array();
         $nonGroupByRowIds = array();
 
@@ -82,14 +80,10 @@ class GroupBy extends BaseFilter
                 continue;
             }
 
-            $groupByColumnValue = $row->getColumn($this->groupByColumn);
-            $groupByValue = $groupByColumnValue;
-
             // reduce the group by column of this row
-            if($this->reduceFunction) {
-                $parameters   = array_merge(array($groupByColumnValue), $this->parameters);
-                $groupByValue = call_user_func_array($this->reduceFunction, $parameters);
-            }
+            $groupByColumnValue = $row->getColumn($this->groupByColumn);
+            $parameters = array_merge(array($groupByColumnValue), $this->parameters);
+            $groupByValue = call_user_func_array($this->reduceFunction, $parameters);
 
             if (!isset($groupByRows[$groupByValue])) {
                 // if we haven't encountered this group by value before, we mark this row as a

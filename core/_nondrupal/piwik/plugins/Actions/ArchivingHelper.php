@@ -38,7 +38,7 @@ class ArchivingHelper
      * @param array $actionsTablesByType
      * @return int
      */
-    public static function updateActionsTableWithRowQuery($query, $fieldQueried, & $actionsTablesByType)
+    static public function updateActionsTableWithRowQuery($query, $fieldQueried, & $actionsTablesByType)
     {
         $rowsProcessed = 0;
         while ($row = $query->fetch()) {
@@ -52,10 +52,6 @@ class ArchivingHelper
 
             if ($row['type'] != Action::TYPE_SITE_SEARCH) {
                 unset($row[Metrics::INDEX_SITE_SEARCH_HAS_NO_RESULT]);
-            }
-
-            if ($row['type'] == Action::TYPE_CONTENT) {
-                continue;
             }
 
             // This will appear as <url /> in the API, which is actually very important to keep
@@ -288,17 +284,17 @@ class ArchivingHelper
         return $newValue;
     }
 
-    public static $maximumRowsInDataTableLevelZero;
-    public static $maximumRowsInSubDataTable;
-    public static $columnToSortByBeforeTruncation;
+    static public $maximumRowsInDataTableLevelZero;
+    static public $maximumRowsInSubDataTable;
+    static public $columnToSortByBeforeTruncation;
 
-    protected static $actionUrlCategoryDelimiter = null;
-    protected static $actionTitleCategoryDelimiter = null;
-    protected static $defaultActionName = null;
-    protected static $defaultActionNameWhenNotDefined = null;
-    protected static $defaultActionUrlWhenNotDefined = null;
+    static protected $actionUrlCategoryDelimiter = null;
+    static protected $actionTitleCategoryDelimiter = null;
+    static protected $defaultActionName = null;
+    static protected $defaultActionNameWhenNotDefined = null;
+    static protected $defaultActionUrlWhenNotDefined = null;
 
-    public static function reloadConfig()
+    static public function reloadConfig()
     {
         // for BC, we read the old style delimiter first (see #1067)Row
         $actionDelimiter = @Config::getInstance()->General['action_category_delimiter'];
@@ -324,7 +320,7 @@ class ArchivingHelper
      *
      * @return Row
      */
-    private static function getDefaultRow()
+    static private function getDefaultRow()
     {
         static $row = false;
         if ($row === false) {
@@ -394,7 +390,7 @@ class ArchivingHelper
      * @param $type
      * @return string
      */
-    public static function getUnknownActionName($type)
+    static public function getUnknownActionName($type)
     {
         if (empty(self::$defaultActionNameWhenNotDefined)) {
             self::$defaultActionNameWhenNotDefined = Piwik::translate('General_NotDefined', Piwik::translate('Actions_ColumnPageName'));
@@ -405,6 +401,7 @@ class ArchivingHelper
         }
         return self::$defaultActionUrlWhenNotDefined;
     }
+
 
     /**
      * Explodes action name into an array of elements.
@@ -428,7 +425,7 @@ class ArchivingHelper
      * @param int $urlPrefix url prefix (only used for TYPE_PAGE_URL)
      * @return array of exploded elements from $name
      */
-    public static function getActionExplodedNames($name, $type, $urlPrefix = null)
+    static public function getActionExplodedNames($name, $type, $urlPrefix = null)
     {
         // Site Search does not split Search keywords
         if ($type == Action::TYPE_SITE_SEARCH) {
@@ -480,7 +477,7 @@ class ArchivingHelper
     /**
      * Static cache to store Rows during processing
      */
-    protected static $cacheParsedAction = array();
+    static protected $cacheParsedAction = array();
 
     public static function clearActionsCache()
     {

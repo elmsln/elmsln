@@ -44,15 +44,7 @@ class SitesManager extends \Piwik\Plugin
      */
     public function getJsFiles(&$jsFiles)
     {
-        $jsFiles[] = "plugins/SitesManager/angularjs/sites-manager/api-helper.service.js";
-        $jsFiles[] = "plugins/SitesManager/angularjs/sites-manager/api-site.service.js";
-        $jsFiles[] = "plugins/SitesManager/angularjs/sites-manager/api-core.service.js";
-        $jsFiles[] = "plugins/SitesManager/angularjs/sites-manager/api-coreadmin.service.js";
-        $jsFiles[] = "plugins/SitesManager/angularjs/sites-manager/multiline-field.directive.js";
-        $jsFiles[] = "plugins/SitesManager/angularjs/sites-manager/edit-trigger.directive.js";
-        $jsFiles[] = "plugins/SitesManager/angularjs/sites-manager/scroll.directive.js";
-        $jsFiles[] = "plugins/SitesManager/angularjs/sites-manager/sites-manager.controller.js";
-        $jsFiles[] = "plugins/SitesManager/angularjs/sites-manager/sites-manager-site.controller.js";
+        $jsFiles[] = "plugins/SitesManager/javascripts/SitesManager.js";
     }
 
     /**
@@ -176,7 +168,7 @@ class SitesManager extends \Piwik\Plugin
      * @param string $parameters The unfiltered list.
      * @return array The filtered list of strings as an array.
      */
-    private static function filterBlankFromCommaSepList($parameters)
+    static private function filterBlankFromCommaSepList($parameters)
     {
         $parameters = explode(',', $parameters);
         $parameters = array_filter($parameters, 'strlen');
@@ -206,66 +198,7 @@ class SitesManager extends \Piwik\Plugin
     {
         $translationKeys[] = "General_Save";
         $translationKeys[] = "General_OrCancel";
-        $translationKeys[] = "Actions_SubmenuSitesearch";
         $translationKeys[] = "SitesManager_OnlyOneSiteAtTime";
         $translationKeys[] = "SitesManager_DeleteConfirm";
-        $translationKeys[] = "SitesManager_Urls";
-        $translationKeys[] = "SitesManager_ExcludedIps";
-        $translationKeys[] = "SitesManager_ExcludedParameters";
-        $translationKeys[] = "SitesManager_ExcludedUserAgents";
-        $translationKeys[] = "SitesManager_Timezone";
-        $translationKeys[] = "SitesManager_Currency";
-        $translationKeys[] = "SitesManager_ShowTrackingTag";
-        $translationKeys[] = "SitesManager_AliasUrlHelp";
-        $translationKeys[] = "SitesManager_KeepURLFragmentsLong";
-        $translationKeys[] = "SitesManager_HelpExcludedIps";
-        $translationKeys[] = "SitesManager_ListOfQueryParametersToExclude";
-        $translationKeys[] = "SitesManager_PiwikWillAutomaticallyExcludeCommonSessionParameters";
-        $translationKeys[] = "SitesManager_GlobalExcludedUserAgentHelp1";
-        $translationKeys[] = "SitesManager_GlobalListExcludedUserAgents_Desc";
-        $translationKeys[] = "SitesManager_GlobalExcludedUserAgentHelp2";
-        $translationKeys[] = "SitesManager_WebsitesManagement";
-        $translationKeys[] = "SitesManager_MainDescription";
-        $translationKeys[] = "SitesManager_YouCurrentlyHaveAccessToNWebsites";
-        $translationKeys[] = "SitesManager_SuperUserAccessCan";
-        $translationKeys[] = "SitesManager_EnableSiteSearch";
-        $translationKeys[] = "SitesManager_DisableSiteSearch";
-        $translationKeys[] = "SitesManager_SearchUseDefault";
-        $translationKeys[] = "SitesManager_SiteSearchUse";
-        $translationKeys[] = "SitesManager_SearchKeywordLabel";
-        $translationKeys[] = "SitesManager_SearchCategoryLabel";
-        $translationKeys[] = "SitesManager_YourCurrentIpAddressIs";
-        $translationKeys[] = "SitesManager_SearchKeywordParametersDesc";
-        $translationKeys[] = "SitesManager_SearchCategoryParametersDesc";
-        $translationKeys[] = "SitesManager_CurrencySymbolWillBeUsedForGoals";
-        $translationKeys[] = "SitesManager_ChangingYourTimezoneWillOnlyAffectDataForward";
-        $translationKeys[] = "SitesManager_AdvancedTimezoneSupportNotFound";
-        $translationKeys[] = "SitesManager_ChooseCityInSameTimezoneAsYou";
-        $translationKeys[] = "SitesManager_UTCTimeIs";
-        $translationKeys[] = "SitesManager_EnableEcommerce";
-        $translationKeys[] = "SitesManager_NotAnEcommerceSite";
-        $translationKeys[] = "SitesManager_EcommerceHelp";
-        $translationKeys[] = "SitesManager_PiwikOffersEcommerceAnalytics";
-        $translationKeys[] = "SitesManager_GlobalWebsitesSettings";
-        $translationKeys[] = "SitesManager_GlobalListExcludedIps";
-        $translationKeys[] = "SitesManager_ListOfIpsToBeExcludedOnAllWebsites";
-        $translationKeys[] = "SitesManager_GlobalListExcludedQueryParameters";
-        $translationKeys[] = "SitesManager_ListOfQueryParametersToBeExcludedOnAllWebsites";
-        $translationKeys[] = "SitesManager_GlobalListExcludedUserAgents";
-        $translationKeys[] = "SitesManager_EnableSiteSpecificUserAgentExclude_Help";
-        $translationKeys[] = "SitesManager_EnableSiteSpecificUserAgentExclude";
-        $translationKeys[] = "SitesManager_KeepURLFragments";
-        $translationKeys[] = "SitesManager_KeepURLFragmentsHelp";
-        $translationKeys[] = "SitesManager_KeepURLFragmentsHelp2";
-        $translationKeys[] = "SitesManager_TrackingSiteSearch";
-        $translationKeys[] = "SitesManager_SearchParametersNote";
-        $translationKeys[] = "SitesManager_SearchParametersNote2";
-        $translationKeys[] = "SitesManager_SearchCategoryDesc";
-        $translationKeys[] = "SitesManager_DefaultTimezoneForNewWebsites";
-        $translationKeys[] = "SitesManager_SelectDefaultTimezone";
-        $translationKeys[] = "SitesManager_DefaultCurrencyForNewWebsites";
-        $translationKeys[] = "SitesManager_SelectDefaultCurrency";
-        $translationKeys[] = "SitesManager_AddSite";
-        $translationKeys[] = "Goals_Ecommerce";
     }
 }

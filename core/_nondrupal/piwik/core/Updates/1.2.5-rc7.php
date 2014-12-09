@@ -21,7 +21,7 @@ class Updates_1_2_5_rc7 extends Updates
     {
         return array(
             'ALTER TABLE `' . Common::prefixTable('log_visit') . '`
-		    	ADD INDEX index_idsite_idvisitor (idsite, idvisitor)' => 1061,
+		    	ADD INDEX index_idsite_idvisitor (idsite, idvisitor)' => false,
         );
     }
 
@@ -30,4 +30,5 @@ class Updates_1_2_5_rc7 extends Updates
         Updater::updateDatabase(__FILE__, self::getSql());
     }
 }
+
 

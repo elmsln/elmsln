@@ -17,8 +17,8 @@ use Piwik\Date;
 use Piwik\Metrics;
 use Piwik\Piwik;
 use Piwik\Plugins\CustomVariables\API as APICustomVariables;
-use Piwik\Plugins\Actions\Actions\ActionSiteSearch;
 use Piwik\Tracker\Action;
+use Piwik\Tracker\ActionSiteSearch;
 use Piwik\Tracker\PageUrl;
 
 /**
@@ -81,10 +81,8 @@ class API extends \Piwik\Plugin\API
         }
 
         if ($avgGenerationTimeRequested) {
-            $tempColumns = array(
-                Archiver::METRIC_SUM_TIME_RECORD_NAME,
-                Archiver::METRIC_HITS_TIMED_RECORD_NAME,
-            );
+            $tempColumns[] = Archiver::METRIC_SUM_TIME_RECORD_NAME;
+            $tempColumns[] = Archiver::METRIC_HITS_TIMED_RECORD_NAME;
             $columns = array_merge($columns, $tempColumns);
             $columns = array_unique($columns);
 
@@ -344,6 +342,7 @@ class API extends \Piwik\Plugin\API
             $dataTable = $customVariables->getEmptyClone();
 
             $customVariableDatatables = $customVariables->getDataTables();
+            $dataTables = $dataTable->getDataTables();
             foreach ($customVariableDatatables as $key => $customVariableTableForDate) {
                 // we do not enter the IF, in the case idSite=1,3 AND period=day&date=datefrom,dateto,
                 if ($customVariableTableForDate instanceof DataTable

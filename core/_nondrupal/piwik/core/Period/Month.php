@@ -60,7 +60,6 @@ class Month extends Period
         if ($this->subperiodsProcessed) {
             return;
         }
-
         parent::generate();
 
         $date = $this->date;

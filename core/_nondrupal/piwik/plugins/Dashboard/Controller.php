@@ -39,7 +39,7 @@ class Controller extends \Piwik\Plugin\Controller
         $view = new View($template);
         $this->setGeneralVariablesView($view);
 
-        $view->availableWidgets = json_encode(WidgetsList::get());
+        $view->availableWidgets = Common::json_encode(WidgetsList::get());
         $view->availableLayouts = $this->getAvailableLayouts();
 
         $view->dashboardId = Common::getRequestVar('idDashboard', 1, 'int');
@@ -75,7 +75,7 @@ class Controller extends \Piwik\Plugin\Controller
         $this->checkTokenInUrl();
 
         Json::sendHeaderJSON();
-        return json_encode(WidgetsList::get());
+        return Common::json_encode(WidgetsList::get());
     }
 
     public function getDashboardLayout($checkToken = true)
@@ -104,13 +104,38 @@ class Controller extends \Piwik\Plugin\Controller
             $session->dashboardLayout = $layout;
             $session->setExpirationSeconds(1800);
         } else {
-            $this->getModel()->updateLayoutForUser(Piwik::getCurrentUserLogin(), $idDashboard, $layout);
+            $this->saveLayoutForUser(Piwik::getCurrentUserLogin(), $idDashboard, $layout);
         }
     }
 
-    private function getModel()
+    /**
+     * Records the layout in the DB for the given user.
+     *
+     * @param string $login
+     * @param int $idDashboard
+     * @param string $layout
+     */
+    protected function saveLayoutForUser($login, $idDashboard, $layout)
     {
-        return new Model();
+        $paramsBind = array($login, $idDashboard, $layout, $layout);
+        $query = sprintf('INSERT INTO %s (login, iddashboard, layout) VALUES (?,?,?) ON DUPLICATE KEY UPDATE layout=?',
+            Common::prefixTable('user_dashboard'));
+        Db::query($query, $paramsBind);
+    }
+
+    /**
+     * Updates the name of a dashboard
+     *
+     * @param string $login
+     * @param int $idDashboard
+     * @param string $name
+     */
+    protected function updateDashboardName($login, $idDashboard, $name)
+    {
+        $paramsBind = array($name, $login, $idDashboard);
+        $query = sprintf('UPDATE %s SET name = ? WHERE login = ? AND iddashboard = ?',
+            Common::prefixTable('user_dashboard'));
+        Db::query($query, $paramsBind);
     }
 
     /**
@@ -128,7 +153,9 @@ class Controller extends \Piwik\Plugin\Controller
 
         // first layout can't be removed
         if ($idDashboard != 1) {
-            $this->getModel()->deleteDashboardForUser($idDashboard, Piwik::getCurrentUserLogin());
+            $query = sprintf('DELETE FROM %s WHERE iddashboard = ? AND login = ?',
+                Common::prefixTable('user_dashboard'));
+            Db::query($query, array($idDashboard, Piwik::getCurrentUserLogin()));
         }
     }
 
@@ -144,11 +171,11 @@ class Controller extends \Piwik\Plugin\Controller
             return '[]';
         }
 
-        $login      = Piwik::getCurrentUserLogin();
+        $login = Piwik::getCurrentUserLogin();
         $dashboards = $this->dashboard->getAllDashboards($login);
 
         Json::sendHeaderJSON();
-        return json_encode($dashboards);
+        return Common::json_encode($dashboards);
     }
 
     /**
@@ -162,20 +189,36 @@ class Controller extends \Piwik\Plugin\Controller
         if (Piwik::isUserIsAnonymous()) {
             return '0';
         }
+        $user = Piwik::getCurrentUserLogin();
+        $nextId = $this->getNextIdDashboard($user);
 
-        $name   = urldecode(Common::getRequestVar('name', '', 'string'));
-        $type   = urldecode(Common::getRequestVar('type', 'default', 'string'));
+        $name = urldecode(Common::getRequestVar('name', '', 'string'));
+        $type = urldecode(Common::getRequestVar('type', 'default', 'string'));
         $layout = '{}';
-        $login  = Piwik::getCurrentUserLogin();
 
         if ($type == 'default') {
             $layout = $this->dashboard->getDefaultLayout();
         }
 
-        $nextId = $this->getModel()->createNewDashboardForUser($login, $name, $layout);
+        $query = sprintf('INSERT INTO %s (login, iddashboard, name, layout) VALUES (?, ?, ?, ?)',
+            Common::prefixTable('user_dashboard'));
+        Db::query($query, array($user, $nextId, $name, $layout));
 
         Json::sendHeaderJSON();
-        return json_encode($nextId);
+        return Common::json_encode($nextId);
+    }
+
+    private function getNextIdDashboard($login)
+    {
+        $nextIdQuery = sprintf('SELECT MAX(iddashboard)+1 FROM %s WHERE login = ?',
+            Common::prefixTable('user_dashboard'));
+        $nextId = Db::fetchOne($nextIdQuery, array($login));
+
+        if (empty($nextId)) {
+            $nextId = 1;
+            return $nextId;
+        }
+        return $nextId;
     }
 
     public function copyDashboardToUser()
@@ -185,19 +228,21 @@ class Controller extends \Piwik\Plugin\Controller
         if (!Piwik::hasUserSuperUserAccess()) {
             return '0';
         }
-
         $login = Piwik::getCurrentUserLogin();
-        $name  = urldecode(Common::getRequestVar('name', '', 'string'));
-        $user  = urldecode(Common::getRequestVar('user', '', 'string'));
+        $name = urldecode(Common::getRequestVar('name', '', 'string'));
+        $user = urldecode(Common::getRequestVar('user', '', 'string'));
         $idDashboard = Common::getRequestVar('dashboardId', 0, 'int');
-
         $layout = $this->dashboard->getLayoutForUser($login, $idDashboard);
 
         if ($layout !== false) {
-            $nextId = $this->getModel()->createNewDashboardForUser($user, $name, $layout);
+            $nextId = $this->getNextIdDashboard($user);
+
+            $query = sprintf('INSERT INTO %s (login, iddashboard, name, layout) VALUES (?, ?, ?, ?)',
+                Common::prefixTable('user_dashboard'));
+            Db::query($query, array($user, $nextId, $name, $layout));
 
             Json::sendHeaderJSON();
-            return json_encode($nextId);
+            return Common::json_encode($nextId);
         }
     }
 
@@ -210,18 +255,17 @@ class Controller extends \Piwik\Plugin\Controller
     {
         $this->checkTokenInUrl();
 
-        $layout      = Common::unsanitizeInputValue(Common::getRequestVar('layout'));
+        $layout = Common::unsanitizeInputValue(Common::getRequestVar('layout'));
         $idDashboard = Common::getRequestVar('idDashboard', 1, 'int');
-        $name        = Common::getRequestVar('name', '', 'string');
-
+        $name = Common::getRequestVar('name', '', 'string');
         if (Piwik::isUserIsAnonymous()) {
             $session = new SessionNamespace("Dashboard");
             $session->dashboardLayout = $layout;
             $session->setExpirationSeconds(1800);
         } else {
-            $this->getModel()->updateLayoutForUser(Piwik::getCurrentUserLogin(), $idDashboard, $layout);
+            $this->saveLayoutForUser(Piwik::getCurrentUserLogin(), $idDashboard, $layout);
             if (!empty($name)) {
-                $this->getModel()->updateDashboardName(Piwik::getCurrentUserLogin(), $idDashboard, $name);
+                $this->updateDashboardName(Piwik::getCurrentUserLogin(), $idDashboard, $name);
             }
         }
     }
@@ -235,7 +279,10 @@ class Controller extends \Piwik\Plugin\Controller
 
         if (Piwik::hasUserSuperUserAccess()) {
             $layout = Common::unsanitizeInputValue(Common::getRequestVar('layout'));
-            $this->getModel()->createOrUpdateDashboard('', '1', $layout);
+            $paramsBind = array('', '1', $layout, $layout);
+            $query = sprintf('INSERT INTO %s (login, iddashboard, layout) VALUES (?,?,?) ON DUPLICATE KEY UPDATE layout=?',
+                Common::prefixTable('user_dashboard'));
+            Db::query($query, $paramsBind);
         }
     }
 
@@ -287,4 +334,5 @@ class Controller extends \Piwik\Plugin\Controller
         );
     }
 }
+
 

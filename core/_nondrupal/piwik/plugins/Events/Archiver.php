@@ -182,6 +182,7 @@ class Archiver extends \Piwik\Plugin\Archiver
         $this->archiveDayQueryProcess($select, $from, $where, $orderBy, $groupBy, $rankingQuery);
     }
 
+
     protected function archiveDayQueryProcess($select, $from, $where, $orderBy, $groupBy, RankingQuery $rankingQuery)
     {
         // get query with segmentation
@@ -204,6 +205,7 @@ class Archiver extends \Piwik\Plugin\Archiver
         }
     }
 
+
     /**
      * Records the daily datatables
      */
@@ -225,7 +227,7 @@ class Archiver extends \Piwik\Plugin\Archiver
      */
     protected function getDataArray($name)
     {
-        if (empty($this->arrays[$name])) {
+        if(empty($this->arrays[$name])) {
             $this->arrays[$name] = new DataArray();
         }
         return $this->arrays[$name];

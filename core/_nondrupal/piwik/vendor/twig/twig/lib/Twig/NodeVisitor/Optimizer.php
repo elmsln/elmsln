@@ -28,7 +28,6 @@ class Twig_NodeVisitor_Optimizer implements Twig_NodeVisitorInterface
     const OPTIMIZE_VAR_ACCESS  = 8;
 
     protected $loops = array();
-    protected $loopsTargets = array();
     protected $optimizers;
     protected $prependedNodes = array();
     protected $inABody = false;
@@ -36,7 +35,7 @@ class Twig_NodeVisitor_Optimizer implements Twig_NodeVisitorInterface
     /**
      * Constructor.
      *
-     * @param int     $optimizers The optimizer mode
+     * @param integer $optimizers The optimizer mode
      */
     public function __construct($optimizers = -1)
     {
@@ -175,8 +174,6 @@ class Twig_NodeVisitor_Optimizer implements Twig_NodeVisitorInterface
             // disable the loop variable by default
             $node->setAttribute('with_loop', false);
             array_unshift($this->loops, $node);
-            array_unshift($this->loopsTargets, $node->getNode('value_target')->getAttribute('name'));
-            array_unshift($this->loopsTargets, $node->getNode('key_target')->getAttribute('name'));
         } elseif (!$this->loops) {
             // we are outside a loop
             return;
@@ -186,13 +183,7 @@ class Twig_NodeVisitor_Optimizer implements Twig_NodeVisitorInterface
 
         // the loop variable is referenced for the current loop
         elseif ($node instanceof Twig_Node_Expression_Name && 'loop' === $node->getAttribute('name')) {
-            $node->setAttribute('always_defined', true);
             $this->addLoopToCurrent();
-        }
-
-        // optimize access to loop targets
-        elseif ($node instanceof Twig_Node_Expression_Name && in_array($node->getAttribute('name'), $this->loopsTargets)) {
-            $node->setAttribute('always_defined', true);
         }
 
         // block reference
@@ -230,8 +221,6 @@ class Twig_NodeVisitor_Optimizer implements Twig_NodeVisitorInterface
     {
         if ($node instanceof Twig_Node_For) {
             array_shift($this->loops);
-            array_shift($this->loopsTargets);
-            array_shift($this->loopsTargets);
         }
     }
 

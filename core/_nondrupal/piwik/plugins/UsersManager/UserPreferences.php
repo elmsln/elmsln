@@ -25,41 +25,22 @@ class UserPreferences
      */
     public function getDefaultWebsiteId()
     {
-        $defaultReport = $this->getDefaultReport();
+        $defaultWebsiteId = false;
 
-        if (is_numeric($defaultReport) && Piwik::isUserHasViewAccess($defaultReport)) {
-            return $defaultReport;
+        // User preference: default website ID to load
+        $defaultReport = APIUsersManager::getInstance()->getUserPreference(Piwik::getCurrentUserLogin(), APIUsersManager::PREFERENCE_DEFAULT_REPORT);
+        if (is_numeric($defaultReport)) {
+            $defaultWebsiteId = $defaultReport;
+        }
+
+        if ($defaultWebsiteId && Piwik::isUserHasViewAccess($defaultWebsiteId)) {
+            return $defaultWebsiteId;
         }
 
         $sitesId = APISitesManager::getInstance()->getSitesIdWithAtLeastViewAccess();
-
         if (!empty($sitesId)) {
             return $sitesId[0];
         }
-
-        return false;
-    }
-    /**
-     * Returns default site ID that Piwik should load.
-     *
-     * _Note: This value is a Piwik setting set by each user._
-     *
-     * @return bool|int
-     * @api
-     */
-    public function getDefaultReport()
-    {
-        // User preference: default website ID to load
-        $defaultReport = APIUsersManager::getInstance()->getUserPreference(Piwik::getCurrentUserLogin(), APIUsersManager::PREFERENCE_DEFAULT_REPORT);
-
-        if (!is_numeric($defaultReport)) {
-            return $defaultReport;
-        }
-
-        if ($defaultReport && Piwik::isUserHasViewAccess($defaultReport)) {
-            return $defaultReport;
-        }
-
         return false;
     }
 
@@ -84,7 +65,6 @@ class UserPreferences
         ) {
             return $userSettingsDate;
         }
-
         return 'today';
     }
 
@@ -97,21 +77,17 @@ class UserPreferences
     public function getDefaultPeriod()
     {
         $userSettingsDate = APIUsersManager::getInstance()->getUserPreference(Piwik::getCurrentUserLogin(), APIUsersManager::PREFERENCE_DEFAULT_REPORT_DATE);
-
         if ($userSettingsDate === false) {
             return Config::getInstance()->General['default_period'];
         }
-
         if (in_array($userSettingsDate, array('today', 'yesterday'))) {
             return 'day';
         }
-
         if (strpos($userSettingsDate, 'last') === 0
             || strpos($userSettingsDate, 'previous') === 0
         ) {
             return 'range';
         }
-
         return $userSettingsDate;
     }
 }

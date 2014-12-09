@@ -24,7 +24,7 @@ class GenerateTest extends GeneratePluginBase
             ->setDescription('Adds a test to an existing plugin')
             ->addOption('pluginname', null, InputOption::VALUE_REQUIRED, 'The name of an existing plugin')
             ->addOption('testname', null, InputOption::VALUE_REQUIRED, 'The name of the test to create')
-            ->addOption('testtype', null, InputOption::VALUE_REQUIRED, 'Whether you want to create a "unit", "integration" or "system" test');
+            ->addOption('testtype', null, InputOption::VALUE_REQUIRED, 'Whether you want to create a "unit", "integration" or "database" test');
     }
 
     protected function execute(InputInterface $input, OutputInterface $output)
@@ -35,10 +35,17 @@ class GenerateTest extends GeneratePluginBase
 
         $exampleFolder = PIWIK_INCLUDE_PATH . '/plugins/ExamplePlugin';
         $replace       = array(
-            'ExamplePlugin'    => $pluginName,
-            'SimpleTest'       => $testName,
-            'SimpleSystemTest' => $testName
+            'ExamplePlugin'               => $pluginName,
+            'SimpleTest'                  => $testName,
+            'SimpleIntegrationTest'       => $testName,
+            '@group Plugins'              => '@group ' . $testType
          );
+
+        $testClass  = $this->getTestClass($testType);
+        if(!empty($testClass)) {
+            $replace['\PHPUnit_Framework_TestCase'] = $testClass;
+
+        }
 
         $whitelistFiles = $this->getTestFilesWhitelist($testType);
         $this->copyTemplateToPlugin($exampleFolder, $pluginName, $replace, $whitelistFiles);
@@ -62,7 +69,7 @@ class GenerateTest extends GeneratePluginBase
      * @param InputInterface $input
      * @param OutputInterface $output
      * @return string
-     * @throws \RuntimeException
+     * @throws \RunTimeException
      */
     private function getTestName(InputInterface $input, OutputInterface $output)
     {
@@ -96,7 +103,7 @@ class GenerateTest extends GeneratePluginBase
      * @param InputInterface $input
      * @param OutputInterface $output
      * @return array
-     * @throws \RuntimeException
+     * @throws \RunTimeException
      */
     protected function getPluginName(InputInterface $input, OutputInterface $output)
     {
@@ -106,15 +113,30 @@ class GenerateTest extends GeneratePluginBase
         return $this->askPluginNameAndValidate($input, $output, $pluginNames, $invalidName);
     }
 
+    /**
+     * @param InputInterface $input
+     * @return string
+     */
+    private function getTestClass($testType)
+    {
+        if ('Database' == $testType) {
+            return '\DatabaseTestCase';
+        }
+        if ('Unit' == $testType) {
+            return '\PHPUnit_Framework_TestCase';
+        }
+        return false;
+    }
+
     public function getValidTypes()
     {
-        return array('unit', 'integration', 'system');
+        return array('unit', 'integration', 'database');
     }
 
     /**
      * @param InputInterface $input
      * @param OutputInterface $output
-     * @return string Unit, Integration, System
+     * @return string Unit, Integration, Database
      */
     private function getTestType(InputInterface $input, OutputInterface $output)
     {
@@ -145,35 +167,23 @@ class GenerateTest extends GeneratePluginBase
      */
     protected function getTestFilesWhitelist($testType)
     {
-        if ('System' == $testType) {
+        if('Integration' == $testType) {
             return array(
                 '/.gitignore',
                 '/tests',
-                '/tests/System',
-                '/tests/System/SimpleSystemTest.php',
-                '/tests/System/expected',
-                '/tests/System/expected/test___API.get_day.xml',
-                '/tests/System/expected/test___Goals.getItemsSku_day.xml',
-                '/tests/System/processed',
-                '/tests/System/processed/.gitignore',
-                '/tests/Fixtures',
-                '/tests/Fixtures/SimpleFixtureTrackFewVisits.php'
+                '/tests/SimpleIntegrationTest.php',
+                '/tests/expected',
+                '/tests/expected/test___API.get_day.xml',
+                '/tests/expected/test___Goals.getItemsSku_day.xml',
+                '/tests/processed',
+                '/tests/processed/.gitignore',
+                '/tests/fixtures',
+                '/tests/fixtures/SimpleFixtureTrackFewVisits.php'
             );
         }
-
-        if ('Integration' == $testType) {
-
-            return array(
-                '/tests',
-                '/tests/Integration',
-                '/tests/Integration/SimpleTest.php'
-            );
-        }
-
         return array(
             '/tests',
-            '/tests/Unit',
-            '/tests/Unit/SimpleTest.php'
+            '/tests/SimpleTest.php'
         );
     }
 }

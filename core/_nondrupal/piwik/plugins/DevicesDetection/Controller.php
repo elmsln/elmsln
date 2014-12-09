@@ -13,12 +13,6 @@ use Piwik\Common;
 use Piwik\Db;
 use Piwik\Piwik;
 use Piwik\Plugin\ControllerAdmin;
-use Piwik\Plugins\DevicesDetection\Reports\GetBrand;
-use Piwik\Plugins\DevicesDetection\Reports\GetBrowserFamilies;
-use Piwik\Plugins\DevicesDetection\Reports\GetBrowserEngines;
-use Piwik\Plugins\DevicesDetection\Reports\GetModel;
-use Piwik\Plugins\DevicesDetection\Reports\GetOsFamilies;
-use Piwik\Plugins\DevicesDetection\Reports\GetType;
 use Piwik\View;
 
 class Controller extends \Piwik\Plugin\Controller
@@ -27,13 +21,47 @@ class Controller extends \Piwik\Plugin\Controller
     {
         $view = new View('@DevicesDetection/index');
         $view->deviceTypes = $view->deviceModels = $view->deviceBrands = $view->osReport = $view->browserReport = "blank";
-        $view->deviceTypes = $this->renderReport(new GetType());
-        $view->deviceBrands = $this->renderReport(new GetBrand());
-        $view->deviceModels = $this->renderReport(new GetModel());
-        $view->osReport = $this->renderReport(new GetOsFamilies());
-        $view->browserReport = $this->renderReport(new GetBrowserFamilies());
-        $view->browserEngineReport = $this->renderReport(new GetBrowserEngines());
+        $view->deviceTypes = $this->getType(true);
+        $view->deviceBrands = $this->getBrand(true);
+        $view->deviceModels = $this->getModel(true);
+        $view->osReport = $this->getOsFamilies(true);
+        $view->browserReport = $this->getBrowserFamilies(true);
         return $view->render();
+    }
+
+    public function getType()
+    {
+        return $this->renderReport(__FUNCTION__);
+    }
+
+    public function getBrand()
+    {
+        return $this->renderReport(__FUNCTION__);
+    }
+
+    public function getModel()
+    {
+        return $this->renderReport(__FUNCTION__);
+    }
+
+    public function getOsFamilies()
+    {
+        return $this->renderReport(__FUNCTION__);
+    }
+
+    public function getOsVersions()
+    {
+        return $this->renderReport(__FUNCTION__);
+    }
+
+    public function getBrowserFamilies()
+    {
+        return $this->renderReport(__FUNCTION__);
+    }
+
+    public function getBrowserVersions()
+    {
+        return $this->renderReport(__FUNCTION__);
     }
 
     public function deviceDetection()
@@ -85,7 +113,7 @@ class Controller extends \Piwik\Plugin\Controller
             case 'brands':
                 $availableBrands = \DeviceDetector\Parser\Device\DeviceParserAbstract::$deviceBrands;
 
-                foreach ($availableBrands as $short => $name) {
+                foreach ($availableBrands AS $short => $name) {
                     if ($name != 'Unknown') {
                         $list[$name] = getBrandLogo($name);
                     }
@@ -95,7 +123,7 @@ class Controller extends \Piwik\Plugin\Controller
             case 'browsers':
                 $availableBrowsers = \DeviceDetector\Parser\Client\Browser::getAvailableBrowsers();
 
-                foreach ($availableBrowsers as $short => $name) {
+                foreach ($availableBrowsers AS $short => $name) {
                     $list[$name] = getBrowserLogoExtended($short);
                 }
                 break;
@@ -103,7 +131,7 @@ class Controller extends \Piwik\Plugin\Controller
             case 'browserfamilies':
                 $availableBrowserFamilies = \DeviceDetector\Parser\Client\Browser::getAvailableBrowserFamilies();
 
-                foreach ($availableBrowserFamilies as $name => $browsers) {
+                foreach ($availableBrowserFamilies AS $name => $browsers) {
                     $list[$name] = getBrowserFamilyLogoExtended($name);
                 }
                 break;
@@ -111,7 +139,7 @@ class Controller extends \Piwik\Plugin\Controller
             case 'os':
                 $availableOSs = \DeviceDetector\Parser\OperatingSystem::getAvailableOperatingSystems();
 
-                foreach ($availableOSs as $short => $name) {
+                foreach ($availableOSs AS $short => $name) {
                     $list[$name] = getOsLogoExtended($short);
                 }
                 break;
@@ -119,7 +147,7 @@ class Controller extends \Piwik\Plugin\Controller
             case 'osfamilies':
                 $osFamilies = \DeviceDetector\Parser\OperatingSystem::getAvailableOperatingSystemFamilies();
 
-                foreach ($osFamilies as $name => $oss) {
+                foreach ($osFamilies AS $name => $oss) {
                     $list[$name] = getOsFamilyLogoExtended($name);
                 }
                 break;
@@ -127,7 +155,7 @@ class Controller extends \Piwik\Plugin\Controller
             case 'devicetypes':
                 $deviceTypes = \DeviceDetector\Parser\Device\DeviceParserAbstract::getAvailableDeviceTypes();
 
-                foreach ($deviceTypes as $name => $id) {
+                foreach ($deviceTypes AS $name => $id) {
                     $list[$name] = getDeviceTypeLogo($name);
                 }
                 break;

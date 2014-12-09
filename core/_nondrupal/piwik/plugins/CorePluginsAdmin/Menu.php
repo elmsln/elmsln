@@ -10,7 +10,6 @@ namespace Piwik\Plugins\CorePluginsAdmin;
 
 use Piwik\Db;
 use Piwik\Menu\MenuAdmin;
-use Piwik\Menu\MenuUser;
 use Piwik\Piwik;
 
 /**
@@ -40,41 +39,23 @@ class Menu extends \Piwik\Plugin\Menu
             }
         }
 
-        if (!$isAnonymous) {
-            $menu->addPlatformItem(null, "", $order = 7);
-        }
+        $menu->add('CorePluginsAdmin_MenuPlatform', null, "", !$isAnonymous, $order = 7);
+        $menu->add('CorePluginsAdmin_MenuPlatform', Piwik::translate('General_Plugins') . $pluginsUpdateMessage,
+                   array('module' => 'CorePluginsAdmin', 'action' => 'plugins', 'activated' => ''),
+                   $hasSuperUserAcess,
+                   $order = 1);
+        $menu->add('CorePluginsAdmin_MenuPlatform', Piwik::translate('CorePluginsAdmin_Themes') . $themesUpdateMessage,
+                   array('module' => 'CorePluginsAdmin', 'action' => 'themes', 'activated' => ''),
+                   $hasSuperUserAcess,
+                   $order = 3);
 
-        if ($hasSuperUserAcess) {
-            $menu->addPlatformItem(Piwik::translate('General_Plugins') . $pluginsUpdateMessage,
-                                   $this->urlForAction('plugins', array('activated' => '')),
-                                   $order = 1);
-            $menu->addPlatformItem(Piwik::translate('CorePluginsAdmin_Themes') . $themesUpdateMessage,
-                                   $this->urlForAction('themes', array('activated' => '')),
-                                   $order = 3);
-        }
-
-        if ($this->isAllowedToSeeMarketPlace()) {
-            $menu->addPlatformItem('CorePluginsAdmin_Marketplace',
-                                   $this->urlForAction('browsePlugins', array('activated' => '')),
-                                   $order = 5);
+        if ($isMarketplaceEnabled) {
+            $menu->add('CorePluginsAdmin_MenuPlatform', 'CorePluginsAdmin_Marketplace',
+                       array('module' => 'CorePluginsAdmin', 'action' => 'extend', 'activated' => ''),
+                       !$isAnonymous,
+                       $order = 5);
 
         }
     }
 
-    private function isAllowedToSeeMarketPlace()
-    {
-        $isAnonymous          = Piwik::isUserIsAnonymous();
-        $isMarketplaceEnabled = CorePluginsAdmin::isMarketplaceEnabled();
-
-        return $isMarketplaceEnabled && !$isAnonymous;
-    }
-
-    public function configureUserMenu(MenuUser $menu)
-    {
-        if ($this->isAllowedToSeeMarketPlace()) {
-            $menu->addPlatformItem('CorePluginsAdmin_Marketplace',
-                                   $this->urlForAction('browsePlugins', array('activated' => '')),
-                                   $order = 5);
-        }
-    }
 }

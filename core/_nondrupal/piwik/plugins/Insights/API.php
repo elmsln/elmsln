@@ -215,12 +215,12 @@ class API extends \Piwik\Plugin\API
             throw new \Exception('A report having the ID ' . $reportUniqueId .  ' does not exist');
         }
 
-        $totalValue     = $this->model->getTotalValue($idSite, $period, $date, $metric, $segment);
+        $totalValue     = $this->model->getTotalValue($idSite, $period, $date, $metric);
         $currentReport  = $this->model->requestReport($idSite, $period, $date, $reportUniqueId, $metric, $segment);
         $this->checkReportIsValid($currentReport);
 
         $lastDate       = $this->model->getLastDate($date, $period, $comparedToXPeriods);
-        $lastTotalValue = $this->model->getTotalValue($idSite, $period, $lastDate, $metric, $segment);
+        $lastTotalValue = $this->model->getTotalValue($idSite, $period, $lastDate, $metric);
         $lastReport     = $this->model->requestReport($idSite, $period, $lastDate, $reportUniqueId, $metric, $segment);
         $this->checkReportIsValid($lastReport);
 
@@ -269,12 +269,12 @@ class API extends \Piwik\Plugin\API
             throw new \Exception('A report having the ID ' . $reportUniqueId .  ' does not exist');
         }
 
-        $totalValue     = $this->model->getTotalValue($idSite, $period, $date, $metric, $segment);
+        $totalValue     = $this->model->getTotalValue($idSite, $period, $date, $metric);
         $currentReport  = $this->model->requestReport($idSite, $period, $date, $reportUniqueId, $metric, $segment);
         $this->checkReportIsValid($currentReport);
 
         $lastDate       = $this->model->getLastDate($date, $period, $comparedToXPeriods);
-        $lastTotalValue = $this->model->getTotalValue($idSite, $period, $lastDate, $metric, $segment);
+        $lastTotalValue = $this->model->getTotalValue($idSite, $period, $lastDate, $metric);
         $lastReport     = $this->model->requestReport($idSite, $period, $lastDate, $reportUniqueId, $metric, $segment);
         $this->checkReportIsValid($lastReport);
 

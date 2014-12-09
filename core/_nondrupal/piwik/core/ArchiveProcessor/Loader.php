@@ -10,6 +10,7 @@ namespace Piwik\ArchiveProcessor;
 use Piwik\Archive;
 use Piwik\ArchiveProcessor;
 use Piwik\Config;
+use Piwik\DataAccess\ArchivePurger;
 use Piwik\DataAccess\ArchiveSelector;
 use Piwik\Date;
 use Piwik\Period;
@@ -81,7 +82,6 @@ class Loader
      * Prepares the core metrics if needed.
      *
      * @param $visits
-     * @return array
      */
     protected function prepareCoreMetricsArchive($visits, $visitsConverted)
     {
@@ -102,14 +102,12 @@ class Loader
             $visits = $metrics['nb_visits'];
             $visitsConverted = $metrics['nb_visits_converted'];
         }
-
         return array($visits, $visitsConverted);
     }
 
     protected function prepareAllPluginsArchive($visits, $visitsConverted)
     {
         $pluginsArchiver = new PluginsArchiver($this->params, $this->isArchiveTemporary());
-
         if ($this->mustProcessVisitCount($visits)
             || $this->doesRequestedPluginIncludeVisitsSummary()
         ) {
@@ -117,11 +115,9 @@ class Loader
             $visits = $metrics['nb_visits'];
             $visitsConverted = $metrics['nb_visits_converted'];
         }
-
         if ($this->isThereSomeVisits($visits)) {
             $pluginsArchiver->callAggregateAllPlugins($visits, $visitsConverted);
         }
-
         $idArchive = $pluginsArchiver->finalizeArchive();
 
         return array($idArchive, $visits);
@@ -140,13 +136,11 @@ class Loader
     {
         $period = $this->params->getPeriod()->getLabel();
         $debugSetting = 'always_archive_data_period'; // default
-
         if ($period == 'day') {
             $debugSetting = 'always_archive_data_day';
         } elseif ($period == 'range') {
             $debugSetting = 'always_archive_data_range';
         }
-
         return (bool) Config::getInstance()->Debug[$debugSetting];
     }
 
@@ -168,11 +162,9 @@ class Loader
         }
 
         $idAndVisits = ArchiveSelector::getArchiveIdAndVisits($this->params, $minDatetimeArchiveProcessedUTC);
-
         if (!$idAndVisits) {
             return $noArchiveFound;
         }
-
         return $idAndVisits;
     }
 
@@ -191,27 +183,19 @@ class Loader
             // Permanent archive
             return $endDateTimestamp;
         }
-
-        $dateStart = $this->params->getDateStart();
-        $period    = $this->params->getPeriod();
-        $segment   = $this->params->getSegment();
-        $site      = $this->params->getSite();
-
         // Temporary archive
-        return Rules::getMinTimeProcessedForTemporaryArchive($dateStart, $period, $segment, $site);
+        return Rules::getMinTimeProcessedForTemporaryArchive($this->params->getDateStart(), $this->params->getPeriod(), $this->params->getSegment(), $this->params->getSite());
     }
 
     protected static function determineIfArchivePermanent(Date $dateEnd)
     {
         $now = time();
         $endTimestampUTC = strtotime($dateEnd->getDateEndUTC());
-
         if ($endTimestampUTC <= $now) {
             // - if the period we are looking for is finished, we look for a ts_archived that
             //   is greater than the last day of the archive
             return $endTimestampUTC;
         }
-
         return false;
     }
 
@@ -220,7 +204,6 @@ class Loader
         if (is_null($this->temporaryArchive)) {
             throw new \Exception("getMinTimeArchiveProcessed() should be called prior to isArchiveTemporary()");
         }
-
         return $this->temporaryArchive;
     }
 

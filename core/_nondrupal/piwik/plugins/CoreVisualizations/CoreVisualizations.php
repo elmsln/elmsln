@@ -12,6 +12,9 @@ namespace Piwik\Plugins\CoreVisualizations;
 use Piwik\ViewDataTable\Manager as ViewDataTableManager;
 
 require_once PIWIK_INCLUDE_PATH . '/plugins/CoreVisualizations/JqplotDataGenerator.php';
+require_once PIWIK_INCLUDE_PATH . '/plugins/CoreVisualizations/Visualizations/Cloud.php';
+require_once PIWIK_INCLUDE_PATH . '/plugins/CoreVisualizations/Visualizations/HtmlTable.php';
+require_once PIWIK_INCLUDE_PATH . '/plugins/CoreVisualizations/Visualizations/JqplotGraph.php';
 
 /**
  * This plugin contains all core visualizations, such as the normal HTML table and
@@ -27,6 +30,7 @@ class CoreVisualizations extends \Piwik\Plugin
         return array(
             'AssetManager.getStylesheetFiles'        => 'getStylesheetFiles',
             'AssetManager.getJavaScriptFiles'        => 'getJsFiles',
+            'ViewDataTable.addViewDataTable'         => 'getAvailableDataTableVisualizations',
             'Translate.getClientSideTranslationKeys' => 'getClientSideTranslationKeys',
             'UsersManager.deleteUser'                => 'deleteUser'
         );
@@ -35,6 +39,17 @@ class CoreVisualizations extends \Piwik\Plugin
     public function deleteUser($userLogin)
     {
         ViewDataTableManager::clearUserViewDataTableParameters($userLogin);
+    }
+
+    public function getAvailableDataTableVisualizations(&$visualizations)
+    {
+        $visualizations[] = 'Piwik\\Plugins\\CoreVisualizations\\Visualizations\\Sparkline';
+        $visualizations[] = 'Piwik\\Plugins\\CoreVisualizations\\Visualizations\\HtmlTable';
+        $visualizations[] = 'Piwik\\Plugins\\CoreVisualizations\\Visualizations\\HtmlTable\\AllColumns';
+        $visualizations[] = 'Piwik\\Plugins\\CoreVisualizations\\Visualizations\\Cloud';
+        $visualizations[] = 'Piwik\\Plugins\\CoreVisualizations\\Visualizations\\JqplotGraph\\Pie';
+        $visualizations[] = 'Piwik\\Plugins\\CoreVisualizations\\Visualizations\\JqplotGraph\\Bar';
+        $visualizations[] = 'Piwik\\Plugins\\CoreVisualizations\\Visualizations\\JqplotGraph\\Evolution';
     }
 
     public function getStylesheetFiles(&$stylesheets)

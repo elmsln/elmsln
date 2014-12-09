@@ -9,19 +9,8 @@
 
 namespace Piwik;
 
-use Piwik\Network\IPUtils;
-use Piwik\Network\IPv4;
-use Piwik\Network\IPv6;
-
 /**
  * Contains IP address helper functions (for both IPv4 and IPv6).
- *
- * As of Piwik 2.9, most methods in this class are deprecated. You are
- * encouraged to use classes from the Piwik "Network" component:
- *
- * @see \Piwik\Network\IP
- * @see \Piwik\Network\IPUtils
- * @link https://github.com/piwik/component-network
  *
  * As of Piwik 1.3, IP addresses are stored in the DB has VARBINARY(16),
  * and passed around in network address format which has the advantage of
@@ -39,18 +28,47 @@ use Piwik\Network\IPv6;
  */
 class IP
 {
+    const MAPPED_IPv4_START = '::ffff:';
+
     /**
      * Removes the port and the last portion of a CIDR IP address.
      *
      * @param string $ipString The IP address to sanitize.
      * @return string
-     *
-     * @deprecated Use IPUtils::sanitizeIp() instead
-     * @see \Piwik\Network\IPUtils
      */
     public static function sanitizeIp($ipString)
     {
-        return IPUtils::sanitizeIp($ipString);
+        $ipString = trim($ipString);
+
+        // CIDR notation, A.B.C.D/E
+        $posSlash = strrpos($ipString, '/');
+        if ($posSlash !== false) {
+            $ipString = substr($ipString, 0, $posSlash);
+        }
+
+        $posColon = strrpos($ipString, ':');
+        $posDot = strrpos($ipString, '.');
+        if ($posColon !== false) {
+            // IPv6 address with port, [A:B:C:D:E:F:G:H]:EEEE
+            $posRBrac = strrpos($ipString, ']');
+            if ($posRBrac !== false && $ipString[0] == '[') {
+                $ipString = substr($ipString, 1, $posRBrac - 1);
+            }
+
+            if ($posDot !== false) {
+                // IPv4 address with port, A.B.C.D:EEEE
+                if ($posColon > $posDot) {
+                    $ipString = substr($ipString, 0, $posColon);
+                }
+                // else: Dotted quad IPv6 address, A:B:C:D:E:F:G.H.I.J
+            } else if (strpos($ipString, ':') === $posColon) {
+                $ipString = substr($ipString, 0, $posColon);
+            }
+            // else: IPv6 address, A:B:C:D:E:F:G:H
+        }
+        // else: IPv4 address, A.B.C.D
+
+        return $ipString;
     }
 
     /**
@@ -65,15 +83,43 @@ class IP
      *
      * @param string $ipRangeString IP address range
      * @return string|bool  IP address range in CIDR notation OR false
-     *
-     * @deprecated Use IPUtils::sanitizeIpRange() instead
-     * @see \Piwik\Network\IPUtils
      */
     public static function sanitizeIpRange($ipRangeString)
     {
-        $result = IPUtils::sanitizeIpRange($ipRangeString);
+        $ipRangeString = trim($ipRangeString);
+        if (empty($ipRangeString)) {
+            return false;
+        }
 
-        return $result === null ? false : $result;
+        // IPv4 address with wildcards '*'
+        if (strpos($ipRangeString, '*') !== false) {
+            if (preg_match('~(^|\.)\*\.\d+(\.|$)~D', $ipRangeString)) {
+                return false;
+            }
+
+            $bits = 32 - 8 * substr_count($ipRangeString, '*');
+            $ipRangeString = str_replace('*', '0', $ipRangeString);
+        }
+
+        // CIDR
+        if (($pos = strpos($ipRangeString, '/')) !== false) {
+            $bits = substr($ipRangeString, $pos + 1);
+            $ipRangeString = substr($ipRangeString, 0, $pos);
+        }
+
+        // single IP
+        if (($ip = @inet_pton($ipRangeString)) === false)
+            return false;
+
+        $maxbits = strlen($ip) * 8;
+        if (!isset($bits))
+            $bits = $maxbits;
+
+        if ($bits < 0 || $bits > $maxbits) {
+            return false;
+        }
+
+        return "$ipRangeString/$bits";
     }
 
     /**
@@ -81,13 +127,12 @@ class IP
      *
      * @param string $ipString IP address, either IPv4 or IPv6, e.g., `"127.0.0.1"`.
      * @return string Binary-safe string, e.g., `"\x7F\x00\x00\x01"`.
-     *
-     * @deprecated Use IPUtils::stringToBinaryIP() instead
-     * @see \Piwik\Network\IPUtils
      */
     public static function P2N($ipString)
     {
-        return IPUtils::stringToBinaryIP($ipString);
+        // use @inet_pton() because it throws an exception and E_WARNING on invalid input
+        $ip = @inet_pton($ipString);
+        return $ip === false ? "\x00\x00\x00\x00" : $ip;
     }
 
     /**
@@ -97,12 +142,12 @@ class IP
      *
      * @param string $ip IP address in network address format.
      * @return string IP address in presentation format.
-     *
-     * @deprecated Use IPUtils::binaryToStringIP() instead
      */
     public static function N2P($ip)
     {
-        return IPUtils::binaryToStringIP($ip);
+        // use @inet_ntop() because it throws an exception and E_WARNING on invalid input
+        $ipStr = @inet_ntop($ip);
+        return $ipStr === false ? '0.0.0.0' : $ipStr;
     }
 
     /**
@@ -110,12 +155,10 @@ class IP
      *
      * @param string $ip IP address in network address format.
      * @return string IP address in presentation format.
-     *
-     * @deprecated Will be removed
      */
     public static function prettyPrint($ip)
     {
-        return IPUtils::binaryToStringIP($ip);
+        return self::N2P($ip);
     }
 
     /**
@@ -124,15 +167,28 @@ class IP
      *
      * @param string $ip IP address in network address format.
      * @return bool True if IPv4, else false.
-     *
-     * @deprecated Will be removed
-     * @see \Piwik\Network\IP
      */
     public static function isIPv4($ip)
     {
-        $ip = Network\IP::fromBinaryIP($ip);
+        // in case mbstring overloads strlen and substr functions
+        $strlen = function_exists('mb_orig_strlen') ? 'mb_orig_strlen' : 'strlen';
+        $substr = function_exists('mb_orig_substr') ? 'mb_orig_substr' : 'substr';
 
-        return $ip instanceof IPv4;
+        // IPv4
+        if ($strlen($ip) == 4) {
+            return true;
+        }
+
+        // IPv6 - transitional address?
+        if ($strlen($ip) == 16) {
+            if (substr_compare($ip, "\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\xff\xff", 0, 12) === 0
+                || substr_compare($ip, "\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00", 0, 12) === 0
+            ) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     /**
@@ -145,14 +201,12 @@ class IP
      *
      * @param string $ip IPv4 address in network address format.
      * @return string IP address in presentation format.
-     *
-     * @deprecated This method was kept for backward compatibility and doesn't seem used
      */
     public static function long2ip($ip)
     {
         // IPv4
         if (strlen($ip) == 4) {
-            return IPUtils::binaryToStringIP($ip);
+            return self::N2P($ip);
         }
 
         // IPv6 - transitional address?
@@ -161,7 +215,7 @@ class IP
                 || substr_compare($ip, "\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00", 0, 12) === 0
             ) {
                 // remap 128-bit IPv4-mapped and IPv4-compat addresses
-                return IPUtils::binaryToStringIP(substr($ip, 12));
+                return self::N2P(substr($ip, 12));
             }
         }
 
@@ -174,15 +228,10 @@ class IP
      *
      * @param string $ip
      * @return bool
-     *
-     * @deprecated Will be removed
-     * @see \Piwik\Network\IP
      */
     public static function isIPv6($ip)
     {
-        $ip = Network\IP::fromBinaryIP($ip);
-
-        return $ip instanceof IPv6;
+        return filter_var($ip, FILTER_VALIDATE_IP, FILTER_FLAG_IPV6);
     }
 
     /**
@@ -190,35 +239,21 @@ class IP
      *
      * @param string $ip
      * @return bool
-     *
-     * @deprecated Will be removed
-     * @see \Piwik\Network\IP
      */
     public static function isMappedIPv4($ip)
     {
-        $ip = Network\IP::fromStringIP($ip);
-
-        if (! $ip instanceof IPv6) {
-            return false;
-        }
-
-        return $ip->isMappedIPv4();
+        return substr($ip, 0, strlen(self::MAPPED_IPv4_START)) === self::MAPPED_IPv4_START;
     }
 
     /**
      * Returns an IPv4 address from a 'mapped' IPv6 address.
-     *
+     * 
      * @param string $ip eg, `'::ffff:192.0.2.128'`
      * @return string eg, `'192.0.2.128'`
-     *
-     * @deprecated Use Piwik\Network\IP::toIPv4String() instead
-     * @see \Piwik\Network\IP
      */
     public static function getIPv4FromMappedIPv6($ip)
     {
-        $ip = Network\IP::fromStringIP($ip);
-
-        return $ip->toIPv4String();
+        return substr($ip, strlen(self::MAPPED_IPv4_START));
     }
 
     /**
@@ -226,15 +261,37 @@ class IP
      *
      * @param array $ipRange An IP address range in presentation format.
      * @return array|bool  Array `array($lowIp, $highIp)` in network address format, or false on failure.
-     *
-     * @deprecated Use Piwik\Network\IPUtils::getIPRangeBounds() instead
-     * @see \Piwik\Network\IPUtils
      */
     public static function getIpsForRange($ipRange)
     {
-        $result = IPUtils::getIPRangeBounds($ipRange);
+        if (strpos($ipRange, '/') === false) {
+            $ipRange = self::sanitizeIpRange($ipRange);
+        }
+        $pos = strpos($ipRange, '/');
 
-        return $result === null ? false : $result;
+        $bits = substr($ipRange, $pos + 1);
+        $range = substr($ipRange, 0, $pos);
+        $high = $low = @inet_pton($range);
+        if ($low === false) {
+            return false;
+        }
+
+        $lowLen = strlen($low);
+        $i = $lowLen - 1;
+        $bits = $lowLen * 8 - $bits;
+
+        for ($n = (int)($bits / 8); $n > 0; $n--, $i--) {
+            $low[$i] = chr(0);
+            $high[$i] = chr(255);
+        }
+
+        $n = $bits % 8;
+        if ($n) {
+            $low[$i] = chr(ord($low[$i]) & ~((1 << $n) - 1));
+            $high[$i] = chr(ord($high[$i]) | ((1 << $n) - 1));
+        }
+
+        return array($low, $high);
     }
 
     /**
@@ -245,15 +302,40 @@ class IP
      * @param string $ip IP address in network address format
      * @param array $ipRanges List of IP address ranges
      * @return bool  True if in any of the specified IP address ranges; else false.
-     *
-     * @deprecated Use Piwik\Network\IP::isInRanges() instead
-     * @see \Piwik\Network\IP
      */
     public static function isIpInRange($ip, $ipRanges)
     {
-        $ip = Network\IP::fromBinaryIP($ip);
+        $ipLen = strlen($ip);
+        if (empty($ip) || empty($ipRanges) || ($ipLen != 4 && $ipLen != 16)) {
+            return false;
+        }
 
-        return $ip->isInRanges($ipRanges);
+        foreach ($ipRanges as $range) {
+            if (is_array($range)) {
+                // already split into low/high IP addresses
+                $range[0] = self::P2N($range[0]);
+                $range[1] = self::P2N($range[1]);
+            } else {
+                // expect CIDR format but handle some variations
+                $range = self::getIpsForRange($range);
+            }
+            if ($range === false) {
+                continue;
+            }
+
+            $low = $range[0];
+            $high = $range[1];
+            if (strlen($low) != $ipLen) {
+                continue;
+            }
+
+            // binary-safe string comparison
+            if ($ip >= $low && $ip <= $high) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     /**
@@ -275,7 +357,7 @@ class IP
         }
 
         $ipString = self::getNonProxyIpFromHeader($default, $clientHeaders);
-        return IPUtils::sanitizeIp($ipString);
+        return self::sanitizeIp($ipString);
     }
 
     /**
@@ -289,7 +371,7 @@ class IP
     {
         $proxyIps = array();
         $config = Config::getInstance()->General;
-        if (isset($config['proxy_ips'])) {
+        if(isset($config['proxy_ips'])) {
             $proxyIps = $config['proxy_ips'];
         }
         if (!is_array($proxyIps)) {
@@ -325,8 +407,7 @@ class IP
             $elements = explode(',', $csv);
             for ($i = count($elements); $i--;) {
                 $element = trim(Common::sanitizeInputValue($elements[$i]));
-                $ip = \Piwik\Network\IP::fromStringIP(IPUtils::sanitizeIp($element));
-                if (empty($excludedIps) || (!in_array($element, $excludedIps) && !$ip->isInRanges($excludedIps))) {
+                if (empty($excludedIps) || (!in_array($element, $excludedIps) && !self::isIpInRange(self::P2N(self::sanitizeIp($element)), $excludedIps))) {
                     return $element;
                 }
             }
@@ -335,20 +416,16 @@ class IP
     }
 
     /**
-     * Returns the hostname for a given IP address.
+     * Retirms the hostname for a given IP address.
      *
      * @param string $ipStr Human-readable IP address.
      * @return string The hostname or unmodified $ipStr on failure.
-     *
-     * @deprecated Use Piwik\Network\IP::getHostname() instead
-     * @see \Piwik\Network\IP
      */
     public static function getHostByAddr($ipStr)
     {
-        $ip = Network\IP::fromStringIP($ipStr);
-
-        $host = $ip->getHostname();
-
-        return $host === null ? $ipStr : $host;
+        // PHP's reverse lookup supports ipv4 and ipv6
+        // except on Windows before PHP 5.3
+        $host = strtolower(@gethostbyaddr($ipStr));
+        return $host === '' ? $ipStr : $host;
     }
 }

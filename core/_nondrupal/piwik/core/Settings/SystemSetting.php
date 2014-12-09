@@ -14,7 +14,7 @@ use Piwik\Piwik;
 /**
  * Describes a system wide setting. Only the Super User can change this type of setting and
  * the value of this setting will affect all users.
- *
+ * 
  * See {@link \Piwik\Plugin\Settings}.
  *
  *
@@ -27,13 +27,12 @@ class SystemSetting extends Setting
      * readable by everyone.
      *
      * @var bool
-     * @since 2.4.0
      */
     public $readableByCurrentUser = false;
 
     /**
      * Constructor.
-     *
+     * 
      * @param string $name The persisted name of the setting.
      * @param string $title The display name of the setting.
      */
@@ -47,7 +46,7 @@ class SystemSetting extends Setting
 
     /**
      * Returns the display order. System settings are displayed before user settings.
-     *
+     * 
      * @return int
      */
     public function getOrder()

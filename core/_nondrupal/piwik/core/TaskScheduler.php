@@ -13,21 +13,21 @@ use Exception;
 use Piwik\Plugin\Manager as PluginManager;
 
 // When set to true, all scheduled tasks will be triggered in all requests (careful!)
-//define('DEBUG_FORCE_SCHEDULED_TASKS', true);
+define('DEBUG_FORCE_SCHEDULED_TASKS', false);
 
 /**
  * Manages scheduled task execution.
- *
+ * 
  * A scheduled task is a callback that should be executed every so often (such as daily,
  * weekly, monthly, etc.). They are registered with **TaskScheduler** through the
  * {@hook TaskScheduler.getScheduledTasks} event.
- *
+ * 
  * Tasks are executed when the cron core:archive command is executed.
- *
+ * 
  * ### Examples
- *
+ * 
  * **Scheduling a task**
- *
+ * 
  *     // event handler for TaskScheduler.getScheduledTasks event
  *     public function getScheduledTasks(&$tasks)
  *     {
@@ -39,14 +39,14 @@ use Piwik\Plugin\Manager as PluginManager;
  *             ScheduledTask::LOWEST_PRIORITY
  *         );
  *     }
- *
+ * 
  * **Executing all pending tasks**
- *
+ * 
  *     $results = TaskScheduler::runTasks();
  *     $task1Result = $results[0];
  *     $task1Name = $task1Result['task'];
  *     $task1Output = $task1Result['output'];
- *
+ * 
  *     echo "Executed task '$task1Name'. Task output:\n$task1Output";
  *
  * @method static \Piwik\TaskScheduler getInstance()
@@ -69,7 +69,7 @@ class TaskScheduler extends Singleton
      *
      * @return array An array describing the results of scheduled task execution. Each element
      *               in the array will have the following format:
-     *
+     * 
      *               ```
      *               array(
      *                   'task' => 'task name',
@@ -77,10 +77,11 @@ class TaskScheduler extends Singleton
      *               )
      *               ```
      */
-    public static function runTasks()
+    static public function runTasks()
     {
         return self::getInstance()->doRunTasks();
     }
+
 
     // for backwards compatibility
     private function collectTasksRegisteredViaEvent()
@@ -156,24 +157,24 @@ class TaskScheduler extends Singleton
 
     /**
      * Determines a task's scheduled time and persists it, overwriting the previous scheduled time.
-     *
+     * 
      * Call this method if your task's scheduled time has changed due to, for example, an option that
      * was changed.
-     *
+     * 
      * @param ScheduledTask $task Describes the scheduled task being rescheduled.
      * @api
      */
-    public static function rescheduleTask(ScheduledTask $task)
+    static public function rescheduleTask(ScheduledTask $task)
     {
         self::getInstance()->timetable->rescheduleTask($task);
     }
 
     /**
      * Returns true if the TaskScheduler is currently running a scheduled task.
-     *
+     * 
      * @return bool
      */
-    public static function isTaskBeingExecuted()
+    static public function isTaskBeingExecuted()
     {
         return self::getInstance()->isRunning;
     }
@@ -187,7 +188,7 @@ class TaskScheduler extends Singleton
      * @return mixed int|bool The time in miliseconds when the scheduled task will be executed
      *                        next or false if it is not scheduled to run.
      */
-    public static function getScheduledTimeForMethod($className, $methodName, $methodParameter = null)
+    static public function getScheduledTimeForMethod($className, $methodName, $methodParameter = null)
     {
         return self::getInstance()->timetable->getScheduledTimeForMethod($className, $methodName, $methodParameter);
     }
@@ -198,7 +199,7 @@ class TaskScheduler extends Singleton
      * @param ScheduledTask $task
      * @return string
      */
-    private static function executeTask($task)
+    static private function executeTask($task)
     {
         try {
             $timer = new Timer();

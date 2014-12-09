@@ -17,42 +17,41 @@ use Piwik\PluginDeactivatedException;
 use Piwik\SettingsServer;
 use Piwik\Url;
 use Piwik\UrlHelper;
-use Piwik\Log;
 
 /**
  * Dispatches API requests to the appropriate API method.
- *
+ * 
  * The Request class is used throughout Piwik to call API methods. The difference
  * between using Request and calling API methods directly is that Request
  * will do more after calling the API including: applying generic filters, applying queued filters,
  * and handling the **flat** and **label** query parameters.
- *
+ * 
  * Additionally, the Request class will **forward current query parameters** to the request
  * which is more convenient than calling {@link Piwik\Common::getRequestVar()} many times over.
- *
+ * 
  * In most cases, using a Request object to query the API is the correct approach.
  *
  * ### Post-processing
- *
+ * 
  * The return value of API methods undergo some extra processing before being returned by Request.
  * To learn more about what happens to API results, read [this](/guides/piwiks-web-api#extra-report-processing).
  *
  * ### Output Formats
- *
+ * 
  * The value returned by Request will be serialized to a certain format before being returned.
  * To see the list of supported output formats, read [this](/guides/piwiks-web-api#output-formats).
- *
+ * 
  * ### Examples
- *
+ * 
  * **Basic Usage**
- *
+ * 
  *     $request = new Request('method=UserSettings.getWideScreen&idSite=1&date=yesterday&period=week'
  *                          . '&format=xml&filter_limit=5&filter_offset=0')
  *     $result = $request->process();
  *     echo $result;
- *
+ * 
  * **Getting a unrendered DataTable**
- *
+ * 
  *     // use the convenience method 'processRequest'
  *     $dataTable = Request::processRequest('UserSettings.getWideScreen', array(
  *         'idSite' => 1,
@@ -60,7 +59,7 @@ use Piwik\Log;
  *         'period' => 'week',
  *         'filter_limit' => 5,
  *         'filter_offset' => 0
- *
+ * 
  *         'format' => 'original', // this is the important bit
  *     ));
  *     echo "This DataTable has " . $dataTable->getRowsCount() . " rows.";
@@ -70,7 +69,7 @@ use Piwik\Log;
  */
 class Request
 {
-    private $request = null;
+    protected $request = null;
 
     /**
      * Converts the supplied request string into an array of query paramater name/value
@@ -81,7 +80,7 @@ class Request
      *                              `'module=UserSettings&action=getWidescreen'`.
      * @return array
      */
-    public static function getRequestArrayFromString($request)
+    static public function getRequestArrayFromString($request)
     {
         $defaultRequest = $_GET + $_POST;
 
@@ -94,14 +93,17 @@ class Request
 
         if (!is_null($request)) {
             if (is_array($request)) {
-                $requestParsed = $request;
-            } else {
-                $request = trim($request);
-                $request = str_replace(array("\n", "\t"), '', $request);
-
-                $requestParsed = UrlHelper::getArrayFromQueryString($request);
+                $url = array();
+                foreach ($request as $key => $value) {
+                    $url[] = $key . "=" . $value;
+                }
+                $request = implode("&", $url);
             }
 
+            $request = trim($request);
+            $request = str_replace(array("\n", "\t"), '', $request);
+
+            $requestParsed = UrlHelper::getArrayFromQueryString($request);
             $requestArray = $requestParsed + $defaultRequest;
         }
 
@@ -166,9 +168,9 @@ class Request
     /**
      * Dispatches the API request to the appropriate API method and returns the result
      * after post-processing.
-     *
+     * 
      * Post-processing includes:
-     *
+     * 
      * - flattening if **flat** is 0
      * - running generic filters unless **disable_generic_filters** is set to 1
      * - URL decoding label column values
@@ -176,10 +178,10 @@ class Request
      * - removing columns based on the values of the **hideColumns** and **showColumns** query parameters
      * - filtering rows if the **label** query parameter is set
      * - converting the result to the appropriate format (ie, XML, JSON, etc.)
-     *
+     * 
      * If `'original'` is supplied for the output format, the result is returned as a PHP
      * object.
-     *
+     * 
      * @throws PluginDeactivatedException if the module plugin is not activated.
      * @throws Exception if the requested API method cannot be called, if required parameters for the
      *                   API method are missing or if the API method throws an exception and the **format**
@@ -193,9 +195,6 @@ class Request
 
         // create the response
         $response = new ResponseBuilder($outputFormat, $this->request);
-
-        $corsHandler = new CORSHandler();
-        $corsHandler->handle();
 
         try {
             // read parameters
@@ -217,8 +216,6 @@ class Request
 
             $toReturn = $response->getResponse($returnedValue, $module, $method);
         } catch (Exception $e) {
-            Log::debug($e);
-
             $toReturn = $response->getResponseException($e);
         }
         return $toReturn;
@@ -226,11 +223,11 @@ class Request
 
     /**
      * Returns the name of a plugin's API class by plugin name.
-     *
+     * 
      * @param string $plugin The plugin name, eg, `'Referrers'`.
      * @return string The fully qualified API class name, eg, `'\Piwik\Plugins\Referrers\API'`.
      */
-    public static function getClassNameAPI($plugin)
+    static public function getClassNameAPI($plugin)
     {
         return sprintf('\Piwik\Plugins\%s\API', $plugin);
     }
@@ -244,7 +241,7 @@ class Request
      * @return void
      * @ignore
      */
-    public static function reloadAuthUsingTokenAuth($request = null)
+    static public function reloadAuthUsingTokenAuth($request = null)
     {
         // if a token_auth is specified in the API request, we load the right permissions
         $token_auth = Common::getRequestVar('token_auth', '', 'string', $request);
@@ -253,11 +250,11 @@ class Request
             /**
              * Triggered when authenticating an API request, but only if the **token_auth**
              * query parameter is found in the request.
-             *
+             * 
              * Plugins that provide authentication capabilities should subscribe to this event
              * and make sure the global authentication object (the object returned by `Registry::get('auth')`)
              * is setup to use `$token_auth` when its `authenticate()` method is executed.
-             *
+             * 
              * @param string $token_auth The value of the **token_auth** query parameter.
              */
             Piwik::postEvent('API.Request.authenticate', array($token_auth));
@@ -308,7 +305,7 @@ class Request
      * Returns the original request parameters in the current query string as an array mapping
      * query parameter names with values. The result of this function will not be affected
      * by any modifications to `$_GET` and will not include parameters in `$_POST`.
-     *
+     * 
      * @return array
      */
     public static function getRequestParametersGET()
@@ -382,10 +379,10 @@ class Request
 
     /**
      * Returns the segment query parameter from the original request, without modifications.
-     *
+     * 
      * @return array|bool
      */
-    public static function getRawSegmentFromRequest()
+    static public function getRawSegmentFromRequest()
     {
         // we need the URL encoded segment parameter, we fetch it from _SERVER['QUERY_STRING'] instead of default URL decoded _GET
         $segmentRaw = false;

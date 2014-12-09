@@ -66,7 +66,7 @@ class ProxyHttp
     {
         // if the file cannot be found return HTTP status code '404'
         if (!file_exists($file)) {
-            Common::sendResponseCode(404);
+            self::setHttpStatus('404 Not Found');
             return;
         }
 
@@ -77,17 +77,17 @@ class ProxyHttp
 
         // set some HTTP response headers
         self::overrideCacheControlHeaders('public');
-        Common::sendHeader('Vary: Accept-Encoding');
-        Common::sendHeader('Content-Disposition: inline; filename=' . basename($file));
+        @header('Vary: Accept-Encoding');
+        @header('Content-Disposition: inline; filename=' . basename($file));
 
         if ($expireFarFutureDays) {
             // Required by proxy caches potentially in between the browser and server to cache the request indeed
-            Common::sendHeader(self::getExpiresHeaderForFutureDay($expireFarFutureDays));
+            @header(self::getExpiresHeaderForFutureDay($expireFarFutureDays));
         }
 
         // Return 304 if the file has not modified since
         if ($modifiedSince === $lastModified) {
-            Common::sendResponseCode(304);
+            self::setHttpStatus('304 Not Modified');
             return;
         }
 
@@ -143,22 +143,22 @@ class ProxyHttp
             }
         }
 
-        Common::sendHeader('Last-Modified: ' . $lastModified);
+        @header('Last-Modified: ' . $lastModified);
 
         if (!$phpOutputCompressionEnabled) {
-            Common::sendHeader('Content-Length: ' . ($byteEnd - $byteStart));
+            @header('Content-Length: ' . ($byteEnd - $byteStart));
         }
 
         if (!empty($contentType)) {
-            Common::sendHeader('Content-Type: ' . $contentType);
+            @header('Content-Type: ' . $contentType);
         }
 
         if ($compressed) {
-            Common::sendHeader('Content-Encoding: ' . $encoding);
+            @header('Content-Encoding: ' . $encoding);
         }
 
         if (!_readfile($file, $byteStart, $byteEnd)) {
-            Common::sendResponseCode(500);
+            self::setHttpStatus('505 Internal server error');
         }
     }
 
@@ -193,6 +193,7 @@ class ProxyHttp
         !empty($autoAppendFile);
     }
 
+
     /**
      * Workaround IE bug when downloading certain document types over SSL and
      * cache control headers are present, e.g.,
@@ -209,13 +210,30 @@ class ProxyHttp
     public static function overrideCacheControlHeaders($override = null)
     {
         if ($override || self::isHttps()) {
-            Common::sendHeader('Pragma: ');
-            Common::sendHeader('Expires: ');
+            @header('Pragma: ');
+            @header('Expires: ');
             if (in_array($override, array('public', 'private', 'no-cache', 'no-store'))) {
-                Common::sendHeader("Cache-Control: $override, must-revalidate");
+                @header("Cache-Control: $override, must-revalidate");
             } else {
-                Common::sendHeader('Cache-Control: must-revalidate');
+                @header('Cache-Control: must-revalidate');
             }
+        }
+    }
+
+
+    /**
+     * Set response header, e.g., HTTP/1.0 200 Ok
+     *
+     * @param string $status Status
+     * @return bool
+     */
+    protected static function setHttpStatus($status)
+    {
+        if (strpos(PHP_SAPI, '-fcgi') === false) {
+            @header($_SERVER['SERVER_PROTOCOL'] . ' ' . $status);
+        } else {
+            // FastCGI
+            @header('Status: ' . $status);
         }
     }
 
@@ -223,7 +241,7 @@ class ProxyHttp
      * Returns a formatted Expires HTTP header for a certain number of days in the future. The result
      * can be used in a call to `header()`.
      */
-    private static function getExpiresHeaderForFutureDay($expireFarFutureDays)
+    private function getExpiresHeaderForFutureDay($expireFarFutureDays)
     {
         return "Expires: " . gmdate('D, d M Y H:i:s', time() + 86400 * (int)$expireFarFutureDays) . ' GMT';
     }

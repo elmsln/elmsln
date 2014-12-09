@@ -12,6 +12,7 @@ namespace Piwik;
 /**
  * Piwik version information.
  *
+ *
  * @api
  */
 final class Version
@@ -20,5 +21,5 @@ final class Version
      * The current Piwik version.
      * @var string
      */
-    const VERSION = '2.9.1';
+    const VERSION = '2.4.0';
 }

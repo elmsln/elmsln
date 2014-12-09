@@ -8,6 +8,7 @@
  */
 namespace Piwik\Period;
 
+
 use Piwik\Period;
 use Piwik\Piwik;
 
@@ -26,7 +27,7 @@ class Week extends Period
     {
         //"30 Dec - 6 Jan 09"
         $dateStart = $this->getDateStart();
-        $dateEnd   = $this->getDateEnd();
+        $dateEnd = $this->getDateEnd();
 
         $string = Piwik::translate('CoreHome_ShortWeekFormat');
         $string = self::getTranslatedRange($string, $dateStart, $dateEnd);
@@ -42,7 +43,6 @@ class Week extends Period
     {
         $format = Piwik::translate('CoreHome_LongWeekFormat');
         $string = self::getTranslatedRange($format, $this->getDateStart(), $this->getDateEnd());
-
         return Piwik::translate('CoreHome_PeriodWeek') . " " . $string;
     }
 
@@ -53,13 +53,12 @@ class Week extends Period
      *
      * @return mixed
      */
-    protected static function getTranslatedRange($format, $dateStart, $dateEnd)
+    static protected function getTranslatedRange($format, $dateStart, $dateEnd)
     {
         $string = str_replace('From%', '%', $format);
         $string = $dateStart->getLocalized($string);
         $string = str_replace('To%', '%', $string);
         $string = $dateEnd->getLocalized($string);
-
         return $string;
     }
 
@@ -70,11 +69,10 @@ class Week extends Period
      */
     public function getPrettyString()
     {
-        $dateStart = $this->getDateStart();
-        $dateEnd   = $this->getDateEnd();
-
-        $out = Piwik::translate('General_DateRangeFromTo', array($dateStart->toString(), $dateEnd->toString()));
-
+        $out = Piwik::translate('General_DateRangeFromTo',
+            array($this->getDateStart()->toString(),
+                  $this->getDateEnd()->toString())
+        );
         return $out;
     }
 
@@ -86,7 +84,6 @@ class Week extends Period
         if ($this->subperiodsProcessed) {
             return;
         }
-
         parent::generate();
         $date = $this->date;
 

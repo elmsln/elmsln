@@ -18,7 +18,6 @@ $(document).ready(function () {
 
     initICheck();
     $(document).bind('ScheduledReport.edit', initICheck);
-    $(document).bind('Goals.edit', initICheck);
     $(broadcast).bind('locationChangeSuccess', initICheck);
 
     $('body').on('ifClicked', 'input', function () {

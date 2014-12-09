@@ -8,7 +8,6 @@
  */
 namespace Piwik\Menu;
 use Piwik\Piwik;
-use Piwik\Plugin\Report;
 
 /**
  * Contains menu entries for the Reporting menu (the menu displayed under the Piwik logo).
@@ -33,64 +32,6 @@ use Piwik\Plugin\Report;
  */
 class MenuReporting extends MenuAbstract
 {
-
-    /**
-     * See {@link add()}. Adds a new menu item to the visitors section of the reporting menu.
-     * @param string $menuName
-     * @param array $url
-     * @param int $order
-     * @param bool|string $tooltip
-     * @api
-     * @since 2.5.0
-     */
-    public function addVisitorsItem($menuName, $url, $order = 50, $tooltip = false)
-    {
-        $this->addItem('General_Visitors', $menuName, $url, $order, $tooltip);
-    }
-
-    /**
-     * See {@link add()}. Adds a new menu item to the actions section of the reporting menu.
-     * @param string $menuName
-     * @param array $url
-     * @param int $order
-     * @param bool|string $tooltip
-     * @api
-     * @since 2.5.0
-     */
-    public function addActionsItem($menuName, $url, $order = 50, $tooltip = false)
-    {
-        $this->addItem('General_Actions', $menuName, $url, $order, $tooltip);
-    }
-
-    /**
-     * Should not be a public API yet. We probably have to change the API once we have another use case.
-     * @ignore
-     */
-    public function addGroup($menuName, $defaultTitle, Group $group, $order = 50, $tooltip = false)
-    {
-        $this->menuEntries[] = array(
-            $menuName,
-            $defaultTitle,
-            $group,
-            $order,
-            $tooltip
-        );
-    }
-
-    /**
-     * See {@link add()}. Adds a new menu item to the referrers section of the reporting menu.
-     * @param string $menuName
-     * @param array $url
-     * @param int $order
-     * @param bool|string $tooltip
-     * @api
-     * @since 2.5.0
-     */
-    public function addReferrersItem($menuName, $url, $order = 50, $tooltip = false)
-    {
-        $this->addItem('Referrers_Referrers', $menuName, $url, $order, $tooltip);
-    }
-
     /**
      * Returns if the URL was found in the menu.
      *
@@ -126,16 +67,9 @@ class MenuReporting extends MenuAbstract
              */
             Piwik::postEvent('Menu.Reporting.addItems', array());
 
-            foreach (Report::getAllReports() as $report) {
-                if ($report->isEnabled()) {
-                    $report->configureReportingMenu($this);
-                }
-            }
-
-            foreach ($this->getAllMenus() as $menu) {
+            foreach ($this->getAvailableMenus() as $menu) {
                 $menu->configureReportingMenu($this);
             }
-
         }
 
         return parent::getMenu();

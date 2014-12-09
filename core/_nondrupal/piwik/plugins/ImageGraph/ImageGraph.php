@@ -8,7 +8,6 @@
  */
 namespace Piwik\Plugins\ImageGraph;
 
-use Piwik\API\Request;
 use Piwik\Common;
 use Piwik\Config;
 use Piwik\Period;
@@ -28,12 +27,12 @@ class ImageGraph extends \Piwik\Plugin
         return $info;
     }
 
-    private static $CONSTANT_ROW_COUNT_REPORT_EXCEPTIONS = array(
+    static private $CONSTANT_ROW_COUNT_REPORT_EXCEPTIONS = array(
         'Referrers_getReferrerType',
     );
 
     // row evolution support not yet implemented for these APIs
-    private static $REPORTS_DISABLED_EVOLUTION_GRAPH = array(
+    static private $REPORTS_DISABLED_EVOLUTION_GRAPH = array(
         'Referrers_getAll',
     );
 
@@ -139,11 +138,6 @@ class ImageGraph extends \Piwik\Plugin
 
             if (!empty($_GET['_restrictSitesToLogin']) && TaskScheduler::isTaskBeingExecuted()) {
                 $parameters['_restrictSitesToLogin'] = $_GET['_restrictSitesToLogin'];
-            }
-
-            $segment = Request::getRawSegmentFromRequest();
-            if (!empty($segment)) {
-                $parameters['segment'] = $segment;
             }
 
             $report['imageGraphUrl'] = $urlPrefix . Url::getQueryStringFromParameters($parameters);

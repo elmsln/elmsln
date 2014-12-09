@@ -10,16 +10,15 @@ namespace Piwik\ViewDataTable;
 
 use Piwik\Common;
 use Piwik\Piwik;
-use Piwik\Plugin\Report;
 use Piwik\Plugins\CoreVisualizations\Visualizations\HtmlTable;
 
 /**
  * Provides a means of creating {@link Piwik\Plugin\ViewDataTable} instances by ID.
  *
  * ### Examples
- *
+ * 
  * **Creating a ViewDataTable for a report**
- *
+ * 
  *     // method in MyPlugin\Controller
  *     public function myReport()
  *     {
@@ -28,9 +27,9 @@ use Piwik\Plugins\CoreVisualizations\Visualizations\HtmlTable;
  *         $view->config->translations['myFancyMetric'] = "My Fancy Metric";
  *         return $view->render();
  *     }
- *
+ * 
  * **Displaying a report in another way**
- *
+ * 
  *     // method in MyPlugin\Controller
  *     // use the same data that's used in myReport() above, but transform it in some way before
  *     // displaying.
@@ -40,9 +39,9 @@ use Piwik\Plugins\CoreVisualizations\Visualizations\HtmlTable;
  *         $view->config->filters[] = array('MyMagicFilter', array('an arg', 'another arg'));
  *         return $view->render();
  *     }
- *
+ * 
  * **Force a report to be shown as a bar graph**
- *
+ * 
  *     // method in MyPlugin\Controller
  *     // force the myReport report to show as a bar graph if there is no viewDataTable query param,
  *     // even though it is configured to show as a table.
@@ -52,7 +51,7 @@ use Piwik\Plugins\CoreVisualizations\Visualizations\HtmlTable;
  *                                $forceDefault = true);
  *         return $view->render();
  *     }
- *
+ * 
  *
  * @api
  */
@@ -149,13 +148,6 @@ class Factory
      */
     private static function getDefaultViewTypeForReport($apiAction)
     {
-        list($module, $action) = explode('.', $apiAction);
-        $report = Report::factory($module, $action);
-
-        if (!empty($report) && $report->isEnabled()) {
-            return $report->getDefaultTypeViewDataTable();
-        }
-
         $defaultViewTypes = self::getDefaultTypeViewDataTable();
         return isset($defaultViewTypes[$apiAction]) ? $defaultViewTypes[$apiAction] : false;
     }
@@ -169,7 +161,24 @@ class Factory
         if (null === self::$defaultViewTypes) {
             self::$defaultViewTypes = array();
             /**
-             * @ignore
+             * Triggered when gathering the default view types for all available reports.
+             * 
+             * If you define your own report, you may want to subscribe to this event to
+             * make sure the correct default Visualization is used (for example, a pie graph,
+             * bar graph, or something else).
+             *
+             * If there is no default type associated with a report, the **table** visualization
+             * used.
+             * 
+             * **Example**
+             * 
+             *     public function getDefaultTypeViewDataTable(&$defaultViewTypes)
+             *     {
+             *         $defaultViewTypes['Referrers.getSocials']       = HtmlTable::ID;
+             *         $defaultViewTypes['Referrers.getUrlsForSocial'] = Pie::ID;
+             *     }
+             * 
+             * @param array &$defaultViewTypes The array mapping report IDs with visualization IDs.
              */
             Piwik::postEvent('ViewDataTable.getDefaultType', array(&self::$defaultViewTypes));
         }

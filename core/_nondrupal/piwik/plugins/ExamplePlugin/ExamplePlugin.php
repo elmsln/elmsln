@@ -12,4 +12,18 @@ namespace Piwik\Plugins\ExamplePlugin;
  */
 class ExamplePlugin extends \Piwik\Plugin
 {
+    /**
+     * @see Piwik\Plugin::getListHooksRegistered
+     */
+    public function getListHooksRegistered()
+    {
+        return array(
+            'AssetManager.getJavaScriptFiles' => 'getJsFiles',
+        );
+    }
+
+    public function getJsFiles(&$jsFiles)
+    {
+        $jsFiles[] = 'plugins/ExamplePlugin/javascripts/plugin.js';
+    }
 }

@@ -5,6 +5,7 @@
  * @license http://www.gnu.org/licenses/gpl-3.0.html GPL v3 or later
  */
 
+
 //
 // TRANSITIONS ROW ACTION FOR DATA TABLES
 //
@@ -45,12 +46,11 @@ DataTable_RowActions_Transitions.prototype.trigger = function (tr, e, subTableLa
     }
 };
 
-DataTable_RowActions_Transitions.prototype.performAction = function (label, tr, e) {
+DataTable_RowAction.prototype.performAction = function (label, tr, e) {
     var separator = ' > '; // LabelFilter::SEPARATOR_RECURSIVE_LABEL
     var labelParts = label.split(separator);
     for (var i = 0; i < labelParts.length; i++) {
-        var labelPart = labelParts[i].replace('@', '');
-        labelParts[i] = $.trim(decodeURIComponent(labelPart));
+        labelParts[i] = $.trim(decodeURIComponent(labelParts[i]));
     }
     label = labelParts.join(piwik.config.action_url_category_delimiter);
     this.openPopover('title:' + label);
@@ -100,7 +100,7 @@ DataTable_RowActions_Registry.register({
     },
 
     isAvailableOnRow: function (dataTableParams, tr) {
-        if (tr.hasClass('subDataTable')) {
+        if (tr.attr('id')) {
             // not available on groups (i.e. folders)
             return false;
         }
@@ -113,6 +113,7 @@ DataTable_RowActions_Registry.register({
     }
 
 });
+
 
 //
 // TRANSITIONS IMPLEMENTATION
@@ -715,6 +716,7 @@ Piwik_Transitions.prototype.openExternalUrl = function (url) {
     window.open(url, '_newtab');
 };
 
+
 // --------------------------------------
 // CANVAS
 // --------------------------------------
@@ -1218,6 +1220,7 @@ Piwik_Transitions_Canvas.prototype.clearSide = function (side, onlyBg) {
     }
 };
 
+
 // --------------------------------------
 // MODEL
 // --------------------------------------
@@ -1404,6 +1407,7 @@ Piwik_Transitions_Model.prototype.roundPercentage = function (value) {
     }
 };
 
+
 // --------------------------------------
 // AJAX
 // --------------------------------------
@@ -1487,6 +1491,7 @@ Piwik_Transitions_Ajax.prototype.callApi = function (method, params, callback) {
     );
     ajaxRequest.send(false);
 };
+
 
 // --------------------------------------
 // STATIC UTIL FUNCTIONS

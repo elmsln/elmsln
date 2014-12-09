@@ -51,26 +51,20 @@ class CliMulti {
      * If multi cli is not supported (eg windows) it will initiate an HTTP request instead (not async).
      *
      * @param string[]  $piwikUrls   An array of urls, for instance:
-     *
-     *                               `array('http://www.example.com/piwik?module=API...')`
-     *
-     *                               **Make sure query parameter values are properly encoded in the URLs.**
-     *
+     *                               array('http://www.example.com/piwik?module=API...')
      * @return array The response of each URL in the same order as the URLs. The array can contain null values in case
      *               there was a problem with a request, for instance if the process died unexpected.
      */
     public function request(array $piwikUrls)
     {
         $chunks = array($piwikUrls);
-        if ($this->concurrentProcessesLimit) {
+        if($this->concurrentProcessesLimit) {
             $chunks = array_chunk( $piwikUrls, $this->concurrentProcessesLimit);
         }
-
         $results = array();
         foreach($chunks as $urlsChunk) {
             $results = array_merge($results, $this->requestUrls($urlsChunk));
         }
-
         return $results;
     }
 
@@ -95,29 +89,24 @@ class CliMulti {
     private function start($piwikUrls)
     {
         foreach ($piwikUrls as $index => $url) {
-            $cmdId = $this->generateCommandId($url) . $index;
-            $this->executeUrlCommand($cmdId, $url);
+            $cmdId  = $this->generateCommandId($url) . $index;
+            $output = new Output($cmdId);
+
+            if ($this->supportsAsync) {
+                $this->executeAsyncCli($url, $output, $cmdId);
+            } else {
+                $this->executeNotAsyncHttp($url, $output);
+            }
+
+            $this->outputs[] = $output;
         }
-    }
-
-    private function executeUrlCommand($cmdId, $url)
-    {
-        $output = new Output($cmdId);
-
-        if ($this->supportsAsync) {
-            $this->executeAsyncCli($url, $output, $cmdId);
-        } else {
-            $this->executeNotAsyncHttp($url, $output);
-        }
-
-        $this->outputs[] = $output;
     }
 
     private function buildCommand($hostname, $query, $outputFile)
     {
         $bin = $this->findPhpBinary();
 
-        return sprintf('%s %s/console climulti:request --piwik-domain=%s %s > %s 2>&1 &',
+        return sprintf('%s -q %s/console climulti:request --piwik-domain=%s %s > %s 2>&1 &',
                        $bin, PIWIK_INCLUDE_PATH, escapeshellarg($hostname), escapeshellarg($query), $outputFile);
     }
 
@@ -151,14 +140,6 @@ class CliMulti {
                 return false;
             }
 
-            $pid = $process->getPid();
-            foreach ($this->outputs as $output) {
-                if ($output->getOutputId() === $pid && $output->isAbnormal()) {
-                    $process->finishProcess();
-                    return true;
-                }
-            }
-
             if ($process->hasFinished()) {
                 // prevent from checking this process over and over again
                 unset($this->processes[$index]);
@@ -179,7 +160,7 @@ class CliMulti {
      */
     public function supportsAsync()
     {
-        return Process::isSupported() && !Common::isPhpCgiType() && $this->findPhpBinary();
+        return Process::isSupported() && $this->findPhpBinary();
     }
 
     private function findPhpBinary()
@@ -211,17 +192,15 @@ class CliMulti {
         $timeOneWeekAgo = strtotime('-1 week');
 
         $files = _glob(self::getTmpPath() . '/*');
-        if (empty($files)) {
+        if(empty($files)) {
             return;
         }
 
         foreach ($files as $file) {
-            if (file_exists($file)) {
-                $timeLastModified = filemtime($file);
+            $timeLastModified = filemtime($file);
 
-                if ($timeLastModified !== FALSE && $timeOneWeekAgo > $timeLastModified) {
-                    unlink($file);
-                }
+            if ($timeOneWeekAgo > $timeLastModified) {
+                unlink($file);
             }
         }
     }
@@ -231,6 +210,7 @@ class CliMulti {
         $dir = PIWIK_INCLUDE_PATH . '/tmp/climulti';
         return SettingsPiwik::rewriteTmpPathWithInstanceId($dir);
     }
+
 
     private function executeAsyncCli($url, Output $output, $cmdId)
     {
@@ -254,15 +234,13 @@ class CliMulti {
         } catch (\Exception $e) {
             $message = "Got invalid response from API request: $url. ";
 
-            if (isset($response) && empty($response)) {
+            if (empty($response)) {
                 $message .= "The response was empty. This usually means a server error. This solution to this error is generally to increase the value of 'memory_limit' in your php.ini file. Please check your Web server Error Log file for more details.";
             } else {
                 $message .= "Response was '" . $e->getMessage() . "'";
             }
 
             $output->write($message);
-
-            Log::debug($e);
         }
     }
 

@@ -18,15 +18,16 @@ class Menu extends \Piwik\Plugin\Menu
 {
     public function configureAdminMenu(MenuAdmin $menu)
     {
-        if (Piwik::isUserHasSomeAdminAccess()) {
-            $menu->addDiagnosticItem('DevicesDetection_DeviceDetection',
-                                     $this->urlForAction('deviceDetection'),
-                                     $order = 40);
-        }
+        $menu->add(
+            'CoreAdminHome_MenuDiagnostic', 'DevicesDetection_DeviceDetection',
+            array('module' => 'DevicesDetection', 'action' => 'deviceDetection'),
+            Piwik::isUserHasSomeAdminAccess(),
+            $order = 40
+        );
     }
 
     public function configureReportingMenu(MenuReporting $menu)
     {
-        $menu->addVisitorsItem('DevicesDetection_submenu', $this->urlForAction('index'));
+        $menu->add('General_Visitors', 'DevicesDetection_submenu', array('module' => 'DevicesDetection', 'action' => 'index'));
     }
 }

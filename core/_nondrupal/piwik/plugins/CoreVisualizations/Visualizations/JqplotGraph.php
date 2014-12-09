@@ -8,6 +8,7 @@
  */
 namespace Piwik\Plugins\CoreVisualizations\Visualizations;
 
+
 use Piwik\DataTable;
 use Piwik\Plugins\CoreVisualizations\JqplotDataGenerator;
 use Piwik\View;

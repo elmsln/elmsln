@@ -16,15 +16,15 @@ use Piwik\DataTable\BaseFilter;
  * whitelist or both.
  *
  * This filter is used to handle the **hideColumn** and **showColumn** query parameters.
- *
+ * 
  * **Basic usage example**
- *
+ * 
  *     $columnsToRemove = array('nb_hits', 'nb_pageviews');
  *     $dataTable->filter('ColumnDelete', array($columnsToRemove));
- *
+ * 
  *     $columnsToKeep = array('nb_visits');
  *     $dataTable->filter('ColumnDelete', array(array(), $columnsToKeep));
- *
+ * 
  * @api
  */
 class ColumnDelete extends BaseFilter
@@ -91,7 +91,6 @@ class ColumnDelete extends BaseFilter
      * See {@link ColumnDelete}.
      *
      * @param DataTable $table
-     * @return DataTable
      */
     public function filter($table)
     {
@@ -101,16 +100,15 @@ class ColumnDelete extends BaseFilter
 
         // remove columns specified in $this->columnsToRemove
         if (!empty($this->columnsToRemove)) {
-            foreach ($table as $index => $row) {
+            foreach ($table->getRows() as $row) {
                 foreach ($this->columnsToRemove as $column) {
                     if ($this->deleteIfZeroOnly) {
-                        $value = $row[$column];
+                        $value = $row->getColumn($column);
                         if ($value === false || !empty($value)) {
                             continue;
                         }
                     }
-
-                    unset($table[$index][$column]);
+                    $row->deleteColumn($column);
                 }
             }
 
@@ -119,8 +117,8 @@ class ColumnDelete extends BaseFilter
 
         // remove columns not specified in $columnsToKeep
         if (!empty($this->columnsToKeep)) {
-            foreach ($table as $index => $row) {
-                foreach ($row as $name => $value) {
+            foreach ($table->getRows() as $row) {
+                foreach ($row->getColumns() as $name => $value) {
 
                     $keep = false;
                     // @see self::APPEND_TO_COLUMN_NAME_TO_KEEP
@@ -134,7 +132,7 @@ class ColumnDelete extends BaseFilter
                         && $name != 'label' // label cannot be removed via whitelisting
                         && !isset($this->columnsToKeep[$name])
                     ) {
-                        unset($table[$index][$name]);
+                        $row->deleteColumn($name);
                     }
                 }
             }
@@ -143,12 +141,10 @@ class ColumnDelete extends BaseFilter
         }
 
         // recurse
-        if ($recurse && !is_array($table)) {
-            foreach ($table as $row) {
+        if ($recurse) {
+            foreach ($table->getRows() as $row) {
                 $this->filterSubTable($row);
             }
         }
-
-        return $table;
     }
 }

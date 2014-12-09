@@ -128,8 +128,6 @@ class GeoIPAutoUpdater extends ScheduledTask
      */
     protected function downloadFile($dbType, $url)
     {
-        $url = trim($url);
-
         $ext = GeoIPAutoUpdater::getGeoIPUrlExtension($url);
 
         // NOTE: using the first item in $dbNames[$dbType] makes sure GeoLiteCity will be renamed to GeoIPCity
@@ -334,7 +332,7 @@ class GeoIPAutoUpdater extends ScheduledTask
         // set period option
         if (!empty($options['period'])) {
             $period = $options['period'];
-
+            
             if ($period != self::SCHEDULE_PERIOD_MONTHLY
                 && $period != self::SCHEDULE_PERIOD_WEEKLY
             ) {
@@ -518,10 +516,8 @@ class GeoIPAutoUpdater extends ScheduledTask
      * Databases are renamed to ${original}.broken .
      *
      * Note: method is protected for testability.
-     *
-     * @param $logErrors - only used to hide error logs during tests
      */
-    protected function performRedundantDbChecks($logErrors = true)
+    protected function performRedundantDbChecks()
     {
         $databaseTypes = array_keys(GeoIp::$dbNames);
 
@@ -540,11 +536,8 @@ class GeoIPAutoUpdater extends ScheduledTask
             self::getTestLocationCatchPhpErrors($provider);
             if (self::$unzipPhpError !== null) {
                 list($errno, $errstr, $errfile, $errline) = self::$unzipPhpError;
-
-                if($logErrors) {
-                    Log::error("GeoIPAutoUpdater: Encountered PHP error when performing redundant tests on GeoIP "
-                        . "%s database: %s: %s on line %s of %s.", $type, $errno, $errstr, $errline, $errfile);
-                }
+                Log::warning("GeoIPAutoUpdater: Encountered PHP error when performing redundant tests on GeoIP "
+                    . "%s database: %s: %s on line %s of %s.", $type, $errno, $errstr, $errline, $errfile);
 
                 // get the current filename for the DB and an available new one to rename it to
                 list($oldPath, $newPath) = $this->getOldAndNewPathsForBrokenDb($customNames[$type]);
@@ -629,7 +622,7 @@ class GeoIPAutoUpdater extends ScheduledTask
 
     /**
      * Returns the next scheduled time for the auto updater.
-     *
+     * 
      * @return Date|false
      */
     public static function getNextRunTime()

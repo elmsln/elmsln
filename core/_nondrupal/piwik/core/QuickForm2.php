@@ -118,7 +118,7 @@ abstract class QuickForm2 extends HTML_QuickForm2
         return array_filter($messages);
     }
 
-    protected static $registered = false;
+    static protected $registered = false;
 
     /**
      * Returns the rendered form as an array.

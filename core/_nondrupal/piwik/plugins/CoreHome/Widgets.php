@@ -8,45 +8,17 @@
  */
 namespace Piwik\Plugins\CoreHome;
 
-use Piwik\Common;
-use Piwik\Piwik;
-use Piwik\View;
+use Piwik\WidgetsList;
 
 class Widgets extends \Piwik\Plugin\Widgets
 {
-    protected $category = 'Example Widgets';
-
-    protected function init()
+    public function configure(WidgetsList $widgetsList)
     {
-        $this->addWidget('CoreHome_SupportPiwik', 'getDonateForm');
-        $this->addWidget('Installation_Welcome', 'getPromoVideo');
+        $category   = 'Example Widgets';
+        $controller = 'CoreHome';
+
+        $widgetsList->add($category, 'CoreHome_SupportPiwik', $controller, 'getDonateForm');
+        $widgetsList->add($category, 'Installation_Welcome', $controller, 'getPromoVideo');
     }
 
-    /**
-     * Renders and echo's the in-app donate form w/ slider.
-     */
-    public function getDonateForm()
-    {
-        $view = new View('@CoreHome/getDonateForm');
-
-        if (Common::getRequestVar('widget', false)
-            && Piwik::hasUserSuperUserAccess()) {
-            $view->footerMessage = Piwik::translate('CoreHome_OnlyForSuperUserAccess');
-        }
-
-        return $view->render();
-    }
-
-    /**
-     * Renders and echo's HTML that displays the Piwik promo video.
-     */
-    public function getPromoVideo()
-    {
-        $view = new View('@CoreHome/getPromoVideo');
-        $view->shareText     = Piwik::translate('CoreHome_SharePiwikShort');
-        $view->shareTextLong = Piwik::translate('CoreHome_SharePiwikLong');
-        $view->promoVideoUrl = 'https://www.youtube.com/watch?v=OslfF_EH81g';
-
-        return $view->render();
-    }
 }

@@ -8,13 +8,6 @@
  */
 namespace Piwik\Plugins\UserSettings;
 
-use Piwik\Plugins\UserSettings\Reports\GetBrowser;
-use Piwik\Plugins\UserSettings\Reports\GetConfiguration;
-use Piwik\Plugins\UserSettings\Reports\GetLanguage;
-use Piwik\Plugins\UserSettings\Reports\GetMobileVsDesktop;
-use Piwik\Plugins\UserSettings\Reports\GetOS;
-use Piwik\Plugins\UserSettings\Reports\GetPlugin;
-use Piwik\Plugins\UserSettings\Reports\GetResolution;
 use Piwik\View;
 
 /**
@@ -26,14 +19,70 @@ class Controller extends \Piwik\Plugin\Controller
     {
         $view = new View('@UserSettings/index');
 
-        $view->dataTablePlugin = $this->renderReport(new GetPlugin());
-        $view->dataTableResolution = $this->renderReport(new GetResolution());
-        $view->dataTableConfiguration = $this->renderReport(new GetConfiguration());
-        $view->dataTableOS = $this->renderReport(new GetOS());
-        $view->dataTableBrowser = $this->renderReport(new GetBrowser());
-        $view->dataTableMobileVsDesktop = $this->renderReport(new GetMobileVsDesktop());
-        $view->dataTableBrowserLanguage = $this->renderReport(new GetLanguage());
+        $view->dataTablePlugin = $this->getPlugin(true);
+        $view->dataTableResolution = $this->getResolution(true);
+        $view->dataTableConfiguration = $this->getConfiguration(true);
+        $view->dataTableOS = $this->getOS(true);
+        $view->dataTableBrowser = $this->getBrowser(true);
+        $view->dataTableBrowserType = $this->getBrowserType(true);
+        $view->dataTableMobileVsDesktop = $this->getMobileVsDesktop(true);
+        $view->dataTableBrowserLanguage = $this->getLanguage(true);
 
         return $view->render();
+    }
+
+    public function getResolution()
+    {
+        return $this->renderReport(__FUNCTION__);
+    }
+
+    public function getConfiguration()
+    {
+        return $this->renderReport(__FUNCTION__);
+    }
+
+    public function getOS()
+    {
+        return $this->renderReport(__FUNCTION__);
+    }
+
+    public function getOSFamily()
+    {
+        return $this->renderReport(__FUNCTION__);
+    }
+
+    public function getMobileVsDesktop()
+    {
+        return $this->renderReport(__FUNCTION__);
+    }
+
+    public function getBrowserVersion()
+    {
+        return $this->renderReport(__FUNCTION__);
+    }
+
+    public function getBrowser()
+    {
+        return $this->renderReport(__FUNCTION__);
+    }
+
+    public function getBrowserType()
+    {
+        return $this->renderReport(__FUNCTION__);
+    }
+
+    public function getWideScreen()
+    {
+        return $this->renderReport(__FUNCTION__);
+    }
+
+    public function getPlugin()
+    {
+        return $this->renderReport(__FUNCTION__);
+    }
+
+    public function getLanguage()
+    {
+        return $this->renderReport(__FUNCTION__);
     }
 }

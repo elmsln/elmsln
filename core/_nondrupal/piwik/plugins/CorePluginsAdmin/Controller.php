@@ -11,7 +11,6 @@ namespace Piwik\Plugins\CorePluginsAdmin;
 use Exception;
 use Piwik\API\Request;
 use Piwik\Common;
-use Piwik\Exception\MissingFilePermissionException;
 use Piwik\Filechecks;
 use Piwik\Filesystem;
 use Piwik\Nonce;
@@ -205,6 +204,17 @@ class Controller extends Plugin\ControllerAdmin
         return $view->render();
     }
 
+    public function extend()
+    {
+        static::dieIfMarketplaceIsDisabled();
+
+        $view = $this->configureView('@CorePluginsAdmin/extend');
+        $view->installNonce = Nonce::getNonce(static::INSTALL_NONCE);
+        $view->isSuperUser = Piwik::hasUserSuperUserAccess();
+
+        return $view->render();
+    }
+
     private function createPluginsOrThemesView($template, $themesOnly)
     {
         Piwik::checkUserHasSuperUserAccess();
@@ -273,7 +283,7 @@ class Controller extends Plugin\ControllerAdmin
     protected function getPluginsInfo($themesOnly = false)
     {
         $pluginManager = \Piwik\Plugin\Manager::getInstance();
-        $plugins = $pluginManager->loadAllPluginsAndGetTheirInfo();
+        $plugins = $pluginManager->returnLoadedPluginsInfo();
 
         foreach ($plugins as $pluginName => &$plugin) {
 
@@ -283,7 +293,7 @@ class Controller extends Plugin\ControllerAdmin
 
                 $suffix = Piwik::translate('CorePluginsAdmin_PluginNotWorkingAlternative');
                 // If the plugin has been renamed, we do not show message to ask user to update plugin
-                if ($pluginName != Request::renameModule($pluginName)) {
+                if($pluginName != Request::renameModule($pluginName)) {
                     $suffix = "You may uninstall the plugin or manually delete the files in piwik/plugins/$pluginName/";
                 }
 
@@ -324,8 +334,6 @@ class Controller extends Plugin\ControllerAdmin
 
     public function safemode($lastError = array())
     {
-        $this->tryToRepairPiwik();
-
         if (empty($lastError)) {
             $lastError = array(
                 'message' => Common::getRequestVar('error_message', null, 'string'),
@@ -351,15 +359,15 @@ class Controller extends Plugin\ControllerAdmin
             return $message;
         }
 
-        if (Common::isPhpCliMode()) { // TODO: I can't find how this will ever get called / safeMode is never set for Console
-            throw new Exception("Error: " . var_export($lastError, true));
+        if(Common::isPhpCliMode()) {
+            Piwik_ExitWithMessage("Error:" . var_export($lastError, true));
         }
 
         $view = new View('@CorePluginsAdmin/safemode');
         $view->lastError   = $lastError;
         $view->isSuperUser = Piwik::hasUserSuperUserAccess();
         $view->isAnonymousUser = Piwik::isUserIsAnonymous();
-        $view->plugins         = Plugin\Manager::getInstance()->loadAllPluginsAndGetTheirInfo();
+        $view->plugins         = Plugin\Manager::getInstance()->returnLoadedPluginsInfo();
         $view->deactivateNonce = Nonce::getNonce(static::DEACTIVATE_NONCE);
         $view->uninstallNonce  = Nonce::getNonce(static::UNINSTALL_NONCE);
         $view->emailSuperUser  = implode(',', Piwik::getAllSuperUserAccessEmailAddresses());
@@ -433,13 +441,9 @@ class Controller extends Plugin\ControllerAdmin
 
             $messageIntro = Piwik::translate("Warning: \"%s\" could not be uninstalled. Piwik did not have enough permission to delete the files in $path. ",
                 $pluginName);
-            $exitMessage  = $messageIntro . "<br/><br/>" . $messagePermissions;
+            $exitMessage = $messageIntro . "<br/><br/>" . $messagePermissions;
             $exitMessage .= "<br> Or manually delete this directory (using FTP or SSH access)";
-
-            $ex = new MissingFilePermissionException($exitMessage);
-            $ex->setIsHtmlMessage();
-
-            throw $ex;
+            Piwik_ExitWithMessage($exitMessage, $optionalTrace = false, $optionalLinks = false, $optionalLinkBack = true);
         }
 
         $this->redirectAfterModification($redirectAfter);
@@ -472,15 +476,6 @@ class Controller extends Plugin\ControllerAdmin
     private function getPluginNamesHavingSettingsForCurrentUser()
     {
         return array_keys(SettingsManager::getPluginSettingsForCurrentUser());
-    }
-
-    private function tryToRepairPiwik()
-    {
-        // in case any opcaches etc were not cleared after an update for instance. Might prevent from getting the
-        // error again
-        try {
-            Filesystem::deleteAllCacheOnUpdate();
-        } catch (Exception $e) {}
     }
 
 }

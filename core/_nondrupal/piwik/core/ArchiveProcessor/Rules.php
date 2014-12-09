@@ -10,7 +10,6 @@ namespace Piwik\ArchiveProcessor;
 
 use Exception;
 use Piwik\Config;
-use Piwik\DataAccess\ArchiveWriter;
 use Piwik\Date;
 use Piwik\Log;
 use Piwik\Option;
@@ -24,7 +23,7 @@ use Piwik\Tracker\Cache;
 
 /**
  * This class contains Archiving rules/logic which are used when creating and processing Archives.
- *
+ * 
  */
 class Rules
 {
@@ -33,6 +32,8 @@ class Rules
     const OPTION_BROWSER_TRIGGER_ARCHIVING = 'enableBrowserTriggerArchiving';
 
     const FLAG_TABLE_PURGED = 'lastPurge_';
+
+    static public $purgeOutdatedArchivesIsDisabled = false;
 
     /** Flag that will forcefully disable the archiving process (used in tests only) */
     public static $archivingDisabledByTests = false;
@@ -110,8 +111,6 @@ class Rules
     }
 
     /**
-     * Return done flags used to tell how the archiving process for a specific archive was completed,
-     *
      * @param array $plugins
      * @param $segment
      * @return array
@@ -130,17 +129,28 @@ class Rules
         return $doneFlags;
     }
 
+    static public function disablePurgeOutdatedArchives()
+    {
+        self::$purgeOutdatedArchivesIsDisabled = true;
+    }
+
+    static public function enablePurgeOutdatedArchives()
+    {
+        self::$purgeOutdatedArchivesIsDisabled = false;
+    }
+
     /**
-     * Returns false if we should not purge data for this month,
-     * or returns a timestamp indicating outdated archives older than this timestamp (processed before) can be purged.
-     *
-     * Note: when calling this function it is assumed that the callee will purge the outdated archives afterwards.
+     * Given a monthly archive table, will delete all reports that are now outdated,
+     * or reports that ended with an error
      *
      * @param \Piwik\Date $date
-     * @return int|bool  Outdated archives older than this timestamp should be purged
+     * @return int|bool  False, or timestamp indicating which archives to delete
      */
     public static function shouldPurgeOutdatedArchives(Date $date)
     {
+        if (self::$purgeOutdatedArchivesIsDisabled) {
+            return false;
+        }
         $key = self::FLAG_TABLE_PURGED . "blob_" . $date->toString('Y_m');
         $timestamp = Option::get($key);
 
@@ -166,7 +176,7 @@ class Rules
                 $purgeArchivesOlderThan = Date::factory(time() - 2 * $temporaryArchivingTimeout)->getDateTime();
             } else {
                 // If cron core:archive command is building the reports, we should keep all temporary reports from today
-                $purgeArchivesOlderThan = Date::factory('yesterday')->getDateTime();
+                $purgeArchivesOlderThan = Date::factory('today')->getDateTime();
             }
             return $purgeArchivesOlderThan;
         }
@@ -212,17 +222,12 @@ class Rules
     {
         $uiSettingIsEnabled = Controller::isGeneralSettingsAdminEnabled();
 
-        if ($uiSettingIsEnabled) {
+        if($uiSettingIsEnabled) {
             $timeToLive = Option::get(self::OPTION_TODAY_ARCHIVE_TTL);
             if ($timeToLive !== false) {
                 return $timeToLive;
             }
         }
-        return self::getTodayArchiveTimeToLiveDefault();
-    }
-
-    public static function getTodayArchiveTimeToLiveDefault()
-    {
         return Config::getInstance()->General['time_before_today_archive_considered_outdated'];
     }
 
@@ -252,7 +257,7 @@ class Rules
         return $isArchivingDisabled;
     }
 
-    public static function isRequestAuthorizedToArchive()
+    protected static function isRequestAuthorizedToArchive()
     {
         return Rules::isBrowserTriggerEnabled() || SettingsServer::isArchivePhpTriggered();
     }
@@ -261,7 +266,7 @@ class Rules
     {
         $uiSettingIsEnabled = Controller::isGeneralSettingsAdminEnabled();
 
-        if ($uiSettingIsEnabled) {
+        if($uiSettingIsEnabled) {
             $browserArchivingEnabled = Option::get(self::OPTION_BROWSER_TRIGGER_ARCHIVING);
             if ($browserArchivingEnabled !== false) {
                 return (bool)$browserArchivingEnabled;
@@ -277,18 +282,6 @@ class Rules
         }
         Option::set(self::OPTION_BROWSER_TRIGGER_ARCHIVING, (int)$enabled, $autoLoad = true);
         Cache::clearCacheGeneral();
-    }
-
-    /**
-     * Returns true if the archiving process should skip the calculation of unique visitors
-     * across several sites. The `[General] enable_processing_unique_visitors_multiple_sites`
-     * INI config option controls the value of this variable.
-     *
-     * @return bool
-     */
-    public static function shouldSkipUniqueVisitorsCalculationForMultipleSites()
-    {
-        return Config::getInstance()->General['enable_processing_unique_visitors_multiple_sites'] != 1;
     }
 
     /**
@@ -317,22 +310,4 @@ class Rules
         }
         return false;
     }
-
-    /**
-     * Returns done flag values allowed to be selected
-     *
-     * @return string
-     */
-    public static function getSelectableDoneFlagValues()
-    {
-        $possibleValues = array(ArchiveWriter::DONE_OK, ArchiveWriter::DONE_OK_TEMPORARY);
-
-        if (!Rules::isRequestAuthorizedToArchive()) {
-            //If request is not authorized to archive then fetch also invalidated archives
-            $possibleValues[] = ArchiveWriter::DONE_INVALIDATED;
-        }
-
-        return $possibleValues;
-    }
-
 }

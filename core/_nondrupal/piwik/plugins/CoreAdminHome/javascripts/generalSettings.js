@@ -146,5 +146,4 @@ $(document).ready(function () {
         trustedHostSettings.find('li:last input').val('');
         return false;
     });
-
 });

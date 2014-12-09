@@ -10,19 +10,18 @@ namespace Piwik\DataTable;
 
 use Exception;
 use Piwik\DataTable;
-use Piwik\Log;
 use Piwik\Metrics;
 
 /**
  * This is what a {@link Piwik\DataTable} is composed of.
- *
+ * 
  * DataTable rows contain columns, metadata and a subtable ID. Columns and metadata
  * are stored as an array of name => value mappings.
  *
  *
  * @api
  */
-class Row implements \ArrayAccess, \IteratorAggregate
+class Row
 {
     /**
      * List of columns that cannot be summed. An associative array for speed.
@@ -60,7 +59,7 @@ class Row implements \ArrayAccess, \IteratorAggregate
      * Constructor.
      *
      * @param array $row An array with the following structure:
-     *
+     *                   
      *                       array(
      *                           Row::COLUMNS => array('label' => 'Piwik',
      *                                                 'column1' => 42,
@@ -102,7 +101,7 @@ class Row implements \ArrayAccess, \IteratorAggregate
         if (!empty($this->c[self::DATATABLE_ASSOCIATED])
             && $this->c[self::DATATABLE_ASSOCIATED] < 0
         ) {
-            $this->switchFlagSubtableIsLoaded();
+            $this->c[self::DATATABLE_ASSOCIATED] = -1 * $this->c[self::DATATABLE_ASSOCIATED];
             $this->subtableIdWasNegativeBeforeSerialize = true;
         }
         return array('c');
@@ -115,18 +114,9 @@ class Row implements \ArrayAccess, \IteratorAggregate
     public function cleanPostSerialize()
     {
         if ($this->subtableIdWasNegativeBeforeSerialize) {
-            $this->switchFlagSubtableIsLoaded();
+            $this->c[self::DATATABLE_ASSOCIATED] = -1 * $this->c[self::DATATABLE_ASSOCIATED];
             $this->subtableIdWasNegativeBeforeSerialize = false;
         }
-    }
-
-    /**
-     * note: also used by unit tests
-     * @ignore
-     */
-    public function switchFlagSubtableIsLoaded()
-    {
-        $this->c[self::DATATABLE_ASSOCIATED] = -1 * $this->c[self::DATATABLE_ASSOCIATED];
     }
 
     /**
@@ -193,7 +183,7 @@ class Row implements \ArrayAccess, \IteratorAggregate
         if (isset($this->c[self::COLUMNS][$oldName])) {
             $this->c[self::COLUMNS][$newName] = $this->c[self::COLUMNS][$oldName];
         }
-        // outside the if () since we want to delete nulled columns
+        // outside the if() since we want to delete nulled columns
         unset($this->c[self::COLUMNS][$oldName]);
     }
 
@@ -274,7 +264,7 @@ class Row implements \ArrayAccess, \IteratorAggregate
      * Returns the array containing all the columns.
      *
      * @return array  Example:
-     *
+     *                
      *                    array(
      *                        'column1'   => VALUE,
      *                        'label'     => 'www.php.net'
@@ -325,9 +315,9 @@ class Row implements \ArrayAccess, \IteratorAggregate
     /**
      * Sums a DataTable to this row's subtable. If this row has no subtable a new
      * one is created.
-     *
+     * 
      * See {@link Piwik\DataTable::addDataTable()} to learn how DataTables are summed.
-     *
+     * 
      * @param DataTable $subTable Table to sum to this row's subtable.
      */
     public function sumSubtable(DataTable $subTable)
@@ -335,14 +325,27 @@ class Row implements \ArrayAccess, \IteratorAggregate
         if ($this->isSubtableLoaded()) {
             $thisSubTable = $this->getSubtable();
         } else {
-            $this->warnIfSubtableAlreadyExists();
-
             $thisSubTable = new DataTable();
-            $this->setSubtable($thisSubTable);
+            $this->addSubtable($thisSubTable);
         }
         $columnOps = $subTable->getMetadata(DataTable::COLUMN_AGGREGATION_OPS_METADATA_NAME);
         $thisSubTable->setMetadata(DataTable::COLUMN_AGGREGATION_OPS_METADATA_NAME, $columnOps);
         $thisSubTable->addDataTable($subTable);
+    }
+
+    /**
+     * Attaches a subtable to this row.
+     *
+     * @param DataTable $subTable DataTable to associate to this row.
+     * @return DataTable Returns `$subTable`.
+     * @throws Exception if a subtable already exists for this row.
+     */
+    public function addSubtable(DataTable $subTable)
+    {
+        if (!is_null($this->c[self::DATATABLE_ASSOCIATED])) {
+            throw new Exception("Adding a subtable to the row, but it already has a subtable associated.");
+        }
+        return $this->setSubtable($subTable);
     }
 
     /**
@@ -492,15 +495,14 @@ class Row implements \ArrayAccess, \IteratorAggregate
      * Sums the given `$rowToSum` columns values to the existing row column values.
      * Only the int or float values will be summed. Label columns will be ignored
      * even if they have a numeric value.
-     *
+     * 
      * Columns in `$rowToSum` that don't exist in `$this` are added to `$this`.
      *
      * @param \Piwik\DataTable\Row $rowToSum The row to sum to this row.
      * @param bool $enableCopyMetadata Whether metadata should be copied or not.
-     * @param array|bool $aggregationOperations for columns that should not be summed, determine which
+     * @param array $aggregationOperations for columns that should not be summed, determine which
      *                                     aggregation should be used (min, max). format:
      *                                     `array('column name' => 'function name')`
-     * @throws Exception
      */
     public function sumRow(Row $rowToSum, $enableCopyMetadata = true, $aggregationOperations = false)
     {
@@ -526,7 +528,7 @@ class Row implements \ArrayAccess, \IteratorAggregate
             if ($columnToSumName == Metrics::INDEX_MAX_ACTIONS) {
                 $operation = 'max';
             }
-            if (empty($operation)) {
+            if(empty($operation)) {
                 throw new Exception("Unknown aggregation operation for column $columnToSumName.");
             }
 
@@ -571,7 +573,7 @@ class Row implements \ArrayAccess, \IteratorAggregate
 
     /**
      * Sums the metadata in `$rowToSum` with the metadata in `$this` row.
-     *
+     * 
      * @param Row $rowToSum
      */
     public function sumRowMetadata($rowToSum)
@@ -595,7 +597,7 @@ class Row implements \ArrayAccess, \IteratorAggregate
     /**
      * Returns `true` if this row is the summary row, `false` if otherwise. This function
      * depends on the label of the row, and so, is not 100% accurate.
-     *
+     * 
      * @return bool
      */
     public function isSummaryRow()
@@ -640,7 +642,10 @@ class Row implements \ArrayAccess, \IteratorAggregate
             return $newValue;
         }
 
-        $this->warnWhenSummingTwoStrings($thisColumnValue, $columnToSumValue);
+        if (is_string($columnToSumValue)) {
+            throw new Exception("Trying to add two strings in DataTable\Row::sumRowArray: "
+                              . "'$thisColumnValue' + '$columnToSumValue'" . " for row " . $this->__toString());
+        }
 
         return 0;
     }
@@ -653,7 +658,7 @@ class Row implements \ArrayAccess, \IteratorAggregate
      * @return bool
      * @ignore
      */
-    public static function compareElements($elem1, $elem2)
+    static public function compareElements($elem1, $elem2)
     {
         if (is_array($elem1)) {
             if (is_array($elem2)) {
@@ -674,17 +679,17 @@ class Row implements \ArrayAccess, \IteratorAggregate
      * Helper function that tests if two rows are equal.
      *
      * Two rows are equal if:
-     *
+     * 
      * - they have exactly the same columns / metadata
      * - they have a subDataTable associated, then we check that both of them are the same.
-     *
+     * 
      * Column order is not important.
      *
      * @param \Piwik\DataTable\Row $row1 first to compare
      * @param \Piwik\DataTable\Row $row2 second to compare
      * @return bool
      */
-    public static function isEqual(Row $row1, Row $row2)
+    static public function isEqual(Row $row1, Row $row2)
     {
         //same columns
         $cols1 = $row1->getColumns();
@@ -721,53 +726,4 @@ class Row implements \ArrayAccess, \IteratorAggregate
         }
         return true;
     }
-
-    public function offsetExists($offset)
-    {
-        return $this->hasColumn($offset);
-    }
-
-    public function offsetGet($offset)
-    {
-        return $this->getColumn($offset);
-    }
-
-    public function offsetSet($offset, $value)
-    {
-        $this->setColumn($offset, $value);
-    }
-
-    public function offsetUnset($offset)
-    {
-        $this->deleteColumn($offset);
-    }
-
-    public function getIterator() {
-        return new \ArrayIterator($this->c[self::COLUMNS]);
-    }
-
-    private function warnIfSubtableAlreadyExists()
-    {
-        if (!is_null($this->c[self::DATATABLE_ASSOCIATED])) {
-            Log::warning(
-                "Row with label '%s' (columns = %s) has already a subtable id=%s but it was not loaded - overwriting the existing sub-table.",
-                $this->getColumn('label'),
-                implode(", ", $this->getColumns()),
-                $this->getIdSubDataTable()
-            );
-        }
-    }
-
-    protected function warnWhenSummingTwoStrings($thisColumnValue, $columnToSumValue)
-    {
-        if (is_string($columnToSumValue)) {
-            Log::warning(
-                "Trying to add two strings in DataTable\Row::sumRowArray: %s + %s for row %s",
-                $thisColumnValue,
-                $columnToSumValue,
-                $this->__toString()
-            );
-        }
-    }
-
 }

@@ -101,7 +101,7 @@ class Twig_TokenStream
     /**
      * Looks at the next token.
      *
-     * @param int     $number
+     * @param integer $number
      *
      * @return Twig_Token
      */
@@ -117,7 +117,7 @@ class Twig_TokenStream
     /**
      * Tests the current token
      *
-     * @return bool
+     * @return Boolean
      */
     public function test($primary, $secondary = null)
     {
@@ -127,7 +127,7 @@ class Twig_TokenStream
     /**
      * Checks if end of stream was reached
      *
-     * @return bool
+     * @return Boolean
      */
     public function isEOF()
     {
