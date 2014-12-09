@@ -4,12 +4,10 @@
  */
 
 (function($) {
-  Drupal.visualSelectFile || (Drupal.visualSelectFile = {});
-
+  Drupal.elmsMediaBrowser || (Drupal.elmsMediaBrowser = {});
   CKEDITOR.plugins.add('cis_service_elmsmedia', {
     "requires": ['fakeobjects'],
     "init": function(editor) {
-
       var
         $textarea = $('#' + editor.name),
         field = $textarea.data('elmsmedia-field');
@@ -28,17 +26,15 @@
           var path = Drupal.settings.basePath + 'admin/cis_service_elmsmedia';
           path += '?ckeditor&iframe&elmsmedia_field=' + editor.elmsmedia_field + '#modal';
 
-          Drupal.visualSelectFile.editor = editor;
+          Drupal.elmsMediaBrowser.editor = editor;
 
           // Method 3 - in an iframe.
-          Drupal.visualSelectFile.openModal(path, {
+          Drupal.elmsMediaBrowser.openModal(path, {
             "type": 'ckeditor',
             "field": editor.elmsmedia_field,
           });
         }
       });
-
     }
   });
-
 })(jQuery);

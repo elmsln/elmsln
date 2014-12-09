@@ -36,9 +36,9 @@ function cis_service_elmsmedia_wysiwyg_wysiwyg_plugin($editor, $version) {
   return array(
     'cis_service_elmsmedia' => array(
       'url' => 'https://drupal.org/project/elmsmedia',
-      'path' => drupal_get_path('module', 'cis_service_elmsmedia') . '/plugins/cis_service_elmsmedia',
+      'path' => drupal_get_path('module', 'cis_service_elmsmedia_wysiwyg') . '/plugins/cis_service_elmsmedia',
       'buttons' => array(
-        'elmsmedia' => t('ELMS Media'),
+        'cis_service_elmsmedia' => t('ELMS Media'),
       ),
       'load' => TRUE,
     ),
