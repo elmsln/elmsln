@@ -41,13 +41,18 @@ if [ -z $webdir ]; then
 fi
 
 core='7.x'
-distros=('cis' 'mooc' 'cle' 'icor' 'elmsmedia' 'meedjum_blog' 'remote_watchdog')
-stacklist=('online' 'courses' 'studio' 'interact' 'media' 'blog' 'remote_watchdog')
+# all distributions / stacks we have
+distros=('cis' 'mooc' 'cle' 'icor' 'elmsmedia' 'meedjum_blog')
+stacklist=('online' 'courses' 'studio' 'interact' 'media' 'blog')
+# things to build place holder sites for
 buildlist=('courses' 'studio' 'interact' 'media' 'blog')
+# things to default to central authority status
+authoritydistros=('elmsmedia' 'cis')
+authoritylist=('media' 'online')
 # array of instance definitions for the distro type
-instances=('FALSE' 'TRUE' 'TRUE' 'TRUE' 'FALSE' 'TRUE' 'FALSE')
-ignorelist=('TRUE' 'FALSE' 'FALSE' 'FALSE' 'TRUE' 'FALSE' 'TRUE')
-defaulttitle=('Course information system' 'Course outline' 'Collaborative studio' 'Interactive object repository' 'Media asset management' 'Course Blog' 'Remote logging')
+instances=('FALSE' 'TRUE' 'TRUE' 'TRUE' 'FALSE' 'TRUE')
+ignorelist=('TRUE' 'FALSE' 'FALSE' 'FALSE' 'TRUE' 'FALSE')
+defaulttitle=('Course information system' 'Course outline' 'Collaborative studio' 'Interactive object repository' 'Media asset management' 'Course Blog')
 moduledir=$elmsln/config/shared/drupal-${core}/modules/_elmsln_scripted
 cissettings=${university}_${host}_settings
 
@@ -132,109 +137,101 @@ for build in "${buildlist[@]}"
   drush site-install -y --db-url=mysql://elmslndfltdbo:$dbpw@localhost/default_$build --db-su=$dbsu --db-su-pw=$dbsupw --account-mail="$admin" --site-mail="$site_email"
 done
 
-# install the CIS site
-# generate a random 30 digit password
-dbpw=''
-for k in `seq 1 30`
-do
-  let "rand=$RANDOM % 62"
-  dbpw="${dbpw}${char[$rand]}"
+# install central providers this is currently ELMS Media and CIS
+for tool in "${authoritylist[@]}"
+  do
+  COUNTER=0
+  dist=$authoritydistros[$COUNTER]
+  # generate a random 30 digit password
+  dbpw=''
+  for k in `seq 1 30`
+  do
+    let "rand=$RANDOM % 62"
+    dbpw="${dbpw}${char[$rand]}"
+  done
+  cd $stacks/$tool
+  sitedir=$stacks/$tool/sites
+
+  drush site-install $dist -y --db-url=mysql://$tool_$host:$dbpw@localhost/$tool_$host --db-su=$dbsu --db-su-pw=$dbsupw  --account-mail="$admin" --site-mail="$site_email" --site-name="$tool"
+  #move out of $tool site directory to host
+  sudo mkdir -p $sitedir/$tool/$host
+  sudo mkdir -p $sitedir/$tool/$host/files
+  #modify ownership of these directories
+  sudo chown -R $wwwuser:$webgroup $sitedir/$tool/$host/files
+  sudo chmod -R 755 $sitedir/$tool/$host/files
+
+  # setup private file directory
+  sudo mkdir -p $drupal_priv/$tool
+  sudo mkdir -p $drupal_priv/$tool/$tool
+  sudo chown -R $wwwuser:$webgroup $drupal_priv
+  sudo chmod -R 755 $drupal_priv
+
+  # copy the default settings file to this location
+  # we leave the original for the time being because this is the first instace
+  # of the system. most likely we'll always need a default to fall back on anyway
+  sudo cp "$sitedir/default/settings.php" "$sitedir/$tool/$host/settings.php"
+  sudo chown $USER:$webgroup $sitedir/default/settings.php
+  sudo chown $USER:$webgroup $sitedir/$tool/$host/settings.php
+  sudo chmod -R 755 $sitedir/$tool/$host/settings.php
+
+  # establish these values real quick so its more readable below
+  site_domain="$tool.${address}"
+  site_service_domain="${serviceprefix}$tool.${serviceaddress}"
+  # add site to the sites array
+  echo "\$sites = array(" >> $sitedir/sites.php
+  echo "  '$site_domain' => '$tool/$host'," >> $sitedir/sites.php
+  echo "  '$site_service_domain' => '$tool/services/$host'," >> $sitedir/sites.php
+  echo ");" >> $sitedir/sites.php
+  # set base_url
+  echo "\$base_url= '$protocol://$site_domain';" >> $sitedir/$tool/$host/settings.php
+
+  # enable the cis_settings registry, set private path then execute clean up routines
+  drush -y --uri=$protocol://$site_domain en $cissettings
+  drush -y --uri=$protocol://$site_domain vset file_private_path ${drupal_priv}/$tool/$tool
+  # distro specific additional install routine
+  drush -y --uri=$protocol://$site_domain cook elmsln_$dist
+  # clean up tasks per distro here
+  if [ $dist == 'cis' ];
+    then
+    drush -y --uri=$protocol://$site_domain vset site_slogan 'Welcome to ELMSLN'
+    drush -y --uri=$protocol://$site_domain vset cis_college_name $host
+  fi
+
+  # add in our cache bins now that we know it built successfully
+  echo "" >> $sitedir/$tool/$host/settings.php
+  echo "" >> $sitedir/$tool/$host/settings.php
+  echo "\$conf['cache_prefix'] = '$tool_$host';" >> $sitedir/$tool/$host/settings.php
+  echo "" >> $sitedir/$tool/$host/settings.php
+  echo "require_once DRUPAL_ROOT . '/../../shared/drupal-7.x/settings/shared_settings.php';" >> $sitedir/$tool/$host/settings.php
+
+  # adding servies conf file
+  if [ ! -d $sitedir/$tool/services/$host ];
+    then
+      sudo mkdir -p $sitedir/$tool/services/$host
+      sudo mkdir -p $sitedir/$tool/services/$host/files
+      sudo chown -R $wwwuser:$webgroup $sitedir/$tool/services/$host/files
+      sudo chmod -R 755 $sitedir/$tool/services/$host/files
+      if [ -f $sitedir/$tool/$host/settings.php ]; then
+        sudo cp $sitedir/$tool/$host/settings.php $sitedir/$tool/services/$host/settings.php
+      fi
+      if [ -f $sitedir/$tool/services/$host/settings.php ]; then
+        sudo chown $USER:$webgroup $sitedir/$tool/services/$host/settings.php
+        echo "" >> $sitedir/$tool/services/$host/settings.php
+        echo "" >> $sitedir/$tool/services/$host/settings.php
+        echo "\$conf['restws_basic_auth_user_regex'] = '/^SERVICE_.*/';" >> $sitedir/$tool/services/$host/settings.php
+      fi
+  fi
+  # make sure everything in that folder is as it should be ownerwise
+  sudo chown -R $wwwuser:$webgroup $sitedir/$tool/$host/files
+  # forcibly apply 1st ELMSLN global update since it isn't fixed tools
+  # this makes it so that we don't REQUIRE multi-sites to run tools (stupid)
+  # while still fixing the issue with httprl when used in multisites
+  drush -y --uri=$protocol://$site_domain cook d7_elmsln_global_1413916953 --dr-locations=/var/www/elmsln/scripts/upgrade/drush_recipes/d7/global
+  # ELMSLN clean up for authority distributions (single point)
+  drush -y --uri=$protocol://$site_domain cook elmsln_authority_setup
+
+  COUNTER=$COUNTER+1
 done
-cd $stacks/online
-sitedir=$stacks/online/sites
-
-drush site-install cis -y --db-url=mysql://online_$host:$dbpw@localhost/online_$host --db-su=$dbsu --db-su-pw=$dbsupw  --account-mail="$admin" --site-mail="$site_email" --site-name="Online"
-#move out of online site directory to host
-sudo mkdir -p $sitedir/online/$host
-sudo mkdir -p $sitedir/online/$host/files
-#modify ownership of these directories
-sudo chown -R $wwwuser:$webgroup $sitedir/online/$host/files
-sudo chmod -R 755 $sitedir/online/$host/files
-
-# setup private file directory
-sudo mkdir -p $drupal_priv/online
-sudo mkdir -p $drupal_priv/online/online
-sudo chown -R $wwwuser:$webgroup $drupal_priv
-sudo chmod -R 755 $drupal_priv
-
-# copy the default settings file to this location
-# we leave the original for the time being because this is the first instace
-# of the system. most likely we'll always need a default to fall back on anyway
-sudo cp "$sitedir/default/settings.php" "$sitedir/online/$host/settings.php"
-sudo chown $USER:$webgroup $sitedir/default/settings.php
-sudo chown $USER:$webgroup $sitedir/online/$host/settings.php
-sudo chmod -R 755 $sitedir/online/$host/settings.php
-
-# establish these values real quick so its more readable below
-online_domain="online.${address}"
-online_service_domain="${serviceprefix}online.${serviceaddress}"
-#add site to the sites array
-echo "\$sites = array(" >> $sitedir/sites.php
-echo "  '$online_domain' => 'online/$host'," >> $sitedir/sites.php
-echo "  '$online_service_domain' => 'online/services/$host'," >> $sitedir/sites.php
-echo ");" >> $sitedir/sites.php
-# set base_url
-echo "\$base_url= '$protocol://$online_domain';" >> $sitedir/online/$host/settings.php
-
-
-# clean up tasks
-drush -y --uri=$protocol://$online_domain vset site_slogan 'Welcome to ELMSLN'
-drush -y --uri=$protocol://$online_domain en $cissettings
-drush -y --uri=$protocol://$online_domain en cis_restws
-drush -y --uri=$protocol://$online_domain vset cron_safe_threshold 0
-drush -y --uri=$protocol://$online_domain vset user_register 1
-drush -y --uri=$protocol://$online_domain vset user_email_verification 0
-drush -y --uri=$protocol://$online_domain vset preprocess_css 1
-drush -y --uri=$protocol://$online_domain vset preprocess_js 1
-drush -y --uri=$protocol://$online_domain vset cis_college_name $host
-drush -y --uri=$protocol://$online_domain vset file_private_path ${drupal_priv}/online/online
-drush -y --uri=$protocol://$online_domain vset cis_build_lms cis_account_required,cis_lms_required
-drush -y --uri=$protocol://$online_domain vset cis_build_code cis_account_required,cis_lms_required
-drush -y --uri=$protocol://$online_domain vset cis_build_authenticated cis_account_required
-drush -y --uri=$protocol://$online_domain vdel update_notify_emails
-
-# specialized job to automatically produce service nodes to match registry we made
-drush -y --uri=$protocol://$online_domain cis-sync-reg
-# may seem odd but basically we want to import a default set of nodes then disable
-# everything required to do this because it can throw a lot of errors but does work
-drush -y --uri=$protocol://$online_domain en cis_sample_content
-
-# uninstall all these now because they should be in correctly as sample nodes
-drush -y --uri=$protocol://$online_domain dis cis_sample_content node_export node_export_features node_export_dependency
-drush -y --uri=$protocol://$online_domain pm-uninstall cis_sample_content
-drush -y --uri=$protocol://$online_domain pm-uninstall node_export_features node_export_dependency
-drush -y --uri=$protocol://$online_domain pm-uninstall node_export
-
-# run cron for the good of the order
-drush -y --uri=$protocol://$online_domain cron
-
-# print out a reset password link for the online site so you can gain access
-drush -y --uri=$protocol://$online_domain upwd admin --password=admin
-
-# add in our cache bins now that we know it built successfully
-echo "" >> $sitedir/online/$host/settings.php
-echo "" >> $sitedir/online/$host/settings.php
-echo "\$conf['cache_prefix'] = 'online_$host';" >> $sitedir/online/$host/settings.php
-echo "" >> $sitedir/online/$host/settings.php
-echo "require_once DRUPAL_ROOT . '/../../shared/drupal-7.x/settings/shared_settings.php';" >> $sitedir/online/$host/settings.php
-
-# adding servies conf file
-if [ ! -d $sitedir/online/services/$host ];
-  then
-    sudo mkdir -p $sitedir/online/services/$host
-    sudo mkdir -p $sitedir/online/services/$host/files
-    sudo chown -R $wwwuser:$webgroup $sitedir/online/services/$host/files
-    sudo chmod -R 755 $sitedir/online/services/$host/files
-    if [ -f $sitedir/online/$host/settings.php ]; then
-      sudo cp $sitedir/online/$host/settings.php $sitedir/online/services/$host/settings.php
-    fi
-    if [ -f $sitedir/online/services/$host/settings.php ]; then
-      sudo chown $USER:$webgroup $sitedir/online/services/$host/settings.php
-      echo "" >> $sitedir/online/services/$host/settings.php
-      echo "" >> $sitedir/online/services/$host/settings.php
-      echo "\$conf['restws_basic_auth_user_regex'] = '/^SERVICE_.*/';" >> $sitedir/online/services/$host/settings.php
-    fi
-fi
 
 # perform some clean up tasks
 # check for tmp directory in config area
@@ -248,19 +245,13 @@ sudo chmod -R 0755 $elmsln/config/_nondrupal/piwik
 # jobs file directory
 sudo chown -R $wwwuser:$webgroup $elmsln/config/jobs
 sudo chmod -R 755 $elmsln/config/jobs
-# make sure everything in that folder is as it should be ownerwise
-sudo chown -R $wwwuser:$webgroup $sitedir/online/$host/files
 # make sure webserver owns the files
 sudo find $configsdir/stacks/ -type d -name files | sudo xargs chown -R $wwwuser:$webgroup
 
 # clean up tmp directory .htaccess to make drupal happy
 sudo rm /tmp/.htaccess
-# last second security hardening as clean up
+# last second security hardening as clean up to enforce defaults
 sudo bash /var/www/elmsln/scripts/utilities/harden-security.sh
-# forcibly apply 1st ELMSLN global update since it isn't fixed in CIS
-# this makes it so that we don't REQUIRE multi-sites to run CIS (stupid)
-# while still fixing the issue with httprl when used in multisites
-drush -y --uri=$protocol://$online_domain cook d7_elmsln_global_1413916953 --dr-locations=/var/www/elmsln/scripts/upgrade/drush_recipes/d7/global
 # a message so you know where our head is at. you get candy if you reference this
 elmslnecho "╔───────────────────────────────────────────────────────────────╗"
 elmslnecho "║           ____  Welcome to      ____                          ║"
@@ -281,7 +272,7 @@ elmslnecho "║ connection keychain for how all the webservices talk.         �
 elmslnecho "║                                                               ║"
 elmslnecho "╠───────────────────────────────────────────────────────────────╣"
 elmslnecho "║ Use this link to access the Course Information System:        ║"
-elmslnecho "║   $protocol://$online_domain                                   "
+elmslnecho "║   $protocol://$site_domain                                   "
 elmslnecho "║                                                               ║"
 elmslnecho "║Welcome to the Singularity of edtech.. build the future..      ║"
 elmslnecho "╚───────────────────────────────────────────────────────────────╝"
