@@ -1,5 +1,5 @@
 {
-  "name": "ELMS Media for CIS",
+  "name": "ELMS Media for ELMSLN",
   "drush_recipes_api": "1.0",
   "weight": "0",
   "core": "7",
