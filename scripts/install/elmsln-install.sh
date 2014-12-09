@@ -137,10 +137,10 @@ for build in "${buildlist[@]}"
   drush site-install -y --db-url=mysql://elmslndfltdbo:$dbpw@localhost/default_$build --db-su=$dbsu --db-su-pw=$dbsupw --account-mail="$admin" --site-mail="$site_email"
 done
 
+COUNTER=0
 # install central providers this is currently ELMS Media and CIS
 for tool in "${authoritylist[@]}"
   do
-  COUNTER=0
   dist=${authoritydistros[$COUNTER]}
   # generate a random 30 digit password
   dbpw=''
@@ -152,7 +152,6 @@ for tool in "${authoritylist[@]}"
   # move to the directory of this authority
   cd ${webdir}/${tool}
   sitedir=${webdir}/${tool}/sites
-  echo ${dist}
   drush site-install ${dist} -y --db-url=mysql://${tool}_${host}:$dbpw@localhost/${tool}_${host} --db-su=$dbsu --db-su-pw=$dbsupw  --account-mail="$admin" --site-mail="$site_email" --site-name="$tool"
   #move out of $tool site directory to host
   sudo mkdir -p $sitedir/$tool/$host
