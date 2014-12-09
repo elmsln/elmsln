@@ -45,7 +45,7 @@ core='7.x'
 distros=('cis' 'mooc' 'cle' 'icor' 'elmsmedia' 'meedjum_blog')
 stacklist=('online' 'courses' 'studio' 'interact' 'media' 'blog')
 # things to build place holder sites for
-buildlist=('courses' 'studio' 'interact' 'media' 'blog')
+buildlist=('courses' 'studio' 'interact' 'blog')
 # things to default to central authority status
 authoritydistros=('elmsmedia' 'cis')
 authoritylist=('media' 'online')
@@ -149,8 +149,9 @@ for tool in "${authoritylist[@]}"
     let "rand=$RANDOM % 62"
     dbpw="${dbpw}${char[$rand]}"
   done
-  cd $stacks/$tool
-  sitedir=$stacks/$tool/sites
+  cd ${webdir}/${tool}
+  echo ${webdir}/${tool}
+  sitedir=${webdir}/${tool}/sites
 
   drush site-install $dist -y --db-url=mysql://${tool}_${host}:$dbpw@localhost/${tool}_${host} --db-su=$dbsu --db-su-pw=$dbsupw  --account-mail="$admin" --site-mail="$site_email" --site-name="$tool"
   #move out of $tool site directory to host
