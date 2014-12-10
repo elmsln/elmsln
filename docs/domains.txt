@@ -31,6 +31,16 @@ NameVirtualHost *:80
     ServerAlias DATA.studio.SERVICEYOURUNIT.edu
 </VirtualHost>
 <VirtualHost *:80>
+    DocumentRoot /var/www/elmsln/domains/comply
+    ServerName comply.YOURUNIT.edu
+    ServerAlias DATA.comply.SERVICEYOURUNIT.edu
+</VirtualHost>
+<VirtualHost *:80>
+    DocumentRoot /var/www/elmsln/domains/discuss
+    ServerName discuss.YOURUNIT.edu
+    ServerAlias DATA.discuss.SERVICEYOURUNIT.edu
+</VirtualHost>
+<VirtualHost *:80>
     DocumentRoot /var/www/elmsln/domains/analytics
     ServerName analytics.YOURUNIT.edu
 </VirtualHost> 
@@ -70,6 +80,18 @@ NameVirtualHost *:80
     Order allow,deny
     allow from all
     Include /var/www/elmsln/domains/studio/.htaccess
+</Directory>
+<Directory /var/www/elmsln/domains/comply>
+    AllowOverride All
+    Order allow,deny
+    allow from all
+    Include /var/www/elmsln/domains/comply/.htaccess
+</Directory>
+<Directory /var/www/elmsln/domains/discuss>
+    AllowOverride All
+    Order allow,deny
+    allow from all
+    Include /var/www/elmsln/domains/discuss/.htaccess
 </Directory>
 <Directory /var/www/elmsln/domains/analytics>
     AllowOverride None
