@@ -1,0 +1,21 @@
+; ecd make file for local development
+core = "7.x"
+api = "2"
+
+projects[drupal][version] = "7.x"
+; include the d.o. profile base
+includes[] = "drupal-org.make"
+
+
+projects[accessibility][version] = "1.x-dev"
+projects[accessibility][subdir] = "contrib"
+
+; +++++ Libraries +++++
+
+; ecd
+libraries[ecd][directory_name] = "ecd"
+libraries[ecd][type] = "profile"
+libraries[ecd][destination] = "../../profiles"
+libraries[ecd][download][type] = "get"
+libraries[ecd][download][url] = "http://ftp.drupal.org/files/projects/ecd-7.x-1.x-dev.tar.gz"
+
