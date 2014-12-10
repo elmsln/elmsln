@@ -109,7 +109,6 @@ function elmsmedia_install() {
   menu_rebuild();
   // revert features to ensure they are all installed
   $features = array(
-    'cis_section',
     'elmsmedia_feature',
     'elmsmedia_cis_ux',
     'regions_admin_example',

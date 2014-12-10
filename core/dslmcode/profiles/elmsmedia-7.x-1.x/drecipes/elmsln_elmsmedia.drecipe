@@ -36,6 +36,6 @@
     "type": "add-on",
     "version": "1.0",
     "author": "btopro",
-    "description": "Enables components needed to integrate with CIS so they aren't required in the install profile"
+    "description": "Enables components needed to integrate with ELMSLN so they aren't required in the install profile"
   }
 }
