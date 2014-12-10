@@ -7,20 +7,16 @@
 /**
  * Implements hook_ctools_plugin_api().
  */
-function cle_submission_ctools_plugin_api() {
-  list($module, $api) = func_get_args();
+function cle_submission_ctools_plugin_api($module = NULL, $api = NULL) {
   if ($module == "flexslider" && $api == "flexslider_default_preset") {
     return array("version" => "1");
   }
-  list($module, $api) = func_get_args();
   if ($module == "radioactivity" && $api == "radioactivity_decay_profile") {
     return array("version" => "1");
   }
-  list($module, $api) = func_get_args();
   if ($module == "strongarm" && $api == "strongarm") {
     return array("version" => "1");
   }
-  list($module, $api) = func_get_args();
   if ($module == "video_embed_field" && $api == "default_video_embed_styles") {
     return array("version" => "1");
   }
@@ -29,7 +25,7 @@ function cle_submission_ctools_plugin_api() {
 /**
  * Implements hook_views_api().
  */
-function cle_submission_views_api() {
+function cle_submission_views_api($module = NULL, $api = NULL) {
   return array("api" => "3.0");
 }
 
@@ -42,7 +38,7 @@ function cle_submission_flag_default_flags() {
   $flags['cle_exemplary'] = array(
     'content_type' => 'node',
     'title' => 'Exemplary',
-    'global' => '1',
+    'global' => 1,
     'types' => array(
       0 => 'cle_submission',
     ),
@@ -56,16 +52,16 @@ function cle_submission_flag_default_flags() {
     'link_type' => 'confirm',
     'roles' => array(
       'flag' => array(
-        0 => '9',
-        1 => '5',
-        2 => '7',
-        3 => '3',
+        0 => 9,
+        1 => 5,
+        2 => 7,
+        3 => 3,
       ),
       'unflag' => array(
-        0 => '9',
-        1 => '5',
-        2 => '7',
-        3 => '3',
+        0 => 9,
+        1 => 5,
+        2 => 7,
+        3 => 3,
       ),
     ),
     'weight' => 0,
@@ -106,13 +102,14 @@ function cle_submission_image_default_styles() {
         'module' => 'smartcrop',
         'name' => 'smartcrop_scale_and_crop',
         'data' => array(
-          'width' => '250',
-          'height' => '150',
+          'width' => 250,
+          'height' => 150,
           'upscale' => 1,
         ),
-        'weight' => '2',
+        'weight' => 2,
       ),
     ),
+    'label' => 'cle_square',
   );
 
   // Exported image style: cle_submission.
@@ -129,13 +126,14 @@ function cle_submission_image_default_styles() {
         'module' => 'image',
         'name' => 'image_scale',
         'data' => array(
-          'width' => '1170',
-          'height' => '650',
+          'width' => 1170,
+          'height' => 650,
           'upscale' => 1,
         ),
-        'weight' => '1',
+        'weight' => 1,
       ),
     ),
+    'label' => 'cle_submission',
   );
 
   return $styles;
@@ -155,5 +153,6 @@ function cle_submission_node_info() {
       'help' => '',
     ),
   );
+  drupal_alter('node_info', $items);
   return $items;
 }
