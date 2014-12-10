@@ -42,6 +42,7 @@ fi
 
 core='7.x'
 # all distributions / stacks we have
+# @todo add in discuss / comply once we have things at least functional there
 distros=('cis' 'mooc' 'cle' 'icor' 'elmsmedia' 'meedjum_blog')
 stacklist=('online' 'courses' 'studio' 'interact' 'media' 'blog')
 # things to build place holder sites for
