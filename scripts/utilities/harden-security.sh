@@ -90,6 +90,6 @@ if [ ! -d "$configsdir/logs" ]; then
 fi
 chown -R root:$webgroup "$configsdir/logs"
 chmod 2770 "$configsdir/logs" -v
-# ensure piwik is happy
+# ensure piwik is happy too
 chown -R $wwwuser:$wwwuser "$configsdir/_nondrupal/piwik"
-chmod 0755 "$configsdir/_nondrupal/piwik" -v
+chmod -R 0755 "$configsdir/_nondrupal/piwik" -v
