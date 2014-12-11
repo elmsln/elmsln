@@ -1,0 +1,12 @@
+name = Views Litepager
+description = Provide a pager plugin for Views that doesn't require an expensive count query
+dependencies[] = views
+core = 7.x
+package = Views
+files[] = views_litepager_plugin_pager_lite.inc
+; Information added by drupal.org packaging script on 2012-04-28
+version = "7.x-3.0"
+core = "7.x"
+project = "views_litepager"
+datestamp = "1335573365"
+

@@ -1,0 +1,97 @@
+<?php
+
+/**
+ * Views Litepager module
+ */
+
+/**
+ * Implements hook_views_api().
+ */
+function views_litepager_views_api() {
+  return array(
+    'api' => 3.0,
+  );
+}
+
+
+/**
+ * Implements hook_theme().
+ */
+function views_litepager_theme() {
+  return array(
+    'pager_lite' => array(
+      'variables' => array('tags' => array(), 'element' => 0, 'parameters' => array()),
+    ),
+    'pager_lite_next' => array(
+      'variables' => array('text' => NULL, 'element' => 0, 'interval' => 1, 'parameters' => array()),
+    ),
+  );
+}
+
+function theme_pager_lite($variables) {
+  $tags = $variables['tags'];
+  $element = $variables['element'];
+  $parameters = $variables['parameters'];
+  global $pager_page_array, $pager_total;
+
+  // current is the page we are currently paged to
+  $pager_current = $pager_page_array[$element] + 1;
+
+
+  $li_previous = theme('pager_previous', array('text' => (isset($tags[1]) ? $tags[1] : t('‹‹')), 'element' => $element, 'interval' => 1, 'parameters' => $parameters));
+  if (empty($li_previous)) {
+    $li_previous = "&nbsp;";
+  }
+
+  $li_next = theme('pager_lite_next', array('text' => (isset($tags[3]) ? $tags[3] : t('››')), 'element' => $element, 'interval' => 1, 'parameters' => $parameters));
+  if (empty($li_next)) {
+    $li_next = "&nbsp;";
+  }
+
+  $items[] = array(
+    'class' => array('pager-previous'),
+    'data' => $li_previous,
+  );
+
+  $items[] = array(
+    'class' => array('pager-current'),
+    'data' => format_plural($pager_current, 'Page 1', 'Page @count'),
+  );
+
+  $items[] = array(
+    'class' => array('pager-next'),
+    'data' => $li_next,
+  );
+  return theme('item_list', array(
+    'items' => $items,
+    'title' => NULL,
+    'type' => 'ul',
+    'attributes' => array('class' => array('pager')),
+    )
+  );
+}
+
+function theme_pager_lite_next($variables) {
+  $text = $variables['text'];
+  $element = $variables['element'];
+  $interval = $variables['interval'];
+  $parameters = $variables['parameters'];
+
+  global $pager_page_array, $pager_total;
+  $output = '';
+
+  // If we are anywhere but the last page
+  if ($pager_page_array[$element] <= ($pager_total[$element] - 1) || $pager_page_array[$element] == 0) {
+    $page_new = pager_load_array($pager_page_array[$element] + $interval, $element, $pager_page_array);
+    // If the next page is the last page, mark the link as such.
+    if ($pager_page_array[$element] == $pager_total[$element]) {
+      $output = theme('pager_last', array('text' => $text, 'element' => $element, 'parameters' => $parameters));
+    }
+    // The next page is not the last page.
+    else {
+      $output = theme('pager_link', array('text' => $text, 'page_new' => $page_new, 'element' => $element, 'parameters' => $parameters));
+    }
+  }
+
+  return $output;
+}
