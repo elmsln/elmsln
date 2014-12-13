@@ -27,7 +27,7 @@ define('ELMSLN_D7_SHARED', ELMSLN_DSLMCODE . '/shared/drupal-7.x');
 /**
  * Implements hook_drush_command().
  */
-function elmsln_drush_command() {
+function elmsln_developer_drush_command() {
   $items = array();
   $items['elmsln-dl'] = array(
     'description' => dt('download a project into the correct location in elmsln\'s setup'),
@@ -70,10 +70,14 @@ function elmsln_drush_command() {
       'name' => dt('Name of the stack to build'),
       'profile' => dt('Profile to use currently in the profiles directory.'),
     ),
+    'options' => array(
+      'stack-instance' => dt('No value needed, if this is a tool instance then pass it in, otherwise the default is that the tool is a standalone.'),
+    ),
     'aliases' => array('eas'),
     'examples' => array(
       'drush eas coolstuff' => 'Add a new symlinked drupal core into core/dslmcode/stacks/coolstuff, add a new domain record and correctly point symlinks for deployment specific files like .htaccess and sites/coolstuff.',
       'drush eas intranet openatrium-7.x-1.x' => 'Add a new symlinked drupal core into core/dslmcode/stacks/intranet, add a new domain record and correctly point symlinks for deployment specific files like .htaccess and sites/intranet. Then symlink to openatrium in the profiles directory',
+      'drush eas discuss --stack-instance=TRUE' => 'Add symlinked core called discuss and then when making the domain this is an instance based tool instead of pointing right to the assembled core.',
     ),
     'bootstrap' => DRUSH_BOOTSTRAP_DRUSH,
   );
@@ -83,7 +87,7 @@ function elmsln_drush_command() {
 /**
  * Implements hook_drush_help().
  */
-function elmsln_drush_help($section) {
+function elmsln_developer_drush_help($section) {
   switch ($section) {
     case 'drush:elmsln-dl':
       return dt('Download projects into the correct part of the ELMSLN setup.');
@@ -97,7 +101,7 @@ function elmsln_drush_help($section) {
 /**
  * Drush command callback for elmsln-dl.
  */
-function drush_elmsln_dl($type = NULL, $stack = NULL, $project = NULL) {
+function drush_elmsln_developer_elmsln_dl($type = NULL, $stack = NULL, $project = NULL) {
   // sanity check
   if (empty($type) || empty($stack) || empty($project)) {
     drush_log(dt('ELMSLN dl requires all three properties in order to function correctly. run drush edl --help for details.'), 'error');
@@ -155,7 +159,7 @@ function drush_elmsln_dl($type = NULL, $stack = NULL, $project = NULL) {
 /**
  * Drush command callback for elmsln-symlink-libraries.
  */
-function drush_elmsln_symlink_libraries() {
+function drush_elmsln_developer_elmsln_symlink_libraries() {
   // ensure we know where the elmsln-developer git repo is
   if (!$elmsln_dev = drush_get_option('elmsln_developer', FALSE)) {
     drush_log(dt('You must define the location of the elmsln developer git repo in your local file system. You can do this by adding something like the following to you ~/.drush/drushrc.php file $options[\'elmsln_developer\'] = \'/full/system/path/to/elmsln-developer\';'), 'error');
@@ -189,7 +193,7 @@ function drush_elmsln_symlink_libraries() {
 /**
  * Drush command callback for elmsln-add-stack.
  */
-function drush_elmsln_add_stack($name = NULL, $profile = NULL) {
+function drush_elmsln_developer_elmsln_add_stack($name = NULL, $profile = NULL) {
   // sanity check
   if (empty($name)) {
     drush_log(dt('ELMSLN Add Stack requires name of the new stack be defined'), 'error');
@@ -230,6 +234,27 @@ function drush_elmsln_add_stack($name = NULL, $profile = NULL) {
     "$elmsln_dev/" . ELMSLN_STACKS . "/courses/sites/cron.php",
     "$path/sites/cron.php"
   );
+  // now work against the domains directory to match the stacks
+  // in question if this is an instance based tool then we use
+  // a directory that will contain things symlinking off. Otherwise
+  // we just
+  if (!drush_get_option('stack-instance')) {
+    symlink("../core/dslmcode/stacks/$name", "$elmsln_dev/github/domains/$name");
+  }
+  else {
+    // copy the structure of the course stack
+    mkdir("$elmsln_dev/github/domains/$name");
+    $contents = _drush_elmsln_directory_contents("$elmsln_dev/github/domains/courses");
+    foreach ($contents as $content) {
+      copy(
+        "$elmsln_dev/github/domains/courses/$content",
+        "$elmsln_dev/github/domains/$name/$content"
+      );
+    }
+    // repoint the symlinks
+    symlink("../../config/stacks/$name/.htaccess", "$elmsln_dev/github/domains/$name/.htaccess");
+    symlink("../../config/stacks/$name/favicon.ico", "$elmsln_dev/github/domains/$name/favicon.ico");
+  }
 
   // add in profile if specified
   if (!empty($profile)) {
