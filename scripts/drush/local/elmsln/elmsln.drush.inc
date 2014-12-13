@@ -54,6 +54,29 @@ function elmsln_drush_command() {
     ),
     'bootstrap' => DRUSH_BOOTSTRAP_DRUSH,
   );
+  // Recreate symlinks for all libraries
+  $items['elmsln-symlink-libraries'] = array(
+    'description' => dt('Rebuilds the libraries symlinkage. Useful after making changes to the shared libraries directory.'),
+    'aliases' => array('elms-sym-libs'),
+    'examples' => array(
+      'drush elms-sym-libs' => 'correctly symlink all libraries into the stacks in place.',
+    ),
+    'bootstrap' => DRUSH_BOOTSTRAP_DRUSH,
+  );
+  // add a new stack / tool for use in ELMSLN
+  $items['elmsln-add-stack'] = array(
+    'description' => dt('Create a new stack / tool and correctly build the symlinks to the (non-existent) instance directory.'),
+    'arguments' => array(
+      'name' => dt('Name of the stack to build'),
+      'profile' => dt('Profile to use currently in the profiles directory.'),
+    ),
+    'aliases' => array('eas'),
+    'examples' => array(
+      'drush eas coolstuff' => 'Add a new symlinked drupal core into core/dslmcode/stacks/coolstuff, add a new domain record and correctly point symlinks for deployment specific files like .htaccess and sites/coolstuff.',
+      'drush eas intranet openatrium-7.x-1.x' => 'Add a new symlinked drupal core into core/dslmcode/stacks/intranet, add a new domain record and correctly point symlinks for deployment specific files like .htaccess and sites/intranet. Then symlink to openatrium in the profiles directory',
+    ),
+    'bootstrap' => DRUSH_BOOTSTRAP_DRUSH,
+  );
   return $items;
 }
 
@@ -64,6 +87,10 @@ function elmsln_drush_help($section) {
   switch ($section) {
     case 'drush:elmsln-dl':
       return dt('Download projects into the correct part of the ELMSLN setup.');
+    case 'drush:elmsln-symlink-libraries':
+      return dt('Resymlink the libraries for all stacks.');
+    case 'drush:elmsln-add-stack':
+      return dt('Create a new tool for use in ELMSLN.');
   }
 }
 
@@ -123,4 +150,166 @@ function drush_elmsln_dl($type = NULL, $stack = NULL, $project = NULL) {
   );
   drush_invoke_process($cmd['target'], $cmd['command'], $cmd['arguments'], $cmd['options']);
   return TRUE;
+}
+
+/**
+ * Drush command callback for elmsln-symlink-libraries.
+ */
+function drush_elmsln_symlink_libraries() {
+  // ensure we know where the elmsln-developer git repo is
+  if (!$elmsln_dev = drush_get_option('elmsln_developer', FALSE)) {
+    drush_log(dt('You must define the location of the elmsln developer git repo in your local file system. You can do this by adding something like the following to you ~/.drush/drushrc.php file $options[\'elmsln_developer\'] = \'/full/system/path/to/elmsln-developer\';'), 'error');
+    return FALSE;
+  }
+  // get contents of the stacks and shared libraries
+  $shared_libraries = $elmsln_dev . ELMSLN_D7_SHARED . '/libraries';
+  $libraries = _drush_elmsln_directory_contents($shared_libraries);
+  $stacks = _drush_elmsln_directory_contents($elmsln_dev . ELMSLN_STACKS);
+  // Look for folders that we want to include in sites/all/libraries
+  foreach ($stacks as $stack) {
+    $stack_lib = $elmsln_dev . ELMSLN_STACKS . "/$stack/sites/all/libraries";
+    $existing = _drush_elmsln_directory_contents($stack_lib);
+    foreach ($existing as $current) {
+      // unlink all and relink, this avoids cruft being left over
+      // while still should fail for things we forcibly are creating
+      // a local copy of (like a specific version of underscore.js)
+      unlink("$stack_lib/$current");
+    }
+    // loop through and rebuild
+    foreach ($libraries as $library) {
+      // if we don't have a link here yet then make one
+      if (!is_link("$stack_lib/$library")) {
+        $relpath = _drush_elmsln_relpath($shared_libraries, $stack_lib);
+        symlink("$relpath/$library", "$stack_lib/$library");
+      }
+    }
+  }
+}
+
+/**
+ * Drush command callback for elmsln-add-stack.
+ */
+function drush_elmsln_add_stack($name = NULL, $profile = NULL) {
+  // sanity check
+  if (empty($name)) {
+    drush_log(dt('ELMSLN Add Stack requires name of the new stack be defined'), 'error');
+    return FALSE;
+  }
+  // ensure we know where the elmsln-developer git repo is
+  if (!$elmsln_dev = drush_get_option('elmsln_developer', FALSE)) {
+    drush_log(dt('You must define the location of the elmsln developer git repo in your local file system. You can do this by adding something like the following to you ~/.drush/drushrc.php file $options[\'elmsln_developer\'] = \'/full/system/path/to/elmsln-developer\';'), 'error');
+    return FALSE;
+  }
+  // build the drush command to invoke since we have a path
+  $path = $elmsln_dev . ELMSLN_STACKS . '/' . $name;
+  $cmd = array(
+    'target' => '@none',
+    'command' => 'dslm-new',
+    'arguments' => array($path),
+    'options' => array(
+      'interactive' => TRUE,
+      'latest' => TRUE,
+    ),
+  );
+  drush_invoke_process($cmd['target'], $cmd['command'], $cmd['arguments'], $cmd['options']);
+  // remove _PATCHES from linking over
+  unlink($path . '/_PATCHES');
+  unlink($path . '/.htaccess');
+  unlink($path . '/sites/default/default.settings.php');
+  rmdir($path . '/sites/default/files');
+  rmdir($path . '/sites/default');
+  // symlink htaccess / favicon
+  symlink("../../../../config/stacks/$name/.htaccess", "$path/.htaccess");
+  symlink("../../../../config/stacks/$name/favicon.ico", "$path/favicon.ico");
+  // symlink the sites directory
+  symlink("../../../../../config/stacks/$name/sites/$name", "$path/sites/$name");
+  symlink("../../../../../config/stacks/$name/sites/default", "$path/sites/default");
+  symlink("../../../../../config/stacks/$name/sites/sites.php", "$path/sites/sites.php");
+  // copy over the cron.php file
+  copy(
+    "$elmsln_dev/" . ELMSLN_STACKS . "/courses/sites/cron.php",
+    "$path/sites/cron.php"
+  );
+
+  // add in profile if specified
+  if (!empty($profile)) {
+    $tmp = split('-', $profile);
+    symlink("./../../../profiles/$profile", "$path/profiles/" . $tmp[0]);
+  }
+  drush_log(dt('ELMSLN Stack named @name added!', array('@name' => $name)), 'ok');
+  return TRUE;
+}
+
+/**
+ * Helper to return contents of a directory
+ * @param  string $path path to a folder on the file system
+ * @return array        array of paths that are valid files/folders
+ */
+function _drush_elmsln_directory_contents($path) {
+  // scan directory for items that we can symlink to
+  $d = dir($path);
+  $folders = array();
+  // while we have items, keep reading
+  while (FALSE !== ($entry = $d->read())) {
+    // Exclude . and .. and Mac .DS_Store file
+    if ($entry == '.' || $entry == '..' || $entry == '.DS_Store') {
+      continue;
+    }
+    $folders[] = $entry;
+  }
+  $d->close();
+  return $folders;
+}
+
+/**
+ * Helpder function to return the relative path between two items
+ * @param  string $dest    destination to link to
+ * @param  string $root    where we are linking back to
+ * @param  string $dir_sep folder seperator
+ * @return string          relative path from destination to root
+ */
+function _drush_elmsln_relpath($dest, $root = '', $dir_sep = '/') {
+  // Relative paths aren't supported by symlink() in Windows right now
+  // If we're windows, just return the realpath of $path
+  // This is only a limitation of the PHP symlink.
+  // I don't want to do an exec to mklink because that breaks in the
+  // mysysgit shell, which is possibly where many Drush users will be
+  // working on Windows.
+  if (preg_match('/^win/i', PHP_OS)) {
+    return realpath($dest);
+  }
+
+  $root = explode($dir_sep, $root);
+  $dest = explode($dir_sep, $dest);
+  $path = '.';
+  $fix = '';
+  $diff = 0;
+  for ($i = -1; ++$i < max(($rC = count($root)), ($dC = count($dest)));) {
+    if (isset($root[$i]) && isset($dest[$i])) {
+      if ($diff) {
+        $path .= $dir_sep . '..';
+        $fix .= $dir_sep . $dest[$i];
+        continue;
+      }
+      if ($root[$i] != $dest[$i]) {
+        $diff = 1;
+        $path .= $dir_sep . '..';
+        $fix .= $dir_sep . $dest[$i];
+        continue;
+      }
+    }
+    elseif (!isset($root[$i]) && isset($dest[$i])) {
+      for ($j = $i-1; ++$j < $dC;) {
+        $fix .= $dir_sep . $dest[$j];
+      }
+      break;
+    }
+    elseif (isset($root[$i]) && !isset($dest[$i])) {
+      for ($j = $i-1; ++$j < $rC;) {
+        $fix = $dir_sep . '..' . $fix;
+      }
+      break;
+    }
+  }
+  return $path . $fix;
 }
