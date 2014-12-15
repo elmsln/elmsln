@@ -57,7 +57,10 @@ function feeds_ridmap_feeds_set_roles_target($source, $entity, $target, $value, 
         $entity->roles[$role] = $roles[$role];
       } else if (is_string($role)) {
         // or map strings
-        $entity->roles[array_search($role, $roles)] = $role;
+        $role_id = array_search($role, $roles);
+        if ($role_id !== FALSE) {
+          $entity->roles[$role_id] = $role;
+        }
       }
     }
   } else {
@@ -65,9 +68,13 @@ function feeds_ridmap_feeds_set_roles_target($source, $entity, $target, $value, 
     if (is_numeric($value)) {
       // map numeric values
       $entity->roles[$value] = $roles[$value];
-    } else if (is_string($value)) {
+    }
+    elseif (is_string($value)) {
       // or map strings
-      $entity->roles[array_search($value, $roles)] = $value;
+      $role_id = array_search($value, $roles);
+      if ($role_id !== FALSE) {
+        $entity->roles[$role_id] = $value;
+      }
     }
   }
 }
