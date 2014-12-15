@@ -1,0 +1,26 @@
+<?php
+/**
+ * @file
+ * Main methods of Replicate entityform module.
+ */
+
+/**
+ * Implements hook_replicate_entity_ENTITY_TYPE().
+ */
+function replicate_entityform_replicate_entity_entityform(&$entity) {
+  $entity->entityform_id = NULL;
+  $entity->created = NULL;
+  $entity->changed = NULL;
+}
+
+/**
+ *
+ * Implements hook_help().
+ */
+function replicate_entityform_help($path, $arg) {
+  switch ($path) {
+    case 'admin/help#replicate_entityform':
+      // Return a line-break version of the module README.txt.
+      return check_markup(file_get_contents(dirname(__FILE__) . "/README.txt"));
+  }
+}
