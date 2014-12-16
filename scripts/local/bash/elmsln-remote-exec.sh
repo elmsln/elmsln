@@ -2,6 +2,9 @@
 
 # Use this script to execute something remotely, useful for making calls to
 # jenkins free of connection details cause it loops through the host registry
+#
+# calls with this should look something like:
+# bash /var/www/elmsln/scripts/local/bash/elmsln-remote-exec.sh ~/.elmsln/elmsln-hosts "Drush Site alias listing" "drush sa" ~/.elmsln/elmsln-grove-reporter
 
 #provide messaging colors for output to console
 txtbld=$(tput bold)             # Bold
@@ -21,14 +24,6 @@ timestamp(){
 
 if [ -z $1 ]; then
   elmslnwarn "define the location of your elmsln-hosts file"
-  exit 1
-fi
-if [ -z "$2" ]; then
-  elmslnwarn "please include a human readable name for what the current task is"
-  exit 1
-fi
-if [ -z "$3" ]; then
-  elmslnwarn "please include a command to run"
   exit 1
 fi
 
