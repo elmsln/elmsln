@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh -xe
 
 # Use this script to execute something remotely, useful for making calls to
 # jenkins free of connection details cause it loops through the host registry
