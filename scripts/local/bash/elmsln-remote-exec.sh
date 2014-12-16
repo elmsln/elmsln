@@ -55,10 +55,8 @@ else
     bash $4 "${msg}" "${attachments}"
   fi
   elmslnecho "${msg}"
-  # setup line, almost everything will move to this location
-  $line "cd ~/elmsln"
-  # run whatever the command is for remote host execution
-  $line "$3" < /dev/null
+  # move to initial location then execute
+  $line "cd /var/www/elmsln && $3" < /dev/null
   tmpend="$(timestamp)"
   msg="Finished working on '${prevline}' in $(expr $tmpend - $tmpstart) seconds"
   elmslnecho "${msg}"
