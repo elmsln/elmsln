@@ -56,7 +56,7 @@ else
   fi
   elmslnecho "${msg}"
   # setup line, almost everything will move to this location
-  $line "cd ~/elmsln" < /dev/null
+  $line "cd ~/elmsln"
   # run whatever the command is for remote host execution
   $line "$3" < /dev/null
   tmpend="$(timestamp)"
