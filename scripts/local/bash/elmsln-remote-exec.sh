@@ -23,11 +23,11 @@ if [ -z $1 ]; then
   elmslnwarn "define the location of your elmsln-hosts file"
   exit 1
 fi
-if [ -z $2 ]; then
+if [ -z "$2" ]; then
   elmslnwarn "please include a human readable name for what the current task is"
   exit 1
 fi
-if [ -z $3 ]; then
+if [ -z "$3" ]; then
   elmslnwarn "please include a command to run"
   exit 1
 fi
