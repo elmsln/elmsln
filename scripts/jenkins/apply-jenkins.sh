@@ -23,6 +23,15 @@ fi
 sudo useradd -gadmin jenkins
 # add as part of the webgroup to keep permissions happy
 sudo usermod -G admin,$webgroup jenkins
+# no password needed for this user agent if we are able to do so
+# check that it exists first
+if [ -d "/etc/sudoers.d" ]; then
+  # only work on file if we don't have it already
+  if [ ! -f /etc/sudoers.d/jenkins ]; then
+    sudo touch /etc/sudoers.d/jenkins
+    echo "jenkins ALL=(ALL) NOPASSWD: ALL" >> /etc/sudoers.d/jenkins
+  fi
+fi
 # reset things to where they should be for apache for example
 sudo bash "$elmsln/scripts/utilities/harden-security.sh" jenkins
 # make jenkins able to utilize the same elmsln upgrade routines as a normal user
