@@ -24,7 +24,7 @@ sudo useradd -gadmin jenkins
 # add as part of the webgroup to keep permissions happy
 sudo usermod -G admin,$webgroup jenkins
 # reset things to where they should be for apache for example
-sudo bash "$elmsln/scripts/utilities/harden-security.sh jenkins"
+sudo -u jenkins bash "$elmsln/scripts/utilities/harden-security.sh" jenkins
 # make jenkins able to utilize the same elmsln upgrade routines as a normal user
 sudo -u jenkins bash "$elmsln/scripts/install/users/elmsln-admin-user.sh"
 # make a local key and follow the prompts how the user desires
