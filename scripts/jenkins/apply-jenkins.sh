@@ -14,6 +14,13 @@ if [ -z $elmsln ]; then
   echo "please update your config.cfg file"
   exit 1
 fi
+# check that we are the root user
+if [[ $EUID -ne 0 ]]; then
+  elmslnwarn "Please run as root"
+  exit 1
+fi
+# make the jenkins user
+sudo useradd -gadmin jenkins
 # chown so jenkins owns it all
 sudo chown -R jenkins:$webgroup $elmsln
 # reset things to where they should be for apache for example
