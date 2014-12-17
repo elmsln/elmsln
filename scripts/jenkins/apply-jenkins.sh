@@ -30,7 +30,21 @@ sudo -u jenkins bash "$elmsln/scripts/install/users/elmsln-admin-user.sh"
 # make a local key and follow the prompts how the user desires
 sudo -u jenkins ssh-keygen
 sudo -u jenkins touch /home/jenkins/.ssh/authorized_keys
-
-echo "Now go to your jenkins server and copy the public key into ~/.ssh/authorized_keys"
-echo "Then goto your jernkins server and try to ssh to this one via commandline"
-echo "If this works, then add the line used to connect to ~/.elmsln/elmsln-hosts on your jenkins server"
+# that's it for automation, now to tell people to do stuff
+echo "Now do the following (JENKINS = server hosting it; LOCAL = here, # is instructions, otherwise copy and paste) :"
+echo "JENKINS: sudo -i -u jenkins"
+echo "JENKINS: cat ~/.ssh/id_rsa.pub"
+echo "JENKINS: #Copy output"
+echo "LOCAL: sudo -i -u jenkins"
+echo "LOCAL: vi ~/.ssh/authorized_keys"
+echo "LOCAL: #press... i then paste then :wq"
+echo "JENKINS: #try and ssh to the remote with ssh jenkins@{whatever}"
+echo "JENKINS: #confirm that you want to accept this key, then if successful, type logout"
+echo "JENKINS: sudo -i -u jenkins"
+echo "JENKINS: vi ~/.elmsln/elmsln-hosts on your jenkins server"
+echo "JENKINS: #create a line with the same ssh jenkins@{whatever} command that successfully connected"
+echo "JENKINS: :wq"
+echo "=============="
+echo "You now should be able to execute commands against this host via Jenkins web interface"
+echo "Ex Uno Plures"
+echo "=============="
