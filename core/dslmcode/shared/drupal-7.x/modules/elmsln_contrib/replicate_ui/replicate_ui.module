@@ -109,11 +109,12 @@ function replicate_ui_confirm_submit($form, &$form_state) {
       $path = $entity_type . '/' . $id;
     }
     if ($id) {
+      // Add replica id/type to form state.
+      $form_state['replica_id'] = $id;
+      $form_state['replica_type'] = $entity_type;
       // redirect to the new item
       drupal_set_message(t('%type (%id) has been replicated to id %new!', array('%type' => $entity_type, '%id' => $entity_id, '%new' => $id)));
-      if (!isset($_GET['destination'])) {
-        drupal_goto($path);
-      }
+      $form_state['redirect'] = $path;
     }
   }
 }
