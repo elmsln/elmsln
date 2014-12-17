@@ -21,10 +21,12 @@ if [[ $EUID -ne 0 ]]; then
 fi
 # make the jenkins user
 sudo useradd -gadmin jenkins
-# chown so jenkins owns it all
-sudo chown -R jenkins:$webgroup $elmsln
+# add as part of the webgroup to keep permissions happy
+sudo usermod -G admin,$webgroup jenkins
 # reset things to where they should be for apache for example
 sudo bash "$elmsln/scripts/utilities/harden-security.sh"
+# chown so jenkins owns it all
+sudo chown -R jenkins:$webgroup $elmsln
 # make jenkins able to utilize the same elmsln upgrade routines as a normal user
 sudo -u jenkins bash "$elmsln/scripts/install/users/elmsln-admin-user.sh"
 # make a local key and follow the prompts how the user desires
