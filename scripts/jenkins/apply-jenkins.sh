@@ -26,10 +26,10 @@ sudo chown -R jenkins:$webgroup $elmsln
 # reset things to where they should be for apache for example
 sudo bash "$elmsln/scripts/utilities/harden-security.sh"
 # make jenkins able to utilize the same elmsln upgrade routines as a normal user
-sudo -u jenkins bash "$elmsln/scripts/install/user/elmsln-admin-user.sh"
-# make a local key and follow the prompts
+sudo -u jenkins bash "$elmsln/scripts/install/users/elmsln-admin-user.sh"
+# make a local key and follow the prompts how the user desires
 sudo -u jenkins ssh-keygen
-sudo -u jenkins touch ~/.ssh/authorized_keys
+sudo -u jenkins touch /home/jenkins/.ssh/authorized_keys
 
 echo "Now go to your jenkins server and copy the public key into ~/.ssh/authorized_keys"
 echo "Then goto your jernkins server and try to ssh to this one via commandline"
