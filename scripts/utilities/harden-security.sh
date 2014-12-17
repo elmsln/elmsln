@@ -44,8 +44,8 @@ chmod 2750 /var/www/elmsln-config-backups -v
 
 # chown / chmod the entire thing correctly then we undo what we just did
 # in all of the steps below. This ensure the entire package is devoid of holes
-chown -R $owner:$webgroup $elmsln
-chmod -R 775 $elmsln
+chown -R $owner:$webgroup "$elmsln"
+chmod -R 775 "$elmsln"
 # set all settings.php's to be root and READ ONLY
 # these live at 2 3 and 4 levels deep in folder nesting at times
 for i in $(find $configsdir/stacks/*/sites/*/*/*/*/settings.php -type f); do
