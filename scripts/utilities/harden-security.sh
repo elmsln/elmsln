@@ -24,38 +24,45 @@ if [[ $EUID -ne 0 ]]; then
   exit 1
 fi
 
-# make the default config backup location owned by root
+# test for an argument as to what user to write as
+if [ -z $1 ]; then
+    owner='root'
+  else
+    owner=$1
+fi
+
+# make the default config backup location owned by $owner
 if [ ! -d /var/www/elmsln-config-backups ]; then
   mkdir /var/www/elmsln-config-backups -v
 fi
-chown -R root:root /var/www/elmsln-config-backups -v
-# make everything in here read only by root
-chmod -R 2700 /var/www/elmsln-config-backups -v
-# make the folder group ownership as webgroup so it can write here
-chown root:$webgroup /var/www/elmsln-config-backups -v
-chmod 2720 /var/www/elmsln-config-backups -v
+chown -R $owner:$webgroup /var/www/elmsln-config-backups -v
+# make everything in here read only by $owner but accessible by admin team
+chmod -R 2750 /var/www/elmsln-config-backups -v
+# make the folder group as webgroup so it can write here
+chown $owner:$webgroup /var/www/elmsln-config-backups -v
+chmod 2750 /var/www/elmsln-config-backups -v
 
 # chown / chmod the entire thing correctly then we undo what we just did
 # in all of the steps below. This ensure the entire package is devoid of holes
-chown -R $USER:$webgroup $elmsln
-chmod -R 774 $elmsln
+chown -R $owner:$webgroup $elmsln
+chmod -R 775 $elmsln
 # set all settings.php's to be root and READ ONLY
 # these live at 2 3 and 4 levels deep in folder nesting at times
 for i in $(find $configsdir/stacks/*/sites/*/*/*/*/settings.php -type f); do
-  chown root:root $i -v
+  chown $owner:$webgroup $i -v
   chmod 444 $i -v
 done
 for i in $(find $configsdir/stacks/*/sites/*/*/*/settings.php -type f); do
-  chown root:root $i -v
+  chown $owner:$webgroup $i -v
   chmod 444 $i -v
 done
 for i in $(find $configsdir/stacks/*/sites/*/*/settings.php -type f); do
-  chown root:root $i -v
+  chown $owner:$webgroup $i -v
   chmod 444 $i -v
 done
 # set all sites.php to be root and writable only by root
 for i in $(find $configsdir/stacks/*/sites/sites.php -type f); do
-  chown root:root $i -v
+  chown $owner:$webgroup $i -v
   chmod 644 $i -v
 done
 
@@ -78,7 +85,7 @@ done
 
 # much easier things to target :)
 # ensure script settings are secure and READ ONLY, NEVER globally
-chown root:$webgroup "$configsdir/scripts/drush-create-site/config.cfg" -v
+chown $owner:$webgroup "$configsdir/scripts/drush-create-site/config.cfg" -v
 chmod 0444 "$configsdir/scripts/drush-create-site/config.cfg" -v
 # set web server perms correctly for private files
 chown -R $wwwuser:$webgroup "$drupal_priv"
@@ -92,7 +99,7 @@ chmod 2774 "$configsdir/jobs" -v
 if [ ! -d "$configsdir/logs" ]; then
   mkdir "$configsdir/logs" -v
 fi
-chown -R root:$webgroup "$configsdir/logs"
+chown -R $owner:$webgroup "$configsdir/logs"
 chmod 2770 "$configsdir/logs" -v
 # ensure piwik is happy too
 chown -R $wwwuser:$wwwuser "$configsdir/_nondrupal/piwik"
