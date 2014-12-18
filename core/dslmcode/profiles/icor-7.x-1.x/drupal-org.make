@@ -64,7 +64,7 @@ projects[lti_tool_provider][subdir] = "contrib"
 projects[imce][version] = "1.7"
 projects[imce][subdir] = "contrib"
 
-projects[og][version] = "2.6"
+projects[og][version] = "2.7"
 projects[og][subdir] = "contrib"
 
 projects[og_clone][version] = "1.x-dev"
@@ -109,7 +109,7 @@ projects[sco_node][subdir] = "contrib"
 projects[transliteration][version] = "3.1"
 projects[transliteration][subdir] = "contrib"
 
-projects[entitycache][version] = "1.1"
+projects[entitycache][version] = "1.2"
 projects[entitycache][subdir] = "contrib"
 
 projects[quiz][version] = "4.0-beta2"
@@ -154,7 +154,7 @@ projects[editableviews][subdir] = "contrib"
 projects[eva][version] = "1.2"
 projects[eva][subdir] = "contrib"
 
-projects[views][version] = "3.7"
+projects[views][version] = "3.8"
 projects[views][subdir] = "contrib"
 
 projects[views_bulk_operations][version] = "3.1"
@@ -220,9 +220,3 @@ libraries[oauth][type] = "library"
 libraries[oauth][destination] = "libraries"
 libraries[oauth][download][type] = "get"
 libraries[oauth][download][url] = "https://github.com/juampy72/OAuth-PHP/archive/master.zip"
-
-; +++++ Patches +++++
-
-; allow for custom meta controllers to enable deep querying
-projects[restws][patch][] = "http://drupal.org/files/restws_meta_controls-2053147-1.patch"
-
