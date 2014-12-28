@@ -33,9 +33,9 @@ libraries[shadowbox][destination] = "libraries"
 
 
 ; cis
-libraries[cis][directory_name] = "cis"
 libraries[cis][type] = "profile"
 libraries[cis][destination] = "../../profiles"
-libraries[cis][download][type] = "get"
-libraries[cis][download][url] = "http://ftp.drupal.org/files/projects/cis-7.x-1.x-dev.tar.gz"
-
+libraries[cis][download][type] = "git"
+libraries[cis][download][branch] = "7.x-1.x"
+libraries[cis][directory_name] = "cis"
+libraries[cis][download][url] = "https://github.com/drupalprojects/cis.git"

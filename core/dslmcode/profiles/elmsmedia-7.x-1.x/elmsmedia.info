@@ -42,6 +42,7 @@ dependencies[] = entity_iframe
 dependencies[] = entity_iframe_mode
 ; Fields
 dependencies[] = entityreference
+dependencies[] = video_embed_field
 ; Input filters
 dependencies[] = typogrify
 dependencies[] = video_filter

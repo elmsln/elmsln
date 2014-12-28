@@ -13,9 +13,9 @@ projects[accessibility][subdir] = "contrib"
 ; +++++ Libraries +++++
 
 ; ecd
-libraries[ecd][directory_name] = "ecd"
 libraries[ecd][type] = "profile"
 libraries[ecd][destination] = "../../profiles"
-libraries[ecd][download][type] = "get"
-libraries[ecd][download][url] = "http://ftp.drupal.org/files/projects/ecd-7.x-1.x-dev.tar.gz"
-
+libraries[ecd][download][type] = "git"
+libraries[ecd][download][branch] = "7.x-1.x"
+libraries[ecd][directory_name] = "ecd"
+libraries[ecd][download][url] = "https://github.com/drupalprojects/ecd.git"

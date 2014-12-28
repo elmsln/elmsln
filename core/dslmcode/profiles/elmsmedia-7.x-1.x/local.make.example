@@ -13,16 +13,16 @@ projects[accessibility][subdir] = "contrib"
 ; +++++ Libraries +++++
 
 ; mediaelement
-;libraries[mediaelement][directory_name] = "mediaelement"
-;libraries[mediaelement][type] = "library"
-;libraries[mediaelement][destination] = "libraries"
-;libraries[mediaelement][download][type] = "get"
-;libraries[mediaelement][download][url] = "" ; TODO add download URI
+libraries[mediaelement][directory_name] = "mediaelement"
+libraries[mediaelement][type] = "library"
+libraries[mediaelement][destination] = "libraries"
+libraries[mediaelement][download][type] = "get"
+libraries[mediaelement][download][url] = "http://github.com/johndyer/mediaelement/zipball/master"
 
 ; elmsmedia
-libraries[elmsmedia][directory_name] = "elmsmedia"
 libraries[elmsmedia][type] = "profile"
 libraries[elmsmedia][destination] = "../../profiles"
-libraries[elmsmedia][download][type] = "get"
-libraries[elmsmedia][download][url] = "http://ftp.drupal.org/files/projects/elmsmedia-7.x-1.x-dev.tar.gz"
-
+libraries[elmsmedia][download][type] = "git"
+libraries[elmsmedia][download][branch] = "7.x-1.x"
+libraries[elmsmedia][directory_name] = "elmsmedia"
+libraries[elmsmedia][download][url] = "https://github.com/drupalprojects/elmsmedia.git"

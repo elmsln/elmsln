@@ -40,6 +40,9 @@ projects[typogrify][subdir] = "contrib"
 projects[video_filter][version] = "3.1"
 projects[video_filter][subdir] = "contrib"
 
+projects[video_embed_field][version] = "2.x-dev"
+projects[video_embed_field][subdir] = "contrib"
+
 projects[imce][version] = "1.9"
 projects[imce][subdir] = "contrib"
 

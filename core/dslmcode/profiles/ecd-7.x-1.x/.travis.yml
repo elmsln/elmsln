@@ -2,9 +2,6 @@ language: php
 
 php:
   - 5.3
-  - 5.4
-  - 5.5
-
 matrix:
   env:
     global:
@@ -46,10 +43,10 @@ install:
 before_script:
   #- echo 'sendmail_path = /bin/true' >> ~/.phpenv/versions/$(phpenv version-name)/etc/conf.d/travis.ini
   # establish drupal package put in place the right way
-  - sudo mkdir -p /var/www
-  - sudo chown travis:travis /var/www
-  - drush dl drupal --destination=/var/www --default-major=7 --drupal-project-rename=drupal --y
+  - sudo mkdir -p /var/www/drupal
+  - sudo chown travis:travis /var/www/drupal
   # get drush recipes setup functions
+  - sudo mkdir -p ~/.drush
   - sudo chown -R travis:travis ~/.drush
   - cd ~/.drush/
   - git clone https://github.com/drupalprojects/drush_recipes.git
@@ -57,11 +54,11 @@ before_script:
 
 script:
   # stand up drupal
-  - cd /var/www/drupal
-  - drush site-install -y --db-url=mysql://root@localhost/travisdb --db-su='root' --db-su-pw=''
-  # @todo put the other stuff here to build but this should give us a site
-  - cd /var/www/drupal/sites/all/modules
-  - git clone https://github.com/drupalprojects/ecd.git ecd
+  - cd /var/www
+  - git clone https://github.com/drupalprojects/ecd.git drupal
+  - cd drupal
+  - drush make local.make.example --y
+  - drush site-install ecd -y --db-url=mysql://root@localhost/travisdb --db-su='root' --db-su-pw=''
 after_script:
   - drush status
 

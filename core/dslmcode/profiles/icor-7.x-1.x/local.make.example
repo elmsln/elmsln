@@ -23,3 +23,11 @@ libraries[timeline][type] = "library"
 libraries[timeline][destination] = "libraries"
 libraries[timeline][download][type] = "get"
 libraries[timeline][download][url] = "https://github.com/VeriteCo/TimelineJS/archive/master.zip"
+
+; icor
+libraries[icor][type] = "profile"
+libraries[icor][destination] = "../../profiles"
+libraries[icor][download][type] = "git"
+libraries[icor][download][branch] = "7.x-1.x"
+libraries[icor][directory_name] = "icor"
+libraries[icor][download][url] = "https://github.com/drupalprojects/icor.git"
