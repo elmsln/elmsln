@@ -5,14 +5,14 @@ api = "2"
 projects[drupal][version] = "7.x"
 ; include the d.o. profile base
 includes[] = "drupal-org.make"
+includes[] = "drupal-org-core.make"
 
 ; shadowbox needs to fix issue before it can be included in correct make file
 projects[shadowbox][version] = "4.0-rc1"
 projects[shadowbox][subdir] = "contrib"
 
-; Patches
-; fix cross domain error if site is in an iframe
-projects[shadowbox][patch][] = "http://drupal.org/files/issues/shadowbox-iframe-sec-error-2154699-1.patch"
+projects[accessibility][version] = "1.x-dev"
+projects[accessibility][subdir] = "contrib"
 
 ; +++++ Libraries +++++
 

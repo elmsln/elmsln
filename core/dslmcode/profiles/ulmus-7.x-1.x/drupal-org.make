@@ -58,7 +58,7 @@ projects[profiler_builder][subdir] = "contrib"
 projects[replicate][version] = "1.0"
 projects[replicate][subdir] = "contrib"
 
-projects[features][version] = "2.0-rc3"
+projects[features][version] = "2.2"
 projects[features][subdir] = "contrib"
 
 projects[features_override][version] = "2.0-rc1"
@@ -236,3 +236,12 @@ projects[cis_connector][subdir] = "contrib"
 
 projects[httprl][version] = "1.13"
 projects[httprl][subdir] = "contrib"
+
+; libraries
+
+; OAuth Drupal fork
+libraries[oauth][directory_name] = "oauth"
+libraries[oauth][type] = "library"
+libraries[oauth][destination] = "libraries"
+libraries[oauth][download][type] = "get"
+libraries[oauth][download][url] = "https://github.com/juampy72/OAuth-PHP/archive/master.zip"

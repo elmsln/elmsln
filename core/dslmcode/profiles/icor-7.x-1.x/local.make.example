@@ -3,10 +3,9 @@ core = "7.x"
 api = "2"
 
 projects[drupal][version] = "7.x"
-; Patch to allow install profile enabling to enable dependencies correctly.
-projects[drupal][patch][1093420] = http://drupal.org/files/1093420-22.patch
 ; include the d.o. profile base
 includes[] = "drupal-org.make"
+includes[] = "drupal-org-core.make"
 
 ; +++++ Libraries +++++
 
@@ -16,6 +15,12 @@ libraries[fitvids][type] = "library"
 libraries[fitvids][destination] = "libraries"
 libraries[fitvids][download][type] = "get"
 libraries[fitvids][download][url] = "https://raw.github.com/davatron5000/FitVids.js/master/jquery.fitvids.js"
+
+; ckeditor 4.2 + codemirror and table resize
+libraries[ckeditor][download][type] = "get"
+libraries[ckeditor][download][url] = "http://github.com/btopro/ckeditor4textbook/archive/2.1.zip"
+libraries[ckeditor][directory_name] = "ckeditor"
+libraries[ckeditor][destination] = "libraries"
 
 ; timeline
 libraries[timeline][directory_name] = "timeline"

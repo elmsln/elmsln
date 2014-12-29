@@ -4,6 +4,21 @@ core = 7.x
 
 ; +++++ Modules +++++
 
+projects[special_menu_items][version] = "2.0"
+projects[special_menu_items][subdir] = "contrib"
+
+projects[menu_attributes][version] = "1.0-rc3"
+projects[menu_attributes][subdir] = "contrib"
+
+projects[joyride][version] = "1.x-dev"
+projects[joyride][subdir] = "contrib"
+
+projects[linkchecker][version] = "1.2"
+projects[linkchecker][subdir] = "contrib"
+
+projects[fastclick][version] = "1.2"
+projects[fastclick][subdir] = "contrib"
+
 projects[block_aria_landmark_roles][version] = "1.4"
 projects[block_aria_landmark_roles][subdir] = "contrib"
 
@@ -31,7 +46,7 @@ projects[context_condition_theme][subdir] = "contrib"
 projects[replicate][version] = "1.1"
 projects[replicate][subdir] = "contrib"
 
-projects[features][version] = "2.0"
+projects[features][version] = "2.2"
 projects[features][subdir] = "contrib"
 
 projects[features_override][version] = "2.0-rc1"
@@ -365,9 +380,6 @@ libraries[colorpicker][download][type] = "get"
 libraries[colorpicker][download][url] = "http://www.eyecon.ro/colorpicker/colorpicker.zip"
 
 ; +++++ Patches +++++
-
-; allow for custom meta controllers to enable deep querying
-projects[restws][patch][] = "http://drupal.org/files/restws_meta_controls-2053147-1.patch"
 
 projects[og_clone][patch][] = "http://drupal.org/files/og_clone-menu-cloning-none-1940982-1.patch"
 

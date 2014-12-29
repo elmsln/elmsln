@@ -28,7 +28,7 @@ projects[profiler_builder][subdir] = "contrib"
 projects[entity_iframe][version] = "1.x-dev"
 projects[entity_iframe][subdir] = "contrib"
 
-projects[features][version] = "2.0"
+projects[features][version] = "2.2"
 projects[features][subdir] = "contrib"
 
 projects[entityreference][version] = "1.1"

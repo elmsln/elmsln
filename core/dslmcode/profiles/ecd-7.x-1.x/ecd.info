@@ -54,7 +54,6 @@ dependencies[] = fitvids
 dependencies[] = imagefield_focus
 dependencies[] = libraries
 dependencies[] = masquerade
-dependencies[] = mediaelement
 dependencies[] = restws
 dependencies[] = restws_basic_auth
 dependencies[] = module_filter

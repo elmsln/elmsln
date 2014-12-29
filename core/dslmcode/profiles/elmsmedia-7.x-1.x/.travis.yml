@@ -49,13 +49,13 @@ before_script:
   - sudo mkdir -p ~/.drush
   - sudo chown -R travis:travis ~/.drush
   - cd ~/.drush/
-  - git clone https://github.com/drupalprojects/drush_recipes.git
+  - git clone --branch 7.x-1.x https://github.com/drupalprojects/drush_recipes.git
   - drush cc drush
 
 script:
   # stand up drupal
   - cd /var/www
-  - git clone https://github.com/drupalprojects/elmsmedia.git drupal
+  - git clone --branch 7.x-1.x https://github.com/drupalprojects/elmsmedia.git drupal
   - cd drupal
   - drush make local.make.example --y
   - drush site-install elmsmedia -y --db-url=mysql://root@localhost/travisdb --db-su='root' --db-su-pw=''

@@ -4,11 +4,13 @@ api = "2"
 
 projects[drupal][version] = "7.x"
 ; include the d.o. profile base
-includes[] = "drupal-org-core.make"
 includes[] = "drupal-org.make"
 
 projects[textbook][version] = "4.0-beta1"
 projects[textbook][subdir] = "contrib"
+
+projects[accessibility][version] = "1.x-dev"
+projects[accessibility][subdir] = "contrib"
 
 ; +++++ Libraries +++++
 
