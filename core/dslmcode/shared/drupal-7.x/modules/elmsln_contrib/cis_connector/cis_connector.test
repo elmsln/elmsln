@@ -1,0 +1,49 @@
+<?php
+
+/**
+ * @file
+ * Test suite for CIS Connector module.
+ */
+
+/**
+ * Base class with some helper methods.
+ */
+class CISConnectorTestCase extends DrupalWebTestCase {
+
+  /**
+   * {@inheritdoc}
+   */
+  function setUp() {
+    parent::setUp(func_get_args());
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function getInfo() {
+    return array(
+      'name' => 'CIS Connector',
+      'description' => 'Tests CIS Connector capabilities.',
+      'group' => 'CIS',
+    );
+  }
+
+  /**
+   * Tests for CIS Connector for entities.
+   */
+  function testCoreFunctions() {
+    // Now enable the cis_connector module.
+    module_enable(array('cis_connector', 'restws'), TRUE);
+    // @todo need to build a fake connection keychain for testing call ability
+    drupal_flush_all_caches();
+    drupal_static_reset();
+    // assert meta controllers are working / available
+    $controls = restws_meta_controls();
+    $this->assertTrue((isset($controls['deep-load-refs']) && isset($controls['xml-out'])), t('CIS Required Metacontrollers active'));
+    /*
+    $web_user = $this->drupalCreateUser(array('administer cis_connector'));
+    $this->drupalLogin($web_user);
+    $this->drupalPost('admin/config/system/cis_connector', array(), t('Create missing'));
+    */
+  }
+}

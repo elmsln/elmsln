@@ -54,7 +54,7 @@ As soon as the blockers below are resolved (basically just time). If it helps yo
 Dec 24, 2014 - This time is fast approaching as the project is now a team of people distributed across institutions. There are 2 full time, 3 part time, and soon to be another 1-3 full time members involved.
 
 ###Q. If that's true, what are the blockers for a stable release?
-1. An expanded test plan run by travis-ci to include SimpleTest. This including Travis-CI build coverage for each distribution individually, the system as a whole, and cis_connector.
+1. <s>An expanded test plan run by travis-ci</s> (now have full travis coverage on all distros in the setup) to include SimpleTest. This including Travis-CI build coverage for each distribution individually, the system as a whole, and cis_connector.
 2. An enhanced / unified UX; we have a dedicated UX lead working on this in the MOOC / CIS platforms. Once these two stabilize the rest will fall into place (UX wise, platform wise they have been solid since early 2013). <-- A [visual roadmap](https://projects.invisionapp.com/share/N21TGJ7QZ) has been established
 3. Additional testing and support for fractal networks (multiple ELMSLN deployments that act as 1). This is critical to hitting higher scale. <-- work has started here thanks to Jenkins.
 4. Redesigned developer / project hub at http://elmsln.org website. This may sound silly but being able to find everything and keep up on the project is important for sustainability! <-- work has started here
