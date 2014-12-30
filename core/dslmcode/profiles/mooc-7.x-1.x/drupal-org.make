@@ -10,8 +10,8 @@ projects[special_menu_items][subdir] = "contrib"
 projects[menu_attributes][version] = "1.0-rc3"
 projects[menu_attributes][subdir] = "contrib"
 
-projects[joyride][version] = "1.x-dev"
-projects[joyride][subdir] = "contrib"
+;projects[joyride][version] = "1.x-dev"
+;projects[joyride][subdir] = "contrib"
 
 projects[linkchecker][version] = "1.2"
 projects[linkchecker][subdir] = "contrib"

@@ -11,8 +11,12 @@ includes[] = "drupal-org-core.make"
 projects[shadowbox][version] = "4.0-rc1"
 projects[shadowbox][subdir] = "contrib"
 
+; need to wait til stuff clears
 projects[accessibility][version] = "1.x-dev"
 projects[accessibility][subdir] = "contrib"
+; need to wait til included make clears
+projects[simplehtmldom][version] = "2.1"
+projects[simplehtmldom][subdir] = "contrib"
 
 ; +++++ Libraries +++++
 

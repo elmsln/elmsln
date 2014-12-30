@@ -28,7 +28,6 @@ dependencies[] = ctools
 ; Context
 dependencies[] = context
 dependencies[] = context_condition_theme
-dependencies[] = joyride
 ; Core
 dependencies[] = block
 dependencies[] = book

@@ -50,6 +50,7 @@ dependencies[] = user
 dependencies[] = entityreference
 dependencies[] = entityreference_prepopulate
 dependencies[] = field_hidden
+dependencies[] = link
 ; Flag
 dependencies[] = flag
 ; Flex Slider

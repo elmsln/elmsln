@@ -10,6 +10,9 @@ projects[features_override][subdir] = "contrib"
 projects[masonry_views][version] = "1.0"
 projects[masonry_views][subdir] = "contrib"
 
+projects[link][version] = "1.2"
+projects[link][subdir] = "contrib"
+
 projects[fastclick][version] = "1.2"
 projects[fastclick][subdir] = "contrib"
 

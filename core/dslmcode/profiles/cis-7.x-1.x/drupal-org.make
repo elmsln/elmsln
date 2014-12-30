@@ -10,9 +10,6 @@ projects[data][subdir] = "contrib"
 projects[addanother][version] = "2.2"
 projects[addanother][subdir] = "contrib"
 
-projects[simplehtmldom][version] = "2.1"
-projects[simplehtmldom][subdir] = "contrib"
-
 projects[diff][version] = "3.2"
 projects[diff][subdir] = "contrib"
 
