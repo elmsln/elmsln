@@ -26,22 +26,25 @@ before_install:
   - export UPDATE TRAVIS_BUILD_DIR
   - BUILD_TOP=`dirname $TRAVIS_BUILD_DIR`
   - EXIT_VALUE=0
-
   - sudo apt-get update > /dev/null
-
   - composer self-update
+  # mail requirements
+  - sudo apt-get update -qq
+  - sudo apt-get install -y -qq postfix
 install:
-    # install php packages required for running a web server from drush on php 5.3
+  # install php packages required for running a web server from drush on php 5.3
   - sudo apt-get install -y --force-yes php5-cgi php5-mysql
-
   # install drush globally
   - composer global require drush/drush:6.*
-
   # add composer's global bin directory to the path
   # see: https://github.com/drush-ops/drush#install---composer
   - export PATH="$HOME/.composer/vendor/bin:$PATH"
 before_script:
-  #- echo 'sendmail_path = /bin/true' >> ~/.phpenv/versions/$(phpenv version-name)/etc/conf.d/travis.ini
+  # setup fake mailserver
+  - sudo service postfix stop
+  - smtp-sink -d "%d.%H.%M.%S" localhost:2500 1000 &
+  - echo -e '#!/usr/bin/env bash\nexit 0' | sudo tee /usr/sbin/sendmail
+  - echo 'sendmail_path = "/usr/sbin/sendmail -t -i "' | sudo tee "/home/travis/.phpenv/versions/`php -i | grep "PHP Version" | head -n 1 | grep -o -P '\d+\.\d+\.\d+.*'`/etc/conf.d/sendmail.ini"
   # establish drupal package put in place the right way
   - sudo mkdir -p /var/www/drupal
   - sudo chown travis:travis /var/www/drupal
