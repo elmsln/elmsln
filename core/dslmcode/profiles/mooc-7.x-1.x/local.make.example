@@ -11,6 +11,7 @@ projects[textbook][subdir] = "contrib"
 
 projects[accessibility][version] = "1.x-dev"
 projects[accessibility][subdir] = "contrib"
+projects[accessibility][patch][] = "https://www.drupal.org/files/issues/accessibility-2221601-2-features-fix.patch"
 
 ; +++++ Libraries +++++
 

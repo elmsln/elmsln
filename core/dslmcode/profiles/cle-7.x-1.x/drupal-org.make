@@ -178,6 +178,9 @@ projects[imce_wysiwyg][subdir] = "contrib"
 projects[jquery_update][version] = "2.4"
 projects[jquery_update][subdir] = "contrib"
 
+projects[date][version] = "2.8"
+projects[date][subdir] = "contrib"
+
 projects[masonry][version] = "2.0"
 projects[masonry][subdir] = "contrib"
 
