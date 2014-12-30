@@ -67,10 +67,10 @@ script:
   # stand up cis_connector and run tests
   - mkdir -p sites/all/modules/cis_connector
   - git clone --branch 7.x-1.x https://github.com/drupalprojects/cis_connector.git sites/all/modules/cis_connector
-  - drush dl httprl
-  - drush en simpletest cis_connector httprl
-  # run tests
-  - drush test-run --all
+  # enable simpletest and all CIS modules
+  - drush en simpletest cis_* --y
+  # run CIS test group
+  - drush test-run CIS
 after_script:
   - drush status
 
