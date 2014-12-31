@@ -283,7 +283,7 @@ projects[views_fluid_grid][subdir] = "contrib"
 projects[views_xml_backend][version] = "1.0-alpha4"
 projects[views_xml_backend][subdir] = "contrib"
 
-projects[cis_connector][version] = "1.x-dev"
+projects[cis_connector][version] = "1.0-beta1"
 projects[cis_connector][subdir] = "contrib"
 
 projects[profiler_builder][version] = "1.x-dev"

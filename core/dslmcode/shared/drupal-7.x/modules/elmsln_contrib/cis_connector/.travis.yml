@@ -58,17 +58,27 @@ before_script:
   - drush cc drush
 
 script:
-  # stand up drupal
+  # stand up cis repo for dependencies faster
   - cd /var/www
-  - drush dl drupal-7.x
-  - mv drupal-7.x-dev drupal
+  - git clone --branch 7.x-1.x https://github.com/drupalprojects/cis.git drupal
   - cd drupal
-  - drush site-install -y --db-url=mysql://root@localhost/travisdb --db-su='root' --db-su-pw=''
-  # stand up cis_connector and run tests
-  - mkdir -p sites/all/modules/cis_connector
+  # weird but clean up the directory structure cause we JUST want the make goofies
+  - rm -rf modules
+  - rm -rf themes
+  - rm -rf drecipes
+  - rm cis*
+  # now build off the local make which pulls the others
+  - drush make local.make.example --y
+  # blow away cis_connector and make sure we pull from source instead of latest dev on d.o.
+  # this is just to be safe
+  - rm -rf sites/all/modules/contrib/cis_connector
+  - mkdir -p sites/all/modules/contrib/cis_connector
   - git clone --branch 7.x-1.x https://github.com/drupalprojects/cis_connector.git sites/all/modules/cis_connector
+  # install drupal in testing mode
+  - drush site-install testing -y --db-url=mysql://root@localhost/travisdb --db-su='root' --db-su-pw=''
   # enable simpletest and all CIS modules
-  - drush en simpletest cis_* --y
+  - drush en regions og lti_tool_provider simpletest simpletest_cis_registry --y
+  - drush en cis_* --y
   # run CIS test group
   - drush test-run CIS
 after_script:
