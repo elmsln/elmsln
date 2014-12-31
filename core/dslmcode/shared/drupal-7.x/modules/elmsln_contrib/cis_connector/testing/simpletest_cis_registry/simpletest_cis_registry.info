@@ -1,0 +1,4 @@
+name = Simple test example Settings
+description = This is a fake connection registry for asserting settings are correct. These also happen to be travis-ci credentials so they can later be tested there.
+core = 7.x
+package = simpletest
