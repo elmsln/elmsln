@@ -66,4 +66,10 @@ after_script:
   - drush status
 
 notifications:
+  irc: irc.freenode.org#elmsln
+
   email: false
+  slack:
+    rooms:
+      - elmsln:WmKTRMe7k3IjprunaAVV3Jjg#qa
+      - elmsln:WmKTRMe7k3IjprunaAVV3Jjg#code
