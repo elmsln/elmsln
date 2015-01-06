@@ -1,0 +1,634 @@
+<?php
+/**
+ * @file
+ * Provides installation details for Harmony core.
+ */
+
+/**
+ * Implements hook_schema().
+ */
+function harmony_core_schema() {
+  $schema = array();
+
+  $schema['harmony_thread_type'] = array(
+    'description' => 'Stores information about all defined {harmony_thread} types.',
+    'fields' => array(
+      'id' => array(
+        'type' => 'serial',
+        'not null' => TRUE,
+        'description' => 'Primary Key: Unique {harmony_thread} type ID.',
+      ),
+      'type' => array(
+        'description' => 'The machine-readable name of this {harmony_thread} type.',
+        'type' => 'varchar',
+        'length' => 32,
+        'not null' => TRUE,
+      ),
+      'label' => array(
+        'description' => 'The human-readable name of this {harmony_thread} type.',
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => TRUE,
+        'default' => '',
+      ),
+      'status' => array(
+        'type' => 'int',
+        'not null' => TRUE,
+        // Set the default to ENTITY_CUSTOM without using the constant as it is
+        // not safe to use it at this point.
+        'default' => 0x01,
+        'size' => 'tiny',
+        'description' => 'The exportable status of the entity.',
+      ),
+      'module' => array(
+        'description' => 'The name of the providing module if the entity has been defined in code.',
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => FALSE,
+      ),
+    ),
+    'primary key' => array('id'),
+    'unique keys' => array(
+      'type' => array('type'),
+    ),
+  );
+
+  $schema['harmony_thread'] = array(
+    'description' => 'The base table for threads.',
+    'fields' => array(
+      'thread_id' => array(
+        'description' => 'The primary identifier for the thread.',
+        'type' => 'serial',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ),
+      'type' => array(
+        'description' => 'The {harmony_thread}.type of this thread.',
+        'type' => 'varchar',
+        'length' => 32,
+        'not null' => TRUE,
+        'default' => '',
+      ),
+      'language' => array(
+        'description' => 'The {languages}.language of this thread.',
+        'type' => 'varchar',
+        'length' => 12,
+        'not null' => TRUE,
+        'default' => '',
+      ),
+      'title' => array(
+        'description' => 'The title of the thread.',
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => TRUE,
+        'default' => '',
+      ),
+      'uid' => array(
+        'description' => 'ID of Drupal user creator.',
+        'type' => 'int',
+        'not null' => TRUE,
+      ),
+      'status' => array(
+        'description' => 'Boolean indicating whether the thread is published (visible to non-administrators).',
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 1,
+        'size' => 'tiny',
+      ),
+      'created' => array(
+        'description' => 'The Unix timestamp when the thread was created.',
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'updated' => array(
+        'description' => 'The Unix timestamp when the thread was most recently updated.',
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'pinned' => array(
+        'description' => 'Boolean indicating whether the thread should be displayed at the top of lists in which it appears.',
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0,
+        'size' => 'tiny',
+      ),
+      'locked' => array(
+        'description' => 'Boolean indicating whether the thread is locked from changes.',
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0,
+        'size' => 'tiny',
+      ),
+      'hidden' => array(
+        'description' => 'Boolean indicating whether the thread is hidden in listings.',
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0,
+        'size' => 'tiny',
+      ),
+      'favourites' => array(
+        'description' => 'Number of times that the thread has been favourited.',
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'likes' => array(
+        'description' => 'Number of times that posts within the thread have been liked.',
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'views' => array(
+        'description' => 'Number of times the thread has been viewed.',
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'tthread_id' => array(
+        'description' => 'The translation set id for this thread, which equals the thread id of the source post in each set.',
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'translate' => array(
+        'description' => 'A boolean indicating whether this translation page needs to be updated.',
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'last_post_uri' => array(
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => TRUE,
+        'default' => '',
+        'serialize' => TRUE,
+        'description' => 'URI of the last post in this thread serialised.',
+      ),
+    ),
+    'indexes' => array(
+      'status' => array('status'),
+      'created' => array('created'),
+      'updated' => array('updated'),
+      'pinned' => array('pinned'),
+      'locked' => array('locked'),
+      'likes' => array('likes'),
+      'views' => array('views'),
+      'uid' => array('uid'),
+      /*'tthread_id' => array('tthread_id'),
+      'translate' => array('translate'),
+      'language' => array('language'),*/
+    ),
+    'foreign keys' => array(
+      'thread_author' => array(
+        'table' => 'users',
+        'columns' => array('uid' => 'uid'),
+      ),
+      'type' => array(
+        'table' => 'harmony_thread_type',
+        'columns' => array('type' => 'type'),
+      ),
+    ),
+    'primary key' => array('thread_id'),
+  );
+
+  $schema['harmony_thread_read_history'] = array(
+    'description' => 'A record of which {users} have read which {harmony_thread}s.',
+    'fields' => array(
+      'uid' => array(
+        'description' => 'The {users}.uid that read the {harmony_thread} thread_id.',
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'thread_id' => array(
+        'description' => 'The {harmony_thread}.thread_id that was read.',
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'timestamp' => array(
+        'description' => 'The Unix timestamp at which the read occurred.',
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+    ),
+    'indexes' => array(
+      'thread_id' => array('thread_id'),
+    ),
+    'foreign keys' => array(
+      'user' => array(
+        'table' => 'users',
+        'columns' => array('uid' => 'uid'),
+      ),
+    ),
+    'primary key' => array('uid', 'thread_id'),
+  );
+
+  $schema['harmony_post'] = array(
+    'description' => 'The base table for posts.',
+    'fields' => array(
+      'post_id' => array(
+        'description' => 'The primary identifier for the post.',
+        'type' => 'serial',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ),
+      // Defaults to NULL in order to avoid a brief period of potential
+      // deadlocks on the index.
+      'vid' => array(
+        'description' => 'The current {post_revision}.vid version identifier.',
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => FALSE,
+        'default' => NULL,
+      ),
+      'language' => array(
+        'description' => 'The {languages}.language of this post.',
+        'type' => 'varchar',
+        'length' => 12,
+        'not null' => TRUE,
+        'default' => '',
+      ),
+      'title' => array(
+        'description' => 'The title of the post.',
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => TRUE,
+        'default' => '',
+      ),
+      'uid' => array(
+        'description' => 'ID of Drupal user creator.',
+        'type' => 'int',
+        'not null' => TRUE,
+      ),
+      'status' => array(
+        'description' => 'Boolean indicating whether the post is published (visible to non-administrators).',
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 1,
+        'size' => 'tiny',
+      ),
+      'created' => array(
+        'description' => 'The Unix timestamp when the post was created.',
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'updated' => array(
+        'description' => 'The Unix timestamp when the post was most recently updated.',
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'locked' => array(
+        'description' => 'Boolean indicating whether the post is locked from changes.',
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0,
+        'size' => 'tiny',
+      ),
+      'hidden' => array(
+        'description' => 'Whether the post is hidden.',
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0,
+        'size' => 'tiny',
+      ),
+      'replies' => array(
+        'description' => 'Number of times that the post has been replied to.',
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'first_post' => array(
+        'description' => 'Boolean indicating whether the post is the first within the thread.',
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0,
+        'size' => 'tiny',
+      ),
+      'last_post' => array(
+        'description' => 'Boolean indicating whether the post is the last within the thread.',
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0,
+        'size' => 'tiny',
+      ),
+      'tpost_id' => array(
+        'description' => 'The translation set id for this post, which equals the post id of the source post in each set.',
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'translate' => array(
+        'description' => 'A boolean indicating whether this translation page needs to be updated.',
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'hostname' => array(
+        'type' => 'varchar',
+        'length' => 128,
+        'not null' => TRUE,
+        'default' => '',
+        'description' => 'Hostname of the user who created the post.',
+      ),
+    ),
+    'indexes' => array(
+      'status' => array('status'),
+      'created' => array('created'),
+      'updated' => array('updated'),
+      'locked' => array('locked'),
+      'hidden' => array('hidden'),
+      'replies' => array('replies'),
+      'uid' => array('uid'),
+    ),
+    'unique keys' => array(
+      'vid' => array('vid'),
+    ),
+    'foreign keys' => array(
+      'harmony_post_revision' => array(
+        'table' => 'harmony_post_revision',
+        'columns' => array('vid' => 'vid'),
+      ),
+      'post_author' => array(
+        'table' => 'users',
+        'columns' => array('uid' => 'uid'),
+      ),
+    ),
+    'primary key' => array('post_id'),
+  );
+
+  $schema['harmony_post_revision'] = array(
+    'description' => 'Stores information about each saved version of a {harmony_post}.',
+    'fields' => array(
+      'post_id' => array(
+        'description' => 'The primary identifier for the post.',
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ),
+      'vid' => array(
+        'description' => 'The primary identifier for this version.',
+        'type' => 'serial',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ),
+      'language' => array(
+        'description' => 'The {languages}.language of this post.',
+        'type' => 'varchar',
+        'length' => 12,
+        'not null' => TRUE,
+        'default' => '',
+      ),
+      'title' => array(
+        'description' => 'The title of the post.',
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => TRUE,
+        'default' => '',
+      ),
+      'log' => array(
+        'description' => 'The log entry explaining the changes in this version.',
+        'type' => 'text',
+        'not null' => TRUE,
+        'size' => 'big',
+      ),
+      'log_show' => array(
+        'description' => 'Whether or not to show the log entry to the public.',
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'uid' => array(
+        'description' => 'ID of Drupal user creator.',
+        'type' => 'int',
+        'not null' => TRUE,
+      ),
+      'status' => array(
+        'description' => 'Boolean indicating whether the post is published (visible to non-administrators).',
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 1,
+        'size' => 'tiny',
+      ),
+      'timestamp' => array(
+        'description' => 'The Unix timestamp when the revision was created.',
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'locked' => array(
+        'description' => 'Boolean indicating whether the post is locked from changes.',
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0,
+        'size' => 'tiny',
+      ),
+      'hidden' => array(
+        'description' => 'Whether the post is hidden.',
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0,
+        'size' => 'tiny',
+      ),
+      'replies' => array(
+        'description' => 'Number of times that the post has been replied to.',
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'first_post' => array(
+        'description' => 'Boolean indicating whether the post is the first within the thread.',
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0,
+        'size' => 'tiny',
+      ),
+      'last_post' => array(
+        'description' => 'Boolean indicating whether the post is the last within the thread.',
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0,
+        'size' => 'tiny',
+      ),
+      'tpost_id' => array(
+        'description' => 'The translation set id for this post, which equals the post id of the source post in each set.',
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'translate' => array(
+        'description' => 'A boolean indicating whether this translation page needs to be updated.',
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'hostname' => array(
+        'type' => 'varchar',
+        'length' => 128,
+        'not null' => TRUE,
+        'default' => '',
+        'description' => 'Hostname of the user who edited the revision.',
+      ),
+    ),
+    'indexes' => array(
+      'post_id' => array('post_id'),
+      'status' => array('status'),
+      'timestamp' => array('timestamp'),
+      'locked' => array('locked'),
+      'hidden' => array('hidden'),
+      'replies' => array('replies'),
+      'uid' => array('uid'),
+    ),
+    'foreign keys' => array(
+      'harmony_versioned_post' => array(
+        'table' => 'harmony_post',
+        'columns' => array('post_id' => 'post_id'),
+      ),
+      'version_author' => array(
+        'table' => 'users',
+        'columns' => array('uid' => 'uid'),
+      ),
+    ),
+    'primary key' => array('vid'),
+  );
+
+  return $schema;
+}
+
+/**
+ * Implements hook_install().
+ */
+function harmony_core_install() {
+  // Set jQuery version.
+  if (variable_get('jquery_update_jquery_version', '1.5') == '1.5') {
+    variable_set('jquery_update_jquery_version', '1.7');
+  }
+
+  // Add in the standard Thread type.
+  $type = entity_create('harmony_thread_type', array(
+    'type' => 'harmony_thread',
+    'label' => st('Thread'),
+  ));
+  entity_save('harmony_thread_type', $type);
+
+  // Set the thread pathauto pattern.
+  variable_set('pathauto_harmony_core_pattern', 'thread/[harmony_thread:thread-id]/[harmony_thread:title]');
+}
+
+/**
+ * Implements hook_uninstall().
+ */
+function harmony_core_uninstall() {
+  variable_del('harmony_core_thread_new_limit');
+  variable_del('harmony_core_post_revisions_view');
+  variable_del('harmony_core_post_show_replies');
+  variable_del('harmony_core_post_replies_view');
+  variable_del('harmony_core_meta_summary_max_length');
+  variable_del('harmony_core_mass_update_batch_threshold');
+  variable_del('harmony_core_post_revision_trigger_fields');
+  variable_del('harmony_core_default_input_format');
+  variable_del('harmony_core_thread_views_counter_enabled');
+  variable_del('harmony_core_post_show_hostname');
+  variable_del('harmony_core_date_type');
+  variable_del('harmony_core_date_format');
+  variable_del('harmony_core_thread_meta_properties');
+  variable_del('harmony_core_meta_properties');
+  variable_del('harmony_core_disable_new_content');
+  variable_del('harmony_core_disable_new_content_warning_enabled');
+  variable_del('harmony_core_disable_new_content_warning_message');
+  variable_del('harmony_core_rebuild_actions');
+
+  variable_del('harmony_core_post_position_callback');
+  variable_del('harmony_core_post_position_page_querystring');
+  variable_del('harmony_core_thread_post_listing_auto_update');
+  variable_del('harmony_core_thread_post_listing_view');
+  variable_del('harmony_core_thread_post_listing_paging_info');
+
+  // Remove bundle settings vars.
+  db_query('DELETE FROM {variable} WHERE name LIKE :pattern', array(':pattern' => db_like('harmony_core_bundle__') . '%'));
+}
+
+/**
+ * Add in the log show Boolean field to the post revision table.
+ */
+function harmony_core_update_7100() {
+  if (!db_field_exists('harmony_post_revision', 'log_show')) {
+    db_add_field('harmony_post_revision', 'log_show', array(
+      'description' => 'Whether or not to show the log entry to the public.',
+      'type' => 'int',
+      'not null' => TRUE,
+      'default' => 0,
+    ));
+  }
+}
+
+/**
+ * Add in a "last_post" field to {harmony_post} and {harmony_post_revision}.
+ */
+function harmony_core_update_7101() {
+  if (!db_field_exists('harmony_post', 'last_post')) {
+    db_add_field('harmony_post', 'last_post', array(
+      'description' => 'Boolean indicating whether the post is the last within the thread.',
+      'type' => 'int',
+      'not null' => TRUE,
+      'default' => 0,
+      'size' => 'tiny',
+    ));
+    db_add_field('harmony_post_revision', 'last_post', array(
+      'description' => 'Boolean indicating whether the post is the last within the thread.',
+      'type' => 'int',
+      'not null' => TRUE,
+      'default' => 0,
+      'size' => 'tiny',
+    ));
+  }
+}
+
+/**
+ * Add in a "hostname" field to {harmony_post} and {harmony_post_revision}.
+ */
+function harmony_core_update_7102() {
+  if (!db_field_exists('harmony_post', 'hostname')) {
+    db_add_field('harmony_post', 'hostname', array(
+      'type' => 'varchar',
+      'length' => 128,
+      'not null' => TRUE,
+      'default' => '',
+      'description' => 'Hostname of the user who created the post.',
+    ));
+    db_add_field('harmony_post_revision', 'hostname', array(
+      'type' => 'varchar',
+      'length' => 128,
+      'not null' => TRUE,
+      'default' => '',
+      'description' => 'Hostname of the user who edited the revision.',
+    ));
+  }
+}
+
+/**
+ * Add the "last_post_ui" field to the {harmony_thread} table.
+ */
+function harmony_core_update_7103() {
+  if (!db_field_exists('harmony_thread', 'last_post_uri')) {
+    db_add_field('harmony_thread', 'last_post_uri', array(
+      'type' => 'varchar',
+      'length' => 255,
+      'not null' => TRUE,
+      'default' => '',
+      'serialize' => TRUE,
+      'description' => 'URI of the last post in this thread serialised.',
+    ));
+    $actions = variable_get('harmony_core_rebuild_actions', array());
+    $actions = array_merge($actions, array('last_post_uris'));
+    variable_set('harmony_core_rebuild_actions', $actions);
+  }
+}

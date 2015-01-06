@@ -1,0 +1,14 @@
+name = Harmony - Access OG
+description = Provides integration with access restriction for Organic Groups.
+core = 7.x
+package = Harmony
+
+dependencies[] = harmony_access
+dependencies[] = og_access
+
+; Information added by Drupal.org packaging script on 2014-12-04
+version = "7.x-1.x-dev"
+core = "7.x"
+project = "harmony_access"
+datestamp = "1417703682"
+

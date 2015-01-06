@@ -1,0 +1,137 @@
+<?php
+
+/**
+ * @file
+ * harmony_access_og.module
+ */
+
+/**
+ * Implements hook_harmony_access_grants().
+ */
+function harmony_access_og_harmony_access_grants($account, $op) {
+  if ($op != 'view') {
+    return;
+  }
+
+  if ($groups = og_get_entity_groups('user', $account)) {
+    foreach ($groups as $group_type => $gids) {
+      foreach ($gids as $gid) {
+        $grants[OG_ACCESS_REALM . ':' . $group_type][] = $gid;
+      }
+    }
+  }
+
+  return !empty($grants) ? $grants : array();
+}
+
+/**
+ * Implements hook_harmony_access_records().
+ */
+function harmony_access_og_harmony_access_records($entity, $entity_type) {
+  if (empty($entity->status)) {
+    // Entity is unpublished, so we don't allow every group member to see
+    // it.
+    return array();
+  }
+
+  list($entity_id, $entity_vid, $entity_bundle) = entity_extract_ids($entity_type, $entity);
+
+  // The group IDs, that in case access is granted, will be recorded.
+  $gids = array();
+
+  $wrapper = entity_metadata_wrapper($entity_type, $entity);
+
+  // Verify that a group content with visibility field can't create when there
+  // isn't an OG access field attached to the group entity.
+  if (!empty($wrapper->{OG_CONTENT_ACCESS_FIELD}) && $wrapper->{OG_CONTENT_ACCESS_FIELD}->value() == OG_CONTENT_ACCESS_DEFAULT) {
+    // Verify that the OG access field is attached to the group(s) content.
+    $fields_names = og_get_group_audience_fields($entity_type, $entity_bundle);
+    $groups_bundles = og_get_all_group_bundle();
+
+    // Check each group audience field on this node type.
+    foreach (array_keys($fields_names) as $field_name) {
+      // Get the group entity type that this field points to.
+      $field_info = field_info_field($field_name);
+      $target_type = $field_info['settings']['target_type'];
+
+      foreach (array_keys($groups_bundles[$target_type]) as $bundle) {
+        $instances = field_info_instances($target_type, $bundle);
+        // Verify that the OG access field is attached to the group bundles.
+        if (empty($instances[OG_ACCESS_FIELD])) {
+          $params = array(
+            '!type' => $entity_type,
+            '!entity_id' => $entity_id,
+            '%entity_type' => $target_type,
+            '%bundle' => $bundle,
+          );
+          throw new OgException(format_string('Cannot set visibility of !type with ID !thread_id as the %entity_type group of type %bundle does not have the "Group visibility" field attached to it.', $params));
+        }
+      }
+    }
+  }
+
+  if (!empty($wrapper->{OG_ACCESS_FIELD}) && $wrapper->{OG_ACCESS_FIELD}->value() && og_is_group($entity_type, $entity)) {
+    // Private group.
+    $gids[$entity_type][] = $entity_id;
+  }
+
+  // If there is no content access field on the group content, we assume
+  // that the group defaults are needed.
+  // This allows us not to have the content access field on the group
+  // content but still have access control.
+  $content_access = !empty($wrapper->{OG_CONTENT_ACCESS_FIELD}) ? $wrapper->{OG_CONTENT_ACCESS_FIELD}->value() : OG_CONTENT_ACCESS_DEFAULT;
+
+  switch ($content_access) {
+    case OG_CONTENT_ACCESS_DEFAULT:
+      if (!$entity_groups = og_get_entity_groups($entity_type, $entity)) {
+        break;
+      }
+
+      $has_private = FALSE;
+      foreach ($entity_groups as $group_type => $values) {
+        entity_load($group_type, $values);
+        foreach ($values as $gid) {
+          $list_gids[$group_type][] = $gid;
+          if ($has_private) {
+            // We already know we have a private group, so we can avoid
+            // re-checking it.
+            continue;
+          }
+
+          $group_wrapper = entity_metadata_wrapper($group_type, $gid);
+          if (!empty($group_wrapper->{OG_ACCESS_FIELD}) && $group_wrapper->{OG_ACCESS_FIELD}->value()) {
+            $has_private = TRUE;
+          }
+        }
+      }
+
+      if ($has_private) {
+        $gids = $gids + $list_gids;
+      }
+      break;
+
+    case OG_CONTENT_ACCESS_PUBLIC:
+      // Do nothing.
+      break;
+
+    case OG_CONTENT_ACCESS_PRIVATE:
+      $gids = $gids + og_get_entity_groups($entity_type, $entity);
+      break;
+  }
+
+  foreach ($gids as $group_type => $values) {
+    foreach ($values as $gid) {
+      $grants[] = array (
+        'realm' => OG_ACCESS_REALM . ':' . $group_type,
+        'gid' => $gid,
+        'grant_view' => 1,
+        'grant_update' => 0,
+        'grant_delete' => 0,
+        'grant_create' => 0,
+        'priority' => 0,
+      );
+    }
+  }
+
+  return !empty($grants) ? $grants : array();
+}

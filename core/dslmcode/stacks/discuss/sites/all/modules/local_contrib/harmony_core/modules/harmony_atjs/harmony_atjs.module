@@ -1,0 +1,44 @@
+<?php
+/**
+ * @file
+ * Code for the Harmony - Atjs feature.
+ */
+
+include_once 'harmony_atjs.features.inc';
+
+/**
+ * @file
+ * harmony_atjs.module
+ */
+
+/**
+ * Implements hook_atjs_ajax_results_alter().
+ *
+ * Provide the user avatar to the autocomplete results.
+ */
+function harmony_atjs_atjs_ajax_results_alter(&$results, $context) {
+  if (variable_get('user_pictures', 0) && $context['listener']->name === 'harmony_users') {
+    foreach ($results['entities'] as $entity_id => $entity) {
+      $filepath = NULL;
+
+      if (!empty($entity->picture)) {
+        if (is_numeric($entity->picture)) {
+          $entity->picture = file_load($entity->picture);
+        }
+        if (!empty($entity->picture->uri)) {
+          $filepath = $entity->picture->uri;
+        }
+      }
+      elseif (variable_get('user_picture_default', '')) {
+        $filepath = variable_get('user_picture_default', '');
+      }
+
+      if ($filepath) {
+        $results['rows'][$entity_id]['avatar'] = '<span class="avatar">' . theme('image_style', array('style_name' => 'harmony-20-20', 'path' => $filepath)) . '</span> ';
+      }
+      else {
+        $results['rows'][$entity_id]['avatar'] = '';
+      }
+    }
+  }
+}

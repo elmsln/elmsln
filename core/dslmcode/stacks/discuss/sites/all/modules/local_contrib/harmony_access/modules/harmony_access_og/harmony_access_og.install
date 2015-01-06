@@ -1,0 +1,15 @@
+<?php
+
+/**
+ * @file
+ * harmony_access_og.install
+ */
+
+/**
+ * Implements hook_uninstall().
+ */
+function harmony_access_og_uninstall() {
+  db_delete('harmony_access_records')
+    ->condition('module', 'harmony_access_og')
+    ->execute();
+}
