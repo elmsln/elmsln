@@ -201,6 +201,7 @@ function textbook_wysiwyg_plugin($editor, $version) {
         'buttons' => array(
           'mathjax' => t('MathJax'),
         ),
+        'filename' => 'plugin.js',
         'load' => TRUE,
       ),
     );
@@ -278,7 +279,7 @@ function textbook_wysiwyg_editor_settings_alter(&$settings, $context) {
       $preferred_groupings[] = array('Format', 'Font', 'FontSize', 'Styles', 'Table');
       $preferred_groupings[] = array('SelectAll', 'Find', 'Replace');
       $preferred_groupings[] = array('Flash', 'Smiley');
-      $preferred_groupings[] = array('CreateDiv', 'Maximize', 'SpellChecker', 'Scayt');
+      $preferred_groupings[] = array('CreateDiv', 'Maximize', 'SpellChecker', 'Scayt', 'MathJax');
       // An array to hold our newly grouped buttons
       $new_grouped_toolbar = array();
       // Compare each desired groupings to the configured buttons in the toolbar
