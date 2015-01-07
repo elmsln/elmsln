@@ -149,7 +149,7 @@ elmslnecho "two letter abbreviation for deployment? (ex aa for arts / architectu
 read host
 echo "host='${host}'" >> $config
 
-elmslnecho "default email ending? (ex @psu.edu)"
+elmslnecho "default email ending? (ex psu.edu)"
 read emailending
 echo "emailending='${emailending}'" >> $config
 
