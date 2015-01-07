@@ -10,7 +10,7 @@ CKEDITOR.editorConfig = function( config ) {
   // hitting control, they'll be able to use browser native spellchecker
   config.browserContextMenuOnCtrl = true;
   // activate codemirror as UI won't allow it
-  config.extraPlugins = 'codemirror,mathjax';
+  config.extraPlugins = 'codemirror';
   // add codemirror settings
   config.codemirror = {
     // Set this to the theme you wish to use (codemirror themes)

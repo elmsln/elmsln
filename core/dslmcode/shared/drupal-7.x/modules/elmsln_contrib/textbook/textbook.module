@@ -193,16 +193,15 @@ function textbook_context_page_reaction() {
  * Implements hook_wywiwyg_plugin().
  */
 function textbook_wysiwyg_plugin($editor, $version) {
-  if (function_exists('libraries_get_path')) {
+  if ($editor == 'ckeditor' && function_exists('libraries_get_path')) {
     return array(
       'mathjax' => array(
         'url' => 'http://ckeditor.com/addon/mathjax',
-        'path' => libraries_get_path('ckeditor') . '/plugins/mathjax',
         'buttons' => array(
-          'mathjax' => t('MathJax'),
+          'Mathjax' => t('Mathjax'),
         ),
-        'filename' => 'plugin.js',
         'load' => TRUE,
+        'internal' => TRUE,
       ),
     );
   }
@@ -279,7 +278,7 @@ function textbook_wysiwyg_editor_settings_alter(&$settings, $context) {
       $preferred_groupings[] = array('Format', 'Font', 'FontSize', 'Styles', 'Table');
       $preferred_groupings[] = array('SelectAll', 'Find', 'Replace');
       $preferred_groupings[] = array('Flash', 'Smiley');
-      $preferred_groupings[] = array('CreateDiv', 'Maximize', 'SpellChecker', 'Scayt', 'MathJax');
+      $preferred_groupings[] = array('CreateDiv', 'Maximize', 'SpellChecker', 'Scayt', 'Mathjax');
       // An array to hold our newly grouped buttons
       $new_grouped_toolbar = array();
       // Compare each desired groupings to the configured buttons in the toolbar
