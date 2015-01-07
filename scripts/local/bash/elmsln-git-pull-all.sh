@@ -29,10 +29,6 @@ if [ -z $2 ]; then
   elmslnwarn "please select a branch you want to update on (master)"
   exit 1
 fi
-if [ -z $3 ]; then
-  elmslnwarn "select branch you want config directory to update on (master)"
-  exit 1
-fi
 
 start="$(timestamp)"
 msg="Grove online, initializing ELMSLN global git pull at $(date +%T)"
@@ -57,8 +53,8 @@ else
     bash $4 "${msg}" "${attachments}"
   fi
   elmslnecho "${msg}"
-  # reup normal location and config
-  $line "cd ~/elmsln && git pull origin $2 && cd ~/elmsln/config && git pull origin $3" < /dev/null
+  # reup normal location
+  $line "cd ~/elmsln && git pull origin $2" < /dev/null
   # print an sa to ensure health
   $line "drush sa" < /dev/null
   tmpend="$(timestamp)"
