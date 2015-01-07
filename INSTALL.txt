@@ -19,7 +19,7 @@ rm -rf ~/.drush
 sudo chown -R $USER:$USER /var/www/elmsln
 # copy and paste these lines to setup your user and install the system
 bash /var/www/elmsln/scripts/install/users/elmsln-admin-user.sh
-bash /var/www/elmsln/scripts/install/elmsln-install.sh
+sudo bash /var/www/elmsln/scripts/install/elmsln-install.sh
 
 # to verify that it worked you should be able to do the following
 drush sa

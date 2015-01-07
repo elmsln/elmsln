@@ -80,7 +80,7 @@ before_script:
   - sudo service apache2 restart
 script:
   # run the installer
-  - bash /var/www/elmsln/scripts/install/elmsln-install.sh
+  - sudo bash /var/www/elmsln/scripts/install/elmsln-install.sh
   - drush sa
   - drush @online cc drush
   # now run through the upgrade routine
