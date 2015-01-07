@@ -22,6 +22,11 @@ cd $DIR
 # include our config settings
 source ../../config/scripts/drush-create-site/config.cfg
 
+# check that we are the root user
+if [[ $EUID -ne 0 ]]; then
+  elmslnwarn "Please run as root"
+  exit 1
+fi
 #test for empty vars. if empty required var -- exit
 if [ -z $fileloc ]; then
   elmslnwarn "please update your config.cfg file, file location variable missing"
@@ -65,14 +70,14 @@ max=${#char[*]}
 # generate a scripted directory
 if [ ! -d ${moduledir} ];
   then
-  sudo mkdir -p ${moduledir}
-  sudo mkdir -p ${moduledir}/${university}
+  mkdir -p ${moduledir}
+  mkdir -p ${moduledir}/${university}
 fi
 # work on authoring the connector module automatically
 if [ ! -d ${moduledir}/${university}/${cissettings} ];
   then
-  sudo mkdir -p ${moduledir}/${university}/${cissettings}
-  sudo chown -R $USER:$webgroup ${moduledir}
+  mkdir -p ${moduledir}/${university}/${cissettings}
+  chown -R $USER:$webgroup ${moduledir}
   infofile=${moduledir}/${university}/${cissettings}/${cissettings}.info
   modulefile=${moduledir}/${university}/${cissettings}/${cissettings}.module
   touch $infofile
@@ -118,9 +123,9 @@ fi
 
 # make sure drush is happy before we begin drush calls
 drush cc drush
-sudo chown -R $USER $HOME/.drush
+chown -R $USER $HOME/.drush
 # make sure the entire directory is writable by the current user
-sudo chown -R $USER:$webgroup $elmsln
+chown -R $USER:$webgroup $elmsln
 
 # random password for defaultdbo
 dbpw=''
@@ -155,25 +160,25 @@ for tool in "${authoritylist[@]}"
   sitedir=${webdir}/${tool}/sites
   drush site-install ${dist} -y --db-url=mysql://${tool}_${host}:$dbpw@localhost/${tool}_${host} --db-su=$dbsu --db-su-pw=$dbsupw  --account-mail="$admin" --site-mail="$site_email" --site-name="$tool"
   #move out of $tool site directory to host
-  sudo mkdir -p $sitedir/$tool/$host
-  sudo mkdir -p $sitedir/$tool/$host/files
+  mkdir -p $sitedir/$tool/$host
+  mkdir -p $sitedir/$tool/$host/files
   #modify ownership of these directories
-  sudo chown -R $wwwuser:$webgroup $sitedir/$tool/$host/files
-  sudo chmod -R 755 $sitedir/$tool/$host/files
+  chown -R $wwwuser:$webgroup $sitedir/$tool/$host/files
+  chmod -R 755 $sitedir/$tool/$host/files
 
   # setup private file directory
-  sudo mkdir -p $drupal_priv/$tool
-  sudo mkdir -p $drupal_priv/$tool/$tool
-  sudo chown -R $wwwuser:$webgroup $drupal_priv
-  sudo chmod -R 755 $drupal_priv
+  mkdir -p $drupal_priv/$tool
+  mkdir -p $drupal_priv/$tool/$tool
+  chown -R $wwwuser:$webgroup $drupal_priv
+  chmod -R 755 $drupal_priv
 
   # copy the default settings file to this location
   # we leave the original for the time being because this is the first instace
   # of the system. most likely we'll always need a default to fall back on anyway
-  sudo cp "$sitedir/default/settings.php" "$sitedir/$tool/$host/settings.php"
-  sudo chown $USER:$webgroup $sitedir/default/settings.php
-  sudo chown $USER:$webgroup $sitedir/$tool/$host/settings.php
-  sudo chmod -R 755 $sitedir/$tool/$host/settings.php
+  cp "$sitedir/default/settings.php" "$sitedir/$tool/$host/settings.php"
+  chown $USER:$webgroup $sitedir/default/settings.php
+  chown $USER:$webgroup $sitedir/$tool/$host/settings.php
+  chmod -R 755 $sitedir/$tool/$host/settings.php
 
   # establish these values real quick so its more readable below
   site_domain="$tool.${address}"
@@ -208,22 +213,22 @@ for tool in "${authoritylist[@]}"
   # adding servies conf file
   if [ ! -d $sitedir/$tool/services/$host ];
     then
-      sudo mkdir -p $sitedir/$tool/services/$host
-      sudo mkdir -p $sitedir/$tool/services/$host/files
-      sudo chown -R $wwwuser:$webgroup $sitedir/$tool/services/$host/files
-      sudo chmod -R 755 $sitedir/$tool/services/$host/files
+      mkdir -p $sitedir/$tool/services/$host
+      mkdir -p $sitedir/$tool/services/$host/files
+      chown -R $wwwuser:$webgroup $sitedir/$tool/services/$host/files
+      chmod -R 755 $sitedir/$tool/services/$host/files
       if [ -f $sitedir/$tool/$host/settings.php ]; then
-        sudo cp $sitedir/$tool/$host/settings.php $sitedir/$tool/services/$host/settings.php
+        cp $sitedir/$tool/$host/settings.php $sitedir/$tool/services/$host/settings.php
       fi
       if [ -f $sitedir/$tool/services/$host/settings.php ]; then
-        sudo chown $USER:$webgroup $sitedir/$tool/services/$host/settings.php
+        chown $USER:$webgroup $sitedir/$tool/services/$host/settings.php
         echo "" >> $sitedir/$tool/services/$host/settings.php
         echo "" >> $sitedir/$tool/services/$host/settings.php
         echo "\$conf['restws_basic_auth_user_regex'] = '/^SERVICE_.*/';" >> $sitedir/$tool/services/$host/settings.php
       fi
   fi
   # make sure everything in that folder is as it should be ownerwise
-  sudo chown -R $wwwuser:$webgroup $sitedir/$tool/$host/files
+  chown -R $wwwuser:$webgroup $sitedir/$tool/$host/files
   # forcibly apply 1st ELMSLN global update since it isn't fixed tools
   # this makes it so that we don't REQUIRE multi-sites to run tools (stupid)
   # while still fixing the issue with httprl when used in multisites
@@ -238,21 +243,21 @@ done
 # check for tmp directory in config area
 if [ ! -d $elmsln/config/_nondrupal/piwik/tmp ];
 then
-  sudo mkdir $elmsln/config/_nondrupal/piwik/tmp
-  sudo chown -R $wwwuser:$webgroup $elmsln/config/_nondrupal/piwik/tmp
+  mkdir $elmsln/config/_nondrupal/piwik/tmp
+  chown -R $wwwuser:$webgroup $elmsln/config/_nondrupal/piwik/tmp
 fi
-sudo chown -R $wwwuser:$wwwuser $elmsln/config/_nondrupal/piwik
-sudo chmod -R 0755 $elmsln/config/_nondrupal/piwik
+chown -R $wwwuser:$wwwuser $elmsln/config/_nondrupal/piwik
+chmod -R 0755 $elmsln/config/_nondrupal/piwik
 # jobs file directory
-sudo chown -R $wwwuser:$webgroup $elmsln/config/jobs
-sudo chmod -R 755 $elmsln/config/jobs
+chown -R $wwwuser:$webgroup $elmsln/config/jobs
+chmod -R 755 $elmsln/config/jobs
 # make sure webserver owns the files
-sudo find $configsdir/stacks/ -type d -name files | sudo xargs chown -R $wwwuser:$webgroup
+find $configsdir/stacks/ -type d -name files | xargs chown -R $wwwuser:$webgroup
 
 # clean up tmp directory .htaccess to make drupal happy
-sudo rm /tmp/.htaccess
+rm /tmp/.htaccess
 # last second security hardening as clean up to enforce defaults
-sudo bash /var/www/elmsln/scripts/utilities/harden-security.sh
+bash /var/www/elmsln/scripts/utilities/harden-security.sh
 # a message so you know where our head is at. you get candy if you reference this
 elmslnecho "╔───────────────────────────────────────────────────────────────╗"
 elmslnecho "║           ____  Welcome to      ____                          ║"
