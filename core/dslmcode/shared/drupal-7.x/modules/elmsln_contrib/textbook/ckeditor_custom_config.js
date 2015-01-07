@@ -11,6 +11,8 @@ CKEDITOR.editorConfig = function( config ) {
   config.browserContextMenuOnCtrl = true;
   // activate codemirror as UI won't allow it
   config.extraPlugins = 'codemirror';
+  // active mathjax in case people want to use it
+  config.extraPlugins = 'mathjax';
   // add codemirror settings
   config.codemirror = {
     // Set this to the theme you wish to use (codemirror themes)
