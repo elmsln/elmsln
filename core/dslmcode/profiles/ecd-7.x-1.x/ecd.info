@@ -1,4 +1,4 @@
-; Packaging information for elmsmedia
+; Packaging information for ecd
 name = "ECD"
 description = "ELMS Compliance distribution for process management"
 exclusive = "1"

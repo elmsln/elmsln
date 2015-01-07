@@ -113,8 +113,6 @@ function ecd_install() {
     'textbook_editor'
   );
   features_revert($features);
-  // front-page for media is the media path
-  variable_set('site_frontpage', 'media-overview');
   // jquery update needs set for zurb to be happy
   variable_set('jquery_update_jquery_version', '1.7');
   // ignore any rebuild messages
