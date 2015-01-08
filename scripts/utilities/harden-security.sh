@@ -101,6 +101,8 @@ if [ ! -d "$configsdir/logs" ]; then
 fi
 chown -R $owner:$webgroup "$configsdir/logs"
 chmod 2770 "$configsdir/logs" -v
+# make sure domains is harded to bork via a bad .gitignore on hard up
+chmod -R 755 "$elmsln/domains"
 # ensure piwik is happy too
 chown -R $wwwuser:$wwwuser "$configsdir/_nondrupal/piwik"
 chmod -R 0755 "$configsdir/_nondrupal/piwik" -v
