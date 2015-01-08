@@ -458,7 +458,7 @@ html.js .courses-overview-filters fieldset.collapse-processed div.fieldset-wrapp
 }
 .course-blocks-display .course-block-field_course_title-wrapper {
   height:1.125em;
-  padding:.125em 1em 1em;
+  padding:2em 1em 1em;
   float:left;
   text-align:left;
 }
@@ -1140,11 +1140,11 @@ div.course_author_view_profile {
 }
 @media only screen and (max-width: 680px) {
   .course-blocks-display .course-block-field_course_title-wrapper {
-    padding:1em 1em 1em;
+    padding:2em 1em 1em;
   }
   .course-blocks-display li {
     width: 100%;
-    height: 5.5em;
+    height: 9em;
   }
   .course-blocks-display li img{
     display:none;
@@ -1224,6 +1224,11 @@ div.course_author_view_profile {
     opacity: 1.0;
   }
 }
+
+/*courses list*/
+/*Source Located at: http://codepen.io/michael-collins/pen/MYWMed*/
+
+
 @media only screen and (min-width: 840px) {
   .hero-wrapper, .hero-image {
     height:20em;
