@@ -1,17 +1,16 @@
 ; Packaging information for ecd
-name = "ECD"
-description = "ELMS Compliance distribution for process management"
+name = "ELMS Compliance Distro"
+description = "ELMS Compliance Distribution"
 exclusive = "1"
 core = "7.x"
 ; ----------
 ; Dependencies
 ; ----------
-; Fast click
-dependencies[] = fastclick
 ; Administration
 dependencies[] = admin_devel
 dependencies[] = admin_menu
 dependencies[] = admin_menu_toolbar
+dependencies[] = module_filter
 ; Chaos tool suite
 dependencies[] = ctools
 ; Context
@@ -28,20 +27,30 @@ dependencies[] = file
 dependencies[] = filter
 dependencies[] = image
 dependencies[] = list
+dependencies[] = menu
 dependencies[] = node
 dependencies[] = options
 dependencies[] = overlay
 dependencies[] = path
 dependencies[] = system
-dependencies[] = taxonomy
 dependencies[] = text
 dependencies[] = update
 dependencies[] = user
-; Entity
-dependencies[] = entity_iframe
-dependencies[] = entity_iframe_mode
+; Date/Time
+dependencies[] = date
+dependencies[] = date_api
+; Development
+dependencies[] = devel
+dependencies[] = devel_generate
+dependencies[] = profiler_builder
+; Entityforms
+dependencies[] = entityform
 ; Fields
 dependencies[] = entityreference
+dependencies[] = field_group
+dependencies[] = field_hidden
+dependencies[] = link
+dependencies[] = select_or_other
 ; Input filters
 dependencies[] = typogrify
 dependencies[] = video_filter
@@ -54,10 +63,9 @@ dependencies[] = fitvids
 dependencies[] = imagefield_focus
 dependencies[] = libraries
 dependencies[] = masquerade
+dependencies[] = pathauto
 dependencies[] = restws
 dependencies[] = restws_basic_auth
-dependencies[] = module_filter
-dependencies[] = pathauto
 dependencies[] = strongarm
 dependencies[] = token
 dependencies[] = transliteration
@@ -66,6 +74,8 @@ dependencies[] = httprl
 ; Regions
 dependencies[] = regions
 dependencies[] = regions_admin_left
+; UUID
+dependencies[] = uuid
 ; User interface
 dependencies[] = ckeditor_link
 dependencies[] = imce_wysiwyg
@@ -73,6 +83,8 @@ dependencies[] = jquery_update
 dependencies[] = wysiwyg
 ; Views
 dependencies[] = better_exposed_filters
+dependencies[] = editableviews
+dependencies[] = eva
 dependencies[] = views
 dependencies[] = views_autocomplete_filters
 dependencies[] = views_bulk_operations
@@ -81,3 +93,6 @@ dependencies[] = views_ui
 ; Features
 dependencies[] = features
 dependencies[] = regions_admin_example
+dependencies[] = ecd_displays
+dependencies[] = ecd_entityforms
+dependencies[] = ecd_types

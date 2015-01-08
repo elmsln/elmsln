@@ -1,0 +1,7 @@
+<?php
+/**
+ * @file
+ * Code for the ECD Types feature.
+ */
+
+include_once 'ecd_types.features.inc';
