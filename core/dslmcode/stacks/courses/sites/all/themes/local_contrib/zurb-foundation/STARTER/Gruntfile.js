@@ -1,4 +1,6 @@
 module.exports = function(grunt) {
+  "use strict";
+
   var theme_name = 'STARTER';
 
   var global_vars = {
@@ -23,6 +25,20 @@ module.exports = function(grunt) {
       }
     },
 
+    copy: {
+      dist: {
+        files: [
+          {expand:true, cwd: 'bower_components/foundation/js', src: ['foundation/*.js'], dest: 'js/', filter: 'isFile'},
+          {expand:true, cwd: 'bower_components/foundation/', src: ['foundation.min.js'], dest: 'js/', filter: 'isFile'},
+          {expand:true, cwd: 'bower_components/foundation/js/vendor', src: ['fastclick.js'], dest: 'js/vendor', filter: 'isFile'},
+          {expand:true, cwd: 'bower_components/foundation/js/vendor', src: ['jquery.cookie.js'], dest: 'js/vendor', filter: 'isFile'},
+          {expand:true, cwd: 'bower_components/foundation/js/vendor', src: ['modernizr.js'], dest: 'js/vendor', filter: 'isFile'},
+          {expand:true, cwd: 'bower_components/foundation/scss/foundation/components', src: '**/*.scss', dest: 'scss/vendor/foundation/components', filter: 'isFile'},
+          {expand:true, cwd: 'bower_components/foundation/scss/foundation', src: '_functions.scss', dest: 'scss/vendor/foundation', filter: 'isFile'},
+        ]
+      }
+    },
+
     watch: {
       grunt: { files: ['Gruntfile.js'] },
 
@@ -37,8 +53,9 @@ module.exports = function(grunt) {
   });
 
   grunt.loadNpmTasks('grunt-sass');
+  grunt.loadNpmTasks('grunt-contrib-copy');
   grunt.loadNpmTasks('grunt-contrib-watch');
 
-  grunt.registerTask('build', ['sass']);
-  grunt.registerTask('default', ['build','watch']);
+  grunt.registerTask('build', ['sass', 'copy']);
+  grunt.registerTask('default', ['build', 'watch']);
 }
