@@ -1,0 +1,116 @@
+<?php
+
+/**
+ * @file
+ * Installation functions for Feedback module.
+ */
+
+/**
+ * Implements hook_schema().
+ */
+function feedback_schema() {
+  $schema['feedback'] = array(
+    'description' => 'Stores all feedback messages.',
+    'fields' => array(
+      'fid' => array(
+        'description' => 'Feedback message ID.',
+        'type' => 'serial',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ),
+      'uid' => array(
+        'description' => 'User ID of the feedback message author.',
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'status' => array(
+        'description' => 'Feedback status (0 = new, 1 = processed).',
+        'type' => 'int',
+        'size' => 'tiny',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'message' => array(
+        'description' => 'The feedback message.',
+        'type' => 'text',
+        'size' => 'big',
+        'not null' => TRUE,
+      ),
+      'location' => array(
+        'description' => 'System path of the originating page.',
+        'type' => 'text',
+        'not null' => TRUE,
+      ),
+      'location_masked' => array(
+        'description' => 'Untranslated system path of the originating page.',
+        'type' => 'text',
+        'not null' => TRUE,
+      ),
+      'url' => array(
+        'description' => 'Absolute URL of the originating page.',
+        'type' => 'text',
+        'not null' => TRUE,
+      ),
+      'useragent' => array(
+        'description' => 'User agent of the feedback message author.',
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => TRUE,
+      ),
+      // @todo Rename to created. Also add 'changed'.
+      'timestamp' => array(
+        'description' => 'UNIX timestamp of the feedback message creation date.',
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+    ),
+    'primary key' => array('fid'),
+    'indexes' => array(
+      'location' => array(array('location', 32)),
+      'location_masked' => array(array('location_masked', 32)),
+    ),
+  );
+  return $schema;
+}
+
+/**
+ * Implements hook_uninstall().
+ */
+function feedback_uninstall() {
+  db_delete('variable')
+    ->condition('name', 'feedback_%', 'LIKE')
+    ->execute();
+}
+
+/**
+ * Change fid into type serial field.
+ */
+function feedback_update_6100() {
+  db_drop_primary_key('feedback');
+  db_change_field('feedback', 'fid', 'fid', array(
+    'type' => 'serial',
+    'unsigned' => TRUE,
+    'not null' => TRUE,
+  ), array(
+    'primary key' => array('fid'),
+  ));
+}
+
+/**
+ * Add column for absolute URL.
+ */
+function feedback_update_6101() {
+  db_add_field('feedback', 'url', array(
+    'type' => 'text',
+    'not null' => TRUE,
+  ));
+  // Set 'url' to the value of 'location' for all existing entries.
+  db_update('feedback')
+    ->expression('url', 'location')
+    ->execute();
+}
+

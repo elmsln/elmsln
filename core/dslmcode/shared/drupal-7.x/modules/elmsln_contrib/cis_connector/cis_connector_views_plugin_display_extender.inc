@@ -31,7 +31,7 @@ class cis_connector_views_plugin_display_extender extends views_plugin_display_e
    * Provide a form to edit options for this plugin.
    */
   function options_form(&$form, &$form_state) {
-    if ($form['#section'] == 'page-cis_connector') {
+    if (strpos($form['#section'], '-cis_connector') == TRUE) {
       $registry = _cis_connector_build_registry();
       $options = array('-none-' => '-none-');
       foreach ($registry as $key => $option) {

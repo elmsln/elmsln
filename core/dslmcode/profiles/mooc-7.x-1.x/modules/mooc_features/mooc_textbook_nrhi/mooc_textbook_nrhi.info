@@ -9,3 +9,4 @@ dependencies[] = node_reference_highlight_glossary
 dependencies[] = nodereference_highlight
 features[features_api][] = api:2
 features[features_overrides][] = filter.textbook_editor.filters|nrhi
+mtime = 1410809199

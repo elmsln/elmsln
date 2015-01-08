@@ -6,7 +6,7 @@
  */
 function icor_install() {
   // Enable some icor blocks.
-  $default_theme = 'bartik';
+  $default_theme = 'zurb_foundation';
   $admin_theme = 'seven';
   // disable all themes
   db_update('system')
@@ -111,7 +111,7 @@ function icor_install() {
   user_role_grant_permissions($admin_role->rid, array_keys(module_invoke_all('permission')));
   // Set this as the administrator role.
   variable_set('user_admin_role', $admin_role->rid);
-  
+
   // clean up for regions conflict w/ install routine
   // anonymous users
   db_merge('role_permission')->key(array(

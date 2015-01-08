@@ -43,10 +43,3 @@ dependencies[] = views_ui
 
 ; Meedjum
 dependencies[] = meedjum_base
-
-; Information added by drupal.org packaging script on 2013-08-30
-version = "7.x-1.0-alpha5"
-core = "7.x"
-project = "meedjum_blog"
-datestamp = "1377896189"
-

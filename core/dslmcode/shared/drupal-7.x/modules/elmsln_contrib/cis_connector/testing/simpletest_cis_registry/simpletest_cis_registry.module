@@ -1,0 +1,93 @@
+<?php
+
+// service module that makes this implementation specific
+
+/**
+ * Implements hook_cis_service_registry().
+ */
+function simpletest_cis_registry_cis_service_registry() {
+  $items = array(
+    // cis distro instance called online
+    'cis' => array(
+      'protocol' => 'http',
+      'service_address' => 'localhost',
+      'address' => 'localhost',
+      'user' => 'SERVICE_cis_tr',
+      'mail' => 'localhost@localhost.localhost',
+      'pass' => '',
+      'instance' => FALSE,
+      'default_title' => 'Course information system',
+      'ignore' => TRUE,
+    ),
+    // mooc distro instance called courses
+    'mooc' => array(
+      'protocol' => 'http',
+      'service_address' => 'localhost',
+      'address' => 'localhost',
+      'user' => 'SERVICE_cis_tr',
+      'mail' => 'localhost@localhost.localhost',
+      'pass' => '',
+      'instance' => TRUE,
+      'default_title' => 'Course outline',
+      'ignore' => FALSE,
+    ),
+    // cle distro instance called studio
+    'cle' => array(
+      'protocol' => 'http',
+      'service_address' => 'localhost',
+      'address' => 'localhost',
+      'user' => 'SERVICE_cis_tr',
+      'mail' => 'localhost@localhost.localhost',
+      'pass' => '',
+      'instance' => TRUE,
+      'default_title' => 'Collaborative studio',
+      'ignore' => FALSE,
+    ),
+    // icor distro instance called interact
+    'icor' => array(
+      'protocol' => 'http',
+      'service_address' => 'localhost',
+      'address' => 'localhost',
+      'user' => 'SERVICE_cis_tr',
+      'mail' => 'localhost@localhost.localhost',
+      'pass' => '',
+      'instance' => TRUE,
+      'default_title' => 'Interactive object repository',
+      'ignore' => FALSE,
+    ),
+    // elmsmedia distro instance called media
+    'elmsmedia' => array(
+      'protocol' => 'http',
+      'service_address' => 'localhost',
+      'address' => 'localhost',
+      'user' => 'SERVICE_cis_tr',
+      'mail' => 'localhost@localhost.localhost',
+      'pass' => '',
+      'instance' => TRUE,
+      'default_title' => 'Media asset management',
+      'ignore' => FALSE,
+    ),
+    // meedjum_blog distro instance called blog
+    'meedjum_blog' => array(
+      'protocol' => 'http',
+      'service_address' => 'localhost',
+      'address' => 'localhost',
+      'user' => 'SERVICE_cis_tr',
+      'mail' => 'localhost@localhost.localhost',
+      'pass' => '',
+      'instance' => TRUE,
+      'default_title' => 'Course Blog',
+      'ignore' => FALSE,
+    ),
+  );
+
+  return $items;
+}
+
+/**
+ * Implements hook_cis_service_instance_options_alter().
+ */
+function simpletest_cis_registry_cis_service_instance_options_alter(&$options, $course, $service) {
+  // modules we require for all builds
+  $options['en'][] = 'simpletest_cis_registry';
+}

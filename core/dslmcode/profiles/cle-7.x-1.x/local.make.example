@@ -20,9 +20,10 @@ libraries[bootstrap][destination] = "themes/contrib/bootstrap"
 libraries[bootstrap][download][type] = "get"
 libraries[bootstrap][download][url] = "http://twitter.github.com/bootstrap/assets/bootstrap.zip"
 
-; setup install profile
-libraries[cle][directory_name] = "cle"
+; cle
 libraries[cle][type] = "profile"
 libraries[cle][destination] = "../../profiles"
-libraries[cle][download][type] = "get"
-libraries[cle][download][url] = "http://ftp.drupal.org/files/projects/cle-7.x-1.x-dev.tar.gz"
+libraries[cle][download][type] = "git"
+libraries[cle][download][branch] = "7.x-1.x"
+libraries[cle][directory_name] = "cle"
+libraries[cle][download][url] = "https://github.com/drupalprojects/cle.git"

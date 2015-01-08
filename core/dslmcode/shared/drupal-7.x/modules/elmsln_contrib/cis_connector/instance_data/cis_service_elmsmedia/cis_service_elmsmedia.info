@@ -1,0 +1,14 @@
+name = CIS Service ELMS Media
+description = Reference media that's been uploaded to ELMS Media
+core = 7.x
+package = CIS Service Instance
+dependencies[] = cis_connector
+dependencies[] = ctools
+dependencies[] = filefield_sources
+dependencies[] = image
+dependencies[] = views
+dependencies[] = views_xml_backend
+features[ctools][] = views:views_default:3.0
+features[features_api][] = api:2
+features[views_view][] = cis_service_elmsmedia_library
+mtime = 1417627061

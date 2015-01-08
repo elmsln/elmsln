@@ -4,6 +4,21 @@ core = 7.x
 
 ; +++++ Modules +++++
 
+projects[special_menu_items][version] = "2.0"
+projects[special_menu_items][subdir] = "contrib"
+
+projects[menu_attributes][version] = "1.0-rc3"
+projects[menu_attributes][subdir] = "contrib"
+
+;projects[joyride][version] = "1.x-dev"
+;projects[joyride][subdir] = "contrib"
+
+projects[linkchecker][version] = "1.2"
+projects[linkchecker][subdir] = "contrib"
+
+projects[fastclick][version] = "1.2"
+projects[fastclick][subdir] = "contrib"
+
 projects[block_aria_landmark_roles][version] = "1.4"
 projects[block_aria_landmark_roles][subdir] = "contrib"
 
@@ -31,7 +46,7 @@ projects[context_condition_theme][subdir] = "contrib"
 projects[replicate][version] = "1.1"
 projects[replicate][subdir] = "contrib"
 
-projects[features][version] = "2.0"
+projects[features][version] = "2.2"
 projects[features][subdir] = "contrib"
 
 projects[features_override][version] = "2.0-rc1"
@@ -279,11 +294,6 @@ projects[aurora][type] = "theme"
 projects[aurora][version] = "3.2"
 projects[aurora][subdir] = "contrib"
 
-; bootstrap
-projects[bootstrap][type] = "theme"
-projects[bootstrap][version] = "2.2"
-projects[bootstrap][subdir] = "contrib"
-
 ; corolla
 projects[corolla][type] = "theme"
 projects[corolla][version] = "3.0"
@@ -291,7 +301,7 @@ projects[corolla][subdir] = "contrib"
 
 ; fontfolio
 projects[fontfolio][type] = "theme"
-projects[fontfolio][version] = "2.3"
+projects[fontfolio][version] = "2.7"
 projects[fontfolio][subdir] = "contrib"
 
 ; respond
@@ -301,7 +311,7 @@ projects[respond][subdir] = "contrib"
 
 ; skeletontheme
 projects[skeletontheme][type] = "theme"
-projects[skeletontheme][version] = "1.2"
+projects[skeletontheme][version] = "1.4"
 projects[skeletontheme][subdir] = "contrib"
 
 ; tao
@@ -380,5 +390,3 @@ projects[footnotes][patch][] = "http://drupal.org/files/footnotes-wysiwyg_fix_js
 projects[feeds][patch][] = "http://drupal.org/files/608408-feeds_drush_d7-57.patch"
 
 projects[apc][patch][] = "http://drupal.org/files/1567440_apc_drush_enable.patch"
-
-projects[apc][patch][] = "http://drupal.org/files/apc_drush_flush.1565716.70.patch"

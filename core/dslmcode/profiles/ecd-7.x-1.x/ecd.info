@@ -1,0 +1,98 @@
+; Packaging information for ecd
+name = "ELMS Compliance Distro"
+description = "ELMS Compliance Distribution"
+exclusive = "1"
+core = "7.x"
+; ----------
+; Dependencies
+; ----------
+; Administration
+dependencies[] = admin_devel
+dependencies[] = admin_menu
+dependencies[] = admin_menu_toolbar
+dependencies[] = module_filter
+; Chaos tool suite
+dependencies[] = ctools
+; Context
+dependencies[] = context
+dependencies[] = context_ui
+; Core
+dependencies[] = block
+dependencies[] = contextual
+dependencies[] = dblog
+dependencies[] = field
+dependencies[] = field_sql_storage
+dependencies[] = field_ui
+dependencies[] = file
+dependencies[] = filter
+dependencies[] = image
+dependencies[] = list
+dependencies[] = menu
+dependencies[] = node
+dependencies[] = options
+dependencies[] = overlay
+dependencies[] = path
+dependencies[] = system
+dependencies[] = text
+dependencies[] = update
+dependencies[] = user
+; Date/Time
+dependencies[] = date
+dependencies[] = date_api
+; Development
+dependencies[] = devel
+dependencies[] = devel_generate
+dependencies[] = profiler_builder
+; Entityforms
+dependencies[] = entityform
+; Fields
+dependencies[] = entityreference
+dependencies[] = field_group
+dependencies[] = field_hidden
+dependencies[] = link
+dependencies[] = select_or_other
+; Input filters
+dependencies[] = typogrify
+dependencies[] = video_filter
+; Media
+dependencies[] = imce
+; Other
+dependencies[] = entity
+dependencies[] = entity_token
+dependencies[] = fitvids
+dependencies[] = imagefield_focus
+dependencies[] = libraries
+dependencies[] = masquerade
+dependencies[] = pathauto
+dependencies[] = restws
+dependencies[] = restws_basic_auth
+dependencies[] = strongarm
+dependencies[] = token
+dependencies[] = transliteration
+; Performance and scalability
+dependencies[] = httprl
+; Regions
+dependencies[] = regions
+dependencies[] = regions_admin_left
+; UUID
+dependencies[] = uuid
+; User interface
+dependencies[] = ckeditor_link
+dependencies[] = imce_wysiwyg
+dependencies[] = jquery_update
+dependencies[] = wysiwyg
+; Views
+dependencies[] = better_exposed_filters
+dependencies[] = editableviews
+dependencies[] = eva
+dependencies[] = views
+dependencies[] = views_autocomplete_filters
+dependencies[] = views_bulk_operations
+dependencies[] = views_fluid_grid
+dependencies[] = views_ui
+; Features
+dependencies[] = features
+dependencies[] = regions_admin_example
+dependencies[] = ecd_displays
+dependencies[] = ecd_entityforms
+dependencies[] = ecd_types

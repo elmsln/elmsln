@@ -5,14 +5,18 @@ api = "2"
 projects[drupal][version] = "7.x"
 ; include the d.o. profile base
 includes[] = "drupal-org.make"
+includes[] = "drupal-org-core.make"
 
 ; shadowbox needs to fix issue before it can be included in correct make file
 projects[shadowbox][version] = "4.0-rc1"
 projects[shadowbox][subdir] = "contrib"
 
-; Patches
-; fix cross domain error if site is in an iframe
-projects[shadowbox][patch][] = "http://drupal.org/files/issues/shadowbox-iframe-sec-error-2154699-1.patch"
+; need to wait til stuff clears
+projects[accessibility][version] = "1.x-dev"
+projects[accessibility][subdir] = "contrib"
+; need to wait til included make clears
+projects[simplehtmldom][version] = "2.1"
+projects[simplehtmldom][subdir] = "contrib"
 
 ; +++++ Libraries +++++
 
@@ -33,9 +37,9 @@ libraries[shadowbox][destination] = "libraries"
 
 
 ; cis
-libraries[cis][directory_name] = "cis"
 libraries[cis][type] = "profile"
 libraries[cis][destination] = "../../profiles"
-libraries[cis][download][type] = "get"
-libraries[cis][download][url] = "http://ftp.drupal.org/files/projects/cis-7.x-1.x-dev.tar.gz"
-
+libraries[cis][download][type] = "git"
+libraries[cis][download][branch] = "7.x-1.x"
+libraries[cis][directory_name] = "cis"
+libraries[cis][download][url] = "https://github.com/drupalprojects/cis.git"

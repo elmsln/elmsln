@@ -1,0 +1,8 @@
+name = "Replicate Entityform"
+description = "Extends Replicate module to manage the replication of entityforms."
+package = "Entity"
+core = "7.x"
+
+dependencies[] = replicate
+dependencies[] = entityform
+dependencies[] = entity

@@ -7,7 +7,7 @@
         {
             "command": "si",
             "arguments": [
-                "standard"
+                "minimal"
             ],
             "options": {
                 "y": true
@@ -16,7 +16,7 @@
         {
             "command": "cook",
             "arguments": [
-                "standard_unsuck,dr_security_core_settings,core_above_core,d7adminux"
+                "standard_unsuck,dr_security_core_settings,core_above_core,d7adminux,standard_types"
             ],
             "options": {
                 "y": true
@@ -31,6 +31,18 @@
                 "y": true,
                 "mlt-global": 0
             }
+        },
+        {
+            "command": "cc",
+            "arguments": [
+                "all"
+            ]
+        },
+        {
+            "command": "en",
+            "arguments": [
+                "devel"
+            ]
         },
         {
             "command": "uli"

@@ -1,0 +1,29 @@
+{
+    "name": "Create content type",
+    "drush_recipes_api": "1.0",
+    "weight": "0",
+    "core": "7",
+    "recipe": [
+        {
+            "madlib": "TRUE",
+            "command": "php-eval",
+            "arguments": [
+                "\"node_type_save(array('type' => '[ccr_machine_name]','name' => '[ccr_human_name]','base' => 'node_content','module' => 'node','has_title' => 1))\""
+            ],
+            "tokens": {
+                "[ccr_machine_name]": "Content type machine name",
+                "[ccr_human_name]": "Human readable name"
+            },
+            "defaults": {
+                "[ccr_machine_name]": "page",
+                "[ccr_human_name]": "Page"
+            }
+        }
+    ],
+    "metadata": {
+        "type": "add-on",
+        "description": "Create a new content type via interactive prompt",
+        "version": "1.0",
+        "author": "btopro"
+    }
+}

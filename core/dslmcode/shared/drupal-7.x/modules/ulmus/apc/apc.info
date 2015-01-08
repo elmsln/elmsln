@@ -6,9 +6,9 @@ files[] = apc.module
 files[] = drupal_apc_cache.inc
 files[] = tests/apc.test
 
-; Information added by drupal.org packaging script on 2013-09-30
-version = "7.x-1.0-beta4+8-dev"
+; Information added by Drupal.org packaging script on 2014-11-18
+version = "7.x-1.0-beta6"
 core = "7.x"
 project = "apc"
-datestamp = "1380554153"
+datestamp = "1416309481"
 

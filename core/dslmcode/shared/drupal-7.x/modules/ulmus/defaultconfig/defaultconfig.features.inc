@@ -24,8 +24,10 @@ function defaultconfig_features_export_options() {
           }
         }
       }
-      foreach (array_keys($components) as $default_name) {
-        $options[$component_name . ':' . $default_name] = $component['label'] . ': ' . $default_name;
+      if (!empty($components)) {
+        foreach (array_keys($components) as $default_name) {
+          $options[$component_name . ':' . $default_name] = $component['label'] . ': ' . $default_name;
+        }
       }
     }
   }

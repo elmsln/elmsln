@@ -41,7 +41,11 @@ class DrupalAPCCache implements DrupalCacheInterface {
    */
   protected $drush;
 
+  /**
+   * @var array
+   */
   protected static $remoteClears = array();
+
   /**
    * Get prefix for bin using the configuration.
    *
@@ -79,7 +83,6 @@ class DrupalAPCCache implements DrupalCacheInterface {
   }
 
   function __construct($bin) {
-
     $this->bin = $bin;
     $this->drush = (drupal_is_cli() && function_exists('drush_log'));
 
@@ -87,7 +90,6 @@ class DrupalAPCCache implements DrupalCacheInterface {
     $prefix = self::getPrefixSettingForBin($this->bin);
 
     // If we do not have a configured prefix we use the HTTP_HOST.
-
     if (empty($prefix) && isset($_SERVER['HTTP_HOST'])) {
       // Provide a fallback for multisite. This is on purpose not inside the
       // getPrefixForBin() function in order to decouple the unified prefix
@@ -172,6 +174,9 @@ class DrupalAPCCache implements DrupalCacheInterface {
   }
 
   function getMultiple(&$cids) {
+    if (!$cids) {
+      return array();
+    }
     // We need to search the cache with the proper keys and
     // be able to get the original $cid back.
     foreach ($cids as $cid) {
@@ -231,29 +236,18 @@ class DrupalAPCCache implements DrupalCacheInterface {
     }
   }
 
- /**
-   * Escape string for raw using in a PCRE regex.
-   *
-   * @param string $unsafeString
-   *
-   * @return string
-   *   Safe string.
-   */
-  protected function escapeStringForRegex($unsafeString) {
-    return preg_replace('/[\/\.\[\]\(\)\|]/', '\\\\\\0', $unsafeString);
-  }
-
   /**
    * Delete CID matching the given prefix.
    *
    * @param string $prefix
    */
   protected function deletePrefix($prefix) {
-    $match = $this->escapeStringForRegex($this->binKey() . $prefix);
-    $iterator = new APCIterator('user', '/^' . $match . '/', APC_ITER_KEY);
-    foreach ($iterator as $key => $data) {
-      apc_delete($key);
-     }
+    if (class_exists('APCIterator')) {
+      $iterator = new APCIterator('user', '/^\Q' . $this->binKey() . $prefix . '\E/', APC_ITER_KEY);
+      foreach ($iterator as $key => $data) {
+        apc_delete($key);
+       }
+    }
    }
 
   /**
@@ -274,7 +268,10 @@ class DrupalAPCCache implements DrupalCacheInterface {
     // Add a get to our statistics.
     $GLOBALS['apc_statistics'][] = array('clear', $this->bin, $cid, (int)$wildcard);
 
-    if (!empty($cid) && class_exists('APCIterator')) {
+    if (empty($cid)) {
+      $this->flush();
+    }
+    else {
       if ($wildcard) {
         if ($cid == '*') {
           $this->flush();
@@ -295,12 +292,19 @@ class DrupalAPCCache implements DrupalCacheInterface {
   }
 
   function isEmpty() {
-    $match = $this->escapeStringForRegex($this->binKey());
-    $iterator = new APCIterator('user', '/^' . $match . '/', APC_ITER_KEY);
-    return 0 === $iterator->getTotalCount();
+    if (class_exists('APCIterator')) {
+      $iterator = new APCIterator('user', '/^\Q' . $this->binKey() . '\E/', APC_ITER_KEY);
+      return 0 === $iterator->getTotalCount();
+    }
+    return TRUE;
   }
 
   public static function remoteFlush() {
+    if (!module_exists('apc')) {
+      drush_log('You need to enable the APC module for remote cache clearing to work. Run drush pm-enable apc.', 'error');
+      return;
+    }
+
     global $base_url;
     if (!empty(self::$remoteClears)) {
       // optimize '*' clears.

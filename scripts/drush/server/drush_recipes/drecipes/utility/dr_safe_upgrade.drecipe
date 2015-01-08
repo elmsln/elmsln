@@ -22,7 +22,10 @@
       }
     },
     {
-      "command": "updb"
+      "command": "updb",
+      "options": {
+        "y": "1"
+      }
     },
     {
       "command": "vdel",

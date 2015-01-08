@@ -12,9 +12,10 @@ function cle_submission_default_rules_configuration() {
   $items['rules_cle_submission_comment'] = entity_import('rules_config', '{ "rules_cle_submission_comment" : {
       "LABEL" : "Submission Comment",
       "PLUGIN" : "reaction rule",
+      "OWNER" : "rules",
       "TAGS" : [ "CLE" ],
       "REQUIRES" : [ "rules", "radioactivity", "comment" ],
-      "ON" : [ "comment_insert" ],
+      "ON" : { "comment_insert" : [] },
       "IF" : [
         { "node_is_of_type" : {
             "node" : [ "comment:node" ],
@@ -35,9 +36,10 @@ function cle_submission_default_rules_configuration() {
   $items['rules_cle_submission_vote'] = entity_import('rules_config', '{ "rules_cle_submission_vote" : {
       "LABEL" : "Submission Vote",
       "PLUGIN" : "reaction rule",
+      "OWNER" : "rules",
       "TAGS" : [ "CLE" ],
-      "REQUIRES" : [ "rules", "radioactivity", "voting_rules" ],
-      "ON" : [ "voting_rules_insert_node" ],
+      "REQUIRES" : [ "radioactivity", "voting_rules" ],
+      "ON" : { "voting_rules_insert_node" : [] },
       "IF" : [
         { "node_is_of_type" : {
             "node" : [ "node" ],

@@ -15,7 +15,8 @@ function mooc_textbook_nrhi_features_override_default_overrides() {
   $overrides["filter.textbook_editor.filters|nrhi"] = array(
     'settings' => array(),
     'status' => 1,
-    'weight' => -42,
+    'weight' => -40,
   );
+
  return $overrides;
 }

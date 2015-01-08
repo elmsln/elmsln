@@ -100,6 +100,7 @@ function cle_achievements_achievements_info() {
  */
 function cle_achievements_comment_insert($comment) {
   // make sure we don't award people for commenting on their own stuff
+  $node = node_load($comment->nid);
   if ($node->uid != $comment->uid) {
     // increment the comment count
     $current_count = achievements_storage_get('comment-count', $comment->uid) + 1;

@@ -128,9 +128,9 @@ function _cis_filter_link_render($url, $code, $link = '', $instance = '/') {
   $response = _cis_connector_request($instance . '/' . $url, array(), $code['tool']);
   $data = drupal_json_decode($response->data);
   // if we have the field property set return a link
-  if (isset($code['field']) && isset($data[$code['field']]['uri'])) {
-    // field must have a uri associated with it
-    $path = $data[$code['field']]['uri'];
+  if (isset($code['field']) && isset($data[$code['field']]['url'])) {
+    // field must have a url associated with it
+    $path = $data[$code['field']]['url'];
     // special case for rendering images via direct embed
     if (isset($code['item_type']) && $code['item_type'] == 'image') {
       $width = '';

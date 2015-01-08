@@ -149,7 +149,7 @@ elmslnecho "two letter abbreviation for deployment? (ex aa for arts / architectu
 read host
 echo "host='${host}'" >> $config
 
-elmslnecho "default email ending? (ex @psu.edu)"
+elmslnecho "default email ending? (ex psu.edu)"
 read emailending
 echo "emailending='${emailending}'" >> $config
 
@@ -328,8 +328,10 @@ drush cc drush
 # ubuntu restarts differently
 if [[ $os == '2' ]]; then
   service apache2 restart
+  /etc/init.d/mysql restart
 else
   /etc/init.d/httpd restart
+  /etc/init.d/mysqld restart
 fi
 
 elmslnecho "Everything should be in place, we are going to log you out now. Log back in and run the following:"

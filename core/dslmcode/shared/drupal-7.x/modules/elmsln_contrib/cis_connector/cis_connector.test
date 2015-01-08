@@ -1,0 +1,124 @@
+<?php
+
+/**
+ * @file
+ * Test suite for CIS Connector module.
+ */
+
+/**
+ * Base class with some helper methods.
+ */
+class CISConnectorTestCase extends DrupalWebTestCase {
+
+  /**
+   * {@inheritdoc}
+   */
+  function setUp() {
+    parent::setUp(func_get_args());
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function getInfo() {
+    return array(
+      'name' => 'CIS Connector',
+      'description' => 'Tests core CIS Connector capabilities.',
+      'group' => 'CIS',
+    );
+  }
+
+  /**
+   * Tests for RestWS meta controllers.
+   */
+  function testMetaControllers() {
+    // Now enable the cis_connector module.
+    module_enable(array('cis_connector', 'restws'), TRUE);
+    // @todo need to build a fake connection registry for testing call ability
+    drupal_flush_all_caches();
+    drupal_static_reset();
+    // assert meta controllers are working / available
+    $controls = restws_meta_controls();
+    $this->assertTrue((isset($controls['deep-load-refs']) && isset($controls['xml-out'])), t('CIS Required Metacontrollers active'));
+  }
+
+  /**
+   * Tests for connection registry given example one to walk through.
+   */
+  function testBuildRegistry() {
+    // Now enable the cis_connector module.
+    module_enable(array('simpletest_cis_registry', 'cis_connector'), TRUE);
+    drupal_flush_all_caches();
+    drupal_static_reset();
+    // assert buckets are set for global
+    $settings = _cis_connector_build_registry();
+    $this->assertTrue((isset($settings['cis']) && isset($settings['mooc']) && isset($settings['cle']) && isset($settings['icor']) && isset($settings['elmsmedia']) && isset($settings['meedjum_blog'])), t('CIS registry buckets test'));
+    // assert a made up registry bucket
+    $settings = _cis_connector_build_registry('MadeUpKey');
+    $this->assertFalse($settings, t('Fake Registry entry test'));
+  }
+
+  /**
+   * Tests for functions dependent on connection registry.
+   */
+  function testRegistryAddressConversions() {
+    // Now enable the cis_connector module.
+    module_enable(array('simpletest_cis_registry', 'cis_connector'), TRUE);
+    drupal_flush_all_caches();
+    drupal_static_reset();
+    // assert buckets are set for global
+    $settings = _cis_connector_build_registry();
+    // test that real address translation works
+    $address = 'http://localhost/sites/services/st/test100/files/image.png';
+    $realpath = _cis_connector_real_address($address);
+    $this->assertNotEqual($address, $realpath, t('Check that real address removes the services portion of the file request URL.'));
+
+    // test the ability to build an address from the registry
+    $instance = '/test100/';
+
+    // build a service address call
+    $method = 'service';
+    $address = _cis_connector_format_address($settings['mooc'], $instance, $method);
+    $test = $settings['mooc']['protocol'] . '://' . $settings['mooc']['user'] . ':' . $settings['mooc']['pass'] . '@' . $settings['mooc']['service_address'] . $instance;
+    $this->assertEqual($test, $address, t('Address for service / backend calls'));
+
+    // build a front facing call
+    $method = 'front';
+    $address = _cis_connector_format_address($settings['mooc'], $instance, $method);
+    $test = $settings['mooc']['protocol'] . '://' . $settings['mooc']['address'] . $instance;
+    $this->assertEqual($test, $address, t('Address for front facing call'));
+
+    // build against something we don't support so it bricks :p
+    $method = 'thingsandstuff';
+    $address = _cis_connector_format_address($settings['mooc'], $instance, $method);
+    $test = $settings['mooc']['protocol'] . '://';
+    $this->assertEqual($test, $address, t('address building for things and stuff should come up invalid.'));
+  }
+
+  /**
+   * Tests against Resource Building
+   */
+  //function testResources() {
+    // @todo ensure other functions that build off the registry work
+  //}
+
+  /**
+   * Tests against restws w/ deep load
+   */
+  function testDeepLoadRestWS() {
+    // Now enable the cis_connector module.
+    module_enable(array('simpletest_cis_registry', 'restws', 'cis_connector'), TRUE);
+    drupal_flush_all_caches();
+    drupal_static_reset();
+    // assert meta controllers are working / available
+    $settings = _cis_connector_build_registry('cis');
+    // login so we can start to assert tests against ourself
+    $web_user = $this->drupalCreateUser(array('access resource user', 'access resource node'));
+    // @todo figure out how to login successfully here
+    //$this->drupalLogin($web_user);
+    // create a new node so we have some data
+    $node = $this->drupalCreateNode();
+    // @todo figure out how to post to this
+    //$this->drupalPost('node.json?deep-load-refs=user', array(), t('Request resources'));
+  }
+}

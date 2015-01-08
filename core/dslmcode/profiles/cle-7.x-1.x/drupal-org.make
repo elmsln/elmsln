@@ -4,8 +4,20 @@ api = "2"
 
 ; Modules
 
+projects[features_override][version] = "2.0-rc2"
+projects[features_override][subdir] = "contrib"
+
+projects[masonry_views][version] = "1.0"
+projects[masonry_views][subdir] = "contrib"
+
+projects[link][version] = "1.2"
+projects[link][subdir] = "contrib"
+
 projects[fastclick][version] = "1.2"
 projects[fastclick][subdir] = "contrib"
+
+projects[field_hidden][version] = "1.6"
+projects[field_hidden][subdir] = "contrib"
 
 projects[achievements][version] = "1.x-dev"
 projects[achievements][subdir] = "contrib"
@@ -43,7 +55,7 @@ projects[entityreference_prepopulate][subdir] = "contrib"
 projects[flag][version] = "2.0"
 projects[flag][subdir] = "contrib"
 
-projects[features][version] = "2.0-rc3"
+projects[features][version] = "2.2"
 projects[features][subdir] = "contrib"
 
 projects[flexslider][version] = "1.0-rc3"
@@ -139,7 +151,10 @@ projects[radioactivity][subdir] = "contrib"
 projects[regions][version] = "1.x-dev"
 projects[regions][subdir] = "contrib"
 
-projects[rules][version] = "2.2"
+projects[restws][version] = "2.x-dev"
+projects[restws][subdir] = "contrib"
+
+projects[rules][version] = "2.7"
 projects[rules][subdir] = "contrib"
 
 projects[voting_rules][version] = "1.0-alpha1"
@@ -162,6 +177,9 @@ projects[imce_wysiwyg][subdir] = "contrib"
 
 projects[jquery_update][version] = "2.4"
 projects[jquery_update][subdir] = "contrib"
+
+projects[date][version] = "2.8"
+projects[date][subdir] = "contrib"
 
 projects[masonry][version] = "2.0"
 projects[masonry][subdir] = "contrib"
@@ -269,8 +287,10 @@ libraries[oauth][download][url] = "https://github.com/juampy72/OAuth-PHP/archive
 
 ; Patches
 ; fix false menu cloning
-projects[og_clone][patch][] = "http://drupal.org/files/og_clone-menu-cloning-none-1940982-1.patch"
+projects[og_clone][patch][] = "https://www.drupal.org/files/og_clone-menu-cloning-none-1940982-1.patch"
 ; allow for altering what can be cloned
-projects[og_clone][patch][] = "http://drupal.org/files/og_clone-item-id-alter-1941054-1.patch"
+projects[og_clone][patch][] = "https://www.drupal.org/files/og_clone-item-id-alter-1941054-1.patch"
 ; infinite scroll to work with masonry
-projects[views_infinite_scroll][patch][] = "http://drupal.org/files/views_infinite_scroll-1806628-13.patch"
+projects[views_infinite_scroll][patch][] = "https://www.drupal.org/files/views_infinite_scroll-1806628-13.patch"
+; rules is so stupid right now..
+projects[rules][patch][] = "https://www.drupal.org/files/issues/fix_errors_on_update-2090511-189.patch"

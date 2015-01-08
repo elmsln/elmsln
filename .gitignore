@@ -7,3 +7,4 @@ config
 .git
 sftp-config.json
 core/dslmcode/shared/drupal-7.x/themes/elmsln_contrib/foundation_access/images/test-banner.jpg
+.validate_pre_commit

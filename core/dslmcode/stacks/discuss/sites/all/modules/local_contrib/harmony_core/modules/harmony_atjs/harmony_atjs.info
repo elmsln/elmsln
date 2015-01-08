@@ -1,0 +1,21 @@
+name = Harmony - Atjs
+description = Provides core functionality for Harmony!
+core = 7.x
+package = Harmony
+project = harmony_atjs
+dependencies[] = atjs
+dependencies[] = features
+dependencies[] = features_override
+dependencies[] = harmony_core
+features[atjs_listener][] = harmony_users
+features[ctools][] = atjs:default_atjs_listener:1
+features[features_api][] = api:2
+features[features_overrides][] = field_instance.harmony_post-harmony_post-field_harmony_text.widget|settings|atjs_fieldset
+features[features_overrides][] = filter.harmony_filtered.filters|atjs
+
+; Information added by Drupal.org packaging script on 2015-01-04
+version = "7.x-1.x-dev"
+core = "7.x"
+project = "harmony_core"
+datestamp = "1420383189"
+

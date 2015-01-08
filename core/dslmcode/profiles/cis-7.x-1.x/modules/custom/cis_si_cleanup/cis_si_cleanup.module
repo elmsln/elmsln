@@ -43,12 +43,4 @@ function cis_si_cleanup_cis_service_instance_options_alter(&$options, $course, $
   // branding bar across systems and context for placement
   $options['en'][] = 'cis_lmsless';
   $options['en'][] = 'cis_lmsless_ux';
-  // if any major performance / caching modules are enabled here, enable
-  // downstream by default
-  if (module_exists('filecache')) {
-    $options['en'][] = 'filecache';
-  }
-  if (module_exists('apc')) {
-    $options['en'][] = 'apc';
-  }
 }

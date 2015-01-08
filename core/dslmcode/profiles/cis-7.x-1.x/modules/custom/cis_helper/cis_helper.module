@@ -662,6 +662,15 @@ function cis_helper_cis_service_instance_job_file_alter(&$content, $course, $ser
   $content .= 'drush ecl' . "\n";
   // may seem odd but double running cron can prime syncing
   $content .= 'drush cron' . "\n";
+  // if any major performance / caching modules are enabled
+  // add them last so that if they error out there's no issue in the site
+  // building since these can be silly at times
+  if (module_exists('filecache')) {
+    $content .= 'drush en filecache' . "\n";
+  }
+  if (module_exists('apc')) {
+    $content .= 'drush en apc' . "\n";
+  }
 }
 
 /**
@@ -850,6 +859,25 @@ function cis_helper_restws_response_alter(&$response, $function, $format_name) {
     else {
       _cis_helper_restws_deep_load($response);
     }
+    // @sillyhack to convert json object to xml quickly and deliver
+    // the page prior to drupal trying to do so
+    if (isset($_GET['xml-out'])) {
+      // figure out the entity type
+      $arg0 = explode('.', arg(0));
+      $entity = $arg0[0];
+      // bump this up a level so its similar to .xml request method
+      $response[$entity] = $response['list'];
+      // unset the old
+      unset($response['list']);
+      // wrap the whole thing in a list
+      print _cis_helper_getxml(array ('list' => $response));
+      // set content type to XML so browser / others read it as XML
+      drupal_add_http_header('Content-Type', 'application/xml');
+      // end-cap and exit early this way we don't get the callback
+      // that fires off traditional serialization
+      drupal_page_footer();
+      exit;
+    }
   }
 }
 
@@ -939,6 +967,44 @@ function _cis_helper_restws_deep_load(&$response) {
           }
           // add values based on wrapper passing correctly
           $val = $eary;
+        }
+      }
+    }
+    // special case for files cause they nest differently
+    elseif (is_array($val) && isset($val['file']['id'])) {
+      if (in_array($val['file']['resource'], $allowed)) {
+        // load the entity
+        $entity = entity_load_single($val['file']['resource'], $val['file']['id']);
+        // ensure they can view this specific item
+        if (entity_access('view', $val['file']['resource'], $entity)) {
+          // create a meta wrapper to act on for entity
+          $wrapper = entity_metadata_wrapper($val['file']['resource'], $entity);
+          // filter out fields
+          $wrap = restws_property_access_filter($wrapper);
+          // typecast entity as array for property evaluation
+          $eary = (array) $entity;
+          // these properties don't cause security issues but file entity is
+          // really tricky, especially without file_entity... and even then with
+          // it it can be a pain
+          $file_fix = array(
+            'fid' => 'fid',
+            'uid' => 'uid',
+            'uri' => 'uri',
+            'filename' => 'filename',
+            'filemime' => 'filemime',
+            'filesize' => 'filesize',
+            'status' => 'status',
+            'timestamp' => 'timestamp',
+          );
+          foreach ($eary as $property => $value) {
+            // value needs to be removed as it didn't pass wrapper validation
+            if (!isset($wrap[$property]) && !isset($file_fix[$property])) {
+              unset($eary[$property]);
+            }
+          }
+          $eary['url'] = file_create_url($eary['uri']);
+          // add values based on wrapper passing correctly
+          $val['file'] = $eary;
         }
       }
     }
@@ -1083,4 +1149,60 @@ function cis_helper_httprl_spider_other_paths_alter(&$paths) {
   $paths[] = 'courses';
   $paths[] = 'programs';
   $paths[] = 'faculty';
+}
+
+/**
+ * Converts an array to XML
+ *  http://www.devexp.eu/2009/04/11/php-domdocument-convert-array-to-xml/
+ *  @param  <array> $array  The associative array you want to convert; nested numeric indices are OK!
+ */
+function _cis_helper_getxml( array $array ) {
+  $array2XmlConverter  = new CISXmlDomConstructor('1.0', 'utf-8');
+  $array2XmlConverter->xmlStandalone   = TRUE;
+  $array2XmlConverter->formatOutput    = TRUE;
+  try {
+    $array2XmlConverter->fromMixed( $array );
+    $array2XmlConverter->normalizeDocument ();
+    $xml    = $array2XmlConverter->saveXML();
+    return  $xml;
+  }
+  catch( Exception $ex )  {
+    return  $ex;
+  }
+}
+
+/**
+ * Extends the DOMDocument to implement personal (utility) methods.
+ * - From: http://www.devexp.eu/2009/04/11/php-domdocument-convert-array-to-xml/
+ * - parent:: See http://www.php.net/manual/en/class.domdocument.php
+ *
+ * @throws   DOMException   http://www.php.net/manual/en/class.domexception.php
+ *
+ * @author Toni Van de Voorde
+ */
+class CISXmlDomConstructor extends DOMDocument {
+  public function fromMixed($mixed, DOMElement $domElement = null) {
+    $domElement = is_null($domElement) ? $this : $domElement;
+    if (is_array($mixed)) {
+      foreach ($mixed as $index => $mixedElement) {
+        if ( is_int($index) ) {
+          if ( $index == 0 ) {
+            $node = $domElement;
+          }
+          else {
+            $node = $this->createElement($domElement->tagName);
+            $domElement->parentNode->appendChild($node);
+          }
+        }
+        else {
+          $node = $this->createElement($index);
+          $domElement->appendChild($node);
+        }
+        $this->fromMixed($mixedElement, $node);
+      }
+    }
+    else {
+      $domElement->appendChild($this->createTextNode($mixed));
+    }
+  }
 }

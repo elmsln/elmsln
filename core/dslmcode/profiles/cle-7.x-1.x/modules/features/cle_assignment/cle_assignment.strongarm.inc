@@ -143,6 +143,12 @@ function cle_assignment_strongarm() {
       'diff_standard' => array(
         'custom_settings' => FALSE,
       ),
+      'iframe' => array(
+        'custom_settings' => FALSE,
+      ),
+      'revision' => array(
+        'custom_settings' => FALSE,
+      ),
     ),
     'extra_fields' => array(
       'form' => array(

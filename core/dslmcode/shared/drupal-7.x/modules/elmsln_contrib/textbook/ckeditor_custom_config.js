@@ -6,7 +6,7 @@ CKEDITOR.editorConfig = function( config ) {
   // in the font styles tool in the ckeditor toolbar
   config.disableNativeSpellChecker = false;
   // disable ability to use spellcheck inline
-  config.removePlugins = 'scayt,menubutton';
+  config.removePlugins = 'scayt';
   // hitting control, they'll be able to use browser native spellchecker
   config.browserContextMenuOnCtrl = true;
   // activate codemirror as UI won't allow it

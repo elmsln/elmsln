@@ -1,0 +1,45 @@
+{
+    "name": "Add field to entity",
+    "drush_recipes_api": "1.0",
+    "weight": "0",
+    "core": "7",
+    "recipe": [
+        {
+            "command": "field-info",
+            "arguments": [
+                "types"
+            ]
+        },
+        {
+            "madlib": "TRUE",
+            "command": "field-create",
+            "arguments": [
+                "[ccr_machine_name]",
+                "[ccr_field_machine_name],[ccr_field_type],[ccr_field_widget]"
+            ],
+            "options": {
+                "entity_type": "[ccr_entity_type]"
+            },
+            "tokens": {
+                "[ccr_machine_name]": "content type",
+                "[ccr_field_machine_name]": "field type machine name",
+                "[ccr_field_type]": "field type",
+                "[ccr_field_widget]": "type of widget",
+                "[ccr_entity_type]": "entity type"
+            },
+            "defaults": {
+                "[ccr_machine_name]": "page",
+                "[ccr_field_machine_name]": "body",
+                "[ccr_field_type]": "text_with_summary",
+                "[ccr_field_widget]": "text_textarea_with_summary",
+                "[ccr_entity_type]": "node"
+            }
+        }
+    ],
+    "metadata": {
+        "type": "add-on",
+        "description": "Add a field to a given entity bundle, defaults to node.",
+        "version": "1.0",
+        "author": "btopro"
+    }
+}

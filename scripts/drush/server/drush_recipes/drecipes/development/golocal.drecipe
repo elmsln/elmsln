@@ -1,0 +1,117 @@
+{
+    "name": "Go Local",
+    "drush_recipes_api": "1.0",
+    "weight": "0",
+    "core": "7",
+    "recipe": [
+        {
+            "command": "en",
+            "arguments": [
+                "devel",
+                "reroute_email",
+                "dblog",
+                "update",
+                "diff",
+                "field_ui"
+            ],
+            "options": {
+                "y": true
+            }
+        },
+        {
+            "command": "vset",
+            "arguments": [
+                "reroute_email_enable",
+                "1"
+            ]
+        },
+        {
+            "command": "cc",
+            "arguments": [
+                "all"
+            ]
+        },
+        {
+            "command": "rap",
+            "arguments": [
+                "anonymous user",
+                "access devel information"
+            ]
+        },
+        {
+            "command": "rap",
+            "arguments": [
+                "authenticated user",
+                "access devel information"
+            ]
+        },
+        {
+            "command": "vset",
+            "arguments": [
+                "cache",
+                "0"
+            ]
+        },
+        {
+            "command": "vset",
+            "arguments": [
+                "block_cache",
+                "0"
+            ]
+        },
+        {
+            "command": "vset",
+            "arguments": [
+                "error_level",
+                "2"
+            ]
+        },
+        {
+            "command": "vset",
+            "arguments": [
+                "preprocess_js",
+                "0"
+            ]
+        },
+        {
+            "command": "vset",
+            "arguments": [
+                "preprocess_css",
+                "0"
+            ]
+        },
+        {
+            "command": "vset",
+            "arguments": [
+                "page_compression",
+                "0"
+            ]
+        },
+        {
+            "madlib": "TRUE",
+            "command": "vset",
+            "tokens": {
+                "[email_address]": "The email address to reroute all emails to."
+            },
+            "defaults": {
+                "[email_address]": "example@example.com"
+            },
+            "arguments": [
+                "reroute_email_address",
+                "[email_address]"
+            ]
+        },
+        {
+            "command": "cc",
+            "arguments": [
+                "all"
+            ]
+        }
+    ],
+    "metadata": {
+        "type": 2,
+        "version": "1.0",
+        "author": "btopro",
+        "description": "Based on http://www.thirdandgrove.com/this-custom-drush-command-will-make-you-a-better-drupal-developer/ custom drush plugin example."
+    }
+}

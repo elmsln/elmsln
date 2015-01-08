@@ -14,13 +14,13 @@ function cle_submission_filter_default_formats() {
   $formats['student_work'] = array(
     'format' => 'student_work',
     'name' => 'Student work',
-    'cache' => '1',
-    'status' => '1',
-    'weight' => '0',
+    'cache' => 1,
+    'status' => 1,
+    'weight' => 0,
     'filters' => array(
       'filter_html' => array(
-        'weight' => '-10',
-        'status' => '1',
+        'weight' => -10,
+        'status' => 1,
         'settings' => array(
           'allowed_html' => '<a> <em> <strong> <cite> <blockquote> <code> <ul> <ol> <li> <dl> <dt> <dd>',
           'filter_html_help' => 1,
@@ -28,20 +28,20 @@ function cle_submission_filter_default_formats() {
         ),
       ),
       'filter_autop' => array(
-        'weight' => '0',
-        'status' => '1',
+        'weight' => 0,
+        'status' => 1,
         'settings' => array(),
       ),
       'transliteration' => array(
-        'weight' => '0',
-        'status' => '1',
+        'weight' => 0,
+        'status' => 1,
         'settings' => array(
           'no_known_transliteration' => '?',
         ),
       ),
       'filter_htmlcorrector' => array(
-        'weight' => '10',
-        'status' => '1',
+        'weight' => 10,
+        'status' => 1,
         'settings' => array(),
       ),
     ),

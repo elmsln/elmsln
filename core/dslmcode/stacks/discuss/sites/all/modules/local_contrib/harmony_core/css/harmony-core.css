@@ -1,0 +1,275 @@
+
+/* Responsive classes. */
+
+@media (min-width: 768px) {
+  .inline-hidden-xs {
+    display: inline !important;
+  }
+
+  .ib-hidden-xs {
+    display: inline-block !important;
+  }
+
+  .inline-visible-xs {
+    display: none !important;
+  }
+
+  .large-sm-min {
+    font-size: 125%;
+  }
+
+  .table-cell-hidden-xs {
+    display: table-cell !important;
+  }
+}
+
+/* Utility styles. */
+
+.pull-left {
+  float: left;
+}
+
+.pull-right {
+  float: right;
+}
+
+.text-center {
+  text-align: center;
+}
+
+.text-right {
+  text-align: right;
+}
+
+.text-small {
+  font-size: 75%;
+}
+
+.post-full {
+  padding-bottom: 20px;
+  border-bottom: 1px solid #ddd;
+  margin-bottom: 20px;
+}
+
+.post-page {
+  border-bottom: 0;
+  margin-bottom: 0;
+}
+
+.post-inline-reply {
+  margin-top: 20px;
+  border-top: 1px solid #ddd;
+  padding-top: 20px;
+}
+
+.post-header,
+.post-revision-log {
+  margin-bottom: 10px;
+}
+
+.post-user-profile {
+  float: left;
+  width: 120px;
+  margin-right: 10px;
+}
+
+.post-user-profile .profile,
+.post-user-profile .profile .user-picture,
+.post-user-profile .user-picture img {
+  margin: 0;
+}
+
+.post-left-offset {
+  margin-left: 130px;
+}
+
+ul.post-links,
+.region-content ul.post-links,
+ul.post-links li.first {
+  padding-left: 0;
+}
+
+ul.post-links {
+  opacity: 0.8;
+}
+
+.post:hover ul.post-links {
+  opacity: 1;
+}
+
+.flag-harmony-likes a:hover {
+  text-decoration: none;
+}
+
+.flag-harmony-likes a .count,
+.flag-harmony-likes a:hover .count {
+  color: #3b3b3b;
+}
+
+.flag-harmony-likes a:hover .text {
+  text-decoration: underline;
+}
+
+
+/* Responsive tables. */
+
+/* Bartik specific overrides. */
+
+.region-content .table-list ul,
+.region-content .table-list ol {
+  margin: 0;
+  padding: 0;
+}
+
+.table-list {
+  border-bottom: 1px solid #ddd;
+}
+
+.table-list-body {
+  margin-bottom: 0;
+}
+
+.tl-sub-categories {
+  display: block;
+  margin-top: 6px;
+  border-top: 1px dotted #ddd;
+  padding-top: 5px;
+}
+
+@media (max-width: 767px) {
+  /* Clearfix via LESS. */
+  .thread-list:before,.thread-list:after{content:" ";display:table}.thread-list:after{clear:both}.thread-list:before,.thread-list:after{content:" ";display:table}.thread-list:after{clear:both}
+
+  .table-list-head ul {
+    margin-bottom: 0;
+  }
+
+  .table-list-head li {
+    display: none;
+  }
+
+  .table-list-head li.tl-title {
+    display: block;
+    padding: 8px;
+    font-weight: bold;
+  }
+
+  .table-list > .table-list-body > li {
+    display: block;
+    padding: 8px;
+    border-top: 1px solid #ddd;
+  }
+
+  .table-list>.table-list-body>li:before,.table-list>.table-list-body>li:after{content:" ";display:table}.table-list>.table-list-body>li:after{clear:both}.table-list>.table-list-body>li:before,.table-list>.table-list-body>li:after{content:" ";display:table}.table-list>.table-list-body>li:after{clear:both}
+
+  .table-list > .table-list-body > li:nth-child(odd) {
+    background-color: #F9F9F9;
+  }
+
+  .table-list-body .tl-title {
+    margin-bottom: 5px;
+    clear: both;
+  }
+
+  .tl-meta {
+    float: left;
+    margin-right: 10px;
+    line-height: 28px;
+    font-size: 85%;
+  }
+
+  .tl-users .avatar {
+    width: 28px;
+  }
+
+  .tl-activity .date:last-child {
+    display: none;
+  }
+}
+
+@media (min-width: 768px) {
+  .table-list {
+    display: table;
+    border-collapse: collapse;
+    border-spacing: 0;
+    width: 100%;
+  }
+
+  .table-list-head,
+  .table-list-body {
+    display: table-header-group;
+    width: 100%;
+    vertical-align: top;
+  }
+
+  .table-list-body {
+    display: table-row-group;
+  }
+
+  .table-list-row,
+  .table-list-body > li {
+    display: table-row;
+    width: 100%;
+    word-wrap: normal;
+  }
+
+  .table-list-head > ul > li,
+  .tl-cell {
+    display: table-cell;
+    padding: 8px;
+    word-wrap: break-word;
+  }
+
+  .tl-cell {
+    padding: 8px;
+    border-top: 1px solid #ddd;
+    vertical-align: middle;
+  }
+
+  .table-list-head > ul > li {
+    font-weight: bold;
+  }
+
+  .table-list > .table-list-body > li:nth-child(odd) > .tl-cell {
+    background-color: #F9F9F9;
+  }
+
+  .tl-posts,
+  .tl-users,
+  .tl-views {
+    width: 70px;
+  }
+
+  .tl-users img {
+    vertical-align: top;
+  }
+
+  .tl-activity {
+    width: 110px;
+  }
+
+  .tl-activity .date {
+    display: inline-block;
+    width: 50px;
+    text-align: center;
+    word-wrap: break-word;
+  }
+}
+
+.harmony-listing-header {
+  margin: 10px 0;
+}
+
+.harmony-title-meta {
+  float: left;
+  margin-right: 10px;
+  line-height: 2em;
+}
+
+.harmony-meta-item {
+  margin-left: 5px;
+}
+
+.harmony-meta-item:first-child {
+  margin-left: 0;
+}

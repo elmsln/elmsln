@@ -16,6 +16,9 @@ projects[ctools][subdir] = "contrib"
 projects[context][version] = "3.2"
 projects[context][subdir] = "contrib"
 
+projects[cis_connector][version] = "1.x-dev"
+projects[cis_connector][subdir] = "contrib"
+
 projects[devel][version] = "1.5"
 projects[devel][subdir] = "contrib"
 
@@ -25,7 +28,7 @@ projects[profiler_builder][subdir] = "contrib"
 projects[entity_iframe][version] = "1.x-dev"
 projects[entity_iframe][subdir] = "contrib"
 
-projects[features][version] = "2.0"
+projects[features][version] = "2.2"
 projects[features][subdir] = "contrib"
 
 projects[entityreference][version] = "1.1"
@@ -36,6 +39,9 @@ projects[typogrify][subdir] = "contrib"
 
 projects[video_filter][version] = "3.1"
 projects[video_filter][subdir] = "contrib"
+
+projects[video_embed_field][version] = "2.x-dev"
+projects[video_embed_field][subdir] = "contrib"
 
 projects[imce][version] = "1.9"
 projects[imce][subdir] = "contrib"
@@ -85,7 +91,7 @@ projects[regions][subdir] = "contrib"
 projects[textbook][version] = "4.1"
 projects[textbook][subdir] = "contrib"
 
-projects[restws][version] = "2.1"
+projects[restws][version] = "2.x-dev"
 projects[restws][subdir] = "contrib"
 
 projects[ckeditor_link][version] = "2.3"
@@ -145,4 +151,3 @@ libraries[fitvids][type] = "library"
 libraries[fitvids][destination] = "libraries"
 libraries[fitvids][download][type] = "get"
 libraries[fitvids][download][url] = "https://raw.github.com/davatron5000/FitVids.js/master/jquery.fitvids.js"
-

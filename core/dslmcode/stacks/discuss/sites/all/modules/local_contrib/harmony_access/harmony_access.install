@@ -1,0 +1,123 @@
+<?php
+
+/**
+ * @file
+ * harmony_access.install
+ */
+
+/**
+ * Implementation of hook_schema().
+ */
+function harmony_access_schema() {
+  $schema['harmony_access_records'] = array(
+    'description' => 'Access records to determine whether or not a user can perform operations on a thread.',
+    'fields' => array(
+      'har_id' => array(
+        'type' => 'serial',
+        'not null' => TRUE,
+        'description' => 'Primary key.',
+      ),
+      'module' => array(
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => TRUE,
+        'description' => 'The name of the module that created this entry.',
+      ),
+      'realm' => array(
+        'type' => 'varchar',
+        'length' => 128,
+        'not null' => TRUE,
+        'default' => '',
+        'description' => "The realm of the grant, where or how it's effective e.g. group, term, role, user.",
+      ),
+      'gid' => array(
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 0,
+        'description' => 'The value required to access the grant/realm, e.g. role id, group id or user id.',
+      ),
+      'entity_type' => array(
+        'type' => 'varchar',
+        'length' => 128,
+        'not null' => TRUE,
+        'default' => '',
+        'description' => 'The type of entity being accessed.',
+      ),
+      'entity_id' => array(
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 0,
+        'description' => 'The ID of the entity being accessed.',
+      ),
+      'grant_view' => array(
+        'type' => 'int',
+        'size' => 'tiny',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 0,
+        'description' => 'Whether or not to allow, deny or ignore view operation.',
+      ),
+      'grant_create' => array(
+        'type' => 'int',
+        'size' => 'tiny',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 0,
+        'description' => 'Whether or not to allow, deny or ignore create operation.',
+      ),
+      'grant_update' => array(
+        'type' => 'int',
+        'size' => 'tiny',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 0,
+        'description' => 'Whether or not to allow, deny or ignore update operation.',
+      ),
+      'grant_delete' => array(
+        'type' => 'int',
+        'size' => 'tiny',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 0,
+        'description' => 'Whether or not to allow, deny or ignore delete operation.',
+      ),
+      'created' => array(
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 0,
+        'description' => 'The timestamp for the date when the grant was given.',
+      ),
+      'priority' => array(
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 0,
+        'description' => 'The priority of the grant.',
+      ),
+    ),
+    'primary key' => array('har_id'),
+    'indexes' => array(
+      'module' => array('module'),
+      'entity_view' => array('entity_type', 'entity_id', 'grant_view'),
+      'entity_create' => array('entity_type', 'entity_id', 'grant_create'),
+      'entity_update' => array('entity_type', 'entity_id', 'grant_update'),
+      'entity_delete' => array('entity_type', 'entity_id', 'grant_delete'),
+      'priority' => array('priority'),
+    ),
+  );
+
+  $schema['cache_harmony_access_grants'] = drupal_get_schema_unprocessed('system', 'cache');
+  $schema['cache_harmony_access_grants']['description'] = 'Cache table to store the processed grants for a user.';
+
+  return $schema;
+}
+
+/**
+ * Implements hook_uninstall().
+ */
+function harmony_access_uninstall() {
+  variable_del('harmony_access_needs_rebuild');
+}

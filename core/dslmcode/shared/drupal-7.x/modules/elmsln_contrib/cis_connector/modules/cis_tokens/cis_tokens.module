@@ -1,0 +1,277 @@
+<?php
+/**
+ * @file
+ * Supply tokens related to ELMSLN like CIS, section context, etc.
+ */
+
+/**
+ * Implements hook_page_build().
+ */
+function cis_tokens_page_build(&$page) {
+  // display token highlighting for privledged users
+  if ($GLOBALS['user']->uid == 1 || array_intersect(array('administrator', 'instructor', 'staff'), array_values($GLOBALS['user']->roles))) {
+    drupal_add_css(drupal_get_path('module', 'cis_tokens') . '/cis_tokens.css');
+  }
+}
+
+/**
+ * Provide replacement values for placeholder tokens.
+ *
+ * @see http://api.drupal.org/api/drupal/modules--system--system.api.php/function/hook_tokens/7
+ * @see http://www.benmarshall.me/drupal-custom-tokens
+ * @param string $type
+ *   The machine-readable name of the type (group) of token being replaced, such
+ *   as 'node', 'user', or another type defined by a hook_token_info()
+ *   implementation.
+ * @param array $tokens
+ *   An array of tokens to be replaced. The keys are the machine-readable token
+ *   names, and the values are the raw [type:token] strings that appeared in the
+ *   original text.
+ * @param array $data (optional)
+ *   An associative array of data objects to be used when generating replacement
+ *   values, as supplied in the $data parameter to token_replace().
+ * @param array $options (optional)
+ *   An associative array of options for token replacement; see token_replace()
+ *   for possible values.
+ * @return array
+ *   An associative array of replacement values, keyed by the raw [type:token]
+ *   strings from the original text.
+ */
+function cis_tokens_tokens($type, $tokens, $data = array(), $options = array()) {
+  $replacements = array();
+  $sanitize = !empty($options['sanitize']);
+  // tokens from section
+  if ($type == 'elmsln_section') {
+    $section_tokens = _cis_tokens_get_token_scope();
+    $section_scope = _cis_tokens_get_token_scope(TRUE);
+    foreach ($tokens as $name => $original) {
+      // elements we know about ahead of time
+      switch ($name) {
+        case 'section_context':
+          $replacements[$original] = _cis_connector_section_context();
+          $replacements[$original] = '<span data-cis-token="' . t('Scope: Current section') . '<br/>' . t('Token: @token', array('@token' => strip_tags($original))) . '"  class="cis_token_dynamic_value">' . $replacements[$original] . '</span>';
+        break;
+        default:
+          // see if one of our global tokens is matched
+          if (isset($section_tokens[$name])) {
+            $replacements[$original] = '<span data-cis-token="' . t('Scope: @section', array('@section' => $section_scope[$name])) . '<br/>' . t('Token: @token', array('@token' => strip_tags($original))) . '"  class="cis_token_dynamic_value">' . $section_tokens[$name] . '</span>';
+          }
+        break;
+      }
+    }
+  }
+  if ($type == 'elmsln_section_data') {
+    $section_tokens = _cis_tokens_get_token_scope();
+    foreach ($tokens as $name => $original) {
+      // elements we know about ahead of time
+      if (isset($section_tokens[$name])) {
+        $replacements[$original] = $section_tokens[$name];
+      }
+    }
+  }
+  // tokens from cis
+  if ($type == 'elmsln_cis') {
+    foreach ($tokens as $name => $original) {
+      // elements we know about ahead of time
+      // @todo make this NOT pull in the whole HTML page, just these elements
+      switch ($name) {
+        case 'welcome_page':
+        case 'contact_info':
+        case 'other_services':
+        case 'help':
+        case 'resources':
+          $data = _cis_connector_transaction($name);
+          $replacements[$original] = $data['value'];
+        break;
+        case 'welcome_letter':
+        case 'syllabus':
+          $data = _cis_connector_transaction($name);
+          $replacements[$original] = $data;
+        break;
+      }
+    }
+  }
+  return $replacements;
+}
+
+/**
+ * Provide information about our custom tokens.
+ *
+ * @see http://api.drupal.org/api/drupal/modules--system--system.api.php/function/hook_token_info/7
+ * @see http://www.benmarshall.me/drupal-custom-tokens
+ * @return array
+ *   An associative array of available tokens and token types.
+ */
+function cis_tokens_token_info() {
+  // define the types that we can process
+  $types = array(
+    'elmsln_cis' => array(
+      'name' => t('ELMSLN: CIS'),
+      'description' => t('Pull data from CIS / a remote but related scope.'),
+    ),
+    'elmsln_section' => array(
+      'name' => t('ELMSLN: Section'),
+      'description' => t('Data related to the section context, which is related but not the same as og context.'),
+    ),
+    'elmsln_section_data' => array(
+      'name' => t('ELMSLN: Section (data)'),
+      'description' => t('Only use these if you know why you need them.'),
+    ),
+  );
+  // tokens per type
+  $tokens = array(
+    'elmsln_cis' => array(
+      'contact_info' => array(
+        'name' => t("Contact Info"),
+        'description' => t("Instructor contact info for the section in question, pulled from CIS."),
+      ),
+      'welcome_page' => array(
+        'name' => t("Welcome Page"),
+        'description' => t("Welcome page for the section in question, pulled from CIS."),
+      ),
+      'other_services' => array(
+        'name' => t("Other Services"),
+        'description' => t("Other services for the section in question, pulled from CIS."),
+      ),
+      'help' => array(
+        'name' => t("Help"),
+        'description' => t("Help page for the section in question, pulled from CIS."),
+      ),
+      'resources' => array(
+        'name' => t("Resources"),
+        'description' => t("Resources for the section in question, pulled from CIS."),
+      ),
+      // smaller items
+      'syllabus' => array(
+        'name' => t("Syllabus"),
+        'description' => t("Syllabus for the section in question, pulled from CIS."),
+      ),
+      'welcome_letter' => array(
+        'name' => t("Welcome letter"),
+        'description' => t("Welcome letter for the section in question, pulled from CIS."),
+      ),
+    ),
+    'elmsln_section' => array(
+      'section_context' => array(
+        'name' => t("Section Context"),
+        'description' => t("Section ID of the section currently in context"),
+      ),
+    ),
+  );
+  // dynamically generate the global tokens based on those defined globally
+  // as well as per the section. Section always takes priority in this value
+  $scope = _cis_tokens_get_token_scope();
+  foreach ($scope as $key => $val) {
+    $tokens['elmsln_section'][$key] = array(
+      'name' => str_replace('_', ' ', $key),
+      'description' => t('Global token whose value is currently @val', array('@val' => $val)),
+    );
+    $tokens['elmsln_section_data'][$key] = array(
+      'name' => str_replace('_', ' ', $key),
+      'description' => t('Global token whose value is currently @val, just the value.', array('@val' => $val)),
+    );
+  }
+
+  return array(
+    'types' => $types,
+    'tokens' => $tokens,
+  );
+}
+
+/**
+ * Implements hook_node_prepare().
+ */
+function cis_tokens_node_prepare($node) {
+  if ($node->type == 'section' && !isset($node->field_cis_tokens[LANGUAGE_NONE])) {
+    $node->field_cis_tokens['und'][0]['value'] = variable_get('cis_tokens_global', _cis_tokens_sane_defaults());
+  }
+}
+
+/**
+ * Return the correct tokens as a merger of global and other alters
+ * @return  array an array of sanitized key => value pairs
+ */
+function _cis_tokens_get_token_scope($scope = FALSE) {
+  $tokens = array();
+  $tmp = variable_get('cis_tokens_global', _cis_tokens_sane_defaults());
+  // convert global settings into an array
+  $tmp = explode("\n", $tmp);
+  foreach ($tmp as $tmppair) {
+    if ($tmppair != "\n") {
+      $pair = explode("|", $tmppair, 2);
+      if (count($pair) === 2) {
+        // see if we are sending along the scope instead of the replacement
+        if ($scope) {
+          $tokens[filter_xss($pair[0])] = 'global';
+        }
+        else {
+          $tokens[filter_xss($pair[0])] = filter_xss($pair[1]);
+        }
+      }
+    }
+  }
+  // allow for section to work its magic if we have one
+  $section = _cis_section_load_section_by_id(_cis_connector_section_context());
+  // if we have a section then we'll need to merge settings
+  if ($section !== FALSE) {
+    $section = node_load($section);
+    // allow for active section overrides
+    if (isset($section->field_cis_tokens[LANGUAGE_NONE]) && !empty($section->field_cis_tokens[LANGUAGE_NONE][0]['safe_value'])) {
+      $tmp2 = $section->field_cis_tokens[LANGUAGE_NONE][0]['safe_value'];
+      // convert to a usable array format
+      $tmp2 = explode("\n", $tmp2);
+      foreach ($tmp2 as $tmppair2) {
+        $pair2 = explode("|", $tmppair2, 2);
+        if (count($pair) === 2 && !empty($pair2[1])) {
+          // see if we are sending along the scope instead of the replacement
+          if ($scope) {
+            $tokens[filter_xss($pair2[0])] = $section->title;
+          }
+          else {
+            $tokens[filter_xss($pair2[0])] = filter_xss($pair2[1]);
+          }
+        }
+        else {
+          drupal_set_message(t("Section token could not be understood: @line . Go to @url to fix this", array('@line' => $tmppair2, '@url' => l('node/' . $section->nid . '/edit', 'node/' . $section->nid . '/edit'))), 'warning');
+        }
+      }
+    }
+  }
+
+  return $tokens;
+}
+
+/**
+ * Implementation of hook_form_cis-service-connection-ux-form_alter().
+ */
+function cis_tokens_form_cis_service_connection_ux_form_alter(&$form, &$form_state, $form_id) {
+  /* Your code here */
+  $form['site_information']['cis_tokens_global'] = array(
+    '#title' => t('Tokens'),
+    '#type' => 'textarea',
+    '#description' => t('This is a list of token replacement|value pairs that can be used throughout the course. This is useful when wanting to centralize where you update noodle-y information throughout course content which might otherwise be standalone. For example, writing start_date|June 15, 2015 would allow you to write [elmsln_section:start_date] in your content and have it automatically replaced with June 15, 2015.'),
+    '#default_value' => variable_get('cis_tokens_global', _cis_tokens_sane_defaults()),
+    '#weight' => 10,
+  );
+}
+
+/**
+ * Return a decent list of defaults to work with in a course
+ * @return string key|value pairs separated by endlines \n
+ */
+function _cis_tokens_sane_defaults() {
+  $defaults = '';
+  // example module names
+  $defaults .= 'module_1|Module 1' . "\n";
+  $defaults .= 'module_2|Module 2' . "\n";
+  $defaults .= 'module_3|Module 3' . "\n";
+  $defaults .= 'module_4|Module 4' . "\n";
+  $defaults .= 'module_5|Module 5' . "\n";
+  // example dates
+  $defaults .= 'module_date_1|8/24 - 8/30' . "\n";
+  $defaults .= 'module_date_2|8/31 - 9/14' . "\n";
+  $defaults .= 'module_date_3|9/15 - 9/28' . "\n";
+  $defaults .= 'module_date_4|9/29 - 10/12' . "\n";
+  $defaults .= 'module_date_5|10/13 - 10/26';
+  return $defaults;
+}

@@ -1,0 +1,31 @@
+; Packaging information for ulmus
+name = "Ulmus"
+description = "Meta distro that helps ensure basline module set in all ELMSLN systems. This is not required but more or less is for most tools in the network to automatically be setup and make sense."
+core = "7.x"
+; ----------
+; Dependencies
+; ----------
+; CIS
+dependencies[] = cis_connector
+dependencies[] = cis_service_connection
+; OG
+dependencies[] = og
+dependencies[] = og_access
+dependencies[] = og_context
+dependencies[] = og_ui
+; Other
+dependencies[] = httprl
+dependencies[] = entity
+dependencies[] = entity_token
+dependencies[] = libraries
+dependencies[] = restws
+dependencies[] = restws_basic_auth
+dependencies[] = strongarm
+dependencies[] = token
+; UUID
+dependencies[] = uuid
+; Features
+dependencies[] = cis_section
+dependencies[] = cis_service_lti
+dependencies[] = cis_service_connection_ux
+dependencies[] = cis_service_roles

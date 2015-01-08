@@ -7,6 +7,33 @@
 include_once 'cis_service_restws.features.inc';
 
 /**
+ * Implements hook_init().
+ */
+function cis_service_restws_init() {
+  // ensure people don't try and access the data domain backend accidentally
+  // or intentionally as part of an exploit attempt
+  // This is my own paranoia at work but the same will be done to ensure that
+  // the webservice account cannot be used to log into the site outside of
+  // issuing backend calls
+  global $base_url;
+  if (isset($base_url) && user_is_anonymous() && !isset($_SERVER['PHP_AUTH_USER'])) {
+    $distro = variable_get('install_profile', FALSE);
+    $registry = _cis_connector_build_registry($distro);
+    // ensure we have an address to redirect to and a service address and that
+    // the service address is in the current base_url
+    if (
+      isset($registry['address']) &&
+      isset($registry['service_address']) &&
+      strpos($base_url, $registry['service_address']) !== FALSE
+    ) {
+      // redirect to the same path but without the data domain
+      $redirect = str_replace($registry['service_address'], $registry['address'], $base_url);
+      drupal_goto($redirect . '/' . current_path());
+    }
+  }
+}
+
+/**
  * Alter the outgoing response.
  *
  * @param mixed $response
@@ -29,6 +56,25 @@ function cis_service_restws_restws_response_alter(&$response, $function, $format
     }
     else {
       _cis_service_restws_restws_deep_load($response);
+    }
+    // @sillyhack to convert json object to xml quickly and deliver
+    // the page prior to drupal trying to do so
+    if (isset($_GET['xml-out'])) {
+      // figure out the entity type
+      $arg0 = explode('.', arg(0));
+      $entity = $arg0[0];
+      // bump this up a level so its similar to .xml request method
+      $response[$entity] = $response['list'];
+      // unset the old
+      unset($response['list']);
+      // wrap the whole thing in a list
+      print _cis_service_restws_getxml(array ('list' => $response));
+      // set content type to XML so browser / others read it as XML
+      drupal_add_http_header('Content-Type', 'application/xml');
+      // end-cap and exit early this way we don't get the callback
+      // that fires off traditional serialization
+      drupal_page_footer();
+      exit;
     }
   }
 }
@@ -95,6 +141,100 @@ function _cis_service_restws_restws_deep_load(&$response) {
           $val = $eary;
         }
       }
+    }
+    // special case for files cause they nest differently
+    elseif (is_array($val) && isset($val['file']['id'])) {
+      if (in_array($val['file']['resource'], $allowed)) {
+        // load the entity
+        $entity = entity_load_single($val['file']['resource'], $val['file']['id']);
+        // ensure they can view this specific item
+        if (entity_access('view', $val['file']['resource'], $entity)) {
+          // create a meta wrapper to act on for entity
+          $wrapper = entity_metadata_wrapper($val['file']['resource'], $entity);
+          // filter out fields
+          $wrap = restws_property_access_filter($wrapper);
+          // typecast entity as array for property evaluation
+          $eary = (array) $entity;
+          // these properties don't cause security issues but file entity is
+          // really tricky, especially without file_entity... and even then with
+          // it it can be a pain
+          $file_fix = array(
+            'fid' => 'fid',
+            'uid' => 'uid',
+            'uri' => 'uri',
+            'filename' => 'filename',
+            'filemime' => 'filemime',
+            'filesize' => 'filesize',
+            'status' => 'status',
+            'timestamp' => 'timestamp',
+          );
+          foreach ($eary as $property => $value) {
+            // value needs to be removed as it didn't pass wrapper validation
+            if (!isset($wrap[$property]) && !isset($file_fix[$property])) {
+              unset($eary[$property]);
+            }
+          }
+          $eary['url'] = file_create_url($eary['uri']);
+          // add values based on wrapper passing correctly
+          $val['file'] = $eary;
+        }
+      }
+    }
+  }
+}
+
+/**
+ * Converts an array to XML
+ *  http://www.devexp.eu/2009/04/11/php-domdocument-convert-array-to-xml/
+ *  @param  <array> $array  The associative array you want to convert; nested numeric indices are OK!
+ */
+function _cis_service_restws_getxml( array $array ) {
+  $array2XmlConverter  = new XmlDomConstructor('1.0', 'utf-8');
+  $array2XmlConverter->xmlStandalone   = TRUE;
+  $array2XmlConverter->formatOutput    = TRUE;
+  try {
+    $array2XmlConverter->fromMixed( $array );
+    $array2XmlConverter->normalizeDocument ();
+    $xml    = $array2XmlConverter->saveXML();
+    return  $xml;
+  }
+  catch( Exception $ex )  {
+    return  $ex;
+  }
+}
+
+/**
+ * Extends the DOMDocument to implement personal (utility) methods.
+ * - From: http://www.devexp.eu/2009/04/11/php-domdocument-convert-array-to-xml/
+ * - parent:: See http://www.php.net/manual/en/class.domdocument.php
+ *
+ * @throws   DOMException   http://www.php.net/manual/en/class.domexception.php
+ *
+ * @author Toni Van de Voorde
+ */
+class XmlDomConstructor extends DOMDocument {
+  public function fromMixed($mixed, DOMElement $domElement = null) {
+    $domElement = is_null($domElement) ? $this : $domElement;
+    if (is_array($mixed)) {
+      foreach ($mixed as $index => $mixedElement) {
+        if ( is_int($index) ) {
+          if ( $index == 0 ) {
+            $node = $domElement;
+          }
+          else {
+            $node = $this->createElement($domElement->tagName);
+            $domElement->parentNode->appendChild($node);
+          }
+        }
+        else {
+          $node = $this->createElement($index);
+          $domElement->appendChild($node);
+        }
+        $this->fromMixed($mixedElement, $node);
+      }
+    }
+    else {
+      $domElement->appendChild($this->createTextNode($mixed));
     }
   }
 }

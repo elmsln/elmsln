@@ -136,11 +136,14 @@ function apc_form_system_performance_settings_alter(&$form, $form_state) {
     '#value' => t('Clear APC user cache'),
     '#submit' => array('apc_clear_user_cache'),
   );
-  $form['clear_cache']['apc_opcode'] = array(
-    '#type' => 'submit',
-    '#value' => t('Clear APC opcode cache'),
-    '#submit' => array('apc_clear_opcode_cache'),
-  );
+
+  if (!extension_loaded('apcu')) {
+    $form['clear_cache']['apc_opcode'] = array(
+      '#type' => 'submit',
+      '#value' => t('Clear APC opcode cache'),
+      '#submit' => array('apc_clear_opcode_cache'),
+    );
+  }
 }
 
 /**

@@ -1,0 +1,15 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<title>Entity iframe consumer</title>
+</head>
+<body>
+<script language="javascript">
+  window.onload = function(){
+    window.parent.parent.document.getElementById('entity_iframe_response').value = decodeURI((RegExp('iframeid=' + '(.+?)(&|$)').exec(location.search)||[,null])[1]).split('/') + window.location.hash;
+		window.parent.parent.document.getElementById('entity_iframe_response').click();
+  }
+</script>
+</body>
+</html>

@@ -270,8 +270,8 @@ function hidden_nodes_node_access_records($node) {
         'grant_view' => 1,
         'grant_update' => 0,
         'grant_delete' => 0,
-        // Set priority very high in hopes it is always first.
-        'priority' => 1000,
+        // set priority based on admin
+        'priority' => variable_get('hidden_nodes_priority', 1000),
       );
     }
     return $grants;

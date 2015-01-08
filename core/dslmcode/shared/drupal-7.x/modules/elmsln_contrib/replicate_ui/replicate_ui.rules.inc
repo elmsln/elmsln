@@ -29,6 +29,12 @@ function replicate_ui_rules_action_info() {
           'label' => t('Node to replicate'),
         ),
       ),
+      'provides' => array(
+        'replica_node' => array(
+          'type' => 'node',
+          'label' => t('Replica node'),
+        ),
+      ),
     ),
   );
   if (module_exists('replicate_field_collection')) {
@@ -64,6 +70,8 @@ function replicate_ui_replicate_node($node) {
   $new = replicate_entity('node', $node);
   if ($new) {
     drupal_set_message(t('Node @title has been replicated!', array('@title' => $node->title)));
+    
+    return array('replica_node' => $new);
   }
 }
 

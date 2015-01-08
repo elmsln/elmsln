@@ -89,7 +89,9 @@ function _mooc_cis_ux_archive_outline($node) {
     $data = array(
       'field_cis_ops' => serialize($call),
     );
-    // Save info
-    _cis_connection_object($section['item_id'], 'field_collection_item', NULL, 'PUT', $data);
+    // Save info if we got any
+    if (isset($section['item_id'])) {
+      _cis_connection_object($section['item_id'], 'field_collection_item', NULL, 'PUT', $data);
+    }
   }
 }

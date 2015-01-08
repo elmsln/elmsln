@@ -13,6 +13,8 @@ function drush_elmsln_drush_help($section) {
   switch ($section) {
     case 'drush:elmsln-call-home':
       return dt('ELMSLN send data back to base');
+    case 'drush:elmsln-add-stack-instance-container':
+      return dt('ELMSLN create a new stub within the instance stacks to be able to support new tools without getting into git VC hell (potential).');
   }
 }
 
@@ -29,7 +31,25 @@ function drush_elmsln_drush_command() {
     ),
     'bootstrap' => DRUSH_BOOTSTRAP_DRUSH,
   );
+  $items['elmsln-add-stack-instance-container'] = array(
+    'callback' => 'drush_elmsln_add_stack_instance_container',
+    'description' => dt('Add a new stack to the config instances area. This will figure out what needs to be added and provide defaults that make sense.'),
+    'bootstrap' => DRUSH_BOOTSTRAP_DRUSH,
+  );
   return $items;
+}
+/**
+ * Callback for drush elmsln-add-stack-instance-container
+ *
+ * This will notice stacks that it currently doesn't have knowledge
+ * of in its elmsln/config/stacks/ directory based on a comparison
+ * against the elmsln/stacks
+ */
+function drush_elmsln_add_stack_instance_container() {
+  // @todo add support for calling instance containers this way
+  // so that we can plug this isn't our spidering bash process
+  // which will mirror the way that drup works but for bash
+  // scripts
 }
 
 /**

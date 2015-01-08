@@ -12,7 +12,7 @@ function mooc_textbook_nrhi_filter_default_formats_alter(&$data) {
     $data['textbook_editor']['filters']['nrhi'] = array(
       'settings' => array(),
       'status' => 1,
-      'weight' => -42,
+      'weight' => -40,
     ); /* WAS: '' */
   }
 }

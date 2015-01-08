@@ -1,0 +1,289 @@
+<?php
+/**
+ * @file
+ * Code for the CIS Service ELMSMedia feature.
+ */
+
+include_once 'cis_service_elmsmedia.features.inc';
+
+define('cis_service_elmsmedia_VIEW_TAG', 'cis_service_elmsmedia');
+define('cis_service_elmsmedia_SUBMIT_BUTTON_SELECTOR', 'input[type="submit"]');
+
+/**
+ * Implements hook_init().
+ */
+function cis_service_elmsmedia_init() {
+  if ('cis/elmsmedia/library' == current_path()) {
+    module_invoke('admin_menu', 'suppress');
+
+    $path = drupal_get_path('module', 'cis_service_elmsmedia');
+    drupal_add_js($path . '/cis_service_elmsmedia.js');
+    drupal_add_css($path . '/cis_service_elmsmedia.modal.css');
+  }
+}
+
+/**
+ * Implements hook_module_implements_alter().
+ */
+function cis_service_elmsmedia_module_implements_alter(&$implementations, $hook) {
+  $module = 'cis_service_elmsmedia';
+
+  // These go last.
+  if (in_array($hook, array('menu_alter', 'form_alter', 'form_field_ui_field_edit_form_alter'))) {
+    if (isset($implementations[$module])) {
+      $group = $implementations[$module];
+      unset($implementations[$module]);
+      $implementations[$module] = $group;
+    }
+  }
+}
+
+/**
+ * Implements hook_menu().
+ */
+function cis_service_elmsmedia_menu() {
+  $items['admin/config/media/cis-service-elmsmedia-browser'] = array(
+    'title' => 'ELMS Media Browser Settings',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('cis_service_elmsmedia_settings_form'),
+    'file' => 'cis_service_elmsmedia.admin.inc',
+    'access arguments' => array('administer site configuration'),
+  );
+
+  return $items;
+}
+
+/**
+ * Implements hook_menu_alter().
+ */
+function cis_service_elmsmedia_menu_alter(&$items) {
+  if (isset($items['cis/elmsmedia/library'])) {
+    $items['cis/elmsmedia/library']['delivery callback'] = 'cis_service_elmsmedia_return_view';
+  }
+
+}
+
+/**
+ * Delivery callback for Ajax request.
+ */
+function cis_service_elmsmedia_return_view($html) {
+  if (isset($_GET['raw'])) {
+    echo $html;
+    drupal_page_footer();
+  }
+  else {
+    return drupal_deliver_html_page($html);
+  }
+}
+
+/**
+ * Implements hook_file_download().
+ */
+function cis_service_elmsmedia_file_download($uri) {
+  if (variable_get('cis_service_elmsmedia_public_is_public', 0)) {
+    if (file_uri_scheme($uri) == 'public') {
+      return array('X-Visual-Select-File' => 'Yes');
+    }
+  }
+}
+
+
+/**
+ * Implements template_preprocess_views_view_grid().
+ */
+function cis_service_elmsmedia_preprocess_views_view_grid(&$vars) {
+  $view = $vars['view'];
+  if (_cis_service_elmsmedia_view_has_tag($view)) {
+    $remove_absolute = variable_get('cis_service_elmsmedia_remove_absolute', TRUE);
+
+    $field = isset($_GET['emb_field']) ? $_GET['emb_field'] : '';
+
+    global $base_url;
+    $base_url_length = strlen($base_url);
+
+    $meta = array();
+    $i = 0;
+    foreach ($vars['rows'] as $row => $cols) {
+      foreach ($cols as $col => $data) {
+        if (isset($view->result[$i])) {
+          $tmp = (array) $view->result[$i];
+          $src = $tmp['image-orig/img/@src'];
+          $meta[$row][$col] = array(
+            $src
+          );
+          $i++;
+        }
+      }
+    }
+
+    $results = array(
+      'results' => $meta,
+      'default_style' => variable_get('cis_service_elmsmedia_default_style', 'thumbnail'),
+    );
+    $context = compact('view', 'field');
+    drupal_alter('cis_service_elmsmedia_results', $results, $context);
+
+    drupal_add_js(array('cis_service_elmsmedia' => $results), 'setting');
+    _cis_service_elmsmedia_load_resources_filefield();
+  }
+}
+
+/**
+ * Implements hook_element_info_alter().
+ */
+function cis_service_elmsmedia_element_info_alter(&$types) {
+  if (isset($types['managed_file']['#process'])) {
+    $types['managed_file']['#process'][] = 'cis_service_elmsmedia_pre_render_filefield_sources_element';
+  }
+}
+
+/**
+ * Add field instance settings for other parts of the machine to pick up.
+ */
+function cis_service_elmsmedia_pre_render_filefield_sources_element($element, $form_state) {
+  if (isset($element['#field_name']) && ($instance = field_widget_instance($element, $form_state))) {
+    $field = $element['#entity_type'] . '.' . $element['#bundle'] . '.' . $element['#field_name'];
+    // Add class to hide remote textfield.
+    $emb_hide_textfield = !empty($instance['widget']['settings']['filefield_sources']['source_remote']['emb_hide_textfield']);
+    if ($emb_hide_textfield) {
+      $element['filefield_remote']['url']['#attributes']['class'][] = 'emb-hide-remote';
+      $element['filefield_remote']['transfer']['#attributes']['class'][] = 'emb-hide-remote';
+    }
+    // Add field's meta data to field.
+    $element['filefield_remote']['url']['#attributes']['data-emb-field'] = $field;
+
+    // Undo part of file.module's validation.
+    $index = array_search('file_managed_file_validate', $element['#element_validate']);
+    if ($index !== FALSE) {
+      $element['#element_validate'][$index] = 'cis_service_elmsmedia_managed_file_validate';
+    }
+
+    // Load necessary resources for this page/form.
+    _cis_service_elmsmedia_load_resources_filefield();
+  }
+
+  return $element;
+}
+
+/**
+ * Widget validation to replace file.module's file_managed_file_validate.
+ */
+function cis_service_elmsmedia_managed_file_validate(&$element, &$form_state) {
+  $clicked_button = end($form_state['triggering_element']['#parents']);
+  if ($clicked_button != 'remove_button' && !empty($element['fid']['#value'])) {
+    if (!file_load($element['fid']['#value'])) {
+      form_error($element, t('The file remoted by the !name field does not exist.', array('!name' => $element['#title'])));
+    }
+  }
+
+  // Check required property based on the FID.
+  if ($element['#required'] && empty($element['fid']['#value']) && !in_array($clicked_button, array('upload_button', 'remove_button'))) {
+    form_error($element['upload'], t('!name field is required.', array('!name' => $element['#title'])));
+  }
+
+  // Consolidate the array value of this field to a single FID.
+  if (!$element['#extended']) {
+    form_set_value($element, $element['fid']['#value'], $form_state);
+  }
+}
+
+/**
+ * Helper to load necessary JS and CSS for filefield elements.
+ */
+function _cis_service_elmsmedia_load_resources_filefield() {
+  static $loaded = 0;
+  if (!$loaded) {
+    $loaded = 1;
+
+    drupal_add_library('system', 'ui.dialog');
+
+    $path = drupal_get_path('module', 'cis_service_elmsmedia');
+    drupal_add_js($path . '/cis_service_elmsmedia.js');
+    drupal_add_css($path . '/cis_service_elmsmedia.form.css');
+
+    $selector = variable_get('cis_service_elmsmedia_submit_button_selector', cis_service_elmsmedia_SUBMIT_BUTTON_SELECTOR);
+    drupal_add_js(array('elmsMediaBrowser' => array('submitButtonSelector' => $selector)), 'setting');
+  }
+}
+
+/**
+ * Helper to determine if a View is one of us.
+ */
+function _cis_service_elmsmedia_view_has_tag($view) {
+  if (is_object($view)) {
+    $tags = explode(' ', $view->tag);
+  }
+  elseif (is_string($view)) {
+    $tags = explode(' ', $view);
+  }
+  else {
+    $tags = $view;
+  }
+
+  return in_array(cis_service_elmsmedia_VIEW_TAG, $tags);
+}
+
+/**
+ * Implements hook_form_FORM_ID_alter() for field_ui_field_edit_form().
+ */
+function cis_service_elmsmedia_form_field_ui_field_edit_form_alter(&$form, &$form_state) {
+  $instance = $form['#instance'];
+  $settings = $instance['widget']['settings'];
+
+  if (isset($form['instance']['widget']['settings']['filefield_sources'])) {
+    $element = &$form['instance']['widget']['settings']['filefield_sources'];
+
+    // Extend 'remote' option title to clarify this is what emb uses.
+    $element['filefield_sources']['#options']['remote'] .= ' (' . t('with ELMS Media Browser') . ')';
+
+    // Add option to hide FFS' remote textfield.
+    $emb_hide_textfield = !empty($settings['filefield_sources']['source_remote']['emb_hide_textfield']);
+    $element['source_remote']['emb_hide_textfield'] = array(
+      '#type' => 'checkbox',
+      '#title' => t('Hide remote textfield'),
+      '#default_value' => $emb_hide_textfield,
+      '#description' => t('Checked, this will hide the textfield & submit button and only show the &quot;Choose file&quot; button.'),
+    );
+  }
+}
+
+/**
+ * Implements hook_query_TAG_alter() for views_cis_service_elmsmedia.
+ */
+function cis_service_elmsmedia_query_views_cis_service_elmsmedia_alter(QueryAlterableInterface $query) {
+  if (isset($_GET['emb_field'])) {
+    list($entity_type, $bundle, $field) = explode('.', $_GET['emb_field'] . '..');
+
+    if ($entity_type && $bundle && $field) {
+      $field_info = field_info_instance($entity_type, $field, $bundle);
+      if ($field_info && isset($field_info['settings']['file_extensions'])) {
+        $extensions = explode(' ' , $field_info['settings']['file_extensions']);
+
+        $or = db_or();
+
+        foreach ($extensions as $extension) {
+          $or->condition('file_managed.uri', '%.' . db_like($extension), 'LIKE');
+        }
+        $query->condition($or);
+      }
+    }
+  }
+}
+
+/**
+ * Implements hook_views_data().
+ */
+function cis_service_elmsmedia_views_data() {
+  // add a views handler for a file as an image based on its URI
+  $data['file_managed']['image'] = array(
+    'title' => 'File as image',
+    'help' => 'Render this file as an image. Make sure it actually is.',
+    'real field' => 'uri',
+    'field' => array(
+      'real field' => 'uri',
+      'handler' => 'cis_service_elmsmedia_views_handler_field_image',
+    ),
+  );
+
+  return $data;
+}

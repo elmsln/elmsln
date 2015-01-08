@@ -1,0 +1,784 @@
+<?php
+
+/**
+ * @file
+ * harmony_access.module
+ */
+
+/**
+ * Implements hook_permission().
+ */
+function harmony_access_permission() {
+  $permissions = array(
+    'administer harmony_access settings' => array(
+      'title' => t('Administer Harmony Access settings'),
+      'description' => t('Allows users to configure settings relating to creating and maintaining Harmony access records.'),
+      'restrict access' => TRUE,
+    ),
+    'rebuild harmony_access records' => array(
+      'title' => t('Can rebuild Harmony Access records'),
+      'description' => t('Allows users to rebuild the access records, this is a heavy process where every thread is loaded and access records rebuilt.'),
+      'restrict access' => TRUE,
+    ),
+  );
+
+  return $permissions;
+}
+
+/**
+ * Implements hook_menu().
+ */
+function harmony_access_menu() {
+  $items['admin/harmony/config/access'] = array(
+    'title' => 'Access',
+    'description' => 'Harmony Access settings.',
+    'access arguments' => array('administer harmony_access settings'),
+    'page callback' => 'system_admin_menu_block_page',
+    'file' => 'system.admin.inc',
+    'file path' => drupal_get_path('module', 'system'),
+    'weight' => -10,
+  );
+
+  $items['admin/harmony/config/access/rebuild'] = array(
+    'title' => 'Rebuild access records',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('harmony_access_rebuild_confirm'),
+    'access arguments' => array('rebuild harmony_access records'),
+    'description' => 'Rebuild all of the access records for every thread.',
+    'weight' => 100,
+  );
+
+  return $items;
+}
+
+/**
+ * Implements hook_requirements().
+ */
+function harmony_access_requirements($phase) {
+  $requirements = array();
+
+  if ($phase === 'runtime') {
+    // Only show rebuild button if there are either 0, or 2 or more, rows
+    // in the {harmony_access_records} table, or if there are modules that
+    // implement hook_harmony_access_grants().
+    $grant_count = db_query('SELECT COUNT(*) FROM {harmony_access_records}')->fetchField();
+    $modules = module_implements('harmony_access_grants');
+    if ($grant_count != 1 || count($modules) > 0) {
+      $value = format_plural($grant_count, 'One access record in use', '@count access records in use', array('@count' => $grant_count));
+    }
+    else {
+      $value = t('Disabled');
+    }
+    $description = t("If you're finding problems with people accessing threads and have enabled/disabled any modules recently it's possible that the access records need to be rebuilt. This runs through every thread and rebuilds all of the access records for it based off of the rules supplied by active modules. Here's a list of modules supplying rules: @modules.", array('@modules' => implode(', ', $modules)));
+
+    $requirements['harmony_access'] = array(
+      'title' => t('Harmony Access Records'),
+      'value' => $value,
+      'description' => $description . ' ' . l(t('Rebuild access records'), 'admin/harmony/config/access/rebuild'),
+    );
+  }
+
+  return $requirements;
+}
+
+/**
+ * Implements hook_help().
+ */
+function harmony_access_help($path, $arg) {
+  // If a rebuild is needed then put out a message! Ignore certain
+  // pages though like the rebuild pages and whilst batch is active.
+  if ($path != 'admin/harmony/config/access/rebuild' && $path != 'batch' && strpos($path, '#') === FALSE
+      && user_access('rebuild harmony_access records') && harmony_access_needs_rebuild()) {
+    $message = t('The Harmony access records need to be rebuilt. <a href="@access_rebuild">Rebuild permissions</a>.', array('@access_rebuild' => url('admin/harmony/config/access/rebuild')));
+    drupal_set_message($message, 'error');
+  }
+}
+
+/**
+ * Menu callback: confirm rebuilding of access records.
+ *
+ * @see harmony_access_rebuild_confirm_submit()
+ * @see harmony_access_menu()
+ * @ingroup forms
+ */
+function harmony_access_rebuild_confirm() {
+  $modules = module_implements('harmony_access_grants');
+
+  return confirm_form(
+    array(),
+    t('Are you sure you want to rebuild all of the access records?'),
+    'admin/reports/status',
+    t('<p>This action loads each thread and rebuilds the access records against it based off of settings provided by the following modules: @modules.</p><p>This action cannot be undone.</p>', array('@modules' => implode(', ', $modules))),
+    t('Rebuild access records'),
+    t('Cancel')
+  );
+}
+
+/**
+ * Handler for wipe confirmation.
+ *
+ * @see harmony_access_rebuild_confirm()
+ */
+function harmony_access_rebuild_confirm_submit($form, &$form_state) {
+  harmony_access_rebuild(TRUE);
+  $form_state['redirect'] = 'admin/harmony/config/access/rebuild';
+}
+
+/**
+ * Flags or unflags the harmony access records for rebuilding.
+ *
+ * If the argument isn't specified, the current value of the flag is returned.
+ * When the flag is set, a message is displayed to users with 'administer
+ * harmony_access settings' permission, pointing to the 'rebuild' confirm form.
+ *
+ * @param $rebuild
+ *   (Optional) The boolean value to be written.
+ *
+ * @return
+ *   The current value of the flag if no value was provided for $rebuild.
+ *
+ * @see harmony_access_rebuild()
+ */
+function harmony_access_needs_rebuild($rebuild = NULL) {
+  if (!isset($rebuild)) {
+    return variable_get('harmony_access_needs_rebuild', FALSE);
+  }
+  elseif ($rebuild) {
+    variable_set('harmony_access_needs_rebuild', TRUE);
+  }
+  else {
+    variable_del('harmony_access_needs_rebuild');
+  }
+}
+
+/**
+ * Implements hook_modules_enabled().
+ */
+function harmony_access_modules_enabled($modules) {
+  if (!harmony_access_needs_rebuild() && array_intersect($modules, module_implements('harmony_access_grants'))) {
+    harmony_access_needs_rebuild(TRUE);
+  }
+}
+
+/**
+ * Rebuilds the harmony access records.
+ *
+ * This is occasionally needed by modules that make system-wide changes to
+ * access levels. When the rebuild is required by an admin-triggered action (e.g
+ * module settings form), calling harmony_access_needs_rebuild(TRUE) instead of
+ * harmony_access_rebuild() lets the user perform their changes and rebuild
+ * only once they are done.
+ *
+ * @see harmony_access_needs_rebuild()
+ *
+ * @param $batch_mode
+ *   Set to TRUE to process in 'batch' mode, spawning processing over several
+ *   HTTP requests (thus avoiding the risk of PHP timeout if the site has a
+ *   large number of threads).
+ *   hook_update_N and any form submit handler are safe contexts to use the
+ *   'batch mode'. Less decidable cases (such as calls from hook_user,
+ *   hook_taxonomy, etc...) might consider using the non-batch mode.
+ */
+function harmony_access_rebuild($batch_mode = FALSE) {
+  db_delete('harmony_access_records')->execute();
+
+  if (count(module_implements('harmony_access_grants'))) {
+    if ($batch_mode) {
+      $batch = array(
+        'title' => t('Rebuilding Harmony access records'),
+        'operations' => array(
+          array('_harmony_access_rebuild_batch_operation', array()),
+        ),
+        'finished' => '_harmony_access_rebuild_batch_finished',
+      );
+      batch_set($batch);
+    }
+    else {
+      // Try to allocate enough time to rebuild thread grants.
+      drupal_set_time_limit(0);
+
+      $thread_ids = db_query("SELECT thread_id FROM {harmony_thread}")->fetchCol();
+      foreach ($thread_ids as $thread_id) {
+        $thread = harmony_thread_load($thread_id, NULL, TRUE);
+
+        if (!empty($thread)) {
+          harmony_access_acquire_records($thread, 'harmony_thread');
+        }
+      }
+    }
+  }
+  else {
+    // Not using any harmony_access modules. Add the default grant.
+    db_insert('harmony_access_records')
+      ->fields(array(
+        'module' => 'harmony_access',
+        'realm' => 'all',
+        'entity_type' => 'harmony_thread',
+        'grant_view' => 1,
+        'grant_create' => 0,
+        'grant_update' => 0,
+        'grant_delete' => 0,
+        'created' => REQUEST_TIME,
+      ))
+      ->execute();
+  }
+
+  if (!isset($batch)) {
+    drupal_set_message(t('Harmony access records have been rebuilt.'));
+    harmony_access_needs_rebuild(FALSE);
+
+    // Clear user caches.
+    cache_clear_all('*', 'cache_harmony_access_grants', TRUE);
+    cache_clear_all();
+  }
+
+  // Let other modules do stuff if they want.
+  module_invoke_all('harmony_access_rebuilt');
+}
+
+/**
+ * Performs batch operation for harmony_access_rebuild().
+ *
+ * This is a multistep operation: we go through all threads by packs of 20. The
+ * batch processing engine interrupts processing and sends progress feedback
+ * after 1 second execution time.
+ *
+ * @param array $context
+ *   An array of contextual key/value information for rebuild batch process.
+ */
+function _harmony_access_rebuild_batch_operation(&$context) {
+  if (empty($context['sandbox'])) {
+    // Initiate multistep processing.
+    $context['sandbox']['progress'] = 0;
+    $context['sandbox']['current_entity_id'] = 0;
+    $context['sandbox']['max'] = db_query('SELECT COUNT(DISTINCT thread_id) FROM {harmony_thread}')->fetchField();
+  }
+
+  // Process the next 20 threads.
+  $limit = 20;
+  $thread_ids = db_query_range("SELECT thread_id FROM {harmony_thread} WHERE thread_id > :entity_id ORDER BY thread_id ASC", 0, $limit, array(':entity_id' => $context['sandbox']['current_entity_id']))->fetchCol();
+  $threads = harmony_thread_load_multiple($thread_ids, array(), TRUE);
+  foreach ($threads as $thread_id => $thread) {
+    if (!empty($thread)) {
+      harmony_access_acquire_records($thread, 'harmony_thread');
+    }
+
+    $context['sandbox']['progress']++;
+    $context['sandbox']['current_entity_id'] = $thread_id;
+  }
+
+  // Multistep processing : report progress.
+  if ($context['sandbox']['progress'] != $context['sandbox']['max']) {
+    $context['finished'] = $context['sandbox']['progress'] / $context['sandbox']['max'];
+  }
+}
+
+/**
+ * Performs post-processing for harmony_access_rebuild().
+ *
+ * @param bool $success
+ *   A boolean indicating whether the re-build process has completed.
+ * @param array $results
+ *   An array of results information.
+ * @param array $operations
+ *   An array of function calls (not used in this function).
+ */
+function _harmony_access_rebuild_batch_finished($success, $results, $operations) {
+  if ($success) {
+    drupal_set_message(t('The harmony access records have been rebuilt.'));
+    harmony_access_needs_rebuild(FALSE);
+  }
+  else {
+    drupal_set_message(t('The harmony access records have not been properly rebuilt.'), 'error');
+  }
+  // Clear user caches.
+  cache_clear_all('*', 'cache_harmony_access_grants', TRUE);
+  cache_clear_all();
+}
+
+/**
+ * Implements hook_harmony_access_grants().
+ */
+/*function harmony_access_harmony_access_grants($account, $op) {
+  return array(
+    'harmony_access_author' => array($account->uid),
+    'harmony_access_rid' => array_keys($account->roles),
+  );
+}*/
+
+/**
+ * Implements hook_harmony_access_records().
+ */
+/*function harmony_access_harmony_access_records($entity, $entity_type) {
+
+}*/
+
+/**
+ * Fetches an array of permission IDs granted to the given user ID.
+ *
+ * The implementation here provides only the universal "all" grant. An
+ * access module should implement hook_harmony_access_grants() to provide
+ * a grant list for the user.
+ *
+ * After the default grants have been loaded, we allow modules to alter the
+ * grants array by reference. This hook allows for complex business logic to be
+ * applied when integrating multiple harmony access modules.
+ *
+ * @param $op
+ *   The operation that the user is trying to perform.
+ * @param $account
+ *   The user object for the user performing the operation. If omitted, the
+ *   current user is used.
+ *
+ * @return
+ *   An associative array in which the keys are realms, and the values are
+ *   arrays of grants for those realms.
+ */
+function harmony_access_grants($op, $account = NULL, $reset = FALSE) {
+  if (!isset($account)) {
+    $account = $GLOBALS['user'];
+  }
+
+  // @todo user caching layer.
+
+  // Fetch harmony access grants from other modules.
+  $grants = module_invoke_all('harmony_access_grants', $account, $op);
+
+  // Allow modules to alter the assigned grants.
+  drupal_alter('harmony_access_grants', $grants, $account, $op);
+
+  return array_merge(array('all' => array(0)), $grants);
+}
+
+/**
+ * Gets the list of harmony access grants and writes them to the database.
+ *
+ * This function is called when a thread is saved, and can also be called by
+ * modules if something other than a thread save causes harmony access records
+ * to change. It collects all harmony access grants for the thread from
+ * hook_harmony_access_records() implementations, allows these grants
+ * to be altered via hook_harmony_access_records_alter() implementations, and
+ * saves the collected and altered grants to the database.
+ *
+ * @param $entity
+ *   The $entity to acquire grants for.
+ *
+ * @param $delete
+ *   Whether to delete existing entity access records before inserting new ones.
+ *   Defaults to TRUE.
+ */
+function harmony_access_acquire_records($entity, $entity_type, $delete = TRUE) {
+  $grants = array();
+  $return = array();
+  $args = array($entity, $entity_type);
+  foreach (module_implements('harmony_access_records') as $module) {
+    $function = $module . '_harmony_access_records';
+    if (function_exists($function)) {
+      $result = call_user_func_array($function, $args);
+
+      if (empty($result)) {
+        continue;
+      }
+
+      if (isset($result) && is_array($result)) {
+        $return = array_merge_recursive($return, $result);
+      }
+      elseif (isset($result)) {
+        $return[] = $result;
+      }
+    }
+    $grants[$module] = $return;
+  }
+
+  // Let modules alter the grants.
+  drupal_alter('harmony_access_records', $grants, $entity, $entity_type);
+
+  // If no grants are set and the thread is published, then use the default grant.
+  if (empty($grants) && !empty($entity->status)) {
+    $grants[] = array(
+      'module' => 'harmony_access',
+      'realm' => 'all',
+      'gid' => 0,
+      'grant_view' => 1,
+      'grant_update' => 0,
+      'grant_delete' => 0,
+      'grant_create' => 0,
+      'created' => REQUEST_TIME,
+    );
+  }
+  else {
+    $merged_grants = array();
+    // Merge the grants together whilst retaining module/source.
+    foreach ($grants as $module => $module_grants) {
+      foreach ($module_grants as $grant) {
+        $grant['module'] = $module;
+        $grant['entity_type'] = $entity_type;
+        $merged_grants[] = $grant;
+      }
+    }
+    $grants = $merged_grants;
+
+    // Retain grants by highest priority.
+    $grant_by_priority = array();
+    foreach ($grants as $g) {
+      $grant_by_priority[intval($g['priority'])][] = $g;
+    }
+    krsort($grant_by_priority);
+    $grants = array_shift($grant_by_priority);
+  }
+
+  harmony_access_write_records($entity, $entity_type, $grants, NULL, $delete);
+}
+
+/**
+ * Writes a list of grants to the database, deleting any previously saved ones.
+ *
+ * If a realm is provided, it will only delete grants from that realm, but it
+ * will always delete a grant from the 'all' realm. Modules that utilize
+ * harmony_access() can use this function when doing mass updates due to widespread
+ * permission changes.
+ *
+ * Note: Don't call this function directly from a contributed module. Call
+ * harmony_access_acquire_records() instead.
+ *
+ * @param $thread
+ *   The thread whose grants are being written.
+ * @param $entity_type
+ * @param $grants
+ *   A list of grants to write. Each grant is an array that must contain the
+ *   following keys: realm, gid, grant_view, grant_update, grant_delete.
+ *   The realm is specified by a particular module; the gid is as well, and
+ *   is a module-defined id to define grant privileges. each grant_* field
+ *   is a boolean value.
+ * @param $realm
+ *   (optional) If provided, read/write grants for that realm only. Defaults to
+ *   NULL.
+ * @param $delete
+ *   (optional) If false, does not delete records. This is only for optimization
+ *   purposes, and assumes the caller has already performed a mass delete of
+ *   some form. Defaults to TRUE.
+ *
+ * @see harmony_access_acquire_grants()
+ */
+function harmony_access_write_records($entity, $entity_type, $grants, $realm = NULL, $delete = TRUE) {
+  list($entity_id, $entity_vid, $entity_bundle) = entity_extract_ids($entity_type, $entity);
+
+  if ($delete) {
+    $query = db_delete('harmony_access_records')
+      ->condition('entity_type', $entity_type)
+      ->condition('entity_id', $entity_id);
+    if ($realm) {
+      $query->condition('realm', array($realm, 'all'), 'IN');
+    }
+    $query->execute();
+  }
+
+  // Only perform work when harmony_access modules are active.
+  if (!empty($grants) && count(module_implements('harmony_access_grants'))) {
+    $query = db_insert('harmony_access_records')->fields(array('module', 'entity_type', 'entity_id', 'realm', 'gid', 'grant_view', 'grant_update', 'grant_delete', 'grant_create', 'created', 'priority'));
+
+    foreach ($grants as $grant) {
+      if ($realm && $realm != $grant['realm']) {
+        continue;
+      }
+
+      // If type isn't set, set it.
+      if (empty($grant['entity_type'])) {
+        $grant['entity_type'] = 'harmony_thread';
+      }
+
+      // Same as priority.
+      if (empty($grant['priority'])) {
+        $grant['priority'] = 0;
+      }
+
+      // Only write grants; denies are implicit.
+      if ($grant['grant_create'] || $grant['grant_view'] || $grant['grant_update'] || $grant['grant_delete']) {
+        $grant['entity_id'] = $entity_id;
+        $grant['created'] = REQUEST_TIME;
+        $query->values($grant);
+      }
+    }
+
+    $query->execute();
+  }
+
+  // Clear user caches.
+  cache_clear_all('*', 'cache_harmony_access_grants', TRUE);
+}
+
+/**
+ * Determines whether the user has a global viewing grant for all threads.
+ *
+ * Checks to see whether any module grants global 'view' access to a user
+ * account; global 'view' access is encoded in the {harmony_access_grants}
+ * table as a grant with entity_id=0. If no access modules are enabled,
+ * harmony_access.module defines such a global 'view' access grant.
+ *
+ * This function is called when a harmony_thread listing query is tagged with
+ * 'harmony_thread_access'; when this function returns TRUE, no harmony_thread
+ * access joins are added to the query.
+ *
+ * @param $entity_type
+ *   The type of entity access records to check for.
+ *
+ * @param $account
+ *   The user object for the user whose access is being checked. If omitted,
+ *   the current user is used.
+ *
+ * @return
+ *   TRUE if 'view' access to all harmony_threads is granted, FALSE otherwise.
+ */
+function harmony_access_view_all($entity_type, $account = NULL) {
+  global $user;
+  if (!$account) {
+    $account = $user;
+  }
+
+  // Statically cache results in an array keyed by $account->uid.
+  $access = &drupal_static(__FUNCTION__);
+  if (isset($access[$account->uid])) {
+    return $access[$account->uid];
+  }
+
+  // If no modules implement the harmony access system, access is always TRUE.
+  if (!module_implements('harmony_access_grants')) {
+    $access[$account->uid] = TRUE;
+  }
+  else {
+    $query = db_select('harmony_access_records');
+    $query->addExpression('COUNT(*)');
+    $query
+      ->condition('entity_type', $entity_type)
+      ->condition('entity_id', 0)
+      ->condition('grant_view', 1, '>=');
+
+    $grants = db_or();
+    foreach (harmony_access_grants('view', $account) as $realm => $gids) {
+      foreach ($gids as $gid) {
+        $grants->condition(db_and()
+          ->condition('gid', $gid)
+          ->condition('realm', $realm)
+        );
+      }
+    }
+    if (count($grants) > 0 ) {
+      $query->condition($grants);
+    }
+    $access[$account->uid] = $query
+      ->execute()
+      ->fetchField();
+  }
+
+  return $access[$account->uid];
+}
+
+/**
+ * Implements hook_harmony_thread_delete().
+ */
+function harmony_access_harmony_thread_delete($thread) {
+  db_delete('harmony_access_records')
+    ->condition('entity_type', 'harmony_thread')
+    ->condition('entity_id', $thread->thread_id)
+    ->execute();
+}
+
+/**
+ * Implements hook_user_update().
+ */
+function harmony_access_user_update(&$edit, $account, $category) {
+  cache_clear_all($account->uid, 'cache_harmony_access_grants', TRUE);
+}
+
+/**
+ * Implements hook_user_delete().
+ */
+function harmony_access_user_delete($account) {
+  cache_clear_all($account->uid, 'cache_harmony_access_grants', TRUE);
+}
+
+/**
+ * Implements hook_og_role_grant().
+ */
+function harmony_access_og_role_grant($entity_type, $gid, $uid, $rid) {
+  cache_clear_all($uid, 'cache_harmony_access_grants', TRUE);
+}
+
+/**
+ * Implements hook_og_role_revoke().
+ */
+function harmony_access_og_role_revoke($entity_type, $gid, $uid, $rid) {
+  cache_clear_all($uid, 'cache_harmony_access_grants', TRUE);
+}
+
+/**
+ * Implements hook_flag_access().
+ *
+ * Verifies access to the post being flagged before allowing it to
+ * be flagged.
+ */
+function harmony_access_flag_access($flag, $entity_id, $action, $account) {
+  if ($flag->name === 'harmony_likes') {
+    $post = harmony_post_load($entity_id);
+    if (!harmony_core_post_access_callback('view', $post, $account)) {
+      return FALSE;
+    }
+  }
+}
+
+/**
+ * Implements hook_flag_access_multiple().
+ *
+ * Verifies access to posts before allowing them to be flagged.
+ */
+function harmony_access_flag_access_multiple($flag, $entity_ids, $account) {
+  if ($flag->name === 'harmony_likes') {
+    $access = array();
+    $posts = harmony_post_load_multiple($entity_ids);
+
+    foreach ($posts as $post) {
+      if (!harmony_core_post_access_callback('view', $post, $account)) {
+        $access[$post->post_id] = FALSE;
+      }
+    }
+
+    return $access;
+  }
+}
+
+/**
+ * Implements hook_query_TAG_alter().
+ *
+ * This is the hook_query_alter() for queries tagged with 'harmony_access'. It
+ * adds access checks for the user account given by the 'account' meta-data (or
+ * global $user if not provided), for an operation given by the 'op' meta-data
+ * (or 'view' if not provided; other possible values are 'update' and 'delete').
+ */
+function harmony_access_query_harmony_access_alter(QueryAlterableInterface $query) {
+  _harmony_access_query_access_alter($query, 'harmony_thread');
+}
+
+/**
+ * Helper for harmony access functions.
+ *
+ * @param $query
+ *   The query to add conditions to.
+ * @param $type
+ *   The type of entity being queried for.
+ */
+function _harmony_access_query_access_alter($query, $type) {
+  global $user;
+
+  // Read meta-data from query, if provided.
+  if (!$account = $query->getMetaData('account')) {
+    $account = $user;
+  }
+  if (!$op = $query->getMetaData('op')) {
+    $op = 'view';
+  }
+
+  // If $account can bypass access, or there are no harmony access modules,
+  // or the operation is 'view' and the $account has a global view grant
+  // (such as a view grant for thread ID 0), we don't need to alter the query.
+  if (user_access('bypass harmony forum access control', $account)) {
+    return;
+  }
+  if (!count(module_implements('harmony_access_grants'))) {
+    return;
+  }
+  if ($op === 'view' && harmony_access_view_all($type, $account)) {
+    return;
+  }
+  // Check for the bypass access check tag.
+  if ($query->hasTag('harmony_access_bypass')) {
+    return;
+  }
+
+  $tables = $query->getTables();
+  $base_table = $query->getMetaData('base_table');
+
+  // If no base table is specified explicitly, search for one.
+  if (!$base_table) {
+    $fallback = '';
+    foreach ($tables as $alias => $table_info) {
+      if (!($table_info instanceof SelectQueryInterface)) {
+        $table = $table_info['table'];
+
+        // If the harmony_thread table is in the query, it wins immediately.
+        if ($table === 'harmony_thread') {
+          $base_table = $table;
+          break;
+        }
+
+        // Check whether the table has a foreign key to
+        // harmony_thread.thread_id. If it does, do not run this check again
+        // as we found a base table and only harmony_thread can triumph that.
+        if (!$base_table) {
+          // The schema is cached.
+          $schema = drupal_get_schema($table);
+          if (isset($schema['fields']['thread_id'])) {
+            if (isset($schema['foreign keys'])) {
+              foreach ($schema['foreign keys'] as $relation) {
+                if ($relation['table'] === 'harmony_thread' && $relation['columns'] === array('thread_id' => 'thread_id')) {
+                  $base_table = $table;
+                }
+              }
+            }
+            else {
+              // At least it's a nid. A table with a field called nid is very
+              // very likely to be a harmony_thread.thread_id in a harmony access query.
+              $fallback = $table;
+            }
+          }
+        }
+      }
+    }
+    // If there is nothing else, use the fallback.
+    if (!$base_table) {
+      if ($fallback) {
+        watchdog('security', 'Your Harmony thread listing query is using @fallback as a base table in a query tagged for thread access. This might not be secure and might not even work. Specify foreign keys in your schema to harmony_thread.thread_id ', array('@fallback' => $fallback), WATCHDOG_WARNING);
+        $base_table = $fallback;
+      }
+      else {
+        throw new Exception(t('Query tagged for harmony access but there is no thread_id. Add foreign keys to harmony_thread.thread_id in schema to fix.'));
+      }
+    }
+  }
+
+  // Find all instances of the base table being joined -- could appear
+  // more than once in the query, and could be aliased. Join each one to
+  // the harmony_access_records table.
+
+  $grants = harmony_access_grants($op, $account);
+
+  foreach ($tables as $halias => $tableinfo) {
+    $table = $tableinfo['table'];
+    if (!($table instanceof SelectQueryInterface) && $table == $base_table) {
+      // Set the subquery.
+      $subquery = db_select('harmony_access_records', 'har')
+       ->fields('har', array('entity_id'));
+
+      $grant_conditions = db_or();
+      // If any grant exists for the specified user, then user has access
+      // to the thread for the specified operation.
+      foreach ($grants as $realm => $gids) {
+        foreach ($gids as $gid) {
+          $grant_conditions->condition(db_and()
+            ->condition('har.gid', $gid)
+            ->condition('har.realm', $realm)
+          );
+        }
+      }
+
+      // Attach conditions to the subquery for threads.
+      if (count($grant_conditions->conditions())) {
+        $subquery->condition($grant_conditions);
+      }
+      $subquery->condition('har.grant_' . $op, 1, '>=');
+      $field = 'thread_id';
+      $subquery->where("$halias.$field = har.entity_id");
+
+      $query->exists($subquery);
+    }
+  }
+}

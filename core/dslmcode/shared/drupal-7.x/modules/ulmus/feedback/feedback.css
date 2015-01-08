@@ -1,0 +1,91 @@
+
+/**
+ * Styles for the feedback form.
+ */
+/* Reset commonly set styles */
+#block-feedback-form,
+#block-feedback-form .feedback-link,
+#block-feedback-form .feedback-link *,
+#block-feedback-form .content,
+#block-feedback-form form {
+  float: none;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  font-size: 100%;
+  font-weight: normal;
+  color: inherit;
+}
+
+#block-feedback-form {
+  display: none;
+  position: fixed;
+  bottom: 60px;
+  right: 20px;
+  overflow: hidden;
+  z-index: 10;
+}
+/* IE6 seems to be unable to handle fixed */
+* html #block-feedback-form {
+  position: absolute;
+}
+#block-feedback-form .feedback-link {
+  padding: 0.3em 0;
+  text-align: right;
+  font-size: 12px;
+}
+#block-feedback-form .feedback-link * {
+  display: inline;
+  font-size: 12px;
+}
+#block-feedback-form form {
+  border: 1px solid #ccc;
+  padding: 6px;
+  background-color: #fff;
+  opacity: 0.9;
+  max-width: 300px;
+}
+/* IE6 doesn't support max-width. */
+* html #block-feedback-form form {
+  width: 300px;
+}
+#block-feedback-form .feedback-help {
+  margin: 0 0 0.5em;
+  font-size: 10px;
+  line-height: normal;
+}
+#block-feedback-form input[type="text"] {
+  -moz-box-sizing: border-box;
+  -webkit-box-sizing: border-box;
+  box-sizing: border-box;
+  max-width: 100%;
+}
+#block-feedback-form .form-actions {
+  margin: 1em 0 0;
+  padding: 0;
+}
+
+/* Ajax interaction styles */
+#block-feedback-form .feedback-message {
+  height: 10ex;
+}
+#block-feedback-form .ajax-progress .throbber {
+  background: transparent url(images/throbber.gif) no-repeat left center;
+  height: 16px;
+  width: 16px;
+}
+
+/**
+ * Styles for existing feedback messages.
+ */
+#block-feedback-form .feedback-entry {
+  font-size: 80%;
+}
+.feedback-entry .feedback-submitted {
+  margin-top: 0.2em;
+  font-size: 90%;
+}
+.feedback-entry .browserinfo {
+  color: #666;
+  font-size: 80%;
+}

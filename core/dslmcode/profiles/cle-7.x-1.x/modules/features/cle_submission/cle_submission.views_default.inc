@@ -149,6 +149,55 @@ function cle_submission_views_default_views() {
   $handler = $view->new_display('page', 'My Submissions', 'page');
   $handler->display->display_options['display_description'] = 'Submission listing';
   $handler->display->display_options['defaults']['hide_admin_links'] = FALSE;
+  $handler->display->display_options['defaults']['group_by'] = FALSE;
+  $handler->display->display_options['group_by'] = TRUE;
+  $handler->display->display_options['defaults']['fields'] = FALSE;
+  /* Field: Content: Post date */
+  $handler->display->display_options['fields']['created']['id'] = 'created';
+  $handler->display->display_options['fields']['created']['table'] = 'node';
+  $handler->display->display_options['fields']['created']['field'] = 'created';
+  $handler->display->display_options['fields']['created']['label'] = 'Submitted';
+  $handler->display->display_options['fields']['created']['date_format'] = 'long';
+  $handler->display->display_options['fields']['created']['second_date_format'] = 'long';
+  /* Field: Content: Title */
+  $handler->display->display_options['fields']['title']['id'] = 'title';
+  $handler->display->display_options['fields']['title']['table'] = 'node';
+  $handler->display->display_options['fields']['title']['field'] = 'title';
+  /* Field: Content: Assignment */
+  $handler->display->display_options['fields']['field_assignment']['id'] = 'field_assignment';
+  $handler->display->display_options['fields']['field_assignment']['table'] = 'field_data_field_assignment';
+  $handler->display->display_options['fields']['field_assignment']['field'] = 'field_assignment';
+  $handler->display->display_options['fields']['field_assignment']['settings'] = array(
+    'link' => 1,
+  );
+  /* Field: Content: Comment count */
+  $handler->display->display_options['fields']['comment_count']['id'] = 'comment_count';
+  $handler->display->display_options['fields']['comment_count']['table'] = 'node_comment_statistics';
+  $handler->display->display_options['fields']['comment_count']['field'] = 'comment_count';
+  /* Field: Content: Files (field_files:delta) */
+  $handler->display->display_options['fields']['delta']['id'] = 'delta';
+  $handler->display->display_options['fields']['delta']['table'] = 'field_data_field_files';
+  $handler->display->display_options['fields']['delta']['field'] = 'delta';
+  $handler->display->display_options['fields']['delta']['group_type'] = 'count_distinct';
+  $handler->display->display_options['fields']['delta']['label'] = 'Files';
+  /* Field: Content: Images (field_images:delta) */
+  $handler->display->display_options['fields']['delta_1']['id'] = 'delta_1';
+  $handler->display->display_options['fields']['delta_1']['table'] = 'field_data_field_images';
+  $handler->display->display_options['fields']['delta_1']['field'] = 'delta';
+  $handler->display->display_options['fields']['delta_1']['group_type'] = 'count_distinct';
+  $handler->display->display_options['fields']['delta_1']['label'] = 'Images';
+  /* Field: Content: Links (field_links:delta) */
+  $handler->display->display_options['fields']['delta_2']['id'] = 'delta_2';
+  $handler->display->display_options['fields']['delta_2']['table'] = 'field_data_field_links';
+  $handler->display->display_options['fields']['delta_2']['field'] = 'delta';
+  $handler->display->display_options['fields']['delta_2']['group_type'] = 'count_distinct';
+  $handler->display->display_options['fields']['delta_2']['label'] = 'Links';
+  /* Field: Content: Video (field_video:delta) */
+  $handler->display->display_options['fields']['delta_3']['id'] = 'delta_3';
+  $handler->display->display_options['fields']['delta_3']['table'] = 'field_data_field_video';
+  $handler->display->display_options['fields']['delta_3']['field'] = 'delta';
+  $handler->display->display_options['fields']['delta_3']['group_type'] = 'count_distinct';
+  $handler->display->display_options['fields']['delta_3']['label'] = 'Videos';
   $handler->display->display_options['path'] = 'user/%/submissions';
   $handler->display->display_options['menu']['type'] = 'tab';
   $handler->display->display_options['menu']['title'] = 'Submissions';
@@ -194,6 +243,17 @@ function cle_submission_views_default_views() {
   );
   $handler->display->display_options['fields']['field_images']['group_rows'] = FALSE;
   $handler->display->display_options['fields']['field_images']['delta_offset'] = '0';
+  /* Field: Content: Video */
+  $handler->display->display_options['fields']['field_video']['id'] = 'field_video';
+  $handler->display->display_options['fields']['field_video']['table'] = 'field_data_field_video';
+  $handler->display->display_options['fields']['field_video']['field'] = 'field_video';
+  $handler->display->display_options['fields']['field_video']['label'] = '';
+  $handler->display->display_options['fields']['field_video']['element_label_colon'] = FALSE;
+  $handler->display->display_options['fields']['field_video']['click_sort_column'] = 'video_url';
+  $handler->display->display_options['fields']['field_video']['settings'] = array(
+    'video_style' => 'normal',
+  );
+  $handler->display->display_options['fields']['field_video']['delta_offset'] = '0';
   $handler->display->display_options['defaults']['filter_groups'] = FALSE;
   $handler->display->display_options['defaults']['filters'] = FALSE;
   /* Filter criterion: Content: Published */
@@ -557,14 +617,13 @@ function cle_submission_views_default_views() {
 
   /* Display: Master */
   $handler = $view->new_display('default', 'Master', 'default');
-  $handler->display->display_options['title'] = 'Submissions';
+  $handler->display->display_options['title'] = 'Media';
   $handler->display->display_options['use_more_always'] = FALSE;
   $handler->display->display_options['access']['type'] = 'role';
   $handler->display->display_options['access']['role'] = array(
-    3 => '3',
-    5 => '5',
-    7 => '7',
-    9 => '9',
+    4 => '4',
+    6 => '6',
+    8 => '8',
   );
   $handler->display->display_options['cache']['type'] = 'none';
   $handler->display->display_options['query']['type'] = 'views_query';
@@ -576,16 +635,21 @@ function cle_submission_views_default_views() {
   $handler->display->display_options['pager']['options']['quantity'] = '9';
   $handler->display->display_options['style_plugin'] = 'table';
   $handler->display->display_options['style_options']['columns'] = array(
-    'title' => 'title',
-    'name' => 'name',
     'created' => 'created',
-    'field_video' => 'field_video',
-    'field_images' => 'field_images',
+    'name' => 'name',
+    'title' => 'title',
     'comment_count' => 'comment_count',
+    'delta' => 'delta',
+    'delta_1' => 'delta_1',
+    'delta_2' => 'delta_2',
+    'delta_3' => 'delta_3',
+    'field_due_date' => 'field_due_date',
+    'field_media_requirements' => 'field_media_requirements',
+    'value' => 'value',
   );
   $handler->display->display_options['style_options']['default'] = '-1';
   $handler->display->display_options['style_options']['info'] = array(
-    'title' => array(
+    'created' => array(
       'sortable' => 1,
       'default_sort_order' => 'asc',
       'align' => '',
@@ -599,19 +663,9 @@ function cle_submission_views_default_views() {
       'separator' => '',
       'empty_column' => 0,
     ),
-    'created' => array(
+    'title' => array(
       'sortable' => 1,
       'default_sort_order' => 'asc',
-      'align' => '',
-      'separator' => '',
-      'empty_column' => 0,
-    ),
-    'field_video' => array(
-      'align' => '',
-      'separator' => '',
-      'empty_column' => 0,
-    ),
-    'field_images' => array(
       'align' => '',
       'separator' => '',
       'empty_column' => 0,
@@ -623,9 +677,66 @@ function cle_submission_views_default_views() {
       'separator' => '',
       'empty_column' => 0,
     ),
+    'delta' => array(
+      'align' => '',
+      'separator' => '',
+      'empty_column' => 0,
+    ),
+    'delta_1' => array(
+      'align' => '',
+      'separator' => '',
+      'empty_column' => 0,
+    ),
+    'delta_2' => array(
+      'align' => '',
+      'separator' => '',
+      'empty_column' => 0,
+    ),
+    'delta_3' => array(
+      'align' => '',
+      'separator' => '',
+      'empty_column' => 0,
+    ),
+    'field_due_date' => array(
+      'sortable' => 0,
+      'default_sort_order' => 'asc',
+      'align' => '',
+      'separator' => '',
+      'empty_column' => 0,
+    ),
+    'field_media_requirements' => array(
+      'align' => '',
+      'separator' => '',
+      'empty_column' => 0,
+    ),
+    'value' => array(
+      'sortable' => 1,
+      'default_sort_order' => 'asc',
+      'align' => '',
+      'separator' => '',
+      'empty_column' => 0,
+    ),
   );
   $handler->display->display_options['style_options']['sticky'] = TRUE;
   $handler->display->display_options['style_options']['summary'] = 'A list of all submissions for this assignment';
+  /* Header: Global: Text area */
+  $handler->display->display_options['header']['area']['id'] = 'area';
+  $handler->display->display_options['header']['area']['table'] = 'views';
+  $handler->display->display_options['header']['area']['field'] = 'area';
+  $handler->display->display_options['header']['area']['label'] = 'Assignment';
+  $handler->display->display_options['header']['area']['empty'] = TRUE;
+  $handler->display->display_options['header']['area']['content'] = '<h3>%1 Submissions</h3>
+Assignment details:
+<ul>
+<li><strong>Due Date:</strong> [field_due_date]</li>
+<li><strong>Requirements:</strong> [field_media_requirements]</li>
+</ul>';
+  $handler->display->display_options['header']['area']['format'] = 'textbook_editor';
+  $handler->display->display_options['header']['area']['tokenize'] = TRUE;
+  /* Header: Entity: Rendered entity */
+  $handler->display->display_options['header']['entity']['id'] = 'entity';
+  $handler->display->display_options['header']['entity']['table'] = 'entity__global';
+  $handler->display->display_options['header']['entity']['field'] = 'entity';
   /* No results behavior: Global: Text area */
   $handler->display->display_options['empty']['area']['id'] = 'area';
   $handler->display->display_options['empty']['area']['table'] = 'views';
@@ -638,49 +749,117 @@ function cle_submission_views_default_views() {
   $handler->display->display_options['relationships']['uid']['table'] = 'node';
   $handler->display->display_options['relationships']['uid']['field'] = 'uid';
   $handler->display->display_options['relationships']['uid']['required'] = TRUE;
-  /* Field: Content: Title */
-  $handler->display->display_options['fields']['title']['id'] = 'title';
-  $handler->display->display_options['fields']['title']['table'] = 'node';
-  $handler->display->display_options['fields']['title']['field'] = 'title';
-  $handler->display->display_options['fields']['title']['alter']['word_boundary'] = FALSE;
-  $handler->display->display_options['fields']['title']['alter']['ellipsis'] = FALSE;
-  /* Field: User: Name */
-  $handler->display->display_options['fields']['name']['id'] = 'name';
-  $handler->display->display_options['fields']['name']['table'] = 'users';
-  $handler->display->display_options['fields']['name']['field'] = 'name';
-  $handler->display->display_options['fields']['name']['relationship'] = 'uid';
+  /* Relationship: Entity Reference: Referenced Entity */
+  $handler->display->display_options['relationships']['field_assignment_target_id']['id'] = 'field_assignment_target_id';
+  $handler->display->display_options['relationships']['field_assignment_target_id']['table'] = 'field_data_field_assignment';
+  $handler->display->display_options['relationships']['field_assignment_target_id']['field'] = 'field_assignment_target_id';
+  $handler->display->display_options['relationships']['field_assignment_target_id']['required'] = TRUE;
+  /* Relationship: Flags: cle_exemplary */
+  $handler->display->display_options['relationships']['flag_content_rel']['id'] = 'flag_content_rel';
+  $handler->display->display_options['relationships']['flag_content_rel']['table'] = 'node';
+  $handler->display->display_options['relationships']['flag_content_rel']['field'] = 'flag_content_rel';
+  $handler->display->display_options['relationships']['flag_content_rel']['required'] = 0;
+  $handler->display->display_options['relationships']['flag_content_rel']['flag'] = 'cle_exemplary';
   /* Field: Content: Post date */
   $handler->display->display_options['fields']['created']['id'] = 'created';
   $handler->display->display_options['fields']['created']['table'] = 'node';
   $handler->display->display_options['fields']['created']['field'] = 'created';
   $handler->display->display_options['fields']['created']['label'] = 'Created';
   $handler->display->display_options['fields']['created']['date_format'] = 'medium';
+  /* Field: User: Name */
+  $handler->display->display_options['fields']['name']['id'] = 'name';
+  $handler->display->display_options['fields']['name']['table'] = 'users';
+  $handler->display->display_options['fields']['name']['field'] = 'name';
+  $handler->display->display_options['fields']['name']['relationship'] = 'uid';
+  $handler->display->display_options['fields']['name']['label'] = 'User';
+  /* Field: Content: Comment count */
+  $handler->display->display_options['fields']['comment_count']['id'] = 'comment_count';
+  $handler->display->display_options['fields']['comment_count']['table'] = 'node_comment_statistics';
+  $handler->display->display_options['fields']['comment_count']['field'] = 'comment_count';
+  $handler->display->display_options['fields']['comment_count']['label'] = 'Comments';
+  /* Field: Content: Title */
+  $handler->display->display_options['fields']['title']['id'] = 'title';
+  $handler->display->display_options['fields']['title']['table'] = 'node';
+  $handler->display->display_options['fields']['title']['field'] = 'title';
+  $handler->display->display_options['fields']['title']['alter']['word_boundary'] = FALSE;
+  $handler->display->display_options['fields']['title']['alter']['ellipsis'] = FALSE;
   /* Field: Content: Video */
   $handler->display->display_options['fields']['field_video']['id'] = 'field_video';
   $handler->display->display_options['fields']['field_video']['table'] = 'field_data_field_video';
   $handler->display->display_options['fields']['field_video']['field'] = 'field_video';
+  $handler->display->display_options['fields']['field_video']['group_type'] = 'count';
   $handler->display->display_options['fields']['field_video']['click_sort_column'] = 'video_url';
   $handler->display->display_options['fields']['field_video']['type'] = 'video_embed_field_thumbnail';
   $handler->display->display_options['fields']['field_video']['settings'] = array(
     'image_style' => 'thumbnail',
     'image_link' => '',
   );
+  $handler->display->display_options['fields']['field_video']['group_column'] = 'video_url';
   $handler->display->display_options['fields']['field_video']['delta_offset'] = '0';
   /* Field: Content: Images */
   $handler->display->display_options['fields']['field_images']['id'] = 'field_images';
   $handler->display->display_options['fields']['field_images']['table'] = 'field_data_field_images';
   $handler->display->display_options['fields']['field_images']['field'] = 'field_images';
+  $handler->display->display_options['fields']['field_images']['group_type'] = 'count';
   $handler->display->display_options['fields']['field_images']['click_sort_column'] = 'fid';
   $handler->display->display_options['fields']['field_images']['settings'] = array(
     'image_style' => 'thumbnail',
     'image_link' => '',
   );
+  $handler->display->display_options['fields']['field_images']['group_column'] = 'entity_id';
+  $handler->display->display_options['fields']['field_images']['group_columns'] = array(
+    'fid' => 'fid',
+  );
   $handler->display->display_options['fields']['field_images']['delta_offset'] = '0';
-  /* Field: Content: Comment count */
-  $handler->display->display_options['fields']['comment_count']['id'] = 'comment_count';
-  $handler->display->display_options['fields']['comment_count']['table'] = 'node_comment_statistics';
-  $handler->display->display_options['fields']['comment_count']['field'] = 'comment_count';
-  $handler->display->display_options['fields']['comment_count']['label'] = 'Comments';
+  /* Field: Content: Links */
+  $handler->display->display_options['fields']['field_links']['id'] = 'field_links';
+  $handler->display->display_options['fields']['field_links']['table'] = 'field_data_field_links';
+  $handler->display->display_options['fields']['field_links']['field'] = 'field_links';
+  $handler->display->display_options['fields']['field_links']['group_type'] = 'count';
+  $handler->display->display_options['fields']['field_links']['hide_empty'] = TRUE;
+  $handler->display->display_options['fields']['field_links']['empty_zero'] = TRUE;
+  $handler->display->display_options['fields']['field_links']['click_sort_column'] = 'url';
+  $handler->display->display_options['fields']['field_links']['group_column'] = 'url';
+  $handler->display->display_options['fields']['field_links']['delta_offset'] = '0';
+  /* Field: Content: Due Date */
+  $handler->display->display_options['fields']['field_due_date']['id'] = 'field_due_date';
+  $handler->display->display_options['fields']['field_due_date']['table'] = 'field_data_field_due_date';
+  $handler->display->display_options['fields']['field_due_date']['field'] = 'field_due_date';
+  $handler->display->display_options['fields']['field_due_date']['relationship'] = 'field_assignment_target_id';
+  $handler->display->display_options['fields']['field_due_date']['label'] = '';
+  $handler->display->display_options['fields']['field_due_date']['exclude'] = TRUE;
+  $handler->display->display_options['fields']['field_due_date']['element_label_colon'] = FALSE;
+  $handler->display->display_options['fields']['field_due_date']['settings'] = array(
+    'format_type' => 'medium',
+    'fromto' => 'both',
+    'multiple_number' => '',
+    'multiple_from' => '',
+    'multiple_to' => '',
+  );
+  /* Field: Content: Media Requirements */
+  $handler->display->display_options['fields']['field_media_requirements']['id'] = 'field_media_requirements';
+  $handler->display->display_options['fields']['field_media_requirements']['table'] = 'field_data_field_media_requirements';
+  $handler->display->display_options['fields']['field_media_requirements']['field'] = 'field_media_requirements';
+  $handler->display->display_options['fields']['field_media_requirements']['relationship'] = 'field_assignment_target_id';
+  $handler->display->display_options['fields']['field_media_requirements']['label'] = '';
+  $handler->display->display_options['fields']['field_media_requirements']['exclude'] = TRUE;
+  $handler->display->display_options['fields']['field_media_requirements']['element_label_colon'] = FALSE;
+  $handler->display->display_options['fields']['field_media_requirements']['delta_offset'] = '0';
+  /* Field: Content: Body */
+  $handler->display->display_options['fields']['body']['id'] = 'body';
+  $handler->display->display_options['fields']['body']['table'] = 'field_data_body';
+  $handler->display->display_options['fields']['body']['field'] = 'body';
+  $handler->display->display_options['fields']['body']['label'] = 'text';
+  $handler->display->display_options['fields']['body']['type'] = 'text_trimmed';
+  $handler->display->display_options['fields']['body']['settings'] = array(
+    'trim_length' => '50',
+  );
+  /* Field: Flags: Flag link */
+  $handler->display->display_options['fields']['ops']['id'] = 'ops';
+  $handler->display->display_options['fields']['ops']['table'] = 'flag_content';
+  $handler->display->display_options['fields']['ops']['field'] = 'ops';
+  $handler->display->display_options['fields']['ops']['relationship'] = 'flag_content_rel';
+  $handler->display->display_options['fields']['ops']['label'] = 'Mark exemplary';
   /* Sort criterion: Content: Post date */
   $handler->display->display_options['sorts']['created']['id'] = 'created';
   $handler->display->display_options['sorts']['created']['table'] = 'node';
@@ -714,16 +893,600 @@ function cle_submission_views_default_views() {
   $handler->display->display_options['filters']['type']['value'] = array(
     'cle_submission' => 'cle_submission',
   );
+  /* Filter criterion: User: Name */
+  $handler->display->display_options['filters']['uid']['id'] = 'uid';
+  $handler->display->display_options['filters']['uid']['table'] = 'users';
+  $handler->display->display_options['filters']['uid']['field'] = 'uid';
+  $handler->display->display_options['filters']['uid']['relationship'] = 'uid';
+  $handler->display->display_options['filters']['uid']['value'] = '';
+  $handler->display->display_options['filters']['uid']['exposed'] = TRUE;
+  $handler->display->display_options['filters']['uid']['expose']['operator_id'] = 'uid_op';
+  $handler->display->display_options['filters']['uid']['expose']['label'] = 'Name';
+  $handler->display->display_options['filters']['uid']['expose']['operator'] = 'uid_op';
+  $handler->display->display_options['filters']['uid']['expose']['identifier'] = 'uid';
+  $handler->display->display_options['filters']['uid']['expose']['remember_roles'] = array(
+    2 => '2',
+    1 => 0,
+    5 => 0,
+    3 => 0,
+    7 => 0,
+    8 => 0,
+    4 => 0,
+    9 => 0,
+    6 => 0,
+    10 => 0,
+  );
+  $handler->display->display_options['filters']['uid']['group_info']['label'] = 'Name';
+  $handler->display->display_options['filters']['uid']['group_info']['identifier'] = 'uid';
+  $handler->display->display_options['filters']['uid']['group_info']['remember'] = FALSE;
+  $handler->display->display_options['filters']['uid']['group_info']['group_items'] = array(
+    1 => array(),
+    2 => array(),
+    3 => array(),
+  );
+  /* Filter criterion: Content: Comment count */
+  $handler->display->display_options['filters']['comment_count']['id'] = 'comment_count';
+  $handler->display->display_options['filters']['comment_count']['table'] = 'node_comment_statistics';
+  $handler->display->display_options['filters']['comment_count']['field'] = 'comment_count';
+  $handler->display->display_options['filters']['comment_count']['exposed'] = TRUE;
+  $handler->display->display_options['filters']['comment_count']['expose']['operator_id'] = 'comment_count_op';
+  $handler->display->display_options['filters']['comment_count']['expose']['label'] = 'Comments';
+  $handler->display->display_options['filters']['comment_count']['expose']['use_operator'] = TRUE;
+  $handler->display->display_options['filters']['comment_count']['expose']['operator_label'] = 'Modifier';
+  $handler->display->display_options['filters']['comment_count']['expose']['operator'] = 'comment_count_op';
+  $handler->display->display_options['filters']['comment_count']['expose']['identifier'] = 'comment_count';
+  $handler->display->display_options['filters']['comment_count']['expose']['remember_roles'] = array(
+    2 => '2',
+    1 => 0,
+    5 => 0,
+    3 => 0,
+    7 => 0,
+    8 => 0,
+    4 => 0,
+    9 => 0,
+    6 => 0,
+    10 => 0,
+  );
+  /* Filter criterion: Flags: Flagged */
+  $handler->display->display_options['filters']['flagged']['id'] = 'flagged';
+  $handler->display->display_options['filters']['flagged']['table'] = 'flag_content';
+  $handler->display->display_options['filters']['flagged']['field'] = 'flagged';
+  $handler->display->display_options['filters']['flagged']['relationship'] = 'flag_content_rel';
+  $handler->display->display_options['filters']['flagged']['value'] = 'All';
+  $handler->display->display_options['filters']['flagged']['exposed'] = TRUE;
+  $handler->display->display_options['filters']['flagged']['expose']['operator_id'] = '';
+  $handler->display->display_options['filters']['flagged']['expose']['label'] = 'Exemplary';
+  $handler->display->display_options['filters']['flagged']['expose']['operator'] = 'flagged_op';
+  $handler->display->display_options['filters']['flagged']['expose']['identifier'] = 'flagged';
+  $handler->display->display_options['filters']['flagged']['expose']['remember_roles'] = array(
+    2 => '2',
+    1 => 0,
+    5 => 0,
+    3 => 0,
+    7 => 0,
+    8 => 0,
+    4 => 0,
+    9 => 0,
+    6 => 0,
+    10 => 0,
+  );
 
-  /* Display: Page */
-  $handler = $view->new_display('page', 'Page', 'page');
+  /* Display: Submission Overview */
+  $handler = $view->new_display('page', 'Submission Overview', 'page');
+  $handler->display->display_options['defaults']['title'] = FALSE;
+  $handler->display->display_options['title'] = 'Overview';
+  $handler->display->display_options['display_description'] = 'High level';
   $handler->display->display_options['defaults']['hide_admin_links'] = FALSE;
+  $handler->display->display_options['defaults']['group_by'] = FALSE;
+  $handler->display->display_options['group_by'] = TRUE;
+  $handler->display->display_options['defaults']['query'] = FALSE;
+  $handler->display->display_options['query']['type'] = 'views_query';
+  $handler->display->display_options['defaults']['relationships'] = FALSE;
+  /* Relationship: Content: Author */
+  $handler->display->display_options['relationships']['uid']['id'] = 'uid';
+  $handler->display->display_options['relationships']['uid']['table'] = 'node';
+  $handler->display->display_options['relationships']['uid']['field'] = 'uid';
+  $handler->display->display_options['relationships']['uid']['required'] = TRUE;
+  /* Relationship: Entity Reference: Referenced Entity */
+  $handler->display->display_options['relationships']['field_assignment_target_id']['id'] = 'field_assignment_target_id';
+  $handler->display->display_options['relationships']['field_assignment_target_id']['table'] = 'field_data_field_assignment';
+  $handler->display->display_options['relationships']['field_assignment_target_id']['field'] = 'field_assignment_target_id';
+  $handler->display->display_options['relationships']['field_assignment_target_id']['required'] = TRUE;
+  $handler->display->display_options['defaults']['fields'] = FALSE;
+  /* Field: Content: Post date */
+  $handler->display->display_options['fields']['created']['id'] = 'created';
+  $handler->display->display_options['fields']['created']['table'] = 'node';
+  $handler->display->display_options['fields']['created']['field'] = 'created';
+  $handler->display->display_options['fields']['created']['label'] = 'Created';
+  $handler->display->display_options['fields']['created']['date_format'] = 'medium';
+  /* Field: User: Name */
+  $handler->display->display_options['fields']['name']['id'] = 'name';
+  $handler->display->display_options['fields']['name']['table'] = 'users';
+  $handler->display->display_options['fields']['name']['field'] = 'name';
+  $handler->display->display_options['fields']['name']['relationship'] = 'uid';
+  $handler->display->display_options['fields']['name']['label'] = 'User';
+  /* Field: Content: Title */
+  $handler->display->display_options['fields']['title']['id'] = 'title';
+  $handler->display->display_options['fields']['title']['table'] = 'node';
+  $handler->display->display_options['fields']['title']['field'] = 'title';
+  $handler->display->display_options['fields']['title']['alter']['word_boundary'] = FALSE;
+  $handler->display->display_options['fields']['title']['alter']['ellipsis'] = FALSE;
+  /* Field: Content: Comment count */
+  $handler->display->display_options['fields']['comment_count']['id'] = 'comment_count';
+  $handler->display->display_options['fields']['comment_count']['table'] = 'node_comment_statistics';
+  $handler->display->display_options['fields']['comment_count']['field'] = 'comment_count';
+  $handler->display->display_options['fields']['comment_count']['label'] = 'Comments';
+  /* Field: Content: Files (field_files:delta) */
+  $handler->display->display_options['fields']['delta']['id'] = 'delta';
+  $handler->display->display_options['fields']['delta']['table'] = 'field_data_field_files';
+  $handler->display->display_options['fields']['delta']['field'] = 'delta';
+  $handler->display->display_options['fields']['delta']['group_type'] = 'count_distinct';
+  $handler->display->display_options['fields']['delta']['label'] = 'Files';
+  /* Field: Content: Images (field_images:delta) */
+  $handler->display->display_options['fields']['delta_1']['id'] = 'delta_1';
+  $handler->display->display_options['fields']['delta_1']['table'] = 'field_data_field_images';
+  $handler->display->display_options['fields']['delta_1']['field'] = 'delta';
+  $handler->display->display_options['fields']['delta_1']['group_type'] = 'count_distinct';
+  $handler->display->display_options['fields']['delta_1']['label'] = 'Images';
+  /* Field: Content: Links (field_links:delta) */
+  $handler->display->display_options['fields']['delta_2']['id'] = 'delta_2';
+  $handler->display->display_options['fields']['delta_2']['table'] = 'field_data_field_links';
+  $handler->display->display_options['fields']['delta_2']['field'] = 'delta';
+  $handler->display->display_options['fields']['delta_2']['group_type'] = 'count_distinct';
+  $handler->display->display_options['fields']['delta_2']['label'] = 'Links';
+  /* Field: Content: Video (field_video:delta) */
+  $handler->display->display_options['fields']['delta_3']['id'] = 'delta_3';
+  $handler->display->display_options['fields']['delta_3']['table'] = 'field_data_field_video';
+  $handler->display->display_options['fields']['delta_3']['field'] = 'delta';
+  $handler->display->display_options['fields']['delta_3']['group_type'] = 'count_distinct';
+  $handler->display->display_options['fields']['delta_3']['label'] = 'Videos';
+  /* Field: Content: Due Date */
+  $handler->display->display_options['fields']['field_due_date']['id'] = 'field_due_date';
+  $handler->display->display_options['fields']['field_due_date']['table'] = 'field_data_field_due_date';
+  $handler->display->display_options['fields']['field_due_date']['field'] = 'field_due_date';
+  $handler->display->display_options['fields']['field_due_date']['relationship'] = 'field_assignment_target_id';
+  $handler->display->display_options['fields']['field_due_date']['label'] = '';
+  $handler->display->display_options['fields']['field_due_date']['exclude'] = TRUE;
+  $handler->display->display_options['fields']['field_due_date']['element_label_colon'] = FALSE;
+  $handler->display->display_options['fields']['field_due_date']['settings'] = array(
+    'format_type' => 'medium',
+    'fromto' => 'both',
+    'multiple_number' => '',
+    'multiple_from' => '',
+    'multiple_to' => '',
+  );
+  $handler->display->display_options['fields']['field_due_date']['group_column'] = 'entity_id';
+  /* Field: Content: Media Requirements */
+  $handler->display->display_options['fields']['field_media_requirements']['id'] = 'field_media_requirements';
+  $handler->display->display_options['fields']['field_media_requirements']['table'] = 'field_data_field_media_requirements';
+  $handler->display->display_options['fields']['field_media_requirements']['field'] = 'field_media_requirements';
+  $handler->display->display_options['fields']['field_media_requirements']['relationship'] = 'field_assignment_target_id';
+  $handler->display->display_options['fields']['field_media_requirements']['label'] = '';
+  $handler->display->display_options['fields']['field_media_requirements']['exclude'] = TRUE;
+  $handler->display->display_options['fields']['field_media_requirements']['element_label_colon'] = FALSE;
+  $handler->display->display_options['fields']['field_media_requirements']['group_column'] = 'entity_id';
+  $handler->display->display_options['fields']['field_media_requirements']['delta_offset'] = '0';
+  $handler->display->display_options['defaults']['sorts'] = FALSE;
+  /* Sort criterion: Content: Post date */
+  $handler->display->display_options['sorts']['created']['id'] = 'created';
+  $handler->display->display_options['sorts']['created']['table'] = 'node';
+  $handler->display->display_options['sorts']['created']['field'] = 'created';
+  $handler->display->display_options['sorts']['created']['order'] = 'DESC';
   $handler->display->display_options['path'] = 'node/%/submissions';
   $handler->display->display_options['menu']['type'] = 'tab';
   $handler->display->display_options['menu']['title'] = 'Submissions';
   $handler->display->display_options['menu']['description'] = 'Listing of Submissions for this assignment';
+  $handler->display->display_options['menu']['weight'] = '1';
+  $handler->display->display_options['menu']['context'] = 0;
+  $handler->display->display_options['menu']['context_only_inline'] = 0;
+  $handler->display->display_options['tab_options']['type'] = 'normal';
+  $handler->display->display_options['tab_options']['title'] = 'Submissions';
+  $handler->display->display_options['tab_options']['description'] = 'Listing of submissions for this assignemnt';
+  $handler->display->display_options['tab_options']['weight'] = '0';
+
+  /* Display: Submission Overview */
+  $handler = $view->new_display('page', 'Submission Overview', 'page_3');
+  $handler->display->display_options['defaults']['title'] = FALSE;
+  $handler->display->display_options['title'] = 'Overview';
+  $handler->display->display_options['display_description'] = 'High level';
+  $handler->display->display_options['defaults']['hide_admin_links'] = FALSE;
+  $handler->display->display_options['defaults']['group_by'] = FALSE;
+  $handler->display->display_options['group_by'] = TRUE;
+  $handler->display->display_options['defaults']['query'] = FALSE;
+  $handler->display->display_options['query']['type'] = 'views_query';
+  $handler->display->display_options['defaults']['relationships'] = FALSE;
+  /* Relationship: Content: Author */
+  $handler->display->display_options['relationships']['uid']['id'] = 'uid';
+  $handler->display->display_options['relationships']['uid']['table'] = 'node';
+  $handler->display->display_options['relationships']['uid']['field'] = 'uid';
+  $handler->display->display_options['relationships']['uid']['required'] = TRUE;
+  /* Relationship: Entity Reference: Referenced Entity */
+  $handler->display->display_options['relationships']['field_assignment_target_id']['id'] = 'field_assignment_target_id';
+  $handler->display->display_options['relationships']['field_assignment_target_id']['table'] = 'field_data_field_assignment';
+  $handler->display->display_options['relationships']['field_assignment_target_id']['field'] = 'field_assignment_target_id';
+  $handler->display->display_options['relationships']['field_assignment_target_id']['required'] = TRUE;
+  /* Relationship: Flags: cle_exemplary */
+  $handler->display->display_options['relationships']['flag_content_rel']['id'] = 'flag_content_rel';
+  $handler->display->display_options['relationships']['flag_content_rel']['table'] = 'node';
+  $handler->display->display_options['relationships']['flag_content_rel']['field'] = 'flag_content_rel';
+  $handler->display->display_options['relationships']['flag_content_rel']['required'] = 0;
+  $handler->display->display_options['relationships']['flag_content_rel']['flag'] = 'cle_exemplary';
+  $handler->display->display_options['defaults']['fields'] = FALSE;
+  /* Field: Content: Post date */
+  $handler->display->display_options['fields']['created']['id'] = 'created';
+  $handler->display->display_options['fields']['created']['table'] = 'node';
+  $handler->display->display_options['fields']['created']['field'] = 'created';
+  $handler->display->display_options['fields']['created']['label'] = 'Created';
+  $handler->display->display_options['fields']['created']['date_format'] = 'medium';
+  /* Field: User: Name */
+  $handler->display->display_options['fields']['name']['id'] = 'name';
+  $handler->display->display_options['fields']['name']['table'] = 'users';
+  $handler->display->display_options['fields']['name']['field'] = 'name';
+  $handler->display->display_options['fields']['name']['relationship'] = 'uid';
+  $handler->display->display_options['fields']['name']['label'] = 'User';
+  /* Field: Content: Title */
+  $handler->display->display_options['fields']['title']['id'] = 'title';
+  $handler->display->display_options['fields']['title']['table'] = 'node';
+  $handler->display->display_options['fields']['title']['field'] = 'title';
+  $handler->display->display_options['fields']['title']['alter']['word_boundary'] = FALSE;
+  $handler->display->display_options['fields']['title']['alter']['ellipsis'] = FALSE;
+  /* Field: Content: Comment count */
+  $handler->display->display_options['fields']['comment_count']['id'] = 'comment_count';
+  $handler->display->display_options['fields']['comment_count']['table'] = 'node_comment_statistics';
+  $handler->display->display_options['fields']['comment_count']['field'] = 'comment_count';
+  $handler->display->display_options['fields']['comment_count']['label'] = 'Comments';
+  /* Field: Content: Files (field_files:delta) */
+  $handler->display->display_options['fields']['delta']['id'] = 'delta';
+  $handler->display->display_options['fields']['delta']['table'] = 'field_data_field_files';
+  $handler->display->display_options['fields']['delta']['field'] = 'delta';
+  $handler->display->display_options['fields']['delta']['group_type'] = 'count_distinct';
+  $handler->display->display_options['fields']['delta']['label'] = 'Files';
+  /* Field: Content: Images (field_images:delta) */
+  $handler->display->display_options['fields']['delta_1']['id'] = 'delta_1';
+  $handler->display->display_options['fields']['delta_1']['table'] = 'field_data_field_images';
+  $handler->display->display_options['fields']['delta_1']['field'] = 'delta';
+  $handler->display->display_options['fields']['delta_1']['group_type'] = 'count_distinct';
+  $handler->display->display_options['fields']['delta_1']['label'] = 'Images';
+  /* Field: Content: Links (field_links:delta) */
+  $handler->display->display_options['fields']['delta_2']['id'] = 'delta_2';
+  $handler->display->display_options['fields']['delta_2']['table'] = 'field_data_field_links';
+  $handler->display->display_options['fields']['delta_2']['field'] = 'delta';
+  $handler->display->display_options['fields']['delta_2']['group_type'] = 'count_distinct';
+  $handler->display->display_options['fields']['delta_2']['label'] = 'Links';
+  /* Field: Content: Video (field_video:delta) */
+  $handler->display->display_options['fields']['delta_3']['id'] = 'delta_3';
+  $handler->display->display_options['fields']['delta_3']['table'] = 'field_data_field_video';
+  $handler->display->display_options['fields']['delta_3']['field'] = 'delta';
+  $handler->display->display_options['fields']['delta_3']['group_type'] = 'count_distinct';
+  $handler->display->display_options['fields']['delta_3']['label'] = 'Videos';
+  /* Field: Content: Due Date */
+  $handler->display->display_options['fields']['field_due_date']['id'] = 'field_due_date';
+  $handler->display->display_options['fields']['field_due_date']['table'] = 'field_data_field_due_date';
+  $handler->display->display_options['fields']['field_due_date']['field'] = 'field_due_date';
+  $handler->display->display_options['fields']['field_due_date']['relationship'] = 'field_assignment_target_id';
+  $handler->display->display_options['fields']['field_due_date']['label'] = '';
+  $handler->display->display_options['fields']['field_due_date']['exclude'] = TRUE;
+  $handler->display->display_options['fields']['field_due_date']['element_label_colon'] = FALSE;
+  $handler->display->display_options['fields']['field_due_date']['settings'] = array(
+    'format_type' => 'medium',
+    'fromto' => 'both',
+    'multiple_number' => '',
+    'multiple_from' => '',
+    'multiple_to' => '',
+  );
+  $handler->display->display_options['fields']['field_due_date']['group_column'] = 'entity_id';
+  /* Field: Content: Media Requirements */
+  $handler->display->display_options['fields']['field_media_requirements']['id'] = 'field_media_requirements';
+  $handler->display->display_options['fields']['field_media_requirements']['table'] = 'field_data_field_media_requirements';
+  $handler->display->display_options['fields']['field_media_requirements']['field'] = 'field_media_requirements';
+  $handler->display->display_options['fields']['field_media_requirements']['relationship'] = 'field_assignment_target_id';
+  $handler->display->display_options['fields']['field_media_requirements']['label'] = '';
+  $handler->display->display_options['fields']['field_media_requirements']['exclude'] = TRUE;
+  $handler->display->display_options['fields']['field_media_requirements']['element_label_colon'] = FALSE;
+  $handler->display->display_options['fields']['field_media_requirements']['group_column'] = 'entity_id';
+  $handler->display->display_options['fields']['field_media_requirements']['delta_offset'] = '0';
+  $handler->display->display_options['defaults']['sorts'] = FALSE;
+  /* Sort criterion: Content: Post date */
+  $handler->display->display_options['sorts']['created']['id'] = 'created';
+  $handler->display->display_options['sorts']['created']['table'] = 'node';
+  $handler->display->display_options['sorts']['created']['field'] = 'created';
+  $handler->display->display_options['sorts']['created']['order'] = 'DESC';
+  $handler->display->display_options['path'] = 'node/%/submissions/overview';
+  $handler->display->display_options['menu']['type'] = 'default tab';
+  $handler->display->display_options['menu']['title'] = 'Overview';
+  $handler->display->display_options['menu']['description'] = 'Listing of Submissions for this assignment';
+  $handler->display->display_options['menu']['weight'] = '1';
+  $handler->display->display_options['menu']['context'] = 0;
+  $handler->display->display_options['menu']['context_only_inline'] = 0;
+  $handler->display->display_options['tab_options']['title'] = 'Submissions';
+  $handler->display->display_options['tab_options']['description'] = 'Listing of submissions for this assignemnt';
+  $handler->display->display_options['tab_options']['weight'] = '0';
+
+  /* Display: Submission Media */
+  $handler = $view->new_display('page', 'Submission Media', 'page_1');
+  $handler->display->display_options['display_description'] = 'Media displayed';
+  $handler->display->display_options['defaults']['hide_admin_links'] = FALSE;
+  $handler->display->display_options['defaults']['fields'] = FALSE;
+  /* Field: Content: Post date */
+  $handler->display->display_options['fields']['created']['id'] = 'created';
+  $handler->display->display_options['fields']['created']['table'] = 'node';
+  $handler->display->display_options['fields']['created']['field'] = 'created';
+  $handler->display->display_options['fields']['created']['label'] = 'Created';
+  $handler->display->display_options['fields']['created']['date_format'] = 'medium';
+  /* Field: User: Name */
+  $handler->display->display_options['fields']['name']['id'] = 'name';
+  $handler->display->display_options['fields']['name']['table'] = 'users';
+  $handler->display->display_options['fields']['name']['field'] = 'name';
+  $handler->display->display_options['fields']['name']['relationship'] = 'uid';
+  $handler->display->display_options['fields']['name']['label'] = 'User';
+  /* Field: Content: Title */
+  $handler->display->display_options['fields']['title']['id'] = 'title';
+  $handler->display->display_options['fields']['title']['table'] = 'node';
+  $handler->display->display_options['fields']['title']['field'] = 'title';
+  /* Field: Content: Video */
+  $handler->display->display_options['fields']['field_video']['id'] = 'field_video';
+  $handler->display->display_options['fields']['field_video']['table'] = 'field_data_field_video';
+  $handler->display->display_options['fields']['field_video']['field'] = 'field_video';
+  $handler->display->display_options['fields']['field_video']['click_sort_column'] = 'video_url';
+  $handler->display->display_options['fields']['field_video']['type'] = 'video_embed_field_thumbnail';
+  $handler->display->display_options['fields']['field_video']['settings'] = array(
+    'image_style' => 'thumbnail',
+    'image_link' => '',
+  );
+  $handler->display->display_options['fields']['field_video']['delta_offset'] = '0';
+  /* Field: Content: Images */
+  $handler->display->display_options['fields']['field_images']['id'] = 'field_images';
+  $handler->display->display_options['fields']['field_images']['table'] = 'field_data_field_images';
+  $handler->display->display_options['fields']['field_images']['field'] = 'field_images';
+  $handler->display->display_options['fields']['field_images']['click_sort_column'] = 'fid';
+  $handler->display->display_options['fields']['field_images']['settings'] = array(
+    'image_style' => 'thumbnail',
+    'image_link' => '',
+  );
+  $handler->display->display_options['fields']['field_images']['delta_offset'] = '0';
+  /* Field: Content: Files */
+  $handler->display->display_options['fields']['field_files']['id'] = 'field_files';
+  $handler->display->display_options['fields']['field_files']['table'] = 'field_data_field_files';
+  $handler->display->display_options['fields']['field_files']['field'] = 'field_files';
+  $handler->display->display_options['fields']['field_files']['click_sort_column'] = 'fid';
+  $handler->display->display_options['fields']['field_files']['delta_offset'] = '0';
+  /* Field: Content: Due Date */
+  $handler->display->display_options['fields']['field_due_date']['id'] = 'field_due_date';
+  $handler->display->display_options['fields']['field_due_date']['table'] = 'field_data_field_due_date';
+  $handler->display->display_options['fields']['field_due_date']['field'] = 'field_due_date';
+  $handler->display->display_options['fields']['field_due_date']['relationship'] = 'field_assignment_target_id';
+  $handler->display->display_options['fields']['field_due_date']['label'] = '';
+  $handler->display->display_options['fields']['field_due_date']['exclude'] = TRUE;
+  $handler->display->display_options['fields']['field_due_date']['element_label_colon'] = FALSE;
+  $handler->display->display_options['fields']['field_due_date']['settings'] = array(
+    'format_type' => 'medium',
+    'fromto' => 'both',
+    'multiple_number' => '',
+    'multiple_from' => '',
+    'multiple_to' => '',
+  );
+  /* Field: Content: Media Requirements */
+  $handler->display->display_options['fields']['field_media_requirements']['id'] = 'field_media_requirements';
+  $handler->display->display_options['fields']['field_media_requirements']['table'] = 'field_data_field_media_requirements';
+  $handler->display->display_options['fields']['field_media_requirements']['field'] = 'field_media_requirements';
+  $handler->display->display_options['fields']['field_media_requirements']['relationship'] = 'field_assignment_target_id';
+  $handler->display->display_options['fields']['field_media_requirements']['label'] = '';
+  $handler->display->display_options['fields']['field_media_requirements']['exclude'] = TRUE;
+  $handler->display->display_options['fields']['field_media_requirements']['element_label_colon'] = FALSE;
+  $handler->display->display_options['fields']['field_media_requirements']['delta_offset'] = '0';
+  $handler->display->display_options['path'] = 'node/%/submissions/media';
+  $handler->display->display_options['menu']['type'] = 'tab';
+  $handler->display->display_options['menu']['title'] = 'Media';
+  $handler->display->display_options['menu']['description'] = 'Submission list by media';
   $handler->display->display_options['menu']['weight'] = '2';
   $handler->display->display_options['menu']['context'] = 0;
+  $handler->display->display_options['menu']['context_only_inline'] = 0;
+
+  /* Display: Writing */
+  $handler = $view->new_display('page', 'Writing', 'page_2');
+  $handler->display->display_options['defaults']['title'] = FALSE;
+  $handler->display->display_options['title'] = 'Writing';
+  $handler->display->display_options['display_description'] = 'Textual submission parts';
+  $handler->display->display_options['defaults']['hide_admin_links'] = FALSE;
+  $handler->display->display_options['defaults']['fields'] = FALSE;
+  /* Field: Content: Post date */
+  $handler->display->display_options['fields']['created']['id'] = 'created';
+  $handler->display->display_options['fields']['created']['table'] = 'node';
+  $handler->display->display_options['fields']['created']['field'] = 'created';
+  $handler->display->display_options['fields']['created']['label'] = 'Created';
+  $handler->display->display_options['fields']['created']['date_format'] = 'medium';
+  /* Field: User: Name */
+  $handler->display->display_options['fields']['name']['id'] = 'name';
+  $handler->display->display_options['fields']['name']['table'] = 'users';
+  $handler->display->display_options['fields']['name']['field'] = 'name';
+  $handler->display->display_options['fields']['name']['relationship'] = 'uid';
+  $handler->display->display_options['fields']['name']['label'] = 'User';
+  /* Field: Content: Title */
+  $handler->display->display_options['fields']['title']['id'] = 'title';
+  $handler->display->display_options['fields']['title']['table'] = 'node';
+  $handler->display->display_options['fields']['title']['field'] = 'title';
+  $handler->display->display_options['fields']['title']['alter']['word_boundary'] = FALSE;
+  $handler->display->display_options['fields']['title']['alter']['ellipsis'] = FALSE;
+  /* Field: Content: Links */
+  $handler->display->display_options['fields']['field_links']['id'] = 'field_links';
+  $handler->display->display_options['fields']['field_links']['table'] = 'field_data_field_links';
+  $handler->display->display_options['fields']['field_links']['field'] = 'field_links';
+  $handler->display->display_options['fields']['field_links']['group_type'] = 'count';
+  $handler->display->display_options['fields']['field_links']['hide_empty'] = TRUE;
+  $handler->display->display_options['fields']['field_links']['empty_zero'] = TRUE;
+  $handler->display->display_options['fields']['field_links']['click_sort_column'] = 'url';
+  $handler->display->display_options['fields']['field_links']['group_column'] = 'url';
+  $handler->display->display_options['fields']['field_links']['delta_offset'] = '0';
+  /* Field: Content: Body */
+  $handler->display->display_options['fields']['body']['id'] = 'body';
+  $handler->display->display_options['fields']['body']['table'] = 'field_data_body';
+  $handler->display->display_options['fields']['body']['field'] = 'body';
+  $handler->display->display_options['fields']['body']['label'] = 'text';
+  $handler->display->display_options['fields']['body']['settings'] = array(
+    'trim_length' => '50',
+  );
+  /* Field: Content: Due Date */
+  $handler->display->display_options['fields']['field_due_date']['id'] = 'field_due_date';
+  $handler->display->display_options['fields']['field_due_date']['table'] = 'field_data_field_due_date';
+  $handler->display->display_options['fields']['field_due_date']['field'] = 'field_due_date';
+  $handler->display->display_options['fields']['field_due_date']['relationship'] = 'field_assignment_target_id';
+  $handler->display->display_options['fields']['field_due_date']['label'] = '';
+  $handler->display->display_options['fields']['field_due_date']['exclude'] = TRUE;
+  $handler->display->display_options['fields']['field_due_date']['element_label_colon'] = FALSE;
+  $handler->display->display_options['fields']['field_due_date']['settings'] = array(
+    'format_type' => 'medium',
+    'fromto' => 'both',
+    'multiple_number' => '',
+    'multiple_from' => '',
+    'multiple_to' => '',
+  );
+  /* Field: Content: Media Requirements */
+  $handler->display->display_options['fields']['field_media_requirements']['id'] = 'field_media_requirements';
+  $handler->display->display_options['fields']['field_media_requirements']['table'] = 'field_data_field_media_requirements';
+  $handler->display->display_options['fields']['field_media_requirements']['field'] = 'field_media_requirements';
+  $handler->display->display_options['fields']['field_media_requirements']['relationship'] = 'field_assignment_target_id';
+  $handler->display->display_options['fields']['field_media_requirements']['label'] = '';
+  $handler->display->display_options['fields']['field_media_requirements']['exclude'] = TRUE;
+  $handler->display->display_options['fields']['field_media_requirements']['element_label_colon'] = FALSE;
+  $handler->display->display_options['fields']['field_media_requirements']['delta_offset'] = '0';
+  $handler->display->display_options['path'] = 'node/%/submissions/writing';
+  $handler->display->display_options['menu']['type'] = 'tab';
+  $handler->display->display_options['menu']['title'] = 'Writing';
+  $handler->display->display_options['menu']['description'] = 'List of submission writing';
+  $handler->display->display_options['menu']['weight'] = '3';
+  $handler->display->display_options['menu']['context'] = 0;
+  $handler->display->display_options['menu']['context_only_inline'] = 0;
+
+  /* Display: Social */
+  $handler = $view->new_display('page', 'Social', 'page_4');
+  $handler->display->display_options['defaults']['title'] = FALSE;
+  $handler->display->display_options['title'] = 'Social';
+  $handler->display->display_options['display_description'] = 'High level';
+  $handler->display->display_options['defaults']['hide_admin_links'] = FALSE;
+  $handler->display->display_options['defaults']['group_by'] = FALSE;
+  $handler->display->display_options['group_by'] = TRUE;
+  $handler->display->display_options['defaults']['query'] = FALSE;
+  $handler->display->display_options['query']['type'] = 'views_query';
+  $handler->display->display_options['defaults']['relationships'] = FALSE;
+  /* Relationship: Content: Author */
+  $handler->display->display_options['relationships']['uid']['id'] = 'uid';
+  $handler->display->display_options['relationships']['uid']['table'] = 'node';
+  $handler->display->display_options['relationships']['uid']['field'] = 'uid';
+  $handler->display->display_options['relationships']['uid']['required'] = TRUE;
+  /* Relationship: Entity Reference: Referenced Entity */
+  $handler->display->display_options['relationships']['field_assignment_target_id']['id'] = 'field_assignment_target_id';
+  $handler->display->display_options['relationships']['field_assignment_target_id']['table'] = 'field_data_field_assignment';
+  $handler->display->display_options['relationships']['field_assignment_target_id']['field'] = 'field_assignment_target_id';
+  $handler->display->display_options['relationships']['field_assignment_target_id']['required'] = TRUE;
+  /* Relationship: Flags: cle_exemplary */
+  $handler->display->display_options['relationships']['flag_content_rel']['id'] = 'flag_content_rel';
+  $handler->display->display_options['relationships']['flag_content_rel']['table'] = 'node';
+  $handler->display->display_options['relationships']['flag_content_rel']['field'] = 'flag_content_rel';
+  $handler->display->display_options['relationships']['flag_content_rel']['required'] = 0;
+  $handler->display->display_options['relationships']['flag_content_rel']['flag'] = 'cle_exemplary';
+  /* Relationship: Content: Vote results */
+  $handler->display->display_options['relationships']['votingapi_cache']['id'] = 'votingapi_cache';
+  $handler->display->display_options['relationships']['votingapi_cache']['table'] = 'node';
+  $handler->display->display_options['relationships']['votingapi_cache']['field'] = 'votingapi_cache';
+  $handler->display->display_options['relationships']['votingapi_cache']['label'] = 'Like';
+  $handler->display->display_options['relationships']['votingapi_cache']['votingapi'] = array(
+    'value_type' => '',
+    'tag' => 'vote',
+    'function' => '',
+  );
+  /* Relationship: Content: Vote results */
+  $handler->display->display_options['relationships']['votingapi_cache_1']['id'] = 'votingapi_cache_1';
+  $handler->display->display_options['relationships']['votingapi_cache_1']['table'] = 'node';
+  $handler->display->display_options['relationships']['votingapi_cache_1']['field'] = 'votingapi_cache';
+  $handler->display->display_options['relationships']['votingapi_cache_1']['label'] = 'Emotion';
+  $handler->display->display_options['relationships']['votingapi_cache_1']['votingapi'] = array(
+    'value_type' => '',
+    'tag' => 'emotion',
+    'function' => '',
+  );
+  $handler->display->display_options['defaults']['fields'] = FALSE;
+  /* Field: Content: Post date */
+  $handler->display->display_options['fields']['created']['id'] = 'created';
+  $handler->display->display_options['fields']['created']['table'] = 'node';
+  $handler->display->display_options['fields']['created']['field'] = 'created';
+  $handler->display->display_options['fields']['created']['label'] = 'Created';
+  $handler->display->display_options['fields']['created']['date_format'] = 'medium';
+  /* Field: User: Name */
+  $handler->display->display_options['fields']['name']['id'] = 'name';
+  $handler->display->display_options['fields']['name']['table'] = 'users';
+  $handler->display->display_options['fields']['name']['field'] = 'name';
+  $handler->display->display_options['fields']['name']['relationship'] = 'uid';
+  $handler->display->display_options['fields']['name']['label'] = 'User';
+  /* Field: Content: Comment count */
+  $handler->display->display_options['fields']['comment_count']['id'] = 'comment_count';
+  $handler->display->display_options['fields']['comment_count']['table'] = 'node_comment_statistics';
+  $handler->display->display_options['fields']['comment_count']['field'] = 'comment_count';
+  $handler->display->display_options['fields']['comment_count']['label'] = 'Comments';
+  /* Field: Flags: Flag link */
+  $handler->display->display_options['fields']['ops']['id'] = 'ops';
+  $handler->display->display_options['fields']['ops']['table'] = 'flag_content';
+  $handler->display->display_options['fields']['ops']['field'] = 'ops';
+  $handler->display->display_options['fields']['ops']['relationship'] = 'flag_content_rel';
+  $handler->display->display_options['fields']['ops']['label'] = 'Mark exemplary';
+  /* Field: Content: Due Date */
+  $handler->display->display_options['fields']['field_due_date']['id'] = 'field_due_date';
+  $handler->display->display_options['fields']['field_due_date']['table'] = 'field_data_field_due_date';
+  $handler->display->display_options['fields']['field_due_date']['field'] = 'field_due_date';
+  $handler->display->display_options['fields']['field_due_date']['relationship'] = 'field_assignment_target_id';
+  $handler->display->display_options['fields']['field_due_date']['label'] = '';
+  $handler->display->display_options['fields']['field_due_date']['exclude'] = TRUE;
+  $handler->display->display_options['fields']['field_due_date']['element_label_colon'] = FALSE;
+  $handler->display->display_options['fields']['field_due_date']['settings'] = array(
+    'format_type' => 'medium',
+    'fromto' => 'both',
+    'multiple_number' => '',
+    'multiple_from' => '',
+    'multiple_to' => '',
+  );
+  $handler->display->display_options['fields']['field_due_date']['group_column'] = 'entity_id';
+  /* Field: Content: Media Requirements */
+  $handler->display->display_options['fields']['field_media_requirements']['id'] = 'field_media_requirements';
+  $handler->display->display_options['fields']['field_media_requirements']['table'] = 'field_data_field_media_requirements';
+  $handler->display->display_options['fields']['field_media_requirements']['field'] = 'field_media_requirements';
+  $handler->display->display_options['fields']['field_media_requirements']['relationship'] = 'field_assignment_target_id';
+  $handler->display->display_options['fields']['field_media_requirements']['label'] = '';
+  $handler->display->display_options['fields']['field_media_requirements']['exclude'] = TRUE;
+  $handler->display->display_options['fields']['field_media_requirements']['element_label_colon'] = FALSE;
+  $handler->display->display_options['fields']['field_media_requirements']['group_column'] = 'entity_id';
+  $handler->display->display_options['fields']['field_media_requirements']['delta_offset'] = '0';
+  /* Field: Vote results: Value */
+  $handler->display->display_options['fields']['value']['id'] = 'value';
+  $handler->display->display_options['fields']['value']['table'] = 'votingapi_cache';
+  $handler->display->display_options['fields']['value']['field'] = 'value';
+  $handler->display->display_options['fields']['value']['relationship'] = 'votingapi_cache';
+  $handler->display->display_options['fields']['value']['label'] = 'Likes';
+  $handler->display->display_options['fields']['value']['precision'] = '0';
+  $handler->display->display_options['fields']['value']['appearance'] = 'rate_views_widget';
+  /* Field: Vote results: Value */
+  $handler->display->display_options['fields']['value_1']['id'] = 'value_1';
+  $handler->display->display_options['fields']['value_1']['table'] = 'votingapi_cache';
+  $handler->display->display_options['fields']['value_1']['field'] = 'value';
+  $handler->display->display_options['fields']['value_1']['relationship'] = 'votingapi_cache_1';
+  $handler->display->display_options['fields']['value_1']['label'] = 'Emotions';
+  $handler->display->display_options['fields']['value_1']['precision'] = '0';
+  $handler->display->display_options['fields']['value_1']['appearance'] = 'rate_views_widget';
+  $handler->display->display_options['defaults']['sorts'] = FALSE;
+  /* Sort criterion: Content: Post date */
+  $handler->display->display_options['sorts']['created']['id'] = 'created';
+  $handler->display->display_options['sorts']['created']['table'] = 'node';
+  $handler->display->display_options['sorts']['created']['field'] = 'created';
+  $handler->display->display_options['sorts']['created']['order'] = 'DESC';
+  $handler->display->display_options['path'] = 'node/%/submissions/social';
+  $handler->display->display_options['menu']['type'] = 'tab';
+  $handler->display->display_options['menu']['title'] = 'Social';
+  $handler->display->display_options['menu']['description'] = 'What everyone thinks about this';
+  $handler->display->display_options['menu']['weight'] = '4';
+  $handler->display->display_options['menu']['context'] = 0;
+  $handler->display->display_options['menu']['context_only_inline'] = 0;
+  $handler->display->display_options['tab_options']['type'] = 'normal';
+  $handler->display->display_options['tab_options']['title'] = 'Submissions';
+  $handler->display->display_options['tab_options']['description'] = 'Listing of submissions for this assignemnt';
+  $handler->display->display_options['tab_options']['weight'] = '0';
   $export['cle_submissions_listing'] = $view;
 
   return $export;

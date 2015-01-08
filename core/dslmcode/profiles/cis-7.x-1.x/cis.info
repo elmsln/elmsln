@@ -57,7 +57,6 @@ dependencies[] = update
 dependencies[] = user
 ; Data
 dependencies[] = data
-dependencies[] = data_node
 dependencies[] = data_search
 dependencies[] = data_ui
 ; Database

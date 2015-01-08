@@ -1,0 +1,38 @@
+name = Harmony
+description = The basis for forums and communities with Drupal!
+core = 7.x
+distribution_name = Harmony
+exclusive = 1
+
+; System Requirements.
+php_memory_limit = 128M
+
+; Drupal Core.
+dependencies[] = block
+dependencies[] = dblog
+dependencies[] = field_ui
+dependencies[] = menu
+
+; Harmony dependencies
+dependencies[] = harmony_core
+dependencies[] = harmony_default_permissions
+dependencies[] = harmony_moderation
+
+; Harmony related dependencies.
+dependencies[] = atjs
+dependencies[] = harmony_atjs
+
+; Contrib dependencies.
+dependencies[] = admin_menu
+dependencies[] = admin_menu_toolbar
+dependencies[] = admin_views
+dependencies[] = clamav
+dependencies[] = codefilter
+dependencies[] = context
+dependencies[] = features_override
+dependencies[] = honeypot
+dependencies[] = jquery_colorpicker
+dependencies[] = readmorejs
+dependencies[] = strongarm
+dependencies[] = timeago
+dependencies[] = views_bulk_operations

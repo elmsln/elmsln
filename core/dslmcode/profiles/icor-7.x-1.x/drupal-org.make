@@ -4,6 +4,12 @@ api = "2"
 
 ; +++++ Modules +++++
 
+projects[user_progress][version] = "1.x-dev"
+projects[user_progress][subdir] = "contrib"
+
+projects[entityreference_view_widget][version] = "2.0-rc5"
+projects[entityreference_view_widget][subdir] = "contrib"
+
 projects[fastclick][version] = "1.2"
 projects[fastclick][subdir] = "contrib"
 
@@ -13,13 +19,19 @@ projects[admin_menu][subdir] = "contrib"
 projects[ctools][version] = "1.4"
 projects[ctools][subdir] = "contrib"
 
+projects[advagg][version] = "2.7"
+projects[advagg][subdir] = "contrib"
+
 projects[google_chart_tools][version] = "1.4"
 projects[google_chart_tools][subdir] = "contrib"
+
+projects[textbook][version] = "1.0"
+projects[textbook][subdir] = "contrib"
 
 projects[context][version] = "3.2"
 projects[context][subdir] = "contrib"
 
-projects[date][version] = "2.6"
+projects[date][version] = "2.8"
 projects[date][subdir] = "contrib"
 
 projects[devel][version] = "1.3"
@@ -31,7 +43,7 @@ projects[profiler_builder][subdir] = "contrib"
 projects[file_entity][version] = "2.x-dev"
 projects[file_entity][subdir] = "contrib"
 
-projects[features][version] = "2.0-beta2"
+projects[features][version] = "2.2"
 projects[features][subdir] = "contrib"
 
 projects[features_override][version] = "2.0-beta2"
@@ -64,7 +76,7 @@ projects[lti_tool_provider][subdir] = "contrib"
 projects[imce][version] = "1.7"
 projects[imce][subdir] = "contrib"
 
-projects[og][version] = "2.6"
+projects[og][version] = "2.7"
 projects[og][subdir] = "contrib"
 
 projects[og_clone][version] = "1.x-dev"
@@ -97,7 +109,7 @@ projects[node_clone][subdir] = "contrib"
 projects[profile2][version] = "1.3"
 projects[profile2][subdir] = "contrib"
 
-projects[restws][version] = "2.1"
+projects[restws][version] = "2.x-dev"
 projects[restws][subdir] = "contrib"
 
 projects[strongarm][version] = "2.0"
@@ -109,7 +121,7 @@ projects[sco_node][subdir] = "contrib"
 projects[transliteration][version] = "3.1"
 projects[transliteration][subdir] = "contrib"
 
-projects[entitycache][version] = "1.1"
+projects[entitycache][version] = "1.2"
 projects[entitycache][subdir] = "contrib"
 
 projects[quiz][version] = "4.0-beta2"
@@ -126,9 +138,6 @@ projects[image_target_question][subdir] = "contrib"
 
 projects[regions][version] = "1.5"
 projects[regions][subdir] = "contrib"
-
-projects[textbook][version] = "4.0"
-projects[textbook][subdir] = "contrib"
 
 projects[delta][version] = "3.0-beta11"
 projects[delta][subdir] = "contrib"
@@ -154,7 +163,7 @@ projects[editableviews][subdir] = "contrib"
 projects[eva][version] = "1.2"
 projects[eva][subdir] = "contrib"
 
-projects[views][version] = "3.7"
+projects[views][version] = "3.8"
 projects[views][subdir] = "contrib"
 
 projects[views_bulk_operations][version] = "3.1"
@@ -172,7 +181,7 @@ projects[views_xml_backend][subdir] = "contrib"
 projects[cis_connector][version] = "1.x-dev"
 projects[cis_connector][subdir] = "contrib"
 
-projects[entity_iframe][version] = "1.x-dev"
+projects[entity_iframe][version] = "1.1"
 projects[entity_iframe][subdir] = "contrib"
 
 projects[httprl][version] = "1.12"
@@ -189,9 +198,14 @@ projects[blank][type] = "theme"
 projects[blank][version] = "1.x-dev"
 projects[blank][subdir] = "contrib"
 
-projects[entity_iframe][type] = "theme"
-projects[entity_iframe][version] = "1.x-dev"
-projects[entity_iframe][subdir] = "contrib"
+projects[entity_iframe_theme][type] = "theme"
+projects[entity_iframe_theme][version] = "1.x-dev"
+projects[entity_iframe_theme][subdir] = "contrib"
+
+; zurb-foundation
+projects[zurb_foundation][type] = "theme"
+projects[zurb_foundation][version] = "5.x-dev"
+projects[zurb_foundation][subdir] = "contrib"
 
 ; +++++ Libraries +++++
 
@@ -215,7 +229,3 @@ libraries[oauth][type] = "library"
 libraries[oauth][destination] = "libraries"
 libraries[oauth][download][type] = "get"
 libraries[oauth][download][url] = "https://github.com/juampy72/OAuth-PHP/archive/master.zip"
-
-; allow for custom meta controllers to enable deep querying
-projects[restws][patch][] = "http://drupal.org/files/restws_meta_controls-2053147-1.patch"
-

@@ -9,6 +9,23 @@
  */
 function hidden_nodes_setting_page($form, &$form_state) {
   $form = array();
+  // allow for people like chrisferagotti to hijack the
+  // intention of these "sweet lines of code" by setting priority
+  // back to 0 so that it aligns with everything else in the world
+  // default is still 1000
+  $priorities = array(
+    0 => 0,
+    10 => 10,
+    100 => 100,
+    1000 => 1000
+  );
+  $form['hidden_nodes_priority'] = array(
+    '#type' => 'select',
+    '#options' => $priorities,
+    '#title' => t('Node Grants Priority'),
+    '#description' => t("Priority to give hidden nodes in the granting of permissions, set this to 0 to avoid conflicts with other projects (like TAC). 1000 is the default in order to take priority over all other grant methods."),
+    '#default_value' => variable_get('hidden_nodes_priority', 1000),
+  );
   foreach (node_type_get_types() as $type_data) {
     $types[$type_data->type] = $type_data->name;
   }

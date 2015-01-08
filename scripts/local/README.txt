@@ -1,7 +1,12 @@
 ELMSLN Local development scripts
 
+These scripts were originally developed to be run on a local machine via terminal or via peripherals like Powermate. These scripts are also written in such a way that they should be able to be plugged into Jenkins pretty easily. Some of those script examples are in the included jenkins folder which you would load in as jobs. As you’ll see, jenkins, automator, local or power mate approaches are all utilizing the same scripts. They are basically just wrappers that all call the same underlying scripts which trip the actual scripts local to the remote systems.
+
+The deployments in question actually run the jobs local to themselves, the jenkins / other methods are basically just remote execution via SSH keys then as opposed to locally running the commands against the remote host.
+
 === home ===
 This contains a .elmsln/ directory with some example files. You’ll need to fill them out but it will at least allow you to do what btopro does; automate everything.
+
 
 === bash ===
 To use the bash script included in the bash directory, create a directory in your home directory called .elmsln and create a file called elmsln-hosts. In here you’ll list all the ssh commands that you want to loop through and perform git pull origin master against.

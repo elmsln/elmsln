@@ -1,0 +1,104 @@
+<?php
+
+/**
+ * Implements hook_element_info_alter().
+ */
+function cis_service_elmsmedia_wysiwyg_element_info_alter(&$types) {
+  if (isset($types['text_format']['#process'])) {
+    $types['text_format']['#process'][] = '_cis_service_elmsmedia_wysiwyg_pre_render_wysiwyg_element';
+  }
+}
+
+/**
+ * Implements hook_form_FORM_ID_alter() for views_exposed_form().
+ */
+function cis_service_elmsmedia_wysiwyg_form_views_exposed_form_alter(&$form, &$form_state) {
+  if (isset($_GET['ckeditor'], $_GET['elmsmedia_field'])) {
+    $view = $form_state['view'];
+    $field = $_GET['elmsmedia_field'];
+
+    $options = _cis_service_elmsmedia_wysiwyg_default_image_style_options();
+    $context = compact('form', 'form_state', 'view', 'field');
+    drupal_alter('cis_service_elmsmedia_formatter_options', $options, $context);
+
+    $form['elmsmedia_formatter'] = array(
+      '#type' => 'select',
+      '#title' => t('Formatter'),
+      '#options' => $options,
+    );
+  }
+}
+
+/**
+ * Implements hook_wywiwyg_plugin().
+ */
+function cis_service_elmsmedia_wysiwyg_wysiwyg_plugin($editor, $version) {
+  return array(
+    'cis_service_elmsmedia' => array(
+      'url' => 'https://drupal.org/project/elmsmedia',
+      'path' => drupal_get_path('module', 'cis_service_elmsmedia_wysiwyg') . '/plugins/cis_service_elmsmedia',
+      'buttons' => array(
+        'cis_service_elmsmedia' => t('ELMS Media'),
+      ),
+      'load' => TRUE,
+    ),
+  );
+}
+
+/**
+ * Implements hook_wysiwyg_include_directory().
+ */
+function cis_service_elmsmedia_wysiwyg_wysiwyg_include_directory($type) {
+  switch ($type) {
+    case 'plugins':
+      // You can just return $type, if you place your Wysiwyg plugins into a
+      // sub-directory named 'plugins'.
+      return $type;
+    break;
+  }
+}
+
+/**
+ * Add field instance settings for other parts of the machine to pick up.
+ */
+function _cis_service_elmsmedia_wysiwyg_pre_render_wysiwyg_element($element) {
+  if (isset($element['#entity_type'], $element['#bundle'], $element['#field_name'])) {
+    $field = $element['#entity_type'] . '.' . $element['#bundle'] . '.' . $element['#field_name'];
+
+    // Add field's meta data to field.
+    $element['value']['#attributes']['data-elmsmedia-field'] = $field;
+
+    // Load necessary resources for this page/form.
+    _cis_service_elmsmedia_wysiwyg_load_resources_ckeditor();
+  }
+
+  return $element;
+}
+
+/**
+ * Helper to get the default image style + link options for the wysiwyg image selection.
+ */
+function _cis_service_elmsmedia_wysiwyg_default_image_style_options() {
+  $options = array('' => t('- Choose -'), 'original' => t('Original'));
+  $styles = image_style_options(FALSE);
+  $options += $styles;
+
+  $options['link'] = t('Link to Original');
+  foreach ($styles as $style => $info) {
+    $options['link:' . $style] = t('Link to @style', array('@style' => $style));
+  }
+
+  return $options;
+}
+
+/**
+ * Helper to load necessary JS and CSS for ckeditor elements.
+ */
+function _cis_service_elmsmedia_wysiwyg_load_resources_ckeditor() {
+  static $loaded = 0;
+  if (!$loaded) {
+    $loaded = 1;
+    drupal_add_library('system', 'ui.dialog');
+    drupal_add_js(drupal_get_path('module', 'cis_service_elmsmedia') . '/cis_service_elmsmedia.js');
+  }
+}

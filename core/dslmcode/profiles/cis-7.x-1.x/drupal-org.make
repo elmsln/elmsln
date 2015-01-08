@@ -4,6 +4,27 @@ core = 7.x
 
 ; +++++ Modules +++++
 
+projects[data][version] = "1.0-alpha6"
+projects[data][subdir] = "contrib"
+
+projects[addanother][version] = "2.2"
+projects[addanother][subdir] = "contrib"
+
+projects[diff][version] = "3.2"
+projects[diff][subdir] = "contrib"
+
+projects[display_cache][version] = "1.0"
+projects[display_cache][subdir] = "contrib"
+
+projects[expire][version] = "2.0-rc4"
+projects[expire][subdir] = "contrib"
+
+projects[fastclick][version] = "1.2"
+projects[fastclick][subdir] = "contrib"
+
+projects[advagg][version] = "2.7"
+projects[advagg][subdir] = "contrib"
+
 projects[admin_menu][version] = "3.0-rc4"
 projects[admin_menu][subdir] = "contrib"
 
@@ -28,7 +49,7 @@ projects[data][subdir] = "contrib"
 projects[schema][version] = "1.0-rc1"
 projects[schema][subdir] = "contrib"
 
-projects[date][version] = "2.7"
+projects[date][version] = "2.8"
 projects[date][subdir] = "contrib"
 
 projects[replicate][version] = "1.1"
@@ -37,7 +58,7 @@ projects[replicate][subdir] = "contrib"
 projects[replicate_field_collection][version] = "1.x-dev"
 projects[replicate_field_collection][subdir] = "contrib"
 
-projects[features][version] = "2.0"
+projects[features][version] = "2.2"
 projects[features][subdir] = "contrib"
 
 projects[features_override][version] = "2.0-rc1"
@@ -262,7 +283,7 @@ projects[views_fluid_grid][subdir] = "contrib"
 projects[views_xml_backend][version] = "1.0-alpha4"
 projects[views_xml_backend][subdir] = "contrib"
 
-projects[cis_connector][version] = "1.x-dev"
+projects[cis_connector][version] = "1.0-beta1"
 projects[cis_connector][subdir] = "contrib"
 
 projects[profiler_builder][version] = "1.x-dev"
@@ -385,4 +406,6 @@ libraries[colorpicker][download][url] = "http://www.eyecon.ro/colorpicker/colorp
 
 projects[apc][patch][] = "http://drupal.org/files/1567440_apc_drush_enable.patch"
 
-projects[apc][patch][] = "http://drupal.org/files/apc_drush_flush.1565716.70.patch"
+; fix stupid install profile issues with these two
+projects[nodeaccess_nodereference][patch][] = "https://www.drupal.org/files/nodeaccess_nodereference-install-profile.patch"
+projects[nodeaccess_userreference][patch][] = "https://www.drupal.org/files/nodeaccess_userreference-install-profile-3.patch"

@@ -1,0 +1,7 @@
+<?php
+/**
+ * @file
+ * Code for the ECD EntityForms feature.
+ */
+
+include_once 'ecd_entityforms.features.inc';

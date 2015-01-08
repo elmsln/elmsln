@@ -1,6 +1,10 @@
-Version | PHP | Includes | Code Status
+Version | PHP | Includes | Code Status 
 ------------- | ------  | --- | -------------------------- | -----------
-[master](https://travis-ci.org/btopro/elmsln)  | 5.3.0+ | Drupal 7.x, Piwik 2.x | <img src="https://travis-ci.org/btopro/elmsln.svg?branch=master">
+[master](https://travis-ci.org/btopro/elmsln)  | 5.3.0+ | Drupal 7.x, Piwik 2.x | [![Build Status](https://travis-ci.org/btopro/elmsln.svg?branch=master)](https://travis-ci.org/btopro/elmsln)
+
+[![Dependency Status](https://gemnasium.com/btopro/elmsln.svg)](https://gemnasium.com/btopro/elmsln)
+[![Bitdeli Badge](https://d2weczhvl823v0.cloudfront.net/btopro/elmsln/trend.png)](https://bitdeli.com/free "Bitdeli Badge")
+[![Coverage Status](https://coveralls.io/repos/btopro/elmsln/badge.png)](https://coveralls.io/r/btopro/elmsln)
 
 ELMSLN
 ==============
@@ -47,13 +51,13 @@ You can use this as a starting point and self manage from there but sticking as 
 ###Q. When will there be a stable release?
 As soon as the blockers below are resolved (basically just time). If it helps you sleep at night, we've run this in production and have been actively building off of this framework since May 2013. The package is far more stable then the "master" moniker might otherwise suggest. Point releases require a different mindset from a developer / management perspective so we'll get there when the time is right.
 
-Oct 16, 2014 - This time is fast approaching as the project is now a team of people distributed across institutions. There are 2 full time, 2 part time, and soon to be another 1-2 part time and 1-2 full time members involved. I anticipate this happening by the end of 2014 purely based on installed usage.
+Dec 24, 2014 - This time is fast approaching as the project is now a team of people distributed across institutions. There are 2 full time, 3 part time, and soon to be another 1-3 full time members involved.
 
 ###Q. If that's true, what are the blockers for a stable release?
-1. An expanded test plan run by travis-ci (minimal at the moment) as well as full test coverage for the cis_connector module.
-2. An enhanced / unified UX; we have a dedicated UX lead working on this in the MOOC / CIS platforms. Once these two stabilize the rest will fall into place (UX wise, platform wise they have been solid since early 2013).
-3. Additional testing and support for fractal networks (multiple ELMSLN deployments that act as 1). This is critical to hitting higher scale.
-4. Redesigned developer / project hub at http://elmsln.org website. This may sound silly but being able to find everything and keep up on the project is important for sustainability!
+1. <s>An expanded test plan run by travis-ci</s> (now have full travis coverage on all distros in the setup) to include SimpleTest. This including Travis-CI build coverage for each distribution individually, the system as a whole, and cis_connector.
+2. An enhanced / unified UX; we have a dedicated UX lead working on this in the MOOC / CIS platforms. Once these two stabilize the rest will fall into place (UX wise, platform wise they have been solid since early 2013). <-- A [visual roadmap](https://projects.invisionapp.com/share/N21TGJ7QZ) has been established
+3. Additional testing and support for fractal networks (multiple ELMSLN deployments that act as 1). This is critical to hitting higher scale. <-- work has started here thanks to Jenkins.
+4. Redesigned developer / project hub at http://elmsln.org website. This may sound silly but being able to find everything and keep up on the project is important for sustainability! <-- work has started here
 
 ###Q. How would you classify a first release?
 Stable. master has been stable with maybe 2 exceptions in all of 2014. The many distributions of ELMS have been in usage for several months / years now. This ain't our first rodeo though we understand the desire for people to not be chasing the master branch.
@@ -62,3 +66,14 @@ Stable. master has been stable with maybe 2 exceptions in all of 2014. The many 
 You have no idea and it is what attracts us to this work atmosphere. It rocks. Also who said anything about walking into work to solve these problems.. isn't it the weekend or late night or something right now?
 
 Enjoy!
+
+LICENSE
+=======
+ELMSLN is a collection of many, many projects, all individually licensed, all open source. The myiad of License files is why this section is added to avoid confusion.
+
+* ELMSLN code on github (and not referenced or pulled in from other sources) is GPLv3.
+* ELMS contributed modules from drupal.org are GPLv2 due to licensing requirements of the drupal.org community.
+* Drupal and Drupal contributed modules and themes are GPLv2 due to licensing requirements of the drupal.org community.
+* Piwik is GPLv3 via it's original repo (https://github.com/piwik/piwik)
+* CKEditor 4.x is GPLv3
+* Other included libraries are their respective LICENSE.txt files included local to those pieces of code

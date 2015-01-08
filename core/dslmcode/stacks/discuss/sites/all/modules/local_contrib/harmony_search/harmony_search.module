@@ -1,0 +1,158 @@
+<?php
+
+/**
+ * @file
+ * harmony_search.module
+ */
+
+/**
+ * Implements hook_harmony_thread_update().
+ */
+function harmony_search_harmony_thread_update($thread) {
+  search_api_track_item_change('harmony_thread', array($thread->thread_id));
+}
+
+/**
+ * Implements hook_harmony_post_update().
+ */
+function harmony_search_harmony_post_update($post) {
+  // When a post is updated queue the thread it appears in for reindexing.
+  $wrapper = entity_metadata_wrapper('harmony_post', $post);
+
+  if ($wrapper->field_harmony_thread->value()) {
+    search_api_track_item_change('harmony_thread', array($wrapper->field_harmony_thread->thread_id->value()));
+  }
+}
+
+/**
+ * Implements hook_search_api_alter_callback_info().
+ */
+function harmony_search_search_api_alter_callback_info() {
+  if (count(module_implements('harmony_access_grants')) > 0) {
+    $callbacks['harmony_search_thread_access'] = array(
+      'name' => t('Thread access'),
+      'description' => t('Add thread access information to the index. <strong>Caution:</strong> This only affects the indexed threads themselves, not any entity reference fields that are indexed with them, or displayed in search results.'),
+      'class' => 'HarmonySearchAlterThreadAccess',
+    );
+  }
+  $callbacks['harmony_search_alter_thread_hidden'] = array(
+    'name' => t('Exclude hidden threads'),
+    'description' => t('Exclude hidden threads from the index.'),
+    'class' => 'HarmonySearchAlterThreadHidden',
+  );
+  $callbacks['harmony_search_alter_thread_status'] = array(
+    'name' => t('Exclude unpublished threads'),
+    'description' => t('Exclude unpublished threads from the index. <strong>Caution:</strong> This only affects the indexed threads themselves. If a published thread has references to unpublished threads, those will still be indexed (or displayed) normally.'),
+    'class' => 'HarmonySearchAlterThreadStatus',
+  );
+
+  $callbacks['harmony_search_alter_post_hidden'] = array(
+    'name' => t('Exclude hidden posts'),
+    'description' => t('Exclude hidden posts from the index.'),
+    'class' => 'HarmonySearchAlterPostHidden',
+  );
+  $callbacks['harmony_search_alter_post_status'] = array(
+    'name' => t('Exclude unpublished posts'),
+    'description' => t('Exclude unpublished posts from the index.'),
+    'class' => 'HarmonySearchAlterPostStatus',
+  );
+
+  return $callbacks;
+}
+
+/**
+ * Implements hook_search_api_query_alter().
+ *
+ * Adds harmony access to the query, if enabled.
+ *
+ * @param SearchApiQueryInterface $query
+ *   The SearchApiQueryInterface object representing the search query.
+ */
+function harmony_search_search_api_query_alter(SearchApiQueryInterface $query) {
+  global $user;
+  $index = $query->getIndex();
+  // Only add thread access if the necessary fields are indexed in the index, and
+  // unless disabled explicitly by the query.
+  $type = $index->getEntityType();
+  if ($type === 'harmony_thread' && !empty($index->options['data_alter_callbacks']['harmony_search_thread_access']['status']) && !$query->getOption('search_api_bypass_access')) {
+    $account = $query->getOption('harmony_search_thread_access', $user);
+    if (is_numeric($account)) {
+      $account = user_load($account);
+    }
+    if (is_object($account)) {
+      try {
+        _harmony_search_query_add_access($account, $query, $type);
+      }
+      catch (SearchApiException $e) {
+        watchdog_exception('search_api', $e);
+      }
+    }
+    else {
+      watchdog('search_api', 'An illegal user UID was given for thread access: @uid.', array('@uid' => $query->getOption('harmony_search_thread_access', $user)), WATCHDOG_WARNING);
+    }
+  }
+}
+
+/**
+ * Adds a node access filter to a search query, if applicable.
+ *
+ * @param object $account
+ *   The user object, who searches.
+ * @param SearchApiQueryInterface $query
+ *   The query to which a node access filter should be added, if applicable.
+ * @param string $type
+ *   (optional) The type of search – either "node" or "comment". Defaults to
+ *   "node".
+ *
+ * @throws SearchApiException
+ *   If not all necessary fields are indexed on the index.
+ */
+function _harmony_search_query_add_access($account, SearchApiQueryInterface $query, $type = 'harmony_thread') {
+  // Don't do anything if the user can access all content.
+  if (user_access('bypass harmony forum access control', $account)) {
+    return;
+  }
+
+  // Check whether the necessary fields are indexed.
+  $fields = $query->getIndex()->options['fields'];
+  $required = array('harmony_search_thread_access', 'status', 'uid');
+
+  foreach ($required as $field) {
+    if (empty($fields[$field])) {
+      $vars['@field'] = $field;
+      $vars['@index'] = $query->getIndex()->name;
+      throw new SearchApiException(t('Required field @field not indexed on index @index. Could not perform access checks.', $vars));
+    }
+  }
+
+  // If the user cannot access content at all, return no results.
+  if (!user_access('view harmony_threads', $account)) {
+    // Simple hack for returning no results.
+    $query->condition('status', 0);
+    $query->condition('status', 1);
+    watchdog('search_api', 'User @name tried to execute a search, but cannot access Harmony content.', array('@name' => theme('username', array('account' => $account))), WATCHDOG_NOTICE);
+    return;
+  }
+
+  // Filter by the "published" status.
+  if (user_access('view own unpublished harmony_threads')) {
+    $filter = $query->createFilter('OR');
+    $filter->condition('status', HARMONY_PUBLISHED);
+    $filter->condition('uid', $account->uid);
+    $query->filter($filter);
+  }
+  else {
+    $query->condition('status', HARMONY_PUBLISHED);
+  }
+
+  // Filter by harmony access grants.
+  $filter = $query->createFilter('OR');
+  $grants = harmony_access_grants('view', $account);
+  foreach ($grants as $realm => $gids) {
+    foreach ($gids as $gid) {
+      $filter->condition('harmony_search_thread_access', "harmony_access_$realm:$gid");
+    }
+  }
+  $filter->condition('harmony_search_thread_access', 'harmony_access__all');
+  $query->filter($filter);
+}

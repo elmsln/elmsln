@@ -1,0 +1,54 @@
+<?php
+
+/**
+ * A product of the instructions! https://www.drupal.org/node/1022020
+ */
+
+/**
+ * Implements hook_install().
+ *
+ * Perform actions to set up the site for Harmony.
+ */
+function harmony_install() {
+  // Kick off with a basic install.
+  include_once DRUPAL_ROOT . '/profiles/minimal/minimal.install';
+  minimal_install();
+
+  // Allow user pictures.
+  variable_set('user_pictures', '1');
+  variable_set('user_picture_dimensions', '1024x1024');
+  variable_set('user_picture_file_size', '800');
+  variable_set('user_picture_style', 'thumbnail');
+
+  // Allow open registration.
+  variable_set('user_register', USER_REGISTER_VISITORS);
+
+  // But tell Honeypot to protect all forms (but keep caching going).
+  variable_set('honeypot_protect_all_forms', 1);
+  variable_set('honeypot_element_name', 'email_confirm');
+  variable_set('honeypot_time_limit', 0);
+
+  // Create the administrator role and assign to user 1.
+  $admin_role = new stdClass();
+  $admin_role->name = 'administrator';
+  $admin_role->weight = 2;
+  user_role_save($admin_role);
+  user_role_grant_permissions($admin_role->rid, array_keys(module_invoke_all('permission')));
+  // Set this as the administrator role.
+  variable_set('user_admin_role', $admin_role->rid);
+
+  // Assign user 1 the "administrator" role.
+  db_insert('users_roles')->fields(array('uid' => 1, 'rid' => $admin_role->rid))->execute();
+
+  // Enable and set the admin theme.
+  db_update('system')->fields(array('status' => 1))->condition('type', 'theme')->condition('name', 'seven')->execute();
+  variable_set('admin_theme', 'seven');
+  variable_set('node_admin_theme', '1');
+
+  // Enable and set the frontend theme.
+  db_update('system')->fields(array('status' => 1))->condition('type', 'theme')->condition('name', 'bootstrap')->execute();
+  variable_set('theme_default', 'bootstrap');
+
+  // Set the homepage.
+  variable_set('site_frontpage', 'forum');
+}

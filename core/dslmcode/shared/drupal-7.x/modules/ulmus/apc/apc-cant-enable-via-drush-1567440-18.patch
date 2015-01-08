@@ -1,0 +1,17 @@
+diff --git a/apc.install b/apc.install
+index e64114a..683028f 100644
+--- a/apc.install
++++ b/apc.install
+@@ -26,6 +26,12 @@ function apc_requirements($phase) {
+     $cache['start_time'] = isset($cache['start_time']) ? $cache['start_time'] : $cache['stime'];
+ 
+   }
++  // account for installation via drush
++  elseif (drupal_is_cli() && function_exists('drush_log') && $phase == 'install') {
++    $requirements['apc']['severity'] = REQUIREMENT_INFO;
++    drush_log(dt('The APC module needs the apc extension but we cannot reliable detect this via drush. Ensure that you have APC installed on the server before enabling this.'), 'ok');
++    return $requirements;
++  }
+   else {
+     $version = phpversion('apc');
+     $name = $t('APCu');

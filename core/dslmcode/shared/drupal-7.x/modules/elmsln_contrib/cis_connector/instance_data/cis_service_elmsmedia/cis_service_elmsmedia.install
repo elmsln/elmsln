@@ -1,0 +1,17 @@
+<?php
+
+/**
+ * Implements hook_install().
+ */
+function cis_service_elmsmedia_install() {
+  variable_set('elms_media_public_is_public', 1);
+}
+
+/**
+ * Implements hook_uninstall().
+ */
+function cis_service_elmsmedia_uninstall() {
+  variable_del('elms_media_public_submit_button_selector');
+  variable_del('elms_media_public_remove_absolute');
+  variable_del('elms_media_public_default_style');
+}
