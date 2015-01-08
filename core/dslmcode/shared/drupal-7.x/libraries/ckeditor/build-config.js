@@ -1,5 +1,5 @@
 ﻿/**
- * @license Copyright (c) 2003-2014, CKSource - Frederico Knabben. All rights reserved.
+ * @license Copyright (c) 2003-2015, CKSource - Frederico Knabben. All rights reserved.
  * For licensing, see LICENSE.md or http://ckeditor.com/license
  */
 
@@ -13,10 +13,10 @@
  * (1) http://ckeditor.com/builder
  *     Visit online builder to build CKEditor from scratch.
  *
- * (2) http://ckeditor.com/builder/c04592ce66133539b192d5cc2babe7ae
+ * (2) http://ckeditor.com/builder/af3d1f9e3ce845d7056fbe2f9ee2973c
  *     Visit online builder to build CKEditor, starting with the same setup as before.
  *
- * (3) http://ckeditor.com/builder/download/c04592ce66133539b192d5cc2babe7ae
+ * (3) http://ckeditor.com/builder/download/af3d1f9e3ce845d7056fbe2f9ee2973c
  *     Straight download link to the latest version of CKEditor (Optimized) with the same setup as before.
  *
  * NOTE:
@@ -53,7 +53,6 @@ var CKBUILDER_CONFIG = {
 		'basicstyles' : 1,
 		'bidi' : 1,
 		'blockquote' : 1,
-		'clipboard' : 1,
 		'codemirror' : 1,
 		'colorbutton' : 1,
 		'colordialog' : 1,
@@ -82,7 +81,6 @@ var CKBUILDER_CONFIG = {
 		'list' : 1,
 		'liststyle' : 1,
 		'magicline' : 1,
-		'mathjax' : 1,
 		'maximize' : 1,
 		'newpage' : 1,
 		'pagebreak' : 1,
