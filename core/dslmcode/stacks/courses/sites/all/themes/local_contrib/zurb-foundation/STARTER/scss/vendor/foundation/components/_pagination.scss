@@ -1,20 +1,16 @@
-// Foundation by ZURB
-// foundation.zurb.com
-// Licensed under MIT Open Source
-
 @import "global";
 
 //
 // @variables
 //
-$include-pagination-classes: $include-html-classes !default;
+$include-html-nav-classes: $include-html-classes !default;
 
 // We use these to control the pagination container
 $pagination-height: rem-calc(24) !default;
 $pagination-margin: rem-calc(-5) !default;
 
 // We use these to set the list-item properties
-$pagination-li-float: $default-float !default;
+$pagination-li-float: $default-float;
 $pagination-li-height: rem-calc(24) !default;
 $pagination-li-font-color: #222 !default;
 $pagination-li-font-size: rem-calc(14) !default;
@@ -33,7 +29,7 @@ $pagination-link-unavailable-bg-active: transparent !default;
 // We use these for currently selected anchor links
 $pagination-link-current-background: $primary-color !default;
 $pagination-link-current-font-color: #fff !default;
-$pagination-link-current-font-weight: $font-weight-bold !default;
+$pagination-link-current-font-weight: bold !default;
 $pagination-link-current-cursor: default !default;
 $pagination-link-current-active-bg: $primary-color !default;
 
@@ -77,7 +73,6 @@ $pagination-link-current-active-bg: $primary-color !default;
     color: $pagination-link-current-font-color;
     font-weight: $pagination-link-current-font-weight;
     cursor: $pagination-link-current-cursor;
-    @include radius;
 
     &:hover,
     &:focus { background: $pagination-link-current-active-bg; }
@@ -94,7 +89,7 @@ $pagination-link-current-active-bg: $primary-color !default;
 
   @if $base-style {
     display: block;
-    min-height: $pagination-height;
+    height: $pagination-height;
     margin-#{$default-float}: $pagination-margin;
 
     li {
@@ -107,7 +102,7 @@ $pagination-link-current-active-bg: $primary-color !default;
         display: block;
         padding: $pagination-link-pad;
         color: $pagination-link-font-color;
-        @include radius;
+        @include radius($global-radius)
       }
 
       &:hover a,
@@ -133,7 +128,7 @@ $pagination-link-current-active-bg: $primary-color !default;
 }
 
 @include exports("pagination") {
-  @if $include-pagination-classes {
+  @if $include-html-nav-classes {
     ul.pagination {
       @include pagination;
     }

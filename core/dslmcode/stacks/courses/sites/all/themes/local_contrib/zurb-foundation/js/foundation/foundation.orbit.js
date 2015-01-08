@@ -50,10 +50,6 @@
       container = slides_container.parent();
       slides_container.addClass(settings.slides_container_class);
       
-      if (settings.stack_on_small) {
-        container.addClass(settings.stack_on_small_class);
-      }
-
       if (settings.navigation_arrows) {
         container.append($('<a href="#"><span></span></a>').addClass(settings.prev_class));
         container.append($('<a href="#"><span></span></a>').addClass(settings.next_class));
@@ -78,11 +74,14 @@
         container.append(bullets_container);
         bullets_container.wrap('<div class="orbit-bullets-container"></div>');
         self.slides().each(function(idx, el) {
-          var bullet = $('<li>').attr('data-orbit-slide', idx).on('click', self.link_bullet);;
+          var bullet = $('<li>').attr('data-orbit-slide', idx);
           bullets_container.append(bullet);
         });
       }
 
+      if (settings.stack_on_small) {
+        container.addClass(settings.stack_on_small_class);
+      }
     };
 
     self._goto = function(next_idx, start_timer) {
@@ -228,14 +227,9 @@
       animate = new FadeAnimation(settings, slides_container);
       if (settings.animation === 'slide') 
         animate = new SlideAnimation(settings, slides_container);        
-
       container.on('click', '.'+settings.next_class, self.next);
       container.on('click', '.'+settings.prev_class, self.prev);
-
-      if (settings.next_on_click) {
-        container.on('click', '.'+settings.slides_container_class+' [data-orbit-slide]', self.link_bullet);
-      }
-
+      container.on('click', '[data-orbit-slide]', self.link_bullet);
       container.on('click', self.toggle_timer);
       if (settings.swipe) {
         container.on('touchstart.fndtn.orbit', function(e) {
@@ -288,10 +282,10 @@
       });
       
       $(document).on('click', '[data-orbit-link]', self.link_custom);
-      $(window).on('load resize', self.compute_dimensions);
+      $(window).on('resize', self.compute_dimensions);
       Foundation.utils.image_loaded(this.slides().children('img'), self.compute_dimensions);
       Foundation.utils.image_loaded(this.slides().children('img'), function() {
-        container.prev('.'+settings.preloader_class).css('display', 'none');
+        container.prev('.preloader').css('display', 'none');
         self.update_slide_number(0);
         self.update_active_link(0);
         slides_container.trigger('ready.fndtn.orbit');
@@ -402,14 +396,13 @@
   Foundation.libs.orbit = {
     name: 'orbit',
 
-    version: '5.3.0',
+    version: '5.1.1',
 
     settings: {
       animation: 'slide',
       timer_speed: 10000,
       pause_on_hover: true,
       resume_on_mouseout: false,
-      next_on_click: true,
       animation_speed: 500,
       stack_on_small: false,
       navigation_arrows: true,
@@ -423,7 +416,6 @@
       timer_paused_class: 'paused',
       timer_progress_class: 'orbit-progress',
       slides_container_class: 'orbit-slides-container',
-      preloader_class: 'preloader',
       slide_selector: '*',
       bullets_container_class: 'orbit-bullets',
       bullets_active_class: 'active',
@@ -469,4 +461,4 @@
   };
 
     
-}(jQuery, window, window.document));
+}(jQuery, this, this.document));

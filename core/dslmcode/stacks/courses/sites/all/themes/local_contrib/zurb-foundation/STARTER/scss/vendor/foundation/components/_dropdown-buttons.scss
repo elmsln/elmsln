@@ -1,7 +1,3 @@
-// Foundation by ZURB
-// foundation.zurb.com
-// Licensed under MIT Open Source
-
 @import "global";
 
 //
@@ -59,7 +55,7 @@ $dropdown-button-pip-top-lrg: -$button-pip-lrg / 2 + rem-calc(3) !default;
     position: relative;
 
     // This creates the base styles for the triangle pip
-    &:after {
+    &:before {
       position: absolute;
       content: "";
       width: 0;
@@ -84,7 +80,7 @@ $dropdown-button-pip-top-lrg: -$button-pip-lrg / 2 + rem-calc(3) !default;
   // If we're dealing with small buttons, use these styles
   @if $padding == small {
     padding-#{$opposite-direction}: $dropdown-button-padding-sml;
-    &:after {
+    &:before {
       border-width: $dropdown-button-pip-size-sml;
       #{$opposite-direction}: $dropdown-button-pip-opposite-sml;
       margin-top: $dropdown-button-pip-top-sml;
@@ -94,7 +90,7 @@ $dropdown-button-pip-top-lrg: -$button-pip-lrg / 2 + rem-calc(3) !default;
   // If we're dealing with default (medium) buttons, use these styles
   @if $padding == medium {
     padding-#{$opposite-direction}: $dropdown-button-padding-med;
-    &:after {
+    &:before {
       border-width: $dropdown-button-pip-size-med;
       #{$opposite-direction}: $dropdown-button-pip-opposite-med;
       margin-top: $dropdown-button-pip-top-med;
@@ -104,7 +100,7 @@ $dropdown-button-pip-top-lrg: -$button-pip-lrg / 2 + rem-calc(3) !default;
   // If we're dealing with large buttons, use these styles
   @if $padding == large {
     padding-#{$opposite-direction}: $dropdown-button-padding-lrg;
-    &:after {
+    &:before {
       border-width: $dropdown-button-pip-size-lrg;
       #{$opposite-direction}: $dropdown-button-pip-opposite-lrg;
       margin-top: $dropdown-button-pip-top-lrg;
@@ -113,7 +109,7 @@ $dropdown-button-pip-top-lrg: -$button-pip-lrg / 2 + rem-calc(3) !default;
 
   // We can control the pip color. We didn't use logic in this case, just set it and forget it.
   @if $pip-color {
-    &:after { border-color: $pip-color transparent transparent transparent; }
+    &:before { border-color: $pip-color transparent transparent transparent; }
   }
 }
 
@@ -123,7 +119,7 @@ $dropdown-button-pip-top-lrg: -$button-pip-lrg / 2 + rem-calc(3) !default;
       &.tiny { @include dropdown-button(tiny,$base-style:false); }
       &.small { @include dropdown-button(small,$base-style:false); }
       &.large { @include dropdown-button(large,$base-style:false); }
-      &.secondary:after { border-color: $dropdown-button-pip-color-alt transparent transparent transparent; }
+      &.secondary:before { border-color: $dropdown-button-pip-color-alt transparent transparent transparent; }
     }
   }
 }

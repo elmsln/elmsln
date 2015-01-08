@@ -4,17 +4,15 @@
   Foundation.libs.accordion = {
     name : 'accordion',
 
-    version : '5.3.0',
+    version : '5.1.1',
 
     settings : {
       active_class: 'active',
-      multi_expand: false,
-      toggleable: true,
-      callback : function () {}
+      toggleable: true
     },
 
     init : function (scope, method, options) {
-      this.bindings(method, options);
+      this.bindings(method, options); 
     },
 
     events : function () {
@@ -26,35 +24,21 @@
         var accordion = S(this).closest('[' + self.attr_name() + ']'),
             target = S('#' + this.href.split('#')[1]),
             siblings = S('dd > .content', accordion),
-            aunts = $('dd', accordion),
-            groupSelector = self.attr_name() + '=' + accordion.attr(self.attr_name()),
+            aunts = $('> dd', accordion),
             settings = accordion.data(self.attr_name(true) + '-init'),
-            active_content = S('dd > .content.' + settings.active_class, accordion);
+            active_content = S('dd > .content.' + settings.active_class, accordion),
+            active_parent = S('dd.' + settings.active_class, accordion);
+
         e.preventDefault();
 
-        if (accordion.attr(self.attr_name())) {
-          siblings = siblings.add('[' + groupSelector + '] dd > .content');
-          aunts = aunts.add('[' + groupSelector + '] dd');
+        if (active_content[0] == target[0] && settings.toggleable) {
+          active_parent.toggleClass(settings.active_class, false);
+          return target.toggleClass(settings.active_class, false);
         }
 
-        if (settings.toggleable && target.is(active_content)) {
-          target.parent('dd').toggleClass(settings.active_class, false);
-          target.toggleClass(settings.active_class, false);
-          settings.callback(target);
-          target.triggerHandler('toggled', [accordion]);
-          accordion.triggerHandler('toggled', [target]);
-          return;
-        }
-
-        if (!settings.multi_expand) {
-          siblings.removeClass(settings.active_class);
-          aunts.removeClass(settings.active_class);
-        }
-
+        siblings.removeClass(settings.active_class);
+        aunts.removeClass(settings.active_class);
         target.addClass(settings.active_class).parent().addClass(settings.active_class);
-        settings.callback(target);
-        target.triggerHandler('toggled', [accordion]);
-        accordion.triggerHandler('toggled', [target]);
       });
     },
 
@@ -62,4 +46,4 @@
 
     reflow : function () {}
   };
-}(jQuery, window, window.document));
+}(jQuery, this, this.document));

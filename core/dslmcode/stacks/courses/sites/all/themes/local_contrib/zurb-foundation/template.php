@@ -3,18 +3,28 @@
  * @file
  */
 
-/**
- * Loads additional template files.
- */
-function _zurb_foundation_load() {
-  $themepath = drupal_get_path('theme', 'zurb_foundation');
-  include $themepath . '/inc/elements.inc';
-  include $themepath . '/inc/form.inc';
-  include $themepath . '/inc/menu.inc';
-  include $themepath . '/inc/theme.inc';
+$files = array(
+  'elements.inc',
+  'form.inc',
+  'menu.inc',
+  'theme.inc',
+);
+
+function _zurb_foundation_load($files) {
+  $tp = drupal_get_path('theme', 'zurb_foundation');
+  $file = '';
+  $dir = dirname(__FILE__);
+
+  // Check file path and '.inc' extension
+  foreach($files as $file) {
+    $file_path = $dir . '/inc/' . $file;
+    if (strpos($file,'.inc') > 0 && file_exists($file_path)) {
+      require_once($file_path);
+    }
+  }
 }
 
-_zurb_foundation_load();
+_zurb_foundation_load($files);
 
 /**
  * Implements hook_html_head_alter().

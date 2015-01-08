@@ -1,7 +1,3 @@
-// Foundation by ZURB
-// foundation.zurb.com
-// Licensed under MIT Open Source
-
 @import "global";
 
 //
@@ -65,8 +61,8 @@ $progress-meter-alert-color: $alert-color !default;
       &.success .meter { @include progress-meter($bg:$progress-meter-success-color); }
       &.alert .meter { @include progress-meter($bg:$progress-meter-alert-color); }
 
-      &.radius { @include radius($progress-bar-border-radius);
-        .meter { @include radius($progress-bar-border-radius - 1); }
+      &.radius { @include radius($global-radius);
+        .meter { @include radius($global-radius - 1); }
       }
 
       &.round { @include radius(1000px);

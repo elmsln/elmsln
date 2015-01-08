@@ -1,7 +1,3 @@
-// Foundation by ZURB
-// foundation.zurb.com
-// Licensed under MIT Open Source
-
 @import "global";
 
 //
@@ -14,7 +10,6 @@ $inline-list-top-margin: 0 !default;
 $inline-list-opposite-margin: 0 !default;
 $inline-list-bottom-margin: rem-calc(17) !default;
 $inline-list-default-float-margin: rem-calc(-22) !default;
-$inline-list-default-float-list-margin: rem-calc(22) !default;
 
 $inline-list-padding: 0 !default;
 
@@ -42,7 +37,7 @@ $inline-list-children-display: block !default;
   & > li {
     list-style: none;
     float: $default-float;
-    margin-#{$default-float}: $inline-list-default-float-list-margin;
+    margin-#{$default-float}: rem-calc(22);
     display: $inline-list-display;
     &>* { display: $inline-list-children-display; }
   }

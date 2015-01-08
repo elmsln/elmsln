@@ -39,7 +39,7 @@ stylesheets[all][] = css/foundation.min.css
 
 ; Modernizr acts as a shim for HTML5 elements for older browsers
 ; as well as detection for mobile devices.
-scripts[] = js/vendor/modernizr.js
+scripts[] = js/vendor/custom.modernizr.js
 
 ; Foundation framework scripts (minified).
 ; If you prefer to have more control over which components are included you
@@ -49,19 +49,19 @@ scripts[] = js/foundation.min.js
 ; Foundation framework scripts (uncompressed).
 ;scripts[] = js/foundation/foundation.js
 ;scripts[] = js/foundation/foundation.abide.js
-;scripts[] = js/foundation/foundation.accordion.js
-;scripts[] = js/foundation/foundation.alert.js
+;scripts[] = js/foundation/foundation.alerts.js
 ;scripts[] = js/foundation/foundation.clearing.js
+;scripts[] = js/foundation/foundation.cookie.js
 ;scripts[] = js/foundation/foundation.dropdown.js
-;scripts[] = js/foundation/foundation.equalizer.js
+;scripts[] = js/foundation/foundation.forms.js
 ;scripts[] = js/foundation/foundation.interchange.js
 ;scripts[] = js/foundation/foundation.joyride.js
 ;scripts[] = js/foundation/foundation.magellan.js
-;scripts[] = js/foundation/foundation.offcanvas.js
 ;scripts[] = js/foundation/foundation.orbit.js
+;scripts[] = js/foundation/foundation.placeholder.js
 ;scripts[] = js/foundation/foundation.reveal.js
-;scripts[] = js/foundation/foundation.tab.js
-;scripts[] = js/foundation/foundation.tooltip.js
+;scripts[] = js/foundation/foundation.section.js
+;scripts[] = js/foundation/foundation.tooltips.js
 ;scripts[] = js/foundation/foundation.topbar.js
 
 ; Theme scripts.

@@ -1,5 +1,5 @@
 name = ZURB Foundation
-description = Drupal implementation of the Zurb Foundation 5.x framework.
+description = Drupal implementation of the Zurb Foundation 5 framework.
 core = 7.x
 engine = phptemplate
 
@@ -14,7 +14,7 @@ stylesheets[all][] = css/foundation.min.css
 
 ; Modernizr acts as a shim for HTML5 elements for older browsers
 ; as well as detection for mobile devices.
-scripts[] = js/vendor/modernizr.js
+scripts[] = js/vendor/custom.modernizr.js
 
 ; Foundation framework scripts.
 scripts[] = js/foundation.min.js
@@ -63,3 +63,10 @@ settings[zurb_foundation_disable_core_css] = 0
 settings[zurb_foundation_html_tags] = 1
 settings[zurb_foundation_messages_modal] = 0
 settings[zurb_foundation_pager_center] = 1
+
+; Information added by Drupal.org packaging script on 2014-04-27
+version = "7.x-5.0-alpha4"
+core = "7.x"
+project = "zurb-foundation"
+datestamp = "1398632628"
+

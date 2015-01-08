@@ -4,7 +4,7 @@
   Foundation.libs.reveal = {
     name : 'reveal',
 
-    version : '5.3.0',
+    version : '5.1.1',
 
     locked : false,
 
@@ -15,7 +15,6 @@
       close_on_esc: true,
       dismiss_modal_class: 'close-reveal-modal',
       bg_class: 'reveal-modal-bg',
-      root_element: 'body',
       open: function(){},
       opened: function(){},
       close: function(){},
@@ -46,7 +45,7 @@
 
       S(this.scope)
         .off('.reveal')
-        .on('click.fndtn.reveal', '[' + this.add_namespace('data-reveal-id') + ']:not([disabled])', function (e) {
+        .on('click.fndtn.reveal', '[' + this.add_namespace('data-reveal-id') + ']', function (e) {
           e.preventDefault();
 
           if (!self.locked) {
@@ -66,7 +65,7 @@
         });
 
       S(document)
-        .on('touchend.fndtn.reveal click.fndtn.reveal', this.close_targets(), function (e) {
+        .on('click.fndtn.reveal', this.close_targets(), function (e) {
 
           e.preventDefault();
 
@@ -74,12 +73,8 @@
             var settings = S('[' + self.attr_name() + '].open').data(self.attr_name(true) + '-init'),
                 bg_clicked = S(e.target)[0] === S('.' + settings.bg_class)[0];
 
-            if (bg_clicked) {
-              if (settings.close_on_background_click) {
-                e.stopPropagation();
-              } else {
-                return;
-              }
+            if (bg_clicked && !settings.close_on_background_click) {
+              return;
             }
 
             self.locked = true;
@@ -135,24 +130,20 @@
     },
 
     open : function (target, ajax_settings) {
-      var self = this,
-          modal;
-
+      var self = this;
       if (target) {
         if (typeof target.selector !== 'undefined') {
-          // Find the named node; only use the first one found, since the rest of the code assumes there's only one node
-          modal = self.S('#' + target.data(self.data_attr('reveal-id'))).first();
+          var modal = self.S('#' + target.data(self.data_attr('reveal-id')));
         } else {
-          modal = self.S(this.scope);
+          var modal = self.S(this.scope);
 
           ajax_settings = target;
         }
       } else {
-        modal = self.S(this.scope);
+        var modal = self.S(this.scope);
       }
 
       var settings = modal.data(self.attr_name(true) + '-init');
-      settings = settings || this.settings;
 
       if (!modal.hasClass('open')) {
         var open_modal = self.S('[' + self.attr_name() + '].open');
@@ -163,10 +154,10 @@
         }
 
         this.key_up_on(modal);    // PATCH #3: turning on key up capture only when a reveal window is open
-        modal.trigger('open').trigger('open.fndtn.reveal');
+        modal.trigger('open');
 
         if (open_modal.length < 1) {
-          this.toggle_bg(modal, true);
+          this.toggle_bg(modal);
         }
 
         if (typeof ajax_settings === 'string') {
@@ -177,7 +168,8 @@
 
         if (typeof ajax_settings === 'undefined' || !ajax_settings.url) {
           if (open_modal.length > 0) {
-            this.hide(open_modal, settings.css.close);
+            var open_modal_settings = open_modal.data(self.attr_name(true) + '-init');
+            this.hide(open_modal, open_modal_settings.css.close);
           }
 
           this.show(modal, settings.css.open);
@@ -192,10 +184,10 @@
 
               modal.html(data);
               self.S(modal).foundation('section', 'reflow');
-              self.S(modal).children().foundation();
 
               if (open_modal.length > 0) {
-                self.hide(open_modal, settings.css.close);
+                var open_modal_settings = open_modal.data(self.attr_name(true));
+                self.hide(open_modal, open_modal_settings.css.close);
               }
               self.show(modal, settings.css.open);
             }
@@ -209,13 +201,13 @@
     close : function (modal) {
       var modal = modal && modal.length ? modal : this.S(this.scope),
           open_modals = this.S('[' + this.attr_name() + '].open'),
-          settings = modal.data(this.attr_name(true) + '-init') || this.settings;
+          settings = modal.data(this.attr_name(true) + '-init');
 
       if (open_modals.length > 0) {
         this.locked = true;
         this.key_up_off(modal);   // PATCH #3: turning on key up capture only when a reveal window is open
-        modal.trigger('close').trigger('close.fndtn.reveal');
-        this.toggle_bg(modal, false);
+        modal.trigger('close');
+        this.toggle_bg(modal);
         this.hide(open_modals, settings.css.close, settings);
       }
     },
@@ -230,44 +222,38 @@
       return base;
     },
 
-    toggle_bg : function (modal, state) {
+    toggle_bg : function (modal) {
+      var settings = modal.data(this.attr_name(true));
+
       if (this.S('.' + this.settings.bg_class).length === 0) {
         this.settings.bg = $('<div />', {'class': this.settings.bg_class})
-          .appendTo('body').hide();
+          .appendTo('body');
       }
 
-      var visible = this.settings.bg.filter(':visible').length > 0;
-      if ( state != visible ) {
-        if ( state == undefined ? visible : !state ) {
-          this.hide(this.settings.bg);
-        } else {
-          this.show(this.settings.bg);
-        }
+      if (this.settings.bg.filter(':visible').length > 0) {
+        this.hide(this.settings.bg);
+      } else {
+        this.show(this.settings.bg);
       }
     },
 
     show : function (el, css) {
       // is modal
       if (css) {
-        var settings = el.data(this.attr_name(true) + '-init') || this.settings,
-            root_element = settings.root_element;
-
-        if (el.parent(root_element).length === 0) {
-          var placeholder = el.wrap('<div style="display: none;" />').parent();
+        var settings = el.data(this.attr_name(true) + '-init');
+        if (el.parent('body').length === 0) {
+          var placeholder = el.wrap('<div style="display: none;" />').parent(),
+              rootElement = this.settings.rootElement || 'body';
 
           el.on('closed.fndtn.reveal.wrapped', function() {
             el.detach().appendTo(placeholder);
             el.unwrap().unbind('closed.fndtn.reveal.wrapped');
           });
 
-          el.detach().appendTo(root_element);
+          el.detach().appendTo(rootElement);
         }
 
-        var animData = getAnimationData(settings.animation);
-        if (!animData.animate) {
-          this.locked = false;
-        }
-        if (animData.pop) {
+        if (/pop/i.test(settings.animation)) {
           css.top = $(window).scrollTop() - el.data('offset') + 'px';
           var end_css = {
             top: $(window).scrollTop() + el.data('css-top') + 'px',
@@ -279,14 +265,13 @@
               .css(css)
               .animate(end_css, settings.animation_speed, 'linear', function () {
                 this.locked = false;
-                el.trigger('opened').trigger('opened.fndtn.reveal');
+                el.trigger('opened');
               }.bind(this))
               .addClass('open');
           }.bind(this), settings.animation_speed / 2);
         }
 
-        if (animData.fade) {
-          css.top = $(window).scrollTop() + el.data('css-top') + 'px';
+        if (/fade/i.test(settings.animation)) {
           var end_css = {opacity: 1};
 
           return setTimeout(function () {
@@ -294,19 +279,19 @@
               .css(css)
               .animate(end_css, settings.animation_speed, 'linear', function () {
                 this.locked = false;
-                el.trigger('opened').trigger('opened.fndtn.reveal');
+                el.trigger('opened');
               }.bind(this))
               .addClass('open');
           }.bind(this), settings.animation_speed / 2);
         }
 
-        return el.css(css).show().css({opacity: 1}).addClass('open').trigger('opened').trigger('opened.fndtn.reveal');
+        return el.css(css).show().css({opacity: 1}).addClass('open').trigger('opened');
       }
 
       var settings = this.settings;
 
       // should we animate the background?
-      if (getAnimationData(settings.animation).fade) {
+      if (/fade/i.test(settings.animation)) {
         return el.fadeIn(settings.animation_speed / 2);
       }
 
@@ -319,13 +304,7 @@
       // is modal
       if (css) {
         var settings = el.data(this.attr_name(true) + '-init');
-        settings = settings || this.settings;
-
-        var animData = getAnimationData(settings.animation);
-        if (!animData.animate) {
-          this.locked = false;
-        }
-        if (animData.pop) {
+        if (/pop/i.test(settings.animation)) {
           var end_css = {
             top: - $(window).scrollTop() - el.data('offset') + 'px',
             opacity: 0
@@ -335,32 +314,32 @@
             return el
               .animate(end_css, settings.animation_speed, 'linear', function () {
                 this.locked = false;
-                el.css(css).trigger('closed').trigger('closed.fndtn.reveal');
+                el.css(css).trigger('closed');
               }.bind(this))
               .removeClass('open');
           }.bind(this), settings.animation_speed / 2);
         }
 
-        if (animData.fade) {
+        if (/fade/i.test(settings.animation)) {
           var end_css = {opacity: 0};
 
           return setTimeout(function () {
             return el
               .animate(end_css, settings.animation_speed, 'linear', function () {
                 this.locked = false;
-                el.css(css).trigger('closed').trigger('closed.fndtn.reveal');
+                el.css(css).trigger('closed');
               }.bind(this))
               .removeClass('open');
           }.bind(this), settings.animation_speed / 2);
         }
 
-        return el.hide().css(css).removeClass('open').trigger('closed').trigger('closed.fndtn.reveal');
+        return el.hide().css(css).removeClass('open').trigger('closed');
       }
 
       var settings = this.settings;
 
       // should we animate the background?
-      if (getAnimationData(settings.animation).fade) {
+      if (/fade/i.test(settings.animation)) {
         return el.fadeOut(settings.animation_speed / 2);
       }
 
@@ -417,21 +396,4 @@
 
     reflow : function () {}
   };
-
-  /*
-   * getAnimationData('popAndFade') // {animate: true,  pop: true,  fade: true}
-   * getAnimationData('fade')       // {animate: true,  pop: false, fade: true}
-   * getAnimationData('pop')        // {animate: true,  pop: true,  fade: false}
-   * getAnimationData('foo')        // {animate: false, pop: false, fade: false}
-   * getAnimationData(null)         // {animate: false, pop: false, fade: false}
-   */
-  function getAnimationData(str) {
-    var fade = /fade/i.test(str);
-    var pop = /pop/i.test(str);
-    return {
-      animate: fade || pop,
-      pop: pop,
-      fade: fade
-    };
-  }
-}(jQuery, window, window.document));
+}(jQuery, this, this.document));

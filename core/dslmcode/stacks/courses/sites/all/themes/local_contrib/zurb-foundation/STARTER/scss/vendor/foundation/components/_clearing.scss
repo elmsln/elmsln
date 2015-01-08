@@ -1,7 +1,3 @@
-// Foundation by ZURB
-// foundation.zurb.com
-// Licensed under MIT Open Source
-
 @import "global";
 
 //
@@ -201,7 +197,6 @@ $clearing-carousel-thumb-active-border: 1px solid rgb(255,255,255) !default;
               position: relative;
               cursor: $cursor-pointer-value;
               opacity: 0.4;
-              clear: none;
 
               &.fix-height {
                 img {
@@ -212,7 +207,10 @@ $clearing-carousel-thumb-active-border: 1px solid rgb(255,255,255) !default;
 
               a.th {
                 border: none;
-                box-shadow: none;
+                @if $experimental {
+                  -webkit-box-shadow: none;
+                }
+                        box-shadow: none;
                 display: block;
               }
 

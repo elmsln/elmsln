@@ -4,9 +4,11 @@
   Foundation.libs.alert = {
     name : 'alert',
 
-    version : '5.3.0',
+    version : '5.1.1',
 
     settings : {
+      animation: 'fadeOut',
+      speed: 300, // fade out speed
       callback: function (){}
     },
 
@@ -23,21 +25,13 @@
               settings = alertBox.data(self.attr_name(true) + '-init') || self.settings;
 
         e.preventDefault();
-        if (Modernizr.csstransitions) {
-          alertBox.addClass("alert-close");
-          alertBox.on('transitionend webkitTransitionEnd oTransitionEnd', function(e) {
-            S(this).trigger('close').trigger('close.fndtn.alert').remove();
-            settings.callback();
-          });
-        } else {
-          alertBox.fadeOut(300, function () {
-            S(this).trigger('close').trigger('close.fndtn.alert').remove();
-            settings.callback();
-          });
-        }
+        alertBox[settings.animation](settings.speed, function () {
+          S(this).trigger('closed').remove();
+          settings.callback();
+        });
       });
     },
 
     reflow : function () {}
   };
-}(jQuery, window, window.document));
+}(jQuery, this, this.document));

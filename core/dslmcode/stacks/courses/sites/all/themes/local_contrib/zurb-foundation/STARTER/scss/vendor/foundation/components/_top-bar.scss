@@ -1,10 +1,5 @@
-// Foundation by ZURB
-// foundation.zurb.com
-// Licensed under MIT Open Source
-
 @import "global";
 @import "grid";
-@import "buttons";
 
 //
 // Top Bar Variables
@@ -20,14 +15,14 @@ $topbar-height: 45px !default;
 $topbar-margin-bottom: 0 !default;
 
 // Controlling the styles for the title in the top bar
-$topbar-title-weight: $font-weight-normal !default;
+$topbar-title-weight: normal !default;
 $topbar-title-font-size: rem-calc(17) !default;
 
 // Style the top bar dropdown elements
 $topbar-dropdown-bg: #333 !default;
 $topbar-dropdown-link-color: #fff !default;
 $topbar-dropdown-link-bg: #333 !default;
-$topbar-dropdown-link-weight: $font-weight-normal !default;
+$topbar-dropdown-link-weight: normal !default;
 $topbar-dropdown-toggle-size: 5px !default;
 $topbar-dropdown-toggle-color: #fff !default;
 $topbar-dropdown-toggle-alpha: 0.4 !default;
@@ -37,31 +32,28 @@ $topbar-link-color: #fff !default;
 $topbar-link-color-hover: #fff !default;
 $topbar-link-color-active: #fff !default;
 $topbar-link-color-active-hover: #fff !default;
-$topbar-link-weight: $font-weight-normal !default;
+$topbar-link-weight: normal !default;
 $topbar-link-font-size: rem-calc(13) !default;
 $topbar-link-hover-lightness: -10% !default; // Darken by 10%
-$topbar-link-bg: $topbar-bg !default;
 $topbar-link-bg-hover: #272727 !default;
-$topbar-link-bg-color-hover: #555555 !default;
 $topbar-link-bg-active: $primary-color !default;
 $topbar-link-bg-active-hover: scale-color($primary-color, $lightness: -14%) !default;
 $topbar-link-font-family: $body-font-family !default;
-$topbar-link-text-transform: none !default;
 $topbar-link-padding: $topbar-height / 3 !default;
 
-$topbar-button-font-size: 0.75rem !default;
+$topbar-button-font-size: 0.75rem;
 $topbar-button-top: 7px !default;
 
 $topbar-dropdown-label-color: #777 !default;
 $topbar-dropdown-label-text-transform: uppercase !default;
-$topbar-dropdown-label-font-weight: $font-weight-bold !default;
+$topbar-dropdown-label-font-weight: bold !default;
 $topbar-dropdown-label-font-size: rem-calc(10) !default;
 $topbar-dropdown-label-bg: #333 !default;
 
 // Top menu icon styles
 $topbar-menu-link-transform: uppercase !default;
 $topbar-menu-link-font-size: rem-calc(13) !default;
-$topbar-menu-link-weight: $font-weight-bold !default;
+$topbar-menu-link-weight: bold !default;
 $topbar-menu-link-color: #fff !default;
 $topbar-menu-icon-color: #fff !default;
 $topbar-menu-link-color-toggled: #888 !default;
@@ -74,37 +66,23 @@ $topbar-breakpoint: #{lower-bound($medium-range)} !default; // Change to 9999px 
 $topbar-media-query: $medium-up !default;
 
 // Divider Styles
-$topbar-divider-border-bottom: solid 1px scale-color($topbar-bg-color, $lightness: 13%) !default;
+$topbar-divider-border-bottom: solid 1px  scale-color($topbar-bg-color, $lightness: 13%) !default;
 $topbar-divider-border-top: solid 1px scale-color($topbar-bg-color, $lightness: -50%) !default;
 
 // Sticky Class
 $topbar-sticky-class: ".sticky" !default;
 $topbar-arrows: true !default; //Set false to remove the triangle icon from the menu item
 
-// Accessibility mixins for hiding and showing the menu dropdown items
-@mixin topbar-hide-dropdown {
-  // Makes an element visually hidden by default, but visible when focused.
-  display: block;
-  @include element-invisible();
-}
-
-@mixin topbar-show-dropdown {
-  display: block;
-  @include element-invisible-off();
-  position: absolute !important; // Reset the position from static to absolute
-}
-
 @include exports("top-bar") {
+  // Used to provide media query values for javascript components.
+  // This class is generated despite the value of $include-html-top-bar-classes
+  // to ensure width calculations work correctly.
+  meta.foundation-mq-topbar {
+    font-family: "/" + unquote($topbar-media-query) + "/";
+    width: $topbar-breakpoint;
+  }
 
   @if $include-html-top-bar-classes {
-
-    // Used to provide media query values for javascript components.
-    // This class is generated despite the value of $include-html-top-bar-classes
-    // to ensure width calculations work correctly.
-    meta.foundation-mq-topbar {
-      font-family: "/" + unquote($topbar-media-query) + "/";
-      width: $topbar-breakpoint;
-    }
 
     /* Wrapped around .top-bar to contain to grid width */
     .contain-to-grid {
@@ -162,7 +140,7 @@ $topbar-arrows: true !default; //Set false to remove the triangle icon from the 
 
       input { height: auto; padding-top: .35rem; padding-bottom: .35rem; font-size: $topbar-button-font-size; }
 
-      .button, button {
+      .button {
         padding-top: .45rem;
         padding-bottom: .35rem;
         margin-bottom: 0;
@@ -190,7 +168,7 @@ $topbar-arrows: true !default; //Set false to remove the triangle icon from the 
           a {
             font-weight: $topbar-title-weight;
             color: $topbar-link-color;
-            width: 75%;
+            width: 50%;
             display: block;
             padding: 0 $topbar-link-padding;
           }
@@ -217,8 +195,10 @@ $topbar-arrows: true !default; //Set false to remove the triangle icon from the 
 
         // Adding the class "menu-icon" will add the 3-line icon people love and adore.
         &.menu-icon {
+          #{$opposite-direction}: $topbar-link-padding;
           top: 50%;
           margin-top: -16px;
+          padding-#{$default-float}: 40px;
 
           a {
             @if $text-direction == rtl {
@@ -226,23 +206,28 @@ $topbar-arrows: true !default; //Set false to remove the triangle icon from the 
             }
             height: 34px;
             line-height: 33px;
-            padding: 0 $topbar-link-padding+25 0 $topbar-link-padding;
+            padding: 0;
+            padding-right: 25px;
             color: $topbar-menu-link-color;
             position: relative;
 
-            & {
-              // @include hamburger icon
-              //
-              // We use this to create the icon with three lines aka the hamburger icon, the menu-icon or the navicon
-              // $width - Width of hamburger icon
-              // $left - If false, icon will be centered horizontally || explicitly set value in rem
-              // $top - If false, icon will be centered vertically || explicitly set value in rem
-              // $thickness - thickness of lines in hamburger icon, set value in px
-              // $gap - spacing between the lines in hamburger icon, set value in px
-              // $color - icon color
-              // $hover-color - icon color during hover, here it is set the same as $color because the values are changed on line 264
-              // $offcanvas - Set to false of @include in topbar
-              @include hamburger(16px, false, 0, 1px, 6px, $topbar-menu-icon-color, $topbar-menu-icon-color, false);
+            &::after {
+              content:"";
+              position: absolute;
+              #{$opposite-direction}: 0;
+              display: block;
+              width: 16px;
+              top:0;
+              height: 0;
+              // Shh, don't tell, but box-shadows create the menu icon :)
+              @if $experimental {
+                -webkit-box-shadow: 0 10px 0 1px $topbar-menu-icon-color,
+                                    0 16px 0 1px $topbar-menu-icon-color,
+                                    0 22px 0 1px $topbar-menu-icon-color;
+              }
+              box-shadow:         0 10px 0 1px $topbar-menu-icon-color,
+                                  0 16px 0 1px $topbar-menu-icon-color,
+                                  0 22px 0 1px $topbar-menu-icon-color;
             }
           }
         }
@@ -257,11 +242,16 @@ $topbar-arrows: true !default; //Set false to remove the triangle icon from the 
 
         .toggle-topbar {
           a { color: $topbar-menu-link-color-toggled;
-            &::after {
+            span {
               // Shh, don't tell, but box-shadows create the menu icon :)
-              box-shadow: 0 10px 0 1px $topbar-menu-icon-color-toggled,
-                          0 16px 0 1px $topbar-menu-icon-color-toggled,
-                          0 22px 0 1px $topbar-menu-icon-color-toggled;
+              @if $experimental {
+                -webkit-box-shadow: 0 10px 0 1px $topbar-menu-icon-color-toggled,
+                                    0 16px 0 1px $topbar-menu-icon-color-toggled,
+                                    0 22px 0 1px $topbar-menu-icon-color-toggled;
+              }
+              box-shadow:         0 10px 0 1px $topbar-menu-icon-color-toggled,
+                                  0 16px 0 1px $topbar-menu-icon-color-toggled,
+                                  0 22px 0 1px $topbar-menu-icon-color-toggled;
             }
           }
         }
@@ -279,10 +269,10 @@ $topbar-arrows: true !default; //Set false to remove the triangle icon from the 
       @include single-transition($default-float, $topbar-transition-speed);
 
       ul {
-        padding: 0;
         width: 100%;
         height: auto;
         display: block;
+        background: $topbar-dropdown-bg;
         font-size: $rem-base;
         margin: 0;
       }
@@ -296,7 +286,6 @@ $topbar-arrows: true !default; //Set false to remove the triangle icon from the 
       }
 
       ul li {
-        background: $topbar-dropdown-bg;
         & > a {
           display: block;
           width: 100%;
@@ -306,37 +295,41 @@ $topbar-arrows: true !default; //Set false to remove the triangle icon from the 
           font-family: $topbar-link-font-family;
           font-size: $topbar-link-font-size;
           font-weight: $topbar-link-weight;
-          text-transform: $topbar-link-text-transform;
-
+          background: $topbar-dropdown-bg;
 
           &.button {
+            background: $primary-color;
             font-size: $topbar-link-font-size;
-            padding-#{$opposite-direction}: $topbar-link-padding;
-            padding-#{$default-float}: $topbar-link-padding;
-            @include button-style($bg:$primary-color);
+             padding-#{$opposite-direction}: $topbar-link-padding;
+             padding-#{$default-float}: $topbar-link-padding;
+            &:hover {
+              background: scale-color($primary-color, $lightness: -27%);
+            }
           }
-          &.button.secondary { @include button-style($bg:$secondary-color); }
-          &.button.success { @include button-style($bg:$success-color); }
-          &.button.alert { @include button-style($bg:$alert-color); }
-        }
+          &.button.secondary {
+            background: $secondary-color;
+            &:hover {
+              background: scale-color($secondary-color, $lightness: -11%);
+            }
+          }
+          &.button.success {
+            background: $success-color;
+            &:hover {
+              background: scale-color($success-color, $lightness: -21%);
+            }
+          }
+          &.button.alert {
+            background: $alert-color;
+            &:hover {
+              background: scale-color($alert-color, $lightness: -18%);
+            }
+          }
 
-        > button {
-          font-size: $topbar-link-font-size;
-          padding-#{$opposite-direction}: $topbar-link-padding;
-          padding-#{$default-float}: $topbar-link-padding;
-          @include button-style($bg:$primary-color);
-
-          &.secondary { @include button-style($bg:$secondary-color); }
-          &.success { @include button-style($bg:$success-color); }
-          &.alert { @include button-style($bg:$alert-color); }
         }
 
         // Apply the hover link color when it has that class
-        &:hover:not(.has-form) > a {
-          background-color: $topbar-link-bg-color-hover;
-          @if ($topbar-link-bg-hover) {
-            background: $topbar-link-bg-hover;
-          }
+        &:hover > a {
+          background: $topbar-link-bg-hover;
           color: $topbar-link-color-hover;
 
         }
@@ -374,23 +367,18 @@ $topbar-arrows: true !default; //Set false to remove the triangle icon from the 
 
         &.moved { position: static;
           & > .dropdown {
-            @include topbar-show-dropdown();
-            width: 100%;
-          }
-          & > a:after {
-            display: none;
+            display: block;
           }
         }
       }
 
       // Styling elements inside of dropdowns
       .dropdown {
-        padding: 0;
         position: absolute;
         #{$default-float}: 100%;
         top: 0;
+        display: none;
         z-index: 99;
-        @include topbar-hide-dropdown();
 
         li {
           width: 100%;
@@ -404,9 +392,7 @@ $topbar-arrows: true !default; //Set false to remove the triangle icon from the 
             }
           }
 
-          &.title h5 {
-            margin-bottom: 0;
-            margin-top: 0;
+          &.title h5 { margin-bottom: 0;
             a {
               color: $topbar-link-color;
               line-height: $topbar-height / 2;
@@ -414,7 +400,7 @@ $topbar-arrows: true !default; //Set false to remove the triangle icon from the 
             }
           }
           &.has-form { padding: 8px $topbar-link-padding; }
-          .button, button { top: auto; }
+          .button { top: auto; }
         }
 
         label {
@@ -444,8 +430,7 @@ $topbar-arrows: true !default; //Set false to remove the triangle icon from the 
         .name h1 a { width: auto; }
 
         input,
-        .button,
-        button {
+        .button {
           font-size: rem-calc(14);
           position: relative;
           top: $topbar-button-top;
@@ -478,10 +463,7 @@ $topbar-arrows: true !default; //Set false to remove the triangle icon from the 
         li {
           &.hover {
             > a:not(.button) {
-              background-color: $topbar-link-bg-color-hover;
-              @if ($topbar-link-bg-hover) {
-                background: $topbar-link-bg-hover;
-              }
+              background: $topbar-link-bg-hover;
               color: $topbar-link-color-hover;
             }
           }
@@ -489,18 +471,13 @@ $topbar-arrows: true !default; //Set false to remove the triangle icon from the 
             a:not(.button) {
               padding: 0 $topbar-link-padding;
               line-height: $topbar-height;
-              background: $topbar-link-bg;
-              &:hover {
-                background-color: $topbar-link-bg-color-hover;
-                @if ($topbar-link-bg-hover) {
-                  background: $topbar-link-bg-hover;
-                }
-              }
+              background: $topbar-bg;
+              &:hover { background: $topbar-link-bg-hover; }
             }
           }
           &.active:not(.has-form) {
             a:not(.button) {
-              padding: 0 $topbar-link-padding;
+              padding: 0 $topbar-height / 3;
               line-height: $topbar-height;
               color: $topbar-link-color-active;
               background: $topbar-link-bg-active;
@@ -525,14 +502,12 @@ $topbar-arrows: true !default; //Set false to remove the triangle icon from the 
           }
 
           &.moved { position: relative;
-            & > .dropdown {
-              @include topbar-hide-dropdown();
-            }
+            & > .dropdown { display: none; }
           }
 
           &.hover, &.not-click:hover {
             & > .dropdown {
-              @include topbar-show-dropdown();
+              display: block;
             }
           }
 
@@ -542,7 +517,7 @@ $topbar-arrows: true !default; //Set false to remove the triangle icon from the 
                 border: none;
                 content: "\00bb";
                 top: 1rem;
-                margin-top: -1px;
+                margin-top: -2px;
                 #{$opposite-direction}: 5px;
                 line-height: 1.2;
               }
@@ -560,22 +535,10 @@ $topbar-arrows: true !default; //Set false to remove the triangle icon from the 
           li {
             a {
               color: $topbar-dropdown-link-color;
-              line-height: $topbar-height;
+              line-height: 1;
               white-space: nowrap;
               padding: 12px $topbar-link-padding;
               background: $topbar-dropdown-link-bg;
-            }
-
-            &:not(.has-form) a:not(.button) {
-              color: $topbar-dropdown-link-color;
-              background: $topbar-dropdown-link-bg;
-            }
-            &:not(.has-form):hover > a:not(.button) {
-              color: $topbar-link-color-hover;
-              background-color: $topbar-link-bg-color-hover;
-              @if ($topbar-link-bg-hover) {
-                background: $topbar-link-bg-hover;
-              }
             }
 
             label {
@@ -602,8 +565,8 @@ $topbar-arrows: true !default; //Set false to remove the triangle icon from the 
         }
 
         .has-form {
-          background: $topbar-link-bg;
-          padding: 0 $topbar-height / 3;
+          background: $topbar-bg;
+          padding: 0 $topbar-link-padding;
           height: $topbar-height;
         }
 
@@ -632,10 +595,7 @@ $topbar-arrows: true !default; //Set false to remove the triangle icon from the 
         ul li {
           // Apply the hover link color when it has that class
           &:hover > a {
-            background-color: $topbar-link-bg-color-hover;
-            @if ($topbar-link-bg-hover) {
-              background: $topbar-link-bg-hover;
-            }
+            background: $topbar-link-bg-hover;
             color: $topbar-link-color-hover;
           }
 
@@ -649,7 +609,7 @@ $topbar-arrows: true !default; //Set false to remove the triangle icon from the 
         .has-dropdown {
           &:hover {
             & > .dropdown {
-              @include topbar-show-dropdown();
+              display: block;
             }
           }
         }

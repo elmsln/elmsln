@@ -1,7 +1,3 @@
-// Foundation by ZURB
-// foundation.zurb.com
-// Licensed under MIT Open Source
-
 @import "global";
 
 //
@@ -61,13 +57,13 @@ $crumb-slash: "/" !default;
   margin: 0;
   float: $default-float;
   font-size: $crumb-font-size;
-  line-height: $crumb-font-size;
   text-transform: $crumb-font-transform;
-  color: $crumb-font-color;
 
   &:hover a, &:focus a { text-decoration: $crumb-link-decor; }
 
-  a {
+  a,
+  span {
+    text-transform: $crumb-font-transform;
     color: $crumb-font-color;
   }
 

@@ -4,15 +4,14 @@
   Foundation.libs['magellan-expedition'] = {
     name : 'magellan-expedition',
 
-    version : '5.3.0',
+    version : '5.1.1',
 
     settings : {
       active_class: 'active',
       threshold: 0, // pixels from the top of the expedition for it to become fixes
       destination_threshold: 20, // pixels from the top of destination for it to be considered active
-      throttle_delay: 30, // calculation throttling to increase framerate
-      fixed_top: 0 // top distance in pixels assigend to the fixed element on scroll
-    }, 
+      throttle_delay: 30 // calculation throttling to increase framerate
+    },
 
     init : function (scope, method, options) {
       Foundation.inherit(this, 'throttle');
@@ -23,41 +22,35 @@
       var self = this,
           S = self.S,
           settings = self.settings;
-
+      
       // initialize expedition offset
       self.set_expedition_position();
+      
 
       S(self.scope)
         .off('.magellan')
         .on('click.fndtn.magellan', '[' + self.add_namespace('data-magellan-arrival') + '] a[href^="#"]', function (e) {
-          e.preventDefault();
-          var expedition = $(this).closest('[' + self.attr_name() + ']'),
-              settings = expedition.data('magellan-expedition-init'),
-              hash = this.hash.split('#').join(''),
-              target = $("a[name='"+hash+"']");
-          
-          if (target.length === 0) {
-            target = $('#'+hash);
-          }
+            e.preventDefault();
+            var expedition = $(this).closest('[' + self.attr_name() + ']'),
+                settings = expedition.data('magellan-expedition-init');
 
-          // Account for expedition height if fixed position
-          var scroll_top = target.offset().top - settings.destination_threshold;
-          scroll_top = scroll_top - expedition.outerHeight();
+            var hash = this.hash.split('#').join(''),
+                target = $('a[name='+hash+']');
+            if (target.length === 0) target = $('#'+hash);
 
-          $('html, body').stop().animate({
-            'scrollTop': scroll_top
-          }, 700, 'swing', function () {
-            if(history.pushState) {
-              history.pushState(null, null, '#'+hash);
+            // Account for expedition height if fixed position
+            var scroll_top = target.offset().top;
+            if (expedition.css('position') === 'fixed') {
+              scroll_top = scroll_top - expedition.outerHeight();
             }
-            else {
-              location.hash = '#'+hash;
-            }
-          });
+
+            $('html, body').stop().animate({
+                'scrollTop': scroll_top
+            }, 700, 'swing', function () {
+                window.location.hash = '#'+hash;
+            });
         })
-        .on('scroll.fndtn.magellan', self.throttle(this.check_for_arrivals.bind(this), settings.throttle_delay));
-      
-      $(window)
+        .on('scroll.fndtn.magellan', self.throttle(this.check_for_arrivals.bind(this), settings.throttle_delay))
         .on('resize.fndtn.magellan', self.throttle(this.set_expedition_position.bind(this), settings.throttle_delay));
     },
 
@@ -71,12 +64,11 @@
       var self = this;
       $('[' + this.attr_name() + '=fixed]', self.scope).each(function(idx, el) {
         var expedition = $(this),
-            settings = expedition.data('magellan-expedition-init'),
             styles = expedition.attr('styles'), // save styles
             top_offset;
 
         expedition.attr('style', '');
-        top_offset = expedition.offset().top + settings.threshold;
+        top_offset = expedition.offset().top;
 
         expedition.data(self.data_attr('magellan-top-offset'), top_offset);
         expedition.attr('style', styles);
@@ -89,9 +81,8 @@
 
       $('[' + this.attr_name() + '=fixed]', self.scope).each(function() {
         var expedition = $(this),
-            settings = expedition.data('magellan-expedition-init'),
             top_offset = expedition.data('magellan-top-offset');
-
+        
         if (window_top_offset >= top_offset) {
           // Placeholder allows height calculations to be consistent even when
           // appearing to switch between fixed/non-fixed placement
@@ -102,10 +93,10 @@
             placeholder.attr(self.add_namespace('data-magellan-expedition-clone'),'');
             expedition.before(placeholder);
           }
-          expedition.css({position:'fixed', top: settings.fixed_top});
+          expedition.css({position:'fixed', top: 0});
         } else {
           expedition.prev('[' + self.add_namespace('data-magellan-expedition-clone') + ']').remove();
-          expedition.attr('style','').removeClass('fixed');
+          expedition.attr('style','');
         }
       });
     },
@@ -116,7 +107,7 @@
 
       $('[' + this.attr_name() + ']', self.scope).each(function() {
         var expedition = $(this),
-            settings = expedition.data(self.attr_name(true) + '-init'),
+            settings = settings = expedition.data(self.attr_name(true) + '-init'),
             offsets = self.offsets(expedition, window_top_offset),
             arrivals = expedition.find('[' + self.add_namespace('data-magellan-arrival') + ']'),
             active_item = false;
@@ -137,13 +128,13 @@
     offsets : function(expedition, window_offset) {
       var self = this,
           settings = expedition.data(self.attr_name(true) + '-init'),
-          viewport_offset = window_offset;
+          viewport_offset = (window_offset + settings.destination_threshold);
 
       return expedition.find('[' + self.add_namespace('data-magellan-arrival') + ']').map(function(idx, el) {
         var name = $(this).data(self.data_attr('magellan-arrival')),
             dest = $('[' + self.add_namespace('data-magellan-destination') + '=' + name + ']');
         if (dest.length > 0) {
-          var top_offset = dest.offset().top - settings.destination_threshold - expedition.outerHeight();
+          var top_offset = dest.offset().top;
           return {
             destination : dest,
             arrival : $(this),
@@ -177,4 +168,4 @@
       $('[' + self.add_namespace('data-magellan-expedition-clone') + ']', self.scope).remove();
     }
   };
-}(jQuery, window, window.document));
+}(jQuery, this, this.document));

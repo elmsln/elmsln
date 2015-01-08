@@ -67,21 +67,15 @@ function zurb_foundation_form_alter(&$form, &$form_state, $form_id) {
  * Implements theme_form_element_label().
  */
 function zurb_foundation_form_element_label($variables) {
-  // Add tooltips to form elements.
-  if (theme_get_setting('zurb_foundation_tooltip_enable')) {
-    _zurb_foundation_add_tooltips($variables);
-  }
-  return theme_form_element_label($variables);
+ _zurb_foundation_add_tooltips($variables);
+ return theme_form_element_label($variables);
 }
 
 /**
  * Implements theme_text_format_wrapper().
  */
 function zurb_foundation_text_format_wrapper($variables) {
-  // Add tooltips to form elements.
-  if (theme_get_setting('zurb_foundation_tooltip_enable')) {
-    _zurb_foundation_add_tooltips($variables);
-  }
+  _zurb_foundation_add_tooltips($variables);
   return theme_text_format_wrapper($variables);
 }
 
@@ -89,10 +83,7 @@ function zurb_foundation_text_format_wrapper($variables) {
  * Implements theme_field_multiple_value_form().
  */
 function zurb_foundation_field_multiple_value_form($variables) {
-  // Add tooltips to form elements.
-  if (theme_get_setting('zurb_foundation_tooltip_enable')) {
-    _zurb_foundation_add_tooltips($variables);
-  }
+  _zurb_foundation_add_tooltips($variables);
   return theme_field_multiple_value_form($variables);
 }
 

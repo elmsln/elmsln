@@ -1,10 +1,5 @@
-// Foundation by ZURB
-// foundation.zurb.com
-// Licensed under MIT Open Source
-
 @import "global";
 @import "grid";
-@import "type";
 
 //
 // @variables
@@ -17,7 +12,6 @@ $tabs-navigation-bg-color: #efefef !default;
 $tabs-navigation-active-bg-color: #fff !default;
 $tabs-navigation-hover-bg-color: scale-color($tabs-navigation-bg-color, $lightness: -6%) !default;
 $tabs-navigation-font-color: #222 !default;
-$tabs-navigation-active-font-color: $tabs-navigation-font-color !default;
 $tabs-navigation-font-size: rem-calc(16) !default;
 $tabs-navigation-font-family: $body-font-family !default;
 
@@ -31,33 +25,35 @@ $tabs-vertical-navigation-margin-bottom: 1.25rem !default;
     .tabs {
       @include clearfix;
       margin-bottom: 0 !important;
-      margin-left: 0;
-      dd, .tab-title {
+      dd {
         position: relative;
         margin-bottom: 0 !important;
-        list-style: none;
+        top: 1px;
         float: $default-float;
         > a {
           display: block;
           background: $tabs-navigation-bg-color;
           color: $tabs-navigation-font-color;
-          padding: $tabs-navigation-padding $tabs-navigation-padding * 2;
+          padding-top: $tabs-navigation-padding;
+          padding-#{$opposite-direction}: $tabs-navigation-padding * 2;
+          padding-bottom: $tabs-navigation-padding + rem-calc(1);
+          padding-#{$default-float}: $tabs-navigation-padding * 2;
           font-family: $tabs-navigation-font-family;
           font-size: $tabs-navigation-font-size;
           &:hover { background: $tabs-navigation-hover-bg-color; }
         }
-        &.active a { background: $tabs-navigation-active-bg-color; color:$tabs-navigation-active-font-color; }
+        &.active a { background: $tabs-navigation-active-bg-color; }
       }
       &.radius {
-        dd:first-child, .tab:first-child {
+        dd:first-child {
           a { @include side-radius($default-float, $global-radius); }
         }
-        dd:last-child, .tab:last-child {
+        dd:last-child {
           a { @include side-radius($opposite-direction, $global-radius); }
         }
       }
       &.vertical {
-        dd, .tab-title {
+        dd {
           position: inherit;
           float: none;
           display: block;
@@ -75,7 +71,7 @@ $tabs-vertical-navigation-margin-bottom: 1.25rem !default;
         float: $default-float;
         padding: $tabs-content-padding 0;
         width: 100%;
-        &.active { display: block; float: none; }
+        &.active { display: block; }
         &.contained { padding: $tabs-content-padding; }
       }
       &.vertical {
@@ -97,12 +93,6 @@ $tabs-vertical-navigation-margin-bottom: 1.25rem !default;
           float: $default-float;
           margin-#{$default-float}: -1px;
         }
-      }
-    }
-    .no-js {
-      .tabs-content > .content {
-        display: block;
-        float: none;
       }
     }
   }
