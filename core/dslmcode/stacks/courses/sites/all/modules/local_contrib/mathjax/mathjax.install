@@ -1,0 +1,88 @@
+<?php
+/**
+ * @file
+ * MathJax module install.
+ */
+
+
+/**
+ * Implements hook_uninstall().
+ */
+function mathjax_uninstall() {
+  db_query("DELETE FROM {variable} WHERE name LIKE 'mathjax_%'");
+  cache_clear_all('variables', 'cache_bootstrap');
+}
+
+
+/**
+ * Implements hook_requirements().
+ */
+function mathjax_requirements($phase) {
+  $requirements = array();
+
+  if ($phase == 'runtime') {
+    if (!variable_get('mathjax_use_cdn', TRUE)) {
+      if (!_mathjax_library_present()) {
+        $requirements['mathjax_local_libraries'] = array(
+          'title' => t('MathJax'),
+          'value' => t('Missing JavaScript libraries'),
+          'description' => t("MathJax is configured to use local library files but they could not be found. See the README."),
+          'severity' => REQUIREMENT_ERROR,
+        );
+      }
+      if (!function_exists('libraries_get_path')) {
+        $requirements['mathjax_libraries_dependency'] = array(
+          'title' => t('MathJax'),
+          'value' => t('Missing libraries module'),
+          'description' => t("MathJax is configured to use local library files but the libraries module is not enabled. See the README."),
+          'severity' => REQUIREMENT_ERROR,
+        );
+      }
+    }
+  }
+
+  return $requirements;
+}
+
+/**
+ * Determines whether the MathJax sources are present.
+ *
+ * @return bool
+ *   True if MathJax is installed
+ */
+function _mathjax_library_present() {
+  if (function_exists('libraries_get_path')) {
+    $mathjax_path = libraries_get_path('mathjax');
+    $jspath = $mathjax_path . '/MathJax.js';
+    $jsp = file_exists($jspath);
+    return $jsp;
+  }
+  return FALSE;
+}
+
+/**
+ * Implements hook_update_N().
+ *
+ * Removes deprecated configuration variables.
+ */
+function mathjax_update_7001() {
+  variable_del('mathjax_enabled');
+  variable_del('mathjax_pages');
+  variable_del('mathjax_active_type');
+  variable_set('mathjax_config_type', 1);
+  if (!variable_get('mathjax_config_string')) {
+    $str = <<<EOD
+MathJax.Hub.Config({
+  extensions: ['tex2jax.js'],
+  jax: ['input/TeX','output/HTML-CSS'],
+  tex2jax: {
+    inlineMath: [ ['$','$'], ['\\\\(','\\\\)'] ],
+    processEscapes: true
+  },
+  showProcessingMessages: false,
+  messageStyle: 'none'
+});
+EOD;
+    variable_set('mathjax_config_string', $str);
+  }
+}

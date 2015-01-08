@@ -1,0 +1,26 @@
+diff --git a/mathjax.module b/mathjax.module
+index 9f4067b..3e0dd32 100644
+--- a/mathjax.module
++++ b/mathjax.module
+@@ -205,3 +205,21 @@ function mathjax_global_settings() {
+   );
+   return system_settings_form($form);
+ }
++
++/**
++ * Implements hook_wywiwyg_plugin().
++ */
++function mathjax_wysiwyg_plugin($editor, $version) {
++  if ($editor == 'ckeditor') {
++    return array(
++      'mathjax' => array(
++        'url' => 'http://ckeditor.com/addon/mathjax',
++        'buttons' => array(
++          'Mathjax' => t('Mathjax'),
++        ),
++        'load' => TRUE,
++        'internal' => TRUE,
++      ),
++    );
++  }
++}
