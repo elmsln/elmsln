@@ -190,24 +190,6 @@ function textbook_context_page_reaction() {
 }
 
 /**
- * Implements hook_wywiwyg_plugin().
- */
-function textbook_wysiwyg_plugin($editor, $version) {
-  if ($editor == 'ckeditor' && function_exists('libraries_get_path')) {
-    return array(
-      'mathjax' => array(
-        'url' => 'http://ckeditor.com/addon/mathjax',
-        'buttons' => array(
-          'Mathjax' => t('Mathjax'),
-        ),
-        'load' => TRUE,
-        'internal' => TRUE,
-      ),
-    );
-  }
-}
-
-/**
  * Implementation of hook_wysiwyg_editor_settings_alter().
  */
 function textbook_wysiwyg_editor_settings_alter(&$settings, $context) {
