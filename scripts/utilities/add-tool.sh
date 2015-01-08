@@ -91,6 +91,11 @@ if [ ! -d "$elmsln/domains/$domain" ]; then
   fi
 fi
 
+# todo, still need to re-up the _elmsln_scripted key that's been generated
+# need to grep into the following file, look to drush-create-site for example
+# "$configsdir/shared/drupal-7.x/modules/_elmsln_scripted/${university}/${university}_${host}_settings/${university}_${host}_settings.module
+# todo, need to issue a registry resync against CIS
+# this will activate the new service once we've populated the info above
 elmslnecho "The tool named $domain has now been added to the ELMSLN structure, but the URLs associated to it are not active."
 elmslnecho "You should review $elmsln/docs/domains.txt for how to hook it up to apache."
 elmslnecho "You'll want to add something like the following to /etc/httpd/conf.d/elmsln.conf"
