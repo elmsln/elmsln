@@ -32,15 +32,15 @@ if [ -z $1 ]; then
 fi
 
 # make the default config backup location owned by $owner
-if [ ! -d /var/www/elmsln-config-backups ]; then
-  mkdir /var/www/elmsln-config-backups -v
+if [ ! -d /var/backups/elmsln-config ]; then
+  mkdir /var/backups/elmsln-config -v
 fi
-chown -R $owner:$webgroup /var/www/elmsln-config-backups -v
+chown -R $owner:$webgroup /var/backups/elmsln-config -v
 # make everything in here read only by $owner but accessible by admin team
-chmod -R 2750 /var/www/elmsln-config-backups -v
+chmod -R 2750 /var/backups/elmsln-config -v
 # make the folder group as webgroup so it can write here
-chown $owner:$webgroup /var/www/elmsln-config-backups -v
-chmod 2750 /var/www/elmsln-config-backups -v
+chown $owner:$webgroup /var/backups/elmsln-config -v
+chmod 2750 /var/backups/elmsln-config -v
 
 # chown / chmod the entire thing correctly then we undo what we just did
 # in all of the steps below. This ensure the entire package is devoid of holes
