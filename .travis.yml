@@ -65,6 +65,8 @@ before_script:
   - cd /var/www
   - sudo mkdir elmsln
   - sudo git clone https://github.com/btopro/elmsln.git
+  - sudo rm config
+  - sudo git clone https://github.com/btopro/elmsln-config-example.git
   - sudo chown -R travis:travis elmsln
   - cat /home/travis/elmsln-config-travis-ci/elmsln-preinstall-values
   - cat /home/travis/elmsln-config-travis-ci/elmsln-preinstall-values | sudo bash /var/www/elmsln/scripts/install/root/elmsln-preinstall.sh
@@ -83,10 +85,11 @@ script:
   - bash /var/www/elmsln/scripts/install/elmsln-install.sh
   - drush sa
   - drush @online cc drush
+  - drush @online en cis_example_cis --y
   # now run through the upgrade routine
   - bash /var/www/elmsln/scripts/upgrade/elmsln-upgrade-system.sh master yes
   # eventually we want to create all this stuff automatically
-  - drush @online cis-kraken --build_service=course --actually_run --y
+  - drush @online cis-kraken --actually_run --y
   - ls -lasD /var/www/elmsln/config/jobs -v
   - sudo bash /var/www/elmsln/scripts/drush-create-site/drush-create-site
   # force upgrades to be replayed against everything
