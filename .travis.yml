@@ -64,7 +64,8 @@ before_script:
   - sudo mkdir -p /var/www
   - cd /var/www
   - sudo mkdir elmsln
-  - sudo git clone https://github.com/btopro/elmsln.git
+  - sudo git clone https://github.com/btopro/elmsln.git elmsln
+  - cd elmsln
   - sudo rm config
   - sudo git clone https://github.com/btopro/elmsln-config-example.git
   - sudo chown -R travis:travis elmsln
