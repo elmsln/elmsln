@@ -46,52 +46,44 @@ NameVirtualHost *:80
 </VirtualHost> 
 
 <Directory /var/www/elmsln/domains/online>
-    AllowOverride All
+    AllowOverride all
     Order allow,deny
     allow from all
-    Include /var/www/elmsln/domains/online/.htaccess
 </Directory>
 <Directory /var/www/elmsln/domains/courses>
-    AllowOverride All
+    AllowOverride all
     Order allow,deny
     allow from all
-    Include /var/www/elmsln/domains/courses/.htaccess
 </Directory>
 <Directory /var/www/elmsln/domains/media>
-    AllowOverride All
+    AllowOverride all
     Order allow,deny
     allow from all
-    Include /var/www/elmsln/domains/media/.htaccess
 </Directory>
 <Directory /var/www/elmsln/domains/interact>
-    AllowOverride All
+    AllowOverride all
     Order allow,deny
     allow from all
-    Include /var/www/elmsln/domains/interact/.htaccess
 </Directory>
 <Directory /var/www/elmsln/domains/blog>
-    AllowOverride All
+    AllowOverride all
     Order allow,deny
     allow from all
-    Include /var/www/elmsln/domains/blog/.htaccess
 </Directory>
 <Directory /var/www/elmsln/domains/studio>
-    AllowOverride All
+    AllowOverride all
     Order allow,deny
     allow from all
-    Include /var/www/elmsln/domains/studio/.htaccess
 </Directory>
 <Directory /var/www/elmsln/domains/comply>
-    AllowOverride All
+    AllowOverride all
     Order allow,deny
     allow from all
-    Include /var/www/elmsln/domains/comply/.htaccess
 </Directory>
 <Directory /var/www/elmsln/domains/discuss>
-    AllowOverride All
+    AllowOverride all
     Order allow,deny
     allow from all
-    Include /var/www/elmsln/domains/discuss/.htaccess
 </Directory>
 <Directory /var/www/elmsln/domains/analytics>
     AllowOverride None
