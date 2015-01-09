@@ -656,10 +656,6 @@ function _cis_helper_add_service_instance($course, $service, $service_instance, 
  * @param  object $service_instance the service_instance node
  */
 function cis_helper_cis_service_instance_job_file_alter(&$content, $course, $service, $service_instance) {
-  // run the cron as a final clean up mechanism
-  $content .= 'drush cron' . "\n";
-  // run ecl to help seed caches for all entities
-  $content .= 'drush ecl' . "\n";
   // may seem odd but double running cron can prime syncing
   $content .= 'drush cron' . "\n";
   // if any major performance / caching modules are enabled
