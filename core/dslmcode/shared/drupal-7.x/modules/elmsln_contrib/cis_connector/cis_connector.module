@@ -1125,3 +1125,12 @@ function _cis_connector_simple_mail($to, $message_subject, $message_body, $from)
     // @todo do something if the mail fails
   }
 }
+
+/**
+ * Implements hook_libraries_into_file_paths().
+ */
+function cis_connector_libraries_info_file_paths() {
+  // this allows ELMSLN to abstract local deployment libraries from the
+  // supported package while still working correctly
+  return array('sites/all/libraries/_my_libraries');
+}
