@@ -1,0 +1,1805 @@
+<?php
+
+/**
+ * @file
+ * Module for the Entityform Entity - a starting point to create your own Entity
+ * and associated administration interface
+ */
+
+define('ENTITYFORM_STATUS_CLOSED', 'ENTITYFORM_CLOSED');
+define('ENTITYFORM_STATUS_OPEN', 'ENTITYFORM_OPEN');
+/**
+ * Implements hook_menu().
+ */
+function entityform_menu() {
+  $items = array();
+  $entity_info = entity_get_info('entityform_type');
+  $manage_path = $entity_info['admin ui']['path'] . "/manage/%entityform_type";
+  $path_count = count(explode('/', $manage_path));
+
+  $items['admin/config/content/entityform'] = array(
+    'title' => 'Entityform Settings',
+    'description' => '',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('entityform_settings'),
+    'access arguments' => array('administer site configuration'),
+    'file' => 'entityform_type.admin.inc',
+  );
+  $items["$manage_path/submissions"] = array(
+    'title callback' => 'entityform_type_page_title',
+    'title arguments' => array(1, 'submissions report'),
+    'page callback' => 'entityform_submission_page',
+    'page arguments' => array($path_count - 1, $path_count + 1, 'admins'),
+    'access arguments' => array('view any entityform'),
+    'type' => MENU_LOCAL_TASK,
+    'weight' => 100,
+  );
+  // @todo Add another config form to set whether to show preview form
+  $items["$manage_path/preview"] = array(
+    'title' => 'Form Preview',
+    'page callback' => 'entityform_form_wrapper',
+    'page arguments' => array($path_count - 1, 'submit', 'preview'),
+    'access arguments' => array('administer entityform types'),
+    'file' => 'entityform.admin.inc',
+    'file path' => drupal_get_path('module', 'entityform'),
+    'type' => MENU_LOCAL_TASK,
+    'weight' => 110,
+  );
+  $items['admin/reports/entityforms/submissions/%entityform_type'] = array(
+    'title callback' => 'entityform_type_page_title',
+    'title arguments' => array(1, 'submissions report'),
+    'page callback' => 'entityform_submission_page',
+    'page arguments' => array(4, 5, 'admins'),
+    'access arguments' => array('view any entityform'),
+    'type' => MENU_LOCAL_TASK,
+  );
+  return $items;
+}
+
+/**
+ * Implement hook_entity_info().
+ *
+ * We define two entities here - the actual entity that will hold our domain
+ * specific information and an entity that holds information about the different
+ * types of entities. See here: http://drupal.org/node/977380 for a discussion on this
+ * choice.
+ */
+function entityform_entity_info() {
+  $return['entityform'] = array(
+    'label' => t('Entityform Submission'),
+    // The entity class and controller class extend the classes provided by the
+    // Entity API
+    'entity class' => 'Entityform',
+    'controller class' => 'EntityformController',
+    'base table' => 'entityform',
+    'fieldable' => TRUE,
+    'entity keys' => array(
+      'id' => 'entityform_id',
+      'bundle' => 'type',
+    ),
+    // Bundles are defined by the entityform types below
+    'bundles' => array(),
+    // Bundle keys tell the FieldAPI how to extract information from the bundle objects
+    'bundle keys' => array(
+      'bundle' => 'type',
+    ),
+    'view modes' => array(
+      'full' => array(
+        'label' => t('Full content'),
+        'custom settings' => FALSE,
+      ),
+      'email' => array(
+        'label' => t('Email'),
+        'custom settings' => FALSE,
+      ),
+      'confirmation' => array(
+        'label' => t('Confirmation'),
+        'custom settings' => FALSE,
+      ),
+      'download' => array(
+        'label' => t('Downloads'),
+        'custom settings' => FALSE,
+      ),
+      'table' => array(
+        'label' => t('Submissions Table'),
+        'custom settings' => FALSE,
+      ),
+      'review' => array(
+        'label' => t('Review'),
+        'custom settings' => FALSE,
+      ),
+    ),
+    'label callback' => 'entity_class_label',
+    'uri callback' => 'entityform_uri',
+    'creation callback' => 'entityform_create',
+    'access callback' => 'entityform_access',
+    'module' => 'entityform',
+    // The information below is used by the EntityformUIController (which extends the EntityDefaultUIController)
+    'admin ui' => array(
+      //@todo this goes to default submissions View, what do to if View is disabled?
+      'path' => 'admin/structure/entityforms/list',
+      'front path' => 'entityform',
+      'file' => 'entityform.admin.inc',
+      'controller class' => 'EntityformUIController',
+      'menu wildcard' => '%entityform',
+    ),
+    'metadata controller class' => 'EntityformMetadataController',
+    'metatags' => FALSE,
+  );
+
+  // Add bundle info but bypass entity_load() as we cannot use it here.
+  $types = db_select('entityform_type', 'e')
+    ->fields('e')
+    ->execute()
+    ->fetchAllAssoc('type');
+  foreach ($types as $type => $info) {
+    $return['entityform']['bundles'][$type] = array(
+      'label' => $info->label,
+      'admin' => array(
+        'path' => 'admin/structure/entityform_types/manage/%entityform_type',
+        'real path' => 'admin/structure/entityform_types/manage/' . $type,
+        'bundle argument' => 4,
+        'access arguments' => array('administer entityform types'),
+      ),
+    );
+  }
+
+  // The entity that holds information about the entity types
+  $return['entityform_type'] = array(
+    'label' => t('Entityform Type'),
+    'entity class' => 'EntityformType',
+    'controller class' => 'EntityformTypeController',
+    'base table' => 'entityform_type',
+    'fieldable' => FALSE,
+    'bundle of' => 'entityform',
+    'exportable' => TRUE,
+    'entity keys' => array(
+      'id' => 'id',
+      'name' => 'type',
+      'label' => 'label',
+    ),
+    'view modes' => array(
+      'full' => array(
+        'label' => t('Full content'),
+        'custom settings' => FALSE,
+      ),
+    ),
+    'access callback' => 'entityform_type_access',
+    'module' => 'entityform',
+    // Enable the entity API's admin UI.
+    'admin ui' => array(
+      'path' => 'admin/structure/entityform_types',
+      'file' => 'entityform_type.admin.inc',
+      'controller class' => 'EntityformTypeUIController',
+    ),
+    'metadata controller class' => 'EntityformTypeMetadataController',
+  );
+  return $return;
+}
+
+/**
+ * Implements hook_permission().
+ */
+function entityform_permission() {
+  // We set up permisssions to manage entity types, manage all entities and the
+  // permissions for each individual entity
+  $permissions = array(
+    'administer entityform types' => array(
+      'title' => t('Administer entityform types'),
+      'description' => t('Create and delete fields for entityform types, and set their permissions.'),
+      'restrict access' => TRUE,
+    ),
+    'edit any entityform' => array(
+      'title' => t('Edit any entityform submission'),
+    ),
+    'view any entityform' => array(
+      'title' => t('View any entityform submission'),
+    ),
+    'delete any entityform' => array(
+      'title' => t('Delete any entityform submission'),
+    ),
+    'edit own entityform' => array(
+      'title' => t('Edit own entityform submission'),
+    ),
+    'view own entityform' => array(
+      'title' => t('View own entityform submission'),
+    ),
+    'delete own entityform' => array(
+      'title' => t('Delete own entityform submission'),
+    ),
+  );
+  return $permissions;
+}
+
+
+/**
+ * Determines whether the given user has access to a entityform.
+ *
+ * @param $op
+ *   The operation being performed. One of 'view', 'update', 'create', 'delete'
+ *   or just 'edit' (being the same as 'create' or 'update').
+ * @param $entityform
+ *   Optionally a entityform or a entityform type to check access for. If nothing is
+ *   given, access for all entityforms is determined.
+ * @param $account
+ *   The user to check for. Leave it to NULL to check for the global user.
+ * @return boolean
+ *   Whether access is allowed or not.
+ */
+function entityform_access($op, $entityform = NULL, $account = NULL) {
+  // User #1 has all privileges:
+  global $user;
+  $access = NULL;
+  if (!isset($account)) {
+    $account = $user;
+  }
+  if ($account->uid == 1) {
+    return TRUE;
+  }
+  if (!empty($entityform)) {
+    if (is_object($entityform)) {
+      $type_name = $entityform->type;
+    }
+    else {
+      $type_name = $entityform;
+    }
+    $entityform_type = entityform_type_load($type_name);
+  }
+  // Convert ops - For instance if user_access is called by VBO with 'update any entityform"
+  switch ($op) {
+    case 'update':
+      $op = 'edit';
+      break;
+    case 'create':
+      $op = 'submit';
+      break;
+  }
+
+  if ($op == 'submit' || $op == 'confirm') {
+    if (isset($entityform_type) && is_object($entityform_type) && is_array($entityform_type->data) && array_intersect($entityform_type->data['roles'], array_keys($user->roles))) {
+      $can_submit = TRUE;
+    }
+    else {
+      $can_submit = FALSE;
+    }
+    if ($op == 'submit') {
+      if (!isset($entityform_type->data['form_status']) || $entityform_type->data['form_status'] != ENTITYFORM_STATUS_CLOSED) {
+        $access = $can_submit;
+      }
+      else {
+        $access = FALSE;
+      }
+    }
+    else {
+      //confirm page
+      $entityform_id = $_GET['entityform_id'];
+      if (user_is_anonymous()) {
+        // If this is anonymous user then entityform_id should be stored in session
+        if (!isset($_SESSION['entityform_submission'])) {
+          $access = FALSE;
+        }
+        else {
+          // Submission was stored in sesssion. Make sure it matches.
+          $match = $_SESSION['entityform_submission'] == $entityform_id;
+          unset($_SESSION['entityform_submission']);
+          $access = $match;
+        }
+      }
+      else {
+        if (!$entityform = entityform_load($entityform_id)) {
+          // entityform didn't load. It may have been deleted.
+          $access = FALSE;
+        }
+        else {
+          //only grant access if this is the user who made the submission
+          $access = $entityform->uid == $user->uid;
+        }
+      }
+    }
+  }
+  if ($access === NULL) {
+    if (isset($entityform) && $type_name && is_object($entityform)) {
+      if (user_access("$op any entityform", $account)) {
+        $access = TRUE;
+      }
+      elseif (!empty($user->uid) && $entityform->uid == $user->uid && user_access("$op own entityform", $account)) {
+        $access = TRUE;
+      }
+    }
+  }
+  // If $access set then set to FALSE
+  if ($access === NULL) {
+    $access = FALSE;
+  }
+  // Allow other modules to change access.
+  $context = array(
+    'entityform' => $entityform,
+    'account' => $account,
+  );
+  drupal_alter('entityform_access', $access, $op, $context);
+  return $access;
+}
+
+/**
+ * Access callback for the entity API.
+ */
+function entityform_type_access($op, $type = NULL, $account = NULL) {
+  // If coming from EntityDrupalWrapper::entityAccess then entity type will be sent
+  // This is used in EntityReferences module
+  // @see \EntityDrupalWrapper::entityAccess()
+  if (isset($type) && is_object($type) && get_class($type) == 'EntityformType' && $op == 'view') {
+    return entityform_access('submit', $type, $account);
+  }
+  return user_access('administer entityform types', $account);
+}
+
+/**
+ * Utitility to functoin to get opitons of Views with Entityform base table.
+ */
+function _entityform_get_entityform_views_options() {
+  $views = views_get_enabled_views();
+  $options = array();
+  foreach ($views as $view) {
+    if ($view->base_table == 'entityform') {
+      foreach ($view->display as $display) {
+        if ($display->display_plugin == 'page') {
+          $options[$view->name] = $view->human_name;
+        }
+      }
+    }
+  }
+  return $options;
+}
+
+
+/**
+ * Gets an array of all entityform types, keyed by the type name.
+ *
+ * @param $type_name
+ *   If set, the type with the given name is returned.
+ * @return EntityformType[]
+ *   Depending whether $type isset, an array of entityform types or a single one.
+ */
+function entityform_get_types($type_name = NULL) {
+  // entity_load will get the Entity controller for our entityform entity and call the load
+  // function of that object - we are loading entities by name here.
+
+  // Use the advanced drupal_static() pattern since this is called very often.
+  static $drupal_static_fast;
+  $cache_key = 'entityform_types';
+
+  if (!isset($drupal_static_fast)) {
+    $drupal_static_fast[$cache_key] = &drupal_static(__FUNCTION__);
+  }
+  $entityform_types = &$drupal_static_fast[$cache_key];
+
+  if (empty($entityform_types)) {
+    if ($cache = cache_get($cache_key)) {
+      $entityform_types = $cache->data;
+    }
+  }
+  // $entityform_types may be set but might not have our $type_name if called first for other $type_name
+  // @todo What if it is called first with $type_name set and then called without $type_name set.
+//  wouldn't it return a single element array even if there were more entityform types.
+  if (empty($entityform_types) || (isset($type_name) && empty($entityform_types[$type_name]))) {
+    if (!isset($type_name)) {
+      $entityform_types = entity_load_multiple_by_name('entityform_type', FALSE);
+    }
+    else {
+      $types = entity_load_multiple_by_name('entityform_type', array($type_name));
+      if (empty($types)) {
+        return FALSE;
+      }
+      $entityform_types[$type_name] = array_shift($types);
+    }
+    if (!isset($type_name)) {
+      // Only set the cache if retrieved all entityform types.
+      cache_set($cache_key, $entityform_types);
+    }
+  }
+  if (isset($type_name)) {
+    // Even though $type_name was set it might not be valid
+    return isset($entityform_types[$type_name]) ? $entityform_types[$type_name] : NULL;
+  }
+  return $entityform_types;
+}
+
+/**
+ * Get all the submissions for a user.
+ *
+ * @param string $type
+ *   The EntityformType to restrict submissions for.
+ * @param int $uid
+ *   uid of user to get submissions for.
+ * @param int $draft
+ * @return array
+ */
+function entityform_get_submissions($type = NULL, $uid = NULL, $draft = 0, $limit = NULL) {
+  $submissions = array();
+  $query = new EntityFieldQuery();
+  $query->entityCondition('entity_type', "entityform");
+  if ($type) {
+    $query->propertyCondition('type', $type);
+  }
+  // uid = 0 for anonymous users.
+  if (isset($uid)) {
+    $query->propertyCondition('uid', $uid);
+  }
+  if ($draft !== NULL) {
+    $query->propertyCondition('draft', $draft);
+  }
+  if ($limit !== NULL) {
+    $query->range(0, $limit);
+  }
+  $result = $query->execute();
+  if (isset($result['entityform'])) {
+    $submissions = $result['entityform'];
+  }
+  return $submissions;
+}
+
+/**
+ * Get the current draft submission if any for a user
+ * @param string $type
+ *   Entityform Type
+ * @param int $uid
+ * @return Ambigous <NULL, A, mixed>
+ */
+function entityform_user_draft($type, $uid = NULL) {
+  return entityform_user_previous_submission($type, $uid, 1);
+}
+
+/**
+ * Get previous submission for a form for a user
+ * @param string $type
+ * @param int $uid
+ * @param int $draft
+ * @return NULL|Ambigous <A, mixed>
+ */
+function entityform_user_previous_submission($type, $uid = NULL, $draft = 0) {
+  $submission = NULL;
+  if (!$uid) {
+    global $user;
+    $uid = $user->uid;
+  }
+  if ($uid) {
+    $submissions = entityform_get_submissions($type, $uid, $draft, 1);
+    $submission = array_shift($submissions);
+    if ($submission) {
+      $submission = entityform_load($submission->entityform_id);
+    }
+  }
+  $context = array(
+    'draft' => $draft,
+    'uid' => $uid,
+  );
+  drupal_alter('entityform_previous_submission', $submission, $type, $context);
+  return $submission;
+}
+
+/**
+ * Has the user submitted a form
+ * @param string $type
+ * @param unknown_type $uid
+ * @return boolean
+ */
+function entityform_user_submitted($type, $uid = NULL) {
+  if (!$uid) {
+    global $user;
+    $uid = $user->uid;
+  }
+  $submissions = entityform_get_submissions($type, $uid, 0, 1);
+  return !empty($submissions);
+}
+
+/**
+ * Menu argument loader; Load a entityform type by string.
+ *
+ * @param $type
+ *   The machine-readable name of a entityform type to load.
+ * @return
+ *   A entityform type array or FALSE if $type does not exist.
+ */
+function entityform_type_load($type) {
+  $type = str_replace('-', '_', $type);
+  $types = entityform_get_types();
+  return isset($types[$type]) ? $types[$type] : FALSE;
+}
+
+
+/**
+ * Fetch a entityform object. Make sure that the wildcard you choose
+ * in the entityform entity definition fits the function name here.
+ *
+ * @param $entityform_id
+ *   Integer specifying the entityform id.
+ * @param $reset
+ *   A boolean indicating that the internal cache should be reset.
+ * @return
+ *   A fully-loaded $entityform object or FALSE if it cannot be loaded.
+ *
+ * @see entityform_load_multiple()
+ */
+function entityform_load($entityform_id, $reset = FALSE) {
+  $entityforms = entityform_load_multiple(array($entityform_id), array(), $reset);
+  return reset($entityforms);
+}
+
+
+/**
+ * Load multiple entityforms based on certain conditions.
+ *
+ * @param $entityform_ids
+ *   An array of entityform IDs.
+ * @param $conditions
+ *   An array of conditions to match against the {entityform} table.
+ * @param $reset
+ *   A boolean indicating that the internal cache should be reset.
+ * @return
+ *   An array of entityform objects, indexed by entityform_id.
+ *
+ * @see entity_load()
+ * @see entityform_load()
+ */
+function entityform_load_multiple($entityform_ids = array(), $conditions = array(), $reset = FALSE) {
+  return entity_load('entityform', $entityform_ids, $conditions, $reset);
+}
+
+
+/**
+ * Deletes a entityform.
+ */
+function entityform_delete(Entityform $entityform) {
+  $entityform->delete();
+}
+
+/**
+ * Clears the entityform type cache.
+ */
+function entityform_type_cache_reset() {
+  cache_clear_all('entityform_types', 'cache');
+  drupal_static_reset('entityform_get_types');
+}
+
+/**
+ * Delete multiple entityforms.
+ *
+ * @param $entityform_ids
+ *   An array of entityform IDs.
+ */
+function entityform_delete_multiple(array $entityform_ids) {
+  entity_get_controller('entityform')->delete($entityform_ids);
+}
+
+
+/**
+ * Create a entityform object.
+ */
+function entityform_create($values = array()) {
+  return entity_get_controller('entityform')->create($values);
+}
+
+
+/**
+ * Saves a entityform to the database.
+ *
+ * @param $entityform
+ *   The entityform object.
+ */
+function entityform_save(Entityform $entityform) {
+  return $entityform->save();
+}
+
+/*
+ * to be used in page arguments load function
+ */
+function entityform_empty_load($type) {
+  $submit_404 = &drupal_static(__FUNCTION__);
+  $type = str_replace("-", "_", $type);
+  $empty_entityform = entityform_create(array('type' => $type));
+  if (empty($empty_entityform)) {
+    // Entityform didn't load correctly. Probably because of mistyped url
+    if (strpos(current_path(), 'eform/submit/') === 0) {
+      /* Have to keep track of whether we have already been here because
+       * drupal_not_found() will load menu item again(infinite loop!!).
+       */
+      if ($submit_404) {
+        return NULL;
+      }
+      $submit_404 = TRUE;
+      drupal_not_found();
+    }
+  }
+  return $empty_entityform;
+}
+
+/**
+ * Saves a entityform type to the db.
+ */
+function entityform_type_save(EntityformType $type) {
+  $type->save();
+}
+
+
+/**
+ * Deletes a entityform type from the db.
+ */
+function entityform_type_delete(EntityformType $type) {
+  $type->delete();
+}
+
+
+/**
+ * URI callback for entityforms
+ */
+function entityform_uri(Entityform $entityform) {
+  return array(
+    'path' => 'entityform/' . $entityform->entityform_id,
+  );
+}
+
+
+/**
+ * Menu title callback for showing individual entities
+ */
+function entityform_page_title($entityform, $op = 'view') {
+  if (!empty($entityform)) {
+    $entityform_type = entityform_get_types($entityform->type);
+    switch ($op) {
+      case 'submit':
+        return $entityform_type->label;
+      default:
+        return t('Form Submission') . ': ' . $entityform_type->label;
+    }
+  }
+}
+
+
+/**
+ * Sets up content to show an individual entityform
+ * @todo - get rid of drupal_set_title();
+ */
+function entityform_page_view($entityform, $view_mode = 'full') {
+  $controller = entity_get_controller('entityform');
+  $content = $controller->view(array($entityform->entityform_id => $entityform), $view_mode);
+  //drupal_set_title($entityform->name);
+  return $content;
+}
+
+
+/**
+ * Implements hook_views_api().
+ */
+function entityform_views_api() {
+  return array(
+    'api' => 3,
+    'path' => drupal_get_path('module', 'entityform') . '/views',
+  );
+}
+
+
+/**
+ * Implement hook_theme().
+ */
+function entityform_theme() {
+  return array(
+    'entityform_add_list' => array(
+      'variables' => array('content' => array()),
+      'file' => 'entityform.admin.inc',
+    ),
+    'entityform' => array(
+      'render element' => 'elements',
+      'template' => 'entityform',
+    ),
+    'entityform_submittd_data' => array(
+      'render element' => 'elements',
+      'template' => 'entityform-submittd-data',
+    ),
+  );
+}
+
+function template_preprocess_entityform_submittd_data(&$variables) {
+  $entityform = $variables['entityform'];
+
+  $variables['date'] = format_date($entityform->created);
+  $variables['name'] = theme('username', array('account' => $entityform));
+  if (!empty($entityform->entityform_id)) {
+    $uri = entity_uri('entityform', $entityform);
+    $uri['options']['absolute'] = TRUE;
+    $variables['url'] = url($uri['path'], $uri['options']);
+  }
+}
+
+/**
+ * Page callback form Draft submission
+ */
+function entityform_draft_page($entityform_type) {
+  $args = func_get_args();
+  array_shift($args);
+  $render_array = array(
+    'submit_text' => array(
+      '#type' => 'markup',
+      '#prefix' => '<div class="draft-text">',
+      '#markup' => $entityform_type->get_prop('draft_save_text'),
+      '#suffix' => '</div>',
+    ),
+  );
+
+  drupal_alter(
+    array(
+      'entityform_draft_page',
+      "entityform_{$entityform_type->type}_draft_page",
+    ),
+    $render_array,
+    $entityform_type,
+    $args
+  );
+  return $render_array;
+}
+
+
+/**
+ * Page callback
+ */
+function entityform_confirm_page($entityform_type) {
+  $entityform_id = $_GET['entityform_id'];
+  $entityform = entityform_load($entityform_id);
+  $render_array = array(
+    'submit_text' => array(
+      '#type' => 'markup',
+      '#prefix' => '<div class="submission-text">',
+      '#markup' => $entityform_type->get_prop('submission_text', $entityform),
+      '#suffix' => '</div>',
+    ),
+  );
+  if ($entityform_type->data['submission_show_submitted']) {
+    if (empty($entityform)) {
+      //entityform_id in url was alter return page not found
+      return MENU_NOT_FOUND;
+    }
+    $controller = entity_get_controller('entityform');
+    $content = $controller->view(array($entityform->entityform_id => $entityform), 'confirmation', NULL, TRUE);
+    $render_array['submission_data'] = $content;
+  }
+
+  drupal_alter(
+    array(
+      'entityform_confirm_page',
+      "entityform_{$entityform_type->type}_confirm_page",
+    ),
+    $render_array,
+    $entityform_type,
+    $entityform_id
+  );
+
+  return $render_array;
+}
+
+/*
+ * Get the title for an Entityform Type page.
+ */
+function entityform_type_page_title($entityform_type, $op) {
+  if ($op == 'confirm') {
+    $entityform = NULL;
+    if (!empty($_GET['entityform_id'])) {
+      $entityform_id = $_GET['entityform_id'];
+      $entityform = entityform_load($entityform_id);
+    }
+    return $entityform_type->get_prop('submission_page_title', $entityform);
+  }
+  if ($op == 'submissions report') {
+    return t('Form Submissions') . (is_object($entityform_type) ? ': ' . $entityform_type->label : '');
+  }
+  if ($op == 'view submissions') {
+    return $entityform_type->get_prop('your_submissions');
+  }
+}
+
+/**
+ * Implements hook_entity_presave().
+ *
+ * Manage path aliases for Entityform Types
+ */
+function entityform_entity_presave($entity, $type) {
+  if ($type == 'entityform_type') {
+    if (module_exists('path')) {
+      if (isset($entity->paths)) {
+        $original_entity = $entity->original;
+        foreach ($entity->paths as $key => $path) {
+          $path = $entity->paths[$key];
+          $path['alias'] = trim($path['alias']);
+          // Delete old alias if user erased or changed it.
+          if (isset($original_entity->paths[$key])) {
+            $original_path = $original_entity->paths[$key];
+            if (!empty($original_path['alias']) && empty($path['alias']) || ($path['alias'] != $original_path['alias'])) {
+              path_delete($original_path);
+            }
+          }
+          if (!empty($path['alias'])) {
+            // Ensure fields for programmatic executions.
+            switch ($key) {
+              case 'submit':
+                $path['source'] = _entityform_type_get_submit_url($entity->type);
+                break;
+              case 'confirm':
+                $path['source'] = _entityform_type_get_confirm_url($entity->type);
+                break;
+            }
+            // Entityform Types aren't translateable
+            $path['language'] = LANGUAGE_NONE;
+            // Check to see if alias is exact same as original
+            if (!empty($original_path['alias'])
+              && $original_path['alias'] == $path['alias'] && $path['source'] == $original_path['source']) {
+              continue;
+            }
+
+            if (_entityform_alias_is_used($path)) {
+              watchdog('entityform', "Could not create alias @alias for EntityformType entity '@type'",
+                array(
+                  '@alias' => $path['alias'],
+                  '@type' => $entity->type,
+                ),
+                WATCHDOG_WARNING
+              );
+            }
+            else {
+              path_save($path);
+            }
+
+          }
+        }
+      }
+    }
+    if (module_exists('menu')) {
+      if (isset($entity->menu)) {
+        $link = & $entity->menu;
+        if ($link['enabled']) {
+          $link = $entity->menu;
+          $link['link_path'] = _entityform_type_get_submit_url($entity->type);
+          list($link['menu_name'], $link['plid']) = explode(':', $link['parent']);
+          if (trim($link['description'])) {
+            $link['options']['attributes']['title'] = trim($link['description']);
+          }
+          else {
+            // If the description field was left empty, remove the title attribute
+            // from the menu link.
+            unset($link['options']['attributes']['title']);
+          }
+          if (!menu_link_save($link)) {
+            drupal_set_message(t('There was an error saving the menu link.'), 'error');
+          }
+        }
+        else {
+          if (!empty($link['mlid'])) {
+            menu_link_delete($link['mlid']);
+          }
+        }
+      }
+    }
+  }
+}
+
+/*
+ * Utility to test if alias is used already
+ */
+function _entityform_alias_is_used($path) {
+  // Ensure that the submitted alias does not exist yet.
+  $query = db_select('url_alias')
+    ->condition('alias', $path['alias'])
+    ->condition('language', $path['language']);
+  if (!empty($path['source'])) {
+    $query->condition('source', $path['source'], '<>');
+  }
+  $query->addExpression('1');
+  $query->range(0, 1);
+  if ($query->execute()->fetchField()) {
+    return TRUE;
+  }
+  return FALSE;
+}
+
+/**
+ * Page for view submission
+ * @param object $entityform_type
+ * @return string
+ *    Rendered view
+ */
+function entityform_submission_page($entityform_type, $show_display_id = NULL, $mode) {
+  $output = array();
+  if ($mode == 'admins') {
+    //showing reports view for admins
+    $submission_view = _entityform_get_type_data_setting($entityform_type, 'submissions_view');
+  }
+  else {
+    //showing current users submissions
+    $submission_view = _entityform_get_type_data_setting($entityform_type, 'user_submissions_view');
+    $output['return_link'] = array(
+      '#theme' => 'link',
+      '#path' => "eform/submit/{$entityform_type->type}",
+      '#text' => t('Return to form'),
+      '#options' => array(
+        'attributes' => array(),
+        'html' => FALSE,
+      ),
+    );
+  }
+  // Previous setting used "view_name:show_display_id" - handle that condition.
+  $parts = explode(':', $submission_view);
+  $view_name = $parts[0];
+  $view = views_get_view($view_name);
+
+  $display_ids = array_keys($view->display);
+
+  // Remove master display.
+  array_shift($display_ids);
+  $links = '';
+  // Create links to other displays
+  foreach ($display_ids as $display_id) {
+    // Make sure this display is enabled
+    $enabled = !(isset($view->display[$display_id]->display_options['enabled']) && $view->display[$display_id]->display_options['enabled'] === FALSE);
+    // Don't provide direct links to export displays. These will be attached other displays.
+    if ($enabled && $view->display[$display_id]->display_plugin != 'views_data_export') {
+      $links[] = array(
+        'href' => _entityform_get_submissions_view_path($display_id),
+        'title' => $view->display[$display_id]->display_title,
+      );
+      if (empty($show_display_id)) {
+        // If $show_display_id was not provided us the first of the linked displays
+        $show_display_id = $display_id;
+      }
+    }
+  }
+  // Only need to show links if there is more than 1 display.
+  if (count($links) > 1) {
+    $output['links'] = array(
+      '#theme' => 'links',
+      '#links' => $links,
+      '#attributes' => array('class' => 'tabs secondary'),
+    );
+  }
+  $output['view'] = array(
+    '#type' => 'markup',
+    '#markup' => entityform_embed_view($view_name, $show_display_id, $entityform_type->type),
+  );
+  return $output;
+}
+
+/**
+ * Generates path for View based on current menu_item
+ * Adds display id on the end
+ * @param string $display_id
+ * @return string
+ *   New path for View
+ */
+function _entityform_get_submissions_view_path($display_id) {
+  $menu_item = menu_get_item();
+  $menu_path = $menu_item['path'];
+  $menu_path_parts = explode('/', $menu_path);
+  $path_parts = explode('/', current_path());
+  while (count($path_parts) > count($menu_path_parts)) {
+    array_pop($path_parts);
+  }
+  $path_parts[] = $display_id;
+  return implode('/', $path_parts);
+}
+
+/**
+ * Embed a view using a PHP snippet.
+ * Exactly the same as views_embed_view but adds override_path b/c View is embedded
+ * @see views_embed_view()
+ */
+function entityform_embed_view($name, $display_id = 'default') {
+  $args = func_get_args();
+  array_shift($args); // remove $name
+  if (count($args)) {
+    array_shift($args); // remove $display_id
+  }
+
+  $view = views_get_view($name);
+  if (!$view || !$view->access($display_id)) {
+    return;
+  }
+
+  // This needed so VBO will work correctly.
+  $view->override_path = _entityform_get_submissions_view_path($display_id);
+
+  return $view->preview($display_id, $args);
+}
+
+/*
+ * Utility function to get data setting or default for Entityform Type
+ */
+function _entityform_get_type_data_setting($entityform_type, $setting, $default_value = NULL) {
+  static $empty_type;
+
+  if (!empty($entityform_type->data[$setting]) && $entityform_type->data[$setting] != 'default' && $entityform_type->data[$setting] != 'default_view') {
+    return $entityform_type->data[$setting];
+  }
+  else {
+    if ($default_value !== NULL) {
+      return $default_value;
+    }
+    if (empty($empty_type)) {
+      //Load empty type which will have defaults filled in.
+      $empty_type = entity_get_controller('entityform_type')->create(array(), TRUE);
+    }
+    if (isset($empty_type->data[$setting])) {
+      return $empty_type->data[$setting];
+    }
+    return NULL;
+  }
+}
+
+/**
+ * Implements hook_menu_local_tasks_alter().
+ */
+function entityform_menu_local_tasks_alter(&$data, $router_item, $root_path) {
+  // Add action link 'admin/structure/entityforms/add' on 'admin/structure/entityforms'.
+  if ($root_path == 'admin/structure/entityforms') {
+    $item = menu_get_item('admin/structure/entityforms/add');
+    if ($item['access']) {
+      $data['actions']['output'][] = array(
+        '#theme' => 'menu_local_action',
+        '#link' => $item,
+      );
+    }
+  }
+}
+
+/*
+ * Utitility function to get submitted info
+ */
+function _entityform_get_submit_info($entityform) {
+  $account = user_load($entityform->uid);
+  return t("Submitted by !name on !date",
+    array(
+      '!name' => theme('username', array('account' => $account)),
+      '!date' => format_date($entityform->created),
+    )
+  );
+}
+
+/**
+ * The class used for entityform entities
+ */
+class Entityform extends Entity {
+
+  /**
+   * The user id who submitted this form.
+   *
+   * @var int
+   */
+  public $uid;
+
+  public function __construct($values = array()) {
+    parent::__construct($values, 'entityform');
+  }
+
+  protected function defaultLabel() {
+    $entityform_type = entityform_type_load($this->type);
+    $label = $entityform_type->label;
+    $submit_user = NULL;
+    if (!empty($this->uid)) {
+      $submit_user = user_load($this->uid);
+    }
+    $label .= ' - ' . format_username($submit_user);
+    $label .= ' - ' . format_date($this->created, 'short');
+    return $label;
+  }
+
+  protected function defaultUri() {
+    return array('path' => 'entityform/' . $this->entityform_id);
+  }
+
+  public function getTypeName() {
+    $entityform_type = entityform_type_load($this->type);
+    return $entityform_type->label;
+  }
+
+  /**
+   * Returns the user who submitted this form.
+   */
+  public function user() {
+    return user_load($this->uid);
+  }
+
+  /**
+   * Sets a new user who submitted this form.
+   *
+   * @param $account
+   *   The user account object or the user account id (uid).
+   */
+  public function setUser($account) {
+    $this->uid = is_object($account) ? $account->uid : $account;
+  }
+
+}
+
+
+/**
+ * The class used for entityform type entities
+ */
+class EntityformType extends Entity {
+
+  public $type;
+  public $label;
+  public $data;
+
+  public function __construct($values = array()) {
+    parent::__construct($values, 'entityform_type');
+  }
+
+  /*
+   * Get A path property for this EntityformType with tokens replaced
+   */
+  public function get_path_property($property, $entityform = NULL) {
+    $path = $this->data[$property];
+    if (empty($path)) {
+      return '';
+    }
+    if ($this->data[$property] == '<front>') {
+      return $this->data[$property];
+    }
+    $path = _entityform_format_text($path,
+      array('entityform_type' => $this, 'entityform' => $entityform));
+    $options = drupal_parse_url(decode_entities($path));
+    return array($options['path'], array('query' => $options['query']));
+  }
+
+  public function get_prop($key, $entityform = NULL) {
+    if (isset($this->data[$key])) {
+      $value = $this->data[$key];
+    }
+    else {
+      $value = '';
+    }
+    $text_value = $value;
+    if (is_array($text_value)) {
+      // We are dealing for a filtered text value
+      $text_value = $text_value['value'];
+    }
+    if ($text_value == '<none>') {
+      return '';
+    }
+    $token_types['entityform_type'] = $this;
+    if (!empty($entityform)) {
+      $token_types['entityform'] = $entityform;
+    }
+    if (empty($text_value)) {
+      $default_entityform_type = entity_get_controller('entityform_type')->create(array(), TRUE);
+      if (isset($default_entityform_type->data[$key])) {
+        $value = $default_entityform_type->data[$key];
+      }
+    }
+    return _entityform_format_text($value, $token_types);
+  }
+
+  /**
+   * Clears values default text values so global text values can be used.
+   */
+  public function clear_text_props() {
+    $clear_keys = array_keys(entity_get_controller('entityform_type')->get_default_text_values());
+    foreach ($clear_keys as $key) {
+      $this->data[$key] = '';
+    }
+  }
+}
+
+
+/**
+ * The Controller for Entityform entities
+ */
+class EntityformController extends EntityAPIController {
+
+  public function __construct($entityType) {
+    parent::__construct($entityType);
+  }
+
+  /**
+   * Create a entityform - we first set up the values that are specific
+   * to our entityform schema but then also go through the EntityAPIController
+   * function.
+   *
+   * @param $type
+   *   The machine-readable type of the entityform.
+   *
+   * @return
+   *   A entityform object with all default fields initialized.
+   */
+  public function create(array $values = array()) {
+    // We need a type for the bundle but it may not be valid.
+    if (isset($values['type'])) {
+      // Rules supplies a EntityformType object instead of string.
+      if (is_object($values['type'])) {
+        if (get_class($values['type']) == 'EntityformType') {
+          $values['type'] = $values['type']->type;
+        }
+        else {
+          // This should never happen.
+          throw new EntityMalformedException("Object sent for EntityformType not of class EntityformType.");
+        }
+      }
+      $type = entityform_get_types($values['type']);
+    }
+    if (empty($type)) {
+      return NULL;
+    }
+    // Add values that are specific to our Entityform
+    $values += array(
+      'entityform_id' => '',
+      'is_new' => TRUE,
+      'title' => '',
+      'created' => '',
+      'changed' => '',
+      'data' => '',
+    );
+
+    $entityform = parent::create($values);
+    return $entityform;
+  }
+
+  /**
+   * Overriding the buildContent function to add entity specific fields
+   */
+  public function buildContent($entity, $view_mode = 'full', $langcode = NULL, $content = array()) {
+    $content = parent::buildContent($entity, $view_mode, $langcode, $content);
+    $content['info']['user'] = array(
+      '#markup' => _entityform_get_submit_info($entity),
+      '#weight' => -100,
+      '#prefix' => '<div class="submitted">',
+      '#suffix' => '</div>',
+    );
+
+    $content['info']['#weight'] = -99;
+    return $content;
+  }
+
+}
+
+
+/**
+ * The Controller for Entityform entities
+ */
+class EntityformTypeController extends EntityAPIControllerExportable {
+  public function __construct($entityType) {
+    parent::__construct($entityType);
+  }
+
+  /**
+   * Create a entityform type - we first set up the values that are specific
+   * to our entityform type schema but then also go through the EntityAPIController
+   * function.
+   *
+   * @param $type
+   *   The machine-readable type of the entityform.
+   *
+   * @return
+   *   A entityform type object with all default fields initialized.
+   */
+  public function create(array $values = array(), $load_defaults = FALSE) {
+    // Add values that are specific to our Entityform
+
+    $default_values = variable_get('entityform_type_defaults', array());
+    if (empty($default_values)) {
+      $default_values = array();
+    }
+    $values += $default_values;
+    $values += array(
+      'id' => '',
+      'is_new' => TRUE,
+    );
+    if (!isset($values['data'])) {
+      $values['data'] = array();
+    }
+    if ($load_defaults) {
+      $values['data'] += array(
+        'submissions_view' => 'entityforms',
+        'user_submissions_view' => 'user_entityforms',
+        'preview_page' => 0,
+      );
+      $values['data'] += $this->get_default_text_values();
+    }
+    else {
+      if ($values['is_new']) {
+        $values['data']['submissions_view'] = 'default';
+        $values['data']['user_submissions_view'] = 'default';
+      }
+    }
+    $entityform_type = parent::create($values);
+    return $entityform_type;
+  }
+
+  /**
+   * Returns default text values
+   */
+  public function get_default_text_values() {
+    return array(
+      'submit_confirm_msg' => t('Your submission has been saved.'),
+      'submission_page_title' => t('Thank You.'),
+      'draft_button_text' => t('Save Draft'),
+      'submit_button_text' => t('Submit'),
+      'your_submissions' => t('Your Submissions: @label',
+        array('@label' => '[entityform_type:label]')),
+      'disallow_resubmit_msg' => t('You already submitted this form'),
+      'delete_confirm_msg' => t('Are you sure you want to delete this Submission for @label',
+        array('@label' => '[entityform_type:label]?')),
+      'draft_save_text' => '',
+      'page_title_view' => t('Form Submission: @label',
+        array('@label' => '[entityform_type:label]')),
+    );
+  }
+
+  /*
+   * Overridden to Load file
+   */
+  public function view($entities, $view_mode = 'full', $langcode = NULL, $page = NULL) {
+    $view = parent::view($entities, $view_mode, $langcode, $page);
+    foreach ($entities as $entity_id => $entity) {
+      module_load_include('inc', 'entityform', 'entityform.admin');
+      $view[$this->entityType][$entity->type]['form'] = entityform_form_wrapper(entityform_empty_load($entity->type), 'submit', 'embedded');
+    }
+    return $view;
+  }
+
+  /**
+   * Overridden to load paths also
+   */
+  public function load($ids = array(), $conditions = array()) {
+    $entityform_types = parent::load($ids, $conditions);
+    foreach ($entityform_types as $entityform_type) {
+      if (module_exists('path')) {
+        $entityform_type->paths = array();
+        $path_types = _entityform_type_get_path_types($entityform_type->type);
+        foreach ($path_types as $key => $path_type) {
+          //check for existing alias
+          $conditions = array('source' => $path_type['default_path']);
+          $path = path_load($conditions);
+          if ($path !== FALSE) {
+            $entityform_type->paths[$key] = $path;
+          }
+        }
+      }
+    }
+    return $entityform_types;
+  }
+
+  /**
+   * Overridden to clear cache.
+   */
+  public function save($entity, DatabaseTransaction $transaction = NULL) {
+    $return = parent::save($entity, $transaction);
+
+    // Reset the entityform type cache. We need to do this first so
+    // menu changes pick up our new type.
+    entityform_type_cache_reset();
+    // Clear field info caches such that any changes to extra fields get
+    // reflected.
+    field_info_cache_clear();
+
+    return $return;
+  }
+  /**
+   * Overridden to delete aliases and clear cache.
+   */
+  public function delete($ids, DatabaseTransaction $transaction = NULL) {
+    $entities = $ids ? $this->load($ids) : FALSE;
+    if ($entities) {
+      if (module_exists('path')) {
+        foreach ($entities as $id => $entity) {
+          try {
+            $path_types = _entityform_type_get_path_types($entity->type);
+            foreach ($path_types as $path_type) {
+              path_delete(array('source' => $path_type['default_path']));
+            }
+          }
+          catch (Exception $e) {
+          }
+        }
+      }
+      parent::delete($ids, $transaction);
+
+      // Clear field info caches such that any changes to extra fields get
+      // reflected.
+      field_info_cache_clear();
+      // Reset the entityform type cache.
+      entityform_type_cache_reset();
+    }
+  }
+
+  /*
+   * Overridden to exclude pid in alias Export
+   */
+  public function export($entity, $prefix = '') {
+    if (module_exists('path')) {
+      foreach ($entity->paths as &$path) {
+        unset($path['pid']);
+      }
+    }
+    return parent::export($entity, $prefix);
+  }
+}
+
+/**
+ * Utility function to get path types for an Entityform Type
+ * @param $type
+ * @return array
+ */
+function _entityform_type_get_path_types($type) {
+  return array(
+    'submit' => array(
+      'default_path' => _entityform_type_get_submit_url($type),
+      'title' => 'Submit URL alias',
+      'description' => 'Optionally specify an alternative URL by which the form submit page can be accessed.',
+    ),
+    'confirm' => array(
+      'default_path' => _entityform_type_get_confirm_url($type),
+      'title' => 'Confirm URL alias',
+      'description' => 'Optionally specify an alternative URL by which the form confirmation page(after the form has been submitted) can be accessed.',
+    ),
+  );
+}
+
+/**
+ * Implements hook_views_pre_view().
+ *
+ * This add all Fields for the Bundle to the View at runtime
+ * View Requirements
+ *   1. First argument must bundle machine name
+ *   2. All Fields will added if the if the show_display_id starts with "autofields_
+ */
+function entityform_views_pre_view(&$view, &$display_id, &$args) {
+  if ($view->base_table == 'entityform' && strpos($display_id, 'autofields_') === 0) {
+    if (empty($view->display[$display_id]->entityform_settings['autofields'])) {
+      $type = $view->args[0];
+      _entityform_view_add_all_fields($view, $display_id, $type);
+    }
+
+  }
+  return;
+}
+
+/**
+ * Add automatically add all the fields for a Bundle to a View
+ */
+function _entityform_view_add_all_fields(&$view, $display_id, $bundle_name) {
+  $instances = field_info_instances('entityform', $bundle_name);
+  $view_mode_settings = field_view_mode_settings('entityform', $bundle_name);
+  // when adding autofields to view let view modes determine which fields should be include and in what order
+  switch ($display_id) {
+    case 'autofields_csv':
+    case 'autofields_xml':
+      $view_mode = 'download';
+      break;
+    case 'autofields_table':
+      $view_mode = 'table';
+      break;
+    default:
+      $view_mode = 'default';
+  }
+  $autofields = array();
+  foreach ($instances as $instance) {
+    if (!empty($view_mode_settings[$view_mode]['custom_settings']) && isset($instance['display'][$view_mode])) {
+      $field_display = $instance['display'][$view_mode];
+    }
+    else {
+      $field_display = $instance['display']['default'];
+    }
+    // don't add to autofields if this field was hidden in the view mode
+    if ($field_display['type'] != 'hidden') {
+      $autofield = array(
+        'field_name' => $instance['field_name'],
+        'options' => array(
+          'type' => $field_display['type'],
+          'settings' => $field_display['settings'],
+          'entityform_settings' => array(
+            'autofield' => TRUE,
+            'view_mode' => $view_mode,
+          ),
+        ),
+        'weight' => $field_display['weight'],
+      );
+      // Use the field label for this instance of the field.
+      if (!empty($instance['label'])) {
+        $autofield['options']['label'] = t($instance['label']);
+      }
+      $autofields[] = $autofield;
+    }
+  }
+  if ($autofields) {
+    // Add settings to indicate the View has autofields added from Entitform
+    $view->display[$display_id]->entityform_settings = array(
+      'autofields' => TRUE,
+      'view_mode' => $view_mode,
+      'entityform_type' => $bundle_name,
+    );
+    // reorder fields to match view mode
+    uasort($autofields, 'drupal_sort_weight');
+    drupal_alter('entityform_views_autofields', $autofields, $view, $display_id);
+    foreach ($autofields as $field) {
+      $view->add_item($display_id, 'field', "field_data_{$field['field_name']}", $field['field_name'], $field['options']);
+    }
+  }
+
+}
+
+/**
+ * Implements hook_help().
+ */
+function entityform_help($path, $arg) {
+  $output = '';
+  $view_mode_text = 'This View Mode is used to controls how fields will displayed ';
+  switch ($path) {
+    case 'admin/structure/entityform_types/manage/%/display/download':
+      $output = t("$view_mode_text in the CSV and XML downloads and their order.");
+      break;
+    case 'admin/structure/entityform_types/manage/%/display/table':
+      $output = t("$view_mode_text in submissions table.");
+      break;
+    case 'admin/structure/entityform_types/manage/%/display/confirmation':
+      $output = t("$view_mode_text on the submission conformation page.");
+      break;
+    case 'admin/config/content/entityform':
+      $output = t('Set the default settings for new Entityform Types. This will be used for new Entityform Types.');
+      break;
+    case 'admin/structure/entityform_types/manage/%/submissions':
+      $display_id = $arg[6];
+    // Intentionally no "break" here. It should fall through.
+    case 'admin/reports/entityforms/submissions/%':
+      if ($path == 'admin/reports/entityforms/submissions/%') {
+        $display_id = $arg[5];
+      }
+
+      if (user_access('administer entityform types')) {
+        if ($display_id == 'autofields_table') {
+          $output = t('The fields on this table can be controlled via the "Table" view mode under Manage Display for this Entityform Type.');
+        }
+      }
+  }
+  return $output;
+}
+
+/*
+ * Get Property for Entityform Type
+ *
+ * @see EntityformTypeMetadataController
+ */
+function entityformtype_metadata_get_properties($entityform_type, array $options, $name, $entity_type) {
+  if (isset($entityform_type->data[$name])) {
+    return $entityform_type->data[$name];
+  }
+  return NULL;
+}
+
+/*
+ * Given a form tree remove the fieldsets from parents so they don't show up in submitted values
+ * Fieldset elements must end with '_set'
+ *
+ */
+function _entityform_remove_fieldsets_from_tree(&$elements, $parents = NULL) {
+  if (isset($elements['#force_parents'])) {
+    $parents = $elements['#force_parents'];
+    unset($elements['#force_parents']);
+  }
+  //set #parents to skip sets in form values
+  foreach (element_children($elements) as $key) {
+    if (strrpos($key, '_set') === drupal_strlen($key) - drupal_strlen('_set')) {
+      foreach (element_children($elements[$key]) as $sub_key) {
+        $new_parents = $parents;
+        $new_parents[] = $sub_key;
+        $elements[$key][$sub_key]['#parents'] = $new_parents;
+      }
+    }
+  }
+  return $elements;
+}
+
+/**
+ * Implements hook_forms().
+ */
+function entityform_forms() {
+  $types = entityform_get_types();
+  $forms = array();
+  foreach ($types as $machine_name => $type) {
+    $forms[$machine_name . '_entityform_edit_form'] = array(
+      'callback' => 'entityform_edit_form',
+    );
+  }
+  return $forms;
+}
+
+/**
+ * Implements hook_mollom_form_list().
+ */
+function entityform_mollom_form_list() {
+  $forms = array();
+  $types = entityform_get_types();
+  $forms = array();
+  foreach ($types as $machine_name => $type) {
+    $forms[$machine_name . '_entityform_edit_form'] = array(
+      'title' => t('Entityform: @name form', array('@name' => $type->label)),
+      'entity' => 'entityform',
+      'bundle' => $type->type,
+      'delete form' => 'entityform_delete_form',
+      'delete form file' => array(
+        'name' => 'entityform.admin.inc',
+      ),
+      'report access' => array('administer entityform types'),
+    );
+  }
+  return $forms;
+}
+
+/**
+ * Implements hook_mollom_form_info().
+ */
+function entityform_mollom_form_info($form_id) {
+  // Retrieve internal type from $form_id.
+  $entityform_type = drupal_substr($form_id, 0, -21);
+
+  $type = entityform_type_load($entityform_type);
+  $form_info = array(
+    // @todo This is incompatible with entityform access.
+    'bypass access' => array('bypass entityform access'),
+    'bundle' => $type->type,
+    'bypass access' => array('edit any entityform', 'delete any entityform'),
+  );
+  mollom_form_info_add_fields($form_info, 'entityform', $type->type);
+  return $form_info;
+}
+
+/**
+ * Replace tokens and convert text to markup filter
+ * @param string $text_value
+ * @param array $token_types
+ * @return string
+ */
+function _entityform_format_text($text_value, $token_types = array()) {
+  $is_filtered = FALSE;
+  if (is_array($text_value)) {
+    // We are dealing for a filtered text value
+    $text = $text_value['value'];
+    $format = $text_value['format'];
+    $is_filtered = TRUE;
+  }
+  else {
+    $text = check_plain($text_value);
+  }
+  if ($text == '<none>') {
+    return '';
+  }
+  if ($token_types !== FALSE) {
+    $token_types[] = 'global';
+    $text = token_replace($text, $token_types, array('clear' => TRUE));
+  }
+  if ($is_filtered) {
+    $text = check_markup($text, $format);
+  }
+  return $text;
+}
+
+/**
+ * Implements hook_views_query_alter().
+ *
+ * Control access to Entityforms in Views.
+ * This will only work if entityform is the base table of the View
+ */
+function entityform_views_query_alter(&$view, &$query) {
+  global $user;
+  // Check for 3 conditions
+  // 1. 'user_access' tag is on query
+  // 2. Base table is 'entityform'
+  // 3. User doesn't have 'view any entityform'
+  if (!empty($view->query->tags) && in_array('user_access', $view->query->tags)
+    && $view->base_table == 'entityform' && !user_access('view any entityform')
+  ) {
+    // @todo user $query to make sure this is the alias
+    $table_alias = 'entityform';
+    if (user_access('view own entityform')) {
+      //Make sure View only returns entityforms for current User
+      $uid = $user->uid;
+    }
+    else {
+      //Provide uid that will never match because
+      //the current user has no permission to view Entityforms.
+      //The permission should have be implemented on the View but just in case.
+      $uid = -1;
+    }
+    $query->where[] = array(
+      'conditions' => array(
+        array(
+          'field' => "$table_alias.uid",
+          'value' => $uid,
+          'operator' => '=',
+        ),
+      ),
+      'type' => 'AND',
+      'args' => array(),
+    );
+  }
+}
+
+/*
+ * Utility function to get Submit URL
+ */
+function _entityform_type_get_submit_url($type) {
+  return 'eform/submit/' . str_replace('_', '-', $type);
+}
+
+/*
+ * Utility function to get Confirm URL
+ */
+function _entityform_type_get_confirm_url($type) {
+  return 'eform/' . str_replace('_', '-', $type) . '/confirm';
+}
+
+/*
+ * Loads files needed for showing Entityform submit form.
+ *
+ * This function is called in the #after_build phase of the form.
+ * Needed when a field is using an AJAX callback such as file upload.
+ */
+function entityform_load_required_entityform_admin($form, &$form_state) {
+  module_load_include('inc', 'entityform', 'entityform.admin');
+  return $form;
+}
+
+/**
+ * Implements hook_entity_rules_info().
+ */
+function entityform_entity_rules_info() {
+  $type_info['entityform']['forms'] = array('entityform_edit_form');
+  return $type_info;
+}
+/**
+ * Implements hook_entity_rules_event_info().
+ *
+ * Define Entityform Submission Rule.
+ * This is defined so that each Rule doesn't have to check if the create or
+ * update is a "submission"
+ */
+function entityform_entity_rules_event_info() {
+  return array(
+    'entityform_submission' => array(
+      'label' => t('Entityform Submission'),
+      'description' => t('User is submitting their own non-draft submission.'),
+      'needs_form' => FALSE,
+      'entity_types' => array('entityform'),
+      'component_types' => array('rule', 'rule set'),
+      'vars' => array(
+        array(
+          'type' => 'boolean',
+          'label' => 'Continue Rules',
+          'name' => 'continue',
+          'usage' => '11', // Parameter var. Why is this not defined as constant in Rules
+          'weight' => 1,
+          'description' => t('If set to FALSE no rules after the current will be invoked.'),
+          'entity_rules_settings' => array('default_value' => TRUE),
+        ),
+      ),
+    ),
+  );
+}
+
+/**
+ * Implements hook_ENTITY_TYPE_insert().
+ *
+ * For entityform inserts if not draft than is a submission
+ */
+function entityform_entityform_insert($entityform) {
+  if (empty($entityform->draft)) {
+    if (module_exists('entity_rules')) {
+      _entity_rules_invoke_rules($entityform, 'entityform', 'entityform_submission');
+    }
+  }
+}
+/**
+ * Implements hook_ENTITY_TYPE_update().
+ */
+function entityform_entityform_update($entityform) {
+  global $user;
+  if (empty($entityform->draft) && $entityform->uid == $user->uid) {
+    if (module_exists('entity_rules')) {
+      _entity_rules_invoke_rules($entityform, 'entityform', 'entityform_submission');
+    }
+  }
+}

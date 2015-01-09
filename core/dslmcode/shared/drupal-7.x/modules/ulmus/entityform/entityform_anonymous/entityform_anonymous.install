@@ -1,0 +1,38 @@
+<?php
+/**
+ * @file
+ * Install Functions
+ */
+/**
+ * Implements hook_install().
+ */
+function entityform_anonymous_install() {
+  // Add the column.
+  db_add_field('entityform', 'sid', array(
+    'type' => 'int',
+    'unsigned' => TRUE,
+    'not null' => TRUE,
+    'default' => 0,
+  ));
+}
+
+/**
+ * Implements hook_uninstall().
+ */
+function entityform_anonymous_uninstall() {
+  db_drop_field('entityform', 'sid');
+}
+
+/**
+ * Implements hook_schema_alter().
+ * @param $schema
+ */
+function entityform_anonymous_schema_alter(&$schema) {
+  // Add field to existing schema.
+  $schema['entityform']['fields']['sid'] = array(
+    'type' => 'int',
+    'unsigned' => TRUE,
+    'not null' => TRUE,
+    'default' => 0,
+  );
+}

@@ -1,0 +1,19 @@
+name = entityform_test
+description = Feature for Entityform simpletest
+core = 7.x
+package = Features
+dependencies[] = entity
+dependencies[] = entityform
+dependencies[] = features
+dependencies[] = field_sql_storage
+dependencies[] = text
+features[entityform_type][] = simpletest_entityform
+features[features_api][] = api:1
+features[field][] = entityform-simpletest_entityform-field_text
+
+; Information added by Drupal.org packaging script on 2014-10-21
+version = "7.x-2.0-rc1"
+core = "7.x"
+project = "entityform"
+datestamp = "1413913852"
+

@@ -1,0 +1,13 @@
+name = Entityform Anonymous
+description = Allows tracking of anonymous Entityform submissions
+core = 7.x
+package = Entityforms
+dependencies[] = session_api
+dependencies[] = entityform
+
+; Information added by Drupal.org packaging script on 2014-10-21
+version = "7.x-2.0-rc1"
+core = "7.x"
+project = "entityform"
+datestamp = "1413913852"
+

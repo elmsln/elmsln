@@ -1,0 +1,29 @@
+name = Entityforms
+description = Provides fieldable entity forms
+core = 7.x
+package = Entityforms
+
+configure = admin/structure/entityform_types
+
+dependencies[] = entity
+dependencies[] = views
+
+files[] = entityform.admin.inc
+files[] = entityform.info.inc
+files[] = entityform_type.admin.inc
+files[] = entityform.pages.admin.inc
+files[] = views/entityform.views.inc
+files[] = views/entityform_handler_link_field.inc
+files[] = views/entityform_handler_delete_link_field.inc
+files[] = views/entityform_handler_edit_link_field.inc
+files[] = views/entityform_handler_entityform_operations_field.inc
+files[] = views/entityform.views_default.inc
+files[] = views/entityform_type_handler_submit_link_field.inc
+files[] = entityform.test
+
+; Information added by Drupal.org packaging script on 2014-10-21
+version = "7.x-2.0-rc1"
+core = "7.x"
+project = "entityform"
+datestamp = "1413913852"
+

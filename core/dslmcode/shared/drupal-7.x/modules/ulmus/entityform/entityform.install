@@ -1,0 +1,217 @@
+<?php
+
+/**
+ * @file
+ * Sets up the base table for our entity and a table to store information about
+ * the entity types.
+ */
+
+
+/**
+ * Implements hook_schema().
+ */
+function entityform_schema() {
+  $schema = array();
+
+  $schema['entityform'] = array(
+    'description' => 'The base table for entityform entities.',
+    'fields' => array(
+      'entityform_id' => array(
+        'description' => 'Primary Key: Identifier for a entityform.',
+        'type' => 'serial',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ),
+      'type' => array(
+        'description' => 'The {entityform_type}.type of this entityform.',
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => TRUE,
+        'default' => '',
+      ),
+      'language' => array(
+        'description' => 'The language of the entityform.',
+        'type' => 'varchar',
+        'length' => 32,
+        'not null' => TRUE,
+        'default' => '',
+      ),
+      'created' => array(
+        'description' => 'The Unix timestamp when the entityform was created.',
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'changed' => array(
+        'description' => 'The Unix timestamp when the entityform was most recently saved.',
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'data' => array(
+        'type' => 'blob',
+        'not null' => FALSE,
+        'size' => 'big',
+        'serialize' => TRUE,
+        'description' => 'A serialized array of additional data.',
+      ),
+      'uid' => array(
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => FALSE,
+        'default' => NULL,
+        'description' => "The {users}.uid of the associated user.",
+      ),
+      'draft' => array(
+        'type' => 'int',
+        'size' => 'tiny',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 0,
+        'description' => "Wheter this form submission is a draft.",
+      ),
+    ),
+    'primary key' => array('entityform_id'),
+    'indexes' => array(
+      'type' => array('type'),
+      'uid' => array('uid'),
+    ),
+    'foreign keys' => array(
+      'uid' => array(
+        'table' => 'users',
+        'columns' => array('uid' => 'uid'),
+      ),
+      'type' => array(
+        'table' => 'entityform_type',
+        'columns' => array('type' => 'type'),
+      ),
+    ),
+  );
+
+  $schema['entityform_type'] = array(
+    'description' => 'Stores information about defined entityform types.',
+    'fields' => array(
+      'id' => array(
+        'type' => 'serial',
+        'not null' => TRUE,
+        'description' => 'Primary Key: Unique entityform type identifier.',
+      ),
+      'type' => array(
+        'description' => 'The machine-readable name of this entityform type.',
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => TRUE,
+      ),
+      'label' => array(
+        'description' => 'The human-readable name of this entityform type.',
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => TRUE,
+        'default' => '',
+      ),
+      'weight' => array(
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0,
+        'size' => 'tiny',
+        'description' => 'The weight of this entityform type in relation to others.',
+      ),
+      'data' => array(
+        'type' => 'text',
+        'not null' => FALSE,
+        'size' => 'big',
+        'serialize' => TRUE,
+        'description' => 'A serialized array of additional data related to this entityform type.',
+      ),
+    ) + entity_exportable_schema_fields(),
+    'primary key' => array('id'),
+    'unique keys' => array(
+      'type' => array('type'),
+    ),
+  );
+
+  return $schema;
+}
+/**
+ * Implements hook_update_N().
+ * Adds draft column
+ */
+function entityform_update_7001(&$sandbox = NULL) {
+  if (!db_field_exists('entityform', 'draft')) {
+
+    db_add_field('entityform', 'draft', array('type' => 'int', 'size' => 'tiny', 'not null' => TRUE, 'default' => 0));
+    drupal_get_schema('entityform', TRUE);
+  }
+}
+/**
+ * Switch emails settings to Rules invoke settings.
+ */
+function entityform_update_7002(&$sandbox = NULL) {
+  $ret = array();
+  if (!module_enable(array('rules'))) {
+    throw new DrupalUpdateException('This version of Entityforms requires Rules, but it could not be enabled.');
+  }
+  $query = new EntityFieldQuery();
+  $query->entityCondition('entity_type', 'entityform_type');
+  $results = $query->execute();
+
+  $ids = isset($results['entityform_type']) ? array_keys($results['entityform_type']) : array();
+  $entities = $ids ? entity_load('entityform_type', $ids) : array();
+  foreach ($entities as $eid => $entityform_type) {
+    $entityform_type->data['notification_text'] = $entityform_type->data['email_body'];
+    $entityform_type->data['submission_rules'] = array();
+    if (!empty($entityform_type->data['confirm_email'])) {
+      $entityform_type->data['submission_rules'][] = 'rules_email_entityform_submitter';
+      unset($entityform_type->data['confirm_email']);
+    }
+    if (!empty($entityform_type->data['notify_emails'])) {
+      $entityform_type->data['submission_rules'][] = 'rules_email_entityform_admin';
+    }
+    $entityform_type->save();
+  }
+  return $ret;
+}
+/**
+ * Enable entityform_notifications if necessary
+ */
+function entityform_update_7003(&$sandbox = NULL) {
+  $ret = array();
+  $query = new EntityFieldQuery();
+  $query->entityCondition('entity_type', 'entityform_type');
+  $results = $query->execute();
+
+  $ids = isset($results['entityform_type']) ? array_keys($results['entityform_type']) : array();
+  $entities = $ids ? entity_load('entityform_type', $ids) : array();
+  foreach ($entities as $eid => $entityform_type) {
+    if (!empty($entityform_type->data['submission_rules'])) {
+      if (!module_enable(array('entityform_notifications'))) {
+        throw new DrupalUpdateException('New module entityform_notifications could not be enabled.');
+      }
+      break;
+    }
+  }
+  return $ret;
+}
+/**
+ * Change textarea values to support filters.
+ */
+function entityform_update_7004(&$sandbox = NULL) {
+  // Set array of text fields that will use filters
+  $filter_text_fields = array('draft_save_text', 'submission_text', 'instruction_pre');
+  $entityform_types = entityform_get_types();
+  foreach ($entityform_types as $entityform_type) {
+    foreach ($filter_text_fields as $filter_text_field) {
+      if (isset($entityform_type->data[$filter_text_field])) {
+        $entityform_type->data[$filter_text_field] = array(
+          'value' => $entityform_type->data[$filter_text_field],
+          'format' => NULL,
+        );
+      }
+    }
+    $entityform_type->save();
+  }
+}
+/**
+ * Update 7005 is unused.
+ */
+function entityform_update_7005(&$sandbox = NULL) { }

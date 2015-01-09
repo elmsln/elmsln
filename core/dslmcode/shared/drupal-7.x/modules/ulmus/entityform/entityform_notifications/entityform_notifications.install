@@ -1,0 +1,43 @@
+<?php
+/*
+ * @file
+ * Update functions for Entityform Notifications
+ */
+/**
+ * Change email variables to use new tokens from Rules.
+ */
+function entityform_notifications_update_7001(&$sandbox = NULL) {
+  $old_token = '[submitted-entityform';
+  $new_token = '[entityform';
+  $var_names = array(
+    'entityform_notify_submitter_subject',
+    'entityform_notify_submitter_body',
+    'entityform_notify_admin_subject',
+    'entityform_notify_admin_body',
+  );
+  $repaced = FALSE;
+  foreach ($var_names as $var_name) {
+    $var_value = variable_get($var_name);
+    if (!empty($var_value) && strstr($var_value, $old_token) !== FALSE) {
+      $var_value = str_replace($old_token, $new_token, $var_value);
+      variable_set($var_name, $var_value);
+      $repaced = TRUE;
+    }
+  }
+  if ($repaced) {
+    drupal_set_message(t('Replace references to old entityform tokens in variables.'));
+  }
+}
+
+/**
+ * Implements hook_enable().
+ *
+ * Make sure Entityform is enabled from for entity_rules
+ */
+function entityform_notifications_enable() {
+  $enabled_types = variable_get('entity_rules_types', explode(',' , ENTITY_RULES_DEFAULT_TYPES));
+  if (!in_array('entityform', $enabled_types, TRUE)) {
+    $enabled_types[] = 'entityform';
+    variable_set('entity_rules_types', $enabled_types);
+  }
+}

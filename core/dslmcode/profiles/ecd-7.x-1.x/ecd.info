@@ -88,7 +88,6 @@ dependencies[] = eva
 dependencies[] = views
 dependencies[] = views_autocomplete_filters
 dependencies[] = views_bulk_operations
-dependencies[] = views_fluid_grid
 dependencies[] = views_ui
 ; Features
 dependencies[] = features

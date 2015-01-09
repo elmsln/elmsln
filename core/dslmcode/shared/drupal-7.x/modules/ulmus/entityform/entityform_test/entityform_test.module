@@ -1,0 +1,7 @@
+<?php
+/**
+ * @file
+ * Code for the entityform_test feature.
+ */
+
+include_once 'entityform_test.features.inc';

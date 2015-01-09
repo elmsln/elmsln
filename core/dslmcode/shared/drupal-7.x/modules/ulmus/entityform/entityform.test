@@ -1,0 +1,260 @@
+<?php
+/*
+ * @file
+ * SimpleTest classes for Entityforms
+ */
+define('ENTITYFORM_TEST_SUBMIT_TEXT', 'Submit');
+define('ENTITYFORM_TEST_SUBMISSION_TITLE', 'Thank You');
+class EntityformTestCase extends DrupalWebTestCase {
+  // User who can administer entityform types
+  protected $admin_user;
+  // User who can View, Edit, Delete own submissions
+  protected $user_edit;
+  // User who can only View own submissions
+  protected $user_view;
+  // User who has no access to own submissions own submissions
+  protected $user_low;
+  // keep count of entityform submissions.  Should match entityform_id
+  protected $entityform_submission_count;
+  protected function createUsers() {
+    $this->user_admin = $this->drupalCreateUser(array('administer entityform types'));
+    $this->user_view = $this->drupalCreateUser(array('view own entityform'));
+    $this->user_edit = $this->drupalCreateUser(array('view own entityform', 'edit own entityform', 'delete own entityform'));
+    $this->user_low = $this->drupalCreateUser();
+  }
+  function setUp() {
+    $modules = func_get_args();
+    if (isset($modules[0]) && is_array($modules[0])) {
+      $modules = $modules[0];
+    }
+    parent::setUp($modules);
+    $this->createUsers();
+    $this->entityform_submission_count = 0;
+
+
+  }
+  protected function entityformSubmit($machine_name, $user, $submit_text = NULL) {
+    $this->drupalLogin($user);
+    if (empty($submit_text)) {
+      $submit_text = 'submitext-' . $user->name;
+    }
+    $form_url = 'eform/submit/' . str_replace('_', '-', $machine_name);
+    $this->drupalGet($form_url);
+    $this->assertText(t('Test Instructions'), 'Authenicated has access to Test Form.');
+    $this->assertText(t('Test Field'), 'field_text exists on Test Form.');
+    // Post Test Form
+    $edit = array();
+    $edit['field_text[und][0][value]'] = $submit_text;
+    $this->drupalPost($form_url, $edit, t(ENTITYFORM_TEST_SUBMIT_TEXT));
+    $entityform_type = entityform_type_load($machine_name);
+    if ($entityform_type->data['redirect_path'] == '') {
+      if ($this->assertText(t(ENTITYFORM_TEST_SUBMISSION_TITLE), 'Authenicated user can submit.')) {
+        $this->entityform_submission_count++;
+        return TRUE;
+      }
+      return FALSE;
+    }
+  }
+}
+/**
+ * Test basic CRUD functionality.
+ */
+class EntityformCRUDTestCase extends EntityformTestCase {
+  public static function getInfo() {
+    return array(
+        'name' => 'Entityform Test',
+        'description' => 'Tests basic CRUD and editing of Entityform Types and Entityforms submissions.',
+        'group' => 'Entityform',
+    );
+  }
+  function setUp() {
+    parent::setUp(array('entityform', 'locale'));
+  }
+  function testCreateEntityformType() {
+
+    $this->drupalLogin($this->user_admin);
+    // Create Entityform Type test_form
+    $this->drupalGet('admin/structure/entityform_types/add');
+    $edit['label'] = "Test Form";
+    $edit['type'] = 'test_form';
+    $edit['data[roles][' . DRUPAL_AUTHENTICATED_RID . ']'] = DRUPAL_AUTHENTICATED_RID;
+    $edit['data[instruction_pre][value]'] = "Test Instructions";
+    $edit['data[submissions_view]'] = 'entityforms';
+    $edit['data[user_submissions_view]'] = 'user_entityforms';
+    $this->drupalPost('admin/structure/entityform_types/add', $edit, t('Save entityform type'));
+    $this->assertText(t('The Entityform Test Form has been created.'), t('Entityform Type created successfully'));
+    // Add a field to test_form
+    $field = array(
+        'field_name' => 'field_text',
+        'type' => 'text',
+        'cardinality' => 1,
+        'translatable' => FALSE,
+    );
+    field_create_field($field);
+    $instance = array(
+        'entity_type' => 'entityform',
+        'field_name' => 'field_text',
+        'bundle' => 'test_form',
+        'label' => 'Test Field',
+        'description' => 'Fill out field.',
+        'widget' => array(
+            'type' => 'text_textfield',
+            'weight' => 0,
+        ),
+    );
+    field_create_instance($instance);
+    $this->drupalLogout();
+    // Check that anonymous user cannot create an entityform_type
+    $this->drupalGet('admin/structure/entityform_types/add');
+    $this->assertText(t('Access denied'), 'Access has been denied for adding Entityform type.');
+    // Check that anonymous cannot submit test_form
+    $this->drupalGet('eform/submit/test-form');
+    $this->assertText(t('Access denied'), 'Access has been denied for submitting Entityform type.');
+
+    $this->entityformSubmit('test_form', $this->user_low);
+    $this->entityformValidatePerms('test_form', $this->user_low);
+
+
+    //make sure user doesn't access to other user's submisssion
+    $this->entityformValidateAccessOthers($this->entityform_submission_count,  $this->user_view);
+    // Check that authenicated user can submit test_form
+    $this->entityformSubmit('test_form', $this->user_view);
+    $this->entityformValidatePerms('test_form', $this->user_view);
+
+
+    //make sure user doesn't access to other user's submisssion
+    $this->entityformValidateAccessOthers($this->entityform_submission_count,  $this->user_edit);
+    // Check that authenicated user can submit test_form
+    $this->entityformSubmit('test_form', $this->user_edit);
+    $this->entityformValidatePerms('test_form', $this->user_edit);
+
+    // Check that form is redirected on submit
+    $data = array(
+      'redirect_path' => 'node?uid=[current-user:uid]',
+    );
+    $this->updateEntityformType('test_form', NULL, $data);
+    $this->entityformSubmit('test_form', $this->user_edit);
+    $url_options = drupal_parse_url($this->url);
+    $path_parts = explode('/', $url_options['path']);
+    $system_path = array_pop($path_parts);
+    $this->assertEqual($system_path, 'node', t('Submit is redirected'));
+    // Check that query string in redirect_path works and tokens replaced
+    if ($this->assertTrue(array_key_exists('uid', $url_options['query']), t('Query String redirect exists.'))) {
+      $this->assertEqual($url_options['query']['uid'], $this->loggedInUser->uid, t('Tokens replaced in Redirect Path'));
+    }
+
+
+    $data = array(
+        'roles' => array(DRUPAL_ANONYMOUS_RID => DRUPAL_ANONYMOUS_RID),
+        'redirect_path' => '',
+    );
+    $this->updateEntityformType('test_form', NULL, $data);
+    // Check that anonymous cannot submit test_form
+    $this->drupalGet('eform/submit/test-form');
+    $this->assertText(t('Access denied'), 'Access has been denied for normal user for submitting Entityform type.');
+    $this->drupalLogout();
+    $this->drupalGet('eform/submit/test-form');
+    $this->assertText(t('Test Instructions'), 'Anynomous user has access to Test Form.');
+    $this->assertText(t('Test Field'), 'field_text exists on Test Form.');
+    // Post Test Form
+    $edit = array();
+    $edit['field_text[und][0][value]'] = 'Test Text';
+    $this->drupalPost('eform/submit/test-form', $edit, t(ENTITYFORM_TEST_SUBMIT_TEXT));
+    $this->assertText(t(ENTITYFORM_TEST_SUBMISSION_TITLE), 'Anynomous user  can submit.');
+
+
+
+  }
+  private function updateEntityformType($machine_name, $properties, $data) {
+    // Force a clear of the entitytype cache.
+    entityform_type_cache_reset();
+    $entityform_type = entityform_type_load($machine_name);
+    if (!empty($properties)) {
+      foreach ($properties as $property => $value) {
+        $entityform_type->{$property} = $value;
+      }
+    }
+    if (!empty($data)) {
+      foreach ($data as $property => $value) {
+        $entityform_type->data[$property] = $value;
+      }
+    }
+    entityform_type_save($entityform_type);
+  }
+  /**
+   * Validate permission for user on their own entityform submissions.
+   *
+   * For now assume the user has only submitted 1 entityform.
+   * The last submission
+   */
+  private function entityformValidatePerms($machine_name, $user) {
+    $this->drupalLogin($user);
+    $can_view = user_access('view own entityform', $user) || user_access('view any entityform', $user);
+    $can_edit = user_access('edit own entityform', $user) || user_access('edit any entityform', $user);
+    $can_delete = user_access('delete own entityform', $user) || user_access('delete any entityform', $user);
+    $form_url = 'eform/submit/' . str_replace('_', '-', $machine_name);
+    $this->drupalGet($form_url);
+    if ($can_view) {
+      // user should be able to see link to own submissions
+      $this->assertText(t('View your previous submissions'), 'User can see link to own submissions.');
+    }
+    else {
+      // user should NOT be able to see link to own submissions
+      $this->assertNoText(t('View your previous submissions'), 'User can NOT see link to own submissions.');
+    }
+    // Try to get submission page
+    $this->drupalGet('eform/' . str_replace('_', '-', $machine_name) . '/submissions');
+    if ($can_view) {
+      $this->assertText(t('Your Submissions'), 'Access can view own submissions.');
+      $this->assertUniqueText($user->name, 'User only sees 1 submission.');
+      if ($can_delete) {
+        $this->assertUniqueText(t('delete'), 'User sees delete link');
+      }
+      else {
+        $this->assertNotext(t('delete'), 'User cannot see delete link');
+      }
+      if ($can_edit) {
+        $this->assertUniqueText(t('edit'), 'User sees edit link');
+      }
+      else {
+        $this->assertNotext(t('edit'), 'User cannot see edit link');
+      }
+    }
+    else {
+      $this->assertText(t('Access denied'), 'Access has been denied for user to view own submissions.');
+    }
+    // Try to get Entityform View page
+    $this->drupalGet('entityform/' . $this->entityform_submission_count);
+    if ($can_view) {
+      $this->assertText('submitext-' . $user->name, 'User sees their own submission.');
+    }
+    else {
+      $this->assertText(t('Access denied'), 'Access has been denied for user to view own submission page.');
+    }
+    $this->drupalGet('entityform/' . $this->entityform_submission_count . '/edit');
+    if ($can_edit) {
+      $this->assertText(t('Submitted by') . ' ' . $user->name, 'User sees edit own submission.');
+    }
+    else {
+      $this->assertText(t('Access denied'), 'Access has been denied for user to edit own submission page.');
+    }
+    $this->drupalGet('entityform/' . $this->entityform_submission_count . '/delete');
+    if ($can_delete) {
+      $this->assertText(t('Are you sure you want to delete'), 'User can see delete for own enityform');
+    }
+    else {
+      $this->assertText(t('Access denied'), 'Access has been denied for user to own submission delete page.');
+    }
+
+  }
+  private function entityformValidateAccessOthers($entityform_id, $user) {
+    $this->drupalLogin($user);
+    // Try to get Entityform View page
+    $this->drupalGet('entityform/' . $entityform_id);
+    $this->assertText(t('Access denied'), 'Access has been denied for others to view submission page.');
+    $this->drupalGet('entityform/' . $entityform_id . '/edit');
+    $this->assertText(t('Access denied'), 'Access has been denied for others to edit submission page.');
+    $this->drupalGet('entityform/' . $entityform_id . '/delete');
+    $this->assertText(t('Access denied'), 'Access has been denied for others to submission delete page.');
+  }
+}

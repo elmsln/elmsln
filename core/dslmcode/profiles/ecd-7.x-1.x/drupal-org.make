@@ -124,9 +124,6 @@ projects[views_autocomplete_filters][subdir] = "contrib"
 projects[views_bulk_operations][version] = "3.2"
 projects[views_bulk_operations][subdir] = "contrib"
 
-projects[views_fluid_grid][version] = "3.0"
-projects[views_fluid_grid][subdir] = "contrib"
-
 ; +++++ Themes +++++
 
 ; rubik
