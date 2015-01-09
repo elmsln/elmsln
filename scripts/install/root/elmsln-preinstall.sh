@@ -81,7 +81,7 @@ if [ $os == '1' ]; then
   elmslnecho "my.cnf automatically set to ${mycnf}"
   crontab="/etc/crontab"
   elmslnecho "crontab automatically set to ${crontab}"
-  domains="/etc/httpd/conf.d/domains.conf"
+  domains="/etc/httpd/conf.d/elmsln.conf"
   elmslnecho "domains automatically set to ${domains}"
   zzz_performance="/etc/httpd/conf.d/zzz_performance.conf"
   elmslnecho "apache perforamnce tuning automatically set to ${zzz_performance}"
@@ -119,7 +119,7 @@ else
   elmslnecho "where is crontab? ex: /etc/crontab (empty to skip)"
   read crontab
 
-  elmslnecho "where should elmsln apache domains.conf files live? ex: /etc/httpd/conf.d/domains.conf (empty to skip)"
+  elmslnecho "where should elmsln apache elmsln.conf files live? ex: /etc/httpd/conf.d/elmsln.conf (empty to skip)"
   read domains
 
   elmslnecho "where should elmsln apache performance tweaks live? ex: /etc/httpd/conf.d/zzz_performance.conf (empty to skip)"
