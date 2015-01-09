@@ -65,10 +65,10 @@ before_script:
   - cd /var/www
   - sudo mkdir elmsln
   - sudo git clone https://github.com/btopro/elmsln.git elmsln
+  - sudo chown -R travis:travis elmsln
   - cd elmsln
   - sudo rm -rf config
   - sudo git clone https://github.com/btopro/elmsln-config-example.git
-  - sudo chown -R travis:travis elmsln
   - cat /home/travis/elmsln-config-travis-ci/elmsln-preinstall-values
   - cat /home/travis/elmsln-config-travis-ci/elmsln-preinstall-values | sudo bash /var/www/elmsln/scripts/install/root/elmsln-preinstall.sh
   # establish this as an admin user
