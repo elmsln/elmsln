@@ -134,6 +134,8 @@ function drush_cis_helper_cis_release_kraken() {
     drush_print(dt('Good luck!'));
     foreach ($courses as $name => $title) {
       if (drush_get_option('actually_run')) {
+        // make a fake section ID
+        $string = '201415SPUP___SING_' . rand(999) . '_' . rand(10);
         drush_cis_helper_create_service_instances($name, $string);
       }
       else {

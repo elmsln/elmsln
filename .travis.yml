@@ -88,7 +88,7 @@ script:
   # eventually we want to create all this stuff automatically
   - drush @online cis-kraken --build_service=course --actually_run --y
   - ls -lasD /var/www/elmsln/config/jobs -v
-  - bash /var/www/elmsln/scripts/drush-create-site/drush-create-site
+  - sudo bash /var/www/elmsln/scripts/drush-create-site/drush-create-site
   # force upgrades to be replayed against everything
   - drush @online drup d7_elmsln_global /var/www/elmsln/scripts/upgrade/drush_recipes/d7/global --y --replay-from=0
 
