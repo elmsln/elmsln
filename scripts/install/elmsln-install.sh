@@ -47,8 +47,8 @@ stacklist=('online' 'courses' 'studio' 'interact' 'media' 'blog' 'comply' 'discu
 # things to build place holder sites for
 buildlist=('courses' 'studio' 'interact' 'blog' 'discuss')
 # things to default to central authority status
-authoritydistros=('elmsmedia' 'cis' 'ecd')
-authoritylist=('media' 'online' 'comply')
+authoritydistros=('elmsmedia' 'ecd' 'cis')
+authoritylist=('media' 'comply' 'online')
 # array of instance definitions for the distro type
 instances=('FALSE' 'TRUE' 'TRUE' 'TRUE' 'FALSE' 'TRUE' 'FALSE' 'TRUE')
 ignorelist=('TRUE' 'FALSE' 'FALSE' 'FALSE' 'TRUE' 'FALSE' 'FALSE' 'TRUE')
