@@ -137,9 +137,9 @@ function drush_cis_helper_cis_release_kraken() {
         // make a fake section ID
         $string = '201415SPUP___SING_' . rand(100, 500) . '_' . rand(1, 100);
         $parts = array(
-          'year' => '201415',
+          'year' => '2014',
           'semester' => 'SP',
-          'campus' => 'UP',
+          'campus' => NULL,
           'number' => '1',
         );
         drush_cis_helper_create_service_instances($name, $string, $parts);
