@@ -243,7 +243,6 @@ else
   # we respect privacy even if it leads to less cool visualizations :)
   echo "elmsln_stats_program='no'" >> $config
 fi
-
 # performance / recommended settings
 if [[ -n "$apcini" ]]; then
   cat /var/www/elmsln/docs/apc.txt >> $apcini
@@ -260,20 +259,21 @@ fi
 
 if [[ -n "$domains" ]]; then
   # try to automatically author the domains file(s)
-  cp /var/www/elmsln/docs/domains.txt $domains
+  cp /var/www/elmsln/docs/domains.txt "$domains"
   # replace servicedomain partial with what was entered above
-  sed 's/SERVICEYOURUNIT.edu/${serviceaddress}/g' $domains > $domains
+  sed -e "s/SERVICEYOURUNIT.edu/${serviceaddress}/g" $domains > "${domains}.tmp" && mv "${domains}.tmp" $domains
   # replace domain partial with what was entered above
-  sed 's/YOURUNIT.edu/${address}/g' $domains > $domains
+  sed -e "s/YOURUNIT.edu/${address}/g" $domains > "${domains}.tmp" && mv "${domains}.tmp" $domains
   # replace servicedomain prefix if available with what was entered above
-  sed 's/DATA./${serviceprefix}/g' $domains > $domains
+  sed -e "s/DATA./${serviceprefix}/g" $domains > "${domains}.tmp" && mv "${domains}.tmp" $domains
+  cat $domains
   elmslnecho "${domains} was automatically generated but you may want to verify the file regardless of configtest saying everything is ok or not."
   # attempt to author the https domain if they picked it, let's hope everyone does
   if [[ $protocol == 'https' ]]; then
     sec=${domains/.conf/_secure.conf}
     cp $domains $sec
     # replace referencese to port :80 w/ 443
-    sed 's/<VirtualHost *:80>/<VirtualHost *:443>/g' $sec > $sec
+    sed -e 's/<VirtualHost *:80>/<VirtualHost *:443>/g' $sec > "${sec}.tmp" && mv "${sec}.tmp" $sec
     elmslnecho "${sec} was automatically generated since you said you are using https. please verify this file."
       # account for ubuntu being a little different here when it comes to apache
     if [ $os == '2' ]; then
@@ -303,7 +303,7 @@ chmod 744 /usr/local/bin/drush-create-site/rm-site.sh
 # shortcuts for ease of use
 cd ~
 touch .bashrc
-ln -s /var/www/elmsln elmsln
+ln -s /var/www/elmsln ~/elmsln
 echo "alias g='git'" >> .bashrc
 echo "alias d='drush'" >> .bashrc
 echo "alias l='ls -laHF'" >> .bashrc
