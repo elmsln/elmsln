@@ -42,18 +42,17 @@ fi
 
 core='7.x'
 # all distributions / stacks we have
-# @todo add in discuss / comply once we have things at least functional there
-distros=('cis' 'mooc' 'cle' 'icor' 'elmsmedia' 'meedjum_blog')
-stacklist=('online' 'courses' 'studio' 'interact' 'media' 'blog')
+distros=('cis' 'mooc' 'cle' 'icor' 'elmsmedia' 'meedjum_blog' 'ecd' 'harmony')
+stacklist=('online' 'courses' 'studio' 'interact' 'media' 'blog' 'comply' 'discuss')
 # things to build place holder sites for
-buildlist=('courses' 'studio' 'interact' 'blog')
+buildlist=('courses' 'studio' 'interact' 'blog' 'discuss')
 # things to default to central authority status
-authoritydistros=('elmsmedia' 'cis')
-authoritylist=('media' 'online')
+authoritydistros=('elmsmedia' 'cis' 'ecd')
+authoritylist=('media' 'online' 'comply')
 # array of instance definitions for the distro type
-instances=('FALSE' 'TRUE' 'TRUE' 'TRUE' 'FALSE' 'TRUE')
-ignorelist=('TRUE' 'FALSE' 'FALSE' 'FALSE' 'TRUE' 'FALSE')
-defaulttitle=('Course information system' 'Course outline' 'Collaborative studio' 'Interactive object repository' 'Media asset management' 'Course Blog')
+instances=('FALSE' 'TRUE' 'TRUE' 'TRUE' 'FALSE' 'TRUE' 'FALSE' 'TRUE')
+ignorelist=('TRUE' 'FALSE' 'FALSE' 'FALSE' 'TRUE' 'FALSE' 'FALSE' 'TRUE')
+defaulttitle=('Course information system' 'Course outline' 'Collaborative studio' 'Interactive object repository' 'Media asset management' 'Course Blog' 'Course Compliance' 'Discussions')
 moduledir=$elmsln/config/shared/drupal-${core}/modules/_elmsln_scripted
 cissettings=${university}_${host}_settings
 
