@@ -259,16 +259,22 @@ if [ -f  $hooksdir/post-install.sh ]; then
   # invoke this hook cause we found a file matching the name we need
   bash $hooksdir/post-install.sh
 fi
+
+
+
+
 # a message so you know where our head is at. you get candy if you reference this
 elmslnecho "╔───────────────────────────────────────────────────────────────╗"
-elmslnecho "║           ____  Welcome to      ____                          ║"
-elmslnecho "║          |     |      /\  /\   /     |     |\   |             ║"
-elmslnecho "║          |____ |     |  \/  |  \___  |     | \  |             ║"
-elmslnecho "║          |     |     |      |      \ |     |  \ |             ║"
-elmslnecho "║          |____ |____ |      |  ____/ |____ |   \|             ║"
+elmslnecho "║                Welcome to                                     ║"
+elmslnecho "║     ███████╗██╗     ███╗   ███╗███████╗██╗     ███╗   ██╗     ║"
+elmslnecho "║     ██╔════╝██║     ████╗ ████║██╔════╝██║     ████╗  ██║     ║"
+elmslnecho "║     █████╗  ██║     ██╔████╔██║███████╗██║     ██╔██╗ ██║     ║"
+elmslnecho "║     ██╔══╝  ██║     ██║╚██╔╝██║╚════██║██║     ██║╚██╗██║     ║"
+elmslnecho "║     ███████╗███████╗██║ ╚═╝ ██║███████║███████╗██║ ╚████║     ║"
+elmslnecho "║     ╚══════╝╚══════╝╚═╝     ╚═╝╚══════╝╚══════╝╚═╝  ╚═══╝     ║"
 elmslnecho "║                                                               ║"
 elmslnecho "╟───────────────────────────────────────────────────────────────╢"
-elmslnecho "║ If you are still having problems you may submit issues to     ║"
+elmslnecho "║ If you have issues, submit them to                            ║"
 elmslnecho "║   http://github.com/btopro/elmsln/issues                      ║"
 elmslnecho "╟───────────────────────────────────────────────────────────────╢"
 elmslnecho "║ NOTES                                                         ║"
@@ -278,9 +284,9 @@ elmslnecho "║ You may want to open this up and review it but it is your     �
 elmslnecho "║ connection keychain for how all the webservices talk.         ║"
 elmslnecho "║                                                               ║"
 elmslnecho "╠───────────────────────────────────────────────────────────────╣"
-elmslnecho "║ Use this link to access the Course Information System:        ║"
+elmslnecho "║ Use this link to get started with the CIS:                    ║"
 elmslnecho "║   $protocol://$site_domain                                     "
 elmslnecho "║                                                               ║"
-elmslnecho "║Welcome to the Singularity edtech.. don't compete, eliminate   ║"
+elmslnecho "║Welcome to the Singularity, edtech.. don't compete, eliminate  ║"
 elmslnecho "║Ex Uno Plures                                                  ║"
 elmslnecho "╚───────────────────────────────────────────────────────────────╝"
