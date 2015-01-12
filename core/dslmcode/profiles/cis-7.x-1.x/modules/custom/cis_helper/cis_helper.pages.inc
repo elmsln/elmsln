@@ -1059,7 +1059,12 @@ function _cis_helper_batch_add_service_instances_process($service_instance, $cou
   else {
     // when the filename no longer exists, this means that it's been picked up
     if (file_exists($filepath . '.progress')) {
-      $step = file_get_contents($filepath . '.progress');
+      $progfile = file_get_contents($filepath . '.progress');
+      $progfile = explode("\n", $progfile);
+      $step = array_shift($progfile);
+      if (count($progfile) > 1) {
+        $msg = implode("\n", $progfile);
+      }
       // start the timer at 3 minutes
       if (!isset($context['sandbox']['start_timer'])) {
         $context['sandbox']['start_timer'] = strtotime('+3 minutes', time());
@@ -1083,13 +1088,18 @@ function _cis_helper_batch_add_service_instances_process($service_instance, $cou
           $context['message'] = t('Install verification complete! Setting up file directories and permissions.');
         break;
         case 5:
-          // after si cleanup, before drush commands
-          $context['message'] = t('Directory creation complete! Integrating with ELMSLN system and optimizing your new site.');
+          // running through drush commands as part of the integration
+          if (empty($msg)) {
+            $context['message'] = t('Directory creation complete! Integrating with ELMSLN system and optimizing your new site.');
+          }
+          else {
+            $context['message'] = t('Running command: @msg', array('@msg' => $msg));
+          }
           // this is only true the first time step 5 is noticed
           if ($step != $context['sandbox']['step']) {
             // we've seen the overall script take about 3 minutes
-            $context['sandbox']['start_timer'] = strtotime('+2 minutes', time());
-            $context['sandbox']['progress'] = 60;
+            $context['sandbox']['start_timer'] = strtotime('+3 minutes', time());
+            $context['sandbox']['progress'] = 90;
           }
         break;
         case 6:
