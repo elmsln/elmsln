@@ -247,7 +247,6 @@ do
       requesterpw=`</dev/urandom tr -dc A-Za-z0-9 | head -c14`
       requesterid=`echo $requester | cut -d@ -f1`
       drush -y --root=$drupalroot --uri=$protocol://$hostname.$course user-create $requesterid --mail="$requester"
-      #drush -y --uri=$protocol://$hostname.$course user-add-role administrator $requesterid
       drush -y --root=$drupalroot --uri=$protocol://$hostname.$course user-password $requesterid --password="$requesterpw"
       if [[ $send_requester_pw ]]; then
          echo " $protocol://$hostname/$course has been created!  id: $requesterid  password: $requesterpw" | mail -s "$course has been added to $hostname" $requester
@@ -277,11 +276,9 @@ do
 
   # work through the open ended drush commands
   echo "5" > $fileloc/$course.$service.progress
-  #echo ${PWD}
 
   if [[ $options ]]; then
     grep ^drush $coursefile.processing | while read drush; do
-      #echo "things"
       drushcommand=`echo $drush | awk '{print $2}'`
       case $drushcommand in
       en)
