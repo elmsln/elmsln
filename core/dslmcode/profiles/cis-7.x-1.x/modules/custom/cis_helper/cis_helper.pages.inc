@@ -1079,18 +1079,18 @@ function _cis_helper_batch_add_service_instances_process($service_instance, $cou
           $context['message'] = t('`@service` Installation complete! Verifying install..', array('@service' => $service->title, '@course' => $course->title));
         break;
         case 4:
+          // after drush commands
+          $context['message'] = t('Install verification complete! Setting up file directories and permissions.');
+        break;
+        case 5:
           // after si cleanup, before drush commands
-          $context['message'] = t('Install verification complete! Integration with ELMSLN systems and optimizing your new site.');
-          // this is only true the first time step 4 is noticed
+          $context['message'] = t('Directory creation complete! Integrating with ELMSLN system and optimizing your new site.');
+          // this is only true the first time step 5 is noticed
           if ($step != $context['sandbox']['step']) {
             // we've seen the overall script take about 3 minutes
             $context['sandbox']['start_timer'] = strtotime('+2 minutes', time());
             $context['sandbox']['progress'] = 60;
           }
-        break;
-        case 5:
-          // after drush commands
-          $context['message'] = t('Integration complete! Doing minor clean up and emailing!');
         break;
         case 6:
           // done
