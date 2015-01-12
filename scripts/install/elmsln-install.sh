@@ -55,6 +55,8 @@ ignorelist=('TRUE' 'FALSE' 'FALSE' 'FALSE' 'TRUE' 'FALSE' 'TRUE' 'FALSE')
 defaulttitle=('Course information system' 'Course outline' 'Collaborative studio' 'Interactive object repository' 'Media asset management' 'Course Blog' 'Course Compliance' 'Discussions')
 moduledir=$elmsln/config/shared/drupal-${core}/modules/_elmsln_scripted
 cissettings=${university}_${host}_settings
+# support for hook architecture in bash call outs
+hooksdir=$configsdir/scripts/hooks/elmsln-install
 
 # used for random password generation
 COUNTER=0
@@ -252,6 +254,11 @@ sudo find $configsdir/stacks/ -type d -name files | sudo xargs chown -R $wwwuser
 sudo rm /tmp/.htaccess
 # last second security hardening as clean up to enforce defaults
 sudo bash /var/www/elmsln/scripts/utilities/harden-security.sh
+# hook post-install.sh
+if [ -f  $hooksdir/post-install.sh ]; then
+  # invoke this hook cause we found a file matching the name we need
+  bash $hooksdir/post-install.sh
+fi
 # a message so you know where our head is at. you get candy if you reference this
 elmslnecho "╔───────────────────────────────────────────────────────────────╗"
 elmslnecho "║           ____  Welcome to      ____                          ║"
@@ -272,7 +279,8 @@ elmslnecho "║ connection keychain for how all the webservices talk.         �
 elmslnecho "║                                                               ║"
 elmslnecho "╠───────────────────────────────────────────────────────────────╣"
 elmslnecho "║ Use this link to access the Course Information System:        ║"
-elmslnecho "║   $protocol://$site_domain                                   "
+elmslnecho "║   $protocol://$site_domain                                     "
 elmslnecho "║                                                               ║"
-elmslnecho "║Welcome to the Singularity of edtech.. build the future..      ║"
+elmslnecho "║Welcome to the Singularity edtech.. don't compete, eliminate   ║"
+elmslnecho "║Ex Uno Plures                                                  ║"
 elmslnecho "╚───────────────────────────────────────────────────────────────╝"
