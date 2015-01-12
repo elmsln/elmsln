@@ -260,9 +260,23 @@ do
   if [[ $slogan ]]; then
     drush -y --root=$drupalroot --uri=$protocol://$hostname.$course vset site_slogan "$slogan"
   fi
+  # clean up permissions
+  echo "4" >> $fileloc/$course.$service.progress
 
-  #progress
-  echo "4" > $fileloc/$course.$service.progress
+  ##permissions fun
+  find $drupalroot/sites/$subdir/$course/files  -type f | xargs chmod 664
+  find $drupalroot/sites/$subdir/$course/files  -type d | xargs chmod 775
+  chown -R $wwwuser:$webgroup $drupalroot/sites/$subdir/$course/files
+
+  ##add drupal_priv directories, set permissions
+  if [ ! -d $drupal_priv/$service/$course ]; then
+    mkdir -p $drupal_priv/$service/$course
+    chown $wwwuser:$webgroup $drupal_priv/$service/$course
+    chmod g+w $drupal_priv/$service/$course
+  fi
+
+  # work through the open ended drush commands
+  echo "5" > $fileloc/$course.$service.progress
   #echo ${PWD}
 
   if [[ $options ]]; then
@@ -329,25 +343,11 @@ do
     drush -y --root=$drupalroot --uri=$protocol://$hostname.$course $drushcommand
   done
   fi
-  echo "5" >> $fileloc/$course.$service.progress
-
-  ##permissions fun
-  find $drupalroot/sites/$subdir/$course/files  -type f | xargs chmod 664
-  find $drupalroot/sites/$subdir/$course/files  -type d | xargs chmod 775
-  chown -R $wwwuser:$webgroup $drupalroot/sites/$subdir/$course/files
-
-  ##add drupal_priv directories, set permissions
-  if [ ! -d $drupal_priv/$course ]; then
-    mkdir -p $drupal_priv/$service/$course
-    chown $wwwuser:$webgroup $drupal_priv/$service/$course
-    chmod g+w $drupal_priv/$service/$course
-  fi
-
-  echo "$course was added by $requester on $date" | mail -s "$course has been added to $hostname" $admin
-  echo "$course was added to $hostname on $date"
 
   echo "6" > $fileloc/$course.$service.progress
 
+  echo "$course was added by $requester on $date" | mail -s "$course has been added to $hostname" $admin
+  echo "$course was added to $hostname on $date"
   if [[ -f  $coursefile.processing ]]; then
     mv $coursefile.processing $coursefile.processed
   fi
