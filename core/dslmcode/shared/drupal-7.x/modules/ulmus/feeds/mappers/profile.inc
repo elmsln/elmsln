@@ -30,6 +30,6 @@ function profile_feeds_processor_targets_alter(&$targets, $entity_type, $bundle_
 /**
  * Set the user profile target after import.
  */
-function profile_feeds_set_target($source, $entity, $target, $value, $mapping) {
-  $entity->$target = $value;
+function profile_feeds_set_target($source, $entity, $target, array $values, $mapping) {
+  $entity->$target = reset($values);
 }

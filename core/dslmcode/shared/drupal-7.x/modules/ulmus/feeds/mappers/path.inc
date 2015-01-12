@@ -33,14 +33,15 @@ function path_feeds_processor_targets_alter(&$targets, $entity_type, $bundle_nam
  * user has decided to map to and $value contains the value of the feed item
  * element the user has picked as a source.
  */
-function path_feeds_set_target($source, $entity, $target, $value, $mapping) {
-  if (empty($value)) {
-    $value = '';
-  }
-
-  // Path alias cannot be multi-valued, so use the first value.
-  if (is_array($value)) {
-    $value = $value[0];
+function path_feeds_set_target($source, $entity, $target, array $values, $mapping) {
+  $alias = FALSE;
+  // Path alias cannot be multi-valued, so use the first non-empty value.
+  foreach ($values as $value) {
+    $value = ltrim(trim($value), '/');
+    if (strlen($value)) {
+      $alias = $value;
+      break;
+    }
   }
 
   $entity->path = array();
@@ -58,15 +59,11 @@ function path_feeds_set_target($source, $entity, $target, $value, $mapping) {
     }
   }
 
-  $entity->path['pathauto'] = FALSE;
-  // Allow pathauto to set the path alias if the option is set, and this value
-  // is empty.
-  if (!empty($mapping['pathauto_override']) && !$value) {
-    $entity->path['pathauto'] = TRUE;
-  }
-  else {
-    $entity->path['alias'] = ltrim($value, '/');
-  }
+  // Allow pathauto to set the path alias if the option is set, and the value is
+  // empty.
+  $entity->path['pathauto'] = !empty($mapping['pathauto_override']) && $alias === FALSE;
+
+  $entity->path['alias'] = (string) $alias;
 }
 
 /**

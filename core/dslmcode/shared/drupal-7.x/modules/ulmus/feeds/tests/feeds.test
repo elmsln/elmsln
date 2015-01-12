@@ -18,11 +18,11 @@ class FeedsWebTestCase extends DrupalWebTestCase {
     // array of module names to setUp().
     if (isset($args[0])) {
       if (is_array($args[0])) {
-      $modules = $args[0];
-    }
+        $modules = $args[0];
+      }
       else {
-      $modules = $args;
-    }
+        $modules = $args;
+      }
     }
     else {
       $modules = array();
@@ -89,6 +89,7 @@ class FeedsWebTestCase extends DrupalWebTestCase {
     $permissions[] = 'administer taxonomy';
     $permissions[] = 'administer users';
     $permissions[] = 'administer feeds';
+    $permissions[] = 'administer filters';
 
     // Create an admin user and log in.
     $this->admin_user = $this->drupalCreateUser($permissions);
@@ -188,6 +189,8 @@ class FeedsWebTestCase extends DrupalWebTestCase {
     $this->assertPlugins($id, 'FeedsHTTPFetcher', 'FeedsSyndicationParser', 'FeedsNodeProcessor');
     // Per default attach to page content type.
     $this->setSettings($id, NULL, array('content_type' => 'page'));
+    // Per default attached to article content type.
+    $this->setSettings($id, 'FeedsNodeProcessor', array('bundle' => 'article'));
   }
 
   /**
@@ -344,8 +347,13 @@ class FeedsWebTestCase extends DrupalWebTestCase {
 
     // Check whether feed got properly added to scheduler.
     $this->assertEqual(1, db_query("SELECT COUNT(*) FROM {job_schedule} WHERE type = :id AND id = 0 AND name = 'feeds_source_import' AND last <> 0 AND scheduled = 0", array(':id' => $id))->fetchField());
-    // There must be only one entry for callback 'expire' - no matter what the feed_nid is.
-    $this->assertEqual(0, db_query("SELECT COUNT(*) FROM {job_schedule} WHERE type = :id AND name = 'feeds_importer_expire' AND last <> 0 AND scheduled = 0", array(':id' => $id))->fetchField());
+    // Check expire scheduler.
+    if (feeds_importer($id)->processor->expiryTime() == FEEDS_EXPIRE_NEVER) {
+      $this->assertEqual(0, db_query("SELECT COUNT(*) FROM {job_schedule} WHERE type = :id AND id = 0 AND name = 'feeds_source_expire'", array(':id' => $id))->fetchField());
+    }
+    else {
+      $this->assertEqual(1, db_query("SELECT COUNT(*) FROM {job_schedule} WHERE type = :id AND id = 0 AND name = 'feeds_source_expire'", array(':id' => $id))->fetchField());
+    }
   }
 
   /**
@@ -377,6 +385,50 @@ class FeedsWebTestCase extends DrupalWebTestCase {
     $this->assertEqual($config['processor']['plugin_key'], $processor, 'Correct processor');
   }
 
+  /**
+   * Overrides DrupalWebTestCase::assertFieldByXPath().
+   *
+   * The core version has a bug, this is the D8 version.
+   *
+   * @todo Remove once https://drupal.org/node/2105617 lands.
+   */
+  protected function assertFieldByXPath($xpath, $value = NULL, $message = '', $group = 'Other') {
+    $fields = $this->xpath($xpath);
+
+    // If value specified then check array for match.
+    $found = TRUE;
+    if (isset($value)) {
+      $found = FALSE;
+      if ($fields) {
+        foreach ($fields as $field) {
+          if (isset($field['value']) && $field['value'] == $value) {
+            // Input element with correct value.
+            $found = TRUE;
+          }
+          elseif (isset($field->option) || isset($field->optgroup)) {
+            // Select element found.
+            $selected = $this->getSelectedItem($field);
+            if ($selected === FALSE) {
+              // No item selected so use first item.
+              $items = $this->getAllOptions($field);
+              if (!empty($items) && $items[0]['value'] == $value) {
+                $found = TRUE;
+              }
+            }
+            elseif ($selected == $value) {
+              $found = TRUE;
+            }
+          }
+          elseif ((string) $field == $value) {
+            // Text area with correct text.
+            $found = TRUE;
+          }
+        }
+      }
+    }
+    return $this->assertTrue($fields && $found, $message, $group);
+  }
+
    /**
     * Adds mappings to a given configuration.
     *
@@ -388,7 +440,7 @@ class FeedsWebTestCase extends DrupalWebTestCase {
     * @param bool $test_mappings
     *   (optional) TRUE to automatically test mapping configs. Defaults to TRUE.
     */
-  public function addMappings($id, $mappings, $test_mappings = TRUE) {
+  public function addMappings($id, array $mappings, $test_mappings = TRUE) {
 
     $path = "admin/structure/feeds/$id/mapping";
 
@@ -407,7 +459,7 @@ class FeedsWebTestCase extends DrupalWebTestCase {
       $mapping = array('source' => $mapping['source'], 'target' => $mapping['target']);
 
       // Add mapping.
-      $this->drupalPost($path, $mapping, t('Add'));
+      $this->drupalPost($path, $mapping, t('Save'));
 
       // If there are other configuration options, set them.
       if ($config) {
@@ -432,18 +484,18 @@ class FeedsWebTestCase extends DrupalWebTestCase {
   /**
    * Remove mappings from a given configuration.
    *
-   * This function mimicks the Javascript behavior in feeds_ui.js
-   *
+   * @param string $id
+   *   ID of the importer.
    * @param array $mappings
    *   An array of mapping arrays. Each mapping array must have a source and
    *   a target key and can have a unique key.
    * @param bool $test_mappings
    *   (optional) TRUE to automatically test mapping configs. Defaults to TRUE.
    */
-  public function removeMappings($id, $mappings, $test_mappings = TRUE) {
+  public function removeMappings($id, array $mappings, $test_mappings = TRUE) {
     $path = "admin/structure/feeds/$id/mapping";
 
-    $current_mappings = $this->getCurrentMappings($id);
+    $edit = array();
 
     // Iterate through all mappings and remove via the form.
     foreach ($mappings as $i => $mapping) {
@@ -453,17 +505,11 @@ class FeedsWebTestCase extends DrupalWebTestCase {
         $this->assertEqual($current_mapping_key, $i, 'Mapping exists before removal.');
       }
 
-      $remove_mapping = array("remove_flags[$i]" => 1);
-
-      $this->drupalPost($path, $remove_mapping, t('Save'));
-
-      $this->assertText('Your changes have been saved.');
-
-      if ($test_mappings) {
-        $current_mapping_key = $this->mappingExists($id, $i, $mapping['source'], $mapping['target']);
-        $this->assertEqual($current_mapping_key, -1, 'Mapping does not exist after removal.');
-      }
+      $edit["remove_flags[$i]"] = 1;
     }
+
+    $this->drupalPost($path, $edit, t('Save'));
+    $this->assertText('Your changes have been saved.');
   }
 
   /**

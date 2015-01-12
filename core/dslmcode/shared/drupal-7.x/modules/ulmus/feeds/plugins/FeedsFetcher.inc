@@ -114,6 +114,13 @@ class FeedsFetcherResult extends FeedsResult {
 abstract class FeedsFetcher extends FeedsPlugin {
 
   /**
+   * Implements FeedsPlugin::pluginType().
+   */
+  public function pluginType() {
+    return 'fetcher';
+  }
+
+  /**
    * Fetch content from a source and return it.
    *
    * Every class that extends FeedsFetcher must implement this method.

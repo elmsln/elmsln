@@ -41,36 +41,22 @@ function link_feeds_processor_targets_alter(&$targets, $entity_type, $bundle_nam
  * user has decided to map to and $value contains the value of the feed item
  * element the user has picked as a source.
  */
-function link_feeds_set_target($source, $entity, $target, $value) {
-  if (empty($value)) {
-    return;
-  }
-
-  // Handle non-multiple value fields.
-  if (!is_array($value)) {
-    $value = array($value);
-  }
-
-  // Iterate over all values.
+function link_feeds_set_target($source, $entity, $target, array $values) {
   list($field_name, $column) = explode(':', $target);
-  $info = field_info_field($field_name);
 
-  $field = isset($entity->$field_name) ? $entity->$field_name : array();
+  $field = isset($entity->$field_name) ? $entity->$field_name : array('und' => array());
   $delta = 0;
 
-  foreach ($value as $v) {
-    if ($info['cardinality'] == $delta) {
-      break;
+  foreach ($values as $value) {
+    if (is_object($value) && ($value instanceof FeedsElement)) {
+      $value = $value->getValue();
     }
 
-    if (is_object($v) && ($v instanceof FeedsElement)) {
-      $v = $v->getValue();
+    if (is_scalar($value)) {
+      $field['und'][$delta][$column] = (string) $value;
     }
-
-    if (is_scalar($v)) {
-      $field['und'][$delta][$column] = $v;
-      $delta++;
-    }
+    $delta++;
   }
+
   $entity->$field_name = $field;
 }

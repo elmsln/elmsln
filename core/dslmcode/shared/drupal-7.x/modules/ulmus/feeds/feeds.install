@@ -6,6 +6,63 @@
  */
 
 /**
+ * Implements hook_requirements().
+ */
+function feeds_requirements($phase) {
+  $t = get_t();
+
+  $requirements = array();
+
+  module_load_include('module', 'feeds');
+  // Check if we have any SimplePie importers.
+  $needs_simplepie = FALSE;
+  foreach (feeds_importer_load_all() as $importer) {
+    if ($importer->config['parser']['plugin_key'] === 'FeedsSimplePieParser') {
+      $needs_simplepie = TRUE;
+      break;
+    }
+  }
+
+  if (!$needs_simplepie) {
+    return $requirements;
+  }
+
+  $requirements['simplepie'] = array(
+    'title' => $t('SimplePie'),
+    'value' => $t('Installed'),
+    'description' => $t('The SimplePie library is required for Feeds SimplePie Parser.'),
+    'severity' => REQUIREMENT_OK,
+  );
+
+  if (!feeds_simplepie_exists()) {
+    $requirements['simplepie']['value'] = $t('Not installed');
+
+    $folder = drupal_get_path('module', 'feeds') . '/libraries';
+    if (module_exists('libraries')) {
+      $folder = 'sites/all/libraries/simplepie';
+    }
+
+    $args = array(
+      '!url' => 'http://simplepie.org/downloads/',
+      '%folder' => $folder,
+      '%file' => 'simplepie.compiled.php',
+    );
+    $requirements['simplepie']['description'] .= $t('<br />Download the compiled, single-file version of the library from the <a href="!url">SimplePie download page</a>, place it into %folder and rename it to %file.', $args);
+    $requirements['simplepie']['severity'] = REQUIREMENT_ERROR;
+  }
+
+  return $requirements;
+}
+
+/**
+  * Implement hook_uninstall()
+  */
+function feeds_uninstall() {
+  variable_del('http_request_timeout');
+  variable_del('feeds_reschedule');
+}
+
+/**
  * Implements hook_schema().
  */
 function feeds_schema() {
@@ -560,4 +617,131 @@ function feeds_update_7207() {
     'description' => 'Configuration of the feeds object.',
     'serialize' => TRUE,
   ));
+}
+
+/**
+ * Update to use generic bundle handling.
+ */
+function feeds_update_7208(&$sandbox) {
+
+  if (!isset($sandbox['importers'])) {
+    // Get all importers.
+    $sandbox['importers'] = db_query("SELECT id FROM {feeds_importer}")->fetchCol();
+    $sandbox['total'] = count($sandbox['importers']);
+  }
+
+  $importer = array_pop($sandbox['importers']);
+  $config = db_query("SELECT config FROM {feeds_importer} WHERE id = :id", array(':id' => $importer))->fetchField();
+
+  if ($config) {
+    $config = unserialize($config);
+
+    switch ($config['processor']['plugin_key']) {
+      case 'FeedsNodeProcessor':
+        $config_key = 'content_type';
+        break;
+
+      case 'FeedsTermProcessor':
+        $config_key = 'vocabulary';
+        break;
+
+      default:
+        $config_key = FALSE;
+        break;
+    }
+
+    if ($config_key && isset($config['processor']['config'][$config_key])) {
+      $config['processor']['config']['bundle'] = $config['processor']['config'][$config_key];
+      unset($config['processor']['config'][$config_key]);
+
+      // Update databse.
+      db_update('feeds_importer')
+        ->fields(array(
+          'config' => serialize($config),
+        ))
+        ->condition('id', $importer)
+        ->execute();
+    }
+
+    $sandbox['#finished'] = 1 - count($sandbox['importers']) / $sandbox['total'];
+  }
+  else {
+    $sandbox['#finished'] = 1;
+  }
+}
+
+/**
+ * Reschedules feeds jobs.
+ */
+function feeds_update_7209() {
+  // Reschedule all importers.
+  variable_set('feeds_reschedule', TRUE);
+
+  // Our expire callback has changed names, remove all existing callbacks.
+  db_delete('job_schedule')
+    ->condition('name', 'feeds_importer_expire')
+    ->execute();
+
+  DrupalQueue::get('feeds_importer_expire')->deleteQueue();
+}
+
+/**
+ * Fix importer mappings for file and image fields to use :uri convention.
+ */
+function feeds_update_7211(&$sandbox) {
+  // If this is the first pass through this update function then set some
+  // variables.
+  if (!isset($sandbox['progress'])) {
+    $importers = feeds_importer_load_all(TRUE);
+    $sandbox['importers'] = array_keys($importers);
+    $sandbox['progress'] = 0;
+    $sandbox['updated_count'] = 0;
+    $sandbox['max'] = count($sandbox['importers']);
+  }
+
+  if (empty($sandbox['importers'])) {
+    return t('No importers to process.');
+  }
+
+  // Load a single importer.
+  $importer = array_pop($sandbox['importers']);
+  $importer = feeds_importer($importer);
+  $mappings = $importer->processor->getMappings();
+
+  foreach ($mappings as $key => $mapping) {
+    // Act on mappings that do not contain a colon.
+    if (strpos($mapping['target'], ':') !== FALSE) {
+      continue;
+    }
+
+    // Get field data. Check if $info is empty to weed out non-field mappings
+    // like temporary targets.
+    if (!$info = field_info_field($mapping['target'])) {
+      continue;
+    }
+
+    // Act on file or image fields.
+    if (in_array($info['type'], array('file', 'image'))) {
+      // Add ':uri' to fix the mapping.
+      $mappings[$key]['target'] = $mapping['target'] . ':uri';
+    }
+  }
+
+  // If importer has changed, add the updated config and save it.
+  if ($importer->processor->getMappings() !== $mappings) {
+    $importer->processor->addConfig(array('mappings' => $mappings));
+    $importer->save();
+    $sandbox['updated_count']++;
+  }
+
+  $sandbox['progress']++;
+
+  // Set the value for finished. If progress == max then finished will be 1,
+  // signifying we are done.
+  $sandbox['#finished'] = ($sandbox['progress'] / $sandbox['max']);
+
+  if (empty($sandbox['importers'])) {
+    $sandbox['#finished'] = 1;
+    return t('@importers total importers processed, @updated_count with fields that were updated.', array('@importers' => $sandbox['max'], '@updated_count' => $sandbox['updated_count']));
+  }
 }

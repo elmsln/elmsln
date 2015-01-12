@@ -59,7 +59,7 @@ class FeedsMapperLinkTestCase extends FeedsMapperTestCase {
 
     // Create importer configuration.
     $this->createImporterConfiguration(); //Create a default importer configuration
-    $this->setSettings('syndication', 'FeedsNodeProcessor', array('content_type' => $typename)); //Processor settings
+    $this->setSettings('syndication', 'FeedsNodeProcessor', array('bundle' => $typename)); //Processor settings
     $this->addMappings('syndication', array(
       0 => array(
         'source' => 'title',

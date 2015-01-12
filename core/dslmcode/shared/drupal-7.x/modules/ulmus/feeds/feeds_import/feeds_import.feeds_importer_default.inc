@@ -5,12 +5,12 @@
  */
 
 /**
- * Implementation of hook_feeds_importer_default().
+ * Implements hook_feeds_importer_default().
  */
 function feeds_import_feeds_importer_default() {
   $export = array();
 
-  $feeds_importer = new stdClass;
+  $feeds_importer = new stdClass();
   $feeds_importer->disabled = FALSE; /* Edit this to true to make a default feeds_importer disabled initially */
   $feeds_importer->api_version = 1;
   $feeds_importer->id = 'node';
@@ -32,7 +32,7 @@ function feeds_import_feeds_importer_default() {
     'processor' => array(
       'plugin_key' => 'FeedsNodeProcessor',
       'config' => array(
-        'content_type' => 'article',
+        'bundle' => 'article',
         'update_existing' => 1,
         'expire' => '-1',
         'mappings' => array(
@@ -69,7 +69,7 @@ function feeds_import_feeds_importer_default() {
   );
   $export['node'] = $feeds_importer;
 
-  $feeds_importer = new stdClass;
+  $feeds_importer = new stdClass();
   $feeds_importer->disabled = FALSE; /* Edit this to true to make a default feeds_importer disabled initially */
   $feeds_importer->api_version = 1;
   $feeds_importer->id = 'user';
@@ -91,8 +91,9 @@ function feeds_import_feeds_importer_default() {
     'processor' => array(
       'plugin_key' => 'FeedsUserProcessor',
       'config' => array(
+        'bundle' => 'user',
         'roles' => array(),
-        'update_existing' => FALSE,
+        'update_existing' => 0,
         'status' => 1,
         'mappings' => array(
           0 => array(

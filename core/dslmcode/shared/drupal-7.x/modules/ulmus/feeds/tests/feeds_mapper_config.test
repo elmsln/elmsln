@@ -46,6 +46,7 @@ class FeedsMapperConfigTestCase extends FeedsMapperTestCase {
       'config[0][settings][select]' => 'option4',
     );
     $this->drupalPostAJAX(NULL, $edit, 'mapping_settings_update_0');
+    $this->assertText(t('* Changes made to target configuration are stored temporarily. Click Save to make your changes permanent.'));
 
     // Click Save.
     $this->drupalPost(NULL, array(), t('Save'));
@@ -112,4 +113,5 @@ class FeedsMapperConfigTestCase extends FeedsMapperTestCase {
     $this->assertText('Checkbox inactive.');
     $this->assertText('Second mapping text');
   }
+
 }

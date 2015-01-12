@@ -11,16 +11,17 @@
 class FeedsCSVtoTermsTest extends FeedsWebTestCase {
   public static function getInfo() {
     return array(
-      'name' => 'CSV import to taxonomy',
+      'name' => 'Processor: Taxonomy',
       'description' => 'Tests a standalone import configuration that uses file fetcher and CSV parser to import taxonomy terms from a CSV file.',
       'group' => 'Feeds',
     );
   }
 
   /**
-   * Test node creation, refreshing/deleting feeds and feed items.
+   * Set up test.
    */
-  public function test() {
+  public function setUp() {
+    parent::setUp();
 
     // Create an importer.
     $this->createImporterConfiguration('Term import', 'term_import');
@@ -29,6 +30,25 @@ class FeedsCSVtoTermsTest extends FeedsWebTestCase {
     $this->setPlugin('term_import', 'FeedsFileFetcher');
     $this->setPlugin('term_import', 'FeedsCSVParser');
     $this->setPlugin('term_import', 'FeedsTermProcessor');
+
+    // Create vocabulary.
+    $edit = array(
+      'name' => 'Addams vocabulary',
+      'machine_name' => 'addams',
+    );
+    $this->drupalPost('admin/structure/taxonomy/add', $edit, t('Save'));
+
+    $this->setSettings('term_import', 'FeedsTermProcessor', array('bundle' => 'addams'));
+
+    // Use standalone form.
+    $this->setSettings('term_import', NULL, array('content_type' => ''));
+  }
+
+  /**
+   * Test term creation, refreshing/deleting feeds and feed items.
+   */
+  public function test() {
+
     $mappings = array(
       0 => array(
         'source' => 'name',
@@ -37,23 +57,6 @@ class FeedsCSVtoTermsTest extends FeedsWebTestCase {
       ),
     );
     $this->addMappings('term_import', $mappings);
-
-    // Use standalone form.
-    $edit = array(
-      'content_type' => '',
-    );
-    $this->drupalPost('admin/structure/feeds/term_import/settings', $edit, 'Save');
-
-    $edit = array(
-      'name' => 'Addams vocabulary',
-      'machine_name' => 'addams',
-    );
-    $this->drupalPost('admin/structure/taxonomy/add', $edit, t('Save'));
-
-    $edit = array(
-      'vocabulary' => 'addams',
-    );
-    $this->drupalPost('admin/structure/feeds/term_import/settings/FeedsTermProcessor', $edit, t('Save'));
 
     // Import and assert.
     $this->importFile('term_import', $this->absolutePath() . '/tests/feeds/users.csv');
@@ -89,4 +92,32 @@ class FeedsCSVtoTermsTest extends FeedsWebTestCase {
     $this->assertNoText('Gomez');
     $this->assertNoText('Pugsley');
   }
+
+  /**
+   * Test that saving an invalid vocabulary throws an exception.
+   */
+  public function testInvalidVocabulary() {
+
+    $mappings = array(
+      0 => array(
+        'source' => 'name',
+        'target' => 'name',
+        'unique' => 1,
+      ),
+    );
+    $this->addMappings('term_import', $mappings);
+
+    // Force configuration to be invalid.
+    $config = unserialize(db_query("SELECT config FROM {feeds_importer} WHERE id = :id", array(':id' => 'term_import'))->fetchField());
+    $config['processor']['config']['bundle'] = 'does_not_exist';
+    db_update('feeds_importer')
+      ->fields(array('config' => serialize($config)))
+      ->condition('id', 'term_import')
+      ->execute();
+
+    // Import and assert.
+    $this->importFile('term_import', $this->absolutePath() . '/tests/feeds/users.csv');
+    $this->assertText(t('No vocabulary defined for Taxonomy Term processor.'));
+  }
+
 }

@@ -22,6 +22,7 @@ class FeedsTermProcessor extends FeedsProcessor {
   protected function entityInfo() {
     $info = parent::entityInfo();
     $info['label plural'] = t('Terms');
+    $info['bundle name'] = t('Vocabulary');
     return $info;
   }
 
@@ -33,22 +34,14 @@ class FeedsTermProcessor extends FeedsProcessor {
     $term = new stdClass();
     $term->vid = $vocabulary->vid;
     $term->vocabulary_machine_name = $vocabulary->machine_name;
-    $term->format = isset($this->config['input_format']) ? $this->config['input_format'] : filter_fallback_format();
     return $term;
-  }
-
-  /**
-   * Loads an existing term.
-   */
-  protected function entityLoad(FeedsSource $source, $tid) {
-    return taxonomy_term_load($tid);
   }
 
   /**
    * Validates a term.
    */
   protected function entityValidate($term) {
-    if (empty($term->name)) {
+    if (drupal_strlen($term->name) == 0) {
       throw new FeedsValidationException(t('Term name missing.'));
     }
   }
@@ -90,37 +83,11 @@ class FeedsTermProcessor extends FeedsProcessor {
   }
 
   /**
-   * Override parent::configForm().
+   * Overrides parent::setTargetElement().
+   *
+   * Operate on a target item that is a taxonomy term.
    */
-  public function configForm(&$form_state) {
-    $options = array(0 => t('Select a vocabulary'));
-    foreach (taxonomy_get_vocabularies() as $vocab) {
-      $options[$vocab->machine_name] = $vocab->name;
-    }
-    $form = parent::configForm($form_state);
-    $form['vocabulary'] = array(
-      '#type' => 'select',
-      '#title' => t('Import to vocabulary'),
-      '#description' => t('Choose the vocabulary to import into. <strong>CAUTION:</strong> when deleting terms through the "Delete items" tab, Feeds will delete <em>all</em> terms from this vocabulary.'),
-      '#options' => $options,
-      '#default_value' => $this->config['vocabulary'],
-    );
-    return $form;
-  }
-
-  /**
-   * Override parent::configFormValidate().
-   */
-  public function configFormValidate(&$values) {
-    if (empty($values['vocabulary'])) {
-      form_set_error('vocabulary', t('Choose a vocabulary'));
-    }
-  }
-
-  /**
-   * Override setTargetElement to operate on a target item that is a taxonomy term.
-   */
-  public function setTargetElement(FeedsSource $source, $target_term, $target_element, $value) {
+  public function setTargetElement(FeedsSource $source, $target_term, $target_element, $value, array $mapping = array()) {
     switch ($target_element) {
       case 'parent':
         if (!empty($value)) {
@@ -142,6 +109,7 @@ class FeedsTermProcessor extends FeedsProcessor {
           $target_term->parent[] = 0;
         }
         break;
+
       case 'parentguid':
         // value is parent_guid field value
         $query = db_select('feeds_item')
@@ -149,8 +117,8 @@ class FeedsTermProcessor extends FeedsProcessor {
           ->condition('entity_type', $this->entityType());
         $parent_tid = $query->condition('guid', $value)->execute()->fetchField();
         $target_term->parent[] = ($parent_tid) ? $parent_tid : 0;
-
         break;
+
       case 'weight':
         if (!empty($value)) {
           $weight = intval($value);
@@ -160,6 +128,20 @@ class FeedsTermProcessor extends FeedsProcessor {
         }
         $target_term->weight = $weight;
         break;
+
+      case 'description':
+        if (!empty($mapping['format'])) {
+          $target_term->format = $mapping['format'];
+        }
+        elseif (!empty($this->config['input_format'])) {
+          $target_term->format = $this->config['input_format'];
+        }
+        else {
+          $target_term->format = filter_fallback_format();
+        }
+        $target_term->description = $value;
+        break;
+
       default:
         parent::setTargetElement($source, $target_term, $target_element, $value);
         break;
@@ -195,6 +177,8 @@ class FeedsTermProcessor extends FeedsProcessor {
       'description' => array(
         'name' => t('Term description'),
         'description' => t('Description of the taxonomy term.'),
+        'summary_callback' => 'text_feeds_summary_callback',
+        'form_callback' => 'text_feeds_form_callback',
       ),
     );
 
@@ -202,7 +186,7 @@ class FeedsTermProcessor extends FeedsProcessor {
     try {
       self::loadMappers();
       $entity_type = $this->entityType();
-      $bundle = $this->vocabulary()->machine_name;
+      $bundle = $this->bundle();
       drupal_alter('feeds_processor_targets', $targets, $entity_type, $bundle);
     }
     catch (Exception $e) {
@@ -235,11 +219,19 @@ class FeedsTermProcessor extends FeedsProcessor {
    * Return vocabulary to map to.
    */
   public function vocabulary() {
-    if (isset($this->config['vocabulary'])) {
-      if ($vocabulary = taxonomy_vocabulary_machine_name_load($this->config['vocabulary'])) {
-        return $vocabulary;
-      }
+    if ($vocabulary = taxonomy_vocabulary_machine_name_load($this->bundle())) {
+      return $vocabulary;
     }
     throw new Exception(t('No vocabulary defined for Taxonomy Term processor.'));
   }
+
+  /**
+   * Overrides FeedsProcessor::dependencies().
+   */
+  public function dependencies() {
+    $dependencies = parent::dependencies();
+    $dependencies['taxonomy'] = 'taxonomy';
+    return $dependencies;
+  }
+
 }

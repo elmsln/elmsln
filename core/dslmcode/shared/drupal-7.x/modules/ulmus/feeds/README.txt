@@ -191,6 +191,8 @@ Default:     50
 Name:        http_request_timeout
 Default:     15
 Description: Timeout in seconds to wait for an HTTP get request to finish.
+Note:        This setting could be overridden per importer in admin UI :
+             admin/structure/feeds/<your_importer>/settings/<your_fetcher> page.
 
 Name:        feeds_never_use_curl
 Default:     FALSE

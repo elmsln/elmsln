@@ -85,17 +85,19 @@ function _feeds_feeds_plugins() {
       'path' => $path,
     ),
   );
-  $info['FeedsSyndicationParser'] = array(
-    'name' => 'Common syndication parser',
-    'description' => 'Parse RSS and Atom feeds.',
-    'help' => 'Parse XML feeds in RSS 1, RSS 2 and Atom format.',
-    'handler' => array(
-      'parent' => 'FeedsParser',
-      'class' => 'FeedsSyndicationParser',
-      'file' => 'FeedsSyndicationParser.inc',
-      'path' => $path,
-    ),
-  );
+  if (extension_loaded('SimpleXML')) {
+    $info['FeedsSyndicationParser'] = array(
+      'name' => 'Common syndication parser',
+      'description' => 'Parse RSS and Atom feeds.',
+      'help' => 'Parse XML feeds in RSS 1, RSS 2 and Atom format.',
+      'handler' => array(
+        'parent' => 'FeedsParser',
+        'class' => 'FeedsSyndicationParser',
+        'file' => 'FeedsSyndicationParser.inc',
+        'path' => $path,
+      ),
+    );
+  }
   $info['FeedsOPMLParser'] = array(
     'name' => 'OPML parser',
     'description' => 'Parse OPML files.',
@@ -164,5 +166,29 @@ function _feeds_feeds_plugins() {
       ),
     );
   }
+  if (module_exists('entity')) {
+    foreach (entity_get_info() as $type => $entity_info) {
+      // @todo: Test for saving and whatever else necessary?
+      if (entity_type_supports($type, 'create')) {
+        $info['FeedsEntityProcessor' . drupal_ucfirst($type)] = array(
+          'name' => $entity_info['label'] . ' entity processor - EXPERIMENTAL',
+          // @todo: Use plural label if there.
+          'description' => 'Create and update ' . drupal_strtolower($entity_info['label']) . 's.',
+          'help' => 'Create and update ' . drupal_strtolower($entity_info['label']) . 's from parsed content.',
+          'plugin_key' => 'FeedsEntityProcessor',
+          'handler' => array(
+            'parent' => 'FeedsProcessor',
+            'class' => 'FeedsEntityProcessor',
+            'file' => 'FeedsEntityProcessor.inc',
+            'path' => $path,
+          ),
+          // Add in the entity type used.
+          // @see FeedsEntityProcessor::entityType()
+         'type' => $type,
+        );
+      }
+    }
+  }
+
   return $info;
 }

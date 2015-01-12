@@ -19,13 +19,16 @@ class FeedsMapperTestCase extends FeedsWebTestCase {
     'email' => 'email_textfield',
     'emimage' => 'emimage_textfields',
     'emaudio' => 'emaudio_textfields',
-    'filefield' => 'filefield_widget',
-    'image' => 'imagefield_widget',
+    'file' => 'file_generic',
+    'image' => 'image_image',
     'link_field' => 'link_field',
+    'list_text' => 'options_select',
     'number_float' => 'number',
     'number_integer' => 'number',
     'nodereference' => 'nodereference_select',
     'text' => 'text_textfield',
+    'text_long' => 'text_textarea',
+    'text_with_summary' => 'text_textarea_with_summary',
     'userreference' => 'userreference_select',
    );
 

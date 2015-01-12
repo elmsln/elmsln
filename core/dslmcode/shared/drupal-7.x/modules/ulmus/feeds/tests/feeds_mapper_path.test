@@ -94,10 +94,7 @@ class FeedsMapperPathTestCase extends FeedsMapperTestCase {
     );
     $this->drupalPost('admin/structure/taxonomy/add', $edit, t('Save'));
 
-    $this->setSettings('path_test', 'FeedsTermProcessor', array('vocabulary' => 'addams'));
-    
-    // Turn on update existing.
-    $this->setSettings('path_test', 'FeedsTermProcessor', array('update_existing' => 2));
+    $this->setSettings('path_test', 'FeedsTermProcessor', array('bundle' => 'addams', 'update_existing' => 2));
 
     // Add mappings.
     $this->addMappings('path_test', array(
@@ -208,7 +205,7 @@ class FeedsMapperPathPathautoTestCase extends FeedsMapperTestCase {
     $aliases = array();
 
     for ($i = 1; $i <= 9; $i++) {
-      $aliases[] = "path$i";
+      $aliases[] = "content/pathauto$i";
     }
 
     $this->assertAliasCount($aliases);
@@ -229,12 +226,7 @@ class FeedsMapperPathPathautoTestCase extends FeedsMapperTestCase {
   }
 
   public function assertAliasCount($aliases) {
-    $in_db = db_select('url_alias', 'a')
-      ->fields('a')
-      ->condition('a.alias', $aliases)
-      ->execute()
-      ->fetchAll();
-
+    $in_db = db_query("SELECT * FROM {url_alias} WHERE alias IN (:aliases)", array(':aliases' => $aliases))->fetchAll();
     $this->assertEqual(count($in_db), count($aliases), 'Correct number of aliases in db.');
   }
 }

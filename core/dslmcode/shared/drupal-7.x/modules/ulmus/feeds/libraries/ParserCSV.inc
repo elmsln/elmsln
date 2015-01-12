@@ -83,6 +83,7 @@ class ParserCSV {
     $this->startByte = 0;
     $this->lineLimit = 0;
     $this->lastLinePos = 0;
+    ini_set('auto_detect_line_endings', TRUE);
   }
 
   /**

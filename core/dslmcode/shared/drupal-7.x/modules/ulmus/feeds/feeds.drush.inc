@@ -7,7 +7,7 @@
  */
 
 /**
- * Implementation of hook_drush_command().
+ * Implements hook_drush_command().
  *
  * @See drush_parse_command() for a list of recognized keys.
  *
@@ -18,32 +18,63 @@ function feeds_drush_command() {
   $items = array();
 
   $items['feeds-list'] = array(
-    'description' => "Displays all importers or displays the config of a given importer (passed as arg).",
+    'description' => "Displays the configs of all importers.",
     'examples' => array(
       'drush feeds-list',
+    ),
+  );
+
+  $items['feeds-list-all'] = array(
+    'description' => "Displays all instances of all feeds of a given importer (passed as arg).",
+    'arguments' => array(
+      'feed-name' => 'The name of the feeds importer whose instances will be listed.',
+    ),
+    'examples' => array(
+      'drush feeds-list-all' => 'List all instances of all importers',
+      'drush feeds-list-all rss_feed' => 'List all instances of the rss_feed importer',
+    ),
+    'options' => array(
+      'limit' => 'Only list [limit] feeds. Optional.',
     ),
   );
 
   $items['feeds-import'] = array(
     'description' => "Import a feed.",
     'arguments' => array(
-      'feeds-name' => 'The name of the feeds importer that will be refreshed. Mandatory.',
+      'feed-name' => 'The name of the feeds importer that will be refreshed. Mandatory.',
     ),
     'options' => array(
       'nid' => 'The nid of the feeds importer that will be refreshed. Optional.',
       'file' => 'The file to import by the feed importer. Optional.',
       'http' => 'The source to import by the feed importer. Optional.',
+      'stdin' => 'Read the file to import from stdin. Optional.',
     ),
     'examples' => array(
       'drush feeds-import feed_name' => 'Import the feed feed_name',
       'drush feeds-import feed_name --nid=2' => 'Import feed_name associated with nid 2',
+      'drush feeds-import feed_name --stdin=xml' => 'Import whatever is entered in stdin.',
+    ),
+  );
+
+  $items['feeds-import-all'] = array(
+    'description' => "Import all instances of feeds of the given type.",
+    'arguments' => array(
+      'feed-name' => 'The name of the feeds importer that will be refreshed. Omitting the feed-name will cause all instances of all feeds to be imported.',
+    ),
+    'examples' => array(
+      'drush feeds-import-all' => 'Import all instances all feeds',
+      'drush feeds-import-all feed_name' => 'Import all instances the feed feed_name',
+      'drush feeds-import-all feed_name --limit 10' => 'Import 10 instances the feed feed_name',
+    ),
+    'options' => array(
+      'limit' => 'Only import [limit] feed importers. Optional.',
     ),
   );
 
   $items['feeds-clear'] = array(
     'description' => "Clear a feed.",
     'arguments' => array(
-      'feeds-names' => 'The name of the feeds importer that will be clear. Mandatory.',
+      'feed-name' => 'The name of the feeds importer that will be clear. Mandatory.',
     ),
     'options' => array(
       'nid' => 'The nid of the feeds importer that will be clear. Optional.',
@@ -57,7 +88,7 @@ function feeds_drush_command() {
   $items['feeds-enable'] = array(
     'description' => 'Enable feeds.',
     'arguments' => array(
-      'feed-name' => 'A space delimited list of feeds importers. Mandatory.',
+      'feed-names' => 'A space delimited list of feeds importers. Mandatory.',
     ),
     'examples' => array(
       'drush feeds-enable feed_name1 feed_name2',
@@ -67,7 +98,7 @@ function feeds_drush_command() {
   $items['feeds-disable'] = array(
     'description' => 'Disable feeds.',
     'arguments' => array(
-      'feed-name' => 'A space delimited list of feeds importers. Mandatory.',
+      'feed-names' => 'A space delimited list of feeds importers. Mandatory.',
     ),
     'examples' => array(
       'drush feeds-disable feed_name1 feed_name2',
@@ -77,7 +108,7 @@ function feeds_drush_command() {
   $items['feeds-delete'] = array(
     'description' => 'Delete feeds.',
     'arguments' => array(
-      'feeds-names' => 'A space delimited list of feeds importers . Mandatory.',
+      'feed-names' => 'A space delimited list of feeds importers. Mandatory.',
     ),
     'examples' => array(
       'drush feeds-delete feed_name1 feed_name2',
@@ -87,7 +118,7 @@ function feeds_drush_command() {
   $items['feeds-revert'] = array(
     'description' => 'Revert feeds.',
     'arguments' => array(
-      'feed-name' => 'A space delimited list of feeds importers. Mandatory.',
+      'feed-names' => 'A space delimited list of feeds importers. Mandatory.',
     ),
     'examples' => array(
       'drush feeds-revert feed_name1 feed_name2',
@@ -119,7 +150,7 @@ function drush_feeds_list() {
       $rows[] = array(
         ($i->config['name'] . '(' . $i->id . ')'),
         $i->config['description'],
-        $i->config['content_type'] ? dt(node_type_get_name($i->config['content_type'])) : dt('none'),
+        $i->config['content_type'] ? dt(node_type_get_name('name', $i->config['content_type'])) : dt('none'),
         $i->disabled ? dt('Disabled') : dt('Enabled'),
         $state
       );
@@ -132,40 +163,67 @@ function drush_feeds_list() {
 }
 
 /**
+ * List all feed instances in the database filtered by an optional feed name.
+ * TODO Name this function better so that it is not confused with feeds-list
+ *
+ * @param string $feed_name
+ */
+function drush_feeds_list_all($feed_name = NULL) {
+  if (!($limit = drush_get_option('limit'))) {
+    $limit = 2147483647;
+  }
+  $rows[] = array(dt('ID'), dt('Feed NID'), dt('Imported'), dt('Feed Source'), dt('Process in Background'));
+  $feeds = _drush_feeds_get_all($feed_name, $limit);
+
+  foreach ($feeds as $feed) {
+    $feed_config = feeds_source($feed->id, $feed->feed_nid)->importer->getConfig();
+    $rows[] = array($feed->id,
+      $feed->feed_nid,
+      date('c', $feed->imported),
+      $feed->source,
+      ($feed_config['process_in_background'])?'TRUE' : 'FALSE',
+    );
+  }
+
+  drush_print_table($rows, TRUE);
+}
+
+/**
  * Imports a given feed_name.
  *
  * The feed will be refreshed regardless of it's scheduled.
  *
  * @param string $feed_name
  */
-function drush_feeds_import($feed_name = NULL) {
-  if (!isset($feed_name) || $feed_name == "") {
+function drush_feeds_import($feed_name = NULL, $feed_nid = 0) {
+  if (empty($feed_name)) {
     drush_print(dt('The importer feed_name is required.'));
     return FALSE;
   }
 
-  if (!($feed_nid = drush_get_option('nid'))) {
-    $feed_nid = 0;
+  if ( ! $feed_nid ) {
+    if (!($feed_nid = drush_get_option('nid'))) {
+      $feed_nid = 0;
+    }
   }
 
-  $feedsSource = feeds_source($feed_name, $feed_nid);
+  $feed_source = feeds_source($feed_name, $feed_nid);
+  $fetcher_config = $feed_source->importer->fetcher->getConfig();
+  $feed_dir = $fetcher_config['directory'];
 
   // If a file is specified, set the feeds config to that file.
   if ($filename = drush_get_option('file')) {
     // Validate the extension of the file.
-    $fetcher_config = $feedsSource->importer->fetcher->getConfig();
     $regex = '/\.(' . preg_replace('/ +/', '|', preg_quote($fetcher_config['allowed_extensions'])) . ')$/i';
     if (!preg_match($regex, $filename)) {
       drush_print(dt('Only files with the following extensions are allowed: !files-allowed.', array('!files-allowed' => $fetcher_config['allowed_extensions'])));
       return FALSE;
     }
 
-    // Feeds public folder.
-    $feed_dir = 'public://feeds';
+    // Feeds folder configuration.
     file_prepare_directory($feed_dir, FILE_CREATE_DIRECTORY | FILE_MODIFY_PERMISSIONS);
     $filename_schema = $feed_dir . '/' . drupal_basename($filename);
-    // If the file already exists, create it in database if necessary and
-    // reuse it.
+    // If the file already exists, create it in database if necessary and reuse it.
     if (file_exists($filename_schema)) {
       drush_log(dt('File !filename already exists in feeds folder, reusing it from there.', array('!filename' => $filename_schema)), 'ok');
       if ($file = file_load_multiple(array(), array('uri' => $filename_schema))) {
@@ -184,7 +242,7 @@ function drush_feeds_import($feed_name = NULL) {
       }
     }
     else {
-      // If the file doesn't exists, create it in files and database.
+      // If the file doesn't exist, create it in files and database.
       drush_log(dt('File !filename doesn\'t exist in feeds folder, creating it.', array('!filename' => $filename_schema)), 'ok');
       $filename = file_unmanaged_copy($filename, $filename_schema);
       $file = new stdClass();
@@ -196,20 +254,44 @@ function drush_feeds_import($feed_name = NULL) {
       $file = file_save($file);
     }
 
-    $config = $feedsSource->getConfig();
+    $config = $feed_source->getConfig();
     $config['FeedsFileFetcher']['fid'] = $file->fid;
     $config['FeedsFileFetcher']['source'] = $file->uri;
-    $feedsSource->setConfig($config);
-    $feedsSource->save();
+    $feed_source->setConfig($config);
+    $feed_source->save();
   }
 
   // If a file is specified, set the feeds config to that http source.
   if ($filename = drush_get_option('http')) {
     drush_log(dt('Importing !feed from !file', array('!feed' => $feed_name, '!file' => $filename)), 'notice');
-    $config = $feedsSource->getConfig();
+    $config = $feed_source->getConfig();
     $config['FeedsHTTPFetcher']['source'] = $filename;
-    $feedsSource->setConfig($config);
-    $feedsSource->save();
+    $feed_source->setConfig($config);
+    $feed_source->save();
+  }
+
+  if ($extension = drush_get_option('stdin')) {
+    // Validate the extension of the file.
+    $regex = '/(' . preg_replace('/ +/', '|', preg_quote($fetcher_config['allowed_extensions'])) . ')$/i';
+    if (!preg_match($regex, $extension)) {
+      drush_print(dt('Only following extensions are allowed: !files-allowed.', array('!files-allowed' => $fetcher_config['allowed_extensions'])));
+      return FALSE;
+    }
+
+    drush_log(dt('Importing !feed from stdin.', array('!feed' => $feed_name)), 'notice');
+    $data = stream_get_contents(STDIN);
+    file_prepare_directory($feed_dir, FILE_CREATE_DIRECTORY | FILE_MODIFY_PERMISSIONS);
+    $file = file_save_data($data, $feed_dir . '/drush_feeds_' . $feed_name . '_' . time() . '.' . $extension);
+    drush_log(dt('Saved !num bytes to !filename.', array(
+      '!num' => $file->filesize,
+      '!filename' => $file->uri,
+    )), 'notice');
+
+    $config = $feed_source->getConfig();
+    $config['FeedsFileFetcher']['fid'] = $file->fid;
+    $config['FeedsFileFetcher']['source'] = $file->uri;
+    $feed_source->setConfig($config);
+    $feed_source->save();
   }
 
   drush_log(dt('Preparing batch.'));
@@ -225,14 +307,36 @@ function drush_feeds_import($feed_name = NULL) {
 }
 
 /**
+ * Import all feed instances in the database filtered by an optional feed name
+ *
+ * @param string $feed_name
+ */
+function drush_feeds_import_all($feed_name = NULL) {
+  if (!($limit = drush_get_option('limit'))) {
+    $limit = 2147483647;
+  }
+  $feeds = _drush_feeds_get_all($feed_name, $limit);
+  foreach ($feeds as $feed) {
+    if ( empty($feed->source) ) {
+      continue;
+    }
+    $feed_obj = feeds_source($feed->id, $feed->feed_nid);
+    $feed_config = $feed_obj->importer->getConfig();
+    if ($feed_config['process_in_background']) {
+      $feed_obj->startImport();
+    }
+  }
+}
+
+/**
  * Clears a given feed_name.
  *
- * The feed will be clear regardless of it's scheduled.
+ * The feed will be cleared regardless of its schedule.
  *
  * @param string $feed_name
  */
 function drush_feeds_clear($feed_name) {
-  if (!isset($feed_name) || $feed_name == "") {
+  if (empty($feed_name)) {
     drush_print(dt('The importer feed_name is required.'));
     return FALSE;
   }
@@ -364,4 +468,20 @@ function drush_feeds_disable() {
   }
 
   feeds_cache_clear();
+}
+
+/**
+ * Helper function to get all feed importer instances filtered by an optional feed name
+ * TODO this should be reworked to use feed methods not a direct database call.
+ *
+ * @param string $feed_name
+ */
+function _drush_feeds_get_all($feed_name = NULL, $limit = 2147483647) {
+  if ( $feed_name ) {
+    $feeds = db_query_range("SELECT * FROM {feeds_source} WHERE id = :feed_name ORDER BY imported ASC",
+        0, $limit, array(":feed_name" => $feed_name));
+  } else {
+    $feeds = db_query_range("SELECT * FROM {feeds_source} ORDER BY imported ASC", 0, $limit);
+  }
+  return $feeds;
 }
