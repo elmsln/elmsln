@@ -36,8 +36,6 @@ function cis_si_cleanup_cis_service_instance_options_alter(&$options, $course, $
   // uninstall these items
   $options['pm-uninstall'][] = 'pathauto';
   $options['pm-uninstall'][] = 'path';
-  // centralize watchdog; this requires the remote_watchdog distro
-  $options['en'][] = 'cis_remote_watchdog';
   // make everything a webservice by default
   $options['en'][] = 'cis_service_restws';
   // branding bar across systems and context for placement
