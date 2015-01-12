@@ -334,14 +334,15 @@ do
       drushcommand="NULL"
       ;;
       esac
-
-  if [[ $drushcommand = "NULL" ]]; then
-    echo "$badcommand is not a supported drush command."
-    rm /tmp/drush-lock
-    exit 1
-  fi
-    drush -y --root=$drupalroot --uri=$protocol://$hostname.$course $drushcommand
-  done
+      if [[ $drushcommand = "NULL" ]]; then
+        echo "$badcommand is not a supported drush command."
+        rm /tmp/drush-lock
+        exit 1
+      fi
+      echo "5" > $fileloc/$course.$service.progress
+      echo "drush @$service.$course $drushcommand --y" >> $fileloc/$course.$service.progress
+      drush @$service.$course $drushcommand --y
+    done
   fi
 
   echo "6" > $fileloc/$course.$service.progress
