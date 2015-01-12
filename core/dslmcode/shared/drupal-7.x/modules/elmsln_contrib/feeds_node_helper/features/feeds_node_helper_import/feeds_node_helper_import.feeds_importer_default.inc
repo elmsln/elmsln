@@ -22,6 +22,11 @@ function feeds_node_helper_import_feeds_importer_default() {
       'config' => array(
         'direct' => 0,
         'allowed_extensions' => 'xml',
+        'directory' => 'private://feeds',
+        'allowed_schemes' => array(
+          0 => 'public',
+          1 => 'private',
+        ),
       ),
     ),
     'parser' => array(
@@ -68,7 +73,6 @@ function feeds_node_helper_import_feeds_importer_default() {
     'processor' => array(
       'plugin_key' => 'FeedsNodeProcessor',
       'config' => array(
-        'content_type' => 'page',
         'input_format' => 'textbook_editor',
         'update_existing' => '2',
         'expire' => '-1',
@@ -115,6 +119,10 @@ function feeds_node_helper_import_feeds_importer_default() {
           ),
         ),
         'author' => '1',
+        'authorize' => 0,
+        'update_non_existent' => 'skip',
+        'skip_hash_check' => 0,
+        'bundle' => 'page',
       ),
     ),
     'content_type' => '',

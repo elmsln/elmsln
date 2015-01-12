@@ -51,6 +51,9 @@ function feeds_node_helper_feeds_processor_targets_alter(&$target, $type, $bundl
  * Set the node uuid from an external system.
  */
 function feeds_node_helper_feeds_set_uuid_target($source, $entity, $target, $value) {
+  if (is_array($value)) {
+    $value = $value[0];
+  }
   $entity->uuid = $value;
 }
 
@@ -58,6 +61,9 @@ function feeds_node_helper_feeds_set_uuid_target($source, $entity, $target, $val
  * Set the node type.
  */
 function feeds_node_helper_feeds_set_type_target($source, $entity, $target, $value) {
+  if (is_array($value)) {
+    $value = $value[0];
+  }
   // default to page if nothing is provided
   if ($value == '') {
     $value = 'page';
@@ -69,6 +75,9 @@ function feeds_node_helper_feeds_set_type_target($source, $entity, $target, $val
  * Set the book weight.
  */
 function feeds_node_helper_feeds_set_weight_target($source, $entity, $target, $value) {
+  if (is_array($value)) {
+    $value = $value[0];
+  }
   // set the weight based on what it was previously
   if ($value == '') {
     $value = 0;
@@ -81,7 +90,10 @@ function feeds_node_helper_feeds_set_weight_target($source, $entity, $target, $v
  */
 function feeds_node_helper_feeds_set_uuid_book_bid_target($source, $entity, $target, $value) {
   // load the parent from the UUID, it should have been created prior to creation
-  if ($value == '') {
+  if (is_array($value)) {
+    $value = $value[0];
+  }
+  if (empty($value)) {
     $entity->book['bid'] = 'new';
   }
   else {
@@ -103,6 +115,9 @@ function feeds_node_helper_feeds_set_uuid_book_bid_target($source, $entity, $tar
  */
 function feeds_node_helper_feeds_set_uuid_book_parent_target($source, $entity, $target, $value) {
   // load the parent from the UUID, it should have been created prior to creation
+  if (is_array($value)) {
+    $value = $value[0];
+  }
   $pnids = entity_get_id_by_uuid('node', array($value));
   if ($pnids[$value]) {
     // load the full entity (node)
