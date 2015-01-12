@@ -663,6 +663,9 @@ function cis_helper_cis_service_instance_job_file_alter(&$content, $course, $ser
   // if any major performance / caching modules are enabled
   // add them last so that if they error out there's no issue in the site
   // building since these can be silly at times
+  if (module_exists('memcache')) {
+    $content .= 'drush en memcache' . "\n";
+  }
   if (module_exists('filecache')) {
     $content .= 'drush en filecache' . "\n";
   }
