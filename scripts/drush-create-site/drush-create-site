@@ -223,7 +223,7 @@ do
   echo "\$conf['cache_prefix'] = '$coursedb';" >> $drupalroot/sites/$subdir/$course/settings.php
   echo "require_once DRUPAL_ROOT . '/../../shared/drupal-7.x/settings/shared_settings.php';" >> $drupalroot/sites/$subdir/$course/settings.php
 
-  #adding servies conf file
+  #adding services conf file
   if [ ! -d $drupalroot/sites/$service/services/$college/$course ];
     then mkdir -p $drupalroot/sites/$service/services/$college/$course
       mkdir $drupalroot/sites/$service/services/$college/$course/files
@@ -233,6 +233,7 @@ do
       fi
       if [ -f $drupalroot/sites/$service/services/$college/$course/settings.php ]; then
         echo "\$conf['restws_basic_auth_user_regex'] = '/^SERVICE_.*/';" >> $drupalroot/sites/$service/services/$college/$course/settings.php
+        sed -i "/\# \$base_url/a \ \t \$base_url= '$protocol://$datahostname/$course';" $drupalroot/sites/$service/services/$college/$course/settings.php
       fi
   fi
   ##set base_url
