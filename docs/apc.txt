@@ -1,4 +1,5 @@
 ; These are recommended defaults from an active ELMSLN environment
+extension = apc.so
 ; The number of seconds a cache entry is allowed to idle in a slot in case this
 ; cache entry slot is needed by another entry.
 apc.ttl=0
