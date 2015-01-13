@@ -277,7 +277,8 @@ do
 
   # work through the open ended drush commands
   echo "5" > $fileloc/$course.$service.progress
-
+  # clear drush cache to ensure it hasn't cached aliases
+  drush cc drush --y
   if [[ $options ]]; then
     grep ^drush $coursefile.processing | while read drush; do
       drushcommand=`echo $drush | awk '{print $2}'`
