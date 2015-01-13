@@ -58,13 +58,13 @@ for sitedata in `find $elmsln/config/stacks/$2 -name $1 | grep -v services` ; do
                 mysql -u$dbsu -p$dbsupw -e "drop user $dbuser@localhost;"
             fi
         fi
-        elmslnecho "removing site data"
-        servicestest=`find $elmsln/config/stacks/$2/sites/$2/services/ -name $2`
-        elmslnecho "services test"
+        servicestest=`find $elmsln/config/stacks/$2/sites/$2/services/ -name $1`
+        elmslnecho "removing services site"
         elmslnecho $servicestest
         if [[ $servicestest ]]; then
             rm -rf $servicestest
         fi
+        elmslnecho "removing site"
         rm -rf $sitedata
     else
         elmslnecho "preserving site data in $sitedata"
