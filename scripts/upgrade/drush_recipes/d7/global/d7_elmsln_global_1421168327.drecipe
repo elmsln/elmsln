@@ -1,0 +1,21 @@
+{
+	"name": "ELMSLN global upgrade 1421168327",
+	"drush_recipes_api": "1.0",
+	"weight": "0",
+	"core": "7",
+	"recipe": [
+		{
+			"command": "dis",
+			"arguments": [
+				"cis_remote_watchdog"
+			]
+		}
+	],
+	"metadata": {
+		"type": "upgrade",
+		"version": "1.0",
+		"author": "elmsln",
+		"description": "Disable remote watchdog, we dont support it anymore",
+    "version": "1421168327"
+  }
+}
