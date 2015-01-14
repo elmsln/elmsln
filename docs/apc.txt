@@ -1,5 +1,23 @@
 ; These are recommended defaults from an active ELMSLN environment
+
+; Enable apc extension module
 extension = apc.so
+
+; Options for the APC module version >= 3.1.3
+; See http://www.php.net/manual/en/apc.configuration.php
+
+; This can be set to 0 to disable APC. 
+apc.enabled=1
+; The number of shared memory segments to allocate for the compiler cache. 
+apc.shm_segments=1
+; The size of each shared memory segment with M/G suffix.
+apc.shm_size=384M
+; A "hint" about the number of distinct source files that will be included or 
+; requested on your web server. Set to zero or omit if you're not sure;
+apc.num_files_hint=3000
+; Just like num_files_hint, a "hint" about the number of distinct user cache
+; variables to store.  Set to zero or omit if you're not sure;
+apc.user_entries_hint=4096
 ; The number of seconds a cache entry is allowed to idle in a slot in case this
 ; cache entry slot is needed by another entry.
 apc.ttl=0
