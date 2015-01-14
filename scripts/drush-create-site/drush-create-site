@@ -339,7 +339,7 @@ do
       fi
       echo "5" > $fileloc/$course.$service.progress
       echo "drush @$service.$course $drushcommand --y" >> $fileloc/$course.$service.progress
-      drush -y --root=$drupalroot --uri=$protocol://$hostname.$course $drushcommand -v >> $configsdir/logs/drush-create-site.log
+      drush --y --root=$drupalroot --uri=$hostname.$course $drushcommand -v >> $configsdir/logs/drush-create-site.log
     done
   fi
   # done running commands, now we add in our cache bin optimization settings
