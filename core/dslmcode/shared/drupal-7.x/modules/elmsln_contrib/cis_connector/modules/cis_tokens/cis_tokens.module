@@ -221,18 +221,17 @@ function _cis_tokens_get_token_scope($scope = FALSE) {
       // convert to a usable array format
       $tmp2 = explode("\n", $tmp2);
       foreach ($tmp2 as $tmppair2) {
-        $pair2 = explode("|", $tmppair2, 2);
-        if (count($pair) === 2 && !empty($pair2[1])) {
-          // see if we are sending along the scope instead of the replacement
-          if ($scope) {
-            $tokens[filter_xss($pair2[0])] = $section->title;
+        if ($tmppair2 != "\n") {
+          $pair2 = explode("|", $tmppair2, 2);
+          if (count($pair2) === 2) {
+            // see if we are sending along the scope instead of the replacement
+            if ($scope) {
+              $tokens[filter_xss($pair2[0])] = $section->title;
+            }
+            else {
+              $tokens[filter_xss($pair2[0])] = filter_xss($pair2[1]);
+            }
           }
-          else {
-            $tokens[filter_xss($pair2[0])] = filter_xss($pair2[1]);
-          }
-        }
-        else {
-          drupal_set_message(t("Section token could not be understood: @line . Go to @url to fix this", array('@line' => $tmppair2, '@url' => l('node/' . $section->nid . '/edit', 'node/' . $section->nid . '/edit'))), 'warning');
         }
       }
     }
