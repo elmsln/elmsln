@@ -656,19 +656,27 @@ function _cis_helper_add_service_instance($course, $service, $service_instance, 
  * @param  object $service_instance the service_instance node
  */
 function cis_helper_cis_service_instance_job_file_alter(&$content, $course, $service, $service_instance) {
-  // run cron to return our cron key / do some cache clean up
+  // run cron to return our cron key / do some clean up
   $content .= 'drush cron' . "\n";
   // if any major performance / caching modules are enabled
   // add them last so that if they error out there's no issue in the site
   // building since these can be silly at times
+  $advanced_caching = FALSE;
   if (module_exists('memcache')) {
     $content .= 'drush en memcache' . "\n";
+    $advanced_caching = TRUE;
   }
   if (module_exists('filecache')) {
     $content .= 'drush en filecache' . "\n";
+    $advanced_caching = TRUE;
   }
   if (module_exists('apc')) {
     $content .= 'drush en apc' . "\n";
+    $advanced_caching = TRUE;
+  }
+  // kill all caches if any of the above were enabled
+  if ($advanced_caching) {
+    $content .= 'drush cc all' . "\n";
   }
   // preseed all entity caches after any potential caching projects are on
   $content .= 'drush ecl' . "\n";
