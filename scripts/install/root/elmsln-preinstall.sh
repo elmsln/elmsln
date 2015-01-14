@@ -245,7 +245,8 @@ else
 fi
 # performance / recommended settings
 if [[ -n "$apcini" ]]; then
-  cat /var/www/elmsln/docs/apc.txt >> $apcini
+  rm $apcini
+  cp /var/www/elmsln/docs/apc.txt $apcini
 fi
 if [[ -n "$phpini" ]]; then
   cat /var/www/elmsln/docs/php.txt >> $phpini
