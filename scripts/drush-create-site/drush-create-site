@@ -219,9 +219,8 @@ do
   	fi
   fi
 
-  # add in our cache bins - todo move to configsdir?
+  # add in our cache bins
   echo "\$conf['cache_prefix'] = '$coursedb';" >> $drupalroot/sites/$subdir/$course/settings.php
-  echo "require_once DRUPAL_ROOT . '/../../shared/drupal-7.x/settings/shared_settings.php';" >> $drupalroot/sites/$subdir/$course/settings.php
 
   #adding services conf file
   if [ ! -d $drupalroot/sites/$service/services/$college/$course ];
@@ -343,6 +342,9 @@ do
       drush @$service.$course $drushcommand --y
     done
   fi
+  # done running commands, now we add in our cache bin optimization settings
+  echo "require_once DRUPAL_ROOT . '/../../shared/drupal-7.x/settings/shared_settings.php';" >> $drupalroot/sites/$subdir/$course/settings.php
+  echo "require_once DRUPAL_ROOT . '/../../shared/drupal-7.x/settings/shared_settings.php';" >> $drupalroot/sites/$service/services/$college/$course/settings.php
 
   echo "6" > $fileloc/$course.$service.progress
 
