@@ -1,0 +1,138 @@
+<?php
+/**
+ * @file
+ * Integrate ClamAV to allow uploaded files to be scanned for viruses.
+ */
+
+// Scan using a ClamAV Daemon
+define('CLAMAV_USE_DAEMON', 0);
+// Scan using a ClamAV executable
+define('CLAMAV_USE_EXECUTABLE', 1);
+// Default: use Daemon-mode
+define('CLAMAV_DEFAULT_MODE', CLAMAV_USE_DAEMON);
+
+// Behaviour if the ClamAV scanner is unavailable or does not respond.
+// Prevent unchecked files from being uploaded
+define('CLAMAV_BLOCK_UNCHECKED', 0);
+// Allow unchecked files to be uploaded
+define('CLAMAV_ALLOW_UNCHECKED', 1);
+// Default behaviour for unchecked files - Block unchecked files.
+define('CLAMAV_DEFAULT_UNCHECKED', CLAMAV_BLOCK_UNCHECKED);
+
+// Default host (in Daemon-mode)
+define('CLAMAV_DEFAULT_HOST', 'localhost');
+// Default port (in Daemon-mode)
+define('CLAMAV_DEFAULT_PORT', 3310);
+// Default path (in Executable-mode)
+define('CLAMAV_DEFAULT_PATH', '/usr/bin/clamscan');
+
+// The file was not checked (e.g. because the AV daemon wasn't running).
+define('CLAMAV_SCANRESULT_UNCHECKED', -1);
+// The file was checked and found to be clean.
+define('CLAMAV_SCANRESULT_CLEAN', 0);
+// The file was checked and found to be infected.
+define('CLAMAV_SCANRESULT_INFECTED', 1);
+
+// By default, verbose mode is disabled (only infected files are logged).
+define('CLAMAV_VERBOSE_DEFAULT', FALSE);
+
+/**
+ * Implements hook_help().
+ */
+function clamav_help($path, $arg) {
+  $output = '';
+  switch ($path) {
+    case "admin/help#clamav":
+      $output .= '<p>' . t('Clam AntiVirus is an open source anti-virus toolkit for UNIX.') . '</p>';
+      $output .= '<p>' . t('The ClamAV module allows files which are uploaded to Drupal to be scanned by Clam AntiVirus.') . '<br />';
+      $output .=         t('The module does not install ClamAV - visit <a href="http://www.clamav.net/">the ClamAV website</a> for help installing ClamAV.') . '</p>';
+      break;
+
+    case 'admin/config/clamav':
+      break;
+  }
+  return $output;
+}
+
+/**
+ * Implements hook_menu().
+ */
+function clamav_menu() {
+  return array(
+    'admin/config/media/clamav' => array(
+      'title' => 'Anti-virus (ClamAV)',
+      'description' => 'Configure ClamAV virus scanner for file / image fields.',
+      'page callback' => 'drupal_get_form',
+      'page arguments' => array('clamav_admin_settings'),
+      'access arguments' => array('administer site configuration'),
+      'file' => 'clamav.admin.inc',
+    ),
+  );
+}
+
+/**
+ * Implements hook_form_alter().
+ * Hooks into the node-edit form, and delegates scan-handling to a per-field-
+ * type handler.
+ */
+function clamav_form_alter(&$form, $form_state, $form_id) {
+  if (!empty($form['#node_edit_form'])) {
+    foreach (field_info_fields() as $field_name => $field) {
+      $is_node_bundle = isset($field['bundles']['node']);
+      if (!$is_node_bundle || !in_array($form['#node']->type, $field['bundles']['node'])) {
+        continue;
+      }
+
+      // Delegate to field-type-specific handler, for example, "file" fields are
+      // handled by "clamav_file_alter", etc.
+      $function = 'clamav_' . $field['type'] . '_alter';
+      if (function_exists($function)) {
+        $function($form[$field_name]);
+      }
+    }
+  }
+}
+
+/**
+ * Delegated hook_form_alter() for file fields.
+ */
+function clamav_file_alter(&$field) {
+  if (module_exists('file') && variable_get('clamav_enable_element_file_widget', TRUE)) {
+    $language_code = $field['#language'];
+    foreach (element_children($field[$language_code]) as $delta) {
+      $field[$language_code][$delta]['#upload_validators']['clamav_file_widget_validate'] = array();
+    }
+  }
+}
+
+/**
+ * Delegated hook_form_alter() for image fields.
+ */
+function clamav_image_alter(&$field) {
+  if (module_exists('image') && variable_get('clamav_enable_element_image_widget', TRUE)) {
+    $language_code = $field['#language'];
+    foreach (element_children($field[$language_code]) as $delta) {
+      $field[$language_code][$delta]['#upload_validators']['clamav_file_widget_validate'] = array();
+    }
+  }
+}
+
+/**
+ *  Validator for file widget and image widget.
+ *  This is an implementation of a file upload_validator.
+ */
+function clamav_file_widget_validate(stdClass $file) {
+  $form_error_key = $file->source;
+
+  require_once dirname(__FILE__) . '/clamav.inc';
+  $result = clamav_scan_file($file->uri, $file->filename);
+
+  $errors = array();
+  if ($result == CLAMAV_SCANRESULT_INFECTED) {
+    $errors[] =  t('A virus has been detected in the file.  The file will not be accepted.');
+  }
+  elseif ($result == CLAMAV_SCANRESULT_UNCHECKED && variable_get('clamav_unchecked_files', CLAMAV_DEFAULT_UNCHECKED) == CLAMAV_BLOCK_UNCHECKED) {
+    $errors[] = t('The anti-virus scanner was not able to check the file.  The file cannot be uploaded.');
+  }
+  return $errors;
+}

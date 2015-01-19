@@ -1,0 +1,26 @@
+Code Filter 7.x-1.x-dev, xxxx-xx-xx (development release)
+-----------------------------------
+- Remove translations in favor of localize.drupal.org
+- #76234: Fix leading space in code being ignored by browsers
+- #1092140 : Dynamic expansion of too-wide codeblocks.
+
+Code Filter 7.x-1.0, 2010-01-07
+-------------------------------
+- #890622 by Damien Tournoud: Remove the use of /e
+- #606036 by psynaptic: Allow aggregation of CSS file
+- #565328 by John Morahan: Port to 7.x
+
+Code Filter 6.x-1.0, 2008-03-06
+-------------------------------
+- #196121 by corsix [GHOP]: Ported to D6 core
+
+Code Filter 5.x-1.1, 2008-01-14
+-------------------------------
+- #208636: Drupal 5.6 breaks Code Filter due to Fix for SA-2008-006
+- Added French translation (by beginner)
+- Added Vietnamese translation (by thehong)
+
+Code Filter 5.x-1.0, 2007-12-05
+-------------------------------
+- Added Hungarian translation (by aries) and .pot file
+- Initial release

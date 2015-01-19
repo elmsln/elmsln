@@ -1,0 +1,13 @@
+<?php
+
+/**
+ * @file
+ * Simpletest implementation for ClamAV module.
+ */
+
+/**
+ * Simpletest Web-test-cases
+ */
+class ClamAVTestCase extends DrupalWebTestCase {
+
+}

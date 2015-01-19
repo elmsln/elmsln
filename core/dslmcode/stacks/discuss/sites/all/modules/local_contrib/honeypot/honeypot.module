@@ -1,0 +1,374 @@
+<?php
+
+/**
+ * @file
+ * Honeypot module, for deterring spam bots from completing Drupal forms.
+ */
+
+/**
+ * Implements hook_menu().
+ */
+function honeypot_menu() {
+  $items['admin/config/content/honeypot'] = array(
+    'title' => 'Honeypot configuration',
+    'description' => 'Configure Honeypot spam prevention and the forms on which Honeypot will be used.',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('honeypot_admin_form'),
+    'access arguments' => array('administer honeypot'),
+    'file' => 'honeypot.admin.inc',
+  );
+
+  return $items;
+}
+
+/**
+ * Implements hook_permission().
+ */
+function honeypot_permission() {
+  return array(
+    'administer honeypot' => array(
+      'title' => t('Administer Honeypot'),
+      'description' => t('Administer Honeypot-protected forms and settings'),
+    ),
+    'bypass honeypot protection' => array(
+      'title' => t('Bypass Honeypot protection'),
+      'description' => t('Bypass Honeypot form protection.'),
+    ),
+  );
+}
+
+/**
+ * Implements of hook_cron().
+ */
+function honeypot_cron() {
+  // Delete {honeypot_user} entries older than the value of honeypot_expire.
+  db_delete('honeypot_user')
+    ->condition('timestamp', time() - variable_get('honeypot_expire', 300), '<')
+    ->execute();
+}
+
+/**
+ * Implements hook_form_alter().
+ *
+ * Add Honeypot features to forms enabled in the Honeypot admin interface.
+ */
+function honeypot_form_alter(&$form, &$form_state, $form_id) {
+  // Don't use for maintenance mode forms (install, update, etc.).
+  if (defined('MAINTENANCE_MODE')) {
+    return;
+  }
+
+  $unprotected_forms = array(
+    'user_login',
+    'user_login_block',
+    'search_form',
+    'search_block_form',
+    'views_exposed_form',
+    'honeypot_admin_form',
+  );
+
+  // If configured to protect all forms, add protection to every form.
+  if (variable_get('honeypot_protect_all_forms', 0) && !in_array($form_id, $unprotected_forms)) {
+    // Don't protect system forms - only admins should have access, and system
+    // forms may be programmatically submitted by drush and other modules.
+    if (strpos($form_id, 'system_') === FALSE && strpos($form_id, 'search_') === FALSE && strpos($form_id, 'views_exposed_form_') === FALSE) {
+      honeypot_add_form_protection($form, $form_state, array('honeypot', 'time_restriction'));
+    }
+  }
+
+  // Otherwise add form protection to admin-configured forms.
+  elseif ($forms_to_protect = honeypot_get_protected_forms()) {
+    foreach ($forms_to_protect as $protect_form_id) {
+      // For most forms, do a straight check on the form ID.
+      if ($form_id == $protect_form_id) {
+        honeypot_add_form_protection($form, $form_state, array('honeypot', 'time_restriction'));
+      }
+      // For webforms use a special check for variable form ID.
+      elseif ($protect_form_id == 'webforms' && (strpos($form_id, 'webform_client_form') !== FALSE)) {
+        honeypot_add_form_protection($form, $form_state, array('honeypot', 'time_restriction'));
+      }
+    }
+  }
+}
+
+/**
+ * Implements hook_trigger_info().
+ */
+function honeypot_trigger_info() {
+  return array(
+    'honeypot' => array(
+      'honeypot_reject' => array(
+        'label' => t('Honeypot rejection'),
+      ),
+    ),
+  );
+}
+
+/**
+ * Implements hook_rules_event_info()
+ */
+function honeypot_rules_event_info() {
+  return array(
+    'honeypot_reject' => array(
+      'label' => t('Honeypot rejection'),
+      'group' => t('Honeypot'),
+      'variables' => array(
+        'form_id' => array(
+          'type' => 'text',
+          'label' => t('Form ID of the form the user was disallowed from submitting.'),
+        ),
+        // Don't provide 'uid' in context because it is available as
+        // site:current-user:uid.
+        'type' => array(
+          'type' => 'text',
+          'label' => t('String indicating the reason the submission was blocked.'),
+        ),
+      ),
+    ),
+  );
+}
+
+/**
+ * Build an array of all the protected forms on the site, by form_id.
+ *
+ * @todo - Add in API call/hook to allow modules to add to this array.
+ */
+function honeypot_get_protected_forms() {
+  $forms = &drupal_static(__FUNCTION__);
+
+  // If the data isn't already in memory, get from cache or look it up fresh.
+  if (!isset($forms)) {
+    if ($cache = cache_get('honeypot_protected_forms')) {
+      $forms = $cache->data;
+    }
+    else {
+      // Look up all the honeypot forms in the variables table.
+      $result = db_query("SELECT name FROM {variable} WHERE name LIKE 'honeypot_form_%'")->fetchCol();
+      // Add each form that's enabled to the $forms array.
+      foreach ($result as $variable) {
+        if (variable_get($variable, 0)) {
+          $forms[] = substr($variable, 14);
+        }
+      }
+
+      // Save the cached data.
+      cache_set('honeypot_protected_forms', $forms, 'cache');
+    }
+  }
+
+  return $forms;
+}
+
+/**
+ * Form builder function to add different types of protection to forms.
+ *
+ * @param array $options
+ *   Array of options to be added to form. Currently accepts 'honeypot' and
+ *   'time_restriction'.
+ *
+ * @return array
+ *   Returns elements to be placed in a form's elements array to prevent spam.
+ */
+function honeypot_add_form_protection(&$form, &$form_state, $options = array()) {
+  global $user;
+
+  // Allow other modules to alter the protections applied to this form.
+  drupal_alter('honeypot_form_protections', $options, $form);
+
+  // Don't add any protections if the user can bypass the Honeypot.
+  if (user_access('bypass honeypot protection')) {
+    return;
+  }
+
+  // Build the honeypot element.
+  if (in_array('honeypot', $options)) {
+    // Get the element name (default is generic 'url').
+    $honeypot_element = variable_get('honeypot_element_name', 'url');
+
+    // Build the honeypot element.
+    $honeypot_class = $honeypot_element . '-textfield';
+    $form[$honeypot_element] = array(
+      '#type' => 'textfield',
+      '#title' => t('Leave this field blank'),
+      '#size' => 20,
+      '#weight' => 100,
+      '#attributes' => array('autocomplete' => 'off'),
+      '#element_validate' => array('_honeypot_honeypot_validate'),
+      '#prefix' => '<div class="' . $honeypot_class . '">',
+      '#suffix' => '</div>',
+      // Hide honeypot.
+      '#attached' => array(
+        'css' => array(
+          '.' . $honeypot_class . ' { display: none !important; }' => array('type' => 'inline'),
+        ),
+      ),
+    );
+  }
+
+  // Build the time restriction element (if it's not disabled).
+  if (in_array('time_restriction', $options) && variable_get('honeypot_time_limit', 5) != 0) {
+    // Set the current time in a hidden value to be checked later.
+    $form['honeypot_time'] = array(
+      '#type' => 'hidden',
+      '#title' => t('Timestamp'),
+      '#default_value' => time(),
+      '#element_validate' => array('_honeypot_time_restriction_validate'),
+    );
+
+    // Disable page caching to make sure timestamp isn't cached.
+    if (user_is_anonymous()) {
+      $GLOBALS['conf']['cache'] = 0;
+    }
+  }
+
+  // Allow other modules to react to addition of form protection.
+  if (!empty($options)) {
+    module_invoke_all('honeypot_add_form_protection', $options, $form);
+  }
+}
+
+/**
+ * Validate honeypot field.
+ */
+function _honeypot_honeypot_validate($element, &$form_state) {
+  // Get the honeypot field value.
+  $honeypot_value = $element['#value'];
+
+  // Make sure it's empty.
+  if (!empty($honeypot_value)) {
+    _honeypot_log($form_state['values']['form_id'], 'honeypot');
+    form_set_error('', t('There was a problem with your form submission. Please refresh the page and try again.'));
+  }
+}
+
+/**
+ * Validate honeypot's time restriction field.
+ */
+function _honeypot_time_restriction_validate($element, &$form_state) {
+  // Don't do anything if the triggering element is a preview button.
+  if ($form_state['triggering_element']['#value'] == t('Preview')) {
+    return;
+  }
+
+  // Get the time value.
+  $honeypot_time = $form_state['values']['honeypot_time'];
+
+  // Get the honeypot_time_limit.
+  $time_limit = honeypot_get_time_limit($form_state['values']);
+
+  // Make sure current time - (time_limit + form time value) is greater than 0.
+  // If not, throw an error.
+  if (time() < ($honeypot_time + $time_limit)) {
+    _honeypot_log($form_state['values']['form_id'], 'honeypot_time');
+    // Get the time limit again, since it increases after first failure.
+    $time_limit = honeypot_get_time_limit($form_state['values']);
+    $form_state['values']['honeypot_time'] = time();
+    form_set_error('', t('There was a problem with your form submission. Please wait @limit seconds and try again.', array('@limit' => $time_limit)));
+  }
+}
+
+/**
+ * Log blocked form submissions.
+ *
+ * @param string $form_id
+ *   Form ID for the form on which submission was blocked.
+ * @param string $type
+ *   String indicating the reason the submission was blocked. Allowed values:
+ *     - honeypot: If honeypot field was filled in.
+ *     - honeypot_time: If form was completed before the configured time limit.
+ */
+function _honeypot_log($form_id, $type) {
+  honeypot_log_failure($form_id, $type);
+  if (variable_get('honeypot_log', 0)) {
+    $variables = array(
+      '%form'  => $form_id,
+      '@cause' => ($type == 'honeypot') ? t('submission of a value in the honeypot field') : t('submission of the form in less than minimum required time'),
+    );
+    watchdog('honeypot', 'Blocked submission of %form due to @cause.', $variables);
+  }
+}
+
+/**
+ * Look up the time limit for the current user.
+ *
+ * @param array $form_values
+ *   Array of form values (optional).
+ */
+function honeypot_get_time_limit($form_values = array()) {
+  global $user;
+  $honeypot_time_limit = variable_get('honeypot_time_limit', 5);
+
+  // Only calculate time limit if honeypot_time_limit has a value > 0.
+  if ($honeypot_time_limit) {
+    // Get value from {honeypot_user} table for authenticated users.
+    if ($user->uid) {
+      $number = db_query("SELECT COUNT(*) FROM {honeypot_user} WHERE uid = :uid", array(':uid' => $user->uid))->fetchField();
+    }
+    // Get value from {flood} table for anonymous users.
+    else {
+      $number = db_query("SELECT COUNT(*) FROM {flood} WHERE event = :event AND identifier = :hostname AND timestamp > :time", array(
+        ':event' => 'honeypot',
+        ':hostname' => ip_address(),
+        ':time' => time() - variable_get('honeypot_expire', 300),
+      ))->fetchField();
+    }
+    // Don't add more than 30 days' worth of extra time.
+    $honeypot_time_limit = (int) min($honeypot_time_limit + exp($number) - 1, 2592000);
+    $additions = module_invoke_all('honeypot_time_limit', $honeypot_time_limit, $form_values, $number);
+    if (count($additions)) {
+      $honeypot_time_limit += array_sum($additions);
+    }
+  }
+  return $honeypot_time_limit;
+}
+
+/**
+ * Log the failed submision with timestamp.
+ *
+ * @param string $form_id
+ *   Form ID for the rejected form submission.
+ * @param string $type
+ *   String indicating the reason the submission was blocked. Allowed values:
+ *     - honeypot: If honeypot field was filled in.
+ *     - honeypot_time: If form was completed before the configured time limit.
+ */
+function honeypot_log_failure($form_id, $type) {
+  global $user;
+
+  // Log failed submissions for authenticated users.
+  if ($user->uid) {
+    db_insert('honeypot_user')
+      ->fields(array(
+        'uid' => $user->uid,
+        'timestamp' => time(),
+      ))
+      ->execute();
+  }
+  // Register flood event for anonymous users.
+  else {
+    flood_register_event('honeypot');
+  }
+
+  // Allow other modules to react to honeypot rejections.
+  module_invoke_all('honeypot_reject', $form_id, $user->uid, $type);
+
+  // Trigger honeypot_reject action.
+  if (module_exists('trigger')) {
+    $aids = trigger_get_assigned_actions('honeypot_reject');
+    $context = array(
+      'group' => 'honeypot',
+      'hook' => 'honeypot_reject',
+      'form_id' => $form_id,
+      // Do not provide $user in context because it is available as a global.
+      'type' => $type,
+    );
+    // Honeypot does not act on any specific object.
+    $object = NULL;
+    actions_do(array_keys($aids), $object, $context);
+  }
+
+  // Trigger rules honeypot_reject event.
+  if (module_exists('rules')) {
+    rules_invoke_event('honeypot_reject', $form_id, $type);
+  }
+}

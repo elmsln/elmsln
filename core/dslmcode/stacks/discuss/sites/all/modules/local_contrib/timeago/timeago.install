@@ -1,0 +1,154 @@
+<?php
+
+/**
+ * @file
+ *   (Un)installs the Timeago module.
+ */
+
+// When the module is first installed, the module file won't be loaded yet.
+// As a result, these constants won't be defined.
+if (!defined('TIMEAGO_LIBRARY_FILENAME')) {
+  define('TIMEAGO_LIBRARY_FILENAME', 'jquery.timeago.js');
+}
+if (!defined('TIMEAGO_LIBRARY_DOWNLOAD_URL')) {
+  define('TIMEAGO_LIBRARY_DOWNLOAD_URL', 'http://timeago.yarp.com/jquery.timeago.js');
+}
+
+/**
+ * Implements hook_requirements().
+ */
+function timeago_requirements($phase) {
+  // Path to library
+  if (module_exists('libraries') && function_exists('libraries_load') && $path = libraries_get_path('timeago')) {
+    $path .= '/' . TIMEAGO_LIBRARY_FILENAME;
+  }
+  else {
+    $path = drupal_get_path('module', 'timeago') . '/' . TIMEAGO_LIBRARY_FILENAME;
+  }
+  $t = get_t();
+  $requirements = array('timeago' => array(
+    'title' => $t('Timeago library'),
+  ));
+
+  // If file exists...
+  if (file_exists($path)) {
+    // Get version information
+    $version = timeago_get_version($path);
+    $requirements['timeago']['value'] = $version;
+
+    // Check for updates, cache remote library file...
+    if ($cache = cache_get('timeago_update_version')) {
+      $update_version = $cache->data;
+    }
+    else {
+      $update_version = timeago_get_version(TIMEAGO_LIBRARY_DOWNLOAD_URL);
+      cache_set('timeago_update_version', $update_version, 'cache', REQUEST_TIME + 60 * 60 * 24 * 7);
+    }
+
+    // No update info
+    if (!$update_version) {
+      $requirements['timeago']['description'] = $t('The Timeago library exists but update information could not be found. If desired, you can manually check <a href="@library_download_url">@library_download_url</a> for a newer version of the library.', array('@library_download_url' => TIMEAGO_LIBRARY_DOWNLOAD_URL));
+      $requirements['timeago']['severity'] = REQUIREMENT_WARNING;
+    }
+    // Update available
+    elseif (version_compare($version, $update_version, '<')) {
+      $requirements['timeago']['description'] = $t('The Timeago library is installed, but a newer version is available. You may wish to download the latest version from <a href="@library_download_url">@library_download_url</a> and overwrite the current version located at %path.', array('@library_download_url' => TIMEAGO_LIBRARY_DOWNLOAD_URL, '%path' => $path));
+      $requirements['timeago']['severity'] = REQUIREMENT_WARNING;
+    }
+    // Everything okay
+    else {
+      $requirements['timeago']['description'] = $t('The Timeago library exists and is up to date.');
+      $requirements['timeago']['severity'] = REQUIREMENT_OK;
+    }
+  }
+
+  // File does not exist
+  else {
+    if (module_exists('libraries')) {
+      // If libraries module exists, but timeago library is not yet installed, recommend default libraries directory for installation
+      $path = 'sites/all/libraries/timeago/' . TIMEAGO_LIBRARY_FILENAME;
+    }
+    $requirements['timeago']['value'] = NULL;
+    $requirements['timeago']['description'] = $t('The Timeago library is not installed. Please <a href="@library_download_url">download the library</a> and put it at %path.', array('@library_download_url' => TIMEAGO_LIBRARY_DOWNLOAD_URL, '%path' => $path));
+    $requirements['timeago']['severity'] = ($phase == 'runtime' ? REQUIREMENT_ERROR : REQUIREMENT_WARNING);
+  }
+
+  return $requirements;
+}
+
+/**
+ * Gets the version information from a file.
+ *
+ * @param $path
+ *   The path of the file to check.
+ * @param $options
+ *   An associative array containing with the following keys:
+ *   - pattern: A string containing a regular expression (PCRE) to match the
+ *     library version. For example: '@version\s+([0-9a-zA-Z\.-]+)@'.
+ *   - lines: (optional) The maximum number of lines to search the pattern in.
+ *     Defaults to 20.
+ *   - cols: (optional) The maximum number of characters per line to take into
+ *     account. Defaults to 200. In case of minified or compressed files, this
+ *     prevents reading the entire file into memory.
+ *
+ * @return
+ *   A string containing the version of a file, or FALSE if no version detected or file fails to open.
+ *
+ * @see libraries_get_version().
+ */
+function timeago_get_version($path, $options = array()) {
+  $version = FALSE;
+  // Provide defaults.
+  $options += array(
+    'pattern' => '@version\s+([0-9a-zA-Z\.-]+)@',
+    'lines' => 20,
+    'cols' => 200,
+  );
+  $file = fopen($path, 'r');
+  if ($file) {
+    while ($options['lines'] && $line = fgets($file, $options['cols'])) {
+      if (preg_match($options['pattern'], $line, $matches)) {
+        $version = $matches[1];
+        break;
+      }
+      $options['lines']--;
+    }
+    fclose($file);
+  }
+  return $version;
+}
+
+/**
+ * Implements hook_uninstall().
+ */
+function timeago_uninstall() {
+  $variables = array(
+    'timeago_node',
+    'timeago_comment',
+    'timeago_elem',
+    'timeago_js_refresh_millis',
+    'timeago_js_allow_future',
+    'timeago_js_locale_title',
+    'timeago_js_cutoff',
+    'timeago_js_strings_prefix_ago',
+    'timeago_js_strings_prefix_from_now',
+    'timeago_js_strings_suffix_ago',
+    'timeago_js_strings_suffix_from_now',
+    'timeago_js_strings_seconds',
+    'timeago_js_strings_minute',
+    'timeago_js_strings_minutes',
+    'timeago_js_strings_hour',
+    'timeago_js_strings_hours',
+    'timeago_js_strings_day',
+    'timeago_js_strings_days',
+    'timeago_js_strings_month',
+    'timeago_js_strings_months',
+    'timeago_js_strings_year',
+    'timeago_js_strings_years',
+    'timeago_js_strings_word_separator',
+  );
+
+  foreach ($variables as $variable) {
+    variable_del($variable);
+  }
+}

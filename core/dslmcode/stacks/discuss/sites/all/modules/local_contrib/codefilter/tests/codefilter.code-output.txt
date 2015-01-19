@@ -1,0 +1,1 @@
+<div class="codeblock"><code>// Comment is here.<br />watchdog(&#039;actions&#039;, &#039;@count orphaned actions (%orphans) exist in the actions table. !link&#039;, array(&#039;@count&#039; =&gt; $count, &#039;%orphans&#039; =&gt; $orphans, &#039;!link&#039; =&gt; $link), WATCHDOG_INFO);<br />/**<br /> * Longer comment is here.<br /> **/</code></div>

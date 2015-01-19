@@ -1,0 +1,238 @@
+<?php
+
+/**
+ * @file
+ * readmorejs.module
+ */
+
+/**
+ * Implements hook_permission().
+ */
+function readmorejs_permission() {
+  return array(
+    'administer readmorejs' => array(
+      'title' => t('Administer Readmore.js settings'),
+    ),
+  );
+}
+
+/**
+ * Implements hook_menu().
+ */
+function readmorejs_menu() {
+  $items = array();
+
+  $items['admin/config/user-interface/readmorejs'] = array(
+    'title' => 'Readmore.js',
+    'description' => 'Configuration for the Readmore.js module.',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('readmorejs_admin_settings'),
+    'access arguments' => array('administer readmorejs'),
+    'type' => MENU_NORMAL_ITEM,
+  );
+
+  return $items;
+}
+
+/**
+ * Implements hook_libraries_info().
+ */
+function readmorejs_libraries_info() {
+  $libraries = array();
+
+  $libraries['readmore.js'] = array(
+    'name' => 'Readmore.js',
+    'vendor url' => 'https://github.com/jedfoster/Readmore.js',
+    // Wah no tagged releases.
+    'download url' => 'https://github.com/jedfoster/Readmore.js',
+    // Hard set the version as Readmore.js doesn't declare one.
+    'version' => 1,
+    'files' => array(
+      'js' => array('readmore.min.js'),
+    ),
+  );
+
+  return $libraries;
+}
+
+/**
+ * Implements hook_init().
+ */
+function readmorejs_init() {
+  // If we don't have selectors, do nothing!
+  if (variable_get('readmorejs_selectors', '') != '') {
+    // Check page matching, swiped from block.module.
+    $pages = variable_get('readmorejs_pages', '');
+    $page_match = FALSE;
+
+    if ($pages) {
+      $path = drupal_strtolower(drupal_get_path_alias($_GET['q']));
+      $page_match = drupal_match_path($path, $pages);
+      if ($path != $_GET['q']) {
+        $page_match = $page_match || drupal_match_path($_GET['q'], $pages);
+      }
+
+      // Switch up based on include/exclude listed pages.
+      $page_match = !(variable_get('readmorejs_include_exclude', 0) xor $page_match);
+    }
+    else {
+      $page_match = TRUE;
+    }
+
+    // Add in readmore.js woo!
+    if ($page_match) {
+      if (($library = libraries_detect('readmore.js')) && empty($library['installed'])) {
+        watchdog('readmorejs', 'The readmore.js library is missing.');
+      }
+      else {
+        libraries_load('readmore.js');
+        drupal_add_js(drupal_get_path('module', 'readmorejs') . '/readmorejs.js');
+
+        // Add settings.
+        $settings = array(
+          'selectors' => check_plain(variable_get('readmorejs_selectors', '')),
+          'speed' => (int) intval(variable_get('readmorejs_speed', 100)),
+          'maxHeight' => (int) intval(variable_get('readmorejs_max_height', 200)),
+          'heightMargin' => (int) intval(variable_get('readmorejs_height_margin', 16)),
+          'moreLink' => filter_xss(variable_get('readmorejs_more_link', '<a href="#">Read more</a>')),
+          'lessLink' => filter_xss(variable_get('readmorejs_less_link', '<a href="#">Close</a>')),
+          'embedCSS' => (bool) variable_get('readmorejs_embed_css', 1),
+          'sectionCSS' => filter_xss(variable_get('readmorejs_section_css', 'display: block; width: 100%;')),
+          'startOpen' => (bool) variable_get('readmorejs_start_open', 0),
+          'expandedClass' => check_plain(variable_get('readmorejs_expanded_class', 'readmore-js-expanded')),
+          'collapsedClass' => check_plain(variable_get('readmorejs_collapsed_class', 'readmore-js-collapsed')),
+        );
+        drupal_add_js(array('readmorejs' => $settings), 'setting');
+      }
+    }
+  }
+}
+
+/**
+ * Form callback.
+ */
+function readmorejs_admin_settings() {
+  $form = array();
+
+  $form['visibility'] = array(
+    '#type' => 'fieldset',
+    '#title' => t('Pages to include Readmore.js on'),
+    '#collapsible' => TRUE,
+  );
+
+  $form['visibility']['readmorejs_include_exclude'] = array(
+    '#type' => 'radios',
+    '#title' => t('Include or exclude the following pages from using Readmore.js'),
+    '#title_display' => 'invisible',
+    '#default_value' => variable_get('readmorejs_include_exclude', 0),
+    '#options' => array(
+      0 => t('All pages except those listed'),
+      1 => t('Only the listed pages'),
+    ),
+  );
+
+  $form['visibility']['readmorejs_pages'] = array(
+    '#type' => 'textarea',
+    '#title' => t('Pages'),
+    '#title_display' => 'invisible',
+    '#default_value' => variable_get('readmorejs_pages', ''),
+    '#description' => t("Specify pages by using their paths. Enter one path per line. The '*' character is a wildcard. Example paths are %blog for the blog page and %blog-wildcard for every personal blog. %front is the front page.", array('%blog' => 'blog', '%blog-wildcard' => 'blog/*', '%front' => '<front>')),
+  );
+
+  $form['plugin'] = array(
+    '#type' => 'fieldset',
+    '#title' => t('Plugin settings'),
+    '#collapsible' => TRUE,
+  );
+
+  $form['plugin']['readmorejs_selectors'] = array(
+    '#type' => 'textarea',
+    '#title' => t('Selectors'),
+    '#default_value' => variable_get('readmorejs_selectors', ''),
+    '#required' => TRUE,
+    '#description' => t('The selectors entered here will be run through check_plain.'),
+  );
+
+  $form['plugin']['readmorejs_speed'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Speed'),
+    '#default_value' => variable_get('readmorejs_speed', 100),
+    '#required' => TRUE,
+    '#element_validate' => array('element_validate_integer'),
+  );
+
+  $form['plugin']['readmorejs_max_height'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Max height'),
+    '#field_suffix' => ' ' . t('in pixels'),
+    '#default_value' => variable_get('readmorejs_max_height', 200),
+    '#required' => TRUE,
+    '#element_validate' => array('element_validate_integer'),
+  );
+
+  $form['plugin']['readmorejs_height_margin'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Height margin'),
+    '#field_suffix' => ' ' . t('in pixels'),
+    '#default_value' => variable_get('readmorejs_height_margin', 16),
+    '#required' => TRUE,
+    '#element_validate' => array('element_validate_integer'),
+    '#description' => t('Avoids collapsing blocks that are only slightly larger than this.'),
+  );
+
+  $form['plugin']['readmorejs_more_link'] = array(
+    '#type' => 'textfield',
+    '#title' => t('More link HTML'),
+    '#default_value' => variable_get('readmorejs_more_link', '<a href="#">Read more</a>'),
+    '#required' => TRUE,
+    '#description' => t('This value will be run through filter_xss so cannot contain any JavaScript.'),
+  );
+
+  $form['plugin']['readmorejs_less_link'] = array(
+    '#type' => 'textfield',
+    '#title' => t('More link HTML'),
+    '#default_value' => variable_get('readmorejs_less_link', '<a href="#">Close</a>'),
+    '#required' => TRUE,
+    '#description' => t('This value will be run through filter_xss so cannot contain any JavaScript.'),
+  );
+
+  $form['plugin']['readmorejs_embed_css'] = array(
+    '#type' => 'checkbox',
+    '#title' => t('Embed CSS'),
+    '#default_value' => variable_get('readmorejs_embed_css', 1),
+    '#description' => t('Insert required CSS dynamically, untick this if you include the necessary CSS in a stylesheet.'),
+  );
+
+  $form['plugin']['readmorejs_section_css'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Section CSS'),
+    '#default_value' => variable_get('readmorejs_section_css', 'display: block; width: 100%;'),
+    '#required' => TRUE,
+    '#description' => t('This value will be run through filter_xss so cannot contain any bad stuff, only used if Embed CSS is ticked.'),
+  );
+
+  $form['plugin']['readmorejs_start_open'] = array(
+    '#type' => 'checkbox',
+    '#title' => t('Start open'),
+    '#default_value' => variable_get('readmorejs_start_open', 0),
+    '#description' => t('If ticked do not immediately truncate, start in the fully opened position.'),
+  );
+
+  $form['plugin']['readmorejs_expanded_class'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Expanded class'),
+    '#default_value' => variable_get('readmorejs_expanded_class', 'readmore-js-expanded'),
+    '#required' => TRUE,
+    '#description' => t('This value will be run through check_plain.'),
+  );
+
+  $form['plugin']['readmorejs_collapsed_class'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Expanded class'),
+    '#default_value' => variable_get('readmorejs_collapsed_class', 'readmore-js-collapsed'),
+    '#required' => TRUE,
+    '#description' => t('This value will be run through check_plain.'),
+  );
+
+  return system_settings_form($form);
+}

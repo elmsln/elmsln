@@ -1,0 +1,25 @@
+<?php
+
+/**
+ * @file
+ * readmorejs.install
+ */
+
+/**
+ * Implements hook_uninstall().
+ */
+function readmorejs_uninstall() {
+  variable_del('readmorejs_include_exclude');
+  variable_del('readmorejs_pages');
+  variable_del('readmorejs_selectors');
+  variable_del('readmorejs_speed');
+  variable_del('readmorejs_max_height');
+  variable_del('readmorejs_height_margin');
+  variable_del('readmorejs_more_link');
+  variable_del('readmorejs_less_link');
+  variable_del('readmorejs_embed_css');
+  variable_del('readmorejs_section_css');
+  variable_del('readmorejs_start_open');
+  variable_del('readmorejs_expanded_class');
+  variable_del('readmorejs_collapsed_class');
+}

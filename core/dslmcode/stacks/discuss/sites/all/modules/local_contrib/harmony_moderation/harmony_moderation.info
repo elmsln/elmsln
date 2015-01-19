@@ -1,0 +1,30 @@
+name = Harmony - Moderation
+description = Provides flags for abuse and white-listing posts.
+core = 7.x
+package = Harmony
+
+dependencies[] = harmony_core
+dependencies[] = flag (3.x)
+dependencies[] = features
+dependencies[] = list
+dependencies[] = options
+dependencies[] = text
+
+files[] = includes/views/handlers/harmony_moderation_views_handler_remove_report.inc
+files[] = includes/views/handlers/harmony_moderation_views_handler_view_reports.inc
+files[] = includes/views/handlers/harmony_moderation_views_handler_report_other_view.inc
+
+features[features_api][] = api:2
+features[field_base][] = field_harmony_moderation_reason
+features[field_base][] = field_harmony_moderation_source
+features[field_base][] = field_harmony_moderation_text
+features[field_instance][] = flagging-harmony_post_report-field_harmony_moderation_reason
+features[field_instance][] = flagging-harmony_post_report-field_harmony_moderation_source
+features[field_instance][] = flagging-harmony_post_report-field_harmony_moderation_text
+
+; Information added by Drupal.org packaging script on 2015-01-11
+version = "7.x-1.x-dev"
+core = "7.x"
+project = "harmony_moderation"
+datestamp = "1420975684"
+

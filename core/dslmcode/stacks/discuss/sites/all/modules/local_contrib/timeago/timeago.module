@@ -1,0 +1,630 @@
+<?php
+
+/**
+ * @file
+ *   Adds support for the Timeago jQuery library.
+ */
+
+define('TIMEAGO_LIBRARY_WEBSITE', 'http://timeago.yarp.com/');
+if (!defined('TIMEAGO_LIBRARY_FILENAME')) {
+  define('TIMEAGO_LIBRARY_FILENAME', 'jquery.timeago.js');
+}
+if (!defined('TIMEAGO_LIBRARY_DOWNLOAD_URL')) {
+  define('TIMEAGO_LIBRARY_DOWNLOAD_URL', 'http://timeago.yarp.com/jquery.timeago.js');
+}
+define('TIMEAGO_FORMAT_SHORT_US', '<\s\p\a\n \c\l\a\s\s="\t\i\m\e\a\g\o" \t\i\t\l\e="c">n/j/y - g:ia</\s\p\a\n>');
+define('TIMEAGO_FORMAT_SHORT', '<\s\p\a\n \c\l\a\s\s="\t\i\m\e\a\g\o" \t\i\t\l\e="c">d/m/Y - H:i</\s\p\a\n>');
+define('TIMEAGO_FORMAT_MEDIUM_US', '<\s\p\a\n \c\l\a\s\s="\t\i\m\e\a\g\o" \t\i\t\l\e="c">D, n/j/Y - g:ia</\s\p\a\n>');
+define('TIMEAGO_FORMAT_MEDIUM', '<\s\p\a\n \c\l\a\s\s="\t\i\m\e\a\g\o" \t\i\t\l\e="c">D, d/m/Y - H:i</\s\p\a\n>');
+define('TIMEAGO_FORMAT_LONG_US', '<\s\p\a\n \c\l\a\s\s="\t\i\m\e\a\g\o" \t\i\t\l\e="c">l, F j, Y - g:ia</\s\p\a\n>');
+define('TIMEAGO_FORMAT_LONG', '<\s\p\a\n \c\l\a\s\s="\t\i\m\e\a\g\o" \t\i\t\l\e="c">l, j F Y - H:i</\s\p\a\n>');
+
+/**
+ * Converts a timestamp into a Timeago date.
+ *
+ * @param $timestamp
+ *   A UNIX timestamp.
+ * @param $date
+ *   (Optional) A human-readable date (will be displayed if JS is disabled).
+ *   If not provided, the site default date format is used.
+ * @return
+ *   HTML representing a Timeago-friendly date.
+ */
+function timeago_format_date($timestamp, $date = NULL) {
+  // Add the Timeago JS.
+  timeago_add_js();
+  // The fallback date isn't set, so we have to generate it ourselves.
+  if (!isset($date)) {
+    // If the date format is already set to Timeago, we need to set it to
+    // something else or we'll end up with two timeago wrappers.
+    $date_format_medium = variable_get('date_format_medium', 'D, m/d/Y - H:i');
+    if ($date_format_medium == TIMEAGO_FORMAT_MEDIUM_US) {
+      $date_format_medium = 'D, n/j/Y - g:ia';
+    }
+    elseif ($date_format_medium == TIMEAGO_FORMAT_MEDIUM) {
+      $date_format_medium = 'D, d/m/Y - H:i';
+    }
+    else {
+      $date = format_date($timestamp, 'custom', $date_format_medium);
+    }
+  }
+  // If the date passed in is already a Timeago date, just return that.
+  elseif (strpos($date, 'class="timeago"') !== FALSE) {
+    return $date;
+  }
+  // Construct the Timeago element.
+  $elem = variable_get('timeago_elem', 'span');
+  $time = format_date($timestamp, 'custom', 'c');
+  if ($elem == 'time') {
+    return '<time class="timeago" datetime="' . $time . '">' . $date . '</time>';
+  }
+  else {
+    return '<' . $elem . ' class="timeago" title="' . $time . '">' . $date . '</' . $elem . '>';
+  }
+  return $date;
+}
+
+/**
+ * Implements hook_menu().
+ */
+function timeago_menu() {
+  $items = array();
+  $items['admin/config/user-interface/timeago'] = array(
+    'title' => 'Timeago',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('timeago_admin'),
+    'access arguments' => array('administer site configuration'),
+    'description' => 'Allows administrators to adjust settings for timeago.',
+  );
+  return $items;
+}
+
+/**
+ * The administrative settings form.
+ */
+function timeago_admin($form, $form_state) {
+  $form['info'] = array(
+    '#markup' => '<p>' . t('Note that you can set Timeago as the default <a href="!datetime">date format</a>.',
+      array('!datetime' => url('admin/config/regional/date-time'))) . ' ' .
+      t('This will allow you to use it for all dates on the site, overriding the settings below.') . '</p>',
+  );
+
+  $form['timeago_node'] = array(
+    '#type' => 'checkbox',
+    '#title' => t('Use timeago for node creation dates'),
+    '#default_value' => variable_get('timeago_node', 1),
+  );
+
+  $form['timeago_comment'] = array(
+    '#type' => 'checkbox',
+    '#title' => t('Use timeago for comment creation/changed dates'),
+    '#default_value' => variable_get('timeago_comment', 1),
+  );
+
+  $form['timeago_elem'] = array(
+    '#type' => 'radios',
+    '#title' => t('Time element'),
+    '#default_value' => variable_get('timeago_elem', 'span'),
+    '#options' => array(
+      'span' => t('span'),
+      'abbr' => t('abbr'),
+      'time' => t('time (HTML5 only)'),
+    ),
+  );
+
+  $form['settings'] = array(
+    '#type' => 'fieldset',
+    '#title' => t('Override Timeago script settings'),
+    '#collapsible' => FALSE,
+  );
+
+  $form['settings']['timeago_js_refresh_millis'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Refresh Timeago dates after'),
+    '#description' => t('Timeago can update its dates without a page refresh at this interval. Leave blank or set to zero to never refresh Timeago dates.'),
+    '#default_value' => variable_get('timeago_js_refresh_millis', 60000),
+    '#field_suffix' => ' ' . t('milliseconds'),
+    '#element_validate' => array('timeago_validate_empty_or_nonnegative_integer'),
+  );
+
+  $form['settings']['timeago_js_allow_future'] = array(
+    '#type' => 'checkbox',
+    '#title' => t('Allow future dates'),
+    '#default_value' => variable_get('timeago_js_allow_future', 1),
+  );
+
+  $form['settings']['timeago_js_locale_title'] = array(
+    '#type' => 'checkbox',
+    '#title' => t('Set the "title" attribute of Timeago dates to a locale-sensitive date'),
+    '#default_value' => variable_get('timeago_js_locale_title', 0),
+    '#description' => t('If this is disabled (the default) then the "title" attribute defaults to the original date that the Timeago script is replacing.'),
+  );
+
+  $form['settings']['timeago_js_cutoff'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Do not use Timeago dates after'),
+    '#field_suffix' => ' '. t('milliseconds'),
+    '#description' => t('Leave blank or set to zero to always use Timeago dates.'),
+    '#default_value' => variable_get('timeago_js_cutoff', ''),
+    '#element_validate' => array('timeago_validate_empty_or_nonnegative_integer'),
+  );
+
+  $form['settings']['strings'] = array(
+    '#type' => 'fieldset',
+    '#title' => t('Strings'),
+    '#collapsible' => TRUE,
+    '#collapsed' => TRUE,
+  );
+
+  if (timeago_library_detect_languages()) {
+    $form['settings']['strings']['warning'] = array(
+      '#markup' => '<div class="messages warning">' . t('JavaScript translation files have been detected in the Timeago library. The following settings will not be used unless you remove those files.') . '</div>',
+    );
+  }
+
+  // Load in and setup form items for our JavaScript variables.
+  $settings_vars = timeago_get_settings_variables();
+
+  foreach ($settings_vars as $js_var => $variable) {
+    $form['settings']['strings'][$variable['variable_name']] = array(
+      '#type' => 'textfield',
+      '#title' => $variable['title'],
+      '#required' => $variable['required'],
+      '#default_value' => variable_get($variable['variable_name'], $variable['default']),
+    );
+  }
+
+
+  $form['settings']['strings']['timeago_js_strings_word_separator'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Word separator'),
+    '#default_value' => variable_get('timeago_js_strings_word_separator', ' '),
+    '#description' => t('By default this is set to " " (a space).'),
+  );
+
+  return system_settings_form($form);
+}
+
+/**
+ * Validates that a form element's value is blank or a nonnegative integer.
+ */
+function timeago_validate_empty_or_nonnegative_integer($element, &$form_state) {
+  $value = $element['#value'];
+  if (!($value === '' || (is_numeric($value) && intval($value) == $value && $value >= 0))) {
+    form_error($element, t('%name must be either a nonnegative integer or blank.', array('%name' => $element['#title'])));
+  }
+}
+
+/**
+ * Implements hook_library().
+ */
+function timeago_library() {
+  $path = drupal_get_path('module', 'timeago');
+  return array(
+    'timeago' => array(
+      'title' => t('Time ago'),
+      'website' => TIMEAGO_LIBRARY_WEBSITE,
+      'version' => '0.11.1',
+      'js' => array(
+        $path . '/' . TIMEAGO_LIBRARY_FILENAME => array(),
+        $path . '/timeago.js' => array(),
+      ),
+    ),
+  );
+}
+
+/**
+ * Implements hook_libraries_info().
+ */
+function timeago_libraries_info() {
+  return array(
+    'timeago' => array(
+      'name' => t('Time ago'),
+      'vendor url' => TIMEAGO_LIBRARY_WEBSITE,
+      'download url' => TIMEAGO_LIBRARY_DOWNLOAD_URL,
+      'version arguments' => array(
+        'file' => TIMEAGO_LIBRARY_FILENAME,
+        'pattern' => '@version\s+([0-9a-zA-Z\.-]+)@', // e.g. @version 0.10.0
+      ),
+      'files' => array(
+        'js' => array(
+          TIMEAGO_LIBRARY_FILENAME => array(),
+        ),
+      ),
+    ),
+  );
+}
+
+/**
+ * Detect Timeago library language files if present.
+ */
+function timeago_library_detect_languages() {
+  // Figure out where the Timeago library is, and then work out if translation
+  // files are present.
+  $library_path = module_exists('libraries') && function_exists('libraries_load') ? libraries_get_path('timeago') : drupal_get_path('module', 'timeago');
+  $library_languages_found = FALSE;
+  $languages = language_list();
+
+  // Remove English as the library includes it as an example.
+  unset($languages['en']);
+
+  foreach ($languages as $lang_code => $language) {
+    if (file_exists($library_path . '/jquery.timeago.' . $lang_code . '.js')) {
+      $library_languages_found = TRUE;
+      break;
+    }
+  }
+
+  return $library_languages_found;
+}
+
+/**
+ * Implements hook_date_formats().
+ */
+function timeago_date_formats() {
+  return array(
+    array(
+      'type' => 'short',
+      'format' => TIMEAGO_FORMAT_SHORT_US,
+    ),
+    array(
+      'type' => 'short',
+      'format' => TIMEAGO_FORMAT_SHORT,
+    ),
+    array(
+      'type' => 'medium',
+      'format' => TIMEAGO_FORMAT_MEDIUM_US,
+    ),
+    array(
+      'type' => 'medium',
+      'format' => TIMEAGO_FORMAT_MEDIUM,
+    ),
+    array(
+      'type' => 'long',
+      'format' => TIMEAGO_FORMAT_LONG_US,
+    ),
+    array(
+      'type' => 'long',
+      'format' => TIMEAGO_FORMAT_LONG,
+    ),
+  );
+}
+
+/**
+ * Implements hook_init().
+ */
+function timeago_init() {
+  // Add the Timeago JS to the page if a date format uses Timeago.
+  // This is necessary because by the time we render a date it will be too late
+  // to add JS to the page.
+  $date_types = system_get_date_types();
+  foreach ($date_types as $date_type) {
+    $format = variable_get('date_format_' . $date_type['type'], '');
+    switch ($format) {
+      case TIMEAGO_FORMAT_SHORT_US:
+      case TIMEAGO_FORMAT_SHORT:
+      case TIMEAGO_FORMAT_MEDIUM_US:
+      case TIMEAGO_FORMAT_MEDIUM:
+      case TIMEAGO_FORMAT_LONG_US:
+      case TIMEAGO_FORMAT_LONG:
+        timeago_add_js();
+        return;
+    }
+  }
+}
+
+/**
+ * Implements hook_process_node().
+ *
+ * We have to use process instead of preprocess because some themes (notably
+ * bartik) override $variables['submitted'] in their preprocess implementations
+ * which can result in something like "published by admin on 10 minutes ago."
+ */
+function timeago_process_node(&$variables) {
+  if (variable_get('timeago_node', 1)) {
+    $node = $variables['node'];
+    $variables['date'] = timeago_format_date($node->created, $variables['date']);
+    if (variable_get('node_submitted_' . $node->type, TRUE)) {
+      $variables['submitted'] = t('Submitted by !username !datetime', array('!username' => $variables['name'], '!datetime' => $variables['date']));
+    }
+  }
+}
+
+/**
+ * Implements hook_preprocess_comment().
+ */
+function timeago_preprocess_comment(&$variables) {
+  if (variable_get('timeago_comment', 1)) {
+    $comment = $variables['comment'];
+    $variables['created'] = timeago_format_date($comment->created, $variables['created']);
+    $variables['changed'] = timeago_format_date($comment->changed, $variables['changed']);
+    $variables['submitted'] = t('Submitted by !username !datetime', array('!username' => $variables['author'], '!datetime' => $variables['created']));
+  }
+}
+
+/**
+ * Implements hook_token_info().
+ */
+function timeago_token_info() {
+  $return['tokens']['node']['timeago'] = array(
+    'name' => t('Created time ago'),
+    'description' => t('The amount of time ago the node was created. Uses the Timeago module to display the time dynamically with graceful degredation for non-JS users.'),
+  );
+  $return['tokens']['comment']['created-timeago'] = array(
+    'name' => t('Created time ago'),
+    'description' => t('The amount of time ago the comment was created. Uses the Timeago module to display the time dynamically with graceful degredation for non-JS users.'),
+  );
+  $return['tokens']['comment']['changed-timeago'] = array(
+    'name' => t('Created time ago'),
+    'description' => t('The amount of time ago the comment was changed. Uses the Timeago module to display the time dynamically with graceful degredation for non-JS users.'),
+  );
+  return $return;
+}
+
+/**
+ * Implements hook_tokens().
+ */
+function timeago_tokens($type, $tokens, array $data = array(), array $options = array()) {
+  $replacements = array();
+  if ($type == 'node' && !empty($data['node']) && isset($tokens['timeago'])) {
+    $node = (object) $data['node'];
+    $replacements[$tokens['timeago']] = timeago_format_date($node->created);
+  }
+  if ($type == 'comment' && !empty($data['comment'])) {
+    $comment = (object) $data['comment'];
+    if (isset($tokens['created-timeago'])) {
+      $replacements[$tokens['created-timeago']] = timeago_format_date($comment->created);
+    }
+    if (isset($tokens['changed-timeago'])) {
+      $replacements[$tokens['changed-timeago']] = timeago_format_date($comment->changed);
+    }
+  }
+  return $replacements;
+}
+
+/**
+ * Implements hook_form_FORM_ID_alter().
+ *
+ * @see system_form_user_profile_form_alter()
+ */
+function timeago_form_user_profile_form_alter(&$form, &$form_state) {
+  if ($form['#user_category'] == 'account') {
+    if (variable_get('configurable_timezones', 1)) {
+      $date_format_long = variable_get('date_format_long', 'l, F j, Y - H:i');
+      $date_format = NULL;
+      if ($date_format_long == TIMEAGO_FORMAT_LONG_US) {
+        $date_format = 'l, F j, Y - g:ia';
+      }
+      elseif ($date_format_long = TIMEAGO_FORMAT_LONG) {
+        $date_format = 'l, j F Y - H:i';
+      }
+      if ($date_format) {
+        $form['timezone']['timezone']['#options'] = timeago_time_zones($form['#user']->uid != $GLOBALS['user']->uid, $date_format);
+      }
+    }
+    return $form;
+  }
+}
+
+/**
+ * Implements hook_variable_info().
+ */
+function timeago_variable_info($options) {
+  $settings_vars = timeago_get_settings_variables();
+  $variables = array();
+
+  foreach ($settings_vars as $js_var => $variable) {
+    $variables[$variable['variable_name']] = array(
+      'title' => t('Timeago JavaScript setting for &quot;@title&quot;', array('@title' => $variable['title']), $options),
+      'type' => 'string',
+      'default' => $variable['default'],
+    );
+  }
+
+  return $variables;
+}
+
+/**
+ * Generate an array of time zones and their local time & date.
+ *
+ * This function is identical to system_time_zones() except that it allows
+ * specifying a custom date format for the local time and date. This difference
+ * allows using formats other than the default Long date format, which is
+ * important when a Timeago format is the default since that would include
+ * hard-to-read escaped HTML markup.
+ *
+ * @param $blank
+ *   (Optional) If evaluates true, prepend an empty time zone option to the
+ *   array.
+ * @param $date_format
+ *   (Optional) The format of the human-readable date values.
+ *
+ * @return
+ *   An associative array of time zones. Keys are zone IDs and values are the
+ *   current local datetime + UTC offset.
+ *
+ * @see system_time_zones()
+ */
+function timeago_time_zones($blank = NULL, $date_format = '') {
+  $zonelist = timezone_identifiers_list();
+  $zones = $blank ? array('' => t('- None selected -')) : array();
+  foreach ($zonelist as $zone) {
+    // Because many time zones exist in PHP only for backward compatibility
+    // reasons and should not be used, the list is filtered by a regular
+    // expression.
+    if (preg_match('!^((Africa|America|Antarctica|Arctic|Asia|Atlantic|Australia|Europe|Indian|Pacific)/|UTC$)!', $zone)) {
+      $zones[$zone] = t('@zone: @date', array('@zone' => t(str_replace('_', ' ', $zone)), '@date' => format_date(REQUEST_TIME, 'custom', $date_format . ' O', $zone)));
+    }
+  }
+  // Sort the translated time zones alphabetically.
+  asort($zones);
+  return $zones;
+}
+
+/**
+ * Overrides the default translation of Timeago dates if necessary.
+ */
+function timeago_add_js() {
+  // Add the Timeago library, the module's helper JS, and the default Drupal
+  // translation of Timeago date terms.
+  if (module_exists('libraries') && function_exists('libraries_load')) {
+    $library_path = libraries_get_path('timeago');
+    libraries_load('timeago');
+    $path = drupal_get_path('module', 'timeago') . '/timeago.js';
+    drupal_add_js($path);
+  }
+  else {
+    $library_path = drupal_get_path('module', 'timeago');
+    drupal_add_library('timeago', 'timeago');
+  }
+
+  // Build the settings array structure.
+  $settings = array(
+    'refreshMillis' => (int) variable_get('timeago_js_refresh_millis', 60000),
+    'allowFuture' => (bool) variable_get('timeago_js_allow_future', 1),
+    'localeTitle' => (bool) variable_get('timeago_js_locale_title', 0),
+    'cutoff' => (int) variable_get('timeago_js_cutoff', ''),
+  );
+
+  // Some languages (Arabic, Polish, Russian, Ukranian, etc.) have different
+  // suffixes depending on the numbers used in the dates, so we may need to
+  // have more complex translations than Drupal allows. To support these cases,
+  // we allow adding a script that will override the translations. Examples
+  // are available at https://gist.github.com/6251.
+  $path = $library_path . '/jquery.timeago.' . $GLOBALS['language']->language . '.js';
+  if (file_exists($path)) {
+    drupal_add_js($path, array('weight' => 1));
+  }
+  else {
+    // If the JavaScript translation files are not in use, we can pass the
+    // string settings in.
+    $settings_vars = timeago_get_settings_variables();
+    $settings['strings'] = array();
+
+    // If the variable module exists, use it!
+    if (module_exists('variable')) {
+      foreach ($settings_vars as $js_var => $variable) {
+        $settings['strings'][$js_var] = variable_get_value($variable['variable_name']);
+      }
+    }
+    else {
+      foreach ($settings_vars as $js_var => $variable) {
+        $settings['strings'][$js_var] = variable_get($variable['variable_name'], $variable['default']);
+      }
+    }
+
+    // Check plain the strings.
+    foreach ($settings['strings'] as $k => $string) {
+      if ($string == '') {
+        continue;
+      }
+
+      $settings['strings'][$k] = check_plain($string);
+    }
+
+    // Tack in the last one we don't want t'ed.
+    $settings['strings']['wordSeparator'] = check_plain(variable_get('timeago_js_strings_word_separator', ' '));
+  }
+
+  drupal_add_js(array('timeago' => $settings), 'setting');
+}
+
+/**
+ * Grab an array of settings used by the Timeago plugin.
+ * This is used to build the admin form, integrate with the variable module,
+ * and populate the JavaScript settings array.
+ */
+function timeago_get_settings_variables() {
+  return array(
+    'prefixAgo' => array(
+      'title' => t('Prefix ago'),
+      'required' => FALSE,
+      'variable_name' => 'timeago_js_strings_prefix_ago',
+      'default' => NULL,
+    ),
+    'prefixFromNow' => array(
+      'title' => t('Prefix from now'),
+      'required' => FALSE,
+      'variable_name' => 'timeago_js_strings_prefix_from_now',
+      'default' => NULL,
+    ),
+    'suffixAgo' => array(
+      'title' => t('Suffix ago'),
+      'required' => FALSE,
+      'variable_name' => 'timeago_js_strings_suffix_ago',
+      'default' => 'ago',
+    ),
+    'suffixFromNow' => array(
+      'title' => t('Suffix from now'),
+      'required' => FALSE,
+      'variable_name' => 'timeago_js_strings_suffix_from_now',
+      'default' => 'from now',
+    ),
+    'seconds' => array(
+      'title' => t('Seconds'),
+      'required' => TRUE,
+      'variable_name' => 'timeago_js_strings_seconds',
+      'default' => 'less than a minute',
+    ),
+    'minute' => array(
+      'title' => t('Minute'),
+      'required' => TRUE,
+      'variable_name' => 'timeago_js_strings_minute',
+      'default' => 'about a minute',
+    ),
+    'minutes' => array(
+      'title' => t('Minutes'),
+      'required' => TRUE,
+      'variable_name' => 'timeago_js_strings_minutes',
+      'default' => '%d minutes',
+    ),
+    'hour' => array(
+      'title' => t('Hour'),
+      'required' => TRUE,
+      'variable_name' => 'timeago_js_strings_hour',
+      'default' => 'about an hour',
+    ),
+    'hours' => array(
+      'title' => t('Hours'),
+      'required' => TRUE,
+      'variable_name' => 'timeago_js_strings_hours',
+      'default' => 'about %d hours',
+    ),
+    'day' => array(
+      'title' => t('Day'),
+      'required' => TRUE,
+      'variable_name' => 'timeago_js_strings_day',
+      'default' => 'a day',
+    ),
+    'days' => array(
+      'title' => t('Days'),
+      'required' => TRUE,
+      'variable_name' => 'timeago_js_strings_days',
+      'default' => '%d days',
+    ),
+    'month' => array(
+      'title' => t('Month'),
+      'required' => TRUE,
+      'variable_name' => 'timeago_js_strings_month',
+      'default' => 'about a month',
+    ),
+    'months' => array(
+      'title' => t('Months'),
+      'required' => TRUE,
+      'variable_name' => 'timeago_js_strings_months',
+      'default' => '%d months',
+    ),
+    'year' => array(
+      'title' => t('Year'),
+      'required' => TRUE,
+      'variable_name' => 'timeago_js_strings_year',
+      'default' => 'about a year',
+    ),
+    'years' => array(
+      'title' => t('Years'),
+      'required' => TRUE,
+      'variable_name' => 'timeago_js_strings_years',
+      'default' => '%d years',
+    ),
+  );
+}

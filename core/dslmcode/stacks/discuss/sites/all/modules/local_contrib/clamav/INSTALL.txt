@@ -1,0 +1,24 @@
+Requirements
+------------
+
+1. The module does not provide an anti-virus scanner; it integrates with
+   ClamAV (http://www.clamav.net), which is a free open-source anti-virus
+   scanner.
+2. Download/install ClamAV:
+  - [Debian / Ubuntu]: apt-get install clamav
+  - [redhat / CentOS]: yum install clamav
+
+Installation
+------------
+
+1. Enable the module
+2. Go to the ClamAV configuration page (admin/settings/clamav) and set
+   the path to the ClamAV "clamscan" binary.  On most systems this will be:
+   /usr/bin/clamscan
+
+Acknowledgements
+----------------
+
+- File Framework's "antivirus" module, from which this was forked.
+- james_andres (maintainer)
+- manarth (maintainer)

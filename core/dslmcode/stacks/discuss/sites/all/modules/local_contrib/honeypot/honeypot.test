@@ -1,0 +1,229 @@
+<?php
+
+/**
+ * @file
+ * Testing for Honeypot module.
+ */
+
+/**
+ * Test the functionality of the Honeypot module for an admin user.
+ */
+class HoneypotFormTestCase extends DrupalWebTestCase {
+  protected $adminUser;
+  protected $webUser;
+  protected $node;
+
+  public static function getInfo() {
+    return array(
+      'name' => 'Honeypot form protections',
+      'description' => 'Ensure that Honeypot protects site forms properly.',
+      'group' => 'Form API',
+    );
+  }
+
+  public function setUp() {
+    // Enable modules required for this test.
+    parent::setUp(array('honeypot', 'comment'));
+
+    // Set up required Honeypot variables.
+    variable_set('honeypot_element_name', 'url');
+    // Disable time_limit protection.
+    variable_set('honeypot_time_limit', 0);
+    // Test protecting all forms.
+    variable_set('honeypot_protect_all_forms', TRUE);
+    variable_set('honeypot_log', FALSE);
+
+    // Set up other required variables.
+    variable_set('user_email_verification', TRUE);
+    variable_set('user_register', USER_REGISTER_VISITORS);
+
+    // Set up admin user.
+    $this->adminUser = $this->drupalCreateUser(array(
+      'administer honeypot',
+      'bypass honeypot protection',
+      'administer content types',
+      'administer users',
+      'access comments',
+      'post comments',
+      'skip comment approval',
+      'administer comments',
+    ));
+
+    // Set up web user.
+    $this->webUser = $this->drupalCreateUser(array(
+      'access comments',
+      'post comments',
+      'create article content',
+    ));
+
+    // Set up example node.
+    $this->node = $this->drupalCreateNode(array(
+      'type' => 'article',
+      'promote' => 1,
+      'uid' => $this->webUser->uid,
+    ));
+  }
+
+  /**
+   * Test user registration (anonymous users).
+   */
+  public function testProtectRegisterUserNormal() {
+    // Set up form and submit it.
+    $edit['name'] = $this->randomName();
+    $edit['mail'] = $edit['name'] . '@example.com';
+    $this->drupalPost('user/register', $edit, t('Create new account'));
+
+    // Form should have been submitted successfully.
+    $this->assertText(t('A welcome message with further instructions has been sent to your e-mail address.'), 'User registered successfully.');
+  }
+
+  public function testProtectUserRegisterHoneypotFilled() {
+    // Set up form and submit it.
+    $edit['name'] = $this->randomName();
+    $edit['mail'] = $edit['name'] . '@example.com';
+    $edit['url'] = 'http://www.example.com/';
+    $this->drupalPost('user/register', $edit, t('Create new account'));
+
+    // Form should have error message.
+    $this->assertText(t('There was a problem with your form submission. Please refresh the page and try again.'), 'Registration form protected by honeypot.');
+  }
+
+  public function testProtectRegisterUserTooFast() {
+    // Enable time limit for honeypot.
+    variable_set('honeypot_time_limit', 5);
+
+    // Set up form and submit it.
+    $edit['name'] = $this->randomName();
+    $edit['mail'] = $edit['name'] . '@example.com';
+    $this->drupalPost('user/register', $edit, t('Create new account'));
+
+    // Form should have error message.
+    $this->assertText(t('There was a problem with your form submission. Please wait 6 seconds and try again.'), 'Registration form protected by time limit.');
+  }
+
+  /**
+   * Test comment form protection.
+   */
+  public function testProtectCommentFormNormal() {
+    $comment = 'Test comment.';
+
+    // Disable time limit for honeypot.
+    variable_set('honeypot_time_limit', 0);
+
+    // Log in the web user.
+    $this->drupalLogin($this->webUser);
+
+    // Set up form and submit it.
+    $edit['comment_body[' . LANGUAGE_NONE . '][0][value]'] = $comment;
+    $this->drupalPost('comment/reply/' . $this->node->nid, $edit, t('Save'));
+    $this->assertText(t('Your comment has been posted.'), 'Comment posted successfully.');
+  }
+
+  public function testProtectCommentFormHoneypotFilled() {
+    $comment = 'Test comment.';
+
+    // Log in the web user.
+    $this->drupalLogin($this->webUser);
+
+    // Set up form and submit it.
+    $edit['comment_body[' . LANGUAGE_NONE . '][0][value]'] = $comment;
+    $edit['url'] = 'http://www.example.com/';
+    $this->drupalPost('comment/reply/' . $this->node->nid, $edit, t('Save'));
+    $this->assertText(t('There was a problem with your form submission. Please refresh the page and try again.'), 'Comment posted successfully.');
+  }
+
+  public function testProtectCommentFormHoneypotBypass() {
+    // Log in the admin user.
+    $this->drupalLogin($this->adminUser);
+
+    // Get the comment reply form and ensure there's no 'url' field.
+    $this->drupalGet('comment/reply/' . $this->node->nid);
+    $this->assertNoText('id="edit-url" name="url"', 'Honeypot home page field not shown.');
+  }
+
+  /**
+   * Test node form protection.
+   */
+  public function testProtectNodeFormTooFast() {
+    // Log in the admin user.
+    $this->drupalLogin($this->webUser);
+
+    // Reset the time limit to 5 seconds.
+    variable_set('honeypot_time_limit', 5);
+
+    // Set up the form and submit it.
+    $edit["title"] = 'Test Page';
+    $this->drupalPost('node/add/article', $edit, t('Save'));
+    $this->assertText(t('There was a problem with your form submission.'), 'Honeypot node form timestamp protection works.');
+  }
+
+  /**
+   * Test node form protection.
+   */
+  public function testProtectNodeFormPreviewPassthru() {
+    // Log in the admin user.
+    $this->drupalLogin($this->webUser);
+
+    // Post a node form using the 'Preview' button and make sure it's allowed.
+    $edit["title"] = 'Test Page';
+    $this->drupalPost('node/add/article', $edit, t('Preview'));
+    $this->assertNoText(t('There was a problem with your form submission.'), 'Honeypot not blocking node form previews.');
+  }
+}
+
+/**
+ * Test the functionality of the Honeypot module's integration with Trigger.
+ */
+class HoneypotTriggerTestCase extends DrupalWebTestCase {
+  public static function getInfo() {
+    return array(
+      'name' => 'Honeypot Trigger integration',
+      'description' => 'Ensure that Honeypot triggers events correctly.',
+      'group' => 'Form API',
+    );
+  }
+
+  public function setUp() {
+    // Enable modules required for this test.
+    parent::setUp(array('honeypot', 'trigger'));
+
+    // Set up required Honeypot variables.
+    variable_set('honeypot_element_name', 'url');
+    // Disable time_limit protection.
+    variable_set('honeypot_time_limit', 0);
+    // Test protecting all forms.
+    variable_set('honeypot_protect_all_forms', TRUE);
+    variable_set('honeypot_log', FALSE);
+
+    // Set up other required variables.
+    variable_set('user_email_verification', TRUE);
+    variable_set('user_register', USER_REGISTER_VISITORS);
+
+    // Assign new action to Honeypot form rejection Trigger.
+    db_insert('trigger_assignments')
+      ->fields(array(
+        'hook' => 'honeypot_reject',
+        'aid' => 'system_block_ip_action',
+        'weight' => 1,
+      ))
+      ->execute();
+  }
+
+  /**
+   * Test trigger integration.
+   */
+  public function testHoneypotTriggerIntegration() {
+    // Set up form and submit it.
+    $edit['name'] = $this->randomName();
+    $edit['mail'] = $edit['name'] . '@example.com';
+    $edit['url'] = 'http://www.example.com/';
+    $this->drupalPost('user/register', $edit, t('Create new account'));
+
+    // Make sure Honeypot is working.
+    $this->assertText(t('There was a problem with your form submission.'), 'Honeypot working correctly.');
+
+    // Visit the home page and make sure the user is banned.
+    $this->drupalGet('node');
+    $this->assertText(t('has been banned'), 'User banned successfully.');
+  }
+}

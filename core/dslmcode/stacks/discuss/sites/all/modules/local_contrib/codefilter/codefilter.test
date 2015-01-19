@@ -1,0 +1,124 @@
+<?php
+/**
+ * @file
+ * Functional and unit tests for codefilter.module.
+ */
+
+class CodeFilterUITestCase extends DrupalWebTestCase {
+
+  /**
+   * Implements getInfo().
+   */
+  public static function getInfo() {
+    return array(
+      'name' => t('Code Filter'),
+      'description' => t('Ensure code wrapped in php or code tags renders as expected.'),
+      'group' => t('Code Filter'),
+    );
+  }
+
+  function setUp() {
+    // Enable codefilter.module for testing.
+    parent::setup('codefilter');
+    $this->web_editor = $this->drupalCreateUser(array('create article content'));
+  }
+
+
+  /**
+   * Creates an array in a format compatible with standard node 'body' fields.
+   *
+   * @param $value
+   *   String to use as body text value.
+   * @return array
+   *  An array suitable for saving in a node object body field.
+   *
+   * @see DrupalWebTestCase::drupalCreateNode();
+   */
+  protected function nodeBody($value) {
+    return array(
+      LANGUAGE_NONE => array(
+        array(
+          'value' => $value,
+        ),
+      ),
+    );
+  }
+
+}
+
+class CodeFilterUnitTestCase extends DrupalUnitTestCase {
+
+  // The filter object as returned from codefilter_filter_info().
+  private $filter;
+
+  public static function getInfo() {
+    return array(
+      'name' => 'Codefilter module text filters',
+      'description' => 'Tests raw filtering functions.',
+      'group' => 'Code Filter',
+    );
+  }
+
+  protected function setUp() {
+    parent::setUp();
+    include_once dirname(__FILE__) . '/codefilter.module';
+    $this->filter = codefilter_filter_info();
+    $this->path = drupal_get_path('module', 'codefilter') . '/tests';
+  }
+
+  /**
+   * Filters text through codefilters prepare and process callbacks.
+   *
+   * @param string $text
+   *   The text to filter.
+   *
+   * @return string
+   *   The processed text.
+   */
+  protected function filterText($text, $settings = array()) {
+    $filter =& $this->filter['codefilter'];
+    // Set up a dummy format using defaults.
+    $format = new stdClass();
+    $format->settings = array_merge($filter['default settings'], $settings);
+    $text = call_user_func($filter['prepare callback'], $text, $format);
+    $text = call_user_func($filter['process callback'], $text, $format);
+    return $text;
+  }
+
+  /**
+   * Checks that <?php tags are escaped and highlighted correctly.
+   */
+  function testPhpFilter() {
+    $input = file_get_contents($this->path . '/codefilter.php-input.txt');
+    $expected = file_get_contents($this->path . '/codefilter.php-output.txt');
+    $result = $this->filterText($input);
+    $this->assertIdentical($expected, $result, 'PHP tags are filtered.');
+  }
+
+  /**
+   * Checks that <code> tags are escaped and highlighted correctly.
+   */
+  function testCodeFilter() {
+    $input = file_get_contents($this->path . '/codefilter.code-input.txt');
+    $expected = file_get_contents($this->path . '/codefilter.code-output.txt');
+    $result = $this->filterText($input);
+    $this->assertIdentical($expected, $result, 'Code tags are filtered.');
+  }
+
+  /**
+   * Checks that CSS classes are added which JS uses for hover events.
+   */
+  function testContainerExpand() {
+    $input = file_get_contents($this->path . '/codefilter.php-input.txt');
+    $settings = array(
+      'nowrap_expand' => TRUE,
+    );
+    $result = $this->filterText($input, $settings);
+
+    $this->assertTrue(
+      strpos($result, '<div class="codeblock nowrap-expand">') !== FALSE,
+      'Expand class is added to codefilter blocks that are too long when that option is specified.'
+    );
+  }
+}
+
