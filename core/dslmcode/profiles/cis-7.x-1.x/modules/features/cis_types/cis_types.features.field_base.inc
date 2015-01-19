@@ -1508,7 +1508,7 @@ function cis_types_field_default_field_bases() {
     'settings' => array(
       'cis_connector_access' => FALSE,
       'cis_connector_disable' => FALSE,
-      'max_length' => 16,
+      'max_length' => 40,
     ),
     'translatable' => 0,
     'type' => 'text',

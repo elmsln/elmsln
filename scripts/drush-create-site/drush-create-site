@@ -121,8 +121,8 @@ do
     error=1
   fi
 
-  if [ $courselen -gt 12 ]; then
-    echo " $date Course length is too long, please enter one that's less than 14 chars"
+  if [ $courselen -gt 40 ]; then
+    echo " $date Course length is too long, please enter one that's less than 40 chars"
     error=1
   fi
 
@@ -131,23 +131,28 @@ do
     error=1
   fi
 
-  #Test if dbuser exists, if it does, then we tack on a number and try again
-  dbprefixtest=$dbprefix
+  # if course length is more then 10, truncate to 10
+  if [ $courselen -gt 10 ]; then
+    subcourse=${course:0:10}
+  else
+    subcourse=$course
+  fi
+  dbprefixtest=''
   dbcount=0
   function userexist {
-    userexist=`mysql -u$dbsu -p$dbsupw -e "select user from mysql.user;" | grep ^$dbprefixtest$college$course`
+    userexist=`mysql -u$dbsu -p$dbsupw -e "select user from mysql.user;" | grep ^$dbprefixtest$college$subcourse`
   }
   userexist
 
   while [ $userexist ]; do
-    dbcount=$((dbcount+1))
+    dbcount=$((dbcount + 1))
     echo "database use exists, adding $dbcount to $dbprefix"
-    dbprefixtest=$dbprefix$dbcount
+    dbprefixtest=$dbcount
     userexist
   done
 
   if [ $dbcount -gt 0 ]; then
-    dbprefix=$dbprefix$dbcount
+    dbprefix=$dbcount
   fi
 
   #Test if database exists, if does back out with warning
@@ -189,7 +194,7 @@ do
 
   cd $drupalroot
   #Install site with drush
-  drush -y --root=$drupalroot site-install $insprofile --db-url=mysql://$dbprefix$college$course:$dbpw@localhost/$coursedb --sites-subdir=$course --db-su=$dbsu --db-su-pw=$dbsupw --site-name="$sitename" --account-name=$drupaluid --account-pass=$drupalpw --account-mail=$admin --site-mail=$site_email >> $configsdir/logs/drush-create-site.log
+  drush -y --root=$drupalroot site-install $insprofile --db-url=mysql://$dbprefix$college$subcourse:$dbpw@localhost/$coursedb --sites-subdir=$course --db-su=$dbsu --db-su-pw=$dbsupw --site-name="$sitename" --account-name=$drupaluid --account-pass=$drupalpw --account-mail=$admin --site-mail=$site_email >> $configsdir/logs/drush-create-site.log
 
 
   echo "3" > $fileloc/$course.$service.progress
