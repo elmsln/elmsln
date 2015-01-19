@@ -22,7 +22,7 @@
         file.preview = $('#media-tab-media_recorder .media-recorder-preview .content').html();
 
         // Add to selected media.
-        var files = new Array();
+        var files = [];
         files.push(file);
         Drupal.media.browser.selectMedia(files);
 
@@ -30,5 +30,5 @@
         Drupal.media.browser.submit();
       });
     }
-  }
+  };
 })(jQuery);

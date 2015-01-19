@@ -4,17 +4,17 @@ package = "Media"
 core = 7.x
 
 dependencies[] = ctools
-dependencies[] = file_entity (>=2)
-dependencies[] = media (>=2)
-dependencies[] = libraries (>=2)
+dependencies[] = file_entity (>=2.x)
+dependencies[] = media (>=2.x)
+dependencies[] = libraries (>=2.x)
 
 files[] = includes/MediaRecorderBrowser.inc
 
 configure = admin/config/media/mediarecorder
 
-; Information added by Drupal.org packaging script on 2014-04-21
-version = "7.x-1.0-alpha4+4-dev"
+; Information added by Drupal.org packaging script on 2015-01-17
+version = "7.x-1.0-alpha6"
 core = "7.x"
 project = "media_recorder"
-datestamp = "1398104328"
+datestamp = "1421534826"
 

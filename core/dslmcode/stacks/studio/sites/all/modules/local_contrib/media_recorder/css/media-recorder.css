@@ -1,0 +1,145 @@
+div.media-recorder-toggle {
+  margin-bottom: 2px;
+  padding: 0;
+}
+
+div.media-recorder-toggle .form-item {
+  margin: 0;
+  padding: 0;
+  display: inline-block;
+}
+
+div.media-recorder-toggle input {
+  display: none;
+}
+
+div.media-recorder-toggle input:checked + label.option {
+  background: #323232;
+}
+
+div.media-recorder-toggle label.option {
+  background: #555555;
+  border: #ccc;
+  border-radius: 3px 3px 0 0;
+  color: #ffffff;
+  margin: 0 5px 0 0;
+  padding: 5px 10px;
+  cursor: pointer;
+}
+
+.media-recorder-wrapper {
+  padding: 10px;
+  margin: 0;
+  background: #323232;
+  border: none;
+  color: #fff;
+}
+
+.media-recorder {
+  width: 100%;
+}
+
+.media-recorder-status {
+  background: #222222;
+  padding: 5px 10px;
+  margin: 5px 0;
+  box-shadow: inset 0 0 10px #000000;
+  text-align: center;
+}
+
+.media-recorder-preview {
+  background: #222222;
+  padding: 0;
+  margin: 5px 0;
+}
+
+.media-recorder-preview canvas.media-recorder-visualizer {
+  width: 100%;
+  height: 100%;
+  padding: 0;
+  margin: 0;
+  display: inline-block;
+  vertical-align: middle;
+}
+
+.media-recorder-preview canvas.media-recorder-meter {
+  width: 10%;
+  height: 100%;
+  padding: 0;
+  margin: 0;
+  display: inline-block;
+  vertical-align: middle;
+}
+
+.media-recorder-preview video {
+  width: 90%;
+  padding: 0;
+  margin: 0;
+  display: inline-block;
+  vertical-align: bottom;
+}
+
+.media-recorder-constraints {
+  text-align: center;
+  padding: 5px;
+}
+
+button.media-recorder-enable-audio, button.media-recorder-enable-video {
+  display: inline-block;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+  background: #555555;
+  color: #fff;
+  border: none;
+  border-radius: 3px;
+  padding: 5px 10px;
+  cursor: pointer;
+}
+
+button.media-recorder-enable-audio.active, button.media-recorder-enable-video.active {
+  font-weight: bold;
+  -webkit-box-shadow: inset 0 0 3px #000000;
+  -moz-box-shadow: inset 0 0 3px #000000;
+  box-shadow: inset 0 0 3px #000000;
+}
+
+button.media-recorder-enable-video:disabled {
+  color: #ccc;
+  text-decoration: line-through;
+}
+
+.media-recorder-controls {
+  text-align: center;
+  padding: 5px;
+}
+
+.media-recorder-controls button {
+  display: inline-block;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+  background: #FF4D4D;
+  color: #fff;
+  border: none;
+  border-radius: 2px;
+  padding: 5px 10px;
+  cursor: pointer;
+}
+
+.media-recorder-controls button.media-recorder-settings {
+  background: #00a5e1;
+}
+
+.media-recorder-file-preview {
+  background: #323232;
+  color: #fff;
+}
+
+#recorderFlashContainer {
+  background: transparent !important;
+  border: none !important;
+}
+
+#recorderFlashContainer object {
+}

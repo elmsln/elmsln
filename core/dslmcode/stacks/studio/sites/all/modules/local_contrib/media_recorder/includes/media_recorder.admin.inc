@@ -11,7 +11,7 @@
 function media_recorder_admin_form($form, $form_state) {
 
   // Check that all libraries exist.
-  $required_libraries = array('swfobject', 'wami', 'Recorderjs');
+  $required_libraries = array('swfobject', 'recorder.js', 'Recorderjs');
   foreach ($required_libraries as $name) {
     $library = libraries_detect($name);
     if (!$library['installed']) {
@@ -19,27 +19,13 @@ function media_recorder_admin_form($form, $form_state) {
     }
   }
 
-  // Recorder width.
-  $form['media_recorder_width'] = array(
+  $form['media_recorder_time_limit'] = array(
     '#type' => 'textfield',
-    '#title' => t('Media recorder width'),
-    '#default_value' => variable_get('media_recorder_width', 300),
-  );
-
-  // Recorder height.
-  $form['media_recorder_height'] = array(
-    '#type' => 'textfield',
-    '#title' => t('Media recorder height'),
-    '#default_value' => variable_get('media_recorder_height', 100),
-  );
-
-  // Recorder time limit.
-  $time_limit = gmdate('i:s', variable_get('media_recorder_timelimit', 300));
-  $form['media_recorder_timelimit'] = array(
-    '#type' => 'textfield',
-    '#title' => t('Media recorder time limit'),
-    '#description' => t('Enter a time limit for recordings in seconds. Currently set to @time minutes.', array('@time' => $time_limit)),
-    '#default_value' => variable_get('media_recorder_timelimit', 300),
+    '#title' => t('Time Limit'),
+    '#description' => t('Time limit in seconds. Defaults to 300 seconds (5 minutes).'),
+    '#default_value' => variable_get('media_recorder_time_limit', 300),
+    '#element_validate' => array('element_validate_integer_positive'),
+    '#required' => TRUE,
   );
 
   // Recorder upload directory.
