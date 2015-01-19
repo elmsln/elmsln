@@ -558,7 +558,8 @@ function _cis_connector_transaction($request, $format = 'default', $query = arra
         if ($request == 'help') {
           foreach ($cis_section_item['list'][0]['field_resources'] as $reid) {
             $resource = _cis_connection_object($reid['id'], $reid['resource']);
-            if (strpos($resource['field_machine_name'], 'tech_support') === 0) {
+            // if we have something called tech_support, inject it onto the help page
+            if (strpos($resource['field_machine_name'], 'tech_support') === 0 || strpos($resource['field_machine_name'], 'techsupport') === 0) {
               $list .= '<h2>' . $resource['title'] . '</h2>';
               $list .= $resource['body']['value'];
             }
