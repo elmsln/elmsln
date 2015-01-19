@@ -49,7 +49,7 @@ class context_var_context_condition extends context_condition {
     foreach (context_enabled_contexts() as $context) {
       if ($vars = $this->fetch_from_context($context, 'values')) {
         // scan for the %theme value for replacement as a custom token
-        if (module_exists('og')) {
+        if (module_exists('og_context')) {
           $group = og_context();
           // we are in the context of a group, grab theme from there
           if (isset($group->type)) {
@@ -69,6 +69,7 @@ class context_var_context_condition extends context_condition {
           // split based on | safely
           $values = explode('|', filter_xss($var));
           // blow the array up based on | and convert it back into a key => value pair
+          $sys_array = array(); // reset the sys_array so that variables don't carry over from other contexts
           for ($i = 0; $i < count($values) -1; ) {
             $sys_array[$values[$i]] = $values[$i + 1];
             $i = $i + 2;
@@ -76,7 +77,12 @@ class context_var_context_condition extends context_condition {
           // go through each value pair and compare to drupal's current values
           // because we use variable_get this will take into account strongarm / spaces
           foreach ($sys_array as $key => $value) {
-            $sys_var = variable_get($key, array());
+            if (module_exists('variable')) {
+              $sys_var = variable_get_value($key);
+            }
+            else {
+              $sys_var = variable_get($key, array());
+            }
             // check to see if this is an even deeper array
             if (strpos($value, ':') === FALSE) {
               // if the database value doesn't equal the context value, return FALSE
