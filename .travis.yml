@@ -101,7 +101,7 @@ after_script:
 
 notifications:
   irc: irc.freenode.org#elmsln
-
+  webhooks: https://demo.elmsln.org/build-passed.php?token=POijnbYhujiH7*768iJNnjNamkkdjnhba9873654rtghnfjBNz
   email: false
   slack:
     rooms:

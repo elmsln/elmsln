@@ -3,6 +3,18 @@
 # rewrites the permissions on the $elmsln directory to match
 # what jenkins needs in order to help out remotely
 
+# provide messaging colors for output to console
+txtbld=$(tput bold)             # Bold
+bldgrn=$(tput setaf 2) #  green
+bldred=${txtbld}$(tput setaf 1) #  red
+txtreset=$(tput sgr0)
+elmslnecho(){
+  echo "${bldgrn}$1${txtreset}"
+}
+elmslnwarn(){
+  echo "${bldred}$1${txtreset}"
+}
+
 # where are we
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 cd $DIR
