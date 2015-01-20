@@ -293,22 +293,26 @@ function _cis_connection_query($query = array(), $entity_type = 'node', $format 
  * @see _cis_connector_real_address()
  */
 function _cis_connector_format_address($settings, $instance = '', $method = 'service') {
-  // start with protocol
-  $address = $settings['protocol'] . '://';
-  // allow for front end link or data connection
-  if ($method == 'service') {
-    // optional HTTP authenticated request, required in any *real* environment
-    if (isset($settings['user'])) {
-      $address .= $settings['user'] . ':' . $settings['pass'] . '@';
+  if (isset($settings['protocol'])) {
+    $address = $settings['protocol'] . '://';
+    // allow for front end link or data connection
+    if ($method == 'service') {
+      // optional HTTP authenticated request, required in any *real* environment
+      if (isset($settings['user'])) {
+        $address .= $settings['user'] . ':' . $settings['pass'] . '@';
+      }
+      // append the connection address
+      $address .= $settings['service_address'] . $instance;
     }
-    // append the connection address
-    $address .= $settings['service_address'] . $instance;
+    elseif ($method == 'front') {
+      // append the real address
+      $address .= $settings['address'] . $instance;
+    }
+    return $address;
   }
-  elseif ($method == 'front') {
-    // append the real address
-    $address .= $settings['address'] . $instance;
+  else {
+    return FALSE;
   }
-  return $address;
 }
 
 /**
