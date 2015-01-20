@@ -1,7 +1,7 @@
 Field Redirection
 *****************
 
-A field formatter for EntityReference, File, Link, Node Reference, Term
+A field formatter for EntityReference, File, Image, Link, Node Reference, Term
 Reference, URL and User Reference fields that will perform a HTTP redirect to
 the given entity, file, URL, term, node, URL or user.  The formatter's settings
 allow selection from one of the seven different possible HTTP status codes that
@@ -23,13 +23,13 @@ To configure the recommended settings:
   checkbox is checked.
 * Click the "Save" button.
 * Go to the "Full Content" tab.
-* Ensure that all of the fields are hidden except for the field you wish to
-  use.
-* Click the selector in the Format column of the field in question and change
-  it to "Redirect".
-* By default the formatter will do a HTTP 301 redirect indicating the path in
+* Optional: Administrators will be able to still view the page without it
+  redirecting, so customize other fields as desired.
+* Click the selector in the Format column of the desired field, and change it
+  to the "Redirect" formatter.
+* By default the formatter will do a HTTP 301 redirect, indicating the path in
   question is permanently moved.  To change this, click the "cog" icon beside
-  the field and select one of the other options then click Update.
+  the field and select one of the other options, then click Update.
 * Click the "Save" button.
 * Ensure that other display modes do not use the redirect.
 
@@ -59,7 +59,9 @@ WARNING
 *******
 This field formatter should *only* be used when displaying the "full content"
 of a given entity (user, content type, etc), otherwise unexpected results will
-happen.  Example problems that can arise include:
+happen. A warning message will be displayed if the formatter is selected for
+use on the Default, Teaser, RSS, Search Index, Search Result, Revision or Token
+view modes. Example problems that can arise include:
 * Using this formatter for a view mode used on the search index could cause
   the search index to never complete, or even cron to never complete.
 * Using this formatter in an RSS feed would cause all readers of the RSS feed
@@ -71,12 +73,13 @@ happen.  Example problems that can arise include:
 Limitations
 ***********
 There are a few known limitations to this module:
-* Only one field for a given entity (user, content type, etc) should be
-  assigned this formatter.
-* The field that is given this formatter should have a maximum number of values
-  set to 1.
-* It does not make sense to create a Panel node_view display for entities using
-  this on a field formatter.
+* If multiple fields on the same entity/bundle have the Redirect formatter
+  selected, the first one to be processed will be the one that controls the
+  redirect.
+* If a field has multiple values, only the first item will be used for the
+  redirect.
+* The redirect action will not be triggered when the site is in maintenance
+  mode.
 
 TODO
 ****

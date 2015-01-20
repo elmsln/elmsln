@@ -1,3 +1,22 @@
+Field_Redirection 7.x-2.6, 2014-10-31
+-------------------------------------
+#1979300 by DamienMcKenna, ultimike: Display a warning message in the field
+  admin UI when the field formatter is used with an unsuitable view mode.
+#1979696 by DamienMcKenna: Support for Image fields.
+#1691540 by DamienMcKenna: Changed the module to the Fields package.
+#1413306 by DamienMcKenna: Improvements to the README.txt file.
+#1959104 by baisong, DamienMcKenna: Improved support for page caching.
+#2367137 by DamienMcKenna: Verify the destination is not the current page, i.e.
+  avoid infinite loops.
+#2329353 by Bobík: Do not use language prefix if URL is absolute.
+#2166021 by Schoonzie: Support for all entity types with EntityReference fields.
+#2012448 by DamienMcKenna: Added a note to the README.txt about the fact that
+  redirects will not trigger when the site is in maintenance mode.
+#1721728 by DamienMcKenna, Alan D.: Full control over what paths the redirection
+  can be triggered on, with a default of all pages.
+#1721740 by DamienMcKenna, Alan D.: Additional checks to prevent redirect loops.
+
+
 Field_Redirection 7.x-2.5, 2012-11-03
 -------------------------------------
 #1728676 by DamienMcKenna: Support for File fields.

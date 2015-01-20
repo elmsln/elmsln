@@ -27,11 +27,18 @@ function field_redirection_field_formatter_info() {
       'settings' => array(
         'code' => '301',
         '404_if_empty' => FALSE,
+        // Flag to indicate how to show blocks on pages:
+        // 0 = Ignore the setting.
+        // 1 = Redirect on all except listed pages.
+        // 2 = Redirect only on listed pages.
+        'page_restrictions' => 0,
+        'pages' => '',
       ),
       // The supported field types.
       'field types' => array(
         'entityreference',
         'file',
+        'image',
         'link_field',
         'node_reference',
         'taxonomy_term_reference',
@@ -46,15 +53,15 @@ function field_redirection_field_formatter_info() {
  * implementation of hook_field_formatter_settings_from().
  */
 function field_redirection_field_formatter_settings_form($field, $instance, $view_mode, $form, &$form_state) {
+  // Shortcuts to make the rest of the code simpler.
+  $display = $instance['display'][$view_mode];
+  $settings = $display['settings'];
+  $codes = field_redirection_http_codes();
+
   // Load the current selection, default to "301".
   $code = 301;
-  if (!empty($instance['display'][$view_mode]['settings']['code'])) {
-    $code = $instance['display'][$view_mode]['settings']['code'];
-  }
-  // Identify the 404-if-empty error.
-  $empty404 = FALSE;
-  if (!empty($instance['display'][$view_mode]['settings']['404_if_empty'])) {
-    $empty404 = TRUE;
+  if (!empty($settings['code']) && isset($codes[$settings['code']])) {
+    $code = $settings['code'];
   }
 
   // Build a new structure for this formatter settings form element.
@@ -72,8 +79,53 @@ function field_redirection_field_formatter_settings_form($field, $instance, $vie
   $element['404_if_empty'] = array(
     '#type' => 'checkbox',
     '#title' => t('404 if URL empty'),
-    '#default_value' => $empty404,
+    '#default_value' => !empty($settings['404_if_empty']),
     '#description' => t('Optionally display a 404 error page if the associated URL field is empty.'),
+  );
+
+  $element['note'] = array(
+    '#markup' => t('Note: If the destination path is the same as the current path it will behave as if it is empty.'),
+    '#prefix' => '<p>',
+    '#suffix' => '</p>',
+  );
+
+  // Provide targeted URL rules to trigger this action.
+  $element['page_restrictions'] = array(
+    '#type' => 'radios',
+    '#title' => t('Redirect page restrictions'),
+    '#default_value' => empty($settings['page_restrictions']) ? 0 : $settings['page_restrictions'],
+    '#options' => array(
+      0 => t('Redirect on all pages.'),
+      1 => t('Redirect only on the following pages.'),
+      2 => t('Redirect on all pages except the following pages.'),
+    ),
+  );
+
+  $element['pages'] = array(
+    '#type' => 'textarea',
+    '#title' => t('Paths'),
+    '#default_value' => empty($settings['pages']) ? '' : $settings['pages'],
+    '#description' => t("Enter one page per line as Drupal paths. The '*' character is a wildcard. Example paths are 'blog' for the blog page and 'blog/*' for every personal blog. '<front>' is the front page. You can also use tokens in this field, for example 'node/[node:nid]' can be used to define the current node path."),
+    '#states' => array(
+      'invisible' => array(
+        ':input[name~="page_restrictions"]' => array(
+          array('value' => '0'),
+        ),
+      ),
+    ),
+  );
+
+  // Show the token browser.
+  $element['available_tokens'] = array(
+    '#type' => 'container',
+    '#weight' => 100,
+    '#states' => $element['pages']['#states'],
+  );
+  $element['available_tokens']['tokens'] = array(
+    '#value' => 'Browse available tokens',
+    '#theme' => 'token_tree',
+    '#token_types' => array($instance['entity_type']),
+    '#dialog' => TRUE,
   );
 
   return $element;
@@ -84,18 +136,49 @@ function field_redirection_field_formatter_settings_form($field, $instance, $vie
  */
 function field_redirection_field_formatter_settings_summary($field, $instance, $view_mode) {
   $output = '';
+
+  // Shortcuts to make the rest of the code simpler.
+  $display = $instance['display'][$view_mode];
+  $settings = $display['settings'];
   $codes = field_redirection_http_codes();
+
+  // Display a "hair on fire" warning message if the view mode is not 'full'.
+  if ($view_mode != 'full') {
+    $bad_modes = array(
+      'default' => 'Default',
+      'teaser' => 'Teaser',
+      'rss' => 'RSS',
+      'search_index' => 'Search index',
+      'search_result' => 'Search result',
+      'diff_standard' => 'Revision comparison',
+      'revision' => 'Revision',
+      'token' => 'Token',
+    );
+    if (array_key_exists($view_mode, $bad_modes)) {
+      $output .= '<h2>' . t('Danger, Will Robinson!') . '</h2>';
+      $output .= '<p>' . t('The Redirect formatter should not be used with the ":mode" view mode, it works best when used with the ":full" view mode.', array(':mode' => t($bad_modes[$view_mode]), ':full' => t('Full content'))) . '</p>';
+    }
+    else {
+      $output .= '<h3>' . t('Careful now!') . '</h3>';
+      $output .= '<p>' . t('Be careful using the Redirect formatter with this view mode, it could lead to problems.') . '</p>';
+    }
+  }
 
   // Work out which redirection code was being used, default to "301".
   $code = 301;
-  if (!empty($instance['display'][$view_mode]['settings']['code']) && isset($codes[$instance['display'][$view_mode]['settings']['code']])) {
-    $code = $instance['display'][$view_mode]['settings']['code'];
+  if (!empty($settings['code']) && isset($codes[$settings['code']])) {
+    $code = $settings['code'];
   }
-  $output = $codes[$code];
+  $output .= t('Redirect method:') . ' ' . $codes[$code];
 
   // Indicate if the option is used.
-  if ($instance['display'][$view_mode]['settings']['404_if_empty']) {
+  if ($settings['404_if_empty']) {
     $output .= ' (404 if empty)';
+  }
+
+  // Show path rules if the page_restrictions option is enabled.
+  if (!empty($settings['page_restrictions']) && !empty($settings['pages'])) {
+    $output .= '<br />' . t('Redirect restricted to certain paths.');
   }
 
   return $output;
@@ -124,6 +207,34 @@ function field_redirection_http_codes() {
  * If we have a node reference and we can redirect to it lets do it!
  */
 function field_redirection_field_formatter_view($entity_type, $entity, $field, $instance, $langcode, $items, $display) {
+  // Shortcuts to make the rest of the code simpler.
+  $settings = $display['settings'];
+  $codes = field_redirection_http_codes();
+
+  // Optionally control the list of pages this works on.
+  if (!empty($settings['page_restrictions']) && !empty($settings['pages'])) {
+    // 1 = Redirect only on these pages, 2 = Redirect on all other pages.
+    // Remove '1' from this value so it can be XOR'd later on.
+    $page_restrictions = $settings['page_restrictions'] - 1;
+
+    // Do raw token replacements.
+    $pages = token_replace($settings['pages'], array($entity_type => $entity), array('clear' => 1, 'sanitize' => 0));
+
+    // Normalise all paths to lower case
+    $pages = drupal_strtolower($pages);
+    $path_alias = drupal_strtolower(drupal_get_path_alias($_GET['q']));
+    $page_match = drupal_match_path($path_alias, $pages);
+    if ($path_alias != $_GET['q']) {
+      $page_match = $page_match || drupal_match_path($_GET['q'], $pages);
+    }
+
+    // Stop processing if the page restrictions have matched.
+    if ($page_restrictions xor $page_match) {
+      return;
+    }
+  }
+
+
   // Don't execute if running via the CLI, e.g. Drush.
   if (constant('PHP_SAPI') == 'cli') {
     return;
@@ -144,7 +255,10 @@ function field_redirection_field_formatter_view($entity_type, $entity, $field, $
 
   // Make some of the rest of the code simpler.
   $item = !empty($items[0]) ? $items[0] : array();
-  $response_code = !empty($display['settings']['code']) ? $display['settings']['code'] : 301;
+  $response_code = 301;
+  if (!empty($settings['code']) && isset($codes[$settings['code']])) {
+    $response_code = $settings['code'];
+  }
 
   // Work out the destination path to redirect to. Each field type is handled
   // slightly differently, so identify that here.
@@ -155,12 +269,23 @@ function field_redirection_field_formatter_view($entity_type, $entity, $field, $
       // Entity reference field from the EntityReference module.
       case 'entityreference':
         if (!empty($item['target_id'])) {
-          $path = drupal_get_path_alias($field['settings']['target_type'] . '/' . $item['target_id']);
+          $referenced_entities = entity_load($field['settings']['target_type'], array($item['target_id']));
+          if (!empty($referenced_entities)) {
+            $referenced_entity = reset($referenced_entities);
+            if (!empty($referenced_entity)) {
+              $uri = entity_uri($field['settings']['target_type'], $referenced_entity);
+              if (!empty($uri['path'])) {
+                $path = drupal_get_path_alias($uri['path']);
+              }
+            }
+          }
         }
         break;
 
       // File field from the core File module.
       case 'file':
+      // Image field from the core Image module.
+      case 'image':
         if (!empty($item['uri'])) {
           $path = file_create_url($item['uri']);
         }
@@ -228,8 +353,32 @@ function field_redirection_field_formatter_view($entity_type, $entity, $field, $
     }
   }
 
+  // Don't redirect if the destination is the current page.
+  if (!empty($path)) {
+    // Simplest case.
+    if ($_GET['q'] == $path) {
+      $path = '';
+    }
+    else {
+      $current_path = current_path();
+      if ($path == $current_path || $path == url($current_path, array('absolute' => TRUE))) {
+        $path = '';
+      }
+      // Special case for when the current page is the homepage.
+      elseif ($path == '<front>' && drupal_is_front_page()) {
+        $path = '';
+      }
+    }
+  }
+
   // Only proceed if a path was identified.
   if (!empty($path)) {
+    // Use default language to not prepend language prefix if path is absolute without hostname.
+    if ($path[0] == '/') {
+      $path = substr($path, 1);
+      $options['language'] = language_default();
+    }
+
     // If the user has permission to bypass the page redirection, return a
     // message explaining where they would have been redirected to.
     if (user_access('bypass redirection')) {
@@ -240,6 +389,21 @@ function field_redirection_field_formatter_view($entity_type, $entity, $field, $
       }
     }
     else {
+      // If caching this page, add 'Cache-Control' header before redirecting.
+      $caching_enabled = variable_get('cache', 0);
+      $page_cacheable = drupal_page_is_cacheable();
+      $no_session_cookie = !isset($_COOKIE[session_name()]);
+      if ($caching_enabled && $page_cacheable && $no_session_cookie) {
+        // @see drupal_serve_page_from_cache().
+        // If the client sent a session cookie, a cached copy will only be
+        // served to that one particular client due to Vary: Cookie. Thus, do
+        // not set max-age > 0, allowing the page to be cached by external
+        // proxies, when a session cookie is present unless the Vary header has
+        // been replaced or unset in hook_boot().
+        $max_age = !isset($_COOKIE[session_name()]) || isset($hook_boot_headers['vary']) ? variable_get('page_cache_maximum_age', 0) : 0;
+        drupal_add_http_header('Cache-Control', 'public, max-age=' . $max_age);
+      }
+
       drupal_goto($path, $options, $response_code);
     }
   }
