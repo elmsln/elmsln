@@ -205,7 +205,7 @@ function _cis_tokens_get_token_scope($scope = FALSE) {
           $tokens[filter_xss($pair[0])] = 'global';
         }
         else {
-          $tokens[filter_xss($pair[0])] = filter_xss($pair[1]);
+          $tokens[filter_xss($pair[0])] = trim(filter_xss($pair[1]));
         }
       }
     }
@@ -226,10 +226,10 @@ function _cis_tokens_get_token_scope($scope = FALSE) {
           if (count($pair2) === 2) {
             // see if we are sending along the scope instead of the replacement
             if ($scope) {
-              $tokens[filter_xss($pair2[0])] = $section->title;
+              $tokens[filter_xss($pair2[0])] = trim($section->title);
             }
             else {
-              $tokens[filter_xss($pair2[0])] = filter_xss($pair2[1]);
+              $tokens[filter_xss($pair2[0])] = trim(filter_xss($pair2[1]));
             }
           }
         }
