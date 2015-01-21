@@ -23,8 +23,45 @@ function replicate_ui_menu() {
     'access arguments' => array(0, 1),
     'type' => MENU_LOCAL_TASK,
   );
-  // only add ui element for field collection if replicate sub installed
-  if (module_exists('replicate_field_collection')) {
+  // support for user entity though this might not do what you think without
+  // some kind of clean up module: see https://www.drupal.org/node/2394779
+  $items['user/%user/replicate'] = array(
+    'title' => 'Replicate',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('replicate_ui_confirm', 0, 1),
+    'access callback' => 'replicate_ui_access',
+    'access arguments' => array(0, 1),
+    'type' => MENU_LOCAL_TASK,
+  );
+  // ewwwww, taxonomy support
+  if (module_exists('taxonomy')) {
+    $items['taxonomy/term/%taxonomy_term/replicate'] = array(
+      'title' => 'Replicate',
+      'page callback' => 'drupal_get_form',
+      'page arguments' => array('replicate_ui_confirm', 'taxonomy_term', 2),
+      'access callback' => 'replicate_ui_access',
+      'access arguments' => array('taxonomy_term', 2),
+      'type' => MENU_LOCAL_TASK,
+    );
+  }
+  
+  // optional support based on modules being installed
+
+  // entityform support, we don't check for the submodule directly because
+  // people might want to use another, completely valid, approach
+  if (module_exists('entityform')) {
+    $items['entityform/%entityform/replicate'] = array(
+      'title' => 'Replicate',
+      'page callback' => 'drupal_get_form',
+      'page arguments' => array('replicate_ui_confirm', 0, 1),
+      'access callback' => 'replicate_ui_access',
+      'access arguments' => array(0, 1),
+      'type' => MENU_LOCAL_TASK,
+    );
+  }
+  // field_collection support, we don't check for the submodule directly
+  // because people might want to use another, completely valid, approach
+  if (module_exists('field_collection')) {
     // Add menu paths for viewing/editing/deleting field collection items.
     foreach (field_info_fields() as $field) {
       if ($field['type'] == 'field_collection') {
@@ -88,7 +125,7 @@ function replicate_ui_confirm($form, &$form_state, $type, $entity_id) {
 }
 
 /**
- * Execute full book deletion using batch processing.
+ * Confirm submission.
  */
 function replicate_ui_confirm_submit($form, &$form_state) {
   if ($form_state['values']['confirm']) {
