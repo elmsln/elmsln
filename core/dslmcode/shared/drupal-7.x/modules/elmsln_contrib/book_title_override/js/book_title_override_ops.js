@@ -6,7 +6,7 @@
     // click handler for override
     $('#od_book_title_override_override').click(function(){
       // show if its checked for the override
-      if ($(this).attr('checked') == true) {
+      if ($(this).is(':checked')) {
         $("#od_book_title_override_title").parent().css('display', 'block');
         $('#od_book_title_override_title').focus();
       }
@@ -26,7 +26,12 @@
   };
   // reset handler
   Drupal.outline_designer_ops.book_title_override_reset = function() {
-    $("#od_book_title_override_override").attr("checked", false);
+	// check for .prop function. Must use .attr for jQuery < 1.6. Use .prop for jQuery >=1.6
+	if (typeof $.fn.prop !== 'function') {
+		$("#od_book_title_override_override").attr("checked", false);
+	} else {
+		$("#od_book_title_override_override").prop("checked", false);
+	}
     $("#od_book_title_override_title").val('');
   };
 })(jQuery);
