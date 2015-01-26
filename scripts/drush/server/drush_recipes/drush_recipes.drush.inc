@@ -995,6 +995,7 @@ function drush_drush_recipes_drush_list_recipes($list = '') {
       unset($row['core']);
       unset($row['drush_recipes_api']);
       unset($row['weight']);
+      unset($row['env']);
     }
     $row['machine_name'] = $machine_name;
     $row['uri'] = $recipe->filename;
@@ -1022,6 +1023,7 @@ function drush_drush_recipes_drush_list_recipes($list = '') {
       'recipe' => '40',
       'dependencies' => '10',
       'weight' => '2',
+      'env' => '10',
     );
   }
   else {
@@ -1128,13 +1130,71 @@ function drush_drush_recipes_drush_cook_recipes($list = '', $recurse = FALSE, $r
 
     // convert cooking list into commands to run
     drush_print("\n" . dt('Ingredients list to cook: @list', array('@list' => implode(',', $list))));
+    $envs = array();
     // see if we got passed a recipe list ahead of time
     foreach ($cook as $recipe) {
       $recipe_list[] = _drush_recipes_recipe_to_drush($recipe);
+      // build environment registry if one exists
+      if (isset($recipe->drecipe['env']) && !empty($recipe->drecipe['env'])) {
+        $envs[] = $recipe->drecipe['env'];
+      }
     }
   }
   // confirm cooking as this can be a ton of drush commands
   if ($recurse || drush_confirm('Are you sure you want to cook these recipes with the above call structure? ' . implode(' ', array_keys($cook)))) {
+    $env_tokens = array();
+    // pull in the context of the operation
+    $context = drush_get_context();
+    // loop through environmental tokens requesting input from the user
+    foreach ($envs as $env) {
+      // only pass through tokens if its actually set, this opens the door
+      // for future functionality to be packed into the env settings bin
+      if (isset($env['tokens'])) {
+        foreach ($env['tokens'] as $token => $description) {
+          $default = $context_env = NULL;
+          $default_set = FALSE;
+          $prompt = FALSE;
+          // assemble the actual token from the options that we would see
+          $strip_token = str_replace('[', '', str_replace(']', '', $token));
+          // check the larger context, then trickle down to local scope
+          if (isset($context['cli']['env-' . $strip_token])) {
+            $context_env = $context['cli']['env-' . $strip_token];
+          }
+          // check for option at commandline, this overrides empty AND default values
+          // this means you can cook a recipe with these values downsteam by supplying
+          // the option at run time: drush cook recipe --env-token=value
+          $default = drush_get_option('env-' . $strip_token, $context_env);
+          // use the env-token style so long as its not NULL
+          if ($default !== NULL) {
+            // in this instance we just use the default value because it's an
+            // environmental setting and if it was supplied via cli / option
+            // then we don't question otherwise (this is the point of a global)
+            $env_tokens['env-' . $strip_token] = $default;
+          }
+          else if (isset($env['defaults'][$token])) {
+            // we have a defined default but it wasn't manually entered, prompt
+            $default = $env['defaults'][$token];
+            // stupid but this allows for NULL string setting as the default case
+            $default_set = TRUE;
+            $prompt = TRUE;
+          }
+          else {
+            $prompt = TRUE;
+          }
+          // no default supplied, prompt for input
+          if ($prompt) {
+            // prompt for input, only requiring it if a default is not set
+            $env_tokens['env-' . $strip_token] = drush_prompt(dt('ENV token @token: @description', array('@token' => $strip_token, '@description' => $description)), $default, ($default_set ? FALSE : TRUE));
+          }
+          // set this option so that it can be passed down / checked later
+          drush_set_option('env-' . $strip_token, $env_tokens['env-' . $strip_token]);
+        }
+      }
+    }
+    // to use this we'll do something like the name has to be global-token
+    // this would allow for definition either at runtime via mlt-global-token
+    // (which would just populate the global token call and skip it) or in
+    // the new global token area
     foreach ($recipe_list as $commands) {
       foreach ($commands as $command) {
         if (is_array($command)) {
@@ -1504,6 +1564,7 @@ function _drush_recipes_system_rebuild_recipe_data() {
     'conflicts' => array(),
     'recipe' => array(),
     'metadata' => array(),
+    'env' => array(),
   );
 
   // Read recipe files for each module/theme/drecipes.
@@ -1518,6 +1579,10 @@ function _drush_recipes_system_rebuild_recipe_data() {
     // Merge in defaults and save.
     $recipes[$key]->drecipe = $recipe->drecipe + $defaults;
     krsort($recipes[$key]->drecipe);
+    // check for the lazy metadata property
+    if (isset($recipes[$key]->drecipe['metadata']['lazy'])) {
+      $recipes[$recipes[$key]->drecipe['metadata']['lazy']] = $recipes[$key];
+    }
   }
   // allow last minute recipe data modification
   drush_command_invoke_all_ref('drush_recipes_system_recipe_data_alter', $recipes);
@@ -2004,6 +2069,16 @@ function drush_recipes_drush_recipes_madlib_command_invoke_alter(&$command) {
     if (isset($context['cli']['looping-mlt-' . $strip_token])) {
       $context_mlt = $context['cli']['looping-mlt-' . $strip_token];
     }
+    // if we have an environmental variable we skip the question and
+    // assume the answer is the global value
+    $env_default = drush_get_option('env-' . $strip_token);
+    if (!is_null($env_default)) {
+      $context_mlt = $env_default;
+      if (!isset($command['_retry'])) {
+        $selection[$token] = $context_mlt;
+        continue;
+      }
+    }
     // check for option at commandline, this overrides empty AND default values
     // this means you can cook a recipe with these values downsteam by supplying
     // the option at run time: drush cook recipe --mlt-token=value
@@ -2092,6 +2167,7 @@ function drush_recipes_drush_recipes_madlib_command_invoke_alter(&$command) {
   drush_print(dt("You are about to execute this madlib:\n") . $print);
   // confirm decision; if they abort it'll ask the question again
   if (!drush_confirm("\nHit 'y' to execute or 'n' to fill it out again.")) {
+    $original['_retry'] = TRUE;
     drush_recipes_drush_recipes_madlib_command_invoke_alter($original);
     $command = $original;
   }
@@ -2388,6 +2464,7 @@ function _drush_recipes_validate_recipe($recipe) {
           case 'dependencies':
           case 'recipe':
           case 'metadata':
+          case 'env':
             // do nothing, these are valid properties in 1.0
           break;
           default:

@@ -3,6 +3,14 @@
     "drush_recipes_api": "1.0",
     "weight": "0",
     "core": "7",
+    "env": {
+        "tokens": {
+            "[ccr_machine_name]": "Content type machine name"
+        },
+        "defaults": {
+            "[ccr_machine_name]": "page"
+        }
+    },
     "recipe": [
         {
             "madlib": "true",
@@ -51,12 +59,19 @@
                 "[ccr_field_type]": "text_with_summary",
                 "[ccr_field_widget]": "text_textarea_with_summary"
             }
+        },
+        {
+            "command": "cc",
+            "arguments": [
+                "all"
+            ]
         }
     ],
     "metadata": {
         "type": "add-on",
         "version": "1.0",
         "author": "bto108",
-        "description": "Generate a new content type with an unlimited number of fields"
+        "description": "Generate a new content type with an unlimited number of fields",
+        "lazy": "cbt"
     }
 }

@@ -24,6 +24,7 @@
         "type": "add-on",
         "description": "Create a new content type via interactive prompt",
         "version": "1.0",
-        "author": "btopro"
+        "author": "btopro",
+        "lazy": "cat"
     }
 }

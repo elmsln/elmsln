@@ -100,6 +100,7 @@
     "type": "add-on",
     "description": "Sets up modules for corporate security; this applies all over security recipes.",
     "version": "1.0",
-    "author": "kristat"
+    "author": "kristat",
+    "lazy": "highsec"
   }
 }

@@ -40,6 +40,7 @@
         "type": "add-on",
         "description": "Add a field to a given entity bundle, defaults to node.",
         "version": "1.0",
-        "author": "btopro"
+        "author": "btopro",
+        "lazy": "caf"
     }
 }

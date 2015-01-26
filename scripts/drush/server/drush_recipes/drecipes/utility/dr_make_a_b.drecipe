@@ -3,6 +3,16 @@
     "drush_recipes_api": "1.0",
     "weight": "0",
     "core": "7",
+    "env": {
+      "tokens": {
+          "[target1]": "New site you want to install / reimage",
+          "[target2]": "The site you want to turn target1 into"
+      },
+      "defaults": {
+          "[target1]": "@self",
+          "[target2]": "@none"
+      }
+    },
     "recipe": [
         {
             "madlib": "true",
@@ -40,10 +50,10 @@
                 "profiler_builder"
             ],
             "tokens": {
-                "[target1]": "new site you want to install / reimage"
+                "[target2]": "new site you want to install / reimage"
             },
             "defaults": {
-                "[target1]": "@self"
+                "[target2]": "@self"
             }
         },
         {

@@ -13,6 +13,26 @@
 // or
 // $options['dr_locations'] = array('/drushstuff', '/drecipes');
 
+// Environment token prepopulation
+// you can send any environment token to be answered automatically in one
+// of two ways. either by appending env- to the token name at run time or by
+// modifying one's drushrc.php and adding $options['env-TOKENNAME'] = 'VALUE';
+// this can be used to allow for environment specific global tokens to be
+// automatically set when a recipe is run.
+// Example:
+//   On dev: the drushrc.php has $options['env-global'] = 0;
+//   On prod: the drushrc.php has $options['env-global'] = 1;
+//   Command: drush @dev cook core_performance --y
+//   On dev this evaluates (automatically) to
+//     drush @dev cook core_performance --y --env-global=0
+//   Which will automatically populate all calls for token "global" with 0
+//   meaning that all caches and performance settings will be disabled.
+//
+//   On prod this evaluates (automatically) to
+//     drush @prod cook core_performance --y --env-global=1
+//   Which will automatically populate all calls for token "global" with 1
+//   meaning that all caches and performance settings will be enabled
+
 // MadLib token prepopulation
 // you can seed any madlib automatically by looking at the token name
 // appending mlt- and pushing it through
@@ -318,6 +338,9 @@ function hook_drush_recipes_require_shell_exec_alter(&$exec) {
  * recipe - the structure of commands to execute, this can also be another
  *   recipe filename which will append all the commands in that file ahead of
  *   what is about to execute. There are 4 structures to this listed below
+ * env - any environmental variables / tokens that can be defined ahead of time
+ *   or at run time. If a value is used multiple times across .drecipe's it will
+ *   only be asked for once. If supplied ahead of time, it won't be asked at all.
  * metadata - a series of properties that can be used for front-end integration.
  *   this is entirely optional but helps developers understand what you wrote.
  */
@@ -334,6 +357,16 @@ $js = <<<JS
   "conflicts": [
     "insecure_stuff"
   ],
+  "env": {
+    "tokens": {
+      "[tokenname1]": "Question to ask the user?",
+      "[tokenname2]": "Question to ask the user 2?"
+    },
+    "defaults": {
+      "[tokenname1]": "value1",
+      "[tokenname2]": "value2"
+    }
+  },
   "recipe": [
     "dr_admin_update_status.drecipe",
     [
@@ -387,6 +420,7 @@ $js = <<<JS
     ],
     [// long call format, this allows user to interact w/ the call
      // only use this for complex call structures that you need to interact with
+     // this is the preferred method
       "target": "cool.d7.site", // target
       "command": "en", // command to issue
       "arguments": [ // arguments to pass in, similar to simple structure
