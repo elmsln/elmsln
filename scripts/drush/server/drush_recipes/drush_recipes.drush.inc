@@ -1285,16 +1285,29 @@ function drush_drush_recipes_drush_cook_recipes($list = '', $recurse = FALSE, $r
               if (isset($command[DRUSH_RECIPES_FORMAT_CONDITIONAL]['default'])) {
                 $default = $command[DRUSH_RECIPES_FORMAT_CONDITIONAL]['default'];
               }
-              // force a selection to be made
+              // allow for this to be defined as an optional conditional
+              if (isset($command['optional']) && $command['optional']) {
+                // if we don't have a default, make none the default
+                if (!$default) {
+                  $default = '-none-';
+                }
+                $command[DRUSH_RECIPES_FORMAT_CONDITIONAL][] = '-none-';
+              }
               while (!$which = drush_choice_with_custom_defaults($command[DRUSH_RECIPES_FORMAT_CONDITIONAL], $default, $command[DRUSH_RECIPES_FORMAT_CONDITIONAL_QUESTION]));
               drush_print($which);
               // @todo fix inconsistent return data from drush_choice_with_custom_defaults
               if (isset($command[DRUSH_RECIPES_FORMAT_CONDITIONAL][$which])) {
                 $which = $command[DRUSH_RECIPES_FORMAT_CONDITIONAL][$which];
               }
-              drush_log(dt('Adding ingredient: ') . $which, 'ok');
-              // recursive since they just selected a reference
-              drush_drush_recipes_drush_cook_recipes(str_replace('.' . DRUSH_RECIPE_EXTENSION, '', $which), TRUE);
+              // see if they chose to skip an optional recipe
+              if ($which == '-none-') {
+                drush_log(dt('Skipping optional ingredient'), 'ok');
+              }
+              else {
+                drush_log(dt('Adding ingredient: ') . $which, 'ok');
+                // recursive since they just selected a reference
+                drush_drush_recipes_drush_cook_recipes(str_replace('.' . DRUSH_RECIPE_EXTENSION, '', $which), TRUE);
+              }
             }
             // allow for custom format or else assume argument based
             else if (isset($call['_drush_recipes_custom_format'])) {
@@ -1891,6 +1904,10 @@ function _drush_recipes_recipe_to_drush($recipe, $indent = 1, $recurse = TRUE, $
       break;
       case DRUSH_RECIPES_FORMAT_CONDITIONAL:
         $print = 'CONDITIONAL';
+        // support optional conditional
+        if (isset($call['optional']) && $call['optional']) {
+          $print .= dt(' (optional)');
+        }
         if (isset($call['loop'])) {
           if ($call['loop'] == 'x') {
             $loop = 'unlimited';
@@ -1904,10 +1921,10 @@ function _drush_recipes_recipe_to_drush($recipe, $indent = 1, $recurse = TRUE, $
         //  conditional is complex so processing has to happen at run time
         $drush[] = $call;
         if ($list) {
-          $out = implode(' OR ', $call[DRUSH_RECIPES_FORMAT_CONDITIONAL]);
+          $print .= implode(' OR ', $call[DRUSH_RECIPES_FORMAT_CONDITIONAL]);
           // communicate the default value if one is set
           if (isset($call[DRUSH_RECIPES_FORMAT_CONDITIONAL]['default'])) {
-            $out = str_replace($call[DRUSH_RECIPES_FORMAT_CONDITIONAL]['default'], '(default) ' . $call[DRUSH_RECIPES_FORMAT_CONDITIONAL]['default'], $out);
+            $print = str_replace($call[DRUSH_RECIPES_FORMAT_CONDITIONAL]['default'], '(default) ' . $call[DRUSH_RECIPES_FORMAT_CONDITIONAL]['default'], $print);
           }
           drush_print(_drush_recipes_indent($indent+1) . $print);
         }
