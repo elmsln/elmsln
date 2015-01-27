@@ -416,7 +416,8 @@ $js = <<<JS
         "recipe2.drecipe",
         "recipe3.drecipe"
       ],
-      "prompt": "Which recipe would you like to execute?"
+      "prompt": "Which recipe would you like to execute?",
+      "optional": "true" // allow for this to be optional and dont force input
     ],
     [// long call format, this allows user to interact w/ the call
      // only use this for complex call structures that you need to interact with
