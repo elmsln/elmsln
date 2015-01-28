@@ -84,6 +84,8 @@ before_script:
 script:
   # run the installer
   - bash /var/www/elmsln/scripts/install/elmsln-install.sh
+  # see what the
+  - cat /var/www/elmsln/config/shared/drupal-7.x/modules/_elmsln_scripted/travis/travis_tc_settings/travis_tc_settings.module
   - drush sa
   - drush @online cc drush
   - drush @online en cis_example_cis --y
