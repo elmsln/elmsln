@@ -81,17 +81,17 @@ do
 
   badchars=`sed 's/[a-z A-Z 0-9 _@.= \: \/ \-]//g' $coursefile`
   if [ $badchars ]; then
-    echo "bad characters in the course file"
+    echo "bad characters in the course file" >> $configsdir/logs/drush-create-site.log
     error=1
   fi
 
   if [ $coursefilelen -gt 300 ]; then
-    echo "$coursefile is too large."
+    echo "$coursefile is too large." >> $configsdir/logs/drush-create-site.log
     error=1
   fi
 
   if [ ! -f $drupalroot/index.php ]; then
-    echo $date " Drupal doesn't exist in $drupalroot"
+    echo $date " Drupal doesn't exist in $drupalroot" >> $configsdir/logs/drush-create-site.log
     error=1
   fi
 
@@ -102,32 +102,32 @@ do
   fi
 
   if [ -z $course ]; then
-    echo " $date course is missing. exiting"
+    echo " $date course is missing. exiting" >> $configsdir/logs/drush-create-site.log
     error=1
   fi
 
   if [ -z $hostname ]; then
-    echo " $date hostname is missing"
+    echo " $date hostname is missing" >> $configsdir/logs/drush-create-site.log
     error=1
   fi
 
   if [ -z $college ]; then
-    echo " $date college is missing. exiting"
+    echo " $date college is missing. exiting" >> $configsdir/logs/drush-create-site.log
     error=1
   fi
 
   if [ $collegelen -gt 3 ]; then
-    echo " $date college name is too long. expecting 2 chars. exiting"
+    echo " $date college name is too long. expecting 2 chars. exiting" >> $configsdir/logs/drush-create-site.log
     error=1
   fi
 
   if [ $courselen -gt 40 ]; then
-    echo " $date Course length is too long, please enter one that's less than 40 chars"
+    echo " $date Course length is too long, please enter one that's less than 40 chars" >> $configsdir/logs/drush-create-site.log
     error=1
   fi
 
   if [ $? -gt 0 ]; then
-    echo " $date errors!"
+    echo " $date errors!" >> $configsdir/logs/drush-create-site.log
     error=1
   fi
 
@@ -146,7 +146,7 @@ do
 
   while [ $userexist ]; do
     dbcount=$((dbcount + 1))
-    echo "database use exists, adding $dbcount to $dbprefix"
+    echo "database use exists, adding $dbcount to $dbprefix" >> $configsdir/logs/drush-create-site.log
     dbprefixtest=$dbcount
     userexist
   done
@@ -158,21 +158,21 @@ do
   #Test if database exists, if does back out with warning
   dbexist=`mysql -u$dbsu -p$dbsupw -e "show databases;" | grep ^"$coursedb"$`
   if [ $dbexist ]; then
-    echo " $date database $course exists. exiting"
+    echo " $date database $course exists. exiting" >> $configsdir/logs/drush-create-site.log
     error=1
   fi
 
   #test course name for bad characters
   badchars=`echo "$course" | sed 's/[a-zA-Z0-9_]//g'`
   if [ $badchars ];then
-    echo "$date course name has bad characters. exiting"
+    echo "$date course name has bad characters. exiting" >> $configsdir/logs/drush-create-site.log
     error=1
   fi
 
   #has this course been added?
   #todo add check for dslm locs
   if [ -L $drupalroot/$course ]; then
-    echo "it appears this course has already been added. exiting"
+    echo "it appears this course has already been added. exiting" >> $configsdir/logs/drush-create-site.log
     error=1
   fi
 
