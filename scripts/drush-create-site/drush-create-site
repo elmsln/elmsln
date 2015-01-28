@@ -79,7 +79,7 @@ do
   ##Error catching here.
   #testing for bad characters. if found any in the course file we exit
 
-  badchars=`sed 's/[a-z A-Z 0-9 _@.= \: \/ \-]//g' $coursefile`
+  badchars=`sed 's/[a-z A-Z 0-9 _@.,= \: \/ \-]//g' $coursefile`
   if [ $badchars ]; then
     echo "bad characters in the course file" >> $configsdir/logs/drush-create-site.log
     error=1
