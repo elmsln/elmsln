@@ -14,7 +14,7 @@ function cis_distro_integrations_cis_service_instance_courses_options_alter(&$op
 }
 
 /**
- * Implements hook_cis_service_instance_TOOL_options_alter().
+ * Implements hook_cis_service_instance_TOOL_job_file_alter().
  */
 function cis_distro_integrations_cis_service_instance_courses_job_file_alter(&$content, $course, $service, $service_instance) {
   // only apply default content import for course based service
