@@ -3,6 +3,7 @@ name = "ELMSMedia"
 description = "ELMS Media distribution for asset management"
 exclusive = "1"
 core = "7.x"
+
 ; ----------
 ; Dependencies
 ; ----------
