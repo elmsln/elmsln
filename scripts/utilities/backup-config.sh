@@ -33,7 +33,7 @@ SITES_DIR=$configsdir
 BACKUP_DIR="/var/backups/elmsln-config/"
 d="$(timestamp)"
 TAR_PATH="$(which tar)"
-# END CONFIGURATION ============================================================
+# END CONFIGURATION =======================================================
 
 # Announce the backup time
 elmslnecho "Backup Started: $(date)"
