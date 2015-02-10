@@ -30,5 +30,6 @@ function rubric_feedback_node_info() {
       'help' => '',
     ),
   );
+  drupal_alter('node_info', $items);
   return $items;
 }

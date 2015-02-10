@@ -66,130 +66,6 @@ function rubric_feature_field_default_field_instances() {
     ),
   );
 
-  // Exported field_instance: 'field_collection_item-field_rubric_categories-field_category_feedback'
-  $field_instances['field_collection_item-field_rubric_categories-field_category_feedback'] = array(
-    'bundle' => 'field_rubric_categories',
-    'default_value' => NULL,
-    'deleted' => 0,
-    'description' => '',
-    'display' => array(
-      'default' => array(
-        'label' => 'above',
-        'module' => 'text',
-        'settings' => array(),
-        'type' => 'text_default',
-        'weight' => 3,
-      ),
-    ),
-    'entity_type' => 'field_collection_item',
-    'field_name' => 'field_category_feedback',
-    'label' => 'Feedback',
-    'required' => 0,
-    'settings' => array(
-      'better_formats' => array(
-        'allowed_formats' => array(
-          'plain_text' => 0,
-          'student_work' => 'student_work',
-          'textbook_editor' => 0,
-        ),
-        'allowed_formats_toggle' => 1,
-        'default_order_toggle' => 0,
-        'default_order_wrapper' => array(
-          'formats' => array(
-            'plain_text' => array(
-              'weight' => 10,
-            ),
-            'student_work' => array(
-              'weight' => 0,
-            ),
-            'textbook_editor' => array(
-              'weight' => -10,
-            ),
-          ),
-        ),
-      ),
-      'text_processing' => 1,
-      'user_register_form' => FALSE,
-    ),
-    'widget' => array(
-      'active' => 1,
-      'module' => 'text',
-      'settings' => array(
-        'rows' => 5,
-      ),
-      'type' => 'text_textarea',
-      'weight' => 3,
-    ),
-  );
-
-  // Exported field_instance: 'field_collection_item-field_rubric_categories-field_category_points'
-  $field_instances['field_collection_item-field_rubric_categories-field_category_points'] = array(
-    'bundle' => 'field_rubric_categories',
-    'default_value' => NULL,
-    'deleted' => 0,
-    'description' => '',
-    'display' => array(
-      'default' => array(
-        'label' => 'above',
-        'settings' => array(),
-        'type' => 'hidden',
-        'weight' => 4,
-      ),
-    ),
-    'entity_type' => 'field_collection_item',
-    'field_name' => 'field_category_points',
-    'label' => 'Category Points',
-    'required' => 0,
-    'settings' => array(
-      'max' => '',
-      'min' => '',
-      'prefix' => '',
-      'suffix' => '',
-      'user_register_form' => FALSE,
-    ),
-    'widget' => array(
-      'active' => 0,
-      'module' => 'field_hidden',
-      'settings' => array(),
-      'type' => 'field_hidden',
-      'weight' => 4,
-    ),
-  );
-
-  // Exported field_instance: 'field_collection_item-field_rubric_categories-field_category_possible_points'
-  $field_instances['field_collection_item-field_rubric_categories-field_category_possible_points'] = array(
-    'bundle' => 'field_rubric_categories',
-    'default_value' => NULL,
-    'deleted' => 0,
-    'description' => '',
-    'display' => array(
-      'default' => array(
-        'label' => 'above',
-        'settings' => array(),
-        'type' => 'hidden',
-        'weight' => 5,
-      ),
-    ),
-    'entity_type' => 'field_collection_item',
-    'field_name' => 'field_category_possible_points',
-    'label' => 'Category Possible Points',
-    'required' => 0,
-    'settings' => array(
-      'max' => '',
-      'min' => '',
-      'prefix' => '',
-      'suffix' => '',
-      'user_register_form' => FALSE,
-    ),
-    'widget' => array(
-      'active' => 0,
-      'module' => 'field_hidden',
-      'settings' => array(),
-      'type' => 'field_hidden',
-      'weight' => 5,
-    ),
-  );
-
   // Exported field_instance: 'field_collection_item-field_rubric_categories-field_category_title'
   $field_instances['field_collection_item-field_rubric_categories-field_category_title'] = array(
     'bundle' => 'field_rubric_categories',
@@ -273,13 +149,16 @@ function rubric_feature_field_default_field_instances() {
     ),
     'widget' => array(
       'active' => 1,
-      'module' => 'field_collection_fieldset',
+      'module' => 'field_collection_tabs_widget',
       'settings' => array(
-        'collapsed' => 1,
-        'last_item_collapsed' => 0,
+        'fctw_add_new_tab_title' => '+',
+        'fctw_empty_tab_title' => '- None -',
+        'fctw_new_tab_title' => 'New Criteria',
+        'fctw_title_field' => 'field_criteria_title',
+        'fctw_title_field_formatter' => 'text_default',
       ),
-      'type' => 'field_collection_fieldset',
-      'weight' => 2,
+      'type' => 'field_collection_tabs',
+      'weight' => 3,
     ),
   );
 
@@ -335,75 +214,7 @@ function rubric_feature_field_default_field_instances() {
         'rows' => 5,
       ),
       'type' => 'text_textarea',
-      'weight' => 1,
-    ),
-  );
-
-  // Exported field_instance: 'field_collection_item-field_rubric_criteria-field_criteria_points'
-  $field_instances['field_collection_item-field_rubric_criteria-field_criteria_points'] = array(
-    'bundle' => 'field_rubric_criteria',
-    'default_value' => NULL,
-    'deleted' => 0,
-    'description' => '',
-    'display' => array(
-      'default' => array(
-        'label' => 'above',
-        'settings' => array(),
-        'type' => 'hidden',
-        'weight' => 3,
-      ),
-    ),
-    'entity_type' => 'field_collection_item',
-    'field_name' => 'field_criteria_points',
-    'label' => 'Criteria Points',
-    'required' => 0,
-    'settings' => array(
-      'max' => '',
-      'min' => '',
-      'prefix' => '',
-      'suffix' => '',
-      'user_register_form' => FALSE,
-    ),
-    'widget' => array(
-      'active' => 0,
-      'module' => 'field_hidden',
-      'settings' => array(),
-      'type' => 'field_hidden',
-      'weight' => 7,
-    ),
-  );
-
-  // Exported field_instance: 'field_collection_item-field_rubric_criteria-field_criteria_possible_points'
-  $field_instances['field_collection_item-field_rubric_criteria-field_criteria_possible_points'] = array(
-    'bundle' => 'field_rubric_criteria',
-    'default_value' => NULL,
-    'deleted' => 0,
-    'description' => '',
-    'display' => array(
-      'default' => array(
-        'label' => 'above',
-        'settings' => array(),
-        'type' => 'hidden',
-        'weight' => 5,
-      ),
-    ),
-    'entity_type' => 'field_collection_item',
-    'field_name' => 'field_criteria_possible_points',
-    'label' => 'Criteria Possible Points',
-    'required' => 0,
-    'settings' => array(
-      'max' => '',
-      'min' => '',
-      'prefix' => '',
-      'suffix' => '',
-      'user_register_form' => FALSE,
-    ),
-    'widget' => array(
-      'active' => 0,
-      'module' => 'field_hidden',
-      'settings' => array(),
-      'type' => 'field_hidden',
-      'weight' => 8,
+      'weight' => 2,
     ),
   );
 
@@ -463,44 +274,6 @@ function rubric_feature_field_default_field_instances() {
     ),
   );
 
-  // Exported field_instance: 'field_collection_item-field_rubric_criteria-field_level_assessed'
-  $field_instances['field_collection_item-field_rubric_criteria-field_level_assessed'] = array(
-    'bundle' => 'field_rubric_criteria',
-    'default_value' => array(
-      0 => array(
-        'value' => 0,
-      ),
-    ),
-    'deleted' => 0,
-    'description' => '',
-    'display' => array(
-      'default' => array(
-        'label' => 'above',
-        'settings' => array(),
-        'type' => 'hidden',
-        'weight' => 4,
-      ),
-    ),
-    'entity_type' => 'field_collection_item',
-    'field_name' => 'field_level_assessed',
-    'label' => 'Level Assessed',
-    'required' => 0,
-    'settings' => array(
-      'max' => '',
-      'min' => '',
-      'prefix' => '',
-      'suffix' => '',
-      'user_register_form' => FALSE,
-    ),
-    'widget' => array(
-      'active' => 0,
-      'module' => 'field_hidden',
-      'settings' => array(),
-      'type' => 'field_hidden',
-      'weight' => 6,
-    ),
-  );
-
   // Exported field_instance: 'field_collection_item-field_rubric_criteria-field_rubric_levels'
   $field_instances['field_collection_item-field_rubric_criteria-field_rubric_levels'] = array(
     'bundle' => 'field_rubric_criteria',
@@ -531,13 +304,72 @@ function rubric_feature_field_default_field_instances() {
     ),
     'widget' => array(
       'active' => 1,
-      'module' => 'field_collection_fieldset',
+      'module' => 'field_collection_tabs_widget',
       'settings' => array(
-        'collapsed' => 1,
-        'last_item_collapsed' => 0,
+        'fctw_add_new_tab_title' => '+',
+        'fctw_empty_tab_title' => '- None -',
+        'fctw_new_tab_title' => 'New',
+        'fctw_title_field' => 'field_level_title',
+        'fctw_title_field_formatter' => 'text_default',
       ),
-      'type' => 'field_collection_fieldset',
-      'weight' => 2,
+      'type' => 'field_collection_tabs',
+      'weight' => 3,
+    ),
+  );
+
+  // Exported field_instance: 'field_collection_item-field_rubric_levels-field_default_feedback'
+  $field_instances['field_collection_item-field_rubric_levels-field_default_feedback'] = array(
+    'bundle' => 'field_rubric_levels',
+    'default_value' => NULL,
+    'deleted' => 0,
+    'description' => 'The default feedback message given to students when you choose this option.',
+    'display' => array(
+      'default' => array(
+        'label' => 'above',
+        'module' => 'text',
+        'settings' => array(),
+        'type' => 'text_default',
+        'weight' => 5,
+      ),
+    ),
+    'entity_type' => 'field_collection_item',
+    'field_name' => 'field_default_feedback',
+    'label' => 'Default Feedback',
+    'required' => 0,
+    'settings' => array(
+      'better_formats' => array(
+        'allowed_formats' => array(
+          'plain_text' => 'plain_text',
+          'student_work' => 'student_work',
+          'textbook_editor' => 'textbook_editor',
+        ),
+        'allowed_formats_toggle' => 0,
+        'default_order_toggle' => 0,
+        'default_order_wrapper' => array(
+          'formats' => array(
+            'plain_text' => array(
+              'weight' => 10,
+            ),
+            'student_work' => array(
+              'weight' => 0,
+            ),
+            'textbook_editor' => array(
+              'weight' => -10,
+            ),
+          ),
+        ),
+      ),
+      'text_processing' => 0,
+      'user_register_form' => FALSE,
+    ),
+    'widget' => array(
+      'active' => 1,
+      'module' => 'text',
+      'settings' => array(
+        'rows' => 5,
+      ),
+      'type' => 'text_textarea',
+      'weight' => 3,
     ),
   );
 
@@ -612,7 +444,7 @@ function rubric_feature_field_default_field_instances() {
       'module' => 'number',
       'settings' => array(),
       'type' => 'number',
-      'weight' => 4,
+      'weight' => 2,
     ),
   );
 
@@ -680,7 +512,7 @@ function rubric_feature_field_default_field_instances() {
         'size' => 60,
       ),
       'type' => 'text_textfield',
-      'weight' => 2,
+      'weight' => 4,
     ),
   );
 
@@ -748,7 +580,7 @@ function rubric_feature_field_default_field_instances() {
         'size' => 60,
       ),
       'type' => 'text_textfield',
-      'weight' => 3,
+      'weight' => 5,
     ),
   );
 
@@ -823,7 +655,7 @@ function rubric_feature_field_default_field_instances() {
         'label' => 'above',
         'settings' => array(),
         'type' => 'hidden',
-        'weight' => 2,
+        'weight' => 3,
       ),
       'teaser' => array(
         'label' => 'above',
@@ -844,7 +676,7 @@ function rubric_feature_field_default_field_instances() {
       'module' => 'options',
       'settings' => array(),
       'type' => 'options_buttons',
-      'weight' => 1,
+      'weight' => 2,
     ),
   );
 
@@ -863,7 +695,7 @@ function rubric_feature_field_default_field_instances() {
           'view_mode' => 'full',
         ),
         'type' => 'field_collection_tabs',
-        'weight' => 1,
+        'weight' => 2,
       ),
       'teaser' => array(
         'label' => 'above',
@@ -881,13 +713,16 @@ function rubric_feature_field_default_field_instances() {
     ),
     'widget' => array(
       'active' => 1,
-      'module' => 'field_collection_fieldset',
+      'module' => 'field_collection_tabs_widget',
       'settings' => array(
-        'collapsed' => 1,
-        'last_item_collapsed' => 0,
+        'fctw_add_new_tab_title' => '+',
+        'fctw_empty_tab_title' => '- None -',
+        'fctw_new_tab_title' => 'New Category',
+        'fctw_title_field' => 'field_category_title',
+        'fctw_title_field_formatter' => 'text_default',
       ),
-      'type' => 'field_collection_fieldset',
-      'weight' => 3,
+      'type' => 'field_collection_tabs',
+      'weight' => 1,
     ),
   );
 
@@ -921,20 +756,20 @@ function rubric_feature_field_default_field_instances() {
         'allowed_formats' => array(
           'plain_text' => 0,
           'student_work' => 0,
-          'textbook_editor' => 'textbook_editor',
+          'textbook_editor' => 0,
         ),
-        'allowed_formats_toggle' => 1,
-        'default_order_toggle' => 0,
+        'allowed_formats_toggle' => 0,
+        'default_order_toggle' => 1,
         'default_order_wrapper' => array(
           'formats' => array(
             'plain_text' => array(
-              'weight' => 10,
+              'weight' => -48,
             ),
             'student_work' => array(
-              'weight' => 0,
+              'weight' => -50,
             ),
             'textbook_editor' => array(
-              'weight' => -10,
+              'weight' => -49,
             ),
           ),
         ),
@@ -949,7 +784,7 @@ function rubric_feature_field_default_field_instances() {
         'rows' => 5,
       ),
       'type' => 'text_textarea',
-      'weight' => 2,
+      'weight' => 3,
     ),
   );
 
@@ -957,22 +792,18 @@ function rubric_feature_field_default_field_instances() {
   // Included for use with string extractors like potx.
   t('Assessment Type');
   t('Categories');
-  t('Category Points');
-  t('Category Possible Points');
   t('Content');
   t('Criteria');
-  t('Criteria Points');
-  t('Criteria Possible Points');
+  t('Default Feedback');
   t('Default Points');
   t('Details');
-  t('Feedback');
   t('How would you like to be able to assess this work?  Is this rubric for assessing submissions by others, evaluating peers, or for self assessment?');
-  t('Level Assessed');
   t('Levels');
   t('Points Range');
   t('Range of possible values');
   t('Rationale');
   t('Suggested Remediation');
+  t('The default feedback message given to students when you choose this option.');
   t('These are suggestions for how they could have improved upon their work.');
   t('This is the default number of points awarded when you select the item for an assessment.');
   t('This is your reasoning for assessing this level.');

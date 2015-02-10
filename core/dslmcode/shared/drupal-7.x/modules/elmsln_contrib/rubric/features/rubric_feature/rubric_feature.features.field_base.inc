@@ -10,51 +10,6 @@
 function rubric_feature_field_default_field_bases() {
   $field_bases = array();
 
-  // Exported field_base: 'field_assessment_assignment'
-  $field_bases['field_assessment_assignment'] = array(
-    'active' => 1,
-    'cardinality' => 1,
-    'deleted' => 0,
-    'entity_types' => array(),
-    'field_name' => 'field_assessment_assignment',
-    'foreign keys' => array(
-      'node' => array(
-        'columns' => array(
-          'target_id' => 'nid',
-        ),
-        'table' => 'node',
-      ),
-    ),
-    'indexes' => array(
-      'target_id' => array(
-        0 => 'target_id',
-      ),
-    ),
-    'locked' => 0,
-    'module' => 'entityreference',
-    'settings' => array(
-      'cis_connector_access' => FALSE,
-      'cis_connector_disable' => FALSE,
-      'handler' => 'base',
-      'handler_settings' => array(
-        'behaviors' => array(
-          'views-select-list' => array(
-            'status' => 1,
-          ),
-        ),
-        'sort' => array(
-          'type' => 'none',
-        ),
-        'target_bundles' => array(
-          'cle_assignment' => 'cle_assignment',
-        ),
-      ),
-      'target_type' => 'node',
-    ),
-    'translatable' => 0,
-    'type' => 'entityreference',
-  );
-
   // Exported field_base: 'field_assessment_feedback'
   $field_bases['field_assessment_feedback'] = array(
     'active' => 1,
@@ -123,49 +78,6 @@ function rubric_feature_field_default_field_bases() {
     'type' => 'field_hidden_integer',
   );
 
-  // Exported field_base: 'field_assessment_who'
-  $field_bases['field_assessment_who'] = array(
-    'active' => 1,
-    'cardinality' => 1,
-    'deleted' => 0,
-    'entity_types' => array(),
-    'field_name' => 'field_assessment_who',
-    'foreign keys' => array(
-      'users' => array(
-        'columns' => array(
-          'target_id' => 'uid',
-        ),
-        'table' => 'users',
-      ),
-    ),
-    'indexes' => array(
-      'target_id' => array(
-        0 => 'target_id',
-      ),
-    ),
-    'locked' => 0,
-    'module' => 'entityreference',
-    'settings' => array(
-      'cis_connector_access' => FALSE,
-      'cis_connector_disable' => FALSE,
-      'handler' => 'base',
-      'handler_settings' => array(
-        'behaviors' => array(
-          'views-select-list' => array(
-            'status' => 1,
-          ),
-        ),
-        'sort' => array(
-          'type' => 'none',
-        ),
-        'target_bundles' => array(),
-      ),
-      'target_type' => 'user',
-    ),
-    'translatable' => 0,
-    'type' => 'entityreference',
-  );
-
   // Exported field_base: 'field_category_details'
   $field_bases['field_category_details'] = array(
     'active' => 1,
@@ -194,74 +106,6 @@ function rubric_feature_field_default_field_bases() {
     ),
     'translatable' => 0,
     'type' => 'text_long',
-  );
-
-  // Exported field_base: 'field_category_feedback'
-  $field_bases['field_category_feedback'] = array(
-    'active' => 1,
-    'cardinality' => 1,
-    'deleted' => 0,
-    'entity_types' => array(),
-    'field_name' => 'field_category_feedback',
-    'foreign keys' => array(
-      'format' => array(
-        'columns' => array(
-          'format' => 'format',
-        ),
-        'table' => 'filter_format',
-      ),
-    ),
-    'indexes' => array(
-      'format' => array(
-        0 => 'format',
-      ),
-    ),
-    'locked' => 0,
-    'module' => 'text',
-    'settings' => array(
-      'cis_connector_access' => FALSE,
-      'cis_connector_disable' => FALSE,
-    ),
-    'translatable' => 0,
-    'type' => 'text_long',
-  );
-
-  // Exported field_base: 'field_category_points'
-  $field_bases['field_category_points'] = array(
-    'active' => 1,
-    'cardinality' => 1,
-    'deleted' => 0,
-    'entity_types' => array(),
-    'field_name' => 'field_category_points',
-    'foreign keys' => array(),
-    'indexes' => array(),
-    'locked' => 0,
-    'module' => 'field_hidden',
-    'settings' => array(
-      'cis_connector_access' => FALSE,
-      'cis_connector_disable' => FALSE,
-    ),
-    'translatable' => 0,
-    'type' => 'field_hidden_integer',
-  );
-
-  // Exported field_base: 'field_category_possible_points'
-  $field_bases['field_category_possible_points'] = array(
-    'active' => 1,
-    'cardinality' => 1,
-    'deleted' => 0,
-    'entity_types' => array(),
-    'field_name' => 'field_category_possible_points',
-    'foreign keys' => array(),
-    'indexes' => array(),
-    'locked' => 0,
-    'module' => 'field_hidden',
-    'settings' => array(
-      'cis_connector_access' => FALSE,
-      'cis_connector_disable' => FALSE,
-    ),
-    'translatable' => 0,
-    'type' => 'field_hidden_integer',
   );
 
   // Exported field_base: 'field_category_title'
@@ -325,44 +169,6 @@ function rubric_feature_field_default_field_bases() {
     'type' => 'text_long',
   );
 
-  // Exported field_base: 'field_criteria_points'
-  $field_bases['field_criteria_points'] = array(
-    'active' => 1,
-    'cardinality' => 1,
-    'deleted' => 0,
-    'entity_types' => array(),
-    'field_name' => 'field_criteria_points',
-    'foreign keys' => array(),
-    'indexes' => array(),
-    'locked' => 0,
-    'module' => 'field_hidden',
-    'settings' => array(
-      'cis_connector_access' => FALSE,
-      'cis_connector_disable' => FALSE,
-    ),
-    'translatable' => 0,
-    'type' => 'field_hidden_integer',
-  );
-
-  // Exported field_base: 'field_criteria_possible_points'
-  $field_bases['field_criteria_possible_points'] = array(
-    'active' => 1,
-    'cardinality' => 1,
-    'deleted' => 0,
-    'entity_types' => array(),
-    'field_name' => 'field_criteria_possible_points',
-    'foreign keys' => array(),
-    'indexes' => array(),
-    'locked' => 0,
-    'module' => 'field_hidden',
-    'settings' => array(
-      'cis_connector_access' => FALSE,
-      'cis_connector_disable' => FALSE,
-    ),
-    'translatable' => 0,
-    'type' => 'field_hidden_integer',
-  );
-
   // Exported field_base: 'field_criteria_title'
   $field_bases['field_criteria_title'] = array(
     'active' => 1,
@@ -394,23 +200,34 @@ function rubric_feature_field_default_field_bases() {
     'type' => 'text',
   );
 
-  // Exported field_base: 'field_level_assessed'
-  $field_bases['field_level_assessed'] = array(
+  // Exported field_base: 'field_default_feedback'
+  $field_bases['field_default_feedback'] = array(
     'active' => 1,
     'cardinality' => 1,
     'deleted' => 0,
     'entity_types' => array(),
-    'field_name' => 'field_level_assessed',
-    'foreign keys' => array(),
-    'indexes' => array(),
+    'field_name' => 'field_default_feedback',
+    'foreign keys' => array(
+      'format' => array(
+        'columns' => array(
+          'format' => 'format',
+        ),
+        'table' => 'filter_format',
+      ),
+    ),
+    'indexes' => array(
+      'format' => array(
+        0 => 'format',
+      ),
+    ),
     'locked' => 0,
-    'module' => 'field_hidden',
+    'module' => 'text',
     'settings' => array(
       'cis_connector_access' => FALSE,
       'cis_connector_disable' => FALSE,
     ),
     'translatable' => 0,
-    'type' => 'field_hidden_integer',
+    'type' => 'text_long',
   );
 
   // Exported field_base: 'field_level_points'
@@ -542,51 +359,6 @@ function rubric_feature_field_default_field_bases() {
     ),
     'translatable' => 0,
     'type' => 'text',
-  );
-
-  // Exported field_base: 'field_original_rubric'
-  $field_bases['field_original_rubric'] = array(
-    'active' => 1,
-    'cardinality' => 1,
-    'deleted' => 0,
-    'entity_types' => array(),
-    'field_name' => 'field_original_rubric',
-    'foreign keys' => array(
-      'node' => array(
-        'columns' => array(
-          'target_id' => 'nid',
-        ),
-        'table' => 'node',
-      ),
-    ),
-    'indexes' => array(
-      'target_id' => array(
-        0 => 'target_id',
-      ),
-    ),
-    'locked' => 0,
-    'module' => 'entityreference',
-    'settings' => array(
-      'cis_connector_access' => FALSE,
-      'cis_connector_disable' => FALSE,
-      'handler' => 'base',
-      'handler_settings' => array(
-        'behaviors' => array(
-          'views-select-list' => array(
-            'status' => 1,
-          ),
-        ),
-        'sort' => array(
-          'type' => 'none',
-        ),
-        'target_bundles' => array(
-          'elms_rubric' => 'elms_rubric',
-        ),
-      ),
-      'target_type' => 'node',
-    ),
-    'translatable' => 0,
-    'type' => 'entityreference',
   );
 
   // Exported field_base: 'field_rubric_assessment_type'

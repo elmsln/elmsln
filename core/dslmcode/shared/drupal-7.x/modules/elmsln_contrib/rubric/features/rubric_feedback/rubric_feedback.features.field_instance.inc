@@ -234,96 +234,6 @@ function rubric_feedback_field_default_field_instances() {
     ),
   );
 
-  // Exported field_instance: 'field_collection_item-field_rubric_feedback_item-field_rubric_feedback_audio'
-  $field_instances['field_collection_item-field_rubric_feedback_item-field_rubric_feedback_audio'] = array(
-    'bundle' => 'field_rubric_feedback_item',
-    'deleted' => 0,
-    'description' => '',
-    'display' => array(
-      'default' => array(
-        'label' => 'above',
-        'module' => 'file_entity',
-        'settings' => array(
-          'autoplay' => FALSE,
-          'controls' => TRUE,
-          'loop' => FALSE,
-          'multiple_file_behavior' => 'tags',
-        ),
-        'type' => 'file_audio',
-        'weight' => 3,
-      ),
-    ),
-    'entity_type' => 'field_collection_item',
-    'field_name' => 'field_rubric_feedback_audio',
-    'label' => 'Audio Feedback',
-    'required' => 0,
-    'settings' => array(
-      'description_field' => 0,
-      'file_directory' => 'audiofeedback',
-      'file_extensions' => 'mp3 wav',
-      'max_filesize' => '',
-      'user_register_form' => FALSE,
-    ),
-    'widget' => array(
-      'active' => 1,
-      'module' => 'media_recorder',
-      'settings' => array(
-        'allowed_schemes' => array(
-          0 => 'public',
-          1 => 'private',
-        ),
-        'progress_indicator' => 'bar',
-      ),
-      'type' => 'media_recorder',
-      'weight' => 5,
-    ),
-  );
-
-  // Exported field_instance: 'node-rubric_submission_assessment-field_assessment_assignment'
-  $field_instances['node-rubric_submission_assessment-field_assessment_assignment'] = array(
-    'bundle' => 'rubric_submission_assessment',
-    'default_value' => NULL,
-    'default_value_function' => '',
-    'deleted' => 0,
-    'description' => '',
-    'display' => array(
-      'default' => array(
-        'label' => 'above',
-        'module' => 'entityreference',
-        'settings' => array(
-          'link' => FALSE,
-        ),
-        'type' => 'entityreference_label',
-        'weight' => 5,
-      ),
-      'teaser' => array(
-        'label' => 'above',
-        'settings' => array(),
-        'type' => 'hidden',
-        'weight' => 0,
-      ),
-    ),
-    'entity_type' => 'node',
-    'field_name' => 'field_assessment_assignment',
-    'label' => 'Assignment',
-    'required' => 0,
-    'settings' => array(
-      'behaviors' => array(
-        'prepopulate' => array(
-          'status' => 0,
-        ),
-      ),
-      'user_register_form' => FALSE,
-    ),
-    'widget' => array(
-      'active' => 1,
-      'module' => 'options',
-      'settings' => array(),
-      'type' => 'options_select',
-      'weight' => 2,
-    ),
-  );
-
   // Exported field_instance: 'node-rubric_submission_assessment-field_assessment_feedback'
   $field_instances['node-rubric_submission_assessment-field_assessment_feedback'] = array(
     'bundle' => 'rubric_submission_assessment',
@@ -491,7 +401,7 @@ function rubric_feedback_field_default_field_instances() {
         'module' => 'image',
         'settings' => array(
           'image_link' => '',
-          'image_style' => '',
+          'image_style' => 'large',
         ),
         'type' => 'image',
         'weight' => 12,
@@ -523,12 +433,11 @@ function rubric_feedback_field_default_field_instances() {
       'module' => 'canvas_field',
       'settings' => array(
         'buttons' => array(
-          'color' => TRUE,
-          'paint' => FALSE,
-          'pen' => TRUE,
-          'reset' => TRUE,
+          'color' => 1,
+          'paint' => 0,
+          'pen' => 1,
+          'reset' => 0,
         ),
-        'color' => 1,
         'mode_edit' => 1,
         'mode_start' => 0,
         'preview_image_style' => 'thumbnail',
@@ -539,6 +448,7 @@ function rubric_feedback_field_default_field_instances() {
           'border-style' => 'solid',
           'border-width' => 5,
           'height' => 300,
+          'image_style' => 'large',
           'width' => 300,
         ),
       ),
@@ -657,9 +567,9 @@ function rubric_feedback_field_default_field_instances() {
         'label' => 'above',
         'module' => 'file_entity',
         'settings' => array(
-          'autoplay' => FALSE,
-          'controls' => TRUE,
-          'loop' => FALSE,
+          'autoplay' => 0,
+          'controls' => 1,
+          'loop' => 0,
           'multiple_file_behavior' => 'tags',
         ),
         'type' => 'file_audio',
@@ -707,12 +617,18 @@ function rubric_feedback_field_default_field_instances() {
     'display' => array(
       'default' => array(
         'label' => 'above',
-        'module' => 'field_collection_tabs',
+        'module' => 'field_collection_fieldset',
         'settings' => array(
-          'title_field' => 'field_feedback_points',
+          'add' => 'Add',
+          'collapsed' => 0,
+          'collapsible' => 1,
+          'delete' => 'Delete',
+          'description' => 1,
+          'edit' => 'Edit',
+          'legend' => 'field_feedback_entity',
           'view_mode' => 'full',
         ),
-        'type' => 'field_collection_tabs',
+        'type' => 'field_collection_fieldset_view',
         'weight' => 11,
       ),
       'teaser' => array(
@@ -802,7 +718,6 @@ function rubric_feedback_field_default_field_instances() {
 
   // Translatables
   // Included for use with string extractors like potx.
-  t('Assignment');
   t('Audio Feedback');
   t('Feedback');
   t('Feedback Text');
