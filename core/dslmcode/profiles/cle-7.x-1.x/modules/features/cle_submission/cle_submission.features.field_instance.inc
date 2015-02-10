@@ -193,7 +193,7 @@ function cle_submission_field_default_field_instances() {
         'label' => 'hidden',
         'settings' => array(),
         'type' => 'hidden',
-        'weight' => 4,
+        'weight' => 7,
       ),
     ),
     'entity_type' => 'node',
@@ -222,11 +222,11 @@ function cle_submission_field_default_field_instances() {
     'description' => '',
     'display' => array(
       'default' => array(
-        'label' => 'above',
+        'label' => 'hidden',
         'module' => 'file',
         'settings' => array(),
         'type' => 'file_table',
-        'weight' => 6,
+        'weight' => 4,
       ),
     ),
     'entity_type' => 'node',
@@ -259,13 +259,10 @@ function cle_submission_field_default_field_instances() {
     'display' => array(
       'default' => array(
         'label' => 'hidden',
-        'module' => 'flexslider_fields',
-        'settings' => array(
-          'flexslider_optionset' => 'cle_submission',
-          'flexslider_reference_img_src' => NULL,
-        ),
-        'type' => 'flexslider',
-        'weight' => 3,
+        'module' => 'lightbox2',
+        'settings' => array(),
+        'type' => 'lightbox2__lightbox__cle_square__large',
+        'weight' => 2,
       ),
       'teaser' => array(
         'label' => 'above',
@@ -308,11 +305,11 @@ function cle_submission_field_default_field_instances() {
     'description' => '',
     'display' => array(
       'default' => array(
-        'label' => 'above',
+        'label' => 'hidden',
         'module' => 'link',
         'settings' => array(),
         'type' => 'link_default',
-        'weight' => 7,
+        'weight' => 5,
       ),
     ),
     'entity_type' => 'node',
@@ -360,11 +357,10 @@ function cle_submission_field_default_field_instances() {
     'description' => 'Current workflow state of this submission on its way to being graded and viewed by the student.',
     'display' => array(
       'default' => array(
-        'label' => 'above',
-        'module' => 'list',
+        'label' => 'hidden',
         'settings' => array(),
-        'type' => 'list_default',
-        'weight' => 8,
+        'type' => 'hidden',
+        'weight' => 6,
       ),
     ),
     'entity_type' => 'node',
@@ -399,7 +395,7 @@ function cle_submission_field_default_field_instances() {
           'video_style' => 'cle_default',
         ),
         'type' => 'video_embed_field',
-        'weight' => 2,
+        'weight' => 3,
       ),
       'teaser' => array(
         'label' => 'above',
@@ -438,7 +434,7 @@ function cle_submission_field_default_field_instances() {
         'label' => 'hidden',
         'settings' => array(),
         'type' => 'hidden',
-        'weight' => 5,
+        'weight' => 8,
       ),
       'teaser' => array(
         'label' => 'above',

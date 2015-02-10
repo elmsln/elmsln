@@ -26,6 +26,12 @@ function cle_cis_ux_context_default_contexts() {
   $context->reactions = array(
     'block' => array(
       'blocks' => array(
+        'menu-menu-cis-toolkit' => array(
+          'module' => 'menu',
+          'delta' => 'menu-cis-toolkit',
+          'region' => 'regions_admin_left',
+          'weight' => '-20',
+        ),
         'cis_service_connection-section_context_changer' => array(
           'module' => 'cis_service_connection',
           'delta' => 'section_context_changer',

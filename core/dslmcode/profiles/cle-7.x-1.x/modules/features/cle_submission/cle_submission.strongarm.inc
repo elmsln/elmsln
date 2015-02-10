@@ -137,7 +137,7 @@ function cle_submission_strongarm() {
   $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
   $strongarm->api_version = 1;
   $strongarm->name = 'fitvids_selectors';
-  $strongarm->value = '.field-name-field-video';
+  $strongarm->value = '.field-name-field-videoa';
   $export['fitvids_selectors'] = $strongarm;
 
   $strongarm = new stdClass();

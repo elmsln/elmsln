@@ -49,7 +49,7 @@ function cle_submission_flexslider_default_presets() {
   $preset->theme = 'classic';
   $preset->imagestyle_normal = 'cle_submission';
   $preset->options = array(
-    'animation' => 'slide',
+    'animation' => 'fade',
     'animationDuration' => 600,
     'slideDirection' => 'horizontal',
     'slideshow' => 0,
@@ -63,10 +63,10 @@ function cle_submission_flexslider_default_presets() {
     'mousewheel' => 1,
     'prevText' => 'Previous',
     'nextText' => 'Next',
-    'pausePlay' => 0,
+    'pausePlay' => 1,
     'pauseText' => 'Pause',
     'playText' => 'Play',
-    'pauseOnAction' => 0,
+    'pauseOnAction' => 1,
     'controlsContainer' => '.flex-nav-container',
     'manualControls' => '',
   );

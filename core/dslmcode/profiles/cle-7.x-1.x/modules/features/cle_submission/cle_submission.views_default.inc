@@ -22,7 +22,7 @@ function cle_submission_views_default_views() {
 
   /* Display: Master */
   $handler = $view->new_display('default', 'Master', 'default');
-  $handler->display->display_options['title'] = 'CLE my submissions';
+  $handler->display->display_options['title'] = 'My Gallery';
   $handler->display->display_options['use_more_always'] = FALSE;
   $handler->display->display_options['access']['type'] = 'perm';
   $handler->display->display_options['cache']['type'] = 'none';
@@ -74,6 +74,13 @@ function cle_submission_views_default_views() {
   );
   $handler->display->display_options['style_options']['sticky'] = TRUE;
   $handler->display->display_options['style_options']['summary'] = 'All of my assignments';
+  /* Relationship: Flags: cle_exemplary */
+  $handler->display->display_options['relationships']['flag_content_rel']['id'] = 'flag_content_rel';
+  $handler->display->display_options['relationships']['flag_content_rel']['table'] = 'node';
+  $handler->display->display_options['relationships']['flag_content_rel']['field'] = 'flag_content_rel';
+  $handler->display->display_options['relationships']['flag_content_rel']['required'] = 0;
+  $handler->display->display_options['relationships']['flag_content_rel']['flag'] = 'cle_exemplary';
+  $handler->display->display_options['relationships']['flag_content_rel']['user_scope'] = 'any';
   /* Field: Content: Title */
   $handler->display->display_options['fields']['title']['id'] = 'title';
   $handler->display->display_options['fields']['title']['table'] = 'node';
@@ -144,10 +151,165 @@ function cle_submission_views_default_views() {
     7 => 0,
     3 => 0,
   );
+  /* Filter criterion: Flags: Flagged */
+  $handler->display->display_options['filters']['flagged_2']['id'] = 'flagged_2';
+  $handler->display->display_options['filters']['flagged_2']['table'] = 'flag_content';
+  $handler->display->display_options['filters']['flagged_2']['field'] = 'flagged';
+  $handler->display->display_options['filters']['flagged_2']['relationship'] = 'flag_content_rel';
+  $handler->display->display_options['filters']['flagged_2']['value'] = 'All';
+  $handler->display->display_options['filters']['flagged_2']['exposed'] = TRUE;
+  $handler->display->display_options['filters']['flagged_2']['expose']['operator_id'] = '';
+  $handler->display->display_options['filters']['flagged_2']['expose']['label'] = 'Exemplary';
+  $handler->display->display_options['filters']['flagged_2']['expose']['operator'] = 'flagged_2_op';
+  $handler->display->display_options['filters']['flagged_2']['expose']['identifier'] = 'flagged_2';
+  $handler->display->display_options['filters']['flagged_2']['expose']['remember_roles'] = array(
+    2 => '2',
+    1 => 0,
+    5 => 0,
+    3 => 0,
+    7 => 0,
+    8 => 0,
+    4 => 0,
+    9 => 0,
+    6 => 0,
+    10 => 0,
+  );
+  /* Filter criterion: Content: Assignment (field_assignment) */
+  $handler->display->display_options['filters']['field_assignment_target_id']['id'] = 'field_assignment_target_id';
+  $handler->display->display_options['filters']['field_assignment_target_id']['table'] = 'field_data_field_assignment';
+  $handler->display->display_options['filters']['field_assignment_target_id']['field'] = 'field_assignment_target_id';
+  $handler->display->display_options['filters']['field_assignment_target_id']['exposed'] = TRUE;
+  $handler->display->display_options['filters']['field_assignment_target_id']['expose']['operator_id'] = 'field_assignment_target_id_op';
+  $handler->display->display_options['filters']['field_assignment_target_id']['expose']['label'] = 'Assignment';
+  $handler->display->display_options['filters']['field_assignment_target_id']['expose']['operator'] = 'field_assignment_target_id_op';
+  $handler->display->display_options['filters']['field_assignment_target_id']['expose']['identifier'] = 'field_assignment_target_id';
+  $handler->display->display_options['filters']['field_assignment_target_id']['expose']['remember_roles'] = array(
+    2 => '2',
+    1 => 0,
+    5 => 0,
+    3 => 0,
+    7 => 0,
+    8 => 0,
+    4 => 0,
+    9 => 0,
+    6 => 0,
+    10 => 0,
+  );
 
-  /* Display: My Submissions */
-  $handler = $view->new_display('page', 'My Submissions', 'page');
-  $handler->display->display_options['display_description'] = 'Submission listing';
+  /* Display: My Gallery */
+  $handler = $view->new_display('page', 'My Gallery', 'page_4');
+  $handler->display->display_options['defaults']['title'] = FALSE;
+  $handler->display->display_options['title'] = 'My Gallery';
+  $handler->display->display_options['display_description'] = 'Your gallery in the course';
+  $handler->display->display_options['defaults']['hide_admin_links'] = FALSE;
+  $handler->display->display_options['defaults']['group_by'] = FALSE;
+  $handler->display->display_options['group_by'] = TRUE;
+  $handler->display->display_options['defaults']['relationships'] = FALSE;
+  /* Relationship: Flags: cle_exemplary */
+  $handler->display->display_options['relationships']['flag_content_rel']['id'] = 'flag_content_rel';
+  $handler->display->display_options['relationships']['flag_content_rel']['table'] = 'node';
+  $handler->display->display_options['relationships']['flag_content_rel']['field'] = 'flag_content_rel';
+  $handler->display->display_options['relationships']['flag_content_rel']['required'] = 0;
+  $handler->display->display_options['relationships']['flag_content_rel']['flag'] = 'cle_exemplary';
+  $handler->display->display_options['relationships']['flag_content_rel']['user_scope'] = 'any';
+  /* Relationship: Content: Vote results */
+  $handler->display->display_options['relationships']['votingapi_cache']['id'] = 'votingapi_cache';
+  $handler->display->display_options['relationships']['votingapi_cache']['table'] = 'node';
+  $handler->display->display_options['relationships']['votingapi_cache']['field'] = 'votingapi_cache';
+  $handler->display->display_options['relationships']['votingapi_cache']['label'] = 'Likes';
+  $handler->display->display_options['relationships']['votingapi_cache']['votingapi'] = array(
+    'value_type' => '',
+    'tag' => 'vote',
+    'function' => '',
+  );
+  /* Relationship: Content: Vote results */
+  $handler->display->display_options['relationships']['votingapi_cache_1']['id'] = 'votingapi_cache_1';
+  $handler->display->display_options['relationships']['votingapi_cache_1']['table'] = 'node';
+  $handler->display->display_options['relationships']['votingapi_cache_1']['field'] = 'votingapi_cache';
+  $handler->display->display_options['relationships']['votingapi_cache_1']['label'] = 'Emotion';
+  $handler->display->display_options['relationships']['votingapi_cache_1']['votingapi'] = array(
+    'value_type' => '',
+    'tag' => 'emotion',
+    'function' => '',
+  );
+  $handler->display->display_options['defaults']['fields'] = FALSE;
+  /* Field: Content: Post date */
+  $handler->display->display_options['fields']['created']['id'] = 'created';
+  $handler->display->display_options['fields']['created']['table'] = 'node';
+  $handler->display->display_options['fields']['created']['field'] = 'created';
+  $handler->display->display_options['fields']['created']['label'] = 'Submitted';
+  $handler->display->display_options['fields']['created']['date_format'] = 'long';
+  $handler->display->display_options['fields']['created']['second_date_format'] = 'long';
+  /* Field: Content: Title */
+  $handler->display->display_options['fields']['title']['id'] = 'title';
+  $handler->display->display_options['fields']['title']['table'] = 'node';
+  $handler->display->display_options['fields']['title']['field'] = 'title';
+  /* Field: Content: Assignment */
+  $handler->display->display_options['fields']['field_assignment']['id'] = 'field_assignment';
+  $handler->display->display_options['fields']['field_assignment']['table'] = 'field_data_field_assignment';
+  $handler->display->display_options['fields']['field_assignment']['field'] = 'field_assignment';
+  $handler->display->display_options['fields']['field_assignment']['settings'] = array(
+    'link' => 1,
+  );
+  /* Field: Content: Images (field_images:delta) */
+  $handler->display->display_options['fields']['delta_1']['id'] = 'delta_1';
+  $handler->display->display_options['fields']['delta_1']['table'] = 'field_data_field_images';
+  $handler->display->display_options['fields']['delta_1']['field'] = 'delta';
+  $handler->display->display_options['fields']['delta_1']['group_type'] = 'count_distinct';
+  $handler->display->display_options['fields']['delta_1']['label'] = 'Images';
+  /* Field: Content: Video (field_video:delta) */
+  $handler->display->display_options['fields']['delta_3']['id'] = 'delta_3';
+  $handler->display->display_options['fields']['delta_3']['table'] = 'field_data_field_video';
+  $handler->display->display_options['fields']['delta_3']['field'] = 'delta';
+  $handler->display->display_options['fields']['delta_3']['group_type'] = 'count_distinct';
+  $handler->display->display_options['fields']['delta_3']['label'] = 'Videos';
+  /* Field: Content: Files (field_files:delta) */
+  $handler->display->display_options['fields']['delta']['id'] = 'delta';
+  $handler->display->display_options['fields']['delta']['table'] = 'field_data_field_files';
+  $handler->display->display_options['fields']['delta']['field'] = 'delta';
+  $handler->display->display_options['fields']['delta']['group_type'] = 'count_distinct';
+  $handler->display->display_options['fields']['delta']['label'] = 'Files';
+  /* Field: Content: Links (field_links:delta) */
+  $handler->display->display_options['fields']['delta_2']['id'] = 'delta_2';
+  $handler->display->display_options['fields']['delta_2']['table'] = 'field_data_field_links';
+  $handler->display->display_options['fields']['delta_2']['field'] = 'delta';
+  $handler->display->display_options['fields']['delta_2']['group_type'] = 'count_distinct';
+  $handler->display->display_options['fields']['delta_2']['label'] = 'Links';
+  /* Field: Content: Comment count */
+  $handler->display->display_options['fields']['comment_count']['id'] = 'comment_count';
+  $handler->display->display_options['fields']['comment_count']['table'] = 'node_comment_statistics';
+  $handler->display->display_options['fields']['comment_count']['field'] = 'comment_count';
+  $handler->display->display_options['fields']['comment_count']['label'] = 'Comments';
+  /* Field: Vote results: Value */
+  $handler->display->display_options['fields']['value']['id'] = 'value';
+  $handler->display->display_options['fields']['value']['table'] = 'votingapi_cache';
+  $handler->display->display_options['fields']['value']['field'] = 'value';
+  $handler->display->display_options['fields']['value']['relationship'] = 'votingapi_cache';
+  $handler->display->display_options['fields']['value']['precision'] = '0';
+  $handler->display->display_options['fields']['value']['appearance'] = 'rate_views_widget_disabled';
+  /* Field: Vote results: Value */
+  $handler->display->display_options['fields']['value_1']['id'] = 'value_1';
+  $handler->display->display_options['fields']['value_1']['table'] = 'votingapi_cache';
+  $handler->display->display_options['fields']['value_1']['field'] = 'value';
+  $handler->display->display_options['fields']['value_1']['relationship'] = 'votingapi_cache_1';
+  $handler->display->display_options['fields']['value_1']['label'] = 'Emotion';
+  $handler->display->display_options['fields']['value_1']['precision'] = '0';
+  $handler->display->display_options['fields']['value_1']['appearance'] = 'rate_views_widget_compact';
+  $handler->display->display_options['path'] = 'user/%/gallery';
+  $handler->display->display_options['menu']['type'] = 'tab';
+  $handler->display->display_options['menu']['title'] = 'My Gallery';
+  $handler->display->display_options['menu']['description'] = 'All of my submissions for this course';
+  $handler->display->display_options['menu']['weight'] = '9';
+  $handler->display->display_options['menu']['name'] = 'user-menu';
+  $handler->display->display_options['menu']['context'] = 0;
+  $handler->display->display_options['menu']['context_only_inline'] = 0;
+  $handler->display->display_options['tab_options']['weight'] = '0';
+
+  /* Display: My Overview */
+  $handler = $view->new_display('page', 'My Overview', 'page');
+  $handler->display->display_options['defaults']['title'] = FALSE;
+  $handler->display->display_options['title'] = 'My Gallery';
+  $handler->display->display_options['display_description'] = 'Submission listing overview data';
   $handler->display->display_options['defaults']['hide_admin_links'] = FALSE;
   $handler->display->display_options['defaults']['group_by'] = FALSE;
   $handler->display->display_options['group_by'] = TRUE;
@@ -198,17 +360,20 @@ function cle_submission_views_default_views() {
   $handler->display->display_options['fields']['delta_3']['field'] = 'delta';
   $handler->display->display_options['fields']['delta_3']['group_type'] = 'count_distinct';
   $handler->display->display_options['fields']['delta_3']['label'] = 'Videos';
-  $handler->display->display_options['path'] = 'user/%/submissions';
-  $handler->display->display_options['menu']['type'] = 'tab';
-  $handler->display->display_options['menu']['title'] = 'Submissions';
-  $handler->display->display_options['menu']['description'] = 'All of my submissions for this course';
-  $handler->display->display_options['menu']['weight'] = '9';
+  $handler->display->display_options['path'] = 'user/%/gallery/overview';
+  $handler->display->display_options['menu']['type'] = 'default tab';
+  $handler->display->display_options['menu']['title'] = 'Overview';
+  $handler->display->display_options['menu']['description'] = 'Overview of your submissions';
+  $handler->display->display_options['menu']['weight'] = '-1';
   $handler->display->display_options['menu']['name'] = 'user-menu';
   $handler->display->display_options['menu']['context'] = 0;
+  $handler->display->display_options['menu']['context_only_inline'] = 0;
   $handler->display->display_options['tab_options']['weight'] = '0';
 
-  /* Display: My Gallery */
-  $handler = $view->new_display('page', 'My Gallery', 'page_1');
+  /* Display: My Images */
+  $handler = $view->new_display('page', 'My Images', 'page_2');
+  $handler->display->display_options['defaults']['title'] = FALSE;
+  $handler->display->display_options['title'] = 'My Images';
   $handler->display->display_options['display_description'] = 'Visual gallery of all images';
   $handler->display->display_options['defaults']['hide_admin_links'] = FALSE;
   $handler->display->display_options['defaults']['pager'] = FALSE;
@@ -219,7 +384,7 @@ function cle_submission_views_default_views() {
   $handler->display->display_options['pager']['options']['quantity'] = '9';
   $handler->display->display_options['defaults']['style_plugin'] = FALSE;
   $handler->display->display_options['style_plugin'] = 'masonry_views_grid';
-  $handler->display->display_options['style_options']['masonry_width'] = '350';
+  $handler->display->display_options['style_options']['masonry_width'] = '300';
   $handler->display->display_options['style_options']['masonry_animated'] = TRUE;
   $handler->display->display_options['style_options']['masonry_resizable'] = TRUE;
   $handler->display->display_options['style_options']['masonry_center'] = FALSE;
@@ -243,6 +408,42 @@ function cle_submission_views_default_views() {
   );
   $handler->display->display_options['fields']['field_images']['group_rows'] = FALSE;
   $handler->display->display_options['fields']['field_images']['delta_offset'] = '0';
+  $handler->display->display_options['path'] = 'user/%/gallery/images';
+  $handler->display->display_options['menu']['type'] = 'tab';
+  $handler->display->display_options['menu']['title'] = 'Images';
+  $handler->display->display_options['menu']['description'] = 'All my submissions as a gallery';
+  $handler->display->display_options['menu']['weight'] = '1';
+  $handler->display->display_options['menu']['name'] = 'user-menu';
+  $handler->display->display_options['menu']['context'] = 0;
+  $handler->display->display_options['menu']['context_only_inline'] = 0;
+  $handler->display->display_options['tab_options']['weight'] = '0';
+
+  /* Display: My Video */
+  $handler = $view->new_display('page', 'My Video', 'page_3');
+  $handler->display->display_options['defaults']['title'] = FALSE;
+  $handler->display->display_options['title'] = 'My Video';
+  $handler->display->display_options['display_description'] = 'Visual gallery of all video';
+  $handler->display->display_options['defaults']['hide_admin_links'] = FALSE;
+  $handler->display->display_options['defaults']['pager'] = FALSE;
+  $handler->display->display_options['pager']['type'] = 'infinite_scroll';
+  $handler->display->display_options['pager']['options']['items_per_page'] = '6';
+  $handler->display->display_options['pager']['options']['offset'] = '0';
+  $handler->display->display_options['pager']['options']['id'] = '0';
+  $handler->display->display_options['pager']['options']['quantity'] = '9';
+  $handler->display->display_options['defaults']['style_plugin'] = FALSE;
+  $handler->display->display_options['style_plugin'] = 'masonry_views_grid';
+  $handler->display->display_options['style_options']['masonry_width'] = '350';
+  $handler->display->display_options['style_options']['masonry_animated'] = TRUE;
+  $handler->display->display_options['style_options']['masonry_resizable'] = TRUE;
+  $handler->display->display_options['style_options']['masonry_center'] = TRUE;
+  $handler->display->display_options['style_options']['masonry_gutter'] = '4';
+  $handler->display->display_options['style_options']['masonry_rtl'] = FALSE;
+  $handler->display->display_options['defaults']['style_options'] = FALSE;
+  $handler->display->display_options['defaults']['row_plugin'] = FALSE;
+  $handler->display->display_options['row_plugin'] = 'fields';
+  $handler->display->display_options['row_options']['hide_empty'] = TRUE;
+  $handler->display->display_options['defaults']['row_options'] = FALSE;
+  $handler->display->display_options['defaults']['fields'] = FALSE;
   /* Field: Content: Video */
   $handler->display->display_options['fields']['field_video']['id'] = 'field_video';
   $handler->display->display_options['fields']['field_video']['table'] = 'field_data_field_video';
@@ -251,74 +452,106 @@ function cle_submission_views_default_views() {
   $handler->display->display_options['fields']['field_video']['element_label_colon'] = FALSE;
   $handler->display->display_options['fields']['field_video']['click_sort_column'] = 'video_url';
   $handler->display->display_options['fields']['field_video']['settings'] = array(
-    'video_style' => 'normal',
+    'video_style' => 'cle_masonry',
   );
+  $handler->display->display_options['fields']['field_video']['group_rows'] = FALSE;
   $handler->display->display_options['fields']['field_video']['delta_offset'] = '0';
-  $handler->display->display_options['defaults']['filter_groups'] = FALSE;
-  $handler->display->display_options['defaults']['filters'] = FALSE;
-  /* Filter criterion: Content: Published */
-  $handler->display->display_options['filters']['status']['id'] = 'status';
-  $handler->display->display_options['filters']['status']['table'] = 'node';
-  $handler->display->display_options['filters']['status']['field'] = 'status';
-  $handler->display->display_options['filters']['status']['value'] = 1;
-  $handler->display->display_options['filters']['status']['group'] = 1;
-  $handler->display->display_options['filters']['status']['expose']['operator'] = FALSE;
-  /* Filter criterion: Content: Type */
-  $handler->display->display_options['filters']['type']['id'] = 'type';
-  $handler->display->display_options['filters']['type']['table'] = 'node';
-  $handler->display->display_options['filters']['type']['field'] = 'type';
-  $handler->display->display_options['filters']['type']['value'] = array(
-    'cle_submission' => 'cle_submission',
-  );
-  $handler->display->display_options['filters']['type']['group'] = 1;
-  /* Filter criterion: Content: Section (og_group_ref) */
-  $handler->display->display_options['filters']['og_group_ref_target_id']['id'] = 'og_group_ref_target_id';
-  $handler->display->display_options['filters']['og_group_ref_target_id']['table'] = 'og_membership';
-  $handler->display->display_options['filters']['og_group_ref_target_id']['field'] = 'og_group_ref_target_id';
-  $handler->display->display_options['filters']['og_group_ref_target_id']['group'] = 1;
-  $handler->display->display_options['filters']['og_group_ref_target_id']['exposed'] = TRUE;
-  $handler->display->display_options['filters']['og_group_ref_target_id']['expose']['operator_id'] = 'og_group_ref_target_id_op';
-  $handler->display->display_options['filters']['og_group_ref_target_id']['expose']['label'] = 'Section';
-  $handler->display->display_options['filters']['og_group_ref_target_id']['expose']['operator'] = 'og_group_ref_target_id_op';
-  $handler->display->display_options['filters']['og_group_ref_target_id']['expose']['identifier'] = 'og_group_ref_target_id';
-  $handler->display->display_options['filters']['og_group_ref_target_id']['expose']['remember_roles'] = array(
-    2 => '2',
-    1 => 0,
-    6 => 0,
-    4 => 0,
-    8 => 0,
-    9 => 0,
-    5 => 0,
-    7 => 0,
-    3 => 0,
-  );
-  /* Filter criterion: Content: Assignment (field_assignment) */
-  $handler->display->display_options['filters']['field_assignment_target_id']['id'] = 'field_assignment_target_id';
-  $handler->display->display_options['filters']['field_assignment_target_id']['table'] = 'field_data_field_assignment';
-  $handler->display->display_options['filters']['field_assignment_target_id']['field'] = 'field_assignment_target_id';
-  $handler->display->display_options['filters']['field_assignment_target_id']['exposed'] = TRUE;
-  $handler->display->display_options['filters']['field_assignment_target_id']['expose']['operator_id'] = 'field_assignment_target_id_op';
-  $handler->display->display_options['filters']['field_assignment_target_id']['expose']['label'] = 'Assignment';
-  $handler->display->display_options['filters']['field_assignment_target_id']['expose']['operator'] = 'field_assignment_target_id_op';
-  $handler->display->display_options['filters']['field_assignment_target_id']['expose']['identifier'] = 'field_assignment_target_id';
-  $handler->display->display_options['filters']['field_assignment_target_id']['expose']['remember_roles'] = array(
-    2 => '2',
-    1 => 0,
-    6 => 0,
-    4 => 0,
-    8 => 0,
-    9 => 0,
-    5 => 0,
-    7 => 0,
-    3 => 0,
-  );
-  $handler->display->display_options['path'] = 'user/%/gallery';
+  $handler->display->display_options['path'] = 'user/%/gallery/video';
   $handler->display->display_options['menu']['type'] = 'tab';
-  $handler->display->display_options['menu']['title'] = 'Gallery';
-  $handler->display->display_options['menu']['description'] = 'All my submissions as a gallery';
-  $handler->display->display_options['menu']['weight'] = '10';
+  $handler->display->display_options['menu']['title'] = 'Video';
+  $handler->display->display_options['menu']['description'] = 'All my videos as a gallery';
+  $handler->display->display_options['menu']['weight'] = '2';
   $handler->display->display_options['menu']['name'] = 'user-menu';
   $handler->display->display_options['menu']['context'] = 0;
+  $handler->display->display_options['menu']['context_only_inline'] = 0;
+
+  /* Display: My Files */
+  $handler = $view->new_display('page', 'My Files', 'page_1');
+  $handler->display->display_options['defaults']['title'] = FALSE;
+  $handler->display->display_options['title'] = 'My Files';
+  $handler->display->display_options['display_description'] = 'Visual gallery of all files';
+  $handler->display->display_options['defaults']['hide_admin_links'] = FALSE;
+  $handler->display->display_options['defaults']['pager'] = FALSE;
+  $handler->display->display_options['pager']['type'] = 'infinite_scroll';
+  $handler->display->display_options['pager']['options']['items_per_page'] = '6';
+  $handler->display->display_options['pager']['options']['offset'] = '0';
+  $handler->display->display_options['pager']['options']['id'] = '0';
+  $handler->display->display_options['pager']['options']['quantity'] = '9';
+  $handler->display->display_options['defaults']['style_plugin'] = FALSE;
+  $handler->display->display_options['style_plugin'] = 'masonry_views_grid';
+  $handler->display->display_options['style_options']['masonry_width'] = '350';
+  $handler->display->display_options['style_options']['masonry_animated'] = TRUE;
+  $handler->display->display_options['style_options']['masonry_resizable'] = TRUE;
+  $handler->display->display_options['style_options']['masonry_center'] = TRUE;
+  $handler->display->display_options['style_options']['masonry_gutter'] = '4';
+  $handler->display->display_options['style_options']['masonry_rtl'] = FALSE;
+  $handler->display->display_options['defaults']['style_options'] = FALSE;
+  $handler->display->display_options['defaults']['row_plugin'] = FALSE;
+  $handler->display->display_options['row_plugin'] = 'fields';
+  $handler->display->display_options['row_options']['hide_empty'] = TRUE;
+  $handler->display->display_options['defaults']['row_options'] = FALSE;
+  $handler->display->display_options['defaults']['fields'] = FALSE;
+  /* Field: Content: Files */
+  $handler->display->display_options['fields']['field_files']['id'] = 'field_files';
+  $handler->display->display_options['fields']['field_files']['table'] = 'field_data_field_files';
+  $handler->display->display_options['fields']['field_files']['field'] = 'field_files';
+  $handler->display->display_options['fields']['field_files']['label'] = '';
+  $handler->display->display_options['fields']['field_files']['element_label_colon'] = FALSE;
+  $handler->display->display_options['fields']['field_files']['click_sort_column'] = 'fid';
+  $handler->display->display_options['fields']['field_files']['group_rows'] = FALSE;
+  $handler->display->display_options['fields']['field_files']['delta_offset'] = '0';
+  $handler->display->display_options['path'] = 'user/%/gallery/files';
+  $handler->display->display_options['menu']['type'] = 'tab';
+  $handler->display->display_options['menu']['title'] = 'Files';
+  $handler->display->display_options['menu']['description'] = 'All my files as a gallery';
+  $handler->display->display_options['menu']['weight'] = '3';
+  $handler->display->display_options['menu']['name'] = 'user-menu';
+  $handler->display->display_options['menu']['context'] = 0;
+  $handler->display->display_options['menu']['context_only_inline'] = 0;
+
+  /* Display: My Links */
+  $handler = $view->new_display('page', 'My Links', 'page_5');
+  $handler->display->display_options['defaults']['title'] = FALSE;
+  $handler->display->display_options['title'] = 'My Links';
+  $handler->display->display_options['display_description'] = 'Visual gallery of all links';
+  $handler->display->display_options['defaults']['hide_admin_links'] = FALSE;
+  $handler->display->display_options['defaults']['pager'] = FALSE;
+  $handler->display->display_options['pager']['type'] = 'infinite_scroll';
+  $handler->display->display_options['pager']['options']['items_per_page'] = '6';
+  $handler->display->display_options['pager']['options']['offset'] = '0';
+  $handler->display->display_options['pager']['options']['id'] = '0';
+  $handler->display->display_options['pager']['options']['quantity'] = '9';
+  $handler->display->display_options['defaults']['style_plugin'] = FALSE;
+  $handler->display->display_options['style_plugin'] = 'masonry_views_grid';
+  $handler->display->display_options['style_options']['masonry_width'] = '350';
+  $handler->display->display_options['style_options']['masonry_animated'] = TRUE;
+  $handler->display->display_options['style_options']['masonry_resizable'] = TRUE;
+  $handler->display->display_options['style_options']['masonry_center'] = TRUE;
+  $handler->display->display_options['style_options']['masonry_gutter'] = '4';
+  $handler->display->display_options['style_options']['masonry_rtl'] = FALSE;
+  $handler->display->display_options['defaults']['style_options'] = FALSE;
+  $handler->display->display_options['defaults']['row_plugin'] = FALSE;
+  $handler->display->display_options['row_plugin'] = 'fields';
+  $handler->display->display_options['row_options']['hide_empty'] = TRUE;
+  $handler->display->display_options['defaults']['row_options'] = FALSE;
+  $handler->display->display_options['defaults']['fields'] = FALSE;
+  /* Field: Content: Links */
+  $handler->display->display_options['fields']['field_links']['id'] = 'field_links';
+  $handler->display->display_options['fields']['field_links']['table'] = 'field_data_field_links';
+  $handler->display->display_options['fields']['field_links']['field'] = 'field_links';
+  $handler->display->display_options['fields']['field_links']['label'] = '';
+  $handler->display->display_options['fields']['field_links']['element_label_colon'] = FALSE;
+  $handler->display->display_options['fields']['field_links']['click_sort_column'] = 'url';
+  $handler->display->display_options['fields']['field_links']['group_rows'] = FALSE;
+  $handler->display->display_options['fields']['field_links']['delta_offset'] = '0';
+  $handler->display->display_options['path'] = 'user/%/gallery/links';
+  $handler->display->display_options['menu']['type'] = 'tab';
+  $handler->display->display_options['menu']['title'] = 'Links';
+  $handler->display->display_options['menu']['description'] = 'All my links as a gallery';
+  $handler->display->display_options['menu']['weight'] = '4';
+  $handler->display->display_options['menu']['name'] = 'user-menu';
+  $handler->display->display_options['menu']['context'] = 0;
+  $handler->display->display_options['menu']['context_only_inline'] = 0;
   $export['cle_my_submissions'] = $view;
 
   $view = new view();
@@ -457,11 +690,11 @@ function cle_submission_views_default_views() {
   $handler->display->display_options['fields']['field_images']['element_class'] = 'cle-image';
   $handler->display->display_options['fields']['field_images']['element_label_colon'] = FALSE;
   $handler->display->display_options['fields']['field_images']['click_sort_column'] = 'fid';
-  $handler->display->display_options['fields']['field_images']['type'] = 'flexslider';
   $handler->display->display_options['fields']['field_images']['settings'] = array(
-    'flexslider_optionset' => 'cle_images',
+    'image_style' => 'cle_submission',
+    'image_link' => '',
   );
-  $handler->display->display_options['fields']['field_images']['delta_limit'] = '3';
+  $handler->display->display_options['fields']['field_images']['delta_limit'] = '1';
   $handler->display->display_options['fields']['field_images']['delta_offset'] = '0';
   /* Field: User: Name */
   $handler->display->display_options['fields']['name']['id'] = 'name';
@@ -628,7 +861,7 @@ function cle_submission_views_default_views() {
   $handler->display->display_options['cache']['type'] = 'none';
   $handler->display->display_options['query']['type'] = 'views_query';
   $handler->display->display_options['exposed_form']['type'] = 'basic';
-  $handler->display->display_options['pager']['type'] = 'full';
+  $handler->display->display_options['pager']['type'] = 'lite';
   $handler->display->display_options['pager']['options']['items_per_page'] = '10';
   $handler->display->display_options['pager']['options']['offset'] = '0';
   $handler->display->display_options['pager']['options']['id'] = '0';
@@ -725,18 +958,9 @@ function cle_submission_views_default_views() {
   $handler->display->display_options['header']['area']['field'] = 'area';
   $handler->display->display_options['header']['area']['label'] = 'Assignment';
   $handler->display->display_options['header']['area']['empty'] = TRUE;
-  $handler->display->display_options['header']['area']['content'] = '<h3>%1 Submissions</h3>
-Assignment details:
-<ul>
-<li><strong>Due Date:</strong> [field_due_date]</li>
-<li><strong>Requirements:</strong> [field_media_requirements]</li>
-</ul>';
+  $handler->display->display_options['header']['area']['content'] = '<h3>%1 Submissions</h3>';
   $handler->display->display_options['header']['area']['format'] = 'textbook_editor';
   $handler->display->display_options['header']['area']['tokenize'] = TRUE;
-  /* Header: Entity: Rendered entity */
-  $handler->display->display_options['header']['entity']['id'] = 'entity';
-  $handler->display->display_options['header']['entity']['table'] = 'entity__global';
-  $handler->display->display_options['header']['entity']['field'] = 'entity';
   /* No results behavior: Global: Text area */
   $handler->display->display_options['empty']['area']['id'] = 'area';
   $handler->display->display_options['empty']['area']['table'] = 'views';
@@ -947,29 +1171,6 @@ Assignment details:
     6 => 0,
     10 => 0,
   );
-  /* Filter criterion: Flags: Flagged */
-  $handler->display->display_options['filters']['flagged']['id'] = 'flagged';
-  $handler->display->display_options['filters']['flagged']['table'] = 'flag_content';
-  $handler->display->display_options['filters']['flagged']['field'] = 'flagged';
-  $handler->display->display_options['filters']['flagged']['relationship'] = 'flag_content_rel';
-  $handler->display->display_options['filters']['flagged']['value'] = 'All';
-  $handler->display->display_options['filters']['flagged']['exposed'] = TRUE;
-  $handler->display->display_options['filters']['flagged']['expose']['operator_id'] = '';
-  $handler->display->display_options['filters']['flagged']['expose']['label'] = 'Exemplary';
-  $handler->display->display_options['filters']['flagged']['expose']['operator'] = 'flagged_op';
-  $handler->display->display_options['filters']['flagged']['expose']['identifier'] = 'flagged';
-  $handler->display->display_options['filters']['flagged']['expose']['remember_roles'] = array(
-    2 => '2',
-    1 => 0,
-    5 => 0,
-    3 => 0,
-    7 => 0,
-    8 => 0,
-    4 => 0,
-    9 => 0,
-    6 => 0,
-    10 => 0,
-  );
 
   /* Display: Submission Overview */
   $handler = $view->new_display('page', 'Submission Overview', 'page');
@@ -1011,11 +1212,6 @@ Assignment details:
   $handler->display->display_options['fields']['title']['field'] = 'title';
   $handler->display->display_options['fields']['title']['alter']['word_boundary'] = FALSE;
   $handler->display->display_options['fields']['title']['alter']['ellipsis'] = FALSE;
-  /* Field: Content: Comment count */
-  $handler->display->display_options['fields']['comment_count']['id'] = 'comment_count';
-  $handler->display->display_options['fields']['comment_count']['table'] = 'node_comment_statistics';
-  $handler->display->display_options['fields']['comment_count']['field'] = 'comment_count';
-  $handler->display->display_options['fields']['comment_count']['label'] = 'Comments';
   /* Field: Content: Files (field_files:delta) */
   $handler->display->display_options['fields']['delta']['id'] = 'delta';
   $handler->display->display_options['fields']['delta']['table'] = 'field_data_field_files';
@@ -1207,12 +1403,6 @@ Assignment details:
   $handler->display->display_options['display_description'] = 'Media displayed';
   $handler->display->display_options['defaults']['hide_admin_links'] = FALSE;
   $handler->display->display_options['defaults']['fields'] = FALSE;
-  /* Field: Content: Post date */
-  $handler->display->display_options['fields']['created']['id'] = 'created';
-  $handler->display->display_options['fields']['created']['table'] = 'node';
-  $handler->display->display_options['fields']['created']['field'] = 'created';
-  $handler->display->display_options['fields']['created']['label'] = 'Created';
-  $handler->display->display_options['fields']['created']['date_format'] = 'medium';
   /* Field: User: Name */
   $handler->display->display_options['fields']['name']['id'] = 'name';
   $handler->display->display_options['fields']['name']['table'] = 'users';
@@ -1274,6 +1464,20 @@ Assignment details:
   $handler->display->display_options['fields']['field_media_requirements']['exclude'] = TRUE;
   $handler->display->display_options['fields']['field_media_requirements']['element_label_colon'] = FALSE;
   $handler->display->display_options['fields']['field_media_requirements']['delta_offset'] = '0';
+  /* Field: Content: Post date */
+  $handler->display->display_options['fields']['created']['id'] = 'created';
+  $handler->display->display_options['fields']['created']['table'] = 'node';
+  $handler->display->display_options['fields']['created']['field'] = 'created';
+  $handler->display->display_options['fields']['created']['label'] = 'Created';
+  $handler->display->display_options['fields']['created']['date_format'] = 'short';
+  $handler->display->display_options['fields']['created']['second_date_format'] = 'long';
+  /* Field: Content: Updated date */
+  $handler->display->display_options['fields']['changed']['id'] = 'changed';
+  $handler->display->display_options['fields']['changed']['table'] = 'node';
+  $handler->display->display_options['fields']['changed']['field'] = 'changed';
+  $handler->display->display_options['fields']['changed']['label'] = 'Last updated';
+  $handler->display->display_options['fields']['changed']['date_format'] = 'short';
+  $handler->display->display_options['fields']['changed']['second_date_format'] = 'long';
   $handler->display->display_options['path'] = 'node/%/submissions/media';
   $handler->display->display_options['menu']['type'] = 'tab';
   $handler->display->display_options['menu']['title'] = 'Media';
@@ -1417,17 +1621,15 @@ Assignment details:
   $handler->display->display_options['fields']['name']['field'] = 'name';
   $handler->display->display_options['fields']['name']['relationship'] = 'uid';
   $handler->display->display_options['fields']['name']['label'] = 'User';
+  /* Field: Content: Title */
+  $handler->display->display_options['fields']['title']['id'] = 'title';
+  $handler->display->display_options['fields']['title']['table'] = 'node';
+  $handler->display->display_options['fields']['title']['field'] = 'title';
   /* Field: Content: Comment count */
   $handler->display->display_options['fields']['comment_count']['id'] = 'comment_count';
   $handler->display->display_options['fields']['comment_count']['table'] = 'node_comment_statistics';
   $handler->display->display_options['fields']['comment_count']['field'] = 'comment_count';
   $handler->display->display_options['fields']['comment_count']['label'] = 'Comments';
-  /* Field: Flags: Flag link */
-  $handler->display->display_options['fields']['ops']['id'] = 'ops';
-  $handler->display->display_options['fields']['ops']['table'] = 'flag_content';
-  $handler->display->display_options['fields']['ops']['field'] = 'ops';
-  $handler->display->display_options['fields']['ops']['relationship'] = 'flag_content_rel';
-  $handler->display->display_options['fields']['ops']['label'] = 'Mark exemplary';
   /* Field: Content: Due Date */
   $handler->display->display_options['fields']['field_due_date']['id'] = 'field_due_date';
   $handler->display->display_options['fields']['field_due_date']['table'] = 'field_data_field_due_date';
@@ -1470,6 +1672,12 @@ Assignment details:
   $handler->display->display_options['fields']['value_1']['label'] = 'Emotions';
   $handler->display->display_options['fields']['value_1']['precision'] = '0';
   $handler->display->display_options['fields']['value_1']['appearance'] = 'rate_views_widget';
+  /* Field: Flags: Flag link */
+  $handler->display->display_options['fields']['ops']['id'] = 'ops';
+  $handler->display->display_options['fields']['ops']['table'] = 'flag_content';
+  $handler->display->display_options['fields']['ops']['field'] = 'ops';
+  $handler->display->display_options['fields']['ops']['relationship'] = 'flag_content_rel';
+  $handler->display->display_options['fields']['ops']['label'] = 'Mark exemplary';
   $handler->display->display_options['defaults']['sorts'] = FALSE;
   /* Sort criterion: Content: Post date */
   $handler->display->display_options['sorts']['created']['id'] = 'created';
@@ -1487,6 +1695,33 @@ Assignment details:
   $handler->display->display_options['tab_options']['title'] = 'Submissions';
   $handler->display->display_options['tab_options']['description'] = 'Listing of submissions for this assignemnt';
   $handler->display->display_options['tab_options']['weight'] = '0';
+
+  /* Display: Viewer */
+  $handler = $view->new_display('page', 'Viewer', 'page_5');
+  $handler->display->display_options['defaults']['title'] = FALSE;
+  $handler->display->display_options['title'] = 'Viewer';
+  $handler->display->display_options['display_description'] = 'A Viewer that lets you see one submission at at time and page through';
+  $handler->display->display_options['defaults']['pager'] = FALSE;
+  $handler->display->display_options['pager']['type'] = 'lite';
+  $handler->display->display_options['pager']['options']['items_per_page'] = '1';
+  $handler->display->display_options['pager']['options']['offset'] = '0';
+  $handler->display->display_options['pager']['options']['id'] = '0';
+  $handler->display->display_options['pager']['options']['quantity'] = '9';
+  $handler->display->display_options['defaults']['style_plugin'] = FALSE;
+  $handler->display->display_options['style_plugin'] = 'default';
+  $handler->display->display_options['style_options']['default_row_class'] = FALSE;
+  $handler->display->display_options['style_options']['row_class_special'] = FALSE;
+  $handler->display->display_options['defaults']['style_options'] = FALSE;
+  $handler->display->display_options['defaults']['row_plugin'] = FALSE;
+  $handler->display->display_options['row_plugin'] = 'entity';
+  $handler->display->display_options['defaults']['row_options'] = FALSE;
+  $handler->display->display_options['path'] = 'node/%/submissions/viewer';
+  $handler->display->display_options['menu']['type'] = 'tab';
+  $handler->display->display_options['menu']['title'] = 'Viewer';
+  $handler->display->display_options['menu']['description'] = 'Viewer mode for submissions';
+  $handler->display->display_options['menu']['weight'] = '10';
+  $handler->display->display_options['menu']['context'] = 0;
+  $handler->display->display_options['menu']['context_only_inline'] = 0;
   $export['cle_submissions_listing'] = $view;
 
   return $export;

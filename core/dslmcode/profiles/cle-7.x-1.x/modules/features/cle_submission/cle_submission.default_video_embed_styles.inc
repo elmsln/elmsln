@@ -14,23 +14,23 @@ function cle_submission_default_video_embed_styles() {
   $video_embed_style->disabled = FALSE; /* Edit this to true to make a default video_embed_style disabled initially */
   $video_embed_style->api_version = 1;
   $video_embed_style->name = 'cle_default';
-  $video_embed_style->title = '';
+  $video_embed_style->title = 'CLE Default';
   $video_embed_style->data = array(
     'youtube' => array(
-      'width' => '711',
-      'height' => '400',
+      'width' => '355',
+      'height' => '200',
       'theme' => 'light',
       'autoplay' => 0,
+      'vq' => 'hd720',
       'rel' => 0,
-      'showinfo' => 1,
-      'modestbranding' => 0,
+      'showinfo' => 0,
+      'modestbranding' => 1,
       'iv_load_policy' => '3',
       'autohide' => '2',
-      'vq' => 'hd720',
     ),
     'vimeo' => array(
-      'width' => '711',
-      'height' => '400',
+      'width' => '355',
+      'height' => '200',
       'color' => 'ff9933',
       'portrait' => 0,
       'title' => 1,
@@ -46,19 +46,19 @@ function cle_submission_default_video_embed_styles() {
   $video_embed_style->disabled = FALSE; /* Edit this to true to make a default video_embed_style disabled initially */
   $video_embed_style->api_version = 1;
   $video_embed_style->name = 'cle_overview';
-  $video_embed_style->title = '';
+  $video_embed_style->title = 'CLE Overview';
   $video_embed_style->data = array(
     'youtube' => array(
       'width' => '266',
       'height' => '150',
       'theme' => 'light',
       'autoplay' => 0,
+      'vq' => 'hd720',
       'rel' => 0,
-      'showinfo' => 1,
-      'modestbranding' => 0,
+      'showinfo' => 0,
+      'modestbranding' => 1,
       'iv_load_policy' => '3',
       'autohide' => '2',
-      'vq' => 'hd720',
     ),
     'vimeo' => array(
       'width' => '266',
@@ -70,7 +70,7 @@ function cle_submission_default_video_embed_styles() {
       'autoplay' => 0,
       'loop' => 0,
     ),
-    'data__active_tab' => 'edit-data-vimeo',
+    'data__active_tab' => 'edit-data-youtube',
   );
   $export['cle_overview'] = $video_embed_style;
 

@@ -115,8 +115,9 @@ function cle_submission_image_default_styles() {
   // Exported image style: cle_submission.
   $styles['cle_submission'] = array(
     'name' => 'cle_submission',
+    'label' => 'cle_submission',
     'effects' => array(
-      4 => array(
+      1 => array(
         'label' => 'Scale',
         'help' => 'Scaling will maintain the aspect-ratio of the original image. If only a single dimension is specified, the other dimension will be calculated.',
         'effect callback' => 'image_scale_effect',
@@ -126,14 +127,13 @@ function cle_submission_image_default_styles() {
         'module' => 'image',
         'name' => 'image_scale',
         'data' => array(
-          'width' => 1170,
-          'height' => 650,
+          'width' => 600,
+          'height' => '',
           'upscale' => 1,
         ),
         'weight' => 1,
       ),
     ),
-    'label' => 'cle_submission',
   );
 
   return $styles;

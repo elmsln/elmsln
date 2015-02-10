@@ -21,14 +21,14 @@ function cle_perms_strongarm() {
   $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
   $strongarm->api_version = 1;
   $strongarm->name = 'jquery_update_jquery_admin_version';
-  $strongarm->value = '1.5';
+  $strongarm->value = 'default';
   $export['jquery_update_jquery_admin_version'] = $strongarm;
 
   $strongarm = new stdClass();
   $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
   $strongarm->api_version = 1;
   $strongarm->name = 'jquery_update_jquery_cdn';
-  $strongarm->value = 'google';
+  $strongarm->value = 'none';
   $export['jquery_update_jquery_cdn'] = $strongarm;
 
   $strongarm = new stdClass();
@@ -96,19 +96,20 @@ admin/*';
       'template' => 'thumbs_up',
       'node_display' => '2',
       'teaser_display' => FALSE,
-      'comment_display' => '1',
+      'comment_display' => '0',
       'node_display_mode' => '1',
       'teaser_display_mode' => '1',
       'comment_display_mode' => '1',
       'roles' => array(
+        9 => '9',
         3 => '3',
         5 => '5',
         7 => '7',
         8 => '8',
-        9 => '9',
         1 => 0,
         2 => 0,
         4 => 0,
+        10 => 0,
         6 => 0,
       ),
       'allow_voting_by_author' => 1,
@@ -116,12 +117,12 @@ admin/*';
       'displayed' => '1',
       'displayed_just_voted' => '1',
       'description' => '',
-      'description_in_compact' => TRUE,
+      'description_in_compact' => FALSE,
       'delete_vote_on_second_click' => '1',
       'use_source_translation' => TRUE,
       'value_type' => 'points',
       'theme' => 'rate_template_thumbs_up',
-      'css' => 'sites/all/modules/contrib/rate/templates/thumbs-up/thumbs-up.css',
+      'css' => 'sites/all/modules/local_contrib/rate/templates/thumbs-up/thumbs-up.css',
       'translate' => TRUE,
     ),
     2 => (object) array(
@@ -172,14 +173,15 @@ admin/*';
       'teaser_display_mode' => '1',
       'comment_display_mode' => '1',
       'roles' => array(
+        9 => '9',
         3 => '3',
         5 => '5',
         7 => '7',
         8 => '8',
-        9 => '9',
         1 => 0,
         2 => 0,
         4 => 0,
+        10 => 0,
         6 => 0,
       ),
       'allow_voting_by_author' => 1,
@@ -187,12 +189,12 @@ admin/*';
       'displayed' => '1',
       'displayed_just_voted' => '1',
       'description' => 'How did this make you feel?',
-      'description_in_compact' => TRUE,
+      'description_in_compact' => FALSE,
       'delete_vote_on_second_click' => '1',
       'use_source_translation' => TRUE,
       'value_type' => 'option',
       'theme' => 'rate_template_emotion',
-      'css' => 'sites/all/modules/contrib/rate/templates/emotion/emotion.css',
+      'css' => 'sites/all/modules/local_contrib/rate/templates/emotion/emotion.css',
       'translate' => TRUE,
     ),
   );

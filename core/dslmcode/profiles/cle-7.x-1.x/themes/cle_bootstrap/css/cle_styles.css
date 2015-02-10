@@ -58,6 +58,12 @@
 	display:none;
 }
 
+/* CLE submission stuff */
+.node-cle-submission .field-name-field-images .field-item,
+.node-cle-submission .field-name-field-video .field-item {
+	float:left;
+}
+
 /* Comment Styling */
 .indented {
  margin-left: 35px;
