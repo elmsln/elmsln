@@ -1,0 +1,12 @@
+<?php
+/**
+ * @file
+ * ECD integration improvements.
+ */
+
+/**
+ * Implements hook_init().
+ */
+function ecd_helper_init() {
+
+}
