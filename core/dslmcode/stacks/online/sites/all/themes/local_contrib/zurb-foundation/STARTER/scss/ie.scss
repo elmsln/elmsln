@@ -1,0 +1,40 @@
+/* Welcome to Compass. Use this file to write IE specific override styles. */
+
+// to add support for IE8 or below, use in your scss like so:
+//.lt-ie9 {
+//  @include columnFix;
+//}
+
+@mixin columnFix($columns: 12){
+  $i: 1;
+  @while $i < $columns + 1 {
+
+    $colWidth: ($i/$columns)*100%;
+    $colWidth7: ($i/$columns)*98%;
+    & .large-#{$i}, & .small-#{$i} {
+      width: $colWidth;
+      *width: $colWidth7; //sets the width for ie7
+    }
+
+    /* thanks to pinder */
+    & .large-offset-#{$i} {
+      margin-left: ($i/$columns)*100%;
+      *margin-left: ($i/$columns)*98%;;
+    }
+
+    /* allows centering block elements */
+    & .centered-#{$i}{
+      margin-left: (100% - $colWidth)/2;
+      *margin-left: (98% - $colWidth7)/2;
+    }
+    $i: $i + 1;
+  }
+
+  & .columns {
+    //*padding-left: 1%;
+    //*padding-right: 1%;
+  }
+  & .row .row {
+    *margin-left: 0; /* fix ie7 margins */
+  }
+}

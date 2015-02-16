@@ -29,8 +29,3 @@
 .item-list .pager li {
   padding: 0;
 }
-
-// Allow drupal inline elements to mixin Foundation inline properties
-.inline {
-  @include inline-list;
-}

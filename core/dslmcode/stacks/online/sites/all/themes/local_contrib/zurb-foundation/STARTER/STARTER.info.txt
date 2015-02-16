@@ -1,0 +1,142 @@
+name = ZURB Foundation Sub-theme Starter
+description = Custom sub-theme based on the the Zurb Foundation base theme.
+screenshot = images/screenshot.png
+
+core = 7.x
+engine = phptemplate
+base theme = zurb_foundation
+
+; This section controls the CSS files for your theme. There are 3 different
+; things you can do with a "stylesheets" line:
+; - Add a new stylesheet for your theme.
+; - Override a module's stylesheet. If the stylesheet you are adding uses the
+;   same filename as a stylesheet from a Drupal core or contrib module, your CSS
+;   file will be used instead of the module's file.
+; - Remove a module's stylesheet. If you specify the name of a Drupal core or
+;   contrib module's stylesheets, Drupal will remove that stylesheet if you do
+;   NOT include a file with that name with your theme.
+;
+; stylesheets[MEDIA][] = FILE
+;
+; The "FILE" is the name of the stylesheet to add/override/remove.
+; The "MEDIA" in the first set of brackets is a media type or a media query.
+; Typical CSS media types include "all", "screen", "print", and "handheld". A
+; typical media query is "screen and (max-width: 320px)".
+;
+; CSS2.1 media types: http://www.w3.org/TR/CSS21/media.html#media-types
+; CSS3 media queries: http://www.w3.org/TR/css3-mediaqueries/
+
+; For CSS users, load the app.css file:
+stylesheets[all][] = css/app.css
+; Comment the app.css file (above) if you're using sass to preprocess css:
+;stylesheets[all][] = css/custom.css
+
+; Block loading of foundation.min.css from the base theme. This file should either
+; not exist or be blank in your subtheme. See https://drupal.org/node/263967
+stylesheets[all][] = css/foundation.min.css
+
+; Foundation JavaScript.
+
+; Modernizr acts as a shim for HTML5 elements for older browsers
+; as well as detection for mobile devices.
+scripts[] = js/vendor/custom.modernizr.js
+
+; Foundation framework scripts (minified).
+; If you prefer to have more control over which components are included you
+; can comment this line and uncomment the ones below you want.
+scripts[] = js/foundation.min.js
+
+; Foundation framework scripts (uncompressed).
+;scripts[] = js/foundation/foundation.js
+;scripts[] = js/foundation/foundation.abide.js
+;scripts[] = js/foundation/foundation.alerts.js
+;scripts[] = js/foundation/foundation.clearing.js
+;scripts[] = js/foundation/foundation.cookie.js
+;scripts[] = js/foundation/foundation.dropdown.js
+;scripts[] = js/foundation/foundation.forms.js
+;scripts[] = js/foundation/foundation.interchange.js
+;scripts[] = js/foundation/foundation.joyride.js
+;scripts[] = js/foundation/foundation.magellan.js
+;scripts[] = js/foundation/foundation.orbit.js
+;scripts[] = js/foundation/foundation.placeholder.js
+;scripts[] = js/foundation/foundation.reveal.js
+;scripts[] = js/foundation/foundation.section.js
+;scripts[] = js/foundation/foundation.tooltips.js
+;scripts[] = js/foundation/foundation.topbar.js
+
+; Theme scripts.
+; This file is empty, just uncomment this line and start editing!
+; scripts[] = js/scripts.js
+
+; This section lists the regions defined in the page.tpl.php. The name in
+; brackets is the machine name of the region. The text after the equals sign is
+; a descriptive text used on the admin/structure/blocks page.
+;
+; In the page.tpl.php, the contents of the region are output with a
+; $page['MACHINE-NAME'] variable. For example, with this line in the .info
+; file:
+;   regions[header] = Header
+; You'll use this variable in page.tpl.php:
+;   <?php print render($page['header']); ?>
+
+regions[header]              = Header
+regions[help]                = Help
+regions[highlighted]         = Highlighted
+regions[featured]            = Featured
+regions[content]             = Content
+regions[sidebar_first]       = Left Sidebar
+regions[sidebar_second]      = Right Sidebar
+regions[triptych_first]      = Callout one
+regions[triptych_middle]     = Callout two
+regions[triptych_last]       = Callout three
+regions[footer_firstcolumn]  = Footer one
+regions[footer_secondcolumn] = Footer two
+regions[footer_thirdcolumn]  = Footer three
+regions[footer_fourthcolumn] = Footer four
+regions[footer]              = Footer
+
+; Various page elements output by the theme can be toggled on and off. The
+; "features" control which of these check boxes display on the
+; admin/appearance config page. This is useful for suppressing check boxes
+; for elements not used by your sub-theme. To add a check box, uncomment the
+; entry for it below. See the Drupal 7 Theme Guide for more info:
+; http://drupal.org/node/171205#features
+
+; features[] = logo
+; features[] = name
+; features[] = slogan
+; features[] = node_user_picture
+; features[] = comment_user_picture
+; features[] = favicon
+; features[] = main_menu
+; features[] = secondary_menu
+
+; Panel Layouts
+plugins[panels][layouts] = layouts
+
+; Theme settings:
+
+; Top Bar.
+settings[zurb_foundation_top_bar_enable] = 1
+settings[zurb_foundation_top_bar_grid] = 0
+settings[zurb_foundation_top_bar_sticky] = 0
+settings[zurb_foundation_top_bar_menu_text] = 'Menu'
+settings[zurb_foundation_top_bar_custom_back_text] = 1
+settings[zurb_foundation_top_bar_back_text] = 'Back'
+settings[zurb_foundation_top_bar_is_hover] = 1
+settings[zurb_foundation_top_bar_scrolltop] = 1
+
+; Tooltips.
+settings[zurb_foundation_tooltip_enable] = 1
+settings[zurb_foundation_tooltip_position] = 'top'
+settings[zurb_foundation_tooltip_mode] = 'text'
+settings[zurb_foundation_tooltip_text] = 'More information?'
+settings[zurb_foundation_tooltip_touch] = 0
+
+; Styles and Scripts.
+settings[zurb_foundation_disable_core_css] = 0
+
+; Misc.
+settings[zurb_foundation_html_tags] = 1
+settings[zurb_foundation_messages_modal] = 0
+settings[zurb_foundation_pager_center] = 1

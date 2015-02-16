@@ -1,0 +1,33 @@
+// Theme or skin specific modifiers.
+//
+// The following are some examples of how a theme modifier would work. Themes
+// are decoupled from a theme's structure and modifies a component or element's
+// default look and feel. Feel free to remove files.
+//
+// Example Markup:
+//  <button class="button t-button-light">Submit</button>
+
+
+// Buttons: Light
+//
+// 1. Variable settings are set as !default so they can be overriden inside the
+//    classes or a seperate file.
+// ------------------------------------------------------
+// $button-light-bg: #fff !default; /* 1 */
+// $button-light-color: #333 !default;
+
+// .t-button-light {
+//   background-color: $button-light-bg;
+//   color: $button-light-color;
+// }
+
+// // Buttons: Dark
+// // ------------------------------------------------------
+// $button-dark-bg: #333 !default;
+// $button-dark-color: #fff !default;
+
+// .t-button-dark {
+//   background-color: $button-light-bg;
+//   color: $button-light-color;
+// }
+

@@ -61,13 +61,13 @@ function drush_zurb_foundation_foundation_sub_theme($name) {
   // including them by default to keep the base theme small and also to avoid
   // having to update the Foundation JS in two places every time a new version
   // is released.
-  //drush_copy_dir("{$zurb_path}/js/", "{$subtheme_path}/js/", FILE_EXISTS_MERGE);
+  drush_copy_dir("{$zurb_path}/js/", "{$subtheme_path}/js/", FILE_EXISTS_MERGE);
 
   // Rename files and fill in the theme machine name
   drush_op('rename', "$subtheme_path/STARTER.info.txt", "$subtheme_path/$machine_name.info");
   drush_op('rename', "$subtheme_path/css/STARTER.css", "$subtheme_path/css/$machine_name.css");
   drush_op('rename', "$subtheme_path/scss/STARTER.scss", "$subtheme_path/scss/$machine_name.scss");
-  drush_op('rename', "$subtheme_path/js/_STARTER.js", "$subtheme_path/js/_$machine_name.js");
+  drush_op('rename', "$subtheme_path/js/scripts.js", "$subtheme_path/js/$machine_name.js");
 
   // Update the .info file
   drush_op('zurb_foundation_file_str_replace', "$subtheme_path/$machine_name.info", 'ZURB Foundation Sub-theme Starter', "$name");
@@ -84,7 +84,7 @@ function drush_zurb_foundation_foundation_sub_theme($name) {
   // Rename the .info reference to the custom js file
   drush_op('zurb_foundation_file_str_replace', "$subtheme_path/$machine_name.info", 'scripts.js', "$machine_name.js");
   // Rename the Drupal behavior name in the custom js file.
-  drush_op('zurb_foundation_file_str_replace', "$subtheme_path/js/_$machine_name.js", 'STARTER', "$machine_name");
+  drush_op('zurb_foundation_file_str_replace', "$subtheme_path/js/$machine_name.js", 'STARTER', "$machine_name");
   // Rename functions in template.php
   drush_op('zurb_foundation_file_str_replace', "$subtheme_path/template.php", 'STARTER', "$machine_name");
   // Rename functions in theme-settings.php

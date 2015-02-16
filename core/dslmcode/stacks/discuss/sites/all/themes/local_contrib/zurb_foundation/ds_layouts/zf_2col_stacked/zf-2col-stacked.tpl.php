@@ -10,33 +10,31 @@
     <?php print render($title_suffix['contextual_links']); ?>
   <?php endif; ?>
 
-  <?php if (!empty($header)): ?>
-    <div class="<?php print $zf_wrapper_classes; ?>">
+  <div class="row">
+    <?php if (!empty($header)): ?>
       <<?php print $header_wrapper ?> class="group-header<?php print $header_classes; ?>">
       <?php print $header; ?>
       </<?php print $header_wrapper ?>>
-    </div>
-  <?php endif; ?>
+    <?php endif; ?>
+  </div>
 
-  <?php if (!empty($left) || !empty($right)): ?>
-    <div class="<?php print $zf_wrapper_classes; ?>">
-      <<?php print $left_wrapper ?> class="group-left<?php print $left_classes; ?>">
-      <?php print $left; ?>
-      </<?php print $left_wrapper ?>>
+  <div class="row">
+    <<?php print $left_wrapper ?> class="group-left<?php print $left_classes; ?>">
+    <?php print $left; ?>
+    </<?php print $left_wrapper ?>>
 
-      <<?php print $right_wrapper ?> class="group-right<?php print $right_classes; ?>">
-      <?php print $right; ?>
-      </<?php print $right_wrapper ?>>
-    </div>
-  <?php endif; ?>
+    <<?php print $right_wrapper ?> class="group-right<?php print $right_classes; ?>">
+    <?php print $right; ?>
+    </<?php print $right_wrapper ?>>
+  </div>
 
-  <?php if (!empty($footer)): ?>
-    <div class="<?php print $zf_wrapper_classes; ?>">
+  <div class="row">
+    <?php if (!empty($footer)): ?>
       <<?php print $footer_wrapper ?> class="group-footer<?php print $footer_classes; ?>">
       <?php print $footer; ?>
       </<?php print $footer_wrapper ?>>
-    </div>
-  <?php endif; ?>
+    <?php endif; ?>
+  </div>
 
 </<?php print $layout_wrapper ?>>
 
