@@ -149,7 +149,7 @@ function cle_install() {
  */
 function _cle_default_section_content() {
   $node = new stdClass();
-  $node->type = $type;
+  $node->type = 'section';
   node_object_prepare($node);
   $node->language = LANGUAGE_NONE;
   $node->uid = 1;
