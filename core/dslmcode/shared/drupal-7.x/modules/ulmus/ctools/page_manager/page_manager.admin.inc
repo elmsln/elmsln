@@ -95,6 +95,7 @@ function page_manager_list_page($js = NULL) {
 
   $header = array(
     array('data' => t('Type'), 'class' => array('page-manager-page-type')),
+    array('data' => t('Module'), 'class' => array('page-manager-page-module')),
     array('data' => t('Name'), 'class' => array('page-manager-page-name')),
     array('data' => t('Title'), 'class' => array('page-manager-page-title')),
     array('data' => t('Path'), 'class' => array('page-manager-page-path')),
@@ -175,9 +176,18 @@ function page_manager_get_pages($tasks, &$pages, $task_id = NULL) {
     $row = array('data' => array(), 'class' => $class, 'title' => strip_tags($task['admin description']));
 
     $type = isset($task['admin type']) ? $task['admin type'] : t('System');
+    if (isset($task['module'])) {
+      $module = $task['module'];
+    }
+    elseif (isset($task['subtask']->export_module)) {
+      $module = $task['subtask']->export_module;
+    }
+    else {
+      $module = '';
+    }
     $pages['types'][$type] = $type;
     $row['data']['type'] = array('data' => $type, 'class' => array('page-manager-page-type'));
-
+    $row['data']['module'] = array('data' => $module, 'class' => array('page-manager-page-module'));
     $row['data']['name'] = array('data' => $task_name, 'class' => array('page-manager-page-name'));
     $row['data']['title'] = array('data' => $task['admin title'], 'class' => array('page-manager-page-title'));
     $row['data']['path'] = array('data' => $visible_path, 'class' => array('page-manager-page-path'));
@@ -401,7 +411,7 @@ function page_manager_list_pages_form_submit(&$form, &$form_state) {
  * Render the edit page for a a page, custom or system.
  */
 function page_manager_edit_page($page) {
-  drupal_set_title($page->subtask['admin title']);
+  drupal_set_title($page->subtask['admin title'], PASS_THROUGH);
   // Provide and process the save page form before anything else.
   $form_state = array('page' => &$page);
   $built_form = drupal_build_form('page_manager_save_page_form', $form_state);
@@ -464,7 +474,7 @@ function page_manager_edit_page_operation() {
     return;
   }
 
-  drupal_set_title($page->subtask['admin title']);
+  drupal_set_title($page->subtask['admin title'], PASS_THROUGH);
   return $output;
 }
 
@@ -577,8 +587,8 @@ function page_manager_get_operations($page, $operations = NULL) {
     ),
   );
 
-  // Restrict variant import to users who can already execute arbitrary PHP
-  if (user_access('use PHP for settings')) {
+  // Restrict variant import due to security implications.
+  if (user_access('use ctools import')) {
     $result['actions']['children']['import'] = array(
       'title' => t('Import variant'),
       'description' => t('Add a new variant to this page from code exported from another page.'),
@@ -1308,6 +1318,7 @@ function page_manager_handler_add_submit(&$form, &$form_state) {
   else {
     $handler->conf['title'] = $plugin['title'];
   }
+  $handler->conf['name'] = $form_state['values']['name'];
   $cache->new_handler = $handler;
 
   // Figure out which forms to present them with
@@ -1398,6 +1409,21 @@ function page_manager_handler_add_form($form, $form_state, $features = array()) 
       '#title' => t('Title'),
       '#description' => t('Administrative title of this variant. If you leave blank it will be automatically assigned.'),
     );
+
+    $form['name'] = array(
+      '#type' => 'machine_name',
+      '#title' => t('Machine name'),
+      '#required' => FALSE,
+      '#description' => t("A unique machine-readable name for this variant. It must only contain lowercase letters, numbers, and underscores. This name will be used when exporting the variant. If left empty the variant's name will be used instead."),
+      '#size' => 32,
+      '#maxlength' => 32,
+      '#machine_name' => array(
+        'exists' => 'page_manager_handler_check_machine_name',
+        'source' => array('title'),
+      ),
+      '#field_prefix' => '<span dir="ltr">' . $task['name'] . '__',
+      '#field_suffix' => '</span>&lrm;',
+    );
   }
 
   $form['handler'] = array(
@@ -1436,6 +1462,15 @@ function page_manager_handler_add_form($form, $form_state, $features = array()) 
   return $form;
 }
 
+/*
+ * Check if handler's machine-name is unique
+ */
+function page_manager_handler_check_machine_name($name, $element, $form_state) {
+  $name = $form_state['task']['name'] . '__' . $name;
+
+  return count(ctools_export_load_object('page_manager_handlers', 'names', array($name)));
+}
+
 /**
  * Rearrange the order of variants.
  */
@@ -1446,15 +1481,16 @@ function page_manager_handler_import($form, &$form_state) {
     '#description' => t('Enter the name of the new variant.'),
   );
 
-  if (user_access('use PHP for settings')) {
+  if (user_access('use ctools import')) {
     $form['object'] = array(
       '#type' => 'textarea',
       '#title' => t('Paste variant code here'),
       '#rows' => 15,
     );
   }
-  // Users ordinarily can't get here without the PHP block visibility perm.
-  // In case they somehow do, though, disable the form widget for extra safety.
+  // Users ordinarily can't get here without the 'import' permission, due to
+  // security implications. In case they somehow do, though, disable the form
+  // widget for extra safety.
   else {
     $form['shoveoff'] = array(
       '#markup' => '<div>' . t('You do not have sufficient permissions to perform this action.') . '</div>',
@@ -1468,7 +1504,7 @@ function page_manager_handler_import($form, &$form_state) {
  * Make sure that an import actually provides a handler.
  */
 function page_manager_handler_import_validate($form, &$form_state) {
-  if (!user_access('use PHP for settings')) {
+  if (!user_access('use ctools import')) {
     form_error($form['shoveoff'], t('You account permissions do not permit you to import.'));
     return;
   }

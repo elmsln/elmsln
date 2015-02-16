@@ -274,6 +274,11 @@ function views_content_views_panes_content_type_render($subtype, $conf, $panel_a
   }
 
   if ($allow['exposed_form'] && !empty($conf['exposed'])) {
+    foreach ($conf['exposed'] as $filter_name => $filter_value) {
+      if (!is_array($filter_value)) {
+        $conf['exposed'][$filter_name] = ctools_context_keyword_substitute($filter_value, array(), $contexts);
+      }
+    }
     $view->set_exposed_input($conf['exposed']);
   }
 
@@ -283,6 +288,11 @@ function views_content_views_panes_content_type_render($subtype, $conf, $panel_a
   if (empty($view->result) && !$view->display_handler->get_option('empty') && empty($view->style_plugin->definition['even empty'])) {
     return;
   }
+
+  // Add contextual links to the output.
+  $block = (array) $block;
+  views_add_block_contextual_links($block, $view, $display, 'panel_pane');
+  $block = (object) $block;
 
   $block->title = $view->get_title();
 
@@ -313,7 +323,7 @@ function views_content_views_panes_add_defaults(&$conf, $view) {
 
   $conf += array(
     'link_to_view' => $view->display_handler->get_option('link_to_view'),
-    'more_link' => $view->display_handler->get_option('more_link'),
+    'more_link' => $view->display_handler->get_option('use_more'),
     'feed_icons' => FALSE,
     'use_pager' => $pager['type'] != 'none' && $pager['type'] != 'some',
     'pager_id' => isset($pager['options']['id']) ? $pager['options']['id'] : 0,
@@ -408,7 +418,7 @@ function views_content_views_panes_content_type_edit_form($form, &$form_state) {
       $form['fields_override'][$field] = array(
         '#type' => 'checkbox',
         '#title' => $title,
-        '#default_value' => isset($conf['fields_override'][$field]) ? $conf['fields_override'][$field] : TRUE,
+        '#default_value' => isset($conf['fields_override'][$field]) ? $conf['fields_override'][$field] : !$handler->options['exclude'],
       );
     }
   }
@@ -602,7 +612,7 @@ function views_content_views_panes_content_type_admin_info($subtype, $conf, $con
     $argument_input = $view->display_handler->get_option('argument_input');
 
     foreach ($conf['arguments'] as $key => $value) {
-      if(!empty($value)){
+      if (!empty($value)){
         $label = $argument_input[$key]['label'];
         $info[] = $label . ': ' . $value;
       }

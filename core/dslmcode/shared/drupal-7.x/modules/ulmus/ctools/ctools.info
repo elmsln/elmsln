@@ -2,13 +2,16 @@ name = Chaos tools
 description = A library of helpful tools by Merlin of Chaos.
 core = 7.x
 package = Chaos tool suite
+version = CTOOLS_MODULE_VERSION
 files[] = includes/context.inc
+files[] = includes/css-cache.inc
 files[] = includes/math-expr.inc
 files[] = includes/stylizer.inc
+files[] = tests/css_cache.test
 
-; Information added by Drupal.org packaging script on 2014-02-12
-version = "7.x-1.4"
+; Information added by Drupal.org packaging script on 2015-01-28
+version = "7.x-1.6"
 core = "7.x"
 project = "ctools"
-datestamp = "1392220730"
+datestamp = "1422471484"
 

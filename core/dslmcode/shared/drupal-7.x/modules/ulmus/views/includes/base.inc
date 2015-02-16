@@ -117,7 +117,7 @@ class views_object {
         $localization_keys = $this->localization_keys;
       }
       // but plugins don't because there isn't a common init() these days.
-      else if (!empty($this->is_plugin)) {
+      else if (!empty($this->is_plugin) && empty($localization_keys)) {
         if ($this->plugin_type != 'display') {
           $localization_keys = array($this->view->current_display);
           $localization_keys[] = $this->plugin_type;

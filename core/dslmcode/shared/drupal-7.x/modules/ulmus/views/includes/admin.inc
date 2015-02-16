@@ -855,9 +855,6 @@ function views_ui_break_lock_confirm($form, &$form_state, $view) {
   }
 
   $cancel = 'admin/structure/views/view/' . $view->name . '/edit';
-  if (!empty($_REQUEST['cancel'])) {
-    $cancel = $_REQUEST['cancel'];
-  }
 
   $account = user_load($view->locked->uid);
   return confirm_form($form,
@@ -2964,7 +2961,7 @@ function views_ui_ajax_form($js, $key, $view, $display_id = '') {
     else {
       $output = array();
       $output[] = views_ajax_command_dismiss_form();
-      $output[] = views_ajax_command_show_buttons();
+      $output[] = views_ajax_command_show_buttons(!empty($view->changed));
       $output[] = views_ajax_command_trigger_preview();
       if (!empty($form_state['#page_title'])) {
         $output[] = views_ajax_command_replace_title($form_state['#page_title']);

@@ -102,6 +102,7 @@ files[] = modules/contact/views_handler_field_contact_link.inc
 files[] = modules/field/views_handler_field_field.inc
 files[] = modules/field/views_handler_relationship_entity_reverse.inc
 files[] = modules/field/views_handler_argument_field_list.inc
+files[] = modules/field/views_handler_filter_field_list_boolean.inc
 files[] = modules/field/views_handler_argument_field_list_string.inc
 files[] = modules/field/views_handler_filter_field_list.inc
 files[] = modules/filter/views_handler_field_filter_format_name.inc
@@ -317,9 +318,9 @@ files[] = tests/views_cache.test
 files[] = tests/views_view.test
 files[] = tests/views_ui.test
 
-; Information added by Drupal.org packaging script on 2014-05-20
-version = "7.x-3.8"
+; Information added by Drupal.org packaging script on 2015-02-11
+version = "7.x-3.10"
 core = "7.x"
 project = "views"
-datestamp = "1400618928"
+datestamp = "1423648085"
 

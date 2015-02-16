@@ -387,8 +387,10 @@ function context_ui_menu_contextual_links_alter(&$links, $router_item, $root_pat
  * A page call back to activate the context_ui inline editor dialog.
  */
 function context_ui_activate() {
-  $_SESSION['context_ui_active'] = $_GET['destination'];
-  drupal_goto($_GET['destination']);
+  if (isset($_GET['destination']) && !url_is_external($_GET['destination'])) {
+    $_SESSION['context_ui_active'] = $_GET['destination'];
+    drupal_goto($_GET['destination']);
+  }
 }
 
 /**
@@ -398,8 +400,10 @@ function context_ui_activate() {
  * to navigate to when deactivating context_ui_editor
  */
 function context_ui_deactivate() {
-  $_SESSION['context_ui_active'] = FALSE;
-  drupal_goto($_GET['destination']);
+  if (isset($_GET['destination']) && !url_is_external($_GET['destination'])) {
+    $_SESSION['context_ui_active'] = FALSE;
+    drupal_goto($_GET['destination']);
+  }
 }
 
 /**

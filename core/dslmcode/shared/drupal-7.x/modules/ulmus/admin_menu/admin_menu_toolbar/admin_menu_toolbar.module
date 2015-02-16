@@ -70,7 +70,7 @@ function admin_menu_toolbar_admin_menu_output_build(&$content) {
     '#title' => t('Show shortcuts'),
     '#href' => '',
     '#options' => array(
-      'attributes' => array('class' => 'shortcut-toggle'),
+      'attributes' => array('class' => array('shortcut-toggle')),
     ),
   );
 

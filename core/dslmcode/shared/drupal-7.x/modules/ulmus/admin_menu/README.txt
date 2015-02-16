@@ -20,7 +20,7 @@ None.
 
 -- INSTALLATION --
 
-* Install as usual, see http://drupal.org/node/70151 for further information.
+* Install as usual, see http://drupal.org/node/895232 for further information.
 
 * You likely want to disable Toolbar module, since its output clashes with
   Administration menu.

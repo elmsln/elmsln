@@ -169,12 +169,16 @@ function views_ajax_command_scroll_top($selector) {
 /**
  * Shows Save and Cancel buttons.
  *
+ * @param bool $changed
+ *   Whether of not the view has changed.
+ *
  * @return
  *   An array suitable for use with the ajax_render() function.
  */
-function views_ajax_command_show_buttons() {
+function views_ajax_command_show_buttons($changed) {
   $command = array(
     'command' => 'viewsShowButtons',
+    'changed' => (bool) $changed,
   );
   return $command;
 }

@@ -9,7 +9,21 @@
  * must be implemented in the module file.
  */
 
-define('CTOOLS_API_VERSION', '2.0.7');
+define('CTOOLS_API_VERSION', '2.0.8');
+
+/**
+ * The current working ctools version.
+ *
+ * In a release, it should be 7.x-1.x, which should match what drush make will
+ * create. In a dev format, it should be 7.x-1.(x+1)-dev, which will allow
+ * modules depending on new features in ctools to depend on ctools > 7.x-1.x.
+ *
+ * To define a specific version of CTools as a dependency for another module,
+ * simply include a dependency line in that module's info file, e.g.:
+ *   ; Requires CTools v7.x-1.4 or newer.
+ *   dependencies[] = ctools (>=1.4)
+ */
+define('CTOOLS_MODULE_VERSION', '7.x-1.6');
 
 /**
  * Test the CTools API version.
@@ -298,7 +312,7 @@ function ctools_break_phrase($str) {
 
 /**
  * Set a token/value pair to be replaced later in the request, specifically in
- * ctools_preprocess_page().
+ * ctools_page_token_processing().
  *
  * @param $token
  *   The token to be replaced later, during page rendering.  This should
@@ -537,6 +551,19 @@ function ctools_menu() {
 }
 
 /**
+ * Implements hook_permission().
+ */
+function ctools_permission() {
+  return array(
+    'use ctools import' => array(
+      'title' => t('Use CTools importer'),
+      'description' => t('The import functionality allows users to execute arbitrary PHP code, so extreme caution must be taken.'),
+      'restrict access' => TRUE,
+    ),
+  );
+}
+
+/**
  * Implementation of hook_cron. Clean up old caches.
  */
 function ctools_cron() {
@@ -546,19 +573,12 @@ function ctools_cron() {
 }
 
 /**
- * Ensure the CTools CSS cache is flushed whenever hook_flush_caches is invoked.
+ * Implements hook_flush_caches().
  */
 function ctools_flush_caches() {
-  // Do not actually flush caches if running on cron. Drupal uses this hook
-  // in an inconsistent fashion and it does not necessarily mean to *flush*
-  // caches when running from cron. Instead it's just getting a list of cache
-  // tables and may not do any flushing.
-  if (!empty($GLOBALS['locks']['cron'])) {
-    return;
-  }
-
-  ctools_include('css');
-  ctools_css_flush_caches();
+  // Only return the CSS cache bin if it has been activated, to avoid
+  // drupal_flush_all_caches() from trying to truncate a non-existing table.
+  return variable_get('cache_class_cache_ctools_css', FALSE) ? array('cache_ctools_css') : array();
 }
 
 /**
@@ -638,7 +658,26 @@ function ctools_preprocess_node(&$vars) {
   }
 }
 
+
+/**
+ * Implements hook_page_alter().
+ *
+ * Last ditch attempt to remove sidebar regions if the "no blocks"
+ * functionality has been activated.
+ *
+ * @see ctools_block_list_alter().
+ */
 function ctools_page_alter(&$page) {
+  $check = drupal_static('ctools_set_no_blocks', TRUE);
+  if (!$check) {
+    foreach ($page as $region_id => $region) {
+      // @todo -- possibly we can set configuration for this so that users can
+      // specify which blocks will not get rendered.
+      if (strpos($region_id, 'sidebar') !== FALSE) {
+        unset($page[$region_id]);
+      }
+    }
+  }
   $page['#post_render'][] = 'ctools_page_token_processing';
 }
 
@@ -654,15 +693,15 @@ function ctools_page_token_processing($children, $elements) {
       list($type, $argument) = $key;
       switch ($type) {
         case 'variable':
-          $tokens[$token] = isset($variables[$argument]) ? $variables[$argument] : '';
+          $tokens[$token] = isset($elements[$argument]) ? $elements[$argument] : '';
           break;
         case 'callback':
           if (is_string($argument) && function_exists($argument)) {
-            $tokens[$token] = $argument($variables);
+            $tokens[$token] = $argument($elements);
           }
           if (is_array($argument) && function_exists($argument[0])) {
             $function = array_shift($argument);
-            $argument = array_merge(array(&$variables), $argument);
+            $argument = array_merge(array(&$elements), $argument);
             $tokens[$token] = call_user_func_array($function, $argument);
           }
           break;
@@ -787,6 +826,15 @@ function ctools_js_load($js) {
 }
 
 /**
+ * Provides the default value for %ctools_js.
+ *
+ * This allows drupal_valid_path() to work with %ctools_js.
+ */
+function ctools_js_to_arg($arg) {
+  return empty($arg) || $arg == '%' ? 'nojs' : $arg;
+}
+
+/**
  * Menu _load hook.
  *
  * This function will be called to load an object as a replacement for
@@ -905,11 +953,25 @@ function ctools_block_list_alter(&$blocks) {
 }
 
 /**
- * Implement hook_modules_enabled to clear static caches for detecting new plugins
+ * Implements hook_modules_enabled().
+ *
+ * Clear caches for detecting new plugins.
  */
 function ctools_modules_enabled($modules) {
   ctools_include('plugins');
   ctools_get_plugins_reset();
+  cache_clear_all('ctools_plugin_files:', 'cache', TRUE);
+}
+
+/**
+ * Implements hook_modules_disabled().
+ *
+ * Clear caches for removing disabled plugins.
+ */
+function ctools_modules_disabled($modules) {
+  ctools_include('plugins');
+  ctools_get_plugins_reset();
+  cache_clear_all('ctools_plugin_files:', 'cache', TRUE);
 }
 
 /**

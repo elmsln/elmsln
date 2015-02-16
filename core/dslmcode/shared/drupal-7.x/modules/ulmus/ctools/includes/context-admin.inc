@@ -416,12 +416,13 @@ function ctools_context_ajax_item_add($mechanism = NULL, $type = NULL, $cache_ke
     ctools_cache_operation($mechanism, $cache_key, 'finalize', $object);
 
     // Very irritating way to update the form for our contexts.
-    $arg_form_state = array(
+    $arg_form_state = form_state_defaults() + array(
       'values' => array(),
-      'programmed' => FALSE,
       'process_input' => FALSE,
       'complete form' => array(),
     );
+
+    $rel_form_state = $arg_form_state;
 
     $arg_form = array(
       '#post' => array(),
@@ -469,7 +470,7 @@ function ctools_context_ajax_item_add($mechanism = NULL, $type = NULL, $cache_ke
     $output = array();
     if (!empty($available_relationships)) {
       ctools_context_add_item_table_buttons('relationship', $mechanism, $rel_form, $available_relationships);
-      $rel_form = form_builder('dummy_form_id', $rel_form, $arg_form_state);
+      $rel_form = form_builder('dummy_form_id', $rel_form, $rel_form_state);
       $output[] = ajax_command_replace('div#ctools-relationships-table div.buttons', drupal_render($rel_form));
     }
 
@@ -591,8 +592,16 @@ function ctools_context_ajax_item_edit($mechanism = NULL, $type = NULL, $cache_k
     $output = array();
     $output[] = ctools_modal_command_dismiss();
 
+    $arg_form_state = form_state_defaults() + array(
+      'values' => array(),
+      'process_input' => FALSE,
+      'complete form' => array(),
+    );
+
     $arg_form = array(
       '#post' => array(),
+      '#parents' => array(),
+      '#array_parents' => array(),
       '#programmed' => FALSE,
       '#tree' => FALSE,
     );

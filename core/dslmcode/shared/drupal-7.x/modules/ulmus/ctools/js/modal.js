@@ -258,6 +258,10 @@
         $('input[type=submit], button', this).click(function(event) {
           Drupal.ajax[base].element = this;
           this.form.clk = this;
+          // Stop autocomplete from submitting.
+          if (Drupal.autocompleteSubmit && !Drupal.autocompleteSubmit()) {
+            return false;
+          }
           // An empty event means we were triggered via .click() and
           // in jquery 1.4 this won't trigger a submit.
           if (event.bubbles == undefined) {
@@ -375,9 +379,9 @@
     css.filter = 'alpha(opacity=' + (100 * css.opacity) + ')';
     content.hide();
 
-    // if we already ahve a modalContent, remove it
-    if ( $('#modalBackdrop')) $('#modalBackdrop').remove();
-    if ( $('#modalContent')) $('#modalContent').remove();
+    // If we already have modalContent, remove it.
+    if ($('#modalBackdrop').length) $('#modalBackdrop').remove();
+    if ($('#modalContent').length) $('#modalContent').remove();
 
     // position code lifted from http://www.quirksmode.org/viewport/compatibility.html
     if (self.pageYOffset) { // all except Explorer
@@ -417,12 +421,17 @@
           return true;
         }
       }
-      if( $(target).filter('*:visible').parents('#modalContent').size()) {
-        // allow the event only if target is a visible child node of #modalContent
+
+      if ($(target).is('#modalContent, body') || $(target).filter('*:visible').parents('#modalContent').length) {
+        // Allow the event only if target is a visible child node
+        // of #modalContent.
         return true;
       }
-      if ( $('#modalContent')) $('#modalContent').get(0).focus();
-      return false;
+      else {
+        $('#modalContent').focus();
+      }
+
+      event.preventDefault();
     };
     $('body').bind( 'focus', modalEventHandler );
     $('body').bind( 'keypress', modalEventHandler );
@@ -473,6 +482,16 @@
 
     // Move and resize the modalBackdrop and modalContent on resize of the window
      modalContentResize = function(){
+
+      // position code lifted from http://www.quirksmode.org/viewport/compatibility.html
+      if (self.pageYOffset) { // all except Explorer
+      var wt = self.pageYOffset;
+      } else if (document.documentElement && document.documentElement.scrollTop) { // Explorer 6 Strict
+        var wt = document.documentElement.scrollTop;
+      } else if (document.body) { // all other Explorers
+        var wt = document.body.scrollTop;
+      }
+
       // Get our heights
       var docHeight = $(document).height();
       var docWidth = $(document).width();
@@ -482,7 +501,7 @@
 
       // Get where we should move content to
       var modalContent = $('#modalContent');
-      var mdcTop = ( winHeight / 2 ) - (  modalContent.outerHeight() / 2);
+      var mdcTop = wt + ( winHeight / 2 ) - ( modalContent.outerHeight() / 2);
       var mdcLeft = ( winWidth / 2 ) - ( modalContent.outerWidth() / 2);
 
       // Apply the changes

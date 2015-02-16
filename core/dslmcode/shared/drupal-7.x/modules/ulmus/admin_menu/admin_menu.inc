@@ -497,18 +497,6 @@ function admin_menu_links_icon() {
     );
   }
 
-  // Add link to toggle developer modules (performance).
-  $saved_state = variable_get('admin_menu_devel_modules_enabled', NULL);
-  $links['icon']['toggle-modules'] = array(
-    '#title' => isset($saved_state) ? t('Enable developer modules') : t('Disable developer modules'),
-    '#weight' => 88,
-    '#access' => user_access('administer modules'),
-    '#href' => 'admin_menu/toggle-modules',
-    '#options' => array(
-      'query' => $destination + array('token' => drupal_get_token('admin_menu/toggle-modules')),
-    ),
-  );
-
   // Add Devel module menu links.
   if (module_exists('devel')) {
     $devel_tree = menu_build_tree('devel');
@@ -697,29 +685,6 @@ function admin_menu_theme_settings() {
     '#title' => t('Cache menu in client-side browser'),
     '#default_value' => variable_get('admin_menu_cache_client', 1),
   );
-  // Fetch all available modules manually, since module_list() only returns
-  // currently enabled modules, which makes this setting pointless if developer
-  // modules are currently disabled.
-  $all_modules = array();
-  $result = db_query("SELECT name, filename, info FROM {system} WHERE type = 'module' ORDER BY name ASC");
-  foreach ($result as $module) {
-    if (file_exists($module->filename)) {
-      $info = unserialize($module->info);
-      $all_modules[$module->name] = $info['name'];
-    }
-  }
-  $devel_modules = variable_get('admin_menu_devel_modules', _admin_menu_developer_modules());
-  $devel_modules = array_intersect_key($all_modules, array_flip($devel_modules));
-  $form['performance']['admin_menu_devel_modules_skip'] = array(
-    '#type' => 'checkboxes',
-    '#title' => t('Developer modules to keep enabled'),
-    '#default_value' => variable_get('admin_menu_devel_modules_skip', array()),
-    '#options' => $devel_modules,
-    '#access' => !empty($devel_modules),
-    '#description' => t('The selected modules will not be disabled when the link %disable-developer-modules below the icon in the menu is invoked.', array(
-      '%disable-developer-modules' => t('Disable developer modules'),
-    )),
-  );
 
   return system_settings_form($form);
 }
@@ -780,94 +745,6 @@ function _admin_menu_form_devel_admin_settings_alter(&$form, $form_state) {
     '#title' => t('Display all menu items'),
     '#default_value' => variable_get('admin_menu_show_all', 0),
     '#description' => t('If enabled, all menu items are displayed regardless of your site permissions. <em>Note: Do not enable on a production site.</em>'),
-  );
-}
-
-/**
- * Menu callback; Enable/disable developer modules.
- *
- * This can save up to 150ms on each uncached page request.
- */
-function admin_menu_toggle_modules() {
-  if (!isset($_GET['token']) || !drupal_valid_token($_GET['token'], current_path())) {
-    return MENU_ACCESS_DENIED;
-  }
-
-  $rebuild = FALSE;
-  $saved_state = variable_get('admin_menu_devel_modules_enabled', NULL);
-  if (isset($saved_state)) {
-    // Re-enable modules that were enabled before.
-    module_enable($saved_state);
-    variable_del('admin_menu_devel_modules_enabled');
-    drupal_set_message(t('Enabled these modules: !module-list.', array('!module-list' => implode(', ', $saved_state))));
-    $rebuild = TRUE;
-  }
-  else {
-    // Allow site admins to override this variable via settings.php.
-    $devel_modules = variable_get('admin_menu_devel_modules', _admin_menu_developer_modules());
-    // Store currently enabled modules in a variable.
-    $devel_modules = array_intersect(module_list(FALSE, FALSE), $devel_modules);
-    $devel_modules = array_diff($devel_modules, variable_get('admin_menu_devel_modules_skip', array()));
-    if (!empty($devel_modules)) {
-      variable_set('admin_menu_devel_modules_enabled', $devel_modules);
-      // Disable developer modules.
-      module_disable($devel_modules);
-      drupal_set_message(t('Disabled these modules: !module-list.', array('!module-list' => implode(', ', $devel_modules))));
-      $rebuild = TRUE;
-    }
-    else {
-      drupal_set_message(t('No developer modules are enabled.'));
-    }
-  }
-  if ($rebuild) {
-    // Make sure everything is rebuilt, basically a combination of the calls
-    // from system_modules() and system_modules_submit().
-    drupal_theme_rebuild();
-    menu_rebuild();
-    cache_clear_all('schema', 'cache');
-    cache_clear_all();
-    drupal_clear_css_cache();
-    drupal_clear_js_cache();
-    // Synchronize to catch any actions that were added or removed.
-    actions_synchronize();
-    // Finally, flush admin_menu's cache.
-    admin_menu_flush_caches();
-  }
-  drupal_goto();
-}
-
-/**
- * Helper function to return a default list of developer modules.
- */
-function _admin_menu_developer_modules() {
-  return array(
-    'admin_devel',
-    'cache_disable',
-    'coder',
-    'content_copy',
-    'context_ui',
-    'debug',
-    'delete_all',
-    'demo',
-    'devel',
-    'devel_node_access',
-    'devel_themer',
-    'field_ui',
-    'fontyourface_ui',
-    'form_controller',
-    'imagecache_ui',
-    'journal',
-    'l10n_client',
-    'l10n_update',
-    'macro',
-    'rules_admin',
-    'stringoverrides',
-    'trace',
-    'upgrade_status',
-    'user_display_ui',
-    'util',
-    'views_ui',
-    'views_theme_wizard',
   );
 }
 

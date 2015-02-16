@@ -59,7 +59,7 @@ function ctools_string_length_ctools_access_check($conf, $context) {
       return $length < $conf['length'];
     case '<=':
       return $length <= $conf['length'];
-    case '==':
+    case '=':
       return $length == $conf['length'];
     case '!=':
       return $length != $conf['length'];
@@ -68,6 +68,8 @@ function ctools_string_length_ctools_access_check($conf, $context) {
     case '>=':
       return $length >= $conf['length'];
   }
+  // Invalid Operator sent, return FALSE.
+  return FALSE;
 }
 
 /**

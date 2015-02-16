@@ -24,6 +24,7 @@ class ContextUiTestCase extends DrupalWebTestCase {
     $admin_user = $this->drupalCreateUser(array(
       'access administration pages',
       'administer site configuration',
+      'administer contexts',
       'access content',
       'create blog content'
     ));

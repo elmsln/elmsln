@@ -3,6 +3,9 @@ Current API Version: 2.0.8
 Please note that the API version is an internal number and does not match release numbers. It is entirely possible that releases will not increase the API version number, and increasing this number too often would burden contrib module maintainers who need to keep up with API changes.
 
 This file contains a log of changes to the API.
+API Version 2.0.9
+Changed import permissions to use the new 'use ctools import' permission.
+
 API Version 2.0.8
   Introduce ctools_class_add().
   Introduce ctools_class_remove().

@@ -67,7 +67,7 @@ function page_manager_comment_reply_page($node, $pid = NULL){
   }
 
   $output = ctools_context_handler_render($task, '', $contexts, array($node, $pid));
-  if ($output != FALSE) {
+  if ($output !== FALSE) {
     return $output;
   }
 

@@ -50,6 +50,34 @@ function ctools_ajax_text_button($text, $dest, $alt, $class = '', $type = 'use-a
 }
 
 /**
+ * Render an icon and related text as a link. This will automatically apply an AJAX class
+ * to the link and add the appropriate javascript to make this happen.
+ *
+ * Note: 'html' => true so be sure any text is vetted! Chances are these kinds of buttons will
+ * not use user input so this is a very minor concern.
+ *
+ * @param $text
+ *   The text that will be displayed as the link.
+ * @param $image
+ *   The icon image to include in the link.
+ * @param $dest
+ *   The destination of the link.
+ * @param $alt
+ *   The title text of the link.
+ * @param $class
+ *   Any class to apply to the link. @todo this should be a options array.
+ * @param $type
+ *   A type to use, in case a different behavior should be attached. Defaults
+ *   to ctools-use-ajax.
+ */
+function ctools_ajax_icon_text_button($text, $image, $dest, $alt, $class = '', $type = 'use-ajax') {
+  drupal_add_library('system', 'drupal.ajax');
+  $rendered_image = theme('image', array('path' => $image));
+  $link_content = $rendered_image . "<span>" . $text . "</span>";
+  return l($link_content, $dest, array('html' => TRUE, 'attributes' => array('class' => array($type, $class), 'title' => $alt)));
+}
+
+/**
  * Set a single property to a value, on all matched elements.
  *
  * @param $selector

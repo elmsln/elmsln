@@ -40,7 +40,7 @@
   Drupal.CTools.dependent.autoAttach = function() {
     // Clear active bindings and triggers.
     for (i in Drupal.CTools.dependent.activeTriggers) {
-      $(Drupal.CTools.dependent.activeTriggers[i]).unbind('change');
+      $(Drupal.CTools.dependent.activeTriggers[i]).unbind('change.ctools-dependent');
     }
     Drupal.CTools.dependent.activeTriggers = [];
     Drupal.CTools.dependent.activeBindings = {};
@@ -194,7 +194,7 @@
             }
           }
 
-          $(trigger_id).change(function() {
+          $(trigger_id).bind('change.ctools-dependent', function() {
             // Trigger the internal change function
             // the attr('id') is used because closures are more confusing
             changeTrigger(trigger_id, bind_id);
@@ -215,7 +215,7 @@
       // is a sort of hacked one that's faster but much less flexible.
       $("select.ctools-master-dependent")
         .once('ctools-dependent')
-        .change(function() {
+        .bind('change.ctools-dependent', function() {
           var val = $(this).val();
           if (val == 'all') {
             $('.ctools-dependent-all').show(0);
@@ -225,7 +225,7 @@
             $('.ctools-dependent-' + val).show(0);
           }
         })
-        .trigger('change');
+        .trigger('change.ctools-dependent');
     }
   }
 })(jQuery);

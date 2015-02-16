@@ -88,7 +88,7 @@ function ctools_context_user_settings_form($form, &$form_state) {
   if (!empty($conf['uid'])) {
     $info = user_load($conf['uid']);
     if ($info) {
-      $form['user']['#description'] = t('Currently set to !link', array('!link' => theme('username', $info)));
+      $form['user']['#description'] = t('Currently set to !link', array('!link' => theme('username', array('account' => $info))));
     }
   }
 

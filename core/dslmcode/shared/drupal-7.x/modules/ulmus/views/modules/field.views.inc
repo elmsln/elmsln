@@ -488,7 +488,13 @@ function list_field_views_data($field) {
   foreach ($data as $table_name => $table_data) {
     foreach ($table_data as $field_name => $field_data) {
       if (isset($field_data['filter']) && $field_name != 'delta') {
-        $data[$table_name][$field_name]['filter']['handler'] = 'views_handler_filter_field_list';
+        if ($field['type'] == 'list_boolean') {
+          // Special handler for boolean fields.
+          $data[$table_name][$field_name]['filter']['handler'] = 'views_handler_filter_field_list_boolean';
+        }
+        else {
+          $data[$table_name][$field_name]['filter']['handler'] = 'views_handler_filter_field_list';
+        }
       }
       if (isset($field_data['argument']) && $field_name != 'delta') {
         if ($field['type'] == 'list_text') {

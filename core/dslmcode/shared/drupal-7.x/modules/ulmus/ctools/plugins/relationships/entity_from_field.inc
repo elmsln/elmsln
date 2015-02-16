@@ -154,6 +154,11 @@ function ctools_entity_from_field_get_children($parent_plugin, $parent) {
  * Return a new context based on an existing context.
  */
 function ctools_entity_from_field_context($context, $conf) {
+  // Perform access check on current logged in user.
+  global $user;
+  // Clone user object so account can be passed by value to access callback.
+  $account = clone $user;
+
   $delta = !empty($conf['delta']) ? intval($conf['delta']) : 0;
   $plugin = $conf['name'];
   list($plugin, $plugin_name) = explode(':', $plugin);
@@ -176,8 +181,11 @@ function ctools_entity_from_field_context($context, $conf) {
 
         $plugin_info = ctools_get_relationship($conf['name']);
         $to_entity_id = $items[$delta][$plugin_info['source key']];
-        $loaded_to_entity = array_shift(entity_load($to_entity, array($to_entity_id)));
-        if(function_exists($to_entity_info['access callback']) && !call_user_func($to_entity_info['access callback'], 'view', $loaded_to_entity)) {
+        $loaded_to_entity = entity_load($to_entity, array($to_entity_id));
+        $loaded_to_entity = array_shift($loaded_to_entity);
+
+        // Pass current user account and entity type to access callback.
+        if (function_exists($to_entity_info['access callback']) && !call_user_func($to_entity_info['access callback'], 'view', $loaded_to_entity, $account, $to_entity)) {
           return ctools_context_create_empty('entity:' . $to_entity, NULL);
         }
         else {

@@ -465,16 +465,31 @@ function views_menu_alter(&$callbacks) {
  *   The menu argument index. This counts from 1.
  */
 function views_arg_load($value, $name, $display_id, $index) {
-  static $views = array();
+ static $views = array();
 
-  // Make sure we haven't already loaded this views argument for a similar menu
-  // item elsewhere.
-  $key = $name . ':' . $display_id . ':' . $value . ':' . $index;
-  if (isset($views[$key])) {
-    return $views[$key];
+  $display_ids = is_array($display_id) ? $display_id : array($display_id);
+  $display_id = reset($display_ids);
+
+  foreach ($display_ids as $id) {
+    // Make sure we haven't already loaded this views argument for a similar
+    // menu item elsewhere. Since access is always checked for the current user,
+    // we are sure that the static cache contains valid entries.
+    $key = $name . ':' . $id . ':' . $value . ':' . $index;
+    if (isset($views[$key])) {
+      return $views[$key];
+    }
+    // Lazy load the view object to avoid unnecessary work.
+    if (!isset($view)) {
+      $view = views_get_view($name);
+    }
+    // Pick the first display we have access to.
+    if ($view && count($display_ids) > 1 && $view->access($id)) {
+      $display_id = $id;
+      break;
+    }
   }
 
-  if ($view = views_get_view($name)) {
+  if ($view) {
     $view->set_display($display_id);
     $view->init_handlers();
 
@@ -548,7 +563,7 @@ function views_page_alter(&$page) {
 }
 
 /**
- * Implements MODULE_preprocess_HOOK().
+ * Implements MODULE_preprocess_HOOK() for html.tpl.php.
  */
 function views_preprocess_html(&$variables) {
   // If the page contains a view as its main content, contextual links may have
@@ -566,11 +581,32 @@ function views_preprocess_html(&$variables) {
   if (!empty($variables['page']['#views_contextual_links_info'])) {
     $key = array_search('contextual-links-region', $variables['classes_array']);
     if ($key !== FALSE) {
-      unset($variables['classes_array'][$key]);
+      $variables['classes_array'] = array_diff($variables['classes_array'], array('contextual-links-region'));
       // Add the JavaScript, with a group and weight such that it will run
       // before modules/contextual/contextual.js.
       drupal_add_js(drupal_get_path('module', 'views') . '/js/views-contextual.js', array('group' => JS_LIBRARY, 'weight' => -1));
     }
+  }
+}
+
+/**
+* Implements hook_preprocess_HOOK() for page.tpl.php.
+*/
+function views_preprocess_page(&$variables) {
+  // If the page contains a view as its main content, contextual links may have
+  // been attached to the page as a whole; for example, by views_page_alter().
+  // This allows them to be associated with the page and rendered by default
+  // next to the page title (which we want). However, it also causes the
+  // Contextual Links module to treat the wrapper for the entire page (i.e.,
+  // the <body> tag) as the HTML element that these contextual links are
+  // associated with. This we don't want; for better visual highlighting, we
+  // prefer a smaller region to be chosen. The region we prefer differs from
+  // theme to theme and depends on the details of the theme's markup in
+  // page.tpl.php, so we can only find it using JavaScript. We therefore remove
+  // the "contextual-links-region" class from the <body> tag here and add
+  // JavaScript that will insert it back in the correct place.
+  if (!empty($variables['page']['#views_contextual_links_info'])) {
+    $variables['classes_array'] = array_diff($variables['classes_array'], array('contextual-links-region'));
   }
 }
 

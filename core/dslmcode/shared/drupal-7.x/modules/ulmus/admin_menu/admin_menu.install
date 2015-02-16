@@ -33,9 +33,6 @@ function admin_menu_install() {
 function admin_menu_uninstall() {
   // Delete variables.
   variable_del('admin_menu_components');
-  variable_del('admin_menu_devel_modules');
-  variable_del('admin_menu_devel_modules_enabled');
-  variable_del('admin_menu_devel_modules_skip');
   variable_del('admin_menu_margin_top');
   variable_del('admin_menu_position_fixed');
   variable_del('admin_menu_tweak_modules');
@@ -44,6 +41,10 @@ function admin_menu_uninstall() {
   variable_del('admin_menu_display');
   variable_del('admin_menu_cache_server');
   variable_del('admin_menu_cache_client');
+  // Unused variables still should be deleted.
+  variable_del('admin_menu_devel_modules');
+  variable_del('admin_menu_devel_modules_enabled');
+  variable_del('admin_menu_devel_modules_skip');
 }
 
 /**

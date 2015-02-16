@@ -148,16 +148,19 @@ function ctools_block_content_type_render($subtype, $conf) {
   $block = module_invoke($module, 'block_view', $delta);
 
   if (!empty($info)) {
+    // Valid PHP function names cannot contain hyphens.
+    $block_delta = str_replace('-', '_', $delta);
+
     // Allow modules to modify the block before it is viewed, via either
     // hook_block_view_alter() or hook_block_view_MODULE_DELTA_alter().
-    drupal_alter(array('block_view', "block_view_{$module}_{$delta}"), $block, $info);
+    drupal_alter(array('block_view', "block_view_{$module}_{$block_delta}"), $block, $info);
   }
-  $block = (object) $block;
 
   if (empty($block)) {
     return;
   }
 
+  $block = (object) $block;
   $block->module = $module;
   $block->delta = $delta;
 

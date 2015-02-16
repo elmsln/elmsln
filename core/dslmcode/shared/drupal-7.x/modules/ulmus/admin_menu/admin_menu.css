@@ -98,6 +98,7 @@ body.admin-menu {
 #admin-menu .dropdown li li {
   background: #202020;
   filter: Alpha(opacity=88);
+  float: none;
   opacity: 0.88;
   width: 160px; /* Required for Opera */
 }

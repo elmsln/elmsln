@@ -97,8 +97,8 @@ function page_manager_user_edit_page($account, $category = 'account') {
   $output = ctools_context_handler_render($task, '', $contexts, array($account->uid));
   if (is_array($output)) {
     $output = drupal_render($output);
-  }  
-  if ($output != FALSE) {
+  }
+  if ($output !== FALSE) {
     return $output;
   }
 
@@ -119,7 +119,7 @@ function page_manager_user_edit_page($account, $category = 'account') {
     //call drupal_build_form.
     $form_state = array();
     $form_id = 'user_profile_form';
-    $args = array($account);
+    $args = array($account, $category);
     $form_state['build_info']['args'] = $args;
     form_load_include($form_state, 'inc', 'user', 'user.pages');
     $output = drupal_build_form($form_id, $form_state);

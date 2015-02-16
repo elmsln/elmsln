@@ -13,7 +13,7 @@ version. You will need the latest CTools (as of Sept. 16 2010) from here:
 - all reactions
 - context UI
 - context layouts
-- inline editor (with Admin 2.x for D7)
+- inline editor (see the context_ui README file for info on enabling)
 
 ### Expect API changes
 

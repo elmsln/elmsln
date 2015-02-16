@@ -87,20 +87,10 @@
       }
 
       // Check for and initialize datepickers
-      if (Drupal.settings.better_exposed_filters.datepicker &&
-        // This setting is undefined when "bef_datepicker" setting is array of
-        // false values and as a result "ui.datepicker" library does not get
-        // included.
-        typeof Drupal.settings.better_exposed_filters.datepicker_options.dateformat !== 'undefined') {
-        // Note: JavaScript does not treat "" as null
-        if (Drupal.settings.better_exposed_filters.datepicker_options.dateformat) {
-          $('.bef-datepicker').datepicker({
-            dateFormat: Drupal.settings.better_exposed_filters.datepicker_options.dateformat
-          });
-        }
-        else {
-          $('.bef-datepicker').datepicker();
-        }
+      var befSettings = Drupal.settings.better_exposed_filters;
+      if (befSettings && befSettings.datepicker && befSettings.datepicker_options && $.fn.datepicker) {
+        var opt = befSettings.datepicker_options.dateformat ? {dateFormat: befSettings.datepicker_options.dateformat} : {};
+        $('.bef-datepicker').datepicker(opt);
       }
 
     }                   // attach: function() {
@@ -135,8 +125,9 @@
 
   Drupal.behaviors.better_exposed_filters_slider = {
     attach: function(context, settings) {
-      if (Drupal.settings.better_exposed_filters.slider) {
-        $.each(Drupal.settings.better_exposed_filters.slider_options, function(i, sliderOptions) {
+      var befSettings = settings.better_exposed_filters;
+      if (befSettings && befSettings.slider && befSettings.slider_options) {
+        $.each(befSettings.slider_options, function(i, sliderOptions) {
           // Only make one slider per filter.
           $("#" + sliderOptions.viewId + " #edit-" + sliderOptions.id + "-wrapper").once('slider-filter', function() {
             var $input = $(this).find('input[type=text]');

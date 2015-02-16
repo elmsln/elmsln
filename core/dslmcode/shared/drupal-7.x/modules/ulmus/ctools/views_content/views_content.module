@@ -281,3 +281,17 @@ function _views_content_get_context_from_display($view, $id, $parent, $required 
     'view display id' => $id,
   );
 }
+
+/**
+ * Implements hook_get_pane_links_alter().
+ */
+function views_content_get_pane_links_alter(&$links, $pane, $content_type) {
+  if ($pane->type === 'views_panes') {
+    list($view_name, $display_name) = explode('-', $pane->subtype);
+    $destination = array('destination' => current_path());
+    $links['top'][] = array(
+      'title' => t('Edit view'),
+      'href' => url('admin/structure/views/view/' . $view_name . '/edit/' . $display_name, array('query' => $destination, 'absolute' => TRUE)),
+    );
+  }
+}

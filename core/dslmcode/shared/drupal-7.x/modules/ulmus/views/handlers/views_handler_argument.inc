@@ -423,11 +423,13 @@ class views_handler_argument extends views_handler {
       $plugin->options_validate($form['argument_default'][$default_id], $form_state, $form_state['values']['options']['argument_default'][$default_id]);
     }
 
-    // summary plugin
-    $summary_id = $form_state['values']['options']['summary']['format'];
-    $plugin = $this->get_plugin('style', $summary_id);
-    if ($plugin) {
-      $plugin->options_validate($form['summary']['options'][$summary_id], $form_state, $form_state['values']['options']['summary']['options'][$summary_id]);
+    // Validate summary plugin options if one is present.
+    if (isset($form_state['values']['options']['summary']['format'])) {
+      $summary_id = $form_state['values']['options']['summary']['format'];
+      $plugin = $this->get_plugin('style', $summary_id);
+      if ($plugin) {
+        $plugin->options_validate($form['summary']['options'][$summary_id], $form_state, $form_state['values']['options']['summary']['options'][$summary_id]);
+      }
     }
 
     $validate_id = $form_state['values']['options']['validate']['type'];
@@ -453,14 +455,16 @@ class views_handler_argument extends views_handler {
       $form_state['values']['options']['default_argument_options'] = $options;
     }
 
-    // summary plugin
-    $summary_id = $form_state['values']['options']['summary']['format'];
-    $plugin = $this->get_plugin('style', $summary_id);
-    if ($plugin) {
-      $options = &$form_state['values']['options']['summary']['options'][$summary_id];
-      $plugin->options_submit($form['summary']['options'][$summary_id], $form_state, $options);
-      // Copy the now submitted options to their final resting place so they get saved.
-      $form_state['values']['options']['summary_options'] = $options;
+    // Handle summary plugin options if one is present.
+    if (isset($form_state['values']['options']['summary']['format'])) {
+      $summary_id = $form_state['values']['options']['summary']['format'];
+      $plugin = $this->get_plugin('style', $summary_id);
+      if ($plugin) {
+        $options = &$form_state['values']['options']['summary']['options'][$summary_id];
+        $plugin->options_submit($form['summary']['options'][$summary_id], $form_state, $options);
+        // Copy the now submitted options to their final resting place so they get saved.
+        $form_state['values']['options']['summary_options'] = $options;
+      }
     }
 
     $validate_id = $form_state['values']['options']['validate']['type'];

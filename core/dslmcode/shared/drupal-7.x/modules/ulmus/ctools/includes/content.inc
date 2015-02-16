@@ -244,6 +244,7 @@ function ctools_content_prepare_subtype(&$subtype, $plugin) {
  *   The content as rendered by the plugin. This content should be an array
  *   with the following possible keys:
  *   - title: The safe to render title of the content.
+ *   - title_heading: The title heading.
  *   - content: The safe to render HTML content.
  *   - links: An array of links associated with the content suitable for
  *     theme('links').
@@ -299,6 +300,7 @@ function ctools_content_render($type, $subtype, $conf, $keywords = array(), $arg
       $keywords['%title'] = empty($content->title) ? '' : $content->title;
       $content->original_title = $keywords['%title'];
       $content->title = $conf['override_title_text'];
+      $content->title_heading = isset($conf['override_title_heading']) ? $conf['override_title_heading'] : 'h2';
     }
 
     if (!empty($content->title)) {
@@ -504,8 +506,26 @@ function ctools_content_configure_form_defaults($form, &$form_state) {
       '#size' => 35,
       '#id' => 'override-title-textfield',
       '#dependency' => array('override-title-checkbox' => array(1)),
-      '#dependency_type' => 'disable',
+      '#dependency_type' => 'hidden',
     );
+    $form['override_title_heading'] = array(
+      '#type' => 'select',
+      '#default_value' => isset($conf['override_title_heading']) ? $conf['override_title_heading'] : 'h2',
+      '#options' => array(
+        'h1' => t('h1'),
+        'h2' => t('h2'),
+        'h3' => t('h3'),
+        'h4' => t('h4'),
+        'h5' => t('h5'),
+        'h6' => t('h6'),
+        'div' => t('div'),
+        'span' => t('span'),
+      ),
+      '#id' => 'override-title-heading',
+      '#dependency' => array('override-title-checkbox' => array(1)),
+      '#dependency_type' => 'hidden',
+    );
+
     $form['aligner_stop'] = array(
       '#markup' => '</div>',
     );
@@ -536,6 +556,7 @@ function ctools_content_configure_form_defaults_submit(&$form, &$form_state) {
   if (isset($form_state['values']['override_title'])) {
     $form_state['conf']['override_title'] = $form_state['values']['override_title'];
     $form_state['conf']['override_title_text'] = $form_state['values']['override_title_text'];
+    $form_state['conf']['override_title_heading'] = $form_state['values']['override_title_heading'];
   }
 }
 

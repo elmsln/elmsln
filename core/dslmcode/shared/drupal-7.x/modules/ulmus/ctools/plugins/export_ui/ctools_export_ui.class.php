@@ -121,7 +121,7 @@ class ctools_export_ui {
 
     switch ($op) {
       case 'import':
-        return user_access('use PHP for settings');
+        return user_access('use ctools import');
       case 'revert':
         return ($item->export_type & EXPORT_IN_DATABASE) && ($item->export_type & EXPORT_IN_CODE);
       case 'delete':
@@ -639,7 +639,7 @@ class ctools_export_ui {
   }
 
   function add_page($js, $input, $step = NULL) {
-    drupal_set_title($this->get_page_title('add'));
+    drupal_set_title($this->get_page_title('add'), PASS_THROUGH);
 
     // If a step not set, they are trying to create a new item. If a step
     // is set, they're in the process of creating an item.
@@ -676,7 +676,7 @@ class ctools_export_ui {
    * Main entry point to edit an item.
    */
   function edit_page($js, $input, $item, $step = NULL) {
-    drupal_set_title($this->get_page_title('edit', $item));
+    drupal_set_title($this->get_page_title('edit', $item), PASS_THROUGH);
 
     // Check to see if there is a cached item to get if we're using the wizard.
     if (!empty($this->plugin['use wizard'])) {
@@ -712,7 +712,7 @@ class ctools_export_ui {
    * Main entry point to clone an item.
    */
   function clone_page($js, $input, $original, $step = NULL) {
-    drupal_set_title($this->get_page_title('clone', $original));
+    drupal_set_title($this->get_page_title('clone', $original), PASS_THROUGH);
 
     // If a step not set, they are trying to create a new clone. If a step
     // is set, they're in the process of cloning an item.
@@ -1218,7 +1218,7 @@ class ctools_export_ui {
    * Page callback to display export information for an exportable item.
    */
   function export_page($js, $input, $item) {
-    drupal_set_title($this->get_page_title('export', $item));
+    drupal_set_title($this->get_page_title('export', $item), PASS_THROUGH);
     return drupal_get_form('ctools_export_form', ctools_export_crud_export($this->plugin['schema'], $item), t('Export'));
   }
 
@@ -1226,7 +1226,7 @@ class ctools_export_ui {
    * Page callback to import information for an exportable item.
    */
   function import_page($js, $input, $step = NULL) {
-    drupal_set_title($this->get_page_title('import'));
+    drupal_set_title($this->get_page_title('import'), PASS_THROUGH);
     // Import is basically a multi step wizard form, so let's go ahead and
     // use CTools' wizard.inc for it.
 
@@ -1339,7 +1339,7 @@ function _ctools_export_ui_add_form_files($form, &$form_state) {
  *
  * This simply loads the object defined in the plugin and hands it off.
  */
-function ctools_export_ui_list_form($form, $form_state) {
+function ctools_export_ui_list_form($form, &$form_state) {
   $form_state['object']->list_form($form, $form_state);
   return $form;
 }

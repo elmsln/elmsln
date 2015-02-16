@@ -87,12 +87,6 @@ function admin_menu_menu() {
     'file' => 'admin_menu.inc',
   );
   // Menu link callbacks.
-  $items['admin_menu/toggle-modules'] = array(
-    'page callback' => 'admin_menu_toggle_modules',
-    'access arguments' => array('administer modules'),
-    'type' => MENU_CALLBACK,
-    'file' => 'admin_menu.inc',
-  );
   $items['admin_menu/flush-cache'] = array(
     'page callback' => 'admin_menu_flush_cache',
     'access arguments' => array('flush caches'),

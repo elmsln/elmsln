@@ -40,7 +40,19 @@ function ctools_requirements($phase) {
  * Implements hook_schema().
  */
 function ctools_schema() {
-  return ctools_schema_2();
+  return ctools_schema_3();
+}
+
+/**
+ * Version 3 of the CTools schema.
+ */
+function ctools_schema_3() {
+  $schema = ctools_schema_2();
+
+  // update the 'obj' field to be 128 bytes long:
+  $schema['ctools_object_cache']['fields']['obj']['length'] = 128;
+
+  return $schema;
 }
 
 /**
@@ -142,6 +154,21 @@ function ctools_schema_1() {
 }
 
 /**
+ * Implements hook_install().
+ */
+function ctools_install() {
+  // Activate our custom cache handler for the CSS cache.
+  variable_set('cache_class_cache_ctools_css', 'CToolsCssCache');
+}
+
+/**
+ * Implements hook_uninstall().
+ */
+function ctools_uninstall() {
+  variable_del('cache_class_cache_ctools_css');
+}
+
+/**
  * Enlarge the ctools_object_cache.name column to prevent truncation and weird
  * errors.
  */
@@ -216,4 +243,23 @@ function ctools_update_6008() {
       'serialize' => TRUE,
     )
   );
+}
+
+/**
+ * Enable the custom CSS cache handler.
+ */
+function ctools_update_7000() {
+  variable_set('cache_class_cache_ctools_css', 'CToolsCssCache');
+}
+
+/**
+ * Increase the length of the ctools_object_cache.obj column.
+ */
+function ctools_update_7001() {
+  db_change_field('ctools_object_cache', 'obj', 'obj', array(
+    'type' => 'varchar',
+    'length' => '128',
+    'not null' => TRUE,
+    'description' => 'The type of the object this cache is attached to; this essentially represents the owner so that several sub-systems can use this cache.',
+  ));
 }

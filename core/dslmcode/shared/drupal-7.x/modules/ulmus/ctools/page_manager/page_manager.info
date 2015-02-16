@@ -3,10 +3,11 @@ description = Provides a UI and API to manage pages within the site.
 core = 7.x
 dependencies[] = ctools
 package = Chaos tool suite
+version = CTOOLS_MODULE_VERSION
 
-; Information added by Drupal.org packaging script on 2014-02-12
-version = "7.x-1.4"
+; Information added by Drupal.org packaging script on 2015-01-28
+version = "7.x-1.6"
 core = "7.x"
 project = "ctools"
-datestamp = "1392220730"
+datestamp = "1422471484"
 

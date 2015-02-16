@@ -27,6 +27,9 @@ function ctools_content_autocomplete_entity($type, $string = '') {
   if ($string != '') {
     global $user;
     $entity_info = entity_get_info($type);
+    if ($type == 'node') {
+      $entity_info['entity keys']['bundle field'] = 'type';
+    }
 
     // We must query all ids, because if every one of the 10 don't have access
     // the user may never be able to autocomplete a node title.
@@ -56,6 +59,7 @@ function ctools_content_autocomplete_entity($type, $string = '') {
       }
       else {
         $matches[$result['label'] . " [id: $entity_id]"] = '<span class="autocomplete_title">' . check_plain($result['label']) . '</span>';
+        $matches[$result['label'] . " [id: $entity_id]"] .= isset($result['bundle field']) ? ' <span class="autocomplete_bundle">(' . check_plain($result['bundle field']) . ')</span>' : '';
       }
     }
 
@@ -81,6 +85,11 @@ function _ctools_buildQuery($entity_type, $entity_info, $match = NULL, $match_op
     // Add a label to the query, if the label exists
     if (isset($entity_info['entity keys']['label'])) {
       $query->fields($base_table, array($entity_info['entity keys']['label']));
+    }
+
+    // Add bundle field to the query, if it exists.
+    if (isset($entity_info['entity keys']['bundle field'])) {
+      $query->fields($base_table, array($entity_info['entity keys']['bundle field']));
     }
 
     // Add a generic entity access tag to the query.
@@ -131,6 +140,7 @@ function _ctools_getReferencableEntities($entity_type, $entity_info, $match = NU
     foreach ($results as $record) {
       $options[$record->{$entity_info['entity keys']['id']}] = array(
         'label' => isset($entity_info['entity keys']['label']) ? check_plain($record->{$entity_info['entity keys']['label']}) : $record->{$entity_info['entity keys']['id']},
+        'bundle field' => isset($entity_info['entity keys']['bundle field']) ? check_plain($record->{$entity_info['entity keys']['bundle field']}) : '',
       );
     }
   }

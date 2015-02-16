@@ -388,6 +388,17 @@ class context_reaction_block extends context_reaction {
       $this->is_editable_check($context_blocks);
       global $theme;
       $active_regions = $this->system_region_list($theme);
+
+      // Make context renders regions in the same order as core.
+      $_context_blocks = array();
+      foreach ($active_regions as $r => $name) {
+        if (isset($context_blocks[$r])) {
+          $_context_blocks[$r] = $context_blocks[$r];
+        }
+      }
+      $context_blocks = $_context_blocks;
+      unset($_context_blocks);
+
       foreach ($context_blocks as $r => $blocks) {
         //only render blocks in an active region
         if (array_key_exists($r, $active_regions)) {

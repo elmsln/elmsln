@@ -126,7 +126,7 @@ function page_manager_node_add($type) {
     'language' => LANGUAGE_NONE,
   );
 
-  drupal_set_title(t('Create @name', array('@name' => $types[$type]->name)));
+  drupal_set_title(t('Create @name', array('@name' => $types[$type]->name)), PASS_THROUGH);
   return page_manager_node_edit($node);
 }
 

@@ -38,7 +38,7 @@ function page_manager_page_menu(&$items, $task) {
   ) + $base;
   if ($access_callback == 'user_access') {
     $items['admin/structure/pages/import']['access callback'] = 'ctools_access_multiperm';
-    $items['admin/structure/pages/import']['access arguments'][] = 'use PHP for settings';
+    $items['admin/structure/pages/import']['access arguments'][] = 'use ctools import';
   }
 
   // AJAX callbacks for argument modal.
@@ -443,7 +443,7 @@ function page_manager_page_form_basic($form, &$form_state) {
       '#type' => 'checkbox',
       '#default_value' => !empty($page->make_frontpage),
       '#title' => t('Make this your site home page.'),
-      '#description' => t('To set this panel as your home page you must create a unique path name with no % placeholders in the path. The site home page is currently set to %homepage on the !siteinfo configuration form.', array('!siteinfo' => l(t('Site Information'), 'admin/settings/site-information'), '%homepage' => '/' . $frontpage)),
+      '#description' => t('To set this panel as your home page you must create a unique path name with no % placeholders in the path. The site home page is currently set to %homepage on the !siteinfo configuration form.', array('!siteinfo' => l(t('Site Information'), 'admin/config/system/site-information'), '%homepage' => '/' . $frontpage)),
     );
     $form['admin_paths'] = array(
       '#type' => 'checkbox',
@@ -769,12 +769,12 @@ function page_manager_page_form_menu($form, &$form_state) {
     );
   }
   $form['menu']['parent']['weight'] = array(
-    '#title' => t('Tab weight'),
+    '#title' => t('Parent weight'),
     '#type' => 'textfield',
     '#default_value' => $menu['parent']['weight'],
     '#size' => 5,
-    '#description' => t('If the parent menu item is a tab, enter the weight of the tab. The lower the number, the more to the left it will be.'),
-    '#dependency' => array('radio:menu[type]' => array('default tab'), 'radio:menu[parent][type]' => array('tab')),
+    '#description' => t('Enter the weight of the parent item. The lower the number, the more to the left it will be.'),
+    '#dependency' => array('radio:menu[type]' => array('default tab'), 'radio:menu[parent][type]' => array('tab', 'normal')),
     '#dependency_count' => 2,
   );
 

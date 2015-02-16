@@ -81,7 +81,7 @@ function page_manager_user_view_page($account) {
   user_build_content($account);
 
   $output = ctools_context_handler_render($task, '', $contexts, array($account->uid));
-  if ($output != FALSE) {
+  if ($output !== FALSE) {
     return $output;
   }
 
