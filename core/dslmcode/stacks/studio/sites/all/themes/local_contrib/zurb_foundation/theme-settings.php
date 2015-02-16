@@ -1,11 +1,6 @@
 <?php
 /**
  * Implements hook_form_FORM_ID_alter().
- *
- * @param $form
- *   The form.
- * @param $form_state
- *   The form state.
  */
 function zurb_foundation_form_system_theme_settings_alter(&$form, &$form_state) {
   if (!isset($form['zurb_foundation'])) {
@@ -19,7 +14,7 @@ function zurb_foundation_form_system_theme_settings_alter(&$form, &$form_state) 
     if (!module_exists('jquery_update') || !version_compare($jquery_version, '1.7', '>=')) {
       drupal_set_message(t('!module was not found, or your version of jQuery does not meet the minimum version requirement. Zurb Foundation requires jQuery 1.7 or higher. Please install !module, or Zurb Foundation plugins may not work correctly.',
         array(
-          '!module' => l('jQuery Update', 'https://drupal.org/project/jquery_update', array('external' => TRUE, 'attributes' => array('target' => '_blank'))),
+          '!module' => l(t('jQuery Update'), 'https://drupal.org/project/jquery_update', array('external' => TRUE, 'attributes' => array('target' => '_blank'))),
         )
       ), 'warning', FALSE);
     }
@@ -83,7 +78,7 @@ function zurb_foundation_form_system_theme_settings_alter(&$form, &$form_state) 
     $form['zurb_foundation']['topbar']['container']['zurb_foundation_top_bar_sticky'] = array(
       '#type' => 'checkbox',
       '#title' => t('Sticky'),
-      '#description' => t('Check this for your top bar to stick to the top of the screen when the user scrolls down. If you\'re using the Admin Menu module and have it set to \'Keep menu at top of page\', you\'ll need to check this option to maintain compatibility.'),
+      '#description' => t("Check this for your top bar to stick to the top of the screen when the user scrolls down. If you're using the Admin Menu module and have it set to 'Keep menu at top of page', you'll need to check this option to maintain compatibility."),
       '#default_value' => theme_get_setting('zurb_foundation_top_bar_sticky'),
     );
 
@@ -138,6 +133,13 @@ function zurb_foundation_form_system_theme_settings_alter(&$form, &$form_state) 
           'input[name="zurb_foundation_top_bar_custom_back_text"]' => array('checked' => TRUE),
         ),
       ),
+    );
+
+    $form['zurb_foundation']['topbar']['container']['menu']['zurb_foundation_top_bar_mobile_show_parent_link'] = array(
+      '#type' => 'checkbox',
+      '#title' => t('Repeat parent link on mobile'),
+      '#description' => t('This provides an extra link for users to tap on the sub-menu for mobile'),
+      '#default_value' => theme_get_setting('zurb_foundation_top_bar_mobile_show_parent_link'),
     );
 
     /*
@@ -204,7 +206,7 @@ function zurb_foundation_form_system_theme_settings_alter(&$form, &$form_state) 
     $form['zurb_foundation']['tooltips']['zurb_foundation_tooltip_touch'] = array(
       '#type' => 'checkbox',
       '#title' => t('Disable for touch devices'),
-      '#description' => t('If you don\'t want tooltips to interfere with a touch event, you can disable them for those devices.'),
+      '#description' => t("If you don't want tooltips to interfere with a touch event, you can disable them for those devices."),
       '#default_value' => theme_get_setting('zurb_foundation_tooltip_touch'),
       '#states' => array(
         'visible' => array(

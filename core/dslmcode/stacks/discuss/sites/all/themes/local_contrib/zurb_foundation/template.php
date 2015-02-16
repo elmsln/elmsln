@@ -1,5 +1,5 @@
 <?php
-/*
+/**
  * @file
  */
 
@@ -31,7 +31,7 @@ function zurb_foundation_html_head_alter(&$head_elements) {
     '#tag' => 'meta',
     '#attributes' => array(
       'name' => 'viewport',
-      'content' => 'width=device-width',
+      'content' => 'width=device-width, initial-scale=1.0',
     ),
   );
 
@@ -66,7 +66,7 @@ function zurb_foundation_breadcrumb($variables) {
     }
 
     $title = strip_tags(drupal_get_title());
-    $breadcrumbs .= '<li class="current"><a href="#">' . $title. '</a></li>';
+    $breadcrumbs .= '<li class="current"><a href="#">' . $title . '</a></li>';
     $breadcrumbs .= '</ul>';
 
     return $breadcrumbs;
@@ -81,8 +81,8 @@ function zurb_foundation_field($variables) {
     $output .= '<div ' . $variables['title_attributes'] . '>' . $variables['label'] . ':&nbsp;</div>';
   }
 
-  // Edit module requires some extra wrappers to work.
-  if (module_exists('edit')) {
+  // Quick Edit module requires some extra wrappers to work.
+  if (module_exists('quickedit')) {
     $output .= '<div class="field-items"' . $variables['content_attributes'] . '>';
     foreach ($variables['items'] as $delta => $item) {
       $classes = 'field-item ' . ($delta % 2 ? 'odd' : 'even');
@@ -127,8 +127,7 @@ function zurb_foundation_field__taxonomy_term_reference($variables) {
 }
 
 /**
- * Implements theme_links() targeting the main menu specifically.
- * Formats links for Top Bar http://foundation.zurb.com/docs/components/top-bar.html
+ * Implements theme_links() targeting the main menu topbar.
  */
 function zurb_foundation_links__topbar_main_menu($variables) {
   // We need to fetch the links ourselves because we need the entire tree.
@@ -140,8 +139,7 @@ function zurb_foundation_links__topbar_main_menu($variables) {
 }
 
 /**
- * Implements theme_links() targeting the secondary menu specifically.
- * Formats links for Top Bar http://foundation.zurb.com/docs/components/top-bar.html
+ * Implements theme_links() targeting the secondary menu topbar.
  */
 function zurb_foundation_links__topbar_secondary_menu($variables) {
   // We need to fetch the links ourselves because we need the entire tree.
@@ -207,9 +205,11 @@ function _zurb_foundation_render_link($link) {
       if ($link['#href'] === '<nolink>') {
         $rendered_link = '<label>' . $link['#title'] . '</label>';
       }
-      else if ($link['#href'] === '<separator>') {
-        $link['#attributes']['class'][] = 'divider';
-        $rendered_link = '';
+      else {
+        if ($link['#href'] === '<separator>') {
+          $link['#attributes']['class'][] = 'divider';
+          $rendered_link = '';
+        }
       }
     }
 
@@ -224,10 +224,7 @@ function _zurb_foundation_render_link($link) {
     $output .= '<li' . drupal_attributes($link['#attributes']) . '>' . $rendered_link;
 
     if (!empty($link['#below'])) {
-      // Add repeated link under the dropdown for small-screen.
-      $small_link['#attributes']['class'][] = 'show-for-small';
-      $sub_menu = '<li' . drupal_attributes($small_link['#attributes']) . '>' . l($link['#title'], $link['#href'], $link['#localized_options']);
-
+      $sub_menu = '';
       // Build sub nav recursively.
       foreach ($link['#below'] as $sub_link) {
         if (!empty($sub_link['#href'])) {
@@ -238,7 +235,7 @@ function _zurb_foundation_render_link($link) {
       $output .= '<ul class="dropdown">' . $sub_menu . '</ul>';
     }
 
-    $output .=  '</li>';
+    $output .= '</li>';
   }
 
   return $output;
@@ -251,6 +248,7 @@ function theme_zurb_foundation_menu_link($variables) {
   $link = $variables['link'];
   return l($link['#title'], $link['#href'], $link['#localized_options']);
 }
+
 /*
  * Implements hook_preprocess_block()
  */
@@ -271,11 +269,12 @@ function zurb_foundation_preprocess_block(&$variables) {
 
   // Add classes based on region.
   switch ($variables['elements']['#block']->region) {
-    // Clear blocks in this region
+    // Clear blocks in this region.
     case 'sidebar_first':
       $variables['classes_array'][] = 'clearfix';
       break;
-    // Add a striping class & clear blocks in this region
+
+    // Add a striping class & clear blocks in this region.
     case 'sidebar_second':
       $variables['classes_array'][] = 'block-' . $variables['zebra'];
       $variables['classes_array'][] = 'clearfix';
@@ -288,6 +287,7 @@ function zurb_foundation_preprocess_block(&$variables) {
     default;
   }
 }
+
 /**
  * Implements template_preprocess_field().
  */
@@ -319,7 +319,7 @@ function zurb_foundation_preprocess_field(&$variables) {
   // print '<strong>Mode:</strong> ' . $mode .'<br/>';
 
   // Add specific classes to targeted fields.
-  if(isset($field)) {
+  if (isset($field)) {
     switch ($mode) {
       // All teasers.
       case 'teaser':
@@ -328,24 +328,17 @@ function zurb_foundation_preprocess_field(&$variables) {
           case 'node_link':
             $item_classes[] = 'more-link';
             break;
+
           // Teaser descriptions.
           case 'body':
           case 'field_description':
             $item_classes[] = 'description';
             break;
+
         }
         break;
     }
   }
-
-// Check if exists
-//  switch ($field) {
-//    case 'field_authors':
-//      $title_classes[] = 'inline';
-//      $content_classes[] = 'authors';
-//      $item_classes[] = 'author';
-//      break;
-//  }
 
   // Apply odd or even classes along with our custom classes to each item.
   foreach ($variables['items'] as $delta => $item) {
@@ -396,6 +389,7 @@ function zurb_foundation_preprocess_field(&$variables) {
     }
   }
 }
+
 /**
  * Implements template_preprocess_html().
  *
@@ -412,20 +406,20 @@ function zurb_foundation_preprocess_html(&$variables) {
     $variables['classes_array'][] = 'lang-' . $variables['language']->language;
   }
 
-  //  @TODO Custom fonts from Google web-fonts
-  //  $font = str_replace(' ', '+', theme_get_setting('zurb_foundation_font'));
-  //  if (theme_get_setting('zurb_foundation_font')) {
-  //    drupal_add_css('http://fonts.googleapis.com/css?family=' . $font , array('type' => 'external', 'group' => CSS_THEME));
-  //  }
+  // @TODO Custom fonts from Google web-fonts
+  // $font = str_replace(' ', '+', theme_get_setting('zurb_foundation_font'));
+  // if (theme_get_setting('zurb_foundation_font')) {
+  //   drupal_add_css('http://fonts.googleapis.com/css?family=' . $font , array('type' => 'external', 'group' => CSS_THEME));
+  // }
 
-  // Classes for body element. Allows advanced theming based on context
+  // Classes for body element. Allows advanced theming based on context.
   if (!$variables['is_front']) {
 
     // Add unique class for each page.
     $path = drupal_get_path_alias($_GET['q']);
 
     // Add unique class for each website section.
-    list($section, ) = explode('/', $path, 2);
+    list($section,) = explode('/', $path, 2);
     $arg = explode('/', $_GET['q']);
     if ($arg[0] == 'node' && isset($arg[1])) {
       if ($arg[1] == 'add') {
@@ -455,7 +449,7 @@ function zurb_foundation_preprocess_html(&$variables) {
 }
 
 /**
- * Implements template_preprocess_node
+ * Implements template_preprocess_node.
  *
  * Add template suggestions and classes.
  */
@@ -475,12 +469,12 @@ function zurb_foundation_preprocess_node(&$variables) {
 }
 
 /**
- * Implements template_preprocess_page
+ * Implements template_preprocess_page.
  *
  * Add convenience variables and template suggestions.
  */
 function zurb_foundation_preprocess_page(&$variables) {
-  // Add page--node_type.tpl.php suggestions
+  // Add page--node_type.tpl.php suggestions.
   if (!empty($variables['node'])) {
     $variables['theme_hook_suggestions'][] = 'page__' . $variables['node']->type;
   }
@@ -488,8 +482,8 @@ function zurb_foundation_preprocess_page(&$variables) {
   $variables['logo_img'] = '';
   if (!empty($variables['logo'])) {
     $variables['logo_img'] = theme('image', array(
-      'path'  => $variables['logo'],
-      'alt'   => strip_tags($variables['site_name']) . ' ' . t('logo'),
+      'path' => $variables['logo'],
+      'alt' => strip_tags($variables['site_name']) . ' ' . t('logo'),
       'title' => strip_tags($variables['site_name']) . ' ' . t('Home'),
       'attributes' => array(
         'class' => array('logo'),
@@ -497,11 +491,11 @@ function zurb_foundation_preprocess_page(&$variables) {
     ));
   }
 
-  $variables['linked_logo']  = '';
+  $variables['linked_logo'] = '';
   if (!empty($variables['logo_img'])) {
     $variables['linked_logo'] = l($variables['logo_img'], '<front>', array(
       'attributes' => array(
-        'rel'   => 'home',
+        'rel' => 'home',
         'title' => strip_tags($variables['site_name']) . ' ' . t('Home'),
       ),
       'html' => TRUE,
@@ -512,9 +506,10 @@ function zurb_foundation_preprocess_page(&$variables) {
   if (!empty($variables['site_name'])) {
     $variables['linked_site_name'] = l($variables['site_name'], '<front>', array(
       'attributes' => array(
-        'rel'   => 'home',
+        'rel' => 'home',
         'title' => strip_tags($variables['site_name']) . ' ' . t('Home'),
       ),
+      'html' => TRUE,
     ));
   }
 
@@ -555,6 +550,10 @@ function zurb_foundation_preprocess_page(&$variables) {
 
     if (!theme_get_setting('zurb_foundation_top_bar_scrolltop')) {
       $top_bar_options[] = 'scrolltop:false';
+    }
+
+    if (theme_get_setting('zurb_foundation_top_bar_mobile_show_parent_link')) {
+      $top_bar_options[] = 'mobile_show_parent_link:true';
     }
 
     $variables['top_bar_options'] = ' data-options="' . implode('; ', $top_bar_options) . '"';
@@ -625,7 +624,7 @@ function zurb_foundation_preprocess_page(&$variables) {
     $variables['top_bar_secondary_menu'] = theme('links__topbar_secondary_menu', array(
       'links' => $variables['secondary_menu'],
       'attributes' => array(
-        'id'    => 'secondary-menu',
+        'id' => 'secondary-menu',
         'class' => array('secondary', 'link-list'),
       ),
       'heading' => array(
@@ -639,8 +638,8 @@ function zurb_foundation_preprocess_page(&$variables) {
   // Messages in modal.
   $variables['zurb_foundation_messages_modal'] = theme_get_setting('zurb_foundation_messages_modal');
 
-  // Convenience variables
-  if (!empty($variables['page']['sidebar_first'])){
+  // Convenience variables.
+  if (!empty($variables['page']['sidebar_first'])) {
     $left = $variables['page']['sidebar_first'];
   }
 
@@ -648,33 +647,36 @@ function zurb_foundation_preprocess_page(&$variables) {
     $right = $variables['page']['sidebar_second'];
   }
 
-  // Dynamic sidebars
+  // Dynamic sidebars.
   if (!empty($left) && !empty($right)) {
-    $variables['main_grid'] = 'large-6 large-push-3';
-    $variables['sidebar_first_grid'] = 'large-3 large-pull-6';
-    $variables['sidebar_sec_grid'] = 'large-3';
-  } elseif (empty($left) && !empty($right)) {
-    $variables['main_grid'] = 'large-9';
+    $variables['main_grid'] = 'medium-6 medium-push-3';
+    $variables['sidebar_first_grid'] = 'medium-3 medium-pull-6';
+    $variables['sidebar_sec_grid'] = 'medium-3';
+  }
+  elseif (empty($left) && !empty($right)) {
+    $variables['main_grid'] = 'medium-9';
     $variables['sidebar_first_grid'] = '';
-    $variables['sidebar_sec_grid'] = 'large-3';
-  } elseif (!empty($left) && empty($right)) {
-    $variables['main_grid'] = 'large-9 large-push-3';
-    $variables['sidebar_first_grid'] = 'large-3 large-pull-9';
+    $variables['sidebar_sec_grid'] = 'medium-3';
+  }
+  elseif (!empty($left) && empty($right)) {
+    $variables['main_grid'] = 'medium-9 medium-push-3';
+    $variables['sidebar_first_grid'] = 'medium-3 medium-pull-9';
     $variables['sidebar_sec_grid'] = '';
-  } else {
-    $variables['main_grid'] = 'large-12';
+  }
+  else {
+    $variables['main_grid'] = '';
     $variables['sidebar_first_grid'] = '';
     $variables['sidebar_sec_grid'] = '';
   }
 
   // Ensure modal reveal behavior if modal messages are enabled.
-  if(theme_get_setting('zurb_foundation_messages_modal')) {
+  if (theme_get_setting('zurb_foundation_messages_modal')) {
     drupal_add_js(drupal_get_path('theme', 'zurb_foundation') . '/js/behavior/reveal.js');
   }
 }
 
 /**
- * Implements hook_css_alter()
+ * Implements hook_css_alter().
  */
 function zurb_foundation_css_alter(&$css) {
   // Remove defaults.css file.
@@ -682,8 +684,8 @@ function zurb_foundation_css_alter(&$css) {
 
   // Remove Drupal core CSS.
   if (theme_get_setting('zurb_foundation_disable_core_css')) {
-    foreach($css as $path => $values) {
-      if(strpos($path, 'modules/') === 0) {
+    foreach ($css as $path => $values) {
+      if (strpos($path, 'modules/') === 0) {
         unset($css[$path]);
       }
     }
@@ -727,10 +729,28 @@ function zurb_foundation_pager($variables) {
   }
   // End of generation loop preparation.
 
-  $li_first = theme('pager_first', array('text' => (isset($tags[0]) ? $tags[0] : t('« first')), 'element' => $element, 'parameters' => $parameters));
-  $li_previous = theme('pager_previous', array('text' => (isset($tags[1]) ? $tags[1] : t('‹ previous')), 'element' => $element, 'interval' => 1, 'parameters' => $parameters));
-  $li_next = theme('pager_next', array('text' => (isset($tags[3]) ? $tags[3] : t('next ›')), 'element' => $element, 'interval' => 1, 'parameters' => $parameters));
-  $li_last = theme('pager_last', array('text' => (isset($tags[4]) ? $tags[4] : t('last »')), 'element' => $element, 'parameters' => $parameters));
+  $li_first = theme('pager_first', array(
+    'text' => (isset($tags[0]) ? $tags[0] : t('« first')),
+    'element' => $element,
+    'parameters' => $parameters,
+  ));
+  $li_previous = theme('pager_previous', array(
+    'text' => (isset($tags[1]) ? $tags[1] : t('‹ previous')),
+    'element' => $element,
+    'interval' => 1,
+    'parameters' => $parameters,
+  ));
+  $li_next = theme('pager_next', array(
+    'text' => (isset($tags[3]) ? $tags[3] : t('next ›')),
+    'element' => $element,
+    'interval' => 1,
+    'parameters' => $parameters,
+  ));
+  $li_last = theme('pager_last', array(
+    'text' => (isset($tags[4]) ? $tags[4] : t('last »')),
+    'element' => $element,
+    'parameters' => $parameters,
+  ));
 
   if ($pager_total[$element] > 1) {
     if ($li_first) {
@@ -758,7 +778,12 @@ function zurb_foundation_pager($variables) {
       for (; $i <= $pager_last && $i <= $pager_max; $i++) {
         if ($i < $pager_current) {
           $items[] = array(
-            'data' => theme('pager_previous', array('text' => $i, 'element' => $element, 'interval' => ($pager_current - $i), 'parameters' => $parameters)),
+            'data' => theme('pager_previous', array(
+              'text' => $i,
+              'element' => $element,
+              'interval' => ($pager_current - $i),
+              'parameters' => $parameters,
+            )),
           );
         }
         if ($i == $pager_current) {
@@ -769,7 +794,12 @@ function zurb_foundation_pager($variables) {
         }
         if ($i > $pager_current) {
           $items[] = array(
-            'data' => theme('pager_next', array('text' => $i, 'element' => $element, 'interval' => ($i - $pager_current), 'parameters' => $parameters)),
+            'data' => theme('pager_next', array(
+              'text' => $i,
+              'element' => $element,
+              'interval' => ($i - $pager_current),
+              'parameters' => $parameters,
+            )),
           );
         }
       }
@@ -958,7 +988,9 @@ function zurb_foundation_theme_registry_alter(&$theme_registry) {
     if (isset($entity_info[$entity]['fieldable']) && $entity_info[$entity]['fieldable']) {
 
       // User uses user_profile for theming.
-      if ($entity == 'user') $entity = 'user_profile';
+      if ($entity == 'user') {
+        $entity = 'user_profile';
+      }
 
       // Only add preprocess functions if entity exposes theme function.
       if (isset($theme_registry[$entity])) {
@@ -997,69 +1029,75 @@ function zurb_foundation_entity_variables(&$vars) {
     switch ($layout['layout']) {
       case 'zf_1col':
         if (empty($vars['ds_content_classes'])) {
-          $vars['ds_content_classes'] = ' large-12';
-          $vars['classes_array'][] = 'row';
+          $vars['zf_wrapper_classes'] = 'row';
+          $vars['ds_content_classes'] = ' columns';
         }
         break;
+
       case 'zf_2col':
         if (empty($vars['left_classes']) && empty($vars['right_classes'])) {
-          $vars['left_classes'] = ' large-6';
-          $vars['right_classes'] = ' large-6';
-          $vars['classes_array'][] = 'row';
+          $vars['zf_wrapper_classes'] = 'row';
+          $vars['left_classes'] = ' medium-6 columns';
+          $vars['right_classes'] = ' medium-6 columns';
         }
         break;
+
       case 'zf_2col_stacked':
         if (
           empty($vars['header_classes']) && empty($vars['left_classes'])
           && empty($vars['right_classes']) && empty($vars['footer_classes'])
         ) {
-          $vars['header_classes'] = ' large-12';
-          $vars['left_classes'] = ' large-6';
-          $vars['right_classes'] = ' large-6';
-          $vars['footer_classes'] = ' large-12';
-          $vars['classes_array'][] = 'row';
+          $vars['zf_wrapper_classes'] = 'row';
+          $vars['header_classes'] = ' columns';
+          $vars['left_classes'] = ' medium-6 columns';
+          $vars['right_classes'] = ' medium-6 columns';
+          $vars['footer_classes'] = ' columns';
         }
         break;
+
       case 'zf_2col_bricks':
         if (empty($vars['top_classes']) && empty($vars['above_left_classes'])
           && empty($vars['above_right_classes']) && empty($vars['middle_classes'])
           && empty($vars['below_left_classes']) && empty($vars['below_right_classes'])
           && empty($vars['bottom_classes'])
         ) {
-          $vars['top_classes'] = ' large-12';
-          $vars['above_left_classes'] = ' large-6';
-          $vars['above_right_classes'] = ' large-6';
-          $vars['middle_classes'] = ' large-12';
-          $vars['below_left_classes'] = ' large-6';
-          $vars['below_right_classes'] = ' large-6';
-          $vars['bottom_classes'] = ' large-12';
-          $vars['classes_array'][] = 'row';
+          $vars['zf_wrapper_classes'] = 'row';
+          $vars['top_classes'] = ' columns';
+          $vars['above_left_classes'] = ' medium-6 columns';
+          $vars['above_right_classes'] = ' medium-6 columns';
+          $vars['middle_classes'] = ' columns';
+          $vars['below_left_classes'] = ' medium-6 columns';
+          $vars['below_right_classes'] = ' medium-6 columns';
+          $vars['bottom_classes'] = ' columns';
         }
         break;
+
       case 'zf_3col':
         if (empty($vars['left_classes']) && empty($vars['middle_classes'])
           && empty($vars['right_classes'])
         ) {
-          $vars['left_classes'] = ' large-4';
-          $vars['middle_classes'] = ' large-4';
-          $vars['right_classes'] = ' large-4';
-          $vars['classes_array'][] = 'row';
+          $vars['zf_wrapper_classes'] = 'row';
+          $vars['left_classes'] = ' medium-4 columns columns';
+          $vars['middle_classes'] = ' medium-4 columns columns';
+          $vars['right_classes'] = ' medium-4 columns columns';
         }
         break;
+
       case 'zf_3col_stacked':
         if (
           empty($vars['header_classes']) && empty($vars['left_classes'])
           && empty($vars['middle_classes']) && empty($vars['right_classes'])
           && empty($vars['footer_classes'])
         ) {
-          $vars['header_classes'] = ' large-12';
-          $vars['left_classes'] = ' large-4';
-          $vars['middle_classes'] = ' large-4';
-          $vars['right_classes'] = ' large-4';
-          $vars['footer_classes'] = ' large-12';
-          $vars['classes_array'][] = 'row';
+          $vars['zf_wrapper_classes'] = 'row';
+          $vars['header_classes'] = ' columns';
+          $vars['left_classes'] = ' medium-4 columns columns';
+          $vars['middle_classes'] = ' medium-4 columns columns';
+          $vars['right_classes'] = ' medium-4 columns columns';
+          $vars['footer_classes'] = ' columns';
         }
         break;
+
       case 'zf_3col_bricks':
         if (empty($vars['top_classes']) && empty($vars['above_left_classes'])
           && empty($vars['above_middle_classes']) && empty($vars['above_right_classes'])
@@ -1067,54 +1105,58 @@ function zurb_foundation_entity_variables(&$vars) {
           && empty($vars['below_middle_classes']) && empty($vars['below_right_classes'])
           && empty($vars['bottom_classes'])
         ) {
-          $vars['top_classes'] = ' large-12';
-          $vars['above_left_classes'] = ' large-4';
-          $vars['above_middle_classes'] = ' large-4';
-          $vars['above_right_classes'] = ' large-4';
-          $vars['middle_classes'] = ' large-12';
-          $vars['below_left_classes'] = ' large-4';
-          $vars['below_middle_classes'] = ' large-4';
-          $vars['below_right_classes'] = ' large-4';
-          $vars['bottom_classes'] = ' large-12';
-          $vars['classes_array'][] = 'row';
+          $vars['zf_wrapper_classes'] = 'row';
+          $vars['top_classes'] = ' columns';
+          $vars['above_left_classes'] = ' medium-4 columns columns';
+          $vars['above_middle_classes'] = ' medium-4 columns columns';
+          $vars['above_right_classes'] = ' medium-4 columns columns';
+          $vars['middle_classes'] = ' columns';
+          $vars['below_left_classes'] = ' medium-4 columns columns';
+          $vars['below_middle_classes'] = ' medium-4 columns columns';
+          $vars['below_right_classes'] = ' medium-4 columns columns';
+          $vars['bottom_classes'] = ' columns';
         }
         break;
+
       case 'zf_3row':
         if (empty($vars['header_classes']) && empty($vars['ds_content_classes'])
           && empty($vars['footer_classes'])
         ) {
-          $vars['header_classes'] = ' large-12';
-          $vars['ds_content_classes'] = ' large-12';
-          $vars['footer_classes'] = ' large-12';
-          $vars['classes_array'][] = 'row';
+          $vars['zf_wrapper_classes'] = 'row';
+          $vars['header_classes'] = ' columns';
+          $vars['ds_content_classes'] = ' columns';
+          $vars['footer_classes'] = ' columns';
         }
         break;
+
       case 'zf_4col':
         if (empty($vars['first_classes']) && empty($vars['second_classes'])
           && empty($vars['third_classes']) && empty($vars['fourth_classes'])
         ) {
-          $vars['first_classes'] = ' large-3';
-          $vars['second_classes'] = ' large-3';
-          $vars['third_classes'] = ' large-3';
-          $vars['fourth_classes'] = ' large-3';
-          $vars['classes_array'][] = 'row';
+          $vars['zf_wrapper_classes'] = 'row';
+          $vars['first_classes'] = ' medium-3 columns';
+          $vars['second_classes'] = ' medium-3 columns';
+          $vars['third_classes'] = ' medium-3 columns';
+          $vars['fourth_classes'] = ' medium-3 columns';
         }
         break;
+
       case 'zf_4col_stacked':
         if (
           empty($vars['header_classes']) && empty($vars['first_classes'])
           && empty($vars['second_classes']) && empty($vars['third_classes'])
           && empty($vars['fourth_classes']) && empty($vars['footer_classes'])
         ) {
-          $vars['header_classes'] = ' large-12';
-          $vars['first_classes'] = ' large-3';
-          $vars['second_classes'] = ' large-3';
-          $vars['third_classes'] = ' large-3';
-          $vars['fourth_classes'] = ' large-3';
-          $vars['footer_classes'] = ' large-12';
-          $vars['classes_array'][] = 'row';
+          $vars['zf_wrapper_classes'] = 'row';
+          $vars['header_classes'] = ' columns';
+          $vars['first_classes'] = ' medium-3 columns';
+          $vars['second_classes'] = ' medium-3 columns';
+          $vars['third_classes'] = ' medium-3 columns';
+          $vars['fourth_classes'] = ' medium-3 columns';
+          $vars['footer_classes'] = ' columns';
         }
         break;
+
       case 'zf_4col_bricks':
         if (empty($vars['top_classes']) && empty($vars['above_first_classes'])
           && empty($vars['above_second_classes']) && empty($vars['above_third_classes'])
@@ -1123,35 +1165,42 @@ function zurb_foundation_entity_variables(&$vars) {
           && empty($vars['below_third_classes']) && empty($vars['below_fourth_classes'])
           && empty($vars['bottom_classes'])
         ) {
-          $vars['top_classes'] = ' large-12';
-          $vars['above_first_classes'] = ' large-3';
-          $vars['above_second_classes'] = ' large-3';
-          $vars['above_third_classes'] = ' large-3';
-          $vars['above_fourth_classes'] = ' large-3';
-          $vars['middle_classes'] = ' large-12';
-          $vars['below_first_classes'] = ' large-3';
-          $vars['below_second_classes'] = ' large-3';
-          $vars['below_third_classes'] = ' large-3';
-          $vars['below_fourth_classes'] = ' large-3';
-          $vars['bottom_classes'] = ' large-12';
-          $vars['classes_array'][] = 'row';
+          $vars['zf_wrapper_classes'] = 'row';
+          $vars['top_classes'] = ' columns';
+          $vars['above_first_classes'] = ' medium-3 columns';
+          $vars['above_second_classes'] = ' medium-3 columns';
+          $vars['above_third_classes'] = ' medium-3 columns';
+          $vars['above_fourth_classes'] = ' medium-3 columns';
+          $vars['middle_classes'] = ' columns';
+          $vars['below_first_classes'] = ' medium-3 columns';
+          $vars['below_second_classes'] = ' medium-3 columns';
+          $vars['below_third_classes'] = ' medium-3 columns';
+          $vars['below_fourth_classes'] = ' medium-3 columns';
+          $vars['bottom_classes'] = ' columns';
         }
         break;
+
     }
   }
 }
 
 /**
- * Implements hook_process_html_tag()
+ * Implements hook_process_html_tag().
  *
  * Prunes HTML tags: http://sonspring.com/journal/html5-in-drupal-7#_pruning
+ * Updated per https://www.drupal.org/node/2326309
  */
 function zurb_foundation_process_html_tag(&$vars) {
   if (theme_get_setting('zurb_foundation_html_tags')) {
     $el = &$vars['element'];
 
-    // Remove type="..." and CDATA prefix/suffix.
-    unset($el['#attributes']['type'], $el['#value_prefix'], $el['#value_suffix']);
+    // Remove type="..."
+    unset($el['#attributes']['type']);
+
+    // Remove CDATA from prefix/suffix where necessary.
+    if (isset($el['#value_prefix']) && strpos($el['#value_prefix'], 'CDATA') !== FALSE) {
+      unset($el['#value_prefix'], $el['#value_suffix']);
+    }
 
     // Remove media="all" but leave others unaffected.
     if (isset($el['#attributes']['media']) && $el['#attributes']['media'] === 'all') {
@@ -1163,7 +1212,8 @@ function zurb_foundation_process_html_tag(&$vars) {
 /**
  * Helper function to output a single link as button or multiple links as dropdown/split buttons.
  *
- * @param $variables
+ * @param array
+ *
  * @return string
  */
 function zurb_foundation_links__magic_button($variables) {
@@ -1175,12 +1225,11 @@ function zurb_foundation_links__magic_button($variables) {
     switch ($variables['type']) {
       case 'split':
         return zurb_foundation_links__split_button($variables);
-        break;
 
       case 'dropdown':
+
       default:
         return zurb_foundation_links__dropdown_button($variables);
-        break;
     }
   }
 
@@ -1229,7 +1278,7 @@ function zurb_foundation_links__dropdown_button($variables) {
     $variables['label'] = t('Dropdown button');
   }
 
-  $title = '<a href="#"' . drupal_attributes($variables['attributes']) .'>' . $variables['label'] . '</a>';
+  $title = '<a href="#"' . drupal_attributes($variables['attributes']) . '>' . $variables['label'] . '</a>';
 
   $output = _zurb_foundation_links($variables['links']);
   return $title . '<ul id="' . $variables['attributes']['data-dropdown'] . '" class="f-dropdown" data-dropdown-content>' . $output . '</ul>';
