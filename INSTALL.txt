@@ -13,10 +13,11 @@ bash /var/www/elmsln/scripts/install/root/elmsln-preinstall.sh
 # log out as root so you can finish install as you
 logout
 
-# copy and paste this
+# copy and paste this, you might need to swap out root with admin
+# or whatever your group is if you have one
 cd ~
 rm -rf ~/.drush
-sudo chown -R $USER:$USER /var/www/elmsln
+sudo chown -R $USER:root /var/www/elmsln
 # copy and paste these lines to setup your user and install the system
 bash /var/www/elmsln/scripts/install/users/elmsln-admin-user.sh
 bash /var/www/elmsln/scripts/install/elmsln-install.sh
