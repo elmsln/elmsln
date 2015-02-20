@@ -170,7 +170,6 @@ do
   fi
 
   #has this course been added?
-  #todo add check for dslm locs
   if [ -L $drupalroot/$course ]; then
     echo "it appears this course has already been added. exiting" >> $configsdir/logs/drush-create-site.log
     error=1
