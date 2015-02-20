@@ -157,11 +157,11 @@ elmslnecho "base address for deployment? (ex aanda.psu.edu)"
 read address
 echo "address='${address}'" >> $config
 
-elmslnecho "web service based address for deployment? (ex otherpath.psu.edu. this can be the same as the previous address but for increased security it is recommended you use a different one.)"
+elmslnecho "web service based address for deployment? (ex otherpath.psu.edu. this can be the same as the previous address if you want, this is typical)"
 read serviceaddress
 echo "serviceaddress='${serviceaddress}'" >> $config
 
-elmslnecho "web service prefix? (if calls come from data.courses.otherpath.psu.edu then this would be 'data.' if you don't create domains this way then leave this blank)"
+elmslnecho "web service prefix? (if calls come from data-courses.otherpath.psu.edu then this would be 'data-' if you don't create domains this way then leave this blank)"
 read serviceprefix
 echo "serviceprefix='${serviceprefix}'" >> $config
 
