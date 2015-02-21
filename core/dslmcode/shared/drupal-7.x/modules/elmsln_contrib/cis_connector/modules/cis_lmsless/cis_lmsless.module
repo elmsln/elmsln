@@ -21,30 +21,16 @@ function cis_lmsless_permission() {
 }
 
 /**
- * Implements hook_block_info().
+ * Implements hook_page_build().
  */
-function cis_lmsless_block_info() {
-  $blocks['cis_lmsless'] = array(
-    'info' => t('CIS LMSLess'),
-    'cache' => DRUPAL_NO_CACHE
-  );
-
-  return $blocks;
-}
-/**
- * Implements hook_block_view().
- */
-function cis_lmsless_block_view($delta = '') {
-  $block = array();
+function cis_lmsless_page_build(&$page) {
+  // make sure they have access to view this
   if (user_access('view lmsless bar') && !path_is_admin(current_path())) {
-    switch ($delta) {
-      case 'cis_lmsless':
-        $block['subject'] = '';
-        $block['content'] = _cis_lmsless_assemble();
-      break;
-    }
+    $page['page_top']['cis_lmsless'] = array(
+      '#weight' => -10,
+      '#markup' => _cis_lmsless_assemble(),
+    );
   }
-  return $block;
 }
 
 /**
