@@ -234,7 +234,7 @@ class RestWSEntityResourceController implements RestWSQueryResourceControllerInt
     $offset = 0;
 
     $query = new EntityFieldQuery();
-    $query->entityCondition('entity_type', $this->resource());
+    $query->entityCondition('entity_type', $this->entityType);
 
     foreach ($filters as $filter => $value) {
       $this->propertyQueryOperation($query, 'Condition', $filter, $value);
@@ -276,7 +276,7 @@ class RestWSEntityResourceController implements RestWSQueryResourceControllerInt
     catch (PDOException $exception) {
       throw new RestWSException('Query failed.', 400);
     }
-    $query_result = isset($query_result[$this->resource()]) ? $query_result[$this->resource()] : array();
+    $query_result = isset($query_result[$this->entityType]) ? $query_result[$this->entityType] : array();
 
     $result = array_keys($query_result);
 
@@ -289,7 +289,7 @@ class RestWSEntityResourceController implements RestWSQueryResourceControllerInt
    */
   public function count($filters = array()) {
     $query = new EntityFieldQuery();
-    $query->entityCondition('entity_type', $this->resource());
+    $query->entityCondition('entity_type', $this->entityType);
 
     foreach ($filters as $filter => $value) {
       $this->propertyQueryOperation($query, 'Condition', $filter, $value);
@@ -415,6 +415,18 @@ class RestWSEntityResourceController implements RestWSQueryResourceControllerInt
         return FALSE;
       }
     }
-    return $property->access('edit');
+    // We don't want the property wrapper to check access again on the parent
+    // entity so we directly check access for the property. That way only the
+    // pure property/field access is taken into account.
+    $info = $property->info();
+    if (!empty($info['access callback'])) {
+      global $user;
+      $data = $entity->value();
+      return call_user_func($info['access callback'], 'edit', $property_name, $data, $user, $entity->type());
+    }
+    elseif (isset($info['setter permission'])) {
+      return user_access($info['setter permission']);
+    }
+    return TRUE;
   }
 }

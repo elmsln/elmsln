@@ -29,6 +29,10 @@ function restws_basic_auth_init() {
       drupal_form_submit('user_login', $form_state);
       if (!user_is_anonymous()) {
         drupal_static_reset();
+
+        // Always make sure to disable the page cache after we authenticated the
+        // user so that a response never gets into the page cache.
+        drupal_page_is_cacheable(FALSE);
       }
       else {
         // Clear the login form error and remove the login failure message.
@@ -38,4 +42,15 @@ function restws_basic_auth_init() {
       }
     }
   }
+}
+
+/**
+ * Implements hook_restws_request_alter().
+ */
+function restws_basic_auth_restws_request_alter(array &$request) {
+  // Disable page caching for security reasons so that an authenticated user
+  // response never gets into the page cache for anonymous users.
+  // This is necessary because the page cache system only looks at session
+  // cookies, but not at HTTP Basic Auth headers.
+  drupal_page_is_cacheable(FALSE);
 }

@@ -1,0 +1,107 @@
+<?php
+
+/**
+ * @file
+ * RESTWS Basic Auth tests.
+ */
+
+class RestWSBasicAuthTestCase extends DrupalWebTestCase {
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function getInfo() {
+    return array(
+      'name' => 'RESTWS Basic Auth',
+      'description' => 'Tests page caching with Basic Authentication.',
+      'group' => 'Services',
+    );
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function setUp() {
+    parent::setUp('restws', 'restws_basic_auth');
+  }
+
+  /**
+   * Tests that an authenticated user response never gets into the page cache.
+   */
+  public function testCachePoisoning() {
+    // Enable page caching.
+    variable_set('cache', 1);
+
+    // Allow anyone to access the user resource.
+    user_role_grant_permissions(DRUPAL_ANONYMOUS_RID, array('access resource user', 'access user profiles'));
+    user_role_grant_permissions(DRUPAL_AUTHENTICATED_RID, array('access resource user', 'access user profiles'));
+
+    // Create an admin account that is allowed to read emails of users.
+    $admin = $this->drupalCreateUser(array('administer users'));
+    // The user name must start with "restws" in order to be able to
+    // authenticate.
+    $admin->name = 'restws_' . $admin->name;
+    user_save($admin);
+
+    $response = $this->httpRequest('user/1.json', $admin);
+    $this->assertResponse(200);
+
+    // Now access the resource as anonymous user and make sure that the response
+    // is not in the page cache.
+    $response = $this->httpRequest('user/1.json');
+    $this->assertResponse(200);
+    $response = drupal_json_decode($response);
+    $this->assertTrue(empty($response['mail']), 'Protected email property is not present on response for anonymous users.');
+
+    // Access the resource as admin again and make sure that the response is not
+    // from the page cache.
+    $response = $this->httpRequest('user/1.json', $admin);
+    $this->assertResponse(200);
+    $response = drupal_json_decode($response);
+    $this->assertFalse(empty($response['mail']), 'Protected email property is present on response for admin users.');
+
+    // Restrict access to view profiles for non-restws tests.
+    user_role_revoke_permissions(DRUPAL_ANONYMOUS_RID, array('access user profiles'));
+
+    // Access non-restws resource as admin.
+    $response = $this->httpRequest('user/1', $admin);
+    $this->assertResponse(200, 'Admin can view user/1 (cache not set)');
+
+    // Access non-restws resource as anonymous and ensure denied.
+    $response = $this->httpRequest('user/1');
+    $this->assertResponse(403, 'Anonymous gets a 403 for user/1 after admin requested user/1');
+  }
+
+  /**
+   * Helper function to issue a HTTP request with simpletest's cURL.
+   *
+   * Laregely copied from RestWSTestCase::httpRequest() and adpoted for Basic
+   * Auth.
+   */
+  protected function httpRequest($url, $account = NULL) {
+    // Always reset the cURL options so that no options from previous requests
+    // are set.
+    unset($this->curlHandle);
+
+    $method = 'GET';
+    $curl_options = array(
+      CURLOPT_HTTPGET => TRUE,
+      CURLOPT_URL => url($url, array('absolute' => TRUE)),
+      CURLOPT_NOBODY => FALSE,
+    );
+    if (isset($account)) {
+      $curl_options[CURLOPT_USERPWD] = $account->name . ':' . $account->pass_raw;
+    }
+
+    $response = $this->curlExec($curl_options);
+    $headers = $this->drupalGetHeaders();
+    $headers = print_r($headers, TRUE);
+
+    $this->verbose($method . ' request to: ' . $url .
+      '<hr />Code: ' . curl_getinfo($this->curlHandle, CURLINFO_HTTP_CODE) .
+      '<hr />Response headers: ' . $headers .
+      '<hr />Response body: ' . $response);
+
+    return $response;
+  }
+}

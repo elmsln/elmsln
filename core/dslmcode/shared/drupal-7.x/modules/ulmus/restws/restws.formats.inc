@@ -108,9 +108,9 @@ abstract class RestWSBaseFormat implements RestWSFormatInterface {
    * Gets the representation of a resource.
    */
   public function viewResource($resourceController, $id) {
-    $values = self::getData($resourceController->wrapper($id));
+    $values = $this->getData($resourceController->wrapper($id));
     $function = __FUNCTION__;
-    drupal_alter('restws_response', $values, $function, $this->formatName);
+    drupal_alter('restws_response', $values, $function, $this->formatName, $resourceController);
 
     return $this->serialize($values);
   }
@@ -121,9 +121,9 @@ abstract class RestWSBaseFormat implements RestWSFormatInterface {
   public function createResource($resourceController, $data) {
     $values = $this->unserialize($resourceController->propertyInfo(), $data);
     $id = $resourceController->create($values);
-    $ref = self::getResourceReference($resourceController->resource(), $id);
+    $ref = $this->getResourceReference($resourceController->resource(), $id);
     $function = __FUNCTION__;
-    drupal_alter('restws_response', $ref, $function, $this->formatName);
+    drupal_alter('restws_response', $ref, $function, $this->formatName, $resourceController);
 
     return $this->serialize($ref);
   }
@@ -137,7 +137,7 @@ abstract class RestWSBaseFormat implements RestWSFormatInterface {
     // Return an empty representation by default.
     $value = array();
     $function = __FUNCTION__;
-    drupal_alter('restws_response', $value, $function, $this->formatName);
+    drupal_alter('restws_response', $value, $function, $this->formatName, $resourceController);
 
     return $this->serialize($value);
   }
@@ -150,7 +150,7 @@ abstract class RestWSBaseFormat implements RestWSFormatInterface {
     // Return an empty representation by default.
     $value = array();
     $function = __FUNCTION__;
-    drupal_alter('restws_response', $value, $function, $this->formatName);
+    drupal_alter('restws_response', $value, $function, $this->formatName, $resourceController);
 
     return $this->serialize($value);
   }
@@ -171,6 +171,7 @@ abstract class RestWSBaseFormat implements RestWSFormatInterface {
     $full = (isset($split_parameters['meta_controls'][$rest_controls['full']])) ? $split_parameters['meta_controls'][$rest_controls['full']] : 1;
 
     $result = $resourceController->query($split_parameters['filters'], $split_parameters['meta_controls']);
+    $values['list'] = array();
     if ($full === '0') {
       foreach ($result as $id) {
         $values['list'][] = $this->getResourceReference($resourceController->resource(), $id);
@@ -178,12 +179,12 @@ abstract class RestWSBaseFormat implements RestWSFormatInterface {
     }
     else {
       foreach ($result as $id) {
-        $values['list'][] = self::getData($resourceController->wrapper($id));
+        $values['list'][] = $this->getData($resourceController->wrapper($id));
       }
     }
 
     $function = __FUNCTION__;
-    drupal_alter('restws_response', $values, $function, $this->formatName);
+    drupal_alter('restws_response', $values, $function, $this->formatName, $resourceController);
 
     return $this->serialize($values);
   }
@@ -201,7 +202,7 @@ abstract class RestWSBaseFormat implements RestWSFormatInterface {
    *
    * This is the counter-part of self::getPropertyValues().
    */
-  public static function getData($wrapper) {
+  public function getData($wrapper) {
     $data = array();
     $filtered = restws_property_access_filter($wrapper);
     foreach ($filtered as $name => $property) {
@@ -209,14 +210,14 @@ abstract class RestWSBaseFormat implements RestWSFormatInterface {
         if ($property instanceof EntityDrupalWrapper) {
           // For referenced entities only return the URI.
           if ($id = $property->getIdentifier()) {
-            $data[$name] = self::getResourceReference($property->type(), $id);
+            $data[$name] = $this->getResourceReference($property->type(), $id);
           }
         }
         elseif ($property instanceof EntityValueWrapper) {
           $data[$name] = $property->value();
         }
         elseif ($property instanceof EntityListWrapper || $property instanceof EntityStructureWrapper) {
-          $data[$name] = self::getData($property);
+          $data[$name] = $this->getData($property);
         }
       }
       catch (EntityMetadataWrapperException $e) {
@@ -226,16 +227,19 @@ abstract class RestWSBaseFormat implements RestWSFormatInterface {
     return $data;
   }
 
-  public static function getResourceReference($resource, $id) {
+  public function getResourceReference($resource, $id) {
     $return = array(
       'uri' => restws_resource_uri($resource, $id),
       'id' => $id,
       'resource' => $resource,
     );
-    if (module_exists('uuid') && entity_get_info($resource)) {
-      $ids = entity_get_uuid_by_id($resource, array($id));
-      if ($id = reset($ids)) {
-        $return['uuid'] = $id;
+    if (module_exists('uuid') && $info = entity_get_info($resource)) {
+      // Check whether the entity type integrates with UUID module.
+      if ($info['base table'] && in_array('uuid', $info['schema_fields_sql']['base table'])) {
+        $ids = entity_get_uuid_by_id($resource, array($id));
+        if ($id = reset($ids)) {
+          $return['uuid'] = $id;
+        }
       }
     }
     return $return;
@@ -244,7 +248,7 @@ abstract class RestWSBaseFormat implements RestWSFormatInterface {
   /**
    * Transforms simple-array data values to valid entity property values.
    *
-   * This is the counter-part of self::getData(), thus it converts resource
+   * This is the counter-part of $this->getData(), thus it converts resource
    * references to the required value(s).
    *
    * @param array $values
@@ -403,7 +407,7 @@ abstract class RestWSBaseFormat implements RestWSFormatInterface {
     $limit = $resourceController->limit($limit);
     $page = isset($parameters[$rest_controls['page']]) ? $parameters[$rest_controls['page']] : 0;
 
-    $last = ceil($count / $limit) - 1;
+    $last = floor($count / $limit);
 
     if ($page > $last || $page < 0) {
       throw new RestWSException('Page doesn\'t exist.', 404);
@@ -486,7 +490,7 @@ class RestWSFormatXML extends RestWSBaseFormat {
     $xml->appendChild($element);
 
     $function = __FUNCTION__;
-    drupal_alter('restws_response', $xml, $function, $this->formatName);
+    drupal_alter('restws_response', $xml, $function, $this->formatName, $resourceController);
 
     return $xml->saveXML();
   }
@@ -504,7 +508,7 @@ class RestWSFormatXML extends RestWSBaseFormat {
     $xml->appendChild($element);
 
     $function = __FUNCTION__;
-    drupal_alter('restws_response', $xml, $function, $this->formatName);
+    drupal_alter('restws_response', $xml, $function, $this->formatName, $resourceController);
 
     return $xml->saveXML();
   }
@@ -552,7 +556,7 @@ class RestWSFormatXML extends RestWSBaseFormat {
     $xml->appendChild($element);
 
     $function = __FUNCTION__;
-    drupal_alter('restws_response', $xml, $function, $this->formatName);
+    drupal_alter('restws_response', $xml, $function, $this->formatName, $resourceController);
 
     return $xml->saveXML();
   }
@@ -704,7 +708,7 @@ class RestWSFormatRDF extends RestWSBaseFormat {
     $rdf_element->appendChild($element);
 
     $function = __FUNCTION__;
-    drupal_alter('restws_response', $xml, $function, $this->formatName);
+    drupal_alter('restws_response', $xml, $function, $this->formatName, $resourceController);
 
     return $xml->saveXML();
   }

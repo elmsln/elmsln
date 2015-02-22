@@ -524,15 +524,13 @@ class RestWSTestCase extends DrupalWebTestCase {
     $nodes = drupal_json_decode($result);
     // No node should be returned.
     $this->assertEqual(count($nodes['list']), 0, 'Unpublished node was successfully hidden.');
-
+    $this->assertNoResponse(404, 'An empty collection should not cause a 404 response.');
   }
 
   /**
    * Test menu path resource setting.
    */
   public function testMenuPath() {
-    module_enable(array('restws_test'));
-
     $account = $this->drupalCreateUser(array('access content',
         'bypass node access', 'access resource node')
     );
@@ -541,8 +539,25 @@ class RestWSTestCase extends DrupalWebTestCase {
     $title = $this->randomName(8);
     $node = $this->drupalCreateNode(array('title' => $title));
 
-    $result = $this->httpRequest('foo/1.json', 'GET', $account);
-    $this->assertEqual($node->title, $title, "Node was received correctly on the right menu path.");
+    module_enable(array('restws_test'), TRUE);
+
+    foreach (array('bar', 'foo/bar', 'foo/bar/node', 'api-v1.2', 'this/is/a/really/long/path') as $menu_path) {
+      // Register the menu_path for this test.
+      variable_set('restws_test_menu_path', $menu_path);
+      variable_set('menu_rebuild_needed', TRUE);
+
+      // Verify that the query uri is working.
+      $result = $this->drupalGet($menu_path . '.json');
+      $this->assertResponse(200);
+      $result = drupal_json_decode($result);
+      $this->assertEqual($result['list'][0]['title'], $title);
+
+      // Verify that the view uri is working.
+      $result = $this->drupalGet($menu_path . '/1.json');
+      $this->assertResponse(200);
+      $result = drupal_json_decode($result);
+      $this->assertEqual($result['title'], $title);
+   }
   }
 
   /**
