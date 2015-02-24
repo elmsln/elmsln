@@ -3,18 +3,23 @@
       <div class="inner-wrap">
                 <nav class="tab-bar etb-tool">
           <section class="left">
-            <a class="left-off-canvas-toggle menu-icon" ><span>Outline</span></a>
+            <a class="left-off-canvas-toggle menu-icon" ><span><?php print $cis_lmsless['active']['title'] ?></span></a>
           </section>
 
           <section class="middle tab-bar-section">
-            <!-- <h1 class="title">Tools will go here soon</h1> -->
+            <?php if (!empty($tabs)): ?>
+                <?php print render($tabs); ?>
+              <?php if (!empty($tabs2)): print render($tabs2); endif; ?>
+            <?php endif; ?>
+            <?php print render($page['cis_appbar_first']); ?>
           </section>
 
           <section class="right-small">
             <a href="#" class="off-canvas-toolbar-item access-icon" data-dropdown="accessibility-drop" aria-controls="accessibility-drop" aria-expanded="false">
-                <div class="icon-access-white off-canvas-toolbar-item-icon"></div>
-                <!-- <span>Accessibilty</span> -->
-              </a>
+              <div class="icon-access-white off-canvas-toolbar-item-icon"></div>
+              <!-- <span>Accessibilty</span> -->
+            </a>
+            <?php print render($page['cis_appbar_second']); ?>
           </section>
           <!-- accessibility dropdown -->
           <div id="accessibility-drop" data-dropdown-content class="f-dropdown content large" aria-hidden="true" tabindex="-1">
@@ -22,8 +27,15 @@
               <input id="enable-page-reader-switch" type="checkbox">
               <label for="enable-page-reader-switch"></label>
              </div>
+             <?php if ($speedreader): ?>
+              <a href="#" class="off-canvas-toolbar-item access-icon" data-reveal-id="speedreader-nav-modal">
+                <div class="icon-access-white off-canvas-toolbar-item-icon"></div>
+                <span><?php print t('SpeedReader'); ?></span>
+              </a>
+            <?php endif; ?>
             </div>
             <!-- /accessibility dropdown -->
+          <?php print render($page['cis_appbar_modal']); ?>
         </nav>
 
         <?php print render($page['left_menu']); ?>
@@ -69,12 +81,6 @@
                       <hr>
                     <?php print render($title_suffix); ?>
                   <?php endif; ?>
-
-                  <?php if (!empty($tabs)): ?>
-                    <?php print render($tabs); ?>
-                    <?php if (!empty($tabs2)): print render($tabs2); endif; ?>
-                  <?php endif; ?>
-
                   <?php if ($action_links): ?>
                     <ul class="action-links">
                       <?php print render($action_links); ?>

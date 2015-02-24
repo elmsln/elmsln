@@ -105,58 +105,39 @@
               </a>
               <hr></hr>
               <h2>Using ELMS</h2>
-              <a href="#" class="etb-nav_item_service_btn etb-modal-icon tour-icon">
+              <a href="<?php print $tour; ?>" class="etb-nav_item_service_btn etb-modal-icon tour-icon">
                 <div class="icon-tour-black etb-modal-icons"></div>
-                <span>Take a tour</span>
+                <span><?php print t('Take a tour'); ?></span>
               </a>
             <a class="close-reveal-modal">&#215;</a>
          </div>
          <div id="info-nav-modal" class="reveal-modal etb-nav-modal" data-reveal>
-          <!-- Center Search Section -->
-
-            <h1>Info</h1>
+            <h1><?php print t('Info'); ?></h1>
               <hr></hr>
-              <h2>Instructor</h2>
+              <h2><?php print t('Instructor'); ?></h2>
               <a href="#" class="etb-nav_item_service_btn etb-modal-icon techsupport-icon">
                 <div class="icon-techsupport-black etb-modal-icons"></div>
                 <span>Instructor Name</span>
               </a>
               <hr></hr>
-              <h2>Section</h2>
+              <h2><?php print t('Section'); ?></h2>
               <a href="#" class="etb-nav_item_service_btn etb-modal-icon techsupport-icon">
                 <div class="icon-techsupport-black etb-modal-icons"></div>
                 <span><?php print $section; ?></span>
               </a>
               <hr></hr>
-              <h2>Syllabus</h2>
-                <ul>
-                  <li><a href="#">Welcome</a></li>
-                  <li><a href="#">Introduction</a></li>
-                  <li><a href="#">Orientation</a></li>
-                  <li><a href="#">Resources</a></li>
-                  <li><a href="#">Legal/Privacy</a></li>
-                </ul>
+              <h2><?php print t('Links'); ?></h2>
+              <?php print drupal_render($main_menu); ?>
             <a class="close-reveal-modal">&#215;</a>
          </div>
          <div id="help-nav-modal" class="reveal-modal etb-nav-modal" data-reveal>
-          <!-- Center Search Section -->
-
-            <h1>Help</h1>
+            <h1><?php print t('Help'); ?></h1>
               <hr></hr>
-              <h2 class"etb-nav-section-label">Contact</h2>
-              <a href="#" class="etb-nav_item_service_btn etb-modal-icon techsupport-icon">
+              <h2 class"etb-nav-section-label"><?php print t('Contact'); ?></h2>
+              <?php print $contact_block; ?>
+              <a href="<?php print $help_link; ?>" class="etb-nav_item_service_btn etb-modal-icon techsupport-icon">
                 <div class="icon-techsupport-black etb-modal-icons"></div>
-                <span>Technical support</span>
-              </a>
-              <a href="#" class="etb-nav_item_service_btn etb-modal-icon instructor-icon">
-                <div class="icon-instructor-black etb-modal-icons"></div>
-                <span>Instructor</span>
-              </a>
-              <hr></hr>
-              <h2 class"etb-nav-section-label">Using ELMS Learning Network</h2>
-              <a href="#" class="etb-nav_item_service_btn etb-modal-icon tour-icon">
-                <div class="icon-tour-black etb-modal-icons"></div>
-                <span>Take a tour</span>
+                <span><?php print t('Help page');?></span>
               </a>
             <a class="close-reveal-modal">&#215;</a>
          </div>

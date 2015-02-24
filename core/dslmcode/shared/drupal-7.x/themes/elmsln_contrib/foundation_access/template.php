@@ -15,6 +15,8 @@ function foundation_access_preprocess_html(&$variables) {
  * Implements template_preprocess_page.
  */
 function foundation_access_preprocess_page(&$variables) {
+  $variables['cis_lmsless'] = _cis_lmsless_theme_vars();
+  $variables['speedreader'] = module_exists('speedreader');
 }
 
 /**

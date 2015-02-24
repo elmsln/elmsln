@@ -60,6 +60,12 @@ scripts[] = js/app.min.js
 ; You'll use this variable in page.tpl.php:
 ;   <?php print render($page['header']); ?>
 
+; CIS specific regions
+regions[cis_lmsless]          = CIS LMSLess bar
+regions[cis_appbar_first]     = CIS AppBar one
+regions[cis_appbar_second]    = CIS AppBar two
+regions[cis_appbar_modal]     = CIS AppBar Modals
+
 regions[header]               = Header
 regions[help]                 = Help
 regions[highlighted]          = Highlighted

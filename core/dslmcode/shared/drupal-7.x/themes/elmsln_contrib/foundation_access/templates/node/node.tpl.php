@@ -75,7 +75,7 @@
  * @see template_process()
  */
 ?>
-<article id="node-<?php print $node->nid; ?>" class="large-12 columns <?php print $classes; ?>"<?php print $attributes; ?>>
+<article id="node-<?php print $node->nid; ?>" class="node large-12 columns <?php print $classes; ?>"<?php print $attributes; ?>>
   <?php print render($title_prefix); ?>
   <?php if (!$page): ?>
     <?php if (!$page): ?>
