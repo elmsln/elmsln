@@ -38,60 +38,75 @@ function cis_lmsless_page_build(&$page) {
  */
 function _cis_lmsless_assemble() {
   // assemble variables for theming
-  $vars = array(
-    'front_page' => variable_get('site_frontpage','node'),
-    'site_name' => variable_get('site_name', t('Service')),
-    'slogan' => variable_get('site_slogan', ''),
-  );
-  // build in section context if we have one we can pull
-  if ($section = _cis_connector_section_context()) {
-    $vars['section'] = $section;
-  }
-  // request a list of all other services that this section uses
-  if (!$services = _cis_connector_transaction('other_services')) {
-    $services = $list = array();
-    $distro = variable_get('install_profile', 'standard');
-    $reg = _cis_connector_build_registry($distro);
-    $list[$distro] = array(
-      'title' => (isset($reg['default_title']) ? $reg['default_title'] : ''),
-      'url' => '#',
-      'machine_name' => $distro,
-    );
-    $vars['active'] = $list[$distro];
-  }
-  else {
-    foreach ($services as $service) {
-      $list[$service['field_machine_name']] = array(
-        'title' => $service['title'],
-        'url' => $service['field_location']['url'] . base_path(),
-        'machine_name' => $service['field_machine_name'],
-      );
-    }
-  }
-  // add in link to the CIS location if permission exists
-  // @ignore druplart_conditional_assignment
-  if (user_access('view lmsless cis link') && $settings = _cis_connector_build_registry('cis')) {
-    $list['cis'] = array(
-      'title' => t('Course information system'),
-      'url' => _cis_connector_format_address($settings, base_path(), 'front'),
-      'machine_name' => 'cis',
-    );
-  }
-  // bump current link to the first position and drop url so its internal
-  foreach ($list as $key => $item) {
-    // see if this service matches the current tool
-    if ($item['url'] == $GLOBALS['base_url'] . '/') {
-      $tmp = $item;
-      $vars['active'] = $item;
-      $tmp['url'] = '#';
-      unset($list[$key]);
-      array_unshift($list, $tmp);
-    }
-  }
-  $vars['services'] = $list;
+  $vars = _cis_lmsless_theme_vars();
   drupal_add_css(drupal_get_path('module', 'cis_lmsless') . '/css/cis_lmsless.css');
   drupal_add_js(drupal_get_path('module', 'cis_lmsless') . '/js/cis_lmsless.js');
   return theme('cis_lmsless_bar', $vars);
+}
+
+/**
+ * Callback to return common theme variables when styling CIS theme components
+ * @return array array of variables to pass to the theme
+ */
+function _cis_lmsless_theme_vars() {
+  // ensure this doesn't load when it doesn't have to
+  $vars = &drupal_static(__FUNCTION__);
+  if (!isset($vars)) {
+    $vars = array(
+      'front_page' => variable_get('site_frontpage','node'),
+      'site_name' => variable_get('site_name', t('Service')),
+      'slogan' => variable_get('site_slogan', ''),
+    );
+    // build in section context if we have one we can pull
+    if ($section = _cis_connector_section_context()) {
+      $vars['section'] = $section;
+    }
+    // pull in the instructor contact info block
+    $vars['contact_block'] = cis_service_connection_block_instructor_contact();
+    // request a list of all other services that this section uses
+    if (!$services = _cis_connector_transaction('other_services')) {
+      $services = $list = array();
+      $distro = variable_get('install_profile', 'standard');
+      $reg = _cis_connector_build_registry($distro);
+      $list[$distro] = array(
+        'title' => (isset($reg['default_title']) ? $reg['default_title'] : ''),
+        'url' => '#',
+        'machine_name' => $distro,
+      );
+      $vars['active'] = $list[$distro];
+    }
+    else {
+      foreach ($services as $service) {
+        $list[$service['field_machine_name']] = array(
+          'title' => $service['title'],
+          'url' => $service['field_location']['url'] . base_path(),
+          'machine_name' => $service['field_machine_name'],
+        );
+      }
+    }
+    // add in link to the CIS location if permission exists
+    // @ignore druplart_conditional_assignment
+    if (user_access('view lmsless cis link') && $settings = _cis_connector_build_registry('cis')) {
+      $list['cis'] = array(
+        'title' => t('Course information system'),
+        'url' => _cis_connector_format_address($settings, base_path(), 'front'),
+        'machine_name' => 'cis',
+      );
+    }
+    // bump current link to the first position and drop url so its internal
+    foreach ($list as $key => $item) {
+      // see if this service matches the current tool
+      if ($item['url'] == $GLOBALS['base_url'] . '/') {
+        $tmp = $item;
+        $vars['active'] = $item;
+        $tmp['url'] = '#';
+        unset($list[$key]);
+        array_unshift($list, $tmp);
+      }
+    }
+    $vars['services'] = $list;
+  }
+  return $vars;
 }
 
 /**
@@ -106,6 +121,9 @@ function cis_lmsless_theme() {
         'section' => t('Master Section'),
         'active' => array(),
         'services' => array(),
+        'tour' => url('welcome_page/guided_tour'),
+        'main_menu' => menu_tree(variable_get('menu_main_links_source', 'main-menu')),
+        'help_link' => url('course-help'),
       ),
       'render element' => 'element',
       'template' => 'templates/cis-lmsless-bar',

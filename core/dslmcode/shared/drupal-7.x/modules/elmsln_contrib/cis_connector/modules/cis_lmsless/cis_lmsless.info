@@ -3,3 +3,4 @@ description = Branding to stitch together the CIS experience with quick links be
 core = 7.x
 package = CIS Connector
 dependencies[] = cis_connector
+dependencies[] = cis_service_connection
