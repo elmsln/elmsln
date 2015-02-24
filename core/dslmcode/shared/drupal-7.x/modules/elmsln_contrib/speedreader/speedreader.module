@@ -14,7 +14,7 @@ define('SPEEDREADER_SELECTOR', '.node');
 function speedreader_block_info() {
   $blocks['speedreader-block'] = array(
     'info' => t('Speed reader'),
-    'cache' => DRUPAL_NO_CACHE
+    'cache' => DRUPAL_NO_CACHE,
   );
   return $blocks;
 }

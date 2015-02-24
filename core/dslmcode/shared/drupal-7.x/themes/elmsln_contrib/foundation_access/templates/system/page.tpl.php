@@ -35,7 +35,6 @@
             <?php endif; ?>
             </div>
             <!-- /accessibility dropdown -->
-          <?php print render($page['cis_appbar_modal']); ?>
         </nav>
 
         <?php print render($page['left_menu']); ?>
@@ -122,6 +121,7 @@
         </section>
 
       <a class="exit-off-canvas"></a>
-
+      <!-- generic container for other off canvas modals -->
+      <?php print render($page['cis_appbar_modal']); ?>
       </div>
     </div>

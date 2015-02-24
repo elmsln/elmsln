@@ -25,11 +25,6 @@
  * @see template_process()
  */
 ?>
-<aside class="left-off-canvas-menu">
-  <a role="button" class="left-off-canvas-toggle close"><div class="icon-close-white outline-nav-icon" data-grunticon-embed></div></a>
-  <div class"in-place-scroll">
-    <?php if ($content): ?>
-      <?php print $content; ?>
-    <?php endif; ?>
-  </div>
-</aside>
+<?php if ($content): ?>
+  <?php print $content; ?>
+<?php endif; ?>
