@@ -19,27 +19,29 @@ scripts[] = js/vendor/modernizr.js
 ; Foundation framework scripts.
 scripts[] = js/foundation.min.js
 
-; Source order:
-; http://foundation.zurb.com/docs/index.html#basicHTMLMarkup
-
 ; Regions are output in the page.tpl.php
-regions[header]         = Header
-regions[navigation]     = Navigation
-regions[help]           = Help
-regions[highlighted]    = Highlighted
-regions[content]        = Content
-regions[sidebar_first]  = Left Sidebar
-regions[sidebar_second] = Right Sidebar
-regions[footer_first]   = Footer first
-regions[footer_middle]  = Footer middle
-regions[footer_last]    = Footer last
+regions[header]              = Header
+regions[help]                = Help
+regions[highlighted]         = Highlighted
+regions[featured]            = Featured
+regions[content]             = Content
+regions[sidebar_first]       = Left Sidebar
+regions[sidebar_second]      = Right Sidebar
+regions[triptych_first]      = Callout one
+regions[triptych_middle]     = Callout two
+regions[triptych_last]       = Callout three
+regions[footer_firstcolumn]  = Footer one
+regions[footer_secondcolumn] = Footer two
+regions[footer_thirdcolumn]  = Footer three
+regions[footer_fourthcolumn] = Footer four
+regions[footer]              = Footer
 
 ; Panel Layouts
 plugins[panels][layouts] = layouts
 
 ; Theme settings:
 
-; Top Bar.
+; Top Bar
 settings[zurb_foundation_top_bar_enable] = 1
 settings[zurb_foundation_top_bar_grid] = 0
 settings[zurb_foundation_top_bar_sticky] = 0
@@ -48,25 +50,26 @@ settings[zurb_foundation_top_bar_custom_back_text] = 1
 settings[zurb_foundation_top_bar_back_text] = 'Back'
 settings[zurb_foundation_top_bar_is_hover] = 1
 settings[zurb_foundation_top_bar_scrolltop] = 1
+settings[zurb_foundation_top_bar_mobile_show_parent_link] = 1
 
-; Tooltips.
+; Tooltips
 settings[zurb_foundation_tooltip_enable] = 1
 settings[zurb_foundation_tooltip_position] = 'top'
 settings[zurb_foundation_tooltip_mode] = 'text'
 settings[zurb_foundation_tooltip_text] = 'More information?'
 settings[zurb_foundation_tooltip_touch] = 0
 
-; Styles and Scripts.
+; Styles and Scripts
 settings[zurb_foundation_disable_core_css] = 0
 
-; Misc.
+; Misc
 settings[zurb_foundation_html_tags] = 1
 settings[zurb_foundation_messages_modal] = 0
 settings[zurb_foundation_pager_center] = 1
 
-; Information added by Drupal.org packaging script on 2014-08-13
-version = "7.x-5.0-alpha8"
+; Information added by Drupal.org packaging script on 2015-01-27
+version = "7.x-5.0-rc2"
 core = "7.x"
 project = "zurb_foundation"
-datestamp = "1407933229"
+datestamp = "1422375203"
 

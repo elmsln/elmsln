@@ -23,18 +23,28 @@ function zurb_foundation_form_alter(&$form, &$form_state, $form_id) {
 
   // Sexy submit buttons
   if (!empty($form['actions']) && !empty($form['actions']['submit'])) {
-    $form['actions']['submit']['#attributes'] = array('class' => array('secondary', 'button', 'radius'));
+    $form['actions']['submit']['#attributes']['class'] []= 'secondary';
+    $form['actions']['submit']['#attributes']['class'] []=  'button';
+    $form['actions']['submit']['#attributes']['class'] []=  'radius';
   }
 
   // Search Block Fixes
   if (isset($form['#form_id']) && ($form['#form_id'] == 'search_block_form')) {
-    $form['search_block_form']['#attributes']['class'] = array('small-8', 'columns');
-    $form['actions']['submit']['#attributes']['class'] = array('postfix', 'small-4', 'columns');
+    $form['search_block_form'] += array(
+      '#prefix' => '<div class="row collapse"><div class="small-8 columns">',
+      '#suffix' => '</div>',
+    );
+    $form['actions']['submit'] += array(
+      '#prefix' => '<div class="small-4 columns">',
+      '#suffix' => '</div></div>',
+    );
+    $form['actions']['submit']['#attributes']['class'] []= 'postfix';
+    $form['actions']['submit']['#attributes']['class'] []= 'expand';
   }
 
-  // Mantain compatibility with Edit module.
-  if ($form_id === 'edit_field_form') {
-    $form['actions']['submit']['#attributes']['class'][] = 'edit-form-submit';
+  // Mantain compatibility with Quick Edit module.
+  if ($form_id === 'quickedit_field_form') {
+    $form['actions']['submit']['#attributes']['class'][] = 'quickedit-form-submit';
   }
 
   // Add tooltips to form elements.
@@ -101,16 +111,18 @@ function zurb_foundation_field_multiple_value_form($variables) {
  */
 function _zurb_foundation_add_tooltips(&$variables) {
   if (!empty($variables['element']['#title']) && !empty($variables['element']['#description'])) {
-    $variables['element']['#title'] = '<label>' . $variables['element']['#title'] . '</label>';
     $text = theme_get_setting('zurb_foundation_tooltip_text');
     $position = theme_get_setting('zurb_foundation_tooltip_position');
     $touch = theme_get_setting('zurb_foundation_tooltip_touch') ? 'data-options="disable-for-touch:true"' : '';
-    $variables['element']['#description'] = ' <span data-tooltip ' . $touch . 'class="has-tip ' . $position . '" title="' . check_plain(strip_tags($variables['element']['#description'])) . '">' . t($text) . '</span>';
-  }
-  else {
-    // Hide description field, we add it directly to the form element's
-    // "title" attribute.
-    $variables['element']['#description'] = '';
+    if (theme_get_setting('zurb_foundation_tooltip_mode') === 'element') {
+      // Not sure whats up with the colon. Probably a JSON issue.
+      $safe_text = str_replace(':', '', check_plain(strip_tags($variables['element']['#description'])));
+      $variables['element']['#title'] = '<label>' . ' <span data-tooltip ' . $touch . 'class="has-tip ' . $position . '" title="' . $safe_text . '">' . $variables['element']['#title'] . '</span>' . '</label>';
+      $variables['element']['#description'] = '';
+    } else {
+      $variables['element']['#title'] = '<label>' . $variables['element']['#title'] . '</label>';
+      $variables['element']['#description'] = ' <span data-tooltip ' . $touch . 'class="has-tip ' . $position . '" title="' . check_plain(strip_tags($variables['element']['#description'])) . '">' . t($text) . '</span>';
+    }
   }
 }
 

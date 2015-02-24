@@ -11,43 +11,48 @@
   <?php endif; ?>
 
   <?php if (!empty($top)): ?>
-    <div class="row">
+    <div class="<?php print $zf_wrapper_classes; ?>">
       <<?php print $top_wrapper ?> class="group-top<?php print $top_classes; ?>">
       <?php print $top; ?>
       </<?php print $top_wrapper ?>>
     </div>
   <?php endif; ?>
 
-  <div class="row">
-    <<?php print $above_left_wrapper ?> class="group-above-left<?php print $above_left_classes; ?>">
-    <?php print $above_left; ?>
-    </<?php print $above_left_wrapper ?>>
 
-    <<?php print $above_right_wrapper ?> class="group-above-right<?php print $above_right_classes; ?>">
-    <?php print $above_right; ?>
-    </<?php print $above_right_wrapper ?>>
-  </div>
+  <?php if (!empty($above_left) || !empty($above_right)): ?>
+    <div class="<?php print $zf_wrapper_classes; ?>">
+      <<?php print $above_left_wrapper ?> class="group-above-left<?php print $above_left_classes; ?>">
+      <?php print $above_left; ?>
+      </<?php print $above_left_wrapper ?>>
 
-  <div class="row">
-    <?php if (!empty($middle)): ?>
+      <<?php print $above_right_wrapper ?> class="group-above-right<?php print $above_right_classes; ?>">
+      <?php print $above_right; ?>
+      </<?php print $above_right_wrapper ?>>
+    </div>
+  <?php endif; ?>
+
+  <?php if (!empty($middle)): ?>
+    <div class="<?php print $zf_wrapper_classes; ?>">
       <<?php print $middle_wrapper ?> class="group-middle<?php print $middle_classes; ?>">
       <?php print $middle; ?>
       </<?php print $middle_wrapper ?>>
-    <?php endif; ?>
-  </div>
+    </div>
+  <?php endif; ?>
 
-  <div class="row">
-    <<?php print $below_left_wrapper ?> class="group-below-left<?php print $below_left_classes; ?>">
-    <?php print $below_left; ?>
-    </<?php print $below_left_wrapper ?>>
+  <?php if (!empty($below_left) || !empty($below_right)): ?>
+    <div class="<?php print $zf_wrapper_classes; ?>">
+      <<?php print $below_left_wrapper ?> class="group-below-left<?php print $below_left_classes; ?>">
+      <?php print $below_left; ?>
+      </<?php print $below_left_wrapper ?>>
 
-    <<?php print $below_right_wrapper ?> class="group-below-right<?php print $below_right_classes; ?>">
-    <?php print $below_right; ?>
-    </<?php print $below_right_wrapper ?>>
-  </div>
+      <<?php print $below_right_wrapper ?> class="group-below-right<?php print $below_right_classes; ?>">
+      <?php print $below_right; ?>
+      </<?php print $below_right_wrapper ?>>
+    </div>
+  <?php endif; ?>
 
   <?php if (!empty($bottom)): ?>
-    <div class="row">
+    <div class="<?php print $zf_wrapper_classes; ?>">
       <<?php print $bottom_wrapper ?> class="group-bottom<?php print $bottom_classes; ?>">
       <?php print $bottom; ?>
       </<?php print $bottom_wrapper ?>>
