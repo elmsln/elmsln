@@ -26,7 +26,7 @@ function cis_service_connection_block_info() {
       'info' => t('Instructional Outline (load all)'),
       'cache' => DRUPAL_CACHE_PER_USER,
     ),
-    'high_level_outline' => array(
+    'high_active_outline' => array(
       'info' => t('Instructional Outline (highest)'),
       'cache' => DRUPAL_CACHE_PER_USER,
     ),
@@ -443,7 +443,7 @@ function _cis_service_connection_section_outline_tree_output($tree, $type = 'def
       $element['#theme'] = 'menu_link__cis_service_connection_all_active_outline';
     }
     elseif ($type == 'high') {
-      $element['#theme'] = 'menu_link__cis_service_connection_high_level_outline';
+      $element['#theme'] = 'menu_link__cis_service_connection_high_active_outline';
     }
     else {
       $element['#theme'] = 'menu_link__cis_service_connection_active_outline';
@@ -465,7 +465,7 @@ function _cis_service_connection_section_outline_tree_output($tree, $type = 'def
       $build['#theme_wrappers'][] = 'menu_tree__cis_service_connection_all_active_outline';
     }
     elseif ($type == 'high') {
-      $build['#theme_wrappers'][] = 'menu_tree__cis_service_connection_high_level_outline';
+      $build['#theme_wrappers'][] = 'menu_tree__cis_service_connection_high_active_outline';
     }
     else {
       $build['#theme_wrappers'][] = 'menu_tree__cis_service_connection_active_outline';

@@ -26,16 +26,16 @@ function foundation_access_preprocess_node(&$variables) {
 // Active Book Outline (Sidebar)
 
 /**
- * Implements menu_tree__cis_service_connection_high_level_outline().
+ * Implements menu_tree__cis_service_connection_high_active_outline().
  */
-function foundation_access_menu_tree__cis_service_connection_high_level_outline($variables) {
+function foundation_access_menu_tree__cis_service_connection_high_active_outline($variables) {
   return '<ul class="tabs outline-nav-tabs" data-tab role="tablist">' . $variables['tree'] . '</ul>';
 }
 
 /**
- * Implements menu_link__cis_service_connection_high_level_outline().
+ * Implements menu_link__cis_service_connection_high_active_outline().
  */
-function foundation_access_menu_link__cis_service_connection_high_level_outline($variables) {
+function foundation_access_menu_link__cis_service_connection_high_active_outline($variables) {
   $element = $variables['element'];
   $sub_menu = '';
   $return = '';
