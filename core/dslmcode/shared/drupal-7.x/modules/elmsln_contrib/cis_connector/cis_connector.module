@@ -631,8 +631,11 @@ function _cis_connector_transaction($request, $format = 'default', $query = arra
           // request the standard language if we don't have custom
           $query = array('type' => 'resource', 'field_machine_name' => 'field_welcome_letter');
           $resource = _cis_connection_query($query);
+          $output = '';
           // render text applying the input filter requested
-          $output = check_markup($resource['list'][0]['body']['value'], $resource['list'][0]['body']['format']);
+          if (isset($resource['list'][0])) {
+            $output = check_markup($resource['list'][0]['body']['value'], $resource['list'][0]['body']['format']);
+          }
         }
         // see if there's a welcome letter to append
         if (isset($cis_section_item['list'][0]['field_welcome_letter'])) {
