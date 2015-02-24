@@ -1,0 +1,17 @@
+default:
+  suites:
+    default:
+      contexts:
+        - Drupal\DrupalExtension\Context\MinkContext
+        - FeatureContext
+  extensions:
+    Behat\MinkExtension:
+      goutte: ~
+      selenium2: ~
+      base_url: "http://localhost:9000/"
+    Drupal\DrupalExtension:
+      blackbox: ~
+      api_driver: "drupal"
+
+imports:
+  - behat.local.yml

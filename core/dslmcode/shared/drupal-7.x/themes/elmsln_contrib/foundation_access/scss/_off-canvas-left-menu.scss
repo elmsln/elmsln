@@ -1,0 +1,108 @@
+$mobile-off-canvas-width: 100%; // or any other unit
+
+// Full width off-canvas menu on mobile
+@media #{$small-only} {
+  .left-off-canvas-menu, 
+  .left-submenu,
+  .right-off-canvas-menu {
+    width: $mobile-off-canvas-width;
+  }
+  .move-left > .inner-wrap {
+    transform: translate3d(-$mobile-off-canvas-width, 0, 0);
+  }
+  .move-right > .inner-wrap {
+    transform: translate3d($mobile-off-canvas-width, 0, 0);
+  }
+  .no-csstransforms .left-off-canvas-menu {
+    left: -$mobile-off-canvas-width;
+  }
+  .no-csstransforms .move-left > .inner-wrap {
+    right: $mobile-off-canvas-width;
+  }
+  .no-csstransforms .right-off-canvas-menu {
+    right: -$mobile-off-canvas-width;
+  }
+  .no-csstransforms .move-right > .inner-wrap {
+    left: $mobile-off-canvas-width;
+  }
+}
+// Off-canvas menu styling
+ul.off-canvas-list.content-outline-navigation {
+  margin:rem-calc(10);
+  background-color:$dark-background-color;
+  &.active, .active {
+    background-color: $active-menu-bg;
+    margin-right:0;
+    border-bottom: 2px solid $active-menu-border;
+    @media #{$small-only} {
+      margin-right:rem-calc(10);
+    }
+    .outline-nav-icon {
+      @include opacity(0.4);
+    }
+    li a {
+      border-top: 1px solid $active-menu-link-border;
+      color:$bright-color;
+    }
+    h2 {
+      color:darken($text-color,10%);
+    }
+    h3 {
+      color:$text-color;
+    }
+  }
+
+  h2 {
+    color:$blue-contrast-color;
+    display:inline-block;
+    text-transform:uppercase;
+    font-size: 1.3rem;
+    padding: rem-calc(15) 0 rem-calc(15) 0;
+    margin:rem-calc(15) rem-calc(16) rem-calc(15) rem-calc(30);
+  }
+  h3 {
+    color:darken($text-on-dark-color,10%);
+    display:inline-block;
+    margin:rem-calc(15) 0 rem-calc(30) 0;
+    padding: rem-calc(15) 0 rem-calc(15) rem-calc(16);
+    border-left:2px solid darken($dark-background-color,10%);
+    font-size: 1rem;
+
+    @media #{$small-only} {
+      width: 13rem;
+    }
+    @media #{$medium-up} {
+      width: 22rem;
+    }
+  }
+  .left-submenu.level-1-sub {
+    background-color:lighten($dark-background-color,10%);
+  }
+
+}
+
+ul.off-canvas-list li a {
+  border-bottom:none;
+  border-top: 1px solid darken($etb-tool-bg-color, 10%);
+  padding:1rem;
+}
+.outline-nav-tabs {
+  @media #{$medium-up} {
+    margin-top: 3rem ;
+    display: flex;
+    justify-content:center;
+  }
+  &.active {
+    
+  }
+  &.tabs .tab-title>a {
+    padding:0.5rem 1rem;
+    background-color:transparent;
+    color:$bright-color;
+    text-transform:uppercase;
+  }
+  &.tabs .tab-title.active a {
+    color:$blue-contrast-color;
+      text-decoration: underline;
+  }
+}

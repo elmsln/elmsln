@@ -1,0 +1,57 @@
+{
+	"name": "Foundation access Dependencies",
+	"drush_recipes_api": "1.0",
+	"weight": "0",
+	"core": "7",
+	"recipe": [
+		{
+			"command": "en",
+			"arguments": [
+				"magic",
+				"fences",
+				"html5_tools"
+			]
+		},
+		{
+                        "command": "vset",
+                        "arguments": [
+                                "fences_default_classes",
+                                "1"
+                        ]
+                },
+		{
+                        "command": "vset",
+                        "arguments": [
+                                "fences_default_markup",
+                                "1"
+                        ]
+                },
+                {
+			"command": "vset",
+			"arguments": [
+				"theme_default",
+				"foundation_access"
+			]
+		},
+		{
+			"command": "vset",
+			"arguments": [
+				"jquery_update_jquery_version",
+				"1.10"
+			]
+		},
+		{
+			"command": "cc",
+			"arguments": [
+				"all"
+			]
+		}
+	],
+	"metadata": {
+		"type": "add-on",
+		"version": "1.0",
+		"author": "heymp",
+		"description": "Module dependencies for using this zurb sub-theme",
+		"lazy": "fad"
+}
+}

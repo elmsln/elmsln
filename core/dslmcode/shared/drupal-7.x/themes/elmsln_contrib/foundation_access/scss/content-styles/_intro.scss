@@ -1,0 +1,30 @@
+p.txtbk-intro {
+			 // border-top: 1px;
+			 // border-bottom: 1px;
+			 // border-left: 0;
+			 // border-right: 0;
+			 // border-style: solid;
+			 text-align: center;
+			 
+			
+			 @media #{$small-up} {
+			 	margin: 1em 1em 1.8em;
+			 	// padding: 0.7em 0 0.7em 0;
+			 	font-size: 0.9em;
+			 	line-height: 1.4em;
+				padding: 1em 1rem 1em 1rem;
+			 }
+			 
+			 @media #{$medium-up} { 
+				font-size: 1em;
+				padding: 1em 3rem 1em 3rem;
+				// padding: 1em 0 1em 0;
+			 }
+
+			 @media #{$large-up} { 
+			 	margin: 1.0em 1.1em 1.0em;
+			 	padding: 1em 6rem 1em 6rem;
+				font-size: 1.278em;
+			 	line-height: 1.5em;
+			 }
+		}

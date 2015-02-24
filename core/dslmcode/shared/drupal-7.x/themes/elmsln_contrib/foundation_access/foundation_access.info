@@ -1,5 +1,5 @@
-name = ZURB Foundation Access
-description = Subtheme based on Zurb Foundation base theme.
+name = foundation_access
+description = Custom sub-theme based on the the Zurb Foundation base theme.
 screenshot = images/screenshot.png
 
 core = 7.x
@@ -27,47 +27,27 @@ base theme = zurb_foundation
 ; CSS3 media queries: http://www.w3.org/TR/css3-mediaqueries/
 
 ; For CSS users, load the app.css file:
-; stylesheets[all][] = css/app.css
-; Comment the app.css file (above) if you're using sass to preprocess css:
-stylesheets[all][] = fonts/foundation-icons/foundation-icons.css
-stylesheets[all][] = css/foundation_access.css
+stylesheets[all][] = css/app.css
 
 ; Block loading of foundation.min.css from the base theme. This file should either
 ; not exist or be blank in your subtheme. See https://drupal.org/node/263967
+stylesheets[all][] = css/normalize.css
 stylesheets[all][] = css/foundation.min.css
 
 ; Foundation JavaScript.
 
 ; Modernizr acts as a shim for HTML5 elements for older browsers
 ; as well as detection for mobile devices.
-scripts[] = js/vendor/custom.modernizr.js
+scripts[] = js/libs.min.js
 
 ; Foundation framework scripts (minified).
 ; If you prefer to have more control over which components are included you
 ; can comment this line and uncomment the ones below you want.
 scripts[] = js/foundation.min.js
 
-; Foundation framework scripts (uncompressed).
-;scripts[] = js/foundation/foundation.js
-;scripts[] = js/foundation/foundation.abide.js
-;scripts[] = js/foundation/foundation.alerts.js
-;scripts[] = js/foundation/foundation.clearing.js
-;scripts[] = js/foundation/foundation.cookie.js
-;scripts[] = js/foundation/foundation.dropdown.js
-;scripts[] = js/foundation/foundation.forms.js
-;scripts[] = js/foundation/foundation.interchange.js
-;scripts[] = js/foundation/foundation.joyride.js
-;scripts[] = js/foundation/foundation.magellan.js
-;scripts[] = js/foundation/foundation.orbit.js
-;scripts[] = js/foundation/foundation.placeholder.js
-;scripts[] = js/foundation/foundation.reveal.js
-;scripts[] = js/foundation/foundation.section.js
-;scripts[] = js/foundation/foundation.tooltips.js
-;scripts[] = js/foundation/foundation.topbar.js
-
 ; Theme scripts.
 ; This file is empty, just uncomment this line and start editing!
-scripts[] = js/scripts.js
+scripts[] = js/app.min.js
 
 ; This section lists the regions defined in the page.tpl.php. The name in
 ; brackets is the machine name of the region. The text after the equals sign is
@@ -80,25 +60,21 @@ scripts[] = js/scripts.js
 ; You'll use this variable in page.tpl.php:
 ;   <?php print render($page['header']); ?>
 
-regions[admin_first]         = Admin First
-regions[preheader]           = Preheader
-regions[cis_lmsless]         = CIS LMSless
-regions[cis_user_profile]    = CIS User Profile
-regions[header]              = Header
-regions[help]                = Help
-regions[highlighted]         = Highlighted
-regions[featured]            = Featured
-regions[content]             = Content
-regions[sidebar_first]       = Left Sidebar
-regions[sidebar_second]      = Right Sidebar
-regions[triptych_first]      = Callout one
-regions[triptych_middle]     = Callout two
-regions[triptych_last]       = Callout three
+regions[header]               = Header
+regions[help]                 = Help
+regions[highlighted]          = Highlighted
+;regions[featured]            = Featured
+regions[content]              = Content
+regions[left_menu]            = Left Off Canvas Menu
+;regions[sidebar_second]      = Right Sidebar
+;regions[triptych_first]      = Callout one
+;regions[triptych_middle]     = Callout two
+;regions[triptych_last]       = Callout three
+regions[footer]               = Footer
 regions[footer_firstcolumn]  = Footer one
 regions[footer_secondcolumn] = Footer two
-regions[footer_thirdcolumn]  = Footer three
-regions[footer_fourthcolumn] = Footer four
-regions[footer]              = Footer
+;regions[footer_thirdcolumn]  = Footer three
+;regions[footer_fourthcolumn] = Footer four
 
 ; Various page elements output by the theme can be toggled on and off. The
 ; "features" control which of these check boxes display on the
@@ -130,6 +106,7 @@ settings[zurb_foundation_top_bar_custom_back_text] = 1
 settings[zurb_foundation_top_bar_back_text] = 'Back'
 settings[zurb_foundation_top_bar_is_hover] = 1
 settings[zurb_foundation_top_bar_scrolltop] = 1
+settings[zurb_foundation_top_bar_mobile_show_parent_link] = 1
 
 ; Tooltips.
 settings[zurb_foundation_tooltip_enable] = 1

@@ -1,0 +1,137 @@
+// To Do: Add backup font classes al la Jason Pamental's technique
+
+//Vollkorn Google Font
+%vollkorn-normal {
+	font-family: "Vollkorn", "Georgia", serif;
+	 font-style: normal;
+	 font-weight: 400;
+}
+%vollkorn-bold {
+	font-family: "Vollkorn", "Georgia", serif;
+	 font-style: normal;
+	 font-weight: 700;
+}
+%vollkorn-italic {
+	font-family: "Vollkorn", "Georgia", serif;
+	 font-style: normal;
+	 font-weight: 400;
+	 font-style: italic;
+}
+//Asap Google Font
+%asap-normal {
+	 font-family: "Asap", "Helvetica Neue", "Helvetica", sans-serif;
+	 font-style: normal;
+	 font-weight: 400;
+}
+%asap-bold {
+	 font-family: "Asap", "Helvetica Neue", "Helvetica", sans-serif;
+	 font-style: normal;
+	 font-weight: 700;
+}
+%asap-italic {
+	 font-family: "Asap", "Helvetica Neue", "Helvetica", sans-serif;
+	 font-weight: 400;
+	 font-style: italic;
+}
+%opensans-light {
+	 font-family: "Open Sans", "Helvetica Neue", "Helvetica", sans-serif;
+	 font-style: normal;
+	 font-weight: 300;
+}
+%opensans-normal {
+	 font-family: "Open Sans", "Helvetica Neue", "Helvetica", sans-serif;
+	 font-style: normal;
+	 font-weight: 600;
+}
+%opensans-bold {
+	 font-family: "Open Sans", "Helvetica Neue", "Helvetica", sans-serif;
+	 font-style: normal;
+	 font-weight: 700;
+}
+
+// Applied fonts
+
+body {
+	 @extend %vollkorn-normal;
+}
+
+h1 {
+	 @extend %asap-bold;
+}
+
+h2 {
+	 @extend %asap-bold;
+}
+a {
+	@extend %opensans-normal;
+}
+p {
+	@extend %vollkorn-normal;
+	a {
+		@extend %vollkorn-normal;
+	}
+
+	&.txtbk-intro {
+		 @extend %asap-normal;
+		 a{
+		 	@extend %asap-normal;
+		 }
+	}
+
+	&.txtbk-pullquote {
+		 @extend %vollkorn-italic;
+		 
+		 @media #{$small-only} {
+			font-family: "Georgia", sans-serif;
+		 }
+	}
+}
+
+span.dropcap {
+	 @extend %asap-bold;
+}
+
+.image-media {
+	h3 {
+		 @extend %asap-bold;
+	}
+}
+
+h4.testimonial-name {
+	 @extend %asap-bold;
+}
+
+p.testimonial-title {
+	 @extend %vollkorn-italic;
+}
+#etb-course-nav span.course-title {
+	@extend %opensans-bold;
+	text-transform:uppercase;
+}
+#etb-course-nav span.course-abrv {
+	@extend %opensans-bold;
+	text-transform:uppercase;
+}
+.alert-box, #etb-tool-nav .tab-bar span {
+	@extend %opensans-light;
+}
+.etb-nav_item_search input {
+	@extend %vollkorn-italic;
+		 
+	 @media #{$small-only} {
+		font-family: "Georgia", sans-serif;
+	 }
+}
+ul.off-canvas-list li a {
+	@extend %opensans-light;
+}
+a.etb-nav_item_service_btn span{
+	@extend %opensans-light;
+}
+.etb-nav-modal h1 {
+	@extend %opensans-bold;
+}
+.etb-nav-modal h2 {
+	@extend %opensans-light;
+	text-transform:uppercase;
+}

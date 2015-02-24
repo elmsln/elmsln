@@ -1,0 +1,21 @@
+#accessibility-drop.open {
+	width:20em;
+	height:auto;
+	@media #{$small-only} {
+		width:100% !important;
+		left:0 !important
+	}
+
+}
+// .custom-dropdown-container-class {
+//   @include dropdown-container(
+//     // Sets list-style. Default: list. Options: [list, content]
+//     $content:content,
+//     // Sets if dropdown has triangle. Default:true.
+//     $triangle:false,
+//     // Sets max-width. Default: $f-dropdown-max-width
+//     $max-width:100%;
+//   );
+
+//   li { @include dropdown-style; }
+// }

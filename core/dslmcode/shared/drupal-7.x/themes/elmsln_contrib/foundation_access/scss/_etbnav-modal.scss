@@ -1,0 +1,66 @@
+.reveal-modal {
+left: -27em;
+-webkit-transition: all 0.7s cubic-bezier(0.01, 0.94, 0.46, 1);
+-moz-transition: all 0.7s cubic-bezier(0.01, 0.94, 0.46, 1);
+-o-transition: all 0.7s cubic-bezier(0.01, 0.94, 0.46, 1);
+transition: all 0.7s cubic-bezier(0.01, 0.94, 0.46, 1);
+//opacity:0 !important;
+}
+.reveal-modal.open {
+left: 0;
+-webkit-transition: all 0.5s cubic-bezier(0.01, 0.94, 0.46, 1);
+-moz-transition: all 0.5s cubic-bezier(0.01, 0.94, 0.46, 1);
+-o-transition: all 0.5s cubic-bezier(0.01, 0.94, 0.46, 1);
+transition: all 0.5s cubic-bezier(0.01, 0.94, 0.46, 1);
+}
+.reveal-modal, .reveal-modal.open {
+  width: 23.000em;//368px
+  max-width: 100%;
+  height:100%;
+  right: 0;
+  margin: 0 ;
+  top:0 !important;
+  overflow-y: auto;
+  overflow-x: hidden;
+  right: -2.500em;
+  padding-right:2.500em;
+  border-radius: 0;
+  border: none;
+  position: fixed;
+  //box-shadow: none;
+}
+.reveal-modal-bg {
+    position: fixed;
+}
+.etb-nav_reveal {
+  @include reveal-modal-style(
+    // Sets background color of reveal modal. Default: $reveal-modal-bg or #fff
+    $bg:$reveal-modal-bg,
+    // Set reveal border style. Default: $reveal-border-style or solid
+    $border:true,
+    // Width of border (i.e. 1px). Default: $reveal-border-width.
+    $border-style:$reveal-border-style,
+    // Color of border. Default: $reveal-border-color.
+    $border-width:$reveal-border-width,
+    // Color of border. Default: $reveal-border-color.
+    $border-color:$reveal-border-color,
+    // Choose whether or not to include the default box-shadow. Default: true, Options: false
+    $box-shadow:false,
+    // Default: $reveal-position-top or 50px
+    $top-offset:$reveal-position-top
+  );
+}
+$modal-headings-color:#575757;
+.etb-nav-modal {
+  h1 {
+    color:$modal-headings-color;
+    font-size: rem-calc(22);
+    }
+  h2 {
+    color:lighten($modal-headings-color, 50%);
+    font-size: rem-calc(14);
+  }
+  hr {
+    margin: 1rem 0 0;
+  }
+}

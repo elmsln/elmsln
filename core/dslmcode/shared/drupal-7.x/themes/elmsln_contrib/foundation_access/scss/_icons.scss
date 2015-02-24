@@ -1,0 +1,185 @@
+// .no-svg .etb-course {
+// 	background: url(../icons/etb-icons/etb-course-36px.png);
+// }
+
+img.svg {
+	width:1.5rem;
+}
+
+
+// Ecosystem tool bar items
+.etb-icon {
+	height: 4.25rem;   
+	display: block;
+	text-align: left;
+	color: $tool-bar-dark-color;
+	padding: 0.8rem 0.8rem 0rem 1rem;
+	
+	span {
+            padding: 0.65rem 0 0 0;
+            display: block;
+            font-size: 80%;
+            opacity: 0.8;
+          }
+	@media #{$small-only} {
+		width: 4em;
+	}
+	&.apps-icon {
+
+		@media #{$small-up} {
+			width: 3em;
+			span {
+	            padding: 0.65rem 0 0 2rem;
+			}
+		}
+		@media #{$medium-up} {
+			width: 3.3em;
+			padding: 0.8rem 0.2rem 0rem 1rem;
+			span {
+	            padding: 0.65rem 0 0 2rem;
+			}
+		}
+		@media #{$large-up} {
+			width: auto;
+			padding: 0.8rem 0.5rem 0rem 1rem;
+		}
+		@media #{$xlarge-up} {
+			padding: 0.8rem 0.8rem 0rem 1rem;
+		}
+	}
+	&.user-icon {
+		@media #{$small-up} {
+			width: 2.625em;
+			padding: 0.8rem 0.5rem 0rem 0.5rem;
+		}
+		@media #{$medium-up} {
+			width: 3.2em;
+			padding: 0.8rem 0.7875rem 0rem 0.7875rem;
+			span {
+	            padding: 0.65rem 0 0 2rem;
+			}
+		}
+		@media #{$large-up} {
+			width:auto;
+			padding: 0.8rem 0.5rem 0rem 0.5rem;
+		}
+		@media #{$xlarge-up} {
+			
+			padding: 0.8rem 0.8rem 0rem 1rem;
+		}
+	}
+	&.info-icon {
+		
+		@media #{$small-up} {
+			width: 2.625em;
+			padding: 0.8rem 0.5rem 0rem 0.5rem;
+		}
+		@media #{$medium-up} {
+			width: 3.2em;
+			padding: 0.8rem 0.7875rem 0rem 0.7875rem;
+			span {
+	            padding: 0.65rem 0 0 2rem;
+			}
+		}
+		@media #{$large-up} {
+			width:auto;
+			padding: 0.8rem 0.5rem 0rem 0.5rem;
+		}
+		@media #{$xlarge-up} {
+			padding: 0.8rem 0.8rem 0rem 1rem;
+		}
+	}
+	&.help-icon {
+		
+		@media #{$small-up} {
+			width: 2.625em;
+			padding: 0.8rem 0.5rem 0rem 0.5rem;
+		}
+		@media #{$medium-up} {
+			width: 3.2em;
+			padding: 0.8rem 0.7875rem 0rem 0.7875rem;
+			span {
+	            padding: 0.65rem 0 0 2rem;
+			}
+		}
+		@media #{$large-up} {
+			width:auto;
+			padding: 0.8rem 0.5rem 0rem 0.5rem;
+		}
+		@media #{$xlarge-up} {
+			padding: 0.8rem 0.8rem 0rem 1rem;
+		}
+	}
+}
+.etb-modal {
+	&-icon {
+		display: block;
+		padding:0.5rem 0.2rem;
+	}
+	&-icons {
+		width:2rem;
+		height:2rem;
+		display:inline-block;
+	}
+}
+.etb-icons {
+	opacity:0.5;
+	float:left;
+	margin-top: 0.5rem;
+	height: rem-calc(26);
+	width: rem-calc(26);
+}
+
+// Service toolbar menu items
+.off-canvas-toolbar-item {
+	margin: 0.4rem;
+	display: block;
+	height: 2.8125rem;
+	@include opacity(0.2);
+	@include transition();
+	
+	&:hover, &:focus {
+			@include opacity(0.8);
+			@include transition();
+		}
+	
+	&-icon {
+		width: 2rem;
+		height: 2rem;
+		display: inline-block;
+		
+		
+		
+	}
+}
+
+// Off-canvas menu toggle icon
+@media #{$small-only} {
+	.left-off-canvas-toggle.close {
+		display: block;
+		height:3rem;
+		padding:1rem;
+		.icon-close-white {
+			left: 50%;
+			position: relative;
+			display: block;
+			
+			@include opacity(1);
+		}
+	}
+}
+@media #{$medium-up} {
+	.left-off-canvas-toggle.close {
+		display: none;
+	}
+}
+// Off-canvas menu items
+.outline-nav-icon {
+	height:rem-calc(30);
+	width:rem-calc(30);
+	float:left;
+	@include opacity(0.3);
+}
+.outline-nav-icon {
+	margin-right:1rem;
+}
