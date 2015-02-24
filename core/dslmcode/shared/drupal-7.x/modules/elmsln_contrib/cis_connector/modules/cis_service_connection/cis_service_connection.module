@@ -22,6 +22,14 @@ function cis_service_connection_block_info() {
       'info' => t('Instructional Outline'),
       'cache' => DRUPAL_CACHE_PER_USER,
     ),
+    'all_active_outline' => array(
+      'info' => t('Instructional Outline (load all)'),
+      'cache' => DRUPAL_CACHE_PER_USER,
+    ),
+    'high_level_outline' => array(
+      'info' => t('Instructional Outline (highest)'),
+      'cache' => DRUPAL_CACHE_PER_USER,
+    ),
     'instructor_contact' => array(
       'info' => t('Instructor Contact info'),
       'cache' => DRUPAL_CACHE_PER_USER,
@@ -35,50 +43,19 @@ function cis_service_connection_block_info() {
 }
 
 /**
- * Implements hook_block_configure().
- */
-function cis_service_connection_block_configure($delta = '') {
-  $form = array();
-  if ($delta == 'active_outline') {
-    $outline_styles = variable_get('cis_service_connection_active_outline_styles', array());
-    $section = _cis_connector_section_context();
-    if (isset($outline_styles[$section])) {
-      $default = $outline_styles[$section];
-    }
-    else {
-      $default = 'default';
-    }
-    $form['cis_service_connection_active_outline_styles'] = array(
-      '#type' => 'select',
-      '#title' => t('Display style'),
-      '#description' => t("This setting is set on a per section basis or default by default. Default means that only the active path will be rendered (core drupal functionality). Stacked means that all items are rendered but collapsed into stacks (foundation access handles this natively. In Context means that if no context is found then it uses Stacked, otherwise it'll render the high level containers as a dropdown and a block below it that is specific to the current content."),
-      '#default_value' => $default,
-      '#options' => array('default' => t('Default'), 'stacked' => t('Stacked'),  'in-context' => t('In context')),
-    );
-  }
-  return $form;
-}
-
-/**
- * Implementation of hook_block_save().
- */
-function cis_service_connection_block_save($delta = '', $edit = array()) {
-  if ($delta == 'active_outline') {
-    $outline_styles = variable_get('cis_service_connection_active_outline_styles', array());
-    $section = _cis_connector_section_context();
-    $outline_styles[$section] = $edit['cis_service_connection_active_outline_styles'];
-    variable_set('cis_service_connection_active_outline_styles', $outline_styles);
-  }
-}
-
-/**
  * Implements hook_block_view().
  */
 function cis_service_connection_block_view($delta = '') {
   $block = array();
   switch ($delta) {
     case 'active_outline':
-      $block = cis_service_connection_block_section_outline();
+      $block = cis_service_connection_block_section_outline('default');
+    break;
+    case 'all_active_outline':
+      $block = cis_service_connection_block_section_outline('all');
+    break;
+    case 'high_active_outline':
+      $block = cis_service_connection_block_section_outline('high');
     break;
     case 'instructor_contact':
       $block['subject'] = t('Instructor Contact');
@@ -355,9 +332,9 @@ function _cis_service_connection_initial_cis_bind() {
 /**
  * Render a block based on section context
  */
-function cis_service_connection_block_section_outline() {
+function cis_service_connection_block_section_outline($type = 'default') {
   // ensure this doesn't load when it doesn't have to
-  $block = &drupal_static(__FUNCTION__);
+  $block = &drupal_static(__FUNCTION__ . $type);
   if (!isset($block)) {
     // never load when on an edit form in case it gets called
     if (arg(2) != 'edit') {
@@ -375,63 +352,18 @@ function cis_service_connection_block_section_outline() {
       }
       // only show the block if the user has view access for the top-level node.
       if (entity_access('view', 'node', $active) && isset($active->book)) {
-        // load in the style in question for rendering this content for this
-        // section based on how they want it displayed in the block settings
-        // default is to load like it normally would in drupal books (active)
-        $outline_styles = variable_get('cis_service_connection_active_outline_styles', array());
-        $section = _cis_connector_section_context();
-        $pre = array();
-        // stacked allows for loading ALL items and displaying them
-        if (isset($outline_styles[$section]) && $outline_styles[$section] == 'stacked') {
-          // load the tree of the book
+        // load the tree of the book
+        if ($type == 'all') {
           $tree = menu_tree_all_data($active->book['menu_name']);
-          $data = array_shift($tree);
-          // only render things below the highest book level
-          $output = _cis_service_connection_section_outline_tree_output($data['below']);
         }
-        // in context will load everything IF there is no context
-        // if there is a context (page in the book) then we should load everything
-        // at the highest level into a drop down menu and then JUST the context
-        // in question. This is far more complicated then the other two.
-        elseif (isset($outline_styles[$section]) && $outline_styles[$section] == 'in-context') {
-          // we split this into two different loads for now
-
-          // @todo reduce this into 1 output style once collins gets us the
-          // nesting in question
-          $tree = menu_tree_all_data($active->book['menu_name'], $active->book);
-          $data2 = $data = array_shift($tree);
-          foreach ($data2['below'] as $key => $item) {
-            if (empty($item['below'])) {
-              unset($data2['below'][$key]);
-            }
-          }
-          $tree = menu_tree_all_data($active->book['menu_name']);
-          $data = array_shift($tree);
-          // load the whole thing like in stacked
-          $post = _cis_service_connection_section_outline_tree_output($data['below']);
-          $post['#outline_style'] = 'stacked';
-          // make sure that we have an item that's active but not the 1st thing
-          // in question.
-          if (!empty($data2['below'])) {
-            // load the pruned of empty container items
-            $active = _cis_service_connection_section_outline_tree_output($data2['below']);
-            // @todo Collins needs to get me the wrapper to use for the
-            // hamburger menu
-            $output = '<ul id="activeoutline" class="cis-outline-incontext cis-outline-active menu book-oultine slide-panels">' . drupal_render($active) . '</ul>';
-            $output .= '<ul id="fulloutline" class="cis-outline-incontext cis-outline-back  menu book-oultine slide-panels">' . drupal_render($post) . '</ul>';
-          }
-          else {
-            $output = $post;
-          }
+        elseif ($type == 'high') {
+          $tree = menu_tree_all_data($active->book['menu_name'], $active->book, 2);
         }
-        // we didn't have one of those so just use default. This means that what
-        // ever is clicked on is expanded and then rendered. This results in
-        // lots of clicking but is the way that everything has operated historically
         else {
           $tree = menu_tree_all_data($active->book['menu_name'], $active->book);
-          $data = array_shift($tree);
-          $output = _cis_service_connection_section_outline_tree_output($data['below']);
         }
+        $data = array_shift($tree);
+        $output = _cis_service_connection_section_outline_tree_output($data['below'], $type);
         // There should only be one element at the top level.
         $block['subject'] = '<none>';
         $block['content'] = $output;
@@ -452,7 +384,7 @@ function cis_service_connection_block_section_outline() {
  * conventions. This operates in the exact same way but it has a better theme
  * name suggestion that's generic.
  */
-function _cis_service_connection_section_outline_tree_output($tree) {
+function _cis_service_connection_section_outline_tree_output($tree, $type = 'default') {
   $build = array();
   $items = array();
 
@@ -463,8 +395,15 @@ function _cis_service_connection_section_outline_tree_output($tree) {
       $items[] = $data;
     }
   }
-
   $router_item = menu_get_item();
+  $active_trails = menu_get_active_trail();
+  drupal_alter('menu_breadcrumb', $active_trails, $router_item);
+  $trail = array();
+  foreach ($active_trails as $active_trail) {
+    if (isset($active_trail['link_path'])) {
+      $trail[] = $active_trail['link_path'];
+    }
+  }
   $num_items = count($items);
   foreach ($items as $i => $data) {
     $class = array();
@@ -487,7 +426,7 @@ function _cis_service_connection_section_outline_tree_output($tree) {
       $class[] = 'leaf';
     }
     // Set a class if the link is in the active trail.
-    if ($data['link']['in_active_trail']) {
+    if ($data['link']['in_active_trail'] || in_array($data['link']['link_path'], $trail)) {
       $class[] = 'active-trail';
       $data['link']['localized_options']['attributes']['class'][] = 'active-trail';
     }
@@ -500,12 +439,20 @@ function _cis_service_connection_section_outline_tree_output($tree) {
     }
     // FORKED
     // Allow for generic overrides of the active class in the template name
-    $element['#theme'] = 'menu_link__cis_service_connection_active_outline';
+    if ($type == 'all') {
+      $element['#theme'] = 'menu_link__cis_service_connection_all_active_outline';
+    }
+    elseif ($type == 'high') {
+      $element['#theme'] = 'menu_link__cis_service_connection_high_level_outline';
+    }
+    else {
+      $element['#theme'] = 'menu_link__cis_service_connection_active_outline';
+    }
     $element['#attributes']['class'] = $class;
     $element['#title'] = $data['link']['title'];
     $element['#href'] = $data['link']['href'];
     $element['#localized_options'] = !empty($data['link']['localized_options']) ? $data['link']['localized_options'] : array();
-    $element['#below'] = $data['below'] ? _cis_service_connection_section_outline_tree_output($data['below']) : $data['below'];
+    $element['#below'] = $data['below'] ? _cis_service_connection_section_outline_tree_output($data['below'], $type) : $data['below'];
     $element['#original_link'] = $data['link'];
     // Index using the link's unique mlid.
     $build[$data['link']['mlid']] = $element;
@@ -513,19 +460,16 @@ function _cis_service_connection_section_outline_tree_output($tree) {
   if ($build) {
     // Make sure drupal_render() does not re-order the links.
     $build['#sorted'] = TRUE;
-    // Add the theme wrapper for outer markup.
-    // FORKED
-    // allow for our custom block setting for how to render to come into play
-    $outline_styles = variable_get('cis_service_connection_active_outline_styles', array());
-    $section = _cis_connector_section_context();
-    if (isset($outline_styles[$section])) {
-      $build['#outline_style'] = $outline_styles[$section];
+    // Allow for generic overrides of the active class in the template name
+    if ($type == 'all') {
+      $build['#theme_wrappers'][] = 'menu_tree__cis_service_connection_all_active_outline';
+    }
+    elseif ($type == 'high') {
+      $build['#theme_wrappers'][] = 'menu_tree__cis_service_connection_high_level_outline';
     }
     else {
-      $build['#outline_style'] = 'default';
+      $build['#theme_wrappers'][] = 'menu_tree__cis_service_connection_active_outline';
     }
-    // Allow for generic overrides of the active class in the template name
-    $build['#theme_wrappers'][] = 'menu_tree__cis_service_connection_active_outline';
   }
   return $build;
 }
