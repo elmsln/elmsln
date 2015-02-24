@@ -1,7 +1,7 @@
 /**
  @file
-Original Speed Reader by Charlotte Dann
-Fork gutted and supported by Bryan Ollendyke
+ Original Speed Reader by Charlotte Dann
+ Fork gutted and supported by Bryan Ollendyke
 */
 (function ($) {
   $(document).ready(function(){
@@ -14,11 +14,16 @@ Fork gutted and supported by Bryan Ollendyke
 
   /* TEXT PARSING */
   function words_set() {
-    words = $words.html().replace(/<\/?[^>]+>/gi, '').trim()
-    .replace(/([-—])(\w)/g, '$1 $2')
-    .replace(/[\r\n]/g, ' {linebreak} ')
-    .replace(/[ \t]{2,}/g, ' ')
-    .split(' ');
+    // make a tmp container to rip out HTML chars
+    var tmp = document.createElement("div");
+    tmp.innerHTML = $words.html();
+    if (document.all) {
+      words = tmp.innerText;
+    }
+    else {
+      words = tmp.textContent;
+    }
+    words = words.trim().split(' ');
     for (var j = 1; j < words.length; j++) {
       words[j] = words[j].replace(/{linebreak}/g, '   ');
     }

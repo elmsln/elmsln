@@ -99,12 +99,6 @@
   max-width: 30rem;
   margin: 0 auto;
 }
-.settings-controls .speed {
-  float: left;
-}
-.settings-controls .interaction {
-  float: right;
-}
 .settings-controls a {
   font-size: 3rem;
   line-height: 4rem;
