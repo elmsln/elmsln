@@ -5,7 +5,7 @@
   */
 ?>
 <div id="speedreader-nav-modal" class="reveal-modal etb-nav-modal" data-reveal>
-<h1><?php print $name; ?></h1>
+  <h1><?php print $name; ?></h1>
   <hr></hr>
   <div id="spritz" class="spritz">
     <div id="spritz_word" class="spritz-word"></div>
