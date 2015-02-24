@@ -1,0 +1,45 @@
+{
+    "name": "Zurb Foundation recipe",
+    "drush_recipes_api": "1.0",
+    "weight": "0",
+    "core": "7",
+    "recipe": [
+        {
+            "command": "en",
+            "arguments": [
+                "jquery_update"
+            ]
+        },
+        {
+            "command": "dl",
+            "arguments": [
+                "zurb_foundation-7.x-5.x-dev"
+            ]
+        },
+        {
+            "command": "vset",
+            "arguments": [
+                "theme_default",
+                "zurb_foundation"
+            ]
+        },
+        {
+            "command": "ev",
+            "arguments": [
+                "\"variable_set(\\\"jquery_update_jquery_version\\\", '1.10');\""
+            ]
+        },
+        {
+            "command": "cc",
+            "arguments": [
+                "all"
+            ]
+        }
+    ],
+    "metadata": {
+        "type": "add-on",
+        "description": "Setup Foundation as default theme and get dependencies.",
+        "version": "5.x",
+        "author": "btopro"
+    }
+}
