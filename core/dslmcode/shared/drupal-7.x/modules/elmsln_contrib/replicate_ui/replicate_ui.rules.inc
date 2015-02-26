@@ -84,3 +84,26 @@ function replicate_ui_replicate_field_collection($field_collection) {
     drupal_set_message(t('Field Collection @id has been replicated!', array('@id' => $field_collection->item_id)));
   }
 }
+
+/**
+ * Implements of hook_rules_event_info().
+ * @ingroup rules
+ */
+
+function replicate_ui_rules_event_info() {
+  $defaults = array(
+      'module' => 'replicate_ui',
+      'group' => t('Replicate'),
+  );
+  return array(
+      'replicate_ui_after_replication' => $defaults +
+      array(
+          'label' => t('After Replication'),
+          'variables' => array(
+              'replica' => array('type' => 'entity', 'label' => t('Replicate / Clone')),
+              'entity_type' => array('type' => 'text', 'label' => t('Entity type')),
+              'original' => array('type' => 'entity', 'label' => t('Original')),
+          ),
+      ),
+  );
+}

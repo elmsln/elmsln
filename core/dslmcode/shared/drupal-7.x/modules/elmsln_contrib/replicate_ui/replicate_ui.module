@@ -152,6 +152,18 @@ function replicate_ui_confirm_submit($form, &$form_state) {
       // redirect to the new item
       drupal_set_message(t('%type (%id) has been replicated to id %new!', array('%type' => $entity_type, '%id' => $entity_id, '%new' => $id)));
       $form_state['redirect'] = $path;
+      
+      if (module_exists('rules')) {
+        // Rules needs the entity in a wrapper, since we don't know beforehand
+        // what type of entity we have.
+        $original = entity_load_single($entity_type, $entity_id);
+        $original_wrapped = entity_metadata_wrapper($entity_type, $original);
+
+        $replica = entity_load_single($entity_type, $id);
+        $replica_wrapped = entity_metadata_wrapper($entity_type, $replica);
+
+        rules_invoke_event('replicate_ui_after_replication', $replica_wrapped, $entity_type, $original_wrapped);
+      }
     }
   }
 }
