@@ -1142,3 +1142,24 @@ function cis_connector_libraries_info_file_paths() {
   // supported package while still working correctly
   return array('sites/all/libraries/_my_libraries');
 }
+
+/**
+ * Implements hook_init().
+ */
+function cis_connector_init() {
+ if (isset($_GET['cis-refresh']) && $_GET['cis-refresh']) {
+    drupal_set_message(t('CIS is currently refreshing its cache, reload this page in a moment to reflect any changes.'), 'status', FALSE);
+  }
+}
+
+/**
+ * Implements hook_drupal_goto_alter().
+ */
+function cis_connector_drupal_goto_alter(&$path, &$options, &$http_response_code) {
+  // see if we have our CIS redirect in here
+  if (isset($_GET ['cis-dest']) && $settings = _cis_connector_build_registry($_GET['cis-dest'])) {
+    $path = _cis_connector_format_address($settings, $_GET['cis-instance'], 'front');
+    $options['query']['cis-refresh'] = TRUE;
+    drupal_get_messages();
+  }
+}
