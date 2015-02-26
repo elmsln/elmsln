@@ -692,14 +692,3 @@ function _cis_service_connection_get_users_in_group($gid) {
   }
   return $uids;
 }
-
-/**
- * Implements hook_admin_paths().
- */
-function cis_service_connection_admin_paths() {
-  $vals = _cis_service_connection_links();
-  foreach ($vals as $val) {
-    $paths[$val . '/edit'] = TRUE;
-  }
-  return $paths;
-}
