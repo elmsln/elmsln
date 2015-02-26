@@ -171,8 +171,29 @@ function cis_service_connection_menu() {
  */
 function _cis_service_connection_edit_property($property) {
   $section = _cis_connector_transaction('section');
-  $path = _cis_connector_real_address($section['url']) . '/edit';
-  return '<iframe width="100%" height="600px" src="' . $path . '"></iframe>';
+  // ensure that we have a valid section
+  if (!empty($section)) {
+    $path = _cis_connector_real_address($section['url']) . '/edit';
+    // calculate the tool this is being pushed from
+    // this gives us a pathway back to the original course that the
+    // person clicked on this page from
+    $options = array();
+    $distro = variable_get('install_profile', '');
+    if ($settings = _cis_connector_build_registry($distro)) {
+      // these query params will allow us to bounce back here successfully
+      // assuming that we actually are part of a network here
+      $options['query'] = array(
+        'cis-dest' => $distro,
+        'cis-instance' => base_path(),
+      );
+    }
+    // redirect to the CIS to modify this section data
+    drupal_goto($path, $options);
+  }
+  else {
+    drupal_set_message(t('Currently viewing section %s', array('%s' => _cis_connector_section_context())));
+    return t('Please choose a valid section in order to edit its contents in the CIS.');
+  }
 }
 
 /**
