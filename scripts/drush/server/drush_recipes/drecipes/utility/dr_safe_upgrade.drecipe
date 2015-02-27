@@ -11,31 +11,7 @@
 		{
       "command": "rr"
     },
-    {
-      "command": "vset",
-      "arguments": [
-        "maintenance_mode",
-        "1"
-      ],
-      "options": {
-        "always-set": "1"
-      }
-    },
-    {
-      "command": "updb",
-      "options": {
-        "y": "1"
-      }
-    },
-    {
-      "command": "vdel",
-      "arguments": [
-        "maintenance_mode"
-      ],
-      "options": {
-        "exact": "1"
-      }
-    },
+    "dr_run_updates.drecipe",
 		{
       "command": "cron"
     },

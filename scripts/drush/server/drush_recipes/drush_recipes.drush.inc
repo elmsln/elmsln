@@ -163,6 +163,7 @@ function drush_recipes_drush_command() {
     'options' => array(
       'dr-locations' => dt('User defined list of other locations to load in from'),
       'simple-uncook' => dt('Allow for a simple recipe reversal, like swapping enables for disables; good for lazy devs with simple recipes.'),
+      'dr-skip-checks' => dt('Allow user to skip dependency checks, useful for debugging calls.'),
     ),
     'allow-additional-options' => TRUE,
     'aliases' => array('cook', 'c'),
@@ -1100,32 +1101,35 @@ function drush_drush_recipes_drush_cook_recipes($list = '', $recurse = FALSE, $r
         }
       }
     }
-    // ensure dependencies are met
-    $notmet = array();
-    // build a list of what plugins supply what commands
-    $commandlist = drush_get_commands();
-    foreach ($commandlist as $command) {
-      $drush_projects[] = $command['commandfile'];
-    }
-    foreach ($dependencies as $dependency) {
-      if (drush_is_command($dependency) || in_array($dependency, $drush_projects) || (function_exists('module_exists') && module_exists($dependency)) || (function_exists('module_exists') && $dependency == '@site')) {
-        // do nothing, this command exists in some fashion
+    // allow for developers to ignore dependencies, useful in debugging
+    if (!drush_get_option('dr-skip-checks', FALSE)) {
+      // ensure dependencies are met
+      $notmet = array();
+      // build a list of what plugins supply what commands
+      $commandlist = drush_get_commands();
+      foreach ($commandlist as $command) {
+        $drush_projects[] = $command['commandfile'];
       }
-      else {
-        // if we require a working site and didn't get one fail immediately
-        if ($dependency == '@site') {
-          drush_print(dt('This requires a working drupal site to function!'));
-          return drush_user_abort();
+      foreach ($dependencies as $dependency) {
+        if (drush_is_command($dependency) || in_array($dependency, $drush_projects) || (function_exists('module_exists') && module_exists($dependency)) || (function_exists('module_exists') && $dependency == '@site')) {
+          // do nothing, this command exists in some fashion
         }
         else {
-          $notmet[] = $dependency;
+          // if we require a working site and didn't get one fail immediately
+          if ($dependency == '@site') {
+            drush_print(dt('This requires a working drupal site to function!'));
+            return drush_user_abort();
+          }
+          else {
+            $notmet[] = $dependency;
+          }
         }
       }
-    }
-    // if anything has failed then we need to tell the user why it didn't run
-    if (!empty($notmet)) {
-      drush_log(dt("Recipes could not be cooked because the following dependencies have not been met:\n@name\nTry:\ndrush dl @dls\n\nOr did you maybe mean to run this against a site target?", array('@name' => implode("\n", $notmet), '@dls' => implode(',', $notmet))), 'error');
-      return drush_user_abort();
+      // if anything has failed then we need to tell the user why it didn't run
+      if (!empty($notmet)) {
+        drush_log(dt("Recipes could not be cooked because the following dependencies have not been met:\n@name\nTry:\ndrush dl @dls\n\nOr did you maybe mean to run this against a site target?", array('@name' => implode("\n", $notmet), '@dls' => implode(',', $notmet))), 'error');
+        return drush_user_abort();
+      }
     }
 
     // convert cooking list into commands to run
