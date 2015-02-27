@@ -85,7 +85,8 @@ before_script:
   - sudo service apache2 restart
 script:
   - sudo chown -R travis:travis /var/www/elmsln
-  - /var/www/elmsln
+  - sudo chown -R travis:travis /var/www/elmsln/config
+  - cd /var/www/elmsln
   - ls -lasD
   - pwd
   # run the installer
