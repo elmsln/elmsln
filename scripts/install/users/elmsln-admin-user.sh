@@ -7,7 +7,7 @@ DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 cd $DIR
 
 # load config
-source ../../config/scripts/drush-create-site/config.cfg
+source ../../../config/scripts/drush-create-site/config.cfg
 
 # provide messaging colors for output to console
 txtbld=$(tput bold)             # Bold
