@@ -69,8 +69,8 @@ before_script:
   - cd /var/www/elmsln
   # replace config w/ the example provided
   - sudo rm -rf config
-  - sudo git clone https://github.com/btopro/elmsln-config-example.git
-  - sudo chown -R travis:travis /var/www
+  - sudo git clone https://github.com/btopro/elmsln-config-example.git config
+  - sudo chown -R travis:travis /var/www/elmsln
   # get the travis build parameters to pipe into the system as input
   - cd /home/travis
   - sudo git clone https://github.com/btopro/elmsln-config-travis-ci.git
