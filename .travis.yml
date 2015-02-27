@@ -68,9 +68,8 @@ before_script:
   # move into scope of our instance
   - cd /var/www/elmsln
   # replace config w/ the example provided
-  - sudo rm -rf config
-  - sudo git clone https://github.com/btopro/elmsln-config-example.git config
-  - sudo chown -R travis:travis /var/www/elmsln
+  - rm -rf config
+  - git clone https://github.com/btopro/elmsln-config-example.git config
   - ls -lasD
   - pwd
   - cd config
