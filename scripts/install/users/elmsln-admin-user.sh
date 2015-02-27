@@ -6,6 +6,9 @@
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 cd $DIR
 
+# load config
+source ../../config/scripts/drush-create-site/config.cfg
+
 # provide messaging colors for output to console
 txtbld=$(tput bold)             # Bold
 bldgrn=${txtbld}$(tput setaf 2) #  green
@@ -24,7 +27,7 @@ fi
 
 # modify the user's home directory to run drush and make life lazy
 if [[ ! -d "${HOME}/elmsln" ]] ; then
-  ln -s /var/www/elmsln $HOME/elmsln
+  ln -s ${elmsln} $HOME/elmsln
 fi
 touch $HOME/.bashrc
 echo "alias g='git'" >> $HOME/.bashrc
@@ -37,9 +40,10 @@ source $HOME/.bashrc
 php /usr/local/bin/composer global require drush/drush:6.*
 
 # copy in the elmsln server stuff as the baseline for .drush
-rm -rf $HOME/.drush
-mkdir $HOME/.drush
-cp -r /var/www/elmsln/scripts/drush/server/* $HOME/.drush/
+if [ ! -f $HOME/.drush ]; then
+    mkdir $HOME/.drush/
+fi
+yes | cp -rf ${elmsln}/scripts/drush/server/* $HOME/.drush/
 # clear caches to force a rebuild of the functions in there
 drush cc drush
 # list the available aliases
