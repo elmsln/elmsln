@@ -50,3 +50,5 @@
 *.jpg     -text diff
 *.png     -text diff
 *.phar    -text diff
+*.eot     -text diff
+*.ttf     -text diff
