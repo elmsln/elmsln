@@ -43,7 +43,7 @@ install:
   # see: https://github.com/drush-ops/drush#install---composer
   - export PATH="$HOME/.composer/vendor/bin:$PATH"
 before_script:
-  - cd ../..
+  - cd ../../../
   - ls -lasD
   - pwd
   - sudo apt-get install apache2 libapache2-mod-fastcgi
@@ -64,7 +64,7 @@ before_script:
   # symlink to pwd since this contains this code base
   - sudo mkdir -p /var/www
   - sudo chown -R travis:travis /var/www
-  - ln -s /home/travis/btopro/elmsln /var/www/elmsln
+  - ln -s /home/travis/build/btopro/elmsln /var/www/elmsln
   - sudo rm -rf config
   - sudo git clone https://github.com/btopro/elmsln-config-example.git
   - sudo chown -R travis:travis /var/www
