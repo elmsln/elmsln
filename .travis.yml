@@ -61,14 +61,17 @@ before_script:
   - smtp-sink -d "%d.%H.%M.%S" localhost:2500 1000 &
   - echo -e '#!/usr/bin/env bash\nexit 0' | sudo tee /usr/sbin/sendmail
   - echo 'sendmail_path = "/usr/sbin/sendmail -t -i "' | sudo tee "/home/travis/.phpenv/versions/`php -i | grep "PHP Version" | head -n 1 | grep -o -P '\d+\.\d+\.\d+.*'`/etc/conf.d/sendmail.ini"
-  # symlink to pwd since this contains this code base
   - sudo mkdir -p /var/www
   - sudo chown -R travis:travis /var/www
+  # symlink to the code that was pulled in for testing
   - ln -s /home/travis/build/btopro/elmsln /var/www/elmsln
+  # move into scope of our instance
+  - cd /var/www/elmsln
+  # replace config w/ the example provided
   - sudo rm -rf config
   - sudo git clone https://github.com/btopro/elmsln-config-example.git
   - sudo chown -R travis:travis /var/www
-  # establish elmsln package put in place the right way
+  # get the travis build parameters to pipe into the system as input
   - cd /home/travis
   - sudo git clone https://github.com/btopro/elmsln-config-travis-ci.git
   # establish this as an admin user
