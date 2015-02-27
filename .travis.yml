@@ -71,6 +71,11 @@ before_script:
   - sudo rm -rf config
   - sudo git clone https://github.com/btopro/elmsln-config-example.git config
   - sudo chown -R travis:travis /var/www/elmsln
+  - ls -lasD
+  - pwd
+  - cd config
+  - ls -lasD
+  - pwd
   # get the travis build parameters to pipe into the system as input
   - cd /home/travis
   - sudo git clone https://github.com/btopro/elmsln-config-travis-ci.git
@@ -87,6 +92,9 @@ before_script:
   - cat /var/www/elmsln/docs/php.txt >> ~/.phpenv/versions/$(phpenv version-name)/etc/php.ini
   - sudo service apache2 restart
 script:
+  - cd /var/www/elmsln
+  - ls -lasD
+  - pwd
   # run the installer
   - bash /var/www/elmsln/scripts/install/elmsln-install.sh
   # see what the
