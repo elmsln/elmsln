@@ -58,17 +58,15 @@ before_script:
   - smtp-sink -d "%d.%H.%M.%S" localhost:2500 1000 &
   - echo -e '#!/usr/bin/env bash\nexit 0' | sudo tee /usr/sbin/sendmail
   - echo 'sendmail_path = "/usr/sbin/sendmail -t -i "' | sudo tee "/home/travis/.phpenv/versions/`php -i | grep "PHP Version" | head -n 1 | grep -o -P '\d+\.\d+\.\d+.*'`/etc/conf.d/sendmail.ini"
+  # symlink to pwd since this contains this code base
+  - sudo mkdir -p /var/www
+  - sudo chown -R travis:travis /var/www
+  - ln -s $(pwd) /var/www/elmsln
+  - sudo rm -rf config
+  - sudo git clone https://github.com/btopro/elmsln-config-example.git
   # establish elmsln package put in place the right way
   - cd /home/travis
   - sudo git clone https://github.com/btopro/elmsln-config-travis-ci.git
-  - sudo mkdir -p /var/www
-  - cd /var/www
-  - sudo mkdir elmsln
-  - sudo git clone https://github.com/btopro/elmsln.git elmsln
-  - sudo chown -R travis:travis elmsln
-  - cd elmsln
-  - sudo rm -rf config
-  - sudo git clone https://github.com/btopro/elmsln-config-example.git
   # establish this as an admin user
   - bash /var/www/elmsln/scripts/install/users/elmsln-admin-user.sh
   - cat /home/travis/elmsln-config-travis-ci/elmsln-preinstall-values
