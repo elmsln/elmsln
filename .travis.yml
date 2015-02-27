@@ -43,6 +43,7 @@ install:
   # see: https://github.com/drush-ops/drush#install---composer
   - export PATH="$HOME/.composer/vendor/bin:$PATH"
 before_script:
+  - cd ../../../
   - sudo apt-get install apache2 libapache2-mod-fastcgi
   # enable php-fpm
   - sudo cp ~/.phpenv/versions/$(phpenv version-name)/etc/php-fpm.conf.default ~/.phpenv/versions/$(phpenv version-name)/etc/php-fpm.conf
@@ -58,17 +59,18 @@ before_script:
   - smtp-sink -d "%d.%H.%M.%S" localhost:2500 1000 &
   - echo -e '#!/usr/bin/env bash\nexit 0' | sudo tee /usr/sbin/sendmail
   - echo 'sendmail_path = "/usr/sbin/sendmail -t -i "' | sudo tee "/home/travis/.phpenv/versions/`php -i | grep "PHP Version" | head -n 1 | grep -o -P '\d+\.\d+\.\d+.*'`/etc/conf.d/sendmail.ini"
-  # establish elmsln package put in place the right way
+  - sudo mkdir -p /var/www
+  - sudo chown -R travis:travis /var/www
+  # symlink to the code that was pulled in for testing
+  - ln -s /home/travis/build/btopro/elmsln /var/www/elmsln
+  # move into scope of our instance
+  - cd /var/www/elmsln
+  # replace config w/ the example provided
+  - rm -rf config
+  - git clone https://github.com/btopro/elmsln-config-example.git config
+  # get the travis build parameters to pipe into the system as input
   - cd /home/travis
   - sudo git clone https://github.com/btopro/elmsln-config-travis-ci.git
-  - sudo mkdir -p /var/www
-  - cd /var/www
-  - sudo mkdir elmsln
-  - sudo git clone https://github.com/btopro/elmsln.git elmsln
-  - sudo chown -R travis:travis elmsln
-  - cd elmsln
-  - sudo rm -rf config
-  - sudo git clone https://github.com/btopro/elmsln-config-example.git
   # establish this as an admin user
   - bash /var/www/elmsln/scripts/install/users/elmsln-admin-user.sh
   - cat /home/travis/elmsln-config-travis-ci/elmsln-preinstall-values
@@ -82,6 +84,11 @@ before_script:
   - cat /var/www/elmsln/docs/php.txt >> ~/.phpenv/versions/$(phpenv version-name)/etc/php.ini
   - sudo service apache2 restart
 script:
+  - sudo chown -R travis:travis /var/www/elmsln
+  - sudo chown -R travis:travis /var/www/elmsln/config
+  - cd /var/www/elmsln
+  - ls -lasD
+  - pwd
   # run the installer
   - bash /var/www/elmsln/scripts/install/elmsln-install.sh
   # see what the
@@ -89,14 +96,12 @@ script:
   - drush sa
   - drush @online cc drush
   - drush @online en cis_example_cis --y
-  # now run through the upgrade routine
-  - bash /var/www/elmsln/scripts/upgrade/elmsln-upgrade-system.sh master yes
+  # now run through the site upgrade routine
+  - bash /var/www/elmsln/scripts/upgrade/elmsln-upgrade-sites.sh
   # eventually we want to create all this stuff automatically
   #- drush @online cis-kraken --actually_run --y
   - ls -lasD /var/www/elmsln/config/jobs -v
   #-sudo bash /var/www/elmsln/scripts/drush-create-site/drush-create-site
-  # force upgrades to be replayed against everything
-  - drush @online drup d7_elmsln_global /var/www/elmsln/scripts/upgrade/drush_recipes/d7/global --y --replay-from=0
 
 after_script:
   - drush @online status

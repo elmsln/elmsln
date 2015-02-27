@@ -49,6 +49,8 @@ function _elmsln_alises_build_server(&$aliases) {
       'media',
       'interact',
       'blog',
+      'comply',
+      'discuss',
     );
     // loop through known stacks
     foreach ($stacks as $stack) {

@@ -109,7 +109,6 @@ function cis_helper_add_offering_page($form, $form_state) {
  */
 function cis_helper_add_offering_page_submit($form, $form_state) {
   // populate form_state for passing to durpal_form_submit of cis-quick-setup
-  $state['values']['instructor'] = check_plain($GLOBALS['user']->name);
   $state['values']['semester'] = check_plain($form_state['values']['semester']);
   $state['values']['year'] = check_plain($form_state['values']['year']);
   $state['values']['access_string'] = check_plain($form_state['values']['access_string']);
@@ -643,14 +642,6 @@ function cis_helper_quick_setup_page() {
     '#type' => 'textfield',
     '#title' => t('Access string'),
   );
-  // instructor of record
-  $form['details']['section']['instructor'] = array(
-    '#required' => '1',
-    '#description' => t('Instructor of record for the course'),
-    '#type' => 'textfield',
-    '#default_value' => $user->name,
-    '#title' => t('Instructor of record'),
-  );
   // the syllabus to use for the section to be created
   $form['logistics']['syllabus'] = array(
     '#required' => '0',
@@ -697,8 +688,6 @@ function cis_helper_quick_setup_page() {
  * Implements hook_submit().
  */
 function cis_helper_quick_setup_page_submit($form, $form_state) {
-  // load account and values for later
-  $account = user_load_by_name($form_state['values']['instructor']);
   $offering = NULL;
   $semester = $form_state['values']['semester'];
   $year = $form_state['values']['year'];
@@ -799,7 +788,7 @@ function cis_helper_quick_setup_page_submit($form, $form_state) {
   // set the access string
   $section->field_access_string[LANGUAGE_NONE][0]['value'] = $form_state['values']['access_string'];
   // set the entity reference field (user)
-  $section->field_instructor_of_record[LANGUAGE_NONE][0]['target_id'] = $account->uid;
+  $section->field_instructor_of_record[LANGUAGE_NONE][0]['target_id'] = $GLOBALS['user']->uid;
   // set the services in use to the ones just created
   $serv_count = 0;
   foreach ($form_state['values']['services'] as $serv_item) {

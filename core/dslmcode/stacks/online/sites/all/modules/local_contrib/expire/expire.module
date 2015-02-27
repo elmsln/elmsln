@@ -1,0 +1,312 @@
+<?php
+
+/**
+ * @file
+ * Provides logic for page cache expiration.
+ */
+
+/**
+ * Constant definitions.
+ */
+
+// Module statuses.
+define('EXPIRE_STATUS_DISABLED', 0);
+define('EXPIRE_STATUS_ENABLED_INTERNAL', 1);
+define('EXPIRE_STATUS_ENABLED_EXTERNAL', 2);
+
+// This setting should be disabled when varnish or acquia_purge modules are
+// used as cache backends. Not until this issue is fixed in varnish module:
+// https://drupal.org/node/2017097 (OR in expire). The default is true,
+// setting it to false by default could be preferable, but could also cause
+// unnecessary confusion from old users - so it stays as true.
+define('EXPIRE_INCLUDE_BASE_URL', TRUE);
+
+// Node actions.
+define('EXPIRE_NODE_INSERT', 1);
+define('EXPIRE_NODE_UPDATE', 2);
+define('EXPIRE_NODE_DELETE', 3);
+
+// Comment actions.
+define('EXPIRE_COMMENT_INSERT'   , 1);
+define('EXPIRE_COMMENT_UPDATE'   , 2);
+define('EXPIRE_COMMENT_DELETE'   , 3);
+define('EXPIRE_COMMENT_PUBLISH'  , 4);
+define('EXPIRE_COMMENT_UNPUBLISH', 5);
+
+// User actions.
+define('EXPIRE_USER_INSERT', 1);
+define('EXPIRE_USER_UPDATE', 2);
+define('EXPIRE_USER_DELETE', 3);
+define('EXPIRE_USER_CANCEL', 4);
+
+// VotingAPI actions.
+define('EXPIRE_VOTINGAPI_INSERT', 1);
+define('EXPIRE_VOTINGAPI_DELETE', 2);
+
+// File actions.
+define('EXPIRE_FILE_UPDATE', 1);
+define('EXPIRE_FILE_DELETE', 2);
+
+// Menu link actions.
+define('EXPIRE_MENU_LINK_INSERT', 1);
+define('EXPIRE_MENU_LINK_UPDATE', 2);
+define('EXPIRE_MENU_LINK_DELETE', 3);
+
+// Debug levels.
+define('EXPIRE_DEBUG_DISABLED', 0);
+define('EXPIRE_DEBUG_WATCHDOG', 1);
+define('EXPIRE_DEBUG_FULL',     2);
+
+// Default values for cache expiration.
+define('EXPIRE_NODE_FRONT_PAGE'                 , FALSE);
+define('EXPIRE_NODE_NODE_PAGE'                  , TRUE);
+define('EXPIRE_NODE_TERM_PAGES'                 , FALSE);
+define('EXPIRE_NODE_REFERENCE_PAGES'            , FALSE);
+define('EXPIRE_NODE_REFERENCE_FC_PAGES'         , FALSE);
+define('EXPIRE_NODE_CUSTOM'                     , FALSE);
+define('EXPIRE_COMMENT_FRONT_PAGE'              , FALSE);
+define('EXPIRE_COMMENT_COMMENT_PAGE'            , TRUE);
+define('EXPIRE_COMMENT_REFERENCE_PAGES'         , FALSE);
+define('EXPIRE_COMMENT_NODE_PAGE'               , TRUE);
+define('EXPIRE_COMMENT_NODE_TERM_PAGES'         , FALSE);
+define('EXPIRE_COMMENT_NODE_REFERENCE_PAGES'    , FALSE);
+define('EXPIRE_COMMENT_NODE_REFERENCE_FC_PAGES' , FALSE);
+define('EXPIRE_COMMENT_CUSTOM'                  , FALSE);
+define('EXPIRE_USER_FRONT_PAGE'                 , FALSE);
+define('EXPIRE_USER_USER_PAGE'                  , TRUE);
+define('EXPIRE_USER_TERM_PAGES'                 , FALSE);
+define('EXPIRE_USER_REFERENCE_PAGES'            , FALSE);
+define('EXPIRE_USER_REFERENCE_FC_PAGES'         , FALSE);
+define('EXPIRE_USER_CUSTOM'                     , FALSE);
+define('EXPIRE_VOTINGAPI_ENTITY'                , FALSE);
+define('EXPIRE_VOTINGAPI_ENTITY_PAGE'           , FALSE);
+define('EXPIRE_VOTINGAPI_CUSTOM'                , FALSE);
+define('EXPIRE_FILE_FILE'                       , FALSE);
+define('EXPIRE_FILE_FRONT_PAGE'                 , FALSE);
+define('EXPIRE_FILE_CUSTOM'                     , FALSE);
+
+/**
+ * Implementation of hook_menu().
+ */
+function expire_menu() {
+
+  $items['admin/config/system/expire'] = array(
+    'title'            => 'Cache Expiration',
+    'description'      => 'Settings for expiration of cached pages.',
+    'page callback'    => 'drupal_get_form',
+    'page arguments'   => array('expire_admin_settings_form'),
+    'access arguments' => array('administer site configuration'),
+    'type'             => MENU_NORMAL_ITEM,
+    'file'             => 'expire.admin.inc',
+  );
+
+  return $items;
+}
+
+/**
+ * Implements hook_form_FORM_ID_alter().
+ */
+function expire_form_node_type_form_alter(&$form, &$form_state) {
+  module_load_include('admin.inc', 'expire');
+  expire_node_settings_form($form, $form_state);
+}
+
+/**
+ * Implements hook_node_insert().
+ */
+function expire_node_insert($node) {
+  expire_execute_expiration('node', $node, EXPIRE_NODE_INSERT);
+}
+
+/**
+ * Implements hook_node_update().
+ */
+function expire_node_update($node) {
+  expire_execute_expiration('node', $node, EXPIRE_NODE_UPDATE);
+}
+
+/**
+ * Implements hook_node_delete().
+ */
+function expire_node_delete($node) {
+  expire_execute_expiration('node', $node, EXPIRE_NODE_DELETE);
+}
+
+/**
+ * Implements hook_comment_insert().
+ */
+function expire_comment_insert($comment) {
+  expire_execute_expiration('comment', $comment, EXPIRE_COMMENT_INSERT);
+}
+
+/**
+ * Implements hook_comment_update().
+ */
+function expire_comment_update($comment) {
+  expire_execute_expiration('comment', $comment, EXPIRE_COMMENT_UPDATE);
+}
+
+/**
+ * Implements hook_comment_delete().
+ */
+function expire_comment_delete($comment) {
+  expire_execute_expiration('comment', $comment, EXPIRE_COMMENT_DELETE);
+}
+
+/**
+ * Implements hook_comment_publish().
+ */
+function expire_comment_publish($comment) {
+  expire_execute_expiration('comment', $comment, EXPIRE_COMMENT_PUBLISH);
+}
+
+/**
+ * Implements hook_comment_unpublish().
+ */
+function expire_comment_unpublish($comment) {
+  expire_execute_expiration('comment', $comment, EXPIRE_COMMENT_UNPUBLISH);
+}
+
+/**
+ * Implements hook_user_insert().
+ */
+function expire_user_insert($account) {
+  expire_execute_expiration('user', $account, EXPIRE_USER_INSERT);
+}
+
+/**
+ * Implements hook_user_update().
+ */
+function expire_user_update(&$edit, $account) {
+  expire_execute_expiration('user', $account, EXPIRE_USER_UPDATE);
+}
+
+/**
+ * Implements hook_user_delete().
+ */
+function expire_user_delete($account) {
+  expire_execute_expiration('user', $account, EXPIRE_USER_DELETE);
+}
+
+/**
+ * Implements hook_user_cancel().
+ */
+function expire_user_cancel($account) {
+  expire_execute_expiration('user', $account, EXPIRE_USER_CANCEL);
+}
+
+/**
+ * Implements hook_votingapi_insert().
+ */
+function expire_votingapi_insert($votes) {
+  expire_execute_expiration('votingapi', $votes, EXPIRE_VOTINGAPI_INSERT);
+}
+
+/**
+ * Implements hook_votingapi_delete().
+ */
+function expire_votingapi_delete($votes) {
+  expire_execute_expiration('votingapi', $votes, EXPIRE_VOTINGAPI_DELETE);
+}
+
+/**
+ * Implements hook_file_update().
+ */
+function expire_file_update($file) {
+  expire_execute_expiration('file', $file, EXPIRE_FILE_UPDATE);
+}
+
+/**
+ * Implements hook_file_delete().
+ */
+function expire_file_delete($file) {
+  expire_execute_expiration('file', $file, EXPIRE_FILE_DELETE);
+}
+
+/**
+ * Implements hook_menu_link_delete().
+ */
+function expire_menu_link_delete($link) {
+  expire_execute_expiration('menu_link', $link, EXPIRE_MENU_LINK_DELETE);
+}
+
+/**
+ * Implements hook_menu_link_update().
+ */
+function expire_menu_link_update($link) {
+  expire_execute_expiration('menu_link', $link, EXPIRE_MENU_LINK_UPDATE);
+}
+
+/**
+ * Implements hook_menu_link_insert().
+ */
+function expire_menu_link_insert($link) {
+  expire_execute_expiration('menu_link', $link, EXPIRE_MENU_LINK_INSERT);
+}
+
+/**
+ * Execute expiration method for object.
+ */
+function expire_execute_expiration($type, $object, $action) {
+  $status = variable_get('expire_status', EXPIRE_STATUS_DISABLED);
+  if ($status) {
+    return _expire_get_expiration_handler($type)->expire($object, $action);
+  }
+  return FALSE;
+}
+
+/**
+ * Return class object that should handle expiration.
+ *
+ * @param $type
+ *   Type that expiration is called for.
+ *   Example: 'node', 'user', 'votingapi', etc.
+ *
+ * @return mixed
+ */
+function _expire_get_expiration_handler($type) {
+  $cache_objects = &drupal_static('expire_cache_objects', array());
+  if (!isset($cache_objects[$type])) {
+
+    // Make class names more readable.
+    $bits = explode('_', $type);
+    $class_bits = array();
+    foreach ($bits as $bit) {
+      $class_bits[] = drupal_ucfirst($bit);
+    }
+
+    $class = variable_get('expire_handler_' . $type, 'Expire' . implode('', $class_bits));
+    $cache_objects[$type] = class_exists($class) ? new $class() : FALSE;
+  }
+  return $cache_objects[$type];
+}
+
+/**
+ * Loads and returns a single entity.
+ *
+ * @param $entity_type
+ *   The entity type to load.
+ *
+ * @param $entity_id
+ *   The ID of the Entity to load.
+ *
+ * @return mixed
+ *   The desired entity or FALSE if it couldn't be found.
+ */
+function _expire_load_single_entity($entity_type, $entity_id) {
+  $loaded_entity = entity_load($entity_type, array($entity_id));
+  return reset($loaded_entity);
+}
+
+/**
+ * Simple print_r to html function.
+ *
+ * @param $data
+ *   Array with output data.
+ *
+ * @return string
+ *   print_r contents in nicely formatted html.
+ */
+function expire_print_r($data) {
+  return str_replace('    ', '&nbsp;&nbsp;&nbsp;&nbsp;', nl2br(htmlentities(print_r($data, TRUE))));
+}
