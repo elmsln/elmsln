@@ -40,8 +40,8 @@ source $HOME/.bashrc
 php /usr/local/bin/composer global require drush/drush:6.*
 
 # copy in the elmsln server stuff as the baseline for .drush
-if [ ! -f $HOME/.drush ]; then
-    mkdir $HOME/.drush/
+if [ ! -d $HOME/.drush ]; then
+  mkdir $HOME/.drush
 fi
 yes | cp -rf ${elmsln}/scripts/drush/server/* $HOME/.drush/
 # clear caches to force a rebuild of the functions in there

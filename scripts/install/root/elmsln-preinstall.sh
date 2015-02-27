@@ -318,10 +318,10 @@ source .bashrc
 # full path to execute in case root needs to log out before it picks it up
 php /usr/local/bin/composer global require drush/drush:6.*
 # copy in the elmsln server stuff as the baseline for .drush
-if [ ! -f $HOME/.drush ]; then
-    mkdir $HOME/.drush/
+if [ ! -d $HOME/.drush ]; then
+  mkdir $HOME/.drush
 fi
-yes | cp -rf ${elmsln}/scripts/drush/server/* $HOME/.drush/
+yes | cp -rf /var/www/elmsln/scripts/drush/server/* $HOME/.drush/
 # stupid ubuntu drush thing to work with sudo
 if [[ $os == '2' ]]; then
   ln -s /root/.composer/vendor/drush/drush /usr/share/drush
