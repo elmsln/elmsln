@@ -62,6 +62,7 @@ before_script:
   - sudo mkdir -p /var/www
   - sudo chown -R travis:travis /var/www
   - ln -s $(pwd) /var/www/elmsln
+  - sudo chown -R travis:travis /var/www/elmsln
   - sudo rm -rf config
   - sudo git clone https://github.com/btopro/elmsln-config-example.git
   # establish elmsln package put in place the right way
