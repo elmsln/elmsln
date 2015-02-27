@@ -97,7 +97,7 @@ script:
   - drush @online cc drush
   - drush @online en cis_example_cis --y
   # now run through the site upgrade routine
-  - bash /var/www/elmsln/scripts/upgrade/elmsln-upgrade-sites.sh
+  # - bash /var/www/elmsln/scripts/upgrade/elmsln-upgrade-sites.sh
   # eventually we want to create all this stuff automatically
   #- drush @online cis-kraken --actually_run --y
   - ls -lasD /var/www/elmsln/config/jobs -v
