@@ -4,7 +4,6 @@
   * in order to react correctly to the page's content.
   */
 ?>
-<div id="speedreader-nav-modal" class="reveal-modal etb-nav-modal" data-reveal>
   <h1><?php print $name; ?></h1>
   <hr></hr>
   <div id="spritz" class="spritz">
@@ -24,5 +23,4 @@
   </div>
   <input id="spritz_wpm" type="hidden" value="300" step="50" min="50" class="wpm"/>
   <a class="close-reveal-modal">&#215;</a>
-</div>
 

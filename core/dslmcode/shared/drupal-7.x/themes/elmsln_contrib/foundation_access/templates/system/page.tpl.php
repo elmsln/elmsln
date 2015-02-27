@@ -1,4 +1,13 @@
-<!-- ---------------------------------------- -->
+<?php
+/**
+ * @file
+ * Default theme implementation to display a region.
+ *
+ * @see template_preprocess()
+ * @see template_preprocess_page()
+ * @see template_process()
+ */
+?>
     <div id="etb-tool-nav" class="off-canvas-wrap" data-offcanvas>
       <div class="inner-wrap">
                 <nav class="tab-bar etb-tool">
@@ -27,12 +36,8 @@
               <input id="enable-page-reader-switch" type="checkbox">
               <label for="enable-page-reader-switch"></label>
              </div>
-             <?php if ($speedreader): ?>
-              <a href="#" class="off-canvas-toolbar-item access-icon" data-reveal-id="speedreader-nav-modal">
-                <div class="icon-access-white off-canvas-toolbar-item-icon"></div>
-                <span><?php print t('SpeedReader'); ?></span>
-              </a>
-            <?php endif; ?>
+             <!-- generic container for other off canvas modals -->
+             <?php print render($page['cis_appbar_modal']); ?>
             </div>
             <!-- /accessibility dropdown -->
         </nav>
@@ -121,7 +126,5 @@
         </section>
 
       <a class="exit-off-canvas"></a>
-      <!-- generic container for other off canvas modals -->
-      <?php print render($page['cis_appbar_modal']); ?>
       </div>
     </div>
