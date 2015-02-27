@@ -44,8 +44,6 @@ install:
   - export PATH="$HOME/.composer/vendor/bin:$PATH"
 before_script:
   - cd ../../../
-  - ls -lasD
-  - pwd
   - sudo apt-get install apache2 libapache2-mod-fastcgi
   # enable php-fpm
   - sudo cp ~/.phpenv/versions/$(phpenv version-name)/etc/php-fpm.conf.default ~/.phpenv/versions/$(phpenv version-name)/etc/php-fpm.conf
@@ -70,11 +68,6 @@ before_script:
   # replace config w/ the example provided
   - rm -rf config
   - git clone https://github.com/btopro/elmsln-config-example.git config
-  - ls -lasD
-  - pwd
-  - cd config
-  - ls -lasD
-  - pwd
   # get the travis build parameters to pipe into the system as input
   - cd /home/travis
   - sudo git clone https://github.com/btopro/elmsln-config-travis-ci.git
@@ -91,7 +84,8 @@ before_script:
   - cat /var/www/elmsln/docs/php.txt >> ~/.phpenv/versions/$(phpenv version-name)/etc/php.ini
   - sudo service apache2 restart
 script:
-  - cd /var/www/elmsln
+  - sudo chown -R travis:travis /var/www/elmsln
+  - /var/www/elmsln
   - ls -lasD
   - pwd
   # run the installer
