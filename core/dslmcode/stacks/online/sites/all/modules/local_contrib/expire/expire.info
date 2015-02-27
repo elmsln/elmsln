@@ -1,0 +1,23 @@
+name = Cache Expiration
+description = Logic for expiring cached pages.
+package = Performance and scalability
+core = 7.x
+
+configure = admin/config/system/expire
+
+files[] = includes/expire.api.inc
+files[] = includes/expire.comment.inc
+files[] = includes/expire.domain.inc
+files[] = includes/expire.interface.inc
+files[] = includes/expire.menu_link.inc
+files[] = includes/expire.node.inc
+files[] = includes/expire.user.inc
+files[] = includes/expire.votingapi.inc
+files[] = includes/expire.file.inc
+
+; Information added by Drupal.org packaging script on 2014-10-31
+version = "7.x-2.0-rc4"
+core = "7.x"
+project = "expire"
+datestamp = "1414746830"
+
