@@ -43,6 +43,7 @@ install:
   # see: https://github.com/drush-ops/drush#install---composer
   - export PATH="$HOME/.composer/vendor/bin:$PATH"
 before_script:
+  - ls -lasD
   - sudo apt-get install apache2 libapache2-mod-fastcgi
   # enable php-fpm
   - sudo cp ~/.phpenv/versions/$(phpenv version-name)/etc/php-fpm.conf.default ~/.phpenv/versions/$(phpenv version-name)/etc/php-fpm.conf
@@ -62,9 +63,9 @@ before_script:
   - sudo mkdir -p /var/www
   - sudo chown -R travis:travis /var/www
   - ln -s $(pwd) /var/www/elmsln
-  - sudo chown -R travis:travis /var/www/elmsln
   - sudo rm -rf config
   - sudo git clone https://github.com/btopro/elmsln-config-example.git
+  - sudo chown -R travis:travis /var/www
   # establish elmsln package put in place the right way
   - cd /home/travis
   - sudo git clone https://github.com/btopro/elmsln-config-travis-ci.git
