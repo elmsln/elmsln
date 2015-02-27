@@ -28,16 +28,11 @@ Dec 24, 2014 - This time is fast approaching as the project is now a team of peo
 Feb 16, 2015 - We will have a 0.1.0 release by March as the platform is starting to roll into production multiple places. From there we will release new verisons on a set interval, most likely every 2 weeks.
 
 ###Q. If that's true, what are the blockers for a 0.1 release?
-<s>1.  An expanded test plan run by travis-ci (now have full travis coverage on all distros in the setup) to include SimpleTest. This including Travis-CI build coverage for each distribution individually, the system as a whole, and cis_connector.</s>
-2. An enhanced / unified UX; we have a dedicated UX lead working on this in the MOOC / CIS platforms. Once these two stabilize the rest will fall into place (UX wise, platform wise they have been solid since early 2013). <-- A [visual roadmap](https://projects.invisionapp.com/share/N21TGJ7QZ) has been established
-<s>3. Additional testing and support for fractal networks (multiple ELMSLN deployments that act as 1). This is critical to hitting higher scale. <-- work has started here thanks to Jenkins.</s>
-<s>4. Redesigned developer / project hub at http://elmsln.org website. This may sound silly but being able to find everything and keep up on the project is important for sustainability! <-- work has started here</s>
-5. https://github.com/btopro/elmsln/issues/30 (minor, annoying issue)
-6. https://github.com/btopro/elmsln/issues/29 (last major code shift of modules running)
-7. https://github.com/btopro/elmsln/issues/25 (demo so we can show point releases)
+1. An enhanced / unified UX; we have a dedicated UX lead working on this in the MOOC / CIS platforms. Once these two stabilize the rest will fall into place (UX wise, platform wise they have been solid since early 2013). <-- A [visual roadmap](https://projects.invisionapp.com/share/N21TGJ7QZ) has been established and work has begun on foundation_access to be rolled out across MOOC and other systems as the default starting point
+2. https://github.com/btopro/elmsln/issues/25 (demo so we can show point releases)
 
 ###Q. How would you classify a first release?
-Stable. master has been stable with 2 exceptions since Jan 2014. The many distributions of ELMS have been in usage for several months / years now. This ain't our first rodeo though we understand the desire for people to not be chasing the master branch.
+Stable. master has been stable with 2 exceptions since Jan 2014. The branches outside of master are typically for major changes that require additional testing / development to race ahead of master. The many distributions of ELMS have been in usage for several months / years now. This ain't our first rodeo though we understand the desire for people to not be chasing the master branch.
 
 ###Q. Should I update Drupal modules?
 Anything that’s included in the enclosed core directory should not be updated outside of the schedule of updating versions of the code from the github repository (unless you know what you are doing). There are a few projects patched so the best way to get projects upgraded to the latest version is to test it in a vagrant instance, report on it in an issue queue, and then let the ELMSLN community vet the module / theme upgrade.  Once this has happened then it will be rolled into the final package.
