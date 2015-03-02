@@ -63,6 +63,29 @@ function _cis_lmsless_theme_vars() {
     }
     // pull in the instructor contact info block
     $vars['contact_block'] = cis_service_connection_block_instructor_contact();
+    // pull list of resources as an array
+    $query = array('field_access_string' => $section, 'archived' => 0);
+    // request the section of the user
+    $cis_section_item = _cis_connection_query($query, 'field_collection_item');
+    // make sure it got data
+    $resources = array();
+    if (!empty($cis_section_item)) {
+      $list = '';
+      foreach ($cis_section_item['list'][0]['field_resources'] as $reid) {
+        $resource = _cis_connection_object($reid['id'], $reid['resource']);
+        $resources[$resource['field_machine_name']] = array(
+          'title' => check_plain($resource['title']),
+          'body' => check_markup($resource['body']['value'], $resource['body']['format'])
+        );
+        // check for tech support resource
+        if (strpos($resource['field_machine_name'], 'tech_support') === 0 || strpos($resource['field_machine_name'], 'techsupport') === 0) {
+          $vars['tech_support'] = $resources[$resource['field_machine_name']];
+        }
+      }
+    }
+    $vars['resources'] = $resources;
+    // throw in username
+    $vars['username'] = check_plain($GLOBALS['user']->name);
     // request a list of all other services that this section uses
     if (!$services = _cis_connector_transaction('other_services')) {
       $services = $list = array();
@@ -105,6 +128,10 @@ function _cis_lmsless_theme_vars() {
       }
     }
     $vars['services'] = $list;
+    // support for search bar if active
+    if (module_exists('search') && user_access('search content')) {
+      $vars['search'] = drupal_get_form('search_block_form');
+    }
   }
   return $vars;
 }
@@ -124,6 +151,10 @@ function cis_lmsless_theme() {
         'tour' => url('welcome_page/guided_tour'),
         'main_menu' => menu_tree(variable_get('menu_main_links_source', 'main-menu')),
         'help_link' => url('course-help'),
+        'search' => '',
+        'user_name' => t('Account'),
+        'resources' => array(),
+        'tech_support' => array(),
       ),
       'render element' => 'element',
       'template' => 'templates/cis-lmsless-bar',
