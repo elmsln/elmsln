@@ -80,7 +80,7 @@
                   <?php if ($title): ?>
                     <?php print render($title_prefix); ?>
                       <h1 id="page-title" class="title"><?php print $title; ?>
-                        <br><small>This is my course. It's awesome.</small>
+                        <br><small>This is my course subtitle.</small>
                       </h1>
                       <hr>
                     <?php print render($title_suffix); ?>

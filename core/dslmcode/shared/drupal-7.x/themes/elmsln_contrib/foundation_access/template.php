@@ -133,3 +133,26 @@ function foundation_access_menu_link__cis_service_connection_all_active_outline(
   }
   return $return;
 }
+
+
+/**
+ * Implements hook_form_alter().
+ */
+function foundation_access_form_alter(&$form, &$form_state, $form_id) {
+  // Search Block Fixes
+  if (isset($form['#form_id']) && $form['#form_id'] == 'search_block_form') {
+    // unset zurb core stuff
+    unset($form['search_block_form']['#prefix']);
+    unset($form['search_block_form']['#suffix']);
+    unset($form['actions']['submit']['#prefix']);
+    unset($form['actions']['submit']['#suffix']);
+    // add in custom placeholder to input field
+    $form['search_block_form']['#attributes']['placeholder'] = t('Search..');
+    // hidden prefix for accessibility
+    $form['search_block_form']['#prefix'] = '<h2 class="element-invisible">' . t('Search form') . '</h2>';
+    // add on our classes
+    $form['search_block_form']['#attributes']['class'] = array('etb-nav_item_search_input');
+    $form['actions']['submit']['#attributes']['class'] = array('etb-nav_item_search_btn', 'element-invisible');
+    $form['#attributes']['class'] = array('etb-nav_item_search');
+  }
+}

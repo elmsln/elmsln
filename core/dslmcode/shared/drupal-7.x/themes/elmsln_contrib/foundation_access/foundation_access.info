@@ -61,11 +61,11 @@ scripts[] = js/app.min.js
 ;   <?php print render($page['header']); ?>
 
 ; CIS specific regions
-regions[cis_lmsless]          = CIS LMSLess bar
 regions[cis_appbar_first]     = CIS AppBar one
 regions[cis_appbar_second]    = CIS AppBar two
 regions[cis_appbar_modal]     = CIS AppBar Modal
 
+; general theme regions
 regions[header]               = Header
 regions[help]                 = Help
 regions[highlighted]          = Highlighted

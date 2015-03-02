@@ -15,25 +15,25 @@
           <li class="left">
             <a href="#" class="etb-nav_item_service_btn etb-icon apps-icon" data-reveal-id="apps-nav-modal">
               <div class="icon-apps-black etb-icons"></div>
-              <span class="visible-for-large-up">Course</span>
+              <span class="visible-for-large-up"><?php print t('Course'); ?></span>
             </a>
           </li>
           <li class="left">
             <a href="#" class="etb-nav_item_service_btn etb-icon user-icon" data-reveal-id="user-nav-modal">
               <div class="icon-user-black etb-icons"></div>
-              <span class="visible-for-large-up">Account</span>
+              <span class="visible-for-large-up"><?php print $username; ?></span>
             </a>
           </li>
           <li class="left">
             <a href="#" class="etb-nav_item_service_btn etb-icon info-icon" data-reveal-id="info-nav-modal">
               <div class="icon-info-black etb-icons"></div>
-              <span class="visible-for-large-up">Info</span>
+              <span class="visible-for-large-up"><?php print t('Info'); ?></span>
             </a>
           </li>
           <li class="left">
             <a href="#" class="etb-nav_item_service_btn etb-icon help-icon" data-reveal-id="help-nav-modal">
               <div class="icon-help-black etb-icons"></div>
-              <span class="visible-for-large-up">Help</span>
+              <span class="visible-for-large-up"><?php print t('Help'); ?></span>
             </a>
           </li>
         </ul>
@@ -114,13 +114,13 @@
          <div id="info-nav-modal" class="reveal-modal etb-nav-modal" data-reveal>
             <h1><?php print t('Info'); ?></h1>
               <hr></hr>
-              <h2><?php print t('Instructor'); ?></h2>
+              <h2><?php print t('My Instructor'); ?></h2>
               <a href="#" class="etb-nav_item_service_btn etb-modal-icon techsupport-icon">
                 <div class="icon-techsupport-black etb-modal-icons"></div>
                 <span>Instructor Name</span>
               </a>
               <hr></hr>
-              <h2><?php print t('Section'); ?></h2>
+              <h2><?php print t('My Section'); ?></h2>
               <a href="#" class="etb-nav_item_service_btn etb-modal-icon techsupport-icon">
                 <div class="icon-techsupport-black etb-modal-icons"></div>
                 <span><?php print $section; ?></span>
@@ -135,6 +135,10 @@
               <hr></hr>
               <h2 class"etb-nav-section-label"><?php print t('Contact'); ?></h2>
               <?php print $contact_block; ?>
+              <?php if (isset($tech_support['body'])) : ?>
+                <h2 class"etb-nav-section-label"><?php print $tech_support['title']; ?></h2>
+                <?php print $tech_support['body']; ?>
+              <?php endif; ?>
               <a href="<?php print $help_link; ?>" class="etb-nav_item_service_btn etb-modal-icon techsupport-icon">
                 <div class="icon-techsupport-black etb-modal-icons"></div>
                 <span><?php print t('Help page');?></span>
@@ -145,15 +149,7 @@
       </nav>
     </div>
     <div class="hide-for-small-only medium-4 columns">
-      <nav class="has-form top-bar etb-nav" data-options="is_hover: false" data-topbar role="navigation">
-       <section>
-          <!-- Center Search Section -->
-          <form class="etb-nav_item_search">
-            <input class="etb-nav_item_search_input" type="search" placeholder="Search..."/>
-            <!-- <button class="etb-nav_item_search_btn" type="submit">Search</button> -->
-          </form>
-        </section>
-      </nav>
+      <?php print render($search); ?>
     </div>
     <div class="etb-title hide-for-small-only medium-4 columns">
       <nav class="top-bar etb-nav" data-options="is_hover: false" data-topbar role="navigation">
