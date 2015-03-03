@@ -8,4 +8,3 @@ dependencies[] = cis_connector
 dependencies[] = boxes
 dependencies[] = og
 dependencies[] = og_context
-dependencies[] = regions_admin_left
