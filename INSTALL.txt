@@ -19,8 +19,10 @@ logout
 # copy and paste this
 cd ~
 rm -rf ~/.drush
-# you might need to swap out root with admin or whatever your group is
-sudo chown -R $USER:root /var/www/elmsln
+# replace YOU with your username and root with whatever group you want
+# to own the system. If not sure leave the second value as root though
+# admin is common as well.
+sudo chown -R YOU:root /var/www/elmsln
 # copy and paste these lines to setup your user and install the system
 bash /var/www/elmsln/scripts/install/users/elmsln-admin-user.sh
 bash /var/www/elmsln/scripts/install/elmsln-install.sh
