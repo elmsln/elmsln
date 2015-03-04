@@ -5,5 +5,4 @@ package = CIS
 files[] = cis_service_connection.module
 files[] = cis_service_connection.install
 dependencies[] = cis_connector
-dependencies[] = boxes
 dependencies[] = og

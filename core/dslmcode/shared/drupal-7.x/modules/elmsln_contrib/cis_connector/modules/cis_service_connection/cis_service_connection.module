@@ -19,24 +19,28 @@ function _cis_service_connection_links() {
 function cis_service_connection_block_info() {
   $blocks = array(
     'active_outline' => array(
-      'info' => t('Instructional Outline'),
+      'info' => t('Instructional outline'),
       'cache' => DRUPAL_CACHE_PER_USER,
     ),
     'all_active_outline' => array(
-      'info' => t('Instructional Outline (load all)'),
+      'info' => t('Instructional outline (load all)'),
       'cache' => DRUPAL_CACHE_PER_USER,
     ),
     'high_active_outline' => array(
-      'info' => t('Instructional Outline (highest)'),
+      'info' => t('Instructional outline (highest)'),
       'cache' => DRUPAL_CACHE_PER_USER,
     ),
     'instructor_contact' => array(
-      'info' => t('Instructor Contact info'),
+      'info' => t('Instructor contact info'),
       'cache' => DRUPAL_CACHE_PER_USER,
     ),
     'section_context_changer' => array(
-      'info' => t('Change Section context'),
+      'info' => t('Change section context'),
       'cache' => DRUPAL_CACHE_PER_USER,
+    ),
+    'managed_footer' => array(
+      'info' => t('CIS managed footer'),
+      'cache' => DRUPAL_CACHE_GLOBAL,
     ),
   );
   return $blocks;
@@ -66,6 +70,10 @@ function cis_service_connection_block_view($delta = '') {
         $block['subject'] = t('Section change');
         $block['content'] = drupal_get_form('cis_service_connection_block_section_context_changer_form');
       }
+    break;
+    case 'managed_footer':
+      $block['subject'] = '<none>';
+      $block['content'] = cis_service_connection_get_footer_language();
     break;
   }
   return $block;
@@ -314,19 +322,14 @@ function cis_service_connection_get_footer_language() {
   // request the standard footer language
   $query = array('type' => 'resource', 'field_machine_name' => 'footer_language');
   $response = _cis_connection_query($query);
-  // render text applying the input filter requested
-  // @ignore coder_tough_love_14
-  $text = str_replace('!current', date('Y'), $response['list'][0]['body']['value']);
-  // load box object
-  $footer = boxes_box_load('site_footer');
-  if (isset($footer->options)) {
-    // set text as the body of the block/box
-    $footer->options['body']['value'] = $text;
-    // ensure correct format is in use
-    $footer->options['body']['format'] = $response['list'][0]['body']['format'];
-    // save
-    $footer->save();
+  if ($response) {
+    // render text applying the input filter requested
+    // @ignore coder_tough_love_14
+    $text = str_replace('!current', date('Y'), $response['list'][0]['body']['value']);
+    return check_markup($text, $response['list'][0]['body']['format']);
   }
+  // if we didn't get a response return nothing
+  return '';
 }
 
 /**
