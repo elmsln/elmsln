@@ -410,7 +410,7 @@ function cis_helper_entity_presave($entity, $type) {
   // account for anything with a machine name field as these are textfields
   if (isset($entity->field_machine_name)) {
     $old = $entity->field_machine_name[LANGUAGE_NONE][0]['value'];
-    $new = preg_replace("/[^a-z0-9]/", "", drupal_strtolower($old));
+    $new = preg_replace("/[^a-z0-9_]+/", "", drupal_strtolower($old));
     $entity->field_machine_name[LANGUAGE_NONE][0]['value'] = $new;
     if ($new != $old) {
       drupal_set_message(t('The machine name `@old` was changed to `@new`.', array('@old' => $old, '@new' => $new)));
