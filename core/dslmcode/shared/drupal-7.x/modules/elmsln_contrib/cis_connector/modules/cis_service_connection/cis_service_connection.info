@@ -7,4 +7,3 @@ files[] = cis_service_connection.install
 dependencies[] = cis_connector
 dependencies[] = boxes
 dependencies[] = og
-dependencies[] = og_context
