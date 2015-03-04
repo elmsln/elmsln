@@ -1,0 +1,13 @@
+<?php
+/**
+ * @file
+ * Install the book cache bin.
+ */
+
+/**
+ * Implements hook_schema().
+ */
+function book_cache_schema() {
+  $schema['cache_book'] = drupal_get_schema_unprocessed('system', 'cache');
+  return $schema;
+}

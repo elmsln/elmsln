@@ -1,0 +1,4 @@
+name = Book Cache
+description = Allows book navigation calculations to be better cached.
+dependencies[] = book
+core = 7.x

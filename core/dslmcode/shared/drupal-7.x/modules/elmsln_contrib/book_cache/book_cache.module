@@ -1,0 +1,159 @@
+<?php
+/**
+ * @file
+ * Book cache
+ *
+ * This allow for better performance when using the book module.
+ */
+
+/**
+ * Implements hook_node_presave().
+ */
+function book_cache_node_presave($node) {
+  // make sure this is a book or in a book and not a new one
+  if (!empty($node->book['bid']) && $node->book['bid'] != 'new') {
+    _book_cache_cache_clear($node->book['bid'], TRUE);
+  }
+}
+
+/**
+ * Implements hook_theme_registry_alter().
+ */
+function book_cache_theme_registry_alter(&$theme_registry) {
+  // unset the core book modules preprocessors of this as they are slow
+  if ($pos = array_search('template_preprocess_book_navigation', $theme_registry['book_navigation']['preprocess functions'])) {
+    unset($theme_registry['book_navigation']['preprocess functions'][$pos]);
+    $theme_registry['book_navigation']['preprocess functions'][] = 'template_preprocess_book_cache_navigation';
+  }
+}
+
+/**
+ * Processes variables for book-navigation.tpl.php.
+ * this is a fork of the core book function:
+ * template_preprocess_book_navigation
+ *
+ *
+ * @param $variables
+ *   An associative array containing the following key:
+ *   - book_link
+ *
+ * @see book-navigation.tpl.php
+ */
+function template_preprocess_book_cache_navigation(&$variables) {
+  $book_link = $variables['book_link'];
+
+  // Provide extra variables for themers. Not needed by default.
+  $variables['book_id'] = $book_link['bid'];
+  $variables['book_title'] = check_plain($book_link['link_title']);
+  $variables['book_url'] = 'node/'. $book_link['bid'];
+  $variables['current_depth'] = $book_link['depth'];
+
+  if ($book_link['mlid']) {
+    // use book_link to see if we can obtain info about it from cache
+    $data = FALSE;
+    // generate a unique call signature for bid and mlid
+    $cid = $book_link['bid'] . ':' . $book_link['mlid'];
+    // statically cache future calls
+    $data = &drupal_static(__FUNCTION__ . $cid);
+    // @ignore druplart_conditional_assignment
+    if (!$data && $cache = cache_get($cid, 'cache_book')) {
+      $data = $cache->data;
+    }
+    // we got data from a previous source so use that instead
+    if ($data) {
+      $prev = $data['prev'];
+      $next = $data['next'];
+      $tree = $data['tree'];
+      $parent = $data['parent'];
+    }
+    else {
+      // ew, manual look up
+      $prev = book_prev($book_link);
+      $next = book_next($book_link);
+      $tree = book_children($book_link);
+      $parent = book_link_load($book_link['plid']);
+      $data = array(
+        'prev' => $prev,
+        'next' => $next,
+        'tree' => $tree,
+        'parent' => $parent,
+      );
+      cache_set($cid, $data, 'cache_book');
+    }
+    $variables['tree'] = $tree;
+    $variables['book_id'] = $book_link['bid'];
+    // check for prev link
+    if ($prev) {
+      $prev_href = url($prev['href']);
+      drupal_add_html_head_link(array('rel' => 'prev', 'href' => $prev_href));
+      $variables['prev_url'] = $prev_href;
+      $variables['prev_title'] = check_plain($prev['title']);
+    }
+    if ($book_link['plid'] && $parent) {
+      $parent_href = url($parent['href']);
+      drupal_add_html_head_link(array('rel' => 'up', 'href' => $parent_href));
+      $variables['parent_url'] = $parent_href;
+      $variables['parent_title'] = check_plain($parent['title']);
+    }
+    // check for a next link
+    if ($next) {
+      $next_href = url($next['href']);
+      drupal_add_html_head_link(array('rel' => 'next', 'href' => $next_href));
+      $variables['next_url'] = $next_href;
+      $variables['next_title'] = check_plain($next['title']);
+    }
+
+    $variables['has_links'] = FALSE;
+    // Link variables to filter for values and set state of the flag variable.
+    $links = array('prev_url', 'prev_title', 'parent_title', 'next_url', 'next_title');
+    foreach ($links as $link) {
+      if (isset($variables[$link])) {
+        // Flag when there is a value.
+        $variables['has_links'] = TRUE;
+      }
+      else {
+        // Set empty to prevent notices.
+        $variables[$link] = '';
+      }
+    }
+  }
+}
+
+/**
+ * Invalidates cached data relating to book_cache.
+ *
+ * @param $cid
+ *   (optional) Cache ID of the record to clear from the private update module
+ *   cache. If empty, all records will be cleared from the table except fetch
+ *   tasks. Defaults to NULL.
+ * @param $wildcard
+ *   (optional) If TRUE, cache IDs starting with $cid are deleted in addition to
+ *   the exact cache ID specified by $cid. Defaults to FALSE.
+ */
+function _book_cache_cache_clear($cid = NULL, $wildcard = FALSE) {
+  if (empty($cid)) {
+    cache_clear_all('*', 'cache_book', TRUE);
+  }
+  else {
+    cache_clear_all($cid, 'cache_book', $wildcard);
+  }
+}
+
+/**
+ * Implements hook_flush_caches().
+ */
+function book_cache_flush_caches() {
+  _book_cache_cache_clear();
+  return array();
+}
+
+/**
+ * Implements hook_admin_menu_cache_info().
+ */
+function book_cache_admin_menu_cache_info() {
+  $caches['book_cache'] = array(
+    'title' => t('Book data'),
+    'callback' => '_book_cache_cache_clear',
+  );
+  return $caches;
+}
