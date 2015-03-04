@@ -23,6 +23,7 @@ dependencies[] = advagg_bundler
 dependencies[] = book_title_override
 ; CIS
 dependencies[] = cis_connector
+dependencies[] = cis_performance_overrides
 ; Chaos tool suite
 dependencies[] = ctools
 ; Context
@@ -78,13 +79,11 @@ dependencies[] = nodeformcols
 ; Organic groups
 dependencies[] = og
 dependencies[] = og_clone
-dependencies[] = og_context
 dependencies[] = og_ui
 ; Other
 dependencies[] = better_formats
 dependencies[] = book_copy
 dependencies[] = book_delete
-dependencies[] = boxes
 dependencies[] = clone
 dependencies[] = diff
 dependencies[] = defaultconfig
