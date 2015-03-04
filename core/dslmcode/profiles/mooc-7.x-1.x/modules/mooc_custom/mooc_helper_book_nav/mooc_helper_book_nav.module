@@ -31,4 +31,22 @@ function mooc_helper_book_nav_node_view($node, $view_mode, $langcode) {
       }
     }
   }
+  // modification of the core book module's method of doing this
+  else if ($view_mode == 'full' && !empty($node->book['bid']) && empty($node->in_preview)) {
+    $node->content['book_navigation'] = array(
+      '#markup' => theme('book_navigation', array('book_link' => $node->book)),
+      '#weight' => 100,
+    );
+  }
+}
+
+/**
+ * Implements hook_module_implements_alter().
+ */
+function mooc_helper_book_nav_module_implements_alter(&$implementations, $hook) {
+  // dump the core book implementation of this hook so we can do it
+  // more efficiently then core
+  if ($hook == 'node_view') {
+    unset($implementations['book']);
+  }
 }
