@@ -1,0 +1,24 @@
+<?php
+/**
+ * @file
+ * Overrides to core and contrib functions to improve performance.
+ */
+
+/**
+ * Implements hook_module_implements_alter().
+ */
+function cis_performance_overrides_module_implements_alter(&$implementations, $hook) {
+  // hooks that we want to remove because they don't do anything useful
+  // as far as ELMSLN is concerned
+  switch ($hook) {
+    case 'init':
+      // this adds .5 megs to memory footprint in testing and all it
+      // does it skim through breadcrumb links and removes ones
+      // listed as being blank. Hardly worth all the extra code on
+      // every page when we don't even use breadcrumbs in this manner
+      if (module_exists('special_menu_items')) {
+        unset($implementations['special_menu_items']);
+      }
+    break;
+  }
+}
