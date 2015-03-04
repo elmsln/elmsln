@@ -379,13 +379,17 @@ function _cis_connector_section_context($account = NULL) {
     if (empty($account)) {
       $account = $GLOBALS['user'];
     }
-    // attempt to grab og context, rare but possible
-    $group = og_context();
+    $group = array();
+    // attempt to grab og context if enabled
+    if (module_exists('og_context')) {
+      $group = og_context();
+    }
+    // if set, load from there though ts unlikely
     if (isset($group['gid'])) {
       $group = node_load($group['gid']);
     }
     else {
-      // load groups they are part of
+      // load groups they are part of, most likely location for this
       $groups = og_get_entity_groups('user', $account);
       if (!empty($groups['node'])) {
         $group = node_load(array_pop($groups['node']));
@@ -397,8 +401,8 @@ function _cis_connector_section_context($account = NULL) {
       $section = $group->field_section_id[LANGUAGE_NONE][0]['safe_value'];
     }
     else {
-      // see if we are an administrative account that might be missing access
-      // to a group but yet clearly could be in the master
+      // see if we are an administrative account that might be missing
+      // access to a group but yet clearly could be in the master
       if ($account->uid == 1 || array_intersect(array('administrator', 'instructor', 'staff'), array_values($account->roles))) {
         $query = new EntityFieldQuery();
         // pull all nodes
