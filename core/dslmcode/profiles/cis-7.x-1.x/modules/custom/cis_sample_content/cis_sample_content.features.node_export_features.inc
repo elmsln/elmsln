@@ -1739,8 +1739,8 @@ function cis_sample_content_node_export_features_default() {
       \'data\' => \'b:0;\',
       \'menu\' => NULL,
       \'path\' => array(
-        \'pid\' => \'41\',
-        \'source\' => \'node/38\',
+        \'pid\' => \'7\',
+        \'source\' => \'node/17\',
         \'alias\' => \'sing100\',
         \'language\' => \'und\',
       ),
