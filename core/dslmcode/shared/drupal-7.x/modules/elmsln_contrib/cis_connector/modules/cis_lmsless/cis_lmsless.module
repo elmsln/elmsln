@@ -69,7 +69,7 @@ function _cis_lmsless_theme_vars() {
     $cis_section_item = _cis_connection_query($query, 'field_collection_item');
     // make sure it got data
     $resources = array();
-    if (!empty($cis_section_item)) {
+    if (!empty($cis_section_item) && !empty($cis_section_item['list'])) {
       $list = '';
       foreach ($cis_section_item['list'][0]['field_resources'] as $reid) {
         $resource = _cis_connection_object($reid['id'], $reid['resource']);
