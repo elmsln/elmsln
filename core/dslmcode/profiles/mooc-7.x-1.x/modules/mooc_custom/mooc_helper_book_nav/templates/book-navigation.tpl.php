@@ -7,10 +7,6 @@
  * Presented under nodes that are a part of book outlines.
  *
  * Available variables:
- * - $tree: The immediate children of the current node rendered as an unordered
- *   list.
- * - $current_depth: Depth of the current node within the book outline. Provided
- *   for context.
  * - $prev_url: URL to the previous node.
  * - $prev_title: Title of the previous node.
  * - $parent_url: URL to the parent node.
@@ -32,7 +28,7 @@
  * @ingroup themeable
  */
 ?>
-<?php if ($tree || $has_links): ?>
+<?php if ($has_links): ?>
   <div id="book-navigation-<?php print $book_id; ?>" class="book-navigation">
     <?php if ($has_links): ?>
     <div class="page-links clearfix">
