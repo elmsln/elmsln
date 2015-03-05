@@ -17,6 +17,62 @@ function book_cache_node_presave($node) {
 }
 
 /**
+ * Implements hook_node_delete().
+ */
+function book_cache_node_delete($node) {
+  // make sure this is a book or in a book and not a new one
+  if (!empty($node->book['bid'])) {
+    _book_cache_cache_clear($node->book['bid'], TRUE);
+  }
+}
+
+/**
+ * Implements hook_form_alter().
+ */
+function book_cache_form_book_outline_form_alter(&$form, &$form_state, $form_id) {
+  // swap out core book form handler for our version
+  $pos = array_search('book_outline_form_submit', $form['#submit']);
+  if ($pos !== FALSE) {
+    $form['#submit'][$pos] = 'book_cache_book_outline_form_submit';
+  }
+}
+
+/**
+ * Form submission handler forked from book_outline_form().
+ *
+ * @see book_outline_form_submit()
+ * @see book_remove_button_submit()
+ */
+function book_cache_book_outline_form_submit($form, &$form_state) {
+  $node = $form['#node'];
+  $form_state['redirect'] = "node/" . $node->nid;
+  $book_link = $form_state['values']['book'];
+  if (!$book_link['bid']) {
+    drupal_set_message(t('No changes were made'));
+
+    return;
+  }
+
+  $book_link['menu_name'] = book_menu_name($book_link['bid']);
+  $node->book = $book_link;
+  if (_book_update_outline($node)) {
+    if ($node->book['parent_mismatch']) {
+      // This will usually only happen when JS is disabled.
+      drupal_set_message(t('The post has been added to the selected book. You may now position it relative to other pages.'));
+      $form_state['redirect'] = "node/" . $node->nid . "/outline";
+    }
+    else {
+      drupal_set_message(t('The book outline has been updated.'));
+    }
+    // book_cache support when book link updated outside of node ops
+    _book_cache_cache_clear($node->book['bid'], TRUE);
+  }
+  else {
+    drupal_set_message(t('There was an error adding the post to the book.'), 'error');
+  }
+}
+
+/**
  * Implements hook_theme_registry_alter().
  */
 function book_cache_theme_registry_alter(&$theme_registry) {
