@@ -1,0 +1,9 @@
+name = Harmony - Foundation Access
+description = Subtheme of Foundation Access.
+
+core = 7.x
+engine = phptemplate
+base theme = foundation_access
+
+stylesheets[all][]   = css/discuss_styles.css
+
