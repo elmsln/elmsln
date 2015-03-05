@@ -12,7 +12,6 @@
         "cis_service_restws",
         "cis_service_roles",
         "cis_connector",
-        "textbook",
         "textbook_editor"
       ]
     }
