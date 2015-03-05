@@ -29,27 +29,11 @@ function cis_distro_integrations_cis_service_instance_courses_job_file_alter(&$c
  * Implements hook_cis_service_instance_TOOL_options_alter().
  */
 function cis_distro_integrations_cis_service_instance_blog_options_alter(&$options, $course, $service) {
-  // account for jquery update issues
-  $options['vset'][] = 'jquery_update_jquery_admin_version 1.5';
-  $options['vset'][] = 'jquery_update_jquery_version 1.8';
-  // integration with meedjum_blog build routine so we don't have to hack that
-  // distribution in order to utilize it correctly
-  // best practices
-  $options['en'][] = 'module_filter';
-  // CIS projects
-  $options['en'][] = 'cis_service_lti';
-  $options['en'][] = 'cis_section';
-  $options['en'][] = 'cis_connector';
-  $options['en'][] = 'cis_service_connection';
-  $options['en'][] = 'cis_service_connection_ux';
-  $options['en'][] = 'regions';
-  $options['en'][] = 'regions_admin_left';
-  $options['en'][] = 'regions_admin_example';
-  // textbook input filter since we use it everywhere
-  $options['en'][] = 'textbook';
-  $options['en'][] = 'textbook_editor';
-  // feature reverts
-  $options['fr'][] = 'regions_admin_example';
+  // establish foundation access as the base theme
+  $options['cook'][] = 'foundation_access_dep --mlt-fa_sub=meedjum_blog_foundation_access';
+  //
+  $options['cook'][] = 'elmsln_meedjum_blog';
+  // revert these features
   $options['fr'][] = 'cis_service_lti';
   $options['fr'][] = 'cis_section';
   $options['fr'][] = 'cis_service_connection_ux';
