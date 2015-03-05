@@ -267,8 +267,8 @@ function nodereference_highlight_filter_nrhi_tips($filter, $format, $long = FALS
  * Implements hook_page_build().
  */
 function nodereference_highlight_page_build(&$page) {
-  // never apply this to node edit
-  if (arg(0) == 'node' && !(arg(2) == 'edit')) {
+  // only append to actual node page
+  if (arg(0) == 'node' && is_numeric(arg(1)) && arg(2) == '') {
     $page['page_bottom']['nodereference_highlight']= array(
       '#type' => 'markup',
       '#markup' => theme('nodereference_highlight_highlighter'),
