@@ -55,6 +55,9 @@ projects[entityreference][version] = "1.1"
 projects[entityreference_prepopulate][subdir] = "contrib"
 projects[entityreference_prepopulate][version] = "1.5"
 
+projects[exif_orientation][subdir] = "contrib"
+projects[exif_orientation][version] = "1.0"
+
 projects[features][subdir] = "contrib"
 projects[features][version] = "2.2"
 
@@ -72,6 +75,9 @@ projects[harmony_moderation][version] = "1.x-dev"
 
 projects[honeypot][subdir] = "contrib"
 projects[honeypot][version] = "1.17"
+
+projects[httprl][subdir] = "contrib"
+projects[httprl][version] = "1.14"
 
 projects[inline_entity_form][subdir] = "contrib"
 projects[inline_entity_form][version] = "1.5"
@@ -103,8 +109,14 @@ projects[readmorejs][version] = "1.0"
 projects[short_scale_formatter][subdir] = "contrib"
 projects[short_scale_formatter][version] = "1.1"
 
+projects[simple_pass_reset][subdir] = "contrib"
+projects[simple_pass_reset][version] = "1.4"
+
 projects[strongarm][subdir] = "contrib"
 projects[strongarm][version] = "2.0"
+
+projects[taxonomy_access_fix][subdir] = "taxonomy_access_fix"
+projects[taxonomy_access_fix][version] = "2.1"
 
 projects[taxonomy_display][subdir] = "contrib"
 projects[taxonomy_display][version] = "1.1"

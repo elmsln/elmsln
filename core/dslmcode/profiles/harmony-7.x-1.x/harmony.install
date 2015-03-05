@@ -28,17 +28,28 @@ function harmony_install() {
   variable_set('honeypot_element_name', 'email_confirm');
   variable_set('honeypot_time_limit', 0);
 
-  // Create the administrator role and assign to user 1.
-  $admin_role = new stdClass();
-  $admin_role->name = 'administrator';
-  $admin_role->weight = 2;
-  user_role_save($admin_role);
-  user_role_grant_permissions($admin_role->rid, array_keys(module_invoke_all('permission')));
-  // Set this as the administrator role.
-  variable_set('user_admin_role', $admin_role->rid);
+  // Create various roles.
+  $roles = array(
+    'member',
+    'moderator',
+    'forum admin',
+    'administrator',
+  );
+  foreach ($roles as $index => $role_name) {
+    $role = new stdClass();
+    $role->name = $role_name;
+    $role->weight = $index + 2;
+    user_role_save($role);
 
-  // Assign user 1 the "administrator" role.
-  db_insert('users_roles')->fields(array('uid' => 1, 'rid' => $admin_role->rid))->execute();
+    // Assign the administrator role to user 1, amongst doing other things.
+    if ($role_name === 'administrator') {
+      user_role_grant_permissions($role->rid, array_keys(module_invoke_all('permission')));
+      // Set this as the administrator role.
+      variable_set('user_admin_role', $role->rid);
+      // Assign user 1 the "administrator" role.
+      db_insert('users_roles')->fields(array('uid' => 1, 'rid' => $role->rid))->execute();
+    }
+  }
 
   // Enable and set the admin theme.
   db_update('system')->fields(array('status' => 1))->condition('type', 'theme')->condition('name', 'seven')->execute();
@@ -51,4 +62,18 @@ function harmony_install() {
 
   // Set the homepage.
   variable_set('site_frontpage', 'forum');
+
+  // Update the one time login URL to include simple_pass_reset.
+  $password_reset_email_body = "[user:name],
+
+A request to reset the password for your account has been made at [site:name].
+
+You may now log in by clicking this link or copying and pasting it to your browser:
+
+[user:one-time-login-url]/brief
+
+This link can only be used once to log in and will lead you to a page where you can set your password. It expires after one day and nothing will happen if it's not used.
+
+--  [site:name] team";
+  variable_set('user_mail_password_reset_body', $password_reset_email_body);
 }

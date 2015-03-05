@@ -29,10 +29,21 @@ dependencies[] = admin_views
 dependencies[] = clamav
 dependencies[] = codefilter
 dependencies[] = context
+dependencies[] = exif_orientation
 dependencies[] = features_override
 dependencies[] = honeypot
+dependencies[] = httprl
 dependencies[] = jquery_colorpicker
 dependencies[] = readmorejs
+dependencies[] = simple_pass_reset
 dependencies[] = strongarm
+dependencies[] = taxonomy_access_fix
 dependencies[] = timeago
 dependencies[] = views_bulk_operations
+
+; Information added by Drupal.org packaging script on 2015-02-12
+version = "7.x-1.x-dev"
+core = "7.x"
+project = "harmony"
+datestamp = "1423768082"
+
