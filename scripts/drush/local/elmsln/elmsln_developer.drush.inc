@@ -15,9 +15,9 @@
  *
  */
 
-define('ELMSLN_DSLMCODE', '/github/core/dslmcode');
+define('ELMSLN_DSLMCODE', '/system/core/dslmcode');
 define('ELMSLN_INSTANCES', '/instances');
-define('ELMSLN_SCRIPTS', '/github/scripts');
+define('ELMSLN_SCRIPTS', '/system/scripts');
 define('ELMSLN_CORES', ELMSLN_DSLMCODE . '/cores');
 define('ELMSLN_PROFILES', ELMSLN_DSLMCODE . '/profiles');
 define('ELMSLN_STACKS', ELMSLN_DSLMCODE . '/stacks');
@@ -239,21 +239,21 @@ function drush_elmsln_developer_elmsln_add_stack($name = NULL, $profile = NULL) 
   // a directory that will contain things symlinking off. Otherwise
   // we just
   if (!drush_get_option('stack-instance')) {
-    symlink("../core/dslmcode/stacks/$name", "$elmsln_dev/github/domains/$name");
+    symlink("../core/dslmcode/stacks/$name", "$elmsln_dev/system/domains/$name");
   }
   else {
     // copy the structure of the course stack
-    mkdir("$elmsln_dev/github/domains/$name");
-    $contents = _drush_elmsln_directory_contents("$elmsln_dev/github/domains/courses");
+    mkdir("$elmsln_dev/system/domains/$name");
+    $contents = _drush_elmsln_directory_contents("$elmsln_dev/system/domains/courses");
     foreach ($contents as $content) {
       copy(
-        "$elmsln_dev/github/domains/courses/$content",
-        "$elmsln_dev/github/domains/$name/$content"
+        "$elmsln_dev/system/domains/courses/$content",
+        "$elmsln_dev/system/domains/$name/$content"
       );
     }
     // repoint the symlinks
-    symlink("../../config/stacks/$name/.htaccess", "$elmsln_dev/github/domains/$name/.htaccess");
-    symlink("../../config/stacks/$name/favicon.ico", "$elmsln_dev/github/domains/$name/favicon.ico");
+    symlink("../../config/stacks/$name/.htaccess", "$elmsln_dev/system/domains/$name/.htaccess");
+    symlink("../../config/stacks/$name/favicon.ico", "$elmsln_dev/system/domains/$name/favicon.ico");
   }
 
   // add in profile if specified
