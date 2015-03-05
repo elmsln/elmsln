@@ -34,10 +34,10 @@
                 "[fa_sub]"
             ],
             "tokens": {
-                "fa_sub": "Foundation access sub theme to set as default"
+                "[fa_sub]": "Foundation access sub theme to set as default"
             },
             "defaults": {
-                "fa_sub": "foundation_access"
+                "[fa_sub]": "foundation_access"
             }
         },
         {
