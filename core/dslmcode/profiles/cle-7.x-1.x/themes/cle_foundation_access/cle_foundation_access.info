@@ -1,0 +1,9 @@
+name = cle_foundation_access
+description = CLE sub-theme based Foundation Access.
+
+core = 7.x
+engine = phptemplate
+base theme = foundation_access
+
+stylesheets[all][]   = css/cle_styles.css
+

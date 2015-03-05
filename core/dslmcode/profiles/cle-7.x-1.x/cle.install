@@ -7,7 +7,7 @@
  */
 function cle_install() {
   // Enable some cle blocks.
-  $default_theme = 'cle_bootstrap';
+  $default_theme = 'cle_foundation_access';
   $admin_theme = 'rubik';
   // fix jquery update rubrik admin theme issue
   variable_set('theme_rubik_settings', array('rubik_disable_sidebar_in_form' => 1));

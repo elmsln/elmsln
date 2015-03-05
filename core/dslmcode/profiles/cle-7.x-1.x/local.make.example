@@ -14,12 +14,6 @@ libraries[masonry][destination] = "libraries"
 libraries[masonry][download][type] = "get"
 libraries[masonry][download][url] = "http://masonry.desandro.com/masonry.pkgd.min.js"
 
-libraries[bootstrap][directory_name] = "bootstrap"
-libraries[bootstrap][type] = "library"
-libraries[bootstrap][destination] = "themes/contrib/bootstrap"
-libraries[bootstrap][download][type] = "get"
-libraries[bootstrap][download][url] = "http://twitter.github.com/bootstrap/assets/bootstrap.zip"
-
 ; cle
 libraries[cle][type] = "profile"
 libraries[cle][destination] = "../../profiles"

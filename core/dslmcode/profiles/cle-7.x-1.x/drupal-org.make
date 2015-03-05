@@ -163,9 +163,6 @@ projects[voting_rules][subdir] = "contrib"
 projects[textbook][version] = "1.x-dev"
 projects[textbook][subdir] = "contrib"
 
-projects[delta][version] = "3.0-beta11"
-projects[delta][subdir] = "contrib"
-
 projects[uuid][version] = "1.x-dev"
 projects[uuid][subdir] = "contrib"
 
@@ -226,25 +223,17 @@ projects[field_collection][subdir] = "contrib"
 
 ; Themes
 ; bootstrap
-projects[bootstrap][type] = "theme"
-projects[bootstrap][version] = "2.0-beta2"
-projects[bootstrap][subdir] = "contrib"
+projects[zurb_foundation][type] = "theme"
+projects[zurb_foundation][version] = "5.x-dev"
+projects[zurb_foundation][subdir] = "contrib"
 ; respond
 projects[respond][type] = "theme"
 projects[respond][version] = "3.0-beta1"
 projects[respond][subdir] = "contrib"
-; chamfer
-projects[chamfer][type] = "theme"
-projects[chamfer][version] = "1.x-dev"
-projects[chamfer][subdir] = "contrib"
 ; rubik
 projects[rubik][type] = "theme"
 projects[rubik][version] = "4.0-beta8"
 projects[rubik][subdir] = "contrib"
-; omega
-projects[omega][type] = "theme"
-projects[omega][version] = "3.1"
-projects[omega][subdir] = "contrib"
 ; cube
 projects[cube][type] = "theme"
 projects[cube][version] = "1.3"
