@@ -26,7 +26,6 @@ class harmony_core_views_handler_thread_field_replies extends views_handler_fiel
     $form['singular'] = array(
       '#type' => 'textfield',
       '#title' => t('Single reply text'),
-      '#required' => TRUE,
       '#default_value' => $this->options['singular'],
       '#description' => t('The text to be used when there is a single reply to the thread.'),
     );
@@ -34,7 +33,6 @@ class harmony_core_views_handler_thread_field_replies extends views_handler_fiel
     $form['plural'] = array(
       '#type' => 'textfield',
       '#title' => t('Multiple replies text'),
-      '#required' => TRUE,
       '#default_value' => $this->options['plural'],
       '#description' => t('The text to be used when there is either no replies or more than one.'),
     );
@@ -134,6 +132,6 @@ class harmony_core_views_handler_thread_field_replies extends views_handler_fiel
   function render($values) {
     $value = $this->get_value($values);
     $text = $value == 1 ? check_plain($this->options['singular']) : check_plain($this->options['plural']);
-    return $this->sanitize_value($value) . ' ' . $text;
+    return rtrim($this->sanitize_value($value) . ' ' . $text);
   }
 }

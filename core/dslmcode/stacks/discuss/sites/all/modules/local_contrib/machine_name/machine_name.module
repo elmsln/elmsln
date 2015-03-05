@@ -1,0 +1,138 @@
+<?php
+
+/**
+ * @file
+ * Defines a machine name field type, relying on Form API's #type
+ * 'machine_name'.
+ */
+
+/**
+ * Implements hook_field_info().
+ */
+function machine_name_field_info() {
+  return array(
+    'machine_name' => array(
+      'label' => t('Machine name'),
+      'description' => t('This field stores varchar text in the database.'),
+      'settings' => array(
+        'max_length' => 128,
+        'replace_pattern' => '[^a-z0-9_]+',
+        'replace' => '_',
+      ),
+      'instance_settings' => array(),
+      'default_widget' => 'machine_name_default',
+      'default_formatter' => 'machine_name_default',
+    ),
+  );
+}
+
+/**
+ * Implements hook_field_widget_info().
+ */
+function machine_name_field_widget_info() {
+  return array(
+    'machine_name_default' => array(
+      'label' => t('Machine name'),
+      'field types' => array('machine_name'),
+      'settings' => array(
+        'size' => 128,
+      ),
+    ),
+  );
+}
+
+/**
+ * Implements hook_field_widget_form().
+ */
+function machine_name_field_widget_form(&$form, &$form_state, $field, $instance, $langcode, $items, $delta, $element) {
+  // Include #title, #description, #required, and other field and instance
+  // properties provided by Field Form API.
+  $element['value'] = $element;
+  $element['value'] += array(
+    '#type' => 'machine_name',
+    '#default_value' => isset($items[$delta]['value']) ? $items[$delta]['value'] : NULL,
+    '#machine_name' => array(
+      'exists' => 'machine_name_value_exists',
+      'replace_pattern' => $field['settings']['replace_pattern'],
+      'replace' => $field['settings']['replace'],
+    ),
+    '#maxlength' => $field['settings']['max_length'],
+  );
+
+  // Machine names cannot be edited if there is a value. The only exception is
+  // when previewing a new entity.
+  $disabled = TRUE;
+  if (!isset($items[$delta]) || machine_name_field_is_empty($items[$delta], $field)) {
+    $disabled = FALSE;
+  }
+  // @todo Make this work for other entity types.
+  elseif (!empty($form['#node_edit_form']) && !isset($form['nid']['#value'])) {
+    $disabled = FALSE;
+  }
+  $element['value']['#disabled'] = $disabled;
+
+  return $element;
+}
+
+/**
+ * Implements hook_field_is_empty().
+ */
+function machine_name_field_is_empty($item, $field) {
+  return !isset($item['value']) || $item['value'] === '';
+}
+
+/**
+ * Checks whether the machine name value is unique for the field.
+ *
+ * @see form_validate_machine_name()
+ */
+function machine_name_value_exists($value, $element, &$form_state) {
+  $field_state = field_form_get_state($element['#field_parents'], $element['#field_name'], $element['#language'], $form_state);
+
+  $query = new EntityFieldQuery();
+  $query->fieldCondition($field_state['field'], 'value', $value);
+  $query->count();
+  return $query->execute();
+}
+
+/**
+ * Implements hook_field_formatter_info().
+ */
+function machine_name_field_formatter_info() {
+  return array(
+    'machine_name_default' => array(
+      'label' => t('Default'),
+      'field types' => array('machine_name'),
+    ),
+  );
+}
+
+/**
+ * Implements hook_field_formatter_view().
+ */
+function machine_name_field_formatter_view($entity_type, $entity, $field, $instance, $langcode, $items, $display) {
+  $element = array();
+  switch ($display['type']) {
+    case 'machine_name_default':
+      foreach ($items as $delta => $item) {
+        $element[$delta] = array('#markup' => strip_tags($item['value']));
+      }
+      break;
+
+  }
+  return $element;
+}
+
+/*
+ * Implements hook_apachesolr_field_mappings().
+ */
+function machine_name_apachesolr_field_mappings() {
+  $mappings['machine_name'] = array(
+    'indexing_callback' => 'apachesolr_fields_default_indexing_callback',
+    'index_type' => 'string',
+    'facets' => FALSE,
+    'dependency plugins' => array('bundle', 'role'),
+    'multiple' => FALSE,
+  );
+  return $mappings;
+}

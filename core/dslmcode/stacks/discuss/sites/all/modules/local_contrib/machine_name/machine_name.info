@@ -1,0 +1,11 @@
+name = Machine name
+description = Provides a machine name field.
+package = Fields
+core = 7.x
+
+; Information added by drupal.org packaging script on 2012-11-15
+version = "7.x-1.0"
+core = "7.x"
+project = "machine_name"
+datestamp = "1353012408"
+

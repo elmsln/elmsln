@@ -1590,6 +1590,13 @@ function harmony_thread_meta_save($thread) {
 }
 
 /**
+ * Update a threads "last" properties.
+ */
+function harmony_thread_update_first_or_last_properties($thread, $post, $force_extreme = NULL) {
+  return entity_get_controller('harmony_thread')->updateThreadFirstOrLastProperties($thread, $post, $force_extreme);
+}
+
+/**
  * Delete a single thread.
  */
 function harmony_thread_delete($thread_id, &$context = NULL) {
@@ -1715,6 +1722,49 @@ function harmony_post_get_first_vid($post_id) {
   }
 
   return isset($harmony_post_vids[$post_id]) ? $harmony_post_vids[$post_id] : 0;
+}
+
+/**
+ * Delete a thread when passed a post id, will only work if the post is the
+ * first in the thread.
+ */
+function harmony_post_delete_thread($post_id, $bypass_first_check = FALSE) {
+  harmony_post_delete_thread_multiple(array($post_id), $bypass_first_check);
+}
+
+/**
+ * Delete multiple threads when passed a series of post ids, the post ids must
+ * be the first within that thread.
+ */
+function harmony_post_delete_thread_multiple($post_ids, $bypass_first_check = FALSE) {
+  $thread_ids = array();
+
+  // Check post ids is a valid array.
+  if (!is_array($post_ids)) {
+    return;
+  }
+
+  // Load up our posts.
+  $posts = harmony_post_load_multiple($post_ids);
+
+  // If we've got any results, loop through, check that the post is first in
+  // its thread (or we're bypassing that check). Check it's part of a thread
+  // and then add the thread id to the list to be deleted.
+  if (!empty($posts)) {
+    foreach ($posts as $post_id => $post) {
+      if ($post->first_post || $bypass_first_check) {
+        $wrapper = entity_metadata_wrapper('harmony_post', $post);
+        if ($wrapper->field_harmony_thread->value()) {
+          $thread_ids[] = $wrapper->field_harmony_thread->thread_id->value();
+        }
+        unset($wrapper);
+      }
+    }
+  }
+
+  if (!empty($thread_ids)) {
+    harmony_thread_delete_multiple($thread_ids);
+  }
 }
 
 /**
@@ -3037,11 +3087,14 @@ function harmony_core_thread_form_submit($form, &$form_state) {
     $thread = harmony_thread_meta_save($thread);
   }
 
-  // Hooks ahoy.
-  module_invoke_all('harmony_thread_save_finalised', $thread);
-
   // Setup redirects.
   $form_state['redirect'] = "thread/$thread->thread_id";
+
+  // Hooks ahoy.
+  foreach (module_implements('harmony_thread_save_finalised') as $module) {
+    $function = $module . '_harmony_thread_save_finalised';
+    $function($thread, $form_state);
+  }
 
   if ($thread->batch_process) {
     batch_process($form_state['redirect']);
@@ -3397,7 +3450,7 @@ function harmony_core_post_form($form, &$form_state, $post) {
       $quote_content = $post_to_quote_wrapper->field_harmony_text->value();
 
       if ($quote_content) {
-        $quote = "[quote post={$post_to_quote_id}]" . $quote_content['value'] . '[/quote]' . "\n\n";
+        $quote = "[quote post={$post_to_quote_id}]" . trim($quote_content['value']) . '[/quote]' . "\n\n";
 
         // Set default value.
         $form['field_harmony_text'][$form['field_harmony_text']['#language']][0]['#default_value'] = $quote . $form['field_harmony_text'][$form['field_harmony_text']['#language']][0]['#default_value'];
@@ -3581,6 +3634,12 @@ function harmony_core_post_form_submit($form, &$form_state) {
   }
   else {
     $form_state['redirect'] = "post/$post->post_id";
+  }
+
+  // Hooks ahoy.
+  foreach (module_implements('harmony_post_save_finalised') as $module) {
+    $function = $module . '_harmony_post_save_finalised';
+    $function($post, $form_state);
   }
 
   if (!empty($post->batch_process) && $post->batch_process) {
@@ -4291,6 +4350,7 @@ function harmony_core_thread_track_view($thread_id) {
 
     try {
       db_query('UPDATE {harmony_thread} SET views = views + 1 WHERE thread_id = :thread_id', array(':thread_id' => $thread_id));
+      module_invoke_all('harmony_thread_view_tracked', $thread_id);
     }
     catch (Exception $e) {
       $transaction->rollback();

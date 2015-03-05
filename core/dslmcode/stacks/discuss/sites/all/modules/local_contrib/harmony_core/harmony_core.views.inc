@@ -474,6 +474,11 @@ function harmony_core_views_plugins() {
         'title' => t('Post ID from URL'),
         'handler' => 'harmony_core_views_plugin_argument_default_post'
       ),
+      'harmony_thread_taxonomy_tid' => array(
+        'title' => t('Taxonomy term ID from thread page'),
+        'handler' => 'harmony_core_views_plugin_argument_default_taxonomy_tid',
+        'parent' => 'fixed',
+      ),
     ),
     'style' => array(
       'harmony_table' => array(

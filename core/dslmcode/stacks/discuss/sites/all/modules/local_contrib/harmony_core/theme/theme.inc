@@ -143,8 +143,9 @@ function template_preprocess_harmony_post(&$variables) {
     $replying_to_post_id = $wrapper->field_harmony_post_is_reply_to->post_id->value();
     $user_is_obj = is_object($wrapper->field_harmony_post_is_reply_to->uid->value());
     $replying_to_name = $user_is_obj ? $wrapper->field_harmony_post_is_reply_to->uid->name->value() : variable_get('anonymous', t('Anonymous'));
+    $replying_to_post_url = harmony_core_post_thread_url($thread_id, $replying_to_post_id);
 
-    $variables['direct_reply'] = l(t('In reply to @name', array('@name' => $replying_to_name)), "thread/$thread_id", array('fragment' => "post-$replying_to_post_id"));
+    $variables['direct_reply'] = '<a href="' . $replying_to_post_url . '">' . t('In reply to @name', array('@name' => $replying_to_name)) . '</a>';
   }
 
   // Generate the revisions link if the user has access and there's more

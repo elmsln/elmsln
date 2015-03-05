@@ -1,0 +1,24 @@
+<?php
+
+/**
+ * @file
+ * Install, update and uninstall functions for the machine_name module.
+ */
+
+/**
+ * Implements hook_field_schema().
+ */
+function machine_name_field_schema($field) {
+  $schema['columns'] = array(
+    'value' => array(
+      'type' => 'varchar',
+      'length' => 128,
+      'not null' => TRUE,
+      'default' => '',
+    ),
+  );
+  $schema['indexes'] = array(
+    'value' => array('value'),
+  );
+  return $schema;
+}

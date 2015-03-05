@@ -22,7 +22,6 @@ class HarmonyController extends EntityAPIController {
    */
   public function metaSave($entity, DatabaseTransaction $transaction = NULL) {
     $transaction = isset($transaction) ? $transaction : db_transaction();
-
     try {
       // We shouldn't ever get new entities to deal with but hey, why not.
       $entity->is_new = !empty($entity->is_new) || empty($entity->{$this->idKey});
@@ -378,8 +377,11 @@ class HarmonyThreadController extends HarmonyController {
     $thread_posts_stored['last'] = !empty($thread_posts) ? array_pop($thread_posts) : $thread_posts_stored['first'];
     $thread_posts_stored['other'] = $thread_posts;
 
+    $first_post_created = $thread->created;
+
     $last_post_uid = 0;
     $last_post_uri = array();
+    $last_post_created = 0;
 
     // Unset first and last post property for all except the now first and
     // last. Focus for this is speed so don't run through
@@ -409,8 +411,10 @@ class HarmonyThreadController extends HarmonyController {
         harmony_post_meta_save($post);
 
         // Thread stuff.
+        $first_post_created = $post->created;
         $last_post_uid = $post->uid;
         $last_post_uri = harmony_core_post_thread_url($thread->thread_id, $post->post_id, TRUE);
+        $last_post_created = $post->created;
       }
     }
     else {
@@ -419,6 +423,9 @@ class HarmonyThreadController extends HarmonyController {
         $first_post->first_post = 1;
         $first_post->last_post = 0;
         harmony_post_meta_save($first_post);
+
+        // Thread stuff.
+        $first_post_created = $first_post->created;
       }
 
       $last_post = harmony_post_load($thread_posts_stored['last']);
@@ -430,6 +437,7 @@ class HarmonyThreadController extends HarmonyController {
         // Thread stuff.
         $last_post_uid = $last_post->uid;
         $last_post_uri = harmony_core_post_thread_url($thread->thread_id, $last_post->post_id, TRUE);
+        $last_post_created = $last_post->created;
       }
     }
 
@@ -445,10 +453,167 @@ class HarmonyThreadController extends HarmonyController {
     // Attach last post uri.
     $thread->last_post_uri = $last_post_uri;
 
+    // Set the created & updated time.
+    $thread->created = $first_post_created;
+    $thread->updated = $last_post_created;
+
     // Save our changes.
     $this->metaSave($thread);
 
     return $thread_posts_stored;
+  }
+
+  /**
+   * Update a threads first or last properties based off of a post passed in.
+   */
+  function updateThreadFirstOrLastProperties($thread, $post, $force_extreme = NULL) {
+    // Grab the thread not from cache.
+    if (is_numeric($thread)) {
+      $thread = harmony_thread_load($thread, TRUE);
+    }
+
+    // @todo throw exceptions.
+    if (!$thread) {
+      return;
+    }
+    $thread_id = $thread->thread_id;
+
+    // Wrap that thread!
+    $wrapper = entity_metadata_wrapper('harmony_thread', $thread);
+
+    // Work out if this changed post is first or last.
+    $thread_posts = harmony_core_get_thread_posts($thread_id, array(), NULL, NULL, TRUE);
+
+    // Check that we've got data.
+    if (empty($thread_posts)) {
+      return;
+    }
+
+    // Figure out the first and last posts in this thread.
+    $thread_posts_stored = array();
+    $thread_posts_stored['all'] = $thread_posts;
+    $thread_posts_stored['first'] = array_shift($thread_posts);
+    $thread_posts_stored['last'] = !empty($thread_posts) ? array_pop($thread_posts) : $thread_posts_stored['first'];
+
+    // We allow forcing of the extreme value so that both first and last can
+    // be set without recursive calls to this function.
+    if (!$force_extreme) {
+      // Work out if the post we're working with is the new first or last.
+      // Is the post we've got first?
+      if ($post->post_id == $thread_posts_stored['first'] && $post->post_id != $thread_posts_stored['last']) {
+        $extreme = 'first';
+      }
+      // Or last?
+      elseif ($post->post_id != $thread_posts_stored['first'] && $post->post_id == $thread_posts_stored['last']) {
+        $extreme = 'last';
+      }
+      // How about being both???
+      elseif ($post->post_id == $thread_posts_stored['first'] && $post->post_id == $thread_posts_stored['last']) {
+        $extreme = 'first';
+        // Call this function again but forcing it to sort out the last
+        // extreme.
+        $this->updateThreadFirstOrLastProperties($thread, $post, 'last');
+      }
+      // If neither then proceed to check if first and last post is correct.
+      else {
+        // Is the first post correct?
+        if ($wrapper->__isset('field_harmony_first_post') && $wrapper->field_harmony_first_post->value() && $wrapper->field_harmony_first_post->post_id->value() != $thread_posts_stored['first']) {
+          $correct_first_post = harmony_post_load($thread_posts_stored['first']);
+          $this->updateThreadFirstOrLastProperties($thread, $correct_first_post);
+        }
+
+        // What about the last post too?
+        if ($wrapper->__isset('field_harmony_last_post') && $wrapper->field_harmony_last_post->value() && $wrapper->field_harmony_last_post->post_id->value() != $thread_posts_stored['first']) {
+          $correct_last_post = harmony_post_load($thread_posts_stored['last']);
+          $this->updateThreadFirstOrLastProperties($thread, $correct_last_post);
+        }
+
+        // Exit out here as we've corrected the first last stuff via the above
+        // function calls.
+        return;
+      }
+    }
+    // We've got an extreme set, just trust it.
+    else {
+      $extreme = $force_extreme;
+    }
+
+    // Ok, we've got something to do here, now see if this post is a new
+    // change to the lineup.
+
+    // Only go past this point if we've got changes to make to the thread.
+    $entity_ref_field = $extreme === 'first' ? 'field_harmony_first_post' : 'field_harmony_last_post';
+
+    if ($wrapper->__isset($entity_ref_field) && $wrapper->{$entity_ref_field}->value() && $wrapper->{$entity_ref_field}->post_id->value() == $post->post_id) {
+      return;
+    }
+
+    if ($extreme == 'first') {
+      // Set the first post entity reference.
+      if ($wrapper->__isset('field_harmony_first_post')) {
+        $wrapper->field_harmony_first_post->set($post->post_id);
+      }
+      // Set the created date and time.
+      $thread->created = $post->created;
+    }
+    else {
+      // Set the last post entity reference.
+      if ($wrapper->__isset('field_harmony_last_post')) {
+        $wrapper->field_harmony_last_post->set($post->post_id);
+      }
+      // Set the last user to update entity reference.
+      if ($wrapper->__isset('field_harmony_last_user_to_reply')) {
+        $wrapper->field_harmony_last_user_to_reply->set($post->uid);
+      }
+      // Attach last post uri.
+      $thread->last_post_uri = harmony_core_post_thread_url($thread->thread_id, $post->post_id, TRUE);
+      // Set the updated time.
+      $thread->updated = $post->created;
+    }
+
+    // Save changes.
+    $this->metaSave($thread);
+
+    // Check for any other posts in this thread that thinks it's either first
+    // or last and update.
+    $field = $extreme == 'first' ? 'first_post' : 'last_post';
+    $query = new EntityFieldQuery;
+    $query_result = $query
+      ->entityCondition('entity_type', 'harmony_post')
+      ->fieldCondition('field_harmony_thread', 'target_id', $thread_id)
+      ->propertyCondition($field, 1)
+      ->execute();
+    if (!empty($query_result['harmony_post'])) {
+      $post_ids = array_keys($query_result['harmony_post']);
+      $posts = harmony_post_load_multiple($post_ids);
+
+      if (!empty($posts)) {
+        foreach ($posts as $harmony_post) {
+          if ($harmony_post->post_id == $post->post_id) {
+            continue;
+          }
+
+          if ($extreme == 'first') {
+            $harmony_post->first_post = 0;
+          }
+          else {
+            $harmony_post->last_post = 0;
+          }
+          harmony_post_meta_save($harmony_post);
+        }
+      }
+    }
+
+    // Save either first or last post on the post entity.
+    if ($extreme == 'first') {
+      $post->first_post = 1;
+      $post->last_post = 0;
+    }
+    else {
+      $post->first_post = 0;
+      $post->last_post = 1;
+    }
+    harmony_post_meta_save($post);
   }
 }
 
@@ -623,6 +788,7 @@ class HarmonyPostController extends HarmonyController {
       $wrapper = entity_metadata_wrapper('harmony_post', $entity);
       $thread_id = NULL;
       $original_thread_id = NULL;
+      $original_post_wrapper = NULL;
 
       $op = $entity->is_new ? 'insert' : 'update';
 
@@ -640,8 +806,6 @@ class HarmonyPostController extends HarmonyController {
         // Normally we'd invoke insert hooks here, but we've got more work to
         // do before the entity is considered finalised.
         $this->invoke('insert_pre_meta', $entity);
-
-        //field_attach_insert($this->entityType, $entity);
       }
       else {
         // Update the base table if the entity doesn't have revisions or
@@ -658,19 +822,22 @@ class HarmonyPostController extends HarmonyController {
 
           if (!empty($trigger_fields) && is_array($trigger_fields)) {
             foreach ($trigger_fields as $field => $index) {
-              $original = $original_post_wrapper->{$field}->value();
-              $current = $wrapper->{$field}->value();
+              // Verify that the target field exists on the original post.
+              if ($original_post_wrapper->__isset($field)) {
+                $original = $original_post_wrapper->{$field}->value();
+                $current = $wrapper->{$field}->value();
 
-              // If a specific index is specified use it, otherwise assume
-              // that the returned data should be compared.
-              if ($index != '' && isset($original[$index])) {
-                $original = $original[$index];
-                $current = $current[$index];
-              }
+                // If a specific index is specified use it, otherwise assume
+                // that the returned data should be compared.
+                if ($index != '' && isset($original[$index])) {
+                  $original = $original[$index];
+                  $current = $current[$index];
+                }
 
-              if ($original != $current) {
-                $entity->is_new_revision = TRUE;
-                break;
+                if ($original != $current) {
+                  $entity->is_new_revision = TRUE;
+                  break;
+                }
               }
             }
           }
@@ -694,7 +861,6 @@ class HarmonyPostController extends HarmonyController {
 
         $this->resetCache(array($entity->{$this->idKey}));
         $this->invoke('update_pre_meta', $entity);
-        //field_attach_update($this->entityType, $entity);
 
         // Field API always saves as default revision, so if the revision saved
         // is not default we have to restore the field values of the default
@@ -712,124 +878,173 @@ class HarmonyPostController extends HarmonyController {
         }
       }
 
+      // Well hello, you've found your way to the point where we figure out
+      // what to update and where, hold on to your bootstraps!
+
+      // Is this a new post?
+      $new = $entity->is_new;
+      // Unset the entity new flag.
+      unset($entity->is_new);
+
+      // Setup our post properties.
+      $published = $entity->status == HARMONY_PUBLISHED;
+      $published_changed = !$new && $entity->status != $entity->original->status;
+
+      $hidden = $entity->hidden == HARMONY_HIDDEN;
+      $hidden_changed = !$new && $entity->hidden != $entity->original->hidden;
+
+      // Determine the count direction, leave, increment, decrement.
+      $count_direction = NULL;
+      if ($new && $published || !$new && $published_changed || !$new && $hidden_changed) {
+        // If new and published, if existing becomes published or existing becomes unhidden.
+        if ($new && $published || !$new && $published && $published_changed || !$new && !$hidden && $hidden_changed) {
+          $count_direction = 'increment';
+        }
+        // If an existing post becomes unpublished or hidden.
+        elseif (!$new && !$published && $published_changed || !$new && $hidden && $hidden_changed) {
+          $count_direction = 'decrement';
+        }
+      }
+
       // Grab some details on the thread.
       $thread = NULL;
-      $thread_updated = FALSE;
+      $thread_wrapper = NULL;
       if ($wrapper->field_harmony_thread->value()) {
         $thread_id = $wrapper->field_harmony_thread->thread_id->value();
         $thread = harmony_thread_load($thread_id);
         $thread_wrapper = entity_metadata_wrapper('harmony_thread', $thread);
       }
 
-      $moving_thread = !$entity->is_new && $thread_id != $original_thread_id;
+      // Are we moving thread?
+      $original_thread = NULL;
+      $moving_thread = !$new && $thread_id && $thread_id != $original_thread_id;
+      $moving_category = FALSE;
+      $original_category = NULL;
+      $category = NULL;
 
-      // If we're attached to a thread, update some things!
-      if ($thread_id && !$moving_thread) {
-        // Set who last updated the thread.
-        if ($entity->uid > 0) {
-          $thread_wrapper->field_harmony_last_user_to_reply->set($entity->uid);
-          $thread_updated = TRUE;
-        }
+      // Get the current or new value of the category field, if it exists.
+      if ($thread_wrapper && $thread_wrapper->__isset('field_harmony_category')) {
+        $category = $thread_wrapper->field_harmony_category->value() ? $thread_wrapper->field_harmony_category->tid->value() : NULL;
 
-        // Update last post if this post is new.
-        if ($entity->is_new && $thread_wrapper->__isset('field_harmony_last_post') && $thread_wrapper->field_harmony_last_post->value()) {
-          $previous_last_post_id = $wrapper->field_harmony_thread->field_harmony_last_post->post_id->value();
-          if ($previous_last_post_id != $entity->post_id) {
-            // Entity metadata wrapper dies here when trying to set a
-            // property through the entity ref.
-            $previous_last_post = harmony_post_load($previous_last_post_id);
-            $previous_last_post->last_post = 0;
-            $this->metaSave($previous_last_post);
-          }
+        // Are we moving category? (Crikey).
+        // Check the old and new thread values.
+        if ($original_thread_id && $moving_thread) {
+          $original_thread = harmony_thread_load($original_thread_id);
+          $original_thread_wrapper = entity_metadata_wrapper('harmony_thread', $original_thread);
 
-          $thread_wrapper->field_harmony_last_post->set($entity->post_id);
-
-          // Reset the known list of posts within a thread.
-          harmony_core_get_thread_posts($thread_id, array(), NULL, NULL, TRUE);
-          $thread->last_post_uri = harmony_core_post_thread_url($thread_id, $entity->post_id, TRUE);
-          $thread_updated = TRUE;
-        }
-
-        // Invoke post saved, thread updated.
-        if ($entity->is_new) {
-          module_invoke_all('harmony_thread_new_post', $thread_id, $entity);
-        }
-      }
-
-      if ($thread_id) {
-        // Set the last time the thread was updated.
-        if ($thread_wrapper->updated->value() < $wrapper->created->value()) {
-          $thread_wrapper->updated->set(REQUEST_TIME);
-          $thread_updated = TRUE;
-        }
-
-        // Attach the thread type to the post.
-        $entity->thread_type = $wrapper->field_harmony_thread->type->value();
-      }
-
-      if ($thread_updated) {
-        harmony_thread_meta_save($thread);
-      }
-
-      // Update counts.
-      $count_direction = NULL;
-      // The hidden flag has a different purpose for posts than it does threads.
-      // A post becomes hidden because it's parent thread is unpublished, using
-      // the hidden flag allows the thread to retain it's post count (which it
-      // should as the posts are still technically active). This is the only
-      // time when hidden is used, it is not exposed on any forms.
-      $hidden_changed = !$entity->is_new && $entity->hidden != $entity->original->hidden;
-      if ($entity->is_new && $entity->status == HARMONY_PUBLISHED || !$entity->is_new && $entity->status != $entity->original->status || $hidden_changed) {
-        // Determine the direction.
-        if (
-          $entity->is_new && $entity->status == HARMONY_PUBLISHED ||
-          !$entity->is_new && $entity->status == HARMONY_PUBLISHED && $entity->original->status == HARMONY_NOT_PUBLISHED ||
-          !$entity->is_new && $entity->hidden == HARMONY_NOT_HIDDEN && $entity->original->hidden == HARMONY_HIDDEN
-        ) {
-          $count_direction = 'increment';
-        }
-        elseif (
-          !$entity->is_new && $entity->status == HARMONY_NOT_PUBLISHED && $entity->original->status == HARMONY_PUBLISHED ||
-          !$entity->is_new && $entity->status == HARMONY_HIDDEN && $entity->original->status == HARMONY_NOT_HIDDEN
-        ) {
-          $count_direction = 'decrement';
-        }
-
-        // Also likes.
-
-        // Check on and update the last post if unpublishing and the thread is
-        // unpublished, this is typical of the user cancel process.
-        // @todo consider implications.
-        if (!$entity->is_new && $entity->status == HARMONY_NOT_PUBLISHED && $entity->original->status == HARMONY_PUBLISHED) {
-          if ($thread_id && $entity->last_post && $wrapper->field_harmony_thread->status->value() == HARMONY_PUBLISHED) {
-            // Update the last post as it's not this one anymore.
-            $this->updateLastPost($thread_id, $entity->post_id, $wrapper);
-          }
-        }
-
-        // User count.
-        if ($count_direction) {
-          // Thread count.
-          if ($thread_id && !$hidden_changed) {
-            harmony_core_update_meta_count(array('field_harmony_post_count'), 'harmony_thread', $thread_id, $count_direction);
-          }
-
-          // Users post count.
-          if ($entity->uid > 0) {
-            harmony_core_update_meta_count(array('field_harmony_post_count'), 'user', $entity->uid, $count_direction);
-          }
-
-          // Increment the category thread count if the thread belongs to a category.
-          // @todo this makes stuff blow up for some reason.
-          if ($wrapper->__isset('field_harmony_category') && $wrapper->field_harmony_thread->field_harmony_category->value()) {
-            $term_id = $wrapper->field_harmony_thread->field_harmony_category->tid->value();
-            harmony_core_update_meta_count(array('field_harmony_post_count'), 'taxonomy_term', $term_id, $count_direction);
+          if ($original_thread_wrapper->__isset('field_harmony_category')) {
+            $original_category = $original_thread_wrapper->field_harmony_category->value() ? $thread_wrapper->field_harmony_category->tid->value() : NULL;
+            $moving_category = $category != $original_category;
           }
         }
       }
 
-      // Invoke insert or update hook.
+      // Setup flags so we know what to update.
+      $update_thread = ($thread_id || $original_thread_id) && $count_direction && ($new || $published_changed || $moving_thread);
+      $update_category = ($category || $original_category) || $count_direction || $moving_category;
+      $update_user = $entity->uid > 0 && $count_direction;
+
+      // Invoke insert or update hook ahead of any full saves involving the
+      // field API else we'll get errors.
       $this->invoke($op, $entity);
+
+      // Update whatever needs updating.
+
+      // Threads!
+      if ($update_thread) {
+        // Update thread deets if we've got a thread id.
+        if ($thread_id) {
+          if ($new && $published || $published_changed) {
+            harmony_thread_update_first_or_last_properties($thread_id, $entity);
+          }
+
+          // Update first details only.
+          /*if (!$new && !$entity->last_post && $published_changed) {
+            harmony_thread_update_first_or_last_properties($thread_id, 'first');
+          }
+          // Update last details with this post.
+          elseif (($new || $published_changed) && !$entity->first_post) {
+            if ($new && $published) {
+              harmony_thread_update_first_or_last_properties($thread_id, 'last', $entity);
+            }
+            else {
+              harmony_thread_update_first_or_last_properties($thread_id, 'last');
+            }
+          }
+          // Update both! When would this ever happen? @todo sort this out.
+          elseif ($new && $entity->first_post && $entity->last_post) {
+            harmony_thread_rebuild_first_last_posts($thread);
+            watchdog('debug', 'this happened');
+          }*/
+
+          // Update post counts.
+          harmony_core_update_meta_count(array('field_harmony_post_count'), 'harmony_thread', $thread_id, $count_direction);
+
+          // Are there any likes to add or subtract?
+          if (($new && $published || !$new && $published_changed)) {
+            $likes = flag_get_counts('harmony_post', $entity->post_id);
+            // If this post has likes, update the thread.
+            if (!empty($likes['harmony_likes']) && $likes['harmony_likes'] > 0) {
+              harmony_core_update_meta_count(array('likes'), 'harmony_thread', $thread_id, $count_direction, $likes['harmony_likes']);
+            }
+          }
+        }
+
+        // We are moving threads, lots to do.
+        if ($moving_thread) {
+          // If the post was visible to the world update things.
+          if ($published && !$published_changed) {
+            // Check we've got the old thread, load if not.
+            if ($original_thread_id && !$original_thread) {
+              $original_thread = harmony_thread_load($original_thread_id);
+            }
+
+            // If the post is first in a thread, update the old threads first.
+            if ($entity->first_post && !$entity->last_post) {
+              harmony_thread_update_first_or_last_properties($original_thread_id, 'first');
+            }
+            // Same for last.
+            elseif (!$entity->last_post && $entity->last_post) {
+              harmony_thread_update_first_or_last_properties($original_thread_id, 'last');
+            }
+            // Or both.
+            elseif ($entity->first_post && $entity->last_post) {
+              harmony_thread_rebuild_first_last_posts($original_thread);
+            }
+
+            // Update the old threads post count.
+            harmony_core_update_meta_count(array('field_harmony_post_count'), 'harmony_thread', $original_thread_id, 'decrement');
+
+            // Update likes if any.
+            $likes = flag_get_counts('harmony_post', $entity->post_id);
+            // If this post has likes, update the thread.
+            if (!empty($likes['harmony_likes']) && $likes['harmony_likes'] > 0) {
+              harmony_core_update_meta_count(array('likes'), 'harmony_thread', $original_thread_id, 'decrement', $likes['harmony_likes']);
+            }
+          }
+        }
+      }
+
+      // Update category.
+      if ($update_category) {
+        if ($category && $count_direction) {
+          harmony_core_update_meta_count(array('field_harmony_post_count'), 'taxonomy_term', $category, $count_direction);
+        }
+
+        if ($original_category && $moving_category) {
+          harmony_core_update_meta_count(array('field_harmony_post_count'), 'taxonomy_term', $original_category, 'decrement');
+        }
+      }
+
+      // Update user counts.
+      if ($update_user) {
+        harmony_core_update_meta_count(array('field_harmony_post_count'), 'user', $entity->uid, $count_direction);
+      }
+
+      // Invoke our other hooks such as the new thread in a post hook.
+      if ($new) {
+        module_invoke_all('harmony_thread_new_post', $thread_id, $entity);
+      }
 
       // Trigger rules with special skip save.
       if (module_exists('rules')) {
@@ -843,7 +1058,7 @@ class HarmonyPostController extends HarmonyController {
 
       // Ignore slave server temporarily.
       db_ignore_slave();
-      unset($entity->is_new);
+      //unset($entity->is_new);
       unset($entity->original);
 
       // Return the entity.
