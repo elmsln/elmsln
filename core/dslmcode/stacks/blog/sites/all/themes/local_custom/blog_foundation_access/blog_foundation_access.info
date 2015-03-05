@@ -5,5 +5,5 @@ core = 7.x
 engine = phptemplate
 base theme = foundation_access
 
-stylesheets[all][]   = css/meedjum_blog_styles.css
+stylesheets[all][]   = css/blog_styles.css
 
