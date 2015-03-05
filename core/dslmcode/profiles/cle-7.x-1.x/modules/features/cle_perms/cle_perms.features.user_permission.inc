@@ -59,21 +59,6 @@ function cle_perms_user_default_permissions() {
     'module' => 'system',
   );
 
-  // Exported permission: 'allow plupload'.
-  $permissions['allow plupload'] = array(
-    'name' => 'allow plupload',
-    'roles' => array(
-      'administrator' => 'administrator',
-      'guest' => 'guest',
-      'instructor' => 'instructor',
-      'past student' => 'past student',
-      'staff' => 'staff',
-      'student' => 'student',
-      'teaching assistant' => 'teaching assistant',
-    ),
-    'module' => 'plup',
-  );
-
   // Exported permission: 'bypass node access'.
   $permissions['bypass node access'] = array(
     'name' => 'bypass node access',

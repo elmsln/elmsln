@@ -3,5 +3,3 @@
  * @file
  * Code for the CLE Perms feature.
  */
-
-include_once 'cle_perms.features.inc';

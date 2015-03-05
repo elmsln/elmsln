@@ -5,7 +5,6 @@ package = CLE
 dependencies[] = comment
 dependencies[] = entity
 dependencies[] = features
-dependencies[] = fitvids
 dependencies[] = flag
 dependencies[] = flexslider_fields
 dependencies[] = lightbox2
