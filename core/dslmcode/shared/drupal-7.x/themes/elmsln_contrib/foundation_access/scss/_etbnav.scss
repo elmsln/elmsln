@@ -36,6 +36,14 @@
 ul.kill-margin {
   margin:0;
 }
+a.modal-img-link {
+  display:block;
+  margin:1rem 0;
+  span {
+    padding: 2.5rem 0 0 7rem;
+    display:block;
+  }
+}
 .etb-nav {//namespace
     // &_modal {
     //   visibility: hidden;
@@ -139,7 +147,8 @@ ul.kill-margin {
 // }
 
 //////////// Course Ecosystem Navigation
- #etb-course-nav {
+
+#etb-course-nav {
     background-color:$etb-nav-bg-color;
     border-bottom:0.125rem solid darken($etb-nav-bg-color, 34%);
   // .etb-title {
@@ -148,6 +157,7 @@ ul.kill-margin {
   //     font-size:40%;
   //   }
   // }
+
   .top-bar-section .has-dropdown>a:after {
     border-color: lighten($tool-bar-dark-color, 20%) transparent transparent transparent;
     top:50%;
@@ -243,20 +253,51 @@ ul.kill-margin {
   }
 }
 //////////// Course Tool Navigation
+///
+///left and right tabbar sections
+$left-tabbar-section-width:15rem;
+$right-tabbar-section-width:2.8125rem;
 #etb-tool-nav {
+  section.right-small {
+    width:$right-tabbar-section-width;
+    border-left: solid 1px $tabbar-section-border-color;
+  }
   .tab-bar {
     background-color:$etb-tool-bg-color;
-    .tab-bar-section.middle {
-      left:10rem;
-      right:0;
-      background-color:darken($tool-bar-base-color, 76%);
+    .tab-bar-section {
+      text-align:right;
+      padding:0;
+
+      a.button.secondary {
+        background:transparent;
+        color:#efefef;
+        border-color: $tabbar-section-border-color;
+        &:hover {
+          background:rgba(0,0,0,0.5);
+        }
+      }
+      &.middle {
+        left:$left-tabbar-section-width;
+        right:$right-tabbar-section-width;
+        background-color:darken($tool-bar-base-color, 76%);
+        border-left: solid 1px $tabbar-section-border-color;
+        overflow: hidden;
+      }
+    }
+    a.left-off-canvas-toggle.menu-icon {
+      @include transition(all,1.5s,cubic-bezier(0.01, 0.94, 0.46, 1));
+      &:hover {
+        background-color: $tabbar-section-border-color;
+        @include transition(all,1.5s,cubic-bezier(0.01, 0.94, 0.46, 1));
+      }
     }
     .menu-icon {
+      width:$left-tabbar-section-width;
+      text-transform: capitalize;
+      // a {
+      // margin-left:1.875rem;
       
-      a {
-      margin-left:1.875rem;
-      width:10rem;
-      }
+      // }
       span {
         padding: 0 0 0 1rem;
         font-size:1.2rem;
@@ -266,5 +307,21 @@ ul.kill-margin {
         box-shadow: 0 0 0 1px $tool-bar-base-color,0 7px 0 1px $tool-bar-base-color,0 14px 0 1px $tool-bar-base-color;
       }
     }
+  }
+}
+.hide-me-small-only {
+  @media #{$small-only} {
+    display:none;
+  }
+  @media #{$medium-up} {
+    display:inherit;
+  }
+}
+.show-me-small-only {
+  @media #{$small-only} {
+    display:inherit;
+  }
+   @media #{$medium-up} {
+    display:none;
   }
 }

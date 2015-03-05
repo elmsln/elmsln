@@ -2,37 +2,45 @@
 	  background: $mark-color;
 	  color: darken($mark-color,70%);
 	  text-shadow: none;
-	}
+}
+
+body {
+	background-color:$background-color;
+}
+.breadcrumbs {
+	display:inline-block;
+}
 .etb-book {
+	//background:$book-bg-color;
 	
 	mark {
 		background-color:$mark-color;
 		color:darken($mark-color,70%);
 		// @include border-radius (4px);
 		// @include box-shadow(0,0,3px,3px,rgba(0,0,0,0.08));
-		padding:0.1rem 0.5rem;
+		//padding:0.1rem 0.5rem;
 	}
 	@media #{$small-up} {
-		padding-top:0rem;
+		//padding-top:0rem;
 	}
 	@media #{$medium-up} {
-		padding:2rem 1rem 0;
+		//padding:2rem 1rem 0;
 	}
 	@media #{$large-up} {
-		padding:2rem 1rem 0;
+		//padding:2rem 1rem 0;
 	}
 	
-	background:$book-bg-color;
+	
 	.row {
 		@extend transform();
 	}
 	.content-element-region {
 		//border: 1px solid #efefef;
 		// background: rgba(255,255,255,1);
-		background-color: #efefef;
+		//background-color: #efefef;
 		padding-top: 2rem;
-		@include border-radius (3px);
-		@include box-shadow();
+		//@include border-radius (3px);
+		//@include box-shadow();
 	}
 	.alert-box {
 		background-color: $messages-alerts-color;
@@ -45,13 +53,6 @@
 			color:#fff;
 			opacity:0.6;
 		}
-	}
-
-	body {
-	//background-color:$background-color;
-	}
-	.l-main {
-		background-color:$background-color;
 	}
 	.main {//to help center breadcrumbs
 		text-align:center;

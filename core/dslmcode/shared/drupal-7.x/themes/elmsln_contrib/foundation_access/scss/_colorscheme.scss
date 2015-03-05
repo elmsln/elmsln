@@ -4,7 +4,7 @@
 
 // General Styles
 $bright-color:#fff;
-$background-color:#bbb; // body, .l-main
+$background-color: #efefef; // body, .l-main, lmsless-bar
 $dark-background-color:#333;
 $accent-color: #cccccc;
 $accent-border-color: #d8d8d8;
@@ -17,15 +17,22 @@ $text-on-dark-color:#fff;
 $etb-nav-bg-color:#efefef;
 $etb-nav-btn-bg-color:darken($etb-nav-bg-color,20%);
 $etb-tool-bg-color:#3e3e3e;
-$book-bg-color:$background-color;
+$book-bg-color:$etb-nav-bg-color;
 $tool-bar-base-color:#fff;
 $tool-bar-dark-color:#000;
 $menu-icon-color:$contrast-color;
+$icon-border-color:#3e3e3e;
+$dark-color:#2b2b2b;
+$modal-headings-color:#575757;
+$footer-bg-color:$etb-tool-bg-color;
+$tabbar-section-border-color:#282828;
 
 // Off-canvas Menu
 $active-menu-bg:#848484;
 $active-menu-link-border:darken($active-menu-bg,10%);
 $active-menu-border: darken($active-menu-bg,35%);
+$round-icon-bg-color:#fff;
+$round-icon-bg-hover-color:#ccc;
 
 // Text Content 
 $text-color: #313131;

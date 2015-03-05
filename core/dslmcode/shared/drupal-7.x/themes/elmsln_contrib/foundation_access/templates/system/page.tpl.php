@@ -15,12 +15,17 @@
             <a class="left-off-canvas-toggle menu-icon" ><span><?php print $cis_lmsless['active']['title'] ?></span></a>
           </section>
 
-          <section class="middle tab-bar-section">
-            <?php if (!empty($tabs)): ?>
-                <?php print render($tabs); ?>
-              <?php if (!empty($tabs2)): print render($tabs2); endif; ?>
-            <?php endif; ?>
-            <?php print render($page['cis_appbar_first']); ?>
+          <section class="middle tab-bar-section hide-me-small-only">
+           
+              <?php if (!empty($tabs)): ?>
+                  <?php print render($tabs); ?>
+                <?php if (!empty($tabs2)): print render($tabs2); endif; ?>
+              <?php endif; ?>
+              <?php print render($page['cis_appbar_first']); ?>
+            
+          </section>
+          <section class="middle tab-bar-section show-me-small-only">
+              <a class="small button secondary" data-dropdown="middle-section-buttons" aria-controls="middle-section-buttons" aria-expanded="false">Tools</a>
           </section>
 
           <section class="right-small">
@@ -41,6 +46,16 @@
             </div>
             <!-- /accessibility dropdown -->
         </nav>
+        
+        <!-- Middle Section Dropdown Page Tabs -->
+        <div id="middle-section-buttons" data-dropdown-content class="f-dropdown content" aria-hidden="true" tabindex="-1">
+          <?php if (!empty($tabs)): ?>
+              <?php print render($tabs); ?>
+            <?php if (!empty($tabs2)): print render($tabs2); endif; ?>
+          <?php endif; ?>
+          <?php print render($page['cis_appbar_first']); ?>  
+        </div>
+
 
         <?php print render($page['left_menu']); ?>
 
@@ -96,35 +111,32 @@
               </div>
             </div>
           </div>
-
-          <footer class="row">
-            <div class="large-12 columns">
-              <hr/>
-              <div class="row">
-                <?php if (!empty($page['footer'])): ?>
-                <?php print render($page['footer']); ?>
-                <?php endif; ?>
-              </div>
-              <?php if (!empty($page['footer_firstcolumn']) || !empty($page['footer_secondcolumn'])): ?>
-              <hr/>
-              <div class="row">
-                <?php if (!empty($page['footer_firstcolumn'])): ?>
-                <div class="large-6 columns">
-                  <?php print render($page['footer_firstcolumn']); ?>
-                </div>
-                <?php endif; ?>
-                <?php if (!empty($page['footer_secondcolumn'])): ?>
-                <div class="large-6 columns">
-                  <?php print render($page['footer_secondcolumn']); ?>
-                </div>
-                <?php endif; ?>
-              </div>
-              <?php endif; ?>
-            </div>
-          </footer>
-
         </section>
 
       <a class="exit-off-canvas"></a>
       </div>
     </div>
+    <footer class="sticky-footer">
+      <div class="row">
+        <div class="small-12 medium-push-1 medium-10 columns">
+          <?php if (!empty($page['footer'])): ?>
+          <?php print render($page['footer']); ?>
+          <?php endif; ?>
+        </div>
+        <?php if (!empty($page['footer_firstcolumn']) || !empty($page['footer_secondcolumn'])): ?>
+        <hr/>
+        <div class="row">
+          <?php if (!empty($page['footer_firstcolumn'])): ?>
+          <div class="large-6 columns">
+            <?php print render($page['footer_firstcolumn']); ?>
+          </div>
+          <?php endif; ?>
+          <?php if (!empty($page['footer_secondcolumn'])): ?>
+          <div class="large-6 columns">
+            <?php print render($page['footer_secondcolumn']); ?>
+          </div>
+          <?php endif; ?>
+        </div>
+        <?php endif; ?>
+      </div>
+    </footer>

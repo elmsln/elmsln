@@ -1,3 +1,15 @@
 .region-footer {
   padding: $element-offset inherit;
 }
+//Sticky Footer
+@include sticky-footer(10rem, '.off-canvas-wrap', '.inner-wrap', '.sticky-footer');
+
+footer {
+	background-color: $footer-bg-color;
+	padding-top:1rem;
+	text-align:center;
+
+	p {
+		color:$white;
+	}
+}

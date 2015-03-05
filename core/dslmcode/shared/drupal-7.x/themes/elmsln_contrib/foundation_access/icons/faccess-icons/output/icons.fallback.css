@@ -18,6 +18,10 @@
 
 .icon-assignments-white { background-image: url('png/assignments-white.png'); background-repeat: no-repeat; }
 
+.icon-beaker-black { background-image: url('png/beaker-black.png'); background-repeat: no-repeat; }
+
+.icon-beaker-white { background-image: url('png/beaker-white.png'); background-repeat: no-repeat; }
+
 .icon-blog-black { background-image: url('png/blog-black.png'); background-repeat: no-repeat; }
 
 .icon-blog-white { background-image: url('png/blog-white.png'); background-repeat: no-repeat; }
@@ -34,11 +38,23 @@
 
 .icon-calendar-white { background-image: url('png/calendar-white.png'); background-repeat: no-repeat; }
 
+.icon-cis-black { background-image: url('png/cis-black.png'); background-repeat: no-repeat; }
+
+.icon-cis-white { background-image: url('png/cis-white.png'); background-repeat: no-repeat; }
+
 .icon-close-black { background-image: url('png/close-black.png'); background-repeat: no-repeat; }
 
 .icon-close-colors-black-white { background-image: url('png/close-colors-black-white.png'); background-repeat: no-repeat; }
 
 .icon-close-white { background-image: url('png/close-white.png'); background-repeat: no-repeat; }
+
+.icon-collab-black { background-image: url('png/collab-black.png'); background-repeat: no-repeat; }
+
+.icon-collab-white { background-image: url('png/collab-white.png'); background-repeat: no-repeat; }
+
+.icon-comment-black { background-image: url('png/comment-black.png'); background-repeat: no-repeat; }
+
+.icon-comment-white { background-image: url('png/comment-white.png'); background-repeat: no-repeat; }
 
 .icon-content-black { background-image: url('png/content-black.png'); background-repeat: no-repeat; }
 
@@ -56,6 +72,10 @@
 
 .icon-download-white { background-image: url('png/download-white.png'); background-repeat: no-repeat; }
 
+.icon-easle-black { background-image: url('png/easle-black.png'); background-repeat: no-repeat; }
+
+.icon-easle-white { background-image: url('png/easle-white.png'); background-repeat: no-repeat; }
+
 .icon-grades-black { background-image: url('png/grades-black.png'); background-repeat: no-repeat; }
 
 .icon-grades-white { background-image: url('png/grades-white.png'); background-repeat: no-repeat; }
@@ -63,6 +83,10 @@
 .icon-help-black { background-image: url('png/help-black.png'); background-repeat: no-repeat; }
 
 .icon-help-white { background-image: url('png/help-white.png'); background-repeat: no-repeat; }
+
+.icon-inbox-black { background-image: url('png/inbox-black.png'); background-repeat: no-repeat; }
+
+.icon-inbox-white { background-image: url('png/inbox-white.png'); background-repeat: no-repeat; }
 
 .icon-info-black { background-image: url('png/info-black.png'); background-repeat: no-repeat; }
 
@@ -80,6 +104,10 @@
 
 .icon-quiz-white { background-image: url('png/quiz-white.png'); background-repeat: no-repeat; }
 
+.icon-speechballoons-black { background-image: url('png/speechballoons-black.png'); background-repeat: no-repeat; }
+
+.icon-speechballoons-white { background-image: url('png/speechballoons-white.png'); background-repeat: no-repeat; }
+
 .icon-support-black { background-image: url('png/support-black.png'); background-repeat: no-repeat; }
 
 .icon-support-white { background-image: url('png/support-white.png'); background-repeat: no-repeat; }
@@ -87,6 +115,10 @@
 .icon-teacher-black { background-image: url('png/teacher-black.png'); background-repeat: no-repeat; }
 
 .icon-teacher-white { background-image: url('png/teacher-white.png'); background-repeat: no-repeat; }
+
+.icon-tour-black { background-image: url('png/tour-black.png'); background-repeat: no-repeat; }
+
+.icon-tour-white { background-image: url('png/tour-white.png'); background-repeat: no-repeat; }
 
 .icon-user-black { background-image: url('png/user-black.png'); background-repeat: no-repeat; }
 
@@ -99,4 +131,8 @@
 .icon-view-off-white { background-image: url('png/view-off-white.png'); background-repeat: no-repeat; }
 
 .icon-view-white { background-image: url('png/view-white.png'); background-repeat: no-repeat; }
+
+.icon-write-black { background-image: url('png/write-black.png'); background-repeat: no-repeat; }
+
+.icon-write-white { background-image: url('png/write-white.png'); background-repeat: no-repeat; }
 

@@ -73,7 +73,7 @@
 // $transition-property = the property you want to transition
 // $transition-time = seconds you want the transition to last
 // $method = how you want it to transition - e.g. ease-in-out
-@mixin transition($transition-property:all, $transition-time:0.2s, $easing: ease-in-out) {
+@mixin transition($transition-property:all, $transition-time:0.2s, $easing: cubic-bezier(0.01, 0.94, 0.46, 1)) {
     -webkit-transition: $transition-property $transition-time $easing;
     -moz-transition: $transition-property $transition-time $easing;
     -ms-transition: $transition-property $transition-time $easing;
@@ -93,3 +93,34 @@
      -o-text-shadow: $shadow-1, $shadow-2;
      text-shadow: $shadow-1, $shadow-2;
  }
+ @mixin sticky-footer($footer-height, $wrapper-selector: unquote("#wrapper"), $container-selector: unquote("#container"), $footer-selector: unquote("#footer")) {
+  html, body {
+    height: 100%;
+  }
+  body {
+    margin: 0px;
+    padding: 0px;
+  }
+  #{$wrapper-selector} {
+    min-height: 100%;
+    height: auto !important;
+    height: 100%;
+    margin-top: 0;  
+    margin-left: auto;
+    margin-right: auto;
+    margin-bottom: -$footer-height;
+    #{$container-selector} {
+      margin: 0 0 $footer-height 0;
+    } 
+  }
+  #{$footer-selector} {
+    height: $footer-height;
+
+  }
+}
+ 
+// usage if you're using the default element ids
+//@include sticky-footer(30px);
+ 
+// usage if you want to define the element ids
+//@include sticky-footer(30px, '#page', '#main', '#colophon');

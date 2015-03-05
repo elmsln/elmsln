@@ -105,7 +105,7 @@ p.testimonial-title {
 	 @extend %vollkorn-italic;
 }
 #etb-course-nav span.course-title {
-	@extend %opensans-bold;
+	@extend %opensans-light;
 	text-transform:uppercase;
 }
 #etb-course-nav span.course-abrv {
@@ -125,7 +125,10 @@ p.testimonial-title {
 ul.off-canvas-list li a {
 	@extend %opensans-light;
 }
-a.etb-nav_item_service_btn span{
+.etb-nav-modal ul li a,
+a.etb-nav_item_service_btn span,
+a.etb-modal-icon span,
+a.modal-img-link span {
 	@extend %opensans-light;
 }
 .etb-nav-modal h1 {
@@ -134,4 +137,8 @@ a.etb-nav_item_service_btn span{
 .etb-nav-modal h2 {
 	@extend %opensans-light;
 	text-transform:uppercase;
+}
+.section-id {
+	@extend %opensans-normal;
+	text-transform:none;
 }
