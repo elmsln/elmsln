@@ -9,7 +9,8 @@
             "arguments": [
                 "magic",
                 "fences",
-                "html5_tools"
+                "html5_tools",
+                "jquery_update"
             ]
         },
         {
