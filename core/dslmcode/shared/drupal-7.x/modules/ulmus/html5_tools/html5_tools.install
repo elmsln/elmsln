@@ -1,0 +1,29 @@
+<?php
+
+/**
+ * @file
+ * Install file for the htm5_tools module.
+ */
+
+/**
+ * Implements hook_install().
+ */
+function html5_tools_install() {
+  // Set default date format for the ISO 8601 format type.
+  $type = 'html5_tools_iso8601';
+  $format = 'c';
+  variable_set('date_format_' . $type, $format);
+}
+
+/**
+ * Implements hook_uninstall().
+ */
+function html5_tools_uninstall() {
+  // Remove date format for the ISO 8601 format type.
+  $type = 'html5_tools_iso8601';
+  variable_del('date_format_' . $type);
+
+  // Delete all the html5_tools variables and then clear the variable cache.
+  db_query("DELETE FROM {variable} WHERE name LIKE 'html5_tools_%'");
+  cache_clear_all('variables', 'cache');
+}

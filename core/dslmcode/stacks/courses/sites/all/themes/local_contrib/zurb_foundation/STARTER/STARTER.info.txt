@@ -26,7 +26,7 @@ base theme = zurb_foundation
 ; CSS2.1 media types: http://www.w3.org/TR/CSS21/media.html#media-types
 ; CSS3 media queries: http://www.w3.org/TR/css3-mediaqueries/
 
-; For CSS users, load the app.css file:
+; For CSS users, load the STARTER.css file:
 stylesheets[all][] = css/STARTER.css
 
 ; Block loading of foundation.min.css from the base theme. This file should either
@@ -36,17 +36,16 @@ stylesheets[all][] = css/foundation.min.css
 
 ; Foundation JavaScript.
 
-; Modernizr acts as a shim for HTML5 elements for older browsers
-; as well as detection for mobile devices.
+; External libraries used by Foundation (minified). Add more via Gruntfile.js.
 scripts[] = js/libs.min.js
 
 ; Foundation framework scripts (minified).
-; If you prefer to have more control over which components are included you
-; can comment this line and uncomment the ones below you want.
+; Control specific components via Gruntfile.js.
 scripts[] = js/foundation.min.js
 
-; Theme scripts.
-; This file is empty, just uncomment this line and start editing!
+; Theme scripts (minified).
+; Grunt will compress any custom theme scripts matching the _*.js naming convention
+; into app.min.js.
 scripts[] = js/app.min.js
 
 ; This section lists the regions defined in the page.tpl.php. The name in

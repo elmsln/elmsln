@@ -1,0 +1,295 @@
+<?php
+
+/**
+ * @file
+ * A few tests to ensure the magic module is doing what it should be.
+ */
+
+/**
+ * A quick test to ensure that we have the right CSS gets returned when we run
+ * our regex to selectively remove files.
+ *
+ * @see DrupalUnitTestCase
+ *
+ * @ingroup magic
+ */
+class MagicCSSTestCase extends DrupalUnitTestCase {
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function getInfo() {
+    return array(
+      'name' => 'Magic CSS Tests',
+      'description' => 'Ensure that our CSS is removed or added appropriately.',
+      'group' => 'Magic',
+    );
+  }
+
+  /**
+   * Set up the test environment.
+   */
+  public function setUp() {
+    drupal_load('module', 'magic');
+    parent::setUp();
+  }
+
+  private function the_css_files($files = null) {
+    // Will grab the active theme.
+    $theme = drupal_get_path('theme', $GLOBALS['theme_key']);
+
+    $css_files = array(
+      'ctools' => array(
+        'type' => 'file',
+        'data' => 'sites/all/modules/contrib/ctools/css/ctools.css',
+      ),
+      'views' => array(
+        'type' => 'file',
+        'data' => 'sites/all/modules/contrib/views/css/views.css',
+      ),
+      'base' => array(
+        'type' => 'file',
+        'data' => 'modules/system/system.base.css',
+      ),
+      'menu' => array(
+        'type' => 'file',
+        'data' => 'modules/system/system.menus.css',
+      ),
+      'comment' => array(
+        'type' => 'file',
+        'data' => 'modules/comment/comment.css',
+      ),
+      'node' => array(
+        'type' => 'file',
+        'data' => 'modules/node/node.css',
+      ),
+      'theme' => array(
+        'type' => 'file',
+        'data' => $theme . '/css/style.css',
+      ),
+      'admin_menu' => array(
+        'type' => 'file',
+        'data' => 'sites/all/modules/contrib/admin_menu/admin_menu.css',
+      ),
+      'external' => array(
+        'type' => 'external',
+        'data' => '//external.file.com/folder/filename.css',
+      ),
+      'inline' => array(
+        'type' => 'inline',
+        'data' => 'body{color:blue;}',
+      ),
+    );
+
+    $return = array();
+    if ($files == null) {
+      $files = array_keys($css_files);
+    }
+
+    foreach($css_files as $name => $data) {
+      if (in_array($name, $files)) {
+        $return[] = $data;
+      }
+    }
+
+    return $return;
+  }
+
+  /**
+   * Test magic_assets_exclude().
+   *
+   * Testing to see if our regex sends back the appropriate responses.
+   */
+  public function testMagicCSSExcludes() {
+    module_load_include('inc', 'magic', 'includes/magic.assets');
+
+
+    // A set of trials for our CSS testing.
+    $tests = array(
+      array(
+        'removal' => array(
+          ':core',
+          '~:current-theme',
+        ),
+        'expected' => array(
+          'ctools',
+          'views',
+          'theme',
+          'admin_menu',
+          'external',
+          'inline',
+        ),
+        'message' => 'Removing core css alone.',
+      ),
+      array(
+        'removal' => array(
+          ':core',
+          ':contrib',
+          '~:current-theme',
+        ),
+        'expected' => array(
+          'theme',
+          'external',
+          'inline',
+        ),
+        'message' => 'Removing core and contrib css.',
+      ),
+      array(
+        'removal' => array(
+          ':core',
+          ':contrib',
+          '~sites/all/modules/contrib/admin_menu*',
+          '~:current-theme',
+        ),
+        'expected' => array(
+          'theme',
+          'admin_menu',
+          'external',
+          'inline',
+        ),
+        'message' => 'Removing core and contrib css, but leave admin menu.',
+      ),
+      array(
+        'removal' => array(
+          ':all',
+          '~:current-theme',
+        ),
+        'expected' => array(
+          'theme',
+          'inline',
+        ),
+        'message' => 'Remove all CSS except for the current theme.',
+      ),
+    );
+
+    foreach ($tests as $test) {
+      $css = $this->the_css_files();
+      $expected = $this->the_css_files($test['expected']);
+      $steps = magic_assets_regex_steps($test['removal']);
+      magic_assets_exclude($css, $steps);
+      // We run this so that the array keys are the same.
+      $css = array_values($css);
+
+      $this->assertEqual($expected, $css, $test['message']);
+    }
+  }
+}
+
+/**
+ * An even quicker test to ensure that we have the right CSS gets returned when
+ * we run our regex to selectively remove files.
+ *
+ * @see DrupalUnitTestCase
+ *
+ * @ingroup magic
+ */
+class MagicJSTestCase extends DrupalUnitTestCase {
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function getInfo() {
+    return array(
+      'name' => 'Magic JS Tests',
+      'description' => 'Ensure that our JS is removed or added appropriately.',
+      'group' => 'Magic',
+    );
+  }
+
+  /**
+   * Set up the test environment.
+   */
+  public function setUp() {
+    drupal_load('module', 'magic');
+    parent::setUp();
+  }
+
+  private function the_js_files($files = null) {
+    // Will grab the active theme.
+    $theme = drupal_get_path('theme', $GLOBALS['theme_key']);
+
+    $js_files = array(
+      'overlay' => array(
+        'type' => 'file',
+        'data' => 'modules/overlay/js/overlay.js',
+      ),
+      'ctools' => array(
+        'type' => 'file',
+        'data' => 'sites/all/modules/contrib/ctools/js/ctools.js',
+      ),
+      'theme' => array(
+        'type' => 'file',
+        'data' => $theme . '/js/main.js',
+      ),
+      'external' => array(
+        'type' => 'external',
+        'data' => '//external.file.com/folder/filename.js',
+      ),
+      'inline' => array(
+        'type' => 'inline',
+        'data' => 'jQuery();',
+      ),
+    );
+
+    $return = array();
+    if ($files == null) {
+      $files = array_keys($js_files);
+    }
+
+    foreach($js_files as $name => $data) {
+      if (in_array($name, $files)) {
+        $return[] = $data;
+      }
+    }
+
+    return $return;
+  }
+
+  /**
+   * Test magic_assets_exclude().
+   *
+   * Testing to see if our regex sends back the appropriate responses.
+   */
+  public function testMagicJSExcludes() {
+    module_load_include('inc', 'magic', 'includes/magic.assets');
+
+
+    // A set of trials for our CSS testing.
+    $tests = array(
+      array(
+        'removal' => array(
+          'overlay/*.js',
+        ),
+        'expected' => array(
+          'ctools',
+          'theme',
+          'external',
+          'inline',
+        ),
+        'message' => 'Ensuring the js removal also works',
+      ),
+      array(
+        'removal' => array(
+          ':all',
+          '~:current-theme',
+        ),
+        'expected' => array(
+          'theme',
+          'inline',
+        ),
+        'message' => 'Ensure the tokens work with JS',
+      ),
+    );
+
+    foreach ($tests as $test) {
+      $js = $this->the_js_files();
+      $expected = $this->the_js_files($test['expected']);
+      $steps = magic_assets_regex_steps($test['removal']);
+      magic_assets_exclude($js, $steps);
+      // We run this so that the array keys are the same.
+      $js = array_values($js);
+
+      $this->assertEqual($expected, $js, $test['message']);
+    }
+  }
+}

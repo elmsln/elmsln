@@ -1,0 +1,62 @@
+@import "compass/css3";
+@import "toolkit/clearfix";
+
+$legacy-support-for-ie: false;
+
+#magic-development, #magic-development * {
+  @include box-sizing(border-box);
+  @include clearfix;
+}
+
+#magic-development {
+  font-family: "HelveticaNeue-Light", "Helvetica Neue Light", "Helvetica Neue", Helvetica, Arial, "Lucida Grande", sans-serif;
+  font-weight: 300;
+  font-size: 16px;
+  color: invert(#333);
+
+  position: fixed;
+  bottom: .5em;
+  left: .5em;
+  right: .5em;
+
+  z-index: 999999;
+
+  div {
+    background: rgba(#333, .9);
+    padding: .25em .5em;
+    height: 1.5em;
+    float: right;
+    text-align: right;
+    overflow: hidden;
+
+    &:hover {
+      cursor: pointer;
+    }
+
+    &:first-child[id="magic-viewport-indicator"] {
+      @include border-radius(.5em .5em 0 0);
+      border-bottom: 1px solid #4f4f4f;
+      margin-top: -1.5em;
+    }
+    &:last-child[id="magic-viewport-indicator"] {
+      @include border-radius(.5em);
+    }
+
+    &:last-child[id="magic-modernizr-debug"] {
+      @include border-radius(.5em 0 .5em .5em);
+    }
+    &:first-child[id="magic-modernizr-debug"] {
+      @include border-radius(.5em);
+    }
+  }
+}
+
+#magic-modernizr-debug {
+  &.open {
+    height: auto;
+  }
+  &.closed {
+    height: 1.5em;
+    width: 8em;
+  }
+}

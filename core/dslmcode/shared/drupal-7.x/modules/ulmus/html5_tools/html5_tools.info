@@ -1,0 +1,15 @@
+name = HTML5 Tools
+description = Provides a set of tools to allow sites to be built using HTML5.
+core = 7.x
+php = 5
+package = 'Markup'
+dependencies[] = elements
+dependencies[] = field
+configure = admin/config/development/html5-tools
+
+; Information added by drupal.org packaging script on 2012-05-07
+version = "7.x-1.2"
+core = "7.x"
+project = "html5_tools"
+datestamp = "1336411555"
+

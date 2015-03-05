@@ -1,0 +1,240 @@
+<?php
+/**
+ * @file
+ * Fences is a module providing configurable field wrappers.
+ */
+
+/**
+ * Implements hook_menu().
+ */
+function fences_menu() {
+  $items['admin/config/content/fences'] = array(
+    'title' => 'Fences',
+    'description' => 'Configure default field wrapper.',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('fences_admin_settings_form'),
+    'access arguments' => array('administer content types'),
+    'type' => MENU_NORMAL_ITEM,
+    'file' => 'fences.admin.inc',
+  );
+  return $items;
+}
+
+/**
+ * Implements hook_hook_info().
+ */
+function fences_hook_info() {
+  return array(
+    'fences_suggestion_info' => array(
+      'group' => 'fences',
+    ),
+    'fences_suggestion_info_alter' => array(
+      'group' => 'fences',
+    ),
+  );
+}
+
+/**
+ * Implements hook_module_implements_alter().
+ */
+function fences_module_implements_alter(&$implementations, $hook) {
+  if ($hook == 'theme') {
+    // Make fences' hook_theme() run last.
+    $group = $implementations['fences'];
+    unset($implementations['fences']);
+    $implementations['fences'] = $group;
+  }
+}
+
+/**
+ * Implements hook_field_info_alter().
+ */
+function fences_field_info_alter(&$info) {
+  // Change the default formatter to be the "fields only" formatter.
+  if (isset($info['field_collection']['default_formatter'])) {
+    $info['field_collection']['default_formatter'] = 'field_collection_fields';
+  }
+}
+
+/**
+ * Implements hook_theme().
+ */
+function fences_theme($existing, $type, $theme, $path) {
+  module_load_include('inc', 'fences', 'fences.admin');
+  return _fences_theme($existing, $type, $theme, $path);
+}
+
+/**
+ * Implements hook_theme_registry_alter().
+ */
+function fences_theme_registry_alter(&$theme_registry) {
+  module_load_include('inc', 'fences', 'fences.admin');
+  _fences_theme_registry_alter($theme_registry);
+}
+
+/**
+ * Implements hook_form_FORM_ID_alter().
+ */
+function fences_form_field_ui_field_edit_form_alter(&$form, &$form_state) {
+  module_load_include('inc', 'fences', 'fences.admin');
+  _fences_form_field_ui_field_edit_form_alter($form, $form_state);
+}
+
+/**
+ * Implements hook_form_FORM_ID_alter().
+ */
+function fences_form_views_ui_add_item_form_alter(&$form, &$form_state) {
+  module_load_include('inc', 'fences', 'fences.admin');
+  _fences_form_views_ui_add_item_form_alter($form, $form_state);
+}
+
+/**
+ * Submit handler which runs before views_ui_add_item_form_submit().
+ */
+function fences_views_ui_add_item_form_submit($form, &$form_state) {
+  module_load_include('inc', 'fences', 'fences.admin');
+  _fences_views_ui_add_item_form_submit($form, $form_state);
+}
+
+/**
+ * Implements hook_form_FORM_ID_alter().
+ */
+function fences_form_views_ui_config_item_form_alter(&$form, &$form_state) {
+  module_load_include('inc', 'fences', 'fences.admin');
+  _fences_form_views_ui_config_item_form_alter($form, $form_state);
+}
+
+/**
+ * Returns a ready-made options list of fences suggestions for a given theme hook.
+ *
+ * @param $theme_hook
+ *   A string containing the theme hook.
+ * @return
+ *   An array that can be used by a #options attribute of a form.
+ */
+function fences_get_fences_options($theme_hook) {
+  module_load_include('inc', 'fences', 'fences.admin');
+  return _fences_get_fences_options($theme_hook);
+}
+
+/**
+ * Returns the wrapper suggestion if it exists.
+ *
+ * @see field_info_instance()
+ *
+ * @param $entity_type
+ *   The entity type for the instance.
+ * @param $bundle_name
+ *   The bundle name for the instance.
+ * @param $field_name
+ *   The field name for the instance.
+ *
+ * @return
+ *   The fences wrapper suggestion for this field, if set.
+ */
+function fences_get_suggestion($entity_type, $bundle_name, $field_name) {
+  $fences = &drupal_static(__FUNCTION__, array());
+
+  if (!isset($fences[$entity_type][$bundle_name][$field_name])) {
+    // Instance info is cached, so this isn't as non-performant as it looks.
+    $settings = field_info_instance($entity_type, $field_name, $bundle_name);
+    $fences[$entity_type][$bundle_name][$field_name] = isset($settings['fences_wrapper']) ? $settings['fences_wrapper'] : '';
+  }
+
+  return $fences[$entity_type][$bundle_name][$field_name];
+}
+
+/**
+ * Retrieve the hook_fences_suggestion_info data.
+ */
+function fences_get_fences_suggestion_info() {
+  $fences = &drupal_static(__FUNCTION__);
+
+  if (is_null($fences)) {
+    module_load_include('inc', 'fences', 'fences.admin');
+    _fences_get_fences_suggestion_info($fences);
+  }
+  return $fences;
+}
+
+/**
+ * Implements hook_preprocess_field().
+ */
+function fences_preprocess_field(&$variables) {
+  // Retrieve the configured suggestion.
+  $suggestion = fences_get_suggestion($variables['element']['#entity_type'], $variables['element']['#bundle'], $variables['element']['#field_name']);
+
+  // Optionally, override core's default markup.
+  if (empty($suggestion) && variable_get('fences_default_markup', 0)) {
+    $suggestion = 'div';
+  }
+
+  if ($suggestion) {
+    // Make fences' suggestions low priority by placing them at the front of the queue.
+    $suggestion = 'field__fences_' . $suggestion;
+    if (count($variables['items']) > 1) {
+      // Add a "-multiple" suggestion if there are more than one field items.
+      array_unshift($variables['theme_hook_suggestions'], $suggestion . '_multiple');
+    }
+    array_unshift($variables['theme_hook_suggestions'], $suggestion);
+  }
+
+  if (variable_get('fences_default_classes', 0)) {
+    // Remove all of core's default classes.
+    $variables['classes_array'] = array_diff($variables['classes_array'], array(
+      'field',
+      'field-name-' . $variables['field_name_css'],
+      'field-type-' . $variables['field_type_css'],
+      'field-label-' . $variables['element']['#label_display'],
+    ));
+
+    // Add our lean field class.
+    if (strpos($variables['field_name_css'], 'field-') === 0) {
+      $variables['classes_array'][] = $variables['field_name_css'];
+    }
+    else {
+      $variables['classes_array'][] = 'field-' . $variables['field_name_css'];
+    }
+  }
+
+  // Core adds a "clearfix" class to the wrapper since it floats the label and
+  // the field items in its field.css if the label is inline. That's nonsense,
+  // so we remove it and add a simple "inline" class.
+  if ($variables['element']['#label_display'] == 'inline') {
+    $variables['classes_array'] = array_diff($variables['classes_array'], array('clearfix'));
+    $variables['classes_array'][] = 'inline';
+  }
+}
+
+/**
+ * Implements hook_css_alter().
+ */
+function fences_css_alter(&$css) {
+  // Replace the field module's CSS with our non-floating inline version.
+  $path = drupal_get_path('module', 'field') . '/theme';
+  if (isset($css[$path . '/field.css']) && $css[$path . '/field.css']['data'] == $path . '/field.css') {
+    $css[$path . '/field.css']['data'] = drupal_get_path('module', 'fences') . '/field.css';
+    if (isset($css[$path . '/field-rtl.css'])) {
+      $css[$path . '/field-rtl.css']['data'] = drupal_get_path('module', 'fences') . '/field-rtl.css';
+    }
+  }
+}
+
+/**
+ * Preprocess variables for entity.
+ */
+function fences_preprocess_entity(&$variables) {
+  if ($variables['elements']['#entity_type'] == 'field_collection_item') {
+    // Replace the default "field_collection_item" suggestion with fences'.
+    if (($pos = array_search('field_collection_item', $variables['theme_hook_suggestions'])) !== FALSE) {
+      $variables['theme_hook_suggestions'][$pos] = 'entity__fences_no_wrapper';
+    }
+  }
+}
+
+/**
+ * A "no wrapper" theme suggestion for entity.
+ */
+function theme_entity__fences_no_wrapper($variables) {
+  return drupal_render($variables['content']);
+}

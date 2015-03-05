@@ -1,0 +1,9 @@
+name = ECD - Foundation Access
+description = Subtheme of Foundation Access.
+
+core = 7.x
+engine = phptemplate
+base theme = foundation_access
+
+stylesheets[all][]   = css/ecd_styles.css
+

@@ -1,0 +1,21 @@
+{
+  "name": "Zurb Foundation base Drush recipe",
+  "drush_recipes_api": "1.0",
+  "weight": "0",
+  "core": "7",
+  "recipe": [
+    {
+      "command": "vset",
+      "arguments": [
+        "theme_default",
+        "zurb_foundation"
+      ]
+    }
+  ],
+  "metadata": {
+    "type": "add-on",
+    "description": "Setup Foundation as default theme and get dependencies.",
+    "version": "5.x",
+    "author": "btopro"
+  }
+}

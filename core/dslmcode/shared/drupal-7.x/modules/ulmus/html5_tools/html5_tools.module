@@ -1,0 +1,437 @@
+<?php
+
+/**
+ * Implements hook_menu().
+ */
+function html5_tools_menu() {
+  $items['admin/config/development/html5-tools'] = array(
+    'title' => 'HTML5 Tools',
+    'description' => 'Configure how HTML5 markup is applied to your site.',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('html5_tools_admin_settings'),
+    'access arguments' => array('administer site configuration'),
+    'file' => 'html5_tools.admin.inc',
+    'type' => MENU_NORMAL_ITEM,
+  );
+
+  return $items;
+}
+
+/**
+ * Implements hook_element_info_alter().
+ */
+function html5_tools_element_info_alter(&$type) {
+  if (module_exists('link') && !empty($type['link_field'])) {
+    $type['link_field']['#process'][] = '_html5_tools_link_field_process';
+  }
+}
+
+/**
+ * Link fields process function to modified the regular 'text' input field
+ * to a 'url' input type.
+ */
+function _html5_tools_link_field_process($element, $form_state, $complete_form) {
+  $instance = field_widget_instance($element, $form_state);
+  // Lets make sure the urlwidget widget is selected.
+  if (!empty($instance['widget']['type']) && $instance['widget']['type'] == 'urlwidget') {
+    // If so, then lets switch the tyle to a urlfield.
+    $element['url']['#type'] = 'urlfield';
+  }
+
+  return $element;
+}
+
+/**
+ * Implements hook_help().
+ */
+function html5_tools_help($path, $arg) {
+  switch ($path) {
+    case 'admin/config/development/html5-tools':
+      return t("HTML5 simplifies many things about HTML. Some of these new standards are a bit tricky to implement in Drupal, because they are hardcoded into Drupal core. You can alter some of them by using theme override functions in your theme's template.php file, but this module provides tools for accomplishing these changes more easily.");
+      break;
+  }
+}
+
+/**
+ * Implements hook_field_widget_info().
+ */
+function html5_tools_field_widget_info() {
+  return array(
+    'numberfield' => array(
+      'label' => t('Number field'),
+      'field types' => array('number_integer', 'number_decimal', 'number_float'),
+    ),
+    'rangewidget' => array(
+      'label' => t('Range field'),
+      'field types' => array('number_integer'),
+    ),
+    'telwidget' => array(
+      'label' => t('Telephone number field'),
+      'field types' => array('text', 'textfield'),
+    ),
+    'urlwidget' => array(
+      'label' => t('URL field'),
+      'field types' => array('text', 'textfield', 'link_field'),
+    ),
+    'emailwidget' => array(
+      'label' => t('Email field'),
+      'field types' => array('text', 'textfield', 'email'),
+    ),
+  );
+}
+
+/**
+ * Implements hook_field_widget_form().
+ */
+function html5_tools_field_widget_form(&$form, &$form_state, $field, $instance, $langcode, $items, $delta, $element) {
+  $value = isset($items[$delta]['value']) ? $items[$delta]['value'] : '';
+
+  switch ($instance['widget']['type']) {
+    case 'numberfield':
+      _numberfield_html5_tools_field_widget_forms($form, $form_state, $field, $instance, $langcode, $items, $delta, $element, $value);
+      break;
+    case 'rangewidget':
+      _rangewidget_html5_tools_field_widget_forms($form, $form_state, $field, $instance, $langcode, $items, $delta, $element, $value);
+      break;
+    case 'telwidget':
+      _telwidget_html5_tools_field_widget_forms($form, $form_state, $field, $instance, $langcode, $items, $delta, $element, $value);
+      break;
+    case 'urlwidget':
+      _urlwidget_html5_tools_field_widget_forms($form, $form_state, $field, $instance, $langcode, $items, $delta, $element, $value);
+      if ($field['type'] == 'link_field') {
+        return $element;
+      }
+      break;
+    case 'emailwidget':
+      _emailwidget_html5_tools_field_widget_forms($form, $form_state, $field, $instance, $langcode, $items, $delta, $element, $value);
+      break;
+  }
+
+  return array('value' => $element);
+}
+
+/**
+ * Implements hook_field_widget_error().
+ */
+function html5_tools_field_widget_error($element, $error, $form, &$form_state) {
+  form_error($element['value'], $error['message']);
+}
+
+/**
+ * Implements hook_preprocess_html_tag().
+ */
+function html5_tools_preprocess_html_tag(&$variables) {
+  // Cleanup markup by removing obsolete attributes.
+  if (variable_get('html5_tools_override_style_tags', 1) && ($variables['element']['#tag'] == 'style' || $variables['element']['#tag'] == 'link')) {
+    unset($variables['element']['#attributes']['type']);
+  }
+  if (variable_get('html5_tools_override_script_tags', 1) && $variables['element']['#tag'] == 'script') {
+    unset($variables['element']['#attributes']['type']);
+  }
+  if (variable_get('html5_tools_override_meta_tags', 1) && $variables['element']['#tag'] == 'meta' && isset($variables['element']['#attributes']['http-equiv']) && $variables['element']['#attributes']['http-equiv'] == 'Content-Type') {
+   $variables['element']['#attributes'] = array(
+     'charset' => 'utf-8',
+   );
+  }
+}
+
+/**
+ * Implements hook_date_format_types().
+ */
+function html5_tools_date_format_types() {
+  return array(
+    'html5_tools_iso8601' => t('ISO 8601'),
+  );
+}
+
+/**
+ * Implements hook_date_formats().
+ */
+function html5_tools_date_formats() {
+  return array(
+    array(
+      'type' => 'html5_tools_iso8601',
+      'format' => 'c',
+      'locales' => array(),
+    ),
+  );
+}
+
+/**
+ * Implements hook_preprocess_node().
+ */
+function html5_tools_preprocess_node(&$variables) {
+  // Override the $submitted variable.
+  if (variable_get('html5_tools_override_submitted', 0) && $variables['display_submitted']) {
+    $variables['submitted'] = t('Submitted by !username on !datetime', array('!username' => $variables['name'], '!datetime' => theme('html5_tools_time', array('date' => $variables['date'], 'isodate' => format_date($variables['created'], 'html5_tools_iso8601')))));
+  }
+}
+
+/**
+ * Implements hook_preprocess_comment().
+ */
+function html5_tools_preprocess_comment(&$variables) {
+  if (variable_get('html5_tools_override_submitted', 0)) {
+    $comment = $variables['elements']['#comment'];
+    // Override the $submitted variable.
+    $variables['submitted'] = t('Submitted by !username on !datetime', array('!username' => $variables['author'], '!datetime' => theme('html5_tools_time', array('date' => $variables['created'], 'isodate' => format_date($comment->created, 'html5_tools_iso8601')))));
+    // Also override the $created variable because Bartik uses it instead of $submitted.
+    $variables['created'] = theme('html5_tools_time', array('date' => $variables['created'], 'isodate' => format_date($comment->created, 'html5_tools_iso8601')));
+  }
+}
+
+/**
+ * Implements hook_theme().
+ */
+function html5_tools_theme($existing, $type, $theme, $path) {
+  return array(
+    'html5_tools_time' => array(
+      'variables' => array('date' => NULL, 'isodate' => NULL, 'pubdate' => TRUE),
+    ),
+  );
+}
+
+/**
+ * Implements hook_theme_registry_alter().
+ */
+function html5_tools_theme_registry_alter(&$theme_registry) {
+  if (variable_get('html5_tools_override_doctype', 1) &&
+  $theme_registry['html']['template'] == drupal_get_path('module', 'system') . '/html') {
+    $theme_registry['html']['template'] = drupal_get_path('module', 'html5_tools') . '/html';
+  }
+}
+
+/**
+ * Implements hook_process_HOOK().
+ */
+function html5_tools_process_html(&$variables) {
+  // Remove cdata in inline css/js files.
+  $cdata = array("\n<!--//--><![CDATA[//><!--","//--><!]]>\n");
+  $variables['scripts'] = str_replace($cdata,'', $variables['scripts']);
+  $variables['page_bottom'] = str_replace($cdata,'', $variables['page_bottom']);
+  $variables['styles'] = str_replace($cdata,'', $variables['styles']);
+
+  $variables['rdf_header'] = '';
+  $variables['rdf_profile'] = '';
+  $variables['html_attributes'] = '';
+  // Support RDF is it's enabled.
+  if (module_exists('rdf')) {
+    $variables['rdf_header'] = ' PUBLIC "-//W3C//DTD HTML+RDFa 1.1//EN"';
+    $variables['rdf_profile'] = ' profile="' . $variables['grddl_profile'].'"';
+  }
+
+  if (variable_get('html5_tools_add_chrome_frame_header', 1)) {
+    drupal_add_http_header('X-UA-Compatible', 'IE=Edge,chrome=1');
+  }
+
+  // Add support for multiple extra html attributes.
+  if (!empty($variables['html_attributes_array'])) {
+    $variables['html_attributes'] = drupal_attributes($variables['html_attributes_array']);
+  }
+}
+
+/**
+ * Returns HTML5 for a date/time.
+ *
+ * @param $variables
+ *   An associative array containing:
+ *   - date: Human readable date/time.
+ *   - isodate: ISO 8601 formatted date.
+ *   - pubdate: (boolean) TRUE if 'isodate' is the publish date for this node
+ *     and FALSE otherwise. Defaults to TRUE.
+ *
+ * @ingroup themeable
+ */
+function theme_html5_tools_time($variables) {
+  if ($variables['pubdate']) {
+    $attributes['pubdate'] = 'pubdate';
+  }
+  $attributes['datetime'] = $variables['isodate'];
+
+  return '<time' . drupal_attributes($attributes) . '>' . $variables['date'] . '</time>';
+}
+
+/**
+ * Implements hook_form_FORM_ID_alter().
+ */
+function html5_tools_form_system_site_information_settings_alter(&$form, &$form_state) {
+  // Modify site configuration email textfield to a email field.
+  if (variable_get('html5_tools_override_system_site_information_form', 1) && $form['site_information']['site_mail']['#type'] == 'textfield') {
+    $form['site_information']['site_mail']['#type'] = 'emailfield';
+  }
+}
+
+/**
+ * Implements hook_form_FORM_ID_alter().
+ */
+function html5_tools_form_search_block_form_alter(&$form, &$form_state) {
+  // Modify search block textfield to a searchfield.
+  if (variable_get('html5_tools_override_search_block_form', 1) && $form['search_block_form']['#type'] == 'textfield') {
+    $form['search_block_form']['#type'] = 'searchfield';
+  }
+}
+
+/**
+ * Implements hook_form_FORM_ID_alter().
+ */
+function html5_tools_form_search_form_alter(&$form, &$form_state) {
+  // Modify search form to a search field.
+  if (variable_get('html5_tools_override_search_form', 1) && $form['basic']['keys']['#type'] == 'textfield') {
+    $form['basic']['keys']['#type'] = 'searchfield';
+  }
+}
+
+/**
+ * Implements hook_form_FORM_ID_alter().
+ */
+function html5_tools_form_user_register_form_alter(&$form, &$form_state) {
+  // Modify the user registration field to use an email field.
+  if (variable_get('html5_tools_override_user_register_form', 1) && $form['account']['mail']['#type'] == 'textfield') {
+    $form['account']['mail']['#type'] = 'emailfield';
+  }
+}
+
+/**
+ * Implements hook_form_FORM_ID_alter().
+ */
+function html5_tools_form_contact_site_form_alter(&$form, &$form_state) {
+  // Modify the user registration field to use an email field.
+  if (variable_get('html5_tools_override_contact_forms', 1) && $form['mail']['#type'] == 'textfield') {
+    $form['mail']['#type'] = 'emailfield';
+  }
+}
+
+/**
+ * Implements hook_form_FORM_ID_alter().
+ */
+function html5_tools_form_contact_personal_form_alter(&$form, &$form_state) {
+  // Modify the user registration field to use an email field.
+  if (variable_get('html5_tools_override_contact_forms', 1) && $form['mail']['#type'] == 'textfield') {
+    $form['mail']['#type'] = 'emailfield';
+  }
+}
+
+/**
+ * Custom processing for the Number field.
+ */
+function _numberfield_html5_tools_field_widget_forms(&$form, &$form_state, $field, $instance, $langcode, $items, $delta, &$element, $value) {
+  // Substitute the decimal separator.
+  if ($field['type'] == 'number_decimal' || $field['type'] == 'number_float') {
+    $value = strtr($value, '.', $field['settings']['decimal_separator']);
+  }
+
+  $element += array(
+    '#type' => 'numberfield',
+    '#default_value' => $value,
+    // Allow a slightly larger size that the field length to allow for some
+    // configurations where all characters won't fit in input field.
+    '#size' => $field['type'] == 'number_decimal' ? $field['settings']['precision'] + 4 : 12,
+    // Allow two extra characters for signed values and decimal separator.
+    '#maxlength' => $field['type'] == 'number_decimal' ? $field['settings']['precision'] + 2 : 10,
+    // Extract the number type from the field type name for easier validation.
+    '#number_type' => str_replace('number_', '', $field['type']),
+  );
+
+  // Add min attribute.
+  if (!empty($instance['settings']['min']) || $instance['settings']['min'] === '0') {
+    $element['#min'] = $instance['settings']['min'];
+  }
+
+  // Add max attribute.
+  if (!empty($instance['settings']['max'])) {
+    $element['#max'] = $instance['settings']['max'];
+  }
+
+  // Add prefix and suffix.
+  if (!empty($instance['settings']['prefix'])) {
+    $prefixes = explode('|', $instance['settings']['prefix']);
+    $element['#field_prefix'] = field_filter_xss(array_pop($prefixes));
+  }
+  if (!empty($instance['settings']['suffix'])) {
+    $suffixes = explode('|', $instance['settings']['suffix']);
+    $element['#field_suffix'] = field_filter_xss(array_pop($suffixes));
+  }
+
+  if ($field['type'] == 'number_decimal') {
+    // Convert scale (e.g. 10) to the resulting smallest step
+    // (e.g. 0.0000000001).
+    $element['#step'] = pow(10, -$field['settings']['scale']);
+  }
+
+  // We'll leave the validate to the number_field_widget since it'll validate our form.
+  $element['#element_validate'][] = 'number_field_widget_validate';
+}
+
+/**
+ * Custom processing for the Range widget.
+ */
+function _rangewidget_html5_tools_field_widget_forms(&$form, &$form_state, $field, $instance, $langcode, $items, $delta, &$element, $value) {
+  $element += array(
+    '#type' => 'rangefield',
+    '#default_value' => $value,
+  );
+
+  // Add prefix.
+  if (!empty($instance['settings']['prefix'])) {
+    $element['#field_prefix'] = $instance['settings']['prefix'];
+  }
+
+  // Add suffix.
+  if (!empty($instance['settings']['suffix'])) {
+    $element['#field_suffix'] = $instance['settings']['suffix'];
+  }
+
+  // Add min attribute.
+  if (!empty($instance['settings']['min'])) {
+    $element['#min'] = $instance['settings']['min'];
+  }
+
+  // Add max attribute.
+  if (!empty($instance['settings']['max'])) {
+    $element['#max'] = $instance['settings']['max'];
+  }
+
+  // Add step attribute.
+  if (!empty($instance['settings']['step'])) {
+    $element['#step'] = $instance['settings']['step'];
+  }
+}
+
+/**
+ * Custom processing for the Telephone widget.
+ */
+function _telwidget_html5_tools_field_widget_forms(&$form, &$form_state, $field, $instance, $langcode, $items, $delta, &$element, $value) {
+  $element += array(
+    '#type' => 'telfield',
+    '#default_value' => $value,
+  );
+}
+
+/**
+ * Custom processing for the URL widget.
+ */
+function _urlwidget_html5_tools_field_widget_forms(&$form, &$form_state, $field, $instance, $langcode, $items, $delta, &$element, $value) {
+  if ($field['type'] == 'link_field') {
+    $element += array(
+      '#type' => 'link_field',
+      '#default_value' => isset($items[$delta]) ? $items[$delta] : '',
+      '#extra' => 'urlwidget',
+    );
+  }
+  else {
+    $element += array(
+      '#type' => 'urlfield',
+      '#default_value' => $value,
+    );
+  }
+}
+
+/**
+ * Custom processing for the URL widget.
+ */
+function _emailwidget_html5_tools_field_widget_forms(&$form, &$form_state, $field, $instance, $langcode, $items, $delta, &$element, $value) {
+  $element += array(
+    '#type' => 'emailfield',
+    '#default_value' => $value,
+  );
+}

@@ -1,6 +1,7 @@
 <?php
 /**
  * @file
+ * Template for the Zurb Foundation Theme
  */
 
 /**
@@ -73,6 +74,11 @@ function zurb_foundation_breadcrumb($variables) {
   }
 }
 
+/**
+ * Implements theme_field().
+ *
+ * Changes to the default field output.
+ */
 function zurb_foundation_field($variables) {
   $output = '';
 
@@ -153,7 +159,7 @@ function zurb_foundation_links__topbar_secondary_menu($variables) {
 /**
  * Helper function to output a Drupal menu as a Foundation Top Bar.
  *
- * @param array
+ * @links array
  *   An array of menu links.
  *
  * @return string
@@ -175,7 +181,7 @@ function _zurb_foundation_links($links) {
 /**
  * Helper function to recursively render sub-menus.
  *
- * @param array
+ * @link array
  *   An array of menu links.
  *
  * @return string
@@ -249,8 +255,8 @@ function theme_zurb_foundation_menu_link($variables) {
   return l($link['#title'], $link['#href'], $link['#localized_options']);
 }
 
-/*
- * Implements hook_preprocess_block()
+/**
+ * Implements hook_preprocess_block().
  */
 function zurb_foundation_preprocess_block(&$variables) {
   // Convenience variable for block headers.
@@ -398,7 +404,7 @@ function zurb_foundation_preprocess_field(&$variables) {
 function zurb_foundation_preprocess_html(&$variables) {
   global $language;
 
-  // Clean up the lang attributes
+  // Clean up the lang attributes.
   $variables['html_attributes'] = 'lang="' . $language->language . '" dir="' . $language->dir . '"';
 
   // Add language body class.
@@ -409,7 +415,11 @@ function zurb_foundation_preprocess_html(&$variables) {
   // @TODO Custom fonts from Google web-fonts
   // $font = str_replace(' ', '+', theme_get_setting('zurb_foundation_font'));
   // if (theme_get_setting('zurb_foundation_font')) {
-  //   drupal_add_css('http://fonts.googleapis.com/css?family=' . $font , array('type' => 'external', 'group' => CSS_THEME));
+  // drupal_add_css(
+  // 'http://fonts.googleapis.com/css?family=' . $font ,
+  // array('type' => 'external',
+  // 'group' => CSS_THEME)
+  // );
   // }
 
   // Classes for body element. Allows advanced theming based on context.
@@ -439,6 +449,7 @@ function zurb_foundation_preprocess_html(&$variables) {
       case 'views_page':
         $variables['classes_array'][] = 'views-page';
         break;
+
       case 'page_manager_page_execute':
       case 'page_manager_node_view':
       case 'page_manager_contact_site':
@@ -881,12 +892,14 @@ function zurb_foundation_theme() {
 
 /**
  * Helper function to store and return markup for reveal modals on the page.
+ *
  * This is necessary because we need to add all of the reveals to the bottom of
  * the page to avoid unexpected behavior. For more information please refer to
  * the official Zurb Foundation documentation.
  *
- * @param array
+ * @reveal array
  *   A render array for a reveal modal to store.
+ *
  * @return array
  *   An array of all reveal render arrays.
  *
@@ -930,7 +943,7 @@ function theme_zurb_foundation_reveal($variables) {
 
   $reveal = array(
     '#markup' => $variables['reveal'],
-    '#prefix' => '<div id="' . $reveal_id . '" class="' . $reveal_classes . '">',
+    '#prefix' => '<div id="' . $reveal_id . '" class="' . $reveal_classes . '" data-reveal>',
     '#suffix' => '<a class="close-reveal-modal">&#215;</a></div>',
   );
 
@@ -940,7 +953,7 @@ function theme_zurb_foundation_reveal($variables) {
   $build = array(
     '#theme' => 'link',
     '#text' => $variables['text'],
-    '#path' => $variables['path'] ? $variables['path'] : 'javascript:',
+    '#path' => $variables['path'] ? $variables['path'] : '#',
     '#options' => array(
       'attributes' => array(
         'id' => 'zf-reveal-link-' . $counter,
@@ -1023,6 +1036,8 @@ function zurb_foundation_entity_variables(&$vars) {
     // If Display Suite rendered this, it's safe to assume we have the arguments
     // necessary to grab the layout.
     $layout = ds_get_layout($vars['elements']['#entity_type'], $vars['elements']['#bundle'], $vars['elements']['#view_mode']);
+    // Set default for zf_wrapper_classes.
+    $vars['zf_wrapper_classes'] = ' row';
 
     // Each layout has different regions, only set default classes if none of
     // them have custom classes.
@@ -1210,11 +1225,15 @@ function zurb_foundation_process_html_tag(&$vars) {
 }
 
 /**
- * Helper function to output a single link as button or multiple links as dropdown/split buttons.
+ * Helper function to output links.
  *
- * @param array
+ * Single link as button or multiple links as dropdown/split buttons.
  *
  * @return string
+ *   A string of formatted links
+ *
+ * @variables array
+ *   An array of links
  */
 function zurb_foundation_links__magic_button($variables) {
   if (empty($variables['attributes']['class'])) {
@@ -1248,7 +1267,10 @@ function zurb_foundation_links__magic_button($variables) {
 /**
  * Implements theme_links() with foundations dropdown button markup.
  *
- * @param $variables
+ * @return string
+ *   A string outputting links as dropdown button
+ *
+ * @variables array
  *   An associative array containing:
  *   - label
  *     - Dropdown button label.
@@ -1258,9 +1280,7 @@ function zurb_foundation_links__magic_button($variables) {
  *     - class: Array of additional classes like large, alert, round
  *     - data-dropdown: Custom dropdown id.
  *
- * @return string
- *
- * Formats links for Dropdown Button http://foundation.zurb.com/docs/components/dropdown-buttons.html
+ * Formats links for Dropdown Button http://goo.gl/z4lH3q
  */
 function zurb_foundation_links__dropdown_button($variables) {
   if (empty($variables['attributes']['class'])) {
@@ -1287,7 +1307,10 @@ function zurb_foundation_links__dropdown_button($variables) {
 /**
  * Implements theme_links() with foundations split button markup.
  *
- * @param $variables
+ * @return string
+ *   An HTML string showing multiple links as a dropdown button
+ *
+ * @variables array
  *   An associative array containing:
  *   - links
  *     - An array of menu links.
@@ -1295,9 +1318,7 @@ function zurb_foundation_links__dropdown_button($variables) {
  *     - class: Array of additional classes like large, alert, round
  *     - data-dropdown: Custom dropdown id.
  *
- * @return string
- *
- * Formats links for Split Button http://foundation.zurb.com/docs/components/split-buttons.html
+ * Formats links for Split Button http://goo.gl/UXVNgF
  */
 function zurb_foundation_links__split_button($variables) {
   $links = $variables['links'];

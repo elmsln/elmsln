@@ -1,0 +1,9 @@
+name = SUB - Foundation Access
+description = Subtheme of Foundation Access.
+
+core = 7.x
+engine = phptemplate
+base theme = foundation_access
+
+stylesheets[all][]   = css/SUB_styles.css
+

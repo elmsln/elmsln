@@ -1,0 +1,297 @@
+<?php
+
+/**
+ * @file
+ * Keep Frontend DRY; sprinkle it with MAGIC!
+ */
+
+define('JS_SETTINGS', -90);
+
+/**
+ * This is purposefully outside of the scope of a function. It allows magic to
+ * alter the global $conf array before other module's code is executed.
+ */
+_magic_initialize_magic_vars();
+
+/**
+ * Alters the theme settings variables to include variables within settings.php.
+ *
+ * By adding $conf['magic']['your_theme_name'] to the settings.php, you can
+ * selectively alter some of the settings within your theme. This is important
+ * if you want to ensure livereload is always turned off on production, or leave
+ * some of your theme settings within code.
+ */
+function _magic_initialize_magic_vars() {
+  global $conf;
+
+  // Are we using the variable 'magic', and is it an array?
+  if (isset($conf['magic']) && is_array($conf['magic'])) {
+
+    // Go through each key, and add it to that theme's settings variable.
+    foreach ($conf['magic'] as $theme_key => $settings) {
+      $settings_var = 'theme_' . $theme_key . '_settings';
+      $conf[$settings_var] = isset($conf[$settings_var]) ? array_merge($conf[$settings_var], $settings) : $settings;
+    }
+  }
+}
+
+/**
+ * Implements hook_menu().
+ */
+function magic_menu() {
+  $items = array();
+
+  $items['admin/appearance/settings/%magic_theme/export'] = array(
+    'title' => 'Export theme settings',
+    'description' => 'Export theme settings',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('magic_export_settings', 3),
+    'access arguments' => array('administer themes'),
+    'file' => 'includes/magic.export.inc',
+  );
+
+  return $items;
+}
+
+/**
+ * Implements hook_help().
+ */
+function magic_help($path, $arg) {
+  $output = '';
+
+  switch ($path) {
+    case 'admin/help#magic':
+      $output = '';
+      $output .= '<p>' . t('All Drupal sites need some magic, so give yours some! Magic is a set of tools for front-end best practices and general front-end goodies to make your life as a front-end developer happier.') . '</p>';
+      $output .= '<h2>' . t('Theme Settings Export') . '</h2>';
+      $output .= '<p>' . t('To ensure the most flexibility, Drupal pulls your theme settings from a variety of places before returning the current setting to the module or theme requesting it. It will first pull from the base theme\'s .info file, then the active theme\'s .info file, then the global theme settings form, then the active theme\'s setting form. Each check will override the previous, so the active theme settings form settings will always override the theme\'s .info file.') . '</p>';
+      $output .= '<p>' . t('To facilitate settings export, magic provides two methods of exporting your theme settings to version control. First, you can export your settings to a new .info file, although it should be noted that this will be overridden once settings are saved within the database. To keep control of variables within the database, you can either use !features and !strongarm to maintain the code, or add a $conf[] variable within your settings.php. Currently, we are working on exporting the $conf[] variable needed to put it within your settings.php.', array('!features' => l(t('Features'), 'http://drupal.org/project/features'), '!strongarm' => l(t('Strongarm'), 'http://drupal.org/project/strongarm'))) . '</p>';
+      $output .= '<h2>' . t('Advanced CSS / JS Aggregation') . '</h2>';
+      $output .= '<p>' . t('Documentation coming soon!') . '</p>';
+      $output .= '<h2>' . t('Selective CSS / JS Removal') . '</h2>';
+      $output .= '<p>' . t('Documentation coming soon!') . '</p>';
+    break;
+  }
+
+  return $output;
+}
+
+/**
+ * Implements hook_module_implements_alter().
+ */
+function magic_module_implements_alter(&$implementations, $hook) {
+  switch ($hook) {
+    case 'css_alter':
+    case 'js_alter':
+      // Move our CSS and JS alter hooks to the end of the queue only followed
+      // by the ones from "locale" module (if enabled).
+      $group = $implementations['magic'];
+      unset($implementations['magic']);
+      $implementations['magic'] = $group;
+
+      if (isset($implementations['locale'])) {
+        $group = $implementations['locale'];
+        unset($implementations['locale']);
+        $implementations['locale'] = $group;
+      }
+      break;
+
+    case 'form_system_theme_settings_alter':
+      // Move our theme settings form alter hook to the beginning of the queue.
+      $group = $implementations['magic'];
+      unset($implementations['magic']);
+      $implementations = array('magic' => $group) + $implementations;
+      break;
+  }
+}
+
+/**
+ * Menu system load callback.
+ *
+ * Checks whether a given theme (menu argument) exists.
+ *
+ * @param $theme
+ *   The machine-readable name of a theme.
+ *
+ * @return string|bool
+ *   The given theme name or FALSE if the given theme does not exist.
+ */
+function magic_theme_load($theme) {
+  if (array_key_exists($theme, list_themes())) {
+    return $theme;
+  }
+  return FALSE;
+}
+
+/**
+ * Implements hook_system_themes_page_alter().
+ */
+function magic_system_themes_page_alter(&$info) {
+  foreach (array('enabled', 'disabled') as $status) {
+    if (empty($info[$status])) {
+      continue;
+    }
+
+    foreach ($info[$status] as &$item) {
+      $item->operations[] = array(
+        'title' => t('Export'),
+        'href' => "admin/appearance/settings/{$item->name}/export",
+        'attributes' => array(
+          'title' => t('Export theme settings'),
+        ),
+      );
+    }
+  }
+}
+
+/**
+ * Implements hook_form_alter().
+ */
+function magic_form_system_theme_settings_alter(&$form, &$form_state) {
+  // Are we the global form? We do NOT want to touch that craziness.
+  if (empty($form_state['build_info']['args'][0])) {
+    return;
+  }
+
+  module_load_include('inc', 'magic', 'includes/magic.settings');
+  $form_state['build_info']['files'][] = drupal_get_path('module', 'magic') . '/includes/magic.settings.inc';
+  magic_form_system_theme_settings($form, $form_state, $form_state['build_info']['args'][0]);
+
+  // Do we also have the magic_dev module enabled? Let's add that too...
+  if (module_exists('magic_dev')) {
+    magic_dev_form_system_theme_settings($form, $form_state, $form_state['build_info']['args'][0]);
+  }
+}
+
+/**
+ * Implements hook_theme_registry_alter().
+ */
+function magic_theme_registry_alter(&$registry) {
+  if (($index = array_search('template_process_html', $registry['html']['process functions'], TRUE)) !== FALSE) {
+    array_splice($registry['html']['process functions'], $index, 1, 'magic_template_process_html_override');
+  }
+}
+
+/**
+ * Overrides template_process_html().
+ */
+function magic_template_process_html_override(&$variables) {
+  // Render page_top and page_bottom into top level variables.
+  $variables['page_top'] = drupal_render($variables['page']['page_top']);
+  $variables['page_bottom'] = drupal_render($variables['page']['page_bottom']);
+  // Place the rendered HTML for the page body into a top level variable.
+  $variables['page'] = $variables['page']['#children'];
+
+  $variables['head'] = drupal_get_html_head();
+  $variables['css'] = drupal_add_css();
+  $variables['styles']  = drupal_get_css();
+
+  if (theme_get_setting('magic_experimental_js')) {
+    module_load_include('inc', 'magic', 'includes/scripts-experimental');
+    $variables['page_bottom'] .= magic_experimental_js('footer');
+    $variables['scripts'] = magic_experimental_js('header');
+  }
+  elseif (theme_get_setting('magic_footer_js')) {
+    module_load_include('inc', 'magic', 'includes/scripts');
+    $variables['page_bottom'] .= magic_get_js('footer');
+    $variables['scripts'] = magic_get_js('header');
+  }
+  else {
+    $variables['page_bottom'] .= drupal_get_js('footer');
+    $variables['scripts'] = drupal_get_js();
+  }
+}
+
+/**
+ * A helper function to clear the magic cache.
+ *
+ * @param mixed $theme (default: FALSE)
+ *   The theme name, or FALSE to delete all caches.
+ * @param array $types (default: array())
+ *   The type of caches to remove. May have an array keyed with 'css' or 'js' or
+ *   leave empty to clear both.
+ */
+function magic_clear_cache($theme = FALSE, $types = array()) {
+
+  if ($theme) {
+    // We are only clearing the cache for a specific theme, not all caches.
+    if (empty($types) || $types['css'] == TRUE) {
+      cache_clear_all("{$theme}:css:", 'cache_magic', TRUE);
+    }
+
+    if (empty($types) || $types['js'] == TRUE) {
+      cache_clear_all("{$theme}:js:", 'cache_magic', TRUE);
+    }
+  }
+  else {
+    // No settings were passed, we will clear all caches.
+    cache_clear_all(NULL, 'cache_magic');
+  }
+}
+
+
+/**
+ * Implements hook_flush_caches().
+ */
+function magic_flush_caches() {
+  return array('cache_magic');
+}
+
+/**
+ * Implements hook_css_alter().
+ */
+function magic_css_alter(&$css) {
+  magic_css_js_alter($css, 'css');
+}
+
+/**
+ * Implements hook_js_alter().
+ */
+function magic_js_alter(&$js) {
+  magic_css_js_alter($js, 'js');
+}
+
+/**
+ * Helper function to remove unwanted css or js.
+ *
+ * @param array $data
+ *   The css or js array.
+ * @param string $type
+ *   (Optional) Either 'css' or 'js' depending on the file array. Defaults to
+ *   'css'.
+ */
+function magic_css_js_alter(&$data, $type = 'css') {
+  // First check to see if we are even going to exclude anything.
+  $setting = "magic_{$type}_excludes";
+  if (!$excludes = theme_get_setting($setting)) {
+    return;
+  }
+
+  // We get the hash of the css array to check if it has been passed already.
+  // Note: we use md4 as it is nominally faster than other hashing methods, and
+  // as we only need matches, not security, it works just fine.
+  $hash = hash('md4', serialize($data));
+  $cid = "{$GLOBALS['theme_key']}:{$type}:{$hash}";
+
+  if ($cache = cache_get($cid, 'cache_magic')) {
+    // We have this array cached, use it.
+    $data = $cache->data;
+    return;
+  }
+
+  module_load_include('inc', 'magic', 'includes/magic.assets');
+  $regex_cid = "{$GLOBALS['theme_key']}:{$type}:runtime_excludes";
+  if (!$cache = cache_get($regex_cid, 'cache_magic')) {
+    // Explode and trim the values for the exclusion rules.
+    $items = array_filter(array_map('trim', explode("\n", $excludes)));
+    $steps = magic_assets_regex_steps($items);
+
+    cache_set($regex_cid, $steps, 'cache_magic', CACHE_TEMPORARY);
+  }
+  else {
+    $steps = $cache->data;
+  }
+
+  magic_assets_exclude($data, $steps);
+  cache_set($cid, $data, 'cache_magic', CACHE_TEMPORARY);
+}
