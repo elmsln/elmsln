@@ -24,7 +24,7 @@ function assessment_entity_entity_info() {
     // Bundles are defined by the types below.
     'bundles' => array(),
     'bundle keys' => array('bundle' => 'type'),
-    'label callback' => 'entity_class_label',
+    'label callback' => 'assessment_entity_label',
     'uri callback' => 'entity_class_uri',
     'access callback' => 'assessment_entity_access',
     'module' => 'assessment_entity',
@@ -173,6 +173,13 @@ function assessment_entity_access($op, $entity = NULL, $account = NULL) {
   }
 
   return FALSE;
+}
+
+/**
+ * Entity label callback.
+ */
+function assessment_entity_label($entity, $entity_type) {
+  return empty($entity) ? t('New Assessment Entity') : $entity->label;
 }
 
 /**
