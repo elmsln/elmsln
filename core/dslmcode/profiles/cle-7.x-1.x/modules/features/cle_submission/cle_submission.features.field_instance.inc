@@ -19,7 +19,7 @@ function cle_submission_field_default_field_instances() {
     'display' => array(
       'default' => array(
         'label' => 'hidden',
-        'module' => NULL,
+        'module' => 'text',
         'settings' => array(),
         'type' => 'text_default',
         'weight' => 0,
@@ -75,14 +75,14 @@ function cle_submission_field_default_field_instances() {
     'display' => array(
       'default' => array(
         'label' => 'hidden',
-        'module' => NULL,
+        'module' => 'text',
         'settings' => array(),
         'type' => 'text_default',
         'weight' => 1,
       ),
       'teaser' => array(
         'label' => 'hidden',
-        'module' => NULL,
+        'module' => 'text',
         'settings' => array(
           'trim_length' => 600,
         ),
@@ -309,7 +309,7 @@ function cle_submission_field_default_field_instances() {
     'display' => array(
       'default' => array(
         'label' => 'hidden',
-        'module' => NULL,
+        'module' => 'link',
         'settings' => array(),
         'type' => 'link_default',
         'weight' => 5,
@@ -391,7 +391,7 @@ function cle_submission_field_default_field_instances() {
     'display' => array(
       'default' => array(
         'label' => 'hidden',
-        'module' => NULL,
+        'module' => 'video_embed_field',
         'settings' => array(
           'description' => 1,
           'description_position' => 'bottom',
