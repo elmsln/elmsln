@@ -337,7 +337,6 @@ else
   /etc/init.d/mysqld restart
 fi
 
-elmslnecho "Everything should be in place, we are going to log you out now. Log back in and run the following:"
+elmslnecho "Everything should be in place, now you can log out and run the following commands:"
 elmslnecho "sudo chown YOURUSERNAME:${webgroup} -R /var/www/elmsln"
 elmslnecho "bash /var/www/elmsln/scripts/install/elmsln-install.sh"
-logout
