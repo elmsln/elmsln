@@ -338,4 +338,6 @@ else
 fi
 
 elmslnecho "Everything should be in place, we are going to log you out now. Log back in and run the following:"
-elmslnecho "bash ${elmsln}/scripts/install/elmsln-install.sh"
+elmslnecho "sudo chown YOURUSERNAME:${webgroup} -R /var/www/elmsln"
+elmslnecho "bash /var/www/elmsln/scripts/install/elmsln-install.sh"
+logout
