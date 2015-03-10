@@ -127,7 +127,7 @@ function elmsmedia_feature_views_default_views() {
   $handler->display->display_options['filters']['status']['value'] = 1;
   $handler->display->display_options['filters']['status']['group'] = 1;
   $handler->display->display_options['filters']['status']['expose']['operator'] = FALSE;
-  /* Filter criterion: Content type groups: Content type group */
+  /* Filter criterion: Broken/missing handler */
   $handler->display->display_options['filters']['group_type']['id'] = 'group_type';
   $handler->display->display_options['filters']['group_type']['table'] = 'content_type_groups_types';
   $handler->display->display_options['filters']['group_type']['field'] = 'group_type';
@@ -153,12 +153,6 @@ function elmsmedia_feature_views_default_views() {
     4 => 0,
     5 => 0,
   );
-  $handler->display->display_options['filters']['title']['expose']['autocomplete_filter'] = 1;
-  $handler->display->display_options['filters']['title']['expose']['autocomplete_items'] = '10';
-  $handler->display->display_options['filters']['title']['expose']['autocomplete_field'] = 'title';
-  $handler->display->display_options['filters']['title']['expose']['autocomplete_raw_suggestion'] = 1;
-  $handler->display->display_options['filters']['title']['expose']['autocomplete_raw_dropdown'] = 1;
-  $handler->display->display_options['filters']['title']['expose']['autocomplete_dependent'] = 0;
   /* Filter criterion: Content: Course (field_course) */
   $handler->display->display_options['filters']['field_course_tid']['id'] = 'field_course_tid';
   $handler->display->display_options['filters']['field_course_tid']['table'] = 'field_data_field_course';
