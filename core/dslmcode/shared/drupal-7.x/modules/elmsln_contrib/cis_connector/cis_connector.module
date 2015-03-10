@@ -404,30 +404,38 @@ function _cis_connector_section_context($account = NULL) {
       // see if we are an administrative account that might be missing
       // access to a group but yet clearly could be in the master
       if ($account->uid == 1 || array_intersect(array('administrator', 'instructor', 'staff'), array_values($account->roles))) {
-        $query = new EntityFieldQuery();
-        // pull all nodes
-        $query->entityCondition('entity_type', 'node')
-        // that are sections
-        ->entityCondition('bundle', 'section')
-        // that are published
-        ->propertyCondition('status', 1)
-        // that have a section like master_
-        ->fieldCondition('field_section_id', 'value', 'master_%', 'like')
-        ->addMetaData('account', user_load(1));
-        // store results
-        $result = $query->execute();
-        // ensure we have results
-        if (isset($result['node'])) {
-          $nids = array_keys($result['node']);
-          $sections = entity_load('node', $nids);
-          $group = array_pop($sections);
-          $section = $group->field_section_id[LANGUAGE_NONE][0]['safe_value'];
-          // add person to this group automatically
-          $values = array(
-            'entity_type' => 'user',
-            'entity' => $account,
-          );
-          og_group('node',$group->nid, $values);
+        // ensure we have section active first
+        $info = entity_get_info('node');
+        if (isset($info['bundles']['section'])) {
+          $query = new EntityFieldQuery();
+          // pull all nodes
+          $query->entityCondition('entity_type', 'node')
+          // that are sections
+          ->entityCondition('bundle', 'section')
+          // that are published
+          ->propertyCondition('status', 1)
+          // that have a section like master_
+          ->fieldCondition('field_section_id', 'value', 'master_%', 'like')
+          ->addMetaData('account', user_load(1));
+          // store results
+          $result = $query->execute();
+          // ensure we have results
+          if (isset($result['node'])) {
+            $nids = array_keys($result['node']);
+            $sections = entity_load('node', $nids);
+            $group = array_pop($sections);
+            $section = $group->field_section_id[LANGUAGE_NONE][0]['safe_value'];
+            // add person to this group automatically
+            $values = array(
+              'entity_type' => 'user',
+              'entity' => $account,
+            );
+            og_group('node',$group->nid, $values);
+          }
+        }
+        else {
+          // @todo this has no positive outcome
+          $section = 'default';
         }
       }
       else {
@@ -529,7 +537,9 @@ function _cis_connector_transaction($request, $format = 'default', $query = arra
       // request the section of the user
       $cis_section_item = _cis_connection_query($query, 'field_collection_item');
       // return an array with input format and textual content of contact info
-      $output = $cis_section_item['list'][0]['field_contact_info'];
+      if (isset($cis_section_item['list'][0])) {
+        $output = $cis_section_item['list'][0]['field_contact_info'];
+      }
     break;
     case 'other_services':
       // query access string based on section context
@@ -537,7 +547,9 @@ function _cis_connector_transaction($request, $format = 'default', $query = arra
       // request the section of the user
       $cis_section_item = _cis_connection_query($query, 'field_collection_item');
       // return the whole section array
-      $section_object = $cis_section_item['list'][0];
+      if (isset($cis_section_item['list'][0])) {
+        $section_object = $cis_section_item['list'][0];
+      }
       // check for services defined
       if (isset($section_object['field_services']) && is_array($section_object['field_services'])) {
         // walk each service requesting details
