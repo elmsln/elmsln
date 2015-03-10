@@ -1,0 +1,22 @@
+<?php
+/**
+ * @file
+ * Provide uncached requests with developer messages for debugging
+ */
+
+/**
+ * Implements hook_cis_prerequest_alter().
+ * @param  array  &$reqeust    array of options all by reference
+ */
+function cis_devel_cis_prerequest_alter(&$request) {
+  $request['cached'] = FALSE;
+}
+
+/**
+ * Implements hook_cis_postrequest_alter().
+ * @param  array  &$request    $request with data returned
+ */
+function cis_devel_cis_postrequest_alter(&$request) {
+  // @ignore production_code
+  dpm($request);
+}
