@@ -703,13 +703,14 @@ function entity_metadata_no_hook_node_access($op, $node = NULL, $account = NULL)
 /**
  * Access callback for the user entity.
  */
-function entity_metadata_user_access($op, $entity = NULL, $account = NULL, $entity_type) {
+function entity_metadata_user_access($op, $entity = NULL, $account = NULL, $entity_type = NULL) {
   $account = isset($account) ? $account : $GLOBALS['user'];
   // Grant access to the users own user account and to the anonymous one.
-  if (isset($entity) && $op != 'delete' && (($entity->uid == $account->uid && $entity->uid) || (!$entity->uid && $op == 'view'))) {
+  if (isset($entity->uid) && $op != 'delete' && (($entity->uid == $account->uid && $entity->uid) || (!$entity->uid && $op == 'view'))) {
     return TRUE;
   }
-  if (user_access('administer users', $account) || user_access('access user profiles', $account) && $op == 'view' && $entity->status) {
+  if (user_access('administer users', $account)
+    || user_access('access user profiles', $account) && $op == 'view' && (empty($entity) || !empty($entity->status))) {
     return TRUE;
   }
   return FALSE;
@@ -724,7 +725,7 @@ function entity_metadata_user_properties_access($op, $property, $entity = NULL, 
   }
   $account = isset($account) ? $account : $GLOBALS['user'];
   // Flag to indicate if this user entity is the own user account.
-  $is_own_account = isset($entity) && $account->uid == $entity->uid;
+  $is_own_account = isset($entity->uid) && $account->uid == $entity->uid;
   switch ($property) {
     case 'name':
       // Allow view access to anyone with access to the entity.
@@ -794,7 +795,7 @@ function entity_metadata_comment_properties_access($op, $property, $entity = NUL
 /**
  * Access callback for the taxonomy entities.
  */
-function entity_metadata_taxonomy_access($op, $entity = NULL, $account = NULL, $entity_type) {
+function entity_metadata_taxonomy_access($op, $entity = NULL, $account = NULL, $entity_type = NULL) {
   if ($entity_type == 'taxonomy_vocabulary') {
     return user_access('administer taxonomy', $account);
   }

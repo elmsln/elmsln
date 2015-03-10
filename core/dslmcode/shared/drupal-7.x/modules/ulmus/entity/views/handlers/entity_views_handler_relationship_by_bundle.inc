@@ -93,7 +93,7 @@ class entity_views_handler_relationship_by_bundle extends views_handler_relation
       $def['extra'] = array(
         array(
           // The table and the IN operator are implicit.
-          'field' => $entity_info['bundle keys']['bundle'],
+          'field' => $entity_info['entity keys']['bundle'],
           'value' => $this->options['bundle_types'],
         ),
       );

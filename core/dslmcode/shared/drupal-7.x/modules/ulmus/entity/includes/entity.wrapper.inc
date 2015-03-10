@@ -504,7 +504,7 @@ class EntityStructureWrapper extends EntityMetadataWrapper implements IteratorAg
       while (!($entity instanceof EntityDrupalWrapper) && isset($entity->info['parent'])) {
         $entity = $entity->info['parent'];
       }
-      if ($entity instanceof EntityDrupalWrapper && !$entity->entityAccess('update', $account)) {
+      if ($entity instanceof EntityDrupalWrapper && $entity->entityAccess('update', $account) === FALSE) {
         return FALSE;
       }
     }
@@ -515,6 +515,7 @@ class EntityStructureWrapper extends EntityMetadataWrapper implements IteratorAg
     elseif ($op == 'edit' && isset($info['setter permission'])) {
       return user_access($info['setter permission'], $account);
     }
+    // If access is unknown, we return TRUE.
     return TRUE;
   }
 
@@ -809,7 +810,14 @@ class EntityDrupalWrapper extends EntityStructureWrapper {
     if (!empty($this->info['parent'])) {
       // If this is a property, make sure the user is able to view the
       // currently referenced entity also.
-      return $this->entityAccess('view', $account) && parent::access($op, $account);
+      if ($this->entityAccess('view', $account) === FALSE) {
+        return FALSE;
+      }
+      if (parent::access($op, $account) === FALSE) {
+        return FALSE;
+      }
+      // If access is unknown, we return TRUE.
+      return TRUE;
     }
     else {
       // This is not a property, so fallback on entity access.

@@ -169,6 +169,7 @@ function _entity_metadata_convert_schema_type($type) {
   switch ($type) {
     case 'int':
     case 'serial':
+    case 'date':
       return 'integer';
     case 'float':
     case 'numeric':

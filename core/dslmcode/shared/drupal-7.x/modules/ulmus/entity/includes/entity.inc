@@ -31,6 +31,7 @@ class Entity {
   protected $entityInfo;
   protected $idKey, $nameKey, $statusKey;
   protected $defaultLabel = FALSE;
+  protected $wrapper;
 
   /**
    * Creates a new entity.
@@ -109,6 +110,23 @@ class Entity {
    */
   public function bundle() {
     return !empty($this->entityInfo['entity keys']['bundle']) ? $this->{$this->entityInfo['entity keys']['bundle']} : $this->entityType;
+  }
+
+  /**
+   * Returns the EntityMetadataWrapper of the entity.
+   *
+   * @return EntityDrupalWrapper
+   *   An EntityMetadataWrapper containing the entity.
+   */
+  public function wrapper() {
+    if (empty($this->wrapper)) {
+      $this->wrapper = entity_metadata_wrapper($this->entityType, $this);
+    }
+    elseif ($this->wrapper->value() !== $this) {
+      // Wrapper has been modified outside, so let's better create a new one.
+      $this->wrapper = entity_metadata_wrapper($this->entityType, $this);
+    }
+    return $this->wrapper;
   }
 
   /**

@@ -51,8 +51,14 @@ function entity_test_schema() {
       'uid' => array('uid'),
     ),
     'foreign keys' => array(
-      'uid' => array('users' => 'uid'),
-      'name' => array('entity_test_types' => 'name'),
+      'uid' => array(
+        'table' => 'users',
+        'columns' => array('uid' => 'uid')
+      ),
+      'name' => array(
+        'table' => 'entity_test_types',
+        'columns' => array('name' => 'name')
+      ),
     ),
     'primary key' => array('pid'),
   );
