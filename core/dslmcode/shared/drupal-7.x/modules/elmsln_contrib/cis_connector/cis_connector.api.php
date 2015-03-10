@@ -75,6 +75,45 @@ function hook_cis_service_registry_alter(&$registry) {
 }
 
 /**
+ * Implements hook_cis_prerequest_alter().
+ *
+ * Provide access to the properties of a request prior to issuing the call.
+ * This can be used to debug calls or dynamically reroute certain calls
+ * elsewhere
+ *
+ * @param  string  &$request['url']     url used to issue the call
+ * @param  array   &$request['options'] httprl options used to issue the call
+ * @param  string  &$request['bucket']  bucket used to issue the call
+ * @param  boolean &$request['cached']  whether to use local cache for response
+ *
+ * @see  cis_devel.module for an example
+ */
+function hook_cis_prerequest_alter(&$request) {
+  $request['cached'] = FALSE;
+}
+
+/**
+ * Implements hook_cis_postrequest_alter().
+ *
+ * Provide calls issued and the data returned from the request.
+ * This can be used to influence the data after its been received from
+ * the source determined by the other parameters in the call.
+ *
+ * @param  array   &$request['data']    response from th webservice call
+ * @param  string  &$request['url']     url used to issue the call
+ * @param  array   &$request['options'] httprl options used to issue the call
+ * @param  string  &$request['bucket']  bucket used to issue the call
+ * @param  boolean &$request['cached']  whether to use local cache for response
+ *
+ * @see  cis_devel.module for an example
+ */
+function hook_cis_postrequest_alter(&$request) {
+  // @ignore production_code
+  dpm($request);
+}
+
+
+/**
  * Implements hook_cis_connected_entity().
  *
  * Define which and how entities can be used remotely.
