@@ -9,10 +9,6 @@
  * that provides xml / json is supported.
  */
 
-// this is a kill switch to force all calls to be uncached
-// trigger this when testing and debugging calls
-define ('CIS_CONNECTOR_DEVELOPMENT', FALSE);
-define ('CIS_CONNECTOR_ROOT_USER_DEVELOPMENT', FALSE);
 define ('CIS_CONNECTOR_ENTITY_BOTH', 0);
 define ('CIS_CONNECTOR_ENTITY_REMOTE_ONLY', 1);
 
@@ -537,7 +533,7 @@ function _cis_connector_transaction($request, $format = 'default', $query = arra
       // request the section of the user
       $cis_section_item = _cis_connection_query($query, 'field_collection_item');
       // return an array with input format and textual content of contact info
-      if (isset($cis_section_item['list'][0])) {
+      if (isset($cis_section_item['list'][0]['field_contact_info'])) {
         $output = $cis_section_item['list'][0]['field_contact_info'];
       }
     break;
@@ -765,16 +761,18 @@ function _cis_connector_transaction($request, $format = 'default', $query = arra
  *   (optional) Whether or not to use a cached version of
  *   the request.  This defaults to TRUE though developers
  *   will want to potentially issue requests that are never
- *   cached. User 1 always recieves uncached requests to
- *   avoid potential confusion while debugging.
+ *   cached. Enable the cis_devel module to see debug messages.
  */
 function _cis_connector_request($url, $options = array(), $bucket = 'cis', $cached = TRUE) {
   $data = FALSE;
-  // developers: allow for debug of all calls with fresh values
-  // user 1 is always uncached
-  if (CIS_CONNECTOR_DEVELOPMENT || ($GLOBALS['user']->uid == 1 && CIS_CONNECTOR_ROOT_USER_DEVELOPMENT)) {
-    $cached = FALSE;
-  }
+  // allow other functions to jump in prior to request being made
+  $alter = array(
+    'url' => &$url,
+    'options' => &$options,
+    'bucket' => &$bucket,
+    'cached' => &$cached,
+  );
+  drupal_alter('cis_prerequest', $alter);
   // trick to mash request into a single item
   $args = func_get_args();
   // options can be an array so need to implode on its own
@@ -828,13 +826,9 @@ function _cis_connector_request($url, $options = array(), $bucket = 'cis', $cach
     }
   }
 
-  // debug all calls
-  // @ignore production_code
-  if (module_exists('devel') && CIS_CONNECTOR_DEVELOPMENT && CIS_CONNECTOR_ROOT_USER_DEVELOPMENT) {
-    // @ignore production_code
-    dpm($data);
-  // @ignore production_code
-  }
+  // allow other functions to jump in after the request has been made
+  $alter['data'] = &$data;
+  drupal_alter('cis_postrequest', $alter);
 
   return $data;
 }
