@@ -1,0 +1,42 @@
+<?php
+
+/**
+ * @file
+ * Install, update, and uninstall functions for the template picker module.
+ */
+
+/**
+ * Implements hook_schema().
+ */
+function template_picker_schema() {
+  $schema = array();
+
+    $schema['template_picker'] = array(
+      'description' => 'Information about nodes invoking template picker templates.',
+      'fields' => array(
+        'id' => array(
+          'type' => 'int',
+          'unsigned' => TRUE,
+          'not null' => TRUE,
+          'default' => 0,
+          'description' => "The entity's bundle id (nid for nodes, uid for users, etc).",
+        ),
+        'entity' => array(
+          'type' => 'varchar',
+          'length' => 32,
+          'not null' => TRUE,
+          'default' => '',
+          'description' => "The entity type.",
+        ),
+        'template' => array(
+          'type' => 'varchar',
+          'length' => 128,
+          'not null' => TRUE,
+          'default' => '',
+        ),
+      ),
+      'primary key' => array('id', 'entity'),
+    );
+  
+  return $schema;
+}

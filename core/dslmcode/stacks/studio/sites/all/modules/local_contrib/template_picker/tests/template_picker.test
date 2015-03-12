@@ -1,0 +1,106 @@
+<?php
+
+/**
+ * @file
+ * Tests for template_picker.module
+ *
+ * @todo: Add more unit tests, like one for using the hook to detect the test
+ *        templates in this module.
+ * @todo: Add more functional tests, like one for populating the template-picker
+ *        select box with the example templates in this module.
+ * @todo: Add an end-to-end test, where a test-template is chosen, the node is
+ *        saved, and an identifier in the template is detected on the page.
+ */
+
+class TemplatePickerFieldset extends DrupalWebTestCase {
+
+  /**
+   * Provide Test info.
+   */
+  public static function getInfo() {
+    return array(
+      'name' => 'Template Picker fieldset',
+      'description' => 'Ensure that the Template Picker fieldset appears on the node-edit page.',
+      'group' => 'Template Picker',
+    );
+  }
+
+  /**
+   * Set up our Drupal instance.
+   *
+   * Enable template picker and create any necessary content types.
+   */
+  public function setUp() {
+    parent::setUp('template_picker');
+
+    // Create Article node type, if needed. I pulled this logic
+    // from the the core "node" module, in node.test.
+    if ($this->profile != 'standard') {
+      $this->drupalCreateContentType(array('type' => 'article', 'name' => 'Article'));
+    }
+  }
+
+  /**
+   * Verify that the template picker fieldset appears on the bundle-edit page.
+   */
+  public function testTemplatePickerFieldset() {
+
+    // We start by testing that the options appear on the user-edit page.
+    $permissions = array('allow users to pick user templates',
+                         'allow users to pick article templates',
+                         'create article content');
+    $user = $this->drupalCreateUser($permissions);
+    $user = $this->drupalLogin($user);
+    $this->clickLink('Edit');
+    $this->assertText('Template Picker', 'The Template Picker options were found on the page.');
+
+    // Now test that the options appear on the node-edit page for an article.
+    $this->drupalGet('node/add/article');
+    $this->assertText('Template Picker', 'The Template Picker options were found on the page.');
+  }
+}
+
+
+class TemplatePickerCleanNames extends DrupalUnitTestCase {
+
+  /**
+   * Provide Test info.
+   */
+  public static function getInfo() {
+    return array(
+      'name' => 'Template Picker clean names',
+      'description' => 'Ensure that Template Picker clean name detection is working properly.',
+      'group' => 'Template Picker',
+    );
+  }
+
+  /**
+   * Unit-test our function for clean names: template_picker_get_template_name.
+   */
+  public function testCleanNamesFunction() {
+
+    // Test against the template with the clean name:
+    // (node--article--tp-test1.tpl.php).
+    $clean_name = ' Test Template';
+    $default_name = 'node--article--tp-test1';
+    $path_to_template = drupal_get_path('module', 'template_picker') . '/tests/node--article--tp-test1.tpl.php';
+    // We assert that the test file exists, in order to prevent false positives
+    // in the next assertion.
+    $this->assertTrue(is_file($path_to_template), 'Test File was detected at: ' . $path_to_template);
+
+    $result = template_picker_get_template_name($path_to_template, $default_name);
+    $this->assertIdentical($result, $clean_name, 'The detected name matches the clean name: ' . $result);
+
+    // Test against the template without the clean name:
+    // (node--article--tp-test1.tpl.php).
+    $clean_name = 'Test Template';
+    $default_name = 'node--article--tp-test2';
+    $path_to_template = drupal_get_path('module', 'template_picker') . '/tests/node--article--tp-test2.tpl.php';
+    // We assert that the test file exists, in order to prevent false positives
+    // in the next assertion.
+    $this->assertTrue(is_file($path_to_template), 'Test File was detected at: ' . $path_to_template);
+
+    $result = template_picker_get_template_name($path_to_template, $default_name);
+    $this->assertIdentical($result, $default_name, 'The detected name matches the default name: ' . $result);
+  }
+}

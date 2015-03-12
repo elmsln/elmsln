@@ -1,0 +1,415 @@
+<?php
+
+/**
+ * @file
+ * The main hooks and functions for Template Picker.
+ */
+
+/**
+ * Implements hook_permission().
+ */
+function template_picker_permission() {
+
+  // List the unsupported entities for exclusion from our permissions array.
+  $exclusions = array('file', 'taxonomy_vocabulary');
+
+  foreach (entity_get_info() as $entity_type => $entity_info) {
+    if (in_array($entity_type, $exclusions)) {
+      continue;
+    }
+    foreach ($entity_info['bundles'] as $bundle => $bundle_info) {
+      $permissions["allow users to pick $bundle templates"] = array(
+        'title' => t('%bundle_name: Enable template picker', array(
+          '%bundle_name' => $bundle_info['label'],
+          )
+        ),
+      );
+    }
+  }
+  return $permissions;
+}
+
+/**
+ * Implements hook_entity_load().
+ */
+function template_picker_entity_load($entities, $type) {
+  // Query db for template_picker templates for this entity.
+  $results = db_query("SELECT entity, id, template FROM {template_picker} WHERE entity = (:type) AND id IN (:ids)",
+    array(
+      ':ids' => array_keys($entities),
+      ':type' => $type,
+    )
+  );
+  foreach ($results as $result) {
+    // Store each exisiting template name in the corresponding entity object.
+    if ($type == $result->entity) {
+      $entity_id = $result->id;
+      $entities[$entity_id]->template_picker = $result->template;
+    }
+  }
+}
+
+/**
+ * Implements hook_entity_insert().
+ */
+function template_picker_entity_insert($entity, $type) {
+
+  // Get the entity id.
+  $id_results = entity_extract_ids($type, $entity);
+  $entity_id = array_shift($id_results);
+
+  // Upon creation of a new bundle, add the id and template information (the
+  // template name and other form state data is available via the $entity
+  // object) to the template_picker table.
+  if (!empty($entity->template_picker)) {
+    db_insert('template_picker')
+      ->fields(array(
+        'entity' => $type,
+        'id' => $entity_id,
+        'template' => $entity->template_picker,
+      ))
+      ->execute();
+  }
+}
+
+/**
+ * Implements hook_entity_update().
+ */
+function template_picker_entity_update($entity, $type) {
+
+  // Get the entity id.
+  $id_results = entity_extract_ids($type, $entity);
+  $entity_id = array_shift($id_results);
+
+  // Upon update of an exisiting entity, update the template_picker table.
+  // The updated template name and other form state data is available via
+  // the $entity object.
+  if (!empty($entity->template_picker)) {
+
+    // db_merge will run an INSERT if there is no row or an UPDATE if the
+    // row already exists.
+    db_merge('template_picker')
+      ->key(array(
+        'entity' => $type,
+        'id' => $entity_id,
+      ))
+      ->fields(array(
+        'template' => $entity->template_picker,
+      ))
+      ->execute();
+  }
+  else {
+    // This indicates that the "default" value was chosen.
+    db_delete('template_picker')
+      ->condition('entity', $type)
+      ->condition('id', $entity_id)
+      ->execute();
+  }
+}
+
+/**
+ * Implements hook_entity_delete().
+ */
+function template_picker_entity_delete($entity, $type) {
+
+  // Get the entity id.
+  $id_results = entity_extract_ids($type, $entity);
+  $entity_id = array_shift($id_results);
+
+  // On deleting a node, user, or entity, update the template_picker table.
+  db_delete('template_picker')
+    ->condition('entity', $type)
+    ->condition('id', $entity_id)
+    ->execute();
+}
+
+/**
+ * Fetch an array of possible templates for an entity type, bundle, and theme.
+ *
+ * @param string $entity_type
+ *   The entity type (e.g. 'node').
+ * @param string $bundle
+ *   The bundle of the entity type (e.g. 'article').
+ * @param string $theme
+ *   (optional) The theme to search for template files. Defaults to the default
+ *   theme.
+ *
+ * @return array
+ *   An array of available templates.
+ */
+function template_picker_get_template_options($entity_type, $bundle, $theme = NULL) {
+  if (!isset($theme)) {
+    $theme = variable_get('theme_default', 'bartik');
+  }
+
+  // Get the path to the theme directory we want.
+  $theme_path = drupal_get_path('theme', $theme);
+  if (empty($theme_path)) {
+    return array();
+  }
+
+  // Detect templates in your theme like "node--content-type--tp*.tpl.php".
+  $options = array();
+
+  // Convert underscores in entity type names and bundle names to hyphens,
+  // because drupal was having difficulty finding taxonomy term entities
+  // with underscores in them. In order to keep the naming pattern
+  // consistant, we're going with hyphens in everything.
+  $entity_type_hyph = str_replace('_', '-', $entity_type);
+  $bundle_hyph = str_replace('_', '-', $bundle);
+
+  // Build file name regex.
+  $regex = '/' . $entity_type_hyph . '--' . $bundle_hyph . '--tp.+\.tpl\.php$/i';
+  $files = file_scan_directory(DRUPAL_ROOT . '/' . $theme_path, $regex);
+  foreach ($files as $file) {
+    $key = drupal_basename($file->filename, '.tpl.php');
+    $options[$key] = template_picker_get_template_name($file->uri, $key);
+  }
+
+  // Allow modules to alter the template options.
+  $context = array(
+    'entity_type' => $entity_type,
+    'bundle' => $bundle,
+    'theme' => $theme,
+  );
+  drupal_alter('template_picker_template_options', $options, $context);
+
+  return $options;
+}
+
+/**
+ * Get a human-readable name from a template if possible.
+ *
+ * @param string $uri
+ *   The URI to the template file.
+ * @param string $default
+ *   The default name to return if a human-readable name was not found in the
+ *   template file.
+ *
+ * @return string
+ *   The human-readable name of the template, or $default if not found.
+ */
+function template_picker_get_template_name($uri, $default) {
+  if (is_file($uri) && $contents = file_get_contents($uri)) {
+    if (preg_match('/(?:Template Name:)(.*)$/mi', $contents, $results)) {
+      // A clean name was found. Save the result.
+      return $results[1];
+    }
+  }
+
+  return $default;
+}
+
+
+/**
+ * Implements hook_form_alter().
+ *
+ * @todo Enable template picker to work for more than just the default theme.
+ * @todo Enhance template picker to allow for page template picking.
+ * @todo Enhance template picker to allow for block template picking.
+ */
+function template_picker_form_alter(&$form, &$form_state, $form_id) {
+
+  // To only alter entity forms, we look for the entity type in the form data
+  // and use a blacklist to disqualify any specific forms id's we wouldn't want
+  // to alter.
+  $form_id_blacklist = array(
+    'field_ui_field_overview_form',
+    'field_ui_display_overview_form',
+    'field_ui_field_settings_form'
+  );
+
+  if (isset($form['#entity_type'])  && !in_array($form_id, $form_id_blacklist)) {
+
+    $entity_type = $form['#entity_type'];
+    $bundle = $form['#bundle'];
+
+    // If the user has permission to use template picker, then continue.
+    $access = user_access("allow users to pick $bundle templates");
+    if ($access) {
+
+      // Get the list of available templates.
+      $templates = template_picker_get_template_options($entity_type, $bundle);
+
+      // Find out what the default value is. Needs a switch-case because
+      // different entities store the template picker data in different
+      // locations.
+      $default_value = NULL;
+      switch ($entity_type) {
+        case 'node':
+          // Finds the current template for nodes.
+          if (isset($form['#node']->template_picker)) {
+            $default_value = $form['#node']->template_picker;
+          }
+          break;
+
+        case 'taxonomy_term':
+          // Finds the current template for taxonomy terms.
+          if (isset($form['#term']['template_picker'])) {
+            $default_value = $form['#term']['template_picker'];
+          }
+          break;
+
+        case 'user':
+          // Finds the current template for users.
+          if (isset($form['#user']->template_picker)) {
+            $default_value = $form['#user']->template_picker;
+          }
+          break;
+
+        case 'comment':
+          // Finds the current template for comments.
+          if (isset($form['#entity']->template_picker)) {
+            $default_value = $form['#entity']->template_picker;
+          }
+          break;
+
+        default:
+          // Assumes this is a custom entity and finds its current template.
+          // We can actually find the template picker data here for all
+          // other cases, but we'll leave those cases separate, since they
+          // seem a bit cleaner.
+          if (isset($form_state['build_info']['args'][0]->template_picker)) {
+            $default_value = $form_state['build_info']['args'][0]->template_picker;
+          }
+      }
+
+      // Add the template picker fieldset to our forms.
+      $form['template_picker'] = array(
+        '#type' => 'fieldset',
+        '#title' => t('Template Picker'),
+        '#access' => user_access("allow users to pick $bundle templates"),
+        '#collapsible' => TRUE,
+        '#collapsed' => TRUE,
+        '#group' => 'additional_settings',
+        '#attributes' => array(
+          'class' => array('template-picker-form'),
+        ),
+        '#attached' => array(
+          'js' => array(
+            drupal_get_path('module', 'template_picker') . '/template_picker.js',
+          ),
+        ),
+      );
+
+      // Add a select box inside the template picker fieldset.
+      $form['template_picker']['template_picker'] = array(
+        '#type' => 'select',
+        '#title' => t('Template'),
+        '#description' => t('Select a template to use for this content.'),
+        '#options' => $templates,
+        '#empty_option' => t('Default'),
+        '#default_value' => $default_value,
+      );
+    }
+  }
+}
+
+/**
+ * Implements template_preprocess_entity().
+ *
+ * template_preprocess_entity() is provided by the entity module. It runs
+ * preprocessing for custom entities (not nodes, or entities built into Drupal).
+ * We use it to check to see if the default template has been overridden by
+ * template picker. If so, we add a theme suggestion for our new template.
+ */
+function template_picker_preprocess_entity(&$variables) {
+  // Check to see if a non-default template has been picked.
+  if (!empty($variables['elements']['#entity']->template_picker)) {
+    template_picker_add_theme_suggestion($variables['elements']['#entity']->template_picker, $variables);
+  }
+}
+
+/**
+ * Implements template_preprocess_taxonomy_term().
+ *
+ * Taxonomy terms have their own preprocessing that isn't covered by
+ * template_preprocess_entity(). Thus, we'll use it to check and see if the
+ * default template has been overridden with template picker. If so, we add a
+ * theme suggestion for our new template.
+ */
+function template_picker_preprocess_taxonomy_term(&$variables) {
+  // Check to see if a non-default template has been picked.
+  if (!empty($variables['elements']['#term']->template_picker)) {
+    // Our template can also be found at $variables['template_picker'].
+    template_picker_add_theme_suggestion($variables['elements']['#term']->template_picker, $variables);
+  }
+}
+
+/**
+ * Implements template_preprocess_user_profile().
+ *
+ * Users have their own preprocessing that isn't covered by
+ * template_preprocess_entity(). Thus, we'll use it to check and see if
+ * the default template has been overridden with template picker. If so,
+ * we add a theme suggestion for our new template.
+ */
+function template_picker_preprocess_user_profile(&$variables) {
+  // Check to see if a non-default template has been picked.
+  if (!empty($variables['elements']['#account']->template_picker)) {
+    template_picker_add_theme_suggestion($variables['elements']['#account']->template_picker, $variables);
+  }
+}
+
+/**
+ * Implements template_preprocess_comment().
+ *
+ * Comments have their own preprocessing that isn't covered by
+ * template_preprocess_entity(). Thus, we'll use it to check and see if
+ * the default template has been overridden with template picker. If so,
+ * we add a theme suggestion for our new template.
+ */
+function template_picker_preprocess_comment(&$variables) {
+  // Check to see if a non-default template has been picked.
+  if (!empty($variables['elements']['#comment']->template_picker)) {
+    template_picker_add_theme_suggestion($variables['elements']['#comment']->template_picker, $variables);
+  }
+}
+
+/**
+ * Implements template_preprocess_node().
+ *
+ * Nodes have their own preprocessing that isn't covered by
+ * template_preprocess_entity(). Thus, we'll use it to check and see if
+ * the default template has been overridden with template picker. If so,
+ * we add a theme suggestion for our new template.
+ */
+function template_picker_preprocess_node(&$variables) {
+  // Check to see if a non-default template has been picked.
+  if (!empty($variables['elements']['#node']->template_picker)) {
+    // Our template can also be found at $variables['template_picker'].
+    template_picker_add_theme_suggestion($variables['elements']['#node']->template_picker, $variables);
+  }
+}
+
+/**
+ * A custom function to add a specific template as a theme suggestion.
+ *
+ * @param string $template
+ *   The name of the template file we want to add as a template suggestion.
+ * @param array &$variables
+ *   The variables array, passed by reference, so we can add values to
+ *   'theme_hook_suggestions'.
+ */
+function template_picker_add_theme_suggestion($template, &$variables) {
+  // Prepare our template name and add it to our template suggestions array.
+  $template = strtr($template, '-', '_');
+  $variables['theme_hook_suggestions'][] = $template;
+}
+
+/**
+ * Implements hook_theme().
+ *
+ * We need to do a custom hook_theme implementation in order for our template
+ * pattern of user--user--tp*.tpl.php to be available in the theme registry.
+ * This function makes that possible. For more information, see
+ * drupal_find_theme_functions().
+ */
+function template_picker_theme() {
+  return array(
+    'user' => array(
+      'render element' => 'elements',
+      'template' => 'user',
+    ),
+  );
+}
