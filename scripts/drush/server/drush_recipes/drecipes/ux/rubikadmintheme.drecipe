@@ -1,0 +1,41 @@
+{
+    "name": "Admin theme - Rubik",
+    "drush_recipes_api": "1.0",
+    "weight": "0",
+    "core": "7",
+    "recipe": [
+        {
+            "command": "pm-enable",
+            "arguments": [
+                "tao,rubik"
+            ]
+        },
+        {
+            "command": "variable-set",
+            "arguments": [
+                "admin_theme",
+                "rubik"
+            ]
+        },
+        {
+            "command": "variable-set",
+            "arguments": [
+                "node_admin_theme",
+                "TRUE"
+            ]
+        },
+        {
+            "command": "cc",
+            "arguments": [
+                "all"
+            ]
+        }
+    ],
+    "metadata": {
+        "type": "add-on",
+        "version": "1.0",
+        "author": "AndrewGearhart",
+        "description": "Sets the admin pages to use the Rubik theme",
+        "lazy": "rubik"
+    }
+}

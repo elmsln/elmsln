@@ -1,0 +1,26 @@
+{
+    "name": "Developer drush plugins",
+    "drush_recipes_api": "1.0",
+    "core": "7",
+    "weight": 0,
+    "recipe": [
+        {
+            "command": "dl",
+            "arguments": [
+                "drush_ecl,drush_efq,httprl_spider,registry_rebuild,entity_scaffold,drush_cleanup"
+            ]
+        },
+        {
+            "command": "cc",
+            "arguments": [
+                "drush"
+            ]
+        }
+    ],
+    "metadata": {
+        "description": "Download drush plugins common in server / system management.",
+        "version": "1.0",
+        "type": "add-on",
+        "author": "btopro"
+    }
+}

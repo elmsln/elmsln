@@ -1,0 +1,20 @@
+{
+    "name": "Developer modules",
+    "drush_recipes_api": "1.0",
+    "core": "7",
+    "weight": 0,
+    "recipe": [
+        {
+            "command": "en",
+            "arguments": [
+                "profiler_builder,devel,devel_image_provider"
+            ]
+        }
+    ],
+    "metadata": {
+        "description": "Developer modules that help with site builds",
+        "version": "1.0",
+        "type": "add-on",
+        "author": "btopro"
+    }
+}

@@ -1,0 +1,21 @@
+{
+  "name": "Replicate",
+  "drush_recipes_api": "1.0",
+  "weight": "0",
+  "core": "7",
+  "recipe": [
+    {
+      "command": "pm-download",
+      "arguments": [
+        "replicate,replicate_ui"
+      ]
+    }
+  ],
+  "metadata": {
+    "type": "add-on",
+    "version": "1.0",
+    "author": "btopro",
+    "description": "Get the replicate ecosystem of modules",
+    "lazy": "repgui"
+  }
+}
