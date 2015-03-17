@@ -22,7 +22,15 @@
         {
             "command": "en",
             "arguments": [
-                "textbook_editor"
+                "textbook_editor",
+                "textbook"
+            ]
+        },
+        {
+            "command": "vset",
+            "arguments": [
+                "textbook_reset",
+                "0"
             ]
         }
     ],
@@ -30,6 +38,7 @@
         "type": "add-on",
         "description": "Setup textbook modules and dependencies",
         "version": "4.x",
-        "author": null
+        "author": "btopro",
+        "lazy": "textbook"
     }
 }

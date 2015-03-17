@@ -21,21 +21,10 @@ function textbook_templates_wysiwyg_template_default_templates() {
     'name' => 'lorem_ipsum',
   );
   $templates['magellan_navigation'] = array(
-    'title' => 'Magellan navigation',
-    'description' => 'This gives you a sticky navigation element that follows you down the page',
+    'title' => 'Magellan navigation item',
+    'description' => 'If you have magellan navigation active this is the way to define a heading in the page.',
     'fid' => 0,
-    'body' => '<div class="magellan-wrap">
-	<div class="sticky-content-nav" data-magellan-expedition="fixed">
-		<dl class="sub-nav">
-			<dd data-magellan-arrival="vulture"><a href="#vulture">Vulture\'s Eye</a></dd>
-			<dd data-magellan-arrival="terror"><a href="#terror">Terror</a></dd>
-			<dd data-magellan-arrival="officers"><a href="#officers">Officers</a></dd>
-			<dd data-magellan-arrival="breath"><a href="#breath">I gasped for breath</a></dd>
-			<dd data-magellan-arrival="villains"><a href="#villains">Villains</a></dd>
-		</dl>
-	</div>
-</div>
-',
+    'body' => '<a name="machinename"></a><h2 data-magellan-destination="machinename">Title</h2>',
     'name' => 'magellan_navigation',
   );
   $templates['quote'] = array(

@@ -22,6 +22,80 @@ function textbook_menu() {
 }
 
 /**
+ * Implements hook_block_info().
+ */
+function textbook_block_info() {
+  $blocks['textbook-magellan'] = array(
+    'info' => t('Textbook: Magellan nav'),
+    'cache' => DRUPAL_NO_CACHE,
+  );
+  return $blocks;
+}
+
+/**
+ * Implements hook_block_view().
+ */
+function textbook_block_view($delta = '') {
+  $block = array();
+
+  switch ($delta) {
+    case 'textbook-magellan':
+      $block['subject'] = '<none>';
+      $block['content'] = _textbook_magellan();
+    break;
+  }
+  return $block;
+}
+
+/**
+ * Callback for textbook-magellan block.
+ *
+ * This will automatically build navigation based on elements
+ * it finds.
+ */
+function _textbook_magellan() {
+  $node = menu_get_object();
+  $content = '';
+  $items = array();
+  // only do this for nodes for now
+  if (!empty($node)) {
+    // pull in the body after filtering so we don't have to
+    $body = $node->body['und'][0]['safe_value'];
+    // target the magellan template style
+    $magellan = '/<h2 data-magellan-destination="(.*?)">(.*?)<\/h2>/s';
+    // pregmatch the anchor and title for the heading
+    preg_match_all($magellan, $body, $results);
+    // ensure we have headings that we found
+    if (count($results) == 3) {
+      // loop through items found
+      foreach ($results[0] as $key => $result) {
+        $items[] = array(
+          'title' => $results[2][$key],
+          'anchor' => $results[1][$key]
+        );
+      }
+    }
+    $content = theme('textbook_magellan', array('items' => $items));
+  }
+  return $content;
+}
+
+/**
+ * Implements hook_theme().
+ */
+function textbook_theme() {
+  return array(
+    'textbook_magellan' => array(
+      'variables' => array(
+        'items' => array(),
+      ),
+      'render element' => 'element',
+      'template' => 'templates/textbook-magellan',
+    ),
+  );
+}
+
+/**
  * Implementation of hook_page_alter().
  */
 function textbook_page_alter() {

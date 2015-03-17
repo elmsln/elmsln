@@ -1,6 +1,3 @@
-; Example Make file to demonstrate how to automatically fetch required textbook modules
-; See http://davehall.com.au/blog/dave/2011/05/17/drush-make-and-module-dependencies#comment-2261
-; as to why this file ends with .example rather than .make.
 core = "7.x"
 api = "2"
 projects[drupal][version] = "7.x"
@@ -48,6 +45,6 @@ libraries[quail][directory_name] = "quail"
 
 ; ckeditor 4.2.1 + codemirror and table resize
 libraries[ckeditor][download][type] = "get"
-libraries[ckeditor][download][url] = "https://github.com/btopro/ckeditor4textbook/archive/2.1.zip"
+libraries[ckeditor][download][url] = "https://github.com/psudug/ckeditor4textbook/archive/4.x.zip"
 libraries[ckeditor][directory_name] = "ckeditor"
 libraries[ckeditor][destination] = "libraries"
