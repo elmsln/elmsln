@@ -164,6 +164,7 @@ function drush_recipes_drush_command() {
       'dr-locations' => dt('User defined list of other locations to load in from'),
       'simple-uncook' => dt('Allow for a simple recipe reversal, like swapping enables for disables; good for lazy devs with simple recipes.'),
       'dr-skip-checks' => dt('Allow user to skip dependency checks, useful for debugging calls.'),
+      'skip-confirm' => dt('Allow user to skip confirmation of recipes running. Still will print the list, just immediately runs them. Useful when integrated into other interactive prompts.'),
     ),
     'allow-additional-options' => TRUE,
     'aliases' => array('cook', 'c'),
@@ -1145,7 +1146,7 @@ function drush_drush_recipes_drush_cook_recipes($list = '', $recurse = FALSE, $r
     }
   }
   // confirm cooking as this can be a ton of drush commands
-  if ($recurse || drush_confirm('Are you sure you want to cook these recipes with the above call structure? ' . implode(' ', array_keys($cook)))) {
+  if ($recurse || drush_get_option('skip-confirm', FALSE) || drush_confirm('Are you sure you want to cook these recipes with the above call structure? ' . implode(' ', array_keys($cook)))) {
     $env_tokens = array();
     // pull in the context of the operation
     $context = drush_get_context();

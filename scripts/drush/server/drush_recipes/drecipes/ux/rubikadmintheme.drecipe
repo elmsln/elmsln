@@ -5,9 +5,15 @@
     "core": "7",
     "recipe": [
         {
-            "command": "pm-enable",
+            "command": "dl",
             "arguments": [
-                "tao,rubik"
+                "tao"
+            ]
+        },
+        {
+            "command": "en",
+            "arguments": [
+                "rubik"
             ]
         },
         {
