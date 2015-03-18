@@ -2,7 +2,7 @@
   /**
    * CIS LMS-less template file
    *
-   * @todo Add course slogan to button's link div.
+   *
    */
 ?>
 <!-- Ecosystem Top Nav ---------------------------------------- -->
@@ -15,7 +15,7 @@
           <li class="left apps">
             <a href="#" class="etb-nav_item_service_btn etb-icon apps-icon" data-reveal-id="apps-nav-modal">
               <div class="icon-apps-black etb-icons"></div>
-              <!-- <span class="visible-for-large-up"><?php print t('Course'); ?></span> -->
+              <span class="visible-for-large-up"><?php print t('Course'); ?></span>
             </a>
           </li>
           <li class="left">
@@ -41,17 +41,16 @@
         <div id="apps-nav-modal" class="reveal-modal etb-nav-modal" data-reveal>
             <h1>SING 101</h1>
               <hr></hr>
-              <h2>Services</h1>
-              <a href="#" class="etb-modal-icon content-outline-icon row">
-                <div class="icon-content-outline-black etb-modal-icons"></div>
-                <span class="">Course outline</span>
-              </a>
+              <h2>Services</h2>
               <?php foreach ($services as $service) : ?>
-              <a href="<?php print $service['url']; ?>" class=" etb-modal-icon cis-icon row">
-                <div class="icon-cis-black etb-modal-icons"></div>
+              <a href="<?php print $service['url']; ?>" class=" etb-modal-icon <?php print $service['machine_name']; ?>-icon row">
+                <div class="icon-<?php print $service['machine_name']; ?>-black etb-modal-icons"></div>
                 <span class=""><?php print $service['title']; ?></span>
               </a>
               <?php endforeach ?>
+              <!--
+              <hr></hr>
+              <h2>Future</h2>
               <a href="#" class="etb-modal-icon calendar-icon row">
                 <div class="icon-calendar-black etb-modal-icons"></div>
                 <span class="">Calendar</span>
@@ -92,6 +91,7 @@
                 <div class="icon-collab-black etb-modal-icons"></div>
                 <span>Peer Collaboration</span>
               </a>
+            -->
             <a class="close-reveal-modal">&#215;</a>
          </div>
          <div id="user-nav-modal" class="reveal-modal etb-nav-modal" data-reveal>
@@ -124,7 +124,7 @@
               </a>
             <a class="close-reveal-modal">&#215;</a>
          </div>
-         
+
 
          <div id="info-nav-modal" class="reveal-modal etb-nav-modal" data-reveal>
             <h1><?php print t('Syllabus'); ?></h1>
@@ -147,7 +147,7 @@
               <?php print drupal_render($main_menu); ?>
             <a class="close-reveal-modal">&#215;</a>
          </div>
-         
+
 
          <div id="help-nav-modal" class="reveal-modal etb-nav-modal" data-reveal>
             <h1><?php print t('Help'); ?></h1>
