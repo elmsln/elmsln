@@ -1,0 +1,14 @@
+#!/bin/bash
+yes | yum -y install patch git
+git clone https://github.com/btopro/elmsln.git /var/www/elmsln
+# fill out the values below and copy and paste into a blank centos box
+# college ln domain http email yes
+bash /var/www/elmsln/scripts/install/handsfree/handsfree-install.sh college ln example.com http email@example.com yes
+
+# describing the values a bit more; all of these are machine_name input
+# college/university deployment
+# 2 letter to represent organizational unit
+# domain to use as the base for the network
+# protocol; http or https for all communications
+# admin email address
+# report to our anonymous analytics program when we start it yes/no
