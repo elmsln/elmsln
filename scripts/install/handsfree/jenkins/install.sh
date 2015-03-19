@@ -47,20 +47,21 @@ fi
 
 core='7.x'
 # all distributions / stacks we have
-# @todo add in discuss / comply once we have things at least functional there
-distros=('cis' 'mooc' 'cle' 'icor' 'elmsmedia' 'meedjum_blog')
-stacklist=('online' 'courses' 'studio' 'interact' 'media' 'blog')
+distros=('cis' 'mooc' 'cle' 'icor' 'elmsmedia' 'meedjum_blog' 'ecd' 'harmony')
+stacklist=('online' 'courses' 'studio' 'interact' 'media' 'blog' 'comply' 'discuss')
 # things to build place holder sites for
-buildlist=('courses' 'studio' 'interact' 'blog')
+buildlist=('courses' 'studio' 'interact' 'blog' 'discuss')
 # things to default to central authority status
-authoritydistros=('elmsmedia' 'cis')
-authoritylist=('media' 'online')
+authoritydistros=('elmsmedia' 'ecd' 'cis')
+authoritylist=('media' 'comply' 'online')
 # array of instance definitions for the distro type
-instances=('FALSE' 'TRUE' 'TRUE' 'TRUE' 'FALSE' 'TRUE')
-ignorelist=('TRUE' 'FALSE' 'FALSE' 'FALSE' 'TRUE' 'FALSE')
-defaulttitle=('Course information system' 'Course outline' 'Collaborative studio' 'Interactive object repository' 'Media asset management' 'Course Blog')
+instances=('FALSE' 'TRUE' 'TRUE' 'TRUE' 'FALSE' 'TRUE' 'FALSE' 'TRUE')
+ignorelist=('TRUE' 'FALSE' 'FALSE' 'FALSE' 'TRUE' 'FALSE' 'TRUE' 'FALSE')
+defaulttitle=('Course information system' 'Course outline' 'Collaborative studio' 'Interactive object repository' 'Media asset management' 'Course Blog' 'Course Compliance' 'Discussions')
 moduledir=$elmsln/config/shared/drupal-${core}/modules/_elmsln_scripted
 cissettings=${university}_${host}_settings
+# support for hook architecture in bash call outs
+hooksdir=$configsdir/scripts/hooks/elmsln-install
 
 # used for random password generation
 COUNTER=0
@@ -258,16 +259,27 @@ find $configsdir/stacks/ -type d -name files | xargs chown -R $wwwuser:$webgroup
 rm /tmp/.htaccess
 # last second security hardening as clean up to enforce defaults
 bash /var/www/elmsln/scripts/utilities/harden-security.sh
+# hook post-install.sh
+if [ -f  $hooksdir/post-install.sh ]; then
+  # invoke this hook cause we found a file matching the name we need
+  bash $hooksdir/post-install.sh
+fi
+
+
+
+
 # a message so you know where our head is at. you get candy if you reference this
 elmslnecho "╔───────────────────────────────────────────────────────────────╗"
-elmslnecho "║           ____  Welcome to      ____                          ║"
-elmslnecho "║          |     |      /\  /\   /     |     |\   |             ║"
-elmslnecho "║          |____ |     |  \/  |  \___  |     | \  |             ║"
-elmslnecho "║          |     |     |      |      \ |     |  \ |             ║"
-elmslnecho "║          |____ |____ |      |  ____/ |____ |   \|             ║"
+elmslnecho "║                Welcome to                                     ║"
+elmslnecho "║                                                               ║"
+elmslnecho "║   EEEEEEE  LL       MM    MM   SSSSS      LL       NN   NN    ║"
+elmslnecho "║   EE       LL       MMM  MMM  SS          LL       NNN  NN    ║"
+elmslnecho "║   EEEEE    LL       MM MM MM   SSSSS      LL       NN N NN    ║"
+elmslnecho "║   EE       LL       MM    MM       SS     LL       NN  NNN    ║"
+elmslnecho "║   EEEEEEE  LLLLLLL  MM    MM   SSSSS      LLLLLLL  NN   NN    ║"
 elmslnecho "║                                                               ║"
 elmslnecho "╟───────────────────────────────────────────────────────────────╢"
-elmslnecho "║ If you are still having problems you may submit issues to     ║"
+elmslnecho "║ If you have issues, submit them to                            ║"
 elmslnecho "║   http://github.com/btopro/elmsln/issues                      ║"
 elmslnecho "╟───────────────────────────────────────────────────────────────╢"
 elmslnecho "║ NOTES                                                         ║"
@@ -277,8 +289,9 @@ elmslnecho "║ You may want to open this up and review it but it is your     �
 elmslnecho "║ connection keychain for how all the webservices talk.         ║"
 elmslnecho "║                                                               ║"
 elmslnecho "╠───────────────────────────────────────────────────────────────╣"
-elmslnecho "║ Use this link to access the Course Information System:        ║"
-elmslnecho "║   $protocol://$site_domain                                   "
+elmslnecho "║ Use this link to get started with the CIS:                    ║"
+elmslnecho "║   $protocol://$site_domain                                     "
 elmslnecho "║                                                               ║"
-elmslnecho "║Welcome to the Singularity of edtech.. build the future..      ║"
+elmslnecho "║Welcome to the Singularity, edtech.. don't compete, eliminate  ║"
+elmslnecho "║Ex Uno Plures                                                  ║"
 elmslnecho "╚───────────────────────────────────────────────────────────────╝"
