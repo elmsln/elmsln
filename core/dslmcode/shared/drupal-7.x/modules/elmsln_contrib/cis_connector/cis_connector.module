@@ -1173,3 +1173,80 @@ function cis_connector_drupal_goto_alter(&$path, &$options, &$http_response_code
     drupal_get_messages();
   }
 }
+
+/**
+ * Helper function to generate options list of entities.
+ *
+ * This is a very powerful function that returns a simple array
+ * based on passing it a few criteria.  Think of this as a function
+ * to abstract and simplify entity field queries.
+ *
+ * @param $entity_type
+ *   entity type to filter by
+ * @param $bundle
+ *   bundle of that type to filter by
+ * @param $id_field
+ *   field to use for the key in the array
+ * @param $title_field
+ *   field to use as the value in the array
+ * @param $field_conditions
+ *   (optional) additional conditions to apply to field filtering
+ * @param $property_conditions
+ *   (optional) additional conditions to apply for properties
+ *
+ * @return $options
+ *   array of options as a clean list for selection of an entity id
+ */
+function _cis_connector_assemble_entity_list($entity_type, $bundle, $id_field, $title_field, $field_conditions = array(), $property_conditions = array()) {
+  // pull items based on bundle
+  $options = array();
+  // assemble all entities requested
+  $query = new EntityFieldQuery;
+  $query->entityCondition('entity_type', $entity_type)
+    ->entityCondition('bundle', $bundle);
+  // allow for simple property conditions
+  if (!empty($property_conditions)) {
+    // only allowed relationship is simple value field name / value pair
+    foreach ($property_conditions as $field_name => $field_value) {
+      $query->propertyCondition($field_name, $field_value, '=');
+    }
+  }
+  // allow for simple field conditions
+  if (!empty($field_conditions)) {
+    foreach ($field_conditions as $field_name => $field_value) {
+      // allow for complex relationship if needed
+      if (is_array($field_value)) {
+        $query->fieldCondition($field_name, $field_value[0], $field_value[1], '=');
+      }
+      else {
+        // only allowed relationship is simple value field name / value pair
+        $query->fieldCondition($field_name, 'value', $field_value, '=');
+      }
+    }
+  }
+  // order by the title property
+  $result = $query->propertyOrderBy($title_field)
+    ->execute();
+  // ensure this produces results to avoid null queries
+  if (!empty($result)) {
+    // convert to load only keys of items found
+    $etids = array_keys($result[$entity_type]);
+    // load all the entities in the array
+    $elist = entity_load($entity_type, $etids);
+    // load entities and build array of id -> title
+    foreach ($elist as $entity) {
+      // allow for field value as key
+      if (is_array($id_field)) {
+        $key = $entity->{$id_field[0]}[LANGUAGE_NONE][0][$id_field[1]];
+      }
+      elseif (strpos($id_field, 'field_') !== FALSE) {
+        $key = $entity->{$id_field}[LANGUAGE_NONE][0]['value'];
+      }
+      else {
+        $key = $entity->{$id_field};
+      }
+      $options[$key] = $entity->{$title_field};
+    }
+  }
+  return $options;
+}
