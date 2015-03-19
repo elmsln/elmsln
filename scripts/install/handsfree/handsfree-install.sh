@@ -1,15 +1,22 @@
 #!/bin/bash
-# hands free driving is the safest kind of driving
-# when this is all said and done, no one knows the root mysql password
-# no one knows the elmslndbo password except elmsln
-# and the entire box is built to exactly what it needs to be from the
-# ground up
-
 # this script assumes ELMSLN code base is on the server and that the server
 # has the correct packages in place to start working. Now we need to run
 # some things against mysql because root is completely wide open. Part
 # of the handsfree mindset is that, effectively, no one knows root for
 # mysql and instead, a high credential elmslndbo is created
+
+# provide messaging colors for output to console
+txtbld=$(tput bold)             # Bold
+bldgrn=${txtbld}$(tput setaf 2) #  green
+bldred=${txtbld}$(tput setaf 1) #  red
+txtreset=$(tput sgr0)
+elmslnecho(){
+  echo "${bldgrn}$1${txtreset}"
+}
+elmslnwarn(){
+  echo "${bldred}$1${txtreset}"
+}
+
 mysql_install_db
 # used for random password generation
 COUNTER=0
@@ -33,6 +40,8 @@ Y
 Y
 Y
 EOF
+elmslnwarn "You'll never see this again so if you care.."
+elmslnwarn "mysql root: $pass"
 # generate a password for the elmslndbo account
 dbopass=''
 for i in `seq 1 30`
@@ -45,7 +54,7 @@ cat <<EOF | mysql -u root --password=$pass
 CREATE USER 'elmslndbo'@'localhost' IDENTIFIED BY '$dbopass';
 GRANT ALL PRIVILEGES ON *.* TO 'elmslndbo'@'localhost' WITH GRANT OPTION;
 FLUSH PRIVILEGES;
-exit;
+exit
 EOF
 # now we can start into the actual ELMS stuff
 cd $HOME
