@@ -34,6 +34,8 @@ echo extension=uploadprogress.so > /etc/php.d/uploadprogress.ini
 setsebool -P httpd_can_sendmail on
 # start mysql to ensure that it is running
 /etc/init.d/mysqld restart
+# make an admin group
+groupadd admin
 # run the handsfree installer that's the same for all deployments
 # kick off hands free deployment
 bash /var/www/elmsln/scripts/install/handsfree/handsfree-install.sh 1 $1 $2 $3 $3 $3 data- $4 $5 $5 admin $6
