@@ -61,11 +61,11 @@ $6
 $7
 $8
 $9
-$10
+${10}
 elmslndbo
 $dbopass
-$11
-$12
+${11}
+${12}
 EOF
 # copy and paste this
 cd $HOME
