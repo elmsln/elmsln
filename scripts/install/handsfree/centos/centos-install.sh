@@ -21,6 +21,5 @@ setsebool -P httpd_can_sendmail on
 mkdir -p /var/www/elmsln
 cd /var/www
 git clone https://github.com/btopro/elmsln.git elmsln
-sudo mysql_install_db
-sudo mysql_secure_installation
+# kick off hands free deployment
 bash /var/www/elmsln/scripts/install/handsfree-install.sh
