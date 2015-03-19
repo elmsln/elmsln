@@ -10,12 +10,22 @@
 # the real deal to be deployed somewhere.
 yes | yum -y install git
 git clone https://github.com/btopro/elmsln.git /var/www/elmsln
-bash /var/www/elmsln/scripts/install/handsfree/centos/centos-install.sh college ln example.com http email@example.com yes
+bash /var/www/elmsln/scripts/install/handsfree/centos/centos-install.sh elmsln ln elmsln.dev http email@elmsln.dev yes
 
+# for dev usage:
+# look to the elmsln vagrant for instructions on how to remap your /etc/hosts
+# https://github.com/btopro/elmsln-vagrant#how-to-use-this-to-bring-up-elmsln
+# then change the .local to .dev and change the ip address to your server IP
+# use the following to figure this out:
+#
+# ifconfig | grep 'inet addr'
+
+
+# for production usage:
 # describing the values a bit more; all of these are machine_name input
-# college/university deployment
-# 2 letter to represent organizational unit
-# domain to use as the base for the network
-# protocol; http or https for all communications
-# admin email address
-# report to our anonymous analytics program when we start it yes/no
+# elmsln: college/university deployment
+# ln: 2 letter to represent organizational unit
+# elmsln.dev: domain to use as the base for the network
+# http: protocol; http or https for all communications
+# email@elmsln.dev: admin email address
+# yes: report to our anonymous analytics program when we start it yes/no
