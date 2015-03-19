@@ -41,5 +41,5 @@ groupadd admin
 bash /var/www/elmsln/scripts/install/handsfree/handsfree-install.sh 1 $1 $2 $3 $3 $3 data- $4 $5 $5 admin $6
 cd $HOME
 source .bashrc
-finish="$(timestamp)"
-elmslnecho "This took $(start-finish) seconds to complete the whole thing!"
+end="$(timestamp)"
+elmslnecho "This took $(expr $end - $start) seconds to complete the whole thing!"
