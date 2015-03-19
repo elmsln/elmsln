@@ -22,4 +22,4 @@ mkdir -p /var/www/elmsln
 cd /var/www
 git clone https://github.com/btopro/elmsln.git elmsln
 # kick off hands free deployment
-bash /var/www/elmsln/scripts/install/handsfree-install.sh
+bash /var/www/elmsln/scripts/install/handsfree/handsfree-install.sh
