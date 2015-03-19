@@ -69,7 +69,7 @@ $12
 EOF
 # copy and paste this
 cd $HOME
-rm -rf $HOME/.drush
+source .bashrc
 # replace YOU with your username and root with whatever group you want
 # to own the system. If not sure leave the second value as root though
 # admin is common as well.

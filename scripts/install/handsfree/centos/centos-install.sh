@@ -16,6 +16,8 @@ echo extension=uploadprogress.so > /etc/php.d/uploadprogress.ini
 
 # set httpd_can_sendmail so drupal mails go out
 setsebool -P httpd_can_sendmail on
+# start mysql to ensure that it is running
+/etc/init.d/mysqld restart
 # run the handsfree installer that's the same for all deployments
 # todo pipe in values making this specific to the type of server its on
 mkdir -p /var/www/elmsln
