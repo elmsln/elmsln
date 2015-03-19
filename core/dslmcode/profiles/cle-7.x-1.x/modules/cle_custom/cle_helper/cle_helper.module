@@ -14,9 +14,9 @@ function cle_helper_page_build(&$page) {
 }
 
 /**
- * Implements hook_form_alter().
+ * Implementation of hook_form_BASE_FORM_ID_alter().
  */
-function cle_helper_form_alter(&$form, &$form_state, $form_id) {
+function cle_helper_form_node_form_alter(&$form, &$form_state, $form_id) {
   // if only part of one group select it automatically
   if (arg(0) == 'node' && arg(2) != 'edit' && ($form_id == 'cle_assignment_node_form' || $form_id == 'cle_submission_node_form')) {
     // if only 1 group, set to that value
@@ -33,11 +33,90 @@ function cle_helper_form_alter(&$form, &$form_state, $form_id) {
     $form['og_group_ref']['und'][0]['default']['#title'] = t('Your Section');
     $form['og_group_ref']['und'][0]['default']['#description'] = t('Associate your submission with your course section.');
   }
-  // add quick link to create a new assignment when managing bulk assignment operations
-  if ($form_id == 'editableviews_entity_form_cle_assignment_bulk') {
-    $form['cle_add_new']['#markup'] = l(t('Create new Assignment'), 'node/add/cle-assignment', array('query' => array('og_group_ref' => arg(1))));
-    $form['cle_add_new']['#weight'] = 100;
+}
+
+/**
+ * Implementation of hook_form_FORM_ID_alter().
+ */
+function cle_helper_form_views_exposed_form_alter(&$form, &$form_state, $form_id) {
+  // look for the cle submissions views
+  if (strpos($form['#id'], 'cle-submissions-page') && isset($form['field_assignment_target_id'])) {
+    // pull out the options so we can set new ones
+    $options = $form['field_assignment_target_id']['#options'];
+    $newoptions = array('All' => t('- Any -'));
+    // load the related entities
+    $assignments = entity_load('node', array_keys($options));
+    // loop through assignment entities to assemble
+    foreach ($assignments as $assignment) {
+      $disabled = FALSE;
+      $name = $assignment->title;
+      // see if it is a private submission
+      if ($assignment->field_visibility['und'][0]['value'] == 0) {
+        $name .= '(' . t('Private') . ')';
+        $disabled = TRUE;
+      }
+      // if it should be disabled then keep it in the list but disable it
+      if ($disabled) {
+        $key = $name;
+        $value = array();
+      }
+      else {
+        $key = $assignment->nid;
+        $value = check_plain($name);
+      }
+      // append our modified (potentially) output to the options
+      $newoptions[$key] = $value;
+    }
+    $form['field_assignment_target_id']['#options'] = $newoptions;
   }
+}
+
+/**
+ * Implements hook_form_FORM_ID_alter().
+ */
+function cle_helper_form_cis_service_connection_ux_form_alter(&$form, &$form_state, $form_id) {
+  $form['site_information']['cle_default_assignments'] = array(
+    '#description' => t('This is the default assignments for new sections that are registered.'),
+    '#default_value' => variable_get('cle_default_assignments', array()),
+    '#weight' => '0',
+    '#title' => t('Default assignments'),
+    '#type' => 'select',
+    '#required' => '1',
+    '#options' => _cis_connector_assemble_entity_list('node', 'cle_assignment', 'nid', 'title'),
+  );
+}
+
+/**
+ * Implements hook_node_presave().
+ */
+function cle_helper_node_presave($node) {
+  // make sure there's assignments associated to this
+  if ($node->type == 'section') {
+    // ensure assignments are set, if not use default
+    if (empty($node->field_cle_assignments['und'])) {
+      $default = variable_get('cle_default_assignments', array());
+      // edge case, default was never set
+      if ($default == array()) {
+        // load all books
+        $default = _cis_connector_assemble_entity_list('node', 'cle_assignment', 'nid', 'title');
+      }
+      // make sure we have something to set
+      if (!empty($default)) {
+        foreach ($default as $key => $title) {
+          $node->field_cle_assignments['und'][] = array('target_id' => $key);
+        }
+      }
+    }
+  }
+}
+
+/**
+ * Implementation of hook_form_FORM_ID_alter().
+ */
+function cle_helper_form_editableviews_entity_form_cle_assignment_bulk_alter(&$form, &$form_state, $form_id) {
+  // add quick link to create a new assignment when managing bulk assignment operations
+  $form['cle_add_new']['#markup'] = l(t('Create new Assignment'), 'node/add/cle-assignment', array('query' => array('og_group_ref' => arg(1))));
+  $form['cle_add_new']['#weight'] = 100;
 }
 
 /**

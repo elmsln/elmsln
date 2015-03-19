@@ -2,3 +2,4 @@ name = CLE Helper
 description = Helper functions and glue code for the CLE code base
 core = 7.x
 package = CLE
+dependencies[] = 'cis_connector'
