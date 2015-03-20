@@ -17,6 +17,55 @@ function cis_section_page_build(&$page) {
 }
 
 /**
+ * Add context negotiation info.
+ *
+ * Define context "handlers".
+ * - name: The human readable name of the context handler.
+ * - Description: The description of the context handler.
+ * - callback: The name of an implementation of callback_og_context_handler().
+ * - menu path: Optional; The menu path as retrieved from menu_get_item() that
+ *   is required for the context handler to be invoked.
+ */
+function cis_section_og_context_negotiation_info() {
+  $providers = array();
+
+  $providers['cis_section'] = array(
+    'name' => t('CIS Section Context'),
+    'description' => t("Determine context by checking for section context"),
+    'callback' => '_cis_section_og_context_handler',
+    // Invoke the context handler on the following paths.
+    'menu path' => array('%', 'node/%', 'node/add/%'),
+  );
+
+  return $providers;
+}
+
+/**
+ * Evaluates and return group IDs to provide group context.
+ *
+ * Callback for hook_og_context_negotiation_info().
+ *
+ * @return
+ *  A nested array of group IDs, grouped first by entity type. Each value is
+ *  a flat array of group IDs.
+ */
+function _cis_section_og_context_handler() {
+  $contexts = array();
+  // check for global session override
+  if (isset($_SESSION['cis_section_context']) && $id =_cis_section_load_section_by_id($_SESSION['cis_section_context'])) {
+    $contexts['node'][] = $id;
+  }
+  // default is to pull in the active user account
+  elseif ($gids = og_get_entity_groups()) {
+    $contexts = $gids;
+  }
+  else {
+    return;
+  }
+  return $contexts;
+}
+
+/**
  * Implements hook_cron().
  */
 function cis_section_cron() {
@@ -412,6 +461,10 @@ function _cis_section_create_accounts($roster) {
 
 /**
  * Load an organic group by unique section ID.
+ *
+ * @param $id string   a unique id
+ *
+ * @return    mixed    FALSE if nothing found or a entity id
  */
 function _cis_section_load_section_by_id($id) {
   // entity field query to load a section by id
