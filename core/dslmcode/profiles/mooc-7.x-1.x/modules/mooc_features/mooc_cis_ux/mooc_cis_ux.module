@@ -18,8 +18,7 @@ function mooc_cis_ux_menu() {
     'page arguments' => array(1),
     'menu_name' => 'main-menu',
     'weight' => 10,
-    // @todo need to update access argument
-    'access arguments' => array('access typo list'),
+    'access arguments' => array('access content'),
     'type' => MENU_LOCAL_TASK,
   );
   return $items;
