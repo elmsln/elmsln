@@ -882,7 +882,7 @@ function cis_helper_quick_setup_page_submit($form, $form_state) {
           $item = array_keys($result['field_collection_item']);
           $past_sections = entity_load('field_collection_item', $item);
           foreach ($past_sections as $sec) {
-            if ($sec->field_campus['und'][0]['value'] == $campus) {
+            if (isset($sec->field_campus['und']) && $sec->field_campus['und'][0]['value'] == $campus) {
               $campus_match = $sec;
             }
             else {
