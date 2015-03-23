@@ -5,6 +5,21 @@ core = "7.x"
 ; ----------
 ; Dependencies
 ; ----------
+; Core
+dependencies[] = block
+dependencies[] = contextual
+dependencies[] = help
+dependencies[] = image
+dependencies[] = list
+dependencies[] = menu
+dependencies[] = number
+dependencies[] = options
+dependencies[] = path
+dependencies[] = field_ui
+dependencies[] = file
+; Administration
+dependencies[] = admin_menu
+dependencies[] = admin_menu_toolbar
 ; CIS
 dependencies[] = cis_connector
 dependencies[] = cis_service_connection
