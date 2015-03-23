@@ -116,8 +116,6 @@ dependencies[] = rules_admin
 dependencies[] = voting_rules
 ; Textbook
 dependencies[] = textbook
-; Theme Tools
-dependencies[] = delta_blocks
 ; UUID
 dependencies[] = uuid
 ; User interface
