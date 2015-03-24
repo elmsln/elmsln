@@ -20,14 +20,6 @@ dependencies[] = file
 ; Administration
 dependencies[] = admin_menu
 dependencies[] = admin_menu_toolbar
-; CIS
-dependencies[] = cis_connector
-dependencies[] = cis_service_connection
-; OG
-dependencies[] = og
-dependencies[] = og_access
-dependencies[] = og_context
-dependencies[] = og_ui
 ; Other
 dependencies[] = httprl
 dependencies[] = entity
@@ -39,8 +31,3 @@ dependencies[] = strongarm
 dependencies[] = token
 ; UUID
 dependencies[] = uuid
-; Features
-dependencies[] = cis_section
-dependencies[] = cis_service_lti
-dependencies[] = cis_service_connection_ux
-dependencies[] = cis_service_roles
