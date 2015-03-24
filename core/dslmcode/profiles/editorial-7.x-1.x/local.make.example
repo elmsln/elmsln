@@ -1,0 +1,36 @@
+; ulmus make file for local development
+core = "7.x"
+api = "2"
+
+projects[drupal][version] = "7.x"
+; include the d.o. profile base
+includes[] = "drupal-org-core.make"
+includes[] = "drupal-org.make"
+
+projects[textbook][version] = "4.0-beta1"
+projects[textbook][subdir] = "contrib"
+
+; +++++ Libraries +++++
+
+; jwerty
+libraries[jwerty][directory_name] = "jwerty"
+libraries[jwerty][type] = "library"
+libraries[jwerty][destination] = "libraries"
+libraries[jwerty][download][type] = "get"
+libraries[jwerty][download][url] = "http://github.com/keithamus/jwerty/tarball/master"
+
+; ckeditor 4.2 + codemirror and table resize
+libraries[ckeditor][download][type] = "get"
+libraries[ckeditor][download][url] = "http://github.com/btopro/ckeditor4textbook/archive/2.1.zip"
+libraries[ckeditor][directory_name] = "ckeditor"
+libraries[ckeditor][destination] = "libraries"
+
+
+; ulmus
+libraries[ulmus][type] = "profile"
+libraries[ulmus][destination] = "../../profiles"
+libraries[ulmus][download][type] = "git"
+libraries[ulmus][download][branch] = "7.x-1.x"
+libraries[ulmus][directory_name] = "ulmus"
+libraries[ulmus][download][url] = "https://github.com/drupalprojects/ulmus.git"
+

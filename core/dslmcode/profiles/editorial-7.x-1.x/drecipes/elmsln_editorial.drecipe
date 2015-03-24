@@ -1,0 +1,36 @@
+{
+    "name": "Editorial for ELMSLN",
+    "drush_recipes_api": "1.0",
+    "weight": "0",
+    "core": "7",
+    "recipe": [
+        {
+            "command": "en",
+            "arguments": [
+                "accessibility",
+                "accessibility_wysiwyg",
+                "module_filter",
+                "cis_service_restws",
+                "cis_service_roles",
+                "cis_service_lti",
+                "cis_section",
+                "cis_connector",
+                "cis_service_connection",
+                "cis_service_connection_ux",
+                "textbook_editor",
+                "cis_unique_tag",
+                "cis_shortcodes",
+                "og",
+                "og_access",
+                "og_context",
+                "og_ui"
+            ]
+        }
+    ],
+    "metadata": {
+        "type": "add-on",
+        "version": "1.0",
+        "author": "btopro",
+        "description": "Enables components needed to integrate with ELMSLN so they aren't required in the install profile"
+    }
+}

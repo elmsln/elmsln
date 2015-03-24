@@ -1,0 +1,75 @@
+language: php
+
+php:
+  - 5.3
+matrix:
+  env:
+    global:
+      - ES_VER=1.0.1
+      - ES_MAPPER_ATTACHMENTS_VER=2.0.0.RC1
+      - ES_TRANSPORT_THRIFT_VER=2.0.0.RC1
+      - ES_GEOCLUSTER_FACET_VER=0.0.10
+      - ES_WAIT_ON_MAPPING_CHANGE=true
+      - DATABASE='drupal'
+      - DB_USERNAME='root'
+      - DB_ENCODE='utf8'
+    matrix:
+      - DRUPAL_3RD_PARTY='composer_manager'
+      - DRUPAL_3RD_PARTY='libraries'
+
+mysql:
+  database: $DATABASE
+  username: $DB_USERNAME
+  encoding: $DB_ENCODE
+
+before_install:
+  - export UPDATE TRAVIS_BUILD_DIR
+  - BUILD_TOP=`dirname $TRAVIS_BUILD_DIR`
+  - EXIT_VALUE=0
+  - sudo apt-get update > /dev/null
+  - composer self-update
+  # mail requirements
+  - sudo apt-get update -qq
+  - sudo apt-get install -y -qq postfix
+install:
+  # install php packages required for running a web server from drush on php 5.3
+  - sudo apt-get install -y --force-yes php5-cgi php5-mysql
+  # install drush globally
+  - composer global require drush/drush:6.*
+  # add composer's global bin directory to the path
+  # see: https://github.com/drush-ops/drush#install---composer
+  - export PATH="$HOME/.composer/vendor/bin:$PATH"
+before_script:
+  # setup fake mailserver
+  - sudo service postfix stop
+  - smtp-sink -d "%d.%H.%M.%S" localhost:2500 1000 &
+  - echo -e '#!/usr/bin/env bash\nexit 0' | sudo tee /usr/sbin/sendmail
+  - echo 'sendmail_path = "/usr/sbin/sendmail -t -i "' | sudo tee "/home/travis/.phpenv/versions/`php -i | grep "PHP Version" | head -n 1 | grep -o -P '\d+\.\d+\.\d+.*'`/etc/conf.d/sendmail.ini"
+  # establish drupal package put in place the right way
+  - sudo mkdir -p /var/www/drupal
+  - sudo chown travis:travis /var/www/drupal
+  # get drush recipes setup functions
+  - sudo mkdir -p ~/.drush
+  - sudo chown -R travis:travis ~/.drush
+  - cd ~/.drush/
+  - git clone --branch 7.x-1.x https://github.com/drupalprojects/drush_recipes.git
+  - drush cc drush
+
+script:
+  # stand up drupal
+  - cd /var/www
+  - git clone --branch 7.x-1.x https://github.com/drupalprojects/editorial.git drupal
+  - cd drupal
+  - drush make local.make.example --y
+  - drush site-install editorial -y --db-url=mysql://root@localhost/travisdb --db-su='root' --db-su-pw=''
+after_script:
+  - drush status
+
+notifications:
+  irc: irc.freenode.org#elmsln
+
+  email: false
+  slack:
+    rooms:
+      - elmsln:WmKTRMe7k3IjprunaAVV3Jjg#qa
+      - elmsln:WmKTRMe7k3IjprunaAVV3Jjg#code

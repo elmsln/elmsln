@@ -1,0 +1,33 @@
+; Packaging information for ulmus
+name = "Editorial"
+description = "Blogging tool, primarily designed for use in ELMSLN."
+core = "7.x"
+; ----------
+; Dependencies
+; ----------
+; Core
+dependencies[] = block
+dependencies[] = contextual
+dependencies[] = help
+dependencies[] = image
+dependencies[] = list
+dependencies[] = menu
+dependencies[] = number
+dependencies[] = options
+dependencies[] = path
+dependencies[] = field_ui
+dependencies[] = file
+; Administration
+dependencies[] = admin_menu
+dependencies[] = admin_menu_toolbar
+; Other
+dependencies[] = httprl
+dependencies[] = entity
+dependencies[] = entity_token
+dependencies[] = libraries
+dependencies[] = restws
+dependencies[] = restws_basic_auth
+dependencies[] = strongarm
+dependencies[] = token
+; UUID
+dependencies[] = uuid
