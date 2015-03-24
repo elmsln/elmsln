@@ -41,6 +41,7 @@ install:
   - export PATH="$HOME/.composer/vendor/bin:$PATH"
 before_script:
   # Create Drush alias.
+  - mkdir $HOME/.drush
   - cd behat
   - cp aliases.drushrc.php ~/.drush/
   - cp behat.local.yml.travis behat.local.yml
