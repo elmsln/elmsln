@@ -90,7 +90,9 @@ bash /var/www/elmsln/scripts/install/elmsln-install.sh
 
 # give them a roadmap for mapping to this until proving a real domain
 stacklist=('online' 'courses' 'studio' 'interact' 'media' 'blog' 'comply' 'discuss')
-domain=$4
+domain=$5
+datadomain=$6
+prefix=$7
 ip=$(hostname -I)
 elmslnecho "If you are developing with this and don't have a valid domain yet you can copy the following into your local machine's /etc/hosts file:"
 elmslnecho "# ELMSLN cloud development"
@@ -98,4 +100,10 @@ elmslnecho "# ELMSLN cloud development"
 for stack in "${stacklist[@]}"
 do
   elmslnecho "${ip}      ${stack}.${domain}"
+done
+elmslnecho ""
+# loop again on webservices domains
+for stack in "${stacklist[@]}"
+do
+  elmslnecho "${ip}      ${prefix}${stack}.${datadomain}"
 done
