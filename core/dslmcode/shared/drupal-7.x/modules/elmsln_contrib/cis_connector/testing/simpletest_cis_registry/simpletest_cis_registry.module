@@ -67,8 +67,8 @@ function simpletest_cis_registry_cis_service_registry() {
       'default_title' => 'Media asset management',
       'ignore' => FALSE,
     ),
-    // meedjum_blog distro instance called blog
-    'meedjum_blog' => array(
+    // editorial distro instance called blog
+    'editorial' => array(
       'protocol' => 'http',
       'service_address' => 'localhost',
       'address' => 'localhost',

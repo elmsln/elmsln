@@ -47,7 +47,7 @@ fi
 
 core='7.x'
 # all distributions / stacks we have
-distros=('cis' 'mooc' 'cle' 'icor' 'elmsmedia' 'meedjum_blog' 'ecd' 'harmony')
+distros=('cis' 'mooc' 'cle' 'icor' 'elmsmedia' 'editorial' 'ecd' 'discuss')
 stacklist=('online' 'courses' 'studio' 'interact' 'media' 'blog' 'comply' 'discuss')
 # things to build place holder sites for
 buildlist=('courses' 'studio' 'interact' 'blog' 'discuss')

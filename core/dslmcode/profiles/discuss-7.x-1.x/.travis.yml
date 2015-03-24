@@ -58,10 +58,10 @@ before_script:
 script:
   # stand up drupal
   - cd /var/www
-  - git clone --branch 7.x-1.x https://github.com/drupalprojects/editorial.git drupal
+  - git clone --branch 7.x-1.x https://github.com/drupalprojects/discuss.git drupal
   - cd drupal
   - drush make local.make.example --y
-  - drush site-install editorial -y --db-url=mysql://root@localhost/travisdb --db-su='root' --db-su-pw=''
+  - drush site-install discuss -y --db-url=mysql://root@localhost/travisdb --db-su='root' --db-su-pw=''
 after_script:
   - drush status
 

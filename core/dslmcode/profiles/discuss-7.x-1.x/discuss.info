@@ -1,6 +1,6 @@
-; Packaging information for editorial
-name = "Editorial"
-description = "Blogging tool, primarily designed for use in ELMSLN."
+; Packaging information for discuss
+name = "Discuss"
+description = "Discussion forum distribution built on harmony_core."
 core = "7.x"
 ; ----------
 ; Dependencies

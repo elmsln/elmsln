@@ -52,7 +52,7 @@ class CISConnectorTestCase extends DrupalWebTestCase {
     drupal_static_reset();
     // assert buckets are set for global
     $settings = _cis_connector_build_registry();
-    $this->assertTrue((isset($settings['cis']) && isset($settings['mooc']) && isset($settings['cle']) && isset($settings['icor']) && isset($settings['elmsmedia']) && isset($settings['meedjum_blog'])), t('CIS registry buckets test'));
+    $this->assertTrue((isset($settings['cis']) && isset($settings['mooc']) && isset($settings['cle']) && isset($settings['icor']) && isset($settings['elmsmedia']) && isset($settings['editorial'])), t('CIS registry buckets test'));
     // assert a made up registry bucket
     $settings = _cis_connector_build_registry('MadeUpKey');
     $this->assertFalse($settings, t('Fake Registry entry test'));

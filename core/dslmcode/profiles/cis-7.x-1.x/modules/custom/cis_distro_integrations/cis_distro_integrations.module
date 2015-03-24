@@ -30,9 +30,9 @@ function cis_distro_integrations_cis_service_instance_courses_job_file_alter(&$c
  */
 function cis_distro_integrations_cis_service_instance_blog_options_alter(&$options, $course, $service) {
   // establish foundation access as the base theme
-  $options['cook'][] = 'foundation_access_dep --mlt-fa_sub=meedjum_blog_foundation_access';
-  // recipe that can chain to hook meedjum blog up to elmsln
-  $options['cook'][] = 'elmsln_meedjum_blog';
+  $options['cook'][] = 'foundation_access_dep --mlt-fa_sub=editorial_foundation_access';
+  // recipe that can chain to hook editorial up to elmsln
+  $options['cook'][] = 'elmsln_editorial';
   // revert these features that always need reverted
   $options['fr'][] = 'cis_service_lti';
   $options['fr'][] = 'cis_section';
@@ -45,8 +45,8 @@ function cis_distro_integrations_cis_service_instance_blog_options_alter(&$optio
 function cis_distro_integrations_cis_service_instance_discuss_options_alter(&$options, $course, $service) {
   // establish foundation access as the base theme
   $options['cook'][] = 'foundation_access_dep --mlt-fa_sub=discuss_foundation_access';
-  // recipe that can chain to hook harmony up to elmsln
-  $options['cook'][] = 'elmsln_harmony';
+  // recipe that can chain to hook discuss up to elmsln
+  $options['cook'][] = 'elmsln_discuss';
   // revert these features that always need reverted
   $options['fr'][] = 'cis_service_lti';
   $options['fr'][] = 'cis_section';

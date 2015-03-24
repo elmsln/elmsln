@@ -47,8 +47,8 @@ function elmsln_developer_drush_command() {
         'Download views into the shared ulmus modules directory',
       'drush edl drush local drush_ecl' =>
         'download entity cache loaded into the elmsln/scripts/drush/local directory.',
-      'drush edl theme ulmus meedjum_blog' =>
-        'download meedjum_blog install profile into the dslmcode/profiles/meedjum_blog-7.x-1.x directory',
+      'drush edl theme ulmus editorial' =>
+        'download editorial install profile into the dslmcode/profiles/editorial-7.x-1.x directory',
       'drush edl theme courses zen' =>
         'download zen theme into dslmcode/stacks/courses/sites/all/themes/local_contrib',
     ),

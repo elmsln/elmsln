@@ -1,4 +1,4 @@
-; editorial make file for local development
+; discuss make file for local development
 core = "7.x"
 api = "2"
 
@@ -26,11 +26,11 @@ libraries[ckeditor][directory_name] = "ckeditor"
 libraries[ckeditor][destination] = "libraries"
 
 
-; editorial
-libraries[editorial][type] = "profile"
-libraries[editorial][destination] = "../../profiles"
-libraries[editorial][download][type] = "git"
-libraries[editorial][download][branch] = "7.x-1.x"
-libraries[editorial][directory_name] = "editorial"
-libraries[editorial][download][url] = "https://github.com/drupalprojects/editorial"
+; discuss
+libraries[discuss][type] = "profile"
+libraries[discuss][destination] = "../../profiles"
+libraries[discuss][download][type] = "git"
+libraries[discuss][download][branch] = "7.x-1.x"
+libraries[discuss][directory_name] = "discuss"
+libraries[discuss][download][url] = "https://github.com/drupalprojects/discuss"
 
