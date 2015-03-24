@@ -11,13 +11,6 @@
 yes | yum -y install git && git clone https://github.com/btopro/elmsln.git /var/www/elmsln
 bash /var/www/elmsln/scripts/install/handsfree/centos/centos-install.sh elmsln ln elmsln.dev http email@elmsln.dev yes
 cd $HOME && source .bashrc
-# for dev usage:
-# look to the elmsln vagrant for instructions on how to remap your /etc/hosts
-# https://github.com/btopro/elmsln-vagrant#how-to-use-this-to-bring-up-elmsln
-# then change the .local to .dev and change the ip address to your server IP
-# use the following to figure this out:
-#
-# ifconfig | grep 'inet addr'
 
 
 # for production usage:
