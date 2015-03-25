@@ -5,29 +5,105 @@ core = "7.x"
 ; ----------
 ; Dependencies
 ; ----------
+; Administration
+dependencies[] = admin_menu
+dependencies[] = admin_menu_toolbar
+dependencies[] = admin_menu_dropdown
+dependencies[] = admin_theme
+dependencies[] = module_filter
+; Caching
+dependencies[] = blockcache_alter
+; Chaos tool suite
+dependencies[] = ctools
+; Context
+dependencies[] = context
 ; Core
 dependencies[] = block
 dependencies[] = contextual
+dependencies[] = field
+dependencies[] = field_sql_storage
+dependencies[] = field_ui
+dependencies[] = file
+dependencies[] = filter
 dependencies[] = help
 dependencies[] = image
 dependencies[] = list
 dependencies[] = menu
+dependencies[] = node
 dependencies[] = number
 dependencies[] = options
 dependencies[] = path
-dependencies[] = field_ui
-dependencies[] = file
-; Administration
-dependencies[] = admin_menu
-dependencies[] = admin_menu_toolbar
+dependencies[] = system
+dependencies[] = taxonomy
+dependencies[] = text
+dependencies[] = user
+; Date/Time
+dependencies[] = date
+dependencies[] = date_api
+dependencies[] = date_popup
+dependencies[] = date_views
+; Development
+dependencies[] = profiler_builder
+; Fields
+dependencies[] = entityreference
+dependencies[] = entityreference_prepopulate
+dependencies[] = inline_entity_form
+dependencies[] = machine_name
+dependencies[] = short_scale_formatter
+dependencies[] = viewfield
+; Flags
+dependencies[] = flag
+; Harmony
+dependencies[] = harmony_access
+dependencies[] = harmony_access_og
+dependencies[] = harmony_search
+; Input filters
+dependencies[] = typogrify
+dependencies[] = video_filter
+dependencies[] = wysiwyg_filter
+; Media
+dependencies[] = imce
+; Organic groups
+dependencies[] = og
+dependencies[] = og_access
+dependencies[] = og_context
+dependencies[] = og_ui
 ; Other
-dependencies[] = httprl
+dependencies[] = atjs
+dependencies[] = better_formats
+dependencies[] = diff
+dependencies[] = discuss
+dependencies[] = elements
 dependencies[] = entity
+dependencies[] = entity_quote
 dependencies[] = entity_token
 dependencies[] = libraries
+dependencies[] = pathauto
+dependencies[] = placeholder
 dependencies[] = restws
 dependencies[] = restws_basic_auth
 dependencies[] = strongarm
+dependencies[] = taxonomy_display
 dependencies[] = token
+dependencies[] = transliteration
+; Performance and scalability
+dependencies[] = httprl
+; Search
+dependencies[] = search_api
 ; UUID
 dependencies[] = uuid
+; User interface
+dependencies[] = ckeditor_link
+dependencies[] = imce_wysiwyg
+dependencies[] = jquery_update
+dependencies[] = wysiwyg
+; Views
+dependencies[] = views
+dependencies[] = views_bulk_operations
+dependencies[] = views_load_more
+dependencies[] = views_ui
+; Features
+dependencies[] = features
+dependencies[] = features_override
+dependencies[] = harmony_atjs
+dependencies[] = harmony_core
