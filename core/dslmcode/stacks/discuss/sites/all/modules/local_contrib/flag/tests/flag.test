@@ -1,0 +1,1658 @@
+<?php
+
+/**
+ * @file
+ * Tests for the Flag module.
+ */
+
+/**
+ * Base class for our tests with common methods.
+ */
+abstract class FlagTestCaseBase extends DrupalWebTestCase {
+
+  /**
+   * Helper to create a flag from an array of data and clear caches etc.
+   *
+   * @param $flag_data
+   *  An array of flag data.
+   *
+   * @return
+   *  The flag object.
+   */
+  function createFlag($flag_data) {
+    $flag = flag_flag::factory_by_array($flag_data);
+    $flag->save();
+    // Reset our cache so our permissions show up.
+    drupal_static_reset('flag_get_flags');
+
+    // Reset permissions so that permissions for this flag are available.
+    $this->checkPermissions(array(), TRUE);
+
+    return $flag;
+  }
+
+}
+
+/**
+ * Test CRUD operations on Flagging entities.
+ */
+class FlagFlaggingCRUDTestCase extends FlagTestCaseBase {
+
+  /**
+   * Implements getInfo().
+   */
+  public static function getInfo() {
+    return array(
+      'name' => 'CRUD API',
+      'description' => 'Basic CRUD operations on flagging entities.',
+      'group' => 'Flag',
+    );
+  }
+
+  /**
+   * Implements setUp().
+   */
+  function setUp() {
+    parent::setUp('flag');
+
+    $flag_data = array(
+      'entity_type' => 'node',
+      'name' => 'test_flag',
+      'title' => 'Test Flag',
+      'global' => 0,
+      'types' => array(
+        0 => 'article',
+      ),
+      'flag_short' => 'Flag this item',
+      'flag_long' => '',
+      'flag_message' => '',
+      'unflag_short' => 'Unflag this item',
+      'unflag_long' => '',
+      'unflag_message' => '',
+      'unflag_denied_text' => 'You may not unflag this item',
+      'link_type' => 'normal',
+      'weight' => 0,
+      'show_on_form' => 0,
+      'access_author' => '',
+      'show_contextual_link' => 0,
+      'show_in_links' => array(
+        'full' => 1,
+        'teaser' => 1,
+      ),
+      'i18n' => 0,
+      'api_version' => 3,
+    );
+    $this->flag = $this->createFlag($flag_data);
+
+    // Create test user who can flag and unflag.
+    $this->flag_unflag_user = $this->drupalCreateUser(array('flag test_flag', 'unflag test_flag'));
+    $this->drupalLogin($this->flag_unflag_user);
+  }
+
+  /**
+   * Test creation of a flagging entity with flagging_save().
+   */
+  function testFlaggingCreate() {
+    // Create an article node that we try to create a flagging entity for.
+    $title = $this->randomName(8);
+    $node = array(
+      'title' => $title,
+      'body' => array(LANGUAGE_NONE => array(array('value' => $this->randomName(32)))),
+      'uid' => 1,
+      'type' => 'article',
+      'is_new' => TRUE,
+    );
+    $node = node_submit((object) $node);
+    node_save($node);
+
+    // Create a flagging entity and save it.
+    $flagging = array(
+      'fid' => $this->flag->fid,
+      'entity_type' => 'node',
+      'entity_id' => $node->nid,
+      'uid' => $this->flag_unflag_user->uid,
+    );
+
+    $flagging = (object) $flagging;
+    flagging_save($flagging);
+
+    // Test flagging has a flagging_id
+    $this->assertTrue(!empty($flagging->flagging_id), 'The flagging entity has an entity id.');
+
+    // Test the database record exists.
+    $result = db_query("SELECT * FROM {flagging} WHERE fid = :fid AND entity_id = :nid AND uid = :uid", array(
+      ':fid' => $this->flag->fid,
+      ':nid' => $node->nid,
+      ':uid' => $this->flag_unflag_user->uid,
+    ));
+    $records = $result->fetchAll();
+    $this->assertTrue(count($records), 'The flagging record exists in the database.');
+
+    // Test node is flagged.
+    // The current user is not the same as the user logged into the internal
+    // browser, so we have to pass the UID param explicitly.
+    $this->assertTrue($this->flag->is_flagged($node->nid, $this->flag_unflag_user->uid), 'The node has been flagged by creating the flagging.');
+  }
+
+  /**
+   * Test throwing of exceptions with flagging_save().
+   */
+  function testFlaggingCreateException() {
+    // Create an article node that we try to create a flagging entity for.
+    $title = $this->randomName(8);
+    $node = array(
+      'title' => $title,
+      'body' => array(LANGUAGE_NONE => array(array('value' => $this->randomName(32)))),
+      'uid' => 1,
+      'type' => 'article',
+      'is_new' => TRUE,
+    );
+    $node = node_submit((object) $node);
+    node_save($node);
+
+    // Create test user who can't use this flag.
+    $no_flag_user = $this->drupalCreateUser(array());
+
+    // Create a flagging entity with that tries to perform an flagging action
+    // that is not permitted.
+    $flagging = array(
+      'fid' => $this->flag->fid,
+      'entity_type' => 'node',
+      'entity_id' => $node->nid,
+      'uid' => $no_flag_user->uid,
+    );
+
+    $flagging = (object) $flagging;
+    try {
+      flagging_save($flagging);
+      $this->fail(t('Expected exception has not been thrown.'));
+    }
+    catch (Exception $e) {
+      $this->pass(t('Expected exception has been thrown.'));
+    }
+  }
+
+  /**
+   * Test creation of a flagging entity with flagging_save().
+   */
+  function testFlaggingUpdate() {
+    // Create an article node that we try to create a flagging entity for.
+    $title = $this->randomName(8);
+    $node = array(
+      'title' => $title,
+      'body' => array(LANGUAGE_NONE => array(array('value' => $this->randomName(32)))),
+      'uid' => 1,
+      'type' => 'article',
+      'is_new' => TRUE,
+    );
+    $node = node_submit((object) $node);
+    node_save($node);
+
+    // Flag the node as the user.
+    $flag = flag_get_flag('test_flag');
+    $flag->flag('flag', $node->nid, $this->flag_unflag_user);
+
+    // Get the flagging record back from the database.
+    $result = db_query("SELECT * FROM {flagging} WHERE fid = :fid AND entity_id = :nid AND uid = :uid", array(
+      ':fid' => $this->flag->fid,
+      ':nid' => $node->nid,
+      ':uid' => $this->flag_unflag_user->uid,
+    ));
+    $record = $result->fetchObject();
+
+    // Load the flagging entity we just created.
+    $flagging = flagging_load($record->flagging_id);
+
+    // Save it, as if we were updating field values.
+    flagging_save($flagging);
+
+    // This should have no effect: the node should still be flagged.
+    $this->assertTrue($this->flag->is_flagged($node->nid, $this->flag_unflag_user->uid), 'The node is still flagged after updating the flagging.');
+  }
+
+}
+
+/**
+ * Test Flag admin UI.
+ */
+class FlagAdminTestCase extends FlagTestCaseBase {
+  public $_flag = FALSE;
+
+  /**
+   * Implements getInfo().
+   */
+  public static function getInfo() {
+    return array(
+      'name' => 'Admin UI',
+      'description' => 'Add, edit and delete flags.',
+      'group' => 'Flag',
+    );
+  }
+
+  /**
+   * Implements setUp().
+   */
+  function setUp() {
+    parent::setUp('flag');
+
+    // Create and login user.
+    $admin_user = $this->drupalCreateUser(array('access administration pages', 'administer flags'));
+    $this->drupalLogin($admin_user);
+  }
+
+  /**
+   * Create a flag through the UI and ensure that it is saved properly.
+   */
+  function testFlagAdmin() {
+    // Add a new flag using the UI.
+    $this->drupalGet(FLAG_ADMIN_PATH . '/add/node');
+
+    // Check the form has the expected defaults.
+    $this->assertFieldByName('flag_short', 'Flag this item', "The flag message default value shows in the form.");
+    $this->assertFieldByName('unflag_short', 'Unflag this item', "The unflag message default value shows in the form.");
+    $this->assertFieldByName('show_in_links[full]', 'full', "The view mode option is set to the node 'full' view mode by default.");
+    $this->assertFieldByName('show_in_links[teaser]', 'teaser', "The view mode option is set to the node 'teaser' view mode by default.");
+
+    $edit = array(
+      'name' => drupal_strtolower($this->randomName()),
+      'title' => $this->randomName(),
+      'flag_short'          => 'flag short [node:nid]',
+      'flag_long'           => 'flag long [node:nid]',
+      'flag_message'        => 'flag message [node:nid]',
+      'unflag_short'        => 'unflag short [node:nid]',
+      'unflag_long'         => 'unflag long [node:nid]',
+      'unflag_message'      => 'unflag message [node:nid]',
+      'roles[flag][2]' => TRUE,
+      'roles[unflag][2]' => TRUE,
+      'types[article]' => FALSE,
+      'types[page]' => TRUE,
+      'show_in_links[full]' => FALSE,
+      'show_in_links[teaser]' => FALSE,
+      'show_in_links[rss]' => FALSE,
+      'show_in_links[search_index]' => FALSE,
+      'show_in_links[search_result]' => FALSE,
+      'show_on_form' => FALSE,
+      'link_type' => 'toggle',
+    );
+    $saved = $edit;
+    $saved['roles'] = array('flag' => array(2), 'unflag' => array(2));
+    $saved['types'] = array('page');
+    $saved['show_in_links'] = array(
+      'full' => 0,
+      'teaser' => 0,
+      'rss' => 0,
+      'search_index' => 0,
+      'search_result' => 0,
+    );
+    unset($saved['roles[flag][2]'], $saved['roles[unflag][2]'], $saved['types[article]'], $saved['types[page]'], $saved['show_in_links[full]'], $saved['show_in_links[teaser]'], $saved['show_in_links[rss]'], $saved['show_in_links[search_index]'], $saved['show_in_links[search_result]']);
+
+    $this->drupalPost(FLAG_ADMIN_PATH . '/add/node', $edit, t('Save flag'));
+
+    drupal_static_reset('flag_get_flags');
+    $flag = flag_get_flag($edit['name']);
+    // Load the roles array for checking it matches.
+    $flag->fetch_roles();
+
+    // Check that the flag object is in the database.
+    $this->assertTrue($flag != FALSE, t('Flag object found in database'));
+
+    // Check each individual property of the flag and make sure it was set.
+    foreach ($saved as $property => $value) {
+      $this->assertEqual($flag->$property, $value, t('Flag property %property properly saved.', array('%property' => $property)));
+    }
+
+    // Check permissions.
+    $permissions = user_role_permissions(user_roles());
+    foreach ($saved['roles'] as $action => $rids) {
+      foreach ($rids as $rid) {
+        $permission_string = "$action " . $saved['name'];
+        $this->assertTrue(isset($permissions[$rid][$permission_string]), t('Permission %perm set for flag.', array(
+          '%perm' => $permission_string,
+        )));
+      }
+    }
+
+    // Edit the flag through the UI.
+    $edit = array(
+      'name' => drupal_strtolower($this->randomName()),
+      'title' => $this->randomName(),
+      'flag_short'          => 'flag 2 short [node:nid]',
+      'flag_long'           => 'flag 2 long [node:nid]',
+      'flag_message'        => 'flag 2 message [node:nid]',
+      'unflag_short'        => 'unflag 2 short [node:nid]',
+      'unflag_long'         => 'unflag 2 long [node:nid]',
+      'unflag_message'      => 'unflag 2 message [node:nid]',
+      'roles[flag][2]' => TRUE,
+      'roles[unflag][2]' => TRUE,
+      'types[article]' => TRUE,
+      'types[page]' => FALSE,
+      'show_in_links[full]' => TRUE,
+      'show_in_links[teaser]' => TRUE,
+      'show_in_links[rss]' => FALSE,
+      'show_in_links[search_index]' => FALSE,
+      'show_in_links[search_result]' => FALSE,
+      'show_on_form' => TRUE,
+      'link_type' => 'normal',
+    );
+    $saved = $edit;
+    $saved['roles'] = array('flag' => array(2), 'unflag' => array(2));
+    $saved['types'] = array('article');
+    $saved['show_in_links'] = array(
+      'full' => TRUE,
+      'teaser' => TRUE,
+      'rss' => 0,
+      'search_index' => 0,
+      'search_result' => 0,
+    );
+    unset($saved['roles[flag][2]'], $saved['roles[unflag][2]'], $saved['types[article]'], $saved['types[page]'], $saved['show_in_links[full]'], $saved['show_in_links[teaser]'], $saved['show_in_links[rss]'], $saved['show_in_links[search_index]'], $saved['show_in_links[search_result]']);
+
+    $this->drupalPost(FLAG_ADMIN_PATH . '/manage/' . $flag->name, $edit, t('Save flag'));
+
+    drupal_static_reset('flag_get_flags');
+    $flag = flag_get_flag($edit['name']);
+    // Load the roles array for checking it matches.
+    $flag->fetch_roles();
+
+    // Check that the flag object is in the database.
+    $this->assertTrue($flag != FALSE, t('Flag object found in database'));
+
+    // Check each individual property of the flag and make sure it was set.
+    foreach ($saved as $property => $value) {
+      $this->assertEqual($flag->$property, $value, t('Flag property %property properly saved.', array('%property' => $property)));
+    }
+
+    // Clear the user access cache so our changes to permissions are noticed.
+    drupal_static_reset('user_access');
+    drupal_static_reset('user_role_permissions');
+
+    // Check permissions.
+    $permissions = user_role_permissions(user_roles());
+
+    foreach ($saved['roles'] as $action => $rids) {
+      foreach ($rids as $rid) {
+        $permission_string = "$action " . $saved['name'];
+        $this->assertTrue(isset($permissions[$rid][$permission_string]), t('Permission %perm set for flag.', array(
+          '%perm' => $permission_string,
+        )));
+      }
+    }
+
+    // Delete the flag through the UI.
+    $this->drupalPost(FLAG_ADMIN_PATH . '/manage/' . $flag->name . '/delete', array(), t('Delete'));
+    drupal_static_reset('flag_get_flags');
+    $this->assertFalse(flag_get_flag($flag->name), t('Flag successfully deleted.'));
+  }
+
+}
+
+/**
+ * Access to flags using the entity forms.
+ *
+ * @todo: complete this test class.
+ */
+class FlagAccessFormTestCase extends FlagTestCaseBase {
+
+  /**
+   * Implements getInfo().
+   */
+  public static function getInfo() {
+    return array(
+      'name' => 'Access to flags via entity forms',
+      'description' => 'Access to flag and unflag entities via entity forms.',
+      'group' => 'Flag',
+    );
+  }
+
+  /**
+   * Implements setUp().
+   */
+  function setUp() {
+    parent::setUp('flag');
+  }
+
+  /**
+   * Test scenarios with no access to a global flag.
+   */
+  function testFlagAccessGlobalNone() {
+    // Create a global flag on article nodes.
+    $flag_data = array(
+      'entity_type' => 'node',
+      'name' => 'global_flag',
+      'title' => 'Global Flag',
+      'global' => 1,
+      'types' => array(
+        0 => 'article',
+      ),
+      'flag_short' => 'Flag this item',
+      'flag_long' => '',
+      'flag_message' => '',
+      'unflag_short' => 'Unflag this item',
+      'unflag_long' => '',
+      'unflag_message' => '',
+      'unflag_denied_text' => 'You may not unflag this item',
+      'link_type' => 'normal',
+      'weight' => 0,
+      // Show the flag on the form.
+      'show_on_form' => 1,
+      'access_author' => '',
+      'show_contextual_link' => 0,
+      'show_in_links' => array(
+        'full' => 1,
+        'teaser' => 1,
+      ),
+      'i18n' => 0,
+      'api_version' => 3,
+    );
+    $flag = $this->createFlag($flag_data);
+
+    // Create test user who can't us this flag, but can create nodes.
+    $no_flag_user = $this->drupalCreateUser(array('create article content'));
+    $this->drupalLogin($no_flag_user);
+
+    $this->drupalGet('node/add/article');
+
+    // Check that the flag form element cannot be seen.
+    $this->assertNoText('Flag this item', t('Flag form element was not found.'));
+
+    // Have the user create a node.
+    $edit = array(
+      'title' => 'node 1',
+    );
+    $this->drupalPost('node/add/article', $edit, t('Save'));
+
+    $node = $this->drupalGetNodeByTitle($edit["title"]);
+
+    // Check the new node has not been flagged.
+    $this->assertFalse($flag->is_flagged($node->nid), t('New node is not flagged.'));
+
+    // Now set the variable so that the flag is set by default on new nodes.
+    variable_set('flag_' . $flag->name . '_default_' . 'article', 1);
+
+    // Create another new node.
+    $edit = array(
+      'title' => 'node 2',
+    );
+    $this->drupalPost('node/add/article', $edit, t('Save'));
+
+    $node = $this->drupalGetNodeByTitle($edit["title"]);
+
+    // Check the new node has been flagged, despite the user not having access
+    // to the flag.
+    $this->assertTrue($flag->is_flagged($node->nid), t('New node is flagged.'));
+  }
+
+}
+
+/**
+ * Tokens we provide on generic entities.
+ */
+class FlagEntityTokensTestCase extends FlagTestCaseBase {
+
+  /**
+   * Implements getInfo().
+   */
+  public static function getInfo() {
+    return array(
+      'name' => 'Entity tokens',
+      'description' => 'Tokens for flag count on entities.',
+      'group' => 'Flag',
+    );
+  }
+
+  /**
+   * Implements setUp().
+   */
+  function setUp() {
+    // Our entity tokens require token module.
+    parent::setUp('flag', 'token');
+  }
+
+  /**
+   * Test tokens on nodes.
+   */
+  function testNodeFlagToken() {
+    // Create a flag on article nodes.
+    $flag_data = array(
+      'entity_type' => 'node',
+      'name' => 'node_flag',
+      'title' => 'Node Flag',
+      'global' => 0,
+      'types' => array(
+        0 => 'article',
+      ),
+      'flag_short' => 'Flag this item',
+      'flag_long' => '',
+      'flag_message' => '',
+      'unflag_short' => 'Unflag this item',
+      'unflag_long' => '',
+      'unflag_message' => '',
+      'unflag_denied_text' => 'You may not unflag this item',
+      'link_type' => 'normal',
+      'weight' => 0,
+      // Show the flag on the form.
+      'show_on_form' => 1,
+      'access_author' => '',
+      'show_contextual_link' => 0,
+      'show_in_links' => array(
+        'full' => 1,
+        'teaser' => 1,
+      ),
+      'i18n' => 0,
+      'api_version' => 3,
+    );
+    $flag = $this->createFlag($flag_data);
+
+    // Create a node to flag.
+    $node = (object) array(
+      'type' => 'article',
+      'title' => $this->randomName(),
+    );
+    node_save($node);
+
+    // Flag it by several users.
+    $flag_user_1 = $this->drupalCreateUser(array('flag node_flag',));
+
+    // Flag the node as the user.
+    $flag = flag_get_flag('node_flag');
+    $flag->flag('flag', $node->nid, $flag_user_1);
+
+    $flag_user_2 = $this->drupalCreateUser(array('flag node_flag',));
+
+    // Flag the node as the user.
+    $flag->flag('flag', $node->nid, $flag_user_2);
+
+    $text = '[node:flag-node-flag-count]';
+
+    $replaced_text = token_replace($text, array('node' => $node));
+
+    $this->assertEqual($replaced_text, 2, "The flag count token for the node is correct.");
+  }
+
+  /**
+   * Test tokens on taxonomy terms.
+   *
+   * These are worthy of a separate test, as the token type is a special case.
+   */
+  function testTaxonomyTermFlagToken() {
+    // Create a flag on tag terms.
+    $flag_data = array(
+      'entity_type' => 'taxonomy_term',
+      'name' => 'term_flag',
+      'title' => 'Term Flag',
+      'global' => 0,
+      'types' => array(
+        0 => 'tags',
+      ),
+      'flag_short' => 'Flag this item',
+      'flag_long' => '',
+      'flag_message' => '',
+      'unflag_short' => 'Unflag this item',
+      'unflag_long' => '',
+      'unflag_message' => '',
+      'unflag_denied_text' => 'You may not unflag this item',
+      'link_type' => 'normal',
+      'weight' => 0,
+      // Show the flag on the form.
+      'show_on_form' => 1,
+      'access_author' => '',
+      'show_contextual_link' => 0,
+      'show_in_links' => array(
+        'full' => 1,
+        'teaser' => 1,
+      ),
+      'i18n' => 0,
+      'api_version' => 3,
+    );
+    $flag = $this->createFlag($flag_data);
+
+    $vocabulary = taxonomy_vocabulary_load(1);
+
+    // Create a term to flag.
+    $term = (object) array(
+      'name' => $this->randomName(),
+      'vid' => 1,
+    );
+    taxonomy_term_save($term);
+
+    // Flag it by several users.
+    $flag_user_1 = $this->drupalCreateUser(array('flag term_flag',));
+
+    // Flag the term as the user.
+    $flag = flag_get_flag('term_flag');
+    $flag->flag('flag', $term->tid, $flag_user_1);
+
+    $flag_user_2 = $this->drupalCreateUser(array('flag term_flag',));
+
+    // Flag the term as the user.
+    $flag = flag_get_flag('term_flag');
+    $flag->flag('flag', $term->tid, $flag_user_2);
+
+    $text = '[term:flag-term-flag-count]';
+
+    $replaced_text = token_replace($text, array('term' => $term));
+
+    debug($replaced_text);
+
+    $this->assertEqual($replaced_text, 2, "The flag count token for the term is correct.");
+  }
+
+}
+
+/**
+ * Access to flags using the basic flag link.
+ */
+class FlagAccessLinkTestCase extends FlagTestCaseBase {
+
+  /**
+   * Implements getInfo().
+   */
+  public static function getInfo() {
+    return array(
+      'name' => 'Access to flags via basic link',
+      'description' => 'Access to flag and unflag entities using the basic link.',
+      'group' => 'Flag',
+    );
+  }
+
+  /**
+   * Implements setUp().
+   */
+  function setUp() {
+    parent::setUp('flag');
+
+    // Create a test flag on article nodes.
+    $flag_data = array(
+      'entity_type' => 'node',
+      'name' => 'test_flag',
+      'title' => 'Test Flag',
+      'global' => 0,
+      'types' => array(
+        0 => 'article',
+      ),
+      'flag_short' => 'Flag this item',
+      'flag_long' => '',
+      'flag_message' => '',
+      'unflag_short' => 'Unflag this item',
+      'unflag_long' => '',
+      'unflag_message' => '',
+      'unflag_denied_text' => 'You may not unflag this item',
+      // Use the normal link type as it involves no intermediary page loads.
+      'link_type' => 'normal',
+      'weight' => 0,
+      'show_on_form' => 0,
+      'access_author' => '',
+      'show_contextual_link' => 0,
+      'show_in_links' => array(
+        'full' => 1,
+        'teaser' => 1,
+      ),
+      'i18n' => 0,
+      'api_version' => 3,
+    );
+    $flag = $this->createFlag($flag_data);
+
+    // Create an article node that various users will try to flag.
+    $title = $this->randomName(8);
+    $node = array(
+      'title' => $title,
+      'body' => array(LANGUAGE_NONE => array(array('value' => $this->randomName(32)))),
+      'uid' => 1,
+      'type' => 'article',
+      'is_new' => TRUE,
+    );
+    $node = node_submit((object) $node);
+    node_save($node);
+    $this->nid = $node->nid;
+  }
+
+  /**
+   * Test that a user without flag access can't see the flag.
+   */
+  function testFlagAccessNone() {
+    // Create test user who can't flag at all.
+    $no_flag_user = $this->drupalCreateUser(array());
+    $this->drupalLogin($no_flag_user);
+
+    // Look at our node.
+    $this->drupalGet('node/' . $this->nid);
+
+    $this->assertNoLink('Flag this item', 0, 'The flag link does not appear on the page');
+  }
+
+  /**
+   * Test that a user with only flag access can flag but not unflag.
+   */
+  function testFlagAccessFlagOnly() {
+    // Create test user who can flag but not unflag.
+    $flag_user = $this->drupalCreateUser(array('flag test_flag',));
+    $this->drupalLogin($flag_user);
+
+    // Look at our node.
+    $this->drupalGet('node/' . $this->nid);
+
+    $this->assertLink('Flag this item', 0, 'The flag link appears on the page.');
+
+    // Click the link to flag the node.
+    $this->clickLink(t('Flag this item'));
+
+    $this->assertText('You may not unflag this item', 0, 'The unflag denied text appears on the page after flagging.');
+  }
+
+  /**
+   * Test that a user with flag access can flag and unflag.
+   */
+  function testFlagAccessFlagUnflag() {
+    // Create test user who can flag and unflag.
+    $flag_unflag_user = $this->drupalCreateUser(array('flag test_flag', 'unflag test_flag'));
+    $this->drupalLogin($flag_unflag_user);
+
+    // Look at our node.
+    $this->drupalGet('node/' . $this->nid);
+
+    $this->assertLink('Flag this item', 0, 'The flag link appears on the page.');
+
+    // Click the link to flag the node.
+    $this->clickLink(t('Flag this item'));
+
+    $this->assertLink('Unflag this item', 0, 'The unflag link appears on the page after flagging.');
+
+    // Click the link to unflag the node.
+    $this->clickLink(t('Unflag this item'));
+
+    $this->assertLink('Flag this item', 0, 'The flag link appears on the page after unflagging.');
+  }
+
+}
+
+/**
+ * Test the 'confirm form' link type.
+ */
+class FlagLinkTypeConfirmTestCase extends DrupalWebTestCase {
+
+  /**
+   * Implements getInfo().
+   */
+  public static function getInfo() {
+    return array(
+      'name' => 'Confirm form',
+      'description' => 'Flag confirm form link type.',
+      'group' => 'Flag',
+    );
+  }
+
+  /**
+   * Implements setUp().
+   */
+  function setUp() {
+    parent::setUp('flag');
+
+    // Create a test flag on article nodes.
+    // Keep the original data so we can compare strings.
+    $this->flag_data = array(
+      'entity_type' => 'node',
+      'name' => 'test_flag',
+      'title' => 'Test Flag',
+      'global' => 0,
+      'types' => array(
+        0 => 'article',
+      ),
+      'flag_short' => 'Flag <em>this</em> item',
+      'flag_long' => '',
+      'flag_message' => 'You have flagged this item.',
+      'unflag_short' => 'Unflag this item',
+      'unflag_long' => '',
+      'unflag_message' => 'You have unflagged this item',
+      'unflag_denied_text' => 'You may not unflag this item',
+      'link_type' => 'confirm',
+      'flag_confirmation' => 'Are you sure you want to flag this item?',
+      'unflag_confirmation' => 'Are you sure you want to unflag this item?',
+      'weight' => 0,
+      'show_on_form' => 0,
+      'access_author' => '',
+      'show_contextual_link' => 0,
+      'show_in_links' => array(
+        'full' => 1,
+        'teaser' => 1,
+      ),
+      'i18n' => 0,
+      'api_version' => 3,
+    );
+    $this->flag = flag_flag::factory_by_array($this->flag_data);
+    $this->flag->save();
+    // Reset our cache so our permissions show up.
+    drupal_static_reset('flag_get_flags');
+
+    // Reset permissions so that permissions for this flag are available.
+    $this->checkPermissions(array(), TRUE);
+
+    // Create test user who can flag and unflag.
+    $this->flag_unflag_user = $this->drupalCreateUser(array('flag test_flag', 'unflag test_flag'));
+    $this->drupalLogin($this->flag_unflag_user);
+
+    // Create an article node to flag and unflag.
+    $title = $this->randomName(8);
+    $node = array(
+      'title' => $title,
+      'body' => array(LANGUAGE_NONE => array(array('value' => $this->randomName(32)))),
+      'uid' => 1,
+      'type' => 'article',
+      'is_new' => TRUE,
+    );
+    $node = node_submit((object) $node);
+    node_save($node);
+    $this->nid = $node->nid;
+  }
+
+  /**
+   * Test usage of the flag confirm form.
+   */
+  function testFlag() {
+    // Look at our node.
+    $this->drupalGet('node/' . $this->nid);
+
+    $flag_short_label = strip_tags($this->flag_data['flag_short']);
+
+    $this->assertRaw($this->flag_data['flag_short'], 'The flag text, including HTML, appears on the page.');
+
+    // assertLink() appears to have interesting problems dealing with an A
+    // element which contains other tags. However, the xpath it uses appears to
+    // be fine with being given just the portion of the link text that comes
+    // before the interior tag.
+    // Fortunately, there will be no other text on the page that matches 'Flag'.
+    $this->assertLink('Flag', 0, 'The flag link appears on the page.');
+
+    // Click the link to flag the node.
+    // clickLink() has the same problem, as it uses the same xpath expression as
+    // assertLink().
+    $this->clickLink('Flag');
+
+    $this->assertUrl('flag/confirm/flag/test_flag/' . $this->nid, array(
+      'query' => array(
+        'destination' => 'node/' . $this->nid,
+      ),
+    ), 'On confirm flagging form page.');
+
+    $this->assertText($this->flag_data['flag_confirmation'], 'The flag confirmation text appears as the confirmation page title.');
+
+    $this->assertPattern('@<input [^>]* value="' . $flag_short_label . '" [^>]*>@', 'The flag text, excluding HTML, is shown in the button.');
+
+    // Click the button to confirm the flagging.
+    $this->drupalPost(NULL, array(), $flag_short_label);
+
+    $this->assertText($this->flag_data['flag_message'], 'The flag message appears once the item has been flagged.');
+    $this->assertLink($this->flag_data['unflag_short'], 0, 'The unflag link appears once the item has been flagged.');
+
+    // Reset the static cache before we get data from it.
+    drupal_static_reset('flag_get_user_flags');
+    $this->assertTrue($this->flag->is_flagged($this->nid, $this->flag_unflag_user->uid), "The node is recorded as flagged by the user.");
+
+    // Click the link to unflag the node.
+    $this->clickLink($this->flag_data['unflag_short']);
+
+    $this->assertUrl('flag/confirm/unflag/test_flag/' . $this->nid, array(
+      'query' => array(
+        'destination' => 'node/' . $this->nid,
+      ),
+    ), t('On confirm unflagging form page.'));
+
+    $this->assertText($this->flag_data['unflag_confirmation'], 'The unflag confirmation text appears as the confirmation page title.');
+
+    // Click the button to confirm the flagging.
+    $this->drupalPost(NULL, array(), $this->flag_data['unflag_short']);
+
+    $this->assertText($this->flag_data['unflag_message'], 'The unflag message appears once the item has been flagged.');
+
+    // Reset the static cache before we get data from it.
+    drupal_static_reset('flag_get_user_flags');
+    $this->assertFalse($this->flag->is_flagged($this->nid, $this->flag_unflag_user->uid), "The node is recorded as not flagged by the user.");
+  }
+
+}
+
+/**
+ * Verifies the implementation of hook_flag_access().
+ */
+class FlagHookFlagAccessTestCase extends FlagTestCaseBase {
+
+  /**
+   * Implements getInfo().
+   */
+  public static function getInfo() {
+    return array(
+      'name' => 'hook_flag_access()',
+      'description' => 'Checks the ability of modules to use hook_flag_access().',
+      'group' => 'Flag',
+    );
+  }
+
+  /**
+   * Implements setUp().
+   */
+  function setUp() {
+    parent::setUp('flag');
+
+    $success = module_enable(array('flagaccesstest'), FALSE);
+
+    // Create a test flag on article nodes.
+    $flag_data = array(
+      'entity_type' => 'node',
+      'name' => 'test_flag',
+      'title' => 'Test Flag',
+      'global' => 0,
+      'types' => array(
+        0 => 'article',
+      ),
+      'flag_short' => 'Flag this item',
+      'flag_long' => '',
+      'flag_message' => '',
+      'unflag_short' => 'Unflag this item',
+      'unflag_long' => '',
+      'unflag_message' => '',
+      'unflag_denied_text' => 'You may not unflag this item',
+      // Use the normal link type as it involves no intermediary page loads.
+      'link_type' => 'normal',
+      'weight' => 0,
+      'show_on_form' => 0,
+      'access_author' => '',
+      'show_contextual_link' => 0,
+      'show_in_links' => array(
+        'full' => 1,
+        'teaser' => 1,
+      ),
+      'i18n' => 0,
+      'api_version' => 3,
+    );
+    $flag = $this->createFlag($flag_data);
+
+    // Create an article node that various users will try to flag.
+    $title = $this->randomName(8);
+    $node = array(
+      'title' => $title,
+      'body' => array(LANGUAGE_NONE => array(array('value' => $this->randomName(32)))),
+      'uid' => 1,
+      'type' => 'article',
+      'is_new' => TRUE,
+    );
+    $node = node_submit((object) $node);
+    node_save($node);
+    $this->nid = $node->nid;
+  }
+
+  /**
+   * Verifies that the user sees the flag if a module returns NULL (Ignore).
+   */
+  function testFlagAccessIgnore() {
+    variable_set('FlagHookFlagAccessTestCaseMode', 'ignore');
+    $flag_user = $this->drupalCreateUser(array('flag test_flag', 'unflag test_flag'));
+    $this->drupalLogin($flag_user);
+
+    // Look at our node.
+    $this->drupalGet('node/' . $this->nid);
+
+    $this->assertLink('Flag this item', 0, 'The flag link appears on the page.');
+
+    // Click the link to flag the node.
+    $this->clickLink(t('Flag this item'));
+
+    $this->assertLink('Unflag this item', 0, 'The unflag link appears on the page after flagging.');
+
+    // Click the link to unflag the node.
+    $this->clickLink(t('Unflag this item'));
+
+    $this->assertLink('Flag this item', 0, 'The flag link appears on the page after unflagging.');
+  }
+
+  /**
+   * Verifies that the user sees the flag if a module returns TRUE (Allow).
+   */
+  function testFlagAccessAllow() {
+    variable_set('FlagHookFlagAccessTestCaseMode', 'allow');
+    $flag_user = $this->drupalCreateUser(array('flag test_flag', 'unflag test_flag'));
+    $this->drupalLogin($flag_user);
+
+    // Look at our node.
+    $this->drupalGet('node/' . $this->nid);
+
+    $this->assertLink('Flag this item', 0, 'The flag link appears on the page.');
+
+    // Click the link to flag the node.
+    $this->clickLink(t('Flag this item'));
+
+    $this->assertLink('Unflag this item', 0, 'The unflag link appears on the page after flagging.');
+
+    // Click the link to unflag the node.
+    $this->clickLink(t('Unflag this item'));
+
+    $this->assertLink('Flag this item', 0, 'The flag link appears on the page after unflagging.');
+  }
+
+  /**
+   * Verifies that the user sees the flag if a module returns TRUE (Allow) to
+   * override default access check.
+   */
+  function testFlagAccessAllowOverride() {
+    variable_set('FlagHookFlagAccessTestCaseMode', 'allow');
+    $flag_user = $this->drupalCreateUser(array());
+    $this->drupalLogin($flag_user);
+
+    // Look at our node.
+    $this->drupalGet('node/' . $this->nid);
+
+    $this->assertLink('Flag this item', 0, 'The flag link appears on the page.');
+
+    // Click the link to flag the node.
+    $this->clickLink(t('Flag this item'));
+
+    $this->assertLink('Unflag this item', 0, 'The unflag link appears on the page after flagging.');
+
+    // Click the link to unflag the node.
+    $this->clickLink(t('Unflag this item'));
+
+    $this->assertLink('Flag this item', 0, 'The flag link appears on the page after unflagging.');
+  }
+
+  /**
+   * Verifies that the user does not see the flag if a module returns FALSE
+   * (Deny).
+   */
+  function testFlagAccessDeny() {
+    variable_set('FlagHookFlagAccessTestCaseMode', 'deny');
+    $flag_user = $this->drupalCreateUser(array('flag test_flag', 'unflag test_flag'));
+    $this->drupalLogin($flag_user);
+
+    // Look at our node.
+    $this->drupalGet('node/' . $this->nid);
+
+    $this->assertNoLink('Flag this item', 0, 'The flag link does not appear on the page.');
+  }
+
+}
+
+/**
+ * Test use of fields on flagging entities.
+ */
+class FlagFlaggingFieldTestCase extends FlagTestCaseBase {
+
+  /**
+   * Implements getInfo().
+   */
+  public static function getInfo() {
+    return array(
+      'name' => 'Flagging fields',
+      'description' => 'Fields on Flagging entities.',
+      'group' => 'Flag',
+    );
+  }
+
+  /**
+   * Implements setUp().
+   */
+  function setUp() {
+    parent::setUp('flag', 'flag_fields_test');
+  }
+
+  function testFlaggingFields() {
+    $this->assertTrue(1);
+
+    $flag_user = $this->drupalCreateUser(array(
+      'flag flag_fields_test_flag',
+      'unflag flag_fields_test_flag',
+    ));
+    $this->drupalLogin($flag_user);
+
+    $node = $this->drupalCreateNode();
+
+    $this->drupalGet('node/' . $node->nid);
+
+    $this->clickLink('Flag with the test flag');
+
+    // Try to fail the form validation by providing something non-numeric.
+    // This validation is only present in the widget validation: this is a core
+    // bug, but lets us test widget validation works correctly until it's fixed.
+    $edit = array(
+      'flag_fields_test_integer[und][0][value]' => 'banana',
+    );
+    $this->drupalPost(NULL, $edit, 'Flag with the test flag');
+
+    $this->assertText("Only numbers are allowed in Test integer.", "Form validation correctly failed the input.");
+
+    // Try to fail the form validation by a number that's out of bounds.
+    $edit = array(
+      'flag_fields_test_integer[und][0][value]' => 12,
+    );
+    $this->drupalPost(NULL, $edit, 'Flag with the test flag');
+
+    $this->assertText("Test integer: the value may be no greater than 11.", "Form validation correctly failed the input.");
+
+    $edit = array(
+      'flag_fields_test_integer[und][0][value]' => 6,
+    );
+    $this->drupalPost(NULL, $edit, 'Flag with the test flag');
+
+    $this->assertUrl('node/' . $node->nid, array(), "The flagging form submission succeeded.");
+
+    // Try to load the flagging, querying for the field value.
+    $query = new EntityFieldQuery();
+    $query->entityCondition('entity_type', 'flagging')
+      ->entityCondition('bundle', 'flag_fields_test_flag')
+      ->propertyCondition('entity_id', $node->nid)
+      ->fieldCondition('flag_fields_test_integer', 'value', 6);
+
+    $result = $query->execute();
+
+    $this->assertEqual(count($result['flagging']), 1, "The Flagging entity was found with the correct field values.");
+  }
+
+}
+
+/**
+ * Test use of EntityFieldQueries with flagging entities.
+ */
+class FlagEntityFieldQueryTestCase extends FlagTestCaseBase {
+
+  /**
+   * Implements getInfo().
+   */
+  public static function getInfo() {
+    return array(
+      'name' => 'Entity Field Query',
+      'description' => 'Entity Field Query for flagging entities.',
+      'group' => 'Flag',
+    );
+  }
+
+  /**
+   * Implements setUp().
+   */
+  function setUp() {
+    parent::setUp('flag');
+
+    $flag_data = array(
+      'entity_type' => 'node',
+      'name' => 'test_flag_1',
+      'title' => 'Test Flag',
+      'global' => 0,
+      'types' => array(
+        0 => 'article',
+      ),
+      'flag_short' => 'Flag this item',
+      'flag_long' => '',
+      'flag_message' => '',
+      'unflag_short' => 'Unflag this item',
+      'unflag_long' => '',
+      'unflag_message' => '',
+      'unflag_denied_text' => 'You may not unflag this item',
+      // Use the normal link type as it involves no intermediary page loads.
+      'link_type' => 'normal',
+      'weight' => 0,
+      'show_on_form' => 0,
+      'access_author' => '',
+      'show_contextual_link' => 0,
+      'show_in_links' => array(
+        'full' => 1,
+        'teaser' => 1,
+      ),
+      'i18n' => 0,
+      'api_version' => 3,
+    );
+
+    $this->flag1 = $this->createFlag($flag_data);
+    $flag_data['name'] = 'test_flag_2';
+    $this->flag2 = $this->createFlag($flag_data);
+    $flag_data['name'] = 'test_flag_3';
+    $this->flag3 = $this->createFlag($flag_data);
+
+    // Create test user who can flag and unflag.
+    $this->flag_unflag_user = $this->drupalCreateUser(array(
+      'flag test_flag_1',
+      'unflag test_flag_1',
+      'flag test_flag_2',
+      'unflag test_flag_2',
+    ));
+    $this->drupalLogin($this->flag_unflag_user);
+
+  }
+
+  /**
+   * Test use of EntityFieldQuery with flagging entities.
+   */
+  function testEntityFieldQuery() {
+    $node_settings = array(
+      'title' => $this->randomName(),
+      'body' => array(LANGUAGE_NONE => array(array('value' => $this->randomName(32)))),
+      'uid' => 1,
+      'type' => 'article',
+      'is_new' => TRUE,
+    );
+    $node = $this->drupalCreateNode($node_settings);
+
+    flag('flag', 'test_flag_1', $node->nid, $this->flag_unflag_user);
+    flag('flag', 'test_flag_2', $node->nid, $this->flag_unflag_user);
+
+    $query = new EntityFieldQuery();
+    $query->entityCondition('entity_type', 'flagging')
+      ->entityCondition('bundle', 'test_flag_1');
+
+    $flagged = $query->execute();
+    $this->assertEqual(count($flagged['flagging']), 1);
+
+    $query = new EntityFieldQuery();
+    $query->entityCondition('entity_type', 'flagging')
+      ->entityCondition('bundle', 'test%', 'like');
+    $flagged = $query->execute();
+    $this->assertEqual(count($flagged['flagging']), 2);
+
+    $query = new EntityFieldQuery();
+    $query->entityCondition('entity_type', 'flagging')
+      ->entityCondition('bundle', array('test_flag_1', 'test_flag_2'), 'IN');
+    $this->assertEqual(count($flagged['flagging']), 2);
+  }
+
+}
+
+/**
+ * Verifies the invocation of hooks when performing flagging and unflagging.
+ */
+class FlagHookInvocationsTestCase extends FlagTestCaseBase {
+
+  /**
+   * Implements getInfo().
+   */
+  public static function getInfo() {
+    return array(
+      'name' => 'Hook invocations',
+      'description' => 'Invocation of flag and entity hooks and rules during flagging and unflagging.',
+      'group' => 'Flag',
+    );
+  }
+
+  /**
+   * Implements setUp().
+   */
+  function setUp() {
+    parent::setUp('flag', 'rules', 'flag_hook_test');
+
+    // Note the test module contains our test flag.
+
+    // Create test user who can flag and unflag.
+    $this->flag_unflag_user = $this->drupalCreateUser(array('flag flag_hook_test_flag', 'unflag flag_hook_test_flag'));
+    $this->drupalLogin($this->flag_unflag_user);
+  }
+
+  /**
+   * Test invocation of hooks and their data during flagging and unflagging.
+   *
+   * For each operation (flagging, re-flagging, unflagging) we test:
+   *  - the order in which Flag hooks, entity hooks, and rules are invoked.
+   *  - the parameters each hook receives
+   *  - the data that a hook implementation obtains when it calls the Flag data
+   *    API functions.
+   */
+  function testHookInvocation() {
+    // Create an article node that we try to create a flagging entity for.
+    $title = $this->randomName(8);
+    $node = array(
+      'title' => $title,
+      'body' => array(LANGUAGE_NONE => array(array('value' => $this->randomName(32)))),
+      'uid' => 1,
+      'type' => 'article',
+      'is_new' => TRUE,
+    );
+    $node = node_submit((object) $node);
+    node_save($node);
+
+    // Initialize a tracking variable. The test module will update this when
+    // its hooks are invoked.
+    variable_set('flag_hook_test_hook_tracking', array());
+
+    // Flag the node as the user.
+    $flag = flag_get_flag('flag_hook_test_flag');
+    $flag->flag('flag', $node->nid, $this->flag_unflag_user);
+
+    // Get the variable the test module sets the hook order into.
+    $hook_data_variable = variable_get('flag_hook_test_hook_tracking', array());
+    //debug($hook_data_variable['hook_entity_presave']);
+    //debug($hook_data_variable['hook_entity_insert']);
+
+    $expected_hook_order = array(
+      'hook_entity_presave',
+      'hook_entity_insert',
+      'hook_flag_flag',
+      'rules_event',
+    );
+
+    // Check the hooks are invoked in the correct order.
+    $this->assertIdentical($expected_hook_order, array_keys($hook_data_variable), "The hooks are invoked in the correct order when flagging a node.");
+
+    // Check the parameters received by hook_entity_presave().
+    // Param 0: $flagging.
+    $this->assertEqual($hook_data_variable['hook_entity_presave']['parameters'][0]->flag_name, $flag->name, "The Flagging entity passed to hook_entity_presave() has the expected flag name property.");
+    $this->assertEqual($hook_data_variable['hook_entity_presave']['parameters'][0]->fid, $flag->fid, "The Flagging entity passed to hook_entity_presave() has the expected fid property.");
+    $this->assertEqual($hook_data_variable['hook_entity_presave']['parameters'][0]->entity_type, 'node', "The Flagging entity passed to hook_entity_presave() has the expected entity type property.");
+    $this->assertEqual($hook_data_variable['hook_entity_presave']['parameters'][0]->entity_id, $node->nid, "The Flagging entity passed to hook_entity_presave() has the expected entity ID property.");
+    $this->assertEqual($hook_data_variable['hook_entity_presave']['parameters'][0]->uid, $this->flag_unflag_user->uid, "The Flagging entity passed to hook_entity_presave() has the expected uid property.");
+    // Param 1: $entity_type.
+    $this->assertEqual($hook_data_variable['hook_entity_presave']['parameters'][1], 'flagging', "hook_entity_presave() is passed the correct entity type.");
+
+    // Check the API data available to hook_entity_presave().
+    //debug($hook_data_variable['hook_entity_presave']['api_calls']);
+    $this->assertEqual($hook_data_variable['hook_entity_presave']['api_calls']['flag_get_entity_flags'], array(), "hook_entity_presave() gets no data from from flag_get_entity_flags(), as the flagging has not yet taken place.");
+    $this->assertEqual($hook_data_variable['hook_entity_presave']['api_calls']['flag_get_user_flags'], array(), "hook_entity_presave() gets no data from from flag_get_user_flags(), as the flagging has not yet taken place.");
+    // The flag counts have not yet been increased.
+    $this->assertEqual($hook_data_variable['hook_entity_presave']['api_calls']['flag_get_counts'], array(), "hook_entity_presave() gets no data from from flag_get_counts(), as the flagging has not yet taken place.");
+    $this->assertEqual($hook_data_variable['hook_entity_presave']['api_calls']['flag_get_flag_counts'], 0, "hook_entity_presave() gets no data from from flag_get_flag_counts(), as the flagging has not yet taken place.");
+    $this->assertEqual($hook_data_variable['hook_entity_presave']['api_calls']['flag_get_entity_flag_counts'], 0, "hook_entity_presave() gets no data from from flag_get_entity_flag_counts(), as the flagging has not yet taken place.");
+    $this->assertEqual($hook_data_variable['hook_entity_presave']['api_calls']['flag_get_user_flag_counts'], 0, "hook_entity_presave() gets no data from from flag_get_user_flag_counts(), as the flagging has not yet taken place.");
+
+    // Check the parameters received by hook_entity_insert().
+    // Param 0: $flagging.
+    $this->assertEqual($hook_data_variable['hook_entity_insert']['parameters'][0]->flag_name, $flag->name, "The Flagging entity passed to hook_entity_insert() has the expected flag name property.");
+    $this->assertEqual($hook_data_variable['hook_entity_insert']['parameters'][0]->fid, $flag->fid, "The Flagging entity passed to hook_entity_insert() has the expected fid property.");
+    $this->assertEqual($hook_data_variable['hook_entity_insert']['parameters'][0]->entity_type, 'node', "The Flagging entity passed to hook_entity_insert() has the expected entity type property.");
+    $this->assertEqual($hook_data_variable['hook_entity_insert']['parameters'][0]->entity_id, $node->nid, "The Flagging entity passed to hook_entity_insert() has the expected entity ID property.");
+    $this->assertEqual($hook_data_variable['hook_entity_insert']['parameters'][0]->uid, $this->flag_unflag_user->uid, "The Flagging entity passed to hook_entity_insert() has the expected uid property.");
+    $this->assertTrue(!empty($hook_data_variable['hook_entity_insert']['parameters'][0]->flagging_id), "The Flagging entity passed to hook_entity_insert() has the flagging ID set.");
+    // Param 1: $entity_type.
+    $this->assertEqual($hook_data_variable['hook_entity_insert']['parameters'][1], 'flagging', "hook_entity_insert() is passed the correct entity type.");
+
+    // Check the API data available to hook_entity_insert().
+    //debug($hook_data_variable['hook_entity_insert']['api_calls']);
+    $flag_get_entity_flags = $hook_data_variable['hook_entity_insert']['api_calls']['flag_get_entity_flags'];
+    $flag_get_entity_flags_uids = array_keys($flag_get_entity_flags);
+    $this->assertEqual($flag_get_entity_flags_uids, array($this->flag_unflag_user->uid), "hook_entity_insert() gets correct data for flagging users from flag_get_entity_flags()");
+    $flag_get_entity_flags_flagging = $flag_get_entity_flags[$this->flag_unflag_user->uid];
+    $this->assertEqual($flag_get_entity_flags_flagging->fid, $flag->fid, "hook_entity_insert() gets a correct fid on the Flagging obtained from flag_get_entity_flags()");
+    $this->assertEqual($flag_get_entity_flags_flagging->entity_type, 'node', "hook_entity_insert() gets a correct entity type on the Flagging obtained from flag_get_entity_flags()");
+    $this->assertEqual($flag_get_entity_flags_flagging->entity_id, $node->nid, "hook_entity_insert() gets a correct entity ID on the Flagging obtained from flag_get_entity_flags()");
+
+    $flag_get_user_flags = $hook_data_variable['hook_entity_insert']['api_calls']['flag_get_user_flags'];
+    $flag_get_user_flags_flagging = $flag_get_user_flags[$flag->name];
+    $this->assertEqual($flag_get_user_flags_flagging->fid, $flag->fid, "hook_entity_insert() gets a correct fid on the Flagging obtained from flag_get_user_flags()");
+    $this->assertEqual($flag_get_user_flags_flagging->entity_type, 'node', "hook_entity_insert() gets a correct entity type on the Flagging obtained from flag_get_user_flags()");
+    $this->assertEqual($flag_get_user_flags_flagging->entity_id, $node->nid, "hook_entity_insert() gets a correct entity ID on the Flagging obtained from flag_get_user_flags()");
+
+    // The flag counts have been increased.
+    $flag_get_counts = $hook_data_variable['hook_entity_insert']['api_calls']['flag_get_counts'];
+    $this->assertEqual($flag_get_counts[$flag->name], 1, "hook_entity_insert() gets a correct flag count from flag_get_counts().");
+
+    $flag_get_flag_counts = $hook_data_variable['hook_entity_insert']['api_calls']['flag_get_flag_counts'];
+    $this->assertEqual($flag_get_flag_counts, 1, "hook_entity_insert() gets a correct flag count from flag_get_flag_counts().");
+
+    $flag_get_entity_flag_counts = $hook_data_variable['hook_entity_insert']['api_calls']['flag_get_entity_flag_counts'];
+    $this->assertEqual($flag_get_entity_flag_counts, 1, "hook_entity_insert() gets a correct flag count from flag_get_entity_flag_counts().");
+
+    $flag_get_user_flag_counts = $hook_data_variable['hook_entity_insert']['api_calls']['flag_get_user_flag_counts'];
+    $this->assertEqual($flag_get_user_flag_counts, 1, "hook_entity_insert() gets a correct flag count from flag_get_user_flag_counts().");
+
+    // Check the parameters received by hook_flag_flag().
+    // Param 0: $flag.
+    $this->assertEqual($hook_data_variable['hook_flag_flag']['parameters'][0], $flag, "The flag object is passed to hook_flag_flag().");
+    // Param 1: $entity_id.
+    $this->assertEqual($hook_data_variable['hook_flag_flag']['parameters'][1], $node->nid, "The entity ID is passed to hook_flag_flag().");
+    // Param 2: $account.
+    $this->assertEqual($hook_data_variable['hook_flag_flag']['parameters'][2]->uid, $this->flag_unflag_user->uid, "The user account is passed to hook_flag_flag().");
+    // Param 3: $flagging.
+    $this->assertEqual($hook_data_variable['hook_flag_flag']['parameters'][3]->flag_name, $flag->name, "The Flagging entity passed to hook_flag_flag() has the expected flag name property.");
+    $this->assertEqual($hook_data_variable['hook_flag_flag']['parameters'][3]->fid, $flag->fid, "The Flagging entity passed to hook_flag_flag() has the expected fid property.");
+    $this->assertEqual($hook_data_variable['hook_flag_flag']['parameters'][3]->entity_type, 'node', "The Flagging entity passed to hook_flag_flag() has the expected entity type property.");
+    $this->assertEqual($hook_data_variable['hook_flag_flag']['parameters'][3]->entity_id, $node->nid, "The Flagging entity passed to hook_flag_flag() has the expected entity ID property.");
+    $this->assertEqual($hook_data_variable['hook_flag_flag']['parameters'][3]->uid, $this->flag_unflag_user->uid, "The Flagging entity passed to hook_flag_flag() has the expected uid property.");
+
+    // Check the API data available to hook_flag_flag().
+    //debug($hook_data_variable['hook_flag_flag']['api_calls']);
+    $flag_get_entity_flags = $hook_data_variable['hook_flag_flag']['api_calls']['flag_get_entity_flags'];
+    $flag_get_entity_flags_uids = array_keys($flag_get_entity_flags);
+    $this->assertEqual($flag_get_entity_flags_uids, array($this->flag_unflag_user->uid), "hook_flag_flag() gets correct data for flagging users from flag_get_entity_flags()");
+    $flag_get_entity_flags_flagging = $flag_get_entity_flags[$this->flag_unflag_user->uid];
+    $this->assertEqual($flag_get_entity_flags_flagging->fid, $flag->fid, "hook_flag_flag() gets a correct fid on the Flagging obtained from flag_get_entity_flags()");
+    $this->assertEqual($flag_get_entity_flags_flagging->entity_type, 'node', "hook_flag_flag() gets a correct entity type on the Flagging obtained from flag_get_entity_flags()");
+    $this->assertEqual($flag_get_entity_flags_flagging->entity_id, $node->nid, "hook_flag_flag() gets a correct entity ID on the Flagging obtained from flag_get_entity_flags()");
+
+    $flag_get_user_flags = $hook_data_variable['hook_flag_flag']['api_calls']['flag_get_user_flags'];
+    $flag_get_user_flags_flagging = $flag_get_user_flags[$flag->name];
+    $this->assertEqual($flag_get_user_flags_flagging->fid, $flag->fid, "hook_flag_flag() gets a correct fid on the Flagging obtained from flag_get_user_flags()");
+    $this->assertEqual($flag_get_user_flags_flagging->entity_type, 'node', "hook_flag_flag() gets a correct entity type on the Flagging obtained from flag_get_user_flags()");
+    $this->assertEqual($flag_get_user_flags_flagging->entity_id, $node->nid, "hook_flag_flag() gets a correct entity ID on the Flagging obtained from flag_get_user_flags()");
+
+    // The flag counts have been increased.
+    $flag_get_counts = $hook_data_variable['hook_flag_flag']['api_calls']['flag_get_counts'];
+    $this->assertEqual($flag_get_counts[$flag->name], 1, "hook_flag_flag() gets a correct flag count from flag_get_counts().");
+
+    $flag_get_flag_counts = $hook_data_variable['hook_flag_flag']['api_calls']['flag_get_flag_counts'];
+    $this->assertEqual($flag_get_flag_counts, 1, "hook_flag_flag() gets a correct flag count from flag_get_flag_counts().");
+
+    $flag_get_entity_flag_counts = $hook_data_variable['hook_flag_flag']['api_calls']['flag_get_entity_flag_counts'];
+    $this->assertEqual($flag_get_entity_flag_counts, 1, "hook_flag_flag() gets a correct flag count from flag_get_entity_flag_counts().");
+
+    $flag_get_user_flag_counts = $hook_data_variable['hook_flag_flag']['api_calls']['flag_get_user_flag_counts'];
+    $this->assertEqual($flag_get_user_flag_counts, 1, "hook_flag_flag() gets a correct flag count from flag_get_user_flag_counts().");
+
+    // Clear the tracking variable.
+    variable_set('flag_hook_test_hook_tracking', array());
+
+    // Get the Flagging, and re-flag the node.
+    // This does nothing in our case, but is the API for updating a Flagging
+    // entity with changes to its Field API fields.
+    // Query the database to get the Flagging ID rather than Flag API so we
+    // don't interefere with any caches.
+    $query = db_select('flagging', 'f');
+    $query->addField('f', 'flagging_id');
+    $query->condition('fid', $flag->fid)
+      ->condition('entity_id', $node->nid);
+    $flagging_id = $query
+      ->execute()
+      ->fetchField();
+    $flagging = flagging_load($flagging_id);
+
+    // Re-flag the node passing in the flagging entity.
+    $flag->flag('flag', $node->nid, $this->flag_unflag_user, FALSE, $flagging);
+
+    // Get the variable the test module sets the hook order into.
+    $hook_data_variable = variable_get('flag_hook_test_hook_tracking', array());
+    //debug($hook_data_variable);
+
+    $expected_hook_order = array(
+      'hook_entity_presave',
+      'hook_entity_update',
+      // Note that hook_flag() and the rule are not invoked, as this is not a
+      // new act of flagging.
+    );
+
+    // Check the hooks are invoked in the correct order.
+    $this->assertIdentical($expected_hook_order, array_keys($hook_data_variable), "The hooks are invoked in the correct order when re-flagging a node.");
+
+    // Check the parameters received by hook_entity_presave().
+    // Param 0: $flagging.
+    $this->assertEqual($hook_data_variable['hook_entity_presave']['parameters'][0]->flag_name, $flag->name, "The Flagging entity passed to hook_entity_presave() has the expected flag name property.");
+    //$this->assertEqual($hook_data_variable['hook_entity_insert']['parameters'][0]->fid, $flag->fid);
+    //$this->assertEqual($hook_data_variable['hook_entity_insert']['parameters'][0]->entity_type, 'node');
+    $this->assertEqual($hook_data_variable['hook_entity_presave']['parameters'][0]->entity_id, $node->nid, "The Flagging entity passed to hook_entity_presave() has the expected entity ID property.");
+    $this->assertEqual($hook_data_variable['hook_entity_presave']['parameters'][0]->uid, $this->flag_unflag_user->uid, "The Flagging entity passed to hook_entity_presave() has the expected uid property.");
+    // Param 1: $entity_type.
+    $this->assertEqual($hook_data_variable['hook_entity_presave']['parameters'][1], 'flagging', "hook_entity_presave() is passed the correct entity type.");
+
+    // Check the API data available to hook_entity_presave().
+    //debug($hook_data_variable['hook_entity_presave']['api_calls']);
+    $flag_get_entity_flags = $hook_data_variable['hook_entity_presave']['api_calls']['flag_get_entity_flags'];
+    $flag_get_entity_flags_uids = array_keys($flag_get_entity_flags);
+    $this->assertEqual($flag_get_entity_flags_uids, array($this->flag_unflag_user->uid), "hook_entity_presave() gets correct data for flagging users from flag_get_entity_flags()");
+    $flag_get_entity_flags_flagging = $flag_get_entity_flags[$this->flag_unflag_user->uid];
+    $this->assertEqual($flag_get_entity_flags_flagging->fid, $flag->fid, "hook_entity_presave() gets a correct fid on the Flagging obtained from flag_get_entity_flags()");
+    $this->assertEqual($flag_get_entity_flags_flagging->entity_type, 'node', "hook_entity_presave() gets a correct entity type on the Flagging obtained from flag_get_entity_flags()");
+    $this->assertEqual($flag_get_entity_flags_flagging->entity_id, $node->nid, "hook_entity_presave() gets a correct entity ID on the Flagging obtained from flag_get_entity_flags()");
+
+    $flag_get_user_flags = $hook_data_variable['hook_entity_presave']['api_calls']['flag_get_user_flags'];
+    $flag_get_user_flags_flagging = $flag_get_user_flags[$flag->name];
+    $this->assertEqual($flag_get_user_flags_flagging->fid, $flag->fid, "hook_entity_presave() gets a correct fid on the Flagging obtained from flag_get_user_flags()");
+    $this->assertEqual($flag_get_user_flags_flagging->entity_type, 'node', "hook_entity_presave() gets a correct entity type on the Flagging obtained from flag_get_user_flags()");
+    $this->assertEqual($flag_get_user_flags_flagging->entity_id, $node->nid, "hook_entity_presave() gets a correct entity ID on the Flagging obtained from flag_get_user_flags()");
+
+    // The flag counts have not changed.
+    $flag_get_counts = $hook_data_variable['hook_entity_presave']['api_calls']['flag_get_counts'];
+    $this->assertEqual($flag_get_counts[$flag->name], 1, "hook_entity_presave() gets a correct flag count from flag_get_counts().");
+
+    $flag_get_flag_counts = $hook_data_variable['hook_entity_presave']['api_calls']['flag_get_flag_counts'];
+    $this->assertEqual($flag_get_flag_counts, 1, "hook_entity_presave() gets a correct flag count from flag_get_flag_counts().");
+
+    $flag_get_entity_flag_counts = $hook_data_variable['hook_entity_presave']['api_calls']['flag_get_entity_flag_counts'];
+    $this->assertEqual($flag_get_entity_flag_counts, 1, "hook_entity_presave() gets a correct flag count from flag_get_entity_flag_counts().");
+
+    $flag_get_user_flag_counts = $hook_data_variable['hook_entity_presave']['api_calls']['flag_get_user_flag_counts'];
+    $this->assertEqual($flag_get_user_flag_counts, 1, "hook_entity_presave() gets a correct flag count from flag_get_user_flag_counts().");
+
+    // Check the parameters received by hook_entity_update().
+    // Param 0: $flagging.
+    $this->assertEqual($hook_data_variable['hook_entity_update']['parameters'][0]->flag_name, $flag->name, "The Flagging entity passed to hook_entity_update() has the expected flag name property.");
+    $this->assertEqual($hook_data_variable['hook_entity_presave']['parameters'][0]->fid, $flag->fid, "The Flagging entity passed to hook_entity_presave() has the expected fid property.");
+    $this->assertEqual($hook_data_variable['hook_entity_presave']['parameters'][0]->entity_type, 'node', "The Flagging entity passed to hook_entity_presave() has the expected entity type property.");
+    $this->assertEqual($hook_data_variable['hook_entity_update']['parameters'][0]->entity_id, $node->nid, "The Flagging entity passed to hook_entity_update() has the expected entity ID property.");
+    $this->assertEqual($hook_data_variable['hook_entity_update']['parameters'][0]->uid, $this->flag_unflag_user->uid, "The Flagging entity passed to hook_entity_update() has the expected uid property.");
+    $this->assertTrue(!empty($hook_data_variable['hook_entity_update']['parameters'][0]->flagging_id), "The Flagging entity passed to hook_entity_update() has the flagging ID set.");
+    // Param 1: $entity_type.
+    $this->assertEqual($hook_data_variable['hook_entity_update']['parameters'][1], 'flagging', "hook_entity_update() is passed the correct entity type.");
+
+    // Check the API data available to hook_entity_update().
+    //debug($hook_data_variable['hook_entity_update']['api_calls']);
+    $flag_get_entity_flags = $hook_data_variable['hook_entity_update']['api_calls']['flag_get_entity_flags'];
+    $flag_get_entity_flags_uids = array_keys($flag_get_entity_flags);
+    $this->assertEqual($flag_get_entity_flags_uids, array($this->flag_unflag_user->uid), "hook_entity_update() gets correct data for flagging users from flag_get_entity_flags()");
+    $flag_get_entity_flags_flagging = $flag_get_entity_flags[$this->flag_unflag_user->uid];
+    $this->assertEqual($flag_get_entity_flags_flagging->fid, $flag->fid, "hook_entity_update() gets a correct fid on the Flagging obtained from flag_get_entity_flags()");
+    $this->assertEqual($flag_get_entity_flags_flagging->entity_type, 'node', "hook_entity_update() gets a correct entity type on the Flagging obtained from flag_get_entity_flags()");
+    $this->assertEqual($flag_get_entity_flags_flagging->entity_id, $node->nid, "hook_entity_update() gets a correct entity ID on the Flagging obtained from flag_get_entity_flags()");
+
+    $flag_get_user_flags = $hook_data_variable['hook_entity_update']['api_calls']['flag_get_user_flags'];
+    $flag_get_user_flags_flagging = $flag_get_user_flags[$flag->name];
+    $this->assertEqual($flag_get_user_flags_flagging->fid, $flag->fid, "hook_entity_update() gets a correct fid on the Flagging obtained from flag_get_user_flags()");
+    $this->assertEqual($flag_get_user_flags_flagging->entity_type, 'node', "hook_entity_update() gets a correct entity type on the Flagging obtained from flag_get_user_flags()");
+    $this->assertEqual($flag_get_user_flags_flagging->entity_id, $node->nid, "hook_entity_update() gets a correct entity ID on the Flagging obtained from flag_get_user_flags()");
+
+    // The flag counts have not changed.
+    $flag_get_counts = $hook_data_variable['hook_entity_update']['api_calls']['flag_get_counts'];
+    $this->assertEqual($flag_get_counts[$flag->name], 1, "hook_entity_update() gets a correct flag count from flag_get_counts().");
+
+    $flag_get_flag_counts = $hook_data_variable['hook_entity_update']['api_calls']['flag_get_flag_counts'];
+    $this->assertEqual($flag_get_flag_counts, 1, "hook_entity_update() gets a correct flag count from flag_get_flag_counts().");
+
+    $flag_get_entity_flag_counts = $hook_data_variable['hook_entity_update']['api_calls']['flag_get_entity_flag_counts'];
+    $this->assertEqual($flag_get_entity_flag_counts, 1, "hook_entity_update() gets a correct flag count from flag_get_entity_flag_counts().");
+
+    $flag_get_user_flag_counts = $hook_data_variable['hook_entity_update']['api_calls']['flag_get_user_flag_counts'];
+    $this->assertEqual($flag_get_user_flag_counts, 1, "hook_entity_update() gets a correct flag count from flag_get_user_flag_counts().");
+
+    // Clear the tracking variable.
+    variable_set('flag_hook_test_hook_tracking', array());
+
+    // Unflag the node as the user.
+    $flag->flag('unflag', $node->nid, $this->flag_unflag_user);
+
+    // Get the variable the test module sets the hook order into.
+    $hook_data_variable = variable_get('flag_hook_test_hook_tracking', array());
+    //debug($hook_data_variable);
+
+    $expected_hook_order = array(
+      'hook_flag_unflag',
+      'rules_event',
+      'hook_entity_delete',
+    );
+
+    // Check the hooks are invoked in the correct order.
+    $this->assertIdentical($expected_hook_order, array_keys($hook_data_variable), "The hooks are invoked in the correct order when unflagging a node.");
+
+    // Check the parameters received by hook_flag_unflag().
+    // Param 0: $flag.
+    $this->assertEqual($hook_data_variable['hook_flag_unflag']['parameters'][0], $flag, "The flag object is passed to hook_flag_unflag().");
+    // Param 1: $entity_id.
+    $this->assertEqual($hook_data_variable['hook_flag_unflag']['parameters'][1], $node->nid, "The entity ID is passed to hook_flag_unflag().");
+    // Param 2: $account.
+    $this->assertEqual($hook_data_variable['hook_flag_unflag']['parameters'][2]->uid, $this->flag_unflag_user->uid, "The user account is passed to hook_flag_unflag().");
+    // Param 3: $flagging.
+    $this->assertEqual($hook_data_variable['hook_flag_unflag']['parameters'][3]->flag_name, $flag->name, "The Flagging entity passed to hook_flag_unflag() has the expected flag name property.");
+    $this->assertEqual($hook_data_variable['hook_flag_unflag']['parameters'][3]->fid, $flag->fid, "The Flagging entity passed to hook_entity_presave() has the expected fid property.");
+    $this->assertEqual($hook_data_variable['hook_flag_unflag']['parameters'][3]->entity_type, 'node', "The Flagging entity passed to hook_entity_presave() has the expected entity type property.");
+    $this->assertEqual($hook_data_variable['hook_flag_unflag']['parameters'][3]->entity_id, $node->nid, "The Flagging entity passed to hook_flag_unflag() has the expected entity ID property.");
+    $this->assertEqual($hook_data_variable['hook_flag_unflag']['parameters'][3]->uid, $this->flag_unflag_user->uid, "The Flagging entity passed to hook_flag_unflag() has the expected uid property.");
+
+    // Check the API data available to hook_flag_unflag().
+    //debug($hook_data_variable['hook_flag_unflag']['api_calls']);
+    // The unflagging is not yet done, so flag_get_entity_flags() will find the
+    // flagging data.
+    $flag_get_entity_flags = $hook_data_variable['hook_flag_unflag']['api_calls']['flag_get_entity_flags'];
+    $flag_get_entity_flags_uids = array_keys($flag_get_entity_flags);
+    $this->assertEqual($flag_get_entity_flags_uids, array($this->flag_unflag_user->uid), "hook_flag_unflag() gets correct data for flagging users from flag_get_entity_flags()");
+    $flag_get_entity_flags_flagging = $flag_get_entity_flags[$this->flag_unflag_user->uid];
+    $this->assertEqual($flag_get_entity_flags_flagging->fid, $flag->fid, "hook_flag_unflag() gets a correct fid on the Flagging obtained from flag_get_entity_flags(): the Flagging has not yet been deleted.");
+    $this->assertEqual($flag_get_entity_flags_flagging->entity_type, 'node', "hook_flag_unflag() gets a correct entity type on the Flagging obtained from flag_get_entity_flags()");
+    $this->assertEqual($flag_get_entity_flags_flagging->entity_id, $node->nid, "hook_flag_unflag() gets a correct entity ID on the Flagging obtained from flag_get_entity_flags()");
+
+    $flag_get_user_flags = $hook_data_variable['hook_flag_unflag']['api_calls']['flag_get_user_flags'];
+    $flag_get_user_flags_flagging = $flag_get_user_flags[$flag->name];
+    $this->assertEqual($flag_get_user_flags_flagging->fid, $flag->fid, "hook_flag_unflag() gets a correct fid on the Flagging obtained from flag_get_user_flags()");
+    $this->assertEqual($flag_get_user_flags_flagging->entity_type, 'node', "hook_flag_unflag() gets a correct entity type on the Flagging obtained from flag_get_user_flags()");
+    $this->assertEqual($flag_get_user_flags_flagging->entity_id, $node->nid, "hook_flag_unflag() gets a correct entity ID on the Flagging obtained from flag_get_user_flags()");
+
+    // The flag counts have already been decreased.
+    $flag_get_counts = $hook_data_variable['hook_flag_unflag']['api_calls']['flag_get_counts'];
+    $this->assertEqual($flag_get_counts, array(), "hook_flag_unflag() gets a correct flag count from flag_get_counts().");
+
+    $flag_get_flag_counts = $hook_data_variable['hook_flag_unflag']['api_calls']['flag_get_flag_counts'];
+    $this->assertEqual($flag_get_flag_counts, 0, "hook_flag_unflag() gets a correct flag count from flag_get_flag_counts().");
+
+    // flag_get_entity_flag_counts() queries the {flagging} table, so is not
+    // updated yet.
+    $flag_get_entity_flag_counts = $hook_data_variable['hook_flag_unflag']['api_calls']['flag_get_entity_flag_counts'];
+    $this->assertEqual($flag_get_entity_flag_counts, 1, "hook_flag_unflag() gets a correct flag count from flag_get_entity_flag_counts().");
+
+    // flag_get_user_flag_counts() queries the {flagging} table, so is not
+    // updated yet.
+    $flag_get_user_flag_counts = $hook_data_variable['hook_flag_unflag']['api_calls']['flag_get_user_flag_counts'];
+    $this->assertEqual($flag_get_user_flag_counts, 1, "hook_flag_unflag() gets a correct flag count from flag_get_user_flag_counts().");
+
+    // Check the parameters received by hook_entity_delete().
+    // Param 0: $flagging.
+    $this->assertEqual($hook_data_variable['hook_entity_delete']['parameters'][0]->flag_name, $flag->name, "The Flagging entity passed to hook_entity_delete() has the expected flag name property.");
+    $this->assertEqual($hook_data_variable['hook_entity_delete']['parameters'][0]->fid, $flag->fid, "The Flagging entity passed to hook_entity_presave() has the expected fid property.");
+    $this->assertEqual($hook_data_variable['hook_entity_delete']['parameters'][0]->entity_type, 'node', "The Flagging entity passed to hook_entity_presave() has the expected entity type property.");
+    $this->assertEqual($hook_data_variable['hook_entity_delete']['parameters'][0]->entity_id, $node->nid, "The Flagging entity passed to hook_entity_delete() has the expected entity ID property.");
+    $this->assertEqual($hook_data_variable['hook_entity_delete']['parameters'][0]->uid, $this->flag_unflag_user->uid, "The Flagging entity passed to hook_entity_delete() has the expected uid property.");
+    $this->assertTrue(!empty($hook_data_variable['hook_entity_delete']['parameters'][0]->flagging_id), "The Flagging entity passed to hook_entity_delete() has the flagging ID set.");
+    // Param 1: $entity_type.
+    $this->assertEqual($hook_data_variable['hook_entity_delete']['parameters'][1], 'flagging', "hook_entity_delete() is passed the correct entity type.");
+
+    // Check the API data available to hook_entity_delete().
+    //debug($hook_data_variable['hook_entity_delete']['api_calls']);
+    // The unflagging is not yet done, so hook_entity_delete() will find the
+    // flagging data.
+    $flag_get_entity_flags = $hook_data_variable['hook_entity_delete']['api_calls']['flag_get_entity_flags'];
+    $flag_get_entity_flags_uids = array_keys($flag_get_entity_flags);
+    $this->assertEqual($flag_get_entity_flags_uids, array($this->flag_unflag_user->uid), "hook_entity_delete() gets correct data for flagging users from flag_get_entity_flags()");
+    $flag_get_entity_flags_flagging = $flag_get_entity_flags[$this->flag_unflag_user->uid];
+    $this->assertEqual($flag_get_entity_flags_flagging->fid, $flag->fid, "hook_entity_delete() gets a correct fid on the Flagging obtained from flag_get_entity_flags()");
+    $this->assertEqual($flag_get_entity_flags_flagging->entity_type, 'node', "hook_entity_delete() gets a correct entity type on the Flagging obtained from flag_get_entity_flags()");
+    $this->assertEqual($flag_get_entity_flags_flagging->entity_id, $node->nid, "hook_entity_delete() gets a correct entity ID on the Flagging obtained from flag_get_entity_flags()");
+
+    $flag_get_user_flags = $hook_data_variable['hook_entity_delete']['api_calls']['flag_get_user_flags'];
+    $flag_get_user_flags_flagging = $flag_get_user_flags[$flag->name];
+    $this->assertEqual($flag_get_user_flags_flagging->fid, $flag->fid, "hook_entity_delete() gets a correct fid on the Flagging obtained from flag_get_user_flags()");
+    $this->assertEqual($flag_get_user_flags_flagging->entity_type, 'node', "hook_entity_delete() gets a correct entity type on the Flagging obtained from flag_get_user_flags()");
+    $this->assertEqual($flag_get_user_flags_flagging->entity_id, $node->nid, "hook_entity_delete() gets a correct entity ID on the Flagging obtained from flag_get_user_flags()");
+
+    // The flag counts have already been decreased.
+    $flag_get_counts = $hook_data_variable['hook_entity_delete']['api_calls']['flag_get_counts'];
+    $this->assertEqual($flag_get_counts, array(), "hook_entity_delete() gets a correct flag count from flag_get_counts().");
+
+    $flag_get_flag_counts = $hook_data_variable['hook_entity_delete']['api_calls']['flag_get_flag_counts'];
+    $this->assertEqual($flag_get_flag_counts, 0, "hook_entity_delete() gets a correct flag count from flag_get_flag_counts().");
+
+    // flag_get_entity_flag_counts() queries the {flagging} table, so is not
+    // updated yet.
+    $flag_get_entity_flag_counts = $hook_data_variable['hook_entity_delete']['api_calls']['flag_get_entity_flag_counts'];
+    $this->assertEqual($flag_get_entity_flag_counts, 1, "hook_entity_delete() gets a correct flag count from flag_get_entity_flag_counts().");
+
+    // flag_get_user_flag_counts() queries the {flagging} table, so is not
+    // updated yet.
+    $flag_get_user_flag_counts = $hook_data_variable['hook_entity_delete']['api_calls']['flag_get_user_flag_counts'];
+    $this->assertEqual($flag_get_user_flag_counts, 1, "hook_entity_delete() gets a correct flag count from flag_get_user_flag_counts().");
+  }
+
+}

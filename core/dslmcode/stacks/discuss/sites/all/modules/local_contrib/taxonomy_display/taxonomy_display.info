@@ -1,0 +1,30 @@
+name = Taxonomy display
+description = Modify the display of taxonomy term pages per vocabulary.
+core = 7.x
+dependencies[] = taxonomy
+dependencies[] = ctools
+files[] = taxonomy_display.module
+; Our abstract classes for plugins
+files[] = classes/associated_display.inc
+files[] = classes/breadcrumb_display.inc
+files[] = classes/handler_form.inc
+files[] = classes/term_display.inc
+; Our class handlers for plugins
+; - For term displays
+files[] = handlers/term/core.inc
+files[] = handlers/term/hidden.inc
+; - For associated content displays
+files[] = handlers/associated/core.inc
+files[] = handlers/associated/hidden.inc
+files[] = handlers/associated/views.inc
+; - For breadcrumb generation
+files[] = handlers/breadcrumb/core.inc
+files[] = handlers/breadcrumb/hidden.inc
+files[] = handlers/breadcrumb/ignore.inc
+
+; Information added by drupal.org packaging script on 2012-10-30
+version = "7.x-1.1"
+core = "7.x"
+project = "taxonomy_display"
+datestamp = "1351568833"
+

@@ -1,0 +1,461 @@
+<?php
+
+/**
+ * @file
+ * Hooks for the taxonomy display module.
+ */
+
+/**
+ * Implements hook_ctools_plugin_directory().
+ */
+function taxonomy_display_ctools_plugin_directory($owner, $plugin_type) {
+  if ($owner == 'ctools' && !empty($plugin_type)) {
+    return 'plugins/' . $plugin_type;
+  }
+}
+
+/**
+ * Helper function; delete taxonomy display data.
+ *
+ * @param string $machine_name
+ *   The machine name of the vocabulary's taxonomy display data to remove.
+ * @param string|NULL|FALSE $watchdog_message
+ *   Provide a watchdog message as a string. If null then a generic default
+ *   message will be used. If false then no watchdog message will be recorded.
+ * @param array $watchdog_variables
+ *   Variables for substitution in the watchdog message.
+ * @param int $watchdog_severity
+ *   One of the defined watchdog constant severities: WATCHDOG_EMERGENCY,
+ *   WATCHDOG_ALERT, WATCHDOG_CRITICAL, WATCHDOG_ERROR, WATCHDOG_WARNING,
+ *   WATCHDOG_NOTICE, WATCHDOG_INFO, WATCHDOG_DEBUG. Defaults to
+ *   WATCHDOG_NOTICE.
+ *
+ * @return void
+ */
+function taxonomy_display_delete_taxonomy_display($machine_name, $watchdog_message = NULL, $watchdog_variables = array(), $watchdog_severity = WATCHDOG_NOTICE) {
+  // Delete our display record for the term being removed.
+  $count = (bool) db_delete('taxonomy_display')
+    ->condition('machine_name', $machine_name)
+    ->execute();
+
+  // If a record was deleted then log it in watchdog.
+  if ($count && $watchdog_message !== FALSE) {
+    if (empty($watchdog_message)) {
+      $watchdog_message = 'Taxonomy display settings deleted for %name.';
+      $watchdog_variables = array('%name' => $machine_name);
+    }
+    watchdog('taxonomy_display', $watchdog_message, $watchdog_variables, $watchdog_severity);
+  }
+}
+
+/**
+ * Helper function; retrieve taxonomy display settings.
+ *
+ * @param string $machine_name
+ *   The machine name of the vocabulary's taxonomy display data to fetch.
+ *
+ * @return object
+ *   Return ctools export object with taxonomy display settings.
+ */
+function taxonomy_display_fetch_taxonomy_display($machine_name) {
+  // Attempt to fetch cached settings for the machine name.
+  $cache = cache_get('taxonomy_display:settings:' . $machine_name);
+  if ($cache) {
+    return $cache->data;
+  }
+
+  $plugin_types = _taxonomy_display_plugin_types();
+
+  ctools_include('export');
+  $result = ctools_export_load_object('taxonomy_display', 'names', array($machine_name));
+
+  // Set defaults if a result was not found.
+  if (!isset($result[$machine_name])) {
+    $defaults = new stdClass();
+    $defaults->machine_name = $machine_name;
+    $defaults->add_feed = TRUE;
+    $defaults->no_record = TRUE;
+
+    foreach($plugin_types as $k => $v) {
+      $defaults->{$k . '_display_plugin'} = 'TaxonomyDisplay' . ucfirst($k) . 'DisplayHandlerCore';
+      $defaults->{$k . '_display_options'} = NULL;
+    }
+    return $defaults;
+  }
+
+  $result = $result[$machine_name];
+
+  // Prepare plugins' data for use.
+  foreach ($plugin_types as $k => $v) {
+    if (!class_exists($result->{$k . '_display_plugin'})) {
+      // Note that if providing translations for this module you must provide a
+      // translation for this watchdog warning for each $value.
+      watchdog('taxonomy_display', 'The taxonomy ' . $v['short'] . ' plugin assigned to the %name vocabulary is missing, Drupal default settings were used instead.', array('%name' => $machine_name), WATCHDOG_WARNING);
+
+      $result->{$k . '_display_plugin'} = 'TaxonomyDisplay' . ucfirst($k) . 'DisplayHandlerCore';
+      $result->{$k . '_display_options'} = NULL;
+      $result->{$k . '_plugin_missing'} = TRUE;
+    }
+  }
+
+  // Store $result for next time.
+  cache_set('taxonomy_display:settings:' . $machine_name, $result);
+
+  return $result;
+}
+
+/**
+ * Implements hook_form_FORM_ID_alter().
+ */
+function taxonomy_display_form_field_ui_display_overview_form_alter(&$form, &$form_state) {
+  form_load_include($form_state, 'inc', 'taxonomy_display', 'taxonomy_display.admin');
+  taxonomy_display_admin_form($form, $form_state);
+}
+
+/**
+ * Helper function; retrieve the plugin fieldset from configuration form.
+ *
+ * This is set up just so we don't break implementing modules in the future if
+ * we change the form placement for some reason.
+ *
+ * @param array $form
+ *   Form array.
+ * @param string $fetch
+ *   String either 'term', 'associated', or 'breadcrumb'.
+ *
+ * @return array|FALSE
+ *   Returns the form fieldset if valid, otherwise boolean false.
+ */
+function taxonomy_display_form_fieldset(&$form, $fetch = 'term') {
+  if (isset($form['additional_settings']['taxonomy_display'][$fetch . '_display_form'])) {
+    return $form['additional_settings']['taxonomy_display'][$fetch . '_display_form'];
+  }
+
+  return FALSE;
+}
+
+/**
+ * Implements of hook_menu_alter().
+ */
+function taxonomy_display_menu_alter(&$items) {
+  // Do not hijack term page if CTools' Page Manager is hijacking it.
+  if (!variable_get('page_manager_term_view_disabled', TRUE)) {
+    return;
+  }
+
+  $items['taxonomy/term/%taxonomy_term']['page callback'] = 'taxonomy_display_taxonomy_term_page';
+  $items['taxonomy/term/%taxonomy_term']['title callback'] = 'taxonomy_display_taxonomy_term_title';
+  $items['taxonomy/term/%taxonomy_term']['file'] = 'taxonomy_display.module';
+  $items['taxonomy/term/%taxonomy_term']['module'] = 'taxonomy_display';
+}
+
+/**
+ * Implements hook_permission().
+ */
+function taxonomy_display_permission() {
+  $permissions = array(
+    'administer taxonomy display' => array(
+      'title' => t('Administer taxonomy display'),
+      'description' => t('Change the display settings for taxonomy term pages in each vocabulary.'),
+    ),
+  );
+  return $permissions;
+}
+
+/**
+ * Retrieve an array of Taxonomy Display plugins.
+ *
+ * @param null|string $type
+ *   Only retrieve plugins of a specific type, expected values 'term',
+ *   'associated', and 'breadcrumb'. By default, NULL, this will return an array
+ *   with all.
+ *
+ * @return array|void
+ *   If an expected value is provided for $type, or no value is provided, an
+ *   array will be returned. If an unexpected value is provided nothing will be
+ *   returned.
+ */
+function taxonomy_display_plugins($type = NULL) {
+  $plugins = module_invoke_all('taxonomy_display_plugins');
+
+  // Expose our retrieved plugins to altering.
+  drupal_alter('taxonomy_display_plugins', $plugins);
+
+  if (is_null($type)) {
+    return $plugins;
+  }
+
+  if (array_key_exists($type, $plugins)) {
+    return $plugins[$type];
+  }
+}
+
+/**
+ * Implements hook_taxonomy_display_plugins().
+ *
+ * Taxonomy Display invokes this hook when looking for plugins for displaying
+ * taxonomy term, taxonomy term's associated content, and taxonomy term's
+ * breadcrumbs.
+ */
+function taxonomy_display_taxonomy_display_plugins() {
+  // To add custom plugins in your own hook implementation return an array with
+  // the format below:
+  $plugins = array(
+    // In the array's sencondary arrays, provide the implementing class
+    // name of your handler as the keys and the text to be displayed to the user
+    // for display as the value.
+    //
+    // Note: All of the class's files are in our module's .info files array so
+    //   that auto loading works.
+    'associated' => array(
+      'TaxonomyDisplayAssociatedDisplayHandlerCore' => t('Core'),
+      'TaxonomyDisplayAssociatedDisplayHandlerHidden' => t('Hidden'),
+    ),
+    'breadcrumb' => array(
+      'TaxonomyDisplayBreadcrumbDisplayHandlerCore' => t('Core'),
+      'TaxonomyDisplayBreadcrumbDisplayHandlerHidden' => t('Hidden'),
+      'TaxonomyDisplayBreadcrumbDisplayHandlerIgnore' => t('Ignore'),
+    ),
+    'term' => array(
+      'TaxonomyDisplayTermDisplayHandlerCore' => t('Core'),
+      'TaxonomyDisplayTermDisplayHandlerHidden' => t('Hidden'),
+    ),
+  );
+
+  // Conditional plugins
+  if (module_exists('views')) {
+    $plugins['associated']['TaxonomyDisplayAssociatedDisplayHandlerViews'] = t('Views');
+  }
+
+  return $plugins;
+}
+
+/**
+ * Helper function; save a taxonomy display record in the database.
+ *
+ * @param string $machine_name
+ *   The machine name of the vocabulary's taxonomy display data to save.
+ * @param array $save_data
+ *
+ * @param string|NULL|FALSE $watchdog_message
+ *   Provide a watchdog message as a string. If null then a generic default
+ *   message will be used. If false then no watchdog message will be recorded.
+ * @param array $watchdog_variables
+ *   Variables for substitution in the watchdog message.
+ * @param int $watchdog_severity
+ *   One of the defined watchdog constant severities: WATCHDOG_EMERGENCY,
+ *   WATCHDOG_ALERT, WATCHDOG_CRITICAL, WATCHDOG_ERROR, WATCHDOG_WARNING,
+ *   WATCHDOG_NOTICE, WATCHDOG_INFO, WATCHDOG_DEBUG. Defaults to
+ *   WATCHDOG_NOTICE.
+ *
+ * @return void
+ */
+function taxonomy_display_save_taxonomy_display($machine_name, $save_data = array(), $watchdog_message = NULL, $watchdog_variables = array(), $watchdog_severity = WATCHDOG_NOTICE) {
+  // Allow other modules to alter our fields before they are inserted/updated.
+  drupal_alter('taxonomy_display_save_fields', $save_data);
+
+  // Prepare the fields to be used for the insert or update query.
+  $query_fields = array();
+  foreach ($save_data as $k => $v) {
+    switch ($k) {
+      case 'machine_name':
+      case 'term_display_plugin':
+      case 'associated_display_plugin':
+      case 'breadcrumb_display_plugin':
+      case 'add_feed':
+        $query_fields[$k] = $v;
+        break;
+      case 'term_display_options':
+      case 'associated_display_options':
+      case 'breadcrumb_display_options':
+        $query_fields[$k] = serialize($v);
+        break;
+      default:
+        break;
+    }
+  }
+
+  // Retrieve the machine name, tells us whether to insert or update.
+  $update = taxonomy_display_fetch_taxonomy_display($machine_name);
+
+  // If $update was fetched from cache, CTools export.inc is not included.
+  ctools_include('export');
+
+  // Perform our save
+  try {
+    // If update
+    if (!isset($update->no_record) && ($update->export_type & EXPORT_IN_DATABASE)) {
+      // Do not proceed if there are no fields to update.
+      if (empty($query_fields)) {
+        return;
+      }
+
+      // Query
+      $count = (bool) db_update('taxonomy_display')
+        ->fields($query_fields)
+        ->condition('machine_name', $machine_name)
+        ->execute();
+
+      if ($count && $watchdog_message !== FALSE) {
+        if (empty($watchdog_message)) {
+          $watchdog_message = 'Taxonomy display vocabulary data updated for %machine_name.';
+          $watchdog_variables = array('%machine_name' => $machine_name);
+        }
+        watchdog('taxonomy_display', $watchdog_message, $watchdog_variables, $watchdog_severity);
+      }
+    }
+    // Else insert
+    else {
+      // If the record is being inserted we do not want to force the user to
+      // supply machine_name twice for no reason, if they know it is an insert.
+      if (!isset($query_fields['machine_name'])) {
+        $query_fields['machine_name'] = $machine_name;
+      }
+
+      // Query
+      $value = db_insert('taxonomy_display')
+        ->fields($query_fields)
+        ->execute();
+
+      if ($watchdog_message !== FALSE) {
+        if (empty($watchdog_message)) {
+          $watchdog_message = 'Taxonomy display vocabulary data created for %machine_name.';
+          $watchdog_variables = array('%machine_name' => $machine_name);
+        }
+        watchdog('taxonomy_display', $watchdog_message, $watchdog_variables, $watchdog_severity);
+      }
+    }
+  }
+  catch (Exception $e) {
+    drupal_set_message(t('Taxonomy display data save failed. Message = %message, query= %query',
+      array('%message' => $e->getMessage(), '%query' => $e->query_string)), 'error');
+  }
+
+  // Clear our display settings for the machine name.
+  cache_clear_all('taxonomy_display:settings:' . $machine_name, 'cache');
+
+  // Regenerate the display settings for the machine name in cache so they are
+  // ready on the next load.
+  taxonomy_display_fetch_taxonomy_display($machine_name);
+}
+
+/**
+ * Page callback; displays all nodes associated with a term.
+ *
+ * @param $term
+ *   A term object.
+ *
+ * @return
+ *   The page content.
+ */
+function taxonomy_display_taxonomy_term_page($term) {
+  // Ensure custom display settings for taxonomy term page are enabled before
+  // altering.
+  $view_mode = field_view_mode_settings('taxonomy_term', $term->vocabulary_machine_name);
+  if (empty($view_mode['full']['custom_settings'])) {
+    module_load_include('inc', 'taxonomy', 'taxonomy.pages');
+    return taxonomy_term_page($term);
+  }
+
+  // Expose our $term object to altering.
+  drupal_alter('taxonomy_display_term_page_term_object', $term);
+
+  // taxonomy_term_page() sets the title this way, if flexibility is requested
+  // it can always be added to the module as a configurable setting.
+  drupal_set_title($term->name);
+
+  // Load settings for this vocabulary term.
+  $display_settings = taxonomy_display_fetch_taxonomy_display($term->vocabulary_machine_name);
+
+  // Breadcrumb display
+  $breadcrumb_display = new $display_settings->breadcrumb_display_plugin;
+  $breadcrumb_display->buildBreadcrumb($term);
+
+  // Conditionally add core Drupal feed to page
+  if ($display_settings->add_feed) {
+    drupal_add_feed('taxonomy/term/' . $term->tid . '/feed', 'RSS - ' . $term->name);
+  }
+
+  // Build our content
+  $build = array();
+
+  // Term display
+  $term_display = new $display_settings->term_display_plugin;
+  $build['term_heading'] = $term_display->displayTerm($term, $display_settings->term_display_options);
+
+  // Associated content display
+  $associated_display = new $display_settings->associated_display_plugin;
+  $build = array_merge($build, $associated_display->displayAssociated($term, $display_settings->associated_display_options));
+
+  return $build;
+}
+
+/**
+ * Title callback; display title for term pages.
+ *
+ * As of now we do not do anything with this. If we come up with something that
+ * would be helpful or requested we can add it. This is simply to make all of
+ * the hook_menu_alter functions we changed point to the same module.
+ *
+ * @param $term
+ *   A term object.
+ *
+ * @return
+ *   The term name to be used as the page title.
+ */
+function taxonomy_display_taxonomy_term_title($term) {
+  return function_exists('i18n_taxonomy_term_name') ?
+      i18n_taxonomy_term_name($term) : taxonomy_term_title($term);
+}
+
+/**
+ * Implements hook_taxonomy_vocabulary_delete().
+ */
+function taxonomy_display_taxonomy_vocabulary_delete($vocabulary) {
+  // Delete our display record for the vocabulary being removed.
+  taxonomy_display_delete_taxonomy_display($vocabulary->machine_name,
+      'Taxonomy display settings deleted for %name in response to the vocabulary being deleted.',
+      array('%name' => $vocabulary->machine_name));
+}
+
+/**
+ * Implements hook_taxonomy_vocabulary_update().
+ */
+function taxonomy_display_taxonomy_vocabulary_update($vocabulary) {
+  // If the machine name is changed update our display table so that the display
+  // settings still apply.
+  if ($vocabulary->old_machine_name != $vocabulary->machine_name &&
+      taxonomy_display_fetch_taxonomy_display($vocabulary->old_machine_name)) {
+    taxonomy_display_save_taxonomy_display($vocabulary->old_machine_name,
+        array('machine_name' => $vocabulary->machine_name),
+        'Taxonomy display vocabulary changed machine name from %old to %new in response to the vocabulary machine name being altered.',
+        array('%old' => $vocabulary->old_machine_name, '%new' => $vocabulary->machine_name));
+  }
+}
+
+/**
+ * Helper; Retrieve array of plugin types for taxonomy display.
+ *
+ * By using this function and iterating over the values in utilizing code we
+ * avoid having duplicate assignments which makes management and verification
+ * extremely difficult and tedious.
+ */
+function _taxonomy_display_plugin_types() {
+  return array(
+    'term' => array(
+      'short' => t('term display'),
+      'description' => t('content'),
+      'long' => t('Term display'),
+    ),
+    'associated' => array(
+      'short' => t('associated content'),
+      'description' => t('associated content'),
+      'long' => t('Associated content display'),
+    ),
+    'breadcrumb' => array(
+      'short' => t('breadcrumb'),
+      'description' => t('breadcrumb'),
+      'long' => t('Breadcrumb display'),
+    ),
+  );
+}

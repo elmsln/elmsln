@@ -1,0 +1,67 @@
+<?php
+
+/**
+ * @file flag_fields_test.install
+ * Contains install hooks.
+ */
+
+/**
+ * Implements hook_install().
+ */
+function flag_fields_test_install() {
+  // Add a number field to the flagging.
+  $field = array(
+    'field_name' => 'flag_fields_test_integer',
+    'type' => 'number_integer',
+    'cardinality' => '1',
+    'settings' => array(),
+  );
+  field_create_field($field);
+
+  $instance = array(
+    'field_name' => 'flag_fields_test_integer',
+    'entity_type' => 'flagging',
+    'bundle' => 'flag_fields_test_flag',
+    'label' => 'Test integer',
+    'widget' => array(
+      'weight' => 0,
+      'type' => 'number',
+      'module' => 'number',
+      'active' => 0,
+      'settings' => array(),
+    ),
+    'settings' => array(
+      'min' => '',
+      'max' => '11',
+      'prefix' => '',
+      'suffix' => '',
+      'user_register_form' => FALSE,
+    ),
+    'display' => array(
+      'default' => array(
+        'label' => 'above',
+        'type' => 'number_integer',
+        'settings' => array(
+          'thousand_separator' => ' ',
+          'decimal_separator' => '.',
+          'scale' => 0,
+          'prefix_suffix' => TRUE,
+        ),
+        'module' => 'number',
+        'weight' => 1,
+      ),
+    ),
+  );
+  field_create_instance($instance);
+}
+
+/**
+ * Implements hook_uninstall().
+ *
+ * Not needed for testing, but useful for when developing tests as it allows
+ * use of Devel module's reinstall tool.
+ */
+function flag_fields_test_uninstall() {
+  // Delete our fields.
+  field_delete_field('flag_fields_test_integer');
+}

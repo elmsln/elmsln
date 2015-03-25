@@ -1,0 +1,181 @@
+<?php
+
+/**
+ * @file
+ * Install, update and uninstall functions for the taxonomy display module.
+ */
+
+/**
+ * Implements hook_enable().
+ *
+ * Perform cleanup from while taxonomy_display was disabled.
+ */
+function taxonomy_display_enable() {
+  watchdog('taxonomy_display', 'Taxonomy display is performing cleanup in response to being enabled, any changes made will be subsequently logged.', array(), WATCHDOG_INFO);
+
+  // Retrieve all the existing vocabularies.
+  $vocabularies = taxonomy_vocabulary_get_names();
+
+  // Select taxonomy displays we have in the DB.
+  $taxonomy_displays = db_select('taxonomy_display', 'td')
+      ->fields('td', array('machine_name'))
+      ->execute();
+
+  // Loop through each display
+  foreach ($taxonomy_displays as $taxonomy_display) {
+    // If the vocabulary does not exist delete the taxonomy_display as it is now
+    // an orphan.
+    if (!isset($vocabularies[$taxonomy_display->machine_name])) {
+      taxonomy_display_delete_taxonomy_display($taxonomy_display->machine_name);
+    }
+  }
+}
+
+/**
+ * Implements hook_schema().
+ */
+function taxonomy_display_schema() {
+  $schema['taxonomy_display'] = array(
+    'description' => 'Per vocabulary configuration for term pages.',
+
+    // CTools export definitions.
+    'export' => array(
+      'key' => 'machine_name',
+      'primary key' => 'machine_name',
+      'default hook' => 'taxonomy_display_default_displays',
+      'load callback' => 'taxonomy_display_fetch_taxonomy_display',
+      'can disable' => FALSE,
+      'api' => array(
+        'owner' => 'taxonomy_display',
+        'api' => 'taxonomy_display',
+        'minimum_version' => 1,
+        'current_version' => 1,
+      ),
+    ),
+
+    'fields' => array(
+      'machine_name' => array(
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => TRUE,
+        'default' => '',
+        'description' => 'The vocabulary machine name.',
+      ),
+      'term_display_plugin' => array(
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => TRUE,
+        'default' => '',
+        'description' => 'The plugin used to display the term.',
+      ),
+      'term_display_options' => array(
+        'type' => 'blob',
+        'not null' => FALSE,
+        'size' => 'big',
+        'serialize' => TRUE,
+        'description' => 'The plugin data for the term display.',
+      ),
+      'associated_display_plugin' => array(
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => TRUE,
+        'default' => '',
+        'description' => 'The plugin used to display the associated content.',
+      ),
+      'associated_display_options' => array(
+        'type' => 'blob',
+        'not null' => FALSE,
+        'size' => 'big',
+        'serialize' => TRUE,
+        'description' => 'The plugin data for the associated content display.',
+      ),
+      'add_feed' => array(
+        'type' => 'int',
+        'not null' => TRUE,
+        'size' => 'tiny',
+        'default' => 1,
+        'description' => 'Whether to add Drupal\'s core feed.',
+      ),
+      'breadcrumb_display_plugin' => array(
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => TRUE,
+        'default' => '',
+        'description' => 'The plugin used to display the breadcrumb.',
+      ),
+      'breadcrumb_display_options' => array(
+        'type' => 'blob',
+        'not null' => FALSE,
+        'size' => 'big',
+        'serialize' => TRUE,
+        'description' => 'The plugin data for the breadcrumb display.',
+      ),
+    ),
+    'primary key' => array('machine_name'),
+  );
+
+  return $schema;
+}
+
+/**
+ * Implements hook_uninstall().
+ */
+function taxonomy_display_uninstall() {}
+
+/**
+ * Implements hook_update_N().
+ */
+function taxonomy_display_update_7001() {
+  // Weight taxonomy display to run after display suite for manipulation of
+  // taxonomy display forms, see taxonomy_display_admin_form() and
+  // http://drupal.org/node/1124346
+  db_update('system')
+    ->fields(array('weight' => 2))
+    ->condition('name', 'taxonomy_display')
+    ->execute();
+}
+
+/**
+ * Implements hook_update_N().
+ */
+function taxonomy_display_update_7002() {
+  // Add feed field on taxonomy_display records in the storage system to give
+  // administrative control of whether the feed should be added to term pages
+  // see http://drupal.org/node/1126052
+  db_add_field('taxonomy_display', 'add_feed', array(
+    'type' => 'int',
+    'not null' => TRUE,
+    'size' => 'tiny',
+    'default' => 1,
+    'description' => 'Whether to add Drupal\'s core feed.',
+  ));
+}
+
+/**
+ * Implements hook_update_N().
+ */
+function taxonomy_display_update_7003() {
+  // Add fields on taxonomy_display records in the storage system to add support
+  // for our new breadcrumb plugin type.
+  // See http://drupal.org/node/1247802
+
+  // Add field with a default value for the core breadcrumb type.
+  db_add_field('taxonomy_display', 'breadcrumb_display_plugin', array(
+    'type' => 'varchar',
+    'length' => 255,
+    'not null' => TRUE,
+    'default' => 'TaxonomyDisplayBreadcrumbDisplayHandlerCore',
+    'description' => 'The plugin used to display the breadcrumb.',
+  ));
+  // Remove the default value now that existing records have been updated with
+  // the core value.
+  db_field_set_default('taxonomy_display', 'breadcrumb_display_plugin', '');
+
+  db_add_field('taxonomy_display', 'breadcrumb_display_options', array(
+    'type' => 'blob',
+    'not null' => FALSE,
+    'size' => 'big',
+    'serialize' => TRUE,
+    'description' => 'The plugin data for the breadcrumb display.',
+  ));
+}

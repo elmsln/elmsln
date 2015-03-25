@@ -1,0 +1,67 @@
+<?php
+
+/**
+ * @file
+ * The Flag Bookmark module install hooks.
+ */
+
+/**
+ * Implements hook_enable().
+ *
+ * We create the demonstration flag on enable, so hook implementations in flag
+ * module will fire correctly, as the APIs are not available on install.
+ */
+function flag_bookmark_enable() {
+  // Load the flag API in case we want to use it when enabling.
+  include_once drupal_get_path('module', 'flag') . '/flag.module';
+
+  if (!flag_get_flags()) {
+    // Install a demonstration flag only if no flag exists. This is to prevent
+    // a case where a disables and enables the module, and the demonstration
+    // flag is overwritten or re-created.
+    $flag = flag_flag::factory_by_entity_type('node');
+    $configuration = array(
+      'name' => 'bookmarks',
+      'global' => 0,
+      'show_in_links' => array(
+        'full' => 1,
+        'teaser' => 1,
+      ),
+      'show_on_form' => 1,
+      // The following UI labels aren't wrapped in t() because they are written
+      // to the DB in English. They are passed to t() later, thus allowing for
+      // multilingual sites.
+      'title' => 'Bookmarks',
+      'flag_short' => 'Bookmark this',
+      'flag_long' => 'Add this post to your bookmarks',
+      'flag_message' => 'This post has been added to your bookmarks',
+      'unflag_short' => 'Unbookmark this',
+      'unflag_long' => 'Remove this post from your bookmarks',
+      'unflag_message' => 'This post has been removed from your bookmarks',
+      'types' => _flag_bookmark_install_get_suggested_node_types(),
+    );
+    $flag->form_input($configuration);
+    $flag->save();
+
+    // Clear the flag cache so the new permission is seen by core.
+    drupal_static_reset('flag_get_flags');
+
+    // Grant permissions.
+    $permissions = array('flag bookmarks', 'unflag bookmarks');
+    user_role_grant_permissions(DRUPAL_AUTHENTICATED_RID, $permissions);
+  }
+}
+
+/**
+ * Returns some node types to which the demonstration 'bookmarks' flag will
+ * apply.
+ */
+function _flag_bookmark_install_get_suggested_node_types() {
+  $preferred = array('article', 'story', 'forum', 'blog');
+  $existing = array_intersect($preferred, array_keys(node_type_get_types()));
+  if (!$existing) {
+    // As a last resort, take the first preference.
+    return array($preferred[0]);
+  }
+  return $existing;
+}

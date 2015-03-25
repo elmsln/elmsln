@@ -1,0 +1,19 @@
+
+views_load_more 7.x-1.x, xxxx-xx-xx
+-----------------------------------
+
+views_load_more 7.x-1.2, 2013-11-27
+-----------------------------------
+#1372206 by andremolnar, attilafekete: provide default target selectors for specific view styles
+#1703436 by agalitsyn, attilafekete: avoid undefined AJAX error
+#1919894 by caiosba: Trigger a custom event when new content is loaded
+#1459860 by Kleve: Fixed Views load more does not follow the No results behavior
+#1404664 by justin2pin, jyee: Fixed Circumvent Views Ajax Scrolling
+#1322642 by ericduran, johnste: Fixed Full page reload on 2nd click of load more. (works the first time)
+#1332386 by ericduran: Add advance options for custom classes
+#1272562 by andremolnar, ericduran: Added provide option to change the text per view
+#1320164 by andremolnar: Added Provide more descriptive description in info file
+#1264222 by EndEd: Fixing behaviors when the result set is being rendered by an exposed filter
+#1234680 by ericduran: Adding support for effects, right now fade is supported
+#1237888 by moonray: Add class to distinguish from regular pager
+#1234664 by ericduran, moonray: Add waypoint support Fixes

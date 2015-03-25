@@ -1,0 +1,221 @@
+<?php
+
+/**
+ * @file
+ * short_scale_formatter.module
+ */
+
+/**
+ * Implements hook_theme().
+ */
+function short_scale_formatter_theme($existing, $type, $theme, $path) {
+  return array(
+    'short_scale_number' => array(
+      'variables' => array(
+        'wrapper_element' => NULL,
+        'wrapper_title_text' => NULL,
+        'number' => 0,
+        'formatted' => NULL,
+        'character' => NULL,
+      ),
+    ),
+  );
+}
+
+/**
+ * Implements hook_field_formatter_info().
+ */
+function short_scale_formatter_field_formatter_info() {
+  return array(
+    'short_scale_formatter' => array(
+      'label' => t('Short Scale number suffix'),
+      'field types' => array('number_integer'),
+      'settings'  => array(
+        'wrapper_element' => 'span',
+        'wrapper_title_text' => '',
+        'thousand' => 'K',
+        'million' => 'M',
+        'billion' => 'B',
+        'trillion' => 'T',
+      ),
+    ),
+  );
+}
+
+/**
+ * Implements hook_field_formatter_settings_form().
+ */
+function short_scale_formatter_field_formatter_settings_form($field, $instance, $view_mode, $form, &$form_state) {
+  $display = $instance['display'][$view_mode];
+  $settings = $display['settings'];
+
+  $elements = array();
+
+  $elements['wrapper_element'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Wrapper element'),
+    '#default_value' => $settings['wrapper_element'],
+    '#required' => TRUE,
+  );
+
+  $elements['wrapper_title_text'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Wrapper title attribute text'),
+    '#default_value' => $settings['wrapper_title_text'],
+    '#description' => t('You can use @count within the string which will be replaced with the original number.'),
+  );
+
+  $elements['thousand'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Character for thousands'),
+    '#default_value' => $settings['thousand'],
+    '#required' => TRUE,
+  );
+
+  $elements['million'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Character for millions'),
+    '#default_value' => $settings['million'],
+    '#required' => TRUE,
+  );
+
+  $elements['billion'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Character for billions'),
+    '#default_value' => $settings['billion'],
+    '#required' => TRUE,
+  );
+
+  $elements['trillion'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Character for trillions'),
+    '#default_value' => $settings['trillion'],
+    '#required' => TRUE,
+  );
+
+  return $elements;
+}
+
+/**
+ * Implements hook_field_formatter_settings_summary().
+ */
+function short_scale_formatter_field_formatter_settings_summary($field, $instance, $view_mode) {
+  $display = $instance['display'][$view_mode];
+  $settings = $display['settings'];
+  $summary = array();
+
+  if (!empty($settings['wrapper_element'])) {
+    $summary[] = t('<strong>Wrapper element:</strong> @element', array('@element' => $settings['wrapper_element']));
+  }
+
+  if (!empty($settings['wrapper_title_text'])) {
+    $summary[] = t('<strong>Text for title attribute:</strong> @text', array('@text' => $settings['wrapper_title_text']));
+  }
+
+  $characters = array(
+    'thousand' => 'Thousands',
+    'million' => 'Millions',
+    'billion' => 'Billions',
+    'trillion' => 'Trillions',
+  );
+
+  foreach ($characters as $character => $title) {
+    if (!empty($settings[$character])) {
+      $summary[] = t('<strong>@title:</strong> &quot;@char&quot;', array('@title' => $title, '@char' => $settings[$character]));
+    }
+  }
+
+  return !empty($summary) ? implode('<br/>', $summary) : '';
+}
+
+/**
+ * Implements hook_field_formatter_view().
+ */
+function short_scale_formatter_field_formatter_view($entity_type, $entity, $field, $instance, $langcode, $items, $display) {
+  $element = array();
+  $settings = $display['settings'];
+
+  switch ($display['type']) {
+    case 'short_scale_formatter':
+      $variables = array(
+        '#theme' => 'short_scale_number',
+        '#wrapper_element' => check_plain($settings['wrapper_element']),
+        '#wrapper_title_text' => check_plain($settings['wrapper_title_text']),
+      );
+
+      $characters = array($settings['thousand'], $settings['million'], $settings['billion'], $settings['trillion']);
+      $characters = array_map('check_plain', $characters);
+
+      foreach ($items as $delta => $item) {
+        $variables['#number'] = $item['value'];
+
+        $element[$delta] = array_merge($variables, short_scale_formatter_format_number($item['value'], $characters));
+      }
+
+      break;
+  }
+
+  return $element;
+}
+
+/**
+ * short_scale_formatter_format_number().
+ *
+ * This function does the work of formatting the number. This code is based off
+ * of code from the following URL but reworked slightly for what we want. No
+ * rounding up, 1 decimal place.
+ * http://stackoverflow.com/questions/4753251/how-to-go-about-formatting-1200-to-1-2k-in-java
+ */
+function short_scale_formatter_format_number($n, $characters, $iteration = 0) {
+  if ($n < 1000 && $iteration == 0) {
+    return array(
+      '#formatted' => $n,
+      '#character' => NULL,
+    );
+  }
+
+  $d = ($n / 100) / 10.0;
+
+  if ($d < 1000) {
+    $return = array(
+      '#formatted' => (floor($d * 10) / 10) . $characters[$iteration],
+      '#character' => strtolower($characters[$iteration]),
+    );
+  }
+  else {
+    $return = short_scale_formatter_format_number($d, $characters, $iteration + 1);
+  }
+
+  return $return;
+}
+
+/**
+ * Theme callback function.
+ */
+function theme_short_scale_number($variables) {
+  $output = NULL;
+  $element_name = !empty($variables['wrapper_element']) ? $variables['wrapper_element'] : NULL;
+
+  if ($element_name) {
+    $title = NULL;
+    $classes = 'number';
+
+    if (!empty($variables['wrapper_title_text'])) {
+      $title = ' title="' . t($variables['wrapper_title_text'], array('@count' => $variables['number'])) . '"';
+    }
+
+    if (!empty($variables['character'])) {
+      $classes .= ' number-scale-' . $variables['character'];
+    }
+
+    $output = '<' . $element_name . ' class="' . $classes . '"' . $title . '>';
+  }
+
+  $output .= $variables['formatted'];
+
+  if ($element_name) {
+    $output .= "</$element_name>";
+  }
+
+  return $output;
+}

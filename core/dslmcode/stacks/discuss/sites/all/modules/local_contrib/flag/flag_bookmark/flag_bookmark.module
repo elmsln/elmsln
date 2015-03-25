@@ -1,0 +1,19 @@
+<?php
+
+/**
+ * @file
+ * The Flag bookmark module.
+ *
+ * This module creates a default Flag and associated views when enabled. The
+ * content is intended to be an example and may be deleted afterward.
+ */
+
+/**
+ * Implements hook_views_api().
+ */
+function flag_bookmark_views_api() {
+  return array(
+    'api' => 2.0,
+    'path' => drupal_get_path('module', 'flag_bookmark') . '/includes',
+  );
+}

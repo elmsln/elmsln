@@ -1,0 +1,93 @@
+<?php
+
+/**
+ * @file
+ * Provides an input filter that allows site administrators configure which
+ * HTML elements, attributes and style properties are allowed.
+ */
+
+// todo: more intelligent include policy
+// beware: it filter process function in ...page.inc is not included,
+// the whole filter is silently ignored. see http://drupal.org/node/1151506
+module_load_include('inc', 'wysiwyg_filter', 'wysiwyg_filter.admin');
+module_load_include('inc', 'wysiwyg_filter', 'wysiwyg_filter.pages');
+
+/**
+ * Implements hook_filter_info().
+ */
+function wysiwyg_filter_filter_info() {
+  // Load common functions.
+  module_load_include('inc', 'wysiwyg_filter');
+  $filters = array();
+  global $base_url;
+  $parts = parse_url($base_url);
+  
+  $defaults = array(
+    'valid_elements' => wysiwyg_filter_default_valid_elements(),
+    'allow_comments' => 0,
+    'nofollow_policy' => 'whitelist',
+    'nofollow_domains' => array($parts['host']),
+  );
+  foreach(wysiwyg_filter_get_style_property_groups() as $group => $stuff):
+      $defaults["style_$group"] = array();
+  endforeach;
+  foreach(wysiwyg_filter_get_advanced_rules() as $rule => $stuff):
+      $defaults["rule_$rule"] = array();
+  endforeach;
+  
+  $filters['wysiwyg'] = array(
+    'title' => t('WYSIWYG Filter'), 
+    'description' => t('Allows you to restrict whether users can post HTML and which tags and attributes per HTML tag to filter out.'), 
+    'process callback' => 'wysiwyg_filter_filter_wysiwyg_process', 
+    'settings callback' => 'wysiwyg_filter_filter_wysiwyg_settings', 
+    'tips callback' => 'wysiwyg_filter_filter_wysiwyg_tips',
+    'default settings' => $defaults
+  );
+  return $filters;
+}
+
+/**
+ * Implements hook_filter_FILTER_tips().
+ */
+function wysiwyg_filter_filter_wysiwyg_tips($filter, $format, $long = FALSE) {
+  // Load common functions.
+  module_load_include('inc', 'wysiwyg_filter');
+
+  $filter_options = wysiwyg_filter_get_filter_options($format->format, $filter->settings);
+  $tips = array();
+  if (!empty($filter_options['valid_elements'])) {
+    $tags = array();
+    foreach (array_keys($filter_options['valid_elements']) as $tag) {
+      $tags[] = '<' . $tag . '>';
+    }
+    $tips[] = t('Allowed HTML tags: @tags', array('@tags' => implode(' ', $tags)));
+  }
+  if (!empty($filter_options['style_properties'])) {
+    $tips[] = t('Allowed Style properties: @properties', array('@properties' => implode(', ', array_keys($filter_options['style_properties']))));
+  }
+  if (!empty($tips)) {
+    return implode('<br />', $tips);
+  }
+}
+
+/**
+ * Implementation of wysiwyg_editor_settings_alter().
+ */
+function wysiwyg_filter_wysiwyg_editor_settings_alter(&$editor_settings, $context) {
+  // Provide the valid_elements option to TinyMCE editors, only if the WYSIWYG
+  // Filter is enabled in the input format related to the current given context.
+  if ($context['profile']->editor == 'tinymce'):
+    // first get the filters and their settings
+    if (isset($context['profile']->format)): 
+      $format_name = $context['profile']->format;
+      $filters = filter_list_format($format_name);
+      if($filters && array_key_exists('wysiwyg', $filters)):
+        $filter = $filters['wysiwyg'];
+        if($filter->status != 0) {
+          $settings = $filter->settings;
+          $editor_settings['valid_elements'] = preg_replace('#\s+#', '', $settings['valid_elements']);
+        }
+      endif;
+    endif;
+  endif;
+}

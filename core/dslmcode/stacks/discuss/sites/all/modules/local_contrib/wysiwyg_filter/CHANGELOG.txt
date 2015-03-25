@@ -1,0 +1,78 @@
+
+6.x-1.x-dev
+===========
+
+Features:
+- #878032 by dagmar - Integrate with input formats module.
+
+Bugfixes:
+- #926364 by roderik - Filtering occurring when filter is turned off.
+
+
+6.x-1.5 - 2010/05/08
+====================
+
+Features:
+- #713922 Provide the valid_elements option to TinyMCE editors dynamically altering the Wysiwyg API settings.
+- #775200 Enhance the handling of HTML comments (solution based on #559584).
+
+Bugfixes:
+- #746434 by nedjo - Filter form validate and submit handlers overwritten.
+- #760720 by gaellafond and markus_petrux - margin/padding style attribute gets stripped when using more than one value.
+- #792566 Issues with border-width, border-style and border-color (marked as dup, fixed in #760720).
+- #788508 Enhance the parser to accept individual values of background style attribute in any order.
+- #789690 Enhance the parser to accept individual values of font style attribute in any order.
+
+
+6.x-1.4 - 2009/12/27
+====================
+
+Features:
+- #574686 Aside from fixing the bug, code splitted into external includes to minimize memory requirements when the filter is not used.
+- Added CHANGELOG.txt.
+- Updated translation template to account for changes in code split.
+
+Bugfixes:
+- Fixed minor coding style issues reported by Coder module.
+- #574686 WYSIWYG Filter Strips out allowed HTML when filter settings have not been saved.
+- Fixed named entities handling, so it does not clash with other entities and result in wrong encoding. (back port of Drupal issue #359276).
+
+
+6.x-1.3 - 2009/07/08
+====================
+
+Bugfixes:
+- #484916 by sinasquax - Bug with attributes with default values when they are not declared in the content.
+
+
+6.x-1.2 - 2009/02/24
+====================
+
+Features:
+- #368682 Accept style property names in uppercase.
+- Integration with checkall add-on module for style property checkboxes.
+
+Bugfixes:
+- #363284 Filters out URLs no matter what you put into the filter settings.
+
+
+6.x-1.1 - 2008/11/23
+====================
+
+- #338181 by kroimon - Inline-style color in rbg() format not working.
+
+
+6.x-1.0 - 2008/11/02
+====================
+
+- Changed tips output (do not generate paragraphs).
+- Changed default nofollow policy to whitelist (own site domain).
+- Added span to default valid elements.
+- Fixed regular expression for percents.
+- Added explicit regular expression for bgcolors (this one just means a bit less code, hence it's easier to maintain too).
+
+
+6.x-1.0-rc1 - 2008/10/26
+========================
+
+- First release candidate.

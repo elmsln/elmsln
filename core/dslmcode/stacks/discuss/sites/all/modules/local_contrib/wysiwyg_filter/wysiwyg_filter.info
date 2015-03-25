@@ -1,0 +1,17 @@
+name = WYSIWYG Filter
+description = Provides an input filter that allows site administrators configure which HTML elements, attributes and style properties are allowed.
+package = Input filters
+core = 7.x
+
+files[] = wysiwyg_filter.admin.inc
+files[] = wysiwyg_filter.inc
+files[] = wysiwyg_filter.install
+files[] = wysiwyg_filter.module
+files[] = wysiwyg_filter.pages.inc
+
+; Information added by drupal.org packaging script on 2011-07-10
+version = "7.x-1.6-rc2"
+core = "7.x"
+project = "wysiwyg_filter"
+datestamp = "1310326321"
+

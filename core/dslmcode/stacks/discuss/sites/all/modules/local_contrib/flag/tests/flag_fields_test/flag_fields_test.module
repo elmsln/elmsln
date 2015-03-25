@@ -1,0 +1,45 @@
+<?php
+
+/**
+ * @file flag_fields_test.module
+ * Test module for fields on flagging entities.
+ */
+
+/**
+ * Implements hook_flag_default_flags().
+ */
+function flag_fields_test_flag_default_flags() {
+  $flags = array();
+  // Exported flag: "Flag fields test".
+  $flags['flag_fields_test_flag'] = array(
+    'entity_type' => 'node',
+    'title' => 'Flag fields test',
+    'global' => 1,
+    'types' => array(),
+    'flag_short' => 'Flag with the test flag',
+    'flag_long' => '',
+    'flag_message' => '',
+    'unflag_short' => 'Unflag',
+    'unflag_long' => '',
+    'unflag_message' => '',
+    'unflag_denied_text' => '',
+    'link_type' => 'confirm',
+    'weight' => -15,
+    'show_in_links' => array(
+      'full' => 'full',
+      'teaser' => 'teaser',
+      'rss' => 0,
+      'token' => 0,
+      'revision' => 0,
+    ),
+    'show_as_field' => 0,
+    'show_on_form' => 0,
+    'access_author' => '',
+    'show_contextual_link' => 0,
+    'i18n' => 0,
+    'flag_confirmation' => 'Confirm flagging this node',
+    'unflag_confirmation' => 'Confirm unflagging this node',
+    'api_version' => 3,
+  );
+  return $flags;
+}

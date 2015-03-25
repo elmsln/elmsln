@@ -1,0 +1,141 @@
+
+Viewfield 7.x-2.x, xxxx-xx-xx
+-----------------------------
+#1230534 by keithm, sun: Changed allowed_views to be an instance setting.
+#1230360 by keithm: Changed to remove custom token support.
+#1230414 by sun: Fixed force_default to be independent of cardinality.
+#1071212 by sun, keithm, imclean: Fixed viewfield rendering and theming support.
+#1216684 by sun: Merged include files into .module.
+#1230364 by sun, keithm: Fixed view select in field widget is removed when there
+  is only one option.
+#1230316 by sun: Fixed disabled views can be selected.
+#1221440 by sun, keithm: Fixed bogus default value in field widget.
+#1181226 by sun, keithm, ConradFlashback: Changed to remove
+  viewfield_views_query_alter().
+#1207552 by sun, keithm: Changed to use instance defaults with force_default.
+#1209804 by sun, keithm: Changed force_default from widget to instance settings.
+#311587 by sun, keithm: Fixed force default handling again.
+#311587 by keithm: Fixed force default handling.
+#1048516 by GoZ, keithm: Fixed select list to test for deleted view.
+by sun: Fixed documentation, added test file.
+#1140810 by sun, keithm: Fixed entity handling and changed stack structure.
+#1140810 by keithm: Added support for all fieldable entities.
+#704014 by keithm: Added support for Drupal 7.
+
+
+Viewfield 6.x-2.x, xxxx-xx-xx
+-----------------------------
+#416922 by keithm: Fixed update_6001 to check current size < 128 before update.
+#489908 by sun, keithm: Changed default value settings to field instance level.
+  - $field['super_default'] is gone, which previously allowed saving nodes
+    with no viewfield value, but then to use the field's configured default
+    values automatically. This had an effect only for nodes that were created
+    before the viewfield was created, because viewfields in nodes created after
+    any field is created receive the configured default value preselected in the
+    node edit form, and CCK/Field API always stores a value, even if it is the
+    same as the default value.
+  - $field['super_default_widget'] is equally gone, without replacement, as it
+    merely completed aforementioned functionality.
+  - $field['widget']['override_default'] is also gone, ditto.
+  - $field['token_enabled'] is also gone, as we can replace both legacy tokens
+    and Token module tokens without conflicts.
+  - Global default values are migrated to the instance level.
+
+
+Viewfield 6.x-1.x, xxxx-xx-xx
+-----------------------------
+#416922 by frjo, keithm: Fixed vname too short.
+#1052370 by Anclywen: Fixed unrestricted list of allowed views.
+#1120884 by keithm: Fixed viewfield creation notices.
+#647746 by sun: Fixed %author id of node not always passed to view.
+#571128 by sun: Fixed field setting labels and descriptions (UX).
+#535494 by sun, chaps2: Fixed view is processed twice for tokens.
+#831574 by sun: Fixed array_filter PHP warning.
+#510356 by etzel, sun: Fixed exposed filters submitting to front page.
+#477244 by muhleder, japanitrat, sun: Fixed empty view result output.
+
+
+Viewfield 6.x-1.0, 2010-08-24
+-----------------------------
+by sun: Fixed character encoding and line endings of all files.
+#509406 by sun, askibinski, KarenS: Fixed views field select options.
+#118764 by alex_b: Fixed typo in translating arguments.
+#100085 by Eaton: Implemented plugins as formatters.
+#235572 by plach. Updated to Drupal 6.
+by Zoltan Balogh: Added Hungarian translation.
+#348257 by jerdavis: Added selection of available view displays to viewfield
+  drop-down lists.
+  Allows users to select a specific view display rather than forcing them to
+  create a new default display for each view.
+#367799 by webchick, jerdavis: Fixed metric boat-loads of notices.
+  Cleaned up some code to remove some of the notices being thrown if
+  error_reporting is E_ALL.
+#301503 by plach, artis, radman16, jerdavis: Fixed SQL error on non-node views.
+  Added $table_queue check on $query to make sure we've got a node table in the
+  queue before altering the query.
+#367799 by Darren Oh: Fixed more error notices.
+#386430 by muhleder: Fixed default value not being used until node is saved.
+#312131 by plach: Fixed argument caching.
+#376433 by revimage, jerdavis: Fixed lost settings when node is modified from
+  outside the node edit form.
+  Removed fieldset from viewfield in viewfield_select_process() and
+  viewfield_field().
+#399872 by burlap, jerdavis: Fixed views access control.
+  Added $view->access() check to view execution and rendering in
+  _viewfield_get_view_content().
+#416922 by Darren Oh: Fixed lost settings on default views.
+by Darren Oh: Fixed error notice when force default is on.
+by Darren Oh: Reverted previous commit.
+  Arguments would not display on the field settings page when force default was
+  on.
+#386430 by Darren Oh: Reverted patch.
+  Patch prevented nodes from overriding default values.
+by Darren Oh: Organized code and fixed coding standards compliance.
+by Darren Oh: Fixed more error notices.
+by Darren Oh: Added translation template.
+by Darren Oh: Fixed typo in changelog.
+by Darren Oh: Moved theme functions file to theme directory.
+by Darren Oh: Changed install file description.
+by Darren Oh: Fixed update to enable fields.
+by Zoltan Balogh: Updated Hungarian translation.
+#373373 by ramsalt: Fixed page view changing node title.
+#416922 by Darren Oh: Fixed upgrade for existing fields.
+#434920 by Darren Oh: Fixed argument defaults being lost on save.
+by Darren Oh: Fixed user keyword.
+by Darren Oh: Fixed caching error.
+#480432 by Aren Cambre, hadsie, scottrigby, jerdavis: Error when creating new
+  viewfield.
+  Added is_array() check to prevent errors when the field is first being
+  created.
+#480432 by Darren Oh: Improved original fix to prevent error on line 276.
+by Darren Oh: Fixed undefined variable errors.
+#568304 by Darren Oh: Fixed rendering of fieldgroups after fieldgroup containing
+  viewfield.
+  A viewfield in a fieldgroup would prevent subsequent fieldgroups from being
+  rendered if the build mode was not full.
+#568304 by Darren Oh: Fixed missing fieldgroups in full node view after last
+  change.
+
+
+Viewfield 5.x-1.x, 2007-02-05
+-----------------------------
+by mfredrickson: Fixed ID for author argument token.
+  Was using node ID instead of user ID.
+#100971 by eaton, webchick, alex_b, yched, and stefano73: Updated to Drupal 5.
+  Some changes to the implementation:
+  * More reliance on the views formatters (as seems to be the norm for CCK
+    fields now) for formatting regular node views.
+  * The full node formatter is now the "default". This may break some existing
+    views. It's worth the pain.
+  * Added paging as per stefano73/alex_b's work. Relatively untested, but it
+    looks good so far. (Thanks!)
+
+
+Viewfield 4.7.x-1.x, 2006-11-10
+-------------------------------
+by mfredrickson: Initial commit.
+  Nodes hold content. Views save queries. Wouldn't be great if a node could hold
+  a saved query? Now it can. Viewfield is a CCK field module that allows
+  administrators to put views directly into nodes. When creating a node, users
+  can select from a list of views. When the node is displayed, the view is run
+  and the content is inserted into the body of the node.

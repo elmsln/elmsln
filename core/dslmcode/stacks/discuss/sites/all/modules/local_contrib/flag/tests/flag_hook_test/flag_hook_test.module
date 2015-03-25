@@ -1,0 +1,184 @@
+<?php
+
+/**
+ * @file flag_hook_test.module
+ * Test module for the hooks that Flag invokes.
+ */
+
+/**
+ * Store the hook name and parameters into a variable for retrieval by the test.
+ *
+ * Hook implementations should call this with their hook name and parameters.
+ *
+ * @param $hook_name
+ *  The name of the hook invoked.
+ * @param $function_parameters
+ *  The array of parameters the hook received.
+ * @param $flagging
+ *  (optional) The flagging entity that the hook received. If this is given,
+ *  then various flag API functions have their data set into the tracking
+ *  variable for verification by the test case.
+ */
+function _flag_hook_test_record_invocation($hook_name, $function_parameters, $flagging = NULL) {
+  $variable = variable_get('flag_hook_test_hook_tracking', array());
+
+  $variable[$hook_name] = array();
+  $variable[$hook_name]['parameters'] = $function_parameters;
+
+  // If a Flagging entity was passed in, call API functions and store their data
+  // for the test case to check.
+  if (isset($flagging)) {
+    $flag = flag_get_flag(NULL, $flagging->fid);
+
+    $variable[$hook_name]['api_calls'] = array();
+
+    $variable[$hook_name]['api_calls']['flag_get_entity_flags'] = flag_get_entity_flags('node', $flagging->entity_id, $flag->name);
+
+    $variable[$hook_name]['api_calls']['flag_get_user_flags'] = flag_get_user_flags('node', $flagging->entity_id, $flagging->uid);
+
+    $variable[$hook_name]['api_calls']['flag_get_counts'] = flag_get_counts('node', $flagging->entity_id);
+
+    $variable[$hook_name]['api_calls']['flag_get_flag_counts'] = flag_get_flag_counts($flag->name);
+
+    $variable[$hook_name]['api_calls']['flag_get_entity_flag_counts'] = flag_get_entity_flag_counts($flag, 'node');
+
+    $account = user_load($flagging->uid);
+    $variable[$hook_name]['api_calls']['flag_get_user_flag_counts'] = flag_get_user_flag_counts($flag, $account);
+  }
+
+  variable_set('flag_hook_test_hook_tracking', $variable);
+}
+
+/**
+ * Implements hook_flag_flag().
+ */
+function flag_hook_test_flag_flag($flag, $entity_id, $account, $flagging) {
+  _flag_hook_test_record_invocation('hook_flag_flag', func_get_args(), $flagging);
+}
+
+/**
+ * Implements hook_flag_unflag().
+ */
+function flag_hook_test_flag_unflag($flag, $entity_id, $account, $flagging) {
+  _flag_hook_test_record_invocation('hook_flag_unflag', func_get_args(), $flagging);
+}
+
+/**
+ * Implements hook_entity_presave().
+ */
+function flag_hook_test_entity_presave($entity, $type) {
+  if ($type == 'flagging') {
+    _flag_hook_test_record_invocation('hook_entity_presave', func_get_args(), $entity);
+  }
+}
+
+/**
+ * Implements hook_entity_insert().
+ */
+function flag_hook_test_entity_insert($entity, $type) {
+  if ($type == 'flagging') {
+    _flag_hook_test_record_invocation('hook_entity_insert', func_get_args(), $entity);
+  }
+}
+
+/**
+ * Implements hook_entity_update().
+ */
+function flag_hook_test_entity_update($entity, $type) {
+  if ($type == 'flagging') {
+    _flag_hook_test_record_invocation('hook_entity_update', func_get_args(), $entity);
+  }
+}
+
+/**
+ * Implements hook_entity_delete().
+ */
+function flag_hook_test_entity_delete($entity, $type) {
+  if ($type == 'flagging') {
+    _flag_hook_test_record_invocation('hook_entity_delete', func_get_args(), $entity);
+  }
+}
+
+// ========================================================= Configuration
+
+/**
+ * Implements hook_flag_default_flags().
+ */
+function flag_hook_test_flag_default_flags() {
+  $flags = array();
+  $flags['flag_hook_test_flag'] = array(
+    'entity_type' => 'node',
+    'title' => 'Test Flag',
+    'global' => FALSE,
+    'types' => array(
+      0 => 'article',
+    ),
+    'flag_short' => 'Flag this',
+    'flag_long' => 'Flag this post',
+    'flag_message' => 'This post has been flagged',
+    'unflag_short' => 'Unflag this',
+    'unflag_long' => 'Remove this post from your flagged items',
+    'unflag_message' => 'This post has been unflagged',
+    'unflag_denied_text' => 'You may not unflag this item',
+    'link_type' => 'normal',
+    'weight' => 0,
+    'show_in_links' => array(
+      'full' => TRUE,
+      'teaser' => TRUE,
+    ),
+    'show_as_field' => FALSE,
+    'show_on_form' => FALSE,
+    'access_author' => '',
+    'show_contextual_link' => TRUE,
+    'show_on_profile' => FALSE,
+    'access_uid' => '',
+    'api_version' => 3,
+  );
+  return $flags;
+}
+
+/**
+ * Implements hook_rules_action_info().
+ */
+function flag_hook_test_rules_action_info() {
+  return array(
+    'flag_test_action' => array(
+      'label' => t('Flag test action'),
+      'group' => t('Flag test'),
+    ),
+  );
+}
+
+/**
+ * Test action for flagging.
+ */
+function flag_test_action() {
+  _flag_hook_test_record_invocation('rules_event', func_get_args());
+}
+
+/**
+ * Implements hook_default_rules_configuration().
+ */
+function flag_hook_test_default_rules_configuration() {
+  $configs['flag_test_rule_flag'] = rules_import('{ "flag_test_rule" : {
+      "LABEL" : "Flag test rule",
+      "PLUGIN" : "reaction rule",
+      "OWNER" : "rules",
+      "REQUIRES" : [ "flag_hook_test", "flag" ],
+      "ON" : { "flag_flagged_flag_hook_test_flag" : [] },
+      "DO" : [ { "flag_test_action" : [] } ]
+    }
+  }');
+
+  $configs['flag_test_rule_unflag'] = rules_import('{ "flag_test_rule" : {
+      "LABEL" : "Flag test rule",
+      "PLUGIN" : "reaction rule",
+      "OWNER" : "rules",
+      "REQUIRES" : [ "flag_hook_test", "flag" ],
+      "ON" : { "flag_unflagged_flag_hook_test_flag" : [] },
+      "DO" : [ { "flag_test_action" : [] } ]
+    }
+  }');
+
+  return $configs;
+}

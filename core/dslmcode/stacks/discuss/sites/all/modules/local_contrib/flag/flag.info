@@ -1,0 +1,37 @@
+name = Flag
+description = Create customized flags that users can set on entities.
+core = 7.x
+package = Flags
+configure = admin/structure/flags
+
+test_dependencies[] = token
+test_dependencies[] = rules
+
+; Files that contain classes.
+; Flag classes
+files[] = includes/flag/flag_flag.inc
+files[] = includes/flag/flag_entity.inc
+files[] = includes/flag/flag_node.inc
+files[] = includes/flag/flag_comment.inc
+files[] = includes/flag/flag_user.inc
+files[] = includes/flag.cookie_storage.inc
+
+files[] = includes/flag.entity.inc
+files[] = flag.rules.inc
+
+; Views
+files[] = includes/views/flag_handler_argument_entity_id.inc
+files[] = includes/views/flag_handler_field_ops.inc
+files[] = includes/views/flag_handler_field_flagged.inc
+files[] = includes/views/flag_handler_filter_flagged.inc
+files[] = includes/views/flag_handler_sort_flagged.inc
+files[] = includes/views/flag_handler_relationships.inc
+files[] = includes/views/flag_plugin_argument_validate_flaggability.inc
+files[] = tests/flag.test
+
+; Information added by Drupal.org packaging script on 2015-03-02
+version = "7.x-3.6"
+core = "7.x"
+project = "flag"
+datestamp = "1425327793"
+

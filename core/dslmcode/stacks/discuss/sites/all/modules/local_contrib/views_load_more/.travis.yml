@@ -1,0 +1,23 @@
+language: php
+
+php:
+  - 5.3
+
+mysql:
+  database: drupal
+  username: root
+  encoding: utf8
+
+before_script:
+ - mysql -e 'create database drupal;'
+ - pyrus channel-discover pear.drush.org
+ - pyrus install drush/drush
+ - phpenv rehash
+ - wget http://ftp.drupal.org/files/projects/drupal-7.14.tar.gz
+ - tar -xf drupal-7.14.tar.gz
+ - cd drupal-7.14
+ - drush site-install standard --db-url=mysql://root:@localhost/drupal --yes
+ - "export PHANTOMJS_EXECUTABLE='phantomjs --local-to-remote-url-access=yes --ignore-ssl'"
+
+script:
+ - ./bin/casperjs test test/casperjs

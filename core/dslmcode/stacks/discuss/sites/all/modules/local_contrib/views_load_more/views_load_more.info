@@ -1,0 +1,14 @@
+name = Views Load More
+description = A pager plugin for views. Gives users the option to add a 'more' button to a view and have the results appended to existing results being displayed.
+core = 7.x
+package = Views
+dependencies[] = views
+files[] = views_load_more.views.inc
+files[] = views_plugin_pager_load_more.inc
+
+; Information added by Drupal.org packaging script on 2014-10-06
+version = "7.x-1.5"
+core = "7.x"
+project = "views_load_more"
+datestamp = "1412631229"
+

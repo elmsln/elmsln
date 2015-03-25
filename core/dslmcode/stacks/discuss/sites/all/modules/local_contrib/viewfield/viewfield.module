@@ -1,0 +1,441 @@
+<?php
+
+/**
+ * @file
+ * Defines a field type to display a view.
+ */
+
+/**
+ * Implements hook_theme().
+ */
+function viewfield_theme() {
+  return array(
+    'viewfield_formatter_default' => array(
+      'render element' => 'element',
+    ),
+  );
+}
+
+/**
+ * Implements hook_field_info().
+ */
+function viewfield_field_info() {
+  return array(
+    'viewfield' => array(
+      // Should be "View", but that would translate into "view" (show) for many
+      // languages due to missing string translation contexts.
+      'label' => t('Views'),
+      'description' => t('Displays a selected view in a node.'),
+      'instance_settings' => array(
+        'force_default' => FALSE,
+        'allowed_views' => array(),
+      ),
+      'default_widget' => 'viewfield_select',
+      'default_formatter' => 'viewfield_default',
+    ),
+  );
+}
+
+/**
+ * Implements hook_field_instance_settings_form().
+ *
+ * @see viewfield_field_instance_settings_form_validate()
+ */
+function viewfield_field_instance_settings_form($field, $instance) {
+  $form['#field_name'] = $field['field_name'];
+  $form['force_default'] = array(
+    '#type' => 'checkbox',
+    '#title' => t('Always use default value'),
+    '#default_value' => $instance['settings']['force_default'],
+    '#description' => t('Hides this field in forms and enforces the configured default value.'),
+  );
+  $form['allowed_views'] = array(
+    '#type' => 'checkboxes',
+    '#title' => t('Allowed values'),
+    '#options' => drupal_map_assoc(array_keys(views_get_enabled_views())),
+    '#default_value' => isset($instance['settings']['allowed_views']) && is_array($instance['settings']['allowed_views']) ? $instance['settings']['allowed_views'] : array(),
+    '#description' => t('Only selected views will be available for content authors. Leave empty to allow all.'),
+  );
+  $form['#element_validate'] = array('viewfield_field_instance_settings_form_validate');
+  return $form;
+}
+
+/**
+ * Form element validation handler for viewfield_field_instance_settings_form().
+ */
+function viewfield_field_instance_settings_form_validate($element, &$form_state) {
+  $widget_values = $form_state['values'][$element['#field_name']][LANGUAGE_NONE];
+  if ($element['force_default']['#value']) {
+    if (empty($widget_values[0]['vname'])) {
+      form_error($element['force_default'], t('%title requires a default value.', array(
+        '%title' => $element['force_default']['#title'],
+      )));
+    }
+  }
+}
+
+/**
+ * Implements hook_field_presave().
+ */
+function viewfield_field_presave($entity_type, $entity, $field, $instance, $langcode, &$items) {
+  foreach ($items as $delta => $item) {
+    if (empty($item['vname'])) {
+      unset($items[$delta]);
+    }
+  }
+}
+
+/**
+ * Implements hook_field_is_empty().
+ */
+function viewfield_field_is_empty($item, $field) {
+  return empty($item['vname']);
+}
+
+/**
+ * Implements hook_field_prepare_view().
+ *
+ * Replace field values with instance defaults when force_default is set.
+ */
+function viewfield_field_prepare_view($entity_type, $entities, $field, $instances, $langcode, &$items) {
+  foreach ($items as $entity_id => &$instance_items) {
+    if ($instances[$entity_id]['settings']['force_default']) {
+      $instance_items = $instances[$entity_id]['default_value'];
+    }
+  }
+}
+
+/**
+ * Implements hook_field_formatter_info().
+ */
+function viewfield_field_formatter_info() {
+  return array(
+    'viewfield_default' => array(
+      'label' => t('Default'),
+      'field types' => array('viewfield')
+    ),
+  );
+}
+
+/**
+ * Implements hook_field_formatter_view().
+ */
+function viewfield_field_formatter_view($entity_type, $entity, $field, $instance, $langcode, $items, $display) {
+  list($entity_id) = entity_extract_ids($entity_type, $entity);
+  $elements = array();
+  switch ($display['type']) {
+    case 'viewfield_default':
+      foreach ($items as $delta => $item) {
+        // @todo Store name and display separately.
+        list($view_name, $view_display) = explode('|', $item['vname'], 2);
+        $view = views_get_view($view_name);
+
+        $elements[$delta] = array(
+          '#type' => 'viewfield',
+          '#access' => $view && $view->access($view_display),
+          '#view' => $view,
+          '#view_name' => $view_name,
+          '#view_display' => $view_display,
+          '#view_arguments' => $item['vargs'],
+          '#entity_type' => $entity_type,
+          '#entity_id' => $entity_id,
+          '#entity' => $entity,
+        );
+      }
+      break;
+  }
+  return $elements;
+}
+
+/**
+ * Implements hook_element_info().
+ */
+function viewfield_element_info() {
+  $types['viewfield'] = array(
+    '#pre_render' => array('viewfield_pre_render'),
+    '#theme' => 'viewfield_formatter_default',
+    '#post_render' => array('viewfield_post_render'),
+  );
+  return $types;
+}
+
+/**
+ * #pre_render callback for a viewfield field.
+ *
+ * @see viewfield_field_formatter_view()
+ * @see viewfield_post_render()
+ */
+function viewfield_pre_render($element) {
+  $stack = &drupal_static('viewfield_stack', array());
+
+  // Abort rendering in case the view could not be loaded.
+  if (empty($element['#view'])) {
+    // @todo Output an error message?
+    $element['#printed'] = TRUE;
+  }
+  // Abort rendering in case of recursion.
+  elseif (isset($stack[$element['#entity_type']][$element['#entity_id']])) {
+    $element['#printed'] = TRUE;
+  }
+  // Otherwise, add the rendered entity to the stack to prevent recursion.
+  else {
+    $stack[$element['#entity_type']][$element['#entity_id']] = TRUE;
+
+    // Override the view's path to the current path. Otherwise, exposed
+    // views filters would submit to the front page.
+    $element['#view']->override_path = current_path();
+
+    // @todo Store views arguments serialized.
+    $element['#view_arguments'] = _viewfield_get_view_args($element['#view_arguments'], $element['#entity_type'], $element['#entity']);
+  }
+  return $element;
+}
+
+/**
+ * #post_render callback for a viewfield field.
+ *
+ * @see viewfield_pre_render()
+ * @see viewfield_field_formatter_view()
+ */
+function viewfield_post_render($content, $element) {
+  $stack = &drupal_static('viewfield_stack', array());
+
+  unset($stack[$element['#entity_type']][$element['#entity_id']]);
+
+  return $content;
+}
+
+/**
+ * Return HTML for a view in a field.
+ *
+ * @see views_embed_view()
+ */
+function theme_viewfield_formatter_default($variables) {
+  $element = $variables['element'];
+
+  return $element['#view']->preview($element['#view_display'], $element['#view_arguments']);
+}
+
+/**
+ * Implements hook_field_widget_info().
+ */
+function viewfield_field_widget_info() {
+  return array(
+    'viewfield_select' => array(
+      'label' => 'Select List',
+      'field types' => array('viewfield'),
+    ),
+  );
+}
+
+/**
+ * Implements hook_field_widget_form().
+ */
+function viewfield_field_widget_form(&$form, &$form_state, $field, $instance, $langcode, $items, $delta, $element) {
+  // Administrators need to be able to re-configure the default value on the
+  // field edit form if 'force_default' is enabled.
+  // @todo Core: Provide a solid identifier in field_ui_default_value_widget().
+  $is_field_settings_form = FALSE;
+  if (isset($form['#type']) && $form['#type'] == 'fieldset') {
+    $is_field_settings_form = TRUE;
+    $instance['settings']['force_default'] = FALSE;
+  }
+
+  // Display the form to let the user pick a view.
+  $options = _viewfield_potential_references($field, $instance);
+  $element['vname'] = array(
+    '#type' => 'select',
+    '#title' => $element['#title'],
+    '#options' => $options,
+    '#required' => $element['#required'],
+    '#empty_value' => 0,
+    '#default_value' => isset($items[$delta]['vname']) ? $items[$delta]['vname'] : NULL,
+    '#access' => !$instance['settings']['force_default'],
+    '#description' => $element['#description'],
+  );
+  $element['vargs'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Arguments'),
+    '#default_value' => isset($items[$delta]['vargs']) ? $items[$delta]['vargs'] : NULL,
+    '#access' => !$instance['settings']['force_default'],
+    '#description' => t('A comma separated list of arguments to pass to the selected view. '),
+  );
+
+  // Provide token help.
+  if (module_exists('token')) {
+    $element['vargs']['#description'] .= t('Any token from the placeholder token list may be used as an argument.');
+    // Only show token help for first value or in field settings form.
+    if ($element['#delta'] === 0 && !$instance['settings']['force_default']) {
+      $element['token_help'] = array(
+        '#type' => 'fieldset',
+        '#title' => t('Placeholder tokens'),
+        '#collapsible' => TRUE,
+        '#collapsed' => TRUE,
+      );
+      $element['token_help']['tokens'] = array(
+        '#theme' => 'token_tree',
+        '#token_types' => array($element['#entity_type']),
+        '#global_types' => TRUE,
+      );
+    }
+  }
+  else {
+    $element['vargs']['#description'] .= t('Enable the %token module to see a complete list of tokens that may be used as arguments.', array('%token' => t('Token')));
+  }
+
+  $element['vargs']['#description'] .= t(' (Wrap arguments containing commas in double quotes and replace double quotes in arguments with a pair of double quotes.)');
+
+  // @todo Core: Fix bogus white-space: nowrap.
+  // @see http://drupal.org/node/1230336
+  $element['#attached']['css'] = array(
+    drupal_get_path('module', 'viewfield') . '/viewfield.css' => array(
+      'weight' => 1,
+    ),
+  );
+
+  return $element;
+}
+
+/**
+ * Returns a select options list of views displays of enabled and allowed views.
+ */
+function _viewfield_potential_references($field, $instance) {
+  // Retrieve all currently available views.
+  $views = views_get_enabled_views();
+  // Limit to allowed values, if any.
+  if (isset($instance['settings']['allowed_views']) && is_array($instance['settings']['allowed_views'])) {
+    // Only intersect if at least one view has been enabled; otherwise, we would
+    // end up with empty $views.
+    if ($allowed = array_filter($instance['settings']['allowed_views'])) {
+      $views = array_intersect_key($views, $allowed);
+    }
+  }
+  $options = array();
+  foreach ($views as $view_name => $view) {
+    foreach ($view->display as $display) {
+      $options[$view->name . '|' . $display->id] = $view->name . ' - ' . $display->display_title;
+    }
+  }
+  return $options;
+}
+
+/**
+ * Perform argument replacement
+ */
+function _viewfield_get_view_args($vargs, $entity_type, $entity) {
+  $args = array();
+
+  if (!empty($vargs)) {
+    $pos = 0;
+    while ($pos < strlen($vargs)) {
+      $found = FALSE;
+      // If string starts with a quote, start after quote and get everything
+      // before next quote.
+      if (strpos($vargs, '"', $pos) === $pos) {
+        if (($quote = strpos($vargs, '"', ++$pos)) !== FALSE) {
+          // Skip pairs of quotes.
+          while (!(($ql = strspn($vargs, '"', $quote)) & 1)) {
+            $quote = strpos($vargs, '"', $quote + $ql);
+          }
+          $args[] = str_replace('""', '"', substr($vargs, $pos, $quote + $ql - $pos - 1));
+          $pos = $quote + $ql + 1;
+          $found = TRUE;
+        }
+      }
+      elseif (($comma = strpos($vargs, ',', $pos)) !== FALSE) {
+        // Otherwise, get everything before next comma.
+        $args[] = substr($vargs, $pos, $comma - $pos);
+        // Skip to after comma and repeat
+        $pos = $comma + 1;
+        $found = TRUE;
+      }
+      if (!$found) {
+        $args[] = substr($vargs, $pos);
+        $pos = strlen($vargs);
+      }
+    }
+
+    list($entity_id) = entity_extract_ids($entity_type, $entity);
+    $entities = entity_load($entity_type, array($entity_id));
+    $token_data = array($entity_type => $entities[$entity_id]);
+
+    foreach ($args as $key => $value) {
+      $args[$key] = token_replace($value, $token_data);
+    }
+  }
+
+  return $args;
+}
+
+/**
+ * Implements hook_content_migrate_field_alter().
+ */
+function viewfield_content_migrate_field_alter(&$field_value, $instance_value) {
+    switch ($field_value['type']) {
+      case 'viewfield':
+        // allowed_views is now an instance setting.
+        unset($field_value['settings']['allowed_views']);
+        break;
+    }
+}
+
+/**
+ * Implements hook_content_migrate_instance_alter().
+ */
+function viewfield_content_migrate_instance_alter(&$instance_value, $field_value) {
+  switch ($field_value['type']) {
+    case 'viewfield':
+      // Change formatter names to be prefixed with 'viewfield_'.
+      foreach ($instance_value['display'] as $context => $settings) {
+        if (strpos('viewfield_', $settings['type']) !== 0) {
+          $instance_value['display'][$context]['type'] = 'viewfield_' . $settings['type'];
+        }
+      }
+      // Migrate legacy tokens in CCK fields to core tokens in D7 fields.
+      if (!empty($instance_value['default_value'])) {
+        foreach ($instance_value['default_value'] as $key => $default) {
+          if (!empty($default['vargs'])) {
+            $instance_value['default_value'][$key]['vargs'] = _viewfield_migrate_legacy_tokens($default['vargs']);
+          }
+        }
+      }
+      // Migrate force_default from widget to instance settings.
+      // @see viewfield_update_7200()
+      if (isset($instance_value['widget']['settings']['force_default'])) {
+        $instance_value['settings']['force_default'] = $instance_value['widget']['settings']['force_default'];
+        unset($instance_value['widget']['settings']['force_default']);
+      }
+      // Migrate allowed_views from field to instance settings.
+      // @see viewfield_update_7201()
+      if (isset($field_value['settings']['allowed_views'])) {
+        $instance_value['settings']['allowed_views'] = $field_value['settings']['allowed_views'];
+      }
+      break;
+  }
+}
+
+/**
+ * Implements hook_content_migrate_data_record_alter().
+ */
+function viewfield_content_migrate_data_record_alter(&$record, $field) {
+  switch ($field['type']) {
+    case 'viewfield':
+      // Migrate legacy tokens in CCK fields to core tokens in D7 fields.
+      $vargs_field_name = $field['field_name'] . '_vargs';
+      if (!empty($record[$vargs_field_name])) {
+        $record[$vargs_field_name] = _viewfield_migrate_legacy_tokens($record[$vargs_field_name]);
+      }
+      break;
+  }
+}
+
+/**
+ * Substitute core tokens for legacy tokens (%nid, %author, %viewer) in text.
+ */
+function _viewfield_migrate_legacy_tokens($text) {
+  return strtr($text, array(
+    '%nid' => '[node:nid]',
+    '%author' => '[node:author]',
+    '%viewer' => '[current-user:uid]',
+  ));
+}

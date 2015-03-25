@@ -1,0 +1,94 @@
+Taxonomy Display 7.x-1.x, YYYY-MM-DD
+------------------------------------
+
+Taxonomy Display 7.x-1.1, 2012-10-29
+------------------------------------
+Issue #1783968 by tmsimont, lotyrin: Update Views associated handler to support
+  exposed filters.
+Issue #1817970 by codycraven, moltra: Fix fatal error in associated core when
+  number of entities set to 0.
+Issue #1507630 by codycraven: Check for custom display setting before altering.
+Issue #1798169 by tmsimont, lotyrin, codycraven: Added ignore breadcrumb plugin
+  to allow other modules to set the breadcrumb.
+Issue #1811426 by Moloc: Fix term name not used as page title when menu item
+  links to it.
+Issue #1807714 by codycraven: Due to #1410576 CTools is now a dependency.
+Issue #1807682 by codycraven: Fixed strict warning, function result passed by
+  reference.
+Issue #1410576 by jonhattan: Added Features export integration.
+Issue #1693978 by Saxxing: Fix ability for breadcrumbs to be translated.
+Issue #1425648 by codycraven: Added README.txt per user request.
+Issue #1507632 by codycraven, hass: Display select option for views that do not
+  have a human name set.
+Issue #1564806 by hass: Fix misspelled function name.
+Issue #1542306 by hass: Fix strings missing translate function wrapper.
+
+Taxonomy Display 7.x-1.0, 2011-10-10
+------------------------------------
+Issue #1305682 by codycraven: Add CTools term page display plugin.
+Issue #1304536 by codycraven: Make compatible with CTools' page manager.
+Issue #1231090 by Jose Reyero, codycraven: Send term page title through
+  internationalization taxonomy, if it exists.
+Issue #1231090 by codycraven: Added alter hook in core breadcrumb handler to
+  support manipulating term parents.
+
+Taxonomy Display 7.x-1.0-rc4, 2011-09-11
+----------------------------------------
+Issue #1275596 by codycraven, vito_swat: Fixed associated content views plugin
+  not passing term id argument correctly.
+
+Taxonomy Display 7.x-1.0-rc3, 2011-09-09
+----------------------------------------
+Removed validated todo.
+Removed CVS "; $Id$" from files.
+Issue #1274870 by codycraven: Fixed views plugin reporting error when no result.
+Issue #1261270 by codycraven: Added caching to fetch taxonomy display settings.
+
+Taxonomy Display 7.x-1.0-rc2, 2011-08-17
+----------------------------------------
+Issue #1252504 by codycraven: Fixed typo in
+  taxonomy_display_fetch_taxonomy_display() causing undefined index errors when
+  the vocabulary has not had taxonomy display settings saved.
+
+Taxonomy Display 7.x-1.0-rc1, 2011-08-17
+----------------------------------------
+Issue #1252368 by codycraven: Fixed vocabulary machine name not updating in
+  taxonomy_display table on change.
+Issue #1247802 by codycraven: Added plugin support for taxonomy breadcrumbs.
+Issue #1237136 by codycraven: Expose term object on term page to altering.
+Issue #1230200 by R.Muilwijk: Fixed exported views not recognized.
+Issue #1231346 by codycraven: Remove the ability to select whether taxonomy
+  term's fields should be displayed even if the description field is empty, now
+  in core.
+Issue #1188126 by scuba_fly: Added spaces to two lines for coding standards.
+
+Taxonomy Display 7.x-1.0-beta1, 2011-05-09
+------------------------------------------
+Issue #1143628 by codycraven, vito_swat: Fixed $form_state values failing to be
+  provided to TaxonomyDisplayHandlerForm::formFieldset() implementations when
+  Ajax is being used in the implementation.
+Issue #1143622 by codycraven, vito_swat: Fixed inability to enable/disable term
+  page displays when Display Suite is not installed/enabled.
+
+Taxonomy Display 7.x-1.0-alpha2, 2011-04-18
+-------------------------------------------
+Issue #1126052 by codycraven: Added option for administrator to omit RSS feeds
+  from being generated automatically on taxonomy term pages.
+Issue #1124168 by codycraven: Fixed fatal error on taxonomy term display page
+  configuration when Display Suite not installed and enabled.
+Issue #1122992 by codycraven: Fixed fatal error on taxonomy term display page
+  configuration when no taxonomy display yet exists.
+
+Taxonomy Display 7.x-1.0-alpha1, 2011-04-04
+-------------------------------------------
+Added taxonomy_display.api.php to define the hook invocations and alters created
+  by taxonomy_display. Also modified taxonomy_display_save_taxonomy_display() to
+  make altering less resource intensive.
+Added missing plugin support and resolved errors when a term is viewed and the
+  vocabulary does not have any taxonomy_display settings.
+
+Taxonomy Display Sandbox
+------------------------
+Made a bunch of commits no one cares about, it is a sandbox module after all.
+Added CHANGELOG.txt
+Initial commit.

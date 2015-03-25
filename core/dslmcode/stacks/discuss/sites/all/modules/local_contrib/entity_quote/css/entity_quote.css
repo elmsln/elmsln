@@ -1,0 +1,81 @@
+
+.entity-quote {
+  margin: 0 0 20px;
+  padding: 11px 15px;
+  background-color: #f7f7f7;
+  border-left: 3px solid #ccc;
+}
+
+.entity-quote .quote-title {
+  padding-bottom: 10px;
+  border-bottom: 1px solid #ccc;
+  margin-bottom: 10px;
+}
+
+.entity-quote .quote-content blockquote {
+  margin: 0;
+  padding: 0;
+  background: none;
+  border: 0;
+  font-style: normal;
+}
+
+.entity-quote blockquote > p:first-child {
+  display: block;
+}
+
+.entity-quote blockquote > p:last-child {
+  margin-bottom: 0;
+}
+
+.entity-quote blockquote:before,
+.entity-quote blockquote:after {
+  display: none;
+}
+
+/* Quote menu. */
+.entity-quote-menu{
+  font-size: 14px;
+  line-height: 1;
+  white-space: nowrap;
+  box-shadow: 1px 2px 3px -2px #222;
+  background: #333;
+  background-image: linear-gradient(to bottom, #222, #333);
+  opacity: 0.9;
+  position: fixed;
+  height: 36px;
+  border: 1px solid #333;
+  border-radius: 3px;
+  display: none;
+  z-index: 999;
+}
+
+.entity-quote-menu:after {
+  top: 100%;
+  border: solid transparent;
+  content: ' ';
+  height: 0;
+  width: 0;
+  position: absolute;
+  pointer-events: none;
+}
+
+.entity-quote-menu:after {
+  border-color: rgba(51, 51, 51, 0);
+  border-top-color: #333;
+  border-width: 6px;
+  left: 50%;
+  margin-left: -6px;
+}
+
+.entity-quote-menu a {
+  display: block;
+  padding: 0 8px;
+  line-height: 36px;
+  color: white;
+}
+
+.entity-quote-menu a:hover {
+  color: white;
+  text-decoration: underline;
+}

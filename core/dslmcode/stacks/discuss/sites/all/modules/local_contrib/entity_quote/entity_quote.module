@@ -1,0 +1,500 @@
+<?php
+
+/**
+ * @file
+ * This module allows the quoting of entities via input formats.
+ */
+
+/**
+ * Implements hook_entity_quote_types().
+ */
+function entity_quote_entity_quote_types() {
+  // This hook isn't yet used.
+  $types = array();
+
+  // Node & comments entity type.
+  $types['node_comments'] = array(
+    'title' => t('Node & Comments'),
+    'entity_type' => 'node',
+    'form' => array(
+      // To wildcard match a form id, use % at the end of the string.
+      'form_id' => 'comment_node_%',
+      'form_alter_callback' => '_entity_quote_node_form_alter',
+      'form_url_callback' => '_entity_quote_node_form_url',
+    ),
+    // Function to call to add in a "Quote" link to the entity, called
+    // from hook_entity_view().
+    'entity_view_add_links_callback' => '_entity_quote_node_view_add_links',
+    // Leave 'highlight' as an empty array to disable.
+    'highlight' => array(
+      /*'selectors' => '.node p',
+      'quote_text' => t('Quote'),*/
+    ),
+  );
+
+  return $types;
+}
+
+/**
+ * Implements hook_permission().
+ */
+function entity_quote_permission() {
+  return array(
+    'administer entity quote' => array(
+      'title' => t('Administer Entity Quote'),
+      'description' => t('Administer the Entity Quote configuration.'),
+    ),
+  );
+}
+
+/**
+ * Implements hook_menu().
+ */
+function entity_quote_menu() {
+  $items = array();
+
+  $items['admin/config/content/entity-quote'] = array(
+    'title' => 'Entity Quote',
+    'description' => 'Configuration for the Entity Quote module.',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('entity_quote_admin_settings'),
+    'access arguments' => array('administer entity quote'),
+    'type' => MENU_NORMAL_ITEM,
+  );
+
+  return $items;
+}
+
+/**
+ * Form builder.
+ *
+ * @ingroup forms
+ * @see system_settings_form()
+ */
+function entity_quote_admin_settings() {
+  $form = array();
+
+  $options = array();
+  $entity_info = entity_get_info();
+  foreach ($entity_info as $entity_type => $entity) {
+    $entity_label = check_plain($entity['label']);
+
+    if (!empty($entity_info[$entity_type]['entity keys']['bundle'])) {
+      foreach ($entity_info[$entity_type]['bundles'] as $bundle_name => $bundle) {
+        $options["$entity_type:$bundle_name"] = $entity_label . ' - ' .check_plain($bundle['label']);
+      }
+    }
+    else {
+      $options["$entity_type:"] = $entity_label;
+    }
+  }
+
+  $form['entity_quote_display_link_types'] = array(
+    '#title' => t('Display "Quote" link on the following'),
+    '#type' => 'checkboxes',
+    '#options' => $options,
+    '#default_value' => variable_get('entity_quote_display_link_types', array()),
+    '#description' => t('Entity types and bundles which should have a "Quote" link displayed on it. Any entities other than Node or Comment must integrate with this module and will not work out of the box.'),
+  );
+
+  return system_settings_form($form);
+}
+
+/**
+ * Implements hook_init().
+ */
+function entity_quote_init() {
+  $module_path = drupal_get_path('module', 'entity_quote');
+  drupal_add_css($module_path . '/css/entity_quote.css', array('every_page' => TRUE));
+  drupal_add_js($module_path . '/js/entity_quote.js');
+}
+
+/**
+ * Implements hook_theme().
+ */
+function entity_quote_theme() {
+  return array(
+    'entity_quote' => array(
+      'variables' => array(
+        'author' => NULL,
+        'source' => NULL,
+        'text' => NULL,
+      )
+    )
+  );
+}
+
+/**
+ * Theme a quote with its content and author - default theme function.
+ *
+ * @param $variables
+ *   An associative array with the following structure:
+ *   'author' - Author of the quote, linked and possibly including avatar.
+ *   'source' - Linked source entity where the text can be found.
+ *   'text' - The quote text.
+ */
+function theme_entity_quote($variables) {
+  $output = '<div class="entity-quote">';
+
+  if (!empty($variables['author']) || !empty($variables['source'])) {
+    $output .= '<div class="quote-title">';
+
+    if (!empty($variables['author'])) {
+      $output .= '<span class="quote-author">' . t('!author said', array('!author' => filter_xss($variables['author']))) . '</span>';
+    }
+    if (!empty($variables['author']) && !empty($variables['source'])) {
+      $output .= ' ';
+    }
+    if (!empty($variables['source'])) {
+      $output .= '<span class="quote-source">' . t('in !source', array('!source' => filter_xss($variables['source']))) . '</span>';
+    }
+
+    $output .= '</div>';
+  }
+
+  $output .= '
+    <div class="quote-content">
+      <blockquote>' . $variables['text'] . '</blockquote>
+    </div>
+  </div>';
+
+  return $output;
+}
+
+/**
+ * Implements hook_filter_info().
+ */
+function entity_quote_filter_info() {
+  $filters = array();
+
+  $filters['entity_quote'] = array(
+    'title' => t('Converts basic [quote] tags and more complicated quote tags into a themed display.'),
+    'description' => t('This filter should be placed after any filtering of markup.'),
+    'tips callback' => 'entity_quote_filter_tips',
+    'settings callback' => 'entity_quote_filter_settings',
+    'default settings' => array(
+      'quotable_types' => array(),
+    ),
+    'process callback' => 'entity_quote_filter_process',
+  );
+
+  return $filters;
+}
+
+/**
+ * Implements hook_filter_tips().
+ */
+function entity_quote_filter_tips($delta, $format, $long = FALSE) {
+  if ($long) {
+    return t('To quote text you can surround it in [quote][/quote] tags. If you wish to link back to the content you are referencing then you can mention it in the quote tag like: [quote node="123"]text[/quote]. This will automatically link back to the content and show the author. If not referencing content and you still wish to reference the author, then you can do so as: [quote author="username"]text[/quote].');
+  }
+  else {
+    return t('To quote text you can surround it in [quote][/quote] tags.');
+  }
+}
+
+/**
+ * Filter settings callback for the entity quote filter.
+ */
+function entity_quote_filter_settings($form, $form_state, $filter, $format, $defaults) {
+  $settings = array();
+
+  $options = array();
+  $entity_info = entity_get_info();
+  foreach ($entity_info as $entity_type => $entity) {
+    $entity_label = check_plain($entity['label']);
+
+    if (!empty($entity_info[$entity_type]['entity keys']['bundle'])) {
+      foreach ($entity_info[$entity_type]['bundles'] as $bundle_name => $bundle) {
+        $options["$entity_type:$bundle_name"] = $entity_label . ' - ' .check_plain($bundle['label']);
+      }
+    }
+    else {
+      $options["$entity_type:"] = $entity_label;
+    }
+  }
+
+  $settings['quotable_types'] = array(
+    '#title' => t('Quotable Entity Types'),
+    '#type' => 'checkboxes',
+    '#options' => $options,
+    '#default_value' => isset($filter->settings['quotable_types']) ? $filter->settings['quotable_types'] : $defaults['quotable_types'],
+    '#description' => t('Entity types and bundles which can be referenced, if not in this list an attempted quote will be shown as a basic quote.'),
+  );
+
+  return $settings;
+}
+
+class EntityQuotePregCallback {
+  private $settings;
+  private $format;
+  private $langcode;
+
+  public function __construct($settings, $format, $langcode) {
+    $this->settings = $settings;
+    $this->format = $format;
+    $this->langcode = $langcode;
+  }
+
+  public function execute($text) {
+    if (stristr($text, '[quote')) {
+      // Single regexp with callback allowing for theme calls and quote
+      // nesting/recursion with regexp code from
+      // http://de.php.net/manual/en/function.preg-replace-callback.php#85836
+      $text = preg_replace_callback('#\[(quote.*?)]((?>\[(?!/?quote[^[]*?])|[^[]|(?R))*)\[/quote]#is', array($this, 'match_replace'), $text);
+    }
+
+    return $text;
+  }
+
+  public function match_replace($matches) {
+    $return = $matches[0];
+    $quote_attributes_string = trim(drupal_substr($matches[1], 6));
+    $quote_attributes = array();
+    $raw_quote_attributes = array();
+    preg_match_all('/([^=\s]+)="?([^ "]+)"?/', $quote_attributes_string, $raw_quote_attributes);
+
+    if (!empty($raw_quote_attributes[1]) && !empty($raw_quote_attributes[2])) {
+      foreach ($raw_quote_attributes[1] as $index => $value) {
+        if (!empty($raw_quote_attributes[2][$index])) {
+          $quote_attributes[$value] = $raw_quote_attributes[2][$index];
+        }
+      }
+    }
+
+    // Remove author if present.
+    $author = NULL;
+    if (!empty($quote_attributes['author'])) {
+      $author = $quote_attributes['author'];
+      unset($quote_attributes['author']);
+      $quote_attributes = array_values($quote_attributes);
+    }
+
+    // Special treatment for Harmony Forum.
+    if (!empty($quote_attributes['post'])) {
+      $quote_attributes['harmony_post'] = $quote_attributes['post'];
+      unset($quote_attributes['post']);
+    }
+
+    // See if we can load up any specified types, only pay attention to the
+    // first index, any further entries should be distrusted.
+    $variables = array(
+      'author' => NULL,
+      'source' => NULL,
+      'text' => NULL,
+    );
+    $entity_type = NULL;
+    $entity = NULL;
+    $link_options = array();
+
+    if (!empty($quote_attributes)) {
+      $quote_attributes_keys = array_keys($quote_attributes);
+      foreach ($this->settings['quotable_types'] as $type) {
+        if (strpos($type, $quote_attributes_keys[0]) === 0 && intval($quote_attributes[$quote_attributes_keys[0]]) > 0) {
+          // Attempt to load this entity and see if it matches bundle.
+          $loaded_entity = entity_load_single($quote_attributes_keys[0], intval($quote_attributes[$quote_attributes_keys[0]]));
+
+          if ($loaded_entity && entity_access('view', $quote_attributes_keys[0], $loaded_entity)) {
+            $entity_type = $quote_attributes_keys[0];
+            $entity = $loaded_entity;
+            continue;
+          }
+        }
+      }
+    }
+
+    $user = NULL;
+    if ($entity) {
+      // Attempt to load the user.
+      if (!empty($entity->uid)) {
+        $user = user_load($entity->uid);
+      }
+      elseif (($entity_type === 'node' || $entity_type === 'comment') && !empty($entity->name)) {
+        $user = user_load_by_name($entity->name);
+      }
+
+      $entity_path = NULL;
+      // More special treatment for Harmony Forum.
+      if ($entity_type === 'harmony_post') {
+        $wrapper = entity_metadata_wrapper('harmony_post', $entity);
+
+        if ($wrapper->field_harmony_thread->value()) {
+          $url = harmony_core_post_thread_url($wrapper->field_harmony_thread->thread_id->value(), $entity->post_id, TRUE);
+
+          $entity_label = $wrapper->field_harmony_thread->title->value(array('sanitize' => TRUE));
+          $entity_path = $url['path'];
+          $link_options = $url;
+        }
+      }
+      else {
+        $entity_label = entity_label($entity_type, $entity);
+        $entity_uri = entity_uri($entity_type, $entity);
+        $entity_path = $entity_uri['path'];
+      }
+      $variables['source'] = $entity_path ? l($entity_label, $entity_path, $link_options) : $entity_label;
+    }
+    elseif (!$entity && !empty($author)) {
+      if (intval($author) > 0) {
+        $user = user_load(intval($author));
+      }
+      elseif (is_string($author)) {
+        $user = user_load_by_name($author);
+      }
+    }
+
+    if ($user) {
+      $variables['author'] = user_access('access user profiles') ? l(check_plain($user->name), "user/$user->uid") : check_plain($user->name);
+    }
+
+    if (stristr($matches[2], '[quote')) {
+      $variables['text'] = check_markup($this->execute($matches[2]), $this->format->format, $this->langcode);
+    }
+    else {
+      $variables['text'] = check_markup($matches[2], $this->format->format, $this->langcode);
+    }
+
+    return theme('entity_quote', $variables);
+  }
+}
+
+function entity_quote_filter_process($text, $filter, $format, $langcode, $cache, $cache_id) {
+  if (stristr($text, '[quote')) {
+    $replace = new EntityQuotePregCallback($filter->settings, $format, $langcode);
+    $text = $replace->execute($text);
+  }
+
+  return $text;
+}
+
+/**
+ * Implements hook_entity_view().
+ */
+function entity_quote_entity_view($entity, $type, $view_mode, $langcode) {
+  list($id, $vid, $bundle) = entity_extract_ids($type, $entity);
+
+  if (in_array("$type:$bundle", variable_get('entity_quote_display_link_types', array()))) {
+    // Add the links.
+    $comment_enabled = module_exists('comment');
+    $links = array();
+
+    // Nodes.
+    if ($type === 'node' && $comment_enabled && user_access('post comments') && $entity->comment == COMMENT_NODE_OPEN) {
+      $links['entity_quote'] = array(
+        'title' => t('Quote'),
+        'href' => "comment/reply/$id",
+        'attributes' => array('title' => t('Quote this post in your reply.')),
+        'query' => array('quote' => 1),
+        'fragment' => 'comment-form',
+      );
+    }
+    // Comments.
+    elseif ($type === 'comment' && $comment_enabled && user_access('post comments')) {
+      $node = node_load($entity->nid);
+
+      if ($node->comment == COMMENT_NODE_OPEN) {
+        $links['entity_quote'] = array(
+          'title' => t('quote'),
+          'href' => "comment/reply/$node->nid/$id",
+          'attributes' => array('title' => t('Quote this post in your reply.')),
+          'query' => array('quote' => 1),
+          'fragment' => 'comment-form',
+        );
+      }
+    }
+    // Harmony posts.
+    elseif ($type === 'harmony_post' && $entity->status == HARMONY_PUBLISHED) {
+      $wrapper = entity_metadata_wrapper($type, $entity);
+
+      if ($wrapper->field_harmony_thread->value()) {
+        $thread_id = $wrapper->field_harmony_thread->thread_id->value();
+        $thread = harmony_thread_load($thread_id);
+
+        if ($thread) {
+          $thread_properties = harmony_core_thread_get_properties($thread_id, $thread);
+
+          if ($thread_properties['can_post_in']) {
+            $links['entity_quote'] = array(
+              'title' => t('Quote'),
+              'href' => "post/add",
+              'attributes' => array('title' => t('Quote this post in your reply.')),
+              'query' => array(
+                'field_harmony_thread' => $thread_id,
+                'field_harmony_post_is_reply_to' => $id,
+                'quote' => $id,
+              ),
+            );
+          }
+        }
+      }
+    }
+
+    // Allow other modules to alter things.
+    $context = array(
+      'entity' => clone $entity,
+      'type' => $type,
+      'view_mode' => $view_mode,
+      'langcode' => $langcode,
+    );
+    drupal_alter('entity_quote_view_links', $links, $context);
+
+    if (!empty($links['entity_quote'])) {
+      $entity->content['links']['entity_quote'] = array(
+        '#links' => $links,
+        '#attributes' => array('class' => array('links', 'inline'))
+      );
+    }
+  }
+}
+
+/**
+ * Implements hook_form_alter().
+ */
+function entity_quote_form_alter(&$form, &$form_state, $form_id) {
+  if (strpos($form_id, 'comment_node_') === 0 && (isset($_POST['quote']) || !empty($_GET['quote']))) {
+    $nid = arg(2);
+    $cid = arg(3);
+
+    if ($nid || $cid) {
+      $content = NULL;
+
+      if ($cid) {
+        $entity_id = $cid;
+        $entity_type = 'comment';
+        $field = 'comment_body';
+      }
+      else {
+        $entity_id = $nid;
+        $entity_type = 'node';
+        $field = 'body';
+      }
+
+      if (!is_numeric($entity_id)) {
+        return;
+      }
+
+      $entity = entity_load_single($entity_type, $entity_id);
+
+      if ($entity) {
+        $wrapper = entity_metadata_wrapper($entity_type, $entity);
+        $content = $wrapper->{$field}->value();
+
+        if ($content) {
+          $quote = "[quote {$entity_type}={$entity_id}]" . $content['value'] . '[/quote]';
+
+          $language = $form['comment_body']['#language'];
+          if (array_key_exists('#default_value', $form['comment_body'][$language][0])) {
+            $form['comment_body'][$language][0]['#default_value'] = $quote . $form['comment_body'][$language][0]['#default_value'];
+          }
+          else {
+            $form['comment_body'][$language][0]['value']['#default_value'] = $quote . $form['comment_body'][$language][0]['value']['#default_value'];
+          }
+
+          $form['quote'] = array(
+            '#type' => 'hidden',
+            '#value' => 1,
+          );
+        }
+      }
+    }
+  }
+}

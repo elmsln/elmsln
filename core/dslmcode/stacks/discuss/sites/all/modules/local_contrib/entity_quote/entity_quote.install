@@ -1,0 +1,13 @@
+<?php
+
+/**
+ * @file
+ * The installation script for the entity_quote module
+ */
+
+/**
+ * Implements hook_uninstall().
+ */
+function entity_quote_uninstall() {
+  variable_del('entity_quote_display_link_types');
+}

@@ -1,0 +1,80 @@
+<?php
+
+/**
+ * @file
+ * Installation functions for Viewfield module.
+ */
+
+/**
+ * Implements hook_field_schema().
+ */
+function viewfield_field_schema($field) {
+  return array(
+    'columns' => array(
+      'vname' => array(
+        'type' => 'varchar',
+        'not null' => FALSE,
+        // Views requires at least 96 chars for the view name and display, plus
+        // we need 1 for our delimiter. Round up to a common value of 128.
+        'length' => 128,
+      ),
+      'vargs' => array(
+        'type' => 'varchar',
+        'not null' => FALSE,
+        'length' => 255,
+      ),
+    ),
+  );
+}
+
+/**
+ * Migrate force_default value from widget to instance settings.
+ */
+function viewfield_update_7200() {
+  $result = db_query("SELECT fci.id, fci.data FROM {field_config} fc INNER JOIN {field_config_instance} fci ON fc.id = fci.field_id WHERE fc.type = 'viewfield'");
+  foreach ($result as $record) {
+    $data = unserialize($record->data);
+    if (isset($data['widget']['settings']['force_default'])) {
+      // Protect against the case where a user has upgraded viewfield, produced
+      // a new instance-level force_default, and only later runs update.php.
+      if (!isset($data['settings']['force_default'])) {
+        $data['settings']['force_default'] = $data['widget']['settings']['force_default'];
+      }
+      unset($data['widget']['settings']['force_default']);
+      db_update('field_config_instance')
+        ->fields(array('data' => serialize($data)))
+        ->condition('id', $record->id)
+        ->execute();
+    }
+  }
+}
+
+/**
+ * Migrate allowed_views value from field to instance settings.
+ */
+function viewfield_update_7201() {
+  $fields = db_query("SELECT id, data FROM {field_config} WHERE type = 'viewfield'");
+  foreach ($fields as $field) {
+    $fc_data = unserialize($field->data);
+    if (isset($fc_data['settings']['allowed_views'])) {
+      $instances = db_query("SELECT id, data FROM {field_config_instance} WHERE field_id = :field_id", array(':field_id' => $field->id));
+      foreach ($instances as $instance) {
+        $fci_data = unserialize($instance->data);
+        // Write new setting only if a new one hasn't been created before
+        // running this update.
+        if (!isset($fci_data['settings']['allowed_views'])) {
+          $fci_data['settings']['allowed_views'] = $fc_data['settings']['allowed_views'];
+          db_update('field_config_instance')
+            ->fields(array('data' => serialize($fci_data)))
+            ->condition('id', $instance->id)
+            ->execute();
+        }
+      }
+      unset($fc_data['settings']['allowed_views']);
+      db_update('field_config')
+        ->fields(array('data' => serialize($fc_data)))
+        ->condition('id', $field->id)
+        ->execute();
+    }
+  }
+}
