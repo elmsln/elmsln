@@ -51,4 +51,12 @@ function cis_distro_integrations_cis_service_instance_discuss_options_alter(&$op
   $options['fr'][] = 'cis_service_lti';
   $options['fr'][] = 'cis_section';
   $options['fr'][] = 'cis_service_connection_ux';
+  // harmony_core wants path on so it can name stuff nicely
+  // elmsln cis si clean up want to ax path to make naming static
+  foreach ($options['dis'] as $key => $value) {
+    // make sure we actually found it
+    if (in_array($value, array('path', 'pathauto')) !== false) {
+      unset($options['dis'][$key]);
+    }
+  }
 }
