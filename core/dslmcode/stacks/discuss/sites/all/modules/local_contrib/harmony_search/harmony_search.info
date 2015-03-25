@@ -8,13 +8,14 @@ dependencies[] = search_api
 
 files[] = includes/callback_post_hidden.inc
 files[] = includes/callback_post_status.inc
+files[] = includes/callback_post_thread_access.inc
 files[] = includes/callback_thread_access.inc
 files[] = includes/callback_thread_hidden.inc
 files[] = includes/callback_thread_status.inc
 
-; Information added by Drupal.org packaging script on 2014-11-05
+; Information added by Drupal.org packaging script on 2015-02-24
 version = "7.x-1.x-dev"
 core = "7.x"
 project = "harmony_search"
-datestamp = "1415200994"
+datestamp = "1424779682"
 

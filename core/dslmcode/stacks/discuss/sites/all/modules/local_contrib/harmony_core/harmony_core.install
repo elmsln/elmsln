@@ -545,6 +545,8 @@ function harmony_core_uninstall() {
   variable_del('harmony_core_disable_new_content_warning_enabled');
   variable_del('harmony_core_disable_new_content_warning_message');
   variable_del('harmony_core_rebuild_actions');
+  variable_del('harmony_core_category_vocabulary');
+  variable_del('harmony_core_category_field');
 
   variable_del('harmony_core_post_position_callback');
   variable_del('harmony_core_post_position_page_querystring');

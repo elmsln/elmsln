@@ -249,7 +249,7 @@ function timeago_library_detect_languages() {
   unset($languages['en']);
 
   foreach ($languages as $lang_code => $language) {
-    if (file_exists($library_path . '/jquery.timeago.' . $lang_code . '.js')) {
+    if (file_exists($library_path . '/locales/jquery.timeago.' . $lang_code . '.js') || file_exists($library_path . '/jquery.timeago.' . $lang_code . '.js')) {
       $library_languages_found = TRUE;
       break;
     }
@@ -465,17 +465,14 @@ function timeago_time_zones($blank = NULL, $date_format = '') {
  * Overrides the default translation of Timeago dates if necessary.
  */
 function timeago_add_js() {
-  // Add the Timeago library, the module's helper JS, and the default Drupal
+  // Add the Timeago library, the module's helper JS, and the default
   // translation of Timeago date terms.
-  if (module_exists('libraries') && function_exists('libraries_load')) {
+  $library_path = drupal_get_path('module', 'timeago');
+  if (!drupal_add_library('timeago', 'timeago') && module_exists('libraries') && function_exists('libraries_load')) {
     $library_path = libraries_get_path('timeago');
     libraries_load('timeago');
     $path = drupal_get_path('module', 'timeago') . '/timeago.js';
     drupal_add_js($path);
-  }
-  else {
-    $library_path = drupal_get_path('module', 'timeago');
-    drupal_add_library('timeago', 'timeago');
   }
 
   // Build the settings array structure.
@@ -490,8 +487,11 @@ function timeago_add_js() {
   // suffixes depending on the numbers used in the dates, so we may need to
   // have more complex translations than Drupal allows. To support these cases,
   // we allow adding a script that will override the translations. Examples
-  // are available at https://gist.github.com/6251.
-  $path = $library_path . '/jquery.timeago.' . $GLOBALS['language']->language . '.js';
+  // are available at https://github.com/rmm5t/jquery-timeago
+  $path = $library_path . '/locales/jquery.timeago.' . $GLOBALS['language']->language . '.js';
+  if (!file_exists($path)) {
+    $path = $library_path . '/jquery.timeago.' . $GLOBALS['language']->language . '.js';
+  }
   if (file_exists($path)) {
     drupal_add_js($path, array('weight' => 1));
   }

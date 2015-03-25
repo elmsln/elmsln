@@ -23,16 +23,6 @@ function harmony_core_filter_default_formats() {
         'status' => 1,
         'settings' => array(),
       ),
-      'codefilter' => array(
-        'weight' => -49,
-        'status' => 1,
-        'settings' => array(),
-      ),
-      'filter_markdown' => array(
-        'weight' => -48,
-        'status' => 1,
-        'settings' => array(),
-      ),
       'wysiwyg' => array(
         'weight' => -45,
         'status' => 1,

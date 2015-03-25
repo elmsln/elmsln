@@ -82,40 +82,33 @@ function timeago_requirements($phase) {
  * @param $path
  *   The path of the file to check.
  * @param $options
- *   An associative array containing with the following keys:
+ *   (Optional) An associative array containing any of the following keys:
  *   - pattern: A string containing a regular expression (PCRE) to match the
- *     library version. For example: '@version\s+([0-9a-zA-Z\.-]+)@'.
- *   - lines: (optional) The maximum number of lines to search the pattern in.
+ *     library version. Defaults to '@version\s+([0-9a-zA-Z\.-]+)@'.
+ *   - lines: The maximum number of lines in which to search for the pattern.
  *     Defaults to 20.
- *   - cols: (optional) The maximum number of characters per line to take into
- *     account. Defaults to 200. In case of minified or compressed files, this
- *     prevents reading the entire file into memory.
  *
  * @return
- *   A string containing the version of a file, or FALSE if no version detected or file fails to open.
+ *   A string containing the version of a file, or FALSE if no version is
+ *   detected or file fails to open.
  *
  * @see libraries_get_version().
  */
 function timeago_get_version($path, $options = array()) {
-  $version = FALSE;
   // Provide defaults.
   $options += array(
     'pattern' => '@version\s+([0-9a-zA-Z\.-]+)@',
     'lines' => 20,
-    'cols' => 200,
   );
-  $file = fopen($path, 'r');
+  $file = drupal_http_request(file_create_url($path))->data;
   if ($file) {
-    while ($options['lines'] && $line = fgets($file, $options['cols'])) {
-      if (preg_match($options['pattern'], $line, $matches)) {
-        $version = $matches[1];
-        break;
+    foreach(preg_split("/((\r?\n)|(\r\n?))/", $file) as $line) {
+      if ($options['lines']-- && $line && preg_match($options['pattern'], $line, $matches)) {
+        return $matches[1];
       }
-      $options['lines']--;
     }
-    fclose($file);
   }
-  return $version;
+  return FALSE;
 }
 
 /**

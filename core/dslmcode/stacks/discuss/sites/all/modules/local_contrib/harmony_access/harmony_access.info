@@ -5,9 +5,9 @@ package = Harmony
 
 dependencies[] = harmony_core
 
-; Information added by Drupal.org packaging script on 2014-12-04
+; Information added by Drupal.org packaging script on 2015-01-11
 version = "7.x-1.x-dev"
 core = "7.x"
 project = "harmony_access"
-datestamp = "1417703682"
+datestamp = "1420976281"
 

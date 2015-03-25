@@ -4,7 +4,6 @@ core = 7.x
 package = Harmony
 project = harmony_core
 dependencies[] = better_formats
-dependencies[] = codefilter
 dependencies[] = context
 dependencies[] = ctools
 dependencies[] = date
@@ -28,7 +27,6 @@ dependencies[] = image
 dependencies[] = inline_entity_form
 dependencies[] = list
 dependencies[] = machine_name
-dependencies[] = markdown
 dependencies[] = number
 dependencies[] = options
 dependencies[] = path
@@ -137,9 +135,9 @@ files[] = views/handlers/harmony_core_views_plugin_argument_default_thread.inc
 files[] = views/handlers/harmony_core_views_plugin_row_post_view.inc
 files[] = views/plugins/harmony_core_views_plugin_style_harmony_table.inc
 
-; Information added by Drupal.org packaging script on 2015-02-25
+; Information added by Drupal.org packaging script on 2015-03-19
 version = "7.x-1.x-dev"
 core = "7.x"
 project = "harmony_core"
-datestamp = "1424898190"
+datestamp = "1426798689"
 

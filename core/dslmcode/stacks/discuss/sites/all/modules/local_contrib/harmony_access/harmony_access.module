@@ -632,8 +632,9 @@ function harmony_access_flag_access($flag, $entity_id, $action, $account) {
  * Verifies access to posts before allowing them to be flagged.
  */
 function harmony_access_flag_access_multiple($flag, $entity_ids, $account) {
+  $access = array();
+
   if ($flag->name === 'harmony_likes') {
-    $access = array();
     $posts = harmony_post_load_multiple($entity_ids);
 
     foreach ($posts as $post) {
@@ -641,9 +642,10 @@ function harmony_access_flag_access_multiple($flag, $entity_ids, $account) {
         $access[$post->post_id] = FALSE;
       }
     }
-
-    return $access;
   }
+
+  // Always return an array (even if empty) of accesses.
+  return $access;
 }
 
 /**

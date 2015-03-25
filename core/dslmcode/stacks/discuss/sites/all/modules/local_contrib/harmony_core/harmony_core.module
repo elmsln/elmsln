@@ -466,7 +466,8 @@ function harmony_core_entity_property_info() {
  */
 function harmony_core_entity_property_info_alter(&$info) {
   // Machine name will be missing from the metadata info, supply it.
-  $term_properties = &$info['taxonomy_term']['bundles']['harmony_category']['properties'];
+  $vocab = variable_get('harmony_core_category_vocabulary', 'harmony_category');
+  $term_properties = &$info['taxonomy_term']['bundles'][$vocab]['properties'];
 
   if (!isset($term_properties['field_harmony_machine_name'])) {
     $term_properties['field_harmony_machine_name'] = $term_properties['field_harmony_colour'];
@@ -2049,17 +2050,18 @@ function harmony_core_thread_move_category_action_form($settings) {
 
   $thread = harmony_core_thread_new_object();
 
-  field_attach_form('harmony_thread', $thread, $form, $form_state, NULL, array('field_name' => 'field_harmony_category'));
+  $category_field = variable_get('harmony_core_category_field', 'field_harmony_category');
+  field_attach_form('harmony_thread', $thread, $form, $form_state, NULL, array('field_name' => $category_field));
 
-  $form['field_harmony_category'][$form['field_harmony_category']['#language']]['#title'] = t('Category to move threads to');
-  $form['field_harmony_category'][$form['field_harmony_category']['#language']]['#required'] = TRUE;
+  $form[$category_field][$form[$category_field]['#language']]['#title'] = t('Category to move threads to');
+  $form[$category_field][$form[$category_field]['#language']]['#required'] = TRUE;
 
   // Allow other modules to mess with the options for access control reasons.
-  drupal_alter('harmony_category_options', $form['field_harmony_category'][$form['field_harmony_category']['#language']]['#options']);
-  $options = $form['field_harmony_category'][$form['field_harmony_category']['#language']]['#options'];
+  drupal_alter('harmony_category_options', $form[$category_field][$form[$category_field]['#language']]['#options']);
+  $options = $form[$category_field][$form[$category_field]['#language']]['#options'];
   // If empty, hide and throw out a helpful message.
   if (empty($options) || !empty($options) && count($options) === 1 && isset($options['_none'])) {
-    $form['field_harmony_category']['#access'] = FALSE;
+    $form[$category_field]['#access'] = FALSE;
     $form['guidance_text'] = t("<p>You don't have access to any categories or there aren't any categories.</p>");
   }
 
@@ -2071,9 +2073,10 @@ function harmony_core_thread_move_category_action_form($settings) {
  */
 function harmony_core_thread_move_category_action_submit($form, &$form_state) {
   $return = array();
+  $category_field = variable_get('harmony_core_category_field', 'field_harmony_category');
   $lang = !empty($form['#entity']->language) ? $form['#entity']->language : LANGUAGE_NONE;
 
-  $return['term_id'] = $form_state['values']['field_harmony_category'][$lang][0]['tid'];
+  $return['term_id'] = $form_state['values'][$category_field][$lang][0]['tid'];
 
   return $return;
 }
@@ -2085,8 +2088,9 @@ function harmony_core_thread_move_category_action(&$thread, $context) {
   $wrapper = entity_metadata_wrapper('harmony_thread', $thread);
 
   // Check that the thread has the category field.
-  if ($wrapper->__isset('field_harmony_category')) {
-    $wrapper->field_harmony_category->set($context['term_id']);
+  $category_field = variable_get('harmony_core_category_field', 'field_harmony_category');
+  if ($wrapper->__isset($category_field)) {
+    $wrapper->{$category_field}->set($context['term_id']);
   }
 }
 
@@ -2448,6 +2452,17 @@ function harmony_core_post_split_action_form($settings, $vbo = array()) {
     $post_id = reset($vbo['selection']);
     $post = harmony_post_load($post_id);
 
+    // @todo Check to see if this post is published, load the next if not.
+    if ($post && $post->status == HARMONY_NOT_PUBLISHED) {
+      foreach ($vbo['selection'] as $vbo_post_id) {
+        $post = harmony_post_load($vbo_post_id);
+
+        if ($post->status == HARMONY_PUBLISHED) {
+          break;
+        }
+      }
+    }
+
     if ($post) {
       $wrapper = entity_metadata_wrapper('harmony_post', $post);
 
@@ -2547,12 +2562,14 @@ function harmony_core_post_split_action_form($settings, $vbo = array()) {
   );
 
   // Prepopulate values.
-  if (!empty($post)) {
-    $form['author']['#default_value'] = $wrapper->field_harmony_thread->uid->name->value();
+  if (!empty($post) && $wrapper) {
+    $form['author']['#default_value'] = $wrapper->uid->name->value();
+    $form['author']['#description'] = t('The author has been set by default to the author of the first published selected post.');
 
     // Taxonomy if the bundle has that field.
-    if (!empty($form['field_harmony_category']) && $wrapper->field_harmony_thread->field_harmony_category->value()) {
-      $form['field_harmony_category'][$form['field_harmony_category']['#language']]['#default_value'] = $wrapper->field_harmony_thread->field_harmony_category->tid->value();
+    $category_field = variable_get('harmony_core_category_field', 'field_harmony_category');
+    if (!empty($form[$category_field]) && $wrapper->field_harmony_thread->{$category_field}->value()) {
+      $form[$category_field][$form[$category_field]['#language']]['#default_value'] = $wrapper->field_harmony_thread->{$category_field}->tid->value();
     }
   }
 
@@ -2671,8 +2688,9 @@ function harmony_core_post_split_action(&$post, $context) {
       }
 
       // Category now.
-      if ($thread_wrapper->__isset('field_harmony_category') && $thread_wrapper->field_harmony_category->value()) {
-        $new_category_tid = $thread_wrapper->field_harmony_category->tid->value();
+      $category_field = variable_get('harmony_core_category_field', 'field_harmony_category');
+      if ($thread_wrapper->__isset($category_field) && $thread_wrapper->{$category_field}->value()) {
+        $new_category_tid = $thread_wrapper->{$category_field}->tid->value();
 
         // Check to see if the post has in effect changed category, if so then
         // we need to decrement the value there as well.
@@ -2681,11 +2699,11 @@ function harmony_core_post_split_action(&$post, $context) {
         // then decrement. Don't increment the new category if the it's the
         // same as the old one and the new thread is published.
         $increment_new_category_count = $thread->status == HARMONY_PUBLISHED;
-        if ($old_thread->status == HARMONY_PUBLISHED && $old_thread_wrapper->__isset('field_harmony_category') && $old_thread_wrapper->field_harmony_category->value()) {
-          if ($old_thread_wrapper->field_harmony_category->tid->value() != $new_category_tid) {
-            $old_category_post_count = $old_thread_wrapper->field_harmony_category->field_harmony_post_count->value();
-            $old_thread_wrapper->field_harmony_category->field_harmony_post_count->set($old_category_post_count - 1);
-            $old_thread_wrapper->field_harmony_category->save();
+        if ($old_thread->status == HARMONY_PUBLISHED && $old_thread_wrapper->__isset($category_field) && $old_thread_wrapper->{$category_field}->value()) {
+          if ($old_thread_wrapper->{$category_field}->tid->value() != $new_category_tid) {
+            $old_category_post_count = $old_thread_wrapper->{$category_field}->field_harmony_post_count->value();
+            $old_thread_wrapper->{$category_field}->field_harmony_post_count->set($old_category_post_count - 1);
+            $old_thread_wrapper->{$category_field}->save();
           }
           // Category is the same, don't increment the new count.
           elseif ($thread->status == HARMONY_NOT_PUBLISHED) {
@@ -2695,9 +2713,9 @@ function harmony_core_post_split_action(&$post, $context) {
 
         // Update the new category count.
         if ($increment_new_category_count) {
-          $category_post_count = $thread_wrapper->field_harmony_category->field_harmony_post_count->value();
-          $thread_wrapper->field_harmony_category->field_harmony_post_count->set($category_post_count + 1);
-          $thread_wrapper->field_harmony_category->save();
+          $category_post_count = $thread_wrapper->{$category_field}->field_harmony_post_count->value();
+          $thread_wrapper->{$category_field}->field_harmony_post_count->set($category_post_count + 1);
+          $thread_wrapper->{$category_field}->save();
         }
       }
 
@@ -2933,13 +2951,15 @@ function harmony_core_thread_form($form, &$form_state, $thread = NULL) {
 
   // Allow category to be preopulated, also check access if
   // harmony_access_forum is in place.
-  if (!empty($form['field_harmony_category']) && !empty($_GET['field_harmony_category']) && is_numeric($_GET['field_harmony_category'])) {
+  $category_field = variable_get('harmony_core_category_field', 'field_harmony_category');
+  if (!empty($form[$category_field]) && !empty($_GET[$category_field]) && is_numeric($_GET[$category_field])) {
     // Load up the term to check it exists and that it's in the correct vocab.
-    $term = taxonomy_term_load($_GET['field_harmony_category']);
+    $vocab = variable_get('harmony_core_category_vocabulary', 'harmony_category');
+    $term = taxonomy_term_load($_GET[$category_field]);
 
     // @ todo check access.
-    if ($term && $term->vocabulary_machine_name === 'harmony_category') {
-      $form['field_harmony_category'][$form['field_harmony_category']['#language']]['#default_value'] = $term->tid;
+    if ($term && $term->vocabulary_machine_name === $vocab) {
+      $form[$category_field][$form[$category_field]['#language']]['#default_value'] = $term->tid;
     }
   }
 
@@ -3254,8 +3274,9 @@ function harmony_thread_type_form_submit(&$form, &$form_state) {
 
   // Copy the standard fields from harmony_thread if a new type.
   if ($is_new) {
+    $category_field = variable_get('harmony_core_category_field', 'field_harmony_category');
     $target_fields = array(
-      'field_harmony_category',
+      $category_field,
       'field_harmony_first_post',
       'field_harmony_last_post',
       'field_harmony_last_user_to_reply',
@@ -3654,8 +3675,11 @@ function harmony_core_post_form_submit($form, &$form_state) {
  */
 function harmony_core_form_taxonomy_form_term_alter(&$form, &$form_state, $form_id) {
   // @todo restrict to only harmony_category vocab, duh.
-  $form['field_harmony_thread_count']['#access'] = FALSE;
-  $form['field_harmony_post_count']['#access'] = FALSE;
+  $vocab = variable_get('harmony_core_category_vocabulary', 'harmony_category');
+  if ($form['#vocabulary']->machine_name == $vocab) {
+    $form['field_harmony_thread_count']['#access'] = FALSE;
+    $form['field_harmony_post_count']['#access'] = FALSE;
+  }
 }
 
 /**
@@ -3898,18 +3922,24 @@ function harmony_core_rebuild_meta_count($entity_type, $entity_id, $entity = NUL
 
     case 'taxonomy_term':
       // Get the number of threads and set.
+      $category_field = variable_get('harmony_core_category_field', 'field_harmony_category');
+      // As we're dealing with queries and behaving badly by wedging a variable
+      // in it, ensure that we don't have any unexpected characters in it.
+      if ($category_field != 'field_harmony_category' && !ctype_alnum(str_replace('_', '', $category_field))) {
+        $category_field = 'field_harmony_category';
+      }
       $threads = db_query("SELECT COUNT(DISTINCT entity_id)
-        FROM {field_data_field_harmony_category}
-        WHERE entity_type = 'harmony_thread' AND deleted = 0 AND field_harmony_category_tid = :tid", array(':tid' => $entity_id))->fetchField();
+        FROM {field_data_" . $category_field . "}
+        WHERE entity_type = 'harmony_thread' AND deleted = 0 AND " . $category_field . "_tid = :tid", array(':tid' => $entity_id))->fetchField();
       $wrapper->field_harmony_thread_count->set($threads);
       // Get the number of posts and set.
       $posts = db_query("SELECT SUM(fpc.field_harmony_post_count_value)
         FROM {field_data_field_harmony_post_count} AS fpc
         LEFT JOIN {harmony_thread} AS ht ON fpc.entity_id = ht.thread_id
-        LEFT JOIN {field_data_field_harmony_category} AS fc ON ht.thread_id = fc.entity_id
+        LEFT JOIN {field_data_" . $category_field . "} AS fc ON ht.thread_id = fc.entity_id
         WHERE fpc.deleted = 0 AND fpc.entity_type = 'harmony_thread' AND fpc.field_harmony_post_count_value > 0
         AND ht.status = 1 AND ht.hidden = 0
-        AND fc.deleted = 0 AND fc.entity_type = 'harmony_thread' AND fc.field_harmony_category_tid = :tid", array(':tid' => $entity_id))->fetchField();
+        AND fc.deleted = 0 AND fc.entity_type = 'harmony_thread' AND fc." . $category_field . "_tid = :tid", array(':tid' => $entity_id))->fetchField();
       $wrapper->field_harmony_post_count->set($posts);
       $wrapper->save();
       break;

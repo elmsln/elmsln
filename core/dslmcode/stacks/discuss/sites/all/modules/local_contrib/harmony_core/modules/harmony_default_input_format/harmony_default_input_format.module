@@ -1,0 +1,21 @@
+<?php
+/**
+ * @file
+ * harmony_default_input_format.module
+ */
+
+/**
+ * Implements hook_filter_default_formats_alter().
+ */
+function harmony_default_input_format_filter_default_formats_alter(&$formats) {
+  $formats['harmony_filtered']['filters']['codefilter'] = array(
+    'weight' => -49,
+    'status' => 1,
+    'settings' => array(),
+  );
+  $formats['harmony_filtered']['filters']['filter_markdown'] = array(
+    'weight' => -48,
+    'status' => 1,
+    'settings' => array(),
+  );
+}

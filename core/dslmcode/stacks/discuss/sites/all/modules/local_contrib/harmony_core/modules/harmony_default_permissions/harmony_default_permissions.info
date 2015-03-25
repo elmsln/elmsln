@@ -42,9 +42,9 @@ features[user_permission][] = view own unpublished harmony_threads
 features[user_permission][] = view unpublished harmony_posts
 features[user_permission][] = view unpublished harmony_threads
 
-; Information added by Drupal.org packaging script on 2015-02-25
+; Information added by Drupal.org packaging script on 2015-03-19
 version = "7.x-1.x-dev"
 core = "7.x"
 project = "harmony_core"
-datestamp = "1424898190"
+datestamp = "1426798689"
 

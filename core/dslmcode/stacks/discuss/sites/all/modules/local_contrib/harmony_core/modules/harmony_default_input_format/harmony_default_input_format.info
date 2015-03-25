@@ -1,0 +1,16 @@
+name = Harmony - Default Input Format
+description = Extend the standard Harmony input format with Markdown and Codefilter.
+core = 7.x
+package = Harmony
+
+dependencies[] = filter
+dependencies[] = harmony_core
+dependencies[] = markdown
+dependencies[] = codefilter
+
+; Information added by Drupal.org packaging script on 2015-03-19
+version = "7.x-1.x-dev"
+core = "7.x"
+project = "harmony_core"
+datestamp = "1426798689"
+
