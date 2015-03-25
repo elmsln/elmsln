@@ -21,6 +21,8 @@ dependencies[] = file
 dependencies[] = admin_menu
 dependencies[] = admin_menu_toolbar
 ; Other
+dependencies[] = ctools
+dependencies[] = views
 dependencies[] = httprl
 dependencies[] = entity
 dependencies[] = entity_token
