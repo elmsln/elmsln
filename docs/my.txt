@@ -1,3 +1,4 @@
+[mysqld]
 ; ELMSLN recommendations ;
 
 ; From real world testing ;
@@ -35,12 +36,12 @@ table-definition-cache         = 4096
 table-open-cache               = 4096
 
 ; INNODB ;
-innodb-flush-method            = O_DIRECT
-innodb-log-files-in-group      = 2
-innodb-log-file-size           = 128M
-innodb-flush-log-at-trx-commit = 1
-innodb-file-per-table          = 1
-innodb-buffer-pool-size        = 256M
+;innodb-flush-method            = O_DIRECT
+;innodb-log-files-in-group      = 2
+;innodb-log-file-size           = 128M
+;innodb-flush-log-at-trx-commit = 1
+;innodb-file-per-table          = 1
+;innodb-buffer-pool-size        = 256M
 
 ; LOGGING ;
 log-error                      = /var/lib/mysql/mysql-error.log
@@ -56,10 +57,10 @@ slow-query-log-file            = /var/lib/mysql/mysql-slow.log
 ;innodb_log_arch_dir = /var/lib/mysql/
 ; You can set .._buffer_pool_size up to 50 - 80 %
 ; of RAM but beware of setting memory usage too high
-innodb_buffer_pool_size = 384M
-innodb_additional_mem_pool_size = 20M
+;innodb_buffer_pool_size = 384M
+;innodb_additional_mem_pool_size = 20M
 ; Set .._log_file_size to 25 % of buffer pool size
-innodb_log_file_size = 100M
-innodb_log_buffer_size = 8M
-innodb_flush_log_at_trx_commit = 2
-innodb_lock_wait_timeout = 50
+;innodb_log_file_size = 100M
+;innodb_log_buffer_size = 8M
+;innodb_flush_log_at_trx_commit = 2
+;innodb_lock_wait_timeout = 50
