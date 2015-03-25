@@ -9,7 +9,7 @@
             "arguments": [
                 "accessibility",
                 "accessibility_wysiwyg",
-                "module_filter",
+                "cis_connector",
                 "cis_service_restws",
                 "cis_service_roles",
                 "cis_service_lti",
@@ -20,10 +20,21 @@
                 "textbook_editor",
                 "cis_unique_tag",
                 "cis_shortcodes",
-                "og",
-                "og_access",
-                "og_context",
-                "og_ui"
+                "cis_lmsless",
+                "cis_lmsless_ux"
+            ]
+        },
+        {
+            "command": "fr",
+            "arguments": [
+                "textbook_editor",
+                "cis_lms_required",
+                "cis_account_required",
+                "cis_lmsless_ux",
+                "cis_section",
+                "cis_service_connection_ux",
+                "cis_service_restws",
+                "cis_service_roles"
             ]
         }
     ],
@@ -31,6 +42,6 @@
         "type": "add-on",
         "version": "1.0",
         "author": "btopro",
-        "description": "Enables components needed to integrate with ELMSLN so they aren't required in the install profile"
+        "description": "Enables components needed to integrate with ELMSLN so they are not required in the install profile"
     }
 }

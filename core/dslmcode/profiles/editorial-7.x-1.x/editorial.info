@@ -1,29 +1,44 @@
 ; Packaging information for editorial
 name = "Editorial"
 description = "Blogging tool, primarily designed for use in ELMSLN."
+exclusive = "1"
 core = "7.x"
 ; ----------
 ; Dependencies
 ; ----------
+; Administration
+dependencies[] = admin_menu
+dependencies[] = admin_menu_toolbar
+dependencies[] = module_filter
+; Chaos tool suite
+dependencies[] = ctools
+; Context
+dependencies[] = context
 ; Core
 dependencies[] = block
 dependencies[] = contextual
+dependencies[] = field
+dependencies[] = field_sql_storage
+dependencies[] = field_ui
+dependencies[] = file
+dependencies[] = filter
 dependencies[] = help
 dependencies[] = image
 dependencies[] = list
 dependencies[] = menu
+dependencies[] = node
 dependencies[] = number
 dependencies[] = options
-dependencies[] = path
-dependencies[] = field_ui
-dependencies[] = file
-; Administration
-dependencies[] = admin_menu
-dependencies[] = admin_menu_toolbar
+dependencies[] = system
+dependencies[] = text
+dependencies[] = user
+; Development
+dependencies[] = profiler_builder
+; Fields
+dependencies[] = entityreference
+; Organic groups
+dependencies[] = og
 ; Other
-dependencies[] = ctools
-dependencies[] = views
-dependencies[] = httprl
 dependencies[] = entity
 dependencies[] = entity_token
 dependencies[] = libraries
@@ -31,5 +46,12 @@ dependencies[] = restws
 dependencies[] = restws_basic_auth
 dependencies[] = strongarm
 dependencies[] = token
+; Performance and scalability
+dependencies[] = httprl
 ; UUID
 dependencies[] = uuid
+; User interface
+dependencies[] = jquery_update
+; Views
+dependencies[] = views
+
