@@ -1202,13 +1202,21 @@ function _cis_connector_assemble_entity_list($entity_type, $bundle, $id_field, $
   $options = array();
   // assemble all entities requested
   $query = new EntityFieldQuery;
-  $query->entityCondition('entity_type', $entity_type)
-    ->entityCondition('bundle', $bundle);
-  // allow for simple property conditions
+  $query->entityCondition('entity_type', $entity_type);
+  // EFQs of user entities fail since it has no bundle
+  if ($entity_type != 'user') {
+    $query->entityCondition('bundle', $bundle);
+  }
+  // allow for property conditions
   if (!empty($property_conditions)) {
     // only allowed relationship is simple value field name / value pair
     foreach ($property_conditions as $field_name => $field_value) {
-      $query->propertyCondition($field_name, $field_value, '=');
+      if (is_array($field_value)) {
+        $query->propertyCondition($field_name, $field_value[0], $field_value[1]);
+      }
+      else {
+        $query->propertyCondition($field_name, $field_value, '=');
+      }
     }
   }
   // allow for simple field conditions
@@ -1216,7 +1224,14 @@ function _cis_connector_assemble_entity_list($entity_type, $bundle, $id_field, $
     foreach ($field_conditions as $field_name => $field_value) {
       // allow for complex relationship if needed
       if (is_array($field_value)) {
+        // simple value = evaluation
+        if (count($field_value) == 2) {
         $query->fieldCondition($field_name, $field_value[0], $field_value[1], '=');
+        }
+        // allow for more complex comparisons like in an array of values
+        elseif (count($field_value) == 3) {
+          $query->fieldCondition($field_name, $field_value[0], $field_value[1], $field_value[2]);
+        }
       }
       else {
         // only allowed relationship is simple value field name / value pair
