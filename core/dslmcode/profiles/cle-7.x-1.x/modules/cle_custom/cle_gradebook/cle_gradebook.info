@@ -1,0 +1,9 @@
+name = "CLE Gradebook"
+core = "7.x"
+description = "Traditional gradebook grid display"
+dependencies[] = cle_submission
+dependencies[] = assessment_entity
+dependencies[] = cle_assignment
+dependencies[] = cis_section
+dependencies[] = cis_connector
+dependencies[] = ctools
