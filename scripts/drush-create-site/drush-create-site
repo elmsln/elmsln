@@ -5,6 +5,9 @@ cd $DIR
 
 source ../../config/scripts/drush-create-site/config.cfg
 
+# make sure root process has latest bashrc running in its thread
+source $HOME/.bashrc
+
 #test for empty vars. if empty required var -- exit
 if [ -z $fileloc ]; then
   echo "please update your config.cfg file"

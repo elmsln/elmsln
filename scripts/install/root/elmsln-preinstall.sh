@@ -254,9 +254,6 @@ fi
 if [[ -n "$mycnf" ]]; then
   cat /var/www/elmsln/docs/my.txt >> $mycnf
 fi
-if [[ -n "$crontab" ]]; then
-  cat /var/www/elmsln/docs/crontab.txt >> $crontab
-fi
 
 if [[ -n "$domains" ]]; then
   # try to automatically author the domains file(s)
@@ -302,9 +299,9 @@ ln -s /var/www/elmsln/scripts/drush-create-site /usr/local/bin/drush-create-site
 chmod 744 /usr/local/bin/drush-create-site/rm-site.sh
 
 # shortcuts for ease of use
-cd ~
+cd $HOME
 touch .bashrc
-ln -s /var/www/elmsln ~/elmsln
+ln -s /var/www/elmsln $HOME/elmsln
 echo "alias g='git'" >> .bashrc
 echo "alias d='drush'" >> .bashrc
 echo "alias l='ls -laHF'" >> .bashrc
@@ -314,7 +311,8 @@ echo "alias drs='/usr/local/bin/drush-create-site/rm-site.sh'" >> .bashrc
 curl -sS https://getcomposer.org/installer | php
 mv composer.phar /usr/local/bin/composer
 sed -i '1i export PATH="$HOME/.composer/vendor/bin:$PATH"' .bashrc
-source .bashrc
+source $HOME/.bashrc
+
 # full path to execute in case root needs to log out before it picks it up
 php /usr/local/bin/composer global require drush/drush:6.*
 # copy in the elmsln server stuff as the baseline for .drush
@@ -335,6 +333,11 @@ if [[ $os == '2' ]]; then
 else
   /etc/init.d/httpd restart
   /etc/init.d/mysqld restart
+fi
+# source one last time before hooking crontab into the root user call
+source $HOME/.bashrc
+if [[ -n "$crontab" ]]; then
+  cat /var/www/elmsln/docs/crontab.txt >> $crontab
 fi
 
 elmslnecho "Everything should be in place, now you can log out and run the following commands:"
