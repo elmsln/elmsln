@@ -1,16 +1,7 @@
-#ELMSLN cron.php calls, at least 1 per stack
-00 05 * * * root /usr/bin/php /var/www/elmsln/core/dslmcode/stacks/online/sites/cron.php
-05 05 * * * root /usr/bin/php /var/www/elmsln/core/dslmcode/stacks/comply/sites/cron.php
-10 05 * * * root /usr/bin/php /var/www/elmsln/core/dslmcode/stacks/courses/sites/cron.php
-20 05 * * * root /usr/bin/php /var/www/elmsln/core/dslmcode/stacks/studio/sites/cron.php
-30 05 * * * root /usr/bin/php /var/www/elmsln/core/dslmcode/stacks/media/sites/cron.php
-40 05 * * * root /usr/bin/php /var/www/elmsln/core/dslmcode/stacks/interact/sites/cron.php
-50 05 * * * root /usr/bin/php /var/www/elmsln/core/dslmcode/stacks/blog/sites/cron.php
-00 06 * * * root /usr/bin/php /var/www/elmsln/core/dslmcode/stacks/discuss/sites/cron.php
-#ELMSLN flush APC caches nightly to prevent any overfragmentation
-#if ubuntu run this command instead service apache2 restart
-00 05 * * * root /etc/init.d/httpd reload
+#START ELMSLN#
+PATH=/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin:/root/.composer/vendor/bin
+HOME=/root/
+00 03 * * * root drush @elmsln cron --y
 #ELMSLN drush-create-site activation for site request processing
 * * * * * root  /usr/local/bin/drush-create-site/drush-create-site >> /var/log/drush.log
-#ELMSLN drush-command-job activation for command processing
-* * * * * root  /usr/local/bin/drush-command-job/drush-command-job >> /var/log/drush.log
+#END ELMSLN#
