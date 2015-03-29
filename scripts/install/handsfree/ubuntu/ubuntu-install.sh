@@ -19,7 +19,7 @@ timestamp(){
 start="$(timestamp)"
 yes | apt-get update
 # using yum to install the main packages
-yes | apt-get -y install policycoreutils patch git nano gcc make mysql-server apache2 libapache2-mod-php5 php5 php5-common php5-mysql php-xml-parser php5-cgi php5-curl php5-gd php5-cli php5-fpm php-apc php-pear php5-dev php5-mcrypt php5-gd
+yes | apt-get -f -y install policycoreutils patch git nano gcc make mysql-server apache2 libapache2-mod-php5 php5 php5-common php5-mysql php-xml-parser php5-cgi php5-curl php5-gd php5-cli php5-fpm php-apc php-pear php5-dev php5-mcrypt php5-gd
 
 # using pecl to install uploadprogress
 pecl channel-update pecl.php.net
