@@ -29,6 +29,7 @@ pecl install uploadprogress
 # adding uploadprogresss to php conf files
 touch /etc/php5/mods-available/uploadprogress.ini
 echo extension=uploadprogress.so > /etc/php5/mods-available/uploadprogress.ini
+cd /etc/php5/apache2/conf.d
 ln -s ../../mods-available/uploadprogress.ini 20-uploadprogress.ini
 # set httpd_can_sendmail so drupal mails go out
 setsebool -P httpd_can_sendmail on
@@ -38,6 +39,7 @@ setsebool -P httpd_can_sendmail on
 groupadd admin
 # run the handsfree installer that's the same for all deployments
 # kick off hands free deployment
+cd $HOME
 bash /var/www/elmsln/scripts/install/handsfree/handsfree-install.sh 2 $1 $2 $3 $3 $3 data- $4 $5 $5 admin $6
 cd $HOME
 source .bashrc
