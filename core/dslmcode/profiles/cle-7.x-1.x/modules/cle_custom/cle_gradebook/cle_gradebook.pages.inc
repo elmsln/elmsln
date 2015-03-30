@@ -144,7 +144,7 @@ function cle_gradebook_grid_form($form, &$form_state) {
     foreach ($assignments as $key => $name) {
       // if we have an assignment nid key match, load result there
       if (isset($subissions[$key])) {
-        $row[$key] = ctools_modal_text_button($subissions[$key], 'cle/gradebook/render/nojs/' . $subissions[$key], t('View @name in submission viewer', array('@name' => $subissions[$key])), 'ctools-modal-cle-gradebook-modal');
+        $row[$key] = ctools_modal_text_button($subissions[$key], 'cle/gradebook/render/nojs/' . $subissions[$key] . '/' . $uid, t('View @name in submission viewer', array('@name' => $subissions[$key])), 'ctools-modal-cle-gradebook-modal');
       }
       else {
         $row[$key] = '-';

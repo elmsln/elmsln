@@ -17,9 +17,9 @@ function cle_gradebook_menu() {
     'access arguments' => array('access gradebook'),
     'file' => 'cle_gradebook.pages.inc',
   );
-  $items['cle/gradebook/render/%ctools_js/%'] = array(
+  $items['cle/gradebook/render/%ctools_js/%/%'] = array(
       'title' => 'Submission Viewer',
-      'page arguments' => array(3, 4),
+      'page arguments' => array(3, 4, 5),
       'page callback' => '_cle_gradebook_modal_page',
       'access arguments' => array('access gradebook'),
       'type' => MENU_NORMAL_ITEM,
@@ -50,17 +50,24 @@ function cle_gradebook_permission() {
  * @return
  *   string The contents of the node, that will fill the modal window.
  */
-function _cle_gradebook_modal_page($js = NULL, $nid = NULL) {
+function _cle_gradebook_modal_page($js = NULL, $nid = NULL, $uid = NULL) {
   if ($nid == NULL) {
-    return t('No node id was sent. Error.');
+    return t('No node id was sent.');
+  }
+  if ($uid == NULL) {
+    return t('No author id was sent.');
   }
   if ($js) {
     // Required includes for ctools to work:
     ctools_include('modal');
     ctools_include('ajax');
   }
-  // Load the node obkect
+  // Load the node object
   $node = node_load($nid);
+  // ensure uid matches as a failsafe
+  if ($node->uid != $uid) {
+    return t('Author must match node requested');
+  }
   // @todo make this more generic so we can theme it better
   $contents = render(node_view($node, 'gradebook_viewer'));
   return ctools_modal_render($node->title, $contents) ;
