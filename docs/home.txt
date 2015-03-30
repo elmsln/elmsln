@@ -1,0 +1,7 @@
+# START ELMSLN #
+export PS1="\[$(tput bold)\]\[$(tput setaf 2)\][\u@\h \W]\\$ \[$(tput sgr0)\]"
+alias g='git'
+alias d='drush'
+alias l='ls -laHF'
+alias b='cd ../'
+# END ELMSLN #
