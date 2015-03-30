@@ -1,0 +1,14 @@
+name = Colorbox
+description = A light-weight, customizable lightbox plugin for jQuery 1.4.3+.
+dependencies[] = libraries (2.x)
+core = 7.x
+configure = admin/config/media/colorbox
+
+files[] = views/colorbox_handler_field_colorbox.inc
+
+; Information added by Drupal.org packaging script on 2014-09-12
+version = "7.x-2.8"
+core = "7.x"
+project = "colorbox"
+datestamp = "1410514129"
+
