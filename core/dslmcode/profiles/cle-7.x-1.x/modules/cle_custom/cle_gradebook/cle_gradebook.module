@@ -62,7 +62,7 @@ function _cle_gradebook_modal_page($js = NULL, $nid = NULL) {
   // Load the node obkect
   $node = node_load($nid);
   // @todo make this more generic so we can theme it better
-  $contents = render(node_view($node));
+  $contents = render(node_view($node, 'gradebook_viewer'));
   return ctools_modal_render($node->title, $contents) ;
 }
 
