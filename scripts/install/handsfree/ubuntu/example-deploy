@@ -8,10 +8,8 @@
 # are spinning this up to actually run somewhere, but the example input
 # will work to give you a taste of what its about to do when your ready for
 # the real deal to be deployed somewhere.
-yes | apt-get -y install git && git clone https://github.com/btopro/elmsln.git /var/www/elmsln
-bash /var/www/elmsln/scripts/install/handsfree/ubuntu/ubuntu-install.sh elmsln ln elmsln.dev http email@elmsln.dev yes
+yes | apt-get -y install git && git clone https://github.com/btopro/elmsln.git /var/www/elmsln && bash /var/www/elmsln/scripts/install/handsfree/ubuntu/ubuntu-install.sh elmsln ln elmsln.dev http email@elmsln.dev yes
 cd $HOME && source .bashrc
-
 
 # for production usage:
 # describing the values a bit more; all of these are machine_name input
