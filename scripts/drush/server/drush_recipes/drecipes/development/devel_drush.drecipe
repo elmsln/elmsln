@@ -7,7 +7,7 @@
         {
             "command": "dl",
             "arguments": [
-                "drush_ecl,drush_efq,httprl_spider,registry_rebuild,entity_scaffold,drush_cleanup"
+                "drush_ecl,drush_efq,httprl_spider,registry_rebuild,entity_scaffold,drush_cleanup,clean_missing_modules"
             ]
         },
         {
