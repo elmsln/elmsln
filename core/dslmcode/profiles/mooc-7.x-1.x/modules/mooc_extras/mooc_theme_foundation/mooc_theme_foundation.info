@@ -3,7 +3,6 @@ description = Support for Foundation base theme block positions
 core = 7.x
 package = MOOC Extras
 dependencies[] = boxes
-dependencies[] = chamfer_defaults
 dependencies[] = cis_service_connection
 dependencies[] = context
 dependencies[] = ctools
