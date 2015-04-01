@@ -99,7 +99,7 @@
 
             <h1>Account</h1>
               <hr class="pad-1"></hr>
-                <a class="account-logout text-center row" href="#">log out</a>
+                <a class="account-logout text-center row" href="<?php print base_path();?>user/logout">log out</a>
               <hr></hr>
               <h2>Profile</h2>
               <a href="#" class="modal-img-link row">
