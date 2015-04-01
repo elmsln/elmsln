@@ -107,7 +107,6 @@ function ecd_install() {
   menu_rebuild();
   // revert features to ensure they are all installed
   $features = array(
-    'regions_admin_example',
     'ecd_types',
     'ecd_entityforms',
     'ecd_displays',

@@ -71,9 +71,6 @@ dependencies[] = token
 dependencies[] = transliteration
 ; Performance and scalability
 dependencies[] = httprl
-; Regions
-dependencies[] = regions
-dependencies[] = regions_admin_left
 ; UUID
 dependencies[] = uuid
 ; User interface
@@ -91,7 +88,6 @@ dependencies[] = views_bulk_operations
 dependencies[] = views_ui
 ; Features
 dependencies[] = features
-dependencies[] = regions_admin_example
 dependencies[] = ecd_displays
 dependencies[] = ecd_entityforms
 dependencies[] = ecd_types
