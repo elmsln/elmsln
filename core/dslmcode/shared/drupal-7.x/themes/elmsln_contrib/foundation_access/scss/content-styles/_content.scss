@@ -4,8 +4,8 @@
 	  text-shadow: none;
 }
 
-body {
-	background-color:$background-color;
+.scroll-disabled {
+	overflow: hidden;
 }
 .breadcrumbs {
 	display:inline-block;

@@ -264,6 +264,7 @@ $right-tabbar-section-width:2.8125rem;
   }
   .tab-bar {
     background-color:$etb-tool-bg-color;
+    @include box-shadow(0,-5px,5px,5px,#000);
     .tab-bar-section {
       text-align:right;
       padding:0;

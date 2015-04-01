@@ -142,3 +142,6 @@ a.modal-img-link span {
 	@extend %opensans-normal;
 	text-transform:none;
 }
+#admin-menu .dropdown li li a {
+	@extend %opensans-light;
+}

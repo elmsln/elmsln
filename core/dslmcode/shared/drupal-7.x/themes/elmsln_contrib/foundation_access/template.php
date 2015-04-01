@@ -79,6 +79,10 @@ function foundation_access_menu_tree__cis_service_connection_all_active_outline(
  * Implements menu_link__cis_service_connection_all_active_outline().
  */
 function foundation_access_menu_link__cis_service_connection_all_active_outline($variables) {
+  static $counter = 1;
+  // @todo supply this from elsewhere
+  //$word_depth = array('Unit', 'Lesson');
+  $word = 'Lesson';
   $element = $variables['element'];
   $sub_menu = '';
   $return = '';
@@ -98,36 +102,50 @@ function foundation_access_menu_link__cis_service_connection_all_active_outline(
     $return .= '<li>' . l('<div class="icon-assignment-white outline-nav-icon" data-grunticon-embed></div>' . $element['#title'], $element['#href'], $options) . '</li>';
   }
   else {
+    if (empty($element['#attributes']['class'])) {
+      $element['#attributes']['class'] = array();
+    }
+    // highest level we just render everything below
     if ($element['#original_link']['p3'] == 0) {
-      if (empty($element['#attributes']['class'])) {
-        $element['#attributes']['class'] = array();
-      }
       $short = preg_replace('/[^a-zA-Z0-9]/', '', strtolower($element['#title']));
       // test for active class, meaning this should be expanded by default
       if (in_array('active-trail', $element['#attributes']['class'])) {
-        $element['#attributes']['class'][] = 'active';
-        $aria = 'true';
+        $element['#attributes']['class'][] = 'expanded';
+        $active = ' active';
       }
       else {
-        $aria = 'false';
+        $active = '';
       }
-      $return .= '<section role="tabpanel" aria-hidden="' . $aria . '" class="content" id="' . $short . '-panel">
-      <ul class="off-canvas-list content-outline-navigation ' . implode(' ', $element['#attributes']['class']) . '">
-      <h2>' . $element['#title'] . '</h2>
-      <h3>Subtitle</h3>' . $sub_menu . "</ul>\n</section>";
-      // @todo fill the H3 with something meaningful
+      $return .= '<li class="accordion-navigation">' . "\n" .
+      '<a href="#' . $short . '-panel">' . $element['#title'] . '</a>'  . "\n" .
+      '<div id="' . $short . '-panel" class="content' . $active .'">' . "\n" .
+      '<ul class="off-canvas-list content-outline-navigation ' . implode(' ', $element['#attributes']['class']) . '">' . "\n" .
+      '<h2>' . $word . ' ' . $counter . '</h2>' . "\n" .
+      '<h3>' . $element['#title'] . '</h3>' . "\n" .
+      $sub_menu . "\n</ul>\n</li>";
+      $counter++;
     }
     elseif ($element['#original_link']['p4'] == 0) {
-      $return .= '<li class="has-submenu"><a href="#"><div class="icon-content-white outline-nav-icon" data-grunticon-embed></div><span class="outline-nav-text">' . $element['#title'] . '</span></a>
-        <ul class="left-submenu level-1-sub">
-          <h2>' . $element['#title'] . '</h2>
-          <h3>Subtitle</h3>
-          <li class="back">
-          <a href="#">' . t('Back') . '</a></li>' . $sub_menu . '</ul></li>';
-      // @todo fill the H3 with something meaningful
+      // test for active class, meaning this should be expanded by default
+      if (in_array('active-trail', $element['#attributes']['class'])) {
+        $element['#attributes']['class'][] = 'expanded';
+        $element['#attributes']['class'][] = 'active';
+      }
+      $return .= '<li class="has-submenu ' . implode(' ', $element['#attributes']['class']) . '"><a href="#"><div class="icon-content-white outline-nav-icon" data-grunticon-embed></div><span class="outline-nav-text">' . $element['#title'] . '</span></a>' . "\n" .
+      '<ul class="left-submenu level-1-sub">'  . "\n" .
+      '<h2>' . $word . ' ' . $counter . '</h2>' . "\n" .
+      '<h3>' . $element['#title'] . '</h3>' . "\n" .
+      '<li class="back">'  . "\n" .
+      '<a href="#">' . t('Back') . '</a></li>' . "\n" .
+      $sub_menu . "\n</ul>\n</li>";
     }
     else {
-      $return .= '<li class="has-submenu">' . l($element['#title'], $element['#href'], $element['#localized_options']) . '
+      // test for active class, meaning this should be expanded by default
+      if (in_array('active-trail', $element['#attributes']['class'])) {
+        $element['#attributes']['class'][] = 'expanded';
+        $element['#attributes']['class'][] = 'active';
+      }
+      $return .= '<li class="has-submenu ' . implode(' ', $element['#attributes']['class']) . '">' . l($element['#title'], $element['#href'], $element['#localized_options']) . '
             <ul class="left-submenu">
                 <li class="back"><a href="#">' . t('Back') . '</a></li>
                 ' . $sub_menu . '

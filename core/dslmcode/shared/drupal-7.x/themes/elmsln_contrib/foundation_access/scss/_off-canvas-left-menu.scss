@@ -26,7 +26,40 @@ $mobile-off-canvas-width: 100%; // or any other unit
     left: $mobile-off-canvas-width;
   }
 }
+
 // Off-canvas menu styling
+.off-canvas-wrap {
+   .inner-wrap {
+    min-height:45rem;
+   }
+
+   // off-canvas accordian
+    ul.accordion {
+      margin:0;
+    }
+    .accordion .accordion-navigation>.content.active,
+    .accordion dd>.content.active {
+      background-color: transparent;
+      padding:0;
+    }
+    .accordion .accordion-navigation>a,
+    .accordion dd>a {
+      background:transparent;
+      text-align:center;
+      color:$blue-contrast-color;
+    }
+    .left-submenu .back>a {
+        background: transparent;
+        text-align: center;
+        padding:0;
+        margin: 0rem 0.9375rem 2rem;
+        border:none;
+        &:hover {
+        
+      }
+    }
+
+  }
 ul.off-canvas-list.content-outline-navigation {
   margin:rem-calc(10);
   background-color:$dark-background-color;
@@ -74,6 +107,9 @@ ul.off-canvas-list.content-outline-navigation {
     @media #{$medium-up} {
       width: 22rem;
     }
+  }
+  h4 {
+    margin:0 0 1.875rem 1.875rem;
   }
   .left-submenu.level-1-sub {
     background-color:lighten($dark-background-color,10%);

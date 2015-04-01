@@ -14,7 +14,18 @@ module.exports = function(grunt) {
           'css/app.css': 'scss/app.scss'
         }        
       }
-    },
+    },   
+    // uglify: {
+    //   myScripts: {
+    //     files: [{
+    //         expand: true,
+    //         cwd: 'js/',
+    //         src: '**.js',
+    //         dest: 'js/',
+    //         ext: '.min.js'
+    //     }]
+    //   }
+    // },
     svgmin: {
       dist: {
         files: [{
@@ -42,7 +53,6 @@ module.exports = function(grunt) {
     },
     watch: {
       grunt: { files: ['Gruntfile.js'] },
-
       sass: {
         files: 'scss/**/*.scss',
         tasks: ['sass']
@@ -51,10 +61,12 @@ module.exports = function(grunt) {
   });
 
   grunt.loadNpmTasks('grunt-sass');
+  // grunt.loadNpmTasks('grunt-contrib-uglify');
   grunt.loadNpmTasks('grunt-contrib-watch');
   grunt.loadNpmTasks('grunt-svgmin');
   grunt.loadNpmTasks('grunt-grunticon');
 
+  // grunt.registerTask('uglify', ['uglify:myScripts']);
   grunt.registerTask('build', ['sass','svgmin','grunticon:myIcons']);
   grunt.registerTask('default', ['build','watch']);
 }
