@@ -184,9 +184,6 @@ projects[unique_field][subdir] = "contrib"
 projects[entitycache][version] = "1.2"
 projects[entitycache][subdir] = "contrib"
 
-projects[regions][version] = "1.x-dev"
-projects[regions][subdir] = "contrib"
-
 projects[textbook][version] = "1.0"
 projects[textbook][subdir] = "contrib"
 

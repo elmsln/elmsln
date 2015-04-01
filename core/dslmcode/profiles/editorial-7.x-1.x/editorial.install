@@ -102,25 +102,13 @@ function editorial_install() {
   db_insert('users_roles')
     ->fields(array('uid' => 1, 'rid' => $admin_role->rid))
     ->execute();
-  // stupid work around for regions conflict with module perms
-  $roles = array('teaching assistant', 'instructor', 'staff');
-  foreach ($roles as $name) {
-    $role = user_role_load_by_name($name);
-    db_merge('role_permission')->key(array(
-        'rid' => $role->rid,
-        'permission' => 'view regions_admin_left region',
-    ))->fields(array(
-        'module' => 'regions',
-    ))->execute();
-  }
   // Update the menu router information.
   menu_rebuild();
   // revert features to ensure they are all installed
   $features = array(
     'cis_section',
     'cis_service_connection_ux',
-    'cis_service_roles',
-    'regions_admin_example'
+    'cis_service_roles'
   );
   features_revert($features);
   // ignore any rebuild messages
