@@ -42,6 +42,81 @@ function cle_gradebook_permission() {
 }
 
 /**
+ * Implements hook_block_info().
+ */
+function cle_gradebook_block_info() {
+  $blocks['cle_submission_evaluation'] = array(
+    'info' => t('Submission evaluation'),
+    'cache' => DRUPAL_NO_CACHE,
+  );
+
+  return $blocks;
+}
+
+/**
+ * Implements hook_block_view().
+ */
+function cle_gradebook_block_view($delta = '') {
+  $block = array();
+
+  switch ($delta) {
+    case 'cle_submission_evaluation':
+      $block['subject'] = t('Submission evaluation');
+      $block['content'] = _cle_gradebook_submission_evaluation_callback();
+    break;
+  }
+  return $block;
+}
+
+/**
+ * Implements hook_form_alter().
+ */
+function cle_gradebook_form_alter(&$form, &$form_state, $form_id) {
+}
+
+/**
+ * Implementation of hook_form_FORM_ID_alter().
+ */
+function cle_gradebook_form_assessment_entity_edit_submission_evaluation_form_alter(&$form, &$form_state, $form_id) {
+ // populate assessment label
+  $form['label']['#default_value'] = t('Assessment by @name', array('@name' => $GLOBALS['user']->name));
+  $form['label']['#attributes']['class'][] = 'element-invisible';
+  // check for having a default value for the associated submission
+  if (isset($form['field_cle_associated_submission']['und']['#default_value'][0])) {
+    $form['field_cle_associated_submission']['#attributes']['class'][] = 'element-invisible';
+  }
+}
+
+/**
+ * Callback to render entity creation form in a block or existing entity.
+ * @return [type] [description]
+ */
+function _cle_gradebook_submission_evaluation_callback() {
+  // try to load item from address in the gradebook interface
+  $nid = arg(4);
+  if (!empty($nid) && is_numeric($nid)) {
+    $type = 'assessment_entity';
+    $bundle = 'submission_evaluation';
+    // see if this user has assessments for this entity
+    $id = _cis_connector_assemble_entity_list($type, $bundle, 'assessment_entity_id', 'assessment_entity_id', array('field_cle_associated_submission' => array('target_id', $nid, '=')));
+    // make sure we have 1 assessment and no more for
+    if (count($id) === 1) {
+      $entity = entity_load_single($type, array_pop($id));
+      $method = 'edit';
+    }
+    else {
+      $entity = entity_create($type, array('type' => $bundle));
+      // populate associated submission
+      $entity->field_cle_associated_submission['und'][0]['target_id'] = $nid;
+      $method = 'add';
+    }
+    $output = entity_ui_get_form($type, $entity, $method);
+    return drupal_render($output);
+  }
+  return FALSE;
+}
+
+/**
  * A modal static page callback.
  * @param $js
  *   boolean CTools determination whether the user's browser is javascript enabled.
@@ -68,7 +143,7 @@ function _cle_gradebook_modal_page($js = NULL, $nid = NULL, $uid = NULL) {
   if ($node->uid != $uid) {
     return t('Author must match node requested');
   }
-  // @todo make this more generic so we can theme it better
+
   $contents = render(node_view($node, 'gradebook_viewer'));
   return ctools_modal_render($node->title, $contents) ;
 }
@@ -96,7 +171,7 @@ function _cle_gradebook_attach_modal() {
       'animation' => 'fadeIn',
       'modalTheme' => 'cle_gradebook_modal',
       'throbber' => theme('image', array('path' => ctools_image_path('throbber.gif', 'cle_gradebook'), 'alt' => t('Loading...'), 'title' => t('Loading'))),
-      'closeImage' => theme('image', array('path' => ctools_image_path('icon-close-window.png', 'cle_gradebook'), 'alt' => t('Close window'), 'title' => t('Close window'))),
+      'closeImage' => theme('image', array('path' => ctools_image_path('icon-close-window.png', 'cle_gradebook'), 'alt' => t('Close window'), 'title' => t('Close window'), 'class' => array('disable-scroll'))),
     ),
   );
   // Add the settings array defined above to Drupal 7's JS settings:
