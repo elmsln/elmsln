@@ -106,6 +106,9 @@ projects[diff][subdir] = "contrib"
 projects[entity][version] = "1.2"
 projects[entity][subdir] = "contrib"
 
+projects[ds][version] = "2.7"
+projects[ds][subdir] = "contrib"
+
 projects[fitvids][version] = "1.8"
 projects[fitvids][subdir] = "contrib"
 

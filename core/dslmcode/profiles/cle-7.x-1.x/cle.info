@@ -8,6 +8,8 @@ core = "7.x"
 ; ----------
 ; Fast click
 dependencies[] = fastclick
+; Assessment entity
+dependencies[] = assessment_entity
 ; Administration
 dependencies[] = admin_menu
 dependencies[] = admin_menu_toolbar
@@ -88,7 +90,6 @@ dependencies[] = clone
 dependencies[] = diff
 dependencies[] = entity
 dependencies[] = entity_token
-dependencies[] = fitvids
 dependencies[] = imagefield_crop
 dependencies[] = jquery_colorpicker
 dependencies[] = libraries
@@ -118,6 +119,8 @@ dependencies[] = voting_rules
 dependencies[] = textbook
 ; UUID
 dependencies[] = uuid
+; Display Suite
+dependencies[] = ds
 ; User interface
 dependencies[] = ckeditor_link
 dependencies[] = imce_wysiwyg
@@ -148,6 +151,8 @@ dependencies[] = features_override
 dependencies[] = cle_cis_ux
 dependencies[] = cle_assignment
 dependencies[] = cle_submission
+dependencies[] = cle_gradebook
+dependencies[] = cle_gradebook_ux
 dependencies[] = cle_perms
 
 ; Information intentionally kept here to have a version w/ ELMSLN
