@@ -26,17 +26,29 @@ function cle_cis_ux_context_default_contexts() {
   $context->reactions = array(
     'block' => array(
       'blocks' => array(
-        'menu-menu-cis-toolkit' => array(
-          'module' => 'menu',
-          'delta' => 'menu-cis-toolkit',
-          'region' => 'regions_admin_left',
-          'weight' => '-20',
-        ),
         'cis_service_connection-section_context_changer' => array(
           'module' => 'cis_service_connection',
           'delta' => 'section_context_changer',
-          'region' => 'regions_admin_left',
-          'weight' => '10',
+          'region' => 'cis_appbar_modal',
+          'weight' => '-10',
+        ),
+        'masquerade-masquerade' => array(
+          'module' => 'masquerade',
+          'delta' => 'masquerade',
+          'region' => 'cis_appbar_modal',
+          'weight' => '-9',
+        ),
+        'menu-menu-cis-toolkit' => array(
+          'module' => 'menu',
+          'delta' => 'menu-cis-toolkit',
+          'region' => 'cis_appbar_modal',
+          'weight' => '-8',
+        ),
+        'menu-menu-cle-navigation' => array(
+          'module' => 'menu',
+          'delta' => 'menu-cle-navigation',
+          'region' => 'left_menu',
+          'weight' => '-10',
         ),
       ),
     ),

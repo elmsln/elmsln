@@ -48,13 +48,6 @@ function cle_assignment_strongarm() {
   $strongarm = new stdClass();
   $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
   $strongarm->api_version = 1;
-  $strongarm->name = 'clone_reset_cle_assignment';
-  $strongarm->value = 0;
-  $export['clone_reset_cle_assignment'] = $strongarm;
-
-  $strongarm = new stdClass();
-  $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
-  $strongarm->api_version = 1;
   $strongarm->name = 'comment_anonymous_cle_assignment';
   $strongarm->value = 0;
   $export['comment_anonymous_cle_assignment'] = $strongarm;
@@ -104,27 +97,6 @@ function cle_assignment_strongarm() {
   $strongarm = new stdClass();
   $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
   $strongarm->api_version = 1;
-  $strongarm->name = 'diff_enable_revisions_page_node_cle_assignment';
-  $strongarm->value = 1;
-  $export['diff_enable_revisions_page_node_cle_assignment'] = $strongarm;
-
-  $strongarm = new stdClass();
-  $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
-  $strongarm->api_version = 1;
-  $strongarm->name = 'diff_show_preview_changes_node_cle_assignment';
-  $strongarm->value = 0;
-  $export['diff_show_preview_changes_node_cle_assignment'] = $strongarm;
-
-  $strongarm = new stdClass();
-  $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
-  $strongarm->api_version = 1;
-  $strongarm->name = 'diff_view_mode_preview_node_cle_assignment';
-  $strongarm->value = 'full';
-  $export['diff_view_mode_preview_node_cle_assignment'] = $strongarm;
-
-  $strongarm = new stdClass();
-  $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
-  $strongarm->api_version = 1;
   $strongarm->name = 'field_bundle_settings_node__cle_assignment';
   $strongarm->value = array(
     'view_modes' => array(
@@ -148,6 +120,15 @@ function cle_assignment_strongarm() {
       ),
       'revision' => array(
         'custom_settings' => FALSE,
+      ),
+      'nodeform' => array(
+        'custom_settings' => FALSE,
+      ),
+      'form' => array(
+        'custom_settings' => FALSE,
+      ),
+      'gradebook_viewer' => array(
+        'custom_settings' => TRUE,
       ),
     ),
     'extra_fields' => array(
@@ -174,85 +155,6 @@ function cle_assignment_strongarm() {
   $strongarm->name = 'menu_parent_cle_assignment';
   $strongarm->value = 'main-menu:0';
   $export['menu_parent_cle_assignment'] = $strongarm;
-
-  $strongarm = new stdClass();
-  $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
-  $strongarm->api_version = 1;
-  $strongarm->name = 'nodeformscols_field_placements_cle_assignment_default';
-  $strongarm->value = array(
-    'title' => array(
-      'region' => 'main',
-      'weight' => '0',
-      'has_required' => TRUE,
-      'title' => 'Title',
-    ),
-    'additional_settings' => array(
-      'region' => 'right',
-      'weight' => '7',
-      'has_required' => FALSE,
-      'title' => 'Vertical tabs',
-      'hidden' => 0,
-    ),
-    'actions' => array(
-      'region' => 'main',
-      'weight' => '4',
-      'has_required' => FALSE,
-      'title' => 'Save',
-      'hidden' => 0,
-    ),
-    'body' => array(
-      'region' => 'main',
-      'weight' => '3',
-      'has_required' => FALSE,
-      'title' => 'Body',
-      'hidden' => 0,
-    ),
-    'og_group_ref' => array(
-      'region' => 'right',
-      'weight' => '6',
-      'has_required' => FALSE,
-      'title' => NULL,
-    ),
-    'field_color' => array(
-      'region' => 'right',
-      'weight' => '5',
-      'has_required' => TRUE,
-      'title' => 'Color',
-    ),
-    'field_number' => array(
-      'region' => 'right',
-      'weight' => '3',
-      'has_required' => TRUE,
-      'title' => 'Number',
-    ),
-    'field_sub_number' => array(
-      'region' => 'right',
-      'weight' => '4',
-      'has_required' => FALSE,
-      'title' => 'Sub-number',
-      'hidden' => 0,
-    ),
-    'field_due_date' => array(
-      'region' => 'right',
-      'weight' => '2',
-      'has_required' => FALSE,
-      'title' => 'Due date',
-      'hidden' => 0,
-    ),
-    'field_visibility' => array(
-      'region' => 'right',
-      'weight' => '1',
-      'has_required' => TRUE,
-      'title' => 'Visibility',
-    ),
-    'field_media_requirements' => array(
-      'region' => 'right',
-      'weight' => '0',
-      'has_required' => TRUE,
-      'title' => 'Media requirements',
-    ),
-  );
-  $export['nodeformscols_field_placements_cle_assignment_default'] = $strongarm;
 
   $strongarm = new stdClass();
   $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */

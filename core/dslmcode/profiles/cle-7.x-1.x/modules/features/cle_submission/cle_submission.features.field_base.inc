@@ -192,12 +192,9 @@ function cle_submission_field_default_field_bases() {
     'module' => 'list',
     'settings' => array(
       'allowed_values' => array(
-        'in_progress' => ' Submission in progress',
+        'submission_in_progress' => ' Submission in progress',
         'submission_ready' => 'Submission ready for review',
         'submission_needs_work' => 'Submission needs work',
-        'assessed' => ' Submission assessed',
-        'notify_assessment' => 'Rubric sent to student',
-        'feedback_recieved' => 'Submission feedback viewed',
       ),
       'allowed_values_function' => '',
       'cis_connector_access' => FALSE,

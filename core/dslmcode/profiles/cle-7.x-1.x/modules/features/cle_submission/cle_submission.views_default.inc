@@ -643,7 +643,7 @@ function cle_submission_views_default_views() {
 
   /* Display: Master */
   $handler = $view->new_display('default', 'Master', 'default');
-  $handler->display->display_options['title'] = 'Submissions';
+  $handler->display->display_options['title'] = 'Open Studio';
   $handler->display->display_options['use_more_always'] = FALSE;
   $handler->display->display_options['access']['type'] = 'perm';
   $handler->display->display_options['cache']['type'] = 'none';
@@ -754,6 +754,15 @@ function cle_submission_views_default_views() {
   $handler->display->display_options['sorts']['field_energy_radioactivity_energy']['table'] = 'field_data_field_energy';
   $handler->display->display_options['sorts']['field_energy_radioactivity_energy']['field'] = 'field_energy_radioactivity_energy';
   $handler->display->display_options['sorts']['field_energy_radioactivity_energy']['order'] = 'DESC';
+  /* Contextual filter: Content: Section (og_group_ref) */
+  $handler->display->display_options['arguments']['og_group_ref_target_id']['id'] = 'og_group_ref_target_id';
+  $handler->display->display_options['arguments']['og_group_ref_target_id']['table'] = 'og_membership';
+  $handler->display->display_options['arguments']['og_group_ref_target_id']['field'] = 'og_group_ref_target_id';
+  $handler->display->display_options['arguments']['og_group_ref_target_id']['default_action'] = 'default';
+  $handler->display->display_options['arguments']['og_group_ref_target_id']['default_argument_type'] = 'og_user_groups';
+  $handler->display->display_options['arguments']['og_group_ref_target_id']['summary']['number_of_records'] = '0';
+  $handler->display->display_options['arguments']['og_group_ref_target_id']['summary']['format'] = 'default_summary';
+  $handler->display->display_options['arguments']['og_group_ref_target_id']['summary_options']['items_per_page'] = '25';
   /* Filter criterion: Content: Published */
   $handler->display->display_options['filters']['status']['id'] = 'status';
   $handler->display->display_options['filters']['status']['table'] = 'node';
@@ -815,8 +824,9 @@ function cle_submission_views_default_views() {
     1 => '1',
   );
 
-  /* Display: Submissions */
-  $handler = $view->new_display('page', 'Submissions', 'page');
+  /* Display: Open Studio */
+  $handler = $view->new_display('page', 'Open Studio', 'page');
+  $handler->display->display_options['display_description'] = 'Section specific submissions';
   $handler->display->display_options['defaults']['hide_admin_links'] = FALSE;
   $handler->display->display_options['path'] = 'cle';
   $handler->display->display_options['menu']['type'] = 'normal';
@@ -829,7 +839,7 @@ function cle_submission_views_default_views() {
   /* Display: Tab */
   $handler = $view->new_display('page', 'Tab', 'page_1');
   $handler->display->display_options['defaults']['hide_admin_links'] = FALSE;
-  $handler->display->display_options['path'] = 'cle/submissions';
+  $handler->display->display_options['path'] = 'cle/open-studio';
   $handler->display->display_options['menu']['type'] = 'default tab';
   $handler->display->display_options['menu']['title'] = 'Open Studio';
   $handler->display->display_options['menu']['description'] = 'Submissions for Open Critique';
