@@ -54,4 +54,5 @@ dependencies[] = uuid
 dependencies[] = jquery_update
 ; Views
 dependencies[] = views
-
+; Features
+dependencies[] = features
