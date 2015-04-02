@@ -13,6 +13,9 @@ projects[menu_attributes][subdir] = "contrib"
 ;projects[joyride][version] = "1.x-dev"
 ;projects[joyride][subdir] = "contrib"
 
+projects[admin_menu_dropdown][version] = "3.0-alpha1"
+projects[admin_menu_dropdown][subdir] = "contrib"
+
 projects[linkchecker][version] = "1.2"
 projects[linkchecker][subdir] = "contrib"
 

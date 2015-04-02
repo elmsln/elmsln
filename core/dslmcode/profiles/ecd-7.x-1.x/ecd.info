@@ -7,9 +7,9 @@ core = "7.x"
 ; Dependencies
 ; ----------
 ; Administration
-dependencies[] = admin_devel
 dependencies[] = admin_menu
 dependencies[] = admin_menu_toolbar
+dependencies[] = admin_menu_dropdown
 dependencies[] = module_filter
 ; Chaos tool suite
 dependencies[] = ctools

@@ -4,6 +4,9 @@ api = "2"
 
 ; Modules
 
+projects[assessment][version] = "1.x-dev"
+projects[assessment][subdir] = "contrib"
+
 projects[features_override][version] = "2.0-rc2"
 projects[features_override][subdir] = "contrib"
 

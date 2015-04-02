@@ -3,6 +3,8 @@ core = "7.x"
 api = "2"
 
 ; +++++ Modules +++++
+projects[admin_menu_dropdown][version] = "3.0-alpha1"
+projects[admin_menu_dropdown][subdir] = "contrib"
 
 projects[fastclick][version] = "1.3"
 projects[fastclick][subdir] = "contrib"

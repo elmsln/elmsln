@@ -16,6 +16,7 @@ dependencies[] = accessibility_content
 dependencies[] = admin_menu
 dependencies[] = admin_menu_toolbar
 dependencies[] = admin_theme
+dependencies[] = admin_menu_dropdown
 ; Advanced CSS/JS Aggregation
 dependencies[] = advagg
 dependencies[] = advagg_bundler
@@ -162,12 +163,6 @@ dependencies[] = mooc_page
 dependencies[] = mooc_perms
 
 ; Information intentionally kept here to have a version w/ ELMSLN
-; Information added by Drupal.org packaging script on 2014-04-14
-version = "7.x-1.0-beta4"
-core = "7.x"
-project = "mooc"
-datestamp = "1397509268"
-
 ; Information added by Drupal.org packaging script on 2014-08-13
 version = "7.x-1.0-beta7+5-dev"
 core = "7.x"

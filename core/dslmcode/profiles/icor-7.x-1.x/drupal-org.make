@@ -10,6 +10,9 @@ projects[user_progress][subdir] = "contrib"
 projects[entityreference_view_widget][version] = "2.0-rc5"
 projects[entityreference_view_widget][subdir] = "contrib"
 
+projects[admin_menu_dropdown][version] = "3.0-alpha1"
+projects[admin_menu_dropdown][subdir] = "contrib"
+
 projects[fastclick][version] = "1.2"
 projects[fastclick][subdir] = "contrib"
 
