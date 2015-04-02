@@ -517,7 +517,7 @@ Lightbox = {
         $('#frameContainer').html('<iframe id="lightboxFrame" style="display: none;" src="'+src+'"></iframe>');
 
         // Enable swf support in Gecko browsers.
-        if ($.browser.mozilla && src.indexOf('.swf') != -1) {
+        if (navigator.userAgent.indexOf("Mozilla") > -1 && src.indexOf('.swf') != -1) {
           setTimeout(function () {
             document.getElementById("lightboxFrame").src = Lightbox.imageArray[Lightbox.activeImage][0];
           }, 1000);
@@ -629,7 +629,7 @@ Lightbox = {
       Lightbox.updateDetails();
       if (Lightbox.isLightframe) {
         $('#frameContainer').show();
-        if ($.browser.safari || Lightbox.fadeInSpeed === 0) {
+        if (navigator.userAgent.indexOf("Safari") > -1 || Lightbox.fadeInSpeed === 0) {
           $('#lightboxFrame').css({'zIndex': '10500'}).show();
         }
         else {
@@ -660,7 +660,7 @@ Lightbox = {
     // Handle display of image content.
     else {
       $('#imageContainer').show();
-      if ($.browser.safari || Lightbox.fadeInSpeed === 0) {
+      if (navigator.userAgent.indexOf("Safari") > -1 || Lightbox.fadeInSpeed === 0) {
         $('#lightboxImage').css({'zIndex': '10500'}).show();
       }
       else {
@@ -705,7 +705,7 @@ Lightbox = {
 
     // Gecko browsers (e.g. Firefox, SeaMonkey, etc) don't handle pdfs as
     // expected.
-    if ($.browser.mozilla) {
+    if (navigator.userAgent.indexOf("Mozilla") > -1) {
       if (Lightbox.imageArray[Lightbox.activeImage][0].indexOf(".pdf") != -1) {
         setTimeout(function () {
           document.getElementById("lightboxFrame").src = Lightbox.imageArray[Lightbox.activeImage][0];
