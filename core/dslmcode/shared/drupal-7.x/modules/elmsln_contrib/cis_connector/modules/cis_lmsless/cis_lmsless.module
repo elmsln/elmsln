@@ -148,7 +148,7 @@ function cis_lmsless_theme() {
         'front_page' => 'node',
         'site_name' => t('Service'),
         'section' => t('Master Section'),
-        'active' => array(),
+        'active' => array('title' => ''),
         'services' => array(),
         'tour' => url('welcome_page/guided_tour'),
         'main_menu' => menu_tree(variable_get('menu_main_links_source', 'main-menu')),

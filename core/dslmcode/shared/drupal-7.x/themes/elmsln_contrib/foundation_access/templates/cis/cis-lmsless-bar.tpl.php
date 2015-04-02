@@ -1,9 +1,7 @@
 <?php
-  /**
-   * CIS LMS-less template file
-   *
-   *
-   */
+/**
+ * CIS LMS-less template file
+ */
 ?>
 <!-- Ecosystem Top Nav ---------------------------------------- -->
 <div id="etb-course-nav" class="row full collapse">

@@ -7,6 +7,9 @@
  * @see template_preprocess_page()
  * @see template_process()
  */
+  if (!isset($cis_lmsless['active'])) {
+    $cis_lmsless['active']['title'] = '';
+  }
 ?>
     <div id="etb-tool-nav" class="off-canvas-wrap" data-offcanvas>
       <div class="inner-wrap">
@@ -16,13 +19,13 @@
           </section>
 
           <section class="middle tab-bar-section hide-me-small-only">
-           
+
               <?php if (!empty($tabs)): ?>
                   <?php print render($tabs); ?>
                 <?php if (!empty($tabs2)): print render($tabs2); endif; ?>
               <?php endif; ?>
               <?php print render($page['cis_appbar_first']); ?>
-            
+
           </section>
           <section class="middle tab-bar-section show-me-small-only">
               <a class="small button secondary" data-dropdown="middle-section-buttons" aria-controls="middle-section-buttons" aria-expanded="false">Tools</a>
@@ -46,14 +49,14 @@
             </div>
             <!-- /accessibility dropdown -->
         </nav>
-        
+
         <!-- Middle Section Dropdown Page Tabs -->
         <div id="middle-section-buttons" data-dropdown-content class="f-dropdown content" aria-hidden="true" tabindex="-1">
           <?php if (!empty($tabs)): ?>
               <?php print render($tabs); ?>
             <?php if (!empty($tabs2)): print render($tabs2); endif; ?>
           <?php endif; ?>
-          <?php print render($page['cis_appbar_first']); ?>  
+          <?php print render($page['cis_appbar_first']); ?>
         </div>
 
 
@@ -95,7 +98,7 @@
                   <?php if ($title): ?>
                     <?php print render($title_prefix); ?>
                       <h1 id="page-title" class="title"><?php print $title; ?>
-                        <br><small>This is my course subtitle.</small>
+                        <br><small><!--This is my course subtitle.--></small>
                       </h1>
                       <hr>
                     <?php print render($title_suffix); ?>
