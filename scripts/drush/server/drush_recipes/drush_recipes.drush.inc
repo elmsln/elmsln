@@ -165,6 +165,7 @@ function drush_recipes_drush_command() {
       'simple-uncook' => dt('Allow for a simple recipe reversal, like swapping enables for disables; good for lazy devs with simple recipes.'),
       'dr-skip-checks' => dt('Allow user to skip dependency checks, useful for debugging calls.'),
       'skip-confirm' => dt('Allow user to skip confirmation of recipes running. Still will print the list, just immediately runs them. Useful when integrated into other interactive prompts.'),
+      'verbose' => dt('Be verbose with output, provide more information.'),
     ),
     'allow-additional-options' => TRUE,
     'aliases' => array('cook', 'c'),
@@ -1134,7 +1135,9 @@ function drush_drush_recipes_drush_cook_recipes($list = '', $recurse = FALSE, $r
     }
 
     // convert cooking list into commands to run
-    drush_print("\n" . dt('Ingredients list to cook: @list', array('@list' => implode(',', $list))));
+    if (drush_get_option('verbose')) {
+      drush_print("\n" . dt('Ingredients list to cook: @list', array('@list' => implode(',', $list))));
+    }  
     $envs = array();
     // see if we got passed a recipe list ahead of time
     foreach ($cook as $recipe) {
@@ -1266,9 +1269,11 @@ function drush_drush_recipes_drush_cook_recipes($list = '', $recurse = FALSE, $r
               $option_out = '';
               foreach ($command['options'] as $key => $val) {
                 $option_out .= ' --' . $key . '=' . $val;
-              }
-              drush_log(dt('Adding ingredient: drush ') . $command['target'] . ' ' . $command['command'] . ' ' . implode(' ', $command['arguments']) . ' ' . $option_out, 'ok');
-              // special exception for commands that run batch jobs as they will
+	      }
+	      if (drush_get_option('verbose')) {
+                drush_log(dt('Adding ingredient: drush ') . $command['target'] . ' ' . $command['command'] . ' ' . implode(' ', $command['arguments']) . ' ' . $option_out, 'ok');
+	      }	
+	      // special exception for commands that run batch jobs as they will
               // exit into the background process silently
               if (!in_array($command['command'], _drush_recipes_require_shell_exec())) {
                 drush_invoke_process($command['target'], $command['command'], $command['arguments'], $command['options']);
@@ -1276,12 +1281,16 @@ function drush_drush_recipes_drush_cook_recipes($list = '', $recurse = FALSE, $r
               else {
                 // this is the simple method for running when non interactive
                 $smash_command = 'drush ' . $command['target'] . ' ' . $command['command'] . ' ' . implode(' ', $command['arguments']) . ' ' . $option_out;
-                drush_print($smash_command);
-                drush_shell_exec($smash_command);
+		if (drush_get_option('verbose')) {
+		  drush_print($smash_command);
+		}  
+		drush_shell_exec($smash_command);
                 $shell_output = drush_shell_exec_output();
-                foreach ($shell_output as $shell) {
-                  drush_print($shell);
-                }
+		if (drush_get_option('verbose')) {
+		  foreach ($shell_output as $shell) {
+                    drush_print($shell);
+                  }
+	        }
               }
             }
             else if (isset($command[DRUSH_RECIPES_FORMAT_CONDITIONAL])) {
@@ -1308,8 +1317,10 @@ function drush_drush_recipes_drush_cook_recipes($list = '', $recurse = FALSE, $r
               if ($which == '-none-') {
                 drush_log(dt('Skipping optional ingredient'), 'ok');
               }
-              else {
-                drush_log(dt('Adding ingredient: ') . $which, 'ok');
+	      else {
+		if (drush_get_option('verbose')) {
+		  drush_log(dt('Adding ingredient: ') . $which, 'ok');
+	        }
                 // recursive since they just selected a reference
                 drush_drush_recipes_drush_cook_recipes(str_replace('.' . DRUSH_RECIPE_EXTENSION, '', $which), TRUE);
               }
@@ -1324,14 +1335,14 @@ function drush_drush_recipes_drush_cook_recipes($list = '', $recurse = FALSE, $r
               drush_command_invoke_all_ref('drush_recipes_' . $call['_drush_recipes_custom_format'] . '_command_invoke_alter', $command);
             }
             // should we stop looping?
-            if ($command['loop'] == 'x') {
+            if (isset($command['loop']) && $command['loop'] == 'x') {
                 $answers = array('nope', 'again');
                 while (!$answer = drush_choice_with_custom_defaults($answers, 'nope', dt('Run this ingredient again?'), '!value'));
                 if ($answer == 'nope') {
                   $finished = TRUE;
                 }
             }
-            else if ($command['loop_pos'] < $command['loop']) {
+            else if (isset($command['loop_pos']) && isset($command['loop']) && $command['loop_pos'] < $command['loop']) {
               $command['loop_pos']++;
             }
             else {
@@ -1347,17 +1358,21 @@ function drush_drush_recipes_drush_cook_recipes($list = '', $recurse = FALSE, $r
             $command = implode(' ', $tmp);
           }
           $command .= ' --y';
-          drush_log('Adding ingredient: ' . $command, 'ok');
-          // allow for generic overriding of this command
+	  if (drush_get_option('verbose')) {
+	    drush_log('Adding ingredient: ' . $command, 'ok');
+	  }  
+	  // allow for generic overriding of this command
           drush_command_invoke_all_ref('drush_recipes_command_invoke_alter', $command, DRUSH_RECIPES_FORMAT_ARGUMENT);
           // allow for targetted type overriding
           drush_command_invoke_all_ref('drush_recipes_' . DRUSH_RECIPES_FORMAT_ARGUMENT . '_command_invoke_alter', $command);
           // this is the simple method for running when non interactive
           drush_shell_exec($command);
           $shell_output = drush_shell_exec_output();
-          foreach ($shell_output as $shell) {
-            drush_print($shell);
-          }
+	  if (drush_get_option('verbose')) {
+	    foreach ($shell_output as $shell) {
+              drush_print($shell);
+	    }
+	  }
         }
       }
     }
@@ -1788,8 +1803,10 @@ function _drush_recipes_recipe_to_drush($recipe, $indent = 1, $recurse = TRUE, $
     drush_log(dt('There is most likely a problem with your logic for this recipe series. It was about to make a call @num levels down in its referenced call logic, and prevented this from happening to avoid an infinite loop. If you know what you are doing, increase DRUSH_RECIPES_MAX_RECURSION. If you think the current value is too low, please file an issue in the issue queue.', array('@num' => DRUSH_RECIPES_MAX_RECURSION)), 'error');
     return array();
   }
-  if ($list && $indent === 1) {
-    drush_print(_drush_recipes_indent($indent) . '<' . $recipe->name . '>');
+  if (drush_get_option('verbose')) {
+    if ($list && $indent === 1) {
+      drush_print(_drush_recipes_indent($indent) . '<' . $recipe->name . '>');
+    }
   }
   $drush = array();
   foreach ($recipe->drecipe['recipe'] as $call) {
@@ -1805,22 +1822,28 @@ function _drush_recipes_recipe_to_drush($recipe, $indent = 1, $recurse = TRUE, $
           foreach ($recipes as $machine_name => $item) {
             // if call matches filename we recurse through that filename's recipe
             if ($machine_name == str_replace('.' . DRUSH_RECIPE_EXTENSION, '', $call)) {
-              if ($list) {
-                drush_print(_drush_recipes_indent($indent) . '<' . $machine_name . '>');
-              }
+	      if (drush_get_option('verbose')) {	    
+	        if ($list) {
+                  drush_print(_drush_recipes_indent($indent) . '<' . $machine_name . '>');
+		}
+	      }
               $drush += _drush_recipes_recipe_to_drush($item, $indent+1);
-              if ($list) {
-                drush_print(_drush_recipes_indent($indent) . '</' . $machine_name . '>');
-              }
-              continue;
+	      if (drush_get_option('verbose')) {
+	        if ($list) {
+                  drush_print(_drush_recipes_indent($indent) . '</' . $machine_name . '>');
+                }
+	       }	
+	      continue;
             }
           }
         }
         else {
           $print = 'drush cook '  . str_replace('.' . DRUSH_RECIPE_EXTENSION, '', $call);
-          if ($list) {
-            drush_print(_drush_recipes_indent($indent) . $print);
-          }
+	  if (drush_get_option('verbose')) {
+	    if ($list) {
+              drush_print(_drush_recipes_indent($indent) . $print);
+	    }
+	  }
           $drush[] = array(
             'command' => 'cook',
             'arguments' => array(str_replace('.' . DRUSH_RECIPE_EXTENSION, '', $call)),
@@ -1870,8 +1893,10 @@ function _drush_recipes_recipe_to_drush($recipe, $indent = 1, $recurse = TRUE, $
               $print .= "\n" . _drush_recipes_indent($indent+1) . ' ' . $key . ' => ' . $val;
             }
           }
-          drush_print(_drush_recipes_indent($indent+1) . $print);
-        }
+	  if (drush_get_option('verbose')) {
+	    drush_print(_drush_recipes_indent($indent+1) . $print);
+	  }
+	}
       break;
       case DRUSH_RECIPES_FORMAT_TARGET:
         $drush[] = $call;
@@ -1904,8 +1929,10 @@ function _drush_recipes_recipe_to_drush($recipe, $indent = 1, $recurse = TRUE, $
               $print .= ' --' . $key . '=' . $value;
             }
           }
-          drush_print(_drush_recipes_indent($indent+1) . $print);
-        }
+	  if (drush_get_option('verbose')) {
+	    drush_print(_drush_recipes_indent($indent+1) . $print);
+	  }  
+	}
       break;
       case DRUSH_RECIPES_FORMAT_CONDITIONAL:
         $print = 'CONDITIONAL';
@@ -1931,18 +1958,22 @@ function _drush_recipes_recipe_to_drush($recipe, $indent = 1, $recurse = TRUE, $
           if (isset($call[DRUSH_RECIPES_FORMAT_CONDITIONAL]['default'])) {
             $print = str_replace($call[DRUSH_RECIPES_FORMAT_CONDITIONAL]['default'], '(default) ' . $call[DRUSH_RECIPES_FORMAT_CONDITIONAL]['default'], $print);
           }
-          drush_print(_drush_recipes_indent($indent+1) . $print);
-        }
+	  if (drush_get_option('verbose')) {
+	    drush_print(_drush_recipes_indent($indent+1) . $print);
+	  }  
+	}
       break;
       case DRUSH_RECIPES_FORMAT_ARGUMENT:
         // we've effectively killed off this case at this point via the
         // functionality below that now tries to convert it into the target spec
-
-        // see if we should print nicely formatted debug stuff
-        if ($list) {
-          drush_print(_drush_recipes_indent($indent+1) . 'drush ' . implode(' ', $call));
-        }
-        // convert the call to a target based call
+        
+        if (drush_get_option('verbose')) {
+          // see if we should print nicely formatted debug stuff
+          if ($list) {
+            drush_print(_drush_recipes_indent($indent+1) . 'drush ' . implode(' ', $call));
+          }
+	}  
+	// convert the call to a target based call
         $new_call = _drush_recipes_argument_to_target($call);
         // add the new call into the array
         $drush[] = $new_call;
@@ -1956,8 +1987,10 @@ function _drush_recipes_recipe_to_drush($recipe, $indent = 1, $recurse = TRUE, $
       break;
     }
   }
-  if ($list && $indent === 1) {
-    drush_print(_drush_recipes_indent($indent) . '</' . $recipe->name . ">\n");
+  if (drush_get_option('verbose')) {
+    if ($list && $indent === 1) {
+      drush_print(_drush_recipes_indent($indent) . '</' . $recipe->name . ">\n");
+    }
   }
   return $drush;
 }
