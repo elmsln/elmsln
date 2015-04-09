@@ -10,6 +10,9 @@ projects[assessment][subdir] = "contrib"
 projects[features_override][version] = "2.0-rc2"
 projects[features_override][subdir] = "contrib"
 
+projects[exif_orientation][subdir] = "contrib"
+projects[exif_orientation][version] = "1.0"
+
 projects[masonry_views][version] = "1.0"
 projects[masonry_views][subdir] = "contrib"
 

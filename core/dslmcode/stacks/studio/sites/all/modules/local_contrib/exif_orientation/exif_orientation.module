@@ -1,0 +1,57 @@
+<?php
+
+/**
+ * @file
+ * Module file for EXIF Orientation
+ */
+
+/**
+ * Implements hook_file_presave().
+ */
+function exif_orientation_file_presave($file) {
+  // Provide EXIF Orientation correction.
+  _exif_orientation_rotate($file);
+}
+
+/**
+ * Rotates an image to its EXIF Orientation
+ *
+ * iPhone 4 and up save all images in landscape, relying on EXIF data to
+ * set the orientation properly. This does not always translate well in the
+ * browser or other devices.
+ * @link: http://www.daveperrett.com/articles/2012/07/28/exif-orientation-handling-is-a-ghetto/
+ */
+function _exif_orientation_rotate($file) {
+  if (function_exists('exif_read_data') && $file->filemime == 'image/jpeg') {
+    $file_exif = exif_read_data(drupal_realpath($file->uri));
+
+    // Ensure that the Orientation key|value exists, otherwise leave.
+    if (!isset($file_exif['Orientation'])) {
+      return;
+    }
+    // Orientation numbers and corresponding degrees.
+    // @note: Odd numbers are flipped images, would need different process.
+    switch ($file_exif['Orientation']) {
+      case 3:
+          $degrees = 180;
+          break;
+      case 6:
+          $degrees = 90;
+          break;
+      case 8:
+          $degrees = 270;
+          break;
+      default:
+          $degrees = 0;
+    }
+
+    if ($degrees > 0) {
+      // Load the image object for manipulation
+      $file_image = image_load(drupal_realpath($file->uri));
+
+      if (image_rotate($file_image, $degrees)) {
+        image_save($file_image);
+      }
+    }
+  }
+}
