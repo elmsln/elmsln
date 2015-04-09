@@ -11,8 +11,6 @@ dependencies[] = admin_menu_toolbar
 dependencies[] = admin_menu_dropdown
 dependencies[] = admin_theme
 dependencies[] = module_filter
-; Caching
-dependencies[] = blockcache_alter
 ; Chaos tool suite
 dependencies[] = ctools
 ; Context
@@ -72,7 +70,6 @@ dependencies[] = og_ui
 dependencies[] = atjs
 dependencies[] = better_formats
 dependencies[] = diff
-dependencies[] = discuss
 dependencies[] = elements
 dependencies[] = entity
 dependencies[] = entity_quote
