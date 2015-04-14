@@ -178,3 +178,32 @@ function foundation_access_form_alter(&$form, &$form_state, $form_id) {
     $form['#attributes']['class'] = array('etb-nav_item_search');
   }
 }
+
+
+/**
+ * Implements theme_menu_local_task().
+ */
+function foundation_access_menu_local_task(&$variables) {
+  $link = $variables['element']['#link'];
+  $link_text = $link['title'];
+  $li_class = (!empty($variables['element']['#active']) ? ' class="active"' : '');
+
+  if (!empty($variables['element']['#active'])) {
+    // Add text to indicate active tab for non-visual users.
+    $active = '<span class="element-invisible">' . t('(active tab)') . '</span>';
+
+    // If the link does not contain HTML already, check_plain() it now.
+    // After we set 'html'=TRUE the link will not be sanitized by l().
+    if (empty($link['localized_options']['html'])) {
+      $link['title'] = check_plain($link['title']);
+    }
+    $link['localized_options']['html'] = TRUE;
+    $link_text = t('!local-task-title!active', array('!local-task-title' => $link['title'], '!active' => $active));
+  }
+
+  $output = '';
+  $output .= '<li' . $li_class . '>';
+  $output .= l($link_text, $link['href'], $link['localized_options']);
+  $output .= "</li>\n";
+  return  $output;
+}
