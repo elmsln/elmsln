@@ -45,9 +45,9 @@ table-open-cache               = 4096
 
 ; LOGGING ;
 log-error                      = /var/lib/mysql/mysql-error.log
-log-queries-not-using-indexes  = 1
-slow-query-log                 = 1
-slow-query-log-file            = /var/lib/mysql/mysql-slow.log
+log-queries-not-using-indexes  = 0
+slow-query-log                 = 0
+;slow-query-log-file            = /var/lib/mysql/mysql-slow.log
 
 ; Taken from my built in mysql commented out file
 ; Uncomment the following if you are using InnoDB tables
