@@ -18,14 +18,6 @@ function mooc_helper_preprocess(&$variables, $hook) {
 }
 
 /**
- * Implements hook_page_build().
- */
-function mooc_helper_page_build($page) {
-  // add css related to mooc helper instance
-  drupal_add_css(drupal_get_path('module', 'mooc_helper') . '/css/mooc_helper.css');
-}
-
-/**
  * Implements hook_menu().
  */
 function mooc_helper_menu() {
