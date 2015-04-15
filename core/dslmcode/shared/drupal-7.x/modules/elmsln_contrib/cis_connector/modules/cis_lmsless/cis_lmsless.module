@@ -45,6 +45,21 @@ function _cis_lmsless_assemble() {
 }
 
 /**
+ * Implementation of hook_form_FORM_ID_alter().
+ */
+function cis_lmsless_form_masquerade_block_1_alter(&$form, &$form_state, $form_id) {
+  $form['masquerade_user_field']['#chosen'] = TRUE;
+  $form['masquerade_user_field']['#type'] = 'select';
+  if ($gid = _cis_section_load_section_by_id(_cis_connector_section_context())) {
+    $field_conditions = array('og_user_node' => array('target_id', array($gid), 'IN'));
+  }
+  // pull together the users
+  $users = _cis_connector_assemble_entity_list('user', 'user', 'uid', 'name', $field_conditions);
+  $form['masquerade_user_field']['#options'] = $users;
+  unset($form['masquerade_user_field']['#autocomplete_path']);
+}
+
+/**
  * Callback to return common theme variables when styling CIS theme components
  * @return array array of variables to pass to the theme
  */
@@ -93,10 +108,12 @@ function _cis_lmsless_theme_vars() {
       $services = $list = array();
       $distro = variable_get('install_profile', 'standard');
       $reg = _cis_connector_build_registry($distro);
-      $list[$distro] = array(
+      $tmp = explode('.', $reg['address']);
+      $machine_name = $tmp[0];
+      $list[$machine_name] = array(
         'title' => (isset($reg['default_title']) ? $reg['default_title'] : ''),
         'url' => '#',
-        'machine_name' => $distro,
+        'machine_name' => $machine_name,
       );
       $vars['active'] = $list[$distro];
     }
@@ -112,10 +129,10 @@ function _cis_lmsless_theme_vars() {
     // add in link to the CIS location if permission exists
     // @ignore druplart_conditional_assignment
     if (user_access('view lmsless cis link') && $settings = _cis_connector_build_registry('cis')) {
-      $list['cis'] = array(
+      $list['online'] = array(
         'title' => t('Course information system'),
         'url' => _cis_connector_format_address($settings, base_path(), 'front'),
-        'machine_name' => 'cis',
+        'machine_name' => 'online',
       );
     }
     // bump current link to the first position and drop url so its internal
