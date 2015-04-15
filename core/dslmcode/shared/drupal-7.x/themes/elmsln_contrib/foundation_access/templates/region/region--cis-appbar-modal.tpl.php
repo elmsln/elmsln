@@ -25,6 +25,7 @@
  * @see template_process()
  */
 ?>
+<!-- Accessibility Modal -->
 <?php if ($content): ?>
   <?php print $content; ?>
 <?php endif; ?>

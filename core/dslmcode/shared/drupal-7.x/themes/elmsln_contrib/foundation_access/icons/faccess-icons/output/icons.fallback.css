@@ -40,6 +40,10 @@
 
 .icon-calendar-white { background-image: url('png/calendar-white.png'); background-repeat: no-repeat; }
 
+.icon-chevron-down-black { background-image: url('png/chevron-down-black.png'); background-repeat: no-repeat; }
+
+.icon-chevron-down-white { background-image: url('png/chevron-down-white.png'); background-repeat: no-repeat; }
+
 .icon-cis-black { background-image: url('png/cis-black.png'); background-repeat: no-repeat; }
 
 .icon-cis-white { background-image: url('png/cis-white.png'); background-repeat: no-repeat; }
@@ -60,11 +64,11 @@
 
 .icon-content-black { background-image: url('png/content-black.png'); background-repeat: no-repeat; }
 
-.icon-content-outline-black { background-image: url('png/content-outline-black.png'); background-repeat: no-repeat; }
-
-.icon-content-outline-white { background-image: url('png/content-outline-white.png'); background-repeat: no-repeat; }
-
 .icon-content-white { background-image: url('png/content-white.png'); background-repeat: no-repeat; }
+
+.icon-courses-black { background-image: url('png/courses-black.png'); background-repeat: no-repeat; }
+
+.icon-courses-white { background-image: url('png/courses-white.png'); background-repeat: no-repeat; }
 
 .icon-discuss-black { background-image: url('png/discuss-black.png'); background-repeat: no-repeat; }
 
@@ -94,6 +98,18 @@
 
 .icon-info-white { background-image: url('png/info-white.png'); background-repeat: no-repeat; }
 
+.icon-labs-black { background-image: url('png/labs-black.png'); background-repeat: no-repeat; }
+
+.icon-labs-white { background-image: url('png/labs-white.png'); background-repeat: no-repeat; }
+
+.icon-mooc-black { background-image: url('png/mooc-black.png'); background-repeat: no-repeat; }
+
+.icon-mooc-white { background-image: url('png/mooc-white.png'); background-repeat: no-repeat; }
+
+.icon-online-black { background-image: url('png/online-black.png'); background-repeat: no-repeat; }
+
+.icon-online-white { background-image: url('png/online-white.png'); background-repeat: no-repeat; }
+
 .icon-pdf-black { background-image: url('png/pdf-black.png'); background-repeat: no-repeat; }
 
 .icon-pdf-white { background-image: url('png/pdf-white.png'); background-repeat: no-repeat; }
@@ -102,6 +118,10 @@
 
 .icon-people-white { background-image: url('png/people-white.png'); background-repeat: no-repeat; }
 
+.icon-plus-black { background-image: url('png/plus-black.png'); background-repeat: no-repeat; }
+
+.icon-plus-white { background-image: url('png/plus-white.png'); background-repeat: no-repeat; }
+
 .icon-quiz-black { background-image: url('png/quiz-black.png'); background-repeat: no-repeat; }
 
 .icon-quiz-white { background-image: url('png/quiz-white.png'); background-repeat: no-repeat; }
@@ -109,6 +129,10 @@
 .icon-speechballoons-black { background-image: url('png/speechballoons-black.png'); background-repeat: no-repeat; }
 
 .icon-speechballoons-white { background-image: url('png/speechballoons-white.png'); background-repeat: no-repeat; }
+
+.icon-studio-black { background-image: url('png/studio-black.png'); background-repeat: no-repeat; }
+
+.icon-studio-white { background-image: url('png/studio-white.png'); background-repeat: no-repeat; }
 
 .icon-support-black { background-image: url('png/support-black.png'); background-repeat: no-repeat; }
 

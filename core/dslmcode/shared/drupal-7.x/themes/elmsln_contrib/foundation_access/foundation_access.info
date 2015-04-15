@@ -47,6 +47,8 @@ scripts[] = js/foundation.min.js
 
 ; Theme scripts.
 ; This file is empty, just uncomment this line and start editing!
+scripts[] = js/jquery.sticky.js
+
 scripts[] = js/app.js
 ; scripts[] = js/app.min.js
 

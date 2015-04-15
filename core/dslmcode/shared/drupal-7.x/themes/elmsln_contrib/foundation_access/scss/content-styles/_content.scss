@@ -62,14 +62,10 @@
 	}
 
 	h1 {
-		 //font-family: "Asap";
 		 font-size: 5.5em;
 		 text-align: center;
-		 text-transform: inherit;
-		 //font-weight: 700;
-		 //font-style: normal;
 		 letter-spacing: -1px;
-		 color: #EC6C20;
+		 color:$contrast-color;
 
 		 @media #{$small-up} {
 		 	margin: 0em 0em 0.2em 0em;
@@ -92,13 +88,10 @@
 	}
 
 	h2 {
-		 font-size: 1.526em;
-		 //font-family: "Asap";
-		 line-height: 0.931em;
+		 font-size: 1.6em;
+		 // line-height: 0.931em;
 		 margin-bottom: 1em;
-		 font-weight: 700;
-		 font-style: normal;
-		 color: #EC6C20;
+		 color: $contrast-color;
 
 		 @media #{$small-up} {
 		 	padding: 0 4% 0 4%;
@@ -118,6 +111,10 @@
 			// font-size: 5.5em;
 			// line-height: 0.9em;
 		 }
+	}
+	h3 {
+		font-size: 1.5rem;
+		color: $contrast-color;
 	}
 
 	.main h2 {
@@ -142,7 +139,7 @@
 		 @include p-column(0);
 
 		 font-size: 1em;
-		 line-height: 1.4em;
+		 // line-height: 1.4em;
 		 color: rgba(51, 51, 51, 1);
 		 text-align: left;
 		 margin: 0em 0em 1.421em 0%;
@@ -600,9 +597,20 @@
 	p.testimonial-text:last-child {
 		 margin-bottom: 0;
 	}
+}
+// Footnotes
+.node .content ul.footnotes {
+  float: left;
+  margin: 2em;
+}
 
+.node .content ul.footnotes .footnote-label {
+  margin-left: 0em;
+}
 
-
-
+.node .content ul.footnotes li.footnote{
+  min-height: 1.6em;
+  font-size:.8em;
+  margin-left:-3em;
 }
 
