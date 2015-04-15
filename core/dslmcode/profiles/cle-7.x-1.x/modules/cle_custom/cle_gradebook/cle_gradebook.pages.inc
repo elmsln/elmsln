@@ -25,7 +25,7 @@ function cle_gradebook_grid_form($form, &$form_state) {
   if (!isset($query['section'])) {
     // get groupid from section if we have it
     if ($gid = _cis_section_load_section_by_id(_cis_connector_section_context())) {
-      $query['section'] = $gid;
+      $query['section'] = array($gid);
     }
   }
   // @todo verify this strips out sections automatically
@@ -45,13 +45,15 @@ function cle_gradebook_grid_form($form, &$form_state) {
     '#options' => array('-all-' => t('All')) + $secids,
     '#type' => 'select',
     '#required' => '0',
+    '#multiple' => '1',
+    '#chosen' => TRUE,
   );
   // filter lower values based on what sections we are viewing
   if ($query['section'] == '-all-') {
     $field_conditions = array('og_user_node' => array('target_id', array_keys($secids), 'IN'));
   }
   else {
-    $field_conditions = array('og_user_node' => array('target_id', $query['section']));
+    $field_conditions = array('og_user_node' => array('target_id', $query['section'], 'IN'));
   }
   // pull together the users
   $students = _cis_connector_assemble_entity_list('user', 'user', 'uid', 'name', $field_conditions);
@@ -60,6 +62,8 @@ function cle_gradebook_grid_form($form, &$form_state) {
     '#options' =>  array('-all-' => t('All')) + $students,
     '#type' => 'select',
     '#required' => '0',
+    '#chosen' => TRUE,
+    '#multiple' => '1',
   );
   // pull together the assignments
   // @todo filter assignments to those selected by the section in question
@@ -69,6 +73,8 @@ function cle_gradebook_grid_form($form, &$form_state) {
     '#options' => array('-all-' => t('All')) + $assignments,
     '#type' => 'select',
     '#required' => '0',
+    '#chosen' => TRUE,
+    '#multiple' => '1',
   );
   // submission status filter
 
@@ -76,6 +82,7 @@ function cle_gradebook_grid_form($form, &$form_state) {
   $form['filters']['field_submission_state'] = array(
     '#required' => '0',
     '#multiple' => '1',
+    '#chosen' => TRUE,
     '#key_type_toggled' => '1',
     '#type' => 'select',
     '#options' => $field['settings']['allowed_values'],
@@ -88,6 +95,7 @@ function cle_gradebook_grid_form($form, &$form_state) {
   $form['filters']['field_cle_status'] = array(
     '#required' => '0',
     '#multiple' => '1',
+    '#chosen' => TRUE,
     '#key_type_toggled' => '1',
     '#type' => 'select',
     '#options' => $field['settings']['allowed_values'],
@@ -97,11 +105,35 @@ function cle_gradebook_grid_form($form, &$form_state) {
 
   // establish defaults for all form items at this point based on query
   foreach ($form['filters'] as $key => &$item) {
+    // make sure query is in the address
     if (isset($query[$key])) {
+      // check for goof where there might be all and a filtered thing
+      if (count($query[$key]) > 1) {
+        $find = array_search('-all-', $query[$key]);
+        if ($find === 0 || $find == TRUE) {
+          unset($query[$key][$find]);
+        }
+      }
+      // set a default value to this key value to maintain defaults
       $item['#default_value'] = $query[$key];
-      if ($query[$key] != '-all-') {
+      // ensure we don't have the -all- flag selected
+      if ($query[$key][0] != '-all-') {
+        // insane but set this filter's array of possible values
+        // to a tmp storage value
         $tmp = $$key;
-        $$key = array($query[$key] => $tmp[$query[$key]]);
+        $filtered = array();
+        // loop through arguments that came in for this query filter
+        foreach ($query[$key] as $tmpkey) {
+          // maintain just the key value pair from those selected in the
+          // filter that's passed through the addres. This might be the most
+          // ridiculous little snippet i've ever written but it reduces code
+          // needed and allow for effectively filtering on anything very
+          // easily!
+          $filtered[$tmpkey] = $tmp[$tmpkey];
+        }
+        // whatever the filter was, reset the possible values of the array
+        // based on this change
+        $$key = $filtered;
       }
     }
     else {
@@ -146,10 +178,16 @@ function cle_gradebook_grid_form($form, &$form_state) {
       if (isset($subissions[$key])) {
         // @todo associate a status indicator light w/ the submission
         // instead of what its doing currently
-        $row[$key] = ctools_modal_text_button($subissions[$key], 'cle/gradebook/render/nojs/' . $subissions[$key] . '/' . $uid, t('View @name in submission viewer', array('@name' => $subissions[$key])), 'ctools-modal-cle-gradebook-modal disable-scroll');
+        // check for matching assessments
+        $id = _cis_connector_assemble_entity_list('assessment_entity', 'submission_evaluation', 'assessment_entity_id', 'assessment_entity_id', array('field_cle_associated_submission' => array('target_id', $subissions[$key], '=')));
+        $assessment = entity_load_single('assessment_entity', array_pop($id));
+        // now pull in the status from the submission
+        $submission = entity_load_single('node', $subissions[$key]);
+        $status_image = _cle_gradebook_assessment_status($submission, $assessment, 'image');
+        $row[$key] = ctools_modal_text_button($status_image, 'cle/gradebook/render/nojs/' . $subissions[$key] . '/' . $uid,_cle_gradebook_assessment_status($submission, $assessment, 'alt'), 'ctools-modal-cle-gradebook-modal disable-scroll');
       }
       else {
-        $row[$key] = '-';
+        $row[$key] = _cle_gradebook_assessment_status(NULL, NULL, 'image');
       }
     }
     $rows[] = array('data' => $row);

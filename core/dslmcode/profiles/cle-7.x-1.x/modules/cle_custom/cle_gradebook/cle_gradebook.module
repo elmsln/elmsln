@@ -100,7 +100,7 @@ function _cle_gradebook_submission_evaluation_callback() {
     // see if this user has assessments for this entity
     $id = _cis_connector_assemble_entity_list($type, $bundle, 'assessment_entity_id', 'assessment_entity_id', array('field_cle_associated_submission' => array('target_id', $nid, '=')));
     // make sure we have 1 assessment and no more for
-    if (count($id) === 1) {
+    if (count($id) !== 0) {
       $entity = entity_load_single($type, array_pop($id));
       $method = 'edit';
     }
@@ -205,4 +205,50 @@ function cle_gradebook_grid_form_submit($form, &$form_state) {
  */
 function cle_gradebook_grid_form_reset($form, &$form_state) {
 
+}
+
+/**
+ * Helper function to convert an assessment's status into an image
+ * @return string path to an image to load
+ */
+function _cle_gradebook_assessment_status($submission, $assessment, $format = 'alt') {
+  $path = base_path() . drupal_get_path('module', 'cle_gradebook') . '/images/assessment/';
+  // check that we have an assessment and that submission hasn't been returned
+  // to the student to do additional work. After they'd set it back to ready
+  // then the indicator light would switch to the assessment state.
+  if (!empty($assessment) && $submission->field_submission_state['und'][0]['value'] != 'submission_needs_work') {
+    $status = $assessment->field_cle_status['und'][0]['value'];
+  }
+  else if (!empty($submission)) {
+    $status = $submission->field_submission_state['und'][0]['value'];
+  }
+  else {
+    $status = 'submission_unsubmitted';
+  }
+  $status_text = ucfirst(str_replace('_', ' ', $status));
+  // convert status into image / text statements
+  switch($status) {
+    case 'submission_in_progress':
+    case 'submission_ready':
+    case 'submission_needs_work':
+    case 'assessment_started':
+    case 'assessment_complete':
+    case 'assessment_available':
+    case 'assessment_viewed':
+      $img = $path . $status . '.png';
+      $text = t('@user\'s @name status: @status', array('@user' => $submission->name, '@name' => $submission->title, '@status' => $status_text));
+    break;
+    case 'submission_unsubmitted':
+      $img = $path . $status . '.png';
+      $text = t('status: @status', array('@status' => $status_text));
+    break;
+  }
+
+  // output format of image, render the status indicator light
+  if ($format == 'image') {
+    return "<img src=\"$img\" title=\"$text\" alt=\"$text\" width=\"16px\" height=\"16px\">";
+  }
+  else {
+    return $text;
+  }
 }
