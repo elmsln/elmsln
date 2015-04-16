@@ -24,21 +24,21 @@
       Drupal.settings.progressScroll.total = $("#etb-tool-nav .inner-wrap", context)[0].offsetHeight - $(window).height();
       Drupal.settings.progressScroll.scrollPercent = (Drupal.settings.progressScroll.scroll / Drupal.settings.progressScroll.total)*100;
       // set percentage of the meter to the scroll down the screen
-      $(".page-scroll.progress .meter", context).animate({"width": Drupal.settings.progressScroll.scrollPercent+"%"}, 50);
+      $(".page-scroll.progress .meter", context).css({"width": Drupal.settings.progressScroll.scrollPercent+"%"});
       if (Drupal.settings.progressScroll.scrollPercent < 25 ) {
-        $(".page-scroll.progress .meter").css({backgroundColor:"#2b2b2b"});
+        $(".page-scroll.progress .meter").css({backgroundColor:"#4b4b4b"});
       }
       if (Drupal.settings.progressScroll.scrollPercent > 25 && Drupal.settings.progressScroll.scrollPercent < 50) {
-        $(".page-scroll.progress .meter").css({backgroundColor:"#AA2b2b"});
+        $(".page-scroll.progress .meter").css({backgroundColor:"#3b3b3b"});
       }
       if (Drupal.settings.progressScroll.scrollPercent > 50 && Drupal.settings.progressScroll.scrollPercent < 75) {
-        $(".page-scroll.progress .meter").css({backgroundColor:'#CD9B1D'});
+        $(".page-scroll.progress .meter").css({backgroundColor:'#2b2b2b'});
       }
       if (Drupal.settings.progressScroll.scrollPercent > 75) {
-        $(".page-scroll.progress .meter").css({backgroundColor:'#DBDB70'});
+        $(".page-scroll.progress .meter").css({backgroundColor:'#1b1b1b'});
       }
       if (Drupal.settings.progressScroll.scrollPercent > 100) {
-        $(".page-scroll.progress .meter").css({backgroundColor:'#9CCB19'});
+        $(".page-scroll.progress .meter").css({backgroundColor:'#000000'});
       }
     }
   };
