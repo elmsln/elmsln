@@ -1,4 +1,4 @@
-<ul class="accordion" data-accordion>
+<ul class="accordion" data-accordion="">
 <?php if ($content): ?>
   <?php print $content; ?>
 <?php endif; ?>

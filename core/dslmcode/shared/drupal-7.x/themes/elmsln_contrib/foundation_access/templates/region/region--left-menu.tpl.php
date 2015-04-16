@@ -33,7 +33,7 @@
           	<li><a href="#">Print course outline</a></li>
           	<li><a href="#">Save As new outline</a></li>
           	<hr>
-          	<li><a href="#" data-reveal-id="block-menu-menu-cis-toolkit-nav-modal">Course Settings</a></li>
+          	<li><a href="#" data-reveal-id="block-menu-menu-course-tools-menu-nav-modal">Course Settings</a></li>
           </ul>
         </div>
         <div id="off-canvas-add-menu" data-dropdown-content class="f-dropdown content" aria-hidden="true" tabindex="-1">
@@ -180,6 +180,7 @@
 				</div>
 			</li>
 		</ul> <!-- End Unit 1 Panel -->
+
 		<ul class="accordion" data-accordion="">
 			<li class="accordion-navigation">
 				<a href="#unit-1-panel"><h2>Lesson 98</h2><h3>Fantasy and You</h3></a>
@@ -280,11 +281,11 @@
 			</li>
 
 		</ul>
-    
 
 
-	   <!--  <?php if ($content): ?>
+
+	   <?php if ($content): ?>
 	      <?php print $content; ?>
-	    <?php endif; ?> -->
+	    <?php endif; ?>
 	</div>
 </aside>

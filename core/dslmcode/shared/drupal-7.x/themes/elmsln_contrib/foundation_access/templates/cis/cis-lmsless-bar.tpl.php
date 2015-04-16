@@ -52,15 +52,10 @@
                 </a>
               </div>
               <!-- Menu Item Dropdowns -->
-              <!-- <div id="eco-services-add-menu-1" data-dropdown-content class="f-dropdown content" aria-hidden="true" tabindex="-1">
-                <ul class="button-group">
-                  <li><a href="#">Add a new service</a></li>
-                </ul>
-              </div> -->
               <div id="eco-services-edit-menu-1" data-dropdown-content class="f-dropdown content" aria-hidden="true" tabindex="-1">
                 <ul class="button-group">
-                  <li><a href="#">Add another service</a></li>
-                  <li><a href="#">Edit services</a></li>
+                  <li><a href="#"><?php print t('Add another service'); ?></a></li>
+                  <li><a href="#"><?php print t('Edit services'); ?></a></li>
                 </ul>
               </div>
               <!-- End Menu Item Dropdowns -->
@@ -132,8 +127,8 @@
               <!-- Menu Item Dropdowns -->
               <div id="eco-account-edit-menu-1" data-dropdown-content class="f-dropdown content" aria-hidden="true" tabindex="-1">
                 <ul class="button-group">
-                  <li><a href="#">Edit profile</a></li>
-                  <li><a href="#" data-reveal-id="block-masquerade-masquerade-nav-modal">Impersonate a user</a></li>
+                  <li><?php print l(t('Edit profile'), 'user/' . $GLOBALS['user']->uid); ?></li>
+                  <li><a href="#" data-reveal-id="block-masquerade-masquerade-nav-modal"><?php print t('Impersonate a user'); ?></a></li>
                 </ul>
               </div>
               <!-- End Menu Item Dropdowns -->
@@ -173,8 +168,8 @@
               <!-- Menu Item Dropdowns -->
               <div id="eco-syllabus-edit-menu-1" data-dropdown-content class="f-dropdown content" aria-hidden="true" tabindex="-1">
                 <ul class="button-group">
-                  <li><a href="#">Add instructor</a></li>
-                  <li><a href="#">Edit instructors</a></li>
+                  <li><a href="#"><?php print t('Add instructor'); ?></a></li>
+                  <li><a href="#"><?php print t('Edit instructors'); ?></a></li>
                 </ul>
               </div>
               <!-- End Menu Item Dropdowns -->
@@ -183,14 +178,8 @@
                 <div class="left">
                   <img alt="placeholder image" src="https://placehold.it/100x100">
                 </div>
-                <span class="">Instructor Name</span>
+                <span class=""><?php print t('Instructor Name'); ?></span>
               </a>
-              <!--<hr></hr>
-               <h2><?php print t('My Section'); ?></h2>
-              <a href="#" class="etb-nav_item_service_btn etb-modal-icon techsupport-icon">
-                <div class="icon-techsupport-black etb-modal-icons"></div>
-                <span><?php print $section; ?></span>
-              </a> -->
               <hr></hr>
               <div class="minimal-edit-buttons in-modal">
                 <a class="off-canvas-toolbar-item toolbar-menu-icon" href="#" data-dropdown="eco-syllabus-edit-menu-2" aria-controls="offcanvas-admin-menu" aria-expanded="false">
@@ -222,7 +211,7 @@
               <!-- Menu Item Dropdowns -->
               <div id="eco-help-edit-menu-1" data-dropdown-content class="f-dropdown content" aria-hidden="true" tabindex="-1">
                 <ul class="button-group">
-                  <li><a href="#">Add another contact</a></li>
+                  <li><a href="#"><?php print t('Add another contact'); ?></a></li>
                 </ul>
               </div>
               <!-- End Menu Item Dropdowns -->
@@ -234,10 +223,10 @@
               <?php endif; ?>
               <a href="#" class="etb-modal-icon teacher-icon row">
                 <div class="icon-teacher-black etb-modal-icons"></div>
-                <span>E-Mail your instructor</span>
+                <span><?php print t('E-Mail your instructor'); ?></span>
               </a>
               <hr></hr>
-              <h2 class"etb-nav-section-label">Technical Issues</h2>
+              <h2 class"etb-nav-section-label"><?php print t('Technical Issues'); ?></h2>
               <a href="<?php print $help_link; ?>" class="etb-nav_item_service_btn etb-modal-icon support-icon row">
                 <div class="icon-support-black etb-modal-icons"></div>
                 <span><?php print t('Help page');?></span>
@@ -264,14 +253,6 @@
               <a href="#"><span class="course-title"><?php print $slogan; ?></span><span class="course-abrv"><?php print $site_name; ?></span></a>
             </li>
           </ul>
-          <!-- <ul class="right">
-            <li class="has-dropdown">
-              <a href="#"><span class="course-title"><?php print $slogan; ?></span><span class="course-abrv"><?php print $site_name; ?></span></a>
-              <ul class="dropdown">
-                <li><a href="#">Course program information</a></li>
-              </ul>
-            </li>
-          </ul> -->
         </section>
       </nav>
     </div>
