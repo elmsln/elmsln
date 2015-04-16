@@ -568,6 +568,7 @@ function cis_service_connection_block_section_context_changer_form() {
   $form['section'] = array(
     '#type' => 'select',
     '#options' => $sections,
+    '#chosen' => TRUE,
     '#title' => t('Section to view'),
     '#default_value' => _cis_connector_section_context(),
   );
