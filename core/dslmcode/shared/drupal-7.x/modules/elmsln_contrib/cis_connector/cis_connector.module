@@ -480,6 +480,16 @@ function _cis_connector_section_context($account = NULL) {
 }
 
 /**
+ * Modify the properties used to calculate the authcache key.
+ *
+ * @see authcache_key_properties()
+ * @see authcache_key()
+ */
+function cis_connector_authcache_key_properties_alter(&$properties) {
+  $properties['cis_section_context'] = _cis_connector_section_context();
+}
+
+/**
  * Callback to issue a complex transaction against CIS.
  *
  * This is for some commonly requested things that may
