@@ -1,0 +1,493 @@
+<?php
+/**
+ * @file
+ * Test cases for pluggable cache backends.
+ */
+
+/**
+ * Cover authcache module.
+ */
+class AuthcacheTestAdminWidgets extends DrupalWebTestCase {
+  /**
+   * Use minimalistic installation profile.
+   */
+  protected $profile = 'testing';
+  protected $authcacheRoles;
+  protected $plainUser;
+  protected $member;
+  protected $admin;
+  protected $stubmod;
+
+  /**
+   * Return information about the test case.
+   */
+  public static function getInfo() {
+    return array(
+      'name' => 'Role restriction widgets',
+      'description' => 'Tests for the role restriction widget',
+      'group' => 'Authcache',
+    );
+  }
+
+  /**
+   * Setup test case, ensure that authcache module is loaded.
+   */
+  public function setUp() {
+    parent::setUp('authcache_widget_test');
+
+    // Work around #1873606
+    $this->plainUser = $this->drupalCreateUser(array());
+    user_save($this->plainUser, array(
+      'roles' => array(
+        DRUPAL_AUTHENTICATED_RID => DRUPAL_AUTHENTICATED_RID,
+      ),
+    ));
+
+    $this->member = $this->drupalCreateUser(array(
+      'access content',
+    ));
+
+    $this->admin = $this->drupalCreateUser(array(
+      'administer site configuration',
+    ));
+
+    $this->authcacheRoles = array(
+      DRUPAL_ANONYMOUS_RID => DRUPAL_ANONYMOUS_RID,
+      DRUPAL_AUTHENTICATED_RID => DRUPAL_AUTHENTICATED_RID,
+    ) + $this->plainUser->roles + $this->member->roles;
+
+    // Setup authcache.
+    variable_set('authcache_roles', $this->authcacheRoles);
+
+    // HookStub.
+    $this->stubmod = new ModuleStub('authcache_widget_test');
+  }
+
+  /**
+   * Test whether the given stub passes the invocation verifier.
+   */
+  protected function assertStub(HookStubProxy $stub, $verifier, $message = NULL) {
+    $result = $stub->verify($verifier, $error);
+
+    if (!$message) {
+      $message = t('Verify invocation of hook @hook.', array('@hook' => $stub->hookname()));
+    }
+    if (!$result && is_string($error)) {
+      $message .= ' ' . $error;
+    }
+
+    $this->assertTrue($result, $message);
+  }
+
+  /**
+   * Cover authcache_get_role_restrict_roles().
+   */
+  protected function testGetRoleRestrict() {
+    $roles = authcache_get_role_restrict_roles(array());
+    $this->assertEqual(authcache_get_roles(), $roles, 'Role restrict defaults to all enabled authcache roles');
+
+    $roles = authcache_get_role_restrict_roles(array('custom' => FALSE));
+    $this->assertEqual(authcache_get_roles(), $roles, 'Role restrict defaults to all enabled authcache roles');
+
+    $roles = authcache_get_role_restrict_roles(array('custom' => TRUE));
+    $this->assertEqual(array(), $roles, 'Default to no roles when role restrict is enabled');
+
+    $roles = authcache_get_role_restrict_roles(array(
+      'custom' => TRUE,
+      'roles' => $this->authcacheRoles,
+    ));
+    $this->assertEqual(array_keys($this->authcacheRoles), array_keys($roles), 'Should return enabled roles');
+
+    $admin_roles = $this->admin->roles;
+    unset($admin_roles[DRUPAL_AUTHENTICATED_RID]);
+    $roles = authcache_get_role_restrict_roles(array(
+      'custom' => TRUE,
+      'roles' => $admin_roles,
+    ));
+    $this->assertEqual(array(), array_keys($roles), 'Should not return non-enabled roles');
+  }
+
+  /**
+   * Cover authcache_role_restrict_access().
+   */
+  protected function testRoleRestrictAccess() {
+    $config = array();
+    $this->assertTrue(authcache_role_restrict_access($config, drupal_anonymous_user()));
+    $this->assertTrue(authcache_role_restrict_access($config, $this->plainUser));
+    $this->assertTrue(authcache_role_restrict_access($config, $this->member));
+    $this->assertFalse(authcache_role_restrict_access($config, $this->admin));
+
+    $config = array('custom' => FALSE);
+    $this->assertTrue(authcache_role_restrict_access($config, drupal_anonymous_user()));
+    $this->assertTrue(authcache_role_restrict_access($config, $this->plainUser));
+    $this->assertTrue(authcache_role_restrict_access($config, $this->member));
+    $this->assertFalse(authcache_role_restrict_access($config, $this->admin));
+
+    $config = array('custom' => TRUE);
+    $this->assertFalse(authcache_role_restrict_access($config, drupal_anonymous_user()));
+    $this->assertFalse(authcache_role_restrict_access($config, $this->plainUser));
+    $this->assertFalse(authcache_role_restrict_access($config, $this->member));
+    $this->assertFalse(authcache_role_restrict_access($config, $this->admin));
+
+    $config = array(
+      'custom' => TRUE,
+      'roles' => $this->authcacheRoles,
+    );
+    $this->assertTrue(authcache_role_restrict_access($config, drupal_anonymous_user()));
+    $this->assertTrue(authcache_role_restrict_access($config, $this->plainUser));
+    $this->assertTrue(authcache_role_restrict_access($config, $this->member));
+    $this->assertFalse(authcache_role_restrict_access($config, $this->admin));
+
+    $admin_roles = $this->admin->roles;
+    unset($admin_roles[DRUPAL_AUTHENTICATED_RID]);
+    $config = array(
+      'custom' => TRUE,
+      'roles' => $admin_roles,
+    );
+    $this->assertFalse(authcache_role_restrict_access($config, drupal_anonymous_user()));
+    $this->assertFalse(authcache_role_restrict_access($config, $this->plainUser));
+    $this->assertFalse(authcache_role_restrict_access($config, $this->member));
+    $this->assertFalse(authcache_role_restrict_access($config, $this->admin));
+  }
+
+  /**
+   * Cover authcache_role_restrict_members_access().
+   */
+  protected function testRoleRestrictMembersAccess() {
+    $config = array();
+    $this->assertFalse(authcache_role_restrict_members_access($config, drupal_anonymous_user()));
+    $this->assertTrue(authcache_role_restrict_members_access($config, $this->plainUser));
+    $this->assertTrue(authcache_role_restrict_members_access($config, $this->member));
+    $this->assertFalse(authcache_role_restrict_members_access($config, $this->admin));
+
+    $config = array('custom' => FALSE);
+    $this->assertFalse(authcache_role_restrict_members_access($config, drupal_anonymous_user()));
+    $this->assertTrue(authcache_role_restrict_members_access($config, $this->plainUser));
+    $this->assertTrue(authcache_role_restrict_members_access($config, $this->member));
+    $this->assertFalse(authcache_role_restrict_members_access($config, $this->admin));
+
+    $config = array('custom' => TRUE);
+    $this->assertFalse(authcache_role_restrict_members_access($config, drupal_anonymous_user()));
+    $this->assertFalse(authcache_role_restrict_members_access($config, $this->plainUser));
+    $this->assertFalse(authcache_role_restrict_members_access($config, $this->member));
+    $this->assertFalse(authcache_role_restrict_members_access($config, $this->admin));
+
+    $config = array(
+      'custom' => TRUE,
+      'roles' => $this->authcacheRoles,
+    );
+    $this->assertFalse(authcache_role_restrict_members_access($config, drupal_anonymous_user()));
+    $this->assertTrue(authcache_role_restrict_members_access($config, $this->plainUser));
+    $this->assertTrue(authcache_role_restrict_members_access($config, $this->member));
+    $this->assertFalse(authcache_role_restrict_members_access($config, $this->admin));
+
+    $admin_roles = $this->admin->roles;
+    unset($admin_roles[DRUPAL_AUTHENTICATED_RID]);
+    $config = array(
+      'custom' => TRUE,
+      'roles' => $admin_roles,
+    );
+    $this->assertFalse(authcache_role_restrict_members_access($config, drupal_anonymous_user()));
+    $this->assertFalse(authcache_role_restrict_members_access($config, $this->plainUser));
+    $this->assertFalse(authcache_role_restrict_members_access($config, $this->member));
+    $this->assertFalse(authcache_role_restrict_members_access($config, $this->admin));
+  }
+
+  /**
+   * Test role restrict widget when no roles are enabled for authcache.
+   */
+  public function testRoleRestrictWidgetNoRoles() {
+    variable_set('authcache_roles', array());
+
+    $form = system_settings_form(array(
+      'authcache_widget_test_roles' => array(
+        '#title' => $this->randomName(8),
+        '#type' => 'authcache_role_restrict',
+      ),
+    ));
+
+    $form_stub = $this->stubmod->hook('form', $form);
+    $this->drupalGet('authcache-widget-test-form');
+    $this->assertStub($form_stub, HookStub::once());
+    $this->assertText('Currently there are no roles enabled for authcache');
+    $this->assertLink('authcache settings');
+  }
+
+  /**
+   * Test role restrict widget.
+   */
+  public function testRoleRestrictWidget() {
+    $form = system_settings_form(array(
+      'authcache_widget_test_roles' => array(
+        '#title' => $this->randomName(8),
+        '#type' => 'authcache_role_restrict',
+      ),
+    ));
+    $form_stub = $this->stubmod->hook('form', $form);
+
+    $this->drupalGet('authcache-widget-test-form');
+    $this->assertStub($form_stub, HookStub::once());
+    $this->assertNoText('Currently there are no roles enabled for authcache');
+    $this->assertNoLink('authcache settings');
+
+    $this->assertNoFieldChecked('edit-authcache-widget-test-roles-custom');
+
+    $roles = user_roles();
+    $expected_roles = $this->authcacheRoles;
+    foreach ($roles as $rid => $name) {
+      if (in_array($rid, $expected_roles)) {
+        $this->assertFieldChecked('edit-authcache-widget-test-roles-roles-' . $rid);
+        $this->assertText($name);
+      }
+      else {
+        $this->assertNoText($name);
+      }
+    }
+
+    // Enable role restriction.
+    $edit = array(
+      'authcache_widget_test_roles[custom]' => TRUE,
+    );
+    $expect = array(
+      'custom' => 1,
+      'roles' => drupal_map_assoc(array_keys($this->authcacheRoles)),
+    );
+    $this->drupalPost(NULL, $edit, t('Save configuration'));
+    $actual = variable_get('authcache_widget_test_roles');
+    $this->assertEqual($expect, $actual);
+
+    // Exclude anonymous users.
+    $edit = array(
+      'authcache_widget_test_roles[custom]' => TRUE,
+      'authcache_widget_test_roles[roles][1]' => FALSE,
+    );
+    $roles = drupal_map_assoc(array_keys($this->authcacheRoles));
+    unset($roles[1]);
+    $expect = array(
+      'custom' => 1,
+      'roles' => $roles,
+    );
+    $this->drupalPost(NULL, $edit, t('Save configuration'));
+    $actual = variable_get('authcache_widget_test_roles');
+    $this->assertEqual($expect, $actual);
+
+    // Disable all roles.
+    $edit = array(
+      'authcache_widget_test_roles[custom]' => TRUE,
+    );
+    foreach ($this->authcacheRoles as $rid) {
+      $edit['authcache_widget_test_roles[roles][' . $rid . ']'] = FALSE;
+    };
+    $expect = array(
+      'custom' => 1,
+      'roles' => array(),
+    );
+    $this->drupalPost(NULL, $edit, t('Save configuration'));
+    $actual = variable_get('authcache_widget_test_roles');
+    $this->assertEqual($expect, $actual);
+
+    // Disable role restriction.
+    $edit = array(
+      'authcache_widget_test_roles[custom]' => FALSE,
+    );
+    $this->drupalPost(NULL, $edit, t('Save configuration'));
+    $actual = variable_get('authcache_widget_test_roles');
+    $this->assertNull($actual);
+  }
+
+  /**
+   * Test role restrict widget with default value.
+   */
+  public function testRoleRestrictWidgetDefaultValue() {
+    $form = system_settings_form(array(
+      'authcache_widget_test_roles' => array(
+        '#title' => $this->randomName(8),
+        '#type' => 'authcache_role_restrict',
+        '#default_value' => array(
+          'custom' => 1,
+          'roles' => array(
+            DRUPAL_AUTHENTICATED_RID => DRUPAL_AUTHENTICATED_RID,
+          ),
+        ),
+      ),
+    ));
+    $form_stub = $this->stubmod->hook('form', $form);
+
+    $this->drupalGet('authcache-widget-test-form');
+    $this->assertStub($form_stub, HookStub::once());
+    $this->assertNoText('Currently there are no roles enabled for authcache');
+    $this->assertNoLink('authcache settings');
+
+    $this->assertFieldChecked('edit-authcache-widget-test-roles-custom');
+    $this->assertFieldChecked('edit-authcache-widget-test-roles-roles-' . DRUPAL_AUTHENTICATED_RID);
+  }
+
+  /**
+   * Test members only role restrict widget.
+   */
+  public function testRoleRestrictWidgetMembersOnly() {
+    $form = system_settings_form(array(
+      'authcache_widget_test_roles' => array(
+        '#title' => $this->randomName(8),
+        '#type' => 'authcache_role_restrict',
+        '#default_value' => variable_get('authcache_widget_test_roles'),
+        '#members_only' => TRUE,
+      ),
+    ));
+    $form_stub = $this->stubmod->hook('form', $form);
+
+    $this->drupalGet('authcache-widget-test-form');
+    $this->assertStub($form_stub, HookStub::once());
+    $this->assertNoText('Currently there are no roles enabled for authcache');
+    $this->assertNoLink('authcache settings');
+
+    $this->assertNoFieldChecked('edit-authcache-widget-test-roles-custom');
+
+    $roles = user_roles();
+    $expected_roles = $this->authcacheRoles;
+    unset($expected_roles[DRUPAL_ANONYMOUS_RID]);
+    foreach ($roles as $rid => $name) {
+      if (in_array($rid, $expected_roles)) {
+        $this->assertFieldChecked('edit-authcache-widget-test-roles-roles-' . $rid);
+        $this->assertText($name);
+      }
+      else {
+        $this->assertNoText($name);
+      }
+    }
+  }
+
+  /**
+   * Test duration select widget.
+   */
+  public function testDurationSelect() {
+    $durations = array(
+      0,
+      mt_rand(10, 100),
+      mt_rand(100, 1000),
+      mt_rand(1000, 10000),
+    );
+
+    $form = system_settings_form(array(
+      'maxage' => array(
+        '#title' => $this->randomName(8),
+        '#description' => $this->randomName(32),
+        '#type' => 'authcache_duration_select',
+        '#zero_duration' => $this->randomName(16),
+        '#durations' => $durations,
+      ),
+    ));
+    $form_stub = $this->stubmod->hook('form', $form);
+
+    $this->drupalGet('authcache-widget-test-form');
+    $this->assertStub($form_stub, HookStub::once());
+    $this->assertText($form['maxage']['#title']);
+    $this->assertText($form['maxage']['#description']);
+
+    // Durations are expected to have been converted in select options formatted
+    // with format_interval.
+    $elements = $this->xpath('//select[@id=:id]', array(':id' => 'edit-maxage-select'));
+    $this->assertEqual(1, count($elements));
+    $options = array();
+    foreach ($this->getAllOptions($elements[0]) as $option) {
+      $options[(string) $option->attributes()->value] = (string) $option;
+    }
+
+    $expect_options = array();
+    foreach ($durations as $seconds) {
+      $expect_options[$seconds] = format_interval($seconds);
+    }
+    $expect_options[0] = $form['maxage']['#zero_duration'];
+    $expect_options['custom'] = t('Custom');
+
+    $this->assertEqual($expect_options, $options);
+
+    // Custom field should be empty.
+    $this->assertFieldById('edit-maxage-custom', '');
+  }
+
+  /**
+   * Test duration select widget.
+   */
+  public function testDurationSelectDefaultValue() {
+    $durations = array(
+      60,
+      3600,
+    );
+
+    $form = system_settings_form(array(
+      'maxage' => array(
+        '#title' => $this->randomName(8),
+        '#description' => $this->randomName(32),
+        '#type' => 'authcache_duration_select',
+        '#durations' => $durations,
+        '#default_value' => 60,
+      ),
+    ));
+    $form_stub = $this->stubmod->hook('form', $form);
+    $this->drupalGet('authcache-widget-test-form');
+    $this->assertStub($form_stub, HookStub::once());
+
+    $this->assertOptionSelected('edit-maxage-select', 60);
+    $this->assertNoOptionSelected('edit-maxage-select', 3600);
+    $this->assertNoOptionSelected('edit-maxage-select', 'custom');
+    $this->assertFieldById('edit-maxage-custom', '');
+
+    // Default value is custom timespan.
+    $form = system_settings_form(array(
+      'maxage' => array(
+        '#title' => $this->randomName(8),
+        '#description' => $this->randomName(32),
+        '#type' => 'authcache_duration_select',
+        '#durations' => $durations,
+        '#default_value' => 42,
+      ),
+    ));
+    $form_stub = $this->stubmod->hook('form', $form);
+    $this->drupalGet('authcache-widget-test-form');
+    $this->assertStub($form_stub, HookStub::once());
+
+    $this->assertNoOptionSelected('edit-maxage-select', 60);
+    $this->assertNoOptionSelected('edit-maxage-select', 3600);
+    $this->assertOptionSelected('edit-maxage-select', 'custom');
+    $this->assertFieldById('edit-maxage-custom', '42');
+  }
+
+  /**
+   * Test duration select widget.
+   */
+  public function testDurationSelectSubmit() {
+    $durations = array(
+      60,
+      3600,
+    );
+
+    $form = system_settings_form(array(
+      'authcache_test_maxage' => array(
+        '#title' => $this->randomName(8),
+        '#description' => $this->randomName(32),
+        '#type' => 'authcache_duration_select',
+        '#durations' => $durations,
+        '#default_value' => 60,
+      ),
+    ));
+    $form_stub = $this->stubmod->hook('form', $form);
+    $this->drupalGet('authcache-widget-test-form');
+    $this->assertStub($form_stub, HookStub::once());
+
+    $edit = array(
+      'authcache_test_maxage[select]' => 3600,
+    );
+    $this->drupalPost(NULL, $edit, t('Save configuration'));
+    $actual = variable_get('authcache_test_maxage');
+
+    $expect = mt_rand(1, 1000);
+    $edit = array(
+      'authcache_test_maxage[select]' => 'custom',
+      'authcache_test_maxage[custom]' => $expect,
+    );
+    $this->drupalPost(NULL, $edit, t('Save configuration'));
+    $actual = variable_get('authcache_test_maxage');
+    $this->assertEqual($expect, $actual);
+  }
+}

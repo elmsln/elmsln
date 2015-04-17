@@ -1,0 +1,129 @@
+<?php
+/**
+ * @file
+ * Authcache support for fields.
+ */
+
+/**
+ * Implements hook_authcache_p13n_assembly().
+ */
+function authcache_field_authcache_p13n_assembly() {
+  $assemblies = array();
+  foreach (field_info_instances() as $entity_type => $bundles) {
+    foreach ($bundles as $bundle_name => $fields) {
+      foreach ($fields as $field_name => $instance) {
+        if (!empty($instance['settings']['authcache']['status'])) {
+          $config = $instance['settings']['authcache'];
+          $assembly_id = "field/$entity_type/$field_name";
+          $assemblies[$assembly_id] = array(
+            'fragment' => array(
+              '#partial' => 'field',
+              '#class' => 'AuthcacheFieldFragment',
+              '#arguments' => array($entity_type, $field_name),
+            ),
+            'bootstrap phase' => DRUPAL_BOOTSTRAP_FULL,
+            'cache maxage' => authcache_p13n_config_cache_maxage($config),
+            'cache granularity' => authcache_p13n_config_cache_granularity($config),
+            'admin entry object' => array(
+              '#class' => 'AuthcacheFieldAdminEntry',
+              '#arguments' => array(
+                $entity_type,
+                $field_name,
+                $bundle_name,
+                $config,
+                '@admin entry',
+              ),
+            ),
+          );
+        }
+      }
+    }
+  }
+
+  return $assemblies;
+}
+
+/**
+ * Implements hook_authcache_p13n_admin_groups().
+ */
+function authcache_field_authcache_p13n_admin_groups() {
+  if (module_exists('field_ui')) {
+    return array(
+      t('Fields') => t('To add a field to the list of personalized fields, visit the <em>manage fields</em> tab of any fieldable entity bundle (e.g. Content type, User, Commerce product) and click on the "edit" link next to the field in question.'),
+    );
+  }
+}
+
+
+/**
+ * Implements hook_form_FORM_ID_alter().
+ */
+function authcache_field_form_field_ui_field_edit_form_alter(&$form, &$form_state, $form_id) {
+  $instance = $form['#instance'];
+
+  $form['instance']['settings']['authcache'] = array(
+    '#type' => 'authcache_p13n_config',
+    '#default_value' => isset($instance['settings']['authcache']) ? $instance['settings']['authcache'] : NULL,
+    '#weight' => 99,
+  );
+
+  $form['#submit'][] = 'authcache_field_config_submit';
+}
+
+
+/**
+ * Field UI config submit handler.
+ */
+function authcache_field_config_submit($form, &$form_state) {
+  authcache_p13n_request_router_rebuild();
+}
+
+
+/**
+ * Implements hook_field_attach_view_alter().
+ */
+function authcache_field_field_attach_view_alter(&$output, $context) {
+  if (authcache_p13n_is_authcache_p13n_request()) {
+    return;
+  }
+
+  $entity_type = $context['entity_type'];
+  $entity = $context['entity'];
+  list($entity_id, $fixme_revision_support, $bundle_name) = entity_extract_ids($entity_type, $entity);
+  unset($fixme_revision_support);
+
+  $view_mode = $context['view_mode'];
+
+  foreach (element_children($output) as $field_name) {
+    $instance = field_info_instance($entity_type, $field_name, $bundle_name);
+
+    if (!empty($instance['settings']['authcache']['status'])) {
+      if ($view_mode === '_custom') {
+        // Invoked from within field_view_field with a _custom display. Cannot
+        // handle this atm.
+        authcache_cancel(t('FIXME: authcache_field - what should we do with custom view_modes?'));
+      }
+      else {
+        // The language key is only set when the alter hook was invoked from
+        // within field_attach_view and never when invoked from within
+        // field_view_field.
+        $language = $context['language'];
+
+        $config = $instance['settings']['authcache'];
+        $config += authcache_p13n_config_defaults();
+        $assembly_id = "field/$entity_type/$field_name";
+
+        $param = array($entity_id, $view_mode, $language);
+
+        authcache_p13n_attach($output[$field_name], array(
+          '#theme' => 'authcache_p13n_partial',
+          '#assembly' => $assembly_id,
+          '#partial' => 'field',
+          '#param' => implode(':', $param),
+          '#clients' => $config['clients'],
+          '#fallback' => $config['fallback'],
+        ));
+      }
+    }
+  }
+}

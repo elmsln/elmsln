@@ -1,0 +1,212 @@
+<?php
+/**
+ * @file
+ * Stub module for authcache personalization tests.
+ */
+
+/**
+ * Implements hook_menu().
+ */
+function authcache_p13n_test_menu() {
+  $item['authcache-p13n-test-session'] = array(
+    'title' => 'Set Session',
+    'page callback' => 'authcache_p13n_test_set_session_data',
+    'access callback' => TRUE,
+  );
+  $item['authcache-p13n-test-form'] = array(
+    'title' => 'Test form',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('authcache_p13n_test_form'),
+    'access callback' => TRUE,
+  );
+
+  return $item;
+}
+
+/**
+ * Implements hook_watchdog().
+ */
+function authcache_p13n_test_watchdog(array $log_entry) {
+  return HookStub::record(__FUNCTION__, func_get_args());
+}
+
+/**
+ * Menu callback: Modify session data.
+ */
+function authcache_p13n_test_set_session_data() {
+  $data = HookStub::record(__FUNCTION__, func_get_args());
+  if ($data) {
+    $_SESSION['authcache_p13n_test'] = $data;
+  }
+  else {
+    unset($_SESSION['authcache_p13n_test']);
+  }
+}
+
+/**
+ * Menu callback: Build a form.
+ */
+function authcache_p13n_test_form($form, &$form_state) {
+  return HookStub::record(__FUNCTION__, func_get_args()) + $form;
+}
+
+/**
+ * Form API callback: Submit test form.
+ */
+function authcache_p13n_test_form_submit($form, &$form_state) {
+  return HookStub::record(__FUNCTION__, func_get_args());
+}
+
+/**
+ * Implements hook_authcache_p13n_fragment().
+ */
+function authcache_p13n_test_authcache_p13n_fragment() {
+  return HookStub::record(__FUNCTION__, func_get_args());
+}
+
+/**
+ * Implements hook_authcache_p13n_fragment_alter().
+ */
+function authcache_p13n_test_authcache_p13n_fragment_alter(&$info) {
+  return HookStub::record(__FUNCTION__, func_get_args());
+}
+
+/**
+ * Implements hook_authcache_p13n_assembly().
+ */
+function authcache_p13n_test_authcache_p13n_assembly() {
+  return HookStub::record(__FUNCTION__, func_get_args());
+}
+
+/**
+ * Implements hook_authcache_p13n_assembly_alter().
+ */
+function authcache_p13n_test_authcache_p13n_assembly_alter(&$info) {
+  return HookStub::record(__FUNCTION__, func_get_args());
+}
+
+/**
+ * Implements hook_authcache_p13n_setting().
+ */
+function authcache_p13n_test_authcache_p13n_setting() {
+  return HookStub::record(__FUNCTION__, func_get_args());
+}
+
+/**
+ * Implements hook_authcache_p13n_setting_alter().
+ */
+function authcache_p13n_test_authcache_p13n_setting_alter(&$info) {
+  return HookStub::record(__FUNCTION__, func_get_args());
+}
+
+/**
+ * Implements hook_authcache_p13n_session_invalidate().
+ */
+function authcache_p13n_test_authcache_p13n_session_invalidate() {
+  return HookStub::record(__FUNCTION__, func_get_args());
+}
+
+/**
+ * Implements hook_authcache_p13n_client().
+ */
+function authcache_p13n_test_authcache_p13n_client() {
+  return HookStub::record(__FUNCTION__, func_get_args());
+}
+
+/**
+ * Implements hook_authcache_p13n_client_alter().
+ */
+function authcache_p13n_test_authcache_p13n_client_alter(&$info) {
+  return HookStub::record(__FUNCTION__, func_get_args());
+}
+
+/**
+ * Implements hook_authcache_p13n_client_order_alter().
+ */
+function authcache_p13n_test_authcache_p13n_client_order_alter(&$clients, $type, $id, $param) {
+  return HookStub::record(__FUNCTION__, func_get_args());
+}
+
+/**
+ * Implements hook_authcache_p13n_client_fallback_alter().
+ */
+function authcache_p13n_test_authcache_p13n_client_fallback_alter(&$markup, $method, $context) {
+  return HookStub::record(__FUNCTION__, func_get_args());
+}
+
+/**
+ * Implements hook_authcache_p13n_base_request().
+ */
+function authcache_p13n_test_authcache_p13n_base_request() {
+  return HookStub::record(__FUNCTION__, func_get_args());
+}
+
+/**
+ * Implements hook_authcache_p13n_base_request_alter().
+ */
+function authcache_p13n_test_authcache_p13n_base_request_alter(&$resource) {
+  return HookStub::record(__FUNCTION__, func_get_args());
+}
+
+/**
+ * Implements hook_authcache_p13n_request().
+ */
+function authcache_p13n_test_authcache_p13n_request() {
+  return HookStub::record(__FUNCTION__, func_get_args());
+}
+
+/**
+ * Implements hook_authcache_p13n_request_alter().
+ */
+function authcache_p13n_test_authcache_p13n_request_alter(&$resources) {
+  return HookStub::record(__FUNCTION__, func_get_args());
+}
+
+/**
+ * Implements hook_authcache_p13n_resource_processors().
+ */
+function authcache_p13n_test_authcache_p13n_resource_processors() {
+  return HookStub::record(__FUNCTION__, func_get_args());
+}
+
+/**
+ * Implements hook_authcache_p13n_resource_processors_alter().
+ */
+function authcache_p13n_test_authcache_p13n_resource_processors_alter(&$processors) {
+  return HookStub::record(__FUNCTION__, func_get_args());
+}
+
+/**
+ * Implements hook_theme().
+ */
+function authcache_p13n_test_theme() {
+  return authcache_p13n_find_theme_functions('authcache_p13n_test');
+}
+
+/**
+ * Theme function for fragment tag.
+ */
+function theme_authcache_p13n_fragment__authcache_p13n_test($variables) {
+  return HookStub::record(__FUNCTION__, func_get_args());
+}
+
+/**
+ * Theme function for setting tag.
+ */
+function theme_authcache_p13n_setting__authcache_p13n_test($variables) {
+  return HookStub::record(__FUNCTION__, func_get_args());
+}
+
+/**
+ * Theme function for assembly tag.
+ */
+function theme_authcache_p13n_assembly__authcache_p13n_test($variables) {
+  return HookStub::record(__FUNCTION__, func_get_args());
+}
+
+/**
+ * Theme function for partial tag.
+ */
+function theme_authcache_p13n_partial__authcache_p13n_test($variables) {
+  return HookStub::record(__FUNCTION__, func_get_args());
+}

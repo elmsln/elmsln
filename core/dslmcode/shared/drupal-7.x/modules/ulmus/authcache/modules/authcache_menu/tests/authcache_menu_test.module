@@ -1,0 +1,113 @@
+<?php
+/**
+ * @file
+ * Stub module for Authcache Menu test.
+ */
+
+/**
+ * Implements hook_menu().
+ */
+function authcache_menu_test_menu() {
+  $items['no-tabs'] = array(
+    'title' => 'No tabs page',
+    'page callback' => 'authcache_menu_test_page',
+  );
+
+  $items['tab-root-std-access'] = array(
+    'title' => 'Root',
+    'access arguments' => array('access content'),
+    'page callback' => 'authcache_menu_test_page',
+  );
+  $items['tab-root-std-access/view'] = array(
+    'title' => 'View',
+    'access arguments' => array('access content'),
+    'type' => MENU_DEFAULT_LOCAL_TASK,
+    'weight' => -10,
+  );
+  $items['tab-root-std-access/edit'] = array(
+    'title' => 'Edit',
+    'access arguments' => array('access content'),
+    'page callback' => 'authcache_menu_test_page',
+    'type' => MENU_LOCAL_TASK,
+  );
+
+  $items['tab-root-cust-access'] = array(
+    'title' => 'Root',
+    'access arguments' => array('access content'),
+    'page callback' => 'authcache_menu_test_page',
+  );
+  $items['tab-root-cust-access/view'] = array(
+    'title' => 'View',
+    'access arguments' => array('access content'),
+    'type' => MENU_DEFAULT_LOCAL_TASK,
+    'weight' => -10,
+  );
+  $items['tab-root-cust-access/edit'] = array(
+    'title' => 'Edit',
+    'page callback' => 'authcache_menu_test_page',
+    'access callback' => 'authcache_menu_test_access_callback',
+    'type' => MENU_LOCAL_TASK,
+  );
+
+  return $items;
+}
+
+/**
+ * Page callback.
+ */
+function authcache_menu_test_page() {
+  return HookStub::record(__FUNCTION__, func_get_args());
+}
+
+/**
+ * Access callback.
+ */
+function authcache_menu_test_access_callback() {
+  return HookStub::record(__FUNCTION__, func_get_args());
+}
+
+/**
+ * Implements hook_authcache_menu_invariant_access_callbacks().
+ */
+function authcache_menu_test_authcache_menu_invariant_access_callbacks() {
+  return HookStub::record(__FUNCTION__, func_get_args());
+}
+
+/**
+ * Implements hook_authcache_menu_invariant_access_callbacks_alter().
+ */
+function authcache_menu_test_authcache_menu_invariant_access_callbacks_alter(&$callbacks) {
+  if (($alter = HookStub::record(__FUNCTION__, func_get_args()))) {
+    $callbacks = $alter + $callbacks;
+  }
+}
+
+/**
+ * Implements hook_authcache_menu_tab_root_blacklist_alter().
+ */
+function authcache_menu_test_authcache_menu_tab_root_blacklist_alter(&$tab_roots, $type_mask) {
+  if (($alter = HookStub::record(__FUNCTION__, func_get_args()))) {
+    $tab_roots = $alter + $tab_roots;
+  }
+}
+
+/**
+ * Implements hook_authcache_p13n_client().
+ */
+function authcache_menu_test_authcache_p13n_client() {
+  return HookStub::record(__FUNCTION__, func_get_args());
+}
+
+/**
+ * Implements hook_theme().
+ */
+function authcache_menu_test_theme() {
+  return authcache_p13n_find_theme_functions('authcache_menu_test');
+}
+
+/**
+ * Theme function for fragment tag.
+ */
+function theme_authcache_p13n_fragment__authcache_menu_test($variables) {
+  return HookStub::record(__FUNCTION__, func_get_args());
+}

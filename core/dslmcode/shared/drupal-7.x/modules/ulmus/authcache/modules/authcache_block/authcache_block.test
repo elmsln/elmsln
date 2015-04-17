@@ -1,0 +1,311 @@
+<?php
+/**
+ * @file
+ * Test cases for the Authcache Block module.
+ */
+
+/**
+ * Tests for markup substitution.
+ */
+class AuthcacheBlockTest extends DrupalWebTestCase {
+  protected $profile = 'testing';
+  protected $stubmod;
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function getInfo() {
+    return array(
+      'name' => 'Authcache Block',
+      'description' => 'Test markup substitution and fragment generation for Blocks',
+      'group' => 'Authcache Block',
+    );
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function setUp() {
+    parent::setUp(array('authcache_block', 'authcache_p13n_test'));
+
+    // Setup authcache.
+    variable_set('authcache_roles', array(
+      DRUPAL_ANONYMOUS_RID => DRUPAL_ANONYMOUS_RID,
+      DRUPAL_AUTHENTICATED_RID => DRUPAL_AUTHENTICATED_RID,
+    ));
+
+    // HookStub.
+    $this->stubmod = new ModuleStub('authcache_p13n_test');
+  }
+
+  /**
+   * Utility function: Create new custom block.
+   */
+  protected function createCustomBlock() {
+    // Add a new custom block by filling out the input form on the
+    // admin/structure/block/add page.
+    $custom_block = array();
+    $custom_block['info'] = $this->randomName(8);
+    $custom_block['title'] = $this->randomName(8);
+    $custom_block['body[value]'] = $this->randomName(32);
+    $this->drupalPost('admin/structure/block/add', $custom_block, t('Save block'));
+
+    // Confirm that the custom block has been created, and then query the
+    // created bid.
+    $this->assertText(t('The block has been created.'), 'Custom block successfully created.');
+    return db_query("SELECT bid FROM {block_custom} WHERE info = :info", array(':info' => $custom_block['info']))->fetchField();
+  }
+
+  /**
+   * Utility function: Set region of a block.
+   *
+   * @see BlockTestCase::moveBlockToRegion()
+   */
+  protected function moveBlockToRegion(stdClass $block, $region) {
+    // Set the created block to a specific region.
+    $edit = array();
+    $edit['blocks[' . $block->module . '_' . $block->delta . '][region]'] = $region;
+    $this->drupalPost('admin/structure/block', $edit, t('Save blocks'));
+
+    // Confirm that the block was moved to the proper region.
+    $this->assertText(t('The block settings have been updated.'), format_string('Block successfully moved to %region_name region.', array('%region_name' => $region)));
+
+    // Confirm that the block is being displayed.
+    $this->drupalGet('node');
+    $this->assertText($block->title, 'Block successfully being displayed on the page.');
+
+    $this->assertBlockOnPage($block, $region);
+  }
+
+  /**
+   * Test whether the given stub passes the invocation verifier.
+   */
+  protected function assertStub(HookStubProxy $stub, $verifier, $message = NULL) {
+    $result = $stub->verify($verifier, $error);
+
+    if (!$message) {
+      $message = t('Verify invocation of hook @hook.', array('@hook' => $stub->hookname()));
+    }
+    if (!$result && is_string($error)) {
+      $message .= ' ' . $error;
+    }
+
+    $this->assertTrue($result, $message);
+  }
+
+  /**
+   * Test whether the given block is found on the page.
+   */
+  protected function assertBlockOnPage(stdClass $block, $region) {
+    // Confirm that the custom block was found at the proper region.
+    $xpath = $this->buildXPathQuery('//div[@class=:region-class]//div[@id=:block-id]/*', array(
+      ':region-class' => 'region region-' . str_replace('_', '-', $region),
+      ':block-id' => 'block-' . $block->module . '-' . $block->delta,
+    ));
+    $this->assertFieldByXPath($xpath, NULL, format_string('Custom block found in %region_name region.', array('%region_name' => $region)));
+  }
+
+  /**
+   * Test whether the given block is found on the page.
+   */
+  protected function assertNoBlockOnPage(stdClass $block, $region) {
+    // Confirm that the custom block was found at the proper region.
+    $xpath = $this->buildXPathQuery('//div[@class=:region-class]//div[@id=:block-id]/*', array(
+      ':region-class' => 'region region-' . str_replace('_', '-', $region),
+      ':block-id' => 'block-' . $block->module . '-' . $block->delta,
+    ));
+    $this->assertNoFieldByXPath($xpath, NULL, format_string('Block not found in %region_name region.', array('%region_name' => $region)));
+  }
+
+  /**
+   * Ensure that markup is substituted for authcache enabled blocks.
+   */
+  public function testMarkupSubstitution() {
+    $client_info = array(
+      'authcache_p13n_test' => array(
+        'title' => t('Test Client'),
+        'enabled' => TRUE,
+      ),
+    );
+    $this->stubmod->hook('authcache_p13n_client', $client_info);
+
+    $region = 'sidebar_first';
+    $admin = $this->drupalCreateUser(array(
+      'administer blocks',
+      'configure authcache blocks',
+    ));
+    $this->drupalLogin($admin);
+
+    $block = block_load('block', $this->createCustomBlock());
+    $this->moveBlockToRegion($block, $region);
+
+    $edit = array(
+      'authcache_settings[status]' => TRUE,
+    );
+    $this->drupalPost('admin/structure/block/manage/' . $block->module . '/' . $block->delta . '/configure', $edit, t('Save block'));
+
+    // Assert that config has no impact when user is not in authcache roles.
+    $this->drupalGet('node');
+    $this->assertBlockOnPage($block, $region);
+
+    $this->drupalLogout();
+
+    $substituted_markup = $this->randomName(8);
+    $fragment_stub = HookStub::on('theme_authcache_p13n_fragment__authcache_p13n_test', $substituted_markup);
+
+    // Assert that block is not on the page because authcache prepared the page
+    // to be saved to the cache.
+    $this->drupalGet('node');
+    $this->assertNoBlockOnPage($block, $region);
+
+    $this->assertText($substituted_markup);
+    $this->assertStub($fragment_stub, HookStub::once());
+  }
+
+  /**
+   * Ensure that markup is substituted for authcache enabled blocks.
+   */
+  public function testFailingMarkupSubstitutionHideFallback() {
+    $region = 'sidebar_first';
+    $admin = $this->drupalCreateUser(array(
+      'administer blocks',
+      'configure authcache blocks',
+    ));
+    $this->drupalLogin($admin);
+
+    $block = block_load('block', $this->createCustomBlock());
+    $this->moveBlockToRegion($block, $region);
+
+    $edit = array(
+      'authcache_settings[status]' => TRUE,
+      'authcache_settings[fallback]' => 'hide',
+    );
+    $this->drupalPost('admin/structure/block/manage/' . $block->module . '/' . $block->delta . '/configure', $edit, t('Save block'));
+
+    // Assert that config has no impact when user is not in authcache roles.
+    $this->drupalGet('node');
+    $this->assertBlockOnPage($block, $region);
+
+    $this->drupalLogout();
+
+    // Assert that block is not on the page because authcache prepared the page
+    // to be saved to the cache.
+    $this->drupalGet('node');
+    $this->assertNoBlockOnPage($block, $region);
+  }
+
+  /**
+   * Ensure that markup is substituted for authcache enabled blocks.
+   */
+  public function testFailingMarkupSubstitutionCancelFallback() {
+    $region = 'sidebar_first';
+    $admin = $this->drupalCreateUser(array(
+      'administer blocks',
+      'configure authcache blocks',
+    ));
+    $this->drupalLogin($admin);
+
+    $block = block_load('block', $this->createCustomBlock());
+    $this->moveBlockToRegion($block, $region);
+
+    $edit = array(
+      'authcache_settings[status]' => TRUE,
+      'authcache_settings[fallback]' => 'cancel',
+    );
+    $this->drupalPost('admin/structure/block/manage/' . $block->module . '/' . $block->delta . '/configure', $edit, t('Save block'));
+
+    // Assert that config has no impact when user is not in authcache roles.
+    $this->drupalGet('node');
+    $this->assertBlockOnPage($block, $region);
+
+    $this->drupalLogout();
+
+    // Assert that block is still on page however page was not saved to cache.
+    $this->drupalGet('node');
+    $this->assertBlockOnPage($block, $region);
+  }
+
+  /**
+   * Ensure that a block shows up in the list of personalized elements.
+   */
+  public function testAdminList() {
+    $region = 'sidebar_first';
+    $admin = $this->drupalCreateUser(array(
+      'administer blocks',
+      'configure authcache blocks',
+    ));
+    $this->drupalLogin($admin);
+
+    $block = block_load('block', $this->createCustomBlock());
+    $this->moveBlockToRegion($block, $region);
+
+    $edit = array(
+      'authcache_settings[status]' => TRUE,
+    );
+    $this->drupalPost('admin/structure/block/manage/' . $block->module . '/' . $block->delta . '/configure', $edit, t('Save block'));
+
+    $su = $this->drupalCreateUser(array('administer site configuration'));
+    $this->drupalLogin($su);
+
+    $this->drupalGet('admin/config/system/authcache/p13n');
+
+    $this->assertText('Blocks', 'A group with the name Blocks should be on the page');
+    $this->assertLink('block administration page', 0, 'A link with the label block administration page should be on the page');
+    $this->assertLinkByHref('admin/structure/block', 0, 'A link to admin/structure/block should be on the page');
+
+    $this->assertText($block->title, 'The block title should be on the page');
+    $this->assertLink('Edit', 0, 'An edit link should be on the page');
+    $this->assertLinkByHref('admin/structure/block/manage/' . $block->module . '/' . $block->delta . '/configure', 0, 'The edit link should point to the blocks configuration form');
+  }
+
+  /**
+   * Ensure that access to authcache configuration on blocks is checked.
+   */
+  public function testAdminAccess() {
+    $admin = $this->drupalCreateUser(array(
+      'administer blocks',
+    ));
+    $this->drupalLogin($admin);
+    $block = block_load('block', $this->createCustomBlock());
+    $this->drupalGet('admin/structure/block/manage/' . $block->module . '/' . $block->delta . '/configure');
+    $this->assertNoField('authcache_settings[status]');
+
+    $admin = $this->drupalCreateUser(array(
+      'administer blocks',
+      'configure authcache blocks',
+    ));
+    $this->drupalLogin($admin);
+    $this->drupalGet('admin/structure/block/manage/' . $block->module . '/' . $block->delta . '/configure');
+    $this->assertField('authcache_settings[status]');
+  }
+
+  /**
+   * Ensure that a block can be retrieved from the front controller.
+   */
+  public function testFragemntGet() {
+    $region = 'sidebar_first';
+    $admin = $this->drupalCreateUser(array(
+      'administer blocks',
+      'configure authcache blocks',
+    ));
+    $this->drupalLogin($admin);
+
+    $block = block_load('block', $this->createCustomBlock());
+    $this->moveBlockToRegion($block, $region);
+
+    $edit = array(
+      'authcache_settings[status]' => TRUE,
+      'authcache_settings[fallback]' => 'cancel',
+    );
+    $this->drupalPost('admin/structure/block/manage/' . $block->module . '/' . $block->delta . '/configure', $edit, t('Save block'));
+
+    $this->drupalLogout();
+
+    $block_id = "{$block->module}-{$block->delta}";
+    $request_id = 'frag/block/' . $block_id;
+    $url = authcache_p13n_request_get_callback($request_id, $block_id);
+    $this->assertTrue($url);
+    $this->drupalGet($GLOBALS['base_root'] . $url['path'], $url['options'], array('X-Authcache: 1'));
+    $this->assertText($block->title);
+  }
+}

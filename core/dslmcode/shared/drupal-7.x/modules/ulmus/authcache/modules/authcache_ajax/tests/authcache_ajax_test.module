@@ -1,0 +1,72 @@
+<?php
+/**
+ * @file
+ * Stub module for Authcache Ajax tests.
+ */
+
+/**
+ * Implements hook_menu().
+ */
+function authcache_ajax_test_menu() {
+  $item['authcache-ajax-test-page'] = array(
+    'title' => 'Test ajax',
+    'page callback' => 'authcache_ajax_test_page',
+    'access callback' => TRUE,
+  );
+  $item['authcache-ajax-test-set-has-js'] = array(
+    'title' => 'Set JS cookie',
+    'page callback' => 'authcache_ajax_test_set_has_js',
+    'page arguments' => array(1),
+    'access callback' => TRUE,
+  );
+
+  return $item;
+}
+
+/**
+ * Menu callback: Build a page.
+ */
+function authcache_ajax_test_page() {
+  return HookStub::record(__FUNCTION__, func_get_args());
+}
+
+/**
+ * Menu callback: Set has_js cookie.
+ */
+function authcache_ajax_test_set_has_js($flag = FALSE) {
+  if ($flag) {
+    setcookie('has_js', '1', 0, base_path());
+  }
+  else {
+    setcookie('has_js', '', time() - 3600, base_path());
+  }
+
+  drupal_exit();
+}
+
+/**
+ * Implements hook_authcache_p13n_fragment().
+ */
+function authcache_ajax_test_authcache_p13n_fragment() {
+  return array(
+    'ajax-test-fragment' => array(),
+  );
+}
+
+/**
+ * Implements hook_authcache_p13n_assembly().
+ */
+function authcache_ajax_test_authcache_p13n_assembly() {
+  return array(
+    'ajax-test-assembly' => array(),
+  );
+}
+
+/**
+ * Implements hook_authcache_p13n_setting().
+ */
+function authcache_ajax_test_authcache_p13n_setting() {
+  return array(
+    'ajax-test-setting' => array(),
+  );
+}

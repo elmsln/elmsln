@@ -1,0 +1,156 @@
+<?php
+/**
+ * @file
+ * Tests for Ajax markup generator
+ */
+
+/**
+ * Test authcache ajax
+ */
+class AuthcacheAjaxTestCase extends DrupalWebTestCase {
+  protected $profile = 'testing';
+  protected $stubmod;
+
+  /**
+   * Return information about the test class.
+   */
+  public static function getInfo() {
+    return array(
+      'name' => 'Authcache Ajax',
+      'description' => 'Test Ajax markup generator',
+      'group' => 'Authcache Ajax',
+    );
+  }
+
+  /**
+   * Prepare test case.
+   */
+  public function setUp() {
+    parent::setUp('authcache_ajax', 'authcache_ajax_test');
+
+    // HookStub.
+    $this->stubmod = new ModuleStub('authcache_ajax_test');
+  }
+
+  /**
+   * Test whether the given stub passes the invocation verifier.
+   */
+  protected function assertStub(HookStubProxy $stub, $verifier, $message = NULL) {
+    $result = $stub->verify($verifier, $error);
+
+    if (!$message) {
+      $message = t('Verify invocation of hook @hook.', array('@hook' => $stub->hookname()));
+    }
+    if (!$result && is_string($error)) {
+      $message .= ' ' . $error;
+    }
+
+    $this->assertTrue($result, $message);
+  }
+
+  /**
+   * Cover theme_authcache_p13n_fragment__authcache_ajax().
+   */
+  public function testAjaxFragment() {
+    $page = array(
+      '#theme' => 'authcache_p13n_fragment',
+      '#fragment' => 'ajax-test-fragment',
+      '#param' => $this->randomName(8),
+      '#fallback' => 'cancel',
+      '#original' => $this->randomName(8),
+    );
+
+    // Make sure JavaScript is turned off in simpletest browser.
+    $this->drupalGet('authcache-ajax-test-set-has-js/0');
+
+    // Test whether fallback markup is rendered on the page.
+    $stub = $this->stubmod->hook('page', $page);
+    $this->drupalGet('authcache-ajax-test-page');
+    $this->assertStub($stub, HookStub::once());
+    $this->assertText($page['#original']);
+    $elements = $this->xpath('//span[@class="authcache-ajax-frag"]');
+    $this->assertEqual(0, count($elements));
+
+    // Make sure JavaScript is turned on in simpletest browser.
+    $this->drupalGet('authcache-ajax-test-set-has-js/1');
+
+    // Test whether <span> placeholder tag is rendered on page.
+    $stub = $this->stubmod->hook('page', $page);
+    $this->drupalGet('authcache-ajax-test-page');
+    $this->assertStub($stub, HookStub::once());
+    $this->assertNoText($page['#original']);
+    $elements = $this->xpath('//span[@class="authcache-ajax-frag"]');
+    $this->assertEqual(1, count($elements));
+  }
+
+  /**
+   * Cover theme_authcache_p13n_setting__authcache_ajax().
+   */
+  public function testAjaxSetting() {
+    $page = array(
+      '#theme' => 'authcache_p13n_setting',
+      '#setting' => 'ajax-test-setting',
+      '#fallback' => 'cancel',
+    );
+
+    // Make sure JavaScript is turned off in simpletest browser.
+    $this->drupalGet('authcache-ajax-test-set-has-js/0');
+
+    // Test whether fallback markup is rendered on the page.
+    $stub = $this->stubmod->hook('page', $page);
+    $this->drupalGet('authcache-ajax-test-page');
+    $this->assertStub($stub, HookStub::once());
+    $settings = $this->drupalGetSettings();
+    $this->assertFalse(isset($settings['authcacheP13nAjaxSettings']));
+
+    // Make sure JavaScript is turned on in simpletest browser.
+    $this->drupalGet('authcache-ajax-test-set-has-js/1');
+
+    // Test whether <span> placeholder tag is rendered on page.
+    $stub = $this->stubmod->hook('page', $page);
+    $this->drupalGet('authcache-ajax-test-page');
+    $this->assertStub($stub, HookStub::once());
+    $settings = $this->drupalGetSettings();
+    $this->assertTrue(isset($settings['authcacheP13nAjaxSettings']));
+  }
+
+  /**
+   * Cover authcache_ajax assembly and partial.
+   */
+  public function testAjaxAssembly() {
+    $page = array(
+      '#theme' => 'authcache_p13n_partial',
+      '#assembly' => 'ajax-test-assembly',
+      '#partial' => 'ajax-test-partial',
+      '#param' => $this->randomName(8),
+      '#fallback' => 'cancel',
+      '#original' => $this->randomName(8),
+    );
+
+    // Make sure JavaScript is turned off in simpletest browser.
+    $this->drupalGet('authcache-ajax-test-set-has-js/0');
+
+    // Test whether fallback markup is rendered on the page.
+    $stub = $this->stubmod->hook('page', $page);
+    $this->drupalGet('authcache-ajax-test-page');
+    $this->assertStub($stub, HookStub::once());
+    $this->assertText($page['#original']);
+    $settings = $this->drupalGetSettings();
+    $this->assertFalse(isset($settings['authcacheP13nAjaxAssemblies']));
+    $elements = $this->xpath('//span[@class="authcache-p13n-asm-ajax-test-assembly"]');
+    $this->assertEqual(0, count($elements));
+
+    // Make sure JavaScript is turned on in simpletest browser.
+    $this->drupalGet('authcache-ajax-test-set-has-js/1');
+
+    // Test whether <span> placeholder tag is rendered on page.
+    $stub = $this->stubmod->hook('page', $page);
+    $this->drupalGet('authcache-ajax-test-page');
+    $this->assertStub($stub, HookStub::once());
+    $this->assertNoText($page['#original']);
+    $settings = $this->drupalGetSettings();
+    $this->assertTrue(isset($settings['authcacheP13nAjaxAssemblies']));
+    $elements = $this->xpath('//span[@class="authcache-p13n-asm-ajax-test-assembly"]');
+    $this->assertEqual(1, count($elements));
+  }
+}

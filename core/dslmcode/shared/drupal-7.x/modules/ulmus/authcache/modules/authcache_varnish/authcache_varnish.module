@@ -1,0 +1,159 @@
+<?php
+/**
+ * @file
+ * Authcache cache backend module for varnish.
+ */
+
+/**
+ * Implements hook_boot().
+ */
+function authcache_varnish_boot() {
+  if (authcache_varnish_request_validate()) {
+    if (isset($_SERVER['HTTP_X_AUTHCACHE_KEY'])) {
+      $initial_key = $_SERVER['HTTP_X_AUTHCACHE_KEY'];
+    }
+    else {
+      $initial_key = authcache_backend_anonymous_key();
+    }
+
+    $vary_header = variable_get('authcache_varnish_vary', 'X-Authcache-Key');
+    authcache_backend_init('authcache_varnish', $vary_header, $initial_key);
+  }
+}
+
+/**
+ * Ensure that a request came in through the reverse proxy.
+ *
+ * Examine the X-Varnish request header and return TRUE if the header is
+ * present. Otherwise return FALSE.
+ */
+function authcache_varnish_request_validate() {
+  $passphrase = variable_get('authcache_varnish_passphrase');
+  if (isset($passphrase)) {
+    $passphrase_header = variable_get('authcache_varnish_passphrase_header', 'HTTP_X_AUTHCACHE_VARNISH_PASSPHRASE');
+    return (isset($_SERVER[$passphrase_header]) && $_SERVER[$passphrase_header] === $passphrase);
+  }
+
+  if (variable_get('authcache_varnish_validate_reverse_proxy_address', TRUE)) {
+    // Fail if reverse proxy is not configured in settings.php.
+    if (!variable_get('reverse_proxy', 0)) {
+      return FALSE;
+    }
+
+    // Fail if X-Forwarded-For header is missing or empty.
+    $reverse_proxy_header = variable_get('reverse_proxy_header', 'HTTP_X_FORWARDED_FOR');
+    if (empty($_SERVER[$reverse_proxy_header])) {
+      return FALSE;
+    }
+
+    // Fail if the remote address is not among the trusted reverse proxy
+    // addresses.
+    $reverse_proxy_addresses = variable_get('reverse_proxy_addresses', array());
+
+    // @ignore sniffer_semantics_remoteaddress_remoteaddress
+    if (empty($reverse_proxy_addresses) || !in_array($_SERVER['REMOTE_ADDR'], $reverse_proxy_addresses)) {
+      return FALSE;
+    }
+  }
+
+  // X-Varnish header not on request.
+  $request_key = variable_get('authcache_varnish_header', 'HTTP_X_VARNISH');
+  if (!empty($request_key) && !isset($_SERVER[$request_key])) {
+    return FALSE;
+  }
+
+  return TRUE;
+}
+
+/**
+ * Implements hook_authcache_backend_cache_save().
+ */
+function authcache_varnish_authcache_backend_cache_save($data, $headers, $page_compressed) {
+  // Nothing to do. However a hook-implementation is required to signal the
+  // main module that a cache backend exists.
+}
+
+/**
+ * Implements hoook_authcache_debug_info().
+ */
+function authcache_varnish_authcache_debug_info() {
+  $debuginfo = array();
+
+  // Test whether Cache-Control header is present.
+  $cache_control = '';
+  $cc = preg_grep('/^cache-control:/i', headers_list());
+  $cache_control_present = !empty($cc);
+  if ($cache_control_present) {
+    list($headername, $cache_control) = explode(': ', reset($cc), 2);
+    unset($headername);
+
+    $matched = preg_match('/^.*max-age=(\d+).*$/i', $cache_control, $matches);
+    $max_age = $matched ? $matches[1] : 0;
+
+    // Warn if there is a Cache-Control header on response but max-age is
+    // missing or zero.
+    if ($matched && !$max_age) {
+      authcache_debug_log('Varnish', t('Cache-Control header with max-age=0 on response. Varnish will not store this response.'));
+    }
+  }
+  else {
+    // Warn if there is no Cache-Control header on response.
+    authcache_debug_log('Varnish', t('Cache-Control header missing from response.'));
+  }
+
+  // Test whether request came in through reverse proxy.
+  $varnish_present = authcache_varnish_request_validate();
+  if (!$varnish_present) {
+    // Warn if authcache_varnish_request_validate failed.
+    authcache_debug_log('Varnish', t('Request did not came in via a configured reverse proxy server. Authcache-Key not added to response.'));
+  }
+
+  // Return debug info displayed in the debug widget.
+  $debuginfo['Cache-Control'] = $cache_control_present ? $cache_control : t('Missing');
+  $debuginfo['Via reverse proxy'] = $varnish_present ? t('Yes') : t('No');
+
+  return $debuginfo;
+}
+
+/**
+ * Implements hook_menu().
+ */
+function authcache_varnish_menu() {
+  $items['authcache-varnish-get-key'] = array(
+    'page callback' => 'authcache_varnish_get_key',
+    'access callback' => 'authcache_varnish_request_validate',
+    'type' => MENU_CALLBACK,
+  );
+
+  return $items;
+}
+
+/**
+ * Implements hook_authcache_request_exclude().
+ */
+function authcache_varnish_authcache_request_exclude() {
+  if (arg(0) === 'authcache-varnish-get-key') {
+    return t('Authcache varnish key callback');
+  }
+}
+
+/**
+ * Menu callback for varnish cache server.
+ *
+ * Return the authcache key as a HTTP header if caching is allowed for the
+ * logged in user.
+ */
+function authcache_varnish_get_key() {
+  if (authcache_account_allows_caching()) {
+    // Set custom X-Authcache-Key header.
+    drupal_add_http_header('X-Authcache-Key', authcache_key());
+  }
+
+  // Add Vary header.
+  drupal_add_http_header('Vary', 'X-Authcache-Key-CID');
+
+  // Cache response for 3 minutes.
+  drupal_add_http_header('Cache-Control', 'public, max-age=' . authcache_key_lifetime());
+
+  drupal_exit();
+}

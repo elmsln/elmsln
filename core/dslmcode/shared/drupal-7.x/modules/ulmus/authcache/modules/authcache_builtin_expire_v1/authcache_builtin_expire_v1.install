@@ -1,0 +1,28 @@
+<?php
+/**
+ * @file
+ * Install, update and uninstall functions for the Authcache Bultin module.
+ */
+
+/**
+ * Implements hook_requirements().
+ */
+function authcache_builtin_expire_v1_requirements($phase) {
+  $requirements = array();
+  // Ensure translations don't break during installation.
+  $t = get_t();
+
+  if (variable_get('expire_include_base_url', EXPIRE_INCLUDE_BASE_URL)) {
+    $requirements['authcache_builtin_expire_v1_expire'] = array(
+      'title' => $t('Authcache builtin expire support'),
+      'value' => $t('Expire protocol mismatch'),
+      'description' => $t('Authcache Builtin requires the expire module to omit the base URL from expiry requests. Disable the option %option in the <a href="!link">Cache Expiration</a> settings.', array(
+        '%option' => $t('Include base URL in expires'),
+        '!link' => url('admin/config/development/performance/expire'),
+      )),
+      'severity' => ($phase === 'runtime') ? REQUIREMENT_ERROR : REQUIREMENT_WARNING,
+    );
+  }
+
+  return $requirements;
+}

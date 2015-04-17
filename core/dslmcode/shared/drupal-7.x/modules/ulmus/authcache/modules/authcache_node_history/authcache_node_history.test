@@ -1,0 +1,220 @@
+<?php
+/**
+ * @file
+ * Test cases for the Authcache Node History module.
+ */
+
+/**
+ * Tests for markup substitution.
+ */
+class AuthcacheNodeHistoryTest extends DrupalWebTestCase {
+  protected $stubmod;
+  protected $member;
+  protected $editor;
+  protected $node;
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function getInfo() {
+    return array(
+      'name' => 'Authcache Node History',
+      'description' => 'Test markup substitution and fragment generation for node history commands',
+      'group' => 'Authcache Node History',
+    );
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function setUp() {
+    parent::setUp(array('authcache_node_history', 'authcache_p13n_test'));
+
+    $this->member = $this->drupalCreateUser();
+    $this->editor = $this->drupalCreateUser(array(
+      'create article content',
+    ));
+    $this->node = $this->drupalCreateNode(array(
+      'type' => 'article',
+      'promote' => 1,
+      'uid' => $this->editor->uid,
+    ));
+
+    $authcache_roles = array(
+      DRUPAL_ANONYMOUS_RID => DRUPAL_ANONYMOUS_RID,
+      DRUPAL_AUTHENTICATED_RID => DRUPAL_AUTHENTICATED_RID,
+    ) + $this->member->roles + $this->editor->roles;
+
+    // Setup authcache.
+    variable_set('authcache_roles', $authcache_roles);
+    $pagecaching = _authcache_default_pagecaching();
+    $pagecaching[0]['roles']['roles'] = $authcache_roles;
+    variable_set('authcache_pagecaching', $pagecaching);
+
+    // HookStub.
+    $this->stubmod = new ModuleStub('authcache_p13n_test');
+  }
+
+  /**
+   * Test whether the given stub passes the invocation verifier.
+   */
+  protected function assertStub(HookStubProxy $stub, $verifier, $message = NULL) {
+    $result = $stub->verify($verifier, $error);
+
+    if (!$message) {
+      $message = t('Verify invocation of hook @hook.', array('@hook' => $stub->hookname()));
+    }
+    if (!$result && is_string($error)) {
+      $message .= ' ' . $error;
+    }
+
+    $this->assertTrue($result, $message);
+  }
+
+  /**
+   * Return a list of timestamps from the node history table keyed by nid.
+   */
+  protected function getNodeHistoryEntries($uid) {
+    return db_query('SELECT nid, timestamp FROM {history} WHERE uid = :uid AND nid = :nid ', array(
+      ':uid' => $uid,
+      ':nid' => $this->node->nid,
+    ))->fetchAllKeyed();
+  }
+
+  /**
+   * Seed node history table for the given user.
+   */
+  protected function setNodeHistoryEntry($uid, $timestamp) {
+    db_merge('history')
+      ->key(array(
+        'uid' => $uid,
+        'nid' => $this->node->nid,
+      ))
+      ->fields(array('timestamp' => $timestamp))
+      ->execute();
+  }
+
+  /**
+   * Ensure that node history setting is embedded for authenticated users.
+   */
+  public function testNodeHistoryTagNewSetting() {
+    $this->stubmod->hook('authcache_p13n_client', array(
+      'authcache_p13n_test' => array(
+        'title' => t('Test Client'),
+        'enabled' => TRUE,
+      ),
+    ));
+
+    // Ensure that the setting is not added when accessing the page with
+    // anonymous user.
+    $setting_markup = $this->randomName(8);
+    $setting_stub = HookStub::on('theme_authcache_p13n_setting__authcache_p13n_test', $setting_markup);
+    $this->drupalGet('node/' . $this->node->nid);
+    $this->assertNoText($setting_markup);
+    $this->assertStub($setting_stub, HookStub::never());
+
+    // Then ensure that the setting is add when the page is accessed with
+    // authenticated user.
+    $this->drupalLogin($this->member);
+    $this->assertFalse($this->getNodeHistoryEntries($this->member->uid), 'Ensure that the node history table contains no entries');
+
+    $setting_markup = $this->randomName(8);
+    $setting_stub = HookStub::on('theme_authcache_p13n_setting__authcache_p13n_test', $setting_markup);
+    $this->drupalGet('node/' . $this->node->nid);
+    $this->assertText($setting_markup);
+    $this->assertStub($setting_stub, HookStub::once());
+  }
+
+  /**
+   * Ensure that node history setting is not embedded when not on a node-page.
+   */
+  public function testNodeHistoryNoTagNewOnFront() {
+    $this->stubmod->hook('authcache_p13n_client', array(
+      'authcache_p13n_test' => array(
+        'title' => t('Test Client'),
+        'enabled' => TRUE,
+      ),
+    ));
+
+    $this->drupalLogin($this->member);
+    $this->assertFalse($this->getNodeHistoryEntries($this->member->uid), 'Ensure that the node history table contains no entries');
+
+    $setting_markup = $this->randomName(8);
+    $setting_stub = HookStub::on('theme_authcache_p13n_setting__authcache_p13n_test', $setting_markup);
+    $this->drupalGet('node');
+    $this->assertNoText($setting_markup);
+    $this->assertStub($setting_stub, HookStub::never());
+  }
+
+  /**
+   * When page is delivered from cache, history should be recorded / reported.
+   */
+  public  function testNodeHistorySettingCacheHit() {
+    $init_ts = rand(0, REQUEST_TIME - 60);
+    $this->setNodeHistoryEntry($this->member->uid, $init_ts);
+
+    $this->drupalLogin($this->member);
+
+    $url = authcache_p13n_request_get_callback('setting/node-history', array(
+      'nh' => array(
+        'n' => array($this->node->nid),
+        'u' => array($this->node->nid),
+      ),
+    ));
+    $this->assertTrue($url);
+
+    // First request should report seeded timestamp.
+    $result = $this->drupalGetAjax($GLOBALS['base_root'] . $url['path'], $url['options'], array('X-Authcache: 1'));
+    $this->assertResponse(200);
+    $expect = array(
+      'authcacheNodeHistory' => array(
+        array('nid' => $this->node->nid, 'ts' => $init_ts),
+      ),
+    );
+    $this->assertEqual($expect, $result);
+
+    // Second request should report later timestamp.
+    $result = $this->drupalGetAjax($GLOBALS['base_root'] . $url['path'], $url['options'], array('X-Authcache: 1'));
+    $this->assertResponse(200);
+    $this->assertEqual($result['authcacheNodeHistory'][0]['nid'], $this->node->nid);
+    $this->assertTrue($result['authcacheNodeHistory'][0]['ts'] > $init_ts);
+  }
+
+  /**
+   * When page is rebuilt during the request.
+   *
+   * This covers the $_SESSION['authcache_node_history_last_viewed']-hack.
+   */
+  public  function testNodeHistorySettingCacheMiss() {
+    $init_ts = rand(0, REQUEST_TIME - 60);
+    $this->setNodeHistoryEntry($this->member->uid, $init_ts);
+
+    $this->drupalLogin($this->member);
+
+    $url = authcache_p13n_request_get_callback('setting/node-history', array(
+      'nh' => array(
+        'n' => array($this->node->nid),
+        'u' => array($this->node->nid),
+      ),
+    ));
+    $this->assertTrue($url);
+
+    // First request should report seeded timestamp.
+    $this->drupalGet('node/' . $this->node->nid);
+    $result = $this->drupalGetAjax($GLOBALS['base_root'] . $url['path'], $url['options'], array('X-Authcache: 1'));
+    $this->assertResponse(200);
+    $expect = array(
+      'authcacheNodeHistory' => array(
+        array('nid' => $this->node->nid, 'ts' => $init_ts),
+      ),
+    );
+    $this->assertEqual($expect, $result);
+
+    // Second request should report later timestamp.
+    $this->drupalGet('node/' . $this->node->nid);
+    $result = $this->drupalGetAjax($GLOBALS['base_root'] . $url['path'], $url['options'], array('X-Authcache: 1'));
+    $this->assertResponse(200);
+    $this->assertEqual($result['authcacheNodeHistory'][0]['nid'], $this->node->nid);
+    $this->assertTrue($result['authcacheNodeHistory'][0]['ts'] > $init_ts);
+  }
+}

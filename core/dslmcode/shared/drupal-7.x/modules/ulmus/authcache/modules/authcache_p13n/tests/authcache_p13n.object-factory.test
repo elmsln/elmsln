@@ -1,0 +1,576 @@
+<?php
+/**
+ * @file
+ * Define test cases for object factory.
+ */
+
+/**
+ * Stub object factory processor function callback.
+ */
+function _authcache_p13n_object_factory_test_processor() {
+  return func_get_args();
+}
+
+/**
+ * Stub object factory class.
+ */
+class AuthcacheP13nTestObjectFactoryDummyClass {
+  protected $args;
+
+  /**
+   * Construct new instance.
+   */
+  public function __construct($arg1 = NULL, $arg2 = NULL) {
+    $this->args = array(
+      'arg1' => $arg1,
+      'arg2' => $arg2,
+    );
+  }
+}
+
+/**
+ * Stub object factory interface.
+ */
+interface AuthcacheP13nTestObjectFactoryDummySubInterface {
+}
+
+/**
+ * Stub object factory class.
+ */
+class AuthcacheP13nTestObjectFactoryDummySubClass extends AuthcacheP13nTestObjectFactoryDummyClass implements AuthcacheP13nTestObjectFactoryDummySubInterface {
+}
+
+/**
+ * Stub object factory class.
+ */
+class AuthcacheP13nTestObjectFactoryDisconnectedDummyClass {
+}
+
+/**
+ * Tests for object factory.
+ */
+class AuthcacheP13nTestObjectFactoryCase extends DrupalUnitTestCase {
+  /**
+   * {@inheritdoc}
+   */
+  public static function getInfo() {
+    return array(
+      'name' => 'Object Factory',
+      'description' => 'Unit tests for object factory.',
+      'group' => 'Authcache Personalization',
+    );
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function setUp() {
+    require_once __DIR__ . '/../includes/AuthcacheP13nObjectFactory.inc';
+    require_once __DIR__ . '/../includes/AuthcacheP13nObjectFactoryException.inc';
+    parent::setUp();
+  }
+
+  /**
+   * Covers AuthcacheP13nObjectFactory::resolveReferences().
+   */
+  public function testFactoryResolve() {
+    $resources = array();
+    $factory = new AuthcacheP13nObjectFactory($resources);
+
+    $result = $factory->resolveReferences(42);
+    $this->assertEqual(42, $result, t('Should return the same value when there are no references'));
+    $result = $factory->resolveReferences(3.14);
+    $this->assertEqual(3.14, $result, t('Should return the same value when there are no references'));
+    $result = $factory->resolveReferences(TRUE);
+    $this->assertEqual(TRUE, $result, t('Should return the same value when there are no references'));
+    $result = $factory->resolveReferences('a quick brown fox');
+    $this->assertEqual('a quick brown fox', $result, t('Should return the same value when there are no references'));
+    $result = $factory->resolveReferences(array());
+    $this->assertEqual(array(), $result, t('Should return the same value when there are no references'));
+    $result = $factory->resolveReferences((object) array());
+    $this->assertEqual((object) array(), $result, t('Should return the same value when there are no references'));
+
+    $result = $factory->resolveReferences('@@escaped-at');
+    $this->assertEqual('@escaped-at', $result, t('Should unescape a string beginning with a double-at'));
+
+    $result = $factory->resolveReferences(array('nested' => '@@resources'));
+    $this->assertEqual(array('nested' => '@resources'), $result, t('Should unescape a string beginning with a double-at nested within an array'));
+
+    try {
+      $result = $factory->resolveReferences('@missing-resource');
+      $this->fail(t('Should throw an exception when resource is missing'));
+    }
+    catch (AuthcacheP13nObjectFactoryException $e) {
+      unset($e);
+      $this->pass(t('Should throw an exception when resource is missing'));
+    }
+
+    $resources = array(
+      'a value' => array(
+        '#type' => 'value',
+        '#value' => 42,
+      ),
+      'a class' => array(
+        '#type' => 'class',
+        '#class' => 'AuthcacheP13nTestObjectFactoryDummyClass',
+      ),
+    );
+    $factory = new AuthcacheP13nObjectFactory($resources);
+    $result = $factory->resolveReferences('@a value');
+    $this->assertIdentical(42, $result, t('Should return proper ressource'));
+
+    $expect_instance = new AuthcacheP13nTestObjectFactoryDummyClass();
+    $result = $factory->resolveReferences('@a class');
+    $this->assertEqual($expect_instance, $result, t('Should return proper ressource'));
+
+    $array_value = array(
+      'a plain value' => 'unchanged',
+      'a value reference' => '@a value',
+      'nested' => array(
+        'object reference' => '@a class',
+      ),
+    );
+    $expect_value = array(
+      'a plain value' => 'unchanged',
+      'a value reference' => 42,
+      'nested' => array(
+        'object reference' => $expect_instance,
+      ),
+    );
+    $result = $factory->resolveReferences($array_value);
+    $this->assertEqual($expect_value, $result, t('Should resolve ressource referencese nested within an array.'));
+
+    $processors = array(
+      'process' => '_authcache_p13n_object_factory_test_processor',
+    );
+
+    $factory = new AuthcacheP13nObjectFactory($resources, $processors);
+
+    $expect_result = array(42, NULL, 'a value', $factory);
+    $result = $factory->resolveReferences('@a value[process]');
+    $this->assertEqual($expect_result, $result, t('Should execute processor'));
+    $result = $factory->resolveReferences('@a value[process()]');
+    $this->assertEqual($expect_result, $result, t('Should execute processor with empty argument list'));
+
+    $expect_result = array(42, 'arg', 'a value', $factory);
+    $result = $factory->resolveReferences('@a value[process(arg)]');
+    $this->assertEqual($expect_result, $result, t('Should execute processor with argument'));
+
+    // Missing class.
+    $resources = array(
+      'missing class' => array(
+        '#type' => 'class',
+        '#class' => $this->randomName(8),
+      ),
+    );
+
+    $factory = new AuthcacheP13nObjectFactory($resources);
+    try {
+      $factory->resolveReferences('@missing class');
+      $this->fail(t('Should throw an exception when trying to instantiate a non-existing class'));
+    }
+    catch (AuthcacheP13nObjectFactoryException $e) {
+      $this->pass(t('Should throw an exception when trying to instantiate a non-existing class'));
+    }
+  }
+
+  /**
+   * Covers $factory->get().
+   */
+  public function testFactorySimpleGet() {
+    $resources = array();
+    $factory = new AuthcacheP13nObjectFactory($resources);
+
+    try {
+      $result = $factory->get('missing ressource');
+      $this->fail(t('Should throw an exception when resource is missing'));
+    }
+    catch (AuthcacheP13nObjectFactoryException $e) {
+      unset($e);
+      $this->pass(t('Should throw an exception when resource is missing'));
+    }
+
+    $resources = array(
+      'fourty two' => array(
+        '#type' => 'value',
+        '#value' => 42,
+      ),
+      'dummy instance' => array(
+        '#type' => 'class',
+        '#class' => 'AuthcacheP13nTestObjectFactoryDummyClass',
+        '#arguments' => array('@fourty two', '@strlen of four'),
+      ),
+      'strlen of four' => array(
+        '#type' => 'func',
+        '#func' => 'strlen',
+        '#arguments' => array('four'),
+      ),
+      'nested dummy' => array(
+        '#type' => 'class',
+        '#class' => 'AuthcacheP13nTestObjectFactoryDummyClass',
+        '#arguments' => array('@dummy instance'),
+      ),
+    );
+
+    $factory = new AuthcacheP13nObjectFactory($resources);
+    $result = $factory->get('fourty two');
+    $this->assertIdentical(42, $result, t('Should return value for value-resources'));
+
+    $factory = new AuthcacheP13nObjectFactory($resources);
+    $expect_instance = new AuthcacheP13nTestObjectFactoryDummyClass(42, 4);
+    $result = $factory->get('dummy instance');
+    $this->assertEqual($expect_instance, $result, t('Should return instance for class-resources'));
+    $second_result = $factory->get('dummy instance');
+    $this->assertIdentical($second_result, $result, t('Should return identical instance on subsequent calls'));
+
+    $factory = new AuthcacheP13nObjectFactory($resources);
+    $result = $factory->get('strlen of four');
+    $this->assertIdentical(4, $result, t('Should return result of calling the function on func-resources'));
+
+    $factory = new AuthcacheP13nObjectFactory($resources);
+    $expect_inner = new AuthcacheP13nTestObjectFactoryDummyClass(42, 4);
+    $expect_instance = new AuthcacheP13nTestObjectFactoryDummyClass($expect_inner);
+    $result = $factory->get('nested dummy');
+    $this->assertEqual($expect_instance, $result, t('Should resolve arguments of resource definitions before creating instances'));
+  }
+
+  /**
+   * Covers $factory->get().
+   */
+  public function testFactoryCollectionGet() {
+    $resources = array(
+      'fourty two' => array(
+        '#type' => 'value',
+        '#value' => 42,
+      ),
+      'last instance' => array(
+        '#type' => 'class',
+        '#class' => 'AuthcacheP13nTestObjectFactoryDummyClass',
+        '#arguments' => array('@fourty two'),
+        '#member_of' => 'a collection',
+        '#weight' => 10,
+        '#key' => 'key of last instance',
+      ),
+      'strlen of four' => array(
+        '#type' => 'func',
+        '#func' => 'strlen',
+        '#arguments' => array('four'),
+        '#member_of' => 'a collection',
+      ),
+      'first instance' => array(
+        '#type' => 'class',
+        '#class' => 'AuthcacheP13nTestObjectFactoryDummyClass',
+        '#arguments' => array('param of first instance'),
+        '#member_of' => 'a collection',
+        '#weight' => -1,
+      ),
+      'a collection' => array(
+        '#type' => 'collection',
+        '#collection' => 'a collection',
+      ),
+    );
+
+    $factory = new AuthcacheP13nObjectFactory($resources);
+
+    $expect = array(
+      'first instance' => new AuthcacheP13nTestObjectFactoryDummyClass('param of first instance'),
+      'strlen of four' => 4,
+      'key of last instance' => new AuthcacheP13nTestObjectFactoryDummyClass(42),
+    );
+    $result = $factory->get('a collection');
+    $this->assertEqual($expect, $result);
+
+    // Test the #processor attribute of collections.
+    $resources['a collection']['#processor'] = 'accept_instance(AuthcacheP13nTestObjectFactoryDummyClass)';
+    $processors = AuthcacheP13nObjectFactory::defaultProcessors();
+    $factory = new AuthcacheP13nObjectFactory($resources, $processors);
+
+    $expect = array(
+      'first instance' => new AuthcacheP13nTestObjectFactoryDummyClass('param of first instance'),
+      'strlen of four' => NULL,
+      'key of last instance' => new AuthcacheP13nTestObjectFactoryDummyClass(42),
+    );
+    $result = $factory->get('a collection');
+    $this->assertEqual($expect, $result);
+    unset($resources['a collection']['#processor']);
+
+    // Test the #processors attribute of collections.
+    $resources['a collection']['#processors'] = array(
+      'first instance' => 'accept_instance(AuthcacheP13nTestObjectFactoryDummyClass)',
+      'key of last instance' => 'accept_instance(AuthcacheP13nTestObjectFactoryDisconnectedDummyClass)',
+    );
+    $processors = AuthcacheP13nObjectFactory::defaultProcessors();
+    $factory = new AuthcacheP13nObjectFactory($resources, $processors);
+
+    $expect = array(
+      'first instance' => new AuthcacheP13nTestObjectFactoryDummyClass('param of first instance'),
+      'strlen of four' => 4,
+      'key of last instance' => NULL,
+    );
+    $result = $factory->get('a collection');
+    $this->assertEqual($expect, $result);
+  }
+
+  /**
+   * Cover AuthcacheP13nObjectFactory::defaultProcessors().
+   */
+  public function testRequireDefaultProcessors() {
+    $processors = AuthcacheP13nObjectFactory::defaultProcessors();
+    $resources = array(
+      'null' => array(
+        '#type' => 'value',
+        '#value' => NULL,
+      ),
+      'zero' => array(
+        '#type' => 'value',
+        '#value' => 0,
+      ),
+      'non_zero' => array(
+        '#type' => 'value',
+        '#value' => 42,
+      ),
+      'object' => array(
+        '#type' => 'class',
+        '#class' => 'AuthcacheP13nTestObjectFactoryDummySubClass',
+      ),
+
+      'require_null' => array(
+        '#type' => 'value',
+        '#value' => '@null[required]',
+      ),
+      'require_zero' => array(
+        '#type' => 'value',
+        '#value' => '@zero[required]',
+      ),
+      'require_non_zero' => array(
+        '#type' => 'value',
+        '#value' => '@non_zero[required]',
+      ),
+      'require_object' => array(
+        '#type' => 'value',
+        '#value' => '@object[required]',
+      ),
+    );
+
+    $factory = new AuthcacheP13nObjectFactory($resources, $processors);
+    try {
+      $factory->get('require_null');
+      $this->fail(t('Should throw an exception when required resource evaluates to null'));
+    }
+    catch (AuthcacheP13nObjectFactoryException $e) {
+      unset($e);
+      $this->pass(t('Should throw an exception when required resource evaluates to null'));
+    }
+
+    try {
+      $factory->get('require_zero');
+      $this->pass(t('Should not throw an exception when required resource evaluates to 0'));
+    }
+    catch (AuthcacheP13nObjectFactoryException $e) {
+      unset($e);
+      $this->fail(t('Should not throw an exception when required resource evaluates to 0'));
+    }
+
+    try {
+      $factory->get('require_non_zero');
+      $this->pass(t('Should not throw an exception when required resource evaluates to non-zero integer'));
+    }
+    catch (AuthcacheP13nObjectFactoryException $e) {
+      unset($e);
+      $this->fail(t('Should not throw an exception when required resource evaluates to non-zero integer'));
+    }
+
+    try {
+      $factory->get('require_object');
+      $this->pass(t('Should not throw an exception when required resource evaluates to an object'));
+    }
+    catch (AuthcacheP13nObjectFactoryException $e) {
+      unset($e);
+      $this->fail(t('Should not throw an exception when required resource evaluates to an object'));
+    }
+  }
+
+  /**
+   * Cover AuthcacheP13nObjectFactory::defaultProcessors().
+   */
+  public function testRequireAcceptClassProcessors() {
+    $processors = AuthcacheP13nObjectFactory::defaultProcessors();
+    $resources = array(
+      'null' => array(
+        '#type' => 'value',
+        '#value' => NULL,
+      ),
+      'zero' => array(
+        '#type' => 'value',
+        '#value' => 0,
+      ),
+      'non_zero' => array(
+        '#type' => 'value',
+        '#value' => 42,
+      ),
+
+      'object_class' => array(
+        '#type' => 'class',
+        '#class' => 'AuthcacheP13nTestObjectFactoryDummyClass',
+      ),
+      'object_subclass' => array(
+        '#type' => 'class',
+        '#class' => 'AuthcacheP13nTestObjectFactoryDummySubClass',
+      ),
+      'object_other_class' => array(
+        '#type' => 'class',
+        '#class' => 'AuthcacheP13nTestObjectFactoryDisconnectedDummyClass',
+      ),
+
+      'accept_object_null' => array(
+        '#type' => 'value',
+        '#value' => '@null[accept_instance(AuthcacheP13nTestObjectFactoryDummyClass)]',
+      ),
+      'accept_object_zero' => array(
+        '#type' => 'value',
+        '#value' => '@zero[accept_instance(AuthcacheP13nTestObjectFactoryDummyClass)]',
+      ),
+      'accept_object_non_zero' => array(
+        '#type' => 'value',
+        '#value' => '@non_zero[accept_instance(AuthcacheP13nTestObjectFactoryDummyClass)]',
+      ),
+
+      'accept_object_object_interface' => array(
+        '#type' => 'value',
+        '#value' => '@object_class[accept_instance(AuthcacheP13nTestObjectFactoryDummySubInterface)]',
+      ),
+      'accept_object_object_subinterface' => array(
+        '#type' => 'value',
+        '#value' => '@object_subclass[accept_instance(AuthcacheP13nTestObjectFactoryDummySubInterface)]',
+      ),
+      'accept_object_object_class' => array(
+        '#type' => 'value',
+        '#value' => '@object_class[accept_instance(AuthcacheP13nTestObjectFactoryDummyClass)]',
+      ),
+      'accept_object_object_subclass' => array(
+        '#type' => 'value',
+        '#value' => '@object_subclass[accept_instance(AuthcacheP13nTestObjectFactoryDummyClass)]',
+      ),
+      'accept_object_object_other_class' => array(
+        '#type' => 'value',
+        '#value' => '@object_other_class[accept_instance(AuthcacheP13nTestObjectFactoryDummyClass)]',
+      ),
+    );
+
+    $factory = new AuthcacheP13nObjectFactory($resources, $processors);
+
+    $expectations = array(
+      'accept_object_null' => NULL,
+      'accept_object_zero' => NULL,
+      'accept_object_non_zero' => NULL,
+      'accept_object_object_interface' => NULL,
+      'accept_object_object_subinterface' => new AuthcacheP13nTestObjectFactoryDummySubClass(),
+      'accept_object_object_class' => new AuthcacheP13nTestObjectFactoryDummyClass(),
+      'accept_object_object_subclass' => new AuthcacheP13nTestObjectFactoryDummySubClass(),
+      'accept_object_object_other_class' => NULL,
+    );
+
+    foreach ($expectations as $resource_name => $expect) {
+      $result = $factory->get($resource_name);
+      $this->assertEqual($expect, $result, $resource_name);
+    }
+  }
+
+  /**
+   * Cover AuthcacheP13nObjectFactory::defaultProcessors().
+   */
+  public function testRequireRequireClassProcessors() {
+    $processors = AuthcacheP13nObjectFactory::defaultProcessors();
+    $resources = array(
+      'null' => array(
+        '#type' => 'value',
+        '#value' => NULL,
+      ),
+      'zero' => array(
+        '#type' => 'value',
+        '#value' => 0,
+      ),
+      'non_zero' => array(
+        '#type' => 'value',
+        '#value' => 42,
+      ),
+
+      'object_class' => array(
+        '#type' => 'class',
+        '#class' => 'AuthcacheP13nTestObjectFactoryDummyClass',
+      ),
+      'object_subclass' => array(
+        '#type' => 'class',
+        '#class' => 'AuthcacheP13nTestObjectFactoryDummySubClass',
+      ),
+      'object_other_class' => array(
+        '#type' => 'class',
+        '#class' => 'AuthcacheP13nTestObjectFactoryDisconnectedDummyClass',
+      ),
+
+      'require_object_null' => array(
+        '#type' => 'value',
+        '#value' => '@null[require_instance(AuthcacheP13nTestObjectFactoryDummyClass)]',
+      ),
+      'require_object_zero' => array(
+        '#type' => 'value',
+        '#value' => '@zero[require_instance(AuthcacheP13nTestObjectFactoryDummyClass)]',
+      ),
+      'require_object_non_zero' => array(
+        '#type' => 'value',
+        '#value' => '@non_zero[require_instance(AuthcacheP13nTestObjectFactoryDummyClass)]',
+      ),
+
+      'require_object_object_interface' => array(
+        '#type' => 'value',
+        '#value' => '@object_class[require_instance(AuthcacheP13nTestObjectFactoryDummySubInterface)]',
+      ),
+      'require_object_object_subinterface' => array(
+        '#type' => 'value',
+        '#value' => '@object_subclass[require_instance(AuthcacheP13nTestObjectFactoryDummySubInterface)]',
+      ),
+      'require_object_object_class' => array(
+        '#type' => 'value',
+        '#value' => '@object_class[require_instance(AuthcacheP13nTestObjectFactoryDummyClass)]',
+      ),
+      'require_object_object_subclass' => array(
+        '#type' => 'value',
+        '#value' => '@object_subclass[require_instance(AuthcacheP13nTestObjectFactoryDummyClass)]',
+      ),
+      'require_object_object_other_class' => array(
+        '#type' => 'value',
+        '#value' => '@object_other_class[require_instance(AuthcacheP13nTestObjectFactoryDummyClass)]',
+      ),
+    );
+
+    $factory = new AuthcacheP13nObjectFactory($resources, $processors);
+
+    $expectations = array(
+      'require_object_null' => NULL,
+      'require_object_zero' => NULL,
+      'require_object_non_zero' => NULL,
+      'require_object_object_interface' => NULL,
+      'require_object_object_subinterface' => new AuthcacheP13nTestObjectFactoryDummySubClass(),
+      'require_object_object_class' => new AuthcacheP13nTestObjectFactoryDummyClass(),
+      'require_object_object_subclass' => new AuthcacheP13nTestObjectFactoryDummySubClass(),
+      'require_object_object_other_class' => NULL,
+    );
+
+    foreach ($expectations as $resource_name => $expect) {
+      if ($expect === NULL) {
+        try {
+          $result = $factory->get($resource_name);
+          $this->fail(t('Should throw an exception when trying to resolve :resource_name', array(':resource_name' => $resource_name)));
+        }
+        catch (AuthcacheP13nObjectFactoryException $e) {
+          unset($e);
+          $this->pass(t('Should throw an exception when trying to resolve :resource_name', array(':resource_name' => $resource_name)));
+        }
+      }
+      else {
+        $result = $factory->get($resource_name);
+        $this->assertEqual($expect, $result);
+      }
+    }
+  }
+}

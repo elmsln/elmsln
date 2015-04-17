@@ -1,0 +1,123 @@
+<?php
+/**
+ * @file
+ * Schema, install, update and uninstall hooks for Authcache Personalization.
+ */
+
+/**
+ * Implements hook_schema().
+ */
+function authcache_p13n_schema() {
+  $schema['cache_authcache_p13n'] = drupal_get_schema_unprocessed('system', 'cache');
+  $schema['cache_authcache_p13n']['description'] = 'Cache table for authcache p13n.';
+
+  $schema['authcache_p13n_key_value'] = array(
+    'description' => 'Generic key-value store for caching things not separated out into their own tables.',
+    'fields' => array(
+      'name' => array(
+        'description' => 'Primary Key: Unique key name.',
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => TRUE,
+        'default' => '',
+      ),
+      'collection' => array(
+        'description' => 'Primary Key: Unique collection name.',
+        'type' => 'varchar',
+        'length' => 63,
+        'not null' => TRUE,
+        'default' => '',
+      ),
+      'value' => array(
+        'description' => 'Serialized data.',
+        'type' => 'blob',
+        'not null' => FALSE,
+        'size' => 'big',
+      ),
+    ),
+    'primary key' => array('name', 'collection'),
+  );
+
+  return $schema;
+}
+
+/**
+ * Reduce column size of authcache_p13n_key_value.collection.
+ */
+function authcache_p13n_update_7002() {
+  // Remove all entries from authcache_p13n_key_value table.
+  db_truncate('authcache_p13n_key_value')->execute();
+
+  // Alter the schema.
+  $keys = array(
+    'primary key' => array('name', 'collection'),
+  );
+  $spec = array(
+    'description' => 'Primary Key: Unique collection name.',
+    'type' => 'varchar',
+    'length' => 63,
+    'not null' => TRUE,
+    'default' => '',
+  );
+  db_drop_primary_key('authcache_p13n_key_value');
+  db_change_field('authcache_p13n_key_value', 'collection', 'collection', $spec, $keys);
+
+  // Make sure that AuthcacheP13nKeyValueStoreInterface and
+  // AuthcacheP13nDatabaseKeyValueStore are available to the auto-loader.
+  registry_rebuild();
+
+  // Rebuild the request router in order to ensure that the new (shorter)
+  // collection names are used.
+  authcache_p13n_request_router_rebuild();
+}
+
+/**
+ * Add table for key-value storage.
+ */
+function authcache_p13n_update_7001() {
+  if (!db_table_exists('authcache_p13n_key_value')) {
+    $schema['authcache_p13n_key_value'] = array(
+      'description' => 'Generic key-value store for caching things not separated out into their own tables.',
+      'fields' => array(
+        'name' => array(
+          'description' => 'Primary Key: Unique key name.',
+          'type' => 'varchar',
+          'length' => 255,
+          'not null' => TRUE,
+          'default' => '',
+        ),
+        'collection' => array(
+          'description' => 'Primary Key: Unique collection name.',
+          'type' => 'varchar',
+          'length' => 63,
+          'not null' => TRUE,
+          'default' => '',
+        ),
+        'value' => array(
+          'description' => 'Serialized data.',
+          'type' => 'blob',
+          'not null' => FALSE,
+          'size' => 'big',
+        ),
+      ),
+      'primary key' => array('name', 'collection'),
+    );
+
+    db_create_table('authcache_p13n_key_value', $schema['authcache_p13n_key_value']);
+
+    // Make sure that the new AuthcacheP13nKeyValueStoreInterface and
+    // AuthcacheP13nDatabaseKeyValueStore are available to the auto-loader.
+    registry_rebuild();
+
+    authcache_p13n_request_router_rebuild();
+  }
+
+  variable_del('authcache_p13n_default_request_router_routes');
+}
+
+/**
+ * Remove authcache_p13n_routes variable.
+ */
+function authcache_p13n_update_7000() {
+  variable_del('authcache_p13n_routes');
+}

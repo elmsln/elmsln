@@ -1,0 +1,144 @@
+<?php
+/**
+ * @file
+ * Tests for ESI markup generator
+ */
+
+/**
+ * Test authcache esi
+ */
+class AuthcacheEsiTestCase extends DrupalWebTestCase {
+  protected $profile = 'testing';
+  protected $stubmod;
+
+  /**
+   * Return info about the test class.
+   */
+  public static function getInfo() {
+    return array(
+      'name' => 'Authcache ESI',
+      'description' => 'Test ESI markup generator',
+      'group' => 'Authcache ESI',
+    );
+  }
+
+  /**
+   * Prepare test case.
+   */
+  public function setUp() {
+    parent::setUp('authcache_esi', 'authcache_esi_test');
+
+    // HookStub.
+    $this->stubmod = new ModuleStub('authcache_esi_test');
+  }
+
+  /**
+   * Test whether the given stub passes the invocation verifier.
+   */
+  protected function assertStub(HookStubProxy $stub, $verifier, $message = NULL) {
+    $result = $stub->verify($verifier, $error);
+
+    if (!$message) {
+      $message = t('Verify invocation of hook @hook.', array('@hook' => $stub->hookname()));
+    }
+    if (!$result && is_string($error)) {
+      $message .= ' ' . $error;
+    }
+
+    $this->assertTrue($result, $message);
+  }
+
+  /**
+   * Cover theme_authcache_p13n_fragment__authcache_esi().
+   */
+  public function testEsiFragment() {
+    $page = array(
+      '#theme' => 'authcache_p13n_fragment',
+      '#fragment' => 'esi-test-fragment',
+      '#param' => $this->randomName(8),
+      '#fallback' => 'cancel',
+      '#original' => $this->randomName(8),
+    );
+
+    // Test whether fallback markup is rendered on the page.
+    $stub = $this->stubmod->hook('page', $page);
+    $this->drupalGet('authcache-esi-test-page');
+    $this->assertStub($stub, HookStub::once());
+    $this->assertText($page['#original']);
+    $this->assertFalse($this->drupalGetHeader('X-Authcache-Do-ESI'), t('Header %header must be absent when fallback markup is rendered', array('%header' => 'X-Authcache-Do-ESI')));
+    $elements = $this->xpath('//*[local-name(.) = "include"]');
+    $this->assertEqual(0, count($elements));
+
+    // Test whether <span> placeholder tag is rendered on page.
+    $stub = $this->stubmod->hook('page', $page);
+    $this->drupalGet('authcache-esi-test-page', array(), array('X-Authcache-Do-ESI: 1'));
+    $this->assertStub($stub, HookStub::once());
+    $this->assertNoText($page['#original']);
+    $this->assertTrue($this->drupalGetHeader('X-Authcache-Do-ESI'), t('Header %header must be present when ESI tag is rendered', array('%header' => 'X-Authcache-Do-ESI')));
+    $elements = $this->xpath('//*[local-name(.) = "include"]');
+    $this->assertEqual(1, count($elements));
+  }
+
+  /**
+   * Cover theme_authcache_p13n_setting__authcache_esi().
+   */
+  public function testEsiSetting() {
+    $page = array(
+      '#theme' => 'authcache_p13n_setting',
+      '#setting' => 'esi-test-setting',
+      '#fallback' => 'cancel',
+    );
+
+    // Test whether fallback markup is rendered on the page.
+    $stub = $this->stubmod->hook('page', $page);
+    $this->drupalGet('authcache-esi-test-page');
+    $this->assertStub($stub, HookStub::once());
+    $this->assertFalse($this->drupalGetHeader('X-Authcache-Do-ESI'), t('Header %header must be absent when fallback markup is rendered', array('%header' => 'X-Authcache-Do-ESI')));
+    $elements = $this->xpath('//iframe/*[local-name(.) = "include"]');
+    $this->assertEqual(0, count($elements));
+
+    // Test whether <span> placeholder tag is rendered on page.
+    $stub = $this->stubmod->hook('page', $page);
+    $this->drupalGet('authcache-esi-test-page', array(), array('X-Authcache-Do-ESI: 1'));
+    $this->assertStub($stub, HookStub::once());
+    $this->assertTrue($this->drupalGetHeader('X-Authcache-Do-ESI'), t('Header %header must be present when ESI tag is rendered', array('%header' => 'X-Authcache-Do-ESI')));
+    $elements = $this->xpath('//iframe/*[local-name(.) = "include"]');
+    $this->assertEqual(1, count($elements));
+  }
+
+  /**
+   * Cover authcache_esi assembly and partial.
+   */
+  public function testEsiAssembly() {
+    $page = array(
+      '#theme' => 'authcache_p13n_partial',
+      '#assembly' => 'esi-test-assembly',
+      '#partial' => 'esi-test-partial',
+      '#param' => $this->randomName(8),
+      '#fallback' => 'cancel',
+      '#original' => $this->randomName(8),
+    );
+
+    // Test whether fallback markup is rendered on the page.
+    $stub = $this->stubmod->hook('page', $page);
+    $this->drupalGet('authcache-esi-test-page');
+    $this->assertStub($stub, HookStub::once());
+    $this->assertText($page['#original']);
+    $this->assertFalse($this->drupalGetHeader('X-Authcache-Do-ESI'), t('Header %header must be absent when fallback markup is rendered', array('%header' => 'X-Authcache-Do-ESI')));
+    $elements = $this->xpath('//iframe/*[local-name(.) = "include"]');
+    $this->assertEqual(0, count($elements));
+    $elements = $this->xpath('//span[@class="authcache-p13n-asm-esi-test-assembly"]');
+    $this->assertEqual(0, count($elements));
+
+    // Test whether <span> placeholder tag is rendered on page.
+    $stub = $this->stubmod->hook('page', $page);
+    $this->drupalGet('authcache-esi-test-page', array(), array('X-Authcache-Do-ESI: 1'));
+    $this->assertStub($stub, HookStub::once());
+    $this->assertNoText($page['#original']);
+    $this->assertTrue($this->drupalGetHeader('X-Authcache-Do-ESI'), t('Header %header must be present when ESI tag is rendered', array('%header' => 'X-Authcache-Do-ESI')));
+    $elements = $this->xpath('//iframe/*[local-name(.) = "include"]');
+    $this->assertEqual(1, count($elements));
+    $elements = $this->xpath('//span[@class="authcache-p13n-asm-esi-test-assembly"]');
+    $this->assertEqual(1, count($elements));
+  }
+}

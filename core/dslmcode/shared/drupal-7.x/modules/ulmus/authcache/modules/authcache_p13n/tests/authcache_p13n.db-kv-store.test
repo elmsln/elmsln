@@ -1,0 +1,349 @@
+<?php
+/**
+ * @file
+ * Test case for database key-value store.
+ */
+
+/**
+ * Test database key-value store.
+ */
+class AuthcacheP13nTestDatabaseKeyValueStore extends DrupalWebTestCase {
+  protected $profile = 'testing';
+
+  protected $store1;
+
+  protected $store2;
+
+  protected $store2Again;
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function getInfo() {
+    return array(
+      'name' => 'Database Key Value Store',
+      'description' => 'Test database key value store',
+      'group' => 'Authcache Personalization',
+    );
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function setUp() {
+    parent::setUp('authcache_p13n');
+
+    $this->store1 = new AuthcacheP13nDatabaseKeyValueStore('store1');
+    $this->store2 = new AuthcacheP13nDatabaseKeyValueStore('store2');
+    $this->store2Again = new AuthcacheP13nDatabaseKeyValueStore('store2');
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function tearDown() {
+    $rows = db_select('authcache_p13n_key_value', 'kv')
+      ->fields('kv')
+      ->execute()
+      ->fetchAll();
+    $this->assertEqual(0, count($rows), 'Key-value database table is empty');
+
+    parent::tearDown();
+  }
+
+  /**
+   * Helper function: insert sample data into database.
+   */
+  protected function dbInsertSampleData() {
+    db_insert('authcache_p13n_key_value')
+      ->fields(array('name', 'collection', 'value'))
+      ->values(array(
+        'name' => 'k1',
+        'collection' => 'store1',
+        'value' => serialize('v1'),
+      ))
+      ->values(array(
+        'name' => 'k2',
+        'collection' => 'store1',
+        'value' => serialize(array('some', 'stuff')),
+      ))
+      ->values(array(
+        'name' => 'k3',
+        'collection' => 'store1',
+        'value' => serialize((object) array('a' => 1, 'b' => 2)),
+      ))
+      ->values(array(
+        'name' => 'k1',
+        'collection' => 'store2',
+        'value' => serialize('same key, other store'),
+      ))
+      ->execute();
+  }
+
+  /**
+   * Cover AuthcacheP13nDatabaseKeyValueStore::set().
+   */
+  protected function testSet() {
+    // Insert data.
+    $this->store1->set('k1', 'v1');
+    $this->store1->set('k2', array('some', 'stuff'));
+    $this->store1->set('k3', (object) array('a' => 1, 'b' => 2));
+    $this->store2->set('k1', 'same key, other store');
+
+    $expect = array(
+      array(
+        'name' => 'k1',
+        'collection' => 'store1',
+        'value' => serialize('v1'),
+      ),
+      array(
+        'name' => 'k2',
+        'collection' => 'store1',
+        'value' => serialize(array('some', 'stuff')),
+      ),
+      array(
+        'name' => 'k3',
+        'collection' => 'store1',
+        'value' => serialize((object) array('a' => 1, 'b' => 2)),
+      ),
+      array(
+        'name' => 'k1',
+        'collection' => 'store2',
+        'value' => serialize('same key, other store'),
+      ),
+    );
+
+    $rows = db_select('authcache_p13n_key_value', 'kv')
+      ->fields('kv', array('name', 'collection', 'value'))
+      ->orderBy('collection')
+      ->orderBy('name')
+      ->execute()->fetchAll(PDO::FETCH_ASSOC);
+
+    $this->assertEqual($expect, $rows, 'Database records are properly created');
+
+    // Replace data.
+    $this->store1->set('k3', 'replaced');
+
+    $expect = array(
+      array(
+        'name' => 'k1',
+        'collection' => 'store1',
+        'value' => serialize('v1'),
+      ),
+      array(
+        'name' => 'k2',
+        'collection' => 'store1',
+        'value' => serialize(array('some', 'stuff')),
+      ),
+      array(
+        'name' => 'k3',
+        'collection' => 'store1',
+        'value' => serialize('replaced'),
+      ),
+      array(
+        'name' => 'k1',
+        'collection' => 'store2',
+        'value' => serialize('same key, other store'),
+      ),
+    );
+
+    $rows = db_select('authcache_p13n_key_value', 'kv')
+      ->fields('kv', array('name', 'collection', 'value'))
+      ->orderBy('collection')
+      ->orderBy('name')
+      ->execute()->fetchAll(PDO::FETCH_ASSOC);
+
+    $this->assertEqual($expect, $rows, 'Database records are properly replaced');
+
+    // Remove test data.
+    db_delete('authcache_p13n_key_value')->execute();
+  }
+
+  /**
+   * Cover AuthcacheP13nDatabaseKeyValueStore::get().
+   */
+  public function testGet() {
+    $this->dbInsertSampleData();
+
+    $expect_store1 = array(
+      'k1' => 'v1',
+      'k2' => array('some', 'stuff'),
+      'k3' => (object) array('a' => 1, 'b' => 2),
+    );
+    $expect_store2 = array(
+      'k1' => 'same key, other store',
+    );
+
+    // Get all.
+    $result = $this->store1->get();
+    $this->assertEqual($expect_store1, $result, 'Get all from store1');
+
+    $result = $this->store2->get();
+    $this->assertEqual($expect_store2, $result, 'Get all from store2');
+
+    // Get existing.
+    $result = $this->store1->get(array('k1', 'k2'));
+    $this->assertEqual(array(
+      'k1' => 'v1',
+      'k2' => array('some', 'stuff'),
+    ), $result, 'Get existing values from store1');
+
+    $result = $this->store2->get(array('k1', 'k2'));
+    $this->assertEqual(array(
+      'k1' => 'same key, other store',
+    ), $result, 'Get existing values from store2');
+
+    $result = $this->store2Again->get(array('k1', 'k2'));
+    $this->assertEqual(array(
+      'k1' => 'same key, other store',
+    ), $result, 'Get existing values from store2 alias');
+
+    // Get missing.
+    $result = $this->store1->get(array('k1', 'k2', 'missing-key'));
+    $this->assertEqual(array(
+      'k1' => 'v1',
+      'k2' => array('some', 'stuff'),
+    ), $result, 'Get missing values from store1');
+
+    $result = $this->store2->get(array('missing-key', 'k1'));
+    $this->assertEqual(array(
+      'k1' => 'same key, other store',
+    ), $result, 'Get missing values from store2');
+
+    $result = $this->store2Again->get(array('missing-key'));
+    $this->assertEqual(array(), $result, 'Get missing values from store2 alias');
+
+    // Remove test data.
+    db_delete('authcache_p13n_key_value')->execute();
+  }
+
+  /**
+   * Cover AuthcacheP13nDatabaseKeyValueStore::get().
+   */
+  public function testGetOnEmptyCollection() {
+    // Get all.
+    $result = $this->store1->get();
+    $this->assertEqual(array(), $result, 'Get all on empty collection returns empty array');
+
+    // Get with empty key-set.
+    $result = $this->store1->get(array());
+    $this->assertEqual(array(), $result, 'Get with empty key-set returns empty array');
+
+    // Get with specific keys.
+    $result = $this->store1->get(array('k1', 'k2', 'k3'));
+    $this->assertEqual(array(), $result, 'Get with specific key-set on empty collection returns empty array');
+  }
+
+  /**
+   * Cover AuthcacheP13nDatabaseKeyValueStore::getOne().
+   */
+  public function testGetOne() {
+    $this->dbInsertSampleData();
+
+    $result = $this->store1->getOne('k1');
+    $this->assertEqual('v1', $result);
+
+    $result = $this->store1->getOne('k2');
+    $this->assertEqual(array('some', 'stuff'), $result);
+
+    $result = $this->store1->getOne('k3');
+    $this->assertEqual((object) array('a' => 1, 'b' => 2), $result);
+
+    $result = $this->store1->getOne('missing-key');
+    $this->assertNull($result);
+
+    $result = $this->store2->getOne('k1');
+    $this->assertEqual('same key, other store', $result);
+
+    $result = $this->store2Again->getOne('k1');
+    $this->assertEqual('same key, other store', $result);
+
+    $result = $this->store2->getOne('missing-key');
+    $this->assertNull($result);
+
+    // Remove test data.
+    db_delete('authcache_p13n_key_value')->execute();
+  }
+
+  /**
+   * Cover AuthcacheP13nDatabaseKeyValueStore::getKeys().
+   */
+  public function testGetKeys() {
+    $this->dbInsertSampleData();
+
+    $expect_store1 = array('k1', 'k2', 'k3');
+    $expect_store2 = array('k1');
+
+    // Get all.
+    $result = $this->store1->getKeys();
+    $this->assertEqual($expect_store1, $result, 'Get all keys from store1');
+
+    $result = $this->store2->getKeys();
+    $this->assertEqual($expect_store2, $result, 'Get all keys from store2');
+
+    // Get existing.
+    $result = $this->store1->getKeys(array('k1', 'k2'));
+    $this->assertEqual(array('k1', 'k2'), $result, 'Get existing keys from store1');
+
+    $result = $this->store2->getKeys(array('k1', 'k2'));
+    $this->assertEqual(array('k1'), $result, 'Get existing keys from store2');
+
+    $result = $this->store2Again->getKeys(array('k1', 'k2'));
+    $this->assertEqual(array('k1'), $result, 'Get existing keys from store2 alias');
+
+    // Get missing.
+    $result = $this->store1->getKeys(array('k1', 'k2', 'missing-key'));
+    $this->assertEqual(array('k1', 'k2'), $result, 'Get missing keys from store1');
+
+    $result = $this->store2->getKeys(array('missing-key', 'k1'));
+    $this->assertEqual(array('k1'), $result, 'Get missing keys from store2');
+
+    $result = $this->store2Again->getKeys(array('missing-key'));
+    $this->assertEqual(array(), $result, 'Get missing keys from store2 alias');
+
+    // Remove test data.
+    db_delete('authcache_p13n_key_value')->execute();
+  }
+
+  /**
+   * Cover AuthcacheP13nDatabaseKeyValueStore::delete().
+   */
+  public function testDelete() {
+    // Delete all.
+    $this->dbInsertSampleData();
+
+    $this->assertEqual(count($this->store1->getKeys()), 3);
+    $this->assertEqual(count($this->store2->getKeys()), 1);
+
+    $result = $this->store1->delete();
+    $this->assertEqual($result, 3, 'Delete should report number of affected rows');
+
+    $this->assertEqual(count($this->store1->getKeys()), 0, 'After deletion of store1, only values of store shall remain');
+    $this->assertEqual(count($this->store2->getKeys()), 1, 'After deletion of store1, only values of store shall remain');
+
+    $result = $this->store2->delete();
+    $this->assertEqual($result, 1, 'Delete should report number of affected rows');
+
+    $this->assertEqual(count($this->store1->getKeys()), 0, 'After deletion of store2, no values shall remain');
+    $this->assertEqual(count($this->store2->getKeys()), 0, 'After deletion of store2, no values shall remain');
+
+    // Delete specific.
+    $this->dbInsertSampleData();
+
+    $result = $this->store1->delete(array('k1', 'k2'));
+    $this->assertEqual($result, 2, 'Delete should report number of affected rows');
+    $result = $this->store1->getKeys(array('k1', 'k2', 'k3'));
+    $this->assertEqual(array('k3'), $result, 'Deleted keys should not be returned, existing keys must show up.');
+
+    // Delete missing.
+    $result = $this->store1->delete(array('missing-key'));
+    $this->assertEqual(0, $result, 'If no keys could be deleted, should return 0');
+
+    // Delete empty key-set.
+    $result = $this->store1->delete(array());
+    $this->assertEqual(0, $result, 'If empty key-set is specified, should return 0');
+
+    // Remove test data.
+    db_delete('authcache_p13n_key_value')->execute();
+  }
+}

@@ -1,0 +1,621 @@
+<?php
+/**
+ * @file
+ * Defines test classes for request builder.
+ */
+
+/**
+ * Request builder test cases.
+ */
+class AuthcacheP13nTestRequestBuilder extends DrupalWebTestCase {
+  protected $profile = 'testing';
+  protected $stubmod;
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function getInfo() {
+    return array(
+      'name' => 'Request Builder',
+      'description' => 'Tests for hooks and functions used to build and register request handlers',
+      'group' => 'Authcache Personalization',
+    );
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function setUp() {
+    parent::setUp('authcache_p13n', 'authcache_p13n_test', 'authcache_test_hookstub');
+
+    // HookStub.
+    $this->stubmod = new ModuleStub('authcache_p13n_test');
+  }
+
+  /**
+   * Test whether the given stub passes the invocation verifier.
+   */
+  protected function assertStub(HookStubProxy $stub, $verifier, $message = NULL) {
+    $result = $stub->verify($verifier, $error);
+
+    if (!$message) {
+      $message = t('Verify invocation of hook @hook.', array('@hook' => $stub->hookname()));
+    }
+    if (!$result && is_string($error)) {
+      $message .= ' ' . $error;
+    }
+
+    $this->assertTrue($result, $message);
+  }
+
+  /**
+   * Cover authcache_p13n_request_exists().
+   */
+  public function testGetRequestCallback() {
+    variable_set('authcache_p13n_router', 'AuthcacheP13nTestRequestRouterStub');
+
+    $result = authcache_p13n_request_exists('non-existing-request');
+    $this->assertFalse($result);
+
+    $result = authcache_p13n_request_exists('test/good');
+    $this->assertTrue($result);
+
+    $result = authcache_p13n_request_get_callback('test/bad', array('my-args' => array('some' => 'args')));
+    $this->assertFalse($result);
+
+    $expect = array(
+      'path' => 'http://example.com/authcache.php',
+      'options' => array(
+        'query' => array(
+          'r' => 'test/good',
+          'a' => array('my-args' => array('some' => 'args')),
+        ),
+      ),
+    );
+
+    $result = authcache_p13n_request_get_callback('test/good', array('my-args' => array('some' => 'args')));
+    $this->assertEqual($expect, $result);
+
+    variable_del('authcache_p13n_router');
+  }
+
+  /**
+   * Cover authcache_p13n_request_resources().
+   *
+   * Also cover hook_authcache_p13n_request()
+   * and hook_authcache_p13n_request_alter(). Test defaults.
+   */
+  public function testRequestResourcesNullFragments() {
+    $request_base_stub = $this->stubmod->hook('authcache_p13n_base_request');
+    $request_base_alter_stub = $this->stubmod->hook('authcache_p13n_base_request_alter');
+
+    $request_info_stub = $this->stubmod->hook('authcache_p13n_request');
+    $request_info_alter_stub = $this->stubmod->hook('authcache_p13n_request_alter');
+
+    $fragment_info = array('null-fragment' => array());
+    $fragment_info_stub = $this->stubmod->hook('authcache_p13n_fragment', $fragment_info);
+
+    $setting_info = array('null-setting' => array());
+    $setting_info_stub = $this->stubmod->hook('authcache_p13n_setting', $setting_info);
+
+    $assembly_info = array('null-assembly' => array());
+    $assembly_info_stub = $this->stubmod->hook('authcache_p13n_assembly', $assembly_info);
+
+    // Setup expectations.
+    $frontcontroller_path = drupal_get_path('module', 'authcache_p13n') . '/frontcontroller/authcache.php';
+    $expect_resources = array(
+      'frag/null-fragment' => array(
+        'fragment' => array(
+          '#type' => 'value',
+          '#value' => NULL,
+        ),
+        'fragment validator' => array(
+          '#type' => 'value',
+          '#value' => '@fragment[accept_instance(AuthcacheP13nFragmentValidatorInterface)]',
+        ),
+        'fragment loader' => array(
+          '#type' => 'value',
+          '#value' => '@fragment[accept_instance(AuthcacheP13nFragmentLoaderInterface)]',
+        ),
+        'fragment access' => array(
+          '#type' => 'value',
+          '#value' => '@fragment[accept_instance(AuthcacheP13nFragmentAccessInterface)]',
+        ),
+        'admin type' => array(
+          '#type' => 'value',
+          '#value' => t('Fragment'),
+        ),
+        'content builder' => array(
+          '#class' => 'AuthcacheP13nFragmentBuilder',
+          '#arguments' => array(
+            '@fragment',
+            '@fragment validator',
+            '@fragment loader',
+            '@fragment access',
+          ),
+          '#type' => 'class',
+        ),
+        'content encoder' => array(
+          '#class' => 'AuthcacheP13nHTMLContent',
+          '#type' => 'class',
+        ),
+        'cache maxage' => array(
+          '#type' => 'value',
+          '#value' => 600,
+        ),
+        'cache granularity' => array(
+          '#type' => 'value',
+          '#value' => AuthcacheP13nCacheGranularity::PER_USER,
+        ),
+        'bootstrap phase' => array(
+          '#type' => 'value',
+          '#value' => NULL,
+        ),
+        'admin group' => array(
+          '#type' => 'value',
+          '#value' => t('Other'),
+        ),
+        'admin name' => array(
+          '#type' => 'value',
+          '#value' => t('Unknown'),
+        ),
+        'admin description' => array(
+          '#type' => 'value',
+          '#value' => '',
+        ),
+        'admin path' => array(
+          '#type' => 'value',
+          '#value' => NULL,
+        ),
+        'admin entry object' => array(
+          '#type' => 'value',
+          '#value' => '@admin entry[as_object]',
+        ),
+        'conf override' => array(
+          '#type' => 'value',
+          '#value' => array(),
+        ),
+        'cache granularity object' => array(
+          '#class' => 'AuthcacheP13nCacheGranularity',
+          '#arguments' => array(
+            '@cache granularity',
+          ),
+          '#type' => 'class',
+        ),
+        'cache control header' => array(
+          '#class' => 'AuthcacheP13nAddCacheControlHeaderFilter',
+          '#arguments' => array(
+            '@services[require_instance(AuthcacheP13nCoreServiceInterface)]',
+            '@cache maxage',
+            '@cache granularity object[require_instance(AuthcacheP13nCacheGranularity)]',
+          ),
+          '#member_of' => 'request filters',
+          '#type' => 'class',
+        ),
+        'request validator' => array(
+          '#type' => 'value',
+          '#value' => '@content builder[accept_instance(AuthcacheP13nRequestValidatorInterface)]',
+        ),
+        'request filters' => array(
+          '#collection' => 'request filters',
+          '#processor' => 'require_instance(AuthcacheP13nFilterInterface)',
+          '#type' => 'collection',
+        ),
+        'response filters' => array(
+          '#collection' => 'response filters',
+          '#processor' => 'require_instance(AuthcacheP13nFilterInterface)',
+          '#type' => 'collection',
+        ),
+        'filters' => array(
+          '#type' => 'value',
+          '#value' => array(
+            'request' => '@request filters',
+            'response' => '@response filters',
+          ),
+        ),
+        'conf override context provider' => array(
+          '#class' => 'AuthcacheP13nConfOverrideContextProvider',
+          '#arguments' => array(
+            '@conf override',
+          ),
+          '#weight' => -150,
+          '#member_of' => 'context providers',
+          '#key' => 'conf override',
+          '#type' => 'class',
+        ),
+        'bootstrap context provider' => array(
+          '#class' => 'AuthcacheP13nBootstrapContextProvider',
+          '#arguments' => array(
+            '@services[require_instance(AuthcacheP13nCoreServiceInterface)]',
+            '@bootstrap phase',
+          ),
+          '#weight' => -50,
+          '#member_of' => 'context providers',
+          '#key' => 'bootstrap phase',
+          '#type' => 'class',
+        ),
+        'context providers' => array(
+          '#collection' => 'context providers',
+          '#processor' => 'require_instance(AuthcacheP13nContextProviderInterface)',
+          '#type' => 'collection',
+        ),
+        'handler' => array(
+          '#class' => 'AuthcacheP13nDefaultRequestHandler',
+          '#arguments' => array(
+            '@services[require_instance(AuthcacheP13nCoreServiceInterface)]',
+            '@request validator[accept_instance(AuthcacheP13nRequestValidatorInterface)]',
+            '@content builder[require_instance(AuthcacheP13nContentBuilderInterface)]',
+            '@content encoder[require_instance(AuthcacheP13nContentEncoderInterface)]',
+            '@filters',
+            '@context providers',
+          ),
+          '#type' => 'class',
+        ),
+        'frontcontroller' => array(
+          '#value' => $frontcontroller_path,
+          '#type' => 'value',
+        ),
+        'url generator' => array(
+          '#class' => 'AuthcacheP13nDefaultRequestUrlGenerator',
+          '#arguments' => array(
+            '@frontcontroller',
+            '@cache granularity object[require_instance(AuthcacheP13nCacheGranularity)]',
+          ),
+          '#type' => 'class',
+        ),
+        'services' => array(
+          '#class' => 'AuthcacheP13nDefaultCoreService',
+          '#type' => 'class',
+        ),
+        'admin entry' => array(
+          '#type' => 'value',
+          '#value' => array(
+            'type' => '@admin type',
+            'group' => '@admin group',
+            'name' => '@admin name',
+            'description' => '@admin description',
+            'clients' => NULL,
+            'cacheMaxage' => '@cache maxage',
+            'cacheGranularity' => '@cache granularity object[require_instance(AuthcacheP13nCacheGranularity)]',
+            'adminPath' => '@admin path',
+          ),
+        ),
+      ),
+      'setting/null-setting' => array(
+        'settings' => array(
+          '#collection' => 'settings',
+          '#type' => 'collection',
+        ),
+        'admin type' => array(
+          '#type' => 'value',
+          '#value' => t('Setting'),
+        ),
+        'content builder' => array(
+          '#class' => 'AuthcacheP13nSettingBuilder',
+          '#arguments' => array(
+            '@settings',
+          ),
+          '#type' => 'class',
+        ),
+        'content encoder' => array(
+          '#class' => 'AuthcacheP13nJSONContent',
+          '#type' => 'class',
+        ),
+        'cache maxage' => array(
+          '#type' => 'value',
+          '#value' => 600,
+        ),
+        'cache granularity' => array(
+          '#type' => 'value',
+          '#value' => AuthcacheP13nCacheGranularity::PER_USER,
+        ),
+        'bootstrap phase' => array(
+          '#type' => 'value',
+          '#value' => NULL,
+        ),
+        'admin group' => array(
+          '#type' => 'value',
+          '#value' => t('Other'),
+        ),
+        'admin name' => array(
+          '#type' => 'value',
+          '#value' => t('Unknown'),
+        ),
+        'admin description' => array(
+          '#type' => 'value',
+          '#value' => '',
+        ),
+        'admin path' => array(
+          '#type' => 'value',
+          '#value' => NULL,
+        ),
+        'admin entry object' => array(
+          '#type' => 'value',
+          '#value' => '@admin entry[as_object]',
+        ),
+        'conf override' => array(
+          '#type' => 'value',
+          '#value' => array(),
+        ),
+        'cache granularity object' => array(
+          '#class' => 'AuthcacheP13nCacheGranularity',
+          '#arguments' => array(
+            '@cache granularity',
+          ),
+          '#type' => 'class',
+        ),
+        'cache control header' => array(
+          '#class' => 'AuthcacheP13nAddCacheControlHeaderFilter',
+          '#arguments' => array(
+            '@services[require_instance(AuthcacheP13nCoreServiceInterface)]',
+            '@cache maxage',
+            '@cache granularity object[require_instance(AuthcacheP13nCacheGranularity)]',
+          ),
+          '#member_of' => 'request filters',
+          '#type' => 'class',
+        ),
+        'request validator' => array(
+          '#type' => 'value',
+          '#value' => '@content builder[accept_instance(AuthcacheP13nRequestValidatorInterface)]',
+        ),
+        'request filters' => array(
+          '#collection' => 'request filters',
+          '#processor' => 'require_instance(AuthcacheP13nFilterInterface)',
+          '#type' => 'collection',
+        ),
+        'response filters' => array(
+          '#collection' => 'response filters',
+          '#processor' => 'require_instance(AuthcacheP13nFilterInterface)',
+          '#type' => 'collection',
+        ),
+        'filters' => array(
+          '#type' => 'value',
+          '#value' => array(
+            'request' => '@request filters',
+            'response' => '@response filters',
+          ),
+        ),
+        'conf override context provider' => array(
+          '#class' => 'AuthcacheP13nConfOverrideContextProvider',
+          '#arguments' => array(
+            '@conf override',
+          ),
+          '#weight' => -150,
+          '#member_of' => 'context providers',
+          '#key' => 'conf override',
+          '#type' => 'class',
+        ),
+        'bootstrap context provider' => array(
+          '#class' => 'AuthcacheP13nBootstrapContextProvider',
+          '#arguments' => array(
+            '@services[require_instance(AuthcacheP13nCoreServiceInterface)]',
+            '@bootstrap phase',
+          ),
+          '#weight' => -50,
+          '#member_of' => 'context providers',
+          '#key' => 'bootstrap phase',
+          '#type' => 'class',
+        ),
+        'context providers' => array(
+          '#collection' => 'context providers',
+          '#processor' => 'require_instance(AuthcacheP13nContextProviderInterface)',
+          '#type' => 'collection',
+        ),
+        'handler' => array(
+          '#class' => 'AuthcacheP13nDefaultRequestHandler',
+          '#arguments' => array(
+            '@services[require_instance(AuthcacheP13nCoreServiceInterface)]',
+            '@request validator[accept_instance(AuthcacheP13nRequestValidatorInterface)]',
+            '@content builder[require_instance(AuthcacheP13nContentBuilderInterface)]',
+            '@content encoder[require_instance(AuthcacheP13nContentEncoderInterface)]',
+            '@filters',
+            '@context providers',
+          ),
+          '#type' => 'class',
+        ),
+        'frontcontroller' => array(
+          '#value' => $frontcontroller_path,
+          '#type' => 'value',
+        ),
+        'url generator' => array(
+          '#class' => 'AuthcacheP13nDefaultRequestUrlGenerator',
+          '#arguments' => array(
+            '@frontcontroller',
+            '@cache granularity object[require_instance(AuthcacheP13nCacheGranularity)]',
+          ),
+          '#type' => 'class',
+        ),
+        'services' => array(
+          '#class' => 'AuthcacheP13nDefaultCoreService',
+          '#type' => 'class',
+        ),
+        'admin entry' => array(
+          '#type' => 'value',
+          '#value' => array(
+            'type' => '@admin type',
+            'group' => '@admin group',
+            'name' => '@admin name',
+            'description' => '@admin description',
+            'clients' => NULL,
+            'cacheMaxage' => '@cache maxage',
+            'cacheGranularity' => '@cache granularity object[require_instance(AuthcacheP13nCacheGranularity)]',
+            'adminPath' => '@admin path',
+          ),
+        ),
+      ),
+      'asm/null-assembly' => array(
+        'partials' => array(
+          '#collection' => 'partials',
+          '#type' => 'collection',
+        ),
+        'admin type' => array(
+          '#type' => 'value',
+          '#value' => t('Assembly'),
+        ),
+        'content builder' => array(
+          '#class' => 'AuthcacheP13nFragmentAssemblyBuilder',
+          '#arguments' => array(
+            '@partials',
+          ),
+          '#type' => 'class',
+        ),
+        'content encoder' => array(
+          '#class' => 'AuthcacheP13nJSONContent',
+          '#type' => 'class',
+        ),
+        'cache maxage' => array(
+          '#type' => 'value',
+          '#value' => 600,
+        ),
+        'cache granularity' => array(
+          '#type' => 'value',
+          '#value' => AuthcacheP13nCacheGranularity::PER_USER,
+        ),
+        'bootstrap phase' => array(
+          '#type' => 'value',
+          '#value' => NULL,
+        ),
+        'admin group' => array(
+          '#type' => 'value',
+          '#value' => t('Other'),
+        ),
+        'admin name' => array(
+          '#type' => 'value',
+          '#value' => t('Unknown'),
+        ),
+        'admin description' => array(
+          '#type' => 'value',
+          '#value' => '',
+        ),
+        'admin path' => array(
+          '#type' => 'value',
+          '#value' => NULL,
+        ),
+        'admin entry object' => array(
+          '#type' => 'value',
+          '#value' => '@admin entry[as_object]',
+        ),
+        'conf override' => array(
+          '#type' => 'value',
+          '#value' => array(),
+        ),
+        'cache granularity object' => array(
+          '#class' => 'AuthcacheP13nCacheGranularity',
+          '#arguments' => array(
+            '@cache granularity',
+          ),
+          '#type' => 'class',
+        ),
+        'cache control header' => array(
+          '#class' => 'AuthcacheP13nAddCacheControlHeaderFilter',
+          '#arguments' => array(
+            '@services[require_instance(AuthcacheP13nCoreServiceInterface)]',
+            '@cache maxage',
+            '@cache granularity object[require_instance(AuthcacheP13nCacheGranularity)]',
+          ),
+          '#member_of' => 'request filters',
+          '#type' => 'class',
+        ),
+        'request validator' => array(
+          '#type' => 'value',
+          '#value' => '@content builder[accept_instance(AuthcacheP13nRequestValidatorInterface)]',
+        ),
+        'request filters' => array(
+          '#collection' => 'request filters',
+          '#processor' => 'require_instance(AuthcacheP13nFilterInterface)',
+          '#type' => 'collection',
+        ),
+        'response filters' => array(
+          '#collection' => 'response filters',
+          '#processor' => 'require_instance(AuthcacheP13nFilterInterface)',
+          '#type' => 'collection',
+        ),
+        'filters' => array(
+          '#type' => 'value',
+          '#value' => array(
+            'request' => '@request filters',
+            'response' => '@response filters',
+          ),
+        ),
+        'conf override context provider' => array(
+          '#class' => 'AuthcacheP13nConfOverrideContextProvider',
+          '#arguments' => array(
+            '@conf override',
+          ),
+          '#weight' => -150,
+          '#member_of' => 'context providers',
+          '#key' => 'conf override',
+          '#type' => 'class',
+        ),
+        'bootstrap context provider' => array(
+          '#class' => 'AuthcacheP13nBootstrapContextProvider',
+          '#arguments' => array(
+            '@services[require_instance(AuthcacheP13nCoreServiceInterface)]',
+            '@bootstrap phase',
+          ),
+          '#weight' => -50,
+          '#member_of' => 'context providers',
+          '#key' => 'bootstrap phase',
+          '#type' => 'class',
+        ),
+        'context providers' => array(
+          '#collection' => 'context providers',
+          '#processor' => 'require_instance(AuthcacheP13nContextProviderInterface)',
+          '#type' => 'collection',
+        ),
+        'handler' => array(
+          '#class' => 'AuthcacheP13nDefaultRequestHandler',
+          '#arguments' => array(
+            '@services[require_instance(AuthcacheP13nCoreServiceInterface)]',
+            '@request validator[accept_instance(AuthcacheP13nRequestValidatorInterface)]',
+            '@content builder[require_instance(AuthcacheP13nContentBuilderInterface)]',
+            '@content encoder[require_instance(AuthcacheP13nContentEncoderInterface)]',
+            '@filters',
+            '@context providers',
+          ),
+          '#type' => 'class',
+        ),
+        'frontcontroller' => array(
+          '#value' => $frontcontroller_path,
+          '#type' => 'value',
+        ),
+        'url generator' => array(
+          '#class' => 'AuthcacheP13nDefaultRequestUrlGenerator',
+          '#arguments' => array(
+            '@frontcontroller',
+            '@cache granularity object[require_instance(AuthcacheP13nCacheGranularity)]',
+          ),
+          '#type' => 'class',
+        ),
+        'services' => array(
+          '#class' => 'AuthcacheP13nDefaultCoreService',
+          '#type' => 'class',
+        ),
+        'admin entry' => array(
+          '#type' => 'value',
+          '#value' => array(
+            'type' => '@admin type',
+            'group' => '@admin group',
+            'name' => '@admin name',
+            'description' => '@admin description',
+            'clients' => NULL,
+            'cacheMaxage' => '@cache maxage',
+            'cacheGranularity' => '@cache granularity object[require_instance(AuthcacheP13nCacheGranularity)]',
+            'adminPath' => '@admin path',
+          ),
+        ),
+      ),
+    );
+
+    $resources = authcache_p13n_request_resources();
+    $this->assertEqual($expect_resources, $resources);
+
+    $this->assertStub($request_base_stub, HookStub::once());
+    $this->assertStub($request_base_alter_stub, HookStub::once());
+    $this->assertStub($request_info_stub, HookStub::once());
+    $this->assertStub($request_info_alter_stub, HookStub::once());
+    $this->assertStub($fragment_info_stub, HookStub::once());
+    $this->assertStub($setting_info_stub, HookStub::once());
+    $this->assertStub($assembly_info_stub, HookStub::once());
+  }
+}

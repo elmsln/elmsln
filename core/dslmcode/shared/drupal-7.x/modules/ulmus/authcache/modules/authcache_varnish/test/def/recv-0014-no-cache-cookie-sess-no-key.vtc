@@ -1,0 +1,58 @@
+varnishtest "Same effect when no-cache cookie is present/absent when session cookie is present but key retrieval is disabled"
+
+server s1 {
+        rxreq
+        expect req.url == "/auth"
+        expect req.http.X-Authcache-Key == <undef>
+        expect req.http.X-Forwarded-For == "127.0.0.1"
+        txresp
+
+        rxreq
+        expect req.url == "/auth"
+        expect req.http.X-Authcache-Key == <undef>
+        expect req.http.X-Forwarded-For == "127.0.0.1"
+        txresp
+
+        rxreq
+        expect req.url == "/auth"
+        expect req.http.X-Authcache-Key == <undef>
+        expect req.http.X-Forwarded-For == "127.0.0.1"
+        txresp
+
+        rxreq
+        expect req.url == "/auth"
+        expect req.http.X-Authcache-Key == <undef>
+        expect req.http.X-Forwarded-For == "127.0.0.1"
+        txresp
+} -start
+
+varnish v1 -vcl+backend {
+        ${vcl1}
+        ${vcl2}
+        ${vcl3}
+} -start
+
+client c1 {
+        txreq -url "/auth" -hdr "Cookie: SESSabc=efg"
+        rxresp
+
+        txreq -url "/auth" -hdr "Cookie: SESSabc=efg; nocache=1"
+        rxresp
+}
+
+client c2 {
+        txreq -url "/auth" -hdr "Cookie: SESSdef=hik"
+        rxresp
+
+        txreq -url "/auth" -hdr "Cookie: SESSdef=hik"
+        rxresp
+}
+
+client c1 -run
+varnish v1 -expect cache_hit == 0
+
+client c2 -run
+varnish v1 -expect cache_hit == 0
+
+server s1 -wait
+varnish v1 -stop

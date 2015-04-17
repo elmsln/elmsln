@@ -1,0 +1,458 @@
+<?php
+/**
+ * @file
+ * Test cases for authcache_varnish module.
+ */
+
+/**
+ * Cover authcache_varnish module.
+ */
+class AuthcacheVarnishTestCase extends DrupalWebTestCase {
+  /**
+   * Use minimalistic installation profile.
+   */
+  protected $profile = 'testing';
+
+  /**
+   * Return information about the test case.
+   */
+  public static function getInfo() {
+    return array(
+      'name' => 'Authcache Varnish',
+      'description' => 'Varnish integration for authcache',
+      'group' => 'Authcache Varnish',
+    );
+  }
+
+  /**
+   * Setup test case, ensure that authcache_varnish module is loaded.
+   */
+  public function setUp() {
+    parent::setUp('authcache_varnish');
+  }
+
+  /**
+   * Assert that a certain vary-field is in the Vary header.
+   */
+  protected function assertVary($expectvary, $message = NULL) {
+    $varyheader = $this->drupalGetHeader('Vary') ?: '';
+    $varyfields = array_map('trim', explode(',', $varyheader));
+    $this->assert(in_array($expectvary, $varyfields), $message ?: t('Did not find expected @field in Vary: @header.', array('@field' => $expectvary, '@header' => $varyheader)));
+  }
+
+  /**
+   * Assert that a certain vary-field is not in the Vary header.
+   */
+  protected function assertNoVary($rejectvary, $message = NULL) {
+    $varyheader = $this->drupalGetHeader('Vary') ?: '';
+    $varyfields = array_map('trim', explode(',', $varyheader));
+    $this->assert(!in_array($rejectvary, $varyfields), $message ?: t('Found unexpected @field in Vary: @header.', array('@field' => $rejectvary, '@header' => $varyheader)));
+  }
+
+  /**
+   * Test presence of X-Authcache-Key header on HTTP response.
+   */
+  public function testVaryHeader() {
+    // Disable request validation for this test.
+    variable_set('authcache_varnish_header', FALSE);
+    variable_set('authcache_varnish_validate_reverse_proxy_address', FALSE);
+
+    // Test whether Vary: X-Authcache-Key header is present, even when caching
+    // is not enabled.
+    $this->drupalGet('<front>');
+    $this->assertVary('X-Authcache-Key');
+    $this->assertNoVary('X-Authcache-Key-CID');
+    $this->assertEqual('no-cache, must-revalidate, post-check=0, pre-check=0', $this->drupalGetHeader('Cache-Control'), 'Cache-Control: no-cache header expected on response when caching is not enabled');
+
+    variable_set('authcache_roles', array(
+      DRUPAL_ANONYMOUS_RID => DRUPAL_ANONYMOUS_RID,
+      DRUPAL_AUTHENTICATED_RID => DRUPAL_AUTHENTICATED_RID,
+    ));
+    variable_set('page_cache_maximum_age', 3600);
+
+    // Ensure that Vary: X-Authcache-Key header is present when caching is
+    // enabled.
+    $this->drupalGet('<front>');
+    $this->assertVary('X-Authcache-Key');
+    $this->assertNoVary('X-Authcache-Key-CID');
+    $this->assertEqual('public, max-age=3600', $this->drupalGetHeader('Cache-Control'), 'Cache-Control: public header expected on response when caching is enabled');
+  }
+
+  /**
+   * Cover authcache_varnish_get_key menu callback.
+   */
+  public function testGetKeyMenuCallback() {
+    // Disable request validation for this test.
+    variable_set('authcache_varnish_header', FALSE);
+    variable_set('authcache_varnish_validate_reverse_proxy_address', FALSE);
+
+    $user = $this->drupalCreateUser();
+    // Work around #1873606
+    user_save($user, array('roles' => array(DRUPAL_AUTHENTICATED_RID => DRUPAL_AUTHENTICATED_RID)));
+
+    // Test key retrieval for anonymous user, caching disabled.
+    $result = $this->drupalGet('authcache-varnish-get-key');
+    $this->assertResponse(200);
+    $this->assertEqual('', $result);
+    $this->assertVary('X-Authcache-Key-CID');
+    $this->assertFalse($this->drupalGetHeader('X-Authcache-Key'), 'X-Authcache-Key header must not be present on response.');
+    $this->assertEqual('public, max-age=' . authcache_key_lifetime(), $this->drupalGetHeader('Cache-Control'), 'Cache-Control: public header expected on response.');
+
+    // Test key retrieval for anonymous user, caching disabled, custom key ttl.
+    variable_set('authcache_key_lifetime', 42);
+    $result = $this->drupalGet('authcache-varnish-get-key');
+    $this->assertResponse(200);
+    $this->assertEqual('', $result);
+    $this->assertVary('X-Authcache-Key-CID');
+    $this->assertFalse($this->drupalGetHeader('X-Authcache-Key'), 'X-Authcache-Key header must not be present on response.');
+    $this->assertEqual('public, max-age=' . authcache_key_lifetime(), $this->drupalGetHeader('Cache-Control'), 'Cache-Control: public header expected on response.');
+    variable_del('authcache_key_lifetime');
+
+    $this->drupalLogin($user);
+
+    // Test key retrieval for authenticated user, caching disabled.
+    $result = $this->drupalGet('authcache-varnish-get-key');
+    $this->assertResponse(200);
+    $this->assertEqual('', $result);
+    $this->assertVary('X-Authcache-Key-CID');
+    $this->assertFalse($this->drupalGetHeader('X-Authcache-Key'), 'X-Authcache-Key header must not be present on response.');
+    $this->assertEqual('public, max-age=' . authcache_key_lifetime(), $this->drupalGetHeader('Cache-Control'), 'Cache-Control: public header expected on response.');
+
+    // Test key retrieval for authenticated user, caching disabled, custom key
+    // ttl.
+    variable_set('authcache_key_lifetime', 42);
+    $result = $this->drupalGet('authcache-varnish-get-key');
+    $this->assertResponse(200);
+    $this->assertEqual('', $result);
+    $this->assertVary('X-Authcache-Key-CID');
+    $this->assertFalse($this->drupalGetHeader('X-Authcache-Key'), 'X-Authcache-Key header must not be present on response.');
+    $this->assertEqual('public, max-age=' . authcache_key_lifetime(), $this->drupalGetHeader('Cache-Control'), 'Cache-Control: public header expected on response.');
+    variable_del('authcache_key_lifetime');
+
+    $this->drupalLogout();
+
+    variable_set('authcache_roles', array(
+      DRUPAL_ANONYMOUS_RID => DRUPAL_ANONYMOUS_RID,
+      DRUPAL_AUTHENTICATED_RID => DRUPAL_AUTHENTICATED_RID,
+    ));
+
+    // Test key retrieval for anonymous user, caching enabled.
+    $result = $this->drupalGet('authcache-varnish-get-key');
+    $this->assertResponse(200);
+    $this->assertEqual('', $result);
+    $this->assertVary('X-Authcache-Key-CID');
+    $this->assertTrue($this->drupalGetHeader('X-Authcache-Key'), 'X-Authcache-Key header must be present on response.');
+    $this->assertEqual('public, max-age=' . authcache_key_lifetime(), $this->drupalGetHeader('Cache-Control'), 'Cache-Control: public header expected on response.');
+
+    // Test key retrieval for anonymous user, caching enabled, custom key ttl.
+    variable_set('authcache_key_lifetime', 42);
+    $result = $this->drupalGet('authcache-varnish-get-key');
+    $this->assertResponse(200);
+    $this->assertEqual('', $result);
+    $this->assertVary('X-Authcache-Key-CID');
+    $this->assertTrue($this->drupalGetHeader('X-Authcache-Key'), 'X-Authcache-Key header must be present on response.');
+    $this->assertEqual('public, max-age=' . authcache_key_lifetime(), $this->drupalGetHeader('Cache-Control'), 'Cache-Control: public header expected on response.');
+    variable_del('authcache_key_lifetime');
+
+    $this->drupalLogin($user);
+
+    // Test key retrieval for authenticated user, caching enabled.
+    $result = $this->drupalGet('authcache-varnish-get-key');
+    $this->assertResponse(200);
+    $this->assertEqual('', $result);
+    $this->assertVary('X-Authcache-Key-CID');
+    $this->assertTrue($this->drupalGetHeader('X-Authcache-Key'), 'X-Authcache-Key header must be present on response.');
+    $this->assertEqual('public, max-age=' . authcache_key_lifetime(), $this->drupalGetHeader('Cache-Control'), 'Cache-Control: public header expected on response.');
+
+    // Test key retrieval for authenticated user, caching enabled, custom key
+    // ttl.
+    variable_set('authcache_key_lifetime', 42);
+    $result = $this->drupalGet('authcache-varnish-get-key');
+    $this->assertResponse(200);
+    $this->assertEqual('', $result);
+    $this->assertVary('X-Authcache-Key-CID');
+    $this->assertTrue($this->drupalGetHeader('X-Authcache-Key'), 'X-Authcache-Key header must be present on response.');
+    $this->assertEqual('public, max-age=' . authcache_key_lifetime(), $this->drupalGetHeader('Cache-Control'), 'Cache-Control: public header expected on response.');
+    variable_del('authcache_key_lifetime');
+
+    $this->drupalLogout();
+  }
+
+  /**
+   * Cover authcache_varnish_request_validate().
+   */
+  public function testRequestValidation() {
+    variable_set('authcache_varnish_validate_reverse_proxy_address', FALSE);
+    variable_set('authcache_roles', array(
+      DRUPAL_ANONYMOUS_RID => DRUPAL_ANONYMOUS_RID,
+    ));
+    variable_set('page_cache_maximum_age', 3600);
+
+    $this->drupalGet('authcache-varnish-get-key');
+    $this->assertResponse(403, 'Deny access to get-key-callback when X-Varnish header is not on the request');
+
+    $this->drupalGet('authcache-varnish-get-key', array(), array('X-Varnish: 123'));
+    $this->assertResponse(200, 'Grant access to get-key-callback when X-Varnish header is on the request');
+
+    $this->drupalGet('<front>');
+    $this->assertNoVary('X-Authcache-Key');
+    $this->assertEqual('no-cache, must-revalidate, post-check=0, pre-check=0', $this->drupalGetHeader('Cache-Control'), 'Cache-Control: no-cache header expected on response when request validation fails');
+
+    $this->drupalGet('<front>', array(), array('X-Varnish: 123'));
+    $this->assertVary('X-Authcache-Key');
+    $this->assertEqual('public, max-age=3600', $this->drupalGetHeader('Cache-Control'), 'Cache-Control: public header expected on response when caching is enabled');
+
+    variable_set('authcache_varnish_header', 'HTTP_X_CUSTOM_HEADER');
+
+    $this->drupalGet('authcache-varnish-get-key');
+    $this->assertResponse(403, 'Deny access to get-key-callback when X-Custom-Header header is not on the request');
+
+    $this->drupalGet('authcache-varnish-get-key', array(), array('X-Custom-Header: 123'));
+    $this->assertResponse(200, 'Grant access to get-key-callback when X-Custom-Header header is on the request');
+
+    $this->drupalGet('<front>');
+    $this->assertNoVary('X-Authcache-Key');
+    $this->assertEqual('no-cache, must-revalidate, post-check=0, pre-check=0', $this->drupalGetHeader('Cache-Control'), 'Cache-Control: no-cache header expected on response when request validation fails');
+
+    $this->drupalGet('<front>', array(), array('X-Custom-Header: 123'));
+    $this->assertVary('X-Authcache-Key');
+    $this->assertEqual('public, max-age=3600', $this->drupalGetHeader('Cache-Control'), 'Cache-Control: public header expected on response when caching is enabled');
+  }
+}
+
+/**
+ * Unit tests for authcache_varnish_request_validate().
+ */
+class AuthcacheVarnishTestDefaultValidation extends DrupalUnitTestCase {
+  protected $oldserver;
+  protected $oldconf;
+  protected $remoteIp;
+  protected $proxyIp;
+  protected $proxy2Ip;
+  protected $untrustedIp;
+
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function getInfo() {
+    return array(
+      'name' => 'Default Request Validation',
+      'description' => 'Check whether a request should be accepted as comming from Varnish',
+      'group' => 'Authcache Varnish',
+    );
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function setUp() {
+    global $conf;
+
+    parent::setUp();
+
+    require_once __DIR__ . '/authcache_varnish.module';
+
+    $this->oldserver = $_SERVER;
+    $this->oldconf = $conf;
+
+    $this->remoteIp = '127.0.0.1';
+    $this->proxyIp = '127.0.0.2';
+    $this->proxy2Ip = '127.0.0.3';
+    $this->untrustedIp = '0.0.0.0';
+
+    // @ignore sniffer_semantics_remoteaddress_remoteaddress:class
+    $_SERVER['REMOTE_ADDR'] = $this->remoteIp;
+    unset($_SERVER['HTTP_X_VARNISH']);
+    unset($_SERVER['HTTP_X_FORWARDED_FOR']);
+    unset($_SERVER['HTTP_X_CLUSTER_CLIENT_IP']);
+    unset($_SERVER['HTTP_X_AUTHCACHE_VARNISH_PASSPHRASE']);
+    unset($_SERVER['HTTP_X_CUSTOM_PASSPHRASE_HEADER']);
+
+    $this->variableDel('authcache_varnish_validate_reverse_proxy_address');
+    $this->variableDel('authcache_varnish_header');
+    $this->variableDel('authcache_varnish_passphrase');
+    $this->variableDel('authcache_varnish_passphrase_header');
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function tearDown() {
+    global $conf;
+
+    $_SERVER = $this->oldserver;
+    $conf = $this->oldconf;
+
+    parent::tearDown();
+  }
+
+  /**
+   * Set a variable without accessing the database.
+   */
+  protected function variableSet($name, $value) {
+    global $conf;
+    $conf[$name] = $value;
+  }
+
+  /**
+   * Remove a variable without accessing the database.
+   */
+  protected function variableDel($name) {
+    global $conf;
+    unset($conf[$name]);
+  }
+
+  /**
+   * Ensure that no validation takes place when both mechanisms are turned off.
+   */
+  public function testNoValidationIfChecksAreDisabled() {
+    // No validation if both checks are disabled.
+    $this->variableSet('authcache_varnish_validate_reverse_proxy_address', FALSE);
+    $this->variableSet('authcache_varnish_header', FALSE);
+
+    $this->assertIdentical(TRUE, authcache_varnish_request_validate(), 'Do not validate any headers when variables authcache_varnish_validate_reverse_proxy_address and authcache_varnish_header both are set to FALSE');
+  }
+
+  /**
+   * Test validation of X-Varnish HTTP header.
+   */
+  public function testValidateDefaultXVarnishHeader() {
+    $this->variableSet('authcache_varnish_validate_reverse_proxy_address', FALSE);
+
+    $this->assertIdentical(FALSE, authcache_varnish_request_validate(), 'Reject request when X-Varnish header is missing');
+    $_SERVER['HTTP_X_VARNISH'] = '123';
+    $this->assertIdentical(TRUE, authcache_varnish_request_validate(), 'Accept request when X-Varnish header is present');
+  }
+
+  /**
+   * Test validation when custom reverse proxy header was selected.
+   */
+  public function testValidateCustomXVarnishHeader() {
+    $this->variableSet('authcache_varnish_validate_reverse_proxy_address', FALSE);
+
+    $this->variableSet('authcache_varnish_header', 'HTTP_X_CUSTOM_HEADER');
+    $this->assertIdentical(FALSE, authcache_varnish_request_validate(), 'Reject request when X-Custom-Header header is missing');
+    $_SERVER['HTTP_X_CUSTOM_HEADER'] = '123';
+    $this->assertIdentical(TRUE, authcache_varnish_request_validate(), 'Accept request when X-Custom-Header header is present');
+  }
+
+  /**
+   * Test reverse proxy validation.
+   */
+  public function testValidateRemoteAddrInReverseProxyAddresses() {
+    $this->variableSet('authcache_varnish_header', FALSE);
+
+    $this->variableSet('reverse_proxy', 1);
+    $this->variableSet('reverse_proxy_addresses', array($this->proxyIp, $this->proxy2Ip));
+    $_SERVER['HTTP_X_FORWARDED_FOR'] = $this->remoteIp;
+
+    $_SERVER['REMOTE_ADDR'] = $this->proxyIp;
+    $this->assertIdentical(TRUE, authcache_varnish_request_validate(), 'Accept request when remote address is in list of trusted proxies');
+    $_SERVER['REMOTE_ADDR'] = $this->proxy2Ip;
+    $this->assertIdentical(TRUE, authcache_varnish_request_validate(), 'Accept request when remote address is in list of trusted proxies');
+    $_SERVER['REMOTE_ADDR'] = $this->untrustedIp;
+    $this->assertIdentical(FALSE, authcache_varnish_request_validate(), 'Reject request when remote address is not in list of trusted proxies');
+  }
+
+  /**
+   * Test reverse proxy validation when reverse_proxy_header variable is set.
+   */
+  public function testValidateCustomClientIPHeader() {
+    $this->variableSet('authcache_varnish_header', FALSE);
+
+    $this->variableSet('reverse_proxy', 1);
+    $this->variableSet('reverse_proxy_header', 'HTTP_X_CLUSTER_CLIENT_IP');
+    $this->variableSet('reverse_proxy_addresses', array($this->proxyIp, $this->proxy2Ip));
+    $_SERVER['HTTP_X_CLUSTER_CLIENT_IP'] = $this->remoteIp;
+
+    $_SERVER['REMOTE_ADDR'] = $this->proxyIp;
+    $this->assertIdentical(TRUE, authcache_varnish_request_validate(), 'Accept request when remote address is in list of trusted proxies');
+    $_SERVER['REMOTE_ADDR'] = $this->proxy2Ip;
+    $this->assertIdentical(TRUE, authcache_varnish_request_validate(), 'Accept request when remote address is in list of trusted proxies');
+    $_SERVER['REMOTE_ADDR'] = $this->untrustedIp;
+    $this->assertIdentical(FALSE, authcache_varnish_request_validate(), 'Reject request when remote address is not in list of trusted proxies');
+  }
+
+  /**
+   * Request is not comming through varnish if reverse_proxy variable is off.
+   */
+  public function testRejectIfReverseProxyOff() {
+    $this->variableSet('authcache_varnish_header', FALSE);
+
+    $this->variableSet('reverse_proxy', 0);
+    $this->variableSet('reverse_proxy_addresses', array($this->proxyIp, $this->proxy2Ip));
+    $_SERVER['HTTP_X_FORWARDED_FOR'] = "";
+
+    $_SERVER['REMOTE_ADDR'] = $this->proxyIp;
+    $this->assertIdentical(FALSE, authcache_varnish_request_validate(), 'Reject request when reverse_proxy variable is off.');
+    $_SERVER['REMOTE_ADDR'] = $this->proxy2Ip;
+    $this->assertIdentical(FALSE, authcache_varnish_request_validate(), 'Reject request when reverse_proxy variable is off.');
+    $_SERVER['REMOTE_ADDR'] = $this->untrustedIp;
+    $this->assertIdentical(FALSE, authcache_varnish_request_validate(), 'Reject request when reverse_proxy variable is off.');
+  }
+
+  /**
+   * Request is not comming through varnish if X-Forwarded-For is empty.
+   */
+  public function testRejectIfForwardedForEmpty() {
+    $this->variableSet('authcache_varnish_header', FALSE);
+
+    $this->variableSet('reverse_proxy', 1);
+    $this->variableSet('reverse_proxy_addresses', array($this->proxyIp, $this->proxy2Ip));
+    $_SERVER['HTTP_X_FORWARDED_FOR'] = "";
+
+    $_SERVER['REMOTE_ADDR'] = $this->proxyIp;
+    $this->assertIdentical(FALSE, authcache_varnish_request_validate(), 'Reject request when X-Forwarded-For is empty');
+    $_SERVER['REMOTE_ADDR'] = $this->proxy2Ip;
+    $this->assertIdentical(FALSE, authcache_varnish_request_validate(), 'Reject request when X-Forwarded-For is empty');
+    $_SERVER['REMOTE_ADDR'] = $this->untrustedIp;
+    $this->assertIdentical(FALSE, authcache_varnish_request_validate(), 'Reject request when X-Forwarded-For is empty');
+  }
+
+  /**
+   * Request has correct X-Authcache-Varnish-Passphrase.
+   */
+  public function testValidatePassphraseHeader() {
+    $this->variableSet('authcache_varnish_passphrase', 'sEcr3t!');
+
+    $_SERVER['REMOTE_ADDR'] = $this->proxyIp;
+    $_SERVER['HTTP_X_AUTHCACHE_VARNISH_PASSPHRASE'] = 'sEcr3t!';
+    $this->assertIdentical(TRUE, authcache_varnish_request_validate(), 'Accept request when proxy passphrase matches');
+
+    $_SERVER['REMOTE_ADDR'] = $this->untrustedIp;
+    $_SERVER['HTTP_X_AUTHCACHE_VARNISH_PASSPHRASE'] = 'sEcr3t!';
+    $this->assertIdentical(TRUE, authcache_varnish_request_validate(), 'Accept request when proxy passphrase matches, even from untrusted ip');
+  }
+
+  /**
+   * Request has correct custom passphrase header.
+   */
+  public function testValidateCustomPassphraseHeader() {
+    $this->variableSet('authcache_varnish_passphrase', 'sEcr3t!');
+    $this->variableSet('authcache_varnish_passphrase_header', 'HTTP_X_CUSTOM_PASSPHRASE_HEADER');
+
+    $_SERVER['REMOTE_ADDR'] = $this->proxyIp;
+    $_SERVER['HTTP_X_CUSTOM_PASSPHRASE_HEADER'] = 'sEcr3t!';
+    $this->assertIdentical(TRUE, authcache_varnish_request_validate(), 'Accept request when proxy passphrase matches');
+
+    $_SERVER['REMOTE_ADDR'] = $this->untrustedIp;
+    $_SERVER['HTTP_X_CUSTOM_PASSPHRASE_HEADER'] = 'sEcr3t!';
+    $this->assertIdentical(TRUE, authcache_varnish_request_validate(), 'Accept request when proxy passphrase matches, even from untrusted ip');
+  }
+
+  /**
+   * Request has the wrong X-Authcache-Varnish-Passphrase.
+   */
+  public function testRejectPassphraseIfNotIdentical() {
+    $this->variableSet('authcache_varnish_passphrase', 'sEcr3t!');
+
+    $_SERVER['REMOTE_ADDR'] = $this->proxyIp;
+    $_SERVER['HTTP_X_AUTHCACHE_VARNISH_PASSPHRASE'] = 'lEak3d!';
+    $this->assertIdentical(FALSE, authcache_varnish_request_validate(), 'Reject request when proxy passphrase does not match, even from trusted ip');
+
+    $_SERVER['REMOTE_ADDR'] = $this->untrustedIp;
+    $_SERVER['HTTP_X_AUTHCACHE_VARNISH_PASSPHRASE'] = 'lEak3d!';
+    $this->assertIdentical(FALSE, authcache_varnish_request_validate(), 'Reject request when proxy passphrase does not match');
+  }
+}

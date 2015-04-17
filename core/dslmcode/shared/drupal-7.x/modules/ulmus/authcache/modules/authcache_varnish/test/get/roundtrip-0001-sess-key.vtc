@@ -1,0 +1,172 @@
+varnishtest "Full cache roundtrip with several users/roles"
+
+server s1 {
+        ### c1: cache warming
+        rxreq
+        expect req.url == "/authcache-varnish-get-key"
+        expect req.http.Cookie == "SESSabc=user1"
+        expect req.http.X-Forwarded-For == "127.0.0.1"
+        txresp -hdr "Vary: Cookie" -hdr "X-Authcache-Key: users"
+
+        rxreq
+        expect req.url == "/"
+        expect req.http.X-Forwarded-For == "127.0.0.1"
+        expect req.http.X-Authcache-Key == "users"
+        txresp -hdr "Vary: X-Authcache-Key" -body "123"
+
+        rxreq
+        expect req.url == "/authcache-varnish-get-key"
+        expect req.http.Cookie == "SESSabc=user2"
+        expect req.http.X-Forwarded-For == "127.0.0.1"
+        txresp -hdr "Vary: Cookie" -hdr "X-Authcache-Key: users"
+
+        # user2: HIT /
+
+        rxreq
+        expect req.url == "/authcache-varnish-get-key"
+        expect req.http.Cookie == "SESSabc=editor1"
+        expect req.http.X-Forwarded-For == "127.0.0.1"
+        txresp -hdr "Vary: Cookie" -hdr "X-Authcache-Key: editors"
+
+        rxreq
+        expect req.url == "/"
+        expect req.http.X-Forwarded-For == "127.0.0.1"
+        expect req.http.X-Authcache-Key == "editors"
+        txresp -hdr "Vary: X-Authcache-Key" -body "1234"
+
+        rxreq
+        expect req.url == "/authcache-varnish-get-key"
+        expect req.http.Cookie == "SESSabc=admin1"
+        expect req.http.X-Forwarded-For == "127.0.0.1"
+        txresp -hdr "Vary: Cookie"
+
+        rxreq
+        expect req.url == "/"
+        expect req.http.X-Forwarded-For == "127.0.0.1"
+        expect req.http.X-Authcache-Key == <undef>
+        txresp -hdr "Vary: X-Authcache-Key" -body "12345"
+
+        rxreq
+        expect req.url == "/authcache-varnish-get-key"
+        expect req.http.Cookie == "SESSabc=admin2"
+        expect req.http.X-Forwarded-For == "127.0.0.1"
+        txresp -hdr "Vary: Cookie"
+
+        rxreq
+        expect req.url == "/"
+        expect req.http.X-Forwarded-For == "127.0.0.1"
+        expect req.http.X-Authcache-Key == <undef>
+        txresp -hdr "Vary: X-Authcache-Key" -body "123456"
+
+        ### c2: cache warm, no requests expected
+
+        # user1: HIT /authcache-varnish-get-key
+        # user1: HIT /
+        # user2: HIT /authcache-varnish-get-key
+        # user2: HIT /
+        # editor1: HIT /authcache-varnish-get-key
+        # editor1: HIT /
+
+        ### c3: key-cache is warm, only page requests expected for admin users
+        ### (keys are in cache).
+
+        # admin1: HIT /authcache-varnish-get-key
+
+        rxreq
+        expect req.url == "/"
+        expect req.http.X-Forwarded-For == "127.0.0.1"
+        expect req.http.X-Authcache-Key == <undef>
+        txresp -hdr "Vary: X-Authcache-Key" -body "1234567"
+
+        # admin2: HIT /authcache-varnish-get-key
+
+        rxreq
+        expect req.url == "/"
+        expect req.http.X-Forwarded-For == "127.0.0.1"
+        expect req.http.X-Authcache-Key == <undef>
+        txresp -hdr "Vary: X-Authcache-Key" -body "12345678"
+
+        ### c4: fresh cacheable user: get key from backend, get page from cache
+
+        rxreq
+        expect req.url == "/authcache-varnish-get-key"
+        expect req.http.Cookie == "SESSabc=editor2"
+        expect req.http.X-Forwarded-For == "127.0.0.1"
+        txresp -hdr "Vary: Cookie" -hdr "X-Authcache-Key: editors"
+
+        # editor2: HIT /
+} -start
+
+varnish v1 -vcl+backend {
+        ${vcl1}
+        ${vcl2}
+        ${vcl3}
+} -start
+
+# Warm up the cache
+client c1 {
+        txreq -url "/" -hdr "Cookie: SESSabc=user1"
+        rxresp
+        expect resp.body == "123"
+
+        txreq -url "/" -hdr "Cookie: SESSabc=user2"
+        rxresp
+        expect resp.body == "123"
+
+        txreq -url "/" -hdr "Cookie: SESSabc=editor1"
+        rxresp
+        expect resp.body == "1234"
+
+        txreq -url "/" -hdr "Cookie: SESSabc=admin1"
+        rxresp
+        expect resp.body == "12345"
+
+        txreq -url "/" -hdr "Cookie: SESSabc=admin2"
+        rxresp
+        expect resp.body == "123456"
+} -run
+
+varnish v1 -expect cache_hit == 1
+
+# Cacheable users must not go through to the backend from here on.
+client c2 {
+        txreq -url "/" -hdr "Cookie: SESSabc=user1"
+        rxresp
+        expect resp.body == "123"
+
+        txreq -url "/" -hdr "Cookie: SESSabc=user2"
+        rxresp
+        expect resp.body == "123"
+
+        txreq -url "/" -hdr "Cookie: SESSabc=editor1"
+        rxresp
+        expect resp.body == "1234"
+} -run
+
+varnish v1 -expect cache_hit == 7
+
+# Non-cacheable users should get a fresh copy each time
+client c3 {
+        txreq -url "/" -hdr "Cookie: SESSabc=admin1"
+        rxresp
+        expect resp.body == "1234567"
+
+        txreq -url "/" -hdr "Cookie: SESSabc=admin2"
+        rxresp
+        expect resp.body == "12345678"
+} -run
+
+varnish v1 -expect cache_hit == 9
+
+# Fresh cacheable user should get page from cache but key needs to be retreived
+# from the backend on the first request.
+client c4 {
+        txreq -url "/" -hdr "Cookie: SESSabc=editor2"
+        rxresp
+        expect resp.body == "1234"
+} -run
+
+varnish v1 -expect cache_hit == 10
+
+server s1 -wait
+varnish v1 -stop

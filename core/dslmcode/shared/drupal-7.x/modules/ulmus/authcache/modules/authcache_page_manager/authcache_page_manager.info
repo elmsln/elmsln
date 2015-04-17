@@ -1,0 +1,24 @@
+name = Authcache Page Manager
+description = Authcache support for Ctools Page Manager
+package = Performance and scalability
+core = 7.x
+dependencies[] = authcache_p13n
+dependencies[] = page_manager
+files[] = includes/AuthcachePageManagerAdminEntry.inc
+files[] = includes/AuthcachePageManagerCommentReplyTaskContextProvider.inc
+files[] = includes/AuthcachePageManagerDefaultTaskContextProvider.inc
+files[] = includes/AuthcachePageManagerNodeAddTaskContextProvider.inc
+files[] = includes/AuthcachePageManagerNodeEditTaskContextProvider.inc
+files[] = includes/AuthcachePageManagerNodeViewTaskContextProvider.inc
+files[] = includes/AuthcachePageManagerPageTaskContextProvider.inc
+files[] = includes/AuthcachePageManagerSearchTaskContextProvider.inc
+files[] = includes/AuthcachePageManagerTermViewTaskContextProvider.inc
+files[] = includes/AuthcachePageManagerUserEditTaskContextProvider.inc
+files[] = includes/AuthcachePageManagerUserTaskContextProvider.inc
+
+; Information added by Drupal.org packaging script on 2014-10-21
+version = "7.x-2.0-beta4"
+core = "7.x"
+project = "authcache"
+datestamp = "1413923939"
+

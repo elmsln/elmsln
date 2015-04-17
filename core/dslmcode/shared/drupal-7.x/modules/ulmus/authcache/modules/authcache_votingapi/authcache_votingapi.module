@@ -1,0 +1,23 @@
+<?php
+/**
+ * @file
+ * Authcache support for the Voting API module.
+ */
+
+/**
+ * Implements hook_votingapi_insert().
+ *
+ * Invalidate user cache when votes are inserted.
+ */
+function authcache_votingapi_votingapi_insert($votes) {
+  authcache_p13n_session_invalidate();
+}
+
+/**
+ * Implements hook_votingapi_delete().
+ *
+ * Invalidate user cache when votes are deleted.
+ */
+function authcache_votingapi_votingapi_delete($votes) {
+  authcache_p13n_session_invalidate();
+}

@@ -1,0 +1,585 @@
+<?php
+/**
+ * @file
+ * Test cases for the Authcache Comment module.
+ */
+
+/**
+ * Tests for markup substitution.
+ */
+class AuthcacheCommentTest extends DrupalWebTestCase {
+  protected $stubmod;
+  protected $member1;
+  protected $member2;
+  protected $editor;
+  protected $node;
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function getInfo() {
+    return array(
+      'name' => 'Authcache Comment',
+      'description' => 'Test markup substitution and fragment generation for Comments',
+      'group' => 'Authcache Comment',
+    );
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function setUp() {
+    parent::setUp(array('authcache_comment', 'authcache_p13n_test'));
+
+    $this->member1 = $this->drupalCreateUser(array(
+      'access comments',
+      'post comments',
+    ));
+    $this->member2 = $this->drupalCreateUser(array(
+      'access comments',
+      'post comments',
+      'edit own comments',
+    ));
+    $this->editor = $this->drupalCreateUser(array(
+      'create article content',
+      'administer comments',
+    ));
+    $this->node = $this->drupalCreateNode(array(
+      'type' => 'article',
+      'promote' => 1,
+      'uid' => $this->editor->uid,
+    ));
+
+    $authcache_roles = array(
+      DRUPAL_ANONYMOUS_RID => DRUPAL_ANONYMOUS_RID,
+      DRUPAL_AUTHENTICATED_RID => DRUPAL_AUTHENTICATED_RID,
+    ) + $this->member1->roles + $this->member2->roles + $this->editor->roles;
+
+    // Setup authcache.
+    variable_set('authcache_roles', $authcache_roles);
+    $pagecaching = _authcache_default_pagecaching();
+    $pagecaching[0]['roles']['roles'] = $authcache_roles;
+    variable_set('authcache_pagecaching', $pagecaching);
+
+    // HookStub.
+    $this->stubmod = new ModuleStub('authcache_p13n_test');
+  }
+
+  /**
+   * Test whether the given stub passes the invocation verifier.
+   */
+  protected function assertStub(HookStubProxy $stub, $verifier, $message = NULL) {
+    $result = $stub->verify($verifier, $error);
+
+    if (!$message) {
+      $message = t('Verify invocation of hook @hook.', array('@hook' => $stub->hookname()));
+    }
+    if (!$result && is_string($error)) {
+      $message .= ' ' . $error;
+    }
+
+    $this->assertTrue($result, $message);
+  }
+
+  /**
+   * Post comment.
+   *
+   * @see CommentHelperCase::postComment()
+   */
+  protected function postComment($node, $comment, $subject = '', $contact = NULL, $extra_post = NULL) {
+    $langcode = LANGUAGE_NONE;
+    $edit = array();
+    $edit['comment_body[' . $langcode . '][0][value]'] = $comment;
+
+    $preview_mode = variable_get('comment_preview_article', DRUPAL_OPTIONAL);
+    $subject_mode = variable_get('comment_subject_field_article', 1);
+
+    // Must get the page before we test for fields.
+    if ($node !== NULL) {
+      $this->drupalGet('comment/reply/' . $node->nid);
+    }
+
+    if ($subject_mode == TRUE) {
+      $edit['subject'] = $subject;
+    }
+    else {
+      $this->assertNoFieldByName('subject', '', 'Subject field not found.');
+    }
+
+    if ($contact !== NULL && is_array($contact)) {
+      $edit += $contact;
+    }
+    switch ($preview_mode) {
+      case DRUPAL_REQUIRED:
+        // Preview required so no save button should be found.
+        $this->assertNoFieldByName('op', t('Save'), 'Save button not found.');
+        $this->drupalPost(NULL, $edit, t('Preview'), array(), array(), NULL, $extra_post);
+        // Don't break here so that we can test post-preview field presence and
+        // function below.
+      case DRUPAL_OPTIONAL:
+        $this->assertFieldByName('op', t('Preview'), 'Preview button found.');
+        $this->assertFieldByName('op', t('Save'), 'Save button found.');
+        $this->drupalPost(NULL, $edit, t('Save'), array(), array(), NULL, $extra_post);
+        break;
+
+      case DRUPAL_DISABLED:
+        $this->assertNoFieldByName('op', t('Preview'), 'Preview button not found.');
+        $this->assertFieldByName('op', t('Save'), 'Save button found.');
+        $this->drupalPost(NULL, $edit, t('Save'), array(), array(), NULL, $extra_post);
+        break;
+    }
+    $match = array();
+    // Get comment ID.
+    preg_match('/#comment-([0-9]+)/', $this->getURL(), $match);
+
+    // Get comment.
+    if ($contact !== TRUE) {
+      if ($subject) {
+        $this->assertText($subject, 'Comment subject posted.');
+      }
+      $this->assertText($comment, 'Comment body posted.');
+      $this->assertTrue((!empty($match) && !empty($match[1])), 'Comment id found.');
+    }
+
+    if (isset($match[1])) {
+      return (object) array(
+        'id' => $match[1],
+        'subject' => $subject,
+        'comment' => $comment,
+      );
+    }
+  }
+
+  /**
+   * Test that the username is not displayed on the comment form.
+   */
+  public function testNoUserNameInCommentForm() {
+    $this->drupalLogin($this->member1);
+    $this->drupalGet('comment/reply/' . $this->node->nid);
+    $this->assertNoText($this->member1->name, 'Should remove the users name from the comment form');
+    $this->drupalLogout();
+  }
+
+  /**
+   * Ensure that user setting is embedded for authenticated users.
+   */
+  public function testUserSettingInCommentForm() {
+    $this->stubmod->hook('authcache_p13n_client', array(
+      'authcache_p13n_test' => array(
+        'title' => t('Test Client'),
+        'enabled' => TRUE,
+      ),
+    ));
+
+    $setting_markup = $this->randomName(8);
+    $setting_stub = HookStub::on('theme_authcache_p13n_setting__authcache_p13n_test', $setting_markup);
+
+    // Then ensure that the setting is added when the site wide contact form is
+    // accessed with authenticated user.
+    $this->drupalLogin($this->member1);
+    $this->drupalGet('comment/reply/' . $this->node->nid);
+    $this->assertNoText($this->member1->name, 'Should remove the users name from the comment form');
+
+    $this->assertText($setting_markup);
+    $this->assertStub($setting_stub, HookStub::once());
+    $this->assertIdentical(1, count($this->xpath('//span[@class=:class and @data-p13n-user-prop=:prop]', array(
+      ':class' => 'authcache-user',
+      ':prop' => 'name',
+    ))), 'Generate placeholder markup for user property');
+  }
+
+  /**
+   * Test that the number of new comments is replaced by a placeholder.
+   *
+   * Covers authcache_comment_node_view_alter()
+   */
+  public function testNumberOfNewComments() {
+    $this->stubmod->hook('authcache_p13n_client', array(
+      'authcache_p13n_test' => array(
+        'title' => t('Test Client'),
+        'enabled' => TRUE,
+      ),
+    ));
+
+    $this->drupalLogin($this->member1);
+
+    // M1: Visit the front page populated with one node having no comments.
+    // Because there is no point in trying to figure out whether a node has new
+    // comments, markup substitution for the new-comments fragment should not
+    // take place when there are no comments in the first place.
+    $setting_markup = $this->randomName(8);
+    $setting_stub = HookStub::on('theme_authcache_p13n_setting__authcache_p13n_test', $setting_markup);
+
+    $this->drupalGet('node');
+
+    $this->assertStub($setting_stub, HookStub::never());
+
+    // M1: Post a comment.
+    $comment = $this->postComment($this->node, $this->randomName(8));
+    $this->drupalLogout();
+
+    // M2: Post a comment on the same node.
+    $this->drupalLogin($this->member2);
+    $comment = $this->postComment($this->node, $this->randomName(8));
+    $this->drupalLogout();
+
+    // M1: Returns to the home page. Normally a link '1 new comment' will be
+    // shown on a node posted to the front page. However Authcache Comment will
+    // substitute the number-of-new-comments link with a placeholder.
+    $this->drupalLogin($this->member1);
+
+    $setting_markup = $this->randomName(8);
+    $setting_stub = HookStub::on('theme_authcache_p13n_setting__authcache_p13n_test', $setting_markup);
+
+    $this->drupalGet('node');
+
+    $this->assertNoText('1 new comment');
+    $this->assertText($setting_markup, 'Replace "1 new comment" link with a setting');
+    $this->assertStub($setting_stub, HookStub::once());
+    $this->assertIdentical(1, count($this->xpath('//span[@class=:class and @data-p13n-nid=:nid]', array(
+      ':class' => 'authcache-comment-num-new',
+      ':nid' => $this->node->nid,
+    ))), 'Replace "1 new comment" link with placeholder markup');
+
+    // M1: Visit the node in order to clear the new-comments marker.
+    $this->drupalGet('node/' . $this->node->nid);
+
+    // M1: Repeat the test on the front-page. Even though there are no new
+    // comments, the markup substitution must still take place.
+    $setting_markup = $this->randomName(8);
+    $setting_stub = HookStub::on('theme_authcache_p13n_setting__authcache_p13n_test', $setting_markup);
+
+    $this->drupalGet('node');
+
+    $this->assertText($setting_markup, 'Render setting even though there is no new comment');
+    $this->assertStub($setting_stub, HookStub::once());
+    $this->assertIdentical(1, count($this->xpath('//span[@class=:class and @data-p13n-nid=:nid]', array(
+      ':class' => 'authcache-comment-num-new',
+      ':nid' => $this->node->nid,
+    ))), 'Generate placeholder markup even though there is no new comment');
+  }
+
+  /**
+   * Test the edit-link when edit is not allowed.
+   *
+   * Cover authcache_comment_comment_view_alter()
+   */
+  public function testEditLinkNoSubstitutionWhenEditNotAllowed() {
+    $this->stubmod->hook('authcache_p13n_client', array(
+      'authcache_p13n_test' => array(
+        'title' => t('Test Client'),
+        'enabled' => TRUE,
+      ),
+    ));
+
+    // The role of M1 does not have the 'edit own comments' permission.
+    // Therefore Authcache Comment should not substitute the markup for
+    // edit-links.
+    $this->drupalLogin($this->member1);
+    $comment = $this->postComment($this->node, $this->randomName(8));
+
+    $this->drupalGet('node/' . $this->node->nid);
+
+    $this->assertNoLink('edit');
+  }
+
+  /**
+   * Test the edit-link when edit own is allowed.
+   *
+   * Cover authcache_comment_comment_view_alter()
+   */
+  public function testEditLinkSubstitutionWhenEditAllowed() {
+    $this->stubmod->hook('authcache_p13n_client', array(
+      'authcache_p13n_test' => array(
+        'title' => t('Test Client'),
+        'enabled' => TRUE,
+      ),
+    ));
+
+    // The role of M2 has the 'edit own comments' permission. Therefore
+    // Authcache Comment should substitute the markup for edit-links.
+    $this->drupalLogin($this->member2);
+    $comment = $this->postComment($this->node, $this->randomName(8));
+
+    $this->drupalGet('node/' . $this->node->nid);
+
+    // See DrupalWebTestCase::assertLink().
+    $label = 'edit';
+    $links = $this->xpath('//a[normalize-space(text())=:label and contains(@class, :authcache_class) and contains(@class, :hidden_class)]', array(
+      ':label' => $label,
+      ':authcache_class' => 'authcache-comment-edit',
+      ':hidden_class' => 'element-hidden',
+    ));
+    $this->assert(isset($links[0]), t('Hidden link with label %label found.', array('%label' => $label)));
+
+    $this->assertLink('edit');
+  }
+
+  /**
+   * Test the edit-link for admin role.
+   *
+   * Cover authcache_comment_comment_view_alter()
+   */
+  public function testEditLinkNoSubstitutionForEditor() {
+    $this->stubmod->hook('authcache_p13n_client', array(
+      'authcache_p13n_test' => array(
+        'title' => t('Test Client'),
+        'enabled' => TRUE,
+      ),
+    ));
+
+    // The editor has permission to administrate comments, therefore there is no
+    // point in replacing edit links - they will be rendered anyway.
+    $this->drupalLogin($this->editor);
+    $comment = $this->postComment($this->node, $this->randomName(8));
+
+    $this->drupalGet('node/' . $this->node->nid);
+
+    // See DrupalWebTestCase::assertLink().
+    $label = 'edit';
+    $links = $this->xpath('//a[normalize-space(text())=:label and contains(@class, :authcache_class) and contains(@class, :hidden_class)]', array(
+      ':label' => $label,
+      ':authcache_class' => 'authcache-comment-edit',
+      ':hidden_class' => 'element-hidden',
+    ));
+    $this->assert(!isset($links[0]), t('Hidden link with label %label found.', array('%label' => $label)));
+
+    $this->assertLink('edit');
+  }
+
+  /**
+   * Test removal of the new marker.
+   *
+   * Cover authcache_comment_preprocess_comment()
+   */
+  public function testNewMarkerRemoval() {
+    $this->stubmod->hook('authcache_p13n_client', array(
+      'authcache_p13n_test' => array(
+        'title' => t('Test Client'),
+        'enabled' => TRUE,
+      ),
+    ));
+
+    // Simulate member1 visiting the node a minute ago.
+    db_merge('history')->key(array(
+      'uid' => $this->member1->uid,
+      'nid' => $this->node->nid,
+    ))->fields(array('timestamp' => time() - 60))->execute();
+
+    // Login with member2 and post a comment.
+    $this->drupalLogin($this->member2);
+    $comment = $this->postComment($this->node, $this->randomName(8));
+
+    // Ensure that the new-marker is not in the markup.
+    $this->drupalLogin($this->member1);
+    $this->drupalGet('node/' . $this->node->nid);
+    $this->assertFalse($this->xpath('//span[contains(@class, :class)]', array(':class' => 'new')), 'No new-marker on the page');
+  }
+
+  /**
+   * Test removal of the new marker.
+   *
+   * Cover authcache_comment_preprocess_comment()
+   */
+  public function testNewMarkerSubstitutionWithNodeHistory() {
+    $this->stubmod->hook('authcache_p13n_client', array(
+      'authcache_p13n_test' => array(
+        'title' => t('Test Client'),
+        'enabled' => TRUE,
+      ),
+    ));
+
+    module_enable(array('authcache_node_history'));
+    $this->resetAll();
+
+    // Simulate member1 visiting the node a minute ago.
+    db_merge('history')->key(array(
+      'uid' => $this->member1->uid,
+      'nid' => $this->node->nid,
+    ))->fields(array('timestamp' => time() - 60))->execute();
+
+    // Login with member2 and post a comment.
+    $this->drupalLogin($this->member2);
+    $comment = $this->postComment($this->node, $this->randomName(8));
+
+    // Ensure that a new-marker is present handled by the authcache node-history
+    // module.
+    $this->drupalLogin($this->member1);
+    $this->drupalGet('node/' . $this->node->nid);
+    $this->assertTrue($this->xpath('//span[contains(@class, :class)]', array(':class' => 'new')), 'New-marker on the page');
+    $this->assertTrue($this->xpath('//span[contains(@class, :class)]', array(':class' => 'authcache-node-history')), 'New-marker handled by authcache node history module');
+  }
+
+  /**
+   * Ensure that markup is substituted for authcache enabled comments.
+   */
+  public function testNoMarkupSubstitutionForGuestUser() {
+    // Post a comment.
+    $this->drupalLogin($this->member1);
+    $comment = $this->postComment($this->node, $this->randomName(8));
+    $this->drupalLogout();
+
+    // Setup authcache markup substitution mocking.
+    $this->stubmod->hook('authcache_p13n_client', array(
+      'authcache_p13n_test' => array(
+        'title' => t('Test Client'),
+        'enabled' => TRUE,
+      ),
+    ));
+
+    $setting_markup = $this->randomName(8);
+    $setting_stub = HookStub::on('theme_authcache_p13n_setting__authcache_p13n_test', $setting_markup);
+
+    // Ensure that no markup substitution takes place for anonymous users on
+    // front page.
+    $this->drupalGet('node');
+    $this->assertStub($setting_stub, HookStub::never());
+
+    // Ensure that no markup substitution takes place for anonymous users on
+    // node page.
+    $this->drupalGet('node/' . $this->node->nid);
+    $this->assertStub($setting_stub, HookStub::never());
+  }
+
+  /**
+   * Ensure that the number of new comments is reported accurately.
+   *
+   * Covers AuthcacheCommentNumNewFragment
+   */
+  public function testNumberOfNewCommentsFragment() {
+    // M1: Login and retrieve num-new setting for front-page.
+    $this->drupalLogin($this->member1);
+
+    $url = authcache_p13n_request_get_callback('setting/comment-num-new', array(
+      'cn' => array($this->node->nid),
+    ));
+    $this->assertTrue($url);
+
+    $result = $this->drupalGetAJAX($GLOBALS['base_root'] . $url['path'], $url['options'], array('X-Authcache: 1'));
+    $expect = array('authcacheCommentNumNew' => array());
+    $this->assertEqual($expect, $result, 'Should not report any new comments if there are none');
+
+    // Simulate M1 visiting the node a minute ago.
+    db_merge('history')->key(array(
+      'uid' => $this->member1->uid,
+      'nid' => $this->node->nid,
+    ))->fields(array('timestamp' => time() - 60))->execute();
+
+    // M2: Post a comment.
+    $this->drupalLogin($this->member2);
+    $comment = $this->postComment($this->node, $this->randomName(8));
+    $this->drupalLogout();
+
+    // M1: Login again and verify that num-new reports a comment count of 1 now.
+    $this->drupalLogin($this->member1);
+    $result = $this->drupalGetAJAX($GLOBALS['base_root'] . $url['path'], $url['options'], array('X-Authcache: 1'));
+    $expect = array(
+      'authcacheCommentNumNew' => array(
+        $this->node->nid => 1,
+      ),
+    );
+    $this->assertEqual($expect, $result, 'Should report one new comment for member one now');
+  }
+
+  /**
+   * Test that comments get properly attributed when the form cache is in use.
+   *
+   * Bug: https://www.drupal.org/node/2307555
+   */
+  public function testCommentAttributionWithFormCache() {
+    $this->stubmod->hook('authcache_p13n_client', array(
+      'authcache_p13n_test' => array(
+        'title' => t('Test Client'),
+        'enabled' => TRUE,
+      ),
+    ));
+
+    // Setup file field and cache object API.
+    module_enable(array('file', 'authcache_form', 'cacheobject'));
+    variable_set('cache_class_cache_form', 'CacheObjectAPIWrapper');
+    variable_set('cacheobject_class_cache_form', 'DrupalDatabaseCache');
+    $this->resetAll();
+
+    // Add a file-field to the comment entity. This will trigger the form cache
+    // because the file field widget uses Ajax.
+    $field = array(
+      'field_name' => 'field_document',
+      'type'  => 'file',
+      'cardinality' => FIELD_CARDINALITY_UNLIMITED,
+    );
+    field_create_field($field);
+    $instance = array(
+      'field_name' => 'field_document',
+      'entity_type' => 'comment',
+      'label' => 'Document',
+      'bundle' => 'comment_node_article',
+      'settings' => array(
+        'file_directory' => 'field/document',
+        'file_extensions' => 'txt doc docx pdf ods odt xls xlsx',
+        'max_filesize' => '2MB',
+        'title_field' => '',
+      ),
+      'widget' => array(
+        'type' => 'file_generic',
+        'weight' => -4,
+      ),
+      'display' => array(
+        'default' => array(
+          'type' => 'file_default',
+          'weight' => 10,
+        ),
+        'teaser' => array(
+          'type' => 'file_default',
+          'weight' => 10,
+        ),
+      ),
+    );
+    field_create_instance($instance);
+
+    // Create a clone of member1 with the same set of roles.
+    $cloned_member1 = $this->drupalCreateUser();
+    $cloned_member1->roles = $this->member1->roles;
+    user_save($cloned_member1);
+
+    $this->drupalLogin($this->member1);
+
+    // M1: Visit the node in order to warm the form cache.
+    $excluded_stub = $this->stubmod->hook('authcache_excluded');
+    $canceled_stub = $this->stubmod->hook('authcache_canceled');
+    $this->drupalGet('node/' . $this->node->nid);
+    $this->assertStub($excluded_stub, HookStub::never());
+    $this->assertStub($canceled_stub, HookStub::never());
+
+    // Record the current page content and url.
+    $content = $this->drupalGetContent();
+    $url = $this->getUrl();
+
+    // M2: Post a comment.
+    $this->drupalLogin($cloned_member1);
+
+    // Simulate a cache-hit by restoring the content and url from member1.
+    $this->drupalSetContent($content, $url);
+
+    // Compute CSRF token and supply it via the extra_post parameter.
+    $token = $this->drupalGetToken('comment_form');
+    $extra_post = '&form_token=' . urlencode($token);
+
+    $this->postComment(NULL, $this->randomName(8), '', NULL, $extra_post);
+
+    // Ensure that we are not running into CSRF protection.
+    $this->assertNoText('The form has become outdated.');
+
+    // Ensure that the comment is attributed to the clone of member1.
+    $this->assertText($cloned_member1->name);
+    $this->assertNoText($this->member1->name);
+
+    $this->drupalLogout();
+  }
+
+  /**
+   * Overrides the defective method in the parent class.
+   */
+  protected function drupalGetToken($value = '') {
+    return drupal_hmac_base64($value, $this->session_id . drupal_get_private_key() . drupal_get_hash_salt());
+  }
+}

@@ -1,0 +1,14 @@
+name = Authcache Builtin Cache Expiration v2
+description = Cache expiration version 7.x-2.x integration for Authcache Bultin Storage Backend
+package = Performance and scalability
+core = 7.x
+dependencies[] = authcache_builtin
+dependencies[] = authcache_enum
+dependencies[] = expire (2.x)
+
+; Information added by Drupal.org packaging script on 2014-10-21
+version = "7.x-2.0-beta4"
+core = "7.x"
+project = "authcache"
+datestamp = "1413923939"
+

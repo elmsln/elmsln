@@ -1,0 +1,82 @@
+<?php
+/**
+ * @file
+ * Provide profile data of logged in user as personalized setting.
+ */
+
+/**
+ * Implements hook_authcache_p13n_setting().
+ */
+function authcache_user_authcache_p13n_setting() {
+  return array(
+    'user' => array(
+      'admin name' => t('User'),
+      'admin group' => t('Logged in User'),
+      'admin description' => t('Provide profile data of logged in user as personalized setting'),
+      'setting' => array(
+        '#setting' => 'u',
+        '#target' => 'authcacheUser',
+        '#class' => 'AuthcacheUserSetting',
+        '#arguments' => array(
+          array(
+            'uid',
+            'name',
+            'mail',
+          ),
+        ),
+      ),
+      'cache maxage' => 86400,
+    ),
+  );
+}
+
+/**
+ * Implements hook_form_alter().
+ */
+function authcache_user_form_alter(&$form, &$form_state, $form_id) {
+  global $user;
+
+  if ($user->uid && authcache_page_is_cacheable()) {
+    switch ($form_id) {
+      case 'contact_site_form':
+      case 'contact_personal_form':
+        if (isset($form['name'])) {
+          authcache_user_attach_property($form['name'], 'name');
+        }
+        if (isset($form['mail'])) {
+          authcache_user_attach_property($form['mail'], 'mail');
+        }
+        break;
+    }
+  }
+}
+
+/**
+ * Implements hook_preprocess_toolbar().
+ */
+function authcache_user_preprocess_toolbar(&$variables) {
+  if (isset($variables['toolbar']['toolbar_user']['#links']['account']) && !authcache_element_is_cacheable($variables['toolbar']['toolbar_user'])) {
+    $replacement = array(
+      '#theme' => 'html_tag',
+      '#tag' => 'span',
+    );
+    authcache_user_attach_property($replacement, 'name');
+    $variables['toolbar']['toolbar_user']['#links']['account']['title'] = t('Hello <strong>!username</strong>', array('!username' => render($replacement)));
+    authcache_element_set_cacheable($variables['toolbar']['toolbar_user']);
+  }
+}
+
+
+/**
+ * Attach setting loader for currently logged in user to the given element.
+ */
+function authcache_user_attach_property(&$target, $property_name) {
+  authcache_p13n_attach($target, array(
+    '#setting' => 'user',
+    '#attached' => array(
+      'js' => array(drupal_get_path('module', 'authcache_user') . '/authcache_user.js'),
+    ),
+  ));
+  $target['#attributes']['class'][] = 'authcache-user';
+  $target['#attributes']['data-p13n-user-prop'] = $property_name;
+}

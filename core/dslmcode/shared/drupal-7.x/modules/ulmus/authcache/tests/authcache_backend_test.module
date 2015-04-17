@@ -1,0 +1,57 @@
+<?php
+
+/**
+ * @file
+ * Provides a stub cache backend for testing purposes.
+ */
+
+/**
+ * Implements hook_boot().
+ */
+function authcache_backend_test_boot() {
+  $info = HookStub::record(__FUNCTION__, func_get_args());
+
+  if ($info === FALSE) {
+    return;
+  }
+
+  if (!isset($info['backends'])) {
+    $module = isset($info[0]) ? $info[0] : 'authcache_backend_test';
+    $vary_header = isset($info[1]) ? $info[1] : 'Cookie';
+    $key = isset($info[2]) ? $info[2] : FALSE;
+    $info['backends'] = array(
+      array($module, $vary_header, $key),
+    );
+  }
+
+  foreach ($info['backends'] as $args) {
+    list($module, $vary_header, $initial_key) = $args;
+    authcache_backend_init($module, $vary_header, $initial_key);
+  }
+}
+
+/**
+ * Implements hook_ext().
+ */
+function authcache_backend_test_exit() {
+  if (drupal_get_bootstrap_phase() === DRUPAL_BOOTSTRAP_FULL) {
+    drupal_add_http_header('X-Authcache-Backend-Test-Sess-Boot', authcache_backend_initial_session_id());
+    drupal_add_http_header('X-Authcache-Backend-Test-Sess-Exit', empty($_SESSION) ? FALSE : session_id());
+    drupal_add_http_header('X-Authcache-Backend-Test-Key-Boot', authcache_backend_initial_key());
+    drupal_add_http_header('X-Authcache-Backend-Test-Key-Exit', authcache_key());
+  }
+}
+
+/**
+ * Implements hook_authcache_backend_cache_save().
+ */
+function authcache_backend_test_authcache_backend_cache_save($body, $headers, $page_compressed) {
+  return HookStub::record(__FUNCTION__, func_get_args());
+}
+
+/**
+ * Implements hook_authcache_backend_key_set().
+ */
+function authcache_backend_test_authcache_backend_key_set($key, $lifetime, $has_session) {
+  return HookStub::record(__FUNCTION__, func_get_args());
+}

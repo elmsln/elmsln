@@ -1,0 +1,78 @@
+$handler = new stdClass();
+$handler->disabled = FALSE; /* Edit this to true to make a default handler disabled initially */
+$handler->api_version = 1;
+$handler->name = 'node_view_panel_context';
+$handler->task = 'node_view';
+$handler->subtask = '';
+$handler->handler = 'panel_context';
+$handler->weight = 0;
+$handler->conf = array(
+  'title' => 'Panel',
+  'no_blocks' => 0,
+  'pipeline' => 'standard',
+  'body_classes_to_remove' => '',
+  'body_classes_to_add' => '',
+  'css_id' => '',
+  'css' => '',
+  'contexts' => array(),
+  'relationships' => array(),
+);
+$display = new panels_display();
+$display->layout = 'onecol';
+$display->layout_settings = array();
+$display->panel_settings = array(
+  'style_settings' => array(
+    'default' => NULL,
+    'left' => NULL,
+    'right' => NULL,
+    'middle' => NULL,
+  ),
+);
+$display->cache = array();
+$display->title = '';
+$display->uuid = 'db67a1ea-28d8-40fd-a687-3e854791d67e';
+$display->content = array();
+$display->panels = array();
+  $pane = new stdClass();
+  $pane->pid = 'new-13650bef-ad43-4dca-b9af-c9d1de1f90c0';
+  $pane->panel = 'middle';
+  $pane->type = 'node';
+  $pane->subtype = 'node';
+  $pane->shown = TRUE;
+  $pane->access = array();
+  $pane->configuration = array(
+    'nid' => '42',
+    'links' => 1,
+    'leave_node_title' => 0,
+    'identifier' => '',
+    'build_mode' => 'teaser',
+    'link_node_title' => 0,
+    'override_title' => 0,
+    'override_title_text' => '',
+  );
+  $pane->cache = array(
+    'method' => 'authcache_panels',
+    'settings' => array(
+      'machine_name' => 'node_pane',
+      'authcache' => array(
+        'status' => '1',
+        'lifespan' => '3600',
+        'peruser' => '1',
+        'perpage' => '1',
+        'fallback' => 'cancel',
+      ),
+    ),
+  );
+  $pane->style = array(
+    'settings' => NULL,
+  );
+  $pane->css = array();
+  $pane->extras = array();
+  $pane->position = 0;
+  $pane->locks = array();
+  $pane->uuid = '13650bef-ad43-4dca-b9af-c9d1de1f90c0';
+  $display->content['new-13650bef-ad43-4dca-b9af-c9d1de1f90c0'] = $pane;
+  $display->panels['middle'][0] = 'new-13650bef-ad43-4dca-b9af-c9d1de1f90c0';
+$display->hide_title = PANELS_TITLE_PANE;
+$display->title_pane = 'new-13650bef-ad43-4dca-b9af-c9d1de1f90c0';
+$handler->conf['display'] = $display;

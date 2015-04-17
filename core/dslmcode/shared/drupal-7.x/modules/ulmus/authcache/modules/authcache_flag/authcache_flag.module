@@ -1,0 +1,189 @@
+<?php
+/**
+ * @file
+ * Provide personalization for the flag module.
+ */
+
+/**
+ * Implements hook_authcache_p13n_assembly().
+ */
+function authcache_flag_authcache_p13n_assembly() {
+  $assembly = array(
+    'admin name' => t('All flags'),
+    'admin group' => t('Flag'),
+    'admin description' => t('All flags on a page'),
+    'cache maxage' => 600,
+    'bootstrap phase' => DRUPAL_BOOTSTRAP_FULL,
+  );
+
+  $flags = flag_get_flags();
+  foreach ($flags as $flag) {
+    $partial_id = _authcache_flag_partial_id($flag);
+    $assembly['fragment ' . $partial_id] = array(
+      '#partial' => $partial_id,
+      '#class' => 'AuthcacheFlagFlagFragment',
+      '#arguments' => array($flag->name),
+    );
+  }
+
+  return array(
+    'flags' => $assembly,
+  );
+}
+
+/**
+ * Implements hook_flag_view_alter().
+ *
+ * @see flag_entity_view()
+ */
+function authcache_flag_entity_view_alter(&$build, $type) {
+  if (authcache_page_is_cacheable()) {
+    $entity = _authcache_flag_extract_entity_from_build($build);
+    list($id) = entity_extract_ids($type, $entity);
+
+    $flags = flag_get_flags($type);
+    foreach ($flags as $flag) {
+      // Substitute link.
+      if (isset($build['links']['flag']['#links']['flag-' . $flag->name])) {
+        $build['links']['flag']['#links']['flag-' . $flag->name] = array(
+          'title' => theme('authcache_p13n_partial', array(
+            'assembly' => 'flags',
+            'partial' => _authcache_flag_partial_id($flag),
+            'param' => $id,
+            'fallback' => 'cancel',
+            'original' => $build['links']['flag']['#links']['flag-' . $flag->name]['title'],
+          )),
+          'html' => TRUE,
+        );
+      }
+
+      // Substitute pseudo field.
+      if (isset($build['flag_' . $flag->name])) {
+        $flag_name_css = str_replace('_', '-', $flag->name);
+        $wrapper_attrs = array('class' => array('flag-outer', $flag_name_css));
+        authcache_p13n_attach($build['flag_' . $flag->name], array(
+          '#theme' => 'authcache_p13n_partial',
+          '#assembly' => 'flags',
+          '#partial' => _authcache_flag_partial_id($flag),
+          '#param' => $id,
+          '#fallback' => 'cancel',
+          '#prefix' => '<div ' . drupal_attributes($wrapper_attrs) . '>',
+          '#suffix' => '</div>',
+        ));
+      }
+    }
+  }
+}
+
+/**
+ * Implements hook_user_view_alter().
+ *
+ * @see flag_user_view()
+ */
+function authcache_user_view_alter(&$build) {
+  if (authcache_page_is_cacheable()) {
+    $account = $build['#account'];
+    list($id) = entity_extract_ids('user', $account);
+    $flags = flag_get_flags('user');
+
+    foreach ($flags as $flag) {
+      // Substitute profile field.
+      if (isset($build['flags'][$flag->name])) {
+        authcache_p13n_attach($build['flags'][$flag->name], array(
+          '#theme' => 'authcache_p13n_partial',
+          '#assembly' => 'flags',
+          '#partial' => _authcache_flag_partial_id($flag),
+          '#param' => $id,
+          '#fallback' => 'cancel',
+        ));
+      }
+    }
+  }
+}
+
+/**
+ * Implements hook_flag_flag().
+ *
+ * Invalidate user cache when a flag changes.
+ */
+function authcache_flag_flag_flag($flag, $entity_id, $account, $flagging) {
+  authcache_p13n_session_invalidate();
+}
+
+/**
+ * Implements hook_flag_unflag().
+ *
+ * Invalidate user cache when a flag changes.
+ */
+function authcache_flag_flag_unflag($flag, $entity_id, $account, $flagging) {
+  authcache_p13n_session_invalidate();
+}
+
+/**
+ * Implements hook_flag_delete().
+ *
+ * Rebuild request router when a flag is deleted.
+ */
+function authcache_flag_flag_delete($flag) {
+  authcache_p13n_request_router_rebuild();
+}
+
+/**
+ * Implements hook_form_FORM_ID_alter().
+ *
+ * Regrettably there are no hooks when flags are created. Therefore, we just
+ * inject a submit handler into the flag form.
+ */
+function authcache_flag_form_flag_form_alter(&$form, &$form_state) {
+  $form['#submit'][] = 'authcache_p13n_request_router_rebuild';
+}
+
+/**
+ * Return the partial-id for this flag.
+ */
+function _authcache_flag_partial_id($flag) {
+  // Partial fragment ids need to be strings, therefore we prefix the fid with
+  // a character.
+  return 'f' . $flag->fid;
+}
+
+/**
+ * Extract an actual entity object from its $build array.
+ *
+ * This function was shamelessly taken from the eva.module. Kudos to Jeff
+ * Eaton!
+ *
+ * This is a bit more complicated than it should be, since core entities,
+ * contrib entities, and contrib entities based on EntityAPI all store their
+ * junk in different slots of the build array. See
+ * http://drupal.org/node/1170198.
+ *
+ * @param array $build
+ *   The render array of an entity.
+ *
+ * @return object|FALSE
+ *   The entity extracted from the render array or FALSE.
+ *
+ * I hate you, Milkman Dan.
+ */
+function _authcache_flag_extract_entity_from_build($build) {
+  // EntityAPI often sticks stuff in here.
+  if (!empty($build['#entity'])) {
+    return $build['#entity'];
+  }
+
+  // Other entities stick them here!
+  elseif (!empty($build['#' . $build['#entity_type']])) {
+    return $build['#' . $build['#entity_type']];
+  }
+
+  // Some entities are naughty.
+  elseif ($build['#entity_type'] === 'user') {
+    return $build['#account'];
+  }
+  elseif ($build['#entity_type'] === 'taxonomy_term') {
+    return $build['#term'];
+  }
+
+  return FALSE;
+}

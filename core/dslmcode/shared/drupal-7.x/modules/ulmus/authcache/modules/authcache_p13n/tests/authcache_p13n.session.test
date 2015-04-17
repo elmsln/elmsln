@@ -1,0 +1,116 @@
+<?php
+/**
+ * @file
+ * Define test for browser cache invalidation.
+ */
+
+/**
+ * Tests browser cache invalidation.
+ */
+class AuthcacheP13nTestSession extends DrupalWebTestCase {
+  protected $profile = 'testing';
+  protected $stubmod;
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function getInfo() {
+    return array(
+      'name' => 'Browser Session',
+      'description' => 'Test hooks and functions for browser cache invalidation',
+      'group' => 'Authcache Personalization',
+    );
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function setUp() {
+    parent::setUp('authcache_p13n', 'authcache_p13n_test', 'authcache_test_hookstub');
+
+    // HookStub.
+    $this->stubmod = new ModuleStub('authcache_p13n_test');
+  }
+
+  /**
+   * Test whether the given stub passes the invocation verifier.
+   */
+  protected function assertStub(HookStubProxy $stub, $verifier, $message = NULL) {
+    $result = $stub->verify($verifier, $error);
+
+    if (!$message) {
+      $message = t('Verify invocation of hook @hook.', array('@hook' => $stub->hookname()));
+    }
+    if (!$result && is_string($error)) {
+      $message .= ' ' . $error;
+    }
+
+    $this->assertTrue($result, $message);
+  }
+
+  /**
+   * Ensure that browser session is invalidated on every post request.
+   */
+  public function testInvalidateOnPost() {
+    $stub = $this->stubmod->hook('authcache_p13n_session_invalidate');
+
+    // We need to post manually here, drupalPost would attempt to GET the form
+    // before (and would fail).
+    $action = url('<front>', array('absolute' => TRUE));
+    $this->curlExec(array(
+      CURLOPT_URL => $action,
+      CURLOPT_POST => TRUE,
+      CURLOPT_POSTFIELDS => '',
+    ));
+    // Ensure that any changes to variables in the other thread are picked up.
+    $this->refreshVariables();
+
+    $this->assertStub($stub, HookStub::once());
+  }
+
+  /**
+   * Ensure that the browser session is invalidated upon login/logout.
+   */
+  public function testInvalidateOnLoginAndLogout() {
+    $user = $this->drupalCreateUser(array('access content'));
+
+    // Test login.
+    $stub = $this->stubmod->hook('authcache_p13n_session_invalidate');
+    $this->drupalLogin($user);
+    $this->assertStub($stub, HookStub::once());
+    // Ensure that cookie was created.
+    $this->assertNotNull($this->session_id);
+    $this->assertNotNull($this->cookies['aucp13n']['value']);
+    $this->assertNotEqual('deleted', $this->cookies['aucp13n']['value']);
+
+    // Test logout.
+    $stub = $this->stubmod->hook('authcache_p13n_session_invalidate');
+    $this->drupalLogout($user);
+    $this->assertStub($stub, HookStub::once());
+    // Ensure that cookie was deleted.
+    $this->assertNull($this->session_id);
+    $this->assertEqual('deleted', $this->cookies['aucp13n']['value']);
+  }
+
+  /**
+   * Ensure that a cookie is set as soon as there is some data in the session.
+   */
+  public function testInvalidateWhenSessionOpen() {
+    // Test open anonymous session.
+    $stub = $this->stubmod->hook('set_session_data', 'some-session-data');
+    $this->drupalGet('authcache-p13n-test-session');
+    $this->assertStub($stub, HookStub::once());
+    // Ensure that cookie was created.
+    $this->assertNotNull($this->session_id);
+    $this->assertNotNull($this->cookies['aucp13n']['value']);
+    $this->assertNotEqual('deleted', $this->cookies['aucp13n']['value']);
+
+    // Test close anonymous session.
+    $stub = $this->stubmod->hook('set_session_data', NULL);
+    $this->drupalGet('authcache-p13n-test-session');
+    $this->assertStub($stub, HookStub::once());
+    // Ensure that cookie was deleted.
+    $this->assertNull($this->session_id);
+    $this->assertEqual('deleted', $this->cookies['aucp13n']['value']);
+  }
+}

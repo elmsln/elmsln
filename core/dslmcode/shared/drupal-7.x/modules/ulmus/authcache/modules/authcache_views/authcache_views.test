@@ -1,0 +1,278 @@
+<?php
+/**
+ * @file
+ * Test cases for the Authcache Views module.
+ */
+
+/**
+ * Tests for markup substitution.
+ */
+class AuthcacheViewsTest extends DrupalWebTestCase {
+  protected $stubmod;
+  protected $member;
+  protected $nodeByAnon;
+  protected $nodeByAdmin;
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function getInfo() {
+    return array(
+      'name' => 'Authcache Views',
+      'description' => 'Test markup substitution and fragment generation for Views',
+      'group' => 'Authcache Views',
+    );
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function setUp() {
+    parent::setUp(array('authcache_views', 'authcache_p13n_test'));
+
+    $this->member = $this->drupalCreateUser();
+
+    // Setup authcache.
+    variable_set('authcache_roles', array(
+      DRUPAL_ANONYMOUS_RID => DRUPAL_ANONYMOUS_RID,
+      DRUPAL_AUTHENTICATED_RID => DRUPAL_AUTHENTICATED_RID,
+    ) + $this->member->roles);
+
+    $this->nodeByAnon = $this->drupalCreateNode(array(
+      'type' => 'article',
+      'promote' => 1,
+      'uid' => 0,
+    ));
+
+    $this->nodeByAdmin = $this->drupalCreateNode(array(
+      'type' => 'article',
+      'promote' => 1,
+      'uid' => 1,
+    ));
+
+    // HookStub.
+    $this->stubmod = new ModuleStub('authcache_p13n_test');
+  }
+
+  /**
+   * Test whether the given stub passes the invocation verifier.
+   */
+  protected function assertStub(HookStubProxy $stub, $verifier, $message = NULL) {
+    $result = $stub->verify($verifier, $error);
+
+    if (!$message) {
+      $message = t('Verify invocation of hook @hook.', array('@hook' => $stub->hookname()));
+    }
+    if (!$result && is_string($error)) {
+      $message .= ' ' . $error;
+    }
+
+    $this->assertTrue($result, $message);
+  }
+
+  /**
+   * Ensure that markup is substituted for authcache enabled blocks.
+   */
+  public function testMarkupSubstitution() {
+    $client_info = array(
+      'authcache_p13n_test' => array(
+        'title' => t('Test Client'),
+        'enabled' => TRUE,
+      ),
+    );
+    $this->stubmod->hook('authcache_p13n_client', $client_info);
+    $substituted_markup = $this->randomName(8);
+    $fragment_stub = HookStub::on('theme_authcache_p13n_fragment__authcache_p13n_test', $substituted_markup);
+
+    $view = views_get_view('tracker');
+    $view->disabled = FALSE;
+    $view->display['page']->display_options['authcache'] = array(
+      'status' => '1',
+      'lifespan' => '3600',
+      'peruser' => '1',
+      'perpage' => '1',
+      'clients' => array(
+        'authcache_p13n_test' => array(
+          'status' => '1',
+          'weight' => '0',
+        ),
+      ),
+      'fallback' => 'cancel',
+    );
+    $view->display['page']->display_options['path'] = 'test-tracker';
+    views_save_view($view);
+    ctools_export_load_object_reset();
+
+    authcache_p13n_request_router_rebuild();
+
+    $this->drupalLogin($this->member);
+    $this->drupalGet('test-tracker');
+    $this->assertResponse(200);
+
+    // Ensure that the panels pane was NOT rendered but the substitute markup
+    // instead.
+    $this->assertNoText($this->nodeByAnon->title, 'Test node authored by anonymous user is not on the page');
+    $this->assertNoText($this->nodeByAdmin->title, 'Test node authored by admin user is not on the page');
+    $this->assertNoText('This fragment should be loaded via Ajax/ESI. Some context:');
+    $this->assertText($substituted_markup);
+    $this->assertStub($fragment_stub, HookStub::once());
+  }
+
+  /**
+   * Ensure that a view shows up in the list of personalized elements.
+   */
+  public function testAdminListWithoutViewsUI() {
+    $su = $this->drupalCreateUser(array('administer site configuration'));
+    $this->drupalLogin($su);
+
+    // Before any view is enabled, nothing should be visible on the list of
+    // personalized fragments.
+    $this->drupalGet('admin/config/system/authcache/p13n');
+
+    $this->assertNoText('Views', 'No Views Group on the views page');
+    $this->assertNoLink('views administration page', 0, 'No link with the label views administration page should be on the page');
+    $this->assertNoLinkByHref('admin/structure/views', 0, 'No link to admin/structure/views should be on the page');
+    $this->assertNoLink('Edit', 0, 'No edit link should be on the page');
+
+    // Enable the tracker view and configure authcache on the page-display.
+    $view = views_get_view('tracker');
+    $view->disabled = FALSE;
+    $view->display['page']->display_options['authcache'] = array(
+      'status' => '1',
+      'lifespan' => '3600',
+      'peruser' => '1',
+      'perpage' => '1',
+      'clients' => array(
+        'authcache_p13n_test' => array(
+          'status' => '1',
+          'weight' => '0',
+        ),
+      ),
+      'fallback' => 'cancel',
+    );
+    $view->display['page']->display_options['path'] = 'test-tracker';
+    views_save_view($view);
+    ctools_export_load_object_reset();
+
+    // Verify that the tracker view is shown in the list of personalized
+    // fragments.
+    $this->drupalGet('admin/config/system/authcache/p13n');
+
+    $this->assertText('Views', 'A group with the name Views should be on the page');
+    $this->assertNoLink('views administration page', 0, 'A link with the label views administration page should be on the page');
+    $this->assertNoLinkByHref('admin/structure/views', 0, 'A link to admin/structure/views should be on the page');
+
+    $this->assertText($view->human_name, 'The views human name should be on the page');
+    $this->assertNoLink('Edit', 0, 'No edit link should be on the page when Views UI is not enabled');
+  }
+
+  /**
+   * Ensure that a view shows up in the list of personalized elements.
+   */
+  public function testAdminListWithViewsUI() {
+    module_enable(array('views_ui'));
+    $this->resetAll();
+
+    $su = $this->drupalCreateUser(array(
+      'administer site configuration',
+      'administer views',
+    ));
+    $this->drupalLogin($su);
+
+    // Before any view is enabled, nothing should be visible on the list of
+    // personalized fragments.
+    $this->drupalGet('admin/config/system/authcache/p13n');
+
+    $this->assertText('Views', 'Views Group on the views page');
+    $this->assertLink('views administration page', 0, 'Link with the label views administration page should be on the page');
+    $this->assertLinkByHref('admin/structure/views', 0, 'Link to admin/structure/views should be on the page');
+    $this->assertNoLink('Edit', 0, 'No edit link should be on the page');
+
+    // Enable the tracker view.
+    $view = views_get_view('tracker');
+    $view->disabled = FALSE;
+    $view->display['page']->display_options['path'] = 'test-tracker';
+    views_save_view($view);
+    ctools_export_load_object_reset();
+
+    // Enable authcache on the page display.
+    $edit = array(
+      'authcache[status]' => '1',
+    );
+    $this->drupalPost('admin/structure/views/nojs/display/tracker/page/authcache', $edit, t('Apply'));
+    $this->drupalPost(NULL, array(), t('Save'));
+
+    // Verify that the tracker view is shown in the list of personalized
+    // fragments.
+    $this->drupalGet('admin/config/system/authcache/p13n');
+
+    $this->assertText('Views', 'A group with the name Views should be on the page');
+    $this->assertLink('views administration page', 0, 'A link with the label views administration page should be on the page');
+    $this->assertLinkByHref('admin/structure/views', 0, 'A link to admin/structure/views should be on the page');
+
+    $this->assertText($view->human_name, 'The views human name should be on the page');
+    $this->assertLink('Edit', 0, 'An edit link should be on the page');
+    $this->assertLinkByHref('admin/structure/views/view/' . $view->name . '/edit/page', 0, 'The edit link should point to the views display configuration form');
+  }
+
+  /**
+   * Ensure that a block can be retrieved from the front controller.
+   */
+  public function testFragmentGet() {
+    $view = views_get_view('tracker');
+    $view->disabled = FALSE;
+    $view->display['page']->display_options['authcache'] = array(
+      'status' => '1',
+      'lifespan' => '3600',
+      'peruser' => '1',
+      'perpage' => '1',
+      'clients' => array(
+        'authcache_p13n_test' => array(
+          'status' => '1',
+          'weight' => '0',
+        ),
+      ),
+      'fallback' => 'cancel',
+    );
+    $view->display['page']->display_options['path'] = 'test-tracker';
+    views_save_view($view);
+    ctools_export_load_object_reset();
+
+    authcache_p13n_request_router_rebuild();
+
+    $request_id = 'frag/views/tracker/page';
+    // FIXME: We should'nt need to mess around with $_GET here in order to
+    // restore proper context for authcache_p13n_request_get_callback.
+    $orig_get = $_GET;
+    $_GET = array('q' => 'test-tracker');
+    $url = authcache_p13n_request_get_callback($request_id, NULL);
+    $_GET = $orig_get;
+
+    $this->assertTrue($url);
+    $this->drupalGet($GLOBALS['base_root'] . $url['path'], $url['options'], array('X-Authcache: 1'));
+    $this->assertText($this->nodeByAnon->title, 'Test node authored by anonymous user in the list');
+    $this->assertText($this->nodeByAdmin->title, 'Test node authored by admin user in the list');
+
+    // FIXME: ditto.
+    $orig_get = $_GET;
+    $_GET = array('q' => 'test-tracker/0');
+    $url = authcache_p13n_request_get_callback($request_id, NULL);
+    $_GET = $orig_get;
+
+    $this->assertTrue($url);
+    $this->drupalGet($GLOBALS['base_root'] . $url['path'], $url['options'], array('X-Authcache: 1'));
+    $this->assertText($this->nodeByAnon->title, 'Test node authored by anonymous user in the list');
+    $this->assertNoText($this->nodeByAdmin->title, 'Test node authored by admin user not in the list');
+
+    // FIXME: ditto.
+    $orig_get = $_GET;
+    $_GET = array('q' => 'test-tracker/1');
+    $url = authcache_p13n_request_get_callback($request_id, NULL);
+    $_GET = $orig_get;
+
+    $this->assertTrue($url);
+    $this->drupalGet($GLOBALS['base_root'] . $url['path'], $url['options'], array('X-Authcache: 1'));
+    $this->assertNoText($this->nodeByAnon->title, 'Test node authored by anonymous user not in the list');
+    $this->assertText($this->nodeByAdmin->title, 'Test node authored by admin user in the list');
+  }
+}

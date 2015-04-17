@@ -1,0 +1,60 @@
+varnishtest "Ensure that the VCL forces a TTL>0 for the result of calls to authcache-varnish-get-key"
+
+server s1 {
+        rxreq
+        expect req.url == "/authcache-varnish-get-key"
+        expect req.http.X-Forwarded-For == "127.0.0.1"
+        txresp -hdr "X-Authcache-Key: 123" -hdr "Cache-Control: private, max-age=0"
+
+        rxreq
+        expect req.url == "/"
+        expect req.http.X-Authcache-Key == 123
+        expect req.http.X-Forwarded-For == "127.0.0.1"
+        txresp -hdr "Vary: X-Authcache-Key"
+
+        rxreq
+        expect req.url == "/authcache-varnish-get-key"
+        expect req.http.X-Forwarded-For == "127.0.0.1"
+        txresp -status 404
+
+        rxreq
+        expect req.url == "/"
+        expect req.http.X-Authcache-Key == <undef>
+        expect req.http.X-Forwarded-For == "127.0.0.1"
+        txresp
+
+        rxreq
+        expect req.url == "/"
+        expect req.http.X-Authcache-Key == <undef>
+        expect req.http.X-Forwarded-For == "127.0.0.1"
+        txresp
+} -start
+
+varnish v1 -vcl+backend {
+        ${vcl1}
+        ${vcl2}
+        ${vcl3}
+} -start
+
+client c1 {
+        # 0 hits
+        txreq -url "/" -hdr "Cookie: SESSabc=efg"
+        rxresp
+
+        # 2 hits
+        txreq -url "/" -hdr "Cookie: SESSabc=efg"
+        rxresp
+
+        # 0 hits
+        txreq -url "/" -hdr "Cookie: SESSdef=hik"
+        rxresp
+
+        # 1 hits
+        txreq -url "/" -hdr "Cookie: SESSdef=hik"
+        rxresp
+} -run
+
+varnish v1 -expect cache_hit == 3
+
+server s1 -wait
+varnish v1 -stop

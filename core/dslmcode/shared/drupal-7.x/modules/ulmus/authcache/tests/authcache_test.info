@@ -1,0 +1,13 @@
+name = "Authcache Test"
+description = "Support module for Authcache tests."
+package = Testing
+core = 7.x
+hidden = TRUE
+dependencies[] = authcache_test_hookstub
+
+; Information added by Drupal.org packaging script on 2014-10-21
+version = "7.x-2.0-beta4"
+core = "7.x"
+project = "authcache"
+datestamp = "1413923939"
+

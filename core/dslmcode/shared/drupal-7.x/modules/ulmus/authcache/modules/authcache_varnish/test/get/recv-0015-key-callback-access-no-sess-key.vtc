@@ -1,0 +1,34 @@
+varnishtest "Deny access to authcache varnish key callback from client / no session / key"
+
+server s1 {
+        rxreq
+        expect req.url == "/authcache-varnish-get-key"
+        expect req.http.X-Authcache-Key == <undef>
+        expect req.http.X-Forwarded-For == "127.0.0.1"
+        txresp -hdr "X-Authcache-Key: 123"
+
+        rxreq
+        expect req.url == "/"
+        expect req.http.X-Forwarded-For == "127.0.0.1"
+        expect req.http.X-Authcache-Key == 123
+        txresp -status 200
+} -start
+
+varnish v1 -vcl+backend {
+        ${vcl1}
+        ${vcl2}
+        ${vcl3}
+} -start
+
+client c1 {
+        txreq -url "/"
+        rxresp
+        expect resp.status == 200
+
+        txreq -url "/authcache-varnish-get-key"
+        rxresp
+        expect resp.status == 404
+} -run
+
+server s1 -wait
+varnish v1 -stop

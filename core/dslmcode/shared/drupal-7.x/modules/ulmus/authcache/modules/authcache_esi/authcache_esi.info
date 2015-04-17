@@ -1,0 +1,13 @@
+name = Authcache ESI
+description = Provide personalization using ESI
+package = Performance and scalability
+core = 7.x
+dependencies[] = authcache_p13n
+files[] = tests/authcache_esi.test
+
+; Information added by Drupal.org packaging script on 2014-10-21
+version = "7.x-2.0-beta4"
+core = "7.x"
+project = "authcache"
+datestamp = "1413923939"
+

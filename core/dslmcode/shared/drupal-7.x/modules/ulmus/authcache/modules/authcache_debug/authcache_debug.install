@@ -1,0 +1,27 @@
+<?php
+/**
+ * @file
+ * Install, update and uninstall hooks for Authcache Debug module.
+ */
+
+/**
+ * Implements hook_schema().
+ */
+function authcache_debug_schema() {
+  $schema['cache_authcache_debug'] = drupal_get_schema_unprocessed('system', 'cache');
+  $schema['cache_authcache_debug']['description'] = 'Cache table for authcache debug.';
+
+  return $schema;
+}
+
+/**
+ * Implements hook_uninstall().
+ */
+function authcache_debug_uninstall() {
+  variable_del('authcache_debug_all');
+  variable_del('authcache_debug_cache_lifetime');
+  variable_del('authcache_debug_page');
+  variable_del('authcache_debug_users');
+  variable_del('authcache_debug_watchdog');
+  variable_del('dev_query');
+}

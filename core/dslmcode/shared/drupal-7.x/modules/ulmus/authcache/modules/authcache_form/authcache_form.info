@@ -1,0 +1,16 @@
+name = Authcache Form
+description = Authcache support for forms
+package = Performance and scalability
+configure = admin/config/system/authcache/forms
+core = 7.x
+dependencies[] = authcache
+test_dependencies[] = cacheobject
+files[] = includes/AuthcacheFormTokenFragment.inc
+files[] = tests/authcache_form.test
+
+; Information added by Drupal.org packaging script on 2014-10-21
+version = "7.x-2.0-beta4"
+core = "7.x"
+project = "authcache"
+datestamp = "1413923939"
+

@@ -1,0 +1,39 @@
+varnishtest "Do not cache when nocache cookie is present and key retrieval is disabled"
+
+server s1 {
+        rxreq
+        expect req.url == "/anon"
+        expect req.http.X-Authcache-Key == <undef>
+        expect req.http.X-Forwarded-For == "127.0.0.1"
+        txresp
+
+        rxreq
+        expect req.url == "/anon"
+        expect req.http.X-Authcache-Key == <undef>
+        expect req.http.X-Forwarded-For == "127.0.0.1"
+        txresp
+} -start
+
+varnish v1 -vcl+backend {
+        ${vcl1}
+        ${vcl2}
+        ${vcl3}
+} -start
+
+client c1 {
+        txreq -url "/anon"
+        rxresp
+
+        txreq -url "/anon" -hdr "Cookie: SESSabc=efg; nocache=1"
+        rxresp
+
+        # We hit the cache here
+        txreq -url "/anon"
+        rxresp
+}
+
+client c1 -run
+varnish v1 -expect cache_hit == 1
+
+server s1 -wait
+varnish v1 -stop

@@ -1,0 +1,368 @@
+<?php
+/**
+ * @file
+ * Define tests for markup substitution.
+ */
+
+/**
+ * Tests for markup substitution.
+ */
+class AuthcacheP13nTestMarkup extends DrupalWebTestCase {
+  protected $profile = 'testing';
+  protected $stubmod;
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function getInfo() {
+    return array(
+      'name' => 'Markup Substitution',
+      'description' => 'Test hooks and functions for markup substitution',
+      'group' => 'Authcache Personalization',
+    );
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function setUp() {
+    parent::setUp('authcache_p13n', 'authcache_p13n_test', 'authcache_test_hookstub');
+
+    // HookStub.
+    $this->stubmod = new ModuleStub('authcache_p13n_test');
+  }
+
+  /**
+   * Test whether the given stub passes the invocation verifier.
+   */
+  protected function assertStub(HookStubProxy $stub, $verifier, $message = NULL) {
+    $result = $stub->verify($verifier, $error);
+
+    if (!$message) {
+      $message = t('Verify invocation of hook @hook.', array('@hook' => $stub->hookname()));
+    }
+    if (!$result && is_string($error)) {
+      $message .= ' ' . $error;
+    }
+
+    $this->assertTrue($result, $message);
+  }
+
+  /**
+   * Utility function: construct request handlers.
+   */
+  protected function createRequestHandlers() {
+    $this->stubmod->hook('authcache_p13n_request', array(
+      'frag/a-frag' => array(
+        'handler' => array(
+          '#type' => 'class',
+          '#class' => 'AuthcacheP13nTestRequestHandlerStub',
+        ),
+        'url generator' => array(
+          '#type' => 'class',
+          '#class' => 'AuthcacheP13nTestRequestUrlGeneratorStub',
+        ),
+      ),
+      'setting/a-setting' => array(
+        'handler' => array(
+          '#type' => 'class',
+          '#class' => 'AuthcacheP13nTestRequestHandlerStub',
+        ),
+        'url generator' => array(
+          '#type' => 'class',
+          '#class' => 'AuthcacheP13nTestRequestUrlGeneratorStub',
+        ),
+      ),
+      'asm/an-assembly' => array(
+        'handler' => array(
+          '#type' => 'class',
+          '#class' => 'AuthcacheP13nTestRequestHandlerStub',
+        ),
+        'url generator' => array(
+          '#type' => 'class',
+          '#class' => 'AuthcacheP13nTestRequestUrlGeneratorStub',
+        ),
+      ),
+    ));
+    authcache_p13n_request_router_rebuild();
+  }
+
+  /**
+   * Cover authcache_p13n_X_info().
+   *
+   * Test authcache_p13n_fragment_info(), authcache_p13n_assembly_info() and
+   * authcache_p13n_assembly_info and ensure that respective hooks /
+   * alter-hooks are called.
+   */
+  public function testInfoFunctions() {
+    $fragment_info = array(
+      'menu-local-tabs' => array(
+        'fragment' => 'AuthcacheMenuLocalTabsFragment',
+        'cache granularity' => AuthcacheP13nCacheGranularity::PER_USER | AuthcacheP13nCacheGranularity::PER_PAGE,
+        'bootstrap phase' => DRUPAL_BOOTSTRAP_FULL,
+      ),
+    );
+
+    $fragment_info_stub = $this->stubmod->hook('authcache_p13n_fragment', $fragment_info);
+    $fragment_info_alter_stub = $this->stubmod->hook('authcache_p13n_fragment_alter');
+
+    $result = authcache_p13n_fragment_info();
+    $this->assertNotNull($result);
+
+    $this->assertStub($fragment_info_stub, HookStub::once());
+    $expect_args = array($fragment_info, NULL, NULL, NULL);
+    $this->assertStub($fragment_info_alter_stub, HookStub::args($expect_args));
+
+    $setting_info = array(
+      'authcache-contact' => array(
+        'setting' => 'AuthcacheContactSetting',
+        'setting target' => 'authcacheContact',
+        'cache maxage' => 86400,
+      ),
+    );
+
+    $setting_info_stub = $this->stubmod->hook('authcache_p13n_setting', $setting_info);
+    $setting_info_alter_stub = $this->stubmod->hook('authcache_p13n_setting_alter');
+
+    $result = authcache_p13n_setting_info();
+
+    $this->assertStub($setting_info_stub, HookStub::once());
+    $expect_args = array($setting_info, NULL, NULL, NULL);
+    $this->assertStub($setting_info_alter_stub, HookStub::args($expect_args));
+
+    $assembly_info = array(
+      'comment-num-new' => array(
+        'admin name' => t('Number of new comments'),
+        'admin group' => t('Comment'),
+        'admin description' => t('Node teaser'),
+        'fragment' => array(
+          '#class' => 'AuthcacheCommentNumNewFragment',
+          '#member_of' => 'partial',
+          '#key' => 'renderer',
+        ),
+        'partial' => array(
+          '#collection' => 'partial',
+          '#member_of' => 'partials',
+          '#key' => 'new',
+        ),
+        'cache maxage' => 600,
+      ),
+    );
+
+    $assembly_info_stub = $this->stubmod->hook('authcache_p13n_assembly', $assembly_info);
+    $assembly_info_alter_stub = $this->stubmod->hook('authcache_p13n_assembly_alter');
+
+    $result = authcache_p13n_assembly_info();
+
+    $this->assertStub($assembly_info_stub, HookStub::once());
+    $expect_args = array($assembly_info, NULL, NULL, NULL);
+    $this->assertStub($assembly_info_alter_stub, HookStub::args($expect_args));
+  }
+
+  /**
+   * Cover theme_authcache_p13n_X default fallback markup.
+   */
+  public function testDefaultFallbackMarkup() {
+    $this->createRequestHandlers();
+    $client_fallback_alter_stub = $this->stubmod->hook('authcache_p13n_client_fallback_alter');
+
+    $expect = '<!-- Error: Failed to render fragment -->';
+    $result = theme('authcache_p13n_fragment', array('fragment' => 'a-frag'));
+    $this->assertEqual($expect, $result, t('Default markup when fragment is not renderable'));
+
+    $expect = '<!-- Error: Failed to render setting -->';
+    $result = theme('authcache_p13n_setting', array('setting' => 'a-setting'));
+    $this->assertEqual($expect, $result, t('Default markup when setting is not renderable'));
+
+    $expect = '<!-- Error: Failed to render assembly -->';
+    $result = theme('authcache_p13n_assembly', array('assembly' => 'an-assembly'));
+    $this->assertEqual($expect, $result, t('Default markup when assembly is not renderable'));
+
+    $expect = '<!-- Error: Failed to render partial -->';
+    $result = theme('authcache_p13n_partial', array('assembly' => 'an-assembly', 'partial' => 'a-partial'));
+    $this->assertEqual($expect, $result, t('Default markup when partial is not renderable'));
+
+    $this->assertStub($client_fallback_alter_stub, HookStub::times(4));
+  }
+
+  /**
+   * Cover authcache_p13n_authcache_p13n_client_fallback_alter().
+   */
+  public function testFallbackCancel() {
+    $this->createRequestHandlers();
+
+    $canceled = authcache_canceled();
+    $this->assertEqual(FALSE, $canceled);
+
+    $expect = '<!-- Error: Failed to render fragment -->';
+    $result = theme('authcache_p13n_fragment', array('fragment' => 'a-frag', 'fallback' => 'hide'));
+    $this->assertEqual($expect, $result, t('Default markup when fragment is not renderable'));
+
+    $canceled = authcache_canceled();
+    $this->assertEqual(FALSE, $canceled);
+
+    $expect = '<!-- Error: Failed to render fragment -->';
+    $result = theme('authcache_p13n_fragment', array('fragment' => 'a-frag', 'fallback' => 'cancel'));
+    $this->assertEqual($expect, $result, t('Default markup when fragment is not renderable'));
+
+    $canceled = authcache_canceled();
+    $this->assertEqual(TRUE, $canceled);
+
+    $this->resetAll();
+
+    $canceled = authcache_canceled();
+    $this->assertEqual(FALSE, $canceled);
+
+    $orig = '<span>original content</span>';
+    $result = theme('authcache_p13n_fragment', array(
+      'fragment' => 'a-frag',
+      'fallback' => 'cancel',
+      'original' => $orig,
+    ));
+    $this->assertEqual($orig, $result, t('Original markup when fragment is not renderable'));
+
+    $canceled = authcache_canceled();
+    $this->assertEqual(TRUE, $canceled);
+  }
+
+  /**
+   * Cover theme_authcache_p13n_X().
+   */
+  public function testCustomClientMarkup() {
+    $this->createRequestHandlers();
+    $client_info = array(
+      'authcache_p13n_test' => array(
+        'name' => t('Test Client'),
+        'enabled' => TRUE,
+      ),
+    );
+
+    $client_info_stub = $this->stubmod->hook('authcache_p13n_client', $client_info);
+    $client_info_alter_stub = $this->stubmod->hook('authcache_p13n_client_alter');
+
+    $fragment_stub = HookStub::on('theme_authcache_p13n_fragment__authcache_p13n_test', '<!-- test fragment -->');
+    $setting_stub = HookStub::on('theme_authcache_p13n_setting__authcache_p13n_test', '<!-- test setting -->');
+    $assembly_stub = HookStub::on('theme_authcache_p13n_assembly__authcache_p13n_test', '<!-- test assembly -->');
+    $partial_stub = HookStub::on('theme_authcache_p13n_partial__authcache_p13n_test', '<!-- test partial -->');
+
+    $expect = '<!-- test fragment -->';
+    $result = theme('authcache_p13n_fragment', array('fragment' => 'a-frag'));
+    $this->assertEqual($expect, $result, t('Custom markup for fragment'));
+
+    $expect = '<!-- test setting -->';
+    $result = theme('authcache_p13n_setting', array('setting' => 'a-setting'));
+    $this->assertEqual($expect, $result, t('Custom markup for setting'));
+
+    $expect = '<!-- test assembly -->';
+    $result = theme('authcache_p13n_assembly', array('assembly' => 'an-assembly'));
+    $this->assertEqual($expect, $result, t('Custom markup for assembly'));
+
+    $expect = '<!-- test partial -->';
+    $result = theme('authcache_p13n_partial', array('assembly' => 'an-assembly', 'partial' => 'a-partial'));
+    $this->assertEqual($expect, $result, t('Custom markup for partial'));
+
+    $this->assertStub($fragment_stub, HookStub::once());
+    $this->assertStub($setting_stub, HookStub::once());
+    $this->assertStub($assembly_stub, HookStub::once());
+    $this->assertStub($partial_stub, HookStub::once());
+    $this->assertStub($client_info_stub, HookStub::once());
+    $expect_args = array($client_info, NULL, NULL, NULL);
+    $this->assertStub($client_info_alter_stub, HookStub::args($expect_args));
+  }
+
+  /**
+   * Cover authcache_p13n_attach().
+   */
+  public function testRenderElement() {
+    $this->createRequestHandlers();
+    $element = array(
+      '#markup' => 'original personalized content',
+    );
+    authcache_p13n_attach($element, array(
+      '#theme' => 'authcache_p13n_fragment',
+      '#fragment' => 'a-frag',
+    ));
+
+    $expect = '<!-- Error: Failed to render fragment -->';
+    $result = render($element);
+    $this->assertEqual($expect, $result, t('Default markup when fragment is not renderable'));
+
+    // Do not replace element when page caching was canceled.
+    $element = array(
+      '#markup' => 'original personalized content',
+    );
+    authcache_p13n_attach($element, array(
+      '#theme' => 'authcache_p13n_fragment',
+      '#fragment' => 'a-frag',
+    ));
+
+    authcache_cancel(t('some reason'));
+
+    $expect = 'original personalized content';
+    $result = render($element);
+    $this->assertEqual($expect, $result, t('Original markup when page caching was cancelled'));
+  }
+
+  /**
+   * Cover authcache_p13n_add_setting() and authcache_p13n_get_settings().
+   */
+  public function testAddSettings() {
+    authcache_p13n_add_setting(array(
+      '#setting' => 'some-setting',
+      '#param' => array('some' => 'param'),
+    ));
+
+    authcache_p13n_add_setting(array(
+      '#setting' => 'some-setting',
+      '#param' => array('other' => 'stuff'),
+    ));
+
+    authcache_p13n_add_setting(array(
+      '#setting' => 'other-setting',
+    ));
+
+    authcache_p13n_add_setting(array(
+      '#setting' => 'some-setting',
+      '#param' => array('other' => 'later-overrides-former'),
+    ));
+
+    $expect = array(
+      'some-setting' => array(
+        '#setting' => 'some-setting',
+        '#param' => array(
+          'some' => 'param',
+          'other' => 'later-overrides-former',
+        ),
+      ),
+      'other-setting' => array(
+        '#setting' => 'other-setting',
+      ),
+    );
+    $result = authcache_p13n_get_settings();
+    $this->assertEqual($expect, $result);
+  }
+
+  /**
+   * Cover authcache_p13n_add_partial(), authcache_p13n_get_assemblies().
+   */
+  public function testAddPartial() {
+    authcache_p13n_add_partial('some-asm', 'part1', 'arg1');
+    authcache_p13n_add_partial('some-asm', 'part1', 'arg2');
+    authcache_p13n_add_partial('some-asm', 'part2', 'x');
+    authcache_p13n_add_partial('some-asm', 'part2', 'y');
+
+    authcache_p13n_add_partial('other-asm', 'p', 'z');
+
+    $expect = array(
+      'some-asm' => array(
+        'part1' => array('arg1', 'arg2'),
+        'part2' => array('x', 'y'),
+      ),
+      'other-asm' => array(
+        'p' => array('z'),
+      ),
+    );
+    $result = authcache_p13n_get_assemblies();
+    $this->assertEqual($expect, $result);
+  }
+}

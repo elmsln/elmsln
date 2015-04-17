@@ -1,0 +1,37 @@
+<?php
+
+/**
+ * @file
+ * Integration of Cache Expiration module version 7.x-2.x and Authcache Builtin.
+ */
+
+/**
+ * Implements hook_expire_cache().
+ *
+ * Expire cache support for the builtin cache handler.
+ */
+function authcache_builtin_expire_v2_expire_cache($urls, $wildcards, $object_type, $object) {
+  $cids = array();
+  $wildcard_cids = array();
+
+  foreach (authcache_enum_keys() as $key) {
+    foreach (array_keys($urls) as $path) {
+      $cid = $key . url($path, array('absolute' => FALSE, 'alias' => TRUE));
+
+      if (empty($wildcards[$path])) {
+        $cids[] = $cid;
+      }
+      else {
+        $wildcard_cids[] = $cid;
+      }
+    }
+  }
+
+  if (!empty($cids)) {
+    cache_clear_all($cids, 'cache_page');
+  }
+
+  foreach ($wildcard_cids as $cid) {
+    cache_clear_all($cid, 'cache_page', TRUE);
+  }
+}

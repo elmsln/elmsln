@@ -1,0 +1,110 @@
+<?php
+/**
+ * @file
+ * Stub module for Authcache Form test.
+ */
+
+/**
+ * Implements hook_menu().
+ */
+function authcache_form_test_menu() {
+  $item['authcache-form-test-form'] = array(
+    'title' => 'Test form',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('authcache_form_test_form'),
+    'access callback' => TRUE,
+  );
+
+  $item['authcache-form-test-cached-form'] = array(
+    'title' => 'Cached test form',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('authcache_form_test_cached_form'),
+    'access callback' => TRUE,
+  );
+
+  $item['authcache-form-test-multiple-forms'] = array(
+    'title' => 'Multiple forms',
+    'page callback' => 'authcache_form_test_page',
+    'access callback' => TRUE,
+  );
+
+  return $item;
+}
+
+/**
+ * Implements hook_views_api().
+ */
+function authcache_form_test_views_api() {
+  return array(
+    'api' => 3,
+  );
+}
+
+/**
+ * Implements hook_forms().
+ */
+function authcache_form_test_forms($form_id, $args) {
+  return HookStub::record(__FUNCTION__, func_get_args());
+}
+
+
+/**
+ * Menu callback: Build a form.
+ */
+function authcache_form_test_form($form, &$form_state) {
+  return HookStub::record(__FUNCTION__, func_get_args()) + $form;
+}
+
+/**
+ * Menu callback: Build a cached form.
+ */
+function authcache_form_test_cached_form($form, &$form_state) {
+  $form_state['cache'] = TRUE;
+  return HookStub::record(__FUNCTION__, func_get_args()) + $form;
+}
+
+/**
+ * Menu callback: Show multiple forms on one page.
+ */
+function authcache_form_test_page() {
+  $build = array();
+  foreach (func_get_args() as $form_id) {
+    $build[$form_id] = drupal_get_form($form_id);
+  }
+  return $build;
+}
+
+/**
+ * Implements hook_authcache_excluded().
+ */
+function authcache_form_test_authcache_excluded($reason) {
+  return HookStub::record(__FUNCTION__, func_get_args());
+}
+
+/**
+ * Implements hook_authcache_canceled().
+ */
+function authcache_form_test_authcache_canceled($reason) {
+  return HookStub::record(__FUNCTION__, func_get_args());
+}
+
+/**
+ * Implements hook_authcache_p13n_client().
+ */
+function authcache_form_test_authcache_p13n_client() {
+  return HookStub::record(__FUNCTION__, func_get_args());
+}
+
+/**
+ * Implements hook_theme().
+ */
+function authcache_form_test_theme() {
+  return authcache_p13n_find_theme_functions('authcache_form_test');
+}
+
+/**
+ * Theme function for fragment tag.
+ */
+function theme_authcache_p13n_fragment__authcache_form_test($variables) {
+  return HookStub::record(__FUNCTION__, func_get_args());
+}

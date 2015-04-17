@@ -1,0 +1,14 @@
+name = Authcache Relation
+description = Authcache support for the Relation module
+package = Performance and scalability
+core = 7.x
+dependencies[] = authcache
+dependencies[] = relation_entity_collector
+test_dependencies[] = feeds
+
+; Information added by Drupal.org packaging script on 2014-10-21
+version = "7.x-2.0-beta4"
+core = "7.x"
+project = "authcache"
+datestamp = "1413923939"
+

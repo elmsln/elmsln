@@ -1,0 +1,492 @@
+<?php
+/**
+ * @file
+ * Test cases for the Authcache Bultin Cache Backend module.
+ */
+
+/**
+ * Tests update functionality unrelated to the database.
+ */
+class AuthcacheBuiltinTestCacheBackend extends DrupalWebTestCase {
+  protected $profile = 'testing';
+  protected $stubmod;
+  protected $member;
+  protected $fcURL;
+
+  /**
+   * Return information about the test class.
+   */
+  public static function getInfo() {
+    return array(
+      'name' => 'Cache backend',
+      'description' => 'Tests for the authcache cache backend based on the builtin drupal cache system.',
+      'group' => 'Authcache Builtin',
+    );
+  }
+
+  /**
+   * Initialize test case.
+   */
+  public function setUp() {
+    global $base_url;
+
+    parent::setUp('authcache_builtin', 'authcache_builtin_test');
+
+    $this->fcURL = $base_url . '/' . drupal_get_path('module', 'authcache_builtin') . '/tests/frontcontroller/index.php';
+
+    $this->member = $this->drupalCreateUser(array());
+
+    $authcache_roles = array(
+      DRUPAL_ANONYMOUS_RID => DRUPAL_ANONYMOUS_RID,
+      DRUPAL_AUTHENTICATED_RID => DRUPAL_AUTHENTICATED_RID,
+    ) + $this->member->roles;
+
+    // Setup authcache.
+    variable_set('authcache_roles', $authcache_roles);
+    $pagecaching = _authcache_default_pagecaching();
+    $pagecaching[0]['roles']['roles'] = $authcache_roles;
+    variable_set('authcache_pagecaching', $pagecaching);
+
+    // HookStub.
+    $this->stubmod = new ModuleStub('authcache_builtin_test');
+  }
+
+  /**
+   * Test whether the given stub passes the invocation verifier.
+   */
+  protected function assertStub(HookStubProxy $stub, $verifier, $message = NULL) {
+    $result = $stub->verify($verifier, $error);
+
+    if (!$message) {
+      $message = t('Verify invocation of hook @hook.', array('@hook' => $stub->hookname()));
+    }
+    if (!$result && is_string($error)) {
+      $message .= ' ' . $error;
+    }
+
+    $this->assertTrue($result, $message);
+  }
+
+  /**
+   * Setup HTTP headers for the request.
+   *
+   * @param int $flags
+   *   A combination of the following bits:
+   *   - 0x1: Add authcache_builtin.cache.inc to $conf['cache_backends'].
+   *
+   * @return array
+   *   List of request headers.
+   */
+  protected function buildRequestHeaders($flags) {
+    $result = array();
+
+    if ($flags & 0x1) {
+      $result[] = 'X-Authcache-Builtin-Test-Cache-Backend: 1';
+    }
+
+    if ($flags & 0x2) {
+      $result[] = 'X-Authcache-Builtin-Test-Max-Age: 3600';
+    }
+
+    return $result;
+  }
+
+  /**
+   * Test that cached pages can be served through the test front controller.
+   */
+  public function testDeliverThroughBackend() {
+    $this->drupalGet('node');
+    $this->assertResponse(200);
+    $this->assertFalse($this->drupalGetHeader('X-Drupal-Cache'), t('X-Drupal-Cache header should be absent, when request was not delivered through authcache builtin backend.'));
+
+    $this->drupalGet($this->fcURL . '?q=node');
+    $this->assertResponse(200);
+    $this->assertFalse($this->drupalGetHeader('X-Drupal-Cache'), t('X-Drupal-Cache header should be absent, when request was delivered through the test frontcontroller but without having specified that the backend should be used.'));
+
+    $this->drupalGet($this->fcURL . '?q=node', array(), $this->buildRequestHeaders(0x1));
+    $this->assertResponse(200);
+    $this->assertEqual('MISS', $this->drupalGetHeader('X-Drupal-Cache'), t('X-Drupal-Cache header should be present, when request was delivered through authcache builtin backend.'));
+
+    // Copy-paste from SimpleTestFunctionalTest::testUserAgentValidation.
+    //
+    // Generate a valid simpletest User-Agent to pass validation.
+    $this->assertTrue(preg_match('/simpletest\d+/', $this->databasePrefix, $matches), 'Database prefix contains simpletest prefix.');
+    $test_ua = drupal_generate_test_ua($matches[0]);
+
+    // Now slightly modify the HMAC on the header, which should not validate.
+    $this->additionalCurlOptions = array(CURLOPT_USERAGENT => $test_ua . 'X');
+    $this->drupalGet($this->fcURL . '?q=node', array(), $this->buildRequestHeaders(0x1));
+    $this->assertResponse(403, 'Requesting test frontcontroller with a bad simpletest User-Agent fails.');
+
+    // Use a real User-Agent and verify that the test frontcontroller can't be
+    // accessed.
+    $this->additionalCurlOptions = array(CURLOPT_USERAGENT => 'Mozilla/5.0 (Macintosh; U; Intel Mac OS X 10.6; en-US; rv:1.9.2.12) Gecko/20101026 Firefox/3.6.12');
+    $this->drupalGet($this->fcURL . '?q=node', array(), $this->buildRequestHeaders(0x1));
+    $this->assertResponse(403, 'Requesting test frontcontroller with a normal User-Agent fails.');
+  }
+
+  /**
+   * Test simple cache roundtrip for anonymous and authenticated users.
+   */
+  public function testCacheRoundtrip() {
+    $account1 = $this->drupalCreateUser();
+    $account2 = $this->drupalCreateUser();
+
+    variable_set('authcache_roles', array(
+      DRUPAL_ANONYMOUS_RID => DRUPAL_ANONYMOUS_RID,
+      DRUPAL_AUTHENTICATED_RID => DRUPAL_AUTHENTICATED_RID,
+    ));
+
+    // Warm up cache with anonymous user.
+    $this->drupalGet($this->fcURL . '?q=node', array(), $this->buildRequestHeaders(0x1));
+    $this->assertResponse(200);
+    $this->assertEqual('MISS', $this->drupalGetHeader('X-Drupal-Cache'), t('Cache miss on first request with anonymous user'));
+
+    $this->drupalGet($this->fcURL . '?q=node', array(), $this->buildRequestHeaders(0x1));
+    $this->assertResponse(200);
+    $this->assertEqual('HIT', $this->drupalGetHeader('X-Drupal-Cache'), t('Cache hit on second request with anonymous user'));
+
+    // Login and warm up cache with account1.
+    $this->drupalLogin($account1);
+    $this->drupalGet($this->fcURL . '?q=node', array(), $this->buildRequestHeaders(0x1));
+    $this->assertResponse(200);
+    $this->assertEqual('MISS', $this->drupalGetHeader('X-Drupal-Cache'), t('Cache miss on first request with authenticated user'));
+
+    $this->drupalGet($this->fcURL . '?q=node', array(), $this->buildRequestHeaders(0x1));
+    $this->assertResponse(200);
+    $this->assertEqual('HIT', $this->drupalGetHeader('X-Drupal-Cache'), t('Cache hit on first request with authenticated user'));
+    $this->drupalLogout();
+
+    // Ensure that anonymous user still get a cached copy.
+    $this->drupalGet($this->fcURL . '?q=node', array(), $this->buildRequestHeaders(0x1));
+    $this->assertResponse(200);
+    $this->assertEqual('HIT', $this->drupalGetHeader('X-Drupal-Cache'), t('Cache hit on subsequent request with anonymous user'));
+
+    // Login and ensure that we get a cache-hit with account2
+    $this->drupalLogin($account2);
+    $this->drupalGet($this->fcURL . '?q=node', array(), $this->buildRequestHeaders(0x1));
+    $this->assertResponse(200);
+    $this->assertEqual('HIT', $this->drupalGetHeader('X-Drupal-Cache'), t('Cache hit on first request with other authenticated user'));
+    $this->drupalLogout();
+  }
+
+  /**
+   * Preclusion: Suppress subsequent page request being delivered from cache.
+   */
+  public function testCachePreclusion() {
+    $account = $this->drupalCreateUser();
+
+    variable_set('authcache_roles', array(
+      DRUPAL_AUTHENTICATED_RID => DRUPAL_AUTHENTICATED_RID,
+    ));
+
+    // Login and warm up cache.
+    $this->drupalLogin($account);
+    $this->drupalGet($this->fcURL . '?q=node', array(), $this->buildRequestHeaders(0x1));
+    $this->assertResponse(200);
+    $this->assertEqual('MISS', $this->drupalGetHeader('X-Drupal-Cache'), t('Cache miss on first request with authenticated user'));
+
+    $this->drupalGet($this->fcURL . '?q=node', array(), $this->buildRequestHeaders(0x1));
+    $this->assertResponse(200);
+    $this->assertEqual('HIT', $this->drupalGetHeader('X-Drupal-Cache'), t('Cache hit on first request with authenticated user'));
+
+    // Trigger preclusion. We have to ensure that we're not served a cached
+    // response, otherwise the stub will not be called.
+    $preclude_stub = $this->stubmod->hook('authcache_preclude', t('Test'));
+    $this->drupalGet($this->fcURL . '?q=user', array(), $this->buildRequestHeaders(0x1));
+    $this->assertResponse(200);
+    $this->assertEqual('MISS', $this->drupalGetHeader('X-Drupal-Cache'), t('User profile is not cached by default'));
+    $this->assertStub($preclude_stub, HookStub::once());
+    HookStub::off('authcache_builtin_test_authcache_preclude');
+
+    // Ensure that next page request is not delivered from the cache.
+    $this->drupalGet($this->fcURL . '?q=node', array(), $this->buildRequestHeaders(0x1));
+    $this->assertResponse(200);
+    $this->assertFalse($this->drupalGetHeader('X-Drupal-Cache'), t('Cache miss on first request following preclusion'));
+
+    // Ensure that the following page request is delivered from the cache.
+    $this->drupalGet($this->fcURL . '?q=node', array(), $this->buildRequestHeaders(0x1));
+    $this->assertResponse(200);
+    $this->assertEqual('HIT', $this->drupalGetHeader('X-Drupal-Cache'), t('Cache hit on second request following preclusion'));
+
+    $this->drupalLogout();
+  }
+
+  /**
+   * Ensure that cache key is regenerated when missing.
+   */
+  public function testMissingUserCacheKey() {
+    $account = $this->drupalCreateUser();
+
+    variable_set('authcache_roles', array(
+      DRUPAL_AUTHENTICATED_RID => DRUPAL_AUTHENTICATED_RID,
+    ));
+
+    // Login and warm up cache.
+    $this->drupalLogin($account);
+    $this->drupalGet($this->fcURL . '?q=node', array(), $this->buildRequestHeaders(0x1));
+    $this->assertResponse(200);
+    $this->assertEqual('MISS', $this->drupalGetHeader('X-Drupal-Cache'), t('Cache miss on first request with authenticated user'));
+
+    $this->drupalGet($this->fcURL . '?q=node', array(), $this->buildRequestHeaders(0x1));
+    $this->assertResponse(200);
+    $this->assertEqual('HIT', $this->drupalGetHeader('X-Drupal-Cache'), t('Cache hit on first request with authenticated user'));
+
+    // Clear the mapping between session and the authcache key.
+    cache_clear_all('*', 'cache_authcache_key', TRUE);
+
+    $this->drupalGet($this->fcURL . '?q=node', array(), $this->buildRequestHeaders(0x1));
+    $this->assertResponse(200);
+    $this->assertFalse($this->drupalGetHeader('X-Drupal-Cache'), t('Cache miss on first request after key cache was cleared'));
+
+    $this->drupalGet($this->fcURL . '?q=node', array(), $this->buildRequestHeaders(0x1));
+    $this->assertResponse(200);
+    $this->assertEqual('HIT', $this->drupalGetHeader('X-Drupal-Cache'), t('Cache hit on second request after key cache was cleared'));
+
+    $this->drupalLogout();
+  }
+
+  /**
+   * Ensure that responses to POST request will not be served from cache.
+   */
+  public function testPostShouldNotReturnCachedPage() {
+    $account = $this->drupalCreateUser();
+
+    variable_set('authcache_roles', array(
+      DRUPAL_AUTHENTICATED_RID => DRUPAL_AUTHENTICATED_RID,
+    ));
+
+    // Login and warm up cache.
+    $this->drupalLogin($account);
+    $this->drupalGet($this->fcURL . '?q=node', array(), $this->buildRequestHeaders(0x1));
+    $this->assertResponse(200);
+    $this->assertEqual('MISS', $this->drupalGetHeader('X-Drupal-Cache'), t('Cache miss on first request with authenticated user'));
+
+    $this->drupalGet($this->fcURL . '?q=node', array(), $this->buildRequestHeaders(0x1));
+    $this->assertResponse(200);
+    $this->assertEqual('HIT', $this->drupalGetHeader('X-Drupal-Cache'), t('Cache hit on first request with authenticated user'));
+
+    // We need to post manually here, drupalPost would attempt to GET the form
+    // before (and would fail).
+    $this->curlExec(array(
+      CURLOPT_URL => $this->fcURL . '?q=node',
+      CURLOPT_POST => TRUE,
+      CURLOPT_POSTFIELDS => '',
+      CURLOPT_HTTPHEADER => $this->buildRequestHeaders(0x1),
+    ));
+    // Ensure that any changes to variables in the other thread are picked up.
+    $this->refreshVariables();
+
+    $this->assertResponse(200);
+    $this->assertFalse($this->drupalGetHeader('X-Drupal-Cache'), t('Cache miss on first request after key cache was cleared'));
+  }
+
+  /**
+   * Ensure that backend is disabled when core page cache is active.
+   */
+  public function testDisableWhenCorePageCachingActive() {
+    $account = $this->drupalCreateUser();
+
+    variable_set('authcache_roles', array(
+      DRUPAL_AUTHENTICATED_RID => DRUPAL_AUTHENTICATED_RID,
+    ));
+
+    // Login and warm up cache.
+    $this->drupalLogin($account);
+    $this->drupalGet($this->fcURL . '?q=node', array(), $this->buildRequestHeaders(0x1));
+    $this->assertResponse(200);
+    $this->assertEqual('MISS', $this->drupalGetHeader('X-Drupal-Cache'), t('Cache miss on first request with authenticated user'));
+
+    $this->drupalGet($this->fcURL . '?q=node', array(), $this->buildRequestHeaders(0x1));
+    $this->assertResponse(200);
+    $this->assertEqual('HIT', $this->drupalGetHeader('X-Drupal-Cache'), t('Cache hit on first request with authenticated user'));
+
+    // Turn on page caching.
+    variable_set('cache', TRUE);
+
+    $this->drupalGet($this->fcURL . '?q=node', array(), $this->buildRequestHeaders(0x1));
+    $this->assertResponse(200);
+    $this->assertFalse($this->drupalGetHeader('X-Drupal-Cache'), t('Do not attempt to serve page from cache when core page cache is active'));
+
+    // Turn off page caching.
+    variable_del('cache');
+
+    // Retry.
+    $this->drupalGet($this->fcURL . '?q=node', array(), $this->buildRequestHeaders(0x1));
+    $this->assertResponse(200);
+    $this->assertEqual('HIT', $this->drupalGetHeader('X-Drupal-Cache'), t('Cache hit on first request with authenticated user after core cache is disabled again'));
+  }
+
+  /**
+   * Test behavior when frontcontroller is not in the whitelist.
+   *
+   * Basic rule 4: Do not cache when request did not came in via a whitelisted
+   * frontcontroller. Test with an empty list (removing the default entry
+   * pointing at index.php).
+   */
+  public function testDisableWhenFrontControllerNotInWhitelist() {
+    $account = $this->drupalCreateUser();
+
+    variable_set('authcache_roles', array(
+      DRUPAL_AUTHENTICATED_RID => DRUPAL_AUTHENTICATED_RID,
+    ));
+
+    // Login and warm up cache.
+    $this->drupalLogin($account);
+    $this->drupalGet($this->fcURL . '?q=node', array(), $this->buildRequestHeaders(0x1));
+    $this->assertResponse(200);
+    $this->assertEqual('MISS', $this->drupalGetHeader('X-Drupal-Cache'), t('Cache miss on first request with authenticated user'));
+
+    $this->drupalGet($this->fcURL . '?q=node', array(), $this->buildRequestHeaders(0x1));
+    $this->assertResponse(200);
+    $this->assertEqual('HIT', $this->drupalGetHeader('X-Drupal-Cache'), t('Cache hit on first request with authenticated user'));
+
+    // Empty list of allowed frontcontrollers.
+    variable_set('authcache_frontcontroller_whitelist', array());
+
+    $this->drupalGet($this->fcURL . '?q=node', array(), $this->buildRequestHeaders(0x1));
+    $this->assertResponse(200);
+    $this->assertFalse($this->drupalGetHeader('X-Drupal-Cache'), t('Do not attempt to serve page from cache when core page cache is active'));
+
+    // Reset list of allowed frontcontrollers to default.
+    variable_del('authcache_frontcontroller_whitelist');
+
+    // Retry.
+    $this->drupalGet($this->fcURL . '?q=node', array(), $this->buildRequestHeaders(0x1));
+    $this->assertResponse(200);
+    $this->assertEqual('HIT', $this->drupalGetHeader('X-Drupal-Cache'), t('Cache hit on first request with authenticated user after core cache is disabled again'));
+  }
+
+  /**
+   * Test cache-response with page_cache_maximum_age.
+   */
+  public function testCacheMaxAge() {
+    $account = $this->drupalCreateUser();
+
+    variable_set('authcache_roles', array(
+      DRUPAL_ANONYMOUS_RID => DRUPAL_ANONYMOUS_RID,
+      DRUPAL_AUTHENTICATED_RID => DRUPAL_AUTHENTICATED_RID,
+    ));
+
+    // Test cache-control header for anonymous user.
+    $this->drupalGet($this->fcURL . '?q=node', array(), $this->buildRequestHeaders(0x3));
+    $this->assertResponse(200);
+    $this->assertEqual('MISS', $this->drupalGetHeader('X-Drupal-Cache'), t('Cache miss on first request with anonymous user'));
+    $this->assertEqual('public, max-age=3600', $this->drupalGetHeader('Cache-Control'), t('Cache-Control header set appropriately'));
+
+    $this->drupalGet($this->fcURL . '?q=node', array(), $this->buildRequestHeaders(0x3));
+    $this->assertResponse(200);
+    $this->assertEqual('HIT', $this->drupalGetHeader('X-Drupal-Cache'), t('Cache hit on second request with anonymous user'));
+    $this->assertEqual('public, max-age=3600', $this->drupalGetHeader('Cache-Control'), t('Cache-Control header set appropriately'));
+
+    // Test cache-control header for authenticated user.
+    $this->drupalLogin($account);
+    $this->drupalGet($this->fcURL . '?q=node', array(), $this->buildRequestHeaders(0x3));
+    $this->assertResponse(200);
+    $this->assertEqual('MISS', $this->drupalGetHeader('X-Drupal-Cache'), t('Cache miss on first request with authenticated user'));
+    $this->assertEqual('public, max-age=3600', $this->drupalGetHeader('Cache-Control'), t('Cache-Control header set appropriately'));
+
+    $this->drupalGet($this->fcURL . '?q=node', array(), $this->buildRequestHeaders(0x3));
+    $this->assertResponse(200);
+    $this->assertEqual('HIT', $this->drupalGetHeader('X-Drupal-Cache'), t('Cache hit on first request with authenticated user'));
+    $this->assertEqual('public, max-age=3600', $this->drupalGetHeader('Cache-Control'), t('Cache-Control header set appropriately'));
+    $this->drupalLogout();
+  }
+
+  /**
+   * Verify that the key cache is set with the proper values.
+   */
+  public function testKeyLoginLogout() {
+    global $base_root;
+
+    variable_set('authcache_key_lifetime', 0);
+
+    // Login and retrieve authcache key.
+    $this->drupalLogin($this->member);
+    $key_cache_cid = $base_root . ':' . $this->session_id;
+    $this->drupalGet($this->fcURL . '?q=node', array(), $this->buildRequestHeaders(0x1));
+
+    $user_key = $this->drupalGetHeader('X-Authcache-Builtin-Test-Key');
+    $this->assertTrue($user_key, 'User key is not empty');
+    $this->assertNotEqual(authcache_backend_anonymous_key(), $user_key, 'User key is not same as the anonymous key');
+
+    // Issue a normal page request and ensure that the key cache was populated.
+    $now = time();
+    $this->drupalGet($this->fcURL . '?q=node', array(), $this->buildRequestHeaders(0x1));
+    $cache = cache_get($key_cache_cid, 'cache_authcache_key');
+    $this->assertEqual($user_key, $cache->data);
+    $this->assertEqual(CACHE_TEMPORARY, $cache->expire);
+
+    // Logout and ensure that the key is gone from the cache.
+    $this->drupalGet($this->fcURL . '?q=user/logout', array(), $this->buildRequestHeaders(0x1));
+    $cache = cache_get($key_cache_cid, 'cache_authcache_key');
+    $this->assertFalse($cache);
+  }
+
+  /**
+   * Verify that the key cache is set with the proper values.
+   */
+  public function testKeyExpiry() {
+    global $base_root;
+
+    variable_set('authcache_key_lifetime', 3600);
+
+    // Login and retrieve authcache key.
+    $this->drupalLogin($this->member);
+    $key_cache_cid = $base_root . ':' . $this->session_id;
+
+    $user_key = $this->drupalGetHeader('X-Authcache-Builtin-Test-Key');
+    $this->assertTrue($user_key, 'User key is not empty');
+    $this->assertNotEqual(authcache_backend_anonymous_key(), $user_key, 'User key is not same as the anonymous key');
+
+    // Issue a normal page request and ensure that the key cache was populated.
+    $now = time();
+    $this->drupalGet($this->fcURL . '?q=node', array(), $this->buildRequestHeaders(0x1));
+    $cache = cache_get($key_cache_cid, 'cache_authcache_key');
+    $this->assertEqual($user_key, $cache->data);
+    $this->assertTrue($cache->expire >= $now - 3600 * 0.1);
+    $this->assertTrue($cache->expire <= $now + 3600 * 1.1);
+
+    // Logout and ensure that the key cache is empty.
+    $this->drupalGet($this->fcURL . '?q=user/logout', array(), $this->buildRequestHeaders(0x1));
+    $cache = cache_get($key_cache_cid, 'cache_authcache_key');
+    $this->assertFalse($cache);
+
+    // Login again with member and set cache expiry date into the past.
+    $this->drupalLogin($this->member);
+    $key_cache_cid = $base_root . ':' . $this->session_id;
+    cache_set($key_cache_cid, $user_key, 'cache_authcache_key', REQUEST_TIME - 3600);
+
+    // Issue a normal page request and ensure that the cache has been renewed.
+    $now = time();
+    $this->drupalGet($this->fcURL . '?q=node', array(), $this->buildRequestHeaders(0x1));
+    $cache = cache_get($key_cache_cid, 'cache_authcache_key');
+    $this->assertEqual($user_key, $cache->data);
+    $this->assertTrue($cache->expire >= $now - 3600 * 0.1);
+    $this->assertTrue($cache->expire <= $now + 3600 * 1.1);
+
+    // Logout and ensure that the key cache is empty.
+    $this->drupalGet($this->fcURL . '?q=user/logout', array(), $this->buildRequestHeaders(0x1));
+    $cache = cache_get($key_cache_cid, 'cache_authcache_key');
+    $this->assertFalse($cache);
+
+    // Login again with member and set a wrong authcache key but with proper
+    // expiry date.
+    $this->drupalLogin($this->member);
+    $key_cache_cid = $base_root . ':' . $this->session_id;
+    cache_set($key_cache_cid, $this->randomName(4), 'cache_authcache_key', REQUEST_TIME + 3600);
+
+    // Issue a normal page request and ensure that the cache has been renewed.
+    $now = time();
+    $this->drupalGet($this->fcURL . '?q=node', array(), $this->buildRequestHeaders(0x1));
+    $cache = cache_get($key_cache_cid, 'cache_authcache_key');
+    $this->assertEqual($user_key, $cache->data);
+    $this->assertTrue($cache->expire >= $now - 3600 * 0.1);
+    $this->assertTrue($cache->expire <= $now + 3600 * 1.1);
+
+    // Logout and ensure that the key cache is empty.
+    $this->drupalGet($this->fcURL . '?q=user/logout', array(), $this->buildRequestHeaders(0x1));
+    $cache = cache_get($key_cache_cid, 'cache_authcache_key');
+    $this->assertFalse($cache);
+  }
+}

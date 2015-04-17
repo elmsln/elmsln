@@ -1,0 +1,15 @@
+name = Authcache Panels by Page Manager
+description = Provide Panels integration when displayed using a Page Manager Task.
+package = Performance and scalability
+core = 7.x
+dependencies[] = authcache_panels
+dependencies[] = authcache_page_manager
+files[] = authcache_panels_page_manager.test
+files[] = includes/AuthcachePanelsPageManagerDisplayLoader.inc
+
+; Information added by Drupal.org packaging script on 2014-10-21
+version = "7.x-2.0-beta4"
+core = "7.x"
+project = "authcache"
+datestamp = "1413923939"
+

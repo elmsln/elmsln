@@ -1,0 +1,51 @@
+<?php
+
+/**
+ * @file
+ * Example authcache module passing name and profile-link of logged in users to
+ * theming layer via cookies.
+ */
+
+/**
+ * Implements hook_authcache_cookie().
+ */
+function authcache_usercookie_authcache_cookie($account) {
+  $authenticated = $account->uid;
+  $enabled = authcache_account_allows_caching($account);
+  $present = $authenticated && $enabled;
+
+  $cookies['aceuser']['present'] = $present;
+
+  if ($present) {
+    $cookies['aceuser']['value'] = $account->name;
+  }
+
+  return $cookies;
+}
+
+/**
+ * Implements hook_preprocess().
+ *
+ * Make the variables user_name and user_link available in all templates.
+ */
+function authcache_usercookie_preprocess(&$variables, $hook) {
+  if (!user_is_logged_in()) {
+    // Empty user_name / user_link for anonymous users.
+    $variables['user_name'] = '';
+    $variables['user_link'] = '';
+  }
+  elseif (authcache_page_is_cacheable()) {
+    // Attach required JavaScript.
+    drupal_add_js(drupal_get_path('module', 'authcache_usercookie') . '/authcache_usercookie.js');
+
+    // Placeholder for JavaScript cookie-replacement for authenticated users
+    // when caching is working.
+    $variables['user_name'] = '<span class="authcache-user"></span>';
+    $variables['user_link'] = '<a href="" class="authcache-user-link">!username</a>';
+  }
+  else {
+    // Output the values directly when page is not cacheable.
+    $variables['user_name'] = $variables['user']->name;
+    $variables['user_link'] = l($variables['user']->name, "user", array('alias' => TRUE));
+  }
+}

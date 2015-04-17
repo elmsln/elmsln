@@ -1,0 +1,445 @@
+<?php
+/**
+ * @file
+ * Test cases for the Authcache Forum module.
+ */
+
+/**
+ * Tests for markup substitution.
+ */
+class AuthcacheForumTest extends DrupalWebTestCase {
+  protected $stubmod;
+  protected $member1;
+  protected $member2;
+  protected $editor;
+  protected $forum;
+  protected $topic;
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function getInfo() {
+    return array(
+      'name' => 'Authcache Forum',
+      'description' => 'Test markup substitution and fragment generation for Forum',
+      'group' => 'Authcache Forum',
+    );
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function setUp() {
+    // FIXME: Provide separate test stub module in order to resolve the
+    // dependency for the menu-module. Stub module needs to hide all forum
+    // action links, otherwise the default authcache mechanism kicks in
+    // cancelling page caching.
+    parent::setUp(array(
+      'authcache_forum',
+      'authcache_menu',
+      'authcache_p13n_test',
+    ));
+
+    $this->member1 = $this->drupalCreateUser(array(
+      'create forum content',
+      'access comments',
+      'post comments',
+      'edit own comments',
+    ));
+    $this->member2 = $this->drupalCreateUser(array(
+      'create forum content',
+      'access comments',
+      'post comments',
+      'edit own comments',
+    ));
+    $this->editor = $this->drupalCreateUser(array(
+      'create forum content',
+      'administer comments',
+      'administer forums',
+    ));
+
+    $authcache_roles = array(
+      DRUPAL_ANONYMOUS_RID => DRUPAL_ANONYMOUS_RID,
+      DRUPAL_AUTHENTICATED_RID => DRUPAL_AUTHENTICATED_RID,
+    ) + $this->member1->roles + $this->member2->roles + $this->editor->roles;
+
+    // Setup authcache.
+    variable_set('authcache_roles', $authcache_roles);
+    $pagecaching = _authcache_default_pagecaching();
+    $pagecaching[0]['roles']['roles'] = $authcache_roles;
+    variable_set('authcache_pagecaching', $pagecaching);
+
+    $this->drupalLogin($this->editor);
+    $this->forum = $this->createForum('forum');
+
+    $this->drupalLogin($this->member1);
+    $this->topic = $this->createForumTopic($this->forum);
+
+    // HookStub.
+    $this->stubmod = new ModuleStub('authcache_p13n_test');
+  }
+
+  /**
+   * Test whether the given stub passes the invocation verifier.
+   */
+  protected function assertStub(HookStubProxy $stub, $verifier, $message = NULL) {
+    $result = $stub->verify($verifier, $error);
+
+    if (!$message) {
+      $message = t('Verify invocation of hook @hook.', array('@hook' => $stub->hookname()));
+    }
+    if (!$result && is_string($error)) {
+      $message .= ' ' . $error;
+    }
+
+    $this->assertTrue($result, $message);
+  }
+
+  /**
+   * Creates a forum container or a forum.
+   *
+   * @see ForumTestCase::createForum()
+   */
+  protected function createForum($type, $parent = 0) {
+    // Generate a random name/description.
+    $name = $this->randomName(10);
+    $description = $this->randomName(100);
+
+    $edit = array(
+      'name' => $name,
+      'description' => $description,
+      'parent[0]' => $parent,
+      'weight' => '0',
+    );
+
+    // Create forum.
+    $this->drupalPost('admin/structure/forum/add/' . $type, $edit, t('Save'));
+    $this->assertResponse(200);
+    $type = ($type == 'container') ? 'forum container' : 'forum';
+    $this->assertRaw(t('Created new @type %term.', array('%term' => $name, '@type' => t($type))), format_string('@type was created', array('@type' => ucfirst($type))));
+
+    // Verify forum.
+    $term = db_query("SELECT * FROM {taxonomy_term_data} t WHERE t.vid = :vid AND t.name = :name AND t.description = :desc", array(
+      ':vid' => variable_get('forum_nav_vocabulary', ''),
+      ':name' => $name,
+      ':desc' => $description,
+    ))->fetchAssoc();
+    $this->assertTrue(!empty($term), 'The ' . $type . ' exists in the database');
+
+    // Verify forum hierarchy.
+    $tid = $term['tid'];
+    $parent_tid = db_query("SELECT t.parent FROM {taxonomy_term_hierarchy} t WHERE t.tid = :tid", array(':tid' => $tid))->fetchField();
+    $this->assertTrue($parent == $parent_tid, 'The ' . $type . ' is linked to its container');
+
+    return $term;
+  }
+
+  /**
+   * Creates forum topic.
+   *
+   * @see ForumTestCase::createForumTopic()
+   */
+  protected function createForumTopic($forum, $container = FALSE) {
+    // Generate a random subject/body.
+    $title = $this->randomName(20);
+    $body = $this->randomName(200);
+
+    $langcode = LANGUAGE_NONE;
+    $edit = array(
+      "title" => $title,
+      "body[$langcode][0][value]" => $body,
+    );
+    $tid = $forum['tid'];
+
+    // Create the forum topic, preselecting the forum ID via a URL parameter.
+    $this->drupalPost('node/add/forum/' . $tid, $edit, t('Save'));
+
+    $type = t('Forum topic');
+    if ($container) {
+      $this->assertNoRaw(t('@type %title has been created.', array('@type' => $type, '%title' => $title)), 'Forum topic was not created');
+      $this->assertRaw(t('The item %title is a forum container, not a forum.', array('%title' => $forum['name'])), 'Error message was shown');
+      return;
+    }
+    else {
+      $this->assertRaw(t('@type %title has been created.', array('@type' => $type, '%title' => $title)), 'Forum topic was created');
+      $this->assertNoRaw(t('The item %title is a forum container, not a forum.', array('%title' => $forum['name'])), 'No error message was shown');
+    }
+
+    // Retrieve node object, ensure that the topic was created and in the proper
+    // forum.
+    $node = $this->drupalGetNodeByTitle($title);
+    $this->assertTrue($node != NULL, format_string('Node @title was loaded', array('@title' => $title)));
+    $this->assertEqual($node->taxonomy_forums[LANGUAGE_NONE][0]['tid'], $tid, 'Saved forum topic was in the expected forum');
+
+    // View forum topic.
+    $this->drupalGet('node/' . $node->nid);
+    $this->assertRaw($title, 'Subject was found');
+    $this->assertRaw($body, 'Body was found');
+
+    return $node;
+  }
+
+  /**
+   * Post comment.
+   *
+   * @see CommentHelperCase::postComment()
+   */
+  protected function postComment($node, $comment, $subject = '', $contact = NULL) {
+    $langcode = LANGUAGE_NONE;
+    $edit = array();
+    $edit['comment_body[' . $langcode . '][0][value]'] = $comment;
+
+    $preview_mode = variable_get('comment_preview_article', DRUPAL_OPTIONAL);
+    $subject_mode = variable_get('comment_subject_field_article', 1);
+
+    // Must get the page before we test for fields.
+    if ($node !== NULL) {
+      $this->drupalGet('comment/reply/' . $node->nid);
+    }
+
+    if ($subject_mode == TRUE) {
+      $edit['subject'] = $subject;
+    }
+    else {
+      $this->assertNoFieldByName('subject', '', 'Subject field not found.');
+    }
+
+    if ($contact !== NULL && is_array($contact)) {
+      $edit += $contact;
+    }
+    switch ($preview_mode) {
+      case DRUPAL_REQUIRED:
+        // Preview required so no save button should be found.
+        $this->assertNoFieldByName('op', t('Save'), 'Save button not found.');
+        $this->drupalPost(NULL, $edit, t('Preview'));
+        // Don't break here so that we can test post-preview field presence and
+        // function below.
+      case DRUPAL_OPTIONAL:
+        $this->assertFieldByName('op', t('Preview'), 'Preview button found.');
+        $this->assertFieldByName('op', t('Save'), 'Save button found.');
+        $this->drupalPost(NULL, $edit, t('Save'));
+        break;
+
+      case DRUPAL_DISABLED:
+        $this->assertNoFieldByName('op', t('Preview'), 'Preview button not found.');
+        $this->assertFieldByName('op', t('Save'), 'Save button found.');
+        $this->drupalPost(NULL, $edit, t('Save'));
+        break;
+    }
+    $match = array();
+    // Get comment ID.
+    preg_match('/#comment-([0-9]+)/', $this->getURL(), $match);
+
+    // Get comment.
+    if ($contact !== TRUE) {
+      if ($subject) {
+        $this->assertText($subject, 'Comment subject posted.');
+      }
+      $this->assertText($comment, 'Comment body posted.');
+      $this->assertTrue((!empty($match) && !empty($match[1])), 'Comment id found.');
+    }
+
+    if (isset($match[1])) {
+      return (object) array(
+        'id' => $match[1],
+        'subject' => $subject,
+        'comment' => $comment,
+      );
+    }
+  }
+
+  /**
+   * Markup substitution forum overview page.
+   *
+   * Cover authcache_forum_preprocess_forum_list().
+   *
+   * @see AuthcacheCommentTest::testNumberOfNewComments()
+   */
+  public function testForumList() {
+    $this->stubmod->hook('authcache_p13n_client', array(
+      'authcache_p13n_test' => array(
+        'title' => t('Test Client'),
+        'enabled' => TRUE,
+      ),
+    ));
+
+    // M2: Post a comment on the topic.
+    $this->drupalLogin($this->member2);
+    $comment = $this->postComment($this->topic, $this->randomName(8));
+    $this->drupalLogout();
+
+    // Simulate M1 visiting the node a minute ago.
+    db_merge('history')->key(array(
+      'uid' => $this->member1->uid,
+      'nid' => $this->topic->nid,
+    ))->fields(array('timestamp' => time() - 60))->execute();
+
+    // M1: Accesses the forum list. Normally a link '1 new' will be shown next
+    // to the forum. However Authcache Forum will substitute the
+    // number-of-topics-with-new-comments link with a placeholder.
+    $this->drupalLogin($this->member1);
+
+    $setting_markup = $this->randomName(8);
+    $setting_stub = HookStub::on('theme_authcache_p13n_setting__authcache_p13n_test', $setting_markup);
+
+    $this->drupalGet('forum');
+
+    $this->assertNoText('1 new');
+    $default_icons = $this->xpath('//div[contains(@class, :icon) and contains(@class, :status)]', array(
+      ':icon' => 'icon',
+      ':status' => 'forum-status-default',
+    ));
+    $this->assertTrue($default_icons, 'Icons with default status present');
+    $new_icons = $this->xpath('//div[contains(@class, :icon) and contains(@class, :status)]', array(
+      ':icon' => 'icon',
+      ':status' => 'forum-status-new',
+    ));
+    $this->assertFalse($new_icons, 'No icons with new-status present');
+    $this->assertText($setting_markup, 'Replace "1 new" link with a setting');
+    $this->assertStub($setting_stub, HookStub::once());
+    $this->assertIdentical(1, count($this->xpath('//span[@class=:class and @data-p13n-tid=:tid]', array(
+      ':class' => 'authcache-forum-num-new',
+      ':tid' => $this->forum['tid'],
+    ))), 'Replace "1 new" link with placeholder markup');
+
+    // M1: Visit the topic in order to clear the new-comments marker.
+    $this->drupalGet('node/' . $this->topic->nid);
+
+    // M1: Repeat the test on the forum-list. Even though there are no new
+    // topics, the markup substitution must still take place.
+    $setting_markup = $this->randomName(8);
+    $setting_stub = HookStub::on('theme_authcache_p13n_setting__authcache_p13n_test', $setting_markup);
+
+    $this->drupalGet('forum');
+
+    $this->assertText($setting_markup, 'Render setting even though there is no new topic');
+    $this->assertStub($setting_stub, HookStub::once());
+    $this->assertIdentical(1, count($this->xpath('//span[@class=:class and @data-p13n-tid=:tid]', array(
+      ':class' => 'authcache-forum-num-new',
+      ':tid' => $this->forum['tid'],
+    ))), 'Generate placeholder markup even though there is no new topic');
+  }
+
+  /**
+   * Markup substitution on forum topic list.
+   *
+   * Covers authcache_forum_preprocess_forum_topic_list,
+   * authcache_forum_preprocess_forum_icon.
+   */
+  public function testForumTopicList() {
+    $this->stubmod->hook('authcache_p13n_client', array(
+      'authcache_p13n_test' => array(
+        'title' => t('Test Client'),
+        'enabled' => TRUE,
+      ),
+    ));
+
+    // M2: Post a comment on the topic.
+    $this->drupalLogin($this->member2);
+    $comment = $this->postComment($this->topic, $this->randomName(8));
+    $this->drupalLogout();
+
+    // Simulate M1 visiting the node a minute ago.
+    db_merge('history')->key(array(
+      'uid' => $this->member1->uid,
+      'nid' => $this->topic->nid,
+    ))->fields(array('timestamp' => time() - 60))->execute();
+
+    // M1: Accesses the topic list. Normally a link '1 new' will be shown next
+    // to the topic. However Authcache Forum will substitute the
+    // number-of-new-comments link with a placeholder.
+    $this->drupalLogin($this->member1);
+
+    $setting_markup = $this->randomName(8);
+    $setting_stub = HookStub::on('theme_authcache_p13n_setting__authcache_p13n_test', $setting_markup);
+
+    $this->drupalGet('forum/' . $this->forum['tid']);
+
+    $this->assertNoText('1 new');
+    $default_icons = $this->xpath('//div[contains(@class, :class)]', array(
+      ':class' => 'topic-status-default',
+    ));
+    $this->assertTrue($default_icons, 'Icons with default status present');
+    $new_icons = $this->xpath('//div[contains(@class, :class)]', array(
+      ':class' => 'topic-status-new',
+    ));
+    $this->assertFalse($new_icons, 'No icons with new-status present');
+    $this->assertText($setting_markup, 'Replace "1 new" link with a setting');
+    $this->assertStub($setting_stub, HookStub::once());
+    $this->assertIdentical(1, count($this->xpath('//span[@class=:class and @data-p13n-nid=:nid]', array(
+      ':class' => 'authcache-forum-topic-num-new',
+      ':nid' => $this->topic->nid,
+    ))), 'Replace "1 new" link with placeholder markup');
+
+    // M1: Access it again but with lower hot-threshold in order to ensure that
+    // icon class still does not change.
+    variable_set('forum_hot_topic', 0);
+    $setting_markup = $this->randomName(8);
+    $setting_stub = HookStub::on('theme_authcache_p13n_setting__authcache_p13n_test', $setting_markup);
+
+    $this->drupalGet('forum/' . $this->forum['tid']);
+
+    $this->assertNoText('1 new');
+    $default_icons = $this->xpath('//div[contains(@class, :class)]', array(
+      ':class' => 'topic-status-hot',
+    ));
+    $this->assertTrue($default_icons, 'Icons with hot status present');
+    $new_icons = $this->xpath('//div[contains(@class, :class)]', array(
+      ':class' => 'topic-status-hot-new',
+    ));
+    $this->assertFalse($new_icons, 'No icons with hot-new-status present');
+    $this->assertText($setting_markup, 'Replace "1 new" link with a setting');
+    $this->assertStub($setting_stub, HookStub::once());
+    $this->assertIdentical(1, count($this->xpath('//span[@class=:class and @data-p13n-nid=:nid]', array(
+      ':class' => 'authcache-forum-topic-num-new',
+      ':nid' => $this->topic->nid,
+    ))), 'Replace "1 new" link with placeholder markup');
+    variable_del('forum_hot_topic');
+
+    // M1: Visit the topic in order to clear the new-comments marker.
+    $this->drupalGet('node/' . $this->topic->nid);
+
+    // M1: Repeat the test on the forum-list. Even though there are no new
+    // comments, the markup substitution must still take place.
+    $setting_markup = $this->randomName(8);
+    $setting_stub = HookStub::on('theme_authcache_p13n_setting__authcache_p13n_test', $setting_markup);
+
+    $this->drupalGet('forum/' . $this->forum['tid']);
+
+    $this->assertText($setting_markup, 'Render setting even though there is no new comment');
+    $this->assertStub($setting_stub, HookStub::once());
+    $this->assertIdentical(1, count($this->xpath('//span[@class=:class and @data-p13n-nid=:nid]', array(
+      ':class' => 'authcache-forum-topic-num-new',
+      ':nid' => $this->topic->nid,
+    ))), 'Generate placeholder markup even though there is no new comment');
+  }
+
+  /**
+   * Ensure that the number of new topics is reported accurately.
+   *
+   * Covers AuthcacheForumListNewTopicsFragment
+   */
+  public function testAuthcacheForumListNewTopicsFragment() {
+    // M1: Login and retrieve number-of-new-topics-setting for forum list.
+    $this->drupalLogin($this->member1);
+
+    $url = authcache_p13n_request_get_callback('setting/forum-num-new', array(
+      'fn' => array($this->forum['tid']),
+    ));
+    $this->assertTrue($url);
+
+    $result = $this->drupalGetAJAX($GLOBALS['base_root'] . $url['path'], $url['options'], array('X-Authcache: 1'));
+    $expect = array('authcacheForumNumNew' => array());
+    $this->assertEqual($expect, $result, 'Should not report any new topics, member1 is the owner of the topic');
+
+    // M2: Login and retrieve number-of-new-topics-setting for forum list.
+    $this->drupalLogin($this->member2);
+    $result = $this->drupalGetAJAX($GLOBALS['base_root'] . $url['path'], $url['options'], array('X-Authcache: 1'));
+    $expect = array(
+      'authcacheForumNumNew' => array(
+        $this->forum['tid'] => 1,
+      ),
+    );
+    $this->assertEqual($expect, $result, 'Should report one new topic for member2');
+  }
+}

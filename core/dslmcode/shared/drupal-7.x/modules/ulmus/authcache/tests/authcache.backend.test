@@ -1,0 +1,379 @@
+<?php
+/**
+ * @file
+ * Test cases for pluggable cache backends.
+ */
+
+/**
+ * Cover authcache module.
+ */
+class AuthcacheTestBackend extends DrupalWebTestCase {
+  /**
+   * Use minimalistic installation profile.
+   */
+  protected $profile = 'testing';
+
+  protected $member;
+
+  protected $stubbackend;
+
+  /**
+   * Return information about the test case.
+   */
+  public static function getInfo() {
+    return array(
+      'name' => 'Cache Backends',
+      'description' => 'Tests for pluggable cache backends',
+      'group' => 'Authcache',
+    );
+  }
+
+  /**
+   * Setup test case, ensure that authcache module is loaded.
+   */
+  public function setUp() {
+    parent::setUp('authcache_backend_test');
+
+    $this->member = $this->drupalCreateUser(array());
+
+    $authcache_roles = array(
+      DRUPAL_ANONYMOUS_RID => DRUPAL_ANONYMOUS_RID,
+      DRUPAL_AUTHENTICATED_RID => DRUPAL_AUTHENTICATED_RID,
+    ) + $this->member->roles;
+
+    // Setup authcache.
+    variable_set('authcache_roles', $authcache_roles);
+    $pagecaching = _authcache_default_pagecaching();
+    $pagecaching[0]['roles']['roles'] = $authcache_roles;
+    variable_set('authcache_pagecaching', $pagecaching);
+
+    // Set max-age default value.
+    variable_set('page_cache_maximum_age', 3600);
+
+    // HookStub.
+    $this->stubbackend = new ModuleStub('authcache_backend_test');
+  }
+
+  /**
+   * Assert that a certain vary-field is in the Vary header.
+   */
+  protected function assertVary($expectvary, $message = NULL) {
+    $varyheader = $this->drupalGetHeader('Vary') ?: '';
+    $varyfields = array_map('trim', explode(',', $varyheader));
+    $this->assert(in_array($expectvary, $varyfields), $message ?: t('Vary header @header contains @field.', array('@field' => $expectvary, '@header' => $varyheader)));
+  }
+
+  /**
+   * Assert that a certain vary-field is not in the Vary header.
+   */
+  protected function assertNoVary($rejectvary, $message = NULL) {
+    $varyheader = $this->drupalGetHeader('Vary') ?: '';
+    $varyfields = array_map('trim', explode(',', $varyheader));
+    $this->assert(!in_array($rejectvary, $varyfields), $message ?: t('Vary header @header does not contain field @field.', array('@field' => $rejectvary, '@header' => $varyheader)));
+  }
+
+  /**
+   * Test whether the given stub passes the invocation verifier.
+   */
+  protected function assertStub(HookStubProxy $stub, $verifier, $message = NULL) {
+    $result = $stub->verify($verifier, $error);
+
+    if (!$message) {
+      $message = t('Verify invocation of hook @hook.', array('@hook' => $stub->hookname()));
+    }
+    if (!$result && is_string($error)) {
+      $message .= ' ' . $error;
+    }
+
+    $this->assertTrue($result, $message);
+  }
+
+  /**
+   * Test presence of X-Authcache-Key header on HTTP response.
+   */
+  public function testVaryHeaderWithAuthcacheConfig() {
+    // Setup backend.
+    $vary_header = $this->randomName(8);
+    $params = array('authcache_backend_test', $vary_header);
+
+    // Test whether expected vary header is present for anonymous users.
+    $hook_boot = $this->stubbackend->hook('boot', $params);
+    $hook_save = $this->stubbackend->hook('authcache_backend_cache_save');
+
+    $this->drupalGet('<front>');
+    $this->assertVary($vary_header);
+    $this->assertEqual('public, max-age=3600', $this->drupalGetHeader('Cache-Control'), 'Cache-Control: public header expected on response when caching is enabled');
+
+    $this->assertStub($hook_boot, HookStub::once());
+    $this->assertStub($hook_save, HookStub::once());
+
+    // Test whether expected Vary header is present for authenticated users.
+    $this->drupalLogin($this->member);
+    $hook_boot = $this->stubbackend->hook('boot', $params);
+    $hook_save = $this->stubbackend->hook('authcache_backend_cache_save');
+    $this->drupalGet('<front>');
+    $this->assertVary($vary_header);
+    $this->assertEqual('public, max-age=3600', $this->drupalGetHeader('Cache-Control'), 'Cache-Control: public header expected on response when caching is enabled');
+
+    $this->assertStub($hook_boot, HookStub::once());
+    $this->assertStub($hook_save, HookStub::once());
+  }
+
+  /**
+   * Test presence of Vary header when authcache is disabled (per config).
+   */
+  public function testVaryHeaderWithoutAuthcacheConfig() {
+    // Setup backend.
+    $vary_header = $this->randomName(8);
+    $params = array('authcache_backend_test', $vary_header);
+
+    // Disable authcache.
+    variable_del('authcache_roles');
+
+    // Test whether Vary header is present, even when caching is not enabled for
+    // anonymous users.
+    $hook_boot = $this->stubbackend->hook('boot', $params);
+    $hook_save = $this->stubbackend->hook('authcache_backend_cache_save');
+    $this->drupalGet('<front>');
+    $this->assertVary($vary_header);
+    $this->assertEqual('no-cache, must-revalidate, post-check=0, pre-check=0', $this->drupalGetHeader('Cache-Control'), 'Cache-Control: no-cache header expected on response when caching is not enabled');
+
+    $this->assertStub($hook_boot, HookStub::once());
+    $this->assertStub($hook_save, HookStub::never());
+
+    // Test whether Vary header is present, even when caching is not enabled for
+    // authenticated users.
+    $this->drupalLogin($this->member);
+    $hook_boot = $this->stubbackend->hook('boot', $params);
+    $hook_save = $this->stubbackend->hook('authcache_backend_cache_save');
+    $this->drupalGet('<front>');
+    $this->assertVary($vary_header);
+    $this->assertEqual('no-cache, must-revalidate, post-check=0, pre-check=0', $this->drupalGetHeader('Cache-Control'), 'Cache-Control: no-cache header expected on response when caching is not enabled');
+
+    $this->assertStub($hook_boot, HookStub::once());
+    $this->assertStub($hook_save, HookStub::never());
+  }
+
+  /**
+   * Test value of Etag header.
+   */
+  public function testEtagHeader() {
+    // Test whether Etag header is added to cacheable responses for anonymous
+    // users.
+    $hook_boot = $this->stubbackend->hook('boot');
+    $hook_save = $this->stubbackend->hook('authcache_backend_cache_save');
+    $this->drupalGet('<front>');
+    $etag = $this->drupalGetHeader('Etag');
+    $this->assertTrue($etag, 'Etag header on response when caching is enabled');
+    $this->assertTrue(preg_match('/^"[0-9]+-[01]"$/', $etag), 'Etag header matches regexp /^"[0-9]+-[01]"$/');
+
+    $this->assertStub($hook_boot, HookStub::once());
+    $this->assertStub($hook_save, HookStub::once());
+
+    // Test whether Etag header is added to cacheable responses for
+    // authenticated users.
+    $this->drupalLogin($this->member);
+    $hook_boot = $this->stubbackend->hook('boot');
+    $hook_save = $this->stubbackend->hook('authcache_backend_cache_save');
+    $this->drupalGet('<front>');
+    $etag = $this->drupalGetHeader('Etag');
+    $this->assertTrue($etag, 'Etag header on response when caching is enabled');
+    $this->assertTrue(preg_match('/^"[0-9]+-[01]-[0-9a-f]{7}"$/', $etag), 'Etag header matches regexp /^"[0-9]+-[01]-[0-9a-f]{7}"$/');
+
+    $this->assertStub($hook_boot, HookStub::once());
+    $this->assertStub($hook_save, HookStub::once());
+  }
+
+  /**
+   * Test multiple calls to drupal_backend_init().
+   */
+  public function testBackendInitFailures() {
+    // Test that non-existing functions / modules will not be invoked.
+    $backends = array(
+      array('invalid_backend_module', 'Cookie', FALSE),
+    );
+    $hook_boot = $this->stubbackend->hook('boot', array('backends' => $backends));
+    $hook_save = $this->stubbackend->hook('authcache_backend_cache_save');
+    $this->drupalGet('<front>');
+    $this->assertStub($hook_boot, HookStub::once());
+    $this->assertStub($hook_save, HookStub::never());
+
+    // Test one successful, one failure.
+    $backends = array(
+      array('authcache_backend_test', 'Cookie', FALSE),
+      array('invalid_backend_module', 'Cookie', FALSE),
+    );
+    $hook_boot = $this->stubbackend->hook('boot', array('backends' => $backends));
+    $hook_save = $this->stubbackend->hook('authcache_backend_cache_save');
+    $this->drupalGet('<front>');
+    $this->assertStub($hook_boot, HookStub::once());
+    $this->assertStub($hook_save, HookStub::once());
+  }
+}
+
+/**
+ * Test key management.
+ */
+class AuthcacheBackendKeyManagementTestCase extends DrupalWebTestCase {
+  protected $profile = 'testing';
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function getInfo() {
+    return array(
+      'name' => 'Key Management API',
+      'description' => 'Test invocations of key management hooks',
+      'group' => 'Authcache',
+    );
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function setUp() {
+    parent::setUp('authcache_test', 'authcache_backend_test');
+
+    $this->member = $this->drupalCreateUser(array());
+
+    $authcache_roles = array(
+      DRUPAL_ANONYMOUS_RID => DRUPAL_ANONYMOUS_RID,
+      DRUPAL_AUTHENTICATED_RID => DRUPAL_AUTHENTICATED_RID,
+    ) + $this->member->roles;
+
+    // Setup authcache.
+    variable_set('authcache_roles', $authcache_roles);
+    $pagecaching = _authcache_default_pagecaching();
+    $pagecaching[0]['roles']['roles'] = $authcache_roles;
+    variable_set('authcache_pagecaching', $pagecaching);
+
+    // HookStub.
+    $this->stubbackend = new ModuleStub('authcache_backend_test');
+  }
+
+  /**
+   * Test whether the given stub passes the invocation verifier.
+   */
+  protected function assertStub(HookStubProxy $stub, $verifier, $message = NULL) {
+    $result = $stub->verify($verifier, $error);
+
+    if (!$message) {
+      $message = t('Verify invocation of hook @hook.', array('@hook' => $stub->hookname()));
+    }
+    if (!$result && is_string($error)) {
+      $message .= ' ' . $error;
+    }
+
+    $this->assertTrue($result, $message);
+  }
+
+  /**
+   * Call hook_authcache_backend_key_set during login and logout.
+   */
+  public function testKeyRenewDuringLogin() {
+    variable_set('simpletest_maximum_redirects', 0);
+    $this->drupalGet('user');
+
+    $backend_boot = $this->stubbackend->hook('boot', array(
+      'authcache_backend_test', 'Cookie', authcache_backend_anonymous_key(),
+    ));
+    $key_set = $this->stubbackend->hook('authcache_backend_key_set');
+
+    $edit = array(
+      'name' => $this->member->name,
+      'pass' => $this->member->pass_raw,
+    );
+    $this->drupalPost(NULL, $edit, t('Log in'));
+
+    $user_key = $this->drupalGetHeader('X-Authcache-Backend-Test-Key-Exit');
+    $this->assertTrue($user_key, 'User key is not empty');
+    $this->assertNotEqual(authcache_backend_anonymous_key(), $user_key, 'User key is not same as the anonymous key');
+
+    $this->assertStub($backend_boot, HookStub::once());
+    $this->assertStub($key_set, HookStub::once());
+    $this->assertStub($key_set, HookStub::args(
+      array($user_key, authcache_key_lifetime(), TRUE)
+    ));
+  }
+
+  /**
+   * Call hook_authcache_backend_key_set during logout.
+   */
+  public function testKeyRenewDuringLogout() {
+    $this->drupalLogin($this->member);
+
+    $user_key = $this->drupalGetHeader('X-Authcache-Backend-Test-Key-Exit');
+    $this->assertTrue($user_key, 'User key is not empty');
+    $this->assertNotEqual(authcache_backend_anonymous_key(), $user_key, 'User key is not same as the anonymous key');
+
+    variable_set('simpletest_maximum_redirects', 0);
+
+    $backend_boot = $this->stubbackend->hook('boot', array(
+      'authcache_backend_test', 'Cookie', $user_key,
+    ));
+    $key_set = $this->stubbackend->hook('authcache_backend_key_set');
+
+    $this->drupalGet('user/logout');
+
+    $this->assertStub($backend_boot, HookStub::once());
+    $this->assertStub($key_set, HookStub::once());
+    $this->assertStub($key_set, HookStub::args(
+      array(authcache_backend_anonymous_key(), authcache_key_lifetime(), FALSE)
+    ));
+  }
+
+  /**
+   * Do not call hook_authcache_backend_key_set when key remains the same.
+   */
+  public function testNoKeyRenewWhenKeyDoesNotChange() {
+    // Ensure that authcache will not attempt to renew the key if the correct
+    // one is supplied by the backend.
+    $backend_boot = $this->stubbackend->hook('boot', array(
+      'authcache_backend_test', 'Cookie', authcache_backend_anonymous_key(),
+    ));
+    $key_set = $this->stubbackend->hook('authcache_backend_key_set');
+
+    $this->drupalGet('node');
+
+    $this->assertStub($backend_boot, HookStub::once());
+    $this->assertStub($key_set, HookStub::never());
+
+    // Repeat the test for an anonymous user with an open session.
+    $count = $this->drupalGet('authcache-test-session-counter');
+    $this->assertEqual(1, $count);
+    $count = $this->drupalGet('authcache-test-session-counter');
+    $this->assertEqual(2, $count);
+
+    $backend_boot = $this->stubbackend->hook('boot', array(
+      'authcache_backend_test', 'Cookie', authcache_backend_anonymous_key(),
+    ));
+    $key_set = $this->stubbackend->hook('authcache_backend_key_set');
+
+    $this->drupalGet('node');
+
+    $this->assertStub($backend_boot, HookStub::once());
+    $this->assertStub($key_set, HookStub::never());
+
+    $count = $this->drupalGet('authcache-test-session-counter');
+    $this->assertEqual(3, $count);
+    $this->drupalGet('authcache-test-session-clear');
+
+    // Repeat again for an authenticated user.
+    $this->drupalLogin($this->member);
+    $user_key = $this->drupalGetHeader('X-Authcache-Backend-Test-Key-Exit');
+    $this->assertTrue($user_key, 'User key is not empty');
+    $this->assertNotEqual(authcache_backend_anonymous_key(), $user_key, 'User key is not same as the anonymous key');
+
+    $backend_boot = $this->stubbackend->hook('boot', array(
+      'authcache_backend_test', 'Cookie', $user_key,
+    ));
+    $key_set = $this->stubbackend->hook('authcache_backend_key_set');
+
+    $this->drupalGet('node');
+
+    $this->assertStub($backend_boot, HookStub::once());
+    $this->assertStub($key_set, HookStub::never());
+
+    $this->drupalLogout();
+  }
+}

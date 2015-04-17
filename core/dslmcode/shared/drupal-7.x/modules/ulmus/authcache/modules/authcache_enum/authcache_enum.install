@@ -1,0 +1,28 @@
+<?php
+/**
+ * @file
+ * Install, update and uninstall functions for the Authcache Enum module.
+ */
+
+/**
+ * Implements hook_requirements().
+ */
+function authcache_enum_requirements($phase) {
+  $requirements = array();
+  // Ensure translations don't break during installation.
+  $t = get_t();
+
+  if (variable_get('authcache_su', 0)) {
+    $requirements['authcache_enum'] = array(
+      'title' => $t('Authcache key enumeration'),
+      'value' => $t('Conflicting setting detected'),
+      'description' => $t('Authcache Enum conflicts with the setting %option. Please disable it on the <a href="!link">Authcache configuration</a> page.', array(
+        '%option' => $t('Allow caching for superuser (uid = 1)'),
+        '!link' => url('admin/config/system/authcache'),
+      )),
+      'severity' => ($phase === 'runtime') ? REQUIREMENT_ERROR : REQUIREMENT_WARNING,
+    );
+  }
+
+  return $requirements;
+}

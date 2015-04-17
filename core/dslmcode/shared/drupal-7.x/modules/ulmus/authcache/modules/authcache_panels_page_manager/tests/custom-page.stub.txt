@@ -1,0 +1,162 @@
+$page = new stdClass();
+$page->disabled = FALSE; /* Edit this to true to make a default page disabled initially */
+$page->api_version = 1;
+$page->name = 'custom_node_view';
+$page->task = 'page';
+$page->admin_title = 'Custom node view';
+$page->admin_description = '';
+$page->path = 'node-x/%node';
+$page->access = array();
+$page->menu = array();
+$page->arguments = array(
+  'node' => array(
+    'id' => 1,
+    'identifier' => 'Node: ID',
+    'name' => 'entity_id:node',
+    'settings' => array(),
+  ),
+);
+$page->conf = array(
+  'admin_paths' => FALSE,
+);
+$page->default_handlers = array();
+$handler = new stdClass();
+$handler->disabled = FALSE; /* Edit this to true to make a default handler disabled initially */
+$handler->api_version = 1;
+$handler->name = 'page_custom_node_view_panel_context';
+$handler->task = 'page';
+$handler->subtask = 'custom_node_view';
+$handler->handler = 'panel_context';
+$handler->weight = 0;
+$handler->conf = array(
+  'title' => 'Panel',
+  'no_blocks' => 0,
+  'pipeline' => 'standard',
+  'body_classes_to_remove' => '',
+  'body_classes_to_add' => '',
+  'css_id' => '',
+  'css' => '',
+  'contexts' => array(
+    0 => array(
+      'identifier' => 'Logged in user',
+      'keyword' => 'user',
+      'name' => 'user',
+      'type' => 'current',
+      'uid' => '',
+      'id' => 1,
+    ),
+  ),
+  'relationships' => array(
+    0 => array(
+      'identifier' => 'Multiple terms from node',
+      'keyword' => 'terms',
+      'name' => 'terms_from_node',
+      'vocabulary' => array(
+        'tags' => 'tags',
+        'forums' => 0,
+      ),
+      'concatenator' => '+',
+      'context' => 'argument_entity_id:node_1',
+      'id' => 1,
+    ),
+    1 => array(
+      'identifier' => 'User from Node (on node.node_author)',
+      'keyword' => 'author',
+      'name' => 'entity_from_schema:uid-node-user',
+      'context' => 'argument_entity_id:node_1',
+      'id' => 1,
+    ),
+  ),
+);
+$display = new panels_display();
+$display->layout = 'twocol';
+$display->layout_settings = array();
+$display->panel_settings = array(
+  'style_settings' => array(
+    'default' => NULL,
+    'left' => NULL,
+    'right' => NULL,
+  ),
+);
+$display->cache = array();
+$display->title = '';
+$display->content = array();
+$display->panels = array();
+  $pane = new stdClass();
+  $pane->pid = 'new-1';
+  $pane->panel = 'left';
+  $pane->type = 'node_content';
+  $pane->subtype = 'node_content';
+  $pane->shown = TRUE;
+  $pane->access = array();
+  $pane->configuration = array(
+    'links' => 1,
+    'no_extras' => 0,
+    'override_title' => 0,
+    'override_title_text' => '',
+    'identifier' => '',
+    'link' => 0,
+    'leave_node_title' => 0,
+    'build_mode' => 'full',
+    'context' => 'argument_entity_id:node_1',
+  );
+  $pane->cache = array();
+  $pane->style = array(
+    'settings' => NULL,
+  );
+  $pane->css = array();
+  $pane->extras = array();
+  $pane->position = 0;
+  $pane->locks = array();
+  $display->content['new-1'] = $pane;
+  $display->panels['left'][0] = 'new-1';
+  $pane = new stdClass();
+  $pane->pid = 'new-2';
+  $pane->panel = 'right';
+  $pane->type = 'custom';
+  $pane->subtype = 'custom';
+  $pane->shown = TRUE;
+  $pane->access = array();
+  $pane->configuration = array(
+    'admin_title' => '',
+    'title' => '',
+    'body' => 'This fragment should be loaded via Ajax/ESI. Some context:
+<ul>
+<li>Authors email: %author:mail</li>
+<li>Logged in users email: %user:mail</li>
+</ul>',
+    'format' => 'filtered_html',
+    'substitute' => 1,
+  );
+  $pane->cache = array(
+    'method' => 'authcache_panels',
+    'settings' => array(
+      'machine_name' => 'pane_1',
+      'authcache' => array(
+        'status' => '1',
+        'lifespan' => '3600',
+        'peruser' => '1',
+        'perpage' => '1',
+        'clients' => array(
+          'authcache_p13n_test' => array(
+            'status' => '1',
+            'weight' => '0',
+          ),
+        ),
+        'fallback' => 'cancel',
+      ),
+    ),
+  );
+  $pane->style = array(
+    'settings' => NULL,
+  );
+  $pane->css = array();
+  $pane->extras = array();
+  $pane->position = 0;
+  $pane->locks = array();
+  $display->content['new-2'] = $pane;
+  $display->panels['right'][0] = 'new-2';
+$display->hide_title = PANELS_TITLE_FIXED;
+$display->title_pane = 'new-1';
+$handler->conf['display'] = $display;
+$page->default_handlers[$handler->name] = $handler;

@@ -1,0 +1,18 @@
+name = Authcache Views
+description = Authcache support for Views
+package = Performance and scalability
+core = 7.x
+dependencies[] = authcache_p13n
+dependencies[] = views
+files[] = authcache_views.test
+files[] = includes/AuthcacheViewsAdminEntry.inc
+files[] = includes/AuthcacheViewsDisplayPageContextProvider.inc
+files[] = includes/AuthcacheViewsFragment.inc
+files[] = views/authcache_views_plugin_display_extender.inc
+
+; Information added by Drupal.org packaging script on 2014-10-21
+version = "7.x-2.0-beta4"
+core = "7.x"
+project = "authcache"
+datestamp = "1413923939"
+

@@ -1,0 +1,292 @@
+<?php
+/**
+ * @file
+ * Defines tests for authcache frontcontroller for personalized requests.
+ */
+
+/**
+ * Tests for authcache frontcontroller for personalized requests.
+ */
+class AuthcacheP13nTestFrontcontroller extends DrupalWebTestCase {
+  protected $profile = 'testing';
+  protected $fcURL;
+  protected $stubmod;
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function getInfo() {
+    return array(
+      'name' => "Front Controller",
+      'description' => 'Tests for the authcache front controller.',
+      'group' => 'Authcache Personalization',
+    );
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function setUp() {
+    global $base_url;
+
+    parent::setUp('authcache_p13n', 'authcache_p13n_test', 'authcache_test_hookstub');
+
+    variable_set('authcache_p13n_router', 'AuthcacheP13nTestRequestRouterStub');
+    variable_set('authcache_p13n_checkheader', TRUE);
+
+    // HookStub.
+    $this->stubmod = new ModuleStub('authcache_p13n_test');
+
+    $this->fcURL = $base_url . '/' . drupal_get_path('module', 'authcache_p13n') . '/frontcontroller/authcache.php';
+  }
+
+  /**
+   * Test whether the given stub passes the invocation verifier.
+   */
+  protected function assertStub(HookStubProxy $stub, $verifier, $message = NULL) {
+    $result = $stub->verify($verifier, $error);
+
+    if (!$message) {
+      $message = t('Verify invocation of hook @hook.', array('@hook' => $stub->hookname()));
+    }
+    if (!$result && is_string($error)) {
+      $message .= ' ' . $error;
+    }
+
+    $this->assertTrue($result, $message);
+  }
+
+  /**
+   * Test whether the frontcontroller responds correctly to a valid request.
+   */
+  public function testValidRequest() {
+    $headers = array('X-Authcache: 1');
+    $params = array('r' => 'test/good', 'q' => 'node');
+
+    // Get should return serialized parameters.
+    $result = $this->drupalGet($this->fcURL, array('query' => $params), $headers);
+    $this->assertResponse(200);
+    $this->assertEqual(serialize(array('q' => 'node')), $result);
+
+    // Head should not return any result.
+    $result = $this->drupalHead($this->fcURL, array('query' => $params), $headers);
+    $this->assertResponse(200);
+    $this->assertEqual('', $result);
+
+    // When authcache_p13n_checkheader is set to FALSE, requests should succeed
+    // even when X-Authcache header is not sent.
+    variable_set('authcache_p13n_checkheader', FALSE);
+
+    // Get should return serialized parameters.
+    $result = $this->drupalGet($this->fcURL, array('query' => $params));
+    $this->assertResponse(200);
+    $this->assertEqual(serialize(array('q' => 'node')), $result);
+
+    // Head should not return any result.
+    $result = $this->drupalHead($this->fcURL, array('query' => $params));
+    $this->assertResponse(200);
+    $this->assertEqual('', $result);
+  }
+
+  /**
+   * Ensure that fc responds with 405 Method Not Allowed to POST requests.
+   */
+  public function testInvalidHTTPMethod() {
+    $headers = array('X-Authcache: 1');
+    $params = array('r' => 'test/good', 'q' => 'node');
+
+    // We need to post manually here, drupalPost would attempt to GET the form
+    // before (and would fail).
+    $action = url($this->fcURL, array('query' => $params, 'absolute' => TRUE));
+    $result = $this->curlExec(array(
+      CURLOPT_URL => $action,
+      CURLOPT_POST => TRUE,
+      CURLOPT_POSTFIELDS => '',
+      CURLOPT_HTTPHEADER => $headers,
+    ));
+    // Ensure that any changes to variables in the other thread are picked up.
+    $this->refreshVariables();
+
+    $this->assertResponse(405);
+    $this->assertEqual('', $result);
+  }
+
+  /**
+   * Fc should respond with 400 Bad Request if X-Authcache header is missing.
+   */
+  public function testMissingAuthcacheHeader() {
+    $params = array('r' => 'test/good', 'q' => 'node');
+    $result = $this->drupalGet($this->fcURL, array('query' => $params));
+    $this->assertResponse(400);
+    $this->assertEqual('', $result);
+  }
+
+  /**
+   * Fc should respond with 400 Bad Request if r-parameter is missing.
+   */
+  public function testMissingRequestPath() {
+    $headers = array('X-Authcache: 1');
+    $params = array('q' => 'node');
+
+    $result = $this->drupalGet($this->fcURL, array('query' => $params), $headers);
+    $this->assertResponse(400);
+    $this->assertEqual('', $result);
+  }
+
+  /**
+   * Fc should respond with appropriate result codes when errors occure.
+   */
+  public function testExceptions() {
+    $headers = array('X-Authcache: 1');
+
+    $params = array(
+      'r' => 'test/bad', 'q' => 'node', 'error' => 'not_found');
+    $result = $this->drupalGet($this->fcURL, array('query' => $params), $headers);
+    $this->assertResponse(404);
+    $this->assertEqual('', $result);
+
+    $params = array(
+      'r' => 'test/bad', 'q' => 'node', 'error' => 'invalid_input');
+    $result = $this->drupalGet($this->fcURL, array('query' => $params), $headers);
+    $this->assertResponse(400);
+    $this->assertEqual('', $result);
+
+    $params = array(
+      'r' => 'test/bad', 'q' => 'node', 'error' => 'access_denied');
+    $result = $this->drupalGet($this->fcURL, array('query' => $params), $headers);
+    $this->assertResponse(403);
+    $this->assertEqual('', $result);
+
+    $params = array(
+      'r' => 'test/bad', 'q' => 'node', 'error' => 'server_error');
+    $result = $this->drupalGet($this->fcURL, array('query' => $params), $headers);
+    $this->assertResponse(500);
+    $this->assertEqual('', $result);
+
+    $params = array(
+      'r' => 'test/bad', 'q' => 'node', 'error' => 'unhandled_exception');
+    $result = $this->drupalGet($this->fcURL, array('query' => $params), $headers);
+    $this->assertResponse(500);
+    $this->assertEqual('', $result);
+  }
+
+  /**
+   * Test that a watchdog message is logged when frontcontroller redirects.
+   */
+  public function testRedirectDetection() {
+    $headers = array('X-Authcache: 1');
+
+    $wdstub = $this->stubmod->hook('watchdog');
+
+    $params = array(
+      'r' => 'test/bad', 'q' => 'node', 'error' => 'redirect');
+    $result = $this->drupalGet($this->fcURL, array('query' => $params), $headers);
+    $this->assertResponse(200);
+    $this->assertEqual($this->redirect_count, 1, 'Redirected once');
+    $this->assertEqual($this->getUrl(), url('', array('absolute' => TRUE)));
+
+    $this->assertStub($wdstub, HookStub::once());
+    list($invocation) = $wdstub->invocations();
+    list($wdrecord) = $invocation;
+    $this->assertEqual('Authcache P13n Front Controller', $wdrecord['type'], 'Watchdog entry has expected type');
+    $this->assertEqual('A redirect was triggered from within a personalization request originating from @origin', $wdrecord['message'], 'Watchdog entry has expected message');
+    $this->assertIdentical(0, strpos($wdrecord['variables']['@origin'], 'AuthcacheP13nTestRequestHandlerBadStub->handle()'), 'Watchdog message contains originating class/method');
+  }
+}
+
+
+/**
+ * Tests for default router.
+ */
+class AuthcacheP13nTestDefaultRequestRouter extends DrupalWebTestCase {
+  protected $profile = 'testing';
+  protected $router;
+  protected $stubmod;
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function getInfo() {
+    return array(
+      'name' => "Default Request Router",
+      'description' => 'Tests for the default request router class.',
+      'group' => 'Authcache Personalization',
+    );
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function setUp() {
+    parent::setUp('authcache_p13n', 'authcache_test_hookstub');
+
+    variable_set('authcache_p13n_router', 'AuthcacheP13nDefaultRequestRouter');
+    variable_set('authcache_p13n_checkheader', TRUE);
+
+    $this->router = authcache_p13n_request_get_router();
+    authcache_p13n_request_router_rebuild();
+
+    // HookStub.
+    $this->stubmod = new ModuleStub('authcache_p13n_test');
+    $this->stubmod->hook('authcache_p13n_request', array(
+      'test/stub' => array(
+        'handler' => array(
+          '#type' => 'class',
+          '#class' => 'AuthcacheP13nTestRequestHandlerStub',
+        ),
+        'url generator' => array(
+          '#type' => 'class',
+          '#class' => 'AuthcacheP13nTestRequestUrlGeneratorStub',
+        ),
+      ),
+    ));
+  }
+
+  /**
+   * Cover AuthcacheP13nDefaultRequestRouter::rebuild().
+   */
+  public function testRebuild() {
+    // Ensure that route is not present when stub module is not enabled.
+    $this->assertFalse(authcache_p13n_request_exists('test/stub'));
+
+    // Enable stub module.
+    module_enable(array('authcache_p13n_test'));
+    $this->resetAll();
+
+    // Ensure that route is present when stub module is enabled.
+    authcache_p13n_request_router_rebuild();
+
+    $this->assertTrue(authcache_p13n_request_exists('test/stub'));
+  }
+
+  /**
+   * Test whether the frontcontroller responds correctly to a valid request.
+   */
+  public function testLookup() {
+    // Ensure that the request handler is not present in the router.
+    $handler = $this->router->getHandler('test/stub');
+    $this->assertNull($handler);
+
+    // Enable stub module.
+    module_enable(array('authcache_p13n_test'));
+    $this->resetAll();
+
+    authcache_p13n_request_router_rebuild();
+
+    $this->assertTrue(authcache_p13n_request_exists('test/stub'));
+
+    // Ensure that the router returns the proper request object.
+    $handler = $this->router->getHandler('test/stub');
+    $this->assertEqual(new AuthcacheP13nTestRequestHandlerStub(), $handler);
+  }
+
+  /**
+   * Should throw AuthcacheP13nRequestNotFound when route does not exist.
+   */
+  public function testRequestNotFound() {
+    $this->assertFalse(authcache_p13n_request_exists('test/route-does-not-exist'));
+
+    $handler = $this->router->getHandler('test/request-does-not-exist');
+    $this->assertFalse($handler, 'Should return FALSE if request does not exist in router');
+  }
+}

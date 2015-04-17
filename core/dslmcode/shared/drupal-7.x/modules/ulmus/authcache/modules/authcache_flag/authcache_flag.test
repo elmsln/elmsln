@@ -1,0 +1,497 @@
+<?php
+/**
+ * @file
+ * Test cases for the Authcache Flag module.
+ */
+
+/**
+ * Tests for markup substitution.
+ */
+class AuthcacheFlagTest extends DrupalWebTestCase {
+  protected $stubmod;
+  protected $member1;
+  protected $member2;
+  protected $nodeFlag;
+  protected $userFlag;
+  protected $termFlag;
+  protected $node1;
+  protected $node2;
+  protected $term;
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function getInfo() {
+    return array(
+      'name' => 'Authcache Flag',
+      'description' => 'Test markup substitution and fragment generation for Flags',
+      'group' => 'Authcache Flag',
+    );
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function setUp() {
+    parent::setUp(array('authcache_flag', 'authcache_p13n_test'));
+
+    $node_flag_data = array(
+      'entity_type' => 'node',
+      'name' => 'test_node_flag',
+      'title' => 'Test Flag',
+      'global' => 0,
+      'types' => array(
+        0 => 'article',
+      ),
+      'flag_short' => 'Flag this item',
+      'flag_long' => '',
+      'flag_message' => '',
+      'unflag_short' => 'Unflag this item',
+      'unflag_long' => '',
+      'unflag_message' => '',
+      'unflag_denied_text' => 'You may not unflag this item',
+      'link_type' => 'normal',
+      'weight' => 0,
+      'show_as_field' => 0,
+      'show_on_form' => 0,
+      'access_author' => '',
+      'show_contextual_link' => 0,
+      'show_in_links' => array(
+        'full' => 1,
+        'teaser' => 1,
+      ),
+      'i18n' => 0,
+      'api_version' => 3,
+    );
+    $this->nodeFlag = $this->createFlag($node_flag_data);
+    $user_flag_data = array(
+      'entity_type' => 'user',
+      'name' => 'test_user_flag',
+      'title' => 'Test Flag',
+      'global' => 0,
+      'types' => array(
+        0 => 'user',
+      ),
+      'flag_short' => 'Flag this item',
+      'flag_long' => '',
+      'flag_message' => '',
+      'unflag_short' => 'Unflag this item',
+      'unflag_long' => '',
+      'unflag_message' => '',
+      'unflag_denied_text' => 'You may not unflag this item',
+      'link_type' => 'normal',
+      'weight' => 0,
+      'show_as_field' => 0,
+      'show_on_form' => 0,
+      'show_on_profile' => 0,
+      'access_author' => '',
+      'show_contextual_link' => 0,
+      'show_in_links' => array(
+        'full' => 1,
+        'teaser' => 1,
+      ),
+      'i18n' => 0,
+      'api_version' => 3,
+    );
+    $this->userFlag = $this->createFlag($user_flag_data);
+    $taxonomy_term_flag_data = array(
+      'entity_type' => 'taxonomy_term',
+      'name' => 'test_taxonomy_term_flag',
+      'title' => 'Test Flag',
+      'global' => 0,
+      'types' => array(
+        0 => 'tags',
+      ),
+      'flag_short' => 'Flag this item',
+      'flag_long' => '',
+      'flag_message' => '',
+      'unflag_short' => 'Unflag this item',
+      'unflag_long' => '',
+      'unflag_message' => '',
+      'unflag_denied_text' => 'You may not unflag this item',
+      'link_type' => 'normal',
+      'weight' => 0,
+      'show_as_field' => 0,
+      'show_on_form' => 0,
+      'access_author' => '',
+      'show_contextual_link' => 0,
+      'show_in_links' => array(
+        'full' => 1,
+        'teaser' => 1,
+      ),
+      'i18n' => 0,
+      'api_version' => 3,
+    );
+    $this->termFlag = $this->createFlag($taxonomy_term_flag_data);
+
+    // Create test user who can flag and unflag.
+    $this->member1 = $this->drupalCreateUser(array(
+      'flag test_node_flag',
+      'flag test_user_flag',
+      'flag test_taxonomy_term_flag',
+      'access user profiles',
+    ));
+    $this->member2 = $this->drupalCreateUser(array(
+      'flag test_node_flag',
+      'unflag test_node_flag',
+      'flag test_user_flag',
+      'unflag test_user_flag',
+      'flag test_taxonomy_term_flag',
+      'unflag test_taxonomy_term_flag',
+      'access user profiles',
+    ));
+    $this->editor = $this->drupalCreateUser(array(
+      'access administration pages',
+      'administer flags',
+    ));
+
+    $this->node1 = $this->drupalCreateNode(array(
+      'type' => 'article',
+      'promote' => 1,
+      'uid' => $this->editor->uid,
+    ));
+    $this->node2 = $this->drupalCreateNode(array(
+      'type' => 'article',
+      'promote' => 1,
+      'uid' => $this->editor->uid,
+    ));
+
+    // Add taxonomy term.
+    $vocabulary = taxonomy_vocabulary_machine_name_load('tags');
+    $this->term = $this->createTerm($vocabulary);
+
+    $authcache_roles = array(
+      DRUPAL_ANONYMOUS_RID => DRUPAL_ANONYMOUS_RID,
+      DRUPAL_AUTHENTICATED_RID => DRUPAL_AUTHENTICATED_RID,
+    ) + $this->member1->roles + $this->member2->roles + $this->editor->roles;
+
+    // Setup authcache.
+    variable_set('authcache_roles', $authcache_roles);
+    $pagecaching = _authcache_default_pagecaching();
+    $pagecaching[0]['roles']['roles'] = $authcache_roles;
+    $pagecaching[0]['pages'] = '';
+    variable_set('authcache_pagecaching', $pagecaching);
+
+    // HookStub.
+    $this->stubmod = new ModuleStub('authcache_p13n_test');
+  }
+
+  /**
+   * Test whether the given stub passes the invocation verifier.
+   */
+  protected function assertStub(HookStubProxy $stub, $verifier, $message = NULL) {
+    $result = $stub->verify($verifier, $error);
+
+    if (!$message) {
+      $message = t('Verify invocation of hook @hook.', array('@hook' => $stub->hookname()));
+    }
+    if (!$result && is_string($error)) {
+      $message .= ' ' . $error;
+    }
+
+    $this->assertTrue($result, $message);
+  }
+
+  /**
+   * Helper to create a flag from an array of data and clear caches etc.
+   *
+   * @see FlagTestCaseBase::createFlag()
+   */
+  protected function createFlag($flag_data) {
+    $flag = flag_flag::factory_by_array($flag_data);
+    return $this->saveFlag($flag);
+  }
+
+  /**
+   * Save a flag to the database, clear caches, rebuild router.
+   */
+  protected function saveFlag($flag) {
+    $flag->save();
+
+    // Reset our cache so our permissions show up.
+    drupal_static_reset('flag_get_flags');
+
+    // Reset permissions so that permissions for this flag are available.
+    $this->checkPermissions(array(), TRUE);
+
+    // Rebuild authcache personalization fragment router.
+    authcache_p13n_request_router_rebuild();
+
+    return $flag;
+  }
+
+  /**
+   * Returns a new term with random properties in vocabulary $vid.
+   *
+   * @see TaxonomyWebTestCase::createTerm()
+   */
+  protected function createTerm($vocabulary) {
+    $term = new stdClass();
+    $term->name = $this->randomName();
+    $term->description = $this->randomName();
+    // Use the first available text format.
+    $term->format = db_query_range('SELECT format FROM {filter_format}', 0, 1)->fetchField();
+    $term->vid = $vocabulary->vid;
+    taxonomy_term_save($term);
+    return $term;
+  }
+
+  /**
+   * Test that the flag markup is substituted by a partial.
+   *
+   * Covers authcache_flag_entity_view_alter()
+   */
+  public function testNodeMarkupSubstitution() {
+    $this->stubmod->hook('authcache_p13n_client', array(
+      'authcache_p13n_test' => array(
+        'title' => t('Test Client'),
+        'enabled' => TRUE,
+      ),
+    ));
+
+    $this->drupalLogin($this->member1);
+
+    // M1: Visit the front page populated with two node having one flag each.
+    $assembly_markup = $this->randomName(8);
+    $assembly_stub = HookStub::on('theme_authcache_p13n_assembly__authcache_p13n_test', $assembly_markup);
+    $partial_markup = $this->randomName(8);
+    $partial_stub = HookStub::on('theme_authcache_p13n_partial__authcache_p13n_test', $partial_markup);
+
+    $this->drupalGet('node');
+
+    $this->assertStub($assembly_stub, HookStub::times(1));
+    $this->assertStub($partial_stub, HookStub::times(2));
+
+    // Load flag and change it such that it will be displayed as a pseudo field.
+    $flag = flag_get_flag($this->nodeFlag->name);
+    $flag->show_in_links = array();
+    $flag->show_as_field = 1;
+    $this->nodeFlag = $this->saveFlag($flag);
+
+    // M1: Visit a full node view.
+    $assembly_markup = $this->randomName(8);
+    $assembly_stub = HookStub::on('theme_authcache_p13n_assembly__authcache_p13n_test', $assembly_markup);
+    $partial_markup = $this->randomName(8);
+    $partial_stub = HookStub::on('theme_authcache_p13n_partial__authcache_p13n_test', $partial_markup);
+
+    $this->drupalGet('node/' . $this->node1->nid);
+
+    $this->assertStub($assembly_stub, HookStub::times(1));
+    $this->assertStub($partial_stub, HookStub::times(1));
+  }
+
+  /**
+   * Test that the flag markup is substituted by a partial for taxonomy terms.
+   *
+   * Covers authcache_flag_entity_view_alter()
+   */
+  public function testTaxonomyTermMarkupSubstitution() {
+    $this->stubmod->hook('authcache_p13n_client', array(
+      'authcache_p13n_test' => array(
+        'title' => t('Test Client'),
+        'enabled' => TRUE,
+      ),
+    ));
+
+    $this->drupalLogin($this->member1);
+
+    // M1: Visit a full term view.
+    $assembly_markup = $this->randomName(8);
+    $assembly_stub = HookStub::on('theme_authcache_p13n_assembly__authcache_p13n_test', $assembly_markup);
+    $partial_markup = $this->randomName(8);
+    $partial_stub = HookStub::on('theme_authcache_p13n_partial__authcache_p13n_test', $partial_markup);
+
+    $this->drupalGet('taxonomy/term/' . $this->term->tid);
+
+    $this->assertStub($assembly_stub, HookStub::times(1));
+    $this->assertStub($partial_stub, HookStub::times(1));
+
+    // Load flag and change it such that it will be displayed as a pseudo field.
+    $flag = flag_get_flag($this->termFlag->name);
+    $flag->show_in_links = array();
+    $flag->show_as_field = 1;
+    $this->termFlag = $this->saveFlag($flag);
+
+    // M1: Visit a full term view.
+    $assembly_markup = $this->randomName(8);
+    $assembly_stub = HookStub::on('theme_authcache_p13n_assembly__authcache_p13n_test', $assembly_markup);
+    $partial_markup = $this->randomName(8);
+    $partial_stub = HookStub::on('theme_authcache_p13n_partial__authcache_p13n_test', $partial_markup);
+
+    $this->drupalGet('taxonomy/term/' . $this->term->tid);
+
+    $this->assertStub($assembly_stub, HookStub::times(1));
+    $this->assertStub($partial_stub, HookStub::times(1));
+  }
+
+  /**
+   * Test that the flag markup is substituted by a partial.
+   *
+   * Covers authcache_flag_entity_view_alter()
+   */
+  public function testUserMarkupSubstitution() {
+    $this->stubmod->hook('authcache_p13n_client', array(
+      'authcache_p13n_test' => array(
+        'title' => t('Test Client'),
+        'enabled' => TRUE,
+      ),
+    ));
+
+    $this->drupalLogin($this->member1);
+
+    // M1: Visit the front page populated with two node having one flag each.
+    $assembly_markup = $this->randomName(8);
+    $assembly_stub = HookStub::on('theme_authcache_p13n_assembly__authcache_p13n_test', $assembly_markup);
+    $partial_markup = $this->randomName(8);
+    $partial_stub = HookStub::on('theme_authcache_p13n_partial__authcache_p13n_test', $partial_markup);
+
+    $this->drupalGet('user/' . $this->member2->uid);
+
+    $this->assertStub($assembly_stub, HookStub::times(1));
+    $this->assertStub($partial_stub, HookStub::times(1));
+
+    // Load flag and change it such that it will be displayed as a pseudo field.
+    $flag = flag_get_flag($this->userFlag->name);
+    $flag->show_in_links = array();
+    $flag->show_as_field = 1;
+    $flag->show_on_profile = 0;
+    $this->userFlag = $this->saveFlag($flag);
+
+    // M1: Visit a full node view.
+    $assembly_markup = $this->randomName(8);
+    $assembly_stub = HookStub::on('theme_authcache_p13n_assembly__authcache_p13n_test', $assembly_markup);
+    $partial_markup = $this->randomName(8);
+    $partial_stub = HookStub::on('theme_authcache_p13n_partial__authcache_p13n_test', $partial_markup);
+
+    $this->drupalGet('user/' . $this->member2->uid);
+
+    $this->assertStub($assembly_stub, HookStub::times(1));
+    $this->assertStub($partial_stub, HookStub::times(1));
+
+    // Load flag and change it such that it will be displayed as a user profile
+    // field.
+    $flag = flag_get_flag($this->userFlag->name);
+    $flag->show_in_links = array();
+    $flag->show_as_field = 0;
+    $flag->show_on_profile = 1;
+    $this->userFlag = $this->saveFlag($flag);
+
+    // M1: Visit a full node view.
+    $assembly_markup = $this->randomName(8);
+    $assembly_stub = HookStub::on('theme_authcache_p13n_assembly__authcache_p13n_test', $assembly_markup);
+    $partial_markup = $this->randomName(8);
+    $partial_stub = HookStub::on('theme_authcache_p13n_partial__authcache_p13n_test', $partial_markup);
+
+    $this->drupalGet('user/' . $this->member2->uid);
+
+    $this->assertStub($assembly_stub, HookStub::times(1));
+    $this->assertStub($partial_stub, HookStub::times(1));
+  }
+
+  /**
+   * Ensure that flags are rendered propertly when user has unflag permission.
+   *
+   * Covers AuthcacheFlagFlagFragment
+   */
+  public function testAuthcacheFlagFlagFragmentWithUnflag() {
+    $this->drupalLogin($this->member2);
+
+    $partial = _authcache_flag_partial_id($this->nodeFlag);
+    $url = authcache_p13n_request_get_callback('asm/flags', array(
+      $partial => array($this->node1->nid, $this->node2->nid),
+    ));
+    $this->assertTrue($url);
+
+    // Fetch (both nodes unflagged).
+    $result = $this->drupalGetAJAX($GLOBALS['base_root'] . $url['path'], $url['options'], array('X-Authcache: 1'));
+    $this->assert(isset($result[$partial]));
+    $this->assertEqual(array($this->node1->nid, $this->node2->nid), array_keys($result[$partial]));
+
+    $this->drupalSetContent($result[$partial][$this->node1->nid]);
+    $this->assertLink('Flag this item', 0, 'The flag link appears in the first fragment.');
+    $this->drupalSetContent($result[$partial][$this->node2->nid]);
+    $this->assertLink('Flag this item', 0, 'The flag link appears in the second fragment.');
+
+    // Click the link to flag the second node.
+    $this->clickLink(t('Flag this item'));
+
+    // Refetch (first node unflagged, second node flagged).
+    $result = $this->drupalGetAJAX($GLOBALS['base_root'] . $url['path'], $url['options'], array('X-Authcache: 1'));
+    $this->assert(isset($result[$partial]));
+    $this->assertEqual(array($this->node1->nid, $this->node2->nid), array_keys($result[$partial]));
+
+    $this->drupalSetContent($result[$partial][$this->node1->nid]);
+    $this->assertLink('Flag this item', 0, 'The flag link appears in the first fragment.');
+    $this->drupalSetContent($result[$partial][$this->node2->nid]);
+    $this->assertLink('Unflag this item', 0, 'The unflag link appears on the page after flagging.');
+
+    // Click the link to flag the second node.
+    $this->clickLink(t('Unflag this item'));
+
+    // Refetch (first node unflagged, second node flagged).
+    $result = $this->drupalGetAJAX($GLOBALS['base_root'] . $url['path'], $url['options'], array('X-Authcache: 1'));
+    $this->assert(isset($result[$partial]));
+    $this->assertEqual(array($this->node1->nid, $this->node2->nid), array_keys($result[$partial]));
+
+    $this->drupalSetContent($result[$partial][$this->node1->nid]);
+    $this->assertLink('Flag this item', 0, 'The flag link appears in the first fragment.');
+    $this->drupalSetContent($result[$partial][$this->node2->nid]);
+    $this->assertLink('Flag this item', 0, 'The flag link appears in the second fragment.');
+  }
+
+  /**
+   * Ensure that flags are rendered propertly when user lacks unflag permission.
+   *
+   * Covers AuthcacheFlagFlagFragment
+   */
+  public function testAuthcacheFlagFlagFragmentWithoutUnflag() {
+    $this->drupalLogin($this->member1);
+
+    $partial = _authcache_flag_partial_id($this->nodeFlag);
+    $url = authcache_p13n_request_get_callback('asm/flags', array(
+      $partial => array($this->node1->nid, $this->node2->nid),
+    ));
+    $this->assertTrue($url);
+
+    // Fetch (both nodes unflagged).
+    $result = $this->drupalGetAJAX($GLOBALS['base_root'] . $url['path'], $url['options'], array('X-Authcache: 1'));
+    $this->assert(isset($result[$partial]));
+    $this->assertEqual(array($this->node1->nid, $this->node2->nid), array_keys($result[$partial]));
+
+    $this->drupalSetContent($result[$partial][$this->node1->nid]);
+    $this->assertLink('Flag this item', 0, 'The flag link appears in the first fragment.');
+    $this->drupalSetContent($result[$partial][$this->node2->nid]);
+    $this->assertLink('Flag this item', 0, 'The flag link appears in the second fragment.');
+
+    // Click the link to flag the second node.
+    $this->clickLink(t('Flag this item'));
+
+    // Refetch (first node unflagged, second node flagged).
+    $result = $this->drupalGetAJAX($GLOBALS['base_root'] . $url['path'], $url['options'], array('X-Authcache: 1'));
+    $this->assert(isset($result[$partial]));
+    $this->assertEqual(array($this->node1->nid, $this->node2->nid), array_keys($result[$partial]));
+
+    $this->drupalSetContent($result[$partial][$this->node1->nid]);
+    $this->assertLink('Flag this item', 0, 'The flag link appears in the first fragment.');
+    $this->drupalSetContent($result[$partial][$this->node2->nid]);
+    $this->assertNoLink('Flag this item', 0, 'The flag link appears in the second fragment.');
+    $this->assertText('You may not unflag this item', 0, 'The unflag denied text appears on the page after flagging.');
+  }
+
+  /**
+   * Ensure that flags are not rendered when user lacks flag permissions.
+   *
+   * Covers AuthcacheFlagFlagFragment
+   */
+  public function testAuthcacheFlagFlagFragmentNoPermission() {
+    $partial = _authcache_flag_partial_id($this->nodeFlag);
+    $url = authcache_p13n_request_get_callback('asm/flags', array(
+      $partial => array($this->node1->nid, $this->node2->nid),
+    ));
+    $this->assertTrue($url);
+
+    $result = $this->drupalGetAJAX($GLOBALS['base_root'] . $url['path'], $url['options'], array('X-Authcache: 1'));
+    $this->assertResponse(403);
+    $this->assertFalse($result);
+  }
+}

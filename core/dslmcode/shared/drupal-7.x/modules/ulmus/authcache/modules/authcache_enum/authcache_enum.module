@@ -1,0 +1,199 @@
+<?php
+
+/**
+ * @file
+ * Provides methods for computing and enumerating authcache keys
+ */
+
+/**
+ * Enumerate every possible authcache key for authenticated users.
+ *
+ * Return an associative array where keys correspond to authcache keys and
+ * values represent the property record the key is derived from.
+ *
+ * A nested structure containing information about key properties is
+ * returned by implementations of hook_authcache_enum_key_properties:
+ *
+ * @code
+ * $properties_info = array(
+ *   'base_root' => array(
+ *     'name' => 'The root URL of the host, excluding the path',
+ *     'choices' => array(
+ *       'http://www.example.com',
+ *     ),
+ *   ),
+ *   'roles' => array(
+ *     'name' => 'Account roles',
+ *     'choices' => array(
+ *       array(2),
+ *       array(3),
+ *       array(4),
+ *       array(3, 4),
+ *     ),
+ *   ),
+ * );
+ * @endcode
+ *
+ * It is necessary to convert this structure into a collection of sets of the
+ * following form:
+ *
+ * @code
+ * $sets = array(
+ *   'base_root' => array(
+ *     'http://www.example.com',
+ *   ),
+ *   'roles' => array(
+ *     array(2),
+ *     array(3),
+ *     array(4),
+ *     array(3, 4),
+ *   ),
+ * );
+ * @endcode
+ *
+ * In order to generate a list of all permutations, the cartesian product
+ * operation is applied to the collection of sets. The result is a structure
+ * looking like this:
+ *
+ * @code
+ * $cartesian_product = array(
+ *   array(
+ *     'base_root' => 'http://www.example.com',
+ *     'roles' => array(2),
+ *   ),
+ *   array(
+ *     'base_root' => 'http://www.example.com',
+ *     'roles' => array(3),
+ *   ),
+ *   array(
+ *     'base_root' => 'http://www.example.com',
+ *     'roles' => array(4),
+ *   ),
+ *   array(
+ *     'base_root' => 'http://www.example.com',
+ *     'roles' => array(3, 4),
+ *   ),
+ * );
+ * @endcode
+ *
+ * For each entry an authcache key is computed.
+ */
+function authcache_enum_user_keys() {
+  $info = &drupal_static(__FUNCTION__);
+
+  if (!isset($info)) {
+    $properties_info = module_invoke_all('authcache_enum_key_properties');
+
+    $sets = array();
+    foreach ($properties_info as $key => $definition) {
+      $sets[$key] = $definition['choices'];
+    }
+
+    $info = array();
+    module_load_include('inc', 'authcache_enum', 'authcache_enum.comb');
+    foreach (_authcache_enum_cartesian($sets) as $properties) {
+      $authcache_key = authcache_user_key($properties);
+      $info[$authcache_key] = $properties;
+    }
+
+    drupal_alter('authcache_enum_key_properties', $info);
+  }
+
+  return $info;
+}
+
+/**
+ * Return a list of cache-keys used by anonymous users.
+ */
+function authcache_enum_anonymous_keys() {
+  $anonymous_keys = &drupal_static(__FUNCTION__);
+
+  if (!isset($info)) {
+    $anonymous_keys = module_invoke_all('authcache_enum_anonymous_keys');
+    drupal_alter('authcache_enum_anonymous_keys', $anonymous_keys);
+  }
+
+  return $anonymous_keys;
+}
+
+/**
+ * Return a flat list of authcache keys and cache-keys used by anonymous users.
+ */
+function authcache_enum_keys() {
+  // Keys for authenticated users.
+  $authcache_keys = array_keys(authcache_enum_user_keys());
+
+  // Keys for anonymous users.
+  $anonymous_keys = authcache_enum_anonymous_keys();
+
+  return array_merge($authcache_keys, $anonymous_keys);
+}
+
+/**
+ * Default enumeration method for authcache keys.
+ *
+ * Default method for enumerating possible combinations of roles. Each item is
+ * an array with one or more role-ids forming a role-combination.
+ *
+ * This approach will build an array with 2^n elements. If you enable more
+ * than a couple of roles (say 10) in authcache, then memory consumption and
+ * computation time will rise quickly.
+ *
+ * In order to override this function with your own implementation, set the
+ * variable authcache_enum_role_combine to the desired function, e.g. in
+ * settings.php:
+ *
+ *   $conf['authcache_enum_role_combine'] = '_my_function';
+ */
+function _authcache_enum_default_role_combine() {
+  module_load_include('inc', 'authcache_enum', 'authcache_enum.comb');
+
+  $roles = authcache_get_roles();
+  $choices = array();
+
+  // Anonymous users do not have any authcache-key. Therefore there is no need
+  // to include this role in the property-info.
+  unset($roles[DRUPAL_ANONYMOUS_RID]);
+
+  // The authenticated-user role is exclusive, only include it once. Do not
+  // generate combinations including this role.
+  if (isset($roles[DRUPAL_AUTHENTICATED_RID])) {
+    $choices[] = array(DRUPAL_AUTHENTICATED_RID);
+    unset($roles[DRUPAL_AUTHENTICATED_RID]);
+  }
+
+  // Combine remaining roles.
+  $roles = array_keys($roles);
+  sort($roles);
+
+  return array_merge($choices, _authcache_enum_comb($roles));
+}
+
+/**
+ * Implements hook_authcache_enum_anonymous_keys().
+ */
+function authcache_enum_authcache_enum_anonymous_keys() {
+  global $base_root;
+
+  return variable_get('authcache_key_generator_keys', $base_root);
+}
+
+/**
+ * Implements hook_authcache_enum_key_properties().
+ */
+function authcache_enum_authcache_enum_key_properties() {
+  global $base_root;
+
+  $func = variable_get('authcache_enum_role_combine', '_authcache_enum_default_role_combine');
+
+  return array(
+    'base_root' => array(
+      'name' => t('The root URL of the host, excluding the path'),
+      'choices' => array($base_root),
+    ),
+    'roles' => array(
+      'name' => t('User roles'),
+      'choices' => call_user_func($func),
+    ),
+  );
+}

@@ -1,0 +1,14 @@
+<?php
+/**
+ * @file
+ * Provides integration with Relation Entity Collector block
+ */
+
+/**
+ * Implements hook_authcache_preclude().
+ */
+function authcache_relation_authcache_preclude() {
+  if (!empty($_SESSION['relation_type']) || !empty($_SESSION['relation_entity_keys'])) {
+    return t('Relation entity collector block contains picked entities');
+  }
+}

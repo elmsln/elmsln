@@ -1,0 +1,166 @@
+<?php
+/**
+ * @file
+ * Provide personalization for the comment module.
+ */
+
+/**
+ * Implements hook_authcache_p13n_setting().
+ */
+function authcache_comment_authcache_p13n_setting() {
+  return array(
+    'comment-num-new' => array(
+      'admin name' => t('Number of new comments'),
+      'admin group' => t('Comment'),
+      'admin description' => t('Returns the number of new comments on a node'),
+      'setting' => array(
+        '#setting' => 'cn',
+        '#target' => 'authcacheCommentNumNew',
+        '#class' => 'AuthcacheCommentNumNewSetting',
+      ),
+      'cache maxage' => 600,
+    ),
+  );
+}
+
+/**
+ * Implements hook_comment_view_alter().
+ *
+ * Hide the number-of-new-comments-link on node teasers.
+ */
+function authcache_comment_node_view_alter(&$build) {
+  global $user;
+
+  if ($user->uid && authcache_page_is_cacheable()) {
+    $node = $build['#node'];
+    // Note that we check here whether comment-comments is in the links. We do
+    // not need to show new-comments link when no comments have been posted in
+    // the first place. Also note that we cannot test for comment-new-comments
+    // because existance of this link depends on the logged in user.
+    if (isset($build['links']['comment']['#links']['comment-comments'])) {
+      // Replace the number-of-new-comments link with placeholder markup. Note
+      // that the title cannot be empty, otherwise no markup will be generated.
+      $build['links']['comment']['#links']['comment-new-comments']['title'] = ' ';
+      $build['links']['comment']['#links']['comment-new-comments']['attributes']['data-p13n-nid'] = $node->nid;
+      $build['links']['comment']['#links']['comment-new-comments']['attributes']['class'][] = 'authcache-comment-num-new';
+      unset($build['links']['comment']['#links']['comment-new-comments']['href']);
+      unset($build['links']['comment']['#links']['comment-new-comments']['query']);
+      unset($build['links']['comment']['#links']['comment-new-comments']['fragment']);
+
+      authcache_p13n_add_setting(array(
+        '#setting' => 'comment-num-new',
+        '#param' => array('cn' => array($node->nid)),
+      ));
+
+      $build['#attached']['js'][] = drupal_get_path('module', 'authcache_comment') . '/authcache_comment.js';
+    }
+  }
+}
+
+/**
+ * Implements hook_comment_view_alter().
+ *
+ * Replace the edit-link on comments if all of the following conditions are met:
+ *
+ *   1. Comment is published
+ *   2. A user has the right to edit its own comments
+ *   3. The user does *not* have administer comments permission
+ *
+ * If the logged in user belongs to a role with admin-permission, there is no
+ * need to alter the link. If on the other hand, the user belongs to a role
+ * without 'edit own comments' permission, the link will not be added by
+ * comment_links anyway.
+ *
+ * @see comment_links()
+ * @see comment_access()
+ */
+function authcache_comment_comment_view_alter(&$build) {
+  global $user;
+
+  if ($user->uid && authcache_page_is_cacheable()) {
+    $comment = $build['#comment'];
+
+    if ($comment->status == COMMENT_PUBLISHED && user_access('edit own comments') && !user_access('administer comments')) {
+      // Ensure that comment-edit link will always show up in the same place.
+      unset($build['links']['comment']['#links']['comment-edit']);
+      $build['links']['comment']['#links']['comment-edit'] = array(
+        'title' => t('edit'),
+        'href' => "comment/$comment->cid/edit",
+        'attributes' => array(
+          'class' => array('authcache-comment-edit', 'element-hidden'),
+          'data-p13n-uid' => $comment->uid,
+        ),
+        'html' => TRUE,
+      );
+      $build['#attached']['js'][] = drupal_get_path('module', 'authcache_comment') . '/authcache_comment.js';
+      // Ensure that the authcacheUser setting is added to the page, such that
+      // authcache_comment.js can work with that data.
+      authcache_p13n_attach($build, array('#setting' => 'user'));
+    }
+  }
+}
+
+/**
+ * Process comment template variables.
+ *
+ * Replace "new" marker with empty span containing timestamp info.
+ *
+ * @see comment.module
+ */
+function authcache_comment_preprocess_comment(&$variables) {
+  global $user;
+
+  if ($user->uid && authcache_page_is_cacheable()) {
+    $comment = $variables['comment'];
+    $node = $variables['node'];
+
+    $variables['new'] = '';
+    if (module_exists('authcache_node_history')) {
+      $variables['new'] = authcache_node_history_node_mark($node->nid, $comment->changed, 'new');
+    }
+  }
+}
+
+/**
+ * Implements hook_form_FORM_ID_alter().
+ *
+ * Replace the username in the comment-form with a placeholder.
+ */
+function authcache_comment_form_comment_form_alter(&$form, &$form_state) {
+  global $user;
+
+  // When displaying the comment form for new comments (not on edit) prepare the
+  // author field such that the user name does not leak into the form cache.
+  if ($user->uid && authcache_page_is_cacheable() && !$form_state['comment']->cid) {
+
+    // Retrieve the username from settings.
+    if (isset($form['author']['_author']) && !authcache_element_is_cacheable($form['author']['_author'])) {
+      $replacement = array(
+        '#theme' => 'html_tag',
+        '#tag' => 'span',
+      );
+      authcache_user_attach_property($replacement, 'name');
+      $form['author']['_author']['#markup'] = render($replacement);
+      authcache_element_set_cacheable($form['author']['_author']);
+    }
+
+    // Remove the author name #value in order to prevent it from entering the
+    // form cache. Instead add a validation callback which will restore the
+    // value from the $user global upon submission.
+    if (isset($form['author']['name']['#type']) && $form['author']['name']['#type'] === 'value' && !authcache_element_is_cacheable($form['author']['name'])) {
+      $form['author']['name']['#value'] = '';
+      $form['author']['name']['#element_validate'][] = 'authcache_comment_form_restore_author';
+      authcache_element_set_cacheable($form['author']['name']);
+    }
+  }
+}
+
+/**
+ * Restore the name of the logged in user in the form author field.
+ */
+function authcache_comment_form_restore_author($element, &$form_state) {
+  global $user;
+
+  $element['#value'] = $user->name;
+  form_set_value($element, $element['#value'], $form_state);
+}

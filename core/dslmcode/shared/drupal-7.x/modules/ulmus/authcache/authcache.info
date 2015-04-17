@@ -1,0 +1,16 @@
+name = Authcache
+description = Authenticated User Page Caching for logged-in and anonymous users.
+package = Performance and scalability
+core = 7.x
+php = 5.3
+configure = admin/config/system/authcache
+files[] = authcache.test
+files[] = tests/authcache.backend.test
+files[] = tests/authcache.widget.test
+
+; Information added by Drupal.org packaging script on 2014-10-21
+version = "7.x-2.0-beta4"
+core = "7.x"
+project = "authcache"
+datestamp = "1413923939"
+

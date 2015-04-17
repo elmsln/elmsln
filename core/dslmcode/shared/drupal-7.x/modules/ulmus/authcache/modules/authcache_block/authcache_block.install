@@ -1,0 +1,12 @@
+<?php
+/**
+ * @file
+ * Authcache personalized blocks install hook implementations.
+ */
+
+/**
+ * Implements hook_uninstall().
+ */
+function authcache_block_uninstall() {
+  variable_del('authcache_block_blocks');
+}

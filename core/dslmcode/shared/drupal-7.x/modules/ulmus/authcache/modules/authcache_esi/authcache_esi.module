@@ -1,0 +1,123 @@
+<?php
+/**
+ * @file
+ * Authcache ESI markup generator.
+ */
+
+/**
+ * Implements hook_authcache_enum_key_properties().
+ */
+function authcache_esi_authcache_enum_key_properties() {
+  return array(
+    'esi' => array(
+      'name' => t('Request issued by ESI enabled reverse proxy'),
+      'choices' => array(TRUE, FALSE),
+    ),
+  );
+}
+
+/**
+ * Implements hook_authcache_key_properties().
+ */
+function authcache_esi_authcache_key_properties() {
+  $client_info = authcache_p13n_client_info();
+  return array(
+    'esi' => !empty($client_info['authcache_esi']['enabled']),
+  );
+}
+
+/**
+ * Implements hook_authcache_p13n_client().
+ */
+function authcache_esi_authcache_p13n_client() {
+  return array(
+    'authcache_esi' => array(
+      'title' => t('ESI'),
+      'enabled' => !empty($_SERVER['HTTP_X_AUTHCACHE_DO_ESI']),
+    ),
+  );
+}
+
+/**
+ * Implements hook_theme().
+ */
+function authcache_esi_theme() {
+  return authcache_p13n_find_theme_functions('authcache_esi');
+}
+
+/**
+ * Theme function for personalization fragment retrieved using an ESI include.
+ */
+function theme_authcache_p13n_fragment__authcache_esi($variables) {
+  $url = $variables['url'];
+
+  if ($url) {
+    drupal_add_http_header('X-Authcache-Do-ESI', 1);
+
+    $attrs = array('src' => url($url['path'], $url['options']));
+    return '<esi:include ' . drupal_attributes($attrs) . '/>';
+  }
+}
+
+/**
+ * Theme for personalized Drupal.setting retrieved using an ESI include.
+ */
+function theme_authcache_p13n_setting__authcache_esi($variables) {
+  $url = $variables['url'];
+
+  if ($url) {
+    drupal_add_http_header('X-Authcache-Do-ESI', 1);
+
+    drupal_add_js(drupal_get_path('module', 'authcache_p13n') . '/authcache_p13n.js');
+    drupal_add_js(drupal_get_path('module', 'authcache_esi') . '/authcache_esi.js');
+
+    $attrs = array('src' => url($url['path'], $url['options']));
+    return '<iframe class="authcache-esi-settings" src="about:blank"><esi:include ' . drupal_attributes($attrs) . '/></iframe>';
+  }
+}
+
+/**
+ * Theme function for groups of fragments loaded in only one ESI include.
+ */
+function theme_authcache_p13n_assembly__authcache_esi($variables) {
+  $url = $variables['url'];
+  $class = $variables['class'];
+
+  if ($url && $class) {
+    drupal_add_http_header('X-Authcache-Do-ESI', 1);
+
+    drupal_add_js(drupal_get_path('module', 'authcache_p13n') . '/authcache_p13n.js');
+    drupal_add_js(drupal_get_path('module', 'authcache_esi') . '/authcache_esi.js');
+
+    $iframe_attrs = array(
+      'src' => 'about:blank',
+      'class' => array('authcache-esi-assembly'),
+      'data-authcache-esi-target' => 'span.' . $class,
+    );
+    $esi_attrs = array('src' => url($url['path'], $url['options']));
+    return '<iframe ' . drupal_attributes($iframe_attrs) . '><esi:include ' . drupal_attributes($esi_attrs) . '/></iframe>';
+  }
+}
+
+/**
+ * Theme function for single elements of assemblies.
+ */
+function theme_authcache_p13n_partial__authcache_esi($variables) {
+  $assembly = $variables['assembly'];
+  $partial = $variables['partial'];
+  $param = $variables['param'];
+  $class = $variables['class'];
+
+  if ($assembly && $partial && $param && $class) {
+    drupal_add_js(drupal_get_path('module', 'authcache_p13n') . '/authcache_p13n.js');
+    drupal_add_js(drupal_get_path('module', 'authcache_esi') . '/authcache_esi.js');
+
+    $attrs = array(
+      'class' => array($class),
+      'data-p13n-frag' => $partial,
+      'data-p13n-param' => $param,
+    );
+
+    return '<span ' . drupal_attributes($attrs) . '></span>';
+  }
+}

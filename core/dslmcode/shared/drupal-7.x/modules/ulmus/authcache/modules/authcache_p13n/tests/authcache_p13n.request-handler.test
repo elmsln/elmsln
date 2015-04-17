@@ -1,0 +1,848 @@
+<?php
+/**
+ * @file
+ * Define unit tests for request handler.
+ */
+
+// Load interfaces and stub classes.
+require_once __DIR__ . '/authcache_p13n.load.inc';
+require_once __DIR__ . '/authcache_p13n.stub.inc';
+
+/**
+ * Test cases for default request handler.
+ */
+class AuthcacheP13nTestDefaultRequestHandler extends DrupalUnitTestCase {
+  protected $stubObserver;
+  protected $coreService;
+  protected $requestValidator;
+  protected $contentBuilder;
+  protected $contentEncoder;
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function getInfo() {
+    return array(
+      'name' => "Default Request Handler",
+      'description' => 'Unit tests for default request handler.',
+      'group' => 'Authcache Personalization',
+    );
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function setUp() {
+    require_once __DIR__ . '/../includes/AuthcacheP13nDefaultRequestHandler.inc';
+
+    $this->stubObserver = new AuthcacheP13nTestStubObserver();
+
+    $this->coreService = new AuthcacheP13nTestCoreServiceStub($this->stubObserver);
+    $this->requestValidator = new AuthcacheP13nTestRequestValidatorStub($this->stubObserver);
+    $this->contentBuilder = new AuthcacheP13nTestContentBuilderStub($this->stubObserver);
+    $this->contentEncoder = new AuthcacheP13nTestContentEncoderStub($this->stubObserver);
+
+    parent::setUp();
+  }
+
+  /**
+   * Test default configuration.
+   */
+  public function testDefaultRequestHandler() {
+    $filters = array();
+    $context_providers = array();
+    $params = array('some' => 'args');
+
+    // Setup expectations.
+    $validate = $this->stubObserver->method($this->requestValidator, 'validate', $params + array('valid' => TRUE))
+      ->expect(AuthcacheP13nTestStubVerifyer::once())
+      ->expect(AuthcacheP13nTestStubVerifyer::args(array(
+        $params,
+      )));
+
+    $build = $this->stubObserver->method($this->contentBuilder, 'build', 'output built successfully')
+      ->expect(AuthcacheP13nTestStubVerifyer::once())
+      ->expect(AuthcacheP13nTestStubVerifyer::args(array(
+        $params + array('valid' => TRUE),
+        array(),
+      )));
+
+    $content_type = $this->stubObserver->method($this->contentEncoder, 'contentType', 'application/test')
+      ->expect(AuthcacheP13nTestStubVerifyer::once())
+      ->expect(AuthcacheP13nTestStubVerifyer::args());
+
+    $encode = $this->stubObserver->method($this->contentEncoder, 'encode', 'encoded successfully')
+      ->expect(AuthcacheP13nTestStubVerifyer::once())
+      ->expect(AuthcacheP13nTestStubVerifyer::args(array(
+        'output built successfully',
+      )));
+
+    $add_header = $this->stubObserver->method($this->coreService, 'drupalAddHttpHeader')
+      ->expect(AuthcacheP13nTestStubVerifyer::once())
+      ->expect(AuthcacheP13nTestStubVerifyer::args(array(
+        'Content-Type',
+        'application/test',
+      )));
+
+    // Run handler, test full sequence without filters / context providers /
+    $handler = new AuthcacheP13nDefaultRequestHandler($this->coreService,
+      $this->requestValidator, $this->contentBuilder, $this->contentEncoder,
+      $filters, $context_providers);
+
+    ob_start();
+    $handler->handle($params);
+    $result = ob_get_clean();
+    $this->assertEqual('encoded successfully', $result);
+
+    // Verify stubs.
+    $this->assert($add_header->verify($message), $message);
+    $this->assert($validate->verify($message), $message);
+    $this->assert($build->verify($message), $message);
+    $this->assert($content_type->verify($message), $message);
+    $this->assert($encode->verify($message), $message);
+  }
+
+  /**
+   * Test handler with request filter.
+   */
+  public function testDefaultRequestHandlerWithRequestFilter() {
+    $filters = array(
+      'request' => array(
+        new AuthcacheP13nTestFilterStub($this->stubObserver),
+        new AuthcacheP13nTestFilterStub($this->stubObserver),
+      ),
+    );
+    $context_providers = array();
+    $params = array('some' => 'args');
+
+    // Setup expectations.
+    $first_filter = $this->stubObserver->method($filters['request'][0], 'filter', array('some' => 'filtered args'))
+      ->expect(AuthcacheP13nTestStubVerifyer::once())
+      ->expect(AuthcacheP13nTestStubVerifyer::args(array(
+        'request',
+        $params,
+      )));
+
+    $second_filter = $this->stubObserver->method($filters['request'][1], 'filter', array('some' => 'args after second filter'))
+      ->expect(AuthcacheP13nTestStubVerifyer::once())
+      ->expect(AuthcacheP13nTestStubVerifyer::args(array(
+        'request',
+        array('some' => 'filtered args'),
+      )));
+
+    $validate = $this->stubObserver->method($this->requestValidator, 'validate')
+      ->expect(AuthcacheP13nTestStubVerifyer::once())
+      ->expect(AuthcacheP13nTestStubVerifyer::args(array(
+        array('some' => 'args after second filter'),
+      )));
+
+    // Run handler.
+    $handler = new AuthcacheP13nDefaultRequestHandler($this->coreService,
+      $this->requestValidator, $this->contentBuilder, $this->contentEncoder,
+      $filters, $context_providers);
+
+    ob_start();
+    $handler->handle($params);
+    ob_end_clean();
+
+    // Verify stubs.
+    $this->assert($first_filter->verify($message), $message);
+    $this->assert($second_filter->verify($message), $message);
+    $this->assert($validate->verify($message), $message);
+  }
+
+  /**
+   * Test handler with response filter.
+   */
+  public function testDefaultRequestHandlerWithResponseFilter() {
+    $filters = array(
+      'response' => array(
+        new AuthcacheP13nTestFilterStub($this->stubObserver),
+        new AuthcacheP13nTestFilterStub($this->stubObserver),
+      ),
+    );
+    $context_providers = array();
+    $params = array('some' => 'args');
+
+    // Setup expectations.
+    $encode = $this->stubObserver->method($this->contentEncoder, 'encode', 'encoded output')
+      ->expect(AuthcacheP13nTestStubVerifyer::once());
+
+    $first_filter = $this->stubObserver->method($filters['response'][0], 'filter', 'output after first filter')
+      ->expect(AuthcacheP13nTestStubVerifyer::once())
+      ->expect(AuthcacheP13nTestStubVerifyer::args(array(
+        'response',
+        'encoded output',
+      )));
+
+    $second_filter = $this->stubObserver->method($filters['response'][1], 'filter', 'output after second filter')
+      ->expect(AuthcacheP13nTestStubVerifyer::once())
+      ->expect(AuthcacheP13nTestStubVerifyer::args(array(
+        'response',
+        'output after first filter',
+      )));
+
+    // Run handler.
+    $handler = new AuthcacheP13nDefaultRequestHandler($this->coreService,
+      $this->requestValidator, $this->contentBuilder, $this->contentEncoder,
+      $filters, $context_providers);
+
+    ob_start();
+    $handler->handle($params);
+    $result = ob_get_clean();
+
+    $this->assertEqual('output after second filter', $result);
+
+    // Verify stubs.
+    $this->assert($encode->verify($message), $message);
+    $this->assert($first_filter->verify($message), $message);
+    $this->assert($second_filter->verify($message), $message);
+  }
+
+  /**
+   * Test handler with context provider.
+   */
+  public function testDefaultRequestHandlerWithContextProvider() {
+    $filters = array();
+    $context_providers = array(
+      'my context' => new AuthcacheP13nTestContextProviderStub($this->stubObserver),
+      'other context' => new AuthcacheP13nTestContextProviderStub($this->stubObserver),
+    );
+    $params = array('some' => 'args');
+
+    $validate = $this->stubObserver->method($this->requestValidator, 'validate', $params + array('valid' => TRUE))
+      ->expect(AuthcacheP13nTestStubVerifyer::once())
+      ->expect(AuthcacheP13nTestStubVerifyer::args(array(
+        $params,
+      )));
+
+    // Setup expectations.
+    $cp_1 = $this->stubObserver->method($context_providers['my context'], 'get', 'some value')
+      ->expect(AuthcacheP13nTestStubVerifyer::once())
+      ->expect(AuthcacheP13nTestStubVerifyer::args(array(
+        $params + array('valid' => TRUE),
+      )));
+
+    $cp_2 = $this->stubObserver->method($context_providers['other context'], 'get', array('other stuff'))
+      ->expect(AuthcacheP13nTestStubVerifyer::once())
+      ->expect(AuthcacheP13nTestStubVerifyer::args(array(
+        $params + array('valid' => TRUE),
+      )));
+
+    $build = $this->stubObserver->method($this->contentBuilder, 'build')
+      ->expect(AuthcacheP13nTestStubVerifyer::once())
+      ->expect(AuthcacheP13nTestStubVerifyer::args(array(
+        $params + array('valid' => TRUE),
+        array(
+          'my context' => 'some value',
+          'other context' => array('other stuff'),
+        ),
+      )));
+
+    // Run handler.
+    $handler = new AuthcacheP13nDefaultRequestHandler($this->coreService,
+      $this->requestValidator, $this->contentBuilder, $this->contentEncoder,
+      $filters, $context_providers);
+
+    ob_start();
+    $handler->handle($params);
+    ob_end_clean();
+
+    // Verify stubs.
+    $this->assert($validate->verify($message), $message);
+    $this->assert($cp_1->verify($message), $message);
+    $this->assert($cp_2->verify($message), $message);
+    $this->assert($build->verify($message), $message);
+  }
+}
+
+
+/**
+ * Tests fragment builder.
+ */
+class AuthcacheP13nTestFragmentBuilder extends DrupalUnitTestCase {
+  protected $stubObserver;
+
+  protected $fragmentValidator;
+  protected $fragementLoader;
+  protected $fragmentAccess;
+  protected $fragmentRenderer;
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function getInfo() {
+    return array(
+      'name' => 'Fragment Builder',
+      'description' => 'Unit tests for fragment builder.',
+      'group' => 'Authcache Personalization',
+    );
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function setUp() {
+    require_once __DIR__ . '/../includes/AuthcacheP13nFragmentBuilder.inc';
+
+    $this->stubObserver = new AuthcacheP13nTestStubObserver();
+
+    $this->fragmentValidator = new AuthcacheP13nTestFragmentValidatorStub($this->stubObserver);
+    $this->fragmentLoader = new AuthcacheP13nTestFragmentLoaderStub($this->stubObserver);
+    $this->fragmentAccess = new AuthcacheP13nTestFragmentAccessStub($this->stubObserver);
+    $this->fragmentRenderer = new AuthcacheP13nTestFragmentStub($this->stubObserver);
+
+    parent::setUp();
+  }
+
+  /**
+   * Tests fragment request.
+   */
+  public function testFragmentBuilder() {
+    $input = array('a' => array('some_key' => 'some_subject'));
+    $context = array('bla');
+
+    $builder = new AuthcacheP13nFragmentBuilder(
+      $this->fragmentRenderer, NULL, NULL, NULL);
+
+    // Setup expectations.
+    $render = $this->stubObserver->method($this->fragmentRenderer, 'render', 'rendered')
+      ->expect(AuthcacheP13nTestStubVerifyer::once())
+      ->expect(AuthcacheP13nTestStubVerifyer::args(array(
+        'some_key',
+        'some_subject',
+        $context,
+      )));
+
+    // Run builder.
+    $output = $builder->build($input, $context);
+    $this->assertEqual('rendered', $output);
+
+    // Verify stub.
+    $this->assert($render->verify($message), $message);
+  }
+
+  /**
+   * Test request with validator.
+   */
+  public function testFragmentBuilderValidation() {
+    $builder = new AuthcacheP13nFragmentBuilder(
+      $this->fragmentRenderer, $this->fragmentValidator, NULL, NULL);
+
+    // Setup expectations.
+    $validator = $this->stubObserver->method($this->fragmentValidator, 'validate', array('some_key' => 'valid value'))
+      ->expect(AuthcacheP13nTestStubVerifyer::once())
+      ->expect(AuthcacheP13nTestStubVerifyer::args(array(
+        array('some_key' => 'some_key'),
+      )));
+
+    // Run validator.
+    $result = $builder->validate(array('a' => 'some_key'));
+
+    // Verify stub.
+    $this->assertEqual(array('a' => array('some_key' => 'valid value')), $result);
+    $this->assert($validator->verify($message), $message);
+
+    // Setup expectations.
+    $validator = $this->stubObserver->method($this->fragmentValidator, 'validate', new AuthcacheP13nRequestInvalidInput())
+      ->expect(AuthcacheP13nTestStubVerifyer::once());
+
+    // Run validator.
+    $input = array('a' => 'invalid');
+    try {
+      $builder->validate($input);
+      $this->fail('AuthcacheP13nFragmentBuilder should throw an AuthcacheP13nRequestInvalidInput when validation fails');
+    }
+    catch (AuthcacheP13nRequestInvalidInput $e) {
+      unset($e);
+      $this->pass('AuthcacheP13nFragmentBuilder should throw an AuthcacheP13nRequestInvalidInput when validation fails');
+    }
+    // Verify stub.
+    $this->assert($validator->verify($message), $message);
+  }
+
+  /**
+   * Test request with loader.
+   */
+  public function testFragmentBuilderLoader() {
+    $context = array('some' => 'context');
+    $builder = new AuthcacheP13nFragmentBuilder(
+      $this->fragmentRenderer, NULL, $this->fragmentLoader, NULL);
+
+    // Setup expectations.
+    $load = $this->stubObserver->method($this->fragmentLoader, 'load', array('some_key' => 'loaded subject'))
+      ->expect(AuthcacheP13nTestStubVerifyer::once())
+      ->expect(AuthcacheP13nTestStubVerifyer::args(array(
+        array('some_key' => 'some_subject'),
+        $context,
+      )));
+
+    $render = $this->stubObserver->method($this->fragmentRenderer, 'render', 'rendered')
+      ->expect(AuthcacheP13nTestStubVerifyer::once())
+      ->expect(AuthcacheP13nTestStubVerifyer::args(array(
+        'some_key',
+        'loaded subject',
+        $context,
+      )));
+
+    // Run builder.
+    $input = array('a' => array('some_key' => 'some_subject'));
+    $output = $builder->build($input, $context);
+    $this->assertEqual('rendered', $output);
+
+    // Verify stub.
+    $this->assert($load->verify($message), $message);
+    $this->assert($render->verify($message), $message);
+
+    // Setup expectations.
+    $load = $this->stubObserver->method($this->fragmentLoader, 'load', new AuthcacheP13nRequestNotFound())
+      ->expect(AuthcacheP13nTestStubVerifyer::once());
+
+    $render = $this->stubObserver->method($this->fragmentRenderer, 'render')
+      ->expect(AuthcacheP13nTestStubVerifyer::never());
+
+    // Run builder.
+    $input = array('a' => array('some_key' => 'missing'));
+    try {
+      $builder->build($input, array());
+      $this->fail('AuthcacheP13nFragmentBuilder should throw an AuthcacheP13nRequestNotFound when loading fails');
+    }
+    catch (AuthcacheP13nRequestNotFound $e) {
+      unset($e);
+      $this->pass('AuthcacheP13nFragmentBuilder should throw an AuthcacheP13nRequestNotFound when loading fails');
+    }
+
+    // Verify stub.
+    $this->assert($load->verify($message), $message);
+    $this->assert($render->verify($message), $message);
+  }
+
+  /**
+   * Test request with access checker.
+   */
+  public function testFragmentBuilderAccessChecker() {
+    global $user;
+    $orig_user = $user;
+    $fake_user = (object) array(
+      'uid' => 42,
+      'mail' => 'fake@example.com',
+      'name' => 'fake',
+    );
+    $context = array('some' => 'context');
+
+    // Setup expectations.
+    $check = $this->stubObserver->method($this->fragmentAccess, 'check', TRUE)
+      ->expect(AuthcacheP13nTestStubVerifyer::once())
+      ->expect(AuthcacheP13nTestStubVerifyer::args(array(
+        $fake_user,
+        'some_key',
+        'some_subject',
+        $context,
+      )));
+
+    $render = $this->stubObserver->method($this->fragmentRenderer, 'render', 'rendered')
+      ->expect(AuthcacheP13nTestStubVerifyer::once())
+      ->expect(AuthcacheP13nTestStubVerifyer::args(array(
+        'some_key',
+        'some_subject',
+        $context,
+      )));
+
+    // Run builder.
+    $user = $fake_user;
+    $input = array('a' => array('some_key' => 'some_subject'));
+    $builder = new AuthcacheP13nFragmentBuilder(
+      $this->fragmentRenderer, NULL, NULL, $this->fragmentAccess);
+    $result = $builder->build($input, $context);
+    $user = $orig_user;
+
+    // Verify stub.
+    $this->assertEqual('rendered', $result);
+    $this->assert($check->verify($message), $message);
+    $this->assert($render->verify($message), $message);
+
+    // Setup expectations.
+    $check = $this->stubObserver->method($this->fragmentAccess, 'check', FALSE)
+      ->expect(AuthcacheP13nTestStubVerifyer::once())
+      ->expect(AuthcacheP13nTestStubVerifyer::args(array(
+        $fake_user,
+        'some_key',
+        'some_subject',
+        $context,
+      )));
+
+    $render = $this->stubObserver->method($this->fragmentRenderer, 'render')
+      ->expect(AuthcacheP13nTestStubVerifyer::never());
+
+    // Run builder.
+    $user = $fake_user;
+    $input = array('a' => array('some_key' => 'some_subject'));
+    $builder = new AuthcacheP13nFragmentBuilder(
+      $this->fragmentRenderer, NULL, NULL, $this->fragmentAccess);
+    try {
+      $builder->build($input, $context);
+      $this->fail('AuthcacheP13nFragmentBuilder should throw an AuthcacheP13nRequestAccessDenied when access check fails');
+    }
+    catch (AuthcacheP13nRequestAccessDenied $e) {
+      unset($e);
+      $this->pass('AuthcacheP13nFragmentBuilder should throw an AuthcacheP13nRequestAccessDenied when access check fails');
+    }
+    $user = $orig_user;
+
+    // Verify stub.
+    $this->assert($check->verify($message), $message);
+    $this->assert($render->verify($message), $message);
+  }
+}
+
+/**
+ * Tests update functionality unrelated to the database.
+ */
+class AuthcacheP13nTestFragmentAssemblyBuilder extends DrupalUnitTestCase {
+  /**
+   * {@inheritdoc}
+   */
+  public static function getInfo() {
+    return array(
+      'name' => "Fragment Assembly Request",
+      'description' => 'Unit tests for fragment assembly requests.',
+      'group' => 'Authcache Personalization',
+    );
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function setUp() {
+    require_once __DIR__ . '/../includes/AuthcacheP13nFragmentAssemblyBuilder.inc';
+    parent::setUp();
+  }
+
+  /**
+   * Test multi fragment request.
+   */
+  public function testFragmentAssemblyBuilder() {
+    $partials = array(
+      'param_1' => array(
+        'renderer' => new AuthcacheP13nTestEchoPartial(),
+      ),
+      'param_2' => array(
+        'renderer' => new AuthcacheP13nTestEchoPartial(),
+      ),
+    );
+    $builder = new AuthcacheP13nFragmentAssemblyBuilder($partials);
+
+    $input['a'] = array(
+      'param_1' => array('some_key' => array('some' => 'subject')),
+      'param_2' => array(
+        'key_1' => array('some' => 'subject'),
+        'key_2' => array('some_other' => 'subject'),
+      ),
+      'param_3' => array('no handler' => 'for this fragment'),
+    );
+    $expect = array(
+      'param_1' => array(
+        'some_key' => array('key' => 'some_key', 'subject' => array('some' => 'subject')),
+      ),
+      'param_2' => array(
+        'key_1' => array('key' => 'key_1', 'subject' => array('some' => 'subject')),
+        'key_2' => array('key' => 'key_2', 'subject' => array('some_other' => 'subject')),
+      ),
+    );
+
+    $output = $builder->build($input, array());
+    $this->assertEqual($expect, $output);
+  }
+
+  /**
+   * Test request with validator.
+   */
+  public function testFragmentAssemblyBuilderValidation() {
+    $partials = array(
+      'param_1' => array(
+        'renderer' => new AuthcacheP13nTestEchoPartial(),
+        'validator' => new AuthcacheP13nTestEchoFragmentValidator(),
+      ),
+    );
+    $builder = new AuthcacheP13nFragmentAssemblyBuilder($partials);
+
+    $input = array('a' => array('param_1' => array('valid')));
+    try {
+      $builder->validate($input, array());
+      $this->pass('AuthcacheP13nFragmentAssemblyBuilder should not throw an AuthcacheP13nRequestInvalidInput when validation succeeds');
+    }
+    catch (AuthcacheP13nRequestInvalidInput $e) {
+      unset($e);
+      $this->fail('AuthcacheP13nFragmentAssemblyBuilder should not throw an AuthcacheP13nRequestInvalidInput when validation succeeds');
+    }
+
+    $input = array('a' => array('param_1' => array('invalid')));
+    try {
+      $builder->validate($input, array());
+      $this->fail('AuthcacheP13nFragmentAssemblyBuilder should throw an AuthcacheP13nRequestInvalidInput when validation fails');
+    }
+    catch (AuthcacheP13nRequestInvalidInput $e) {
+      unset($e);
+      $this->pass('AuthcacheP13nFragmentAssemblyBuilder should throw an AuthcacheP13nRequestInvalidInput when validation fails');
+    }
+  }
+
+  /**
+   * Test request with access checker.
+   */
+  public function testFragmentAssemblyBuilderAccessChecker() {
+    global $user;
+    $orig_user = $user;
+    $fake_user = (object) array(
+      'uid' => 42,
+      'mail' => 'fake@example.com',
+      'name' => 'fake',
+    );
+
+    $partials = array(
+      'param_1' => array(
+        'renderer' => new AuthcacheP13nTestEchoPartial(),
+        'access' => new AuthcacheP13nTestEchoFragmentAccess(),
+      ),
+    );
+    $builder = new AuthcacheP13nFragmentAssemblyBuilder($partials);
+
+    $user = $fake_user;
+    $input = array('a' => array('param_1' => array('account' => $fake_user)));
+    try {
+      $builder->build($input, array());
+      $this->pass('AuthcacheP13nFragmentAssemblyBuilder should not throw an AuthcacheP13nRequestAccessDenied when access check succeeds');
+    }
+    catch (AuthcacheP13nRequestAccessDenied $e) {
+      unset($e);
+      $this->fail('AuthcacheP13nFragmentAssemblyBuilder should not throw an AuthcacheP13nRequestAccessDenied when access check succeeds');
+    }
+    $user = $orig_user;
+
+    $user = $fake_user;
+    $input = array('a' => array('param_1' => array('account' => FALSE)));
+    try {
+      $builder->build($input, array());
+      $this->fail('AuthcacheP13nFragmentAssemblyBuilder should throw an AuthcacheP13nRequestAccessDenied when access check fails');
+    }
+    catch (AuthcacheP13nRequestAccessDenied $e) {
+      $this->pass('AuthcacheP13nFragmentAssemblyBuilder should throw an AuthcacheP13nRequestAccessDenied when access check fails');
+    }
+    $user = $orig_user;
+  }
+
+  /**
+   * Test request with loader.
+   */
+  public function testFragmentAssemblyBuilderLoader() {
+    $partials = array(
+      'param_1' => array(
+        'renderer' => new AuthcacheP13nTestEchoPartial(),
+        'loader' => new AuthcacheP13nTestEchoFragmentLoader(),
+      ),
+    );
+    $builder = new AuthcacheP13nFragmentAssemblyBuilder($partials);
+
+    $input = array('a' => array('param_1' => array('load' => 'load')));
+    $expect = array('param_1' => array('load' => array('key' => 'load', 'subject' => 'loaded')));
+
+    $output = $builder->build($input, array());
+    $this->assertEqual($expect, $output);
+
+    $input = array('a' => array('param_1' => array('load missing' => 'load missing')));
+    try {
+      $builder->build($input, array());
+      $this->fail('AuthcacheP13nFragmentAssemblyBuilder should throw an AuthcacheP13nRequestNotFound when loading fails');
+    }
+    catch (AuthcacheP13nRequestNotFound $e) {
+      unset($e);
+      $this->pass('AuthcacheP13nFragmentAssemblyBuilder should throw an AuthcacheP13nRequestNotFound when loading fails');
+    }
+  }
+}
+
+
+/**
+ * Tests update functionality unrelated to the database.
+ */
+class AuthcacheP13nTestSettingBuilder extends DrupalUnitTestCase {
+  /**
+   * {@inheritdoc}
+   */
+  public static function getInfo() {
+    return array(
+      'name' => "Setting Request",
+      'description' => 'Unit tests for setting requests.',
+      'group' => 'Authcache Personalization',
+    );
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function setUp() {
+    require_once __DIR__ . '/../includes/AuthcacheP13nSettingBuilder.inc';
+    parent::setUp();
+  }
+
+  /**
+   * Test setting request.
+   */
+  public function testSettingBuilder() {
+    $settings = array(
+      's1' => array(
+        'renderer' => new AuthcacheP13nTestEchoSetting(),
+        'target' => 'targetSetting',
+        'validator' => NULL,
+        'access' => NULL,
+      ),
+    );
+    $builder = new AuthcacheP13nSettingBuilder($settings);
+
+    $input = array('a' => array('s1' => array('some_key' => array('some' => 'subject'))));
+
+    $expect = array('targetSetting' => array('params' => array('some_key' => array('some' => 'subject'))));
+    $output = $builder->build($input, array());
+
+    $this->assertEqual($expect, $output);
+  }
+
+  /**
+   * Test setting request.
+   */
+  public function testSettingBuilderMultiSettings() {
+    $settings = array(
+      's1' => array(
+        'renderer' => new AuthcacheP13nTestEchoSetting(),
+        'target' => 'targetSetting',
+        'validator' => NULL,
+        'access' => NULL,
+      ),
+      's2' => array(
+        'renderer' => new AuthcacheP13nTestEchoSetting(),
+        'target' => 'targetSetting',
+        'validator' => NULL,
+        'access' => NULL,
+      ),
+      's3' => array(
+        'renderer' => new AuthcacheP13nTestEchoSetting(),
+        'target' => 'otherTarget',
+        'validator' => NULL,
+        'access' => NULL,
+      ),
+    );
+    $builder = new AuthcacheP13nSettingBuilder($settings);
+
+    $input = array(
+      'a' => array(
+        's1' => array('some_key' => array('some' => 'subject')),
+        's2' => array('some_key' => array('other' => 'other subject')),
+        's3' => array('some_key' => array('third' => 'subject')),
+      ),
+    );
+
+    $expect = array(
+      'targetSetting' => array(
+        'params' => array(
+          'some_key' => array(
+            'some' => 'subject',
+            'other' => 'other subject',
+          ),
+        ),
+      ),
+      'otherTarget' => array(
+        'params' => array(
+          'some_key' => array(
+            'third' => 'subject',
+          ),
+        ),
+      ),
+    );
+
+    $output = $builder->build($input, array());
+
+    $this->assertEqual($expect, $output);
+  }
+
+  /**
+   * Test request with validator.
+   */
+  public function testSettingBuilderValidation() {
+    $settings = array(
+      's1' => array(
+        'renderer' => new AuthcacheP13nTestEchoSetting(),
+        'target' => 'targetSetting',
+        'validator' => new AuthcacheP13nTestEchoSettingValidator(),
+        'access' => NULL,
+      ),
+    );
+    $builder = new AuthcacheP13nSettingBuilder($settings);
+
+    $input = array('a' => array('s1' => array('valid' => TRUE)));
+    try {
+      $builder->validate($input);
+      $this->pass('AuthcacheP13nSettingBuilder should not throw an AuthcacheP13nRequestInvalidInput when validation succeeds');
+    }
+    catch (AuthcacheP13nRequestInvalidInput $e) {
+      unset($e);
+      $this->fail('AuthcacheP13nSettingBuilder should not throw an AuthcacheP13nRequestInvalidInput when validation succeeds');
+    }
+
+    $input = array('a' => array('s1' => array('valid' => FALSE)));
+    try {
+      $builder->validate($input);
+      $this->fail('AuthcacheP13nSettingBuilder should throw an AuthcacheP13nRequestInvalidInput when validation fails');
+    }
+    catch (AuthcacheP13nRequestInvalidInput $e) {
+      unset($e);
+      $this->pass('AuthcacheP13nSettingBuilder should throw an AuthcacheP13nRequestInvalidInput when validation fails');
+    }
+  }
+
+  /**
+   * Test request with access checker.
+   */
+  public function testSettingBuilderAccessChecker() {
+    global $user;
+    $orig_user = $user;
+    $fake_user = (object) array(
+      'uid' => 42,
+      'mail' => 'fake@example.com',
+      'name' => 'fake',
+    );
+    $settings = array(
+      's1' => array(
+        'renderer' => new AuthcacheP13nTestEchoSetting(),
+        'target' => 'targetSetting',
+        'validator' => NULL,
+        'access' => new AuthcacheP13nTestEchoSettingAccess(),
+      ),
+    );
+
+    $builder = new AuthcacheP13nSettingBuilder($settings);
+
+    $user = $fake_user;
+    $input = array('a' => array('s1' => array('account' => $fake_user)));
+    try {
+      $builder->build($input, array());
+      $this->pass('AuthcacheP13nSettingBuilder should not throw an AuthcacheP13nRequestAccessDenied when access check succeeds');
+    }
+    catch (AuthcacheP13nRequestAccessDenied $e) {
+      unset($e);
+      $this->fail('AuthcacheP13nSettingBuilder should not throw an AuthcacheP13nRequestAccessDenied when access check succeeds');
+    }
+    $user = $orig_user;
+
+    $user = $fake_user;
+    $input = array('a' => array('s1' => array('account' => FALSE)));
+    try {
+      $builder->build($input, array());
+      $this->fail('AuthcacheP13nSettingBuilder should throw an AuthcacheP13nRequestAccessDenied when access check fails');
+    }
+    catch (AuthcacheP13nRequestAccessDenied $e) {
+      unset($e);
+      $this->pass('AuthcacheP13nSettingBuilder should throw an AuthcacheP13nRequestAccessDenied when access check fails');
+    }
+    $user = $orig_user;
+  }
+}

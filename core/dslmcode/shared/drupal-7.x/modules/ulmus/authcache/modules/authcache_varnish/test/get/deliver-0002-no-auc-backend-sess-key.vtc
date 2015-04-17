@@ -1,0 +1,64 @@
+varnishtest "Ensure that vcl_deliver does not alter Vary if its not comming from authcache enabled backend / session / key"
+
+server s1 {
+        rxreq
+        expect req.url == "/authcache-varnish-get-key"
+        expect req.http.X-Forwarded-For == "127.0.0.1"
+        txresp -status 404
+
+        rxreq
+        expect req.url == "/vary-none"
+        expect req.http.X-Authcache-Key == <undef>
+        expect req.http.X-Forwarded-For == "127.0.0.1"
+        txresp
+
+        rxreq
+        expect req.url == "/vary-cookie"
+        expect req.http.X-Authcache-Key == <undef>
+        expect req.http.X-Forwarded-For == "127.0.0.1"
+        txresp -hdr "Vary: Cookie"
+
+        rxreq
+        expect req.url == "/vary-candy"
+        expect req.http.X-Authcache-Key == <undef>
+        expect req.http.X-Forwarded-For == "127.0.0.1"
+        txresp -hdr "Vary: Candy"
+
+        rxreq
+        expect req.url == "/vary-sweets"
+        expect req.http.X-Authcache-Key == <undef>
+        expect req.http.X-Forwarded-For == "127.0.0.1"
+        txresp -hdr "Vary: Cookie, Candy"
+} -start
+
+varnish v1 -vcl+backend {
+        ${vcl1}
+        ${vcl2}
+        ${vcl3}
+} -start
+
+client c1 {
+        txreq -url "/vary-none" -hdr "Cookie: SESSabc=efg"
+        rxresp
+        expect resp.http.Vary == <undef>
+
+        txreq -url "/vary-cookie" -hdr "Cookie: SESSabc=efg"
+        rxresp
+        expect resp.http.Vary == "Cookie"
+
+        txreq -url "/vary-candy" -hdr "Cookie: SESSabc=efg"
+        rxresp
+        expect resp.http.Vary == "Candy"
+
+        txreq -url "/vary-sweets" -hdr "Cookie: SESSabc=efg"
+        rxresp
+        expect resp.http.Vary == "Cookie, Candy"
+}
+
+client c1 -run
+
+# Three hits because "/authcache-varnish-get-key" is called before each request
+varnish v1 -expect cache_hit == 3
+
+server s1 -wait
+varnish v1 -stop

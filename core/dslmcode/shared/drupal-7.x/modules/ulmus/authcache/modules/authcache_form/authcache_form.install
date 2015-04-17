@@ -1,0 +1,55 @@
+<?php
+/**
+ * @file
+ * Install, update and uninstall functions for the authcache form module.
+ */
+
+/**
+ * Implements hook_requirements().
+ */
+function authcache_form_requirements($phase) {
+  $requirements = array();
+
+  // Ensure translations don't break during installation.
+  $t = get_t();
+
+  // Check for Cache Object API.
+  if (module_exists('cacheobject')) {
+    $requirements['authcache_form'] = array(
+      'title' => $t('Authcache Form'),
+    );
+
+    $form_cache_class = get_class(_cache_get_object('cache_form'));
+    if ($form_cache_class === 'CacheObjectAPIWrapper') {
+      $requirements['authcache_form']['value'] = $t('Using Cache Object API to extend validity of cached Ajax forms');
+    }
+    else {
+      $requirements['authcache_form']['value'] = $t('Cache Object API is available but the form_cache bin is not configured to use it.');
+      $requirements['authcache_form']['description'] = $t('Your settings.php file must be modified to allow Ajax forms to work properly. See <a href="@url">README.txt</a>.', array('@url' => base_path() . drupal_get_path('module', 'authcache_form') . '/README.txt'));
+      $requirements['authcache_form']['severity'] = REQUIREMENT_WARNING;
+    }
+  }
+
+  return $requirements;
+}
+
+/**
+ * Implements hook_uninstall().
+ */
+function authcache_form_uninstall() {
+  variable_del('authcache_form_base_id_token');
+  variable_del('authcache_form_cache_lifespan');
+  variable_del('authcache_form_notoken');
+  variable_del('authcache_form_notoken_roles');
+  variable_del('authcache_form_roles');
+}
+
+/**
+ * Update form cache lifespan variable.
+ */
+function authcache_form_update_7001() {
+  if (variable_get('authcache_form_cache_lifespan') === 'custom') {
+    variable_set('authcache_form_cache_lifespan', variable_get('authcache_form_cache_lifespan_custom'));
+  }
+  variable_del('authcache_form_cache_lifespan_custom');
+}

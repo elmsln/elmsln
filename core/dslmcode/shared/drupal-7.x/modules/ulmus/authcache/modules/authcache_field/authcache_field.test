@@ -1,0 +1,210 @@
+<?php
+/**
+ * @file
+ * Test cases for the Authcache Field module.
+ */
+
+/**
+ * Tests for markup substitution.
+ */
+class AuthcacheFieldTest extends DrupalWebTestCase {
+  protected $stubmod;
+  protected $member;
+  protected $node1;
+  protected $node2;
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function getInfo() {
+    return array(
+      'name' => 'Authcache Field',
+      'description' => 'Test markup substitution and fragment generation for fields',
+      'group' => 'Authcache Field',
+    );
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function setUp() {
+    // FIXME: Provide separate test stub module in order to resolve the
+    // dependency for the menu-module. Stub module needs to hide all forum
+    // action links, otherwise the default authcache mechanism kicks in
+    // cancelling page caching.
+    parent::setUp(array(
+      'authcache_field',
+      'authcache_menu',
+      'authcache_p13n_test',
+    ));
+
+    $this->member = $this->drupalCreateUser(array());
+
+    $this->node1 = $this->drupalCreateNode(array(
+      'type' => 'article',
+      'promote' => 1,
+      'uid' => 1,
+    ));
+    $this->node2 = $this->drupalCreateNode(array(
+      'type' => 'article',
+      'promote' => 1,
+      'uid' => 1,
+    ));
+
+    // Authcache enable article body.
+    $instance = field_info_instance('node', 'body', 'article');
+    $instance['settings']['authcache'] = authcache_p13n_config_defaults();
+    $instance['settings']['authcache']['status'] = 1;
+    $instance['settings']['authcache']['clients'] = array(
+      'authcache_p13n_test' => array(
+        'status' => '1',
+        'weight' => '0',
+      ),
+    );
+    field_update_instance($instance);
+    authcache_p13n_request_router_rebuild();
+
+    $authcache_roles = array(
+      DRUPAL_ANONYMOUS_RID => DRUPAL_ANONYMOUS_RID,
+      DRUPAL_AUTHENTICATED_RID => DRUPAL_AUTHENTICATED_RID,
+    ) + $this->member->roles;
+
+    // Setup authcache.
+    variable_set('authcache_roles', $authcache_roles);
+    $pagecaching = _authcache_default_pagecaching();
+    $pagecaching[0]['roles']['roles'] = $authcache_roles;
+    variable_set('authcache_pagecaching', $pagecaching);
+
+    // HookStub.
+    $this->stubmod = new ModuleStub('authcache_p13n_test');
+  }
+
+  /**
+   * Test whether the given stub passes the invocation verifier.
+   */
+  protected function assertStub(HookStubProxy $stub, $verifier, $message = NULL) {
+    $result = $stub->verify($verifier, $error);
+
+    if (!$message) {
+      $message = t('Verify invocation of hook @hook.', array('@hook' => $stub->hookname()));
+    }
+    if (!$result && is_string($error)) {
+      $message .= ' ' . $error;
+    }
+
+    $this->assertTrue($result, $message);
+  }
+
+  /**
+   * Test that the field markup is substituted by a partial.
+   *
+   * Covers authcache_field_attach_view_alter()
+   */
+  public function testNodeMarkupSubstitution() {
+    $this->stubmod->hook('authcache_p13n_client', array(
+      'authcache_p13n_test' => array(
+        'title' => t('Test Client'),
+        'enabled' => TRUE,
+      ),
+    ));
+
+    $this->drupalLogin($this->member);
+
+    // M1: Visit the front page populated with two node having one field each.
+    $assembly_markup = $this->randomName(8);
+    $assembly_stub = HookStub::on('theme_authcache_p13n_assembly__authcache_p13n_test', $assembly_markup);
+    $partial_markup = $this->randomName(8);
+    $partial_stub = HookStub::on('theme_authcache_p13n_partial__authcache_p13n_test', $partial_markup);
+
+    $this->drupalGet('node');
+
+    $this->assertStub($assembly_stub, HookStub::times(1));
+    $this->assertStub($partial_stub, HookStub::times(2));
+
+    // M1: Visit a full node view.
+    $assembly_markup = $this->randomName(8);
+    $assembly_stub = HookStub::on('theme_authcache_p13n_assembly__authcache_p13n_test', $assembly_markup);
+    $partial_markup = $this->randomName(8);
+    $partial_stub = HookStub::on('theme_authcache_p13n_partial__authcache_p13n_test', $partial_markup);
+
+    $this->drupalGet('node/' . $this->node1->nid);
+
+    $this->assertStub($assembly_stub, HookStub::times(1));
+    $this->assertStub($partial_stub, HookStub::times(1));
+  }
+
+  /**
+   * Ensure that a field shows up in the list of personalized elements.
+   */
+  public function testAdminList() {
+    $su = $this->drupalCreateUser(array('administer site configuration', 'administer content types'));
+    $this->drupalLogin($su);
+
+    $this->drupalGet('admin/config/system/authcache/p13n');
+
+    $this->assertText('Fields', 'A group with the name Fields should be on the page');
+
+    $this->assertText('Body', 'The field title should be on the page');
+    $this->assertLink('Edit', 0, 'An edit link should be on the page');
+    $this->assertLinkByHref('admin/structure/types/manage/article/fields/body', 0, 'The edit link should point to the fields configuration form');
+
+    // Check whether checkbox is enabled on field settings.
+    $this->clickLink('Edit');
+    $this->assertFieldChecked('edit-instance-settings-authcache-status', 'Authcache checkbox is checked on field settings');
+  }
+
+  /**
+   * Ensure that fields are rendered.
+   *
+   * Covers AuthcacheFieldFragment
+   */
+  public function testAuthcacheFieldFragment() {
+    $request_id = 'asm/field/node/body';
+    $params = array(
+      "{$this->node1->nid}:full:en",
+      "{$this->node2->nid}:full:en",
+    );
+    $url = authcache_p13n_request_get_callback($request_id, array(
+      'field' => $params,
+    ));
+    $this->assertTrue($url);
+
+    $expected_body_1 = field_view_field('node', $this->node1, 'body', 'full', 'en');
+    $expected_body_2 = field_view_field('node', $this->node2, 'body', 'full', 'en');
+
+    $expect = array(
+      'field' => array(
+        "{$this->node1->nid}:full:en" => render($expected_body_1),
+        "{$this->node2->nid}:full:en" => render($expected_body_2),
+      ),
+    );
+
+    $result = $this->drupalGetAJAX($GLOBALS['base_root'] . $url['path'], $url['options'], array('X-Authcache: 1'));
+    $this->assertResponse(200);
+    $this->assertEqual($expect, $result);
+  }
+
+  /**
+   * Ensure that fields are not rendered when user has no access to the entity.
+   *
+   * Covers AuthcacheFieldFragment
+   */
+  public function testAuthcacheFieldFragmentNoEntityAccess() {
+    // Revoke access content permission for anonymous user.
+    user_role_revoke_permissions(DRUPAL_ANONYMOUS_RID, array('access content'));
+
+    $request_id = 'asm/field/node/body';
+    $params = array(
+      "{$this->node1->nid}:full:en",
+      "{$this->node2->nid}:full:en",
+    );
+    $url = authcache_p13n_request_get_callback($request_id, array(
+      'field' => $params,
+    ));
+    $this->assertTrue($url);
+
+    $result = $this->drupalGetAJAX($GLOBALS['base_root'] . $url['path'], $url['options'], array('X-Authcache: 1'));
+    $this->assertResponse(403);
+    $this->assertFalse($result);
+  }
+}

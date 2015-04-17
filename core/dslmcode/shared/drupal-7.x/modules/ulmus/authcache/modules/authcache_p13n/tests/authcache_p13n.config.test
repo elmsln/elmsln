@@ -1,0 +1,279 @@
+<?php
+/**
+ * @file
+ * Defines test for authcache personalization configuration widget.
+ */
+
+/**
+ * Tests for authcache_p13n_config element.
+ */
+class AuthcacheP13nTestConfigWidget extends DrupalWebTestCase {
+  protected $profile = 'testing';
+  protected $stubmod;
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function getInfo() {
+    return array(
+      'name' => 'Config Widget',
+      'description' => 'Tests for configuration widget',
+      'group' => 'Authcache Personalization',
+    );
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function setUp() {
+    parent::setUp('authcache_p13n', 'authcache_p13n_test', 'authcache_test_hookstub');
+
+    // HookStub.
+    $this->stubmod = new ModuleStub('authcache_p13n_test');
+  }
+
+  /**
+   * Test whether the given stub passes the invocation verifier.
+   */
+  protected function assertStub(HookStubProxy $stub, $verifier, $message = NULL) {
+    $result = $stub->verify($verifier, $error);
+
+    if (!$message) {
+      $message = t('Verify invocation of hook @hook.', array('@hook' => $stub->hookname()));
+    }
+    if (!$result && is_string($error)) {
+      $message .= ' ' . $error;
+    }
+
+    $this->assertTrue($result, $message);
+  }
+
+  /**
+   * Cover authcache_p13n_config_cache_maxage().
+   */
+  public function testConfigCacheMaxage() {
+    $tests = array(
+      array(array(), 0),
+      array(array('lifespan' => 60), 60),
+    );
+
+    foreach ($tests as $pair) {
+      list($config, $expect) = $pair;
+      $result = authcache_p13n_config_cache_maxage($config);
+      $this->assertEqual($expect, $result);
+    }
+  }
+
+  /**
+   * Cover authcache_p13n_config_cache_granularity().
+   */
+  public function testConfigCacheGranularity() {
+    $tests = array(
+      array(array(), 0),
+      array(array('perpage' => 1), AuthcacheP13nCacheGranularity::PER_PAGE),
+      array(array('peruser' => 1), AuthcacheP13nCacheGranularity::PER_USER),
+      array(array('peruser' => 1, 'perpage' => 1),
+        AuthcacheP13nCacheGranularity::PER_USER | AuthcacheP13nCacheGranularity::PER_PAGE),
+    );
+
+    foreach ($tests as $pair) {
+      list($config, $expect) = $pair;
+      $result = authcache_p13n_config_cache_granularity($config);
+      $this->assertEqual($expect, $result);
+    }
+  }
+
+  /**
+   * Cover form element authcache_p13n_config.
+   */
+  public function testFormElement() {
+    $form['authcache-settings'] = array(
+      '#type' => 'authcache_p13n_config',
+    );
+
+    $form['other-authcache-settings'] = array(
+      '#type' => 'authcache_p13n_config',
+      '#default_value' => array(
+        'status' => TRUE,
+        'lifespan' => 42,
+        'peruser' => 0,
+        'perpage' => 1,
+        'fallback' => 'hide',
+      ),
+    );
+
+    $form['actions'] = array('#type' => 'actions');
+    $form['actions']['submit'] = array(
+      '#type' => 'submit',
+      '#value' => t('Test'),
+    );
+
+    $form_stub = $this->stubmod->hook('form', $form);
+    $form_submit_stub = $this->stubmod->hook('form_submit');
+
+    // Get form and check presence of config widget.
+    $this->drupalGet('authcache-p13n-test-form');
+    $this->assertStub($form_stub, HookStub::once());
+
+    // First config field.
+    $elements = $this->xpath('//div[@id="edit-authcache-settings"]');
+    $this->assertEqual(1, count($elements));
+    $this->assertNoFieldChecked('edit-authcache-settings-status');
+    $this->assertOptionSelected('edit-authcache-settings-lifespan-select', 3600);
+    $this->assertFieldChecked('edit-authcache-settings-peruser');
+    $this->assertNoFieldChecked('edit-authcache-settings-perpage');
+    $this->assertFieldChecked('edit-authcache-settings-fallback-cancel');
+    $this->assertNoFieldChecked('edit-authcache-settings-fallback-hide');
+
+    // Second config widget.
+    $elements = $this->xpath('//div[@id="edit-other-authcache-settings"]');
+    $this->assertEqual(1, count($elements));
+    $this->assertFieldChecked('edit-other-authcache-settings-status');
+    $this->assertOptionSelected('edit-other-authcache-settings-lifespan-select', 'custom');
+    $this->assertFieldById('edit-other-authcache-settings-lifespan-custom', 42);
+    $this->assertNoFieldChecked('edit-other-authcache-settings-peruser');
+    $this->assertFieldChecked('edit-other-authcache-settings-perpage');
+    $this->assertNoFieldChecked('edit-other-authcache-settings-fallback-cancel');
+    $this->assertFieldChecked('edit-other-authcache-settings-fallback-hide');
+
+    // Submit form.
+    $edit = array(
+      'authcache-settings[status]' => TRUE,
+      'authcache-settings[lifespan][select]' => 518400,
+      'authcache-settings[lifespan][custom]' => '',
+      'authcache-settings[peruser]' => TRUE,
+      'authcache-settings[perpage]' => TRUE,
+      'authcache-settings[fallback]' => 'cancel',
+      'other-authcache-settings[status]' => TRUE,
+      'other-authcache-settings[lifespan][select]' => 'custom',
+      'other-authcache-settings[lifespan][custom]' => 42,
+      'other-authcache-settings[fallback]' => 'hide',
+    );
+
+    $this->drupalPost(NULL, $edit, t('Test'));
+    $this->assertStub($form_submit_stub, HookStub::once());
+    $invocations = $form_submit_stub->invocations();
+    $values = $invocations[0][1]['values'];
+
+    $expect_settings_1 = array(
+      'status' => '1',
+      'lifespan' => '518400',
+      'peruser' => '1',
+      'perpage' => '1',
+      'fallback' => 'cancel',
+    );
+    $this->assertEqual($expect_settings_1, $values['authcache-settings']);
+
+    $expect_settings_2 = array(
+      'status' => '1',
+      'lifespan' => '42',
+      'peruser' => 0,
+      'perpage' => '1',
+      'fallback' => 'hide',
+    );
+    $this->assertEqual($expect_settings_2, $values['other-authcache-settings']);
+  }
+
+  /**
+   * Cover form element authcache_p13n_config.
+   */
+  public function testFormElementClients() {
+    $form['authcache-settings'] = array(
+      '#type' => 'authcache_p13n_config',
+    );
+
+    $form['actions'] = array('#type' => 'actions');
+    $form['actions']['submit'] = array(
+      '#type' => 'submit',
+      '#value' => t('Test'),
+    );
+
+    $clients = array(
+      'a' => array(
+        'title' => 'A',
+        'enabled' => TRUE,
+      ),
+      'b' => array(
+        'title' => 'B',
+        'enabled' => TRUE,
+      ),
+      'c' => array(
+        'title' => 'C',
+        'enabled' => FALSE,
+      ),
+      'd' => array(
+        'title' => 'D',
+        'enabled' => FALSE,
+      ),
+    );
+
+    $form_stub = $this->stubmod->hook('form', $form);
+    $this->stubmod->hook('authcache_p13n_client', $clients);
+    $form_submit_stub = $this->stubmod->hook('form_submit');
+
+    // Get form and check presence of config widget.
+    $this->drupalGet('authcache-p13n-test-form');
+    $this->assertStub($form_stub, HookStub::once());
+
+    // By default all clients should be selected.
+    $this->assertFieldChecked('edit-authcache-settings-clients-a-status');
+    $this->assertFieldChecked('edit-authcache-settings-clients-b-status');
+    $this->assertFieldChecked('edit-authcache-settings-clients-c-status');
+    $this->assertFieldChecked('edit-authcache-settings-clients-d-status');
+
+    // By default all weights should be 0.
+    $this->assertFieldById('edit-authcache-settings-clients-a-weight', 0);
+    $this->assertFieldById('edit-authcache-settings-clients-b-weight', 0);
+    $this->assertFieldById('edit-authcache-settings-clients-c-weight', 0);
+    $this->assertFieldById('edit-authcache-settings-clients-d-weight', 0);
+
+    $edit = array(
+      'authcache-settings[status]' => TRUE,
+      'authcache-settings[lifespan][select]' => 3600,
+      'authcache-settings[lifespan][custom]' => '',
+      'authcache-settings[peruser]' => TRUE,
+      'authcache-settings[perpage]' => FALSE,
+      'authcache-settings[clients][a][status]' => TRUE,
+      'authcache-settings[clients][b][status]' => FALSE,
+      'authcache-settings[clients][c][status]' => TRUE,
+      'authcache-settings[clients][d][status]' => FALSE,
+      'authcache-settings[clients][a][weight]' => -10,
+      'authcache-settings[clients][b][weight]' => -20,
+      'authcache-settings[clients][c][weight]' => -30,
+      'authcache-settings[clients][d][weight]' => -40,
+      'authcache-settings[fallback]' => 'cancel',
+    );
+
+    $this->drupalPost(NULL, $edit, t('Test'));
+    $this->assertStub($form_submit_stub, HookStub::once());
+    $invocations = $form_submit_stub->invocations();
+    $values = $invocations[0][1]['values'];
+
+    $expect = array(
+      'status' => '1',
+      'lifespan' => '3600',
+      'peruser' => '1',
+      'perpage' => '0',
+      'clients' => array(
+        'a' => array(
+          'status' => '1',
+          'weight' => '-10',
+        ),
+        'b' => array(
+          'status' => '0',
+          'weight' => '-20',
+        ),
+        'c' => array(
+          'status' => '1',
+          'weight' => '-30',
+        ),
+        'd' => array(
+          'status' => '0',
+          'weight' => '-40',
+        ),
+      ),
+      'fallback' => 'cancel',
+    );
+    $this->assertEqual($expect, $values['authcache-settings']);
+  }
+}

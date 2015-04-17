@@ -1,0 +1,19 @@
+<?php
+/**
+ * @file
+ * Stub module for Authcache Builtin Storage Backend test.
+ */
+
+/**
+ * Implements hook_authcache_preclude().
+ */
+function authcache_builtin_test_authcache_preclude() {
+  return HookStub::record(__FUNCTION__, func_get_args());
+}
+
+/**
+ * Implements hook_exit().
+ */
+function authcache_builtin_test_exit() {
+  drupal_add_http_header('X-Authcache-Builtin-Test-Key', authcache_key());
+}

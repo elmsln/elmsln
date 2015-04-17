@@ -1,0 +1,72 @@
+<?php
+
+/**
+ * @file
+ * Authcache storage backend for Drupal core cache system.
+ */
+
+/**
+ * Implements hook_authcache_backend_cache_save().
+ *
+ * Cache storage handler for drupal builtin cache-system
+ */
+function authcache_builtin_authcache_backend_cache_save($body, $headers, $page_compressed) {
+  $cid = authcache_builtin_cid();
+  $data = array(
+    'path' => $_GET['q'],
+    'body' => $body,
+    'title' => drupal_get_title(),
+    'headers' => $headers,
+    // We need to store whether page was compressed or not,
+    // because by the time it is read, the configuration might change.
+    'page_compressed' => $page_compressed,
+  );
+
+  cache_set($cid, $data, 'cache_page', CACHE_TEMPORARY);
+
+  // Add headers required to make stupid browsers behave.
+  _authcache_builtin_cacheinc_fix_browsers();
+}
+
+/**
+ * Implements hook_authcache_backend_key_set().
+ */
+function authcache_builtin_authcache_backend_key_set($key, $lifetime, $has_session) {
+  global $base_root;
+
+  // Clear out old key.
+  $previous_session = authcache_backend_initial_session_id();
+  if ($previous_session) {
+    cache_clear_all($base_root . ':' . $previous_session, 'cache_authcache_key');
+  }
+
+  // Update cached key if necessary.
+  if ($has_session && authcache_account_allows_caching()) {
+    $expires = $lifetime ? REQUEST_TIME + $lifetime : CACHE_TEMPORARY;
+    cache_set($base_root . ':' . session_id(), $key, 'cache_authcache_key', $expires);
+  }
+}
+
+
+/**
+ * Implements hook_authcache_debug_info().
+ */
+function authcache_builtin_authcache_debug_info() {
+  $info['Cache Class'] = get_class(_cache_get_object('cache_page'));
+  $info['Cache CID'] = authcache_builtin_cid();
+  return $info;
+}
+
+/**
+ * Return the authcache cache-id for the given path.
+ *
+ * @see authcache_key()
+ */
+function authcache_builtin_cid($request_uri = NULL) {
+  if (!isset($request_uri)) {
+    $request_uri = request_uri();
+  }
+
+  $key = authcache_key();
+  return $key . $request_uri;
+}

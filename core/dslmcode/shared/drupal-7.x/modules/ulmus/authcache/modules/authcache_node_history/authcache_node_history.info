@@ -1,0 +1,15 @@
+name = Authcache Node History
+description = Authcache support for flagging changed and updated content
+package = Performance and scalability
+core = 7.x
+dependencies[] = authcache_p13n
+dependencies[] = node
+files[] = authcache_node_history.test
+files[] = includes/AuthcacheNodeHistorySetting.inc
+
+; Information added by Drupal.org packaging script on 2014-10-21
+version = "7.x-2.0-beta4"
+core = "7.x"
+project = "authcache"
+datestamp = "1413923939"
+

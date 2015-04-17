@@ -1,0 +1,167 @@
+<?php
+/**
+ * @file
+ * Authcache support for block module.
+ */
+
+/**
+ * Implements hook_authcache_p13n_fragment().
+ */
+function authcache_block_authcache_p13n_fragment() {
+  $result = db_select('block', 'b')->fields('b')->execute();
+  $blocks = $result->fetchAllAssoc('bid');
+
+  $fragments = array();
+  foreach ($blocks as $block) {
+    $block_id = "{$block->module}-{$block->delta}";
+    $config = variable_get('authcache_block-' . $block_id);
+
+    if (!empty($config['status'])) {
+      $fragment_id = 'block/' . $block_id;
+      $fragments[$fragment_id] = array(
+        'fragment' => array(
+          '#class' => 'AuthcacheBlockFragment',
+          '#arguments' => array(
+            $block_id,
+            $block->module,
+            $block->delta,
+          ),
+        ),
+        'bootstrap phase' => DRUPAL_BOOTSTRAP_FULL,
+        'cache maxage' => authcache_p13n_config_cache_maxage($config),
+        'cache granularity' => authcache_p13n_config_cache_granularity($config),
+        'admin entry object' => array(
+          '#class' => 'AuthcacheBlockAdminEntry',
+          '#arguments' => array($block_id, $config, '@admin entry'),
+        ),
+      );
+    }
+  }
+
+  // Garbage collect spurious configuration.
+  authcache_block_variables_gc();
+
+  return $fragments;
+}
+
+/**
+ * Implements hook_authcache_p13n_admin_groups().
+ */
+function authcache_block_authcache_p13n_admin_groups() {
+  return array(
+    t('Blocks') => t('To add a block to the list of personalized blocks, visit the <a href="!blocks_url">block administration page</a> and click "configure" next to the block in question.', array('!blocks_url' => url('admin/structure/block'))),
+  );
+}
+
+/**
+ * Implements hook_permission().
+ */
+function authcache_block_permission() {
+  return array(
+    'configure authcache blocks' => array(
+      'title' => t('Configure authcache blocks'),
+      'description' => t('Specify which blocks should be loaded using Ajax/ESI.'),
+    ),
+  );
+}
+
+/**
+ * Implements hook_form_alter().
+ */
+function authcache_block_form_block_admin_configure_alter(&$form, &$form_state, $form_id) {
+  if (user_access('configure authcache blocks')) {
+    $block_id = "{$form['module']['#value']}-{$form['delta']['#value']}";
+
+    $form['authcache'] = array(
+      '#type' => 'fieldset',
+      '#title' => t('Authcache personalization'),
+    );
+
+    $form['authcache']['authcache_settings'] = array(
+      '#type' => 'authcache_p13n_config',
+      '#default_value' => variable_get('authcache_block-' . $block_id, array()),
+    );
+
+    $form['#submit'][] = 'authcache_block_config_submit';
+  }
+}
+
+/**
+ * Block submit handler.
+ */
+function authcache_block_config_submit($form, &$form_state) {
+  $module = $form_state['values']['module'];
+  $delta  = $form_state['values']['delta'];
+  $block_id = "$module-$delta";
+
+  variable_set('authcache_block-' . $block_id,
+    $form_state['values']['authcache_settings']);
+
+  // Clear external caches.
+  authcache_p13n_session_invalidate();
+
+  // Rebuild registry of personalization requests.
+  authcache_p13n_request_router_rebuild();
+}
+
+/**
+ * Implements hook_page_alter().
+ *
+ * Loop through every block in every region and add a post_render callback when
+ * the block should be loaded independant of cached pages.
+ */
+function authcache_block_page_alter(&$page) {
+  if (authcache_page_is_cacheable()) {
+    foreach (element_children($page) as $region) {
+      foreach (element_children($page[$region]) as $key) {
+        if (!empty($page[$region][$key]['#block'])) {
+          $block = $page[$region][$key]['#block'];
+
+          $block_id = "{$block->module}-{$block->delta}";
+          $config = variable_get('authcache_block-' . $block_id);
+          if (!empty($config['status'])) {
+            $config += authcache_p13n_config_defaults();
+            $fragment_id = 'block/' . $block_id;
+
+            authcache_p13n_attach($page[$region][$key], array(
+              '#theme' => 'authcache_p13n_fragment',
+              '#fragment' => $fragment_id,
+              '#clients' => $config['clients'],
+              '#fallback' => $config['fallback'],
+            ));
+          }
+        }
+      }
+    }
+  }
+}
+
+/**
+ * Garbage collect spurious variables.
+ */
+function authcache_block_variables_gc() {
+  $result = db_select('block', 'b')->fields('b')->execute();
+  $blocks = $result->fetchAllAssoc('bid');
+
+  $variable_whitelist = array();
+  foreach ($blocks as $block) {
+    $block_id = "{$block->module}-{$block->delta}";
+    $config = variable_get('authcache_block-' . $block_id);
+
+    if (!empty($config['status'])) {
+      $variable_whitelist[] = 'authcache_block-' . $block_id;
+    }
+  }
+
+  // Remove variables containing configuration of blocks where authcache has
+  // been disabled. This also kills variables left over by custom blocks which
+  // have been deleted. Note the variables are only cleared from the database
+  // and still may linger in the variable cache until it is cleared the next
+  // time.
+  $query = db_delete('variable')
+    ->condition('name', 'authcache_block-%', 'LIKE');
+  if ($variable_whitelist) {
+    $query->condition('name', $variable_whitelist, 'NOT IN');
+  };
+  $query->execute();
+}

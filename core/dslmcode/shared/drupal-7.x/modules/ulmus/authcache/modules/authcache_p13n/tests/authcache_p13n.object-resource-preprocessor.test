@@ -1,0 +1,367 @@
+<?php
+/**
+ * @file
+ * Define test cases for object factory.
+ */
+
+/**
+ * Tests for object factory.
+ */
+class AuthcacheP13nTestObjectResourcePreprocessorCase extends DrupalUnitTestCase {
+  protected $preprocessorInvocations;
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function getInfo() {
+    return array(
+      'name' => 'Object Resource Preprocessor',
+      'description' => 'Unit tests for object factory resource preprocessor.',
+      'group' => 'Authcache Personalization',
+    );
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function setUp() {
+    parent::setUp();
+    require_once __DIR__ . '/../includes/AuthcacheP13nObjectResourcePreprocessor.inc';
+    $this->resetPreprocessorInvocations();
+  }
+
+  /**
+   * Reset invocation recordings.
+   */
+  protected function resetPreprocessorInvocations() {
+    $this->preprocessorInvocations = array();
+  }
+
+  /**
+   * Record one invocation of a preprocessor.
+   */
+  public function recordPreprocessorInvocation($definition, $priority, $key, $enqueue) {
+    $args = func_get_args();
+    $args[3] = is_callable($enqueue);
+    $this->preprocessorInvocations[] = $args;
+  }
+
+  /**
+   * Test whether the given invocations were recorded.
+   */
+  protected function assertPreprocessorInvocations($expected_invocations, $message = NULL) {
+    $this->assertEqual($expected_invocations, $this->preprocessorInvocations, $message);
+  }
+
+  /**
+   * Covers AuthcacheP13nObjectResourcePreprocessor::preprocess().
+   */
+  public function testDefaultPreprocessors() {
+    $definition = array();
+    $preproc = new AuthcacheP13nObjectResourcePreprocessor(AuthcacheP13nObjectResourcePreprocessor::defaultPreprocessors());
+    $resources = $preproc->preprocess($definition);
+    $this->assertEqual(array(), $resources, t('An empty definition should result in no resources'));
+
+    // Test scalar values. We cannot test for string from within a unit test
+    // though, because that would trigger the autoloader.
+    $definition = array(
+      'an int' => 42,
+      'a float' => 3.14,
+      'a boolean' => TRUE,
+    );
+    $expect_resources = array(
+      'an int' => array(
+        '#type' => 'value',
+        '#value' => 42,
+      ),
+      'a float' => array(
+        '#type' => 'value',
+        '#value' => 3.14,
+      ),
+      'a boolean' => array(
+        '#type' => 'value',
+        '#value' => TRUE,
+      ),
+    );
+    $resources = $preproc->preprocess($definition);
+    $this->assertEqual($expect_resources, $resources, t('Scalars should result in scalar value-resources'));
+
+    // Test arrays and objects.
+    $definition = array(
+      'an array' => array('hello' => 'world'),
+      'an object' => (object) array('some' => 'prop'),
+    );
+    $expect_resources = array(
+      'an array' => array(
+        '#type' => 'value',
+        '#value' => array('hello' => 'world'),
+      ),
+      'an object' => array(
+        '#type' => 'value',
+        '#value' => (object) array('some' => 'prop'),
+      ),
+    );
+    $resources = $preproc->preprocess($definition);
+    $this->assertEqual($expect_resources, $resources, t('Compound types should result in value-resources'));
+
+    // Add #type when #value is in array.
+    $definition = array(
+      'an implicit value' => array(
+        '#value' => 42,
+      ),
+      'an implicit func' => array(
+        '#func' => 'strlen',
+      ),
+      'an implicit class' => array(
+        '#class' => 'DummyClass',
+      ),
+      'an implicit collection' => array(
+        '#collection' => 'a collection',
+      ),
+    );
+    $expect_resources = array(
+      'an implicit value' => array(
+        '#value' => 42,
+        '#type' => 'value',
+      ),
+      'an implicit func' => array(
+        '#func' => 'strlen',
+        '#type' => 'func',
+      ),
+      'an implicit class' => array(
+        '#class' => 'DummyClass',
+        '#type' => 'class',
+      ),
+      'an implicit collection' => array(
+        '#collection' => 'a collection',
+        '#type' => 'collection',
+      ),
+    );
+    $resources = $preproc->preprocess($definition);
+    $this->assertEqual($expect_resources, $resources, t('A #type => value should be added when #value, #func or #class is present'));
+
+    // Pass through arrays when #type is one of 'value', 'func', 'class'
+    // or 'collection'.
+    $definition = array(
+      'an incomplete value' => array(
+        '#type' => 'value',
+      ),
+      'an incomplete func' => array(
+        '#type' => 'func',
+      ),
+      'an incomplete class' => array(
+        '#type' => 'class',
+      ),
+      'an incomplete collection' => array(
+        '#type' => 'collection',
+      ),
+    );
+    $resources = $preproc->preprocess($definition);
+    $this->assertEqual($definition, $resources, t('Resources should not be processed when type is one of value, func, class'));
+  }
+
+  /**
+   * Covers AuthcacheP13nObjectResourcePreprocessor::preprocess().
+   */
+  public function testSubstituteResource() {
+    $definition = array(
+      'r1' => array(
+        '#type' => 'class',
+        '#class' => 'DummyClass1',
+      ),
+      'r2' => array(
+        '#custom_type' => 'test',
+      ),
+    );
+    $substitute_resource = array(
+      '#type' => 'class',
+      '#class' => 'Generated',
+    );
+    $expect_resources = array(
+      'r1' => array(
+        '#type' => 'class',
+        '#class' => 'DummyClass1',
+      ),
+      'r2' => $substitute_resource,
+    );
+
+    $expect_invocations = array(
+      array($definition['r1'], 0, 'r1', TRUE),
+      array($definition['r2'], 0, 'r2', TRUE),
+    );
+
+    $preproc = new AuthcacheP13nObjectResourcePreprocessor(array(
+      'record_invocation' => array($this, 'recordPreprocessorInvocation'),
+      'substitute_custom_type' => function ($definition, $priority, $key, $enqueue) use ($substitute_resource) {
+        if (is_array($definition) && isset($definition['#custom_type'])) {
+          return $substitute_resource;
+        }
+      },
+    ));
+    $resources = $preproc->preprocess($definition);
+
+    $this->assertEqual($expect_resources, $resources);
+    $this->assertPreprocessorInvocations($expect_invocations);
+  }
+
+  /**
+   * Covers AuthcacheP13nObjectResourcePreprocessor::preprocess().
+   */
+  public function testAddDefaultResource() {
+    $definition = array(
+      'r1' => array(
+        '#type' => 'class',
+        '#class' => 'DummyClass1',
+      ),
+      'r2' => array(
+        '#custom_type' => 'test',
+      ),
+    );
+    $additional_definition = array(
+      '#type' => 'class',
+      '#class' => 'DefaultAdded',
+    );
+    $additional_definitions = array(
+      'r2' => $additional_definition,
+      'default' => $additional_definition,
+    );
+    $expect_resources = array(
+      'r1' => array(
+        '#type' => 'class',
+        '#class' => 'DummyClass1',
+      ),
+      'r2' => array(
+        '#type' => 'value',
+        '#value' => array(
+          '#custom_type' => 'test',
+        ),
+      ),
+      'default' => $additional_definition,
+    );
+
+    $expect_invocations = array(
+      array($definition['r1'], 0, 'r1', TRUE),
+      array($definition['r2'], 0, 'r2', TRUE),
+      array($additional_definitions['r2'], -1, 'r2', TRUE),
+      array($additional_definitions['default'], -1, 'default', TRUE),
+    );
+
+    $preproc = new AuthcacheP13nObjectResourcePreprocessor(array(
+      'record_invocation' => array($this, 'recordPreprocessorInvocation'),
+      'add_definitions' => function ($definition, $priority, $key, $enqueue) use ($additional_definitions) {
+        if (is_array($definition) && isset($definition['#custom_type'])) {
+          // Enqueue additional definitions with lower priority.
+          $enqueue($additional_definitions, $priority - 1);
+        }
+      },
+    ));
+    $resources = $preproc->preprocess($definition);
+
+    $this->assertEqual($expect_resources, $resources);
+    $this->assertPreprocessorInvocations($expect_invocations);
+  }
+
+  /**
+   * Covers AuthcacheP13nObjectResourcePreprocessor::preprocess().
+   */
+  public function testOverrideResource() {
+    $definition = array(
+      'r1' => array(
+        '#type' => 'class',
+        '#class' => 'DummyClass1',
+      ),
+      'r2' => array(
+        '#custom_type' => 'test',
+      ),
+    );
+    $additional_definition = array(
+      '#type' => 'class',
+      '#class' => 'Overridden',
+    );
+    $additional_definitions = array(
+      'r1' => $additional_definition,
+      'default' => $additional_definition,
+    );
+    $expect_resources = array(
+      'r1' => $additional_definition,
+      'r2' => array(
+        '#type' => 'value',
+        '#value' => array(
+          '#custom_type' => 'test',
+        ),
+      ),
+      'default' => $additional_definition,
+    );
+
+    $expect_invocations = array(
+      array($definition['r1'], 0, 'r1', TRUE),
+      array($definition['r2'], 0, 'r2', TRUE),
+      array($additional_definitions['r1'], 1, 'r1', TRUE),
+      array($additional_definitions['default'], 1, 'default', TRUE),
+    );
+
+    $preproc = new AuthcacheP13nObjectResourcePreprocessor(array(
+      'record_invocation' => array($this, 'recordPreprocessorInvocation'),
+      'add_definitions' => function ($definition, $priority, $key, $enqueue) use ($additional_definitions) {
+        if (is_array($definition) && isset($definition['#custom_type'])) {
+          // Enqueue additional definitions with lower priority.
+          $enqueue($additional_definitions, $priority + 1);
+        }
+      },
+    ));
+    $resources = $preproc->preprocess($definition);
+
+    $this->assertEqual($expect_resources, $resources);
+    $this->assertPreprocessorInvocations($expect_invocations);
+  }
+
+  /**
+   * Covers AuthcacheP13nObjectResourcePreprocessor::preprocess().
+   */
+  public function testPreprocessorSequence() {
+    $definition = array(
+      'r1' => array(
+        '#type' => 'class',
+        '#class' => 'DummyClass1',
+      ),
+    );
+    $substitute_1 = array(
+      '#type' => 'func',
+      '#func' => 'intval',
+    );
+    $substitute_2 = array(
+      '#type' => 'class',
+      '#class' => 'Final',
+    );
+    $expect_resources = array(
+      'r1' => array(
+        '#type' => 'class',
+        '#class' => 'Final',
+      ),
+    );
+
+    $expect_invocations = array(
+      array($definition['r1'], 0, 'r1', TRUE),
+      array($substitute_1, 0, 'r1', TRUE),
+      array($substitute_2, 0, 'r1', TRUE),
+    );
+
+    // Ensure that each preprocessor operates on the resource returned from its
+    // predecessor.
+    $preproc = new AuthcacheP13nObjectResourcePreprocessor(array(
+      'record_invocation_1' => array($this, 'recordPreprocessorInvocation'),
+      'substitute_1' => function ($definition, $priority, $key, $enqueue) use ($substitute_1) {
+        return $substitute_1;
+      },
+      'record_invocation_2' => array($this, 'recordPreprocessorInvocation'),
+      'substitute_2' => function ($definition, $priority, $key, $enqueue) use ($substitute_2) {
+        return $substitute_2;
+      },
+      'record_invocation_3' => array($this, 'recordPreprocessorInvocation'),
+    ));
+    $resources = $preproc->preprocess($definition);
+
+    $this->assertEqual($expect_resources, $resources);
+    $this->assertPreprocessorInvocations($expect_invocations);
+  }
+}

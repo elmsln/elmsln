@@ -1,0 +1,106 @@
+<?php
+/**
+ * @file
+ * Authcache support for poll module.
+ */
+
+/**
+ * Implements hook_authcache_p13n_fragment().
+ */
+function authcache_poll_authcache_p13n_fragment() {
+  return array(
+    'poll-view' => array(
+      'admin group' => t('Poll'),
+      'admin name' => t('Poll form or result'),
+      'fragment' => array(
+        '#class' => 'AuthcachePollFragment',
+      ),
+      'bootstrap phase' => DRUPAL_BOOTSTRAP_FULL,
+      'cache maxage' => 600,
+    ),
+    'poll-result' => array(
+      'admin group' => t('Poll'),
+      'admin name' => t('Poll result'),
+      'fragment' => array(
+        '#class' => 'AuthcachePollFragment',
+        '#arguments' => array(TRUE),
+      ),
+      'bootstrap phase' => DRUPAL_BOOTSTRAP_FULL,
+      'cache maxage' => 600,
+    ),
+  );
+}
+
+/**
+ * Implements hook_block_view_MODULE_DELTA_alter().
+ */
+function authcache_poll_block_view_poll_recent_alter(&$data, $block) {
+  if (authcache_page_is_cacheable()) {
+    authcache_cancel(t('FIXME: authcache_poll_block_view_poll_recent_alter not implemented yet'));
+  }
+}
+
+/**
+ * Implements hook_node_view_alter().
+ *
+ * Replace poll form and result view with a span which will be populated with
+ * its actual content during the ajax phase.
+ */
+function authcache_poll_node_view_alter(&$build) {
+  $node = $build['#node'];
+
+  if ($node->type === 'poll' && authcache_page_is_cacheable()) {
+    if (isset($build['poll_view_voting'])) {
+      authcache_p13n_attach($build['poll_view_voting'], array(
+        '#theme' => 'authcache_p13n_fragment',
+        '#fragment' => 'poll-view',
+        '#param' => $node->nid,
+        '#fallback' => 'cancel',
+      ));
+    }
+    if (isset($build['poll_view_results'])) {
+      $router_item = menu_get_item();
+      $fragment = $router_item['page_callback'] === 'poll_results' ? 'poll-result' : 'poll-view';
+      authcache_p13n_attach($build['poll_view_results'], array(
+        '#theme' => 'authcache_p13n_fragment',
+        '#fragment' => $fragment,
+        '#param' => $node->nid,
+        '#fallback' => 'cancel',
+      ));
+    }
+  }
+}
+
+/**
+ * Implements hook_form_FORM_ID_alter().
+ */
+function authcache_poll_form_poll_view_voting_alter(&$form, &$form_state) {
+  $form['vote']['#submit'][] = 'authcache_poll_session_invalidate';
+}
+
+/**
+ * Implements hook_form_FORM_ID_alter().
+ */
+function authcache_poll_form_poll_cancel_form_alter(&$form, &$form_state) {
+  $form['actions']['submit']['#submit'][] = 'authcache_poll_cache_clear_all';
+  $form['actions']['submit']['#submit'][] = 'authcache_poll_session_invalidate';
+}
+
+/**
+ * Expire external caches after poll-form submission.
+ */
+function authcache_poll_session_invalidate() {
+  authcache_p13n_session_invalidate();
+}
+
+/**
+ * Invalidate page cache when a vote was canceled.
+ *
+ * Most probably this is an oversight in poll.module. While poll_vote() clears
+ * the cache, poll_cancel does not. Drupal core does not serve stale caches to
+ * anonymous users only because poll stores votes into $_SESSION effectively
+ * deactivating page caching.
+ */
+function authcache_poll_cache_clear_all() {
+  cache_clear_all();
+}

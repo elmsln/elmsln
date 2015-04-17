@@ -1,0 +1,159 @@
+<?php
+/**
+ * @file
+ * Test cases for the Authcache User module.
+ */
+
+/**
+ * Tests for markup substitution.
+ */
+class AuthcacheUserTest extends DrupalWebTestCase {
+  protected $stubmod;
+  protected $member;
+  protected $node;
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function getInfo() {
+    return array(
+      'name' => 'Authcache User',
+      'description' => 'Test markup substitution and fragment generation for currently logged in user',
+      'group' => 'Authcache User',
+    );
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function setUp() {
+    parent::setUp(array(
+      'authcache_p13n_test',
+      'authcache_user',
+      'contact',
+    ));
+
+    $this->member1 = $this->drupalCreateUser(array(
+      'access user contact forms',
+      'access site-wide contact form',
+    ));
+    $this->member2 = $this->drupalCreateUser(array(
+      'access user contact forms',
+      'access site-wide contact form',
+    ));
+    $this->node = $this->drupalCreateNode(array(
+      'type' => 'article',
+      'promote' => 1,
+      'uid' => 1,
+    ));
+
+    $authcache_roles = array(
+      DRUPAL_ANONYMOUS_RID => DRUPAL_ANONYMOUS_RID,
+      DRUPAL_AUTHENTICATED_RID => DRUPAL_AUTHENTICATED_RID,
+    ) + $this->member1->roles + $this->member2->roles;
+
+    // Setup authcache.
+    variable_set('authcache_roles', $authcache_roles);
+    $pagecaching = _authcache_default_pagecaching();
+    $pagecaching[0]['roles']['roles'] = $authcache_roles;
+    $pagecaching[0]['pages'] = '';
+    variable_set('authcache_pagecaching', $pagecaching);
+
+    // HookStub.
+    $this->stubmod = new ModuleStub('authcache_p13n_test');
+  }
+
+  /**
+   * Test whether the given stub passes the invocation verifier.
+   */
+  protected function assertStub(HookStubProxy $stub, $verifier, $message = NULL) {
+    $result = $stub->verify($verifier, $error);
+
+    if (!$message) {
+      $message = t('Verify invocation of hook @hook.', array('@hook' => $stub->hookname()));
+    }
+    if (!$result && is_string($error)) {
+      $message .= ' ' . $error;
+    }
+
+    $this->assertTrue($result, $message);
+  }
+
+  /**
+   * Ensure that user setting is embedded for authenticated users.
+   */
+  public function testSiteContactForm() {
+    $this->stubmod->hook('authcache_p13n_client', array(
+      'authcache_p13n_test' => array(
+        'title' => t('Test Client'),
+        'enabled' => TRUE,
+      ),
+    ));
+
+    // Ensure that the setting is not added when accessing the site wide contact
+    // form with anonymous user.
+    $setting_markup = $this->randomName(8);
+    $setting_stub = HookStub::on('theme_authcache_p13n_setting__authcache_p13n_test', $setting_markup);
+    $this->drupalGet('contact');
+    $this->assertNoText($setting_markup);
+    $this->assertStub($setting_stub, HookStub::never());
+
+    // Then ensure that the setting is added when the site wide contact form is
+    // accessed with authenticated user.
+    $this->drupalLogin($this->member1);
+
+    $setting_markup = $this->randomName(8);
+    $setting_stub = HookStub::on('theme_authcache_p13n_setting__authcache_p13n_test', $setting_markup);
+    $this->drupalGet('contact');
+    $this->assertNoText($this->member1->name);
+    $this->assertNoText($this->member1->mail);
+    $this->assertText($setting_markup);
+    $this->assertStub($setting_stub, HookStub::once());
+  }
+
+  /**
+   * Ensure that user setting is embedded for authenticated users.
+   */
+  public function testUserContactForm() {
+    $this->stubmod->hook('authcache_p13n_client', array(
+      'authcache_p13n_test' => array(
+        'title' => t('Test Client'),
+        'enabled' => TRUE,
+      ),
+    ));
+
+    // Then ensure that the setting is added when the site wide contact form is
+    // accessed with authenticated user.
+    $this->drupalLogin($this->member1);
+
+    $setting_markup = $this->randomName(8);
+    $setting_stub = HookStub::on('theme_authcache_p13n_setting__authcache_p13n_test', $setting_markup);
+    $this->drupalGet('user/' . $this->member2->uid . '/contact');
+    $this->assertNoText($this->member1->name);
+    $this->assertNoText($this->member1->mail);
+    $this->assertText($setting_markup);
+    $this->assertStub($setting_stub, HookStub::once());
+  }
+
+  /**
+   * User settings callback should return uid, name and mail of logged-in user.
+   */
+  public function testUserSettingsCallback() {
+    $this->drupalLogin($this->member1);
+
+    $url = authcache_p13n_request_get_callback('setting/user', NULL);
+    $this->assertTrue($url);
+
+    // First request should report seeded timestamp.
+    $result = $this->drupalGetAjax($GLOBALS['base_root'] . $url['path'], $url['options'], array('X-Authcache: 1'));
+    $this->assertResponse(200);
+    $expect = array(
+      'authcacheUser' => array(
+        'uid' => $this->member1->uid,
+        'name' => $this->member1->name,
+        'mail' => $this->member1->mail,
+      ),
+    );
+    $this->assertEqual($expect, $result);
+  }
+}

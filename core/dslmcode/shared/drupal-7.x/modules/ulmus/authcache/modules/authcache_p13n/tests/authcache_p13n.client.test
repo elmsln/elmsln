@@ -1,0 +1,183 @@
+<?php
+/**
+ * @file
+ * Defines tests for markup replacement clients.
+ */
+
+/**
+ * Tests update functionality unrelated to the database.
+ */
+class AuthcacheP13nTestClient extends DrupalWebTestCase {
+  protected $profile = 'testing';
+  protected $stubmod;
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function getInfo() {
+    return array(
+      'name' => 'Client Order',
+      'description' => 'Test API for cache client modules (ajax/esi)',
+      'group' => 'Authcache Personalization',
+    );
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function setUp() {
+    parent::setUp('authcache_p13n', 'authcache_p13n_test', 'authcache_test_hookstub');
+
+    // HookStub.
+    $this->stubmod = new ModuleStub('authcache_p13n_test');
+  }
+
+  /**
+   * Test whether the given stub passes the invocation verifier.
+   */
+  protected function assertStub(HookStubProxy $stub, $verifier, $message = NULL) {
+    $result = $stub->verify($verifier, $error);
+
+    if (!$message) {
+      $message = t('Verify invocation of hook @hook.', array('@hook' => $stub->hookname()));
+    }
+    if (!$result && is_string($error)) {
+      $message .= ' ' . $error;
+    }
+
+    $this->assertTrue($result, $message);
+  }
+
+  /**
+   * Cover authcache_p13n_client_info().
+   *
+   * Also cover hook_authcache_p13n_client() and
+   * hook_authcache_p13n_client_alter().
+   */
+  public function testHookClientInfo() {
+    $client_info = array(
+      'authcache_ajax' => array(
+        'title' => 'Ajax',
+        'enabled' => TRUE,
+      ),
+      'authcache_esi' => array(
+        'title' => 'ESI',
+        'enabled' => TRUE,
+      ),
+    );
+
+    $client_info_stub = $this->stubmod->hook('authcache_p13n_client', $client_info);
+    $client_info_alter_stub = $this->stubmod->hook('authcache_p13n_client_alter');
+
+    $result = authcache_p13n_client_info();
+    $this->assertNotNull($result);
+
+    $this->assertStub($client_info_stub, HookStub::once());
+    $expect_args = array($client_info, NULL, NULL, NULL);
+    $this->assertStub($client_info_alter_stub, HookStub::args($expect_args));
+  }
+
+  /**
+   * Cover authcache_p13n_client_get_preferred().
+   *
+   * Also cover hook_authcache_p13n_client_order() with default client_info.
+   */
+  public function testGetPreferredClientDefaultClientList() {
+    $client_info = array(
+      'enabled_client' => array(
+        'title' => 'This client is enabled',
+        'enabled' => TRUE,
+        'weight' => 10,
+      ),
+      'disabled_client' => array(
+        'title' => 'That one is disabled',
+        'enabled' => FALSE,
+        'weight' => 5,
+      ),
+      'also_enabled_client' => array(
+        'title' => 'Also enabled',
+        'enabled' => TRUE,
+        'weight' => 0,
+      ),
+      'invalid_client' => array(
+        'title' => 'Enable flag missing',
+        'weight' => -5,
+      ),
+    );
+
+    $alter_info = array(
+      'enabled_client' => $client_info['enabled_client'],
+      'also_enabled_client' => $client_info['also_enabled_client'],
+    );
+
+    $client_info_stub = $this->stubmod->hook('authcache_p13n_client', $client_info);
+    $client_order_alter_stub = $this->stubmod->hook('authcache_p13n_client_order_alter');
+
+    $result = authcache_p13n_client_get_preferred('fragment', 'some');
+    $this->assertEqual('also_enabled_client', $result);
+
+    $this->assertStub($client_info_stub, HookStub::once());
+    $expect_args = array($alter_info, 'fragment', 'some', NULL);
+    $this->assertStub($client_order_alter_stub, HookStub::args($expect_args));
+  }
+
+  /**
+   * Cover authcache_p13n_client_get_preferred() with custom list.
+   */
+  public function testGetPreferredClientCustomList() {
+    $client_info = array(
+      'enabled_client' => array(
+        'title' => 'This client is enabled',
+        'enabled' => TRUE,
+        'weight' => 10,
+      ),
+      'disabled_client' => array(
+        'title' => 'That one is disabled',
+        'enabled' => FALSE,
+        'weight' => 5,
+      ),
+      'also_enabled_client' => array(
+        'title' => 'Also enabled',
+        'enabled' => TRUE,
+        'weight' => 0,
+      ),
+      'invalid_client' => array(
+        'title' => 'Enable flag missing',
+        'weight' => -5,
+      ),
+      'another_enabled_client' => array(
+        'title' => 'Third enabled client',
+        'enabled' => TRUE,
+        'weight' => -10,
+      ),
+    );
+
+    $custom_client_info = array(
+      'enabled_client' => array(
+        'weight' => -20,
+      ),
+      'disabled_client' => array(
+        'status' => 1,
+      ),
+      'also_enabled_client' => array(
+        'status' => 1,
+      ),
+      'additional_client' => array(
+        'status' => 1,
+        'weight' => -10,
+      ),
+    );
+
+    $alter_info = $custom_client_info;
+
+    $client_info_stub = $this->stubmod->hook('authcache_p13n_client', $client_info);
+    $client_order_alter_stub = $this->stubmod->hook('authcache_p13n_client_order_alter');
+
+    $result = authcache_p13n_client_get_preferred('fragment', 'some', $custom_client_info);
+    $this->assertEqual('enabled_client', $result);
+
+    $this->assertStub($client_info_stub, HookStub::once());
+    $expect_args = array($alter_info, 'fragment', 'some', NULL);
+    $this->assertStub($client_order_alter_stub, HookStub::args($expect_args));
+  }
+}

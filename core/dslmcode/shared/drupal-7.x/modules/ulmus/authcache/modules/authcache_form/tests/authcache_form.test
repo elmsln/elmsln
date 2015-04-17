@@ -1,0 +1,801 @@
+<?php
+/**
+ * @file
+ * Test classes for Authcache Form module.
+ */
+
+/**
+ * Test helper functions
+ */
+class AuthcacheFormTestHelpers extends DrupalWebTestCase {
+  protected $profile = 'testing';
+
+  /**
+   * Return information about the test class.
+   */
+  public static function getInfo() {
+    return array(
+      'name' => 'Form helpers',
+      'description' => 'Helper functions for form handling',
+      'group' => 'Authcache Form',
+    );
+  }
+
+  /**
+   * Setup test class.
+   */
+  public function setUp() {
+    parent::setUp('authcache_form', 'authcache_backend_test');
+  }
+
+  /**
+   * Cover _authcache_form_match_form_id().
+   */
+  public function testFormMatchFormID() {
+    $patterns = implode("\n", array('some-form', '*-with-prefix')) . "\n";
+    $patterns .= implode("\r\n", array('X*Y*Z', 'with-suffix-*')) . "\r\n";
+
+    $tests = array(
+      'no-match' => FALSE,
+      'some-form' => TRUE,
+      '-with-prefix' => TRUE,
+      'form-id-with-prefix' => TRUE,
+      'XYZ' => TRUE,
+      'XweirdYform-idZ' => TRUE,
+      'with-suffix-' => TRUE,
+      'with-suffix-bla' => TRUE,
+    );
+
+    foreach ($tests as $form_id => $expect) {
+      $result = _authcache_form_match_form_id($form_id, $patterns);
+      $this->assertEqual($expect, $result);
+    }
+  }
+
+  /**
+   * Cover _authcache_form_allow_notoken().
+   */
+  public function testFormAllowNotoken() {
+    variable_set('authcache_form_notoken', 'notoken-form-id');
+
+    $auser = $this->drupalCreateUser();
+    // Work around #1873606.
+    user_save($auser, array('roles' => array(DRUPAL_AUTHENTICATED_RID => DRUPAL_AUTHENTICATED_RID)));
+    $puser = $this->drupalCreateUser(array('access content'));
+    $admin = $this->drupalCreateUser(array('administer nodes'));
+
+    $noroles = array();
+    $onlyauser = $auser->roles;
+    $onlypuser = $puser->roles; unset($onlypuser[DRUPAL_AUTHENTICATED_RID]);
+    $allusers = $onlyauser + $onlypuser;
+
+    // All users but admin are allowed.
+    variable_set('authcache_roles', $allusers);
+
+    variable_set('authcache_form_notoken_roles', array(
+      'custom' => TRUE,
+      'roles' => $noroles,
+    ));
+
+    $result = _authcache_form_allow_notoken('some-form-id', $auser);
+    $this->assertFalse($result);
+    $result = _authcache_form_allow_notoken('some-form-id', $puser);
+    $this->assertFalse($result);
+    $result = _authcache_form_allow_notoken('some-form-id', $admin);
+    $this->assertFalse($result);
+
+    $result = _authcache_form_allow_notoken('notoken-form-id', $auser);
+    $this->assertFalse($result);
+    $result = _authcache_form_allow_notoken('notoken-form-id', $puser);
+    $this->assertFalse($result);
+    $result = _authcache_form_allow_notoken('notoken-form-id', $admin);
+    $this->assertFalse($result);
+
+    variable_set('authcache_form_notoken_roles', array(
+      'custom' => TRUE,
+      'roles' => $onlyauser,
+    ));
+
+    $result = _authcache_form_allow_notoken('some-form-id', $auser);
+    $this->assertFalse($result);
+    $result = _authcache_form_allow_notoken('some-form-id', $puser);
+    $this->assertFalse($result);
+    $result = _authcache_form_allow_notoken('some-form-id', $admin);
+    $this->assertFalse($result);
+
+    $result = _authcache_form_allow_notoken('notoken-form-id', $auser);
+    $this->assertTrue($result);
+    $result = _authcache_form_allow_notoken('notoken-form-id', $puser);
+    $this->assertFalse($result);
+    $result = _authcache_form_allow_notoken('notoken-form-id', $admin);
+    $this->assertFalse($result);
+
+    variable_set('authcache_form_notoken_roles', array(
+      'custom' => TRUE,
+      'roles' => $onlypuser,
+    ));
+
+    $result = _authcache_form_allow_notoken('some-form-id', $auser);
+    $this->assertFalse($result);
+    $result = _authcache_form_allow_notoken('some-form-id', $puser);
+    $this->assertFalse($result);
+    $result = _authcache_form_allow_notoken('some-form-id', $admin);
+    $this->assertFalse($result);
+
+    $result = _authcache_form_allow_notoken('notoken-form-id', $auser);
+    $this->assertFalse($result);
+    $result = _authcache_form_allow_notoken('notoken-form-id', $puser);
+    $this->assertTrue($result);
+    $result = _authcache_form_allow_notoken('notoken-form-id', $admin);
+    $this->assertFalse($result);
+
+    variable_del('authcache_form_notoken_roles');
+
+    $result = _authcache_form_allow_notoken('some-form-id', $auser);
+    $this->assertFalse($result);
+    $result = _authcache_form_allow_notoken('some-form-id', $puser);
+    $this->assertFalse($result);
+    $result = _authcache_form_allow_notoken('some-form-id', $admin);
+    $this->assertFalse($result);
+
+    $result = _authcache_form_allow_notoken('notoken-form-id', $auser);
+    $this->assertTrue($result);
+    $result = _authcache_form_allow_notoken('notoken-form-id', $puser);
+    $this->assertTrue($result);
+    $result = _authcache_form_allow_notoken('notoken-form-id', $admin);
+    $this->assertFalse($result);
+  }
+
+  /**
+   * Cover _authcache_form_allow_p13n().
+   */
+  public function testFormAllowP13n() {
+    variable_set('authcache_form_notoken', 'notoken-form-id');
+
+    $auser = $this->drupalCreateUser();
+    // Work around #1873606.
+    user_save($auser, array('roles' => array(DRUPAL_AUTHENTICATED_RID => DRUPAL_AUTHENTICATED_RID)));
+    $puser = $this->drupalCreateUser(array('access content'));
+    $admin = $this->drupalCreateUser(array('administer nodes'));
+
+    $noroles = array();
+    $onlyauser = $auser->roles;
+    $onlypuser = $puser->roles; unset($onlypuser[DRUPAL_AUTHENTICATED_RID]);
+    $allusers = $onlyauser + $onlypuser;
+
+    // All users but admin are allowed.
+    variable_set('authcache_roles', $allusers);
+
+    // First pass: authcache personalization module disabled.
+    variable_set('authcache_form_roles', array(
+      'custom' => TRUE,
+      'roles' => $noroles,
+    ));
+
+    $result = _authcache_form_allow_p13n('ignored-form-id', $auser);
+    $this->assertFalse($result);
+    $result = _authcache_form_allow_p13n('ignored-form-id', $puser);
+    $this->assertFalse($result);
+    $result = _authcache_form_allow_p13n('ignored-form-id', $admin);
+    $this->assertFalse($result);
+
+    variable_set('authcache_form_roles', array(
+      'custom' => TRUE,
+      'roles' => $onlyauser,
+    ));
+
+    $result = _authcache_form_allow_p13n('ignored-form-id', $auser);
+    $this->assertFalse($result);
+    $result = _authcache_form_allow_p13n('ignored-form-id', $puser);
+    $this->assertFalse($result);
+    $result = _authcache_form_allow_p13n('ignored-form-id', $admin);
+    $this->assertFalse($result);
+
+    variable_set('authcache_form_roles', array(
+      'custom' => TRUE,
+      'roles' => $onlypuser,
+    ));
+
+    $result = _authcache_form_allow_p13n('ignored-form-id', $auser);
+    $this->assertFalse($result);
+    $result = _authcache_form_allow_p13n('ignored-form-id', $puser);
+    $this->assertFalse($result);
+    $result = _authcache_form_allow_p13n('ignored-form-id', $admin);
+    $this->assertFalse($result);
+
+    variable_del('authcache_form_roles');
+
+    $result = _authcache_form_allow_p13n('ignored-form-id', $auser);
+    $this->assertFalse($result);
+    $result = _authcache_form_allow_p13n('ignored-form-id', $puser);
+    $this->assertFalse($result);
+    $result = _authcache_form_allow_p13n('ignored-form-id', $admin);
+    $this->assertFalse($result);
+
+    // Second pass: authcache personalization module enabled.
+    module_enable(array('authcache_p13n'));
+    $this->resetAll();
+
+    variable_set('authcache_form_roles', array(
+      'custom' => TRUE,
+      'roles' => $noroles,
+    ));
+
+    $result = _authcache_form_allow_p13n('ignored-form-id', $auser);
+    $this->assertFalse($result);
+    $result = _authcache_form_allow_p13n('ignored-form-id', $puser);
+    $this->assertFalse($result);
+    $result = _authcache_form_allow_p13n('ignored-form-id', $admin);
+    $this->assertFalse($result);
+
+    variable_set('authcache_form_roles', array(
+      'custom' => TRUE,
+      'roles' => $onlyauser,
+    ));
+
+    $result = _authcache_form_allow_p13n('ignored-form-id', $auser);
+    $this->assertTrue($result);
+    $result = _authcache_form_allow_p13n('ignored-form-id', $puser);
+    $this->assertFalse($result);
+    $result = _authcache_form_allow_p13n('ignored-form-id', $admin);
+    $this->assertFalse($result);
+
+    variable_set('authcache_form_roles', array(
+      'custom' => TRUE,
+      'roles' => $onlypuser,
+    ));
+
+    $result = _authcache_form_allow_p13n('ignored-form-id', $auser);
+    $this->assertFalse($result);
+    $result = _authcache_form_allow_p13n('ignored-form-id', $puser);
+    $this->assertTrue($result);
+    $result = _authcache_form_allow_p13n('ignored-form-id', $admin);
+    $this->assertFalse($result);
+
+    variable_del('authcache_form_roles');
+
+    $result = _authcache_form_allow_p13n('ignored-form-id', $auser);
+    $this->assertTrue($result);
+    $result = _authcache_form_allow_p13n('ignored-form-id', $puser);
+    $this->assertTrue($result);
+    $result = _authcache_form_allow_p13n('ignored-form-id', $admin);
+    $this->assertFalse($result);
+
+    module_disable(array('authcache_p13n'));
+    $this->resetAll();
+  }
+}
+
+
+/**
+ * Test base form id token.
+ */
+class AuthcacheFormTestBaseFormIdToken extends DrupalWebTestCase {
+  protected $profile = 'testing';
+  protected $stubmod;
+
+  /**
+   * Return information about the test class.
+   */
+  public static function getInfo() {
+    return array(
+      'name' => 'Base form id token',
+      'description' => 'Use the same CSRF token for all forms derived from a common base form',
+      'group' => 'Authcache Form',
+    );
+  }
+
+  /**
+   * Setup test class.
+   */
+  public function setUp() {
+    parent::setUp('authcache_form', 'authcache_form_test');
+
+    // HookStub.
+    $this->stubmod = new ModuleStub('authcache_form_test');
+  }
+
+  /**
+   * Test whether the given stub passes the invocation verifier.
+   */
+  protected function assertStub(HookStubProxy $stub, $verifier, $message = NULL) {
+    $result = $stub->verify($verifier, $error);
+
+    if (!$message) {
+      $message = t('Verify invocation of hook @hook.', array('@hook' => $stub->hookname()));
+    }
+    if (!$result && is_string($error)) {
+      $message .= ' ' . $error;
+    }
+
+    $this->assertTrue($result, $message);
+  }
+
+  /**
+   * Test token removal functionality.
+   */
+  public function testBaseFormId() {
+    $admin = $this->drupalCreateUser(array('administer nodes'));
+
+    $user = $this->drupalCreateUser();
+    // Work around #1873606
+    user_save($user, array('roles' => array(DRUPAL_AUTHENTICATED_RID => DRUPAL_AUTHENTICATED_RID)));
+
+    $forms = array(
+      'authcache_form_test_form_1' => array(
+        'callback' => 'authcache_form_test_form',
+      ),
+      'authcache_form_test_form_2' => array(
+        'callback' => 'authcache_form_test_form',
+      ),
+    );
+    $this->stubmod->hook('forms', $forms);
+
+    $form = array(
+      'submit' => array(
+        '#type' => 'submit',
+        '#value' => t('Test'),
+      ),
+    );
+    $this->stubmod->hook('form', $form);
+
+    // Setup authcache roles.
+    variable_set('authcache_roles', $user->roles + array(DRUPAL_ANONYMOUS_RID => DRUPAL_ANONYMOUS_RID));
+
+    // Without any additional measures, base form id should be used for
+    // generating the form tokens.
+    $this->drupalLogin($user);
+    $this->drupalGet('authcache-form-test-multiple-forms/authcache_form_test_form_1/authcache_form_test_form_2');
+    // Assert that both forms use the same form token.
+    $form_token_values = $this->xpath('//form//input[@name="form_token"]/@value');
+    $this->assertEqual(2, count($form_token_values), 'Two form token fields on the page');
+    $token_0 = (string) $form_token_values[0];
+    $token_1 = (string) $form_token_values[1];
+    $this->assertTrue($token_0);
+    $this->assertTrue($token_1);
+    $this->assertIdentical($token_0, $token_1);
+    $this->drupalLogout();
+
+    // However, form tokens should not be altered for users with uncacheable
+    // roles.
+    $this->drupalLogin($admin);
+    $this->drupalGet('authcache-form-test-multiple-forms/authcache_form_test_form_1/authcache_form_test_form_2');
+    // FIXME: Assert that both forms use different form tokens.
+    $form_token_values = $this->xpath('//form//input[@name="form_token"]/@value');
+    $this->assertEqual(2, count($form_token_values), 'Two form token fields on the page');
+    $token_0 = (string) $form_token_values[0];
+    $token_1 = (string) $form_token_values[1];
+    $this->assertTrue($token_0);
+    $this->assertTrue($token_1);
+    $this->assertNotEqual($token_0, $token_1);
+    $this->drupalLogout();
+
+    // Now disable the functionality by setting allowed base forms to an empty
+    // string.
+    variable_set('authcache_form_base_id_token', '');
+
+    $this->drupalLogin($user);
+    $this->drupalGet('authcache-form-test-multiple-forms/authcache_form_test_form_1/authcache_form_test_form_2');
+    // FIXME: Assert that both forms use different form tokens.
+    $form_token_values = $this->xpath('//form//input[@name="form_token"]/@value');
+    $this->assertEqual(2, count($form_token_values), 'Two form token fields on the page');
+    $token_0 = (string) $form_token_values[0];
+    $token_1 = (string) $form_token_values[1];
+    $this->assertTrue($token_0);
+    $this->assertTrue($token_1);
+    $this->assertNotEqual($token_0, $token_1);
+    $this->drupalLogout();
+  }
+}
+
+/**
+ * Test form token removal method
+ */
+class AuthcacheFormTestTokenRemoval extends DrupalWebTestCase {
+  protected $profile = 'testing';
+  protected $stubmod;
+
+  /**
+   * Return information about the test class.
+   */
+  public static function getInfo() {
+    return array(
+      'name' => 'Form token removal',
+      'description' => 'Make forms cacheable by removing CSRF form tokens',
+      'group' => 'Authcache Form',
+    );
+  }
+
+  /**
+   * Setup test class.
+   */
+  public function setUp() {
+    parent::setUp('authcache_form', 'authcache_form_test');
+
+    // HookStub.
+    $this->stubmod = new ModuleStub('authcache_form_test');
+  }
+
+  /**
+   * Test whether the given stub passes the invocation verifier.
+   */
+  protected function assertStub(HookStubProxy $stub, $verifier, $message = NULL) {
+    $result = $stub->verify($verifier, $error);
+
+    if (!$message) {
+      $message = t('Verify invocation of hook @hook.', array('@hook' => $stub->hookname()));
+    }
+    if (!$result && is_string($error)) {
+      $message .= ' ' . $error;
+    }
+
+    $this->assertTrue($result, $message);
+  }
+
+  /**
+   * Test token removal functionality.
+   */
+  public function testTokenRemoval() {
+    $user = $this->drupalCreateUser();
+    // Work around #1873606
+    user_save($user, array('roles' => array(DRUPAL_AUTHENTICATED_RID => DRUPAL_AUTHENTICATED_RID)));
+
+    $form = array(
+      'submit' => array(
+        '#type' => 'submit',
+        '#value' => t('Test'),
+      ),
+    );
+    $this->stubmod->hook('form', $form);
+
+    // Setup authcache roles.
+    variable_set('authcache_roles', $user->roles + array(DRUPAL_ANONYMOUS_RID => DRUPAL_ANONYMOUS_RID));
+
+    // Without any additional mesures, form should be submittable by anonymous
+    // users but not by authenticated users.
+    $excluded_stub = $this->stubmod->hook('authcache_excluded');
+    $canceled_stub = $this->stubmod->hook('authcache_canceled');
+    $this->drupalGet('authcache-form-test-form');
+    $this->assertNoField('form_token');
+    $this->assertStub($excluded_stub, HookStub::never());
+    $this->assertStub($canceled_stub, HookStub::never());
+
+    $this->drupalLogin($user);
+    $excluded_stub = $this->stubmod->hook('authcache_excluded');
+    $canceled_stub = $this->stubmod->hook('authcache_canceled');
+    $this->drupalGet('authcache-form-test-form');
+    $this->assertField('form_token');
+    $this->assertStub($excluded_stub, HookStub::never());
+    $this->assertStub($canceled_stub, HookStub::once());
+    $this->drupalLogout();
+
+    // Now setup authcache and authcache_form for authenticated users.
+    variable_set('authcache_form_notoken', 'authcache_form_test_form');
+    variable_set('authcache_form_notoken_roles', array(
+      'custom' => TRUE,
+      'roles' => $user->roles,
+    ));
+
+    // Form should be submittable by both, anonymous and authenticated users
+    // and form_token should not be present anymore on form for authenticated
+    // users.
+    $excluded_stub = $this->stubmod->hook('authcache_excluded');
+    $canceled_stub = $this->stubmod->hook('authcache_canceled');
+    $this->drupalGet('authcache-form-test-form');
+    $this->assertNoField('form_token');
+    $this->assertStub($excluded_stub, HookStub::never());
+    $this->assertStub($canceled_stub, HookStub::never());
+
+    $this->drupalLogin($user);
+    $excluded_stub = $this->stubmod->hook('authcache_excluded');
+    $canceled_stub = $this->stubmod->hook('authcache_canceled');
+    $this->drupalGet('authcache-form-test-form');
+    $this->assertNoField('form_token');
+    $this->assertStub($excluded_stub, HookStub::never());
+    $this->assertStub($canceled_stub, HookStub::never());
+    $this->drupalLogout();
+  }
+}
+
+
+/**
+ * Test defer form tokens
+ */
+class AuthcacheFormTestTokenDeferral extends DrupalWebTestCase {
+  protected $profile = 'testing';
+  protected $stubmod;
+
+  /**
+   * Return information about the test class.
+   */
+  public static function getInfo() {
+    return array(
+      'name' => 'Form token defer',
+      'description' => 'Defer retrieval of form tokens to AJAX/ESI phase',
+      'group' => 'Authcache Form',
+    );
+  }
+
+  /**
+   * Setup test class.
+   */
+  public function setUp() {
+    parent::setUp('authcache_form', 'authcache_p13n', 'authcache_form_test');
+
+    // HookStub.
+    $this->stubmod = new ModuleStub('authcache_form_test');
+  }
+
+  /**
+   * Test whether the given stub passes the invocation verifier.
+   */
+  protected function assertStub(HookStubProxy $stub, $verifier, $message = NULL) {
+    $result = $stub->verify($verifier, $error);
+
+    if (!$message) {
+      $message = t('Verify invocation of hook @hook.', array('@hook' => $stub->hookname()));
+    }
+    if (!$result && is_string($error)) {
+      $message .= ' ' . $error;
+    }
+
+    $this->assertTrue($result, $message);
+  }
+
+  /**
+   * Test token deferral functionality.
+   */
+  public function testTokenDefer() {
+    $user = $this->drupalCreateUser();
+    // Work around #1873606
+    user_save($user, array('roles' => array(DRUPAL_AUTHENTICATED_RID => DRUPAL_AUTHENTICATED_RID)));
+
+    $form = array(
+      'submit' => array(
+        '#type' => 'submit',
+        '#value' => t('Test'),
+      ),
+    );
+    $this->stubmod->hook('form', $form);
+
+    // Setup authcache roles.
+    variable_set('authcache_roles', $user->roles + array(DRUPAL_ANONYMOUS_RID => DRUPAL_ANONYMOUS_RID));
+
+    // Without any additional mesures, form should be submittable by anonymous
+    // users but not by authenticated users.
+    $excluded_stub = $this->stubmod->hook('authcache_excluded');
+    $canceled_stub = $this->stubmod->hook('authcache_canceled');
+    $this->drupalGet('authcache-form-test-form');
+    $this->assertNoField('form_token');
+    $this->assertStub($excluded_stub, HookStub::never());
+    $this->assertStub($canceled_stub, HookStub::never());
+
+    $this->drupalLogin($user);
+    $excluded_stub = $this->stubmod->hook('authcache_excluded');
+    $canceled_stub = $this->stubmod->hook('authcache_canceled');
+    $this->drupalGet('authcache-form-test-form');
+    $this->assertField('form_token');
+    $this->assertStub($excluded_stub, HookStub::never());
+    $this->assertStub($canceled_stub, HookStub::once());
+    $this->drupalLogout();
+
+    // Now setup markup substitution.
+    $clients = array(
+      'authcache_form_test' => array(
+        'title' => 'Authcache form test stub',
+        'enabled' => TRUE,
+      ),
+    );
+    $this->stubmod->hook('authcache_p13n_client', $clients);
+    $id = $this->randomName(8);
+    $markup = '<span ' . drupal_attributes(array('id' => $id)) . '></span>';
+    HookStub::on('theme_authcache_p13n_fragment__authcache_form_test', $markup);
+
+    // Form should be submittable by both, anonymous and authenticated users
+    // and form_token should not be present anymore on form for authenticated
+    // users.
+    $excluded_stub = $this->stubmod->hook('authcache_excluded');
+    $canceled_stub = $this->stubmod->hook('authcache_canceled');
+    $this->drupalGet('authcache-form-test-form');
+    $this->assertNoField('form_token');
+    $this->assertEqual(0, count($this->xpath('//span[@id=:id]', array(':id' => $id))));
+    $this->assertStub($excluded_stub, HookStub::never());
+    $this->assertStub($canceled_stub, HookStub::never());
+
+    $this->drupalLogin($user);
+    $excluded_stub = $this->stubmod->hook('authcache_excluded');
+    $canceled_stub = $this->stubmod->hook('authcache_canceled');
+    $this->drupalGet('authcache-form-test-form');
+    $this->assertNoField('form_token');
+    $this->assertEqual(1, count($this->xpath('//span[@id=:id]', array(':id' => $id))));
+    $this->assertStub($excluded_stub, HookStub::never());
+    $this->assertStub($canceled_stub, HookStub::never());
+    $this->drupalLogout();
+
+    // Test form token retrieval.
+    $url = authcache_p13n_request_get_callback('frag/form-token', 'authcache-form-test-form');
+    $headers = array('X-Authcache: 1');
+    $this->drupalGet($GLOBALS['base_root'] . $url['path'], $url['options'], $headers);
+    $this->assertField('form_token');
+  }
+
+  /**
+   * Test functionality for form-build-id.
+   */
+  public function testCachedFormBuildID() {
+    $user = $this->drupalCreateUser();
+    // Work around #1873606
+    user_save($user, array('roles' => array(DRUPAL_AUTHENTICATED_RID => DRUPAL_AUTHENTICATED_RID)));
+
+    $build_id = 'simpletest-' . $this->randomName(16);
+
+    $form = array(
+      'submit' => array(
+        '#type' => 'submit',
+        '#value' => t('Test'),
+      ),
+      '#build_id' => $build_id,
+    );
+    $this->stubmod->hook('cached_form', $form);
+
+    // Setup authcache roles.
+    variable_set('authcache_roles', $user->roles + array(DRUPAL_ANONYMOUS_RID => DRUPAL_ANONYMOUS_RID));
+
+    // Without any additional mesures, form should be submittable by anonymous
+    // users but not by authenticated users.
+    $excluded_stub = $this->stubmod->hook('authcache_excluded');
+    $canceled_stub = $this->stubmod->hook('authcache_canceled');
+    $this->drupalGet('authcache-form-test-cached-form');
+    $this->assertNoField('form_token');
+    $this->assertField('form_build_id');
+    $this->assertStub($excluded_stub, HookStub::never());
+    $this->assertStub($canceled_stub, HookStub::never());
+
+    $this->drupalLogin($user);
+    $excluded_stub = $this->stubmod->hook('authcache_excluded');
+    $canceled_stub = $this->stubmod->hook('authcache_canceled');
+    $this->drupalGet('authcache-form-test-cached-form');
+    $this->assertField('form_token');
+    $this->assertField('form_build_id');
+    $this->assertStub($excluded_stub, HookStub::never());
+    $this->assertStub($canceled_stub, HookStub::once());
+    $this->drupalLogout();
+
+    // Now setup markup substitution.
+    variable_set('authcache_form_roles', $user->roles + array(DRUPAL_ANONYMOUS_RID => DRUPAL_ANONYMOUS_RID));
+    $clients = array(
+      'authcache_form_test' => array(
+        'title' => 'Authcache form test stub',
+        'enabled' => TRUE,
+      ),
+    );
+    $this->stubmod->hook('authcache_p13n_client', $clients);
+    $class = $this->randomName(8);
+    $markup = '<span ' . drupal_attributes(array('class' => array($class))) . '></span>';
+    HookStub::on('theme_authcache_p13n_fragment__authcache_form_test', $markup);
+
+    // With only markup-substitution, caching is still cancelled for
+    // authenticated users. Cached forms require the Cache Object API.
+    $excluded_stub = $this->stubmod->hook('authcache_excluded');
+    $canceled_stub = $this->stubmod->hook('authcache_canceled');
+    $this->drupalGet('authcache-form-test-cached-form');
+    $this->assertNoField('form_token');
+    $this->assertField('form_build_id');
+    $this->assertEqual(0, count($this->xpath('//span[@class=:class]', array(':class' => $class))));
+    $this->assertStub($excluded_stub, HookStub::never());
+    $this->assertStub($canceled_stub, HookStub::never());
+
+    $this->drupalLogin($user);
+    $excluded_stub = $this->stubmod->hook('authcache_excluded');
+    $canceled_stub = $this->stubmod->hook('authcache_canceled');
+    $this->drupalGet('authcache-form-test-cached-form');
+    $this->assertField('form_token');
+    $this->assertField('form_build_id');
+    $this->assertEqual(0, count($this->xpath('//span[@class=:class]', array(':class' => $class))));
+    $this->assertStub($excluded_stub, HookStub::never());
+    $this->assertStub($canceled_stub, HookStub::once());
+    $this->drupalLogout();
+
+    // Setup cache object API.
+    module_enable(array('cacheobject'));
+    variable_set('cache_class_cache_form', 'CacheObjectAPIWrapper');
+    variable_set('cacheobject_class_cache_form', 'DrupalDatabaseCache');
+    $this->resetAll();
+
+    // Test with Cache Object API.
+    $excluded_stub = $this->stubmod->hook('authcache_excluded');
+    $canceled_stub = $this->stubmod->hook('authcache_canceled');
+    $this->drupalGet('authcache-form-test-cached-form');
+    $this->assertNoField('form_token');
+    $this->assertField('form_build_id');
+    $this->assertEqual(0, count($this->xpath('//span[@class=:class]', array(':class' => $class))));
+    $this->assertStub($excluded_stub, HookStub::never());
+    $this->assertStub($canceled_stub, HookStub::never());
+
+    $this->drupalLogin($user);
+    $excluded_stub = $this->stubmod->hook('authcache_excluded');
+    $canceled_stub = $this->stubmod->hook('authcache_canceled');
+    $this->drupalGet('authcache-form-test-cached-form');
+    $this->assertNoField('form_token');
+    $this->assertField('form_build_id');
+    $this->assertEqual(1, count($this->xpath('//span[@class=:class]', array(':class' => $class))));
+    $this->assertStub($excluded_stub, HookStub::never());
+    $this->assertStub($canceled_stub, HookStub::never());
+    $this->drupalLogout();
+  }
+}
+
+
+/**
+ * Test defer form tokens
+ */
+class AuthcacheFormTestViewsExposedFilter extends DrupalWebTestCase {
+  protected $profile = 'testing';
+  protected $stubmod;
+
+  /**
+   * Return information about the test class.
+   */
+  public static function getInfo() {
+    return array(
+      'name' => 'Views exposed filter',
+      'description' => 'Test authcache on views exposed filter forms',
+      'group' => 'Authcache Form',
+    );
+  }
+
+  /**
+   * Setup test class.
+   */
+  public function setUp() {
+    parent::setUp('authcache_form', 'authcache_p13n', 'authcache_form_test');
+
+    // HookStub.
+    $this->stubmod = new ModuleStub('authcache_form_test');
+  }
+
+  /**
+   * Test whether the given stub passes the invocation verifier.
+   */
+  protected function assertStub(HookStubProxy $stub, $verifier, $message = NULL) {
+    $result = $stub->verify($verifier, $error);
+
+    if (!$message) {
+      $message = t('Verify invocation of hook @hook.', array('@hook' => $stub->hookname()));
+    }
+    if (!$result && is_string($error)) {
+      $message .= ' ' . $error;
+    }
+
+    $this->assertTrue($result, $message);
+  }
+
+  /**
+   * Test token deferral functionality.
+   */
+  public function testViewsExposedFilter() {
+    $user = $this->drupalCreateUser();
+    // Work around #1873606
+    user_save($user, array('roles' => array(DRUPAL_AUTHENTICATED_RID => DRUPAL_AUTHENTICATED_RID)));
+
+    // Setup authcache roles.
+    variable_set('authcache_roles', $user->roles + array(DRUPAL_ANONYMOUS_RID => DRUPAL_ANONYMOUS_RID));
+
+    $excluded_stub = $this->stubmod->hook('authcache_excluded');
+    $canceled_stub = $this->stubmod->hook('authcache_canceled');
+    $this->drupalGet('authcache-form-test-content-by-type');
+    $this->assertResponse(200);
+    $this->assertNoField('form_token');
+    $this->assertStub($excluded_stub, HookStub::never());
+    $this->assertStub($canceled_stub, HookStub::never());
+
+    $this->drupalLogin($user);
+    $excluded_stub = $this->stubmod->hook('authcache_excluded');
+    $canceled_stub = $this->stubmod->hook('authcache_canceled');
+    $this->drupalGet('authcache-form-test-content-by-type');
+    $this->assertResponse(200);
+    $this->assertNoField('form_token');
+    $this->assertStub($excluded_stub, HookStub::never());
+    $this->assertStub($canceled_stub, HookStub::never());
+  }
+}

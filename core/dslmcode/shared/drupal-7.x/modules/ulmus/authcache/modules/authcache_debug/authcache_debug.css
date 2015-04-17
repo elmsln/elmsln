@@ -1,0 +1,23 @@
+#authcachedebug fieldset {
+  padding-top: 30px;
+}
+
+#authcachedbg {
+  z-index: 99999;
+  text-align: left;
+  font-size: 11px;
+  left: 0px;
+  position: absolute;
+  background: #f7f7f7;
+  color: #000;
+  padding: 5px 20px 5px 5px;
+}
+
+#authcache_status_indicator {
+  position: absolute;
+  right: 3px;
+  top: 8px;
+  height: 10px;
+  width: 10px;
+  opacity: 0.5;
+}

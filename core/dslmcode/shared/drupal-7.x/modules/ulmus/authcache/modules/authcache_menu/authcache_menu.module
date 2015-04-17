@@ -1,0 +1,294 @@
+<?php
+/**
+ * @file
+ * Authcache support for menu, tabs and local actions.
+ */
+
+/**
+ * Implements hook_authcache_p13n_fragment().
+ */
+function authcache_menu_authcache_p13n_fragment() {
+  return array(
+    'menu-local-tabs' => array(
+      'admin name' => t('Local tabs'),
+      'admin group' => t('Menu'),
+      'fragment' => array(
+        '#class' => 'AuthcacheMenuLocalTabsFragment',
+      ),
+      'cache granularity' => AuthcacheP13nCacheGranularity::PER_USER | AuthcacheP13nCacheGranularity::PER_PAGE,
+      'bootstrap phase' => DRUPAL_BOOTSTRAP_FULL,
+    ),
+    'menu-local-actions' => array(
+      'admin name' => t('Local actions'),
+      'admin group' => t('Menu'),
+      'fragment' => array(
+        '#class' => 'AuthcacheMenuLocalActionsFragment',
+      ),
+      'cache granularity' => AuthcacheP13nCacheGranularity::PER_USER | AuthcacheP13nCacheGranularity::PER_PAGE,
+      'bootstrap phase' => DRUPAL_BOOTSTRAP_FULL,
+    ),
+    'menu-toolbar-shortcuts' => array(
+      'admin name' => t('Toolbar shortcuts'),
+      'admin group' => t('Menu'),
+      'fragment' => array(
+        '#class' => 'AuthcacheToolbarShortcutsFragment',
+      ),
+      'cache granularity' => AuthcacheP13nCacheGranularity::PER_USER | AuthcacheP13nCacheGranularity::PER_PAGE,
+      'bootstrap phase' => DRUPAL_BOOTSTRAP_FULL,
+    ),
+    'menu-item-title' => array(
+      'admin name' => t('Menu items'),
+      'admin group' => t('Menu'),
+      'fragment' => array(
+        '#class' => 'AuthcacheMenuItemTitleFragment',
+      ),
+      'cache granularity' => AuthcacheP13nCacheGranularity::PER_USER,
+      'bootstrap phase' => DRUPAL_BOOTSTRAP_FULL,
+    ),
+  );
+}
+
+/**
+ * Implements hook_authcache_p13n_admin_groups().
+ */
+function authcache_menu_authcache_p13n_admin_groups() {
+  return array(
+    t('Menu') => t('To add a menu item to the list of personalized menu items, visit the <a href="!menus_url">menu administration page</a>, navigate to the menu item in question and click the "edit" link.', array('!menus_url' => url('admin/structure/menu'))),
+  );
+}
+
+/**
+ * Implements hook_authcache_menu_invariant_access_callbacks().
+ */
+function authcache_menu_authcache_menu_invariant_access_callbacks() {
+  return array(
+    '0',
+    '1',
+    'user_access',
+    'user_is_anonymous',
+    'user_is_logged_in',
+    'user_register_access',
+    'search_is_active',
+  );
+}
+
+/**
+ * Implements hook_preprocess_toolbar().
+ */
+function authcache_menu_preprocess_toolbar(&$variables) {
+  foreach (element_children($variables['toolbar']['toolbar_drawer']) as $key) {
+    if (isset($variables['toolbar']['toolbar_drawer'][$key]['shortcuts']) && function_exists('shortcut_set_switch_access') && shortcut_set_switch_access() && !authcache_element_is_cacheable($variables['toolbar']['toolbar_drawer'][$key]['shortcuts'])) {
+      authcache_p13n_attach($variables['toolbar']['toolbar_drawer'][$key]['shortcuts'], array(
+        '#theme' => 'authcache_p13n_fragment',
+        '#fragment' => 'menu-toolbar-shortcuts',
+        '#fallback' => 'cancel',
+      ));
+      authcache_element_set_cacheable($variables['toolbar']['toolbar_drawer'][$key]['shortcuts']);
+    }
+  }
+}
+
+/**
+ * Implements hook_preprocess_page().
+ *
+ * Personalize tabs and action links if necessary.
+ */
+function authcache_menu_preprocess_page(&$variables) {
+  if (authcache_page_is_cacheable()) {
+    drupal_add_js(drupal_get_path('module', 'authcache_menu') . '/authcache_menu.js');
+    $router_item = menu_get_item();
+
+    if (!authcache_element_is_cacheable($variables['tabs'])) {
+      $tab_blacklist = authcache_menu_tab_root_blacklist(MENU_IS_LOCAL_TASK);
+      if (!empty($router_item['tab_root']) && !empty($tab_blacklist[$router_item['tab_root']])) {
+        authcache_p13n_attach($variables['tabs'], array(
+          '#theme' => 'authcache_p13n_fragment',
+          '#fragment' => 'menu-local-tabs',
+          '#fallback' => 'cancel',
+        ));
+      }
+      authcache_element_set_cacheable($variables['tabs']);
+    }
+
+    if (!authcache_element_is_cacheable($variables['action_links'])) {
+      $action_blacklist = authcache_menu_tab_root_blacklist(MENU_IS_LOCAL_ACTION);
+      if (!empty($router_item['tab_root']) && !empty($action_blacklist[$router_item['tab_root']])) {
+        authcache_p13n_attach($variables['action_links'], array(
+          '#theme' => 'authcache_p13n_fragment',
+          '#fragment' => 'menu-local-actions',
+          '#fallback' => 'cancel',
+        ));
+      }
+      authcache_element_set_cacheable($variables['action_links']);
+    }
+
+    if (!empty($variables['main_menu'])) {
+      foreach ($variables['main_menu'] as &$link) {
+        _authcache_menu_substitute_menu_link($link);
+      }
+    }
+
+    if (!empty($variables['secondary_menu'])) {
+      foreach ($variables['secondary_menu'] as &$link) {
+        _authcache_menu_substitute_menu_link($link);
+      }
+    }
+  }
+}
+
+/**
+ * Return tab_roots where tabs may differ for users with the same role set.
+ *
+ * @param int $type_mask
+ *   One of MENU_IS_LOCAL_TASK or MENU_IS_LOCAL_ACTION
+ *
+ * @return array
+ *   A list of tab root paths of pages where personalization of tabs and
+ *   actions respectively is necessary.
+ */
+function authcache_menu_tab_root_blacklist($type_mask = MENU_IS_LOCAL_TASK) {
+  $blacklist = &drupal_static(__FUNCTION__);
+  $cid = 'authcache_menu_tab_root_blacklist:' . dechex($type_mask);
+
+  if (!isset($blacklist[$type_mask])) {
+    if (($cached = cache_get($cid, 'cache_menu'))) {
+      $blacklist[$type_mask] = $cached->data;
+    }
+    else {
+      $type_map = _authcache_menu_tab_root_type_map_load();
+      $tab_list = _authcache_menu_tab_root_list($type_map, $type_mask);
+      drupal_alter('authcache_menu_tab_root_blacklist', $tab_list, $type_mask);
+
+      $blacklist[$type_mask] = $tab_list;
+      cache_set($cid, $blacklist[$type_mask], 'cache_menu');
+    }
+  }
+
+  return $blacklist[$type_mask];
+}
+
+/**
+ * Utility function: Load map of tab_roots -> type.
+ *
+ * @return array
+ *   A list of tab root paths of pages where personalization of tabs and
+ *   actions respectively is necessary.
+ */
+function _authcache_menu_tab_root_type_map_load() {
+  $type_map = &drupal_static(__FUNCTION__);
+
+  if (!isset($type_map)) {
+    $query = db_select('menu_router', 'm')
+      ->fields('m', array('tab_root', 'type'))
+      ->distinct();
+
+    $invars = module_invoke_all('authcache_menu_invariant_access_callbacks');
+    drupal_alter('authcache_menu_invariant_access_callbacks', $invars);
+
+    foreach ($invars as $cb) {
+      $query->condition('access_callback', $cb, '<>');
+    }
+
+    $result = $query->execute()->fetchAll();
+    $type_map = array();
+
+    foreach ($result as $row) {
+      $type = (int) $row->type;
+      if (empty($type_map[$row->tab_root])) {
+        $type_map[$row->tab_root] = $type;
+      }
+      else {
+        $type_map[$row->tab_root] |= $type;
+      }
+    }
+  }
+
+  return $type_map;
+}
+
+/**
+ * Return a list of tab roots whose type matches the type mask.
+ *
+ * @param int $type_mask
+ *   One of MENU_IS_LOCAL_TASK or MENU_IS_LOCAL_ACTION
+ *
+ * @return array
+ *   Associative array (tab_root -> tab_root) of paths from type map matching
+ *   the type mask.
+ */
+function _authcache_menu_tab_root_list($type_map, $type_mask) {
+  $result = array();
+
+  foreach ($type_map as $tab_root => $type) {
+    if ($type & $type_mask) {
+      $result[$tab_root] = $tab_root;
+    }
+  }
+
+  return $result;
+}
+
+/**
+ * Implements hook_form_FORM_ID_alter().
+ *
+ * Adds authcache options to the edit menu item form.
+ *
+ * @see menu_edit_item()
+ */
+function authcache_menu_form_menu_edit_item_alter(&$form, $form_state) {
+  $item = $form['original_item']['#value'];
+
+  $form['options']['#tree'] = TRUE;
+  $form['options']['#weight'] = 50;
+
+  $form['options']['authcache'] = array(
+    '#type' => 'checkbox',
+    '#title' => t('Authcache'),
+    '#description' => t('Retrieve menu title using Ajax or ESI'),
+    '#default_value' => !empty($item['options']['authcache']),
+  );
+
+  $form['#validate'][] = 'authcache_menu_form_menu_edit_item_validate';
+}
+
+/**
+ * Form API validation callback.
+ *
+ * @see authcache_menu_form_menu_edit_item_alter()
+ */
+function authcache_menu_form_menu_edit_item_validate(&$form, &$form_state) {
+  // Remove authcache option from form_values if it was not selected.
+  if (empty($form['options']['authcache']['#value'])) {
+    unset($form_state['values']['options']['authcache']);
+  }
+}
+
+/**
+ * Implements hook_preprocess_menu_item().
+ */
+function authcache_menu_preprocess_menu_link(&$variables) {
+  if (authcache_page_is_cacheable() && !empty($variables['element']['#localized_options']['authcache'])) {
+    $variables['element']['#localized_options']['html'] = TRUE;
+    $variables['element']['#title'] = theme('authcache_p13n_fragment', array(
+      'fragment' => 'menu-item-title',
+      'param' => $variables['element']['#href'],
+    ));
+  }
+
+  unset($variables['element']['#localized_options']['authcache']);
+}
+
+/**
+ * Helper function for substituting markup in main- and secondary menu.
+ */
+function _authcache_menu_substitute_menu_link(&$link) {
+  if (!empty($link['authcache'])) {
+    $link['html'] = TRUE;
+    $link['title'] = theme('authcache_p13n_fragment', array(
+      'fragment' => 'menu-item-title',
+      'param' => $link['href'],
+    ));
+  }
+
+  unset($link['authcache']);
+}

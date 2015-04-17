@@ -1,0 +1,104 @@
+<?php
+/**
+ * @file
+ * Authcache support for Panels when displayed by Page Manager.
+ */
+
+/**
+ * Implements hook_authcache_p13n_admin_groups().
+ */
+function authcache_panels_page_manager_authcache_p13n_admin_groups() {
+  return array(
+    t('Panels (by Page Manager)') => t('To add a content pane to the list of personalized items, visit the <a href="!page_manager_url">page manager administration</a>, edit a page, navigate to a panel variant and click on the content tab. Then set up the Authcache caching method on the respective content pane.', array('!page_manager_url' => url('admin/structure/pages'))),
+  );
+}
+
+/**
+ * Implements hook_authcache_p13n_fragment().
+ */
+function authcache_panels_page_manager_authcache_p13n_fragment() {
+  $fragments = array();
+
+  foreach (page_manager_get_tasks_by_type('page') as $task) {
+    $handlers = page_manager_load_task_handlers($task);
+    $fragments += _authcache_panels_page_manager_collect_fragments_from_handlers($handlers);
+
+    foreach (array_keys(page_manager_get_task_subtasks($task)) as $subtask_id) {
+      $handlers = page_manager_load_task_handlers($task, $subtask_id);
+      $fragments += _authcache_panels_page_manager_collect_fragments_from_handlers($handlers);
+    }
+  }
+
+  return $fragments;
+}
+
+/**
+ * Utility function: produce fragments from page manager handler.
+ */
+function _authcache_panels_page_manager_collect_fragments_from_handlers($handlers) {
+  if (!page_manager_get_task_handler('panel_context')) {
+    return array();
+  }
+
+  $fragments = array();
+  foreach ($handlers as $handler_id => $handler) {
+    if ($handler->handler !== 'panel_context') {
+      continue;
+    }
+
+    $display = panels_panel_context_get_display($handler);
+    foreach ($display->content as $pane_id => $pane) {
+      if (!authcache_panels_pane_fragment_enabled($pane)) {
+        continue;
+      }
+
+      // Get panel pane base fragment.
+      $fragment_id = authcache_panels_pane_fragment_id($pane);
+      $fragment = authcache_panels_pane_fragment($pane);
+
+      // Add fragment loader, admin entry and context provider.
+      $fragment += array(
+        'page manager task' => $handler->task,
+        'page manager subtask' => $handler->subtask,
+        'page manager handler' => $handler_id,
+
+        'fragment loader' => array(
+          '#class' => 'AuthcachePanelsPageManagerDisplayLoader',
+          '#arguments' => array(
+            '@panels pane id',
+            '@page manager task',
+            '@page manager subtask',
+            '@page manager handler',
+          ),
+        ),
+
+        'admin group' => t('Panels (by Page Manager)'),
+        'admin entry object' => array(
+          '#class' => 'AuthcachePageManagerAdminEntry',
+          '#arguments' => array(
+            '@page manager task',
+            '@page manager subtask',
+            '@page manager handler',
+            '@admin clients',
+            '@admin entry',
+          ),
+        ),
+
+        'panels context provider' => array(
+          '#class' => authcache_page_manager_task_context_provider($handler->task),
+          '#arguments' => array(
+            '@page manager task',
+            '@page manager subtask',
+            '@page manager handler',
+          ),
+          '#key' => 'panels',
+          '#member_of' => 'context providers',
+        ),
+      );
+
+      $fragments[$fragment_id] = $fragment;
+    }
+  }
+
+  return $fragments;
+}

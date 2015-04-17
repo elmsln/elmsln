@@ -1,0 +1,12 @@
+name = Authcache ESI Debug
+description = Provide status page indicating whether ESI is working properly
+package = Performance and scalability
+core = 7.x
+configure = admin/reports/authcache-esi-debug-status
+
+; Information added by Drupal.org packaging script on 2014-10-21
+version = "7.x-2.0-beta4"
+core = "7.x"
+project = "authcache"
+datestamp = "1413923939"
+

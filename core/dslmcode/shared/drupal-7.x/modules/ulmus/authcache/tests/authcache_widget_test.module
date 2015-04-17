@@ -1,0 +1,29 @@
+<?php
+
+/**
+ * @file
+ * Provides a stub module for testing the authcache form elements.
+ */
+
+
+/**
+ * Implements hook_menu().
+ */
+function authcache_widget_test_menu() {
+  $item['authcache-widget-test-form'] = array(
+    'title' => 'Test form',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('authcache_widget_test_form'),
+    'access callback' => TRUE,
+    'type' => MENU_CALLBACK,
+  );
+
+  return $item;
+}
+
+/**
+ * Form builder.
+ */
+function authcache_widget_test_form($form, &$form_state) {
+  return HookStub::record(__FUNCTION__, func_get_args());
+}

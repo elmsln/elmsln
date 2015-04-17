@@ -1,0 +1,47 @@
+varnishtest "Do not cache request with session when nocache cookie is set and key-retrieval is enabled"
+
+server s1 {
+        rxreq
+        expect req.url == "/authcache-varnish-get-key"
+        expect req.http.X-Authcache-Key == <undef>
+        expect req.http.X-Forwarded-For == "127.0.0.1"
+        txresp -hdr "X-Authcache-Key: 123"
+
+        rxreq
+        expect req.url == "/auth"
+        expect req.http.X-Authcache-Key == 123
+        expect req.http.X-Forwarded-For == "127.0.0.1"
+        txresp -hdr "Vary: X-Authcache-Key"
+
+        rxreq
+        expect req.url == "/auth"
+        expect req.http.X-Authcache-Key == <undef>
+        expect req.http.X-Forwarded-For == "127.0.0.1"
+        txresp -hdr "Vary: X-Authcache-Key"
+} -start
+
+varnish v1 -vcl+backend {
+        ${vcl1}
+        ${vcl2}
+        ${vcl3}
+} -start
+
+client c1 {
+        # Results in two misses (/authcache-varnish-get-key and /auth)
+        txreq -url "/auth" -hdr "Cookie: SESSabc=efg"
+        rxresp
+
+        # Results in one miss
+        txreq -url "/auth" -hdr "Cookie: SESSabc=efg; nocache=1"
+        rxresp
+
+        # Results in two hits (from first request)
+        txreq -url "/auth" -hdr "Cookie: SESSabc=efg"
+        rxresp
+}
+
+client c1 -run
+varnish v1 -expect cache_hit == 2
+
+server s1 -wait
+varnish v1 -stop

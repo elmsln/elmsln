@@ -1,0 +1,59 @@
+varnishtest "Cache requests when non-session cookies are on the request and key-retrieval is enforced"
+
+server s1 {
+        rxreq
+        expect req.url == "/authcache-varnish-get-key"
+        expect req.http.X-Authcache-Key == <undef>
+        expect req.http.X-Forwarded-For == "127.0.0.1"
+        txresp -hdr "X-Authcache-Key: 123"
+
+        rxreq
+        expect req.url == "/anon"
+        expect req.http.X-Authcache-Key == 123
+        expect req.http.X-Forwarded-For == "127.0.0.1"
+        txresp -hdr "Vary: X-Authcache-Key"
+
+        rxreq
+        expect req.url == "/cookie"
+        expect req.http.X-Authcache-Key == 123
+        expect req.http.X-Forwarded-For == "127.0.0.1"
+        txresp -hdr "Vary: X-Authcache-Key"
+        txresp
+} -start
+
+varnish v1 -vcl+backend {
+        ${vcl1}
+        ${vcl2}
+        ${vcl3}
+} -start
+
+# Cacheable: anonymous request without cookie force key-retrieval
+client c1 {
+        txreq -url "/anon"
+        rxresp
+}
+
+
+# Cacheable: anonymous request with non-session cookie (same anonymous session)
+client c2 {
+        txreq -url "/cookie" -hdr "Cookie: toolbar=fancy"
+        rxresp
+}
+
+client c1 -run
+varnish v1 -expect cache_hit == 0
+
+# Two hits because /anon and /authcache-varnish-get-key both count
+client c1 -run
+varnish v1 -expect cache_hit == 2
+
+# One hit for /authcache-varnish-get-key
+client c2 -run
+varnish v1 -expect cache_hit == 3
+
+# Two hits because /cookie and /authcache-varnish-get-key both count
+client c2 -run
+varnish v1 -expect cache_hit == 5
+
+server s1 -wait
+varnish v1 -stop

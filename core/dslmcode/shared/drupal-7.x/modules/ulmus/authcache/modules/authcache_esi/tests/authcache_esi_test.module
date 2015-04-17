@@ -1,0 +1,52 @@
+<?php
+/**
+ * @file
+ * Stub module for Authcache ESI test.
+ */
+
+/**
+ * Implements hook_menu().
+ */
+function authcache_esi_test_menu() {
+  $item['authcache-esi-test-page'] = array(
+    'title' => 'Test esi',
+    'page callback' => 'authcache_esi_test_page',
+    'access callback' => TRUE,
+  );
+
+  return $item;
+}
+
+/**
+ * Menu callback: Build a page.
+ */
+function authcache_esi_test_page() {
+  return HookStub::record(__FUNCTION__, func_get_args());
+}
+
+/**
+ * Implements hook_authcache_p13n_fragment().
+ */
+function authcache_esi_test_authcache_p13n_fragment() {
+  return array(
+    'esi-test-fragment' => array(),
+  );
+}
+
+/**
+ * Implements hook_authcache_p13n_assembly().
+ */
+function authcache_esi_test_authcache_p13n_assembly() {
+  return array(
+    'esi-test-assembly' => array(),
+  );
+}
+
+/**
+ * Implements hook_authcache_p13n_setting().
+ */
+function authcache_esi_test_authcache_p13n_setting() {
+  return array(
+    'esi-test-setting' => array(),
+  );
+}

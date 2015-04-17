@@ -1,0 +1,180 @@
+<?php
+/**
+ * @file
+ * Debug module for Authcache ESI markup generator.
+ */
+
+/**
+ * Implements hook_menu().
+ */
+function authcache_esi_debug_menu() {
+  $items['admin/reports/authcache-esi-debug-status'] = array(
+    'title' => 'Authcache ESI status',
+    'description' => 'Test ESI support of the server environment.',
+    'page callback' => 'authcache_esi_debug_status',
+    'access arguments' => array('authcache esi debug'),
+    'type' => MENU_NORMAL_ITEM,
+  );
+  $items['authcache-esi-debug-status'] = array(
+    'title' => 'Authcache ESI status table',
+    'page callback' => 'authcache_esi_debug_status_table',
+    'access arguments' => array('authcache esi debug'),
+    'type' => MENU_CALLBACK,
+  );
+  $items['authcache-esi-debug-status/fragment'] = array(
+    'title' => 'Authcache ESI status fragment',
+    'page callback' => 'authcache_esi_debug_status_fragment',
+    'access arguments' => array('authcache esi debug'),
+    'type' => MENU_CALLBACK,
+  );
+
+  return $items;
+}
+
+/**
+ * Implements hook_permission().
+ */
+function authcache_esi_debug_permission() {
+  return array(
+    'authcache esi debug' => array(
+      'title' => t('Access status page'),
+      'description' => t('Manually test ESI support of the server environment.'),
+    ),
+  );
+}
+
+/**
+ * Page callback: Load ESI test via ajax.
+ */
+function authcache_esi_debug_status() {
+  $url = url('authcache-esi-debug-status');
+  drupal_add_js(drupal_get_path('module', 'authcache_esi_debug') . '/authcache_esi_debug.js');
+  drupal_add_js(array('authcacheEsiDebug' => $url), 'setting');
+  return '<span id="authcache-esi-debug-table">Loading ESI test using Ajax...</span>';
+}
+
+/**
+ * Ajax callback: List test results of manual ESI test.
+ */
+function authcache_esi_debug_status_table() {
+  $output = '';
+
+  // Make sure the installation API is available.
+  include_once DRUPAL_ROOT . '/includes/install.inc';
+
+  $requirements = array();
+
+  if (authcache_account_allows_caching()) {
+    $requirements['esi-request-header'] = array(
+      'title' => t('Request Header'),
+    );
+    if (empty($_SERVER['HTTP_X_AUTHCACHE_DO_ESI'])) {
+      $requirements['esi-request-header']['value'] = t('HTTP header %header is not on primary request.', array('%header' => 'X-Authcache-Do-ESI'));
+      $requirements['esi-request-header']['severity'] = REQUIREMENT_ERROR;
+      $requirements['esi-request-header']['description'] = t('Please make sure that the reverse proxy software (varnish) is configured according to the requirements of authcache_esi / authcache_varnish.');
+    }
+    else {
+      $requirements['esi-request-header']['value'] = t('HTTP header %header is on primary request.', array('%header' => 'X-Authcache-Do-ESI'));
+      $requirements['esi-request-header']['severity'] = REQUIREMENT_OK;
+    }
+
+    $table = theme('status_report', array('requirements' => $requirements));
+    list($otag, $content, $ctag) = _authcache_esi_debug_split_table($table);
+    $output .= $otag . $content;
+
+    // Add ESI include tag: Shown when ESI request succeeds.
+    drupal_add_http_header('X-Authcache-Do-ESI', 1);
+    $attrs = array(
+      'src' => url('authcache-esi-debug-status/fragment'),
+    );
+    $output .= '<esi:include ' . drupal_attributes($attrs) . '/>';
+
+    // Add ESI remove tag: Shown when there is no ESI support.
+    $requirements = array();
+    $requirements['esi-tag'] = array(
+      'title' => t('ESI Tag'),
+      'value' => t('ESI tag not substituted.'),
+      'severity' => REQUIREMENT_ERROR,
+      'description' => t('Please make sure that the reverse proxy software (varnish) is configured according to the requirements of authcache_esi / authcache_varnish.'),
+    );
+    $table = theme('status_report', array('requirements' => $requirements));
+    list($otag, $content) = _authcache_esi_debug_split_table($table);
+    unset($otag);
+
+    $output .= '<esi:remove>';
+    $output .= $content;
+    $output .= '</esi:remove>';
+    $output .= $ctag;
+  }
+  else {
+    $requirements['account-excluded'] = array(
+      'title' => t('Authcache settings'),
+      'value' => t('Account not cacheable'),
+      'severity' => REQUIREMENT_WARNING,
+      'description' => t('The logged in user is excluded from authcache, therefore it is not possible to display meaningful information in this report.'),
+    );
+
+    $table = theme('status_report', array('requirements' => $requirements));
+    list($otag, $content, $ctag) = _authcache_esi_debug_split_table($table);
+    $output .= $otag . $content;
+
+  }
+
+  drupal_add_http_header('Cache-Control', 'public, max-age=10');
+
+  print $output;
+
+  drupal_exit();
+}
+
+
+/**
+ * Page callback: List test results of manual ESI test.
+ */
+function authcache_esi_debug_status_fragment() {
+  // Make sure the installation API is available.
+  include_once DRUPAL_ROOT . '/includes/install.inc';
+
+  $requirements['esi-tag'] = array(
+    'title' => t('ESI Tag'),
+    'value' => t('Tag successfully substituted by reverse proxy.'),
+    'severity' => REQUIREMENT_OK,
+  );
+
+  $requirements['authcache-request-header'] = array(
+    'title' => t('ESI Subrequest Header'),
+  );
+  if (empty($_SERVER['HTTP_X_AUTHCACHE'])) {
+    $requirements['authcache-request-header']['value'] = t('HTTP header %header is not on ESI subrequest.', array('%header' => 'X-Authcache'));
+    $requirements['authcache-request-header']['severity'] = REQUIREMENT_ERROR;
+    $requirements['authcache-request-header']['description'] = t('Please make sure that the reverse proxy software (varnish) is configured according to the requirements of authcache.');
+  }
+  else {
+    $requirements['authcache-request-header']['value'] = t('HTTP header %header is on ESI subrequest.', array('%header' => 'X-Authcache'));
+    $requirements['authcache-request-header']['severity'] = REQUIREMENT_OK;
+  }
+
+  $output = theme('status_report', array('requirements' => $requirements));
+  list($otag, $content, $ctag) = _authcache_esi_debug_split_table($output);
+  unset($ctag);
+  unset($otag);
+
+  drupal_add_http_header('Cache-Control', 'public, max-age=10');
+
+  print $content;
+
+  drupal_exit();
+}
+
+
+/**
+ * Utility function: Strip enclosing table markup from table rows.
+ */
+function _authcache_esi_debug_split_table($markup) {
+  if (preg_match('|^(<table[^>]*>)(.*)(</table>)$|i', $markup, $matches)) {
+    return array($matches[1], $matches[2], $matches[3]);
+  }
+  else {
+    return array('', $markup, '');
+  }
+}

@@ -1,0 +1,271 @@
+<?php
+/**
+ * @file
+ * Test classes for Authcache Menu module.
+ */
+
+/**
+ * Test personalization of local tasks and action links.
+ */
+class AuthcacheMenuTestLocalTasks extends DrupalWebTestCase {
+  protected $profile = 'testing';
+  protected $stubmod;
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function getInfo() {
+    return array(
+      'name' => 'Local Tasks and Actions',
+      'description' => 'Test personalization for local tasks and action links',
+      'group' => 'Authcache Menu',
+    );
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function setUp() {
+    parent::setUp('authcache_menu', 'authcache_menu_test');
+
+    // HookStub.
+    $this->stubmod = new ModuleStub('authcache_menu_test');
+  }
+
+  /**
+   * Test whether the given stub passes the invocation verifier.
+   */
+  protected function assertStub(HookStubProxy $stub, $verifier, $message = NULL) {
+    $result = $stub->verify($verifier, $error);
+
+    if (!$message) {
+      $message = t('Verify invocation of hook @hook.', array('@hook' => $stub->hookname()));
+    }
+    if (!$result && is_string($error)) {
+      $message .= ' ' . $error;
+    }
+
+    $this->assertTrue($result, $message);
+  }
+
+  /**
+   * Test local tasts on node-view.
+   */
+  public function testNodeViewLocalTask() {
+    $user = $this->drupalCreateUser();
+
+    // Turn on authcache for all user roles.
+    variable_set('authcache_roles', drupal_map_assoc(array_keys(user_roles())));
+
+    // Register markup substitution client.
+    $clients = array(
+      'authcache_menu_test' => array(
+        'title' => 'Authcache menu test stub',
+        'enabled' => TRUE,
+      ),
+    );
+    $this->stubmod->hook('authcache_p13n_client', $clients);
+
+    $client_tag = $this->randomName(8);
+    $page = array(
+      '#markup' => $this->randomName(64),
+    );
+
+    $pagestub = $this->stubmod->hook('page', $page);
+    $themestub = HookStub::on('theme_authcache_p13n_fragment__authcache_menu_test', $client_tag);
+    $this->drupalGet('tab-root-std-access/view');
+    $this->assertNoText($client_tag);
+    $this->assertText($page['#markup']);
+    $this->assertStub($pagestub, HookStub::once());
+    $this->assertStub($themestub, HookStub::never());
+
+    // Do not personalize when no user is logged in.
+    $pagestub = $this->stubmod->hook('page', $page);
+    $themestub = HookStub::on('theme_authcache_p13n_fragment__authcache_menu_test', $client_tag);
+    $this->drupalGet('tab-root-cust-access/view');
+    $this->assertNoText($client_tag);
+    $this->assertText($page['#markup']);
+    $this->assertStub($pagestub, HookStub::once());
+    $this->assertStub($themestub, HookStub::never());
+
+    $this->drupalLogin($user);
+    $pagestub = $this->stubmod->hook('page', $page);
+    $themestub = HookStub::on('theme_authcache_p13n_fragment__authcache_menu_test', $client_tag);
+    $this->drupalGet('tab-root-std-access/view');
+    $this->assertNoText($client_tag);
+    $this->assertText($page['#markup']);
+    $this->assertStub($pagestub, HookStub::once());
+    $this->assertStub($themestub, HookStub::never());
+
+    $pagestub = $this->stubmod->hook('page', $page);
+    $themestub = HookStub::on('theme_authcache_p13n_fragment__authcache_menu_test', $client_tag);
+    $this->drupalGet('tab-root-cust-access/view');
+    $this->assertText($client_tag);
+    $this->assertText($page['#markup']);
+    $this->assertStub($pagestub, HookStub::once());
+    $this->assertStub($themestub, HookStub::once());
+
+    $admin = $this->drupalCreateUser(array('bypass node access'));
+    $this->drupalLogin($admin);
+    $pagestub = $this->stubmod->hook('page', $page);
+    $themestub = HookStub::on('theme_authcache_p13n_fragment__authcache_menu_test', $client_tag);
+    $this->drupalGet('tab-root-std-access/view');
+    $this->assertNoText($client_tag);
+    $this->assertText($page['#markup']);
+    $this->assertStub($pagestub, HookStub::once());
+    $this->assertStub($themestub, HookStub::never());
+
+    $pagestub = $this->stubmod->hook('page', $page);
+    $themestub = HookStub::on('theme_authcache_p13n_fragment__authcache_menu_test', $client_tag);
+    $this->drupalGet('tab-root-cust-access/view');
+    $this->assertNoText($client_tag);
+    $this->assertText($page['#markup']);
+    $this->assertStub($pagestub, HookStub::once());
+    $this->assertStub($themestub, HookStub::never());
+
+    $this->drupalLogout();
+
+    // Test menu item retrieval
+    // FIXME: There is no way to override default parameters like 'q' when
+    // generating request urls. Probably we should fix that.
+    $orig_q = $_GET['q'];
+    $_GET['q'] = 'tab-root-std-access';
+    $url = authcache_p13n_request_get_callback('frag/menu-local-tabs', '');
+    $_GET['q'] = $orig_q;
+
+    $headers = array('X-Authcache: 1');
+    $this->drupalGet($GLOBALS['base_root'] . $url['path'], $url['options'], $headers);
+    $this->assertResponse(200);
+    $this->assertText('View');
+    $this->assertText('Edit');
+  }
+}
+
+/**
+ * Test personalization of menu item titles.
+ */
+class AuthcacheMenuTestItemTitle extends DrupalWebTestCase {
+  protected $profile = 'standard';
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function getInfo() {
+    return array(
+      'name' => 'Menu Item Title',
+      'description' => 'Test personalization of menu item titles',
+      'group' => 'Authcache Menu',
+    );
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function setUp() {
+    parent::setUp('authcache_menu', 'authcache_menu_test');
+
+    // HookStub.
+    $this->stubmod = new ModuleStub('authcache_menu_test');
+  }
+
+  /**
+   * Test whether the given stub passes the invocation verifier.
+   */
+  protected function assertStub(HookStubProxy $stub, $verifier, $message = NULL) {
+    $result = $stub->verify($verifier, $error);
+
+    if (!$message) {
+      $message = t('Verify invocation of hook @hook.', array('@hook' => $stub->hookname()));
+    }
+    if (!$result && is_string($error)) {
+      $message .= ' ' . $error;
+    }
+
+    $this->assertTrue($result, $message);
+  }
+
+  /**
+   * Test local tasts on node-view.
+   */
+  public function testNodeViewLocalTask() {
+    $user = $this->drupalCreateUser();
+
+    // Turn on authcache for all user roles.
+    variable_set('authcache_roles', drupal_map_assoc(array_keys(user_roles())));
+
+    // Register markup substitution client.
+    $clients = array(
+      'authcache_menu_test' => array(
+        'title' => 'Authcache menu test stub',
+        'enabled' => TRUE,
+      ),
+    );
+    $this->stubmod->hook('authcache_p13n_client', $clients);
+
+    $client_tag = 'client-tag-' . $this->randomName(8);
+    $page = array(
+      '#markup' => 'page-markup-' . $this->randomName(64),
+    );
+
+    $admin = $this->drupalCreateUser(array('administer menu'));
+    $this->drupalLogin($admin);
+
+    // Create menu link in the main-menu
+    $main_menu_title = 'main-menu-' . $this->randomName(8);
+    $edit = array(
+      'link_title' => $main_menu_title,
+      'link_path' => 'user',
+      'options[authcache]' => TRUE,
+    );
+    $this->drupalPost('admin/structure/menu/manage/main-menu/add', $edit, t('Save'));
+
+    // Create menu link in the navigation-menu
+    $nav_menu_title = 'nav-menu-' . $this->randomName(8);
+    $edit = array(
+      'link_title' => $nav_menu_title,
+      'link_path' => 'node',
+      'options[authcache]' => TRUE,
+    );
+    $this->drupalPost('admin/structure/menu/manage/navigation/add', $edit, t('Save'));
+
+    $this->drupalLogout();
+    $pagestub = $this->stubmod->hook('page', $page);
+    $themestub = HookStub::on('theme_authcache_p13n_fragment__authcache_menu_test', $client_tag);
+    $this->drupalGet('tab-root-std-access');
+    $this->assertNoText($main_menu_title);
+    $this->assertNoText($nav_menu_title);
+    $this->assertText($client_tag);
+    $this->assertText($page['#markup']);
+    $this->assertStub($pagestub, HookStub::once());
+    $this->assertStub($themestub, HookStub::times(2));
+
+    $this->drupalLogin($user);
+    $pagestub = $this->stubmod->hook('page', $page);
+    $themestub = HookStub::on('theme_authcache_p13n_fragment__authcache_menu_test', $client_tag);
+    $this->drupalGet('tab-root-std-access');
+    $this->assertNoText($main_menu_title);
+    $this->assertNoText($nav_menu_title);
+    $this->assertText($client_tag);
+    $this->assertText($page['#markup']);
+    $this->assertStub($pagestub, HookStub::once());
+    $this->assertStub($themestub, HookStub::times(2));
+
+    $this->drupalLogin($admin);
+    $pagestub = $this->stubmod->hook('page', $page);
+    $themestub = HookStub::on('theme_authcache_p13n_fragment__authcache_menu_test', $client_tag);
+    $this->drupalGet('tab-root-std-access');
+    $this->assertText($main_menu_title);
+    $this->assertText($nav_menu_title);
+    $this->assertNoText($client_tag);
+    $this->assertText($page['#markup']);
+    $this->assertStub($pagestub, HookStub::once());
+    $this->assertStub($themestub, HookStub::never());
+
+    // Test menu item retrieval.
+    $url = authcache_p13n_request_get_callback('frag/menu-item-title', 'node');
+    $headers = array('X-Authcache: 1');
+    $this->drupalGet($GLOBALS['base_root'] . $url['path'], $url['options'], $headers);
+    $this->assertResponse(200);
+    $this->assertText($nav_menu_title);
+  }
+}

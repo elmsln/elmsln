@@ -1,0 +1,25 @@
+<?php
+/**
+ * @file
+ * Stub module for authcache personalization tests.
+ */
+
+/**
+ * Implements of hook_ctools_plugin_api().
+ */
+function authcache_panels_page_manager_test_ctools_plugin_api($module, $api) {
+  if ($module === 'page_manager' && $api === 'pages_default') {
+    return array('version' => 1);
+  }
+}
+
+/**
+ * Implements of hook_default_page_manager_pages().
+ */
+function authcache_panels_page_manager_test_default_page_manager_pages() {
+  $path = drupal_get_path('module', 'authcache_panels_page_manager_test') . '/custom-page.stub.txt';
+  // @ignore security_19
+  eval(file_get_contents($path));
+  $pages[$page->name] = $page;
+  return $pages;
+}

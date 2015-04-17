@@ -1,0 +1,43 @@
+<?php
+/**
+ * @file
+ * Authcache support for Ctools Page Manager.
+ */
+
+/**
+ * Return a map task_id -> context provider.
+ */
+function authcache_page_manager_task_context_provider($task_id = NULL) {
+  $context_provider_map = &drupal_static(__FUNCTION__);
+
+  if (!isset($context_providers)) {
+    $context_provider_map = module_invoke_all('authcache_page_manager_task_context_provider');
+    drupal_alter('authcache_page_manager_task_context_provider', $context_provider_map);
+    $tasks = page_manager_get_tasks_by_type('page');
+    $context_provider_map = array_intersect_key($context_provider_map, $tasks);
+  }
+
+  if (isset($task_id)) {
+    return isset($context_provider_map[$task_id]) ? $context_provider_map[$task_id] : 'AuthcachePageManagerDefaultTaskContextProvider';
+  }
+
+  return $context_provider_map;
+}
+
+/**
+ * Implements hook_authcache_page_manager_task_context_provider().
+ */
+function authcache_page_manager_authcache_page_manager_task_context_provider() {
+  return array(
+    'blog_user' => 'AuthcachePageManagerUserTaskContextProvider',
+    'comment_reply' => 'AuthcachePageManagerCommentReplyTaskContextProvider',
+    'contact_user' => 'AuthcachePageManagerUserTaskContextProvider',
+    'node_edit' => 'AuthcachePageManagerNodeEditTaskContextProvider',
+    'node_view' => 'AuthcachePageManagerNodeViewTaskContextProvider',
+    'page' => 'AuthcachePageManagerPageTaskContextProvider',
+    'search' => 'AuthcachePageManagerSearchTaskContextProvider',
+    'term_view' => 'AuthcachePageManagerTermViewTaskContextProvider',
+    'user_edit' => 'AuthcachePageManagerUserEditTaskContextProvider',
+    'user_view' => 'AuthcachePageManagerUserTaskContextProvider',
+  );
+}

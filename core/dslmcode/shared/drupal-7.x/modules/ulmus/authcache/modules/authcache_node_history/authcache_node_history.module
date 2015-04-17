@@ -1,0 +1,141 @@
+<?php
+/**
+ * @file
+ * Provide personalization for the comment module.
+ */
+
+/**
+ * Maximal number of records being read during personalization request.
+ */
+define('AUTHCACHE_NODE_HISTORY_SELECT_LIMIT', 50);
+
+/**
+ * Maximal number of records being written during personalization request.
+ */
+define('AUTHCACHE_NODE_HISTORY_UPDATE_LIMIT', 1);
+
+/**
+ * Implements hook_authcache_p13n_setting().
+ */
+function authcache_node_history_authcache_p13n_setting() {
+  return array(
+    'node-history' => array(
+      'admin name' => t('Last visit'),
+      'admin group' => t('Node history'),
+      'admin description' => t('Returns / updates the timestamp when a user visited a node for the last time.'),
+      'setting' => array(
+        '#setting' => 'nh',
+        '#target' => 'authcacheNodeHistory',
+        '#class' => 'AuthcacheNodeHistorySetting',
+        '#arguments' => array(
+          AUTHCACHE_NODE_HISTORY_SELECT_LIMIT,
+          AUTHCACHE_NODE_HISTORY_UPDATE_LIMIT,
+        ),
+      ),
+      'cache maxage' => 60,
+    ),
+  );
+}
+
+/**
+ * Implements hook_theme().
+ */
+function authcache_node_history_theme() {
+  return array(
+    'authcache_node_history_mark' => array(
+      'variables' => array(
+        'nid' => NULL,
+        'timestamp' => NULL,
+        'marker_class' => '',
+      ),
+    ),
+  );
+}
+
+/**
+ * Implements hook_node_view().
+ */
+function authcache_node_view($node, $view_mode, $langcode) {
+  $page_node = menu_get_object();
+
+  if (authcache_page_is_cacheable() && $page_node && $node->nid == $page_node->nid) {
+    // Ensure that the static cache of node_last_viewed gets populated.
+    node_last_viewed($node->nid);
+    // Attach the call to node-tag-new to the render array.
+    $node->content['#attached']['authcache_node_history_node_tag_new'][] = array($node->nid);
+  }
+}
+
+/**
+ * Updates the 'last viewed' timestamp of the specified node for current user.
+ *
+ * @param int $nid
+ *   A node id.
+ *
+ * @see node_tag_new()
+ */
+function authcache_node_history_node_tag_new($nid) {
+  global $user;
+
+  if ($user->uid) {
+    // After a page was cleared from the cache, the first user requesting it
+    // will trigger a node_tag_new and update its last viewed timestamp.
+    // Therefore it is necessary to preserve the original last-viewed timestamp
+    // in the session, such that it can be retrieved during the subsequent
+    // personalization phase.
+    $_SESSION['authcache_node_history_last_viewed'] = &drupal_static('node_last_viewed');
+
+    authcache_p13n_add_setting(array(
+      '#setting' => 'node-history',
+      '#param' => array('nh' => array('u' => array($nid))),
+    ));
+  }
+}
+
+/**
+ * Returns marker replacemente for new or updated content.
+ */
+function authcache_node_history_node_mark($nid, $timestamp, $class = 'marker') {
+  global $user;
+
+  $markup = '';
+  if ($user->uid) {
+    $markup = theme('authcache_node_history_mark', array(
+      'nid' => $nid,
+      'timestamp' => $timestamp,
+      'marker_class' => drupal_html_class($class),
+    ));
+
+    authcache_p13n_add_setting(array(
+      '#setting' => 'node-history',
+      '#param' => array('nh' => array('n' => array($nid))),
+    ));
+  }
+
+  return $markup;
+}
+
+/**
+ * Returns HTML for a marker replacement for new or updated content.
+ */
+function theme_authcache_node_history_mark($variables) {
+  global $user;
+
+  if ($user->uid) {
+    drupal_add_js(drupal_get_path('module', 'authcache_node_history') . '/authcache_node_history.js');
+
+    $classes = array('authcache-node-history');
+
+    if (!empty($variables['marker_class'])) {
+      $classes[] = $variables['marker_class'];
+    }
+
+    $attributes = array(
+      'class' => $classes,
+      'data-p13n-nid' => $variables['nid'],
+      'data-p13n-ts' => $variables['timestamp'],
+    );
+
+    return '<span' . drupal_attributes($attributes) . '></span>';
+  }
+}
