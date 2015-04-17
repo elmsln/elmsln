@@ -11,15 +11,17 @@
  * Implements hook_init().
  */
 function admin_menu_dropdown_init() {
-  $path = drupal_get_path('module', 'admin_menu_dropdown');
+  if (!user_access('access administration menu') || admin_menu_suppress(FALSE)) {
+    return;
+  }
   $settings = array(
-    'key'     => variable_get('admin_menu_dropdown_key', '`'),
-    'default' => variable_get('admin_menu_dropdown_default', 1),
+    'key'    => variable_get('admin_menu_dropdown_key', '`'),
+    'onload' => variable_get('admin_menu_dropdown_default', 1),
   );
-
-  drupal_add_js($path . '/admin_menu_dropdown.js', array('defer' => TRUE));
-  drupal_add_js(array('admin_menu_dropdown' => $settings), array('type' => 'setting', 'scope' => JS_DEFAULT));
-  drupal_add_css($path . '/admin_menu_dropdown.css');
+  drupal_add_js(array('admin_menu_dropdown' => $settings), array('type' => 'setting'));
+  $path = drupal_get_path('module', 'admin_menu_dropdown');
+  drupal_add_js($path . '/admin_menu_dropdown.js', array('every_page' => TRUE, 'defer' => TRUE));
+  drupal_add_css($path . '/admin_menu_dropdown.css', array('every_page' => TRUE));
 }
 
 /**
@@ -46,5 +48,4 @@ function admin_menu_dropdown_form_admin_menu_theme_settings_alter(&$form, &$form
     '#description' => t('This key will show/hide the admin menu.'),
     '#wysiwyg' => FALSE,
   );
-
 }
