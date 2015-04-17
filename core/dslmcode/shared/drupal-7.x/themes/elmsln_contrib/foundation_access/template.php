@@ -28,45 +28,17 @@ function foundation_access_preprocess_page(&$variables) {
 function foundation_access_preprocess_node(&$variables) {
 }
 
-// Active Book Outline (Sidebar)
-
 /**
- * Implements menu_tree__cis_service_connection_high_active_outline().
+ * Implements template_preprocess_region.
  */
-function foundation_access_menu_tree__cis_service_connection_high_active_outline($variables) {
-  return '<ul class="tabs outline-nav-tabs" data-tab role="tablist">' . $variables['tree'] . '</ul>';
-}
-
-/**
- * Implements menu_link__cis_service_connection_high_active_outline().
- */
-function foundation_access_menu_link__cis_service_connection_high_active_outline($variables) {
-  $element = $variables['element'];
-  $sub_menu = '';
-  $return = '';
-  $id = 'zfa-menu-panel-' . $element['#original_link']['mlid'];
-  if ($element['#original_link']['p3'] == 0) {
-    if (empty($element['#attributes']['class'])) {
-        $element['#attributes']['class'] = array();
-    }
-    $short = preg_replace('/[^a-zA-Z0-9]/', '', strtolower($element['#title'])) . '-' . $element['#original_link']['mlid'];
-    // test for active class, meaning this should be expanded by default
-    if (in_array('active-trail', $element['#attributes']['class'])) {
-      $element['#attributes']['class'][] = 'active';
-      $aria = 'true';
-      $tab = '0';
-    }
-    else {
-      $aria = 'false';
-      $tab = '-1';
-    }
-    $return .= '
-    <li class="tab-title ' . implode(' ', $element['#attributes']['class']) . '" role="presentational">
-      <a href="#' . $short . '-panel" role="tab" tabindex="' . $tab . '" aria-selected="' . $aria . '" controls="' . $short . '-panel">' . $element['#title'] . '</a>
-    </li>';
+function foundation_access_preprocess_region(&$variables) {
+  // add in the chevron contextual options for the high level
+  if ($variables['region'] == 'left_menu' && function_exists('_cis_service_connection_active_outline')) {
+    $node = _cis_service_connection_active_outline();
+    $variables['active_outline'] = $node->nid;
   }
-  return $return;
 }
+
 
 /**
  * Implements menu_tree__cis_service_connection_all_active_outline().
@@ -82,7 +54,7 @@ function foundation_access_menu_link__cis_service_connection_all_active_outline(
   static $counter = 1;
   // @todo supply this from elsewhere
   //$word_depth = array('Unit', 'Lesson');
-  $word = 'Lesson';
+  $word = t('Lesson');
   $element = $variables['element'];
   $sub_menu = '';
   $return = '';
@@ -102,58 +74,41 @@ function foundation_access_menu_link__cis_service_connection_all_active_outline(
     $return .= '<li>' . l('<div class="icon-assignment-black outline-nav-icon" data-grunticon-embed></div>' . $element['#title'], $element['#href'], $options) . '</li>';
   }
   else {
+    // ensure class array is at least set
     if (empty($element['#attributes']['class'])) {
       $element['#attributes']['class'] = array();
     }
-    // highest level we just render everything below
+    // active trail set classes based on that since its a core class
+    if (in_array('active-trail', $element['#attributes']['class'])) {
+      $element['#attributes']['class'][] = 'expanded';
+      $element['#attributes']['class'][] = 'active';
+    }
+    // calculate relative depth
+    $depth = $element['#original_link']['depth'] - 2;
+    // generate a short name
+    $short = preg_replace('/[^a-zA-Z0-9]/', '', strtolower($element['#title'])) . '-' . $element['#original_link']['mlid'];
+    // extract nid
+    $nid = str_replace('node/', '', $element['#href']);
+    // test for active class, meaning this should be expanded by default
     if ($element['#original_link']['p3'] == 0) {
-      $short = preg_replace('/[^a-zA-Z0-9]/', '', strtolower($element['#title'])) . '-' . $element['#original_link']['mlid'];
-      // test for active class, meaning this should be expanded by default
-      if (in_array('active-trail', $element['#attributes']['class'])) {
-        $element['#attributes']['class'][] = 'expanded';
-        $active = ' active';
-      }
-      else {
-        $active = '';
-      }
       $return .= '
-      <li class="accordion-navigation">' . "\n" .
+      <li class="has-submenu level-' . $depth . '-top ' . implode(' ', $element['#attributes']['class']) . '">' . "\n" .
       '<a href="#' . $short . '-panel">' . "\n" .
       '<h2>' . $word . ' ' . $counter . '</h2>' . "\n" .
       '<h3>' . $element['#title'] . '</h3>' . "\n" .
       '</a>' . "\n" .
-      '<div id="' . $short . '-panel" class="content">' . "\n" .
-      '<ul class="accordion sub-tier-1 off-canvas-list content-outline-navigation ' . implode(' ', $element['#attributes']['class']) . '" data-accordion="">' . "\n" .
-      $sub_menu . "\n</ul>\n</li>";
-      $counter++;
-    }
-    elseif ($element['#original_link']['p4'] == 0) {
-      $short = preg_replace('/[^a-zA-Z0-9]/', '', strtolower($element['#title'])) . '-' . $element['#original_link']['mlid'];
-      $nid = str_replace('node/', '', $element['#href']);
-      // test for active class, meaning this should be expanded by default
-      if (in_array('active-trail', $element['#attributes']['class'])) {
-        $element['#attributes']['class'][] = 'expanded';
-        $element['#attributes']['class'][] = 'active';
-      }
-      $return .= '<li class="has-submenu ' . implode(' ', $element['#attributes']['class']) . '"><a href="#"><div class="icon-content-black outline-nav-icon" data-grunticon-embed></div><span class="outline-nav-text">' . $element['#title'] . '</span></a>' . "\n" .
-      '<ul class="left-submenu level-1-sub">'  . "\n" .
+      '<ul class="left-submenu level-' . $depth . '-sub">'  . "\n" .
       '<h2>' . $word . ' ' . $counter . '</h2>' . "\n" .
       '<h3>' . $element['#title'] . '</h3>' . "\n" .
       _foundation_access_contextual_menu($short, $nid) .
       '<li class="back">'  . "\n" .
       '<a href="#">' . t('Back') . '</a></li>' . "\n" .
       $sub_menu . "\n</ul>\n</li>";
+      $counter++;
     }
     else {
-      $short = preg_replace('/[^a-zA-Z0-9]/', '', strtolower($element['#title'])) . '-' . $element['#original_link']['mlid'];
-      $nid = str_replace('node/', '', $element['#href']);
-      // test for active class, meaning this should be expanded by default
-      if (in_array('active-trail', $element['#attributes']['class'])) {
-        $element['#attributes']['class'][] = 'expanded';
-        $element['#attributes']['class'][] = 'active';
-      }
-      $return .= '<li class="has-submenu ' . implode(' ', $element['#attributes']['class']) . '"><a href="#"><div class="icon-content-black outline-nav-icon" data-grunticon-embed></div><span class="outline-nav-text">' . $element['#title'] . '</span></a>' . "\n" .
-      '<ul class="left-submenu level-2-sub">'  . "\n" .
+      $return ='<li class="has-submenu level-' . $depth . '-top ' . implode(' ', $element['#attributes']['class']) . '"><a href="#"><div class="icon-content-black outline-nav-icon" data-grunticon-embed></div><span class="outline-nav-text">' . $element['#title'] . '</span></a>' . "\n" .
+      '<ul class="left-submenu level-' . $depth . '-sub">'  . "\n" .
       '<h2>' . $word . ' ' . $counter . '</h2>' . "\n" .
       '<h3>' . $element['#title'] . '</h3>' . "\n" .
       _foundation_access_contextual_menu($short, $nid) .
@@ -167,40 +122,18 @@ function foundation_access_menu_link__cis_service_connection_all_active_outline(
 
 /**
  * Helper function to generate the contextual menu structure
- * @param  [type] $short [description]
- * @param  [type] $nid   [description]
- * @return [type]        [description]
+ * @param  string $short machine name unique to the page
+ * @param  int $nid   node id
+ * @return rendered output
  */
 function _foundation_access_contextual_menu($short, $nid) {
-  $output = '<div id="off-canvas-admin-menu-' . $short . '" data-dropdown-content class="f-dropdown content" aria-hidden="true" tabindex="-1">
-          <ul class="button-group">
-            <li>' . l(t('Edit outline here'), "node/$nid/outline/children") .'</li>
-            <li>' . l(t('Print outline here'), "book/export/html/$nid") .'</li>
-            <li>' . l(t('Duplicate outline'), "node/$nid/outline/copy") . '</li>
-            <hr>
-            <li><a href="#" data-reveal-id="block-menu-menu-course-tools-menu-nav-modal">Course Settings</a></li>
-          </ul>
-        </div>
-        <div id="off-canvas-add-menu-' . $short . '" data-dropdown-content class="f-dropdown content" aria-hidden="true" tabindex="-1">
-          <ul class="button-group">
-            <li><a href="#">Add a new lesson</a></li>
-            <hr>
-            <li><a href="#">Add a new unit</a></li>
-          </ul>
-        </div>' .
-      '<nav class="top-bar" data-topbar role="navigation">
-    <section class="right top-bar-section">
-      <a class="off-canvas-toolbar-item toolbar-menu-icon" href="#" data-dropdown="off-canvas-admin-menu-' . $short . '" aria-controls="offcanvas-admin-menu" aria-expanded="false">
-    <div class="icon-chevron-down-black off-canvas-toolbar-item-icon"></div>
-      </a>
-  </section>
-  <section class="right top-bar-section">
-      <a href="#" class="off-canvas-toolbar-item toolbar-menu-icon" data-dropdown="off-canvas-add-menu-' . $short . '" aria-controls="add-button" aria-expanded="false">
-    <div class="icon-plus-black off-canvas-toolbar-item-icon"></div>
-    </a>
-  </section>
-  </nav>';
-  return $output;
+  if (user_access('access contextual links'))
+  $render_array = array(
+    'short' => $short,
+    'cis_links' => menu_contextual_links('cis_lmsless', 'node', array($nid)),
+    '#theme_wrappers' => array('cis_lmsless_contextual_container'),
+  );
+  return render($render_array);
 }
 
 

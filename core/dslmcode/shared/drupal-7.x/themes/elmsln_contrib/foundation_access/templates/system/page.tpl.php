@@ -73,7 +73,7 @@
           <?php print render($page['cis_appbar_first']); ?>
           <hr>
           <li><a href="#">Duplicate Page</a></li>
-          <li><a href="#">Check Accessibility</a></li>
+          <li class="cis_accessibility_check"></li>
           <hr>
           <li><a href="#">Download Page</a></li>
           <hr>
@@ -116,16 +116,20 @@
 
                   <a id="main-content"></a>
 
-                  <?php if ($breadcrumb): print $breadcrumb; endif; ?>
+
 
                   <?php if ($title): ?>
                     <?php print render($title_prefix); ?>
                       <h1 id="page-title" class="title"><?php print $title; ?>
                         <br><small><!--This is my course subtitle.--></small>
                       </h1>
-                      <hr>
+
                     <?php print render($title_suffix); ?>
+
                   <?php endif; ?>
+                  <div class="breadcrumb-wrapper">
+                    <?php if ($breadcrumb): print $breadcrumb; endif; ?>
+                  </div>
                   <?php if ($action_links): ?>
                     <ul class="action-links">
                       <?php print render($action_links); ?>

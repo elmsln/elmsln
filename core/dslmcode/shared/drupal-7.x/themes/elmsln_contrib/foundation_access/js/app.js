@@ -1,4 +1,45 @@
 (function ($) {
+  // Accessibility To Do:
+  // 
+  // --------- Logic for exceptions ---------
+  // Must not have the cursor in an input field!
+  // No modifiers can be pressed
+  // Must not currently be depressing mouse button
+  // 
+  // --------- Off canvas outline ---------
+  // 
+  // //// Keyboard Focusing ////
+  // When a link in the subnav is in focus, ensure off canvas menu is open
+  // Otherwise, close the off-canvas nav
+  // 
+  // //// Key Bindings ////
+  // currently visible back button: b, left arrow
+  // Navigate up and down menu items (not sub items): up and down arrow
+  // Close off canvas navigation: esc, x
+  // Open submenu when focused on link: right arrow
+  // Edit item if option is available: e
+  // 
+  // --------- Modals ---------
+  // //// Keyboard Focusing ////
+  // When a modal is launched, move focus to the modal window
+  // When modal is closed, move focus to previously focused item (modal's button??)
+  // 
+  // 
+  // //// Key Bindings ////
+  // close current modal: x, (esc is already set)
+  //  
+  //  --------- System and Admin Tasks ---------
+  // //// Key Bindings ////
+  // print page: p
+  // edit page: e
+  // Bring up list of shortcuts: k
+
+  Drupal.behaviors.foundation_access = {
+    attach: function(context, settings) {
+      $(".accessibility-content-toggle a").appendTo( ".cis_accessibility_check" );
+      $(".accessibility-content-toggle").hide();
+    }
+  };
   Drupal.settings.progressScroll ={scroll:0, total:0, scrollPercent:0};
   // sticky stuff
   Drupal.behaviors.stickyStuff = {
@@ -106,6 +147,5 @@
   $(window).scroll(function () {
       Drupal.behaviors.progressScroll.attach();
   });
-
 
 })(jQuery);
