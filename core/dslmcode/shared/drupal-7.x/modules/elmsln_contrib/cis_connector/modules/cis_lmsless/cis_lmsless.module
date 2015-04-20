@@ -104,8 +104,9 @@ function cis_lmsless_form_masquerade_block_1_alter(&$form, &$form_state, $form_i
     $field_conditions = array('og_user_node' => array('target_id', array($gid), 'IN'));
   }
   // pull together the users
-  $users = _cis_connector_assemble_entity_list('user', 'user', 'uid', 'name', $field_conditions);
+  $users = _cis_connector_assemble_entity_list('user', 'user', 'name', 'name', $field_conditions);
   $form['masquerade_user_field']['#options'] = $users;
+  unset($form['masquerade_user_field']['#size']);
   unset($form['masquerade_user_field']['#autocomplete_path']);
 }
 
