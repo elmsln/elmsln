@@ -1,33 +1,33 @@
 (function ($) {
   // Accessibility To Do:
-  // 
+  //
   // --------- Logic for exceptions ---------
   // Must not have the cursor in an input field!
   // No modifiers can be pressed
   // Must not currently be depressing mouse button
-  // 
+  //
   // --------- Off canvas outline ---------
-  // 
+  //
   // //// Keyboard Focusing ////
   // When a link in the subnav is in focus, ensure off canvas menu is open
   // Otherwise, close the off-canvas nav
-  // 
+  //
   // //// Key Bindings ////
   // currently visible back button: b, left arrow
   // Navigate up and down menu items (not sub items): up and down arrow
   // Close off canvas navigation: esc, x
   // Open submenu when focused on link: right arrow
   // Edit item if option is available: e
-  // 
+  //
   // --------- Modals ---------
   // //// Keyboard Focusing ////
   // When a modal is launched, move focus to the modal window
   // When modal is closed, move focus to previously focused item (modal's button??)
-  // 
-  // 
+  //
+  //
   // //// Key Bindings ////
   // close current modal: x, (esc is already set)
-  //  
+  //
   //  --------- System and Admin Tasks ---------
   // //// Key Bindings ////
   // print page: p
@@ -58,7 +58,7 @@
     }
   };
   // Page Scrolling Progress Bar
-  Drupal.behaviors.progressScroll = {
+  Drupal.progressScroll = {
     attach: function (context, settings) {
       // don't use the top bar in the calculation
       Drupal.settings.progressScroll.scroll = $(window).scrollTop() - $("#etb-tool-nav", context)[0].offsetTop;
@@ -86,7 +86,7 @@
 
   // Function for making the offcanvas menu height stretch down to the footer
 
-  Drupal.behaviors.offcanvasHeight = {
+  Drupal.offcanvasHeight = {
     attach: function (context, settings) {
 
       ////// This corrects the vertical height of the offcanvas wrapper to fill the open space on the page
@@ -103,7 +103,7 @@
     }
   };
 
-  Drupal.behaviors.offcanvasSubmenuHeight = {
+  Drupal.offcanvasSubmenuHeight = {
     attach: function (context, settings) {
 
       ////// This corrects the vertical height of the offcanvas sub-navigation panels
@@ -124,7 +124,7 @@
         Drupal.settings.leftOffCanvasScrollWindow = parseInt($("body").scrollTop());
 
         // Run height fix
-        Drupal.behaviors.offcanvasSubmenuHeight.attach();
+        Drupal.offcanvasSubmenuHeight.attach();
 
         // Scroll to top
         $('body').animate({scrollTop:$("#etb-tool-nav", context)[0].offsetTop},0);
@@ -141,11 +141,11 @@
   };
 
   $(window).resize(function() {
-  		Drupal.behaviors.offcanvasHeight.attach();
-      Drupal.behaviors.offcanvasSubmenuHeight.attach();
-	});
+    Drupal.offcanvasHeight.attach();
+    Drupal.offcanvasSubmenuHeight.attach();
+  });
   $(window).scroll(function () {
-      Drupal.behaviors.progressScroll.attach();
+      Drupal.progressScroll.attach();
   });
 
 })(jQuery);
