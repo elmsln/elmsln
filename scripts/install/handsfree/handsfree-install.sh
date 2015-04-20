@@ -95,7 +95,7 @@ datadomain=$6
 prefix=$7
 ip=$(hostname -I)
 elmslnecho "If you are developing with this and don't have a valid domain yet you can copy the following into your local machine's /etc/hosts file:"
-elmslnecho "# ELMSLN cloud development"
+elmslnecho "# ELMSLN development"
 # loop through and write each of these here
 for stack in "${stacklist[@]}"
 do
