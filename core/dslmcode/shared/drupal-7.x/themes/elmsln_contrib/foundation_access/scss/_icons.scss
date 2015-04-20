@@ -166,6 +166,7 @@ img.svg {
 	margin: 0.4rem;
 	display: block;
 	height: 2.8125rem;
+	background:transparent;
 	@include opacity(0.2);
 	@include transition();
 	
@@ -178,10 +179,27 @@ img.svg {
 		width: 2rem;
 		height: 2rem;
 		display: inline-block;
-		
-		
-		
 	}
+}
+
+.toolbar-menu-icon {
+	display:inline-flex;
+}
+
+// Off-canvas submenu back button icon
+//// Un-set default arrows
+.left-submenu .back>a.kill-content-before:before {
+	content: none;
+  	margin-right: 0rem;
+  	display: inherit;
+  	height: 0;
+}
+.back-arrow-left-btn {
+	height:rem-calc(30);
+	width:rem-calc(30);
+	float:left;
+	margin-right:1rem;
+	@include opacity(0.3);
 }
 
 // Off-canvas menu toggle icon
@@ -190,7 +208,7 @@ img.svg {
 		display: block;
 		height:3rem;
 		padding:1rem;
-		.icon-close-white {
+		.icon-close-black {
 			left: 50%;
 			position: relative;
 			display: block;
@@ -209,8 +227,6 @@ img.svg {
 	height:rem-calc(30);
 	width:rem-calc(30);
 	float:left;
-	@include opacity(0.3);
-}
-.outline-nav-icon {
 	margin-right:1rem;
+	@include opacity(0.3);
 }

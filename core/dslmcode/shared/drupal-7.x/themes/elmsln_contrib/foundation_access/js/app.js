@@ -141,9 +141,9 @@
   };
 
   $(window).resize(function() {
-    Drupal.offcanvasHeight.attach();
-    Drupal.offcanvasSubmenuHeight.attach();
-  });
+  		Drupal.offcanvasHeight.attach();
+      Drupal.offcanvasSubmenuHeight.attach();
+	});
   $(window).scroll(function () {
       Drupal.progressScroll.attach();
   });

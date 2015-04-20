@@ -1,0 +1,93 @@
+#accessibility-drop.open {
+	width:20em;
+	height:auto;
+	@media #{$small-only} {
+		width:100% !important;
+		left:0 !important
+	}
+
+}
+
+// .custom-dropdown-container-class {
+//   @include dropdown-container(
+//     // Sets list-style. Default: list. Options: [list, content]
+//     $content:content,
+//     // Sets if dropdown has triangle. Default:true.
+//     $triangle:false,
+//     // Sets max-width. Default: $f-dropdown-max-width
+//     $max-width:100%;
+//   );
+
+//   li { @include dropdown-style; }
+// }
+
+$left-tabbar-section-width:15rem;
+$right-tabbar-section-width:2.8125rem;
+#etb-tool-nav {
+  .inner-wrap {
+  }
+  section.right-small {
+    width:$right-tabbar-section-width;
+    border-left:$top-bar-border-width solid darken($etb-nav-bg-color, 5%);
+  }
+  .tab-bar {
+    background-color:transparent;
+    // margin-top:0.25rem;
+    .tab-bar-section {
+      text-align:right;
+      padding:0;
+      
+      a.button.secondary {
+        background:transparent;
+        color:$tool-bar-dark-color;
+        border:none;
+        &:hover {
+          background:rgba(0,0,0,0.1);
+        }
+      }
+      &.middle {
+        left:$left-tabbar-section-width;
+        right:$right-tabbar-section-width;
+        overflow: hidden;
+      }
+    }
+    a.left-off-canvas-toggle.menu-icon {
+      margin-left: 0.25rem;
+      @include transition(all,1.5s,cubic-bezier(0.01, 0.94, 0.46, 1));
+      &:hover, &:focus {
+        background-color: $etb-nav-bg-color;
+        @include transition(all,1.5s,cubic-bezier(0.01, 0.94, 0.46, 1));
+        
+      }
+    }
+    .menu-icon {
+      width:$left-tabbar-section-width;
+      text-transform: capitalize;
+      span {
+        padding: 0 0 0 1rem;
+        font-size:1.2rem;
+        color:$tool-bar-dark-color;
+      }
+      span::after {
+        left:1.25rem;
+        box-shadow: 0 0 0 1px $tool-bar-dark-color,0 7px 0 1px $tool-bar-dark-color,0 14px 0 1px $tool-bar-dark-color;
+      }
+    }
+  }
+}
+.hide-me-small-only {
+  @media #{$small-only} {
+    display:none;
+  }
+  @media #{$medium-up} {
+    display:inherit;
+  }
+}
+.show-me-small-only {
+  @media #{$small-only} {
+    display:inherit;
+  }
+   @media #{$medium-up} {
+    display:none;
+  }
+}

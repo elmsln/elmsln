@@ -13,7 +13,7 @@ $messages-alerts-color:darken($blue-contrast-color,30%);
 $contrast-color:#EC6C20;
 $text-on-dark-color:#fff;
 
-// ETB
+// Ecosystem Topbar
 $etb-nav-bg-color:#efefef;
 $etb-nav-btn-bg-color:darken($etb-nav-bg-color,20%);
 $etb-tool-bg-color:#3e3e3e;
@@ -23,16 +23,24 @@ $tool-bar-dark-color:#000;
 $menu-icon-color:$contrast-color;
 $icon-border-color:#3e3e3e;
 $dark-color:#2b2b2b;
+
+// Modal
 $modal-headings-color:#575757;
+
+// Footer
 $footer-bg-color:$etb-tool-bg-color;
-$tabbar-section-border-color:#282828;
+$footer-text-color:#999;
 
 // Off-canvas Menu
-$active-menu-bg:#848484;
-$active-menu-link-border:darken($active-menu-bg,10%);
+$active-menu-bg:#efefef;
+$active-menu-link-border:$active-menu-bg;
 $active-menu-border: darken($active-menu-bg,35%);
+$active-menu-text-color:#333;
+$active-menu-link-heading-text-color:lighten($active-menu-text-color,10%);
+$active-menu-link-heading-div-color:darken($active-menu-text-color,10%);
 $round-icon-bg-color:#fff;
 $round-icon-bg-hover-color:#ccc;
+$tabbar-section-border-color:#282828;
 
 // Text Content 
 $text-color: #313131;

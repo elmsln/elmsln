@@ -93,7 +93,7 @@
      -o-text-shadow: $shadow-1, $shadow-2;
      text-shadow: $shadow-1, $shadow-2;
  }
- @mixin sticky-footer($footer-height, $wrapper-selector: unquote("#wrapper"), $container-selector: unquote("#container"), $footer-selector: unquote("#footer")) {
+ @mixin sticky-footer($footer-height, $above-elements-offset, $wrapper-selector: unquote("#wrapper"), $container-selector: unquote("#container"), $footer-selector: unquote("#footer")) {
   html, body {
     height: 100%;
   }
@@ -108,9 +108,15 @@
     margin-top: 0;  
     margin-left: auto;
     margin-right: auto;
-    margin-bottom: -$footer-height;
+    margin-bottom: -$footer-height - $above-elements-offset;
+    @media #{$small-only} {
+        margin-bottom: -$footer-height - $above-elements-offset - $above-elements-offset;
+      }
     #{$container-selector} {
-      margin: 0 0 $footer-height 0;
+      margin: 0 0 $footer-height + $above-elements-offset 0;
+      @media #{$small-only} {
+        margin: 0 0 $footer-height + $above-elements-offset + $above-elements-offset 0;
+      }
     } 
   }
   #{$footer-selector} {

@@ -9,12 +9,16 @@
 @import "fonts";
 @import "magellan";
 //////////
+@import "common";
 @import "admin_menu";
-@import "etbnav";
-@import "etbnav-modal";
+@import "main-navigation-topbar";
+@import "modal";
 @import "icons";
+@import "progress-bar";
+@import "breadcrumbs";
 @import "off-canvas-left-menu";
-@import "etb-service-toolbar";
+@import "service-toolbar";
+@import "menu-drops";
 @import "footer";
 // Content/Responsive Typography Styling
 @import "content-styles/content";

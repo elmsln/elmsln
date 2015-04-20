@@ -2,7 +2,7 @@
   padding: $element-offset inherit;
 }
 //Sticky Footer
-@include sticky-footer(10rem, '.off-canvas-wrap', '.inner-wrap', '.sticky-footer');
+@include sticky-footer(10rem, $top-bar-height, '.off-canvas-wrap', '.inner-wrap', '.sticky-footer');
 
 footer {
 	background-color: $footer-bg-color;
@@ -10,6 +10,7 @@ footer {
 	text-align:center;
 
 	p {
-		color:$white;
+		color:$footer-text-color;
+		font-size: 0.8rem;
 	}
 }

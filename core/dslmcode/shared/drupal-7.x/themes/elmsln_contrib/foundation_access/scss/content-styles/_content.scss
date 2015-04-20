@@ -4,12 +4,6 @@
 	  text-shadow: none;
 }
 
-.scroll-disabled {
-	overflow: hidden;
-}
-.breadcrumbs {
-	display:inline-block;
-}
 .etb-book {
 	//background:$book-bg-color;
 	
@@ -614,3 +608,19 @@
   margin-left:-3em;
 }
 
+// Page Links
+.book-navigation {
+	a {
+		color:$dark-background-color;
+	}
+	.page-links {
+		border:none;
+	}
+	.page-next, .page-previous {
+		width:auto;
+		padding:0.75rem;
+		background-color:$etb-nav-bg-color;
+
+		@include border-radius();
+	}
+}

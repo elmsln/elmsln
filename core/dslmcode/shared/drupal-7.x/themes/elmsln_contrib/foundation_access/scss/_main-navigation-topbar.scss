@@ -1,0 +1,209 @@
+// Hover 
+%btn-focus {
+  background-color:$etb-nav-bg-color;
+}
+%animation-all{
+  @extend transform();
+}
+%etb-nav_btn {
+  list-style:none;
+}
+%etb-nav_item {
+  width:auto;
+  height:3.125rem; //50px
+  margin-right:0.3125rem; //5px
+}
+%etb-nav_icon {
+  width:2rem;//32px
+  height:2rem;//32px
+  margin:0.3125;//5px
+}
+ul.kill-margin {
+  margin:0;
+}
+a.modal-img-link {
+  display:block;
+  margin:1rem 0;
+  span {
+    padding: 2.5rem 0 0 7rem;
+    display:block;
+  }
+}
+.etb-nav {
+    &_item {
+
+      &_service {
+        @extend %etb-nav_item;
+        &_btn {
+          @extend %etb-nav_btn;
+          @extend %animation-all;
+          
+          
+          &:hover, &:focus, &.active {
+            @extend %btn-focus;
+          }
+        }
+       
+        &_modal {
+
+        }
+      }
+      &_search {
+        @extend %etb-nav_item;
+        margin:0 auto;
+        position: relative;
+        display:block;
+        &_btn {
+          @extend %etb-nav_btn;
+          width:auto;
+          height:2rem; //32px
+          float:left;
+          padding:0.375rem;
+
+        }
+        &_input {
+          margin:0.375rem;
+        }
+        
+        &_modal {
+
+        }
+      }
+      &_branding {
+        width:18.750rem;//300px
+        height:100%;
+        float:right;
+        margin-right:0.3125rem;
+        &_btn {
+          float:right;
+          width:2.813rem;
+          height:2.813rem;
+        }
+        &_title {
+          
+        }
+        &_identifier {
+        }
+        &_modal {
+
+        }
+      }
+    }
+  }
+ 
+////////// Course Ecosystem Navigation
+
+////////
+// Variables
+////////
+
+$top-bar-base-height:4.375rem; // 70px
+$top-bar-border-width:0.0625rem; // 1px
+$top-bar-height:$top-bar-border-width + $top-bar-base-height;
+////////
+
+#etb-course-nav {
+    background-color:$etb-nav-bg-color;
+    border-bottom:$top-bar-border-width solid darken($etb-nav-bg-color, 5%);
+    
+    @media #{$small-only} {
+      border-bottom:$top-bar-border-width*2 solid $white;
+    }
+  .top-bar-section .has-dropdown>a:after {
+    border-color: lighten($tool-bar-dark-color, 20%) transparent transparent transparent;
+    top:50%;
+  }
+  .top-bar {
+    background-color:transparent;
+    height: $top-bar-base-height;
+    @media #{$small-only} {
+      border-bottom:$top-bar-border-width solid darken($etb-nav-bg-color, 5%);
+    }
+    input {
+      background-color:#fff;
+      border-top:0;
+      border-left:0;
+      border-right:0;
+      border-bottom:0;
+      box-shadow:none;
+      width:80%;
+      margin:0 auto;
+    }
+    form {
+      margin-top: 0.7rem;
+    }
+    .name {
+      width:0;
+    }
+    .toggle-topbar.menu-icon {
+      background:#ccc;
+    }
+  }
+
+  .top-bar-section {
+    &.title-link {
+      li {
+        background-color:transparent;
+        a {
+          background-color:transparent;
+        }
+      }
+    }
+    ul{
+      li.has-dropdown {
+        background-color:transparent;
+         height: 4.375rem;
+        a {
+          background-color:transparent;
+           height: 4.375rem;
+          &:hover, &:focus { 
+            background-color: $etb-nav-bg-color;
+          }
+        }
+      }
+      &.dropdown li {
+         height: auto;
+       &.active {
+        a {
+          border-left:4px solid $contrast-color;
+        }
+       }
+       a {
+        background-color:$etb-nav-bg-color;
+         height: auto;
+       }
+      }
+      li:not(.has-form) a:not(.button) {
+        display: block;
+        color:lighten($tool-bar-dark-color, 20%);
+      }
+    }
+  }
+  span.course-title {
+    display: block;
+    margin: 0;
+    padding: 1.0rem 0.3125rem 0rem 0.3125rem;
+    line-height: 1rem;
+    text-align: right;
+    color: #000;
+    font-size: 1em;
+    color:#626262;
+    
+    @media #{$small-only} {
+       padding: 0.5rem 0.3125rem 0rem 0.3125rem;
+       text-align: center;
+    }
+  }
+  span.course-abrv {
+    display: block;
+    text-align: right;
+    line-height:1rem;
+    color: #000;
+    padding-right: rem-calc(5);
+    color:#333333;
+    font-size: 1em;
+    @media #{$small-only} {
+       text-align: center;
+    }
+  }
+}

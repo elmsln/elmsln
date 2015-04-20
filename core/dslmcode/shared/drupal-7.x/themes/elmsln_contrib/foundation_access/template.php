@@ -123,10 +123,12 @@ function foundation_access_menu_link__cis_service_connection_all_active_outline(
       '</a>' . "\n" .
       '<ul class="left-submenu level-' . $depth . '-sub">'  . "\n" .
       _foundation_access_contextual_menu($short, $nid) .
+      '<div>'  . "\n" .
       '<h2>' . $word . ' ' . $counter . '</h2>' . "\n" .
       '<h3>' . $element['#title'] . '</h3>' . "\n" .
+      '</div>'  . "\n" .
       '<li class="back">'  . "\n" .
-      '<a href="#" class="kill-content-before"><div class="icon-arrow-left-black back-arrow-left-btn"></div>' . t('Back') . '</a></li>' . "\n" .
+      '<a href="#" class="kill-content-before middle-align-wrap center-align-wrap"><div class="icon-arrow-left-black back-arrow-left-btn"></div><span>' . t('Back') . '</span></a></li>' . "\n" .
       $sub_menu . "\n</ul>\n</li>";
       $counter++;
     }
@@ -134,10 +136,12 @@ function foundation_access_menu_link__cis_service_connection_all_active_outline(
       $return ='<li class="has-submenu level-' . $depth . '-top ' . implode(' ', $element['#attributes']['class']) . '"><a href="#"><div class="icon-content-black outline-nav-icon"></div><span class="outline-nav-text">' . $element['#title'] . '</span></a>' . "\n" .
       '<ul class="left-submenu level-' . $depth . '-sub">'  . "\n" .
       _foundation_access_contextual_menu($short, $nid) .
+      '<div>'  . "\n" .
       '<h2>' . $word . ' ' . $counter . '</h2>' . "\n" .
       '<h3>' . $element['#title'] . '</h3>' . "\n" .
+      '</div>'  . "\n" .
       '<li class="back">'  . "\n" .
-      '<a href="#" class="kill-content-before"><div class="icon-arrow-left-black back-arrow-left-btn"></div>' . t('Back') . '</a></li>' . "\n" .
+      '<a href="#" class="kill-content-before middle-align-wrap center-align-wrap"><div class="icon-arrow-left-black back-arrow-left-btn"></div><span>' . t('Back') . '</span></a></li>' . "\n" .
       $sub_menu . "\n</ul>\n</li>";
     }
   }

@@ -1,38 +1,30 @@
-// To Do: Add backup font classes al la Jason Pamental's technique
+// To Do: Add backup font classes al la Jason Pamental's technique (one day...)
 
-//Vollkorn Google Font
-%vollkorn-normal {
-	font-family: "Vollkorn", "Georgia", serif;
+//Droid Serif Google Font
+%droid-serif-normal {
+	font-family: "Droid Serif", "Georgia", serif;
 	 font-style: normal;
 	 font-weight: 400;
 }
-%vollkorn-bold {
-	font-family: "Vollkorn", "Georgia", serif;
+%droid-serif-bold {
+	font-family: "Droid Serif", "Georgia", serif;
 	 font-style: normal;
 	 font-weight: 700;
 }
-%vollkorn-italic {
-	font-family: "Vollkorn", "Georgia", serif;
+%droid-serif-italic {
+	font-family: "Droid Serif", "Georgia", serif;
 	 font-style: normal;
 	 font-weight: 400;
 	 font-style: italic;
 }
-//Asap Google Font
-%asap-normal {
-	 font-family: "Asap", "Helvetica Neue", "Helvetica", sans-serif;
-	 font-style: normal;
-	 font-weight: 400;
-}
-%asap-bold {
-	 font-family: "Asap", "Helvetica Neue", "Helvetica", sans-serif;
+%droid-serif-bold-italic {
+	font-family: "Droid Serif", "Georgia", serif;
 	 font-style: normal;
 	 font-weight: 700;
-}
-%asap-italic {
-	 font-family: "Asap", "Helvetica Neue", "Helvetica", sans-serif;
-	 font-weight: 400;
 	 font-style: italic;
 }
+//Open Sans Google Font
+
 %opensans-light {
 	 font-family: "Open Sans", "Helvetica Neue", "Helvetica", sans-serif;
 	 font-style: normal;
@@ -52,34 +44,63 @@
 // Applied fonts
 
 body {
-	 @extend %vollkorn-normal;
+	 @extend %droid-serif-normal;
 }
 
 h1 {
-	 @extend %asap-bold;
+	 @extend %opensans-bold;
+	 
+	 &.title {
+	 	text-transform: uppercase;
+	 }
 }
 
 h2 {
-	 @extend %asap-bold;
+	 @extend %opensans-normal;
+}
+h3 {
+	@extend %opensans-light;
+}
+h4 {
+	@extend %opensans-light;
+}
+h5 {
+	@extend %droid-serif-bold;
+}
+h6 {
+	@extend %droid-serif-bold-italic;
 }
 a {
 	@extend %opensans-normal;
 }
 p {
-	@extend %vollkorn-normal;
+	@extend %droid-serif-normal;
 	a {
-		@extend %vollkorn-normal;
+		@extend %droid-serif-normal;
 	}
+	strong {
+		@extend %droid-serif-bold;
 
+		i {
+			@extend %droid-serif-bold-italic;
+		}
+	}
+	i {
+		@extend %droid-serif-italic;
+
+		strong {
+			@extend %droid-serif-bold-italic
+		}
+	}
 	&.txtbk-intro {
-		 @extend %asap-normal;
+		 @extend %opensans-normal;
 		 a{
-		 	@extend %asap-normal;
+		 	@extend %opensans-normal;
 		 }
 	}
 
 	&.txtbk-pullquote {
-		 @extend %vollkorn-italic;
+		 @extend %droid-serif-italic;
 		 
 		 @media #{$small-only} {
 			font-family: "Georgia", sans-serif;
@@ -88,21 +109,21 @@ p {
 }
 
 span.dropcap {
-	 @extend %asap-bold;
+	 @extend %opensans-bold;
 }
 
 .image-media {
 	h3 {
-		 @extend %asap-bold;
+		 @extend %opensans-bold;
 	}
 }
 
 h4.testimonial-name {
-	 @extend %asap-bold;
+	 @extend %opensans-bold;
 }
 
 p.testimonial-title {
-	 @extend %vollkorn-italic;
+	 @extend %droid-serif-italic;
 }
 #etb-course-nav span.course-title {
 	@extend %opensans-light;
@@ -116,7 +137,7 @@ p.testimonial-title {
 	@extend %opensans-light;
 }
 .etb-nav_item_search input {
-	@extend %vollkorn-italic;
+	@extend %droid-serif-italic;
 		 
 	 @media #{$small-only} {
 		font-family: "Georgia", sans-serif;
@@ -144,4 +165,22 @@ a.modal-img-link span {
 }
 #admin-menu .dropdown li li a {
 	@extend %opensans-light;
+}
+.accordion .accordion-navigation>a,
+.accordion dd>a {
+	@extend %opensans-normal;
+}
+.sub-tier-1 {
+	    
+	h2 {
+	  @extend %opensans-normal;
+	  text-transform:normal;
+	}
+	h3 {
+	  @extend %opensans-normal;
+	  text-transform:normal;
+	}
+}
+footer p {
+	@extend %opensans-normal;
 }
