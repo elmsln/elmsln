@@ -27,26 +27,13 @@
 ?>
 <aside class="left-off-canvas-menu">
   <!-- Menu Item Dropdowns -->
-    <div id="off-canvas-admin-menu" data-dropdown-content class="f-dropdown content" aria-hidden="true" tabindex="-1">
-      <ul class="button-group">
-      	<li><?php print l(t('Edit course outline'), 'admin/content/book/' . $active_outline); ?></li>
-      	<li><?php print l(t('Print course outline'), 'book/export/html/' . $active_outline); ?></li>
-      	<li><?php print l(t('Save As new outline'), 'admin/content/book/copy/' . $active_outline); ?></li>
-      	<hr>
-      	<li><a href="#" data-reveal-id="block-menu-menu-course-tools-menu-nav-modal">Course Settings</a></li>
-      </ul>
-    </div>
-    <nav class="top-bar" data-topbar role="navigation">
-      <section class="right top-bar-section">
-        <a class="off-canvas-toolbar-item toolbar-menu-icon" href="#" data-dropdown="off-canvas-admin-menu" aria-controls="offcanvas-admin-menu" aria-expanded="false">
-          <div class="icon-chevron-down-black off-canvas-toolbar-item-icon"></div>
-        </a>
-     </section>
-    </nav>
+  <?php if (isset($button_group)): ?>
+    <?php print $button_group; ?>
+  <?php endif; ?>
   <a role="button" class="left-off-canvas-toggle close"><div class="icon-close-black outline-nav-icon" data-grunticon-embed></div></a>
   <div class="content-outline-navigation in-place-scroll">
   <?php if ($content): ?>
     <?php print $content; ?>
   <?php endif; ?>
-	</div>
+  </div>
 </aside>

@@ -65,21 +65,19 @@
         </nav>
 
         <!-- Middle Section Dropdown Page Tabs -->
+      <?php if (!empty($tabs) || isset($tabs_extras)): ?>
         <div id="middle-section-buttons" data-dropdown-content class="f-dropdown content" aria-hidden="true" tabindex="-1">
           <?php if (!empty($tabs)): ?>
               <?php print render($tabs); ?>
             <?php if (!empty($tabs2)): print render($tabs2); endif; ?>
           <?php endif; ?>
-          <?php print render($page['cis_appbar_first']); ?>
-          <hr>
-          <li><a href="#">Duplicate Page</a></li>
-          <li class="cis_accessibility_check"></li>
-          <hr>
-          <li><a href="#">Download Page</a></li>
-          <hr>
-          <li><a href="#" data-reveal-id="block-menu-menu-course-tools-menu-nav-modal">Course Settings</a></li>
+          <?php if (isset($tabs_extras)): ?>
+              <?php print $tabs_extras; ?>
+          <?php endif; ?>
         </div>
+      <?php endif; ?>
 
+        <?php print render($page['cis_appbar_first']); ?>
 
         <?php print render($page['left_menu']); ?>
 

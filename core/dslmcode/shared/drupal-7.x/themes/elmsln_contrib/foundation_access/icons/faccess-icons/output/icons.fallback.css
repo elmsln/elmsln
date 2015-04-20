@@ -12,6 +12,14 @@
 
 .icon-apps-white { background-image: url('png/apps-white.png'); background-repeat: no-repeat; }
 
+.icon-arrow-left-black { background-image: url('png/arrow-left-black.png'); background-repeat: no-repeat; }
+
+.icon-arrow-left-white { background-image: url('png/arrow-left-white.png'); background-repeat: no-repeat; }
+
+.icon-arrow-right-black { background-image: url('png/arrow-right-black.png'); background-repeat: no-repeat; }
+
+.icon-arrow-right-white { background-image: url('png/arrow-right-white.png'); background-repeat: no-repeat; }
+
 .icon-assignment-black { background-image: url('png/assignment-black.png'); background-repeat: no-repeat; }
 
 .icon-assignment-white { background-image: url('png/assignment-white.png'); background-repeat: no-repeat; }

@@ -135,7 +135,7 @@
               <h2>Profile</h2>
               <a href="#" class="modal-img-link row">
                 <div class="left">
-                  <img alt="placeholder image" src="https://placehold.it/100x100">
+                  <img alt="placeholder image" src="">
                 </div>
                 <span><?php print $username; ?></span>
               </a>
@@ -176,7 +176,7 @@
               <h2><?php print t('Instructor'); ?></h2>
               <a href="#" class="modal-img-link row">
                 <div class="left">
-                  <img alt="placeholder image" src="https://placehold.it/100x100">
+                  <img alt="placeholder image" src="">
                 </div>
                 <span class=""><?php print t('Instructor Name'); ?></span>
               </a>

@@ -20,6 +20,14 @@ function foundation_access_preprocess_page(&$variables) {
   if (module_exists('cis_lmsless')) {
     $variables['cis_lmsless'] = _cis_lmsless_theme_vars();
   }
+  $variables['tabs_extras'] = '<hr>
+    <li>' . l(t('Download Page'), 'book/export/html/' . arg(1)) . '</li>';
+  if (user_access('access contextual links')) {
+    $variables['tabs_extras'] = '<hr>
+    <li class="cis_accessibility_check"></li>
+    <hr>
+    <li><a href="#" data-reveal-id="block-menu-menu-course-tools-menu-nav-modal">Course Settings</a></li>';
+  }
 }
 
 /**
@@ -33,9 +41,25 @@ function foundation_access_preprocess_node(&$variables) {
  */
 function foundation_access_preprocess_region(&$variables) {
   // add in the chevron contextual options for the high level
-  if ($variables['region'] == 'left_menu' && function_exists('_cis_service_connection_active_outline')) {
+  if ($variables['region'] == 'left_menu' && function_exists('_cis_service_connection_active_outline') && user_access('access contextual links')) {
     $node = _cis_service_connection_active_outline();
-    $variables['active_outline'] = $node->nid;
+     $variables['button_group'] =
+     '<div id="off-canvas-admin-menu" data-dropdown-content class="f-dropdown content" aria-hidden="true" tabindex="-1">
+     <ul class="button-group">
+       <li>' . l(t('Edit course outline'), 'admin/content/book/' . $node->nid) . '</li>
+       <li>' . l(t('Print course outline'), 'book/export/html/' . $node->nid) . '</li>
+       <li>' . l(t('Save As new outline'), 'admin/content/book/copy/' . $node->nid) . '</li>
+       <hr>
+       <li><a href="#" data-reveal-id="block-menu-menu-course-tools-menu-nav-modal">Course Settings</a></li>
+     </ul>
+     </div>
+    <nav class="top-bar" data-topbar role="navigation">
+      <section class="right top-bar-section">
+        <a class="off-canvas-toolbar-item toolbar-menu-icon" href="#" data-dropdown="off-canvas-admin-menu" aria-controls="offcanvas-admin-menu" aria-expanded="false">
+          <div class="icon-chevron-down-black off-canvas-toolbar-item-icon"></div>
+        </a>
+     </section>
+    </nav>';
   }
 }
 
@@ -71,7 +95,7 @@ function foundation_access_menu_link__cis_service_connection_all_active_outline(
     // ending elements
     $options = $element['#localized_options'];
     $options['html'] = TRUE;
-    $return .= '<li>' . l('<div class="icon-assignment-black outline-nav-icon" data-grunticon-embed></div>' . $element['#title'], $element['#href'], $options) . '</li>';
+    $return .= '<li>' . l('<div class="icon-assignment-black outline-nav-icon"></div>' . $element['#title'], $element['#href'], $options) . '</li>';
   }
   else {
     // ensure class array is at least set
@@ -98,22 +122,22 @@ function foundation_access_menu_link__cis_service_connection_all_active_outline(
       '<h3>' . $element['#title'] . '</h3>' . "\n" .
       '</a>' . "\n" .
       '<ul class="left-submenu level-' . $depth . '-sub">'  . "\n" .
+      _foundation_access_contextual_menu($short, $nid) .
       '<h2>' . $word . ' ' . $counter . '</h2>' . "\n" .
       '<h3>' . $element['#title'] . '</h3>' . "\n" .
-      _foundation_access_contextual_menu($short, $nid) .
       '<li class="back">'  . "\n" .
-      '<a href="#">' . t('Back') . '</a></li>' . "\n" .
+      '<a href="#" class="kill-content-before"><div class="icon-arrow-left-black back-arrow-left-btn"></div>' . t('Back') . '</a></li>' . "\n" .
       $sub_menu . "\n</ul>\n</li>";
       $counter++;
     }
     else {
-      $return ='<li class="has-submenu level-' . $depth . '-top ' . implode(' ', $element['#attributes']['class']) . '"><a href="#"><div class="icon-content-black outline-nav-icon" data-grunticon-embed></div><span class="outline-nav-text">' . $element['#title'] . '</span></a>' . "\n" .
+      $return ='<li class="has-submenu level-' . $depth . '-top ' . implode(' ', $element['#attributes']['class']) . '"><a href="#"><div class="icon-content-black outline-nav-icon"></div><span class="outline-nav-text">' . $element['#title'] . '</span></a>' . "\n" .
       '<ul class="left-submenu level-' . $depth . '-sub">'  . "\n" .
+      _foundation_access_contextual_menu($short, $nid) .
       '<h2>' . $word . ' ' . $counter . '</h2>' . "\n" .
       '<h3>' . $element['#title'] . '</h3>' . "\n" .
-      _foundation_access_contextual_menu($short, $nid) .
       '<li class="back">'  . "\n" .
-      '<a href="#">' . t('Back') . '</a></li>' . "\n" .
+      '<a href="#" class="kill-content-before"><div class="icon-arrow-left-black back-arrow-left-btn"></div>' . t('Back') . '</a></li>' . "\n" .
       $sub_menu . "\n</ul>\n</li>";
     }
   }
