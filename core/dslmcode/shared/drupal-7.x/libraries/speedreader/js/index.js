@@ -23,6 +23,7 @@
     else {
       words = tmp.textContent;
     }
+    words = words.replace(/\s{2,}/g, ' ');
     words = words.trim().split(' ');
     for (var j = 1; j < words.length; j++) {
       words[j] = words[j].replace(/{linebreak}/g, '   ');

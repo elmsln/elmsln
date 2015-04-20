@@ -47,19 +47,19 @@
           <!-- Modal -->
            <div id="page-tools-menu" class="reveal-modal" data-reveal aria-labelledby="Accessibility" aria-hidden="true" role="dialog">
             <h2 id="Accessibility">Accessibility</h2>
-              <div class="switch small radius">
+              <!--<div class="switch small radius">
               <input id="enable-page-reader-switch" type="checkbox">
               <label for="enable-page-reader-switch"></label>
-             </div>
+             </div>-->
+             <?php if (isset($speedreader)) : ?>
+            <a href="#" class="off-canvas-toolbar-item access-icon" data-reveal-id="block-speedreader-speedreader-block-nav-modal" aria-controls="accessibility-drop" aria-expanded="false">Speed Reader</a>
+            <?php endif; ?>
           </div>
-
           <div id="accessibility-drop" data-dropdown-content class="f-dropdown content large" aria-hidden="true" tabindex="-1">
              <div class="switch small radius">
               <input id="enable-page-reader-switch" type="checkbox">
               <label for="enable-page-reader-switch"></label>
              </div>
-             <!-- generic container for other off canvas modals -->
-             <?php print render($page['cis_appbar_modal']); ?>
             </div>
             <!-- /accessibility dropdown -->
         </nav>
@@ -169,4 +169,4 @@
       </div>
     </footer>
 <!-- generic container for other off canvas modals -->
-             <?php print render($page['cis_appbar_modal']); ?>
+<?php print render($page['cis_appbar_modal']); ?>
