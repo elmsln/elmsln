@@ -17,8 +17,14 @@ timestamp(){
   date +"%s"
 }
 start="$(timestamp)"
+# get the epel and remi repo listings so we can get additional packages like mcrypt
+wget http://dl.fedoraproject.org/pub/epel/6/x86_64/epel-release-6-8.noarch.rpm
+wget http://rpms.famillecollet.com/enterprise/remi-release-6.rpm
+rpm -Uvh remi-release-6*.rpm epel-release-6*.rpm
+# make sure we're up to date w/ the remi repos
+yes | yum update
 # using yum to install the main packages
-yes | yum -y install patch git nano gcc make mysql mysql-server httpd php php-gd php-xml php-pdo php-mbstring php-mysql php-pear php-devel php-pecl-ssh2 php-pecl-apc
+yes | yum -y install patch git nano gcc make mysql mysql-server httpd php php-gd php-xml php-pdo php-mbstring php-mysql php-pear php-devel php-pecl-ssh2 php-pecl-apc php-mcrypt*
 
 yes | yum groupinstall 'Development Tools'
 # using pecl to install uploadprogress
