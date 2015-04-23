@@ -160,13 +160,9 @@ function foundation_access_menu_link__cis_service_connection_all_active_outline(
  */
 function _foundation_access_contextual_menu($short, $nid) {
   if (user_access('access contextual links')) {
-    $render_array = array(
-      'short' => $short,
-      'cis_links' => menu_contextual_links('cis_lmsless', 'node', array($nid)),
-      '#theme_wrappers' => array('cis_lmsless_contextual_container'),
-    );
+    $output = theme('cis_lmsless_contextual_container', array('short' => $short, 'cis_links' => menu_contextual_links('cis_lmsless', 'node', array($nid))));
   }
-  return render($render_array);
+  return $output;
 }
 
 /**

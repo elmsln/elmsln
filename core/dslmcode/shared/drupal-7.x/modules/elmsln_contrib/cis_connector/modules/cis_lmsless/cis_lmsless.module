@@ -76,14 +76,6 @@ function cis_lmsless_preprocess_cis_lmsless_contextual_links(&$variables) {
 }
 
 /**
- * Implements hook_preprocess_contextual_container()
- */
-function cis_lmsless_preprocess_cis_lmsless_contextual_container(&$variables) {
-  $variables['short'] = $variables['element']['short'];
-  $variables['cis_links'] = $variables['element']['cis_links'];
-}
-
-/**
  * Callback to assemble the bar
  */
 function _cis_lmsless_assemble() {
@@ -237,6 +229,10 @@ function cis_lmsless_theme() {
     'cis_lmsless_contextual_container' => array(
       'render element' => 'element',
       'template' => 'templates/cis-lmsless-contextual-container',
+      'variables' => array(
+        'short' => 'short',
+        'cis_links' => array(),
+      ),
     ),
   );
 }
