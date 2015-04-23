@@ -54,7 +54,7 @@ function foundation_access_preprocess_region(&$variables) {
        <li>' . l(t('Print course outline'), 'book/export/html/' . $node->nid) . '</li>
        <li>' . l(t('Save As new outline'), 'admin/content/book/copy/' . $node->nid) . '</li>
        <hr>
-       <li><a href="#" data-reveal-id="block-menu-menu-course-tools-menu-nav-modal">Course Settings</a></li>
+       <li><a href="#" data-reveal-id="block-menu-menu-course-tools-menu-nav-modal">' . t('Course Settings') . '</a></li>
      </ul>
      </div>
     <nav class="top-bar" data-topbar role="navigation">

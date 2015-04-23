@@ -43,7 +43,8 @@
 
             <h1><?php print $site_name; ?></h1>
               <hr></hr>
-              <div class="minimal-edit-buttons in-modal">
+              <?php if (isset($service_option_link)) : ?>
+                <div class="minimal-edit-buttons in-modal">
                 <!-- <a href="#" class="off-canvas-toolbar-item toolbar-menu-icon" data-dropdown="eco-services-add-menu-1" aria-controls="add-button" aria-expanded="false">
                   <div class="icon-plus-black off-canvas-toolbar-item-icon"></div>
                 </a> -->
@@ -54,10 +55,11 @@
               <!-- Menu Item Dropdowns -->
               <div id="eco-services-edit-menu-1" data-dropdown-content class="f-dropdown content" aria-hidden="true" tabindex="-1">
                 <ul class="button-group">
-                  <li><a href="#"><?php print t('Add another service'); ?></a></li>
-                  <li><a href="#"><?php print t('Edit services'); ?></a></li>
+                  <li><?php print l(t('Add another service'), $service_option_link); ?></li>
+                  <li><?php print l(t('Edit services'), $service_option_link); ?></li>
                 </ul>
               </div>
+              <?php endif; ?>
               <!-- End Menu Item Dropdowns -->
               <h2>Services</h2>
               <?php foreach ($services as $service) : ?>
@@ -67,8 +69,6 @@
               </a>
               <?php endforeach ?>
               <!--
-              <hr></hr>
-              <h2>Future</h2>
               <a href="#" class="etb-modal-icon calendar-icon row">
                 <div class="icon-calendar-black etb-modal-icons"></div>
                 <span class="">Calendar</span>
@@ -87,20 +87,11 @@
                 <div class="icon-inbox-black etb-modal-icons"></div>
                 <span>Inbox</span>
               </a>
-              <a href="#" class=" etb-modal-icon speechballoons-icon row">
-                <div class="icon-speechballoons-black etb-modal-icons"></div>
-                <span>Discussions</span>
-              </a>
               <a href="#" class=" etb-modal-icon write-icon row">
                 <div class="icon-write-black etb-modal-icons"></div>
                 <span>Blog</span>
               </a>
               <hr></hr>
-              <h2>Environments</h2>
-              <a href="#" class=" etb-modal-icon easle-icon row">
-                <div class="icon-easle-black etb-modal-icons"></div>
-                <span>Studio</span>
-              </a>
               <a href="#" class=" etb-modal-icon beaker-icon row">
                 <div class="icon-beaker-black etb-modal-icons"></div>
                 <span>Labs</span>
@@ -115,9 +106,9 @@
          <div id="user-nav-modal" class="reveal-modal etb-nav-modal disable-scroll" data-reveal>
           <!-- Center Search Section -->
 
-            <h1>Account</h1>
+            <h1><?php print t('Account'); ?></h1>
               <hr class="pad-1"></hr>
-                <a class="account-logout text-center row" href="<?php print base_path();?>user/logout">log out</a>
+                <?php print l(t('log out'), 'user/logout', array('attributes' => array('class' => array('account-logout', 'text-center', 'row')))); ?>
               <hr></hr>
               <div class="minimal-edit-buttons in-modal">
                 <a class="off-canvas-toolbar-item toolbar-menu-icon" href="#" data-dropdown="eco-account-edit-menu-1" aria-controls="offcanvas-admin-menu" aria-expanded="false">
@@ -189,7 +180,7 @@
               <!-- Menu Item Dropdowns -->
               <div id="eco-syllabus-edit-menu-2" data-dropdown-content class="f-dropdown content" aria-hidden="true" tabindex="-1">
                 <ul class="button-group">
-                  <li><a href="#" data-reveal-id="block-cis-service-connection-section-context-changer-nav-modal">View another section</a></li>
+                  <li><a href="#" data-reveal-id="block-cis-service-connection-section-context-changer-nav-modal"><?php print t('View another section'); ?></a></li>
                   <li><?php print l(t('Download Syllabus'),'syllabus/download'); ?></li>
                 </ul>
               </div>

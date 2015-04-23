@@ -46,7 +46,7 @@
           </section>
           <!-- Modal -->
            <div id="page-tools-menu" class="reveal-modal" data-reveal aria-labelledby="Accessibility" aria-hidden="true" role="dialog">
-            <h2 id="Accessibility">Accessibility</h2>
+            <h2 id="Accessibility"><?php print t('Accessibility') ?></h2>
               <!--<div class="switch small radius">
               <input id="enable-page-reader-switch" type="checkbox">
               <label for="enable-page-reader-switch"></label>

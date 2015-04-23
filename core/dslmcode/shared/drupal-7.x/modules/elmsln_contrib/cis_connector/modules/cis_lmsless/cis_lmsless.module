@@ -185,6 +185,7 @@ function _cis_lmsless_theme_vars() {
         'url' => _cis_connector_format_address($settings, base_path(), 'front'),
         'machine_name' => 'online',
       );
+      $vars['service_option_link'] = _cis_connector_format_address($settings, base_path(), 'front') . 'service-instances';
     }
     // bump current link to the first position and drop url so its internal
     foreach ($list as $key => $item) {
