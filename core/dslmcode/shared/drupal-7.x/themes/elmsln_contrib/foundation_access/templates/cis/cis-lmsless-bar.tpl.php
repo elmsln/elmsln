@@ -63,6 +63,9 @@
               <!-- End Menu Item Dropdowns -->
               <h2>Services</h2>
               <?php foreach ($services as $service) : ?>
+                <?php if ($service['machine_name'] == 'online') : ?>
+                  <hr />
+                <?php endif; ?>
               <a href="<?php print $service['url']; ?>" class=" etb-modal-icon <?php print $service['machine_name']; ?>-icon row">
                 <div class="icon-<?php print $service['machine_name']; ?>-black etb-modal-icons"></div>
                 <span class=""><?php print $service['title']; ?></span>
@@ -156,6 +159,7 @@
               <a href="#" class="modal-img-link row">
                 <div class="left">
                   <!-- TODO ADD ICON HERE -->
+                  <!-- TODO ADD INSTRUCTOR NAME HERE FROM CIS PULL -->
                 </div>
                 <span class=""><?php print t('Instructor Name'); ?></span>
               </a>
