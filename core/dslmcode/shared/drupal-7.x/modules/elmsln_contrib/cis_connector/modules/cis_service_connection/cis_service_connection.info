@@ -1,7 +1,7 @@
 name = CIS Service Connection
 description = Provides a data bridge between CIS service distros and a CIS data source
 core = 7.x
-package = CIS
+package = ELMSLN Core
 files[] = cis_service_connection.module
 files[] = cis_service_connection.install
 dependencies[] = cis_connector

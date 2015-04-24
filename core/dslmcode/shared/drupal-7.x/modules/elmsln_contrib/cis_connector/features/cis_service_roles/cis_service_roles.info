@@ -1,7 +1,7 @@
 name = CIS Service Roles
 description = Standard roles for use with a CIS service
 core = 7.x
-package = CIS Connector
+package = ELMSLN Core
 dependencies[] = features
 features[features_api][] = api:1
 features[user_role][] = guest

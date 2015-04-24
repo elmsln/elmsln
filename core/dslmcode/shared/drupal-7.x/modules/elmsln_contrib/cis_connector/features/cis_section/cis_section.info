@@ -1,7 +1,7 @@
 name = CIS Section
 description = Establishes the OG defaults for CIS based distros
 core = 7.x
-package = CIS Connector
+package = ELMSLN Core
 dependencies[] = cis_connector
 dependencies[] = ctools
 dependencies[] = features

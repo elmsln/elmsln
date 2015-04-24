@@ -1,7 +1,7 @@
 name = CIS Connector
 description = Provides structure to bridge CIS data source to other distributions
 core = 7.x
-package = CIS
+package = ELMSLN Core
 dependencies[] = httprl
 files[] = 'cis_connector_views_plugin_display_extender.inc'
 files[] = cis_connector.test
