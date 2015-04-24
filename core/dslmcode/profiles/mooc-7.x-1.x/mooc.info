@@ -114,15 +114,8 @@ dependencies[] = entitycache
 dependencies[] = httprl
 ; Permissions
 dependencies[] = hidden_nodes
-; Regions
-dependencies[] = regions
-dependencies[] = regions_admin_left
-dependencies[] = regions_right_slideout
 ; Textbook
 dependencies[] = textbook
-; Theme Tools
-dependencies[] = delta
-dependencies[] = delta_blocks
 ; UUID
 dependencies[] = uuid
 ; User Interface
@@ -144,7 +137,6 @@ dependencies[] = views_data_export
 dependencies[] = views_xml_backend
 ; Features
 dependencies[] = features
-dependencies[] = chamfer_defaults
 dependencies[] = cis_section
 dependencies[] = cis_service_lti
 dependencies[] = cis_service_roles
@@ -161,6 +153,7 @@ dependencies[] = textbook_editor
 dependencies[] = textbook_templates
 dependencies[] = mooc_page
 dependencies[] = mooc_perms
+dependencies[] = cis_foundation_access
 
 ; Information intentionally kept here to have a version w/ ELMSLN
 ; Information added by Drupal.org packaging script on 2014-08-13

@@ -6,7 +6,7 @@
  */
 function ulmus_install() {
   // Enable some ulmus blocks.
-  $default_theme = 'zurb_foundation';
+  $default_theme = 'SUB_foundation_access';
   $admin_theme = 'seven';
   // disable all themes
   db_update('system')

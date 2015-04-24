@@ -240,6 +240,28 @@ projects[cis_connector][subdir] = "contrib"
 projects[httprl][version] = "1.13"
 projects[httprl][subdir] = "contrib"
 
+; +++++ Themes +++++
+
+; rubik
+projects[rubik][type] = "theme"
+projects[rubik][version] = "4.1"
+projects[rubik][subdir] = "contrib"
+
+; tao
+projects[tao][type] = "theme"
+projects[tao][version] = "3.1"
+projects[tao][subdir] = "contrib"
+
+; zurb-foundation
+projects[zurb_foundation][type] = "theme"
+projects[zurb_foundation][version] = "5.x-dev"
+projects[zurb_foundation][subdir] = "contrib"
+
+; foundation_access
+projects[foundation_access][type] = "theme"
+projects[foundation_access][version] = "5.x-dev"
+projects[foundation_access][subdir] = "contrib"
+
 ; libraries
 
 ; OAuth Drupal fork

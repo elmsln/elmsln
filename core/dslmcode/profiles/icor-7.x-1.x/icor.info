@@ -86,13 +86,8 @@ dependencies[] = strongarm
 dependencies[] = transliteration
 ; Performance and scalability
 dependencies[] = entitycache
-; Regions
-dependencies[] = regions
-dependencies[] = regions_admin_left
 ; Textbook
 dependencies[] = textbook
-; Theme Tools
-dependencies[] = delta_blocks
 ; User interface
 dependencies[] = ckeditor_link
 dependencies[] = imce_wysiwyg
@@ -122,6 +117,7 @@ dependencies[] = icor_interactive_player
 dependencies[] = icor_file_entities
 dependencies[] = icor_admin_ux
 dependencies[] = icor_defaults
+dependencies[] = cis_foundation_access
 
 ; Information added for Drupal.org usage stats while in dev
 version = "7.x-1.x-dev"

@@ -56,3 +56,7 @@ dependencies[] = jquery_update
 dependencies[] = views
 ; Features
 dependencies[] = features
+; ELMSLN Core
+dependencies[] = cis_connector
+dependencies[] = cis_lmsless
+dependencies[] = cis_foundation_access
