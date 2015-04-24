@@ -39,6 +39,7 @@ function mespeak_block_view($delta = '') {
           ),
         );
         drupal_add_js($settings, 'setting');
+        drupal_add_js(drupal_get_path('module', 'mespeak') . "/js/mespeak-block.js");
       }
       $block['subject'] = t('Mespeak');
       $block['content'] = theme('mespeak_block', array('text_selector' => variable_get('mespeak_selector', MESPEAK_SELECTOR)));

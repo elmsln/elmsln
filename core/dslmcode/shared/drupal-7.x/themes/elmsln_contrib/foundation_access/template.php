@@ -24,6 +24,10 @@ function foundation_access_preprocess_page(&$variables) {
   if (module_exists('speedreader')) {
     $variables['speedreader'] = TRUE;
   }
+  // mespeak is enabled
+  if (module_exists('mespeak')) {
+    $variables['mespeak'] = TRUE;
+  }
   $variables['tabs_extras'] = '<hr>
     <li>' . l(t('Download Page'), 'book/export/html/' . arg(1)) . '</li>';
   if (user_access('access contextual links')) {
@@ -31,6 +35,10 @@ function foundation_access_preprocess_page(&$variables) {
     <li class="cis_accessibility_check"></li>
     <hr>
     <li><a href="#" data-reveal-id="block-menu-menu-course-tools-menu-nav-modal">' . t('Course Settings') . '</a></li>';
+  }
+  // wrap non-node content in an article tag
+  if (isset($variables['page']['content']['system_main']['main'])) {
+    $variables['page']['content']['system_main']['main']['#markup'] = '<article class="large-12 columns view-mode-full">' . $variables['page']['content']['system_main']['main']['#markup'] . '</article>';
   }
 }
 
@@ -206,8 +214,8 @@ function _foundation_access_menu_outline($variables, $word = FALSE) {
 function _foundation_access_contextual_menu($short, $nid) {
   if (user_access('access contextual links')) {
     $output = theme('cis_lmsless_contextual_container', array('short' => $short, 'cis_links' => menu_contextual_links('cis_lmsless', 'node', array($nid))));
+    return $output;
   }
-  return $output;
 }
 
 /**

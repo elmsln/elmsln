@@ -37,12 +37,11 @@
           <!-- Modal -->
            <div id="page-tools-menu" class="reveal-modal" data-reveal aria-labelledby="Accessibility" aria-hidden="true" role="dialog">
             <h2 id="Accessibility"><?php print t('Accessibility') ?></h2>
-              <!--<div class="switch small radius">
-              <input id="enable-page-reader-switch" type="checkbox">
-              <label for="enable-page-reader-switch"></label>
-             </div>-->
              <?php if (isset($speedreader)) : ?>
-            <a href="#" class="off-canvas-toolbar-item access-icon" data-reveal-id="block-speedreader-speedreader-block-nav-modal" aria-controls="accessibility-drop" aria-expanded="false">Speed Reader</a>
+            <a href="#" class="off-canvas-toolbar-item access-icon" data-reveal-id="block-speedreader-speedreader-block-nav-modal" aria-controls="accessibility-drop" aria-expanded="false"><?php print t('Speed reader'); ?></a>
+            <?php endif; ?>
+            <?php if (isset($mespeak)) : ?>
+            <a href="#" class="off-canvas-toolbar-item access-icon" data-reveal-id="block-mespeak-mespeak-block-nav-modal" aria-controls="accessibility-drop" aria-expanded="false"><?php print t('Speak page'); ?></a>
             <?php endif; ?>
           </div>
           <div id="accessibility-drop" data-dropdown-content class="f-dropdown content large" aria-hidden="true" tabindex="-1">
