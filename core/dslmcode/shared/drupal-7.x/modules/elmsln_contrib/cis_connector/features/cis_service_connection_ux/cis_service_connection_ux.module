@@ -7,13 +7,6 @@
 include_once 'cis_service_connection_ux.features.inc';
 
 /**
- * Implements hook_page_build().
- */
-function cis_service_connection_ux_page_build() {
-  drupal_add_css(drupal_get_path('module', 'cis_service_connection_ux') . '/cis_service_connection_ux.css');
-}
-
-/**
  * Implements hook_menu().
  */
 function cis_service_connection_ux_menu() {
