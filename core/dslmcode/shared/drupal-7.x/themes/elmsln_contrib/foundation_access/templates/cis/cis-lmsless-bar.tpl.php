@@ -126,7 +126,7 @@
               <h2>Profile</h2>
               <a href="#" class="modal-img-link row">
                 <div class="left">
-                  <img alt="placeholder image" src="">
+                    <!-- TODO PUT IMAGE HERE -->
                 </div>
                 <span><?php print $username; ?></span>
               </a>
@@ -151,23 +151,11 @@
          <div id="info-nav-modal" class="reveal-modal etb-nav-modal disable-scroll" data-reveal>
             <h1><?php print t('Syllabus'); ?></h1>
               <hr></hr>
-              <div class="minimal-edit-buttons in-modal">
-                <a class="off-canvas-toolbar-item toolbar-menu-icon" href="#" data-dropdown="eco-syllabus-edit-menu-1" aria-controls="offcanvas-admin-menu" aria-expanded="false">
-                  <div class="icon-chevron-down-black off-canvas-toolbar-item-icon"></div>
-                </a>
-              </div>
-              <!-- Menu Item Dropdowns -->
-              <div id="eco-syllabus-edit-menu-1" data-dropdown-content class="f-dropdown content" aria-hidden="true" tabindex="-1">
-                <ul class="button-group">
-                  <li><a href="#"><?php print t('Add instructor'); ?></a></li>
-                  <li><a href="#"><?php print t('Edit instructors'); ?></a></li>
-                </ul>
-              </div>
               <!-- End Menu Item Dropdowns -->
               <h2><?php print t('Instructor'); ?></h2>
               <a href="#" class="modal-img-link row">
                 <div class="left">
-                  <img alt="placeholder image" src="">
+                  <!-- TODO ADD ICON HERE -->
                 </div>
                 <span class=""><?php print t('Instructor Name'); ?></span>
               </a>
@@ -180,13 +168,13 @@
               <!-- Menu Item Dropdowns -->
               <div id="eco-syllabus-edit-menu-2" data-dropdown-content class="f-dropdown content" aria-hidden="true" tabindex="-1">
                 <ul class="button-group">
-                  <li><a href="#" data-reveal-id="block-cis-service-connection-section-context-changer-nav-modal"><?php print t('View another section'); ?></a></li>
+                  <li><a href="#" data-reveal-id="block-cis-service-connection-section-context-changer-nav-modal">View another section</a></li>
                   <li><?php print l(t('Download Syllabus'),'syllabus/download'); ?></li>
                 </ul>
               </div>
               <!-- End Menu Item Dropdowns -->
               <h2><?php print t('Section'); ?> (<span class="section-id"><?php print $section; ?></span>)</h2>
-              <?php print drupal_render($main_menu); ?>
+              <?php if (!empty($main_menu)) : print drupal_render($main_menu); endif; ?>
             <a class="close-reveal-modal">&#215;</a>
          </div>
 
@@ -202,7 +190,7 @@
               <!-- Menu Item Dropdowns -->
               <div id="eco-help-edit-menu-1" data-dropdown-content class="f-dropdown content" aria-hidden="true" tabindex="-1">
                 <ul class="button-group">
-                  <li><a href="#"><?php print t('Add another contact'); ?></a></li>
+                  <li><a href="#"><?php print t('Edit contact'); ?></a></li>
                 </ul>
               </div>
               <!-- End Menu Item Dropdowns -->
@@ -241,7 +229,7 @@
        <section class="top-bar-section title-link">
           <ul class="right">
             <li>
-              <a href="#"><span class="course-title"><?php print $slogan; ?></span><span class="course-abrv"><?php print $site_name; ?></span></a>
+              <?php print l('<span class="course-title">' . $slogan . '</span><span class="course-abrv">' . $site_name . '</span></a>', '<front>', array('html' => TRUE)); ?>
             </li>
           </ul>
         </section>

@@ -34,6 +34,7 @@ stylesheets[all][] = css/app.css
 stylesheets[all][] = css/normalize.css
 stylesheets[all][] = css/foundation.min.css
 
+stylesheets[print][] = css/print.css
 ; Foundation JavaScript.
 
 ; Modernizr acts as a shim for HTML5 elements for older browsers

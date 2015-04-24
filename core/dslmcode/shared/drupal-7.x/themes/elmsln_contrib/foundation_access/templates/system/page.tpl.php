@@ -14,25 +14,15 @@
     <div id="etb-tool-nav" class="off-canvas-wrap" data-offcanvas>
       <div class="inner-wrap">
         <!-- progress bar -->
-       <!--  <div class="sticky"> -->
           <div class="page-scroll progress">
             <span class="meter" style="width: 0%"></span>
           </div>
-        <!-- </div> -->
+
                 <nav class="tab-bar etb-tool">
           <section class="left">
             <a class="left-off-canvas-toggle menu-icon" ><span><?php print $cis_lmsless['active']['title'] ?></span></a>
           </section>
 
-          <!-- <section class="middle tab-bar-section hide-me-small-only">
-
-              <?php if (!empty($tabs)): ?>
-                  <?php print render($tabs); ?>
-                <?php if (!empty($tabs2)): print render($tabs2); endif; ?>
-              <?php endif; ?>
-              <?php print render($page['cis_appbar_first']); ?>
-
-          </section> -->
           <section class="middle tab-bar-section">
               <a class="off-canvas-toolbar-item toolbar-menu-icon" href="#" data-dropdown="middle-section-buttons" aria-controls="middle-section-buttons" aria-expanded="false"><div class="icon-chevron-down-black off-canvas-toolbar-item-icon"></div></a>
 
@@ -70,6 +60,9 @@
           <?php if (!empty($tabs)): ?>
               <?php print render($tabs); ?>
             <?php if (!empty($tabs2)): print render($tabs2); endif; ?>
+          <?php endif; ?>
+          <?php if ($action_links): ?>
+              <?php print render($action_links); ?>
           <?php endif; ?>
           <?php if (isset($tabs_extras)): ?>
               <?php print $tabs_extras; ?>
@@ -111,29 +104,19 @@
                       <?php print render($page['highlighted']); ?>
                     </div>
                   <?php endif; ?>
-
                   <a id="main-content"></a>
-
-
-
+                  <?php if ($breadcrumb) : ?>
+                    <div class="breadcrumb-wrapper">
+                    <?php print $breadcrumb; ?>
+                    </div>
+                  <?php endif; ?>
                   <?php if ($title): ?>
                     <?php print render($title_prefix); ?>
                       <h1 id="page-title" class="title"><?php print $title; ?>
                         <br><small><!--This is my course subtitle.--></small>
                       </h1>
-
                     <?php print render($title_suffix); ?>
-
                   <?php endif; ?>
-                  <div class="breadcrumb-wrapper">
-                    <?php if ($breadcrumb): print $breadcrumb; endif; ?>
-                  </div>
-                  <?php if ($action_links): ?>
-                    <ul class="action-links">
-                      <?php print render($action_links); ?>
-                    </ul>
-                  <?php endif; ?>
-
                   <?php print render($page['content']); ?>
                 </div>
               </div>

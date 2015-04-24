@@ -72,6 +72,10 @@
 
 .icon-content-black { background-image: url('png/content-black.png'); background-repeat: no-repeat; }
 
+.icon-content-outline-black { background-image: url('png/content-outline-black.png'); background-repeat: no-repeat; }
+
+.icon-content-outline-white { background-image: url('png/content-outline-white.png'); background-repeat: no-repeat; }
+
 .icon-content-white { background-image: url('png/content-white.png'); background-repeat: no-repeat; }
 
 .icon-courses-black { background-image: url('png/courses-black.png'); background-repeat: no-repeat; }
@@ -117,6 +121,10 @@
 .icon-online-black { background-image: url('png/online-black.png'); background-repeat: no-repeat; }
 
 .icon-online-white { background-image: url('png/online-white.png'); background-repeat: no-repeat; }
+
+.icon-page-black { background-image: url('png/page-black.png'); background-repeat: no-repeat; }
+
+.icon-page-white { background-image: url('png/page-white.png'); background-repeat: no-repeat; }
 
 .icon-pdf-black { background-image: url('png/pdf-black.png'); background-repeat: no-repeat; }
 
