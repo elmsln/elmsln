@@ -1,7 +1,7 @@
 <?php
 /**
  * @file
- * Code for CIS LMS-less to place branding on page and create experience.
+ * Code for CIS LMSless to place branding on page and create experience.
  */
 
 /**
@@ -16,6 +16,11 @@ function cis_lmsless_permission() {
     'view lmsless cis link' =>  array(
       'title' => t('View link to CIS space'),
       'description' => t('This shows the shortcut to the marketing space in CIS.'),
+    ),
+    'view course admin areas' =>  array(
+      'title' => t('View admin areas'),
+      'description' => t('This allows the user to see areas that are typically reserved for specialized roles that help in the offering of the course.'),
+      'restrict access' => TRUE,
     ),
   );
 }
@@ -145,6 +150,28 @@ function _cis_lmsless_theme_vars() {
     $vars['resources'] = $resources;
     // throw in username
     $vars['username'] = check_plain($GLOBALS['user']->name);
+    if (user_access('view course admin areas') || isset($_SESSION['masquerading'])) {
+      $vars['admin_status_bar'] = array(
+        'course-section' => array(t('Section'), $section),
+        'current-user-id' => array(t('User'), $vars['username']),
+      );
+      if (isset($_SESSION['masquerading'])) {
+        $vars['admin_status_bar']['current-user-id'][1] .= ' ' . l(t('Switch back'), 'masquerade/unswitch', array('query' => array('token' => drupal_get_token('masquerade/unswitch'))));
+      }
+      // calculate roles
+      $tmproles = $GLOBALS['user']->roles;
+      unset($tmproles[1]);
+      unset($tmproles[2]);
+      if (!empty($tmproles)) {
+        if (count($tmproles) < 2) {
+          $roleword = t('Role');
+        }
+        else {
+          $roleword = t('Roles');
+        }
+        $vars['admin_status_bar']['user-role'] = array($roleword, implode(' ', $tmproles));
+      }
+    }
     // request a list of all other services that this section uses
     if (!$services = _cis_connector_transaction('other_services')) {
       $services = $list = array();
@@ -221,6 +248,7 @@ function cis_lmsless_theme() {
         'user_name' => t('Account'),
         'resources' => array(),
         'tech_support' => array(),
+        'admin_status_bar' => array(),
       ),
       'render element' => 'element',
       'template' => 'templates/cis-lmsless-bar',

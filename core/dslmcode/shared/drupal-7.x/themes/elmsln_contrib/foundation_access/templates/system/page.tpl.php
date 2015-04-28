@@ -13,12 +13,20 @@
 ?>
     <div id="etb-tool-nav" class="off-canvas-wrap" data-offcanvas>
       <div class="inner-wrap">
+         <!-- Admin Status Bar -->
+         <div class="row full admin-status-bar">
+            <div class="columns small-12">
+            <?php foreach($cis_lmsless['admin_status_bar'] as $admin_status_msg_key => $admin_status_msg) : ?>
+            <span class="<?php print $admin_status_msg_key;?>-label"><?php print $admin_status_msg[0];?>: </span>
+            <span class="<?php print $admin_status_msg_key;?>"><?php print $admin_status_msg[1];?></span>
+            <?php endforeach ?>
+            </div>
+          </div>
         <!-- progress bar -->
           <div class="page-scroll progress">
             <span class="meter" style="width: 0%"></span>
           </div>
-
-                <nav class="tab-bar etb-tool">
+          <nav class="tab-bar etb-tool">
           <section class="left">
             <a class="left-off-canvas-toggle menu-icon" ><span><?php print $cis_lmsless['active']['title'] ?></span></a>
           </section>
