@@ -44,19 +44,19 @@ function cis_lmsless_menu_contextual_links_alter(&$links, $router_item, $root_pa
     $entity_id = array_pop(explode('/', $router_item['href']));
     // link to print the outline
     $links['cis_lmsless_print_outline'] = array(
-      'title' => t('Print outline here'),
+      'title' => t('Print'),
       'href' => 'book/export/html/' . $entity_id,
       'localized_options' => array(),
     );
     // outline below here
     $links['cis_lmsless_outline_designer'] = array(
-      'title' => t('Outline below here'),
+      'title' => t('Outline'),
       'href' => 'node/' . $entity_id . '/outline/children',
       'localized_options' => array(),
     );
     // duplicate this part
     $links['cis_lmsless_duplicate_outline'] = array(
-      'title' => t('Duplicate structure'),
+      'title' => t('Duplicate'),
       'href' => 'node/' . $entity_id . '/outline/copy',
       'localized_options' => array(),
     );
