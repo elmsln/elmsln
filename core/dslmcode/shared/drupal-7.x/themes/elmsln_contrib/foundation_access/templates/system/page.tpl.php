@@ -27,13 +27,14 @@
               <a class="off-canvas-toolbar-item toolbar-menu-icon" href="#" data-dropdown="middle-section-buttons" aria-controls="middle-section-buttons" aria-expanded="false"><div class="icon-chevron-down-black off-canvas-toolbar-item-icon"></div></a>
 
           </section>
-
+          <?php print render($page['cis_appbar_second']); ?>
+          <?php if (isset($speedreader) || isset($mespeak)) : ?>
           <section class="right-small">
             <a href="#" class="off-canvas-toolbar-item access-icon" data-reveal-id="page-tools-menu" aria-controls="accessibility-drop" aria-expanded="false">
               <div class="icon-access-black off-canvas-toolbar-item-icon"></div>
             </a>
-            <?php print render($page['cis_appbar_second']); ?>
           </section>
+          <?php endif; ?>
           <!-- Modal -->
           <?php if (isset($speedreader) || isset($mespeak)) : ?>
           <div id="page-tools-menu" class="reveal-modal" data-reveal aria-labelledby="Accessibility" aria-hidden="true" role="dialog">
