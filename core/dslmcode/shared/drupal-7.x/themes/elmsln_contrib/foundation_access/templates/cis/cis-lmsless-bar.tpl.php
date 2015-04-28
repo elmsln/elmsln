@@ -61,7 +61,7 @@
               </div>
               <?php endif; ?>
               <!-- End Menu Item Dropdowns -->
-              <h2>Services</h2>
+              <h2><?php print t('Services'); ?></h2>
               <?php foreach ($services as $service) : ?>
                 <?php if ($service['machine_name'] == 'online') : ?>
                   <hr />
