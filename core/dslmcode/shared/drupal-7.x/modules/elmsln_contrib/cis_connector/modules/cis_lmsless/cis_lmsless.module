@@ -152,7 +152,7 @@ function _cis_lmsless_theme_vars() {
       $reg = _cis_connector_build_registry($distro);
       $tmp = explode('.', $reg['address']);
       $machine_name = $tmp[0];
-      $list[$machine_name] = array(
+      $list['Services'][$machine_name] = array(
         'title' => (isset($reg['default_title']) ? $reg['default_title'] : ''),
         'url' => '#',
         'machine_name' => $machine_name,
@@ -161,7 +161,7 @@ function _cis_lmsless_theme_vars() {
     }
     else {
       foreach ($services as $service) {
-        $list[$service['field_machine_name']] = array(
+        $list['Services'][$service['field_machine_name']] = array(
           'title' => $service['title'],
           'url' => $service['field_location']['url'] . base_path(),
           'machine_name' => $service['field_machine_name'],
@@ -171,7 +171,7 @@ function _cis_lmsless_theme_vars() {
     // add in link to the CIS location if permission exists
     // @ignore druplart_conditional_assignment
     if (user_access('view lmsless cis link') && $settings = _cis_connector_build_registry('cis')) {
-      $list['online'] = array(
+      $list['Administrative']['online'] = array(
         'title' => t('Course information system'),
         'url' => _cis_connector_format_address($settings, base_path(), 'front'),
         'machine_name' => 'online',
@@ -179,14 +179,16 @@ function _cis_lmsless_theme_vars() {
       $vars['service_option_link'] = _cis_connector_format_address($settings, base_path(), 'front') . 'service-instances';
     }
     // bump current link to the first position and drop url so its internal
-    foreach ($list as $key => $item) {
-      // see if this service matches the current tool
-      if ($item['url'] == $GLOBALS['base_url'] . '/') {
-        $tmp = $item;
-        $vars['active'] = $item;
-        $tmp['url'] = '#';
-        unset($list[$key]);
-        array_unshift($list, $tmp);
+    foreach ($list as $key => $group) {
+      foreach ($group as $key2 => $item) {
+        // see if this service matches the current tool
+        if ($item['url'] == $GLOBALS['base_url'] . '/') {
+          $tmp = $item;
+          $vars['active'] = $item;
+          $tmp['url'] = '#';
+          unset($list[$key][$key2]);
+          array_unshift($list[$key], $tmp);
+        }
       }
     }
     $vars['services'] = $list;
@@ -194,6 +196,8 @@ function _cis_lmsless_theme_vars() {
     if (module_exists('search') && user_access('search content')) {
       $vars['search'] = drupal_get_form('search_block_form');
     }
+    // allow other projects to alter these values
+    drupal_alter('cis_lmsless_theme_vars', $vars);
   }
   return $vars;
 }

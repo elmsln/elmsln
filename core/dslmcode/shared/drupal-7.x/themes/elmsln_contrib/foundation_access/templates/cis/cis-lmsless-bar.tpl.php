@@ -42,7 +42,6 @@
 
 
             <h1><?php print $site_name; ?></h1>
-              <hr></hr>
               <?php if (isset($service_option_link)) : ?>
                 <div class="minimal-edit-buttons in-modal">
                 <!-- <a href="#" class="off-canvas-toolbar-item toolbar-menu-icon" data-dropdown="eco-services-add-menu-1" aria-controls="add-button" aria-expanded="false">
@@ -61,15 +60,15 @@
               </div>
               <?php endif; ?>
               <!-- End Menu Item Dropdowns -->
-              <h2><?php print t('Services'); ?></h2>
-              <?php foreach ($services as $service) : ?>
-                <?php if ($service['machine_name'] == 'online') : ?>
-                  <hr />
-                <?php endif; ?>
-              <a href="<?php print $service['url']; ?>" class=" etb-modal-icon <?php print $service['machine_name']; ?>-icon row">
-                <div class="icon-<?php print $service['machine_name']; ?>-black etb-modal-icons"></div>
-                <span class=""><?php print $service['title']; ?></span>
-              </a>
+              <?php foreach ($services as $title => $items) : ?>
+                <hr/>
+                <h2><?php print t('@title', array('@title' => $title)); ?></h2>
+                <?php foreach ($items as $service) : ?>
+                <a href="<?php print $service['url']; ?>" class=" etb-modal-icon <?php print $service['machine_name']; ?>-icon row">
+                  <div class="icon-<?php print $service['machine_name']; ?>-black etb-modal-icons"></div>
+                  <span class=""><?php print $service['title']; ?></span>
+                </a>
+                <?php endforeach ?>
               <?php endforeach ?>
               <!--
               <a href="#" class="etb-modal-icon calendar-icon row">
