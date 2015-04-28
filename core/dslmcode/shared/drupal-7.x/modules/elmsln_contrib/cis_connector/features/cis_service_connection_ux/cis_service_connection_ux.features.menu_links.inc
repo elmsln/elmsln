@@ -14,7 +14,7 @@ function cis_service_connection_ux_menu_default_menu_links() {
   $menu_links['menu-course-tools-menu_analytics:admin/reports/course-analytics'] = array(
     'menu_name' => 'menu-course-tools-menu',
     'link_path' => 'admin/reports/course-analytics',
-    'router_path' => '',
+    'router_path' => 'admin/reports',
     'link_title' => 'Analytics',
     'options' => array(
       'attributes' => array(),
@@ -22,7 +22,7 @@ function cis_service_connection_ux_menu_default_menu_links() {
     ),
     'module' => 'menu',
     'hidden' => 0,
-    'external' => 1,
+    'external' => 0,
     'has_children' => 0,
     'expanded' => 0,
     'weight' => -47,
@@ -72,7 +72,7 @@ function cis_service_connection_ux_menu_default_menu_links() {
   $menu_links['menu-course-tools-menu_sections-list:cis/section-list'] = array(
     'menu_name' => 'menu-course-tools-menu',
     'link_path' => 'cis/section-list',
-    'router_path' => '',
+    'router_path' => 'cis/section-list',
     'link_title' => 'Sections List',
     'options' => array(
       'attributes' => array(
@@ -82,7 +82,7 @@ function cis_service_connection_ux_menu_default_menu_links() {
     ),
     'module' => 'menu',
     'hidden' => 0,
-    'external' => 1,
+    'external' => 0,
     'has_children' => 0,
     'expanded' => 0,
     'weight' => -50,
