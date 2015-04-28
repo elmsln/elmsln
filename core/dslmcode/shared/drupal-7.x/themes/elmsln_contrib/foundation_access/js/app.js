@@ -139,7 +139,6 @@
 
     }
   };
-
   $(window).resize(function() {
   		Drupal.offcanvasHeight.attach();
       Drupal.offcanvasSubmenuHeight.attach();

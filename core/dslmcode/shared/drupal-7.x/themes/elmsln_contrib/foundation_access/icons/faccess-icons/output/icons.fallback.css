@@ -102,6 +102,8 @@
 
 .icon-help-white { background-image: url('png/help-white.png'); background-repeat: no-repeat; }
 
+.icon-hidden-black { background-image: url('png/hidden-black.png'); background-repeat: no-repeat; }
+
 .icon-inbox-black { background-image: url('png/inbox-black.png'); background-repeat: no-repeat; }
 
 .icon-inbox-white { background-image: url('png/inbox-white.png'); background-repeat: no-repeat; }
@@ -173,6 +175,8 @@
 .icon-view-off-white { background-image: url('png/view-off-white.png'); background-repeat: no-repeat; }
 
 .icon-view-white { background-image: url('png/view-white.png'); background-repeat: no-repeat; }
+
+.icon-visible-black { background-image: url('png/visible-black.png'); background-repeat: no-repeat; }
 
 .icon-write-black { background-image: url('png/write-black.png'); background-repeat: no-repeat; }
 

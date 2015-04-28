@@ -25,7 +25,7 @@
  * @see template_process()
  */
 ?>
-<aside class="left-off-canvas-menu">
+<aside class="left-off-canvas-menu" data-offcanvas>
   <!-- Menu Item Dropdowns -->
   <?php if (isset($button_group)): ?>
     <?php print $button_group; ?>

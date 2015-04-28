@@ -59,7 +59,7 @@ $mobile-off-canvas-width: 100%; // or any other unit
     padding: rem-calc(15) 0 rem-calc(15) rem-calc(16);
     border-left:2px solid $active-menu-link-heading-div-color;
     font-size: 1rem;
-
+    text-align: left;
     @media #{$small-only} {
       max-width: 48%;
     }
@@ -97,7 +97,13 @@ $mobile-off-canvas-width: 100%; // or any other unit
 
 ul.off-canvas-list {
   margin:rem-calc(10);
+  list-style: none;
+  ul {
+    list-style: none;
+  }
   li {
+    display:flex;
+    width: 100%;
     &.level-0-top {
       border-top: 1px solid $active-menu-link-border;
       
@@ -111,6 +117,7 @@ ul.off-canvas-list {
       padding:1rem;
       color:$active-menu-text-color;
       display:flex;
+      width:100%;
       align-items: center;
       &:first-child {
         border-top: none;
@@ -155,6 +162,7 @@ ul.off-canvas-list {
     li.back {
       margin:0 auto;
       display:inline-flex;
+      width: auto;
       &>a {
         padding: 0.5rem 1rem;
         margin:0
