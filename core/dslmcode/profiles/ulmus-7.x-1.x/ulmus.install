@@ -6,8 +6,10 @@
  */
 function ulmus_install() {
   // Enable some ulmus blocks.
-  $default_theme = 'SUB_foundation_access';
-  $admin_theme = 'seven';
+  $default_theme = 'foundation_access';
+  $admin_theme = 'rubik';
+  // fix jquery update rubrik admin theme issue
+  variable_set('theme_rubik_settings', array('rubik_disable_sidebar_in_form' => 1));
   // disable all themes
   db_update('system')
     ->fields(array('status' => 0))
