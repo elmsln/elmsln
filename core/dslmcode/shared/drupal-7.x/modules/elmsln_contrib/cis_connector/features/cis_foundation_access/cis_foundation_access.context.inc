@@ -36,6 +36,12 @@ function cis_foundation_access_context_default_contexts() {
           'region' => 'cis_appbar_modal',
           'weight' => '-10',
         ),
+        'cis_service_connection-section_context_changer' => array(
+          'module' => 'cis_service_connection',
+          'delta' => 'section_context_changer',
+          'region' => 'cis_appbar_modal',
+          'weight' => '-9',
+        ),
       ),
     ),
   );
