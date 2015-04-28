@@ -139,6 +139,8 @@
 
     }
   };
+  // @todo target all active-trail ul menus and add the move-right class to them OR
+  // try and trigger a click on the elements containing them
   $(window).resize(function() {
   		Drupal.offcanvasHeight.attach();
       Drupal.offcanvasSubmenuHeight.attach();
