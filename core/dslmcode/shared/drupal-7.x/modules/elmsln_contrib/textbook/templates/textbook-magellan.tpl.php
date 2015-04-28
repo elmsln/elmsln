@@ -14,13 +14,11 @@
    */
 ?>
 <div class="magellan-wrap" data-magellan-expedition="fixed">
-  <div class="sticky-content-nav">
-    <dl>
-    <?php foreach ($items as $item) { ?>
-      <dd data-magellan-arrival="<?php print $item['anchor']; ?>">
-        <a href="#<?php print $item['anchor']; ?>"><?php print $item['title']; ?></a>
-      </dd>
-    <?php } ?>
-    </dl>
-  </div>
+  <dl class="sub-nav">
+  <?php foreach ($items as $item) { ?>
+    <dd data-magellan-arrival="<?php print $item['anchor']; ?>">
+      <a href="#<?php print $item['anchor']; ?>"><?php print $item['title']; ?></a>
+    </dd>
+  <?php } ?>
+  </dl>
 </div>
