@@ -1,7 +1,7 @@
-name = ICOR Timeline type
-description = Timeline content type with associated views.
+name = Views TimelineJS Extras
+description = Timeline content type features and additional enhancements.
 core = 7.x
-package = ICOR
+package = Views
 dependencies[] = ctools
 dependencies[] = dynamic_select
 dependencies[] = entityreference

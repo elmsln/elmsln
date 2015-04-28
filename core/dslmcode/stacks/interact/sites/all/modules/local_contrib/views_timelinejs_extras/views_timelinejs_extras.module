@@ -1,0 +1,37 @@
+<?php
+/**
+ * @file
+ * Code for the Views Timelinejs Extras feature.
+ */
+
+include_once 'views_timelinejs_extras.features.inc';
+
+/**
+ * Implements hook_menu().
+ */
+function views_timelinejs_extras_menu() {
+  $items = array();
+  $path = drupal_get_path('module', 'views_timelinejs_extras');
+  $items['admin/config/system/timeline-extras'] = array(
+    'title' => t('Timeline extras'),
+    'description' => 'Options for tweaking the display of timelines',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('views_timelinejs_extras_admin_settings'),
+    'access arguments' => array('administer site configuration'),
+    'type' => MENU_NORMAL_ITEM,
+    'file' => 'views_timelinejs_extras.admin.inc',
+    'file path' => $path,
+  );
+  return $items;
+}
+
+/**
+ * Implements hook_page_build().
+ */
+function views_timelinejs_extras_page_build(&$page) {
+  if (variable_get('views_timelinejs_extras_bce', FALSE)) {
+    // @todo make it add it later in the page build so it overrides the timeline css file
+    drupal_add_css(drupal_get_path('module', 'views_timelinejs_extras') . '/css/bce_dates.css', array('group' => 'CSS_THEME', 'weight' => 100));
+  }
+}
+

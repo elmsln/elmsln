@@ -1,13 +1,13 @@
 <?php
 /**
  * @file
- * icor_timeline_type.features.field_base.inc
+ * views_timelinejs_extras.features.field_base.inc
  */
 
 /**
  * Implements hook_field_default_field_bases().
  */
-function icor_timeline_type_field_default_field_bases() {
+function views_timelinejs_extras_field_default_field_bases() {
   $field_bases = array();
 
   // Exported field_base: 'field_time_points'

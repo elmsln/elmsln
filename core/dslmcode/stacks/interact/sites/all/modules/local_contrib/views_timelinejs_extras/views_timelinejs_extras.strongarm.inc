@@ -1,13 +1,13 @@
 <?php
 /**
  * @file
- * icor_timeline_type.strongarm.inc
+ * views_timelinejs_extras.strongarm.inc
  */
 
 /**
  * Implements hook_strongarm().
  */
-function icor_timeline_type_strongarm() {
+function views_timelinejs_extras_strongarm() {
   $export = array();
 
   $strongarm = new stdClass();
