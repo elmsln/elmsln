@@ -111,6 +111,8 @@ function cis_lmsless_form_masquerade_block_1_alter(&$form, &$form_state, $form_i
  * @return array array of variables to pass to the theme
  */
 function _cis_lmsless_theme_vars() {
+  // @todo make a cache bin for this info or stuff it in the generic
+  // cache bin; need to do memory profiling to see for sure though.
   // ensure this doesn't load when it doesn't have to
   $vars = &drupal_static(__FUNCTION__);
   if (!isset($vars)) {
