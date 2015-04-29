@@ -158,7 +158,8 @@ function _cis_lmsless_theme_vars() {
         'current-user-id' => array(t('User'), $vars['username']),
       );
       if (isset($_SESSION['masquerading'])) {
-        $vars['admin_status_bar']['current-user-id'][1] .= ' ' . l(t('Switch back'), 'masquerade/unswitch', array('query' => array('token' => drupal_get_token('masquerade/unswitch'))));
+        $tmp = user_load($_SESSION['masquerading']);
+        $vars['admin_status_bar']['current-user-id'][1] .= ' ' . l(t('Switch back to (@name)', array('@name' => $tmp->name)), 'masquerade/unswitch', array('query' => array('token' => drupal_get_token('masquerade/unswitch'))));
       }
       // calculate roles
       $tmproles = $GLOBALS['user']->roles;
