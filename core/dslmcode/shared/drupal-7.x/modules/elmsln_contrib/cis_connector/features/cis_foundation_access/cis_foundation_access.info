@@ -2,6 +2,7 @@ name = CIS Foundation Access
 description = CIS block positioning for use with Foundation Access themes
 core = 7.x
 package = ELMSLN Core
+project = cis_foundation_access
 dependencies[] = cis_service_connection
 dependencies[] = context
 dependencies[] = masquerade
