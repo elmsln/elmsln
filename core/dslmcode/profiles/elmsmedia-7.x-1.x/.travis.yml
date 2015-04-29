@@ -42,7 +42,7 @@ install:
 before_script:
   # setup fake mailserver
   - sudo service postfix stop
-  - smtp-sink -d "%d.%H.%M.%S" localhost:2500 1000 &
+  - smtp-sink -d "%d.%H.%M.%S" 127.0.0.1:2500 1000 &
   - echo -e '#!/usr/bin/env bash\nexit 0' | sudo tee /usr/sbin/sendmail
   - echo 'sendmail_path = "/usr/sbin/sendmail -t -i "' | sudo tee "/home/travis/.phpenv/versions/`php -i | grep "PHP Version" | head -n 1 | grep -o -P '\d+\.\d+\.\d+.*'`/etc/conf.d/sendmail.ini"
   # establish drupal package put in place the right way
@@ -61,7 +61,7 @@ script:
   - git clone --branch 7.x-1.x https://github.com/drupalprojects/elmsmedia.git drupal
   - cd drupal
   - drush make local.make.example --y
-  - drush site-install elmsmedia -y --db-url=mysql://root@localhost/travisdb --db-su='root' --db-su-pw=''
+  - drush site-install elmsmedia -y --db-url=mysql://root@127.0.0.1/travisdb --db-su='root' --db-su-pw=''
 after_script:
   - drush status
 

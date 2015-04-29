@@ -210,6 +210,11 @@ projects[zurb_foundation][type] = "theme"
 projects[zurb_foundation][version] = "5.x-dev"
 projects[zurb_foundation][subdir] = "contrib"
 
+; zurb-foundation
+projects[foundation_access][type] = "theme"
+projects[foundation_access][version] = "5.x-dev"
+projects[foundation_access][subdir] = "contrib"
+
 ; +++++ Libraries +++++
 
 ; CKEditor
