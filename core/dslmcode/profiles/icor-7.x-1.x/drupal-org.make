@@ -178,6 +178,9 @@ projects[views_simple_pager][subdir] = "contrib"
 projects[views_timelinejs][version] = "1.x-dev"
 projects[views_timelinejs][subdir] = "contrib"
 
+projects[views_timelinejs_extras][version] = "1.x-dev"
+projects[views_timelinejs_extras][subdir] = "contrib"
+
 projects[views_xml_backend][version] = "1.0-alpha4"
 projects[views_xml_backend][subdir] = "contrib"
 
