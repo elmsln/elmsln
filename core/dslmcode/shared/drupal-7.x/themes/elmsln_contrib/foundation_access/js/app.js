@@ -90,7 +90,6 @@
     attach: function (context, settings) {
 
       ////// This corrects the vertical height of the offcanvas wrapper to fill the open space on the page
-
       $(".off-canvas-wrap .inner-wrap", context).css({"min-height": "0"}); // Clear the min-height
       var footerOffset = $("footer", context)[0].offsetTop; // Detect top offset of footer
       var offcanvasOffset = $("#etb-tool-nav", context)[0].offsetTop; // Detect top offset of offcanvas nav
@@ -105,11 +104,10 @@
 
   Drupal.offcanvasSubmenuHeight = {
     attach: function (context, settings) {
-
       ////// This corrects the vertical height of the offcanvas sub-navigation panels
       $("ul.off-canvas-list .left-submenu", context).css({"min-height": "0"}); // Clear the min-height
       var remBase = parseInt($("body").css('font-size')); // Detect base px size for REM calculation
-      var offCanvasMenuHeight = $(".content-outline-navigation", context)[0].offsetHeight;
+      var offCanvasMenuHeight = $("#left-off-canvas-wrapper")[0].offsetHeight;
       var remOffCanvasMenuOffset = offCanvasMenuHeight / remBase; // Divdes by remBase to get size in REMs
       $("ul.off-canvas-list .left-submenu", context).css({"min-height": remOffCanvasMenuOffset+"rem"}); // Add the min-height to the wrapper
     }
@@ -139,12 +137,17 @@
 
     }
   };
-  $(window).resize(function() {
-  		Drupal.offcanvasHeight.attach();
+  // attach events to the window resizing / scrolling
+  $(document).ready(function(){
+    $(window).on('resize', function() {
+      Drupal.offcanvasHeight.attach();
       Drupal.offcanvasSubmenuHeight.attach();
-	});
-  $(window).scroll(function () {
-      Drupal.progressScroll.attach();
+    });
+    $(window).scroll(function () {
+        Drupal.progressScroll.attach();
+    });
+    // forcibly call these to fire the first time
+    Drupal.offcanvasHeight.attach();
+    Drupal.offcanvasSubmenuHeight.attach();
   });
-
 })(jQuery);
