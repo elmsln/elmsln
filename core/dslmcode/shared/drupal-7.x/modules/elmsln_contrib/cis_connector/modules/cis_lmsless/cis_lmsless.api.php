@@ -10,7 +10,7 @@
  * @param  array &$vars theme variables for rendering to the top bar.
  */
 function hook_cis_lmsless_theme_vars_alter(&$vars) {
-  $vars['services']['External'] = array(
+  $vars['services']['External']['youtube'] = array(
     'title' => t('YouTube'),
     'url' => 'http://youtube.com',
     'machine_name' => 'youtube',
