@@ -1,52 +1,52 @@
 input.select-or-other-other {
-  display:none !important;
+	display:none !important;
 }
 input.select-or-other-other.display {
-  display:block !important;
+	display:block !important;
 }
 
 .views-field-title-editable label{
-  display:none;
+	display:none;
 }
 span.form-required {
-  display:none;
+	display:none;
 }
 
 .field-name-field-due-date .help-block {
-  display:none;
+	display:none;
 }
 
 .jquery_colorpicker_color_display {
-  width:35px;
+	width:35px;
 }
 
 .field-name-field-due-date *{
-  border:none;
+	border:none;
 }
 
 .field-name-field-due-date  legend {
-  display:none;
+	display:none;
 }
 
 .container-inline-date .date-padding  {
-  padding:0px;
+	padding:0px;
 }
 
 .views-row-edit-static {
-  border-bottom:1px solid #eee;
+	border-bottom:1px solid #eee;
 }
 .table .views-field {
   padding:10px 0px 0px;
 }
 
 .table td:first-child {
-  padding-left:10px;
+	padding-left:10px;
 }
 
 .table tr.even {
-  background-color:#f6f6f6;
+	background-color:#f6f6f6;
 }
 
 .table tr:hover {
-  background-color:#eee;
+	background-color:#eee;
 }

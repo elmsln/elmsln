@@ -159,12 +159,6 @@ function cle_assignment_views_default_views() {
   $handler->display->display_options['fields']['edit_node']['label'] = 'Operations';
   $handler->display->display_options['fields']['edit_node']['element_label_colon'] = FALSE;
   $handler->display->display_options['fields']['edit_node']['text'] = 'edit';
-  /* Field: Broken/missing handler */
-  $handler->display->display_options['fields']['clone_node']['id'] = 'clone_node';
-  $handler->display->display_options['fields']['clone_node']['table'] = 'node';
-  $handler->display->display_options['fields']['clone_node']['field'] = 'clone_node';
-  $handler->display->display_options['fields']['clone_node']['label'] = '';
-  $handler->display->display_options['fields']['clone_node']['element_label_colon'] = FALSE;
   /* Sort criterion: Content: Number (field_number) */
   $handler->display->display_options['sorts']['field_number_value']['id'] = 'field_number_value';
   $handler->display->display_options['sorts']['field_number_value']['table'] = 'field_data_field_number';
@@ -225,12 +219,18 @@ function cle_assignment_views_default_views() {
   /* Display: Master */
   $handler = $view->new_display('default', 'Master', 'default');
   $handler->display->display_options['title'] = 'Assignments';
+  $handler->display->display_options['css_class'] = 'small-12 small-centered columns small-text-center';
   $handler->display->display_options['use_more_always'] = FALSE;
   $handler->display->display_options['group_by'] = TRUE;
   $handler->display->display_options['access']['type'] = 'role';
   $handler->display->display_options['access']['role'] = array(
+    9 => '9',
+    3 => '3',
+    4 => '4',
     5 => '5',
+    6 => '6',
     7 => '7',
+    8 => '8',
   );
   $handler->display->display_options['cache']['type'] = 'none';
   $handler->display->display_options['query']['type'] = 'views_query';
@@ -245,8 +245,6 @@ function cle_assignment_views_default_views() {
     'title' => 'title',
     'field_due_date' => 'field_due_date',
     'nid_1' => 'nid_1',
-    'edit_node' => 'edit_node',
-    'nothing' => 'nid_1',
   );
   $handler->display->display_options['style_options']['default'] = '-1';
   $handler->display->display_options['style_options']['info'] = array(
@@ -299,19 +297,10 @@ function cle_assignment_views_default_views() {
       'separator' => ' ',
       'empty_column' => 0,
     ),
-    'edit_node' => array(
-      'align' => '',
-      'separator' => '',
-      'empty_column' => 0,
-    ),
-    'nothing' => array(
-      'align' => '',
-      'separator' => '',
-      'empty_column' => 0,
-    ),
   );
   $handler->display->display_options['style_options']['sticky'] = TRUE;
-  $handler->display->display_options['style_options']['summary'] = 'Assignments for this Section';
+  $handler->display->display_options['style_options']['caption'] = 'Assignment list';
+  $handler->display->display_options['style_options']['summary'] = 'Details about the assignments that you will be required to submit as part of this course section.';
   $handler->display->display_options['style_options']['empty_table'] = TRUE;
   /* Relationship: Entity Reference: Referenced Entity */
   $handler->display->display_options['relationships']['field_cle_assignments_target_id']['id'] = 'field_cle_assignments_target_id';
@@ -319,12 +308,6 @@ function cle_assignment_views_default_views() {
   $handler->display->display_options['relationships']['field_cle_assignments_target_id']['field'] = 'field_cle_assignments_target_id';
   $handler->display->display_options['relationships']['field_cle_assignments_target_id']['label'] = 'Assignment';
   $handler->display->display_options['relationships']['field_cle_assignments_target_id']['required'] = TRUE;
-  /* Relationship: Entity Reference: Referencing entity */
-  $handler->display->display_options['relationships']['reverse_field_assignment_node']['id'] = 'reverse_field_assignment_node';
-  $handler->display->display_options['relationships']['reverse_field_assignment_node']['table'] = 'node';
-  $handler->display->display_options['relationships']['reverse_field_assignment_node']['field'] = 'reverse_field_assignment_node';
-  $handler->display->display_options['relationships']['reverse_field_assignment_node']['relationship'] = 'field_cle_assignments_target_id';
-  $handler->display->display_options['relationships']['reverse_field_assignment_node']['label'] = 'Submission';
   /* Field: Content: Nid */
   $handler->display->display_options['fields']['nid']['id'] = 'nid';
   $handler->display->display_options['fields']['nid']['table'] = 'node';
@@ -374,19 +357,7 @@ function cle_assignment_views_default_views() {
   $handler->display->display_options['fields']['nothing']['id'] = 'nothing';
   $handler->display->display_options['fields']['nothing']['table'] = 'views';
   $handler->display->display_options['fields']['nothing']['field'] = 'nothing';
-  $handler->display->display_options['fields']['nothing']['label'] = '';
-  $handler->display->display_options['fields']['nothing']['alter']['text'] = 'Create new Submission';
-  $handler->display->display_options['fields']['nothing']['alter']['make_link'] = TRUE;
-  $handler->display->display_options['fields']['nothing']['alter']['path'] = 'node/add/cle-submission?field_assignment=[nid]';
-  $handler->display->display_options['fields']['nothing']['element_label_colon'] = FALSE;
-  /* Field: COUNT(Content: Nid) */
-  $handler->display->display_options['fields']['nid_1']['id'] = 'nid_1';
-  $handler->display->display_options['fields']['nid_1']['table'] = 'node';
-  $handler->display->display_options['fields']['nid_1']['field'] = 'nid';
-  $handler->display->display_options['fields']['nid_1']['relationship'] = 'reverse_field_assignment_node';
-  $handler->display->display_options['fields']['nid_1']['group_type'] = 'count';
-  $handler->display->display_options['fields']['nid_1']['empty'] = '0';
-  $handler->display->display_options['fields']['nid_1']['hide_alter_empty'] = FALSE;
+  $handler->display->display_options['fields']['nothing']['label'] = 'My submission';
   /* Sort criterion: Content: Number (field_number) */
   $handler->display->display_options['sorts']['field_number_value']['id'] = 'field_number_value';
   $handler->display->display_options['sorts']['field_number_value']['table'] = 'field_data_field_number';
@@ -406,6 +377,7 @@ function cle_assignment_views_default_views() {
   $handler->display->display_options['arguments']['nid']['summary']['number_of_records'] = '0';
   $handler->display->display_options['arguments']['nid']['summary']['format'] = 'default_summary';
   $handler->display->display_options['arguments']['nid']['summary_options']['items_per_page'] = '25';
+  $handler->display->display_options['arguments']['nid']['break_phrase'] = TRUE;
   /* Filter criterion: Content: Published */
   $handler->display->display_options['filters']['status']['id'] = 'status';
   $handler->display->display_options['filters']['status']['table'] = 'node';
@@ -427,13 +399,15 @@ function cle_assignment_views_default_views() {
   $handler = $view->new_display('page', 'Listing all', 'page_1');
   $handler->display->display_options['defaults']['hide_admin_links'] = FALSE;
   $handler->display->display_options['defaults']['group_by'] = FALSE;
+  $handler->display->display_options['group_by'] = TRUE;
   $handler->display->display_options['path'] = 'cle/assignments';
-  $handler->display->display_options['menu']['type'] = 'tab';
-  $handler->display->display_options['menu']['title'] = 'Assignments';
+  $handler->display->display_options['menu']['type'] = 'normal';
+  $handler->display->display_options['menu']['title'] = 'Assignments list';
   $handler->display->display_options['menu']['description'] = 'Listing of assignments for this section';
   $handler->display->display_options['menu']['weight'] = '2';
-  $handler->display->display_options['menu']['name'] = 'user-menu';
+  $handler->display->display_options['menu']['name'] = 'menu-cle-navigation';
   $handler->display->display_options['menu']['context'] = 0;
+  $handler->display->display_options['menu']['context_only_inline'] = 0;
 
   /* Display: EVA Field */
   $handler = $view->new_display('entity_view', 'EVA Field', 'entity_view_1');

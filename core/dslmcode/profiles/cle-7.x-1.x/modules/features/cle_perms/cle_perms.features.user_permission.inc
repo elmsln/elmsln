@@ -7,21 +7,8 @@
 /**
  * Implements hook_user_default_permissions().
  */
-function cle_perms_user_default_permissions() {
+function cle_perms_defaultconfig_user_default_permissions() {
   $permissions = array();
-
-  // Exported permission: 'access achievements'.
-  $permissions['access achievements'] = array(
-    'name' => 'access achievements',
-    'roles' => array(
-      'administrator' => 'administrator',
-      'instructor' => 'instructor',
-      'staff' => 'staff',
-      'student' => 'student',
-      'teaching assistant' => 'teaching assistant',
-    ),
-    'module' => 'achievements',
-  );
 
   // Exported permission: 'access content'.
   $permissions['access content'] = array(
@@ -65,7 +52,6 @@ function cle_perms_user_default_permissions() {
     'roles' => array(
       'SERVICE ACCOUNT' => 'SERVICE ACCOUNT',
       'administrator' => 'administrator',
-      'staff' => 'staff',
     ),
     'module' => 'node',
   );
@@ -104,16 +90,6 @@ function cle_perms_user_default_permissions() {
       'teaching assistant' => 'teaching assistant',
     ),
     'module' => 'node',
-  );
-
-  // Exported permission: 'earn achievements'.
-  $permissions['earn achievements'] = array(
-    'name' => 'earn achievements',
-    'roles' => array(
-      'administrator' => 'administrator',
-      'student' => 'student',
-    ),
-    'module' => 'achievements',
   );
 
   // Exported permission: 'edit any cle_submission content'.
@@ -173,6 +149,7 @@ function cle_perms_user_default_permissions() {
   $permissions['use text format student_work'] = array(
     'name' => 'use text format student_work',
     'roles' => array(
+      'administrator' => 'administrator',
       'authenticated user' => 'authenticated user',
     ),
     'module' => 'filter',
@@ -183,9 +160,6 @@ function cle_perms_user_default_permissions() {
     'name' => 'view rate results page',
     'roles' => array(
       'administrator' => 'administrator',
-      'instructor' => 'instructor',
-      'staff' => 'staff',
-      'teaching assistant' => 'teaching assistant',
     ),
     'module' => 'rate',
   );

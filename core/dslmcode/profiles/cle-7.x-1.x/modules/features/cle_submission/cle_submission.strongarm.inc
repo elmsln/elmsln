@@ -14,7 +14,7 @@ function cle_submission_strongarm() {
   $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
   $strongarm->api_version = 1;
   $strongarm->name = 'additional_settings__active_tab_cle_submission';
-  $strongarm->value = 'edit-unique-field';
+  $strongarm->value = 'edit-comment';
   $export['additional_settings__active_tab_cle_submission'] = $strongarm;
 
   $strongarm = new stdClass();
@@ -28,7 +28,7 @@ function cle_submission_strongarm() {
   $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
   $strongarm->api_version = 1;
   $strongarm->name = 'comment_cle_submission';
-  $strongarm->value = '2';
+  $strongarm->value = '0';
   $export['comment_cle_submission'] = $strongarm;
 
   $strongarm = new stdClass();
