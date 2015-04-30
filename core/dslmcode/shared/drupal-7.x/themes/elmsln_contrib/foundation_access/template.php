@@ -21,10 +21,7 @@ function foundation_access_preprocess_page(&$variables) {
     $variables['cis_lmsless'] = _cis_lmsless_theme_vars();
   }
   if (user_access('access contextual links')) {
-    $variables['tabs_extras'] .= '<hr>
-    <li class="cis_accessibility_check"></li>
-    <hr>
-    <li><a href="#" data-reveal-id="block-menu-menu-course-tools-menu-nav-modal">' . t('Course Settings') . '</a></li>';
+    $variables['tabs_extras'][100][] = '<a href="#" data-reveal-id="block-menu-menu-course-tools-menu-nav-modal">' . t('Course Settings') . '</a>';
   }
   // wrap non-node content in an article tag
   if (isset($variables['page']['content']['system_main']['main'])) {
@@ -33,46 +30,14 @@ function foundation_access_preprocess_page(&$variables) {
 }
 
 /**
- * Implements template_preprocess_node.
- */
-function foundation_access_preprocess_node(&$variables) {
-}
-
-/**
  * Implements template_preprocess_region.
  */
 function foundation_access_preprocess_region(&$variables) {
   // add in the chevron contextual options for the high level
-  if ($variables['region'] == 'left_menu' && function_exists('_cis_service_connection_active_outline') && user_access('access contextual links')) {
-    $node = _cis_service_connection_active_outline();
-    if (isset($node->nid)) {
-      $variables['button_group'] =
-       '<div id="off-canvas-admin-menu" data-dropdown-content class="f-dropdown content" aria-hidden="true" tabindex="-1">
-       <ul class="button-group">
-         <li>' . l(t('Outline'), 'admin/content/book/' . $node->nid) . '</li>
-         <li>' . l(t('Print'), 'book/export/html/' . $node->nid) . '</li>
-         <li>' . l(t('Duplicate'), 'admin/content/book/copy/' . $node->nid) . '</li>
-         <hr>
-         <li><a href="#" data-reveal-id="block-menu-menu-course-tools-menu-nav-modal">' . t('Course Settings') . '</a></li>
-       </ul>
-       </div>
-      <nav class="top-bar" data-topbar role="navigation">
-        <section class="right top-bar-section">
-          <a class="off-canvas-toolbar-item toolbar-menu-icon" href="#" data-dropdown="off-canvas-admin-menu" aria-controls="offcanvas-admin-menu" aria-expanded="false">
-            <div class="icon-chevron-down-black off-canvas-toolbar-item-icon"></div>
-          </a>
-       </section>
-      </nav>';
-    }
+  if ($variables['region'] == 'left_menu' && user_access('access contextual links')) {
+    $variables['button_group'][100][] = '<a href="#" data-reveal-id="block-menu-menu-course-tools-menu-nav-modal">' . t('Course Settings') . '</a>';
   }
 }
-
-/**
- * Implements menu_link__menu_course_tools_menu.
- */
-//function foundation_access_menu_link__menu_course_tools_menu(&$variables) {
-  //return _foundation_access_menu_outline($variables);
-//}
 
 /**
  * Implements menu_link__main_menu.
@@ -130,7 +95,11 @@ function foundation_access_menu_tree__menu_course_tools_menu($variables) {
 function _foundation_access_single_menu_link($element) {
   $options = $element['#localized_options'];
   $options['html'] = TRUE;
-  return '<li>' . l('<div class="icon-page-black outline-nav-icon"></div>' . $element['#title'], $element['#href'], $options) . '</li>';
+  // default is a page icon
+  $icon = 'page';
+  // allow for modification of the item
+  drupal_alter('foundation_access_menu_item_icon', $icon, $element);
+  return '<li>' . l('<div class="icon-' . $icon . '-black outline-nav-icon"></div>' . $element['#title'], $element['#href'], $options) . '</li>';
 }
 
 /**
@@ -219,10 +188,10 @@ function _foundation_access_menu_outline($variables, $word = FALSE, $number = FA
 
 /**
  * Generate an auto labeled element correctly
- * @param  [type] $word    [description]
- * @param  [type] $number  [description]
- * @param  [type] $counter [description]
- * @return [type]          [description]
+ * @param  string $word     word for the high level organizer
+ * @param  int    $number   whether to show the counter
+ * @param  int    $counter  position in the counter for the high level
+ * @return string           assembled label for this level
  */
 function _foundation_access_auto_label_build($word, $number, $counter) {
   $labeltmp = '';
