@@ -13,6 +13,7 @@
 ?>
     <div id="etb-tool-nav" class="off-canvas-wrap" data-offcanvas>
       <div class="inner-wrap">
+        <?php if (isset($cis_lmsless['admin_status_bar']) && !empty($cis_lmsless['admin_status_bar'])) : ?>
          <!-- Admin Status Bar -->
          <div class="row full admin-status-bar">
             <div class="columns small-12">
@@ -22,6 +23,7 @@
             <?php endforeach ?>
             </div>
           </div>
+        <?php endif; ?>
         <!-- progress bar -->
           <div class="page-scroll progress">
             <span class="meter" style="width: 0%"></span>
@@ -68,8 +70,12 @@
           <?php if ($action_links): ?>
               <?php print render($action_links); ?>
           <?php endif; ?>
-          <?php if (isset($tabs_extras)): ?>
-              <?php print $tabs_extras; ?>
+          <?php if (isset($tabs_extras)): ksort($tabs_extras); ?>
+           <?php foreach ($tabs_extras as $group) : ?>
+            <?php foreach ($group as $button) : ?>
+              <li><?php print $button; ?></li>
+            <?php endforeach; ?>
+           <?php endforeach; ?>
           <?php endif; ?>
         </div>
       <?php endif; ?>
