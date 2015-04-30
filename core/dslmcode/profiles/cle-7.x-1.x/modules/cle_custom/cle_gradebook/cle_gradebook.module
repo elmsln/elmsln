@@ -69,12 +69,6 @@ function cle_gradebook_block_view($delta = '') {
 }
 
 /**
- * Implements hook_form_alter().
- */
-function cle_gradebook_form_alter(&$form, &$form_state, $form_id) {
-}
-
-/**
  * Implementation of hook_form_FORM_ID_alter().
  */
 function cle_gradebook_form_assessment_entity_edit_submission_evaluation_form_alter(&$form, &$form_state, $form_id) {
