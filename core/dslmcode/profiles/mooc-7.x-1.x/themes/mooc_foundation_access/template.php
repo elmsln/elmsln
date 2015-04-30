@@ -13,13 +13,24 @@ function mooc_foundation_access_preprocess_page(&$variables) {
     $variables['mespeak'] = TRUE;
   }
   if (user_access('access printer-friendly version')) {
-  $variables['tabs_extras'] = '<hr>
-    <li>' . l(t('Print'), 'book/export/html/' . arg(1)) . '</li>';
+    $variables['tabs_extras'][0][] = l(t('Print'), 'book/export/html/' . arg(1));
   }
   if (user_access('access contextual links')) {
-    $variables['tabs_extras'] .= '<hr>
-    <li class="cis_accessibility_check"></li>
-    <hr>
-    <li><a href="#" data-reveal-id="block-menu-menu-course-tools-menu-nav-modal">' . t('Course Settings') . '</a></li>';
+    $variables['tabs_extras'][0][] = '<li class="cis_accessibility_check"></li>';
+  }
+}
+
+/**
+ * Implements template_preprocess_region.
+ */
+function mooc_foundation_access_preprocess_region(&$variables) {
+// add in the chevron contextual options for the high level
+  if ($variables['region'] == 'left_menu' && function_exists('_cis_service_connection_active_outline') && user_access('access contextual links')) {
+    $node = _cis_service_connection_active_outline();
+    if (isset($node->nid)) {
+      $variables['button_group'][0][] = l(t('Outline'), 'admin/content/book/' . $node->nid);
+      $variables['button_group'][0][] = l(t('Print'), 'book/export/html/' . $node->nid);
+      $variables['button_group'][0][] = l(t('Duplicate'), 'admin/content/book/copy/' . $node->nid);
+    }
   }
 }
