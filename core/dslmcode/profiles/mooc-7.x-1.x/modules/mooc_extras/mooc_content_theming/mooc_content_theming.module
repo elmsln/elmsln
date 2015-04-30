@@ -23,3 +23,13 @@ function mooc_content_theming_preprocess_page(&$variables) {
     $variables['zurb_color'] = $variables['node']->field_mooc_color['und'][0]['jquery_colorpicker'];
   }
 }
+
+/**
+ * Implements hook_foundation_access_menu_item_icon_alter().
+ */
+function mooc_content_theming_foundation_access_menu_item_icon_alter(&$icon, $element) {
+  // @todo add support for icons based on the classification of the page if it exists.
+  /*if (in_array('node_is_hidden', $element['#localized_options']['attributes']['class'])) {
+    $icon = 'hidden';
+  }*/
+}
