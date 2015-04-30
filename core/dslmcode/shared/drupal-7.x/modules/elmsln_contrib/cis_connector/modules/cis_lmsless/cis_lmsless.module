@@ -39,38 +39,6 @@ function cis_lmsless_page_build(&$page) {
 }
 
 /**
- * Implements hook_menu_contextual_links_alter().
- */
-function cis_lmsless_menu_contextual_links_alter(&$links, $router_item, $root_path) {
-  // Add a link to all contextual links for nodes.
-  if ($root_path == 'node/%') {
-    $del = $links['cis_lmsless-delete'];
-    unset($links['cis_lmsless-delete']);
-    $entity_id = array_pop(explode('/', $router_item['href']));
-    // link to print the outline
-    $links['cis_lmsless_print_outline'] = array(
-      'title' => t('Print'),
-      'href' => 'book/export/html/' . $entity_id,
-      'localized_options' => array(),
-    );
-    // outline below here
-    $links['cis_lmsless_outline_designer'] = array(
-      'title' => t('Outline'),
-      'href' => 'node/' . $entity_id . '/outline/children',
-      'localized_options' => array(),
-    );
-    // duplicate this part
-    $links['cis_lmsless_duplicate_outline'] = array(
-      'title' => t('Duplicate'),
-      'href' => 'node/' . $entity_id . '/outline/copy',
-      'localized_options' => array(),
-    );
-    $links['cis_lmsless-delete'] = $del;
-    $links['cis_lmsless-delete']['warning'] = TRUE;
-  }
-}
-
-/**
  * Implements preprocess_cis_lmsless_contextual_links()
  */
 function cis_lmsless_preprocess_cis_lmsless_contextual_links(&$variables) {
