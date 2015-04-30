@@ -79,8 +79,7 @@ function cis_lmsless_form_masquerade_block_1_alter(&$form, &$form_state, $form_i
  * @return array array of variables to pass to the theme
  */
 function _cis_lmsless_theme_vars() {
-  // @todo make a cache bin for this info or stuff it in the generic
-  // cache bin; need to do memory profiling to see for sure though.
+  // @todo cache this as it's around 250k memory transaction
   // ensure this doesn't load when it doesn't have to
   $vars = &drupal_static(__FUNCTION__);
   if (!isset($vars)) {
@@ -133,6 +132,7 @@ function _cis_lmsless_theme_vars() {
       $tmproles = $GLOBALS['user']->roles;
       unset($tmproles[1]);
       unset($tmproles[2]);
+      // figure out how to present roles, don't assume there are roles
       if (!empty($tmproles)) {
         if (count($tmproles) < 2) {
           $roleword = t('Role');
@@ -140,24 +140,16 @@ function _cis_lmsless_theme_vars() {
         else {
           $roleword = t('Roles');
         }
-        $vars['admin_status_bar']['user-role'] = array($roleword, implode(' ', $tmproles));
+        sort($tmproles);
+        $vars['admin_status_bar']['user-role'] = array($roleword, implode(' and ', $tmproles));
       }
     }
+    $distro = variable_get('install_profile', 'standard');
+    $reg = _cis_connector_build_registry($distro);
+    $tmp = explode('.', $reg['address']);
+    $machine_name = $tmp[0];
     // request a list of all other services that this section uses
-    if (!$services = _cis_connector_transaction('other_services')) {
-      $services = $list = array();
-      $distro = variable_get('install_profile', 'standard');
-      $reg = _cis_connector_build_registry($distro);
-      $tmp = explode('.', $reg['address']);
-      $machine_name = $tmp[0];
-      $list['Services'][$machine_name] = array(
-        'title' => (isset($reg['default_title']) ? $reg['default_title'] : ''),
-        'url' => '#',
-        'machine_name' => $machine_name,
-      );
-      $vars['active'] = $list[$distro];
-    }
-    else {
+    if ($services = _cis_connector_transaction('other_services')) {
       foreach ($services as $service) {
         $list['Services'][$service['field_machine_name']] = array(
           'title' => $service['title'],
@@ -166,6 +158,15 @@ function _cis_lmsless_theme_vars() {
         );
       }
     }
+    else {
+      $services = $list = array();
+      $list['Services'][$machine_name] = array(
+        'title' => (isset($reg['default_title']) ? $reg['default_title'] : ''),
+        'url' => $GLOBALS['base_url'] . '/',
+        'machine_name' => $machine_name,
+      );
+    }
+    $vars['active'] = $list['Services'][$machine_name];
     // add in link to the CIS location if permission exists
     // @ignore druplart_conditional_assignment
     if (user_access('view lmsless cis link') && $settings = _cis_connector_build_registry('cis')) {
@@ -175,19 +176,6 @@ function _cis_lmsless_theme_vars() {
         'machine_name' => 'online',
       );
       $vars['service_option_link'] = _cis_connector_format_address($settings, base_path(), 'front') . 'service-instances';
-    }
-    // bump current link to the first position and drop url so its internal
-    foreach ($list as $key => $group) {
-      foreach ($group as $key2 => $item) {
-        // see if this service matches the current tool
-        if ($item['url'] == $GLOBALS['base_url'] . '/') {
-          $tmp = $item;
-          $vars['active'] = $item;
-          $tmp['url'] = '#';
-          unset($list[$key][$key2]);
-          array_unshift($list[$key], $tmp);
-        }
-      }
     }
     $vars['services'] = $list;
     // support for search bar if active
