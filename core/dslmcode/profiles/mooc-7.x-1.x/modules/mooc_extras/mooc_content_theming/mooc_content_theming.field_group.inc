@@ -23,9 +23,9 @@ function mooc_content_theming_field_group_info() {
     'label' => 'Visual identifiers',
     'weight' => '3',
     'children' => array(
-      0 => 'field_mooc_thumbnail',
-      1 => 'field_mooc_image',
-      2 => 'field_mooc_color',
+      0 => 'field_mooc_image',
+      1 => 'field_mooc_color',
+      2 => 'field_instructional_significance',
     ),
     'format_type' => 'fieldset',
     'format_settings' => array(
