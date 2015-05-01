@@ -76,8 +76,9 @@ function cle_gradebook_grid_form($form, &$form_state) {
     '#chosen' => TRUE,
     '#multiple' => '1',
   );
-  // submission status filter
 
+  // submission status filter
+  // @todo make this like the old system, just move dots around
   $field = field_info_field('field_submission_state');
   $form['filters']['field_submission_state'] = array(
     '#required' => '0',
@@ -90,7 +91,8 @@ function cle_gradebook_grid_form($form, &$form_state) {
     '#title' => t('Submission Status'),
   );
 
-    // submission status filter
+  // assessment status filter
+  // @todo make this like the old system, just move dots around
   $field = field_info_field('field_cle_status');
   $form['filters']['field_cle_status'] = array(
     '#required' => '0',
@@ -222,11 +224,6 @@ function cle_gradebook_grid_form($form, &$form_state) {
     '#type' => 'submit',
     '#value' => t('Submit'),
     '#submit' => array('cle_gradebook_grid_form_submit'),
-  );
-  $form['actions']['reset'] = array(
-    '#type' => 'submit',
-    '#value' => t('Reset'),
-    '#submit' => array('cle_gradebook_grid_form_reset'),
   );
   // append the grid to the form
   $form['grid'] = array(
