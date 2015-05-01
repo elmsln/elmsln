@@ -114,9 +114,13 @@
 
 .icon-info-white { background-image: url('png/info-white.png'); background-repeat: no-repeat; }
 
+.icon-interact-black { background-image: url('png/interact-black.png'); background-repeat: no-repeat; }
+
 .icon-labs-black { background-image: url('png/labs-black.png'); background-repeat: no-repeat; }
 
 .icon-labs-white { background-image: url('png/labs-white.png'); background-repeat: no-repeat; }
+
+.icon-media-black { background-image: url('png/media-black.png'); background-repeat: no-repeat; }
 
 .icon-mooc-black { background-image: url('png/mooc-black.png'); background-repeat: no-repeat; }
 
