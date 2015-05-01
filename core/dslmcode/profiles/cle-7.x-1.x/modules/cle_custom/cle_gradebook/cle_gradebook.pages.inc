@@ -164,8 +164,6 @@ function cle_gradebook_grid_form($form, &$form_state) {
     foreach ($assignments as $key => $name) {
       // if we have an assignment nid key match, load result there
       if (isset($subissions[$key])) {
-        // @todo associate a status indicator light w/ the submission
-        // instead of what its doing currently
         // check for matching assessments
         $id = _cis_connector_assemble_entity_list('assessment_entity', 'submission_evaluation', 'assessment_entity_id', 'assessment_entity_id', array('field_cle_associated_submission' => array('target_id', $subissions[$key], '=')));
         $assessment = entity_load_single('assessment_entity', array_pop($id));
