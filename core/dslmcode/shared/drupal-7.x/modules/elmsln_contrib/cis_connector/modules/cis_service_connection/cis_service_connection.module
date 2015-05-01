@@ -131,6 +131,16 @@ function cis_service_connection_menu() {
     'weight' => 2,
     'access arguments' => array('access content'),
   );
+    // Guided tour off of the welcome page with example content
+  $items['guided_tour'] = array(
+    'title' => 'Guided tour',
+    'page callback' => '_cis_service_connection_page',
+    'page arguments' => array(0),
+    'menu_name' => 'main-menu',
+    'weight' => 10,
+    'access arguments' => array('access content'),
+    'type' => MENU_LOCAL_TASK,
+  );
   // direct download of the welcome letter, useful for remote referencing
   $items['welcome_page/download'] = array(
     'title' => 'Letter',
