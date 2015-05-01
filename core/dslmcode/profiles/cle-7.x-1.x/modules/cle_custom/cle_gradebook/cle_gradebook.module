@@ -206,7 +206,7 @@ function cle_gradebook_grid_form_reset($form, &$form_state) {
  * @return string path to an image to load
  */
 function _cle_gradebook_assessment_status($submission, $assessment, $format = 'alt') {
-  $path = base_path() . drupal_get_path('module', 'cle_gradebook') . '/images/assessment/';
+  $indicators = _cle_gradebook_get_status_indicators();
   // check that we have an assessment and that submission hasn't been returned
   // to the student to do additional work. After they'd set it back to ready
   // then the indicator light would switch to the assessment state.
@@ -219,30 +219,73 @@ function _cle_gradebook_assessment_status($submission, $assessment, $format = 'a
   else {
     $status = 'submission_unsubmitted';
   }
-  $status_text = ucfirst(str_replace('_', ' ', $status));
   // convert status into image / text statements
   switch($status) {
-    case 'submission_in_progress':
-    case 'submission_ready':
-    case 'submission_needs_work':
-    case 'assessment_started':
-    case 'assessment_complete':
-    case 'assessment_available':
-    case 'assessment_viewed':
-      $img = $path . $status . '.png';
-      $text = t('@user\'s @name status: @status', array('@user' => $submission->name, '@name' => $submission->title, '@status' => $status_text));
+    default:
+      $text = t('@user\'s @name status: @status', array('@user' => $submission->name, '@name' => $submission->title, '@status' => $indicators[$status]['title']));
     break;
     case 'submission_unsubmitted':
-      $img = $path . $status . '.png';
-      $text = t('status: @status', array('@status' => $status_text));
+      $text = t('status: @status', array('@status' => $indicators[$status]['title']));
     break;
   }
-
   // output format of image, render the status indicator light
   if ($format == 'image') {
+    $img = base_path() . $indicators[$status]['icon'];
     return "<img src=\"$img\" title=\"$text\" alt=\"$text\" width=\"16px\" height=\"16px\">";
   }
   else {
     return $text;
   }
+}
+
+/**
+ * Implements hook_gradebook_status_indicators().
+ */
+function cle_gradebook_gradebook_status_indicators() {
+  $path = drupal_get_path('module', 'cle_gradebook') . '/images/assessment/';
+  $indicators = array(
+    'submission_unsubmitted' => array(
+      'title' => t('Submission unsubmitted'),
+    ),
+    'submission_in_progress' => array(
+      'title' => t('Submission in progress'),
+    ),
+    'submission_ready' => array(
+      'title' => t('Submission ready'),
+    ),
+    'submission_needs_work' => array(
+      'title' => t('Submission needs work'),
+    ),
+    'assessment_started' => array(
+      'title' => t('Assessment started'),
+    ),
+    'assessment_complete' => array(
+      'title' => t('Assessment complete'),
+    ),
+    'assessment_available' => array(
+      'title' => t('Assessment available'),
+    ),
+    'assessment_viewed' => array(
+      'title' => t('Assessment viewed'),
+    ),
+  );
+  // add in the icon keys
+  foreach ($indicators as $key => $indicator) {
+    $indicators[$key]['icon'] = $path . $key . '.png';
+  }
+
+  return $indicators;
+}
+
+/**
+ * Helper function to load potential submission status types
+ * @return array      status data
+ */
+function _cle_gradebook_get_status_indicators() {
+  $indicators = &drupal_static(__FUNCTION__);
+  if (!isset($indicators)) {
+    $indicators = module_invoke_all('gradebook_status_indicators');
+    drupal_alter('gradebook_status_indicators', $indicators);
+  }
+  return $indicators;
 }
