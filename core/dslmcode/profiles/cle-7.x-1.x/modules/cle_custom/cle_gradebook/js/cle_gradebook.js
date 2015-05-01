@@ -24,7 +24,11 @@
     $('.ctools-modal-cle-gradebook-modal.disable-scroll').on("click", function () {
       $("body").addClass("scroll-disabled");
     });
-        // Bind a keypress on escape for closing the modalContent
+    // @todo need to disable escape closing colorbox or both events firing
+    // if colorbox open, can't close ctools modal
+    // if colorbox closed, can close ctools modal this way
+    // maybe use unbind event
+    // Bind a keypress on escape for closing the modalContent
     $(document).bind('keydown', function(event) {
       if (event.keyCode == 27) {
         $("body").removeClass("scroll-disabled")
