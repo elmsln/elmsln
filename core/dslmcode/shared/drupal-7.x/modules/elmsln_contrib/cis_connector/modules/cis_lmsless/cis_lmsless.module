@@ -64,7 +64,9 @@ function _cis_lmsless_assemble() {
 function cis_lmsless_form_masquerade_block_1_alter(&$form, &$form_state, $form_id) {
   $form['masquerade_user_field']['#chosen'] = TRUE;
   $form['masquerade_user_field']['#type'] = 'select';
-  if ($gid = _cis_section_load_section_by_id(_cis_connector_section_context())) {
+  $field_conditions = array();
+  // don't assume there is a section context when masquerade is enabled
+  if (function_exists('_cis_section_load_section_by_id') && $gid = _cis_section_load_section_by_id(_cis_connector_section_context())) {
     $field_conditions = array('og_user_node' => array('target_id', array($gid), 'IN'));
   }
   // pull together the users
