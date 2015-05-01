@@ -202,7 +202,7 @@ function cis_lmsless_theme() {
         'section' => t('Master Section'),
         'active' => array('title' => ''),
         'services' => array(),
-        'tour' => url('welcome_page/guided_tour'),
+        'tour' => url('guided_tour'),
         'main_menu' => menu_tree(variable_get('menu_main_links_source', 'main-menu')),
         'help_link' => url('course-help'),
         'search' => '',
