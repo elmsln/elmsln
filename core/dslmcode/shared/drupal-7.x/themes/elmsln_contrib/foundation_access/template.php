@@ -33,6 +33,9 @@ function foundation_access_preprocess_page(&$variables) {
  * Implements template_preprocess_region.
  */
 function foundation_access_preprocess_region(&$variables) {
+  if (!isset($variables['button_group'])) {
+    $variables['button_group'] = array();
+  }
   // add in the chevron contextual options for the high level
   if ($variables['region'] == 'left_menu' && user_access('access contextual links')) {
     $variables['button_group'][100][] = '<a href="#" data-reveal-id="block-menu-menu-course-tools-menu-nav-modal">' . t('Course Settings') . '</a>';
