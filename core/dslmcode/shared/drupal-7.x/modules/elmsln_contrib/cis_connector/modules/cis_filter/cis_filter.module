@@ -75,7 +75,7 @@ function cis_filter_theme() {
  * Theme callback to render media.
  */
 function theme_cis_filter_render($vars) {
-  // NOTICE: allows for future rewrites to the API
+  // @notice allows for future rewrites to the API
   if ($vars['settings']['rev'] == 1) {
     $code = array_merge(array(
       'render' => 'iframe',
