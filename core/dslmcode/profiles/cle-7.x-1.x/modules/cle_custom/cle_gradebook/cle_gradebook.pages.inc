@@ -140,18 +140,6 @@ function cle_gradebook_grid_form($form, &$form_state) {
       $item['#default_value'] = '-all-';
     }
   }
-  // get so we submit to ourselves the data we can review for query building
-  $form['#method'] = 'GET';
-  $form['actions']['submit'] = array(
-    '#type' => 'submit',
-    '#value' => t('Submit'),
-    '#submit' => array('cle_gradebook_grid_form_submit'),
-  );
-  $form['actions']['reset'] = array(
-    '#type' => 'submit',
-    '#value' => t('Reset'),
-    '#submit' => array('cle_gradebook_grid_form_reset'),
-  );
 
   // setup the header for the table
   $header = array(CLE_GRADEBOOK_USERNAME_FIELD => l(t('Name'), $path, array('query' => array('orderby' => CLE_GRADEBOOK_USERNAME_FIELD))));
@@ -192,12 +180,6 @@ function cle_gradebook_grid_form($form, &$form_state) {
     }
     $rows[] = array('data' => $row);
   }
-  // sort by sortorder
-  $sortorder = array();
-  foreach ($rows as $key => $row) {
-    $sortorder[$key]  = $row[$orderby];
-  }
-  array_multisort($sortorder, SORT_DESC, SORT_NUMERIC, $rows);
   // pull table together to render after the form settings
   $table = theme(
     'table',
@@ -207,15 +189,50 @@ function cle_gradebook_grid_form($form, &$form_state) {
       'caption' => t('Gradebook of studio submissions')
     )
   );
-  // append the grid to the form
-  $form['grid'] = array(
-    '#markup' => $table,
-  );
   // make filters collapsible
   $form['filters'] += array(
     '#type' => 'fieldset',
     '#title' => t('Filters'),
     '#collapsible' => TRUE,
+  );
+  // make legend to show what the colors mean
+  $form['legend'] = array(
+    '#type' => 'fieldset',
+    '#title' => t('Legend'),
+    '#collapsible' => TRUE,
+    '#collapsed' => TRUE,
+  );
+  $indicators = _cle_gradebook_get_status_indicators();
+  foreach ($indicators as &$button) {
+    $button['icon'] = "<img src=\"" . base_path() . $button['icon'] . "\" title=\"" . $button['title'] . "\" alt=\"" . $button['title'] . "\" width=\"16px\" height=\"16px\">";
+  }
+  $legend = theme(
+    'table',
+    array(
+      'header' => array(t('Icon'), t('Meaning')),
+      'rows' => $indicators,
+      'caption' => t('Submission status legend')
+    )
+  );
+  // append the table to the legend
+  $form['legend']['table'] = array(
+    '#markup' => $legend,
+  );
+    // get so we submit to ourselves the data we can review for query building
+  $form['#method'] = 'GET';
+  $form['actions']['submit'] = array(
+    '#type' => 'submit',
+    '#value' => t('Submit'),
+    '#submit' => array('cle_gradebook_grid_form_submit'),
+  );
+  $form['actions']['reset'] = array(
+    '#type' => 'submit',
+    '#value' => t('Reset'),
+    '#submit' => array('cle_gradebook_grid_form_reset'),
+  );
+  // append the grid to the form
+  $form['grid'] = array(
+    '#markup' => $table,
   );
   return $form;
 }
