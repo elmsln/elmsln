@@ -174,14 +174,14 @@ function cle_gradebook_grid_form($form, &$form_state) {
   // loop through users and pull their assignments
   foreach ($students as $uid => $user) {
     // pull together the submissions
-    $subissions = _cis_connector_assemble_entity_list('node', 'cle_submission', array('field_assignment', 'target_id'), 'nid', $field_conditions, array('uid' => $uid));
+    $submissions = _cis_connector_assemble_entity_list('node', 'cle_submission', array('field_assignment', 'target_id'), 'nid', $field_conditions, array('uid' => $uid));
     $row = array(CLE_GRADEBOOK_USERNAME_FIELD => $user);
     // set a record per result
     foreach ($assignments as $key => $name) {
       // if we have an assignment nid key match, load result there
-      if (isset($subissions[$key])) {
+      if (isset($submissions[$key])) {
         // check for matching assessments
-        $id = _cis_connector_assemble_entity_list('assessment_entity', 'submission_evaluation', 'assessment_entity_id', 'assessment_entity_id', array('field_cle_associated_submission' => array('target_id', $subissions[$key], '=')));
+        $id = _cis_connector_assemble_entity_list('assessment_entity', 'submission_evaluation', 'assessment_entity_id', 'assessment_entity_id', array('field_cle_associated_submission' => array('target_id', $submissions[$key], '=')));
         // make sure we have an assessment entity first
         if (!empty($id)) {
           $assessment = entity_load_single('assessment_entity', array_pop($id));
@@ -190,9 +190,9 @@ function cle_gradebook_grid_form($form, &$form_state) {
           $assessment = NULL;
         }
         // now pull in the status from the submission
-        $submission = entity_load_single('node', $subissions[$key]);
+        $submission = entity_load_single('node', $submissions[$key]);
         $status_image = _cle_gradebook_assessment_status($submission, $assessment, 'image');
-        $row[$key] = ctools_modal_text_button($status_image, 'cle/gradebook/render/nojs/' . $subissions[$key] . '/' . $uid,_cle_gradebook_assessment_status($submission, $assessment, 'alt'), 'ctools-modal-cle-gradebook-modal disable-scroll');
+        $row[$key] = ctools_modal_text_button($status_image, 'cle/gradebook/render/nojs/' . $submissions[$key] . '/' . $uid,_cle_gradebook_assessment_status($submission, $assessment, 'alt'), 'ctools-modal-cle-gradebook-modal disable-scroll');
       }
       else {
         $row[$key] = _cle_gradebook_assessment_status(NULL, NULL, 'image');
