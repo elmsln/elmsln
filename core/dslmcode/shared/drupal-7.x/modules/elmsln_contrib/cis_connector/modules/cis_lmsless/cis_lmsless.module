@@ -17,11 +17,6 @@ function cis_lmsless_permission() {
       'title' => t('View link to CIS space'),
       'description' => t('This shows the shortcut to the marketing space in CIS.'),
     ),
-    'view course admin areas' =>  array(
-      'title' => t('View admin areas'),
-      'description' => t('This allows the user to see areas that are typically reserved for specialized roles that help in the offering of the course.'),
-      'restrict access' => TRUE,
-    ),
   );
 }
 
@@ -121,7 +116,7 @@ function _cis_lmsless_theme_vars() {
     $vars['resources'] = $resources;
     // throw in username
     $vars['username'] = check_plain($GLOBALS['user']->name);
-    if (user_access('view course admin areas') || isset($_SESSION['masquerading'])) {
+    if (_cis_connector_role_grouping('staff') || isset($_SESSION['masquerading'])) {
       $vars['admin_status_bar'] = array(
         'course-section' => array(t('Section'), $section . ' <a href="#" data-reveal-id="block-cis-service-connection-section-context-changer-nav-modal">' . t('switch') . '</a>'),
         'current-user-id' => array(t('User'), $vars['username']),
