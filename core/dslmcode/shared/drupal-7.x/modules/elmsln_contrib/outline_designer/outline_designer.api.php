@@ -1,6 +1,10 @@
+<?php
+
 // PHP EXAMPLE HOOKS
 // examples taken from hidden_nodes implementation
-// for adding pure API calls to the operations list (like drag and drop) set the title to <<OUTLINE_DESIGNER_API_ONLY>>
+// for adding pure API calls to the operations list (like drag and drop)
+// set the title to <<OUTLINE_DESIGNER_API_ONLY>>
+
 /**
  * Implementation of hook_outline_designer_operations().
  */
@@ -100,5 +104,4 @@ function hidden_nodes_outline_designer_hide_node($nid, $multiple, $status) {
     $("#od_hidden_nodes_multiple").attr("checked", true);
   };
 })(jQuery);
-
 */
