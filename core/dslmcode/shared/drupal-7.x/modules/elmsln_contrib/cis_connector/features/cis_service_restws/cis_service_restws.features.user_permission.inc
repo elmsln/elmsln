@@ -10,11 +10,12 @@
 function cis_service_restws_user_default_permissions() {
   $permissions = array();
 
-  // Exported permission: access resource node.
+  // Exported permission: 'access resource node'.
   $permissions['access resource node'] = array(
     'name' => 'access resource node',
     'roles' => array(
       'SERVICE ACCOUNT' => 'SERVICE ACCOUNT',
+      'administrator' => 'administrator',
     ),
     'module' => 'restws',
   );

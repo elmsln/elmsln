@@ -15,9 +15,6 @@ function cis_section_user_default_permissions() {
     'name' => 'create section content',
     'roles' => array(
       'administrator' => 'administrator',
-      'instructor' => 'instructor',
-      'staff' => 'staff',
-      'teaching assistant' => 'teaching assistant',
     ),
     'module' => 'node',
   );
