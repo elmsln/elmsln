@@ -370,16 +370,18 @@ function _cle_gradebook_assessment_status($submission, $assessment, $format = 'a
   switch($status) {
     default:
       $text = t('@user\'s @name status: @status', array('@user' => $submission->name, '@name' => $submission->title, '@status' => $indicators[$status]['title']));
+      $nid = $submission->nid;
+      $class = "indicator-light cle-submission-${nid}";
     break;
     case 'submission_unsubmitted':
       $text = t('status: @status', array('@status' => $indicators[$status]['title']));
+      $class = "indicator-light cle-submission-unsubmitted";
     break;
   }
   // output format of image, render the status indicator light
   if ($format == 'image') {
     $img = base_path() . $indicators[$status]['icon'];
-    $nid = $submission->nid;
-    return "<img src=\"$img\" title=\"$text\" alt=\"$text\" width=\"16px\" height=\"16px\" class=\"indicator-light cle-submission-${nid}\">";
+    return "<img src=\"$img\" title=\"$text\" alt=\"$text\" width=\"16px\" height=\"16px\" class=\"$class\">";
   }
   else {
     return $text;
