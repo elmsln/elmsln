@@ -42,15 +42,12 @@ dependencies[] = list
 dependencies[] = menu
 dependencies[] = node
 dependencies[] = options
-dependencies[] = overlay
 dependencies[] = search
-dependencies[] = statistics
 dependencies[] = system
 dependencies[] = text
 dependencies[] = update
 dependencies[] = user
 ; Entity
-dependencies[] = nodereference_highlight
 dependencies[] = replicate
 ; Feeds
 dependencies[] = feeds
@@ -106,6 +103,7 @@ dependencies[] = tipsy
 dependencies[] = token
 dependencies[] = transliteration
 dependencies[] = typo
+dependencies[] = jquery_update
 ; Outline Designer
 dependencies[] = outline_designer
 dependencies[] = outline_designer_book
@@ -116,6 +114,7 @@ dependencies[] = httprl
 dependencies[] = hidden_nodes
 ; Textbook
 dependencies[] = textbook
+dependencies[] = speedreader
 ; UUID
 dependencies[] = uuid
 ; User Interface
@@ -147,13 +146,13 @@ dependencies[] = mooc_cis_ux
 dependencies[] = mooc_helper
 dependencies[] = mooc_textbook
 dependencies[] = mooc_ux_defaults
-dependencies[] = node_reference_highlight_glossary
 dependencies[] = regions_admin_example
 dependencies[] = textbook_editor
 dependencies[] = textbook_templates
 dependencies[] = mooc_page
 dependencies[] = mooc_perms
 dependencies[] = cis_foundation_access
+dependencies[] = mooc_theme_foundation
 
 ; Information intentionally kept here to have a version w/ ELMSLN
 ; Information added by Drupal.org packaging script on 2014-08-13
