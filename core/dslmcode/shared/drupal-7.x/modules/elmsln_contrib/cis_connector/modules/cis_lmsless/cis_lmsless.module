@@ -123,12 +123,15 @@ function _cis_lmsless_theme_vars() {
     $vars['username'] = check_plain($GLOBALS['user']->name);
     if (user_access('view course admin areas') || isset($_SESSION['masquerading'])) {
       $vars['admin_status_bar'] = array(
-        'course-section' => array(t('Section'), $section),
+        'course-section' => array(t('Section'), $section . ' <a href="#" data-reveal-id="block-cis-service-connection-section-context-changer-nav-modal">' . t('switch') . '</a>'),
         'current-user-id' => array(t('User'), $vars['username']),
       );
       if (isset($_SESSION['masquerading'])) {
         $tmp = user_load($_SESSION['masquerading']);
         $vars['admin_status_bar']['current-user-id'][1] .= ' ' . l(t('Switch back to (@name)', array('@name' => $tmp->name)), 'masquerade/unswitch', array('query' => array('token' => drupal_get_token('masquerade/unswitch'))));
+      }
+      else {
+        $vars['admin_status_bar']['current-user-id'][1] .= ' <a href="#" data-reveal-id="block-masquerade-masquerade-nav-modal">' . t('impersonate') . '</a>';
       }
       // calculate roles
       $tmproles = $GLOBALS['user']->roles;
