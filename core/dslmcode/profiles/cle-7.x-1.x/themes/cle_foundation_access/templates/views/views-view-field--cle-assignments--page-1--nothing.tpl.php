@@ -28,10 +28,13 @@ if (isset($row->node_field_data_field_cle_assignments_nid)) {
 	    $field_conditions = array('og_group_ref' => array('target_id', array($gid), 'IN'));
 	}
 	$field_conditions['field_assignment'] = array('target_id', array($row->node_field_data_field_cle_assignments_nid), 'IN');
-	$submission = _cis_connector_assemble_entity_list('node', 'cle_submission', 'nid', 'title', $field_conditions, array('uid' => array($GLOBALS['user']->uid)));
+	$submission = _cis_connector_assemble_entity_list('node', 'cle_submission', 'nid', 'title', $field_conditions, array('uid' => $GLOBALS['user']->uid));
 	$output = '';
 	foreach ($submission as $nid => $title) {
 		$output .= l($title,'node/' . $nid) . ' ';
+	}
+	if (empty($output)) {
+		$output = t('Unsubmitted');
 	}
 }
 ?>
