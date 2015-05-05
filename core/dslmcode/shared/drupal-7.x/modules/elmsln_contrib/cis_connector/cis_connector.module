@@ -399,7 +399,7 @@ function _cis_connector_section_context($account = NULL) {
     else {
       // see if we are an administrative account that might be missing
       // access to a group but yet clearly could be in the master
-      if ($account->uid == 1 || array_intersect(array('administrator', 'instructor', 'staff'), array_values($account->roles))) {
+      if (_cis_connector_role_grouping('staff', $account) || _cis_connector_role_grouping('teacher', $account)) {
         // ensure we have section active first
         $info = entity_get_info('node');
         if (isset($info['bundles']['section'])) {
@@ -1307,4 +1307,52 @@ function _cis_connector_assemble_entity_list($entity_type, $bundle, $id_field, $
     }
   }
   return $options;
+}
+
+/**
+ * Return if an account fits within a type of role group.
+ * @param  string $type    type of role grouping we are testing for
+ * @param  object $account user / account object
+ * @return bool          return if the user matches the requested group type
+ */
+function _cis_connector_role_grouping($type, $account = NULL) {
+  // support checking against the current account
+  if (is_null($account)) {
+    global $user;
+    $account = $user;
+  }
+  // check against the different groupings we support
+  switch ($type) {
+    case 'admin':
+      // we only have 1 admin level group, obviously
+      if ($account->uid == 1 || array_intersect(array('administrator'), array_values($account->roles))) {
+        return TRUE;
+      }
+    break;
+    case 'staff':
+      if ($account->uid == 1 || array_intersect(array('administrator', 'staff'), array_values($account->roles))) {
+        return TRUE;
+      }
+    break;
+    case 'teacher':
+      if (array_intersect(array('teaching assistant', 'instructor'), array_values($account->roles))) {
+        return TRUE;
+      }
+    break;
+    case 'learner':
+      if (array_intersect(array('student', 'past student'), array_values($account->roles))) {
+        return TRUE;
+      }
+    break;
+    case 'active learner':
+      if (array_intersect(array('student'), array_values($account->roles))) {
+        return TRUE;
+      }
+    break;
+  }
+  $passed = FALSE;
+  // allow other projects to define special situations where you would give a type access
+  drupal_alter('cis_connector_role_grouping', $passed, $type, $account);
+  // if we got here then they didn't pass
+  return $passed;
 }
