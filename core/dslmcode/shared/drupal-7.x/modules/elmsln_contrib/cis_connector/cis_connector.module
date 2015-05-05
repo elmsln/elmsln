@@ -1203,11 +1203,12 @@ function cis_connector_drupal_goto_alter(&$path, &$options, &$http_response_code
  *   (optional) additional conditions to apply to field filtering
  * @param $property_conditions
  *   (optional) additional conditions to apply for properties
- *
+ * @param  $orderby
+ *   (optional) order the results by field / property condtions keyed in array
  * @return $options
  *   array of options as a clean list for selection of an entity id
  */
-function _cis_connector_assemble_entity_list($entity_type, $bundle, $id_field, $title_field, $field_conditions = array(), $property_conditions = array()) {
+function _cis_connector_assemble_entity_list($entity_type, $bundle, $id_field, $title_field, $field_conditions = array(), $property_conditions = array(), $orderby = array()) {
   // pull items based on bundle
   $options = array();
   // assemble all entities requested
@@ -1221,7 +1222,7 @@ function _cis_connector_assemble_entity_list($entity_type, $bundle, $id_field, $
   if (!empty($property_conditions)) {
     // only allowed relationship is simple value field name / value pair
     foreach ($property_conditions as $field_name => $field_value) {
-      if (is_array($field_value)) {
+      if (is_array($field_value) && count($field_value) == 2) {
         $query->propertyCondition($field_name, $field_value[0], $field_value[1]);
       }
       else {
@@ -1233,7 +1234,7 @@ function _cis_connector_assemble_entity_list($entity_type, $bundle, $id_field, $
   if (!empty($field_conditions)) {
     foreach ($field_conditions as $field_name => $field_value) {
       // allow for complex relationship if needed
-      if (is_array($field_value)) {
+      if (is_array($field_value) && count($field_value) >= 2) {
         // simple value = evaluation
         if (count($field_value) == 2) {
         $query->fieldCondition($field_name, $field_value[0], $field_value[1], '=');
@@ -1249,9 +1250,41 @@ function _cis_connector_assemble_entity_list($entity_type, $bundle, $id_field, $
       }
     }
   }
-  // order by the title property
-  $result = $query->propertyOrderBy($title_field)
-    ->execute();
+  // support for complex ordering (optional)
+  if (!empty($orderby)) {
+    // allow for multiple field ordering
+    if (isset($orderby['field'])) {
+      // allow for multiple fields to be ordered by
+      foreach ($orderby['field'] as $field => $column) {
+        // support for direction of the sort
+        if (is_array($column)) {
+          $query->fieldOrderBy($field, $column[0], $column[1]);
+        }
+        else {
+          $query->fieldOrderBy($field, $column);
+        }
+      }
+    }
+    // allow for multiple property ordering
+    if (isset($orderby['property'])) {
+      // allow for multiple fields to be ordered by
+      foreach ($orderby['property'] as $property) {
+        // support for direction of the sort
+        if (is_array($property)) {
+          $query->propertyOrderBy($property[0], $property[1]);
+        }
+        else {
+          $query->propertyOrderBy($property);
+        }
+      }
+    }
+  }
+  else {
+    // simple title sort
+    $query->propertyOrderBy($title_field);
+  }
+  // execute our results
+  $result = $query->execute();
   // ensure this produces results to avoid null queries
   if (!empty($result)) {
     // convert to load only keys of items found
