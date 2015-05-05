@@ -34,8 +34,9 @@
           </section>
 
           <section class="middle tab-bar-section">
+          <?php if (!empty($tabs['#primary']) || !empty($tabs['#secondary']) || !empty($tabs_extras)): ?>
               <a class="off-canvas-toolbar-item toolbar-menu-icon" href="#" data-dropdown="middle-section-buttons" aria-controls="middle-section-buttons" aria-expanded="false"><div class="icon-chevron-down-black off-canvas-toolbar-item-icon"></div></a>
-
+          <?php endif; ?>
           </section>
           <?php print render($page['cis_appbar_second']); ?>
           <?php if (isset($speedreader) || isset($mespeak)) : ?>
@@ -61,7 +62,7 @@
         </nav>
 
         <!-- Middle Section Dropdown Page Tabs -->
-      <?php if (!empty($tabs) || isset($tabs_extras)): ?>
+        <?php if (!empty($tabs['#primary']) || !empty($tabs['#secondary']) || !empty($tabs_extras)): ?>
         <div id="middle-section-buttons" data-dropdown-content class="f-dropdown content" aria-hidden="true" tabindex="-1">
           <?php if (!empty($tabs)): ?>
               <?php print render($tabs); ?>
