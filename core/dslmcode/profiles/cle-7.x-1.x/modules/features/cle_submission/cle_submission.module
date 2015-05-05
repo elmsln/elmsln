@@ -7,36 +7,38 @@
 include_once 'cle_submission.features.inc';
 
 /**
- * Implements hook_init().
+ * Implements hook_page_build().
  */
-function cle_submission_init() {
+function cle_submission_page_build(&$page) {
   $file = FALSE;
   $path = drupal_get_path('module', 'cle_submission') . '/';
-  // add special js handling to the submissions overview
-  switch (arg(0)) {
-    case 'cle':
-      if (arg(1) == 'submissions' || arg(1) == '') {
-        $file = 'submission_overview';
-      }
-    break;
-    case 'user':
-      if (arg(2) == 'gallery') {
-        $file = 'my_gallery';
-      }
-    break;
-    default:
-      switch (arg(2)) {
-        case 'assignments':
-        case 'assignments-list':
-          $file = 'assignment_listing';
-        break;
-      }
-    break;
+  if ($node = menu_get_object('node')) {
+    if ($node->type == 'cle_submission') {
+      $file = 'submission';
+      drupal_add_css($path . 'css/' . $file . '.css');
+    }
   }
-  // add files if on a special path
-  if ($file) {
-    drupal_add_js($path . 'js/' . $file . '.js');
-    drupal_add_css($path . 'css/' . $file . '.css');
+  else {
+    // add special js handling to the submissions overview
+    switch (arg(0)) {
+      case 'cle':
+        if (arg(1) == 'submissions' || arg(1) == '') {
+          $file = 'submission_overview';
+          drupal_add_js($path . 'js/' . $file . '.js');
+          drupal_add_css($path . 'css/' . $file . '.css');
+        }
+      break;
+      default:
+        switch (arg(2)) {
+          case 'assignments':
+          case 'assignments-list':
+            $file = 'assignment_listing';
+            drupal_add_js($path . 'js/' . $file . '.js');
+            drupal_add_css($path . 'css/' . $file . '.css');
+          break;
+        }
+      break;
+    }
   }
 }
 
