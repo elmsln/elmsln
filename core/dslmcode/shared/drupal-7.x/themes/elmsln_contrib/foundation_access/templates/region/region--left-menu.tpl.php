@@ -29,7 +29,7 @@ ksort($button_group);
 ?>
 <aside class="left-off-canvas-menu" data-offcanvas>
   <!-- Menu Item Dropdowns -->
-  <?php if (isset($button_group)): ?>
+  <?php if (isset($button_group) && !empty($button_group)): ?>
     <div id="off-canvas-admin-menu" data-dropdown-content class="f-dropdown content" aria-hidden="true" tabindex="-1">
      <ul class="button-group">
      <?php foreach ($button_group as $group) : ?>
