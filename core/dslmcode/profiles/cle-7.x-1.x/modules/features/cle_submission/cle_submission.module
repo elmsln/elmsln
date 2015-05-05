@@ -65,6 +65,13 @@ function cle_submission_form_alter(&$form, &$form_state, $form_id) {
       // hide things that shouldn't be visible based on requirements of assignment
       foreach ($hidden as $hide) {
         $form[$hide]['#attributes']['class'][] = 'cle_hidden';
+        $tmpgroup = str_replace('field_', 'group_', $hide);
+        // hide / remove the grouping items if they exist
+        if (isset($form['#groups'][$tmpgroup])) {
+          unset($form['#groups'][$tmpgroup]);
+          unset($form['#fieldgroups'][$tmpgroup]);
+          unset($form['#group_children'][$tmpgroup]);
+        }
       }
     }
   }
