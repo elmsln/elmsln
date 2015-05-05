@@ -20,7 +20,7 @@ function foundation_access_preprocess_page(&$variables) {
   if (module_exists('cis_lmsless')) {
     $variables['cis_lmsless'] = _cis_lmsless_theme_vars();
   }
-  if (user_access('access contextual links')) {
+  if (_cis_connector_role_grouping('staff') || _cis_connector_role_grouping('teacher')) {
     $variables['tabs_extras'][100][] = '<a href="#" data-reveal-id="block-menu-menu-course-tools-menu-nav-modal">' . t('Course Settings') . '</a>';
   }
   // wrap non-node content in an article tag
@@ -37,7 +37,7 @@ function foundation_access_preprocess_region(&$variables) {
     $variables['button_group'] = array();
   }
   // add in the chevron contextual options for the high level
-  if ($variables['region'] == 'left_menu' && user_access('access contextual links')) {
+  if ($variables['region'] == 'left_menu' && (_cis_connector_role_grouping('staff') || _cis_connector_role_grouping('teacher'))) {
     $variables['button_group'][100][] = '<a href="#" data-reveal-id="block-menu-menu-course-tools-menu-nav-modal">' . t('Course Settings') . '</a>';
   }
 }
@@ -219,7 +219,7 @@ function _foundation_access_auto_label_build($word, $number, $counter) {
  * @return rendered output
  */
 function _foundation_access_contextual_menu($short, $nid) {
-  if (user_access('access contextual links')) {
+  if (_cis_connector_role_grouping('staff')) {
     $output = theme('cis_lmsless_contextual_container', array('short' => $short, 'cis_links' => menu_contextual_links('cis_lmsless', 'node', array($nid))));
     return $output;
   }
