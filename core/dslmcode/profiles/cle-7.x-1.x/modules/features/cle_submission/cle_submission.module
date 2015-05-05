@@ -100,9 +100,7 @@ function cle_submission_node_access($node, $op, $account) {
     // boolean for visibility
     if (!$assignment->field_visibility['und'][0]['value']) {
       // if it's a hidden assignment, the last check is admin member
-      $access = og_user_access_entity('update group', 'node', $node->og_group_ref['und'][0]['target_id'], $account);
-      // allow group editors to see this work
-      if ($access) {
+      if (_cis_connector_role_grouping('teacher', $account) || _cis_connector_role_grouping('staff', $account)) {
         return NODE_ACCESS_ALLOW;
       }
       else {
