@@ -45,6 +45,18 @@ function cle_submission_init() {
  */
 function cle_submission_form_alter(&$form, &$form_state, $form_id) {
   if ($form_id == 'cle_submission_node_form' && arg(0) != 'system') {
+    // make sure that its not set to the needs work state
+    // if it is then we need to allow anyone to see it so they could change it
+    // back to ready for review but not the "in progress" since this is just
+    // for a one time fix
+    if ($form['field_submission_state']['und']['#default_value'][0] == 'submission_needs_work') {
+      unset($form['field_submission_state']['und']['#options']['submission_in_progress']);
+    }
+    else {
+      // don't allow anyone to set this to needs work; this can only happen
+      // via the instructor in the gradebook
+      unset($form['field_submission_state']['und']['#options']['submission_needs_work']);
+    }
     // try to pull from the default being set
     if (isset($form['field_assignment']['und']['#default_value'][0])) {
       $assignment = node_load($form['field_assignment']['und']['#default_value'][0]);
