@@ -168,6 +168,15 @@ function _cis_lmsless_theme_vars() {
         'machine_name' => $machine_name,
       );
     }
+    // account for the current service being worked on but not actually
+    // being actively used in the section in question
+    if (!isset($list['Services'][$machine_name])) {
+      $list['Services'][$machine_name] = array(
+        'title' => (isset($reg['default_title']) ? $reg['default_title'] : ''),
+        'url' => $GLOBALS['base_url'] . '/',
+        'machine_name' => $machine_name,
+      );
+    }
     $vars['active'] = $list['Services'][$machine_name];
     // add in link to the CIS location if permission exists
     // @ignore druplart_conditional_assignment
