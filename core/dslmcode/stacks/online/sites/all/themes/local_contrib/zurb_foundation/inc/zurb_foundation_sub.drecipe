@@ -1,0 +1,64 @@
+{
+    "name": "Zurb Foundation subtheme recipe",
+    "drush_recipes_api": "1.0",
+    "weight": "0",
+    "core": "7",
+    "env": {
+        "tokens": {
+            "[sub]": "Enter a Zurb Subtheme name"
+        },
+        "defaults": {
+            "[sub]": "zurb-subtheme"
+        }
+    },
+    "recipe": [
+        "zurb_foundation_base.drecipe",
+        {
+            "madlib": "TRUE",
+            "command": "fst",
+            "arguments": [
+                "[sub]"
+            ],
+            "tokens": {
+                "[sub]": "Specify a Zurb Subtheme name"
+            },
+            "defaults": {
+                "[sub]": "zurb-subtheme"
+            }
+        },
+        {
+            "madlib": "TRUE",
+            "command": "vset",
+            "arguments": [
+                "theme_default",
+                "[sub]"
+            ],
+            "tokens": {
+                "[sub]": "What was that Zurb Subtheme again?"
+            },
+            "defaults": {
+                "[sub]": "zurb-subtheme"
+            }
+        },
+        {
+            "madlib": "TRUE",
+            "command": "vset",
+            "arguments": [
+                "admin_theme",
+                "[atheme]"
+            ],
+            "tokens": {
+                "[atheme]": "What admin theme should we use?"
+            },
+            "defaults": {
+                "[atheme]": "seven"
+            }
+        }
+    ],
+    "metadata": {
+        "type": "add on",
+        "description": "Setup Foundation as default theme and get dependencies.",
+        "version": "5.x",
+        "author": "FiLeVeR10"
+    }
+}
