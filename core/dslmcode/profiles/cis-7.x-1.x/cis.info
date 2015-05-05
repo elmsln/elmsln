@@ -181,7 +181,7 @@ dependencies[] = textbook_editor
 dependencies[] = cis_users
 dependencies[] = cis_roles
 dependencies[] = cis_ux
-dependencies[] = cis_foundation_access
+dependencies[] = foundation_access_ux
 
 ; Information added by Drupal.org packaging script on 2014-08-13
 version = "7.x-1.0-beta4+3-dev"

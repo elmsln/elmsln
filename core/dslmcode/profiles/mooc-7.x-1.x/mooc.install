@@ -112,7 +112,7 @@ function mooc_install() {
     'regions_admin_example',
     'mooc_page',
     'mooc_theme_foundation',
-    'cis_foundation_access',
+    'foundation_access_ux',
     'mooc_perms',
   );
   features_revert($features);

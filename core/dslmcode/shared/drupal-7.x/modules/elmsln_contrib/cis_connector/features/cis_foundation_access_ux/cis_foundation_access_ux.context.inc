@@ -1,19 +1,19 @@
 <?php
 /**
  * @file
- * cis_foundation_access.context.inc
+ * foundation_access_ux.context.inc
  */
 
 /**
  * Implements hook_context_default_contexts().
  */
-function cis_foundation_access_context_default_contexts() {
+function foundation_access_ux_context_default_contexts() {
   $export = array();
 
   $context = new stdClass();
   $context->disabled = FALSE; /* Edit this to true to make a default context disabled initially */
   $context->api_version = 3;
-  $context->name = 'cis_foundation_access-admin';
+  $context->name = 'foundation_access_ux-admin';
   $context->description = 'Elevated permissions block positioning for sites running foundation access';
   $context->tag = 'Foundation Access';
   $context->conditions = array(
@@ -51,12 +51,12 @@ function cis_foundation_access_context_default_contexts() {
   // Included for use with string extractors like potx.
   t('Elevated permissions block positioning for sites running foundation access');
   t('Foundation Access');
-  $export['cis_foundation_access-admin'] = $context;
+  $export['foundation_access_ux-admin'] = $context;
 
   $context = new stdClass();
   $context->disabled = FALSE; /* Edit this to true to make a default context disabled initially */
   $context->api_version = 3;
-  $context->name = 'cis_foundation_access-global';
+  $context->name = 'foundation_access_ux-global';
   $context->description = 'Global block positioning for sites running foundation access';
   $context->tag = 'Foundation Access';
   $context->conditions = array(
@@ -96,7 +96,7 @@ function cis_foundation_access_context_default_contexts() {
   // Included for use with string extractors like potx.
   t('Foundation Access');
   t('Global block positioning for sites running foundation access');
-  $export['cis_foundation_access-global'] = $context;
+  $export['foundation_access_ux-global'] = $context;
 
   return $export;
 }

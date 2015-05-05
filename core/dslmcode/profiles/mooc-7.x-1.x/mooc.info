@@ -151,7 +151,7 @@ dependencies[] = textbook_editor
 dependencies[] = textbook_templates
 dependencies[] = mooc_page
 dependencies[] = mooc_perms
-dependencies[] = cis_foundation_access
+dependencies[] = foundation_access_ux
 dependencies[] = mooc_theme_foundation
 
 ; Information intentionally kept here to have a version w/ ELMSLN

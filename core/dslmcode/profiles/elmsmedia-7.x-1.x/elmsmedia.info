@@ -82,7 +82,7 @@ dependencies[] = views_ui
 ; Features
 dependencies[] = features
 dependencies[] = elmsmedia_feature
-dependencies[] = cis_foundation_access
+dependencies[] = foundation_access_ux
 
 ; Information added for Drupal.org usage stats while in dev
 version = "7.x-1.x-dev"

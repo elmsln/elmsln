@@ -4,4 +4,4 @@
  * Code for the CIS Foundation Access feature.
  */
 
-include_once 'cis_foundation_access.features.inc';
+include_once 'foundation_access_ux.features.inc';

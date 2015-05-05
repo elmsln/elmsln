@@ -1,13 +1,13 @@
 <?php
 /**
  * @file
- * cis_foundation_access.strongarm.inc
+ * foundation_access_ux.strongarm.inc
  */
 
 /**
  * Implements hook_strongarm().
  */
-function cis_foundation_access_strongarm() {
+function foundation_access_ux_strongarm() {
   $export = array();
 
   $strongarm = new stdClass();
