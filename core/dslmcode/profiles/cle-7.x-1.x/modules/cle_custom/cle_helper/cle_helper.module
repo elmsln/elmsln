@@ -82,7 +82,8 @@ function cle_helper_form_cis_service_connection_ux_form_alter(&$form, &$form_sta
     '#title' => t('Default assignments'),
     '#type' => 'select',
     '#required' => '1',
-    '#options' => _cis_connector_assemble_entity_list('node', 'cle_assignment', 'nid', 'title'),
+    '#multiple' => '1',
+    '#options' => _cis_connector_assemble_entity_list('node', 'cle_assignment', 'nid', 'title', array(), array(), array('field' => array('field_number' => 'value'))),
   );
 }
 
