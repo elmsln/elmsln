@@ -24,6 +24,13 @@ function cle_gradebook_menu() {
       'access arguments' => array('access gradebook'),
       'type' => MENU_NORMAL_ITEM,
   );
+  $items['cle/gradebook/ajax/%/%/%'] = array(
+      'title' => 'AJAX Save assessment state',
+      'page arguments' => array(3, 4, 5),
+      'page callback' => '_cle_gradebook_ajax_save',
+      'access arguments' => array('access gradebook'),
+      'type' => MENU_NORMAL_ITEM,
+  );
   return $items;
 }
 
@@ -39,6 +46,68 @@ function cle_gradebook_permission() {
       'warning' => t('Gradebook contains sensitive data, only grant this access to individuals that are trusted.'),
     ),
   );
+}
+
+/**
+ * Callback for cle/gradebook/ajax/%
+ */
+function _cle_gradebook_ajax_save($token, $aid, $sid) {
+  // ensure we have a valid script token
+  if (drupal_valid_token($token) && isset($aid) && isset($sid)) {
+    $flag = FALSE;
+    $state = 'assessment_started';
+    $points = NULL;
+    foreach($_POST as $key => $value) {
+      $$key = check_plain($value);
+    }
+    // special case, we are kicking this back to the student
+    // at this point, state of the assessment is either kept alone
+    // or set to started
+    $backtostudent = FALSE;
+    if ($state == 'submission_needs_work') {
+      $submission = node_load($sid);
+      $submission->field_submission_state['und'][0]['value'] = $state;
+      node_save($submission);
+      $backtostudent = TRUE;
+      $state = 'assessment_started';
+    }
+    // save new assessment item
+    if ($aid == 'new') {
+      $vals = array(
+        'type' => 'submission_evaluation',
+        'status' => 1,
+        'label' => t('Assessment by @name', array('@name' => $GLOBALS['user']->name))
+      );
+      $assessment = entity_create('assessment_entity', $vals);
+      $assessment->field_cle_status['und'][0]['value'] = $state;
+      $assessment->field_cle_associated_submission['und'][0]['target_id'] = $sid;
+      $assessment->field_cle_point_value['und'][0]['value'] = $points;
+      entity_save('assessment_entity', $assessment);
+    }
+    else {
+      // update an existing item
+      $assessment = entity_load_single('assessment_entity', $aid);
+      $assessment->field_cle_status['und'][0]['value'] = $state;
+      $assessment->field_cle_point_value['und'][0]['value'] = $points;
+      entity_save('assessment_entity', $assessment);
+    }
+    // @todo support for $flag
+
+    // structure return data
+    $return = array(
+      'state' => $assessment->field_cle_status['und'][0]['value'],
+      'points' => $assessment->field_points['und'][0]['value'],
+    );
+    // edge case for backtostudent state to reflect on dashboard
+    if ($backtostudent) {
+      $return['status'] = 'submission_needs_work';
+    }
+    // return the assessment object now in the DB so we can update our grid
+    print drupal_json_encode($return);
+    exit;
+  }
+  print drupal_json_encode(FALSE);
+  exit;
 }
 
 /**
@@ -88,24 +157,93 @@ function cle_gradebook_form_assessment_entity_edit_submission_evaluation_form_al
 function _cle_gradebook_submission_evaluation_callback() {
   // try to load item from address in the gradebook interface
   $nid = arg(4);
-  if (!empty($nid) && is_numeric($nid)) {
+  if (!empty($nid) && is_numeric($nid) && $submission = node_load($nid)) {
+    //drupal_get_form('cle_gradebook_submission_evaluation');
+    $form = array();
+    $aid = FALSE;
     $type = 'assessment_entity';
     $bundle = 'submission_evaluation';
     // see if this user has assessments for this entity
     $id = _cis_connector_assemble_entity_list($type, $bundle, 'assessment_entity_id', 'assessment_entity_id', array('field_cle_associated_submission' => array('target_id', $nid, '=')));
     // make sure we have 1 assessment and no more for
     if (count($id) !== 0) {
-      $entity = entity_load_single($type, array_pop($id));
-      $method = 'edit';
+      $aid = array_pop($id);
+      $entity = entity_load_single($type, $aid);
+      $default_state = $entity->field_cle_status['und'][0]['value'];
+      $default_points = $entity->field_cle_point_value['und'][0]['value'];
     }
     else {
-      $entity = entity_create($type, array('type' => $bundle));
-      // populate associated submission
-      $entity->field_cle_associated_submission['und'][0]['target_id'] = $nid;
-      $method = 'add';
+      $default_state = '';
+      $default_points = '';
     }
-    $output = entity_ui_get_form($type, $entity, $method);
-    return drupal_render($output);
+    // edge case, work has been marked as pushed back to student
+    // this status overrides the assessment state
+    if ($submission->field_submission_state['und'][0]['value'] == 'submission_needs_work') {
+      $default_state = 'submission_needs_work';
+    }
+
+    $form['submission'] = array(
+      '#type' => 'hidden',
+      '#name' => 'submission',
+      '#value' => $submission->nid,
+    );
+    $form['aid'] = array(
+      '#type' => 'hidden',
+      '#name' => 'aid',
+      '#value' => (!$aid ? 'new' : $aid),
+    );
+    // @todo this is where the rubric would hook in
+    $form['assessment'] = array(
+      '#type' => 'textfield',
+      '#title' => t('Points'),
+      '#name' => 'assessment',
+      '#default_value' => $default_points,
+    );
+    $form['assessment_value'] = array(
+      '#type' => 'hidden',
+      '#name' => 'assessment_value',
+      '#value' => $default_points,
+    );
+    $states = array(
+      '' => t('- none -'),
+      'assessment_started' => t('Assessment started'),
+      'assessment_complete' => t('Assessment complete'),
+      'assessment_available' => t('Assessment available'),
+      'submission_needs_work' => t('Submission needs work*'),
+    );
+    $form['assessment_state'] = array(
+      '#type' => 'select',
+      '#name' => 'assessment_state',
+      '#title' => t('Submission state'),
+      '#options' => $states,
+      '#default_value' => $default_state,
+    );
+    $form['assessment_state_value'] = array(
+      '#type' => 'hidden',
+      '#name' => 'assessment_state_value',
+      '#value' => $default_state,
+    );
+    // @todo need to be able to support this via storage object
+    $form['flag_submission'] = array(
+      '#type' => 'checkbox',
+      '#name' => 'flag_submission',
+      '#title' => t('Flag for further review'),
+      '#default_value' => 0,
+    );
+    $form['flag_submission_value'] = array(
+      '#type' => 'hidden',
+      '#name' => 'flag_submission_value',
+      '#value' => 0,
+    );
+    $form['actions']['save'] = array(
+      '#type' => 'button',
+      '#value' => t('Save'),
+    );
+    // @todo add conditional textfield here that will email the student
+    // from the instructor about what the issue is here while setting the
+    // state.
+
+    return drupal_render($form);
   }
   return FALSE;
 }
@@ -143,8 +281,7 @@ function _cle_gradebook_modal_page($js = NULL, $nid = NULL, $uid = NULL) {
 }
 
 /**
- * inside happy.module
- * Implements hook_views_pre_render()
+ * Callback to attach modal
  */
 function _cle_gradebook_attach_modal() {
   // Include the CTools tools that we need.
@@ -167,6 +304,7 @@ function _cle_gradebook_attach_modal() {
       'throbber' => theme('image', array('path' => ctools_image_path('throbber.gif', 'cle_gradebook'), 'alt' => t('Loading...'), 'title' => t('Loading'))),
       'closeImage' => theme('image', array('path' => ctools_image_path('icon-close-window.png', 'cle_gradebook'), 'alt' => t('Close window'), 'title' => t('Close window'), 'class' => array('disable-scroll'))),
     ),
+    'cleGradebookToken' => drupal_get_token(),
   );
   // Add the settings array defined above to Drupal 7's JS settings:
   drupal_add_js($cle_modal, 'setting');
@@ -191,13 +329,6 @@ function cle_gradebook_form_cle_gradebook_grid_form_alter(&$form, &$form_state, 
  * cle_gradebook_grid_form submit handler.
  */
 function cle_gradebook_grid_form_submit($form, &$form_state) {
-
-}
-
-/**
- * cle_gradebook_grid_form reset handler.
- */
-function cle_gradebook_grid_form_reset($form, &$form_state) {
 
 }
 
@@ -231,7 +362,8 @@ function _cle_gradebook_assessment_status($submission, $assessment, $format = 'a
   // output format of image, render the status indicator light
   if ($format == 'image') {
     $img = base_path() . $indicators[$status]['icon'];
-    return "<img src=\"$img\" title=\"$text\" alt=\"$text\" width=\"16px\" height=\"16px\">";
+    $nid = $submission->nid;
+    return "<img src=\"$img\" title=\"$text\" alt=\"$text\" width=\"16px\" height=\"16px\" class=\"indicator-light cle-submission-${nid}\">";
   }
   else {
     return $text;
