@@ -1310,6 +1310,36 @@ function _cis_connector_assemble_entity_list($entity_type, $bundle, $id_field, $
 }
 
 /**
+ * Return roles for a specified group of roles
+ * @param  string $type    type of role grouping we are testing for
+ * @return array           array of strings corresponding to roles
+ */
+function _cis_connector_role_groups($type = NULL) {
+  // statically cache future calls
+  $roles = &drupal_static(__FUNCTION__);
+  if (!isset($roles)) {
+    $roles = array(
+      'admin' => array('administrator'),
+      'staff' => array('administrator', 'staff'),
+      'teacher' => array('teaching assistant', 'instructor'),
+      'learner' => array('student', 'past student'),
+      'active learner' => array('student'),
+    );
+    // allow other projects to define special situations where you would give a type access
+    drupal_alter('cis_connector_role_groups', $roles);
+  }
+  // return everything if we didn't pass in a specific type
+  if (is_null($type)) {
+    return $roles;
+  }
+  elseif (isset($roles[$type])) {
+    // more common usage; return the roles for this role group
+    return $roles[$type];
+  }
+  return FALSE;
+}
+
+/**
  * Return if an account fits within a type of role group.
  * @param  string $type    type of role grouping we are testing for
  * @param  object $account user / account object
@@ -1321,38 +1351,27 @@ function _cis_connector_role_grouping($type, $account = NULL) {
     global $user;
     $account = $user;
   }
-  // check against the different groupings we support
-  switch ($type) {
-    case 'admin':
-      // we only have 1 admin level group, obviously
-      if ($account->uid == 1 || array_intersect(array('administrator'), array_values($account->roles))) {
-        return TRUE;
-      }
-    break;
-    case 'staff':
-      if ($account->uid == 1 || array_intersect(array('administrator', 'staff'), array_values($account->roles))) {
-        return TRUE;
-      }
-    break;
-    case 'teacher':
-      if (array_intersect(array('teaching assistant', 'instructor'), array_values($account->roles))) {
-        return TRUE;
-      }
-    break;
-    case 'learner':
-      if (array_intersect(array('student', 'past student'), array_values($account->roles))) {
-        return TRUE;
-      }
-    break;
-    case 'active learner':
-      if (array_intersect(array('student'), array_values($account->roles))) {
-        return TRUE;
-      }
-    break;
-  }
   $passed = FALSE;
-  // allow other projects to define special situations where you would give a type access
-  drupal_alter('cis_connector_role_grouping', $passed, $type, $account);
+  // make sure this is valid
+  if ($group = _cis_connector_role_groups($type)) {
+    // check against the different groupings we support
+    switch ($type) {
+      case 'admin':
+      case 'staff':
+        // allow user 1 to pass this check for these groups
+        if ($account->uid == 1 || array_intersect($group, array_values($account->roles))) {
+          return TRUE;
+        }
+      break;
+      default:
+        if (array_intersect($group, array_values($account->roles))) {
+          return TRUE;
+        }
+      break;
+    }
+    // allow other projects to define special situations where you would give a type access
+    drupal_alter('cis_connector_role_grouping', $passed, $type, $account);
+  }
   // if we got here then they didn't pass
   return $passed;
 }
