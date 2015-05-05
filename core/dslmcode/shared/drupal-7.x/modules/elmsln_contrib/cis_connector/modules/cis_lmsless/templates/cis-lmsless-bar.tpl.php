@@ -19,8 +19,10 @@
   <div class="cis-lmsless-item cis-lmsless-site-name"><?php print $site_name; ?></div>
   <div class="cis-lmsless-item cis-lmsless-active-section"> <?php print $section; ?></div>
   <select class="cis-lmsless-item cis-lmsless-bar-services">
-  <?php foreach ($services as $service) : ?>
+  <?php foreach ($services as $items) : ?>
+    <?php foreach ($items as $service) : ?>
     <option class="cis-lmsless-bar-service" value="<?php print $service['url']; ?>"><?php print $service['title']; ?></option>
+  <?php endforeach ?>
   <?php endforeach ?>
   </select>
 </div>
