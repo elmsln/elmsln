@@ -167,3 +167,20 @@ function hook_cis_remote_entities_insert(&$return, $bucket) {
   $url = $settings['protocol'] . '://' . $settings['address'] . '/node/' . $return['nid'];
   $return = l(t('click to access item'), $url);
 }
+
+/**
+ * Implements hook_cis_connector_role_grouping_alter().
+ * @param  bool &$passed if the current account / type should pass
+ * @param  string $type    type of role group to test the account for
+ * @param  object $account user / account object
+ */
+function hook_cis_connector_role_grouping_alter(&$passed, $type, $account) {
+  // do something weird if we see user name leafy
+  if ($type == 'somethingcustom' && $account->name == 'leafy') {
+    $passed = TRUE;
+  }
+  // treat guest accounts and 'my cool role' like staff
+  if ($type == 'staff' && array_intersect(array('guest', 'my cool role'), array_values($account->roles))) {
+    $passed = TRUE;
+  }
+}
