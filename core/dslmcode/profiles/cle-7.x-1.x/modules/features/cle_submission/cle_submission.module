@@ -51,7 +51,7 @@ function cle_submission_form_alter(&$form, &$form_state, $form_id) {
     // if it is then we need to allow anyone to see it so they could change it
     // back to ready for review but not the "in progress" since this is just
     // for a one time fix
-    if ($form['field_submission_state']['und']['#default_value'][0] == 'submission_needs_work') {
+    if (isset($form['field_submission_state']['und']['#default_value'][0]) && $form['field_submission_state']['und']['#default_value'][0] == 'submission_needs_work') {
       unset($form['field_submission_state']['und']['#options']['submission_in_progress']);
     }
     else {
@@ -83,8 +83,8 @@ function cle_submission_form_alter(&$form, &$form_state, $form_id) {
         // hide / remove the grouping items if they exist
         if (isset($form['#groups'][$tmpgroup])) {
           unset($form['#groups'][$tmpgroup]);
-          unset($form['#fieldgroups'][$tmpgroup]);
-          unset($form['#group_children'][$tmpgroup]);
+          // @todo need to unset $form['#fieldgroups'][$tmpgroup] safely
+          //unset($form['#group_children'][$tmpgroup]);
         }
       }
     }
