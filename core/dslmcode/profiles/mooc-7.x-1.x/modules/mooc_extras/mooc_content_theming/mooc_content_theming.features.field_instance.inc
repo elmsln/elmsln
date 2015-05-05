@@ -51,42 +51,6 @@ function mooc_content_theming_field_default_field_instances() {
     ),
   );
 
-  // Exported field_instance: 'node-page-field_mooc_color'
-  $field_instances['node-page-field_mooc_color'] = array(
-    'bundle' => 'page',
-    'default_value' => NULL,
-    'deleted' => 0,
-    'description' => 'An accent color to associate with this content.',
-    'display' => array(
-      'default' => array(
-        'label' => 'hidden',
-        'settings' => array(),
-        'type' => 'hidden',
-        'weight' => 3,
-      ),
-      'teaser' => array(
-        'label' => 'above',
-        'settings' => array(),
-        'type' => 'hidden',
-        'weight' => 0,
-      ),
-    ),
-    'entity_type' => 'node',
-    'field_name' => 'field_mooc_color',
-    'label' => 'Color',
-    'required' => 0,
-    'settings' => array(
-      'user_register_form' => FALSE,
-    ),
-    'widget' => array(
-      'active' => 0,
-      'module' => 'jquery_colorpicker',
-      'settings' => array(),
-      'type' => 'jquery_colorpicker',
-      'weight' => 9,
-    ),
-  );
-
   // Exported field_instance: 'node-page-field_mooc_image'
   $field_instances['node-page-field_mooc_image'] = array(
     'bundle' => 'page',
@@ -135,9 +99,7 @@ function mooc_content_theming_field_default_field_instances() {
 
   // Translatables
   // Included for use with string extractors like potx.
-  t('An accent color to associate with this content.');
   t('An image to use to replace the one in the theme.');
-  t('Color');
   t('Image');
   t('Instructional significance');
 

@@ -12,3 +12,7 @@ features[features_api][] = api:2
 features[field_base][] = body
 features[field_instance][] = node-page-body
 features[node][] = page
+features[variable][] = field_bundle_settings_node__page
+features[variable][] = menu_options_page
+features[variable][] = menu_parent_page
+features_exclude[dependencies][mooc_content_theming] = mooc_content_theming

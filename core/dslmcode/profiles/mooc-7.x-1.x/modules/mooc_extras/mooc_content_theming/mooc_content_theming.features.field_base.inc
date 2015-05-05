@@ -40,25 +40,6 @@ function mooc_content_theming_field_default_field_bases() {
     'type' => 'list_text',
   );
 
-  // Exported field_base: 'field_mooc_color'
-  $field_bases['field_mooc_color'] = array(
-    'active' => 1,
-    'cardinality' => 1,
-    'deleted' => 0,
-    'entity_types' => array(),
-    'field_name' => 'field_mooc_color',
-    'foreign keys' => array(),
-    'indexes' => array(),
-    'locked' => 0,
-    'module' => 'jquery_colorpicker',
-    'settings' => array(
-      'cis_connector_access' => FALSE,
-      'cis_connector_disable' => FALSE,
-    ),
-    'translatable' => 0,
-    'type' => 'jquery_colorpicker',
-  );
-
   // Exported field_base: 'field_mooc_image'
   $field_bases['field_mooc_image'] = array(
     'active' => 1,
