@@ -140,7 +140,7 @@ for build in "${buildlist[@]}"
 done
 
 COUNTER=0
-# install central providers this is currently ELMS Media and CIS
+# install authority distributions like online, media, comply
 for tool in "${authoritylist[@]}"
   do
   dist=${authoritydistros[$COUNTER]}
