@@ -4,6 +4,13 @@ api = "2"
 
 ; +++++ Modules +++++
 
+
+projects[special_menu_items][version] = "2.0"
+projects[special_menu_items][subdir] = "contrib"
+
+projects[menu_attributes][version] = "1.0-rc3"
+projects[menu_attributes][subdir] = "contrib"
+
 projects[user_progress][version] = "1.x-dev"
 projects[user_progress][subdir] = "contrib"
 
@@ -151,7 +158,7 @@ projects[ckeditor_link][subdir] = "contrib"
 projects[imce_wysiwyg][version] = "1.0"
 projects[imce_wysiwyg][subdir] = "contrib"
 
-projects[jquery_update][version] = "2.3"
+projects[jquery_update][version] = "2.5"
 projects[jquery_update][subdir] = "contrib"
 
 projects[lightbox2][version] = "1.0-beta1"
