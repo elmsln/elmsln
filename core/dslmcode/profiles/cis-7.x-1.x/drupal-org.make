@@ -169,9 +169,6 @@ projects[libraries][subdir] = "contrib"
 projects[masquerade][version] = "1.0-rc7"
 projects[masquerade][subdir] = "contrib"
 
-projects[menu_attributes][version] = "1.0-rc2"
-projects[menu_attributes][subdir] = "contrib"
-
 projects[menu_block][version] = "2.4"
 projects[menu_block][subdir] = "contrib"
 
@@ -205,6 +202,9 @@ projects[restws][subdir] = "contrib"
 projects[special_menu_items][version] = "2.0"
 projects[special_menu_items][subdir] = "contrib"
 
+projects[menu_attributes][version] = "1.0-rc3"
+projects[menu_attributes][subdir] = "contrib"
+
 projects[strongarm][version] = "2.0"
 projects[strongarm][subdir] = "contrib"
 
@@ -220,7 +220,7 @@ projects[transliteration][subdir] = "contrib"
 projects[unique_field][version] = "1.0-rc1"
 projects[unique_field][subdir] = "contrib"
 
-projects[path_breadcrumbs][version] = "3.0"
+projects[path_breadcrumbs][version] = "3.2"
 projects[path_breadcrumbs][subdir] = "contrib"
 
 projects[apc][version] = "1.x-dev"
@@ -253,7 +253,7 @@ projects[ckeditor_link][subdir] = "contrib"
 projects[imce_wysiwyg][version] = "1.0"
 projects[imce_wysiwyg][subdir] = "contrib"
 
-projects[jquery_update][version] = "2.4"
+projects[jquery_update][version] = "2.5"
 projects[jquery_update][subdir] = "contrib"
 
 projects[options_element][version] = "1.12"
@@ -268,7 +268,7 @@ projects[better_exposed_filters][subdir] = "contrib"
 projects[editableviews][version] = "1.0-beta8"
 projects[editableviews][subdir] = "contrib"
 
-projects[views][version] = "3.8"
+projects[views][version] = "3.11"
 projects[views][subdir] = "contrib"
 
 projects[views_autocomplete_filters][version] = "1.1"
