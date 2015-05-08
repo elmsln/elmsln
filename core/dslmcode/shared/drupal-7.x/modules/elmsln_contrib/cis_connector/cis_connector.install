@@ -17,25 +17,26 @@ function cis_connector_schema() {
  */
 function cis_connector_requirements($phase) {
   $requirements = array();
-  // Ensure translations don't break at install time
-  $t = get_t();
-  $settings = _cis_connector_build_registry();
-  $requirements['elmsln'] = array(
-    'title' => $t('ELMSLN Network status'),
-    'value' => $settings ? $t('Connection keychain detected!')  : $t('No connection keychain detected'),
-    'severity' => ($settings ? REQUIREMENT_OK : REQUIREMENT_WARNING),
-  );
-
-  if ($settings) {
-    $requirements['elmsln']['description'] = $t('The following tools can be accessed: !names',
-      array(
-        '!names' => implode(' ', array_keys($name)),
-      )
+  if (function_exists('_cis_connector_build_registry')) {
+    // Ensure translations don't break at install time
+    $t = get_t();
+    $settings = _cis_connector_build_registry();
+    $requirements['elmsln'] = array(
+      'title' => $t('ELMSLN Network status'),
+      'value' => $settings ? $t('Connection keychain detected!')  : $t('No connection keychain detected'),
+      'severity' => ($settings ? REQUIREMENT_OK : REQUIREMENT_WARNING),
     );
-  }
-  else {
-    $requirements['elmsln']['description'] = $t('To fix this either enable a module implementing hook_cis_service_registry (if you installed via ELMSLN auto setup it will be in /var/www/elmsln/config/shared/drupal-7.x/modules/_elmsln_scripted/) or roll your own (not recommended) by implementing the function: ') . l('hook_cis_service_registry', 'https://api.elmsln.org/api/drupal/sites%21all%21modules%21elmsln_contrib%21cis_connector%21cis_connector.api.php/function/hook_cis_service_registry/cis7');
-  }
 
+    if ($settings) {
+      $requirements['elmsln']['description'] = $t('The following tools can be accessed: !names',
+        array(
+          '!names' => implode(' ', array_keys($name)),
+        )
+      );
+    }
+    else {
+      $requirements['elmsln']['description'] = $t('To fix this either enable a module implementing hook_cis_service_registry (if you installed via ELMSLN auto setup it will be in /var/www/elmsln/config/shared/drupal-7.x/modules/_elmsln_scripted/) or roll your own (not recommended) by implementing the function: ') . l('hook_cis_service_registry', 'https://api.elmsln.org/api/drupal/sites%21all%21modules%21elmsln_contrib%21cis_connector%21cis_connector.api.php/function/hook_cis_service_registry/cis7');
+    }
+  }
   return $requirements;
 }
