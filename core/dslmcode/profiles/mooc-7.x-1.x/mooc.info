@@ -86,7 +86,6 @@ dependencies[] = clone
 dependencies[] = diff
 dependencies[] = defaultconfig
 dependencies[] = entity
-dependencies[] = fitvids
 dependencies[] = footnotes
 dependencies[] = footnotes_wysiwyg
 dependencies[] = job_scheduler

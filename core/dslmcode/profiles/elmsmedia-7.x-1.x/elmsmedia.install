@@ -117,8 +117,6 @@ function elmsmedia_install() {
   features_revert($features);
   // front-page for media is the media path
   variable_set('site_frontpage', 'media-overview');
-  // jquery update needs set for zurb to be happy
-  variable_set('jquery_update_jquery_version', '1.7');
   // ignore any rebuild messages
   node_access_needs_rebuild(FALSE);
   // ignore any other install messages
