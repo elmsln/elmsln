@@ -24,22 +24,26 @@ function cis_lmsless_install() {
   $teachers = _cis_connector_role_groups('teacher');
   foreach ($teachers as $name) {
   	$role = user_role_load_by_name($name);
-  	db_merge('role_permission')->key(array(
-      'rid' => $role->rid,
-      'permission' => 'view lmsless cis link',
-      ))->fields(array(
-      'module' => 'cis_lmsless',
-    ))->execute();
+    if (isset($role->rid)) {
+    	db_merge('role_permission')->key(array(
+        'rid' => $role->rid,
+        'permission' => 'view lmsless cis link',
+        ))->fields(array(
+        'module' => 'cis_lmsless',
+      ))->execute();
+    }
   }
   // apply these for staff roles
   $staff = _cis_connector_role_groups('staff');
   foreach ($staff as $name) {
   	$role = user_role_load_by_name($name);
-  	db_merge('role_permission')->key(array(
-      'rid' => $role->rid,
-      'permission' => 'view lmsless cis link',
-      ))->fields(array(
-      'module' => 'cis_lmsless',
-    ))->execute();
+    if (isset($role->rid)) {
+      db_merge('role_permission')->key(array(
+        'rid' => $role->rid,
+        'permission' => 'view lmsless cis link',
+        ))->fields(array(
+        'module' => 'cis_lmsless',
+      ))->execute();
+    }
   }
 }
