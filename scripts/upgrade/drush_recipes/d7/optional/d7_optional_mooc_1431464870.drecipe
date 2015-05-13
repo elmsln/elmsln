@@ -244,6 +244,12 @@
             "arguments": [
                 "\"variable_set(\\\"theme_rubik_settings\\\", array (\n  'rubik_disable_sidebar_in_form' => 1,\n));\""
             ]
+        },
+        "42": {
+            "command": "cc",
+            "arguments": [
+                "all"
+            ]
         }
     },
     "metadata": {
