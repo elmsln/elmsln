@@ -30,7 +30,7 @@ function cis_connector_requirements($phase) {
     if ($settings) {
       $requirements['elmsln']['description'] = $t('The following tools can be accessed: !names',
         array(
-          '!names' => implode(' ', array_keys($name)),
+          '!names' => implode(' ', array_keys($settings)),
         )
       );
     }
