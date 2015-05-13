@@ -180,11 +180,23 @@ function _cis_lmsless_theme_vars() {
     // @ignore druplart_conditional_assignment
     if (user_access('view lmsless cis link') && $settings = _cis_connector_build_registry('cis')) {
       $list['Administrative']['online'] = array(
-        'title' => t('Course information system'),
+        'title' => $settings['default_title'],
         'url' => _cis_connector_format_address($settings, base_path(), 'front'),
         'machine_name' => 'online',
       );
       $vars['service_option_link'] = _cis_connector_format_address($settings, base_path(), 'front') . 'service-instances';
+      // @todo better way of hooking this in / other authority systems in the future
+      $settings = _cis_connector_build_registry();
+      $list['Administrative']['media'] = array(
+        'title' => $settings['elmsmedia']['default_title'],
+        'url' => _cis_connector_format_address($settings['elmsmedia'], '', 'front'),
+        'machine_name' => 'media',
+      );
+      $list['Administrative']['comply'] = array(
+        'title' => $settings['ecd']['default_title'],
+        'url' => _cis_connector_format_address($settings['ecd'], '', 'front'),
+        'machine_name' => 'comply',
+      );
     }
     $vars['services'] = $list;
     // support for search bar if active
