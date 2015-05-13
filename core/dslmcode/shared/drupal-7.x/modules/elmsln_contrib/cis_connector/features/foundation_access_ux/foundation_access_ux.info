@@ -6,6 +6,7 @@ project = foundation_access_ux
 dependencies[] = admin_menu
 dependencies[] = cis_service_connection
 dependencies[] = cis_service_connection_ux
+dependencies[] = cis_lmsless
 dependencies[] = context
 dependencies[] = ctools
 dependencies[] = jquery_update
