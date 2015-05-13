@@ -31,7 +31,6 @@ dependencies[] = image
 dependencies[] = list
 dependencies[] = node
 dependencies[] = options
-dependencies[] = overlay
 dependencies[] = path
 dependencies[] = system
 dependencies[] = taxonomy
