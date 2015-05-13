@@ -1,5 +1,5 @@
 {
-    "name": "MOOC Foundation Access UX Upgrade",
+    "name": "Foundation Access UX Upgrade",
     "drush_recipes_api": "1.0",
     "weight": "0",
     "core": "7",
@@ -14,6 +14,7 @@
                 "fastclick",
                 "jquery_update",
                 "linkchecker",
+                "mooc_perms",
                 "mooc_theme_foundation",
                 "speedreader",
                 "mooc_foundation_access",
@@ -30,6 +31,7 @@
                 "chamfer_defaults",
                 "delta",
                 "delta_blocks",
+                "field_ui",
                 "fitvids",
                 "nodereference_highlight",
                 "node_reference_highlight_glossary",

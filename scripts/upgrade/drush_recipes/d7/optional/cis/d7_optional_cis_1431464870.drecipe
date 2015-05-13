@@ -1,5 +1,5 @@
 {
-    "name": "MOOC Foundation Access UX Upgrade",
+    "name": "CIS Foundation Access UX Upgrade",
     "drush_recipes_api": "1.0",
     "weight": "0",
     "core": "7",
@@ -13,26 +13,18 @@
                 "cis_performance_overrides",
                 "fastclick",
                 "jquery_update",
-                "linkchecker",
-                "mooc_theme_foundation",
-                "speedreader",
-                "mooc_foundation_access",
-                "book_cache",
+                "cis_theme_foundation",
                 "back_to_top"
             ]
         },
         "2": {
             "command": "dis",
             "arguments": [
-                "block_aria_landmark_roles",
                 "overlay",
                 "boxes",
-                "chamfer_defaults",
                 "delta",
                 "delta_blocks",
                 "fitvids",
-                "nodereference_highlight",
-                "node_reference_highlight_glossary",
                 "og_context",
                 "regions_admin_left",
                 "regions_right_slideout",
@@ -103,7 +95,7 @@
         "14": {
             "command": "ev",
             "arguments": [
-                "\"variable_set(\\\"theme_default\\\", 'mooc_foundation_access');\""
+                "\"variable_set(\\\"theme_default\\\", 'cis_foundation_access');\""
             ]
         },
         "15": {
@@ -255,6 +247,6 @@
         "type": "upgrade",
         "version": "1.0",
         "author": "elmsln",
-        "description": "This is an optional upgrade to bring legacy courses into alignment with the Foundation Access user experience."
+        "description": "This is an optional upgrade to bring CIS into alignment with the Foundation Access user experience."
     }
 }
