@@ -10,6 +10,7 @@ define('CLE_GRADEBOOK_USERNAME_FIELD', 'username');
  * @return string rendered output
  */
 function cle_gradebook_grid_form($form, &$form_state) {
+  $form['#method'] = 'GET';
   // attach our modal window
   _cle_gradebook_attach_modal();
   // @todo cache the batsnot out of this thing since it's a heavy query
@@ -22,38 +23,44 @@ function cle_gradebook_grid_form($form, &$form_state) {
   if (!isset($query['orderby'])) {
     $query['orderby'] = CLE_GRADEBOOK_USERNAME_FIELD;
   }
-  if (!isset($query['section'])) {
+  if (!isset($query['sections'])) {
     // get groupid from section if we have it
     if ($gid = _cis_section_load_section_by_id(_cis_connector_section_context())) {
-      $query['section'] = array($gid);
+      $query['sections'] = array($gid);
     }
   }
   // @todo verify this strips out sections automatically
-  $secids = _cis_connector_assemble_entity_list('node', 'section', 'nid', 'title');
-  $sections = entity_load('node', array_keys($secids));
+  $sections = _cis_connector_assemble_entity_list('node', 'section', 'nid', 'title');
+  $snodes = entity_load('node', array_keys($sections));
   // mark sections as inactive if they are
-  foreach ($secids as $key => &$title) {
-    if (!isset($sections[$key]->field_cis_active['und'][0]) || !$sections[$key]->field_cis_active['und'][0]['value']) {
+  foreach ($sections as $key => &$title) {
+    if (!isset($snodes[$key]->field_cis_active['und'][0]) || !$snodes[$key]->field_cis_active['und'][0]['value']) {
       $title .= ' (' . t('inactive') . ')';
     }
   }
   // placeholder for filters area on the form
   $form['filters'] = array();
   // allow for switching sections you are viewing
-  $form['filters']['section'] = array(
+  $form['filters']['sections'] = array(
     '#title' => t('Section'),
-    '#options' => array('-all-' => t('All')) + $secids,
+    '#options' => $sections,
     '#type' => 'select',
-    '#required' => '0',
+    '#required' => '1',
     '#multiple' => '1',
     '#chosen' => TRUE,
   );
-  // filter lower values based on what sections we are viewing
-  if ($query['section'] == '-all-') {
-    $field_conditions = array('og_user_node' => array('target_id', array_keys($secids), 'IN'));
+  // force a section to be selected if we couldn't identify a default somehow
+  if (empty($query['sections'])) {
+    // don't present the other options til section(s) are selected for filtering
+    $form['actions']['submit'] = array(
+      '#type' => 'submit',
+      '#value' => t('Submit'),
+      '#submit' => array('cle_gradebook_grid_form_submit'),
+    );
+    return $form;
   }
   else {
-    $field_conditions = array('og_user_node' => array('target_id', $query['section'], 'IN'));
+    $field_conditions = array('og_user_node' => array('target_id', $query['sections'], 'IN'));
   }
   // pull together the users
   $students = _cis_connector_assemble_entity_list('user', 'user', 'uid', 'name', $field_conditions);
@@ -65,9 +72,15 @@ function cle_gradebook_grid_form($form, &$form_state) {
     '#chosen' => TRUE,
     '#multiple' => '1',
   );
+  // pull assignments you should use
+  $alist = array();
+  foreach ($snodes as $snode) {
+    foreach ($snode->field_cle_assignments['und'] as $atmp) {
+      $alist[$atmp['target_id']] = $atmp['target_id'];
+    }
+  }
   // pull together the assignments
-  // @todo filter assignments to those selected by the section in question
-  $assignments = _cis_connector_assemble_entity_list('node', 'cle_assignment', 'nid', 'title');
+  $assignments = _cis_connector_assemble_entity_list('node', 'cle_assignment', 'nid', 'title', array(), array('nid' => array($alist, 'IN')), array('field' => array('field_number' => 'value')));
   $form['filters']['assignments'] = array(
     '#title' => t('Assignment'),
     '#options' => array('-all-' => t('All')) + $assignments,
@@ -77,7 +90,7 @@ function cle_gradebook_grid_form($form, &$form_state) {
     '#multiple' => '1',
   );
   // submission status filter
-
+  // @todo make this like the old system, just move dots around
   $field = field_info_field('field_submission_state');
   $form['filters']['field_submission_state'] = array(
     '#required' => '0',
@@ -90,7 +103,8 @@ function cle_gradebook_grid_form($form, &$form_state) {
     '#title' => t('Submission Status'),
   );
 
-    // submission status filter
+  // assessment status filter
+  // @todo make this like the old system, just move dots around
   $field = field_info_field('field_cle_status');
   $form['filters']['field_cle_status'] = array(
     '#required' => '0',
@@ -129,7 +143,9 @@ function cle_gradebook_grid_form($form, &$form_state) {
           // ridiculous little snippet i've ever written but it reduces code
           // needed and allow for effectively filtering on anything very
           // easily!
-          $filtered[$tmpkey] = $tmp[$tmpkey];
+          if (isset($filtered[$tmpkey])) {
+            $filtered[$tmpkey] = $tmp[$tmpkey];
+          }
         }
         // whatever the filter was, reset the possible values of the array
         // based on this change
@@ -140,18 +156,6 @@ function cle_gradebook_grid_form($form, &$form_state) {
       $item['#default_value'] = '-all-';
     }
   }
-  // get so we submit to ourselves the data we can review for query building
-  $form['#method'] = 'GET';
-  $form['actions']['submit'] = array(
-    '#type' => 'submit',
-    '#value' => t('Submit'),
-    '#submit' => array('cle_gradebook_grid_form_submit'),
-  );
-  $form['actions']['reset'] = array(
-    '#type' => 'submit',
-    '#value' => t('Reset'),
-    '#submit' => array('cle_gradebook_grid_form_reset'),
-  );
 
   // setup the header for the table
   $header = array(CLE_GRADEBOOK_USERNAME_FIELD => l(t('Name'), $path, array('query' => array('orderby' => CLE_GRADEBOOK_USERNAME_FIELD))));
@@ -170,21 +174,25 @@ function cle_gradebook_grid_form($form, &$form_state) {
   // loop through users and pull their assignments
   foreach ($students as $uid => $user) {
     // pull together the submissions
-    $subissions = _cis_connector_assemble_entity_list('node', 'cle_submission', array('field_assignment', 'target_id'), 'nid', $field_conditions, array('uid' => $uid));
+    $submissions = _cis_connector_assemble_entity_list('node', 'cle_submission', array('field_assignment', 'target_id'), 'nid', $field_conditions, array('uid' => $uid));
     $row = array(CLE_GRADEBOOK_USERNAME_FIELD => $user);
     // set a record per result
     foreach ($assignments as $key => $name) {
       // if we have an assignment nid key match, load result there
-      if (isset($subissions[$key])) {
-        // @todo associate a status indicator light w/ the submission
-        // instead of what its doing currently
+      if (isset($submissions[$key])) {
         // check for matching assessments
-        $id = _cis_connector_assemble_entity_list('assessment_entity', 'submission_evaluation', 'assessment_entity_id', 'assessment_entity_id', array('field_cle_associated_submission' => array('target_id', $subissions[$key], '=')));
-        $assessment = entity_load_single('assessment_entity', array_pop($id));
+        $id = _cis_connector_assemble_entity_list('assessment_entity', 'submission_evaluation', 'assessment_entity_id', 'assessment_entity_id', array('field_cle_associated_submission' => array('target_id', $submissions[$key], '=')));
+        // make sure we have an assessment entity first
+        if (!empty($id)) {
+          $assessment = entity_load_single('assessment_entity', array_pop($id));
+        }
+        else {
+          $assessment = NULL;
+        }
         // now pull in the status from the submission
-        $submission = entity_load_single('node', $subissions[$key]);
+        $submission = entity_load_single('node', $submissions[$key]);
         $status_image = _cle_gradebook_assessment_status($submission, $assessment, 'image');
-        $row[$key] = ctools_modal_text_button($status_image, 'cle/gradebook/render/nojs/' . $subissions[$key] . '/' . $uid,_cle_gradebook_assessment_status($submission, $assessment, 'alt'), 'ctools-modal-cle-gradebook-modal disable-scroll');
+        $row[$key] = ctools_modal_text_button($status_image, 'cle/gradebook/render/nojs/' . $submissions[$key] . '/' . $uid,_cle_gradebook_assessment_status($submission, $assessment, 'alt'), 'ctools-modal-cle-gradebook-modal disable-scroll');
       }
       else {
         $row[$key] = _cle_gradebook_assessment_status(NULL, NULL, 'image');
@@ -192,12 +200,6 @@ function cle_gradebook_grid_form($form, &$form_state) {
     }
     $rows[] = array('data' => $row);
   }
-  // sort by sortorder
-  $sortorder = array();
-  foreach ($rows as $key => $row) {
-    $sortorder[$key]  = $row[$orderby];
-  }
-  array_multisort($sortorder, SORT_DESC, SORT_NUMERIC, $rows);
   // pull table together to render after the form settings
   $table = theme(
     'table',
@@ -207,15 +209,44 @@ function cle_gradebook_grid_form($form, &$form_state) {
       'caption' => t('Gradebook of studio submissions')
     )
   );
-  // append the grid to the form
-  $form['grid'] = array(
-    '#markup' => $table,
-  );
   // make filters collapsible
   $form['filters'] += array(
     '#type' => 'fieldset',
     '#title' => t('Filters'),
     '#collapsible' => TRUE,
+  );
+  // make legend to show what the colors mean
+  $form['legend'] = array(
+    '#type' => 'fieldset',
+    '#title' => t('Legend'),
+    '#collapsible' => TRUE,
+    '#collapsed' => TRUE,
+  );
+  $indicators = _cle_gradebook_get_status_indicators();
+  foreach ($indicators as &$button) {
+    $button['icon'] = "<img src=\"" . base_path() . $button['icon'] . "\" title=\"" . $button['title'] . "\" alt=\"" . $button['title'] . "\" width=\"16px\" height=\"16px\">";
+  }
+  $legend = theme(
+    'table',
+    array(
+      'header' => array(t('Icon'), t('Meaning')),
+      'rows' => $indicators,
+      'caption' => t('Submission status legend')
+    )
+  );
+  // append the table to the legend
+  $form['legend']['table'] = array(
+    '#markup' => $legend,
+  );
+  // get so we submit to ourselves the data we can review for query building
+  $form['actions']['submit'] = array(
+    '#type' => 'submit',
+    '#value' => t('Submit'),
+    '#submit' => array('cle_gradebook_grid_form_submit'),
+  );
+  // append the grid to the form
+  $form['grid'] = array(
+    '#markup' => $table,
   );
   return $form;
 }

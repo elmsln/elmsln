@@ -52,7 +52,7 @@ authoritylist=('media' 'comply' 'online')
 # array of instance definitions for the distro type
 instances=('FALSE' 'TRUE' 'TRUE' 'TRUE' 'FALSE' 'TRUE' 'FALSE' 'TRUE')
 ignorelist=('TRUE' 'FALSE' 'FALSE' 'FALSE' 'TRUE' 'FALSE' 'TRUE' 'FALSE')
-defaulttitle=('Course information system' 'Course outline' 'Collaborative studio' 'Interactive object repository' 'Media asset management' 'Course Blog' 'Course Compliance' 'Discussions')
+defaulttitle=('Course information system' 'Course outline' 'Studio' 'Interactive assets' 'Media assets' 'Course Blog' 'Course Compliance' 'Discussions')
 moduledir=$elmsln/config/shared/drupal-${core}/modules/_elmsln_scripted
 cissettings=${university}_${host}_settings
 # support for hook architecture in bash call outs
@@ -136,11 +136,11 @@ for build in "${buildlist[@]}"
   do
   # install default site for associated stacks in the build list
   cd $stacks/$build
-  drush site-install -y --db-url=mysql://elmslndfltdbo:$dbpw@localhost/default_$build --db-su=$dbsu --db-su-pw=$dbsupw --account-mail="$admin" --site-mail="$site_email"
+  drush site-install -y --db-url=mysql://elmslndfltdbo:$dbpw@127.0.0.1/default_$build --db-su=$dbsu --db-su-pw=$dbsupw --account-mail="$admin" --site-mail="$site_email"
 done
 
 COUNTER=0
-# install central providers this is currently ELMS Media and CIS
+# install authority distributions like online, media, comply
 for tool in "${authoritylist[@]}"
   do
   dist=${authoritydistros[$COUNTER]}
@@ -154,7 +154,7 @@ for tool in "${authoritylist[@]}"
   # move to the directory of this authority
   cd ${webdir}/${tool}
   sitedir=${webdir}/${tool}/sites
-  drush site-install ${dist} -y --db-url=mysql://${tool}_${host}:$dbpw@localhost/${tool}_${host} --db-su=$dbsu --db-su-pw=$dbsupw  --account-mail="$admin" --site-mail="$site_email" --site-name="$tool"
+  drush site-install ${dist} -y --db-url=mysql://${tool}_${host}:$dbpw@127.0.0.1/${tool}_${host} --db-su=$dbsu --db-su-pw=$dbsupw  --account-mail="$admin" --site-mail="$site_email" --site-name="$tool"
   #move out of $tool site directory to host
   sudo mkdir -p $sitedir/$tool/$host
   sudo mkdir -p $sitedir/$tool/$host/files

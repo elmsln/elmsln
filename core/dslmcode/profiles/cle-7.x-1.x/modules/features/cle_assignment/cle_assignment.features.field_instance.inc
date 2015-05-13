@@ -55,7 +55,7 @@ function cle_assignment_field_default_field_instances() {
         'module' => 'text',
         'settings' => array(),
         'type' => 'text_default',
-        'weight' => 9,
+        'weight' => 5,
       ),
       'full' => array(
         'label' => 'hidden',
@@ -201,7 +201,7 @@ function cle_assignment_field_default_field_instances() {
           'multiple_to' => '',
         ),
         'type' => 'date_default',
-        'weight' => 4,
+        'weight' => 3,
       ),
       'full' => array(
         'label' => 'inline',
@@ -289,7 +289,7 @@ function cle_assignment_field_default_field_instances() {
         'module' => 'list',
         'settings' => array(),
         'type' => 'list_default',
-        'weight' => 5,
+        'weight' => 4,
       ),
       'full' => array(
         'label' => 'inline',
@@ -399,6 +399,7 @@ function cle_assignment_field_default_field_instances() {
       'active' => 1,
       'module' => 'select_or_other',
       'settings' => array(
+        'apply_chosen' => '',
         'available_options' => '1
 2
 3
@@ -440,10 +441,9 @@ P',
     'display' => array(
       'default' => array(
         'label' => 'inline',
-        'module' => 'text',
         'settings' => array(),
-        'type' => 'text_default',
-        'weight' => 3,
+        'type' => 'hidden',
+        'weight' => 13,
       ),
       'full' => array(
         'label' => 'inline',
@@ -501,6 +501,7 @@ P',
       'active' => 1,
       'module' => 'select_or_other',
       'settings' => array(
+        'apply_chosen' => '',
         'available_options' => 'a
 b
 c
@@ -541,10 +542,9 @@ i',
     'display' => array(
       'default' => array(
         'label' => 'inline',
-        'module' => 'list',
         'settings' => array(),
-        'type' => 'list_default',
-        'weight' => 6,
+        'type' => 'hidden',
+        'weight' => 14,
       ),
       'full' => array(
         'label' => 'hidden',

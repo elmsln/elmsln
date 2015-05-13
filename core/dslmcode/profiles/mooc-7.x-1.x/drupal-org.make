@@ -10,6 +10,12 @@ projects[special_menu_items][subdir] = "contrib"
 projects[menu_attributes][version] = "1.0-rc3"
 projects[menu_attributes][subdir] = "contrib"
 
+projects[speedreader][version] = "1.x-dev"
+projects[speedreader][subdir] = "contrib"
+
+projects[jquery_update][version] = "2.5"
+projects[jquery_update][subdir] = "contrib"
+
 ;projects[joyride][version] = "1.x-dev"
 ;projects[joyride][subdir] = "contrib"
 
@@ -267,55 +273,10 @@ projects[tinynav][subdir] = "contrib"
 
 ; +++++ Themes +++++
 
-; aurora
-projects[chamfer][type] = "theme"
-projects[chamfer][version] = "1.1"
-projects[chamfer][subdir] = "contrib"
-
 ; rubik
 projects[rubik][type] = "theme"
 projects[rubik][version] = "4.1"
 projects[rubik][subdir] = "contrib"
-
-; adaptivetheme
-projects[adaptivetheme][type] = "theme"
-projects[adaptivetheme][version] = "3.2"
-projects[adaptivetheme][subdir] = "contrib"
-
-; omega
-projects[omega][type] = "theme"
-projects[omega][version] = "3.1"
-projects[omega][subdir] = "contrib"
-
-; antonelli
-projects[antonelli][type] = "theme"
-projects[antonelli][version] = "1.0-rc1"
-projects[antonelli][subdir] = "contrib"
-
-; aurora
-projects[aurora][type] = "theme"
-projects[aurora][version] = "3.2"
-projects[aurora][subdir] = "contrib"
-
-; corolla
-projects[corolla][type] = "theme"
-projects[corolla][version] = "3.0"
-projects[corolla][subdir] = "contrib"
-
-; fontfolio
-projects[fontfolio][type] = "theme"
-projects[fontfolio][version] = "2.7"
-projects[fontfolio][subdir] = "contrib"
-
-; respond
-projects[respond][type] = "theme"
-projects[respond][version] = "3.0-beta1"
-projects[respond][subdir] = "contrib"
-
-; skeletontheme
-projects[skeletontheme][type] = "theme"
-projects[skeletontheme][version] = "1.4"
-projects[skeletontheme][subdir] = "contrib"
 
 ; tao
 projects[tao][type] = "theme"

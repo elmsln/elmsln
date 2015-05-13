@@ -1,7 +1,7 @@
 /* CSS Document */
 
 .cle_hidden {
-	display:none;
+	display:none !important;
 }
 
 .field-name-og-group-ref {

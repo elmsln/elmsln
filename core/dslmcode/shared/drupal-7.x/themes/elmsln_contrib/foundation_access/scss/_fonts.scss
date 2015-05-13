@@ -109,7 +109,7 @@ p {
 }
 
 span.dropcap {
-	 @extend %opensans-bold;
+	 @extend %droid-serif-bold-italic;
 }
 
 .image-media {
@@ -183,4 +183,21 @@ a.modal-img-link span {
 }
 footer p {
 	@extend %opensans-normal;
+}
+.admin-status-bar span {
+	&.course-section {
+		@extend %opensans-normal;
+	}
+	&.user-role-label {
+		@extend %opensans-light;
+	}
+	&.user-role {
+		@extend %opensans-normal;
+	}
+	&.current-user-id-label {
+		@extend %opensans-light;
+	}
+	&.current-user-id {
+		@extend %opensans-normal;
+	}
 }

@@ -1,0 +1,7 @@
+<?php
+/**
+ * @file
+ * Code for the CIS Foundation Access feature.
+ */
+
+include_once 'foundation_access_ux.features.inc';

@@ -10,6 +10,12 @@ projects[accessibility][subdir] = "contrib"
 projects[addanother][version] = "2.1"
 projects[addanother][subdir] = "contrib"
 
+projects[special_menu_items][version] = "2.0"
+projects[special_menu_items][subdir] = "contrib"
+
+projects[menu_attributes][version] = "1.0-rc3"
+projects[menu_attributes][subdir] = "contrib"
+
 projects[admin_menu_dropdown][version] = "3.0-alpha1"
 projects[admin_menu_dropdown][subdir] = "contrib"
 
@@ -46,10 +52,10 @@ projects[boost][subdir] = "contrib"
 projects[boxes][version] = "1.1"
 projects[boxes][subdir] = "contrib"
 
-projects[ctools][version] = "1.3"
+projects[ctools][version] = "1.7"
 projects[ctools][subdir] = "contrib"
 
-projects[context][version] = "3.1"
+projects[context][version] = "3.6"
 projects[context][subdir] = "contrib"
 
 projects[date][version] = "2.6"
@@ -97,7 +103,7 @@ projects[typogrify][subdir] = "contrib"
 projects[video_filter][version] = "3.1"
 projects[video_filter][subdir] = "contrib"
 
-projects[jammer][version] = "1.3"
+projects[jammer][version] = "1.4"
 projects[jammer][subdir] = "contrib"
 
 projects[lti_tool_provider][version] = "1.x-dev"
@@ -124,7 +130,7 @@ projects[og_clone][subdir] = "contrib"
 projects[diff][version] = "3.2"
 projects[diff][subdir] = "contrib"
 
-projects[entity][version] = "1.2"
+projects[entity][version] = "1.6"
 projects[entity][subdir] = "contrib"
 
 projects[entityreference_dynamicselect_widget][version] = "1.0"
@@ -205,7 +211,7 @@ projects[coder][subdir] = "contrib"
 projects[imce_wysiwyg][version] = "1.0"
 projects[imce_wysiwyg][subdir] = "contrib"
 
-projects[jquery_update][version] = "2.3"
+projects[jquery_update][version] = "2.5"
 projects[jquery_update][subdir] = "contrib"
 
 projects[lightbox2][version] = "1.0-beta1"
@@ -222,7 +228,7 @@ projects[wysiwyg_template][download][branch] = "7.x-2.x"
 projects[editableviews][version] = "1.0-beta6"
 projects[editableviews][subdir] = "contrib"
 
-projects[views][version] = "3.7"
+projects[views][version] = "3.11"
 projects[views][subdir] = "contrib"
 
 projects[views_autocomplete_filters][version] = "1.0"
@@ -239,6 +245,28 @@ projects[cis_connector][subdir] = "contrib"
 
 projects[httprl][version] = "1.13"
 projects[httprl][subdir] = "contrib"
+
+; +++++ Themes +++++
+
+; rubik
+projects[rubik][type] = "theme"
+projects[rubik][version] = "4.1"
+projects[rubik][subdir] = "contrib"
+
+; tao
+projects[tao][type] = "theme"
+projects[tao][version] = "3.1"
+projects[tao][subdir] = "contrib"
+
+; zurb-foundation
+projects[zurb_foundation][type] = "theme"
+projects[zurb_foundation][version] = "5.x-dev"
+projects[zurb_foundation][subdir] = "contrib"
+
+; foundation_access
+projects[foundation_access][type] = "theme"
+projects[foundation_access][version] = "5.x-dev"
+projects[foundation_access][subdir] = "contrib"
 
 ; libraries
 

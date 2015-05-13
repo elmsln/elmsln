@@ -5,13 +5,71 @@
  */
 
 /**
+ * Implements hook_update_N().
+ *
+ * Apply CIS foundation access theme and al surrounding parts
+ */
+/*function cis_update_7001() {
+  // Enable some cis blocks.
+  $default_theme = 'cis_foundation_access';
+  // enable $default_theme
+  db_update('system')
+    ->fields(array('status' => 1))
+    ->condition('type', 'theme')
+    ->condition('name', $default_theme)
+    ->execute();
+  // set both themes
+  variable_set('theme_default', $default_theme);
+  $blocks = array(
+    array(
+      'module' => 'system',
+      'delta' => 'main',
+      'theme' => $default_theme,
+      'status' => 1,
+      'weight' => 0,
+      'region' => 'content',
+      'pages' => '',
+      'cache' => -1,
+    ),
+    array(
+      'module' => 'user',
+      'delta' => 'login',
+      'theme' => $default_theme,
+      'status' => 1,
+      'weight' => 0,
+      'region' => 'sidebar_first',
+      'pages' => '',
+      'cache' => -1,
+    ),
+    array(
+      'module' => 'system',
+      'delta' => 'help',
+      'theme' => $default_theme,
+      'status' => 1,
+      'weight' => -10,
+      'region' => 'content',
+      'pages' => '',
+      'cache' => -1,
+    ),
+  );
+  // add in our blocks defined above
+  $query = db_insert('block')->fields(array('module', 'delta', 'theme', 'status', 'weight', 'region', 'pages', 'cache'));
+  foreach ($blocks as $block) {
+    $query->values($block);
+  }
+  $query->execute();
+  // @todo enable additional features / modules that we need
+  // this is a pretty beafy update to existing setups so test heavily
+}*/
+
+/**
  * Implements hook_install().
  *
  * Perform actions to set up the site for this profile.
  */
 function cis_install() {
   // Enable some cis blocks.
-  $default_theme = 'cis_theme';
+  $default_theme = 'cis_foundation_access';
   $admin_theme = 'rubik';
   // fix jquery update rubik admin theme issue
   variable_set('theme_rubik_settings', array('rubik_disable_sidebar_in_form' => 1));
@@ -119,6 +177,7 @@ function cis_install() {
     'regions_admin_example',
     'cis_users',
     'cis_roles',
+    'foundation_access_ux',
     'cis_ux',
   );
   features_revert($features);

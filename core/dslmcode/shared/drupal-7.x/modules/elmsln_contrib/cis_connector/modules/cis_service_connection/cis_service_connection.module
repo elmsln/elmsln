@@ -131,6 +131,16 @@ function cis_service_connection_menu() {
     'weight' => 2,
     'access arguments' => array('access content'),
   );
+    // Guided tour off of the welcome page with example content
+  $items['guided_tour'] = array(
+    'title' => 'Guided tour',
+    'page callback' => '_cis_service_connection_page',
+    'page arguments' => array(0),
+    'menu_name' => 'main-menu',
+    'weight' => 10,
+    'access arguments' => array('access content'),
+    'type' => MENU_LOCAL_TASK,
+  );
   // direct download of the welcome letter, useful for remote referencing
   $items['welcome_page/download'] = array(
     'title' => 'Letter',
@@ -303,7 +313,6 @@ function cis_service_connection_cron() {
   if ((REQUEST_TIME - variable_get('cis_service_connection_monthly_last_sync', 0)) > $interval['monthly']) {
     $data = module_invoke_all('set_cis_service_data', 'monthly');
     // get the latest footer copy language
-    cis_service_connection_get_footer_language();
     variable_set('cis_service_connection_monthly_last_sync', REQUEST_TIME);
   }
   // yearly sync
@@ -345,8 +354,6 @@ function _cis_service_connection_initial_cis_bind() {
   $data = module_invoke_all('set_cis_service_data', 'initial');
   // set the data in the CIS
   _cis_connection_set_data($select, $data);
-  // get the latest footer copy language
-  cis_service_connection_get_footer_language();
   // set last sync time
   variable_set('cis_service_connection_last_sync', REQUEST_TIME);
   // set this to say initial happened but we may need to do it again

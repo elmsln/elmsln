@@ -7,7 +7,7 @@
  */
 function mooc_install() {
   // Enable some mooc blocks.
-  $default_theme = 'chamfer';
+  $default_theme = 'mooc_foundation_access';
   $admin_theme = 'rubik';
   // fix jquery update rubrik admin theme issue
   variable_set('theme_rubik_settings', array('rubik_disable_sidebar_in_form' => 1));
@@ -105,13 +105,14 @@ function mooc_install() {
     'feeds_node_helper_import',
     'textbook_editor',
     'textbook_templates',
-    'node_reference_highlight_glossary',
     'mooc_ux_defaults',
     'mooc_cis_ux',
     'mooc_textbook',
     'mooc_helper',
     'regions_admin_example',
     'mooc_page',
+    'mooc_theme_foundation',
+    'foundation_access_ux',
     'mooc_perms',
   );
   features_revert($features);

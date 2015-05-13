@@ -1,5 +1,0 @@
-name = CIS Remote Watchdog
-description = Allows CIS distributions to offload their watchdog requests to the remote_watchdog distribution.
-core = 7.x
-package = CIS
-dependencies[] = cis_connector

@@ -91,3 +91,4 @@ dependencies[] = features
 dependencies[] = ecd_displays
 dependencies[] = ecd_entityforms
 dependencies[] = ecd_types
+dependencies[] = foundation_access_ux

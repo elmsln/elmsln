@@ -20,21 +20,8 @@ function foundation_access_preprocess_page(&$variables) {
   if (module_exists('cis_lmsless')) {
     $variables['cis_lmsless'] = _cis_lmsless_theme_vars();
   }
-  // speedreader is enabled
-  if (module_exists('speedreader')) {
-    $variables['speedreader'] = TRUE;
-  }
-  // mespeak is enabled
-  if (module_exists('mespeak')) {
-    $variables['mespeak'] = TRUE;
-  }
-  $variables['tabs_extras'] = '<hr>
-    <li>' . l(t('Download Page'), 'book/export/html/' . arg(1)) . '</li>';
-  if (user_access('access contextual links')) {
-    $variables['tabs_extras'] .= '<hr>
-    <li class="cis_accessibility_check"></li>
-    <hr>
-    <li><a href="#" data-reveal-id="block-menu-menu-course-tools-menu-nav-modal">' . t('Course Settings') . '</a></li>';
+  if (_cis_connector_role_grouping('staff') || _cis_connector_role_grouping('teacher')) {
+    $variables['tabs_extras'][100][] = '<a href="#" data-reveal-id="block-menu-menu-course-tools-menu-nav-modal">' . t('Course Settings') . '</a>';
   }
   // wrap non-node content in an article tag
   if (isset($variables['page']['content']['system_main']['main'])) {
@@ -43,46 +30,17 @@ function foundation_access_preprocess_page(&$variables) {
 }
 
 /**
- * Implements template_preprocess_node.
- */
-function foundation_access_preprocess_node(&$variables) {
-}
-
-/**
  * Implements template_preprocess_region.
  */
 function foundation_access_preprocess_region(&$variables) {
+  if (!isset($variables['button_group'])) {
+    $variables['button_group'] = array();
+  }
   // add in the chevron contextual options for the high level
-  if ($variables['region'] == 'left_menu' && function_exists('_cis_service_connection_active_outline') && user_access('access contextual links')) {
-    $node = _cis_service_connection_active_outline();
-    if (isset($node->nid)) {
-      $variables['button_group'] =
-       '<div id="off-canvas-admin-menu" data-dropdown-content class="f-dropdown content" aria-hidden="true" tabindex="-1">
-       <ul class="button-group">
-         <li>' . l(t('Edit course outline'), 'admin/content/book/' . $node->nid) . '</li>
-         <li>' . l(t('Print course outline'), 'book/export/html/' . $node->nid) . '</li>
-         <li>' . l(t('Save As new outline'), 'admin/content/book/copy/' . $node->nid) . '</li>
-         <hr>
-         <li><a href="#" data-reveal-id="block-menu-menu-course-tools-menu-nav-modal">' . t('Course Settings') . '</a></li>
-       </ul>
-       </div>
-      <nav class="top-bar" data-topbar role="navigation">
-        <section class="right top-bar-section">
-          <a class="off-canvas-toolbar-item toolbar-menu-icon" href="#" data-dropdown="off-canvas-admin-menu" aria-controls="offcanvas-admin-menu" aria-expanded="false">
-            <div class="icon-chevron-down-black off-canvas-toolbar-item-icon"></div>
-          </a>
-       </section>
-      </nav>';
-    }
+  if ($variables['region'] == 'left_menu' && (_cis_connector_role_grouping('staff') || _cis_connector_role_grouping('teacher'))) {
+    $variables['button_group'][100][] = '<a href="#" data-reveal-id="block-menu-menu-course-tools-menu-nav-modal">' . t('Course Settings') . '</a>';
   }
 }
-
-/**
- * Implements menu_link__menu_course_tools_menu.
- */
-//function foundation_access_menu_link__menu_course_tools_menu(&$variables) {
-  //return _foundation_access_menu_outline($variables);
-//}
 
 /**
  * Implements menu_link__main_menu.
@@ -95,10 +53,29 @@ function foundation_access_menu_link__main_menu(&$variables) {
  * Implements menu_link__cis_service_connection_all_active_outline().
  */
 function foundation_access_menu_link__cis_service_connection_all_active_outline($variables) {
-  // @todo supply this from elsewhere
-  //$word_depth = array('Unit', 'Lesson');
-  $word = t('Lesson');
-  return _foundation_access_menu_outline($variables, $word);
+  switch(theme_get_setting('foundation_access_outline_labeling')) {
+    case 'auto_both':
+      $word = theme_get_setting('foundation_access_outline_label');
+      $number = TRUE;
+    break;
+    case 'auto_num':
+      $word = FALSE;
+      $number = TRUE;
+    break;
+    case 'auto_text':
+      $word = theme_get_setting('foundation_access_outline_label');
+      $number = FALSE;
+    break;
+    case 'none':
+      $word = FALSE;
+      $number = FALSE;
+    break;
+    default :
+      $word = t('Lesson');
+      $number = TRUE;
+    break;
+  }
+  return _foundation_access_menu_outline($variables, $word, $number);
 }
 
 /**
@@ -121,7 +98,11 @@ function foundation_access_menu_tree__menu_course_tools_menu($variables) {
 function _foundation_access_single_menu_link($element) {
   $options = $element['#localized_options'];
   $options['html'] = TRUE;
-  return '<li>' . l('<div class="icon-page-black outline-nav-icon"></div>' . $element['#title'], $element['#href'], $options) . '</li>';
+  // default is a page icon
+  $icon = 'page';
+  // allow for modification of the item
+  drupal_alter('foundation_access_menu_item_icon', $icon, $element);
+  return '<li>' . l('<div class="icon-' . $icon . '-black outline-nav-icon"></div>' . $element['#title'], $element['#href'], $options) . '</li>';
 }
 
 /**
@@ -130,7 +111,7 @@ function _foundation_access_single_menu_link($element) {
  * @param  string $word       [description]
  * @return string             rendered html structure for this menu
  */
-function _foundation_access_menu_outline($variables, $word = FALSE) {
+function _foundation_access_menu_outline($variables, $word = FALSE, $number = FALSE) {
   static $counter = 1;
   $element = $variables['element'];
   $sub_menu = '';
@@ -169,16 +150,18 @@ function _foundation_access_menu_outline($variables, $word = FALSE) {
       $return .= '
       <li class="has-submenu level-' . $depth . '-top ' . implode(' ', $element['#attributes']['class']) . '">' . "\n" .
       '<a href="#' . $short . '-panel">' . "\n";
-      if ($word) {
-        $return .= '<h2>' . $word . ' ' . $counter . '</h2>' . "\n";
+      $labeltmp = _foundation_access_auto_label_build($word, $number, $counter);
+      if (!empty($labeltmp)) {
+        $return .= '<h2>' . $labeltmp . '</h2>' . "\n";
       }
       $return .= '<h3>' . $element['#title'] . '</h3>' . "\n" .
       '</a>' . "\n" .
       '<ul class="left-submenu level-' . $depth . '-sub">'  . "\n" .
       _foundation_access_contextual_menu($short, $nid) .
       '<div>'  . "\n";
-      if ($word) {
-        $return .= '<h2>' . $word . ' ' . $counter . '</h2>' . "\n";
+      $labeltmp = _foundation_access_auto_label_build($word, $number, $counter);
+      if (!empty($labeltmp)) {
+        $return .= '<h2>' . $labeltmp . '</h2>' . "\n";
       }
       $return .= '<h3>' . _foundation_access_single_menu_link($element) . '</h3>' . "\n" .
       '</div>'  . "\n" .
@@ -192,8 +175,9 @@ function _foundation_access_menu_outline($variables, $word = FALSE) {
       '<ul class="left-submenu level-' . $depth . '-sub">'  . "\n" .
       _foundation_access_contextual_menu($short, $nid) .
       '<div>'  . "\n";
-      if ($word) {
-        $return .= '<h2>' . $word . ' ' . $counter . '</h2>' . "\n";
+      $labeltmp = _foundation_access_auto_label_build($word, $number, $counter);
+      if (!empty($labeltmp)) {
+        $return .= '<h2>' . $labeltmp . '</h2>' . "\n";
       }
       $return .= '<h3>' . _foundation_access_single_menu_link($element) . '</h3>' . "\n" .
       '</div>'  . "\n" .
@@ -206,13 +190,36 @@ function _foundation_access_menu_outline($variables, $word = FALSE) {
 }
 
 /**
+ * Generate an auto labeled element correctly
+ * @param  string $word     word for the high level organizer
+ * @param  int    $number   whether to show the counter
+ * @param  int    $counter  position in the counter for the high level
+ * @return string           assembled label for this level
+ */
+function _foundation_access_auto_label_build($word, $number, $counter) {
+  $labeltmp = '';
+  if ($word) {
+    $labeltmp = $word;
+    if ($number) {
+      $labeltmp .= ' ' . $counter;
+    }
+  }
+  else {
+    if ($number) {
+      $labeltmp = $counter;
+    }
+  }
+  return $labeltmp;
+}
+
+/**
  * Helper function to generate the contextual menu structure
  * @param  string $short machine name unique to the page
  * @param  int $nid   node id
  * @return rendered output
  */
 function _foundation_access_contextual_menu($short, $nid) {
-  if (user_access('access contextual links')) {
+  if (_cis_connector_role_grouping('staff')) {
     $output = theme('cis_lmsless_contextual_container', array('short' => $short, 'cis_links' => menu_contextual_links('cis_lmsless', 'node', array($nid))));
     return $output;
   }

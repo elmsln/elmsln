@@ -265,11 +265,12 @@
 	}
 
 	span.dropcap {
-		 float: left;
-		 color: #333333;
-		 font-size: 6.2em;
-		 line-height: 0.69em;
-		 padding: 0.1em 0.1em 0px 0px;
+		float: left;
+		color: #333333;
+		font-size: 4rem;
+		line-height: 4.5rem;
+		padding: 0 0.75rem 0 0.75rem;
+		text-transform: lowercase;
 	}
 	div.left-head {
 		width: auto;

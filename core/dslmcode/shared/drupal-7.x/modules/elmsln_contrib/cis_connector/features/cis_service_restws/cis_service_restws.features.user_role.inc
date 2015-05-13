@@ -13,7 +13,7 @@ function cis_service_restws_user_default_roles() {
   // Exported role: SERVICE ACCOUNT.
   $roles['SERVICE ACCOUNT'] = array(
     'name' => 'SERVICE ACCOUNT',
-    'weight' => '11',
+    'weight' => 11,
   );
 
   return $roles;

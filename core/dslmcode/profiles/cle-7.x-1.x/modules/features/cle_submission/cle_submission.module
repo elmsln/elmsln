@@ -7,44 +7,23 @@
 include_once 'cle_submission.features.inc';
 
 /**
- * Implements hook_init().
+ * Implements hook_form_FORM_ID_alter().
  */
-function cle_submission_init() {
-  $file = FALSE;
-  $path = drupal_get_path('module', 'cle_submission') . '/';
-  // add special js handling to the submissions overview
-  switch (arg(0)) {
-    case 'cle':
-      if (arg(1) == 'submissions' || arg(1) == '') {
-        $file = 'submission_overview';
-      }
-    break;
-    case 'user':
-      if (arg(2) == 'gallery') {
-        $file = 'my_gallery';
-      }
-    break;
-    default:
-      switch (arg(2)) {
-        case 'assignments':
-        case 'assignments-list':
-          $file = 'assignment_listing';
-        break;
-      }
-    break;
-  }
-  // add files if on a special path
-  if ($file) {
-    drupal_add_js($path . 'js/' . $file . '.js');
-    drupal_add_css($path . 'css/' . $file . '.css');
-  }
-}
-
-/**
- * Implements hook_form_alter().
- */
-function cle_submission_form_alter(&$form, &$form_state, $form_id) {
-  if ($form_id == 'cle_submission_node_form' && arg(0) != 'system') {
+function cle_submission_form_cle_submission_node_form_alter(&$form, &$form_state, $form_id) {
+  // ensure this isn't loaded in an ajax callback
+  if (arg(0) != 'system') {
+    // make sure that its not set to the needs work state
+    // if it is then we need to allow anyone to see it so they could change it
+    // back to ready for review but not the "in progress" since this is just
+    // for a one time fix
+    if (isset($form['field_submission_state']['und']['#default_value'][0]) && $form['field_submission_state']['und']['#default_value'][0] == 'submission_needs_work') {
+      unset($form['field_submission_state']['und']['#options']['submission_in_progress']);
+    }
+    else {
+      // don't allow anyone to set this to needs work; this can only happen
+      // via the instructor in the gradebook
+      unset($form['field_submission_state']['und']['#options']['submission_needs_work']);
+    }
     // try to pull from the default being set
     if (isset($form['field_assignment']['und']['#default_value'][0])) {
       $assignment = node_load($form['field_assignment']['und']['#default_value'][0]);
@@ -64,8 +43,54 @@ function cle_submission_form_alter(&$form, &$form_state, $form_id) {
       }
       // hide things that shouldn't be visible based on requirements of assignment
       foreach ($hidden as $hide) {
-        $form[$hide]['#attributes']['class'][] = 'cle_hidden';
+        $form[$hide]['#access'] = FALSE;
+        $tmpgroup = str_replace('field_', 'group_', $hide);
+        // hide / remove the grouping item if it exist
+        if (isset($form['#groups'][$tmpgroup])) {
+          unset($form['#group_children'][$tmpgroup]);
+        }
+        // hide the items that live in groups as well to prevent an error downstream
+        if (isset($form['#groups'][$tmpgroup])) {
+          unset($form['#group_children'][$hide]);
+        }
       }
+    }
+  }
+
+}
+
+/**
+ * Implements hook_page_build().
+ */
+function cle_submission_page_build(&$page) {
+  $file = FALSE;
+  $path = drupal_get_path('module', 'cle_submission') . '/';
+  if ($node = menu_get_object('node')) {
+    if ($node->type == 'cle_submission') {
+      $file = 'submission';
+      drupal_add_css($path . 'css/' . $file . '.css');
+    }
+  }
+  else {
+    // add special js handling to the submissions overview
+    switch (arg(0)) {
+      case 'cle':
+        if (arg(1) == 'submissions' || arg(1) == '') {
+          $file = 'submission_overview';
+          drupal_add_js($path . 'js/' . $file . '.js');
+          drupal_add_css($path . 'css/' . $file . '.css');
+        }
+      break;
+      default:
+        switch (arg(2)) {
+          case 'assignments':
+          case 'assignments-list':
+            $file = 'assignment_listing';
+            drupal_add_js($path . 'js/' . $file . '.js');
+            drupal_add_css($path . 'css/' . $file . '.css');
+          break;
+        }
+      break;
     }
   }
 }
@@ -81,9 +106,7 @@ function cle_submission_node_access($node, $op, $account) {
     // boolean for visibility
     if (!$assignment->field_visibility['und'][0]['value']) {
       // if it's a hidden assignment, the last check is admin member
-      $access = og_user_access_entity('update group', 'node', $node->og_group_ref['und'][0]['target_id'], $account);
-      // allow group editors to see this work
-      if ($access) {
+      if (_cis_connector_role_grouping('teacher', $account) || _cis_connector_role_grouping('staff', $account)) {
         return NODE_ACCESS_ALLOW;
       }
       else {

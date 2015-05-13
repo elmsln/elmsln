@@ -10,18 +10,22 @@
 function mooc_content_theming_field_default_field_instances() {
   $field_instances = array();
 
-  // Exported field_instance: 'node-page-field_mooc_color'
-  $field_instances['node-page-field_mooc_color'] = array(
+  // Exported field_instance: 'node-page-field_instructional_significance'
+  $field_instances['node-page-field_instructional_significance'] = array(
     'bundle' => 'page',
-    'default_value' => NULL,
+    'default_value' => array(
+      0 => array(
+        'value' => 'page',
+      ),
+    ),
     'deleted' => 0,
-    'description' => 'An accent color to associate with this content.',
+    'description' => '',
     'display' => array(
       'default' => array(
-        'label' => 'hidden',
+        'label' => 'above',
         'settings' => array(),
         'type' => 'hidden',
-        'weight' => 3,
+        'weight' => 7,
       ),
       'teaser' => array(
         'label' => 'above',
@@ -31,18 +35,19 @@ function mooc_content_theming_field_default_field_instances() {
       ),
     ),
     'entity_type' => 'node',
-    'field_name' => 'field_mooc_color',
-    'label' => 'Color',
+    'fences_wrapper' => 'div',
+    'field_name' => 'field_instructional_significance',
+    'label' => 'Instructional significance',
     'required' => 0,
     'settings' => array(
       'user_register_form' => FALSE,
     ),
     'widget' => array(
-      'active' => 0,
-      'module' => 'jquery_colorpicker',
+      'active' => 1,
+      'module' => 'options',
       'settings' => array(),
-      'type' => 'jquery_colorpicker',
-      'weight' => 9,
+      'type' => 'options_buttons',
+      'weight' => 14,
     ),
   );
 
@@ -92,60 +97,11 @@ function mooc_content_theming_field_default_field_instances() {
     ),
   );
 
-  // Exported field_instance: 'node-page-field_mooc_thumbnail'
-  $field_instances['node-page-field_mooc_thumbnail'] = array(
-    'bundle' => 'page',
-    'deleted' => 0,
-    'description' => 'A smaller representation of the content visually',
-    'display' => array(
-      'default' => array(
-        'label' => 'hidden',
-        'settings' => array(),
-        'type' => 'hidden',
-        'weight' => 2,
-      ),
-      'teaser' => array(
-        'label' => 'above',
-        'settings' => array(),
-        'type' => 'hidden',
-        'weight' => 0,
-      ),
-    ),
-    'entity_type' => 'node',
-    'field_name' => 'field_mooc_thumbnail',
-    'label' => 'Thumbnail',
-    'required' => 0,
-    'settings' => array(
-      'alt_field' => 0,
-      'default_image' => 0,
-      'file_directory' => 'mooc_thumbnails',
-      'file_extensions' => 'png gif jpg jpeg',
-      'max_filesize' => '50KB',
-      'max_resolution' => '',
-      'min_resolution' => '',
-      'title_field' => 0,
-      'user_register_form' => FALSE,
-    ),
-    'widget' => array(
-      'active' => 1,
-      'module' => 'image',
-      'settings' => array(
-        'preview_image_style' => 'thumbnail',
-        'progress_indicator' => 'throbber',
-      ),
-      'type' => 'image_image',
-      'weight' => 11,
-    ),
-  );
-
   // Translatables
   // Included for use with string extractors like potx.
-  t('A smaller representation of the content visually');
-  t('An accent color to associate with this content.');
   t('An image to use to replace the one in the theme.');
-  t('Color');
   t('Image');
-  t('Thumbnail');
+  t('Instructional significance');
 
   return $field_instances;
 }

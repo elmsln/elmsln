@@ -112,8 +112,8 @@ function cle_submission_views_default_views() {
   $handler->display->display_options['arguments']['uid']['id'] = 'uid';
   $handler->display->display_options['arguments']['uid']['table'] = 'node';
   $handler->display->display_options['arguments']['uid']['field'] = 'uid';
-  $handler->display->display_options['arguments']['uid']['default_action'] = 'not found';
-  $handler->display->display_options['arguments']['uid']['default_argument_type'] = 'fixed';
+  $handler->display->display_options['arguments']['uid']['default_action'] = 'default';
+  $handler->display->display_options['arguments']['uid']['default_argument_type'] = 'current_user';
   $handler->display->display_options['arguments']['uid']['summary']['number_of_records'] = '0';
   $handler->display->display_options['arguments']['uid']['summary']['format'] = 'default_summary';
   $handler->display->display_options['arguments']['uid']['summary_options']['items_per_page'] = '25';
@@ -196,10 +196,344 @@ function cle_submission_views_default_views() {
     10 => 0,
   );
 
-  /* Display: My Gallery */
-  $handler = $view->new_display('page', 'My Gallery', 'page_4');
+  /* Display: My Gallery (non-social) */
+  $handler = $view->new_display('page', 'My Gallery (non-social)', 'page_4');
   $handler->display->display_options['defaults']['title'] = FALSE;
   $handler->display->display_options['title'] = 'My Gallery';
+  $handler->display->display_options['display_description'] = 'Your gallery in the course';
+  $handler->display->display_options['defaults']['hide_admin_links'] = FALSE;
+  $handler->display->display_options['defaults']['group_by'] = FALSE;
+  $handler->display->display_options['group_by'] = TRUE;
+  $handler->display->display_options['defaults']['relationships'] = FALSE;
+  /* Relationship: Flags: cle_exemplary */
+  $handler->display->display_options['relationships']['flag_content_rel']['id'] = 'flag_content_rel';
+  $handler->display->display_options['relationships']['flag_content_rel']['table'] = 'node';
+  $handler->display->display_options['relationships']['flag_content_rel']['field'] = 'flag_content_rel';
+  $handler->display->display_options['relationships']['flag_content_rel']['required'] = 0;
+  $handler->display->display_options['relationships']['flag_content_rel']['flag'] = 'cle_exemplary';
+  $handler->display->display_options['relationships']['flag_content_rel']['user_scope'] = 'any';
+  /* Relationship: Content: Vote results */
+  $handler->display->display_options['relationships']['votingapi_cache']['id'] = 'votingapi_cache';
+  $handler->display->display_options['relationships']['votingapi_cache']['table'] = 'node';
+  $handler->display->display_options['relationships']['votingapi_cache']['field'] = 'votingapi_cache';
+  $handler->display->display_options['relationships']['votingapi_cache']['label'] = 'Likes';
+  $handler->display->display_options['relationships']['votingapi_cache']['votingapi'] = array(
+    'value_type' => '',
+    'tag' => 'vote',
+    'function' => '',
+  );
+  /* Relationship: Content: Vote results */
+  $handler->display->display_options['relationships']['votingapi_cache_1']['id'] = 'votingapi_cache_1';
+  $handler->display->display_options['relationships']['votingapi_cache_1']['table'] = 'node';
+  $handler->display->display_options['relationships']['votingapi_cache_1']['field'] = 'votingapi_cache';
+  $handler->display->display_options['relationships']['votingapi_cache_1']['label'] = 'Emotion';
+  $handler->display->display_options['relationships']['votingapi_cache_1']['votingapi'] = array(
+    'value_type' => '',
+    'tag' => 'emotion',
+    'function' => '',
+  );
+  $handler->display->display_options['defaults']['fields'] = FALSE;
+  /* Field: Content: Post date */
+  $handler->display->display_options['fields']['created']['id'] = 'created';
+  $handler->display->display_options['fields']['created']['table'] = 'node';
+  $handler->display->display_options['fields']['created']['field'] = 'created';
+  $handler->display->display_options['fields']['created']['label'] = 'Submitted';
+  $handler->display->display_options['fields']['created']['date_format'] = 'long';
+  $handler->display->display_options['fields']['created']['second_date_format'] = 'long';
+  /* Field: Content: Title */
+  $handler->display->display_options['fields']['title']['id'] = 'title';
+  $handler->display->display_options['fields']['title']['table'] = 'node';
+  $handler->display->display_options['fields']['title']['field'] = 'title';
+  /* Field: Content: Assignment */
+  $handler->display->display_options['fields']['field_assignment']['id'] = 'field_assignment';
+  $handler->display->display_options['fields']['field_assignment']['table'] = 'field_data_field_assignment';
+  $handler->display->display_options['fields']['field_assignment']['field'] = 'field_assignment';
+  $handler->display->display_options['fields']['field_assignment']['settings'] = array(
+    'link' => 1,
+  );
+  /* Field: Content: Images (field_images:delta) */
+  $handler->display->display_options['fields']['delta_1']['id'] = 'delta_1';
+  $handler->display->display_options['fields']['delta_1']['table'] = 'field_data_field_images';
+  $handler->display->display_options['fields']['delta_1']['field'] = 'delta';
+  $handler->display->display_options['fields']['delta_1']['group_type'] = 'count_distinct';
+  $handler->display->display_options['fields']['delta_1']['label'] = 'Images';
+  /* Field: Content: Video (field_video:delta) */
+  $handler->display->display_options['fields']['delta_3']['id'] = 'delta_3';
+  $handler->display->display_options['fields']['delta_3']['table'] = 'field_data_field_video';
+  $handler->display->display_options['fields']['delta_3']['field'] = 'delta';
+  $handler->display->display_options['fields']['delta_3']['group_type'] = 'count_distinct';
+  $handler->display->display_options['fields']['delta_3']['label'] = 'Videos';
+  /* Field: Content: Files (field_files:delta) */
+  $handler->display->display_options['fields']['delta']['id'] = 'delta';
+  $handler->display->display_options['fields']['delta']['table'] = 'field_data_field_files';
+  $handler->display->display_options['fields']['delta']['field'] = 'delta';
+  $handler->display->display_options['fields']['delta']['group_type'] = 'count_distinct';
+  $handler->display->display_options['fields']['delta']['label'] = 'Files';
+  /* Field: Content: Links (field_links:delta) */
+  $handler->display->display_options['fields']['delta_2']['id'] = 'delta_2';
+  $handler->display->display_options['fields']['delta_2']['table'] = 'field_data_field_links';
+  $handler->display->display_options['fields']['delta_2']['field'] = 'delta';
+  $handler->display->display_options['fields']['delta_2']['group_type'] = 'count_distinct';
+  $handler->display->display_options['fields']['delta_2']['label'] = 'Links';
+  $handler->display->display_options['path'] = 'cle/my-gallery';
+  $handler->display->display_options['menu']['type'] = 'normal';
+  $handler->display->display_options['menu']['title'] = 'My Gallery';
+  $handler->display->display_options['menu']['description'] = 'All of my submissions for this course';
+  $handler->display->display_options['menu']['weight'] = '9';
+  $handler->display->display_options['menu']['name'] = 'menu-cle-navigation';
+  $handler->display->display_options['menu']['context'] = 0;
+  $handler->display->display_options['menu']['context_only_inline'] = 0;
+  $handler->display->display_options['tab_options']['weight'] = '0';
+
+  /* Display: My Overview */
+  $handler = $view->new_display('page', 'My Overview', 'page');
+  $handler->display->display_options['defaults']['title'] = FALSE;
+  $handler->display->display_options['title'] = 'My Gallery';
+  $handler->display->display_options['display_description'] = 'Submission listing overview data';
+  $handler->display->display_options['defaults']['hide_admin_links'] = FALSE;
+  $handler->display->display_options['defaults']['group_by'] = FALSE;
+  $handler->display->display_options['group_by'] = TRUE;
+  $handler->display->display_options['defaults']['fields'] = FALSE;
+  /* Field: Content: Post date */
+  $handler->display->display_options['fields']['created']['id'] = 'created';
+  $handler->display->display_options['fields']['created']['table'] = 'node';
+  $handler->display->display_options['fields']['created']['field'] = 'created';
+  $handler->display->display_options['fields']['created']['label'] = 'Submitted';
+  $handler->display->display_options['fields']['created']['date_format'] = 'long';
+  $handler->display->display_options['fields']['created']['second_date_format'] = 'long';
+  /* Field: Content: Title */
+  $handler->display->display_options['fields']['title']['id'] = 'title';
+  $handler->display->display_options['fields']['title']['table'] = 'node';
+  $handler->display->display_options['fields']['title']['field'] = 'title';
+  /* Field: Content: Assignment */
+  $handler->display->display_options['fields']['field_assignment']['id'] = 'field_assignment';
+  $handler->display->display_options['fields']['field_assignment']['table'] = 'field_data_field_assignment';
+  $handler->display->display_options['fields']['field_assignment']['field'] = 'field_assignment';
+  $handler->display->display_options['fields']['field_assignment']['settings'] = array(
+    'link' => 1,
+  );
+  /* Field: Content: Files (field_files:delta) */
+  $handler->display->display_options['fields']['delta']['id'] = 'delta';
+  $handler->display->display_options['fields']['delta']['table'] = 'field_data_field_files';
+  $handler->display->display_options['fields']['delta']['field'] = 'delta';
+  $handler->display->display_options['fields']['delta']['group_type'] = 'count_distinct';
+  $handler->display->display_options['fields']['delta']['label'] = 'Files';
+  /* Field: Content: Images (field_images:delta) */
+  $handler->display->display_options['fields']['delta_1']['id'] = 'delta_1';
+  $handler->display->display_options['fields']['delta_1']['table'] = 'field_data_field_images';
+  $handler->display->display_options['fields']['delta_1']['field'] = 'delta';
+  $handler->display->display_options['fields']['delta_1']['group_type'] = 'count_distinct';
+  $handler->display->display_options['fields']['delta_1']['label'] = 'Images';
+  /* Field: Content: Links (field_links:delta) */
+  $handler->display->display_options['fields']['delta_2']['id'] = 'delta_2';
+  $handler->display->display_options['fields']['delta_2']['table'] = 'field_data_field_links';
+  $handler->display->display_options['fields']['delta_2']['field'] = 'delta';
+  $handler->display->display_options['fields']['delta_2']['group_type'] = 'count_distinct';
+  $handler->display->display_options['fields']['delta_2']['label'] = 'Links';
+  /* Field: Content: Video (field_video:delta) */
+  $handler->display->display_options['fields']['delta_3']['id'] = 'delta_3';
+  $handler->display->display_options['fields']['delta_3']['table'] = 'field_data_field_video';
+  $handler->display->display_options['fields']['delta_3']['field'] = 'delta';
+  $handler->display->display_options['fields']['delta_3']['group_type'] = 'count_distinct';
+  $handler->display->display_options['fields']['delta_3']['label'] = 'Videos';
+  $handler->display->display_options['path'] = 'cle/my-gallery/overview';
+  $handler->display->display_options['menu']['type'] = 'normal';
+  $handler->display->display_options['menu']['title'] = 'Overview';
+  $handler->display->display_options['menu']['description'] = 'Overview of your submissions';
+  $handler->display->display_options['menu']['weight'] = '-1';
+  $handler->display->display_options['menu']['name'] = 'menu-cle-navigation';
+  $handler->display->display_options['menu']['context'] = 0;
+  $handler->display->display_options['menu']['context_only_inline'] = 0;
+  $handler->display->display_options['tab_options']['weight'] = '0';
+
+  /* Display: My Images */
+  $handler = $view->new_display('page', 'My Images', 'page_2');
+  $handler->display->display_options['defaults']['title'] = FALSE;
+  $handler->display->display_options['title'] = 'My Images';
+  $handler->display->display_options['display_description'] = 'Visual gallery of all images';
+  $handler->display->display_options['defaults']['hide_admin_links'] = FALSE;
+  $handler->display->display_options['defaults']['pager'] = FALSE;
+  $handler->display->display_options['pager']['type'] = 'infinite_scroll';
+  $handler->display->display_options['pager']['options']['items_per_page'] = '6';
+  $handler->display->display_options['pager']['options']['offset'] = '0';
+  $handler->display->display_options['pager']['options']['id'] = '0';
+  $handler->display->display_options['pager']['options']['quantity'] = '9';
+  $handler->display->display_options['defaults']['style_plugin'] = FALSE;
+  $handler->display->display_options['style_plugin'] = 'masonry_views_grid';
+  $handler->display->display_options['style_options']['masonry_width'] = '300';
+  $handler->display->display_options['style_options']['masonry_animated'] = TRUE;
+  $handler->display->display_options['style_options']['masonry_resizable'] = TRUE;
+  $handler->display->display_options['style_options']['masonry_center'] = FALSE;
+  $handler->display->display_options['style_options']['masonry_rtl'] = FALSE;
+  $handler->display->display_options['defaults']['style_options'] = FALSE;
+  $handler->display->display_options['defaults']['row_plugin'] = FALSE;
+  $handler->display->display_options['row_plugin'] = 'fields';
+  $handler->display->display_options['row_options']['hide_empty'] = TRUE;
+  $handler->display->display_options['defaults']['row_options'] = FALSE;
+  $handler->display->display_options['defaults']['fields'] = FALSE;
+  /* Field: Content: Images */
+  $handler->display->display_options['fields']['field_images']['id'] = 'field_images';
+  $handler->display->display_options['fields']['field_images']['table'] = 'field_data_field_images';
+  $handler->display->display_options['fields']['field_images']['field'] = 'field_images';
+  $handler->display->display_options['fields']['field_images']['label'] = '';
+  $handler->display->display_options['fields']['field_images']['element_label_colon'] = FALSE;
+  $handler->display->display_options['fields']['field_images']['click_sort_column'] = 'fid';
+  $handler->display->display_options['fields']['field_images']['settings'] = array(
+    'image_style' => 'large',
+    'image_link' => 'content',
+  );
+  $handler->display->display_options['fields']['field_images']['group_rows'] = FALSE;
+  $handler->display->display_options['fields']['field_images']['delta_offset'] = '0';
+  $handler->display->display_options['path'] = 'cle/my-gallery/images';
+  $handler->display->display_options['menu']['type'] = 'normal';
+  $handler->display->display_options['menu']['title'] = 'Images';
+  $handler->display->display_options['menu']['description'] = 'All my submissions as a gallery';
+  $handler->display->display_options['menu']['weight'] = '1';
+  $handler->display->display_options['menu']['name'] = 'menu-cle-navigation';
+  $handler->display->display_options['menu']['context'] = 0;
+  $handler->display->display_options['menu']['context_only_inline'] = 0;
+  $handler->display->display_options['tab_options']['weight'] = '0';
+
+  /* Display: My Video */
+  $handler = $view->new_display('page', 'My Video', 'page_3');
+  $handler->display->display_options['defaults']['title'] = FALSE;
+  $handler->display->display_options['title'] = 'My Video';
+  $handler->display->display_options['display_description'] = 'Visual gallery of all video';
+  $handler->display->display_options['defaults']['hide_admin_links'] = FALSE;
+  $handler->display->display_options['defaults']['pager'] = FALSE;
+  $handler->display->display_options['pager']['type'] = 'infinite_scroll';
+  $handler->display->display_options['pager']['options']['items_per_page'] = '6';
+  $handler->display->display_options['pager']['options']['offset'] = '0';
+  $handler->display->display_options['pager']['options']['id'] = '0';
+  $handler->display->display_options['pager']['options']['quantity'] = '9';
+  $handler->display->display_options['defaults']['style_plugin'] = FALSE;
+  $handler->display->display_options['style_plugin'] = 'masonry_views_grid';
+  $handler->display->display_options['style_options']['masonry_width'] = '350';
+  $handler->display->display_options['style_options']['masonry_animated'] = TRUE;
+  $handler->display->display_options['style_options']['masonry_resizable'] = TRUE;
+  $handler->display->display_options['style_options']['masonry_center'] = TRUE;
+  $handler->display->display_options['style_options']['masonry_gutter'] = '4';
+  $handler->display->display_options['style_options']['masonry_rtl'] = FALSE;
+  $handler->display->display_options['defaults']['style_options'] = FALSE;
+  $handler->display->display_options['defaults']['row_plugin'] = FALSE;
+  $handler->display->display_options['row_plugin'] = 'fields';
+  $handler->display->display_options['row_options']['hide_empty'] = TRUE;
+  $handler->display->display_options['defaults']['row_options'] = FALSE;
+  $handler->display->display_options['defaults']['fields'] = FALSE;
+  /* Field: Content: Video */
+  $handler->display->display_options['fields']['field_video']['id'] = 'field_video';
+  $handler->display->display_options['fields']['field_video']['table'] = 'field_data_field_video';
+  $handler->display->display_options['fields']['field_video']['field'] = 'field_video';
+  $handler->display->display_options['fields']['field_video']['label'] = '';
+  $handler->display->display_options['fields']['field_video']['element_label_colon'] = FALSE;
+  $handler->display->display_options['fields']['field_video']['click_sort_column'] = 'video_url';
+  $handler->display->display_options['fields']['field_video']['settings'] = array(
+    'video_style' => 'cle_masonry',
+  );
+  $handler->display->display_options['fields']['field_video']['group_rows'] = FALSE;
+  $handler->display->display_options['fields']['field_video']['delta_offset'] = '0';
+  $handler->display->display_options['path'] = 'cle/my-gallery/video';
+  $handler->display->display_options['menu']['type'] = 'normal';
+  $handler->display->display_options['menu']['title'] = 'Video';
+  $handler->display->display_options['menu']['description'] = 'All my videos as a gallery';
+  $handler->display->display_options['menu']['weight'] = '2';
+  $handler->display->display_options['menu']['name'] = 'menu-cle-navigation';
+  $handler->display->display_options['menu']['context'] = 0;
+  $handler->display->display_options['menu']['context_only_inline'] = 0;
+
+  /* Display: My Files */
+  $handler = $view->new_display('page', 'My Files', 'page_1');
+  $handler->display->display_options['defaults']['title'] = FALSE;
+  $handler->display->display_options['title'] = 'My Files';
+  $handler->display->display_options['display_description'] = 'Visual gallery of all files';
+  $handler->display->display_options['defaults']['hide_admin_links'] = FALSE;
+  $handler->display->display_options['defaults']['pager'] = FALSE;
+  $handler->display->display_options['pager']['type'] = 'infinite_scroll';
+  $handler->display->display_options['pager']['options']['items_per_page'] = '6';
+  $handler->display->display_options['pager']['options']['offset'] = '0';
+  $handler->display->display_options['pager']['options']['id'] = '0';
+  $handler->display->display_options['pager']['options']['quantity'] = '9';
+  $handler->display->display_options['defaults']['style_plugin'] = FALSE;
+  $handler->display->display_options['style_plugin'] = 'masonry_views_grid';
+  $handler->display->display_options['style_options']['masonry_width'] = '350';
+  $handler->display->display_options['style_options']['masonry_animated'] = TRUE;
+  $handler->display->display_options['style_options']['masonry_resizable'] = TRUE;
+  $handler->display->display_options['style_options']['masonry_center'] = TRUE;
+  $handler->display->display_options['style_options']['masonry_gutter'] = '4';
+  $handler->display->display_options['style_options']['masonry_rtl'] = FALSE;
+  $handler->display->display_options['defaults']['style_options'] = FALSE;
+  $handler->display->display_options['defaults']['row_plugin'] = FALSE;
+  $handler->display->display_options['row_plugin'] = 'fields';
+  $handler->display->display_options['row_options']['hide_empty'] = TRUE;
+  $handler->display->display_options['defaults']['row_options'] = FALSE;
+  $handler->display->display_options['defaults']['fields'] = FALSE;
+  /* Field: Content: Files */
+  $handler->display->display_options['fields']['field_files']['id'] = 'field_files';
+  $handler->display->display_options['fields']['field_files']['table'] = 'field_data_field_files';
+  $handler->display->display_options['fields']['field_files']['field'] = 'field_files';
+  $handler->display->display_options['fields']['field_files']['label'] = '';
+  $handler->display->display_options['fields']['field_files']['element_label_colon'] = FALSE;
+  $handler->display->display_options['fields']['field_files']['click_sort_column'] = 'fid';
+  $handler->display->display_options['fields']['field_files']['group_rows'] = FALSE;
+  $handler->display->display_options['fields']['field_files']['delta_offset'] = '0';
+  $handler->display->display_options['path'] = 'cle/my-gallery/files';
+  $handler->display->display_options['menu']['type'] = 'normal';
+  $handler->display->display_options['menu']['title'] = 'Files';
+  $handler->display->display_options['menu']['description'] = 'All my files as a gallery';
+  $handler->display->display_options['menu']['weight'] = '3';
+  $handler->display->display_options['menu']['name'] = 'menu-cle-navigation';
+  $handler->display->display_options['menu']['context'] = 0;
+  $handler->display->display_options['menu']['context_only_inline'] = 0;
+
+  /* Display: My Links */
+  $handler = $view->new_display('page', 'My Links', 'page_5');
+  $handler->display->display_options['defaults']['title'] = FALSE;
+  $handler->display->display_options['title'] = 'My Links';
+  $handler->display->display_options['display_description'] = 'Visual gallery of all links';
+  $handler->display->display_options['defaults']['hide_admin_links'] = FALSE;
+  $handler->display->display_options['defaults']['pager'] = FALSE;
+  $handler->display->display_options['pager']['type'] = 'infinite_scroll';
+  $handler->display->display_options['pager']['options']['items_per_page'] = '6';
+  $handler->display->display_options['pager']['options']['offset'] = '0';
+  $handler->display->display_options['pager']['options']['id'] = '0';
+  $handler->display->display_options['pager']['options']['quantity'] = '9';
+  $handler->display->display_options['defaults']['style_plugin'] = FALSE;
+  $handler->display->display_options['style_plugin'] = 'masonry_views_grid';
+  $handler->display->display_options['style_options']['masonry_width'] = '350';
+  $handler->display->display_options['style_options']['masonry_animated'] = TRUE;
+  $handler->display->display_options['style_options']['masonry_resizable'] = TRUE;
+  $handler->display->display_options['style_options']['masonry_center'] = TRUE;
+  $handler->display->display_options['style_options']['masonry_gutter'] = '4';
+  $handler->display->display_options['style_options']['masonry_rtl'] = FALSE;
+  $handler->display->display_options['defaults']['style_options'] = FALSE;
+  $handler->display->display_options['defaults']['row_plugin'] = FALSE;
+  $handler->display->display_options['row_plugin'] = 'fields';
+  $handler->display->display_options['row_options']['hide_empty'] = TRUE;
+  $handler->display->display_options['defaults']['row_options'] = FALSE;
+  $handler->display->display_options['defaults']['fields'] = FALSE;
+  /* Field: Content: Links */
+  $handler->display->display_options['fields']['field_links']['id'] = 'field_links';
+  $handler->display->display_options['fields']['field_links']['table'] = 'field_data_field_links';
+  $handler->display->display_options['fields']['field_links']['field'] = 'field_links';
+  $handler->display->display_options['fields']['field_links']['label'] = '';
+  $handler->display->display_options['fields']['field_links']['element_label_colon'] = FALSE;
+  $handler->display->display_options['fields']['field_links']['click_sort_column'] = 'url';
+  $handler->display->display_options['fields']['field_links']['group_rows'] = FALSE;
+  $handler->display->display_options['fields']['field_links']['delta_offset'] = '0';
+  $handler->display->display_options['path'] = 'cle/my-gallery/links';
+  $handler->display->display_options['menu']['type'] = 'normal';
+  $handler->display->display_options['menu']['title'] = 'Links';
+  $handler->display->display_options['menu']['description'] = 'All my links as a gallery';
+  $handler->display->display_options['menu']['weight'] = '4';
+  $handler->display->display_options['menu']['name'] = 'menu-cle-navigation';
+  $handler->display->display_options['menu']['context'] = 0;
+  $handler->display->display_options['menu']['context_only_inline'] = 0;
+
+  /* Display: My Gallery (social) */
+  $handler = $view->new_display('page', 'My Gallery (social)', 'page_6');
+  $handler->display->display_options['defaults']['title'] = FALSE;
+  $handler->display->display_options['title'] = 'My Gallery';
+  $handler->display->display_options['enabled'] = FALSE;
   $handler->display->display_options['display_description'] = 'Your gallery in the course';
   $handler->display->display_options['defaults']['hide_admin_links'] = FALSE;
   $handler->display->display_options['defaults']['group_by'] = FALSE;
@@ -295,263 +629,15 @@ function cle_submission_views_default_views() {
   $handler->display->display_options['fields']['value_1']['label'] = 'Emotion';
   $handler->display->display_options['fields']['value_1']['precision'] = '0';
   $handler->display->display_options['fields']['value_1']['appearance'] = 'rate_views_widget_compact';
-  $handler->display->display_options['path'] = 'user/%/gallery';
-  $handler->display->display_options['menu']['type'] = 'tab';
+  $handler->display->display_options['path'] = 'cle/my-gallery';
+  $handler->display->display_options['menu']['type'] = 'normal';
   $handler->display->display_options['menu']['title'] = 'My Gallery';
   $handler->display->display_options['menu']['description'] = 'All of my submissions for this course';
   $handler->display->display_options['menu']['weight'] = '9';
-  $handler->display->display_options['menu']['name'] = 'user-menu';
+  $handler->display->display_options['menu']['name'] = 'menu-cle-navigation';
   $handler->display->display_options['menu']['context'] = 0;
   $handler->display->display_options['menu']['context_only_inline'] = 0;
   $handler->display->display_options['tab_options']['weight'] = '0';
-
-  /* Display: My Overview */
-  $handler = $view->new_display('page', 'My Overview', 'page');
-  $handler->display->display_options['defaults']['title'] = FALSE;
-  $handler->display->display_options['title'] = 'My Gallery';
-  $handler->display->display_options['display_description'] = 'Submission listing overview data';
-  $handler->display->display_options['defaults']['hide_admin_links'] = FALSE;
-  $handler->display->display_options['defaults']['group_by'] = FALSE;
-  $handler->display->display_options['group_by'] = TRUE;
-  $handler->display->display_options['defaults']['fields'] = FALSE;
-  /* Field: Content: Post date */
-  $handler->display->display_options['fields']['created']['id'] = 'created';
-  $handler->display->display_options['fields']['created']['table'] = 'node';
-  $handler->display->display_options['fields']['created']['field'] = 'created';
-  $handler->display->display_options['fields']['created']['label'] = 'Submitted';
-  $handler->display->display_options['fields']['created']['date_format'] = 'long';
-  $handler->display->display_options['fields']['created']['second_date_format'] = 'long';
-  /* Field: Content: Title */
-  $handler->display->display_options['fields']['title']['id'] = 'title';
-  $handler->display->display_options['fields']['title']['table'] = 'node';
-  $handler->display->display_options['fields']['title']['field'] = 'title';
-  /* Field: Content: Assignment */
-  $handler->display->display_options['fields']['field_assignment']['id'] = 'field_assignment';
-  $handler->display->display_options['fields']['field_assignment']['table'] = 'field_data_field_assignment';
-  $handler->display->display_options['fields']['field_assignment']['field'] = 'field_assignment';
-  $handler->display->display_options['fields']['field_assignment']['settings'] = array(
-    'link' => 1,
-  );
-  /* Field: Content: Comment count */
-  $handler->display->display_options['fields']['comment_count']['id'] = 'comment_count';
-  $handler->display->display_options['fields']['comment_count']['table'] = 'node_comment_statistics';
-  $handler->display->display_options['fields']['comment_count']['field'] = 'comment_count';
-  /* Field: Content: Files (field_files:delta) */
-  $handler->display->display_options['fields']['delta']['id'] = 'delta';
-  $handler->display->display_options['fields']['delta']['table'] = 'field_data_field_files';
-  $handler->display->display_options['fields']['delta']['field'] = 'delta';
-  $handler->display->display_options['fields']['delta']['group_type'] = 'count_distinct';
-  $handler->display->display_options['fields']['delta']['label'] = 'Files';
-  /* Field: Content: Images (field_images:delta) */
-  $handler->display->display_options['fields']['delta_1']['id'] = 'delta_1';
-  $handler->display->display_options['fields']['delta_1']['table'] = 'field_data_field_images';
-  $handler->display->display_options['fields']['delta_1']['field'] = 'delta';
-  $handler->display->display_options['fields']['delta_1']['group_type'] = 'count_distinct';
-  $handler->display->display_options['fields']['delta_1']['label'] = 'Images';
-  /* Field: Content: Links (field_links:delta) */
-  $handler->display->display_options['fields']['delta_2']['id'] = 'delta_2';
-  $handler->display->display_options['fields']['delta_2']['table'] = 'field_data_field_links';
-  $handler->display->display_options['fields']['delta_2']['field'] = 'delta';
-  $handler->display->display_options['fields']['delta_2']['group_type'] = 'count_distinct';
-  $handler->display->display_options['fields']['delta_2']['label'] = 'Links';
-  /* Field: Content: Video (field_video:delta) */
-  $handler->display->display_options['fields']['delta_3']['id'] = 'delta_3';
-  $handler->display->display_options['fields']['delta_3']['table'] = 'field_data_field_video';
-  $handler->display->display_options['fields']['delta_3']['field'] = 'delta';
-  $handler->display->display_options['fields']['delta_3']['group_type'] = 'count_distinct';
-  $handler->display->display_options['fields']['delta_3']['label'] = 'Videos';
-  $handler->display->display_options['path'] = 'user/%/gallery/overview';
-  $handler->display->display_options['menu']['type'] = 'default tab';
-  $handler->display->display_options['menu']['title'] = 'Overview';
-  $handler->display->display_options['menu']['description'] = 'Overview of your submissions';
-  $handler->display->display_options['menu']['weight'] = '-1';
-  $handler->display->display_options['menu']['name'] = 'user-menu';
-  $handler->display->display_options['menu']['context'] = 0;
-  $handler->display->display_options['menu']['context_only_inline'] = 0;
-  $handler->display->display_options['tab_options']['weight'] = '0';
-
-  /* Display: My Images */
-  $handler = $view->new_display('page', 'My Images', 'page_2');
-  $handler->display->display_options['defaults']['title'] = FALSE;
-  $handler->display->display_options['title'] = 'My Images';
-  $handler->display->display_options['display_description'] = 'Visual gallery of all images';
-  $handler->display->display_options['defaults']['hide_admin_links'] = FALSE;
-  $handler->display->display_options['defaults']['pager'] = FALSE;
-  $handler->display->display_options['pager']['type'] = 'infinite_scroll';
-  $handler->display->display_options['pager']['options']['items_per_page'] = '6';
-  $handler->display->display_options['pager']['options']['offset'] = '0';
-  $handler->display->display_options['pager']['options']['id'] = '0';
-  $handler->display->display_options['pager']['options']['quantity'] = '9';
-  $handler->display->display_options['defaults']['style_plugin'] = FALSE;
-  $handler->display->display_options['style_plugin'] = 'masonry_views_grid';
-  $handler->display->display_options['style_options']['masonry_width'] = '300';
-  $handler->display->display_options['style_options']['masonry_animated'] = TRUE;
-  $handler->display->display_options['style_options']['masonry_resizable'] = TRUE;
-  $handler->display->display_options['style_options']['masonry_center'] = FALSE;
-  $handler->display->display_options['style_options']['masonry_rtl'] = FALSE;
-  $handler->display->display_options['defaults']['style_options'] = FALSE;
-  $handler->display->display_options['defaults']['row_plugin'] = FALSE;
-  $handler->display->display_options['row_plugin'] = 'fields';
-  $handler->display->display_options['row_options']['hide_empty'] = TRUE;
-  $handler->display->display_options['defaults']['row_options'] = FALSE;
-  $handler->display->display_options['defaults']['fields'] = FALSE;
-  /* Field: Content: Images */
-  $handler->display->display_options['fields']['field_images']['id'] = 'field_images';
-  $handler->display->display_options['fields']['field_images']['table'] = 'field_data_field_images';
-  $handler->display->display_options['fields']['field_images']['field'] = 'field_images';
-  $handler->display->display_options['fields']['field_images']['label'] = '';
-  $handler->display->display_options['fields']['field_images']['element_label_colon'] = FALSE;
-  $handler->display->display_options['fields']['field_images']['click_sort_column'] = 'fid';
-  $handler->display->display_options['fields']['field_images']['settings'] = array(
-    'image_style' => 'large',
-    'image_link' => 'content',
-  );
-  $handler->display->display_options['fields']['field_images']['group_rows'] = FALSE;
-  $handler->display->display_options['fields']['field_images']['delta_offset'] = '0';
-  $handler->display->display_options['path'] = 'user/%/gallery/images';
-  $handler->display->display_options['menu']['type'] = 'tab';
-  $handler->display->display_options['menu']['title'] = 'Images';
-  $handler->display->display_options['menu']['description'] = 'All my submissions as a gallery';
-  $handler->display->display_options['menu']['weight'] = '1';
-  $handler->display->display_options['menu']['name'] = 'user-menu';
-  $handler->display->display_options['menu']['context'] = 0;
-  $handler->display->display_options['menu']['context_only_inline'] = 0;
-  $handler->display->display_options['tab_options']['weight'] = '0';
-
-  /* Display: My Video */
-  $handler = $view->new_display('page', 'My Video', 'page_3');
-  $handler->display->display_options['defaults']['title'] = FALSE;
-  $handler->display->display_options['title'] = 'My Video';
-  $handler->display->display_options['display_description'] = 'Visual gallery of all video';
-  $handler->display->display_options['defaults']['hide_admin_links'] = FALSE;
-  $handler->display->display_options['defaults']['pager'] = FALSE;
-  $handler->display->display_options['pager']['type'] = 'infinite_scroll';
-  $handler->display->display_options['pager']['options']['items_per_page'] = '6';
-  $handler->display->display_options['pager']['options']['offset'] = '0';
-  $handler->display->display_options['pager']['options']['id'] = '0';
-  $handler->display->display_options['pager']['options']['quantity'] = '9';
-  $handler->display->display_options['defaults']['style_plugin'] = FALSE;
-  $handler->display->display_options['style_plugin'] = 'masonry_views_grid';
-  $handler->display->display_options['style_options']['masonry_width'] = '350';
-  $handler->display->display_options['style_options']['masonry_animated'] = TRUE;
-  $handler->display->display_options['style_options']['masonry_resizable'] = TRUE;
-  $handler->display->display_options['style_options']['masonry_center'] = TRUE;
-  $handler->display->display_options['style_options']['masonry_gutter'] = '4';
-  $handler->display->display_options['style_options']['masonry_rtl'] = FALSE;
-  $handler->display->display_options['defaults']['style_options'] = FALSE;
-  $handler->display->display_options['defaults']['row_plugin'] = FALSE;
-  $handler->display->display_options['row_plugin'] = 'fields';
-  $handler->display->display_options['row_options']['hide_empty'] = TRUE;
-  $handler->display->display_options['defaults']['row_options'] = FALSE;
-  $handler->display->display_options['defaults']['fields'] = FALSE;
-  /* Field: Content: Video */
-  $handler->display->display_options['fields']['field_video']['id'] = 'field_video';
-  $handler->display->display_options['fields']['field_video']['table'] = 'field_data_field_video';
-  $handler->display->display_options['fields']['field_video']['field'] = 'field_video';
-  $handler->display->display_options['fields']['field_video']['label'] = '';
-  $handler->display->display_options['fields']['field_video']['element_label_colon'] = FALSE;
-  $handler->display->display_options['fields']['field_video']['click_sort_column'] = 'video_url';
-  $handler->display->display_options['fields']['field_video']['settings'] = array(
-    'video_style' => 'cle_masonry',
-  );
-  $handler->display->display_options['fields']['field_video']['group_rows'] = FALSE;
-  $handler->display->display_options['fields']['field_video']['delta_offset'] = '0';
-  $handler->display->display_options['path'] = 'user/%/gallery/video';
-  $handler->display->display_options['menu']['type'] = 'tab';
-  $handler->display->display_options['menu']['title'] = 'Video';
-  $handler->display->display_options['menu']['description'] = 'All my videos as a gallery';
-  $handler->display->display_options['menu']['weight'] = '2';
-  $handler->display->display_options['menu']['name'] = 'user-menu';
-  $handler->display->display_options['menu']['context'] = 0;
-  $handler->display->display_options['menu']['context_only_inline'] = 0;
-
-  /* Display: My Files */
-  $handler = $view->new_display('page', 'My Files', 'page_1');
-  $handler->display->display_options['defaults']['title'] = FALSE;
-  $handler->display->display_options['title'] = 'My Files';
-  $handler->display->display_options['display_description'] = 'Visual gallery of all files';
-  $handler->display->display_options['defaults']['hide_admin_links'] = FALSE;
-  $handler->display->display_options['defaults']['pager'] = FALSE;
-  $handler->display->display_options['pager']['type'] = 'infinite_scroll';
-  $handler->display->display_options['pager']['options']['items_per_page'] = '6';
-  $handler->display->display_options['pager']['options']['offset'] = '0';
-  $handler->display->display_options['pager']['options']['id'] = '0';
-  $handler->display->display_options['pager']['options']['quantity'] = '9';
-  $handler->display->display_options['defaults']['style_plugin'] = FALSE;
-  $handler->display->display_options['style_plugin'] = 'masonry_views_grid';
-  $handler->display->display_options['style_options']['masonry_width'] = '350';
-  $handler->display->display_options['style_options']['masonry_animated'] = TRUE;
-  $handler->display->display_options['style_options']['masonry_resizable'] = TRUE;
-  $handler->display->display_options['style_options']['masonry_center'] = TRUE;
-  $handler->display->display_options['style_options']['masonry_gutter'] = '4';
-  $handler->display->display_options['style_options']['masonry_rtl'] = FALSE;
-  $handler->display->display_options['defaults']['style_options'] = FALSE;
-  $handler->display->display_options['defaults']['row_plugin'] = FALSE;
-  $handler->display->display_options['row_plugin'] = 'fields';
-  $handler->display->display_options['row_options']['hide_empty'] = TRUE;
-  $handler->display->display_options['defaults']['row_options'] = FALSE;
-  $handler->display->display_options['defaults']['fields'] = FALSE;
-  /* Field: Content: Files */
-  $handler->display->display_options['fields']['field_files']['id'] = 'field_files';
-  $handler->display->display_options['fields']['field_files']['table'] = 'field_data_field_files';
-  $handler->display->display_options['fields']['field_files']['field'] = 'field_files';
-  $handler->display->display_options['fields']['field_files']['label'] = '';
-  $handler->display->display_options['fields']['field_files']['element_label_colon'] = FALSE;
-  $handler->display->display_options['fields']['field_files']['click_sort_column'] = 'fid';
-  $handler->display->display_options['fields']['field_files']['group_rows'] = FALSE;
-  $handler->display->display_options['fields']['field_files']['delta_offset'] = '0';
-  $handler->display->display_options['path'] = 'user/%/gallery/files';
-  $handler->display->display_options['menu']['type'] = 'tab';
-  $handler->display->display_options['menu']['title'] = 'Files';
-  $handler->display->display_options['menu']['description'] = 'All my files as a gallery';
-  $handler->display->display_options['menu']['weight'] = '3';
-  $handler->display->display_options['menu']['name'] = 'user-menu';
-  $handler->display->display_options['menu']['context'] = 0;
-  $handler->display->display_options['menu']['context_only_inline'] = 0;
-
-  /* Display: My Links */
-  $handler = $view->new_display('page', 'My Links', 'page_5');
-  $handler->display->display_options['defaults']['title'] = FALSE;
-  $handler->display->display_options['title'] = 'My Links';
-  $handler->display->display_options['display_description'] = 'Visual gallery of all links';
-  $handler->display->display_options['defaults']['hide_admin_links'] = FALSE;
-  $handler->display->display_options['defaults']['pager'] = FALSE;
-  $handler->display->display_options['pager']['type'] = 'infinite_scroll';
-  $handler->display->display_options['pager']['options']['items_per_page'] = '6';
-  $handler->display->display_options['pager']['options']['offset'] = '0';
-  $handler->display->display_options['pager']['options']['id'] = '0';
-  $handler->display->display_options['pager']['options']['quantity'] = '9';
-  $handler->display->display_options['defaults']['style_plugin'] = FALSE;
-  $handler->display->display_options['style_plugin'] = 'masonry_views_grid';
-  $handler->display->display_options['style_options']['masonry_width'] = '350';
-  $handler->display->display_options['style_options']['masonry_animated'] = TRUE;
-  $handler->display->display_options['style_options']['masonry_resizable'] = TRUE;
-  $handler->display->display_options['style_options']['masonry_center'] = TRUE;
-  $handler->display->display_options['style_options']['masonry_gutter'] = '4';
-  $handler->display->display_options['style_options']['masonry_rtl'] = FALSE;
-  $handler->display->display_options['defaults']['style_options'] = FALSE;
-  $handler->display->display_options['defaults']['row_plugin'] = FALSE;
-  $handler->display->display_options['row_plugin'] = 'fields';
-  $handler->display->display_options['row_options']['hide_empty'] = TRUE;
-  $handler->display->display_options['defaults']['row_options'] = FALSE;
-  $handler->display->display_options['defaults']['fields'] = FALSE;
-  /* Field: Content: Links */
-  $handler->display->display_options['fields']['field_links']['id'] = 'field_links';
-  $handler->display->display_options['fields']['field_links']['table'] = 'field_data_field_links';
-  $handler->display->display_options['fields']['field_links']['field'] = 'field_links';
-  $handler->display->display_options['fields']['field_links']['label'] = '';
-  $handler->display->display_options['fields']['field_links']['element_label_colon'] = FALSE;
-  $handler->display->display_options['fields']['field_links']['click_sort_column'] = 'url';
-  $handler->display->display_options['fields']['field_links']['group_rows'] = FALSE;
-  $handler->display->display_options['fields']['field_links']['delta_offset'] = '0';
-  $handler->display->display_options['path'] = 'user/%/gallery/links';
-  $handler->display->display_options['menu']['type'] = 'tab';
-  $handler->display->display_options['menu']['title'] = 'Links';
-  $handler->display->display_options['menu']['description'] = 'All my links as a gallery';
-  $handler->display->display_options['menu']['weight'] = '4';
-  $handler->display->display_options['menu']['name'] = 'user-menu';
-  $handler->display->display_options['menu']['context'] = 0;
-  $handler->display->display_options['menu']['context_only_inline'] = 0;
   $export['cle_my_submissions'] = $view;
 
   $view = new view();
@@ -829,23 +915,12 @@ function cle_submission_views_default_views() {
   $handler->display->display_options['display_description'] = 'Section specific submissions';
   $handler->display->display_options['defaults']['hide_admin_links'] = FALSE;
   $handler->display->display_options['path'] = 'cle';
-  $handler->display->display_options['menu']['type'] = 'normal';
   $handler->display->display_options['menu']['title'] = 'Home';
   $handler->display->display_options['menu']['description'] = 'Listing of all Open Submissions';
   $handler->display->display_options['menu']['weight'] = '-100';
   $handler->display->display_options['menu']['name'] = 'main-menu';
   $handler->display->display_options['menu']['context'] = 0;
-
-  /* Display: Tab */
-  $handler = $view->new_display('page', 'Tab', 'page_1');
-  $handler->display->display_options['defaults']['hide_admin_links'] = FALSE;
-  $handler->display->display_options['path'] = 'cle/open-studio';
-  $handler->display->display_options['menu']['type'] = 'default tab';
-  $handler->display->display_options['menu']['title'] = 'Open Studio';
-  $handler->display->display_options['menu']['description'] = 'Submissions for Open Critique';
-  $handler->display->display_options['menu']['weight'] = '-10';
-  $handler->display->display_options['menu']['context'] = 0;
-  $handler->display->display_options['tab_options']['weight'] = '0';
+  $handler->display->display_options['menu']['context_only_inline'] = 0;
   $export['cle_submissions'] = $view;
 
   $view = new view();

@@ -167,3 +167,29 @@ function hook_cis_remote_entities_insert(&$return, $bucket) {
   $url = $settings['protocol'] . '://' . $settings['address'] . '/node/' . $return['nid'];
   $return = l(t('click to access item'), $url);
 }
+
+/**
+ * Implements hook_cis_connector_role_groups_alter().
+ * @param  array &$roles array keyed by role grouping names and an array of roles
+ *   that match that grouping key
+ */
+function hook_cis_connector_role_groups_alter(&$roles) {
+  // define a new custom role grouping to include your role + staff
+  $roles['somethingcustom'] = array('staff', 'othermagicrole');
+  // append your custom role to the staff group
+  $roles['staff'][] = 'my cool role';
+}
+
+/**
+ * Implements hook_cis_connector_role_grouping_alter().
+ * @param  bool &$passed if the current account / type should pass
+ * @param  string $type    type of role group to test the account for
+ * @param  object $account user / account object
+ */
+function hook_cis_connector_role_grouping_alter(&$passed, $type, $account) {
+  // always allow user leafy to pass tests
+  if ($account->name == 'leafy') {
+    $passed = TRUE;
+  }
+  // respond to criteria other then what we're given so we can respond to the situation
+}

@@ -82,6 +82,8 @@
 
 .icon-courses-white { background-image: url('png/courses-white.png'); background-repeat: no-repeat; }
 
+.icon-dino-black { background-image: url('png/dino-black.png'); background-repeat: no-repeat; }
+
 .icon-discuss-black { background-image: url('png/discuss-black.png'); background-repeat: no-repeat; }
 
 .icon-discuss-white { background-image: url('png/discuss-white.png'); background-repeat: no-repeat; }
@@ -102,6 +104,8 @@
 
 .icon-help-white { background-image: url('png/help-white.png'); background-repeat: no-repeat; }
 
+.icon-hidden-black { background-image: url('png/hidden-black.png'); background-repeat: no-repeat; }
+
 .icon-inbox-black { background-image: url('png/inbox-black.png'); background-repeat: no-repeat; }
 
 .icon-inbox-white { background-image: url('png/inbox-white.png'); background-repeat: no-repeat; }
@@ -110,9 +114,13 @@
 
 .icon-info-white { background-image: url('png/info-white.png'); background-repeat: no-repeat; }
 
+.icon-interact-black { background-image: url('png/interact-black.png'); background-repeat: no-repeat; }
+
 .icon-labs-black { background-image: url('png/labs-black.png'); background-repeat: no-repeat; }
 
 .icon-labs-white { background-image: url('png/labs-white.png'); background-repeat: no-repeat; }
+
+.icon-media-black { background-image: url('png/media-black.png'); background-repeat: no-repeat; }
 
 .icon-mooc-black { background-image: url('png/mooc-black.png'); background-repeat: no-repeat; }
 
@@ -173,6 +181,8 @@
 .icon-view-off-white { background-image: url('png/view-off-white.png'); background-repeat: no-repeat; }
 
 .icon-view-white { background-image: url('png/view-white.png'); background-repeat: no-repeat; }
+
+.icon-visible-black { background-image: url('png/visible-black.png'); background-repeat: no-repeat; }
 
 .icon-write-black { background-image: url('png/write-black.png'); background-repeat: no-repeat; }
 

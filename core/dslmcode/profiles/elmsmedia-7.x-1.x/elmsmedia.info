@@ -31,7 +31,6 @@ dependencies[] = image
 dependencies[] = list
 dependencies[] = node
 dependencies[] = options
-dependencies[] = overlay
 dependencies[] = path
 dependencies[] = system
 dependencies[] = taxonomy
@@ -67,9 +66,6 @@ dependencies[] = token
 dependencies[] = transliteration
 ; Performance and scalability
 dependencies[] = httprl
-; Regions
-dependencies[] = regions
-dependencies[] = regions_admin_left
 ; User interface
 dependencies[] = ckeditor_link
 dependencies[] = imce_wysiwyg
@@ -84,8 +80,8 @@ dependencies[] = views_fluid_grid
 dependencies[] = views_ui
 ; Features
 dependencies[] = features
-dependencies[] = regions_admin_example
 dependencies[] = elmsmedia_feature
+dependencies[] = foundation_access_ux
 
 ; Information added for Drupal.org usage stats while in dev
 version = "7.x-1.x-dev"

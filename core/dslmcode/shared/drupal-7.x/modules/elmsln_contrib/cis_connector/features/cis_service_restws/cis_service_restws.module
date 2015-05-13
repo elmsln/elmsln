@@ -1,10 +1,8 @@
 <?php
 /**
  * @file
- * Code for the CIS Service RestWS feature.
+ * Drupal needs this blank file.
  */
-
-include_once 'cis_service_restws.features.inc';
 
 /**
  * Implements hook_init().

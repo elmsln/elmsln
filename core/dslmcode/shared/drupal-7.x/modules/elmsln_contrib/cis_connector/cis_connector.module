@@ -399,7 +399,7 @@ function _cis_connector_section_context($account = NULL) {
     else {
       // see if we are an administrative account that might be missing
       // access to a group but yet clearly could be in the master
-      if ($account->uid == 1 || array_intersect(array('administrator', 'instructor', 'staff'), array_values($account->roles))) {
+      if (_cis_connector_role_grouping('staff', $account) || _cis_connector_role_grouping('teacher', $account)) {
         // ensure we have section active first
         $info = entity_get_info('node');
         if (isset($info['bundles']['section'])) {
@@ -829,7 +829,6 @@ function _cis_connector_request($url, $options = array(), $bucket = 'cis', $cach
         $data = array_pop($tmp);
       }
       else {
-        drupal_set_message(t("Educational service registry missing or connection unavailable. This is not a requirement but would allow talking to the other ELMS distributions including CIS. See <a href='http://drupalcode.org/project/cis_connector.git/blob/refs/heads/7.x-1.x:/README.txt'>README.txt</a> for details on how to set this up, otherwise you can ignore this message and disable access to the pages that display it."), 'status', FALSE);
         return FALSE;
       }
       cache_set($cid, $data->data, 'cache_cis_connector');
@@ -1203,11 +1202,12 @@ function cis_connector_drupal_goto_alter(&$path, &$options, &$http_response_code
  *   (optional) additional conditions to apply to field filtering
  * @param $property_conditions
  *   (optional) additional conditions to apply for properties
- *
+ * @param  $orderby
+ *   (optional) order the results by field / property condtions keyed in array
  * @return $options
  *   array of options as a clean list for selection of an entity id
  */
-function _cis_connector_assemble_entity_list($entity_type, $bundle, $id_field, $title_field, $field_conditions = array(), $property_conditions = array()) {
+function _cis_connector_assemble_entity_list($entity_type, $bundle, $id_field, $title_field, $field_conditions = array(), $property_conditions = array(), $orderby = array()) {
   // pull items based on bundle
   $options = array();
   // assemble all entities requested
@@ -1221,7 +1221,7 @@ function _cis_connector_assemble_entity_list($entity_type, $bundle, $id_field, $
   if (!empty($property_conditions)) {
     // only allowed relationship is simple value field name / value pair
     foreach ($property_conditions as $field_name => $field_value) {
-      if (is_array($field_value)) {
+      if (is_array($field_value) && count($field_value) == 2) {
         $query->propertyCondition($field_name, $field_value[0], $field_value[1]);
       }
       else {
@@ -1233,7 +1233,7 @@ function _cis_connector_assemble_entity_list($entity_type, $bundle, $id_field, $
   if (!empty($field_conditions)) {
     foreach ($field_conditions as $field_name => $field_value) {
       // allow for complex relationship if needed
-      if (is_array($field_value)) {
+      if (is_array($field_value) && count($field_value) >= 2) {
         // simple value = evaluation
         if (count($field_value) == 2) {
         $query->fieldCondition($field_name, $field_value[0], $field_value[1], '=');
@@ -1249,9 +1249,41 @@ function _cis_connector_assemble_entity_list($entity_type, $bundle, $id_field, $
       }
     }
   }
-  // order by the title property
-  $result = $query->propertyOrderBy($title_field)
-    ->execute();
+  // support for complex ordering (optional)
+  if (!empty($orderby)) {
+    // allow for multiple field ordering
+    if (isset($orderby['field'])) {
+      // allow for multiple fields to be ordered by
+      foreach ($orderby['field'] as $field => $column) {
+        // support for direction of the sort
+        if (is_array($column)) {
+          $query->fieldOrderBy($field, $column[0], $column[1]);
+        }
+        else {
+          $query->fieldOrderBy($field, $column);
+        }
+      }
+    }
+    // allow for multiple property ordering
+    if (isset($orderby['property'])) {
+      // allow for multiple fields to be ordered by
+      foreach ($orderby['property'] as $property) {
+        // support for direction of the sort
+        if (is_array($property)) {
+          $query->propertyOrderBy($property[0], $property[1]);
+        }
+        else {
+          $query->propertyOrderBy($property);
+        }
+      }
+    }
+  }
+  else {
+    // simple title sort
+    $query->propertyOrderBy($title_field);
+  }
+  // execute our results
+  $result = $query->execute();
   // ensure this produces results to avoid null queries
   if (!empty($result)) {
     // convert to load only keys of items found
@@ -1274,4 +1306,71 @@ function _cis_connector_assemble_entity_list($entity_type, $bundle, $id_field, $
     }
   }
   return $options;
+}
+
+/**
+ * Return roles for a specified group of roles
+ * @param  string $type    type of role grouping we are testing for
+ * @return array           array of strings corresponding to roles
+ */
+function _cis_connector_role_groups($type = NULL) {
+  // statically cache future calls
+  $roles = &drupal_static(__FUNCTION__);
+  if (!isset($roles)) {
+    $roles = array(
+      'admin' => array('administrator'),
+      'staff' => array('administrator', 'staff'),
+      'teacher' => array('teaching assistant', 'instructor'),
+      'learner' => array('student', 'past student'),
+      'active learner' => array('student'),
+    );
+    // allow other projects to define special situations where you would give a type access
+    drupal_alter('cis_connector_role_groups', $roles);
+  }
+  // return everything if we didn't pass in a specific type
+  if (is_null($type)) {
+    return $roles;
+  }
+  elseif (isset($roles[$type])) {
+    // more common usage; return the roles for this role group
+    return $roles[$type];
+  }
+  return FALSE;
+}
+
+/**
+ * Return if an account fits within a type of role group.
+ * @param  string $type    type of role grouping we are testing for
+ * @param  object $account user / account object
+ * @return bool          return if the user matches the requested group type
+ */
+function _cis_connector_role_grouping($type, $account = NULL) {
+  // support checking against the current account
+  if (is_null($account)) {
+    global $user;
+    $account = $user;
+  }
+  $passed = FALSE;
+  // make sure this is valid
+  if ($group = _cis_connector_role_groups($type)) {
+    // check against the different groupings we support
+    switch ($type) {
+      case 'admin':
+      case 'staff':
+        // allow user 1 to pass this check for these groups
+        if ($account->uid == 1 || array_intersect($group, array_values($account->roles))) {
+          return TRUE;
+        }
+      break;
+      default:
+        if (array_intersect($group, array_values($account->roles))) {
+          return TRUE;
+        }
+      break;
+    }
+    // allow other projects to define special situations where you would give a type access
+    drupal_alter('cis_connector_role_grouping', $passed, $type, $account);
+  }
+  // if we got here then they didn't pass
+  return $passed;
 }

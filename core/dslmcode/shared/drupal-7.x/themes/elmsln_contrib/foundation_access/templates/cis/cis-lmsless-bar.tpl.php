@@ -42,7 +42,6 @@
 
 
             <h1><?php print $site_name; ?></h1>
-              <hr></hr>
               <?php if (isset($service_option_link)) : ?>
                 <div class="minimal-edit-buttons in-modal">
                 <!-- <a href="#" class="off-canvas-toolbar-item toolbar-menu-icon" data-dropdown="eco-services-add-menu-1" aria-controls="add-button" aria-expanded="false">
@@ -61,15 +60,15 @@
               </div>
               <?php endif; ?>
               <!-- End Menu Item Dropdowns -->
-              <h2>Services</h2>
-              <?php foreach ($services as $service) : ?>
-                <?php if ($service['machine_name'] == 'online') : ?>
-                  <hr />
-                <?php endif; ?>
-              <a href="<?php print $service['url']; ?>" class=" etb-modal-icon <?php print $service['machine_name']; ?>-icon row">
-                <div class="icon-<?php print $service['machine_name']; ?>-black etb-modal-icons"></div>
-                <span class=""><?php print $service['title']; ?></span>
-              </a>
+              <?php foreach ($services as $title => $items) : ?>
+                <hr/>
+                <h2><?php print t('@title', array('@title' => $title)); ?></h2>
+                <?php foreach ($items as $service) : ?>
+                <a href="<?php print $service['url']; ?>" class=" etb-modal-icon <?php print $service['machine_name']; ?>-icon row">
+                  <div class="icon-<?php print $service['machine_name']; ?>-black etb-modal-icons"></div>
+                  <span class=""><?php print $service['title']; ?></span>
+                </a>
+                <?php endforeach ?>
               <?php endforeach ?>
               <!--
               <a href="#" class="etb-modal-icon calendar-icon row">
@@ -119,20 +118,19 @@
                 </a>
               </div>
               <!-- Menu Item Dropdowns -->
+
               <div id="eco-account-edit-menu-1" data-dropdown-content class="f-dropdown content" aria-hidden="true" tabindex="-1">
                 <ul class="button-group">
-                  <li><?php print l(t('Edit profile'), 'user/' . $GLOBALS['user']->uid); ?></li>
+                  <!--<li><?php print l(t('Edit profile'), 'user/' . $GLOBALS['user']->uid); ?></li>-->
                   <li><a href="#" data-reveal-id="block-masquerade-masquerade-nav-modal"><?php print t('Impersonate a user'); ?></a></li>
                 </ul>
               </div>
               <!-- End Menu Item Dropdowns -->
-              <h2>Profile</h2>
-              <a href="#" class="modal-img-link row">
-                <div class="left">
-                    <!-- TODO PUT IMAGE HERE -->
-                </div>
+              <h2><?php print t('Profile'); ?></h2>
+                <!--<div class="left">
+                     TODO PUT IMAGE HERE
+                </div> -->
                 <span><?php print $username; ?></span>
-              </a>
               <!--
                <a href="#" class="etb-modal-icon grades-icon row">
                 <div class="icon-grades-black etb-modal-icons "></div>
@@ -141,13 +139,7 @@
               <a href="#" class="etb-modal-icon bookmark-outline-icon row">
                 <div class="icon-bookmark-outline-black etb-modal-icons "></div>
                 <span class="">Bookmarks</span>
-              </a>
-              <hr></hr>
-              <h2>Settings</h2>
-              <a href="#" class="etb-modal-icon access-icon row">
-                <div class="icon-access-black etb-modal-icons"></div>
-                <span>Accessibility</span>
-              </a> -->
+              </a>-->
             <a class="close-reveal-modal">&#215;</a>
          </div>
 
@@ -155,14 +147,14 @@
             <h1><?php print t('Syllabus'); ?></h1>
               <hr></hr>
               <!-- End Menu Item Dropdowns -->
-              <h2><?php print t('Instructor'); ?></h2>
+              <!-- <h2><?php print t('Instructor'); ?></h2>
               <a href="#" class="modal-img-link row">
                 <div class="left">
-                  <!-- TODO ADD ICON HERE -->
-                  <!-- TODO ADD INSTRUCTOR NAME HERE FROM CIS PULL -->
+                  <?php //@todo ADD ICON HERE ?>
+                  <?php //@todo  ADD INSTRUCTOR NAME HERE FROM CIS PULL ?>
                 </div>
                 <span class=""><?php print t('Instructor Name'); ?></span>
-              </a>
+              </a> -->
               <hr></hr>
               <div class="minimal-edit-buttons in-modal">
                 <a class="off-canvas-toolbar-item toolbar-menu-icon" href="#" data-dropdown="eco-syllabus-edit-menu-2" aria-controls="offcanvas-admin-menu" aria-expanded="false">
@@ -181,7 +173,6 @@
               <?php if (!empty($main_menu)) : print drupal_render($main_menu); endif; ?>
             <a class="close-reveal-modal">&#215;</a>
          </div>
-
 
          <div id="help-nav-modal" class="reveal-modal etb-nav-modal disable-scroll" data-reveal>
             <h1><?php print t('Help'); ?></h1>
@@ -204,10 +195,10 @@
                 <h2 class"etb-nav-section-label"><?php print $tech_support['title']; ?></h2>
                 <?php print $tech_support['body']; ?>
               <?php endif; ?>
-              <a href="#" class="etb-modal-icon teacher-icon row">
+              <!--<a href="#" class="etb-modal-icon teacher-icon row">
                 <div class="icon-teacher-black etb-modal-icons"></div>
                 <span><?php print t('E-Mail your instructor'); ?></span>
-              </a>
+              </a>-->
               <hr></hr>
               <h2 class"etb-nav-section-label"><?php print t('Technical Issues'); ?></h2>
               <a href="<?php print $help_link; ?>" class="etb-nav_item_service_btn etb-modal-icon support-icon row">

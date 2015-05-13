@@ -57,3 +57,4 @@ dependencies[] = views
 dependencies[] = views_ui
 ; Features
 dependencies[] = features
+dependencies[] = foundation_access_ux

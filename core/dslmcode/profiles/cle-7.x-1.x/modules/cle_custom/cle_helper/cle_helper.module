@@ -82,7 +82,8 @@ function cle_helper_form_cis_service_connection_ux_form_alter(&$form, &$form_sta
     '#title' => t('Default assignments'),
     '#type' => 'select',
     '#required' => '1',
-    '#options' => _cis_connector_assemble_entity_list('node', 'cle_assignment', 'nid', 'title'),
+    '#multiple' => '1',
+    '#options' => _cis_connector_assemble_entity_list('node', 'cle_assignment', 'nid', 'title', array(), array(), array('field' => array('field_number' => 'value'))),
   );
 }
 
@@ -151,104 +152,4 @@ function cle_helper_get_group_content_ids_alter(&$ids) {
       }
     }
   }
-}
-
-/**
- * Implements hook_node_view().
- */
-function cle_helper_node_view($node, $view_mode, $langcode) {
-  // sniff out entity reference links
-  $links = cle_helper_create_node_links($node);
-  // add links if we found any
-  if (!empty($links)) {
-    $node->content['links']['nodereference_url'] = array(
-      '#theme' => 'links__node__cle_helper',
-      '#links' => $links,
-      '#attributes' => array('class' => array('links', 'inline')),
-    );
-  }
-}
-
-/**
- * Return links to create nodes that references the $node argument.
- *
- * Implementation based on prepopulate_create_node_links sandbox
- *
- * @param $node
- *   The will node that will be referenced when the a node is added.
- * @return $links
- *   array of shortcut links for creating items.
- */
-function cle_helper_create_node_links($node) {
-  // pull entity id from node passed
-  list(, , $content_type) = entity_extract_ids('node', $node);
-  // load content types
-  $content_types = array_keys(node_type_get_types());
-  // load field data about those types
-  $fields = field_info_instances('node');
-  $links = array();
-  // iterate over each content type
-  foreach ($fields as $target_type => $field) {
-    // dig into the instances of fields of that type
-    foreach ($field as $field_name => $instance) {
-      // load up the field info in detail
-      $field_info = field_info_field($field_name);
-
-      if (empty($field_info['settings']['target_type'])) {
-        // This isn't a reference field.
-        continue;
-      }
-
-      if (!empty($field_info['settings']['target_type']) && $field_info['settings']['target_type'] != 'node') {
-        // The node isn't referenced by the field.
-        continue;
-      }
-
-      if (!empty($field_info['settings']['handler_settings']['target_bundles']) && !in_array($content_type, $field_info['settings']['handler_settings']['target_bundles'])) {
-        // The content type isn't referenced by the field.
-        continue;
-      }
-      // dig into the content types looking for a match
-      foreach ($content_types as $type_name) {
-        $instance = field_info_instance('node', $field_name, $type_name);
-        if (empty($instance['settings']['behaviors']['prepopulate']['status'])) {
-          // The field doesn't have prepopulate enabled.
-          continue;
-        }
-        // at this point we know we have one, if they can create it add the link
-        if (!node_access('create', $type_name)) {
-          continue;
-        }
-        // Build link.
-        $target_content_type = array(
-          '@content_type' => node_type_get_name($type_name),
-        );
-        $target_content_type_link = array(
-          '!content_type' => str_replace('_', '-', $type_name),
-        );
-        $query = array($field_name => $node->nid);
-        // account for og being in scope of the item being created
-        // if this is the case then auto set that as well via prepopulate
-        if (isset($node->og_group_ref) && !empty($node->og_group_ref)) {
-          // this is very specific but allows for item in og to be set
-          $query['og_group_ref'] = $node->og_group_ref['und'][0]['target_id'];
-        }
-        if (isset($node->group_group) && $type_name == 'cle_submission') {
-          // don't print this link
-        }
-        else {
-          // build the link array which will be rendered on return
-          $links[$type_name . '_' . $field_name] = array(
-            'title' => t('Create new @content_type', $target_content_type),
-            'href' => format_string('node/add/!content_type', $target_content_type_link),
-            'query' => $query + drupal_get_destination(),
-            'attributes' => array(
-              'title' => t('Create new @content_type', $target_content_type),
-            ),
-          );
-        }
-      }
-    }
-  }
-  return $links;
 }

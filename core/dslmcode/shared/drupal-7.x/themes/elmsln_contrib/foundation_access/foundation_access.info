@@ -107,6 +107,9 @@ plugins[panels][layouts] = layouts
 
 ; Theme settings:
 
+; Foundation Access
+settings[foundation_access_outline_labeling] = 'auto_both'
+settings[foundation_access_outline_label] = 'Lesson'
 ; Top Bar.
 settings[zurb_foundation_top_bar_enable] = 1
 settings[zurb_foundation_top_bar_grid] = 0

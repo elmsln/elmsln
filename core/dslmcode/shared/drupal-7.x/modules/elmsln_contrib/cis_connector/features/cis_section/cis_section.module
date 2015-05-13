@@ -80,6 +80,7 @@ function cis_section_cron() {
   // look for 1 record
   if (count($return['list']) == 1) {
     $section_strings = array();
+    $section_times = array();
     $course = $return['list'][0];
     // loop through offerings
     foreach ($course['field_offerings'] as $offering) {
@@ -88,13 +89,18 @@ function cis_section_cron() {
         foreach ($offering['field_sections']['und'] as $section) {
           // verify that this has the full object and has dates
           if (isset($section['item_id']) && isset($section['field_access_dates']['und'])) {
-            $start = $section['field_access_dates']['und'][0]['value'];
             // loop through access strings
             // this is the magic that binds students to sections automatically
             // and allows the entire network to work as an OG dark-net :)
             if (isset($section['field_access_string']['und']) && count($section['field_access_string']['und']) > 0) {
               foreach ($section['field_access_string']['und'] as $string) {
                 $section_strings[$string['safe_value']] = $string['safe_value'];
+                // store the start/end times of this so we know activation status
+                $section_times[$string['safe_value']] = array(strtotime($section['field_access_dates']['und'][0]['value']));
+                // end date not required
+                if (isset($section['field_access_dates']['und'][0]['value2'])) {
+                  $section_times[$string['safe_value']][] = strtotime($section['field_access_dates']['und'][0]['value2']);
+                }
               }
             }
           }
@@ -103,16 +109,63 @@ function cis_section_cron() {
     }
     // loop through section strings to make sure we have a matching section node
     foreach ($section_strings as $section_id) {
-      // if we don't know about this section, create it
-      if (!_cis_section_load_section_by_id($section_id)) {
+      // if we know about this, load and update appropriately
+      if ($nid = _cis_section_load_section_by_id($section_id)) {
+        // this case can be triggered if the dates get updated downstream in CIS
+        // or if we create something ahead of the semester
+        $section = node_load($nid);
+        // mark this relative to it being active
+        if ($section_times[$section_id][0] < REQUEST_TIME) {
+          // check for end date before assuming
+          if (isset($section_times[$section_id][1])) {
+            // make sure we're before end time
+            if ($section_times[$section_id][1] > REQUEST_TIME) {
+              $section_status = 1;
+            }
+            else {
+              $section_status = 0;
+            }
+          }
+          else {
+            $section_status = 1;
+          }
+        }
+        else {
+          $section_status = 0;
+        }
+        // see if the section status has changed
+        if ($section->field_cis_active['und'][0]['value'] != $section_status) {
+          $section->field_cis_active['und'][0]['value'] = $section_status;
+          node_save($section);
+        }
+      }
+      else {
         $section = new stdClass();
         $section->type = 'section';
         node_object_prepare($section);
         // currently both items are given the section id
         $section->title = $section_id;
         $section->field_section_id['und'][0]['value'] = $section_id;
-        // mark this as active so it can sync with systems
-        $section->field_cis_active['und'][0]['value'] = 1;
+        // mark this relative to it being real
+        if ($section_times[$section_id][0] < REQUEST_TIME) {
+          // check for end date before assuming
+          if (isset($section_times[$section_id][1])) {
+            // make sure we're before end time
+            if ($section_times[$section_id][1] > REQUEST_TIME) {
+              $section_status = 1;
+            }
+            else {
+              $section_status = 0;
+            }
+          }
+          else {
+            $section_status = 1;
+          }
+        }
+        else {
+          $section_status = 0;
+        }
+        $section->field_cis_active['und'][0]['value'] = $section_status;
         $section->language = LANGUAGE_NONE;
         // default these to admin ownership for less chance of seeing it
         $section->uid = 1;

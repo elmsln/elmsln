@@ -58,22 +58,8 @@
 [data-magellan-expedition] {
 	min-width:inherit;
 	display:inline-block;
-	background: rgba(255,255,255,0.8);
+	background: rgba(255,255,255,1);
 	@include box-shadow();
 
 	@include single-transition(all, 300ms, ease-out);
-	// .sub-nav dd {
-	// 	float:none;
-	// 	margin-left:0;
-	// 	& a:hover {
-	// 		background: #008cba;
-	// 	}
-	// 	&.active a {
-
-	// 	}
-	// }
-	&:hover {
-			background: rgba(255,255,255,1);
-			@include single-transition(all, 300ms, ease-out);
-		}
 }

@@ -7,6 +7,15 @@ api = "2"
 projects[admin_menu][version] = "3.0-rc4"
 projects[admin_menu][subdir] = "contrib"
 
+projects[admin_menu_dropdown][version] = "3.0-alpha1"
+projects[admin_menu_dropdown][subdir] = "contrib"
+
+projects[cis_connector][version] = "1.x-dev"
+projects[cis_connector][subdir] = "contrib"
+
+projects[addanother][version] = "2.1"
+projects[addanother][subdir] = "contrib"
+
 projects[module_filter][version] = "2.0-alpha2"
 projects[module_filter][subdir] = "contrib"
 

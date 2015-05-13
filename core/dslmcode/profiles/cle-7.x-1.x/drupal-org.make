@@ -232,28 +232,27 @@ projects[field_collection_node_clone][subdir] = "contrib"
 projects[field_collection][version] = "1.0-beta7"
 projects[field_collection][subdir] = "contrib"
 
+; +++++ Themes +++++
 
-; Themes
-; bootstrap
+; rubik
+projects[rubik][type] = "theme"
+projects[rubik][version] = "4.1"
+projects[rubik][subdir] = "contrib"
+
+; tao
+projects[tao][type] = "theme"
+projects[tao][version] = "3.1"
+projects[tao][subdir] = "contrib"
+
+; zurb-foundation
 projects[zurb_foundation][type] = "theme"
 projects[zurb_foundation][version] = "5.x-dev"
 projects[zurb_foundation][subdir] = "contrib"
-; respond
-projects[respond][type] = "theme"
-projects[respond][version] = "3.0-beta1"
-projects[respond][subdir] = "contrib"
-; rubik
-projects[rubik][type] = "theme"
-projects[rubik][version] = "4.0-beta8"
-projects[rubik][subdir] = "contrib"
-; cube
-projects[cube][type] = "theme"
-projects[cube][version] = "1.3"
-projects[cube][subdir] = "contrib"
-; tao
-projects[tao][type] = "theme"
-projects[tao][version] = "3.0-beta4"
-projects[tao][subdir] = "contrib"
+
+; foundation_access
+projects[foundation_access][type] = "theme"
+projects[foundation_access][version] = "5.x-dev"
+projects[foundation_access][subdir] = "contrib"
 
 ; Libraries
 libraries[ckeditor][directory_name] = "ckeditor"

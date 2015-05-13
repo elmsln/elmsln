@@ -1,7 +1,0 @@
-<?php
-/**
- * @file
- * Code for the CIS Foundation Access feature.
- */
-
-include_once 'cis_foundation_access.features.inc';

@@ -154,6 +154,7 @@ dependencies[] = cle_submission
 dependencies[] = cle_gradebook
 dependencies[] = cle_gradebook_ux
 dependencies[] = cle_perms
+dependencies[] = foundation_access_ux
 
 ; Information intentionally kept here to have a version w/ ELMSLN
 ; Information added by Drupal.org packaging script on 2014-06-27

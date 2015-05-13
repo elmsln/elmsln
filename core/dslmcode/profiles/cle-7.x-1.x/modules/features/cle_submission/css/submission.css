@@ -1,0 +1,10 @@
+.ui-accordion .ui-accordion-content {
+  padding: 1em 2.2em;
+  border-top: 0;
+  overflow:visible;
+  text-align: center;
+}
+
+.ui-accordion .ui-accordion-content .field-images {
+  margin:.25em;
+}

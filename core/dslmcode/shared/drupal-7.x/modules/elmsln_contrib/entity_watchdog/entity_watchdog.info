@@ -1,7 +1,0 @@
-name = Entity Watchdog
-description = "Entity API Wrapper applied to core dblog module's watchdog table"
-package = Development
-core = 7.x
-dependencies[] = dblog
-dependencies[] = entity
-dependencies[] = entitycache

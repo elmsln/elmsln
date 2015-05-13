@@ -1,0 +1,49 @@
+<?php
+
+/**
+ * Implements hook_install().
+ */
+function cis_lmsless_install() {
+  // by default, everyone can view LMSLess bar
+  db_merge('role_permission')->key(array(
+    'rid' => 1,
+    'permission' => 'view lmsless bar',
+  ))->fields(array(
+    'module' => 'cis_lmsless',
+  ))->execute();
+  // auth users
+  db_merge('role_permission')->key(array(
+    'rid' => 2,
+    'permission' => 'view lmsless bar',
+  ))->fields(array(
+    'module' => 'cis_lmsless',
+  ))->execute();
+
+  // special case for CIS as it is typically an administrative system
+  // apply permission to teacher roles
+  $teachers = _cis_connector_role_groups('teacher');
+  foreach ($teachers as $name) {
+  	$role = user_role_load_by_name($name);
+    if (isset($role->rid)) {
+    	db_merge('role_permission')->key(array(
+        'rid' => $role->rid,
+        'permission' => 'view lmsless cis link',
+        ))->fields(array(
+        'module' => 'cis_lmsless',
+      ))->execute();
+    }
+  }
+  // apply these for staff roles
+  $staff = _cis_connector_role_groups('staff');
+  foreach ($staff as $name) {
+  	$role = user_role_load_by_name($name);
+    if (isset($role->rid)) {
+      db_merge('role_permission')->key(array(
+        'rid' => $role->rid,
+        'permission' => 'view lmsless cis link',
+        ))->fields(array(
+        'module' => 'cis_lmsless',
+      ))->execute();
+    }
+  }
+}
