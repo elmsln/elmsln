@@ -38,7 +38,8 @@
                 "og_context",
                 "regions_admin_left",
                 "regions_right_slideout",
-                "display_cache"
+                "display_cache",
+                "thumbnav"
             ]
         },
         "3": {
