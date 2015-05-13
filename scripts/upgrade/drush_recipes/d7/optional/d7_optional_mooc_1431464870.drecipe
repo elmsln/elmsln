@@ -8,7 +8,7 @@
             "command": "en",
             "arguments": [
                 "admin_menu_dropdown",
-                "cis_foundation_access",
+                "foundation_access_ux",
                 "cis_lmsless",
                 "cis_performance_overrides",
                 "fastclick",
@@ -17,15 +17,16 @@
                 "mooc_perms",
                 "mooc_theme_foundation",
                 "speedreader",
-                "mooc_foundation_access"
+                "mooc_foundation_access",
+                "book_cache",
+                "back_to_top"
             ]
         },
         "2": {
             "command": "dis",
             "arguments": [
-                "back_to_top",
                 "block_aria_landmark_roles",
-                "book_cache",
+                "overlay",
                 "boxes",
                 "chamfer_defaults",
                 "delta",
@@ -37,9 +38,7 @@
                 "og_context",
                 "regions_admin_left",
                 "regions_right_slideout",
-                "display_cache",
-                "syslog",
-                "devel"
+                "display_cache"
             ]
         },
         "3": {
