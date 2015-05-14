@@ -115,7 +115,7 @@ function _cis_lmsless_theme_vars() {
     }
     $vars['resources'] = $resources;
     // throw in username
-    $vars['username'] = check_plain($GLOBALS['user']->name);
+    $vars['username'] = (isset($GLOBALS['user']->name) ? check_plain($GLOBALS['user']->name) : '');
     if (_cis_connector_role_grouping('staff') || isset($_SESSION['masquerading'])) {
       $vars['admin_status_bar'] = array(
         'course-section' => array(t('Section'), $section . ' <a href="#" data-reveal-id="block-cis-service-connection-section-context-changer-nav-modal">' . t('switch') . '</a>'),
