@@ -46,7 +46,7 @@ function cis_helper_add_offering_page($form, $form_state) {
     '#required' => '1',
     '#description' => t('The courses to establish the offering for'),
     '#type' => 'select',
-    '#options' => _cis_helper_assemble_entity_list('node', 'course', 'field_machine_name', 'title', array('field_display_in_course_list' => 1)),
+    '#options' => _cis_helper_assemble_entity_list('node', 'course', 'field_machine_name', 'title'),
     '#title' => t('Course'),
     '#default_value' => $course,
   );
