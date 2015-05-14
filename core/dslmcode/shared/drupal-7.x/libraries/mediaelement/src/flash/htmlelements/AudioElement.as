@@ -1,5 +1,5 @@
 ﻿
-package htmlelements 
+package htmlelements
 {
 	import flash.events.Event;
 	import flash.events.IOErrorEvent;
@@ -59,12 +59,12 @@ package htmlelements
 		public function currentTime():Number {
 			return _currentTime;
 		}
-		
+
 		public function currentProgress():Number {
 				return Math.round(_bytesLoaded/_bytesTotal*100);
 		}
 
-		public function AudioElement(element:FlashMediaElement, autoplay:Boolean, preload:String, timerRate:Number, startVolume:Number) 
+		public function AudioElement(element:FlashMediaElement, autoplay:Boolean, preload:String, timerRate:Number, startVolume:Number):void
 		{
 			_element = element;
 			_autoplay = autoplay;
@@ -79,24 +79,24 @@ package htmlelements
 		}
 
 		// events
-		function progressHandler(e:ProgressEvent):void {
+		private function progressHandler(e:ProgressEvent):void {
 
 			_bytesLoaded = e.bytesLoaded;
 			_bytesTotal = e.bytesTotal;
 
 			// this happens too much to send every time
 			//sendEvent(HtmlMediaEvent.PROGRESS);
-			
+
 			// so now we just trigger a flag and send with the timer
 			_bufferingChanged = true;
 		}
 
-		function id3Handler(e:Event):void {
-			sendEvent(HtmlMediaEvent.LOADEDMETADATA);			
-			
+		private function id3Handler(e:Event):void {
+			sendEvent(HtmlMediaEvent.LOADEDMETADATA);
+
 			try {
 				var id3:ID3Info = _sound.id3;
-				var obj = {
+				var obj:Object = {
 					type:'id3',
 					album:id3.album,
 					artist:id3.artist,
@@ -105,17 +105,17 @@ package htmlelements
 					songName:id3.songName,
 					track:id3.track,
 					year:id3.year
-				}
+				};
 			} catch (err:Error) {}
-			
-			
+
+
 		}
 
-		function timerEventHandler(e:TimerEvent) {
+		private function timerEventHandler(e:TimerEvent):void {
 			_currentTime = _soundChannel.position/1000;
 
 			// calculate duration
-			var duration = Math.round(_sound.length * _sound.bytesTotal/_sound.bytesLoaded/100) / 10;
+			var duration:Number = Math.round(_sound.length * _sound.bytesTotal/_sound.bytesLoaded/100) / 10;
 
 			// check to see if the estimated duration changed
 			if (_duration != duration && !isNaN(duration)) {
@@ -123,12 +123,12 @@ package htmlelements
 				_duration = duration;
 				sendEvent(HtmlMediaEvent.LOADEDMETADATA);
 			}
-			
+
 			// check for progress
 			if (_bufferingChanged) {
-				
+
 				sendEvent(HtmlMediaEvent.PROGRESS);
-			
+
 				_bufferingChanged = false;
 			}
 
@@ -141,11 +141,11 @@ package htmlelements
 			}
 		}
 
-		function soundCompleteHandler(e:Event) {
+		private function soundCompleteHandler(e:Event):void {
 			handleEnded();
 		}
 
-		function handleEnded():void {
+		private function handleEnded():void {
 			_timer.stop();
 			_currentTime = 0;
 			_isEnded = true;
@@ -165,8 +165,19 @@ package htmlelements
 
 		public function load():void {
 
-			if (_currentUrl == "")
+			if (_currentUrl == "") {
 				return;
+			}
+
+			if (_sound) {
+				if (_sound.hasEventListener(ProgressEvent.PROGRESS)) {
+					_sound.removeEventListener(ProgressEvent.PROGRESS, progressHandler);
+				}
+
+				if (_sound.hasEventListener(Event.ID3)) {
+					_sound.removeEventListener(Event.ID3, id3Handler);
+				}
+			}
 
 			_sound = new Sound();
 			//sound.addEventListener(IOErrorEvent.IO_ERROR,errorHandler);
@@ -174,19 +185,19 @@ package htmlelements
 			_sound.addEventListener(Event.ID3,id3Handler);
 			_sound.load(new URLRequest(_currentUrl));
 			_currentTime = 0;
-			
+
 			sendEvent(HtmlMediaEvent.LOADSTART);
 
 			_isLoaded = true;
-                        
+
 			sendEvent(HtmlMediaEvent.LOADEDDATA);
-			sendEvent(HtmlMediaEvent.CANPLAY);				
+			sendEvent(HtmlMediaEvent.CANPLAY);
 			_firedCanPlay = true;
-			
+
 			if (_playAfterLoading) {
 				_playAfterLoading = false;
 				play();
-			}						
+			}
 		}
 
 		private var _playAfterLoading:Boolean= false;
@@ -206,7 +217,7 @@ package htmlelements
 			_soundChannel.addEventListener(Event.SOUND_COMPLETE, soundCompleteHandler);
 
 			_timer.start();
-			
+
 			didStartPlaying();
 		}
 
@@ -215,7 +226,7 @@ package htmlelements
 			_timer.stop();
 			if (_soundChannel != null) {
 				_currentTime = _soundChannel.position/1000;
-				_soundChannel.stop();			
+				_soundChannel.stop();
 			}
 
 			_isPaused = true;
@@ -245,17 +256,17 @@ package htmlelements
 			sendEvent(HtmlMediaEvent.SEEKED);
 
 			_timer.start();
-			
+
 			didStartPlaying();
 		}
-		
+
 		private function didStartPlaying():void {
 			_isPaused = false;
 			sendEvent(HtmlMediaEvent.PLAY);
 			sendEvent(HtmlMediaEvent.PLAYING);
 			if (!_firedCanPlay) {
 				sendEvent(HtmlMediaEvent.LOADEDDATA);
-				sendEvent(HtmlMediaEvent.CANPLAY);				
+				sendEvent(HtmlMediaEvent.CANPLAY);
 				_firedCanPlay = true;
 			}
 		}
@@ -274,7 +285,7 @@ package htmlelements
 
 			sendEvent(HtmlMediaEvent.VOLUMECHANGE);
 		}
-		
+
 		public function getVolume():Number {
 			if(_isMuted) {
 				return 0;
@@ -305,17 +316,17 @@ package htmlelements
 			_isLoaded = false;
 		}
 
-		private function sendEvent(eventName:String) {
+		private function sendEvent(eventName:String):void {
 
 			// calculate this to mimic HTML5
 			_bufferedTime = _bytesLoaded / _bytesTotal * _duration;
 
 			// build JSON
-			var values:String = "duration:" + _duration + 
-							",currentTime:" + _currentTime + 
-							",muted:" + _isMuted + 
-							",paused:" + _isPaused + 
-							",ended:" + _isEnded + 
+			var values:String = "duration:" + _duration +
+							",currentTime:" + _currentTime +
+							",muted:" + _isMuted +
+							",paused:" + _isPaused +
+							",ended:" + _isEnded +
 							",volume:" + _volume +
 							",src:\"" + _currentUrl + "\"" +
 							",bytesTotal:" + _bytesTotal +

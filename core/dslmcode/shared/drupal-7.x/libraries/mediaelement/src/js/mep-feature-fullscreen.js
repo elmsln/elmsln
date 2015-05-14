@@ -40,11 +40,7 @@
 					}
 				};
 
-				if (mejs.MediaFeatures.hasMozNativeFullScreen) {
-					player.globalBind(mejs.MediaFeatures.fullScreenEventName, func);
-				} else {
-					player.container.bind(mejs.MediaFeatures.fullScreenEventName, func);
-				}
+				player.globalBind(mejs.MediaFeatures.fullScreenEventName, func);
 			}
 
 			var t = this,
@@ -320,9 +316,16 @@
 						setTimeout(function checkFullscreen() {
 
 							if (t.isNativeFullScreen) {
+								var zoomMultiplier = window["devicePixelRatio"] || 1;
+								// Use a percent error margin since devicePixelRatio is a float and not exact.
+								var percentErrorMargin = 0.002; // 0.2%
+								var windowWidth = zoomMultiplier * $(window).width();
+								var screenWidth = screen.width;
+								var absDiff = Math.abs(screenWidth - windowWidth);
+								var marginError = screenWidth * percentErrorMargin;
 
 								// check if the video is suddenly not really fullscreen
-								if ($(window).width() !== screen.width) {
+								if (absDiff > marginError) {
 									// manually exit
 									t.exitFullScreen();
 								} else {
@@ -411,6 +414,9 @@
 
 			t.setControlsSize();
 			t.isFullScreen = true;
+
+			t.container.find('.mejs-captions-text').css('font-size', screen.width / t.width * 1.00 * 100 + '%');
+			t.container.find('.mejs-captions-position').css('bottom', '45px');
 		},
 
 		exitFullScreen: function() {
@@ -463,6 +469,9 @@
 
 			t.setControlsSize();
 			t.isFullScreen = false;
+
+			t.container.find('.mejs-captions-text').css('font-size','');
+			t.container.find('.mejs-captions-position').css('bottom', '');
 		}
 	});
 
