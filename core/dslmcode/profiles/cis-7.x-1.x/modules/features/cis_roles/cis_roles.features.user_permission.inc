@@ -5,9 +5,9 @@
  */
 
 /**
- * Implements hook_user_default_permissions().
+ * Implements hook_defaultconfig_user_default_permissions().
  */
-function cis_roles_user_default_permissions() {
+function cis_roles_defaultconfig_user_default_permissions() {
   $permissions = array();
 
   // Exported permission: 'access ckeditor link'.
