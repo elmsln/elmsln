@@ -430,7 +430,7 @@ function _cis_connector_section_context($account = NULL) {
           }
         }
         else {
-          // @todo this has no positive outcome
+          // @todo query this from CIS for the default; if no default; stick w/ this
           $section = 'default';
         }
       }
@@ -470,7 +470,7 @@ function _cis_connector_section_context($account = NULL) {
           }
         }
         else {
-          // @todo this use case has no positive outcome
+          // @todo query this from CIS for the default; if no default; stick w/ this
           $section = 'default';
         }
       }
