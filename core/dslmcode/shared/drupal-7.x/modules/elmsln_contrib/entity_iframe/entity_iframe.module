@@ -304,3 +304,74 @@ function _entity_iframe_embed_add_js($form) {
   drupal_add_js(drupal_get_path('module', 'entity_iframe') .'/entity_iframe.js');
   return $form;
 }
+
+/**
+ * Implements hook_library_alter().
+ *
+ * Fork of jquery_update version of this alter statement so that jquery version
+ * is set correctly on entity iframe pages; assuming jquery update exists
+ */
+function entity_iframe_library_alter(&$javascript, $module) {
+  if (arg(0) == 'entity_iframe' && module_exists('jquery_update')) {
+    $path = drupal_get_path('module', 'jquery_update');
+    $version = variable_get('jquery_update_jquery_version', '1.10');
+
+
+    // Modified System Library.
+    if ($module === 'system') {
+
+      // Make sure we inject either the minified or uncompressed version as desired.
+      $min = variable_get('jquery_update_compression_type', 'min') == 'none' ? '' : '.min';
+      $cdn = variable_get('jquery_update_jquery_cdn', 'none');
+      // If the ajax version is set then that one always win.
+      if (!empty($_POST['ajax_page_state']['jquery_version'])) {
+        $ajax_version = $_POST['ajax_page_state']['jquery_version'];
+        if (in_array($ajax_version, array('default', '1.5', '1.6', '1.7', '1.8', '1.9', '1.10'))) {
+          $version = $ajax_version;
+        }
+      }
+
+      // Always add a new jquery_version array to ajaxPageState.
+      // This is what we used to determine which version to use
+      // for any ajax callback.
+      $javascript['drupal.ajax']['js'][] = array(
+        'data' => array('ajaxPageState' => array('jquery_version' => $version)),
+        'type' => 'setting',
+      );
+      $javascript['drupal.ajax']['dependencies'][] = array('jquery_update', 'jquery_update.ajax.fix');
+
+      // Don't replace anything if Drupal provided jQuery should be used
+      if ('default' == $version) {
+        return;
+      }
+
+      jquery_update_jquery_replace($javascript, $cdn, $path, $min, $version);
+
+      // Replace jQuery UI with CDN or local files. If from a CDN include all of
+      // jQuery UI.
+      if (version_compare($version, '1.6', '>=')) {
+        jquery_update_jqueryui_replace($javascript, $cdn, $path, $min);
+      }
+
+      // Replace the jQuery Cookie plugin.
+      $javascript['cookie']['js']['misc/jquery.cookie.js']['data'] = $path . '/replace/ui/external/jquery.cookie.js';
+      // Noting the version based on git commit as no version number is available.
+      $javascript['cookie']['version'] = '67fb34f6a866c40d0570';
+
+      // Replace jQuery Form plugin.
+      $javascript['jquery.form']['js']['misc/jquery.form.js']['data'] = $path . '/replace/misc/jquery.form' . $min . '.js';
+      $javascript['jquery.form']['version'] = '2.69';
+
+      // Replace files for Jquery 1.9 and up
+      if (version_compare($version, '1.9', '>=')) {
+        $javascript['jquery.bbq']['js']['misc/jquery.ba-bbq.js']['data'] = $path . '/replace/misc/1.9/jquery.ba-bbq' . $min . '.js';
+      }
+    }
+
+    if ($module == 'overlay') {
+      if (version_compare($version, '1.9', '>=')) {
+        $javascript['parent']['js']['modules/overlay/overlay-parent.js']['data'] = $path . '/replace/misc/1.9/overlay-parent.js';
+      }
+    }
+  }
+}
