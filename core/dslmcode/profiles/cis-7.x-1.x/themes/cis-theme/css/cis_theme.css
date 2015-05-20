@@ -1271,3 +1271,12 @@ div.course_author_view_profile {
     background-size: 100% 29.25em;
   }
 }
+
+.top-bar {
+  height:inherit;
+}
+
+.top-bar:before,
+.top-bar:after {
+  display:block !important;
+}
