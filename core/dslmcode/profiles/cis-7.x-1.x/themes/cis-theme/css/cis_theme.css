@@ -1275,8 +1275,3 @@ div.course_author_view_profile {
 .top-bar {
   height:inherit;
 }
-
-.top-bar:before,
-.top-bar:after {
-  display:block !important;
-}
