@@ -652,9 +652,6 @@ nav.top-bar .name h1 {
   float:left;
 }
 
-nav.top-bar section.main-menu {
-  margin-top: 2.1875em;
-}
 .top-bar-section .divider, .top-bar-section [role="separator"] {
   clear: none;
   width:1px;
