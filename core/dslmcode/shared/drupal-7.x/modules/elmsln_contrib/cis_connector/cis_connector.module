@@ -1374,3 +1374,60 @@ function _cis_connector_role_grouping($type, $account = NULL) {
   // if we got here then they didn't pass
   return $passed;
 }
+
+/**
+ * Implements hook_role_export_role_id_change().
+ */
+function cis_connector_role_export_role_id_change($role, $newrid) {
+  // update imce profiles
+  $change_made = FALSE;
+  $imce_roles = variable_get('imce_roles_profiles', array());
+  foreach ($imce_roles as $key => $status) {
+    if ($role->rid == $key) {
+      $imce_roles[$newrid] = $status;
+      unset($imce_roles[$key]);
+      $change_made = TRUE;
+    }
+  }
+  // only resave if we made a change
+  if ($change_made) {
+    drupal_set_message(t('Variable imce_roles_profiles was updated so the rid change would be maintained.'), 'status');
+    variable_set('imce_roles_profiles', $imce_roles);
+  }
+
+  // change piwik roles to match
+  $change_made = FALSE;
+  $piwik_roles = variable_get('piwik_roles', array());
+  foreach ($piwik_roles as $key => $status) {
+    if ($role->rid == $key) {
+      if ($status == 0) {
+        $piwik_roles[$newrid] = 0;
+      }
+      else {
+        $piwik_roles[$newrid] = $newrid;
+      }
+      unset($piwik_roles[$key]);
+      $change_made = TRUE;
+    }
+  }
+  // only resave if we made a change
+  if ($change_made) {
+    drupal_set_message(t('Variable piwik_roles was updated so the rid change would be maintained.'), 'status');
+    variable_set('piwik_roles', $piwik_roles);
+  }
+
+  // change piwik roles to match
+  $change_made = FALSE;
+  $lti_roles = variable_get('lti_tool_provider_global_role_array', array());
+  foreach ($lti_roles as $key => $status) {
+    if ($role->rid == $status) {
+      $lti_roles[$key] = $newrid;
+      $change_made = TRUE;
+    }
+  }
+  // only resave if we made a change
+  if ($change_made) {
+    drupal_set_message(t('Variable lti_tool_provider_global_role_array was updated so the rid change would be maintained.'), 'status');
+    variable_set('lti_tool_provider_global_role_array', $lti_roles);
+  }
+}
