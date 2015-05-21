@@ -51,7 +51,7 @@
         $select.append(options);
         // Select the active item
           $select
-            .find(':eq(' + (settings.header + $(l_namespace_i + ' li')
+            .find(':eq(' + (settings.header + $(l_namespace_i + ' li a')
             .index($(l_namespace_i + ' .' + settings.active)) + ')'))
             .attr('selected', true);
         
