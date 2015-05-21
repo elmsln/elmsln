@@ -144,7 +144,8 @@ function _dblog_get_message_types() {
  * Note: Some values may be truncated to meet database column size restrictions.
  */
 function dblog_watchdog(array $log_entry) {
-  Database::getConnection('default', 'default')->insert('watchdog')
+  try {
+    Database::getConnection('default', 'default')->insert('watchdog')
     ->fields(array(
       'uid' => $log_entry['uid'],
       'type' => substr($log_entry['type'], 0, 64),
@@ -158,6 +159,12 @@ function dblog_watchdog(array $log_entry) {
       'timestamp' => $log_entry['timestamp'],
     ))
     ->execute();
+  }
+  catch (Exception $e) {
+    // Exception is ignored so that watchdog does not break
+    // pages during the installation process or is not able
+    // to create the watchdog table during installation.
+  }
 }
 
 /**

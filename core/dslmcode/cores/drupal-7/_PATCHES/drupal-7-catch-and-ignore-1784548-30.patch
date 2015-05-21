@@ -1,0 +1,46 @@
+diff --git a/modules/dblog/dblog.install b/modules/dblog/dblog.install
+index abfd9a2..2e1d594 100644
+--- a/modules/dblog/dblog.install
++++ b/modules/dblog/dblog.install
+@@ -155,5 +155,14 @@ function dblog_update_7002() {
+ }
+ 
+ /**
++ * Account for possible legacy systems where dblog was not installed
++ */
++function dblog_update_7003() {
++  if (db_table_exists('watchdog')) {
++    db_create_table('watchdog', drupal_get_schema_unprocessed('dblog', 'watchdog'));
++  }
++}
++
++/**
+  * @} End of "addtogroup updates-7.x-extra".
+  */
+diff --git a/modules/dblog/dblog.module b/modules/dblog/dblog.module
+index 9183eed..7e29d3f 100644
+--- a/modules/dblog/dblog.module
++++ b/modules/dblog/dblog.module
+@@ -144,7 +144,8 @@ function _dblog_get_message_types() {
+  * Note: Some values may be truncated to meet database column size restrictions.
+  */
+ function dblog_watchdog(array $log_entry) {
+-  Database::getConnection('default', 'default')->insert('watchdog')
++  try {
++    Database::getConnection('default', 'default')->insert('watchdog')
+     ->fields(array(
+       'uid' => $log_entry['uid'],
+       'type' => substr($log_entry['type'], 0, 64),
+@@ -158,6 +159,12 @@ function dblog_watchdog(array $log_entry) {
+       'timestamp' => $log_entry['timestamp'],
+     ))
+     ->execute();
++  }
++  catch (Exception $e) {
++    // Exception is ignored so that watchdog does not break
++    // pages during the installation process or is not able
++    // to create the watchdog table during installation.
++  }
+ }
+ 
+ /**
