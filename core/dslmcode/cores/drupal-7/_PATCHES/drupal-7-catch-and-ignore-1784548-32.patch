@@ -9,7 +9,7 @@ index abfd9a2..2e1d594 100644
 + * Account for possible legacy systems where dblog was not installed
 + */
 +function dblog_update_7003() {
-+  if (db_table_exists('watchdog')) {
++  if (!db_table_exists('watchdog')) {
 +    db_create_table('watchdog', drupal_get_schema_unprocessed('dblog', 'watchdog'));
 +  }
 +}
