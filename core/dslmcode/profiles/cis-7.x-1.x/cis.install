@@ -98,7 +98,7 @@ function cis_install() {
     $query->values($block);
   }
   $query->execute();
-  // add an admin role
+  // set admin role as such
   $admin_role = user_role_load_by_name('administrator');
   user_role_grant_permissions($admin_role->rid, array_keys(module_invoke_all('permission')));
   // Set this as the administrator role.
@@ -116,9 +116,8 @@ function cis_install() {
     'cis_data',
     'cis_types',
     'cis_displays',
-    'regions_admin_example',
     'cis_users',
-    'cis_roles',
+    'cis_service_roles',
     'foundation_access_ux',
     'cis_ux',
   );
@@ -127,4 +126,14 @@ function cis_install() {
   node_access_needs_rebuild(FALSE);
   // ignore any other install messages
   drupal_get_messages();
+}
+
+/**
+ * Implements hook_update_N().
+ */
+function cis_update_7001(&$sandbox) {
+  // ensure we flip the roles over
+  module_disable(array('cis_roles'));
+  module_enable(array('cis_service_roles'));
+  // @todo need to make sure we repair everything this affects
 }
