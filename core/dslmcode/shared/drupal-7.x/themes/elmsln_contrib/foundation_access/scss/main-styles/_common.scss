@@ -1,0 +1,27 @@
+.scroll-disabled {
+	overflow:hidden;
+}
+.sticky-wrapper.is-sticky {
+	z-index:10000;
+	position:absolute;
+}
+.row.full {
+  max-width:100% !important;
+}
+.middle-align-wrap {
+	 display: flex !important;
+	 align-items: center;
+}
+.center-align-wrap {
+	display: flex !important;
+	justify-content: center;
+}
+.divider-left {
+	border-left:$top-bar-border-width solid darken($etb-nav-bg-color, 5%);
+}
+.divider-right {
+	border-right:$top-bar-border-width solid darken($etb-nav-bg-color, 5%);
+}
+.divider-bottom {
+	border-bottom:$top-bar-border-width solid darken($etb-nav-bg-color, 5%);
+}
