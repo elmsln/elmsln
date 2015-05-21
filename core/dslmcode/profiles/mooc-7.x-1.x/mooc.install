@@ -118,55 +118,18 @@ function mooc_install() {
   features_revert($features);
   // drop the "book" content type as its confusing
   node_type_delete('book');
-  // Create a default role for site administrators, with all available permissions assigned.
-  $admin_role = new stdClass();
-  $admin_role->name = 'administrator';
-  $admin_role->weight = 7;
-  user_role_save($admin_role);
+
+  // set admin role as such
+  $admin_role = user_role_load_by_name('administrator');
   user_role_grant_permissions($admin_role->rid, array_keys(module_invoke_all('permission')));
   // Set this as the administrator role.
   variable_set('user_admin_role', $admin_role->rid);
 
-  // clean up for regions conflict w/ install routine
-  // anonymous users
-  db_merge('role_permission')->key(array(
-    'rid' => 1,
-    'permission' => 'view regions_right_slideout region',
-  ))->fields(array(
-    'module' => 'regions',
-  ))->execute();
-  // auth users
-  db_merge('role_permission')->key(array(
-    'rid' => 2,
-    'permission' => 'view regions_right_slideout region',
-  ))->fields(array(
-    'module' => 'regions',
-  ))->execute();
-
-  // clean up for regions conflict w/ install routine
-  // anonymous users
-  db_merge('role_permission')->key(array(
-    'rid' => 1,
-    'permission' => 'view regions_admin_left region',
-  ))->fields(array(
-    'module' => 'regions',
-  ))->execute();
-  // auth users
-  db_merge('role_permission')->key(array(
-    'rid' => 2,
-    'permission' => 'view regions_admin_left region',
-  ))->fields(array(
-    'module' => 'regions',
-  ))->execute();
-  drupal_static_reset('user_access');
-  drupal_static_reset('user_role_permissions');
-
-  // set admin menu client side cache to off for performance reasons
-  variable_set('admin_menu_cache_client', FALSE);
   // Assign user 1 the "administrator" role.
   db_insert('users_roles')
     ->fields(array('uid' => 1, 'rid' => $admin_role->rid))
     ->execute();
+
   // create basic content to drive system
   if (!drupal_is_cli()) {
     menu_rebuild();

@@ -90,11 +90,9 @@ function editorial_install() {
     $query->values($block);
   }
   $query->execute();
-  // Create a default role for site administrators, with all available permissions assigned.
-  $admin_role = new stdClass();
-  $admin_role->name = 'administrator';
-  $admin_role->weight = 10;
-  user_role_save($admin_role);
+
+  // set admin role as such
+  $admin_role = user_role_load_by_name('administrator');
   user_role_grant_permissions($admin_role->rid, array_keys(module_invoke_all('permission')));
   // Set this as the administrator role.
   variable_set('user_admin_role', $admin_role->rid);
@@ -103,6 +101,7 @@ function editorial_install() {
   db_insert('users_roles')
     ->fields(array('uid' => 1, 'rid' => $admin_role->rid))
     ->execute();
+
   // Update the menu router information.
   menu_rebuild();
   // revert features to ensure they are all installed
