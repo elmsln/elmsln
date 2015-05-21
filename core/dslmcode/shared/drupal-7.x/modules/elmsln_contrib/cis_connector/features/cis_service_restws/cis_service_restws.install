@@ -36,14 +36,7 @@ function cis_service_restws_install() {
       }
       // odd check to ensure role name is created prior to assignment to user
       $rname = 'SERVICE ACCOUNT';
-      // @ignore druplart_conditional_assignment
-      if (!$srole = user_role_load_by_name($rname)) {
-        // Create new role if role doesn't exist
-        $srole = new stdClass();
-        $srole->name = $rname;
-        user_role_save($srole);
-        $srole = user_role_load_by_name($rname);
-      }
+      $srole = user_role_load_by_name($rname);
       // assemble a user object
       $fields = array(
         'name' => $registry['user'],
