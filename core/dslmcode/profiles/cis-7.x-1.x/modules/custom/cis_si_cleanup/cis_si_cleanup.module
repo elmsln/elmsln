@@ -38,7 +38,4 @@ function cis_si_cleanup_cis_service_instance_options_alter(&$options, $course, $
   $options['pm-uninstall'][] = 'path';
   // make everything a webservice by default
   $options['en'][] = 'cis_service_restws';
-  // branding bar across systems and context for placement
-  $options['en'][] = 'cis_lmsless';
-  $options['en'][] = 'cis_lmsless_ux';
 }
