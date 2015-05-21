@@ -1,0 +1,223 @@
+<?php
+
+/**
+ * @file
+ * Role Export's primary module file.
+ *
+ * Mainly Drupal hooks along with some additional submit handlers for the roles
+ * form. Also adds the ability for roles do have machine_names associated wit
+ * the role id.
+ */
+
+/**
+ * Implements hook_form_alter().
+ */
+function role_export_form_alter(&$form, &$form_state, $form_id) {
+  switch ($form_id) {
+    case 'user_admin_roles':
+      // Add the machine name to the role objects in the form.
+      $roles = role_export_roles();
+      $warning = TRUE;
+      foreach ($form['roles'] as $key => &$element) {
+        if (is_numeric($key)) {
+          $element['#role'] = $roles[$key];
+          // Show a warning if there are old roles without machine name. Ignore
+          // the anonymous and authenticated user roles. Display the warning
+          // only once and only on the form itself, not after it has been
+          // submitted.
+          if (empty($roles[$key]->machine_name) && empty($form_state['input']) && $warning && $key > 2) {
+            drupal_set_message(t('Warning: Reordering the roles will create the missing machine names and change the role ids which could break existing configurations.'), 'warning');
+            $warning = FALSE;
+          }
+        }
+      }
+      $form['#theme'] = array('role_export_user_admin_roles');
+      $form['#attached']['css'] = array(
+        drupal_get_path('module', 'role_export') . '/role_export.css',
+      );
+      $form['name']['#description'] = t('The human-readable name of this role.<br />This text will be displayed as part of the list on the <em>Roles</em> page.');
+      $form['machine_name'] = array(
+        '#type' => 'machine_name',
+        '#maxlength' => 255,
+        '#title_display' => 'invisible',
+        '#machine_name' => array(
+          'exists' => 'role_export_role_name_exists',
+        ),
+        // The machine name is not required here to avoid form errors when
+        // re-ordering the roles.
+        '#required' => FALSE,
+      );
+      $form['add']['#validate'][] = 'role_export_roles_form_validate';
+      form_load_include($form_state, 'inc', 'role_export', 'role_export.admin');
+      break;
+    case 'user_admin_role':
+      $roles = role_export_roles();
+      $machine_name = $roles[$form['rid']['#value']]->machine_name;
+      // Only show the warning on the form itself, not after it has been
+      // submitted.
+      if (empty($machine_name) && empty($form_state['input'])) {
+        drupal_set_message(t('Warning: Saving this role will create a machine name and change the role id which could break existing configurations.'), 'warning');
+      }
+      $form['machine_name'] = array(
+        '#type' => 'machine_name',
+        '#maxlength' => 255,
+        '#default_value' => $machine_name,
+        '#description' => t('Warning: changing the machine name will also change the role id which could break existing configurations.'),
+        '#machine_name' => array(
+          'exists' => 'role_export_role_name_exists',
+        ),
+      );
+      break;
+  }
+}
+
+/**
+ * Check if the machine name of the new role already exists.
+ */
+function role_export_role_name_exists($value) {
+  $roles = role_export_roles();
+  foreach ($roles as $role) {
+    if ($role->machine_name == $value) {
+      return $value;
+    }
+  }
+}
+
+/**
+ * Implements hook_theme().
+ */
+function role_export_theme() {
+  return array(
+    'role_export_user_admin_roles' => array(
+      'render element' => 'form',
+      'file' => 'role_export.admin.inc',
+      'function' => 'theme_role_export_user_admin_roles',
+    ),
+  );
+}
+
+/**
+ * Create an array with the current roles in the system and the associated data
+ * from the 'role' table. We cannot use user_roles() here as it only returns
+ * role ids and names, but no machine name.
+ */
+function role_export_roles() {
+  $roles = db_select('role')
+    ->fields('role')
+    ->execute()
+    ->fetchAllAssoc('rid');
+  return $roles;
+}
+
+/**
+ * Implements hook_user_role_insert().
+ */
+function role_export_user_role_insert($role) {
+  // Use the role name if no machine name is present.
+  // Generate a machine name from the role name if the machine name is not
+  // present.
+  if (empty($role->machine_name)) {
+    $role->machine_name = role_export_machine_name_gen($role->name);
+  }
+  // Generate a unique numeric id.
+  $id = role_export_generate_id($role->machine_name);
+  // Update the numeric id.
+  db_update('role')
+    ->fields(array(
+      'rid' => $id
+    ))
+    ->condition('rid', $role->rid)
+    ->execute();
+  // Set the new role id in the role object, so that it is available for
+  // other modules.
+  $role->rid = $id;
+}
+
+/**
+ * Implements hook_user_role_update().
+ */
+function role_export_user_role_update($role) {
+  // Do not alter the default anonymous and authenticated user roles.
+  if ($role->rid <= 2) {
+    return;
+  }
+  if (empty($role->machine_name)) {
+    $role->machine_name = role_export_machine_name_gen($role->name);
+  }
+  // If the machine name has changed we need to update the role id to be
+  // consistent.
+  $id = role_export_generate_id($role->machine_name);
+  if ($role->rid != $id) {
+    // Update the numeric id and the machine name in the role table.
+    db_update('role')
+      ->fields(array('rid' => $id, 'machine_name' => $role->machine_name))
+      ->condition('rid', $role->rid)
+      ->execute();
+    // Update references in the users_roles table.
+    db_update('users_roles')
+      ->fields(array('rid' => $id))
+      ->condition('rid', $role->rid)
+      ->execute();
+    // Update references in the role_pemission table.
+    db_update('role_permission')
+      ->fields(array('rid' => $id))
+      ->condition('rid', $role->rid)
+      ->execute();
+    // Update the user_admin_role variable if necessary.
+    if ($role->rid == variable_get('user_admin_role')) {
+      variable_set('user_admin_role', $id);
+    }
+    drupal_set_message(t('The role id for @machine_name has been changed. References for permissions and users have been updated.', array('@machine_name' => $role->machine_name)), 'status');
+    // store these in an include for performance reasons
+    module_load_include('inc', 'role_export', 'role_export_role_id_change');
+    // allow modules to react to more specialized changes
+    module_invoke_all('role_export_role_id_change', $role, $id);
+    // Set the new role id in the role object, so that it is available for
+    // other modules.
+    $role->rid = $id;
+    // present a warning so they know there might be other projects to care about
+    drupal_set_message(t('Make sure you update all other configurations that rely on this role (e.g. variables, etc) yourself if you didn\'t see a message indicating those projects had configuration updated.'), 'warning');
+  }
+}
+
+/**
+ * Implements hook_module_implements_alter().
+ */
+function role_export_module_implements_alter(&$implementations, $hook) {
+  // Make sure that role_export runs first so that other modules always get the
+  // new role id.
+  if ($hook == 'user_role_insert' || $hook == 'user_role_update') {
+    $group = $implementations['role_export'];
+    $implementations = array('role_export' => $group) + $implementations;
+  }
+}
+
+/**
+ * Generates a machine_name from a role name.
+ */
+function role_export_machine_name_gen($name) {
+  $mname = str_replace(' ', '_', strtolower($name));
+  return $mname;
+}
+
+/**
+ * Generates a numeric id from a machine name.
+ */
+function role_export_generate_id($mname) {
+  $hash = md5($mname);
+  // Use the last 7 hex digits from the hash. We cannot use 8 hex digits (32
+  // bit) because PHP does not support unsigned integers. The size of an
+  // integer is platform dependent (PHP_INT_SIZE) and can be only 32 bit. So we
+  // only have a range of 31 bit available for positive integers. We just use 7
+  // hex digits (28 bit here) for simplicity, which should also be good enough.
+  $shorter = substr($hash, -7);
+  $number = hexdec($shorter);
+  return (int) $number;
+}
+
+/**
+ * Implements hook_features_pipe_component_alter() for user roles.
+ */
+function role_export_features_pipe_user_role_alter(&$pipe, $data, $export) {
+  $pipe['dependencies'][] = "role_export";
+}

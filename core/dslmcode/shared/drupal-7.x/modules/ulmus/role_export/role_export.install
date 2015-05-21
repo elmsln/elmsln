@@ -1,0 +1,40 @@
+<?php
+
+/**
+ * @file
+ * Install, Uninstall, Schema and Update functions for role_export
+ */
+
+/**
+ * Implements hook_schema_alter().
+ */
+function role_export_schema_alter(&$schema) {
+  // Add machine_name field to the 'role' table.
+  $schema['role']['fields']['machine_name'] = array(
+    'description' => 'The machine name assigned by the user during creation of the role.',
+    'type' => 'varchar',
+    'length' => 255,
+    'not null' => TRUE,
+    'default' => '',
+  );
+}
+
+/**
+ * Implements hook_install().
+ */
+function role_export_install() {
+  db_add_field('role', 'machine_name', array(
+    'description' => 'The machine name assigned by the user during creation of the role.',
+    'type' => 'varchar',
+    'length' => 255,
+    'not null' => TRUE,
+    'default' => '',
+  ));
+}
+
+/**
+ * Implements hook_uninstall().
+ */
+function role_export_uninstall() {
+  db_drop_field('role', 'machine_name');
+}

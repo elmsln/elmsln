@@ -1,0 +1,159 @@
+diff --git a/role_export.api.php b/role_export.api.php
+new file mode 100644
+index 0000000..0b06a7b
+--- /dev/null
++++ b/role_export.api.php
+@@ -0,0 +1,24 @@
++<?php
++
++/**
++ * @file
++ * Install, Uninstall, Schema and Update functions for role_export
++ */
++
++/**
++ * Implements hook_role_export_role_id_change().
++ * @param  object $role   fully loaded role object
++ * @param  int    $newrid new roleid to be applied
++ * @return null
++ */
++function hook_role_export_role_id_change($role, $newrid) {
++  // change a variable to the new
++  $admin_roles = variable_get('masquerade_admin_roles', array());
++  foreach ($admin_roles as $key => $status) {
++    if ($role->rid == $status) {
++      $admin_roles[$newrid] = $newrid;
++      $admin_roles[$key] = 0;
++    }
++  }
++  variable_set('masquerade_admin_roles', $admin_roles);
++}
+\ No newline at end of file
+diff --git a/role_export.module b/role_export.module
+index df2cefb..d0c51ac 100644
+--- a/role_export.module
++++ b/role_export.module
+@@ -167,10 +167,16 @@ function role_export_user_role_update($role) {
+     if ($role->rid == variable_get('user_admin_role')) {
+       variable_set('user_admin_role', $id);
+     }
++    drupal_set_message(t('The role id for @machine_name has been changed. References for permissions and users have been updated.', array('@machine_name' => $role->machine_name)), 'status');
++    // store these in an include for performance reasons
++    module_load_include('inc', 'role_export', 'role_export_role_id_change');
++    // allow modules to react to more specialized changes
++    module_invoke_all('role_export_role_id_change', $role, $id);
+     // Set the new role id in the role object, so that it is available for
+     // other modules.
+     $role->rid = $id;
+-    drupal_set_message(t('The role id for @machine_name has been changed. References for permissions and users have been updated. Make sure you update all other configurations that rely on this role (e.g. blocks, views, rules etc.) yourself.', array('@machine_name' => $role->machine_name)), 'warning');
++    // present a warning so they know there might be other projects to care about
++    drupal_set_message(t('Make sure you update all other configurations that rely on this role (e.g. variables, etc) yourself if you didn\'t see a message indicating those projects had configuration updated.'), 'warning');
+   }
+ }
+ 
+diff --git a/role_export_role_id_change.inc b/role_export_role_id_change.inc
+new file mode 100644
+index 0000000..a93dc82
+--- /dev/null
++++ b/role_export_role_id_change.inc
+@@ -0,0 +1,100 @@
++<?php
++
++
++/**
++ * Implements hook_role_export_role_id_change().
++ */
++function block_role_export_role_id_change($role, $newrid) {
++  // update all blocks that had the old role reference
++  $num_updated = db_update('block_role')
++  ->fields(array(
++    'rid' => $newrid,
++  ))
++  ->condition('rid', $role->rid, '=')
++  ->execute();
++  // if we updated anything, report it
++  if ($num_updated > 0) {
++    drupal_set_message(t('@num blocks were updated so the rid change would be maintained.', array('@num' => $num_updated)), 'status');
++  }
++}
++
++/**
++ * Implements hook_role_export_role_id_change().
++ */
++function masquerade_role_export_role_id_change($role, $newrid) {
++  // change a variable to the new
++  $change_made = FALSE;
++  $admin_roles = variable_get('masquerade_admin_roles', array());
++  foreach ($admin_roles as $key => $status) {
++    if ($role->rid == $status) {
++      $admin_roles[$newrid] = $newrid;
++      unset($admin_roles[$key]);
++      $change_made = TRUE;
++    }
++  }
++  // only resave if we made a change
++  if ($change_made) {
++    drupal_set_message(t('Variable masquerade_admin_roles was updated so the rid change would be maintained.'), 'status');
++    variable_set('masquerade_admin_roles', $admin_roles);
++  }
++}
++
++/**
++ * Implements hook_role_export_role_id_change().
++ */
++function views_role_export_role_id_change($role, $newrid) {
++  $views = views_get_all_views();
++  foreach ($views as $view) {
++    $change_made = FALSE;
++    // loop through the displays
++    if (!empty($view->display)) {
++      foreach ($view->display as &$display) {
++        // hunt out an access based on role for the view
++        if (isset($display->display_options['access']['role'][$role->rid])) {
++          unset($display->display_options['access']['role'][$role->rid]);
++          $display->display_options['access']['role'][$newrid] = $newrid;
++          $change_made = TRUE;
++        }
++        // hunt out rid based user filters
++        if (isset($display->display_options['filters']['rid']['value'][$role->rid])) {
++          unset($display->display_options['filters']['rid']['value'][$role->rid]);
++          $display->display_options['filters']['rid']['value'][$newrid] = $newrid;
++          $change_made = TRUE;
++        }
++      }
++    }
++    // only resave if we made a change
++    if ($change_made) {
++      drupal_set_message(t('View @hname (@mname) was updated so the rid change would be maintained.', array('@hname' => $view->human_name, '@mname' => $view->name)), 'status');
++      views_save_view($view);
++    }
++  }
++}
++
++/**
++ * Implements hook_role_export_role_id_change().
++ */
++function rules_role_export_role_id_change($role, $newrid) {
++  // load all rules configurations in the system
++  $rules = entity_load('rules_config');
++  foreach ($rules as $rule) {
++    // check this rule's conditions for role matches
++    foreach($rule->conditions() as $condition) {
++      if (isset($condition->settings['roles'][$role->rid])) {
++        unset($condition->settings['roles'][$role->rid]);
++        $condition->settings['roles'][$newrid] = $newrid;
++        $condition->save();
++        drupal_set_message(t('Rule @hname (@mname) condition was updated so the rid change would be maintained.', array('@hname' => $rule->label, '@mname' => $rule->name)), 'status');
++      }
++    }
++    // now look into the actions
++    foreach($rule->actions() as $action) {
++      if (isset($action->settings['roles'][$role->rid])) {
++        unset($action->settings['roles'][$role->rid]);
++        $action->settings['roles'][$newrid] = $newrid;
++        $action->save();
++        drupal_set_message(t('Rule @hname (@mname) action was updated so the rid change would be maintained.', array('@hname' => $rule->label, '@mname' => $rule->name)), 'status');
++      }
++    }
++  }
++}
