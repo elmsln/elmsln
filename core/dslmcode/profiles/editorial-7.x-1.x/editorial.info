@@ -46,6 +46,7 @@ dependencies[] = restws
 dependencies[] = restws_basic_auth
 dependencies[] = strongarm
 dependencies[] = token
+dependencies[] = masquerade
 ; Performance and scalability
 dependencies[] = httprl
 ; UUID
@@ -57,4 +58,7 @@ dependencies[] = views
 dependencies[] = views_ui
 ; Features
 dependencies[] = features
+dependencies[] = cis_service_roles
+dependencies[] = cis_service_connection_ux
+dependencies[] = cis_section
 dependencies[] = foundation_access_ux

@@ -108,7 +108,8 @@ function editorial_install() {
   $features = array(
     'cis_section',
     'cis_service_connection_ux',
-    'cis_service_roles'
+    'cis_service_roles',
+    'foundation_access_ux',
   );
   features_revert($features);
   // ignore any rebuild messages

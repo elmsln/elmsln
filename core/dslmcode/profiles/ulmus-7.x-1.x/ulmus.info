@@ -46,6 +46,7 @@ dependencies[] = restws
 dependencies[] = restws_basic_auth
 dependencies[] = strongarm
 dependencies[] = token
+dependencies[] = masquerade
 ; Performance and scalability
 dependencies[] = httprl
 ; UUID

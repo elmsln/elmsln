@@ -50,6 +50,9 @@ projects[ctools][subdir] = "contrib"
 projects[google_chart_tools][version] = "1.x-dev"
 projects[google_chart_tools][subdir] = "contrib"
 
+projects[og][version] = "2.7"
+projects[og][subdir] = "contrib"
+
 projects[field_redirection][version] = "2.5"
 projects[field_redirection][subdir] = "contrib"
 
