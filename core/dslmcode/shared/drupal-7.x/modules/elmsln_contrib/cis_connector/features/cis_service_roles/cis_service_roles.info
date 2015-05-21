@@ -1,9 +1,12 @@
-name = CIS Service Roles
-description = Standard roles for use with a CIS service
+name = CIS Roles
+description = Standard roles for use within ELMSLN
 core = 7.x
 package = ELMSLN Core
 dependencies[] = features
-features[features_api][] = api:1
+dependencies[] = role_export
+features[features_api][] = api:2
+features[user_role][] = SERVICE ACCOUNT
+features[user_role][] = administrator
 features[user_role][] = guest
 features[user_role][] = instructor
 features[user_role][] = past student
