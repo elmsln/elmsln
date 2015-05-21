@@ -2,7 +2,11 @@
 # Pull in a elmsln deployment from another server and mirror it locally
 # this is useful when you need to move deployments between environments
 # like prod, stage, dev or down to local dev
-# @todo make sure we verify A WHOLE BUNCH OF TIMES BEFORE LETTING THIS RUN
+# @todo we need to write into the local config.cfg variables the settings from remote
+# otherwise we'll have pulled in these stacks and they won't be able to run since it uses
+# the grouping unit in the site-alias script and the university variable during this script
+# to rewrite the connection addresses
+# @todo make sure we verify A WHOLE BUNCH OF TIMES BEFORE LETTING THIS RUN :)
 source /var/www/elmsln/config/scripts/drush-create-site/config.cfg
 txtbld=$(tput bold)             # Bold
 bldgrn=$(tput setaf 2) #  green
