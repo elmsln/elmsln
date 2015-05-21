@@ -173,6 +173,8 @@ function _cis_service_restws_restws_deep_load(&$response) {
             }
           }
           $eary['url'] = file_create_url($eary['uri']);
+          // make sure we don't have a service path delivery for files
+          $eary['url'] = str_replace('/services/', '/', $eary['url']);
           // add values based on wrapper passing correctly
           $val['file'] = $eary;
         }
