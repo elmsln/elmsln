@@ -80,6 +80,7 @@ dependencies[] = views_fluid_grid
 dependencies[] = views_ui
 ; Features
 dependencies[] = features
+dependencies[] = cis_service_roles
 dependencies[] = elmsmedia_feature
 dependencies[] = foundation_access_ux
 

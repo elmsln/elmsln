@@ -2,4 +2,4 @@ name = "ECD CIS connection"
 description = "ELMSLN connection code to keep it in sync with CIS course listing"
 core = 7.x
 files[] = ecd_cis.module
-dependencies[] = 'cis_connector'
+dependencies[] = cis_connector

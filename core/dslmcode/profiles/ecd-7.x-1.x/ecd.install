@@ -6,7 +6,7 @@
  */
 function ecd_install() {
   // Enable some ecd blocks.
-  $default_theme = 'foundation_access';
+  $default_theme = 'ecd_foundation_access';
   $admin_theme = 'rubik';
   // fix jquery update rubrik admin theme issue
   variable_set('theme_rubik_settings', array('rubik_disable_sidebar_in_form' => 1));

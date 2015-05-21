@@ -28,6 +28,13 @@ libraries[ckeditor][download][url] = "http://github.com/btopro/ckeditor4textbook
 libraries[ckeditor][directory_name] = "ckeditor"
 libraries[ckeditor][destination] = "libraries"
 
+; speedreader
+libraries[speedreader][download][type] = "git"
+libraries[speedreader][download][branch] = "master"
+libraries[speedreader][download][url] = "https://github.com/btopro/speedreader.git"
+libraries[speedreader][directory_name] = "speedreader"
+libraries[speedreader][destination] = "libraries"
+
 ; mooc
 libraries[mooc][type] = "profile"
 libraries[mooc][destination] = "../../profiles"

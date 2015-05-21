@@ -4,6 +4,16 @@ core = 7.x
 
 ; +++++ Modules +++++
 
+projects[role_export][version] = "1.x-dev"
+projects[role_export][subdir] = "contrib"
+projects[role_export][patch][] = "https://www.drupal.org/files/issues/role_export-expand-auto-repair-support-2492377-2.patch"
+
+projects[special_menu_items][version] = "2.0"
+projects[special_menu_items][subdir] = "contrib"
+
+projects[menu_attributes][version] = "1.0-rc3"
+projects[menu_attributes][subdir] = "contrib"
+
 projects[data][version] = "1.0-alpha6"
 projects[data][subdir] = "contrib"
 
@@ -198,12 +208,6 @@ projects[responsive_tables][subdir] = "contrib"
 
 projects[restws][version] = "2.x-dev"
 projects[restws][subdir] = "contrib"
-
-projects[special_menu_items][version] = "2.0"
-projects[special_menu_items][subdir] = "contrib"
-
-projects[menu_attributes][version] = "1.0-rc3"
-projects[menu_attributes][subdir] = "contrib"
 
 projects[strongarm][version] = "2.0"
 projects[strongarm][subdir] = "contrib"

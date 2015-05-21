@@ -110,7 +110,6 @@ function elmsmedia_install() {
   $features = array(
     'elmsmedia_feature',
     'elmsmedia_cis_ux',
-    'regions_admin_example',
     'textbook_editor'
   );
   features_revert($features);

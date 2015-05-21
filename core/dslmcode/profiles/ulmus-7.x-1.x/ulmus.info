@@ -58,5 +58,6 @@ dependencies[] = views
 dependencies[] = features
 ; ELMSLN Core
 dependencies[] = cis_connector
+dependencies[] = cis_service_roles
 dependencies[] = cis_lmsless
 dependencies[] = foundation_access_ux
