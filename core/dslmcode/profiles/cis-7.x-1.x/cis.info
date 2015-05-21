@@ -100,7 +100,6 @@ dependencies[] = nodeformcols
 dependencies[] = nodequeue
 ; Other
 dependencies[] = auto_nodetitle
-dependencies[] = boxes
 dependencies[] = clone
 dependencies[] = dhtml_menu
 dependencies[] = diff
@@ -139,9 +138,6 @@ dependencies[] = display_cache
 dependencies[] = httprl
 dependencies[] = subpathauto
 dependencies[] = imageinfo_cache
-; Regions
-dependencies[] = regions
-dependencies[] = regions_admin_left
 ; Security
 dependencies[] = seckit
 ; Shadowbox
@@ -169,17 +165,15 @@ dependencies[] = views_bulk_operations
 dependencies[] = views_data_export
 dependencies[] = views_field_calc
 dependencies[] = views_fluid_grid
-dependencies[] = views_ui
 ; Features
 dependencies[] = features
 dependencies[] = cis_data
 dependencies[] = cis_displays
 dependencies[] = cis_types
 dependencies[] = cis_breakpoints
-dependencies[] = regions_admin_example
 dependencies[] = textbook_editor
 dependencies[] = cis_users
-dependencies[] = cis_roles
+dependencies[] = cis_service_roles
 dependencies[] = cis_ux
 dependencies[] = foundation_access_ux
 
