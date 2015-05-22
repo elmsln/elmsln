@@ -168,6 +168,7 @@ dependencies[] = views_fluid_grid
 ; Features
 dependencies[] = features
 dependencies[] = cis_data
+dependencies[] = cis_section
 dependencies[] = cis_displays
 dependencies[] = cis_types
 dependencies[] = cis_breakpoints
