@@ -1,6 +1,4 @@
-Version | PHP | Includes | Code Status 
-------------- | ------  | --- | -------------------------- | -----------
-[master](https://travis-ci.org/btopro/elmsln)  | 5.3.0+ | Drupal 7.x, Piwik 2.x | [![Build Status](https://travis-ci.org/btopro/elmsln.svg?branch=master)](https://travis-ci.org/btopro/elmsln)
+![ELMSLN](https://raw.githubusercontent.com/btopro/elmsln/master/docs/assets/brand1.png "ELMS Learning Network")
 
 ELMSLN
 ==============
@@ -9,6 +7,10 @@ This is the ELMS Learning Network (ELMSLN) as a repository.  It includes install
 ELMSLN is a network based approach to educational technology design and implementation. The notion is that its no longer about the next products, it's that you will always be needing to produce and innovate in new products. This is a platform to spur innovation while providing an easy to use system that can be integrated into any existing institution.
 
 Learn more about ELMSLN @ [elmsln.org](http://elmsln.org/)
+
+Version | PHP | Includes | Code Status 
+------------- | ------  | --- | -------------------------- | -----------
+[master](https://travis-ci.org/btopro/elmsln)  | 5.3.0+ | Drupal 7.x, Piwik 2.x | [![Build Status](https://travis-ci.org/btopro/elmsln.svg?branch=master)](https://travis-ci.org/btopro/elmsln)
 
 FAQ
 ==============
