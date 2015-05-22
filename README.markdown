@@ -43,11 +43,17 @@ This is to ensure that all sites function properly after upgrades.  This package
 
 There is a drush edl function that can be used to place modules, drush plugins, themes, profiles, and copies of core in the correct location in the elmsln setup. If you are doing this though you probably are an active developer in the community (so that's awesome).
 
-###Q. How do I run upgrade?
+###Q. How do I run upgrades?
 ELMSLN comes with a function to organically find and upgrade your sites whenever new code is released. You as the developer still choose to run the update and you absolutely should do testing before executing one of these upgrades as they are extensive. The command to run though is
-bash scripts/upgrade/elmsln-upgrade-system.sh
+`bash /var/www/elmsln/scripts/upgrade/elmsln-upgrade-system.sh`
 
 This will prompt you for a branch and to verify you want to run the update. It will then update its own code, and then start to apply needed drupal updates to all sites it finds to work against the version of the code just pulled down.
+
+If you don't want it to upgrade its own code and instead apply updates to systems already on the server, you can issue:
+`bash /var/www/elmsln/scripts/upgrade/elmsln-upgrade-sites.sh`
+
+Though before doing so you should always refresh your drush config with the following (if not running the mega upgrade system command):
+`bash /var/www/elmsln/scripts/upgrade/refresh-drush-config.sh`
 
 ###Q. config is empty, what do I put there?
 There is an example config repo so you can see how to construct one and build from it. You can check that out here https://github.com/btopro/elmsln-config-example .
