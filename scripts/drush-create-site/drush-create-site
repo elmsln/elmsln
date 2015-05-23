@@ -288,15 +288,18 @@ do
   if [[ $options ]]; then
     grep ^drush $coursefile.processing | while read drush; do
       drushcommand=`echo $drush | awk '{print $2}'`
+      background='TRUE'
       case $drushcommand in
       en)
       drushcommand=`echo "$drush" | cut -f 2- -d ' '`
+      background='FALSE'
       ;;
       vset)
       drushcommand=`echo "$drush" | cut -f 2- -d ' '`
       ;;
       feeds-import)
       drushcommand=`echo "$drush" | cut -f 2- -d ' '`
+      background='FALSE'
       ;;
       cron)
       drushcommand=`echo "$drush" | cut -f 2- -d ' '`
@@ -306,6 +309,7 @@ do
       ;;
       dis)
       drushcommand=`echo "$drush" | cut -f 2- -d ' '`
+      background='FALSE'
       ;;
       urol)
       drushcommand=`echo "$drush" | cut -f 2- -d ' '`
@@ -313,9 +317,6 @@ do
       ucrt)
       drushcommand=`echo "$drush" | cut -f 2- -d ' '`
   ;;
-      rf)
-      drushcommand=`echo "$drush" | cut -f 2- -d ' '`
-      ;;
       fr)
       drushcommand=`echo "$drush" | cut -f 2- -d ' '`
       ;;
@@ -346,7 +347,12 @@ do
       fi
       echo "5" > $fileloc/$course.$service.progress
       echo "drush @$service.$course $drushcommand --y" >> $fileloc/$course.$service.progress
-      drush --y --root=$drupalroot --uri=$hostname.$course $drushcommand -v >> $configsdir/logs/drush-create-site.log
+      # do most commands in a background thread
+      if [[ $background = 'TRUE' ]]; then
+          (drush --y --root=$drupalroot --uri=$hostname.$course $drushcommand < /dev/null &) >> $configsdir/logs/drush-create-site.log
+        else
+          drush --y --root=$drupalroot --uri=$hostname.$course $drushcommand >> $configsdir/logs/drush-create-site.log
+      fi
     done
   fi
   # done running commands, now we add in our cache bin optimization settings
