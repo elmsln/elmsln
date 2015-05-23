@@ -1034,7 +1034,7 @@ function _cis_helper_batch_add_service_instances($instances_created) {
 function _cis_helper_batch_add_service_instances_process($service_instance, $course, $service, $filename, $filepath, &$context) {
   if (!isset($context['sandbox']['progress'])) {
     $context['sandbox']['progress'] = 0;
-    $context['sandbox']['max'] = 180;
+    $context['sandbox']['max'] = 120;
   }
   // see if the count down timer is here
   if (isset($context['sandbox']['start_timer'])) {
@@ -1082,7 +1082,7 @@ function _cis_helper_batch_add_service_instances_process($service_instance, $cou
             $context['message'] = t('Directory creation complete! Integrating with ELMSLN system and optimizing your new site.');
           }
           else {
-            $context['message'] = t('Running command: @msg', array('@msg' => $msg));
+            $context['message'] = t('@msg', array('@msg' => $msg));
           }
         break;
         case 6:
