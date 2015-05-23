@@ -1056,7 +1056,7 @@ function _cis_helper_batch_add_service_instances_process($service_instance, $cou
       }
       // start the timer at 3 minutes
       if (!isset($context['sandbox']['start_timer'])) {
-        $context['sandbox']['start_timer'] = strtotime('+3 minutes', time());
+        $context['sandbox']['start_timer'] = strtotime('+2 minutes', time());
         $context['sandbox']['timer'] = $context['sandbox']['start_timer'] - time();
       }
       switch ($step) {
@@ -1083,12 +1083,6 @@ function _cis_helper_batch_add_service_instances_process($service_instance, $cou
           }
           else {
             $context['message'] = t('Running command: @msg', array('@msg' => $msg));
-          }
-          // this is only true the first time step 5 is noticed
-          if ($step != $context['sandbox']['step']) {
-            // we've seen the overall script take about 3 minutes
-            $context['sandbox']['start_timer'] = strtotime('+3 minutes', time());
-            $context['sandbox']['progress'] = 90;
           }
         break;
         case 6:
