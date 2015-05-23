@@ -126,6 +126,8 @@ function cis_install() {
   node_access_needs_rebuild(FALSE);
   // ignore any other install messages
   drupal_get_messages();
+  // especially for now, once you login, this is what you want to do
+  variable_set('site_frontpage', 'cis-quick-setup');
 }
 
 /**
