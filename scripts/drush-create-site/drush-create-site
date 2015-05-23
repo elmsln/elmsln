@@ -346,7 +346,9 @@ do
         exit 1
       fi
       echo "5" > $fileloc/$course.$service.progress
-      echo "drush @$service.$course $drushcommand --y" >> $fileloc/$course.$service.progress
+      echo "Your site has been installed, doing some clean up and you will be taken there soon!" >> $fileloc/$course.$service.progress
+      # use this for debugging as it will print what it is doing to the file
+      #echo "drush @$service.$course $drushcommand --y" >> $fileloc/$course.$service.progress
       # do most commands in a background thread
       if [[ $background = 'TRUE' ]]; then
           (drush --y --root=$drupalroot --uri=$hostname.$course $drushcommand < /dev/null &) >> $configsdir/logs/drush-create-site.log
