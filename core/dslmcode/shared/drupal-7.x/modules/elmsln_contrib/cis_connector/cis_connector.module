@@ -430,8 +430,11 @@ function _cis_connector_section_context($account = NULL) {
           }
         }
         else {
-          // @todo query this from CIS for the default; if no default; stick w/ this
-          $section = 'default';
+          // variable as to what should be considered default
+          // this allows authenticated / anonymous levels of access to still
+          // make sense of the system in a fallback scenario when they actually
+          // should have access to something
+          $section = variable_get('cis_section_default', 'default');
         }
       }
       else {
@@ -470,8 +473,11 @@ function _cis_connector_section_context($account = NULL) {
           }
         }
         else {
-          // @todo query this from CIS for the default; if no default; stick w/ this
-          $section = 'default';
+          // variable as to what should be considered default
+          // this allows authenticated / anonymous levels of access to still
+          // make sense of the system in a fallback scenario when they actually
+          // should have access to something
+          $section = variable_get('cis_section_default', 'default');
         }
       }
     }
@@ -1337,6 +1343,23 @@ function _cis_connector_role_groups($type = NULL) {
   }
   return FALSE;
 }
+
+/**
+ * Varient of role_grouping which accepts an array of groups to check
+ * @param  array $types   array of role types to check against
+ * @param  object $account user / account object
+ * @return bool          return if the user matches any of the requested group types
+ */
+function _cis_connector_role_groupings($types, $account = NULL) {
+  foreach ($types as $type) {
+    // if anything returns TRUE then we pass true
+    if (_cis_connector_role_grouping($type, $account)) {
+      return TRUE;
+    }
+  }
+  return FALSE;
+}
+
 
 /**
  * Return if an account fits within a type of role group.

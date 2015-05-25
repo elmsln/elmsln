@@ -18,8 +18,8 @@ function cis_service_connection_ux_menu() {
     'type' => MENU_NORMAL_ITEM,
     'page callback' => 'drupal_get_form',
     'page arguments' => array('cis_service_connection_ux_form'),
-    'access callback' => 'cis_connector_role_access',
-    'access arguments' => array(array('administrator', 'instructor', 'staff')),
+    'access callback' => '_cis_connector_role_groupings',
+    'access arguments' => array(array('teacher', 'staff')),
   );
 
   return $items;
@@ -60,6 +60,17 @@ function cis_service_connection_ux_form($form, $form_state) {
     '#description' => t('Home page for the course'),
     '#type' => 'textfield',
     '#title' => t('Course front page'),
+    '#required' => '1',
+  );
+  $options = array('default' => 'No default') + _cis_connector_assemble_entity_list('node', 'section', 'field_section_id', 'title');
+
+  $form['site_information']['cis_section_default'] = array(
+    '#default_value' => variable_get('cis_section_default', 'default'),
+    '#weight' => '3',
+    '#description' => t('This is used in cases where a user is not in a group but should still have access to the system such as a course that allows annonymous access or access to anyone to passes the authentication system but isn\'t nessecarily in a section.'),
+    '#type' => 'select',
+    '#title' => t('Default section'),
+    '#options' => $options,
     '#required' => '1',
   );
   return system_settings_form($form);
