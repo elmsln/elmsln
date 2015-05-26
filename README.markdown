@@ -1,4 +1,4 @@
-![ELMSLN](https://raw.githubusercontent.com/michael-collins/elmsln-logos/master/png-lowres-solid/lowres_horizontal-color.png "ELMS Learning Network")
+![ELMSLN](https://raw.githubusercontent.com/michael-collins/elmsln-logos/master/png-lowres-solid/lowres_square-color.png "ELMS Learning Network")
 
 ELMSLN
 ==============
