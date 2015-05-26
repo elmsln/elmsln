@@ -1,0 +1,13 @@
+name = Autocomplete Deluxe
+description = Enhanced autocomplete using Jquery UI autocomplete.
+package = User interface
+core = 7.x
+files[] = autocomplete_deluxe.module
+dependencies[] = taxonomy
+
+; Information added by Drupal.org packaging script on 2015-03-16
+version = "7.x-2.1"
+core = "7.x"
+project = "autocomplete_deluxe"
+datestamp = "1426503185"
+
