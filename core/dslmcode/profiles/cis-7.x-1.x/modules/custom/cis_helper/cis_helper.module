@@ -448,6 +448,24 @@ function cis_helper_entity_insert($entity, $type) {
  * Implements hook_entity_update().
  */
 function cis_helper_entity_update($entity, $type) {
+  // tap authorities if any key properties are updated
+  if ($type == 'node' && $entity->type == 'course') {
+    // connect to all authority systems and update their corresponding course to match
+    $query = array('type' => 'cis_course', 'field_cis_course_uuid' => $entity->uuid);
+    $data = array(
+      'title' => $entity->title,
+      'field_course_machine_name' => $entity->field_machine_name[LANGUAGE_NONE][0]['value'],
+      'field_cis_course_uuid' => $entity->uuid,
+    );
+    $settings = _cis_connector_build_registry();
+    foreach ($settings as $bucket => $setting) {
+      // sniff out authority systems
+      if ($bucket != 'cis' && $setting['instance'] == FALSE) {
+        // right now i'm pretty sure this doesn't
+        _cis_connection_set_data($query, $data, 'nid', 'node', $bucket, '', TRUE, '', array('blocking' => FALSE));
+      }
+    }
+  }
   // spider crons of associated services when section is updated
   if ($type == 'field_collection_item' && $entity->field_name == 'field_sections') {
     // load possible services
@@ -469,7 +487,7 @@ function cis_helper_entity_update($entity, $type) {
           $service = entity_load_single('node', $instance->field_services[LANGUAGE_NONE][0]['target_id']);
           $course = entity_load_single('node', $instance->field_course[LANGUAGE_NONE][0]['target_id']);
           // create the location of this service instance cron
-          $location = $service->field_location[LANGUAGE_NONE][0]['url'] . '/' . $course->field_machine_name[LANGUAGE_NONE][0]['safe_value'];
+          $location = $service->field_location[LANGUAGE_NONE][0]['url'] . '/' . $course->field_machine_name[LANGUAGE_NONE][0]['value'];
           // add on the cron and cron_key values for a secure remote run
           $data = array(
             'cron_key' => (isset($instance->field_cron_key[LANGUAGE_NONE]) ? $instance->field_cron_key[LANGUAGE_NONE][0]['value'] : ''),

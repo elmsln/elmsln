@@ -116,7 +116,6 @@
 
     // Set value.
     $textfield.val(name).removeClass('hint');
-    console.log('stuff');
     // Submit field.
     $submit.trigger('mousedown');
 

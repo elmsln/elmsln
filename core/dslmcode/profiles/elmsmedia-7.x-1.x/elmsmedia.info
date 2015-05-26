@@ -81,6 +81,7 @@ dependencies[] = views_ui
 ; Features
 dependencies[] = features
 dependencies[] = cis_service_roles
+dependencies[] = cis_course_authority
 dependencies[] = elmsmedia_feature
 dependencies[] = foundation_access_ux
 
