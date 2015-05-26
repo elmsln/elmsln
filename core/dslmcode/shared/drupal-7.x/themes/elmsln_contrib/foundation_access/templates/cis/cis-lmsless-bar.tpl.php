@@ -110,7 +110,7 @@
 
             <h1><?php print t('Account'); ?></h1>
               <hr class="pad-1"></hr>
-                <?php print l(t('log out'), 'user/logout', array('attributes' => array('class' => array('account-logout', 'text-center', 'row')))); ?>
+                <?php print $userlink; ?>
               <hr></hr>
               <div class="minimal-edit-buttons in-modal">
                 <a class="off-canvas-toolbar-item toolbar-menu-icon" href="#" data-dropdown="eco-account-edit-menu-1" aria-controls="offcanvas-admin-menu" aria-expanded="false">

@@ -116,6 +116,13 @@ function _cis_lmsless_theme_vars() {
     $vars['resources'] = $resources;
     // throw in username
     $vars['username'] = (isset($GLOBALS['user']->name) ? check_plain($GLOBALS['user']->name) : '');
+    // set a login link if we don't have a user name
+    if ($vars['username'] == '') {
+      $vars['userlink'] = l(t('login'), 'user', array('attributes' => array('class' => array('account-logout', 'text-center', 'row'))));
+    }
+    else {
+      $vars['userlink'] = l(t('log out'), 'user/logout', array('attributes' => array('class' => array('account-logout', 'text-center', 'row'))));
+    }
     if (_cis_connector_role_grouping('staff') || isset($_SESSION['masquerading'])) {
       $vars['admin_status_bar'] = array(
         'course-section' => array(t('Section'), $section . ' <a href="#" data-reveal-id="block-cis-service-connection-section-context-changer-nav-modal">' . t('switch') . '</a>'),
@@ -228,7 +235,8 @@ function cis_lmsless_theme() {
         'main_menu' => menu_tree(variable_get('menu_main_links_source', 'main-menu')),
         'help_link' => url('course-help'),
         'search' => '',
-        'user_name' => t('Account'),
+        'username' => t('Account'),
+        'userlink' => '',
         'resources' => array(),
         'tech_support' => array(),
         'admin_status_bar' => array(),
