@@ -6,33 +6,38 @@
 <!-- Ecosystem Top Nav ---------------------------------------- -->
 <div id="etb-course-nav" class="row full collapse">
   <div class="columns small-12 medium-6">
-    <nav class="top-bar etb-nav etb-nav--center--parent" data-options="is_hover: false" data-topbar role="navigation">
+    <nav class="top-bar etb-nav middle-align-wrap etb-nav--center--parent" data-options="is_hover: false" data-topbar role="navigation">
      <section>
         <!-- Left Nav Section -->
-        <ul class="left kill-margin">
-          <li class="left apps">
-            <a href="#" class="etb-nav_item_service_btn etb-icon apps-icon" data-reveal-id="apps-nav-modal">
-              <div class="icon-apps-black etb-icons"></div>
-              <span class="visible-for-large-up"><?php print t('Course'); ?></span>
+        <ul class="left kill-margin middle-align-wrap">
+          <li class="apps">
+            <a href="#" class="etb-nav_item_service_btn etb-icon apps-icon middle-align-wrap" data-reveal-id="apps-nav-modal">
+              <div class="icon-apps-black etb-icons svg"></div>
+              <!-- <div class="message-alert middle-align-wrap"><span>1</span></div> -->
             </a>
           </li>
-          <li class="left">
-            <a href="#" class="etb-nav_item_service_btn etb-icon user-icon" data-reveal-id="user-nav-modal">
-              <div class="icon-user-black etb-icons"></div>
+          <li>
+            <a href="#" class="etb-nav_item_service_btn etb-icon user-icon middle-align-wrap" data-reveal-id="user-nav-modal">
+              <div class="icon-user-black etb-icons svg"></div>
               <span class="visible-for-large-up"><?php print $username; ?></span>
             </a>
           </li>
-          <li class="left">
-            <a href="#" class="etb-nav_item_service_btn etb-icon info-icon" data-reveal-id="info-nav-modal">
-              <div class="icon-info-black etb-icons"></div>
+          <li>
+            <a href="#" class="etb-nav_item_service_btn etb-icon help-icon middle-align-wrap" data-reveal-id="help-nav-modal">
+              <div class="icon-help-black etb-icons svg"></div>
+              <span class="visible-for-large-up"><?php print t('Help'); ?></span>
+            </a>
+          </li>
+          <li class="divider-left">
+            <a href="#" class="etb-nav_item_service_btn etb-icon info-icon middle-align-wrap" data-reveal-id="info-nav-modal">
+              <div class="icon-info-black etb-icons svg"></div>
               <span class="visible-for-large-up"><?php print t('Syllabus'); ?></span>
             </a>
           </li>
-          <li class="left">
-            <a href="#" class="etb-nav_item_service_btn etb-icon help-icon" data-reveal-id="help-nav-modal">
-              <div class="icon-help-black etb-icons"></div>
-              <span class="visible-for-large-up"><?php print t('Help'); ?></span>
-            </a>
+          <li class="mini-alerts show-for-large-up flex-vertical-right">
+            <?php foreach($admin_status_bar as $admin_status_msg_key => $admin_status_msg) : ?>
+            <span class="<?php print $admin_status_msg_key;?>"><?php print $admin_status_msg;?></span>
+            <?php endforeach ?>
           </li>
         </ul>
         <!-- Eco Nav Modals ---------------------------------------- -->
@@ -121,7 +126,6 @@
 
               <div id="eco-account-edit-menu-1" data-dropdown-content class="f-dropdown content" aria-hidden="true" tabindex="-1">
                 <ul class="button-group">
-                  <!--<li><?php print l(t('Edit profile'), 'user/' . $GLOBALS['user']->uid); ?></li>-->
                   <li><a href="#" data-reveal-id="block-masquerade-masquerade-nav-modal"><?php print t('Impersonate a user'); ?></a></li>
                 </ul>
               </div>
@@ -220,7 +224,7 @@
       <?php print render($search); ?>
     </div> -->
     <div class="etb-title small-12 medium-6 columns">
-      <nav class="top-bar etb-nav" data-options="is_hover: false" data-topbar role="navigation">
+      <nav class="top-bar etb-nav flex-vertical-right center-align-wrap" data-options="is_hover: false" data-topbar role="navigation">
        <section class="top-bar-section title-link">
           <ul class="right">
             <li>

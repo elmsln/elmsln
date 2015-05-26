@@ -1,146 +1,78 @@
 .icon-about-black { background-image: url('png/about-black.png'); background-repeat: no-repeat; }
 
-.icon-about-white { background-image: url('png/about-white.png'); background-repeat: no-repeat; }
-
 .icon-access-black { background-image: url('png/access-black.png'); background-repeat: no-repeat; }
 
-.icon-access-white { background-image: url('png/access-white.png'); background-repeat: no-repeat; }
-
 .icon-apps-black { background-image: url('png/apps-black.png'); background-repeat: no-repeat; }
-
-.icon-apps-red { background-image: url('png/apps-red.png'); background-repeat: no-repeat; }
 
 .icon-apps-white { background-image: url('png/apps-white.png'); background-repeat: no-repeat; }
 
 .icon-arrow-left-black { background-image: url('png/arrow-left-black.png'); background-repeat: no-repeat; }
 
-.icon-arrow-left-white { background-image: url('png/arrow-left-white.png'); background-repeat: no-repeat; }
-
 .icon-arrow-right-black { background-image: url('png/arrow-right-black.png'); background-repeat: no-repeat; }
-
-.icon-arrow-right-white { background-image: url('png/arrow-right-white.png'); background-repeat: no-repeat; }
 
 .icon-assignment-black { background-image: url('png/assignment-black.png'); background-repeat: no-repeat; }
 
-.icon-assignment-white { background-image: url('png/assignment-white.png'); background-repeat: no-repeat; }
-
 .icon-assignments-black { background-image: url('png/assignments-black.png'); background-repeat: no-repeat; }
-
-.icon-assignments-white { background-image: url('png/assignments-white.png'); background-repeat: no-repeat; }
 
 .icon-beaker-black { background-image: url('png/beaker-black.png'); background-repeat: no-repeat; }
 
-.icon-beaker-white { background-image: url('png/beaker-white.png'); background-repeat: no-repeat; }
-
 .icon-blog-black { background-image: url('png/blog-black.png'); background-repeat: no-repeat; }
-
-.icon-blog-white { background-image: url('png/blog-white.png'); background-repeat: no-repeat; }
 
 .icon-bookmark-black { background-image: url('png/bookmark-black.png'); background-repeat: no-repeat; }
 
 .icon-bookmark-outline-black { background-image: url('png/bookmark-outline-black.png'); background-repeat: no-repeat; }
 
-.icon-bookmark-outline-white { background-image: url('png/bookmark-outline-white.png'); background-repeat: no-repeat; }
-
-.icon-bookmark-white { background-image: url('png/bookmark-white.png'); background-repeat: no-repeat; }
-
 .icon-calendar-black { background-image: url('png/calendar-black.png'); background-repeat: no-repeat; }
-
-.icon-calendar-white { background-image: url('png/calendar-white.png'); background-repeat: no-repeat; }
 
 .icon-chevron-down-black { background-image: url('png/chevron-down-black.png'); background-repeat: no-repeat; }
 
-.icon-chevron-down-white { background-image: url('png/chevron-down-white.png'); background-repeat: no-repeat; }
-
 .icon-cis-black { background-image: url('png/cis-black.png'); background-repeat: no-repeat; }
 
-.icon-cis-white { background-image: url('png/cis-white.png'); background-repeat: no-repeat; }
-
 .icon-close-black { background-image: url('png/close-black.png'); background-repeat: no-repeat; }
-
-.icon-close-colors-black-white { background-image: url('png/close-colors-black-white.png'); background-repeat: no-repeat; }
 
 .icon-close-white { background-image: url('png/close-white.png'); background-repeat: no-repeat; }
 
 .icon-collab-black { background-image: url('png/collab-black.png'); background-repeat: no-repeat; }
 
-.icon-collab-white { background-image: url('png/collab-white.png'); background-repeat: no-repeat; }
-
 .icon-comment-black { background-image: url('png/comment-black.png'); background-repeat: no-repeat; }
-
-.icon-comment-white { background-image: url('png/comment-white.png'); background-repeat: no-repeat; }
 
 .icon-content-black { background-image: url('png/content-black.png'); background-repeat: no-repeat; }
 
 .icon-content-outline-black { background-image: url('png/content-outline-black.png'); background-repeat: no-repeat; }
 
-.icon-content-outline-white { background-image: url('png/content-outline-white.png'); background-repeat: no-repeat; }
-
-.icon-content-white { background-image: url('png/content-white.png'); background-repeat: no-repeat; }
-
 .icon-courses-black { background-image: url('png/courses-black.png'); background-repeat: no-repeat; }
-
-.icon-courses-white { background-image: url('png/courses-white.png'); background-repeat: no-repeat; }
-
-.icon-dino-black { background-image: url('png/dino-black.png'); background-repeat: no-repeat; }
 
 .icon-discuss-black { background-image: url('png/discuss-black.png'); background-repeat: no-repeat; }
 
-.icon-discuss-white { background-image: url('png/discuss-white.png'); background-repeat: no-repeat; }
-
 .icon-download-black { background-image: url('png/download-black.png'); background-repeat: no-repeat; }
-
-.icon-download-white { background-image: url('png/download-white.png'); background-repeat: no-repeat; }
 
 .icon-easle-black { background-image: url('png/easle-black.png'); background-repeat: no-repeat; }
 
-.icon-easle-white { background-image: url('png/easle-white.png'); background-repeat: no-repeat; }
-
 .icon-grades-black { background-image: url('png/grades-black.png'); background-repeat: no-repeat; }
 
-.icon-grades-white { background-image: url('png/grades-white.png'); background-repeat: no-repeat; }
-
 .icon-help-black { background-image: url('png/help-black.png'); background-repeat: no-repeat; }
-
-.icon-help-white { background-image: url('png/help-white.png'); background-repeat: no-repeat; }
 
 .icon-hidden-black { background-image: url('png/hidden-black.png'); background-repeat: no-repeat; }
 
 .icon-inbox-black { background-image: url('png/inbox-black.png'); background-repeat: no-repeat; }
 
-.icon-inbox-white { background-image: url('png/inbox-white.png'); background-repeat: no-repeat; }
-
 .icon-info-black { background-image: url('png/info-black.png'); background-repeat: no-repeat; }
-
-.icon-info-white { background-image: url('png/info-white.png'); background-repeat: no-repeat; }
 
 .icon-interact-black { background-image: url('png/interact-black.png'); background-repeat: no-repeat; }
 
 .icon-labs-black { background-image: url('png/labs-black.png'); background-repeat: no-repeat; }
 
-.icon-labs-white { background-image: url('png/labs-white.png'); background-repeat: no-repeat; }
-
 .icon-media-black { background-image: url('png/media-black.png'); background-repeat: no-repeat; }
 
 .icon-mooc-black { background-image: url('png/mooc-black.png'); background-repeat: no-repeat; }
 
-.icon-mooc-white { background-image: url('png/mooc-white.png'); background-repeat: no-repeat; }
-
 .icon-online-black { background-image: url('png/online-black.png'); background-repeat: no-repeat; }
-
-.icon-online-white { background-image: url('png/online-white.png'); background-repeat: no-repeat; }
 
 .icon-page-black { background-image: url('png/page-black.png'); background-repeat: no-repeat; }
 
-.icon-page-white { background-image: url('png/page-white.png'); background-repeat: no-repeat; }
-
 .icon-pdf-black { background-image: url('png/pdf-black.png'); background-repeat: no-repeat; }
 
-.icon-pdf-white { background-image: url('png/pdf-white.png'); background-repeat: no-repeat; }
-
 .icon-people-black { background-image: url('png/people-black.png'); background-repeat: no-repeat; }
-
-.icon-people-white { background-image: url('png/people-white.png'); background-repeat: no-repeat; }
 
 .icon-plus-black { background-image: url('png/plus-black.png'); background-repeat: no-repeat; }
 
@@ -148,43 +80,23 @@
 
 .icon-quiz-black { background-image: url('png/quiz-black.png'); background-repeat: no-repeat; }
 
-.icon-quiz-white { background-image: url('png/quiz-white.png'); background-repeat: no-repeat; }
-
 .icon-speechballoons-black { background-image: url('png/speechballoons-black.png'); background-repeat: no-repeat; }
-
-.icon-speechballoons-white { background-image: url('png/speechballoons-white.png'); background-repeat: no-repeat; }
 
 .icon-studio-black { background-image: url('png/studio-black.png'); background-repeat: no-repeat; }
 
-.icon-studio-white { background-image: url('png/studio-white.png'); background-repeat: no-repeat; }
-
 .icon-support-black { background-image: url('png/support-black.png'); background-repeat: no-repeat; }
-
-.icon-support-white { background-image: url('png/support-white.png'); background-repeat: no-repeat; }
 
 .icon-teacher-black { background-image: url('png/teacher-black.png'); background-repeat: no-repeat; }
 
-.icon-teacher-white { background-image: url('png/teacher-white.png'); background-repeat: no-repeat; }
-
 .icon-tour-black { background-image: url('png/tour-black.png'); background-repeat: no-repeat; }
 
-.icon-tour-white { background-image: url('png/tour-white.png'); background-repeat: no-repeat; }
-
 .icon-user-black { background-image: url('png/user-black.png'); background-repeat: no-repeat; }
-
-.icon-user-white { background-image: url('png/user-white.png'); background-repeat: no-repeat; }
 
 .icon-view-black { background-image: url('png/view-black.png'); background-repeat: no-repeat; }
 
 .icon-view-off-black { background-image: url('png/view-off-black.png'); background-repeat: no-repeat; }
 
-.icon-view-off-white { background-image: url('png/view-off-white.png'); background-repeat: no-repeat; }
-
-.icon-view-white { background-image: url('png/view-white.png'); background-repeat: no-repeat; }
-
 .icon-visible-black { background-image: url('png/visible-black.png'); background-repeat: no-repeat; }
 
 .icon-write-black { background-image: url('png/write-black.png'); background-repeat: no-repeat; }
-
-.icon-write-white { background-image: url('png/write-white.png'); background-repeat: no-repeat; }
 

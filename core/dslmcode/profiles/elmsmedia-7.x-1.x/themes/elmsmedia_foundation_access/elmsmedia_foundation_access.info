@@ -5,7 +5,7 @@ core = 7.x
 engine = phptemplate
 base theme = foundation_access
 
-stylesheets[all][]   = css/elmsmedia_styles.css
+stylesheets[all][]   = css/elmsmedia_foundation_access.css
 
 ; CIS specific regions
 regions[cis_appbar_first]     = CIS AppBar one
@@ -19,6 +19,7 @@ regions[highlighted]          = Highlighted
 ;regions[featured]            = Featured
 regions[content]              = Content
 regions[left_menu]            = Left Off Canvas Menu
+regions[sidebar_first]        = Left Sidebar
 ;regions[sidebar_second]      = Right Sidebar
 ;regions[triptych_first]      = Callout one
 ;regions[triptych_middle]     = Callout two

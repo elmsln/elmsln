@@ -123,17 +123,16 @@ function _cis_lmsless_theme_vars() {
     else {
       $vars['userlink'] = l(t('log out'), 'user/logout', array('attributes' => array('class' => array('account-logout', 'text-center', 'row'))));
     }
-    if (_cis_connector_role_grouping('staff') || isset($_SESSION['masquerading'])) {
-      $vars['admin_status_bar'] = array(
-        'course-section' => array(t('Section'), $section . ' <a href="#" data-reveal-id="block-cis-service-connection-section-context-changer-nav-modal">' . t('switch') . '</a>'),
-        'current-user-id' => array(t('User'), $vars['username']),
+    if (_cis_connector_role_groupings(array('staff','teacher')) || isset($_SESSION['masquerading'])) {
+        $vars['admin_status_bar'] = array(
+        'course-section' => '<a href="#" data-reveal-id="block-cis-service-connection-section-context-changer-nav-modal" class="admin-alert middle-align-wrap"><span>' . $section . '</span></a>',
       );
       if (isset($_SESSION['masquerading'])) {
         $tmp = user_load($_SESSION['masquerading']);
-        $vars['admin_status_bar']['current-user-id'][1] .= ' ' . l(t('Switch back to (@name)', array('@name' => $tmp->name)), 'masquerade/unswitch', array('query' => array('token' => drupal_get_token('masquerade/unswitch'))));
+        $vars['admin_status_bar']['current-user-id'] = ' ' . l(t('Switch back to (@name)', array('@name' => $tmp->name)), 'masquerade/unswitch', array('query' => array('token' => drupal_get_token('masquerade/unswitch')), 'attributes' => array('class' => array('admin-alert', 'middle-align-wrap'))));
       }
       else {
-        $vars['admin_status_bar']['current-user-id'][1] .= ' <a href="#" data-reveal-id="block-masquerade-masquerade-nav-modal">' . t('impersonate') . '</a>';
+        $vars['admin_status_bar']['current-user-id'] = ' <a href="#" data-reveal-id="block-masquerade-masquerade-nav-modal" class="admin-alert middle-align-wrap"><span>' . filter_xss($GLOBALS['user']->name) . '</span></a>';
       }
       // calculate roles
       $tmproles = $GLOBALS['user']->roles;
@@ -141,14 +140,8 @@ function _cis_lmsless_theme_vars() {
       unset($tmproles[2]);
       // figure out how to present roles, don't assume there are roles
       if (!empty($tmproles)) {
-        if (count($tmproles) < 2) {
-          $roleword = t('Role');
-        }
-        else {
-          $roleword = t('Roles');
-        }
         sort($tmproles);
-        $vars['admin_status_bar']['user-role'] = array($roleword, implode(' and ', $tmproles));
+        $vars['admin_status_bar']['user-role'] = '<span class="admin-alert middle-align-wrap">' . implode(' and ', $tmproles) . '</span>';
       }
     }
     $distro = variable_get('install_profile', 'standard');

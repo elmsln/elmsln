@@ -1,0 +1,328 @@
+// .etb-nav--float {
+//   float:left;
+// }
+// .etb-nav--center {
+//   margin: 0 auto;
+//   position: relative;
+
+//   &.top-bar-section {
+    
+   
+//   }
+// }
+.row.full {
+  max-width:100% !important;
+}
+// Hover 
+%btn-focus {
+  background-color:$tool-bar-base-color;
+}
+%animation-all{
+  @extend transform();
+}
+%etb-nav_btn {
+  list-style:none;
+}
+%etb-nav_item {
+  width:auto;
+  height:3.125rem; //50px
+  margin-right:0.3125rem; //5px
+}
+%etb-nav_icon {
+  width:2rem;//32px
+  height:2rem;//32px
+  margin:0.3125;//5px
+}
+ul.kill-margin {
+  margin:0;
+}
+a.modal-img-link {
+  display:block;
+  margin:1rem 0;
+  span {
+    padding: 2.5rem 0 0 7rem;
+    display:block;
+  }
+}
+.etb-nav {//namespace
+    // &_modal {
+    //   visibility: hidden;
+    //   height:0;
+    //   width:0;
+    //   &--visible {
+    //     visibility: visible;
+    //     height:auto;
+    //     width:auto;
+    //   }
+    // }
+    // &_wrapper {//element
+    //   width:100%;
+    //   height:4.375rem;
+    //   background-color:$etb-nav-bg-color;
+    //   box-sizing:border-box;
+    // }
+    // &_inner {
+    //   width:100%;
+    //   height:100%;
+    //   padding:0.3125rem; //5px
+    //   box-sizing:border-box;
+    // }
+    // Top Bar Items
+    &_item {
+
+      &_service {
+        @extend %etb-nav_item;
+        &_btn {
+          @extend %etb-nav_btn;
+          @extend %animation-all;
+          
+          
+          &:hover, &:focus, &.active {
+            @extend %btn-focus;
+            opacity:0.8;
+          }
+        }
+       
+        &_modal {
+
+        }
+      }
+      &_search {
+        @extend %etb-nav_item;
+        margin:0 auto;
+        // left: 50% !important;
+        position: relative;
+        //float:left;
+        display:block;
+        &_btn {
+          @extend %etb-nav_btn;
+          width:auto;
+          height:2rem; //32px
+          float:left;
+          padding:0.375rem;
+
+        }
+        &_input {
+          //width:100%;
+          //float:left;
+          margin:0.375rem;
+          //width:12.500rem;//200px
+        }
+        
+        &_modal {
+
+        }
+      }
+      &_branding {
+        width:18.750rem;//300px
+        height:100%;
+        float:right;
+        margin-right:0.3125rem;
+        &_btn {
+          float:right;
+          width:2.813rem;
+          height:2.813rem;
+        }
+        &_title {
+          
+        }
+        &_identifier {
+        }
+        &_modal {
+
+        }
+      }
+    }
+  }
+   
+  
+
+// .etb-tool {//namespace
+  
+//       width:100%;
+//       height:48px;
+//       background-color:$etb-tool-bg-color;
+//       box-sizing:border-box;
+    
+// }
+
+//////////// Course Ecosystem Navigation
+
+#etb-course-nav {
+    background-color:$etb-nav-bg-color;
+    border-bottom:0.125rem solid darken($etb-nav-bg-color, 34%);
+  // .etb-title {
+  //   font-size:100%;
+  //   @media #{$medium-only} {
+  //     font-size:40%;
+  //   }
+  // }
+
+  .top-bar-section .has-dropdown>a:after {
+    border-color: lighten($tool-bar-dark-color, 20%) transparent transparent transparent;
+    top:50%;
+  }
+  // .top-bar-section .right li .dropdown {
+  //   background-color:$etb-nav-bg-color;
+  // }
+  .top-bar {
+    background-color:transparent;
+    height: 4.375rem;//70px
+    input {
+      //width:12.500rem;
+      background-color:#fff;
+      border-top:0;
+      border-left:0;
+      border-right:0;
+      border-bottom:0;
+      //border-bottom:0.125rem solid #000;
+      box-shadow:none;
+      width:80%;
+      margin:0 auto;
+    }
+    form {
+      margin-top: 0.7rem;
+    }
+    .name {
+      width:0;
+    }
+    .toggle-topbar.menu-icon {
+      background:#ccc;
+    }
+  }
+
+  .top-bar-section {
+
+    ul{
+     // border-bottom:0.125rem solid darken($etb-nav-bg-color, 34%);
+      li.has-dropdown {
+        background-color:transparent;
+         height: 4.375rem;
+        a {
+          background-color:transparent;
+           height: 4.375rem;
+          &:hover, &:focus { 
+            background-color: #fff;
+          }
+        }
+      }
+      &.dropdown li {
+         height: auto;
+        // border-left:0.125rem solid darken($etb-nav-bg-color, 34%);
+       //background-color:darken($etb-nav-bg-color, 34%);
+       &.active {
+        a {
+          border-left:4px solid $contrast-color;
+        }
+       }
+       a {
+        background-color:$etb-nav-bg-color;
+         height: auto;
+       }
+        
+      }
+      li:not(.has-form) a:not(.button) {
+        display: block;
+        //height: 4.25rem;
+        //background:transparent;
+        color:lighten($tool-bar-dark-color, 20%);
+      }
+    }
+  }
+  span.course-title {
+    display: block;
+    margin: 0;
+    padding: 1.0rem 0.3125rem 0rem 0.3125rem;
+    line-height: 1rem;
+    text-align: right;
+    //height: 1.25em;
+    color: #000;
+    font-size: 1em;
+    color:#626262;
+    //line-height: 1.2em;
+  }
+  span.course-abrv {
+    display: block;
+    text-align: right;
+    //height: 1em;
+    line-height:1rem;
+    color: #000;
+    padding-right: rem-calc(5);
+    color:#333333;
+    font-size: 1em;
+  }
+}
+//////////// Course Tool Navigation
+///
+///left and right tabbar sections
+$left-tabbar-section-width:15rem;
+$right-tabbar-section-width:2.8125rem;
+#etb-tool-nav {
+  section.right-small {
+    width:$right-tabbar-section-width;
+    border-left: solid 1px $tabbar-section-border-color;
+  }
+  .tab-bar {
+    background-color:$etb-tool-bg-color;
+    @include box-shadow(0,-5px,5px,5px,#000);
+    .tab-bar-section {
+      text-align:right;
+      padding:0;
+
+      a.button.secondary {
+        background:transparent;
+        color:#efefef;
+        border-color: $tabbar-section-border-color;
+        &:hover {
+          background:rgba(0,0,0,0.5);
+        }
+      }
+      &.middle {
+        left:$left-tabbar-section-width;
+        right:$right-tabbar-section-width;
+        background-color:darken($tool-bar-base-color, 76%);
+        border-left: solid 1px $tabbar-section-border-color;
+        overflow: hidden;
+      }
+    }
+    a.left-off-canvas-toggle.menu-icon {
+      @include transition(all,1.5s,cubic-bezier(0.01, 0.94, 0.46, 1));
+      &:hover {
+        background-color: $tabbar-section-border-color;
+        @include transition(all,1.5s,cubic-bezier(0.01, 0.94, 0.46, 1));
+      }
+    }
+    .menu-icon {
+      width:$left-tabbar-section-width;
+      text-transform: capitalize;
+      // a {
+      // margin-left:1.875rem;
+      
+      // }
+      span {
+        padding: 0 0 0 1rem;
+        font-size:1.2rem;
+      }
+      span::after {
+        left:1.25rem;
+        box-shadow: 0 0 0 1px $tool-bar-base-color,0 7px 0 1px $tool-bar-base-color,0 14px 0 1px $tool-bar-base-color;
+      }
+    }
+  }
+}
+.hide-me-small-only {
+  @media #{$small-only} {
+    display:none;
+  }
+  @media #{$medium-up} {
+    display:inherit;
+  }
+}
+.show-me-small-only {
+  @media #{$small-only} {
+    display:inherit;
+  }
+   @media #{$medium-up} {
+    display:none;
+  }
+}

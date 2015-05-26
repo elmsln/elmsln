@@ -1,0 +1,24 @@
+.scroll-disabled {
+	overflow:hidden;
+}
+.sticky-wrapper.is-sticky {
+	z-index:10000;
+	position:absolute;
+}
+.row.full {
+  max-width:100% !important;
+}
+.middle-align-wrap {
+	 display: flex !important;
+	 align-items: center;
+}
+.center-align-wrap {
+	display: flex !important;
+	justify-content: center;
+}
+.admin-color-text {
+	color:$admin-color
+}
+.admin-color-bg {
+	background-color:$admin-color
+}

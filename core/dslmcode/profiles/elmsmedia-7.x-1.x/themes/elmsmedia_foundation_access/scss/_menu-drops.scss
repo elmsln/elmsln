@@ -1,0 +1,19 @@
+.f-dropdown.content {
+	padding:0;
+	border-radius:3px;
+	hr {
+		margin:0;
+	}
+	a {
+		height:auto;
+		padding-left:0.75rem;
+	}
+	ul li {
+		display: block;
+
+		a {
+			margin:0;	
+			border:none;		
+		}
+	}
+}

@@ -6,6 +6,7 @@
     height:auto;
     float: left;
 
+
     .off-canvas-toolbar-item-icon {
       width: 1.5rem;
       height: 1.5rem;
@@ -73,6 +74,9 @@ left: 0;
   );
 }
 .etb-nav-modal {
+  a, span {
+    line-height:1rem;
+  }
   a {
     &:hover, &:active, &.active-trail, &:focus {
       font-color:$black;

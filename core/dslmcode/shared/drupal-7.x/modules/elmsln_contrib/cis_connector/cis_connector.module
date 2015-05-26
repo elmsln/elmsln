@@ -399,7 +399,7 @@ function _cis_connector_section_context($account = NULL) {
     else {
       // see if we are an administrative account that might be missing
       // access to a group but yet clearly could be in the master
-      if (_cis_connector_role_grouping('staff', $account) || _cis_connector_role_grouping('teacher', $account)) {
+      if (_cis_connector_role_groupings(array('staff','teacher'), $account)) {
         // ensure we have section active first
         $info = entity_get_info('node');
         if (isset($info['bundles']['section'])) {

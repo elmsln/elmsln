@@ -3,113 +3,28 @@
 // }
 
 img.svg {
-	width:1.5rem;
+	width:2rem;
+	width:2rem;
 }
 
 
 // Ecosystem tool bar items
 .etb-icon {
-	height: 4.375rem;   
-	display: block;
 	text-align: left;
 	color: $tool-bar-dark-color;
-	padding: 0.8rem 0.8rem 0rem 1rem;
-	
-	span {
-            padding: 0.65rem 0 0 0;
-            display: block;
-            font-size: 80%;
-            opacity: 0.8;
-          }
-	@media #{$small-only} {
-		width: 4em;
+	@include opacity(0.7);
+	&:hover, &:focus {
+		@include opacity(1);
 	}
 	&.apps-icon {
-		//border-right:1px solid darken($etb-nav-bg-color, 34%);
-		padding: 0.8rem 1rem 0rem 1rem;
-		@media #{$small-up} {
-			width: auto;
-			span {
-	            padding: 0.65rem 0 0 2rem;
-			}
-		}
-		// @media #{$medium-up} {
-		// 	width: 3.3em;
-		// 	padding: 0.8rem 0.2rem 0rem 1rem;
-		// 	span {
-	 //            padding: 0.65rem 0 0 2rem;
-		// 	}
-		// }
-		// @media #{$large-up} {
-		// 	width: auto;
-		// 	padding: 0.8rem 0.5rem 0rem 1rem;
-		// }
-		// @media #{$xlarge-up} {
-		// 	padding: 0.8rem 0.8rem 0rem 1rem;
-		// }
+		padding: 0.5rem 0.5rem;
+  		margin: 0 0.5rem;
 	}
-	&.user-icon {
-		@media #{$small-up} {
-			width: 2.625em;
-			padding: 0.8rem 0.7rem 0rem 0.7rem;
-		}
-		@media #{$medium-up} {
-			width: 3.2em;
-			padding: 0.8rem 0.7875rem 0rem 0.7875rem;
-			span {
-	            padding: 0.65rem 0 0 2rem;
-			}
-		}
-		@media #{$large-up} {
-			width:auto;
-			padding: 0.8rem 0.7rem 0rem 0.7rem;
-		}
-		@media #{$xlarge-up} {
-			
-			padding: 0.8rem 0.8rem 0rem 1rem;
-		}
-	}
-	&.info-icon {
+	span {
+		padding: 0rem 0 0 0.5rem;
+		display: flex;
+		font-size: 80%;
 		
-		@media #{$small-up} {
-			width: 2.625em;
-			padding: 0.8rem 0.7rem 0rem 0.7rem;
-		}
-		@media #{$medium-up} {
-			width: 3.2em;
-			padding: 0.8rem 0.7875rem 0rem 0.7875rem;
-			span {
-	            padding: 0.65rem 0 0 2rem;
-			}
-		}
-		@media #{$large-up} {
-			width:auto;
-			padding: 0.8rem 0.7rem 0rem 0.7rem;
-		}
-		@media #{$xlarge-up} {
-			padding: 0.8rem 0.8rem 0rem 1rem;
-		}
-	}
-	&.help-icon {
-		
-		@media #{$small-up} {
-			width: 2.625em;
-			padding: 0.8rem 0.7rem 0rem 0.7rem;
-		}
-		@media #{$medium-up} {
-			width: 3.2em;
-			padding: 0.8rem 0.7875rem 0rem 0.7875rem;
-			span {
-	            padding: 0.65rem 0 0 2rem;
-			}
-		}
-		@media #{$large-up} {
-			width:auto;
-			padding: 0.8rem 0.7rem 0rem 0.7rem;
-		}
-		@media #{$xlarge-up} {
-			padding: 0.8rem 0.8rem 0rem 1rem;
-		}
 	}
 }
 .etb-modal {
@@ -154,12 +69,16 @@ img.svg {
 	
 }
 .etb-icons {
-	opacity:0.5;
 	float:left;
-	margin-top: 0.5rem;
 	height: rem-calc(26);
 	width: rem-calc(26);
 }
+
+.etb-icons.icon-apps-black {
+		height: 2.5rem;
+		width: 2.5rem;
+		margin-top: 0;
+	}
 
 // Service toolbar menu items
 .off-canvas-toolbar-item {

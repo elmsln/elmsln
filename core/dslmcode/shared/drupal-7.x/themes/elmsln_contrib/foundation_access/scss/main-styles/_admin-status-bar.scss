@@ -3,6 +3,7 @@
 	padding:0.5rem 0;
 	
 	a {
+		display: inline-flex !important;
 		color:$admin-status-link-color;
 		text-decoration: underline;
 		text-transform: none;

@@ -76,6 +76,7 @@ regions[highlighted]          = Highlighted
 ;regions[featured]            = Featured
 regions[content]              = Content
 regions[left_menu]            = Left Off Canvas Menu
+regions[sidebar_first]        = Left Sidebar
 ;regions[sidebar_second]      = Right Sidebar
 ;regions[triptych_first]      = Callout one
 ;regions[triptych_middle]     = Callout two

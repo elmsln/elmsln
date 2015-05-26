@@ -1,0 +1,10 @@
+.page-scroll.progress {
+	padding:0;
+	margin:0;
+	height:0.25rem;
+	border:none;
+	background:transparent;
+	.meter {
+		background-color:$dark-color;
+	}
+}

@@ -1,0 +1,232 @@
+// .no-svg .etb-course {
+// 	background: url(../icons/etb-icons/etb-course-36px.png);
+// }
+
+img.svg {
+	width:1.5rem;
+}
+
+
+// Ecosystem tool bar items
+.etb-icon {
+	height: 4.375rem;   
+	display: block;
+	text-align: left;
+	color: $tool-bar-dark-color;
+	padding: 0.8rem 0.8rem 0rem 1rem;
+	
+	span {
+            padding: 0.65rem 0 0 0;
+            display: block;
+            font-size: 80%;
+            opacity: 0.8;
+          }
+	@media #{$small-only} {
+		width: 4em;
+	}
+	&.apps-icon {
+		//border-right:1px solid darken($etb-nav-bg-color, 34%);
+		padding: 0.8rem 1rem 0rem 1rem;
+		@media #{$small-up} {
+			width: auto;
+			span {
+	            padding: 0.65rem 0 0 2rem;
+			}
+		}
+		// @media #{$medium-up} {
+		// 	width: 3.3em;
+		// 	padding: 0.8rem 0.2rem 0rem 1rem;
+		// 	span {
+	 //            padding: 0.65rem 0 0 2rem;
+		// 	}
+		// }
+		// @media #{$large-up} {
+		// 	width: auto;
+		// 	padding: 0.8rem 0.5rem 0rem 1rem;
+		// }
+		// @media #{$xlarge-up} {
+		// 	padding: 0.8rem 0.8rem 0rem 1rem;
+		// }
+	}
+	&.user-icon {
+		@media #{$small-up} {
+			width: 2.625em;
+			padding: 0.8rem 0.7rem 0rem 0.7rem;
+		}
+		@media #{$medium-up} {
+			width: 3.2em;
+			padding: 0.8rem 0.7875rem 0rem 0.7875rem;
+			span {
+	            padding: 0.65rem 0 0 2rem;
+			}
+		}
+		@media #{$large-up} {
+			width:auto;
+			padding: 0.8rem 0.7rem 0rem 0.7rem;
+		}
+		@media #{$xlarge-up} {
+			
+			padding: 0.8rem 0.8rem 0rem 1rem;
+		}
+	}
+	&.info-icon {
+		
+		@media #{$small-up} {
+			width: 2.625em;
+			padding: 0.8rem 0.7rem 0rem 0.7rem;
+		}
+		@media #{$medium-up} {
+			width: 3.2em;
+			padding: 0.8rem 0.7875rem 0rem 0.7875rem;
+			span {
+	            padding: 0.65rem 0 0 2rem;
+			}
+		}
+		@media #{$large-up} {
+			width:auto;
+			padding: 0.8rem 0.7rem 0rem 0.7rem;
+		}
+		@media #{$xlarge-up} {
+			padding: 0.8rem 0.8rem 0rem 1rem;
+		}
+	}
+	&.help-icon {
+		
+		@media #{$small-up} {
+			width: 2.625em;
+			padding: 0.8rem 0.7rem 0rem 0.7rem;
+		}
+		@media #{$medium-up} {
+			width: 3.2em;
+			padding: 0.8rem 0.7875rem 0rem 0.7875rem;
+			span {
+	            padding: 0.65rem 0 0 2rem;
+			}
+		}
+		@media #{$large-up} {
+			width:auto;
+			padding: 0.8rem 0.7rem 0rem 0.7rem;
+		}
+		@media #{$xlarge-up} {
+			padding: 0.8rem 0.8rem 0rem 1rem;
+		}
+	}
+}
+.etb-modal {
+	&-icon {
+		display: block;
+		padding:0.5rem 0.2rem;
+		span {
+			float:left;
+			display: block;
+			padding: 0.3rem 1rem;
+			&.round {
+				padding: 0.6rem 1rem;
+			}
+		}
+	}
+	&-icons {
+		width:2rem;
+		height:2rem;
+		display:block;
+		float:left;
+		@include opacity(0.7);
+		&.round {
+			border: 1px solid $icon-border-color;
+			border-radius: 50%;
+			padding: 1rem;
+			width: 3rem;
+			height: 3rem;
+			background-size: 50%;
+			background-position: 0.75rem 0.75rem;
+			background-color:$round-icon-bg-color;
+			@include transition();
+		}
+		
+	}
+	&-icon:hover, &-icon:focus {	
+		div.round {
+			@include opacity(1);
+			@include transition();
+			background-color:$round-icon-bg-hover-color;
+		}
+	}
+	
+}
+.etb-icons {
+	opacity:0.5;
+	float:left;
+	margin-top: 0.5rem;
+	height: rem-calc(26);
+	width: rem-calc(26);
+}
+
+// Service toolbar menu items
+.off-canvas-toolbar-item {
+	margin: 0.4rem;
+	display: block;
+	height: 2.8125rem;
+	background:transparent;
+	@include opacity(0.2);
+	@include transition();
+	
+	&:hover, &:focus {
+			@include opacity(0.8);
+			@include transition();
+		}
+	
+	&-icon {
+		width: 2rem;
+		height: 2rem;
+		display: inline-block;
+	}
+}
+
+.toolbar-menu-icon {
+	display:inline-flex;
+}
+
+// Off-canvas submenu back button icon
+//// Un-set default arrows
+.left-submenu .back>a.kill-content-before:before {
+	content: none;
+  	margin-right: 0rem;
+  	display: inherit;
+  	height: 0;
+}
+.back-arrow-left-btn {
+	height:rem-calc(30);
+	width:rem-calc(30);
+	float:left;
+	margin-right:1rem;
+	@include opacity(0.3);
+}
+
+// Off-canvas menu toggle icon
+@media #{$small-only} {
+	.left-off-canvas-toggle.close {
+		display: block;
+		height:3rem;
+		padding:1rem;
+		.icon-close-black {
+			left: 50%;
+			position: relative;
+			display: block;
+			
+			@include opacity(1);
+		}
+	}
+}
+@media #{$medium-up} {
+	.left-off-canvas-toggle.close {
+		display: none;
+	}
+}
+// Off-canvas menu items
+.outline-nav-icon {
+	height:rem-calc(30);
+	width:rem-calc(30);
+	float:left;
+	margin-right:1rem;
+	@include opacity(0.3);
+}

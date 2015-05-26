@@ -15,12 +15,11 @@
       <div class="inner-wrap">
         <?php if (isset($cis_lmsless['admin_status_bar']) && !empty($cis_lmsless['admin_status_bar'])) : ?>
          <!-- Admin Status Bar -->
-         <div class="row full admin-status-bar">
+         <div class="hide-for-large-up row full admin-status-bar divider-bottom">
             <div class="columns small-12">
-            <?php foreach($cis_lmsless['admin_status_bar'] as $admin_status_msg_key => $admin_status_msg) : ?>
-            <span class="<?php print $admin_status_msg_key;?>-label"><?php print $admin_status_msg[0];?>: </span>
-            <span class="<?php print $admin_status_msg_key;?>"><?php print $admin_status_msg[1];?></span>
-            <?php endforeach ?>
+              <?php foreach($cis_lmsless['admin_status_bar'] as $admin_status_msg_key => $admin_status_msg) : ?>
+              <span class="<?php print $admin_status_msg_key;?>"><?php print $admin_status_msg;?></span>
+              <?php endforeach ?>
             </div>
           </div>
         <?php endif; ?>
@@ -30,22 +29,24 @@
           </div>
           <nav class="tab-bar etb-tool">
           <section class="left">
-            <a class="left-off-canvas-toggle menu-icon" ><span><?php print $cis_lmsless['active']['title'] ?></span></a>
+            <?php if (!empty($page['left_menu'])): ?>
+              <a class="left-off-canvas-toggle menu-icon" ><span><?php print $cis_lmsless['active']['title'] ?></span></a>
+            <?php else : ?>
+              <span><?php print $cis_lmsless['active']['title'] ?></span>
+            <?php endif; ?>
           </section>
 
           <section class="middle tab-bar-section">
           <?php if (!empty($tabs['#primary']) || !empty($tabs['#secondary']) || !empty($tabs_extras)): ?>
-              <a class="off-canvas-toolbar-item toolbar-menu-icon" href="#" data-dropdown="middle-section-buttons" aria-controls="middle-section-buttons" aria-expanded="false"><div class="icon-chevron-down-black off-canvas-toolbar-item-icon"></div></a>
+              <li class="toolbar-menu-icon"><a href="#" class="off-canvas-toolbar-item toolbar-menu-icon" data-dropdown="middle-section-buttons" aria-controls="middle-section-buttons" aria-expanded="false">
+                <div class="icon-chevron-down-black off-canvas-toolbar-item-icon"></div>
+              </a></li>
+              <li class="toolbar-menu-icon divider-left"><a href="#" class="off-canvas-toolbar-item toolbar-menu-icon" data-reveal-id="page-tools-menu" aria-controls="accessibility-drop" aria-expanded="false">
+                <div class="icon-access-black off-canvas-toolbar-item-icon"></div>
+              </a></li>
           <?php endif; ?>
           </section>
           <?php print render($page['cis_appbar_second']); ?>
-          <?php if (isset($speedreader) || isset($mespeak)) : ?>
-          <section class="right-small">
-            <a href="#" class="off-canvas-toolbar-item access-icon" data-reveal-id="page-tools-menu" aria-controls="accessibility-drop" aria-expanded="false">
-              <div class="icon-access-black off-canvas-toolbar-item-icon"></div>
-            </a>
-          </section>
-          <?php endif; ?>
           <!-- Modal -->
           <?php if (isset($speedreader) || isset($mespeak)) : ?>
           <div id="page-tools-menu" class="reveal-modal" data-reveal aria-labelledby="Accessibility" aria-hidden="true" role="dialog">

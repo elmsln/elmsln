@@ -29,67 +29,86 @@ a.modal-img-link {
     display:block;
   }
 }
+.mini-alerts {
+  margin:0 1rem;
+}
 .etb-nav {
-    &_item {
+  li.divider-left {
+    margin-left:1rem;
+    padding-left:1rem;
+    border-color:darken($etb-nav-bg-color, 15%);
+  }
+  li a.etb-icon {
+    padding:0.5rem 1rem;
+    @include border-radius(rem-calc(6px));
+    @include transition();
 
-      &_service {
-        @extend %etb-nav_item;
-        &_btn {
-          @extend %etb-nav_btn;
-          @extend %animation-all;
-          
-          
-          &:hover, &:focus, &.active {
-            @extend %btn-focus;
-          }
-        }
-       
-        &_modal {
+    &:hover, &:focus {
+      @include transition();
+      background-color:$white;
+    }
+  }
 
-        }
-      }
-      &_search {
-        @extend %etb-nav_item;
-        margin:0 auto;
-        position: relative;
-        display:block;
-        &_btn {
-          @extend %etb-nav_btn;
-          width:auto;
-          height:2rem; //32px
-          float:left;
-          padding:0.375rem;
+  &_item {
 
-        }
-        &_input {
-          margin:0.375rem;
-        }
+    &_service {
+      @extend %etb-nav_item;
+      &_btn {
+        @extend %etb-nav_btn;
+        @extend %animation-all;
         
-        &_modal {
-
+        
+        &:hover, &:focus, &.active {
+          @extend %btn-focus;
         }
       }
-      &_branding {
-        width:18.750rem;//300px
-        height:100%;
-        float:right;
-        margin-right:0.3125rem;
-        &_btn {
-          float:right;
-          width:2.813rem;
-          height:2.813rem;
-        }
-        &_title {
-          
-        }
-        &_identifier {
-        }
-        &_modal {
+     
+      &_modal {
 
-        }
+      }
+    }
+    &_search {
+      @extend %etb-nav_item;
+      margin:0 auto;
+      position: relative;
+      display:block;
+      &_btn {
+        @extend %etb-nav_btn;
+        width:auto;
+        height:2rem; //32px
+        float:left;
+        padding:0.375rem;
+
+      }
+      &_input {
+        margin:0.375rem;
+      }
+      
+      &_modal {
+
+      }
+    }
+    &_branding {
+      width:18.750rem;//300px
+      height:100%;
+      float:right;
+      margin-right:0.3125rem;
+      &_btn {
+        float:right;
+        width:2.813rem;
+        height:2.813rem;
+      }
+      &_title {
+        
+      }
+      &_identifier {
+      }
+      &_modal {
+
       }
     }
   }
+}
  
 ////////// Course Ecosystem Navigation
 
@@ -104,8 +123,8 @@ $top-bar-height:$top-bar-border-width + $top-bar-base-height;
 
 #etb-course-nav {
     background-color:$etb-nav-bg-color;
-    border-bottom:$top-bar-border-width solid darken($etb-nav-bg-color, 5%);
-    
+    // border-bottom:$top-bar-border-width solid darken($etb-nav-bg-color, 5%);
+    border-bottom:$top-bar-border-width solid $etb-nav-bg-color;
     @media #{$small-only} {
       border-bottom:$top-bar-border-width*2 solid $white;
     }
@@ -182,7 +201,7 @@ $top-bar-height:$top-bar-border-width + $top-bar-base-height;
   span.course-title {
     display: block;
     margin: 0;
-    padding: 1.0rem 0.3125rem 0rem 0.3125rem;
+    padding: 0;
     line-height: 1rem;
     text-align: right;
     color: #000;
@@ -190,7 +209,7 @@ $top-bar-height:$top-bar-border-width + $top-bar-base-height;
     color:#626262;
     
     @media #{$small-only} {
-       padding: 0.5rem 0.3125rem 0rem 0.3125rem;
+       
        text-align: center;
     }
   }
@@ -199,7 +218,6 @@ $top-bar-height:$top-bar-border-width + $top-bar-base-height;
     text-align: right;
     line-height:1rem;
     color: #000;
-    padding-right: rem-calc(5);
     color:#333333;
     font-size: 1em;
     @media #{$small-only} {

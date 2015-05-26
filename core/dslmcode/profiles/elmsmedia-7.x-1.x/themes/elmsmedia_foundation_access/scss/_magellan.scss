@@ -1,0 +1,65 @@
+.magellan-wrap {
+	text-align:center;
+	margin-bottom:2rem;
+	div:nth-child(1) {
+		@include border-radius(3px);
+		.sub-nav {
+			//display:inline-block;
+			dd {
+				float:none;
+				margin-left:0;
+			}
+			dd a {
+				display: inline-block;
+			}
+		}
+	}
+	div:nth-child(2) {
+		//left:0;
+		right:0;
+		margin:0 auto;
+		width:100%;
+		text-align: center;
+		top: 0px;
+		border-bottom:1px solid #efefef;
+		@include single-transition(all, 300ms, ease-out);
+		.sub-nav {
+			//display:inline-block;
+			dd {
+				float:none;
+				margin-left:0;
+			}
+			dd a {
+				-webkit-border-radius: 3px;
+				border-radius: 3px;
+				font-weight: normal;
+				background: #fff;
+				padding: 0.1875rem 1rem;
+				color: #008cba;
+				border:1px solid #efefef;
+				display: inline-block;
+				@include single-transition(all, 300ms, ease-out);
+			}
+			dd.active a {
+				-webkit-border-radius: 3px;
+				border-radius: 3px;
+				font-weight: normal;
+				background: #008cba;
+				padding: 0.1875rem 1rem;
+				color: #fff;
+				border:1px solid #008cba;
+
+				@include single-transition(all, 300ms, ease-out);
+			}
+		}
+	}
+}
+
+[data-magellan-expedition] {
+	min-width:inherit;
+	display:inline-block;
+	background: rgba(255,255,255,1);
+	@include box-shadow();
+
+	@include single-transition(all, 300ms, ease-out);
+}
