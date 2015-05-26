@@ -1,1 +1,0 @@
-/* Implement customer javascript here */

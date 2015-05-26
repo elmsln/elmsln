@@ -1,7 +1,0 @@
-{
-  "name": "zurb_foundation",
-  "private": "true",
-  "dependencies": {
-    "foundation": "zurb/bower-foundation"
-  }
-}
