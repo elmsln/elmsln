@@ -6,7 +6,7 @@
  */
 function elmsmedia_install() {
   // Enable some elmsmedia blocks.
-  $default_theme = 'foundation_access';
+  $default_theme = 'elmsmedia_foundation_access';
   $admin_theme = 'rubik';
   // fix jquery update rubrik admin theme issue
   variable_set('theme_rubik_settings', array('rubik_disable_sidebar_in_form' => 1));
