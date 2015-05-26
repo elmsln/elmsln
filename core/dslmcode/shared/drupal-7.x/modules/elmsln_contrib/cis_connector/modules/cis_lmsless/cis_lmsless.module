@@ -183,6 +183,11 @@ function _cis_lmsless_theme_vars() {
       );
     }
     $vars['active'] = $list['Services'][$machine_name];
+    // allow theme to override this if set
+    $theme_override = theme_get_setting('foundation_access_system_label');
+    if (!empty($theme_override)) {
+      $vars['active']['title'] = $theme_override;
+    }
     // add in link to the CIS location if permission exists
     // @ignore druplart_conditional_assignment
     if (user_access('view lmsless cis link') && $settings = _cis_connector_build_registry()) {

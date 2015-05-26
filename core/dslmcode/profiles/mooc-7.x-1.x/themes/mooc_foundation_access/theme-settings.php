@@ -3,12 +3,8 @@
  * Implements hook_form_FORM_ID_alter().
  */
 function mooc_foundation_access_form_system_theme_settings_alter(&$form, &$form_state) {
-  $form['zurb_foundation']['mooc_foundation_access'] = array(
-    '#type' => 'fieldset',
-    '#title' => t('Foundation Access'),
-  );
   // outline labeling
-  $form['zurb_foundation']['mooc_foundation_access']['mooc_foundation_access_outline_labeling'] = array(
+  $form['zurb_foundation']['foundation_access']['mooc_foundation_access_outline_labeling'] = array(
     '#type' => 'select',
     '#title' => t('Outline labeling'),
     '#description' => t('How would you like the outline to be presented in the menu?'),
@@ -21,7 +17,7 @@ function mooc_foundation_access_form_system_theme_settings_alter(&$form, &$form_
     '#default_value' => theme_get_setting('mooc_foundation_access_outline_labeling'),
   );
   // outline label
-  $form['zurb_foundation']['mooc_foundation_access']['mooc_foundation_access_outline_label'] = array(
+  $form['zurb_foundation']['foundation_access']['mooc_foundation_access_outline_label'] = array(
     '#type' => 'textfield',
     '#title' => t('Outline label'),
     '#description' => t('The label to apply to the outline automatically (assuming the previous setting says to do so).'),
