@@ -159,25 +159,43 @@ function _cis_connection_object($id = NULL, $entity_type = 'node', $format = 'js
  * service-instance in the CIS and updating the cron_key
  * in one function instead of multiple transactions.
  *
- * @param $select
+ * @param $query
  *   array of values to select in the CIS data source
  *   which supports multiple values but commonly is
  *   for the selection of 1 item
  * @param $data
  *   the data values to modify in the result set of
  *   items that were found via the select.
+ * @param  string  $id_field    entity id field like nid
+ * @param  string  $entity_type entity type requested
+ * @param  string  $bucket      system to request from and set to
+ * @param  string  $instance    any path to append
+ * @param  boolean $cached      if this should use cached results in the query
+ * @param $extra
+ *   (optional) this can contain other non-data options that the service
+ *   may use internally.  Common example could be passing 'deep-load-refs'
+ *   as the $extra variable so that entity references with in the result
+ *   set are automatically loaded.  This is a string so it can contain
+ *   any data that the current API doesn't support.
+ * @param $call_options
+ *   (optional) options beyond method. used for additional flexibility
+ *   in complex requests that may require header changes for example
+ *   transmitting files or issing non-blocking calls.
+ * @return array               array of updated results if applicable
  */
-function _cis_connection_set_data($select, $data) {
+function _cis_connection_set_data($query, $data, $id_field = 'nid', $entity_type = 'node', $bucket = 'cis', $instance = '', $cached = TRUE, $extra = '', $call_options = NULL) {
+  $saved = array();
   // query to get an information set
-  $resp = _cis_connection_query($select);
+  $result = _cis_connection_query($query, $entity_type, 'json', 'GET', $bucket, $instance, $cached);
   // if we have an item, its a valid item
-  if (!empty($resp['list'])) {
+  if (!empty($result['list'])) {
     // update all items that were found
-    foreach ($resp['list'] as $response_item) {
-      // post back to CIS
-      _cis_connection_object($response_item['nid'], 'node', NULL, 'PUT', $data);
+    foreach ($result['list'] as $response_item) {
+      // post back to place queried from
+      $saved[] = _cis_connection_object($response_item[$id_field], $entity_type, NULL, 'PUT', $data, $bucket, $instance, $extra, $call_options);
     }
   }
+  return $saved;
 }
 
 /**
