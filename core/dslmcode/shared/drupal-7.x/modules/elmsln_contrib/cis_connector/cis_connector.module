@@ -346,13 +346,37 @@ function _cis_connector_format_address($settings, $instance = '', $method = 'ser
  * @return string
  *   The path after being modified to have the services location removed.
  */
-function _cis_connector_real_address($path) {
+function _cis_connector_real_address($path, $bucket = 'cis') {
   // verify settings bucket exist
   // @ignore druplart_conditional_assignment
-  if ($settings = _cis_connector_build_registry('cis')) {
+  if ($settings = _cis_connector_build_registry($bucket)) {
     // need to account for services in the services sites bucket
     // then need to swap service address for front-end address
     return str_replace('/services/', '/', str_replace($settings['service_address'], $settings['address'], $path));
+  }
+}
+
+/**
+ * Determine if this is an authority or service based on registry.
+ *
+ * This is effectively a boolean service or authority for now but
+ * not making it a boolean in-case we do come up with other system
+ * types in the future.
+ *
+ * @return string returns the string service or authority
+ */
+function _cis_connector_system_type($bucket = NULL) {
+  // if null, rely on the install profile
+  if (empty($bucket)) {
+    $bucket = variable_get('install_profile', 'standard');
+  }
+  if ($settings = _cis_connector_build_registry($bucket)) {
+    if (isset($settings['instance']) && $settings['instance']) {
+      return 'service';
+    }
+    else {
+      return 'authority';
+    }
   }
 }
 
@@ -1131,7 +1155,7 @@ function cis_connector_entity_presave($entity, $type) {
     // if we have at least 1 match, add the settings, otherwise never runs
     foreach ($rem as $key => $item) {
       // make sure this isn't the current bucket we are working in
-      if (!in_array(variable_get('install_profile', ''), $item['buckets'])) {
+      if (!in_array(variable_get('install_profile', 'standard'), $item['buckets'])) {
         // prepare the item for shipment
         $data = _cis_connection_prepare_entity($entity);
         // execute call
@@ -1170,7 +1194,7 @@ function cis_connector_form_alter(&$form, &$form_state, $form_id) {
     // pop off the 1 we have as this is specific
     $item = array_pop($rem);
     // test for entity form and not in a bucket we write to
-    if ($form_id == $item['bundle'] . '_' . $item['type'] . '_' . 'form' && !in_array(variable_get('install_profile', ''), $item['buckets'])) {
+    if ($form_id == $item['bundle'] . '_' . $item['type'] . '_' . 'form' && !in_array(variable_get('install_profile', 'standard'), $item['buckets'])) {
       // search fields on external instance and modify settings when needed
       foreach ($form_state['field'] as $field_name => $field) {
         if ($field['und']['field']['settings']['cis_connector_access']) {
