@@ -104,4 +104,5 @@ dependencies[] = features
 dependencies[] = features_override
 dependencies[] = harmony_atjs
 dependencies[] = harmony_core
+dependencies[] = cis_service_roles
 dependencies[] = foundation_access_ux
