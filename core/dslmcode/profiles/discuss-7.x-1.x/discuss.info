@@ -100,9 +100,9 @@ dependencies[] = views_bulk_operations
 dependencies[] = views_load_more
 dependencies[] = views_ui
 ; Features
+dependencies[] = cis_service_roles
 dependencies[] = features
 dependencies[] = features_override
 dependencies[] = harmony_atjs
 dependencies[] = harmony_core
-dependencies[] = cis_service_roles
 dependencies[] = foundation_access_ux
