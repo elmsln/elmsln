@@ -357,6 +357,35 @@ function _cis_connector_real_address($path) {
 }
 
 /**
+ * Returns the current calculated course context.
+ *
+ * This function is what allows services to interpret addresses
+ * as being derived from base_path while authorities can calculate
+ * based on nodes in question. In CIS, this will load up the course
+ * node while in ELMSMedia for example it will load up cis_course.
+ * Still in systems like MOOC / Studio, it will load the base_path()
+ * function.
+ *
+ * @return string  $course  The machine name of the course.
+ *
+ * @see _cis_connector_section_context()
+ */
+function _cis_connector_course_context() {
+  // pull current menu object into a node if possible
+  if ($node = menu_get_object('node')) {
+    // we are in an authority system
+    if ($node->type == 'course' && isset($node->field_machine_name['und'][0]['value'])) {
+      return $node->field_machine_name['und'][0]['value'];
+    }
+    elseif ($node->type == 'cis_course' && isset($node->field_course_machine_name['und'][0]['value'])) {
+      return $node->field_course_machine_name['und'][0]['value'];
+    }
+  }
+  // fallback and usual use-case is base_path
+  return str_replace('/', '', base_path());
+}
+
+/**
  * Returns the user's section context from their group / global.
  *
  * This function can be thought of as the elmsln equivalent
