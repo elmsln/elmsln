@@ -124,9 +124,14 @@ function _cis_lmsless_theme_vars() {
       $vars['userlink'] = l(t('log out'), 'user/logout', array('attributes' => array('class' => array('account-logout', 'text-center', 'row'))));
     }
     if (_cis_connector_role_groupings(array('staff','teacher')) || isset($_SESSION['masquerading'])) {
-        $vars['admin_status_bar'] = array(
-        'course-section' => '<a href="#" data-reveal-id="block-cis-service-connection-section-context-changer-nav-modal" class="admin-alert middle-align-wrap"><span>' . $section . '</span></a>',
-      );
+      $vars['admin_status_bar'] = array();
+      // account for systems without sections (like authorities)
+      if ($section) {
+        $vars['admin_status_bar']['course-section'] = '<a href="#" data-reveal-id="block-cis-service-connection-section-context-changer-nav-modal" class="admin-alert middle-align-wrap"><span>' . $section . '</span></a>';
+      }
+      else {
+        $vars['admin_status_bar']['course-section'] = '<span class="admin-alert middle-align-wrap">' . t('no sections') . '</span>';
+      }
       if (isset($_SESSION['masquerading'])) {
         $tmp = user_load($_SESSION['masquerading']);
         $vars['admin_status_bar']['current-user-id'] = ' ' . l(t('Switch back to (@name)', array('@name' => $tmp->name)), 'masquerade/unswitch', array('query' => array('token' => drupal_get_token('masquerade/unswitch')), 'attributes' => array('class' => array('admin-alert', 'middle-align-wrap'))));

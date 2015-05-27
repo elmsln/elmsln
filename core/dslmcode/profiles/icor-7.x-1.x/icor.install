@@ -100,11 +100,13 @@ function icor_install() {
     'textbook_editor',
     'icor_defaults',
     'icor_interactive_player',
-    'regions_admin_example',
     'views_timelinejs_feature',
   );
 
   features_revert($features);
+
+    // add in a master section
+  _cis_section_make_default_section();
 
   // set admin role as such
   $admin_role = user_role_load_by_name('administrator');

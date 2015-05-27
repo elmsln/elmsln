@@ -119,35 +119,10 @@ function cle_install() {
   menu_rebuild();
   // set frontpage to cle
   variable_set('site_frontpage', 'cle');
-  // add in a master section, similar but sadly different from MOOC
-  // because of the defaults needed by each system to do it
-  _cle_default_section_content();
+  // add in a master section
+  _cis_section_make_default_section();
   // ignore any rebuild messages
   node_access_needs_rebuild(FALSE);
   // ignore any other install messages
   drupal_get_messages();
-}
-
-/**
- * Callback to generate a node during install.
- */
-function _cle_default_section_content() {
-  $node = new stdClass();
-  $node->type = 'section';
-  node_object_prepare($node);
-  $node->language = LANGUAGE_NONE;
-  $node->uid = 1;
-  $node->status = 1;
-  $node->promote = 0;
-  $node->revision = 1;
-  $node->title = t('Master Section');
-  // make up a random section id to make things happy but fake
-  $node->field_section_id[LANGUAGE_NONE][0]['value'] = 'master_' . rand(1000, 5000);
-  // mark this as inactive so it can sync with systems
-  $node->field_cis_active[LANGUAGE_NONE][0]['value'] = 0;
-  // build out via submit then save
-  if($node = node_submit($node)) {
-    node_save($node);
-  }
-  return $node;
 }

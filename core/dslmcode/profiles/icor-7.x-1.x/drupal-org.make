@@ -149,9 +149,6 @@ projects[grouping_question][subdir] = "contrib"
 projects[image_target_question][version] = "4.4-beta2"
 projects[image_target_question][subdir] = "contrib"
 
-projects[regions][version] = "1.5"
-projects[regions][subdir] = "contrib"
-
 projects[delta][version] = "3.0-beta11"
 projects[delta][subdir] = "contrib"
 

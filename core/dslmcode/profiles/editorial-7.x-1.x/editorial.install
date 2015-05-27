@@ -112,6 +112,8 @@ function editorial_install() {
     'foundation_access_ux',
   );
   features_revert($features);
+  // add in a master section
+  _cis_section_make_default_section();
   // ignore any rebuild messages
   node_access_needs_rebuild(FALSE);
   // ignore any other install messages

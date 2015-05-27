@@ -65,9 +65,6 @@ dependencies[] = lti_tool_provider_og
 dependencies[] = imce
 ; Organic groups
 dependencies[] = og
-dependencies[] = og_clone
-dependencies[] = og_context
-dependencies[] = og_register
 dependencies[] = og_ui
 ; Other
 dependencies[] = user_progress
@@ -111,7 +108,6 @@ dependencies[] = views_timelinejs_feature
 dependencies[] = views_timelinejs_extras
 dependencies[] = cis_section
 dependencies[] = cis_service_roles
-dependencies[] = regions_admin_example
 dependencies[] = icor_cis_ux
 dependencies[] = icor_interactive_player
 dependencies[] = icor_file_entities
