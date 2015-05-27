@@ -6,7 +6,7 @@
  */
 function discuss_install() {
   // Enable some discuss blocks.
-  $default_theme = 'foundation_access';
+  $default_theme = 'discuss_foundation_access';
   $admin_theme = 'rubik';
   // disable all themes
   db_update('system')
