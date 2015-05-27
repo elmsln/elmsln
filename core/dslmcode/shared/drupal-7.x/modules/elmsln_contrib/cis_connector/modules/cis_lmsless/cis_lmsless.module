@@ -153,7 +153,7 @@ function _cis_lmsless_theme_vars() {
       foreach ($services as $service) {
         $list['Services'][$service['field_machine_name']] = array(
           'title' => $service['title'],
-          'url' => $service['field_location']['url'] . base_path(),
+          'url' => $service['field_location']['url'] . '/' . _cis_connector_course_context(),
           'machine_name' => $service['field_machine_name'],
         );
       }
@@ -186,10 +186,10 @@ function _cis_lmsless_theme_vars() {
     if (user_access('view lmsless cis link') && $settings = _cis_connector_build_registry()) {
       $list['Administrative']['online'] = array(
         'title' => $settings['cis']['default_title'],
-        'url' => _cis_connector_format_address($settings['cis'], base_path(), 'front'),
+        'url' => _cis_connector_format_address($settings['cis'],  '/' . _cis_connector_course_context(), 'front'),
         'machine_name' => 'online',
       );
-      $vars['service_option_link'] = _cis_connector_format_address($settings['cis'], base_path(), 'front') . 'service-instances';
+      $vars['service_option_link'] = _cis_connector_format_address($settings['cis'],  '/' . _cis_connector_course_context(), 'front') . 'service-instances';
       // @todo better way of hooking this in / other authority systems in the future
       if (isset($settings['elmsmedia'])) {
         $list['Administrative']['media'] = array(
