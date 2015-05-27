@@ -107,9 +107,6 @@ projects[transliteration][subdir] = "contrib"
 projects[httprl][version] = "1.14"
 projects[httprl][subdir] = "contrib"
 
-projects[regions][version] = "1.7"
-projects[regions][subdir] = "contrib"
-
 projects[uuid][version] = "1.0-alpha6"
 projects[uuid][subdir] = "contrib"
 

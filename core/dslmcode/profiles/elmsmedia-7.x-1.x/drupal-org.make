@@ -98,9 +98,6 @@ projects[transliteration][subdir] = "contrib"
 projects[httprl][version] = "1.14"
 projects[httprl][subdir] = "contrib"
 
-projects[regions][version] = "1.7"
-projects[regions][subdir] = "contrib"
-
 projects[textbook][version] = "4.1"
 projects[textbook][subdir] = "contrib"
 
