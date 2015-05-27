@@ -148,6 +148,17 @@ function _cis_lmsless_theme_vars() {
     $reg = _cis_connector_build_registry($distro);
     $tmp = explode('.', $reg['address']);
     $machine_name = $tmp[0];
+    // account for the current service being worked on but not actually
+    // being actively used in the section in question
+    $list['Services'] = array();
+    if (!isset($list['Services'][$machine_name])) {
+      $list['Services'][$machine_name] = array(
+        'title' => (isset($reg['default_title']) ? $reg['default_title'] : ''),
+        'url' => $GLOBALS['base_url'] . '/' . _cis_connector_course_context(),
+        'machine_name' => $machine_name,
+      );
+    }
+    $vars['active'] = $list['Services'][$machine_name];
     // request a list of all other services that this section uses
     if ($services = _cis_connector_transaction('other_services')) {
       foreach ($services as $service) {
@@ -162,20 +173,10 @@ function _cis_lmsless_theme_vars() {
       $services = $list = array();
       $list['Services'][$machine_name] = array(
         'title' => (isset($reg['default_title']) ? $reg['default_title'] : ''),
-        'url' => $GLOBALS['base_url'] . '/',
+        'url' => $GLOBALS['base_url'] . '/' . _cis_connector_course_context(),
         'machine_name' => $machine_name,
       );
     }
-    // account for the current service being worked on but not actually
-    // being actively used in the section in question
-    if (!isset($list['Services'][$machine_name])) {
-      $list['Services'][$machine_name] = array(
-        'title' => (isset($reg['default_title']) ? $reg['default_title'] : ''),
-        'url' => $GLOBALS['base_url'] . '/',
-        'machine_name' => $machine_name,
-      );
-    }
-    $vars['active'] = $list['Services'][$machine_name];
     // allow theme to override this if set
     $theme_override = theme_get_setting('foundation_access_system_label');
     if (!empty($theme_override)) {
@@ -184,24 +185,26 @@ function _cis_lmsless_theme_vars() {
     // add in link to the CIS location if permission exists
     // @ignore druplart_conditional_assignment
     if (user_access('view lmsless cis link') && $settings = _cis_connector_build_registry()) {
-      $list['Administrative']['online'] = array(
-        'title' => $settings['cis']['default_title'],
-        'url' => _cis_connector_format_address($settings['cis'],  '/' . _cis_connector_course_context(), 'front'),
-        'machine_name' => 'online',
-      );
+      if ($vars['active']['machine_name'] != 'online') {
+        $list['Administrative']['online'] = array(
+          'title' => $settings['cis']['default_title'],
+          'url' => _cis_connector_format_address($settings['cis'],  '/' . _cis_connector_course_context(), 'front'),
+          'machine_name' => 'online',
+        );
+      }
       $vars['service_option_link'] = _cis_connector_format_address($settings['cis'],  '/' . _cis_connector_course_context(), 'front') . 'service-instances';
       // @todo better way of hooking this in / other authority systems in the future
-      if (isset($settings['elmsmedia'])) {
+      if (isset($settings['elmsmedia']) && $vars['active']['machine_name'] != 'media') {
         $list['Administrative']['media'] = array(
           'title' => $settings['elmsmedia']['default_title'],
-          'url' => _cis_connector_format_address($settings['elmsmedia'], '', 'front'),
+          'url' => _cis_connector_format_address($settings['elmsmedia'], '/' . _cis_connector_course_context(), 'front'),
           'machine_name' => 'media',
         );
       }
-      if (isset($settings['ecd'])) {
+      if (isset($settings['ecd']) && $vars['active']['machine_name'] != 'ecd') {
         $list['Administrative']['comply'] = array(
           'title' => $settings['ecd']['default_title'],
-          'url' => _cis_connector_format_address($settings['ecd'], '', 'front'),
+          'url' => _cis_connector_format_address($settings['ecd'], '/' . _cis_connector_course_context(), 'front'),
           'machine_name' => 'comply',
         );
       }
