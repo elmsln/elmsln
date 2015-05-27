@@ -10,30 +10,38 @@
      <section>
         <!-- Left Nav Section -->
         <ul class="left kill-margin middle-align-wrap">
+        <?php if ($bar_elements['network']) : ?>
           <li class="apps">
             <a href="#" class="etb-nav_item_service_btn etb-icon apps-icon middle-align-wrap" data-reveal-id="apps-nav-modal">
               <div class="icon-apps-black etb-icons svg"></div>
               <!-- <div class="message-alert middle-align-wrap"><span>1</span></div> -->
             </a>
           </li>
+          <?php endif; ?>
+          <?php if ($bar_elements['user']) : ?>
           <li>
             <a href="#" class="etb-nav_item_service_btn etb-icon user-icon middle-align-wrap" data-reveal-id="user-nav-modal">
               <div class="icon-user-black etb-icons svg"></div>
               <span class="visible-for-large-up"><?php print $username; ?></span>
             </a>
           </li>
+          <?php endif; ?>
+          <?php if ($bar_elements['help']) : ?>
           <li>
             <a href="#" class="etb-nav_item_service_btn etb-icon help-icon middle-align-wrap" data-reveal-id="help-nav-modal">
               <div class="icon-help-black etb-icons svg"></div>
               <span class="visible-for-large-up"><?php print t('Help'); ?></span>
             </a>
           </li>
+          <?php endif; ?>
+          <?php if ($bar_elements['syllabus']) : ?>
           <li class="divider-left">
             <a href="#" class="etb-nav_item_service_btn etb-icon info-icon middle-align-wrap" data-reveal-id="info-nav-modal">
               <div class="icon-info-black etb-icons svg"></div>
               <span class="visible-for-large-up"><?php print t('Syllabus'); ?></span>
             </a>
           </li>
+          <?php endif; ?>
           <li class="mini-alerts show-for-large-up flex-vertical-right">
             <?php foreach($admin_status_bar as $admin_status_msg_key => $admin_status_msg) : ?>
             <span class="<?php print $admin_status_msg_key;?>"><?php print $admin_status_msg;?></span>

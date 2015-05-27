@@ -145,74 +145,70 @@ function _cis_lmsless_theme_vars() {
       }
     }
     $distro = variable_get('install_profile', 'standard');
-    $reg = _cis_connector_build_registry($distro);
-    $tmp = explode('.', $reg['address']);
+    $reg = _cis_connector_build_registry();
+    $tmp = explode('.', $reg[$distro]['address']);
     $machine_name = $tmp[0];
     // account for the current service being worked on but not actually
     // being actively used in the section in question
-    $list['Services'] = array();
-    if (!isset($list['Services'][$machine_name])) {
-      $list['Services'][$machine_name] = array(
-        'title' => (isset($reg['default_title']) ? $reg['default_title'] : ''),
-        'url' => $GLOBALS['base_url'] . '/' . _cis_connector_course_context(),
-        'machine_name' => $machine_name,
-      );
-    }
-    $vars['active'] = $list['Services'][$machine_name];
+    $current = t('Current');
+    $list[$current][$machine_name] = array(
+      'title' => (isset($reg[$distro]['default_title']) ? $reg[$distro]['default_title'] : ''),
+      'url' => $GLOBALS['base_url'] . '/' . _cis_connector_course_context(),
+      'machine_name' => $machine_name,
+    );
+    // services label specific to course context
+    $service_group = t('@course Services', array('@course' => _cis_connector_course_context()));
+    $list[$service_group] = array();
+    // set active to the current one
+    $vars['active'] = $list[$current][$machine_name];
     // request a list of all other services that this section uses
     if ($services = _cis_connector_transaction('other_services')) {
       foreach ($services as $service) {
-        $list['Services'][$service['field_machine_name']] = array(
-          'title' => $service['title'],
-          'url' => $service['field_location']['url'] . '/' . _cis_connector_course_context(),
-          'machine_name' => $service['field_machine_name'],
-        );
+        // ensure we don't get two of these to display
+        if ($service['field_machine_name'] != $vars['active']['machine_name']) {
+          $list[$service_group][$service['field_machine_name']] = array(
+            'title' => $service['title'],
+            'url' => $service['field_location']['url'] . '/' . _cis_connector_course_context(),
+            'machine_name' => $service['field_machine_name'],
+          );
+        }
       }
-    }
-    else {
-      $services = $list = array();
-      $list['Services'][$machine_name] = array(
-        'title' => (isset($reg['default_title']) ? $reg['default_title'] : ''),
-        'url' => $GLOBALS['base_url'] . '/' . _cis_connector_course_context(),
-        'machine_name' => $machine_name,
-      );
     }
     // allow theme to override this if set
     $theme_override = theme_get_setting('foundation_access_system_label');
     if (!empty($theme_override)) {
       $vars['active']['title'] = $theme_override;
     }
-    // add in link to the CIS location if permission exists
+    // add in links to the Authority systems if permission exists
     // @ignore druplart_conditional_assignment
-    if (user_access('view lmsless cis link') && $settings = _cis_connector_build_registry()) {
-      if ($vars['active']['machine_name'] != 'online') {
-        $list['Administrative']['online'] = array(
-          'title' => $settings['cis']['default_title'],
-          'url' => _cis_connector_format_address($settings['cis'],  '/' . _cis_connector_course_context(), 'front'),
-          'machine_name' => 'online',
-        );
+    $administrative = t('Administrative');
+    if (user_access('view lmsless cis link') && is_array($reg)) {
+      foreach ($reg as $key => $value) {
+        $addr = explode('.', $value['address']);
+        if (!$value['instance'] && $addr[0] != $vars['active']['machine_name']) {
+          $list[$administrative][$addr[0]] = array(
+            'title' => $reg[$key]['default_title'],
+            'url' => _cis_connector_format_address($reg[$key],  '/' . _cis_connector_course_context(), 'front'),
+            'machine_name' => $addr[0],
+          );
+        }
       }
-      $vars['service_option_link'] = _cis_connector_format_address($settings['cis'],  '/' . _cis_connector_course_context(), 'front') . 'service-instances';
-      // @todo better way of hooking this in / other authority systems in the future
-      if (isset($settings['elmsmedia']) && $vars['active']['machine_name'] != 'media') {
-        $list['Administrative']['media'] = array(
-          'title' => $settings['elmsmedia']['default_title'],
-          'url' => _cis_connector_format_address($settings['elmsmedia'], '/' . _cis_connector_course_context(), 'front'),
-          'machine_name' => 'media',
-        );
-      }
-      if (isset($settings['ecd']) && $vars['active']['machine_name'] != 'ecd') {
-        $list['Administrative']['comply'] = array(
-          'title' => $settings['ecd']['default_title'],
-          'url' => _cis_connector_format_address($settings['ecd'], '/' . _cis_connector_course_context(), 'front'),
-          'machine_name' => 'comply',
-        );
-      }
+      // contextual link for the service creation stuff inline
+      $vars['service_option_link'] = _cis_connector_format_address($reg['cis'],  '/' . _cis_connector_course_context(), 'front') . 'service-instances';
     }
     $vars['services'] = $list;
     // support for search bar if active
     if (module_exists('search') && user_access('search content')) {
       $vars['search'] = drupal_get_form('search_block_form');
+    }
+    // if authority, remove the syllabus
+    if (_cis_connector_system_type() == 'authority') {
+      $vars['bar_elements'] = array(
+        'network' => TRUE,
+        'user' => TRUE,
+        'help' => TRUE,
+        'syllabus' => FALSE
+      );
     }
     // allow other projects to alter these values
     drupal_alter('cis_lmsless_theme_vars', $vars);
@@ -241,6 +237,7 @@ function cis_lmsless_theme() {
         'resources' => array(),
         'tech_support' => array(),
         'admin_status_bar' => array(),
+        'bar_elements' => array('network' => TRUE, 'user' => TRUE, 'help' => TRUE, 'syllabus' => TRUE),
       ),
       'render element' => 'element',
       'template' => 'templates/cis-lmsless-bar',
