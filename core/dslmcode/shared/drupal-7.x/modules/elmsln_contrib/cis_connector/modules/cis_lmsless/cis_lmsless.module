@@ -163,7 +163,6 @@ function _cis_lmsless_theme_vars() {
     );
     // services label specific to course context
     $service_group = t('@course Services', array('@course' => _cis_connector_course_context()));
-    $list[$service_group] = array();
     // set active to the current one
     $vars['active'] = $list[$current][$machine_name];
     // request a list of all other services that this section uses
