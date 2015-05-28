@@ -5,6 +5,22 @@
  */
 
 /**
+ * Implements hook_install().
+ */
+function cis_service_roles_install() {
+  // load all roles and loop through
+  $roles = db_select('role', 'r')
+    ->fields('r')
+    ->execute();
+  foreach ($roles as $role) {
+    // save each role which looks like it does nothing but as part of this
+    // update hook it will generate a machine_name which will trigger everything
+    // else to rebuild downstream and help us avoid rolemageddon
+    user_role_save($role);
+  }
+}
+
+/**
  * Implements hook_update_N().
  */
 function cis_service_roles_update_7001(&$sandbox) {
