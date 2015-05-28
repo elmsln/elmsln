@@ -157,7 +157,7 @@ function _cis_lmsless_theme_vars() {
     // being actively used in the section in question
     $current = t('Current');
     $current_url = $GLOBALS['base_url'] . '/';
-    if (!strpos($current_url, _cis_connector_course_context())) {
+    if (_cis_connector_system_type() == 'authority') {
       $current_url .= _cis_connector_course_context();
     }
     $list[$current][$machine_name] = array(
