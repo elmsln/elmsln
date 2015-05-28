@@ -593,3 +593,20 @@ function _cis_section_make_default_section() {
   }
   return $node;
 }
+
+/**
+ * Implements hook_form_FORM_ID_alter().
+ */
+function cis_section_form_cis_service_connection_ux_form_alter(&$form, &$form_state, $form_id) {
+  $options = array('default' => 'No default') + _cis_connector_assemble_entity_list('node', 'section', 'field_section_id', 'title');
+
+  $form['site_information']['cis_section_default'] = array(
+    '#default_value' => variable_get('cis_section_default', 'default'),
+    '#weight' => '3',
+    '#description' => t('This is used in cases where a user is not in a group but should still have access to the system such as a course that allows annonymous access or access to anyone to passes the authentication system but isn\'t nessecarily in a section.'),
+    '#type' => 'select',
+    '#title' => t('Default section'),
+    '#options' => $options,
+    '#required' => '1',
+  );
+}
