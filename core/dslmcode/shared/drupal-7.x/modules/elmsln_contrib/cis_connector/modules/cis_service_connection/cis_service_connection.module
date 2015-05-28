@@ -570,25 +570,27 @@ function cis_service_connection_block_instructor_contact() {
  */
 function cis_service_connection_block_section_context_changer_form() {
   // provide all sections of students in this course
-  $sections = cis_section_all_sections();
   $form = array();
-  $form['section'] = array(
-    '#type' => 'select',
-    '#options' => $sections,
-    '#chosen' => TRUE,
-    '#title' => t('Section to view'),
-    '#default_value' => _cis_connector_section_context(),
-  );
-  $form['submit'] = array(
-    '#type' => 'submit',
-    '#value' => t('Switch section'),
-  );
-  // check for section context override
-  if (isset($_SESSION['cis_section_context'])) {
-    $form['reset'] = array(
-      '#type' => 'submit',
-      '#value' => t('Reset'),
+  if (module_exists('cis_section')) {
+    $sections = cis_section_all_sections();
+    $form['section'] = array(
+      '#type' => 'select',
+      '#options' => $sections,
+      '#chosen' => TRUE,
+      '#title' => t('Section to view'),
+      '#default_value' => _cis_connector_section_context(),
     );
+    $form['submit'] = array(
+      '#type' => 'submit',
+      '#value' => t('Switch section'),
+    );
+    // check for section context override
+    if (isset($_SESSION['cis_section_context'])) {
+      $form['reset'] = array(
+        '#type' => 'submit',
+        '#value' => t('Reset'),
+      );
+    }
   }
   return $form;
 }
@@ -646,60 +648,4 @@ function cis_service_connection_load_group($section = NULL) {
     }
   }
   return NULL;
-}
-
-/**
- * Handle Role expiration.
- *
- * Accept a section name and look up an associated organic group.
- * Read in the group's user list and set all student roles to past student
- *
- * @param $section
- *   string section to expire roles for.
- */
-function _cis_service_connection_expire_roles($section) {
-  // full group node for this section
-  $group = cis_service_connection_load_group($section);
-  // Get a list of all the users in the group
-  $students = _cis_service_connection_get_users_in_group($group->nid);
-  // add past_student role
-  $role = user_role_load_by_name('past student');
-  user_multiple_role_edit($students, 'add_role', $role->rid);
-  // drop student role
-  $role = user_role_load_by_name('student');
-  user_multiple_role_edit($students, 'remove_role', $role->rid);
-}
-
-/**
- * Get all students of a group.
- *
- * @param $gid
- *   group / section entity id.
- * @return array
- *   list of user ids
- */
-function _cis_service_connection_get_users_in_group($gid) {
-  // load full student role object by name
-  $role = user_role_load_by_name('student');
-  // return membership to this group that are students
-  $query = db_select('og_membership', 'ogm');
-  // join user roles and memberships
-  $query->join('users_roles', 'ur', 'ur.uid = ogm.etid');
-  // only this group
-  $query->condition('ogm.gid', $gid, '=');
-  // ensure it's a user type of entity
-  $query->condition('ogm.entity_type', 'user', '=');
-  // only grab people who are students
-  $query->condition('ur.rid', $role->rid, '=');
-  // return the entity id which is the user's id
-  $query->fields('ogm', array('etid'));
-  // execute
-  $result = $query->execute();
-  $records = $result->fetchAll();
-  $uids = array();
-  // convert to an array of uids
-  foreach ($records as $record) {
-    $uids[] = $record->etid;
-  }
-  return $uids;
 }

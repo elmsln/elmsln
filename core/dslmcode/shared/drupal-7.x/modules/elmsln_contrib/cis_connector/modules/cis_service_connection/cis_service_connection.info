@@ -5,5 +5,3 @@ package = ELMSLN Core
 files[] = cis_service_connection.module
 files[] = cis_service_connection.install
 dependencies[] = cis_connector
-dependencies[] = cis_section
-dependencies[] = og
