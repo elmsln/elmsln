@@ -71,25 +71,27 @@ function elmsmedia_feature_field_default_field_instances() {
     ),
   );
 
-  // Exported field_instance: 'node-audio-field_course'
-  $field_instances['node-audio-field_course'] = array(
+  // Exported field_instance: 'node-audio-field_cis_course_ref'
+  $field_instances['node-audio-field_cis_course_ref'] = array(
     'bundle' => 'audio',
     'default_value' => NULL,
     'deleted' => 0,
     'description' => '',
     'display' => array(
       'default' => array(
-        'label' => 'hidden',
-        'module' => 'taxonomy',
-        'settings' => array(),
-        'type' => 'taxonomy_term_reference_plain',
-        'weight' => 0,
+        'label' => 'above',
+        'module' => 'entityreference',
+        'settings' => array(
+          'link' => FALSE,
+        ),
+        'type' => 'entityreference_label',
+        'weight' => 3,
       ),
       'iframe' => array(
-        'label' => 'hidden',
+        'label' => 'above',
         'settings' => array(),
         'type' => 'hidden',
-        'weight' => 1,
+        'weight' => 0,
       ),
       'teaser' => array(
         'label' => 'above',
@@ -99,26 +101,74 @@ function elmsmedia_feature_field_default_field_instances() {
       ),
     ),
     'entity_type' => 'node',
-    'field_name' => 'field_course',
+    'fences_wrapper' => 'div',
+    'field_name' => 'field_cis_course_ref',
     'label' => 'Course',
     'required' => 0,
     'settings' => array(
       'user_register_form' => FALSE,
     ),
     'widget' => array(
-      'active' => 0,
-      'module' => 'taxonomy',
+      'active' => 1,
+      'module' => 'options',
       'settings' => array(
-        'autocomplete_path' => 'taxonomy/autocomplete',
-        'size' => 60,
+        'apply_chosen' => '',
       ),
-      'type' => 'taxonomy_autocomplete',
-      'weight' => 32,
+      'type' => 'options_select',
+      'weight' => 36,
     ),
   );
 
-  // Exported field_instance: 'node-document-field_course'
-  $field_instances['node-document-field_course'] = array(
+  // Exported field_instance: 'node-audio-field_tagging'
+  $field_instances['node-audio-field_tagging'] = array(
+    'bundle' => 'audio',
+    'default_value' => NULL,
+    'deleted' => 0,
+    'description' => '',
+    'display' => array(
+      'default' => array(
+        'label' => 'above',
+        'module' => 'taxonomy',
+        'settings' => array(),
+        'type' => 'taxonomy_term_reference_link',
+        'weight' => 2,
+      ),
+      'iframe' => array(
+        'label' => 'above',
+        'settings' => array(),
+        'type' => 'hidden',
+        'weight' => 0,
+      ),
+      'teaser' => array(
+        'label' => 'above',
+        'settings' => array(),
+        'type' => 'hidden',
+        'weight' => 0,
+      ),
+    ),
+    'entity_type' => 'node',
+    'fences_wrapper' => 'div',
+    'field_name' => 'field_tagging',
+    'label' => 'Tagging',
+    'required' => 0,
+    'settings' => array(
+      'user_register_form' => FALSE,
+    ),
+    'widget' => array(
+      'active' => 0,
+      'module' => 'autocomplete_deluxe',
+      'settings' => array(
+        'autocomplete_deluxe_path' => 'autocomplete_deluxe/taxonomy',
+        'autocomplete_path' => 'taxonomy/autocomplete',
+        'size' => 60,
+      ),
+      'type' => 'autocomplete_deluxe_taxonomy',
+      'weight' => 35,
+    ),
+  );
+
+  // Exported field_instance: 'node-document-field_cis_course_ref'
+  $field_instances['node-document-field_cis_course_ref'] = array(
     'bundle' => 'document',
     'default_value' => NULL,
     'deleted' => 0,
@@ -126,9 +176,12 @@ function elmsmedia_feature_field_default_field_instances() {
     'display' => array(
       'default' => array(
         'label' => 'above',
-        'settings' => array(),
-        'type' => 'hidden',
-        'weight' => 1,
+        'module' => 'entityreference',
+        'settings' => array(
+          'link' => FALSE,
+        ),
+        'type' => 'entityreference_label',
+        'weight' => 3,
       ),
       'teaser' => array(
         'label' => 'above',
@@ -138,21 +191,21 @@ function elmsmedia_feature_field_default_field_instances() {
       ),
     ),
     'entity_type' => 'node',
-    'field_name' => 'field_course',
+    'fences_wrapper' => 'div',
+    'field_name' => 'field_cis_course_ref',
     'label' => 'Course',
     'required' => 0,
     'settings' => array(
       'user_register_form' => FALSE,
     ),
     'widget' => array(
-      'active' => 0,
-      'module' => 'taxonomy',
+      'active' => 1,
+      'module' => 'options',
       'settings' => array(
-        'autocomplete_path' => 'taxonomy/autocomplete',
-        'size' => 60,
+        'apply_chosen' => '',
       ),
-      'type' => 'taxonomy_autocomplete',
-      'weight' => 33,
+      'type' => 'options_select',
+      'weight' => 37,
     ),
   );
 
@@ -198,43 +251,90 @@ function elmsmedia_feature_field_default_field_instances() {
     ),
   );
 
-  // Exported field_instance: 'node-elmsmedia_image-field_course'
-  $field_instances['node-elmsmedia_image-field_course'] = array(
+  // Exported field_instance: 'node-document-field_tagging'
+  $field_instances['node-document-field_tagging'] = array(
+    'bundle' => 'document',
+    'default_value' => NULL,
+    'deleted' => 0,
+    'description' => '',
+    'display' => array(
+      'default' => array(
+        'label' => 'above',
+        'module' => 'taxonomy',
+        'settings' => array(),
+        'type' => 'taxonomy_term_reference_link',
+        'weight' => 2,
+      ),
+      'teaser' => array(
+        'label' => 'above',
+        'settings' => array(),
+        'type' => 'hidden',
+        'weight' => 0,
+      ),
+    ),
+    'entity_type' => 'node',
+    'fences_wrapper' => 'div',
+    'field_name' => 'field_tagging',
+    'label' => 'Tagging',
+    'required' => 0,
+    'settings' => array(
+      'user_register_form' => FALSE,
+    ),
+    'widget' => array(
+      'active' => 1,
+      'module' => 'autocomplete_deluxe',
+      'settings' => array(
+        'autocomplete_deluxe_path' => 'autocomplete_deluxe/taxonomy',
+        'delimiter' => '',
+        'limit' => 10,
+        'min_length' => 0,
+        'not_found_message' => 'The term \'@term\' will be added.',
+        'size' => 60,
+      ),
+      'type' => 'autocomplete_deluxe_taxonomy',
+      'weight' => 35,
+    ),
+  );
+
+  // Exported field_instance: 'node-elmsmedia_image-field_cis_course_ref'
+  $field_instances['node-elmsmedia_image-field_cis_course_ref'] = array(
     'bundle' => 'elmsmedia_image',
     'default_value' => NULL,
     'deleted' => 0,
     'description' => '',
     'display' => array(
       'default' => array(
-        'label' => 'hidden',
-        'module' => 'taxonomy',
-        'settings' => array(),
-        'type' => 'taxonomy_term_reference_link',
-        'weight' => 0,
+        'label' => 'above',
+        'module' => 'entityreference',
+        'settings' => array(
+          'link' => FALSE,
+        ),
+        'type' => 'entityreference_label',
+        'weight' => 3,
       ),
       'iframe' => array(
         'label' => 'above',
         'settings' => array(),
         'type' => 'hidden',
-        'weight' => 1,
+        'weight' => 0,
       ),
     ),
     'entity_type' => 'node',
-    'field_name' => 'field_course',
+    'fences_wrapper' => 'div',
+    'field_name' => 'field_cis_course_ref',
     'label' => 'Course',
     'required' => 0,
     'settings' => array(
       'user_register_form' => FALSE,
     ),
     'widget' => array(
-      'active' => 0,
-      'module' => 'taxonomy',
+      'active' => 1,
+      'module' => 'options',
       'settings' => array(
-        'autocomplete_path' => 'taxonomy/autocomplete',
-        'size' => 60,
+        'apply_chosen' => '',
       ),
-      'type' => 'taxonomy_autocomplete',
-      'weight' => 33,
+      'type' => 'options_select',
+      'weight' => 36,
     ),
   );
 
@@ -295,27 +395,21 @@ function elmsmedia_feature_field_default_field_instances() {
     ),
   );
 
-  // Exported field_instance: 'node-external_video-field_course'
-  $field_instances['node-external_video-field_course'] = array(
-    'bundle' => 'external_video',
+  // Exported field_instance: 'node-elmsmedia_image-field_tagging'
+  $field_instances['node-elmsmedia_image-field_tagging'] = array(
+    'bundle' => 'elmsmedia_image',
     'default_value' => NULL,
     'deleted' => 0,
     'description' => '',
     'display' => array(
       'default' => array(
-        'label' => 'inline',
+        'label' => 'above',
         'module' => 'taxonomy',
         'settings' => array(),
-        'type' => 'taxonomy_term_reference_plain',
+        'type' => 'taxonomy_term_reference_link',
         'weight' => 2,
       ),
       'iframe' => array(
-        'label' => 'inline',
-        'settings' => array(),
-        'type' => 'hidden',
-        'weight' => 1,
-      ),
-      'teaser' => array(
         'label' => 'above',
         'settings' => array(),
         'type' => 'hidden',
@@ -323,8 +417,9 @@ function elmsmedia_feature_field_default_field_instances() {
       ),
     ),
     'entity_type' => 'node',
-    'field_name' => 'field_course',
-    'label' => 'Course',
+    'fences_wrapper' => 'div',
+    'field_name' => 'field_tagging',
+    'label' => 'Tagging',
     'required' => 0,
     'settings' => array(
       'user_register_form' => FALSE,
@@ -337,7 +432,55 @@ function elmsmedia_feature_field_default_field_instances() {
         'size' => 60,
       ),
       'type' => 'taxonomy_autocomplete',
-      'weight' => 1,
+      'weight' => 34,
+    ),
+  );
+
+  // Exported field_instance: 'node-external_video-field_cis_course_ref'
+  $field_instances['node-external_video-field_cis_course_ref'] = array(
+    'bundle' => 'external_video',
+    'default_value' => NULL,
+    'deleted' => 0,
+    'description' => '',
+    'display' => array(
+      'default' => array(
+        'label' => 'above',
+        'module' => 'entityreference',
+        'settings' => array(
+          'link' => FALSE,
+        ),
+        'type' => 'entityreference_label',
+        'weight' => 4,
+      ),
+      'iframe' => array(
+        'label' => 'above',
+        'settings' => array(),
+        'type' => 'hidden',
+        'weight' => 0,
+      ),
+      'teaser' => array(
+        'label' => 'above',
+        'settings' => array(),
+        'type' => 'hidden',
+        'weight' => 0,
+      ),
+    ),
+    'entity_type' => 'node',
+    'fences_wrapper' => 'div',
+    'field_name' => 'field_cis_course_ref',
+    'label' => 'Course',
+    'required' => 0,
+    'settings' => array(
+      'user_register_form' => FALSE,
+    ),
+    'widget' => array(
+      'active' => 1,
+      'module' => 'options',
+      'settings' => array(
+        'apply_chosen' => '',
+      ),
+      'type' => 'options_select',
+      'weight' => 7,
     ),
   );
 
@@ -395,6 +538,57 @@ function elmsmedia_feature_field_default_field_instances() {
     ),
   );
 
+  // Exported field_instance: 'node-external_video-field_tagging'
+  $field_instances['node-external_video-field_tagging'] = array(
+    'bundle' => 'external_video',
+    'default_value' => NULL,
+    'deleted' => 0,
+    'description' => '',
+    'display' => array(
+      'default' => array(
+        'label' => 'above',
+        'module' => 'taxonomy',
+        'settings' => array(),
+        'type' => 'taxonomy_term_reference_link',
+        'weight' => 3,
+      ),
+      'iframe' => array(
+        'label' => 'above',
+        'settings' => array(),
+        'type' => 'hidden',
+        'weight' => 0,
+      ),
+      'teaser' => array(
+        'label' => 'above',
+        'settings' => array(),
+        'type' => 'hidden',
+        'weight' => 0,
+      ),
+    ),
+    'entity_type' => 'node',
+    'fences_wrapper' => 'div',
+    'field_name' => 'field_tagging',
+    'label' => 'Tagging',
+    'required' => 0,
+    'settings' => array(
+      'user_register_form' => FALSE,
+    ),
+    'widget' => array(
+      'active' => 1,
+      'module' => 'autocomplete_deluxe',
+      'settings' => array(
+        'autocomplete_deluxe_path' => 'autocomplete_deluxe/taxonomy',
+        'delimiter' => '',
+        'limit' => 10,
+        'min_length' => 0,
+        'not_found_message' => 'The term \'@term\' will be added.',
+        'size' => 60,
+      ),
+      'type' => 'autocomplete_deluxe_taxonomy',
+      'weight' => 5,
+    ),
+  );
+
   // Exported field_instance: 'node-video-field_caption'
   $field_instances['node-video-field_caption'] = array(
     'bundle' => 'video',
@@ -442,19 +636,21 @@ function elmsmedia_feature_field_default_field_instances() {
     ),
   );
 
-  // Exported field_instance: 'node-video-field_course'
-  $field_instances['node-video-field_course'] = array(
+  // Exported field_instance: 'node-video-field_cis_course_ref'
+  $field_instances['node-video-field_cis_course_ref'] = array(
     'bundle' => 'video',
     'default_value' => NULL,
     'deleted' => 0,
-    'description' => 'The course that this asset is primarily associated with.',
+    'description' => '',
     'display' => array(
       'default' => array(
-        'label' => 'inline',
-        'module' => 'taxonomy',
-        'settings' => array(),
-        'type' => 'taxonomy_term_reference_plain',
-        'weight' => 0,
+        'label' => 'above',
+        'module' => 'entityreference',
+        'settings' => array(
+          'link' => FALSE,
+        ),
+        'type' => 'entityreference_label',
+        'weight' => 6,
       ),
       'iframe' => array(
         'label' => 'above',
@@ -470,21 +666,21 @@ function elmsmedia_feature_field_default_field_instances() {
       ),
     ),
     'entity_type' => 'node',
-    'field_name' => 'field_course',
+    'fences_wrapper' => 'div',
+    'field_name' => 'field_cis_course_ref',
     'label' => 'Course',
-    'required' => 1,
+    'required' => 0,
     'settings' => array(
       'user_register_form' => FALSE,
     ),
     'widget' => array(
-      'active' => 0,
-      'module' => 'taxonomy',
+      'active' => 1,
+      'module' => 'options',
       'settings' => array(
-        'autocomplete_path' => 'taxonomy/autocomplete',
-        'size' => 60,
+        'apply_chosen' => '',
       ),
-      'type' => 'taxonomy_autocomplete',
-      'weight' => 2,
+      'type' => 'options_select',
+      'weight' => 10,
     ),
   );
 
@@ -540,6 +736,52 @@ function elmsmedia_feature_field_default_field_instances() {
       ),
       'type' => 'image_image',
       'weight' => 4,
+    ),
+  );
+
+  // Exported field_instance: 'node-video-field_tagging'
+  $field_instances['node-video-field_tagging'] = array(
+    'bundle' => 'video',
+    'default_value' => NULL,
+    'deleted' => 0,
+    'description' => '',
+    'display' => array(
+      'default' => array(
+        'label' => 'above',
+        'module' => 'taxonomy',
+        'settings' => array(),
+        'type' => 'taxonomy_term_reference_link',
+        'weight' => 5,
+      ),
+      'iframe' => array(
+        'label' => 'above',
+        'settings' => array(),
+        'type' => 'hidden',
+        'weight' => 0,
+      ),
+      'teaser' => array(
+        'label' => 'above',
+        'settings' => array(),
+        'type' => 'hidden',
+        'weight' => 0,
+      ),
+    ),
+    'entity_type' => 'node',
+    'field_name' => 'field_tagging',
+    'label' => 'Tagging',
+    'required' => FALSE,
+    'settings' => array(
+      'user_register_form' => FALSE,
+    ),
+    'widget' => array(
+      'module' => 'autocomplete_deluxe',
+      'settings' => array(
+        'autocomplete_deluxe_path' => 'autocomplete_deluxe/taxonomy',
+        'autocomplete_path' => 'taxonomy/autocomplete',
+        'size' => 60,
+      ),
+      'type' => 'autocomplete_deluxe_taxonomy',
+      'weight' => 8,
     ),
   );
 
@@ -616,7 +858,7 @@ function elmsmedia_feature_field_default_field_instances() {
           'controls' => 1,
           'download_link' => 0,
           'download_text' => 'Download',
-          'height' => '',
+          'height' => 360,
           'width' => '100%',
         ),
         'type' => 'mediaelement_video',
@@ -661,7 +903,7 @@ function elmsmedia_feature_field_default_field_instances() {
   t('Image');
   t('MP3 files only');
   t('Poster');
-  t('The course that this asset is primarily associated with.');
+  t('Tagging');
   t('Transcript');
   t('Video');
 

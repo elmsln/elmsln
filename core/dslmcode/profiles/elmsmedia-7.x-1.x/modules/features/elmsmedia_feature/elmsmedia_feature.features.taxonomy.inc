@@ -9,10 +9,10 @@
  */
 function elmsmedia_feature_taxonomy_default_vocabularies() {
   return array(
-    'elmsmedia_course' => array(
-      'name' => 'Course',
-      'machine_name' => 'elmsmedia_course',
-      'description' => 'Course this is associated with',
+    'elmsmedia_tag' => array(
+      'name' => 'Tag',
+      'machine_name' => 'elmsmedia_tag',
+      'description' => 'Tagging media into groups',
       'hierarchy' => 0,
       'module' => 'taxonomy',
       'weight' => 0,

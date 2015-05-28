@@ -58,7 +58,7 @@ function elmsmedia_feature_node_info() {
       'help' => '',
     ),
     'video' => array(
-      'name' => t('video'),
+      'name' => t('Video'),
       'base' => 'node_content',
       'description' => '',
       'has_title' => '1',

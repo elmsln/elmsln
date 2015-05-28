@@ -28,7 +28,7 @@ function elmsmedia_feature_strongarm() {
   $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
   $strongarm->api_version = 1;
   $strongarm->name = 'additional_settings__active_tab_video';
-  $strongarm->value = 'edit-display';
+  $strongarm->value = 'edit-submission';
   $export['additional_settings__active_tab_video'] = $strongarm;
 
   $strongarm = new stdClass();
@@ -320,7 +320,8 @@ function elmsmedia_feature_strongarm() {
   $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
   $strongarm->api_version = 1;
   $strongarm->name = 'fitvids_selectors';
-  $strongarm->value = 'body';
+  $strongarm->value = 'body
+';
   $export['fitvids_selectors'] = $strongarm;
 
   $strongarm = new stdClass();
@@ -329,6 +330,22 @@ function elmsmedia_feature_strongarm() {
   $strongarm->name = 'fitvids_simplifymarkup';
   $strongarm->value = 1;
   $export['fitvids_simplifymarkup'] = $strongarm;
+
+  $strongarm = new stdClass();
+  $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
+  $strongarm->api_version = 1;
+  $strongarm->name = 'menu_options_video';
+  $strongarm->value = array(
+    0 => 'main-menu',
+  );
+  $export['menu_options_video'] = $strongarm;
+
+  $strongarm = new stdClass();
+  $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
+  $strongarm->api_version = 1;
+  $strongarm->name = 'menu_parent_video';
+  $strongarm->value = 'main-menu:0';
+  $export['menu_parent_video'] = $strongarm;
 
   $strongarm = new stdClass();
   $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
