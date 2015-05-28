@@ -59,14 +59,6 @@ function mooc_helper_menu() {
     'type' => MENU_CALLBACK,
     'access arguments' => array('access content'),
   );
-  // fix for typo shortcut
-  $items['typo-shortcut'] = array(
-    'title' => 'Typo',
-    'page callback' => 'drupal_goto',
-    'page arguments' => array('typo-reports'),
-    'type' => MENU_CALLBACK,
-    'access arguments' => array('access typo list'),
-  );
   return $items;
 }
 
@@ -138,7 +130,7 @@ function mooc_helper_form_cis_service_connection_ux_form_alter(&$form, &$form_st
     '#description' => t('This is the default content outline for new sections that register.'),
     '#default_value' => variable_get('mooc_default_outline', ''),
     '#weight' => '0',
-    '#title' => t('Default outline'),
+    '#title' => t('Default content outline'),
     '#type' => 'select',
     '#required' => '1',
     '#options' => _mooc_helper_all_book_outlines('nid'),

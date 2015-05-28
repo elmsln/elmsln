@@ -73,17 +73,6 @@ function mooc_perms_defaultconfig_user_default_permissions() {
     'module' => 'book',
   );
 
-  // Exported permission: 'access typo list'.
-  $permissions['access typo list'] = array(
-    'name' => 'access typo list',
-    'roles' => array(
-      'administrator' => 'administrator',
-      'instructor' => 'instructor',
-      'staff' => 'staff',
-    ),
-    'module' => 'typo',
-  );
-
   // Exported permission: 'access user profiles'.
   $permissions['access user profiles'] = array(
     'name' => 'access user profiles',
@@ -241,17 +230,6 @@ function mooc_perms_defaultconfig_user_default_permissions() {
       'staff' => 'staff',
     ),
     'module' => 'masquerade',
-  );
-
-  // Exported permission: 'may send typo reports'.
-  $permissions['may send typo reports'] = array(
-    'name' => 'may send typo reports',
-    'roles' => array(
-      'administrator' => 'administrator',
-      'instructor' => 'instructor',
-      'staff' => 'staff',
-    ),
-    'module' => 'typo',
   );
 
   // Exported permission: 'perform search and replace'.
