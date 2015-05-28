@@ -35,42 +35,31 @@ function cis_service_connection_ux_form($form, $form_state) {
     '#type' => 'fieldset',
     '#collapsed' => '0',
     '#collapsible' => '1',
-    '#title' => t('Course details'),
+    '#title' => t('Details'),
     '#weight' => '0',
   );
   $form['site_information']['site_name'] = array(
-    '#description' => t('The name of the course being offered, typically a short name and number'),
+    '#description' => t('A short name for the site'),
     '#default_value' => variable_get('site_name', ''),
     '#weight' => '0',
-    '#title' => t('Course name'),
+    '#title' => t('Name'),
     '#type' => 'textfield',
     '#required' => '1',
   );
   $form['site_information']['site_slogan'] = array(
     '#default_value' => variable_get('site_slogan', ''),
     '#weight' => '1',
-    '#description' => t('Title of the course'),
+    '#description' => t('Title of this site'),
     '#type' => 'textfield',
-    '#title' => t('Course title'),
+    '#title' => t('Title'),
     '#required' => '1',
   );
   $form['site_information']['site_frontpage'] = array(
     '#default_value' => variable_get('site_frontpage', 'node'),
     '#weight' => '2',
-    '#description' => t('Home page for the course'),
+    '#description' => t('Home page for this site'),
     '#type' => 'textfield',
-    '#title' => t('Course front page'),
-    '#required' => '1',
-  );
-  $options = array('default' => 'No default') + _cis_connector_assemble_entity_list('node', 'section', 'field_section_id', 'title');
-
-  $form['site_information']['cis_section_default'] = array(
-    '#default_value' => variable_get('cis_section_default', 'default'),
-    '#weight' => '3',
-    '#description' => t('This is used in cases where a user is not in a group but should still have access to the system such as a course that allows annonymous access or access to anyone to passes the authentication system but isn\'t nessecarily in a section.'),
-    '#type' => 'select',
-    '#title' => t('Default section'),
-    '#options' => $options,
+    '#title' => t('Front page'),
     '#required' => '1',
   );
   return system_settings_form($form);
