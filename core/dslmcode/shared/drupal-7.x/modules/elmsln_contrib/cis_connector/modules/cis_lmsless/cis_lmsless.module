@@ -156,9 +156,13 @@ function _cis_lmsless_theme_vars() {
     // account for the current service being worked on but not actually
     // being actively used in the section in question
     $current = t('Current');
+    $current_url = $GLOBALS['base_url'] . '/';
+    if (!strpos($current_url, _cis_connector_course_context())) {
+      $current_url .= _cis_connector_course_context();
+    }
     $list[$current][$machine_name] = array(
       'title' => (isset($reg[$distro]['default_title']) ? $reg[$distro]['default_title'] : ''),
-      'url' => $GLOBALS['base_url'] . '/' . _cis_connector_course_context(),
+      'url' => $current_url,
       'machine_name' => $machine_name,
     );
     // services label specific to course context
