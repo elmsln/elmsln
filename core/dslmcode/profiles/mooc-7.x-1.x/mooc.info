@@ -4,153 +4,167 @@ description = "Massively Open Online Course is a set of tools for building an on
 exclusive = "1"
 core = "7.x"
 ; ----------
-; Dependencies
+; ELMSLN Core Dependencies
 ; ----------
-; Fast click
-dependencies[] = fastclick
-; Accessibility
-dependencies[] = accessibility
-dependencies[] = accessibility_wysiwyg
-dependencies[] = accessibility_content
-; Administration
-dependencies[] = admin_menu
-dependencies[] = admin_menu_toolbar
-dependencies[] = admin_theme
-dependencies[] = admin_menu_dropdown
-; Advanced CSS/JS Aggregation
-dependencies[] = advagg
-dependencies[] = advagg_bundler
-; Book
-dependencies[] = book_title_override
-; CIS
-dependencies[] = cis_connector
-dependencies[] = cis_performance_overrides
-; Chaos tool suite
-dependencies[] = ctools
-; Context
-dependencies[] = context
-dependencies[] = context_condition_theme
 ; Core
 dependencies[] = block
-dependencies[] = book
-dependencies[] = color
+dependencies[] = contextual
 dependencies[] = field
 dependencies[] = field_sql_storage
 dependencies[] = file
 dependencies[] = filter
+dependencies[] = help
+dependencies[] = image
 dependencies[] = list
 dependencies[] = menu
 dependencies[] = node
+dependencies[] = number
 dependencies[] = options
-dependencies[] = search
 dependencies[] = system
 dependencies[] = text
-dependencies[] = update
 dependencies[] = user
+; Administration
+dependencies[] = admin_menu
+dependencies[] = admin_menu_toolbar
+dependencies[] = admin_menu_dropdown
+dependencies[] = admin_theme
+dependencies[] = module_filter
+; Chaos tool suite
+dependencies[] = ctools
+; Context
+dependencies[] = context
 ; Entity
 dependencies[] = replicate
+dependencies[] = entity
+dependencies[] = entity_token
+; Fields
+dependencies[] = entityreference
+dependencies[] = entityreference_prepopulate
+dependencies[] = field_group
+dependencies[] = link
+dependencies[] = prepopulate
+; Menu
+dependencies[] = menu_attributes
+dependencies[] = special_menu_items
+; Other
+dependencies[] = better_formats
+dependencies[] = chosen
+dependencies[] = defaultconfig
+dependencies[] = diff
+dependencies[] = elements
+dependencies[] = fastclick
+dependencies[] = libraries
+dependencies[] = pathauto
+dependencies[] = placeholder
+dependencies[] = restws
+dependencies[] = restws_basic_auth
+dependencies[] = role_export
+dependencies[] = strongarm
+dependencies[] = masquerade
+dependencies[] = token
+dependencies[] = transliteration
+; Input filters
+dependencies[] = typogrify
+dependencies[] = video_filter
+; Performance and scalability
+dependencies[] = advagg
+dependencies[] = advagg_bundler
+dependencies[] = blockcache_alter
+dependencies[] = cis_performance_overrides
+dependencies[] = httprl
+dependencies[] = imageinfo_cache
+dependencies[] = entitycache
+; Textbook
+dependencies[] = textbook
+dependencies[] = textbook_editor
+dependencies[] = textbook_templates
+; UUID
+dependencies[] = uuid
+; User interface
+dependencies[] = addanother
+dependencies[] = back_to_top
+dependencies[] = ckeditor_link
+dependencies[] = ds
+dependencies[] = imce
+dependencies[] = imce_crop
+dependencies[] = imce_mkdir
+dependencies[] = imce_wysiwyg
+dependencies[] = jammer
+dependencies[] = jquery_update
+dependencies[] = wysiwyg
+dependencies[] = wysiwyg_template
+; Views
+dependencies[] = better_exposed_filters
+dependencies[] = views
+dependencies[] = views_autocomplete_filters
+dependencies[] = views_bulk_operations
+; Features
+dependencies[] = features
+dependencies[] = features_override
+; ELMSLN Core
+dependencies[] = cis_connector
+dependencies[] = cis_service_connection
+dependencies[] = cis_service_connection_ux
+dependencies[] = cis_service_roles
+dependencies[] = cis_lmsless
+dependencies[] = foundation_access_ux
+
+; ----------
+; Service Dependencies
+; ----------
+dependencies[] = og
+dependencies[] = og_ui
+dependencies[] = cis_section
+
+
+; ----------
+; MOOC Dependencies
+; ----------
+; Accessibility
+dependencies[] = accessibility
+dependencies[] = accessibility_wysiwyg
+dependencies[] = accessibility_content
+; Book
+dependencies[] = book_title_override
 ; Feeds
 dependencies[] = feeds
 dependencies[] = feeds_node_helper
 dependencies[] = feeds_tamper
 dependencies[] = feeds_xpathparser
-; Fields
-dependencies[] = entityreference
-dependencies[] = entityreference_prepopulate
-; Input filters
-dependencies[] = typogrify
-dependencies[] = video_filter
-; Jammer
-dependencies[] = jammer
-; Learning Tools Interoperability
-dependencies[] = lti_tool_provider
-dependencies[] = lti_tool_provider_og
 ; MOOC
-dependencies[] = mooc_thumbnav
 dependencies[] = mooc_helper_book_nav
-; Media
-dependencies[] = imce
-dependencies[] = imce_crop
-dependencies[] = imce_mkdir
-; Node form columns
-dependencies[] = nodeformcols
-; Organic groups
-dependencies[] = og
-dependencies[] = og_clone
-dependencies[] = og_ui
 ; Other
-dependencies[] = better_formats
 dependencies[] = book_copy
 dependencies[] = book_delete
-dependencies[] = clone
-dependencies[] = diff
-dependencies[] = defaultconfig
-dependencies[] = entity
 dependencies[] = footnotes
 dependencies[] = footnotes_wysiwyg
 dependencies[] = job_scheduler
-dependencies[] = libraries
 dependencies[] = linkchecker
-dependencies[] = masquerade
-dependencies[] = module_filter
-dependencies[] = prepopulate
-dependencies[] = restws
-dependencies[] = restws_basic_auth
 dependencies[] = scanner
-dependencies[] = strongarm
 dependencies[] = tipsy
-dependencies[] = token
-dependencies[] = transliteration
-dependencies[] = typo
-dependencies[] = jquery_update
 ; Outline Designer
 dependencies[] = outline_designer
 dependencies[] = outline_designer_book
-; Performance and scalability
-dependencies[] = entitycache
-dependencies[] = httprl
+; Performance
+dependencies[] = book_cache
 ; Permissions
 dependencies[] = hidden_nodes
 ; Textbook
-dependencies[] = textbook
 dependencies[] = speedreader
-; UUID
-dependencies[] = uuid
-; User Interface
-dependencies[] = book_touch
-dependencies[] = thumbnav
-dependencies[] = tinynav
 ; User interface
-dependencies[] = ckeditor_link
-dependencies[] = imce_wysiwyg
 dependencies[] = lightbox2
-dependencies[] = wysiwyg
-dependencies[] = wysiwyg_template
 dependencies[] = token_insert_entity
+dependencies[] = token_insert
 dependencies[] = token_insert_wysiwyg
-; Views
-dependencies[] = views
-dependencies[] = views_bulk_operations
-dependencies[] = views_data_export
-dependencies[] = views_xml_backend
 ; Features
-dependencies[] = features
-dependencies[] = cis_section
-dependencies[] = cis_service_lti
-dependencies[] = cis_service_roles
-dependencies[] = features_override
 dependencies[] = feeds_node_helper_export
 dependencies[] = feeds_node_helper_import
 dependencies[] = mooc_cis_ux
 dependencies[] = mooc_helper
 dependencies[] = mooc_textbook
 dependencies[] = mooc_ux_defaults
-dependencies[] = regions_admin_example
-dependencies[] = textbook_editor
-dependencies[] = textbook_templates
 dependencies[] = mooc_page
 dependencies[] = mooc_perms
-dependencies[] = foundation_access_ux
 dependencies[] = mooc_theme_foundation
 
 ; Information intentionally kept here to have a version w/ ELMSLN

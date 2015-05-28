@@ -4,8 +4,21 @@ api = "2"
 
 projects[drupal][version] = "7.x"
 ; include the d.o. profile base
-includes[] = "drupal-org.make"
 includes[] = "drupal-org-core.make"
+includes[] = "drupal-org.make"
+
+projects[textbook][version] = "4.2"
+projects[textbook][subdir] = "contrib"
+projects[accessibility][version] = "1.x-dev"
+projects[accessibility][subdir] = "contrib"
+projects[accessibility][patch][] = "https://www.drupal.org/files/issues/accessibility-2221601-2-features-fix.patch"
+; +++++ Libraries +++++
+
+; ckeditor 4.4.6 + codemirror and table resize
+libraries[ckeditor][download][type] = "get"
+libraries[ckeditor][download][url] = "https://github.com/psudug/ckeditor4textbook/archive/4.x.zip"
+libraries[ckeditor][directory_name] = "ckeditor"
+libraries[ckeditor][destination] = "libraries"
 
 ; shadowbox needs to fix issue before it can be included in correct make file
 projects[shadowbox][version] = "4.0-rc1"

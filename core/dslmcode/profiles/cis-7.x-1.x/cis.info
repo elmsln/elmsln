@@ -3,59 +3,132 @@ name = "CIS"
 description = "Online Course Information System"
 exclusive = "1"
 core = "7.x"
+
 ; ----------
-; Dependencies
+; ELMSLN Core Dependencies
 ; ----------
-; Fast click
-dependencies[] = fastclick
-; Administration
-dependencies[] = admin_menu
-dependencies[] = admin_menu_dropdown
-dependencies[] = admin_menu_toolbar
-; Advanced CSS/JS Aggregation
-dependencies[] = advagg
-dependencies[] = advagg_bundler
-; CIS
-dependencies[] = cis_connector
-dependencies[] = cis_helper
-dependencies[] = cis_lti
-dependencies[] = cis_si_cleanup
-dependencies[] = cis_distro_integrations
-; Chaos tool suite
-dependencies[] = ctools
-; Charting
-dependencies[] = google_chart_tools
-dependencies[] = google_chart_tools_views
-; Content
-dependencies[] = field_redirection
-; Context
-dependencies[] = context
-dependencies[] = context_ui
 ; Core
 dependencies[] = block
-dependencies[] = color
 dependencies[] = contextual
-dependencies[] = dashboard
-dependencies[] = dblog
 dependencies[] = field
 dependencies[] = field_sql_storage
-dependencies[] = field_ui
 dependencies[] = file
 dependencies[] = filter
+dependencies[] = help
 dependencies[] = image
 dependencies[] = list
 dependencies[] = menu
 dependencies[] = node
 dependencies[] = number
 dependencies[] = options
-dependencies[] = overlay
-dependencies[] = path
-dependencies[] = rdf
-dependencies[] = search
 dependencies[] = system
 dependencies[] = text
-dependencies[] = update
 dependencies[] = user
+; Administration
+dependencies[] = admin_menu
+dependencies[] = admin_menu_toolbar
+dependencies[] = admin_menu_dropdown
+dependencies[] = admin_theme
+dependencies[] = module_filter
+; Chaos tool suite
+dependencies[] = ctools
+; Context
+dependencies[] = context
+; Entity
+dependencies[] = replicate
+dependencies[] = entity
+dependencies[] = entity_token
+; Fields
+dependencies[] = entityreference
+dependencies[] = entityreference_prepopulate
+dependencies[] = field_group
+dependencies[] = link
+dependencies[] = prepopulate
+; Menu
+dependencies[] = menu_attributes
+dependencies[] = special_menu_items
+; Other
+dependencies[] = better_formats
+dependencies[] = chosen
+dependencies[] = defaultconfig
+dependencies[] = diff
+dependencies[] = elements
+dependencies[] = fastclick
+dependencies[] = libraries
+dependencies[] = pathauto
+dependencies[] = placeholder
+dependencies[] = restws
+dependencies[] = restws_basic_auth
+dependencies[] = role_export
+dependencies[] = strongarm
+dependencies[] = masquerade
+dependencies[] = token
+dependencies[] = transliteration
+; Input filters
+dependencies[] = typogrify
+dependencies[] = video_filter
+; Performance and scalability
+dependencies[] = advagg
+dependencies[] = advagg_bundler
+dependencies[] = blockcache_alter
+dependencies[] = cis_performance_overrides
+dependencies[] = httprl
+dependencies[] = imageinfo_cache
+dependencies[] = entitycache
+; Textbook
+dependencies[] = textbook
+dependencies[] = textbook_editor
+dependencies[] = textbook_templates
+; UUID
+dependencies[] = uuid
+; User interface
+dependencies[] = addanother
+dependencies[] = back_to_top
+dependencies[] = ckeditor_link
+dependencies[] = ds
+dependencies[] = imce
+dependencies[] = imce_crop
+dependencies[] = imce_mkdir
+dependencies[] = imce_wysiwyg
+dependencies[] = jammer
+dependencies[] = jquery_update
+dependencies[] = wysiwyg
+dependencies[] = wysiwyg_template
+; Views
+dependencies[] = better_exposed_filters
+dependencies[] = views
+dependencies[] = views_autocomplete_filters
+dependencies[] = views_bulk_operations
+; Features
+dependencies[] = features
+dependencies[] = features_override
+; ELMSLN Core
+dependencies[] = cis_connector
+dependencies[] = cis_service_connection
+dependencies[] = cis_service_connection_ux
+dependencies[] = cis_service_roles
+dependencies[] = cis_lmsless
+dependencies[] = foundation_access_ux
+
+; ----------
+; Authority Dependencies
+; ----------
+dependencies[] = cis_course_authority
+
+
+; ----------
+; CIS Dependencies
+; ----------
+; CIS Core
+dependencies[] = cis_helper
+dependencies[] = cis_lti
+dependencies[] = cis_si_cleanup
+dependencies[] = cis_distro_integrations
+; Charting
+dependencies[] = google_chart_tools
+dependencies[] = google_chart_tools_views
+; Content
+dependencies[] = field_redirection
 ; Data
 dependencies[] = data
 dependencies[] = data_search
@@ -72,112 +145,53 @@ dependencies[] = replicate_field_collection
 dependencies[] = replicate_ui
 ; Fields
 dependencies[] = email
-dependencies[] = entityreference
-dependencies[] = entityreference_prepopulate
 dependencies[] = field_collection
-dependencies[] = field_group
 dependencies[] = field_hidden
 dependencies[] = field_permissions
-dependencies[] = link
 dependencies[] = phone
 dependencies[] = select_or_other
-; Filter
-dependencies[] = simplehtmldom
 ; Image
 dependencies[] = smartcrop
-; Input filters
-dependencies[] = typogrify
-dependencies[] = video_filter
-; Jammer
-dependencies[] = jammer
-; Learning Tools Interoperability
-dependencies[] = lti_tool_provider
 ; Media
-dependencies[] = imce
 dependencies[] = video_embed_field
-; Node form columns
-dependencies[] = nodeformcols
 ; Nodequeue
 dependencies[] = nodequeue
 ; Other
 dependencies[] = auto_nodetitle
-dependencies[] = clone
-dependencies[] = dhtml_menu
-dependencies[] = diff
-dependencies[] = entity
-dependencies[] = entity_token
 dependencies[] = field_collection_table
 dependencies[] = file_formatters
-dependencies[] = fitvids
 dependencies[] = imagefield_focus
 dependencies[] = jquery_colorpicker
-dependencies[] = libraries
-dependencies[] = masquerade
-dependencies[] = menu_attributes
 dependencies[] = menu_block
 dependencies[] = menu_position
-dependencies[] = module_filter
 dependencies[] = nocurrent_pass
 dependencies[] = nodeaccess_nodereference
 dependencies[] = nodeaccess_userreference
-dependencies[] = pathauto
-dependencies[] = placeholder
 dependencies[] = responsive_tables
-dependencies[] = restws
-dependencies[] = restws_basic_auth
-dependencies[] = special_menu_items
-dependencies[] = strongarm
-dependencies[] = token
-dependencies[] = transliteration
 dependencies[] = unique_field
 ; Path breadcrumbs
 dependencies[] = path_breadcrumbs
-; Performance and scalability
-dependencies[] = boost_crawler
-dependencies[] = entitycache
-dependencies[] = display_cache
-dependencies[] = httprl
 dependencies[] = subpathauto
-dependencies[] = imageinfo_cache
-; Security
-dependencies[] = seckit
 ; Shadowbox
 dependencies[] = file_shadowbox
 dependencies[] = image_shadowbox
 dependencies[] = shadowbox
-; Textbook
-dependencies[] = textbook
-; UUID
-dependencies[] = uuid
 ; User interface
 dependencies[] = breakpoints
-dependencies[] = addanother
-dependencies[] = ckeditor_link
-dependencies[] = imce_wysiwyg
-dependencies[] = jquery_update
 dependencies[] = options_element
-dependencies[] = wysiwyg
 ; Views
-dependencies[] = better_exposed_filters
 dependencies[] = editableviews
-dependencies[] = views
-dependencies[] = views_autocomplete_filters
-dependencies[] = views_bulk_operations
 dependencies[] = views_data_export
 dependencies[] = views_field_calc
 dependencies[] = views_fluid_grid
 ; Features
-dependencies[] = features
 dependencies[] = cis_data
-dependencies[] = cis_section
 dependencies[] = cis_displays
 dependencies[] = cis_types
 dependencies[] = cis_breakpoints
-dependencies[] = textbook_editor
 dependencies[] = cis_users
 dependencies[] = cis_service_roles
 dependencies[] = cis_ux
-dependencies[] = foundation_access_ux
 
 ; Information added by Drupal.org packaging script on 2014-08-13
 version = "7.x-1.0-beta4+3-dev"

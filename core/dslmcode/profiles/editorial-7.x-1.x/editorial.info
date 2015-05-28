@@ -3,23 +3,15 @@ name = "Editorial"
 description = "Blogging tool, primarily designed for use in ELMSLN."
 exclusive = "1"
 core = "7.x"
+
 ; ----------
-; Dependencies
+; ELMSLN Core Dependencies
 ; ----------
-; Administration
-dependencies[] = admin_menu
-dependencies[] = admin_menu_toolbar
-dependencies[] = module_filter
-; Chaos tool suite
-dependencies[] = ctools
-; Context
-dependencies[] = context
 ; Core
 dependencies[] = block
 dependencies[] = contextual
 dependencies[] = field
 dependencies[] = field_sql_storage
-dependencies[] = field_ui
 dependencies[] = file
 dependencies[] = filter
 dependencies[] = help
@@ -32,33 +24,100 @@ dependencies[] = options
 dependencies[] = system
 dependencies[] = text
 dependencies[] = user
-; Development
-dependencies[] = profiler_builder
-; Fields
-dependencies[] = entityreference
-; Organic groups
-dependencies[] = og
-; Other
+; Administration
+dependencies[] = admin_menu
+dependencies[] = admin_menu_toolbar
+dependencies[] = admin_menu_dropdown
+dependencies[] = admin_theme
+dependencies[] = module_filter
+; Chaos tool suite
+dependencies[] = ctools
+; Context
+dependencies[] = context
+; Entity
+dependencies[] = replicate
 dependencies[] = entity
 dependencies[] = entity_token
+; Fields
+dependencies[] = entityreference
+dependencies[] = entityreference_prepopulate
+dependencies[] = field_group
+dependencies[] = link
+dependencies[] = prepopulate
+; Menu
+dependencies[] = menu_attributes
+dependencies[] = special_menu_items
+; Other
+dependencies[] = better_formats
+dependencies[] = chosen
+dependencies[] = defaultconfig
+dependencies[] = diff
+dependencies[] = elements
+dependencies[] = fastclick
 dependencies[] = libraries
+dependencies[] = pathauto
+dependencies[] = placeholder
 dependencies[] = restws
 dependencies[] = restws_basic_auth
+dependencies[] = role_export
 dependencies[] = strongarm
-dependencies[] = token
 dependencies[] = masquerade
+dependencies[] = token
+dependencies[] = transliteration
+; Input filters
+dependencies[] = typogrify
+dependencies[] = video_filter
 ; Performance and scalability
+dependencies[] = advagg
+dependencies[] = advagg_bundler
+dependencies[] = blockcache_alter
+dependencies[] = cis_performance_overrides
 dependencies[] = httprl
+dependencies[] = imageinfo_cache
+dependencies[] = entitycache
+; Textbook
+dependencies[] = textbook
+dependencies[] = textbook_editor
+dependencies[] = textbook_templates
 ; UUID
 dependencies[] = uuid
 ; User interface
+dependencies[] = addanother
+dependencies[] = back_to_top
+dependencies[] = ckeditor_link
+dependencies[] = ds
+dependencies[] = imce
+dependencies[] = imce_crop
+dependencies[] = imce_mkdir
+dependencies[] = imce_wysiwyg
+dependencies[] = jammer
 dependencies[] = jquery_update
+dependencies[] = wysiwyg
+dependencies[] = wysiwyg_template
 ; Views
+dependencies[] = better_exposed_filters
 dependencies[] = views
-dependencies[] = views_ui
+dependencies[] = views_autocomplete_filters
+dependencies[] = views_bulk_operations
 ; Features
 dependencies[] = features
-dependencies[] = cis_service_roles
+dependencies[] = features_override
+; ELMSLN Core
+dependencies[] = cis_connector
+dependencies[] = cis_service_connection
 dependencies[] = cis_service_connection_ux
-dependencies[] = cis_section
+dependencies[] = cis_service_roles
+dependencies[] = cis_lmsless
 dependencies[] = foundation_access_ux
+
+; ----------
+; Service Dependencies
+; ----------
+dependencies[] = og
+dependencies[] = og_ui
+dependencies[] = cis_section
+
+
+; ----------
+; Editorial Dependencies
+; ----------

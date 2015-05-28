@@ -6,7 +6,6 @@ dependencies[] = cis_types
 dependencies[] = context
 dependencies[] = ctools
 dependencies[] = features
-dependencies[] = fitvids
 dependencies[] = image
 dependencies[] = jquery_update
 dependencies[] = menu

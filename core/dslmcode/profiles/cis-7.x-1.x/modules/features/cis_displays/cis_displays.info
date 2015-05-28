@@ -4,6 +4,7 @@ core = 7.x
 package = CIS
 dependencies[] = better_exposed_filters
 dependencies[] = data_ui
+dependencies[] = views
 dependencies[] = editableviews
 dependencies[] = entity
 dependencies[] = entityreference

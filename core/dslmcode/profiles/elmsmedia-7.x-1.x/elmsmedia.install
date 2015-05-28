@@ -5,118 +5,16 @@
  * Perform actions to set up the site for this profile.
  */
 function elmsmedia_install() {
-  // Enable some elmsmedia blocks.
-  $default_theme = 'elmsmedia_foundation_access';
-  $admin_theme = 'rubik';
-  // fix jquery update rubrik admin theme issue
-  variable_set('theme_rubik_settings', array('rubik_disable_sidebar_in_form' => 1));
-  // disable all themes
-  db_update('system')
-    ->fields(array('status' => 0))
-    ->condition('type', 'theme')
-    ->execute();
-  // enable $default_theme
-  db_update('system')
-    ->fields(array('status' => 1))
-    ->condition('type', 'theme')
-    ->condition('name', $default_theme)
-    ->execute();
-  // enable $admin_theme
-  db_update('system')
-    ->fields(array('status' => 1))
-    ->condition('type', 'theme')
-    ->condition('name', $admin_theme)
-    ->execute();
-  variable_set('theme_default', $default_theme);
-  variable_set('admin_theme', $admin_theme);
-  // activate admin theme when editing a node
-  variable_set('node_admin_theme', '1');
-  $blocks = array(
-    array(
-      'module' => 'system',
-      'delta' => 'main',
-      'theme' => $default_theme,
-      'status' => 1,
-      'weight' => 0,
-      'region' => 'content',
-      'pages' => '',
-      'cache' => -1,
-    ),
-    array(
-      'module' => 'user',
-      'delta' => 'login',
-      'theme' => $default_theme,
-      'status' => 1,
-      'weight' => 0,
-      'region' => 'sidebar_first',
-      'pages' => '',
-      'cache' => -1,
-    ),
-    array(
-      'module' => 'system',
-      'delta' => 'help',
-      'theme' => $default_theme,
-      'status' => 1,
-      'weight' => -10,
-      'region' => 'content',
-      'pages' => '',
-      'cache' => -1,
-    ),
-    array(
-      'module' => 'system',
-      'delta' => 'main',
-      'theme' => $admin_theme,
-      'status' => 1,
-      'weight' => 0,
-      'region' => 'content',
-      'pages' => '',
-      'cache' => -1,
-    ),
-    array(
-      'module' => 'system',
-      'delta' => 'help',
-      'theme' => $admin_theme,
-      'status' => 1,
-      'weight' => 0,
-      'region' => 'help',
-      'pages' => '',
-      'cache' => -1,
-    ),
-  );
-  // drop system / user blocks to ensure correct building
-  db_delete('block')->condition('module', 'system')->execute();
-  db_delete('block')->condition('module', 'user')->execute();
-  // add in our blocks defined above
-  $query = db_insert('block')->fields(array('module', 'delta', 'theme', 'status', 'weight', 'region', 'pages', 'cache'));
-  foreach ($blocks as $block) {
-    $query->values($block);
-  }
-  $query->execute();
-
-  // set admin role as such
-  $admin_role = user_role_load_by_name('administrator');
-  user_role_grant_permissions($admin_role->rid, array_keys(module_invoke_all('permission')));
-  // Set this as the administrator role.
-  variable_set('user_admin_role', $admin_role->rid);
-
-  // Assign user 1 the "administrator" role.
-  db_insert('users_roles')
-    ->fields(array('uid' => 1, 'rid' => $admin_role->rid))
-    ->execute();
-
-  // Update the menu router information.
-  menu_rebuild();
-  // revert features to ensure they are all installed
-  $features = array(
-    'elmsmedia_feature',
-    'elmsmedia_cis_ux',
-    'textbook_editor'
-  );
-  features_revert($features);
+  // load the installer inlcude file
+  module_load_include('inc', 'cis_connector', 'includes/elmsln.install');
+  // do some initial clean up from the install
+  _elmsln_installer_preflight();
+  // to standard theme routine
+  _elmsln_installer_theme('elmsmedia_foundation_access');
+  // establish admin role
+  _elmsln_installer_admin_role();
+  // standard clean up
+  _elmsln_installer_post_install_cleanup();
   // front-page for media is the media path
   variable_set('site_frontpage', 'media-overview');
-  // ignore any rebuild messages
-  node_access_needs_rebuild(FALSE);
-  // ignore any other install messages
-  drupal_get_messages();
 }

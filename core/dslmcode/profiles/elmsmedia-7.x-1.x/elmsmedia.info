@@ -5,85 +5,133 @@ exclusive = "1"
 core = "7.x"
 
 ; ----------
-; Dependencies
+; ELMSLN Core Dependencies
 ; ----------
-; Fast click
-dependencies[] = fastclick
+; Core
+dependencies[] = block
+dependencies[] = contextual
+dependencies[] = field
+dependencies[] = field_sql_storage
+dependencies[] = file
+dependencies[] = filter
+dependencies[] = help
+dependencies[] = image
+dependencies[] = list
+dependencies[] = menu
+dependencies[] = node
+dependencies[] = number
+dependencies[] = options
+dependencies[] = system
+dependencies[] = text
+dependencies[] = user
 ; Administration
-dependencies[] = admin_devel
 dependencies[] = admin_menu
 dependencies[] = admin_menu_toolbar
+dependencies[] = admin_menu_dropdown
+dependencies[] = admin_theme
+dependencies[] = module_filter
 ; Chaos tool suite
 dependencies[] = ctools
 ; Context
 dependencies[] = context
-dependencies[] = context_ui
-; Core
-dependencies[] = block
-dependencies[] = contextual
-dependencies[] = dblog
-dependencies[] = field
-dependencies[] = field_sql_storage
-dependencies[] = field_ui
-dependencies[] = file
-dependencies[] = filter
-dependencies[] = image
-dependencies[] = list
-dependencies[] = node
-dependencies[] = options
-dependencies[] = path
-dependencies[] = system
-dependencies[] = taxonomy
-dependencies[] = text
-dependencies[] = update
-dependencies[] = user
 ; Entity
-dependencies[] = entity_iframe
-dependencies[] = entity_iframe_mode
+dependencies[] = replicate
+dependencies[] = entity
+dependencies[] = entity_token
 ; Fields
 dependencies[] = entityreference
-dependencies[] = video_embed_field
+dependencies[] = entityreference_prepopulate
+dependencies[] = field_group
+dependencies[] = link
+dependencies[] = prepopulate
+; Menu
+dependencies[] = menu_attributes
+dependencies[] = special_menu_items
+; Other
+dependencies[] = better_formats
+dependencies[] = chosen
+dependencies[] = defaultconfig
+dependencies[] = diff
+dependencies[] = elements
+dependencies[] = fastclick
+dependencies[] = libraries
+dependencies[] = pathauto
+dependencies[] = placeholder
+dependencies[] = restws
+dependencies[] = restws_basic_auth
+dependencies[] = role_export
+dependencies[] = strongarm
+dependencies[] = masquerade
+dependencies[] = token
+dependencies[] = transliteration
 ; Input filters
 dependencies[] = typogrify
 dependencies[] = video_filter
-; Media
-dependencies[] = imce
-; Other
-dependencies[] = elmsmedia_helper
-dependencies[] = entity
-dependencies[] = entity_token
-dependencies[] = fitvids
-dependencies[] = imagefield_focus
-dependencies[] = libraries
-dependencies[] = masquerade
-dependencies[] = mediaelement
-dependencies[] = restws
-dependencies[] = restws_basic_auth
-dependencies[] = module_filter
-dependencies[] = pathauto
-dependencies[] = strongarm
-dependencies[] = token
-dependencies[] = transliteration
 ; Performance and scalability
+dependencies[] = advagg
+dependencies[] = advagg_bundler
+dependencies[] = blockcache_alter
+dependencies[] = cis_performance_overrides
 dependencies[] = httprl
+dependencies[] = imageinfo_cache
+dependencies[] = entitycache
+; Textbook
+dependencies[] = textbook
+dependencies[] = textbook_editor
+dependencies[] = textbook_templates
+; UUID
+dependencies[] = uuid
 ; User interface
+dependencies[] = addanother
+dependencies[] = back_to_top
 dependencies[] = ckeditor_link
+dependencies[] = ds
+dependencies[] = imce
+dependencies[] = imce_crop
+dependencies[] = imce_mkdir
 dependencies[] = imce_wysiwyg
+dependencies[] = jammer
 dependencies[] = jquery_update
 dependencies[] = wysiwyg
+dependencies[] = wysiwyg_template
 ; Views
 dependencies[] = better_exposed_filters
 dependencies[] = views
 dependencies[] = views_autocomplete_filters
 dependencies[] = views_bulk_operations
-dependencies[] = views_fluid_grid
-dependencies[] = views_ui
 ; Features
 dependencies[] = features
+dependencies[] = features_override
+; ELMSLN Core
+dependencies[] = cis_connector
+dependencies[] = cis_service_connection
+dependencies[] = cis_service_connection_ux
 dependencies[] = cis_service_roles
-dependencies[] = cis_course_authority
-dependencies[] = elmsmedia_feature
+dependencies[] = cis_lmsless
 dependencies[] = foundation_access_ux
+
+; ----------
+; Authority Dependencies
+; ----------
+dependencies[] = cis_course_authority
+
+
+; ----------
+; ELMSMedia Dependencies
+; ----------
+; Entity
+dependencies[] = entity_iframe
+dependencies[] = entity_iframe_mode
+; Fields
+dependencies[] = video_embed_field
+; Other
+dependencies[] = elmsmedia_helper
+dependencies[] = imagefield_focus
+dependencies[] = mediaelement
+; Views
+dependencies[] = views_fluid_grid
+; Features
+dependencies[] = elmsmedia_feature
 
 ; Information added for Drupal.org usage stats while in dev
 version = "7.x-1.x-dev"

@@ -3,44 +3,127 @@ name = "ICOR"
 description = "Interactive course object repository"
 exclusive = "1"
 core = "7.x"
+
 ; ----------
-; Dependencies
+; ELMSLN Core Dependencies
 ; ----------
-; Fast click
-dependencies[] = fastclick
-; Administration
-dependencies[] = admin_menu
-dependencies[] = admin_menu_toolbar
-; Chaos tool suite
-dependencies[] = ctools
-; Charting
-dependencies[] = google_chart_tools
-dependencies[] = google_chart_tools_views
-; Context
-dependencies[] = context
-dependencies[] = context_ui
 ; Core
 dependencies[] = block
 dependencies[] = contextual
-dependencies[] = dblog
 dependencies[] = field
 dependencies[] = field_sql_storage
-dependencies[] = field_ui
 dependencies[] = file
 dependencies[] = filter
+dependencies[] = help
 dependencies[] = image
 dependencies[] = list
 dependencies[] = menu
 dependencies[] = node
 dependencies[] = number
 dependencies[] = options
-dependencies[] = overlay
-dependencies[] = poll
 dependencies[] = system
-dependencies[] = taxonomy
 dependencies[] = text
-dependencies[] = update
 dependencies[] = user
+; Administration
+dependencies[] = admin_menu
+dependencies[] = admin_menu_toolbar
+dependencies[] = admin_menu_dropdown
+dependencies[] = admin_theme
+dependencies[] = module_filter
+; Chaos tool suite
+dependencies[] = ctools
+; Context
+dependencies[] = context
+; Entity
+dependencies[] = replicate
+dependencies[] = entity
+dependencies[] = entity_token
+; Fields
+dependencies[] = entityreference
+dependencies[] = entityreference_prepopulate
+dependencies[] = field_group
+dependencies[] = link
+dependencies[] = prepopulate
+; Menu
+dependencies[] = menu_attributes
+dependencies[] = special_menu_items
+; Other
+dependencies[] = better_formats
+dependencies[] = chosen
+dependencies[] = defaultconfig
+dependencies[] = diff
+dependencies[] = elements
+dependencies[] = fastclick
+dependencies[] = libraries
+dependencies[] = pathauto
+dependencies[] = placeholder
+dependencies[] = restws
+dependencies[] = restws_basic_auth
+dependencies[] = role_export
+dependencies[] = strongarm
+dependencies[] = masquerade
+dependencies[] = token
+dependencies[] = transliteration
+; Input filters
+dependencies[] = typogrify
+dependencies[] = video_filter
+; Performance and scalability
+dependencies[] = advagg
+dependencies[] = advagg_bundler
+dependencies[] = blockcache_alter
+dependencies[] = cis_performance_overrides
+dependencies[] = httprl
+dependencies[] = imageinfo_cache
+dependencies[] = entitycache
+; Textbook
+dependencies[] = textbook
+dependencies[] = textbook_editor
+dependencies[] = textbook_templates
+; UUID
+dependencies[] = uuid
+; User interface
+dependencies[] = addanother
+dependencies[] = back_to_top
+dependencies[] = ckeditor_link
+dependencies[] = ds
+dependencies[] = imce
+dependencies[] = imce_crop
+dependencies[] = imce_mkdir
+dependencies[] = imce_wysiwyg
+dependencies[] = jammer
+dependencies[] = jquery_update
+dependencies[] = wysiwyg
+dependencies[] = wysiwyg_template
+; Views
+dependencies[] = better_exposed_filters
+dependencies[] = views
+dependencies[] = views_autocomplete_filters
+dependencies[] = views_bulk_operations
+; Features
+dependencies[] = features
+dependencies[] = features_override
+; ELMSLN Core
+dependencies[] = cis_connector
+dependencies[] = cis_service_connection
+dependencies[] = cis_service_connection_ux
+dependencies[] = cis_service_roles
+dependencies[] = cis_lmsless
+dependencies[] = foundation_access_ux
+
+; ----------
+; Service Dependencies
+; ----------
+dependencies[] = og
+dependencies[] = og_ui
+dependencies[] = cis_section
+
+
+; ----------
+; ICOR Dependencies
+; ----------
+; Charting
+dependencies[] = google_chart_tools
+dependencies[] = google_chart_tools_views
 ; Date/Time
 dependencies[] = date
 dependencies[] = date_api
@@ -48,72 +131,29 @@ dependencies[] = date_api
 dependencies[] = entity_iframe
 dependencies[] = entity_iframe_mode
 ; Fields
-dependencies[] = entityreference
 dependencies[] = entityreference_dynamicselect_widget
-dependencies[] = link
-dependencies[] = makemeeting
 ; ICOR
 dependencies[] = icor_helper
 dependencies[] = icor_smart_builder
-; Input filters
-dependencies[] = typogrify
-dependencies[] = video_filter
-; Learning Tools Interoperability
-dependencies[] = lti_tool_provider
-dependencies[] = lti_tool_provider_og
-; Media
-dependencies[] = imce
-; Organic groups
-dependencies[] = og
-dependencies[] = og_ui
 ; Other
 dependencies[] = user_progress
 dependencies[] = file_entity
-dependencies[] = boxes
-dependencies[] = clone
 dependencies[] = dynamic_select
-dependencies[] = entity
-dependencies[] = libraries
-dependencies[] = masquerade
 dependencies[] = menu_breadcrumb
-dependencies[] = module_filter
-dependencies[] = restws
-dependencies[] = restws_basic_auth
-dependencies[] = strongarm
-dependencies[] = transliteration
-; Performance and scalability
-dependencies[] = entitycache
-; Textbook
-dependencies[] = textbook
 ; User interface
-dependencies[] = ckeditor_link
-dependencies[] = imce_wysiwyg
-dependencies[] = jquery_update
 dependencies[] = lightbox2
-dependencies[] = wysiwyg
 ; Views
-dependencies[] = editableviews
 dependencies[] = eva
-dependencies[] = views
-dependencies[] = views_bulk_operations
 dependencies[] = views_simple_pager
 dependencies[] = views_timelinejs
-dependencies[] = views_ui
-dependencies[] = views_xml_backend
 ; Features
-dependencies[] = features
-dependencies[] = features_override
-dependencies[] = textbook_editor
 dependencies[] = views_timelinejs_feature
 dependencies[] = views_timelinejs_extras
-dependencies[] = cis_section
-dependencies[] = cis_service_roles
 dependencies[] = icor_cis_ux
 dependencies[] = icor_interactive_player
 dependencies[] = icor_file_entities
 dependencies[] = icor_admin_ux
 dependencies[] = icor_defaults
-dependencies[] = foundation_access_ux
 
 ; Information added for Drupal.org usage stats while in dev
 version = "7.x-1.x-dev"
