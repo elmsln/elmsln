@@ -111,11 +111,6 @@ dependencies[] = cis_service_roles
 dependencies[] = cis_lmsless
 dependencies[] = foundation_access_ux
 
-; ----------
-; Authority Dependencies
-; ----------
-dependencies[] = cis_course_authority
-
 
 ; ----------
 ; CIS Dependencies
