@@ -92,6 +92,7 @@ dependencies[] = imce_mkdir
 dependencies[] = imce_wysiwyg
 dependencies[] = jammer
 dependencies[] = jquery_update
+dependencies[] = logintoboggan
 dependencies[] = wysiwyg
 dependencies[] = wysiwyg_template
 ; Views

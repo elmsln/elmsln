@@ -1,0 +1,116 @@
+7.x-1.5, 2015-05-01
+-------------------
+- Added CHANGELOG.txt.
+- Various one-time-login and validation links don't work with Drupal 6.35 and Drupal 7.35.
+- Trimming email input of any stray space characters.
+- Merge branch '7.x-1.x' of git.drupal.org:project/logintoboggan into 7.x-1.x.
+- Issue #1257572 by md2: reinstates page title on unified login page.
+- Improve message consistency.
+- Prevent an existing user's email address being used as name by another user.
+- Apply patch 1363244-1 to install file.
+- Reapply patch after creating new 7.x-1.x dev version.
+- Missing parameter in moved_deltas.
+
+7.x-1.4, 2014-07-04
+-------------------
+- Unified login form not santitizing url.
+- Change hook that removes authorized role from users with temporary role so that it happens in all page loads.
+
+7.x-1.3, 2011-11-09
+-------------------
+- Add logintoboggan_variable module to contrib.
+- Update custom js for permissions to keep up with core.
+- Setting for optional unsetting of sidebars on access denied pages.
+- Removing incorrectly committed file.
+- Merge branch 'master' of git.drupal.org:project/logintoboggan.
+- Content Access compatibility contrib module README file, bump core version in .info file.
+- Deleting the accidently added patch file.
+- The LoginToboggan rule module now lists its event in User eventgroup. patch provided by mikewink.
+- Document non-authenticated role disables auto-permission from authenticated user.
+- Fix errors in t() implementation.
+- Content Access compatibility contrib module. implements a hook which specifies to Content Access that the Non-authenticated role, if defined, requires special treatment. i did not test the module at all, the contrib folder is the wild west, so hopefully it works. ;).
+- Show unified login on Access Denied. this also abstracts the creation of the unified login form into its own function, and adds a helper function to determine which login form to build based on the LT settings.
+- Use format_username() in theme_lt_login_link() function.
+- Typo in administration page. Mimimum should be minimum.
+- Use single spacing between sentences.
+
+7.x-1.2, 2011-03-04
+-------------------
+- For #753224 by scor: LoginToboggan Rules now compatible with Drupal7/Rules-7.x.
+- Other modules cannot react upon email validation.
+- Allow One Time Login To Be Used Only Once.
+- Removing translation directories.
+- Stripping CVS keywords.
+- Disable core 'Require e-mail verification when a visitor creates an account' setting.
+
+7.x-1.1, 2011-01-20
+-------------------
+- Hook_init too late to remove auth user role.
+
+7.x-1.0, 2011-01-06
+-------------------
+- Update logintoboggan_rules to 7.x.
+- Option for unified login/register page.
+- Use user_save instead of update hook in _logintoboggan_process_validation.
+- Update registration function with new workflow from core. clean up password description, max length no longer supported. update module help for 7.x.
+- Get rid of unnecessary batching function in cron.
+- Clean up upgrade file for 7.x.
+- Move admin and validation functions to .inc files.  various fixes in preparation for 7.x release.
+- Move protocol function back to main module file.
+- Break out admin pages and validation functions into .inc file.
+- Update the permissions js file in line with core updates.
+- Update install and readme for 7.x.
+- Update .info file for 7.x.
+- Add ID tags to css files.
+- Bad array syntax in logintoboggan_form_user_admin_permissions_alter.
+- Updating js/css handling for 7.x.
+- Remove unnecessary check for 'account' form element.
+- Ereg deprecated in PHP 5.3, remove from password checking function.
+- Enabling of Module Generates Warning from Token Module. move token hooks into separate .inc file.
+- Remove 30 char limit for password.
+- Email validation sent out even if new account was created by administrator.
+
+7.x-1.0-alpha3, 2010-07-25
+--------------------------
+- User_register value default has changed, contants for its values.  thanks to rfay for the tipoff.
+- Remove dead code for predicting if account form was wrapped in a fieldset or not.
+- Logintoboggan_main_settings has extraneous form_state arg.
+- Remove dead menu caching code.
+- Minor update to README.txt of logintoboggan_rules module.
+- Fix strict warning.
+- Disabling Display of Login Block creates PHP Notices, block settings missing.
+- Hide the auth user checkbox on the user edit screen if the user is in the pre-auth role -- reduces UI confusion.
+- Non-authenticated role is hidden in user profile form even when 'Set password' is unchecked.
+- Redirect on invalid email validation.
+- Adding LoginToboggan/Rules integration module.
+- Update link to admin'ing roles.
+- Use 'Sentence case' for settings page.
+- Leverage newly added user_delete_multiple function to purge unvalidated users.
+- Remove hard-coded numeric deltas from blocks, per core change.
+- Switch to using user_pass_rehash\(\) for validation hashs.
+- User interface changes per #546356.
+- Cleanup menu paths and arguments.
+- Rollback of #48438 due to core's change in #437930.
+- Better check for no password.
+- Use $_GLOBALS['user'] where appropriate.
+- Use #theme element for logged in block.
+- Remove unnecessary code causing fatal error.
+
+7.x-1.0-alpha2, 2009-10-25
+--------------------------
+- Arguments -> variables per change to hook_theme.
+
+7.x-1.0-alpha1, 2009-10-21
+--------------------------
+- Doxygen cleanups. user_delete -> user_cancel. use batchAPI for deleting unvalidated users.
+- Value -> markup. refactor check for a manual removal of the pre-auth role by the admin -- use a hidden form field instead. fix logic for password description. add a missing user message for registration when the pre-auth role is the auth user. fix broken query placeholders. remove unnecessary query that erroneously updated a user's login time when an admin validated their account. fix broken call to drupal_goto. fix up redirect array. use core's user mail functionality for resending validation emails. fix broken mail_alter implementation for admin validation emails.
+- Refactor mailing code to use user module's functions, tokens, and hook_mail_alter. make sure anonymous user can't access revalidation link menu callback. remove unneeded security check from registration function.
+- Use REQUEST_TIME, as per 7.x upgrade conventions.
+- Login successful message now contains username.  logged in block now uses theme_username on username.  update theme functions to work for 7.x.  clean up and refactor the access denied/login form functionality.  use a custom user admin permission js file when the pre-auth role is not the auth user -- allows pre-auth role to have lower permissions than auth role.
+- Much cleaner implementation of the site 403 variable reset logic.
+- Fix login link and collapsible login block for 7.x.
+- Update admin paths and help for 7.x.
+- More general main settings submit function.  refactor site 403 handling to work.
+- New admin path for module settings.  fix 'Set password' option to work with system_settings_form.
+- Ensure arrays before array operations.
+

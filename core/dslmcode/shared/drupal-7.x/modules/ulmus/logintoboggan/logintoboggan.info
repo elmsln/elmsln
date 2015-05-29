@@ -1,0 +1,15 @@
+
+name = "LoginToboggan"
+description = "Improves Drupal's login system."
+core = "7.x"
+configure = admin/config/system/logintoboggan
+
+stylesheets[all][] = logintoboggan.css
+
+
+; Information added by Drupal.org packaging script on 2015-05-01
+version = "7.x-1.5"
+core = "7.x"
+project = "logintoboggan"
+datestamp = "1430501885"
+
