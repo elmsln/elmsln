@@ -438,6 +438,11 @@ function _cis_connector_section_context($account = NULL) {
   // statically cache future calls
   $section = &drupal_static(__FUNCTION__);
   if (!isset($section)) {
+    // bail early if we don't hav the section module enabled
+    if (!module_exists('cis_section')) {
+      $section = 'default';
+      return $section;
+    }
     // check for global session override
     if (isset($_SESSION['cis_section_context'])) {
       return $_SESSION['cis_section_context'];
