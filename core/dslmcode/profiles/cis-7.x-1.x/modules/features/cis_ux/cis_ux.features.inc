@@ -29,29 +29,6 @@ function cis_ux_ctools_plugin_api($module = NULL, $api = NULL) {
 }
 
 /**
- * Implements hook_filter_default_formats_alter().
- */
-function cis_ux_filter_default_formats_alter(&$data) {
-  if (isset($data['textbook_editor'])) {
-    $data['textbook_editor']['filters']['typogrify']['settings']['fractions']['1/2'] = 0; /* WAS: '' */
-    $data['textbook_editor']['filters']['typogrify']['settings']['fractions']['1/3'] = 0; /* WAS: '' */
-    $data['textbook_editor']['filters']['typogrify']['settings']['fractions']['1/4'] = 0; /* WAS: '' */
-    $data['textbook_editor']['filters']['typogrify']['settings']['fractions']['1/5'] = 0; /* WAS: '' */
-    $data['textbook_editor']['filters']['typogrify']['settings']['fractions']['1/6'] = 0; /* WAS: '' */
-    $data['textbook_editor']['filters']['typogrify']['settings']['fractions']['1/8'] = 0; /* WAS: '' */
-    $data['textbook_editor']['filters']['typogrify']['settings']['fractions']['2/3'] = 0; /* WAS: '' */
-    $data['textbook_editor']['filters']['typogrify']['settings']['fractions']['2/5'] = 0; /* WAS: '' */
-    $data['textbook_editor']['filters']['typogrify']['settings']['fractions']['3/4'] = 0; /* WAS: '' */
-    $data['textbook_editor']['filters']['typogrify']['settings']['fractions']['3/5'] = 0; /* WAS: '' */
-    $data['textbook_editor']['filters']['typogrify']['settings']['fractions']['3/8'] = 0; /* WAS: '' */
-    $data['textbook_editor']['filters']['typogrify']['settings']['fractions']['4/5'] = 0; /* WAS: '' */
-    $data['textbook_editor']['filters']['typogrify']['settings']['fractions']['5/6'] = 0; /* WAS: '' */
-    $data['textbook_editor']['filters']['typogrify']['settings']['fractions']['5/8'] = 0; /* WAS: '' */
-    $data['textbook_editor']['filters']['typogrify']['settings']['fractions']['7/8'] = 0; /* WAS: '' */
-  }
-}
-
-/**
  * Implements hook_image_default_styles().
  */
 function cis_ux_image_default_styles() {
