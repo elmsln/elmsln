@@ -71,7 +71,6 @@ function textbook_editor_wysiwyg_default_profiles() {
       'stylesSet' => '',
       'advanced__active_tab' => 'edit-basic',
     ),
-    'rdf_mapping' => array(),
   );
 
   return $profiles;

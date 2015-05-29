@@ -248,7 +248,9 @@ function cis_types_field_default_field_instances() {
     'widget' => array(
       'active' => 1,
       'module' => 'options',
-      'settings' => array(),
+      'settings' => array(
+        'apply_chosen' => '',
+      ),
       'type' => 'options_select',
       'weight' => 1,
     ),
@@ -293,7 +295,9 @@ function cis_types_field_default_field_instances() {
     'widget' => array(
       'active' => 1,
       'module' => 'options',
-      'settings' => array(),
+      'settings' => array(
+        'apply_chosen' => '',
+      ),
       'type' => 'options_select',
       'weight' => 2,
     ),
@@ -453,7 +457,9 @@ function cis_types_field_default_field_instances() {
     'widget' => array(
       'active' => 1,
       'module' => 'options',
-      'settings' => array(),
+      'settings' => array(
+        'apply_chosen' => '',
+      ),
       'type' => 'options_select',
       'weight' => 12,
     ),
@@ -706,7 +712,9 @@ function cis_types_field_default_field_instances() {
     'widget' => array(
       'active' => 1,
       'module' => 'options',
-      'settings' => array(),
+      'settings' => array(
+        'apply_chosen' => '',
+      ),
       'type' => 'options_select',
       'weight' => 17,
     ),
@@ -760,7 +768,9 @@ function cis_types_field_default_field_instances() {
     'widget' => array(
       'active' => 1,
       'module' => 'options',
-      'settings' => array(),
+      'settings' => array(
+        'apply_chosen' => '',
+      ),
       'type' => 'options_select',
       'weight' => 13,
     ),
@@ -906,7 +916,9 @@ function cis_types_field_default_field_instances() {
     'widget' => array(
       'active' => 1,
       'module' => 'options',
-      'settings' => array(),
+      'settings' => array(
+        'apply_chosen' => '',
+      ),
       'type' => 'options_select',
       'weight' => 12,
     ),
@@ -1009,7 +1021,9 @@ function cis_types_field_default_field_instances() {
     'widget' => array(
       'active' => 1,
       'module' => 'options',
-      'settings' => array(),
+      'settings' => array(
+        'apply_chosen' => '',
+      ),
       'type' => 'options_select',
       'weight' => 18,
     ),
@@ -1262,7 +1276,9 @@ function cis_types_field_default_field_instances() {
     'widget' => array(
       'active' => 1,
       'module' => 'options',
-      'settings' => array(),
+      'settings' => array(
+        'apply_chosen' => '',
+      ),
       'type' => 'options_select',
       'weight' => 5,
     ),
@@ -1346,7 +1362,9 @@ function cis_types_field_default_field_instances() {
     'widget' => array(
       'active' => 1,
       'module' => 'options',
-      'settings' => array(),
+      'settings' => array(
+        'apply_chosen' => '',
+      ),
       'type' => 'options_select',
       'weight' => 4,
     ),
@@ -1562,7 +1580,9 @@ function cis_types_field_default_field_instances() {
     'widget' => array(
       'active' => 1,
       'module' => 'options',
-      'settings' => array(),
+      'settings' => array(
+        'apply_chosen' => '',
+      ),
       'type' => 'options_select',
       'weight' => 40,
     ),
@@ -1580,6 +1600,7 @@ function cis_types_field_default_field_instances() {
         'module' => 'video_embed_field',
         'settings' => array(
           'description' => 1,
+          'description_position' => 'bottom',
           'video_style' => 'cis_course_video',
         ),
         'type' => 'video_embed_field',
@@ -1731,7 +1752,9 @@ function cis_types_field_default_field_instances() {
     'widget' => array(
       'active' => 1,
       'module' => 'options',
-      'settings' => array(),
+      'settings' => array(
+        'apply_chosen' => '',
+      ),
       'type' => 'options_select',
       'weight' => 30,
     ),
@@ -1851,6 +1874,7 @@ function cis_types_field_default_field_instances() {
       'active' => 1,
       'module' => 'select_or_other',
       'settings' => array(
+        'apply_chosen' => '',
         'available_options' => '0|Not for credit
 1|1 Credit hour
 2|2 Credit hours
@@ -2246,7 +2270,9 @@ function cis_types_field_default_field_instances() {
     'widget' => array(
       'active' => 1,
       'module' => 'options',
-      'settings' => array(),
+      'settings' => array(
+        'apply_chosen' => '',
+      ),
       'type' => 'options_select',
       'weight' => 24,
     ),
@@ -2328,7 +2354,9 @@ function cis_types_field_default_field_instances() {
     'widget' => array(
       'active' => 1,
       'module' => 'options',
-      'settings' => array(),
+      'settings' => array(
+        'apply_chosen' => '',
+      ),
       'type' => 'options_select',
       'weight' => 22,
     ),
@@ -2443,7 +2471,9 @@ function cis_types_field_default_field_instances() {
     'widget' => array(
       'active' => 1,
       'module' => 'options',
-      'settings' => array(),
+      'settings' => array(
+        'apply_chosen' => '',
+      ),
       'type' => 'options_select',
       'weight' => 20,
     ),
@@ -2560,7 +2590,9 @@ function cis_types_field_default_field_instances() {
     'widget' => array(
       'active' => 1,
       'module' => 'options',
-      'settings' => array(),
+      'settings' => array(
+        'apply_chosen' => '',
+      ),
       'type' => 'options_select',
       'weight' => 39,
     ),
@@ -2831,7 +2863,9 @@ function cis_types_field_default_field_instances() {
     'widget' => array(
       'active' => 1,
       'module' => 'options',
-      'settings' => array(),
+      'settings' => array(
+        'apply_chosen' => '',
+      ),
       'type' => 'options_select',
       'weight' => 41,
     ),
@@ -3128,7 +3162,9 @@ function cis_types_field_default_field_instances() {
     'widget' => array(
       'active' => 1,
       'module' => 'options',
-      'settings' => array(),
+      'settings' => array(
+        'apply_chosen' => '',
+      ),
       'type' => 'options_select',
       'weight' => 4,
     ),
@@ -3287,7 +3323,9 @@ function cis_types_field_default_field_instances() {
     'widget' => array(
       'active' => 1,
       'module' => 'options',
-      'settings' => array(),
+      'settings' => array(
+        'apply_chosen' => '',
+      ),
       'type' => 'options_select',
       'weight' => 4,
     ),
@@ -3359,6 +3397,8 @@ function cis_types_field_default_field_instances() {
         'settings' => array(
           '404_if_empty' => 0,
           'code' => 301,
+          'page_restrictions' => 0,
+          'pages' => '',
         ),
         'type' => 'field_redirection',
         'weight' => 3,
@@ -3687,7 +3727,9 @@ function cis_types_field_default_field_instances() {
     'widget' => array(
       'active' => 1,
       'module' => 'options',
-      'settings' => array(),
+      'settings' => array(
+        'apply_chosen' => '',
+      ),
       'type' => 'options_select',
       'weight' => 5,
     ),
@@ -3976,6 +4018,7 @@ function cis_types_field_default_field_instances() {
       'active' => 1,
       'module' => 'select_or_other',
       'settings' => array(
+        'apply_chosen' => '',
         'available_options' => 'Instructor
 Senior Instructional Designer
 Instructional Web Technologist
@@ -4114,7 +4157,9 @@ Instructional Web Technologist
     'widget' => array(
       'active' => 1,
       'module' => 'options',
-      'settings' => array(),
+      'settings' => array(
+        'apply_chosen' => '',
+      ),
       'type' => 'options_select',
       'weight' => 6,
     ),
@@ -4328,7 +4373,9 @@ Instructional Web Technologist
     'widget' => array(
       'active' => 1,
       'module' => 'options',
-      'settings' => array(),
+      'settings' => array(
+        'apply_chosen' => '',
+      ),
       'type' => 'options_select',
       'weight' => 4,
     ),
@@ -4615,7 +4662,9 @@ Global will be available to all resources to reference',
     'widget' => array(
       'active' => 1,
       'module' => 'options',
-      'settings' => array(),
+      'settings' => array(
+        'apply_chosen' => '',
+      ),
       'type' => 'options_select',
       'weight' => 2,
     ),
@@ -4926,7 +4975,9 @@ Global will be available to all resources to reference',
     'widget' => array(
       'active' => 1,
       'module' => 'options',
-      'settings' => array(),
+      'settings' => array(
+        'apply_chosen' => '',
+      ),
       'type' => 'options_select',
       'weight' => 2,
     ),
@@ -5084,7 +5135,9 @@ Global will be available to all resources to reference',
     'widget' => array(
       'active' => 1,
       'module' => 'options',
-      'settings' => array(),
+      'settings' => array(
+        'apply_chosen' => '',
+      ),
       'type' => 'options_select',
       'weight' => 1,
     ),

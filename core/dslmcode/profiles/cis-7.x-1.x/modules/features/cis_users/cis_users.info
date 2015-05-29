@@ -2,7 +2,6 @@ name = CIS Users
 description = User entity fields and defaults
 core = 7.x
 package = CIS
-php = 5.2.4
 dependencies[] = cis_types
 dependencies[] = ctools
 dependencies[] = email

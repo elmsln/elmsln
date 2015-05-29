@@ -29,17 +29,6 @@ function cis_ux_ctools_plugin_api($module = NULL, $api = NULL) {
 }
 
 /**
- * Implements hook_context_default_contexts_alter().
- */
-function cis_ux_context_default_contexts_alter(&$data) {
-  if (isset($data['regions_admin'])) {
-    $data['regions_admin']->conditions['path']['values']['~node/edit/*'] = '~node/edit/*'; /* WAS: '' */
-    unset($data['regions_admin']->conditions['path']['values']['~ajax*']);
-    unset($data['regions_admin']->conditions['path']['values']['~node/*/*']);
-  }
-}
-
-/**
  * Implements hook_filter_default_formats_alter().
  */
 function cis_ux_filter_default_formats_alter(&$data) {
@@ -85,7 +74,7 @@ function cis_ux_image_default_styles() {
         'data' => array(
           'width' => 275,
           'height' => 115,
-          '#imageinfo_cache_effect_callback' => 'image_scale_and_crop_effect',
+          '#imageinfo_cache_effect_callback' => 'imageinfo_cache_effect_router',
         ),
         'weight' => 1,
       ),
@@ -109,7 +98,7 @@ function cis_ux_image_default_styles() {
         'data' => array(
           'width' => 1,
           'height' => 1,
-          '#imageinfo_cache_effect_callback' => 'image_scale_and_crop_effect',
+          '#imageinfo_cache_effect_callback' => 'imageinfo_cache_effect_router',
         ),
         'weight' => 1,
       ),
@@ -134,7 +123,7 @@ function cis_ux_image_default_styles() {
           'width' => 95,
           'height' => 95,
           'upscale' => 0,
-          '#imageinfo_cache_effect_callback' => 'image_scale_effect',
+          '#imageinfo_cache_effect_callback' => 'imageinfo_cache_effect_router',
         ),
         'weight' => 1,
       ),
@@ -158,7 +147,7 @@ function cis_ux_image_default_styles() {
           'width' => 275,
           'height' => 115,
           'upscale' => 1,
-          '#imageinfo_cache_effect_callback' => 'smartcrop_scale_effect',
+          '#imageinfo_cache_effect_callback' => 'imageinfo_cache_effect_router',
         ),
         'weight' => 2,
       ),
@@ -183,7 +172,7 @@ function cis_ux_image_default_styles() {
           'width' => 270,
           'height' => 220,
           'upscale' => 1,
-          '#imageinfo_cache_effect_callback' => 'image_scale_effect',
+          '#imageinfo_cache_effect_callback' => 'imageinfo_cache_effect_router',
         ),
         'weight' => 1,
       ),
@@ -208,7 +197,7 @@ function cis_ux_image_default_styles() {
           'height' => 580,
           'strength' => 'high',
           'fallback' => 'smartcrop',
-          '#imageinfo_cache_effect_callback' => 'imagefield_focus_scale_and_crop_effect',
+          '#imageinfo_cache_effect_callback' => 'imageinfo_cache_effect_router',
         ),
         'weight' => -10,
       ),
@@ -225,7 +214,7 @@ function cis_ux_image_default_styles() {
           'width' => 720,
           'height' => 580,
           'upscale' => 1,
-          '#imageinfo_cache_effect_callback' => 'image_scale_effect',
+          '#imageinfo_cache_effect_callback' => 'imageinfo_cache_effect_router',
         ),
         'weight' => -9,
       ),

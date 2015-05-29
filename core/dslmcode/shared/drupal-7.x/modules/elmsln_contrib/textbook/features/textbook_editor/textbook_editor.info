@@ -2,6 +2,7 @@ name = Textbook Editor
 description = A well defined CKEditor based wysiwyg configuration for authoring accessible textbook content
 core = 7.x
 package = Textbook
+version = 7.x-4.1+4-dev
 project = textbook
 dependencies[] = accessibility
 dependencies[] = accessibility_wysiwyg
@@ -16,6 +17,7 @@ dependencies[] = transliteration
 dependencies[] = typogrify
 dependencies[] = video_filter
 dependencies[] = wysiwyg
+datestamp = 1408544031
 features[ctools][] = strongarm:strongarm:1
 features[features_api][] = api:2
 features[filter][] = textbook_editor
@@ -26,10 +28,3 @@ features[variable][] = ckeditor_link_type_name
 features[variable][] = ckeditor_link_type_selected
 features[variable][] = imce_profiles
 features[wysiwyg][] = textbook_editor
-
-; Information added by Drupal.org packaging script on 2014-08-20
-version = "7.x-4.1+4-dev"
-core = "7.x"
-project = "textbook"
-datestamp = "1408544031"
-

@@ -134,9 +134,8 @@ function cis_displays_views_default_views() {
   $handler->display->display_options['use_more_always'] = FALSE;
   $handler->display->display_options['access']['type'] = 'role';
   $handler->display->display_options['access']['role'] = array(
-    3 => '3',
-    8 => '8',
-    10 => '10',
+    30037204 => '30037204',
+    166149871 => '166149871',
   );
   $handler->display->display_options['cache']['type'] = 'none';
   $handler->display->display_options['query']['type'] = 'views_query';
@@ -1030,7 +1029,7 @@ function cis_displays_views_default_views() {
   $handler->display->display_options['use_more_always'] = FALSE;
   $handler->display->display_options['access']['type'] = 'role';
   $handler->display->display_options['access']['role'] = array(
-    3 => '3',
+    30037204 => '30037204',
   );
   $handler->display->display_options['cache']['type'] = 'none';
   $handler->display->display_options['query']['type'] = 'views_query';
@@ -1520,8 +1519,8 @@ function cis_displays_views_default_views() {
   $handler->display->display_options['use_more_always'] = FALSE;
   $handler->display->display_options['access']['type'] = 'role';
   $handler->display->display_options['access']['role'] = array(
-    3 => '3',
-    8 => '8',
+    30037204 => '30037204',
+    166149871 => '166149871',
   );
   $handler->display->display_options['cache']['type'] = 'none';
   $handler->display->display_options['query']['type'] = 'views_query';
@@ -1654,7 +1653,7 @@ function cis_displays_views_default_views() {
   $handler->display->display_options['fields']['field_section_number_editable']['widget_type'] = '0';
   $handler->display->display_options['fields']['field_section_number_editable']['suppress_label'] = 1;
   $handler->display->display_options['fields']['field_section_number_editable']['suppress_description'] = 1;
-  /* Field: Field: Service (editable) */
+  /* Field: Field: Services in use (editable) */
   $handler->display->display_options['fields']['field_services_editable']['id'] = 'field_services_editable';
   $handler->display->display_options['fields']['field_services_editable']['table'] = 'field_data_field_services';
   $handler->display->display_options['fields']['field_services_editable']['field'] = 'field_services_editable';
@@ -3138,8 +3137,8 @@ function cis_displays_views_default_views() {
   $handler->display->display_options['use_more_always'] = FALSE;
   $handler->display->display_options['access']['type'] = 'role';
   $handler->display->display_options['access']['role'] = array(
-    3 => '3',
-    8 => '8',
+    30037204 => '30037204',
+    166149871 => '166149871',
   );
   $handler->display->display_options['cache']['type'] = 'none';
   $handler->display->display_options['query']['type'] = 'views_query';
@@ -3488,13 +3487,12 @@ function cis_displays_views_default_views() {
   $handler->display->display_options['fields']['field_type']['table'] = 'field_data_field_type';
   $handler->display->display_options['fields']['field_type']['field'] = 'field_type';
   $handler->display->display_options['fields']['field_type']['element_label_colon'] = FALSE;
-  /* Field: Content: Clone link */
+  /* Field: Broken/missing handler */
   $handler->display->display_options['fields']['clone_node']['id'] = 'clone_node';
   $handler->display->display_options['fields']['clone_node']['table'] = 'node';
   $handler->display->display_options['fields']['clone_node']['field'] = 'clone_node';
   $handler->display->display_options['fields']['clone_node']['label'] = '';
   $handler->display->display_options['fields']['clone_node']['element_label_colon'] = FALSE;
-  $handler->display->display_options['fields']['clone_node']['text'] = 'duplicate';
   $handler->display->display_options['defaults']['filter_groups'] = FALSE;
   $handler->display->display_options['defaults']['filters'] = FALSE;
   /* Filter criterion: Content: Published */
@@ -3573,7 +3571,7 @@ function cis_displays_views_default_views() {
   $handler->display->display_options['fields']['title_1']['field'] = 'title';
   $handler->display->display_options['fields']['title_1']['alter']['alter_text'] = TRUE;
   $handler->display->display_options['fields']['title_1']['alter']['text'] = '[field_course]';
-  /* Field: Field: Service */
+  /* Field: Field: Services in use */
   $handler->display->display_options['fields']['field_services']['id'] = 'field_services';
   $handler->display->display_options['fields']['field_services']['table'] = 'field_data_field_services';
   $handler->display->display_options['fields']['field_services']['field'] = 'field_services';
@@ -3652,7 +3650,7 @@ function cis_displays_views_default_views() {
   /* Display: Courses */
   $handler = $view->new_display('page', 'Courses', 'page_1');
   $handler->display->display_options['defaults']['fields'] = FALSE;
-  /* Field: Field: Service */
+  /* Field: Field: Services in use */
   $handler->display->display_options['fields']['field_services']['id'] = 'field_services';
   $handler->display->display_options['fields']['field_services']['table'] = 'field_data_field_services';
   $handler->display->display_options['fields']['field_services']['field'] = 'field_services';
@@ -3994,7 +3992,7 @@ function cis_displays_views_default_views() {
   $handler->display->display_options['fields']['field_course_1']['settings'] = array(
     'link' => 1,
   );
-  /* Field: Field: Service */
+  /* Field: Field: Services in use */
   $handler->display->display_options['fields']['field_services']['id'] = 'field_services';
   $handler->display->display_options['fields']['field_services']['table'] = 'field_data_field_services';
   $handler->display->display_options['fields']['field_services']['field'] = 'field_services';
@@ -4067,7 +4065,7 @@ function cis_displays_views_default_views() {
     3 => 0,
     13 => 0,
   );
-  /* Filter criterion: Field: Service (field_services) */
+  /* Filter criterion: Field: Services in use (field_services) */
   $handler->display->display_options['filters']['field_services_target_id']['id'] = 'field_services_target_id';
   $handler->display->display_options['filters']['field_services_target_id']['table'] = 'field_data_field_services';
   $handler->display->display_options['filters']['field_services_target_id']['field'] = 'field_services_target_id';
@@ -4389,11 +4387,10 @@ function cis_displays_views_default_views() {
   $handler->display->display_options['defaults']['access'] = FALSE;
   $handler->display->display_options['access']['type'] = 'role';
   $handler->display->display_options['access']['role'] = array(
-    3 => '3',
-    7 => '7',
-    8 => '8',
-    10 => '10',
-    6 => '6',
+    30037204 => '30037204',
+    75987638 => '75987638',
+    166149871 => '166149871',
+    67296478 => '67296478',
   );
   $handler->display->display_options['defaults']['fields'] = FALSE;
   /* Field: Content: Instructions */
@@ -4431,10 +4428,9 @@ function cis_displays_views_default_views() {
   $handler->display->display_options['defaults']['access'] = FALSE;
   $handler->display->display_options['access']['type'] = 'role';
   $handler->display->display_options['access']['role'] = array(
-    3 => '3',
-    7 => '7',
-    8 => '8',
-    10 => '10',
+    30037204 => '30037204',
+    75987638 => '75987638',
+    166149871 => '166149871',
   );
   $handler->display->display_options['defaults']['fields'] = FALSE;
   /* Field: Content: Design doc */
@@ -4496,15 +4492,10 @@ function cis_displays_views_default_views() {
   $handler->display->display_options['defaults']['access'] = FALSE;
   $handler->display->display_options['access']['type'] = 'role';
   $handler->display->display_options['access']['role'] = array(
-    3 => '3',
-    4 => '4',
-    11 => '11',
-    7 => '7',
-    8 => '8',
-    10 => '10',
-    6 => '6',
-    5 => '5',
-    9 => '9',
+    30037204 => '30037204',
+    75987638 => '75987638',
+    166149871 => '166149871',
+    67296478 => '67296478',
   );
   $handler->display->display_options['defaults']['style_plugin'] = FALSE;
   $handler->display->display_options['style_plugin'] = 'default';
@@ -5220,7 +5211,7 @@ function cis_displays_views_default_views() {
     'course' => 'course',
   );
   $handler->display->display_options['filters']['type']['group'] = 1;
-  /* Filter criterion: Content: Author video (field_author_video:video_url) */
+  /* Filter criterion: Content: Author video - Video URL */
   $handler->display->display_options['filters']['field_author_video_video_url']['id'] = 'field_author_video_video_url';
   $handler->display->display_options['filters']['field_author_video_video_url']['table'] = 'field_data_field_author_video';
   $handler->display->display_options['filters']['field_author_video_video_url']['field'] = 'field_author_video_video_url';
@@ -5520,8 +5511,8 @@ function cis_displays_views_default_views() {
   $handler->display->display_options['group_by'] = TRUE;
   $handler->display->display_options['access']['type'] = 'role';
   $handler->display->display_options['access']['role'] = array(
-    3 => '3',
-    8 => '8',
+    30037204 => '30037204',
+    166149871 => '166149871',
   );
   $handler->display->display_options['cache']['type'] = 'none';
   $handler->display->display_options['query']['type'] = 'views_query';

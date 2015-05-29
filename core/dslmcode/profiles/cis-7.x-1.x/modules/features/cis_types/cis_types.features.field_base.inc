@@ -430,11 +430,11 @@ function cis_types_field_default_field_bases() {
       'type' => 2,
     ),
     'foreign keys' => array(
-      'node' => array(
+      'users' => array(
         'columns' => array(
-          'target_id' => 'nid',
+          'target_id' => 'uid',
         ),
-        'table' => 'node',
+        'table' => 'users',
       ),
     ),
     'indexes' => array(
@@ -1250,11 +1250,11 @@ function cis_types_field_default_field_bases() {
       'type' => 2,
     ),
     'foreign keys' => array(
-      'node' => array(
+      'users' => array(
         'columns' => array(
-          'target_id' => 'nid',
+          'target_id' => 'uid',
         ),
-        'table' => 'node',
+        'table' => 'users',
       ),
     ),
     'indexes' => array(
@@ -1297,11 +1297,11 @@ function cis_types_field_default_field_bases() {
       'type' => 2,
     ),
     'foreign keys' => array(
-      'node' => array(
+      'users' => array(
         'columns' => array(
-          'target_id' => 'nid',
+          'target_id' => 'uid',
         ),
-        'table' => 'node',
+        'table' => 'users',
       ),
     ),
     'indexes' => array(
@@ -1376,11 +1376,11 @@ function cis_types_field_default_field_bases() {
       'type' => 2,
     ),
     'foreign keys' => array(
-      'node' => array(
+      'users' => array(
         'columns' => array(
-          'target_id' => 'nid',
+          'target_id' => 'uid',
         ),
-        'table' => 'node',
+        'table' => 'users',
       ),
     ),
     'indexes' => array(
@@ -2422,11 +2422,11 @@ function cis_types_field_default_field_bases() {
       'type' => 2,
     ),
     'foreign keys' => array(
-      'node' => array(
+      'users' => array(
         'columns' => array(
-          'target_id' => 'nid',
+          'target_id' => 'uid',
         ),
-        'table' => 'node',
+        'table' => 'users',
       ),
     ),
     'indexes' => array(
@@ -2602,11 +2602,11 @@ function cis_types_field_default_field_bases() {
       'type' => 2,
     ),
     'foreign keys' => array(
-      'node' => array(
+      'users' => array(
         'columns' => array(
-          'target_id' => 'nid',
+          'target_id' => 'uid',
         ),
-        'table' => 'node',
+        'table' => 'users',
       ),
     ),
     'indexes' => array(
@@ -2682,11 +2682,11 @@ function cis_types_field_default_field_bases() {
       'type' => 0,
     ),
     'foreign keys' => array(
-      'node' => array(
+      'users' => array(
         'columns' => array(
-          'target_id' => 'nid',
+          'target_id' => 'uid',
         ),
-        'table' => 'node',
+        'table' => 'users',
       ),
     ),
     'indexes' => array(

@@ -26,10 +26,8 @@ function cis_data_views_default_views() {
   $handler->display->display_options['use_more_always'] = FALSE;
   $handler->display->display_options['access']['type'] = 'role';
   $handler->display->display_options['access']['role'] = array(
-    3 => '3',
-    5 => '5',
-    8 => '8',
-    10 => '10',
+    30037204 => '30037204',
+    166149871 => '166149871',
   );
   $handler->display->display_options['cache']['type'] = 'none';
   $handler->display->display_options['query']['type'] = 'views_query';
