@@ -440,7 +440,7 @@ function _cis_connector_section_context($account = NULL) {
   if (!isset($section)) {
     // bail early if we don't hav the section module enabled
     if (!module_exists('cis_section')) {
-      $section = 'default';
+      $section = FALSE;
       return $section;
     }
     // check for global session override

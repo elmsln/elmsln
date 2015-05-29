@@ -61,7 +61,7 @@ function cis_lmsless_form_masquerade_block_1_alter(&$form, &$form_state, $form_i
   $form['masquerade_user_field']['#type'] = 'select';
   $field_conditions = array();
   // don't assume there is a section context when masquerade is enabled
-  if (function_exists('_cis_section_load_section_by_id') && $gid = _cis_section_load_section_by_id(_cis_connector_section_context())) {
+  if (module_exists('cis_section') && $gid = _cis_section_load_section_by_id(_cis_connector_section_context())) {
     $field_conditions = array('og_user_node' => array('target_id', array($gid), 'IN'));
   }
   // pull together the users
@@ -128,9 +128,6 @@ function _cis_lmsless_theme_vars() {
       // account for systems without sections (like authorities)
       if ($section) {
         $vars['admin_status_bar']['course-section'] = '<a href="#" data-reveal-id="block-cis-service-connection-section-context-changer-nav-modal" class="admin-alert middle-align-wrap"><span>' . $section . '</span></a>';
-      }
-      else {
-        $vars['admin_status_bar']['course-section'] = '<span class="admin-alert middle-align-wrap">' . t('no sections') . '</span>';
       }
       if (isset($_SESSION['masquerading'])) {
         $tmp = user_load($_SESSION['masquerading']);
