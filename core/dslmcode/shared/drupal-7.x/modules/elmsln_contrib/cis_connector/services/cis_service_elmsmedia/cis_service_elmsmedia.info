@@ -1,7 +1,7 @@
-name = CIS Service ELMS Media
+name = ELMSMedia Service Integration
 description = Reference media that's been uploaded to ELMS Media
 core = 7.x
-package = CIS Service Instance
+package = ELMSLN Service
 dependencies[] = cis_connector
 dependencies[] = ctools
 dependencies[] = filefield_sources

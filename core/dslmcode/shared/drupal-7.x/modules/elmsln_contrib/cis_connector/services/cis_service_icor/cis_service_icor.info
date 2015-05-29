@@ -1,7 +1,7 @@
-name = CIS Service ICOR
+name = ICOR Service Integration
 description = Connect distributions into ICOR object data
 core = 7.x
-package = CIS Service Instance
+package = ELMSLN Service
 php = 5.2.4
 dependencies[] = ctools
 dependencies[] = views

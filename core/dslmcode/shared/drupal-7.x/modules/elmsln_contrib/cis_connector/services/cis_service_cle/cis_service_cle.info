@@ -1,7 +1,7 @@
-name = CIS Service CLE
-description = Connections between a CIS Service and CLE
+name = Studio Service Integration
+description = Connections between a Service and studio (CLE)
 core = 7.x
-package = CIS Service Instance
+package = ELMSLN Service
 php = 5.2.4
 dependencies[] = cis_connector
 dependencies[] = views
