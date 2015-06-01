@@ -705,18 +705,6 @@ function cis_default_permissions_defaultconfig_user_default_permissions() {
     'module' => 'node',
   );
 
-  // Exported permission: 'create cis_course content'.
-  $permissions['create cis_course content'] = array(
-    'name' => 'create cis_course content',
-    'roles' => array(
-      'SERVICE ACCOUNT' => 'SERVICE ACCOUNT',
-      'administrator' => 'administrator',
-      'instructor' => 'instructor',
-      'staff' => 'staff',
-    ),
-    'module' => 'node',
-  );
-
   // Exported permission: 'create college_services content'.
   $permissions['create college_services content'] = array(
     'name' => 'create college_services content',
@@ -1133,17 +1121,6 @@ function cis_default_permissions_defaultconfig_user_default_permissions() {
     'module' => 'node',
   );
 
-  // Exported permission: 'delete any cis_course content'.
-  $permissions['delete any cis_course content'] = array(
-    'name' => 'delete any cis_course content',
-    'roles' => array(
-      'SERVICE ACCOUNT' => 'SERVICE ACCOUNT',
-      'administrator' => 'administrator',
-      'staff' => 'staff',
-    ),
-    'module' => 'node',
-  );
-
   // Exported permission: 'delete any college_services content'.
   $permissions['delete any college_services content'] = array(
     'name' => 'delete any college_services content',
@@ -1247,17 +1224,6 @@ function cis_default_permissions_defaultconfig_user_default_permissions() {
   $permissions['delete own academic_unit content'] = array(
     'name' => 'delete own academic_unit content',
     'roles' => array(
-      'administrator' => 'administrator',
-      'staff' => 'staff',
-    ),
-    'module' => 'node',
-  );
-
-  // Exported permission: 'delete own cis_course content'.
-  $permissions['delete own cis_course content'] = array(
-    'name' => 'delete own cis_course content',
-    'roles' => array(
-      'SERVICE ACCOUNT' => 'SERVICE ACCOUNT',
       'administrator' => 'administrator',
       'staff' => 'staff',
     ),
@@ -1385,17 +1351,6 @@ function cis_default_permissions_defaultconfig_user_default_permissions() {
   $permissions['edit any academic_unit content'] = array(
     'name' => 'edit any academic_unit content',
     'roles' => array(
-      'administrator' => 'administrator',
-      'staff' => 'staff',
-    ),
-    'module' => 'node',
-  );
-
-  // Exported permission: 'edit any cis_course content'.
-  $permissions['edit any cis_course content'] = array(
-    'name' => 'edit any cis_course content',
-    'roles' => array(
-      'SERVICE ACCOUNT' => 'SERVICE ACCOUNT',
       'administrator' => 'administrator',
       'staff' => 'staff',
     ),
@@ -1803,18 +1758,6 @@ function cis_default_permissions_defaultconfig_user_default_permissions() {
     'name' => 'edit own academic_unit content',
     'roles' => array(
       'administrator' => 'administrator',
-      'staff' => 'staff',
-    ),
-    'module' => 'node',
-  );
-
-  // Exported permission: 'edit own cis_course content'.
-  $permissions['edit own cis_course content'] = array(
-    'name' => 'edit own cis_course content',
-    'roles' => array(
-      'SERVICE ACCOUNT' => 'SERVICE ACCOUNT',
-      'administrator' => 'administrator',
-      'instructor' => 'instructor',
       'staff' => 'staff',
     ),
     'module' => 'node',
