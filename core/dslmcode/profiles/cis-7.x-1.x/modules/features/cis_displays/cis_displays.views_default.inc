@@ -6183,15 +6183,13 @@ function cis_displays_views_default_views() {
   $handler->display->display_options['filters']['rid']['table'] = 'users_roles';
   $handler->display->display_options['filters']['rid']['field'] = 'rid';
   $handler->display->display_options['filters']['rid']['value'] = array(
-    9 => '9',
-    11 => '11',
-    5 => '5',
-    10 => '10',
-    6 => '6',
-    4 => '4',
-    7 => '7',
-    8 => '8',
-    3 => '3',
+    6065076 => '6065076',
+    135574917 => '135574917',
+    66784200 => '66784200',
+    67296478 => '67296478',
+    75987638 => '75987638',
+    166149871 => '166149871',
+    30037204 => '30037204',
   );
 
   /* Display: Unit Heads */
@@ -6224,8 +6222,9 @@ function cis_displays_views_default_views() {
   $handler->display->display_options['filters']['rid']['table'] = 'users_roles';
   $handler->display->display_options['filters']['rid']['field'] = 'rid';
   $handler->display->display_options['filters']['rid']['value'] = array(
-    5 => '5',
-    10 => '10',
+    6065076 => '6065076',
+    75987638 => '75987638',
+    166149871 => '166149871',
   );
 
   /* Display: Coordinators */
@@ -6258,9 +6257,7 @@ function cis_displays_views_default_views() {
   $handler->display->display_options['filters']['rid']['table'] = 'users_roles';
   $handler->display->display_options['filters']['rid']['field'] = 'rid';
   $handler->display->display_options['filters']['rid']['value'] = array(
-    11 => '11',
-    10 => '10',
-    4 => '4',
+    166149871 => '166149871',
   );
 
   /* Display: Inst of record */
@@ -6291,7 +6288,7 @@ function cis_displays_views_default_views() {
   $handler->display->display_options['filters']['rid']['table'] = 'users_roles';
   $handler->display->display_options['filters']['rid']['field'] = 'rid';
   $handler->display->display_options['filters']['rid']['value'] = array(
-    6 => '6',
+    75987638 => '75987638',
   );
 
   /* Display: World Campus */
@@ -6322,7 +6319,7 @@ function cis_displays_views_default_views() {
   $handler->display->display_options['filters']['rid']['table'] = 'users_roles';
   $handler->display->display_options['filters']['rid']['field'] = 'rid';
   $handler->display->display_options['filters']['rid']['value'] = array(
-    11 => '11',
+    6065076 => '6065076',
   );
 
   /* Display: TAs */
@@ -6353,7 +6350,7 @@ function cis_displays_views_default_views() {
   $handler->display->display_options['filters']['rid']['table'] = 'users_roles';
   $handler->display->display_options['filters']['rid']['field'] = 'rid';
   $handler->display->display_options['filters']['rid']['value'] = array(
-    9 => '9',
+    67296478 => '67296478',
   );
 
   /* Display: Learning Designer */
@@ -6384,7 +6381,7 @@ function cis_displays_views_default_views() {
   $handler->display->display_options['filters']['rid']['table'] = 'users_roles';
   $handler->display->display_options['filters']['rid']['field'] = 'rid';
   $handler->display->display_options['filters']['rid']['value'] = array(
-    7 => '7',
+    166149871 => '166149871',
   );
 
   /* Display: Internal Staff */
@@ -6415,8 +6412,8 @@ function cis_displays_views_default_views() {
   $handler->display->display_options['filters']['rid']['table'] = 'users_roles';
   $handler->display->display_options['filters']['rid']['field'] = 'rid';
   $handler->display->display_options['filters']['rid']['value'] = array(
-    8 => '8',
-    3 => '3',
+    166149871 => '166149871',
+    30037204 => '30037204',
   );
 
   /* Display: Deans */
@@ -6449,7 +6446,8 @@ function cis_displays_views_default_views() {
   $handler->display->display_options['filters']['rid']['table'] = 'users_roles';
   $handler->display->display_options['filters']['rid']['field'] = 'rid';
   $handler->display->display_options['filters']['rid']['value'] = array(
-    5 => '5',
+    6065076 => '6065076',
+    75987638 => '75987638',
   );
 
   /* Display: University employees */
@@ -6482,15 +6480,11 @@ function cis_displays_views_default_views() {
   $handler->display->display_options['filters']['rid']['table'] = 'users_roles';
   $handler->display->display_options['filters']['rid']['field'] = 'rid';
   $handler->display->display_options['filters']['rid']['value'] = array(
-    9 => '9',
-    11 => '11',
-    5 => '5',
-    10 => '10',
-    6 => '6',
-    4 => '4',
-    7 => '7',
-    8 => '8',
-    3 => '3',
+    6065076 => '6065076',
+    67296478 => '67296478',
+    75987638 => '75987638',
+    166149871 => '166149871',
+    30037204 => '30037204',
   );
   $handler->display->display_options['filters']['rid']['reduce_duplicates'] = TRUE;
   $export['user_type_lists'] = $view;
