@@ -6,7 +6,7 @@ sudo -i
 cd ~
 mkdir -p /var/www/elmsln
 cd /var/www
-git clone https://github.com/btopro/elmsln.git
+git clone https://github.com/elmsln/elmsln.git
 cd ~
 bash /var/www/elmsln/scripts/install/root/elmsln-preinstall.sh
 # answer the questions in the pre-installation routine
