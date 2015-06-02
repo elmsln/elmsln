@@ -28,19 +28,18 @@ function advagg_css_cdn_css_alter(&$css) {
   // jquery ui.
   $jquery_ui_version = variable_get('advagg_css_cdn_jquery_ui_version', ADVAGG_CSS_CDN_JQUERY_UI_VERSION);
   $ui_mapping = advagg_css_cdn_get_ui_mapping();
-  $add_in_ui = FALSE;
 
   foreach ($css as $name => $values) {
     // @ignore sniffer_commenting_inlinecomment_spacingbefore:4
     // @ignore sniffer_whitespace_openbracketspacing_openingwhitespace:8
     // Only modify if
-    //  advagg_css_cdn_jquery_ui is enabled,
-    //  name is in the $ui_mapping array.
-    //  and type is file.
-    if (   variable_get('advagg_css_cdn_jquery_ui', ADVAGG_CSS_CDN_JQUERY_UI)
-        && array_key_exists($name, $ui_mapping)
-        && $css[$name]['type'] === 'file'
-        ) {
+    // advagg_css_cdn_jquery_ui is enabled,
+    // name is in the $ui_mapping array.
+    // and type is file.
+    if ( variable_get('advagg_css_cdn_jquery_ui', ADVAGG_CSS_CDN_JQUERY_UI)
+      && array_key_exists($name, $ui_mapping)
+      && $css[$name]['type'] === 'file'
+    ) {
       $css[$name]['data'] = '//ajax.googleapis.com/ajax/libs/jqueryui/' . $jquery_ui_version . '/themes/base/jquery.' . $ui_mapping[$name] . '.css';
       $css[$name]['type'] = 'external';
 
@@ -118,25 +117,25 @@ function advagg_css_cdn_advagg_css_groups_alter(&$css_groups, $preprocess_css) {
     else {
       $diff = array_merge(array_diff_assoc($group['browsers'], $target['browsers']), array_diff_assoc($target['browsers'], $group['browsers']));
       // @ignore sniffer_whitespace_openbracketspacing_openingwhitespace:8
-      if (   $group['type'] != $target['type']
-          || $group['group'] != $target['group']
-          || $group['every_page'] != $target['every_page']
-          || $group['media'] != $target['media']
-          || $group['media'] != $target['media']
-          || $group['preprocess'] != $target['preprocess']
-          || !empty($diff)
-          ) {
+      if ( $group['type'] != $target['type']
+        || $group['group'] != $target['group']
+        || $group['every_page'] != $target['every_page']
+        || $group['media'] != $target['media']
+        || $group['media'] != $target['media']
+        || $group['preprocess'] != $target['preprocess']
+        || !empty($diff)
+      ) {
         if (!empty($last_group)) {
           $diff = array_merge(array_diff_assoc($last_group['browsers'], $target['browsers']), array_diff_assoc($target['browsers'], $last_group['browsers']));
           // @ignore sniffer_whitespace_openbracketspacing_openingwhitespace:8
-          if (   $last_group['type'] != $target['type']
-              || $last_group['group'] != $target['group']
-              || $last_group['every_page'] != $target['every_page']
-              || $last_group['media'] != $target['media']
-              || $last_group['media'] != $target['media']
-              || $last_group['preprocess'] != $target['preprocess']
-              || !empty($diff)
-              ) {
+          if ( $last_group['type'] != $target['type']
+            || $last_group['group'] != $target['group']
+            || $last_group['every_page'] != $target['every_page']
+            || $last_group['media'] != $target['media']
+            || $last_group['media'] != $target['media']
+            || $last_group['preprocess'] != $target['preprocess']
+            || !empty($diff)
+          ) {
             // Insert New.
             $css_groups[$kill_key] = array(
               'group' => $target['group'],

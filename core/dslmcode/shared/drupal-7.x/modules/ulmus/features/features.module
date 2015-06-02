@@ -1075,6 +1075,9 @@ function features_hook_info() {
  * Change vocabularies permission, from vocab id to machine name and vice versa.
  */
 function _user_features_change_term_permission(&$perm, $type = 'vid') {
+  if (!module_exists('taxonomy')) {
+    return;
+  }
   // Export vocabulary permissions using the machine name, instead of vocabulary
   // id.
   if (strpos($perm, 'edit terms in ') !== FALSE || strpos($perm, 'delete terms in ') !== FALSE) {

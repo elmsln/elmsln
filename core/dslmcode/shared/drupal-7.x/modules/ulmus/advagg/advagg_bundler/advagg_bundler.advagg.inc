@@ -27,7 +27,7 @@ function advagg_bundler_advagg_build_aggregate_plans_alter(&$files, &$modified, 
 
   $final_groupings = array();
   $total_count = 0;
-  foreach ($files as $filename => $data) {
+  foreach ($files as $data) {
     // Preserve the order while grouping.
     $last_group = '';
     $counter = 0;
@@ -87,8 +87,6 @@ function advagg_bundler_advagg_build_aggregate_plans_alter(&$files, &$modified, 
     }
   }
 
-  $files_before = $files;
-
   // Replace $files array with new aggregate filenames.
   $files = advagg_generate_filenames($final_groupings, $type);
 }
@@ -99,11 +97,11 @@ function advagg_bundler_advagg_build_aggregate_plans_alter(&$files, &$modified, 
  * This preserves the order.
  *
  * @param array $groupings
- *   array of requested groups
+ *   Array of requested groups.
  * @param int $max
- *   max number of grouping
+ *   Max number of grouping.
  */
-function advagg_bundler_merge(&$groupings, $max) {
+function advagg_bundler_merge(array &$groupings, $max) {
   $group_count = count($groupings);
 
   if (!empty($max)) {

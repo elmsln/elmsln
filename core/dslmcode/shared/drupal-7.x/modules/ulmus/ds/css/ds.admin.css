@@ -7,8 +7,19 @@
   margin-bottom: 1em;
 }
 
+#field-display-overview .field-formatter-settings-edit-form .ft-group {
+  border-top: 1px solid #aaa;
+  padding: 5px 0;
+  overflow: auto;
+}
+
+#field-display-overview .field-formatter-settings-edit-form .ft-group.lb {
+  border-top: none;
+}
+
 #field-display-overview .field-formatter-settings-edit-form .ft-group .form-item {
   margin: 0;
+  white-space: normal;
 }
 
 .ds-layout-preview-title {
@@ -164,7 +175,7 @@ a.section-link {
 .vertical-tabs fieldset#edit-additional-settings-ds-page-title-options-page-option-contexts {
   margin: 1em 0;
   padding: 2.5em 0 0;
-  border: 1px solid #CCCCCC;
+  border: 1px solid #ccc;
 }
 
 #edit-additional-settings-ds-page-title-options-page-option-contexts legend {

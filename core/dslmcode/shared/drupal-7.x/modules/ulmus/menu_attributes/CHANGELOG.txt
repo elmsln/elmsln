@@ -1,0 +1,38 @@
+
+Menu attributes 7.x-1.0-rc3, 2014-07-05
+------------------------------------
+- #2185403 by juanjo_dv: Fixed Localizable options for link target.
+- 80 char coding standards
+- #1488960 by andrewmacpherson, michaek | JamesRobertson: Added Attributes for LI element.
+- #1627806 by d.clarke | clavigne: Added Move Attributes into its own fieldset within the Menu settings area.
+- #1894772 by amateescu, alberto56: Fixed hook_menu_attribute_info() API example.
+- #1909564 by opi: Fixed Typo in menu_attributes_menu_attribute_info() comment.
+- #1761804 by osopolar, quicksketch: Do not add empty classes produced by leading, trailing or double spaces.
+- #1077426 by cweagans: Followup: Fix permission checks.
+- #1886014 by Berdir: Fixed Argument 2 passed to _menu_attributes_form_alter() must be an array, null given.
+
+Menu attributes 7.x-1.0-rc2, 2011-10-07
+----------------------------------------
+- #1151594 by amateescu: Fix hook_form_alter() fatal error by checking the correct form element.
+- #1077426 by Kevin Quillen, amateescu and Dave Reid: Added permissions.
+- #863670 by amateescu: Add hook documentation in menu_attributes.api.php
+- #863654 by amateescu and Dave Reid: Add vertical tabs summaries.
+- #863658 by amateescu: Write Simpletests and enable automated testing.
+- #1266456 by amateescu and davereid: Menu attributes does not accept 0 as an access key.
+- #1200928 by dalin, amateescu: Fixed menu link edit form does not save values for existing menu links since $form['options']['#value']['attributes'] is defined.
+- #1200932 by dalin, amateescu: Fixed $form['options'] should not get overwritten.
+
+Menu attributes 7.x-1.0-rc1, 2011-05-02
+----------------------------------------
+- Unify _menu_attributes_form_alter() to not clobber any other attributes or options in the link data.
+- #1132782: Added update function to fix any menu links that had the class attribute saved as a string rather than an array.
+- #1144502: Fixed attribute configuration not showing up on menu settings page.
+- Stripping CVS keywords.
+- #994402 by das-peter, Dave Reid: Fixed Prevent error in menu_attributes_menu_link_alter() if an attribute is not a string.
+- by Dave Reid: Use hook_form_node_form_alter() instead of hook_form_alter().
+- by Dave Reid: Store class values as an array rather than a string.
+
+Menu attributes 7.x-1.0-beta1, 2010-07-24
+------------------------------------------
+- by Dave Reid: Moved the description element handling back into menu_attributes_form_menu_edit_item_alter() and improved display of attribute form elements.
+- #783590 by Dave Reid: Ported to Drupal 7.

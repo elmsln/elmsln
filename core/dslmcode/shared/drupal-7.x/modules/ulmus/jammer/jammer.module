@@ -110,7 +110,7 @@ function jammer_form_alter(&$form, &$form_state, $form_id) {
 //  }
 
   if (strpos($form['#id'], 'node-form') !== FALSE) {
-    // jammer_publishing_options   
+    // jammer_publishing_options
     if (variable_get('jammer_node_promoted', 0) == 1) {
       $form['options']['promote']['#access'] = FALSE;
     }
@@ -223,7 +223,7 @@ function jammer_admin_settings($form, &$form_state) {
     '#default_value' => variable_get('jammer_path_options', array()),
     '#description' => t('The selected node types will no longer have the url options listed when creating or editing a node of that type.'),
   );
-  
+
   // Remove publishing settings
   $form['jammer_publishing_options'] = array(
     '#type' => 'fieldset',

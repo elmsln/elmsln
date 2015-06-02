@@ -114,7 +114,7 @@ class dsNodeTests extends dsBaseTest {
     $this->assertRaw('group-footer', 'Template found (region footer)');
     $this->assertRaw('group-left', 'Template found (region left)');
     $this->assertRaw('group-right', 'Template found (region right)');
-    $this->assertPattern('/<div[^>]*>Submitted[^<]*<a[^>]+href="\/user\/' . $node_author->uid . '"[^>]*>' . check_plain($node_author->name) . '<\/a>.<\/div>/', t('Submitted by line found'));
+    $this->assertPattern('/<div[^>]*>Submitted[^<]*<a[^>]+href="' . preg_quote(base_path(), '/') . 'user\/' . $node_author->uid . '"[^>]*>' . check_plain($node_author->name) . '<\/a>.<\/div>/', t('Submitted by line found'));
 
     // Configure teaser layout.
     $teaser = array(
@@ -521,6 +521,7 @@ class dsNodeTests extends dsBaseTest {
       'fields[body][settings_edit_form][settings][ft][fi-el]' => 'span',
       'fields[body][settings_edit_form][settings][ft][fi-cl]' => 'fi-class',
       'fields[body][settings_edit_form][settings][ft][fi-odd-even]' => '1',
+      'fields[body][settings_edit_form][settings][ft][fi-first-last]' => '1',
     );
     $this->dsEditFormatterSettings($edit);
     $this->drupalGet('node/' . $node->nid);
@@ -537,6 +538,7 @@ class dsNodeTests extends dsBaseTest {
       'fields[body][settings_edit_form][settings][ft][fi-el]' => 'div',
       'fields[body][settings_edit_form][settings][ft][fi-cl]' => 'fi-class',
       'fields[body][settings_edit_form][settings][ft][fi-odd-even]' => '1',
+      'fields[body][settings_edit_form][settings][ft][fi-first-last]' => '1',
     );
     $this->dsEditFormatterSettings($edit);
     $this->drupalGet('node/' . $node->nid);
@@ -555,6 +557,7 @@ class dsNodeTests extends dsBaseTest {
       'fields[body][settings_edit_form][settings][ft][fi-el]' => 'span',
       'fields[body][settings_edit_form][settings][ft][fi-cl]' => 'fi-class',
       'fields[body][settings_edit_form][settings][ft][fi-odd-even]' => '1',
+      'fields[body][settings_edit_form][settings][ft][fi-first-last]' => '1',
     );
     $this->dsEditFormatterSettings($edit);
     $this->drupalGet('node/' . $node->nid);

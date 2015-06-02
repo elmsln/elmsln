@@ -376,11 +376,11 @@ function ctools_context_ajax_item_add($mechanism = NULL, $type = NULL, $cache_ke
     'path' => "ctools/context/ajax/add/$mechanism/$type/$cache_key/$name/%step",
     'show cancel' => TRUE,
     'default form' => 'ctools_edit_context_form_defaults',
-    'auto caching' => TRUE,
+    'auto cache' => TRUE,
     'cache mechanism' => $mechanism,
     'cache key' => $cache_key,
     // This is stating what the cache will be referred to in $form_state
-    'cache storage' => 'object',
+    'cache location' => 'object',
   );
 
   if ($type == 'requiredcontext') {
@@ -561,11 +561,11 @@ function ctools_context_ajax_item_edit($mechanism = NULL, $type = NULL, $cache_k
     'path' => "ctools/context/ajax/configure/$mechanism/$type/$cache_key/$position/%step",
     'show cancel' => TRUE,
     'default form' => 'ctools_edit_context_form_defaults',
-    'auto caching' => TRUE,
+    'auto cache' => TRUE,
     'cache mechanism' => $mechanism,
     'cache key' => $cache_key,
     // This is stating what the cache will be referred to in $form_state
-    'cache storage' => 'object',
+    'cache location' => 'object',
   );
 
   if ($type == 'requiredcontext') {

@@ -151,7 +151,7 @@ function page_manager_term_view_page($term, $depth = NULL) {
   foreach (module_implements('page_manager_override') as $module) {
     $call = $module . '_page_manager_override';
     if (($rc = $call('term_view')) && function_exists($rc)) {
-      return $rc($node);
+      return $rc($term, $depth);
     }
   }
 

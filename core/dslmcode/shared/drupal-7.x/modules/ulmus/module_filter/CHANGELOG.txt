@@ -1,3 +1,19 @@
+Module Filter 7.x-2.x, 2015-02-20
+---------------------------------
+Simplifying the table rows by hiding version and requirements until a
+  particular description is clicked.
+
+
+Module Filter 7.x-2.x, 2014-09-01
+---------------------------------
+#2235553 by greenSkin: Fixed latest jquery_update breaks module filter.
+#2304687 by mpdonadio: Fixed Remove hardcoded operations.
+#2293029 by topsitemakers: Fixed Take header offset into account when selecting
+  a tab.
+#2290213 by topsitemakers: Minor typo in description - "has no affect" -> "has
+  no effect".
+
+
 Module Filter 7.x-2.0-alpha2, 2013-12-06
 ----------------------------------------
 #2141743, #2141743 by greenSkin: Fixed issues related to the new dynamically

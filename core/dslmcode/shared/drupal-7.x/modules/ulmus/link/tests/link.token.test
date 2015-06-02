@@ -75,7 +75,7 @@ class LinkTokenTest extends LinkBaseTestClass {
     $name = $this->randomName();
     $settings = array(
       'instance[settings][title]' => 'value',
-      'instance[settings][title_value]' => $name .' [node:content-type:machine-name]');
+      'instance[settings][title_value]' => $name . ' [node:content-type:machine-name]');
     $field_name = $this->createLinkField('page', $settings);
 
     // create page form
@@ -118,7 +118,7 @@ class LinkTokenTest extends LinkBaseTestClass {
     $name = $this->randomName();
     $settings = array(
       'instance[settings][title]' => 'value',
-      'instance[settings][title_value]' => $name .' [node:title]');
+      'instance[settings][title_value]' => $name . ' [node:title]');
     $field_name = $this->createLinkField('page', $settings);
 
     // create page form
@@ -144,7 +144,7 @@ class LinkTokenTest extends LinkBaseTestClass {
     $this->drupalLogout();
     $this->drupalGet($url);
 
-    $this->assertRaw(l($name .' '. $name, $input['href']));
+    $this->assertRaw(l($name . ' ' . $name, $input['href']));
   }
 
   // This test doesn't seem to actually work, due to lack of 'title' in url.
@@ -191,9 +191,9 @@ class LinkTokenTest extends LinkBaseTestClass {
 
     $edit = array();
     $test_link_url = 'http://www.example.com/test';
-    $edit[$field_name .'[und][0][url]'] = $test_link_url;
-    $title = 'title_'. $this->randomName(20);
-    $edit[$field_name .'[und][0][title]'] = $title;
+    $edit[$field_name . '[und][0][url]'] = $test_link_url;
+    $title = 'title_' . $this->randomName(20);
+    $edit[$field_name . '[und][0][title]'] = $title;
     $edit['title'] = $name;
 
     $this->drupalGet('node/add/page');
@@ -206,8 +206,8 @@ class LinkTokenTest extends LinkBaseTestClass {
 
     //$this->drupalGet('node/'. $node->nid);
     $this->assertText($title, 'Make sure the link title/text shows');
-    $this->assertRaw(' title="'. $test_link_url .'"', "Do we show the link url as the title attribute?");
-    $this->assertNoRaw(' title="['. $field_name .'-url]"');
+    $this->assertRaw(' title="' . $test_link_url . '"', "Do we show the link url as the title attribute?");
+    $this->assertNoRaw(' title="[' . $field_name . '-url]"');
     $this->assertTrue(module_exists('token'), t('Assure that Token Module is enabled.'));
     //$this->fail($this->content);
   }
@@ -236,10 +236,10 @@ class LinkTokenTest extends LinkBaseTestClass {
     $field_db_info = content_database_info($field);
     $url_type = str_replace('_', '-', $this->content_types[0]->type);
 
-    $edit = array('attributes[title]' => '['. $field_name .'-title]',
+    $edit = array('attributes[title]' => '[' . $field_name . '-title]',
                   'enable_tokens' => TRUE);
 
-    $this->drupalPost('admin/content/node-type/'. $url_type .'/fields/'. $field['field_name'],
+    $this->drupalPost('admin/content/node-type/' . $url_type . '/fields/' . $field['field_name'],
                       $edit, t('Save field settings'));
     $this->assertText(t('Saved field @field_name', array('@field_name' => $field['field_name'])));
 
@@ -248,14 +248,14 @@ class LinkTokenTest extends LinkBaseTestClass {
 
     $node = node_load($this->nodes[0]->nid);
 
-    $this->drupalGet('node/'. $this->nodes[0]->nid);
+    $this->drupalGet('node/' . $this->nodes[0]->nid);
 
     $edit = array();
-    $edit[$field['field_name'] .'[0][url]'] = 'http://www.example.com/test';
-    $title = 'title_'. $this->randomName(20);
-    $edit[$field['field_name'] .'[0][title]'] = $title;
+    $edit[$field['field_name'] . '[0][url]'] = 'http://www.example.com/test';
+    $title = 'title_' . $this->randomName(20);
+    $edit[$field['field_name'] . '[0][title]'] = $title;
 
-    $this->drupalPost('node/'. $this->nodes[0]->nid .'/edit', $edit, t('Save'));
+    $this->drupalPost('node/' . $this->nodes[0]->nid . '/edit', $edit, t('Save'));
 
     // Make sure we get a new version!
     $node = node_load($this->nodes[0]->nid, NULL, TRUE);
@@ -263,10 +263,10 @@ class LinkTokenTest extends LinkBaseTestClass {
                         array('@title' => $node->title,
                               '@type' => $this->content_types[0]->name)));
 
-    $this->drupalGet('node/'. $node->nid);
+    $this->drupalGet('node/' . $node->nid);
     $this->assertText($title, 'Make sure the link title/text shows');
-    $this->assertNoRaw(' title="'. $title .'"', "We should not show the link title as the title attribute?");
-    $this->assertNoRaw(' title="['. $field_name .'-title]"');
+    $this->assertNoRaw(' title="' . $title . '"', "We should not show the link title as the title attribute?");
+    $this->assertNoRaw(' title="[' . $field_name . '-title]"');
     //$this->fail($this->content);
   }
 
@@ -319,7 +319,7 @@ class LinkTokenTest extends LinkBaseTestClass {
     $this->drupalLogout();
     $this->drupalGet($url);
 
-    $this->assertRaw(l($input['label'], $input['href'] .'/page'));
+    $this->assertRaw(l($input['label'], $input['href'] . '/page'));
     //$this->fail($this->content);
   }
 
@@ -372,6 +372,58 @@ class LinkTokenTest extends LinkBaseTestClass {
     $this->drupalLogout();
     $this->drupalGet($url);
 
-    $this->assertRaw(l($input['label'], $input['href'] .'/'. $this->web_user->uid));
+    $this->assertRaw(l($input['label'], $input['href'] . '/' . $this->web_user->uid));
+  }
+  
+  /**
+   *  Test that if you have a title and no url on a field which does not have tokens enabled,
+   *  that the title is sanitized once.
+   */
+  function testCRUDTitleOnlyTitleNoLink2() {
+    $this->web_user = $this->drupalCreateUser(array('administer content types', 'access content', 'create page content'));
+    $this->drupalLogin($this->web_user);
+
+    // create field
+    $name = strtolower($this->randomName());
+    $field_name = 'field_' . $name;
+    $edit = array(
+      'fields[_add_new_field][label]' => $name,
+      'fields[_add_new_field][field_name]' => $name,
+      'fields[_add_new_field][type]' => 'link_field',
+      'fields[_add_new_field][widget_type]' => 'link_field',
+    );
+    $this->drupalPost('admin/structure/types/manage/page/fields', $edit, t('Save'));
+    $this->drupalPost(NULL, array(), t('Save field settings'));
+    $this->drupalPost(NULL, array(
+      'instance[settings][url]' => 1,
+      'instance[settings][enable_tokens]' => 0,
+    ), t('Save settings'));
+
+    // Is field created?
+    $this->assertRaw(t('Saved %label configuration', array('%label' => $name)), 'Field added');
+    
+    // create page form
+    $this->drupalGet('node/add/page');
+    $this->assertField($field_name . '[und][0][url]', 'URL found');
+
+    $input = array(
+      'title' => 'This & That',
+      'href' => '',
+    );
+
+    $edit = array(
+      'title' => $name,
+      $field_name . '[und][0][title]' => $input['title'],
+      $field_name . '[und][0][url]' => $input['href'],
+    );
+    $this->drupalPost(NULL, $edit, t('Save'));
+
+    $url = $this->getUrl();
+    
+    // change to anonymous user
+    $this->drupalLogout();
+    $this->drupalGet($url);
+
+    $this->assertRaw('This &amp; That');
   }
 }

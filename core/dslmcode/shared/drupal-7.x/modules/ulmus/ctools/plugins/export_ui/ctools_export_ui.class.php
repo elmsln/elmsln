@@ -1441,7 +1441,7 @@ function ctools_export_ui_delete_confirm_form($form, &$form_state) {
 
   $export_key = $plugin['export']['key'];
   $question = str_replace('%title', check_plain($item->{$export_key}), $plugin['strings']['confirmation'][$form_state['op']]['question']);
-  $path = empty($_REQUEST['cancel_path']) ? ctools_export_ui_plugin_base_path($plugin) : $_REQUEST['cancel_path'];
+  $path = (!empty($_REQUEST['cancel_path']) && !url_is_external($_REQUEST['cancel_path'])) ? $_REQUEST['cancel_path'] : ctools_export_ui_plugin_base_path($plugin);
 
   $form = confirm_form($form,
     $question,

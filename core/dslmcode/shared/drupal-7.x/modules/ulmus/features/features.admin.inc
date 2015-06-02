@@ -1073,6 +1073,7 @@ function features_admin_form($form, $form_state) {
     }
 
     $href = "admin/structure/features/{$name}";
+    $href_overridden = module_exists('diff') ? $href . '/diff' : $href;
     $module_name = (user_access('administer features')) ? l($module->info['name'], $href) : $module->info['name'];
     $form[$package]['status'][$name] = array(
       '#type' => 'checkbox',
@@ -1102,7 +1103,7 @@ function features_admin_form($form, $form_state) {
         $state .= l(t('Check'), "admin/structure/features/{$name}/status", array('attributes' => array('class' => array('admin-check'))));
         $state .= theme('features_storage_link', array('storage' => FEATURES_REBUILDING, 'path' => $href));
         $state .= theme('features_storage_link', array('storage' => FEATURES_NEEDS_REVIEW, 'path' =>  $href));
-        $state .= theme('features_storage_link', array('storage' => FEATURES_OVERRIDDEN, 'path' =>  $href));
+        $state .= theme('features_storage_link', array('storage' => FEATURES_OVERRIDDEN, 'path' =>  $href_overridden));
         $state .= theme('features_storage_link', array('storage' => FEATURES_DEFAULT, 'path' =>  $href));
       }
       elseif (!empty($conflicts[$name])) {

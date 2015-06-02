@@ -7,12 +7,26 @@
 
 /**
  * Determines the administration path for a bundle.
+ *
+ * @param string $entity_type
+ *   The type of entity; e.g. 'node' or 'user'.
+ * @param string $bundle_name
+ *   The bundle name.
+ * @param string $field_name
+ *   The field name.
+ *
+ * @return mixed
+ *   NULL if no admin path is found; the string of the admin path.
  */
 function imageinfo_cache_bundle_admin_path($entity_type, $bundle_name, $field_name) {
   $bundles = field_info_bundles($entity_type);
-  $bundle_info = $bundles[$bundle_name];
-  if (isset($bundle_info['admin'])) {
-    $return = isset($bundle_info['admin']['real path']) ? $bundle_info['admin']['real path'] : $bundle_info['admin']['path'];
+  if (empty($bundles) || empty($bundles[$bundle_name])) {
+    return;
+  }
+  if (isset($bundles[$bundle_name]['admin'])) {
+    $return = isset($bundles[$bundle_name]['admin']['real path'])
+      ? $bundles[$bundle_name]['admin']['real path']
+      : $bundles[$bundle_name]['admin']['path'];
     $return .= '/fields/' . $field_name;
     return $return;
   }
@@ -22,9 +36,13 @@ function imageinfo_cache_bundle_admin_path($entity_type, $bundle_name, $field_na
  * Form builder; Configure advagg settings.
  *
  * @ingroup forms
+ *
  * @see system_settings_form()
+ *
+ * @return array
+ *   Configuration form.
  */
-function imageinfo_cache_admin_settings_form($form, $form_state) {
+function imageinfo_cache_admin_settings_form() {
   drupal_set_title(t('Imageinfo Cache Configuration'));
   module_load_include('inc', 'imageinfo_cache', 'imageinfo_cache');
   $form = array();
@@ -64,7 +82,6 @@ function imageinfo_cache_admin_settings_form($form, $form_state) {
   );
 
   $instances = field_info_instances();
-  $field_types = field_info_field_types();
   $bundles = field_info_bundles();
   $field_admin_paths = array();
   foreach ($instances as $entity_type => $type_bundles) {
@@ -124,7 +141,6 @@ function imageinfo_cache_admin_settings_form($form, $form_state) {
       );
     }
 
-
     // Add a * to the end of default styles.
     if (isset($image_field_defaults[$field_name]['#field_info'])) {
       unset($image_field_defaults[$field_name]['#field_info']);
@@ -156,6 +172,27 @@ function imageinfo_cache_admin_settings_form($form, $form_state) {
     '#disabled' => TRUE,
   );
 
+  // Output all imageinfo cache hooks implemented.
+  $hooks_implemented = imageinfo_cache_hooks();
+  foreach ($hooks_implemented as $hook => $values) {
+    if (empty($values)) {
+      $form['hooks_implemented'][$hook] = array(
+        '#markup' => '<div><strong>' . check_plain($hook) . ':</strong> 0</div>',
+      );
+    }
+    else {
+      $form['hooks_implemented'][$hook] = array(
+        '#markup' => '<div><strong>' . check_plain($hook) . ':</strong> ' . count($values) . '<br />&nbsp;&nbsp;' . filter_xss(implode('<br />&nbsp;&nbsp;', $values), array('br')) . '</div>',
+      );
+    }
+  }
+  $form['hooks_implemented'] += array(
+    '#type' => 'fieldset',
+    '#collapsible' => TRUE,
+    '#collapsed' => TRUE,
+    '#title' => t('Imageinfo Cache hooks implemented by modules'),
+  );
+
   $form['buttons']['reset'] = array(
     '#type' => 'submit',
     '#value' => t('Reset to defaults'),
@@ -177,20 +214,25 @@ function imageinfo_cache_admin_settings_form($form, $form_state) {
 // Submit callback.
 /**
  * Only record the non-default presets.
+ *
+ * @param array $form
+ *   Drupal form array.
+ * @param array $form_state
+ *   Drupal form state.
  */
-function imageinfo_cache_admin_settings_form_submit($form, &$form_state) {
+function imageinfo_cache_admin_settings_form_submit(array $form, array &$form_state) {
   // Flush the menu cache if imageinfo_cache_disable_on_demand_generation is
   // changing state.
   $new = $form_state['values']['imageinfo_cache_disable_on_demand_generation'];
   $old = variable_get('imageinfo_cache_disable_on_demand_generation', IMAGEINFO_CACHE_DISABLE_ON_DEMAND_GENERATION);
-  if ($new != $old) {
-    drupal_set_message('Rebuilding the menu cache.');
+  if ($new !== $old) {
+    drupal_set_message(t('Rebuilding the menu cache.'));
     $GLOBALS['conf']['imageinfo_cache_disable_on_demand_generation'] = $new;
     drupal_register_shutdown_function('menu_rebuild');
   }
 
   $op = isset($form_state['values']['op']) ? $form_state['values']['op'] : '';
-  if ($op == t('Reset to defaults')) {
+  if ($op === t('Reset to defaults')) {
     foreach ($form_state['values'] as $key => $value) {
       if (is_array($value)) {
         variable_del($key);

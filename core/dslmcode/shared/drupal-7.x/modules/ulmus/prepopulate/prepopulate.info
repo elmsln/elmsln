@@ -3,8 +3,8 @@ description = Allows form elements to be prepopulated from the URL.
 core = 7.x
 
 ; Information added by Drupal.org packaging script on 2014-06-20
-version = "7.x-2.0"
+version = "7.x-2.x-dev"
 core = "7.x"
 project = "prepopulate"
-datestamp = "1403301228"
+datestamp = "1403300036"
 

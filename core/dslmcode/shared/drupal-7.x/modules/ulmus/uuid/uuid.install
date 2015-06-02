@@ -268,7 +268,7 @@ function uuid_update_7103() {
       if ($entity_type == 'user' && $rid = array_search('administrator', $entity->roles)) {
         unset($entity->roles[$rid]);
       }
-      entity_save($entity);
+      entity_save($entity_type, $entity);
     }
   }
 }

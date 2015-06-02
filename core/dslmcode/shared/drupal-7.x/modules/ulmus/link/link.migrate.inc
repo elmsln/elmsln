@@ -97,7 +97,12 @@ class MigrateLinkFieldHandler extends MigrateFieldHandler {
         }
       }
       if (isset($arguments['attributes'])) {
-        $item['attributes'] = $arguments['attributes'];
+        if (is_array($arguments['attributes']) && isset($arguments['attributes'][$delta])) {
+          $item['attributes'] = $arguments['attributes'][$delta];
+        }
+        else {
+          $item['attributes'] = $arguments['attributes'];
+        }
       }
       $item['url'] = $value;
       $return[$language][$delta] = $item;

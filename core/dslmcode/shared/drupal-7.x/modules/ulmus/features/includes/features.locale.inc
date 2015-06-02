@@ -134,6 +134,7 @@ function _features_language_save($language) {
       ->fields(array(
         'plurals' => empty($language->plurals) ? 0 : $language->plurals,
         'formula' => empty($language->formula) ? '' : $language->formula,
+        'weight' => empty($language->weight) ? 0 : $language->weight,
       ))
       ->condition('language', $language->language)
       ->execute();

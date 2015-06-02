@@ -69,7 +69,7 @@ function ds_schema() {
       'view_mode' => array(
         'description' => 'The name of the view_mode.',
         'type' => 'varchar',
-        'length' => 32,
+        'length' => 64,
         'not null' => TRUE,
         'default' => '',
       ),
@@ -131,7 +131,7 @@ function ds_schema() {
       'view_mode' => array(
         'description' => 'The name of the view_mode.',
         'type' => 'varchar',
-        'length' => 32,
+        'length' => 64,
         'not null' => TRUE,
         'default' => '',
       ),
@@ -179,7 +179,7 @@ function ds_schema() {
       'view_mode' => array(
         'description' => 'The machine name of the view mode.',
         'type' => 'varchar',
-        'length' => 32,
+        'length' => 64,
         'not null' => TRUE,
         'default' => '',
       ),
@@ -229,7 +229,7 @@ function ds_schema() {
       'label' => array(
         'description' => 'The label of the field.',
         'type' => 'varchar',
-        'length' => 32,
+        'length' => 128,
         'not null' => TRUE,
         'default' => '',
       ),
@@ -276,4 +276,52 @@ function ds_update_7201() {
   if (!db_field_exists('ds_fields', 'ui_limit')) {
     db_add_field('ds_fields', 'ui_limit', $schema['ds_fields']['fields']['ui_limit']);
   }
+}
+
+/**
+ * Increase the label storage length to 128.
+ */
+function ds_update_7202() {
+  db_change_field('ds_fields', 'label', 'label',
+    array(
+      'description' => 'The label of the field.',
+      'type' => 'varchar',
+      'length' => 128,
+      'not null' => TRUE,
+      'default' => '',
+    ));
+}
+
+
+/**
+ * Increase the view_mode storage length to 64
+ */
+function ds_update_7203() {
+  db_change_field('ds_field_settings', 'view_mode', 'view_mode',
+    array(
+      'description' => 'The name of the view_mode.',
+      'type' => 'varchar',
+      'length' => 64,
+      'not null' => TRUE,
+      'default' => '',
+    )
+  );
+  db_change_field('ds_layout_settings', 'view_mode', 'view_mode',
+    array(
+      'description' => 'The name of the view_mode.',
+      'type' => 'varchar',
+      'length' => 64,
+      'not null' => TRUE,
+      'default' => '',
+    )
+  );
+  db_change_field('ds_view_modes', 'view_mode', 'view_mode',
+    array(
+      'description' => 'The machine name of the view mode.',
+      'type' => 'varchar',
+      'length' => 64,
+      'not null' => TRUE,
+      'default' => '',
+    )
+  );
 }

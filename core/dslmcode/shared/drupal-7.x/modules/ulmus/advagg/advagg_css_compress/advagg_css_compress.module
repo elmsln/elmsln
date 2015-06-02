@@ -13,12 +13,12 @@ define('ADVAGG_CSS_COMPRESSOR', 2);
 /**
  * Default value to see what compressor to use. 0 is Disabled.
  */
-define('ADVAGG_CSS_INLINE_COMPRESSOR', 0);
+define('ADVAGG_CSS_COMPRESS_INLINE', 0);
 
 /**
  * Default value to if inline compression is used if page is not cacheable.
  */
-define('ADVAGG_CSS_INLINE_COMPRESS_IF_NOT_CACHEABLE', FALSE);
+define('ADVAGG_CSS_COMPRESS_INLINE_IF_NOT_CACHEABLE', FALSE);
 
 /**
  * Default value for per file compression settings.
@@ -62,7 +62,7 @@ function advagg_css_compress_advagg_current_hooks_hash_array_alter(&$aggregate_s
  */
 function advagg_css_compress_advagg_modify_css_pre_render_alter(&$children, &$elements) {
   // Get variables.
-  $compressor = variable_get('advagg_css_inline_compressor', ADVAGG_CSS_INLINE_COMPRESSOR);
+  $compressor = variable_get('advagg_css_compress_inline', ADVAGG_CSS_COMPRESS_INLINE);
 
   // Do nothing if the compressor is disabled.
   if (empty($compressor)) {
@@ -71,17 +71,18 @@ function advagg_css_compress_advagg_modify_css_pre_render_alter(&$children, &$el
 
   // Do nothing if the page is not cacheable and inline compress if not
   // cacheable is not checked.
-  if (!variable_get('advagg_css_inline_compress_if_not_cacheable', ADVAGG_CSS_INLINE_COMPRESS_IF_NOT_CACHEABLE) && !drupal_page_is_cacheable()) {
+  if (!variable_get('advagg_css_compress_inline_if_not_cacheable', ADVAGG_CSS_COMPRESS_INLINE_IF_NOT_CACHEABLE) && !drupal_page_is_cacheable()) {
     return;
   }
 
   module_load_include('inc', 'advagg_css_compress', 'advagg_css_compress.advagg');
   if ($compressor == 2) {
     // Compress any inline CSS with YUI.
-    foreach ($children as $key => &$values) {
+    foreach ($children as &$values) {
       if (!empty($values['#value'])) {
         advagg_css_compress_yui_cssmin($values['#value']);
       }
     }
+    unset($values);
   }
 }

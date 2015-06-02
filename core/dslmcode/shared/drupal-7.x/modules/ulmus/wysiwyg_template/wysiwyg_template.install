@@ -15,24 +15,86 @@ function wysiwyg_template_schema() {
         'description' => 'The title of the Wysiwyg template',
         'type' => 'varchar',
         'length' => 255,
-        'not null' => TRUE),
+        'not null' => TRUE
+      ),
       'description' => array(
         'description' => 'The description of the Wysiwyg template',
         'type' => 'varchar',
         'length' => 255,
-        'not null' => TRUE),
+        'not null' => TRUE
+      ),
       'fid' => array(
         'description' => 'The {file_managed}.fid of the image.',
         'type' => 'int',
         'unsigned' => TRUE,
         'not null' => TRUE,
-        'default' => 0),
+        'default' => 0
+      ),
       'body' => array(
         'description' => 'The Wysiwyg template HTML',
-        'type' => 'text'),
+        'type' => 'text'
+      ),
+      'format' => array(
+        'description' => 'The text format used for body field.',
+        'type' => 'varchar',
+        'length' => 255,
+      ),
+      'weight' => array(
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0,
+        'description' => 'The weight of this template in listings and the user interface.',
+      ),
     ),
     'primary key' => array('name'),
+    'indexes' => array(
+      'weight' => array('weight'),
+    ),
   );
+
+  $schema['wysiwyg_templates_default'] = array(
+    'fields' => array(
+      'name' => array(
+        'description' => 'The machine name for the template.',
+        'type' => 'varchar',
+        'length' => 128,
+      ),
+      'type' => array(
+        'description' => 'The {node_type}.type of this node.',
+        'type' => 'varchar',
+        'length' => 32,
+        'not null' => TRUE,
+        'default' => '',
+      ),
+    ),
+    'primary key' => array('type'),
+    'indexes' => array(
+      'name' => array('name'),
+    ),
+  );
+
+  $schema['wysiwyg_templates_content_types'] = array(
+    'fields' => array(
+      'name' => array(
+        'description' => 'The machine name for the template.',
+        'type' => 'varchar',
+        'length' => 128,
+      ),
+      'type' => array(
+        'description' => 'The {node_type}.type of this node.',
+        'type' => 'varchar',
+        'length' => 32,
+        'not null' => TRUE,
+        'default' => '',
+      ),
+    ),
+    'primary key' => array('name', 'type'),
+    'indexes' => array(
+      'name' => array('name'),
+      'type' => array('type'),
+    ),
+  );
+
   return $schema;
 }
 
@@ -97,10 +159,50 @@ function wysiwyg_template_update_7200() {
 function wysiwyg_template_update_7201() {
   // Create name field and populate it.
   db_add_field('wysiwyg_templates', 'fid', array(
-    'description' => 'The {file_managed}.fid of the image.',
-    'type' => 'int',
-    'unsigned' => TRUE,
-    'not null' => TRUE,
-    'default' => 0)
+      'description' => 'The {file_managed}.fid of the image.',
+      'type' => 'int',
+      'unsigned' => TRUE,
+      'not null' => TRUE,
+      'default' => 0
+    )
   );
+}
+
+/**
+ * Add the table wysiwyg_templates_default
+ */
+function wysiwyg_template_update_7202() {
+  if (!db_table_exists('wysiwyg_templates_default')) {
+    $schema = wysiwyg_template_schema();
+    db_create_table('wysiwyg_templates_default', $schema['wysiwyg_templates_default']);
+  }
+}
+
+/**
+ * Add weight field to the table wysiwyg_templates
+ */
+function wysiwyg_template_update_7203() {
+  if (!db_field_exists('wysiwyg_templates', 'weight')) {
+    $schema = wysiwyg_template_schema();
+    db_add_field('wysiwyg_templates', 'weight', $schema['wysiwyg_templates']['fields']['weight']);
+    db_add_index('wysiwyg_templates', 'weight', $schema['wysiwyg_templates']['indexes']['weight']);
+  }
+}
+
+/**
+ * Add the table wysiwyg_templates_content_types
+ */
+function wysiwyg_template_update_7204() {
+  if (!db_table_exists('wysiwyg_templates_content_types')) {
+    $schema = wysiwyg_template_schema();
+    db_create_table('wysiwyg_templates_content_types', $schema['wysiwyg_templates_content_types']);
+  }
+}
+
+/**
+ * Add the format table field
+ */
+function wysiwyg_template_update_7205() {
+  $schema = wysiwyg_template_schema();
+  db_add_field('wysiwyg_templates', 'format', $schema['wysiwyg_templates']['fields']['format']);
 }

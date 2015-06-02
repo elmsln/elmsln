@@ -2,6 +2,12 @@
 
 Drupal.behaviors.moduleFilter = {
   attach: function(context) {
+    $('#system-modules td.description').once('description', function() {
+      $('.inner.expand', $(this)).click(function() {
+        $(this).toggleClass('expanded');
+      });
+    });
+
     $('.module-filter-inputs-wrapper', context).once('module-filter', function() {
       var filterInput = $('input[name="module_filter[name]"]', context);
       var selector = '#system-modules table tbody tr';

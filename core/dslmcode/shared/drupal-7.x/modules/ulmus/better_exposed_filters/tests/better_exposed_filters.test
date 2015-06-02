@@ -721,6 +721,86 @@ class BEF_TestSecondaryFilters extends BEF_TestBase {
   }
 }
 
+class BEF_TestRewrite extends BEF_TestBase {
+
+  /**
+   * Describes these tests to the testing framework.
+   */
+  public static function getInfo() {
+    return array(
+      'name' => 'BEF rewrite tests',
+      'description' => 'Verifies rewriting filter and sort options.',
+      'group' => 'Better Exposed Filters',
+    );
+  }
+
+  /**
+   * Verify rewriting works for filter options
+   */
+  public function test_befFilterRewrite() {
+    // Create a page display to validate rendering.
+    $this->createDisplay('Page', array(
+      'path' => array('path' => 'bef_test_page'),
+    ));
+
+    // Add a node type filter set to allow multiple selections.
+    $this->addFilter('node.type', array(
+      'options[expose][multiple]' => TRUE,
+    ));
+
+    // Add a node status filter set to allow a single selection.
+    $this->addFilter('node.status');
+
+    // Add a few terms to the Tags vocab and a Tags filter to the view.
+    // Verify values that PHP equates to empty.
+    $term1 = new stdClass();
+    $term1->name = "0";
+    $term1->vid = 1;
+    taxonomy_term_save($term1);
+
+    // Verify values with accents.
+    $term2 = new stdClass();
+    $term2->name = "Tèstiñg Térm";
+    $term2->vid = 1;
+    taxonomy_term_save($term2);
+    $this->addFilter('field_data_field_tags.field_tags_tid', array(), array(
+      // Choose the dropdown option for term filter, without hierarchy shown.
+      'options[type]' => 'select',
+      'options[hierarchy]' => '0',
+    ));
+
+    // Add some exposed sort options.
+    $this->addSort('node.created');
+    $this->addSort('node.title');
+
+    // Set rewrite for single and multiple selection filters.
+    $this->setBefSettings(array(
+      'exposed_form_options[bef][status_1][more_options][rewrite][filter_rewrite_values]' =>
+        "Yes|Hell yeah!\nNo|Booo...",
+      'exposed_form_options[bef][type][more_options][rewrite][filter_rewrite_values]' =>
+        "bef_test|This is a test\nArticle|",
+      'exposed_form_options[bef][field_tags_tid][more_options][rewrite][filter_rewrite_values]' =>
+        $term1->name . "|The first one\n" . $term2->name . '|' . $term2->name . ' rewritten',
+      'exposed_form_options[bef][sort][advanced][combine]' => '1',
+      'exposed_form_options[bef][sort][advanced][combine_rewrite]' =>
+        "Post date Asc|Oldest first\nPost date Desc|Newest first\nTitle Asc|A -> Z\nTitle Desc|",
+    ));
+    $this->saveView();
+
+    $this->drupalGet('bef_test_page');
+    $this->assertFieldByXpath('//select[@id="edit-type"]/option', 'This is a test', 'Rerwrite of the filter option "bef_test" in "Type" filter');
+    $this->assertNoFieldByXpath('//select[@id="edit-type"]/option', 'Article', 'Rerwrite of the filter option "article" to null in "Type" filter.');
+    $this->assertFieldByXpath('//select[@id="edit-status-1"]/option', 'Hell yeah!', 'Rerwrite of the filter option "Yes" in "Published" filter.');
+    $this->assertFieldByXpath('//select[@id="edit-status-1"]/option', 'Booo...', 'Rerwrite of the filter option "No" in "Published" filter.');
+    $this->assertFieldByXpath('//select[@id="edit-field-tags-tid"]/option', 'The first one', 'Rerwrite of the filter value "0" in "Tags (field_tags)" filter.');
+    $this->assertFieldByXpath('//select[@id="edit-field-tags-tid"]/option', $term2->name . ' rewritten', 'Rerwrite of a filter option with accents in "Tags (field_tags)" filter.');
+    $this->assertFieldByXpath('//select[@id="edit-sort-bef-combine"]/option', 'Oldest first', 'Rerwrite of an exposed combined sort option.');
+    $this->assertFieldByXpath('//select[@id="edit-sort-bef-combine"]/option', 'Newest first', 'Rerwrite of an exposed combined sort option.');
+    $this->assertFieldByXpath('//select[@id="edit-sort-bef-combine"]/option', 'A -> Z', 'Rerwrite of an exposed combined sort option.');
+    $this->assertNoFieldByXpath('//select[@id="edit-sort-bef-combine"]/option', 'Title Desc', 'Removal of an exposed combined sort option through rewriting it to NULL.');
+  }
+}
+
 class BEF_TestMisc extends BEF_TestBase {
 
   /**
@@ -756,34 +836,5 @@ class BEF_TestMisc extends BEF_TestBase {
 
     // Verify the "Text on demand" is shown.
     $this->assertText(t('Select any filter and click on Apply to see results'), '"Empty" text should show on initial display.');
-  }
-
-  /**
-   * Verify rewriting works for filter options
-   */
-  public function test_befFilterRewrite() {
-    // Create a page display to validate rendering.
-    $this->createDisplay('Page', array(
-      'path' => array('path' => 'bef_test_page'),
-    ));
-
-    // Verify checkbox rendering with the node type filter.
-    $this->addFilter('node.type', array(
-      'options[expose][multiple]' => TRUE,
-    ));
-    $this->addFilter('node.status');
-
-    // Set rewrite for single and multiple selection filters.
-    $this->setBefSettings(array(
-      'exposed_form_options[bef][status_1][more_options][rewrite][filter_rewrite_values]' => "Yes|Hell yeah!\nNo|Booo...",
-      'exposed_form_options[bef][type][more_options][rewrite][filter_rewrite_values]' => "bef_test|This is a test\nArticle|",
-    ));
-    $this->saveView();
-
-    $this->drupalGet('bef_test_page');
-    $this->assertFieldByXpath('//select[@id="edit-type"]/option', 'This is a test', 'Rerwrite of the filter value "bef_test" in "Type" filter');
-    $this->assertNoFieldByXpath('//select[@id="edit-type"]/option', 'Article', 'Rerwrite of the filter value "article" to null in "Type" filter.');
-    $this->assertFieldByXpath('//select[@id="edit-status-1"]/option', 'Hell yeah!', 'Rerwrite of the filter value "Yes" in "Published" filter.');
-    $this->assertFieldByXpath('//select[@id="edit-status-1"]/option', 'Booo...', 'Rerwrite of the filter value "No" in "Published" filter.');
   }
 }

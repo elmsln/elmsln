@@ -238,7 +238,7 @@ function hook_ds_custom_fields_info() {
   );
   $ds_field->properties = array(
     'code' => array(
-      'value' => '<? print "this is a custom field"; ?>',
+      'value' => '<?php print "this is a custom field"; ?>',
       'format' => 'ds_code',
     ),
     'use_token' => 0,
@@ -268,7 +268,9 @@ function hook_ds_vd_info() {
 }
 
 /**
- * Alter fields defined by Display Suite
+ * Alter fields defined by Display Suite.
+ *
+ * This function is called for each entity type.
  *
  * @param $fields
  *   An array with fields which can be altered just before they get cached.
@@ -420,9 +422,12 @@ function hook_ds_layout_info() {
  *   - entity_type
  *   - bundle
  *   - view_mode
+ * @param array $vars
+ *   All variables available for render. You can use this to add css classes.
  */
-function hook_ds_pre_render_alter(&$layout_render_array, $context) {
+function hook_ds_pre_render_alter(&$layout_render_array, $context, &$vars) {
   $layout_render_array['left'][] = array('#markup' => 'cool!', '#weight' => 20);
+  $vars['attributes_array']['class'][] = 'custom';
 }
 
 /**
@@ -591,6 +596,21 @@ function hook_ds_classes_alter(&$classes, $name) {
   if ('ds_classes_regions' === $name) {
     $classes['css-class-name'] = t('Custom Styling');
   }
+}
+
+/**
+ * Alter the field template settings form
+ *
+ * @param array $form
+ *   The form containing the field settings
+ * @param array $field_settings
+ *   The settings of the field
+ */
+function hook_ds_field_theme_functions_settings_alter(&$form, $field_settings) {
+  $form['something'] = array(
+    '#type' => 'textfield',
+    '#title' => 'test',
+  );
 }
 
 /*

@@ -14,7 +14,6 @@ dependencies[] = views
 dependencies[] = views_content
 features[ctools][] = views:views_default:3.0
 features[features_api][] = api:1
-features[field_base][] = body
 features[field_base][] = field_bef_test_body
 features[field_base][] = field_bef_test_date
 features[field_base][] = field_bef_test_integer
@@ -43,9 +42,9 @@ features_exclude[field][node-bef_test-field_price] = node-bef_test-field_price
 features_exclude[field][node-bef_test-field_date] = node-bef_test-field_date
 hidden = 1
 
-; Information added by Drupal.org packaging script on 2014-12-16
-version = "7.x-3.0"
+; Information added by Drupal.org packaging script on 2015-04-03
+version = "7.x-3.2"
 core = "7.x"
 project = "better_exposed_filters"
-datestamp = "1418734694"
+datestamp = "1428077889"
 

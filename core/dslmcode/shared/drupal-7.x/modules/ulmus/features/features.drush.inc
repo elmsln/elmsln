@@ -43,6 +43,7 @@ function features_drush_command() {
       'destination' => "Destination path (from Drupal root) of the exported feature. Defaults to '" . $path . "'.",
       'version-set' => "Specify a version number for the feature.",
       'version-increment' => "Increment the feature's version number.",
+      'ignore-conflicts' => "Ignore conflicts and export all components.",
     ),
     'drupal dependencies' => array('features'),
     'aliases' => array('fe'),
@@ -71,6 +72,9 @@ function features_drush_command() {
       ),
       'not-exported' => array(
         'description' => 'Show only components that have not been exported.',
+      ),
+      'info-style' => array(
+        'description' => 'Export components in format suitable for using in an info file.',
       ),
     ),
     'aliases' => array('fc'),
@@ -132,6 +136,18 @@ function features_drush_command() {
     ),
     'drupal dependencies' => array('features', 'diff'),
     'aliases' => array('fd'),
+  );
+
+  $items['features-diff-all'] = array(
+    'description' => "Show the code difference for all enabled features not in their default state.",
+    'arguments' => array(
+      'feature_exclude' => 'A space-delimited list of features to exclude from being reverted.',
+    ),
+    'options' => array(
+      'force' => "Bypass the confirmations. This is useful if you want to output all of the diffs to a log file.",
+    ),
+    'drupal dependencies' => array('features', 'diff'),
+    'aliases' => array('fda'),
   );
 
   return $items;
@@ -253,10 +269,13 @@ function drush_features_components() {
   elseif (drush_get_option(array('not-exported', 'o'), NULL)) {
     $options['exported'] = FALSE;
   }
+  if (drush_get_option(array('info-style', 'is'), NULL)) {
+    $options['info style'] = TRUE;
+  }
 
   $filtered_components = _drush_features_component_filter($components, $args, $options);
   if ($filtered_components){
-    _drush_features_component_print($filtered_components);
+    _drush_features_component_print($filtered_components, $options);
   }
 }
 
@@ -290,7 +309,7 @@ function _drush_features_component_filter($all_components, $patterns = array(), 
   // First filter on exported state.
   foreach ($all_components as $source => $components) {
     foreach ($components as $name => $title) {
-      $exported = sizeof($components_map[$source][$name]) > 0;
+      $exported = !empty($components_map[$source][$name]);
       if ($exported) {
         if ($options['exported']) {
           $pool[$source][$name] = $title;
@@ -318,7 +337,8 @@ function _drush_features_component_filter($all_components, $patterns = array(), 
     // Rewrite * to %. Let users use both as wildcard.
     $pattern = strtr($pattern, array('*' => '%'));
     $sources = array();
-    list($source_pattern, $component_pattern) = explode(':', $pattern, 2);
+    $source_pattern = strtok($pattern, ':');
+    $component_pattern = strtok(':');
     // If source is empty, use a pattern.
     if ($source_pattern == '') {
       $source_pattern = '%';
@@ -383,7 +403,7 @@ function _drush_features_component_filter($all_components, $patterns = array(), 
             return drush_set_error('', dt('Ambiguous component "!component", matches !matches', array('!component' => $component_pattern, '!matches' => join(', ', $matches))));
           }
         }
-        if (!is_array($selected[$source])) {
+        if (empty($selected[$source])) {
           $selected[$source] = array();
         }
         $selected[$source] += array_intersect_key($pool[$source], array_flip($matches));
@@ -404,7 +424,7 @@ function _drush_features_component_filter($all_components, $patterns = array(), 
   if ($options['provided by'] && $options['exported'] ) {
     foreach ($selected as $source => $components) {
       foreach ($components as $name => $title) {
-        $exported = sizeof($components_map[$source][$name]) > 0;
+        $exported = !empty($components_map[$source][$name]);
         if ($exported) {
           $provided_by[$source . ':' . $name] = join(', ', $components_map[$source][$name]);
         }
@@ -421,11 +441,17 @@ function _drush_features_component_filter($all_components, $patterns = array(), 
 /**
  * Prints a list of filtered components.
  */
-function _drush_features_component_print($filtered_components) {
+function _drush_features_component_print($filtered_components, $options = array()) {
   $rows = array(array(dt('Available sources')));
   foreach ($filtered_components['components'] as $source => $components) {
     foreach ($components as $name => $value) {
-      $row = array($source .':'. $name);
+      if (!empty($options['info style'])) {
+        // Output as .info file style.
+        $row = array('features[' . $source . '][] = "' . $name . '"');
+      }
+      else {
+        $row = array($source .':'. $name);
+      }
       if (isset($filtered_components['sources'][$source .':'. $name])) {
         $row[] = dt('Provided by') . ': ' . $filtered_components['sources'][$source .':'. $name];
       }
@@ -447,9 +473,11 @@ function drush_features_export() {
       return drush_set_error('', 'No components supplied.');
     }
     $components = _drush_features_component_list();
-    $options = array(
-      'exported' => FALSE,
-    );
+    $options = array();
+
+    if (!drush_get_option('ignore-conflicts', FALSE)) {
+      $options['exported'] = FALSE;
+    }
 
     $filtered_components = _drush_features_component_filter($components, $args, $options);
     $items = $filtered_components['components'];
@@ -881,6 +909,62 @@ function drush_features_diff() {
       }
       else {
         drush_print($row);
+      }
+    }
+  }
+}
+
+/**
+ * Diff all enabled features that are not in their default state.
+ *
+ * @param ...
+ *   (Optional) A list of features to exclude from being reverted.
+ */
+function drush_features_diff_all() {
+  module_load_include('inc', 'features', 'features.export');
+  $features_to_exclude = func_get_args();
+
+  $features_to_revert = array();
+  foreach (features_get_features(NULL, TRUE) as $module) {
+    if ($module->status && !in_array($module->name, $features_to_exclude)) {
+      switch (features_get_storage($module->name)) {
+        case FEATURES_OVERRIDDEN:
+        case FEATURES_NEEDS_REVIEW:
+        case FEATURES_REBUILDABLE:
+          $features_to_diff[] = $module->name;
+          break;
+      }
+    }
+  }
+
+  if ($features_to_diff) {
+
+    // Check if the user wants to apply the force option.
+    $force = drush_get_option('force');
+
+    if($force) {
+      foreach ($features_to_diff as $module) {
+
+        drush_print(dt('Diff for !module:', array('!module' => $module)));
+
+        drush_invoke_process(drush_sitealias_get_record('@self'), 'features-diff', array($module));
+      }
+    }
+    else {
+
+      drush_print(dt('A diff will be performed for the following modules: !modules',
+        array('!modules' => implode(', ', $features_to_diff))
+      ));
+
+      if (drush_confirm(dt('Do you want to continue?'))) {
+        foreach ($features_to_diff as $module) {
+          if (drush_confirm(dt('Diff !module?', array('!module' => $module)))) {
+            drush_invoke_process(drush_sitealias_get_record('@self'), 'features-diff', array($module));
+          }
+        }
+      }
+      else {
+        return drush_user_abort('Aborting.');
       }
     }
   }

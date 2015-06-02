@@ -48,7 +48,7 @@ class Typogrify {
       }
       else {
         $caps = $mthree;
-        $tail = '';
+        $tail = $matchobj[4];
       }
       return sprintf('<span class="caps">%s</span>%s', $caps, $tail);
     }
@@ -73,13 +73,13 @@ class Typogrify {
     $in_skipped_tag = false;
 
     $cap_finder = "/(
-            (\b[A-Z=\d]*       # Group 2: Any amount of caps and digits
-            [A-Z][A-Z\d]*      # A cap string much at least include two caps (but they can have digits between them)
-            (?:&amp;)?         # allowing ampersand in caps.
-            [A-Z'\d]*[A-Z])    # Any amount of caps and digits
-            | (\b[A-Z]+\.\s?   # OR: Group 3: Some caps, followed by a '.' and an optional space
-            (?:[A-Z]+\.\s?)+)  # Followed by the same thing at least once more
-            (?:\s|\b|$))/x";
+            (\b[[\p{Lu}=\d]*       # Group 2: Any amount of caps and digits
+            [[\p{Lu}][[\p{Lu}\d]*  # A cap string much at least include two caps (but they can have digits between them)
+            (?:&amp;)?             # allowing ampersand in caps.
+            [[\p{Lu}'\d]*[[\p{Lu}\d]) # Any amount of caps and digits
+            | (\b[[\p{Lu}]+\.\s?   # OR: Group 3: Some caps, followed by a '.' and an optional space
+            (?:[[\p{Lu}]+\.\s?)+)  # Followed by the same thing at least once more
+            (\s|\b|$|[)}\]>]))/xu";
 
     foreach ($tokens as $token) {
       if ( $token[0] == "tag" ) {
@@ -149,33 +149,23 @@ class Typogrify {
 
   /**
    * widont
-   * 
+   *
    * Replaces the space between the last two words in a string with ``&nbsp;``
-   * Works in these block tags ``(h1-h6, p, li)`` and also accounts for 
+   * Works in these block tags ``(h1-h6, p, li)`` and also accounts for
    * potential closing inline elements ``a, em, strong, span, b, i``
-   * 
+   *
    * Empty HTMLs shouldn't error
    */
   public static function widont($text) {
     // This regex is a beast, tread lightly
-    $widont_finder = "/(\s+)                                  # the space to replace
+    $widont_finder = "/([^<>\s]+|<\/span>)                    # ensure more than 1 word
+                      (\s+)                                   # the space to replace
                       ([^<>\s]+                               # must be flollowed by non-tag non-space characters
-                      \s*                                     # optional white space! 
+                      \s*                                     # optional white space!
                       (<\/(a|em|span|strong|i|b)[^>]*>\s*)*   # optional closing inline tags with optional white space after each
                       ((<\/(p|h[1-6]|li|dt|dd)>)|$))          # end with a closing p, h1-6, li or the end of the string
                       /x";
-    return preg_replace($widont_finder, '&nbsp;$2', $text);
-  }
-
-  /**
-   * space_to_nbsp
-   *
-   * Replaces the space before a "double punctuation mark" (!?:;) with
-   * ``&nbsp;``
-   * Especially useful in french.
-   */
-  public static function space_to_nbsp($text) {
-    return preg_replace("/\s([\!\?\:;])/", '&nbsp;$1', $text);
+    return preg_replace($widont_finder, '$1&nbsp;$3', $text);
   }
 
   /**

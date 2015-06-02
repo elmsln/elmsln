@@ -338,33 +338,59 @@ function ds_extras_switch_view_mode_field($field) {
 /**
  * Implements hook_form_FORM_ID_alter().
  */
+function ds_extras_form_node_type_form_alter(&$form, $form_state, $form_id) {
+  $node_type = $form['#node_type']->type;
+
+  // Get the view modes.
+  $options = ds_extras_get_bundle_view_modes('node', $node_type);
+
+  // Only fire if we have more than 1 option.
+  if (count($options) > 1) {
+    if (!isset($form['ds_extras'])) {
+      $form['ds_extras'] = array(
+        '#type' => 'fieldset',
+        '#title' => t('Display Suite: Extras'), // There's already a 'Display settings' fieldset
+        '#collapsible' => TRUE,
+        '#collapsed' => TRUE,
+        '#group' => 'additional_settings',
+        '#weight' => 100,
+      );
+    }
+
+    $form['ds_extras']['ds_extras_view_modes'] = array(
+      '#type' => 'checkboxes',
+      '#title' => t('View modes'),
+      '#options' => $options,
+      '#default_value' => variable_get('ds_extras_view_modes_' . $node_type, array_keys($options)),
+      '#description' => t('Select which view modes will be available to switch to on node edit forms.'),
+    );
+  }
+}
+
+/**
+ * Implements hook_form_FORM_ID_alter().
+ */
 function ds_extras_form_node_form_alter(&$form, $form_state, $form_id) {
+  $node = $form['#node'];
 
   // Switch full view mode.
-  if (user_access('ds_switch ' . $form['#node']->type)) {
-
-    $view_mode_settings = field_view_mode_settings('node', $form['#node']->type);
+  if (user_access('ds_switch ' . $node->type)) {
 
     // Get the view modes.
-    $ds_vm = ds_entity_view_modes('node');
+    $view_modes = ds_extras_get_bundle_view_modes('node', $node->type);
+    $enabled_vm = variable_get('ds_extras_view_modes_' . $node->type, array_keys($view_modes));
     $layouts = array();
-    $options = array('' => t('Default'));
-    foreach ($ds_vm as $key => $item) {
-      $overriden = (!empty($view_mode_settings[$key]['custom_settings']) ? TRUE : FALSE);
-      if ($overriden) {
-        $layout = ds_get_layout('node', $form['#node']->type, $key, FALSE);
+    $options = array();
+    foreach ($view_modes as $key => $label) {
+      if (in_array($key, $enabled_vm)) {
+        $layout = ds_get_layout('node', $node->type, $key, FALSE);
         $layouts[$key] = $layout;
-        $options[$key] = $item['label'];
+        $options[$key] = $label;
       }
     }
 
-    // Add default layout settings
-    $layouts[''] = ds_get_layout('node', $form['#node']->type, 'default', FALSE);
-
     // Only fire if we have more than 1 option.
     if (count($options) > 1) {
-      $node = $form['#node'];
-
       if (!isset($form['ds_extras'])) {
         $form['ds_extras'] = array(
           '#type' => 'fieldset',
@@ -380,7 +406,7 @@ function ds_extras_form_node_form_alter(&$form, $form_state, $form_id) {
         '#type' => 'select',
         '#title' => t('View mode'),
         '#options' => $options,
-        '#default_value' => isset($node->ds_switch) ? $node->ds_switch : '',
+        '#default_value' => isset($node->ds_switch) ? $node->ds_switch : 'default',
         '#description' => t('Switch to a different view mode to display the full page view of this node.'),
         '#weight' => -1,
         '#ajax' => array(
@@ -395,13 +421,19 @@ function ds_extras_form_node_form_alter(&$form, $form_state, $form_id) {
         '#suffix' => '</div>',
       );
 
-      $mode = isset($form_state['input']['ds_switch']) ? $form_state['input']['ds_switch'] : (isset($node->ds_switch) ? $node->ds_switch : '');
-      $chosen_layout = $layouts[$mode];
-
       $fallback_image = drupal_get_path('module', 'ds') . '/images/preview.png';
-      $image = (isset($chosen_layout['image']) && !empty($chosen_layout['image'])) ? $chosen_layout['path'] . '/' . $chosen_layout['layout'] . '.png' : $fallback_image;
-      if (isset($chosen_layout['panels']) && !empty($chosen_layout['panels']['icon'])) {
-        $image = $chosen_layout['panels']['path'] . '/' . $chosen_layout['panels']['icon'];
+      $mode = isset($form_state['input']['ds_switch']) ? $form_state['input']['ds_switch'] : (isset($node->ds_switch) ? $node->ds_switch : 'default');
+      if (isset($layouts[$mode])) {
+        $chosen_layout = $layouts[$mode];
+        $chosen_layout = (isset($layouts[$mode])) ? $layouts[$mode] : 'default';
+
+        $image = (isset($chosen_layout['image']) && !empty($chosen_layout['image'])) ? $chosen_layout['path'] . '/' . $chosen_layout['layout'] . '.png' : $fallback_image;
+        if (isset($chosen_layout['panels']) && !empty($chosen_layout['panels']['icon'])) {
+          $image = $chosen_layout['panels']['path'] . '/' . $chosen_layout['panels']['icon'];
+        }
+      }
+      else {
+        $image = $fallback_image;
       }
 
       $form['ds_extras']['preview']['image'] = array(
@@ -409,6 +441,25 @@ function ds_extras_form_node_form_alter(&$form, $form_state, $form_id) {
       );
     }
   }
+}
+
+/**
+ * Get view modes for an entity bundle.
+ */
+function ds_extras_get_bundle_view_modes($type, $bundle) {
+  $view_modes = array('default' => t('Default'));
+
+  $view_mode_settings = field_view_mode_settings($type, $bundle);
+  $ds_vm = ds_entity_view_modes($type);
+
+  foreach ($ds_vm as $key => $item) {
+    $overriden = (!empty($view_mode_settings[$key]['custom_settings']) ? TRUE : FALSE);
+    if ($overriden) {
+      $view_modes[$key] = $item['label'];
+    }
+  }
+
+  return $view_modes;
 }
 
 /**
@@ -606,11 +657,13 @@ function ds_extras_entity_view_alter(&$build, $entity_type) {
       $contexts = array();
       $id = (arg(0) == 'taxonomy') ? arg(2) : arg(1);
       $entity = entity_load($entity_type, array($id));
-      ds_create_entity_context($entity_type, $entity[$id], $contexts);
-      $title = $layout['settings']['page_option_title'];
-      $title = filter_xss_admin(ctools_context_keyword_substitute($title, array(), $contexts));
-      $page_title['title'] = $title;
-      $page_title['head_title'] = $title;
+      if (isset($entity[$id])) {
+        ds_create_entity_context($entity_type, $entity[$id], $contexts);
+        $title = $layout['settings']['page_option_title'];
+        $title = filter_xss_admin(ctools_context_keyword_substitute($title, array(), $contexts));
+        $page_title['title'] = t($title);
+        $page_title['head_title'] = t($title);
+      }
     }
   }
 
@@ -729,8 +782,17 @@ function theme_ds_field_expert($variables) {
 
   $config = $variables['ds-config'];
 
+  // Set prefix
+  if (!empty($config['prefix'])) {
+    $output .= $config['prefix'];
+  }
+
   // Render the label if it's not hidden.
   if (!$variables['label_hidden']) {
+    $styled_label = $variables['label'];
+    if (!isset($config['lb-col'])) $styled_label .= ':&nbsp;';
+
+    // Style the label it self
     $label_wrapper = isset($config['lb-el']) ? $config['lb-el'] : 'div';
     $class = array('label-' . $variables['element']['#label_display']);
     if (!empty($config['lb-cl'])) $class[] = $config['lb-cl'];
@@ -739,33 +801,48 @@ function theme_ds_field_expert($variables) {
     if (!empty($config['lb-at'])) $attributes[] = $config['lb-at'];
     if (!empty($config['lb-def-at'])) $attributes[] = $variables['title_attributes'];
     $attributes = (!empty($attributes)) ? ' ' . implode(' ', $attributes) : '';
-    $output .= '<' . $label_wrapper . $class . $attributes . '>' . $variables['label'];
-    if (!isset($config['lb-col'])) $output .= ':&nbsp;';
-    $output .= '</' . $label_wrapper . '>';
+    $styled_label = '<' . $label_wrapper . $class . $attributes . '>' . $styled_label . '</' . $label_wrapper . '>';
+
+    // Place it inside a wrapper
+    if (isset($config['lbw'])) {
+      $class = !empty($config['lbw-cl']) ? ' class="' . $config['lbw-cl'] . '"' : '';
+      $attributes = !empty($config['lbw-at']) ?  ' ' . $config['lbw-at'] : '';
+      $styled_label = '<' . $config['lbw-el'] . $class . $attributes . '>' . $styled_label . '</' . $config['lbw-el'] . '>';
+    }
+
+    $output .= $styled_label;
   }
 
   // Field items wrapper
   if (isset($config['fis'])) {
-    $class = (!empty($config['fis-cl'])) ? ' class="' . $config['fis-cl'] . '"' : '';
+    $class = (!empty($config['fis-cl'])) ? ' class="' . token_replace($config['fis-cl'], array($variables['element']['#entity_type'] => $variables['element']['#object']), array('clear' => TRUE)) . '"' : '';
     $attributes = array();
-    if (!empty($config['fis-at'])) $attributes[] = $config['fis-at'];
+    if (!empty($config['fis-at'])) $attributes[] = token_replace($config['fis-at'], array($variables['element']['#entity_type'] => $variables['element']['#object']), array('clear' => TRUE));;
     if (!empty($config['fis-def-at'])) $attributes[] = $variables['content_attributes'];
     $attributes = (!empty($attributes)) ? ' ' . implode(' ', $attributes) : '';
     $output .= '<' . $config['fis-el'] . $class . $attributes . '>';
   }
 
   // Render items.
+  $item_count = count($variables['items']);
+  $item_index = 0;
   foreach ($variables['items'] as $delta => $item) {
     // Field item wrapper.
     if (isset($config['fi'])) {
       $class = array();
       if (!empty($config['fi-odd-even'])) {
-        $class[] = $delta % 2 ? 'odd' : 'even';
+        $class[] = $delta % 2 ? 'even' : 'odd';
       }
       if (!empty($config['fi-cl'])) {
         $class[] = $config['fi-cl'];
       }
-      $class = !empty($class) ? ' class="'. implode(' ', $class)  .'"' : '';
+      if(!empty($config['fi-first-last']) && $item_index == 0) {
+        $class[] = "first";
+      }
+      if(!empty($config['fi-first-last']) && $item_index == $item_count - 1) {
+        $class[] = "last";
+      }
+      $class = !empty($class) ? ' class="'. token_replace(implode(' ', $class), array($variables['element']['#entity_type'] => $variables['element']['#object']), array('clear' => TRUE)) .'"' : '';
       $attributes = array();
       if (!empty($config['fi-at'])) {
         $attributes[] = token_replace($config['fi-at'], array($variables['element']['#entity_type'] => $variables['element']['#object']), array('clear' => TRUE));
@@ -784,6 +861,7 @@ function theme_ds_field_expert($variables) {
     if (isset($config['fi'])) {
       $output .= '</' . $config['fi-el'] . '>';
     }
+    ++$item_index;
   }
 
   // Closing field items wrapper.
@@ -794,14 +872,19 @@ function theme_ds_field_expert($variables) {
   // Outer wrapper.
   if (isset($config['ow'])) {
     $class = array();
-    if (!empty($config['ow-cl'])) $class[] = $config['ow-cl'];
+    if (!empty($config['ow-cl'])) $class[] = token_replace($config['ow-cl'], array($variables['element']['#entity_type'] => $variables['element']['#object']), array('clear' => TRUE));
     if (!empty($config['ow-def-cl'])) $class[] = $variables['classes'];
     $class = (!empty($class)) ? ' class="' . implode(' ', $class) . '"' : '';
     $attributes = array();
-    if (!empty($config['ow-at'])) $attributes[] = $config['ow-at'];
+    if (!empty($config['ow-at'])) $attributes[] = token_replace($config['ow-at'], array($variables['element']['#entity_type'] => $variables['element']['#object']), array('clear' => TRUE));;
     if (!empty($config['ow-def-at'])) $attributes[] = $variables['attributes'];
     $attributes = (!empty($attributes)) ? ' ' . implode(' ', $attributes) : '';
     $output = '<' . $config['ow-el'] . $class . $attributes . '>' . $output . '</' . $config['ow-el'] . '>';
+  }
+
+  // Set suffix
+  if (!empty($config['suffix'])) {
+    $output .= $config['suffix'];
   }
 
   return $output;
@@ -850,7 +933,7 @@ function ds_extras_ds_field_settings_alter(&$field_settings, $form, &$form_state
     }
 
     // Label.
-    if (isset($form_state['values']['fields'][$key]['label']) && $form_state['values']['fields'][$key]['label'] != 'hidden') {
+    if (isset($form_state['values']['fields'][$key]['label'])) {
       if (!empty($values['lb'])) {
         $field_settings[$key]['formatter_settings']['ft']['lb'] = $values['lb'];
       }
@@ -869,6 +952,27 @@ function ds_extras_ds_field_settings_alter(&$field_settings, $form, &$form_state
       if (!(empty($values['lb-col']))) {
         $field_settings[$key]['formatter_settings']['ft']['lb-col'] = TRUE;
       }
+
+      // label wrapper
+      if (!empty($values['lbw'])) {
+        $field_settings[$key]['formatter_settings']['ft']['lbw'] = $values['lbw'];
+      }
+      if (!(empty($values['lbw-el'])) && $function == 'theme_ds_field_expert') {
+        $field_settings[$key]['formatter_settings']['ft']['lbw-el'] = check_plain($values['lbw-el']);
+      }
+      if (!(empty($values['lbw-cl'])) && $function == 'theme_ds_field_expert') {
+        $field_settings[$key]['formatter_settings']['ft']['lbw-cl'] = check_plain($values['lbw-cl']);
+      }
+      if (!(empty($values['lbw-at'])) && $function == 'theme_ds_field_expert') {
+       $field_settings[$key]['formatter_settings']['ft']['lbw-at'] = filter_xss($values['lbw-at']);
+      }
+    }
+
+    if (!(empty($values['prefix']))) {
+      $field_settings[$key]['formatter_settings']['ft']['prefix'] = $values['prefix'];
+    }
+    if (!(empty($values['suffix']))) {
+      $field_settings[$key]['formatter_settings']['ft']['suffix'] = $values['suffix'];
     }
 
     // Custom field configuration.
@@ -892,6 +996,7 @@ function ds_extras_ds_field_settings_alter(&$field_settings, $form, &$form_state
           // Odd even class.
           if ($wrapper_key == 'fi') {
             $field_settings[$key]['formatter_settings']['ft'][$wrapper_key . '-odd-even'] = !(empty($values[$wrapper_key . '-odd-even'])) ? TRUE : FALSE;
+            $field_settings[$key]['formatter_settings']['ft'][$wrapper_key . '-first-last'] = !(empty($values[$wrapper_key . '-first-last'])) ? TRUE : FALSE;
           }
         }
       }
@@ -983,6 +1088,18 @@ function ds_extras_preprocess_field(&$variables) {
       $variables['theme_hook_suggestions'][] = $suggestion . '__' . $field_name;
       $variables['theme_hook_suggestions'][] = $suggestion . '__' . $variables['element']['#bundle'];
       $variables['theme_hook_suggestions'][] = $suggestion . '__' . $field_name . '__' . $variables['element']['#bundle'];
+    }
+  }
+
+  // Sanitize the output of field templates
+  $fields = array(
+    'prefix',
+    'suffix',
+  );
+
+  foreach ($fields as $field) {
+    if (isset($variables['ds-config'][$field])) {
+      $variables['ds-config'][$field] = filter_xss_admin($variables['ds-config'][$field]);
     }
   }
 }

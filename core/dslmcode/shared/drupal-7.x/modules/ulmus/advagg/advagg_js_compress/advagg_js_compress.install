@@ -21,12 +21,12 @@ function advagg_js_compress_requirements($phase) {
   // Make sure a compressor is being used.
   // @ignore sniffer_whitespace_openbracketspacing_openingwhitespace
   if (   variable_get('advagg_js_compressor', ADVAGG_JS_COMPRESSOR) == 0
-      && variable_get('advagg_js_inline_compressor', ADVAGG_JS_INLINE_COMPRESSOR) == 0
+      && variable_get('advagg_js_compress_inline', ADVAGG_JS_COMPRESS_INLINE) == 0
       ) {
     // Check all files.
     $file_settings = variable_get('advagg_js_compressor_file_settings', array());
     $compression_used = FALSE;
-    foreach ($file_settings as $form_api_filename => $setting) {
+    foreach ($file_settings as $setting) {
       if (!empty($setting)) {
         $compression_used = TRUE;
         break;
@@ -87,4 +87,49 @@ function advagg_js_compress_update_7200(&$sandbox) {
 function advagg_js_compress_update_7201(&$sandbox) {
   cache_clear_all('advagg:js_compress:', 'cache_advagg_info', TRUE);
   return t('Cleared the cache_advagg_info cache of js_compress entries.');
+}
+
+/**
+ * Change variable names so they are prefixed with the modules name.
+ *
+ * Implements hook_update_N().
+ */
+function advagg_js_compress_update_7202(&$sandbox) {
+  // Rename advagg_js_inline_compressor to advagg_js_compress_inline.
+  $old = variable_get('advagg_js_inline_compressor', NULL);
+  if (!is_null($old)) {
+    variable_del('advagg_js_inline_compressor');
+  }
+  if ($old !== ADVAGG_JS_COMPRESS_INLINE) {
+    variable_set('advagg_js_compress_inline', $old);
+  }
+
+  // Rename advagg_js_inline_compress_if_not_cacheable to
+  // advagg_js_compress_inline_if_not_cacheable.
+  $old = variable_get('advagg_js_inline_compress_if_not_cacheable', NULL);
+  if (!is_null($old)) {
+    variable_del('advagg_js_inline_compress_if_not_cacheable');
+  }
+  if ($old !== ADVAGG_JS_COMPRESS_INLINE_IF_NOT_CACHEABLE) {
+    variable_set('advagg_js_compress_inline_if_not_cacheable', $old);
+  }
+
+  // Rename advagg_js_inline_compress_if_not_cacheable to
+  // advagg_js_compress_inline_if_not_cacheable.
+  $old = variable_get('advagg_js_inline_compress_if_not_cacheable', NULL);
+  if (!is_null($old)) {
+    variable_del('advagg_js_inline_compress_if_not_cacheable');
+  }
+  if ($old !== ADVAGG_JS_COMPRESS_INLINE_IF_NOT_CACHEABLE) {
+    variable_set('advagg_js_compress_inline_if_not_cacheable', $old);
+  }
+
+  // Rename advagg_js_max_compress_ratio to advagg_js_compress_max_ratio.
+  $old = variable_get('advagg_js_max_compress_ratio', NULL);
+  if (!is_null($old)) {
+    variable_del('advagg_js_max_compress_ratio');
+  }
+  if ($old !== ADVAGG_JS_COMPRESS_MAX_RATIO) {
+    variable_set('advagg_js_compress_max_ratio', $old);
+  }
 }

@@ -6,6 +6,15 @@
 
 class better_exposed_filters_exposed_form_plugin extends views_plugin_exposed_form_basic {
 
+  function init(&$view, &$display, $options = array()) {
+    $this->view = &$view;
+    $this->display = &$display;
+
+    $this->localization_keys = $this->unpack_translatable_keys();
+
+    $this->unpack_options($this->options, $options);
+  }
+
   function summary_title() {
     return t('BEF Settings');
   }
@@ -14,7 +23,11 @@ class better_exposed_filters_exposed_form_plugin extends views_plugin_exposed_fo
     $options = parent::option_definition();
 
     // Add Better Exposed Filters options to those saved by Views.
-    $options['bef'] = array('default' => array());
+    $options['bef'] = array(
+      'default' => array(),
+      'translatable' => TRUE,
+      'unpack_translatable' => 'unpack_translatable_options',
+    );
 
     // Options for the input required setting.
     $options['input_required'] = array('default' => FALSE);
@@ -107,6 +120,15 @@ class better_exposed_filters_exposed_form_plugin extends views_plugin_exposed_fo
         '#title' => t('Combine sort order with sort by'),
         '#default_value' => $existing['sort']['advanced']['combine'],
         '#description' => t('Combines the sort by options and order (ascending or decending) into a single list.  Use this to display "Option1 Desc", "Option1 Asc", "Option2 Desc", "Option2 Asc" in a single form element.'),
+      );
+      $bef_options['sort']['advanced']['combine_param'] = array(
+        '#type' => 'textfield',
+        '#title' => t('Enter a query parameter to use for combined sorts'),
+        '#default_value' => $existing['sort']['advanced']['combine_param'],
+        '#description' => t('This will be the $_GET parameter used in query strings. Useful for preventing collisions between exposed filters when there are multiple instances of BEF on the page. Use only UTF-8 letters, numbers, and the dash (-), underscore (_), asterisk (*), and period(.) characters.'),
+        '#default_value' => empty($existing['sort']['advanced']['combine_param']) ? 'sort_bef_combine' : $existing['sort']['advanced']['combine_param'],
+        '#required' => TRUE,
+        '#dependency' => array('edit-exposed-form-options-bef-sort-advanced-combine' => array(1)),
       );
       $bef_options['sort']['advanced']['combine_rewrite'] = array(
         '#type' => 'textarea',
@@ -517,7 +539,7 @@ Title Desc|Z -> A</pre> Leave the replacement value blank to remove an option al
         '#type' => 'textarea',
         '#title' => t('Description'),
         '#default_value' => $existing[$label]['more_options']['bef_filter_description'],
-        '#description' => t('Adds descriptive text to the exposed filter.  This is usually rendered in smaller print under the label or the options.'),
+        '#description' => t('Adds descriptive text to the exposed filter.  This is usually rendered in smaller print under the label or the options. You may use tokens as specified below and in the "Global replacements values" section at the bottom of this page.'),
       );
 
       // Add token support to the description field.
@@ -535,23 +557,35 @@ Title Desc|Z -> A</pre> Leave the replacement value blank to remove an option al
           . '</p>',
         );
       }
+      else {
+        // Collect a list of token types that make sense for this filter.
+        $available = array('global_types');
+        if (!empty($filter->options['vocabulary'])) {
+          $available[] = 'vocabulary';
+        }
+        /* @TODO: Other token types? */
 
-      // Collect a list of token types that make sense for this filter.
-      $available = array('global_types');
-      if (!empty($filter->options['vid'])) {
-        $available[] = 'vocabulary';
+        $filter_specific = array_diff($available, array('global_types'));
+        if (empty($filter_specific)) {
+          $bef_options[$label]['more_options']['tokens']['nothing_specific'] = array(
+            '#markup' => '<p>' . t('There are no filter-specific tokens for this filter. See the "Global replacement tokens" at the bottom of this dialog for additional token replacement options.') . '<p>',
+          );
+        }
+        else {
+          $bef_options[$label]['more_options']['tokens']['list'] = array(
+            //'#title' => t('Filter-specific tokens'),
+            '#theme' => 'token_tree',
+            '#token_types' => $filter_specific,
+            '#global_types' => FALSE,
+          );
+        }
+
+        $bef_options[$label]['more_options']['tokens']['available'] = array(
+          // Save us from parsing available tokens again.
+          '#type' => 'value',
+          '#value' => $available,
+        );
       }
-      /* @TODO: Other token types? */
-
-      $bef_options[$label]['more_options']['tokens']['list'] = array(
-        '#theme' => 'token_tree',
-        '#token_types' => $available,
-      );
-      $bef_options[$label]['more_options']['tokens']['available'] = array(
-        // Save us from parsing available tokens again.
-        '#type' => 'value',
-        '#value' => $available,
-      );
 
       // Allow rewriting of filter options for any filter.
       $bef_options[$label]['more_options']['rewrite'] = array(
@@ -577,6 +611,20 @@ Title Desc|Z -> A</pre> Leave the replacement value blank to remove an option al
     }
     /* Ends: foreach ($filters as $filter) { */
 
+    // Add global token replacements, if available.
+    if (module_exists('token')) {
+      $bef_options['global_replacement_tokens'] = array(
+        '#title' => t('Global replacement patterns'),
+        '#type' => 'fieldset',
+        '#collapsible' => TRUE,
+        '#collapsed' => TRUE,
+      );
+      $bef_options['global_replacement_tokens']['list'] = array(
+        '#theme' => 'token_tree',
+        '#token_types' => array('global_types'),
+      );
+    }
+
     // Add BEF form elements to the exposed form options form.
     $form['bef'] = $bef_options;
   }
@@ -591,7 +639,6 @@ Title Desc|Z -> A</pre> Leave the replacement value blank to remove an option al
    */
   function exposed_form_alter(&$form, &$form_state) {
     parent::exposed_form_alter($form, $form_state);
-    global $language;
 
     // If we have no visible elements, we don't show the Apply button.
     $show_apply = FALSE;
@@ -616,7 +663,9 @@ Title Desc|Z -> A</pre> Leave the replacement value blank to remove an option al
 
     // Allow modules/themes to alter BEF settings before they are passed to the
     // exposed form widgets.
-    drupal_alter('better_exposed_filters_settings', $settings);
+    $context['view'] = $this->view;
+    $context['display'] = $this->display;
+    drupal_alter('better_exposed_filters_settings', $settings, $context);
 
     // Some elements may be placed in a secondary fieldset (eg: "Advanced
     // search options"). Place this after the exposed filters and before the
@@ -658,8 +707,9 @@ Title Desc|Z -> A</pre> Leave the replacement value blank to remove an option al
 
       // Check for combined sort_by and sort_order.
       if ($settings['sort']['advanced']['combine']) {
+        $form_state['#combine_param'] = $settings['sort']['advanced']['combine_param'];
         // Combine sort_by and sort_order into a single element.
-        $form['sort_bef_combine'] = array(
+        $form[$settings['sort']['advanced']['combine_param']] = array(
           '#type' => 'radios',
           // Already sanitized by Views.
           '#title' => $form['sort_by']['#title'],
@@ -674,7 +724,7 @@ Title Desc|Z -> A</pre> Leave the replacement value blank to remove an option al
           $options[' '] = t($settings['sort']['advanced']['reset_label']);
         }
         else {
-          $form['sort_bef_combine']['#default_value'] = '';
+          $form[$settings['sort']['advanced']['combine_param']]['#default_value'] = '';
         }
 
         $selected = '';
@@ -692,8 +742,8 @@ Title Desc|Z -> A</pre> Leave the replacement value blank to remove an option al
             }
            if ($settings['sort']['bef_format'] == 'bef_toggle_links') {
              if (isset($used_sort_keys[$by_key])
-               || (!empty($form_state['input']['sort_bef_combine']) && $form_state['input']['sort_bef_combine'] == "$by_key $order_key")
-               || (empty($form_state['input']['sort_bef_combine']) && $selected == "$by_key $order_key")
+               || (!empty($form_state['input'][$settings['sort']['advanced']['combine_param']]) && $form_state['input'][$settings['sort']['advanced']['combine_param']] == "$by_key $order_key")
+               || (empty($form_state['input'][$settings['sort']['advanced']['combine_param']]) && $selected == "$by_key $order_key")
              ) {
                 $hidden_options["$by_key $order_key"] = "$by_val $order_val";
              }
@@ -704,19 +754,9 @@ Title Desc|Z -> A</pre> Leave the replacement value blank to remove an option al
           }
         }
 
-        $view = $form_state['view'];
-
         // Rewrite the option values if any were specified.
         if (!empty($settings['sort']['advanced']['combine_rewrite'])) {
-          $combine_rewrite = trim($settings['sort']['advanced']['combine_rewrite']);
-          $textgroup = implode(':', array(
-            'better_exposed_filters',
-            'combine_rewrite',
-            $view->name,
-            $view->current_display,
-          ));
-          $combine_rewrite = better_exposed_filters_translate($textgroup, $combine_rewrite);
-          $lines = explode("\n", $combine_rewrite);
+          $lines = explode("\n", trim($settings['sort']['advanced']['combine_rewrite']));
           $rewrite = array();
           foreach ($lines as $line) {
             list($search, $replace) = explode('|', $line);
@@ -740,12 +780,13 @@ Title Desc|Z -> A</pre> Leave the replacement value blank to remove an option al
           }
         }
 
-        $form['sort_bef_combine'] = array(
+        $form[$settings['sort']['advanced']['combine_param']] = array(
           '#type' => 'radios',
           '#options' => $options,
           '#hidden_options' => $hidden_options,
           '#settings' => array(
             'toggle_links' => ($settings['sort']['bef_format'] == 'bef_toggle_links'),
+            'combine_param' => $settings['sort']['advanced']['combine_param'],
            ),
           '#default_value' => $selected,
           // Already sanitized by Views.
@@ -755,25 +796,26 @@ Title Desc|Z -> A</pre> Leave the replacement value blank to remove an option al
         // Handle display-specific details.
         switch ($settings['sort']['bef_format']) {
           case 'bef':
-            $form['sort_bef_combine']['#prefix'] = '<div class="bef-sort-combined bef-select-as-radios">';
-            $form['sort_bef_combine']['#suffix'] = '</div>';
+            $form[$settings['sort']['advanced']['combine_param']]['#prefix'] = '<div class="bef-sort-combined bef-select-as-radios">';
+            $form[$settings['sort']['advanced']['combine_param']]['#suffix'] = '</div>';
             break;
 
           case 'bef_links':
           case 'bef_toggle_links':
-            $form['sort_bef_combine']['#theme'] = 'select_as_links';
+            $bef_add_js = TRUE;
+            $form[$settings['sort']['advanced']['combine_param']]['#theme'] = 'select_as_links';
 
             // Exposed form displayed as blocks can appear on pages other than
             // the view results appear on. This can cause problems with
             // select_as_links options as they will use the wrong path. We
             // provide a hint for theme functions to correct this.
             if (!empty($this->display->display_options['exposed_block'])) {
-              $form['sort_bef_combine']['#bef_path'] = $this->view->get_path();
+              $form[$settings['sort']['advanced']['combine_param']]['#bef_path'] = $this->view->get_path();
             }
             break;
 
           case 'default':
-            $form['sort_bef_combine']['#type'] = 'select';
+            $form[$settings['sort']['advanced']['combine_param']]['#type'] = 'select';
             break;
         }
 
@@ -782,7 +824,7 @@ Title Desc|Z -> A</pre> Leave the replacement value blank to remove an option al
 
         // Pretend we're another exposed form widget.
         $form['#info']['sort-sort_bef_combine'] = array(
-          'value' => 'sort_bef_combine',
+          'value' => $settings['sort']['advanced']['combine_param'],
         );
 
         // Remove the existing sort_by and sort_order elements.
@@ -790,7 +832,7 @@ Title Desc|Z -> A</pre> Leave the replacement value blank to remove an option al
         unset($form['sort_order']);
 
         if ($collapse) {
-          $sort_elems[] = 'sort_bef_combine';
+          $sort_elems[] = $settings['sort']['advanced']['combine_param'];
         }
       }
       /* if ($settings['sort']['advanced']['combine']) { } */
@@ -853,11 +895,25 @@ Title Desc|Z -> A</pre> Leave the replacement value blank to remove an option al
 
       // Check if this is a secondary form element.
       if ($allow_secondary && $settings['sort']['advanced']['is_secondary']) {
-        foreach (array('sort_bef_combine', 'sort_by', 'sort_order') as $elem) {
+        foreach (array($settings['sort']['advanced']['combine_param'], 'sort_by', 'sort_order') as $elem) {
           if (!empty($form[$elem])) {
             $secondary[$elem] = $form[$elem];
             unset($form[$elem]);
           }
+        }
+      }
+    }
+    elseif (isset($settings['sort']) && !empty($form['sort_by'])) {
+      if ('bef_links' == $settings['sort']['bef_format']) {
+        $bef_add_js = TRUE;
+        $form['sort_by']['#theme'] = 'select_as_links';
+
+        // Exposed form displayed as blocks can appear on pages other than
+        // the view results appear on. This can cause problems with
+        // select_as_links options as they will use the wrong path. We
+        // provide a hint for theme functions to correct this.
+        if (!empty($this->display->display_options['exposed_block'])) {
+          $form['sort_by']['#bef_path'] = $this->display->display_options['path'];
         }
       }
     }
@@ -882,6 +938,7 @@ Title Desc|Z -> A</pre> Leave the replacement value blank to remove an option al
 
         case 'bef_links':
           if (count($form['items_per_page']['#options']) > 1) {
+            $bef_add_js = TRUE;
             $form['items_per_page']['#theme'] = 'select_as_links';
             $form['items_per_page']['#items_per_page'] = max($form['items_per_page']['#default_value'], key($form['items_per_page']['#options']));
 
@@ -947,7 +1004,7 @@ Title Desc|Z -> A</pre> Leave the replacement value blank to remove an option al
         $rewrite = array();
         foreach ($lines as $line) {
           list($search, $replace) = explode('|', $line);
-          if (!empty($search)) {
+          if (isset($search)) {
             $rewrite[$search] = $replace;
           }
         }
@@ -1172,6 +1229,7 @@ Title Desc|Z -> A</pre> Leave the replacement value blank to remove an option al
 
         case 'bef_links':
           $show_apply = TRUE;
+          $bef_add_js = TRUE;
           $form[$filter_id]['#theme'] = 'select_as_links';
 
           // Exposed form displayed as blocks can appear on pages other than
@@ -1544,6 +1602,7 @@ Title Desc|Z -> A</pre> Leave the replacement value blank to remove an option al
           'collapsible' => FALSE,
           'collapsible_label' => '',
           'combine' => FALSE,
+          'combine_param' => 'sort_bef_combine',
           'combine_rewrite' => '',
           'reset' => FALSE,
           'reset_label' => '',
@@ -1682,22 +1741,78 @@ Title Desc|Z -> A</pre> Leave the replacement value blank to remove an option al
    * text_format field.
    */
   function options_submit(&$form, &$form_state) {
-    $view = $form_state['view'];
-    $values = &$form_state['values'];
-    $values['exposed_form_options']['text_input_required_format'] = $values['text_input_required']['format'];
-    $values['exposed_form_options']['text_input_required'] = $values['text_input_required']['value'];
-    if (function_exists('i18n_string_update')) {
-      $combine_rewrite = $values['exposed_form_options']['bef']['sort']['advanced']['combine_rewrite'];
-      $textgroup = implode(':', array(
-        'better_exposed_filters',
-        'combine_rewrite',
-        $view->name,
-        $view->current_display,
-      ));
-      i18n_string_update($textgroup, $combine_rewrite, array(
-        'format' => FALSE,
-      ));
-    }
+    $form_state['values']['exposed_form_options']['text_input_required_format'] = $form_state['values']['text_input_required']['format'];
+    $form_state['values']['exposed_form_options']['text_input_required'] = $form_state['values']['text_input_required']['value'];
+
     parent::options_submit($form, $form_state);
+  }
+
+  function unpack_translatable_options(&$translatable, $storage, $option, $definition, $parents) {
+    foreach ($this->unpack_translatable_keys() as $key) {
+      $value = drupal_array_get_nested_value($this->options, $key);
+      if (!empty($value)) {
+        $translatable[] = array(
+          'value' => $value,
+          'keys' => $key,
+          'format' => NULL,
+        );
+      }
+    }
+  }
+
+  function unpack_translatable_keys() {
+    // Default options.
+    $keys = array(
+      'general_secondary_label' => array('bef', 'general', 'secondary_label'),
+      'sort_collapsible_label' => array('bef', 'sort', 'advanced', 'collapsible_label'),
+      'sort_combine_rewrite' => array('bef', 'sort', 'advanced', 'combine_rewrite'),
+      'sort_reset_label' => array('bef', 'sort', 'advanced', 'reset_label'),
+    );
+
+    // Exposed filter options.
+    foreach ($this->display->handler->get_handlers('filter') as $label => $filter) {
+      if (!$filter->options['exposed']) {
+        continue;
+      }
+      $keys[$label . '_filter_description'] = array('bef', $label, 'more_options', 'bef_filter_description');
+      $keys[$label . '_any_label'] = array('bef', $label, 'more_options', 'any_label');
+      $keys[$label . '_rewrite_values'] = array('bef', $label, 'more_options', 'rewrite', 'filter_rewrite_values');
+    }
+
+    return $keys;
+  }
+
+  function unpack_options(&$storage, $options, $definition = NULL, $all = TRUE, $check = TRUE, $localization_keys = array()) {
+    parent::unpack_options($storage, $options, $definition, $all, $check, $localization_keys);
+
+    // Override the values.
+    foreach ($this->localization_keys as $key => $parents) {
+      $parent = end($parents);
+      $value = isset($options[$parent]) ? $options[$parent] : NULL;
+
+      // Don't localize strings during editing. When editing, we need to work with
+      // the original data, not the translated version.
+      if (empty($this->view->editing) && !empty($value)) {
+        if (!empty($this->view) && $this->view->is_translatable()) {
+          // Allow other modules to make changes to the string before it's
+          // sent for translation.
+          // The $keys array is built from the bef form array structure.
+          $format = NULL;
+          $translation_data = array(
+            'value' => $value,
+            'format' => $format,
+            'keys' => $parents,
+          );
+          $storage[$parent] = $this->view->localization_plugin->translate($translation_data);
+        }
+        // Otherwise, this is a code-based string, so we can use t().
+        else {
+          $storage[$parent] = t($value);
+        }
+      }
+      else if ($all || !empty($value)) {
+        $storage[$parent] = $value;
+      }
+    }
   }
 }

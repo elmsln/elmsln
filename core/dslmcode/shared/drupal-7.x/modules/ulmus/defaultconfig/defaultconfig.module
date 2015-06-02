@@ -68,6 +68,7 @@ function defaultconfig_component_rebuild_permissions($info, $default_permissions
     node_types_rebuild();
     if (!empty($module)) {
       module_load_include('inc', 'features', 'features.export');
+      module_load_include('inc', $module, "$module.features.filter");
       filter_features_rebuild($module);
     }
     $roles = _user_features_get_roles();
@@ -126,15 +127,32 @@ function defaultconfig_component_rebuild_roles(array $info, $defaults, $module =
 function defaultconfig_component_rebuild_ctools(array $info, $defaults, $module = FALSE) {
   ctools_include('export');
   foreach ($defaults as $name => $default) {
+    // Rebuild page manager pages with special code.
+    if ($info['features component'] == 'page_manager_pages') {
+      defaultconfig_component_rebuild_page_manager_pages($name, $default);
+      continue;
+    }
+
     // Delete any old object if it exists.
     $old_object = ctools_export_crud_load($info['features component'], $name);
-    if (!empty($old_object)) {
+    if ($old_object && ($old_object->export_type & EXPORT_IN_DATABASE)) {
       ctools_export_crud_delete($info['features component'], $old_object);
     }
     // Add a export_type variable, this isn't always included.
     $default->export_type = EXPORT_IN_CODE;
     ctools_export_crud_save($info['features component'], $default);
   }
+}
+
+/**
+ * Specialized rebuild function for page_manager_pages.
+ */
+function defaultconfig_component_rebuild_page_manager_pages($name, $page) {
+  ctools_include('page', 'page_manager', 'plugins/tasks');
+  if (page_manager_page_load($name)) {
+    page_manager_page_delete($page);
+  }
+  page_manager_page_save($page);
 }
 
 /**
@@ -275,7 +293,7 @@ function defaultconfig_modules_disabled($modules) {
  */
 function defaultconfig_rebuild_all() {
   features_include();
-  $components = module_invoke_all('defaultconfig_components');
+  $components = defaultconfig_get_components();
   foreach ($components as $name => $component) {
     $component['name'] = $component;
     defaultconfig_component_rebuild($component);
@@ -290,15 +308,12 @@ function defaultconfig_include() {
 
 function defaultconfig_component_include($component, $module = FALSE) {
   // Include file if necessary.
-  if (isset($component['group'])) {
-    if ($module) {
+  $modules = $module ? array($module) : module_list();
+  // Include all necessary files.
+  foreach ($modules as $module) {
+    module_load_include('features.defaultconfig.inc', $module);
+    if (!empty($component['group'])) {
       module_load_include($component['group'] . '.inc', $module);
-    }
-    else {
-      // Include all necessary files.
-      foreach (module_list() as $module) {
-        module_load_include($component['group'] . '.inc', $module);
-      }
     }
   }
 }
@@ -320,6 +335,7 @@ function defaultconfig_component_rebuild($component, $module = FALSE) {
   drupal_alter($component['hook'], $defaults, $module);
   // Have a generic alter for all components.
   drupal_alter('defaultconfig_component', $defaults, $component);
+  watchdog('defaultconfig', 'Rebuilding @component for @module.', array('@component' => $component['name'], '@module' => $module ? $module : 'all modules'));
   $component['rebuild callback']($component, $defaults, $module);
 }
 
@@ -505,7 +521,9 @@ function defaultconfig_modules($component) {
       }
     }
   }
-  return array_merge($defaultconfig_modules, $features_modules);
+  $modules = array_merge($defaultconfig_modules, $features_modules);
+
+  return array_unique($modules);
 }
 
 /**

@@ -83,13 +83,15 @@ function module_filter_form_system_modules_alter(&$form, &$form_state, $form_id)
 
   if (variable_get('module_filter_tabs', 1)) {
     $form['module_filter']['#attached']['css'][] = drupal_get_path('module', 'module_filter') .'/css/module_filter_tab.css';
-    $form['module_filter']['#attached']['js'][] = 'misc/jquery.ba-bbq.js';
+    $form['module_filter']['#attached']['library'][] = array('system', 'jquery.bbq');
     $form['module_filter']['#attached']['js'][] = drupal_get_path('module', 'module_filter') .'/js/module_filter_tab.js';
 
     if (!module_exists('page_actions') && variable_get('module_filter_dynamic_save_position', 1)) {
       $form['module_filter']['#attached']['css'][] = drupal_get_path('module', 'module_filter') .'/css/dynamic_position.css';
       $form['module_filter']['#attached']['js'][] = drupal_get_path('module', 'module_filter') .'/js/dynamic_position.js';
     }
+
+    $form['#attached']['css'][] = drupal_get_path('module', 'module_filter') . '/css/modules.css';
 
     $form['#theme'] = 'module_filter_system_modules_tabs';
   }

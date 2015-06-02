@@ -770,6 +770,11 @@ function ds_field_ui_layouts_save($form, &$form_state) {
     $record->settings['layout_link_attribute'] = $form_state['values']['additional_settings']['region_wrapper']['layout_link_attribute'];
     $record->settings['layout_link_custom'] = $form_state['values']['additional_settings']['region_wrapper']['layout_link_custom'];
 
+    // Additional settings
+    if (isset($form_state['values']['additional_settings']['preview']['info']['settings']['disable_css'])) {
+      $record->settings['layout_disable_css'] = $form_state['values']['additional_settings']['preview']['info']['settings']['disable_css'];
+    }
+
     $record->settings = $record->settings;
 
     // Let other modules alter the layout settings.
@@ -982,6 +987,11 @@ function ds_field_formatter_settings_form($field, $instance, $view_mode, $form, 
       '#options' => $options,
       '#default_value' => $settings['taxonomy_term_reference_view_mode'],
     );
+    $element['use_content_language'] = array(
+      '#type' => 'checkbox',
+      '#title' => t('Use current content language'),
+      '#default_value' => $settings['use_content_language'],
+    );
     return $element;
   }
 
@@ -1027,7 +1037,8 @@ function ds_field_formatter_settings_summary($field, $instance, $view_mode) {
     $entity_info = entity_get_info('taxonomy_term');
     $modes = $entity_info['view modes'];
     $mode = $modes[$settings['taxonomy_term_reference_view_mode']]['label'];
-    $summary = t('View mode: %mode', array('%mode' => $mode));
+    $summary .= t('View mode: %mode', array('%mode' => $mode)) . '<br />';;
+    $summary .= !empty($settings['use_content_language']) ? t('Use current content language') : t('Use field language');
   }
 
   if ($display['type'] === 'ds_taxonomy_separator' || $display['type'] == 'ds_taxonomy_separator_localized') {
@@ -1613,7 +1624,16 @@ function _ds_field_ui_table_layouts($entity_type, $bundle, $view_mode, &$form, $
   if (!empty($layout) && isset($layout->regions)) {
 
     // Add wrappers
-    $wrapper_options = array('div' => 'Div', 'span' => 'Span', 'section' => 'Section', 'article' => 'Article', 'header' => 'Header', 'footer' => 'Footer', 'aside' => 'Aside');
+    $wrapper_options = array(
+      'div' => 'Div',
+      'span' => 'Span',
+      'section' => 'Section',
+      'article' => 'Article',
+      'header' => 'Header',
+      'footer' => 'Footer',
+      'aside' => 'Aside',
+      'figure' => 'Figure'
+    );
     $form['additional_settings']['region_wrapper'] = array(
       '#type' => 'fieldset',
       '#title' => t('Custom wrappers'),
@@ -1880,7 +1900,7 @@ function _ds_field_ui_table_layouts_preview(&$form, &$form_state, $ds_layouts, $
       }
 
       ksort($suggestions_array);
-      $suggestions = '<ul><li>' . implode('.tpl.php</li><li>', $suggestions_array) . '.tpl.php</li></ul>';
+      $suggestions .= '<ul><li>' . implode('.tpl.php</li><li>', $suggestions_array) . '.tpl.php</li></ul>';
     }
     else {
       $suggestions = '';
@@ -1901,9 +1921,31 @@ function _ds_field_ui_table_layouts_preview(&$form, &$form_state, $ds_layouts, $
       $form['additional_settings']['ds_layouts']['preview'] ['image'] = array(
         '#markup' => '<div class="ds-layout-preview-image"><img src="' . base_path() . $image . '"/></div>',
       );
-      $form['additional_settings']['ds_layouts']['preview'] ['suggestions'] = array(
-        '#markup' => '<div class="ds-layout-preview-suggestion"><p>' . $selected . '</p><p>' . t('!suggestions', array('!suggestions' => strtr($suggestions, '_', '-'))) . '</p></div>',
+      $form['additional_settings']['ds_layouts']['preview']['info'] = array(
+        '#type' => 'container',
+        '#attributes' => array(
+          'class' => array('ds-layout-preview-suggestion'),
+        ),
       );
+      $form['additional_settings']['ds_layouts']['preview']['info']['suggestions'] = array(
+        '#markup' => '<p>' . $selected . '</p><p>' . t('!suggestions', array('!suggestions' => strtr($suggestions, '_', '-'))) . '</p>',
+      );
+
+      if (!empty($chosen_layout['css'])) {
+        $disable_css = FALSE;
+        if (isset($layout->settings['layout_disable_css'])) {
+          $disable_css = $layout->settings['layout_disable_css'];
+        }
+        if (isset($form_state['values']) && $disable_css !== $form_state['values']['additional_settings']['ds_layouts']['preview']['info']['settings']['disable_css']) {
+          $disable_css = $form_state['values']['additional_settings']['ds_layouts']['preview']['info']['settings']['disable_css'];
+        }
+
+        $form['additional_settings']['ds_layouts']['preview']['info']['settings']['disable_css'] = array(
+          '#type' => 'checkbox',
+          '#title' => t('Disable layout CSS styles'),
+          '#default_value' => $disable_css,
+        );
+      }
     }
 
     if (isset($form_state['values']['additional_settings']['layout']) && (!isset($layout->layout) || $form_state['values']['additional_settings']['layout'] != $layout->layout)) {
@@ -1961,9 +2003,30 @@ function ds_field_ui_change_layout_validate(&$form, &$form_state) {
  * Form submission handler for _ds_field_ui_table_layouts_preview().
  */
 function ds_field_ui_change_layout_submit($form, &$form_state) {
+  $values = $form_state['values'];
+  if (isset($values['additional_settings']['preview']['info']['settings']['disable_css'])) {
+    $disable_css = $values['additional_settings']['preview']['info']['settings']['disable_css'];
+  }
+  else {
+    $disable_css = FALSE;
+  }
+
+  $record = db_select('ds_layout_settings')
+    ->fields('ds_layout_settings')
+    ->condition('entity_type', $values['ds_entity_type'])
+    ->condition('bundle', $values['ds_bundle'])
+    ->condition('view_mode', $values['ds_view_mode'])
+    ->execute()
+    ->fetchObject();
+
+  $record->settings = unserialize($record->settings);
+  $record->settings['layout_disable_css'] = $disable_css;
+
+  drupal_write_record('ds_layout_settings', $record, array('id'));
+
   unset($_GET['destination']);
   global $base_url;
-  $url = $base_url . '/' . $form_state['values']['layout_changed_url'];
+  $url = $base_url . '/' . $values['layout_changed_url'];
   $form_state['redirect'] = $url;
 }
 
@@ -2027,7 +2090,7 @@ function _ds_field_ui_fields($entity_type, $bundle, $view_mode, &$form, &$form_s
   foreach ($fields as $key => $field) {
 
     // Check on ui_limit.
-    if (isset($field['ui_limit'])) {
+    if (!empty($field['ui_limit'])) {
 
       $continue = TRUE;
       foreach ($field['ui_limit'] as $limitation) {
@@ -2252,6 +2315,7 @@ function _ds_field_ui_core_fields($entity_type, $bundle, $view_mode, &$form, &$f
 
         // Load the form
         module_load_include('inc', 'ds_extras', 'includes/ds_extras.admin');
+        if (!is_array($settings_form)) $settings_form = array();
         ds_extras_field_template_settings_form($settings_form, $form_state, $context);
       }
 
@@ -2470,9 +2534,7 @@ function _ds_field_ui_custom_fields($entity_type, $bundle, $view_mode, &$form, $
     'custom_field' => t('Add a code field'),
     'manage_ctools' => t('Add a dynamic field'),
   );
-  if (module_exists('block')) {
-    $field_types['manage_block'] = t('Add a block field');
-  }
+  $field_types['manage_block'] = t('Add a block field');
   $field_types['manage_preprocess'] = t('Add a preprocess field');
 
   foreach ($field_types as $field_key => $field_title) {

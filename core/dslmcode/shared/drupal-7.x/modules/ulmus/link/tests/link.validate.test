@@ -34,7 +34,7 @@ class LinkValidateTestCase extends LinkBaseTestClass {
       $field_name . '[und][0][url]' => $url,
     );
     $this->drupalPost(NULL, $edit, t('Save'));
-    $this->assertRaw(t(' has been created.'), 'Node created');
+    $this->assertRaw(' has been created.', 'Node created');
 
     $nid = 1; //$matches[1];
 
@@ -90,17 +90,17 @@ class LinkValidateTest extends LinkValidateTestCase {
     // create page form
     $this->drupalGet('node/add/page');
     $field_name = 'field_' . $name;
-    $this->assertField('edit-field-'. $name .'-und-0-title', 'Title found');
-    $this->assertField('edit-field-'. $name .'-und-0-url', 'URL found');
+    $this->assertField('edit-field-' . $name . '-und-0-title', 'Title found');
+    $this->assertField('edit-field-' . $name . '-und-0-url', 'URL found');
 
 
     $edit = array(
       'title' => 'Simple Title',
-      $field_name .'[und][0][url]' => 'edik:naw',
+      $field_name . '[und][0][url]' => 'edik:naw',
     );
 
     $this->drupalPost(NULL, $edit, t('Save'));
-    $this->assertText(t('The value provided for @field is not a valid URL.', array('@field' => $name)));
+    $this->assertText(t('The value @value provided for @field is not a valid URL.', array('@value' => 'edik:naw', '@field' => $name)));
   }
 
   /**
@@ -135,17 +135,17 @@ class LinkValidateTest extends LinkValidateTestCase {
     // create page form
     $this->drupalGet('node/add/page');
     $field_name = 'field_' . $name;
-    $this->assertField('edit-field-'. $name .'-und-0-title', 'Title found');
-    $this->assertField('edit-field-'. $name .'-und-0-url', 'URL found');
+    $this->assertField('edit-field-' . $name . '-und-0-title', 'Title found');
+    $this->assertField('edit-field-' . $name . '-und-0-url', 'URL found');
 
 
     $edit = array(
       'title' => 'Simple Title',
-      $field_name .'[und][0][url]' => 'edik:naw',
+      $field_name . '[und][0][url]' => 'edik:naw',
     );
 
     $this->drupalPost(NULL, $edit, t('Save'));
-    $this->assertText(t('The value provided for @field is not a valid URL.', array('@field' => $name)));
+    $this->assertText(t('The value @value provided for @field is not a valid URL.', array('@field' => $name, '@value' => 'edik:naw')));
 
   }
 
@@ -185,17 +185,17 @@ class LinkValidateTest extends LinkValidateTestCase {
     // create page form
     $this->drupalGet('node/add/page');
     $field_name = 'field_' . $name;
-    $this->assertField('edit-field-'. $name .'-und-0-title', 'Title found');
-    $this->assertField('edit-field-'. $name .'-und-0-url', 'URL found');
+    $this->assertField('edit-field-' . $name . '-und-0-title', 'Title found');
+    $this->assertField('edit-field-' . $name . '-und-0-url', 'URL found');
 
 
     $edit = array(
       'title' => 'Simple Title',
-      $field_name .'[und][0][url]' => 'edik:naw',
+      $field_name . '[und][0][url]' => 'edik:naw',
     );
 
     $this->drupalPost(NULL, $edit, t('Save'));
-    $this->assertNoText(t('The value provided for @field is not a valid URL.', array('@field' => $name)));
+    $this->assertNoText(t('The value %value provided for %field is not a valid URL.', array('%field' => $name, '%value' => 'edik:naw')));
   }
 
   /**
@@ -207,10 +207,10 @@ class LinkValidateTest extends LinkValidateTestCase {
                                              'administer nodes',
                                              'access administration pages',
                                              'access content',
-                                             'create '. $this->content_types[0]->type .' content',
-                                             'edit any '. $this->content_types[0]->type .' content'));
+                                             'create ' . $this->content_types[0]->type . ' content',
+                                             'edit any ' . $this->content_types[0]->type . ' content'));
     $this->drupalLogin($this->web_user);
-    variable_set('node_options_'. $this->content_types[0]->name, array('status', 'promote'));
+    variable_set('node_options_' . $this->content_types[0]->name, array('status', 'promote'));
     $field_settings = array(
       'type' => 'link',
       'widget_type' => 'link',
@@ -227,23 +227,23 @@ class LinkValidateTest extends LinkValidateTestCase {
 
     $node = node_load($this->nodes[0]->nid);
 
-    $this->drupalGet('node/'. $this->nodes[0]->nid);
+    $this->drupalGet('node/' . $this->nodes[0]->nid);
 
     $edit = array();
     $title = $this->randomName();
     $url = 'javascript:alert("http://example.com/' . $this->randomName() . '")';
-    $edit[$field['field_name'] .'[0][url]'] = $url;
-    $edit[$field['field_name'] .'[0][title]'] = $title;
+    $edit[$field['field_name'] . '[0][url]'] = $url;
+    $edit[$field['field_name'] . '[0][title]'] = $title;
 
-    $this->drupalPost('node/'. $this->nodes[0]->nid .'/edit', $edit, t('Save'));
+    $this->drupalPost('node/' . $this->nodes[0]->nid . '/edit', $edit, t('Save'));
     //$this->pass($this->content);
-    $this->assertNoText(t('The value provided for %field is not a valid URL.', array('%field' => $name)));
+    $this->assertNoText(t('The value %value provided for %field is not a valid URL.', array('%field' => $name, '%value' => trim($url))));
 
     // Make sure we get a new version!
     $node = node_load($this->nodes[0]->nid, NULL, TRUE);
     $this->assertEqual($url, $node->{$field['field_name']}[0]['url']);
 
-    $this->drupalGet('node/'. $node->nid);
+    $this->drupalGet('node/' . $node->nid);
     $this->assertNoRaw($url, 'Make sure Javascript does not display.');
 
     // Turn the array validation back _on_.
@@ -251,9 +251,9 @@ class LinkValidateTest extends LinkValidateTestCase {
     $node_type_link = str_replace('_', '-', $node->type);
     //$this->drupalGet('admin/content/node-type/'. $node_type_link .'/fields'); ///'. $field['field_name']);
     //$this->fail($this->content);
-    $this->drupalPost('admin/content/node-type/'. $node_type_link .'/fields/'. $field['field_name'], $edit, t('Save field settings'));
+    $this->drupalPost('admin/content/node-type/' . $node_type_link . '/fields/' . $field['field_name'], $edit, t('Save field settings'));
 
-    $this->drupalGet('node/'. $node->nid);
+    $this->drupalGet('node/' . $node->nid);
     // This actually works because the display_url goes through the core
     // url() function.  But we should have a test that makes sure it continues
     // to work.
@@ -382,7 +382,7 @@ class LinkValidateUrlLight extends DrupalWebTestCase {
       case FALSE:
         return "Invalid Link";
       default:
-        return "Bad Value:". $type;
+        return "Bad Value:" . $type;
     }
   }
 
@@ -460,12 +460,12 @@ class LinkValidateUrlLight extends DrupalWebTestCase {
     $allowed_protocols = variable_get('filter_allowed_protocols', array('http', 'https', 'ftp', 'news', 'nntp', 'telnet', 'mailto', 'irc', 'ssh', 'sftp', 'webcal'));
     foreach ($allowed_protocols as $protocol) {
       if ($protocol !== 'news' && $protocol !== 'mailto') {
-        $links[] = $protocol .'://www.example.com';
+        $links[] = $protocol . '://www.example.com';
       }
     }
     foreach ($links as $link) {
       $valid = link_validate_url($link);
-      $this->assertEqual(LINK_EXTERNAL, $valid, 'Testing that '. $link .' is a valid external link.');
+      $this->assertEqual(LINK_EXTERNAL, $valid, 'Testing that ' . $link . ' is a valid external link.');
       // The following two lines are commented out and only used for comparisons.
       //$valid2 = valid_url($link, TRUE);
       //$this->assertEqual(TRUE, $valid2, "Using valid_url() on $link.");
@@ -488,7 +488,7 @@ class LinkValidateUrlLight extends DrupalWebTestCase {
     );
     foreach ($links as $link) {
       $valid = link_validate_url($link);
-      $this->assertEqual(FALSE, $valid, 'Testing that '. $link .' is not a valid link.');
+      $this->assertEqual(FALSE, $valid, 'Testing that ' . $link . ' is not a valid link.');
     }
   }
 }

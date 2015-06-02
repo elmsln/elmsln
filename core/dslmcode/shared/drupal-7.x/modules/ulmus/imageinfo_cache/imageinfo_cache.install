@@ -31,7 +31,7 @@ function imageinfo_cache_schema() {
  *
  * Create the cache_imageinfo cache bin.
  */
-function imageinfo_cache_update_7101(&$sandbox) {
+function imageinfo_cache_update_7101() {
   if (db_table_exists('cache_imageinfo')) {
     return;
   }

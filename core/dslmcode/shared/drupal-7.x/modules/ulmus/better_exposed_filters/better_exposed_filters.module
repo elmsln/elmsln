@@ -75,11 +75,12 @@ function better_exposed_filters_views_api() {
  * Unpacks sort_by and sort_order from the sort_bef_combine element.
  */
 function bef_sort_combine_submit($form, &$form_state) {
-  if (empty($form_state['values']['sort_bef_combine'])) {
+  $combine_param = $form_state['#combine_param'];
+  if (empty($form_state['values'][$combine_param])) {
     $form_state['values']['sort_by'] = $form_state['values']['sort_order'] = '';
   }
   else {
-    list($form_state['values']['sort_by'], $form_state['values']['sort_order']) = explode(' ', $form_state['values']['sort_bef_combine']);
+    list($form_state['values']['sort_by'], $form_state['values']['sort_order']) = explode(' ', $form_state['values'][$combine_param]);
   }
 
   // And pass this along to Views.
@@ -181,31 +182,19 @@ function _better_exposed_filters_get_num_decimal_places($number) {
 }
 
 /**
- * Translate user entered string.
- *
- * @param string $name
- * @param string $string
- * @param string $langcode
- * @return string
+ * Implements hook_preprocess_views_view().
  */
-function better_exposed_filters_translate($name, $string, $langcode = NULL) {
-  return function_exists('i18n_string_translate') ? i18n_string_translate($name, $string, array(
-    'langcode' => $langcode,
-    'format' => FALSE,
-    'sanitize' => FALSE,
-  )) : $string;
-}
+function better_exposed_filters_preprocess_views_view(&$variables) {
+  $filters = array();
+  foreach ($variables['view']->filter as $filter) {
+    if ($filter->options['exposed']) {
+      $identifier = $filter->options['is_grouped'] ? $filter->options['group_info']['identifier'] : $filter->options['expose']['identifier'];
+      $filters[$identifier] = array(
+        'required' => $filter->options['expose']['required'] ? TRUE : FALSE,
+      );
+    }
+  }
 
-/**
- * Implements hook_i18n_string_info()
- */
-function better_exposed_filters_i18n_string_info() {
-  $groups['better_exposed_filters'] = array(
-    'title' => t('Better exposed filters'),
-    'description' => t('Custom strings.'),
-    'format' => FALSE, // This group doesn't have strings with format
-    'list' => FALSE, // This group cannot list all strings
-    'refresh callback' => 'better_exposed_filters_i18n_string_refresh',
-  );
-  return $groups;
+  $bef_js['views'][$variables['view']->name]['displays'][$variables['view']->current_display]['filters'] = $filters;
+  drupal_add_js(array('better_exposed_filters' => $bef_js), 'setting');
 }

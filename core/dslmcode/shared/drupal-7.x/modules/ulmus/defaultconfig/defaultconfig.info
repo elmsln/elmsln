@@ -1,14 +1,14 @@
 name = Default config
-description = Use features as default configuration without having to deal with overriden features.
+description = Use features as default configuration without having to deal with overridden features.
 core = 7.x
-package = configuration
+package = Configuration
 dependencies[] = features
 
 
 
-; Information added by drupal.org packaging script on 2012-11-05
-version = "7.x-1.0-alpha9"
+; Information added by Drupal.org packaging script on 2015-02-04
+version = "7.x-1.0-alpha10+2-dev"
 core = "7.x"
 project = "defaultconfig"
-datestamp = "1352143559"
+datestamp = "1423046106"
 

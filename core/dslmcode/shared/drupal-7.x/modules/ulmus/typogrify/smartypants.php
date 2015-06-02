@@ -68,7 +68,7 @@ function typogrify_i18n_quotes($langcode = NULL) {
     'it' => array('«', '»', '‘', '’'), // Italian
     'lt' => array('„', '“', '‚', '‘'), // Lithuanian
     'lv' => array('„', '“', '„', '“'), // Latvian
-    'nl' => array('„', '“', '‘', '’'), // Dutch
+    'nl' => array('„', '”', '‘', '’'), // Dutch
     'no' => array('„', '“', '„', '“'), // Norwegian
     'pl' => array('„', '”', '«', '»'), // Polish
     'pt' => array('“', '”', '‘', '’'), // Portuguese
@@ -579,6 +579,9 @@ function typogrify_smart_numbers($text, $attr = 0, $ctx = NULL) {
   elseif ($attr == 3) {
     $method = '_typogrify_number_span';
   }
+  elseif ($attr == 4) {
+    $method = '_typogrify_number_just_span';
+  }
 
   $result = '';
   // Keep track of when we're inside <pre> or <code> tags.
@@ -641,7 +644,11 @@ function _typogrify_number_replacer($hit, $thbl) {
     // Date -`dd.mm.yyyy don't touch.
     return $hit[5];
   }
-  $dec = preg_replace('/[+-]?\d{1,3}(?=(\d{3})+(?!\d))/', '\0' . $thbl, $hit[6]);
+  if (preg_match('/[+-]?\d{5,}/', $hit[6]) == 1) {
+    $dec = preg_replace('/[+-]?\d{1,3}(?=(\d{3})+(?!\d))/', '\0' . $thbl, $hit[6]);
+  } else {
+    $dec = $hit[6];
+  }
   $frac = preg_replace('/\d{3}/', '\0' . $thbl, $hit[7]);
   return '<span class="number">' . $dec . $frac . '</span>';
 }
@@ -675,6 +682,16 @@ function _typogrify_number_thinsp($hit) {
 function _typogrify_number_span($hit) {
   $thbl = '<span style="margin-left:0.167em"></span>';
   return _typogrify_number_replacer($hit, $thbl);
+}
+
+/**
+ * Wrapping numbers and adding whitespace by setting margin-left in a span.
+ *
+ * @param array $hit
+ *   matcher-array from preg_replace_callback.
+ */
+function _typogrify_number_just_span($hit) {
+  return _typogrify_number_replacer($hit, '');
 }
 
 /**
@@ -741,7 +758,7 @@ function _typogrify_abbr_asis($hit) {
  *   matcher-array from preg_replace_callback.
  */
 function _typogrify_abbr_thinsp($hit) {
-  $res = preg_replace('/\.(\p{L})/', '.&#8201;\1', $hit[0]);
+  $res = preg_replace('/\.(\p{L})/u', '.&#8201;\1', $hit[0]);
   return '<span class="abbr">' . $res . '</span>';
 }
 
@@ -752,7 +769,7 @@ function _typogrify_abbr_thinsp($hit) {
  *   matcher-array from preg_replace_callback.
  */
 function _typogrify_abbr_narrownbsp($hit) {
-  $res = preg_replace('/\.(\p{L})/', '.&#8239;\1', $hit[0]);
+  $res = preg_replace('/\.(\p{L})/u', '.&#8239;\1', $hit[0]);
   return '<span class="abbr">' . $res . '</span>';
 }
 
@@ -764,7 +781,7 @@ function _typogrify_abbr_narrownbsp($hit) {
  */
 function _typogrify_abbr_span($hit) {
   $thbl = '.<span style="margin-left:0.167em"><span style="display:none">&nbsp;</span></span>';
-  $res = preg_replace('/\.(\p{L})/', $thbl . '\1', $hit[0]);
+  $res = preg_replace('/\.(\p{L})/u', $thbl . '\1', $hit[0]);
   return '<span class="abbr">' . $res . '</span>';
 }
 
@@ -829,10 +846,10 @@ function EducateQuotes($_, $quotes) {
   $spacer = '&#8201;';
   $_ = preg_replace(
     array(
-      "/\"'(?=\p{L})/",
-      "/'\"(?=\p{L})/",
-      "/(\p{L})\"'/",
-      "/(\p{L})'\"/",
+      "/\"'(?=\p{L})/u",
+      "/'\"(?=\p{L})/u",
+      "/(\p{L})\"'/u",
+      "/(\p{L})'\"/u",
     ),
     array(
       $quotes[0] . $spacer . $quotes[2],
@@ -845,7 +862,7 @@ function EducateQuotes($_, $quotes) {
   $_ = preg_replace("/'(?=\\d{2}s)/", '&#8217;', $_);
 
   // Special case for apostroph.
-  $_ = preg_replace("/(\\p{L})(')(?=\\p{L}|$)/", '\1&#8217;', $_);
+  $_ = preg_replace("/(\\p{L})(')(?=\\p{L}|$)/u", '\1&#8217;', $_);
 
   $close_class = '[^\ \t\r\n\[\{\(\-]';
   $dec_dashes = '&\#8211;|&\#8212;';
@@ -1075,6 +1092,70 @@ function ProcessEscapes($_) {
   );
 
   return $_;
+}
+
+/**
+ * space_to_nbsp
+ *
+ * Replaces the space before a "double punctuation mark" (!?:;) with
+ * ``&nbsp;``
+ * Especially useful in french.
+ */
+function typogrify_space_to_nbsp($text) {
+  $tokens;
+  $tokens = _TokenizeHTML($text);
+
+  $result = '';
+  // Keep track of when we're inside <pre> or <code> tags.
+  $in_pre = 0;
+  foreach ($tokens as $cur_token) {
+    if ($cur_token[0] == "tag") {
+      // Don't mess with quotes inside tags.
+      $result .= $cur_token[1];
+      if (preg_match(SMARTYPANTS_TAGS_TO_SKIP, $cur_token[1], $matches)) {
+        $in_pre = isset($matches[1]) && $matches[1] == '/' ? 0 : 1;
+      }
+    }
+    else {
+      $t = $cur_token[1];
+      if (!$in_pre) {
+        $t = preg_replace("/\s([\!\?\:;])/", '&nbsp;$1', $t);
+      }
+      $result .= $t;
+    }
+  }
+  return $result;
+}
+
+/**
+ * space_hyphens
+ *
+ * Replaces a normal dash with em-dash between whitespaces.
+ */
+function typogrify_space_hyphens($text) {
+  $tokens;
+  $tokens = _TokenizeHTML($text);
+
+  $result = '';
+  // Keep track of when we're inside <pre> or <code> tags.
+  $in_pre = 0;
+  foreach ($tokens as $cur_token) {
+    if ($cur_token[0] == "tag") {
+      // Don't mess with quotes inside tags.
+      $result .= $cur_token[1];
+      if (preg_match(SMARTYPANTS_TAGS_TO_SKIP, $cur_token[1], $matches)) {
+        $in_pre = isset($matches[1]) && $matches[1] == '/' ? 0 : 1;
+      }
+    }
+    else {
+      $t = $cur_token[1];
+      if (!$in_pre) {
+        $t = preg_replace("/\s(-{1,3})\s/", '&#8239;—&thinsp;', $t);
+      }
+      $result .= $t;
+    }
+  }
+  return $result;
 }
 
 

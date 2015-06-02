@@ -22,8 +22,10 @@ function typogrify_filter_info() {
       'default settings' => array(
         'smartypants_enabled' => 1,
         'smartypants_hyphens' => 3,
+        'space_hyphens' => 0,
         'wrap_ampersand' => 1,
         'widont_enabled' => 1,
+        'space_to_nbsp' => 1,
         'hyphenate_shy' => 0,
         'wrap_abbr' => 0,
         'wrap_caps' => 1,
@@ -216,7 +218,12 @@ function _typogrify_process($text, $filter, $format, $langcode, $cache, $cache_i
   // Replace normal spaces with non-breaking spaces before "double punctuation
   // marks". This is especially useful in french.
   if (isset($filter->settings['space_to_nbsp']) && $filter->settings['space_to_nbsp']) {
-    $text = Typogrify::space_to_nbsp($text);
+    $text = typogrify_space_to_nbsp($text);
+  }
+
+  // Replace normal whitespace '-' whitespace with em-dash.
+  if (isset($filter->settings['space_hyphens']) && $filter->settings['space_hyphens']) {
+    $text = typogrify_space_hyphens($text);
   }
 
   return $text;
@@ -248,6 +255,7 @@ function _typogrify_settings($form, &$form_state, $filter, $format, $defaults, $
   $filter->settings += array(
     'smartypants_enabled' => 1,
     'smartypants_hyphens' => 2,
+    'space_hyphens' => 0,
     'wrap_ampersand' => 1,
     'widont_enabled' => 1,
     'space_to_nbsp' => 1,
@@ -292,11 +300,12 @@ function _typogrify_settings($form, &$form_state, $filter, $format, $defaults, $
     ),
   );
 
-  // Wrap ampersand settings.
-  $form['wrap_ampersand'] = array(
+  // Replace space_hyphens with em-dash.
+  $form['space_hyphens'] = array(
     '#type' => 'checkbox',
-    '#title' => t('Wrap ampersands'),
-    '#default_value' => $filter->settings['wrap_ampersand'],
+    '#title' => t('Replace stand-alone dashes (normal dashes between whitespace) em-dashes.'),
+    '#description' => t('" - " will turn into " — ".'),
+    '#default_value' => $filter->settings['space_hyphens'],
   );
 
   // Remove widows settings.
@@ -314,11 +323,28 @@ function _typogrify_settings($form, &$form_state, $filter, $format, $defaults, $
     '#default_value' => $filter->settings['hyphenate_shy'],
   );
 
+  // Replace normal spaces with non-breaking spaces before "double punctuation
+  // marks". This is especially useful in french.
+  $form['space_to_nbsp'] = array(
+    '#type' => 'checkbox',
+    '#title' => t('Replace normal spaces with non-breaking spaces before "double punctuation marks" !marks.',
+      array('!marks' => '(<code>!?:;</code>)')),
+    '#description' => t('This is especially useful for french.'),
+    '#default_value' => $filter->settings['space_to_nbsp'],
+  );
+
   // Wrap caps settings.
   $form['wrap_caps'] = array(
     '#type' => 'checkbox',
     '#title' => t('Wrap caps'),
     '#default_value' => $filter->settings['wrap_caps'],
+  );
+
+  // Wrap ampersand settings.
+  $form['wrap_ampersand'] = array(
+    '#type' => 'checkbox',
+    '#title' => t('Wrap ampersands'),
+    '#default_value' => $filter->settings['wrap_ampersand'],
   );
 
   $form['wrap_abbr'] = array(
@@ -345,6 +371,7 @@ function _typogrify_settings($form, &$form_state, $filter, $format, $defaults, $
       1 => t('“U+202F“ Narrow no-break space'),
       2 => t('“U+2009“ Thin space'),
       3 => t('span with margin-left: 0.167em'),
+      4 => t('just wrap numbers'),
     ),
   );
 
@@ -420,16 +447,6 @@ function _typogrify_settings($form, &$form_state, $filter, $format, $defaults, $
     '#title' => t('Quotes'),
     '#options' => $quotes_options,
     '#default_value' => $filter->settings['quotes'],
-  );
-
-  // Replace normal spaces with non-breaking spaces before "double punctuation
-  // marks". This is especially useful in french.
-  $form['space_to_nbsp'] = array(
-    '#type' => 'checkbox',
-    '#title' => t('Replace normal spaces with non-breaking spaces before "double punctuation marks" !marks.',
-      array('!marks' => '(<code>!?:;</code>)')),
-    '#description' => t('This is especially useful for french.'),
-    '#default_value' => $filter->settings['space_to_nbsp'],
   );
 
   // Version Information Settings.

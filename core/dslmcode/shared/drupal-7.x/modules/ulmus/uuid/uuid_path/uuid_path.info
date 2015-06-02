@@ -5,9 +5,9 @@ package = UUID
 dependencies[] = uuid
 
 
-; Information added by Drupal.org packaging script on 2014-10-21
-version = "7.x-1.0-alpha6+13-dev"
+; Information added by Drupal.org packaging script on 2014-10-29
+version = "7.x-1.0-alpha6+14-dev"
 core = "7.x"
 project = "uuid"
-datestamp = "1413900231"
+datestamp = "1414581692"
 

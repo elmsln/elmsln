@@ -151,17 +151,16 @@ class BEF_TestBase extends DrupalWebTestCase {
    *
    * $field: string in the form of node.status or
    *   field_data_field_example.field_example_value
-   * $display: machine name of the display to add this filter to. NOTE:
-   *   Currently only allows filters on the master display, no overrides.
-   *
-   * @todo: fix that, if needed.
-   * $exposed: (bool) (optional, default: TRUE) Is this an exposed filter?
    * $settings: (array) Settings on the "Configure filter criterion" dialog.
    *   NOTE: called after the "Expose filter" button is pressed if $exposed
    *   is TRUE so you can set things like "Allow multiple items" or grouped
    *   filter options.
    * $additional: (array) settings for any additional configuration forms such
    *   as taxonomy term settings.
+   * $display: machine name of the display to add this filter to. NOTE:
+   *   Currently only allows filters on the master display, no overrides.
+   *   @todo: fix that, if needed.
+   * $exposed: (bool) (optional, default: TRUE) Is this an exposed filter?
    *
    * Note: This routine expects the caller to save the view, as needed.
    */

@@ -1421,7 +1421,7 @@ function page_manager_handler_add_form($form, $form_state, $features = array()) 
         'exists' => 'page_manager_handler_check_machine_name',
         'source' => array('title'),
       ),
-      '#field_prefix' => '<span dir="ltr">' . $task['name'] . '__',
+      '#field_prefix' => '<span dir="ltr">' . $form_state['task_name'] . '__',
       '#field_suffix' => '</span>&lrm;',
     );
   }
@@ -1466,7 +1466,7 @@ function page_manager_handler_add_form($form, $form_state, $features = array()) 
  * Check if handler's machine-name is unique
  */
 function page_manager_handler_check_machine_name($name, $element, $form_state) {
-  $name = $form_state['task']['name'] . '__' . $name;
+  $name = $form_state['task_name'] . '__' . $name;
 
   return count(ctools_export_load_object('page_manager_handlers', 'names', array($name)));
 }

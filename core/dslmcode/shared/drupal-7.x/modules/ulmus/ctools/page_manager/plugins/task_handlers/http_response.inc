@@ -216,6 +216,9 @@ function page_manager_http_response_title($handler, $task, $subtask) {
  * General settings for the panel
  */
 function page_manager_http_response_edit_settings($form, &$form_state) {
+  ctools_include('page_manager.admin', 'page_manager', '');
+  ctools_include('export', 'ctools');
+
   $conf = $form_state['handler']->conf;
   $form['title'] = array(
     '#type' => 'textfield',
@@ -262,14 +265,28 @@ function page_manager_http_response_edit_settings($form, &$form_state) {
 
 function page_manager_http_response_edit_settings_submit($form, &$form_state) {
   $machine_name = $form_state['handler']->name;
-  $name = $form_state['task_id'] . '__' . $form_state['values']['name'];
+  $name = $form_state['task_name'] . '__' . $form_state['values']['name'];
 
   // If new name doesn't equal machine name, we need to update and redirect.
   if ($machine_name !== $name) {
-    $form_state['new trail'] = $form_state['trail'];
-    $delta = array_search($machine_name, $form_state['new trail']);
-    $form_state['new trail'][$delta] = $name;
     $form_state['handler']->name = $name;
+    // If there's a trail, we need to replace it for redirection.
+    if (isset($form_state['trail'])) {
+      $form_state['new trail'] = $form_state['trail'];
+      $delta = array_search($machine_name, $form_state['new trail']);
+      $form_state['new trail'][$delta] = $name;
+    }
+    // If handler id is set, replace it.
+    if ($form_state['handler_id']) {
+      $form_state['handler_id'] = $name;
+    }
+    // If we're defining a new custom handler, move page handler to new name.
+    if (isset($form_state['page']->handlers[$machine_name]) && isset($form_state['page']->handler_info[$machine_name])) {
+      $form_state['page']->handlers[$name] = $form_state['page']->handlers[$machine_name];
+      unset($form_state['page']->handlers[$machine_name]);
+      $form_state['page']->handler_info[$name] = $form_state['page']->handler_info[$machine_name];
+      unset($form_state['page']->handler_info[$machine_name]);
+    }
   }
 
   $form_state['handler']->conf['title'] = $form_state['values']['title'];

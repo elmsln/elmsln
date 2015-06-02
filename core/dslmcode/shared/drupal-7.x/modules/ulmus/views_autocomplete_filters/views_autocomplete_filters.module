@@ -42,6 +42,7 @@ function _views_autocomplete_filters_access_callback($view_name, $display_name) 
  */
 function views_autocomplete_filters_views_api() {
   return array(
-    'api' => 3.0,
+    'api' => 3,
+    'path' => drupal_get_path('module', 'views_autocomplete_filters') . '/views',
   );
 }

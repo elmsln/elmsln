@@ -89,6 +89,25 @@ function ds_forms_form_alter(&$form, &$form_state, $form_id) {
 }
 
 /**
+ * Implements hook_field_widget_WIDGET_TYPE_form_alter().
+ */
+function ds_forms_field_widget_field_collection_embed_form_alter(&$element, &$form_state, $context){
+  if ($ds_form = ds_build_load($element, 'field_collection_embed')) {
+    if ($layout = ds_get_layout($ds_form->entity_type, $ds_form->bundle, 'form', FALSE)) {
+      // Add the theming function and add the layout as a class.
+      $element['#theme'] = array('ds_forms_custom_form');
+      $element['#form_id'] = 'field_collection_embed';
+      $class = strtr($layout['layout'], '_', '-');
+      if ((isset($element['#attributes']['class']) && is_array($element['#attributes']['class'])) || !(isset($element['#attributes']['class']))) {
+        $element['#attributes']['class'][] = $class;
+      }
+      elseif (isset($element['#attributes']['class']) && is_string($element['#attributes']['class'])) {
+        $element['#attributes']['class'] .= ' ' . $class . ' ';
+      }
+    }
+  }
+}
+/**
  * Helper function to determine if this form can be loaded.
  */
 function ds_build_load($form, $form_id) {
@@ -162,8 +181,17 @@ function ds_forms_preprocess_ds_forms_custom_form(&$vars) {
       $vars['layout_attributes'] = '';
     }
 
+    if (isset($layout['settings']['classes']['layout_class'])) {
+      foreach ($layout['settings']['classes']['layout_class'] as $layout_class) {
+        $vars['classes_array'][] = $layout_class;
+      }
+    }
+
     // Ensure there is a class
-    $vars['classes'] = 'ds-form';
+    $vars['classes_array'][] = 'ds-form';
+
+    // Merge the classes into a string
+    $vars['classes'] = implode(' ', $vars['classes_array']);
 
     // Add a layout wrapper
     $vars['layout_wrapper'] = isset($layout['settings']['layout_wrapper']) ? $layout['settings']['layout_wrapper'] : 'div';

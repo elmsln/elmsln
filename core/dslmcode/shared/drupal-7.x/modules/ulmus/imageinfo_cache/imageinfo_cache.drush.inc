@@ -35,7 +35,12 @@ function imageinfo_cache_drush_command() {
 }
 
 /**
- * Dush callback.
+ * Drush callback.
+ *
+ * @param string $field_name
+ *   Name of the field containing the images.
+ * @param string $style_name
+ *   Style name to generate.
  */
 function drush_imageinfo_cache_image_generate($field_name = NULL, $style_name = NULL) {
   module_load_include('inc', 'imageinfo_cache', 'imageinfo_cache');
@@ -47,7 +52,7 @@ function drush_imageinfo_cache_image_generate($field_name = NULL, $style_name = 
     $choices = array_merge(array('all' => 'all'), drupal_map_assoc(array_keys($image_fields)));
     $field_name = drush_choice($choices, dt("Choose a target field to generate."));
   }
-  if ($field_name != 'all' && empty($image_fields[$field_name])) {
+  if ($field_name !== 'all' && empty($image_fields[$field_name])) {
     // Bail if field name is bad.
     return drush_set_error(dt("Image field !field not recognized. Valid options:\n!fields", array(
       '!field' => $field_name,
@@ -59,7 +64,7 @@ function drush_imageinfo_cache_image_generate($field_name = NULL, $style_name = 
     $choices = array_merge(array('all' => 'all', 'inuse' => 'inuse'), drupal_map_assoc(array_keys($image_styles)));
     $style_name = drush_choice($choices, dt("Choose an image style to generate."));
   }
-  if ($style_name != 'all' && $style_name != 'inuse' && empty($image_styles[$style_name])) {
+  if ($style_name !== 'all' && $style_name !== 'inuse' && empty($image_styles[$style_name])) {
     // Bail if style name is bad.
     return drush_set_error(dt("Image style !style not recognized. Valid options:\n!styles", array(
       '!style' => $style_name,
@@ -68,7 +73,7 @@ function drush_imageinfo_cache_image_generate($field_name = NULL, $style_name = 
   }
 
   // Get list of files.
-  if ($field_name == 'all') {
+  if ($field_name === 'all') {
     $files = imageinfo_cache_get_all_images_in_all_fields($image_fields);
   }
   else {
@@ -84,13 +89,13 @@ function drush_imageinfo_cache_image_generate($field_name = NULL, $style_name = 
       continue;
     }
 
-    if ($style_name == 'inuse') {
+    if ($style_name === 'inuse') {
       foreach ($uris as $uri) {
         $image_styles = $image_fields[$field_name];
         unset($image_styles['#field_info']);
       }
     }
-    elseif ($style_name != 'all') {
+    elseif ($style_name !== 'all') {
       $image_styles = array($style_name => $image_styles[$style_name]);
     }
 
@@ -121,8 +126,14 @@ function drush_imageinfo_cache_image_generate($field_name = NULL, $style_name = 
 
 /**
  * Given a list of image_fields get all image uri's in them.
+ *
+ * @param array $image_fields
+ *   Array of image fields from imageinfo_cache_get_image_fields().
+ *
+ * @return array
+ *   Array of image files attached to the fields.
  */
-function imageinfo_cache_get_all_images_in_all_fields($image_fields) {
+function imageinfo_cache_get_all_images_in_all_fields(array $image_fields) {
   $files = array();
   foreach ($image_fields as $field_name => $values) {
     $files[$field_name] = imageinfo_cache_get_all_images_in_field($image_fields, $field_name);
@@ -132,8 +143,16 @@ function imageinfo_cache_get_all_images_in_all_fields($image_fields) {
 
 /**
  * Given a field name get all image uri's in it.
+ *
+ * @param array $image_fields
+ *   Array of image fields from imageinfo_cache_get_image_fields().
+ * @param string $field_name
+ *   Name of field.
+ *
+ * @return array
+ *   Array of files attached to this field.
  */
-function imageinfo_cache_get_all_images_in_field($image_fields, $field_name) {
+function imageinfo_cache_get_all_images_in_field(array $image_fields, $field_name) {
   $fids = array();
   foreach ($image_fields[$field_name]['#field_info'] as $field_values) {
     $query = new ApachesolrAttachmentsEntityFieldQuery();
@@ -176,8 +195,11 @@ function imageinfo_cache_get_all_images_in_field($image_fields, $field_name) {
  *   ->execute();
  */
 if (!class_exists('ApachesolrAttachmentsEntityFieldQuery') && class_exists('EntityFieldQuery')) {
+  /**
+   * Class copied from Apachesolr module.
+   */
   class ApachesolrAttachmentsEntityFieldQuery extends EntityFieldQuery {
-    // Extra added fields to the query
+    // Extra added fields to the query.
     private $addedFields = array();
 
     /**
@@ -191,10 +213,10 @@ if (!class_exists('ApachesolrAttachmentsEntityFieldQuery') && class_exists('Enti
      * @param string $id_key
      *   Which field's values to use as the returned array keys.
      *
-     * @return
+     * @return array
      *   See EntityFieldQuery::execute().
      */
-    function finishQuery($select_query, $id_key = 'entity_id') {
+    public function finishQuery(SelectQuery $select_query, $id_key = 'entity_id') {
       foreach ($this->tags as $tag) {
         $select_query->addTag($tag);
       }
@@ -210,32 +232,38 @@ if (!class_exists('ApachesolrAttachmentsEntityFieldQuery') && class_exists('Enti
       }
       $return = array();
 
-      foreach ($this->addedFields as $addedField) {
+      foreach ($this->addedFields as $added_field) {
         $fields = $select_query->getFields();
-        if (!empty($addedField['field_name'])) {
-          $column = $addedField['field_name'] . '_' . $addedField['column'];
-          $column_alias = $addedField['field_name'] . '_' . $addedField['column_alias'];
+        if (!empty($added_field['field_name'])) {
+          $column = $added_field['field_name'] . '_' . $added_field['column'];
+          $column_alias = $added_field['field_name'] . '_' . $added_field['column_alias'];
         }
         else {
-          $column = $addedField['column'];
-          $column_alias = $addedField['column_alias'];
+          $column = $added_field['column'];
+          $column_alias = $added_field['column_alias'];
         }
         $select_query->addField($fields['entity_id']['table'], $column, $column_alias);
       }
 
-
       foreach ($select_query->execute() as $partial_entity) {
         $bundle = isset($partial_entity->bundle) ? $partial_entity->bundle : NULL;
-        $entity = entity_create_stub_entity($partial_entity->entity_type, array($partial_entity->entity_id, $partial_entity->revision_id, $bundle));
+        $ids = array(
+          $partial_entity->entity_id,
+          $partial_entity->revision_id,
+          $bundle,
+        );
+        $entity = entity_create_stub_entity($partial_entity->entity_type, $ids);
         // This is adding the file id using our metaData field.
         $entity->extraFields = $partial_entity;
-        //$entity->file_fid = $partial_entity->{$this->metaData['field_key']};
         $return[$partial_entity->entity_type][$partial_entity->$id_key] = $entity;
         $this->ordered_results[] = $partial_entity;
       }
       return $return;
     }
 
+    /**
+     * Add info to the $this->addedFields array.
+     */
     public function addExtraField($field_name, $column, $column_alias = NULL) {
       $this->addedFields[] = array(
         'field_name' => $field_name,
@@ -244,5 +272,6 @@ if (!class_exists('ApachesolrAttachmentsEntityFieldQuery') && class_exists('Enti
       );
       return $this;
     }
+
   }
 }

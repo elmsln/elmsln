@@ -151,7 +151,7 @@ function field_base_features_export_render($module, $data, $export = NULL) {
   foreach ($data as $identifier) {
     if ($field = features_field_base_load($identifier)) {
       unset($field['columns']);
-      // unset($field['locked']);
+      unset($field['foreign keys']);
       // Only remove the 'storage' declaration if the field is using the default
       // storage type.
       if ($field['storage']['type'] == variable_get('field_storage_default', 'field_sql_storage')) {
@@ -166,8 +166,15 @@ function field_base_features_export_render($module, $data, $export = NULL) {
 
       _field_instance_features_export_sort($field);
       $field_export = features_var_export($field, '  ');
+      $field_prefix = '  // Exported field_base: ';
       $field_identifier = features_var_export($identifier);
-      $code[] = "  // Exported field_base: {$field_identifier}";
+      if (features_field_export_needs_wrap($field_prefix, $field_identifier)) {
+        $code[] = rtrim($field_prefix);
+        $code[] = "  // {$field_identifier}";
+      }
+      else {
+        $code[] = $field_prefix . $field_identifier;
+      }
       $code[] = "  \$field_bases[{$field_identifier}] = {$field_export};";
       $code[] = "";
     }
@@ -190,8 +197,15 @@ function field_instance_features_export_render($module, $data, $export = NULL) {
     if ($instance = features_field_instance_load($identifier)) {
       _field_instance_features_export_sort($instance);
       $field_export = features_var_export($instance, '  ');
+      $instance_prefix = '  // Exported field_instance: ';
       $instance_identifier = features_var_export($identifier);
-      $code[] = "  // Exported field_instance: {$instance_identifier}";
+      if (features_field_export_needs_wrap($instance_prefix, $instance_identifier)) {
+        $code[] = rtrim($instance_prefix);
+        $code[] = "  // {$instance_identifier}";
+      }
+      else {
+        $code[] = $instance_prefix . $instance_identifier;
+      }
       $code[] = "  \$field_instances[{$instance_identifier}] = {$field_export};";
       $code[] = "";
 
@@ -527,4 +541,24 @@ function features_field_load($identifier) {
     );
   }
   return FALSE;
+}
+
+/**
+ * Determine if a field export line needs to be wrapped.
+ *
+ * Drupal code standards specify that comments should wrap at 80 characters or
+ * less.
+ *
+ * @param string $prefix
+ *   The prefix to be exported before the field identifier.
+ * @param string $identifier
+ *   The field identifier.
+ *
+ * @return BOOL
+ *   TRUE if the line should be wrapped after the prefix, else FALSE.
+ *
+ * @see https://www.drupal.org/node/1354
+ */
+function features_field_export_needs_wrap($prefix, $identifier) {
+  return (strlen($prefix) + strlen($identifier) > 80);
 }

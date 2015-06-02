@@ -1,9 +1,9 @@
-/* global Drupal:false */
-
 /**
  * @file
  * Used to toggle the AdvAgg Bypass Cookie client side.
  */
+
+/* global Drupal:false */
 
 /**
  * Test to see if the given string contains unicode.
@@ -29,45 +29,46 @@ Drupal.formatInterval = function(interval, granularity, langcode) {
     var value = 0;
     if (interval >= 31536000) {
       value = 31536000;
-      output += (output.length ? ' ' : '') + Drupal.formatPlural(Math.floor(interval / value), '1 year', '@count years', { langcode: langcode });
+      output += (output.length ? ' ' : '') + Drupal.formatPlural(Math.floor(interval / value), '1 year', '@count years', { langcode : langcode });
     }
     else if (interval >= 2592000) {
       value = 2592000;
-      output += (output.length ? ' ' : '') + Drupal.formatPlural(Math.floor(interval / value), '1 month', '@count months', { langcode: langcode });
+      output += (output.length ? ' ' : '') + Drupal.formatPlural(Math.floor(interval / value), '1 month', '@count months', { langcode : langcode });
     }
     else if (interval >= 604800) {
       value = 604800;
-      output += (output.length ? ' ' : '') + Drupal.formatPlural(Math.floor(interval / value), '1 week', '@count weeks', { langcode: langcode });
+      output += (output.length ? ' ' : '') + Drupal.formatPlural(Math.floor(interval / value), '1 week', '@count weeks', { langcode : langcode });
     }
     else if (interval >= 86400) {
       value = 86400;
-      output += (output.length ? ' ' : '') + Drupal.formatPlural(Math.floor(interval / value), '1 day', '@count days', { langcode: langcode });
+      output += (output.length ? ' ' : '') + Drupal.formatPlural(Math.floor(interval / value), '1 day', '@count days', { langcode : langcode });
     }
     else if (interval >= 3600) {
       value = 3600;
-      output += (output.length ? ' ' : '') + Drupal.formatPlural(Math.floor(interval / value), '1 hour', '@count hours', { langcode: langcode });
+      output += (output.length ? ' ' : '') + Drupal.formatPlural(Math.floor(interval / value), '1 hour', '@count hours', { langcode : langcode });
     }
     else if (interval >= 60) {
       value = 60;
-      output += (output.length ? ' ' : '') + Drupal.formatPlural(Math.floor(interval / value), '1 min', '@count min', { langcode: langcode });
+      output += (output.length ? ' ' : '') + Drupal.formatPlural(Math.floor(interval / value), '1 min', '@count min', { langcode : langcode });
     }
     else if (interval >= 1) {
       value = 1;
-      output += (output.length ? ' ' : '') + Drupal.formatPlural(Math.floor(interval / value), '1 sec', '@count sec', { langcode: langcode });
+      output += (output.length ? ' ' : '') + Drupal.formatPlural(Math.floor(interval / value), '1 sec', '@count sec', { langcode : langcode });
     }
 
     interval %= value;
     granularity--;
   }
 
-  return output.length ? output : Drupal.t('0 sec', {}, { langcode: langcode });
-}
+  return output.length ? output : Drupal.t('0 sec', {}, { langcode : langcode });
+};
 
 /**
  * Test to see if the given string contains unicode.
  *
  * @param str
  *   String to test.
+ *
  * @return
  *   true if string contains non ASCII characters.
  *   false if string only contains ASCII characters.
@@ -75,7 +76,7 @@ Drupal.formatInterval = function(interval, granularity, langcode) {
 function advagg_is_unicode(str){
   "use strict";
   for (var i = 0, n = str.length; i < n; i++) {
-    if (str.charCodeAt( i ) > 255) {
+    if (str.charCodeAt(i) > 255) {
       return true;
     }
   }
@@ -83,7 +84,7 @@ function advagg_is_unicode(str){
 }
 
 /**
- * Toggle the advagg cookie
+ * Toggle the advagg cookie.
  *
  * @return
  *   true if hostname contains unicode.
@@ -91,7 +92,7 @@ function advagg_is_unicode(str){
  */
 function advagg_toggle_cookie() {
   "use strict";
-  // Fallback to submitting the form for Unicode domains like ".рф"
+  // Fallback to submitting the form for Unicode domains like ".рф".
   if (advagg_is_unicode(document.location.hostname)) {
     return true;
   }
@@ -117,7 +118,7 @@ function advagg_toggle_cookie() {
       + ' expires=' + expire_date.toGMTString() + ';'
       + ' path=' + Drupal.settings.basePath + ';'
       + ' domain=.' + document.location.hostname + ';';
-    alert(Drupal.t('AdvAgg Bypass Cookie Set for @time.', {'@time': Drupal.formatInterval(bypass_length)}));
+    alert(Drupal.t('AdvAgg Bypass Cookie Set for @time.', {'@time' : Drupal.formatInterval(bypass_length)}));
   }
 
   // Must return false, if returning true then form gets submitted.

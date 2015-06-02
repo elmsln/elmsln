@@ -66,7 +66,7 @@ function imageinfo_cache_get_image_fields($run_alter = TRUE, $use_cache = TRUE) 
  * @return array
  *   An array of what styles are used in this field.
  */
-function imageinfo_cache_get_styles_in_use($instance_field, $run_alter = TRUE, $use_cache = TRUE) {
+function imageinfo_cache_get_styles_in_use(array $instance_field, $run_alter = TRUE, $use_cache = TRUE) {
   $return = array();
   // Do nothing if the image module does not exist.
   if (!module_exists('image')) {
@@ -107,7 +107,7 @@ function imageinfo_cache_get_styles_in_use($instance_field, $run_alter = TRUE, $
 
   // Get the presets used in displays by older lightbox.
   foreach ($instance_field['display'] as $values) {
-    if (!is_array($values) || empty($values['type']) || empty($values['module']) || $values['module'] != 'lightbox2' || substr_count($values['type'], '__') != 3) {
+    if (!is_array($values) || empty($values['type']) || empty($values['module']) || $values['module'] !== 'lightbox2' || substr_count($values['type'], '__') != 3) {
       continue;
     }
     $pieces = explode('__', $values['type']);
@@ -152,7 +152,7 @@ function imageinfo_cache_get_styles_in_use($instance_field, $run_alter = TRUE, $
  * @return array
  *   An array of what styles are used in this field.
  */
-function imageinfo_cache_get_image_styles_in_file_entity($instance_field) {
+function imageinfo_cache_get_image_styles_in_file_entity(array $instance_field) {
   if (!module_exists('file_entity')) {
     return array();
   }
@@ -251,10 +251,10 @@ function imageinfo_cache_get_image_styles_in_views($field_name, $view_links = FA
 
           foreach ($display->display_options['fields'] as $view_field_name => $field_info) {
             // Skip if field is missing needed info.
-            if (   empty($field_info['settings']['image_style'])
-                && empty($field_info['settings']['file_view_mode'])
-                && empty($field_info['view_mode'])
-                  ) {
+            if ( empty($field_info['settings']['image_style'])
+              && empty($field_info['settings']['file_view_mode'])
+              && empty($field_info['view_mode'])
+              ) {
               continue;
             }
 
@@ -322,7 +322,7 @@ function imageinfo_cache_get_image_styles_in_views($field_name, $view_links = FA
           }
         }
       }
-      // Diff the arrays to see if this value is different from the cached value.
+      // Diff arrays to see if this value is different from the cached value.
       if (!empty($cache->data)) {
         $a = imageinfo_cache_array_diff_assoc_recursive($cache->data, $image_styles_in_views);
         $b = imageinfo_cache_array_diff_assoc_recursive($image_styles_in_views, $cache->data);
@@ -368,7 +368,7 @@ function imageinfo_cache_get_image_styles_in_views($field_name, $view_links = FA
  * @return array
  *   An array of what was done.
  */
-function imageinfo_cache_create_image_styles($uri, $instance_field = array(), $styles = array(), $entity_available = TRUE) {
+function imageinfo_cache_create_image_styles($uri, array $instance_field = array(), array $styles = array(), $entity_available = TRUE) {
   $return = array();
 
   // Use files array.
@@ -403,8 +403,8 @@ function imageinfo_cache_create_image_styles($uri, $instance_field = array(), $s
 
       // If the file does not exist, create it.
       if (!file_exists($destination)) {
-        // Don't start generating the image if the derivative already exists or if
-        // generation is in progress in another thread.
+        // Don't start generating the image if the derivative already exists or
+        // if generation is in progress in another thread.
         $lock_name = 'image_style_deliver:' . $style_name . ':' . drupal_hash_base64($uri);
         $lock_acquired = lock_acquire($lock_name);
         if ($lock_acquired && image_style_create_derivative($style_info, $uri, $destination)) {
@@ -441,7 +441,7 @@ function imageinfo_cache_create_image_styles($uri, $instance_field = array(), $s
  *   Returns an array containing all the values from array1 that are not
  *   present in any of the other arrays.
  */
-function imageinfo_cache_array_diff_assoc_recursive($array1, $array2) {
+function imageinfo_cache_array_diff_assoc_recursive(array $array1, array $array2) {
   foreach ($array1 as $key => $value) {
     if (is_array($value)) {
       if (!isset($array2[$key])) {
@@ -452,7 +452,7 @@ function imageinfo_cache_array_diff_assoc_recursive($array1, $array2) {
       }
       else {
         $new_diff = imageinfo_cache_array_diff_assoc_recursive($value, $array2[$key]);
-        if($new_diff != FALSE) {
+        if ($new_diff != FALSE) {
           $difference[$key] = $new_diff;
         }
       }
