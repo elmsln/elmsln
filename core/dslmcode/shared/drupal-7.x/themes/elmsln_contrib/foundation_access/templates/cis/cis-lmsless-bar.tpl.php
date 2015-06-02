@@ -42,11 +42,6 @@
             </a>
           </li>
           <?php endif; ?>
-          <li class="mini-alerts show-for-large-up flex-vertical-right">
-            <?php foreach($admin_status_bar as $admin_status_msg_key => $admin_status_msg) : ?>
-            <span class="<?php print $admin_status_msg_key;?>"><?php print $admin_status_msg;?></span>
-            <?php endforeach ?>
-          </li>
         </ul>
         <!-- Eco Nav Modals ---------------------------------------- -->
 

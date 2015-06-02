@@ -15,10 +15,19 @@
       <div class="inner-wrap">
         <?php if (isset($cis_lmsless['admin_status_bar']) && !empty($cis_lmsless['admin_status_bar'])) : ?>
          <!-- Admin Status Bar -->
-         <div class="hide-for-large-up row full admin-status-bar divider-bottom">
+         <div class="row full admin-status-bar divider-bottom">
             <div class="columns small-12">
               <?php foreach($cis_lmsless['admin_status_bar'] as $admin_status_msg_key => $admin_status_msg) : ?>
-              <span class="<?php print $admin_status_msg_key;?>"><?php print $admin_status_msg;?></span>
+              <span class="<?php print $admin_status_msg_key;?>">
+                <?php print (isset($admin_status_msg['content']) ? $admin_status_msg['content'] : ''); ?>
+                <?php if (isset($admin_status_msg['modal'])) : ?>
+                  <a href="#" data-reveal-id="<?php print $admin_status_msg['modal']; ?>" class="admin-alert">
+                <?php endif; ?>
+                <?php print (isset($admin_status_msg['title']) ? '<span>' . $admin_status_msg['title'] . '</span>' : ''); ?>
+                <?php if (isset($admin_status_msg['modal'])) : ?>
+                  </a>
+                <?php endif; ?>
+              </span>
               <?php endforeach ?>
             </div>
           </div>
