@@ -62,7 +62,7 @@ before_script:
   - sudo mkdir -p /var/www
   - sudo chown -R travis:travis /var/www
   # symlink to the code that was pulled in for testing
-  - ln -s /home/travis/build/btopro/elmsln /var/www/elmsln
+  - ln -s /home/travis/build/elmsln/elmsln /var/www/elmsln
   # move into scope of our instance
   - cd /var/www/elmsln
   # replace config w/ the example provided
