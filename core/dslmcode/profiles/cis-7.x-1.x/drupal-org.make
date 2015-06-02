@@ -6,7 +6,6 @@ core = 7.x
 ; Ulmus Sub-distro
 ; ----------
 projects[ulmus][type] = "module"
-projects[ulmus][destination] = "modules/contrib"
 projects[ulmus][subdir] = "contrib"
 projects[ulmus][download][type] = "git"
 projects[ulmus][download][branch] = "7.x-1.x"
@@ -67,7 +66,7 @@ projects[imagefield_focus][version] = "1.x-dev"
 projects[imagefield_focus][subdir] = "contrib"
 projects[jquery_colorpicker][version] = "1.1"
 projects[jquery_colorpicker][subdir] = "contrib"
-projects[menu_block][version] = "2.5"
+projects[menu_block][version] = "2.6"
 projects[menu_block][subdir] = "contrib"
 projects[menu_position][version] = "1.1"
 projects[menu_position][subdir] = "contrib"
