@@ -1,0 +1,6 @@
+name = CIS RestWS
+description = Adds Restful webservice support to CIS. All this does is create a service account on installation.
+core = 7.x
+package = CIS
+dependencies[] = restws
+dependencies[] = cis_connector

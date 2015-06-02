@@ -1,0 +1,41 @@
+<?php
+/**
+ * @file
+ * Modifications to the default build routine for new service instances.
+ */
+/**
+ * Implements hook_cis_service_instance_options_alter().
+ *
+ * These are recommended defaults when modifying the build routine for service
+ * instances created at run time. These serve as model defaults but if you
+ * want to change these you can disable this module and add your own in
+ * manually.
+ */
+function cis_si_cleanup_cis_service_instance_options_alter(&$options, $course, $service) {
+  // section is critical that it's set correctly so revert it again
+  $options['fr'][] = 'cis_section';
+  // disable site auto-cron run so admin can set policy globally
+  $options['vset'][] = 'cron_safe_threshold 0';
+    // allow users to register without approval
+  $options['vset'][] = 'user_register 1';
+  // don't require email verification
+  $options['vset'][] = 'user_email_verification 0';
+  // preprocess defaults for perofrmance optimization OOTB
+  $options['vset'][] = 'preprocess_css 1';
+  $options['vset'][] = 'preprocess_js 1';
+  // boxes module default so it doesn't use glitchy modal
+  $options['vset'][] = 'boxes_edit_location 2';
+  // disable site update nofity by default so we don't get spammed
+  // this allows having update status on without constantly emailing
+  $options['vdel'][] = 'update_notify_emails';
+  // disable pathauto / path by default for all distros
+  // this is to help elimniate issues with paths changing constantly via
+  // copy/paste as nid's are static
+  $options['dis'][] = 'pathauto';
+  $options['dis'][] = 'path';
+  // uninstall these items
+  $options['pm-uninstall'][] = 'pathauto';
+  $options['pm-uninstall'][] = 'path';
+  // make everything a webservice by default
+  $options['en'][] = 'cis_service_restws';
+}

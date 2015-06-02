@@ -1,0 +1,30 @@
+<?php
+// @file CIS RestWS
+// this is a placeholder as it's only for installing a role
+
+/**
+ * Implements hook_init().
+ */
+function cis_restws_init() {
+  // ensure people don't try and access the data domain backend accidentally
+  // or intentionally as part of an exploit attempt
+  // This is my own paranoia at work but the same will be done to ensure that
+  // the webservice account cannot be used to log into the site outside of
+  // issuing backend calls
+  global $base_url;
+  if (isset($base_url) && user_is_anonymous() && !isset($_SERVER['PHP_AUTH_USER'])) {
+    $distro = variable_get('install_profile', FALSE);
+    $registry = _cis_connector_build_registry($distro);
+    // ensure we have an address to redirect to and a service address and that
+    // the service address is in the current base_url
+    if (
+      isset($registry['address']) &&
+      isset($registry['service_address']) &&
+      strpos($base_url, $registry['service_address']) !== FALSE
+    ) {
+      // redirect to the same path but without the data domain
+      $redirect = str_replace($registry['service_address'], $registry['address'], $base_url);
+      drupal_goto($redirect . '/' . current_path());
+    }
+  }
+}

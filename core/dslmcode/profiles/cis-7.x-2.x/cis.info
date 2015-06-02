@@ -1,0 +1,168 @@
+; Packaging information for cis
+name = "CIS 2.x"
+description = "Online Course Information System"
+exclusive = "1"
+core = "7.x"
+
+; ----------
+; ELMSLN Core Dependencies
+; ----------
+; Core
+dependencies[] = block
+dependencies[] = contextual
+dependencies[] = field
+dependencies[] = field_sql_storage
+dependencies[] = file
+dependencies[] = filter
+dependencies[] = help
+dependencies[] = image
+dependencies[] = list
+dependencies[] = menu
+dependencies[] = node
+dependencies[] = number
+dependencies[] = options
+dependencies[] = system
+dependencies[] = text
+dependencies[] = user
+; Administration
+dependencies[] = admin_menu
+dependencies[] = admin_menu_toolbar
+dependencies[] = admin_menu_dropdown
+dependencies[] = admin_theme
+dependencies[] = module_filter
+; Chaos tool suite
+dependencies[] = ctools
+; Context
+dependencies[] = context
+; Entity
+dependencies[] = replicate
+dependencies[] = entity
+dependencies[] = entity_token
+; Fields
+dependencies[] = entityreference
+dependencies[] = entityreference_prepopulate
+dependencies[] = field_group
+dependencies[] = link
+dependencies[] = prepopulate
+; Menu
+dependencies[] = menu_attributes
+dependencies[] = special_menu_items
+; Other
+dependencies[] = better_formats
+dependencies[] = chosen
+dependencies[] = defaultconfig
+dependencies[] = diff
+dependencies[] = elements
+dependencies[] = fastclick
+dependencies[] = libraries
+dependencies[] = pathauto
+dependencies[] = placeholder
+dependencies[] = restws
+dependencies[] = restws_basic_auth
+dependencies[] = role_export
+dependencies[] = strongarm
+dependencies[] = masquerade
+dependencies[] = token
+dependencies[] = transliteration
+; Input filters
+dependencies[] = typogrify
+dependencies[] = video_filter
+; Performance and scalability
+dependencies[] = advagg
+dependencies[] = advagg_bundler
+dependencies[] = blockcache_alter
+dependencies[] = cis_performance_overrides
+dependencies[] = httprl
+dependencies[] = imageinfo_cache
+dependencies[] = entitycache
+; Textbook
+dependencies[] = textbook
+dependencies[] = textbook_editor
+dependencies[] = textbook_templates
+; UUID
+dependencies[] = uuid
+; User interface
+dependencies[] = addanother
+dependencies[] = back_to_top
+dependencies[] = ckeditor_link
+dependencies[] = ds
+dependencies[] = imce
+dependencies[] = imce_crop
+dependencies[] = imce_mkdir
+dependencies[] = imce_wysiwyg
+dependencies[] = jammer
+dependencies[] = jquery_update
+dependencies[] = logintoboggan
+dependencies[] = wysiwyg
+dependencies[] = wysiwyg_template
+; Views
+dependencies[] = better_exposed_filters
+dependencies[] = views
+dependencies[] = views_autocomplete_filters
+dependencies[] = views_bulk_operations
+; Features
+dependencies[] = features
+dependencies[] = features_override
+; ELMSLN Core
+dependencies[] = cis_connector
+dependencies[] = cis_service_connection
+dependencies[] = cis_service_connection_ux
+dependencies[] = cis_service_roles
+dependencies[] = cis_lmsless
+dependencies[] = foundation_access_ux
+
+
+; ----------
+; CIS Dependencies
+; ----------
+; CIS Core
+dependencies[] = cis_helper
+dependencies[] = cis_lti
+dependencies[] = cis_si_cleanup
+dependencies[] = cis_distro_integrations
+; Content
+dependencies[] = field_redirection
+; Date/Time
+dependencies[] = date
+dependencies[] = date_api
+dependencies[] = date_views
+; Entity
+dependencies[] = replicate
+dependencies[] = replicate_field_collection
+dependencies[] = replicate_ui
+; Fields
+dependencies[] = email
+dependencies[] = field_collection
+dependencies[] = field_hidden
+dependencies[] = field_permissions
+dependencies[] = phone
+dependencies[] = select_or_other
+; Media
+dependencies[] = video_embed_field
+; Other
+dependencies[] = field_collection_table
+dependencies[] = file_formatters
+dependencies[] = imagefield_focus
+dependencies[] = jquery_colorpicker
+dependencies[] = menu_position
+dependencies[] = nocurrent_pass
+dependencies[] = nodeaccess_nodereference
+dependencies[] = nodeaccess_userreference
+dependencies[] = responsive_tables
+dependencies[] = unique_field
+; Path breadcrumbs
+dependencies[] = path_breadcrumbs
+dependencies[] = subpathauto
+; User interface
+dependencies[] = options_element
+; Views
+dependencies[] = editableviews
+dependencies[] = views_field_calc
+dependencies[] = views_fluid_grid
+; Features
+dependencies[] = cis_data
+dependencies[] = cis_displays
+dependencies[] = cis_types
+dependencies[] = cis_users
+dependencies[] = cis_service_roles
+dependencies[] = cis_ux

@@ -1,0 +1,16 @@
+/**
+ * CSS formatting for add offering form.
+ */
+.form-item-courses,
+.form-item-campus,
+.form-item-semester,
+.form-item-year,
+.form-item-access-string {
+  float:left;
+  padding: 1em;
+}
+
+#edit-submit-another {
+  display:block;
+  clear:both;
+}

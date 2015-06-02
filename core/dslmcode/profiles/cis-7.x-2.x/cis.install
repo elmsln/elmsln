@@ -1,0 +1,38 @@
+<?php
+/**
+ * @file
+ * post module install routine to clean up initial setup.
+ */
+
+/**
+ * Implements hook_install().
+ *
+ * Perform actions to set up the site for this profile.
+ */
+function cis_install() {
+  // load the installer inlcude file
+  module_load_include('inc', 'cis_connector', 'includes/elmsln.install');
+  // do some initial clean up from the install
+  _elmsln_installer_preflight();
+  // to standard theme routine
+  _elmsln_installer_theme('cis_theme');
+  // establish admin role
+  _elmsln_installer_admin_role();
+  // standard clean up
+  _elmsln_installer_post_install_cleanup();
+  // especially for now, once you login, this is what you want to do
+  variable_set('site_frontpage', 'cis-quick-setup');
+  // need to set this absolutely last bc of all the default permissions in here
+  module_enable(array('cis_default_permissions'));
+}
+
+/**
+ * Implements hook_update_N().
+ */
+function cis_update_7001(&$sandbox) {
+  // ensure we flip the roles over
+  module_disable(array('cis_roles'));
+  module_enable(array('cis_service_roles', 'role_export'));
+  // need to set this absolutely last bc of all the default permissions in here
+  module_enable(array('cis_default_permissions'));
+}

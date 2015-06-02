@@ -1,0 +1,6 @@
+; $Id: cis_si_cleanup.info
+name = "CIS Service Instance Clean up"
+description = "Recommended build routine modifications for new sites"
+package = "CIS"
+dependencies[] = cis_helper
+core = "7.x"
