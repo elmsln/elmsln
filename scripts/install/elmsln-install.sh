@@ -142,9 +142,10 @@ done
 # modify the CIS distro symlink to point to 2.x instead of 1.x
 # this is because everything prior to release versions was running CIS 1.x
 # this ensures we don't break compatibility w/ those instances since it was a major change
-cd $elmsln/core/dslmcode/stacks/online/profiles
-rm cis
-ln -s ../../../profiles/cis-7.x-2.x cis
+# @todo get this working so we run off 2.x and not 1.x
+#cd $elmsln/core/dslmcode/stacks/online/profiles
+#rm cis
+#ln -s ../../../profiles/cis-7.x-2.x cis
 
 COUNTER=0
 # install authority distributions like online, media, comply
