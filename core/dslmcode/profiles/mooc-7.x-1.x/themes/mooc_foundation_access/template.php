@@ -21,21 +21,6 @@ function mooc_foundation_access_preprocess_page(&$variables) {
 }
 
 /**
- * Implements template_preprocess_region.
- */
-function mooc_foundation_access_preprocess_region(&$variables) {
-// add in the chevron contextual options for the high level
-  if ($variables['region'] == 'left_menu' && function_exists('_cis_service_connection_active_outline') && user_access('access contextual links')) {
-    $node = _cis_service_connection_active_outline();
-    if (isset($node->nid)) {
-      $variables['button_group'][0][] = l(t('Outline'), 'admin/content/book/' . $node->nid);
-      $variables['button_group'][0][] = l(t('Print'), 'book/export/html/' . $node->nid);
-      $variables['button_group'][0][] = l(t('Duplicate'), 'admin/content/book/copy/' . $node->nid);
-    }
-  }
-}
-
-/**
  * Implements menu_link__cis_service_connection_all_active_outline().
  */
 function mooc_foundation_access_menu_link__cis_service_connection_all_active_outline($variables) {

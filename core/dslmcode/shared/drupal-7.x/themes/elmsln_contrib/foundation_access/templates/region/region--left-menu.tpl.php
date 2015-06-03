@@ -25,28 +25,8 @@
  * @see template_process()
  */
 // sort so the items are weighted
-ksort($button_group);
 ?>
 <aside class="left-off-canvas-menu" data-offcanvas>
-  <!-- Menu Item Dropdowns -->
-  <?php if (isset($button_group) && !empty($button_group)): ?>
-    <div id="off-canvas-admin-menu" data-dropdown-content class="f-dropdown content" aria-hidden="true" tabindex="-1">
-     <ul class="button-group">
-     <?php foreach ($button_group as $group) : ?>
-      <?php foreach ($group as $button) : ?>
-        <li><?php print $button; ?></li>
-      <?php endforeach; ?>
-     <?php endforeach; ?>
-     </ul>
-     </div>
-    <nav class="top-bar" data-topbar role="navigation">
-      <section class="right top-bar-section">
-        <a class="off-canvas-toolbar-item toolbar-menu-icon" href="#" data-dropdown="off-canvas-admin-menu" aria-controls="offcanvas-admin-menu" aria-expanded="false">
-          <div class="icon-chevron-down-black off-canvas-toolbar-item-icon"></div>
-        </a>
-     </section>
-    </nav>
-  <?php endif; ?>
   <a role="button" class="left-off-canvas-toggle close"><div class="icon-close-black outline-nav-icon" data-grunticon-embed></div></a>
   <div id="left-off-canvas-wrapper" class="content-outline-navigation in-place-scroll">
   <?php if ($content): ?>

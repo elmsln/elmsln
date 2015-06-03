@@ -20,25 +20,9 @@ function foundation_access_preprocess_page(&$variables) {
   if (module_exists('cis_lmsless')) {
     $variables['cis_lmsless'] = _cis_lmsless_theme_vars();
   }
-  if (_cis_connector_role_grouping('staff') || _cis_connector_role_grouping('teacher')) {
-    $variables['tabs_extras'][100][] = '<a href="#" data-reveal-id="block-menu-menu-course-tools-menu-nav-modal">' . t('Course Settings') . '</a>';
-  }
   // wrap non-node content in an article tag
   if (isset($variables['page']['content']['system_main']['main'])) {
     $variables['page']['content']['system_main']['main']['#markup'] = '<article class="large-12 columns view-mode-full">' . $variables['page']['content']['system_main']['main']['#markup'] . '</article>';
-  }
-}
-
-/**
- * Implements template_preprocess_region.
- */
-function foundation_access_preprocess_region(&$variables) {
-  if (!isset($variables['button_group'])) {
-    $variables['button_group'] = array();
-  }
-  // add in the chevron contextual options for the high level
-  if ($variables['region'] == 'left_menu' && (_cis_connector_role_grouping('staff') || _cis_connector_role_grouping('teacher'))) {
-    $variables['button_group'][100][] = '<a href="#" data-reveal-id="block-menu-menu-course-tools-menu-nav-modal">' . t('Course Settings') . '</a>';
   }
 }
 
@@ -77,9 +61,7 @@ function _foundation_access_single_menu_link($element) {
 }
 
 /**
- * Callback to do most of the work for foundation_access_menu_link__cis_service_connection_all_active_outline()
- * @param  array  $variables  [description]
- * @param  string $word       [description]
+ * Callback to do most of the work for rendering a nested slide out menu
  * @return string             rendered html structure for this menu
  */
 function _foundation_access_menu_outline($variables, $word = FALSE, $number = FALSE) {
@@ -128,7 +110,6 @@ function _foundation_access_menu_outline($variables, $word = FALSE, $number = FA
       $return .= '<h3>' . $element['#title'] . '</h3>' . "\n" .
       '</a>' . "\n" .
       '<ul class="left-submenu level-' . $depth . '-sub">'  . "\n" .
-      _foundation_access_contextual_menu($short, $nid) .
       '<div>'  . "\n";
       $labeltmp = _foundation_access_auto_label_build($word, $number, $counter);
       if (!empty($labeltmp)) {
@@ -144,7 +125,6 @@ function _foundation_access_menu_outline($variables, $word = FALSE, $number = FA
     else {
       $return ='<li class="has-submenu level-' . $depth . '-top ' . implode(' ', $element['#attributes']['class']) . '"><a href="#"><div class="icon-content-black outline-nav-icon"></div><span class="outline-nav-text">' . $element['#title'] . '</span></a>' . "\n" .
       '<ul class="left-submenu level-' . $depth . '-sub">'  . "\n" .
-      _foundation_access_contextual_menu($short, $nid) .
       '<div>'  . "\n";
       $labeltmp = _foundation_access_auto_label_build($word, $number, $counter);
       if (!empty($labeltmp)) {
@@ -181,19 +161,6 @@ function _foundation_access_auto_label_build($word, $number, $counter) {
     }
   }
   return $labeltmp;
-}
-
-/**
- * Helper function to generate the contextual menu structure
- * @param  string $short machine name unique to the page
- * @param  int $nid   node id
- * @return rendered output
- */
-function _foundation_access_contextual_menu($short, $nid) {
-  if (_cis_connector_role_grouping('staff')) {
-    $output = theme('cis_lmsless_contextual_container', array('short' => $short, 'cis_links' => menu_contextual_links('cis_lmsless', 'node', array($nid))));
-    return $output;
-  }
 }
 
 /**

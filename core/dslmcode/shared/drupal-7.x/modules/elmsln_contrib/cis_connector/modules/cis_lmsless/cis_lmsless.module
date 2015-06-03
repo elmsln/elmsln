@@ -34,16 +34,6 @@ function cis_lmsless_page_build(&$page) {
 }
 
 /**
- * Implements preprocess_cis_lmsless_contextual_links()
- */
-function cis_lmsless_preprocess_cis_lmsless_contextual_links(&$variables) {
-  $variables['classes_array'][] = $variables['element']['class'];
-  $variables['title'] = $variables['element']['title'];
-  $variables['content'] = $variables['element']['#children'];
-  $variables['more'] = $variables['element']['more'];
-}
-
-/**
  * Callback to assemble the bar
  */
 function _cis_lmsless_assemble() {
@@ -212,7 +202,7 @@ function _cis_lmsless_theme_vars() {
           );
         }
       }
-      // contextual link for the service creation stuff inline
+      // service creation stuff inline
       $vars['service_option_link'] = _cis_connector_format_address($reg['cis'],  '/' . _cis_connector_course_context(), 'front') . 'service-instances';
     }
     $vars['services'] = $list;
@@ -260,18 +250,6 @@ function cis_lmsless_theme() {
       ),
       'render element' => 'element',
       'template' => 'templates/cis-lmsless-bar',
-    ),
-    'cis_lmsless_contextual_links' => array(
-      'render element' => 'element',
-      'template' => 'templates/cis-lmsless-contextual-links',
-    ),
-    'cis_lmsless_contextual_container' => array(
-      'render element' => 'element',
-      'template' => 'templates/cis-lmsless-contextual-container',
-      'variables' => array(
-        'short' => 'short',
-        'cis_links' => array(),
-      ),
     ),
   );
 }
